@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SettingsCommand
@@ -6,12 +6,20 @@
  * Specialized command item for settings pages.
  */
 
-import * as React from 'react'
-import { Command as CommandPrimitive } from 'cmdk'
-import { Settings, ChevronRight, User, Bell, Palette, Lock, Globe } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { SettingsCommandData } from '@/lib/command-palette/command-types'
-import { CommandShortcut } from './CommandShortcut'
+import * as React from "react";
+import { Command as CommandPrimitive } from "cmdk";
+import {
+  Settings,
+  ChevronRight,
+  User,
+  Bell,
+  Palette,
+  Lock,
+  Globe,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { SettingsCommandData } from "@/lib/command-palette/command-types";
+import { CommandShortcut } from "./CommandShortcut";
 
 // ============================================================================
 // Types
@@ -19,13 +27,13 @@ import { CommandShortcut } from './CommandShortcut'
 
 export interface SettingsCommandProps {
   /** Settings command data */
-  command: SettingsCommandData
+  command: SettingsCommandData;
   /** Whether this item is currently selected */
-  isSelected?: boolean
+  isSelected?: boolean;
   /** Click handler */
-  onSelect?: (command: SettingsCommandData) => void
+  onSelect?: (command: SettingsCommandData) => void;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -39,7 +47,7 @@ const sectionIcons: Record<string, React.ElementType> = {
   privacy: Lock,
   language: Globe,
   general: Settings,
-}
+};
 
 // ============================================================================
 // Component
@@ -51,20 +59,20 @@ export function SettingsCommand({
   onSelect,
   className,
 }: SettingsCommandProps) {
-  const section = command.settingsSection || 'general'
-  const Icon = sectionIcons[section] || Settings
+  const section = command.settingsSection || "general";
+  const Icon = sectionIcons[section] || Settings;
 
   return (
     <CommandPrimitive.Item
       value={command.id}
       onSelect={() => onSelect?.(command)}
       className={cn(
-        'relative flex cursor-pointer select-none items-center gap-3 rounded-md px-3 py-2 text-sm outline-none',
-        'aria-selected:text-accent-foreground aria-selected:bg-accent',
-        'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        'hover:text-accent-foreground hover:bg-accent',
-        isSelected && 'text-accent-foreground bg-accent',
-        className
+        "relative flex cursor-pointer select-none items-center gap-3 rounded-md px-3 py-2 text-sm outline-none",
+        "aria-selected:text-accent-foreground aria-selected:bg-accent",
+        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "hover:text-accent-foreground hover:bg-accent",
+        isSelected && "text-accent-foreground bg-accent",
+        className,
       )}
       data-selected={isSelected}
     >
@@ -77,7 +85,9 @@ export function SettingsCommand({
       <div className="flex-1 overflow-hidden">
         <span className="truncate font-medium">{command.name}</span>
         {command.description && (
-          <p className="truncate text-xs text-muted-foreground">{command.description}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {command.description}
+          </p>
         )}
       </div>
 
@@ -88,7 +98,7 @@ export function SettingsCommand({
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       )}
     </CommandPrimitive.Item>
-  )
+  );
 }
 
-export default SettingsCommand
+export default SettingsCommand;

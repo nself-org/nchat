@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * React Hooks for Feature Flags
@@ -30,8 +30,8 @@
  * ```
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import type { FeatureFlag, FeatureCategory } from '../types'
+import { useState, useEffect, useMemo, useCallback } from "react";
+import type { FeatureFlag, FeatureCategory } from "../types";
 import {
   isFeatureEnabled,
   areAllFeaturesEnabled,
@@ -40,14 +40,14 @@ import {
   getAllFeatureStates,
   getFeatureEnabledMap,
   clearFeatureCache,
-} from '../feature-config'
-import { getFeaturesByCategory } from '../feature-flags'
+} from "../feature-config";
+import { getFeaturesByCategory } from "../feature-flags";
 import type {
   UseFeatureResult,
   UseFeaturesResult,
   FeatureSource,
   FeatureEnabledMap,
-} from '../types'
+} from "../types";
 
 // ============================================================================
 // SINGLE FEATURE HOOK
@@ -73,30 +73,30 @@ import type {
  */
 export function useFeature(feature: FeatureFlag): UseFeatureResult {
   const [state, setState] = useState<{
-    enabled: boolean
-    source: FeatureSource
-    loading: boolean
+    enabled: boolean;
+    source: FeatureSource;
+    loading: boolean;
   }>(() => {
     // Initialize with server-side value
-    const featureState = getFeatureState(feature)
+    const featureState = getFeatureState(feature);
     return {
       enabled: featureState.enabled,
       source: featureState.source,
       loading: false,
-    }
-  })
+    };
+  });
 
   useEffect(() => {
     // Re-check on mount in case of hydration mismatch
-    const featureState = getFeatureState(feature)
+    const featureState = getFeatureState(feature);
     setState({
       enabled: featureState.enabled,
       source: featureState.source,
       loading: false,
-    })
-  }, [feature])
+    });
+  }, [feature]);
 
-  return state
+  return state;
 }
 
 /**
@@ -114,8 +114,8 @@ export function useFeature(feature: FeatureFlag): UseFeatureResult {
  * ```
  */
 export function useFeatureEnabled(feature: FeatureFlag): boolean {
-  const { enabled } = useFeature(feature)
-  return enabled
+  const { enabled } = useFeature(feature);
+  return enabled;
 }
 
 // ============================================================================
@@ -156,42 +156,44 @@ export function useFeatureEnabled(feature: FeatureFlag): boolean {
  * ```
  */
 export function useFeatures(): UseFeaturesResult {
-  const [features, setFeatures] = useState<FeatureEnabledMap>(() => getFeatureEnabledMap())
-  const [loading, setLoading] = useState(false)
+  const [features, setFeatures] = useState<FeatureEnabledMap>(() =>
+    getFeatureEnabledMap(),
+  );
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Re-sync on mount
-    setFeatures(getFeatureEnabledMap())
-  }, [])
+    setFeatures(getFeatureEnabledMap());
+  }, []);
 
   const isEnabled = useCallback(
     (feature: FeatureFlag): boolean => {
-      return features[feature] ?? false
+      return features[feature] ?? false;
     },
-    [features]
-  )
+    [features],
+  );
 
   const areAllEnabled = useCallback(
     (featureList: FeatureFlag[]): boolean => {
-      return featureList.every((f) => features[f] ?? false)
+      return featureList.every((f) => features[f] ?? false);
     },
-    [features]
-  )
+    [features],
+  );
 
   const isAnyEnabled = useCallback(
     (featureList: FeatureFlag[]): boolean => {
-      return featureList.some((f) => features[f] ?? false)
+      return featureList.some((f) => features[f] ?? false);
     },
-    [features]
-  )
+    [features],
+  );
 
   const getEnabledInCategory = useCallback(
     (category: FeatureCategory): FeatureFlag[] => {
-      const categoryFeatures = getFeaturesByCategory(category)
-      return categoryFeatures.filter((f) => features[f] ?? false)
+      const categoryFeatures = getFeaturesByCategory(category);
+      return categoryFeatures.filter((f) => features[f] ?? false);
     },
-    [features]
-  )
+    [features],
+  );
 
   return {
     features,
@@ -200,7 +202,7 @@ export function useFeatures(): UseFeaturesResult {
     areAllEnabled,
     isAnyEnabled,
     getEnabledInCategory,
-  }
+  };
 }
 
 // ============================================================================
@@ -228,7 +230,7 @@ export function useFeatures(): UseFeaturesResult {
  * ```
  */
 export function useAllFeaturesEnabled(features: FeatureFlag[]): boolean {
-  return useMemo(() => areAllFeaturesEnabled(features), [features])
+  return useMemo(() => areAllFeaturesEnabled(features), [features]);
 }
 
 /**
@@ -252,7 +254,7 @@ export function useAllFeaturesEnabled(features: FeatureFlag[]): boolean {
  * ```
  */
 export function useAnyFeatureEnabled(features: FeatureFlag[]): boolean {
-  return useMemo(() => isAnyFeatureEnabled(features), [features])
+  return useMemo(() => isAnyFeatureEnabled(features), [features]);
 }
 
 // ============================================================================
@@ -280,11 +282,13 @@ export function useAnyFeatureEnabled(features: FeatureFlag[]): boolean {
  * }
  * ```
  */
-export function useFeaturesInCategory(category: FeatureCategory): FeatureFlag[] {
+export function useFeaturesInCategory(
+  category: FeatureCategory,
+): FeatureFlag[] {
   return useMemo(() => {
-    const categoryFeatures = getFeaturesByCategory(category)
-    return categoryFeatures.filter(isFeatureEnabled)
-  }, [category])
+    const categoryFeatures = getFeaturesByCategory(category);
+    return categoryFeatures.filter(isFeatureEnabled);
+  }, [category]);
 }
 
 /**
@@ -294,8 +298,8 @@ export function useFeaturesInCategory(category: FeatureCategory): FeatureFlag[] 
  * @returns boolean indicating if category has enabled features
  */
 export function useCategoryHasFeatures(category: FeatureCategory): boolean {
-  const features = useFeaturesInCategory(category)
-  return features.length > 0
+  const features = useFeaturesInCategory(category);
+  return features.length > 0;
 }
 
 // ============================================================================
@@ -332,47 +336,52 @@ export function useCategoryHasFeatures(category: FeatureCategory): boolean {
  * ```
  */
 export function useFeatureManager() {
-  const [features, setFeatures] = useState<FeatureEnabledMap>(() => getFeatureEnabledMap())
-  const [loading, setLoading] = useState(false)
+  const [features, setFeatures] = useState<FeatureEnabledMap>(() =>
+    getFeatureEnabledMap(),
+  );
+  const [loading, setLoading] = useState(false);
 
   const refreshFeatures = useCallback(() => {
-    clearFeatureCache()
-    setFeatures(getFeatureEnabledMap())
-  }, [])
+    clearFeatureCache();
+    setFeatures(getFeatureEnabledMap());
+  }, []);
 
   const toggleFeature = useCallback((feature: FeatureFlag) => {
     setFeatures((prev) => ({
       ...prev,
       [feature]: !prev[feature],
-    }))
-  }, [])
+    }));
+  }, []);
 
-  const setFeatureEnabled = useCallback((feature: FeatureFlag, enabled: boolean) => {
-    setFeatures((prev) => ({
-      ...prev,
-      [feature]: enabled,
-    }))
-  }, [])
+  const setFeatureEnabled = useCallback(
+    (feature: FeatureFlag, enabled: boolean) => {
+      setFeatures((prev) => ({
+        ...prev,
+        [feature]: enabled,
+      }));
+    },
+    [],
+  );
 
   const enableFeatures = useCallback((featuresToEnable: FeatureFlag[]) => {
     setFeatures((prev) => {
-      const updated = { ...prev }
+      const updated = { ...prev };
       for (const f of featuresToEnable) {
-        updated[f] = true
+        updated[f] = true;
       }
-      return updated
-    })
-  }, [])
+      return updated;
+    });
+  }, []);
 
   const disableFeatures = useCallback((featuresToDisable: FeatureFlag[]) => {
     setFeatures((prev) => {
-      const updated = { ...prev }
+      const updated = { ...prev };
       for (const f of featuresToDisable) {
-        updated[f] = false
+        updated[f] = false;
       }
-      return updated
-    })
-  }, [])
+      return updated;
+    });
+  }, []);
 
   return {
     features,
@@ -382,7 +391,7 @@ export function useFeatureManager() {
     setFeatureEnabled,
     enableFeatures,
     disableFeatures,
-  }
+  };
 }
 
 // ============================================================================
@@ -396,15 +405,15 @@ export function useFeatureManager() {
  * @returns Number of enabled features
  */
 export function useEnabledFeatureCount(category?: FeatureCategory): number {
-  const { features } = useFeatures()
+  const { features } = useFeatures();
 
   return useMemo(() => {
     if (category) {
-      const categoryFeatures = getFeaturesByCategory(category)
-      return categoryFeatures.filter((f) => features[f]).length
+      const categoryFeatures = getFeaturesByCategory(category);
+      return categoryFeatures.filter((f) => features[f]).length;
     }
-    return Object.values(features).filter(Boolean).length
-  }, [features, category])
+    return Object.values(features).filter(Boolean).length;
+  }, [features, category]);
 }
 
 /**
@@ -427,13 +436,13 @@ export function useEnabledFeatureCount(category?: FeatureCategory): number {
  */
 export function useFeaturePattern(
   requiredEnabled: FeatureFlag[],
-  requiredDisabled: FeatureFlag[]
+  requiredDisabled: FeatureFlag[],
 ): boolean {
-  const { features } = useFeatures()
+  const { features } = useFeatures();
 
   return useMemo(() => {
-    const allRequiredEnabled = requiredEnabled.every((f) => features[f])
-    const allRequiredDisabled = requiredDisabled.every((f) => !features[f])
-    return allRequiredEnabled && allRequiredDisabled
-  }, [features, requiredEnabled, requiredDisabled])
+    const allRequiredEnabled = requiredEnabled.every((f) => features[f]);
+    const allRequiredDisabled = requiredDisabled.every((f) => !features[f]);
+    return allRequiredEnabled && allRequiredDisabled;
+  }, [features, requiredEnabled, requiredDisabled]);
 }

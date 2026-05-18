@@ -1,124 +1,124 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   USER_PROFILE_FRAGMENT,
   USER_BASIC_FRAGMENT,
   CHANNEL_FULL_FRAGMENT,
   CHANNEL_BASIC_FRAGMENT,
   MESSAGE_BASIC_FRAGMENT,
-} from './fragments'
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type ReportStatus = 'pending' | 'reviewed' | 'resolved' | 'dismissed'
-export type ReportType = 'spam' | 'harassment' | 'inappropriate' | 'other'
-export type ModerationAction = 'warn' | 'mute' | 'ban' | 'delete' | 'dismiss'
+export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
+export type ReportType = "spam" | "harassment" | "inappropriate" | "other";
+export type ModerationAction = "warn" | "mute" | "ban" | "delete" | "dismiss";
 
 export interface AdminStats {
-  totalUsers: number
-  activeUsers: number
-  totalChannels: number
-  totalMessages: number
-  pendingReports: number
-  bannedUsers: number
+  totalUsers: number;
+  activeUsers: number;
+  totalChannels: number;
+  totalMessages: number;
+  pendingReports: number;
+  bannedUsers: number;
 }
 
 export interface AdminUser {
-  id: string
-  username: string
-  displayName: string
-  email: string
-  avatarUrl?: string
+  id: string;
+  username: string;
+  displayName: string;
+  email: string;
+  avatarUrl?: string;
   role: {
-    id: string
-    name: string
-    permissions: string[]
-  }
-  isActive: boolean
-  isBanned: boolean
-  bannedAt?: string
-  bannedUntil?: string
-  banReason?: string
-  createdAt: string
-  lastSeenAt?: string
-  messagesCount: number
-  channelsCount: number
+    id: string;
+    name: string;
+    permissions: string[];
+  };
+  isActive: boolean;
+  isBanned: boolean;
+  bannedAt?: string;
+  bannedUntil?: string;
+  banReason?: string;
+  createdAt: string;
+  lastSeenAt?: string;
+  messagesCount: number;
+  channelsCount: number;
 }
 
 export interface AdminChannel {
-  id: string
-  name: string
-  slug: string
-  description?: string
-  type: string
-  isPrivate: boolean
-  isArchived: boolean
-  createdAt: string
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  type: string;
+  isPrivate: boolean;
+  isArchived: boolean;
+  createdAt: string;
   creator: {
-    id: string
-    username: string
-    displayName: string
-  }
-  membersCount: number
-  messagesCount: number
+    id: string;
+    username: string;
+    displayName: string;
+  };
+  membersCount: number;
+  messagesCount: number;
 }
 
 export interface ModerationReport {
-  id: string
-  type: ReportType
-  reason: string
-  status: ReportStatus
-  createdAt: string
-  resolvedAt?: string
+  id: string;
+  type: ReportType;
+  reason: string;
+  status: ReportStatus;
+  createdAt: string;
+  resolvedAt?: string;
   reporter: {
-    id: string
-    username: string
-    displayName: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+  };
   reportedUser?: {
-    id: string
-    username: string
-    displayName: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+  };
   reportedMessage?: {
-    id: string
-    content: string
+    id: string;
+    content: string;
     user: {
-      id: string
-      username: string
-      displayName: string
-    }
+      id: string;
+      username: string;
+      displayName: string;
+    };
     channel: {
-      id: string
-      name: string
-    }
-  }
+      id: string;
+      name: string;
+    };
+  };
   moderator?: {
-    id: string
-    username: string
-    displayName: string
-  }
-  resolution?: string
+    id: string;
+    username: string;
+    displayName: string;
+  };
+  resolution?: string;
 }
 
 export interface ActivityLogEntry {
-  id: string
-  type: string
-  description: string
-  metadata?: Record<string, unknown>
-  createdAt: string
+  id: string;
+  type: string;
+  description: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
   actor: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
   target?: {
-    type: 'user' | 'channel' | 'message'
-    id: string
-    name: string
-  }
+    type: "user" | "channel" | "message";
+    id: string;
+    name: string;
+  };
 }
 
 // ============================================================================
@@ -158,7 +158,7 @@ export const ADMIN_USER_FRAGMENT = gql`
       }
     }
   }
-`
+`;
 
 export const ADMIN_CHANNEL_FRAGMENT = gql`
   fragment AdminChannel on nchat_channels {
@@ -186,7 +186,7 @@ export const ADMIN_CHANNEL_FRAGMENT = gql`
       }
     }
   }
-`
+`;
 
 export const MODERATION_REPORT_FRAGMENT = gql`
   fragment ModerationReport on nchat_reports {
@@ -226,7 +226,7 @@ export const MODERATION_REPORT_FRAGMENT = gql`
       display_name
     }
   }
-`
+`;
 
 export const ACTIVITY_LOG_FRAGMENT = gql`
   fragment ActivityLog on nchat_activity_logs {
@@ -242,7 +242,7 @@ export const ACTIVITY_LOG_FRAGMENT = gql`
       avatar_url
     }
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -258,12 +258,16 @@ export const GET_ADMIN_STATS = gql`
         count
       }
     }
-    active_users_aggregate: nchat_users_aggregate(where: { is_active: { _eq: true } }) {
+    active_users_aggregate: nchat_users_aggregate(
+      where: { is_active: { _eq: true } }
+    ) {
       aggregate {
         count
       }
     }
-    banned_users_aggregate: nchat_users_aggregate(where: { is_banned: { _eq: true } }) {
+    banned_users_aggregate: nchat_users_aggregate(
+      where: { is_banned: { _eq: true } }
+    ) {
       aggregate {
         count
       }
@@ -278,7 +282,9 @@ export const GET_ADMIN_STATS = gql`
         count
       }
     }
-    pending_reports_aggregate: nchat_reports_aggregate(where: { status: { _eq: "pending" } }) {
+    pending_reports_aggregate: nchat_reports_aggregate(
+      where: { status: { _eq: "pending" } }
+    ) {
       aggregate {
         count
       }
@@ -294,14 +300,16 @@ export const GET_ADMIN_STATS = gql`
         count
       }
     }
-    online_users_count: nchat_user_presence_aggregate(where: { status: { _eq: "online" } }) {
+    online_users_count: nchat_user_presence_aggregate(
+      where: { status: { _eq: "online" } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get users for admin with pagination and search
@@ -356,7 +364,7 @@ export const GET_USERS_ADMIN = gql`
     }
   }
   ${ADMIN_USER_FRAGMENT}
-`
+`;
 
 /**
  * Get single user details for admin
@@ -392,7 +400,7 @@ export const GET_USER_ADMIN = gql`
     }
   }
   ${ADMIN_USER_FRAGMENT}
-`
+`;
 
 /**
  * Get all channels for admin with pagination
@@ -434,7 +442,7 @@ export const GET_CHANNELS_ADMIN = gql`
     }
   }
   ${ADMIN_CHANNEL_FRAGMENT}
-`
+`;
 
 /**
  * Get moderation queue (pending reports)
@@ -463,15 +471,22 @@ export const GET_MODERATION_QUEUE = gql`
     }
   }
   ${MODERATION_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get activity logs
  */
 export const GET_ACTIVITY_LOGS = gql`
-  query GetActivityLogs($limit: Int = 50, $offset: Int = 0, $type: String, $actorId: uuid) {
+  query GetActivityLogs(
+    $limit: Int = 50
+    $offset: Int = 0
+    $type: String
+    $actorId: uuid
+  ) {
     nchat_activity_logs(
-      where: { _and: [{ type: { _eq: $type } }, { actor_id: { _eq: $actorId } }] }
+      where: {
+        _and: [{ type: { _eq: $type } }, { actor_id: { _eq: $actorId } }]
+      }
       order_by: { created_at: desc }
       limit: $limit
       offset: $offset
@@ -480,7 +495,7 @@ export const GET_ACTIVITY_LOGS = gql`
     }
   }
   ${ACTIVITY_LOG_FRAGMENT}
-`
+`;
 
 /**
  * Get available roles
@@ -496,7 +511,7 @@ export const GET_ROLES = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Get analytics data for dashboard
@@ -523,10 +538,14 @@ export const GET_ANALYTICS_DATA = gql`
     }
 
     # Active channels
-    active_channels: nchat_channels(where: { messages: { created_at: { _gte: $startDate } } }) {
+    active_channels: nchat_channels(
+      where: { messages: { created_at: { _gte: $startDate } } }
+    ) {
       id
       name
-      messages_aggregate(where: { created_at: { _gte: $startDate, _lte: $endDate } }) {
+      messages_aggregate(
+        where: { created_at: { _gte: $startDate, _lte: $endDate } }
+      ) {
         aggregate {
           count
         }
@@ -544,7 +563,7 @@ export const GET_ANALYTICS_DATA = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -554,10 +573,20 @@ export const GET_ANALYTICS_DATA = gql`
  * Ban a user
  */
 export const BAN_USER = gql`
-  mutation BanUser($userId: uuid!, $reason: String!, $duration: String, $moderatorId: uuid!) {
+  mutation BanUser(
+    $userId: uuid!
+    $reason: String!
+    $duration: String
+    $moderatorId: uuid!
+  ) {
     update_nchat_users_by_pk(
       pk_columns: { id: $userId }
-      _set: { is_banned: true, banned_at: "now()", banned_until: $duration, ban_reason: $reason }
+      _set: {
+        is_banned: true
+        banned_at: "now()"
+        banned_until: $duration
+        ban_reason: $reason
+      }
     ) {
       id
       is_banned
@@ -578,11 +607,14 @@ export const BAN_USER = gql`
       id
     }
     # Set user offline
-    update_nchat_user_presence(where: { user_id: { _eq: $userId } }, _set: { status: "offline" }) {
+    update_nchat_user_presence(
+      where: { user_id: { _eq: $userId } }
+      _set: { status: "offline" }
+    ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Unban a user
@@ -591,7 +623,12 @@ export const UNBAN_USER = gql`
   mutation UnbanUser($userId: uuid!, $moderatorId: uuid!) {
     update_nchat_users_by_pk(
       pk_columns: { id: $userId }
-      _set: { is_banned: false, banned_at: null, banned_until: null, ban_reason: null }
+      _set: {
+        is_banned: false
+        banned_at: null
+        banned_until: null
+        ban_reason: null
+      }
     ) {
       id
       is_banned
@@ -608,14 +645,17 @@ export const UNBAN_USER = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Change user role
  */
 export const CHANGE_USER_ROLE = gql`
   mutation ChangeUserRole($userId: uuid!, $roleId: uuid!, $moderatorId: uuid!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { role_id: $roleId }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { role_id: $roleId }
+    ) {
       id
       role {
         id
@@ -636,7 +676,7 @@ export const CHANGE_USER_ROLE = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Deactivate a user (soft delete)
@@ -662,7 +702,7 @@ export const DEACTIVATE_USER_ADMIN = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Reactivate a user
@@ -687,7 +727,7 @@ export const REACTIVATE_USER_ADMIN = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Create a report
@@ -717,7 +757,7 @@ export const CREATE_REPORT = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Resolve a moderation report
@@ -761,16 +801,24 @@ export const RESOLVE_REPORT = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Delete a message (admin action)
  */
 export const DELETE_MESSAGE_ADMIN = gql`
-  mutation DeleteMessageAdmin($messageId: uuid!, $moderatorId: uuid!, $reason: String) {
+  mutation DeleteMessageAdmin(
+    $messageId: uuid!
+    $moderatorId: uuid!
+    $reason: String
+  ) {
     update_nchat_messages_by_pk(
       pk_columns: { id: $messageId }
-      _set: { is_deleted: true, deleted_at: "now()", deleted_by_id: $moderatorId }
+      _set: {
+        is_deleted: true
+        deleted_at: "now()"
+        deleted_by_id: $moderatorId
+      }
     ) {
       id
       is_deleted
@@ -787,7 +835,7 @@ export const DELETE_MESSAGE_ADMIN = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Warn a user
@@ -813,7 +861,7 @@ export const WARN_USER = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Delete a channel (admin action)
@@ -835,7 +883,7 @@ export const DELETE_CHANNEL_ADMIN = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Archive a channel (admin action)
@@ -861,7 +909,7 @@ export const ARCHIVE_CHANNEL_ADMIN = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Update workspace settings
@@ -889,7 +937,7 @@ export const UPDATE_WORKSPACE_SETTINGS = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Get workspace settings
@@ -902,7 +950,7 @@ export const GET_WORKSPACE_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -922,7 +970,7 @@ export const REPORTS_SUBSCRIPTION = gql`
     }
   }
   ${MODERATION_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to activity logs
@@ -934,7 +982,7 @@ export const ACTIVITY_LOGS_SUBSCRIPTION = gql`
     }
   }
   ${ACTIVITY_LOG_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to user count changes
@@ -946,10 +994,12 @@ export const USER_COUNT_SUBSCRIPTION = gql`
         count
       }
     }
-    online: nchat_user_presence_aggregate(where: { status: { _eq: "online" } }) {
+    online: nchat_user_presence_aggregate(
+      where: { status: { _eq: "online" } }
+    ) {
       aggregate {
         count
       }
     }
   }
-`
+`;

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo } from "react";
 import {
   Flag,
   Search,
@@ -21,167 +21,182 @@ import {
   Check,
   X,
   Info,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { ComponentPreview, PreviewCard, PreviewGrid } from '@/components/dev/component-preview'
-import { CodeBlock } from '@/components/dev/code-block'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ComponentPreview,
+  PreviewCard,
+  PreviewGrid,
+} from "@/components/dev/component-preview";
+import { CodeBlock } from "@/components/dev/code-block";
 
 // ============================================================================
 // Feature Definitions
 // ============================================================================
 
 interface FeatureFlag {
-  id: string
-  name: string
-  description: string
-  icon: React.ComponentType<{ className?: string }>
-  category: 'channels' | 'messaging' | 'media' | 'organization' | 'advanced'
-  defaultEnabled: boolean
-  dependencies?: string[]
-  requiredBy?: string[]
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  category: "channels" | "messaging" | "media" | "organization" | "advanced";
+  defaultEnabled: boolean;
+  dependencies?: string[];
+  requiredBy?: string[];
 }
 
 const featureFlags: FeatureFlag[] = [
   // Channels
   {
-    id: 'publicChannels',
-    name: 'Public Channels',
-    description: 'Allow creation of public channels visible to all members',
+    id: "publicChannels",
+    name: "Public Channels",
+    description: "Allow creation of public channels visible to all members",
     icon: Hash,
-    category: 'channels',
+    category: "channels",
     defaultEnabled: true,
-    requiredBy: ['channelCategories'],
+    requiredBy: ["channelCategories"],
   },
   {
-    id: 'privateChannels',
-    name: 'Private Channels',
-    description: 'Allow creation of private, invite-only channels',
+    id: "privateChannels",
+    name: "Private Channels",
+    description: "Allow creation of private, invite-only channels",
     icon: Lock,
-    category: 'channels',
+    category: "channels",
     defaultEnabled: true,
   },
   {
-    id: 'directMessages',
-    name: 'Direct Messages',
-    description: 'Enable one-on-one private messaging between users',
+    id: "directMessages",
+    name: "Direct Messages",
+    description: "Enable one-on-one private messaging between users",
     icon: MessageSquare,
-    category: 'channels',
+    category: "channels",
     defaultEnabled: true,
   },
 
   // Messaging
   {
-    id: 'threads',
-    name: 'Message Threads',
-    description: 'Allow threaded replies to keep conversations organized',
+    id: "threads",
+    name: "Message Threads",
+    description: "Allow threaded replies to keep conversations organized",
     icon: MessageCircle,
-    category: 'messaging',
+    category: "messaging",
     defaultEnabled: true,
   },
   {
-    id: 'reactions',
-    name: 'Emoji Reactions',
-    description: 'Allow users to react to messages with emoji',
+    id: "reactions",
+    name: "Emoji Reactions",
+    description: "Allow users to react to messages with emoji",
     icon: Smile,
-    category: 'messaging',
+    category: "messaging",
     defaultEnabled: true,
   },
   {
-    id: 'search',
-    name: 'Message Search',
-    description: 'Enable full-text search across all messages',
+    id: "search",
+    name: "Message Search",
+    description: "Enable full-text search across all messages",
     icon: Search,
-    category: 'messaging',
+    category: "messaging",
     defaultEnabled: true,
   },
   {
-    id: 'messageScheduling',
-    name: 'Message Scheduling',
-    description: 'Schedule messages to be sent at a later time',
+    id: "messageScheduling",
+    name: "Message Scheduling",
+    description: "Schedule messages to be sent at a later time",
     icon: Calendar,
-    category: 'messaging',
+    category: "messaging",
     defaultEnabled: false,
   },
 
   // Media
   {
-    id: 'fileUploads',
-    name: 'File Uploads',
-    description: 'Allow users to upload and share files',
+    id: "fileUploads",
+    name: "File Uploads",
+    description: "Allow users to upload and share files",
     icon: Upload,
-    category: 'media',
+    category: "media",
     defaultEnabled: true,
-    requiredBy: ['customEmojis'],
+    requiredBy: ["customEmojis"],
   },
   {
-    id: 'voiceMessages',
-    name: 'Voice Messages',
-    description: 'Record and send voice messages',
+    id: "voiceMessages",
+    name: "Voice Messages",
+    description: "Record and send voice messages",
     icon: Mic,
-    category: 'media',
+    category: "media",
     defaultEnabled: false,
-    dependencies: ['fileUploads'],
+    dependencies: ["fileUploads"],
   },
   {
-    id: 'videoConferencing',
-    name: 'Video Conferencing',
-    description: 'Start video calls within channels and DMs',
+    id: "videoConferencing",
+    name: "Video Conferencing",
+    description: "Start video calls within channels and DMs",
     icon: Video,
-    category: 'media',
+    category: "media",
     defaultEnabled: false,
   },
   {
-    id: 'customEmojis',
-    name: 'Custom Emoji',
-    description: 'Upload and use custom emoji',
+    id: "customEmojis",
+    name: "Custom Emoji",
+    description: "Upload and use custom emoji",
     icon: Sparkles,
-    category: 'media',
+    category: "media",
     defaultEnabled: false,
-    dependencies: ['fileUploads', 'reactions'],
+    dependencies: ["fileUploads", "reactions"],
   },
 
   // Organization
   {
-    id: 'guestAccess',
-    name: 'Guest Access',
-    description: 'Allow external guests with limited access',
+    id: "guestAccess",
+    name: "Guest Access",
+    description: "Allow external guests with limited access",
     icon: Users,
-    category: 'organization',
+    category: "organization",
     defaultEnabled: false,
   },
   {
-    id: 'inviteLinks',
-    name: 'Invite Links',
-    description: 'Generate shareable invite links for channels',
+    id: "inviteLinks",
+    name: "Invite Links",
+    description: "Generate shareable invite links for channels",
     icon: Link,
-    category: 'organization',
+    category: "organization",
     defaultEnabled: true,
   },
   {
-    id: 'channelCategories',
-    name: 'Channel Categories',
-    description: 'Organize channels into collapsible categories',
+    id: "channelCategories",
+    name: "Channel Categories",
+    description: "Organize channels into collapsible categories",
     icon: FolderOpen,
-    category: 'organization',
+    category: "organization",
     defaultEnabled: false,
-    dependencies: ['publicChannels'],
+    dependencies: ["publicChannels"],
   },
-]
+];
 
 const categoryLabels = {
-  channels: 'Channels',
-  messaging: 'Messaging',
-  media: 'Media & Files',
-  organization: 'Organization',
-  advanced: 'Advanced',
-}
+  channels: "Channels",
+  messaging: "Messaging",
+  media: "Media & Files",
+  organization: "Organization",
+  advanced: "Advanced",
+};
 
 // ============================================================================
 // Code Examples
@@ -206,7 +221,7 @@ export interface AppConfig {
     messageScheduling: boolean
     videoConferencing: boolean
   }
-}`
+}`;
 
 const featureUsageCode = `// Using feature flags in components
 import { useAppConfig } from '@/contexts/app-config-context'
@@ -229,7 +244,7 @@ function MessageActions({ message }) {
       )}
     </div>
   )
-}`
+}`;
 
 const featureGuardCode = `// Feature guard component
 export function FeatureGuard({
@@ -253,90 +268,94 @@ export function FeatureGuard({
 // Usage
 <FeatureGuard feature="voiceMessages">
   <VoiceRecordButton />
-</FeatureGuard>`
+</FeatureGuard>`;
 
 // ============================================================================
 // Page Component
 // ============================================================================
 
 export default function FeaturesPage() {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
   const [enabledFeatures, setEnabledFeatures] = useState<Set<string>>(() => {
-    const defaults = new Set<string>()
+    const defaults = new Set<string>();
     featureFlags.forEach((f) => {
-      if (f.defaultEnabled) defaults.add(f.id)
-    })
-    return defaults
-  })
+      if (f.defaultEnabled) defaults.add(f.id);
+    });
+    return defaults;
+  });
 
   // Filter features based on search
   const filteredFeatures = useMemo(() => {
-    if (!searchQuery) return featureFlags
-    const query = searchQuery.toLowerCase()
+    if (!searchQuery) return featureFlags;
+    const query = searchQuery.toLowerCase();
     return featureFlags.filter(
-      (f) => f.name.toLowerCase().includes(query) || f.description.toLowerCase().includes(query)
-    )
-  }, [searchQuery])
+      (f) =>
+        f.name.toLowerCase().includes(query) ||
+        f.description.toLowerCase().includes(query),
+    );
+  }, [searchQuery]);
 
   // Group features by category
   const featuresByCategory = useMemo(() => {
-    const grouped: Record<string, FeatureFlag[]> = {}
+    const grouped: Record<string, FeatureFlag[]> = {};
     filteredFeatures.forEach((f) => {
-      if (!grouped[f.category]) grouped[f.category] = []
-      grouped[f.category].push(f)
-    })
-    return grouped
-  }, [filteredFeatures])
+      if (!grouped[f.category]) grouped[f.category] = [];
+      grouped[f.category].push(f);
+    });
+    return grouped;
+  }, [filteredFeatures]);
 
   // Toggle a feature
   const toggleFeature = (featureId: string) => {
-    const feature = featureFlags.find((f) => f.id === featureId)
-    if (!feature) return
+    const feature = featureFlags.find((f) => f.id === featureId);
+    if (!feature) return;
 
     setEnabledFeatures((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
 
       if (next.has(featureId)) {
         // Disabling - check if required by other enabled features
         const blockedBy = featureFlags.filter(
-          (f) => f.dependencies?.includes(featureId) && next.has(f.id)
-        )
+          (f) => f.dependencies?.includes(featureId) && next.has(f.id),
+        );
         if (blockedBy.length > 0) {
           // Also disable dependent features
-          blockedBy.forEach((f) => next.delete(f.id))
+          blockedBy.forEach((f) => next.delete(f.id));
         }
-        next.delete(featureId)
+        next.delete(featureId);
       } else {
         // Enabling - check dependencies
         if (feature.dependencies) {
-          feature.dependencies.forEach((dep) => next.add(dep))
+          feature.dependencies.forEach((dep) => next.add(dep));
         }
-        next.add(featureId)
+        next.add(featureId);
       }
 
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   // Check if feature can be disabled
   const getFeatureStatus = (feature: FeatureFlag) => {
-    const isEnabled = enabledFeatures.has(feature.id)
+    const isEnabled = enabledFeatures.has(feature.id);
 
     // Check if dependencies are met
-    const missingDeps = feature.dependencies?.filter((dep) => !enabledFeatures.has(dep))
+    const missingDeps = feature.dependencies?.filter(
+      (dep) => !enabledFeatures.has(dep),
+    );
 
     // Check if required by enabled features
     const requiredByEnabled = featureFlags.filter(
-      (f) => f.dependencies?.includes(feature.id) && enabledFeatures.has(f.id)
-    )
+      (f) => f.dependencies?.includes(feature.id) && enabledFeatures.has(f.id),
+    );
 
     return {
       isEnabled,
       missingDeps,
       requiredByEnabled,
       canToggle: !requiredByEnabled.length || !isEnabled,
-    }
-  }
+    };
+  };
 
   return (
     <TooltipProvider>
@@ -350,8 +369,8 @@ export default function FeaturesPage() {
             <h1 className="text-3xl font-bold tracking-tight">Feature Flags</h1>
           </div>
           <p className="text-muted-foreground">
-            Configure which features are available in your nself-chat deployment. Toggle features
-            on/off to customize the user experience.
+            Configure which features are available in your nself-chat
+            deployment. Toggle features on/off to customize the user experience.
           </p>
         </div>
 
@@ -361,7 +380,8 @@ export default function FeaturesPage() {
             {enabledFeatures.size} / {featureFlags.length} enabled
           </Badge>
           <Badge variant="outline" className="text-sm">
-            {featureFlags.filter((f) => f.defaultEnabled).length} default enabled
+            {featureFlags.filter((f) => f.defaultEnabled).length} default
+            enabled
           </Badge>
         </div>
 
@@ -388,15 +408,15 @@ export default function FeaturesPage() {
               </h2>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {features.map((feature) => {
-                  const Icon = feature.icon
-                  const status = getFeatureStatus(feature)
+                  const Icon = feature.icon;
+                  const status = getFeatureStatus(feature);
 
                   return (
                     <Card
                       key={feature.id}
                       className={cn(
-                        'transition-all',
-                        status.isEnabled && 'border-primary/30 bg-primary/5'
+                        "transition-all",
+                        status.isEnabled && "border-primary/30 bg-primary/5",
                       )}
                     >
                       <CardContent className="pt-6">
@@ -404,20 +424,25 @@ export default function FeaturesPage() {
                           <div className="flex items-start gap-3">
                             <div
                               className={cn(
-                                'rounded-lg p-2',
-                                status.isEnabled ? 'bg-primary/10' : 'bg-muted'
+                                "rounded-lg p-2",
+                                status.isEnabled ? "bg-primary/10" : "bg-muted",
                               )}
                             >
                               <Icon
                                 className={cn(
-                                  'h-5 w-5',
-                                  status.isEnabled ? 'text-primary' : 'text-muted-foreground'
+                                  "h-5 w-5",
+                                  status.isEnabled
+                                    ? "text-primary"
+                                    : "text-muted-foreground",
                                 )}
                               />
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <Label htmlFor={feature.id} className="cursor-pointer font-medium">
+                                <Label
+                                  htmlFor={feature.id}
+                                  className="cursor-pointer font-medium"
+                                >
                                   {feature.name}
                                 </Label>
                                 {feature.dependencies && (
@@ -427,10 +452,15 @@ export default function FeaturesPage() {
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <p className="text-xs">
-                                        Requires:{' '}
+                                        Requires:{" "}
                                         {feature.dependencies
-                                          .map((d) => featureFlags.find((f) => f.id === d)?.name)
-                                          .join(', ')}
+                                          .map(
+                                            (d) =>
+                                              featureFlags.find(
+                                                (f) => f.id === d,
+                                              )?.name,
+                                          )
+                                          .join(", ")}
                                       </p>
                                     </TooltipContent>
                                   </Tooltip>
@@ -441,18 +471,26 @@ export default function FeaturesPage() {
                               </p>
 
                               {/* Dependency warnings */}
-                              {status.missingDeps && status.missingDeps.length > 0 && (
-                                <p className="mt-2 text-xs text-amber-500">
-                                  Will also enable:{' '}
-                                  {status.missingDeps
-                                    .map((d) => featureFlags.find((f) => f.id === d)?.name)
-                                    .join(', ')}
-                                </p>
-                              )}
+                              {status.missingDeps &&
+                                status.missingDeps.length > 0 && (
+                                  <p className="mt-2 text-xs text-amber-500">
+                                    Will also enable:{" "}
+                                    {status.missingDeps
+                                      .map(
+                                        (d) =>
+                                          featureFlags.find((f) => f.id === d)
+                                            ?.name,
+                                      )
+                                      .join(", ")}
+                                  </p>
+                                )}
 
                               {status.requiredByEnabled.length > 0 && (
                                 <p className="mt-2 text-xs text-muted-foreground">
-                                  Used by: {status.requiredByEnabled.map((f) => f.name).join(', ')}
+                                  Used by:{" "}
+                                  {status.requiredByEnabled
+                                    .map((f) => f.name)
+                                    .join(", ")}
                                 </p>
                               )}
                             </div>
@@ -466,7 +504,7 @@ export default function FeaturesPage() {
                         </div>
                       </CardContent>
                     </Card>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -484,7 +522,10 @@ export default function FeaturesPage() {
                 {featureFlags
                   .filter((f) => f.dependencies && f.dependencies.length > 0)
                   .map((feature) => (
-                    <div key={feature.id} className="flex items-center gap-4 text-sm">
+                    <div
+                      key={feature.id}
+                      className="flex items-center gap-4 text-sm"
+                    >
                       <div className="flex min-w-[200px] items-center gap-2">
                         {enabledFeatures.has(feature.id) ? (
                           <Check className="h-4 w-4 text-green-500" />
@@ -493,7 +534,8 @@ export default function FeaturesPage() {
                         )}
                         <span
                           className={cn(
-                            !enabledFeatures.has(feature.id) && 'text-muted-foreground'
+                            !enabledFeatures.has(feature.id) &&
+                              "text-muted-foreground",
                           )}
                         >
                           {feature.name}
@@ -503,11 +545,17 @@ export default function FeaturesPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">requires</span>
                         {feature.dependencies?.map((dep, i) => {
-                          const depFeature = featureFlags.find((f) => f.id === dep)
+                          const depFeature = featureFlags.find(
+                            (f) => f.id === dep,
+                          );
                           return (
                             <span key={dep}>
                               <Badge
-                                variant={enabledFeatures.has(dep) ? 'default' : 'outline'}
+                                variant={
+                                  enabledFeatures.has(dep)
+                                    ? "default"
+                                    : "outline"
+                                }
                                 className="text-xs"
                               >
                                 {depFeature?.name}
@@ -516,7 +564,7 @@ export default function FeaturesPage() {
                                 <span className="mx-1">+</span>
                               )}
                             </span>
-                          )
+                          );
                         })}
                       </div>
                     </div>
@@ -535,10 +583,16 @@ export default function FeaturesPage() {
           <Card>
             <CardHeader>
               <CardTitle>Feature Configuration</CardTitle>
-              <CardDescription>Features are configured in the AppConfig interface.</CardDescription>
+              <CardDescription>
+                Features are configured in the AppConfig interface.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <CodeBlock code={featureConfigCode} language="typescript" filename="app-config.ts" />
+              <CodeBlock
+                code={featureConfigCode}
+                language="typescript"
+                filename="app-config.ts"
+              />
             </CardContent>
           </Card>
 
@@ -550,17 +604,27 @@ export default function FeaturesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <CodeBlock code={featureUsageCode} language="tsx" filename="message-actions.tsx" />
+              <CodeBlock
+                code={featureUsageCode}
+                language="tsx"
+                filename="message-actions.tsx"
+              />
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle>Feature Guard Component</CardTitle>
-              <CardDescription>A reusable component for feature-gated content.</CardDescription>
+              <CardDescription>
+                A reusable component for feature-gated content.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <CodeBlock code={featureGuardCode} language="tsx" filename="feature-guard.tsx" />
+              <CodeBlock
+                code={featureGuardCode}
+                language="tsx"
+                filename="feature-guard.tsx"
+              />
             </CardContent>
           </Card>
         </section>
@@ -571,25 +635,25 @@ export default function FeaturesPage() {
           <PreviewGrid cols={3}>
             <PreviewCard title="Default Conservatively">
               <p className="text-sm text-muted-foreground">
-                Start with core features enabled and let users opt into advanced features through
-                the setup wizard.
+                Start with core features enabled and let users opt into advanced
+                features through the setup wizard.
               </p>
             </PreviewCard>
             <PreviewCard title="Handle Dependencies">
               <p className="text-sm text-muted-foreground">
-                When disabling a feature, consider its dependents. Provide clear warnings about
-                cascading effects.
+                When disabling a feature, consider its dependents. Provide clear
+                warnings about cascading effects.
               </p>
             </PreviewCard>
             <PreviewCard title="Graceful Degradation">
               <p className="text-sm text-muted-foreground">
-                Components should handle disabled features gracefully, hiding UI elements rather
-                than showing errors.
+                Components should handle disabled features gracefully, hiding UI
+                elements rather than showing errors.
               </p>
             </PreviewCard>
           </PreviewGrid>
         </section>
       </div>
     </TooltipProvider>
-  )
+  );
 }

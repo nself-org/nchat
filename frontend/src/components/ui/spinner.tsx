@@ -1,27 +1,29 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 const spinnerVariants = cva(
-  'inline-block animate-spin rounded-full border-2 border-current border-t-transparent text-muted-foreground',
+  "inline-block animate-spin rounded-full border-2 border-current border-t-transparent text-muted-foreground",
   {
     variants: {
       size: {
-        sm: 'h-4 w-4',
-        md: 'h-6 w-6',
-        lg: 'h-8 w-8',
+        sm: "h-4 w-4",
+        md: "h-6 w-6",
+        lg: "h-8 w-8",
       },
     },
     defaultVariants: {
-      size: 'md',
+      size: "md",
     },
-  }
-)
+  },
+);
 
 export interface SpinnerProps
-  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof spinnerVariants> {}
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof spinnerVariants> {}
 
 const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
   ({ className, size, ...props }, ref) => (
@@ -34,8 +36,8 @@ const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
     >
       <span className="sr-only">Loading...</span>
     </div>
-  )
-)
-Spinner.displayName = 'Spinner'
+  ),
+);
+Spinner.displayName = "Spinner";
 
-export { Spinner, spinnerVariants }
+export { Spinner, spinnerVariants };

@@ -1,7 +1,17 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useRef, useEffect } from 'react'
-import { Loader2, Upload, X, Copy, Check, Hash, AlertCircle, RefreshCw, Trash2 } from 'lucide-react'
+import { useState, useCallback, useRef, useEffect } from "react";
+import {
+  Loader2,
+  Upload,
+  X,
+  Copy,
+  Check,
+  Hash,
+  AlertCircle,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +19,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,54 +29,59 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import {
   Webhook,
   WebhookStatus,
   UpdateWebhookFormData,
   copyWebhookUrl,
   getWebhookStatusColor,
-} from '@/lib/webhooks'
+} from "@/lib/webhooks";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface Channel {
-  id: string
-  name: string
-  slug: string
-  type?: string
-  is_private?: boolean
+  id: string;
+  name: string;
+  slug: string;
+  type?: string;
+  is_private?: boolean;
 }
 
 export interface WebhookSettingsModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  webhook: Webhook | null
-  channels: Channel[]
-  onUpdate: (data: UpdateWebhookFormData) => Promise<Webhook | null>
-  onRegenerateUrl: (id: string) => Promise<Webhook | null>
-  onDelete: (id: string) => Promise<boolean>
-  isLoading?: boolean
-  error?: string | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  webhook: Webhook | null;
+  channels: Channel[];
+  onUpdate: (data: UpdateWebhookFormData) => Promise<Webhook | null>;
+  onRegenerateUrl: (id: string) => Promise<Webhook | null>;
+  onDelete: (id: string) => Promise<boolean>;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 // ============================================================================
@@ -84,32 +99,32 @@ export function WebhookSettingsModal({
   isLoading = false,
   error = null,
 }: WebhookSettingsModalProps) {
-  const [name, setName] = useState('')
-  const [channelId, setChannelId] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  const [status, setStatus] = useState<WebhookStatus>('active')
-  const [copied, setCopied] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
-  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [isRegenerating, setIsRegenerating] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [name, setName] = useState("");
+  const [channelId, setChannelId] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [status, setStatus] = useState<WebhookStatus>("active");
+  const [copied, setCopied] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize form with webhook data
   useEffect(() => {
     if (webhook) {
-      setName(webhook.name)
-      setChannelId(webhook.channel_id)
-      setAvatarUrl(webhook.avatar_url || '')
-      setAvatarPreview(webhook.avatar_url || null)
-      setStatus(webhook.status)
-      setHasChanges(false)
-      setValidationError(null)
+      setName(webhook.name);
+      setChannelId(webhook.channel_id);
+      setAvatarUrl(webhook.avatar_url || "");
+      setAvatarPreview(webhook.avatar_url || null);
+      setStatus(webhook.status);
+      setHasChanges(false);
+      setValidationError(null);
     }
-  }, [webhook])
+  }, [webhook]);
 
   // Track changes
   useEffect(() => {
@@ -117,66 +132,66 @@ export function WebhookSettingsModal({
       const changed =
         name !== webhook.name ||
         channelId !== webhook.channel_id ||
-        avatarUrl !== (webhook.avatar_url || '') ||
-        status !== webhook.status
-      setHasChanges(changed)
+        avatarUrl !== (webhook.avatar_url || "") ||
+        status !== webhook.status;
+      setHasChanges(changed);
     }
-  }, [webhook, name, channelId, avatarUrl, status])
+  }, [webhook, name, channelId, avatarUrl, status]);
 
   const handleClose = useCallback(() => {
     if (!isLoading && !isRegenerating && !isDeleting) {
-      onOpenChange(false)
+      onOpenChange(false);
     }
-  }, [isLoading, isRegenerating, isDeleting, onOpenChange])
+  }, [isLoading, isRegenerating, isDeleting, onOpenChange]);
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setValidationError('Please upload an image file')
-      return
+    if (!file.type.startsWith("image/")) {
+      setValidationError("Please upload an image file");
+      return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setValidationError('Image must be less than 2MB')
-      return
+      setValidationError("Image must be less than 2MB");
+      return;
     }
 
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (e) => {
-      const dataUrl = e.target?.result as string
-      setAvatarPreview(dataUrl)
-      setAvatarUrl(dataUrl)
-    }
-    reader.readAsDataURL(file)
-    setValidationError(null)
-  }
+      const dataUrl = e.target?.result as string;
+      setAvatarPreview(dataUrl);
+      setAvatarUrl(dataUrl);
+    };
+    reader.readAsDataURL(file);
+    setValidationError(null);
+  };
 
   const handleRemoveAvatar = () => {
-    setAvatarPreview(null)
-    setAvatarUrl('')
+    setAvatarPreview(null);
+    setAvatarUrl("");
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!webhook) return
+    if (!webhook) return;
 
     if (!name.trim()) {
-      setValidationError('Please enter a webhook name')
-      return
+      setValidationError("Please enter a webhook name");
+      return;
     }
 
     if (!channelId) {
-      setValidationError('Please select a target channel')
-      return
+      setValidationError("Please select a target channel");
+      return;
     }
 
-    setValidationError(null)
+    setValidationError(null);
 
     const result = await onUpdate({
       id: webhook.id,
@@ -184,57 +199,57 @@ export function WebhookSettingsModal({
       channelId,
       avatarUrl: avatarUrl || undefined,
       status,
-    })
+    });
 
     if (result) {
-      handleClose()
+      handleClose();
     }
-  }
+  };
 
   const handleRegenerateUrl = async () => {
-    if (!webhook) return
+    if (!webhook) return;
 
-    setIsRegenerating(true)
-    await onRegenerateUrl(webhook.id)
-    setIsRegenerating(false)
-    setShowRegenerateConfirm(false)
-  }
+    setIsRegenerating(true);
+    await onRegenerateUrl(webhook.id);
+    setIsRegenerating(false);
+    setShowRegenerateConfirm(false);
+  };
 
   const handleDelete = async () => {
-    if (!webhook) return
+    if (!webhook) return;
 
-    setIsDeleting(true)
-    const success = await onDelete(webhook.id)
-    setIsDeleting(false)
-    setShowDeleteConfirm(false)
+    setIsDeleting(true);
+    const success = await onDelete(webhook.id);
+    setIsDeleting(false);
+    setShowDeleteConfirm(false);
 
     if (success) {
-      handleClose()
+      handleClose();
     }
-  }
+  };
 
   const handleCopyUrl = async () => {
     if (webhook) {
-      const success = await copyWebhookUrl(webhook.url)
+      const success = await copyWebhookUrl(webhook.url);
       if (success) {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
     }
-  }
+  };
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
-  if (!webhook) return null
+  if (!webhook) return null;
 
-  const statusVariant = getWebhookStatusColor(webhook.status)
+  const statusVariant = getWebhookStatusColor(webhook.status);
 
   return (
     <>
@@ -263,7 +278,9 @@ export function WebhookSettingsModal({
                 {(error || validationError) && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error || validationError}</AlertDescription>
+                    <AlertDescription>
+                      {error || validationError}
+                    </AlertDescription>
                   </Alert>
                 )}
 
@@ -286,7 +303,7 @@ export function WebhookSettingsModal({
                     <Avatar className="h-16 w-16">
                       <AvatarImage src={avatarPreview || undefined} />
                       <AvatarFallback className="text-lg">
-                        {name ? getInitials(name) : 'WH'}
+                        {name ? getInitials(name) : "WH"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-2">
@@ -328,7 +345,11 @@ export function WebhookSettingsModal({
                 {/* Target Channel */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-channel">Target Channel</Label>
-                  <Select value={channelId} onValueChange={setChannelId} disabled={isLoading}>
+                  <Select
+                    value={channelId}
+                    onValueChange={setChannelId}
+                    disabled={isLoading}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a channel" />
                     </SelectTrigger>
@@ -368,7 +389,11 @@ export function WebhookSettingsModal({
                 <div className="space-y-2">
                   <Label>Webhook URL</Label>
                   <div className="flex gap-2">
-                    <Input value={webhook.url} readOnly className="font-mono text-sm" />
+                    <Input
+                      value={webhook.url}
+                      readOnly
+                      className="font-mono text-sm"
+                    />
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -386,7 +411,7 @@ export function WebhookSettingsModal({
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>{copied ? 'Copied!' : 'Copy URL'}</p>
+                          <p>{copied ? "Copied!" : "Copy URL"}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -409,7 +434,7 @@ export function WebhookSettingsModal({
                         Saving...
                       </>
                     ) : (
-                      'Save Changes'
+                      "Save Changes"
                     )}
                   </Button>
                 </DialogFooter>
@@ -424,8 +449,8 @@ export function WebhookSettingsModal({
                   Regenerate Webhook URL
                 </h4>
                 <p className="mt-1 text-sm text-orange-600 dark:text-orange-400">
-                  This will generate a new URL and invalidate the current one. Any existing
-                  integrations will stop working until updated.
+                  This will generate a new URL and invalidate the current one.
+                  Any existing integrations will stop working until updated.
                 </p>
                 <Button
                   variant="outline"
@@ -451,10 +476,12 @@ export function WebhookSettingsModal({
 
               {/* Delete Webhook */}
               <div className="border-destructive/50 bg-destructive/10 rounded-lg border p-4">
-                <h4 className="font-semibold text-destructive">Delete Webhook</h4>
+                <h4 className="font-semibold text-destructive">
+                  Delete Webhook
+                </h4>
                 <p className="text-destructive/80 mt-1 text-sm">
-                  Permanently delete this webhook. This action cannot be undone. All delivery
-                  history will also be deleted.
+                  Permanently delete this webhook. This action cannot be undone.
+                  All delivery history will also be deleted.
                 </p>
                 <Button
                   variant="destructive"
@@ -481,17 +508,23 @@ export function WebhookSettingsModal({
       </Dialog>
 
       {/* Regenerate Confirmation Dialog */}
-      <AlertDialog open={showRegenerateConfirm} onOpenChange={setShowRegenerateConfirm}>
+      <AlertDialog
+        open={showRegenerateConfirm}
+        onOpenChange={setShowRegenerateConfirm}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Regenerate Webhook URL?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will generate a new webhook URL. The current URL will stop working immediately.
-              Make sure to update any integrations that use this webhook.
+              This will generate a new webhook URL. The current URL will stop
+              working immediately. Make sure to update any integrations that use
+              this webhook.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isRegenerating}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isRegenerating}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRegenerateUrl}
               disabled={isRegenerating}
@@ -503,7 +536,7 @@ export function WebhookSettingsModal({
                   Regenerating...
                 </>
               ) : (
-                'Regenerate URL'
+                "Regenerate URL"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -516,8 +549,9 @@ export function WebhookSettingsModal({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Webhook?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{webhook.name}&quot;? This action cannot be
-              undone. All delivery history will also be permanently deleted.
+              Are you sure you want to delete &quot;{webhook.name}&quot;? This
+              action cannot be undone. All delivery history will also be
+              permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -533,14 +567,14 @@ export function WebhookSettingsModal({
                   Deleting...
                 </>
               ) : (
-                'Delete Webhook'
+                "Delete Webhook"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
-export default WebhookSettingsModal
+export default WebhookSettingsModal;

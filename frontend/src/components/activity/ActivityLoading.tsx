@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ActivityLoading Component
@@ -6,19 +6,21 @@
  * Loading skeleton for activity feed
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
-import type { ActivityLoadingProps } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { ActivityLoadingProps } from "@/lib/activity/activity-types";
 
 /**
  * Single activity item skeleton
  */
 function ActivityItemSkeleton({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={cn('flex gap-3 rounded-lg p-3', compact && 'gap-2 p-2')}>
+    <div className={cn("flex gap-3 rounded-lg p-3", compact && "gap-2 p-2")}>
       {/* Avatar skeleton */}
-      <Skeleton className={cn('shrink-0 rounded-full', compact ? 'h-6 w-6' : 'h-8 w-8')} />
+      <Skeleton
+        className={cn("shrink-0 rounded-full", compact ? "h-6 w-6" : "h-8 w-8")}
+      />
 
       {/* Content skeleton */}
       <div className="flex-1 space-y-2">
@@ -36,7 +38,7 @@ function ActivityItemSkeleton({ compact = false }: { compact?: boolean }) {
         {!compact && <Skeleton className="h-10 w-full rounded-md" />}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -49,40 +51,44 @@ function DateSeparatorSkeleton() {
       <Skeleton className="h-3 w-16" />
       <div className="h-px flex-1 bg-border" />
     </div>
-  )
+  );
 }
 
-export function ActivityLoading({ count = 5, compact = false, className }: ActivityLoadingProps) {
+export function ActivityLoading({
+  count = 5,
+  compact = false,
+  className,
+}: ActivityLoadingProps) {
   // Generate a mix of items and separators
   const items = React.useMemo(() => {
-    const result: ('item' | 'separator')[] = []
+    const result: ("item" | "separator")[] = [];
 
     // Add a separator at the start
-    result.push('separator')
+    result.push("separator");
 
     for (let i = 0; i < count; i++) {
-      result.push('item')
+      result.push("item");
 
       // Add separators periodically to simulate date grouping
       if (i === 2 || i === Math.floor(count * 0.6)) {
-        result.push('separator')
+        result.push("separator");
       }
     }
 
-    return result
-  }, [count])
+    return result;
+  }, [count]);
 
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn("space-y-1", className)}>
       {items.map((type, index) =>
-        type === 'separator' ? (
+        type === "separator" ? (
           <DateSeparatorSkeleton key={`separator-${index}`} />
         ) : (
           <ActivityItemSkeleton key={`item-${index}`} compact={compact} />
-        )
+        ),
       )}
     </div>
-  )
+  );
 }
 
 /**
@@ -107,7 +113,7 @@ export function ActivityPageLoading() {
       {/* Activity list skeleton */}
       <ActivityLoading count={8} />
     </div>
-  )
+  );
 }
 
 /**
@@ -117,14 +123,14 @@ export function ActivityInlineLoading({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground',
-        className
+        "flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground",
+        className,
       )}
     >
       <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
       <span>Loading more activities...</span>
     </div>
-  )
+  );
 }
 
-export default ActivityLoading
+export default ActivityLoading;

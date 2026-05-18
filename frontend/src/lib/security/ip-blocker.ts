@@ -12,50 +12,50 @@
  * @module lib/security/ip-blocker
  */
 
-import { NextRequest } from 'next/server'
-import Redis from 'ioredis'
+import { NextRequest } from "next/server";
+import Redis from "ioredis";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface BlockedIP {
-  ip: string
-  reason: string
-  blockedAt: number // Unix timestamp in milliseconds
-  expiresAt?: number // Unix timestamp in milliseconds (undefined = permanent)
-  blockType: 'temporary' | 'permanent'
+  ip: string;
+  reason: string;
+  blockedAt: number; // Unix timestamp in milliseconds
+  expiresAt?: number; // Unix timestamp in milliseconds (undefined = permanent)
+  blockType: "temporary" | "permanent";
   metadata?: {
-    country?: string
-    userAgent?: string
-    endpoint?: string
-    requestCount?: number
-    lastViolation?: string
-  }
+    country?: string;
+    userAgent?: string;
+    endpoint?: string;
+    requestCount?: number;
+    lastViolation?: string;
+  };
 }
 
 export interface BlockRule {
   /** Rule name/ID */
-  id: string
+  id: string;
   /** Rule type */
-  type: 'rate_limit' | 'abuse' | 'spam' | 'security' | 'manual'
+  type: "rate_limit" | "abuse" | "spam" | "security" | "manual";
   /** Number of violations before blocking */
-  threshold: number
+  threshold: number;
   /** Time window in seconds for counting violations */
-  windowSeconds: number
+  windowSeconds: number;
   /** Block duration in seconds (0 = permanent) */
-  blockDurationSeconds: number
+  blockDurationSeconds: number;
   /** Whether this rule is enabled */
-  enabled: boolean
+  enabled: boolean;
 }
 
 export interface AbuseEvent {
-  ip: string
-  type: string
-  severity: 'low' | 'medium' | 'high' | 'critical'
-  metadata?: Record<string, unknown>
+  ip: string;
+  type: string;
+  severity: "low" | "medium" | "high" | "critical";
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -65,8 +65,8 @@ export interface AbuseEvent {
 export const DEFAULT_BLOCK_RULES: Record<string, BlockRule> = {
   // Excessive failed login attempts
   FAILED_LOGIN: {
-    id: 'FAILED_LOGIN',
-    type: 'abuse',
+    id: "FAILED_LOGIN",
+    type: "abuse",
     threshold: 10, // 10 failed attempts
     windowSeconds: 900, // in 15 minutes
     blockDurationSeconds: 3600, // block for 1 hour
@@ -75,8 +75,8 @@ export const DEFAULT_BLOCK_RULES: Record<string, BlockRule> = {
 
   // Excessive rate limit violations
   RATE_LIMIT_ABUSE: {
-    id: 'RATE_LIMIT_ABUSE',
-    type: 'rate_limit',
+    id: "RATE_LIMIT_ABUSE",
+    type: "rate_limit",
     threshold: 50, // 50 rate limit hits
     windowSeconds: 300, // in 5 minutes
     blockDurationSeconds: 7200, // block for 2 hours
@@ -85,8 +85,8 @@ export const DEFAULT_BLOCK_RULES: Record<string, BlockRule> = {
 
   // Suspicious activity patterns
   SUSPICIOUS_ACTIVITY: {
-    id: 'SUSPICIOUS_ACTIVITY',
-    type: 'security',
+    id: "SUSPICIOUS_ACTIVITY",
+    type: "security",
     threshold: 5, // 5 suspicious events
     windowSeconds: 600, // in 10 minutes
     blockDurationSeconds: 86400, // block for 24 hours
@@ -95,8 +95,8 @@ export const DEFAULT_BLOCK_RULES: Record<string, BlockRule> = {
 
   // Spam detection
   SPAM_DETECTED: {
-    id: 'SPAM_DETECTED',
-    type: 'spam',
+    id: "SPAM_DETECTED",
+    type: "spam",
     threshold: 20, // 20 spam messages
     windowSeconds: 3600, // in 1 hour
     blockDurationSeconds: 43200, // block for 12 hours
@@ -105,8 +105,8 @@ export const DEFAULT_BLOCK_RULES: Record<string, BlockRule> = {
 
   // CSRF violations
   CSRF_VIOLATION: {
-    id: 'CSRF_VIOLATION',
-    type: 'security',
+    id: "CSRF_VIOLATION",
+    type: "security",
     threshold: 3, // 3 CSRF failures
     windowSeconds: 300, // in 5 minutes
     blockDurationSeconds: 7200, // block for 2 hours
@@ -115,8 +115,8 @@ export const DEFAULT_BLOCK_RULES: Record<string, BlockRule> = {
 
   // SQL injection attempts
   SQL_INJECTION: {
-    id: 'SQL_INJECTION',
-    type: 'security',
+    id: "SQL_INJECTION",
+    type: "security",
     threshold: 1, // immediate block
     windowSeconds: 60,
     blockDurationSeconds: 0, // permanent block
@@ -125,49 +125,49 @@ export const DEFAULT_BLOCK_RULES: Record<string, BlockRule> = {
 
   // XSS attempts
   XSS_ATTEMPT: {
-    id: 'XSS_ATTEMPT',
-    type: 'security',
+    id: "XSS_ATTEMPT",
+    type: "security",
     threshold: 1, // immediate block
     windowSeconds: 60,
     blockDurationSeconds: 0, // permanent block
     enabled: true,
   },
-}
+};
 
 // ============================================================================
 // Redis Client
 // ============================================================================
 
-let redisClient: Redis | null = null
+let redisClient: Redis | null = null;
 
 function getRedisClient(): Redis | null {
   if (redisClient) {
-    return redisClient
+    return redisClient;
   }
 
-  const redisUrl = process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL
+  const redisUrl = process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL;
 
   if (!redisUrl) {
-    return null
+    return null;
   }
 
   try {
     redisClient = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
       retryStrategy(times) {
-        return Math.min(times * 50, 2000)
+        return Math.min(times * 50, 2000);
       },
       lazyConnect: true,
-    })
+    });
 
     redisClient.connect().catch((error) => {
-      logger.error('[IPBlocker] Failed to connect to Redis:', error.message)
-    })
+      logger.error("[IPBlocker] Failed to connect to Redis:", error.message);
+    });
 
-    return redisClient
+    return redisClient;
   } catch (error) {
-    logger.error('[IPBlocker] Failed to initialize Redis:', error)
-    return null
+    logger.error("[IPBlocker] Failed to initialize Redis:", error);
+    return null;
   }
 }
 
@@ -176,187 +176,191 @@ function getRedisClient(): Redis | null {
 // ============================================================================
 
 class InMemoryIPStore {
-  private blockedIPs = new Map<string, BlockedIP>()
-  private whitelist = new Set<string>()
-  private blacklist = new Set<string>()
-  private violations = new Map<string, Map<string, number[]>>() // IP -> Rule -> Timestamps
-  private cleanupInterval: NodeJS.Timeout
+  private blockedIPs = new Map<string, BlockedIP>();
+  private whitelist = new Set<string>();
+  private blacklist = new Set<string>();
+  private violations = new Map<string, Map<string, number[]>>(); // IP -> Rule -> Timestamps
+  private cleanupInterval: NodeJS.Timeout;
 
   constructor() {
-    this.cleanupInterval = setInterval(() => this.cleanup(), 300000) // Clean every 5 minutes
+    this.cleanupInterval = setInterval(() => this.cleanup(), 300000); // Clean every 5 minutes
   }
 
   async isBlocked(ip: string): Promise<BlockedIP | null> {
     // Check whitelist first
     if (this.whitelist.has(ip)) {
-      return null
+      return null;
     }
 
     // Check blacklist
     if (this.blacklist.has(ip)) {
       return {
         ip,
-        reason: 'IP in blacklist',
+        reason: "IP in blacklist",
         blockedAt: Date.now(),
-        blockType: 'permanent',
-      }
+        blockType: "permanent",
+      };
     }
 
     // Check blocked IPs
-    const blocked = this.blockedIPs.get(ip)
+    const blocked = this.blockedIPs.get(ip);
     if (!blocked) {
-      return null
+      return null;
     }
 
     // Check if temporary block has expired
     if (blocked.expiresAt && Date.now() > blocked.expiresAt) {
-      this.blockedIPs.delete(ip)
-      return null
+      this.blockedIPs.delete(ip);
+      return null;
     }
 
-    return blocked
+    return blocked;
   }
 
   async blockIP(blocked: BlockedIP): Promise<void> {
-    this.blockedIPs.set(blocked.ip, blocked)
+    this.blockedIPs.set(blocked.ip, blocked);
   }
 
   async unblockIP(ip: string): Promise<void> {
-    this.blockedIPs.delete(ip)
+    this.blockedIPs.delete(ip);
   }
 
   async addToWhitelist(ip: string): Promise<void> {
-    this.whitelist.add(ip)
+    this.whitelist.add(ip);
     // Remove from blocked if whitelisted
-    this.blockedIPs.delete(ip)
+    this.blockedIPs.delete(ip);
   }
 
   async removeFromWhitelist(ip: string): Promise<void> {
-    this.whitelist.delete(ip)
+    this.whitelist.delete(ip);
   }
 
   async addToBlacklist(ip: string): Promise<void> {
-    this.blacklist.add(ip)
+    this.blacklist.add(ip);
   }
 
   async removeFromBlacklist(ip: string): Promise<void> {
-    this.blacklist.delete(ip)
+    this.blacklist.delete(ip);
   }
 
   async getWhitelist(): Promise<string[]> {
-    return Array.from(this.whitelist)
+    return Array.from(this.whitelist);
   }
 
   async getBlacklist(): Promise<string[]> {
-    return Array.from(this.blacklist)
+    return Array.from(this.blacklist);
   }
 
   async recordViolation(ip: string, ruleId: string): Promise<number> {
     if (!this.violations.has(ip)) {
-      this.violations.set(ip, new Map())
+      this.violations.set(ip, new Map());
     }
 
-    const ipViolations = this.violations.get(ip)!
+    const ipViolations = this.violations.get(ip)!;
     if (!ipViolations.has(ruleId)) {
-      ipViolations.set(ruleId, [])
+      ipViolations.set(ruleId, []);
     }
 
-    const timestamps = ipViolations.get(ruleId)!
-    timestamps.push(Date.now())
+    const timestamps = ipViolations.get(ruleId)!;
+    timestamps.push(Date.now());
 
-    return timestamps.length
+    return timestamps.length;
   }
 
-  async getViolationCount(ip: string, ruleId: string, windowSeconds: number): Promise<number> {
-    const ipViolations = this.violations.get(ip)
+  async getViolationCount(
+    ip: string,
+    ruleId: string,
+    windowSeconds: number,
+  ): Promise<number> {
+    const ipViolations = this.violations.get(ip);
     if (!ipViolations) {
-      return 0
+      return 0;
     }
 
-    const timestamps = ipViolations.get(ruleId)
+    const timestamps = ipViolations.get(ruleId);
     if (!timestamps) {
-      return 0
+      return 0;
     }
 
-    const now = Date.now()
-    const windowStart = now - windowSeconds * 1000
+    const now = Date.now();
+    const windowStart = now - windowSeconds * 1000;
 
     // Filter violations within window
-    const recentViolations = timestamps.filter((ts) => ts > windowStart)
+    const recentViolations = timestamps.filter((ts) => ts > windowStart);
 
     // Update stored violations
-    ipViolations.set(ruleId, recentViolations)
+    ipViolations.set(ruleId, recentViolations);
 
-    return recentViolations.length
+    return recentViolations.length;
   }
 
   async getAllBlockedIPs(): Promise<BlockedIP[]> {
-    const now = Date.now()
-    const blocked: BlockedIP[] = []
+    const now = Date.now();
+    const blocked: BlockedIP[] = [];
 
     for (const [ip, block] of this.blockedIPs.entries()) {
       // Skip expired blocks
       if (block.expiresAt && now > block.expiresAt) {
-        this.blockedIPs.delete(ip)
-        continue
+        this.blockedIPs.delete(ip);
+        continue;
       }
 
-      blocked.push(block)
+      blocked.push(block);
     }
 
-    return blocked
+    return blocked;
   }
 
   private cleanup(): void {
-    const now = Date.now()
+    const now = Date.now();
 
     // Clean up expired blocks
     for (const [ip, block] of this.blockedIPs.entries()) {
       if (block.expiresAt && now > block.expiresAt) {
-        this.blockedIPs.delete(ip)
+        this.blockedIPs.delete(ip);
       }
     }
 
     // Clean up old violations (older than 1 day)
-    const oneDayAgo = now - 86400000
+    const oneDayAgo = now - 86400000;
     for (const [ip, rules] of this.violations.entries()) {
       for (const [ruleId, timestamps] of rules.entries()) {
-        const recentTimestamps = timestamps.filter((ts) => ts > oneDayAgo)
+        const recentTimestamps = timestamps.filter((ts) => ts > oneDayAgo);
         if (recentTimestamps.length === 0) {
-          rules.delete(ruleId)
+          rules.delete(ruleId);
         } else {
-          rules.set(ruleId, recentTimestamps)
+          rules.set(ruleId, recentTimestamps);
         }
       }
 
       if (rules.size === 0) {
-        this.violations.delete(ip)
+        this.violations.delete(ip);
       }
     }
   }
 
   destroy(): void {
-    clearInterval(this.cleanupInterval)
-    this.blockedIPs.clear()
-    this.whitelist.clear()
-    this.blacklist.clear()
-    this.violations.clear()
+    clearInterval(this.cleanupInterval);
+    this.blockedIPs.clear();
+    this.whitelist.clear();
+    this.blacklist.clear();
+    this.violations.clear();
   }
 }
 
-const inMemoryStore = new InMemoryIPStore()
+const inMemoryStore = new InMemoryIPStore();
 
 // ============================================================================
 // IP Blocker Implementation
 // ============================================================================
 
 export class IPBlocker {
-  private redis: Redis | null
-  private useRedis: boolean
+  private redis: Redis | null;
+  private useRedis: boolean;
 
   constructor() {
-    this.redis = getRedisClient()
-    this.useRedis = !!this.redis
+    this.redis = getRedisClient();
+    this.useRedis = !!this.redis;
   }
 
   /**
@@ -365,14 +369,14 @@ export class IPBlocker {
   async isBlocked(ip: string): Promise<BlockedIP | null> {
     try {
       if (this.useRedis && this.redis) {
-        return await this.isBlockedRedis(ip)
+        return await this.isBlockedRedis(ip);
       } else {
-        return await inMemoryStore.isBlocked(ip)
+        return await inMemoryStore.isBlocked(ip);
       }
     } catch (error) {
-      logger.error('[IPBlocker] Error checking blocked IP:', error)
-      this.useRedis = false
-      return await inMemoryStore.isBlocked(ip)
+      logger.error("[IPBlocker] Error checking blocked IP:", error);
+      this.useRedis = false;
+      return await inMemoryStore.isBlocked(ip);
     }
   }
 
@@ -380,40 +384,40 @@ export class IPBlocker {
    * Check blocked status using Redis
    */
   private async isBlockedRedis(ip: string): Promise<BlockedIP | null> {
-    if (!this.redis) return null
+    if (!this.redis) return null;
 
     // Check whitelist
-    const isWhitelisted = await this.redis.sismember('ip:whitelist', ip)
+    const isWhitelisted = await this.redis.sismember("ip:whitelist", ip);
     if (isWhitelisted) {
-      return null
+      return null;
     }
 
     // Check blacklist
-    const isBlacklisted = await this.redis.sismember('ip:blacklist', ip)
+    const isBlacklisted = await this.redis.sismember("ip:blacklist", ip);
     if (isBlacklisted) {
       return {
         ip,
-        reason: 'IP in blacklist',
+        reason: "IP in blacklist",
         blockedAt: Date.now(),
-        blockType: 'permanent',
-      }
+        blockType: "permanent",
+      };
     }
 
     // Check blocked IPs
-    const blockedData = await this.redis.get(`ip:blocked:${ip}`)
+    const blockedData = await this.redis.get(`ip:blocked:${ip}`);
     if (!blockedData) {
-      return null
+      return null;
     }
 
-    const blocked: BlockedIP = JSON.parse(blockedData)
+    const blocked: BlockedIP = JSON.parse(blockedData);
 
     // Check if expired
     if (blocked.expiresAt && Date.now() > blocked.expiresAt) {
-      await this.redis.del(`ip:blocked:${ip}`)
-      return null
+      await this.redis.del(`ip:blocked:${ip}`);
+      return null;
     }
 
-    return blocked
+    return blocked;
   }
 
   /**
@@ -423,11 +427,12 @@ export class IPBlocker {
     ip: string,
     reason: string,
     durationSeconds: number = 0,
-    metadata?: BlockedIP['metadata']
+    metadata?: BlockedIP["metadata"],
   ): Promise<void> {
-    const now = Date.now()
-    const blockType = durationSeconds === 0 ? 'permanent' : 'temporary'
-    const expiresAt = durationSeconds === 0 ? undefined : now + durationSeconds * 1000
+    const now = Date.now();
+    const blockType = durationSeconds === 0 ? "permanent" : "temporary";
+    const expiresAt =
+      durationSeconds === 0 ? undefined : now + durationSeconds * 1000;
 
     const blocked: BlockedIP = {
       ip,
@@ -436,25 +441,25 @@ export class IPBlocker {
       expiresAt,
       blockType,
       metadata,
-    }
+    };
 
     try {
       if (this.useRedis && this.redis) {
-        await this.redis.set(`ip:blocked:${ip}`, JSON.stringify(blocked))
+        await this.redis.set(`ip:blocked:${ip}`, JSON.stringify(blocked));
         if (durationSeconds > 0) {
-          await this.redis.expire(`ip:blocked:${ip}`, durationSeconds)
+          await this.redis.expire(`ip:blocked:${ip}`, durationSeconds);
         }
         // Add to sorted set for tracking
-        await this.redis.zadd('ip:blocked:all', now, ip)
+        await this.redis.zadd("ip:blocked:all", now, ip);
       } else {
-        await inMemoryStore.blockIP(blocked)
+        await inMemoryStore.blockIP(blocked);
       }
 
       // REMOVED: console.log(`[IPBlocker] Blocked IP ${ip} (${blockType}): ${reason}`)
     } catch (error) {
-      logger.error('[IPBlocker] Error blocking IP:', error)
-      this.useRedis = false
-      await inMemoryStore.blockIP(blocked)
+      logger.error("[IPBlocker] Error blocking IP:", error);
+      this.useRedis = false;
+      await inMemoryStore.blockIP(blocked);
     }
   }
 
@@ -464,17 +469,17 @@ export class IPBlocker {
   async unblockIP(ip: string): Promise<void> {
     try {
       if (this.useRedis && this.redis) {
-        await this.redis.del(`ip:blocked:${ip}`)
-        await this.redis.zrem('ip:blocked:all', ip)
+        await this.redis.del(`ip:blocked:${ip}`);
+        await this.redis.zrem("ip:blocked:all", ip);
       } else {
-        await inMemoryStore.unblockIP(ip)
+        await inMemoryStore.unblockIP(ip);
       }
 
       // REMOVED: console.log(`[IPBlocker] Unblocked IP ${ip}`)
     } catch (error) {
-      logger.error('[IPBlocker] Error unblocking IP:', error)
-      this.useRedis = false
-      await inMemoryStore.unblockIP(ip)
+      logger.error("[IPBlocker] Error unblocking IP:", error);
+      this.useRedis = false;
+      await inMemoryStore.unblockIP(ip);
     }
   }
 
@@ -484,19 +489,19 @@ export class IPBlocker {
   async addToWhitelist(ip: string): Promise<void> {
     try {
       if (this.useRedis && this.redis) {
-        await this.redis.sadd('ip:whitelist', ip)
+        await this.redis.sadd("ip:whitelist", ip);
         // Remove from blocked if exists
-        await this.redis.del(`ip:blocked:${ip}`)
-        await this.redis.zrem('ip:blocked:all', ip)
+        await this.redis.del(`ip:blocked:${ip}`);
+        await this.redis.zrem("ip:blocked:all", ip);
       } else {
-        await inMemoryStore.addToWhitelist(ip)
+        await inMemoryStore.addToWhitelist(ip);
       }
 
       // REMOVED: console.log(`[IPBlocker] Added IP ${ip} to whitelist`)
     } catch (error) {
-      logger.error('[IPBlocker] Error adding to whitelist:', error)
-      this.useRedis = false
-      await inMemoryStore.addToWhitelist(ip)
+      logger.error("[IPBlocker] Error adding to whitelist:", error);
+      this.useRedis = false;
+      await inMemoryStore.addToWhitelist(ip);
     }
   }
 
@@ -506,14 +511,14 @@ export class IPBlocker {
   async removeFromWhitelist(ip: string): Promise<void> {
     try {
       if (this.useRedis && this.redis) {
-        await this.redis.srem('ip:whitelist', ip)
+        await this.redis.srem("ip:whitelist", ip);
       } else {
-        await inMemoryStore.removeFromWhitelist(ip)
+        await inMemoryStore.removeFromWhitelist(ip);
       }
     } catch (error) {
-      logger.error('[IPBlocker] Error removing from whitelist:', error)
-      this.useRedis = false
-      await inMemoryStore.removeFromWhitelist(ip)
+      logger.error("[IPBlocker] Error removing from whitelist:", error);
+      this.useRedis = false;
+      await inMemoryStore.removeFromWhitelist(ip);
     }
   }
 
@@ -523,18 +528,18 @@ export class IPBlocker {
   async addToBlacklist(ip: string): Promise<void> {
     try {
       if (this.useRedis && this.redis) {
-        await this.redis.sadd('ip:blacklist', ip)
+        await this.redis.sadd("ip:blacklist", ip);
         // Also add to blocked
-        await this.blockIP(ip, 'Blacklisted', 0)
+        await this.blockIP(ip, "Blacklisted", 0);
       } else {
-        await inMemoryStore.addToBlacklist(ip)
+        await inMemoryStore.addToBlacklist(ip);
       }
 
       // REMOVED: console.log(`[IPBlocker] Added IP ${ip} to blacklist`)
     } catch (error) {
-      logger.error('[IPBlocker] Error adding to blacklist:', error)
-      this.useRedis = false
-      await inMemoryStore.addToBlacklist(ip)
+      logger.error("[IPBlocker] Error adding to blacklist:", error);
+      this.useRedis = false;
+      await inMemoryStore.addToBlacklist(ip);
     }
   }
 
@@ -544,14 +549,14 @@ export class IPBlocker {
   async removeFromBlacklist(ip: string): Promise<void> {
     try {
       if (this.useRedis && this.redis) {
-        await this.redis.srem('ip:blacklist', ip)
+        await this.redis.srem("ip:blacklist", ip);
       } else {
-        await inMemoryStore.removeFromBlacklist(ip)
+        await inMemoryStore.removeFromBlacklist(ip);
       }
     } catch (error) {
-      logger.error('[IPBlocker] Error removing from blacklist:', error)
-      this.useRedis = false
-      await inMemoryStore.removeFromBlacklist(ip)
+      logger.error("[IPBlocker] Error removing from blacklist:", error);
+      this.useRedis = false;
+      await inMemoryStore.removeFromBlacklist(ip);
     }
   }
 
@@ -559,39 +564,39 @@ export class IPBlocker {
    * Record an abuse event and check if IP should be blocked
    */
   async recordAbuse(event: AbuseEvent): Promise<boolean> {
-    const rule = DEFAULT_BLOCK_RULES[event.type]
+    const rule = DEFAULT_BLOCK_RULES[event.type];
 
     if (!rule || !rule.enabled) {
-      return false
+      return false;
     }
 
     try {
       // Record violation
-      let violationCount: number
+      let violationCount: number;
 
       if (this.useRedis && this.redis) {
-        const key = `ip:violations:${event.ip}:${rule.id}`
-        const now = Date.now()
+        const key = `ip:violations:${event.ip}:${rule.id}`;
+        const now = Date.now();
 
         // Add violation
-        await this.redis.zadd(key, now, `${now}:${Math.random()}`)
+        await this.redis.zadd(key, now, `${now}:${Math.random()}`);
 
         // Remove old violations outside window
-        const windowStart = now - rule.windowSeconds * 1000
-        await this.redis.zremrangebyscore(key, '-inf', windowStart)
+        const windowStart = now - rule.windowSeconds * 1000;
+        await this.redis.zremrangebyscore(key, "-inf", windowStart);
 
         // Count violations in window
-        violationCount = await this.redis.zcard(key)
+        violationCount = await this.redis.zcard(key);
 
         // Set expiry on violations key
-        await this.redis.expire(key, rule.windowSeconds * 2)
+        await this.redis.expire(key, rule.windowSeconds * 2);
       } else {
-        await inMemoryStore.recordViolation(event.ip, rule.id)
+        await inMemoryStore.recordViolation(event.ip, rule.id);
         violationCount = await inMemoryStore.getViolationCount(
           event.ip,
           rule.id,
-          rule.windowSeconds
-        )
+          rule.windowSeconds,
+        );
       }
 
       // Check if threshold exceeded
@@ -604,16 +609,16 @@ export class IPBlocker {
             lastViolation: event.type,
             requestCount: violationCount,
             ...event.metadata,
-          }
-        )
+          },
+        );
 
-        return true
+        return true;
       }
 
-      return false
+      return false;
     } catch (error) {
-      logger.error('[IPBlocker] Error recording abuse:', error)
-      return false
+      logger.error("[IPBlocker] Error recording abuse:", error);
+      return false;
     }
   }
 
@@ -623,14 +628,14 @@ export class IPBlocker {
   async getWhitelist(): Promise<string[]> {
     try {
       if (this.useRedis && this.redis) {
-        return await this.redis.smembers('ip:whitelist')
+        return await this.redis.smembers("ip:whitelist");
       } else {
-        return await inMemoryStore.getWhitelist()
+        return await inMemoryStore.getWhitelist();
       }
     } catch (error) {
-      logger.error('[IPBlocker] Error getting whitelist:', error)
-      this.useRedis = false
-      return await inMemoryStore.getWhitelist()
+      logger.error("[IPBlocker] Error getting whitelist:", error);
+      this.useRedis = false;
+      return await inMemoryStore.getWhitelist();
     }
   }
 
@@ -640,14 +645,14 @@ export class IPBlocker {
   async getBlacklist(): Promise<string[]> {
     try {
       if (this.useRedis && this.redis) {
-        return await this.redis.smembers('ip:blacklist')
+        return await this.redis.smembers("ip:blacklist");
       } else {
-        return await inMemoryStore.getBlacklist()
+        return await inMemoryStore.getBlacklist();
       }
     } catch (error) {
-      logger.error('[IPBlocker] Error getting blacklist:', error)
-      this.useRedis = false
-      return await inMemoryStore.getBlacklist()
+      logger.error("[IPBlocker] Error getting blacklist:", error);
+      this.useRedis = false;
+      return await inMemoryStore.getBlacklist();
     }
   }
 
@@ -657,28 +662,28 @@ export class IPBlocker {
   async getAllBlockedIPs(): Promise<BlockedIP[]> {
     try {
       if (this.useRedis && this.redis) {
-        const ips = await this.redis.zrange('ip:blocked:all', 0, -1)
-        const blocked: BlockedIP[] = []
+        const ips = await this.redis.zrange("ip:blocked:all", 0, -1);
+        const blocked: BlockedIP[] = [];
 
         for (const ip of ips) {
-          const data = await this.redis.get(`ip:blocked:${ip}`)
+          const data = await this.redis.get(`ip:blocked:${ip}`);
           if (data) {
-            const block: BlockedIP = JSON.parse(data)
+            const block: BlockedIP = JSON.parse(data);
             // Skip expired
             if (!block.expiresAt || Date.now() <= block.expiresAt) {
-              blocked.push(block)
+              blocked.push(block);
             }
           }
         }
 
-        return blocked
+        return blocked;
       } else {
-        return await inMemoryStore.getAllBlockedIPs()
+        return await inMemoryStore.getAllBlockedIPs();
       }
     } catch (error) {
-      logger.error('[IPBlocker] Error getting blocked IPs:', error)
-      this.useRedis = false
-      return await inMemoryStore.getAllBlockedIPs()
+      logger.error("[IPBlocker] Error getting blocked IPs:", error);
+      this.useRedis = false;
+      return await inMemoryStore.getAllBlockedIPs();
     }
   }
 
@@ -687,10 +692,10 @@ export class IPBlocker {
    */
   async destroy(): Promise<void> {
     if (this.redis) {
-      await this.redis.quit()
-      this.redis = null
+      await this.redis.quit();
+      this.redis = null;
     }
-    inMemoryStore.destroy()
+    inMemoryStore.destroy();
   }
 }
 
@@ -698,7 +703,7 @@ export class IPBlocker {
 // Singleton Instance
 // ============================================================================
 
-export const ipBlocker = new IPBlocker()
+export const ipBlocker = new IPBlocker();
 
 // ============================================================================
 // Helper Functions
@@ -708,39 +713,41 @@ export const ipBlocker = new IPBlocker()
  * Get client IP from request
  */
 export function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for')
+  const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
-    return forwarded.split(',')[0].trim()
+    return forwarded.split(",")[0].trim();
   }
 
-  const realIp = request.headers.get('x-real-ip')
+  const realIp = request.headers.get("x-real-ip");
   if (realIp) {
-    return realIp.trim()
+    return realIp.trim();
   }
 
-  const cfConnectingIp = request.headers.get('cf-connecting-ip')
+  const cfConnectingIp = request.headers.get("cf-connecting-ip");
   if (cfConnectingIp) {
-    return cfConnectingIp.trim()
+    return cfConnectingIp.trim();
   }
 
-  return '127.0.0.1'
+  return "127.0.0.1";
 }
 
 /**
  * Check if IP should be blocked (middleware helper)
  */
-export async function checkIPBlock(request: NextRequest): Promise<BlockedIP | null> {
-  const ip = getClientIp(request)
+export async function checkIPBlock(
+  request: NextRequest,
+): Promise<BlockedIP | null> {
+  const ip = getClientIp(request);
 
   // Skip localhost in development
   if (
-    process.env.NODE_ENV === 'development' &&
-    (ip === '127.0.0.1' || ip === 'localhost' || ip === '::1')
+    process.env.NODE_ENV === "development" &&
+    (ip === "127.0.0.1" || ip === "localhost" || ip === "::1")
   ) {
-    return null
+    return null;
   }
 
-  return await ipBlocker.isBlocked(ip)
+  return await ipBlocker.isBlocked(ip);
 }
 
 /**
@@ -749,17 +756,17 @@ export async function checkIPBlock(request: NextRequest): Promise<BlockedIP | nu
 export async function recordAbuseFromRequest(
   request: NextRequest,
   type: string,
-  severity: AbuseEvent['severity'] = 'medium'
+  severity: AbuseEvent["severity"] = "medium",
 ): Promise<boolean> {
-  const ip = getClientIp(request)
+  const ip = getClientIp(request);
 
   return await ipBlocker.recordAbuse({
     ip,
     type,
     severity,
     metadata: {
-      userAgent: request.headers.get('user-agent') || undefined,
+      userAgent: request.headers.get("user-agent") || undefined,
       endpoint: new URL(request.url).pathname,
     },
-  })
+  });
 }

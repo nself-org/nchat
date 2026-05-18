@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ReconnectingIndicator - Animated indicator for reconnection state
@@ -7,20 +7,20 @@
  * to reconnect to the server.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { useConnectionStatus } from '@/hooks/useConnectionStatus'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface ReconnectingIndicatorProps {
-  className?: string
-  size?: 'sm' | 'md' | 'lg'
-  showText?: boolean
-  showAttempts?: boolean
-  variant?: 'spinner' | 'dots' | 'pulse'
+  className?: string;
+  size?: "sm" | "md" | "lg";
+  showText?: boolean;
+  showAttempts?: boolean;
+  variant?: "spinner" | "dots" | "pulse";
 }
 
 // =============================================================================
@@ -29,34 +29,34 @@ export interface ReconnectingIndicatorProps {
 
 export function ReconnectingIndicator({
   className,
-  size = 'md',
+  size = "md",
   showText = true,
   showAttempts = true,
-  variant = 'spinner',
+  variant = "spinner",
 }: ReconnectingIndicatorProps) {
-  const { isReconnecting, reconnectAttempts } = useConnectionStatus()
+  const { isReconnecting, reconnectAttempts } = useConnectionStatus();
 
   if (!isReconnecting) {
-    return null
+    return null;
   }
 
   const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-5 w-5',
-    lg: 'h-6 w-6',
-  }
+    sm: "h-4 w-4",
+    md: "h-5 w-5",
+    lg: "h-6 w-6",
+  };
 
   const textSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base',
-  }
+    sm: "text-xs",
+    md: "text-sm",
+    lg: "text-base",
+  };
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      {variant === 'spinner' && (
+    <div className={cn("flex items-center gap-2", className)}>
+      {variant === "spinner" && (
         <svg
-          className={cn('animate-spin text-yellow-500', sizeClasses[size])}
+          className={cn("animate-spin text-yellow-500", sizeClasses[size])}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -77,45 +77,47 @@ export function ReconnectingIndicator({
         </svg>
       )}
 
-      {variant === 'dots' && (
+      {variant === "dots" && (
         <div className="flex space-x-1">
           <div
             className={cn(
-              'animate-bounce rounded-full bg-yellow-500',
-              size === 'sm' && 'h-1.5 w-1.5',
-              size === 'md' && 'h-2 w-2',
-              size === 'lg' && 'h-2.5 w-2.5'
+              "animate-bounce rounded-full bg-yellow-500",
+              size === "sm" && "h-1.5 w-1.5",
+              size === "md" && "h-2 w-2",
+              size === "lg" && "h-2.5 w-2.5",
             )}
-            style={{ animationDelay: '0ms' }}
+            style={{ animationDelay: "0ms" }}
           />
           <div
             className={cn(
-              'animate-bounce rounded-full bg-yellow-500',
-              size === 'sm' && 'h-1.5 w-1.5',
-              size === 'md' && 'h-2 w-2',
-              size === 'lg' && 'h-2.5 w-2.5'
+              "animate-bounce rounded-full bg-yellow-500",
+              size === "sm" && "h-1.5 w-1.5",
+              size === "md" && "h-2 w-2",
+              size === "lg" && "h-2.5 w-2.5",
             )}
-            style={{ animationDelay: '150ms' }}
+            style={{ animationDelay: "150ms" }}
           />
           <div
             className={cn(
-              'animate-bounce rounded-full bg-yellow-500',
-              size === 'sm' && 'h-1.5 w-1.5',
-              size === 'md' && 'h-2 w-2',
-              size === 'lg' && 'h-2.5 w-2.5'
+              "animate-bounce rounded-full bg-yellow-500",
+              size === "sm" && "h-1.5 w-1.5",
+              size === "md" && "h-2 w-2",
+              size === "lg" && "h-2.5 w-2.5",
             )}
-            style={{ animationDelay: '300ms' }}
+            style={{ animationDelay: "300ms" }}
           />
         </div>
       )}
 
-      {variant === 'pulse' && (
+      {variant === "pulse" && (
         <div className="relative">
-          <div className={cn('rounded-full bg-yellow-500', sizeClasses[size])} />
+          <div
+            className={cn("rounded-full bg-yellow-500", sizeClasses[size])}
+          />
           <div
             className={cn(
-              'absolute inset-0 animate-ping rounded-full bg-yellow-500 opacity-75',
-              sizeClasses[size]
+              "absolute inset-0 animate-ping rounded-full bg-yellow-500 opacity-75",
+              sizeClasses[size],
             )}
           />
         </div>
@@ -123,16 +125,21 @@ export function ReconnectingIndicator({
 
       {showText && (
         <span
-          className={cn('font-medium text-yellow-600 dark:text-yellow-400', textSizeClasses[size])}
+          className={cn(
+            "font-medium text-yellow-600 dark:text-yellow-400",
+            textSizeClasses[size],
+          )}
         >
           Reconnecting
           {showAttempts && reconnectAttempts > 1 && (
-            <span className="ml-1 text-muted-foreground">(attempt {reconnectAttempts})</span>
+            <span className="ml-1 text-muted-foreground">
+              (attempt {reconnectAttempts})
+            </span>
           )}
         </span>
       )}
     </div>
-  )
+  );
 }
 
-export default ReconnectingIndicator
+export default ReconnectingIndicator;

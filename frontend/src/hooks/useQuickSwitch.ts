@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useQuickSwitch Hook
@@ -7,95 +7,101 @@
  * Provides Slack-like Cmd+K quick switcher behavior.
  */
 
-import { useCallback, useMemo, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useCallback, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import { useCommandPaletteStore } from '@/stores/command-palette-store'
-import { useChannelStore, selectChannelList, selectRecentChannels } from '@/stores/channel-store'
-import { useUserStore, selectAllUsers } from '@/stores/user-store'
-import { useHotkey } from '@/hooks/use-hotkey'
+import { useCommandPaletteStore } from "@/stores/command-palette-store";
+import {
+  useChannelStore,
+  selectChannelList,
+  selectRecentChannels,
+} from "@/stores/channel-store";
+import { useUserStore, selectAllUsers } from "@/stores/user-store";
+import { useHotkey } from "@/hooks/use-hotkey";
 
 import {
   getCommandRegistry,
   searchCommands,
   type Command,
   type CommandCategory,
-} from '@/lib/command-palette'
+} from "@/lib/command-palette";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface QuickSwitchItem {
-  id: string
-  name: string
-  type: 'channel' | 'dm' | 'user'
-  icon?: string
-  presence?: 'online' | 'away' | 'dnd' | 'offline'
-  unreadCount?: number
-  isStarred?: boolean
-  path: string
+  id: string;
+  name: string;
+  type: "channel" | "dm" | "user";
+  icon?: string;
+  presence?: "online" | "away" | "dnd" | "offline";
+  unreadCount?: number;
+  isStarred?: boolean;
+  path: string;
 }
 
 export interface UseQuickSwitchOptions {
   /** Maximum items to show */
-  maxItems?: number
+  maxItems?: number;
   /** Include channels */
-  includeChannels?: boolean
+  includeChannels?: boolean;
   /** Include DMs */
-  includeDMs?: boolean
+  includeDMs?: boolean;
   /** Include users */
-  includeUsers?: boolean
+  includeUsers?: boolean;
   /** Keyboard shortcut to open (default: mod+k) */
-  shortcut?: string
+  shortcut?: string;
   /** Enable keyboard shortcut */
-  enableShortcut?: boolean
+  enableShortcut?: boolean;
 }
 
 export interface UseQuickSwitchReturn {
   /** Whether the quick switcher is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Current search query */
-  query: string
+  query: string;
   /** Filtered items */
-  items: QuickSwitchItem[]
+  items: QuickSwitchItem[];
   /** Recent items */
-  recentItems: QuickSwitchItem[]
+  recentItems: QuickSwitchItem[];
   /** Currently selected index */
-  selectedIndex: number
+  selectedIndex: number;
   /** Open the quick switcher */
-  open: () => void
+  open: () => void;
   /** Close the quick switcher */
-  close: () => void
+  close: () => void;
   /** Toggle the quick switcher */
-  toggle: () => void
+  toggle: () => void;
   /** Update search query */
-  setQuery: (query: string) => void
+  setQuery: (query: string) => void;
   /** Navigate to an item */
-  navigateTo: (item: QuickSwitchItem) => void
+  navigateTo: (item: QuickSwitchItem) => void;
   /** Select next item */
-  selectNext: () => void
+  selectNext: () => void;
   /** Select previous item */
-  selectPrevious: () => void
+  selectPrevious: () => void;
   /** Navigate to selected item */
-  navigateToSelected: () => void
+  navigateToSelected: () => void;
 }
 
 // ============================================================================
 // Hook
 // ============================================================================
 
-export function useQuickSwitch(options: UseQuickSwitchOptions = {}): UseQuickSwitchReturn {
+export function useQuickSwitch(
+  options: UseQuickSwitchOptions = {},
+): UseQuickSwitchReturn {
   const {
     maxItems = 10,
     includeChannels = true,
     includeDMs = true,
     includeUsers = true,
-    shortcut = 'mod+k',
+    shortcut = "mod+k",
     enableShortcut = true,
-  } = options
+  } = options;
 
-  const router = useRouter()
+  const router = useRouter();
 
   // Use command palette store for state
   const {
@@ -109,114 +115,120 @@ export function useQuickSwitch(options: UseQuickSwitchOptions = {}): UseQuickSwi
     setQuery,
     selectNext,
     selectPrevious,
-  } = useCommandPaletteStore()
+  } = useCommandPaletteStore();
 
   // Get channels and users
-  const channels = useChannelStore(selectChannelList)
-  const recentChannels = useChannelStore(selectRecentChannels)
-  const users = useUserStore(selectAllUsers)
+  const channels = useChannelStore(selectChannelList);
+  const recentChannels = useChannelStore(selectRecentChannels);
+  const users = useUserStore(selectAllUsers);
 
   // Convert commands to QuickSwitchItems
   const convertToItem = useCallback(
     (command: Command): QuickSwitchItem | null => {
-      if (command.category === 'channel' && includeChannels && 'channelId' in command) {
+      if (
+        command.category === "channel" &&
+        includeChannels &&
+        "channelId" in command
+      ) {
         return {
           id: command.id,
           name: command.name,
-          type: 'channel',
+          type: "channel",
           unreadCount: (command as any).unreadCount,
           isStarred: (command as any).isStarred,
           path: `/chat/channel/${(command as any).channelId}`,
-        }
+        };
       }
 
-      if (command.category === 'dm' && includeDMs && 'userId' in command) {
+      if (command.category === "dm" && includeDMs && "userId" in command) {
         return {
           id: command.id,
           name: command.name,
-          type: 'dm',
+          type: "dm",
           presence: (command as any).presence,
           unreadCount: (command as any).unreadCount,
           path: `/chat/dm/${(command as any).userId}`,
-        }
+        };
       }
 
-      if (command.category === 'user' && includeUsers && 'userId' in command) {
+      if (command.category === "user" && includeUsers && "userId" in command) {
         return {
           id: command.id,
           name: command.name,
-          type: 'user',
+          type: "user",
           presence: (command as any).presence,
           path: `/user/${(command as any).userId}`,
-        }
+        };
       }
 
-      return null
+      return null;
     },
-    [includeChannels, includeDMs, includeUsers]
-  )
+    [includeChannels, includeDMs, includeUsers],
+  );
 
   // Convert filtered commands to items
   const items = useMemo(() => {
     return filteredCommands
       .map(convertToItem)
       .filter((item): item is QuickSwitchItem => item !== null)
-      .slice(0, maxItems)
-  }, [filteredCommands, convertToItem, maxItems])
+      .slice(0, maxItems);
+  }, [filteredCommands, convertToItem, maxItems]);
 
   // Get recent items
   const recentItems = useMemo(() => {
-    const recentChannelItems: QuickSwitchItem[] = recentChannels.slice(0, 5).map((channel) => ({
-      id: `channel:${channel.id}`,
-      name: channel.name,
-      type: 'channel' as const,
-      isStarred: false,
-      path: `/chat/channel/${channel.id}`,
-    }))
+    const recentChannelItems: QuickSwitchItem[] = recentChannels
+      .slice(0, 5)
+      .map((channel) => ({
+        id: `channel:${channel.id}`,
+        name: channel.name,
+        type: "channel" as const,
+        isStarred: false,
+        path: `/chat/channel/${channel.id}`,
+      }));
 
-    return recentChannelItems
-  }, [recentChannels])
+    return recentChannelItems;
+  }, [recentChannels]);
 
   // Open with filtered categories
   const open = useCallback(() => {
-    const categories: CommandCategory[] = []
-    if (includeChannels) categories.push('channel')
-    if (includeDMs) categories.push('dm')
-    if (includeUsers) categories.push('user')
+    const categories: CommandCategory[] = [];
+    if (includeChannels) categories.push("channel");
+    if (includeDMs) categories.push("dm");
+    if (includeUsers) categories.push("user");
 
     // Open in 'all' mode but the palette will filter
-    openPalette('all')
-  }, [openPalette, includeChannels, includeDMs, includeUsers])
+    openPalette("all");
+  }, [openPalette, includeChannels, includeDMs, includeUsers]);
 
   // Navigate to item
   const navigateTo = useCallback(
     (item: QuickSwitchItem) => {
-      router.push(item.path)
-      close()
+      router.push(item.path);
+      close();
     },
-    [router, close]
-  )
+    [router, close],
+  );
 
   // Navigate to selected
   const navigateToSelected = useCallback(() => {
-    const selectedItem = items[selectedIndex]
+    const selectedItem = items[selectedIndex];
     if (selectedItem) {
-      navigateTo(selectedItem)
+      navigateTo(selectedItem);
     }
-  }, [items, selectedIndex, navigateTo])
+  }, [items, selectedIndex, navigateTo]);
 
   // Register keyboard shortcut
   useHotkey(
     shortcut,
     () => {
-      toggle()
+      toggle();
     },
     {
       enabled: enableShortcut,
       preventDefault: true,
       enableOnInputs: false,
-    }
-  )
+    },
+  );
 
   return {
     isOpen,
@@ -232,7 +244,7 @@ export function useQuickSwitch(options: UseQuickSwitchOptions = {}): UseQuickSwi
     selectNext,
     selectPrevious,
     navigateToSelected,
-  }
+  };
 }
 
-export default useQuickSwitch
+export default useQuickSwitch;

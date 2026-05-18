@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MediaViewer - Full-screen media viewer with navigation
@@ -6,19 +6,19 @@
  * Displays images, videos, audio, and documents in a modal lightbox.
  */
 
-import * as React from 'react'
-import { useCallback, useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { MediaItem as MediaItemType } from '@/lib/media/media-types'
-import { formatFileSize, getRelativeTime } from '@/lib/media/media-manager'
-import { useMediaViewer } from '@/hooks/useMediaViewer'
-import { ImageViewer } from './ImageViewer'
-import { VideoPlayer } from './VideoPlayer'
-import { AudioPlayer } from './AudioPlayer'
-import { DocumentViewer } from './DocumentViewer'
-import { MediaInfo } from './MediaInfo'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import * as React from "react";
+import { useCallback, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { MediaItem as MediaItemType } from "@/lib/media/media-types";
+import { formatFileSize, getRelativeTime } from "@/lib/media/media-manager";
+import { useMediaViewer } from "@/hooks/useMediaViewer";
+import { ImageViewer } from "./ImageViewer";
+import { VideoPlayer } from "./VideoPlayer";
+import { AudioPlayer } from "./AudioPlayer";
+import { DocumentViewer } from "./DocumentViewer";
+import { MediaInfo } from "./MediaInfo";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   X,
   ChevronLeft,
@@ -29,26 +29,32 @@ import {
   Trash2,
   Maximize2,
   Minimize2,
-} from 'lucide-react'
-import * as Dialog from '@radix-ui/react-dialog'
+} from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface MediaViewerProps {
-  isOpen: boolean
-  onClose: () => void
-  onDownload?: (item: MediaItemType) => void
-  onShare?: (item: MediaItemType) => void
-  onDelete?: (item: MediaItemType) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onDownload?: (item: MediaItemType) => void;
+  onShare?: (item: MediaItemType) => void;
+  onDelete?: (item: MediaItemType) => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: MediaViewerProps) {
+export function MediaViewer({
+  isOpen,
+  onClose,
+  onDownload,
+  onShare,
+  onDelete,
+}: MediaViewerProps) {
   const {
     currentItem,
     currentIndex,
@@ -83,35 +89,35 @@ export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: 
   } = useMediaViewer({
     enableKeyboardNavigation: true,
     enableFullscreen: true,
-  })
+  });
 
   // Handle download
   const handleDownload = useCallback(() => {
     if (currentItem) {
-      onDownload?.(currentItem)
+      onDownload?.(currentItem);
     }
-  }, [currentItem, onDownload])
+  }, [currentItem, onDownload]);
 
   // Handle share
   const handleShare = useCallback(() => {
     if (currentItem) {
-      onShare?.(currentItem)
+      onShare?.(currentItem);
     }
-  }, [currentItem, onShare])
+  }, [currentItem, onShare]);
 
   // Handle delete
   const handleDelete = useCallback(() => {
     if (currentItem) {
-      onDelete?.(currentItem)
+      onDelete?.(currentItem);
     }
-  }, [currentItem, onDelete])
+  }, [currentItem, onDelete]);
 
   // Render media based on type
   const renderMedia = () => {
-    if (!currentItem) return null
+    if (!currentItem) return null;
 
     switch (currentItem.fileType) {
-      case 'image':
+      case "image":
         return (
           <ImageViewer
             item={currentItem}
@@ -125,9 +131,9 @@ export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: 
             onDownload={handleDownload}
             showControls={true}
           />
-        )
+        );
 
-      case 'video':
+      case "video":
         return (
           <VideoPlayer
             item={currentItem}
@@ -145,9 +151,9 @@ export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: 
             onFullscreenChange={toggleFullscreen}
             onDownload={handleDownload}
           />
-        )
+        );
 
-      case 'audio':
+      case "audio":
         return (
           <div className="flex h-full w-full items-center justify-center p-8">
             <AudioPlayer
@@ -165,23 +171,23 @@ export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: 
               onDownload={handleDownload}
             />
           </div>
-        )
+        );
 
-      case 'document':
-      case 'archive':
+      case "document":
+      case "archive":
       default:
         return (
           <DocumentViewer
             item={currentItem}
-            embedPdf={currentItem.mimeType === 'application/pdf'}
+            embedPdf={currentItem.mimeType === "application/pdf"}
             onDownload={handleDownload}
-            onOpenExternal={() => window.open(currentItem.url, '_blank')}
+            onOpenExternal={() => window.open(currentItem.url, "_blank")}
           />
-        )
+        );
     }
-  }
+  };
 
-  if (!isOpen || !currentItem) return null
+  if (!isOpen || !currentItem) return null;
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -204,7 +210,9 @@ export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: 
                 <p className="text-sm font-medium text-white">
                   {currentItem.uploadedBy.displayName}
                 </p>
-                <p className="text-xs text-white/60">{getRelativeTime(currentItem.createdAt)}</p>
+                <p className="text-xs text-white/60">
+                  {getRelativeTime(currentItem.createdAt)}
+                </p>
               </div>
             </div>
 
@@ -220,7 +228,10 @@ export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: 
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn('h-9 w-9 text-white hover:bg-white/20', showInfo && 'bg-white/20')}
+                className={cn(
+                  "h-9 w-9 text-white hover:bg-white/20",
+                  showInfo && "bg-white/20",
+                )}
                 onClick={toggleInfo}
               >
                 <Info className="h-5 w-5" />
@@ -291,7 +302,9 @@ export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: 
           {/* Main content */}
           <div className="relative flex flex-1 overflow-hidden">
             {/* Media viewer */}
-            <div className={cn('flex-1', showInfo && 'mr-80')}>{renderMedia()}</div>
+            <div className={cn("flex-1", showInfo && "mr-80")}>
+              {renderMedia()}
+            </div>
 
             {/* Navigation buttons */}
             {hasPrevious && (
@@ -327,7 +340,7 @@ export function MediaViewer({ isOpen, onClose, onDownload, onShare, onDelete }: 
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  )
+  );
 }
 
-export default MediaViewer
+export default MediaViewer;

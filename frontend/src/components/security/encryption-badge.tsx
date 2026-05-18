@@ -5,38 +5,50 @@
  * locked/unlocked icons, verification status, and tooltip information.
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type EncryptionLevel = 'none' | 'initializing' | 'encrypted' | 'verified' | 'error'
+export type EncryptionLevel =
+  | "none"
+  | "initializing"
+  | "encrypted"
+  | "verified"
+  | "error";
 
-export interface EncryptionBadgeProps extends VariantProps<typeof badgeVariants> {
+export interface EncryptionBadgeProps extends VariantProps<
+  typeof badgeVariants
+> {
   /** Current encryption level */
-  level: EncryptionLevel
+  level: EncryptionLevel;
   /** Whether to show tooltip with details */
-  showTooltip?: boolean
+  showTooltip?: boolean;
   /** Custom tooltip content */
-  tooltipContent?: React.ReactNode
+  tooltipContent?: React.ReactNode;
   /** Whether to show the label text */
-  showLabel?: boolean
+  showLabel?: boolean;
   /** Custom label text */
-  label?: string
+  label?: string;
   /** Click handler */
-  onClick?: () => void
+  onClick?: () => void;
   /** Additional CSS class */
-  className?: string
+  className?: string;
   /** Whether the component is interactive */
-  interactive?: boolean
+  interactive?: boolean;
   /** Test ID for testing */
-  'data-testid'?: string
+  "data-testid"?: string;
 }
 
 // ============================================================================
@@ -44,48 +56,51 @@ export interface EncryptionBadgeProps extends VariantProps<typeof badgeVariants>
 // ============================================================================
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1.5 rounded-full font-medium transition-colors',
+  "inline-flex items-center gap-1.5 rounded-full font-medium transition-colors",
   {
     variants: {
       size: {
-        sm: 'px-2 py-0.5 text-xs',
-        md: 'px-2.5 py-1 text-sm',
-        lg: 'px-3 py-1.5 text-base',
+        sm: "px-2 py-0.5 text-xs",
+        md: "px-2.5 py-1 text-sm",
+        lg: "px-3 py-1.5 text-base",
       },
       variant: {
-        none: 'bg-muted text-muted-foreground',
-        initializing: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-        encrypted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        verified: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-        error: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+        none: "bg-muted text-muted-foreground",
+        initializing:
+          "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+        encrypted:
+          "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+        verified:
+          "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+        error: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
       },
     },
     defaultVariants: {
-      size: 'md',
-      variant: 'none',
+      size: "md",
+      variant: "none",
     },
-  }
-)
+  },
+);
 
-const iconVariants = cva('flex-shrink-0', {
+const iconVariants = cva("flex-shrink-0", {
   variants: {
     size: {
-      sm: 'h-3 w-3',
-      md: 'h-4 w-4',
-      lg: 'h-5 w-5',
+      sm: "h-3 w-3",
+      md: "h-4 w-4",
+      lg: "h-5 w-5",
     },
   },
   defaultVariants: {
-    size: 'md',
+    size: "md",
   },
-})
+});
 
 // ============================================================================
 // Icons
 // ============================================================================
 
 interface IconProps {
-  className?: string
+  className?: string;
 }
 
 const LockIcon: React.FC<IconProps> = ({ className }) => (
@@ -103,7 +118,7 @@ const LockIcon: React.FC<IconProps> = ({ className }) => (
     <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>
-)
+);
 
 const UnlockIcon: React.FC<IconProps> = ({ className }) => (
   <svg
@@ -120,7 +135,7 @@ const UnlockIcon: React.FC<IconProps> = ({ className }) => (
     <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
     <path d="M7 11V7a5 5 0 0 1 9.9-1" />
   </svg>
-)
+);
 
 const ShieldCheckIcon: React.FC<IconProps> = ({ className }) => (
   <svg
@@ -137,7 +152,7 @@ const ShieldCheckIcon: React.FC<IconProps> = ({ className }) => (
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     <path d="m9 12 2 2 4-4" />
   </svg>
-)
+);
 
 const LoaderIcon: React.FC<IconProps> = ({ className }) => (
   <svg
@@ -148,12 +163,12 @@ const LoaderIcon: React.FC<IconProps> = ({ className }) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className={cn(className, 'animate-spin')}
+    className={cn(className, "animate-spin")}
     aria-hidden="true"
   >
     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
   </svg>
-)
+);
 
 const AlertIcon: React.FC<IconProps> = ({ className }) => (
   <svg
@@ -171,7 +186,7 @@ const AlertIcon: React.FC<IconProps> = ({ className }) => (
     <path d="M12 9v4" />
     <path d="M12 17h.01" />
   </svg>
-)
+);
 
 // ============================================================================
 // Helper Functions
@@ -180,22 +195,25 @@ const AlertIcon: React.FC<IconProps> = ({ className }) => (
 /**
  * Gets the icon component for a given encryption level
  */
-function getIcon(level: EncryptionLevel, size: 'sm' | 'md' | 'lg' = 'md'): React.ReactNode {
-  const className = iconVariants({ size })
+function getIcon(
+  level: EncryptionLevel,
+  size: "sm" | "md" | "lg" = "md",
+): React.ReactNode {
+  const className = iconVariants({ size });
 
   switch (level) {
-    case 'none':
-      return <UnlockIcon className={className} />
-    case 'initializing':
-      return <LoaderIcon className={className} />
-    case 'encrypted':
-      return <LockIcon className={className} />
-    case 'verified':
-      return <ShieldCheckIcon className={className} />
-    case 'error':
-      return <AlertIcon className={className} />
+    case "none":
+      return <UnlockIcon className={className} />;
+    case "initializing":
+      return <LoaderIcon className={className} />;
+    case "encrypted":
+      return <LockIcon className={className} />;
+    case "verified":
+      return <ShieldCheckIcon className={className} />;
+    case "error":
+      return <AlertIcon className={className} />;
     default:
-      return <UnlockIcon className={className} />
+      return <UnlockIcon className={className} />;
   }
 }
 
@@ -204,18 +222,18 @@ function getIcon(level: EncryptionLevel, size: 'sm' | 'md' | 'lg' = 'md'): React
  */
 function getDefaultLabel(level: EncryptionLevel): string {
   switch (level) {
-    case 'none':
-      return 'Not encrypted'
-    case 'initializing':
-      return 'Initializing...'
-    case 'encrypted':
-      return 'Encrypted'
-    case 'verified':
-      return 'Verified'
-    case 'error':
-      return 'Error'
+    case "none":
+      return "Not encrypted";
+    case "initializing":
+      return "Initializing...";
+    case "encrypted":
+      return "Encrypted";
+    case "verified":
+      return "Verified";
+    case "error":
+      return "Error";
     default:
-      return 'Unknown'
+      return "Unknown";
   }
 }
 
@@ -224,18 +242,18 @@ function getDefaultLabel(level: EncryptionLevel): string {
  */
 function getDefaultTooltip(level: EncryptionLevel): string {
   switch (level) {
-    case 'none':
-      return 'Messages in this conversation are not encrypted.'
-    case 'initializing':
-      return 'Setting up encryption for this conversation...'
-    case 'encrypted':
-      return 'Messages are encrypted end-to-end. Only participants can read them.'
-    case 'verified':
-      return 'Messages are encrypted and all participants have been verified.'
-    case 'error':
-      return 'There was an error with encryption. Messages may not be secure.'
+    case "none":
+      return "Messages in this conversation are not encrypted.";
+    case "initializing":
+      return "Setting up encryption for this conversation...";
+    case "encrypted":
+      return "Messages are encrypted end-to-end. Only participants can read them.";
+    case "verified":
+      return "Messages are encrypted and all participants have been verified.";
+    case "error":
+      return "There was an error with encryption. Messages may not be secure.";
     default:
-      return 'Unknown encryption status.'
+      return "Unknown encryption status.";
   }
 }
 
@@ -244,18 +262,18 @@ function getDefaultTooltip(level: EncryptionLevel): string {
  */
 function getAriaLabel(level: EncryptionLevel): string {
   switch (level) {
-    case 'none':
-      return 'Encryption disabled'
-    case 'initializing':
-      return 'Encryption initializing'
-    case 'encrypted':
-      return 'End-to-end encrypted'
-    case 'verified':
-      return 'Verified end-to-end encrypted'
-    case 'error':
-      return 'Encryption error'
+    case "none":
+      return "Encryption disabled";
+    case "initializing":
+      return "Encryption initializing";
+    case "encrypted":
+      return "End-to-end encrypted";
+    case "verified":
+      return "Verified end-to-end encrypted";
+    case "error":
+      return "Encryption error";
     default:
-      return 'Unknown encryption status'
+      return "Unknown encryption status";
   }
 }
 
@@ -266,11 +284,14 @@ function getAriaLabel(level: EncryptionLevel): string {
 /**
  * EncryptionBadge displays the encryption status with appropriate styling
  */
-export const EncryptionBadge = React.forwardRef<HTMLDivElement, EncryptionBadgeProps>(
+export const EncryptionBadge = React.forwardRef<
+  HTMLDivElement,
+  EncryptionBadgeProps
+>(
   (
     {
       level,
-      size = 'md',
+      size = "md",
       showTooltip = true,
       tooltipContent,
       showLabel = true,
@@ -278,31 +299,31 @@ export const EncryptionBadge = React.forwardRef<HTMLDivElement, EncryptionBadgeP
       onClick,
       className,
       interactive = false,
-      'data-testid': testId,
+      "data-testid": testId,
     },
-    ref
+    ref,
   ) => {
-    const displayLabel = label ?? getDefaultLabel(level)
-    const displayTooltip = tooltipContent ?? getDefaultTooltip(level)
+    const displayLabel = label ?? getDefaultLabel(level);
+    const displayTooltip = tooltipContent ?? getDefaultTooltip(level);
 
     const badge = (
       <div
         ref={ref}
         className={cn(
           badgeVariants({ size, variant: level }),
-          interactive && 'cursor-pointer hover:opacity-80',
-          className
+          interactive && "cursor-pointer hover:opacity-80",
+          className,
         )}
         onClick={interactive ? onClick : undefined}
-        role={interactive ? 'button' : 'status'}
+        role={interactive ? "button" : "status"}
         aria-label={getAriaLabel(level)}
         tabIndex={interactive ? 0 : undefined}
         onKeyDown={
           interactive
             ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  onClick?.()
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onClick?.();
                 }
               }
             : undefined
@@ -310,13 +331,13 @@ export const EncryptionBadge = React.forwardRef<HTMLDivElement, EncryptionBadgeP
         data-testid={testId}
         data-encryption-level={level}
       >
-        {getIcon(level, size ?? 'md')}
+        {getIcon(level, size ?? "md")}
         {showLabel && <span>{displayLabel}</span>}
       </div>
-    )
+    );
 
     if (!showTooltip) {
-      return badge
+      return badge;
     }
 
     return (
@@ -328,11 +349,11 @@ export const EncryptionBadge = React.forwardRef<HTMLDivElement, EncryptionBadgeP
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
-  }
-)
+    );
+  },
+);
 
-EncryptionBadge.displayName = 'EncryptionBadge'
+EncryptionBadge.displayName = "EncryptionBadge";
 
 // ============================================================================
 // Subcomponents
@@ -343,45 +364,47 @@ EncryptionBadge.displayName = 'EncryptionBadge'
  */
 export const EncryptionIcon = React.forwardRef<
   HTMLDivElement,
-  Omit<EncryptionBadgeProps, 'showLabel'>
->((props, ref) => <EncryptionBadge ref={ref} {...props} showLabel={false} />)
+  Omit<EncryptionBadgeProps, "showLabel">
+>((props, ref) => <EncryptionBadge ref={ref} {...props} showLabel={false} />);
 
-EncryptionIcon.displayName = 'EncryptionIcon'
+EncryptionIcon.displayName = "EncryptionIcon";
 
 /**
  * Status indicator for channel headers
  */
 export interface ChannelEncryptionStatusProps {
-  isEncrypted: boolean
-  isVerified?: boolean
-  isError?: boolean
-  isInitializing?: boolean
-  showLabel?: boolean
-  size?: 'sm' | 'md' | 'lg'
-  className?: string
-  onClick?: () => void
+  isEncrypted: boolean;
+  isVerified?: boolean;
+  isError?: boolean;
+  isInitializing?: boolean;
+  showLabel?: boolean;
+  size?: "sm" | "md" | "lg";
+  className?: string;
+  onClick?: () => void;
 }
 
-export const ChannelEncryptionStatus: React.FC<ChannelEncryptionStatusProps> = ({
+export const ChannelEncryptionStatus: React.FC<
+  ChannelEncryptionStatusProps
+> = ({
   isEncrypted,
   isVerified = false,
   isError = false,
   isInitializing = false,
   showLabel = true,
-  size = 'sm',
+  size = "sm",
   className,
   onClick,
 }) => {
-  let level: EncryptionLevel = 'none'
+  let level: EncryptionLevel = "none";
 
   if (isError) {
-    level = 'error'
+    level = "error";
   } else if (isInitializing) {
-    level = 'initializing'
+    level = "initializing";
   } else if (isVerified) {
-    level = 'verified'
+    level = "verified";
   } else if (isEncrypted) {
-    level = 'encrypted'
+    level = "encrypted";
   }
 
   return (
@@ -394,45 +417,46 @@ export const ChannelEncryptionStatus: React.FC<ChannelEncryptionStatusProps> = (
       interactive={!!onClick}
       data-testid="channel-encryption-status"
     />
-  )
-}
+  );
+};
 
 /**
  * Message encryption indicator (inline with message)
  */
 export interface MessageEncryptionIndicatorProps {
-  isEncrypted: boolean
-  isDecryptionFailed?: boolean
-  className?: string
+  isEncrypted: boolean;
+  isDecryptionFailed?: boolean;
+  className?: string;
 }
 
-export const MessageEncryptionIndicator: React.FC<MessageEncryptionIndicatorProps> = ({
-  isEncrypted,
-  isDecryptionFailed = false,
-  className,
-}) => {
+export const MessageEncryptionIndicator: React.FC<
+  MessageEncryptionIndicatorProps
+> = ({ isEncrypted, isDecryptionFailed = false, className }) => {
   if (isDecryptionFailed) {
     return (
       <span
-        className={cn('inline-flex items-center gap-1 text-xs text-red-500', className)}
+        className={cn(
+          "inline-flex items-center gap-1 text-xs text-red-500",
+          className,
+        )}
         title="Failed to decrypt message"
         data-testid="message-decryption-failed"
       >
         <AlertIcon className="h-3 w-3" />
         <span className="sr-only">Decryption failed</span>
       </span>
-    )
+    );
   }
 
   if (!isEncrypted) {
-    return null
+    return null;
   }
 
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400',
-        className
+        "inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400",
+        className,
       )}
       title="Message is encrypted"
       data-testid="message-encrypted-indicator"
@@ -440,11 +464,11 @@ export const MessageEncryptionIndicator: React.FC<MessageEncryptionIndicatorProp
       <LockIcon className="h-3 w-3" />
       <span className="sr-only">Encrypted</span>
     </span>
-  )
-}
+  );
+};
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export default EncryptionBadge
+export default EncryptionBadge;

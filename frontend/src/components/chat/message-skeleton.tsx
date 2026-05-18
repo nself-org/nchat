@@ -1,30 +1,34 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils";
 
 interface MessageSkeletonProps {
-  count?: number
-  compact?: boolean
-  className?: string
+  count?: number;
+  compact?: boolean;
+  className?: string;
 }
 
 /**
  * Loading skeleton for messages
  * Shows animated placeholder content while messages are loading
  */
-export function MessageSkeleton({ count = 3, compact = false, className }: MessageSkeletonProps) {
+export function MessageSkeleton({
+  count = 3,
+  compact = false,
+  className,
+}: MessageSkeletonProps) {
   return (
-    <div className={cn('flex flex-col gap-4 p-4', className)}>
+    <div className={cn("flex flex-col gap-4 p-4", className)}>
       {Array.from({ length: count }).map((_, i) => (
         <MessageSkeletonItem key={i} compact={compact} />
       ))}
     </div>
-  )
+  );
 }
 
 interface MessageSkeletonItemProps {
-  compact?: boolean
-  showAvatar?: boolean
+  compact?: boolean;
+  showAvatar?: boolean;
 }
 
 export function MessageSkeletonItem({
@@ -32,10 +36,15 @@ export function MessageSkeletonItem({
   showAvatar = true,
 }: MessageSkeletonItemProps) {
   return (
-    <div className={cn('flex animate-pulse gap-3', compact && 'gap-2')}>
+    <div className={cn("flex animate-pulse gap-3", compact && "gap-2")}>
       {/* Avatar */}
       {showAvatar && (
-        <div className={cn('shrink-0 rounded-full bg-muted', compact ? 'h-6 w-6' : 'h-9 w-9')} />
+        <div
+          className={cn(
+            "shrink-0 rounded-full bg-muted",
+            compact ? "h-6 w-6" : "h-9 w-9",
+          )}
+        />
       )}
 
       {/* Content */}
@@ -53,7 +62,7 @@ export function MessageSkeletonItem({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -66,7 +75,7 @@ export function GroupedMessageSkeleton() {
         <div className="h-4 w-full max-w-[260px] rounded bg-muted" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -91,5 +100,5 @@ export function MessageListSkeleton() {
         <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
       </div>
     </div>
-  )
+  );
 }

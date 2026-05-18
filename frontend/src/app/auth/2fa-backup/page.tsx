@@ -4,66 +4,77 @@
  * Allows users to use backup codes when they can't access their authenticator app.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Label } from '@/components/ui/label'
-import { Loader2, Key, AlertCircle, ArrowLeft } from 'lucide-react'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
+import { Loader2, Key, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function TwoFactorBackupPage() {
-  const router = useRouter()
+  const router = useRouter();
 
-  const [backupCode, setBackupCode] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [backupCode, setBackupCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     // Get MFA ticket from session storage
-    const ticket = typeof window !== 'undefined' ? sessionStorage.getItem('nchat-mfa-ticket') : null
+    const ticket =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("nchat-mfa-ticket")
+        : null;
 
     if (!ticket) {
-      setError('Session expired. Please sign in again.')
-      router.push('/login')
-      return
+      setError("Session expired. Please sign in again.");
+      router.push("/login");
+      return;
     }
 
     try {
-      const response = await fetch('/api/auth/2fa/verify-backup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/2fa/verify-backup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ticket,
-          backupCode: backupCode.replace(/\s+/g, ''), // Remove spaces
+          backupCode: backupCode.replace(/\s+/g, ""), // Remove spaces
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
         // Clear MFA ticket
-        sessionStorage.removeItem('nchat-mfa-ticket')
+        sessionStorage.removeItem("nchat-mfa-ticket");
 
         // Redirect to chat
-        router.push('/chat')
+        router.push("/chat");
       } else {
-        setError(data.error?.message || 'Invalid backup code. Please try again.')
-        setBackupCode('')
+        setError(
+          data.error?.message || "Invalid backup code. Please try again.",
+        );
+        setBackupCode("");
       }
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      setError("An error occurred. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
@@ -74,7 +85,8 @@ export default function TwoFactorBackupPage() {
           </div>
           <CardTitle>Use Backup Code</CardTitle>
           <CardDescription>
-            Enter one of your backup codes to sign in without your authenticator app
+            Enter one of your backup codes to sign in without your authenticator
+            app
           </CardDescription>
         </CardHeader>
 
@@ -106,7 +118,11 @@ export default function TwoFactorBackupPage() {
               </p>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading || !backupCode}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || !backupCode}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -121,7 +137,11 @@ export default function TwoFactorBackupPage() {
             </Button>
 
             <div className="text-center">
-              <Button variant="link" onClick={() => router.push('/auth/2fa-verify')} type="button">
+              <Button
+                variant="link"
+                onClick={() => router.push("/auth/2fa-verify")}
+                type="button"
+              >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to 2FA Code
               </Button>
@@ -130,5 +150,5 @@ export default function TwoFactorBackupPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

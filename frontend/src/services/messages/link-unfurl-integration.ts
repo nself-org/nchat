@@ -13,16 +13,20 @@
  * @module services/messages/link-unfurl-integration
  */
 
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { logger } from '@/lib/logger'
-import { getLinkUnfurlService, hashUrl, type LinkPreviewData } from './link-unfurl.service'
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+import { logger } from "@/lib/logger";
+import {
+  getLinkUnfurlService,
+  hashUrl,
+  type LinkPreviewData,
+} from "./link-unfurl.service";
 import {
   GET_VALID_LINK_PREVIEW,
   INSERT_LINK_PREVIEW,
   DELETE_EXPIRED_PREVIEWS,
   transformLinkPreviewRecord,
   type LinkPreviewRecord,
-} from '@/graphql/messages/link-previews'
+} from "@/graphql/messages/link-previews";
 
 // ============================================================================
 // Types
@@ -30,32 +34,32 @@ import {
 
 export interface LinkUnfurlIntegrationConfig {
   /** Apollo client for GraphQL operations */
-  apolloClient: ApolloClient<NormalizedCacheObject>
+  apolloClient: ApolloClient<NormalizedCacheObject>;
   /** Maximum URLs to unfurl per message */
-  maxUrlsPerMessage?: number
+  maxUrlsPerMessage?: number;
   /** Whether to use database caching */
-  useDbCache?: boolean
+  useDbCache?: boolean;
 }
 
 export interface ExtractedUrl {
-  url: string
-  urlHash: string
-  startIndex: number
-  endIndex: number
+  url: string;
+  urlHash: string;
+  startIndex: number;
+  endIndex: number;
 }
 
 export interface MessageLinkPreview {
-  url: string
-  urlHash: string
-  preview?: LinkPreviewData
-  error?: string
-  cached: boolean
+  url: string;
+  urlHash: string;
+  preview?: LinkPreviewData;
+  error?: string;
+  cached: boolean;
 }
 
 export interface UnfurlMessageResult {
-  messageId: string
-  extractedUrls: ExtractedUrl[]
-  previews: MessageLinkPreview[]
+  messageId: string;
+  extractedUrls: ExtractedUrl[];
+  previews: MessageLinkPreview[];
 }
 
 // ============================================================================
@@ -63,11 +67,11 @@ export interface UnfurlMessageResult {
 // ============================================================================
 
 /** Default max URLs to unfurl per message */
-const DEFAULT_MAX_URLS_PER_MESSAGE = 5
+const DEFAULT_MAX_URLS_PER_MESSAGE = 5;
 
 /** URL regex pattern for extraction */
 const URL_REGEX =
-  /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)/gi
+  /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)/gi;
 
 /** URLs that should be excluded from unfurling */
 const EXCLUDED_URL_PATTERNS = [
@@ -76,7 +80,7 @@ const EXCLUDED_URL_PATTERNS = [
   /\.(mp3|wav|ogg|flac)(\?.*)?$/i, // Direct audio links
   /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)(\?.*)?$/i, // Document links
   /\.(zip|rar|7z|tar|gz)(\?.*)?$/i, // Archive links
-]
+];
 
 // ============================================================================
 // Link Unfurl Integration Class
@@ -88,15 +92,16 @@ const EXCLUDED_URL_PATTERNS = [
  * Manages the integration between message sending and link unfurling.
  */
 export class LinkUnfurlIntegration {
-  private readonly log = logger.scope('LinkUnfurlIntegration')
-  private client: ApolloClient<NormalizedCacheObject>
-  private maxUrlsPerMessage: number
-  private useDbCache: boolean
+  private readonly log = logger.scope("LinkUnfurlIntegration");
+  private client: ApolloClient<NormalizedCacheObject>;
+  private maxUrlsPerMessage: number;
+  private useDbCache: boolean;
 
   constructor(config: LinkUnfurlIntegrationConfig) {
-    this.client = config.apolloClient
-    this.maxUrlsPerMessage = config.maxUrlsPerMessage ?? DEFAULT_MAX_URLS_PER_MESSAGE
-    this.useDbCache = config.useDbCache ?? true
+    this.client = config.apolloClient;
+    this.maxUrlsPerMessage =
+      config.maxUrlsPerMessage ?? DEFAULT_MAX_URLS_PER_MESSAGE;
+    this.useDbCache = config.useDbCache ?? true;
   }
 
   // ==========================================================================
@@ -107,41 +112,41 @@ export class LinkUnfurlIntegration {
    * Extract URLs from message content
    */
   extractUrls(content: string): ExtractedUrl[] {
-    const urls: ExtractedUrl[] = []
-    const seen = new Set<string>()
+    const urls: ExtractedUrl[] = [];
+    const seen = new Set<string>();
 
-    let match: RegExpExecArray | null
-    URL_REGEX.lastIndex = 0 // Reset regex state
+    let match: RegExpExecArray | null;
+    URL_REGEX.lastIndex = 0; // Reset regex state
 
     while ((match = URL_REGEX.exec(content)) !== null) {
-      const url = match[0]
+      const url = match[0];
 
       // Skip duplicates
-      if (seen.has(url)) continue
-      seen.add(url)
+      if (seen.has(url)) continue;
+      seen.add(url);
 
       // Skip excluded patterns
-      if (this.shouldExcludeUrl(url)) continue
+      if (this.shouldExcludeUrl(url)) continue;
 
       urls.push({
         url,
         urlHash: hashUrl(url),
         startIndex: match.index,
         endIndex: match.index + url.length,
-      })
+      });
 
       // Limit number of URLs
-      if (urls.length >= this.maxUrlsPerMessage) break
+      if (urls.length >= this.maxUrlsPerMessage) break;
     }
 
-    return urls
+    return urls;
   }
 
   /**
    * Check if URL should be excluded from unfurling
    */
   private shouldExcludeUrl(url: string): boolean {
-    return EXCLUDED_URL_PATTERNS.some((pattern) => pattern.test(url))
+    return EXCLUDED_URL_PATTERNS.some((pattern) => pattern.test(url));
   }
 
   // ==========================================================================
@@ -152,7 +157,7 @@ export class LinkUnfurlIntegration {
    * Get cached preview from database
    */
   async getCachedPreview(urlHash: string): Promise<LinkPreviewData | null> {
-    if (!this.useDbCache) return null
+    if (!this.useDbCache) return null;
 
     try {
       const { data } = await this.client.query({
@@ -161,13 +166,15 @@ export class LinkUnfurlIntegration {
           urlHash,
           now: new Date().toISOString(),
         },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
-      const records = data?.nchat_link_previews as LinkPreviewRecord[] | undefined
-      if (!records || records.length === 0) return null
+      const records = data?.nchat_link_previews as
+        | LinkPreviewRecord[]
+        | undefined;
+      if (!records || records.length === 0) return null;
 
-      const transformed = transformLinkPreviewRecord(records[0])
+      const transformed = transformLinkPreviewRecord(records[0]);
       return {
         url: transformed.url,
         urlHash: transformed.urlHash,
@@ -179,7 +186,7 @@ export class LinkUnfurlIntegration {
         imageAlt: transformed.imageAlt,
         siteName: transformed.siteName,
         faviconUrl: transformed.faviconUrl,
-        type: transformed.type as LinkPreviewData['type'],
+        type: transformed.type as LinkPreviewData["type"],
         videoUrl: transformed.videoUrl,
         videoWidth: transformed.videoWidth,
         videoHeight: transformed.videoHeight,
@@ -190,10 +197,10 @@ export class LinkUnfurlIntegration {
         themeColor: transformed.themeColor,
         fetchedAt: transformed.fetchedAt,
         expiresAt: transformed.expiresAt,
-      }
+      };
     } catch (error) {
-      this.log.warn('Failed to get cached preview', { urlHash, error })
-      return null
+      this.log.warn("Failed to get cached preview", { urlHash, error });
+      return null;
     }
   }
 
@@ -201,7 +208,7 @@ export class LinkUnfurlIntegration {
    * Save preview to database cache
    */
   async cachePreview(preview: LinkPreviewData): Promise<void> {
-    if (!this.useDbCache) return
+    if (!this.useDbCache) return;
 
     try {
       await this.client.mutate({
@@ -229,9 +236,9 @@ export class LinkUnfurlIntegration {
           fetchedAt: preview.fetchedAt.toISOString(),
           expiresAt: preview.expiresAt.toISOString(),
         },
-      })
+      });
     } catch (error) {
-      this.log.warn('Failed to cache preview', { url: preview.url, error })
+      this.log.warn("Failed to cache preview", { url: preview.url, error });
     }
   }
 
@@ -245,16 +252,16 @@ export class LinkUnfurlIntegration {
         variables: {
           now: new Date().toISOString(),
         },
-      })
+      });
 
-      const deletedCount = data?.delete_nchat_link_previews?.affected_rows ?? 0
+      const deletedCount = data?.delete_nchat_link_previews?.affected_rows ?? 0;
       if (deletedCount > 0) {
-        this.log.info('Cleaned up expired previews', { count: deletedCount })
+        this.log.info("Cleaned up expired previews", { count: deletedCount });
       }
-      return deletedCount
+      return deletedCount;
     } catch (error) {
-      this.log.warn('Failed to cleanup expired previews', { error })
-      return 0
+      this.log.warn("Failed to cleanup expired previews", { error });
+      return 0;
     }
   }
 
@@ -266,22 +273,22 @@ export class LinkUnfurlIntegration {
    * Unfurl a single URL
    */
   async unfurlUrl(url: string): Promise<MessageLinkPreview> {
-    const urlHash = hashUrl(url)
+    const urlHash = hashUrl(url);
 
     // Check database cache first
-    const cached = await this.getCachedPreview(urlHash)
+    const cached = await this.getCachedPreview(urlHash);
     if (cached) {
       return {
         url,
         urlHash,
         preview: cached,
         cached: true,
-      }
+      };
     }
 
     // Unfurl the URL
-    const service = getLinkUnfurlService()
-    const result = await service.unfurlUrl(url)
+    const service = getLinkUnfurlService();
+    const result = await service.unfurlUrl(url);
 
     if (!result.success || !result.data) {
       return {
@@ -289,18 +296,18 @@ export class LinkUnfurlIntegration {
         urlHash,
         error: result.error,
         cached: false,
-      }
+      };
     }
 
     // Cache the result
-    await this.cachePreview(result.data)
+    await this.cachePreview(result.data);
 
     return {
       url,
       urlHash,
       preview: result.data,
       cached: false,
-    }
+    };
   }
 
   /**
@@ -308,7 +315,7 @@ export class LinkUnfurlIntegration {
    */
   async unfurlUrls(urls: string[]): Promise<MessageLinkPreview[]> {
     // Limit URLs
-    const urlsToUnfurl = urls.slice(0, this.maxUrlsPerMessage)
+    const urlsToUnfurl = urls.slice(0, this.maxUrlsPerMessage);
 
     // Unfurl in parallel with proper error handling
     const results = await Promise.all(
@@ -316,46 +323,49 @@ export class LinkUnfurlIntegration {
         this.unfurlUrl(url).catch((error) => ({
           url,
           urlHash: hashUrl(url),
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
           cached: false,
-        }))
-      )
-    )
+        })),
+      ),
+    );
 
-    return results
+    return results;
   }
 
   /**
    * Process a message and unfurl its URLs
    */
-  async processMessage(messageId: string, content: string): Promise<UnfurlMessageResult> {
-    this.log.debug('Processing message for unfurling', { messageId })
+  async processMessage(
+    messageId: string,
+    content: string,
+  ): Promise<UnfurlMessageResult> {
+    this.log.debug("Processing message for unfurling", { messageId });
 
     // Extract URLs
-    const extractedUrls = this.extractUrls(content)
+    const extractedUrls = this.extractUrls(content);
 
     if (extractedUrls.length === 0) {
       return {
         messageId,
         extractedUrls: [],
         previews: [],
-      }
+      };
     }
 
-    this.log.info('Found URLs to unfurl', {
+    this.log.info("Found URLs to unfurl", {
       messageId,
       urlCount: extractedUrls.length,
-    })
+    });
 
     // Unfurl all URLs
-    const urls = extractedUrls.map((e) => e.url)
-    const previews = await this.unfurlUrls(urls)
+    const urls = extractedUrls.map((e) => e.url);
+    const previews = await this.unfurlUrls(urls);
 
     return {
       messageId,
       extractedUrls,
       previews,
-    }
+    };
   }
 
   /**
@@ -366,23 +376,23 @@ export class LinkUnfurlIntegration {
     this.processMessage(messageId, content)
       .then((result) => {
         if (result.previews.length > 0) {
-          const successCount = result.previews.filter((p) => p.preview).length
-          this.log.info('Background unfurl completed', {
+          const successCount = result.previews.filter((p) => p.preview).length;
+          this.log.info("Background unfurl completed", {
             messageId,
             total: result.previews.length,
             success: successCount,
-          })
+          });
         }
       })
       .catch((error) => {
         this.log.error(
-          'Background unfurl failed',
+          "Background unfurl failed",
           error instanceof Error ? error : new Error(String(error)),
           {
             messageId,
-          }
-        )
-      })
+          },
+        );
+      });
   }
 }
 
@@ -390,27 +400,27 @@ export class LinkUnfurlIntegration {
 // Singleton and Factory
 // ============================================================================
 
-let integrationInstance: LinkUnfurlIntegration | null = null
+let integrationInstance: LinkUnfurlIntegration | null = null;
 
 /**
  * Get or create the link unfurl integration singleton
  */
 export function getLinkUnfurlIntegration(
-  apolloClient: ApolloClient<NormalizedCacheObject>
+  apolloClient: ApolloClient<NormalizedCacheObject>,
 ): LinkUnfurlIntegration {
   if (!integrationInstance) {
-    integrationInstance = new LinkUnfurlIntegration({ apolloClient })
+    integrationInstance = new LinkUnfurlIntegration({ apolloClient });
   }
-  return integrationInstance
+  return integrationInstance;
 }
 
 /**
  * Create a new link unfurl integration instance (for testing)
  */
 export function createLinkUnfurlIntegration(
-  config: LinkUnfurlIntegrationConfig
+  config: LinkUnfurlIntegrationConfig,
 ): LinkUnfurlIntegration {
-  return new LinkUnfurlIntegration(config)
+  return new LinkUnfurlIntegration(config);
 }
 
-export default LinkUnfurlIntegration
+export default LinkUnfurlIntegration;

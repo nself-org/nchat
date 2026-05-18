@@ -3,25 +3,28 @@
  * POST /api/calls/[id]/join
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { nhost } from '@/lib/nhost.server'
-import { getLiveKitService } from '@/services/webrtc/livekit.service'
+import { NextRequest, NextResponse } from "next/server";
+import { nhost } from "@/lib/nhost.server";
+import { getLiveKitService } from "@/services/webrtc/livekit.service";
 
-import { logger } from '@/lib/logger.server'
+import { logger } from "@/lib/logger.server";
 
-export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
   try {
-    const session = await nhost.auth.getSession()
+    const session = await nhost.auth.getSession();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user?.id
-    const userName = session.user?.displayName || session.user?.email || 'User'
-    const { id: callId } = await context.params
+    const userId = session.user?.id;
+    const userName = session.user?.displayName || session.user?.email || "User";
+    const { id: callId } = await context.params;
 
     if (!userId) {
-      return NextResponse.json({ error: 'User ID not found' }, { status: 401 })
+      return NextResponse.json({ error: "User ID not found" }, { status: 401 });
     }
 
     // Get call details
@@ -36,30 +39,30 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           }
         }
       `,
-      { id: callId }
-    )
+      { id: callId },
+    );
 
     if (callError || !callData?.nchat_calls_by_pk) {
-      return NextResponse.json({ error: 'Call not found' }, { status: 404 })
+      return NextResponse.json({ error: "Call not found" }, { status: 404 });
     }
 
-    const call = callData.nchat_calls_by_pk
+    const call = callData.nchat_calls_by_pk;
 
-    if (call.status === 'ended') {
-      return NextResponse.json({ error: 'Call has ended' }, { status: 400 })
+    if (call.status === "ended") {
+      return NextResponse.json({ error: "Call has ended" }, { status: 400 });
     }
 
     // Generate access token
-    const livekit = getLiveKitService()
+    const livekit = getLiveKitService();
     const token = await livekit.generateToken({
       identity: userId,
       name: userName,
       roomName: call.livekit_room_name,
-      metadata: JSON.stringify({ role: 'participant' }),
+      metadata: JSON.stringify({ role: "participant" }),
       ttl: 7200,
-    })
+    });
 
-    const iceServers = livekit.getICEServers(userId)
+    const iceServers = livekit.getICEServers(userId);
 
     // Update participant status
     await nhost.graphql.request(
@@ -79,18 +82,21 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           }
         }
       `,
-      { callId, userId }
-    )
+      { callId, userId },
+    );
 
     return NextResponse.json({
       roomName: call.livekit_room_name,
       token,
       iceServers,
-      livekitUrl: process.env.LIVEKIT_URL || 'ws://localhost:7880',
+      livekitUrl: process.env.LIVEKIT_URL || "ws://localhost:7880",
       callType: call.call_type,
-    })
+    });
   } catch (error) {
-    logger.error('Join call error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    logger.error("Join call error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

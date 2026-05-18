@@ -14,37 +14,37 @@ import {
   NotificationPluginConfig,
   defaultNotificationConfig,
   TemplateVariables,
-} from '@/types/notifications'
+} from "@/types/notifications";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface SendOptions {
-  userId: string
-  channel: NotificationChannel
-  category?: NotificationCategory
-  template?: string
+  userId: string;
+  channel: NotificationChannel;
+  category?: NotificationCategory;
+  template?: string;
   to: {
-    email?: string
-    phone?: string
-    pushToken?: string
-  }
+    email?: string;
+    phone?: string;
+    pushToken?: string;
+  };
   content?: {
-    subject?: string
-    body?: string
-    html?: string
-  }
-  variables?: TemplateVariables
-  priority?: number
-  scheduledAt?: Date
-  metadata?: Record<string, unknown>
-  tags?: string[]
+    subject?: string;
+    body?: string;
+    html?: string;
+  };
+  variables?: TemplateVariables;
+  priority?: number;
+  scheduledAt?: Date;
+  metadata?: Record<string, unknown>;
+  tags?: string[];
 }
 
 export interface NotificationServiceOptions {
-  config?: Partial<NotificationPluginConfig>
-  getAuthToken?: () => Promise<string | null>
+  config?: Partial<NotificationPluginConfig>;
+  getAuthToken?: () => Promise<string | null>;
 }
 
 // =============================================================================
@@ -52,12 +52,12 @@ export interface NotificationServiceOptions {
 // =============================================================================
 
 export class NotificationService {
-  private config: NotificationPluginConfig
-  private getAuthToken?: () => Promise<string | null>
+  private config: NotificationPluginConfig;
+  private getAuthToken?: () => Promise<string | null>;
 
   constructor(options: NotificationServiceOptions = {}) {
-    this.config = { ...defaultNotificationConfig, ...options.config }
-    this.getAuthToken = options.getAuthToken
+    this.config = { ...defaultNotificationConfig, ...options.config };
+    this.getAuthToken = options.getAuthToken;
   }
 
   /**
@@ -65,59 +65,66 @@ export class NotificationService {
    */
   private async getHeaders(): Promise<HeadersInit> {
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    }
+      "Content-Type": "application/json",
+    };
 
     if (this.getAuthToken) {
-      const token = await this.getAuthToken()
+      const token = await this.getAuthToken();
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`
+        headers["Authorization"] = `Bearer ${token}`;
       }
     }
 
-    return headers
+    return headers;
   }
 
   /**
    * Make API request with retry logic
    */
-  private async request<T>(method: string, endpoint: string, body?: unknown): Promise<T> {
-    const url = `${this.config.apiUrl}${endpoint}`
-    const headers = await this.getHeaders()
+  private async request<T>(
+    method: string,
+    endpoint: string,
+    body?: unknown,
+  ): Promise<T> {
+    const url = `${this.config.apiUrl}${endpoint}`;
+    const headers = await this.getHeaders();
 
-    let lastError: Error | null = null
+    let lastError: Error | null = null;
     for (let attempt = 0; attempt < this.config.retry.maxAttempts; attempt++) {
       try {
         const response = await fetch(url, {
           method,
           headers,
           body: body ? JSON.stringify(body) : undefined,
-        })
+        });
 
         if (!response.ok) {
-          const errorText = await response.text()
-          throw new Error(`HTTP ${response.status}: ${errorText}`)
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
 
-        return await response.json()
+        return await response.json();
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Unknown error')
+        lastError = error instanceof Error ? error : new Error("Unknown error");
 
         // Don't retry on certain errors
-        if (lastError.message.includes('404') || lastError.message.includes('400')) {
-          throw lastError
+        if (
+          lastError.message.includes("404") ||
+          lastError.message.includes("400")
+        ) {
+          throw lastError;
         }
 
         // Wait before retry
         if (attempt < this.config.retry.maxAttempts - 1) {
           await new Promise((resolve) =>
-            setTimeout(resolve, this.config.retry.delayMs * (attempt + 1))
-          )
+            setTimeout(resolve, this.config.retry.delayMs * (attempt + 1)),
+          );
         }
       }
     }
 
-    throw lastError
+    throw lastError;
   }
 
   /**
@@ -140,9 +147,13 @@ export class NotificationService {
       scheduled_at: options.scheduledAt?.toISOString(),
       metadata: options.metadata,
       tags: options.tags,
-    }
+    };
 
-    return this.request<SendNotificationResponse>('POST', '/api/notifications/send', request)
+    return this.request<SendNotificationResponse>(
+      "POST",
+      "/api/notifications/send",
+      request,
+    );
   }
 
   /**
@@ -152,21 +163,21 @@ export class NotificationService {
     userId: string,
     email: string,
     options: {
-      template?: string
-      subject?: string
-      body?: string
-      html?: string
-      variables?: TemplateVariables
-      category?: NotificationCategory
-    }
+      template?: string;
+      subject?: string;
+      body?: string;
+      html?: string;
+      variables?: TemplateVariables;
+      category?: NotificationCategory;
+    },
   ): Promise<SendNotificationResponse> {
     if (!this.config.emailEnabled) {
-      return { success: false, error: 'Email notifications are disabled' }
+      return { success: false, error: "Email notifications are disabled" };
     }
 
     return this.send({
       userId,
-      channel: 'email',
+      channel: "email",
       category: options.category,
       template: options.template,
       to: { email },
@@ -176,7 +187,7 @@ export class NotificationService {
         html: options.html,
       },
       variables: options.variables,
-    })
+    });
   }
 
   /**
@@ -186,21 +197,21 @@ export class NotificationService {
     userId: string,
     pushToken: string,
     options: {
-      template?: string
-      title?: string
-      body?: string
-      variables?: TemplateVariables
-      category?: NotificationCategory
-      metadata?: Record<string, unknown>
-    }
+      template?: string;
+      title?: string;
+      body?: string;
+      variables?: TemplateVariables;
+      category?: NotificationCategory;
+      metadata?: Record<string, unknown>;
+    },
   ): Promise<SendNotificationResponse> {
     if (!this.config.pushEnabled) {
-      return { success: false, error: 'Push notifications are disabled' }
+      return { success: false, error: "Push notifications are disabled" };
     }
 
     return this.send({
       userId,
-      channel: 'push',
+      channel: "push",
       category: options.category,
       template: options.template,
       to: { pushToken },
@@ -210,7 +221,7 @@ export class NotificationService {
       },
       variables: options.variables,
       metadata: options.metadata,
-    })
+    });
   }
 
   /**
@@ -220,19 +231,19 @@ export class NotificationService {
     userId: string,
     phone: string,
     options: {
-      template?: string
-      body?: string
-      variables?: TemplateVariables
-      category?: NotificationCategory
-    }
+      template?: string;
+      body?: string;
+      variables?: TemplateVariables;
+      category?: NotificationCategory;
+    },
   ): Promise<SendNotificationResponse> {
     if (!this.config.smsEnabled) {
-      return { success: false, error: 'SMS notifications are disabled' }
+      return { success: false, error: "SMS notifications are disabled" };
     }
 
     return this.send({
       userId,
-      channel: 'sms',
+      channel: "sms",
       category: options.category,
       template: options.template,
       to: { phone },
@@ -240,7 +251,7 @@ export class NotificationService {
         body: options.body,
       },
       variables: options.variables,
-    })
+    });
   }
 
   /**
@@ -249,41 +260,43 @@ export class NotificationService {
   async getStatus(notificationId: string): Promise<PluginNotification | null> {
     try {
       const response = await this.request<{ notification: PluginNotification }>(
-        'GET',
-        `/api/notifications/${notificationId}`
-      )
-      return response.notification
+        "GET",
+        `/api/notifications/${notificationId}`,
+      );
+      return response.notification;
     } catch (error) {
-      if (error instanceof Error && error.message.includes('404')) {
-        return null
+      if (error instanceof Error && error.message.includes("404")) {
+        return null;
       }
-      throw error
+      throw error;
     }
   }
 
   /**
    * Process a chat event and send appropriate notifications
    */
-  async processChatEvent(event: ChatNotificationEvent): Promise<SendNotificationResponse[]> {
-    const results: SendNotificationResponse[] = []
-    const { type, actor, target, data } = event
+  async processChatEvent(
+    event: ChatNotificationEvent,
+  ): Promise<SendNotificationResponse[]> {
+    const results: SendNotificationResponse[] = [];
+    const { type, actor, target, data } = event;
 
     // Map event type to template and channels
-    const eventConfig = this.getEventConfig(type)
+    const eventConfig = this.getEventConfig(type);
     if (!eventConfig) {
-      return results
+      return results;
     }
 
     // Send notifications based on user preferences (handled by plugin)
     for (const channel of eventConfig.channels) {
-      const to: SendOptions['to'] = {}
-      if (channel === 'email' && target.user_email) {
-        to.email = target.user_email
-      } else if (channel === 'push' && target.user_push_token) {
-        to.pushToken = target.user_push_token
+      const to: SendOptions["to"] = {};
+      if (channel === "email" && target.user_email) {
+        to.email = target.user_email;
+      } else if (channel === "push" && target.user_push_token) {
+        to.pushToken = target.user_push_token;
       }
 
-      if (Object.keys(to).length === 0) continue
+      if (Object.keys(to).length === 0) continue;
 
       try {
         const result = await this.send({
@@ -307,86 +320,90 @@ export class NotificationService {
             message_id: data.message_id,
             thread_id: data.thread_id,
           },
-          tags: [type, `channel:${data.channel_id || 'dm'}`],
-        })
+          tags: [type, `channel:${data.channel_id || "dm"}`],
+        });
 
-        results.push(result)
+        results.push(result);
       } catch (error) {
         results.push({
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        })
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     }
 
-    return results
+    return results;
   }
 
   /**
    * Get notification configuration for a chat event type
    */
-  private getEventConfig(eventType: ChatNotificationEvent['type']): {
-    template: string
-    channels: NotificationChannel[]
-    category: NotificationCategory
+  private getEventConfig(eventType: ChatNotificationEvent["type"]): {
+    template: string;
+    channels: NotificationChannel[];
+    category: NotificationCategory;
   } | null {
     const configs: Record<
-      ChatNotificationEvent['type'],
-      { template: string; channels: NotificationChannel[]; category: NotificationCategory }
+      ChatNotificationEvent["type"],
+      {
+        template: string;
+        channels: NotificationChannel[];
+        category: NotificationCategory;
+      }
     > = {
-      'message.new': {
-        template: 'nchat_new_message',
-        channels: ['push', 'email'],
-        category: 'transactional',
+      "message.new": {
+        template: "nchat_new_message",
+        channels: ["push", "email"],
+        category: "transactional",
       },
-      'message.mention': {
-        template: 'nchat_mention',
-        channels: ['push', 'email'],
-        category: 'transactional',
+      "message.mention": {
+        template: "nchat_mention",
+        channels: ["push", "email"],
+        category: "transactional",
       },
-      'message.reaction': {
-        template: 'nchat_reaction',
-        channels: ['push'],
-        category: 'transactional',
+      "message.reaction": {
+        template: "nchat_reaction",
+        channels: ["push"],
+        category: "transactional",
       },
-      'thread.reply': {
-        template: 'nchat_thread_reply',
-        channels: ['push', 'email'],
-        category: 'transactional',
+      "thread.reply": {
+        template: "nchat_thread_reply",
+        channels: ["push", "email"],
+        category: "transactional",
       },
-      'dm.new': {
-        template: 'nchat_direct_message',
-        channels: ['push', 'email'],
-        category: 'transactional',
+      "dm.new": {
+        template: "nchat_direct_message",
+        channels: ["push", "email"],
+        category: "transactional",
       },
-      'channel.invite': {
-        template: 'nchat_channel_invite',
-        channels: ['push', 'email'],
-        category: 'transactional',
+      "channel.invite": {
+        template: "nchat_channel_invite",
+        channels: ["push", "email"],
+        category: "transactional",
       },
-      'channel.join': {
-        template: 'nchat_channel_join',
-        channels: ['push'],
-        category: 'system',
+      "channel.join": {
+        template: "nchat_channel_join",
+        channels: ["push"],
+        category: "system",
       },
-      'channel.leave': {
-        template: 'nchat_channel_leave',
-        channels: ['push'],
-        category: 'system',
+      "channel.leave": {
+        template: "nchat_channel_leave",
+        channels: ["push"],
+        category: "system",
       },
-      'reminder.due': {
-        template: 'nchat_reminder',
-        channels: ['push', 'email'],
-        category: 'alert',
+      "reminder.due": {
+        template: "nchat_reminder",
+        channels: ["push", "email"],
+        category: "alert",
       },
-      'announcement.new': {
-        template: 'nchat_announcement',
-        channels: ['push', 'email'],
-        category: 'system',
+      "announcement.new": {
+        template: "nchat_announcement",
+        channels: ["push", "email"],
+        category: "system",
       },
-    }
+    };
 
-    return configs[eventType] || null
+    return configs[eventType] || null;
   }
 
   /**
@@ -394,13 +411,13 @@ export class NotificationService {
    */
   async healthCheck(): Promise<{ healthy: boolean; error?: string }> {
     try {
-      const response = await this.request<{ status: string }>('GET', '/health')
-      return { healthy: response.status === 'ok' }
+      const response = await this.request<{ status: string }>("GET", "/health");
+      return { healthy: response.status === "ok" };
     } catch (error) {
       return {
         healthy: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 }
@@ -409,15 +426,17 @@ export class NotificationService {
 // Singleton Instance
 // =============================================================================
 
-let notificationServiceInstance: NotificationService | null = null
+let notificationServiceInstance: NotificationService | null = null;
 
-export function getNotificationService(options?: NotificationServiceOptions): NotificationService {
+export function getNotificationService(
+  options?: NotificationServiceOptions,
+): NotificationService {
   if (!notificationServiceInstance) {
-    notificationServiceInstance = new NotificationService(options)
+    notificationServiceInstance = new NotificationService(options);
   }
-  return notificationServiceInstance
+  return notificationServiceInstance;
 }
 
 export function resetNotificationService(): void {
-  notificationServiceInstance = null
+  notificationServiceInstance = null;
 }

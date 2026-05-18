@@ -9,9 +9,9 @@
  * - Mute/notification settings
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Users,
   Volume2,
@@ -26,35 +26,35 @@ import {
   BellOff,
   Eye,
   Radio,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { Channel } from '@/types/advanced-channels'
+} from "@/components/ui/dropdown-menu";
+import type { Channel } from "@/types/advanced-channels";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SupergroupHeaderProps {
-  channel: Channel
-  isAdmin?: boolean
-  isMuted?: boolean
-  onSearch?: () => void
-  onInvite?: () => void
-  onShare?: () => void
-  onSettings?: () => void
-  onToggleMute?: () => void
-  onToggleNotifications?: () => void
-  className?: string
+  channel: Channel;
+  isAdmin?: boolean;
+  isMuted?: boolean;
+  onSearch?: () => void;
+  onInvite?: () => void;
+  onShare?: () => void;
+  onSettings?: () => void;
+  onToggleMute?: () => void;
+  onToggleNotifications?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -73,29 +73,29 @@ export function SupergroupHeader({
   onToggleNotifications,
   className,
 }: SupergroupHeaderProps) {
-  const isSupergroup = channel.subtype === 'supergroup'
-  const isGigagroup = channel.subtype === 'gigagroup'
-  const isChannel = channel.type === 'public' && channel.isReadonly
-  const isLargeGroup = isSupergroup || isGigagroup
+  const isSupergroup = channel.subtype === "supergroup";
+  const isGigagroup = channel.subtype === "gigagroup";
+  const isChannel = channel.type === "public" && channel.isReadonly;
+  const isLargeGroup = isSupergroup || isGigagroup;
 
   // Format member count
   const formatCount = (count: number): string => {
     if (count >= 1000000) {
-      return `${(count / 1000000).toFixed(1)}M`
+      return `${(count / 1000000).toFixed(1)}M`;
     }
     if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`
+      return `${(count / 1000).toFixed(1)}K`;
     }
-    return count.toString()
-  }
+    return count.toString();
+  };
 
-  const memberLabel = isChannel ? 'subscribers' : 'members'
+  const memberLabel = isChannel ? "subscribers" : "members";
 
   return (
     <div
       className={cn(
-        'flex items-center justify-between border-b bg-background px-4 py-3',
-        className
+        "flex items-center justify-between border-b bg-background px-4 py-3",
+        className,
       )}
     >
       {/* Left: Channel info */}
@@ -115,7 +115,7 @@ export function SupergroupHeader({
             {isLargeGroup && (
               <Badge variant="secondary" className="flex-shrink-0">
                 <Users className="mr-1 h-3 w-3" />
-                {isSupergroup ? 'Supergroup' : 'Gigagroup'}
+                {isSupergroup ? "Supergroup" : "Gigagroup"}
               </Badge>
             )}
             {isChannel && (
@@ -153,7 +153,9 @@ export function SupergroupHeader({
 
           {/* Topic/description */}
           {channel.topic && (
-            <p className="truncate text-xs text-muted-foreground">{channel.topic}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              {channel.topic}
+            </p>
           )}
         </div>
       </div>
@@ -170,7 +172,11 @@ export function SupergroupHeader({
         {/* Mute/Unmute */}
         {onToggleMute && (
           <Button variant="ghost" size="icon" onClick={onToggleMute}>
-            {isMuted ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {isMuted ? (
+              <Volume2 className="h-4 w-4" />
+            ) : (
+              <VolumeX className="h-4 w-4" />
+            )}
           </Button>
         )}
 
@@ -229,7 +235,7 @@ export function SupergroupHeader({
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }
 
-export default SupergroupHeader
+export default SupergroupHeader;

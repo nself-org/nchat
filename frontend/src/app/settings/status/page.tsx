@@ -1,19 +1,25 @@
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useEffect, useState, useCallback } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Circle,
   CircleDot,
@@ -33,24 +39,27 @@ import {
   Settings,
   User,
   Pencil,
-} from 'lucide-react'
-import { usePresenceStore } from '@/stores/presence-store'
+} from "lucide-react";
+import { usePresenceStore } from "@/stores/presence-store";
 import {
   StatusPicker,
   CustomStatusPicker,
   PresenceStatus,
   PresenceIndicator,
-} from '@/components/presence'
+} from "@/components/presence";
 import type {
   PresenceStatus as PresenceStatusType,
   CustomStatus,
   PresenceSettings,
-} from '@/lib/presence/presence-types'
-import { DEFAULT_PRESENCE_SETTINGS, PRESENCE_LABELS } from '@/lib/presence/presence-types'
+} from "@/lib/presence/presence-types";
+import {
+  DEFAULT_PRESENCE_SETTINGS,
+  PRESENCE_LABELS,
+} from "@/lib/presence/presence-types";
 
 export default function StatusSettingsPage() {
-  const [mounted, setMounted] = useState(false)
-  const [showStatusPicker, setShowStatusPicker] = useState(false)
+  const [mounted, setMounted] = useState(false);
+  const [showStatusPicker, setShowStatusPicker] = useState(false);
 
   const {
     myStatus,
@@ -60,47 +69,47 @@ export default function StatusSettingsPage() {
     setMyCustomStatus,
     clearMyCustomStatus,
     updateSettings,
-  } = usePresenceStore()
+  } = usePresenceStore();
 
   // Avoid hydration mismatch
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const handleStatusChange = useCallback(
     (status: PresenceStatusType) => {
-      setMyStatus(status)
+      setMyStatus(status);
     },
-    [setMyStatus]
-  )
+    [setMyStatus],
+  );
 
   const handleCustomStatusChange = useCallback(
     (status: CustomStatus | null) => {
       if (status) {
-        setMyCustomStatus(status)
+        setMyCustomStatus(status);
       } else {
-        clearMyCustomStatus()
+        clearMyCustomStatus();
       }
-      setShowStatusPicker(false)
+      setShowStatusPicker(false);
     },
-    [setMyCustomStatus, clearMyCustomStatus]
-  )
+    [setMyCustomStatus, clearMyCustomStatus],
+  );
 
   const handleSettingChange = useCallback(
     <K extends keyof PresenceSettings>(
       section: K,
       key: keyof PresenceSettings[K],
-      value: PresenceSettings[K][keyof PresenceSettings[K]]
+      value: PresenceSettings[K][keyof PresenceSettings[K]],
     ) => {
       updateSettings({
         [section]: {
           ...settings[section],
           [key]: value,
         },
-      } as Partial<PresenceSettings>)
+      } as Partial<PresenceSettings>);
     },
-    [settings, updateSettings]
-  )
+    [settings, updateSettings],
+  );
 
   if (!mounted) {
     return (
@@ -115,7 +124,7 @@ export default function StatusSettingsPage() {
           </CardHeader>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -144,7 +153,10 @@ export default function StatusSettingsPage() {
                 isOwn
                 onClear={clearMyCustomStatus}
               />
-              <Dialog open={showStatusPicker} onOpenChange={setShowStatusPicker}>
+              <Dialog
+                open={showStatusPicker}
+                onOpenChange={setShowStatusPicker}
+              >
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm">
                     <Pencil className="mr-2 h-4 w-4" />
@@ -160,7 +172,9 @@ export default function StatusSettingsPage() {
                   </DialogHeader>
                   <div className="space-y-6 py-4">
                     <div>
-                      <Label className="mb-3 block text-sm font-medium">Presence</Label>
+                      <Label className="mb-3 block text-sm font-medium">
+                        Presence
+                      </Label>
                       <StatusPicker
                         value={myStatus}
                         onChange={handleStatusChange}
@@ -169,7 +183,9 @@ export default function StatusSettingsPage() {
                     </div>
                     <Separator />
                     <div>
-                      <Label className="mb-3 block text-sm font-medium">Custom Status</Label>
+                      <Label className="mb-3 block text-sm font-medium">
+                        Custom Status
+                      </Label>
                       <CustomStatusPicker
                         value={myCustomStatus ?? undefined}
                         onChange={handleCustomStatusChange}
@@ -183,12 +199,16 @@ export default function StatusSettingsPage() {
 
             {/* Quick status buttons */}
             <div>
-              <Label className="mb-3 block text-sm font-medium">Quick status change</Label>
+              <Label className="mb-3 block text-sm font-medium">
+                Quick status change
+              </Label>
               <div className="flex flex-wrap gap-2">
-                {(['online', 'away', 'dnd', 'invisible'] as PresenceStatusType[]).map((status) => (
+                {(
+                  ["online", "away", "dnd", "invisible"] as PresenceStatusType[]
+                ).map((status) => (
                   <Button
                     key={status}
-                    variant={myStatus === status ? 'secondary' : 'outline'}
+                    variant={myStatus === status ? "secondary" : "outline"}
                     size="sm"
                     onClick={() => handleStatusChange(status)}
                     className="gap-2"
@@ -228,7 +248,9 @@ export default function StatusSettingsPage() {
               </div>
               <Switch
                 checked={settings.autoAway.enabled}
-                onCheckedChange={(checked) => handleSettingChange('autoAway', 'enabled', checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("autoAway", "enabled", checked)
+                }
               />
             </div>
 
@@ -240,7 +262,7 @@ export default function StatusSettingsPage() {
                   <Select
                     value={String(settings.autoAway.timeout)}
                     onValueChange={(value) =>
-                      handleSettingChange('autoAway', 'timeout', Number(value))
+                      handleSettingChange("autoAway", "timeout", Number(value))
                     }
                   >
                     <SelectTrigger className="w-full">
@@ -262,7 +284,11 @@ export default function StatusSettingsPage() {
                   <Select
                     value={settings.autoAway.setStatus}
                     onValueChange={(value) =>
-                      handleSettingChange('autoAway', 'setStatus', value as PresenceStatusType)
+                      handleSettingChange(
+                        "autoAway",
+                        "setStatus",
+                        value as PresenceStatusType,
+                      )
                     }
                   >
                     <SelectTrigger className="w-full">
@@ -286,7 +312,9 @@ export default function StatusSettingsPage() {
               <Eye className="h-5 w-5" />
               Privacy
             </CardTitle>
-            <CardDescription>Control what others can see about your activity</CardDescription>
+            <CardDescription>
+              Control what others can see about your activity
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -302,7 +330,7 @@ export default function StatusSettingsPage() {
               <Switch
                 checked={settings.privacy.showLastSeen}
                 onCheckedChange={(checked) =>
-                  handleSettingChange('privacy', 'showLastSeen', checked)
+                  handleSettingChange("privacy", "showLastSeen", checked)
                 }
               />
             </div>
@@ -315,12 +343,14 @@ export default function StatusSettingsPage() {
                   <MessageSquare className="h-4 w-4" />
                   Show typing indicator
                 </Label>
-                <p className="text-sm text-muted-foreground">Let others see when you are typing</p>
+                <p className="text-sm text-muted-foreground">
+                  Let others see when you are typing
+                </p>
               </div>
               <Switch
                 checked={settings.privacy.showTypingIndicator}
                 onCheckedChange={(checked) =>
-                  handleSettingChange('privacy', 'showTypingIndicator', checked)
+                  handleSettingChange("privacy", "showTypingIndicator", checked)
                 }
               />
             </div>
@@ -340,7 +370,7 @@ export default function StatusSettingsPage() {
               <Switch
                 checked={settings.privacy.shareActivityStatus}
                 onCheckedChange={(checked) =>
-                  handleSettingChange('privacy', 'shareActivityStatus', checked)
+                  handleSettingChange("privacy", "shareActivityStatus", checked)
                 }
               />
             </div>
@@ -354,7 +384,9 @@ export default function StatusSettingsPage() {
               <Moon className="h-5 w-5" />
               Do Not Disturb Schedule
             </CardTitle>
-            <CardDescription>Automatically enable DND during specific hours</CardDescription>
+            <CardDescription>
+              Automatically enable DND during specific hours
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -367,7 +399,7 @@ export default function StatusSettingsPage() {
               <Switch
                 checked={settings.dndSchedule.enabled}
                 onCheckedChange={(checked) =>
-                  handleSettingChange('dndSchedule', 'enabled', checked)
+                  handleSettingChange("dndSchedule", "enabled", checked)
                 }
               />
             </div>
@@ -382,7 +414,11 @@ export default function StatusSettingsPage() {
                       type="time"
                       value={settings.dndSchedule.startTime}
                       onChange={(e) =>
-                        handleSettingChange('dndSchedule', 'startTime', e.target.value)
+                        handleSettingChange(
+                          "dndSchedule",
+                          "startTime",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -392,7 +428,11 @@ export default function StatusSettingsPage() {
                       type="time"
                       value={settings.dndSchedule.endTime}
                       onChange={(e) =>
-                        handleSettingChange('dndSchedule', 'endTime', e.target.value)
+                        handleSettingChange(
+                          "dndSchedule",
+                          "endTime",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -401,24 +441,33 @@ export default function StatusSettingsPage() {
                 <div className="space-y-2">
                   <Label>Days</Label>
                   <div className="flex flex-wrap gap-2">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => {
-                      const isSelected = settings.dndSchedule.days.includes(index)
-                      return (
-                        <Button
-                          key={day}
-                          variant={isSelected ? 'secondary' : 'outline'}
-                          size="sm"
-                          onClick={() => {
-                            const newDays = isSelected
-                              ? settings.dndSchedule.days.filter((d) => d !== index)
-                              : [...settings.dndSchedule.days, index].sort()
-                            handleSettingChange('dndSchedule', 'days', newDays)
-                          }}
-                        >
-                          {day}
-                        </Button>
-                      )
-                    })}
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                      (day, index) => {
+                        const isSelected =
+                          settings.dndSchedule.days.includes(index);
+                        return (
+                          <Button
+                            key={day}
+                            variant={isSelected ? "secondary" : "outline"}
+                            size="sm"
+                            onClick={() => {
+                              const newDays = isSelected
+                                ? settings.dndSchedule.days.filter(
+                                    (d) => d !== index,
+                                  )
+                                : [...settings.dndSchedule.days, index].sort();
+                              handleSettingChange(
+                                "dndSchedule",
+                                "days",
+                                newDays,
+                              );
+                            }}
+                          >
+                            {day}
+                          </Button>
+                        );
+                      },
+                    )}
                   </div>
                 </div>
               </>
@@ -433,15 +482,20 @@ export default function StatusSettingsPage() {
               <Settings className="h-5 w-5" />
               Reset Settings
             </CardTitle>
-            <CardDescription>Reset all status settings to their default values</CardDescription>
+            <CardDescription>
+              Reset all status settings to their default values
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" onClick={() => updateSettings(DEFAULT_PRESENCE_SETTINGS)}>
+            <Button
+              variant="outline"
+              onClick={() => updateSettings(DEFAULT_PRESENCE_SETTINGS)}
+            >
               Reset to defaults
             </Button>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

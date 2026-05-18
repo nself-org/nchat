@@ -14,8 +14,13 @@ export {
   extractDepartments,
   extractTeams,
   extractLocations,
-} from './user-directory'
-export type { DirectoryFilters, SortOptions, GroupOptions, DirectoryStats } from './user-directory'
+} from "./user-directory";
+export type {
+  DirectoryFilters,
+  SortOptions,
+  GroupOptions,
+  DirectoryStats,
+} from "./user-directory";
 
 // User Search
 export {
@@ -25,8 +30,13 @@ export {
   getRecentSearches,
   saveRecentSearch,
   clearRecentSearches,
-} from './user-search'
-export type { SearchResult, SearchOptions, SearchField, SearchSuggestion } from './user-search'
+} from "./user-search";
+export type {
+  SearchResult,
+  SearchOptions,
+  SearchField,
+  SearchSuggestion,
+} from "./user-search";
 
 // User Profile
 export {
@@ -45,8 +55,11 @@ export {
   getProfileCompletionPercentage,
   getProfileCompletionSuggestions,
   PROFILE_FIELD_CONFIGS,
-} from './user-profile'
-export type { ProfileValidationResult, ProfileFieldConfig } from './user-profile'
+} from "./user-profile";
+export type {
+  ProfileValidationResult,
+  ProfileFieldConfig,
+} from "./user-profile";
 
 // User Privacy
 export {
@@ -72,8 +85,8 @@ export {
   saveBlockedUsers,
   loadBlockedUsers,
   DEFAULT_PRIVACY_SETTINGS,
-} from './user-privacy'
-export type { BlockedUser, Contact, PrivacySettings } from './user-privacy'
+} from "./user-privacy";
+export type { BlockedUser, Contact, PrivacySettings } from "./user-privacy";
 
 // Organization Chart
 export {
@@ -94,5 +107,9 @@ export {
   getUsersAtDepth,
   orgChartToRelationships,
   orgChartToUserList,
-} from './org-chart'
-export type { OrgRelationship, OrgChartOptions, OrgChartStats } from './org-chart'
+} from "./org-chart";
+export type {
+  OrgRelationship,
+  OrgChartOptions,
+  OrgChartStats,
+} from "./org-chart";

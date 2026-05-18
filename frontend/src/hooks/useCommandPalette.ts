@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useCommandPalette Hook
@@ -7,13 +7,13 @@
  * Handles registration of dynamic commands (channels, users).
  */
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 
-import { useCommandPaletteStore } from '@/stores/command-palette-store'
-import { useChannelStore, selectChannelList } from '@/stores/channel-store'
-import { useUserStore, selectAllUsers } from '@/stores/user-store'
-import { useUIStore } from '@/stores/ui-store'
+import { useCommandPaletteStore } from "@/stores/command-palette-store";
+import { useChannelStore, selectChannelList } from "@/stores/channel-store";
+import { useUserStore, selectAllUsers } from "@/stores/user-store";
+import { useUIStore } from "@/stores/ui-store";
 
 import {
   getCommandRegistry,
@@ -22,7 +22,7 @@ import {
   type Command,
   type CommandExecutionContext,
   type CommandCategory,
-} from '@/lib/command-palette'
+} from "@/lib/command-palette";
 
 // ============================================================================
 // Types
@@ -30,84 +30,94 @@ import {
 
 export interface UseCommandPaletteOptions {
   /** Auto-register channels from store */
-  registerChannels?: boolean
+  registerChannels?: boolean;
   /** Auto-register users from store */
-  registerUsers?: boolean
+  registerUsers?: boolean;
   /** Custom context data for command execution */
-  contextData?: Record<string, unknown>
+  contextData?: Record<string, unknown>;
 }
 
 export interface UseCommandPaletteReturn {
   /** Whether the palette is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Current search query */
-  query: string
+  query: string;
   /** Current mode */
-  mode: 'all' | 'channels' | 'dms' | 'users' | 'search' | 'actions'
+  mode: "all" | "channels" | "dms" | "users" | "search" | "actions";
   /** Filtered commands */
-  commands: Command[]
+  commands: Command[];
   /** Recent commands */
-  recentCommands: Command[]
+  recentCommands: Command[];
   /** Currently selected command */
-  selectedCommand: Command | null
+  selectedCommand: Command | null;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error message */
-  error: string | null
+  error: string | null;
   /** Open the palette */
-  open: (mode?: 'all' | 'channels' | 'dms' | 'users' | 'search' | 'actions') => void
+  open: (
+    mode?: "all" | "channels" | "dms" | "users" | "search" | "actions",
+  ) => void;
   /** Close the palette */
-  close: () => void
+  close: () => void;
   /** Toggle the palette */
-  toggle: () => void
+  toggle: () => void;
   /** Update search query */
-  setQuery: (query: string) => void
+  setQuery: (query: string) => void;
   /** Set mode/filter */
-  setMode: (mode: 'all' | 'channels' | 'dms' | 'users' | 'search' | 'actions') => void
+  setMode: (
+    mode: "all" | "channels" | "dms" | "users" | "search" | "actions",
+  ) => void;
   /** Execute a command by ID */
-  executeCommand: (commandId: string) => void
+  executeCommand: (commandId: string) => void;
   /** Execute the selected command */
-  executeSelected: () => void
+  executeSelected: () => void;
   /** Select next item */
-  selectNext: () => void
+  selectNext: () => void;
   /** Select previous item */
-  selectPrevious: () => void
+  selectPrevious: () => void;
   /** Register a custom command */
-  registerCommand: (command: Command) => void
+  registerCommand: (command: Command) => void;
   /** Unregister a command */
-  unregisterCommand: (commandId: string) => void
+  unregisterCommand: (commandId: string) => void;
   /** Clear command history */
-  clearHistory: () => void
+  clearHistory: () => void;
 }
 
 // ============================================================================
 // Hook
 // ============================================================================
 
-export function useCommandPalette(options: UseCommandPaletteOptions = {}): UseCommandPaletteReturn {
-  const { registerChannels = true, registerUsers = true, contextData } = options
+export function useCommandPalette(
+  options: UseCommandPaletteOptions = {},
+): UseCommandPaletteReturn {
+  const {
+    registerChannels = true,
+    registerUsers = true,
+    contextData,
+  } = options;
 
-  const router = useRouter()
+  const router = useRouter();
 
   // Command palette store
-  const store = useCommandPaletteStore()
+  const store = useCommandPaletteStore();
 
   // Get channels and users from their stores
-  const channels = useChannelStore(selectChannelList)
-  const users = useUserStore(selectAllUsers)
+  const channels = useChannelStore(selectChannelList);
+  const users = useUserStore(selectAllUsers);
 
   // UI store for additional context
-  const openModal = useUIStore((s) => s.openModal)
-  const toggleSidebar = useUIStore((s) => s.toggleSidebar)
+  const openModal = useUIStore((s) => s.openModal);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
 
   // Get registry and executor
-  const registry = useMemo(() => getCommandRegistry(), [])
-  const executor = useMemo(() => getCommandExecutor(), [])
-  const history = useMemo(() => getCommandHistory(), [])
+  const registry = useMemo(() => getCommandRegistry(), []);
+  const executor = useMemo(() => getCommandExecutor(), []);
+  const history = useMemo(() => getCommandHistory(), []);
 
   // Register channels when they change
   useEffect(() => {
-    if (!registerChannels) return
+    if (!registerChannels) return;
 
     registry.registerChannels(
       channels.map((ch) => ({
@@ -115,13 +125,13 @@ export function useCommandPalette(options: UseCommandPaletteOptions = {}): UseCo
         name: ch.name,
         type: ch.type,
         memberCount: ch.memberCount,
-      }))
-    )
-  }, [channels, registerChannels, registry])
+      })),
+    );
+  }, [channels, registerChannels, registry]);
 
   // Register users when they change
   useEffect(() => {
-    if (!registerUsers) return
+    if (!registerUsers) return;
 
     registry.registerUsers(
       users.map((user) => ({
@@ -131,9 +141,9 @@ export function useCommandPalette(options: UseCommandPaletteOptions = {}): UseCo
         avatarUrl: user.avatarUrl,
         presence: user.presence,
         role: user.role,
-      }))
-    )
-  }, [users, registerUsers, registry])
+      })),
+    );
+  }, [users, registerUsers, registry]);
 
   // Create execution context
   const createContext = useCallback((): CommandExecutionContext => {
@@ -145,48 +155,48 @@ export function useCommandPalette(options: UseCommandPaletteOptions = {}): UseCo
         toggleSidebar,
         ...contextData,
       },
-    }
-  }, [store.close, router, openModal, toggleSidebar, contextData])
+    };
+  }, [store.close, router, openModal, toggleSidebar, contextData]);
 
   // Execute command by ID
   const executeCommand = useCallback(
     (commandId: string) => {
-      const command = registry.get(commandId)
+      const command = registry.get(commandId);
       if (command) {
-        const context = createContext()
-        executor.execute(command, context)
-        history.add(commandId)
+        const context = createContext();
+        executor.execute(command, context);
+        history.add(commandId);
       }
     },
-    [registry, executor, history, createContext]
-  )
+    [registry, executor, history, createContext],
+  );
 
   // Execute selected command
   const executeSelected = useCallback(() => {
-    store.executeSelected(createContext())
-  }, [store, createContext])
+    store.executeSelected(createContext());
+  }, [store, createContext]);
 
   // Get selected command
   const selectedCommand = useMemo(() => {
-    const { filteredCommands, selectedIndex } = store
-    return filteredCommands[selectedIndex] || null
-  }, [store])
+    const { filteredCommands, selectedIndex } = store;
+    return filteredCommands[selectedIndex] || null;
+  }, [store]);
 
   // Register custom command
   const registerCommand = useCallback(
     (command: Command) => {
-      registry.register(command)
+      registry.register(command);
     },
-    [registry]
-  )
+    [registry],
+  );
 
   // Unregister command
   const unregisterCommand = useCallback(
     (commandId: string) => {
-      registry.unregister(commandId)
+      registry.unregister(commandId);
     },
-    [registry]
-  )
+    [registry],
+  );
 
   return {
     isOpen: store.isOpen,
@@ -209,7 +219,7 @@ export function useCommandPalette(options: UseCommandPaletteOptions = {}): UseCo
     registerCommand,
     unregisterCommand,
     clearHistory: store.clearHistory,
-  }
+  };
 }
 
-export default useCommandPalette
+export default useCommandPalette;

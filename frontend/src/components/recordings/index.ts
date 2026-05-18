@@ -9,6 +9,6 @@
  * @module components/recordings
  */
 
-export { RecordingPlayer } from './RecordingPlayer'
-export { RecordingsList } from './RecordingsList'
-export { RedactionEditor } from './RedactionEditor'
+export { RecordingPlayer } from "./RecordingPlayer";
+export { RecordingsList } from "./RecordingsList";
+export { RedactionEditor } from "./RedactionEditor";

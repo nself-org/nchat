@@ -13,106 +13,113 @@
 // ============================================================================
 
 class LiveRegionManager {
-  private politeRegion: HTMLElement | null = null
-  private assertiveRegion: HTMLElement | null = null
-  private statusRegion: HTMLElement | null = null
-  private initialized = false
+  private politeRegion: HTMLElement | null = null;
+  private assertiveRegion: HTMLElement | null = null;
+  private statusRegion: HTMLElement | null = null;
+  private initialized = false;
 
   /**
    * Initialize live regions
    */
   private initialize() {
-    if (this.initialized || typeof document === 'undefined') return
+    if (this.initialized || typeof document === "undefined") return;
 
     // Polite region for general announcements
-    this.politeRegion = this.createLiveRegion('polite', 'aria-live-polite')
+    this.politeRegion = this.createLiveRegion("polite", "aria-live-polite");
 
     // Assertive region for urgent announcements
-    this.assertiveRegion = this.createLiveRegion('assertive', 'aria-live-assertive')
+    this.assertiveRegion = this.createLiveRegion(
+      "assertive",
+      "aria-live-assertive",
+    );
 
     // Status region for status updates
-    this.statusRegion = this.createLiveRegion('polite', 'aria-live-status')
-    this.statusRegion.setAttribute('role', 'status')
+    this.statusRegion = this.createLiveRegion("polite", "aria-live-status");
+    this.statusRegion.setAttribute("role", "status");
 
-    this.initialized = true
+    this.initialized = true;
   }
 
   /**
    * Create a live region element
    */
-  private createLiveRegion(politeness: 'polite' | 'assertive', id: string): HTMLElement {
-    const region = document.createElement('div')
-    region.id = id
-    region.setAttribute('aria-live', politeness)
-    region.setAttribute('aria-atomic', 'true')
-    region.className = 'sr-only'
+  private createLiveRegion(
+    politeness: "polite" | "assertive",
+    id: string,
+  ): HTMLElement {
+    const region = document.createElement("div");
+    region.id = id;
+    region.setAttribute("aria-live", politeness);
+    region.setAttribute("aria-atomic", "true");
+    region.className = "sr-only";
 
     // Add to body
-    document.body.appendChild(region)
+    document.body.appendChild(region);
 
-    return region
+    return region;
   }
 
   /**
    * Announce a message to screen readers
    */
-  announce(message: string, priority: 'polite' | 'assertive' = 'polite') {
-    this.initialize()
+  announce(message: string, priority: "polite" | "assertive" = "polite") {
+    this.initialize();
 
-    const region = priority === 'assertive' ? this.assertiveRegion : this.politeRegion
+    const region =
+      priority === "assertive" ? this.assertiveRegion : this.politeRegion;
 
-    if (!region) return
+    if (!region) return;
 
     // Clear previous message
-    region.textContent = ''
+    region.textContent = "";
 
     // Set new message after a brief delay to ensure it's announced
     setTimeout(() => {
-      region.textContent = message
-    }, 100)
+      region.textContent = message;
+    }, 100);
   }
 
   /**
    * Announce a status update
    */
   announceStatus(message: string) {
-    this.initialize()
+    this.initialize();
 
-    if (!this.statusRegion) return
+    if (!this.statusRegion) return;
 
     // Clear and set message
-    this.statusRegion.textContent = ''
+    this.statusRegion.textContent = "";
     setTimeout(() => {
-      this.statusRegion!.textContent = message
-    }, 100)
+      this.statusRegion!.textContent = message;
+    }, 100);
   }
 
   /**
    * Clear all announcements
    */
   clear() {
-    if (this.politeRegion) this.politeRegion.textContent = ''
-    if (this.assertiveRegion) this.assertiveRegion.textContent = ''
-    if (this.statusRegion) this.statusRegion.textContent = ''
+    if (this.politeRegion) this.politeRegion.textContent = "";
+    if (this.assertiveRegion) this.assertiveRegion.textContent = "";
+    if (this.statusRegion) this.statusRegion.textContent = "";
   }
 
   /**
    * Cleanup live regions
    */
   cleanup() {
-    if (this.politeRegion) this.politeRegion.remove()
-    if (this.assertiveRegion) this.assertiveRegion.remove()
-    if (this.statusRegion) this.statusRegion.remove()
+    if (this.politeRegion) this.politeRegion.remove();
+    if (this.assertiveRegion) this.assertiveRegion.remove();
+    if (this.statusRegion) this.statusRegion.remove();
 
-    this.politeRegion = null
-    this.assertiveRegion = null
-    this.statusRegion = null
-    this.initialized = false
+    this.politeRegion = null;
+    this.assertiveRegion = null;
+    this.statusRegion = null;
+    this.initialized = false;
   }
 }
 
 // Singleton instance
-const liveRegionManager = new LiveRegionManager()
+const liveRegionManager = new LiveRegionManager();
 
 // ============================================================================
 // Public API
@@ -125,8 +132,11 @@ const liveRegionManager = new LiveRegionManager()
  * announce('Message sent successfully');
  * announce('Error: Failed to send message', 'assertive');
  */
-export function announce(message: string, priority: 'polite' | 'assertive' = 'polite') {
-  liveRegionManager.announce(message, priority)
+export function announce(
+  message: string,
+  priority: "polite" | "assertive" = "polite",
+) {
+  liveRegionManager.announce(message, priority);
 }
 
 /**
@@ -136,14 +146,14 @@ export function announce(message: string, priority: 'polite' | 'assertive' = 'po
  * announceStatus('5 new messages');
  */
 export function announceStatus(message: string) {
-  liveRegionManager.announceStatus(message)
+  liveRegionManager.announceStatus(message);
 }
 
 /**
  * Clear all screen reader announcements
  */
 export function clearAnnouncements() {
-  liveRegionManager.clear()
+  liveRegionManager.clear();
 }
 
 // ============================================================================
@@ -159,9 +169,9 @@ export function clearAnnouncements() {
  */
 export function getIconButtonLabel(action: string, subject?: string): string {
   if (subject) {
-    return `${action} ${subject}`
+    return `${action} ${subject}`;
   }
-  return action
+  return action;
 }
 
 /**
@@ -173,9 +183,9 @@ export function getIconButtonLabel(action: string, subject?: string): string {
  */
 export function getStatusLabel(status: string, name?: string): string {
   if (name) {
-    return `${name} is ${status}`
+    return `${name} is ${status}`;
   }
-  return status
+  return status;
 }
 
 /**
@@ -188,9 +198,13 @@ export function getStatusLabel(status: string, name?: string): string {
  * getCountLabel(1, 'message', 'messages');
  * // Returns: '1 message'
  */
-export function getCountLabel(count: number, singular: string, plural?: string): string {
-  const word = count === 1 ? singular : plural || `${singular}s`
-  return `${count} ${word}`
+export function getCountLabel(
+  count: number,
+  singular: string,
+  plural?: string,
+): string {
+  const word = count === 1 ? singular : plural || `${singular}s`;
+  return `${count} ${word}`;
 }
 
 /**
@@ -201,29 +215,29 @@ export function getCountLabel(count: number, singular: string, plural?: string):
  * // Returns: 'Today at 3:45 PM'
  */
 export function getTimeLabel(date: Date): string {
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
   if (seconds < 60) {
-    return 'just now'
+    return "just now";
   } else if (minutes < 60) {
-    return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`
+    return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
   } else if (hours < 24) {
-    return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`
+    return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
   } else if (days < 7) {
-    return `${days} ${days === 1 ? 'day' : 'days'} ago`
+    return `${days} ${days === 1 ? "day" : "days"} ago`;
   } else {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-    })
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    });
   }
 }
 
@@ -239,26 +253,26 @@ export function getMessageLabel(
   authorName: string,
   timestamp: Date,
   options?: {
-    isEdited?: boolean
-    hasAttachments?: boolean
-    attachmentCount?: number
-  }
+    isEdited?: boolean;
+    hasAttachments?: boolean;
+    attachmentCount?: number;
+  },
 ): string {
-  const timeLabel = getTimeLabel(timestamp)
-  let label = `Message from ${authorName}, ${timeLabel}`
+  const timeLabel = getTimeLabel(timestamp);
+  let label = `Message from ${authorName}, ${timeLabel}`;
 
   if (options?.isEdited) {
-    label += ', edited'
+    label += ", edited";
   }
 
   if (options?.hasAttachments) {
-    const count = options.attachmentCount || 1
-    label += `, ${getCountLabel(count, 'attachment')}`
+    const count = options.attachmentCount || 1;
+    label += `, ${getCountLabel(count, "attachment")}`;
   }
 
-  label += `: ${content}`
+  label += `: ${content}`;
 
-  return label
+  return label;
 }
 
 /**
@@ -271,28 +285,28 @@ export function getMessageLabel(
 export function getChannelLabel(
   name: string,
   options?: {
-    unreadCount?: number
-    isPrivate?: boolean
-    isMuted?: boolean
-  }
+    unreadCount?: number;
+    isPrivate?: boolean;
+    isMuted?: boolean;
+  },
 ): string {
-  let label = name
+  let label = name;
 
   if (options?.isPrivate) {
-    label += ' private channel'
+    label += " private channel";
   } else {
-    label += ' channel'
+    label += " channel";
   }
 
   if (options?.unreadCount && options.unreadCount > 0) {
-    label += `, ${getCountLabel(options.unreadCount, 'unread message', 'unread messages')}`
+    label += `, ${getCountLabel(options.unreadCount, "unread message", "unread messages")}`;
   }
 
   if (options?.isMuted) {
-    label += ', muted'
+    label += ", muted";
   }
 
-  return label
+  return label;
 }
 
 // ============================================================================
@@ -303,18 +317,18 @@ export function getChannelLabel(
  * Generate description ID for ARIA describedby
  */
 export function generateDescriptionId(baseId: string): string {
-  return `${baseId}-description`
+  return `${baseId}-description`;
 }
 
 /**
  * Create description element
  */
 export function createDescription(id: string, text: string): HTMLElement {
-  const description = document.createElement('span')
-  description.id = id
-  description.className = 'sr-only'
-  description.textContent = text
-  return description
+  const description = document.createElement("span");
+  description.id = id;
+  description.className = "sr-only";
+  description.textContent = text;
+  return description;
 }
 
 // ============================================================================
@@ -324,25 +338,27 @@ export function createDescription(id: string, text: string): HTMLElement {
 /**
  * Get appropriate ARIA role for message list
  */
-export function getMessageListRole(): 'log' | 'feed' {
+export function getMessageListRole(): "log" | "feed" {
   // Use 'log' for chat messages (automatic updates)
   // Use 'feed' for activity feeds (user-controlled)
-  return 'log'
+  return "log";
 }
 
 /**
  * Get appropriate ARIA role for navigation
  */
-export function getNavigationRole(type: 'main' | 'secondary' | 'footer'): string {
+export function getNavigationRole(
+  type: "main" | "secondary" | "footer",
+): string {
   switch (type) {
-    case 'main':
-      return 'navigation'
-    case 'secondary':
-      return 'navigation'
-    case 'footer':
-      return 'contentinfo'
+    case "main":
+      return "navigation";
+    case "secondary":
+      return "navigation";
+    case "footer":
+      return "contentinfo";
     default:
-      return 'navigation'
+      return "navigation";
   }
 }
 
@@ -353,18 +369,26 @@ export function getNavigationRole(type: 'main' | 'secondary' | 'footer'): string
 /**
  * Generate heading level based on hierarchy
  */
-export function getHeadingLevel(level: number): 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' {
-  const clampedLevel = Math.max(1, Math.min(6, level)) as 1 | 2 | 3 | 4 | 5 | 6
-  return `h${clampedLevel}`
+export function getHeadingLevel(
+  level: number,
+): "h1" | "h2" | "h3" | "h4" | "h5" | "h6" {
+  const clampedLevel = Math.max(1, Math.min(6, level)) as 1 | 2 | 3 | 4 | 5 | 6;
+  return `h${clampedLevel}`;
 }
 
 /**
  * Generate landmark role
  */
 export function getLandmarkRole(
-  type: 'banner' | 'main' | 'complementary' | 'contentinfo' | 'navigation' | 'search'
+  type:
+    | "banner"
+    | "main"
+    | "complementary"
+    | "contentinfo"
+    | "navigation"
+    | "search",
 ): string {
-  return type
+  return type;
 }
 
 // ============================================================================
@@ -375,21 +399,21 @@ export function getLandmarkRole(
  * Get keyboard interaction description
  */
 export function getKeyboardDescription(
-  elementType: 'menu' | 'dialog' | 'listbox' | 'combobox' | 'tree'
+  elementType: "menu" | "dialog" | "listbox" | "combobox" | "tree",
 ): string {
   switch (elementType) {
-    case 'menu':
-      return 'Use arrow keys to navigate, Enter to select, Escape to close'
-    case 'dialog':
-      return 'Press Escape to close'
-    case 'listbox':
-      return 'Use arrow keys to navigate, Enter to select'
-    case 'combobox':
-      return 'Type to filter, use arrow keys to navigate, Enter to select'
-    case 'tree':
-      return 'Use arrow keys to navigate, Right to expand, Left to collapse, Enter to select'
+    case "menu":
+      return "Use arrow keys to navigate, Enter to select, Escape to close";
+    case "dialog":
+      return "Press Escape to close";
+    case "listbox":
+      return "Use arrow keys to navigate, Enter to select";
+    case "combobox":
+      return "Type to filter, use arrow keys to navigate, Enter to select";
+    case "tree":
+      return "Use arrow keys to navigate, Right to expand, Left to collapse, Enter to select";
     default:
-      return ''
+      return "";
   }
 }
 
@@ -398,9 +422,9 @@ export function getKeyboardDescription(
  */
 export function getLoadingMessage(resource?: string): string {
   if (resource) {
-    return `Loading ${resource}`
+    return `Loading ${resource}`;
   }
-  return 'Loading'
+  return "Loading";
 }
 
 /**
@@ -408,20 +432,20 @@ export function getLoadingMessage(resource?: string): string {
  */
 export function getErrorMessage(error: string, context?: string): string {
   if (context) {
-    return `Error in ${context}: ${error}`
+    return `Error in ${context}: ${error}`;
   }
-  return `Error: ${error}`
+  return `Error: ${error}`;
 }
 
 /**
  * Get success message
  */
 export function getSuccessMessage(action: string): string {
-  return `${action} successful`
+  return `${action} successful`;
 }
 
 // ============================================================================
 // Export Manager
 // ============================================================================
 
-export { liveRegionManager }
+export { liveRegionManager };

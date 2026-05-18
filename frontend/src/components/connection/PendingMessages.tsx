@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * PendingMessages - Display for messages waiting to send
@@ -7,23 +7,23 @@
  * to be sent when connection is restored.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useOfflineStore, type PendingMessage } from '@/stores/offline-store'
-import { useOfflineQueue } from '@/hooks/useOfflineQueue'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useOfflineStore, type PendingMessage } from "@/stores/offline-store";
+import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface PendingMessagesProps {
-  className?: string
-  channelId?: string
-  showList?: boolean
-  maxVisible?: number
-  onRetry?: () => void
-  onCancel?: (messageId: string) => void
+  className?: string;
+  channelId?: string;
+  showList?: boolean;
+  maxVisible?: number;
+  onRetry?: () => void;
+  onCancel?: (messageId: string) => void;
 }
 
 // =============================================================================
@@ -41,36 +41,42 @@ export function PendingMessages({
   const pendingMessages = useOfflineStore((state) =>
     channelId
       ? state.pendingMessages.filter((m) => m.channelId === channelId)
-      : state.pendingMessages
-  )
+      : state.pendingMessages,
+  );
 
-  const { items: queuedActions, retryFailed } = useOfflineQueue()
+  const { items: queuedActions, retryFailed } = useOfflineQueue();
 
   // Get send_message actions
   const queuedMessages = queuedActions.filter(
-    (a) => a.type === 'send_message' && (!channelId || a.channelId === channelId)
-  )
+    (a) =>
+      a.type === "send_message" && (!channelId || a.channelId === channelId),
+  );
 
-  const totalPending = pendingMessages.length + queuedMessages.length
+  const totalPending = pendingMessages.length + queuedMessages.length;
   const failedCount =
-    pendingMessages.filter((m) => m.status === 'failed').length +
-    queuedMessages.filter((a) => a.status === 'failed').length
+    pendingMessages.filter((m) => m.status === "failed").length +
+    queuedMessages.filter((a) => a.status === "failed").length;
 
   if (totalPending === 0) {
-    return null
+    return null;
   }
 
   const handleRetry = () => {
     if (onRetry) {
-      onRetry()
+      onRetry();
     } else {
-      retryFailed()
+      retryFailed();
     }
-  }
+  };
 
   if (!showList) {
     return (
-      <div className={cn('flex items-center gap-2 text-sm text-muted-foreground', className)}>
+      <div
+        className={cn(
+          "flex items-center gap-2 text-sm text-muted-foreground",
+          className,
+        )}
+      >
         <svg
           className="h-4 w-4 text-yellow-500"
           fill="none"
@@ -85,25 +91,32 @@ export function PendingMessages({
           />
         </svg>
         <span>
-          {totalPending} pending message{totalPending !== 1 ? 's' : ''}
-          {failedCount > 0 && <span className="ml-1 text-red-500">({failedCount} failed)</span>}
+          {totalPending} pending message{totalPending !== 1 ? "s" : ""}
+          {failedCount > 0 && (
+            <span className="ml-1 text-red-500">({failedCount} failed)</span>
+          )}
         </span>
         {failedCount > 0 && (
-          <button onClick={handleRetry} className="hover:text-primary/80 text-xs text-primary">
+          <button
+            onClick={handleRetry}
+            className="hover:text-primary/80 text-xs text-primary"
+          >
             Retry
           </button>
         )}
       </div>
-    )
+    );
   }
 
   // List view
-  const visibleMessages = [...pendingMessages.slice(0, maxVisible)]
+  const visibleMessages = [...pendingMessages.slice(0, maxVisible)];
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium">Pending Messages ({totalPending})</h4>
+        <h4 className="text-sm font-medium">
+          Pending Messages ({totalPending})
+        </h4>
         {failedCount > 0 && (
           <Button variant="ghost" size="sm" onClick={handleRetry}>
             Retry all
@@ -113,7 +126,11 @@ export function PendingMessages({
 
       <div className="space-y-2">
         {visibleMessages.map((message) => (
-          <PendingMessageItem key={message.tempId} message={message} onCancel={onCancel} />
+          <PendingMessageItem
+            key={message.tempId}
+            message={message}
+            onCancel={onCancel}
+          />
         ))}
 
         {totalPending > maxVisible && (
@@ -123,7 +140,7 @@ export function PendingMessages({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -131,8 +148,8 @@ export function PendingMessages({
 // =============================================================================
 
 interface PendingMessageItemProps {
-  message: PendingMessage
-  onCancel?: (messageId: string) => void
+  message: PendingMessage;
+  onCancel?: (messageId: string) => void;
 }
 
 function PendingMessageItem({ message, onCancel }: PendingMessageItemProps) {
@@ -153,7 +170,11 @@ function PendingMessageItem({ message, onCancel }: PendingMessageItemProps) {
       </svg>
     ),
     sending: (
-      <svg className="h-4 w-4 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+      <svg
+        className="h-4 w-4 animate-spin text-primary"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
         <circle
           className="opacity-25"
           cx="12"
@@ -170,7 +191,12 @@ function PendingMessageItem({ message, onCancel }: PendingMessageItemProps) {
       </svg>
     ),
     failed: (
-      <svg className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg
+        className="h-4 w-4 text-red-500"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -179,26 +205,33 @@ function PendingMessageItem({ message, onCancel }: PendingMessageItemProps) {
         />
       </svg>
     ),
-  }
+  };
 
   return (
     <div className="bg-muted/50 flex items-start gap-2 rounded-md p-2">
       {statusIcon[message.status]}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm">{message.content}</p>
-        {message.error && <p className="mt-0.5 text-xs text-red-500">{message.error}</p>}
+        {message.error && (
+          <p className="mt-0.5 text-xs text-red-500">{message.error}</p>
+        )}
         <p className="mt-0.5 text-xs text-muted-foreground">
-          {message.status === 'pending' && 'Waiting to send'}
-          {message.status === 'sending' && 'Sending...'}
-          {message.status === 'failed' && 'Failed to send'}
+          {message.status === "pending" && "Waiting to send"}
+          {message.status === "sending" && "Sending..."}
+          {message.status === "failed" && "Failed to send"}
         </p>
       </div>
-      {onCancel && message.status !== 'sending' && (
+      {onCancel && message.status !== "sending" && (
         <button
           onClick={() => onCancel(message.tempId)}
           className="text-muted-foreground hover:text-foreground"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -209,7 +242,7 @@ function PendingMessageItem({ message, onCancel }: PendingMessageItemProps) {
         </button>
       )}
     </div>
-  )
+  );
 }
 
-export default PendingMessages
+export default PendingMessages;

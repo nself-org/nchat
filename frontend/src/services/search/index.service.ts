@@ -24,57 +24,57 @@ import {
   type MeiliFileDocument,
   type MeiliUserDocument,
   type MeiliChannelDocument,
-} from '@/lib/search/meilisearch-config'
-import type { Index, Task, Settings } from 'meilisearch'
+} from "@/lib/search/meilisearch-config";
+import type { Index, Task, Settings } from "meilisearch";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface IndexInfo {
-  name: string
-  primaryKey: string | undefined
-  numberOfDocuments: number
-  isIndexing: boolean
-  fieldDistribution: Record<string, number>
-  createdAt: string
-  updatedAt: string
+  name: string;
+  primaryKey: string | undefined;
+  numberOfDocuments: number;
+  isIndexing: boolean;
+  fieldDistribution: Record<string, number>;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IndexHealth {
-  healthy: boolean
-  name: string
-  error?: string
-  lastIndexedAt?: Date
-  pendingTasks: number
-  failedTasks: number
+  healthy: boolean;
+  name: string;
+  error?: string;
+  lastIndexedAt?: Date;
+  pendingTasks: number;
+  failedTasks: number;
 }
 
 export interface IndexOperationResult {
-  success: boolean
-  taskId?: number
-  error?: string
-  duration?: number
+  success: boolean;
+  taskId?: number;
+  error?: string;
+  duration?: number;
 }
 
 export interface BatchOperationResult {
-  total: number
-  successful: number
-  failed: number
-  taskIds: number[]
-  errors: { id: string; error: string }[]
-  duration: number
+  total: number;
+  successful: number;
+  failed: number;
+  taskIds: number[];
+  errors: { id: string; error: string }[];
+  duration: number;
 }
 
 export interface IndexStats {
-  messages: IndexInfo
-  files: IndexInfo
-  users: IndexInfo
-  channels: IndexInfo
-  totalDocuments: number
-  isHealthy: boolean
+  messages: IndexInfo;
+  files: IndexInfo;
+  users: IndexInfo;
+  channels: IndexInfo;
+  totalDocuments: number;
+  isHealthy: boolean;
 }
 
 // ============================================================================
@@ -82,7 +82,7 @@ export interface IndexStats {
 // ============================================================================
 
 export class IndexService {
-  private client = getMeiliClient()
+  private client = getMeiliClient();
 
   // --------------------------------------------------------------------------
   // Index Initialization
@@ -92,41 +92,47 @@ export class IndexService {
    * Initialize all search indexes with their configurations
    */
   async initializeAllIndexes(): Promise<BatchOperationResult> {
-    const startTime = Date.now()
-    const errors: { id: string; error: string }[] = []
-    const taskIds: number[] = []
+    const startTime = Date.now();
+    const errors: { id: string; error: string }[] = [];
+    const taskIds: number[] = [];
 
     const indexConfigs = [
       { name: INDEXES.MESSAGES, settings: MESSAGES_INDEX_SETTINGS },
       { name: INDEXES.FILES, settings: FILES_INDEX_SETTINGS },
       { name: INDEXES.USERS, settings: USERS_INDEX_SETTINGS },
       { name: INDEXES.CHANNELS, settings: CHANNELS_INDEX_SETTINGS },
-    ]
+    ];
 
     for (const config of indexConfigs) {
       try {
         // Create index if it doesn't exist
         const createTask = await this.client
-          .createIndex(config.name, { primaryKey: 'id' })
-          .catch(() => null)
+          .createIndex(config.name, { primaryKey: "id" })
+          .catch(() => null);
 
         if (createTask) {
-          taskIds.push(createTask.taskUid)
-          await this.client.tasks.waitForTask(createTask.taskUid, { timeout: 10000 })
+          taskIds.push(createTask.taskUid);
+          await this.client.tasks.waitForTask(createTask.taskUid, {
+            timeout: 10000,
+          });
         }
 
         // Update index settings
-        const index = this.client.index(config.name)
-        const settingsTask = await index.updateSettings(config.settings)
-        taskIds.push(settingsTask.taskUid)
+        const index = this.client.index(config.name);
+        const settingsTask = await index.updateSettings(config.settings);
+        taskIds.push(settingsTask.taskUid);
 
         // REMOVED: console.log(`[IndexService] Index ${config.name} configured successfully`)
       } catch (error) {
         errors.push({
           id: config.name,
-          error: error instanceof Error ? error.message : 'Configuration failed',
-        })
-        logger.error(`[IndexService] Failed to configure ${config.name}:`, error)
+          error:
+            error instanceof Error ? error.message : "Configuration failed",
+        });
+        logger.error(
+          `[IndexService] Failed to configure ${config.name}:`,
+          error,
+        );
       }
     }
 
@@ -137,41 +143,43 @@ export class IndexService {
       taskIds,
       errors,
       duration: Date.now() - startTime,
-    }
+    };
   }
 
   /**
    * Initialize a specific index
    */
   async initializeIndex(indexName: IndexName): Promise<IndexOperationResult> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     const settingsMap: Record<IndexName, Settings> = {
       [INDEXES.MESSAGES]: MESSAGES_INDEX_SETTINGS,
       [INDEXES.FILES]: FILES_INDEX_SETTINGS,
       [INDEXES.USERS]: USERS_INDEX_SETTINGS,
       [INDEXES.CHANNELS]: CHANNELS_INDEX_SETTINGS,
-    }
+    };
 
     try {
       // Create index
-      await this.client.createIndex(indexName, { primaryKey: 'id' }).catch(() => null)
+      await this.client
+        .createIndex(indexName, { primaryKey: "id" })
+        .catch(() => null);
 
       // Update settings
-      const index = this.client.index(indexName)
-      const task = await index.updateSettings(settingsMap[indexName])
+      const index = this.client.index(indexName);
+      const task = await index.updateSettings(settingsMap[indexName]);
 
       return {
         success: true,
         taskId: task.taskUid,
         duration: Date.now() - startTime,
-      }
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Initialization failed',
+        error: error instanceof Error ? error.message : "Initialization failed",
         duration: Date.now() - startTime,
-      }
+      };
     }
   }
 
@@ -184,8 +192,11 @@ export class IndexService {
    */
   async getIndexInfo(indexName: IndexName): Promise<IndexInfo | null> {
     try {
-      const index = this.client.index(indexName)
-      const [info, stats] = await Promise.all([index.getRawInfo(), index.getStats()])
+      const index = this.client.index(indexName);
+      const [info, stats] = await Promise.all([
+        index.getRawInfo(),
+        index.getStats(),
+      ]);
 
       return {
         name: info.uid,
@@ -193,11 +204,17 @@ export class IndexService {
         numberOfDocuments: stats.numberOfDocuments,
         isIndexing: stats.isIndexing,
         fieldDistribution: stats.fieldDistribution,
-        createdAt: typeof info.createdAt === 'string' ? info.createdAt : new Date(info.createdAt).toISOString(),
-        updatedAt: typeof info.updatedAt === 'string' ? info.updatedAt : new Date(info.updatedAt).toISOString(),
-      }
+        createdAt:
+          typeof info.createdAt === "string"
+            ? info.createdAt
+            : new Date(info.createdAt).toISOString(),
+        updatedAt:
+          typeof info.updatedAt === "string"
+            ? info.updatedAt
+            : new Date(info.updatedAt).toISOString(),
+      };
     } catch {
-      return null
+      return null;
     }
   }
 
@@ -210,17 +227,17 @@ export class IndexService {
       this.getIndexInfo(INDEXES.FILES),
       this.getIndexInfo(INDEXES.USERS),
       this.getIndexInfo(INDEXES.CHANNELS),
-    ])
+    ]);
 
     const defaultInfo: IndexInfo = {
-      name: '',
-      primaryKey: 'id',
+      name: "",
+      primaryKey: "id",
       numberOfDocuments: 0,
       isIndexing: false,
       fieldDistribution: {},
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    }
+    };
 
     return {
       messages: messages || { ...defaultInfo, name: INDEXES.MESSAGES },
@@ -232,8 +249,12 @@ export class IndexService {
         (files?.numberOfDocuments || 0) +
         (users?.numberOfDocuments || 0) +
         (channels?.numberOfDocuments || 0),
-      isHealthy: messages !== null && files !== null && users !== null && channels !== null,
-    }
+      isHealthy:
+        messages !== null &&
+        files !== null &&
+        users !== null &&
+        channels !== null,
+    };
   }
 
   /**
@@ -241,28 +262,28 @@ export class IndexService {
    */
   async checkIndexHealth(indexName: IndexName): Promise<IndexHealth> {
     try {
-      const index = this.client.index(indexName)
+      const index = this.client.index(indexName);
 
       // Get pending and failed tasks
       const [pendingTasks, failedTasks] = await Promise.all([
         this.client.tasks.getTasks({
           indexUids: [indexName],
-          statuses: ['enqueued', 'processing'],
+          statuses: ["enqueued", "processing"],
           limit: 100,
         }),
         this.client.tasks.getTasks({
           indexUids: [indexName],
-          statuses: ['failed'],
+          statuses: ["failed"],
           limit: 1,
         }),
-      ])
+      ]);
 
       // Get last successful task
       const successfulTasks = await this.client.tasks.getTasks({
         indexUids: [indexName],
-        statuses: ['succeeded'],
+        statuses: ["succeeded"],
         limit: 1,
-      })
+      });
 
       return {
         healthy: true,
@@ -273,15 +294,15 @@ export class IndexService {
             : undefined,
         pendingTasks: pendingTasks.total,
         failedTasks: failedTasks.total,
-      }
+      };
     } catch (error) {
       return {
         healthy: false,
         name: indexName,
-        error: error instanceof Error ? error.message : 'Health check failed',
+        error: error instanceof Error ? error.message : "Health check failed",
         pendingTasks: 0,
         failedTasks: 0,
-      }
+      };
     }
   }
 
@@ -293,23 +314,23 @@ export class IndexService {
    * Clear all documents from a specific index
    */
   async clearIndex(indexName: IndexName): Promise<IndexOperationResult> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const index = this.client.index(indexName)
-      const task = await index.deleteAllDocuments()
+      const index = this.client.index(indexName);
+      const task = await index.deleteAllDocuments();
 
       return {
         success: true,
         taskId: task.taskUid,
         duration: Date.now() - startTime,
-      }
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Clear failed',
+        error: error instanceof Error ? error.message : "Clear failed",
         duration: Date.now() - startTime,
-      }
+      };
     }
   }
 
@@ -317,16 +338,16 @@ export class IndexService {
    * Clear all indexes
    */
   async clearAllIndexes(): Promise<BatchOperationResult> {
-    const startTime = Date.now()
-    const taskIds: number[] = []
-    const errors: { id: string; error: string }[] = []
+    const startTime = Date.now();
+    const taskIds: number[] = [];
+    const errors: { id: string; error: string }[] = [];
 
     for (const indexName of Object.values(INDEXES)) {
-      const result = await this.clearIndex(indexName)
+      const result = await this.clearIndex(indexName);
       if (result.success && result.taskId) {
-        taskIds.push(result.taskId)
+        taskIds.push(result.taskId);
       } else if (result.error) {
-        errors.push({ id: indexName, error: result.error })
+        errors.push({ id: indexName, error: result.error });
       }
     }
 
@@ -337,29 +358,29 @@ export class IndexService {
       taskIds,
       errors,
       duration: Date.now() - startTime,
-    }
+    };
   }
 
   /**
    * Delete a specific index
    */
   async deleteIndex(indexName: IndexName): Promise<IndexOperationResult> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const task = await this.client.deleteIndex(indexName)
+      const task = await this.client.deleteIndex(indexName);
 
       return {
         success: true,
         taskId: task.taskUid,
         duration: Date.now() - startTime,
-      }
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Delete failed',
+        error: error instanceof Error ? error.message : "Delete failed",
         duration: Date.now() - startTime,
-      }
+      };
     }
   }
 
@@ -367,16 +388,16 @@ export class IndexService {
    * Delete all indexes
    */
   async deleteAllIndexes(): Promise<BatchOperationResult> {
-    const startTime = Date.now()
-    const taskIds: number[] = []
-    const errors: { id: string; error: string }[] = []
+    const startTime = Date.now();
+    const taskIds: number[] = [];
+    const errors: { id: string; error: string }[] = [];
 
     for (const indexName of Object.values(INDEXES)) {
-      const result = await this.deleteIndex(indexName)
+      const result = await this.deleteIndex(indexName);
       if (result.success && result.taskId) {
-        taskIds.push(result.taskId)
+        taskIds.push(result.taskId);
       } else if (result.error) {
-        errors.push({ id: indexName, error: result.error })
+        errors.push({ id: indexName, error: result.error });
       }
     }
 
@@ -387,7 +408,7 @@ export class IndexService {
       taskIds,
       errors,
       duration: Date.now() - startTime,
-    }
+    };
   }
 
   // --------------------------------------------------------------------------
@@ -399,29 +420,29 @@ export class IndexService {
    */
   async addDocuments<T extends Record<string, unknown>>(
     indexName: IndexName,
-    documents: T[]
+    documents: T[],
   ): Promise<IndexOperationResult> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     if (documents.length === 0) {
-      return { success: true, duration: 0 }
+      return { success: true, duration: 0 };
     }
 
     try {
-      const index = this.client.index(indexName)
-      const task = await index.addDocuments(documents)
+      const index = this.client.index(indexName);
+      const task = await index.addDocuments(documents);
 
       return {
         success: true,
         taskId: task.taskUid,
         duration: Date.now() - startTime,
-      }
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Add documents failed',
+        error: error instanceof Error ? error.message : "Add documents failed",
         duration: Date.now() - startTime,
-      }
+      };
     }
   }
 
@@ -430,10 +451,10 @@ export class IndexService {
    */
   async updateDocuments<T extends Record<string, unknown>>(
     indexName: IndexName,
-    documents: T[]
+    documents: T[],
   ): Promise<IndexOperationResult> {
     // MeiliSearch handles updates via addDocuments with same ID
-    return this.addDocuments(indexName, documents)
+    return this.addDocuments(indexName, documents);
   }
 
   /**
@@ -441,29 +462,30 @@ export class IndexService {
    */
   async deleteDocuments(
     indexName: IndexName,
-    documentIds: string[]
+    documentIds: string[],
   ): Promise<IndexOperationResult> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     if (documentIds.length === 0) {
-      return { success: true, duration: 0 }
+      return { success: true, duration: 0 };
     }
 
     try {
-      const index = this.client.index(indexName)
-      const task = await index.deleteDocuments(documentIds)
+      const index = this.client.index(indexName);
+      const task = await index.deleteDocuments(documentIds);
 
       return {
         success: true,
         taskId: task.taskUid,
         duration: Date.now() - startTime,
-      }
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Delete documents failed',
+        error:
+          error instanceof Error ? error.message : "Delete documents failed",
         duration: Date.now() - startTime,
-      }
+      };
     }
   }
 
@@ -472,25 +494,26 @@ export class IndexService {
    */
   async deleteDocumentsByFilter(
     indexName: IndexName,
-    filter: string
+    filter: string,
   ): Promise<IndexOperationResult> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const index = this.client.index(indexName)
-      const task = await index.deleteDocuments({ filter })
+      const index = this.client.index(indexName);
+      const task = await index.deleteDocuments({ filter });
 
       return {
         success: true,
         taskId: task.taskUid,
         duration: Date.now() - startTime,
-      }
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Delete by filter failed',
+        error:
+          error instanceof Error ? error.message : "Delete by filter failed",
         duration: Date.now() - startTime,
-      }
+      };
     }
   }
 
@@ -499,13 +522,13 @@ export class IndexService {
    */
   async getDocument<T extends Record<string, unknown>>(
     indexName: IndexName,
-    documentId: string
+    documentId: string,
   ): Promise<T | null> {
     try {
-      const index = this.client.index(indexName)
-      return (await index.getDocument(documentId)) as T
+      const index = this.client.index(indexName);
+      return (await index.getDocument(documentId)) as T;
     } catch {
-      return null
+      return null;
     }
   }
 
@@ -517,7 +540,7 @@ export class IndexService {
    * Wait for a task to complete
    */
   async waitForTask(taskId: number, timeout = 30000): Promise<Task> {
-    return this.client.tasks.waitForTask(taskId, { timeout: timeout })
+    return this.client.tasks.waitForTask(taskId, { timeout: timeout });
   }
 
   /**
@@ -527,11 +550,11 @@ export class IndexService {
     for (const indexName of Object.values(INDEXES)) {
       const tasks = await this.client.tasks.getTasks({
         indexUids: [indexName],
-        statuses: ['enqueued', 'processing'],
-      })
+        statuses: ["enqueued", "processing"],
+      });
 
       for (const task of tasks.results) {
-        await this.client.tasks.waitForTask(task.uid, { timeout: timeout })
+        await this.client.tasks.waitForTask(task.uid, { timeout: timeout });
       }
     }
   }
@@ -540,7 +563,7 @@ export class IndexService {
    * Get task status
    */
   async getTaskStatus(taskId: number): Promise<Task> {
-    return this.client.tasks.getTask(taskId)
+    return this.client.tasks.getTask(taskId);
   }
 
   /**
@@ -549,9 +572,9 @@ export class IndexService {
   async getPendingTasks(indexName: IndexName): Promise<Task[]> {
     const tasks = await this.client.tasks.getTasks({
       indexUids: [indexName],
-      statuses: ['enqueued', 'processing'],
-    })
-    return tasks.results
+      statuses: ["enqueued", "processing"],
+    });
+    return tasks.results;
   }
 }
 
@@ -559,23 +582,23 @@ export class IndexService {
 // Singleton Instance
 // ============================================================================
 
-let indexServiceInstance: IndexService | null = null
+let indexServiceInstance: IndexService | null = null;
 
 /**
  * Get the singleton IndexService instance
  */
 export function getIndexService(): IndexService {
   if (!indexServiceInstance) {
-    indexServiceInstance = new IndexService()
+    indexServiceInstance = new IndexService();
   }
-  return indexServiceInstance
+  return indexServiceInstance;
 }
 
 /**
  * Create a new IndexService instance
  */
 export function createIndexService(): IndexService {
-  return new IndexService()
+  return new IndexService();
 }
 
-export default IndexService
+export default IndexService;

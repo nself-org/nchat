@@ -5,14 +5,14 @@
  * Supports TOTP codes, backup codes, and "remember this device".
  */
 
-'use client'
+"use client";
 
-import { useState, useCallback, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useState, useCallback, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -20,91 +20,98 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Shield, AlertCircle, Loader2, Key, Smartphone } from 'lucide-react'
-import { getRemainingSeconds } from '@/lib/2fa/totp'
+} from "@/components/ui/dialog";
+import { Shield, AlertCircle, Loader2, Key, Smartphone } from "lucide-react";
+import { getRemainingSeconds } from "@/lib/2fa/totp";
 
 interface TwoFactorVerifyProps {
-  open: boolean
-  onVerified: (rememberDevice: boolean) => void
-  onCancel: () => void
-  userId: string
+  open: boolean;
+  onVerified: (rememberDevice: boolean) => void;
+  onCancel: () => void;
+  userId: string;
 }
 
-export function TwoFactorVerify({ open, onVerified, onCancel, userId }: TwoFactorVerifyProps) {
-  const [code, setCode] = useState('')
-  const [rememberDevice, setRememberDevice] = useState(false)
-  const [useBackupCode, setUseBackupCode] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [remainingSeconds, setRemainingSeconds] = useState(30)
+export function TwoFactorVerify({
+  open,
+  onVerified,
+  onCancel,
+  userId,
+}: TwoFactorVerifyProps) {
+  const [code, setCode] = useState("");
+  const [rememberDevice, setRememberDevice] = useState(false);
+  const [useBackupCode, setUseBackupCode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(30);
 
   // Update countdown timer
   useEffect(() => {
-    if (!open || useBackupCode) return
+    if (!open || useBackupCode) return;
 
     const interval = setInterval(() => {
-      setRemainingSeconds(getRemainingSeconds())
-    }, 1000)
+      setRemainingSeconds(getRemainingSeconds());
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [open, useBackupCode])
+    return () => clearInterval(interval);
+  }, [open, useBackupCode]);
 
   const handleVerify = useCallback(async () => {
-    if (!code.trim()) return
+    if (!code.trim()) return;
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch('/api/auth/2fa/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/2fa/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           code: code.trim(),
           rememberDevice,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Verification failed')
+        throw new Error(data.error || "Verification failed");
       }
 
       if (data.usedBackupCode) {
         // Show warning if backup code was used
-        alert('You used a backup code. Consider regenerating your backup codes.')
+        alert(
+          "You used a backup code. Consider regenerating your backup codes.",
+        );
       }
 
-      onVerified(rememberDevice)
+      onVerified(rememberDevice);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Verification failed')
+      setError(err instanceof Error ? err.message : "Verification failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [code, userId, rememberDevice, onVerified])
+  }, [code, userId, rememberDevice, onVerified]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && code.trim() && !loading) {
-      handleVerify()
+    if (e.key === "Enter" && code.trim() && !loading) {
+      handleVerify();
     }
-  }
+  };
 
   const handleCancel = () => {
-    setCode('')
-    setError(null)
-    setRememberDevice(false)
-    setUseBackupCode(false)
-    onCancel()
-  }
+    setCode("");
+    setError(null);
+    setRememberDevice(false);
+    setUseBackupCode(false);
+    onCancel();
+  };
 
   const toggleBackupCode = () => {
-    setCode('')
-    setError(null)
-    setUseBackupCode(!useBackupCode)
-  }
+    setCode("");
+    setError(null);
+    setUseBackupCode(!useBackupCode);
+  };
 
   return (
     <Dialog open={open} onOpenChange={() => !loading && handleCancel()}>
@@ -122,8 +129,8 @@ export function TwoFactorVerify({ open, onVerified, onCancel, userId }: TwoFacto
               <DialogTitle>Two-Factor Authentication</DialogTitle>
               <DialogDescription>
                 {useBackupCode
-                  ? 'Enter one of your backup codes'
-                  : 'Enter the code from your authenticator app'}
+                  ? "Enter one of your backup codes"
+                  : "Enter the code from your authenticator app"}
               </DialogDescription>
             </div>
           </div>
@@ -138,23 +145,25 @@ export function TwoFactorVerify({ open, onVerified, onCancel, userId }: TwoFacto
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="2fa-code">{useBackupCode ? 'Backup Code' : 'Verification Code'}</Label>
+            <Label htmlFor="2fa-code">
+              {useBackupCode ? "Backup Code" : "Verification Code"}
+            </Label>
             <Input
               id="2fa-code"
               type="text"
               value={code}
               onChange={(e) => {
-                const value = e.target.value
+                const value = e.target.value;
                 if (useBackupCode) {
                   // Backup codes: allow alphanumeric and dash
-                  setCode(value.toUpperCase())
+                  setCode(value.toUpperCase());
                 } else {
                   // TOTP: only digits, max 6
-                  setCode(value.replace(/\D/g, '').slice(0, 6))
+                  setCode(value.replace(/\D/g, "").slice(0, 6));
                 }
               }}
               onKeyDown={handleKeyDown}
-              placeholder={useBackupCode ? 'XXXX-XXXX' : '000000'}
+              placeholder={useBackupCode ? "XXXX-XXXX" : "000000"}
               className="text-center font-mono text-lg tracking-widest"
               autoComplete="one-time-code"
               // eslint-disable-next-line jsx-a11y/no-autofocus -- autoFocus is intentional for 2FA verification code input UX
@@ -230,11 +239,11 @@ export function TwoFactorVerify({ open, onVerified, onCancel, userId }: TwoFacto
                 Verifying...
               </>
             ) : (
-              'Verify'
+              "Verify"
             )}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

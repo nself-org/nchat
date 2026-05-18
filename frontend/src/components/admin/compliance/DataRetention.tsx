@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Data Retention Management Component
@@ -12,9 +12,9 @@
  * - Dry-run testing
  */
 
-import * as React from 'react'
-import { useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -22,19 +22,19 @@ import {
   CardHeader,
   CardTitle,
   CardFooter,
-} from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -43,7 +43,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -51,7 +51,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,8 +61,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Textarea } from '@/components/ui/textarea'
+} from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Archive,
   Plus,
@@ -76,8 +76,8 @@ import {
   Clock,
   Settings,
   Shield,
-} from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Import types and utilities
 import type {
@@ -88,7 +88,7 @@ import type {
   AutoDeleteConfig,
   RetentionJobStatus,
   ChannelRetentionOverride,
-} from '@/lib/compliance/compliance-types'
+} from "@/lib/compliance/compliance-types";
 import {
   DEFAULT_RETENTION_PERIODS,
   DATA_CATEGORIES,
@@ -98,145 +98,152 @@ import {
   createDefaultAutoDeleteConfig,
   calculateNextRunTime,
   generatePolicySummary,
-} from '@/lib/compliance/retention-policy'
+} from "@/lib/compliance/retention-policy";
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export function DataRetention() {
-  const [policies, setPolicies] = useState<RetentionPolicy[]>([])
-  const [autoDeleteConfig, setAutoDeleteConfig] = useState<AutoDeleteConfig | null>(null)
-  const [selectedPolicy, setSelectedPolicy] = useState<RetentionPolicy | null>(null)
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [showSettingsDialog, setShowSettingsDialog] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
+  const [policies, setPolicies] = useState<RetentionPolicy[]>([]);
+  const [autoDeleteConfig, setAutoDeleteConfig] =
+    useState<AutoDeleteConfig | null>(null);
+  const [selectedPolicy, setSelectedPolicy] = useState<RetentionPolicy | null>(
+    null,
+  );
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    loadRetentionData()
-  }, [])
+    loadRetentionData();
+  }, []);
 
   const loadRetentionData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       // Mock data for now
       setPolicies([
-        createDefaultPolicy('messages', {
-          id: '1',
-          name: 'Messages - 1 Year',
-          period: '1_year',
+        createDefaultPolicy("messages", {
+          id: "1",
+          name: "Messages - 1 Year",
+          period: "1_year",
           enabled: true,
         }),
-        createDefaultPolicy('files', {
-          id: '2',
-          name: 'Files - 2 Years',
-          period: '2_years',
+        createDefaultPolicy("files", {
+          id: "2",
+          name: "Files - 2 Years",
+          period: "2_years",
           enabled: true,
         }),
-        createDefaultPolicy('audit_logs', {
-          id: '3',
-          name: 'Audit Logs - 7 Years',
-          period: '7_years',
+        createDefaultPolicy("audit_logs", {
+          id: "3",
+          name: "Audit Logs - 7 Years",
+          period: "7_years",
           enabled: true,
         }),
-      ])
+      ]);
 
-      setAutoDeleteConfig(createDefaultAutoDeleteConfig())
+      setAutoDeleteConfig(createDefaultAutoDeleteConfig());
     } catch (_error) {
       toast({
-        title: 'Error',
-        description: 'Failed to load retention policies',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to load retention policies",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCreatePolicy = (policy: RetentionPolicy) => {
-    const validation = validateRetentionPolicy(policy)
+    const validation = validateRetentionPolicy(policy);
 
     if (!validation.valid) {
       toast({
-        title: 'Validation Error',
-        description: validation.errors.join(', '),
-        variant: 'destructive',
-      })
-      return
+        title: "Validation Error",
+        description: validation.errors.join(", "),
+        variant: "destructive",
+      });
+      return;
     }
 
-    setPolicies([...policies, policy])
-    setShowCreateDialog(false)
+    setPolicies([...policies, policy]);
+    setShowCreateDialog(false);
 
     toast({
-      title: 'Policy Created',
+      title: "Policy Created",
       description: `Retention policy "${policy.name}" has been created.`,
-    })
+    });
 
     if (validation.warnings.length > 0) {
       toast({
-        title: 'Warnings',
-        description: validation.warnings.join(', '),
-      })
+        title: "Warnings",
+        description: validation.warnings.join(", "),
+      });
     }
-  }
+  };
 
   const handleUpdatePolicy = (policy: RetentionPolicy) => {
-    const validation = validateRetentionPolicy(policy)
+    const validation = validateRetentionPolicy(policy);
 
     if (!validation.valid) {
       toast({
-        title: 'Validation Error',
-        description: validation.errors.join(', '),
-        variant: 'destructive',
-      })
-      return
+        title: "Validation Error",
+        description: validation.errors.join(", "),
+        variant: "destructive",
+      });
+      return;
     }
 
-    setPolicies(policies.map((p) => (p.id === policy.id ? policy : p)))
-    setShowEditDialog(false)
-    setSelectedPolicy(null)
+    setPolicies(policies.map((p) => (p.id === policy.id ? policy : p)));
+    setShowEditDialog(false);
+    setSelectedPolicy(null);
 
     toast({
-      title: 'Policy Updated',
+      title: "Policy Updated",
       description: `Retention policy "${policy.name}" has been updated.`,
-    })
-  }
+    });
+  };
 
   const handleDeletePolicy = () => {
-    if (!selectedPolicy) return
+    if (!selectedPolicy) return;
 
-    setPolicies(policies.filter((p) => p.id !== selectedPolicy.id))
-    setShowDeleteDialog(false)
-    setSelectedPolicy(null)
+    setPolicies(policies.filter((p) => p.id !== selectedPolicy.id));
+    setShowDeleteDialog(false);
+    setSelectedPolicy(null);
 
     toast({
-      title: 'Policy Deleted',
+      title: "Policy Deleted",
       description: `Retention policy "${selectedPolicy.name}" has been deleted.`,
-    })
-  }
+    });
+  };
 
   const handleTogglePolicy = (policyId: string) => {
-    setPolicies(policies.map((p) => (p.id === policyId ? { ...p, enabled: !p.enabled } : p)))
+    setPolicies(
+      policies.map((p) =>
+        p.id === policyId ? { ...p, enabled: !p.enabled } : p,
+      ),
+    );
 
-    const policy = policies.find((p) => p.id === policyId)
+    const policy = policies.find((p) => p.id === policyId);
     toast({
-      title: policy?.enabled ? 'Policy Disabled' : 'Policy Enabled',
-      description: `Retention policy "${policy?.name}" has been ${policy?.enabled ? 'disabled' : 'enabled'}.`,
-    })
-  }
+      title: policy?.enabled ? "Policy Disabled" : "Policy Enabled",
+      description: `Retention policy "${policy?.name}" has been ${policy?.enabled ? "disabled" : "enabled"}.`,
+    });
+  };
 
   const handleRunNow = async () => {
     toast({
-      title: 'Retention Job Started',
-      description: 'Data retention job is now running...',
-    })
-  }
+      title: "Retention Job Started",
+      description: "Data retention job is now running...",
+    });
+  };
 
-  const summary = generatePolicySummary(policies)
+  const summary = generatePolicySummary(policies);
 
   if (loading) {
     return (
@@ -246,7 +253,7 @@ export function DataRetention() {
           <p className="text-muted-foreground">Loading retention policies...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -275,55 +282,69 @@ export function DataRetention() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Policies</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Policies
+            </CardTitle>
             <Archive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summary.totalPolicies}</div>
-            <p className="text-xs text-muted-foreground">{summary.enabledPolicies} enabled</p>
+            <p className="text-xs text-muted-foreground">
+              {summary.enabledPolicies} enabled
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Shortest Retention</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Shortest Retention
+            </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {summary.shortestRetention?.days || 'N/A'}
-              {summary.shortestRetention && ' days'}
+              {summary.shortestRetention?.days || "N/A"}
+              {summary.shortestRetention && " days"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {summary.shortestRetention?.category || 'No policies'}
+              {summary.shortestRetention?.category || "No policies"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Longest Retention</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Longest Retention
+            </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {summary.longestRetention?.days || 'N/A'}
-              {summary.longestRetention && ' days'}
+              {summary.longestRetention?.days || "N/A"}
+              {summary.longestRetention && " days"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {summary.longestRetention?.category || 'No policies'}
+              {summary.longestRetention?.category || "No policies"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Channel Overrides</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Channel Overrides
+            </CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary.channelOverridesCount}</div>
-            <p className="text-xs text-muted-foreground">Custom retention periods</p>
+            <div className="text-2xl font-bold">
+              {summary.channelOverridesCount}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Custom retention periods
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -332,8 +353,8 @@ export function DataRetention() {
       {autoDeleteConfig && (
         <Card
           className={cn(
-            'border-2',
-            autoDeleteConfig.enabled ? 'border-green-500' : 'border-gray-300'
+            "border-2",
+            autoDeleteConfig.enabled ? "border-green-500" : "border-gray-300",
           )}
         >
           <CardHeader>
@@ -343,12 +364,13 @@ export function DataRetention() {
               ) : (
                 <Pause className="h-5 w-5 text-gray-500" />
               )}
-              Automatic Deletion {autoDeleteConfig.enabled ? 'Enabled' : 'Disabled'}
+              Automatic Deletion{" "}
+              {autoDeleteConfig.enabled ? "Enabled" : "Disabled"}
             </CardTitle>
             <CardDescription>
               {autoDeleteConfig.enabled
                 ? `Scheduled daily at ${autoDeleteConfig.scheduleTime} ${autoDeleteConfig.timezone}`
-                : 'Automatic deletion is currently disabled'}
+                : "Automatic deletion is currently disabled"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -356,36 +378,46 @@ export function DataRetention() {
               <div>
                 <Label className="text-xs text-muted-foreground">Mode</Label>
                 <div className="mt-1 flex items-center gap-2">
-                  <Badge variant={autoDeleteConfig.dryRunMode ? 'secondary' : 'default'}>
-                    {autoDeleteConfig.dryRunMode ? 'Dry Run' : 'Live'}
+                  <Badge
+                    variant={
+                      autoDeleteConfig.dryRunMode ? "secondary" : "default"
+                    }
+                  >
+                    {autoDeleteConfig.dryRunMode ? "Dry Run" : "Live"}
                   </Badge>
                   {autoDeleteConfig.dryRunMode && (
-                    <span className="text-xs text-muted-foreground">(No actual deletions)</span>
+                    <span className="text-xs text-muted-foreground">
+                      (No actual deletions)
+                    </span>
                   )}
                 </div>
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">Next Run</Label>
+                <Label className="text-xs text-muted-foreground">
+                  Next Run
+                </Label>
                 <div className="mt-1">
                   {autoDeleteConfig.enabled && autoDeleteConfig.nextRunAt
                     ? new Date(autoDeleteConfig.nextRunAt).toLocaleString()
-                    : 'Not scheduled'}
+                    : "Not scheduled"}
                 </div>
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">Last Run</Label>
+                <Label className="text-xs text-muted-foreground">
+                  Last Run
+                </Label>
                 <div className="mt-1">
                   {autoDeleteConfig.lastRunAt
                     ? new Date(autoDeleteConfig.lastRunAt).toLocaleString()
-                    : 'Never'}
+                    : "Never"}
                 </div>
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
             <div className="text-sm text-muted-foreground">
-              {autoDeleteConfig.excludeWeekends && 'Excludes weekends'}
-              {autoDeleteConfig.notifyAdmins && ' • Admins notified'}
+              {autoDeleteConfig.excludeWeekends && "Excludes weekends"}
+              {autoDeleteConfig.notifyAdmins && " • Admins notified"}
             </div>
             <Button variant="outline" size="sm" onClick={handleRunNow}>
               <Play className="mr-2 h-4 w-4" />
@@ -429,18 +461,28 @@ export function DataRetention() {
                     <div>
                       <div className="font-medium">{policy.name}</div>
                       {policy.description && (
-                        <div className="text-sm text-muted-foreground">{policy.description}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {policy.description}
+                        </div>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {DATA_CATEGORIES.find((c) => c.category === policy.dataCategory)?.label}
+                      {
+                        DATA_CATEGORIES.find(
+                          (c) => c.category === policy.dataCategory,
+                        )?.label
+                      }
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {DEFAULT_RETENTION_PERIODS.find((p) => p.period === policy.period)?.label}
-                    {policy.period === 'custom' &&
+                    {
+                      DEFAULT_RETENTION_PERIODS.find(
+                        (p) => p.period === policy.period,
+                      )?.label
+                    }
+                    {policy.period === "custom" &&
                       policy.customDays &&
                       ` (${policy.customDays} days)`}
                   </TableCell>
@@ -456,18 +498,24 @@ export function DataRetention() {
                           Starred
                         </Badge>
                       )}
-                      {policy.excludeMessageTypes && policy.excludeMessageTypes.length > 0 && (
-                        <Badge variant="secondary" className="text-xs">
-                          +{policy.excludeMessageTypes.length} types
-                        </Badge>
-                      )}
+                      {policy.excludeMessageTypes &&
+                        policy.excludeMessageTypes.length > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{policy.excludeMessageTypes.length} types
+                          </Badge>
+                        )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    {policy.channelOverrides && policy.channelOverrides.length > 0 ? (
-                      <Badge variant="outline">{policy.channelOverrides.length} channels</Badge>
+                    {policy.channelOverrides &&
+                    policy.channelOverrides.length > 0 ? (
+                      <Badge variant="outline">
+                        {policy.channelOverrides.length} channels
+                      </Badge>
                     ) : (
-                      <span className="text-sm text-muted-foreground">None</span>
+                      <span className="text-sm text-muted-foreground">
+                        None
+                      </span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -476,8 +524,8 @@ export function DataRetention() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setSelectedPolicy(policy)
-                          setShowEditDialog(true)
+                          setSelectedPolicy(policy);
+                          setShowEditDialog(true);
                         }}
                       >
                         <Edit className="h-4 w-4" />
@@ -486,8 +534,8 @@ export function DataRetention() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setSelectedPolicy(policy)
-                          setShowDeleteDialog(true)
+                          setSelectedPolicy(policy);
+                          setShowDeleteDialog(true);
                         }}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -502,9 +550,12 @@ export function DataRetention() {
           {policies.length === 0 && (
             <div className="py-12 text-center">
               <Archive className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="mb-2 text-lg font-semibold">No retention policies</h3>
+              <h3 className="mb-2 text-lg font-semibold">
+                No retention policies
+              </h3>
               <p className="mb-4 text-muted-foreground">
-                Create your first retention policy to automatically manage data lifecycle
+                Create your first retention policy to automatically manage data
+                lifecycle
               </p>
               <Button onClick={() => setShowCreateDialog(true)}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -540,13 +591,15 @@ export function DataRetention() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Retention Policy?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the policy &quot;{selectedPolicy?.name}&quot;? This
-              action cannot be undone.
+              Are you sure you want to delete the policy &quot;
+              {selectedPolicy?.name}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeletePolicy}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={handleDeletePolicy}>
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -558,17 +611,17 @@ export function DataRetention() {
           onOpenChange={setShowSettingsDialog}
           config={autoDeleteConfig}
           onSave={(config) => {
-            setAutoDeleteConfig(config)
-            setShowSettingsDialog(false)
+            setAutoDeleteConfig(config);
+            setShowSettingsDialog(false);
             toast({
-              title: 'Settings Updated',
-              description: 'Auto-delete configuration has been saved.',
-            })
+              title: "Settings Updated",
+              description: "Auto-delete configuration has been saved.",
+            });
           }}
         />
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -576,39 +629,45 @@ export function DataRetention() {
 // ============================================================================
 
 interface PolicyDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSave: (policy: RetentionPolicy) => void
-  policy?: RetentionPolicy
-  title: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (policy: RetentionPolicy) => void;
+  policy?: RetentionPolicy;
+  title: string;
 }
 
-function PolicyDialog({ open, onOpenChange, onSave, policy, title }: PolicyDialogProps) {
+function PolicyDialog({
+  open,
+  onOpenChange,
+  onSave,
+  policy,
+  title,
+}: PolicyDialogProps) {
   const [formData, setFormData] = useState<Partial<RetentionPolicy>>(
     policy || {
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       enabled: true,
       isDefault: false,
-      period: '1_year',
-      dataCategory: 'messages',
+      period: "1_year",
+      dataCategory: "messages",
       excludePinnedMessages: true,
       excludeStarredMessages: true,
       excludeMessageTypes: [],
       channelOverrides: [],
-    }
-  )
+    },
+  );
 
   const handleSubmit = () => {
     const newPolicy: RetentionPolicy = {
       id: policy?.id || crypto.randomUUID(),
-      name: formData.name || '',
+      name: formData.name || "",
       description: formData.description,
       enabled: formData.enabled ?? true,
       isDefault: formData.isDefault ?? false,
-      period: formData.period || '1_year',
+      period: formData.period || "1_year",
       customDays: formData.customDays,
-      dataCategory: formData.dataCategory || 'messages',
+      dataCategory: formData.dataCategory || "messages",
       excludeMessageTypes: formData.excludeMessageTypes || [],
       excludePinnedMessages: formData.excludePinnedMessages ?? true,
       excludeStarredMessages: formData.excludeStarredMessages ?? true,
@@ -616,10 +675,10 @@ function PolicyDialog({ open, onOpenChange, onSave, policy, title }: PolicyDialo
       createdAt: policy?.createdAt || new Date(),
       updatedAt: new Date(),
       createdBy: formData.createdBy,
-    }
+    };
 
-    onSave(newPolicy)
-  }
+    onSave(newPolicy);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -638,7 +697,9 @@ function PolicyDialog({ open, onOpenChange, onSave, policy, title }: PolicyDialo
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="e.g., Messages - 1 Year"
             />
           </div>
@@ -647,8 +708,10 @@ function PolicyDialog({ open, onOpenChange, onSave, policy, title }: PolicyDialo
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={formData.description || ''}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              value={formData.description || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Optional description"
               rows={2}
             />
@@ -699,14 +762,14 @@ function PolicyDialog({ open, onOpenChange, onSave, policy, title }: PolicyDialo
           </div>
 
           {/* Custom Days (if custom period) */}
-          {formData.period === 'custom' && (
+          {formData.period === "custom" && (
             <div className="space-y-2">
               <Label htmlFor="customDays">Custom Days *</Label>
               <Input
                 id="customDays"
                 type="number"
                 min="1"
-                value={formData.customDays || ''}
+                value={formData.customDays || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -755,7 +818,9 @@ function PolicyDialog({ open, onOpenChange, onSave, policy, title }: PolicyDialo
             <Switch
               id="enabled"
               checked={formData.enabled}
-              onCheckedChange={(checked) => setFormData({ ...formData, enabled: checked })}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, enabled: checked })
+              }
             />
           </div>
         </div>
@@ -764,11 +829,13 @@ function PolicyDialog({ open, onOpenChange, onSave, policy, title }: PolicyDialo
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>{policy ? 'Update' : 'Create'} Policy</Button>
+          <Button onClick={handleSubmit}>
+            {policy ? "Update" : "Create"} Policy
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -776,10 +843,10 @@ function PolicyDialog({ open, onOpenChange, onSave, policy, title }: PolicyDialo
 // ============================================================================
 
 interface AutoDeleteSettingsDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  config: AutoDeleteConfig
-  onSave: (config: AutoDeleteConfig) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  config: AutoDeleteConfig;
+  onSave: (config: AutoDeleteConfig) => void;
 }
 
 function AutoDeleteSettingsDialog({
@@ -788,16 +855,18 @@ function AutoDeleteSettingsDialog({
   config,
   onSave,
 }: AutoDeleteSettingsDialogProps) {
-  const [formData, setFormData] = useState<AutoDeleteConfig>(config)
+  const [formData, setFormData] = useState<AutoDeleteConfig>(config);
 
   const handleSubmit = () => {
-    const nextRun = formData.enabled ? calculateNextRunTime(formData) : undefined
+    const nextRun = formData.enabled
+      ? calculateNextRunTime(formData)
+      : undefined;
 
     onSave({
       ...formData,
       nextRunAt: nextRun,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -820,7 +889,9 @@ function AutoDeleteSettingsDialog({
             </div>
             <Switch
               checked={formData.enabled}
-              onCheckedChange={(checked) => setFormData({ ...formData, enabled: checked })}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, enabled: checked })
+              }
             />
           </div>
 
@@ -831,7 +902,9 @@ function AutoDeleteSettingsDialog({
               id="scheduleTime"
               type="time"
               value={formData.scheduleTime}
-              onChange={(e) => setFormData({ ...formData, scheduleTime: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, scheduleTime: e.target.value })
+              }
             />
           </div>
 
@@ -839,11 +912,15 @@ function AutoDeleteSettingsDialog({
           <div className="flex items-center justify-between">
             <div>
               <Label className="font-normal">Dry Run Mode</Label>
-              <p className="text-sm text-muted-foreground">Test without actually deleting data</p>
+              <p className="text-sm text-muted-foreground">
+                Test without actually deleting data
+              </p>
             </div>
             <Switch
               checked={formData.dryRunMode}
-              onCheckedChange={(checked) => setFormData({ ...formData, dryRunMode: checked })}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, dryRunMode: checked })
+              }
             />
           </div>
 
@@ -854,14 +931,18 @@ function AutoDeleteSettingsDialog({
               <Label className="font-normal">Notify admins</Label>
               <Switch
                 checked={formData.notifyAdmins}
-                onCheckedChange={(checked) => setFormData({ ...formData, notifyAdmins: checked })}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, notifyAdmins: checked })
+                }
               />
             </div>
             <div className="flex items-center justify-between">
               <Label className="font-normal">Notify affected users</Label>
               <Switch
                 checked={formData.notifyUsers}
-                onCheckedChange={(checked) => setFormData({ ...formData, notifyUsers: checked })}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, notifyUsers: checked })
+                }
               />
             </div>
           </div>
@@ -939,7 +1020,7 @@ function AutoDeleteSettingsDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default DataRetention
+export default DataRetention;

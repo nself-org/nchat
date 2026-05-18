@@ -3,21 +3,21 @@
  * Uses Web Crypto API and @noble libraries
  */
 
-import { sha256 } from '@noble/hashes/sha256'
-import { sha512 } from '@noble/hashes/sha512'
-import { pbkdf2 } from '@noble/hashes/pbkdf2'
-import { randomBytes } from '@noble/hashes/utils'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { sha256 } from "@noble/hashes/sha256";
+import { sha512 } from "@noble/hashes/sha512";
+import { pbkdf2 } from "@noble/hashes/pbkdf2";
+import { randomBytes } from "@noble/hashes/utils";
+import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-export const PBKDF2_ITERATIONS = 100000
-export const SALT_LENGTH = 32
-export const KEY_LENGTH = 32
-export const IV_LENGTH = 12 // GCM nonce
-export const AUTH_TAG_LENGTH = 16
+export const PBKDF2_ITERATIONS = 100000;
+export const SALT_LENGTH = 32;
+export const KEY_LENGTH = 32;
+export const IV_LENGTH = 12; // GCM nonce
+export const AUTH_TAG_LENGTH = 16;
 
 // ============================================================================
 // RANDOM GENERATION
@@ -27,23 +27,23 @@ export const AUTH_TAG_LENGTH = 16
  * Generate cryptographically secure random bytes
  */
 export function generateRandomBytes(length: number): Uint8Array {
-  return randomBytes(length)
+  return randomBytes(length);
 }
 
 /**
  * Generate a random device ID
  */
 export function generateDeviceId(): string {
-  const bytes = generateRandomBytes(16)
-  return bytesToHex(bytes)
+  const bytes = generateRandomBytes(16);
+  return bytesToHex(bytes);
 }
 
 /**
  * Generate a random registration ID (14-bit number)
  */
 export function generateRegistrationId(): number {
-  const bytes = generateRandomBytes(2)
-  return (bytes[0] << 6) | (bytes[1] >> 2) // 14 bits
+  const bytes = generateRandomBytes(2);
+  return (bytes[0] << 6) | (bytes[1] >> 2); // 14 bits
 }
 
 // ============================================================================
@@ -54,22 +54,22 @@ export function generateRegistrationId(): number {
  * SHA-256 hash
  */
 export function hash256(data: Uint8Array): Uint8Array {
-  return sha256(data)
+  return sha256(data);
 }
 
 /**
  * SHA-512 hash
  */
 export function hash512(data: Uint8Array): Uint8Array {
-  return sha512(data)
+  return sha512(data);
 }
 
 /**
  * Generate fingerprint from public key
  */
 export function generateFingerprint(publicKey: Uint8Array): string {
-  const hash = hash256(publicKey)
-  return bytesToHex(hash)
+  const hash = hash256(publicKey);
+  return bytesToHex(hash);
 }
 
 // ============================================================================
@@ -82,28 +82,31 @@ export function generateFingerprint(publicKey: Uint8Array): string {
 export async function deriveMasterKey(
   password: string,
   salt: Uint8Array,
-  iterations: number = PBKDF2_ITERATIONS
+  iterations: number = PBKDF2_ITERATIONS,
 ): Promise<Uint8Array> {
-  const passwordBytes = new TextEncoder().encode(password)
+  const passwordBytes = new TextEncoder().encode(password);
   return pbkdf2(sha256, passwordBytes, salt, {
     c: iterations,
     dkLen: KEY_LENGTH,
-  })
+  });
 }
 
 /**
  * Generate salt for key derivation
  */
 export function generateSalt(): Uint8Array {
-  return generateRandomBytes(SALT_LENGTH)
+  return generateRandomBytes(SALT_LENGTH);
 }
 
 /**
  * Verify master key against stored hash
  */
-export function verifyMasterKey(masterKey: Uint8Array, keyHash: Uint8Array): boolean {
-  const computedHash = hash256(masterKey)
-  return constantTimeEqual(computedHash, keyHash)
+export function verifyMasterKey(
+  masterKey: Uint8Array,
+  keyHash: Uint8Array,
+): boolean {
+  const computedHash = hash256(masterKey);
+  return constantTimeEqual(computedHash, keyHash);
 }
 
 // ============================================================================
@@ -115,38 +118,38 @@ export function verifyMasterKey(masterKey: Uint8Array, keyHash: Uint8Array): boo
  */
 export async function encryptAESGCM(
   plaintext: Uint8Array,
-  key: Uint8Array
+  key: Uint8Array,
 ): Promise<{
-  ciphertext: Uint8Array
-  iv: Uint8Array
+  ciphertext: Uint8Array;
+  iv: Uint8Array;
 }> {
-  if (typeof window === 'undefined') {
-    throw new Error('Web Crypto API not available')
+  if (typeof window === "undefined") {
+    throw new Error("Web Crypto API not available");
   }
 
-  const iv = generateRandomBytes(IV_LENGTH)
+  const iv = generateRandomBytes(IV_LENGTH);
   const cryptoKey = await window.crypto.subtle.importKey(
-    'raw',
+    "raw",
     key as BufferSource,
-    { name: 'AES-GCM' },
+    { name: "AES-GCM" },
     false,
-    ['encrypt']
-  )
+    ["encrypt"],
+  );
 
   const encrypted = await window.crypto.subtle.encrypt(
     {
-      name: 'AES-GCM',
+      name: "AES-GCM",
       iv: iv as BufferSource,
       tagLength: AUTH_TAG_LENGTH * 8,
     },
     cryptoKey,
-    plaintext as BufferSource
-  )
+    plaintext as BufferSource,
+  );
 
   return {
     ciphertext: new Uint8Array(encrypted),
     iv,
-  }
+  };
 }
 
 /**
@@ -155,31 +158,31 @@ export async function encryptAESGCM(
 export async function decryptAESGCM(
   ciphertext: Uint8Array,
   key: Uint8Array,
-  iv: Uint8Array
+  iv: Uint8Array,
 ): Promise<Uint8Array> {
-  if (typeof window === 'undefined') {
-    throw new Error('Web Crypto API not available')
+  if (typeof window === "undefined") {
+    throw new Error("Web Crypto API not available");
   }
 
   const cryptoKey = await window.crypto.subtle.importKey(
-    'raw',
+    "raw",
     key as BufferSource,
-    { name: 'AES-GCM' },
+    { name: "AES-GCM" },
     false,
-    ['decrypt']
-  )
+    ["decrypt"],
+  );
 
   const decrypted = await window.crypto.subtle.decrypt(
     {
-      name: 'AES-GCM',
+      name: "AES-GCM",
       iv: iv as BufferSource,
       tagLength: AUTH_TAG_LENGTH * 8,
     },
     cryptoKey,
-    ciphertext as BufferSource
-  )
+    ciphertext as BufferSource,
+  );
 
-  return new Uint8Array(decrypted)
+  return new Uint8Array(decrypted);
 }
 
 // ============================================================================
@@ -189,23 +192,26 @@ export async function decryptAESGCM(
 /**
  * Encode encrypted data with IV
  */
-export function encodeEncryptedData(ciphertext: Uint8Array, iv: Uint8Array): Uint8Array {
-  const result = new Uint8Array(iv.length + ciphertext.length)
-  result.set(iv, 0)
-  result.set(ciphertext, iv.length)
-  return result
+export function encodeEncryptedData(
+  ciphertext: Uint8Array,
+  iv: Uint8Array,
+): Uint8Array {
+  const result = new Uint8Array(iv.length + ciphertext.length);
+  result.set(iv, 0);
+  result.set(ciphertext, iv.length);
+  return result;
 }
 
 /**
  * Decode encrypted data with IV
  */
 export function decodeEncryptedData(data: Uint8Array): {
-  ciphertext: Uint8Array
-  iv: Uint8Array
+  ciphertext: Uint8Array;
+  iv: Uint8Array;
 } {
-  const iv = data.slice(0, IV_LENGTH)
-  const ciphertext = data.slice(IV_LENGTH)
-  return { ciphertext, iv }
+  const iv = data.slice(0, IV_LENGTH);
+  const ciphertext = data.slice(IV_LENGTH);
+  return { ciphertext, iv };
 }
 
 // ============================================================================
@@ -217,50 +223,50 @@ export function decodeEncryptedData(data: Uint8Array): {
  */
 export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) {
-    return false
+    return false;
   }
 
-  let result = 0
+  let result = 0;
   for (let i = 0; i < a.length; i++) {
-    result |= a[i] ^ b[i]
+    result |= a[i] ^ b[i];
   }
 
-  return result === 0
+  return result === 0;
 }
 
 /**
  * Convert string to Uint8Array
  */
 export function stringToBytes(str: string): Uint8Array {
-  return new TextEncoder().encode(str)
+  return new TextEncoder().encode(str);
 }
 
 /**
  * Convert Uint8Array to string
  */
 export function bytesToString(bytes: Uint8Array): string {
-  return new TextDecoder().decode(bytes)
+  return new TextDecoder().decode(bytes);
 }
 
 /**
  * Convert Uint8Array to Base64
  */
 export function bytesToBase64(bytes: Uint8Array): string {
-  if (typeof window !== 'undefined') {
-    return window.btoa(String.fromCharCode(...bytes))
+  if (typeof window !== "undefined") {
+    return window.btoa(String.fromCharCode(...bytes));
   }
-  return Buffer.from(bytes).toString('base64')
+  return Buffer.from(bytes).toString("base64");
 }
 
 /**
  * Convert Base64 to Uint8Array
  */
 export function base64ToBytes(base64: string): Uint8Array {
-  if (typeof window !== 'undefined') {
-    const binary = window.atob(base64)
-    return new Uint8Array(binary.split('').map((c) => c.charCodeAt(0)))
+  if (typeof window !== "undefined") {
+    const binary = window.atob(base64);
+    return new Uint8Array(binary.split("").map((c) => c.charCodeAt(0)));
   }
-  return new Uint8Array(Buffer.from(base64, 'base64'))
+  return new Uint8Array(Buffer.from(base64, "base64"));
 }
 
 /**
@@ -268,7 +274,7 @@ export function base64ToBytes(base64: string): Uint8Array {
  */
 export function secureWipe(data: Uint8Array): void {
   if (data && data.fill) {
-    data.fill(0)
+    data.fill(0);
   }
 }
 
@@ -285,50 +291,54 @@ export function generateSafetyNumber(
   localUserId: string,
   remoteIdentityKey: Uint8Array,
   remoteUserId: string,
-  version: number = 1
+  version: number = 1,
 ): string {
   // Combine version + user ID + identity key for each party
-  const localData = new Uint8Array(1 + localUserId.length + localIdentityKey.length)
-  localData[0] = version
-  localData.set(stringToBytes(localUserId), 1)
-  localData.set(localIdentityKey, 1 + localUserId.length)
+  const localData = new Uint8Array(
+    1 + localUserId.length + localIdentityKey.length,
+  );
+  localData[0] = version;
+  localData.set(stringToBytes(localUserId), 1);
+  localData.set(localIdentityKey, 1 + localUserId.length);
 
-  const remoteData = new Uint8Array(1 + remoteUserId.length + remoteIdentityKey.length)
-  remoteData[0] = version
-  remoteData.set(stringToBytes(remoteUserId), 1)
-  remoteData.set(remoteIdentityKey, 1 + remoteUserId.length)
+  const remoteData = new Uint8Array(
+    1 + remoteUserId.length + remoteIdentityKey.length,
+  );
+  remoteData[0] = version;
+  remoteData.set(stringToBytes(remoteUserId), 1);
+  remoteData.set(remoteIdentityKey, 1 + remoteUserId.length);
 
   // Hash each combination
-  const localHash = hash512(localData)
-  const remoteHash = hash512(remoteData)
+  const localHash = hash512(localData);
+  const remoteHash = hash512(remoteData);
 
   // Determine order (lexicographic comparison of user IDs)
-  const iterations = 5200 // Produces 60 digits
-  let combinedHash: Uint8Array
+  const iterations = 5200; // Produces 60 digits
+  let combinedHash: Uint8Array;
 
   if (localUserId < remoteUserId) {
-    const combined = new Uint8Array(localHash.length + remoteHash.length)
-    combined.set(localHash, 0)
-    combined.set(remoteHash, localHash.length)
-    combinedHash = combined
+    const combined = new Uint8Array(localHash.length + remoteHash.length);
+    combined.set(localHash, 0);
+    combined.set(remoteHash, localHash.length);
+    combinedHash = combined;
   } else {
-    const combined = new Uint8Array(remoteHash.length + localHash.length)
-    combined.set(remoteHash, 0)
-    combined.set(localHash, remoteHash.length)
-    combinedHash = combined
+    const combined = new Uint8Array(remoteHash.length + localHash.length);
+    combined.set(remoteHash, 0);
+    combined.set(localHash, remoteHash.length);
+    combinedHash = combined;
   }
 
   // Generate 60-digit number
-  let safetyNumber = ''
-  const hashBytes = hash512(combinedHash)
+  let safetyNumber = "";
+  const hashBytes = hash512(combinedHash);
 
   for (let i = 0; i < 60; i++) {
-    const byteIndex = Math.floor((i * hashBytes.length) / 60)
-    const digit = hashBytes[byteIndex] % 10
-    safetyNumber += digit.toString()
+    const byteIndex = Math.floor((i * hashBytes.length) / 60);
+    const digit = hashBytes[byteIndex] % 10;
+    safetyNumber += digit.toString();
   }
 
-  return safetyNumber
+  return safetyNumber;
 }
 
 /**
@@ -336,11 +346,11 @@ export function generateSafetyNumber(
  * Example: "12345 67890 12345 67890 12345 67890 12345 67890 12345 67890 12345 67890"
  */
 export function formatSafetyNumber(safetyNumber: string): string {
-  const chunks: string[] = []
+  const chunks: string[] = [];
   for (let i = 0; i < safetyNumber.length; i += 5) {
-    chunks.push(safetyNumber.slice(i, i + 5))
+    chunks.push(safetyNumber.slice(i, i + 5));
   }
-  return chunks.join(' ')
+  return chunks.join(" ");
 }
 
 /**
@@ -350,17 +360,17 @@ export function generateSafetyNumberQR(
   localIdentityKey: Uint8Array,
   localUserId: string,
   remoteIdentityKey: Uint8Array,
-  remoteUserId: string
+  remoteUserId: string,
 ): string {
   const safetyNumber = generateSafetyNumber(
     localIdentityKey,
     localUserId,
     remoteIdentityKey,
-    remoteUserId
-  )
+    remoteUserId,
+  );
 
   // Format: "v1:<localUserId>:<remoteUserId>:<safetyNumber>"
-  return `v1:${localUserId}:${remoteUserId}:${safetyNumber}`
+  return `v1:${localUserId}:${remoteUserId}:${safetyNumber}`;
 }
 
 // ============================================================================
@@ -372,41 +382,41 @@ export function generateSafetyNumberQR(
  */
 export function generateRecoveryCode(): string {
   const words = [
-    'alpha',
-    'bravo',
-    'charlie',
-    'delta',
-    'echo',
-    'foxtrot',
-    'golf',
-    'hotel',
-    'india',
-    'juliet',
-    'kilo',
-    'lima',
-    'mike',
-    'november',
-    'oscar',
-    'papa',
-    'quebec',
-    'romeo',
-    'sierra',
-    'tango',
-    'uniform',
-    'victor',
-    'whiskey',
-    'xray',
-    'yankee',
-    'zulu',
-  ]
+    "alpha",
+    "bravo",
+    "charlie",
+    "delta",
+    "echo",
+    "foxtrot",
+    "golf",
+    "hotel",
+    "india",
+    "juliet",
+    "kilo",
+    "lima",
+    "mike",
+    "november",
+    "oscar",
+    "papa",
+    "quebec",
+    "romeo",
+    "sierra",
+    "tango",
+    "uniform",
+    "victor",
+    "whiskey",
+    "xray",
+    "yankee",
+    "zulu",
+  ];
 
-  const randomWords: string[] = []
+  const randomWords: string[] = [];
   for (let i = 0; i < 12; i++) {
-    const randomIndex = generateRandomBytes(1)[0] % words.length
-    randomWords.push(words[randomIndex])
+    const randomIndex = generateRandomBytes(1)[0] % words.length;
+    randomWords.push(words[randomIndex]);
   }
 
-  return randomWords.join('-')
+  return randomWords.join("-");
 }
 
 /**
@@ -414,9 +424,9 @@ export function generateRecoveryCode(): string {
  */
 export async function deriveRecoveryKey(
   recoveryCode: string,
-  salt: Uint8Array
+  salt: Uint8Array,
 ): Promise<Uint8Array> {
-  return deriveMasterKey(recoveryCode, salt, PBKDF2_ITERATIONS)
+  return deriveMasterKey(recoveryCode, salt, PBKDF2_ITERATIONS);
 }
 
 // ============================================================================
@@ -465,9 +475,9 @@ export const crypto = {
   // Hex encoding (re-exported from @noble/hashes/utils)
   bytesToHex,
   hexToBytes,
-}
+};
 
 // Named exports for direct import
-export { bytesToHex, hexToBytes }
+export { bytesToHex, hexToBytes };
 
-export default crypto
+export default crypto;

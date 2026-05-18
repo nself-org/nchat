@@ -4,31 +4,31 @@
  * Demonstrates various ways to use the theme customization system.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useThemeCustomizer } from '@/hooks/use-theme-customizer'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { useToast } from '@/hooks/use-toast'
-import { Palette, Download, Upload, Share2 } from 'lucide-react'
+import { useState } from "react";
+import { useThemeCustomizer } from "@/hooks/use-theme-customizer";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { Palette, Download, Upload, Share2 } from "lucide-react";
 
 /**
  * Example 1: Simple Color Changer
  */
 export function SimpleColorChanger() {
-  const { theme, updateColor, saveTheme, isModified } = useThemeCustomizer()
-  const { toast } = useToast()
+  const { theme, updateColor, saveTheme, isModified } = useThemeCustomizer();
+  const { toast } = useToast();
 
   const handleColorChange = (color: string) => {
-    updateColor('primaryColor', color)
-  }
+    updateColor("primaryColor", color);
+  };
 
   const handleSave = async () => {
-    await saveTheme()
-    toast({ title: 'Theme saved!' })
-  }
+    await saveTheme();
+    toast({ title: "Theme saved!" });
+  };
 
   return (
     <Card className="p-6">
@@ -54,22 +54,22 @@ export function SimpleColorChanger() {
         </Button>
       </div>
     </Card>
-  )
+  );
 }
 
 /**
  * Example 2: Preset Switcher
  */
 export function PresetSwitcher() {
-  const { loadPreset, theme } = useThemeCustomizer()
-  const { toast } = useToast()
+  const { loadPreset, theme } = useThemeCustomizer();
+  const { toast } = useToast();
 
-  const presets = ['nself', 'slack', 'discord', 'ocean', 'sunset', 'midnight']
+  const presets = ["nself", "slack", "discord", "ocean", "sunset", "midnight"];
 
   const handlePresetChange = (preset: string) => {
-    loadPreset(preset)
-    toast({ title: `Loaded ${preset} theme` })
-  }
+    loadPreset(preset);
+    toast({ title: `Loaded ${preset} theme` });
+  };
 
   return (
     <Card className="p-6">
@@ -79,7 +79,7 @@ export function PresetSwitcher() {
         {presets.map((preset) => (
           <Button
             key={preset}
-            variant={theme.preset === preset ? 'default' : 'outline'}
+            variant={theme.preset === preset ? "default" : "outline"}
             onClick={() => handlePresetChange(preset)}
           >
             <Palette className="mr-2 h-4 w-4" />
@@ -88,16 +88,20 @@ export function PresetSwitcher() {
         ))}
       </div>
     </Card>
-  )
+  );
 }
 
 /**
  * Example 3: Font Customizer
  */
 export function FontCustomizer() {
-  const { theme, setFontFamily, setFontScale } = useThemeCustomizer()
+  const { theme, setFontFamily, setFontScale } = useThemeCustomizer();
 
-  const fonts = ['Inter, system-ui, sans-serif', 'Georgia, serif', '"Courier New", monospace']
+  const fonts = [
+    "Inter, system-ui, sans-serif",
+    "Georgia, serif",
+    '"Courier New", monospace',
+  ];
 
   return (
     <Card className="p-6">
@@ -106,7 +110,10 @@ export function FontCustomizer() {
       <div className="space-y-4">
         {/* Font Family */}
         <div>
-          <label htmlFor="font-family-select" className="mb-2 block text-sm font-medium">
+          <label
+            htmlFor="font-family-select"
+            className="mb-2 block text-sm font-medium"
+          >
             Font Family
           </label>
           <select
@@ -142,48 +149,52 @@ export function FontCustomizer() {
         {/* Preview */}
         <div
           className="rounded border p-4"
-          style={{ fontFamily: theme.fontFamily, fontSize: `${theme.fontScale}rem` }}
+          style={{
+            fontFamily: theme.fontFamily,
+            fontSize: `${theme.fontScale}rem`,
+          }}
         >
           <p className="text-2xl font-bold">The quick brown fox</p>
           <p>jumps over the lazy dog</p>
         </div>
       </div>
     </Card>
-  )
+  );
 }
 
 /**
  * Example 4: Import/Export
  */
 export function ThemeImportExport() {
-  const { exportJSON, importJSON, downloadJSON, copyJSON, generateShareURL } = useThemeCustomizer()
-  const { toast } = useToast()
-  const [importText, setImportText] = useState('')
+  const { exportJSON, importJSON, downloadJSON, copyJSON, generateShareURL } =
+    useThemeCustomizer();
+  const { toast } = useToast();
+  const [importText, setImportText] = useState("");
 
   const handleExport = async () => {
-    await copyJSON()
-    toast({ title: 'Theme copied to clipboard!' })
-  }
+    await copyJSON();
+    toast({ title: "Theme copied to clipboard!" });
+  };
 
   const handleImport = () => {
     try {
-      importJSON(importText)
-      setImportText('')
-      toast({ title: 'Theme imported successfully!' })
+      importJSON(importText);
+      setImportText("");
+      toast({ title: "Theme imported successfully!" });
     } catch (error) {
       toast({
-        title: 'Import failed',
-        description: error instanceof Error ? error.message : 'Invalid JSON',
-        variant: 'destructive',
-      })
+        title: "Import failed",
+        description: error instanceof Error ? error.message : "Invalid JSON",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleShare = async () => {
-    const url = generateShareURL()
-    await navigator.clipboard.writeText(url)
-    toast({ title: 'Share link copied!' })
-  }
+    const url = generateShareURL();
+    await navigator.clipboard.writeText(url);
+    toast({ title: "Share link copied!" });
+  };
 
   return (
     <Card className="p-6">
@@ -210,7 +221,10 @@ export function ThemeImportExport() {
 
         {/* Import */}
         <div>
-          <label htmlFor="import-theme-json" className="mb-2 block text-sm font-medium">
+          <label
+            htmlFor="import-theme-json"
+            className="mb-2 block text-sm font-medium"
+          >
             Import Theme JSON
           </label>
           <textarea
@@ -221,14 +235,18 @@ export function ThemeImportExport() {
             className="w-full rounded border p-2 font-mono text-sm"
             rows={4}
           />
-          <Button onClick={handleImport} disabled={!importText.trim()} className="mt-2">
+          <Button
+            onClick={handleImport}
+            disabled={!importText.trim()}
+            className="mt-2"
+          >
             <Upload className="mr-2 h-4 w-4" />
             Import Theme
           </Button>
         </div>
       </div>
     </Card>
-  )
+  );
 }
 
 /**
@@ -239,7 +257,9 @@ export function ThemeCustomizerExamples() {
     <div className="container mx-auto max-w-4xl space-y-6 py-8">
       <div>
         <h1 className="text-3xl font-bold">Theme Customizer Examples</h1>
-        <p className="text-muted-foreground">Various ways to use the theme customization system</p>
+        <p className="text-muted-foreground">
+          Various ways to use the theme customization system
+        </p>
       </div>
 
       <SimpleColorChanger />
@@ -247,5 +267,5 @@ export function ThemeCustomizerExamples() {
       <FontCustomizer />
       <ThemeImportExport />
     </div>
-  )
+  );
 }

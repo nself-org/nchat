@@ -7,23 +7,23 @@
  * - Allows setup access only to owner role
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import { useAuth } from '@/contexts/auth-context'
-import { useAppConfig } from '@/contexts/app-config-context'
-import { isOwner } from '@/lib/auth/roles'
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import { useAppConfig } from "@/contexts/app-config-context";
+import { isOwner } from "@/lib/auth/roles";
 
 interface SetupGuardProps {
   /** Content to render */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Custom loading component */
-  loadingComponent?: React.ReactNode
+  loadingComponent?: React.ReactNode;
   /** Where to redirect if setup is complete (for setup pages) */
-  onCompleteRedirectTo?: string
+  onCompleteRedirectTo?: string;
   /** Where to redirect if setup is incomplete (for non-setup pages) */
-  onIncompleteRedirectTo?: string
+  onIncompleteRedirectTo?: string;
 }
 
 /**
@@ -34,17 +34,19 @@ function DefaultSetupLoading() {
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-sm text-muted-foreground">Checking setup status...</p>
+        <p className="text-sm text-muted-foreground">
+          Checking setup status...
+        </p>
       </div>
     </div>
-  )
+  );
 }
 
 /**
  * Setup pending message for non-owners
  */
 function SetupPendingMessage() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -65,10 +67,13 @@ function SetupPendingMessage() {
           </svg>
         </div>
 
-        <h2 className="mb-2 text-xl font-semibold text-foreground">Setup In Progress</h2>
+        <h2 className="mb-2 text-xl font-semibold text-foreground">
+          Setup In Progress
+        </h2>
 
         <p className="mb-4 text-muted-foreground">
-          The system administrator is completing the initial setup. Please check back shortly.
+          The system administrator is completing the initial setup. Please check
+          back shortly.
         </p>
 
         <button
@@ -79,7 +84,7 @@ function SetupPendingMessage() {
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -89,51 +94,60 @@ function SetupPendingMessage() {
 export function RequireSetupComplete({
   children,
   loadingComponent,
-  redirectTo = '/setup',
+  redirectTo = "/setup",
 }: {
-  children: React.ReactNode
-  loadingComponent?: React.ReactNode
-  redirectTo?: string
+  children: React.ReactNode;
+  loadingComponent?: React.ReactNode;
+  redirectTo?: string;
 }) {
-  const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
-  const { config, isLoading: configLoading } = useAppConfig()
-  const [status, setStatus] = useState<'loading' | 'complete' | 'incomplete' | 'pending'>('loading')
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { config, isLoading: configLoading } = useAppConfig();
+  const [status, setStatus] = useState<
+    "loading" | "complete" | "incomplete" | "pending"
+  >("loading");
 
   useEffect(() => {
-    if (authLoading || configLoading) return
+    if (authLoading || configLoading) return;
 
-    const setupComplete = config.setup?.isCompleted ?? false
+    const setupComplete = config.setup?.isCompleted ?? false;
 
     if (setupComplete) {
-      setStatus('complete')
+      setStatus("complete");
     } else if (user && isOwner(user.role)) {
       // Owner needs to complete setup - redirect to setup wizard
-      setStatus('incomplete')
-      router.replace(redirectTo)
+      setStatus("incomplete");
+      router.replace(redirectTo);
     } else if (user) {
       // Non-owner user, setup not complete - show pending message
-      setStatus('pending')
+      setStatus("pending");
     } else {
       // Not authenticated - let auth guard handle it
-      setStatus('complete')
+      setStatus("complete");
     }
-  }, [authLoading, configLoading, config.setup?.isCompleted, user, router, redirectTo])
+  }, [
+    authLoading,
+    configLoading,
+    config.setup?.isCompleted,
+    user,
+    router,
+    redirectTo,
+  ]);
 
-  if (status === 'loading' || authLoading || configLoading) {
-    return loadingComponent ?? <DefaultSetupLoading />
+  if (status === "loading" || authLoading || configLoading) {
+    return loadingComponent ?? <DefaultSetupLoading />;
   }
 
-  if (status === 'incomplete') {
+  if (status === "incomplete") {
     // Redirecting to setup
-    return loadingComponent ?? <DefaultSetupLoading />
+    return loadingComponent ?? <DefaultSetupLoading />;
   }
 
-  if (status === 'pending') {
-    return <SetupPendingMessage />
+  if (status === "pending") {
+    return <SetupPendingMessage />;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
@@ -143,49 +157,56 @@ export function RequireSetupComplete({
 export function RequireSetupIncomplete({
   children,
   loadingComponent,
-  redirectTo = '/chat',
+  redirectTo = "/chat",
 }: {
-  children: React.ReactNode
-  loadingComponent?: React.ReactNode
-  redirectTo?: string
+  children: React.ReactNode;
+  loadingComponent?: React.ReactNode;
+  redirectTo?: string;
 }) {
-  const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
-  const { config, isLoading: configLoading } = useAppConfig()
-  const [isAllowed, setIsAllowed] = useState<boolean | null>(null)
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { config, isLoading: configLoading } = useAppConfig();
+  const [isAllowed, setIsAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (authLoading || configLoading) return
+    if (authLoading || configLoading) return;
 
-    const setupComplete = config.setup?.isCompleted ?? false
+    const setupComplete = config.setup?.isCompleted ?? false;
 
     if (setupComplete) {
       // Setup already complete, redirect away
-      router.replace(redirectTo)
-      setIsAllowed(false)
+      router.replace(redirectTo);
+      setIsAllowed(false);
     } else if (user && isOwner(user.role)) {
       // Owner can access setup
-      setIsAllowed(true)
+      setIsAllowed(true);
     } else if (user) {
       // Non-owner cannot access setup
-      router.replace('/chat')
-      setIsAllowed(false)
+      router.replace("/chat");
+      setIsAllowed(false);
     } else {
       // Not authenticated - redirect to login
-      router.replace('/login')
-      setIsAllowed(false)
+      router.replace("/login");
+      setIsAllowed(false);
     }
-  }, [authLoading, configLoading, config.setup?.isCompleted, user, router, redirectTo])
+  }, [
+    authLoading,
+    configLoading,
+    config.setup?.isCompleted,
+    user,
+    router,
+    redirectTo,
+  ]);
 
   if (isAllowed === null || authLoading || configLoading) {
-    return loadingComponent ?? <DefaultSetupLoading />
+    return loadingComponent ?? <DefaultSetupLoading />;
   }
 
   if (!isAllowed) {
-    return loadingComponent ?? <DefaultSetupLoading />
+    return loadingComponent ?? <DefaultSetupLoading />;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
@@ -195,64 +216,70 @@ export function RequireSetupIncomplete({
 export function SetupGuard({
   children,
   loadingComponent,
-  onCompleteRedirectTo = '/chat',
-  onIncompleteRedirectTo = '/setup',
+  onCompleteRedirectTo = "/chat",
+  onIncompleteRedirectTo = "/setup",
 }: SetupGuardProps) {
-  const pathname = usePathname()
-  const isSetupPage = pathname.startsWith('/setup')
+  const pathname = usePathname();
+  const isSetupPage = pathname.startsWith("/setup");
 
   if (isSetupPage) {
     return (
-      <RequireSetupIncomplete loadingComponent={loadingComponent} redirectTo={onCompleteRedirectTo}>
+      <RequireSetupIncomplete
+        loadingComponent={loadingComponent}
+        redirectTo={onCompleteRedirectTo}
+      >
         {children}
       </RequireSetupIncomplete>
-    )
+    );
   }
 
   return (
-    <RequireSetupComplete loadingComponent={loadingComponent} redirectTo={onIncompleteRedirectTo}>
+    <RequireSetupComplete
+      loadingComponent={loadingComponent}
+      redirectTo={onIncompleteRedirectTo}
+    >
       {children}
     </RequireSetupComplete>
-  )
+  );
 }
 
 /**
  * Hook for setup status
  */
 export function useSetupStatus(): {
-  isComplete: boolean
-  isLoading: boolean
-  currentStep: number
-  canAccessSetup: boolean
+  isComplete: boolean;
+  isLoading: boolean;
+  currentStep: number;
+  canAccessSetup: boolean;
 } {
-  const { user, loading: authLoading } = useAuth()
-  const { config, isLoading: configLoading } = useAppConfig()
+  const { user, loading: authLoading } = useAuth();
+  const { config, isLoading: configLoading } = useAppConfig();
 
-  const isLoading = authLoading || configLoading
-  const isComplete = config.setup?.isCompleted ?? false
-  const currentStep = config.setup?.currentStep ?? 0
-  const canAccessSetup = user ? isOwner(user.role) && !isComplete : false
+  const isLoading = authLoading || configLoading;
+  const isComplete = config.setup?.isCompleted ?? false;
+  const currentStep = config.setup?.currentStep ?? 0;
+  const canAccessSetup = user ? isOwner(user.role) && !isComplete : false;
 
   return {
     isComplete,
     isLoading,
     currentStep,
     canAccessSetup,
-  }
+  };
 }
 
 /**
  * Hook to check if owner needs to complete setup
  */
 export function useRequiresSetup(): boolean {
-  const { user, loading: authLoading } = useAuth()
-  const { config, isLoading: configLoading } = useAppConfig()
+  const { user, loading: authLoading } = useAuth();
+  const { config, isLoading: configLoading } = useAppConfig();
 
-  if (authLoading || configLoading) return false
-  if (!user) return false
+  if (authLoading || configLoading) return false;
+  if (!user) return false;
 
-  const setupComplete = config.setup?.isCompleted ?? false
-  return isOwner(user.role) && !setupComplete
+  const setupComplete = config.setup?.isCompleted ?? false;
+  return isOwner(user.role) && !setupComplete;
 }
 
-export default SetupGuard
+export default SetupGuard;

@@ -8,21 +8,21 @@
  * - Preview redacted output
  */
 
-'use client'
+"use client";
 
-import React, { useState, useCallback, useRef } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import React, { useState, useCallback, useRef } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Volume2,
   VolumeX,
@@ -44,35 +44,45 @@ import {
   Save,
   AlertTriangle,
   Eye,
-} from 'lucide-react'
+} from "lucide-react";
 import type {
   Recording,
   RedactionSegment,
   RedactionType,
   RedactionRegion,
-} from '@/services/recordings/types'
+} from "@/services/recordings/types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface RedactionEditorProps {
-  recording: Recording
-  segments: RedactionSegment[]
-  onAddSegment: (segment: Omit<RedactionSegment, 'id' | 'recordingId' | 'applied' | 'appliedAt' | 'createdAt' | 'createdBy'>) => Promise<void>
-  onRemoveSegment: (segmentId: string) => Promise<void>
-  onApplyRedactions: (preserveOriginal: boolean) => Promise<void>
-  onPreview?: (segment: Omit<RedactionSegment, 'id' | 'recordingId' | 'applied' | 'appliedAt' | 'createdAt' | 'createdBy'>) => Promise<void>
-  isLoading?: boolean
-  className?: string
+  recording: Recording;
+  segments: RedactionSegment[];
+  onAddSegment: (
+    segment: Omit<
+      RedactionSegment,
+      "id" | "recordingId" | "applied" | "appliedAt" | "createdAt" | "createdBy"
+    >,
+  ) => Promise<void>;
+  onRemoveSegment: (segmentId: string) => Promise<void>;
+  onApplyRedactions: (preserveOriginal: boolean) => Promise<void>;
+  onPreview?: (
+    segment: Omit<
+      RedactionSegment,
+      "id" | "recordingId" | "applied" | "appliedAt" | "createdAt" | "createdBy"
+    >,
+  ) => Promise<void>;
+  isLoading?: boolean;
+  className?: string;
 }
 
 interface NewSegment {
-  type: RedactionType
-  startSeconds: number
-  endSeconds: number
-  reason: string
-  region?: RedactionRegion
+  type: RedactionType;
+  startSeconds: number;
+  endSeconds: number;
+  reason: string;
+  region?: RedactionRegion;
 }
 
 // ============================================================================
@@ -80,53 +90,53 @@ interface NewSegment {
 // ============================================================================
 
 function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  const ms = Math.floor((seconds % 1) * 100)
-  return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  const ms = Math.floor((seconds % 1) * 100);
+  return `${mins}:${secs.toString().padStart(2, "0")}.${ms.toString().padStart(2, "0")}`;
 }
 
 function parseTime(timeStr: string): number {
-  const parts = timeStr.split(':')
+  const parts = timeStr.split(":");
   if (parts.length === 2) {
-    const [mins, secs] = parts.map(parseFloat)
-    return mins * 60 + secs
+    const [mins, secs] = parts.map(parseFloat);
+    return mins * 60 + secs;
   }
-  return parseFloat(timeStr) || 0
+  return parseFloat(timeStr) || 0;
 }
 
 function getRedactionTypeIcon(type: RedactionType) {
   switch (type) {
-    case 'audio':
-    case 'silence':
-    case 'beep':
-      return VolumeX
-    case 'video':
-    case 'blur':
-      return VideoOff
-    case 'both':
-      return Scissors
+    case "audio":
+    case "silence":
+    case "beep":
+      return VolumeX;
+    case "video":
+    case "blur":
+      return VideoOff;
+    case "both":
+      return Scissors;
     default:
-      return AlertTriangle
+      return AlertTriangle;
   }
 }
 
 function getRedactionTypeLabel(type: RedactionType): string {
   switch (type) {
-    case 'audio':
-      return 'Mute Audio'
-    case 'video':
-      return 'Black Video'
-    case 'both':
-      return 'Mute Audio + Black Video'
-    case 'blur':
-      return 'Blur Region'
-    case 'silence':
-      return 'Silence'
-    case 'beep':
-      return 'Beep'
+    case "audio":
+      return "Mute Audio";
+    case "video":
+      return "Black Video";
+    case "both":
+      return "Mute Audio + Black Video";
+    case "blur":
+      return "Blur Region";
+    case "silence":
+      return "Silence";
+    case "beep":
+      return "Beep";
     default:
-      return type
+      return type;
   }
 }
 
@@ -144,41 +154,44 @@ export function RedactionEditor({
   isLoading,
   className,
 }: RedactionEditorProps) {
-  const duration = recording.durationSeconds || 0
-  const timelineRef = useRef<HTMLDivElement>(null)
+  const duration = recording.durationSeconds || 0;
+  const timelineRef = useRef<HTMLDivElement>(null);
 
-  const [isAddingSegment, setIsAddingSegment] = useState(false)
-  const [showApplyDialog, setShowApplyDialog] = useState(false)
-  const [preserveOriginal, setPreserveOriginal] = useState(true)
+  const [isAddingSegment, setIsAddingSegment] = useState(false);
+  const [showApplyDialog, setShowApplyDialog] = useState(false);
+  const [preserveOriginal, setPreserveOriginal] = useState(true);
   const [newSegment, setNewSegment] = useState<NewSegment>({
-    type: 'both',
+    type: "both",
     startSeconds: 0,
     endSeconds: 10,
-    reason: '',
-  })
+    reason: "",
+  });
 
   // Separate applied and pending segments
-  const appliedSegments = segments.filter((s) => s.applied)
-  const pendingSegments = segments.filter((s) => !s.applied)
+  const appliedSegments = segments.filter((s) => s.applied);
+  const pendingSegments = segments.filter((s) => !s.applied);
 
   // Handle timeline click to set start time
-  const handleTimelineClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!timelineRef.current) return
+  const handleTimelineClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!timelineRef.current) return;
 
-    const rect = timelineRef.current.getBoundingClientRect()
-    const percent = (e.clientX - rect.left) / rect.width
-    const clickTime = percent * duration
+      const rect = timelineRef.current.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      const clickTime = percent * duration;
 
-    setNewSegment((prev) => ({
-      ...prev,
-      startSeconds: Math.max(0, clickTime),
-      endSeconds: Math.min(duration, clickTime + 10),
-    }))
-  }, [duration])
+      setNewSegment((prev) => ({
+        ...prev,
+        startSeconds: Math.max(0, clickTime),
+        endSeconds: Math.min(duration, clickTime + 10),
+      }));
+    },
+    [duration],
+  );
 
   // Handle add segment
   const handleAddSegment = useCallback(async () => {
-    if (!newSegment.reason.trim()) return
+    if (!newSegment.reason.trim()) return;
 
     try {
       await onAddSegment({
@@ -187,32 +200,32 @@ export function RedactionEditor({
         endSeconds: newSegment.endSeconds,
         reason: newSegment.reason,
         region: newSegment.region,
-      })
+      });
 
       setNewSegment({
-        type: 'both',
+        type: "both",
         startSeconds: 0,
         endSeconds: 10,
-        reason: '',
-      })
-      setIsAddingSegment(false)
+        reason: "",
+      });
+      setIsAddingSegment(false);
     } catch (error) {
-      console.error('Failed to add segment:', error)
+      console.error("Failed to add segment:", error);
     }
-  }, [newSegment, onAddSegment])
+  }, [newSegment, onAddSegment]);
 
   // Handle apply redactions
   const handleApply = useCallback(async () => {
     try {
-      await onApplyRedactions(preserveOriginal)
-      setShowApplyDialog(false)
+      await onApplyRedactions(preserveOriginal);
+      setShowApplyDialog(false);
     } catch (error) {
-      console.error('Failed to apply redactions:', error)
+      console.error("Failed to apply redactions:", error);
     }
-  }, [onApplyRedactions, preserveOriginal])
+  }, [onApplyRedactions, preserveOriginal]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -283,7 +296,7 @@ export function RedactionEditor({
               }}
               title={`Pending: ${segment.reason}`}
               onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
                 // Select this segment for editing
               }}
             />
@@ -314,16 +327,16 @@ export function RedactionEditor({
         ) : (
           <div className="space-y-2">
             {segments.map((segment) => {
-              const Icon = getRedactionTypeIcon(segment.type)
+              const Icon = getRedactionTypeIcon(segment.type);
 
               return (
                 <div
                   key={segment.id}
                   className={cn(
-                    'flex items-center gap-4 p-3 rounded-lg border',
+                    "flex items-center gap-4 p-3 rounded-lg border",
                     segment.applied
-                      ? 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900'
-                      : 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-900'
+                      ? "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900"
+                      : "bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-900",
                   )}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
@@ -344,7 +357,8 @@ export function RedactionEditor({
                       )}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {formatTime(segment.startSeconds)} - {formatTime(segment.endSeconds)}
+                      {formatTime(segment.startSeconds)} -{" "}
+                      {formatTime(segment.endSeconds)}
                       <span className="mx-2">|</span>
                       {segment.reason}
                     </div>
@@ -373,7 +387,7 @@ export function RedactionEditor({
                     )}
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         )}
@@ -396,7 +410,10 @@ export function RedactionEditor({
               <Select
                 value={newSegment.type}
                 onValueChange={(value) =>
-                  setNewSegment((prev) => ({ ...prev, type: value as RedactionType }))
+                  setNewSegment((prev) => ({
+                    ...prev,
+                    type: value as RedactionType,
+                  }))
                 }
               >
                 <SelectTrigger>
@@ -475,7 +492,8 @@ export function RedactionEditor({
 
             {/* Duration Preview */}
             <div className="text-sm text-muted-foreground">
-              Duration: {formatTime(newSegment.endSeconds - newSegment.startSeconds)}
+              Duration:{" "}
+              {formatTime(newSegment.endSeconds - newSegment.startSeconds)}
             </div>
 
             {/* Reason */}
@@ -496,7 +514,10 @@ export function RedactionEditor({
             <Button variant="outline" onClick={() => setIsAddingSegment(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddSegment} disabled={!newSegment.reason.trim()}>
+            <Button
+              onClick={handleAddSegment}
+              disabled={!newSegment.reason.trim()}
+            >
               Add Segment
             </Button>
           </DialogFooter>
@@ -509,7 +530,8 @@ export function RedactionEditor({
           <DialogHeader>
             <DialogTitle>Apply Redactions</DialogTitle>
             <DialogDescription>
-              This will permanently modify the recording. This action cannot be undone.
+              This will permanently modify the recording. This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
 
@@ -546,14 +568,18 @@ export function RedactionEditor({
             <Button variant="outline" onClick={() => setShowApplyDialog(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleApply} disabled={isLoading}>
-              {isLoading ? 'Applying...' : 'Apply Redactions'}
+            <Button
+              variant="destructive"
+              onClick={handleApply}
+              disabled={isLoading}
+            >
+              {isLoading ? "Applying..." : "Apply Redactions"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
-export default RedactionEditor
+export default RedactionEditor;

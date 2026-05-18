@@ -6,12 +6,12 @@
  * but this endpoint can receive webhook messages from Discord channels
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 /**
  * POST /api/webhooks/discord
@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     // Discord webhook payload structure
     // REMOVED: console.log('Discord webhook received:', {
@@ -32,17 +32,22 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Discord webhook received',
-    })
+      message: "Discord webhook received",
+    });
   } catch (error) {
-    logger.error('Discord webhook error:', error)
+    logger.error("Discord webhook error:", error);
     return NextResponse.json(
       {
-        error: 'Failed to process Discord webhook',
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to process Discord webhook",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -54,34 +59,35 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   return NextResponse.json({
     info: {
-      note: 'Discord primarily uses Gateway WebSocket for bot events',
-      webhookSupport: 'This endpoint can receive messages from Discord channel webhooks',
+      note: "Discord primarily uses Gateway WebSocket for bot events",
+      webhookSupport:
+        "This endpoint can receive messages from Discord channel webhooks",
     },
     webhook: {
       url: `${request.nextUrl.origin}/api/webhooks/discord`,
-      method: 'POST',
-      contentType: 'application/json',
+      method: "POST",
+      contentType: "application/json",
     },
     bot: {
       gatewayIntents: [
-        'GUILDS',
-        'GUILD_MESSAGES',
-        'GUILD_MESSAGE_REACTIONS',
-        'DIRECT_MESSAGES',
-        'MESSAGE_CONTENT',
+        "GUILDS",
+        "GUILD_MESSAGES",
+        "GUILD_MESSAGE_REACTIONS",
+        "DIRECT_MESSAGES",
+        "MESSAGE_CONTENT",
       ],
       events: [
-        'messageCreate',
-        'messageUpdate',
-        'messageDelete',
-        'messageReactionAdd',
-        'messageReactionRemove',
-        'channelCreate',
-        'channelUpdate',
-        'channelDelete',
-        'guildMemberAdd',
-        'guildMemberRemove',
+        "messageCreate",
+        "messageUpdate",
+        "messageDelete",
+        "messageReactionAdd",
+        "messageReactionRemove",
+        "channelCreate",
+        "channelUpdate",
+        "channelDelete",
+        "guildMemberAdd",
+        "guildMemberRemove",
       ],
     },
-  })
+  });
 }

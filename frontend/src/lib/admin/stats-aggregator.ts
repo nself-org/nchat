@@ -11,84 +11,84 @@
 
 export interface DashboardStats {
   users: {
-    total: number
-    active: number
-    new: number
-    growth: number // percentage
-  }
+    total: number;
+    active: number;
+    new: number;
+    growth: number; // percentage
+  };
   messages: {
-    total: number
-    today: number
-    avgPerDay: number
-    peakHour: number
-  }
+    total: number;
+    today: number;
+    avgPerDay: number;
+    peakHour: number;
+  };
   channels: {
-    total: number
-    public: number
-    private: number
-    mostActive: string[]
-  }
+    total: number;
+    public: number;
+    private: number;
+    mostActive: string[];
+  };
   storage: {
-    used: number // bytes
-    limit: number
-    percentage: number
-  }
+    used: number; // bytes
+    limit: number;
+    percentage: number;
+  };
 }
 
 export interface UserStatsInput {
-  id: string
-  isActive: boolean
-  createdAt: string
-  lastSeenAt?: string
+  id: string;
+  isActive: boolean;
+  createdAt: string;
+  lastSeenAt?: string;
 }
 
 export interface MessageStatsInput {
-  id: string
-  channelId: string
-  createdAt: string
+  id: string;
+  channelId: string;
+  createdAt: string;
 }
 
 export interface ChannelStatsInput {
-  id: string
-  name: string
-  isPrivate: boolean
-  messageCount: number
+  id: string;
+  name: string;
+  isPrivate: boolean;
+  messageCount: number;
 }
 
 export interface StorageStatsInput {
-  used: number
-  limit: number
+  used: number;
+  limit: number;
 }
 
 export interface DateRange {
-  start: Date
-  end: Date
+  start: Date;
+  end: Date;
 }
 
 export interface UserGrowthData {
-  date: string
-  count: number
+  date: string;
+  count: number;
 }
 
 export interface MessageVolumeData {
-  hour: number
-  count: number
+  hour: number;
+  count: number;
 }
 
 export interface ChannelActivityData {
-  channelId: string
-  channelName: string
-  messageCount: number
+  channelId: string;
+  channelName: string;
+  messageCount: number;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000
-const MS_PER_HOUR = 60 * 60 * 1000
-const DAYS_FOR_ACTIVE_USER = 30
-const DAYS_FOR_NEW_USER = 7
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const MS_PER_HOUR = 60 * 60 * 1000;
+const DAYS_FOR_ACTIVE_USER = 30;
+const DAYS_FOR_NEW_USER = 7;
 
 // ============================================================================
 // User Statistics
@@ -99,43 +99,43 @@ const DAYS_FOR_NEW_USER = 7
  */
 export function aggregateUserStats(
   users: UserStatsInput[],
-  referenceDate: Date = new Date()
-): DashboardStats['users'] {
-  const totalUsers = users.length
-  const now = referenceDate.getTime()
-  const activeThreshold = now - DAYS_FOR_ACTIVE_USER * MS_PER_DAY
-  const newThreshold = now - DAYS_FOR_NEW_USER * MS_PER_DAY
+  referenceDate: Date = new Date(),
+): DashboardStats["users"] {
+  const totalUsers = users.length;
+  const now = referenceDate.getTime();
+  const activeThreshold = now - DAYS_FOR_ACTIVE_USER * MS_PER_DAY;
+  const newThreshold = now - DAYS_FOR_NEW_USER * MS_PER_DAY;
 
-  let activeUsers = 0
-  let newUsers = 0
+  let activeUsers = 0;
+  let newUsers = 0;
 
   for (const user of users) {
     // Count active users (active in last 30 days)
     if (user.isActive) {
       if (user.lastSeenAt) {
-        const lastSeen = new Date(user.lastSeenAt).getTime()
+        const lastSeen = new Date(user.lastSeenAt).getTime();
         if (lastSeen >= activeThreshold) {
-          activeUsers++
+          activeUsers++;
         }
       }
     }
 
     // Count new users (created in last 7 days)
-    const createdAt = new Date(user.createdAt).getTime()
+    const createdAt = new Date(user.createdAt).getTime();
     if (createdAt >= newThreshold) {
-      newUsers++
+      newUsers++;
     }
   }
 
   // Calculate growth percentage (new users / total users * 100)
-  const growth = totalUsers > 0 ? (newUsers / totalUsers) * 100 : 0
+  const growth = totalUsers > 0 ? (newUsers / totalUsers) * 100 : 0;
 
   return {
     total: totalUsers,
     active: activeUsers,
     new: newUsers,
     growth: Math.round(growth * 100) / 100,
-  }
+  };
 }
 
 /**
@@ -143,47 +143,49 @@ export function aggregateUserStats(
  */
 export function calculateUserGrowth(
   users: UserStatsInput[],
-  dateRange: DateRange
+  dateRange: DateRange,
 ): UserGrowthData[] {
-  const { start, end } = dateRange
-  const growthMap = new Map<string, number>()
+  const { start, end } = dateRange;
+  const growthMap = new Map<string, number>();
 
   // Initialize all dates in range with 0
-  const currentDate = new Date(start)
+  const currentDate = new Date(start);
   while (currentDate <= end) {
-    const dateKey = currentDate.toISOString().split('T')[0]
-    growthMap.set(dateKey, 0)
-    currentDate.setDate(currentDate.getDate() + 1)
+    const dateKey = currentDate.toISOString().split("T")[0];
+    growthMap.set(dateKey, 0);
+    currentDate.setDate(currentDate.getDate() + 1);
   }
 
   // Count users per day
   for (const user of users) {
-    const createdDate = new Date(user.createdAt)
+    const createdDate = new Date(user.createdAt);
     if (createdDate >= start && createdDate <= end) {
-      const dateKey = createdDate.toISOString().split('T')[0]
-      const current = growthMap.get(dateKey) ?? 0
-      growthMap.set(dateKey, current + 1)
+      const dateKey = createdDate.toISOString().split("T")[0];
+      const current = growthMap.get(dateKey) ?? 0;
+      growthMap.set(dateKey, current + 1);
     }
   }
 
   // Convert to array
   return Array.from(growthMap.entries())
     .map(([date, count]) => ({ date, count }))
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 /**
  * Count users by role
  */
-export function countUsersByRole(users: Array<{ role: string }>): Record<string, number> {
-  const roleCounts: Record<string, number> = {}
+export function countUsersByRole(
+  users: Array<{ role: string }>,
+): Record<string, number> {
+  const roleCounts: Record<string, number> = {};
 
   for (const user of users) {
-    const role = user.role || 'unknown'
-    roleCounts[role] = (roleCounts[role] ?? 0) + 1
+    const role = user.role || "unknown";
+    roleCounts[role] = (roleCounts[role] ?? 0) + 1;
   }
 
-  return roleCounts
+  return roleCounts;
 }
 
 // ============================================================================
@@ -195,73 +197,78 @@ export function countUsersByRole(users: Array<{ role: string }>): Record<string,
  */
 export function aggregateMessageStats(
   messages: MessageStatsInput[],
-  referenceDate: Date = new Date()
-): DashboardStats['messages'] {
-  const totalMessages = messages.length
-  const now = referenceDate.getTime()
-  const todayStart = new Date(referenceDate)
-  todayStart.setHours(0, 0, 0, 0)
+  referenceDate: Date = new Date(),
+): DashboardStats["messages"] {
+  const totalMessages = messages.length;
+  const now = referenceDate.getTime();
+  const todayStart = new Date(referenceDate);
+  todayStart.setHours(0, 0, 0, 0);
 
   // Count messages by hour for peak calculation
-  const hourCounts = new Array<number>(24).fill(0)
-  let todayCount = 0
+  const hourCounts = new Array<number>(24).fill(0);
+  let todayCount = 0;
 
   // Find earliest message for average calculation
-  let earliestDate = now
+  let earliestDate = now;
 
   for (const message of messages) {
-    const createdAt = new Date(message.createdAt)
-    const createdTime = createdAt.getTime()
+    const createdAt = new Date(message.createdAt);
+    const createdTime = createdAt.getTime();
 
     // Track earliest message
     if (createdTime < earliestDate) {
-      earliestDate = createdTime
+      earliestDate = createdTime;
     }
 
     // Count today's messages
     if (createdTime >= todayStart.getTime()) {
-      todayCount++
+      todayCount++;
     }
 
     // Count by hour
-    const hour = createdAt.getHours()
-    hourCounts[hour]++
+    const hour = createdAt.getHours();
+    hourCounts[hour]++;
   }
 
   // Find peak hour
-  let peakHour = 0
-  let maxCount = 0
+  let peakHour = 0;
+  let maxCount = 0;
   for (let i = 0; i < 24; i++) {
     if (hourCounts[i] > maxCount) {
-      maxCount = hourCounts[i]
-      peakHour = i
+      maxCount = hourCounts[i];
+      peakHour = i;
     }
   }
 
   // Calculate average messages per day
-  const daysSinceFirst = Math.max(1, Math.ceil((now - earliestDate) / MS_PER_DAY))
-  const avgPerDay = Math.round(totalMessages / daysSinceFirst)
+  const daysSinceFirst = Math.max(
+    1,
+    Math.ceil((now - earliestDate) / MS_PER_DAY),
+  );
+  const avgPerDay = Math.round(totalMessages / daysSinceFirst);
 
   return {
     total: totalMessages,
     today: todayCount,
     avgPerDay,
     peakHour,
-  }
+  };
 }
 
 /**
  * Calculate message volume by hour
  */
-export function calculateMessageVolumeByHour(messages: MessageStatsInput[]): MessageVolumeData[] {
-  const hourCounts = new Array<number>(24).fill(0)
+export function calculateMessageVolumeByHour(
+  messages: MessageStatsInput[],
+): MessageVolumeData[] {
+  const hourCounts = new Array<number>(24).fill(0);
 
   for (const message of messages) {
-    const hour = new Date(message.createdAt).getHours()
-    hourCounts[hour]++
+    const hour = new Date(message.createdAt).getHours();
+    hourCounts[hour]++;
   }
 
-  return hourCounts.map((count, hour) => ({ hour, count }))
+  return hourCounts.map((count, hour) => ({ hour, count }));
 }
 
 /**
@@ -269,32 +276,32 @@ export function calculateMessageVolumeByHour(messages: MessageStatsInput[]): Mes
  */
 export function calculateMessageVolumeByDay(
   messages: MessageStatsInput[],
-  dateRange: DateRange
+  dateRange: DateRange,
 ): UserGrowthData[] {
-  const { start, end } = dateRange
-  const volumeMap = new Map<string, number>()
+  const { start, end } = dateRange;
+  const volumeMap = new Map<string, number>();
 
   // Initialize all dates in range with 0
-  const currentDate = new Date(start)
+  const currentDate = new Date(start);
   while (currentDate <= end) {
-    const dateKey = currentDate.toISOString().split('T')[0]
-    volumeMap.set(dateKey, 0)
-    currentDate.setDate(currentDate.getDate() + 1)
+    const dateKey = currentDate.toISOString().split("T")[0];
+    volumeMap.set(dateKey, 0);
+    currentDate.setDate(currentDate.getDate() + 1);
   }
 
   // Count messages per day
   for (const message of messages) {
-    const createdDate = new Date(message.createdAt)
+    const createdDate = new Date(message.createdAt);
     if (createdDate >= start && createdDate <= end) {
-      const dateKey = createdDate.toISOString().split('T')[0]
-      const current = volumeMap.get(dateKey) ?? 0
-      volumeMap.set(dateKey, current + 1)
+      const dateKey = createdDate.toISOString().split("T")[0];
+      const current = volumeMap.get(dateKey) ?? 0;
+      volumeMap.set(dateKey, current + 1);
     }
   }
 
   return Array.from(volumeMap.entries())
     .map(([date, count]) => ({ date, count }))
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 // ============================================================================
@@ -306,66 +313,70 @@ export function calculateMessageVolumeByDay(
  */
 export function aggregateChannelStats(
   channels: ChannelStatsInput[],
-  topCount: number = 5
-): DashboardStats['channels'] {
-  const totalChannels = channels.length
-  let publicChannels = 0
-  let privateChannels = 0
+  topCount: number = 5,
+): DashboardStats["channels"] {
+  const totalChannels = channels.length;
+  let publicChannels = 0;
+  let privateChannels = 0;
 
   for (const channel of channels) {
     if (channel.isPrivate) {
-      privateChannels++
+      privateChannels++;
     } else {
-      publicChannels++
+      publicChannels++;
     }
   }
 
   // Find most active channels
-  const sortedChannels = [...channels].sort((a, b) => b.messageCount - a.messageCount)
-  const mostActive = sortedChannels.slice(0, topCount).map((c) => c.name)
+  const sortedChannels = [...channels].sort(
+    (a, b) => b.messageCount - a.messageCount,
+  );
+  const mostActive = sortedChannels.slice(0, topCount).map((c) => c.name);
 
   return {
     total: totalChannels,
     public: publicChannels,
     private: privateChannels,
     mostActive,
-  }
+  };
 }
 
 /**
  * Calculate channel activity ranking
  */
-export function calculateChannelActivity(channels: ChannelStatsInput[]): ChannelActivityData[] {
+export function calculateChannelActivity(
+  channels: ChannelStatsInput[],
+): ChannelActivityData[] {
   return channels
     .map((channel) => ({
       channelId: channel.id,
       channelName: channel.name,
       messageCount: channel.messageCount,
     }))
-    .sort((a, b) => b.messageCount - a.messageCount)
+    .sort((a, b) => b.messageCount - a.messageCount);
 }
 
 /**
  * Calculate channel distribution by type
  */
 export function calculateChannelDistribution(
-  channels: ChannelStatsInput[]
+  channels: ChannelStatsInput[],
 ): { type: string; count: number }[] {
-  let publicCount = 0
-  let privateCount = 0
+  let publicCount = 0;
+  let privateCount = 0;
 
   for (const channel of channels) {
     if (channel.isPrivate) {
-      privateCount++
+      privateCount++;
     } else {
-      publicCount++
+      publicCount++;
     }
   }
 
   return [
-    { type: 'public', count: publicCount },
-    { type: 'private', count: privateCount },
-  ]
+    { type: "public", count: publicCount },
+    { type: "private", count: privateCount },
+  ];
 }
 
 // ============================================================================
@@ -375,30 +386,32 @@ export function calculateChannelDistribution(
 /**
  * Calculate storage statistics
  */
-export function aggregateStorageStats(input: StorageStatsInput): DashboardStats['storage'] {
-  const { used, limit } = input
-  const percentage = limit > 0 ? (used / limit) * 100 : 0
+export function aggregateStorageStats(
+  input: StorageStatsInput,
+): DashboardStats["storage"] {
+  const { used, limit } = input;
+  const percentage = limit > 0 ? (used / limit) * 100 : 0;
 
   return {
     used,
     limit,
     percentage: Math.round(percentage * 100) / 100,
-  }
+  };
 }
 
 /**
  * Format bytes to human-readable string
  */
 export function formatBytes(bytes: number, decimals: number = 2): string {
-  if (bytes === 0) return '0 Bytes'
+  if (bytes === 0) return "0 Bytes";
 
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
 
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
 /**
@@ -411,15 +424,17 @@ export function parseBytes(str: string): number {
     mb: 1024 * 1024,
     gb: 1024 * 1024 * 1024,
     tb: 1024 * 1024 * 1024 * 1024,
-  }
+  };
 
-  const match = str.toLowerCase().match(/^(\d+(?:\.\d+)?)\s*(bytes|kb|mb|gb|tb)?$/i)
-  if (!match) return 0
+  const match = str
+    .toLowerCase()
+    .match(/^(\d+(?:\.\d+)?)\s*(bytes|kb|mb|gb|tb)?$/i);
+  if (!match) return 0;
 
-  const value = parseFloat(match[1])
-  const unit = match[2]?.toLowerCase() || 'bytes'
+  const value = parseFloat(match[1]);
+  const unit = match[2]?.toLowerCase() || "bytes";
 
-  return Math.round(value * (units[unit] || 1))
+  return Math.round(value * (units[unit] || 1));
 }
 
 // ============================================================================
@@ -434,29 +449,35 @@ export function aggregateDashboardStats(
   messages: MessageStatsInput[],
   channels: ChannelStatsInput[],
   storage: StorageStatsInput,
-  referenceDate: Date = new Date()
+  referenceDate: Date = new Date(),
 ): DashboardStats {
   return {
     users: aggregateUserStats(users, referenceDate),
     messages: aggregateMessageStats(messages, referenceDate),
     channels: aggregateChannelStats(channels),
     storage: aggregateStorageStats(storage),
-  }
+  };
 }
 
 /**
  * Calculate percentage change between two values
  */
-export function calculatePercentageChange(current: number, previous: number): number {
-  if (previous === 0) return current > 0 ? 100 : 0
-  return Math.round(((current - previous) / previous) * 100 * 100) / 100
+export function calculatePercentageChange(
+  current: number,
+  previous: number,
+): number {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - previous) / previous) * 100 * 100) / 100;
 }
 
 /**
  * Calculate trend direction
  */
-export function calculateTrend(current: number, previous: number): 'up' | 'down' | 'stable' {
-  if (current > previous) return 'up'
-  if (current < previous) return 'down'
-  return 'stable'
+export function calculateTrend(
+  current: number,
+  previous: number,
+): "up" | "down" | "stable" {
+  if (current > previous) return "up";
+  if (current < previous) return "down";
+  return "stable";
 }

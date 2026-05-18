@@ -10,71 +10,71 @@
  * - Domain/subdomain settings
  */
 
-import type { BrandingConfig } from './branding-schema'
-import type { PlatformTemplate, TemplateId } from '@/templates/types'
-import { logger } from '@/lib/logger'
+import type { BrandingConfig } from "./branding-schema";
+import type { PlatformTemplate, TemplateId } from "@/templates/types";
+import { logger } from "@/lib/logger";
 
 export interface TenantBranding extends BrandingConfig {
-  tenantId: string
-  templateId: TemplateId
-  customTemplate?: Partial<PlatformTemplate>
-  customCSS?: string
+  tenantId: string;
+  templateId: TemplateId;
+  customTemplate?: Partial<PlatformTemplate>;
+  customCSS?: string;
 
   // Logo persistence
   logos: {
     primary?: {
-      url: string
-      storageKey: string
-      width: number
-      height: number
-    }
+      url: string;
+      storageKey: string;
+      width: number;
+      height: number;
+    };
     square?: {
-      url: string
-      storageKey: string
-      size: number
-    }
+      url: string;
+      storageKey: string;
+      size: number;
+    };
     favicon?: {
-      url: string
-      storageKey: string
-    }
-  }
+      url: string;
+      storageKey: string;
+    };
+  };
 
   // Domain configuration
   domains: {
-    primary?: string
-    custom: string[]
-    subdomain: string
-    subdomainVerified: boolean
-    customDomainVerified: boolean
-  }
+    primary?: string;
+    custom: string[];
+    subdomain: string;
+    subdomainVerified: boolean;
+    customDomainVerified: boolean;
+  };
 
   // Theme overrides
   themeOverrides: {
-    light?: Record<string, string>
-    dark?: Record<string, string>
-  }
+    light?: Record<string, string>;
+    dark?: Record<string, string>;
+  };
 
   // Feature flags per template
-  featureFlags: Record<string, boolean>
+  featureFlags: Record<string, boolean>;
 
   // Audit trail
   audit: {
-    createdAt: Date
-    createdBy: string
-    updatedAt: Date
-    updatedBy: string
-    version: number
+    createdAt: Date;
+    createdBy: string;
+    updatedAt: Date;
+    updatedBy: string;
+    version: number;
     changelog: Array<{
-      timestamp: Date
-      userId: string
-      action: string
-      changes: Record<string, unknown>
-    }>
-  }
+      timestamp: Date;
+      userId: string;
+      action: string;
+      changes: Record<string, unknown>;
+    }>;
+  };
 }
 
 export class TenantBrandingService {
-  private cache = new Map<string, TenantBranding>()
+  private cache = new Map<string, TenantBranding>();
 
   /**
    * Get tenant branding configuration
@@ -83,21 +83,21 @@ export class TenantBrandingService {
     try {
       // Check cache first
       if (this.cache.has(tenantId)) {
-        return this.cache.get(tenantId)!
+        return this.cache.get(tenantId)!;
       }
 
-      const response = await fetch(`/api/tenants/${tenantId}/branding`)
+      const response = await fetch(`/api/tenants/${tenantId}/branding`);
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch branding: ${response.statusText}`)
+        throw new Error(`Failed to fetch branding: ${response.statusText}`);
       }
 
-      const branding = await response.json()
-      this.cache.set(tenantId, branding)
-      return branding
+      const branding = await response.json();
+      this.cache.set(tenantId, branding);
+      return branding;
     } catch (error) {
-      logger.error('Failed to get tenant branding:', error)
-      return null
+      logger.error("Failed to get tenant branding:", error);
+      return null;
     }
   }
 
@@ -107,36 +107,36 @@ export class TenantBrandingService {
   async updateTenantBranding(
     tenantId: string,
     updates: Partial<TenantBranding>,
-    userId: string
+    userId: string,
   ): Promise<TenantBranding> {
     try {
       const response = await fetch(`/api/tenants/${tenantId}/branding`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           updates,
           userId,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Failed to update branding: ${response.statusText}`)
+        throw new Error(`Failed to update branding: ${response.statusText}`);
       }
 
-      const branding = await response.json()
+      const branding = await response.json();
 
       // Update cache
-      this.cache.set(tenantId, branding)
+      this.cache.set(tenantId, branding);
 
       // Trigger branding change event
-      this.emitBrandingChange(tenantId, branding)
+      this.emitBrandingChange(tenantId, branding);
 
-      return branding
+      return branding;
     } catch (error) {
-      logger.error('Failed to update tenant branding:', error)
-      throw error
+      logger.error("Failed to update tenant branding:", error);
+      throw error;
     }
   }
 
@@ -146,27 +146,27 @@ export class TenantBrandingService {
   async uploadLogo(
     tenantId: string,
     file: File,
-    type: 'primary' | 'square' | 'favicon'
+    type: "primary" | "square" | "favicon",
   ): Promise<{ url: string; storageKey: string }> {
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('type', type)
-      formData.append('tenantId', tenantId)
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", type);
+      formData.append("tenantId", tenantId);
 
       const response = await fetch(`/api/tenants/${tenantId}/branding/upload`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`)
+        throw new Error(`Upload failed: ${response.statusText}`);
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
-      logger.error('Failed to upload logo:', error)
-      throw error
+      logger.error("Failed to upload logo:", error);
+      throw error;
     }
   }
 
@@ -178,16 +178,16 @@ export class TenantBrandingService {
       const response = await fetch(
         `/api/tenants/${tenantId}/branding/upload/${encodeURIComponent(storageKey)}`,
         {
-          method: 'DELETE',
-        }
-      )
+          method: "DELETE",
+        },
+      );
 
       if (!response.ok) {
-        throw new Error(`Delete failed: ${response.statusText}`)
+        throw new Error(`Delete failed: ${response.statusText}`);
       }
     } catch (error) {
-      logger.error('Failed to delete logo:', error)
-      throw error
+      logger.error("Failed to delete logo:", error);
+      throw error;
     }
   }
 
@@ -198,38 +198,41 @@ export class TenantBrandingService {
     tenantId: string,
     templateId: TemplateId,
     userId: string,
-    preserveCustomizations: boolean = true
+    preserveCustomizations: boolean = true,
   ): Promise<TenantBranding> {
     try {
-      const response = await fetch(`/api/tenants/${tenantId}/branding/template`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/tenants/${tenantId}/branding/template`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            templateId,
+            userId,
+            preserveCustomizations,
+          }),
         },
-        body: JSON.stringify({
-          templateId,
-          userId,
-          preserveCustomizations,
-        }),
-      })
+      );
 
       if (!response.ok) {
-        throw new Error(`Template switch failed: ${response.statusText}`)
+        throw new Error(`Template switch failed: ${response.statusText}`);
       }
 
-      const branding = await response.json()
+      const branding = await response.json();
 
       // Clear cache and update
-      this.cache.delete(tenantId)
-      this.cache.set(tenantId, branding)
+      this.cache.delete(tenantId);
+      this.cache.set(tenantId, branding);
 
       // Emit change event
-      this.emitBrandingChange(tenantId, branding)
+      this.emitBrandingChange(tenantId, branding);
 
-      return branding
+      return branding;
     } catch (error) {
-      logger.error('Failed to switch template:', error)
-      throw error
+      logger.error("Failed to switch template:", error);
+      throw error;
     }
   }
 
@@ -238,49 +241,53 @@ export class TenantBrandingService {
    */
   async exportBranding(tenantId: string): Promise<Blob> {
     try {
-      const response = await fetch(`/api/tenants/${tenantId}/branding/export`)
+      const response = await fetch(`/api/tenants/${tenantId}/branding/export`);
 
       if (!response.ok) {
-        throw new Error(`Export failed: ${response.statusText}`)
+        throw new Error(`Export failed: ${response.statusText}`);
       }
 
-      return await response.blob()
+      return await response.blob();
     } catch (error) {
-      logger.error('Failed to export branding:', error)
-      throw error
+      logger.error("Failed to export branding:", error);
+      throw error;
     }
   }
 
   /**
    * Import branding configuration
    */
-  async importBranding(tenantId: string, file: File, userId: string): Promise<TenantBranding> {
+  async importBranding(
+    tenantId: string,
+    file: File,
+    userId: string,
+  ): Promise<TenantBranding> {
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('userId', userId)
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("userId", userId);
 
       const response = await fetch(`/api/tenants/${tenantId}/branding/import`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Import failed: ${response.statusText}`)
+        throw new Error(`Import failed: ${response.statusText}`);
       }
 
-      const branding = await response.json()
+      const branding = await response.json();
 
       // Update cache
-      this.cache.set(tenantId, branding)
+      this.cache.set(tenantId, branding);
 
       // Emit change event
-      this.emitBrandingChange(tenantId, branding)
+      this.emitBrandingChange(tenantId, branding);
 
-      return branding
+      return branding;
     } catch (error) {
-      logger.error('Failed to import branding:', error)
-      throw error
+      logger.error("Failed to import branding:", error);
+      throw error;
     }
   }
 
@@ -290,31 +297,31 @@ export class TenantBrandingService {
   async configureDomain(
     tenantId: string,
     domain: string,
-    userId: string
+    userId: string,
   ): Promise<{
-    dnsRecords: Array<{ type: string; name: string; value: string }>
-    verificationToken: string
+    dnsRecords: Array<{ type: string; name: string; value: string }>;
+    verificationToken: string;
   }> {
     try {
       const response = await fetch(`/api/tenants/${tenantId}/branding/domain`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           domain,
           userId,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Domain configuration failed: ${response.statusText}`)
+        throw new Error(`Domain configuration failed: ${response.statusText}`);
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
-      logger.error('Failed to configure domain:', error)
-      throw error
+      logger.error("Failed to configure domain:", error);
+      throw error;
     }
   }
 
@@ -323,60 +330,67 @@ export class TenantBrandingService {
    */
   async verifyDomain(
     tenantId: string,
-    domain: string
+    domain: string,
   ): Promise<{ verified: boolean; errors?: string[] }> {
     try {
-      const response = await fetch(`/api/tenants/${tenantId}/branding/domain/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/tenants/${tenantId}/branding/domain/verify`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ domain }),
         },
-        body: JSON.stringify({ domain }),
-      })
+      );
 
       if (!response.ok) {
-        throw new Error(`Domain verification failed: ${response.statusText}`)
+        throw new Error(`Domain verification failed: ${response.statusText}`);
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
-      logger.error('Failed to verify domain:', error)
-      throw error
+      logger.error("Failed to verify domain:", error);
+      throw error;
     }
   }
 
   /**
    * Apply custom CSS
    */
-  async applyCustomCSS(tenantId: string, css: string, userId: string): Promise<TenantBranding> {
+  async applyCustomCSS(
+    tenantId: string,
+    css: string,
+    userId: string,
+  ): Promise<TenantBranding> {
     try {
       const response = await fetch(`/api/tenants/${tenantId}/branding/css`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           css,
           userId,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`CSS update failed: ${response.statusText}`)
+        throw new Error(`CSS update failed: ${response.statusText}`);
       }
 
-      const branding = await response.json()
+      const branding = await response.json();
 
       // Update cache
-      this.cache.set(tenantId, branding)
+      this.cache.set(tenantId, branding);
 
       // Emit change event
-      this.emitBrandingChange(tenantId, branding)
+      this.emitBrandingChange(tenantId, branding);
 
-      return branding
+      return branding;
     } catch (error) {
-      logger.error('Failed to apply custom CSS:', error)
-      throw error
+      logger.error("Failed to apply custom CSS:", error);
+      throw error;
     }
   }
 
@@ -385,9 +399,9 @@ export class TenantBrandingService {
    */
   clearCache(tenantId?: string): void {
     if (tenantId) {
-      this.cache.delete(tenantId)
+      this.cache.delete(tenantId);
     } else {
-      this.cache.clear()
+      this.cache.clear();
     }
   }
 
@@ -395,31 +409,33 @@ export class TenantBrandingService {
    * Emit branding change event
    */
   private emitBrandingChange(tenantId: string, branding: TenantBranding): void {
-    const event = new CustomEvent('tenant-branding-changed', {
+    const event = new CustomEvent("tenant-branding-changed", {
       detail: { tenantId, branding },
-    })
-    window.dispatchEvent(event)
+    });
+    window.dispatchEvent(event);
   }
 
   /**
    * Listen to branding changes
    */
-  onBrandingChange(callback: (tenantId: string, branding: TenantBranding) => void): () => void {
+  onBrandingChange(
+    callback: (tenantId: string, branding: TenantBranding) => void,
+  ): () => void {
     const handler = (event: Event) => {
       const customEvent = event as CustomEvent<{
-        tenantId: string
-        branding: TenantBranding
-      }>
-      callback(customEvent.detail.tenantId, customEvent.detail.branding)
-    }
+        tenantId: string;
+        branding: TenantBranding;
+      }>;
+      callback(customEvent.detail.tenantId, customEvent.detail.branding);
+    };
 
-    window.addEventListener('tenant-branding-changed', handler)
+    window.addEventListener("tenant-branding-changed", handler);
 
     return () => {
-      window.removeEventListener('tenant-branding-changed', handler)
-    }
+      window.removeEventListener("tenant-branding-changed", handler);
+    };
   }
 }
 
 // Singleton instance
-export const tenantBrandingService = new TenantBrandingService()
+export const tenantBrandingService = new TenantBrandingService();

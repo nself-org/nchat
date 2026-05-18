@@ -1,48 +1,61 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useBookmarks, useBookmarkFilters, useBookmarkPanel } from '@/lib/bookmarks/use-bookmarks'
-import { useBookmarkStore, selectUniqueChannels } from '@/lib/bookmarks/bookmark-store'
-import { BookmarkItem } from './bookmark-item'
-import { BookmarkFolders } from './bookmark-folders'
-import { AddToFolderModal } from './add-to-folder-modal'
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  useBookmarks,
+  useBookmarkFilters,
+  useBookmarkPanel,
+} from "@/lib/bookmarks/use-bookmarks";
+import {
+  useBookmarkStore,
+  selectUniqueChannels,
+} from "@/lib/bookmarks/bookmark-store";
+import { BookmarkItem } from "./bookmark-item";
+import { BookmarkFolders } from "./bookmark-folders";
+import { AddToFolderModal } from "./add-to-folder-modal";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface BookmarksPanelProps {
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  onJumpToMessage?: (messageId: string, channelId: string) => void
-  className?: string
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onJumpToMessage?: (messageId: string, channelId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
 // Icons
 // ============================================================================
 
-function BookmarkIcon({ className, filled = false }: { className?: string; filled?: boolean }) {
+function BookmarkIcon({
+  className,
+  filled = false,
+}: {
+  className?: string;
+  filled?: boolean;
+}) {
   if (filled) {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         fill="currentColor"
-        className={cn('h-5 w-5', className)}
+        className={cn("h-5 w-5", className)}
       >
         <path
           fillRule="evenodd"
@@ -50,7 +63,7 @@ function BookmarkIcon({ className, filled = false }: { className?: string; fille
           clipRule="evenodd"
         />
       </svg>
-    )
+    );
   }
 
   return (
@@ -60,7 +73,7 @@ function BookmarkIcon({ className, filled = false }: { className?: string; fille
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={cn('h-5 w-5', className)}
+      className={cn("h-5 w-5", className)}
     >
       <path
         strokeLinecap="round"
@@ -68,7 +81,7 @@ function BookmarkIcon({ className, filled = false }: { className?: string; fille
         d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
       />
     </svg>
-  )
+  );
 }
 
 function SearchIcon({ className }: { className?: string }) {
@@ -79,7 +92,7 @@ function SearchIcon({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={cn('h-4 w-4', className)}
+      className={cn("h-4 w-4", className)}
     >
       <path
         strokeLinecap="round"
@@ -87,7 +100,7 @@ function SearchIcon({ className }: { className?: string }) {
         d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
       />
     </svg>
-  )
+  );
 }
 
 function XMarkIcon({ className }: { className?: string }) {
@@ -98,11 +111,15 @@ function XMarkIcon({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={cn('h-4 w-4', className)}
+      className={cn("h-4 w-4", className)}
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 18 18 6M6 6l12 12"
+      />
     </svg>
-  )
+  );
 }
 
 function HashIcon({ className }: { className?: string }) {
@@ -113,7 +130,7 @@ function HashIcon({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={cn('h-4 w-4', className)}
+      className={cn("h-4 w-4", className)}
     >
       <path
         strokeLinecap="round"
@@ -121,7 +138,7 @@ function HashIcon({ className }: { className?: string }) {
         d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5-3.9 19.5m-2.1-19.5-3.9 19.5"
       />
     </svg>
-  )
+  );
 }
 
 function ArrowUpDownIcon({ className }: { className?: string }) {
@@ -132,7 +149,7 @@ function ArrowUpDownIcon({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={cn('h-4 w-4', className)}
+      className={cn("h-4 w-4", className)}
     >
       <path
         strokeLinecap="round"
@@ -140,7 +157,7 @@ function ArrowUpDownIcon({ className }: { className?: string }) {
         d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
       />
     </svg>
-  )
+  );
 }
 
 function FunnelIcon({ className }: { className?: string }) {
@@ -151,7 +168,7 @@ function FunnelIcon({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={cn('h-4 w-4', className)}
+      className={cn("h-4 w-4", className)}
     >
       <path
         strokeLinecap="round"
@@ -159,7 +176,7 @@ function FunnelIcon({ className }: { className?: string }) {
         d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
       />
     </svg>
-  )
+  );
 }
 
 // ============================================================================
@@ -174,20 +191,21 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
         <>
           <h3 className="mb-2 text-lg font-medium">No matching saved items</h3>
           <p className="text-sm text-muted-foreground">
-            Try adjusting your filters or search query to find what you are looking for.
+            Try adjusting your filters or search query to find what you are
+            looking for.
           </p>
         </>
       ) : (
         <>
           <h3 className="mb-2 text-lg font-medium">No saved items yet</h3>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Save messages by clicking the bookmark icon on any message. Saved items will appear here
-            for quick access.
+            Save messages by clicking the bookmark icon on any message. Saved
+            items will appear here for quick access.
           </p>
         </>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -210,7 +228,7 @@ function LoadingState() {
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -218,12 +236,14 @@ function LoadingState() {
 // ============================================================================
 
 interface BookmarksPanelContentProps {
-  onJumpToMessage?: (messageId: string, channelId: string) => void
+  onJumpToMessage?: (messageId: string, channelId: string) => void;
 }
 
-function BookmarksPanelContent({ onJumpToMessage }: BookmarksPanelContentProps) {
-  const router = useRouter()
-  const { loading, hasMore, loadMore } = useBookmarks()
+function BookmarksPanelContent({
+  onJumpToMessage,
+}: BookmarksPanelContentProps) {
+  const router = useRouter();
+  const { loading, hasMore, loadMore } = useBookmarks();
   const {
     searchQuery,
     sortBy,
@@ -235,47 +255,51 @@ function BookmarksPanelContent({ onJumpToMessage }: BookmarksPanelContentProps) 
     setSortOrder,
     setChannelFilter,
     clearFilters,
-  } = useBookmarkFilters()
+  } = useBookmarkFilters();
 
-  const channels = useBookmarkStore(selectUniqueChannels)
-  const [showFilters, setShowFilters] = React.useState(false)
+  const channels = useBookmarkStore(selectUniqueChannels);
+  const [showFilters, setShowFilters] = React.useState(false);
 
-  const hasFilters = !!(searchQuery || selectedChannelFilter)
+  const hasFilters = !!(searchQuery || selectedChannelFilter);
 
   const handleJumpToMessage = (messageId: string, channelId: string) => {
     if (onJumpToMessage) {
-      onJumpToMessage(messageId, channelId)
+      onJumpToMessage(messageId, channelId);
     } else {
-      const bookmark = filteredBookmarks.find((b) => b.message.id === messageId)
+      const bookmark = filteredBookmarks.find(
+        (b) => b.message.id === messageId,
+      );
       if (bookmark?.message.channel.slug) {
-        router.push(`/chat/${bookmark.message.channel.slug}?message=${messageId}`)
+        router.push(
+          `/chat/${bookmark.message.channel.slug}?message=${messageId}`,
+        );
       }
     }
-  }
+  };
 
   const handleSortChange = (value: string) => {
-    if (value === 'date-desc') {
-      setSortBy('date')
-      setSortOrder('desc')
-    } else if (value === 'date-asc') {
-      setSortBy('date')
-      setSortOrder('asc')
-    } else if (value === 'channel') {
-      setSortBy('channel')
-      setSortOrder('asc')
-    } else if (value === 'folder') {
-      setSortBy('folder')
-      setSortOrder('asc')
+    if (value === "date-desc") {
+      setSortBy("date");
+      setSortOrder("desc");
+    } else if (value === "date-asc") {
+      setSortBy("date");
+      setSortOrder("asc");
+    } else if (value === "channel") {
+      setSortBy("channel");
+      setSortOrder("asc");
+    } else if (value === "folder") {
+      setSortBy("folder");
+      setSortOrder("asc");
     }
-  }
+  };
 
   const getSortValue = (): string => {
-    if (sortBy === 'date' && sortOrder === 'desc') return 'date-desc'
-    if (sortBy === 'date' && sortOrder === 'asc') return 'date-asc'
-    if (sortBy === 'channel') return 'channel'
-    if (sortBy === 'folder') return 'folder'
-    return 'date-desc'
-  }
+    if (sortBy === "date" && sortOrder === "desc") return "date-desc";
+    if (sortBy === "date" && sortOrder === "asc") return "date-asc";
+    if (sortBy === "channel") return "channel";
+    if (sortBy === "folder") return "folder";
+    return "date-desc";
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -295,7 +319,7 @@ function BookmarksPanelContent({ onJumpToMessage }: BookmarksPanelContentProps) 
               variant="ghost"
               size="icon"
               className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
             >
               <XMarkIcon className="h-4 w-4" />
             </Button>
@@ -307,7 +331,7 @@ function BookmarksPanelContent({ onJumpToMessage }: BookmarksPanelContentProps) 
           <Button
             variant="ghost"
             size="sm"
-            className={cn('gap-2', showFilters && 'bg-accent')}
+            className={cn("gap-2", showFilters && "bg-accent")}
             onClick={() => setShowFilters(!showFilters)}
           >
             <FunnelIcon className="h-4 w-4" />
@@ -342,8 +366,10 @@ function BookmarksPanelContent({ onJumpToMessage }: BookmarksPanelContentProps) 
             <div className="flex items-center gap-2">
               <HashIcon className="h-4 w-4 text-muted-foreground" />
               <Select
-                value={selectedChannelFilter ?? 'all'}
-                onValueChange={(value) => setChannelFilter(value === 'all' ? null : value)}
+                value={selectedChannelFilter ?? "all"}
+                onValueChange={(value) =>
+                  setChannelFilter(value === "all" ? null : value)
+                }
               >
                 <SelectTrigger className="h-8 flex-1">
                   <SelectValue placeholder="All channels" />
@@ -392,8 +418,9 @@ function BookmarksPanelContent({ onJumpToMessage }: BookmarksPanelContentProps) 
                 <div className="space-y-3 p-4">
                   {/* Results count */}
                   <p className="text-sm text-muted-foreground">
-                    {filteredBookmarks.length} saved item{filteredBookmarks.length !== 1 ? 's' : ''}
-                    {hasFilters && ' (filtered)'}
+                    {filteredBookmarks.length} saved item
+                    {filteredBookmarks.length !== 1 ? "s" : ""}
+                    {hasFilters && " (filtered)"}
                   </p>
 
                   {/* Bookmark items */}
@@ -425,7 +452,7 @@ function BookmarksPanelContent({ onJumpToMessage }: BookmarksPanelContentProps) 
       {/* Add to Folder Modal */}
       <AddToFolderModal />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -439,13 +466,13 @@ const SlideOverOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      className
+      "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className,
     )}
     {...props}
   />
-))
-SlideOverOverlay.displayName = 'SlideOverOverlay'
+));
+SlideOverOverlay.displayName = "SlideOverOverlay";
 
 const SlideOverContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
@@ -456,19 +483,19 @@ const SlideOverContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed inset-y-0 right-0 z-50 h-full w-full bg-background shadow-lg duration-300',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out',
-        'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
-        'sm:max-w-2xl',
-        className
+        "fixed inset-y-0 right-0 z-50 h-full w-full bg-background shadow-lg duration-300",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+        "sm:max-w-2xl",
+        className,
       )}
       {...props}
     >
       {children}
     </DialogPrimitive.Content>
   </DialogPrimitive.Portal>
-))
-SlideOverContent.displayName = 'SlideOverContent'
+));
+SlideOverContent.displayName = "SlideOverContent";
 
 // ============================================================================
 // Bookmarks Panel (Slide-over)
@@ -480,17 +507,17 @@ export function BookmarksPanel({
   onJumpToMessage,
   className,
 }: BookmarksPanelProps) {
-  const { isOpen, close } = useBookmarkPanel()
+  const { isOpen, close } = useBookmarkPanel();
 
   // Use controlled or internal state
-  const isPanelOpen = open !== undefined ? open : isOpen
+  const isPanelOpen = open !== undefined ? open : isOpen;
   const handleOpenChange = (newOpen: boolean) => {
     if (onOpenChange) {
-      onOpenChange(newOpen)
+      onOpenChange(newOpen);
     } else if (!newOpen) {
-      close()
+      close();
     }
-  }
+  };
 
   return (
     <DialogPrimitive.Root open={isPanelOpen} onOpenChange={handleOpenChange}>
@@ -515,7 +542,7 @@ export function BookmarksPanel({
         </div>
       </SlideOverContent>
     </DialogPrimitive.Root>
-  )
+  );
 }
 
 // ============================================================================
@@ -523,13 +550,16 @@ export function BookmarksPanel({
 // ============================================================================
 
 export interface InlineBookmarksPanelProps {
-  onJumpToMessage?: (messageId: string, channelId: string) => void
-  className?: string
+  onJumpToMessage?: (messageId: string, channelId: string) => void;
+  className?: string;
 }
 
-export function InlineBookmarksPanel({ onJumpToMessage, className }: InlineBookmarksPanelProps) {
+export function InlineBookmarksPanel({
+  onJumpToMessage,
+  className,
+}: InlineBookmarksPanelProps) {
   return (
-    <div className={cn('flex h-full flex-col bg-background', className)}>
+    <div className={cn("flex h-full flex-col bg-background", className)}>
       {/* Header */}
       <div className="border-b px-4 py-3">
         <h2 className="flex items-center gap-2 text-lg font-semibold">
@@ -543,7 +573,7 @@ export function InlineBookmarksPanel({ onJumpToMessage, className }: InlineBookm
         <BookmarksPanelContent onJumpToMessage={onJumpToMessage} />
       </div>
     </div>
-  )
+  );
 }
 
-export default BookmarksPanel
+export default BookmarksPanel;

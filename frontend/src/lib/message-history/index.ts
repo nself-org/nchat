@@ -5,7 +5,7 @@
  */
 
 // Types
-export * from './history-types'
+export * from "./history-types";
 
 // Diff utilities
 export {
@@ -20,7 +20,7 @@ export {
   diffToPlainText,
   getChangedSegments,
   generateUnifiedDiff,
-} from './history-diff'
+} from "./history-diff";
 
 // Storage utilities
 export {
@@ -44,7 +44,7 @@ export {
   trimHistory,
   shouldTrimHistory,
   applyRetentionPolicy,
-} from './history-storage'
+} from "./history-storage";
 
 // Permission utilities
 export {
@@ -64,7 +64,7 @@ export {
   type HistoryPermissions,
   type PermissionContext,
   type HistoryAuditEntry,
-} from './history-permissions'
+} from "./history-permissions";
 
 // Store and manager
 export {
@@ -77,4 +77,4 @@ export {
   getAdminHistoryList,
   exportHistoryData,
   formatHistoryForDisplay,
-} from './history-manager'
+} from "./history-manager";

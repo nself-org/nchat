@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Enhanced Emoji Picker Component
@@ -13,20 +13,24 @@
  * - Custom emojis
  */
 
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { Search, Smile, Clock } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { Search, Smile, Clock } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import {
   type Emoji,
   type EmojiCategory,
@@ -37,11 +41,11 @@ import {
   applySkinTone,
   supportsSkinTone as checkSupportsSkinTone,
   getEmojisByCategory,
-} from '@/lib/emoji'
+} from "@/lib/emoji";
 
-const RECENT_EMOJIS_KEY = 'nchat-recent-emojis'
-const SKIN_TONE_KEY = 'nchat-emoji-skin-tone'
-const MAX_RECENT = 24
+const RECENT_EMOJIS_KEY = "nchat-recent-emojis";
+const SKIN_TONE_KEY = "nchat-emoji-skin-tone";
+const MAX_RECENT = 24;
 
 // ============================================================================
 // Interfaces
@@ -49,17 +53,17 @@ const MAX_RECENT = 24
 
 export interface EmojiPickerProps {
   /** Callback when emoji is selected */
-  onSelect: (emoji: string) => void
+  onSelect: (emoji: string) => void;
   /** Custom trigger button */
-  trigger?: React.ReactNode
+  trigger?: React.ReactNode;
   /** Alignment */
-  align?: 'start' | 'center' | 'end'
+  align?: "start" | "center" | "end";
   /** Show quick reactions bar */
-  showQuickReactions?: boolean
+  showQuickReactions?: boolean;
   /** Custom emojis */
-  customEmojis?: Emoji[]
+  customEmojis?: Emoji[];
   /** ClassName for trigger */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -69,80 +73,84 @@ export interface EmojiPickerProps {
 export function EmojiPicker({
   onSelect,
   trigger,
-  align = 'start',
+  align = "start",
   showQuickReactions = true,
   customEmojis = [],
   className,
 }: EmojiPickerProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<EmojiCategory>('smileys')
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] =
+    useState<EmojiCategory>("smileys");
   const [skinTone, setSkinTone] = useState<SkinTone>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem(SKIN_TONE_KEY) as SkinTone) || ''
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem(SKIN_TONE_KEY) as SkinTone) || "";
     }
-    return ''
-  })
+    return "";
+  });
   const [recentEmojis, setRecentEmojis] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(RECENT_EMOJIS_KEY)
-      return saved ? JSON.parse(saved) : []
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(RECENT_EMOJIS_KEY);
+      return saved ? JSON.parse(saved) : [];
     }
-    return []
-  })
+    return [];
+  });
 
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus search when opened
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus()
+      searchInputRef.current.focus();
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   // Save skin tone to localStorage
   const handleSkinToneChange = useCallback((tone: SkinTone) => {
-    setSkinTone(tone)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(SKIN_TONE_KEY, tone)
+    setSkinTone(tone);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(SKIN_TONE_KEY, tone);
     }
-  }, [])
+  }, []);
 
   // Handle emoji selection
   const handleSelectEmoji = useCallback(
     (emoji: string) => {
-      onSelect(emoji)
-      setIsOpen(false)
-      setSearchQuery('')
+      onSelect(emoji);
+      setIsOpen(false);
+      setSearchQuery("");
 
       // Add to recent emojis
       setRecentEmojis((prev) => {
-        const updated = [emoji, ...prev.filter((e) => e !== emoji)].slice(0, MAX_RECENT)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(RECENT_EMOJIS_KEY, JSON.stringify(updated))
+        const updated = [emoji, ...prev.filter((e) => e !== emoji)].slice(
+          0,
+          MAX_RECENT,
+        );
+        if (typeof window !== "undefined") {
+          localStorage.setItem(RECENT_EMOJIS_KEY, JSON.stringify(updated));
         }
-        return updated
-      })
+        return updated;
+      });
     },
-    [onSelect]
-  )
+    [onSelect],
+  );
 
   // Apply skin tone if needed
   const applyEmojiSkinTone = useCallback(
     (emoji: string): string => {
-      if (skinTone !== '' && checkSupportsSkinTone(emoji)) {
-        return applySkinTone(emoji, skinTone)
+      if (skinTone !== "" && checkSupportsSkinTone(emoji)) {
+        return applySkinTone(emoji, skinTone);
       }
-      return emoji
+      return emoji;
     },
-    [skinTone]
-  )
+    [skinTone],
+  );
 
   // Search results
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return null
-    return searchEmojis(searchQuery, { limit: 50 })
-  }, [searchQuery])
+    if (!searchQuery.trim()) return null;
+    return searchEmojis(searchQuery, { limit: 50 });
+  }, [searchQuery]);
 
   // Get categories with recent
   const categories = useMemo(() => {
@@ -151,33 +159,33 @@ export function EmojiPicker({
       label: cat.name,
       icon: cat.icon,
       emojis: getEmojisByCategory(cat.id),
-    })).filter((cat) => cat.emojis.length > 0)
+    })).filter((cat) => cat.emojis.length > 0);
 
     // Add recent category if there are recent emojis
     if (recentEmojis.length > 0) {
       return [
         {
-          id: 'recent' as EmojiCategory,
-          label: 'Recently Used',
-          icon: '🕒',
+          id: "recent" as EmojiCategory,
+          label: "Recently Used",
+          icon: "🕒",
           emojis: recentEmojis.map((emoji) => ({
             id: emoji,
             emoji,
-            name: '',
-            displayName: '',
-            shortcode: '',
+            name: "",
+            displayName: "",
+            shortcode: "",
             keywords: [] as string[],
             aliases: [] as string[],
-            category: 'recent' as EmojiCategory,
+            category: "recent" as EmojiCategory,
             supportsSkinTone: false,
           })),
         },
         ...cats,
-      ]
+      ];
     }
 
-    return cats
-  }, [recentEmojis])
+    return cats;
+  }, [recentEmojis]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -211,20 +219,27 @@ export function EmojiPicker({
             {/* Skin Tone Selector */}
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Skin Tone</span>
-              <SkinToneSelector value={skinTone} onChange={handleSkinToneChange} />
+              <SkinToneSelector
+                value={skinTone}
+                onChange={handleSkinToneChange}
+              />
             </div>
           </div>
 
           {/* Quick Reactions */}
           {!searchQuery && showQuickReactions && (
             <div className="border-b p-3">
-              <div className="mb-2 text-xs font-medium text-muted-foreground">Quick Reactions</div>
+              <div className="mb-2 text-xs font-medium text-muted-foreground">
+                Quick Reactions
+              </div>
               <div className="flex gap-1">
                 {QUICK_REACTIONS.map((emojiObj) => (
                   <button
                     key={emojiObj.emoji}
                     type="button"
-                    onClick={() => handleSelectEmoji(applyEmojiSkinTone(emojiObj.emoji))}
+                    onClick={() =>
+                      handleSelectEmoji(applyEmojiSkinTone(emojiObj.emoji))
+                    }
                     className="flex h-10 w-10 items-center justify-center rounded text-2xl transition-colors hover:bg-accent"
                   >
                     {applyEmojiSkinTone(emojiObj.emoji)}
@@ -246,17 +261,19 @@ export function EmojiPicker({
                     </div>
                     <div className="grid grid-cols-8 gap-1">
                       {searchResults.map((result, index) => {
-                        const emojiObj = result.emoji as any
-                        const emojiChar = emojiObj.emoji ?? emojiObj
-                        const emojiName = emojiObj.name ?? ''
+                        const emojiObj = result.emoji as any;
+                        const emojiChar = emojiObj.emoji ?? emojiObj;
+                        const emojiName = emojiObj.name ?? "";
                         return (
                           <EmojiButton
                             key={`${emojiChar}-${index}`}
                             emoji={applyEmojiSkinTone(emojiChar)}
                             label={emojiName}
-                            onClick={() => handleSelectEmoji(applyEmojiSkinTone(emojiChar))}
+                            onClick={() =>
+                              handleSelectEmoji(applyEmojiSkinTone(emojiChar))
+                            }
                           />
-                        )
+                        );
                       })}
                     </div>
                   </>
@@ -288,7 +305,11 @@ export function EmojiPicker({
               </TabsList>
 
               {categories.map((category) => (
-                <TabsContent key={category.id} value={category.id} className="m-0 mt-0 flex-1">
+                <TabsContent
+                  key={category.id}
+                  value={category.id}
+                  className="m-0 mt-0 flex-1"
+                >
                   <ScrollArea className="h-full">
                     <div className="p-3">
                       <div className="mb-2 text-xs font-medium text-muted-foreground">
@@ -300,7 +321,11 @@ export function EmojiPicker({
                             key={`${emojiData.emoji}-${index}`}
                             emoji={applyEmojiSkinTone(emojiData.emoji)}
                             label={emojiData.name}
-                            onClick={() => handleSelectEmoji(applyEmojiSkinTone(emojiData.emoji))}
+                            onClick={() =>
+                              handleSelectEmoji(
+                                applyEmojiSkinTone(emojiData.emoji),
+                              )
+                            }
                           />
                         ))}
                       </div>
@@ -313,7 +338,7 @@ export function EmojiPicker({
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 // ============================================================================
@@ -321,9 +346,9 @@ export function EmojiPicker({
 // ============================================================================
 
 interface EmojiButtonProps {
-  emoji: string
-  label?: string
-  onClick: () => void
+  emoji: string;
+  label?: string;
+  onClick: () => void;
 }
 
 function EmojiButton({ emoji, label, onClick }: EmojiButtonProps) {
@@ -336,7 +361,7 @@ function EmojiButton({ emoji, label, onClick }: EmojiButtonProps) {
     >
       {emoji}
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -344,21 +369,21 @@ function EmojiButton({ emoji, label, onClick }: EmojiButtonProps) {
 // ============================================================================
 
 interface SkinToneSelectorProps {
-  value: SkinTone
-  onChange: (tone: SkinTone) => void
+  value: SkinTone;
+  onChange: (tone: SkinTone) => void;
 }
 
 function SkinToneSelector({ value, onChange }: SkinToneSelectorProps) {
   const skinTones: { tone: SkinTone; emoji: string; label: string }[] = [
-    { tone: '', emoji: '👋', label: 'Default' },
-    { tone: '1F3FB', emoji: '👋🏻', label: 'Light' },
-    { tone: '1F3FC', emoji: '👋🏼', label: 'Medium-Light' },
-    { tone: '1F3FD', emoji: '👋🏽', label: 'Medium' },
-    { tone: '1F3FE', emoji: '👋🏾', label: 'Medium-Dark' },
-    { tone: '1F3FF', emoji: '👋🏿', label: 'Dark' },
-  ]
+    { tone: "", emoji: "👋", label: "Default" },
+    { tone: "1F3FB", emoji: "👋🏻", label: "Light" },
+    { tone: "1F3FC", emoji: "👋🏼", label: "Medium-Light" },
+    { tone: "1F3FD", emoji: "👋🏽", label: "Medium" },
+    { tone: "1F3FE", emoji: "👋🏾", label: "Medium-Dark" },
+    { tone: "1F3FF", emoji: "👋🏿", label: "Dark" },
+  ];
 
-  const currentTone = skinTones.find((t) => t.tone === value) || skinTones[0]
+  const currentTone = skinTones.find((t) => t.tone === value) || skinTones[0];
 
   return (
     <DropdownMenu>
@@ -373,7 +398,7 @@ function SkinToneSelector({ value, onChange }: SkinToneSelectorProps) {
           <DropdownMenuItem
             key={item.tone}
             onClick={() => onChange(item.tone)}
-            className={cn('cursor-pointer', value === item.tone && 'bg-accent')}
+            className={cn("cursor-pointer", value === item.tone && "bg-accent")}
           >
             <span className="mr-2 text-lg">{item.emoji}</span>
             <span>{item.label}</span>
@@ -381,5 +406,5 @@ function SkinToneSelector({ value, onChange }: SkinToneSelectorProps) {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

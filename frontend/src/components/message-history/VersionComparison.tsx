@@ -1,37 +1,37 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
-import { ArrowRight, ArrowLeftRight, Columns2, List } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useState, useMemo } from "react";
+import { ArrowRight, ArrowLeftRight, Columns2, List } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
-import { formatMessageTime } from '@/lib/date'
-import type { MessageVersion, ComparisonViewMode } from '@/lib/message-history'
-import { calculateVersionDiff } from '@/lib/message-history'
-import { EditDiff, SideBySideDiff, DiffStatsBar } from './EditDiff'
-import { VersionTimestamp } from './EditTimestamp'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { formatMessageTime } from "@/lib/date";
+import type { MessageVersion, ComparisonViewMode } from "@/lib/message-history";
+import { calculateVersionDiff } from "@/lib/message-history";
+import { EditDiff, SideBySideDiff, DiffStatsBar } from "./EditDiff";
+import { VersionTimestamp } from "./EditTimestamp";
 
 export interface VersionComparisonProps {
   /** All available versions */
-  versions: MessageVersion[]
+  versions: MessageVersion[];
   /** Initial left version (older) */
-  initialLeft?: MessageVersion
+  initialLeft?: MessageVersion;
   /** Initial right version (newer) */
-  initialRight?: MessageVersion
+  initialRight?: MessageVersion;
   /** View mode */
-  viewMode?: ComparisonViewMode
+  viewMode?: ComparisonViewMode;
   /** Callback when versions change */
-  onVersionsChange?: (left: MessageVersion, right: MessageVersion) => void
+  onVersionsChange?: (left: MessageVersion, right: MessageVersion) => void;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -42,50 +42,59 @@ export function VersionComparison({
   versions,
   initialLeft,
   initialRight,
-  viewMode = 'inline',
+  viewMode = "inline",
   onVersionsChange,
   className,
 }: VersionComparisonProps) {
-  const [leftVersion, setLeftVersion] = useState<MessageVersion>(initialLeft ?? versions[0])
+  const [leftVersion, setLeftVersion] = useState<MessageVersion>(
+    initialLeft ?? versions[0],
+  );
   const [rightVersion, setRightVersion] = useState<MessageVersion>(
-    initialRight ?? versions[versions.length - 1]
-  )
-  const [mode, setMode] = useState<ComparisonViewMode>(viewMode)
+    initialRight ?? versions[versions.length - 1],
+  );
+  const [mode, setMode] = useState<ComparisonViewMode>(viewMode);
 
   const diff = useMemo(() => {
-    if (!leftVersion || !rightVersion) return null
-    return calculateVersionDiff(leftVersion, rightVersion)
-  }, [leftVersion, rightVersion])
+    if (!leftVersion || !rightVersion) return null;
+    return calculateVersionDiff(leftVersion, rightVersion);
+  }, [leftVersion, rightVersion]);
 
   const handleLeftChange = (versionNumber: string) => {
-    const version = versions.find((v) => v.versionNumber === parseInt(versionNumber))
+    const version = versions.find(
+      (v) => v.versionNumber === parseInt(versionNumber),
+    );
     if (version) {
-      setLeftVersion(version)
-      onVersionsChange?.(version, rightVersion)
+      setLeftVersion(version);
+      onVersionsChange?.(version, rightVersion);
     }
-  }
+  };
 
   const handleRightChange = (versionNumber: string) => {
-    const version = versions.find((v) => v.versionNumber === parseInt(versionNumber))
+    const version = versions.find(
+      (v) => v.versionNumber === parseInt(versionNumber),
+    );
     if (version) {
-      setRightVersion(version)
-      onVersionsChange?.(leftVersion, version)
+      setRightVersion(version);
+      onVersionsChange?.(leftVersion, version);
     }
-  }
+  };
 
   const swapVersions = () => {
-    setLeftVersion(rightVersion)
-    setRightVersion(leftVersion)
-    onVersionsChange?.(rightVersion, leftVersion)
-  }
+    setLeftVersion(rightVersion);
+    setRightVersion(leftVersion);
+    onVersionsChange?.(rightVersion, leftVersion);
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Version selectors */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">From:</span>
-          <Select value={leftVersion.versionNumber.toString()} onValueChange={handleLeftChange}>
+          <Select
+            value={leftVersion.versionNumber.toString()}
+            onValueChange={handleLeftChange}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select version" />
             </SelectTrigger>
@@ -115,13 +124,21 @@ export function VersionComparison({
           </Select>
         </div>
 
-        <Button variant="ghost" size="icon" onClick={swapVersions} className="h-8 w-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={swapVersions}
+          className="h-8 w-8"
+        >
           <ArrowLeftRight className="h-4 w-4" />
         </Button>
 
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">To:</span>
-          <Select value={rightVersion.versionNumber.toString()} onValueChange={handleRightChange}>
+          <Select
+            value={rightVersion.versionNumber.toString()}
+            onValueChange={handleRightChange}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select version" />
             </SelectTrigger>
@@ -153,17 +170,17 @@ export function VersionComparison({
 
         <div className="ml-auto flex items-center gap-1 rounded-md border p-1">
           <Button
-            variant={mode === 'inline' ? 'secondary' : 'ghost'}
+            variant={mode === "inline" ? "secondary" : "ghost"}
             size="sm"
-            onClick={() => setMode('inline')}
+            onClick={() => setMode("inline")}
             className="h-7 px-2"
           >
             <List className="h-4 w-4" />
           </Button>
           <Button
-            variant={mode === 'side-by-side' ? 'secondary' : 'ghost'}
+            variant={mode === "side-by-side" ? "secondary" : "ghost"}
             size="sm"
-            onClick={() => setMode('side-by-side')}
+            onClick={() => setMode("side-by-side")}
             className="h-7 px-2"
           >
             <Columns2 className="h-4 w-4" />
@@ -179,7 +196,9 @@ export function VersionComparison({
             createdAt={leftVersion.createdAt}
             isOriginal={leftVersion.isOriginal}
           />
-          <p className="text-xs text-muted-foreground">by {leftVersion.editedBy.displayName}</p>
+          <p className="text-xs text-muted-foreground">
+            by {leftVersion.editedBy.displayName}
+          </p>
         </div>
         <ArrowRight className="h-4 w-4 text-muted-foreground" />
         <div>
@@ -188,17 +207,24 @@ export function VersionComparison({
             createdAt={rightVersion.createdAt}
             isCurrent={rightVersion.isCurrent}
           />
-          <p className="text-xs text-muted-foreground">by {rightVersion.editedBy.displayName}</p>
+          <p className="text-xs text-muted-foreground">
+            by {rightVersion.editedBy.displayName}
+          </p>
         </div>
       </div>
 
       {/* Diff stats */}
-      {diff && <DiffStatsBar charsAdded={diff.charsAdded} charsRemoved={diff.charsRemoved} />}
+      {diff && (
+        <DiffStatsBar
+          charsAdded={diff.charsAdded}
+          charsRemoved={diff.charsRemoved}
+        />
+      )}
 
       {/* Comparison view */}
-      {diff && mode === 'inline' && <EditDiff diff={diff} showStats={false} />}
+      {diff && mode === "inline" && <EditDiff diff={diff} showStats={false} />}
 
-      {mode === 'side-by-side' && (
+      {mode === "side-by-side" && (
         <SideBySideDiff
           oldText={leftVersion.content}
           newText={rightVersion.content}
@@ -207,7 +233,7 @@ export function VersionComparison({
         />
       )}
     </div>
-  )
+  );
 }
 
 /**
@@ -215,15 +241,15 @@ export function VersionComparison({
  */
 export interface QuickComparisonProps {
   /** Original content */
-  originalContent: string
+  originalContent: string;
   /** Current content */
-  currentContent: string
+  currentContent: string;
   /** Original timestamp */
-  originalAt: Date
+  originalAt: Date;
   /** Current timestamp */
-  currentAt: Date
+  currentAt: Date;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 export function QuickComparison({
@@ -233,35 +259,35 @@ export function QuickComparison({
   currentAt,
   className,
 }: QuickComparisonProps) {
-  const [showDiff, setShowDiff] = useState(false)
+  const [showDiff, setShowDiff] = useState(false);
 
   // Create mock versions for diff calculation
   const diff = useMemo(() => {
     const from: MessageVersion = {
-      id: 'original',
-      messageId: '',
+      id: "original",
+      messageId: "",
       versionNumber: 1,
       content: originalContent,
       createdAt: originalAt,
-      editedBy: { id: '', username: '', displayName: '' },
+      editedBy: { id: "", username: "", displayName: "" },
       isOriginal: true,
       isCurrent: false,
-    }
+    };
     const to: MessageVersion = {
-      id: 'current',
-      messageId: '',
+      id: "current",
+      messageId: "",
       versionNumber: 2,
       content: currentContent,
       createdAt: currentAt,
-      editedBy: { id: '', username: '', displayName: '' },
+      editedBy: { id: "", username: "", displayName: "" },
       isOriginal: false,
       isCurrent: true,
-    }
-    return calculateVersionDiff(from, to)
-  }, [originalContent, currentContent, originalAt, currentAt])
+    };
+    return calculateVersionDiff(from, to);
+  }, [originalContent, currentContent, originalAt, currentAt]);
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn("space-y-3", className)}>
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">Changes</span>
         <Button
@@ -270,15 +296,18 @@ export function QuickComparison({
           onClick={() => setShowDiff(!showDiff)}
           className="text-xs"
         >
-          {showDiff ? 'Hide diff' : 'Show diff'}
+          {showDiff ? "Hide diff" : "Show diff"}
         </Button>
       </div>
 
-      <DiffStatsBar charsAdded={diff.charsAdded} charsRemoved={diff.charsRemoved} />
+      <DiffStatsBar
+        charsAdded={diff.charsAdded}
+        charsRemoved={diff.charsRemoved}
+      />
 
       {showDiff && <EditDiff diff={diff} showStats={false} />}
     </div>
-  )
+  );
 }
 
 /**
@@ -286,16 +315,24 @@ export function QuickComparison({
  */
 export interface TabbedVersionViewProps {
   /** All versions */
-  versions: MessageVersion[]
+  versions: MessageVersion[];
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
-export function TabbedVersionView({ versions, className }: TabbedVersionViewProps) {
-  const sortedVersions = [...versions].sort((a, b) => b.versionNumber - a.versionNumber)
+export function TabbedVersionView({
+  versions,
+  className,
+}: TabbedVersionViewProps) {
+  const sortedVersions = [...versions].sort(
+    (a, b) => b.versionNumber - a.versionNumber,
+  );
 
   return (
-    <Tabs defaultValue={sortedVersions[0]?.versionNumber.toString()} className={className}>
+    <Tabs
+      defaultValue={sortedVersions[0]?.versionNumber.toString()}
+      className={className}
+    >
       <TabsList className="w-full justify-start overflow-x-auto">
         {sortedVersions.map((version) => (
           <TabsTrigger
@@ -319,7 +356,11 @@ export function TabbedVersionView({ versions, className }: TabbedVersionViewProp
       </TabsList>
 
       {sortedVersions.map((version) => (
-        <TabsContent key={version.id} value={version.versionNumber.toString()} className="mt-4">
+        <TabsContent
+          key={version.id}
+          value={version.versionNumber.toString()}
+          className="mt-4"
+        >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
@@ -333,11 +374,13 @@ export function TabbedVersionView({ versions, className }: TabbedVersionViewProp
               </div>
             </div>
             <div className="bg-muted/30 rounded-md border p-4">
-              <pre className="whitespace-pre-wrap font-mono text-sm">{version.content}</pre>
+              <pre className="whitespace-pre-wrap font-mono text-sm">
+                {version.content}
+              </pre>
             </div>
           </div>
         </TabsContent>
       ))}
     </Tabs>
-  )
+  );
 }

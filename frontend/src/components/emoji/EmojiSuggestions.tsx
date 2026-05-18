@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * EmojiSuggestions - Display emoji suggestions in a horizontal or vertical list
@@ -6,10 +6,10 @@
  * Used for showing quick emoji suggestions based on context or search
  */
 
-import { memo, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import type { AutocompleteSuggestion } from '@/lib/emoji/emoji-types'
+import { memo, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import type { AutocompleteSuggestion } from "@/lib/emoji/emoji-types";
 
 // ============================================================================
 // Types
@@ -17,21 +17,21 @@ import type { AutocompleteSuggestion } from '@/lib/emoji/emoji-types'
 
 export interface EmojiSuggestionsProps {
   /** List of suggestions to display */
-  suggestions: AutocompleteSuggestion[]
+  suggestions: AutocompleteSuggestion[];
   /** Called when an emoji is selected */
-  onSelect: (suggestion: AutocompleteSuggestion) => void
+  onSelect: (suggestion: AutocompleteSuggestion) => void;
   /** Layout direction */
-  direction?: 'horizontal' | 'vertical'
+  direction?: "horizontal" | "vertical";
   /** Show shortcode labels */
-  showLabels?: boolean
+  showLabels?: boolean;
   /** Size of emoji display */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Maximum items to show (horizontal only) */
-  maxItems?: number
+  maxItems?: number;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Empty state message */
-  emptyMessage?: string
+  emptyMessage?: string;
 }
 
 // ============================================================================
@@ -40,21 +40,21 @@ export interface EmojiSuggestionsProps {
 
 const sizeConfig = {
   sm: {
-    emoji: 'text-lg',
-    button: 'w-8 h-8',
-    gap: 'gap-1',
+    emoji: "text-lg",
+    button: "w-8 h-8",
+    gap: "gap-1",
   },
   md: {
-    emoji: 'text-xl',
-    button: 'w-10 h-10',
-    gap: 'gap-1.5',
+    emoji: "text-xl",
+    button: "w-10 h-10",
+    gap: "gap-1.5",
   },
   lg: {
-    emoji: 'text-2xl',
-    button: 'w-12 h-12',
-    gap: 'gap-2',
+    emoji: "text-2xl",
+    button: "w-12 h-12",
+    gap: "gap-2",
   },
-}
+};
 
 // ============================================================================
 // Component
@@ -63,52 +63,54 @@ const sizeConfig = {
 export const EmojiSuggestions = memo(function EmojiSuggestions({
   suggestions,
   onSelect,
-  direction = 'horizontal',
+  direction = "horizontal",
   showLabels = false,
-  size = 'md',
+  size = "md",
   maxItems,
   className,
-  emptyMessage = 'No suggestions',
+  emptyMessage = "No suggestions",
 }: EmojiSuggestionsProps) {
-  const config = sizeConfig[size]
+  const config = sizeConfig[size];
 
   const handleSelect = useCallback(
     (suggestion: AutocompleteSuggestion) => {
-      onSelect(suggestion)
+      onSelect(suggestion);
     },
-    [onSelect]
-  )
+    [onSelect],
+  );
 
   // Apply max items limit
-  const displaySuggestions = maxItems ? suggestions.slice(0, maxItems) : suggestions
+  const displaySuggestions = maxItems
+    ? suggestions.slice(0, maxItems)
+    : suggestions;
 
   if (displaySuggestions.length === 0) {
     return (
       <div
         className={cn(
-          'flex items-center justify-center py-4 text-sm text-muted-foreground',
-          className
+          "flex items-center justify-center py-4 text-sm text-muted-foreground",
+          className,
         )}
       >
         {emptyMessage}
       </div>
-    )
+    );
   }
 
-  if (direction === 'horizontal') {
+  if (direction === "horizontal") {
     return (
-      <ScrollArea className={cn('w-full', className)}>
-        <div className={cn('flex items-center', config.gap, 'p-1')}>
+      <ScrollArea className={cn("w-full", className)}>
+        <div className={cn("flex items-center", config.gap, "p-1")}>
           {displaySuggestions.map((suggestion) => (
             <button
               key={suggestion.id}
               type="button"
               onClick={() => handleSelect(suggestion)}
               className={cn(
-                'flex flex-shrink-0 items-center justify-center rounded-md',
-                'transition-colors hover:bg-accent',
-                'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
-                config.button
+                "flex flex-shrink-0 items-center justify-center rounded-md",
+                "transition-colors hover:bg-accent",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+                config.button,
               )}
               title={`${suggestion.displayName} ${suggestion.shortcode}`}
             >
@@ -132,24 +134,24 @@ export const EmojiSuggestions = memo(function EmojiSuggestions({
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-    )
+    );
   }
 
   // Vertical layout
   return (
-    <div className={cn('flex flex-col', config.gap, className)}>
+    <div className={cn("flex flex-col", config.gap, className)}>
       {displaySuggestions.map((suggestion) => (
         <button
           key={suggestion.id}
           type="button"
           onClick={() => handleSelect(suggestion)}
           className={cn(
-            'flex w-full items-center gap-3 rounded-md px-3 py-2',
-            'text-left transition-colors hover:bg-accent',
-            'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1'
+            "flex w-full items-center gap-3 rounded-md px-3 py-2",
+            "text-left transition-colors hover:bg-accent",
+            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
           )}
         >
-          <span className={cn(config.emoji, 'flex-shrink-0')}>
+          <span className={cn(config.emoji, "flex-shrink-0")}>
             {suggestion.isCustom ? (
               <img
                 src={suggestion.emoji}
@@ -163,24 +165,28 @@ export const EmojiSuggestions = memo(function EmojiSuggestions({
 
           {showLabels && (
             <div className="min-w-0 flex-1">
-              <div className="truncate font-medium">{suggestion.displayName}</div>
-              <div className="truncate text-xs text-muted-foreground">{suggestion.shortcode}</div>
+              <div className="truncate font-medium">
+                {suggestion.displayName}
+              </div>
+              <div className="truncate text-xs text-muted-foreground">
+                {suggestion.shortcode}
+              </div>
             </div>
           )}
         </button>
       ))}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Inline Variant
 // ============================================================================
 
 export interface InlineEmojiSuggestionsProps {
-  suggestions: AutocompleteSuggestion[]
-  onSelect: (suggestion: AutocompleteSuggestion) => void
-  className?: string
+  suggestions: AutocompleteSuggestion[];
+  onSelect: (suggestion: AutocompleteSuggestion) => void;
+  className?: string;
 }
 
 export const InlineEmojiSuggestions = memo(function InlineEmojiSuggestions({
@@ -188,10 +194,10 @@ export const InlineEmojiSuggestions = memo(function InlineEmojiSuggestions({
   onSelect,
   className,
 }: InlineEmojiSuggestionsProps) {
-  if (suggestions.length === 0) return null
+  if (suggestions.length === 0) return null;
 
   return (
-    <div className={cn('inline-flex items-center gap-0.5', className)}>
+    <div className={cn("inline-flex items-center gap-0.5", className)}>
       {suggestions.slice(0, 5).map((suggestion) => (
         <button
           key={suggestion.id}
@@ -201,14 +207,18 @@ export const InlineEmojiSuggestions = memo(function InlineEmojiSuggestions({
           title={suggestion.displayName}
         >
           {suggestion.isCustom ? (
-            <img src={suggestion.emoji} alt={suggestion.displayName} className="h-4 w-4" />
+            <img
+              src={suggestion.emoji}
+              alt={suggestion.displayName}
+              className="h-4 w-4"
+            />
           ) : (
             <span className="text-base">{suggestion.emoji}</span>
           )}
         </button>
       ))}
     </div>
-  )
-})
+  );
+});
 
-export default EmojiSuggestions
+export default EmojiSuggestions;

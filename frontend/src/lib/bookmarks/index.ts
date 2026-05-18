@@ -12,7 +12,7 @@ export {
   selectBookmarksByChannel,
   selectUniqueChannels,
   selectRecentBookmarks,
-} from './bookmark-store'
+} from "./bookmark-store";
 
 export type {
   Bookmark,
@@ -26,7 +26,7 @@ export type {
   BookmarkStore,
   SortBy,
   SortOrder,
-} from './bookmark-store'
+} from "./bookmark-store";
 
 // Hooks
 export {
@@ -39,7 +39,7 @@ export {
   useRecentBookmarks,
   useBookmarkCount,
   useBookmarkPanel,
-} from './use-bookmarks'
+} from "./use-bookmarks";
 
 export type {
   UseBookmarksOptions,
@@ -49,4 +49,4 @@ export type {
   UseBookmarkFoldersReturn,
   UseBookmarkSearchReturn,
   UseBookmarkFiltersReturn,
-} from './use-bookmarks'
+} from "./use-bookmarks";

@@ -5,44 +5,44 @@
  * and bulk operations in a real message list.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import {
   MessageItem,
   MessageActions,
   MessageContextMenu,
   BulkMessageActions,
-} from '@/components/chat'
-import { useMessageActions } from '@/hooks'
-import { cn } from '@/lib/utils'
-import type { Message } from '@/types/message'
+} from "@/components/chat";
+import { useMessageActions } from "@/hooks";
+import { cn } from "@/lib/utils";
+import type { Message } from "@/types/message";
 
 // ============================================================================
 // Example 1: Basic Message with Actions
 // ============================================================================
 
 export function MessageWithActions({ message }: { message: Message }) {
-  const [isHovering, setIsHovering] = useState(false)
+  const [isHovering, setIsHovering] = useState(false);
 
   const { handleAction, getPermissions } = useMessageActions({
     channelId: message.channelId,
     onReplyMessage: (msg) => {
-      console.log('Reply to:', msg)
+      console.log("Reply to:", msg);
     },
     onOpenThread: (msg) => {
-      console.log('Open thread for:', msg)
+      console.log("Open thread for:", msg);
     },
     onEditMessage: (msg) => {
-      console.log('Edit:', msg)
+      console.log("Edit:", msg);
     },
     onDeleteMessage: async (id) => {
-      console.log('Delete:', id)
+      console.log("Delete:", id);
     },
-  })
+  });
 
-  const permissions = getPermissions(message)
+  const permissions = getPermissions(message);
 
   return (
     <MessageContextMenu
@@ -69,7 +69,7 @@ export function MessageWithActions({ message }: { message: Message }) {
         </AnimatePresence>
       </div>
     </MessageContextMenu>
-  )
+  );
 }
 
 // ============================================================================
@@ -80,27 +80,30 @@ export function MessageListWithBulk({
   channelId,
   messages,
 }: {
-  channelId: string
-  messages: Message[]
+  channelId: string;
+  messages: Message[];
 }) {
-  const { handleAction, getPermissions, selection, bulkHandlers } = useMessageActions({
-    channelId,
-    enableBulkOperations: true,
-    onReplyMessage: (message) => {
-      console.log('Reply to:', message)
-    },
-    onOpenThread: (message) => {
-      console.log('Open thread:', message)
-    },
-    onEditMessage: (message) => {
-      console.log('Edit:', message)
-    },
-    onDeleteMessage: async (id) => {
-      console.log('Delete:', id)
-    },
-  })
+  const { handleAction, getPermissions, selection, bulkHandlers } =
+    useMessageActions({
+      channelId,
+      enableBulkOperations: true,
+      onReplyMessage: (message) => {
+        console.log("Reply to:", message);
+      },
+      onOpenThread: (message) => {
+        console.log("Open thread:", message);
+      },
+      onEditMessage: (message) => {
+        console.log("Edit:", message);
+      },
+      onDeleteMessage: async (id) => {
+        console.log("Delete:", id);
+      },
+    });
 
-  const selectedMessages = messages.filter((m) => selection.selectedMessages.has(m.id))
+  const selectedMessages = messages.filter((m) =>
+    selection.selectedMessages.has(m.id),
+  );
 
   return (
     <div className="relative">
@@ -110,7 +113,11 @@ export function MessageListWithBulk({
           <div className="sticky top-0 z-20 p-4">
             <BulkMessageActions
               selectedCount={selection.selectedMessages.size}
-              onDelete={() => bulkHandlers.onBulkDelete(Array.from(selection.selectedMessages))}
+              onDelete={() =>
+                bulkHandlers.onBulkDelete(
+                  Array.from(selection.selectedMessages),
+                )
+              }
               onForward={() => bulkHandlers.onBulkForward(selectedMessages)}
               onCopy={() => bulkHandlers.onBulkCopy(selectedMessages)}
               onClearSelection={selection.clearSelection}
@@ -122,8 +129,8 @@ export function MessageListWithBulk({
       {/* Message list */}
       <div className="space-y-1">
         {messages.map((message) => {
-          const permissions = getPermissions(message)
-          const isSelected = selection.selectedMessages.has(message.id)
+          const permissions = getPermissions(message);
+          const isSelected = selection.selectedMessages.has(message.id);
 
           return (
             <MessageContextMenu
@@ -136,14 +143,17 @@ export function MessageListWithBulk({
             >
               {selection.isSelectionMode ? (
                 <div
-                  className={cn('relative cursor-pointer', isSelected && 'bg-primary/5')}
+                  className={cn(
+                    "relative cursor-pointer",
+                    isSelected && "bg-primary/5",
+                  )}
                   role="button"
                   tabIndex={0}
                   onClick={() => selection.toggleSelection(message.id)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      selection.toggleSelection(message.id)
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      selection.toggleSelection(message.id);
                     }
                   }}
                 >
@@ -159,16 +169,16 @@ export function MessageListWithBulk({
                   <MessageItem message={message} className="ml-8" />
                 </div>
               ) : (
-                <div className={cn('relative', isSelected && 'bg-primary/5')}>
+                <div className={cn("relative", isSelected && "bg-primary/5")}>
                   <MessageItem message={message} />
                 </div>
               )}
             </MessageContextMenu>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -179,30 +189,30 @@ export function MobileMessageList({
   channelId,
   messages,
 }: {
-  channelId: string
-  messages: Message[]
+  channelId: string;
+  messages: Message[];
 }) {
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
 
   const { handleAction, getPermissions } = useMessageActions({
     channelId,
     onReplyMessage: (msg) => {
-      console.log('Reply to:', msg)
-      setSelectedMessage(null)
+      console.log("Reply to:", msg);
+      setSelectedMessage(null);
     },
     onOpenThread: (msg) => {
-      console.log('Open thread:', msg)
-      setSelectedMessage(null)
+      console.log("Open thread:", msg);
+      setSelectedMessage(null);
     },
     onEditMessage: (msg) => {
-      console.log('Edit:', msg)
-      setSelectedMessage(null)
+      console.log("Edit:", msg);
+      setSelectedMessage(null);
     },
     onDeleteMessage: async (id) => {
-      console.log('Delete:', id)
-      setSelectedMessage(null)
+      console.log("Delete:", id);
+      setSelectedMessage(null);
     },
-  })
+  });
 
   return (
     <>
@@ -225,14 +235,16 @@ export function MobileMessageList({
           <MessageActions
             message={selectedMessage}
             permissions={getPermissions(selectedMessage)}
-            onAction={(action, data) => handleAction(action, selectedMessage, data)}
+            onAction={(action, data) =>
+              handleAction(action, selectedMessage, data)
+            }
             variant="mobile"
             onClose={() => setSelectedMessage(null)}
           />
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }
 
 // ============================================================================
@@ -243,20 +255,20 @@ export function ThreadMessageList({
   threadId,
   messages,
 }: {
-  threadId: string
-  messages: Message[]
+  threadId: string;
+  messages: Message[];
 }) {
   const { handleAction, getPermissions } = useMessageActions({
     channelId: threadId,
     onReplyMessage: (msg) => {
-      console.log('Reply to:', msg)
+      console.log("Reply to:", msg);
     },
-  })
+  });
 
   return (
     <div className="space-y-0.5">
       {messages.map((message) => {
-        const permissions = getPermissions(message)
+        const permissions = getPermissions(message);
 
         return (
           <MessageContextMenu
@@ -273,23 +285,25 @@ export function ThreadMessageList({
                 <MessageActions
                   message={message}
                   permissions={permissions}
-                  onAction={(action, data) => handleAction(action, message, data)}
+                  onAction={(action, data) =>
+                    handleAction(action, message, data)
+                  }
                   variant="compact"
                 />
               </div>
             </div>
           </MessageContextMenu>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Example 5: Full Integration with GraphQL
 // ============================================================================
 
-import { useMutation } from '@apollo/client'
+import { useMutation } from "@apollo/client";
 import {
   DELETE_MESSAGE,
   PIN_MESSAGE,
@@ -298,16 +312,16 @@ import {
   UNSTAR_MESSAGE,
   ADD_REACTION,
   REMOVE_REACTION,
-} from '@/graphql/mutations/messages'
+} from "@/graphql/mutations/messages";
 
 export function MessageWithGraphQL({ message }: { message: Message }) {
-  const [deleteMessage] = useMutation(DELETE_MESSAGE)
-  const [pinMessage] = useMutation(PIN_MESSAGE)
-  const [unpinMessage] = useMutation(UNPIN_MESSAGE)
-  const [starMessage] = useMutation(STAR_MESSAGE)
-  const [unstarMessage] = useMutation(UNSTAR_MESSAGE)
-  const [addReaction] = useMutation(ADD_REACTION)
-  const [removeReaction] = useMutation(REMOVE_REACTION)
+  const [deleteMessage] = useMutation(DELETE_MESSAGE);
+  const [pinMessage] = useMutation(PIN_MESSAGE);
+  const [unpinMessage] = useMutation(UNPIN_MESSAGE);
+  const [starMessage] = useMutation(STAR_MESSAGE);
+  const [unstarMessage] = useMutation(UNSTAR_MESSAGE);
+  const [addReaction] = useMutation(ADD_REACTION);
+  const [removeReaction] = useMutation(REMOVE_REACTION);
 
   const { handleAction, getPermissions, handlers } = useMessageActions({
     channelId: message.channelId,
@@ -315,11 +329,11 @@ export function MessageWithGraphQL({ message }: { message: Message }) {
       await deleteMessage({
         variables: { id },
         update(cache) {
-          cache.evict({ id: cache.identify({ __typename: 'Message', id }) })
+          cache.evict({ id: cache.identify({ __typename: "Message", id }) });
         },
-      })
+      });
     },
-  })
+  });
 
   // Override handlers with GraphQL mutations
   const customHandlers = {
@@ -329,70 +343,70 @@ export function MessageWithGraphQL({ message }: { message: Message }) {
         variables: { messageId, emoji },
         optimisticResponse: {
           addReaction: {
-            __typename: 'Reaction',
+            __typename: "Reaction",
             emoji,
             count: 1,
             hasReacted: true,
           },
         },
-      })
+      });
     },
     onRemoveReaction: async (messageId: string, emoji: string) => {
       await removeReaction({
         variables: { messageId, emoji },
-      })
+      });
     },
     onPin: async (messageId: string) => {
       await pinMessage({
         variables: { messageId },
         optimisticResponse: {
           pinMessage: {
-            __typename: 'Message',
+            __typename: "Message",
             id: messageId,
             isPinned: true,
           },
         },
-      })
+      });
     },
     onUnpin: async (messageId: string) => {
       await unpinMessage({
         variables: { messageId },
         optimisticResponse: {
           unpinMessage: {
-            __typename: 'Message',
+            __typename: "Message",
             id: messageId,
             isPinned: false,
           },
         },
-      })
+      });
     },
     onBookmark: async (messageId: string) => {
       await starMessage({
         variables: { messageId },
         optimisticResponse: {
           starMessage: {
-            __typename: 'Message',
+            __typename: "Message",
             id: messageId,
             isBookmarked: true,
           },
         },
-      })
+      });
     },
     onUnbookmark: async (messageId: string) => {
       await unstarMessage({
         variables: { messageId },
         optimisticResponse: {
           unstarMessage: {
-            __typename: 'Message',
+            __typename: "Message",
             id: messageId,
             isBookmarked: false,
           },
         },
-      })
+      });
     },
-  }
+  };
 
-  const permissions = getPermissions(message)
+  const permissions = getPermissions(message);
 
   return (
     <MessageContextMenu
@@ -408,5 +422,5 @@ export function MessageWithGraphQL({ message }: { message: Message }) {
         onUnpin={customHandlers.onUnpin}
       />
     </MessageContextMenu>
-  )
+  );
 }

@@ -34,7 +34,7 @@ export {
   type MinimizationResult,
   type MinimizationAuditEntry,
   type MetadataMinimzerConfig,
-} from './metadata-minimizer'
+} from "./metadata-minimizer";
 
 // IP Anonymizer
 export {
@@ -70,7 +70,7 @@ export {
   type GeoApproximation,
   type IPAnonymizerConfig,
   type BatchAnonymizationOptions,
-} from './ip-anonymizer'
+} from "./ip-anonymizer";
 
 // Log Sanitizer
 export {
@@ -100,7 +100,7 @@ export {
   type SanitizationResult,
   type LogSanitizerConfig,
   type SanitizationStats,
-} from './log-sanitizer'
+} from "./log-sanitizer";
 
 // Privacy Settings
 export {
@@ -124,4 +124,4 @@ export {
   type PrivacyAction,
   type PrivacyReport,
   type PrivacySettingsConfig,
-} from './privacy-settings'
+} from "./privacy-settings";

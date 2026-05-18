@@ -16,7 +16,7 @@ export {
   greet,
   getEnvironment,
   type TauriEnvironment,
-} from './tauri-bridge'
+} from "./tauri-bridge";
 
 // Native menu
 export {
@@ -25,7 +25,7 @@ export {
   MenuItemIds,
   type MenuEventHandlers,
   type NavigationTarget,
-} from './native-menu'
+} from "./native-menu";
 
 // System tray
 export {
@@ -37,7 +37,7 @@ export {
   type TrayIconType,
   type UserStatus,
   type TrayEventHandlers,
-} from './tray'
+} from "./tray";
 
 // Notifications
 export {
@@ -51,7 +51,7 @@ export {
   showSystemNotification,
   type NotificationOptions,
   type NotificationPermission,
-} from './notifications'
+} from "./notifications";
 
 // Window management
 export {
@@ -68,7 +68,7 @@ export {
   exitFullscreen,
   isFullscreen,
   toggleFullscreen,
-} from './window'
+} from "./window";
 
 // Deep links
 export {
@@ -77,7 +77,7 @@ export {
   createDeepLink,
   DeepLinks,
   type DeepLinkHandlers,
-} from './deeplinks'
+} from "./deeplinks";
 
 // Auto-start
 export {
@@ -86,7 +86,7 @@ export {
   disableAutoStart,
   isAutoStartEnabled,
   toggleAutoStart,
-} from './autostart'
+} from "./autostart";
 
 // Updater
 export {
@@ -97,17 +97,17 @@ export {
   checkAndInstall,
   type UpdateInfo,
   type UpdateEventHandlers,
-} from './updater'
+} from "./updater";
 
 // Default export with all modules
-import tauriBridge from './tauri-bridge'
-import nativeMenu from './native-menu'
-import tray from './tray'
-import notifications from './notifications'
-import window from './window'
-import deeplinks from './deeplinks'
-import autostart from './autostart'
-import updater from './updater'
+import tauriBridge from "./tauri-bridge";
+import nativeMenu from "./native-menu";
+import tray from "./tray";
+import notifications from "./notifications";
+import window from "./window";
+import deeplinks from "./deeplinks";
+import autostart from "./autostart";
+import updater from "./updater";
 
 export default {
   ...tauriBridge,
@@ -118,4 +118,4 @@ export default {
   deeplinks,
   autostart,
   updater,
-}
+};

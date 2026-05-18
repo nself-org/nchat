@@ -9,7 +9,7 @@
  */
 
 // Types
-export * from './types'
+export * from "./types";
 
 // Core Livechat Service
 export {
@@ -17,7 +17,7 @@ export {
   getLivechatService,
   createLivechatService,
   resetLivechatService,
-} from './livechat.service'
+} from "./livechat.service";
 
 // Routing Service
 export {
@@ -29,7 +29,7 @@ export {
   type RoutingCondition,
   type RoutingAction,
   type RoutingHistoryEntry,
-} from './routing.service'
+} from "./routing.service";
 
 // Canned Responses Service
 export {
@@ -41,7 +41,7 @@ export {
   type CannedResponseSearchOptions,
   type CannedResponseAnalytics,
   type RenderedCannedResponse,
-} from './canned-responses.service'
+} from "./canned-responses.service";
 
 // SLA Service
 export {
@@ -52,4 +52,4 @@ export {
   type SLACheckResult,
   type EscalationRule,
   type EscalationAction,
-} from './sla.service'
+} from "./sla.service";

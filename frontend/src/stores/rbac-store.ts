@@ -5,11 +5,16 @@
  * and permission caching with real-time updates support.
  */
 
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
-import { type Role, type Permission, PERMISSIONS, ROLE_HIERARCHY } from '@/types/rbac'
+import {
+  type Role,
+  type Permission,
+  PERMISSIONS,
+  ROLE_HIERARCHY,
+} from "@/types/rbac";
 import {
   type PermissionResult,
   type PermissionContext,
@@ -18,17 +23,28 @@ import {
   createMessagePermissionRules,
   createChannelPermissionRules,
   createUserPermissionRules,
-} from '@/lib/rbac/permission-builder'
+} from "@/lib/rbac/permission-builder";
 import {
   type ChannelPermissionOverride,
   type ChannelBan,
   type EffectiveChannelPermissions,
   ChannelPermissionManager,
   createChannelPermissionManager,
-} from '@/lib/rbac/channel-permissions'
-import { type CacheKey, PermissionCache, createPermissionCache } from '@/lib/rbac/permission-cache'
-import { type AuditLogEntry, AuditLogger, createAuditLogger } from '@/lib/rbac/audit-logger'
-import { hasPermission as checkRolePermission, getRolePermissions } from '@/lib/rbac/permissions'
+} from "@/lib/rbac/channel-permissions";
+import {
+  type CacheKey,
+  PermissionCache,
+  createPermissionCache,
+} from "@/lib/rbac/permission-cache";
+import {
+  type AuditLogEntry,
+  AuditLogger,
+  createAuditLogger,
+} from "@/lib/rbac/audit-logger";
+import {
+  hasPermission as checkRolePermission,
+  getRolePermissions,
+} from "@/lib/rbac/permissions";
 
 // ============================================================================
 // Types
@@ -38,23 +54,23 @@ import { hasPermission as checkRolePermission, getRolePermissions } from '@/lib/
  * User permission entry
  */
 export interface UserPermissionEntry {
-  userId: string
-  role: Role
-  permissions: Permission[]
-  channelOverrides: Map<string, EffectiveChannelPermissions>
-  lastUpdated: Date
+  userId: string;
+  role: Role;
+  permissions: Permission[];
+  channelOverrides: Map<string, EffectiveChannelPermissions>;
+  lastUpdated: Date;
 }
 
 /**
  * Permission check options
  */
 export interface PermissionCheckOptions {
-  channelId?: string
-  resourceType?: import('@/lib/rbac/permission-builder').ResourceType
-  resourceId?: string
-  resourceOwnerId?: string
-  skipCache?: boolean
-  metadata?: Record<string, unknown>
+  channelId?: string;
+  resourceType?: import("@/lib/rbac/permission-builder").ResourceType;
+  resourceId?: string;
+  resourceOwnerId?: string;
+  skipCache?: boolean;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -62,27 +78,27 @@ export interface PermissionCheckOptions {
  */
 interface RBACState {
   // User permissions
-  userPermissions: Map<string, UserPermissionEntry>
-  currentUserId: string | null
-  currentUserRole: Role | null
+  userPermissions: Map<string, UserPermissionEntry>;
+  currentUserId: string | null;
+  currentUserRole: Role | null;
 
   // Channel permissions
-  channelManager: ChannelPermissionManager
+  channelManager: ChannelPermissionManager;
 
   // Permission engine and cache
-  ruleEngine: PermissionRuleEngine
-  cache: PermissionCache
+  ruleEngine: PermissionRuleEngine;
+  cache: PermissionCache;
 
   // Audit logging
-  auditLogger: AuditLogger
-  auditEnabled: boolean
+  auditLogger: AuditLogger;
+  auditEnabled: boolean;
 
   // Loading and error state
-  isLoading: boolean
-  error: string | null
+  isLoading: boolean;
+  error: string | null;
 
   // Last refresh timestamp
-  lastRefresh: Date | null
+  lastRefresh: Date | null;
 }
 
 /**
@@ -90,69 +106,95 @@ interface RBACState {
  */
 interface RBACActions {
   // User management
-  setCurrentUser: (userId: string, role: Role) => void
-  clearCurrentUser: () => void
-  setUserRole: (userId: string, role: Role) => void
-  getUserRole: (userId: string) => Role | undefined
-  getUserPermissions: (userId: string) => Permission[]
+  setCurrentUser: (userId: string, role: Role) => void;
+  clearCurrentUser: () => void;
+  setUserRole: (userId: string, role: Role) => void;
+  getUserRole: (userId: string) => Role | undefined;
+  getUserPermissions: (userId: string) => Permission[];
 
   // Permission checking
-  hasPermission: (permission: Permission, options?: PermissionCheckOptions) => boolean
-  checkPermission: (permission: Permission, options?: PermissionCheckOptions) => PermissionResult
-  hasAnyPermission: (permissions: Permission[], options?: PermissionCheckOptions) => boolean
-  hasAllPermissions: (permissions: Permission[], options?: PermissionCheckOptions) => boolean
+  hasPermission: (
+    permission: Permission,
+    options?: PermissionCheckOptions,
+  ) => boolean;
+  checkPermission: (
+    permission: Permission,
+    options?: PermissionCheckOptions,
+  ) => PermissionResult;
+  hasAnyPermission: (
+    permissions: Permission[],
+    options?: PermissionCheckOptions,
+  ) => boolean;
+  hasAllPermissions: (
+    permissions: Permission[],
+    options?: PermissionCheckOptions,
+  ) => boolean;
   canManageUser: (
     targetUserId: string,
     targetRole: Role,
-    action: 'ban' | 'kick' | 'mute' | 'demote'
-  ) => PermissionResult
+    action: "ban" | "kick" | "mute" | "demote",
+  ) => PermissionResult;
 
   // Channel permissions
-  setChannelOverride: (override: ChannelPermissionOverride) => void
-  removeChannelOverride: (channelId: string, targetType: 'role' | 'user', targetId: string) => void
-  getChannelOverrides: (channelId: string) => ChannelPermissionOverride[]
-  checkChannelPermission: (channelId: string, permission: Permission) => PermissionResult
-  getEffectiveChannelPermissions: (channelId: string) => EffectiveChannelPermissions | null
+  setChannelOverride: (override: ChannelPermissionOverride) => void;
+  removeChannelOverride: (
+    channelId: string,
+    targetType: "role" | "user",
+    targetId: string,
+  ) => void;
+  getChannelOverrides: (channelId: string) => ChannelPermissionOverride[];
+  checkChannelPermission: (
+    channelId: string,
+    permission: Permission,
+  ) => PermissionResult;
+  getEffectiveChannelPermissions: (
+    channelId: string,
+  ) => EffectiveChannelPermissions | null;
 
   // Channel bans
   banFromChannel: (
     channelId: string,
     userId: string,
-    options?: { reason?: string; duration?: number }
-  ) => void
-  unbanFromChannel: (channelId: string, userId: string) => void
-  isChannelBanned: (channelId: string, userId: string) => boolean
-  getChannelBans: (channelId: string) => ChannelBan[]
+    options?: { reason?: string; duration?: number },
+  ) => void;
+  unbanFromChannel: (channelId: string, userId: string) => void;
+  isChannelBanned: (channelId: string, userId: string) => boolean;
+  getChannelBans: (channelId: string) => ChannelBan[];
 
   // Cache management
-  invalidateCache: (userId?: string) => void
-  invalidateChannelCache: (channelId: string) => void
-  getCacheStats: () => { hits: number; misses: number; size: number; hitRate: number }
+  invalidateCache: (userId?: string) => void;
+  invalidateChannelCache: (channelId: string) => void;
+  getCacheStats: () => {
+    hits: number;
+    misses: number;
+    size: number;
+    hitRate: number;
+  };
 
   // Audit logging
-  setAuditEnabled: (enabled: boolean) => void
-  getAuditLog: (limit?: number) => AuditLogEntry[]
-  clearAuditLog: () => void
+  setAuditEnabled: (enabled: boolean) => void;
+  getAuditLog: (limit?: number) => AuditLogEntry[];
+  clearAuditLog: () => void;
 
   // Refresh and state management
-  refreshPermissions: (userId?: string) => void
-  setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
-  reset: () => void
+  refreshPermissions: (userId?: string) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  reset: () => void;
 }
 
-export type RBACStore = RBACState & RBACActions
+export type RBACStore = RBACState & RBACActions;
 
 // ============================================================================
 // Initial State
 // ============================================================================
 
 const createInitialState = (): RBACState => {
-  const ruleEngine = createRuleEngine()
+  const ruleEngine = createRuleEngine();
   // Register default rules
-  ruleEngine.registerRules(createMessagePermissionRules())
-  ruleEngine.registerRules(createChannelPermissionRules())
-  ruleEngine.registerRules(createUserPermissionRules())
+  ruleEngine.registerRules(createMessagePermissionRules());
+  ruleEngine.registerRules(createChannelPermissionRules());
+  ruleEngine.registerRules(createUserPermissionRules());
 
   return {
     userPermissions: new Map(),
@@ -166,8 +208,8 @@ const createInitialState = (): RBACState => {
     isLoading: false,
     error: null,
     lastRefresh: null,
-  }
-}
+  };
+};
 
 // ============================================================================
 // Store
@@ -185,8 +227,8 @@ export const useRBACStore = create<RBACStore>()(
       setCurrentUser: (userId, role) =>
         set(
           (state) => {
-            state.currentUserId = userId
-            state.currentUserRole = role
+            state.currentUserId = userId;
+            state.currentUserRole = role;
 
             // Initialize user permissions if not exists
             if (!state.userPermissions.has(userId)) {
@@ -196,46 +238,46 @@ export const useRBACStore = create<RBACStore>()(
                 permissions: getRolePermissions(role),
                 channelOverrides: new Map(),
                 lastUpdated: new Date(),
-              })
+              });
             } else {
-              const entry = state.userPermissions.get(userId)!
-              entry.role = role
-              entry.permissions = getRolePermissions(role)
-              entry.lastUpdated = new Date()
+              const entry = state.userPermissions.get(userId)!;
+              entry.role = role;
+              entry.permissions = getRolePermissions(role);
+              entry.lastUpdated = new Date();
             }
 
             // Log login
             if (state.auditEnabled) {
-              state.auditLogger.logLogin({ userId })
+              state.auditLogger.logLogin({ userId });
             }
           },
           false,
-          'rbac/setCurrentUser'
+          "rbac/setCurrentUser",
         ),
 
       clearCurrentUser: () =>
         set(
           (state) => {
             if (state.currentUserId && state.auditEnabled) {
-              state.auditLogger.logLogout({ userId: state.currentUserId })
+              state.auditLogger.logLogout({ userId: state.currentUserId });
             }
-            state.currentUserId = null
-            state.currentUserRole = null
+            state.currentUserId = null;
+            state.currentUserRole = null;
           },
           false,
-          'rbac/clearCurrentUser'
+          "rbac/clearCurrentUser",
         ),
 
       setUserRole: (userId, role) =>
         set(
           (state) => {
-            const existing = state.userPermissions.get(userId)
-            const oldRole = existing?.role
+            const existing = state.userPermissions.get(userId);
+            const oldRole = existing?.role;
 
             if (existing) {
-              existing.role = role
-              existing.permissions = getRolePermissions(role)
-              existing.lastUpdated = new Date()
+              existing.role = role;
+              existing.permissions = getRolePermissions(role);
+              existing.lastUpdated = new Date();
             } else {
               state.userPermissions.set(userId, {
                 userId,
@@ -243,11 +285,11 @@ export const useRBACStore = create<RBACStore>()(
                 permissions: getRolePermissions(role),
                 channelOverrides: new Map(),
                 lastUpdated: new Date(),
-              })
+              });
             }
 
             // Invalidate cache for this user
-            state.cache.invalidateUser(userId)
+            state.cache.invalidateUser(userId);
 
             // Log role change
             if (state.auditEnabled && oldRole && oldRole !== role) {
@@ -255,27 +297,27 @@ export const useRBACStore = create<RBACStore>()(
                 state.auditLogger.logRoleAssigned({
                   userId,
                   role,
-                  actorId: state.currentUserId || 'system',
-                })
+                  actorId: state.currentUserId || "system",
+                });
               } else {
                 state.auditLogger.logRoleRemoved({
                   userId,
                   role: oldRole,
-                  actorId: state.currentUserId || 'system',
-                })
+                  actorId: state.currentUserId || "system",
+                });
               }
             }
           },
           false,
-          'rbac/setUserRole'
+          "rbac/setUserRole",
         ),
 
       getUserRole: (userId) => {
-        return get().userPermissions.get(userId)?.role
+        return get().userPermissions.get(userId)?.role;
       },
 
       getUserPermissions: (userId) => {
-        return get().userPermissions.get(userId)?.permissions || []
+        return get().userPermissions.get(userId)?.permissions || [];
       },
 
       // -----------------------------------------------------------------------
@@ -283,17 +325,27 @@ export const useRBACStore = create<RBACStore>()(
       // -----------------------------------------------------------------------
 
       hasPermission: (permission, options) => {
-        const result = get().checkPermission(permission, options)
-        return result.allowed
+        const result = get().checkPermission(permission, options);
+        return result.allowed;
       },
 
       checkPermission: (permission, options = {}) => {
-        const state = get()
-        const { currentUserId, currentUserRole, ruleEngine, cache, auditLogger, auditEnabled } =
-          state
+        const state = get();
+        const {
+          currentUserId,
+          currentUserRole,
+          ruleEngine,
+          cache,
+          auditLogger,
+          auditEnabled,
+        } = state;
 
         if (!currentUserId || !currentUserRole) {
-          return { allowed: false, reason: 'No user logged in', deniedBy: 'no-user' }
+          return {
+            allowed: false,
+            reason: "No user logged in",
+            deniedBy: "no-user",
+          };
         }
 
         // Build cache key
@@ -302,13 +354,13 @@ export const useRBACStore = create<RBACStore>()(
           permission,
           channelId: options.channelId,
           resourceId: options.resourceId,
-        }
+        };
 
         // Check cache first (unless skipCache)
         if (!options.skipCache) {
-          const cached = cache.get(cacheKey)
+          const cached = cache.get(cacheKey);
           if (cached) {
-            return cached
+            return cached;
           }
         }
 
@@ -321,18 +373,18 @@ export const useRBACStore = create<RBACStore>()(
           resourceId: options.resourceId,
           resourceOwnerId: options.resourceOwnerId,
           metadata: options.metadata,
-        }
+        };
 
         // Check channel-specific permissions if channelId provided
         if (options.channelId) {
           const channelResult = state.channelManager.checkPermission(
             permission,
             { ...context, channelId: options.channelId },
-            getRolePermissions(currentUserRole)
-          )
+            getRolePermissions(currentUserRole),
+          );
 
           if (!options.skipCache) {
-            cache.set(cacheKey, channelResult)
+            cache.set(cacheKey, channelResult);
           }
 
           // Log permission check
@@ -344,17 +396,17 @@ export const useRBACStore = create<RBACStore>()(
               channelId: options.channelId,
               resourceType: options.resourceType,
               resourceId: options.resourceId,
-            })
+            });
           }
 
-          return channelResult
+          return channelResult;
         }
 
         // Use rule engine for non-channel permissions
-        const result = ruleEngine.check(permission, context)
+        const result = ruleEngine.check(permission, context);
 
         if (!options.skipCache) {
-          cache.set(cacheKey, result)
+          cache.set(cacheKey, result);
         }
 
         // Log permission check
@@ -365,59 +417,68 @@ export const useRBACStore = create<RBACStore>()(
             result,
             resourceType: options.resourceType,
             resourceId: options.resourceId,
-          })
+          });
         }
 
-        return result
+        return result;
       },
 
       hasAnyPermission: (permissions, options) => {
-        return permissions.some((p) => get().hasPermission(p, options))
+        return permissions.some((p) => get().hasPermission(p, options));
       },
 
       hasAllPermissions: (permissions, options) => {
-        return permissions.every((p) => get().hasPermission(p, options))
+        return permissions.every((p) => get().hasPermission(p, options));
       },
 
       canManageUser: (targetUserId, targetRole, action) => {
-        const state = get()
-        const { currentUserId, currentUserRole, channelManager, auditLogger, auditEnabled } = state
+        const state = get();
+        const {
+          currentUserId,
+          currentUserRole,
+          channelManager,
+          auditLogger,
+          auditEnabled,
+        } = state;
 
         if (!currentUserId || !currentUserRole) {
-          return { allowed: false, reason: 'No user logged in' }
+          return { allowed: false, reason: "No user logged in" };
         }
 
         // Owner protection
-        if (targetRole === 'owner') {
+        if (targetRole === "owner") {
           const result = {
             allowed: false,
-            reason: 'Cannot modify owner',
-            deniedBy: 'owner-protection',
-          }
+            reason: "Cannot modify owner",
+            deniedBy: "owner-protection",
+          };
           if (auditEnabled) {
             auditLogger.logAccessDenied({
               userId: currentUserId,
-              reason: 'Cannot modify owner',
+              reason: "Cannot modify owner",
               resource: `user:${targetUserId}`,
               metadata: { action, targetRole },
-            })
+            });
           }
-          return result
+          return result;
         }
 
         // Cannot modify self (for demote/ban)
-        if (currentUserId === targetUserId && (action === 'demote' || action === 'ban')) {
-          return { allowed: false, reason: `Cannot ${action} yourself` }
+        if (
+          currentUserId === targetUserId &&
+          (action === "demote" || action === "ban")
+        ) {
+          return { allowed: false, reason: `Cannot ${action} yourself` };
         }
 
         // Use channel manager for ban check (has role hierarchy logic)
         const result = channelManager.canBan(
-          { userId: currentUserId, userRole: currentUserRole, channelId: '' },
+          { userId: currentUserId, userRole: currentUserRole, channelId: "" },
           targetUserId,
-          targetRole
-        )
+          targetRole,
+        );
 
-        return result
+        return result;
       },
 
       // -----------------------------------------------------------------------
@@ -427,63 +488,67 @@ export const useRBACStore = create<RBACStore>()(
       setChannelOverride: (override) =>
         set(
           (state) => {
-            state.channelManager.addOverride(override)
-            state.cache.invalidateChannel(override.channelId)
+            state.channelManager.addOverride(override);
+            state.cache.invalidateChannel(override.channelId);
 
             if (state.auditEnabled) {
               state.auditLogger.logChannelPermissionOverride({
                 channelId: override.channelId,
                 targetType: override.targetType,
                 targetId: override.targetId,
-                actorId: state.currentUserId || 'system',
+                actorId: state.currentUserId || "system",
                 allow: override.allow,
                 deny: override.deny,
-              })
+              });
             }
           },
           false,
-          'rbac/setChannelOverride'
+          "rbac/setChannelOverride",
         ),
 
       removeChannelOverride: (channelId, targetType, targetId) =>
         set(
           (state) => {
-            state.channelManager.removeOverride(channelId, targetType, targetId)
-            state.cache.invalidateChannel(channelId)
+            state.channelManager.removeOverride(
+              channelId,
+              targetType,
+              targetId,
+            );
+            state.cache.invalidateChannel(channelId);
 
             if (state.auditEnabled) {
               state.auditLogger.logChannelPermissionRevoked({
                 channelId,
                 targetType,
                 targetId,
-                actorId: state.currentUserId || 'system',
-              })
+                actorId: state.currentUserId || "system",
+              });
             }
           },
           false,
-          'rbac/removeChannelOverride'
+          "rbac/removeChannelOverride",
         ),
 
       getChannelOverrides: (channelId) => {
-        return get().channelManager.getOverrides(channelId)
+        return get().channelManager.getOverrides(channelId);
       },
 
       checkChannelPermission: (channelId, permission) => {
-        return get().checkPermission(permission, { channelId })
+        return get().checkPermission(permission, { channelId });
       },
 
       getEffectiveChannelPermissions: (channelId) => {
-        const state = get()
-        const { currentUserId, currentUserRole, channelManager } = state
+        const state = get();
+        const { currentUserId, currentUserRole, channelManager } = state;
 
         if (!currentUserId || !currentUserRole) {
-          return null
+          return null;
         }
 
         return channelManager.getEffectivePermissions(
           { userId: currentUserId, userRole: currentUserRole, channelId },
-          getRolePermissions(currentUserRole)
-        )
+          getRolePermissions(currentUserRole),
+        );
       },
 
       // -----------------------------------------------------------------------
@@ -497,55 +562,55 @@ export const useRBACStore = create<RBACStore>()(
               id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
               channelId,
               userId,
-              bannedBy: state.currentUserId || 'system',
+              bannedBy: state.currentUserId || "system",
               bannedAt: new Date(),
               reason: options?.reason,
               expiresAt: options?.duration
                 ? new Date(Date.now() + options.duration * 1000)
                 : undefined,
-            }
+            };
 
-            state.channelManager.banUser(ban)
-            state.cache.invalidateUser(userId)
+            state.channelManager.banUser(ban);
+            state.cache.invalidateUser(userId);
 
             if (state.auditEnabled) {
               state.auditLogger.logUserBanned({
                 userId,
-                actorId: state.currentUserId || 'system',
+                actorId: state.currentUserId || "system",
                 channelId,
                 reason: options?.reason,
                 duration: options?.duration,
-              })
+              });
             }
           },
           false,
-          'rbac/banFromChannel'
+          "rbac/banFromChannel",
         ),
 
       unbanFromChannel: (channelId, userId) =>
         set(
           (state) => {
-            state.channelManager.unbanUser(channelId, userId)
-            state.cache.invalidateUser(userId)
+            state.channelManager.unbanUser(channelId, userId);
+            state.cache.invalidateUser(userId);
 
             if (state.auditEnabled) {
               state.auditLogger.logUserUnbanned({
                 userId,
-                actorId: state.currentUserId || 'system',
+                actorId: state.currentUserId || "system",
                 channelId,
-              })
+              });
             }
           },
           false,
-          'rbac/unbanFromChannel'
+          "rbac/unbanFromChannel",
         ),
 
       isChannelBanned: (channelId, userId) => {
-        return get().channelManager.isBanned(channelId, userId)
+        return get().channelManager.isBanned(channelId, userId);
       },
 
       getChannelBans: (channelId) => {
-        return get().channelManager.getChannelBans(channelId)
+        return get().channelManager.getChannelBans(channelId);
       },
 
       // -----------------------------------------------------------------------
@@ -556,32 +621,32 @@ export const useRBACStore = create<RBACStore>()(
         set(
           (state) => {
             if (userId) {
-              state.cache.invalidateUser(userId)
+              state.cache.invalidateUser(userId);
             } else {
-              state.cache.clear()
+              state.cache.clear();
             }
           },
           false,
-          'rbac/invalidateCache'
+          "rbac/invalidateCache",
         ),
 
       invalidateChannelCache: (channelId) =>
         set(
           (state) => {
-            state.cache.invalidateChannel(channelId)
+            state.cache.invalidateChannel(channelId);
           },
           false,
-          'rbac/invalidateChannelCache'
+          "rbac/invalidateChannelCache",
         ),
 
       getCacheStats: () => {
-        const stats = get().cache.getStats()
+        const stats = get().cache.getStats();
         return {
           hits: stats.hits,
           misses: stats.misses,
           size: stats.size,
           hitRate: stats.hitRate,
-        }
+        };
       },
 
       // -----------------------------------------------------------------------
@@ -591,24 +656,24 @@ export const useRBACStore = create<RBACStore>()(
       setAuditEnabled: (enabled) =>
         set(
           (state) => {
-            state.auditEnabled = enabled
-            state.auditLogger.setEnabled(enabled)
+            state.auditEnabled = enabled;
+            state.auditLogger.setEnabled(enabled);
           },
           false,
-          'rbac/setAuditEnabled'
+          "rbac/setAuditEnabled",
         ),
 
       getAuditLog: (limit = 100) => {
-        return get().auditLogger.getRecent(limit)
+        return get().auditLogger.getRecent(limit);
       },
 
       clearAuditLog: () =>
         set(
           (state) => {
-            state.auditLogger.clear()
+            state.auditLogger.clear();
           },
           false,
-          'rbac/clearAuditLog'
+          "rbac/clearAuditLog",
         ),
 
       // -----------------------------------------------------------------------
@@ -618,42 +683,42 @@ export const useRBACStore = create<RBACStore>()(
       refreshPermissions: (userId) =>
         set(
           (state) => {
-            const targetUserId = userId || state.currentUserId
-            if (!targetUserId) return
+            const targetUserId = userId || state.currentUserId;
+            if (!targetUserId) return;
 
             // Invalidate cache
-            state.cache.invalidateUser(targetUserId)
+            state.cache.invalidateUser(targetUserId);
 
             // Update last refresh
-            state.lastRefresh = new Date()
+            state.lastRefresh = new Date();
           },
           false,
-          'rbac/refreshPermissions'
+          "rbac/refreshPermissions",
         ),
 
       setLoading: (loading) =>
         set(
           (state) => {
-            state.isLoading = loading
+            state.isLoading = loading;
           },
           false,
-          'rbac/setLoading'
+          "rbac/setLoading",
         ),
 
       setError: (error) =>
         set(
           (state) => {
-            state.error = error
+            state.error = error;
           },
           false,
-          'rbac/setError'
+          "rbac/setError",
         ),
 
-      reset: () => set(() => createInitialState(), false, 'rbac/reset'),
+      reset: () => set(() => createInitialState(), false, "rbac/reset"),
     })),
-    { name: 'rbac-store' }
-  )
-)
+    { name: "rbac-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
@@ -662,23 +727,24 @@ export const useRBACStore = create<RBACStore>()(
 export const selectCurrentUser = (state: RBACStore) => ({
   userId: state.currentUserId,
   role: state.currentUserRole,
-})
+});
 
-export const selectIsOwner = (state: RBACStore) => state.currentUserRole === 'owner'
+export const selectIsOwner = (state: RBACStore) =>
+  state.currentUserRole === "owner";
 
 export const selectIsAdmin = (state: RBACStore) =>
-  state.currentUserRole === 'owner' || state.currentUserRole === 'admin'
+  state.currentUserRole === "owner" || state.currentUserRole === "admin";
 
 export const selectIsModerator = (state: RBACStore) =>
-  state.currentUserRole === 'owner' ||
-  state.currentUserRole === 'admin' ||
-  state.currentUserRole === 'moderator'
+  state.currentUserRole === "owner" ||
+  state.currentUserRole === "admin" ||
+  state.currentUserRole === "moderator";
 
-export const selectIsLoading = (state: RBACStore) => state.isLoading
+export const selectIsLoading = (state: RBACStore) => state.isLoading;
 
-export const selectError = (state: RBACStore) => state.error
+export const selectError = (state: RBACStore) => state.error;
 
-export const selectCacheStats = (state: RBACStore) => state.getCacheStats()
+export const selectCacheStats = (state: RBACStore) => state.getCacheStats();
 
 // ============================================================================
 // Hooks
@@ -689,9 +755,9 @@ export const selectCacheStats = (state: RBACStore) => state.getCacheStats()
  */
 export function useHasPermission(
   permission: Permission,
-  options?: PermissionCheckOptions
+  options?: PermissionCheckOptions,
 ): boolean {
-  return useRBACStore((state) => state.hasPermission(permission, options))
+  return useRBACStore((state) => state.hasPermission(permission, options));
 }
 
 /**
@@ -699,9 +765,9 @@ export function useHasPermission(
  */
 export function useHasAnyPermission(
   permissions: Permission[],
-  options?: PermissionCheckOptions
+  options?: PermissionCheckOptions,
 ): boolean {
-  return useRBACStore((state) => state.hasAnyPermission(permissions, options))
+  return useRBACStore((state) => state.hasAnyPermission(permissions, options));
 }
 
 /**
@@ -709,35 +775,35 @@ export function useHasAnyPermission(
  */
 export function useHasAllPermissions(
   permissions: Permission[],
-  options?: PermissionCheckOptions
+  options?: PermissionCheckOptions,
 ): boolean {
-  return useRBACStore((state) => state.hasAllPermissions(permissions, options))
+  return useRBACStore((state) => state.hasAllPermissions(permissions, options));
 }
 
 /**
  * Hook to get current user role
  */
 export function useCurrentRole(): Role | null {
-  return useRBACStore((state) => state.currentUserRole)
+  return useRBACStore((state) => state.currentUserRole);
 }
 
 /**
  * Hook to check if current user is owner
  */
 export function useIsOwner(): boolean {
-  return useRBACStore(selectIsOwner)
+  return useRBACStore(selectIsOwner);
 }
 
 /**
  * Hook to check if current user is admin or above
  */
 export function useIsAdmin(): boolean {
-  return useRBACStore(selectIsAdmin)
+  return useRBACStore(selectIsAdmin);
 }
 
 /**
  * Hook to check if current user is moderator or above
  */
 export function useIsModerator(): boolean {
-  return useRBACStore(selectIsModerator)
+  return useRBACStore(selectIsModerator);
 }

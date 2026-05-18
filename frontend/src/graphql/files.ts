@@ -5,89 +5,100 @@
  * Uses nchat_attachments table for file records.
  */
 
-import { gql } from '@apollo/client'
-import { ATTACHMENT_FRAGMENT, USER_BASIC_FRAGMENT, CHANNEL_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import {
+  ATTACHMENT_FRAGMENT,
+  USER_BASIC_FRAGMENT,
+  CHANNEL_BASIC_FRAGMENT,
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type FileType = 'image' | 'video' | 'audio' | 'document' | 'archive' | 'code' | 'other'
+export type FileType =
+  | "image"
+  | "video"
+  | "audio"
+  | "document"
+  | "archive"
+  | "code"
+  | "other";
 
 export type FileCategory =
-  | 'image/jpeg'
-  | 'image/png'
-  | 'image/gif'
-  | 'image/webp'
-  | 'video/mp4'
-  | 'video/webm'
-  | 'audio/mpeg'
-  | 'audio/wav'
-  | 'application/pdf'
-  | 'application/msword'
-  | 'application/zip'
-  | 'text/plain'
-  | 'text/csv'
+  | "image/jpeg"
+  | "image/png"
+  | "image/gif"
+  | "image/webp"
+  | "video/mp4"
+  | "video/webm"
+  | "audio/mpeg"
+  | "audio/wav"
+  | "application/pdf"
+  | "application/msword"
+  | "application/zip"
+  | "text/plain"
+  | "text/csv";
 
 export interface UploadFileVariables {
-  fileName: string
-  fileType: string
-  fileSize: number
-  channelId?: string
-  messageId?: string
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  channelId?: string;
+  messageId?: string;
 }
 
 export interface CreateFileRecordVariables {
-  id?: string
-  messageId: string
-  userId: string
-  channelId?: string
-  fileName: string
-  originalName: string
-  fileType: string
-  fileSize: number
-  storagePath: string
-  fileUrl: string
-  thumbnailUrl?: string
-  width?: number
-  height?: number
-  duration?: number
-  metadata?: Record<string, unknown>
+  id?: string;
+  messageId: string;
+  userId: string;
+  channelId?: string;
+  fileName: string;
+  originalName: string;
+  fileType: string;
+  fileSize: number;
+  storagePath: string;
+  fileUrl: string;
+  thumbnailUrl?: string;
+  width?: number;
+  height?: number;
+  duration?: number;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DeleteFileVariables {
-  id: string
+  id: string;
 }
 
 export interface GetFilesVariables {
-  channelId?: string
-  userId?: string
-  fileType?: string
-  limit?: number
-  offset?: number
+  channelId?: string;
+  userId?: string;
+  fileType?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface UpdateFileMetadataVariables {
-  id: string
-  metadata: Record<string, unknown>
+  id: string;
+  metadata: Record<string, unknown>;
 }
 
 export interface GenerateThumbnailVariables {
-  fileId: string
+  fileId: string;
 }
 
 export interface UploadUrlResponse {
-  presignedUrl: string
-  fileKey: string
-  fileUrl: string
-  expiresIn: number
+  presignedUrl: string;
+  fileKey: string;
+  fileUrl: string;
+  expiresIn: number;
 }
 
 export interface FileUploadProgress {
-  fileKey: string
-  progress: number
-  status: 'uploading' | 'processing' | 'complete' | 'failed'
-  error?: string
+  fileKey: string;
+  progress: number;
+  status: "uploading" | "processing" | "complete" | "failed";
+  error?: string;
 }
 
 // ============================================================================
@@ -119,7 +130,7 @@ export const ATTACHMENT_FULL_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -148,25 +159,33 @@ export const GET_FILE_BY_ID = gql`
   ${ATTACHMENT_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get file by storage path
  */
 export const GET_FILE_BY_STORAGE_PATH = gql`
   query GetFileByStoragePath($storagePath: String!) {
-    nchat_attachments(where: { storage_path: { _eq: $storagePath } }, limit: 1) {
+    nchat_attachments(
+      where: { storage_path: { _eq: $storagePath } }
+      limit: 1
+    ) {
       ...AttachmentFull
     }
   }
   ${ATTACHMENT_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get all files in a channel
  */
 export const GET_CHANNEL_FILES = gql`
-  query GetChannelFiles($channelId: uuid!, $fileType: String, $limit: Int = 50, $offset: Int = 0) {
+  query GetChannelFiles(
+    $channelId: uuid!
+    $fileType: String
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_attachments(
       where: {
         channel_id: { _eq: $channelId }
@@ -203,7 +222,7 @@ export const GET_CHANNEL_FILES = gql`
   }
   ${ATTACHMENT_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get files by type (images, videos, documents, etc.)
@@ -285,7 +304,7 @@ export const GET_FILES_BY_TYPE = gql`
     }
   }
   ${ATTACHMENT_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get recent files shared by a user
@@ -306,7 +325,9 @@ export const GET_USER_FILES = gql`
         }
       }
     }
-    nchat_attachments_aggregate(where: { user_id: { _eq: $userId }, is_deleted: { _eq: false } }) {
+    nchat_attachments_aggregate(
+      where: { user_id: { _eq: $userId }, is_deleted: { _eq: false } }
+    ) {
       aggregate {
         count
         sum {
@@ -317,7 +338,7 @@ export const GET_USER_FILES = gql`
   }
   ${ATTACHMENT_FULL_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get attachments for a specific message
@@ -332,7 +353,7 @@ export const GET_MESSAGE_FILES = gql`
     }
   }
   ${ATTACHMENT_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get file statistics for a channel
@@ -384,7 +405,9 @@ export const GET_CHANNEL_FILE_STATS = gql`
       where: {
         channel_id: { _eq: $channelId }
         is_deleted: { _eq: false }
-        file_type: { _in: ["application/pdf", "application/msword", "text/plain"] }
+        file_type: {
+          _in: ["application/pdf", "application/msword", "text/plain"]
+        }
       }
     ) {
       aggregate {
@@ -410,14 +433,16 @@ export const GET_CHANNEL_FILE_STATS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get storage usage for user
  */
 export const GET_USER_STORAGE_USAGE = gql`
   query GetUserStorageUsage($userId: uuid!) {
-    nchat_attachments_aggregate(where: { user_id: { _eq: $userId }, is_deleted: { _eq: false } }) {
+    nchat_attachments_aggregate(
+      where: { user_id: { _eq: $userId }, is_deleted: { _eq: false } }
+    ) {
       aggregate {
         count
         sum {
@@ -426,7 +451,7 @@ export const GET_USER_STORAGE_USAGE = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get storage usage for workspace
@@ -442,7 +467,7 @@ export const GET_STORAGE_USAGE = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Search files by name or type
@@ -458,7 +483,12 @@ export const SEARCH_FILES = gql`
     nchat_attachments(
       where: {
         _and: [
-          { _or: [{ file_name: { _ilike: $query } }, { original_name: { _ilike: $query } }] }
+          {
+            _or: [
+              { file_name: { _ilike: $query } }
+              { original_name: { _ilike: $query } }
+            ]
+          }
           { file_type: { _ilike: $fileType } }
           { channel_id: { _eq: $channelId } }
           { is_deleted: { _eq: false } }
@@ -484,7 +514,7 @@ export const SEARCH_FILES = gql`
   ${ATTACHMENT_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get recent files (workspace-wide)
@@ -512,7 +542,7 @@ export const GET_RECENT_FILES = gql`
   ${ATTACHMENT_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Check if file exists by content hash (for deduplication)
@@ -532,7 +562,7 @@ export const GET_FILE_BY_HASH = gql`
       file_url
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -585,19 +615,25 @@ export const INSERT_FILE = gql`
       }
       on_conflict: {
         constraint: nchat_attachments_pkey
-        update_columns: [file_url, thumbnail_url, processing_status, metadata, updated_at]
+        update_columns: [
+          file_url
+          thumbnail_url
+          processing_status
+          metadata
+          updated_at
+        ]
       }
     ) {
       ...AttachmentFull
     }
   }
   ${ATTACHMENT_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Create file record after upload (alias)
  */
-export const CREATE_FILE = INSERT_FILE
+export const CREATE_FILE = INSERT_FILE;
 
 /**
  * Create multiple files at once
@@ -612,7 +648,7 @@ export const CREATE_FILES = gql`
     }
   }
   ${ATTACHMENT_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update file metadata
@@ -645,20 +681,23 @@ export const UPDATE_FILE = gql`
     }
   }
   ${ATTACHMENT_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update file metadata only
  */
 export const UPDATE_FILE_METADATA = gql`
   mutation UpdateFileMetadata($id: uuid!, $metadata: jsonb!) {
-    update_nchat_attachments_by_pk(pk_columns: { id: $id }, _append: { metadata: $metadata }) {
+    update_nchat_attachments_by_pk(
+      pk_columns: { id: $id }
+      _append: { metadata: $metadata }
+    ) {
       id
       metadata
       updated_at
     }
   }
-`
+`;
 
 /**
  * Update processing status
@@ -689,7 +728,7 @@ export const UPDATE_PROCESSING_STATUS = gql`
     }
   }
   ${ATTACHMENT_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Soft delete a file
@@ -705,7 +744,7 @@ export const DELETE_FILE = gql`
       deleted_at
     }
   }
-`
+`;
 
 /**
  * Hard delete a file (permanent)
@@ -720,7 +759,7 @@ export const HARD_DELETE_FILE = gql`
       file_name
     }
   }
-`
+`;
 
 /**
  * Delete all files for a message
@@ -740,7 +779,7 @@ export const DELETE_MESSAGE_FILES = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Bulk delete files
@@ -761,7 +800,7 @@ export const BULK_DELETE_FILES = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Restore soft-deleted file
@@ -776,7 +815,7 @@ export const RESTORE_FILE = gql`
       is_deleted
     }
   }
-`
+`;
 
 /**
  * Update file name
@@ -791,7 +830,7 @@ export const UPDATE_FILE_NAME = gql`
       file_name
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -818,7 +857,7 @@ export const CHANNEL_FILES_SUBSCRIPTION = gql`
   }
   ${ATTACHMENT_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to file processing status
@@ -837,7 +876,7 @@ export const FILE_PROCESSING_SUBSCRIPTION = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Subscribe to file stream
@@ -861,4 +900,4 @@ export const FILES_STREAM_SUBSCRIPTION = gql`
   }
   ${ATTACHMENT_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;

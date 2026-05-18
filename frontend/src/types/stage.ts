@@ -5,7 +5,7 @@
  * stage moderation, and scheduled stage events.
  */
 
-import type { UserBasicInfo } from './user'
+import type { UserBasicInfo } from "./user";
 
 // =============================================================================
 // Stage Role Types
@@ -14,27 +14,31 @@ import type { UserBasicInfo } from './user'
 /**
  * Role types in a stage channel
  */
-export type StageRole = 'moderator' | 'speaker' | 'listener'
+export type StageRole = "moderator" | "speaker" | "listener";
 
 /**
  * Stage channel status
  */
 export type StageStatus =
-  | 'scheduled' // Event scheduled for future
-  | 'starting' // About to start
-  | 'live' // Currently active
-  | 'paused' // Temporarily paused
-  | 'ended' // Stage has ended
+  | "scheduled" // Event scheduled for future
+  | "starting" // About to start
+  | "live" // Currently active
+  | "paused" // Temporarily paused
+  | "ended"; // Stage has ended
 
 /**
  * Hand raise request status
  */
-export type HandRaiseStatus = 'pending' | 'accepted' | 'declined' | 'lowered'
+export type HandRaiseStatus = "pending" | "accepted" | "declined" | "lowered";
 
 /**
  * Stage participant connection state
  */
-export type StageConnectionState = 'connecting' | 'connected' | 'disconnected' | 'reconnecting'
+export type StageConnectionState =
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "reconnecting";
 
 // =============================================================================
 // Stage Channel Types
@@ -45,51 +49,51 @@ export type StageConnectionState = 'connecting' | 'connected' | 'disconnected' |
  */
 export interface StageChannel {
   /** Unique stage channel ID */
-  id: string
+  id: string;
   /** Parent channel ID */
-  channelId: string
+  channelId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Stage channel name */
-  name: string
+  name: string;
   /** Current topic being discussed */
-  topic: string
+  topic: string;
   /** Detailed description */
-  description?: string
+  description?: string;
   /** Stage status */
-  status: StageStatus
+  status: StageStatus;
   /** Whether the stage is publicly discoverable */
-  isDiscoverable: boolean
+  isDiscoverable: boolean;
   /** Maximum number of listeners (0 = unlimited) */
-  maxListeners: number
+  maxListeners: number;
   /** Maximum number of speakers (0 = unlimited) */
-  maxSpeakers: number
+  maxSpeakers: number;
   /** User who created the stage */
-  createdBy: string
+  createdBy: string;
   /** When the stage was created */
-  createdAt: Date
+  createdAt: Date;
   /** When the stage was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** When the stage started (if live) */
-  startedAt?: Date
+  startedAt?: Date;
   /** When the stage ended */
-  endedAt?: Date
+  endedAt?: Date;
   /** Scheduled start time (if scheduled) */
-  scheduledStartTime?: Date
+  scheduledStartTime?: Date;
   /** Scheduled end time (optional) */
-  scheduledEndTime?: Date
+  scheduledEndTime?: Date;
   /** Stage banner/cover image URL */
-  bannerUrl?: string
+  bannerUrl?: string;
   /** Stage icon URL */
-  iconUrl?: string
+  iconUrl?: string;
   /** Whether recording is enabled */
-  isRecordingEnabled: boolean
+  isRecordingEnabled: boolean;
   /** Whether the stage is currently being recorded */
-  isRecording: boolean
+  isRecording: boolean;
   /** Recording URL (after stage ends) */
-  recordingUrl?: string
+  recordingUrl?: string;
   /** Stage settings */
-  settings: StageSettings
+  settings: StageSettings;
 }
 
 /**
@@ -97,29 +101,29 @@ export interface StageChannel {
  */
 export interface StageSettings {
   /** Allow listeners to request to speak */
-  allowRaiseHand: boolean
+  allowRaiseHand: boolean;
   /** Auto-accept raise hand requests */
-  autoAcceptRaiseHand: boolean
+  autoAcceptRaiseHand: boolean;
   /** Maximum pending raise hand requests */
-  maxPendingRequests: number
+  maxPendingRequests: number;
   /** Notify moderators of raise hand requests */
-  notifyOnRaiseHand: boolean
+  notifyOnRaiseHand: boolean;
   /** Allow chat during stage */
-  allowChat: boolean
+  allowChat: boolean;
   /** Allow reactions during stage */
-  allowReactions: boolean
+  allowReactions: boolean;
   /** Mute listeners by default */
-  muteListenersOnJoin: boolean
+  muteListenersOnJoin: boolean;
   /** Allow speakers to mute themselves */
-  allowSpeakerSelfMute: boolean
+  allowSpeakerSelfMute: boolean;
   /** Timeout for raise hand requests (seconds, 0 = no timeout) */
-  raiseHandTimeout: number
+  raiseHandTimeout: number;
   /** Whether the stage requires moderation to join */
-  moderatedJoin: boolean
+  moderatedJoin: boolean;
   /** Custom welcome message */
-  welcomeMessage?: string
+  welcomeMessage?: string;
   /** Custom rules/guidelines */
-  stageRules?: string
+  stageRules?: string;
 }
 
 /**
@@ -136,7 +140,7 @@ export const DEFAULT_STAGE_SETTINGS: StageSettings = {
   allowSpeakerSelfMute: true,
   raiseHandTimeout: 0,
   moderatedJoin: false,
-}
+};
 
 // =============================================================================
 // Stage Participant Types
@@ -147,39 +151,39 @@ export const DEFAULT_STAGE_SETTINGS: StageSettings = {
  */
 export interface StageParticipant {
   /** Participant ID */
-  id: string
+  id: string;
   /** Stage ID */
-  stageId: string
+  stageId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Participant role in stage */
-  role: StageRole
+  role: StageRole;
   /** Whether audio is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Whether speaking (audio activity) */
-  isSpeaking: boolean
+  isSpeaking: boolean;
   /** Audio level (0-1) */
-  audioLevel: number
+  audioLevel: number;
   /** Connection state */
-  connectionState: StageConnectionState
+  connectionState: StageConnectionState;
   /** When they joined the stage */
-  joinedAt: Date
+  joinedAt: Date;
   /** When they became a speaker (if applicable) */
-  becameSpeakerAt?: Date
+  becameSpeakerAt?: Date;
   /** Whether they have raised hand */
-  hasRaisedHand: boolean
+  hasRaisedHand: boolean;
   /** Whether they are server muted (by moderator) */
-  isServerMuted: boolean
+  isServerMuted: boolean;
   /** Whether they are server deafened (by moderator) */
-  isServerDeafened: boolean
+  isServerDeafened: boolean;
   /** Stream reference */
-  stream?: MediaStream
+  stream?: MediaStream;
   /** Position in speaker order (for display) */
-  speakerPosition?: number
+  speakerPosition?: number;
   /** Custom display name in this stage */
-  displayName?: string
+  displayName?: string;
 }
 
 /**
@@ -187,27 +191,27 @@ export interface StageParticipant {
  */
 export interface RaiseHandRequest {
   /** Request ID */
-  id: string
+  id: string;
   /** Stage ID */
-  stageId: string
+  stageId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Request status */
-  status: HandRaiseStatus
+  status: HandRaiseStatus;
   /** When the hand was raised */
-  requestedAt: Date
+  requestedAt: Date;
   /** When the request was processed */
-  processedAt?: Date
+  processedAt?: Date;
   /** Who processed the request (moderator) */
-  processedBy?: string
+  processedBy?: string;
   /** Reason for decline (if declined) */
-  declineReason?: string
+  declineReason?: string;
   /** Optional message with the request */
-  message?: string
+  message?: string;
   /** Position in queue */
-  position: number
+  position: number;
 }
 
 // =============================================================================
@@ -219,77 +223,77 @@ export interface RaiseHandRequest {
  */
 export interface StageEvent {
   /** Event ID */
-  id: string
+  id: string;
   /** Stage ID */
-  stageId: string
+  stageId: string;
   /** Event name */
-  name: string
+  name: string;
   /** Event description */
-  description?: string
+  description?: string;
   /** Event cover image */
-  coverImageUrl?: string
+  coverImageUrl?: string;
   /** Scheduled start time */
-  scheduledStart: Date
+  scheduledStart: Date;
   /** Scheduled end time (optional) */
-  scheduledEnd?: Date
+  scheduledEnd?: Date;
   /** Actual start time */
-  actualStart?: Date
+  actualStart?: Date;
   /** Actual end time */
-  actualEnd?: Date
+  actualEnd?: Date;
   /** Event host user ID */
-  hostId: string
+  hostId: string;
   /** Event host details */
-  host: UserBasicInfo
+  host: UserBasicInfo;
   /** Co-hosts */
-  coHostIds: string[]
+  coHostIds: string[];
   /** Invited speaker IDs */
-  invitedSpeakerIds: string[]
+  invitedSpeakerIds: string[];
   /** Event status */
-  status: StageEventStatus
+  status: StageEventStatus;
   /** Whether to send reminder notifications */
-  sendReminders: boolean
+  sendReminders: boolean;
   /** Reminder timing (minutes before) */
-  reminderMinutesBefore: number[]
+  reminderMinutesBefore: number[];
   /** Whether event is recurring */
-  isRecurring: boolean
+  isRecurring: boolean;
   /** Recurrence pattern (if recurring) */
-  recurrencePattern?: StageRecurrencePattern
+  recurrencePattern?: StageRecurrencePattern;
   /** Number of interested users */
-  interestedCount: number
+  interestedCount: number;
   /** When event was created */
-  createdAt: Date
+  createdAt: Date;
   /** When event was last updated */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
  * Stage event status
  */
 export type StageEventStatus =
-  | 'scheduled'
-  | 'starting_soon' // 15 minutes before
-  | 'live'
-  | 'ended'
-  | 'cancelled'
+  | "scheduled"
+  | "starting_soon" // 15 minutes before
+  | "live"
+  | "ended"
+  | "cancelled";
 
 /**
  * Stage recurrence pattern
  */
 export interface StageRecurrencePattern {
   /** Recurrence type */
-  type: 'daily' | 'weekly' | 'biweekly' | 'monthly'
+  type: "daily" | "weekly" | "biweekly" | "monthly";
   /** Days of week for weekly/biweekly (0=Sunday, 6=Saturday) */
-  daysOfWeek?: number[]
+  daysOfWeek?: number[];
   /** Day of month for monthly */
-  dayOfMonth?: number
+  dayOfMonth?: number;
   /** Time of day */
-  timeOfDay: string // HH:MM format
+  timeOfDay: string; // HH:MM format
   /** Timezone */
-  timezone: string
+  timezone: string;
   /** End date (optional) */
-  endDate?: Date
+  endDate?: Date;
   /** Maximum occurrences (optional) */
-  maxOccurrences?: number
+  maxOccurrences?: number;
 }
 
 /**
@@ -297,17 +301,17 @@ export interface StageRecurrencePattern {
  */
 export interface StageEventInterest {
   /** Interest ID */
-  id: string
+  id: string;
   /** Event ID */
-  eventId: string
+  eventId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Whether reminder is enabled */
-  reminderEnabled: boolean
+  reminderEnabled: boolean;
   /** When they expressed interest */
-  createdAt: Date
+  createdAt: Date;
 }
 
 // =============================================================================
@@ -319,31 +323,31 @@ export interface StageEventInterest {
  */
 export interface StageMetrics {
   /** Stage ID */
-  stageId: string
+  stageId: string;
   /** Current listener count */
-  listenerCount: number
+  listenerCount: number;
   /** Current speaker count */
-  speakerCount: number
+  speakerCount: number;
   /** Peak listener count */
-  peakListenerCount: number
+  peakListenerCount: number;
   /** Peak speaker count */
-  peakSpeakerCount: number
+  peakSpeakerCount: number;
   /** Total unique listeners */
-  totalUniqueListeners: number
+  totalUniqueListeners: number;
   /** Average listening duration (seconds) */
-  averageListeningDuration: number
+  averageListeningDuration: number;
   /** Total raise hand requests */
-  totalRaiseHandRequests: number
+  totalRaiseHandRequests: number;
   /** Accepted raise hand requests */
-  acceptedRaiseHandRequests: number
+  acceptedRaiseHandRequests: number;
   /** Declined raise hand requests */
-  declinedRaiseHandRequests: number
+  declinedRaiseHandRequests: number;
   /** Stage duration so far (seconds) */
-  duration: number
+  duration: number;
   /** Reactions count by type */
-  reactionCounts: Record<string, number>
+  reactionCounts: Record<string, number>;
   /** Chat message count */
-  chatMessageCount: number
+  chatMessageCount: number;
 }
 
 // =============================================================================
@@ -354,45 +358,45 @@ export interface StageMetrics {
  * Stage moderation actions
  */
 export type StageModerationAction =
-  | 'invite_to_speak'
-  | 'move_to_audience'
-  | 'mute_speaker'
-  | 'unmute_speaker'
-  | 'remove_from_stage'
-  | 'accept_raise_hand'
-  | 'decline_raise_hand'
-  | 'lower_hand'
-  | 'promote_to_moderator'
-  | 'demote_from_moderator'
-  | 'end_stage'
-  | 'start_recording'
-  | 'stop_recording'
-  | 'pause_stage'
-  | 'resume_stage'
-  | 'update_topic'
+  | "invite_to_speak"
+  | "move_to_audience"
+  | "mute_speaker"
+  | "unmute_speaker"
+  | "remove_from_stage"
+  | "accept_raise_hand"
+  | "decline_raise_hand"
+  | "lower_hand"
+  | "promote_to_moderator"
+  | "demote_from_moderator"
+  | "end_stage"
+  | "start_recording"
+  | "stop_recording"
+  | "pause_stage"
+  | "resume_stage"
+  | "update_topic";
 
 /**
  * Stage moderation log entry
  */
 export interface StageModerationLog {
   /** Log entry ID */
-  id: string
+  id: string;
   /** Stage ID */
-  stageId: string
+  stageId: string;
   /** Action type */
-  action: StageModerationAction
+  action: StageModerationAction;
   /** Moderator who performed the action */
-  moderatorId: string
+  moderatorId: string;
   /** Moderator details */
-  moderator: UserBasicInfo
+  moderator: UserBasicInfo;
   /** Target user ID (if applicable) */
-  targetUserId?: string
+  targetUserId?: string;
   /** Target user details (if applicable) */
-  targetUser?: UserBasicInfo
+  targetUser?: UserBasicInfo;
   /** Additional details */
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>;
   /** When the action was performed */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // =============================================================================
@@ -404,33 +408,33 @@ export interface StageModerationLog {
  */
 export interface CreateStageChannelInput {
   /** Parent channel ID */
-  channelId: string
+  channelId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Stage name */
-  name: string
+  name: string;
   /** Stage topic */
-  topic: string
+  topic: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Maximum listeners */
-  maxListeners?: number
+  maxListeners?: number;
   /** Maximum speakers */
-  maxSpeakers?: number
+  maxSpeakers?: number;
   /** Whether discoverable */
-  isDiscoverable?: boolean
+  isDiscoverable?: boolean;
   /** Banner URL */
-  bannerUrl?: string
+  bannerUrl?: string;
   /** Icon URL */
-  iconUrl?: string
+  iconUrl?: string;
   /** Whether recording is enabled */
-  isRecordingEnabled?: boolean
+  isRecordingEnabled?: boolean;
   /** Stage settings */
-  settings?: Partial<StageSettings>
+  settings?: Partial<StageSettings>;
   /** Scheduled start time (if scheduling) */
-  scheduledStartTime?: Date
+  scheduledStartTime?: Date;
   /** Scheduled end time */
-  scheduledEndTime?: Date
+  scheduledEndTime?: Date;
 }
 
 /**
@@ -438,25 +442,25 @@ export interface CreateStageChannelInput {
  */
 export interface UpdateStageChannelInput {
   /** Stage name */
-  name?: string
+  name?: string;
   /** Stage topic */
-  topic?: string
+  topic?: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Maximum listeners */
-  maxListeners?: number
+  maxListeners?: number;
   /** Maximum speakers */
-  maxSpeakers?: number
+  maxSpeakers?: number;
   /** Whether discoverable */
-  isDiscoverable?: boolean
+  isDiscoverable?: boolean;
   /** Banner URL */
-  bannerUrl?: string
+  bannerUrl?: string;
   /** Icon URL */
-  iconUrl?: string
+  iconUrl?: string;
   /** Whether recording is enabled */
-  isRecordingEnabled?: boolean
+  isRecordingEnabled?: boolean;
   /** Stage settings */
-  settings?: Partial<StageSettings>
+  settings?: Partial<StageSettings>;
 }
 
 /**
@@ -464,29 +468,29 @@ export interface UpdateStageChannelInput {
  */
 export interface CreateStageEventInput {
   /** Stage ID */
-  stageId: string
+  stageId: string;
   /** Event name */
-  name: string
+  name: string;
   /** Event description */
-  description?: string
+  description?: string;
   /** Cover image URL */
-  coverImageUrl?: string
+  coverImageUrl?: string;
   /** Scheduled start time */
-  scheduledStart: Date
+  scheduledStart: Date;
   /** Scheduled end time */
-  scheduledEnd?: Date
+  scheduledEnd?: Date;
   /** Co-host IDs */
-  coHostIds?: string[]
+  coHostIds?: string[];
   /** Invited speaker IDs */
-  invitedSpeakerIds?: string[]
+  invitedSpeakerIds?: string[];
   /** Whether to send reminders */
-  sendReminders?: boolean
+  sendReminders?: boolean;
   /** Reminder timing (minutes before) */
-  reminderMinutesBefore?: number[]
+  reminderMinutesBefore?: number[];
   /** Whether event is recurring */
-  isRecurring?: boolean
+  isRecurring?: boolean;
   /** Recurrence pattern */
-  recurrencePattern?: StageRecurrencePattern
+  recurrencePattern?: StageRecurrencePattern;
 }
 
 /**
@@ -494,27 +498,27 @@ export interface CreateStageEventInput {
  */
 export interface UpdateStageEventInput {
   /** Event name */
-  name?: string
+  name?: string;
   /** Event description */
-  description?: string
+  description?: string;
   /** Cover image URL */
-  coverImageUrl?: string
+  coverImageUrl?: string;
   /** Scheduled start time */
-  scheduledStart?: Date
+  scheduledStart?: Date;
   /** Scheduled end time */
-  scheduledEnd?: Date
+  scheduledEnd?: Date;
   /** Co-host IDs */
-  coHostIds?: string[]
+  coHostIds?: string[];
   /** Invited speaker IDs */
-  invitedSpeakerIds?: string[]
+  invitedSpeakerIds?: string[];
   /** Whether to send reminders */
-  sendReminders?: boolean
+  sendReminders?: boolean;
   /** Reminder timing */
-  reminderMinutesBefore?: number[]
+  reminderMinutesBefore?: number[];
   /** Whether event is recurring */
-  isRecurring?: boolean
+  isRecurring?: boolean;
   /** Recurrence pattern */
-  recurrencePattern?: StageRecurrencePattern
+  recurrencePattern?: StageRecurrencePattern;
 }
 
 // =============================================================================
@@ -525,48 +529,48 @@ export interface UpdateStageEventInput {
  * Stage event types for real-time updates
  */
 export type StageEventType =
-  | 'stage_started'
-  | 'stage_ended'
-  | 'stage_paused'
-  | 'stage_resumed'
-  | 'topic_updated'
-  | 'participant_joined'
-  | 'participant_left'
-  | 'speaker_added'
-  | 'speaker_removed'
-  | 'hand_raised'
-  | 'hand_lowered'
-  | 'hand_accepted'
-  | 'hand_declined'
-  | 'speaker_muted'
-  | 'speaker_unmuted'
-  | 'recording_started'
-  | 'recording_stopped'
-  | 'moderator_added'
-  | 'moderator_removed'
+  | "stage_started"
+  | "stage_ended"
+  | "stage_paused"
+  | "stage_resumed"
+  | "topic_updated"
+  | "participant_joined"
+  | "participant_left"
+  | "speaker_added"
+  | "speaker_removed"
+  | "hand_raised"
+  | "hand_lowered"
+  | "hand_accepted"
+  | "hand_declined"
+  | "speaker_muted"
+  | "speaker_unmuted"
+  | "recording_started"
+  | "recording_stopped"
+  | "moderator_added"
+  | "moderator_removed";
 
 /**
  * Stage event payload
  */
 export interface StageEventPayload {
   /** Event type */
-  type: StageEventType
+  type: StageEventType;
   /** Stage ID */
-  stageId: string
+  stageId: string;
   /** Stage data (for full updates) */
-  stage?: StageChannel
+  stage?: StageChannel;
   /** User ID related to the event */
-  userId?: string
+  userId?: string;
   /** User details */
-  user?: UserBasicInfo
+  user?: UserBasicInfo;
   /** Participant data */
-  participant?: StageParticipant
+  participant?: StageParticipant;
   /** Raise hand request data */
-  raiseHandRequest?: RaiseHandRequest
+  raiseHandRequest?: RaiseHandRequest;
   /** Additional data */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
   /** Event timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // =============================================================================
@@ -578,27 +582,30 @@ export interface StageEventPayload {
  */
 export interface StageServiceCallbacks {
   /** Called when stage status changes */
-  onStageStatusChange?: (stage: StageChannel, previousStatus: StageStatus) => void
+  onStageStatusChange?: (
+    stage: StageChannel,
+    previousStatus: StageStatus,
+  ) => void;
   /** Called when a participant joins */
-  onParticipantJoined?: (participant: StageParticipant) => void
+  onParticipantJoined?: (participant: StageParticipant) => void;
   /** Called when a participant leaves */
-  onParticipantLeft?: (participant: StageParticipant, reason: string) => void
+  onParticipantLeft?: (participant: StageParticipant, reason: string) => void;
   /** Called when a speaker is added */
-  onSpeakerAdded?: (participant: StageParticipant) => void
+  onSpeakerAdded?: (participant: StageParticipant) => void;
   /** Called when a speaker is removed */
-  onSpeakerRemoved?: (participant: StageParticipant, reason: string) => void
+  onSpeakerRemoved?: (participant: StageParticipant, reason: string) => void;
   /** Called when a hand is raised */
-  onHandRaised?: (request: RaiseHandRequest) => void
+  onHandRaised?: (request: RaiseHandRequest) => void;
   /** Called when a hand raise is processed */
-  onHandProcessed?: (request: RaiseHandRequest) => void
+  onHandProcessed?: (request: RaiseHandRequest) => void;
   /** Called when topic changes */
-  onTopicChanged?: (stage: StageChannel, previousTopic: string) => void
+  onTopicChanged?: (stage: StageChannel, previousTopic: string) => void;
   /** Called when active speaker changes */
-  onActiveSpeakerChange?: (speakerId: string | null) => void
+  onActiveSpeakerChange?: (speakerId: string | null) => void;
   /** Called when recording status changes */
-  onRecordingStatusChange?: (isRecording: boolean) => void
+  onRecordingStatusChange?: (isRecording: boolean) => void;
   /** Called on error */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 // =============================================================================
@@ -609,42 +616,42 @@ export interface StageServiceCallbacks {
  * Check if a participant is a speaker
  */
 export function isSpeaker(participant: StageParticipant): boolean {
-  return participant.role === 'speaker' || participant.role === 'moderator'
+  return participant.role === "speaker" || participant.role === "moderator";
 }
 
 /**
  * Check if a participant is a moderator
  */
 export function isModerator(participant: StageParticipant): boolean {
-  return participant.role === 'moderator'
+  return participant.role === "moderator";
 }
 
 /**
  * Check if a participant is a listener
  */
 export function isListener(participant: StageParticipant): boolean {
-  return participant.role === 'listener'
+  return participant.role === "listener";
 }
 
 /**
  * Check if a stage is active
  */
 export function isStageActive(stage: StageChannel): boolean {
-  return stage.status === 'live' || stage.status === 'starting'
+  return stage.status === "live" || stage.status === "starting";
 }
 
 /**
  * Check if a stage is scheduled
  */
 export function isStageScheduled(stage: StageChannel): boolean {
-  return stage.status === 'scheduled'
+  return stage.status === "scheduled";
 }
 
 /**
  * Check if a stage has ended
  */
 export function isStageEnded(stage: StageChannel): boolean {
-  return stage.status === 'ended'
+  return stage.status === "ended";
 }
 
 /**
@@ -652,47 +659,51 @@ export function isStageEnded(stage: StageChannel): boolean {
  */
 export function getStageRoleDisplayName(role: StageRole): string {
   switch (role) {
-    case 'moderator':
-      return 'Moderator'
-    case 'speaker':
-      return 'Speaker'
-    case 'listener':
-      return 'Listener'
+    case "moderator":
+      return "Moderator";
+    case "speaker":
+      return "Speaker";
+    case "listener":
+      return "Listener";
   }
 }
 
 /**
  * Sort raise hand requests by position
  */
-export function sortRaiseHandRequests(requests: RaiseHandRequest[]): RaiseHandRequest[] {
-  return [...requests].sort((a, b) => a.position - b.position)
+export function sortRaiseHandRequests(
+  requests: RaiseHandRequest[],
+): RaiseHandRequest[] {
+  return [...requests].sort((a, b) => a.position - b.position);
 }
 
 /**
  * Sort participants by role and speaking activity
  */
-export function sortStageParticipants(participants: StageParticipant[]): StageParticipant[] {
+export function sortStageParticipants(
+  participants: StageParticipant[],
+): StageParticipant[] {
   const roleOrder: Record<StageRole, number> = {
     moderator: 0,
     speaker: 1,
     listener: 2,
-  }
+  };
 
   return [...participants].sort((a, b) => {
     // Role order first
-    const roleCompare = roleOrder[a.role] - roleOrder[b.role]
-    if (roleCompare !== 0) return roleCompare
+    const roleCompare = roleOrder[a.role] - roleOrder[b.role];
+    if (roleCompare !== 0) return roleCompare;
 
     // Within speakers, sort by speaker position
     if (a.speakerPosition !== undefined && b.speakerPosition !== undefined) {
-      return a.speakerPosition - b.speakerPosition
+      return a.speakerPosition - b.speakerPosition;
     }
 
     // Within listeners, put raised hands first
-    if (a.hasRaisedHand && !b.hasRaisedHand) return -1
-    if (!a.hasRaisedHand && b.hasRaisedHand) return 1
+    if (a.hasRaisedHand && !b.hasRaisedHand) return -1;
+    if (!a.hasRaisedHand && b.hasRaisedHand) return 1;
 
     // Finally, sort by join time
-    return a.joinedAt.getTime() - b.joinedAt.getTime()
-  })
+    return a.joinedAt.getTime() - b.joinedAt.getTime();
+  });
 }

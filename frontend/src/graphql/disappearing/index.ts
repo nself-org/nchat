@@ -4,7 +4,7 @@
  * TypeScript GraphQL queries and mutations for disappearing messages.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // =============================================================================
 // FRAGMENTS
@@ -26,7 +26,7 @@ export const DISAPPEARING_SETTINGS_FRAGMENT = gql`
     updated_at
     updated_by
   }
-`
+`;
 
 export const DISAPPEARING_MESSAGE_FRAGMENT = gql`
   fragment DisappearingMessage on nchat_messages {
@@ -44,7 +44,7 @@ export const DISAPPEARING_MESSAGE_FRAGMENT = gql`
     disappearing_reading_started_at
     created_at
   }
-`
+`;
 
 // =============================================================================
 // QUERIES
@@ -60,7 +60,7 @@ export const GET_DISAPPEARING_SETTINGS = gql`
     }
   }
   ${DISAPPEARING_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Get disappearing settings for multiple channels.
@@ -76,7 +76,7 @@ export const GET_DISAPPEARING_SETTINGS_BULK = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Get messages with active disappearing timers.
@@ -96,7 +96,7 @@ export const GET_DISAPPEARING_MESSAGES = gql`
     }
   }
   ${DISAPPEARING_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get a single message's disappearing data (including content for viewing).
@@ -126,7 +126,7 @@ export const GET_MESSAGE_DISAPPEARING_DATA = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get view-once messages pending viewing.
@@ -155,7 +155,7 @@ export const GET_PENDING_VIEW_ONCE = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get messages expiring soon.
@@ -176,7 +176,7 @@ export const GET_EXPIRING_MESSAGES = gql`
       disappearing_type
     }
   }
-`
+`;
 
 /**
  * Get user's disappearing preferences.
@@ -193,7 +193,7 @@ export const GET_DISAPPEARING_PREFERENCES = gql`
       disappearing_sound_before_expiry
     }
   }
-`
+`;
 
 // =============================================================================
 // MUTATIONS
@@ -203,7 +203,11 @@ export const GET_DISAPPEARING_PREFERENCES = gql`
  * Enable disappearing messages for a channel.
  */
 export const ENABLE_DISAPPEARING = gql`
-  mutation EnableDisappearingMessages($channelId: uuid!, $duration: Int!, $userId: uuid!) {
+  mutation EnableDisappearingMessages(
+    $channelId: uuid!
+    $duration: Int!
+    $userId: uuid!
+  ) {
     insert_nchat_disappearing_settings_one(
       object: {
         channel_id: $channelId
@@ -220,7 +224,7 @@ export const ENABLE_DISAPPEARING = gql`
     }
   }
   ${DISAPPEARING_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Disable disappearing messages for a channel.
@@ -236,7 +240,7 @@ export const DISABLE_DISAPPEARING = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Update disappearing settings.
@@ -254,13 +258,17 @@ export const UPDATE_DISAPPEARING_SETTINGS = gql`
     }
   }
   ${DISAPPEARING_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Create secret chat settings.
  */
 export const CREATE_SECRET_CHAT = gql`
-  mutation CreateSecretChat($channelId: uuid!, $userId: uuid!, $duration: Int!) {
+  mutation CreateSecretChat(
+    $channelId: uuid!
+    $userId: uuid!
+    $duration: Int!
+  ) {
     insert_nchat_disappearing_settings_one(
       object: {
         channel_id: $channelId
@@ -297,7 +305,7 @@ export const CREATE_SECRET_CHAT = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Send a disappearing message.
@@ -338,7 +346,7 @@ export const SEND_DISAPPEARING_MESSAGE = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Mark view-once message as viewed.
@@ -366,7 +374,7 @@ export const MARK_VIEW_ONCE_VIEWED = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Start burn-after-reading timer.
@@ -387,7 +395,7 @@ export const START_BURN_TIMER = gql`
       disappearing_expires_at
     }
   }
-`
+`;
 
 /**
  * Delete expired message.
@@ -403,7 +411,7 @@ export const DELETE_EXPIRED_MESSAGE = gql`
       deleted_at
     }
   }
-`
+`;
 
 /**
  * Bulk delete expired messages.
@@ -421,7 +429,7 @@ export const BULK_DELETE_EXPIRED = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Update user disappearing preferences.
@@ -456,13 +464,17 @@ export const UPDATE_DISAPPEARING_PREFERENCES = gql`
       disappearing_sound_before_expiry
     }
   }
-`
+`;
 
 /**
  * Log screenshot detection.
  */
 export const LOG_SCREENSHOT = gql`
-  mutation LogScreenshotDetection($channelId: uuid!, $userId: uuid!, $messageId: uuid) {
+  mutation LogScreenshotDetection(
+    $channelId: uuid!
+    $userId: uuid!
+    $messageId: uuid
+  ) {
     insert_nchat_screenshot_logs_one(
       object: {
         channel_id: $channelId
@@ -477,7 +489,7 @@ export const LOG_SCREENSHOT = gql`
       detected_at
     }
   }
-`
+`;
 
 // =============================================================================
 // SUBSCRIPTIONS
@@ -493,7 +505,7 @@ export const DISAPPEARING_SETTINGS_SUBSCRIPTION = gql`
     }
   }
   ${DISAPPEARING_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to message expirations in a channel.
@@ -515,7 +527,7 @@ export const MESSAGE_EXPIRATION_SUBSCRIPTION = gql`
       deleted_at
     }
   }
-`
+`;
 
 /**
  * Subscribe to view-once message views.
@@ -538,50 +550,50 @@ export const VIEW_ONCE_VIEWED_SUBSCRIPTION = gql`
       disappearing_viewed_by
     }
   }
-`
+`;
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
 export interface DisappearingSettingsData {
-  channel_id: string
-  enabled: boolean
-  default_duration: number
-  can_modify: 'owner' | 'admin' | 'all'
-  show_banner: boolean
-  is_secret_chat?: boolean
-  is_encrypted?: boolean
-  screenshot_warning?: boolean
-  prevent_forwarding?: boolean
-  prevent_copying?: boolean
-  hide_notification_content?: boolean
-  updated_at: string
-  updated_by?: string
+  channel_id: string;
+  enabled: boolean;
+  default_duration: number;
+  can_modify: "owner" | "admin" | "all";
+  show_banner: boolean;
+  is_secret_chat?: boolean;
+  is_encrypted?: boolean;
+  screenshot_warning?: boolean;
+  prevent_forwarding?: boolean;
+  prevent_copying?: boolean;
+  hide_notification_content?: boolean;
+  updated_at: string;
+  updated_by?: string;
 }
 
 export interface DisappearingMessageData {
-  id: string
-  channel_id: string
-  user_id: string
-  disappearing_type: 'regular' | 'view_once' | 'burn_after_reading'
-  disappearing_duration?: number
-  disappearing_burn_timer?: number
-  disappearing_expires_at?: string
-  disappearing_viewed?: boolean
-  disappearing_viewed_at?: string
-  disappearing_viewed_by?: string
-  disappearing_is_reading?: boolean
-  disappearing_reading_started_at?: string
-  created_at: string
+  id: string;
+  channel_id: string;
+  user_id: string;
+  disappearing_type: "regular" | "view_once" | "burn_after_reading";
+  disappearing_duration?: number;
+  disappearing_burn_timer?: number;
+  disappearing_expires_at?: string;
+  disappearing_viewed?: boolean;
+  disappearing_viewed_at?: string;
+  disappearing_viewed_by?: string;
+  disappearing_is_reading?: boolean;
+  disappearing_reading_started_at?: string;
+  created_at: string;
 }
 
 export interface UserDisappearingPreferences {
-  id: string
-  disappearing_dm_default: number
-  disappearing_group_default: number
-  disappearing_show_indicators: boolean
-  disappearing_show_countdown: boolean
-  disappearing_warning_seconds: number
-  disappearing_sound_before_expiry: boolean
+  id: string;
+  disappearing_dm_default: number;
+  disappearing_group_default: number;
+  disappearing_show_indicators: boolean;
+  disappearing_show_countdown: boolean;
+  disappearing_warning_seconds: number;
+  disappearing_sound_before_expiry: boolean;
 }

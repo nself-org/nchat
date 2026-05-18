@@ -8,94 +8,94 @@
  * - DELETE: Disable lock
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import {
   getRegistrationLockService,
   LockSetupOptions,
   LockVerificationOptions,
-} from '@/services/auth/registration-lock.service'
-import { RecoveryMethod } from '@/lib/auth/recovery-lock'
+} from "@/services/auth/registration-lock.service";
+import { RecoveryMethod } from "@/lib/auth/recovery-lock";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface EnableLockRequest {
-  action: 'enable'
-  pin: string
-  deviceId?: string
-  enableDeviceBinding?: boolean
+  action: "enable";
+  pin: string;
+  deviceId?: string;
+  enableDeviceBinding?: boolean;
   trustedContacts?: Array<{
-    name: string
-    contactMethod: 'email' | 'phone'
-    contactValue: string
-  }>
-  enableTimeDelayedRecovery?: boolean
-  timeDelayHours?: number
+    name: string;
+    contactMethod: "email" | "phone";
+    contactValue: string;
+  }>;
+  enableTimeDelayedRecovery?: boolean;
+  timeDelayHours?: number;
 }
 
 interface VerifyLockRequest {
-  action: 'verify'
-  pin?: string
-  recoveryKey?: string
-  deviceId?: string
+  action: "verify";
+  pin?: string;
+  recoveryKey?: string;
+  deviceId?: string;
 }
 
 interface InitiateRecoveryRequest {
-  action: 'initiate_recovery'
-  method: RecoveryMethod
-  deviceId?: string
+  action: "initiate_recovery";
+  method: RecoveryMethod;
+  deviceId?: string;
 }
 
 interface CompleteRecoveryRequest {
-  action: 'complete_recovery'
-  requestId: string
-  completionToken: string
+  action: "complete_recovery";
+  requestId: string;
+  completionToken: string;
 }
 
 interface RecordContactResponseRequest {
-  action: 'contact_response'
-  requestId: string
-  contactId: string
-  approved: boolean
-  message?: string
+  action: "contact_response";
+  requestId: string;
+  contactId: string;
+  approved: boolean;
+  message?: string;
 }
 
 interface VerifyIdentityRequest {
-  action: 'verify_identity'
-  requestId: string
-  provider: string
-  verified: boolean
-  userId?: string
+  action: "verify_identity";
+  requestId: string;
+  provider: string;
+  verified: boolean;
+  userId?: string;
 }
 
 interface AddTrustedContactRequest {
-  action: 'add_contact'
-  name: string
-  contactMethod: 'email' | 'phone'
-  contactValue: string
+  action: "add_contact";
+  name: string;
+  contactMethod: "email" | "phone";
+  contactValue: string;
 }
 
 interface VerifyTrustedContactRequest {
-  action: 'verify_contact'
-  contactId: string
-  verificationCode: string
+  action: "verify_contact";
+  contactId: string;
+  verificationCode: string;
 }
 
 interface RemoveTrustedContactRequest {
-  action: 'remove_contact'
-  contactId: string
+  action: "remove_contact";
+  contactId: string;
 }
 
 interface CheckTimeDelayedRequest {
-  action: 'check_time_delayed'
-  requestId: string
+  action: "check_time_delayed";
+  requestId: string;
 }
 
 interface CancelRecoveryRequest {
-  action: 'cancel_recovery'
-  requestId: string
+  action: "cancel_recovery";
+  requestId: string;
 }
 
 type PostRequestBody =
@@ -109,28 +109,31 @@ type PostRequestBody =
   | VerifyTrustedContactRequest
   | RemoveTrustedContactRequest
   | CheckTimeDelayedRequest
-  | CancelRecoveryRequest
+  | CancelRecoveryRequest;
 
 interface ChangePinRequest {
-  action: 'change_pin'
-  currentPin: string
-  newPin: string
-  deviceId?: string
+  action: "change_pin";
+  currentPin: string;
+  newPin: string;
+  deviceId?: string;
 }
 
 interface AddBoundDeviceRequest {
-  action: 'add_device'
-  deviceId: string
-  pin: string
+  action: "add_device";
+  deviceId: string;
+  pin: string;
 }
 
 interface RemoveBoundDeviceRequest {
-  action: 'remove_device'
-  deviceId: string
-  pin: string
+  action: "remove_device";
+  deviceId: string;
+  pin: string;
 }
 
-type PutRequestBody = ChangePinRequest | AddBoundDeviceRequest | RemoveBoundDeviceRequest
+type PutRequestBody =
+  | ChangePinRequest
+  | AddBoundDeviceRequest
+  | RemoveBoundDeviceRequest;
 
 // ============================================================================
 // Helper Functions
@@ -142,8 +145,8 @@ type PutRequestBody = ChangePinRequest | AddBoundDeviceRequest | RemoveBoundDevi
 function getUserId(request: NextRequest): string | null {
   // In production, this would come from authenticated session
   // For now, use header or query param for testing
-  const userId = request.headers.get('x-user-id') || 'test-user'
-  return userId
+  const userId = request.headers.get("x-user-id") || "test-user";
+  return userId;
 }
 
 /**
@@ -151,10 +154,10 @@ function getUserId(request: NextRequest): string | null {
  */
 function getIpAddress(request: NextRequest): string | null {
   return (
-    request.headers.get('x-forwarded-for')?.split(',')[0] ||
-    request.headers.get('x-real-ip') ||
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
     null
-  )
+  );
 }
 
 // ============================================================================
@@ -163,15 +166,15 @@ function getIpAddress(request: NextRequest): string | null {
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = getUserId(request)
+    const userId = getUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const service = getRegistrationLockService()
-    await service.initialize(userId)
+    const service = getRegistrationLockService();
+    await service.initialize(userId);
 
-    const state = service.getCombinedState()
+    const state = service.getCombinedState();
 
     // Sanitize response - don't expose hashes
     const response = {
@@ -189,19 +192,24 @@ export async function GET(request: NextRequest) {
       recoveryLock: {
         isSetUp: state.recoveryLock.isSetUp,
         availableMethods: state.recoveryLock.availableMethods,
-        trustedContactCount: state.recoveryLock.trustedContacts.filter((c) => c.verified).length,
+        trustedContactCount: state.recoveryLock.trustedContacts.filter(
+          (c) => c.verified,
+        ).length,
         activeRequestCount: state.recoveryLock.activeRequests.length,
         successfulRecoveries: state.recoveryLock.successfulRecoveries,
       },
       isBlocked: state.isBlocked,
       blockReason: state.blockReason,
       recoveryOptionsAvailable: state.recoveryOptionsAvailable,
-    }
+    };
 
-    return NextResponse.json(response)
+    return NextResponse.json(response);
   } catch (error) {
-    logger.error('Failed to get registration lock state', { error })
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    logger.error("Failed to get registration lock state", { error });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -211,28 +219,37 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = getUserId(request)
+    const userId = getUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const ipAddress = getIpAddress(request)
-    const body = (await request.json()) as PostRequestBody
+    const ipAddress = getIpAddress(request);
+    const body = (await request.json()) as PostRequestBody;
 
     if (!body || !body.action) {
-      return NextResponse.json({ error: 'Missing action' }, { status: 400 })
+      return NextResponse.json({ error: "Missing action" }, { status: 400 });
     }
 
-    const service = getRegistrationLockService()
-    await service.initialize(userId)
+    const service = getRegistrationLockService();
+    await service.initialize(userId);
 
     switch (body.action) {
-      case 'enable': {
-        const { pin, deviceId, enableDeviceBinding, trustedContacts, enableTimeDelayedRecovery, timeDelayHours } =
-          body as EnableLockRequest
+      case "enable": {
+        const {
+          pin,
+          deviceId,
+          enableDeviceBinding,
+          trustedContacts,
+          enableTimeDelayedRecovery,
+          timeDelayHours,
+        } = body as EnableLockRequest;
 
         if (!pin) {
-          return NextResponse.json({ error: 'PIN is required' }, { status: 400 })
+          return NextResponse.json(
+            { error: "PIN is required" },
+            { status: 400 },
+          );
         }
 
         const options: LockSetupOptions = {
@@ -242,33 +259,34 @@ export async function POST(request: NextRequest) {
           trustedContacts,
           enableTimeDelayedRecovery,
           timeDelayHours,
-        }
+        };
 
-        const result = await service.setupLock(options)
+        const result = await service.setupLock(options);
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
           recoveryKey: result.recoveryKey,
           trustedContactCodes: result.trustedContactCodes,
-          message: 'Registration lock enabled. Save your recovery key securely.',
-        })
+          message:
+            "Registration lock enabled. Save your recovery key securely.",
+        });
       }
 
-      case 'verify': {
-        const { pin, recoveryKey, deviceId } = body as VerifyLockRequest
+      case "verify": {
+        const { pin, recoveryKey, deviceId } = body as VerifyLockRequest;
 
         const options: LockVerificationOptions = {
           pin,
           recoveryKey,
           deviceId,
           ipAddress: ipAddress ?? undefined,
-        }
+        };
 
-        const result = await service.verifyLock(options)
+        const result = await service.verifyLock(options);
 
         if (!result.success) {
           return NextResponse.json(
@@ -278,90 +296,116 @@ export async function POST(request: NextRequest) {
               lockoutExpiresAt: result.lockoutExpiresAt,
               availableRecoveryMethods: result.availableRecoveryMethods,
             },
-            { status: result.lockoutExpiresAt ? 429 : 401 }
-          )
+            { status: result.lockoutExpiresAt ? 429 : 401 },
+          );
         }
 
         return NextResponse.json({
           success: true,
           method: result.method,
-        })
+        });
       }
 
-      case 'initiate_recovery': {
-        const { method, deviceId } = body as InitiateRecoveryRequest
+      case "initiate_recovery": {
+        const { method, deviceId } = body as InitiateRecoveryRequest;
 
         if (!method) {
-          return NextResponse.json({ error: 'Recovery method is required' }, { status: 400 })
+          return NextResponse.json(
+            { error: "Recovery method is required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.initiateRecovery(method, deviceId, ipAddress ?? undefined)
+        const result = await service.initiateRecovery(
+          method,
+          deviceId,
+          ipAddress ?? undefined,
+        );
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
           status: result.newStatus,
           canCompleteAt: result.canCompleteAt,
-        })
+        });
       }
 
-      case 'complete_recovery': {
-        const { requestId, completionToken } = body as CompleteRecoveryRequest
+      case "complete_recovery": {
+        const { requestId, completionToken } = body as CompleteRecoveryRequest;
 
         if (!requestId || !completionToken) {
           return NextResponse.json(
-            { error: 'Request ID and completion token are required' },
-            { status: 400 }
-          )
+            { error: "Request ID and completion token are required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.completeRecovery(requestId, completionToken)
+        const result = await service.completeRecovery(
+          requestId,
+          completionToken,
+        );
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
-          message: 'Account recovered successfully. Please set up a new registration lock.',
-        })
+          message:
+            "Account recovered successfully. Please set up a new registration lock.",
+        });
       }
 
-      case 'contact_response': {
-        const { requestId, contactId, approved, message } = body as RecordContactResponseRequest
+      case "contact_response": {
+        const { requestId, contactId, approved, message } =
+          body as RecordContactResponseRequest;
 
         if (!requestId || !contactId || approved === undefined) {
           return NextResponse.json(
-            { error: 'Request ID, contact ID, and approval status are required' },
-            { status: 400 }
-          )
+            {
+              error: "Request ID, contact ID, and approval status are required",
+            },
+            { status: 400 },
+          );
         }
 
-        const result = await service.recordContactResponse(requestId, contactId, approved, message)
+        const result = await service.recordContactResponse(
+          requestId,
+          contactId,
+          approved,
+          message,
+        );
 
-        if (!result.success && result.newStatus !== 'waiting_contacts') {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+        if (!result.success && result.newStatus !== "waiting_contacts") {
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: result.success,
           status: result.newStatus,
           completionToken: result.completionToken,
-        })
+        });
       }
 
-      case 'verify_identity': {
-        const { requestId, provider, verified, userId: verifiedUserId } =
-          body as VerifyIdentityRequest
+      case "verify_identity": {
+        const {
+          requestId,
+          provider,
+          verified,
+          userId: verifiedUserId,
+        } = body as VerifyIdentityRequest;
 
         if (!requestId || !provider || verified === undefined) {
           return NextResponse.json(
-            { error: 'Request ID, provider, and verification status are required' },
-            { status: 400 }
-          )
+            {
+              error:
+                "Request ID, provider, and verification status are required",
+            },
+            { status: 400 },
+          );
         }
 
         const result = await service.verifyIdentity(requestId, {
@@ -369,92 +413,107 @@ export async function POST(request: NextRequest) {
           verified,
           userId: verifiedUserId,
           verifiedAt: new Date(),
-        })
+        });
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
           status: result.newStatus,
           completionToken: result.completionToken,
-        })
+        });
       }
 
-      case 'add_contact': {
-        const { name, contactMethod, contactValue } = body as AddTrustedContactRequest
+      case "add_contact": {
+        const { name, contactMethod, contactValue } =
+          body as AddTrustedContactRequest;
 
         if (!name || !contactMethod || !contactValue) {
           return NextResponse.json(
-            { error: 'Name, contact method, and contact value are required' },
-            { status: 400 }
-          )
+            { error: "Name, contact method, and contact value are required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.addTrustedContact(name, contactMethod, contactValue)
+        const result = await service.addTrustedContact(
+          name,
+          contactMethod,
+          contactValue,
+        );
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
           contactId: result.contact?.id,
           verificationCode: result.verificationCode,
-          message: 'Send this verification code to your trusted contact.',
-        })
+          message: "Send this verification code to your trusted contact.",
+        });
       }
 
-      case 'verify_contact': {
-        const { contactId, verificationCode } = body as VerifyTrustedContactRequest
+      case "verify_contact": {
+        const { contactId, verificationCode } =
+          body as VerifyTrustedContactRequest;
 
         if (!contactId || !verificationCode) {
           return NextResponse.json(
-            { error: 'Contact ID and verification code are required' },
-            { status: 400 }
-          )
+            { error: "Contact ID and verification code are required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.verifyTrustedContact(contactId, verificationCode)
+        const result = await service.verifyTrustedContact(
+          contactId,
+          verificationCode,
+        );
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
-          message: 'Trusted contact verified.',
-        })
+          message: "Trusted contact verified.",
+        });
       }
 
-      case 'remove_contact': {
-        const { contactId } = body as RemoveTrustedContactRequest
+      case "remove_contact": {
+        const { contactId } = body as RemoveTrustedContactRequest;
 
         if (!contactId) {
-          return NextResponse.json({ error: 'Contact ID is required' }, { status: 400 })
+          return NextResponse.json(
+            { error: "Contact ID is required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.removeTrustedContact(contactId)
+        const result = await service.removeTrustedContact(contactId);
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
-          message: 'Trusted contact removed.',
-        })
+          message: "Trusted contact removed.",
+        });
       }
 
-      case 'check_time_delayed': {
-        const { requestId } = body as CheckTimeDelayedRequest
+      case "check_time_delayed": {
+        const { requestId } = body as CheckTimeDelayedRequest;
 
         if (!requestId) {
-          return NextResponse.json({ error: 'Request ID is required' }, { status: 400 })
+          return NextResponse.json(
+            { error: "Request ID is required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.checkTimeDelayedRecovery(requestId)
+        const result = await service.checkTimeDelayedRecovery(requestId);
 
         return NextResponse.json({
           success: result.success,
@@ -462,34 +521,40 @@ export async function POST(request: NextRequest) {
           canCompleteAt: result.canCompleteAt,
           completionToken: result.completionToken,
           error: result.error,
-        })
+        });
       }
 
-      case 'cancel_recovery': {
-        const { requestId } = body as CancelRecoveryRequest
+      case "cancel_recovery": {
+        const { requestId } = body as CancelRecoveryRequest;
 
         if (!requestId) {
-          return NextResponse.json({ error: 'Request ID is required' }, { status: 400 })
+          return NextResponse.json(
+            { error: "Request ID is required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.cancelRecoveryRequest(requestId)
+        const result = await service.cancelRecoveryRequest(requestId);
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
-          message: 'Recovery request cancelled.',
-        })
+          message: "Recovery request cancelled.",
+        });
       }
 
       default:
-        return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+        return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }
   } catch (error) {
-    logger.error('Failed to process registration lock request', { error })
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    logger.error("Failed to process registration lock request", { error });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -499,87 +564,96 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const userId = getUserId(request)
+    const userId = getUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await request.json()) as PutRequestBody
+    const body = (await request.json()) as PutRequestBody;
 
     if (!body || !body.action) {
-      return NextResponse.json({ error: 'Missing action' }, { status: 400 })
+      return NextResponse.json({ error: "Missing action" }, { status: 400 });
     }
 
-    const service = getRegistrationLockService()
-    await service.initialize(userId)
+    const service = getRegistrationLockService();
+    await service.initialize(userId);
 
     switch (body.action) {
-      case 'change_pin': {
-        const { currentPin, newPin, deviceId } = body as ChangePinRequest
+      case "change_pin": {
+        const { currentPin, newPin, deviceId } = body as ChangePinRequest;
 
         if (!currentPin || !newPin) {
           return NextResponse.json(
-            { error: 'Current PIN and new PIN are required' },
-            { status: 400 }
-          )
+            { error: "Current PIN and new PIN are required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.changePin(currentPin, newPin, deviceId)
+        const result = await service.changePin(currentPin, newPin, deviceId);
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
-          message: 'PIN changed successfully.',
-        })
+          message: "PIN changed successfully.",
+        });
       }
 
-      case 'add_device': {
-        const { deviceId, pin } = body as AddBoundDeviceRequest
+      case "add_device": {
+        const { deviceId, pin } = body as AddBoundDeviceRequest;
 
         if (!deviceId || !pin) {
-          return NextResponse.json({ error: 'Device ID and PIN are required' }, { status: 400 })
+          return NextResponse.json(
+            { error: "Device ID and PIN are required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.addBoundDevice(deviceId, pin)
+        const result = await service.addBoundDevice(deviceId, pin);
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
-          message: 'Device added successfully.',
-        })
+          message: "Device added successfully.",
+        });
       }
 
-      case 'remove_device': {
-        const { deviceId, pin } = body as RemoveBoundDeviceRequest
+      case "remove_device": {
+        const { deviceId, pin } = body as RemoveBoundDeviceRequest;
 
         if (!deviceId || !pin) {
-          return NextResponse.json({ error: 'Device ID and PIN are required' }, { status: 400 })
+          return NextResponse.json(
+            { error: "Device ID and PIN are required" },
+            { status: 400 },
+          );
         }
 
-        const result = await service.removeBoundDevice(deviceId, pin)
+        const result = await service.removeBoundDevice(deviceId, pin);
 
         if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 })
+          return NextResponse.json({ error: result.error }, { status: 400 });
         }
 
         return NextResponse.json({
           success: true,
-          message: 'Device removed successfully.',
-        })
+          message: "Device removed successfully.",
+        });
       }
 
       default:
-        return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+        return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }
   } catch (error) {
-    logger.error('Failed to update registration lock', { error })
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    logger.error("Failed to update registration lock", { error });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -589,34 +663,40 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const userId = getUserId(request)
+    const userId = getUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url)
-    const pin = searchParams.get('pin')
-    const deviceId = searchParams.get('deviceId')
+    const { searchParams } = new URL(request.url);
+    const pin = searchParams.get("pin");
+    const deviceId = searchParams.get("deviceId");
 
     if (!pin) {
-      return NextResponse.json({ error: 'PIN is required to disable lock' }, { status: 400 })
+      return NextResponse.json(
+        { error: "PIN is required to disable lock" },
+        { status: 400 },
+      );
     }
 
-    const service = getRegistrationLockService()
-    await service.initialize(userId)
+    const service = getRegistrationLockService();
+    await service.initialize(userId);
 
-    const result = await service.disableLock(pin, deviceId ?? undefined)
+    const result = await service.disableLock(pin, deviceId ?? undefined);
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 })
+      return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Registration lock disabled.',
-    })
+      message: "Registration lock disabled.",
+    });
   } catch (error) {
-    logger.error('Failed to disable registration lock', { error })
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    logger.error("Failed to disable registration lock", { error });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

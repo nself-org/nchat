@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import React, { ErrorInfo, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { isDevelopment } from '@/lib/environment'
+import React, { ErrorInfo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { isDevelopment } from "@/lib/environment";
 import {
   AlertTriangle,
   RefreshCw,
@@ -13,18 +13,18 @@ import {
   ChevronUp,
   Copy,
   Check,
-} from 'lucide-react'
+} from "lucide-react";
 
 interface ErrorFallbackProps {
-  error: Error | null
-  errorInfo?: ErrorInfo | null
-  onReset?: () => void
-  onReport?: () => Promise<void>
-  showStack?: boolean
-  showReportButton?: boolean
-  className?: string
-  title?: string
-  description?: string
+  error: Error | null;
+  errorInfo?: ErrorInfo | null;
+  onReset?: () => void;
+  onReport?: () => Promise<void>;
+  showStack?: boolean;
+  showReportButton?: boolean;
+  className?: string;
+  title?: string;
+  description?: string;
 }
 
 /**
@@ -39,58 +39,58 @@ export function ErrorFallback({
   showStack = isDevelopment(),
   showReportButton = true,
   className,
-  title = 'Something went wrong',
-  description = 'An unexpected error occurred. Please try again or contact support if the problem persists.',
+  title = "Something went wrong",
+  description = "An unexpected error occurred. Please try again or contact support if the problem persists.",
 }: ErrorFallbackProps) {
-  const [isReporting, setIsReporting] = useState(false)
-  const [reported, setReported] = useState(false)
-  const [showDetails, setShowDetails] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [isReporting, setIsReporting] = useState(false);
+  const [reported, setReported] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleReport = async () => {
     if (onReport) {
-      setIsReporting(true)
+      setIsReporting(true);
       try {
-        await onReport()
-        setReported(true)
+        await onReport();
+        setReported(true);
       } catch {
         // Ignore report errors
       } finally {
-        setIsReporting(false)
+        setIsReporting(false);
       }
     }
-  }
+  };
 
   const handleCopyError = async () => {
     const errorText = [
-      `Error: ${error?.message || 'Unknown error'}`,
-      '',
-      'Stack trace:',
-      error?.stack || 'No stack trace available',
-      '',
-      'Component stack:',
-      errorInfo?.componentStack || 'No component stack available',
-    ].join('\n')
+      `Error: ${error?.message || "Unknown error"}`,
+      "",
+      "Stack trace:",
+      error?.stack || "No stack trace available",
+      "",
+      "Component stack:",
+      errorInfo?.componentStack || "No component stack available",
+    ].join("\n");
 
     try {
-      await navigator.clipboard.writeText(errorText)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(errorText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard API not available
     }
-  }
+  };
 
   const handleGoHome = () => {
-    window.location.href = '/'
-  }
+    window.location.href = "/";
+  };
 
   return (
     <div
       className={cn(
-        'flex min-h-[300px] flex-col items-center justify-center p-8',
-        'bg-white dark:bg-zinc-900',
-        className
+        "flex min-h-[300px] flex-col items-center justify-center p-8",
+        "bg-white dark:bg-zinc-900",
+        className,
       )}
     >
       <div className="w-full max-w-md text-center">
@@ -100,10 +100,14 @@ export function ErrorFallback({
         </div>
 
         {/* Title */}
-        <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">{title}</h2>
+        <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          {title}
+        </h2>
 
         {/* Description */}
-        <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">{description}</p>
+        <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
+          {description}
+        </p>
 
         {/* Error message (dev only) */}
         {showStack && error && (
@@ -138,7 +142,7 @@ export function ErrorFallback({
               disabled={isReporting}
             >
               <Bug className="h-4 w-4" />
-              {isReporting ? 'Reporting...' : 'Report Issue'}
+              {isReporting ? "Reporting..." : "Report Issue"}
             </Button>
           )}
 
@@ -162,7 +166,7 @@ export function ErrorFallback({
               ) : (
                 <ChevronDown className="h-4 w-4" />
               )}
-              {showDetails ? 'Hide' : 'Show'} error details
+              {showDetails ? "Hide" : "Show"} error details
             </button>
 
             {showDetails && (
@@ -203,7 +207,7 @@ export function ErrorFallback({
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default ErrorFallback
+export default ErrorFallback;

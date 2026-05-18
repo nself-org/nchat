@@ -6,9 +6,9 @@
  * be generated once and stored securely.
  */
 
-import type { IdentityKeyPair } from '@/types/encryption'
-import { EncryptionError, EncryptionErrorType } from '@/types/encryption'
-import { logger } from '@/lib/logger'
+import type { IdentityKeyPair } from "@/types/encryption";
+import { EncryptionError, EncryptionErrorType } from "@/types/encryption";
+import { logger } from "@/lib/logger";
 import {
   generateKeyPair,
   generateSigningKeyPair,
@@ -17,43 +17,43 @@ import {
   formatFingerprint,
   uint8ArrayToBase64,
   base64ToUint8Array,
-} from './crypto-primitives'
+} from "./crypto-primitives";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface StoredIdentity {
-  publicKey: string // base64
-  privateKey: string // base64
-  registrationId: number
-  createdAt: number
-  version: number
+  publicKey: string; // base64
+  privateKey: string; // base64
+  registrationId: number;
+  createdAt: number;
+  version: number;
 }
 
 export interface IdentityKeyInfo {
-  publicKey: Uint8Array
-  fingerprint: string
-  registrationId: number
-  createdAt: Date
+  publicKey: Uint8Array;
+  fingerprint: string;
+  registrationId: number;
+  createdAt: Date;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const IDENTITY_STORAGE_KEY = 'nchat_identity_key'
-const CURRENT_VERSION = 1
+const IDENTITY_STORAGE_KEY = "nchat_identity_key";
+const CURRENT_VERSION = 1;
 
 // ============================================================================
 // Identity Key Manager
 // ============================================================================
 
 export class IdentityKeyManager {
-  private static instance: IdentityKeyManager
-  private identityKeyPair: IdentityKeyPair | null = null
-  private registrationId: number | null = null
-  private initialized = false
+  private static instance: IdentityKeyManager;
+  private identityKeyPair: IdentityKeyPair | null = null;
+  private registrationId: number | null = null;
+  private initialized = false;
 
   private constructor() {}
 
@@ -62,9 +62,9 @@ export class IdentityKeyManager {
    */
   static getInstance(): IdentityKeyManager {
     if (!IdentityKeyManager.instance) {
-      IdentityKeyManager.instance = new IdentityKeyManager()
+      IdentityKeyManager.instance = new IdentityKeyManager();
     }
-    return IdentityKeyManager.instance
+    return IdentityKeyManager.instance;
   }
 
   /**
@@ -72,21 +72,21 @@ export class IdentityKeyManager {
    * Loads existing identity or generates new one
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return
+    if (this.initialized) return;
 
-    const stored = this.loadFromStorage()
+    const stored = this.loadFromStorage();
 
     if (stored) {
       this.identityKeyPair = {
         publicKey: base64ToUint8Array(stored.publicKey),
         privateKey: base64ToUint8Array(stored.privateKey),
-      }
-      this.registrationId = stored.registrationId
+      };
+      this.registrationId = stored.registrationId;
     } else {
-      await this.generateNewIdentity()
+      await this.generateNewIdentity();
     }
 
-    this.initialized = true
+    this.initialized = true;
   }
 
   /**
@@ -95,15 +95,15 @@ export class IdentityKeyManager {
    */
   async generateNewIdentity(): Promise<IdentityKeyPair> {
     // Generate a key pair for ECDH operations
-    const keyPair = await generateKeyPair()
+    const keyPair = await generateKeyPair();
 
-    this.identityKeyPair = keyPair
-    this.registrationId = generateRegistrationId()
+    this.identityKeyPair = keyPair;
+    this.registrationId = generateRegistrationId();
 
     // Store the new identity
-    this.saveToStorage()
+    this.saveToStorage();
 
-    return keyPair
+    return keyPair;
   }
 
   /**
@@ -111,22 +111,25 @@ export class IdentityKeyManager {
    */
   async getIdentityKeyPair(): Promise<IdentityKeyPair> {
     if (!this.initialized) {
-      await this.initialize()
+      await this.initialize();
     }
 
     if (!this.identityKeyPair) {
-      throw new EncryptionError(EncryptionErrorType.KEY_NOT_FOUND, 'Identity key pair not found')
+      throw new EncryptionError(
+        EncryptionErrorType.KEY_NOT_FOUND,
+        "Identity key pair not found",
+      );
     }
 
-    return this.identityKeyPair
+    return this.identityKeyPair;
   }
 
   /**
    * Gets only the public key (safe to share)
    */
   async getPublicKey(): Promise<Uint8Array> {
-    const keyPair = await this.getIdentityKeyPair()
-    return keyPair.publicKey
+    const keyPair = await this.getIdentityKeyPair();
+    return keyPair.publicKey;
   }
 
   /**
@@ -134,50 +137,53 @@ export class IdentityKeyManager {
    */
   async getRegistrationId(): Promise<number> {
     if (!this.initialized) {
-      await this.initialize()
+      await this.initialize();
     }
 
     if (this.registrationId === null) {
-      throw new EncryptionError(EncryptionErrorType.KEY_NOT_FOUND, 'Registration ID not found')
+      throw new EncryptionError(
+        EncryptionErrorType.KEY_NOT_FOUND,
+        "Registration ID not found",
+      );
     }
 
-    return this.registrationId
+    return this.registrationId;
   }
 
   /**
    * Gets identity key information (public key, fingerprint, etc.)
    */
   async getIdentityInfo(): Promise<IdentityKeyInfo> {
-    const keyPair = await this.getIdentityKeyPair()
-    const registrationId = await this.getRegistrationId()
-    const fingerprintBytes = await getKeyFingerprint(keyPair.publicKey)
-    const stored = this.loadFromStorage()
+    const keyPair = await this.getIdentityKeyPair();
+    const registrationId = await this.getRegistrationId();
+    const fingerprintBytes = await getKeyFingerprint(keyPair.publicKey);
+    const stored = this.loadFromStorage();
 
     return {
       publicKey: keyPair.publicKey,
       fingerprint: formatFingerprint(fingerprintBytes),
       registrationId,
       createdAt: new Date(stored?.createdAt ?? Date.now()),
-    }
+    };
   }
 
   /**
    * Checks if identity exists
    */
   hasIdentity(): boolean {
-    return this.loadFromStorage() !== null
+    return this.loadFromStorage() !== null;
   }
 
   /**
    * Clears the identity (dangerous - use with caution)
    */
   async clearIdentity(): Promise<void> {
-    this.identityKeyPair = null
-    this.registrationId = null
-    this.initialized = false
+    this.identityKeyPair = null;
+    this.registrationId = null;
+    this.initialized = false;
 
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(IDENTITY_STORAGE_KEY)
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(IDENTITY_STORAGE_KEY);
     }
   }
 
@@ -185,8 +191,8 @@ export class IdentityKeyManager {
    * Exports the public key as base64 for sharing
    */
   async exportPublicKey(): Promise<string> {
-    const publicKey = await this.getPublicKey()
-    return uint8ArrayToBase64(publicKey)
+    const publicKey = await this.getPublicKey();
+    return uint8ArrayToBase64(publicKey);
   }
 
   /**
@@ -196,15 +202,15 @@ export class IdentityKeyManager {
   async getSigningKeyPair(): Promise<IdentityKeyPair> {
     // For signing, we generate a separate ECDSA key pair
     // In production, this should be derived from or stored alongside identity
-    const stored = this.loadFromStorage()
+    const stored = this.loadFromStorage();
 
     if (stored && stored.version >= 1) {
       // Use identity keys for signing (P-256 supports both ECDH and ECDSA)
-      return this.getIdentityKeyPair()
+      return this.getIdentityKeyPair();
     }
 
     // Generate fresh signing keys
-    return generateSigningKeyPair()
+    return generateSigningKeyPair();
   }
 
   // ============================================================================
@@ -215,26 +221,26 @@ export class IdentityKeyManager {
    * Loads identity from storage
    */
   private loadFromStorage(): StoredIdentity | null {
-    if (typeof localStorage === 'undefined') {
-      return null
+    if (typeof localStorage === "undefined") {
+      return null;
     }
 
     try {
-      const stored = localStorage.getItem(IDENTITY_STORAGE_KEY)
-      if (!stored) return null
+      const stored = localStorage.getItem(IDENTITY_STORAGE_KEY);
+      if (!stored) return null;
 
-      const parsed = JSON.parse(stored) as StoredIdentity
+      const parsed = JSON.parse(stored) as StoredIdentity;
 
       // Validate required fields
       if (!parsed.publicKey || !parsed.privateKey || !parsed.registrationId) {
-        logger.warn('Invalid identity key in storage')
-        return null
+        logger.warn("Invalid identity key in storage");
+        return null;
       }
 
-      return parsed
+      return parsed;
     } catch (error) {
-      logger.error('Failed to load identity from storage:', error)
-      return null
+      logger.error("Failed to load identity from storage:", error);
+      return null;
     }
   }
 
@@ -242,15 +248,15 @@ export class IdentityKeyManager {
    * Saves identity to storage
    */
   private saveToStorage(): void {
-    if (typeof localStorage === 'undefined') {
-      return
+    if (typeof localStorage === "undefined") {
+      return;
     }
 
     if (!this.identityKeyPair || this.registrationId === null) {
       throw new EncryptionError(
         EncryptionErrorType.KEY_NOT_FOUND,
-        'Cannot save: identity not initialized'
-      )
+        "Cannot save: identity not initialized",
+      );
     }
 
     const stored: StoredIdentity = {
@@ -259,16 +265,16 @@ export class IdentityKeyManager {
       registrationId: this.registrationId,
       createdAt: Date.now(),
       version: CURRENT_VERSION,
-    }
+    };
 
     try {
-      localStorage.setItem(IDENTITY_STORAGE_KEY, JSON.stringify(stored))
+      localStorage.setItem(IDENTITY_STORAGE_KEY, JSON.stringify(stored));
     } catch (error) {
       throw new EncryptionError(
         EncryptionErrorType.STORAGE_ERROR,
-        'Failed to save identity to storage',
-        error
-      )
+        "Failed to save identity to storage",
+        error,
+      );
     }
   }
 }
@@ -281,41 +287,41 @@ export class IdentityKeyManager {
  * Gets the global identity key manager instance
  */
 export function getIdentityManager(): IdentityKeyManager {
-  return IdentityKeyManager.getInstance()
+  return IdentityKeyManager.getInstance();
 }
 
 /**
  * Generates a new identity key pair (standalone function)
  */
 export async function generateIdentityKeyPair(): Promise<IdentityKeyPair> {
-  return generateKeyPair()
+  return generateKeyPair();
 }
 
 /**
  * Checks if identity key exists
  */
 export function hasIdentityKey(): boolean {
-  return getIdentityManager().hasIdentity()
+  return getIdentityManager().hasIdentity();
 }
 
 /**
  * Gets the current identity public key
  */
 export async function getIdentityPublicKey(): Promise<Uint8Array> {
-  return getIdentityManager().getPublicKey()
+  return getIdentityManager().getPublicKey();
 }
 
 /**
  * Gets the current registration ID
  */
 export async function getRegistrationId(): Promise<number> {
-  return getIdentityManager().getRegistrationId()
+  return getIdentityManager().getRegistrationId();
 }
 
 /**
  * Gets identity fingerprint for display
  */
 export async function getIdentityFingerprint(): Promise<string> {
-  const info = await getIdentityManager().getIdentityInfo()
-  return info.fingerprint
+  const info = await getIdentityManager().getIdentityInfo();
+  return info.fingerprint;
 }

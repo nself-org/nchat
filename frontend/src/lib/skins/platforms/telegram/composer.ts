@@ -31,23 +31,23 @@
  */
 export interface TelegramAttachmentMenuItem {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Display label */
-  label: string
+  label: string;
   /** Icon name */
-  icon: string
+  icon: string;
   /** Icon background color */
-  iconBg: string
+  iconBg: string;
   /** Icon foreground color */
-  iconColor: string
+  iconColor: string;
   /** Whether this action opens a system picker */
-  systemPicker: boolean
+  systemPicker: boolean;
   /** File types accepted (MIME types) */
-  acceptedTypes?: string[]
+  acceptedTypes?: string[];
   /** Maximum file size in bytes (0 = platform default) */
-  maxFileSize?: number
+  maxFileSize?: number;
   /** Sort order in the menu */
-  order: number
+  order: number;
 }
 
 /**
@@ -55,31 +55,31 @@ export interface TelegramAttachmentMenuItem {
  */
 export interface TelegramVoiceRecordingConfig {
   /** Whether voice messages are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum recording duration in seconds */
-  maxDurationSec: number
+  maxDurationSec: number;
   /** Minimum recording duration in seconds */
-  minDurationSec: number
+  minDurationSec: number;
   /** Audio format */
-  format: 'opus' | 'ogg' | 'mp3'
+  format: "opus" | "ogg" | "mp3";
   /** Sample rate in Hz */
-  sampleRate: number
+  sampleRate: number;
   /** Whether waveform visualization is shown during recording */
-  waveformVisualization: boolean
+  waveformVisualization: boolean;
   /** Whether slide-to-cancel is available */
-  slideToCancel: boolean
+  slideToCancel: boolean;
   /** Whether lock-to-hands-free is available */
-  lockToHandsFree: boolean
+  lockToHandsFree: boolean;
   /** Whether playback review before sending is available */
-  playbackReview: boolean
+  playbackReview: boolean;
   /** Whether waveform is shown in the sent message */
-  sentWaveform: boolean
+  sentWaveform: boolean;
   /** Recording indicator color */
-  indicatorColor: string
+  indicatorColor: string;
   /** Waveform bar color */
-  waveformColor: string
+  waveformColor: string;
   /** Waveform played color */
-  waveformPlayedColor: string
+  waveformPlayedColor: string;
 }
 
 /**
@@ -87,23 +87,23 @@ export interface TelegramVoiceRecordingConfig {
  */
 export interface TelegramVideoMessageConfig {
   /** Whether video messages (circles) are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum recording duration in seconds */
-  maxDurationSec: number
+  maxDurationSec: number;
   /** Viewfinder shape */
-  viewfinderShape: 'circle' | 'square'
+  viewfinderShape: "circle" | "square";
   /** Tap-to-record behavior */
-  tapToRecord: boolean
+  tapToRecord: boolean;
   /** Hold-to-record behavior */
-  holdToRecord: boolean
+  holdToRecord: boolean;
   /** Playback loop on receive */
-  playbackLoop: boolean
+  playbackLoop: boolean;
   /** Whether one-time playback option is available */
-  oneTimePlayback: boolean
+  oneTimePlayback: boolean;
   /** Video resolution */
-  maxResolution: string
+  maxResolution: string;
   /** Ring color around viewfinder */
-  ringColor: string
+  ringColor: string;
 }
 
 /**
@@ -111,33 +111,33 @@ export interface TelegramVideoMessageConfig {
  */
 export interface TelegramEmojiPickerConfig {
   /** Whether emoji picker is available */
-  enabled: boolean
+  enabled: boolean;
   /** How the picker is triggered */
-  trigger: 'icon' | 'keyboard-shortcut' | 'both'
+  trigger: "icon" | "keyboard-shortcut" | "both";
   /** Picker position relative to composer */
-  position: 'above' | 'below' | 'overlay'
+  position: "above" | "below" | "overlay";
   /** Whether recent emojis section is shown */
-  recentEmojis: boolean
+  recentEmojis: boolean;
   /** Maximum recent emojis stored */
-  maxRecentEmojis: number
+  maxRecentEmojis: number;
   /** Whether emoji search is available */
-  search: boolean
+  search: boolean;
   /** Whether sticker tab is included */
-  stickersTab: boolean
+  stickersTab: boolean;
   /** Whether GIF tab is included */
-  gifsTab: boolean
+  gifsTab: boolean;
   /** Whether custom emoji are available (Telegram Premium) */
-  customEmoji: boolean
+  customEmoji: boolean;
   /** Skin tone selector */
-  skinToneSelector: boolean
+  skinToneSelector: boolean;
   /** Number of columns in the emoji grid */
-  gridColumns: number
+  gridColumns: number;
   /** Whether animated stickers are supported */
-  animatedStickers: boolean
+  animatedStickers: boolean;
   /** Whether sticker pack search is available */
-  stickerPackSearch: boolean
+  stickerPackSearch: boolean;
   /** Trending stickers section */
-  trendingStickers: boolean
+  trendingStickers: boolean;
 }
 
 /**
@@ -145,21 +145,21 @@ export interface TelegramEmojiPickerConfig {
  */
 export interface TelegramReplyPreviewConfig {
   /** Whether reply preview is shown */
-  enabled: boolean
+  enabled: boolean;
   /** Whether the preview shows the quoted message text */
-  showText: boolean
+  showText: boolean;
   /** Maximum characters shown in the preview */
-  maxPreviewChars: number
+  maxPreviewChars: number;
   /** Whether media thumbnails are shown in the preview */
-  showMediaThumbnail: boolean
+  showMediaThumbnail: boolean;
   /** Close/cancel button available */
-  cancelButton: boolean
+  cancelButton: boolean;
   /** Color accent bar on the left of the preview */
-  accentBar: boolean
+  accentBar: boolean;
   /** Accent bar color (uses sender color) */
-  accentBarColor: string
+  accentBarColor: string;
   /** Background color */
-  backgroundColor: string
+  backgroundColor: string;
 }
 
 /**
@@ -167,17 +167,17 @@ export interface TelegramReplyPreviewConfig {
  */
 export interface TelegramBotCommandConfig {
   /** Whether bot command suggestions are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Trigger character */
-  triggerChar: string
+  triggerChar: string;
   /** Inline bot trigger character */
-  inlineBotTriggerChar: string
+  inlineBotTriggerChar: string;
   /** Whether bot menu button is shown */
-  menuButton: boolean
+  menuButton: boolean;
   /** Whether command descriptions are shown */
-  showDescriptions: boolean
+  showDescriptions: boolean;
   /** Maximum commands shown in suggestion list */
-  maxSuggestions: number
+  maxSuggestions: number;
 }
 
 /**
@@ -185,23 +185,23 @@ export interface TelegramBotCommandConfig {
  */
 export interface TelegramSendButtonConfig {
   /** Send button background color */
-  backgroundColor: string
+  backgroundColor: string;
   /** Send button icon color */
-  iconColor: string
+  iconColor: string;
   /** Button shape */
-  shape: 'circle' | 'rounded' | 'square'
+  shape: "circle" | "rounded" | "square";
   /** Button size */
-  size: string
+  size: string;
   /** Whether the button toggles between send and mic/video */
-  toggleWithMedia: boolean
+  toggleWithMedia: boolean;
   /** Media toggle modes */
-  mediaToggleModes: string[]
+  mediaToggleModes: string[];
   /** Animation when switching between send and mic */
-  toggleAnimation: boolean
+  toggleAnimation: boolean;
   /** Whether long-press shows scheduling options */
-  longPressSchedule: boolean
+  longPressSchedule: boolean;
   /** Whether silent send option is available on long-press */
-  longPressSilent: boolean
+  longPressSilent: boolean;
 }
 
 /**
@@ -209,13 +209,13 @@ export interface TelegramSendButtonConfig {
  */
 export interface TelegramFormattingToolbarConfig {
   /** Whether formatting toolbar is available */
-  enabled: boolean
+  enabled: boolean;
   /** Available formatting options */
-  options: string[]
+  options: string[];
   /** Whether toolbar appears on text selection */
-  showOnSelection: boolean
+  showOnSelection: boolean;
   /** Toolbar position */
-  position: 'above-selection' | 'above-composer' | 'inline'
+  position: "above-selection" | "above-composer" | "inline";
 }
 
 /**
@@ -223,57 +223,57 @@ export interface TelegramFormattingToolbarConfig {
  */
 export interface TelegramComposerConfig {
   /** Composer bar height (min) */
-  minHeight: string
+  minHeight: string;
   /** Composer bar max height before scroll */
-  maxHeight: string
+  maxHeight: string;
   /** Input background color */
-  inputBg: string
+  inputBg: string;
   /** Input text color */
-  inputText: string
+  inputText: string;
   /** Placeholder text */
-  placeholderText: string
+  placeholderText: string;
   /** Placeholder color */
-  placeholderColor: string
+  placeholderColor: string;
   /** Input border radius */
-  inputBorderRadius: string
+  inputBorderRadius: string;
   /** Input padding */
-  inputPadding: string
+  inputPadding: string;
   /** Input font size */
-  inputFontSize: string
+  inputFontSize: string;
   /** Composer background color */
-  composerBg: string
+  composerBg: string;
   /** Whether the composer has a border on top */
-  topBorder: boolean
+  topBorder: boolean;
   /** Top border color */
-  topBorderColor: string
+  topBorderColor: string;
   /** Attachment menu items */
-  attachmentMenu: TelegramAttachmentMenuItem[]
+  attachmentMenu: TelegramAttachmentMenuItem[];
   /** Voice recording configuration */
-  voiceRecording: TelegramVoiceRecordingConfig
+  voiceRecording: TelegramVoiceRecordingConfig;
   /** Video message configuration */
-  videoMessage: TelegramVideoMessageConfig
+  videoMessage: TelegramVideoMessageConfig;
   /** Emoji picker configuration */
-  emojiPicker: TelegramEmojiPickerConfig
+  emojiPicker: TelegramEmojiPickerConfig;
   /** Reply preview configuration */
-  replyPreview: TelegramReplyPreviewConfig
+  replyPreview: TelegramReplyPreviewConfig;
   /** Bot command configuration */
-  botCommands: TelegramBotCommandConfig
+  botCommands: TelegramBotCommandConfig;
   /** Send button configuration */
-  sendButton: TelegramSendButtonConfig
+  sendButton: TelegramSendButtonConfig;
   /** Formatting toolbar configuration */
-  formattingToolbar: TelegramFormattingToolbarConfig
+  formattingToolbar: TelegramFormattingToolbarConfig;
   /** Whether paste-to-send images is supported */
-  pasteImages: boolean
+  pasteImages: boolean;
   /** Whether drag-and-drop file sharing is supported */
-  dragAndDrop: boolean
+  dragAndDrop: boolean;
   /** Whether mention suggestions are shown while typing */
-  mentionSuggestions: boolean
+  mentionSuggestions: boolean;
   /** Whether hashtag suggestions are shown */
-  hashtagSuggestions: boolean
+  hashtagSuggestions: boolean;
   /** Character count display mode */
-  characterCount: 'none' | 'always' | 'near-limit'
+  characterCount: "none" | "always" | "near-limit";
   /** Character count warning threshold (percent of max) */
-  characterCountThreshold: number
+  characterCountThreshold: number;
 }
 
 // ============================================================================
@@ -282,61 +282,61 @@ export interface TelegramComposerConfig {
 
 export const telegramAttachmentMenuLight: TelegramAttachmentMenuItem[] = [
   {
-    id: 'photo-video',
-    label: 'Photo or Video',
-    icon: 'image',
-    iconBg: '#3390EC',
-    iconColor: '#FFFFFF',
+    id: "photo-video",
+    label: "Photo or Video",
+    icon: "image",
+    iconBg: "#3390EC",
+    iconColor: "#FFFFFF",
     systemPicker: true,
-    acceptedTypes: ['image/*', 'video/*'],
+    acceptedTypes: ["image/*", "video/*"],
     maxFileSize: 2 * 1024 * 1024 * 1024,
     order: 1,
   },
   {
-    id: 'file',
-    label: 'File',
-    icon: 'file',
-    iconBg: '#6C5CE7',
-    iconColor: '#FFFFFF',
+    id: "file",
+    label: "File",
+    icon: "file",
+    iconBg: "#6C5CE7",
+    iconColor: "#FFFFFF",
     systemPicker: true,
-    acceptedTypes: ['*/*'],
+    acceptedTypes: ["*/*"],
     maxFileSize: 2 * 1024 * 1024 * 1024,
     order: 2,
   },
   {
-    id: 'location',
-    label: 'Location',
-    icon: 'map-pin',
-    iconBg: '#4FAE4E',
-    iconColor: '#FFFFFF',
+    id: "location",
+    label: "Location",
+    icon: "map-pin",
+    iconBg: "#4FAE4E",
+    iconColor: "#FFFFFF",
     systemPicker: false,
     order: 3,
   },
   {
-    id: 'contact',
-    label: 'Contact',
-    icon: 'user',
-    iconBg: '#E6A817',
-    iconColor: '#FFFFFF',
+    id: "contact",
+    label: "Contact",
+    icon: "user",
+    iconBg: "#E6A817",
+    iconColor: "#FFFFFF",
     systemPicker: false,
     order: 4,
   },
   {
-    id: 'poll',
-    label: 'Poll',
-    icon: 'bar-chart-2',
-    iconBg: '#E53935',
-    iconColor: '#FFFFFF',
+    id: "poll",
+    label: "Poll",
+    icon: "bar-chart-2",
+    iconBg: "#E53935",
+    iconColor: "#FFFFFF",
     systemPicker: false,
     order: 5,
   },
-]
+];
 
 export const telegramAttachmentMenuDark: TelegramAttachmentMenuItem[] =
   telegramAttachmentMenuLight.map((item) => ({
     ...item,
     // Dark mode uses same colored icon backgrounds
-  }))
+  }));
 
 // ============================================================================
 // TELEGRAM VOICE RECORDING CONFIG
@@ -346,24 +346,24 @@ export const telegramVoiceRecordingLight: TelegramVoiceRecordingConfig = {
   enabled: true,
   maxDurationSec: 30 * 60, // 30 minutes
   minDurationSec: 1,
-  format: 'ogg',
+  format: "ogg",
   sampleRate: 48000,
   waveformVisualization: true,
   slideToCancel: true,
   lockToHandsFree: true,
   playbackReview: true,
   sentWaveform: true,
-  indicatorColor: '#E53935',
-  waveformColor: '#B0BEC5',
-  waveformPlayedColor: '#3390EC',
-}
+  indicatorColor: "#E53935",
+  waveformColor: "#B0BEC5",
+  waveformPlayedColor: "#3390EC",
+};
 
 export const telegramVoiceRecordingDark: TelegramVoiceRecordingConfig = {
   ...telegramVoiceRecordingLight,
-  indicatorColor: '#E53935',
-  waveformColor: '#455A64',
-  waveformPlayedColor: '#6AB2F2',
-}
+  indicatorColor: "#E53935",
+  waveformColor: "#455A64",
+  waveformPlayedColor: "#6AB2F2",
+};
 
 // ============================================================================
 // TELEGRAM VIDEO MESSAGE CONFIG
@@ -372,19 +372,19 @@ export const telegramVoiceRecordingDark: TelegramVoiceRecordingConfig = {
 export const telegramVideoMessageLight: TelegramVideoMessageConfig = {
   enabled: true,
   maxDurationSec: 60,
-  viewfinderShape: 'circle',
+  viewfinderShape: "circle",
   tapToRecord: true,
   holdToRecord: true,
   playbackLoop: true,
   oneTimePlayback: true,
-  maxResolution: '384x384',
-  ringColor: '#3390EC',
-}
+  maxResolution: "384x384",
+  ringColor: "#3390EC",
+};
 
 export const telegramVideoMessageDark: TelegramVideoMessageConfig = {
   ...telegramVideoMessageLight,
-  ringColor: '#6AB2F2',
-}
+  ringColor: "#6AB2F2",
+};
 
 // ============================================================================
 // TELEGRAM EMOJI PICKER CONFIG
@@ -392,8 +392,8 @@ export const telegramVideoMessageDark: TelegramVideoMessageConfig = {
 
 export const telegramEmojiPickerConfig: TelegramEmojiPickerConfig = {
   enabled: true,
-  trigger: 'icon',
-  position: 'above',
+  trigger: "icon",
+  position: "above",
   recentEmojis: true,
   maxRecentEmojis: 48,
   search: true,
@@ -405,7 +405,7 @@ export const telegramEmojiPickerConfig: TelegramEmojiPickerConfig = {
   animatedStickers: true,
   stickerPackSearch: true,
   trendingStickers: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM REPLY PREVIEW CONFIG
@@ -418,15 +418,15 @@ export const telegramReplyPreviewLight: TelegramReplyPreviewConfig = {
   showMediaThumbnail: true,
   cancelButton: true,
   accentBar: true,
-  accentBarColor: '#3390EC',
-  backgroundColor: '#F0F2F5',
-}
+  accentBarColor: "#3390EC",
+  backgroundColor: "#F0F2F5",
+};
 
 export const telegramReplyPreviewDark: TelegramReplyPreviewConfig = {
   ...telegramReplyPreviewLight,
-  accentBarColor: '#6AB2F2',
-  backgroundColor: '#242F3D',
-}
+  accentBarColor: "#6AB2F2",
+  backgroundColor: "#242F3D",
+};
 
 // ============================================================================
 // TELEGRAM BOT COMMAND CONFIG
@@ -434,72 +434,73 @@ export const telegramReplyPreviewDark: TelegramReplyPreviewConfig = {
 
 export const telegramBotCommandConfig: TelegramBotCommandConfig = {
   enabled: true,
-  triggerChar: '/',
-  inlineBotTriggerChar: '@',
+  triggerChar: "/",
+  inlineBotTriggerChar: "@",
   menuButton: true,
   showDescriptions: true,
   maxSuggestions: 10,
-}
+};
 
 // ============================================================================
 // TELEGRAM SEND BUTTON CONFIG
 // ============================================================================
 
 export const telegramSendButtonLight: TelegramSendButtonConfig = {
-  backgroundColor: '#3390EC',
-  iconColor: '#FFFFFF',
-  shape: 'circle',
-  size: '44px',
+  backgroundColor: "#3390EC",
+  iconColor: "#FFFFFF",
+  shape: "circle",
+  size: "44px",
   toggleWithMedia: true,
-  mediaToggleModes: ['mic', 'video-message'],
+  mediaToggleModes: ["mic", "video-message"],
   toggleAnimation: true,
   longPressSchedule: true,
   longPressSilent: true,
-}
+};
 
 export const telegramSendButtonDark: TelegramSendButtonConfig = {
   ...telegramSendButtonLight,
-  backgroundColor: '#6AB2F2',
-  iconColor: '#212121',
-}
+  backgroundColor: "#6AB2F2",
+  iconColor: "#212121",
+};
 
 // ============================================================================
 // TELEGRAM FORMATTING TOOLBAR CONFIG
 // ============================================================================
 
-export const telegramFormattingToolbarConfig: TelegramFormattingToolbarConfig = {
-  enabled: true,
-  options: [
-    'bold',
-    'italic',
-    'underline',
-    'strikethrough',
-    'monospace',
-    'spoiler',
-    'link',
-    'quote',
-  ],
-  showOnSelection: true,
-  position: 'above-selection',
-}
+export const telegramFormattingToolbarConfig: TelegramFormattingToolbarConfig =
+  {
+    enabled: true,
+    options: [
+      "bold",
+      "italic",
+      "underline",
+      "strikethrough",
+      "monospace",
+      "spoiler",
+      "link",
+      "quote",
+    ],
+    showOnSelection: true,
+    position: "above-selection",
+  };
 
 // ============================================================================
 // ASSEMBLED TELEGRAM COMPOSER CONFIGS
 // ============================================================================
 
 export const telegramComposerLight: TelegramComposerConfig = {
-  minHeight: '50px',
-  maxHeight: '220px',
-  inputBg: '#FFFFFF',
-  inputText: '#000000',
-  placeholderText: 'Message',
-  placeholderColor: '#707579',
-  inputBorderRadius: '12px',
-  inputPadding: '8px 12px',
-  inputFontSize: '14px',
-  composerBg: '#FFFFFF',
+  minHeight: "50px",
+  maxHeight: "220px",
+  inputBg: "#FFFFFF",
+  inputText: "#000000",
+  placeholderText: "Message",
+  placeholderColor: "#707579",
+  inputBorderRadius: "12px",
+  inputPadding: "8px 12px",
+  inputFontSize: "14px",
+  composerBg: "#FFFFFF",
   topBorder: true,
-  topBorderColor: '#E6E6E6',
+  topBorderColor: "#E6E6E6",
   attachmentMenu: telegramAttachmentMenuLight,
   voiceRecording: telegramVoiceRecordingLight,
   videoMessage: telegramVideoMessageLight,
@@ -512,23 +513,23 @@ export const telegramComposerLight: TelegramComposerConfig = {
   dragAndDrop: true,
   mentionSuggestions: true,
   hashtagSuggestions: true,
-  characterCount: 'near-limit',
+  characterCount: "near-limit",
   characterCountThreshold: 90,
-}
+};
 
 export const telegramComposerDark: TelegramComposerConfig = {
   ...telegramComposerLight,
-  inputBg: '#242F3D',
-  inputText: '#F5F5F5',
-  placeholderColor: '#6D7883',
-  composerBg: '#17212B',
-  topBorderColor: '#303030',
+  inputBg: "#242F3D",
+  inputText: "#F5F5F5",
+  placeholderColor: "#6D7883",
+  composerBg: "#17212B",
+  topBorderColor: "#303030",
   attachmentMenu: telegramAttachmentMenuDark,
   voiceRecording: telegramVoiceRecordingDark,
   videoMessage: telegramVideoMessageDark,
   replyPreview: telegramReplyPreviewDark,
   sendButton: telegramSendButtonDark,
-}
+};
 
 // ============================================================================
 // COMPOSER HELPERS
@@ -538,21 +539,21 @@ export const telegramComposerDark: TelegramComposerConfig = {
  * Get the Telegram composer configuration for the given color mode.
  */
 export function getTelegramComposer(
-  isDarkMode: boolean = false
+  isDarkMode: boolean = false,
 ): TelegramComposerConfig {
-  return isDarkMode ? telegramComposerDark : telegramComposerLight
+  return isDarkMode ? telegramComposerDark : telegramComposerLight;
 }
 
 /**
  * Get the attachment menu items sorted by their order.
  */
 export function getTelegramAttachmentMenu(
-  isDarkMode: boolean = false
+  isDarkMode: boolean = false,
 ): TelegramAttachmentMenuItem[] {
   const menu = isDarkMode
     ? telegramAttachmentMenuDark
-    : telegramAttachmentMenuLight
-  return [...menu].sort((a, b) => a.order - b.order)
+    : telegramAttachmentMenuLight;
+  return [...menu].sort((a, b) => a.order - b.order);
 }
 
 /**
@@ -560,17 +561,17 @@ export function getTelegramAttachmentMenu(
  */
 export function getTelegramAttachmentById(
   id: string,
-  isDarkMode: boolean = false
+  isDarkMode: boolean = false,
 ): TelegramAttachmentMenuItem | undefined {
   const menu = isDarkMode
     ? telegramAttachmentMenuDark
-    : telegramAttachmentMenuLight
-  return menu.find((item) => item.id === id)
+    : telegramAttachmentMenuLight;
+  return menu.find((item) => item.id === id);
 }
 
 /**
  * Get the number of attachment menu items.
  */
 export function getTelegramAttachmentCount(): number {
-  return telegramAttachmentMenuLight.length
+  return telegramAttachmentMenuLight.length;
 }

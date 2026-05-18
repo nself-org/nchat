@@ -1,25 +1,33 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState } from 'react'
-import { MapPin, Navigation, Clock, Radio, Share2, Loader2, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useCallback, useEffect, useState } from "react";
+import {
+  MapPin,
+  Navigation,
+  Clock,
+  Radio,
+  Share2,
+  Loader2,
+  ChevronRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
-import { LocationMap } from './LocationMap'
-import { LocationPicker } from './LocationPicker'
-import { LocationDuration } from './LocationDuration'
-import { LocationPermission } from './LocationPermission'
-import { NearbyPlaces } from './NearbyPlaces'
-import { LiveLocationIndicator } from './LiveLocationIndicator'
-import { StopSharingButton } from './StopSharingButton'
-import { logger } from '@/lib/logger'
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { LocationMap } from "./LocationMap";
+import { LocationPicker } from "./LocationPicker";
+import { LocationDuration } from "./LocationDuration";
+import { LocationPermission } from "./LocationPermission";
+import { NearbyPlaces } from "./NearbyPlaces";
+import { LiveLocationIndicator } from "./LiveLocationIndicator";
+import { StopSharingButton } from "./StopSharingButton";
+import { logger } from "@/lib/logger";
 import {
   type Coordinates,
   type Place,
@@ -29,7 +37,7 @@ import {
   getCurrentPosition,
   isLocationPermissionGranted,
   DEFAULT_LOCATION_PRIVACY,
-} from '@/lib/location'
+} from "@/lib/location";
 
 // ============================================================================
 // Types
@@ -37,19 +45,19 @@ import {
 
 interface LocationSharingProps {
   /** Whether the dialog is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Callback to close the dialog */
-  onClose: () => void
+  onClose: () => void;
   /** Callback when static location is shared */
-  onShareStatic?: (coordinates: Coordinates, label?: string) => void
+  onShareStatic?: (coordinates: Coordinates, label?: string) => void;
   /** Callback when live location is started */
-  onShareLive?: (duration: LocationSharingDuration) => void
+  onShareLive?: (duration: LocationSharingDuration) => void;
   /** Current live location (if sharing) */
-  currentLiveLocation?: LiveLocation | null
+  currentLiveLocation?: LiveLocation | null;
   /** Callback to stop live sharing */
-  onStopLiveSharing?: () => void
+  onStopLiveSharing?: () => void;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -71,21 +79,26 @@ export function LocationSharing({
   onStopLiveSharing,
   className,
 }: LocationSharingProps) {
-  const [activeTab, setActiveTab] = useState<'location' | 'live' | 'places'>('location')
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null)
-  const [currentPosition, setCurrentPosition] = useState<Coordinates | null>(null)
-  const [selectedDuration, setSelectedDuration] = useState<LocationSharingDuration>(
-    DEFAULT_LOCATION_PRIVACY.defaultSharingDuration
-  )
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null)
+  const [activeTab, setActiveTab] = useState<"location" | "live" | "places">(
+    "location",
+  );
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [currentPosition, setCurrentPosition] = useState<Coordinates | null>(
+    null,
+  );
+  const [selectedDuration, setSelectedDuration] =
+    useState<LocationSharingDuration>(
+      DEFAULT_LOCATION_PRIVACY.defaultSharingDuration,
+    );
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
 
   // Check permission on mount
   useEffect(() => {
     if (isOpen) {
-      isLocationPermissionGranted().then(setHasPermission)
+      isLocationPermissionGranted().then(setHasPermission);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   // Get current position when permission is granted
   useEffect(() => {
@@ -93,63 +106,63 @@ export function LocationSharing({
       getCurrentPosition()
         .then(setCurrentPosition)
         .catch((error) => {
-          logger.error('Failed to get position:', error)
-        })
+          logger.error("Failed to get position:", error);
+        });
     }
-  }, [hasPermission, isOpen, currentPosition])
+  }, [hasPermission, isOpen, currentPosition]);
 
   const handlePermissionGranted = useCallback(() => {
-    setHasPermission(true)
-    getCurrentPosition().then(setCurrentPosition).catch(console.error)
-  }, [])
+    setHasPermission(true);
+    getCurrentPosition().then(setCurrentPosition).catch(console.error);
+  }, []);
 
   const handleShareCurrentLocation = useCallback(async () => {
-    if (!currentPosition) return
+    if (!currentPosition) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await onShareStatic?.(currentPosition)
-      onClose()
+      await onShareStatic?.(currentPosition);
+      onClose();
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [currentPosition, onShareStatic, onClose])
+  }, [currentPosition, onShareStatic, onClose]);
 
   const handleShareSelectedPlace = useCallback(async () => {
-    if (!selectedPlace) return
+    if (!selectedPlace) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await onShareStatic?.(selectedPlace.coordinates, selectedPlace.name)
-      onClose()
+      await onShareStatic?.(selectedPlace.coordinates, selectedPlace.name);
+      onClose();
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [selectedPlace, onShareStatic, onClose])
+  }, [selectedPlace, onShareStatic, onClose]);
 
   const handleStartLiveSharing = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await onShareLive?.(selectedDuration)
-      onClose()
+      await onShareLive?.(selectedDuration);
+      onClose();
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [selectedDuration, onShareLive, onClose])
+  }, [selectedDuration, onShareLive, onClose]);
 
   const handlePickLocation = useCallback(
     (coordinates: Coordinates, _address?: string, place?: Place) => {
-      onShareStatic?.(coordinates, place?.name)
-      onClose()
+      onShareStatic?.(coordinates, place?.name);
+      onClose();
     },
-    [onShareStatic, onClose]
-  )
+    [onShareStatic, onClose],
+  );
 
   // If already sharing live location, show that UI
   if (currentLiveLocation) {
     return (
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className={cn('sm:max-w-md', className)}>
+        <DialogContent className={cn("sm:max-w-md", className)}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Radio className="h-5 w-5 text-green-500" />
@@ -166,11 +179,11 @@ export function LocationSharing({
               showMyLocation
               markers={[
                 {
-                  id: 'live',
+                  id: "live",
                   coordinates: currentLiveLocation.coordinates,
-                  type: 'user',
+                  type: "user",
                   isAnimated: true,
-                  color: 'hsl(var(--primary))',
+                  color: "hsl(var(--primary))",
                 },
               ]}
             />
@@ -187,17 +200,20 @@ export function LocationSharing({
 
             {/* Stop Button */}
             {onStopLiveSharing && (
-              <StopSharingButton onStop={onStopLiveSharing} className="w-full" />
+              <StopSharingButton
+                onStop={onStopLiveSharing}
+                className="w-full"
+              />
             )}
           </div>
         </DialogContent>
       </Dialog>
-    )
+    );
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={cn('sm:max-w-lg', className)}>
+      <DialogContent className={cn("sm:max-w-lg", className)}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
@@ -210,12 +226,18 @@ export function LocationSharing({
 
         {/* Permission Check */}
         {hasPermission === false && (
-          <LocationPermission onGranted={handlePermissionGranted} variant="card" />
+          <LocationPermission
+            onGranted={handlePermissionGranted}
+            variant="card"
+          />
         )}
 
         {/* Main Content */}
         {hasPermission && (
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="location" className="gap-1.5">
                 <MapPin className="h-4 w-4" />
@@ -278,8 +300,8 @@ export function LocationSharing({
                   <div>
                     <h4 className="font-semibold">Live Location</h4>
                     <p className="text-sm text-muted-foreground">
-                      Share your real-time location that updates automatically. Others can see where
-                      you are as you move.
+                      Share your real-time location that updates automatically.
+                      Others can see where you are as you move.
                     </p>
                   </div>
                 </div>
@@ -325,9 +347,15 @@ export function LocationSharing({
                     <div className="flex items-center justify-between rounded-lg border p-3">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-primary" />
-                        <span className="font-medium">{selectedPlace.name}</span>
+                        <span className="font-medium">
+                          {selectedPlace.name}
+                        </span>
                       </div>
-                      <Button size="sm" onClick={handleShareSelectedPlace} disabled={isLoading}>
+                      <Button
+                        size="sm"
+                        onClick={handleShareSelectedPlace}
+                        disabled={isLoading}
+                      >
                         {isLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
@@ -350,7 +378,7 @@ export function LocationSharing({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -359,15 +387,15 @@ export function LocationSharing({
 
 interface LocationShareButtonProps {
   /** Click handler */
-  onClick: () => void
+  onClick: () => void;
   /** Whether currently sharing live */
-  isLiveSharing?: boolean
+  isLiveSharing?: boolean;
   /** Size variant */
-  size?: 'sm' | 'default' | 'lg'
+  size?: "sm" | "default" | "lg";
   /** Variant */
-  variant?: 'default' | 'outline' | 'ghost'
+  variant?: "default" | "outline" | "ghost";
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -376,8 +404,8 @@ interface LocationShareButtonProps {
 export function LocationShareButton({
   onClick,
   isLiveSharing = false,
-  size = 'default',
-  variant = 'ghost',
+  size = "default",
+  variant = "ghost",
   className,
 }: LocationShareButtonProps) {
   return (
@@ -385,7 +413,10 @@ export function LocationShareButton({
       variant={variant}
       size={size}
       onClick={onClick}
-      className={cn(isLiveSharing && 'text-green-500 hover:text-green-600', className)}
+      className={cn(
+        isLiveSharing && "text-green-500 hover:text-green-600",
+        className,
+      )}
     >
       {isLiveSharing ? (
         <>
@@ -399,7 +430,7 @@ export function LocationShareButton({
         </>
       )}
     </Button>
-  )
+  );
 }
 
-export default LocationSharing
+export default LocationSharing;

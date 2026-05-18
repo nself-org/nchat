@@ -1,8 +1,13 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn } from '@/lib/utils'
-import type { Coordinates, MapConfig, LocationMarker, DEFAULT_MAP_CONFIG } from '@/lib/location'
+import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import type {
+  Coordinates,
+  MapConfig,
+  LocationMarker,
+  DEFAULT_MAP_CONFIG,
+} from "@/lib/location";
 
 // ============================================================================
 // Types
@@ -10,27 +15,27 @@ import type { Coordinates, MapConfig, LocationMarker, DEFAULT_MAP_CONFIG } from 
 
 interface LocationMapProps {
   /** Center coordinates */
-  center: Coordinates
+  center: Coordinates;
   /** Zoom level (1-20) */
-  zoom?: number
+  zoom?: number;
   /** Map markers */
-  markers?: LocationMarker[]
+  markers?: LocationMarker[];
   /** Map style */
-  style?: 'light' | 'dark' | 'satellite' | 'terrain'
+  style?: "light" | "dark" | "satellite" | "terrain";
   /** Whether to show user's current location */
-  showMyLocation?: boolean
+  showMyLocation?: boolean;
   /** Whether the map is interactive */
-  interactive?: boolean
+  interactive?: boolean;
   /** Callback when map is clicked */
-  onMapClick?: (coordinates: Coordinates) => void
+  onMapClick?: (coordinates: Coordinates) => void;
   /** Callback when marker is clicked */
-  onMarkerClick?: (marker: LocationMarker) => void
+  onMarkerClick?: (marker: LocationMarker) => void;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Height of the map */
-  height?: number | string
+  height?: number | string;
   /** Width of the map */
-  width?: number | string
+  width?: number | string;
 }
 
 // ============================================================================
@@ -47,96 +52,108 @@ export function LocationMap({
   center,
   zoom = 15,
   markers = [],
-  style = 'light',
+  style = "light",
   showMyLocation = false,
   interactive = true,
   onMapClick,
   onMarkerClick,
   className,
   height = 300,
-  width = '100%',
+  width = "100%",
 }: LocationMapProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [isLoaded, setIsLoaded] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     // Simulate map loading
-    const timer = setTimeout(() => setIsLoaded(true), 300)
-    return () => clearTimeout(timer)
-  }, [])
+    const timer = setTimeout(() => setIsLoaded(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!interactive || !onMapClick || !containerRef.current) return
+      if (!interactive || !onMapClick || !containerRef.current) return;
 
-      const rect = containerRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
       // Placeholder: Convert click position to coordinates
       // In real implementation, this would use the map's unproject method
       const clickedCoords: Coordinates = {
         latitude: center.latitude + (rect.height / 2 - y) * 0.0001,
         longitude: center.longitude + (x - rect.width / 2) * 0.0001,
-      }
+      };
 
-      onMapClick(clickedCoords)
+      onMapClick(clickedCoords);
     },
-    [center, interactive, onMapClick]
-  )
+    [center, interactive, onMapClick],
+  );
 
   // Generate static map preview URL (using OpenStreetMap tiles as placeholder)
-  const mapPreviewUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${center.latitude},${center.longitude}&zoom=${zoom}&size=640x400&maptype=osmarenderer`
+  const mapPreviewUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${center.latitude},${center.longitude}&zoom=${zoom}&size=640x400&maptype=osmarenderer`;
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        'relative overflow-hidden rounded-lg border bg-muted',
-        interactive && 'cursor-crosshair',
-        className
+        "relative overflow-hidden rounded-lg border bg-muted",
+        interactive && "cursor-crosshair",
+        className,
       )}
       style={{ height, width }}
       onClick={handleClick}
       onKeyDown={
         interactive && onMapClick
           ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onMapClick(center)
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onMapClick(center);
               }
             }
           : undefined
       }
-      role={interactive && onMapClick ? 'button' : undefined}
+      role={interactive && onMapClick ? "button" : undefined}
       tabIndex={interactive && onMapClick ? 0 : undefined}
     >
       {/* Map background */}
       <div
         className={cn(
-          'absolute inset-0 transition-opacity duration-300',
-          isLoaded ? 'opacity-100' : 'opacity-0'
+          "absolute inset-0 transition-opacity duration-300",
+          isLoaded ? "opacity-100" : "opacity-0",
         )}
       >
         {/* Placeholder map background pattern */}
         <div
           className={cn(
-            'absolute inset-0',
-            style === 'dark'
-              ? 'bg-gradient-to-br from-slate-800 to-slate-900'
-              : style === 'satellite'
-                ? 'bg-gradient-to-br from-green-900 to-emerald-800'
-                : 'bg-gradient-to-br from-blue-50 to-green-50'
+            "absolute inset-0",
+            style === "dark"
+              ? "bg-gradient-to-br from-slate-800 to-slate-900"
+              : style === "satellite"
+                ? "bg-gradient-to-br from-green-900 to-emerald-800"
+                : "bg-gradient-to-br from-blue-50 to-green-50",
           )}
         >
           {/* Grid pattern to simulate map */}
-          <svg className="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            className="absolute inset-0 h-full w-full"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <defs>
-              <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <pattern
+                id="map-grid"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
                 <path
                   d="M 40 0 L 0 0 0 40"
                   fill="none"
-                  stroke={style === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+                  stroke={
+                    style === "dark"
+                      ? "rgba(255,255,255,0.1)"
+                      : "rgba(0,0,0,0.05)"
+                  }
                   strokeWidth="1"
                 />
               </pattern>
@@ -147,20 +164,20 @@ export function LocationMap({
           {/* Simulated roads */}
           <div
             className={cn(
-              'absolute left-1/4 top-0 h-full w-1',
-              style === 'dark' ? 'bg-slate-600' : 'bg-gray-200'
+              "absolute left-1/4 top-0 h-full w-1",
+              style === "dark" ? "bg-slate-600" : "bg-gray-200",
             )}
           />
           <div
             className={cn(
-              'absolute left-0 top-1/3 h-1 w-full',
-              style === 'dark' ? 'bg-slate-600' : 'bg-gray-200'
+              "absolute left-0 top-1/3 h-1 w-full",
+              style === "dark" ? "bg-slate-600" : "bg-gray-200",
             )}
           />
           <div
             className={cn(
-              'absolute left-2/3 top-0 h-full w-0.5',
-              style === 'dark' ? 'bg-slate-700' : 'bg-gray-100'
+              "absolute left-2/3 top-0 h-full w-0.5",
+              style === "dark" ? "bg-slate-700" : "bg-gray-100",
             )}
           />
         </div>
@@ -190,24 +207,24 @@ export function LocationMap({
                 // Placeholder positioning - real implementation would use actual coordinates
                 left: `${50 + (marker.coordinates.longitude - center.longitude) * 10000}%`,
                 top: `${50 - (marker.coordinates.latitude - center.latitude) * 10000}%`,
-                transform: 'translate(-50%, -100%)',
+                transform: "translate(-50%, -100%)",
               }}
               onClick={(e) => {
-                e.stopPropagation()
-                onMarkerClick?.(marker)
+                e.stopPropagation();
+                onMarkerClick?.(marker);
               }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  onMarkerClick?.(marker)
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onMarkerClick?.(marker);
                 }
               }}
               role="button"
               tabIndex={0}
             >
               <MapPin
-                color={marker.color || 'var(--primary)'}
+                color={marker.color || "var(--primary)"}
                 size={24}
                 isAnimated={marker.isAnimated}
                 label={marker.label}
@@ -234,7 +251,7 @@ export function LocationMap({
           <button
             className="flex h-8 w-8 items-center justify-center rounded bg-white shadow hover:bg-gray-50"
             onClick={(e) => {
-              e.stopPropagation()
+              e.stopPropagation();
               // Zoom in logic would go here
             }}
           >
@@ -243,7 +260,7 @@ export function LocationMap({
           <button
             className="flex h-8 w-8 items-center justify-center rounded bg-white shadow hover:bg-gray-50"
             onClick={(e) => {
-              e.stopPropagation()
+              e.stopPropagation();
               // Zoom out logic would go here
             }}
           >
@@ -260,9 +277,11 @@ export function LocationMap({
       )}
 
       {/* Attribution */}
-      <div className="absolute bottom-2 right-2 text-[10px] text-gray-400">Map placeholder</div>
+      <div className="absolute bottom-2 right-2 text-[10px] text-gray-400">
+        Map placeholder
+      </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -270,15 +289,15 @@ export function LocationMap({
 // ============================================================================
 
 interface MapPinProps {
-  color?: string
-  size?: number
-  isAnimated?: boolean
-  label?: string
-  heading?: number
+  color?: string;
+  size?: number;
+  isAnimated?: boolean;
+  label?: string;
+  heading?: number;
 }
 
 function MapPin({
-  color = 'var(--primary)',
+  color = "var(--primary)",
   size = 32,
   isAnimated = false,
   label,
@@ -315,9 +334,9 @@ function MapPin({
         <div
           className="absolute left-1/2 top-1/2 h-0 w-0 -translate-x-1/2 -translate-y-1/2"
           style={{
-            borderLeft: '4px solid transparent',
-            borderRight: '4px solid transparent',
-            borderBottom: '8px solid white',
+            borderLeft: "4px solid transparent",
+            borderRight: "4px solid transparent",
+            borderBottom: "8px solid white",
             transform: `translate(-50%, -50%) rotate(${heading}deg) translateY(-${size / 2 + 4}px)`,
           }}
         />
@@ -330,7 +349,7 @@ function MapPin({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default LocationMap
+export default LocationMap;

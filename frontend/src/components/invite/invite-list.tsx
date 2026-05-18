@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * InviteList Component - Display and manage active invites
@@ -7,11 +7,11 @@
  * and revoke functionality.
  */
 
-import { useEffect, useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useEffect, useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,15 +21,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Link2,
   Clock,
@@ -43,8 +48,8 @@ import {
   AlertCircle,
   Check,
   QrCode as QrCodeIcon,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   useInvite,
   formatTimeUntilExpiry,
@@ -54,8 +59,8 @@ import {
   buildInviteLink,
   copyInviteLinkToClipboard,
   type InviteInfo,
-} from '@/lib/invite'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "@/lib/invite";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // ============================================================================
 // Types
@@ -63,19 +68,19 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 export interface InviteListProps {
   /** Channel ID to load invites for (optional) */
-  channelId?: string
+  channelId?: string;
   /** Load workspace invites instead of channel invites */
-  loadWorkspaceInvites?: boolean
+  loadWorkspaceInvites?: boolean;
   /** Maximum height for the list */
-  maxHeight?: string | number
+  maxHeight?: string | number;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Show create button */
-  showCreateButton?: boolean
+  showCreateButton?: boolean;
   /** Called when create button is clicked */
-  onCreateClick?: () => void
+  onCreateClick?: () => void;
   /** Show empty state */
-  showEmptyState?: boolean
+  showEmptyState?: boolean;
 }
 
 // ============================================================================
@@ -83,89 +88,105 @@ export interface InviteListProps {
 // ============================================================================
 
 interface InviteItemProps {
-  invite: InviteInfo
-  onRevoke: (id: string) => Promise<boolean>
-  onDelete: (id: string) => Promise<boolean>
+  invite: InviteInfo;
+  onRevoke: (id: string) => Promise<boolean>;
+  onDelete: (id: string) => Promise<boolean>;
 }
 
 function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
-  const [copied, setCopied] = useState(false)
-  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [isRevoking, setIsRevoking] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [copied, setCopied] = useState(false);
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isRevoking, setIsRevoking] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const isExpired = isInviteExpired(invite.expiresAt)
-  const isMaxUsed = hasReachedMaxUses(invite.maxUses, invite.useCount)
-  const isInactive = !invite.isActive || isExpired || isMaxUsed
+  const isExpired = isInviteExpired(invite.expiresAt);
+  const isMaxUsed = hasReachedMaxUses(invite.maxUses, invite.useCount);
+  const isInactive = !invite.isActive || isExpired || isMaxUsed;
 
-  const expiresIn = invite.expiresAt ? formatTimeUntilExpiry(invite.expiresAt) : null
+  const expiresIn = invite.expiresAt
+    ? formatTimeUntilExpiry(invite.expiresAt)
+    : null;
   const remainingUses =
-    invite.maxUses !== null ? getRemainingUses(invite.maxUses, invite.useCount) : null
+    invite.maxUses !== null
+      ? getRemainingUses(invite.maxUses, invite.useCount)
+      : null;
 
   // Handle copy
   const handleCopy = useCallback(async () => {
-    const success = await copyInviteLinkToClipboard(invite.code)
+    const success = await copyInviteLinkToClipboard(invite.code);
     if (success) {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-  }, [invite.code])
+  }, [invite.code]);
 
   // Handle revoke
   const handleRevoke = useCallback(async () => {
-    setIsRevoking(true)
+    setIsRevoking(true);
     try {
-      await onRevoke(invite.id)
+      await onRevoke(invite.id);
     } finally {
-      setIsRevoking(false)
-      setRevokeDialogOpen(false)
+      setIsRevoking(false);
+      setRevokeDialogOpen(false);
     }
-  }, [invite.id, onRevoke])
+  }, [invite.id, onRevoke]);
 
   // Handle delete
   const handleDelete = useCallback(async () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
-      await onDelete(invite.id)
+      await onDelete(invite.id);
     } finally {
-      setIsDeleting(false)
-      setDeleteDialogOpen(false)
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
     }
-  }, [invite.id, onDelete])
+  }, [invite.id, onDelete]);
 
   // Get status badge
   const getStatusBadge = () => {
     if (!invite.isActive) {
-      return <Badge variant="secondary">Revoked</Badge>
+      return <Badge variant="secondary">Revoked</Badge>;
     }
     if (isExpired) {
-      return <Badge variant="secondary">Expired</Badge>
+      return <Badge variant="secondary">Expired</Badge>;
     }
     if (isMaxUsed) {
-      return <Badge variant="secondary">Max uses reached</Badge>
+      return <Badge variant="secondary">Max uses reached</Badge>;
     }
-    return <Badge variant="default">Active</Badge>
-  }
+    return <Badge variant="default">Active</Badge>;
+  };
 
   return (
     <>
       <div
         className={cn(
-          'flex items-start gap-4 border-b p-4 transition-colors last:border-b-0',
-          isInactive && 'bg-muted/30 opacity-60'
+          "flex items-start gap-4 border-b p-4 transition-colors last:border-b-0",
+          isInactive && "bg-muted/30 opacity-60",
         )}
       >
         {/* Icon */}
-        <div className={cn('rounded-xl p-2', isInactive ? 'bg-muted' : 'bg-primary/10')}>
-          <Link2 className={cn('h-5 w-5', isInactive ? 'text-muted-foreground' : 'text-primary')} />
+        <div
+          className={cn(
+            "rounded-xl p-2",
+            isInactive ? "bg-muted" : "bg-primary/10",
+          )}
+        >
+          <Link2
+            className={cn(
+              "h-5 w-5",
+              isInactive ? "text-muted-foreground" : "text-primary",
+            )}
+          />
         </div>
 
         {/* Content */}
         <div className="min-w-0 flex-1 space-y-1">
           {/* Code and Status */}
           <div className="flex flex-wrap items-center gap-2">
-            <code className="rounded bg-muted px-2 py-0.5 font-mono text-sm">{invite.code}</code>
+            <code className="rounded bg-muted px-2 py-0.5 font-mono text-sm">
+              {invite.code}
+            </code>
             {getStatusBadge()}
           </div>
 
@@ -195,7 +216,7 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
             {expiresIn && (
               <div className="flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
-                <span>{isExpired ? 'Expired' : `Expires in ${expiresIn}`}</span>
+                <span>{isExpired ? "Expired" : `Expires in ${expiresIn}`}</span>
               </div>
             )}
             {!invite.expiresAt && (
@@ -209,7 +230,8 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
           {/* Channel */}
           {invite.channelName && (
             <div className="text-sm text-muted-foreground">
-              Channel: <span className="font-medium">#{invite.channelName}</span>
+              Channel:{" "}
+              <span className="font-medium">#{invite.channelName}</span>
             </div>
           )}
         </div>
@@ -219,7 +241,12 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={handleCopy} disabled={isInactive}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCopy}
+                  disabled={isInactive}
+                >
                   {copied ? (
                     <Check className="h-4 w-4 text-green-600" />
                   ) : (
@@ -227,7 +254,9 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{copied ? 'Copied!' : 'Copy link'}</TooltipContent>
+              <TooltipContent>
+                {copied ? "Copied!" : "Copy link"}
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -242,7 +271,11 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
                 <Copy className="mr-2 h-4 w-4" />
                 Copy Link
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => window.open(buildInviteLink(invite.code), '_blank')}>
+              <DropdownMenuItem
+                onClick={() =>
+                  window.open(buildInviteLink(invite.code), "_blank")
+                }
+              >
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Open Link
               </DropdownMenuItem>
@@ -274,8 +307,8 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke Invite Link</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to revoke this invite link? Anyone with this link will no longer
-              be able to join.
+              Are you sure you want to revoke this invite link? Anyone with this
+              link will no longer be able to join.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -285,7 +318,7 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
               disabled={isRevoking}
               className="bg-amber-600 hover:bg-amber-700"
             >
-              {isRevoking ? 'Revoking...' : 'Revoke'}
+              {isRevoking ? "Revoking..." : "Revoke"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -297,8 +330,8 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Invite Link</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to permanently delete this invite link? This action cannot be
-              undone.
+              Are you sure you want to permanently delete this invite link? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -308,13 +341,13 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
               disabled={isDeleting}
               className="hover:bg-destructive/90 bg-destructive"
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
 // ============================================================================
@@ -322,8 +355,8 @@ function InviteItem({ invite, onRevoke, onDelete }: InviteItemProps) {
 // ============================================================================
 
 interface EmptyStateProps {
-  showCreateButton?: boolean
-  onCreateClick?: () => void
+  showCreateButton?: boolean;
+  onCreateClick?: () => void;
 }
 
 function EmptyState({ showCreateButton, onCreateClick }: EmptyStateProps) {
@@ -343,7 +376,7 @@ function EmptyState({ showCreateButton, onCreateClick }: EmptyStateProps) {
         </Button>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -364,7 +397,7 @@ function LoadingSkeleton() {
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -388,53 +421,55 @@ export function InviteList({
     invitesError,
     revokeInvite,
     deleteInvite,
-  } = useInvite()
+  } = useInvite();
 
   // Load invites on mount
   useEffect(() => {
     if (loadWorkspaceInvites) {
-      loadWorkspace()
+      loadWorkspace();
     } else if (channelId) {
-      loadChannelInvites(channelId)
+      loadChannelInvites(channelId);
     }
-  }, [channelId, loadWorkspaceInvites, loadChannelInvites, loadWorkspace])
+  }, [channelId, loadWorkspaceInvites, loadChannelInvites, loadWorkspace]);
 
   // Refresh handler
   const handleRefresh = useCallback(() => {
     if (loadWorkspaceInvites) {
-      loadWorkspace()
+      loadWorkspace();
     } else if (channelId) {
-      loadChannelInvites(channelId)
+      loadChannelInvites(channelId);
     }
-  }, [channelId, loadWorkspaceInvites, loadChannelInvites, loadWorkspace])
+  }, [channelId, loadWorkspaceInvites, loadChannelInvites, loadWorkspace]);
 
   // Error state
   if (invitesError) {
     return (
-      <div className={cn('rounded-xl border bg-card', className)}>
+      <div className={cn("rounded-xl border bg-card", className)}>
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="bg-destructive/10 mb-4 rounded-full p-4">
             <AlertCircle className="h-8 w-8 text-destructive" />
           </div>
           <h3 className="mb-1 text-lg font-semibold">Failed to load invites</h3>
-          <p className="mb-4 max-w-sm text-sm text-muted-foreground">{invitesError}</p>
+          <p className="mb-4 max-w-sm text-sm text-muted-foreground">
+            {invitesError}
+          </p>
           <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Try Again
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('rounded-xl border bg-card', className)}>
+    <div className={cn("rounded-xl border bg-card", className)}>
       {/* Header */}
       <div className="flex items-center justify-between border-b p-4">
         <div>
           <h3 className="font-semibold">Invite Links</h3>
           <p className="text-sm text-muted-foreground">
-            {activeInvites.length} invite{activeInvites.length !== 1 ? 's' : ''}
+            {activeInvites.length} invite{activeInvites.length !== 1 ? "s" : ""}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -447,7 +482,12 @@ export function InviteList({
                   onClick={handleRefresh}
                   disabled={isLoadingInvites}
                 >
-                  <RefreshCw className={cn('h-4 w-4', isLoadingInvites && 'animate-spin')} />
+                  <RefreshCw
+                    className={cn(
+                      "h-4 w-4",
+                      isLoadingInvites && "animate-spin",
+                    )}
+                  />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Refresh</TooltipContent>
@@ -466,7 +506,10 @@ export function InviteList({
       {isLoadingInvites ? (
         <LoadingSkeleton />
       ) : activeInvites.length === 0 && showEmptyState ? (
-        <EmptyState showCreateButton={showCreateButton} onCreateClick={onCreateClick} />
+        <EmptyState
+          showCreateButton={showCreateButton}
+          onCreateClick={onCreateClick}
+        />
       ) : (
         <ScrollArea style={{ maxHeight }}>
           <div>
@@ -482,7 +525,7 @@ export function InviteList({
         </ScrollArea>
       )}
     </div>
-  )
+  );
 }
 
-export default InviteList
+export default InviteList;

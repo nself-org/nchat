@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Search, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { Search, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DMSearchProps {
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-  className?: string
-  autoFocus?: boolean
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+  autoFocus?: boolean;
 }
 
 // ============================================================================
@@ -25,25 +25,25 @@ interface DMSearchProps {
 export function DMSearch({
   value,
   onChange,
-  placeholder = 'Search messages...',
+  placeholder = "Search messages...",
   className,
   autoFocus = false,
 }: DMSearchProps) {
-  const inputRef = React.useRef<HTMLInputElement>(null)
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleClear = () => {
-    onChange('')
-    inputRef.current?.focus()
-  }
+    onChange("");
+    inputRef.current?.focus();
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      handleClear()
+    if (e.key === "Escape") {
+      handleClear();
     }
-  }
+  };
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn("relative", className)}>
       <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         ref={inputRef}
@@ -69,7 +69,7 @@ export function DMSearch({
         </Button>
       )}
     </div>
-  )
+  );
 }
 
-DMSearch.displayName = 'DMSearch'
+DMSearch.displayName = "DMSearch";

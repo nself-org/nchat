@@ -7,46 +7,46 @@
  * @module services/search/message-indexer
  */
 
-import type { Message } from '@/types/message'
-import type { Channel } from '@/types/channel'
-import type { User } from '@/types/user'
+import type { Message } from "@/types/message";
+import type { Channel } from "@/types/channel";
+import type { User } from "@/types/user";
 import {
   getMessagesIndex,
   INDEXES,
   getMeiliClient,
   type MeiliMessageDocument,
-} from '@/lib/search/meilisearch-config'
+} from "@/lib/search/meilisearch-config";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface IndexingStatus {
-  indexed: number
-  pending: number
-  failed: number
-  lastIndexedAt: Date | null
-  isIndexing: boolean
+  indexed: number;
+  pending: number;
+  failed: number;
+  lastIndexedAt: Date | null;
+  isIndexing: boolean;
 }
 
 export interface IndexingResult {
-  success: boolean
-  taskId?: number
-  error?: string
+  success: boolean;
+  taskId?: number;
+  error?: string;
 }
 
 export interface BatchIndexingResult {
-  total: number
-  successful: number
-  failed: number
-  errors: { id: string; error: string }[]
-  taskIds: number[]
+  total: number;
+  successful: number;
+  failed: number;
+  errors: { id: string; error: string }[];
+  taskIds: number[];
 }
 
 export interface MessageWithContext {
-  message: Message
-  channel?: Pick<Channel, 'id' | 'name'>
-  author?: Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl'>
+  message: Message;
+  channel?: Pick<Channel, "id" | "name">;
+  author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">;
 }
 
 // ============================================================================
@@ -57,25 +57,25 @@ export interface MessageWithContext {
  * Strip HTML tags from content for plain text indexing
  */
 function stripHtml(html: string): string {
-  if (!html) return ''
+  if (!html) return "";
   return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim()
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
  * Detect if content contains a URL
  */
 function hasLink(content: string): boolean {
-  const urlPattern = /https?:\/\/[^\s]+/i
-  return urlPattern.test(content)
+  const urlPattern = /https?:\/\/[^\s]+/i;
+  return urlPattern.test(content);
 }
 
 /**
@@ -83,23 +83,25 @@ function hasLink(content: string): boolean {
  */
 export function transformMessageToDocument(
   message: Message,
-  channel?: Pick<Channel, 'id' | 'name'>,
-  author?: Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl'>
+  channel?: Pick<Channel, "id" | "name">,
+  author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">,
 ): MeiliMessageDocument {
-  const attachments = message.attachments || []
-  const hasImage = attachments.some((a) => a.type === 'image')
-  const hasVideo = attachments.some((a) => a.type === 'video')
-  const hasFile = attachments.some((a) => a.type === 'file' || a.type === 'audio')
+  const attachments = message.attachments || [];
+  const hasImage = attachments.some((a) => a.type === "image");
+  const hasVideo = attachments.some((a) => a.type === "video");
+  const hasFile = attachments.some(
+    (a) => a.type === "file" || a.type === "audio",
+  );
 
   return {
     id: message.id,
     content: message.content,
     content_plain: stripHtml(message.contentHtml || message.content),
     channel_id: message.channelId,
-    channel_name: channel?.name || '',
+    channel_name: channel?.name || "",
     author_id: message.userId,
-    author_name: author?.displayName || message.user?.displayName || '',
-    author_username: author?.username || message.user?.username || '',
+    author_name: author?.displayName || message.user?.displayName || "",
+    author_username: author?.username || message.user?.username || "",
     author_avatar_url: author?.avatarUrl || message.user?.avatarUrl,
     created_at: Math.floor(new Date(message.createdAt).getTime() / 1000),
     updated_at: message.updatedAt
@@ -121,7 +123,7 @@ export function transformMessageToDocument(
     mentions_here: message.mentionsHere || false,
     attachment_count: attachments.length,
     reaction_count: message.reactions?.length || 0,
-  }
+  };
 }
 
 // ============================================================================
@@ -129,15 +131,15 @@ export function transformMessageToDocument(
 // ============================================================================
 
 export class MessageIndexer {
-  private batchQueue: MeiliMessageDocument[] = []
-  private batchTimeout: NodeJS.Timeout | null = null
-  private batchSize: number
-  private flushInterval: number
-  private isProcessing = false
+  private batchQueue: MeiliMessageDocument[] = [];
+  private batchTimeout: NodeJS.Timeout | null = null;
+  private batchSize: number;
+  private flushInterval: number;
+  private isProcessing = false;
 
   constructor(options?: { batchSize?: number; flushInterval?: number }) {
-    this.batchSize = options?.batchSize || 100
-    this.flushInterval = options?.flushInterval || 1000 // 1 second
+    this.batchSize = options?.batchSize || 100;
+    this.flushInterval = options?.flushInterval || 1000; // 1 second
   }
 
   /**
@@ -145,42 +147,44 @@ export class MessageIndexer {
    */
   async indexMessage(
     message: Message,
-    channel?: Pick<Channel, 'id' | 'name'>,
-    author?: Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl'>
+    channel?: Pick<Channel, "id" | "name">,
+    author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">,
   ): Promise<IndexingResult> {
     try {
-      const document = transformMessageToDocument(message, channel, author)
-      const index = getMessagesIndex()
-      const task = await index.addDocuments([document])
+      const document = transformMessageToDocument(message, channel, author);
+      const index = getMessagesIndex();
+      const task = await index.addDocuments([document]);
 
       return {
         success: true,
         taskId: task.taskUid,
-      }
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
   /**
    * Index multiple messages at once
    */
-  async indexMessages(messagesWithContext: MessageWithContext[]): Promise<BatchIndexingResult> {
-    const documents: MeiliMessageDocument[] = []
-    const errors: { id: string; error: string }[] = []
+  async indexMessages(
+    messagesWithContext: MessageWithContext[],
+  ): Promise<BatchIndexingResult> {
+    const documents: MeiliMessageDocument[] = [];
+    const errors: { id: string; error: string }[] = [];
 
     for (const { message, channel, author } of messagesWithContext) {
       try {
-        const document = transformMessageToDocument(message, channel, author)
-        documents.push(document)
+        const document = transformMessageToDocument(message, channel, author);
+        documents.push(document);
       } catch (error) {
         errors.push({
           id: message.id,
-          error: error instanceof Error ? error.message : 'Transform failed',
-        })
+          error: error instanceof Error ? error.message : "Transform failed",
+        });
       }
     }
 
@@ -191,12 +195,12 @@ export class MessageIndexer {
         failed: errors.length,
         errors,
         taskIds: [],
-      }
+      };
     }
 
     try {
-      const index = getMessagesIndex()
-      const task = await index.addDocuments(documents)
+      const index = getMessagesIndex();
+      const task = await index.addDocuments(documents);
 
       return {
         total: messagesWithContext.length,
@@ -204,7 +208,7 @@ export class MessageIndexer {
         failed: errors.length,
         errors,
         taskIds: [task.taskUid],
-      }
+      };
     } catch (error) {
       return {
         total: messagesWithContext.length,
@@ -214,11 +218,11 @@ export class MessageIndexer {
           ...errors,
           ...documents.map((d) => ({
             id: d.id,
-            error: error instanceof Error ? error.message : 'Index failed',
+            error: error instanceof Error ? error.message : "Index failed",
           })),
         ],
         taskIds: [],
-      }
+      };
     }
   }
 
@@ -227,22 +231,22 @@ export class MessageIndexer {
    */
   queueMessage(
     message: Message,
-    channel?: Pick<Channel, 'id' | 'name'>,
-    author?: Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl'>
+    channel?: Pick<Channel, "id" | "name">,
+    author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">,
   ): void {
-    const document = transformMessageToDocument(message, channel, author)
-    this.batchQueue.push(document)
+    const document = transformMessageToDocument(message, channel, author);
+    this.batchQueue.push(document);
 
     // Flush if batch size reached
     if (this.batchQueue.length >= this.batchSize) {
-      this.flush()
+      this.flush();
     }
 
     // Set up auto-flush timer
     if (!this.batchTimeout) {
       this.batchTimeout = setTimeout(() => {
-        this.flush()
-      }, this.flushInterval)
+        this.flush();
+      }, this.flushInterval);
     }
   }
 
@@ -251,8 +255,8 @@ export class MessageIndexer {
    */
   async flush(): Promise<BatchIndexingResult> {
     if (this.batchTimeout) {
-      clearTimeout(this.batchTimeout)
-      this.batchTimeout = null
+      clearTimeout(this.batchTimeout);
+      this.batchTimeout = null;
     }
 
     if (this.batchQueue.length === 0 || this.isProcessing) {
@@ -262,37 +266,37 @@ export class MessageIndexer {
         failed: 0,
         errors: [],
         taskIds: [],
-      }
+      };
     }
 
-    this.isProcessing = true
-    const documents = [...this.batchQueue]
-    this.batchQueue = []
+    this.isProcessing = true;
+    const documents = [...this.batchQueue];
+    this.batchQueue = [];
 
     try {
-      const index = getMessagesIndex()
-      const task = await index.addDocuments(documents)
+      const index = getMessagesIndex();
+      const task = await index.addDocuments(documents);
 
-      this.isProcessing = false
+      this.isProcessing = false;
       return {
         total: documents.length,
         successful: documents.length,
         failed: 0,
         errors: [],
         taskIds: [task.taskUid],
-      }
+      };
     } catch (error) {
-      this.isProcessing = false
+      this.isProcessing = false;
       return {
         total: documents.length,
         successful: 0,
         failed: documents.length,
         errors: documents.map((d) => ({
           id: d.id,
-          error: error instanceof Error ? error.message : 'Flush failed',
+          error: error instanceof Error ? error.message : "Flush failed",
         })),
         taskIds: [],
-      }
+      };
     }
   }
 
@@ -301,11 +305,11 @@ export class MessageIndexer {
    */
   async updateMessage(
     message: Message,
-    channel?: Pick<Channel, 'id' | 'name'>,
-    author?: Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl'>
+    channel?: Pick<Channel, "id" | "name">,
+    author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">,
   ): Promise<IndexingResult> {
     // MeiliSearch handles updates via addDocuments with same ID
-    return this.indexMessage(message, channel, author)
+    return this.indexMessage(message, channel, author);
   }
 
   /**
@@ -313,18 +317,18 @@ export class MessageIndexer {
    */
   async removeMessage(messageId: string): Promise<IndexingResult> {
     try {
-      const index = getMessagesIndex()
-      const task = await index.deleteDocument(messageId)
+      const index = getMessagesIndex();
+      const task = await index.deleteDocument(messageId);
 
       return {
         success: true,
         taskId: task.taskUid,
-      }
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -333,8 +337,8 @@ export class MessageIndexer {
    */
   async removeMessages(messageIds: string[]): Promise<BatchIndexingResult> {
     try {
-      const index = getMessagesIndex()
-      const task = await index.deleteDocuments(messageIds)
+      const index = getMessagesIndex();
+      const task = await index.deleteDocuments(messageIds);
 
       return {
         total: messageIds.length,
@@ -342,7 +346,7 @@ export class MessageIndexer {
         failed: 0,
         errors: [],
         taskIds: [task.taskUid],
-      }
+      };
     } catch (error) {
       return {
         total: messageIds.length,
@@ -350,10 +354,10 @@ export class MessageIndexer {
         failed: messageIds.length,
         errors: messageIds.map((id) => ({
           id,
-          error: error instanceof Error ? error.message : 'Delete failed',
+          error: error instanceof Error ? error.message : "Delete failed",
         })),
         taskIds: [],
-      }
+      };
     }
   }
 
@@ -362,23 +366,23 @@ export class MessageIndexer {
    */
   async reindexChannel(
     channelId: string,
-    getMessages: () => Promise<MessageWithContext[]>
+    getMessages: () => Promise<MessageWithContext[]>,
   ): Promise<BatchIndexingResult> {
     // First, delete all existing messages for this channel
     try {
-      const index = getMessagesIndex()
+      const index = getMessagesIndex();
       await index.deleteDocuments({
         filter: `channel_id = "${channelId}"`,
-      })
+      });
     } catch {
       // Ignore delete errors, just proceed with reindex
     }
 
     // Get all messages for the channel
-    const messagesWithContext = await getMessages()
+    const messagesWithContext = await getMessages();
 
     // Index them
-    return this.indexMessages(messagesWithContext)
+    return this.indexMessages(messagesWithContext);
   }
 
   /**
@@ -386,19 +390,19 @@ export class MessageIndexer {
    */
   async reindexAll(
     getMessages: () => Promise<MessageWithContext[]>,
-    onProgress?: (progress: { indexed: number; total: number }) => void
+    onProgress?: (progress: { indexed: number; total: number }) => void,
   ): Promise<BatchIndexingResult> {
     // Clear the index
     try {
-      const index = getMessagesIndex()
-      await index.deleteAllDocuments()
+      const index = getMessagesIndex();
+      await index.deleteAllDocuments();
     } catch {
       // Ignore errors, proceed with reindex
     }
 
     // Get all messages
-    const messagesWithContext = await getMessages()
-    const total = messagesWithContext.length
+    const messagesWithContext = await getMessages();
+    const total = messagesWithContext.length;
 
     // Process in batches
     const results: BatchIndexingResult = {
@@ -407,23 +411,23 @@ export class MessageIndexer {
       failed: 0,
       errors: [],
       taskIds: [],
-    }
+    };
 
     for (let i = 0; i < messagesWithContext.length; i += this.batchSize) {
-      const batch = messagesWithContext.slice(i, i + this.batchSize)
-      const batchResult = await this.indexMessages(batch)
+      const batch = messagesWithContext.slice(i, i + this.batchSize);
+      const batchResult = await this.indexMessages(batch);
 
-      results.successful += batchResult.successful
-      results.failed += batchResult.failed
-      results.errors.push(...batchResult.errors)
-      results.taskIds.push(...batchResult.taskIds)
+      results.successful += batchResult.successful;
+      results.failed += batchResult.failed;
+      results.errors.push(...batchResult.errors);
+      results.taskIds.push(...batchResult.taskIds);
 
       if (onProgress) {
-        onProgress({ indexed: Math.min(i + this.batchSize, total), total })
+        onProgress({ indexed: Math.min(i + this.batchSize, total), total });
       }
     }
 
-    return results
+    return results;
   }
 
   /**
@@ -431,22 +435,22 @@ export class MessageIndexer {
    */
   async getStatus(): Promise<IndexingStatus> {
     try {
-      const client = getMeiliClient()
-      const index = getMessagesIndex()
-      const stats = await index.getStats()
+      const client = getMeiliClient();
+      const index = getMessagesIndex();
+      const stats = await index.getStats();
 
       // Get pending tasks
       const tasks = await client.tasks.getTasks({
         indexUids: [INDEXES.MESSAGES],
-        statuses: ['enqueued', 'processing'],
-      })
+        statuses: ["enqueued", "processing"],
+      });
 
       // Get last completed task
       const completedTasks = await client.tasks.getTasks({
         indexUids: [INDEXES.MESSAGES],
-        statuses: ['succeeded'],
+        statuses: ["succeeded"],
         limit: 1,
-      })
+      });
 
       return {
         indexed: stats.numberOfDocuments,
@@ -457,7 +461,7 @@ export class MessageIndexer {
             ? new Date(completedTasks.results[0].finishedAt || Date.now())
             : null,
         isIndexing: stats.isIndexing || tasks.total > 0,
-      }
+      };
     } catch {
       return {
         indexed: 0,
@@ -465,7 +469,7 @@ export class MessageIndexer {
         failed: 0,
         lastIndexedAt: null,
         isIndexing: this.isProcessing,
-      }
+      };
     }
   }
 
@@ -474,17 +478,17 @@ export class MessageIndexer {
    */
   async waitForCompletion(timeout = 30000): Promise<void> {
     // First flush any pending items
-    await this.flush()
+    await this.flush();
 
     // Then wait for MeiliSearch tasks
-    const client = getMeiliClient()
+    const client = getMeiliClient();
     const tasks = await client.tasks.getTasks({
       indexUids: [INDEXES.MESSAGES],
-      statuses: ['enqueued', 'processing'],
-    })
+      statuses: ["enqueued", "processing"],
+    });
 
     for (const task of tasks.results) {
-      await client.tasks.waitForTask(task.uid, { timeout: timeout })
+      await client.tasks.waitForTask(task.uid, { timeout: timeout });
     }
   }
 
@@ -493,8 +497,8 @@ export class MessageIndexer {
    */
   destroy(): void {
     if (this.batchTimeout) {
-      clearTimeout(this.batchTimeout)
-      this.batchTimeout = null
+      clearTimeout(this.batchTimeout);
+      this.batchTimeout = null;
     }
   }
 }
@@ -503,48 +507,48 @@ export class MessageIndexer {
 // Factory Functions
 // ============================================================================
 
-let defaultIndexer: MessageIndexer | null = null
+let defaultIndexer: MessageIndexer | null = null;
 
 /**
  * Get or create the default message indexer
  */
 export function getMessageIndexer(): MessageIndexer {
   if (!defaultIndexer) {
-    defaultIndexer = new MessageIndexer()
+    defaultIndexer = new MessageIndexer();
   }
-  return defaultIndexer
+  return defaultIndexer;
 }
 
 /**
  * Create a new message indexer instance
  */
 export function createMessageIndexer(options?: {
-  batchSize?: number
-  flushInterval?: number
+  batchSize?: number;
+  flushInterval?: number;
 }): MessageIndexer {
-  return new MessageIndexer(options)
+  return new MessageIndexer(options);
 }
 
 // ============================================================================
 // Event Subscription
 // ============================================================================
 
-import { realtimeClient } from '@/services/realtime/realtime-client'
+import { realtimeClient } from "@/services/realtime/realtime-client";
 import {
   REALTIME_EVENTS,
   type MessageNewEvent,
   type MessageUpdateEvent,
   type MessageDeleteEvent,
-} from '@/services/realtime/events.types'
-import { logger } from '@/lib/logger'
+} from "@/services/realtime/events.types";
+import { logger } from "@/lib/logger";
 
-export type MessageEventType = 'created' | 'updated' | 'deleted'
+export type MessageEventType = "created" | "updated" | "deleted";
 
 export interface MessageEvent {
-  type: MessageEventType
-  message: Message
-  channel?: Pick<Channel, 'id' | 'name'>
-  author?: Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl'>
+  type: MessageEventType;
+  message: Message;
+  channel?: Pick<Channel, "id" | "name">;
+  author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">;
 }
 
 /**
@@ -552,39 +556,39 @@ export interface MessageEvent {
  */
 export interface MessageEventSubscriptionConfig {
   /** Enable debug logging */
-  debug?: boolean
+  debug?: boolean;
   /** Process events immediately or queue for batch processing */
-  immediate?: boolean
+  immediate?: boolean;
   /** Retry failed index operations */
-  retryOnFailure?: boolean
+  retryOnFailure?: boolean;
   /** Maximum retry attempts */
-  maxRetries?: number
+  maxRetries?: number;
   /** Retry delay in milliseconds */
-  retryDelay?: number
+  retryDelay?: number;
 }
 
 /**
  * Subscription state tracking
  */
 interface SubscriptionState {
-  isActive: boolean
-  unsubscribeFunctions: Array<() => void>
-  pendingRetries: Map<string, { retries: number; timeout: NodeJS.Timeout }>
+  isActive: boolean;
+  unsubscribeFunctions: Array<() => void>;
+  pendingRetries: Map<string, { retries: number; timeout: NodeJS.Timeout }>;
 }
 
 /**
  * Transform realtime event user to indexer author format
  */
 function transformEventUser(
-  user?: MessageNewEvent['user'] | MessageUpdateEvent['editedBy']
-): Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl'> | undefined {
-  if (!user) return undefined
+  user?: MessageNewEvent["user"] | MessageUpdateEvent["editedBy"],
+): Pick<User, "id" | "username" | "displayName" | "avatarUrl"> | undefined {
+  if (!user) return undefined;
   return {
     id: user.id,
     username: user.username,
     displayName: user.displayName || user.username,
     avatarUrl: user.avatarUrl,
-  }
+  };
 }
 
 /**
@@ -597,26 +601,27 @@ function transformEventToMessage(event: MessageNewEvent): Message {
     userId: event.user.id,
     content: event.content,
     contentHtml: event.contentHtml,
-    type: event.type as Message['type'],
+    type: event.type as Message["type"],
     createdAt: new Date(event.createdAt),
     isEdited: false,
     isDeleted: false,
     isPinned: false,
     mentionedUsers: event.mentionedUserIds || [],
-    mentionsEveryone: event.mentionedRoles?.includes('@everyone') || false,
-    mentionsHere: event.mentionedRoles?.includes('@here') || false,
+    mentionsEveryone: event.mentionedRoles?.includes("@everyone") || false,
+    mentionsHere: event.mentionedRoles?.includes("@here") || false,
     parentThreadId: event.threadId,
-    attachments: event.attachments?.map((a) => ({
-      id: a.id,
-      type: a.type as 'image' | 'video' | 'audio' | 'file' | 'link',
-      url: a.url,
-      name: a.filename,
-      size: a.size,
-      mimeType: a.mimeType,
-      width: a.width,
-      height: a.height,
-      thumbnailUrl: a.thumbnailUrl,
-    })) || [],
+    attachments:
+      event.attachments?.map((a) => ({
+        id: a.id,
+        type: a.type as "image" | "video" | "audio" | "file" | "link",
+        url: a.url,
+        name: a.filename,
+        size: a.size,
+        mimeType: a.mimeType,
+        width: a.width,
+        height: a.height,
+        thumbnailUrl: a.thumbnailUrl,
+      })) || [],
     reactions: [],
     user: {
       id: event.user.id,
@@ -624,7 +629,7 @@ function transformEventToMessage(event: MessageNewEvent): Message {
       displayName: event.user.displayName || event.user.username,
       avatarUrl: event.user.avatarUrl,
     },
-  }
+  };
 }
 
 /**
@@ -632,7 +637,7 @@ function transformEventToMessage(event: MessageNewEvent): Message {
  */
 function transformUpdateEventToMessage(
   event: MessageUpdateEvent,
-  existingMessage?: Partial<Message>
+  existingMessage?: Partial<Message>,
 ): Message {
   return {
     id: event.id,
@@ -640,7 +645,7 @@ function transformUpdateEventToMessage(
     userId: existingMessage?.userId || event.editedBy.id,
     content: event.content,
     contentHtml: event.contentHtml,
-    type: existingMessage?.type || 'text',
+    type: existingMessage?.type || "text",
     createdAt: existingMessage?.createdAt || new Date(),
     updatedAt: new Date(event.editedAt),
     editedAt: new Date(event.editedAt),
@@ -658,7 +663,7 @@ function transformUpdateEventToMessage(
       displayName: event.editedBy.displayName || event.editedBy.username,
       avatarUrl: event.editedBy.avatarUrl,
     },
-  }
+  };
 }
 
 /**
@@ -673,7 +678,7 @@ function transformUpdateEventToMessage(
 export function subscribeToMessageEvents(
   indexer: MessageIndexer,
   onEvent?: (event: MessageEvent) => void,
-  config: MessageEventSubscriptionConfig = {}
+  config: MessageEventSubscriptionConfig = {},
 ): () => void {
   const {
     debug = false,
@@ -681,19 +686,19 @@ export function subscribeToMessageEvents(
     retryOnFailure = true,
     maxRetries = 3,
     retryDelay = 1000,
-  } = config
+  } = config;
 
   const state: SubscriptionState = {
     isActive: true,
     unsubscribeFunctions: [],
     pendingRetries: new Map(),
-  }
+  };
 
   const log = (message: string, context?: Record<string, unknown>) => {
     if (debug) {
-      logger.debug(`[MessageIndexer:Subscription] ${message}`, context)
+      logger.debug(`[MessageIndexer:Subscription] ${message}`, context);
     }
-  }
+  };
 
   /**
    * Retry failed indexing operation with exponential backoff
@@ -701,245 +706,279 @@ export function subscribeToMessageEvents(
   const retryOperation = async (
     messageId: string,
     operation: () => Promise<IndexingResult>,
-    operationType: string
+    operationType: string,
   ): Promise<void> => {
-    const retryState = state.pendingRetries.get(messageId)
-    const currentRetry = retryState?.retries || 0
+    const retryState = state.pendingRetries.get(messageId);
+    const currentRetry = retryState?.retries || 0;
 
     if (currentRetry >= maxRetries) {
-      log('Max retries reached', { operationType, messageId })
-      state.pendingRetries.delete(messageId)
-      return
+      log("Max retries reached", { operationType, messageId });
+      state.pendingRetries.delete(messageId);
+      return;
     }
 
-    const delay = retryDelay * Math.pow(2, currentRetry)
-    log('Scheduling retry', { attempt: currentRetry + 1, maxRetries, operationType, messageId, delayMs: delay })
+    const delay = retryDelay * Math.pow(2, currentRetry);
+    log("Scheduling retry", {
+      attempt: currentRetry + 1,
+      maxRetries,
+      operationType,
+      messageId,
+      delayMs: delay,
+    });
 
     const timeout = setTimeout(async () => {
-      if (!state.isActive) return
+      if (!state.isActive) return;
 
       try {
-        const result = await operation()
+        const result = await operation();
         if (result.success) {
-          log('Retry successful', { operationType, messageId })
-          state.pendingRetries.delete(messageId)
+          log("Retry successful", { operationType, messageId });
+          state.pendingRetries.delete(messageId);
         } else {
           state.pendingRetries.set(messageId, {
             retries: currentRetry + 1,
             timeout: timeout,
-          })
-          await retryOperation(messageId, operation, operationType)
+          });
+          await retryOperation(messageId, operation, operationType);
         }
       } catch (error) {
-        log('Retry failed', { operationType, messageId, error: error instanceof Error ? error.message : String(error) })
+        log("Retry failed", {
+          operationType,
+          messageId,
+          error: error instanceof Error ? error.message : String(error),
+        });
         state.pendingRetries.set(messageId, {
           retries: currentRetry + 1,
           timeout: timeout,
-        })
-        await retryOperation(messageId, operation, operationType)
+        });
+        await retryOperation(messageId, operation, operationType);
       }
-    }, delay)
+    }, delay);
 
-    state.pendingRetries.set(messageId, { retries: currentRetry, timeout })
-  }
+    state.pendingRetries.set(messageId, { retries: currentRetry, timeout });
+  };
 
   /**
    * Handle new message event
    */
   const handleMessageNew = async (payload: MessageNewEvent) => {
-    if (!state.isActive) return
+    if (!state.isActive) return;
 
-    log('Received message:new event', { messageId: payload.id })
+    log("Received message:new event", { messageId: payload.id });
 
-    const message = transformEventToMessage(payload)
-    const author = transformEventUser(payload.user)
-    const channel = { id: payload.channelId, name: '' } // Channel name not in event
+    const message = transformEventToMessage(payload);
+    const author = transformEventUser(payload.user);
+    const channel = { id: payload.channelId, name: "" }; // Channel name not in event
 
     const event: MessageEvent = {
-      type: 'created',
+      type: "created",
       message,
       channel,
       author,
-    }
+    };
 
     // Notify listener
-    onEvent?.(event)
+    onEvent?.(event);
 
     // Index the message
     if (immediate) {
       try {
-        const result = await indexer.indexMessage(message, channel, author)
+        const result = await indexer.indexMessage(message, channel, author);
         if (!result.success && retryOnFailure) {
           await retryOperation(
             message.id,
             () => indexer.indexMessage(message, channel, author),
-            'index'
-          )
+            "index",
+          );
         }
-        log('Indexed new message', { messageId: message.id, success: result.success })
+        log("Indexed new message", {
+          messageId: message.id,
+          success: result.success,
+        });
       } catch (error) {
-        logger.error('[MessageIndexer:Subscription] Error indexing new message', error instanceof Error ? error : undefined, { messageId: message.id })
+        logger.error(
+          "[MessageIndexer:Subscription] Error indexing new message",
+          error instanceof Error ? error : undefined,
+          { messageId: message.id },
+        );
         if (retryOnFailure) {
           await retryOperation(
             message.id,
             () => indexer.indexMessage(message, channel, author),
-            'index'
-          )
+            "index",
+          );
         }
       }
     } else {
-      indexer.queueMessage(message, channel, author)
+      indexer.queueMessage(message, channel, author);
     }
-  }
+  };
 
   /**
    * Handle message update event
    */
   const handleMessageUpdate = async (payload: MessageUpdateEvent) => {
-    if (!state.isActive) return
+    if (!state.isActive) return;
 
-    log('Received message:update event', { messageId: payload.id })
+    log("Received message:update event", { messageId: payload.id });
 
-    const message = transformUpdateEventToMessage(payload)
-    const author = transformEventUser(payload.editedBy)
-    const channel = { id: payload.channelId, name: '' }
+    const message = transformUpdateEventToMessage(payload);
+    const author = transformEventUser(payload.editedBy);
+    const channel = { id: payload.channelId, name: "" };
 
     const event: MessageEvent = {
-      type: 'updated',
+      type: "updated",
       message,
       channel,
       author,
-    }
+    };
 
     // Notify listener
-    onEvent?.(event)
+    onEvent?.(event);
 
     // Update the index
     try {
-      const result = await indexer.updateMessage(message, channel, author)
+      const result = await indexer.updateMessage(message, channel, author);
       if (!result.success && retryOnFailure) {
         await retryOperation(
           message.id,
           () => indexer.updateMessage(message, channel, author),
-          'update'
-        )
+          "update",
+        );
       }
-      log('Updated message in index', { messageId: message.id, success: result.success })
+      log("Updated message in index", {
+        messageId: message.id,
+        success: result.success,
+      });
     } catch (error) {
-      logger.error('[MessageIndexer:Subscription] Error updating message', error instanceof Error ? error : undefined, { messageId: message.id })
+      logger.error(
+        "[MessageIndexer:Subscription] Error updating message",
+        error instanceof Error ? error : undefined,
+        { messageId: message.id },
+      );
       if (retryOnFailure) {
         await retryOperation(
           message.id,
           () => indexer.updateMessage(message, channel, author),
-          'update'
-        )
+          "update",
+        );
       }
     }
-  }
+  };
 
   /**
    * Handle message delete event
    */
   const handleMessageDelete = async (payload: MessageDeleteEvent) => {
-    if (!state.isActive) return
+    if (!state.isActive) return;
 
-    log('Received message:delete event', { messageId: payload.id })
+    log("Received message:delete event", { messageId: payload.id });
 
     // Create minimal message for event (for the callback only)
     const message: Message = {
       id: payload.id,
       channelId: payload.channelId,
-      userId: payload.deletedBy?.id || '',
-      content: '',
-      type: 'text',
+      userId: payload.deletedBy?.id || "",
+      content: "",
+      type: "text",
       createdAt: new Date(),
       isEdited: false,
       isDeleted: true,
       deletedAt: new Date(payload.deletedAt),
       user: {
-        id: payload.deletedBy?.id || '',
-        username: payload.deletedBy?.username || '',
-        displayName: payload.deletedBy?.displayName || payload.deletedBy?.username || '',
+        id: payload.deletedBy?.id || "",
+        username: payload.deletedBy?.username || "",
+        displayName:
+          payload.deletedBy?.displayName || payload.deletedBy?.username || "",
       },
-    }
+    };
 
     const event: MessageEvent = {
-      type: 'deleted',
+      type: "deleted",
       message,
-      channel: { id: payload.channelId, name: '' },
-    }
+      channel: { id: payload.channelId, name: "" },
+    };
 
     // Notify listener
-    onEvent?.(event)
+    onEvent?.(event);
 
     // Remove from index
     try {
-      const result = await indexer.removeMessage(payload.id)
+      const result = await indexer.removeMessage(payload.id);
       if (!result.success && retryOnFailure) {
         await retryOperation(
           payload.id,
           () => indexer.removeMessage(payload.id),
-          'delete'
-        )
+          "delete",
+        );
       }
-      log('Removed message from index', { messageId: payload.id, success: result.success })
+      log("Removed message from index", {
+        messageId: payload.id,
+        success: result.success,
+      });
     } catch (error) {
-      logger.error('[MessageIndexer:Subscription] Error removing message', error instanceof Error ? error : undefined, { messageId: payload.id })
+      logger.error(
+        "[MessageIndexer:Subscription] Error removing message",
+        error instanceof Error ? error : undefined,
+        { messageId: payload.id },
+      );
       if (retryOnFailure) {
         await retryOperation(
           payload.id,
           () => indexer.removeMessage(payload.id),
-          'delete'
-        )
+          "delete",
+        );
       }
     }
-  }
+  };
 
   // Subscribe to realtime events via Socket.io
-  log('Subscribing to realtime message events', { events: ['message:new', 'message:update', 'message:delete'] })
+  log("Subscribing to realtime message events", {
+    events: ["message:new", "message:update", "message:delete"],
+  });
 
   // Subscribe to message:new events
   const unsubNew = realtimeClient.on<MessageNewEvent>(
     REALTIME_EVENTS.MESSAGE_NEW,
-    handleMessageNew
-  )
-  state.unsubscribeFunctions.push(unsubNew)
+    handleMessageNew,
+  );
+  state.unsubscribeFunctions.push(unsubNew);
 
   // Subscribe to message:update events
   const unsubUpdate = realtimeClient.on<MessageUpdateEvent>(
     REALTIME_EVENTS.MESSAGE_UPDATE,
-    handleMessageUpdate
-  )
-  state.unsubscribeFunctions.push(unsubUpdate)
+    handleMessageUpdate,
+  );
+  state.unsubscribeFunctions.push(unsubUpdate);
 
   // Subscribe to message:delete events
   const unsubDelete = realtimeClient.on<MessageDeleteEvent>(
     REALTIME_EVENTS.MESSAGE_DELETE,
-    handleMessageDelete
-  )
-  state.unsubscribeFunctions.push(unsubDelete)
+    handleMessageDelete,
+  );
+  state.unsubscribeFunctions.push(unsubDelete);
 
-  log('Subscribed to realtime message events', { subscriptionCount: 3 })
+  log("Subscribed to realtime message events", { subscriptionCount: 3 });
 
   // Return unsubscribe function
   return () => {
-    log('Unsubscribing from realtime message events')
-    state.isActive = false
+    log("Unsubscribing from realtime message events");
+    state.isActive = false;
 
     // Clear all pending retries
     for (const [, retryState] of state.pendingRetries) {
-      clearTimeout(retryState.timeout)
+      clearTimeout(retryState.timeout);
     }
-    state.pendingRetries.clear()
+    state.pendingRetries.clear();
 
     // Unsubscribe from all events
     for (const unsubscribe of state.unsubscribeFunctions) {
-      unsubscribe()
+      unsubscribe();
     }
-    state.unsubscribeFunctions = []
+    state.unsubscribeFunctions = [];
 
-    log('Unsubscribed from realtime message events')
-  }
+    log("Unsubscribed from realtime message events");
+  };
 }
 
 /**
@@ -952,8 +991,8 @@ export interface GraphQLSubscriptionAdapter {
     subscription: unknown,
     variables: unknown,
     onData: (data: T) => void,
-    onError?: (error: Error) => void
-  ) => () => void
+    onError?: (error: Error) => void,
+  ) => () => void;
 }
 
 /**
@@ -970,46 +1009,50 @@ export function subscribeToMessageEventsViaGraphQL(
   indexer: MessageIndexer,
   adapter: GraphQLSubscriptionAdapter,
   channelId: string,
-  onEvent?: (event: MessageEvent) => void
+  onEvent?: (event: MessageEvent) => void,
 ): () => void {
-  const unsubscribeFunctions: Array<() => void> = []
+  const unsubscribeFunctions: Array<() => void> = [];
 
   // Subscribe to new messages
   // Note: The actual GraphQL subscription documents would be imported from
   // @/graphql/messages/subscriptions but we keep this generic for flexibility
   const handleNewMessage = (data: { nchat_messages: Array<Message> }) => {
-    const messages = data.nchat_messages
+    const messages = data.nchat_messages;
     if (messages && messages.length > 0) {
-      const message = messages[0]
+      const message = messages[0];
       const event: MessageEvent = {
-        type: 'created',
+        type: "created",
         message,
-        channel: { id: channelId, name: '' },
-        author: message.user ? {
-          id: message.user.id,
-          username: message.user.username,
-          displayName: message.user.displayName,
-          avatarUrl: message.user.avatarUrl,
-        } : undefined,
-      }
-      onEvent?.(event)
-      indexer.queueMessage(message, event.channel, event.author)
+        channel: { id: channelId, name: "" },
+        author: message.user
+          ? {
+              id: message.user.id,
+              username: message.user.username,
+              displayName: message.user.displayName,
+              avatarUrl: message.user.avatarUrl,
+            }
+          : undefined,
+      };
+      onEvent?.(event);
+      indexer.queueMessage(message, event.channel, event.author);
     }
-  }
+  };
 
   // This is a template for GraphQL subscription integration
   // Actual implementation would use Apollo Client subscriptions
-  logger.info('[MessageIndexer] GraphQL subscription adapter ready', { channelId })
+  logger.info("[MessageIndexer] GraphQL subscription adapter ready", {
+    channelId,
+  });
 
   return () => {
     for (const unsubscribe of unsubscribeFunctions) {
-      unsubscribe()
+      unsubscribe();
     }
-  }
+  };
 }
 
 // ============================================================================
 // Export
 // ============================================================================
 
-export default MessageIndexer
+export default MessageIndexer;

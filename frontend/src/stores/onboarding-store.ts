@@ -4,9 +4,9 @@
  * Manages all onboarding-related state with persistence and devtools support
  */
 
-import { create } from 'zustand'
-import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 import type {
   OnboardingState,
@@ -27,7 +27,7 @@ import type {
   SuggestedChannel,
   TeamInvitation,
   InvitationResult,
-} from '@/lib/onboarding/onboarding-types'
+} from "@/lib/onboarding/onboarding-types";
 
 import {
   createInitialOnboardingState,
@@ -42,7 +42,7 @@ import {
   isOnboardingCompleted,
   defaultOnboardingConfig,
   startOnboarding,
-} from '@/lib/onboarding/onboarding-manager'
+} from "@/lib/onboarding/onboarding-manager";
 
 import {
   createInitialTourState,
@@ -52,7 +52,7 @@ import {
   isTourCompleted,
   defaultTourConfig,
   tourStops,
-} from '@/lib/onboarding/tour-manager'
+} from "@/lib/onboarding/tour-manager";
 
 import {
   createInitialFeatureDiscoveryState,
@@ -64,7 +64,7 @@ import {
   markAllWhatsNewSeen,
   dismissWhatsNew,
   defaultFeatureDiscoveryConfig,
-} from '@/lib/onboarding/feature-discovery'
+} from "@/lib/onboarding/feature-discovery";
 
 import {
   trackOnboardingStepStarted,
@@ -77,7 +77,7 @@ import {
   trackTourDismissed,
   trackTipShown,
   trackTipDismissed,
-} from '@/lib/onboarding/onboarding-analytics'
+} from "@/lib/onboarding/onboarding-analytics";
 
 // ============================================================================
 // Store State Types
@@ -85,107 +85,107 @@ import {
 
 export interface OnboardingStoreState {
   // User identification
-  userId: string | null
+  userId: string | null;
 
   // Onboarding state
-  onboarding: OnboardingState | null
-  onboardingConfig: OnboardingConfig
+  onboarding: OnboardingState | null;
+  onboardingConfig: OnboardingConfig;
 
   // Tour state
-  tour: TourState | null
-  tourConfig: TourConfig
-  tourActive: boolean
+  tour: TourState | null;
+  tourConfig: TourConfig;
+  tourActive: boolean;
 
   // Feature discovery state
-  featureDiscovery: FeatureDiscoveryState | null
-  featureDiscoveryConfig: FeatureDiscoveryConfig
+  featureDiscovery: FeatureDiscoveryState | null;
+  featureDiscoveryConfig: FeatureDiscoveryConfig;
 
   // What's new state
-  whatsNew: WhatsNewState
-  whatsNewModalOpen: boolean
+  whatsNew: WhatsNewState;
+  whatsNewModalOpen: boolean;
 
   // UI state
-  onboardingDialogOpen: boolean
-  currentStepStartTime: Date | null
+  onboardingDialogOpen: boolean;
+  currentStepStartTime: Date | null;
 
   // Form data (temporary storage during onboarding)
-  profileData: Partial<UserProfile>
-  preferencesData: Partial<OnboardingPreferences>
-  notificationSettings: Partial<NotificationSettings>
-  selectedChannels: string[]
-  teamInvitations: TeamInvitation[]
-  invitationResults: InvitationResult[]
+  profileData: Partial<UserProfile>;
+  preferencesData: Partial<OnboardingPreferences>;
+  notificationSettings: Partial<NotificationSettings>;
+  selectedChannels: string[];
+  teamInvitations: TeamInvitation[];
+  invitationResults: InvitationResult[];
 
   // Loading states
-  isLoading: boolean
-  isSaving: boolean
-  error: string | null
+  isLoading: boolean;
+  isSaving: boolean;
+  error: string | null;
 }
 
 export interface OnboardingStoreActions {
   // Initialization
-  initialize: (userId: string) => void
-  reset: () => void
+  initialize: (userId: string) => void;
+  reset: () => void;
 
   // Onboarding actions
-  startOnboarding: () => void
-  completeStep: (data?: Record<string, unknown>) => void
-  skipStep: () => void
-  previousStep: () => void
-  goToStep: (stepId: OnboardingStepId) => void
-  skipAllOnboarding: () => void
-  resetOnboarding: () => void
-  setOnboardingConfig: (config: Partial<OnboardingConfig>) => void
+  startOnboarding: () => void;
+  completeStep: (data?: Record<string, unknown>) => void;
+  skipStep: () => void;
+  previousStep: () => void;
+  goToStep: (stepId: OnboardingStepId) => void;
+  skipAllOnboarding: () => void;
+  resetOnboarding: () => void;
+  setOnboardingConfig: (config: Partial<OnboardingConfig>) => void;
 
   // Tour actions
-  startTour: () => void
-  nextTourStop: () => void
-  previousTourStop: () => void
-  goToTourStop: (stopId: TourStopId) => void
-  completeTour: () => void
-  dismissTour: () => void
-  setTourActive: (active: boolean) => void
-  setTourConfig: (config: Partial<TourConfig>) => void
+  startTour: () => void;
+  nextTourStop: () => void;
+  previousTourStop: () => void;
+  goToTourStop: (stopId: TourStopId) => void;
+  completeTour: () => void;
+  dismissTour: () => void;
+  setTourActive: (active: boolean) => void;
+  setTourConfig: (config: Partial<TourConfig>) => void;
 
   // Feature discovery actions
-  discoverFeature: (featureId: FeatureId) => void
-  seeTip: (tipId: string) => void
-  dismissFeatureTip: (tipId: string) => void
-  setFeatureDiscoveryConfig: (config: Partial<FeatureDiscoveryConfig>) => void
+  discoverFeature: (featureId: FeatureId) => void;
+  seeTip: (tipId: string) => void;
+  dismissFeatureTip: (tipId: string) => void;
+  setFeatureDiscoveryConfig: (config: Partial<FeatureDiscoveryConfig>) => void;
 
   // What's new actions
-  seeWhatsNewItem: (itemId: string) => void
-  seeAllWhatsNew: () => void
-  dismissWhatsNewModal: (days?: number) => void
-  openWhatsNewModal: () => void
-  closeWhatsNewModal: () => void
+  seeWhatsNewItem: (itemId: string) => void;
+  seeAllWhatsNew: () => void;
+  dismissWhatsNewModal: (days?: number) => void;
+  openWhatsNewModal: () => void;
+  closeWhatsNewModal: () => void;
 
   // Form data actions
-  updateProfileData: (data: Partial<UserProfile>) => void
-  updatePreferencesData: (data: Partial<OnboardingPreferences>) => void
-  updateNotificationSettings: (data: Partial<NotificationSettings>) => void
-  setSelectedChannels: (channelIds: string[]) => void
-  toggleChannelSelection: (channelId: string) => void
-  addTeamInvitation: (invitation: TeamInvitation) => void
-  removeTeamInvitation: (email: string) => void
-  setInvitationResults: (results: InvitationResult[]) => void
-  clearFormData: () => void
+  updateProfileData: (data: Partial<UserProfile>) => void;
+  updatePreferencesData: (data: Partial<OnboardingPreferences>) => void;
+  updateNotificationSettings: (data: Partial<NotificationSettings>) => void;
+  setSelectedChannels: (channelIds: string[]) => void;
+  toggleChannelSelection: (channelId: string) => void;
+  addTeamInvitation: (invitation: TeamInvitation) => void;
+  removeTeamInvitation: (email: string) => void;
+  setInvitationResults: (results: InvitationResult[]) => void;
+  clearFormData: () => void;
 
   // UI actions
-  setOnboardingDialogOpen: (open: boolean) => void
-  setLoading: (loading: boolean) => void
-  setSaving: (saving: boolean) => void
-  setError: (error: string | null) => void
+  setOnboardingDialogOpen: (open: boolean) => void;
+  setLoading: (loading: boolean) => void;
+  setSaving: (saving: boolean) => void;
+  setError: (error: string | null) => void;
 
   // Computed getters
-  getOnboardingProgress: () => OnboardingProgress | null
-  getTourProgress: () => TourProgress | null
-  shouldShowOnboarding: () => boolean
-  shouldShowTour: () => boolean
-  shouldShowWhatsNew: () => boolean
+  getOnboardingProgress: () => OnboardingProgress | null;
+  getTourProgress: () => TourProgress | null;
+  shouldShowOnboarding: () => boolean;
+  shouldShowTour: () => boolean;
+  shouldShowWhatsNew: () => boolean;
 }
 
-export type OnboardingStore = OnboardingStoreState & OnboardingStoreActions
+export type OnboardingStore = OnboardingStoreState & OnboardingStoreActions;
 
 // ============================================================================
 // Initial State
@@ -213,7 +213,7 @@ const initialState: OnboardingStoreState = {
   isLoading: false,
   isSaving: false,
   error: null,
-}
+};
 
 // ============================================================================
 // Store
@@ -233,26 +233,30 @@ export const useOnboardingStore = create<OnboardingStore>()(
           initialize: (userId: string) =>
             set(
               (state) => {
-                state.userId = userId
+                state.userId = userId;
 
                 // Only create new states if not already existing for this user
                 if (!state.onboarding || state.onboarding.userId !== userId) {
-                  state.onboarding = createInitialOnboardingState(userId)
+                  state.onboarding = createInitialOnboardingState(userId);
                 }
 
                 if (!state.tour || state.tour.userId !== userId) {
-                  state.tour = createInitialTourState(userId)
+                  state.tour = createInitialTourState(userId);
                 }
 
-                if (!state.featureDiscovery || state.featureDiscovery.userId !== userId) {
-                  state.featureDiscovery = createInitialFeatureDiscoveryState(userId)
+                if (
+                  !state.featureDiscovery ||
+                  state.featureDiscovery.userId !== userId
+                ) {
+                  state.featureDiscovery =
+                    createInitialFeatureDiscoveryState(userId);
                 }
               },
               false,
-              'onboarding/initialize'
+              "onboarding/initialize",
             ),
 
-          reset: () => set(() => initialState, false, 'onboarding/reset'),
+          reset: () => set(() => initialState, false, "onboarding/reset"),
 
           // ================================================================
           // Onboarding Actions
@@ -261,134 +265,141 @@ export const useOnboardingStore = create<OnboardingStore>()(
           startOnboarding: () =>
             set(
               (state) => {
-                if (!state.onboarding) return
+                if (!state.onboarding) return;
 
-                state.onboarding = startOnboarding(state.onboarding)
-                state.currentStepStartTime = new Date()
+                state.onboarding = startOnboarding(state.onboarding);
+                state.currentStepStartTime = new Date();
 
-                trackOnboardingStepStarted(state.onboarding.currentStepId)
+                trackOnboardingStepStarted(state.onboarding.currentStepId);
               },
               false,
-              'onboarding/startOnboarding'
+              "onboarding/startOnboarding",
             ),
 
           completeStep: (data) =>
             set(
               (state) => {
-                if (!state.onboarding) return
+                if (!state.onboarding) return;
 
-                const startTime = state.currentStepStartTime
-                const currentStepId = state.onboarding.currentStepId
+                const startTime = state.currentStepStartTime;
+                const currentStepId = state.onboarding.currentStepId;
 
                 // Track completion
                 if (startTime) {
-                  const duration = Math.round((new Date().getTime() - startTime.getTime()) / 1000)
-                  trackOnboardingStepCompleted(currentStepId, duration, data)
+                  const duration = Math.round(
+                    (new Date().getTime() - startTime.getTime()) / 1000,
+                  );
+                  trackOnboardingStepCompleted(currentStepId, duration, data);
                 }
 
-                state.onboarding = completeCurrentStep(state.onboarding, data)
-                state.currentStepStartTime = new Date()
+                state.onboarding = completeCurrentStep(state.onboarding, data);
+                state.currentStepStartTime = new Date();
 
                 // Check if onboarding is now completed
                 if (isOnboardingCompleted(state.onboarding)) {
                   trackOnboardingCompleted(
                     state.onboarding.startedAt
                       ? Math.round(
-                          (new Date().getTime() - state.onboarding.startedAt.getTime()) / 1000
+                          (new Date().getTime() -
+                            state.onboarding.startedAt.getTime()) /
+                            1000,
                         )
-                      : 0
-                  )
+                      : 0,
+                  );
                 } else {
-                  trackOnboardingStepStarted(state.onboarding.currentStepId)
+                  trackOnboardingStepStarted(state.onboarding.currentStepId);
                 }
               },
               false,
-              'onboarding/completeStep'
+              "onboarding/completeStep",
             ),
 
           skipStep: () =>
             set(
               (state) => {
-                if (!state.onboarding) return
+                if (!state.onboarding) return;
 
-                const currentStepId = state.onboarding.currentStepId
-                trackOnboardingStepSkipped(currentStepId)
+                const currentStepId = state.onboarding.currentStepId;
+                trackOnboardingStepSkipped(currentStepId);
 
-                state.onboarding = skipCurrentStep(state.onboarding)
-                state.currentStepStartTime = new Date()
+                state.onboarding = skipCurrentStep(state.onboarding);
+                state.currentStepStartTime = new Date();
 
                 if (!isOnboardingCompleted(state.onboarding)) {
-                  trackOnboardingStepStarted(state.onboarding.currentStepId)
+                  trackOnboardingStepStarted(state.onboarding.currentStepId);
                 }
               },
               false,
-              'onboarding/skipStep'
+              "onboarding/skipStep",
             ),
 
           previousStep: () =>
             set(
               (state) => {
-                if (!state.onboarding) return
+                if (!state.onboarding) return;
 
-                state.onboarding = goToPreviousStep(state.onboarding)
-                state.currentStepStartTime = new Date()
+                state.onboarding = goToPreviousStep(state.onboarding);
+                state.currentStepStartTime = new Date();
 
-                trackOnboardingStepStarted(state.onboarding.currentStepId)
+                trackOnboardingStepStarted(state.onboarding.currentStepId);
               },
               false,
-              'onboarding/previousStep'
+              "onboarding/previousStep",
             ),
 
           goToStep: (stepId) =>
             set(
               (state) => {
-                if (!state.onboarding) return
+                if (!state.onboarding) return;
 
-                state.onboarding = goToStep(state.onboarding, stepId)
-                state.currentStepStartTime = new Date()
+                state.onboarding = goToStep(state.onboarding, stepId);
+                state.currentStepStartTime = new Date();
 
-                trackOnboardingStepStarted(stepId)
+                trackOnboardingStepStarted(stepId);
               },
               false,
-              'onboarding/goToStep'
+              "onboarding/goToStep",
             ),
 
           skipAllOnboarding: () =>
             set(
               (state) => {
-                if (!state.onboarding) return
+                if (!state.onboarding) return;
 
-                state.onboarding = skipOnboarding(state.onboarding)
+                state.onboarding = skipOnboarding(state.onboarding);
               },
               false,
-              'onboarding/skipAllOnboarding'
+              "onboarding/skipAllOnboarding",
             ),
 
           resetOnboarding: () =>
             set(
               (state) => {
-                if (!state.onboarding) return
+                if (!state.onboarding) return;
 
-                state.onboarding = resetOnboarding(state.onboarding)
-                state.currentStepStartTime = null
-                state.profileData = {}
-                state.preferencesData = {}
-                state.notificationSettings = {}
-                state.selectedChannels = []
-                state.teamInvitations = []
-                state.invitationResults = []
+                state.onboarding = resetOnboarding(state.onboarding);
+                state.currentStepStartTime = null;
+                state.profileData = {};
+                state.preferencesData = {};
+                state.notificationSettings = {};
+                state.selectedChannels = [];
+                state.teamInvitations = [];
+                state.invitationResults = [];
               },
               false,
-              'onboarding/resetOnboarding'
+              "onboarding/resetOnboarding",
             ),
 
           setOnboardingConfig: (config) =>
             set(
               (state) => {
-                state.onboardingConfig = { ...state.onboardingConfig, ...config }
+                state.onboardingConfig = {
+                  ...state.onboardingConfig,
+                  ...config,
+                };
               },
               false,
-              'onboarding/setOnboardingConfig'
+              "onboarding/setOnboardingConfig",
             ),
 
           // ================================================================
@@ -398,142 +409,152 @@ export const useOnboardingStore = create<OnboardingStore>()(
           startTour: () =>
             set(
               (state) => {
-                if (!state.tour) return
+                if (!state.tour) return;
 
-                state.tour.status = 'in_progress'
-                state.tour.startedAt = new Date()
-                state.tour.currentStopId = tourStops[0]?.id ?? null
-                state.tourActive = true
+                state.tour.status = "in_progress";
+                state.tour.startedAt = new Date();
+                state.tour.currentStopId = tourStops[0]?.id ?? null;
+                state.tourActive = true;
 
-                trackTourStarted()
+                trackTourStarted();
               },
               false,
-              'onboarding/startTour'
+              "onboarding/startTour",
             ),
 
           nextTourStop: () =>
             set(
               (state) => {
-                if (!state.tour || !state.tour.currentStopId) return
+                if (!state.tour || !state.tour.currentStopId) return;
 
-                const currentStopId = state.tour.currentStopId
-                trackTourStopViewed(currentStopId)
+                const currentStopId = state.tour.currentStopId;
+                trackTourStopViewed(currentStopId);
 
                 // Mark current as completed
                 if (!state.tour.completedStops.includes(currentStopId)) {
-                  state.tour.completedStops.push(currentStopId)
+                  state.tour.completedStops.push(currentStopId);
                 }
 
                 // Move to next
-                const nextStop = getNextTourStop(currentStopId)
+                const nextStop = getNextTourStop(currentStopId);
                 if (nextStop) {
-                  state.tour.currentStopId = nextStop.id
+                  state.tour.currentStopId = nextStop.id;
                 } else {
                   // Tour complete
-                  state.tour.status = 'completed'
-                  state.tour.completedAt = new Date()
-                  state.tour.currentStopId = null
-                  state.tourActive = false
+                  state.tour.status = "completed";
+                  state.tour.completedAt = new Date();
+                  state.tour.currentStopId = null;
+                  state.tourActive = false;
 
                   trackTourCompleted(
                     state.tour.startedAt
-                      ? Math.round((new Date().getTime() - state.tour.startedAt.getTime()) / 1000)
-                      : 0
-                  )
+                      ? Math.round(
+                          (new Date().getTime() -
+                            state.tour.startedAt.getTime()) /
+                            1000,
+                        )
+                      : 0,
+                  );
                 }
               },
               false,
-              'onboarding/nextTourStop'
+              "onboarding/nextTourStop",
             ),
 
           previousTourStop: () =>
             set(
               (state) => {
-                if (!state.tour || !state.tour.currentStopId) return
+                if (!state.tour || !state.tour.currentStopId) return;
 
-                const currentStop = getTourStopById(state.tour.currentStopId)
-                if (!currentStop || currentStop.order === 0) return
+                const currentStop = getTourStopById(state.tour.currentStopId);
+                if (!currentStop || currentStop.order === 0) return;
 
-                const prevStop = tourStops.find((s) => s.order === currentStop.order - 1)
+                const prevStop = tourStops.find(
+                  (s) => s.order === currentStop.order - 1,
+                );
                 if (prevStop) {
-                  state.tour.currentStopId = prevStop.id
+                  state.tour.currentStopId = prevStop.id;
                 }
               },
               false,
-              'onboarding/previousTourStop'
+              "onboarding/previousTourStop",
             ),
 
           goToTourStop: (stopId) =>
             set(
               (state) => {
-                if (!state.tour) return
+                if (!state.tour) return;
 
-                const stop = getTourStopById(stopId)
+                const stop = getTourStopById(stopId);
                 if (stop) {
-                  state.tour.currentStopId = stopId
+                  state.tour.currentStopId = stopId;
                 }
               },
               false,
-              'onboarding/goToTourStop'
+              "onboarding/goToTourStop",
             ),
 
           completeTour: () =>
             set(
               (state) => {
-                if (!state.tour) return
+                if (!state.tour) return;
 
-                state.tour.status = 'completed'
-                state.tour.completedAt = new Date()
-                state.tour.completedStops = tourStops.map((s) => s.id)
-                state.tour.currentStopId = null
-                state.tourActive = false
+                state.tour.status = "completed";
+                state.tour.completedAt = new Date();
+                state.tour.completedStops = tourStops.map((s) => s.id);
+                state.tour.currentStopId = null;
+                state.tourActive = false;
 
                 trackTourCompleted(
                   state.tour.startedAt
-                    ? Math.round((new Date().getTime() - state.tour.startedAt.getTime()) / 1000)
-                    : 0
-                )
+                    ? Math.round(
+                        (new Date().getTime() -
+                          state.tour.startedAt.getTime()) /
+                          1000,
+                      )
+                    : 0,
+                );
               },
               false,
-              'onboarding/completeTour'
+              "onboarding/completeTour",
             ),
 
           dismissTour: () =>
             set(
               (state) => {
-                if (!state.tour) return
+                if (!state.tour) return;
 
-                const lastStopId = state.tour.currentStopId
+                const lastStopId = state.tour.currentStopId;
 
-                state.tour.status = 'dismissed'
-                state.tour.dismissedAt = new Date()
-                state.tour.currentStopId = null
-                state.tourActive = false
+                state.tour.status = "dismissed";
+                state.tour.dismissedAt = new Date();
+                state.tour.currentStopId = null;
+                state.tourActive = false;
 
                 if (lastStopId) {
-                  trackTourDismissed(lastStopId)
+                  trackTourDismissed(lastStopId);
                 }
               },
               false,
-              'onboarding/dismissTour'
+              "onboarding/dismissTour",
             ),
 
           setTourActive: (active) =>
             set(
               (state) => {
-                state.tourActive = active
+                state.tourActive = active;
               },
               false,
-              'onboarding/setTourActive'
+              "onboarding/setTourActive",
             ),
 
           setTourConfig: (config) =>
             set(
               (state) => {
-                state.tourConfig = { ...state.tourConfig, ...config }
+                state.tourConfig = { ...state.tourConfig, ...config };
               },
               false,
-              'onboarding/setTourConfig'
+              "onboarding/setTourConfig",
             ),
 
           // ================================================================
@@ -543,45 +564,57 @@ export const useOnboardingStore = create<OnboardingStore>()(
           discoverFeature: (featureId) =>
             set(
               (state) => {
-                if (!state.featureDiscovery) return
+                if (!state.featureDiscovery) return;
 
-                state.featureDiscovery = markFeatureDiscovered(state.featureDiscovery, featureId)
+                state.featureDiscovery = markFeatureDiscovered(
+                  state.featureDiscovery,
+                  featureId,
+                );
               },
               false,
-              'onboarding/discoverFeature'
+              "onboarding/discoverFeature",
             ),
 
           seeTip: (tipId) =>
             set(
               (state) => {
-                if (!state.featureDiscovery) return
+                if (!state.featureDiscovery) return;
 
-                state.featureDiscovery = markTipSeen(state.featureDiscovery, tipId)
-                trackTipShown(tipId as FeatureId, tipId)
+                state.featureDiscovery = markTipSeen(
+                  state.featureDiscovery,
+                  tipId,
+                );
+                trackTipShown(tipId as FeatureId, tipId);
               },
               false,
-              'onboarding/seeTip'
+              "onboarding/seeTip",
             ),
 
           dismissFeatureTip: (tipId) =>
             set(
               (state) => {
-                if (!state.featureDiscovery) return
+                if (!state.featureDiscovery) return;
 
-                state.featureDiscovery = dismissTip(state.featureDiscovery, tipId)
-                trackTipDismissed(tipId as FeatureId, tipId)
+                state.featureDiscovery = dismissTip(
+                  state.featureDiscovery,
+                  tipId,
+                );
+                trackTipDismissed(tipId as FeatureId, tipId);
               },
               false,
-              'onboarding/dismissFeatureTip'
+              "onboarding/dismissFeatureTip",
             ),
 
           setFeatureDiscoveryConfig: (config) =>
             set(
               (state) => {
-                state.featureDiscoveryConfig = { ...state.featureDiscoveryConfig, ...config }
+                state.featureDiscoveryConfig = {
+                  ...state.featureDiscoveryConfig,
+                  ...config,
+                };
               },
               false,
-              'onboarding/setFeatureDiscoveryConfig'
+              "onboarding/setFeatureDiscoveryConfig",
             ),
 
           // ================================================================
@@ -591,47 +624,47 @@ export const useOnboardingStore = create<OnboardingStore>()(
           seeWhatsNewItem: (itemId) =>
             set(
               (state) => {
-                state.whatsNew = markWhatsNewSeen(state.whatsNew, itemId)
+                state.whatsNew = markWhatsNewSeen(state.whatsNew, itemId);
               },
               false,
-              'onboarding/seeWhatsNewItem'
+              "onboarding/seeWhatsNewItem",
             ),
 
           seeAllWhatsNew: () =>
             set(
               (state) => {
-                state.whatsNew = markAllWhatsNewSeen(state.whatsNew)
+                state.whatsNew = markAllWhatsNewSeen(state.whatsNew);
               },
               false,
-              'onboarding/seeAllWhatsNew'
+              "onboarding/seeAllWhatsNew",
             ),
 
           dismissWhatsNewModal: (days) =>
             set(
               (state) => {
-                state.whatsNew = dismissWhatsNew(state.whatsNew, days)
-                state.whatsNewModalOpen = false
+                state.whatsNew = dismissWhatsNew(state.whatsNew, days);
+                state.whatsNewModalOpen = false;
               },
               false,
-              'onboarding/dismissWhatsNewModal'
+              "onboarding/dismissWhatsNewModal",
             ),
 
           openWhatsNewModal: () =>
             set(
               (state) => {
-                state.whatsNewModalOpen = true
+                state.whatsNewModalOpen = true;
               },
               false,
-              'onboarding/openWhatsNewModal'
+              "onboarding/openWhatsNewModal",
             ),
 
           closeWhatsNewModal: () =>
             set(
               (state) => {
-                state.whatsNewModalOpen = false
+                state.whatsNewModalOpen = false;
               },
               false,
-              'onboarding/closeWhatsNewModal'
+              "onboarding/closeWhatsNewModal",
             ),
 
           // ================================================================
@@ -641,95 +674,104 @@ export const useOnboardingStore = create<OnboardingStore>()(
           updateProfileData: (data) =>
             set(
               (state) => {
-                state.profileData = { ...state.profileData, ...data }
+                state.profileData = { ...state.profileData, ...data };
               },
               false,
-              'onboarding/updateProfileData'
+              "onboarding/updateProfileData",
             ),
 
           updatePreferencesData: (data) =>
             set(
               (state) => {
-                state.preferencesData = { ...state.preferencesData, ...data }
+                state.preferencesData = { ...state.preferencesData, ...data };
               },
               false,
-              'onboarding/updatePreferencesData'
+              "onboarding/updatePreferencesData",
             ),
 
           updateNotificationSettings: (data) =>
             set(
               (state) => {
-                state.notificationSettings = { ...state.notificationSettings, ...data }
+                state.notificationSettings = {
+                  ...state.notificationSettings,
+                  ...data,
+                };
               },
               false,
-              'onboarding/updateNotificationSettings'
+              "onboarding/updateNotificationSettings",
             ),
 
           setSelectedChannels: (channelIds) =>
             set(
               (state) => {
-                state.selectedChannels = channelIds
+                state.selectedChannels = channelIds;
               },
               false,
-              'onboarding/setSelectedChannels'
+              "onboarding/setSelectedChannels",
             ),
 
           toggleChannelSelection: (channelId) =>
             set(
               (state) => {
-                const index = state.selectedChannels.indexOf(channelId)
+                const index = state.selectedChannels.indexOf(channelId);
                 if (index === -1) {
-                  state.selectedChannels.push(channelId)
+                  state.selectedChannels.push(channelId);
                 } else {
-                  state.selectedChannels.splice(index, 1)
+                  state.selectedChannels.splice(index, 1);
                 }
               },
               false,
-              'onboarding/toggleChannelSelection'
+              "onboarding/toggleChannelSelection",
             ),
 
           addTeamInvitation: (invitation) =>
             set(
               (state) => {
                 // Don't add duplicates
-                if (!state.teamInvitations.find((i) => i.email === invitation.email)) {
-                  state.teamInvitations.push(invitation)
+                if (
+                  !state.teamInvitations.find(
+                    (i) => i.email === invitation.email,
+                  )
+                ) {
+                  state.teamInvitations.push(invitation);
                 }
               },
               false,
-              'onboarding/addTeamInvitation'
+              "onboarding/addTeamInvitation",
             ),
 
           removeTeamInvitation: (email) =>
             set(
               (state) => {
-                state.teamInvitations = state.teamInvitations.filter((i) => i.email !== email)
+                state.teamInvitations = state.teamInvitations.filter(
+                  (i) => i.email !== email,
+                );
               },
               false,
-              'onboarding/removeTeamInvitation'
+              "onboarding/removeTeamInvitation",
             ),
 
           setInvitationResults: (results) =>
             set(
               (state) => {
-                state.invitationResults = results
+                state.invitationResults = results;
               },
               false,
-              'onboarding/setInvitationResults'
+              "onboarding/setInvitationResults",
             ),
 
           clearFormData: () =>
             set(
               (state) => {
-                state.profileData = {}
-                state.preferencesData = {}
-                state.notificationSettings = {}
-                state.selectedChannels = []
-                state.teamInvitations = []
-                state.invitationResults = []
+                state.profileData = {};
+                state.preferencesData = {};
+                state.notificationSettings = {};
+                state.selectedChannels = [];
+                state.teamInvitations = [];
+                state.invitationResults = [];
               },
               false,
-              'onboarding/clearFormData'
+              "onboarding/clearFormData",
             ),
 
           // ================================================================
@@ -739,37 +781,37 @@ export const useOnboardingStore = create<OnboardingStore>()(
           setOnboardingDialogOpen: (open) =>
             set(
               (state) => {
-                state.onboardingDialogOpen = open
+                state.onboardingDialogOpen = open;
               },
               false,
-              'onboarding/setOnboardingDialogOpen'
+              "onboarding/setOnboardingDialogOpen",
             ),
 
           setLoading: (loading) =>
             set(
               (state) => {
-                state.isLoading = loading
+                state.isLoading = loading;
               },
               false,
-              'onboarding/setLoading'
+              "onboarding/setLoading",
             ),
 
           setSaving: (saving) =>
             set(
               (state) => {
-                state.isSaving = saving
+                state.isSaving = saving;
               },
               false,
-              'onboarding/setSaving'
+              "onboarding/setSaving",
             ),
 
           setError: (error) =>
             set(
               (state) => {
-                state.error = error
+                state.error = error;
               },
               false,
-              'onboarding/setError'
+              "onboarding/setError",
             ),
 
           // ================================================================
@@ -777,44 +819,50 @@ export const useOnboardingStore = create<OnboardingStore>()(
           // ================================================================
 
           getOnboardingProgress: () => {
-            const state = get()
-            if (!state.onboarding) return null
-            return calculateOnboardingProgress(state.onboarding)
+            const state = get();
+            if (!state.onboarding) return null;
+            return calculateOnboardingProgress(state.onboarding);
           },
 
           getTourProgress: () => {
-            const state = get()
-            if (!state.tour) return null
-            return calculateTourProgress(state.tour)
+            const state = get();
+            if (!state.tour) return null;
+            return calculateTourProgress(state.tour);
           },
 
           shouldShowOnboarding: () => {
-            const state = get()
-            if (!state.onboardingConfig.enabled) return false
-            if (!state.onboarding) return true
-            return state.onboarding.status !== 'completed' && state.onboarding.status !== 'skipped'
+            const state = get();
+            if (!state.onboardingConfig.enabled) return false;
+            if (!state.onboarding) return true;
+            return (
+              state.onboarding.status !== "completed" &&
+              state.onboarding.status !== "skipped"
+            );
           },
 
           shouldShowTour: () => {
-            const state = get()
-            if (!state.tourConfig.enabled) return false
-            if (!state.tour) return false
-            return state.tour.status !== 'completed' && state.tour.status !== 'dismissed'
+            const state = get();
+            if (!state.tourConfig.enabled) return false;
+            if (!state.tour) return false;
+            return (
+              state.tour.status !== "completed" &&
+              state.tour.status !== "dismissed"
+            );
           },
 
           shouldShowWhatsNew: () => {
-            const state = get()
+            const state = get();
             if (state.whatsNew.dismissedUntil) {
-              const dismissedUntil = new Date(state.whatsNew.dismissedUntil)
-              if (dismissedUntil > new Date()) return false
+              const dismissedUntil = new Date(state.whatsNew.dismissedUntil);
+              if (dismissedUntil > new Date()) return false;
             }
             // Check if there are unseen items
-            return state.whatsNew.seenItems.length < 3 // Assuming we have items
+            return state.whatsNew.seenItems.length < 3; // Assuming we have items
           },
-        }))
+        })),
       ),
       {
-        name: 'nchat-onboarding',
+        name: "nchat-onboarding",
         partialize: (state) => ({
           onboarding: state.onboarding,
           tour: state.tour,
@@ -828,36 +876,43 @@ export const useOnboardingStore = create<OnboardingStore>()(
           notificationSettings: state.notificationSettings,
           selectedChannels: state.selectedChannels,
         }),
-      }
+      },
     ),
-    { name: 'onboarding-store' }
-  )
-)
+    { name: "onboarding-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectOnboarding = (state: OnboardingStore) => state.onboarding
-export const selectTour = (state: OnboardingStore) => state.tour
-export const selectFeatureDiscovery = (state: OnboardingStore) => state.featureDiscovery
-export const selectWhatsNew = (state: OnboardingStore) => state.whatsNew
-export const selectTourActive = (state: OnboardingStore) => state.tourActive
-export const selectOnboardingDialogOpen = (state: OnboardingStore) => state.onboardingDialogOpen
-export const selectProfileData = (state: OnboardingStore) => state.profileData
-export const selectPreferencesData = (state: OnboardingStore) => state.preferencesData
-export const selectSelectedChannels = (state: OnboardingStore) => state.selectedChannels
-export const selectTeamInvitations = (state: OnboardingStore) => state.teamInvitations
-export const selectIsLoading = (state: OnboardingStore) => state.isLoading
-export const selectIsSaving = (state: OnboardingStore) => state.isSaving
-export const selectError = (state: OnboardingStore) => state.error
+export const selectOnboarding = (state: OnboardingStore) => state.onboarding;
+export const selectTour = (state: OnboardingStore) => state.tour;
+export const selectFeatureDiscovery = (state: OnboardingStore) =>
+  state.featureDiscovery;
+export const selectWhatsNew = (state: OnboardingStore) => state.whatsNew;
+export const selectTourActive = (state: OnboardingStore) => state.tourActive;
+export const selectOnboardingDialogOpen = (state: OnboardingStore) =>
+  state.onboardingDialogOpen;
+export const selectProfileData = (state: OnboardingStore) => state.profileData;
+export const selectPreferencesData = (state: OnboardingStore) =>
+  state.preferencesData;
+export const selectSelectedChannels = (state: OnboardingStore) =>
+  state.selectedChannels;
+export const selectTeamInvitations = (state: OnboardingStore) =>
+  state.teamInvitations;
+export const selectIsLoading = (state: OnboardingStore) => state.isLoading;
+export const selectIsSaving = (state: OnboardingStore) => state.isSaving;
+export const selectError = (state: OnboardingStore) => state.error;
 
 export const selectCurrentOnboardingStep = (state: OnboardingStore) =>
-  state.onboarding?.currentStepId ?? null
+  state.onboarding?.currentStepId ?? null;
 
-export const selectCurrentTourStop = (state: OnboardingStore) => state.tour?.currentStopId ?? null
+export const selectCurrentTourStop = (state: OnboardingStore) =>
+  state.tour?.currentStopId ?? null;
 
 export const selectOnboardingStatus = (state: OnboardingStore) =>
-  state.onboarding?.status ?? 'not_started'
+  state.onboarding?.status ?? "not_started";
 
-export const selectTourStatus = (state: OnboardingStore) => state.tour?.status ?? 'not_started'
+export const selectTourStatus = (state: OnboardingStore) =>
+  state.tour?.status ?? "not_started";

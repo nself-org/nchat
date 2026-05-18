@@ -11,53 +11,60 @@ import type {
   DataCategory,
   DeletionConfirmation,
   LegalHold,
-} from './compliance-types'
+} from "./compliance-types";
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 export const DELETION_SCOPES: {
-  scope: DeletionScope
-  label: string
-  description: string
-  categories: DataCategory[]
+  scope: DeletionScope;
+  label: string;
+  description: string;
+  categories: DataCategory[];
 }[] = [
   {
-    scope: 'full_account',
-    label: 'Delete Everything',
-    description: 'Complete account deletion including all data',
-    categories: ['messages', 'files', 'reactions', 'threads', 'user_profiles', 'activity_logs'],
+    scope: "full_account",
+    label: "Delete Everything",
+    description: "Complete account deletion including all data",
+    categories: [
+      "messages",
+      "files",
+      "reactions",
+      "threads",
+      "user_profiles",
+      "activity_logs",
+    ],
   },
   {
-    scope: 'messages_only',
-    label: 'Messages Only',
-    description: 'Delete all your messages but keep your account',
-    categories: ['messages', 'threads'],
+    scope: "messages_only",
+    label: "Messages Only",
+    description: "Delete all your messages but keep your account",
+    categories: ["messages", "threads"],
   },
   {
-    scope: 'files_only',
-    label: 'Files Only',
-    description: 'Delete all uploaded files',
-    categories: ['files'],
+    scope: "files_only",
+    label: "Files Only",
+    description: "Delete all uploaded files",
+    categories: ["files"],
   },
   {
-    scope: 'activity_only',
-    label: 'Activity Data Only',
-    description: 'Delete activity logs and analytics data',
-    categories: ['activity_logs', 'analytics'],
+    scope: "activity_only",
+    label: "Activity Data Only",
+    description: "Delete activity logs and analytics data",
+    categories: ["activity_logs", "analytics"],
   },
   {
-    scope: 'partial',
-    label: 'Custom Selection',
-    description: 'Choose specific data categories to delete',
+    scope: "partial",
+    label: "Custom Selection",
+    description: "Choose specific data categories to delete",
     categories: [],
   },
-]
+];
 
-export const VERIFICATION_REQUIRED = true
-export const COOLING_OFF_PERIOD_DAYS = 14
-export const DELETION_PROCESSING_TIME_DAYS = 30
+export const VERIFICATION_REQUIRED = true;
+export const COOLING_OFF_PERIOD_DAYS = 14;
+export const DELETION_PROCESSING_TIME_DAYS = 30;
 
 // ============================================================================
 // REQUEST CREATION
@@ -70,22 +77,24 @@ export function createDeletionRequest(
   userId: string,
   userEmail: string,
   options: {
-    scope?: DeletionScope
-    specificCategories?: DataCategory[]
-    reason?: string
-    ipAddress?: string
-  } = {}
+    scope?: DeletionScope;
+    specificCategories?: DataCategory[];
+    reason?: string;
+    ipAddress?: string;
+  } = {},
 ): DataDeletionRequest {
-  const now = new Date()
-  const retentionPeriodEnds = new Date(now)
-  retentionPeriodEnds.setDate(retentionPeriodEnds.getDate() + COOLING_OFF_PERIOD_DAYS)
+  const now = new Date();
+  const retentionPeriodEnds = new Date(now);
+  retentionPeriodEnds.setDate(
+    retentionPeriodEnds.getDate() + COOLING_OFF_PERIOD_DAYS,
+  );
 
   return {
     id: crypto.randomUUID(),
     userId,
     userEmail,
-    status: VERIFICATION_REQUIRED ? 'pending_verification' : 'pending',
-    scope: options.scope || 'full_account',
+    status: VERIFICATION_REQUIRED ? "pending_verification" : "pending",
+    scope: options.scope || "full_account",
     specificCategories: options.specificCategories,
     reason: options.reason,
     requestedAt: now,
@@ -94,7 +103,7 @@ export function createDeletionRequest(
     ipAddress: options.ipAddress,
     confirmationSent: false,
     confirmationAcknowledged: false,
-  }
+  };
 }
 
 // ============================================================================
@@ -102,14 +111,14 @@ export function createDeletionRequest(
 // ============================================================================
 
 export interface DeletionValidationResult {
-  valid: boolean
-  errors: string[]
-  warnings: string[]
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
   blockers: {
-    type: 'legal_hold' | 'retention_policy' | 'pending_request'
-    message: string
-    details?: unknown
-  }[]
+    type: "legal_hold" | "retention_policy" | "pending_request";
+    message: string;
+    details?: unknown;
+  }[];
 }
 
 /**
@@ -118,64 +127,69 @@ export interface DeletionValidationResult {
 export function validateDeletionRequest(
   request: Partial<DataDeletionRequest>,
   existingRequests: DataDeletionRequest[],
-  legalHolds: LegalHold[]
+  legalHolds: LegalHold[],
 ): DeletionValidationResult {
-  const errors: string[] = []
-  const warnings: string[] = []
-  const blockers: DeletionValidationResult['blockers'] = []
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const blockers: DeletionValidationResult["blockers"] = [];
 
   // Basic validation
   if (!request.userId) {
-    errors.push('User ID is required')
+    errors.push("User ID is required");
   }
 
   if (!request.userEmail) {
-    errors.push('User email is required')
+    errors.push("User email is required");
   }
 
   if (!request.scope) {
-    errors.push('Deletion scope is required')
+    errors.push("Deletion scope is required");
   }
 
   if (
-    request.scope === 'partial' &&
+    request.scope === "partial" &&
     (!request.specificCategories || request.specificCategories.length === 0)
   ) {
-    errors.push('At least one data category must be selected for partial deletion')
+    errors.push(
+      "At least one data category must be selected for partial deletion",
+    );
   }
 
   // Check for pending requests
   const pendingRequests = existingRequests.filter(
     (r) =>
       r.userId === request.userId &&
-      ['pending', 'pending_verification', 'approved', 'processing'].includes(r.status)
-  )
+      ["pending", "pending_verification", "approved", "processing"].includes(
+        r.status,
+      ),
+  );
 
   if (pendingRequests.length > 0) {
     blockers.push({
-      type: 'pending_request',
-      message: 'You already have a pending deletion request',
+      type: "pending_request",
+      message: "You already have a pending deletion request",
       details: { requestId: pendingRequests[0].id },
-    })
+    });
   }
 
   // Check for active legal holds
   const activeHolds = legalHolds.filter(
-    (h) => h.status === 'active' && h.custodians.includes(request.userId || '')
-  )
+    (h) => h.status === "active" && h.custodians.includes(request.userId || ""),
+  );
 
   if (activeHolds.length > 0) {
     blockers.push({
-      type: 'legal_hold',
-      message: 'Your data is subject to a legal hold and cannot be deleted at this time',
+      type: "legal_hold",
+      message:
+        "Your data is subject to a legal hold and cannot be deleted at this time",
       details: { holdCount: activeHolds.length },
-    })
+    });
   }
 
   // Warnings
-  if (request.scope === 'full_account') {
-    warnings.push('Full account deletion is permanent and cannot be undone')
-    warnings.push('You will lose access to all channels and conversations')
+  if (request.scope === "full_account") {
+    warnings.push("Full account deletion is permanent and cannot be undone");
+    warnings.push("You will lose access to all channels and conversations");
   }
 
   return {
@@ -183,7 +197,7 @@ export function validateDeletionRequest(
     errors,
     warnings,
     blockers,
-  }
+  };
 }
 
 // ============================================================================
@@ -194,114 +208,122 @@ export function validateDeletionRequest(
  * Get human-readable status information
  */
 export function getDeletionStatusInfo(status: DeletionRequestStatus): {
-  label: string
-  description: string
-  color: string
-  icon: string
-  nextSteps?: string
+  label: string;
+  description: string;
+  color: string;
+  icon: string;
+  nextSteps?: string;
 } {
   const statusMap: Record<
     DeletionRequestStatus,
-    { label: string; description: string; color: string; icon: string; nextSteps?: string }
+    {
+      label: string;
+      description: string;
+      color: string;
+      icon: string;
+      nextSteps?: string;
+    }
   > = {
     pending: {
-      label: 'Pending',
-      description: 'Your request is awaiting review',
-      color: 'yellow',
-      icon: 'clock',
-      nextSteps: 'An administrator will review your request',
+      label: "Pending",
+      description: "Your request is awaiting review",
+      color: "yellow",
+      icon: "clock",
+      nextSteps: "An administrator will review your request",
     },
     pending_verification: {
-      label: 'Verification Required',
-      description: 'Please verify your identity to proceed',
-      color: 'orange',
-      icon: 'shield',
-      nextSteps: 'Check your email for verification instructions',
+      label: "Verification Required",
+      description: "Please verify your identity to proceed",
+      color: "orange",
+      icon: "shield",
+      nextSteps: "Check your email for verification instructions",
     },
     approved: {
-      label: 'Approved',
-      description: 'Your request has been approved',
-      color: 'blue',
-      icon: 'check',
+      label: "Approved",
+      description: "Your request has been approved",
+      color: "blue",
+      icon: "check",
       nextSteps: `Deletion will begin after the ${COOLING_OFF_PERIOD_DAYS}-day waiting period`,
     },
     processing: {
-      label: 'Processing',
-      description: 'Your data is being deleted',
-      color: 'blue',
-      icon: 'loader',
-      nextSteps: 'This may take up to 30 days to complete',
+      label: "Processing",
+      description: "Your data is being deleted",
+      color: "blue",
+      icon: "loader",
+      nextSteps: "This may take up to 30 days to complete",
     },
     completed: {
-      label: 'Completed',
-      description: 'Your data has been deleted',
-      color: 'green',
-      icon: 'check',
+      label: "Completed",
+      description: "Your data has been deleted",
+      color: "green",
+      icon: "check",
     },
     rejected: {
-      label: 'Rejected',
-      description: 'Your request was rejected',
-      color: 'red',
-      icon: 'x',
-      nextSteps: 'Contact support for more information',
+      label: "Rejected",
+      description: "Your request was rejected",
+      color: "red",
+      icon: "x",
+      nextSteps: "Contact support for more information",
     },
     cancelled: {
-      label: 'Cancelled',
-      description: 'Your request was cancelled',
-      color: 'gray',
-      icon: 'x',
+      label: "Cancelled",
+      description: "Your request was cancelled",
+      color: "gray",
+      icon: "x",
     },
-  }
+  };
 
-  return statusMap[status]
+  return statusMap[status];
 }
 
 /**
  * Check if deletion can be cancelled
  */
 export function canCancelDeletion(request: DataDeletionRequest): {
-  canCancel: boolean
-  reason?: string
+  canCancel: boolean;
+  reason?: string;
 } {
   const cancellableStatuses: DeletionRequestStatus[] = [
-    'pending',
-    'pending_verification',
-    'approved',
-  ]
+    "pending",
+    "pending_verification",
+    "approved",
+  ];
 
   if (!cancellableStatuses.includes(request.status)) {
     return {
       canCancel: false,
       reason: `Cannot cancel a request with status: ${request.status}`,
-    }
+    };
   }
 
-  return { canCancel: true }
+  return { canCancel: true };
 }
 
 /**
  * Check if deletion is in cooling off period
  */
 export function isInCoolingOffPeriod(request: DataDeletionRequest): boolean {
-  if (request.status !== 'approved' || !request.retentionPeriodEnds) {
-    return false
+  if (request.status !== "approved" || !request.retentionPeriodEnds) {
+    return false;
   }
 
-  return new Date() < new Date(request.retentionPeriodEnds)
+  return new Date() < new Date(request.retentionPeriodEnds);
 }
 
 /**
  * Get remaining cooling off days
  */
-export function getRemainingCoolingOffDays(request: DataDeletionRequest): number {
-  if (!request.retentionPeriodEnds) return 0
+export function getRemainingCoolingOffDays(
+  request: DataDeletionRequest,
+): number {
+  if (!request.retentionPeriodEnds) return 0;
 
-  const now = new Date()
-  const endDate = new Date(request.retentionPeriodEnds)
-  const diffTime = endDate.getTime() - now.getTime()
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  const now = new Date();
+  const endDate = new Date(request.retentionPeriodEnds);
+  const diffTime = endDate.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  return Math.max(0, diffDays)
+  return Math.max(0, diffDays);
 }
 
 // ============================================================================
@@ -313,22 +335,22 @@ export function getRemainingCoolingOffDays(request: DataDeletionRequest): number
  */
 export function getCategoriesForScope(
   scope: DeletionScope,
-  specificCategories?: DataCategory[]
+  specificCategories?: DataCategory[],
 ): DataCategory[] {
-  if (scope === 'partial' && specificCategories) {
-    return specificCategories
+  if (scope === "partial" && specificCategories) {
+    return specificCategories;
   }
 
-  const scopeConfig = DELETION_SCOPES.find((s) => s.scope === scope)
-  return scopeConfig?.categories || []
+  const scopeConfig = DELETION_SCOPES.find((s) => s.scope === scope);
+  return scopeConfig?.categories || [];
 }
 
 /**
  * Get deletion scope label
  */
 export function getScopeLabel(scope: DeletionScope): string {
-  const scopeConfig = DELETION_SCOPES.find((s) => s.scope === scope)
-  return scopeConfig?.label || scope
+  const scopeConfig = DELETION_SCOPES.find((s) => s.scope === scope);
+  return scopeConfig?.label || scope;
 }
 
 // ============================================================================
@@ -340,9 +362,12 @@ export function getScopeLabel(scope: DeletionScope): string {
  */
 export function createDeletionConfirmation(
   request: DataDeletionRequest,
-  deletedCounts: Record<DataCategory, number>
+  deletedCounts: Record<DataCategory, number>,
 ): DeletionConfirmation {
-  const categories = getCategoriesForScope(request.scope, request.specificCategories)
+  const categories = getCategoriesForScope(
+    request.scope,
+    request.specificCategories,
+  );
 
   return {
     requestId: request.id,
@@ -351,7 +376,7 @@ export function createDeletionConfirmation(
     itemsDeleted: deletedCounts,
     completedAt: new Date(),
     retainedDueToLegalHold: request.legalHoldIds,
-  }
+  };
 }
 
 // ============================================================================
@@ -363,13 +388,13 @@ export function createDeletionConfirmation(
  */
 export function generateVerificationEmail(
   request: DataDeletionRequest,
-  verificationLink: string
+  verificationLink: string,
 ): {
-  subject: string
-  body: string
+  subject: string;
+  body: string;
 } {
   return {
-    subject: 'Verify Your Data Deletion Request',
+    subject: "Verify Your Data Deletion Request",
     body: `
 Hello,
 
@@ -391,22 +416,24 @@ Important Notes:
 
 This is an automated message. Please do not reply to this email.
     `.trim(),
-  }
+  };
 }
 
 /**
  * Generate deletion complete email
  */
-export function generateDeletionCompleteEmail(confirmation: DeletionConfirmation): {
-  subject: string
-  body: string
+export function generateDeletionCompleteEmail(
+  confirmation: DeletionConfirmation,
+): {
+  subject: string;
+  body: string;
 } {
   const categoryList = confirmation.deletedCategories
     .map((cat) => `  - ${cat}: ${confirmation.itemsDeleted[cat] || 0} items`)
-    .join('\n')
+    .join("\n");
 
   return {
-    subject: 'Your Data Deletion is Complete',
+    subject: "Your Data Deletion is Complete",
     body: `
 Hello,
 
@@ -421,14 +448,14 @@ Completed at: ${confirmation.completedAt.toLocaleString()}
 ${
   confirmation.retainedDueToLegalHold?.length
     ? `Note: Some data was retained due to legal hold requirements.`
-    : ''
+    : ""
 }
 
 If you have any questions, please contact our support team.
 
 This is an automated message. Please do not reply to this email.
     `.trim(),
-  }
+  };
 }
 
 // ============================================================================
@@ -439,43 +466,48 @@ This is an automated message. Please do not reply to this email.
  * Check GDPR compliance for deletion
  */
 export function checkGDPRCompliance(request: DataDeletionRequest): {
-  compliant: boolean
-  issues: string[]
-  recommendations: string[]
+  compliant: boolean;
+  issues: string[];
+  recommendations: string[];
 } {
-  const issues: string[] = []
-  const recommendations: string[] = []
+  const issues: string[] = [];
+  const recommendations: string[] = [];
 
   // Must complete within 30 days (GDPR requirement)
-  if (request.status === 'processing') {
+  if (request.status === "processing") {
     const daysSinceApproval = request.approvedAt
       ? Math.floor(
-          (new Date().getTime() - new Date(request.approvedAt).getTime()) / (1000 * 60 * 60 * 24)
+          (new Date().getTime() - new Date(request.approvedAt).getTime()) /
+            (1000 * 60 * 60 * 24),
         )
-      : 0
+      : 0;
 
     if (daysSinceApproval > 30) {
-      issues.push('GDPR requires deletion within 30 days of approval')
+      issues.push("GDPR requires deletion within 30 days of approval");
     } else if (daysSinceApproval > 20) {
-      recommendations.push(`${30 - daysSinceApproval} days remaining to complete deletion`)
+      recommendations.push(
+        `${30 - daysSinceApproval} days remaining to complete deletion`,
+      );
     }
   }
 
   // Verification requirement
-  if (!request.verifiedAt && request.status !== 'pending_verification') {
-    recommendations.push('Consider requiring identity verification for deletion requests')
+  if (!request.verifiedAt && request.status !== "pending_verification") {
+    recommendations.push(
+      "Consider requiring identity verification for deletion requests",
+    );
   }
 
   // Confirmation to user
-  if (request.status === 'completed' && !request.confirmationSent) {
-    issues.push('User should be notified when deletion is complete')
+  if (request.status === "completed" && !request.confirmationSent) {
+    issues.push("User should be notified when deletion is complete");
   }
 
   return {
     compliant: issues.length === 0,
     issues,
     recommendations,
-  }
+  };
 }
 
 // ============================================================================
@@ -499,4 +531,4 @@ export const DataDeletionService = {
   generateVerificationEmail,
   generateDeletionCompleteEmail,
   checkGDPRCompliance,
-}
+};

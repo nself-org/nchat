@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // USER FRAGMENTS
@@ -11,7 +11,7 @@ export const USER_BASIC_FRAGMENT = gql`
     display_name
     avatar_url
   }
-`
+`;
 
 export const USER_PROFILE_FRAGMENT = gql`
   fragment UserProfile on nchat_users {
@@ -29,7 +29,7 @@ export const USER_PROFILE_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 export const USER_PRESENCE_FRAGMENT = gql`
   fragment UserPresence on nchat_user_presence {
@@ -43,7 +43,7 @@ export const USER_PRESENCE_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // CHANNEL FRAGMENTS
@@ -60,7 +60,7 @@ export const CHANNEL_BASIC_FRAGMENT = gql`
     is_archived
     is_default
   }
-`
+`;
 
 export const CHANNEL_FULL_FRAGMENT = gql`
   fragment ChannelFull on nchat_channels {
@@ -89,7 +89,7 @@ export const CHANNEL_FULL_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const CHANNEL_MEMBER_FRAGMENT = gql`
   fragment ChannelMember on nchat_channel_members {
@@ -107,7 +107,7 @@ export const CHANNEL_MEMBER_FRAGMENT = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MESSAGE FRAGMENTS
@@ -128,7 +128,7 @@ export const ATTACHMENT_FRAGMENT = gql`
     metadata
     created_at
   }
-`
+`;
 
 export const REACTION_FRAGMENT = gql`
   fragment Reaction on nchat_reactions {
@@ -142,7 +142,7 @@ export const REACTION_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const MESSAGE_BASIC_FRAGMENT = gql`
   fragment MessageBasic on nchat_messages {
@@ -162,7 +162,7 @@ export const MESSAGE_BASIC_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const MESSAGE_FULL_FRAGMENT = gql`
   fragment MessageFull on nchat_messages {
@@ -221,7 +221,7 @@ export const MESSAGE_FULL_FRAGMENT = gql`
   ${USER_BASIC_FRAGMENT}
   ${ATTACHMENT_FRAGMENT}
   ${REACTION_FRAGMENT}
-`
+`;
 
 export const MESSAGE_WITH_THREAD_FRAGMENT = gql`
   fragment MessageWithThread on nchat_messages {
@@ -240,7 +240,7 @@ export const MESSAGE_WITH_THREAD_FRAGMENT = gql`
   }
   ${MESSAGE_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // THREAD FRAGMENTS
@@ -269,7 +269,7 @@ export const THREAD_FRAGMENT = gql`
   }
   ${MESSAGE_BASIC_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // NOTIFICATION FRAGMENTS
@@ -299,7 +299,7 @@ export const NOTIFICATION_FRAGMENT = gql`
   }
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MENTION FRAGMENTS
@@ -321,7 +321,7 @@ export const MENTION_FRAGMENT = gql`
   }
   ${MESSAGE_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // BOOKMARK FRAGMENTS
@@ -343,7 +343,7 @@ export const BOOKMARK_FRAGMENT = gql`
   }
   ${MESSAGE_FULL_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // READ RECEIPT FRAGMENTS
@@ -361,7 +361,7 @@ export const READ_RECEIPT_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // TYPING INDICATOR FRAGMENTS
@@ -380,7 +380,7 @@ export const TYPING_INDICATOR_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // SEARCH RESULT FRAGMENTS
@@ -407,4 +407,4 @@ export const SEARCH_MESSAGE_RESULT_FRAGMENT = gql`
   }
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;

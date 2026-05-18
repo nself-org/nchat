@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * LinkPreview Component
@@ -12,14 +12,17 @@
  * - Error handling and fallback states
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { ExternalLink, X, Eye, EyeOff, Loader2 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import { extractUrls } from '@/lib/messages/link-preview'
-import type { LinkPreview as LinkPreviewData, LinkPreviewResult } from '@/lib/messages/link-preview'
+import { useState, useEffect, useCallback, useRef } from "react";
+import { ExternalLink, X, Eye, EyeOff, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { extractUrls } from "@/lib/messages/link-preview";
+import type {
+  LinkPreview as LinkPreviewData,
+  LinkPreviewResult,
+} from "@/lib/messages/link-preview";
 
 // ============================================================================
 // Types
@@ -29,41 +32,41 @@ export interface LinkPreviewProps {
   /**
    * Message content to extract URLs from
    */
-  content: string
+  content: string;
   /**
    * Optional pre-fetched previews
    */
-  previews?: LinkPreviewData[]
+  previews?: LinkPreviewData[];
   /**
    * Whether to auto-fetch previews
    * @default true
    */
-  autoFetch?: boolean
+  autoFetch?: boolean;
   /**
    * Maximum number of previews to show
    * @default 3
    */
-  maxPreviews?: number
+  maxPreviews?: number;
   /**
    * Whether user can dismiss individual previews
    * @default true
    */
-  allowDismiss?: boolean
+  allowDismiss?: boolean;
   /**
    * Callback when a preview is dismissed
    */
-  onDismiss?: (url: string) => void
+  onDismiss?: (url: string) => void;
   /**
    * CSS class name
    */
-  className?: string
+  className?: string;
 }
 
 interface PreviewState {
-  url: string
-  status: 'loading' | 'success' | 'error' | 'dismissed'
-  data?: LinkPreviewData
-  error?: string
+  url: string;
+  status: "loading" | "success" | "error" | "dismissed";
+  data?: LinkPreviewData;
+  error?: string;
 }
 
 // ============================================================================
@@ -79,145 +82,155 @@ export function LinkPreview({
   onDismiss,
   className,
 }: LinkPreviewProps) {
-  const [previewStates, setPreviewStates] = useState<Map<string, PreviewState>>(new Map())
-  const [privacyMode, setPrivacyMode] = useState(false)
-  const fetchedUrls = useRef<Set<string>>(new Set())
+  const [previewStates, setPreviewStates] = useState<Map<string, PreviewState>>(
+    new Map(),
+  );
+  const [privacyMode, setPrivacyMode] = useState(false);
+  const fetchedUrls = useRef<Set<string>>(new Set());
 
   // Extract URLs from content
-  const urls = extractUrls(content).slice(0, maxPreviews)
+  const urls = extractUrls(content).slice(0, maxPreviews);
 
   // Initialize preview states
   useEffect(() => {
-    const newStates = new Map<string, PreviewState>()
+    const newStates = new Map<string, PreviewState>();
 
     // Initialize from provided previews
     previews.forEach((preview) => {
       newStates.set(preview.url, {
         url: preview.url,
-        status: 'success',
+        status: "success",
         data: preview,
-      })
-    })
+      });
+    });
 
     // Initialize remaining URLs
     urls.forEach((url) => {
       if (!newStates.has(url) && !fetchedUrls.current.has(url)) {
         newStates.set(url, {
           url,
-          status: 'loading',
-        })
+          status: "loading",
+        });
       }
-    })
+    });
 
-    setPreviewStates(newStates)
-  }, [content, previews])
+    setPreviewStates(newStates);
+  }, [content, previews]);
 
   // Fetch previews
   useEffect(() => {
-    if (!autoFetch || privacyMode) return
+    if (!autoFetch || privacyMode) return;
 
     const urlsToFetch = urls.filter(
-      (url) => !fetchedUrls.current.has(url) && !previews.some((p) => p.url === url)
-    )
+      (url) =>
+        !fetchedUrls.current.has(url) && !previews.some((p) => p.url === url),
+    );
 
-    if (urlsToFetch.length === 0) return
+    if (urlsToFetch.length === 0) return;
 
     urlsToFetch.forEach((url) => {
-      fetchedUrls.current.add(url)
-      fetchPreview(url)
-    })
-  }, [urls, autoFetch, privacyMode, previews])
+      fetchedUrls.current.add(url);
+      fetchPreview(url);
+    });
+  }, [urls, autoFetch, privacyMode, previews]);
 
   // Fetch a single preview
   const fetchPreview = useCallback(async (url: string) => {
     try {
-      const response = await fetch(`/api/link-preview?url=${encodeURIComponent(url)}`)
-      const result: LinkPreviewResult = await response.json()
+      const response = await fetch(
+        `/api/link-preview?url=${encodeURIComponent(url)}`,
+      );
+      const result: LinkPreviewResult = await response.json();
 
       if (result.success && result.preview) {
         setPreviewStates((prev) => {
-          const next = new Map(prev)
+          const next = new Map(prev);
           next.set(url, {
             url,
-            status: 'success',
+            status: "success",
             data: result.preview,
-          })
-          return next
-        })
+          });
+          return next;
+        });
       } else {
         setPreviewStates((prev) => {
-          const next = new Map(prev)
+          const next = new Map(prev);
           next.set(url, {
             url,
-            status: 'error',
-            error: result.error || 'Failed to load preview',
-          })
-          return next
-        })
+            status: "error",
+            error: result.error || "Failed to load preview",
+          });
+          return next;
+        });
       }
     } catch (error) {
       setPreviewStates((prev) => {
-        const next = new Map(prev)
+        const next = new Map(prev);
         next.set(url, {
           url,
-          status: 'error',
-          error: error instanceof Error ? error.message : 'Unknown error',
-        })
-        return next
-      })
+          status: "error",
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+        return next;
+      });
     }
-  }, [])
+  }, []);
 
   // Handle dismiss
   const handleDismiss = useCallback(
     (url: string) => {
       setPreviewStates((prev) => {
-        const next = new Map(prev)
+        const next = new Map(prev);
         next.set(url, {
           url,
-          status: 'dismissed',
-        })
-        return next
-      })
-      onDismiss?.(url)
+          status: "dismissed",
+        });
+        return next;
+      });
+      onDismiss?.(url);
     },
-    [onDismiss]
-  )
+    [onDismiss],
+  );
 
   // Toggle privacy mode
   const togglePrivacyMode = useCallback(() => {
-    setPrivacyMode((prev) => !prev)
-  }, [])
+    setPrivacyMode((prev) => !prev);
+  }, []);
 
   // Filter valid previews
   const validPreviews = Array.from(previewStates.values()).filter(
-    (state) => state.status === 'success' && state.data
-  )
+    (state) => state.status === "success" && state.data,
+  );
 
   // If privacy mode is enabled and no previews loaded yet, show control
   if (privacyMode && validPreviews.length === 0 && urls.length > 0) {
     return (
-      <div className={cn('bg-muted/30 mt-2 rounded-lg border p-3', className)}>
+      <div className={cn("bg-muted/30 mt-2 rounded-lg border p-3", className)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <EyeOff className="h-4 w-4" />
             <span>
-              {urls.length} link{urls.length > 1 ? 's' : ''} hidden for privacy
+              {urls.length} link{urls.length > 1 ? "s" : ""} hidden for privacy
             </span>
           </div>
-          <Button size="sm" variant="ghost" onClick={togglePrivacyMode} className="h-8">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={togglePrivacyMode}
+            className="h-8"
+          >
             <Eye className="mr-2 h-4 w-4" />
             Show Previews
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
-  if (validPreviews.length === 0) return null
+  if (validPreviews.length === 0) return null;
 
   return (
-    <div className={cn('mt-2 space-y-2', className)}>
+    <div className={cn("mt-2 space-y-2", className)}>
       {/* Privacy control */}
       {urls.length > 0 && (
         <div className="flex justify-end">
@@ -245,21 +258,21 @@ export function LinkPreview({
       {/* Preview cards */}
       <AnimatePresence mode="popLayout">
         {Array.from(previewStates.entries()).map(([url, state]) => {
-          if (state.status === 'loading') {
-            return <LinkPreviewSkeleton key={url} />
+          if (state.status === "loading") {
+            return <LinkPreviewSkeleton key={url} />;
           }
 
-          if (state.status === 'success' && state.data) {
+          if (state.status === "success" && state.data) {
             return (
               <LinkPreviewCard
                 key={url}
                 preview={state.data}
                 onDismiss={allowDismiss ? () => handleDismiss(url) : undefined}
               />
-            )
+            );
           }
 
-          if (state.status === 'error') {
+          if (state.status === "error") {
             return (
               <LinkPreviewError
                 key={url}
@@ -267,14 +280,14 @@ export function LinkPreview({
                 error={state.error}
                 onDismiss={allowDismiss ? () => handleDismiss(url) : undefined}
               />
-            )
+            );
           }
 
-          return null
+          return null;
         })}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -282,15 +295,15 @@ export function LinkPreview({
 // ============================================================================
 
 interface LinkPreviewCardProps {
-  preview: LinkPreviewData
-  onDismiss?: () => void
+  preview: LinkPreviewData;
+  onDismiss?: () => void;
 }
 
 function LinkPreviewCard({ preview, onDismiss }: LinkPreviewCardProps) {
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [imageError, setImageError] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const hasImage = preview.image && !imageError
+  const hasImage = preview.image && !imageError;
 
   return (
     <motion.a
@@ -302,12 +315,12 @@ function LinkPreviewCard({ preview, onDismiss }: LinkPreviewCardProps) {
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        'hover:border-primary/50 group relative block overflow-hidden rounded-lg border bg-card transition-colors',
-        hasImage ? '' : 'p-3'
+        "hover:border-primary/50 group relative block overflow-hidden rounded-lg border bg-card transition-colors",
+        hasImage ? "" : "p-3",
       )}
       style={{
         borderLeftColor: preview.themeColor,
-        borderLeftWidth: preview.themeColor ? '3px' : undefined,
+        borderLeftWidth: preview.themeColor ? "3px" : undefined,
       }}
     >
       {/* Dismiss button */}
@@ -317,9 +330,9 @@ function LinkPreviewCard({ preview, onDismiss }: LinkPreviewCardProps) {
           variant="ghost"
           size="icon"
           onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onDismiss()
+            e.preventDefault();
+            e.stopPropagation();
+            onDismiss();
           }}
           className="bg-background/80 absolute right-2 top-2 z-10 h-6 w-6 opacity-0 backdrop-blur-sm transition-opacity hover:bg-background group-hover:opacity-100"
         >
@@ -342,14 +355,18 @@ function LinkPreviewCard({ preview, onDismiss }: LinkPreviewCardProps) {
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
             className={cn(
-              'h-full w-full object-cover transition-opacity duration-300',
-              imageLoaded ? 'opacity-100' : 'opacity-0'
+              "h-full w-full object-cover transition-opacity duration-300",
+              imageLoaded ? "opacity-100" : "opacity-0",
             )}
           />
-          {preview.type === 'video' && (
+          {preview.type === "video" && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/20">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/60">
-                <svg className="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-8 w-8 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
@@ -359,7 +376,7 @@ function LinkPreviewCard({ preview, onDismiss }: LinkPreviewCardProps) {
       )}
 
       {/* Content */}
-      <div className={cn('space-y-2', hasImage && 'p-3')}>
+      <div className={cn("space-y-2", hasImage && "p-3")}>
         {/* Header */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           {preview.favicon && (
@@ -368,12 +385,12 @@ function LinkPreviewCard({ preview, onDismiss }: LinkPreviewCardProps) {
               alt=""
               className="h-4 w-4 rounded"
               onError={(e) => {
-                e.currentTarget.style.display = 'none'
+                e.currentTarget.style.display = "none";
               }}
             />
           )}
           <span className="truncate">{preview.siteName || preview.domain}</span>
-          {preview.type !== 'website' && (
+          {preview.type !== "website" && (
             <Badge variant="secondary" className="ml-auto shrink-0 text-xs">
               {preview.type}
             </Badge>
@@ -395,14 +412,16 @@ function LinkPreviewCard({ preview, onDismiss }: LinkPreviewCardProps) {
         {/* Author & Date */}
         {(preview.author || preview.publishedDate) && (
           <div className="flex items-center gap-2 border-t pt-2 text-xs text-muted-foreground">
-            {preview.author && <span className="truncate">{preview.author}</span>}
+            {preview.author && (
+              <span className="truncate">{preview.author}</span>
+            )}
             {preview.author && preview.publishedDate && <span>•</span>}
             {preview.publishedDate && (
               <span>
-                {new Date(preview.publishedDate).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
+                {new Date(preview.publishedDate).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
                 })}
               </span>
             )}
@@ -416,7 +435,7 @@ function LinkPreviewCard({ preview, onDismiss }: LinkPreviewCardProps) {
         </div>
       </div>
     </motion.a>
-  )
+  );
 }
 
 // ============================================================================
@@ -442,7 +461,7 @@ function LinkPreviewSkeleton() {
         <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
       </div>
     </motion.div>
-  )
+  );
 }
 
 // ============================================================================
@@ -450,13 +469,13 @@ function LinkPreviewSkeleton() {
 // ============================================================================
 
 interface LinkPreviewErrorProps {
-  url: string
-  error?: string
-  onDismiss?: () => void
+  url: string;
+  error?: string;
+  onDismiss?: () => void;
 }
 
 function LinkPreviewError({ url, error, onDismiss }: LinkPreviewErrorProps) {
-  const domain = url.replace(/^https?:\/\//, '').split('/')[0]
+  const domain = url.replace(/^https?:\/\//, "").split("/")[0];
 
   return (
     <motion.div
@@ -490,9 +509,11 @@ function LinkPreviewError({ url, error, onDismiss }: LinkPreviewErrorProps) {
           >
             {domain}
           </a>
-          <p className="mt-1 text-xs text-muted-foreground">{error || 'Preview unavailable'}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {error || "Preview unavailable"}
+          </p>
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

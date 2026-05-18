@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Slack Header Component
@@ -9,8 +9,8 @@
 //
 // ===============================================================================
 
-import { ReactNode } from 'react'
-import { cn } from '@/lib/utils'
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import {
   Hash,
   Lock,
@@ -23,26 +23,26 @@ import {
   Star,
   Bookmark,
   Phone,
-} from 'lucide-react'
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface SlackHeaderProps {
-  channelName?: string
-  channelDescription?: string
-  isPrivate?: boolean
-  memberCount?: number
-  pinnedCount?: number
-  isStarred?: boolean
-  onHuddleClick?: () => void
-  onCallClick?: () => void
-  onSearchClick?: () => void
-  onMembersClick?: () => void
-  onPinnedClick?: () => void
-  onStarClick?: () => void
-  className?: string
+  channelName?: string;
+  channelDescription?: string;
+  isPrivate?: boolean;
+  memberCount?: number;
+  pinnedCount?: number;
+  isStarred?: boolean;
+  onHuddleClick?: () => void;
+  onCallClick?: () => void;
+  onSearchClick?: () => void;
+  onMembersClick?: () => void;
+  onPinnedClick?: () => void;
+  onStarClick?: () => void;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ export interface SlackHeaderProps {
 // -------------------------------------------------------------------------------
 
 export function SlackHeader({
-  channelName = 'general',
+  channelName = "general",
   channelDescription,
   isPrivate = false,
   memberCount,
@@ -67,10 +67,10 @@ export function SlackHeader({
   return (
     <header
       className={cn(
-        'flex items-center justify-between px-4',
-        'bg-white dark:bg-[#1A1D21]',
-        'border-b border-[#DDDDDD] dark:border-[#35383C]',
-        className
+        "flex items-center justify-between px-4",
+        "bg-white dark:bg-[#1A1D21]",
+        "border-b border-[#DDDDDD] dark:border-[#35383C]",
+        className,
       )}
       style={{ height: 49 }}
     >
@@ -92,11 +92,14 @@ export function SlackHeader({
         <button
           onClick={onStarClick}
           className={cn(
-            'rounded p-1 hover:bg-gray-100 dark:hover:bg-[#35383C]',
-            isStarred ? 'text-yellow-500' : 'text-gray-400'
+            "rounded p-1 hover:bg-gray-100 dark:hover:bg-[#35383C]",
+            isStarred ? "text-yellow-500" : "text-gray-400",
           )}
         >
-          <Star className="h-4 w-4" fill={isStarred ? 'currentColor' : 'none'} />
+          <Star
+            className="h-4 w-4"
+            fill={isStarred ? "currentColor" : "none"}
+          />
         </button>
 
         {/* Divider */}
@@ -141,10 +144,10 @@ export function SlackHeader({
         <button
           onClick={onHuddleClick}
           className={cn(
-            'flex items-center gap-1 rounded px-3 py-1.5',
-            'text-sm text-gray-700 dark:text-gray-300',
-            'hover:bg-gray-100 dark:hover:bg-[#35383C]',
-            'border border-gray-300 dark:border-[#35383C]'
+            "flex items-center gap-1 rounded px-3 py-1.5",
+            "text-sm text-gray-700 dark:text-gray-300",
+            "hover:bg-gray-100 dark:hover:bg-[#35383C]",
+            "border border-gray-300 dark:border-[#35383C]",
           )}
         >
           <Headphones className="h-4 w-4" />
@@ -163,7 +166,7 @@ export function SlackHeader({
         </button>
       </div>
     </header>
-  )
+  );
 }
 
-export default SlackHeader
+export default SlackHeader;

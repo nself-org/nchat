@@ -63,7 +63,7 @@ export {
   DEFAULT_ENFORCEMENT_POLICY,
   DEFAULT_PLAN_ABUSE_CONFIG,
   DEFAULT_ABUSE_ENGINE_CONFIG,
-} from './types'
+} from "./types";
 
 // Anti-Sharing Detection
 export {
@@ -71,17 +71,13 @@ export {
   haversineDistance,
   computeFingerprintHash,
   fingerprintSimilarity,
-} from './anti-sharing'
+} from "./anti-sharing";
 
 // Seat Abuse Controls
-export {
-  SeatAbuseDetector,
-} from './seat-abuse'
+export { SeatAbuseDetector } from "./seat-abuse";
 
 // Payment Heuristics
-export {
-  PaymentHeuristicsDetector,
-} from './payment-heuristics'
+export { PaymentHeuristicsDetector } from "./payment-heuristics";
 
 // Abuse Prevention Engine
 export {
@@ -89,4 +85,4 @@ export {
   getAbusePreventionEngine,
   createAbusePreventionEngine,
   resetAbusePreventionEngine,
-} from './abuse-engine'
+} from "./abuse-engine";

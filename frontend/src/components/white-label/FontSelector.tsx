@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Search, Check, Loader2, Type, ExternalLink } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { logger } from '@/lib/logger'
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Search, Check, Loader2, Type, ExternalLink } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import {
   POPULAR_FONTS,
   FONT_PAIRINGS,
@@ -13,16 +13,16 @@ import {
   getFontsByCategory,
   searchFonts,
   type GoogleFont,
-} from '@/lib/white-label/font-loader'
+} from "@/lib/white-label/font-loader";
 
 interface FontSelectorProps {
-  value: string
-  onChange: (font: string) => void
-  label?: string
-  category?: GoogleFont['category']
-  showPreview?: boolean
-  previewText?: string
-  className?: string
+  value: string;
+  onChange: (font: string) => void;
+  label?: string;
+  category?: GoogleFont["category"];
+  showPreview?: boolean;
+  previewText?: string;
+  className?: string;
 }
 
 export function FontSelector({
@@ -34,57 +34,59 @@ export function FontSelector({
   previewText = FONT_PREVIEW_SAMPLES.pangram,
   className,
 }: FontSelectorProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set())
-  const [loadingFont, setLoadingFont] = useState<string | null>(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
+  const [loadingFont, setLoadingFont] = useState<string | null>(null);
 
   // Preconnect on mount
   useEffect(() => {
-    preconnectGoogleFonts()
-  }, [])
+    preconnectGoogleFonts();
+  }, []);
 
   // Load selected font
   useEffect(() => {
     if (value && !loadedFonts.has(value)) {
       loadFonts([{ family: value }])
         .then(() => setLoadedFonts((prev) => new Set([...prev, value])))
-        .catch(console.error)
+        .catch(console.error);
     }
-  }, [value, loadedFonts])
+  }, [value, loadedFonts]);
 
   // Filter fonts based on search and category
   const filteredFonts = useMemo(() => {
-    let fonts = category ? getFontsByCategory(category) : POPULAR_FONTS
+    let fonts = category ? getFontsByCategory(category) : POPULAR_FONTS;
     if (searchQuery) {
-      fonts = searchFonts(searchQuery).filter((f) => !category || f.category === category)
+      fonts = searchFonts(searchQuery).filter(
+        (f) => !category || f.category === category,
+      );
     }
-    return fonts
-  }, [category, searchQuery])
+    return fonts;
+  }, [category, searchQuery]);
 
   const handleSelect = useCallback(
     async (font: GoogleFont) => {
       if (!loadedFonts.has(font.family)) {
-        setLoadingFont(font.family)
+        setLoadingFont(font.family);
         try {
-          await loadFonts([{ family: font.family }])
-          setLoadedFonts((prev) => new Set([...prev, font.family]))
+          await loadFonts([{ family: font.family }]);
+          setLoadedFonts((prev) => new Set([...prev, font.family]));
         } catch (error) {
-          logger.error('Failed to load font:', error)
+          logger.error("Failed to load font:", error);
         } finally {
-          setLoadingFont(null)
+          setLoadingFont(null);
         }
       }
-      onChange(font.family)
-      setIsOpen(false)
+      onChange(font.family);
+      setIsOpen(false);
     },
-    [loadedFonts, onChange]
-  )
+    [loadedFonts, onChange],
+  );
 
-  const selectedFont = POPULAR_FONTS.find((f) => f.family === value)
+  const selectedFont = POPULAR_FONTS.find((f) => f.family === value);
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {label && (
         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           {label}
@@ -96,30 +98,35 @@ export function FontSelector({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left transition-all',
+          "flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left transition-all",
           isOpen
-            ? 'ring-sky-500/20 border-sky-500 ring-2'
-            : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+            ? "ring-sky-500/20 border-sky-500 ring-2"
+            : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
         )}
       >
         <div className="flex items-center gap-3">
           <Type className="h-4 w-4 text-zinc-400" />
           <span
             className="text-sm text-zinc-900 dark:text-zinc-100"
-            style={{ fontFamily: loadedFonts.has(value) ? value : 'inherit' }}
+            style={{ fontFamily: loadedFonts.has(value) ? value : "inherit" }}
           >
-            {value || 'Select a font'}
+            {value || "Select a font"}
           </span>
         </div>
         {selectedFont && (
-          <span className="text-xs capitalize text-zinc-500">{selectedFont.category}</span>
+          <span className="text-xs capitalize text-zinc-500">
+            {selectedFont.category}
+          </span>
         )}
       </button>
 
       {/* Font preview */}
       {showPreview && value && loadedFonts.has(value) && (
         <div className="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-800">
-          <p className="text-lg text-zinc-900 dark:text-zinc-100" style={{ fontFamily: value }}>
+          <p
+            className="text-lg text-zinc-900 dark:text-zinc-100"
+            style={{ fontFamily: value }}
+          >
             {previewText}
           </p>
         </div>
@@ -147,13 +154,15 @@ export function FontSelector({
           {/* Font list */}
           <div className="max-h-72 overflow-y-auto">
             {filteredFonts.length === 0 ? (
-              <div className="p-4 text-center text-sm text-zinc-500">No fonts found</div>
+              <div className="p-4 text-center text-sm text-zinc-500">
+                No fonts found
+              </div>
             ) : (
               <div className="py-1">
                 {filteredFonts.map((font) => {
-                  const isLoaded = loadedFonts.has(font.family)
-                  const isLoading = loadingFont === font.family
-                  const isSelected = value === font.family
+                  const isLoaded = loadedFonts.has(font.family);
+                  const isLoading = loadingFont === font.family;
+                  const isSelected = value === font.family;
 
                   return (
                     <button
@@ -163,32 +172,44 @@ export function FontSelector({
                       onMouseEnter={() => {
                         if (!isLoaded && !isLoading) {
                           loadFonts([{ family: font.family }])
-                            .then(() => setLoadedFonts((prev) => new Set([...prev, font.family])))
-                            .catch(() => {})
+                            .then(() =>
+                              setLoadedFonts(
+                                (prev) => new Set([...prev, font.family]),
+                              ),
+                            )
+                            .catch(() => {});
                         }
                       }}
                       className={cn(
-                        'flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors',
+                        "flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors",
                         isSelected
-                          ? 'dark:bg-sky-900/30 bg-sky-50'
-                          : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                          ? "dark:bg-sky-900/30 bg-sky-50"
+                          : "hover:bg-zinc-50 dark:hover:bg-zinc-800",
                       )}
                     >
                       <div>
                         <span
                           className="block text-sm text-zinc-900 dark:text-zinc-100"
-                          style={{ fontFamily: isLoaded ? font.family : 'inherit' }}
+                          style={{
+                            fontFamily: isLoaded ? font.family : "inherit",
+                          }}
                         >
                           {font.family}
                         </span>
-                        <span className="text-xs capitalize text-zinc-500">{font.category}</span>
+                        <span className="text-xs capitalize text-zinc-500">
+                          {font.category}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        {isLoading && <Loader2 className="h-4 w-4 animate-spin text-sky-500" />}
-                        {isSelected && <Check className="h-4 w-4 text-sky-500" />}
+                        {isLoading && (
+                          <Loader2 className="h-4 w-4 animate-spin text-sky-500" />
+                        )}
+                        {isSelected && (
+                          <Check className="h-4 w-4 text-sky-500" />
+                        )}
                       </div>
                     </button>
-                  )
+                  );
                 })}
               </div>
             )}
@@ -209,16 +230,16 @@ export function FontSelector({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // Font pairing selector component
 interface FontPairingSelectorProps {
-  headingFont: string
-  bodyFont: string
-  onHeadingChange: (font: string) => void
-  onBodyChange: (font: string) => void
-  className?: string
+  headingFont: string;
+  bodyFont: string;
+  onHeadingChange: (font: string) => void;
+  onBodyChange: (font: string) => void;
+  className?: string;
 }
 
 export function FontPairingSelector({
@@ -228,32 +249,35 @@ export function FontPairingSelector({
   onBodyChange,
   className,
 }: FontPairingSelectorProps) {
-  const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set())
+  const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
 
   // Load fonts for pairings preview
   useEffect(() => {
-    const fontsToLoad = FONT_PAIRINGS.flatMap((p) => [{ family: p.heading }, { family: p.body }])
+    const fontsToLoad = FONT_PAIRINGS.flatMap((p) => [
+      { family: p.heading },
+      { family: p.body },
+    ]);
     loadFonts(fontsToLoad)
       .then(() => {
-        const names = new Set(fontsToLoad.map((f) => f.family))
-        setLoadedFonts(names)
+        const names = new Set(fontsToLoad.map((f) => f.family));
+        setLoadedFonts(names);
       })
-      .catch(console.error)
-  }, [])
+      .catch(console.error);
+  }, []);
 
   const handleSelectPairing = useCallback(
     (pairing: (typeof FONT_PAIRINGS)[0]) => {
-      onHeadingChange(pairing.heading)
-      onBodyChange(pairing.body)
+      onHeadingChange(pairing.heading);
+      onBodyChange(pairing.body);
     },
-    [onHeadingChange, onBodyChange]
-  )
+    [onHeadingChange, onBodyChange],
+  );
 
   const isSelected = (pairing: (typeof FONT_PAIRINGS)[0]) =>
-    headingFont === pairing.heading && bodyFont === pairing.body
+    headingFont === pairing.heading && bodyFont === pairing.body;
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Recommended Pairings
@@ -262,8 +286,9 @@ export function FontPairingSelector({
 
       <div className="grid grid-cols-2 gap-3">
         {FONT_PAIRINGS.map((pairing) => {
-          const loaded = loadedFonts.has(pairing.heading) && loadedFonts.has(pairing.body)
-          const selected = isSelected(pairing)
+          const loaded =
+            loadedFonts.has(pairing.heading) && loadedFonts.has(pairing.body);
+          const selected = isSelected(pairing);
 
           return (
             <button
@@ -271,27 +296,29 @@ export function FontPairingSelector({
               type="button"
               onClick={() => handleSelectPairing(pairing)}
               className={cn(
-                'rounded-xl border-2 p-4 text-left transition-all',
+                "rounded-xl border-2 p-4 text-left transition-all",
                 selected
-                  ? 'dark:bg-sky-900/20 border-sky-500 bg-sky-50'
-                  : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                  ? "dark:bg-sky-900/20 border-sky-500 bg-sky-50"
+                  : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
               )}
             >
               <div className="space-y-2">
                 <h4
                   className="text-lg font-semibold text-zinc-900 dark:text-white"
-                  style={{ fontFamily: loaded ? pairing.heading : 'inherit' }}
+                  style={{ fontFamily: loaded ? pairing.heading : "inherit" }}
                 >
                   {pairing.heading}
                 </h4>
                 <p
                   className="text-sm text-zinc-600 dark:text-zinc-400"
-                  style={{ fontFamily: loaded ? pairing.body : 'inherit' }}
+                  style={{ fontFamily: loaded ? pairing.body : "inherit" }}
                 >
                   {pairing.body}
                 </p>
               </div>
-              <p className="mt-2 text-xs text-zinc-500">{pairing.description}</p>
+              <p className="mt-2 text-xs text-zinc-500">
+                {pairing.description}
+              </p>
               {selected && (
                 <div className="mt-2 flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400">
                   <Check className="h-3 w-3" />
@@ -299,9 +326,9 @@ export function FontPairingSelector({
                 </div>
               )}
             </button>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

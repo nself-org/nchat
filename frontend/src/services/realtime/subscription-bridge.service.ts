@@ -15,10 +15,14 @@
  * @version 1.0.0
  */
 
-import { ApolloClient, NormalizedCacheObject, Observable } from '@apollo/client'
-import { realtimeClient, RealtimeConnectionState } from './realtime-client'
-import { getRoomsService } from './rooms.service'
-import { getEventDispatcher } from './event-dispatcher.service'
+import {
+  ApolloClient,
+  NormalizedCacheObject,
+  Observable,
+} from "@apollo/client";
+import { realtimeClient, RealtimeConnectionState } from "./realtime-client";
+import { getRoomsService } from "./rooms.service";
+import { getEventDispatcher } from "./event-dispatcher.service";
 import {
   MESSAGE_SUBSCRIPTION,
   MESSAGE_UPDATED_SUBSCRIPTION,
@@ -28,7 +32,7 @@ import {
   READ_RECEIPTS_SUBSCRIPTION,
   THREAD_MESSAGES_SUBSCRIPTION,
   THREAD_SUBSCRIPTION,
-} from '@/graphql/messages/subscriptions'
+} from "@/graphql/messages/subscriptions";
 import {
   REALTIME_EVENTS,
   getChannelRoom,
@@ -40,7 +44,7 @@ import {
   type ReactionAddEvent,
   type TypingEvent,
   type ReadReceiptEvent,
-} from './events.types'
+} from "./events.types";
 
 // ============================================================================
 // Types
@@ -51,17 +55,17 @@ import {
  */
 export interface SubscriptionBridgeConfig {
   /** Apollo client for GraphQL subscriptions */
-  apolloClient?: ApolloClient<NormalizedCacheObject>
+  apolloClient?: ApolloClient<NormalizedCacheObject>;
   /** Enable debug logging */
-  debug?: boolean
+  debug?: boolean;
   /** Auto-subscribe to joined rooms */
-  autoSubscribe?: boolean
+  autoSubscribe?: boolean;
   /** Retry subscription on error */
-  retryOnError?: boolean
+  retryOnError?: boolean;
   /** Retry delay in milliseconds */
-  retryDelay?: number
+  retryDelay?: number;
   /** Maximum retry attempts */
-  maxRetries?: number
+  maxRetries?: number;
 }
 
 /**
@@ -69,109 +73,109 @@ export interface SubscriptionBridgeConfig {
  */
 interface ActiveSubscription {
   /** Subscription ID */
-  id: string
+  id: string;
   /** Room name */
-  roomName: string
+  roomName: string;
   /** Subscription type */
-  type: 'channel' | 'thread' | 'typing' | 'reactions' | 'read_receipts'
+  type: "channel" | "thread" | "typing" | "reactions" | "read_receipts";
   /** Apollo subscription */
-  subscription: ZenObservable.Subscription
+  subscription: ZenObservable.Subscription;
   /** Creation timestamp */
-  createdAt: number
+  createdAt: number;
   /** Retry count */
-  retryCount: number
+  retryCount: number;
 }
 
 /**
  * GraphQL subscription data types
  */
 interface GraphQLMessage {
-  id: string
-  channel_id: string
-  content: string
-  content_html?: string
-  type: string
-  thread_id?: string
-  parent_message_id?: string
-  mentions?: string[]
-  mentioned_roles?: string[]
-  mentioned_channels?: string[]
-  metadata?: Record<string, unknown>
-  is_edited: boolean
-  edited_at?: string
-  is_deleted: boolean
-  deleted_at?: string
-  created_at: string
+  id: string;
+  channel_id: string;
+  content: string;
+  content_html?: string;
+  type: string;
+  thread_id?: string;
+  parent_message_id?: string;
+  mentions?: string[];
+  mentioned_roles?: string[];
+  mentioned_channels?: string[];
+  metadata?: Record<string, unknown>;
+  is_edited: boolean;
+  edited_at?: string;
+  is_deleted: boolean;
+  deleted_at?: string;
+  created_at: string;
   user: {
-    id: string
-    username: string
-    display_name?: string
-    avatar_url?: string
-  }
+    id: string;
+    username: string;
+    display_name?: string;
+    avatar_url?: string;
+  };
   attachments?: Array<{
-    id: string
-    type: string
-    url: string
-    filename: string
-    size_bytes?: number
-    mime_type?: string
-    width?: number
-    height?: number
-    thumbnail_url?: string
-  }>
+    id: string;
+    type: string;
+    url: string;
+    filename: string;
+    size_bytes?: number;
+    mime_type?: string;
+    width?: number;
+    height?: number;
+    thumbnail_url?: string;
+  }>;
   reactions?: Array<{
-    id: string
-    emoji: string
-    user_id: string
+    id: string;
+    emoji: string;
+    user_id: string;
     user?: {
-      id: string
-      username: string
-    }
-  }>
+      id: string;
+      username: string;
+    };
+  }>;
 }
 
 interface GraphQLReaction {
-  id: string
-  message_id: string
-  emoji: string
-  user_id: string
-  created_at: string
+  id: string;
+  message_id: string;
+  emoji: string;
+  user_id: string;
+  created_at: string;
   user?: {
-    id: string
-    username: string
-    display_name?: string
-  }
+    id: string;
+    username: string;
+    display_name?: string;
+  };
 }
 
 interface GraphQLTypingIndicator {
-  id: string
-  user_id: string
-  channel_id: string
-  thread_id?: string
-  started_at: string
+  id: string;
+  user_id: string;
+  channel_id: string;
+  thread_id?: string;
+  started_at: string;
   user?: {
-    id: string
-    username: string
-    display_name?: string
-  }
+    id: string;
+    username: string;
+    display_name?: string;
+  };
 }
 
 interface GraphQLReadReceipt {
-  user_id: string
-  last_read_message_id: string
-  last_read_at: string
-  unread_count: number
+  user_id: string;
+  last_read_message_id: string;
+  last_read_at: string;
+  unread_count: number;
   user?: {
-    id: string
-    username: string
-  }
+    id: string;
+    username: string;
+  };
 }
 
 // ZenObservable namespace for type compatibility
 namespace ZenObservable {
   export interface Subscription {
-    readonly closed: boolean
-    unsubscribe(): void
+    readonly closed: boolean;
+    unsubscribe(): void;
   }
 }
 
@@ -179,13 +183,14 @@ namespace ZenObservable {
 // Constants
 // ============================================================================
 
-const DEFAULT_CONFIG: Required<Omit<SubscriptionBridgeConfig, 'apolloClient'>> = {
-  debug: false,
-  autoSubscribe: true,
-  retryOnError: true,
-  retryDelay: 5000,
-  maxRetries: 5,
-}
+const DEFAULT_CONFIG: Required<Omit<SubscriptionBridgeConfig, "apolloClient">> =
+  {
+    debug: false,
+    autoSubscribe: true,
+    retryOnError: true,
+    retryDelay: 5000,
+    maxRetries: 5,
+  };
 
 // ============================================================================
 // Subscription Bridge Class
@@ -195,13 +200,13 @@ const DEFAULT_CONFIG: Required<Omit<SubscriptionBridgeConfig, 'apolloClient'>> =
  * SubscriptionBridgeService - Bridges GraphQL subscriptions with Socket.io
  */
 class SubscriptionBridgeService {
-  private config: Required<Omit<SubscriptionBridgeConfig, 'apolloClient'>>
-  private apolloClient: ApolloClient<NormalizedCacheObject> | null = null
-  private activeSubscriptions = new Map<string, ActiveSubscription>()
-  private roomSubscriptions = new Map<string, Set<string>>() // roomName -> subscription IDs
-  private unsubscribers: Array<() => void> = []
-  private isInitialized = false
-  private currentUserId: string | null = null
+  private config: Required<Omit<SubscriptionBridgeConfig, "apolloClient">>;
+  private apolloClient: ApolloClient<NormalizedCacheObject> | null = null;
+  private activeSubscriptions = new Map<string, ActiveSubscription>();
+  private roomSubscriptions = new Map<string, Set<string>>(); // roomName -> subscription IDs
+  private unsubscribers: Array<() => void> = [];
+  private isInitialized = false;
+  private currentUserId: string | null = null;
 
   constructor(config: SubscriptionBridgeConfig = {}) {
     this.config = {
@@ -210,10 +215,10 @@ class SubscriptionBridgeService {
       retryOnError: config.retryOnError ?? DEFAULT_CONFIG.retryOnError,
       retryDelay: config.retryDelay ?? DEFAULT_CONFIG.retryDelay,
       maxRetries: config.maxRetries ?? DEFAULT_CONFIG.maxRetries,
-    }
+    };
 
     if (config.apolloClient) {
-      this.apolloClient = config.apolloClient
+      this.apolloClient = config.apolloClient;
     }
   }
 
@@ -226,25 +231,25 @@ class SubscriptionBridgeService {
    */
   initialize(apolloClient?: ApolloClient<NormalizedCacheObject>): void {
     if (this.isInitialized) {
-      return
+      return;
     }
 
     if (apolloClient) {
-      this.apolloClient = apolloClient
+      this.apolloClient = apolloClient;
     }
 
-    this.setupConnectionListener()
-    this.setupRoomListener()
+    this.setupConnectionListener();
+    this.setupRoomListener();
 
-    this.isInitialized = true
-    this.log('Subscription bridge initialized')
+    this.isInitialized = true;
+    this.log("Subscription bridge initialized");
   }
 
   /**
    * Set the current user ID
    */
   setCurrentUserId(userId: string | null): void {
-    this.currentUserId = userId
+    this.currentUserId = userId;
   }
 
   /**
@@ -254,21 +259,21 @@ class SubscriptionBridgeService {
     // Unsubscribe from all active subscriptions
     for (const [id, sub] of this.activeSubscriptions) {
       try {
-        sub.subscription.unsubscribe()
+        sub.subscription.unsubscribe();
       } catch (error) {
-        this.log('Error unsubscribing:', id, error)
+        this.log("Error unsubscribing:", id, error);
       }
     }
 
-    this.activeSubscriptions.clear()
-    this.roomSubscriptions.clear()
+    this.activeSubscriptions.clear();
+    this.roomSubscriptions.clear();
 
     // Cleanup listeners
-    this.unsubscribers.forEach((unsub) => unsub())
-    this.unsubscribers = []
+    this.unsubscribers.forEach((unsub) => unsub());
+    this.unsubscribers = [];
 
-    this.isInitialized = false
-    this.log('Subscription bridge destroyed')
+    this.isInitialized = false;
+    this.log("Subscription bridge destroyed");
   }
 
   // ============================================================================
@@ -279,17 +284,19 @@ class SubscriptionBridgeService {
    * Set up connection state listener
    */
   private setupConnectionListener(): void {
-    const unsub = realtimeClient.onConnectionStateChange((state: RealtimeConnectionState) => {
-      if (state === 'authenticated') {
-        // Resubscribe to all rooms on reconnection
-        this.resubscribeAll()
-      } else if (state === 'disconnected') {
-        // Pause subscriptions when disconnected
-        this.pauseSubscriptions()
-      }
-    })
+    const unsub = realtimeClient.onConnectionStateChange(
+      (state: RealtimeConnectionState) => {
+        if (state === "authenticated") {
+          // Resubscribe to all rooms on reconnection
+          this.resubscribeAll();
+        } else if (state === "disconnected") {
+          // Pause subscriptions when disconnected
+          this.pauseSubscriptions();
+        }
+      },
+    );
 
-    this.unsubscribers.push(unsub)
+    this.unsubscribers.push(unsub);
   }
 
   /**
@@ -297,44 +304,44 @@ class SubscriptionBridgeService {
    */
   private setupRoomListener(): void {
     if (!this.config.autoSubscribe) {
-      return
+      return;
     }
 
-    const roomsService = getRoomsService()
+    const roomsService = getRoomsService();
 
     const unsub = roomsService.onRoomStateChange((rooms) => {
       // Subscribe to new rooms
       for (const roomName of rooms) {
         if (!this.roomSubscriptions.has(roomName)) {
-          this.subscribeToRoom(roomName)
+          this.subscribeToRoom(roomName);
         }
       }
 
       // Unsubscribe from rooms we've left
       for (const roomName of this.roomSubscriptions.keys()) {
         if (!rooms.includes(roomName)) {
-          this.unsubscribeFromRoom(roomName)
+          this.unsubscribeFromRoom(roomName);
         }
       }
-    })
+    });
 
-    this.unsubscribers.push(unsub)
+    this.unsubscribers.push(unsub);
   }
 
   /**
    * Resubscribe to all rooms after reconnection
    */
   private resubscribeAll(): void {
-    this.log('Resubscribing to all rooms after reconnection')
+    this.log("Resubscribing to all rooms after reconnection");
 
-    const roomNames = Array.from(this.roomSubscriptions.keys())
+    const roomNames = Array.from(this.roomSubscriptions.keys());
 
     for (const roomName of roomNames) {
       // Clear existing subscriptions for this room
-      this.unsubscribeFromRoom(roomName)
+      this.unsubscribeFromRoom(roomName);
 
       // Resubscribe
-      this.subscribeToRoom(roomName)
+      this.subscribeToRoom(roomName);
     }
   }
 
@@ -342,7 +349,7 @@ class SubscriptionBridgeService {
    * Pause all subscriptions during disconnect
    */
   private pauseSubscriptions(): void {
-    this.log('Pausing subscriptions during disconnect')
+    this.log("Pausing subscriptions during disconnect");
     // Subscriptions will automatically retry when connection is restored
   }
 
@@ -355,58 +362,58 @@ class SubscriptionBridgeService {
    */
   subscribeToRoom(roomName: string): void {
     if (!this.apolloClient) {
-      this.log('Cannot subscribe: Apollo client not initialized')
-      return
+      this.log("Cannot subscribe: Apollo client not initialized");
+      return;
     }
 
     // Parse room name to determine type
-    const parts = roomName.split(':')
+    const parts = roomName.split(":");
     if (parts.length !== 2) {
-      this.log('Invalid room name:', roomName)
-      return
+      this.log("Invalid room name:", roomName);
+      return;
     }
 
-    const [type, id] = parts
+    const [type, id] = parts;
 
     if (!this.roomSubscriptions.has(roomName)) {
-      this.roomSubscriptions.set(roomName, new Set())
+      this.roomSubscriptions.set(roomName, new Set());
     }
 
-    if (type === 'channel') {
-      this.subscribeToChannelMessages(id)
-      this.subscribeToChannelReactions(id)
-      this.subscribeToChannelTyping(id)
-      this.subscribeToChannelReadReceipts(id)
-    } else if (type === 'thread') {
-      this.subscribeToThreadMessages(id)
+    if (type === "channel") {
+      this.subscribeToChannelMessages(id);
+      this.subscribeToChannelReactions(id);
+      this.subscribeToChannelTyping(id);
+      this.subscribeToChannelReadReceipts(id);
+    } else if (type === "thread") {
+      this.subscribeToThreadMessages(id);
     }
 
-    this.log('Subscribed to room:', roomName)
+    this.log("Subscribed to room:", roomName);
   }
 
   /**
    * Unsubscribe from all events for a room
    */
   unsubscribeFromRoom(roomName: string): void {
-    const subscriptionIds = this.roomSubscriptions.get(roomName)
+    const subscriptionIds = this.roomSubscriptions.get(roomName);
     if (!subscriptionIds) {
-      return
+      return;
     }
 
     for (const subId of subscriptionIds) {
-      const sub = this.activeSubscriptions.get(subId)
+      const sub = this.activeSubscriptions.get(subId);
       if (sub) {
         try {
-          sub.subscription.unsubscribe()
+          sub.subscription.unsubscribe();
         } catch (error) {
-          this.log('Error unsubscribing:', subId, error)
+          this.log("Error unsubscribing:", subId, error);
         }
-        this.activeSubscriptions.delete(subId)
+        this.activeSubscriptions.delete(subId);
       }
     }
 
-    this.roomSubscriptions.delete(roomName)
-    this.log('Unsubscribed from room:', roomName)
+    this.roomSubscriptions.delete(roomName);
+    this.log("Unsubscribed from room:", roomName);
   }
 
   // ============================================================================
@@ -417,137 +424,137 @@ class SubscriptionBridgeService {
    * Subscribe to new messages in a channel
    */
   private subscribeToChannelMessages(channelId: string): void {
-    if (!this.apolloClient) return
+    if (!this.apolloClient) return;
 
-    const roomName = getChannelRoom(channelId)
-    const subId = `message:${channelId}`
+    const roomName = getChannelRoom(channelId);
+    const subId = `message:${channelId}`;
 
     // Check if already subscribed
     if (this.activeSubscriptions.has(subId)) {
-      return
+      return;
     }
 
     const observable = this.apolloClient.subscribe({
       query: MESSAGE_SUBSCRIPTION,
       variables: { channelId },
-    })
+    });
 
     const subscription = observable.subscribe({
       next: ({ data }) => {
         if (data?.nchat_messages?.length > 0) {
-          const message = data.nchat_messages[0] as GraphQLMessage
-          this.handleNewMessage(message, channelId)
+          const message = data.nchat_messages[0] as GraphQLMessage;
+          this.handleNewMessage(message, channelId);
         }
       },
       error: (error) => {
-        this.handleSubscriptionError(subId, error)
+        this.handleSubscriptionError(subId, error);
       },
-    })
+    });
 
-    this.registerSubscription(subId, roomName, 'channel', subscription)
+    this.registerSubscription(subId, roomName, "channel", subscription);
   }
 
   /**
    * Subscribe to reactions in a channel
    */
   private subscribeToChannelReactions(channelId: string): void {
-    if (!this.apolloClient) return
+    if (!this.apolloClient) return;
 
-    const roomName = getChannelRoom(channelId)
-    const subId = `reactions:${channelId}`
+    const roomName = getChannelRoom(channelId);
+    const subId = `reactions:${channelId}`;
 
     if (this.activeSubscriptions.has(subId)) {
-      return
+      return;
     }
 
     const observable = this.apolloClient.subscribe({
       query: CHANNEL_REACTIONS_SUBSCRIPTION,
       variables: { channelId },
-    })
+    });
 
     const subscription = observable.subscribe({
       next: ({ data }) => {
         if (data?.nchat_reactions?.length > 0) {
           for (const reaction of data.nchat_reactions as GraphQLReaction[]) {
-            this.handleReaction(reaction, channelId)
+            this.handleReaction(reaction, channelId);
           }
         }
       },
       error: (error) => {
-        this.handleSubscriptionError(subId, error)
+        this.handleSubscriptionError(subId, error);
       },
-    })
+    });
 
-    this.registerSubscription(subId, roomName, 'reactions', subscription)
+    this.registerSubscription(subId, roomName, "reactions", subscription);
   }
 
   /**
    * Subscribe to typing indicators in a channel
    */
   private subscribeToChannelTyping(channelId: string): void {
-    if (!this.apolloClient) return
+    if (!this.apolloClient) return;
 
-    const roomName = getChannelRoom(channelId)
-    const subId = `typing:${channelId}`
+    const roomName = getChannelRoom(channelId);
+    const subId = `typing:${channelId}`;
 
     if (this.activeSubscriptions.has(subId)) {
-      return
+      return;
     }
 
     const observable = this.apolloClient.subscribe({
       query: TYPING_SUBSCRIPTION,
       variables: { channelId },
-    })
+    });
 
     const subscription = observable.subscribe({
       next: ({ data }) => {
         if (data?.nchat_typing_indicators) {
           this.handleTypingIndicators(
             data.nchat_typing_indicators as GraphQLTypingIndicator[],
-            channelId
-          )
+            channelId,
+          );
         }
       },
       error: (error) => {
-        this.handleSubscriptionError(subId, error)
+        this.handleSubscriptionError(subId, error);
       },
-    })
+    });
 
-    this.registerSubscription(subId, roomName, 'typing', subscription)
+    this.registerSubscription(subId, roomName, "typing", subscription);
   }
 
   /**
    * Subscribe to read receipts in a channel
    */
   private subscribeToChannelReadReceipts(channelId: string): void {
-    if (!this.apolloClient) return
+    if (!this.apolloClient) return;
 
-    const roomName = getChannelRoom(channelId)
-    const subId = `read_receipts:${channelId}`
+    const roomName = getChannelRoom(channelId);
+    const subId = `read_receipts:${channelId}`;
 
     if (this.activeSubscriptions.has(subId)) {
-      return
+      return;
     }
 
     const observable = this.apolloClient.subscribe({
       query: READ_RECEIPTS_SUBSCRIPTION,
       variables: { channelId },
-    })
+    });
 
     const subscription = observable.subscribe({
       next: ({ data }) => {
         if (data?.nchat_channel_members) {
           for (const receipt of data.nchat_channel_members as GraphQLReadReceipt[]) {
-            this.handleReadReceipt(receipt, channelId)
+            this.handleReadReceipt(receipt, channelId);
           }
         }
       },
       error: (error) => {
-        this.handleSubscriptionError(subId, error)
+        this.handleSubscriptionError(subId, error);
       },
-    })
+    });
 
-    this.registerSubscription(subId, roomName, 'read_receipts', subscription)
+    this.registerSubscription(subId, roomName, "read_receipts", subscription);
   }
 
   // ============================================================================
@@ -558,33 +565,33 @@ class SubscriptionBridgeService {
    * Subscribe to messages in a thread
    */
   private subscribeToThreadMessages(threadId: string): void {
-    if (!this.apolloClient) return
+    if (!this.apolloClient) return;
 
-    const roomName = getThreadRoom(threadId)
-    const subId = `thread:${threadId}`
+    const roomName = getThreadRoom(threadId);
+    const subId = `thread:${threadId}`;
 
     if (this.activeSubscriptions.has(subId)) {
-      return
+      return;
     }
 
     const observable = this.apolloClient.subscribe({
       query: THREAD_MESSAGES_SUBSCRIPTION,
       variables: { threadId },
-    })
+    });
 
     const subscription = observable.subscribe({
       next: ({ data }) => {
         if (data?.nchat_messages?.length > 0) {
-          const message = data.nchat_messages[0] as GraphQLMessage
-          this.handleNewMessage(message, message.channel_id, threadId)
+          const message = data.nchat_messages[0] as GraphQLMessage;
+          this.handleNewMessage(message, message.channel_id, threadId);
         }
       },
       error: (error) => {
-        this.handleSubscriptionError(subId, error)
+        this.handleSubscriptionError(subId, error);
       },
-    })
+    });
 
-    this.registerSubscription(subId, roomName, 'thread', subscription)
+    this.registerSubscription(subId, roomName, "thread", subscription);
   }
 
   // ============================================================================
@@ -594,15 +601,19 @@ class SubscriptionBridgeService {
   /**
    * Handle a new message from subscription
    */
-  private handleNewMessage(message: GraphQLMessage, channelId: string, threadId?: string): void {
-    const dispatcher = getEventDispatcher()
+  private handleNewMessage(
+    message: GraphQLMessage,
+    channelId: string,
+    threadId?: string,
+  ): void {
+    const dispatcher = getEventDispatcher();
 
     const user: EventUser = {
       id: message.user.id,
       username: message.user.username,
       displayName: message.user.display_name,
       avatarUrl: message.user.avatar_url,
-    }
+    };
 
     dispatcher.dispatchMessageNew({
       id: message.id,
@@ -629,22 +640,22 @@ class SubscriptionBridgeService {
       metadata: message.metadata,
       createdAt: message.created_at,
       user,
-    })
+    });
 
-    this.log('Handled new message:', message.id)
+    this.log("Handled new message:", message.id);
   }
 
   /**
    * Handle a reaction from subscription
    */
   private handleReaction(reaction: GraphQLReaction, channelId: string): void {
-    const dispatcher = getEventDispatcher()
+    const dispatcher = getEventDispatcher();
 
     const user: EventUser = {
       id: reaction.user_id,
-      username: reaction.user?.username || 'unknown',
+      username: reaction.user?.username || "unknown",
       displayName: reaction.user?.display_name,
-    }
+    };
 
     dispatcher.dispatchReactionAdd({
       messageId: reaction.message_id,
@@ -652,20 +663,30 @@ class SubscriptionBridgeService {
       emoji: reaction.emoji,
       user,
       totalCount: 1, // Will be calculated on client side
-    })
+    });
 
-    this.log('Handled reaction:', reaction.emoji, 'on message', reaction.message_id)
+    this.log(
+      "Handled reaction:",
+      reaction.emoji,
+      "on message",
+      reaction.message_id,
+    );
   }
 
   /**
    * Handle typing indicators from subscription
    */
-  private handleTypingIndicators(indicators: GraphQLTypingIndicator[], channelId: string): void {
-    const roomName = getChannelRoom(channelId)
-    const dispatcher = getEventDispatcher()
+  private handleTypingIndicators(
+    indicators: GraphQLTypingIndicator[],
+    channelId: string,
+  ): void {
+    const roomName = getChannelRoom(channelId);
+    const dispatcher = getEventDispatcher();
 
     // Filter out current user from typing indicators
-    const filteredIndicators = indicators.filter((i) => i.user_id !== this.currentUserId)
+    const filteredIndicators = indicators.filter(
+      (i) => i.user_id !== this.currentUserId,
+    );
 
     const typingEvent: TypingEvent = {
       roomName,
@@ -674,31 +695,34 @@ class SubscriptionBridgeService {
         userName: i.user?.display_name || i.user?.username,
         startedAt: i.started_at,
       })),
-    }
+    };
 
     // Dispatch directly to local listeners
     dispatcher.subscribe((type, room, payload) => {
       // The dispatcher will handle this
-    })
+    });
 
     // Use rooms service to emit to socket
-    realtimeClient.emit(REALTIME_EVENTS.TYPING_UPDATE, typingEvent)
+    realtimeClient.emit(REALTIME_EVENTS.TYPING_UPDATE, typingEvent);
   }
 
   /**
    * Handle read receipt from subscription
    */
-  private handleReadReceipt(receipt: GraphQLReadReceipt, channelId: string): void {
-    const dispatcher = getEventDispatcher()
+  private handleReadReceipt(
+    receipt: GraphQLReadReceipt,
+    channelId: string,
+  ): void {
+    const dispatcher = getEventDispatcher();
 
     dispatcher.dispatchReadReceipt(
       channelId,
       receipt.user_id,
       receipt.last_read_message_id,
-      receipt.unread_count
-    )
+      receipt.unread_count,
+    );
 
-    this.log('Handled read receipt:', receipt.user_id, 'in channel', channelId)
+    this.log("Handled read receipt:", receipt.user_id, "in channel", channelId);
   }
 
   // ============================================================================
@@ -711,8 +735,8 @@ class SubscriptionBridgeService {
   private registerSubscription(
     id: string,
     roomName: string,
-    type: ActiveSubscription['type'],
-    subscription: ZenObservable.Subscription
+    type: ActiveSubscription["type"],
+    subscription: ZenObservable.Subscription,
   ): void {
     const record: ActiveSubscription = {
       id,
@@ -721,64 +745,64 @@ class SubscriptionBridgeService {
       subscription,
       createdAt: Date.now(),
       retryCount: 0,
-    }
+    };
 
-    this.activeSubscriptions.set(id, record)
+    this.activeSubscriptions.set(id, record);
 
     // Track which subscriptions belong to which room
     if (!this.roomSubscriptions.has(roomName)) {
-      this.roomSubscriptions.set(roomName, new Set())
+      this.roomSubscriptions.set(roomName, new Set());
     }
-    this.roomSubscriptions.get(roomName)!.add(id)
+    this.roomSubscriptions.get(roomName)!.add(id);
 
-    this.log('Registered subscription:', id, 'for room:', roomName)
+    this.log("Registered subscription:", id, "for room:", roomName);
   }
 
   /**
    * Handle subscription error
    */
   private handleSubscriptionError(subId: string, error: unknown): void {
-    this.log('Subscription error:', subId, error)
+    this.log("Subscription error:", subId, error);
 
-    const sub = this.activeSubscriptions.get(subId)
+    const sub = this.activeSubscriptions.get(subId);
     if (!sub) {
-      return
+      return;
     }
 
     if (this.config.retryOnError && sub.retryCount < this.config.maxRetries) {
       // Schedule retry
-      sub.retryCount++
+      sub.retryCount++;
 
       setTimeout(() => {
         // Parse subscription ID to get type and resource ID
-        const [type, id] = subId.split(':')
-        const roomName = sub.roomName
+        const [type, id] = subId.split(":");
+        const roomName = sub.roomName;
 
         // Remove old subscription
-        this.activeSubscriptions.delete(subId)
-        this.roomSubscriptions.get(roomName)?.delete(subId)
+        this.activeSubscriptions.delete(subId);
+        this.roomSubscriptions.get(roomName)?.delete(subId);
 
         // Resubscribe based on type
-        if (type === 'message') {
-          this.subscribeToChannelMessages(id)
-        } else if (type === 'reactions') {
-          this.subscribeToChannelReactions(id)
-        } else if (type === 'typing') {
-          this.subscribeToChannelTyping(id)
-        } else if (type === 'read_receipts') {
-          this.subscribeToChannelReadReceipts(id)
-        } else if (type === 'thread') {
-          this.subscribeToThreadMessages(id)
+        if (type === "message") {
+          this.subscribeToChannelMessages(id);
+        } else if (type === "reactions") {
+          this.subscribeToChannelReactions(id);
+        } else if (type === "typing") {
+          this.subscribeToChannelTyping(id);
+        } else if (type === "read_receipts") {
+          this.subscribeToChannelReadReceipts(id);
+        } else if (type === "thread") {
+          this.subscribeToThreadMessages(id);
         }
 
-        this.log('Retrying subscription:', subId, 'attempt:', sub.retryCount)
-      }, this.config.retryDelay)
+        this.log("Retrying subscription:", subId, "attempt:", sub.retryCount);
+      }, this.config.retryDelay);
     } else {
       // Remove failed subscription
-      this.activeSubscriptions.delete(subId)
-      this.roomSubscriptions.get(sub.roomName)?.delete(subId)
+      this.activeSubscriptions.delete(subId);
+      this.roomSubscriptions.get(sub.roomName)?.delete(subId);
 
-      this.log('Subscription failed permanently:', subId)
+      this.log("Subscription failed permanently:", subId);
     }
   }
 
@@ -790,32 +814,32 @@ class SubscriptionBridgeService {
    * Manually subscribe to a channel
    */
   subscribeToChannel(channelId: string): void {
-    const roomName = getChannelRoom(channelId)
-    this.subscribeToRoom(roomName)
+    const roomName = getChannelRoom(channelId);
+    this.subscribeToRoom(roomName);
   }
 
   /**
    * Manually unsubscribe from a channel
    */
   unsubscribeFromChannel(channelId: string): void {
-    const roomName = getChannelRoom(channelId)
-    this.unsubscribeFromRoom(roomName)
+    const roomName = getChannelRoom(channelId);
+    this.unsubscribeFromRoom(roomName);
   }
 
   /**
    * Manually subscribe to a thread
    */
   subscribeToThread(threadId: string): void {
-    const roomName = getThreadRoom(threadId)
-    this.subscribeToRoom(roomName)
+    const roomName = getThreadRoom(threadId);
+    this.subscribeToRoom(roomName);
   }
 
   /**
    * Manually unsubscribe from a thread
    */
   unsubscribeFromThread(threadId: string): void {
-    const roomName = getThreadRoom(threadId)
-    this.unsubscribeFromRoom(roomName)
+    const roomName = getThreadRoom(threadId);
+    this.unsubscribeFromRoom(roomName);
   }
 
   // ============================================================================
@@ -835,21 +859,21 @@ class SubscriptionBridgeService {
    * Check if initialized
    */
   get initialized(): boolean {
-    return this.isInitialized
+    return this.isInitialized;
   }
 
   /**
    * Get active subscription count
    */
   get subscriptionCount(): number {
-    return this.activeSubscriptions.size
+    return this.activeSubscriptions.size;
   }
 
   /**
    * Get subscribed room names
    */
   getSubscribedRooms(): string[] {
-    return Array.from(this.roomSubscriptions.keys())
+    return Array.from(this.roomSubscriptions.keys());
   }
 }
 
@@ -857,18 +881,18 @@ class SubscriptionBridgeService {
 // Singleton Export
 // ============================================================================
 
-let subscriptionBridgeInstance: SubscriptionBridgeService | null = null
+let subscriptionBridgeInstance: SubscriptionBridgeService | null = null;
 
 /**
  * Get the subscription bridge instance
  */
 export function getSubscriptionBridge(
-  config?: SubscriptionBridgeConfig
+  config?: SubscriptionBridgeConfig,
 ): SubscriptionBridgeService {
   if (!subscriptionBridgeInstance) {
-    subscriptionBridgeInstance = new SubscriptionBridgeService(config)
+    subscriptionBridgeInstance = new SubscriptionBridgeService(config);
   }
-  return subscriptionBridgeInstance
+  return subscriptionBridgeInstance;
 }
 
 /**
@@ -876,11 +900,11 @@ export function getSubscriptionBridge(
  */
 export function initializeSubscriptionBridge(
   apolloClient: ApolloClient<NormalizedCacheObject>,
-  config?: SubscriptionBridgeConfig
+  config?: SubscriptionBridgeConfig,
 ): SubscriptionBridgeService {
-  const bridge = getSubscriptionBridge(config)
-  bridge.initialize(apolloClient)
-  return bridge
+  const bridge = getSubscriptionBridge(config);
+  bridge.initialize(apolloClient);
+  return bridge;
 }
 
 /**
@@ -888,10 +912,10 @@ export function initializeSubscriptionBridge(
  */
 export function resetSubscriptionBridge(): void {
   if (subscriptionBridgeInstance) {
-    subscriptionBridgeInstance.destroy()
-    subscriptionBridgeInstance = null
+    subscriptionBridgeInstance.destroy();
+    subscriptionBridgeInstance = null;
   }
 }
 
-export { SubscriptionBridgeService }
-export default SubscriptionBridgeService
+export { SubscriptionBridgeService };
+export default SubscriptionBridgeService;

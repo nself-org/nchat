@@ -9,10 +9,10 @@
  * - Community events
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
+import * as React from "react";
+import { useState } from "react";
 import {
   Megaphone,
   Users,
@@ -29,36 +29,36 @@ import {
   Eye,
   Bell,
   BellOff,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { CommunityWithGroups, Channel } from '@/types/advanced-channels'
+} from "@/components/ui/dropdown-menu";
+import type { CommunityWithGroups, Channel } from "@/types/advanced-channels";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface CommunityViewProps {
-  community: CommunityWithGroups
-  isAdmin?: boolean
-  onSelectChannel?: (channelId: string) => void
-  onAddGroup?: () => void
-  onInviteMembers?: () => void
-  onSettings?: () => void
-  onViewEvents?: () => void
-  selectedChannelId?: string
-  className?: string
+  community: CommunityWithGroups;
+  isAdmin?: boolean;
+  onSelectChannel?: (channelId: string) => void;
+  onAddGroup?: () => void;
+  onInviteMembers?: () => void;
+  onSettings?: () => void;
+  onViewEvents?: () => void;
+  selectedChannelId?: string;
+  className?: string;
 }
 
 // ============================================================================
@@ -72,11 +72,11 @@ function CommunityHeader({
   onSettings,
   onViewEvents,
 }: {
-  community: CommunityWithGroups
-  isAdmin: boolean
-  onInviteMembers?: () => void
-  onSettings?: () => void
-  onViewEvents?: () => void
+  community: CommunityWithGroups;
+  isAdmin: boolean;
+  onInviteMembers?: () => void;
+  onSettings?: () => void;
+  onViewEvents?: () => void;
 }) {
   return (
     <div className="space-y-3 p-4">
@@ -127,7 +127,9 @@ function CommunityHeader({
           </div>
 
           {community.description && (
-            <p className="text-sm text-muted-foreground">{community.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {community.description}
+            </p>
           )}
 
           <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
@@ -161,7 +163,7 @@ function CommunityHeader({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -173,16 +175,16 @@ function AnnouncementChannel({
   isSelected,
   onClick,
 }: {
-  channel: Channel
-  isSelected: boolean
-  onClick: () => void
+  channel: Channel;
+  isSelected: boolean;
+  onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg p-3 transition-colors',
-        isSelected && 'bg-muted'
+        "hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg p-3 transition-colors",
+        isSelected && "bg-muted",
       )}
     >
       <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
@@ -196,12 +198,12 @@ function AnnouncementChannel({
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground">
-          {channel.topic || 'Admin-only announcements'}
+          {channel.topic || "Admin-only announcements"}
         </p>
       </div>
       <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -215,13 +217,13 @@ function GroupItem({
   onClick,
   onRemove,
 }: {
-  channel: Channel
-  isSelected: boolean
-  isAdmin: boolean
-  onClick: () => void
-  onRemove?: () => void
+  channel: Channel;
+  isSelected: boolean;
+  isAdmin: boolean;
+  onClick: () => void;
+  onRemove?: () => void;
 }) {
-  const [showOptions, setShowOptions] = useState(false)
+  const [showOptions, setShowOptions] = useState(false);
 
   return (
     <button
@@ -229,8 +231,8 @@ function GroupItem({
       onMouseEnter={() => setShowOptions(true)}
       onMouseLeave={() => setShowOptions(false)}
       className={cn(
-        'hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg p-3 transition-colors',
-        isSelected && 'bg-muted'
+        "hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg p-3 transition-colors",
+        isSelected && "bg-muted",
       )}
     >
       <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
@@ -239,7 +241,9 @@ function GroupItem({
       <div className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-2">
           <span className="font-medium">{channel.name}</span>
-          {channel.isPrivate && <Lock className="h-3 w-3 text-muted-foreground" />}
+          {channel.isPrivate && (
+            <Lock className="h-3 w-3 text-muted-foreground" />
+          )}
         </div>
         <p className="text-xs text-muted-foreground">
           {channel.memberCount.toLocaleString()} members
@@ -251,8 +255,8 @@ function GroupItem({
           size="icon"
           className="h-8 w-8 flex-shrink-0"
           onClick={(e) => {
-            e.stopPropagation()
-            onRemove()
+            e.stopPropagation();
+            onRemove();
           }}
         >
           <MoreVertical className="h-4 w-4" />
@@ -261,7 +265,7 @@ function GroupItem({
         <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
       )}
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -281,12 +285,13 @@ export function CommunityView({
 }: CommunityViewProps) {
   const canAddGroups =
     isAdmin ||
-    (community.addGroupsPermission === 'member' && community.groupCount < community.maxGroups)
+    (community.addGroupsPermission === "member" &&
+      community.groupCount < community.maxGroups);
 
-  const groupsRemaining = community.maxGroups - community.groupCount
+  const groupsRemaining = community.maxGroups - community.groupCount;
 
   return (
-    <div className={cn('flex h-full flex-col bg-background', className)}>
+    <div className={cn("flex h-full flex-col bg-background", className)}>
       {/* Header */}
       <CommunityHeader
         community={community}
@@ -311,8 +316,12 @@ export function CommunityView({
             </div>
             <AnnouncementChannel
               channel={community.announcementChannel}
-              isSelected={selectedChannelId === community.announcementChannel.id}
-              onClick={() => onSelectChannel?.(community.announcementChannel.id)}
+              isSelected={
+                selectedChannelId === community.announcementChannel.id
+              }
+              onClick={() =>
+                onSelectChannel?.(community.announcementChannel.id)
+              }
             />
           </div>
 
@@ -359,11 +368,16 @@ export function CommunityView({
                   <p className="mt-2 text-sm font-medium">No groups yet</p>
                   <p className="text-xs text-muted-foreground">
                     {canAddGroups
-                      ? 'Add your first group to get started'
-                      : 'Admins can add groups to this community'}
+                      ? "Add your first group to get started"
+                      : "Admins can add groups to this community"}
                   </p>
                   {canAddGroups && onAddGroup && (
-                    <Button variant="outline" size="sm" className="mt-3" onClick={onAddGroup}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={onAddGroup}
+                    >
                       <Plus className="mr-2 h-4 w-4" />
                       Add Group
                     </Button>
@@ -376,7 +390,8 @@ export function CommunityView({
             {groupsRemaining > 0 && groupsRemaining <= 10 && (
               <div className="rounded-lg bg-amber-500/10 p-3">
                 <p className="text-xs text-amber-600 dark:text-amber-400">
-                  {groupsRemaining} {groupsRemaining === 1 ? 'slot' : 'slots'} remaining
+                  {groupsRemaining} {groupsRemaining === 1 ? "slot" : "slots"}{" "}
+                  remaining
                 </p>
               </div>
             )}
@@ -389,15 +404,15 @@ export function CommunityView({
             <div className="space-y-1 text-sm text-muted-foreground">
               <div className="flex items-center justify-between">
                 <span>Members can invite</span>
-                <span>{community.membersCanInvite ? 'Yes' : 'No'}</span>
+                <span>{community.membersCanInvite ? "Yes" : "No"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Approval required</span>
-                <span>{community.approvalRequired ? 'Yes' : 'No'}</span>
+                <span>{community.approvalRequired ? "Yes" : "No"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Events enabled</span>
-                <span>{community.eventsEnabled ? 'Yes' : 'No'}</span>
+                <span>{community.eventsEnabled ? "Yes" : "No"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Max groups</span>
@@ -408,7 +423,7 @@ export function CommunityView({
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
-export default CommunityView
+export default CommunityView;

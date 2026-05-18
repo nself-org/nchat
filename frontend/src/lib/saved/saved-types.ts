@@ -4,7 +4,7 @@
  * TypeScript type definitions for the saved/starred messages system.
  */
 
-import type { Message, MessageUser } from '@/types/message'
+import type { Message, MessageUser } from "@/types/message";
 
 // ============================================================================
 // Saved Message Types
@@ -15,29 +15,29 @@ import type { Message, MessageUser } from '@/types/message'
  */
 export interface SavedMessage {
   /** Unique saved item ID */
-  id: string
+  id: string;
   /** User who saved the message */
-  userId: string
+  userId: string;
   /** ID of the saved message */
-  messageId: string
+  messageId: string;
   /** Channel ID where the message exists */
-  channelId: string
+  channelId: string;
   /** Optional collection IDs */
-  collectionIds: string[]
+  collectionIds: string[];
   /** When the message was saved */
-  savedAt: Date
+  savedAt: Date;
   /** The actual message content */
-  message: Message
+  message: Message;
   /** User's note about the saved message */
-  note?: string
+  note?: string;
   /** User-defined tags */
-  tags: string[]
+  tags: string[];
   /** Whether this is a starred item (quick access) */
-  isStarred: boolean
+  isStarred: boolean;
   /** Reminder date (optional) */
-  reminderAt?: Date
+  reminderAt?: Date;
   /** Whether reminder has been triggered */
-  reminderTriggered?: boolean
+  reminderTriggered?: boolean;
 }
 
 /**
@@ -45,19 +45,19 @@ export interface SavedMessage {
  */
 export interface SaveMessageInput {
   /** Message ID to save */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Optional note */
-  note?: string
+  note?: string;
   /** Optional collection IDs */
-  collectionIds?: string[]
+  collectionIds?: string[];
   /** Optional tags */
-  tags?: string[]
+  tags?: string[];
   /** Star the message */
-  isStarred?: boolean
+  isStarred?: boolean;
   /** Optional reminder */
-  reminderAt?: Date
+  reminderAt?: Date;
 }
 
 /**
@@ -65,15 +65,15 @@ export interface SaveMessageInput {
  */
 export interface UpdateSavedMessageInput {
   /** Saved item ID */
-  savedId: string
+  savedId: string;
   /** Updated note */
-  note?: string
+  note?: string;
   /** Updated tags */
-  tags?: string[]
+  tags?: string[];
   /** Updated starred status */
-  isStarred?: boolean
+  isStarred?: boolean;
   /** Updated reminder */
-  reminderAt?: Date | null
+  reminderAt?: Date | null;
 }
 
 /**
@@ -81,8 +81,8 @@ export interface UpdateSavedMessageInput {
  */
 export interface UnsaveMessageInput {
   /** Saved item ID or message ID */
-  savedId?: string
-  messageId?: string
+  savedId?: string;
+  messageId?: string;
 }
 
 // ============================================================================
@@ -94,29 +94,29 @@ export interface UnsaveMessageInput {
  */
 export interface SavedCollection {
   /** Unique collection ID */
-  id: string
+  id: string;
   /** Owner user ID */
-  userId: string
+  userId: string;
   /** Collection name */
-  name: string
+  name: string;
   /** Collection description */
-  description?: string
+  description?: string;
   /** Collection icon (emoji or icon name) */
-  icon?: string
+  icon?: string;
   /** Collection color */
-  color?: string
+  color?: string;
   /** Number of items in collection */
-  itemCount: number
+  itemCount: number;
   /** When created */
-  createdAt: Date
+  createdAt: Date;
   /** Last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** Position for ordering */
-  position: number
+  position: number;
   /** Whether collection is shared */
-  isShared: boolean
+  isShared: boolean;
   /** Share settings (if shared) */
-  shareSettings?: CollectionShareSettings
+  shareSettings?: CollectionShareSettings;
 }
 
 /**
@@ -124,15 +124,15 @@ export interface SavedCollection {
  */
 export interface CollectionShareSettings {
   /** Share link */
-  shareLink?: string
+  shareLink?: string;
   /** Share visibility */
-  visibility: 'private' | 'link' | 'workspace'
+  visibility: "private" | "link" | "workspace";
   /** Users who have access */
-  sharedWith?: string[]
+  sharedWith?: string[];
   /** Can others add to collection */
-  allowContribute: boolean
+  allowContribute: boolean;
   /** Expiration date for share link */
-  expiresAt?: Date
+  expiresAt?: Date;
 }
 
 /**
@@ -140,13 +140,13 @@ export interface CollectionShareSettings {
  */
 export interface CreateCollectionInput {
   /** Collection name */
-  name: string
+  name: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Icon */
-  icon?: string
+  icon?: string;
   /** Color */
-  color?: string
+  color?: string;
 }
 
 /**
@@ -154,17 +154,17 @@ export interface CreateCollectionInput {
  */
 export interface UpdateCollectionInput {
   /** Collection ID */
-  collectionId: string
+  collectionId: string;
   /** Updated name */
-  name?: string
+  name?: string;
   /** Updated description */
-  description?: string
+  description?: string;
   /** Updated icon */
-  icon?: string
+  icon?: string;
   /** Updated color */
-  color?: string
+  color?: string;
   /** Updated position */
-  position?: number
+  position?: number;
 }
 
 /**
@@ -172,15 +172,15 @@ export interface UpdateCollectionInput {
  */
 export interface ShareCollectionInput {
   /** Collection ID */
-  collectionId: string
+  collectionId: string;
   /** Share visibility */
-  visibility: 'private' | 'link' | 'workspace'
+  visibility: "private" | "link" | "workspace";
   /** Users to share with */
-  sharedWith?: string[]
+  sharedWith?: string[];
   /** Allow contributions */
-  allowContribute?: boolean
+  allowContribute?: boolean;
   /** Link expiration */
-  expiresAt?: Date
+  expiresAt?: Date;
 }
 
 // ============================================================================
@@ -192,46 +192,46 @@ export interface ShareCollectionInput {
  */
 export interface SavedFilters {
   /** Filter by collection */
-  collectionId?: string | null
+  collectionId?: string | null;
   /** Filter by channel */
-  channelId?: string
+  channelId?: string;
   /** Filter by tags */
-  tags?: string[]
+  tags?: string[];
   /** Filter starred only */
-  starredOnly?: boolean
+  starredOnly?: boolean;
   /** Filter with reminders only */
-  hasReminder?: boolean
+  hasReminder?: boolean;
   /** Filter with pending reminders only */
-  pendingReminders?: boolean
+  pendingReminders?: boolean;
   /** Filter by date range - saved after */
-  savedAfter?: Date
+  savedAfter?: Date;
   /** Filter by date range - saved before */
-  savedBefore?: Date
+  savedBefore?: Date;
   /** Filter by message type */
-  messageType?: string
+  messageType?: string;
   /** Search query */
-  searchQuery?: string
+  searchQuery?: string;
   /** Filter messages with attachments */
-  hasAttachments?: boolean
+  hasAttachments?: boolean;
   /** Filter by message author */
-  authorUserId?: string
+  authorUserId?: string;
 }
 
 /**
  * Sort options for saved messages.
  */
-export type SavedSortBy = 'savedAt' | 'messageDate' | 'channel' | 'reminder'
-export type SavedSortOrder = 'asc' | 'desc'
+export type SavedSortBy = "savedAt" | "messageDate" | "channel" | "reminder";
+export type SavedSortOrder = "asc" | "desc";
 
 /**
  * Saved messages list options.
  */
 export interface SavedListOptions {
-  filters?: SavedFilters
-  sortBy?: SavedSortBy
-  sortOrder?: SavedSortOrder
-  limit?: number
-  offset?: number
+  filters?: SavedFilters;
+  sortBy?: SavedSortBy;
+  sortOrder?: SavedSortOrder;
+  limit?: number;
+  offset?: number;
 }
 
 // ============================================================================
@@ -241,38 +241,38 @@ export interface SavedListOptions {
 /**
  * Export format options.
  */
-export type ExportFormat = 'json' | 'markdown' | 'html' | 'csv'
+export type ExportFormat = "json" | "markdown" | "html" | "csv";
 
 /**
  * Export options.
  */
 export interface ExportOptions {
   /** Export format */
-  format: ExportFormat
+  format: ExportFormat;
   /** Include message content */
-  includeContent: boolean
+  includeContent: boolean;
   /** Include attachments */
-  includeAttachments: boolean
+  includeAttachments: boolean;
   /** Include notes */
-  includeNotes: boolean
+  includeNotes: boolean;
   /** Include tags */
-  includeTags: boolean
+  includeTags: boolean;
   /** Filter by collection */
-  collectionId?: string
+  collectionId?: string;
   /** Date range filter */
-  dateFrom?: Date
-  dateTo?: Date
+  dateFrom?: Date;
+  dateTo?: Date;
 }
 
 /**
  * Export result.
  */
 export interface ExportResult {
-  success: boolean
-  data?: string | Blob
-  filename: string
-  mimeType: string
-  error?: string
+  success: boolean;
+  data?: string | Blob;
+  filename: string;
+  mimeType: string;
+  error?: string;
 }
 
 // ============================================================================
@@ -284,23 +284,23 @@ export interface ExportResult {
  */
 export interface SavedStats {
   /** Total saved messages */
-  totalSaved: number
+  totalSaved: number;
   /** Total starred */
-  totalStarred: number
+  totalStarred: number;
   /** Total with reminders */
-  totalWithReminders: number
+  totalWithReminders: number;
   /** Total pending reminders */
-  pendingReminders: number
+  pendingReminders: number;
   /** Total collections */
-  totalCollections: number
+  totalCollections: number;
   /** Total tags used */
-  totalTags: number
+  totalTags: number;
   /** Saved by channel */
-  byChannel: Record<string, number>
+  byChannel: Record<string, number>;
   /** Saved by collection */
-  byCollection: Record<string, number>
+  byCollection: Record<string, number>;
   /** Most used tags */
-  topTags: { tag: string; count: number }[]
+  topTags: { tag: string; count: number }[];
 }
 
 // ============================================================================
@@ -311,10 +311,10 @@ export interface SavedStats {
  * Saved message event for real-time updates.
  */
 export interface SavedEvent {
-  type: 'saved' | 'unsaved' | 'updated' | 'collection_updated'
-  userId: string
-  savedMessage?: SavedMessage
-  messageId?: string
-  collection?: SavedCollection
-  timestamp: Date
+  type: "saved" | "unsaved" | "updated" | "collection_updated";
+  userId: string;
+  savedMessage?: SavedMessage;
+  messageId?: string;
+  collection?: SavedCollection;
+  timestamp: Date;
 }

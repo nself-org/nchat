@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * JoinPage Component - Invite preview and acceptance page
@@ -7,14 +7,19 @@
  * to join a channel or workspace.
  */
 
-import { useEffect, useCallback, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useEffect, useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Hash,
   Lock,
@@ -28,10 +33,10 @@ import {
   Home,
   LogIn,
   Globe,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useAuth } from '@/contexts/auth-context'
-import { useAppConfig } from '@/contexts/app-config-context'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/auth-context";
+import { useAppConfig } from "@/contexts/app-config-context";
 import {
   useInvite,
   formatTimeUntilExpiry,
@@ -39,7 +44,7 @@ import {
   hasReachedMaxUses,
   type InviteInfo,
   type InviteValidationError,
-} from '@/lib/invite'
+} from "@/lib/invite";
 
 // ============================================================================
 // Types
@@ -47,9 +52,9 @@ import {
 
 export interface JoinPageProps {
   /** The invite code to display/accept */
-  code: string
+  code: string;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -57,46 +62,46 @@ export interface JoinPageProps {
 // ============================================================================
 
 const ERROR_MESSAGES: Record<
-  InviteValidationError | 'unknown',
+  InviteValidationError | "unknown",
   { title: string; description: string }
 > = {
   invalid_code: {
-    title: 'Invalid Invite',
-    description: 'This invite link appears to be invalid or malformed.',
+    title: "Invalid Invite",
+    description: "This invite link appears to be invalid or malformed.",
   },
   not_found: {
-    title: 'Invite Not Found',
-    description: 'This invite link does not exist or has been deleted.',
+    title: "Invite Not Found",
+    description: "This invite link does not exist or has been deleted.",
   },
   expired: {
-    title: 'Invite Expired',
-    description: 'This invite link has expired and is no longer valid.',
+    title: "Invite Expired",
+    description: "This invite link has expired and is no longer valid.",
   },
   max_uses_reached: {
-    title: 'Invite Limit Reached',
-    description: 'This invite link has reached its maximum number of uses.',
+    title: "Invite Limit Reached",
+    description: "This invite link has reached its maximum number of uses.",
   },
   revoked: {
-    title: 'Invite Revoked',
-    description: 'This invite link has been revoked by the creator.',
+    title: "Invite Revoked",
+    description: "This invite link has been revoked by the creator.",
   },
   already_member: {
-    title: 'Already a Member',
-    description: 'You are already a member of this channel.',
+    title: "Already a Member",
+    description: "You are already a member of this channel.",
   },
   channel_archived: {
-    title: 'Channel Archived',
-    description: 'The channel this invite links to has been archived.',
+    title: "Channel Archived",
+    description: "The channel this invite links to has been archived.",
   },
   permission_denied: {
-    title: 'Permission Denied',
-    description: 'You do not have permission to join this channel.',
+    title: "Permission Denied",
+    description: "You do not have permission to join this channel.",
   },
   unknown: {
-    title: 'Something Went Wrong',
-    description: 'An unexpected error occurred. Please try again.',
+    title: "Something Went Wrong",
+    description: "An unexpected error occurred. Please try again.",
   },
-}
+};
 
 // ============================================================================
 // Loading State Component
@@ -121,7 +126,7 @@ function LoadingState() {
         <Skeleton className="h-10 w-full" />
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -129,12 +134,12 @@ function LoadingState() {
 // ============================================================================
 
 interface ErrorStateProps {
-  error: InviteValidationError | 'unknown'
-  showHomeButton?: boolean
+  error: InviteValidationError | "unknown";
+  showHomeButton?: boolean;
 }
 
 function ErrorState({ error, showHomeButton = true }: ErrorStateProps) {
-  const { title, description } = ERROR_MESSAGES[error]
+  const { title, description } = ERROR_MESSAGES[error];
 
   return (
     <Card className="mx-auto w-full max-w-md">
@@ -156,7 +161,7 @@ function ErrorState({ error, showHomeButton = true }: ErrorStateProps) {
         </CardFooter>
       )}
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -164,8 +169,8 @@ function ErrorState({ error, showHomeButton = true }: ErrorStateProps) {
 // ============================================================================
 
 interface SuccessStateProps {
-  invite: InviteInfo
-  onContinue: () => void
+  invite: InviteInfo;
+  onContinue: () => void;
 }
 
 function SuccessState({ invite, onContinue }: SuccessStateProps) {
@@ -177,11 +182,11 @@ function SuccessState({ invite, onContinue }: SuccessStateProps) {
         </div>
         <h2 className="text-xl font-semibold">Welcome!</h2>
         <p className="text-muted-foreground">
-          You have successfully joined{' '}
+          You have successfully joined{" "}
           {invite.channelName ? (
             <span className="font-medium">#{invite.channelName}</span>
           ) : (
-            'the workspace'
+            "the workspace"
           )}
         </p>
       </CardHeader>
@@ -192,7 +197,7 @@ function SuccessState({ invite, onContinue }: SuccessStateProps) {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -200,8 +205,8 @@ function SuccessState({ invite, onContinue }: SuccessStateProps) {
 // ============================================================================
 
 interface AuthRequiredProps {
-  code: string
-  invite: InviteInfo
+  code: string;
+  invite: InviteInfo;
 }
 
 function AuthRequiredState({ code, invite }: AuthRequiredProps) {
@@ -215,19 +220,25 @@ function AuthRequiredState({ code, invite }: AuthRequiredProps) {
             <Hash className="h-8 w-8 text-primary" />
           )}
         </div>
-        <h2 className="text-xl font-semibold">Join {invite.channelName || 'Channel'}</h2>
-        <p className="text-muted-foreground">Sign in or create an account to accept this invite</p>
+        <h2 className="text-xl font-semibold">
+          Join {invite.channelName || "Channel"}
+        </h2>
+        <p className="text-muted-foreground">
+          Sign in or create an account to accept this invite
+        </p>
       </CardHeader>
 
       <CardContent className="space-y-4">
         {/* Invite Info */}
         <div className="bg-muted/50 space-y-3 rounded-xl p-4">
-          {invite.channelDescription && <p className="text-sm">{invite.channelDescription}</p>}
+          {invite.channelDescription && (
+            <p className="text-sm">{invite.channelDescription}</p>
+          )}
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">
               <Users className="mr-1 h-3 w-3" />
               {invite.channelMembersCount} member
-              {invite.channelMembersCount !== 1 ? 's' : ''}
+              {invite.channelMembersCount !== 1 ? "s" : ""}
             </Badge>
             {invite.channelIsPrivate && (
               <Badge variant="secondary">
@@ -267,7 +278,7 @@ function AuthRequiredState({ code, invite }: AuthRequiredProps) {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -275,50 +286,59 @@ function AuthRequiredState({ code, invite }: AuthRequiredProps) {
 // ============================================================================
 
 export function JoinPage({ code, className }: JoinPageProps) {
-  const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
-  const { config } = useAppConfig()
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { config } = useAppConfig();
 
-  const { fetchInvite, acceptInvite, invitePreview, isAccepting, acceptError, acceptSuccess } =
-    useInvite()
+  const {
+    fetchInvite,
+    acceptInvite,
+    invitePreview,
+    isAccepting,
+    acceptError,
+    acceptSuccess,
+  } = useInvite();
 
-  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false)
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
   // Fetch invite on mount
   useEffect(() => {
     if (!hasAttemptedFetch) {
-      setHasAttemptedFetch(true)
-      fetchInvite(code)
+      setHasAttemptedFetch(true);
+      fetchInvite(code);
     }
-  }, [code, fetchInvite, hasAttemptedFetch])
+  }, [code, fetchInvite, hasAttemptedFetch]);
 
   // Handle accept
   const handleAccept = useCallback(async () => {
-    const success = await acceptInvite(code)
+    const success = await acceptInvite(code);
     // Navigation handled in success state
-  }, [code, acceptInvite])
+  }, [code, acceptInvite]);
 
   // Handle continue after success
   const handleContinue = useCallback(() => {
     if (invitePreview?.invite?.channelSlug) {
-      router.push(`/chat/c/${invitePreview.invite.channelSlug}`)
+      router.push(`/chat/c/${invitePreview.invite.channelSlug}`);
     } else if (invitePreview?.invite?.channelId) {
-      router.push(`/chat/c/${invitePreview.invite.channelId}`)
+      router.push(`/chat/c/${invitePreview.invite.channelId}`);
     } else {
-      router.push('/chat')
+      router.push("/chat");
     }
-  }, [invitePreview, router])
+  }, [invitePreview, router]);
 
   // Get invite info
-  const invite = invitePreview?.invite
-  const isLoading = invitePreview?.isLoading || (!hasAttemptedFetch && !authLoading)
-  const error = invitePreview?.error || (acceptError ? 'unknown' : null)
+  const invite = invitePreview?.invite;
+  const isLoading =
+    invitePreview?.isLoading || (!hasAttemptedFetch && !authLoading);
+  const error = invitePreview?.error || (acceptError ? "unknown" : null);
 
   // Calculate metadata
-  const expiresIn = invite?.expiresAt ? formatTimeUntilExpiry(invite.expiresAt) : null
+  const expiresIn = invite?.expiresAt
+    ? formatTimeUntilExpiry(invite.expiresAt)
+    : null;
 
   return (
-    <div className={cn('flex min-h-screen flex-col', className)}>
+    <div className={cn("flex min-h-screen flex-col", className)}>
       {/* Header */}
       <header className="border-b py-4">
         <div className="container flex items-center justify-between">
@@ -326,11 +346,13 @@ export function JoinPage({ code, className }: JoinPageProps) {
             {config?.branding?.logo ? (
               <img
                 src={config.branding.logo}
-                alt={config.branding?.appName || 'nchat'}
+                alt={config.branding?.appName || "nchat"}
                 className="h-8"
               />
             ) : (
-              <span className="text-xl font-bold">{config?.branding?.appName || 'nchat'}</span>
+              <span className="text-xl font-bold">
+                {config?.branding?.appName || "nchat"}
+              </span>
             )}
           </Link>
           {!user && !authLoading && (
@@ -355,16 +377,19 @@ export function JoinPage({ code, className }: JoinPageProps) {
         )}
 
         {/* Auth Required State */}
-        {!isLoading && !error && !acceptSuccess && invite && !user && !authLoading && (
-          <AuthRequiredState code={code} invite={invite} />
-        )}
+        {!isLoading &&
+          !error &&
+          !acceptSuccess &&
+          invite &&
+          !user &&
+          !authLoading && <AuthRequiredState code={code} invite={invite} />}
 
         {/* Invite Preview (logged in, ready to accept) */}
         {!isLoading && !error && !acceptSuccess && invite && user && (
           <Card className="mx-auto w-full max-w-md">
             <CardHeader className="text-center">
               <div className="bg-primary/10 mx-auto mb-4 w-fit rounded-full p-4">
-                {invite.type === 'workspace' ? (
+                {invite.type === "workspace" ? (
                   <Globe className="h-8 w-8 text-primary" />
                 ) : invite.channelIsPrivate ? (
                   <Lock className="h-8 w-8 text-primary" />
@@ -373,11 +398,13 @@ export function JoinPage({ code, className }: JoinPageProps) {
                 )}
               </div>
               <h2 className="text-xl font-semibold">
-                {invite.type === 'workspace'
-                  ? 'Join Workspace'
-                  : `Join ${invite.channelName || 'Channel'}`}
+                {invite.type === "workspace"
+                  ? "Join Workspace"
+                  : `Join ${invite.channelName || "Channel"}`}
               </h2>
-              <p className="text-muted-foreground">{invite.creatorName} has invited you to join</p>
+              <p className="text-muted-foreground">
+                {invite.creatorName} has invited you to join
+              </p>
             </CardHeader>
 
             <CardContent className="space-y-4">
@@ -387,11 +414,11 @@ export function JoinPage({ code, className }: JoinPageProps) {
                   <p className="text-sm">{invite.channelDescription}</p>
                 )}
                 <div className="flex flex-wrap gap-2">
-                  {invite.type === 'channel' && (
+                  {invite.type === "channel" && (
                     <Badge variant="secondary">
                       <Users className="mr-1 h-3 w-3" />
                       {invite.channelMembersCount} member
-                      {invite.channelMembersCount !== 1 ? 's' : ''}
+                      {invite.channelMembersCount !== 1 ? "s" : ""}
                     </Badge>
                   )}
                   {invite.channelIsPrivate && (
@@ -418,7 +445,8 @@ export function JoinPage({ code, className }: JoinPageProps) {
                   </AvatarFallback>
                 </Avatar>
                 <span>
-                  Invited by <span className="font-medium">{invite.creatorName}</span>
+                  Invited by{" "}
+                  <span className="font-medium">{invite.creatorName}</span>
                 </span>
               </div>
 
@@ -432,7 +460,11 @@ export function JoinPage({ code, className }: JoinPageProps) {
             </CardContent>
 
             <CardFooter className="flex-col gap-2">
-              <Button className="w-full" onClick={handleAccept} disabled={isAccepting}>
+              <Button
+                className="w-full"
+                onClick={handleAccept}
+                disabled={isAccepting}
+              >
                 {isAccepting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -456,11 +488,12 @@ export function JoinPage({ code, className }: JoinPageProps) {
       {/* Footer */}
       <footer className="border-t py-4">
         <div className="container text-center text-sm text-muted-foreground">
-          {config?.branding?.companyName || 'nself'} &copy; {new Date().getFullYear()}
+          {config?.branding?.companyName || "nself"} &copy;{" "}
+          {new Date().getFullYear()}
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
-export default JoinPage
+export default JoinPage;

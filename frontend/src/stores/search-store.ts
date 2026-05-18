@@ -4,115 +4,124 @@
  * Handles search queries, filters, results, and search history
  */
 
-import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
-import { searchMessages, type SearchMessagesResult } from '@/lib/search/meilisearch'
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import {
+  searchMessages,
+  type SearchMessagesResult,
+} from "@/lib/search/meilisearch";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type SearchTab = 'all' | 'messages' | 'files' | 'people' | 'channels'
+export type SearchTab = "all" | "messages" | "files" | "people" | "channels";
 
-export type SearchSortBy = 'relevance' | 'date_desc' | 'date_asc'
+export type SearchSortBy = "relevance" | "date_desc" | "date_asc";
 
-export type HasFilter = 'link' | 'file' | 'image' | 'code' | 'mention' | 'reaction'
+export type HasFilter =
+  | "link"
+  | "file"
+  | "image"
+  | "code"
+  | "mention"
+  | "reaction";
 
-export type IsFilter = 'pinned' | 'starred' | 'thread' | 'unread'
+export type IsFilter = "pinned" | "starred" | "thread" | "unread";
 
 export interface DateRange {
-  from: Date | null
-  to: Date | null
+  from: Date | null;
+  to: Date | null;
 }
 
 export interface SearchFilters {
-  fromUsers: string[] // User IDs
-  inChannels: string[] // Channel IDs
-  dateRange: DateRange
-  has: HasFilter[]
-  is: IsFilter[]
+  fromUsers: string[]; // User IDs
+  inChannels: string[]; // Channel IDs
+  dateRange: DateRange;
+  has: HasFilter[];
+  is: IsFilter[];
 }
 
 export interface SearchResultBase {
-  id: string
-  score: number
-  highlights: string[]
+  id: string;
+  score: number;
+  highlights: string[];
 }
 
 export interface MessageSearchResult extends SearchResultBase {
-  type: 'message'
-  channelId: string
-  channelName: string
-  authorId: string
-  authorName: string
-  authorAvatar: string | null
-  content: string
-  timestamp: Date
-  threadId: string | null
-  isPinned: boolean
-  isStarred: boolean
-  reactions: { emoji: string; count: number }[]
-  hasAttachments: boolean
+  type: "message";
+  channelId: string;
+  channelName: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar: string | null;
+  content: string;
+  timestamp: Date;
+  threadId: string | null;
+  isPinned: boolean;
+  isStarred: boolean;
+  reactions: { emoji: string; count: number }[];
+  hasAttachments: boolean;
 }
 
 export interface FileSearchResult extends SearchResultBase {
-  type: 'file'
-  messageId: string
-  channelId: string
-  channelName: string
-  uploaderId: string
-  uploaderName: string
-  fileName: string
-  fileType: string
-  fileSize: number
-  thumbnailUrl: string | null
-  uploadedAt: Date
+  type: "file";
+  messageId: string;
+  channelId: string;
+  channelName: string;
+  uploaderId: string;
+  uploaderName: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  thumbnailUrl: string | null;
+  uploadedAt: Date;
 }
 
 export interface UserSearchResult extends SearchResultBase {
-  type: 'user'
-  userId: string
-  displayName: string
-  username: string
-  email: string
-  avatar: string | null
-  role: string
-  status: 'online' | 'away' | 'busy' | 'offline'
-  lastSeen: Date | null
+  type: "user";
+  userId: string;
+  displayName: string;
+  username: string;
+  email: string;
+  avatar: string | null;
+  role: string;
+  status: "online" | "away" | "busy" | "offline";
+  lastSeen: Date | null;
 }
 
 export interface ChannelSearchResult extends SearchResultBase {
-  type: 'channel'
-  channelId: string
-  name: string
-  description: string | null
-  isPrivate: boolean
-  memberCount: number
-  isMember: boolean
-  createdAt: Date
-  lastActivityAt: Date | null
+  type: "channel";
+  channelId: string;
+  name: string;
+  description: string | null;
+  isPrivate: boolean;
+  memberCount: number;
+  isMember: boolean;
+  createdAt: Date;
+  lastActivityAt: Date | null;
 }
 
 export type SearchResult =
   | MessageSearchResult
   | FileSearchResult
   | UserSearchResult
-  | ChannelSearchResult
+  | ChannelSearchResult;
 
 export interface RecentSearch {
-  id: string
-  query: string
-  filters: Partial<SearchFilters>
-  timestamp: Date
+  id: string;
+  query: string;
+  filters: Partial<SearchFilters>;
+  timestamp: Date;
 }
 
 export interface SavedSearch {
-  id: string
-  name: string
-  query: string
-  filters: SearchFilters
-  createdAt: Date
+  id: string;
+  name: string;
+  query: string;
+  filters: SearchFilters;
+  createdAt: Date;
 }
 
 // ============================================================================
@@ -121,47 +130,47 @@ export interface SavedSearch {
 
 export interface SearchState {
   // Query
-  query: string
-  debouncedQuery: string
+  query: string;
+  debouncedQuery: string;
 
   // Active tab
-  activeTab: SearchTab
+  activeTab: SearchTab;
 
   // Filters
-  filters: SearchFilters
+  filters: SearchFilters;
 
   // Sorting
-  sortBy: SearchSortBy
+  sortBy: SearchSortBy;
 
   // Results
-  results: SearchResult[]
-  totalResults: number
-  hasMore: boolean
-  currentPage: number
-  resultsPerPage: number
+  results: SearchResult[];
+  totalResults: number;
+  hasMore: boolean;
+  currentPage: number;
+  resultsPerPage: number;
 
   // Loading states
-  isSearching: boolean
-  isLoadingMore: boolean
+  isSearching: boolean;
+  isLoadingMore: boolean;
 
   // UI state
-  isOpen: boolean
-  showFilters: boolean
-  showAdvanced: boolean
+  isOpen: boolean;
+  showFilters: boolean;
+  showAdvanced: boolean;
 
   // History
-  recentSearches: RecentSearch[]
-  savedSearches: SavedSearch[]
+  recentSearches: RecentSearch[];
+  savedSearches: SavedSearch[];
 
   // In-channel search
-  inChannelSearchActive: boolean
-  inChannelSearchQuery: string
-  inChannelSearchResults: MessageSearchResult[]
-  inChannelCurrentIndex: number
+  inChannelSearchActive: boolean;
+  inChannelSearchQuery: string;
+  inChannelSearchResults: MessageSearchResult[];
+  inChannelCurrentIndex: number;
 
   // Quick switcher
-  quickSwitcherMode: boolean
-  quickSwitcherResults: (ChannelSearchResult | UserSearchResult)[]
+  quickSwitcherMode: boolean;
+  quickSwitcherResults: (ChannelSearchResult | UserSearchResult)[];
 }
 
 // ============================================================================
@@ -170,65 +179,71 @@ export interface SearchState {
 
 export interface SearchActions {
   // Query actions
-  setQuery: (query: string) => void
-  setDebouncedQuery: (query: string) => void
-  clearQuery: () => void
+  setQuery: (query: string) => void;
+  setDebouncedQuery: (query: string) => void;
+  clearQuery: () => void;
 
   // Tab actions
-  setActiveTab: (tab: SearchTab) => void
+  setActiveTab: (tab: SearchTab) => void;
 
   // Filter actions
-  setFilters: (filters: Partial<SearchFilters>) => void
-  addFromUser: (userId: string) => void
-  removeFromUser: (userId: string) => void
-  addInChannel: (channelId: string) => void
-  removeInChannel: (channelId: string) => void
-  setDateRange: (range: DateRange) => void
-  toggleHasFilter: (filter: HasFilter) => void
-  toggleIsFilter: (filter: IsFilter) => void
-  clearFilters: () => void
+  setFilters: (filters: Partial<SearchFilters>) => void;
+  addFromUser: (userId: string) => void;
+  removeFromUser: (userId: string) => void;
+  addInChannel: (channelId: string) => void;
+  removeInChannel: (channelId: string) => void;
+  setDateRange: (range: DateRange) => void;
+  toggleHasFilter: (filter: HasFilter) => void;
+  toggleIsFilter: (filter: IsFilter) => void;
+  clearFilters: () => void;
 
   // Sort actions
-  setSortBy: (sortBy: SearchSortBy) => void
+  setSortBy: (sortBy: SearchSortBy) => void;
 
   // Result actions
-  setResults: (results: SearchResult[], total: number, hasMore: boolean) => void
-  appendResults: (results: SearchResult[], hasMore: boolean) => void
-  clearResults: () => void
-  setCurrentPage: (page: number) => void
+  setResults: (
+    results: SearchResult[],
+    total: number,
+    hasMore: boolean,
+  ) => void;
+  appendResults: (results: SearchResult[], hasMore: boolean) => void;
+  clearResults: () => void;
+  setCurrentPage: (page: number) => void;
 
   // Loading actions
-  setSearching: (isSearching: boolean) => void
-  setLoadingMore: (isLoading: boolean) => void
+  setSearching: (isSearching: boolean) => void;
+  setLoadingMore: (isLoading: boolean) => void;
 
   // UI actions
-  openSearch: () => void
-  closeSearch: () => void
-  toggleFilters: () => void
-  setShowFilters: (show: boolean) => void
-  toggleAdvanced: () => void
-  setShowAdvanced: (show: boolean) => void
+  openSearch: () => void;
+  closeSearch: () => void;
+  toggleFilters: () => void;
+  setShowFilters: (show: boolean) => void;
+  toggleAdvanced: () => void;
+  setShowAdvanced: (show: boolean) => void;
 
   // History actions
-  addRecentSearch: (query: string, filters?: Partial<SearchFilters>) => void
-  removeRecentSearch: (id: string) => void
-  clearRecentSearches: () => void
-  saveSearch: (name: string) => void
-  removeSavedSearch: (id: string) => void
-  loadSavedSearch: (search: SavedSearch) => void
+  addRecentSearch: (query: string, filters?: Partial<SearchFilters>) => void;
+  removeRecentSearch: (id: string) => void;
+  clearRecentSearches: () => void;
+  saveSearch: (name: string) => void;
+  removeSavedSearch: (id: string) => void;
+  loadSavedSearch: (search: SavedSearch) => void;
 
   // In-channel search actions
-  startInChannelSearch: () => void
-  endInChannelSearch: () => void
-  setInChannelQuery: (query: string) => void
-  setInChannelResults: (results: MessageSearchResult[]) => void
-  navigateInChannelResult: (direction: 'next' | 'prev') => void
-  jumpToInChannelResult: (index: number) => void
+  startInChannelSearch: () => void;
+  endInChannelSearch: () => void;
+  setInChannelQuery: (query: string) => void;
+  setInChannelResults: (results: MessageSearchResult[]) => void;
+  navigateInChannelResult: (direction: "next" | "prev") => void;
+  jumpToInChannelResult: (index: number) => void;
 
   // Quick switcher actions
-  enableQuickSwitcherMode: () => void
-  disableQuickSwitcherMode: () => void
-  setQuickSwitcherResults: (results: (ChannelSearchResult | UserSearchResult)[]) => void
+  enableQuickSwitcherMode: () => void;
+  disableQuickSwitcherMode: () => void;
+  setQuickSwitcherResults: (
+    results: (ChannelSearchResult | UserSearchResult)[],
+  ) => void;
 
   // Search execution actions
   /**
@@ -236,17 +251,17 @@ export interface SearchActions {
    * (MeiliSearch direct or proxy fallback). Updates results, totalResults,
    * hasMore, and loading state. Appends results when loadMore is true.
    */
-  performSearch: (query: string, loadMore?: boolean) => Promise<void>
+  performSearch: (query: string, loadMore?: boolean) => Promise<void>;
   /**
    * Execute an in-channel message search scoped to channelId.
    */
-  performInChannelSearch: (query: string, channelId: string) => Promise<void>
+  performInChannelSearch: (query: string, channelId: string) => Promise<void>;
 
   // Utility actions
-  reset: () => void
+  reset: () => void;
 }
 
-export type SearchStore = SearchState & SearchActions
+export type SearchStore = SearchState & SearchActions;
 
 // ============================================================================
 // Initial State
@@ -258,21 +273,21 @@ const emptyFilters: SearchFilters = {
   dateRange: { from: null, to: null },
   has: [],
   is: [],
-}
+};
 
 const initialState: SearchState = {
   // Query
-  query: '',
-  debouncedQuery: '',
+  query: "",
+  debouncedQuery: "",
 
   // Active tab
-  activeTab: 'all',
+  activeTab: "all",
 
   // Filters
   filters: { ...emptyFilters },
 
   // Sorting
-  sortBy: 'relevance',
+  sortBy: "relevance",
 
   // Results
   results: [],
@@ -296,14 +311,14 @@ const initialState: SearchState = {
 
   // In-channel search
   inChannelSearchActive: false,
-  inChannelSearchQuery: '',
+  inChannelSearchQuery: "",
   inChannelSearchResults: [],
   inChannelCurrentIndex: 0,
 
   // Quick switcher
   quickSwitcherMode: false,
   quickSwitcherResults: [],
-}
+};
 
 // ============================================================================
 // Store
@@ -319,271 +334,275 @@ export const useSearchStore = create<SearchStore>()(
         setQuery: (query) =>
           set(
             (state) => {
-              state.query = query
+              state.query = query;
             },
             false,
-            'search/setQuery'
+            "search/setQuery",
           ),
 
         setDebouncedQuery: (query) =>
           set(
             (state) => {
-              state.debouncedQuery = query
+              state.debouncedQuery = query;
             },
             false,
-            'search/setDebouncedQuery'
+            "search/setDebouncedQuery",
           ),
 
         clearQuery: () =>
           set(
             (state) => {
-              state.query = ''
-              state.debouncedQuery = ''
+              state.query = "";
+              state.debouncedQuery = "";
             },
             false,
-            'search/clearQuery'
+            "search/clearQuery",
           ),
 
         // Tab actions
         setActiveTab: (tab) =>
           set(
             (state) => {
-              state.activeTab = tab
-              state.results = []
-              state.currentPage = 1
+              state.activeTab = tab;
+              state.results = [];
+              state.currentPage = 1;
             },
             false,
-            'search/setActiveTab'
+            "search/setActiveTab",
           ),
 
         // Filter actions
         setFilters: (filters) =>
           set(
             (state) => {
-              state.filters = { ...state.filters, ...filters }
-              state.results = []
-              state.currentPage = 1
+              state.filters = { ...state.filters, ...filters };
+              state.results = [];
+              state.currentPage = 1;
             },
             false,
-            'search/setFilters'
+            "search/setFilters",
           ),
 
         addFromUser: (userId) =>
           set(
             (state) => {
               if (!state.filters.fromUsers.includes(userId)) {
-                state.filters.fromUsers.push(userId)
+                state.filters.fromUsers.push(userId);
               }
             },
             false,
-            'search/addFromUser'
+            "search/addFromUser",
           ),
 
         removeFromUser: (userId) =>
           set(
             (state) => {
-              state.filters.fromUsers = state.filters.fromUsers.filter((id) => id !== userId)
+              state.filters.fromUsers = state.filters.fromUsers.filter(
+                (id) => id !== userId,
+              );
             },
             false,
-            'search/removeFromUser'
+            "search/removeFromUser",
           ),
 
         addInChannel: (channelId) =>
           set(
             (state) => {
               if (!state.filters.inChannels.includes(channelId)) {
-                state.filters.inChannels.push(channelId)
+                state.filters.inChannels.push(channelId);
               }
             },
             false,
-            'search/addInChannel'
+            "search/addInChannel",
           ),
 
         removeInChannel: (channelId) =>
           set(
             (state) => {
-              state.filters.inChannels = state.filters.inChannels.filter((id) => id !== channelId)
+              state.filters.inChannels = state.filters.inChannels.filter(
+                (id) => id !== channelId,
+              );
             },
             false,
-            'search/removeInChannel'
+            "search/removeInChannel",
           ),
 
         setDateRange: (range) =>
           set(
             (state) => {
-              state.filters.dateRange = range
+              state.filters.dateRange = range;
             },
             false,
-            'search/setDateRange'
+            "search/setDateRange",
           ),
 
         toggleHasFilter: (filter) =>
           set(
             (state) => {
-              const index = state.filters.has.indexOf(filter)
+              const index = state.filters.has.indexOf(filter);
               if (index === -1) {
-                state.filters.has.push(filter)
+                state.filters.has.push(filter);
               } else {
-                state.filters.has.splice(index, 1)
+                state.filters.has.splice(index, 1);
               }
             },
             false,
-            'search/toggleHasFilter'
+            "search/toggleHasFilter",
           ),
 
         toggleIsFilter: (filter) =>
           set(
             (state) => {
-              const index = state.filters.is.indexOf(filter)
+              const index = state.filters.is.indexOf(filter);
               if (index === -1) {
-                state.filters.is.push(filter)
+                state.filters.is.push(filter);
               } else {
-                state.filters.is.splice(index, 1)
+                state.filters.is.splice(index, 1);
               }
             },
             false,
-            'search/toggleIsFilter'
+            "search/toggleIsFilter",
           ),
 
         clearFilters: () =>
           set(
             (state) => {
-              state.filters = { ...emptyFilters }
-              state.results = []
-              state.currentPage = 1
+              state.filters = { ...emptyFilters };
+              state.results = [];
+              state.currentPage = 1;
             },
             false,
-            'search/clearFilters'
+            "search/clearFilters",
           ),
 
         // Sort actions
         setSortBy: (sortBy) =>
           set(
             (state) => {
-              state.sortBy = sortBy
-              state.results = []
-              state.currentPage = 1
+              state.sortBy = sortBy;
+              state.results = [];
+              state.currentPage = 1;
             },
             false,
-            'search/setSortBy'
+            "search/setSortBy",
           ),
 
         // Result actions
         setResults: (results, total, hasMore) =>
           set(
             (state) => {
-              state.results = results
-              state.totalResults = total
-              state.hasMore = hasMore
+              state.results = results;
+              state.totalResults = total;
+              state.hasMore = hasMore;
             },
             false,
-            'search/setResults'
+            "search/setResults",
           ),
 
         appendResults: (results, hasMore) =>
           set(
             (state) => {
-              state.results = [...state.results, ...results]
-              state.hasMore = hasMore
+              state.results = [...state.results, ...results];
+              state.hasMore = hasMore;
             },
             false,
-            'search/appendResults'
+            "search/appendResults",
           ),
 
         clearResults: () =>
           set(
             (state) => {
-              state.results = []
-              state.totalResults = 0
-              state.hasMore = false
-              state.currentPage = 1
+              state.results = [];
+              state.totalResults = 0;
+              state.hasMore = false;
+              state.currentPage = 1;
             },
             false,
-            'search/clearResults'
+            "search/clearResults",
           ),
 
         setCurrentPage: (page) =>
           set(
             (state) => {
-              state.currentPage = page
+              state.currentPage = page;
             },
             false,
-            'search/setCurrentPage'
+            "search/setCurrentPage",
           ),
 
         // Loading actions
         setSearching: (isSearching) =>
           set(
             (state) => {
-              state.isSearching = isSearching
+              state.isSearching = isSearching;
             },
             false,
-            'search/setSearching'
+            "search/setSearching",
           ),
 
         setLoadingMore: (isLoading) =>
           set(
             (state) => {
-              state.isLoadingMore = isLoading
+              state.isLoadingMore = isLoading;
             },
             false,
-            'search/setLoadingMore'
+            "search/setLoadingMore",
           ),
 
         // UI actions
         openSearch: () =>
           set(
             (state) => {
-              state.isOpen = true
+              state.isOpen = true;
             },
             false,
-            'search/openSearch'
+            "search/openSearch",
           ),
 
         closeSearch: () =>
           set(
             (state) => {
-              state.isOpen = false
-              state.quickSwitcherMode = false
+              state.isOpen = false;
+              state.quickSwitcherMode = false;
             },
             false,
-            'search/closeSearch'
+            "search/closeSearch",
           ),
 
         toggleFilters: () =>
           set(
             (state) => {
-              state.showFilters = !state.showFilters
+              state.showFilters = !state.showFilters;
             },
             false,
-            'search/toggleFilters'
+            "search/toggleFilters",
           ),
 
         setShowFilters: (show) =>
           set(
             (state) => {
-              state.showFilters = show
+              state.showFilters = show;
             },
             false,
-            'search/setShowFilters'
+            "search/setShowFilters",
           ),
 
         toggleAdvanced: () =>
           set(
             (state) => {
-              state.showAdvanced = !state.showAdvanced
+              state.showAdvanced = !state.showAdvanced;
             },
             false,
-            'search/toggleAdvanced'
+            "search/toggleAdvanced",
           ),
 
         setShowAdvanced: (show) =>
           set(
             (state) => {
-              state.showAdvanced = show
+              state.showAdvanced = show;
             },
             false,
-            'search/setShowAdvanced'
+            "search/setShowAdvanced",
           ),
 
         // History actions
@@ -591,243 +610,261 @@ export const useSearchStore = create<SearchStore>()(
           set(
             (state) => {
               // Remove existing entry with same query
-              state.recentSearches = state.recentSearches.filter((s) => s.query !== query)
+              state.recentSearches = state.recentSearches.filter(
+                (s) => s.query !== query,
+              );
               // Add to beginning
               state.recentSearches.unshift({
                 id: crypto.randomUUID(),
                 query,
                 filters: filters ?? {},
                 timestamp: new Date(),
-              })
+              });
               // Keep only last 10
               if (state.recentSearches.length > 10) {
-                state.recentSearches = state.recentSearches.slice(0, 10)
+                state.recentSearches = state.recentSearches.slice(0, 10);
               }
             },
             false,
-            'search/addRecentSearch'
+            "search/addRecentSearch",
           ),
 
         removeRecentSearch: (id) =>
           set(
             (state) => {
-              state.recentSearches = state.recentSearches.filter((s) => s.id !== id)
+              state.recentSearches = state.recentSearches.filter(
+                (s) => s.id !== id,
+              );
             },
             false,
-            'search/removeRecentSearch'
+            "search/removeRecentSearch",
           ),
 
         clearRecentSearches: () =>
           set(
             (state) => {
-              state.recentSearches = []
+              state.recentSearches = [];
             },
             false,
-            'search/clearRecentSearches'
+            "search/clearRecentSearches",
           ),
 
         saveSearch: (name) =>
           set(
             (state) => {
-              const { query, filters } = get()
+              const { query, filters } = get();
               state.savedSearches.push({
                 id: crypto.randomUUID(),
                 name,
                 query,
                 filters: { ...filters },
                 createdAt: new Date(),
-              })
+              });
             },
             false,
-            'search/saveSearch'
+            "search/saveSearch",
           ),
 
         removeSavedSearch: (id) =>
           set(
             (state) => {
-              state.savedSearches = state.savedSearches.filter((s) => s.id !== id)
+              state.savedSearches = state.savedSearches.filter(
+                (s) => s.id !== id,
+              );
             },
             false,
-            'search/removeSavedSearch'
+            "search/removeSavedSearch",
           ),
 
         loadSavedSearch: (search) =>
           set(
             (state) => {
-              state.query = search.query
-              state.debouncedQuery = search.query
-              state.filters = { ...search.filters }
-              state.results = []
-              state.currentPage = 1
+              state.query = search.query;
+              state.debouncedQuery = search.query;
+              state.filters = { ...search.filters };
+              state.results = [];
+              state.currentPage = 1;
             },
             false,
-            'search/loadSavedSearch'
+            "search/loadSavedSearch",
           ),
 
         // In-channel search actions
         startInChannelSearch: () =>
           set(
             (state) => {
-              state.inChannelSearchActive = true
-              state.inChannelSearchQuery = ''
-              state.inChannelSearchResults = []
-              state.inChannelCurrentIndex = 0
+              state.inChannelSearchActive = true;
+              state.inChannelSearchQuery = "";
+              state.inChannelSearchResults = [];
+              state.inChannelCurrentIndex = 0;
             },
             false,
-            'search/startInChannelSearch'
+            "search/startInChannelSearch",
           ),
 
         endInChannelSearch: () =>
           set(
             (state) => {
-              state.inChannelSearchActive = false
-              state.inChannelSearchQuery = ''
-              state.inChannelSearchResults = []
-              state.inChannelCurrentIndex = 0
+              state.inChannelSearchActive = false;
+              state.inChannelSearchQuery = "";
+              state.inChannelSearchResults = [];
+              state.inChannelCurrentIndex = 0;
             },
             false,
-            'search/endInChannelSearch'
+            "search/endInChannelSearch",
           ),
 
         setInChannelQuery: (query) =>
           set(
             (state) => {
-              state.inChannelSearchQuery = query
+              state.inChannelSearchQuery = query;
             },
             false,
-            'search/setInChannelQuery'
+            "search/setInChannelQuery",
           ),
 
         setInChannelResults: (results) =>
           set(
             (state) => {
-              state.inChannelSearchResults = results
-              state.inChannelCurrentIndex = 0
+              state.inChannelSearchResults = results;
+              state.inChannelCurrentIndex = 0;
             },
             false,
-            'search/setInChannelResults'
+            "search/setInChannelResults",
           ),
 
         navigateInChannelResult: (direction) =>
           set(
             (state) => {
-              const { inChannelSearchResults, inChannelCurrentIndex } = state
-              if (inChannelSearchResults.length === 0) return
+              const { inChannelSearchResults, inChannelCurrentIndex } = state;
+              if (inChannelSearchResults.length === 0) return;
 
-              if (direction === 'next') {
+              if (direction === "next") {
                 state.inChannelCurrentIndex =
-                  (inChannelCurrentIndex + 1) % inChannelSearchResults.length
+                  (inChannelCurrentIndex + 1) % inChannelSearchResults.length;
               } else {
                 state.inChannelCurrentIndex =
                   inChannelCurrentIndex === 0
                     ? inChannelSearchResults.length - 1
-                    : inChannelCurrentIndex - 1
+                    : inChannelCurrentIndex - 1;
               }
             },
             false,
-            'search/navigateInChannelResult'
+            "search/navigateInChannelResult",
           ),
 
         jumpToInChannelResult: (index) =>
           set(
             (state) => {
               if (index >= 0 && index < state.inChannelSearchResults.length) {
-                state.inChannelCurrentIndex = index
+                state.inChannelCurrentIndex = index;
               }
             },
             false,
-            'search/jumpToInChannelResult'
+            "search/jumpToInChannelResult",
           ),
 
         // Quick switcher actions
         enableQuickSwitcherMode: () =>
           set(
             (state) => {
-              state.quickSwitcherMode = true
-              state.isOpen = true
-              state.query = ''
-              state.results = []
+              state.quickSwitcherMode = true;
+              state.isOpen = true;
+              state.query = "";
+              state.results = [];
             },
             false,
-            'search/enableQuickSwitcherMode'
+            "search/enableQuickSwitcherMode",
           ),
 
         disableQuickSwitcherMode: () =>
           set(
             (state) => {
-              state.quickSwitcherMode = false
-              state.quickSwitcherResults = []
+              state.quickSwitcherMode = false;
+              state.quickSwitcherResults = [];
             },
             false,
-            'search/disableQuickSwitcherMode'
+            "search/disableQuickSwitcherMode",
           ),
 
         setQuickSwitcherResults: (results) =>
           set(
             (state) => {
-              state.quickSwitcherResults = results
+              state.quickSwitcherResults = results;
             },
             false,
-            'search/setQuickSwitcherResults'
+            "search/setQuickSwitcherResults",
           ),
 
         // Search execution actions
         performSearch: async (query, loadMore = false) => {
-          const state = get()
-          const trimmed = query.trim()
+          const state = get();
+          const trimmed = query.trim();
 
           if (!trimmed) {
             set(
               (s) => {
-                s.results = []
-                s.totalResults = 0
-                s.hasMore = false
-                s.currentPage = 1
+                s.results = [];
+                s.totalResults = 0;
+                s.hasMore = false;
+                s.currentPage = 1;
               },
               false,
-              'search/performSearch/cleared'
-            )
-            return
+              "search/performSearch/cleared",
+            );
+            return;
           }
 
           if (loadMore) {
-            set((s) => { s.isLoadingMore = true }, false, 'search/performSearch/loadingMore')
+            set(
+              (s) => {
+                s.isLoadingMore = true;
+              },
+              false,
+              "search/performSearch/loadingMore",
+            );
           } else {
-            set((s) => { s.isSearching = true }, false, 'search/performSearch/searching')
+            set(
+              (s) => {
+                s.isSearching = true;
+              },
+              false,
+              "search/performSearch/searching",
+            );
           }
 
-          const offset = loadMore ? state.results.length : 0
+          const offset = loadMore ? state.results.length : 0;
 
-          let result: SearchMessagesResult
+          let result: SearchMessagesResult;
           try {
             result = await searchMessages(trimmed, {
               limit: state.resultsPerPage,
               offset,
-            })
+            });
           } catch {
             set(
               (s) => {
-                s.isSearching = false
-                s.isLoadingMore = false
+                s.isSearching = false;
+                s.isLoadingMore = false;
               },
               false,
-              'search/performSearch/error'
-            )
-            return
+              "search/performSearch/error",
+            );
+            return;
           }
 
           // Map MeiliSearch hits to the store's MessageSearchResult shape
           const mapped: MessageSearchResult[] = result.hits.map((hit) => ({
             id: hit.id,
-            type: 'message' as const,
+            type: "message" as const,
             score: 1,
             highlights: hit._formatted?.content_search
               ? [hit._formatted.content_search]
               : [],
             channelId: hit.channel_id,
-            channelName: '',
-            authorId: hit.user_id ?? '',
-            authorName: '',
+            channelName: "",
+            authorId: hit.user_id ?? "",
+            authorName: "",
             authorAvatar: null,
             content: hit.content_search,
             timestamp: new Date(hit.created_at),
@@ -836,71 +873,71 @@ export const useSearchStore = create<SearchStore>()(
             isStarred: false,
             reactions: [],
             hasAttachments: false,
-          }))
+          }));
 
           if (loadMore) {
             set(
               (s) => {
-                s.results = [...s.results, ...mapped]
-                s.hasMore = result.hasMore
-                s.isLoadingMore = false
-                s.currentPage = s.currentPage + 1
+                s.results = [...s.results, ...mapped];
+                s.hasMore = result.hasMore;
+                s.isLoadingMore = false;
+                s.currentPage = s.currentPage + 1;
               },
               false,
-              'search/performSearch/loadedMore'
-            )
+              "search/performSearch/loadedMore",
+            );
           } else {
             set(
               (s) => {
-                s.results = mapped
-                s.totalResults = result.estimatedTotalHits
-                s.hasMore = result.hasMore
-                s.isSearching = false
-                s.currentPage = 1
+                s.results = mapped;
+                s.totalResults = result.estimatedTotalHits;
+                s.hasMore = result.hasMore;
+                s.isSearching = false;
+                s.currentPage = 1;
               },
               false,
-              'search/performSearch/done'
-            )
+              "search/performSearch/done",
+            );
           }
         },
 
         performInChannelSearch: async (query, channelId) => {
-          const trimmed = query.trim()
+          const trimmed = query.trim();
 
           if (!trimmed) {
             set(
               (s) => {
-                s.inChannelSearchResults = []
-                s.inChannelCurrentIndex = 0
+                s.inChannelSearchResults = [];
+                s.inChannelCurrentIndex = 0;
               },
               false,
-              'search/performInChannelSearch/cleared'
-            )
-            return
+              "search/performInChannelSearch/cleared",
+            );
+            return;
           }
 
-          let result: SearchMessagesResult
+          let result: SearchMessagesResult;
           try {
             result = await searchMessages(trimmed, {
               limit: 100,
               offset: 0,
               channelId,
-            })
+            });
           } catch {
-            return
+            return;
           }
 
           const mapped: MessageSearchResult[] = result.hits.map((hit) => ({
             id: hit.id,
-            type: 'message' as const,
+            type: "message" as const,
             score: 1,
             highlights: hit._formatted?.content_search
               ? [hit._formatted.content_search]
               : [],
             channelId: hit.channel_id,
-            channelName: '',
-            authorId: hit.user_id ?? '',
-            authorName: '',
+            channelName: "",
+            authorId: hit.user_id ?? "",
+            authorName: "",
             authorAvatar: null,
             content: hit.content_search,
             timestamp: new Date(hit.created_at),
@@ -909,16 +946,16 @@ export const useSearchStore = create<SearchStore>()(
             isStarred: false,
             reactions: [],
             hasAttachments: false,
-          }))
+          }));
 
           set(
             (s) => {
-              s.inChannelSearchResults = mapped
-              s.inChannelCurrentIndex = 0
+              s.inChannelSearchResults = mapped;
+              s.inChannelCurrentIndex = 0;
             },
             false,
-            'search/performInChannelSearch/done'
-          )
+            "search/performInChannelSearch/done",
+          );
         },
 
         // Utility actions
@@ -931,27 +968,27 @@ export const useSearchStore = create<SearchStore>()(
               savedSearches: get().savedSearches,
             }),
             false,
-            'search/reset'
+            "search/reset",
           ),
       })),
       {
-        name: 'nchat-search',
+        name: "nchat-search",
         partialize: (state) => ({
           recentSearches: state.recentSearches,
           savedSearches: state.savedSearches,
         }),
-      }
+      },
     ),
-    { name: 'search-store' }
-  )
-)
+    { name: "search-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
 export const selectHasActiveFilters = (state: SearchStore): boolean => {
-  const { filters } = state
+  const { filters } = state;
   return (
     filters.fromUsers.length > 0 ||
     filters.inChannels.length > 0 ||
@@ -959,47 +996,51 @@ export const selectHasActiveFilters = (state: SearchStore): boolean => {
     filters.dateRange.to !== null ||
     filters.has.length > 0 ||
     filters.is.length > 0
-  )
-}
+  );
+};
 
 export const selectActiveFilterCount = (state: SearchStore): number => {
-  const { filters } = state
-  let count = 0
-  count += filters.fromUsers.length
-  count += filters.inChannels.length
-  if (filters.dateRange.from || filters.dateRange.to) count += 1
-  count += filters.has.length
-  count += filters.is.length
-  return count
-}
+  const { filters } = state;
+  let count = 0;
+  count += filters.fromUsers.length;
+  count += filters.inChannels.length;
+  if (filters.dateRange.from || filters.dateRange.to) count += 1;
+  count += filters.has.length;
+  count += filters.is.length;
+  return count;
+};
 
 export const selectFilteredResults = (state: SearchStore): SearchResult[] => {
-  const { results, activeTab } = state
-  if (activeTab === 'all') return results
+  const { results, activeTab } = state;
+  if (activeTab === "all") return results;
 
-  const typeMap: Record<SearchTab, SearchResult['type'] | null> = {
+  const typeMap: Record<SearchTab, SearchResult["type"] | null> = {
     all: null,
-    messages: 'message',
-    files: 'file',
-    people: 'user',
-    channels: 'channel',
-  }
+    messages: "message",
+    files: "file",
+    people: "user",
+    channels: "channel",
+  };
 
-  const targetType = typeMap[activeTab]
-  if (!targetType) return results
+  const targetType = typeMap[activeTab];
+  if (!targetType) return results;
 
-  return results.filter((r) => r.type === targetType)
-}
+  return results.filter((r) => r.type === targetType);
+};
 
 export const selectResultsByType = (state: SearchStore) => {
-  const { results } = state
+  const { results } = state;
   return {
-    messages: results.filter((r): r is MessageSearchResult => r.type === 'message'),
-    files: results.filter((r): r is FileSearchResult => r.type === 'file'),
-    users: results.filter((r): r is UserSearchResult => r.type === 'user'),
-    channels: results.filter((r): r is ChannelSearchResult => r.type === 'channel'),
-  }
-}
+    messages: results.filter(
+      (r): r is MessageSearchResult => r.type === "message",
+    ),
+    files: results.filter((r): r is FileSearchResult => r.type === "file"),
+    users: results.filter((r): r is UserSearchResult => r.type === "user"),
+    channels: results.filter(
+      (r): r is ChannelSearchResult => r.type === "channel",
+    ),
+  };
+};
 
 export const selectInChannelSearchState = (state: SearchStore) => ({
   active: state.inChannelSearchActive,
@@ -1007,4 +1048,4 @@ export const selectInChannelSearchState = (state: SearchStore) => ({
   results: state.inChannelSearchResults,
   currentIndex: state.inChannelCurrentIndex,
   total: state.inChannelSearchResults.length,
-})
+});

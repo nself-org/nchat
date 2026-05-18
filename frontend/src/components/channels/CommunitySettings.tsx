@@ -10,10 +10,10 @@
  * - Delete community
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
+import * as React from "react";
+import { useState } from "react";
 import {
   Settings,
   Upload,
@@ -24,16 +24,16 @@ import {
   UserPlus,
   Shield,
   Calendar,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -41,14 +41,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,22 +58,22 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import type { Community } from '@/types/advanced-channels'
+} from "@/components/ui/alert-dialog";
+import type { Community } from "@/types/advanced-channels";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface CommunitySettingsProps {
-  community: Community
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  onSave?: (updates: Partial<Community>) => Promise<void>
-  onDelete?: () => Promise<void>
-  className?: string
+  community: Community;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSave?: (updates: Partial<Community>) => Promise<void>;
+  onDelete?: () => Promise<void>;
+  className?: string;
 }
 
 // ============================================================================
@@ -88,55 +88,57 @@ export function CommunitySettings({
   onDelete,
   className,
 }: CommunitySettingsProps) {
-  const [updates, setUpdates] = useState<Partial<Community>>({})
-  const [isSaving, setIsSaving] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [updates, setUpdates] = useState<Partial<Community>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const mergedCommunity = { ...community, ...updates }
+  const mergedCommunity = { ...community, ...updates };
 
   const handleChange = (newUpdates: Partial<Community>) => {
-    setUpdates((prev) => ({ ...prev, ...newUpdates }))
-  }
+    setUpdates((prev) => ({ ...prev, ...newUpdates }));
+  };
 
   const handleSave = async () => {
-    if (!onSave) return
+    if (!onSave) return;
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-      await onSave(updates)
-      setUpdates({})
-      onOpenChange?.(false)
+      await onSave(updates);
+      setUpdates({});
+      onOpenChange?.(false);
     } catch (error) {
-      logger.error('Failed to save community settings:', error)
+      logger.error("Failed to save community settings:", error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleDelete = async () => {
-    if (!onDelete) return
+    if (!onDelete) return;
 
     try {
-      await onDelete()
-      setShowDeleteDialog(false)
-      onOpenChange?.(false)
+      await onDelete();
+      setShowDeleteDialog(false);
+      onOpenChange?.(false);
     } catch (error) {
-      logger.error('Failed to delete community:', error)
+      logger.error("Failed to delete community:", error);
     }
-  }
+  };
 
-  const hasChanges = Object.keys(updates).length > 0
+  const hasChanges = Object.keys(updates).length > 0;
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={cn('max-w-2xl', className)}>
+        <DialogContent className={cn("max-w-2xl", className)}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
               Community Settings
             </DialogTitle>
-            <DialogDescription>Manage your community settings and preferences</DialogDescription>
+            <DialogDescription>
+              Manage your community settings and preferences
+            </DialogDescription>
           </DialogHeader>
 
           <ScrollArea className="max-h-[600px] pr-4">
@@ -146,7 +148,10 @@ export function CommunitySettings({
                 <Label>Community Icon</Label>
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={mergedCommunity.iconUrl} alt={mergedCommunity.name} />
+                    <AvatarImage
+                      src={mergedCommunity.iconUrl}
+                      alt={mergedCommunity.name}
+                    />
                     <AvatarFallback className="text-xl font-bold">
                       {mergedCommunity.name.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
@@ -180,8 +185,10 @@ export function CommunitySettings({
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
-                  value={mergedCommunity.description || ''}
-                  onChange={(e) => handleChange({ description: e.target.value })}
+                  value={mergedCommunity.description || ""}
+                  onChange={(e) =>
+                    handleChange({ description: e.target.value })
+                  }
                   placeholder="Describe your community"
                   rows={3}
                   maxLength={500}
@@ -205,7 +212,7 @@ export function CommunitySettings({
                   <Label htmlFor="add-groups">Who can add groups</Label>
                   <Select
                     value={mergedCommunity.addGroupsPermission}
-                    onValueChange={(value: 'admin' | 'member') =>
+                    onValueChange={(value: "admin" | "member") =>
                       handleChange({ addGroupsPermission: value })
                     }
                   >
@@ -233,7 +240,9 @@ export function CommunitySettings({
                   <Switch
                     id="members-invite"
                     checked={mergedCommunity.membersCanInvite}
-                    onCheckedChange={(checked) => handleChange({ membersCanInvite: checked })}
+                    onCheckedChange={(checked) =>
+                      handleChange({ membersCanInvite: checked })
+                    }
                   />
                 </div>
 
@@ -242,7 +251,9 @@ export function CommunitySettings({
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-muted-foreground" />
-                      <Label htmlFor="approval-required">Require admin approval</Label>
+                      <Label htmlFor="approval-required">
+                        Require admin approval
+                      </Label>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       New members must be approved by an admin
@@ -251,7 +262,9 @@ export function CommunitySettings({
                   <Switch
                     id="approval-required"
                     checked={mergedCommunity.approvalRequired}
-                    onCheckedChange={(checked) => handleChange({ approvalRequired: checked })}
+                    onCheckedChange={(checked) =>
+                      handleChange({ approvalRequired: checked })
+                    }
                   />
                 </div>
               </div>
@@ -276,7 +289,9 @@ export function CommunitySettings({
                   <Switch
                     id="events-enabled"
                     checked={mergedCommunity.eventsEnabled}
-                    onCheckedChange={(checked) => handleChange({ eventsEnabled: checked })}
+                    onCheckedChange={(checked) =>
+                      handleChange({ eventsEnabled: checked })
+                    }
                   />
                 </div>
               </div>
@@ -343,8 +358,8 @@ export function CommunitySettings({
                   <div className="space-y-2">
                     <Label className="text-destructive">Delete Community</Label>
                     <p className="text-sm text-muted-foreground">
-                      Permanently delete this community and all associated groups. This action
-                      cannot be undone.
+                      Permanently delete this community and all associated
+                      groups. This action cannot be undone.
                     </p>
                     <Button
                       variant="destructive"
@@ -362,7 +377,11 @@ export function CommunitySettings({
           </ScrollArea>
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => onOpenChange?.(false)} disabled={isSaving}>
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange?.(false)}
+              disabled={isSaving}
+            >
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={!hasChanges || isSaving}>
@@ -388,8 +407,8 @@ export function CommunitySettings({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Community?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete <strong>{community.name}</strong> and all associated
-              groups. This action cannot be undone.
+              This will permanently delete <strong>{community.name}</strong> and
+              all associated groups. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -404,7 +423,7 @@ export function CommunitySettings({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
-export default CommunitySettings
+export default CommunitySettings;

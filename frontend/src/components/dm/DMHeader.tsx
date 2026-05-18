@@ -1,17 +1,22 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Phone,
   Video,
@@ -27,28 +32,28 @@ import {
   Settings,
   Users,
   Info,
-} from 'lucide-react'
-import type { DirectMessage } from '@/lib/dm/dm-types'
+} from "lucide-react";
+import type { DirectMessage } from "@/lib/dm/dm-types";
 import {
   generateDMDisplayName,
   getDMAvatarUrls,
   getDMAvatarInitials,
   getOtherParticipants,
   getParticipantSummary,
-} from '@/lib/dm'
-import { useDMStore } from '@/stores/dm-store'
+} from "@/lib/dm";
+import { useDMStore } from "@/stores/dm-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DMHeaderProps {
-  dm: DirectMessage
-  currentUserId: string
-  onSearchClick?: () => void
-  onSettingsClick?: () => void
-  onInfoClick?: () => void
-  className?: string
+  dm: DirectMessage;
+  currentUserId: string;
+  onSearchClick?: () => void;
+  onSettingsClick?: () => void;
+  onInfoClick?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -63,37 +68,48 @@ export function DMHeader({
   onInfoClick,
   className,
 }: DMHeaderProps) {
-  const { mutedDMs, starredDMs, toggleMuteDM, toggleStarDM, archiveDM, removeDM } = useDMStore()
+  const {
+    mutedDMs,
+    starredDMs,
+    toggleMuteDM,
+    toggleStarDM,
+    archiveDM,
+    removeDM,
+  } = useDMStore();
 
-  const isMuted = mutedDMs.has(dm.id)
-  const isStarred = starredDMs.has(dm.id)
+  const isMuted = mutedDMs.has(dm.id);
+  const isStarred = starredDMs.has(dm.id);
 
-  const displayName = generateDMDisplayName(dm.participants, currentUserId, dm.name)
-  const avatarUrls = getDMAvatarUrls(dm, currentUserId)
-  const initials = getDMAvatarInitials(dm, currentUserId)
-  const otherParticipants = getOtherParticipants(dm, currentUserId)
+  const displayName = generateDMDisplayName(
+    dm.participants,
+    currentUserId,
+    dm.name,
+  );
+  const avatarUrls = getDMAvatarUrls(dm, currentUserId);
+  const initials = getDMAvatarInitials(dm, currentUserId);
+  const otherParticipants = getOtherParticipants(dm, currentUserId);
 
   // Status text
-  let statusText = ''
-  if (dm.type === 'direct' && otherParticipants.length > 0) {
-    const other = otherParticipants[0]
-    if (other.user.status === 'online') {
-      statusText = 'Online'
+  let statusText = "";
+  if (dm.type === "direct" && otherParticipants.length > 0) {
+    const other = otherParticipants[0];
+    if (other.user.status === "online") {
+      statusText = "Online";
     } else if (other.user.lastSeenAt) {
-      const lastSeen = new Date(other.user.lastSeenAt)
-      statusText = `Last seen ${formatLastSeen(lastSeen)}`
+      const lastSeen = new Date(other.user.lastSeenAt);
+      statusText = `Last seen ${formatLastSeen(lastSeen)}`;
     } else {
-      statusText = 'Offline'
+      statusText = "Offline";
     }
-  } else if (dm.type === 'group') {
-    statusText = getParticipantSummary(dm.participants, currentUserId)
+  } else if (dm.type === "group") {
+    statusText = getParticipantSummary(dm.participants, currentUserId);
   }
 
   return (
     <div
       className={cn(
-        'flex items-center justify-between border-b bg-background px-4 py-3',
-        className
+        "flex items-center justify-between border-b bg-background px-4 py-3",
+        className,
       )}
     >
       {/* Left: Avatar and Info */}
@@ -108,9 +124,10 @@ export function DMHeader({
               <AvatarImage src={avatarUrls[0]} alt={displayName} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
-            {dm.type === 'direct' && otherParticipants[0]?.user.status === 'online' && (
-              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
-            )}
+            {dm.type === "direct" &&
+              otherParticipants[0]?.user.status === "online" && (
+                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
+              )}
           </div>
         </button>
 
@@ -140,7 +157,9 @@ export function DMHeader({
                 <span className="sr-only">Voice call</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Voice call (requires LiveKit plugin)</TooltipContent>
+            <TooltipContent>
+              Voice call (requires LiveKit plugin)
+            </TooltipContent>
           </Tooltip>
 
           {/* Video Call (disabled for now) */}
@@ -151,14 +170,21 @@ export function DMHeader({
                 <span className="sr-only">Video call</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Video call (requires LiveKit plugin)</TooltipContent>
+            <TooltipContent>
+              Video call (requires LiveKit plugin)
+            </TooltipContent>
           </Tooltip>
 
           {/* Search */}
           {onSearchClick && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onSearchClick}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={onSearchClick}
+                >
                   <Search className="h-4 w-4" />
                   <span className="sr-only">Search messages</span>
                 </Button>
@@ -177,7 +203,7 @@ export function DMHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
-            {dm.type === 'group' && (
+            {dm.type === "group" && (
               <>
                 <DropdownMenuItem onClick={onInfoClick}>
                   <Users className="mr-2 h-4 w-4" />
@@ -249,7 +275,7 @@ export function DMHeader({
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -257,18 +283,18 @@ export function DMHeader({
 // ============================================================================
 
 function formatLastSeen(date: Date): string {
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const minutes = Math.floor(diff / (1000 * 60))
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
-  if (hours < 24) return `${hours}h ago`
-  if (days === 1) return 'yesterday'
-  if (days < 7) return `${days} days ago`
-  return date.toLocaleDateString()
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days} days ago`;
+  return date.toLocaleDateString();
 }
 
-DMHeader.displayName = 'DMHeader'
+DMHeader.displayName = "DMHeader";

@@ -12,48 +12,53 @@
 /**
  * Types of attachments supported.
  */
-export type AttachmentType = 'image' | 'video' | 'audio' | 'file'
+export type AttachmentType = "image" | "video" | "audio" | "file";
 
 /**
  * Attachment categories for filtering and display.
  */
-export type AttachmentCategory = 'media' | 'documents' | 'archives' | 'code' | 'other'
+export type AttachmentCategory =
+  | "media"
+  | "documents"
+  | "archives"
+  | "code"
+  | "other";
 
 /**
  * MIME type categories for file type detection.
  */
 export const MimeTypeCategories: Record<AttachmentCategory, string[]> = {
-  media: ['image/*', 'video/*', 'audio/*'],
+  media: ["image/*", "video/*", "audio/*"],
   documents: [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'text/plain',
-    'text/rtf',
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "text/plain",
+    "text/rtf",
   ],
   archives: [
-    'application/zip',
-    'application/x-rar-compressed',
-    'application/x-7z-compressed',
-    'application/x-tar',
-    'application/gzip',
+    "application/zip",
+    "application/x-rar-compressed",
+    "application/x-7z-compressed",
+    "application/x-tar",
+    "application/gzip",
   ],
   code: [
-    'text/javascript',
-    'text/typescript',
-    'text/html',
-    'text/css',
-    'application/json',
-    'application/xml',
-    'text/x-python',
-    'text/x-java',
+    "text/javascript",
+    "text/typescript",
+    "text/html",
+    "text/css",
+    "application/json",
+    "application/xml",
+    "text/x-python",
+    "text/x-java",
   ],
   other: [],
-}
+};
 
 // ============================================================================
 // File Metadata Types
@@ -64,17 +69,17 @@ export const MimeTypeCategories: Record<AttachmentCategory, string[]> = {
  */
 export interface FileMetadata {
   /** Original filename */
-  name: string
+  name: string;
   /** File size in bytes */
-  size: number
+  size: number;
   /** MIME type */
-  mimeType: string
+  mimeType: string;
   /** File extension (without dot) */
-  extension: string
+  extension: string;
   /** Last modified date */
-  lastModified?: Date
+  lastModified?: Date;
   /** File hash (for deduplication) */
-  hash?: string
+  hash?: string;
 }
 
 /**
@@ -82,21 +87,21 @@ export interface FileMetadata {
  */
 export interface ImageMetadata extends FileMetadata {
   /** Image width in pixels */
-  width: number
+  width: number;
   /** Image height in pixels */
-  height: number
+  height: number;
   /** Aspect ratio (width / height) */
-  aspectRatio: number
+  aspectRatio: number;
   /** Color space (RGB, CMYK, etc.) */
-  colorSpace?: string
+  colorSpace?: string;
   /** Has alpha/transparency channel */
-  hasAlpha?: boolean
+  hasAlpha?: boolean;
   /** Blur hash for placeholder */
-  blurHash?: string
+  blurHash?: string;
   /** Dominant color (hex) */
-  dominantColor?: string
+  dominantColor?: string;
   /** EXIF data */
-  exif?: ImageExifData
+  exif?: ImageExifData;
 }
 
 /**
@@ -104,27 +109,27 @@ export interface ImageMetadata extends FileMetadata {
  */
 export interface ImageExifData {
   /** Camera make */
-  make?: string
+  make?: string;
   /** Camera model */
-  model?: string
+  model?: string;
   /** Date taken */
-  dateTaken?: Date
+  dateTaken?: Date;
   /** GPS coordinates */
   gps?: {
-    latitude: number
-    longitude: number
-    altitude?: number
-  }
+    latitude: number;
+    longitude: number;
+    altitude?: number;
+  };
   /** Orientation (1-8) */
-  orientation?: number
+  orientation?: number;
   /** ISO speed */
-  iso?: number
+  iso?: number;
   /** Aperture (f-stop) */
-  aperture?: string
+  aperture?: string;
   /** Shutter speed */
-  shutterSpeed?: string
+  shutterSpeed?: string;
   /** Focal length */
-  focalLength?: string
+  focalLength?: string;
 }
 
 /**
@@ -132,21 +137,21 @@ export interface ImageExifData {
  */
 export interface VideoMetadata extends FileMetadata {
   /** Video width in pixels */
-  width: number
+  width: number;
   /** Video height in pixels */
-  height: number
+  height: number;
   /** Duration in seconds */
-  duration: number
+  duration: number;
   /** Frame rate (fps) */
-  frameRate?: number
+  frameRate?: number;
   /** Video codec */
-  videoCodec?: string
+  videoCodec?: string;
   /** Audio codec */
-  audioCodec?: string
+  audioCodec?: string;
   /** Bitrate in kbps */
-  bitrate?: number
+  bitrate?: number;
   /** Has audio track */
-  hasAudio?: boolean
+  hasAudio?: boolean;
 }
 
 /**
@@ -154,19 +159,19 @@ export interface VideoMetadata extends FileMetadata {
  */
 export interface AudioMetadata extends FileMetadata {
   /** Duration in seconds */
-  duration: number
+  duration: number;
   /** Sample rate in Hz */
-  sampleRate?: number
+  sampleRate?: number;
   /** Number of channels */
-  channels?: number
+  channels?: number;
   /** Bitrate in kbps */
-  bitrate?: number
+  bitrate?: number;
   /** Audio codec */
-  codec?: string
+  codec?: string;
   /** ID3 tags */
-  tags?: AudioTags
+  tags?: AudioTags;
   /** Waveform data for visualization */
-  waveform?: number[]
+  waveform?: number[];
 }
 
 /**
@@ -174,19 +179,19 @@ export interface AudioMetadata extends FileMetadata {
  */
 export interface AudioTags {
   /** Track title */
-  title?: string
+  title?: string;
   /** Artist name */
-  artist?: string
+  artist?: string;
   /** Album name */
-  album?: string
+  album?: string;
   /** Year */
-  year?: number
+  year?: number;
   /** Genre */
-  genre?: string
+  genre?: string;
   /** Track number */
-  track?: number
+  track?: number;
   /** Album art URL */
-  albumArt?: string
+  albumArt?: string;
 }
 
 // ============================================================================
@@ -198,85 +203,89 @@ export interface AudioTags {
  */
 export interface Attachment {
   /** Unique attachment ID */
-  id: string
+  id: string;
   /** Attachment type */
-  type: AttachmentType
+  type: AttachmentType;
   /** URL to the attachment */
-  url: string
+  url: string;
   /** Secure/signed URL (if different) */
-  secureUrl?: string
+  secureUrl?: string;
   /** Original filename */
-  name: string
+  name: string;
   /** File size in bytes */
-  size: number
+  size: number;
   /** MIME type */
-  mimeType: string
+  mimeType: string;
   /** File extension */
-  extension?: string
+  extension?: string;
   /** Width in pixels (for images/videos) */
-  width?: number
+  width?: number;
   /** Height in pixels (for images/videos) */
-  height?: number
+  height?: number;
   /** Duration in seconds (for audio/video) */
-  duration?: number
+  duration?: number;
   /** Thumbnail URL */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** Preview URL (for lower resolution) */
-  previewUrl?: string
+  previewUrl?: string;
   /** Blur hash for image placeholder */
-  blurHash?: string
+  blurHash?: string;
   /** Alt text for accessibility */
-  altText?: string
+  altText?: string;
   /** Who uploaded the attachment */
-  uploadedBy: string
+  uploadedBy: string;
   /** When the attachment was uploaded */
-  uploadedAt: Date
+  uploadedAt: Date;
   /** Full metadata (type-specific) */
-  metadata?: ImageMetadata | VideoMetadata | AudioMetadata | FileMetadata
+  metadata?: ImageMetadata | VideoMetadata | AudioMetadata | FileMetadata;
 }
 
 /**
  * Image attachment with full metadata.
  */
-export interface ImageAttachment extends Omit<Attachment, 'type' | 'metadata'> {
-  type: 'image'
-  width: number
-  height: number
-  metadata?: ImageMetadata
+export interface ImageAttachment extends Omit<Attachment, "type" | "metadata"> {
+  type: "image";
+  width: number;
+  height: number;
+  metadata?: ImageMetadata;
 }
 
 /**
  * Video attachment with full metadata.
  */
-export interface VideoAttachment extends Omit<Attachment, 'type' | 'metadata'> {
-  type: 'video'
-  width: number
-  height: number
-  duration: number
-  metadata?: VideoMetadata
+export interface VideoAttachment extends Omit<Attachment, "type" | "metadata"> {
+  type: "video";
+  width: number;
+  height: number;
+  duration: number;
+  metadata?: VideoMetadata;
 }
 
 /**
  * Audio attachment with full metadata.
  */
-export interface AudioAttachment extends Omit<Attachment, 'type' | 'metadata'> {
-  type: 'audio'
-  duration: number
-  metadata?: AudioMetadata
+export interface AudioAttachment extends Omit<Attachment, "type" | "metadata"> {
+  type: "audio";
+  duration: number;
+  metadata?: AudioMetadata;
 }
 
 /**
  * Generic file attachment.
  */
-export interface FileAttachment extends Omit<Attachment, 'type' | 'metadata'> {
-  type: 'file'
-  metadata?: FileMetadata
+export interface FileAttachment extends Omit<Attachment, "type" | "metadata"> {
+  type: "file";
+  metadata?: FileMetadata;
 }
 
 /**
  * Union type for all attachment types.
  */
-export type AnyAttachment = ImageAttachment | VideoAttachment | AudioAttachment | FileAttachment
+export type AnyAttachment =
+  | ImageAttachment
+  | VideoAttachment
+  | AudioAttachment
+  | FileAttachment;
 
 // ============================================================================
 // Upload Types
@@ -287,65 +296,65 @@ export type AnyAttachment = ImageAttachment | VideoAttachment | AudioAttachment 
  */
 export interface UploadProgress {
   /** Upload ID */
-  id: string
+  id: string;
   /** Original file */
-  file: File
+  file: File;
   /** Upload status */
-  status: UploadStatus
+  status: UploadStatus;
   /** Progress percentage (0-100) */
-  progress: number
+  progress: number;
   /** Bytes uploaded */
-  bytesUploaded: number
+  bytesUploaded: number;
   /** Total bytes */
-  bytesTotal: number
+  bytesTotal: number;
   /** Upload speed in bytes/second */
-  speed?: number
+  speed?: number;
   /** Estimated time remaining in seconds */
-  timeRemaining?: number
+  timeRemaining?: number;
   /** Error message (if failed) */
-  error?: string
+  error?: string;
   /** Resulting attachment (when complete) */
-  attachment?: Attachment
+  attachment?: Attachment;
   /** When upload started */
-  startedAt: Date
+  startedAt: Date;
   /** When upload completed/failed */
-  completedAt?: Date
+  completedAt?: Date;
 }
 
 /**
  * Upload status values.
  */
 export type UploadStatus =
-  | 'pending'
-  | 'preparing'
-  | 'uploading'
-  | 'processing'
-  | 'completed'
-  | 'failed'
-  | 'cancelled'
+  | "pending"
+  | "preparing"
+  | "uploading"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 /**
  * Upload queue item.
  */
 export interface UploadQueueItem {
   /** Queue item ID */
-  id: string
+  id: string;
   /** File to upload */
-  file: File
+  file: File;
   /** Channel ID for the upload */
-  channelId: string
+  channelId: string;
   /** Message ID (if editing) */
-  messageId?: string
+  messageId?: string;
   /** Priority (lower = higher priority) */
-  priority: number
+  priority: number;
   /** Current status */
-  status: UploadStatus
+  status: UploadStatus;
   /** Upload progress */
-  progress: UploadProgress
+  progress: UploadProgress;
   /** Number of retry attempts */
-  retryCount: number
+  retryCount: number;
   /** Maximum retries allowed */
-  maxRetries: number
+  maxRetries: number;
 }
 
 /**
@@ -353,35 +362,35 @@ export interface UploadQueueItem {
  */
 export interface UploadSettings {
   /** Maximum file size in bytes */
-  maxFileSize: number
+  maxFileSize: number;
   /** Maximum total size per message */
-  maxTotalSize: number
+  maxTotalSize: number;
   /** Maximum number of files per message */
-  maxFilesPerMessage: number
+  maxFilesPerMessage: number;
   /** Allowed MIME types (empty = all) */
-  allowedMimeTypes: string[]
+  allowedMimeTypes: string[];
   /** Blocked MIME types */
-  blockedMimeTypes: string[]
+  blockedMimeTypes: string[];
   /** Allowed file extensions (empty = all) */
-  allowedExtensions: string[]
+  allowedExtensions: string[];
   /** Blocked file extensions */
-  blockedExtensions: string[]
+  blockedExtensions: string[];
   /** Enable image compression */
-  compressImages: boolean
+  compressImages: boolean;
   /** Max image dimension before compression */
-  maxImageDimension: number
+  maxImageDimension: number;
   /** Image compression quality (0-100) */
-  imageQuality: number
+  imageQuality: number;
   /** Generate thumbnails */
-  generateThumbnails: boolean
+  generateThumbnails: boolean;
   /** Thumbnail max dimension */
-  thumbnailSize: number
+  thumbnailSize: number;
   /** Generate blur hashes */
-  generateBlurHash: boolean
+  generateBlurHash: boolean;
   /** Extract metadata */
-  extractMetadata: boolean
+  extractMetadata: boolean;
   /** Scan for viruses */
-  virusScan: boolean
+  virusScan: boolean;
 }
 
 /**
@@ -392,9 +401,9 @@ export const DefaultUploadSettings: UploadSettings = {
   maxTotalSize: 25 * 1024 * 1024, // 25MB
   maxFilesPerMessage: 10,
   allowedMimeTypes: [],
-  blockedMimeTypes: ['application/x-executable', 'application/x-msdownload'],
+  blockedMimeTypes: ["application/x-executable", "application/x-msdownload"],
   allowedExtensions: [],
-  blockedExtensions: ['exe', 'bat', 'cmd', 'com', 'msi'],
+  blockedExtensions: ["exe", "bat", "cmd", "com", "msi"],
   compressImages: true,
   maxImageDimension: 4096,
   imageQuality: 85,
@@ -403,7 +412,7 @@ export const DefaultUploadSettings: UploadSettings = {
   generateBlurHash: true,
   extractMetadata: true,
   virusScan: false,
-}
+};
 
 // ============================================================================
 // Upload Input Types
@@ -414,15 +423,15 @@ export const DefaultUploadSettings: UploadSettings = {
  */
 export interface UploadFileInput {
   /** File to upload */
-  file: File
+  file: File;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Message ID (if editing) */
-  messageId?: string
+  messageId?: string;
   /** Alt text for accessibility */
-  altText?: string
+  altText?: string;
   /** Custom metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -430,11 +439,11 @@ export interface UploadFileInput {
  */
 export interface UploadFilesInput {
   /** Files to upload */
-  files: File[]
+  files: File[];
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Message ID (if editing) */
-  messageId?: string
+  messageId?: string;
 }
 
 /**
@@ -442,15 +451,15 @@ export interface UploadFilesInput {
  */
 export interface PresignedUploadUrl {
   /** Upload URL */
-  uploadUrl: string
+  uploadUrl: string;
   /** Fields to include in form data */
-  fields: Record<string, string>
+  fields: Record<string, string>;
   /** Final file URL (after upload) */
-  fileUrl: string
+  fileUrl: string;
   /** Expiration time */
-  expiresAt: Date
+  expiresAt: Date;
   /** Maximum file size allowed */
-  maxSize: number
+  maxSize: number;
 }
 
 // ============================================================================
@@ -461,10 +470,10 @@ export interface PresignedUploadUrl {
  * Get attachment type from MIME type.
  */
 export function getAttachmentType(mimeType: string): AttachmentType {
-  if (mimeType.startsWith('image/')) return 'image'
-  if (mimeType.startsWith('video/')) return 'video'
-  if (mimeType.startsWith('audio/')) return 'audio'
-  return 'file'
+  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType.startsWith("video/")) return "video";
+  if (mimeType.startsWith("audio/")) return "audio";
+  return "file";
 }
 
 /**
@@ -473,27 +482,27 @@ export function getAttachmentType(mimeType: string): AttachmentType {
 export function getAttachmentCategory(mimeType: string): AttachmentCategory {
   for (const [category, types] of Object.entries(MimeTypeCategories)) {
     for (const type of types) {
-      if (type.endsWith('/*')) {
-        if (mimeType.startsWith(type.replace('/*', '/'))) {
-          return category as AttachmentCategory
+      if (type.endsWith("/*")) {
+        if (mimeType.startsWith(type.replace("/*", "/"))) {
+          return category as AttachmentCategory;
         }
       } else if (mimeType === type) {
-        return category as AttachmentCategory
+        return category as AttachmentCategory;
       }
     }
   }
-  return 'other'
+  return "other";
 }
 
 /**
  * Format file size for display.
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
 
 /**
@@ -501,37 +510,40 @@ export function formatFileSize(bytes: number): string {
  */
 export function isFileTypeAllowed(
   file: File,
-  settings: UploadSettings
+  settings: UploadSettings,
 ): { allowed: boolean; reason?: string } {
   // Check blocked extensions
-  const extension = file.name.split('.').pop()?.toLowerCase() || ''
+  const extension = file.name.split(".").pop()?.toLowerCase() || "";
   if (settings.blockedExtensions.includes(extension)) {
-    return { allowed: false, reason: `File type .${extension} is not allowed` }
+    return { allowed: false, reason: `File type .${extension} is not allowed` };
   }
 
   // Check blocked MIME types
   if (settings.blockedMimeTypes.includes(file.type)) {
-    return { allowed: false, reason: `File type ${file.type} is not allowed` }
+    return { allowed: false, reason: `File type ${file.type} is not allowed` };
   }
 
   // Check allowed extensions (if specified)
-  if (settings.allowedExtensions.length > 0 && !settings.allowedExtensions.includes(extension)) {
+  if (
+    settings.allowedExtensions.length > 0 &&
+    !settings.allowedExtensions.includes(extension)
+  ) {
     return {
       allowed: false,
-      reason: `Only ${settings.allowedExtensions.join(', ')} files are allowed`,
-    }
+      reason: `Only ${settings.allowedExtensions.join(", ")} files are allowed`,
+    };
   }
 
   // Check allowed MIME types (if specified)
   if (settings.allowedMimeTypes.length > 0) {
     const allowed = settings.allowedMimeTypes.some((type) => {
-      if (type.endsWith('/*')) {
-        return file.type.startsWith(type.replace('/*', '/'))
+      if (type.endsWith("/*")) {
+        return file.type.startsWith(type.replace("/*", "/"));
       }
-      return file.type === type
-    })
+      return file.type === type;
+    });
     if (!allowed) {
-      return { allowed: false, reason: 'This file type is not allowed' }
+      return { allowed: false, reason: "This file type is not allowed" };
     }
   }
 
@@ -540,26 +552,37 @@ export function isFileTypeAllowed(
     return {
       allowed: false,
       reason: `File is too large. Maximum size is ${formatFileSize(settings.maxFileSize)}`,
-    }
+    };
   }
 
-  return { allowed: true }
+  return { allowed: true };
 }
 
 /**
  * Get file icon name based on MIME type.
  */
 export function getFileIcon(mimeType: string): string {
-  if (mimeType.startsWith('image/')) return 'image'
-  if (mimeType.startsWith('video/')) return 'video'
-  if (mimeType.startsWith('audio/')) return 'audio'
-  if (mimeType.includes('pdf')) return 'file-pdf'
-  if (mimeType.includes('word') || mimeType.includes('document')) return 'file-word'
-  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'file-excel'
-  if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return 'file-powerpoint'
-  if (mimeType.includes('zip') || mimeType.includes('compressed') || mimeType.includes('archive'))
-    return 'file-archive'
-  if (mimeType.startsWith('text/') || mimeType.includes('json') || mimeType.includes('xml'))
-    return 'file-code'
-  return 'file'
+  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType.startsWith("video/")) return "video";
+  if (mimeType.startsWith("audio/")) return "audio";
+  if (mimeType.includes("pdf")) return "file-pdf";
+  if (mimeType.includes("word") || mimeType.includes("document"))
+    return "file-word";
+  if (mimeType.includes("excel") || mimeType.includes("spreadsheet"))
+    return "file-excel";
+  if (mimeType.includes("powerpoint") || mimeType.includes("presentation"))
+    return "file-powerpoint";
+  if (
+    mimeType.includes("zip") ||
+    mimeType.includes("compressed") ||
+    mimeType.includes("archive")
+  )
+    return "file-archive";
+  if (
+    mimeType.startsWith("text/") ||
+    mimeType.includes("json") ||
+    mimeType.includes("xml")
+  )
+    return "file-code";
+  return "file";
 }

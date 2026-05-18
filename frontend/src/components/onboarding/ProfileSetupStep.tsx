@@ -1,17 +1,20 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { User } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
-import type { OnboardingStepProps, UserProfile } from '@/lib/onboarding/onboarding-types'
+import { useState, useEffect } from "react";
+import { User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import type {
+  OnboardingStepProps,
+  UserProfile,
+} from "@/lib/onboarding/onboarding-types";
 
 interface ProfileSetupStepProps extends OnboardingStepProps {
-  initialData?: Partial<UserProfile>
-  onDataChange?: (data: Partial<UserProfile>) => void
+  initialData?: Partial<UserProfile>;
+  onDataChange?: (data: Partial<UserProfile>) => void;
 }
 
 export function ProfileSetupStep({
@@ -24,51 +27,51 @@ export function ProfileSetupStep({
   onDataChange,
 }: ProfileSetupStepProps) {
   const [formData, setFormData] = useState<Partial<UserProfile>>({
-    displayName: '',
-    fullName: '',
-    bio: '',
-    title: '',
-    department: '',
+    displayName: "",
+    fullName: "",
+    bio: "",
+    title: "",
+    department: "",
     ...initialData,
-  })
+  });
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (field: keyof UserProfile, value: string) => {
-    const newData = { ...formData, [field]: value }
-    setFormData(newData)
-    onDataChange?.(newData)
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+    onDataChange?.(newData);
 
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => {
-        const next = { ...prev }
-        delete next[field]
-        return next
-      })
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
     }
-  }
+  };
 
   const validate = (): boolean => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!formData.displayName?.trim()) {
-      newErrors.displayName = 'Display name is required'
+      newErrors.displayName = "Display name is required";
     } else if (formData.displayName.length < 2) {
-      newErrors.displayName = 'Display name must be at least 2 characters'
+      newErrors.displayName = "Display name must be at least 2 characters";
     } else if (formData.displayName.length > 50) {
-      newErrors.displayName = 'Display name must be less than 50 characters'
+      newErrors.displayName = "Display name must be less than 50 characters";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleNext = () => {
     if (validate()) {
-      onNext()
+      onNext();
     }
-  }
+  };
 
   return (
     <div className="flex flex-col px-4 py-6">
@@ -96,12 +99,16 @@ export function ProfileSetupStep({
           <Input
             id="displayName"
             placeholder="How you want to be called"
-            value={formData.displayName || ''}
-            onChange={(e) => handleChange('displayName', e.target.value)}
-            className={cn(errors.displayName && 'border-red-500')}
+            value={formData.displayName || ""}
+            onChange={(e) => handleChange("displayName", e.target.value)}
+            className={cn(errors.displayName && "border-red-500")}
           />
-          {errors.displayName && <p className="text-sm text-red-500">{errors.displayName}</p>}
-          <p className="text-xs text-zinc-500">This is how you'll appear to others</p>
+          {errors.displayName && (
+            <p className="text-sm text-red-500">{errors.displayName}</p>
+          )}
+          <p className="text-xs text-zinc-500">
+            This is how you'll appear to others
+          </p>
         </div>
 
         {/* Full Name - Optional */}
@@ -110,8 +117,8 @@ export function ProfileSetupStep({
           <Input
             id="fullName"
             placeholder="Your full name"
-            value={formData.fullName || ''}
-            onChange={(e) => handleChange('fullName', e.target.value)}
+            value={formData.fullName || ""}
+            onChange={(e) => handleChange("fullName", e.target.value)}
           />
         </div>
 
@@ -121,8 +128,8 @@ export function ProfileSetupStep({
           <Input
             id="title"
             placeholder="e.g., Software Engineer, Product Manager"
-            value={formData.title || ''}
-            onChange={(e) => handleChange('title', e.target.value)}
+            value={formData.title || ""}
+            onChange={(e) => handleChange("title", e.target.value)}
           />
         </div>
 
@@ -132,8 +139,8 @@ export function ProfileSetupStep({
           <Input
             id="department"
             placeholder="e.g., Engineering, Marketing"
-            value={formData.department || ''}
-            onChange={(e) => handleChange('department', e.target.value)}
+            value={formData.department || ""}
+            onChange={(e) => handleChange("department", e.target.value)}
           />
         </div>
 
@@ -143,12 +150,14 @@ export function ProfileSetupStep({
           <Textarea
             id="bio"
             placeholder="A short description about yourself"
-            value={formData.bio || ''}
-            onChange={(e) => handleChange('bio', e.target.value)}
+            value={formData.bio || ""}
+            onChange={(e) => handleChange("bio", e.target.value)}
             rows={3}
             className="resize-none"
           />
-          <p className="text-xs text-zinc-500">{formData.bio?.length || 0}/200 characters</p>
+          <p className="text-xs text-zinc-500">
+            {formData.bio?.length || 0}/200 characters
+          </p>
         </div>
       </div>
 
@@ -172,5 +181,5 @@ export function ProfileSetupStep({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 /**
  * Direct Messages GraphQL operations
@@ -20,7 +20,7 @@ const DM_USER_FRAGMENT = gql`
     statusEmoji: status_emoji
     lastSeenAt: last_seen_at
   }
-`
+`;
 
 const DM_PARTICIPANT_FRAGMENT = gql`
   fragment DMParticipant on nchat_dm_participants {
@@ -39,7 +39,7 @@ const DM_PARTICIPANT_FRAGMENT = gql`
     }
   }
   ${DM_USER_FRAGMENT}
-`
+`;
 
 const DM_FRAGMENT = gql`
   fragment DirectMessage on nchat_direct_messages {
@@ -65,7 +65,7 @@ const DM_FRAGMENT = gql`
     }
   }
   ${DM_PARTICIPANT_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // Queries
@@ -82,16 +82,22 @@ export const GET_OR_CREATE_DM = gql`
         slug: ""
         created_by: $userId1
         participants: {
-          data: [{ user_id: $userId1, role: "member" }, { user_id: $userId2, role: "member" }]
+          data: [
+            { user_id: $userId1, role: "member" }
+            { user_id: $userId2, role: "member" }
+          ]
         }
       }
-      on_conflict: { constraint: nchat_direct_messages_participants_unique, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_direct_messages_participants_unique
+        update_columns: []
+      }
     ) {
       ...DirectMessage
     }
   }
   ${DM_FRAGMENT}
-`
+`;
 
 /**
  * Find existing DM between two users
@@ -110,7 +116,7 @@ export const FIND_DM_BY_PARTICIPANTS = gql`
     }
   }
   ${DM_FRAGMENT}
-`
+`;
 
 /**
  * Get all DMs for a user
@@ -132,7 +138,7 @@ export const GET_USER_DMS = gql`
     }
   }
   ${DM_FRAGMENT}
-`
+`;
 
 /**
  * Get a single DM by ID
@@ -144,7 +150,7 @@ export const GET_DM = gql`
     }
   }
   ${DM_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // Mutations
@@ -176,22 +182,32 @@ export const CREATE_GROUP_DM = gql`
     }
   }
   ${DM_FRAGMENT}
-`
+`;
 
 /**
  * Update DM
  */
 export const UPDATE_DM = gql`
-  mutation UpdateDM($dmId: uuid!, $name: String, $description: String, $avatarUrl: String) {
+  mutation UpdateDM(
+    $dmId: uuid!
+    $name: String
+    $description: String
+    $avatarUrl: String
+  ) {
     update_nchat_direct_messages_by_pk(
       pk_columns: { id: $dmId }
-      _set: { name: $name, description: $description, avatar_url: $avatarUrl, updated_at: "now()" }
+      _set: {
+        name: $name
+        description: $description
+        avatar_url: $avatarUrl
+        updated_at: "now()"
+      }
     ) {
       ...DirectMessage
     }
   }
   ${DM_FRAGMENT}
-`
+`;
 
 /**
  * Archive DM
@@ -208,7 +224,7 @@ export const ARCHIVE_DM = gql`
       archivedBy: archived_by
     }
   }
-`
+`;
 
 /**
  * Mark DM as read
@@ -227,7 +243,7 @@ export const MARK_DM_AS_READ = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Update notification settings for a DM
@@ -242,7 +258,11 @@ export const UPDATE_DM_NOTIFICATIONS = gql`
   ) {
     update_nchat_dm_participants(
       where: { dm_id: { _eq: $dmId }, user_id: { _eq: $userId } }
-      _set: { notification_setting: $setting, is_muted: $isMuted, muted_until: $mutedUntil }
+      _set: {
+        notification_setting: $setting
+        is_muted: $isMuted
+        muted_until: $mutedUntil
+      }
     ) {
       affected_rows
       returning {
@@ -253,7 +273,7 @@ export const UPDATE_DM_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Subscriptions
@@ -269,7 +289,7 @@ export const DM_SUBSCRIPTION = gql`
     }
   }
   ${DM_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to user's DMs
@@ -289,4 +309,4 @@ export const USER_DMS_SUBSCRIPTION = gql`
     }
   }
   ${DM_FRAGMENT}
-`
+`;

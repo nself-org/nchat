@@ -1,18 +1,23 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { UserAvatarGroup } from '@/components/user/user-avatar'
-import { Skeleton } from '@/components/ui/skeleton'
+} from "@/components/ui/dropdown-menu";
+import { UserAvatarGroup } from "@/components/user/user-avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Hash,
   Lock,
@@ -29,29 +34,29 @@ import {
   MoreVertical,
   ChevronDown,
   Info,
-} from 'lucide-react'
-import type { Channel } from '@/stores/channel-store'
-import type { UserProfile } from '@/stores/user-store'
+} from "lucide-react";
+import type { Channel } from "@/stores/channel-store";
+import type { UserProfile } from "@/stores/user-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChannelHeaderProps {
-  channel?: Channel | null
-  loading?: boolean
-  members?: Pick<UserProfile, 'id' | 'avatarUrl' | 'displayName'>[]
-  isMuted?: boolean
-  isStarred?: boolean
-  onToggleMute?: () => void
-  onToggleStar?: () => void
-  onOpenSettings?: () => void
-  onOpenSearch?: () => void
-  onOpenPinnedMessages?: () => void
-  onOpenMemberList?: () => void
-  onStartCall?: () => void
-  onStartVideoCall?: () => void
-  className?: string
+  channel?: Channel | null;
+  loading?: boolean;
+  members?: Pick<UserProfile, "id" | "avatarUrl" | "displayName">[];
+  isMuted?: boolean;
+  isStarred?: boolean;
+  onToggleMute?: () => void;
+  onToggleStar?: () => void;
+  onOpenSettings?: () => void;
+  onOpenSearch?: () => void;
+  onOpenPinnedMessages?: () => void;
+  onOpenMemberList?: () => void;
+  onStartCall?: () => void;
+  onStartVideoCall?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -63,17 +68,17 @@ function ChannelIcon({
   name,
   className,
 }: {
-  type: Channel['type']
-  name: string
-  className?: string
+  type: Channel["type"];
+  name: string;
+  className?: string;
 }) {
-  if (name === 'announcements') {
-    return <Megaphone className={cn('h-5 w-5', className)} />
+  if (name === "announcements") {
+    return <Megaphone className={cn("h-5 w-5", className)} />;
   }
-  if (type === 'private') {
-    return <Lock className={cn('h-5 w-5', className)} />
+  if (type === "private") {
+    return <Lock className={cn("h-5 w-5", className)} />;
   }
-  return <Hash className={cn('h-5 w-5', className)} />
+  return <Hash className={cn("h-5 w-5", className)} />;
 }
 
 // ============================================================================
@@ -95,7 +100,7 @@ function ChannelHeaderSkeleton() {
         <Skeleton className="h-8 w-8 rounded-md" />
       </div>
     </header>
-  )
+  );
 }
 
 // ============================================================================
@@ -119,15 +124,15 @@ export function ChannelHeader({
   className,
 }: ChannelHeaderProps) {
   if (loading || !channel) {
-    return <ChannelHeaderSkeleton />
+    return <ChannelHeaderSkeleton />;
   }
 
   return (
     <TooltipProvider delayDuration={300}>
       <header
         className={cn(
-          'flex h-14 items-center justify-between border-b bg-background px-4',
-          className
+          "flex h-14 items-center justify-between border-b bg-background px-4",
+          className,
         )}
       >
         {/* Left Section: Channel Info */}
@@ -143,7 +148,9 @@ export function ChannelHeader({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="-ml-1 flex min-w-0 items-center gap-1 rounded-md px-1 py-0.5 transition-colors hover:bg-accent">
-                <h1 className="truncate text-lg font-semibold">{channel.name}</h1>
+                <h1 className="truncate text-lg font-semibold">
+                  {channel.name}
+                </h1>
                 <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
               </button>
             </DropdownMenuTrigger>
@@ -172,9 +179,12 @@ export function ChannelHeader({
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onToggleStar}>
                 <Star
-                  className={cn('mr-2 h-4 w-4', isStarred && 'fill-yellow-500 text-yellow-500')}
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    isStarred && "fill-yellow-500 text-yellow-500",
+                  )}
                 />
-                {isStarred ? 'Unstar channel' : 'Star channel'}
+                {isStarred ? "Unstar channel" : "Star channel"}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onOpenSettings}>
@@ -218,7 +228,9 @@ export function ChannelHeader({
                     size="xs"
                     onOverflowClick={onOpenMemberList}
                   />
-                  <span className="text-sm text-muted-foreground">{channel.memberCount}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {channel.memberCount}
+                  </span>
                 </button>
               </TooltipTrigger>
               <TooltipContent>View members</TooltipContent>
@@ -243,7 +255,12 @@ export function ChannelHeader({
           {/* Search */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onOpenSearch}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onOpenSearch}
+              >
                 <Search className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -253,7 +270,12 @@ export function ChannelHeader({
           {/* Voice Call */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onStartCall}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onStartCall}
+              >
                 <Phone className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -263,7 +285,12 @@ export function ChannelHeader({
           {/* Video Call */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onStartVideoCall}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onStartVideoCall}
+              >
                 <Video className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -280,9 +307,12 @@ export function ChannelHeader({
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem onClick={onToggleStar}>
                 <Star
-                  className={cn('mr-2 h-4 w-4', isStarred && 'fill-yellow-500 text-yellow-500')}
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    isStarred && "fill-yellow-500 text-yellow-500",
+                  )}
                 />
-                {isStarred ? 'Unstar' : 'Star'}
+                {isStarred ? "Unstar" : "Star"}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onToggleMute}>
                 {isMuted ? (
@@ -307,7 +337,7 @@ export function ChannelHeader({
         </div>
       </header>
     </TooltipProvider>
-  )
+  );
 }
 
 // ============================================================================
@@ -315,12 +345,12 @@ export function ChannelHeader({
 // ============================================================================
 
 interface DMHeaderProps {
-  user?: UserProfile | null
-  loading?: boolean
-  onOpenProfile?: () => void
-  onStartCall?: () => void
-  onStartVideoCall?: () => void
-  className?: string
+  user?: UserProfile | null;
+  loading?: boolean;
+  onOpenProfile?: () => void;
+  onStartCall?: () => void;
+  onStartVideoCall?: () => void;
+  className?: string;
 }
 
 export function DMHeader({
@@ -332,15 +362,15 @@ export function DMHeader({
   className,
 }: DMHeaderProps) {
   if (loading || !user) {
-    return <ChannelHeaderSkeleton />
+    return <ChannelHeaderSkeleton />;
   }
 
   return (
     <TooltipProvider delayDuration={300}>
       <header
         className={cn(
-          'flex h-14 items-center justify-between border-b bg-background px-4',
-          className
+          "flex h-14 items-center justify-between border-b bg-background px-4",
+          className,
         )}
       >
         {/* Left Section: User Info */}
@@ -364,11 +394,11 @@ export function DMHeader({
               {/* Presence indicator */}
               <div
                 className={cn(
-                  'absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background',
-                  user.presence === 'online' && 'bg-green-500',
-                  user.presence === 'away' && 'bg-yellow-500',
-                  user.presence === 'dnd' && 'bg-red-500',
-                  user.presence === 'offline' && 'bg-gray-400'
+                  "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background",
+                  user.presence === "online" && "bg-green-500",
+                  user.presence === "away" && "bg-yellow-500",
+                  user.presence === "dnd" && "bg-red-500",
+                  user.presence === "offline" && "bg-gray-400",
                 )}
               />
             </div>
@@ -387,7 +417,12 @@ export function DMHeader({
         <div className="flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onStartCall}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onStartCall}
+              >
                 <Phone className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -396,7 +431,12 @@ export function DMHeader({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onStartVideoCall}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onStartVideoCall}
+              >
                 <Video className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -405,7 +445,12 @@ export function DMHeader({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onOpenProfile}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onOpenProfile}
+              >
                 <Info className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -414,7 +459,7 @@ export function DMHeader({
         </div>
       </header>
     </TooltipProvider>
-  )
+  );
 }
 
-export { ChannelHeaderSkeleton }
+export { ChannelHeaderSkeleton };

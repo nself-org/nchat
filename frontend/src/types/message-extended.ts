@@ -18,10 +18,16 @@
  * - Message states (sending, sent, delivered, read, failed)
  */
 
-import type { Message, MessageUser, Reaction, Attachment, LinkPreview } from './message'
-import type { Poll } from './poll'
-import type { Sticker } from './sticker'
-import type { UserBasicInfo } from './user'
+import type {
+  Message,
+  MessageUser,
+  Reaction,
+  Attachment,
+  LinkPreview,
+} from "./message";
+import type { Poll } from "./poll";
+import type { Sticker } from "./sticker";
+import type { UserBasicInfo } from "./user";
 
 // ============================================================================
 // EXTENDED MESSAGE TYPES
@@ -32,72 +38,72 @@ import type { UserBasicInfo } from './user'
  */
 export type ExtendedMessageType =
   // Content messages
-  | 'text'
-  | 'rich_text'
-  | 'code_block'
-  | 'markdown'
+  | "text"
+  | "rich_text"
+  | "code_block"
+  | "markdown"
   // Media messages
-  | 'image'
-  | 'video'
-  | 'audio'
-  | 'voice'
-  | 'gif'
+  | "image"
+  | "video"
+  | "audio"
+  | "voice"
+  | "gif"
   // File messages
-  | 'file'
-  | 'document'
-  | 'archive'
+  | "file"
+  | "document"
+  | "archive"
   // Interactive messages
-  | 'poll'
-  | 'quiz'
-  | 'sticker'
+  | "poll"
+  | "quiz"
+  | "sticker"
   // Location and contact
-  | 'location'
-  | 'live_location'
-  | 'contact'
-  | 'contact_card'
+  | "location"
+  | "live_location"
+  | "contact"
+  | "contact_card"
   // Forwarding
-  | 'forward'
-  | 'quote'
+  | "forward"
+  | "quote"
   // System messages
-  | 'system'
-  | 'user_joined'
-  | 'user_left'
-  | 'user_added'
-  | 'user_removed'
-  | 'user_banned'
-  | 'user_unbanned'
-  | 'user_muted'
-  | 'user_unmuted'
-  | 'role_assigned'
-  | 'role_removed'
-  | 'channel_created'
-  | 'channel_renamed'
-  | 'channel_archived'
-  | 'channel_unarchived'
-  | 'channel_deleted'
-  | 'topic_changed'
-  | 'description_changed'
-  | 'icon_changed'
-  | 'message_pinned'
-  | 'message_unpinned'
-  | 'call_started'
-  | 'call_ended'
-  | 'call_missed'
-  | 'screen_share_started'
-  | 'screen_share_ended'
-  | 'recording_started'
-  | 'recording_stopped'
-  | 'thread_created'
-  | 'thread_resolved'
-  | 'integration'
-  | 'bot_message'
-  | 'webhook_message'
+  | "system"
+  | "user_joined"
+  | "user_left"
+  | "user_added"
+  | "user_removed"
+  | "user_banned"
+  | "user_unbanned"
+  | "user_muted"
+  | "user_unmuted"
+  | "role_assigned"
+  | "role_removed"
+  | "channel_created"
+  | "channel_renamed"
+  | "channel_archived"
+  | "channel_unarchived"
+  | "channel_deleted"
+  | "topic_changed"
+  | "description_changed"
+  | "icon_changed"
+  | "message_pinned"
+  | "message_unpinned"
+  | "call_started"
+  | "call_ended"
+  | "call_missed"
+  | "screen_share_started"
+  | "screen_share_ended"
+  | "recording_started"
+  | "recording_stopped"
+  | "thread_created"
+  | "thread_resolved"
+  | "integration"
+  | "bot_message"
+  | "webhook_message"
   // Moderation
-  | 'message_deleted'
-  | 'message_edited_by_mod'
-  | 'auto_moderation'
-  | 'spam_detected'
-  | 'warning_issued'
+  | "message_deleted"
+  | "message_edited_by_mod"
+  | "auto_moderation"
+  | "spam_detected"
+  | "warning_issued";
 
 // ============================================================================
 // LOCATION MESSAGE TYPES
@@ -108,19 +114,19 @@ export type ExtendedMessageType =
  */
 export interface GeoLocation {
   /** Latitude coordinate */
-  latitude: number
+  latitude: number;
   /** Longitude coordinate */
-  longitude: number
+  longitude: number;
   /** Location accuracy in meters */
-  accuracy?: number
+  accuracy?: number;
   /** Altitude in meters */
-  altitude?: number
+  altitude?: number;
   /** Altitude accuracy in meters */
-  altitudeAccuracy?: number
+  altitudeAccuracy?: number;
   /** Heading/bearing in degrees */
-  heading?: number
+  heading?: number;
   /** Speed in m/s */
-  speed?: number
+  speed?: number;
 }
 
 /**
@@ -128,21 +134,21 @@ export interface GeoLocation {
  */
 export interface LocationMessageData {
   /** Location coordinates */
-  location: GeoLocation
+  location: GeoLocation;
   /** Display name for the location */
-  name?: string
+  name?: string;
   /** Address string */
-  address?: string
+  address?: string;
   /** Venue/place name */
-  venue?: string
+  venue?: string;
   /** Venue type/category */
-  venueType?: string
+  venueType?: string;
   /** Google/Apple Maps place ID */
-  placeId?: string
+  placeId?: string;
   /** Static map image URL */
-  staticMapUrl?: string
+  staticMapUrl?: string;
   /** Map zoom level */
-  zoomLevel?: number
+  zoomLevel?: number;
 }
 
 /**
@@ -150,17 +156,17 @@ export interface LocationMessageData {
  */
 export interface LiveLocationData extends LocationMessageData {
   /** When sharing started */
-  startedAt: Date
+  startedAt: Date;
   /** Duration in seconds (how long to share) */
-  duration: number
+  duration: number;
   /** When sharing expires */
-  expiresAt: Date
+  expiresAt: Date;
   /** Last updated timestamp */
-  lastUpdatedAt: Date
+  lastUpdatedAt: Date;
   /** Whether sharing is still active */
-  isActive: boolean
+  isActive: boolean;
   /** Update interval in seconds */
-  updateInterval?: number
+  updateInterval?: number;
 }
 
 // ============================================================================
@@ -172,11 +178,11 @@ export interface LiveLocationData extends LocationMessageData {
  */
 export interface ContactPhone {
   /** Phone type */
-  type: 'mobile' | 'home' | 'work' | 'fax' | 'other'
+  type: "mobile" | "home" | "work" | "fax" | "other";
   /** Phone number */
-  number: string
+  number: string;
   /** Is primary */
-  isPrimary?: boolean
+  isPrimary?: boolean;
 }
 
 /**
@@ -184,11 +190,11 @@ export interface ContactPhone {
  */
 export interface ContactEmail {
   /** Email type */
-  type: 'personal' | 'work' | 'other'
+  type: "personal" | "work" | "other";
   /** Email address */
-  email: string
+  email: string;
   /** Is primary */
-  isPrimary?: boolean
+  isPrimary?: boolean;
 }
 
 /**
@@ -196,19 +202,19 @@ export interface ContactEmail {
  */
 export interface ContactAddress {
   /** Address type */
-  type: 'home' | 'work' | 'other'
+  type: "home" | "work" | "other";
   /** Street address */
-  street?: string
+  street?: string;
   /** City */
-  city?: string
+  city?: string;
   /** State/Province */
-  state?: string
+  state?: string;
   /** Postal/ZIP code */
-  postalCode?: string
+  postalCode?: string;
   /** Country */
-  country?: string
+  country?: string;
   /** Full formatted address */
-  formatted?: string
+  formatted?: string;
 }
 
 /**
@@ -216,37 +222,37 @@ export interface ContactAddress {
  */
 export interface ContactCardData {
   /** Contact ID (if internal user) */
-  userId?: string
+  userId?: string;
   /** First name */
-  firstName: string
+  firstName: string;
   /** Last name */
-  lastName?: string
+  lastName?: string;
   /** Full display name */
-  displayName: string
+  displayName: string;
   /** Nickname */
-  nickname?: string
+  nickname?: string;
   /** Company/Organization */
-  organization?: string
+  organization?: string;
   /** Job title */
-  jobTitle?: string
+  jobTitle?: string;
   /** Department */
-  department?: string
+  department?: string;
   /** Avatar/photo URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Phone numbers */
-  phones?: ContactPhone[]
+  phones?: ContactPhone[];
   /** Email addresses */
-  emails?: ContactEmail[]
+  emails?: ContactEmail[];
   /** Addresses */
-  addresses?: ContactAddress[]
+  addresses?: ContactAddress[];
   /** Website URLs */
-  websites?: string[]
+  websites?: string[];
   /** Birthday */
-  birthday?: Date
+  birthday?: Date;
   /** Notes */
-  notes?: string
+  notes?: string;
   /** vCard string (for export) */
-  vCard?: string
+  vCard?: string;
 }
 
 // ============================================================================
@@ -257,30 +263,30 @@ export interface ContactCardData {
  * Forwarding modes.
  */
 export type ForwardingMode =
-  | 'forward' // Regular forward with attribution
-  | 'copy' // Copy without attribution
-  | 'quote' // Quote with reply context
+  | "forward" // Regular forward with attribution
+  | "copy" // Copy without attribution
+  | "quote"; // Quote with reply context
 
 /**
  * Forward attribution data.
  */
 export interface ForwardAttribution {
   /** Original message ID */
-  originalMessageId: string
+  originalMessageId: string;
   /** Original channel ID */
-  originalChannelId: string
+  originalChannelId: string;
   /** Original channel name */
-  originalChannelName?: string
+  originalChannelName?: string;
   /** Original author */
-  originalAuthor: MessageUser
+  originalAuthor: MessageUser;
   /** When the original was sent */
-  originalSentAt: Date
+  originalSentAt: Date;
   /** Chain of forwards (for multi-hop) */
-  forwardChain?: ForwardChainEntry[]
+  forwardChain?: ForwardChainEntry[];
   /** Forward mode used */
-  mode: ForwardingMode
+  mode: ForwardingMode;
   /** Whether original is still accessible */
-  isOriginalAccessible?: boolean
+  isOriginalAccessible?: boolean;
 }
 
 /**
@@ -288,13 +294,13 @@ export interface ForwardAttribution {
  */
 export interface ForwardChainEntry {
   /** Message ID in chain */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Who forwarded */
-  forwardedBy: MessageUser
+  forwardedBy: MessageUser;
   /** When forwarded */
-  forwardedAt: Date
+  forwardedAt: Date;
 }
 
 /**
@@ -302,15 +308,15 @@ export interface ForwardChainEntry {
  */
 export interface ForwardDestination {
   /** Destination type */
-  type: 'channel' | 'user' | 'thread'
+  type: "channel" | "user" | "thread";
   /** Destination ID */
-  id: string
+  id: string;
   /** Destination name */
-  name: string
+  name: string;
   /** Is private */
-  isPrivate?: boolean
+  isPrivate?: boolean;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
 }
 
 /**
@@ -318,15 +324,15 @@ export interface ForwardDestination {
  */
 export interface MultiForwardRequest {
   /** Messages to forward */
-  messageIds: string[]
+  messageIds: string[];
   /** Destinations */
-  destinations: ForwardDestination[]
+  destinations: ForwardDestination[];
   /** Forward mode */
-  mode: ForwardingMode
+  mode: ForwardingMode;
   /** Optional comment */
-  comment?: string
+  comment?: string;
   /** Remove attribution (for copy mode) */
-  removeAttribution?: boolean
+  removeAttribution?: boolean;
 }
 
 // ============================================================================
@@ -337,70 +343,70 @@ export interface MultiForwardRequest {
  * Embed types for rich content.
  */
 export type EmbedType =
-  | 'link_preview'
-  | 'youtube'
-  | 'vimeo'
-  | 'twitter'
-  | 'github'
-  | 'spotify'
-  | 'soundcloud'
-  | 'twitch'
-  | 'codepen'
-  | 'codesandbox'
-  | 'figma'
-  | 'loom'
-  | 'notion'
-  | 'google_docs'
-  | 'google_sheets'
-  | 'google_slides'
-  | 'custom'
+  | "link_preview"
+  | "youtube"
+  | "vimeo"
+  | "twitter"
+  | "github"
+  | "spotify"
+  | "soundcloud"
+  | "twitch"
+  | "codepen"
+  | "codesandbox"
+  | "figma"
+  | "loom"
+  | "notion"
+  | "google_docs"
+  | "google_sheets"
+  | "google_slides"
+  | "custom";
 
 /**
  * Rich embed data.
  */
 export interface RichEmbed {
   /** Embed type */
-  type: EmbedType
+  type: EmbedType;
   /** Original URL */
-  url: string
+  url: string;
   /** Title */
-  title?: string
+  title?: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Thumbnail URL */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** Thumbnail dimensions */
-  thumbnailWidth?: number
-  thumbnailHeight?: number
+  thumbnailWidth?: number;
+  thumbnailHeight?: number;
   /** Provider name (YouTube, Twitter, etc.) */
-  provider?: string
+  provider?: string;
   /** Provider icon URL */
-  providerIcon?: string
+  providerIcon?: string;
   /** Author name */
-  author?: string
+  author?: string;
   /** Author URL */
-  authorUrl?: string
+  authorUrl?: string;
   /** Author icon */
-  authorIcon?: string
+  authorIcon?: string;
   /** Embed color (hex) */
-  color?: string
+  color?: string;
   /** Video URL (for video embeds) */
-  videoUrl?: string
+  videoUrl?: string;
   /** Video dimensions */
-  videoWidth?: number
-  videoHeight?: number
+  videoWidth?: number;
+  videoHeight?: number;
   /** Audio URL (for audio embeds) */
-  audioUrl?: string
+  audioUrl?: string;
   /** Embed HTML (for custom embeds) */
-  html?: string
+  html?: string;
   /** Additional fields */
-  fields?: EmbedField[]
+  fields?: EmbedField[];
   /** Footer text */
-  footer?: string
+  footer?: string;
   /** Footer icon */
-  footerIcon?: string
+  footerIcon?: string;
   /** Timestamp */
-  timestamp?: Date
+  timestamp?: Date;
 }
 
 /**
@@ -408,11 +414,11 @@ export interface RichEmbed {
  */
 export interface EmbedField {
   /** Field name */
-  name: string
+  name: string;
   /** Field value */
-  value: string
+  value: string;
   /** Display inline */
-  inline?: boolean
+  inline?: boolean;
 }
 
 /**
@@ -420,21 +426,21 @@ export interface EmbedField {
  */
 export interface CodeBlockData {
   /** Programming language */
-  language?: string
+  language?: string;
   /** Code content */
-  code: string
+  code: string;
   /** Filename (if applicable) */
-  filename?: string
+  filename?: string;
   /** Line numbers to highlight */
-  highlightLines?: number[]
+  highlightLines?: number[];
   /** Starting line number */
-  startLine?: number
+  startLine?: number;
   /** Show line numbers */
-  showLineNumbers?: boolean
+  showLineNumbers?: boolean;
   /** Enable copy button */
-  enableCopy?: boolean
+  enableCopy?: boolean;
   /** GitHub/GitLab URL (if from repo) */
-  sourceUrl?: string
+  sourceUrl?: string;
 }
 
 /**
@@ -442,11 +448,11 @@ export interface CodeBlockData {
  */
 export interface MathContentData {
   /** LaTeX/KaTeX expression */
-  expression: string
+  expression: string;
   /** Display mode (block vs inline) */
-  displayMode: boolean
+  displayMode: boolean;
   /** Already rendered HTML */
-  renderedHtml?: string
+  renderedHtml?: string;
 }
 
 /**
@@ -454,15 +460,15 @@ export interface MathContentData {
  */
 export interface CustomEmoji {
   /** Emoji ID */
-  id: string
+  id: string;
   /** Emoji name */
-  name: string
+  name: string;
   /** Emoji URL */
-  url: string
+  url: string;
   /** Is animated */
-  animated?: boolean
+  animated?: boolean;
   /** Pack ID */
-  packId?: string
+  packId?: string;
 }
 
 // ============================================================================
@@ -473,47 +479,47 @@ export interface CustomEmoji {
  * Message delivery status.
  */
 export type MessageDeliveryStatus =
-  | 'pending' // Client-side only, not sent yet
-  | 'sending' // Being sent to server
-  | 'sent' // Server received
-  | 'delivered' // Delivered to recipients
-  | 'read' // Read by recipients
-  | 'failed' // Failed to send
-  | 'expired' // Ephemeral message expired
+  | "pending" // Client-side only, not sent yet
+  | "sending" // Being sent to server
+  | "sent" // Server received
+  | "delivered" // Delivered to recipients
+  | "read" // Read by recipients
+  | "failed" // Failed to send
+  | "expired"; // Ephemeral message expired
 
 /**
  * Detailed delivery info for a message.
  */
 export interface MessageDeliveryInfo {
   /** Current status */
-  status: MessageDeliveryStatus
+  status: MessageDeliveryStatus;
   /** When queued for sending */
-  queuedAt?: Date
+  queuedAt?: Date;
   /** When sent to server */
-  sentAt?: Date
+  sentAt?: Date;
   /** When server confirmed receipt */
-  serverReceivedAt?: Date
+  serverReceivedAt?: Date;
   /** When delivered to first recipient */
-  firstDeliveredAt?: Date
+  firstDeliveredAt?: Date;
   /** When all recipients received */
-  allDeliveredAt?: Date
+  allDeliveredAt?: Date;
   /** When first read */
-  firstReadAt?: Date
+  firstReadAt?: Date;
   /** When all read */
-  allReadAt?: Date
+  allReadAt?: Date;
   /** Error info if failed */
   error?: {
-    code: string
-    message: string
-    retryable: boolean
-    retryCount: number
-    lastRetryAt?: Date
-  }
+    code: string;
+    message: string;
+    retryable: boolean;
+    retryCount: number;
+    lastRetryAt?: Date;
+  };
   /** Ephemeral expiry info */
   ephemeral?: {
-    expiresAt: Date
-    ttlSeconds: number
-  }
+    expiresAt: Date;
+    ttlSeconds: number;
+  };
 }
 
 /**
@@ -521,13 +527,13 @@ export interface MessageDeliveryInfo {
  */
 export interface ReadReceipt {
   /** User ID */
-  userId: string
+  userId: string;
   /** User info */
-  user: MessageUser
+  user: MessageUser;
   /** When read */
-  readAt: Date
+  readAt: Date;
   /** Device info */
-  device?: string
+  device?: string;
 }
 
 /**
@@ -535,37 +541,37 @@ export interface ReadReceipt {
  */
 export interface MessageStateFlags {
   /** Is sending */
-  isSending: boolean
+  isSending: boolean;
   /** Is sent */
-  isSent: boolean
+  isSent: boolean;
   /** Is delivered */
-  isDelivered: boolean
+  isDelivered: boolean;
   /** Is read by at least one recipient */
-  isRead: boolean
+  isRead: boolean;
   /** Send failed */
-  isFailed: boolean
+  isFailed: boolean;
   /** Is edited */
-  isEdited: boolean
+  isEdited: boolean;
   /** Is deleted */
-  isDeleted: boolean
+  isDeleted: boolean;
   /** Is pinned */
-  isPinned: boolean
+  isPinned: boolean;
   /** Is bookmarked (by current user) */
-  isBookmarked: boolean
+  isBookmarked: boolean;
   /** Is highlighted (search result, etc.) */
-  isHighlighted: boolean
+  isHighlighted: boolean;
   /** Is ephemeral */
-  isEphemeral: boolean
+  isEphemeral: boolean;
   /** Is encrypted */
-  isEncrypted: boolean
+  isEncrypted: boolean;
   /** Is forwarded */
-  isForwarded: boolean
+  isForwarded: boolean;
   /** Is reply */
-  isReply: boolean
+  isReply: boolean;
   /** Is in thread */
-  isThreadReply: boolean
+  isThreadReply: boolean;
   /** Is thread root */
-  isThreadRoot: boolean
+  isThreadRoot: boolean;
 }
 
 // ============================================================================
@@ -577,68 +583,68 @@ export interface MessageStateFlags {
  */
 export interface ExtendedMessage extends Message {
   /** Extended message type */
-  extendedType?: ExtendedMessageType
+  extendedType?: ExtendedMessageType;
 
   // ===== Location Data =====
   /** Location message data */
-  locationData?: LocationMessageData
+  locationData?: LocationMessageData;
   /** Live location data */
-  liveLocationData?: LiveLocationData
+  liveLocationData?: LiveLocationData;
 
   // ===== Contact Data =====
   /** Contact card data */
-  contactData?: ContactCardData
+  contactData?: ContactCardData;
 
   // ===== Forward Data =====
   /** Forward attribution */
-  forwardAttribution?: ForwardAttribution
+  forwardAttribution?: ForwardAttribution;
   /** Forward destinations (for multi-forward) */
-  forwardDestinations?: ForwardDestination[]
+  forwardDestinations?: ForwardDestination[];
 
   // ===== Rich Content =====
   /** Rich embeds */
-  embeds?: RichEmbed[]
+  embeds?: RichEmbed[];
   /** Code blocks */
-  codeBlocks?: CodeBlockData[]
+  codeBlocks?: CodeBlockData[];
   /** Math/LaTeX content */
-  mathContent?: MathContentData[]
+  mathContent?: MathContentData[];
   /** Custom emojis used */
-  customEmojis?: CustomEmoji[]
+  customEmojis?: CustomEmoji[];
 
   // ===== Poll/Sticker Data =====
   /** Poll data (if poll message) */
-  poll?: Poll
+  poll?: Poll;
   /** Sticker data (if sticker message) */
-  sticker?: Sticker
+  sticker?: Sticker;
 
   // ===== GIF Data =====
   /** GIF URL */
-  gifUrl?: string
+  gifUrl?: string;
   /** GIF metadata */
   gifMetadata?: {
-    id?: string
-    width: number
-    height: number
-    previewUrl?: string
-    title?: string
-    source?: 'giphy' | 'tenor' | 'custom'
-  }
+    id?: string;
+    width: number;
+    height: number;
+    previewUrl?: string;
+    title?: string;
+    source?: "giphy" | "tenor" | "custom";
+  };
 
   // ===== Delivery & State =====
   /** Delivery info */
-  deliveryInfo?: MessageDeliveryInfo
+  deliveryInfo?: MessageDeliveryInfo;
   /** Read receipts */
-  readReceipts?: ReadReceipt[]
+  readReceipts?: ReadReceipt[];
   /** State flags */
-  stateFlags?: MessageStateFlags
+  stateFlags?: MessageStateFlags;
 
   // ===== System Message Data =====
   /** System message metadata */
-  systemData?: SystemEventData
+  systemData?: SystemEventData;
 
   // ===== Moderation =====
   /** Moderation action that affected this message */
-  moderationAction?: ModerationActionData
+  moderationAction?: ModerationActionData;
 }
 
 /**
@@ -646,27 +652,27 @@ export interface ExtendedMessage extends Message {
  */
 export interface SystemEventData {
   /** Event type */
-  eventType: ExtendedMessageType
+  eventType: ExtendedMessageType;
   /** Actor who performed the action */
-  actor?: MessageUser
+  actor?: MessageUser;
   /** Target user (if applicable) */
-  targetUser?: MessageUser
+  targetUser?: MessageUser;
   /** Target entity (channel, message, etc.) */
   targetEntity?: {
-    type: 'channel' | 'message' | 'thread' | 'role'
-    id: string
-    name?: string
-  }
+    type: "channel" | "message" | "thread" | "role";
+    id: string;
+    name?: string;
+  };
   /** Old value (for changes) */
-  oldValue?: string | Record<string, unknown>
+  oldValue?: string | Record<string, unknown>;
   /** New value (for changes) */
-  newValue?: string | Record<string, unknown>
+  newValue?: string | Record<string, unknown>;
   /** Duration (for calls) */
-  duration?: number
+  duration?: number;
   /** Participant count (for calls) */
-  participantCount?: number
+  participantCount?: number;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -674,17 +680,17 @@ export interface SystemEventData {
  */
 export interface ModerationActionData {
   /** Action type */
-  action: 'delete' | 'edit' | 'hide' | 'warn' | 'auto_mod'
+  action: "delete" | "edit" | "hide" | "warn" | "auto_mod";
   /** Moderator who took action */
-  moderator?: MessageUser
+  moderator?: MessageUser;
   /** Reason for action */
-  reason?: string
+  reason?: string;
   /** Auto-moderation rule that triggered */
-  autoModRule?: string
+  autoModRule?: string;
   /** When action was taken */
-  actionAt: Date
+  actionAt: Date;
   /** Original content (for edits) */
-  originalContent?: string
+  originalContent?: string;
 }
 
 // ============================================================================
@@ -695,23 +701,23 @@ export interface ModerationActionData {
  * Input for creating a location message.
  */
 export interface CreateLocationMessageInput {
-  channelId: string
-  location: GeoLocation
-  name?: string
-  address?: string
-  venue?: string
-  isLiveLocation?: boolean
-  liveDuration?: number // seconds
+  channelId: string;
+  location: GeoLocation;
+  name?: string;
+  address?: string;
+  venue?: string;
+  isLiveLocation?: boolean;
+  liveDuration?: number; // seconds
 }
 
 /**
  * Input for creating a contact message.
  */
 export interface CreateContactMessageInput {
-  channelId: string
-  contact: ContactCardData
+  channelId: string;
+  contact: ContactCardData;
   /** Share as vCard */
-  shareVCard?: boolean
+  shareVCard?: boolean;
 }
 
 /**
@@ -719,24 +725,24 @@ export interface CreateContactMessageInput {
  */
 export interface ForwardMessagesInput {
   /** Message IDs to forward */
-  messageIds: string[]
+  messageIds: string[];
   /** Target destinations */
-  destinations: ForwardDestination[]
+  destinations: ForwardDestination[];
   /** Forward mode */
-  mode: ForwardingMode
+  mode: ForwardingMode;
   /** Optional comment */
-  comment?: string
+  comment?: string;
 }
 
 /**
  * Input for creating a rich message with embeds.
  */
 export interface CreateRichMessageInput {
-  channelId: string
-  content: string
-  embeds?: Partial<RichEmbed>[]
-  codeBlocks?: CodeBlockData[]
-  mathContent?: MathContentData[]
+  channelId: string;
+  content: string;
+  embeds?: Partial<RichEmbed>[];
+  codeBlocks?: CodeBlockData[];
+  mathContent?: MathContentData[];
 }
 
 // ============================================================================
@@ -748,29 +754,29 @@ export interface CreateRichMessageInput {
  */
 export interface ExtendedMessageSearchFilters {
   /** Filter by extended message types */
-  messageTypes?: ExtendedMessageType[]
+  messageTypes?: ExtendedMessageType[];
   /** Has location data */
-  hasLocation?: boolean
+  hasLocation?: boolean;
   /** Has contact data */
-  hasContact?: boolean
+  hasContact?: boolean;
   /** Has poll */
-  hasPoll?: boolean
+  hasPoll?: boolean;
   /** Has sticker */
-  hasSticker?: boolean
+  hasSticker?: boolean;
   /** Has GIF */
-  hasGif?: boolean
+  hasGif?: boolean;
   /** Has code block */
-  hasCodeBlock?: boolean
+  hasCodeBlock?: boolean;
   /** Has embed */
-  hasEmbed?: boolean
+  hasEmbed?: boolean;
   /** Is forwarded */
-  isForwarded?: boolean
+  isForwarded?: boolean;
   /** Is system message */
-  isSystemMessage?: boolean
+  isSystemMessage?: boolean;
   /** Programming language (for code blocks) */
-  codeLanguage?: string
+  codeLanguage?: string;
   /** Poll status */
-  pollStatus?: 'active' | 'closed'
+  pollStatus?: "active" | "closed";
 }
 
 // ============================================================================
@@ -780,101 +786,101 @@ export interface ExtendedMessageSearchFilters {
 /**
  * Export format options.
  */
-export type MessageExportFormat = 'json' | 'csv' | 'html' | 'markdown' | 'pdf'
+export type MessageExportFormat = "json" | "csv" | "html" | "markdown" | "pdf";
 
 /**
  * Message export options.
  */
 export interface MessageExportOptions {
   /** Export format */
-  format: MessageExportFormat
+  format: MessageExportFormat;
   /** Include attachments */
-  includeAttachments?: boolean
+  includeAttachments?: boolean;
   /** Include media files */
-  includeMedia?: boolean
+  includeMedia?: boolean;
   /** Include reactions */
-  includeReactions?: boolean
+  includeReactions?: boolean;
   /** Include thread replies */
-  includeThreadReplies?: boolean
+  includeThreadReplies?: boolean;
   /** Include read receipts */
-  includeReadReceipts?: boolean
+  includeReadReceipts?: boolean;
   /** Include edit history */
-  includeEditHistory?: boolean
+  includeEditHistory?: boolean;
   /** Include system messages */
-  includeSystemMessages?: boolean
+  includeSystemMessages?: boolean;
   /** Date range filter */
   dateRange?: {
-    from?: Date
-    to?: Date
-  }
+    from?: Date;
+    to?: Date;
+  };
   /** Message type filter */
-  messageTypes?: ExtendedMessageType[]
+  messageTypes?: ExtendedMessageType[];
   /** User filter */
-  userIds?: string[]
+  userIds?: string[];
   /** Max messages */
-  limit?: number
+  limit?: number;
 }
 
 /**
  * Exported message data.
  */
 export interface ExportedMessage {
-  id: string
-  type: ExtendedMessageType
-  content: string
-  contentHtml?: string
+  id: string;
+  type: ExtendedMessageType;
+  content: string;
+  contentHtml?: string;
   author: {
-    id: string
-    username: string
-    displayName: string
-  }
-  createdAt: string
-  editedAt?: string
-  isEdited: boolean
-  isForwarded: boolean
+    id: string;
+    username: string;
+    displayName: string;
+  };
+  createdAt: string;
+  editedAt?: string;
+  isEdited: boolean;
+  isForwarded: boolean;
   forwardedFrom?: {
-    channelName: string
-    authorName: string
-    originalDate: string
-  }
+    channelName: string;
+    authorName: string;
+    originalDate: string;
+  };
   attachments?: Array<{
-    type: string
-    name: string
-    url: string
-    size?: number
-  }>
+    type: string;
+    name: string;
+    url: string;
+    size?: number;
+  }>;
   reactions?: Array<{
-    emoji: string
-    count: number
-    users: string[]
-  }>
+    emoji: string;
+    count: number;
+    users: string[];
+  }>;
   poll?: {
-    question: string
+    question: string;
     options: Array<{
-      text: string
-      votes: number
-      percentage: number
-    }>
-    totalVotes: number
-    status: string
-  }
+      text: string;
+      votes: number;
+      percentage: number;
+    }>;
+    totalVotes: number;
+    status: string;
+  };
   location?: {
-    latitude: number
-    longitude: number
-    name?: string
-    address?: string
-  }
+    latitude: number;
+    longitude: number;
+    name?: string;
+    address?: string;
+  };
   contact?: {
-    name: string
-    phones?: string[]
-    emails?: string[]
-  }
-  threadReplies?: ExportedMessage[]
+    name: string;
+    phones?: string[];
+    emails?: string[];
+  };
+  threadReplies?: ExportedMessage[];
   editHistory?: Array<{
-    previousContent: string
-    editedAt: string
-    editorId: string
-  }>
+    previousContent: string;
+    editedAt: string;
+    editorId: string;
+  }>;
 }
 
 /**
@@ -882,29 +888,29 @@ export interface ExportedMessage {
  */
 export interface MessageExportResult {
   /** Export ID */
-  exportId: string
+  exportId: string;
   /** Export format */
-  format: MessageExportFormat
+  format: MessageExportFormat;
   /** Number of messages */
-  messageCount: number
+  messageCount: number;
   /** File size in bytes */
-  fileSize: number
+  fileSize: number;
   /** Download URL */
-  downloadUrl: string
+  downloadUrl: string;
   /** Expiration time */
-  expiresAt: Date
+  expiresAt: Date;
   /** Channel info */
   channel: {
-    id: string
-    name: string
-  }
+    id: string;
+    name: string;
+  };
   /** Date range */
   dateRange: {
-    from: Date
-    to: Date
-  }
+    from: Date;
+    to: Date;
+  };
   /** When export was created */
-  createdAt: Date
+  createdAt: Date;
 }
 
 // ============================================================================
@@ -915,35 +921,37 @@ export interface MessageExportResult {
  * Check if message type is a content message.
  */
 export function isContentMessage(type: ExtendedMessageType): boolean {
-  return ['text', 'rich_text', 'code_block', 'markdown'].includes(type)
+  return ["text", "rich_text", "code_block", "markdown"].includes(type);
 }
 
 /**
  * Check if message type is a media message.
  */
 export function isMediaMessage(type: ExtendedMessageType): boolean {
-  return ['image', 'video', 'audio', 'voice', 'gif'].includes(type)
+  return ["image", "video", "audio", "voice", "gif"].includes(type);
 }
 
 /**
  * Check if message type is a file message.
  */
 export function isFileMessage(type: ExtendedMessageType): boolean {
-  return ['file', 'document', 'archive'].includes(type)
+  return ["file", "document", "archive"].includes(type);
 }
 
 /**
  * Check if message type is an interactive message.
  */
 export function isInteractiveMessage(type: ExtendedMessageType): boolean {
-  return ['poll', 'quiz', 'sticker'].includes(type)
+  return ["poll", "quiz", "sticker"].includes(type);
 }
 
 /**
  * Check if message type is a location/contact message.
  */
 export function isLocationOrContactMessage(type: ExtendedMessageType): boolean {
-  return ['location', 'live_location', 'contact', 'contact_card'].includes(type)
+  return ["location", "live_location", "contact", "contact_card"].includes(
+    type,
+  );
 }
 
 /**
@@ -951,46 +959,46 @@ export function isLocationOrContactMessage(type: ExtendedMessageType): boolean {
  */
 export function isSystemMessageType(type: ExtendedMessageType): boolean {
   const systemTypes: ExtendedMessageType[] = [
-    'system',
-    'user_joined',
-    'user_left',
-    'user_added',
-    'user_removed',
-    'user_banned',
-    'user_unbanned',
-    'user_muted',
-    'user_unmuted',
-    'role_assigned',
-    'role_removed',
-    'channel_created',
-    'channel_renamed',
-    'channel_archived',
-    'channel_unarchived',
-    'channel_deleted',
-    'topic_changed',
-    'description_changed',
-    'icon_changed',
-    'message_pinned',
-    'message_unpinned',
-    'call_started',
-    'call_ended',
-    'call_missed',
-    'screen_share_started',
-    'screen_share_ended',
-    'recording_started',
-    'recording_stopped',
-    'thread_created',
-    'thread_resolved',
-    'integration',
-    'bot_message',
-    'webhook_message',
-    'message_deleted',
-    'message_edited_by_mod',
-    'auto_moderation',
-    'spam_detected',
-    'warning_issued',
-  ]
-  return systemTypes.includes(type)
+    "system",
+    "user_joined",
+    "user_left",
+    "user_added",
+    "user_removed",
+    "user_banned",
+    "user_unbanned",
+    "user_muted",
+    "user_unmuted",
+    "role_assigned",
+    "role_removed",
+    "channel_created",
+    "channel_renamed",
+    "channel_archived",
+    "channel_unarchived",
+    "channel_deleted",
+    "topic_changed",
+    "description_changed",
+    "icon_changed",
+    "message_pinned",
+    "message_unpinned",
+    "call_started",
+    "call_ended",
+    "call_missed",
+    "screen_share_started",
+    "screen_share_ended",
+    "recording_started",
+    "recording_stopped",
+    "thread_created",
+    "thread_resolved",
+    "integration",
+    "bot_message",
+    "webhook_message",
+    "message_deleted",
+    "message_edited_by_mod",
+    "auto_moderation",
+    "spam_detected",
+    "warning_issued",
+  ];
+  return systemTypes.includes(type);
 }
 
 /**
@@ -998,9 +1006,9 @@ export function isSystemMessageType(type: ExtendedMessageType): boolean {
  */
 export function isForwardableMessage(type: ExtendedMessageType): boolean {
   // System messages cannot be forwarded
-  if (isSystemMessageType(type)) return false
+  if (isSystemMessageType(type)) return false;
   // Forward messages can be re-forwarded
-  return true
+  return true;
 }
 
 /**
@@ -1008,67 +1016,67 @@ export function isForwardableMessage(type: ExtendedMessageType): boolean {
  */
 export function getMessageTypeLabel(type: ExtendedMessageType): string {
   const labels: Record<ExtendedMessageType, string> = {
-    text: 'Text',
-    rich_text: 'Rich Text',
-    code_block: 'Code',
-    markdown: 'Markdown',
-    image: 'Image',
-    video: 'Video',
-    audio: 'Audio',
-    voice: 'Voice Message',
-    gif: 'GIF',
-    file: 'File',
-    document: 'Document',
-    archive: 'Archive',
-    poll: 'Poll',
-    quiz: 'Quiz',
-    sticker: 'Sticker',
-    location: 'Location',
-    live_location: 'Live Location',
-    contact: 'Contact',
-    contact_card: 'Contact Card',
-    forward: 'Forwarded',
-    quote: 'Quoted',
-    system: 'System',
-    user_joined: 'User Joined',
-    user_left: 'User Left',
-    user_added: 'User Added',
-    user_removed: 'User Removed',
-    user_banned: 'User Banned',
-    user_unbanned: 'User Unbanned',
-    user_muted: 'User Muted',
-    user_unmuted: 'User Unmuted',
-    role_assigned: 'Role Assigned',
-    role_removed: 'Role Removed',
-    channel_created: 'Channel Created',
-    channel_renamed: 'Channel Renamed',
-    channel_archived: 'Channel Archived',
-    channel_unarchived: 'Channel Unarchived',
-    channel_deleted: 'Channel Deleted',
-    topic_changed: 'Topic Changed',
-    description_changed: 'Description Changed',
-    icon_changed: 'Icon Changed',
-    message_pinned: 'Message Pinned',
-    message_unpinned: 'Message Unpinned',
-    call_started: 'Call Started',
-    call_ended: 'Call Ended',
-    call_missed: 'Missed Call',
-    screen_share_started: 'Screen Share Started',
-    screen_share_ended: 'Screen Share Ended',
-    recording_started: 'Recording Started',
-    recording_stopped: 'Recording Stopped',
-    thread_created: 'Thread Created',
-    thread_resolved: 'Thread Resolved',
-    integration: 'Integration',
-    bot_message: 'Bot',
-    webhook_message: 'Webhook',
-    message_deleted: 'Message Deleted',
-    message_edited_by_mod: 'Edited by Mod',
-    auto_moderation: 'Auto-Moderation',
-    spam_detected: 'Spam Detected',
-    warning_issued: 'Warning',
-  }
-  return labels[type] || 'Unknown'
+    text: "Text",
+    rich_text: "Rich Text",
+    code_block: "Code",
+    markdown: "Markdown",
+    image: "Image",
+    video: "Video",
+    audio: "Audio",
+    voice: "Voice Message",
+    gif: "GIF",
+    file: "File",
+    document: "Document",
+    archive: "Archive",
+    poll: "Poll",
+    quiz: "Quiz",
+    sticker: "Sticker",
+    location: "Location",
+    live_location: "Live Location",
+    contact: "Contact",
+    contact_card: "Contact Card",
+    forward: "Forwarded",
+    quote: "Quoted",
+    system: "System",
+    user_joined: "User Joined",
+    user_left: "User Left",
+    user_added: "User Added",
+    user_removed: "User Removed",
+    user_banned: "User Banned",
+    user_unbanned: "User Unbanned",
+    user_muted: "User Muted",
+    user_unmuted: "User Unmuted",
+    role_assigned: "Role Assigned",
+    role_removed: "Role Removed",
+    channel_created: "Channel Created",
+    channel_renamed: "Channel Renamed",
+    channel_archived: "Channel Archived",
+    channel_unarchived: "Channel Unarchived",
+    channel_deleted: "Channel Deleted",
+    topic_changed: "Topic Changed",
+    description_changed: "Description Changed",
+    icon_changed: "Icon Changed",
+    message_pinned: "Message Pinned",
+    message_unpinned: "Message Unpinned",
+    call_started: "Call Started",
+    call_ended: "Call Ended",
+    call_missed: "Missed Call",
+    screen_share_started: "Screen Share Started",
+    screen_share_ended: "Screen Share Ended",
+    recording_started: "Recording Started",
+    recording_stopped: "Recording Stopped",
+    thread_created: "Thread Created",
+    thread_resolved: "Thread Resolved",
+    integration: "Integration",
+    bot_message: "Bot",
+    webhook_message: "Webhook",
+    message_deleted: "Message Deleted",
+    message_edited_by_mod: "Edited by Mod",
+    auto_moderation: "Auto-Moderation",
+    spam_detected: "Spam Detected",
+    warning_issued: "Warning",
+  };
+  return labels[type] || "Unknown";
 }
 
 /**
@@ -1076,113 +1084,117 @@ export function getMessageTypeLabel(type: ExtendedMessageType): string {
  */
 export function getMessageTypeIcon(type: ExtendedMessageType): string {
   const icons: Record<ExtendedMessageType, string> = {
-    text: 'message-square',
-    rich_text: 'text',
-    code_block: 'code',
-    markdown: 'file-text',
-    image: 'image',
-    video: 'video',
-    audio: 'music',
-    voice: 'mic',
-    gif: 'film',
-    file: 'file',
-    document: 'file-text',
-    archive: 'archive',
-    poll: 'bar-chart-2',
-    quiz: 'help-circle',
-    sticker: 'smile',
-    location: 'map-pin',
-    live_location: 'navigation',
-    contact: 'user',
-    contact_card: 'contact',
-    forward: 'corner-up-right',
-    quote: 'quote',
-    system: 'info',
-    user_joined: 'user-plus',
-    user_left: 'user-minus',
-    user_added: 'user-plus',
-    user_removed: 'user-x',
-    user_banned: 'user-x',
-    user_unbanned: 'user-check',
-    user_muted: 'volume-x',
-    user_unmuted: 'volume-2',
-    role_assigned: 'shield',
-    role_removed: 'shield-off',
-    channel_created: 'hash',
-    channel_renamed: 'edit',
-    channel_archived: 'archive',
-    channel_unarchived: 'folder-open',
-    channel_deleted: 'trash-2',
-    topic_changed: 'message-circle',
-    description_changed: 'align-left',
-    icon_changed: 'image',
-    message_pinned: 'pin',
-    message_unpinned: 'pin-off',
-    call_started: 'phone',
-    call_ended: 'phone-off',
-    call_missed: 'phone-missed',
-    screen_share_started: 'monitor',
-    screen_share_ended: 'monitor-off',
-    recording_started: 'video',
-    recording_stopped: 'video-off',
-    thread_created: 'message-circle',
-    thread_resolved: 'check-circle',
-    integration: 'plug',
-    bot_message: 'bot',
-    webhook_message: 'webhook',
-    message_deleted: 'trash',
-    message_edited_by_mod: 'edit-3',
-    auto_moderation: 'shield',
-    spam_detected: 'alert-triangle',
-    warning_issued: 'alert-circle',
-  }
-  return icons[type] || 'message-square'
+    text: "message-square",
+    rich_text: "text",
+    code_block: "code",
+    markdown: "file-text",
+    image: "image",
+    video: "video",
+    audio: "music",
+    voice: "mic",
+    gif: "film",
+    file: "file",
+    document: "file-text",
+    archive: "archive",
+    poll: "bar-chart-2",
+    quiz: "help-circle",
+    sticker: "smile",
+    location: "map-pin",
+    live_location: "navigation",
+    contact: "user",
+    contact_card: "contact",
+    forward: "corner-up-right",
+    quote: "quote",
+    system: "info",
+    user_joined: "user-plus",
+    user_left: "user-minus",
+    user_added: "user-plus",
+    user_removed: "user-x",
+    user_banned: "user-x",
+    user_unbanned: "user-check",
+    user_muted: "volume-x",
+    user_unmuted: "volume-2",
+    role_assigned: "shield",
+    role_removed: "shield-off",
+    channel_created: "hash",
+    channel_renamed: "edit",
+    channel_archived: "archive",
+    channel_unarchived: "folder-open",
+    channel_deleted: "trash-2",
+    topic_changed: "message-circle",
+    description_changed: "align-left",
+    icon_changed: "image",
+    message_pinned: "pin",
+    message_unpinned: "pin-off",
+    call_started: "phone",
+    call_ended: "phone-off",
+    call_missed: "phone-missed",
+    screen_share_started: "monitor",
+    screen_share_ended: "monitor-off",
+    recording_started: "video",
+    recording_stopped: "video-off",
+    thread_created: "message-circle",
+    thread_resolved: "check-circle",
+    integration: "plug",
+    bot_message: "bot",
+    webhook_message: "webhook",
+    message_deleted: "trash",
+    message_edited_by_mod: "edit-3",
+    auto_moderation: "shield",
+    spam_detected: "alert-triangle",
+    warning_issued: "alert-circle",
+  };
+  return icons[type] || "message-square";
 }
 
 /**
  * Convert GeoLocation to formatted address string.
  */
-export function formatLocation(location: GeoLocation, name?: string, address?: string): string {
-  if (name) return name
-  if (address) return address
-  return `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
+export function formatLocation(
+  location: GeoLocation,
+  name?: string,
+  address?: string,
+): string {
+  if (name) return name;
+  if (address) return address;
+  return `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
 }
 
 /**
  * Generate Google Maps URL for location.
  */
 export function getGoogleMapsUrl(location: GeoLocation): string {
-  return `https://www.google.com/maps?q=${location.latitude},${location.longitude}`
+  return `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
 }
 
 /**
  * Generate Apple Maps URL for location.
  */
 export function getAppleMapsUrl(location: GeoLocation): string {
-  return `https://maps.apple.com/?ll=${location.latitude},${location.longitude}`
+  return `https://maps.apple.com/?ll=${location.latitude},${location.longitude}`;
 }
 
 /**
  * Format contact name.
  */
 export function formatContactName(contact: ContactCardData): string {
-  if (contact.displayName) return contact.displayName
-  const parts = [contact.firstName, contact.lastName].filter(Boolean)
-  return parts.join(' ') || 'Unknown Contact'
+  if (contact.displayName) return contact.displayName;
+  const parts = [contact.firstName, contact.lastName].filter(Boolean);
+  return parts.join(" ") || "Unknown Contact";
 }
 
 /**
  * Get primary phone from contact.
  */
 export function getPrimaryPhone(contact: ContactCardData): string | undefined {
-  const primary = contact.phones?.find((p) => p.isPrimary)
-  return primary?.number || contact.phones?.[0]?.number
+  const primary = contact.phones?.find((p) => p.isPrimary);
+  return primary?.number || contact.phones?.[0]?.number;
 }
 
 /**
  * Get primary email from contact.
  */
 export function getPrimaryEmail(contact: ContactCardData): string | undefined {
-  const primary = contact.emails?.find((e) => e.isPrimary)
-  return primary?.email || contact.emails?.[0]?.email
+  const primary = contact.emails?.find((e) => e.isPrimary);
+  return primary?.email || contact.emails?.[0]?.email;
 }

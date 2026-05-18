@@ -1,25 +1,25 @@
-'use client'
+"use client";
 
-import { SettingsSection } from './settings-section'
-import { SettingsSelect } from './SettingsSelect'
-import { SettingsSlider } from './SettingsSlider'
-import { useSettingsStore } from '@/stores/settings-store'
-import type { SidebarPosition } from '@/lib/settings/settings-types'
+import { SettingsSection } from "./settings-section";
+import { SettingsSelect } from "./SettingsSelect";
+import { SettingsSlider } from "./SettingsSlider";
+import { useSettingsStore } from "@/stores/settings-store";
+import type { SidebarPosition } from "@/lib/settings/settings-types";
 
 interface SidebarSettingsProps {
-  className?: string
+  className?: string;
 }
 
 const positionOptions = [
-  { value: 'left', label: 'Left' },
-  { value: 'right', label: 'Right' },
-]
+  { value: "left", label: "Left" },
+  { value: "right", label: "Right" },
+];
 
 /**
  * SidebarSettings - Sidebar position and width
  */
 export function SidebarSettings({ className }: SidebarSettingsProps) {
-  const { settings, updateAppearance } = useSettingsStore()
+  const { settings, updateAppearance } = useSettingsStore();
 
   return (
     <SettingsSection
@@ -32,7 +32,9 @@ export function SidebarSettings({ className }: SidebarSettingsProps) {
         label="Sidebar position"
         description="Place the sidebar on the left or right"
         value={settings.appearance.sidebarPosition}
-        onValueChange={(value) => updateAppearance({ sidebarPosition: value as SidebarPosition })}
+        onValueChange={(value) =>
+          updateAppearance({ sidebarPosition: value as SidebarPosition })
+        }
         options={positionOptions}
       />
 
@@ -49,5 +51,5 @@ export function SidebarSettings({ className }: SidebarSettingsProps) {
         vertical
       />
     </SettingsSection>
-  )
+  );
 }

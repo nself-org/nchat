@@ -20,7 +20,7 @@ export {
   type StickerActions,
   type StickerStore,
   type StickerPackWithStickers,
-} from './sticker-store'
+} from "./sticker-store";
 
 // Service
 export {
@@ -30,7 +30,7 @@ export {
   type FetchPacksOptions,
   type SearchStickersOptions,
   type StickerWithPack,
-} from './sticker-service'
+} from "./sticker-service";
 
 // Hooks
 export {
@@ -42,4 +42,4 @@ export {
   type UseStickersReturn,
   type UsePackStickersReturn,
   type UseStickerSearchReturn,
-} from './use-stickers'
+} from "./use-stickers";

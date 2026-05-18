@@ -4,11 +4,11 @@
  * Provides meeting operations including CRUD, joining, and scheduling
  */
 
-'use client'
+"use client";
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useQuery, useMutation } from '@apollo/client'
-import { gql } from '@apollo/client'
+import { useCallback, useEffect, useMemo } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import { gql } from "@apollo/client";
 import {
   useMeetingStore,
   selectFilteredMeetings,
@@ -18,7 +18,7 @@ import {
   selectActiveMeeting,
   selectMeetingsByDate,
   selectMeetingsForChannel,
-} from '@/stores/meeting-store'
+} from "@/stores/meeting-store";
 import {
   Meeting,
   CreateMeetingInput,
@@ -26,7 +26,7 @@ import {
   MeetingFilters,
   MeetingSortBy,
   SortOrder,
-} from '@/lib/meetings/meeting-types'
+} from "@/lib/meetings/meeting-types";
 import {
   generateMeetingCode,
   generateMeetingLink,
@@ -34,7 +34,7 @@ import {
   validateMeetingInput,
   scheduleAllReminders,
   cancelAllReminders,
-} from '@/lib/meetings'
+} from "@/lib/meetings";
 
 // ============================================================================
 // GraphQL Queries and Mutations
@@ -44,7 +44,10 @@ const GET_MEETINGS = gql`
   query GetMeetings($userId: uuid!, $limit: Int = 50, $offset: Int = 0) {
     nchat_meetings(
       where: {
-        _or: [{ host_id: { _eq: $userId } }, { participants: { user_id: { _eq: $userId } } }]
+        _or: [
+          { host_id: { _eq: $userId } }
+          { participants: { user_id: { _eq: $userId } } }
+        ]
       }
       order_by: { scheduled_start_at: asc }
       limit: $limit
@@ -97,7 +100,7 @@ const GET_MEETINGS = gql`
       }
     }
   }
-`
+`;
 
 const GET_MEETING = gql`
   query GetMeeting($id: uuid!) {
@@ -149,7 +152,7 @@ const GET_MEETING = gql`
       }
     }
   }
-`
+`;
 
 const CREATE_MEETING = gql`
   mutation CreateMeeting($input: nchat_meetings_insert_input!) {
@@ -162,7 +165,7 @@ const CREATE_MEETING = gql`
       scheduled_end_at
     }
   }
-`
+`;
 
 const UPDATE_MEETING = gql`
   mutation UpdateMeeting($id: uuid!, $changes: nchat_meetings_set_input!) {
@@ -174,7 +177,7 @@ const UPDATE_MEETING = gql`
       updated_at
     }
   }
-`
+`;
 
 const DELETE_MEETING = gql`
   mutation DeleteMeeting($id: uuid!) {
@@ -182,7 +185,7 @@ const DELETE_MEETING = gql`
       id
     }
   }
-`
+`;
 
 const START_MEETING = gql`
   mutation StartMeeting($id: uuid!) {
@@ -195,7 +198,7 @@ const START_MEETING = gql`
       actual_start_at
     }
   }
-`
+`;
 
 const END_MEETING = gql`
   mutation EndMeeting($id: uuid!) {
@@ -208,7 +211,7 @@ const END_MEETING = gql`
       actual_end_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Helper Functions
@@ -219,9 +222,9 @@ function transformMeetingFromGraphQL(data: Record<string, unknown>): Meeting {
     id: data.id as string,
     title: data.title as string,
     description: data.description as string | null,
-    type: data.type as Meeting['type'],
-    status: data.status as Meeting['status'],
-    roomType: data.room_type as Meeting['roomType'],
+    type: data.type as Meeting["type"],
+    status: data.status as Meeting["status"],
+    roomType: data.room_type as Meeting["roomType"],
     scheduledStartAt: data.scheduled_start_at as string,
     scheduledEndAt: data.scheduled_end_at as string,
     timezone: data.timezone as string,
@@ -229,7 +232,7 @@ function transformMeetingFromGraphQL(data: Record<string, unknown>): Meeting {
     actualEndAt: data.actual_end_at as string | null,
     duration: data.duration as number,
     isRecurring: data.is_recurring as boolean,
-    recurrenceRule: data.recurrence_rule as Meeting['recurrenceRule'],
+    recurrenceRule: data.recurrence_rule as Meeting["recurrenceRule"],
     parentMeetingId: data.parent_meeting_id as string | null,
     hostId: data.host_id as string,
     channelId: data.channel_id as string | null,
@@ -238,19 +241,32 @@ function transformMeetingFromGraphQL(data: Record<string, unknown>): Meeting {
     password: data.password as string | null,
     meetingLink: data.meeting_link as string,
     meetingCode: data.meeting_code as string,
-    settings: (data.settings as Meeting['settings']) || DEFAULT_MEETING_SETTINGS,
-    participants: ((data.participants as Array<Record<string, unknown>>) || []).map((p) => ({
+    settings:
+      (data.settings as Meeting["settings"]) || DEFAULT_MEETING_SETTINGS,
+    participants: (
+      (data.participants as Array<Record<string, unknown>>) || []
+    ).map((p) => ({
       id: p.id as string,
       meetingId: p.meeting_id as string,
       userId: p.user_id as string,
-      role: p.role as 'host' | 'co-host' | 'presenter' | 'participant',
-      status: p.status as 'invited' | 'accepted' | 'declined' | 'tentative' | 'joined' | 'left',
+      role: p.role as "host" | "co-host" | "presenter" | "participant",
+      status: p.status as
+        | "invited"
+        | "accepted"
+        | "declined"
+        | "tentative"
+        | "joined"
+        | "left",
       invitedAt: p.invited_at as string,
       respondedAt: p.responded_at as string | null,
       joinedAt: p.joined_at as string | null,
       leftAt: p.left_at as string | null,
-      displayName: (p.user as Record<string, unknown>)?.display_name as string | undefined,
-      avatarUrl: (p.user as Record<string, unknown>)?.avatar_url as string | undefined,
+      displayName: (p.user as Record<string, unknown>)?.display_name as
+        | string
+        | undefined,
+      avatarUrl: (p.user as Record<string, unknown>)?.avatar_url as
+        | string
+        | undefined,
       email: (p.user as Record<string, unknown>)?.email as string | undefined,
     })),
     participantCount: data.participant_count as number,
@@ -258,7 +274,7 @@ function transformMeetingFromGraphQL(data: Record<string, unknown>): Meeting {
     createdAt: data.created_at as string,
     updatedAt: data.updated_at as string,
     createdBy: data.created_by as string,
-  }
+  };
 }
 
 // ============================================================================
@@ -266,60 +282,65 @@ function transformMeetingFromGraphQL(data: Record<string, unknown>): Meeting {
 // ============================================================================
 
 export interface UseMeetingsOptions {
-  userId?: string
-  channelId?: string
-  autoLoad?: boolean
+  userId?: string;
+  channelId?: string;
+  autoLoad?: boolean;
 }
 
 export interface UseMeetingsReturn {
   // Data
-  meetings: Meeting[]
-  upcomingMeetings: Meeting[]
-  pastMeetings: Meeting[]
-  liveMeetings: Meeting[]
-  activeMeeting: Meeting | undefined
+  meetings: Meeting[];
+  upcomingMeetings: Meeting[];
+  pastMeetings: Meeting[];
+  liveMeetings: Meeting[];
+  activeMeeting: Meeting | undefined;
 
   // Loading/Error states
-  isLoading: boolean
-  isCreating: boolean
-  error: string | null
+  isLoading: boolean;
+  isCreating: boolean;
+  error: string | null;
 
   // Filters and sorting
-  filters: MeetingFilters
-  sortBy: MeetingSortBy
-  sortOrder: SortOrder
-  setFilters: (filters: MeetingFilters) => void
-  clearFilters: () => void
-  setSortBy: (sortBy: MeetingSortBy) => void
-  setSortOrder: (order: SortOrder) => void
+  filters: MeetingFilters;
+  sortBy: MeetingSortBy;
+  sortOrder: SortOrder;
+  setFilters: (filters: MeetingFilters) => void;
+  clearFilters: () => void;
+  setSortBy: (sortBy: MeetingSortBy) => void;
+  setSortOrder: (order: SortOrder) => void;
 
   // CRUD operations
-  createMeeting: (input: CreateMeetingInput) => Promise<Meeting | null>
-  updateMeeting: (meetingId: string, updates: UpdateMeetingInput) => Promise<boolean>
-  deleteMeeting: (meetingId: string) => Promise<boolean>
-  cancelMeeting: (meetingId: string, reason?: string) => Promise<boolean>
+  createMeeting: (input: CreateMeetingInput) => Promise<Meeting | null>;
+  updateMeeting: (
+    meetingId: string,
+    updates: UpdateMeetingInput,
+  ) => Promise<boolean>;
+  deleteMeeting: (meetingId: string) => Promise<boolean>;
+  cancelMeeting: (meetingId: string, reason?: string) => Promise<boolean>;
 
   // Meeting actions
-  startMeeting: (meetingId: string) => Promise<boolean>
-  endMeeting: (meetingId: string) => Promise<boolean>
-  joinMeeting: (meetingId: string) => void
-  leaveMeeting: () => void
+  startMeeting: (meetingId: string) => Promise<boolean>;
+  endMeeting: (meetingId: string) => Promise<boolean>;
+  joinMeeting: (meetingId: string) => void;
+  leaveMeeting: () => void;
 
   // Query helpers
-  getMeetingById: (meetingId: string) => Meeting | undefined
-  getMeetingByCode: (code: string) => Meeting | undefined
-  getMeetingsForDate: (date: string) => Meeting[]
-  getMeetingsForChannel: (channelId: string) => Meeting[]
+  getMeetingById: (meetingId: string) => Meeting | undefined;
+  getMeetingByCode: (code: string) => Meeting | undefined;
+  getMeetingsForDate: (date: string) => Meeting[];
+  getMeetingsForChannel: (channelId: string) => Meeting[];
 
   // Refetch
-  refetch: () => void
+  refetch: () => void;
 }
 
-export function useMeetings(options: UseMeetingsOptions = {}): UseMeetingsReturn {
-  const { userId, channelId, autoLoad = true } = options
+export function useMeetings(
+  options: UseMeetingsOptions = {},
+): UseMeetingsReturn {
+  const { userId, channelId, autoLoad = true } = options;
 
   // Store state
-  const store = useMeetingStore()
+  const store = useMeetingStore();
   const {
     filters,
     sortBy,
@@ -341,7 +362,7 @@ export function useMeetings(options: UseMeetingsOptions = {}): UseMeetingsReturn
     joinMeeting: joinMeetingInStore,
     leaveMeeting: leaveMeetingInStore,
     endMeeting: endMeetingInStore,
-  } = store
+  } = store;
 
   // GraphQL queries
   const { data, loading, refetch } = useQuery(GET_MEETINGS, {
@@ -349,51 +370,51 @@ export function useMeetings(options: UseMeetingsOptions = {}): UseMeetingsReturn
     skip: !userId || !autoLoad,
     onCompleted: (data) => {
       if (data?.nchat_meetings) {
-        const meetings = data.nchat_meetings.map(transformMeetingFromGraphQL)
-        setMeetings(meetings)
+        const meetings = data.nchat_meetings.map(transformMeetingFromGraphQL);
+        setMeetings(meetings);
       }
     },
     onError: (error) => {
-      setError(error.message)
+      setError(error.message);
     },
-  })
+  });
 
   // GraphQL mutations
-  const [createMeetingMutation] = useMutation(CREATE_MEETING)
-  const [updateMeetingMutation] = useMutation(UPDATE_MEETING)
-  const [deleteMeetingMutation] = useMutation(DELETE_MEETING)
-  const [startMeetingMutation] = useMutation(START_MEETING)
-  const [endMeetingMutation] = useMutation(END_MEETING)
+  const [createMeetingMutation] = useMutation(CREATE_MEETING);
+  const [updateMeetingMutation] = useMutation(UPDATE_MEETING);
+  const [deleteMeetingMutation] = useMutation(DELETE_MEETING);
+  const [startMeetingMutation] = useMutation(START_MEETING);
+  const [endMeetingMutation] = useMutation(END_MEETING);
 
   // Sync loading state
   useEffect(() => {
-    setLoading(loading)
-  }, [loading, setLoading])
+    setLoading(loading);
+  }, [loading, setLoading]);
 
   // Selectors
-  const meetings = useMeetingStore(selectFilteredMeetings)
-  const upcomingMeetings = useMeetingStore(selectUpcomingMeetings)
-  const pastMeetings = useMeetingStore(selectPastMeetings)
-  const liveMeetings = useMeetingStore(selectLiveMeetings)
-  const activeMeeting = useMeetingStore(selectActiveMeeting)
+  const meetings = useMeetingStore(selectFilteredMeetings);
+  const upcomingMeetings = useMeetingStore(selectUpcomingMeetings);
+  const pastMeetings = useMeetingStore(selectPastMeetings);
+  const liveMeetings = useMeetingStore(selectLiveMeetings);
+  const activeMeeting = useMeetingStore(selectActiveMeeting);
 
   // Create meeting
   const createMeeting = useCallback(
     async (input: CreateMeetingInput): Promise<Meeting | null> => {
       // Validate input
-      const validation = validateMeetingInput(input)
+      const validation = validateMeetingInput(input);
       if (!validation.isValid) {
-        const firstError = Object.values(validation.errors)[0]
-        setError(firstError)
-        return null
+        const firstError = Object.values(validation.errors)[0];
+        setError(firstError);
+        return null;
       }
 
-      setCreating(true)
-      setError(null)
+      setCreating(true);
+      setError(null);
 
       try {
-        const meetingCode = generateMeetingCode()
-        const meetingLink = generateMeetingLink(meetingCode)
+        const meetingCode = generateMeetingCode();
+        const meetingLink = generateMeetingLink(meetingCode);
 
         const result = await createMeetingMutation({
           variables: {
@@ -413,34 +434,39 @@ export function useMeetings(options: UseMeetingsOptions = {}): UseMeetingsReturn
               meeting_link: meetingLink,
               settings: { ...DEFAULT_MEETING_SETTINGS, ...input.settings },
               host_id: userId,
-              type: input.isRecurring ? 'recurring' : 'scheduled',
-              status: 'scheduled',
+              type: input.isRecurring ? "recurring" : "scheduled",
+              status: "scheduled",
             },
           },
-        })
+        });
 
         if (result.data?.insert_nchat_meetings_one) {
           // Refetch to get full meeting data
-          await refetch()
-          const meeting = store.getMeetingById(result.data.insert_nchat_meetings_one.id)
-          return meeting || null
+          await refetch();
+          const meeting = store.getMeetingById(
+            result.data.insert_nchat_meetings_one.id,
+          );
+          return meeting || null;
         }
 
-        return null
+        return null;
       } catch (err) {
-        setError((err as Error).message)
-        return null
+        setError((err as Error).message);
+        return null;
       } finally {
-        setCreating(false)
+        setCreating(false);
       }
     },
-    [createMeetingMutation, userId, refetch, setCreating, setError, store]
-  )
+    [createMeetingMutation, userId, refetch, setCreating, setError, store],
+  );
 
   // Update meeting
   const updateMeeting = useCallback(
-    async (meetingId: string, updates: UpdateMeetingInput): Promise<boolean> => {
-      setError(null)
+    async (
+      meetingId: string,
+      updates: UpdateMeetingInput,
+    ): Promise<boolean> => {
+      setError(null);
 
       try {
         const result = await updateMeetingMutation({
@@ -457,165 +483,168 @@ export function useMeetings(options: UseMeetingsOptions = {}): UseMeetingsReturn
               settings: updates.settings,
             },
           },
-        })
+        });
 
         if (result.data?.update_nchat_meetings_by_pk) {
           updateMeetingInStore(meetingId, {
             ...updates,
             updatedAt: new Date().toISOString(),
-          } as Partial<Meeting>)
-          return true
+          } as Partial<Meeting>);
+          return true;
         }
 
-        return false
+        return false;
       } catch (err) {
-        setError((err as Error).message)
-        return false
+        setError((err as Error).message);
+        return false;
       }
     },
-    [updateMeetingMutation, updateMeetingInStore, setError]
-  )
+    [updateMeetingMutation, updateMeetingInStore, setError],
+  );
 
   // Delete meeting
   const deleteMeeting = useCallback(
     async (meetingId: string): Promise<boolean> => {
-      setError(null)
+      setError(null);
 
       try {
         const result = await deleteMeetingMutation({
           variables: { id: meetingId },
-        })
+        });
 
         if (result.data?.delete_nchat_meetings_by_pk) {
-          removeMeeting(meetingId)
-          cancelAllReminders(meetingId)
-          return true
+          removeMeeting(meetingId);
+          cancelAllReminders(meetingId);
+          return true;
         }
 
-        return false
+        return false;
       } catch (err) {
-        setError((err as Error).message)
-        return false
+        setError((err as Error).message);
+        return false;
       }
     },
-    [deleteMeetingMutation, removeMeeting, setError]
-  )
+    [deleteMeetingMutation, removeMeeting, setError],
+  );
 
   // Cancel meeting
   const cancelMeeting = useCallback(
     async (meetingId: string, _reason?: string): Promise<boolean> => {
-      setError(null)
+      setError(null);
 
       try {
         const result = await updateMeetingMutation({
           variables: {
             id: meetingId,
-            changes: { status: 'cancelled' },
+            changes: { status: "cancelled" },
           },
-        })
+        });
 
         if (result.data?.update_nchat_meetings_by_pk) {
-          updateMeetingInStore(meetingId, { status: 'cancelled' })
-          cancelAllReminders(meetingId)
-          return true
+          updateMeetingInStore(meetingId, { status: "cancelled" });
+          cancelAllReminders(meetingId);
+          return true;
         }
 
-        return false
+        return false;
       } catch (err) {
-        setError((err as Error).message)
-        return false
+        setError((err as Error).message);
+        return false;
       }
     },
-    [updateMeetingMutation, updateMeetingInStore, setError]
-  )
+    [updateMeetingMutation, updateMeetingInStore, setError],
+  );
 
   // Start meeting
   const startMeeting = useCallback(
     async (meetingId: string): Promise<boolean> => {
-      setError(null)
+      setError(null);
 
       try {
         const result = await startMeetingMutation({
           variables: { id: meetingId },
-        })
+        });
 
         if (result.data?.update_nchat_meetings_by_pk) {
           updateMeetingInStore(meetingId, {
-            status: 'live',
+            status: "live",
             actualStartAt: new Date().toISOString(),
-          })
-          return true
+          });
+          return true;
         }
 
-        return false
+        return false;
       } catch (err) {
-        setError((err as Error).message)
-        return false
+        setError((err as Error).message);
+        return false;
       }
     },
-    [startMeetingMutation, updateMeetingInStore, setError]
-  )
+    [startMeetingMutation, updateMeetingInStore, setError],
+  );
 
   // End meeting
   const endMeeting = useCallback(
     async (meetingId: string): Promise<boolean> => {
-      setError(null)
+      setError(null);
 
       try {
         const result = await endMeetingMutation({
           variables: { id: meetingId },
-        })
+        });
 
         if (result.data?.update_nchat_meetings_by_pk) {
-          endMeetingInStore(meetingId)
-          return true
+          endMeetingInStore(meetingId);
+          return true;
         }
 
-        return false
+        return false;
       } catch (err) {
-        setError((err as Error).message)
-        return false
+        setError((err as Error).message);
+        return false;
       }
     },
-    [endMeetingMutation, endMeetingInStore, setError]
-  )
+    [endMeetingMutation, endMeetingInStore, setError],
+  );
 
   // Join meeting
   const joinMeeting = useCallback(
     (meetingId: string) => {
-      joinMeetingInStore(meetingId)
+      joinMeetingInStore(meetingId);
     },
-    [joinMeetingInStore]
-  )
+    [joinMeetingInStore],
+  );
 
   // Leave meeting
   const leaveMeeting = useCallback(() => {
-    leaveMeetingInStore()
-  }, [leaveMeetingInStore])
+    leaveMeetingInStore();
+  }, [leaveMeetingInStore]);
 
   // Query helpers
   const getMeetingById = useCallback(
     (meetingId: string) => store.getMeetingById(meetingId),
-    [store]
-  )
+    [store],
+  );
 
-  const getMeetingByCode = useCallback((code: string) => store.getMeetingByCode(code), [store])
+  const getMeetingByCode = useCallback(
+    (code: string) => store.getMeetingByCode(code),
+    [store],
+  );
 
   const getMeetingsForDate = useCallback(
     (date: string) =>
       useMeetingStore.getState().meetings
         ? selectMeetingsByDate(date)(useMeetingStore.getState())
         : [],
-    []
-  )
+    [],
+  );
 
   const getMeetingsForChannel = useCallback(
     (channelId: string) =>
       useMeetingStore.getState().meetings
         ? selectMeetingsForChannel(channelId)(useMeetingStore.getState())
         : [],
-    []
-  )
+    [],
+  );
 
   return {
     // Data
@@ -659,5 +688,5 @@ export function useMeetings(options: UseMeetingsOptions = {}): UseMeetingsReturn
 
     // Refetch
     refetch,
-  }
+  };
 }

@@ -5,7 +5,7 @@
  */
 
 // Validators and type guards
-export * from './entity-validators'
+export * from "./entity-validators";
 
 // Conversion service
-export * from './entity-conversion.service'
+export * from "./entity-conversion.service";

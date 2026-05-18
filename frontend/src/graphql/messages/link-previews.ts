@@ -5,69 +5,69 @@
  * Uses the nchat_link_previews table for persistent storage.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface LinkPreviewVariables {
-  urlHash: string
+  urlHash: string;
 }
 
 export interface InsertLinkPreviewVariables {
-  urlHash: string
-  url: string
-  title: string
-  description?: string | null
-  imageUrl?: string | null
-  imageWidth?: number | null
-  imageHeight?: number | null
-  imageAlt?: string | null
-  siteName?: string | null
-  faviconUrl?: string | null
-  type: string
-  videoUrl?: string | null
-  videoWidth?: number | null
-  videoHeight?: number | null
-  audioUrl?: string | null
-  author?: string | null
-  publishedAt?: string | null
-  domain: string
-  themeColor?: string | null
-  fetchedAt: string
-  expiresAt: string
+  urlHash: string;
+  url: string;
+  title: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
+  imageAlt?: string | null;
+  siteName?: string | null;
+  faviconUrl?: string | null;
+  type: string;
+  videoUrl?: string | null;
+  videoWidth?: number | null;
+  videoHeight?: number | null;
+  audioUrl?: string | null;
+  author?: string | null;
+  publishedAt?: string | null;
+  domain: string;
+  themeColor?: string | null;
+  fetchedAt: string;
+  expiresAt: string;
 }
 
 export interface DeleteExpiredPreviewsVariables {
-  now: string
+  now: string;
 }
 
 export interface LinkPreviewRecord {
-  id: string
-  url_hash: string
-  url: string
-  title: string
-  description?: string | null
-  image_url?: string | null
-  image_width?: number | null
-  image_height?: number | null
-  image_alt?: string | null
-  site_name?: string | null
-  favicon_url?: string | null
-  type: string
-  video_url?: string | null
-  video_width?: number | null
-  video_height?: number | null
-  audio_url?: string | null
-  author?: string | null
-  published_at?: string | null
-  domain: string
-  theme_color?: string | null
-  fetched_at: string
-  expires_at: string
-  created_at: string
-  updated_at: string
+  id: string;
+  url_hash: string;
+  url: string;
+  title: string;
+  description?: string | null;
+  image_url?: string | null;
+  image_width?: number | null;
+  image_height?: number | null;
+  image_alt?: string | null;
+  site_name?: string | null;
+  favicon_url?: string | null;
+  type: string;
+  video_url?: string | null;
+  video_width?: number | null;
+  video_height?: number | null;
+  audio_url?: string | null;
+  author?: string | null;
+  published_at?: string | null;
+  domain: string;
+  theme_color?: string | null;
+  fetched_at: string;
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // ============================================================================
@@ -104,7 +104,7 @@ export const LINK_PREVIEW_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 /**
  * Minimal link preview fragment for message display
@@ -120,7 +120,7 @@ export const LINK_PREVIEW_BASIC_FRAGMENT = gql`
     favicon_url
     domain
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -136,7 +136,7 @@ export const GET_LINK_PREVIEW = gql`
     }
   }
   ${LINK_PREVIEW_FRAGMENT}
-`
+`;
 
 /**
  * Get link preview by URL hash, checking if not expired
@@ -151,7 +151,7 @@ export const GET_VALID_LINK_PREVIEW = gql`
     }
   }
   ${LINK_PREVIEW_FRAGMENT}
-`
+`;
 
 /**
  * Get multiple link previews by URL hashes
@@ -163,7 +163,7 @@ export const GET_LINK_PREVIEWS_BY_HASHES = gql`
     }
   }
   ${LINK_PREVIEW_FRAGMENT}
-`
+`;
 
 /**
  * Get link previews for a specific domain
@@ -179,7 +179,7 @@ export const GET_LINK_PREVIEWS_BY_DOMAIN = gql`
     }
   }
   ${LINK_PREVIEW_FRAGMENT}
-`
+`;
 
 /**
  * Get expired link previews (for cleanup)
@@ -194,7 +194,7 @@ export const GET_EXPIRED_LINK_PREVIEWS = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Get link preview statistics
@@ -208,7 +208,9 @@ export const GET_LINK_PREVIEW_STATS = gql`
     }
     byDomain: nchat_link_previews(distinct_on: domain) {
       domain
-      previews: nchat_link_previews_aggregate(where: { domain: { _eq: domain } }) {
+      previews: nchat_link_previews_aggregate(
+        where: { domain: { _eq: domain } }
+      ) {
         aggregate {
           count
         }
@@ -223,7 +225,7 @@ export const GET_LINK_PREVIEW_STATS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -308,7 +310,7 @@ export const INSERT_LINK_PREVIEW = gql`
     }
   }
   ${LINK_PREVIEW_FRAGMENT}
-`
+`;
 
 /**
  * Delete expired link previews (cleanup job)
@@ -324,7 +326,7 @@ export const DELETE_EXPIRED_PREVIEWS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Delete link preview by URL hash
@@ -335,7 +337,7 @@ export const DELETE_LINK_PREVIEW = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Delete all link previews for a domain
@@ -346,13 +348,16 @@ export const DELETE_LINK_PREVIEWS_BY_DOMAIN = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Update link preview expiry
  */
 export const UPDATE_LINK_PREVIEW_EXPIRY = gql`
-  mutation UpdateLinkPreviewExpiry($urlHash: String!, $expiresAt: timestamptz!) {
+  mutation UpdateLinkPreviewExpiry(
+    $urlHash: String!
+    $expiresAt: timestamptz!
+  ) {
     update_nchat_link_previews(
       where: { url_hash: { _eq: $urlHash } }
       _set: { expires_at: $expiresAt }
@@ -365,7 +370,7 @@ export const UPDATE_LINK_PREVIEW_EXPIRY = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -381,7 +386,7 @@ export const SUBSCRIBE_LINK_PREVIEW = gql`
     }
   }
   ${LINK_PREVIEW_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // HELPER TYPES
@@ -416,5 +421,5 @@ export function transformLinkPreviewRecord(record: LinkPreviewRecord) {
     expiresAt: new Date(record.expires_at),
     createdAt: new Date(record.created_at),
     updatedAt: new Date(record.updated_at),
-  }
+  };
 }

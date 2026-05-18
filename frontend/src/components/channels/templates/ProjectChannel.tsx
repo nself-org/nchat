@@ -1,32 +1,49 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { FolderKanban, Lock, GitBranch, Calendar, FileText, CheckSquare } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import * as React from "react";
+import {
+  FolderKanban,
+  Lock,
+  GitBranch,
+  Calendar,
+  FileText,
+  CheckSquare,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ProjectChannelProps {
-  isSelected?: boolean
-  onClick?: () => void
-  className?: string
+  isSelected?: boolean;
+  onClick?: () => void;
+  className?: string;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function ProjectChannel({ isSelected = false, onClick, className }: ProjectChannelProps) {
+export function ProjectChannel({
+  isSelected = false,
+  onClick,
+  className,
+}: ProjectChannelProps) {
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all hover:shadow-md',
-        isSelected && 'border-primary ring-1 ring-primary',
-        className
+        "cursor-pointer transition-all hover:shadow-md",
+        isSelected && "border-primary ring-1 ring-primary",
+        className,
       )}
       onClick={onClick}
     >
@@ -42,8 +59,8 @@ export function ProjectChannel({ isSelected = false, onClick, className }: Proje
         </div>
         <CardTitle className="text-lg">Project Channel</CardTitle>
         <CardDescription>
-          A private channel for project-specific discussions, updates, and collaboration.
-          Invite-only access for project members.
+          A private channel for project-specific discussions, updates, and
+          collaboration. Invite-only access for project members.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -78,13 +95,14 @@ export function ProjectChannel({ isSelected = false, onClick, className }: Proje
         </div>
         <div className="text-xs text-muted-foreground">
           <p>
-            <strong>Best for:</strong> Software projects, marketing campaigns, product launches, or
-            any initiative with a defined team and timeline.
+            <strong>Best for:</strong> Software projects, marketing campaigns,
+            product launches, or any initiative with a defined team and
+            timeline.
           </p>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-ProjectChannel.displayName = 'ProjectChannel'
+ProjectChannel.displayName = "ProjectChannel";

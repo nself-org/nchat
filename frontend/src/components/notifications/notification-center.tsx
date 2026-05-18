@@ -1,50 +1,53 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { useNotificationStore } from '@/stores/notification-store'
-import { NotificationItem } from './notification-item'
-import { NotificationEmpty, NotificationFilteredEmpty } from './notification-empty'
-import type { NotificationFilterTab } from './types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useNotificationStore } from "@/stores/notification-store";
+import { NotificationItem } from "./notification-item";
+import {
+  NotificationEmpty,
+  NotificationFilteredEmpty,
+} from "./notification-empty";
+import type { NotificationFilterTab } from "./types";
 
 // Filter tab configuration
 const FILTER_TABS: Array<{ id: NotificationFilterTab; label: string }> = [
-  { id: 'all', label: 'All' },
-  { id: 'mentions', label: 'Mentions' },
-  { id: 'threads', label: 'Threads' },
-  { id: 'reactions', label: 'Reactions' },
-]
+  { id: "all", label: "All" },
+  { id: "mentions", label: "Mentions" },
+  { id: "threads", label: "Threads" },
+  { id: "reactions", label: "Reactions" },
+];
 
 export interface NotificationCenterProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Callback when close button is clicked
    */
-  onClose?: () => void
+  onClose?: () => void;
 
   /**
    * Callback when settings link is clicked
    */
-  onSettingsClick?: () => void
+  onSettingsClick?: () => void;
 
   /**
    * Whether the panel is open (for slide-out animation)
    */
-  isOpen?: boolean
+  isOpen?: boolean;
 
   /**
    * Position of the panel
    * @default 'right'
    */
-  position?: 'left' | 'right' | 'dropdown'
+  position?: "left" | "right" | "dropdown";
 
   /**
    * Maximum height of the notification list
    * @default '400px'
    */
-  maxHeight?: string
+  maxHeight?: string;
 }
 
 /**
@@ -58,80 +61,84 @@ export function NotificationCenter({
   onClose,
   onSettingsClick,
   isOpen = true,
-  position = 'right',
-  maxHeight = '400px',
+  position = "right",
+  maxHeight = "400px",
   className,
   ...props
 }: NotificationCenterProps) {
-  const notifications = useNotificationStore((state) => state.notifications)
-  const activeFilter = useNotificationStore((state) => state.activeFilter)
-  const setActiveFilter = useNotificationStore((state) => state.setActiveFilter)
-  const markAsRead = useNotificationStore((state) => state.markAsRead)
-  const markAllAsRead = useNotificationStore((state) => state.markAllAsRead)
-  const removeNotification = useNotificationStore((state) => state.removeNotification)
-  const unreadCount = useNotificationStore((state) => state.unreadCounts.total)
+  const notifications = useNotificationStore((state) => state.notifications);
+  const activeFilter = useNotificationStore((state) => state.activeFilter);
+  const setActiveFilter = useNotificationStore(
+    (state) => state.setActiveFilter,
+  );
+  const markAsRead = useNotificationStore((state) => state.markAsRead);
+  const markAllAsRead = useNotificationStore((state) => state.markAllAsRead);
+  const removeNotification = useNotificationStore(
+    (state) => state.removeNotification,
+  );
+  const unreadCount = useNotificationStore((state) => state.unreadCounts.total);
 
   // Filter notifications based on active filter
   const filteredNotifications = React.useMemo(() => {
     return notifications.filter((notification) => {
-      if (notification.isArchived) return false
+      if (notification.isArchived) return false;
 
       switch (activeFilter) {
-        case 'all':
-          return true
-        case 'mentions':
-          return notification.type === 'mention'
-        case 'threads':
-          return notification.type === 'thread_reply'
-        case 'reactions':
-          return notification.type === 'reaction'
-        case 'unread':
-          return !notification.isRead
+        case "all":
+          return true;
+        case "mentions":
+          return notification.type === "mention";
+        case "threads":
+          return notification.type === "thread_reply";
+        case "reactions":
+          return notification.type === "reaction";
+        case "unread":
+          return !notification.isRead;
         default:
-          return true
+          return true;
       }
-    })
-  }, [notifications, activeFilter])
+    });
+  }, [notifications, activeFilter]);
 
   const handleFilterChange = React.useCallback(
     (value: string) => {
-      setActiveFilter(value as NotificationFilterTab)
+      setActiveFilter(value as NotificationFilterTab);
     },
-    [setActiveFilter]
-  )
+    [setActiveFilter],
+  );
 
   const handleNotificationClick = React.useCallback(
     (id: string) => {
-      const notification = notifications.find((n) => n.id === id)
+      const notification = notifications.find((n) => n.id === id);
       if (notification?.actionUrl) {
-        window.location.href = notification.actionUrl
+        window.location.href = notification.actionUrl;
       }
-      onClose?.()
+      onClose?.();
     },
-    [notifications, onClose]
-  )
+    [notifications, onClose],
+  );
 
   // Get filter-specific empty message
   const getFilterLabel = () => {
-    const tab = FILTER_TABS.find((t) => t.id === activeFilter)
-    return tab?.label || 'notifications'
-  }
+    const tab = FILTER_TABS.find((t) => t.id === activeFilter);
+    return tab?.label || "notifications";
+  };
 
-  const isDropdown = position === 'dropdown'
-  const isSlidePanel = position === 'left' || position === 'right'
+  const isDropdown = position === "dropdown";
+  const isSlidePanel = position === "left" || position === "right";
 
   return (
     <div
       className={cn(
-        'flex flex-col border border-border bg-background',
-        isDropdown && 'w-[380px] rounded-lg shadow-lg',
-        isSlidePanel && 'h-full w-[380px]',
-        position === 'right' && 'rounded-l-lg border-l-0',
-        position === 'left' && 'rounded-r-lg border-r-0',
-        !isOpen && isSlidePanel && 'translate-x-full',
-        isOpen && isSlidePanel && 'translate-x-0',
-        'transition-transform duration-200',
-        className
+        "flex flex-col border border-border bg-background",
+        isDropdown && "w-[380px] rounded-lg shadow-lg",
+        isSlidePanel && "h-full w-[380px]",
+        position === "right" && "rounded-l-lg border-l-0",
+        position === "left" && "rounded-r-lg border-r-0",
+        !isOpen && isSlidePanel && "translate-x-full",
+        isOpen && isSlidePanel && "translate-x-0",
+        "transition-transform duration-200",
+        className,
       )}
       role="dialog"
       aria-label="Notifications"
@@ -142,12 +149,19 @@ export function NotificationCenter({
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold">Notifications</h2>
           {unreadCount > 0 && (
-            <span className="text-xs text-muted-foreground">({unreadCount} unread)</span>
+            <span className="text-xs text-muted-foreground">
+              ({unreadCount} unread)
+            </span>
           )}
         </div>
         <div className="flex items-center gap-1">
           {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={markAllAsRead}
+              className="text-xs"
+            >
               Mark all read
             </Button>
           )}
@@ -194,7 +208,11 @@ export function NotificationCenter({
                 stroke="currentColor"
                 strokeWidth={2}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </Button>
           )}
@@ -202,7 +220,11 @@ export function NotificationCenter({
       </div>
 
       {/* Filter Tabs */}
-      <Tabs value={activeFilter} onValueChange={handleFilterChange} className="w-full">
+      <Tabs
+        value={activeFilter}
+        onValueChange={handleFilterChange}
+        className="w-full"
+      >
         <TabsList className="h-auto w-full justify-start rounded-none border-b border-border bg-transparent px-2 py-1">
           {FILTER_TABS.map((tab) => (
             <TabsTrigger
@@ -219,7 +241,7 @@ export function NotificationCenter({
         <TabsContent value={activeFilter} className="mt-0">
           <ScrollArea style={{ maxHeight }} className="flex-1">
             {filteredNotifications.length === 0 ? (
-              activeFilter === 'all' ? (
+              activeFilter === "all" ? (
                 <NotificationEmpty />
               ) : (
                 <NotificationFilteredEmpty filterName={getFilterLabel()} />
@@ -250,7 +272,7 @@ export function NotificationCenter({
             className="w-full text-xs text-muted-foreground hover:text-foreground"
             onClick={() => {
               // Navigate to full notifications page
-              window.location.href = '/notifications'
+              window.location.href = "/notifications";
             }}
           >
             View all notifications
@@ -258,7 +280,7 @@ export function NotificationCenter({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
@@ -268,20 +290,24 @@ export function NotificationCenterDropdown({
   trigger,
   ...props
 }: NotificationCenterProps & { trigger?: React.ReactNode }) {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const notificationCenterOpen = useNotificationStore((state) => state.notificationCenterOpen)
-  const setNotificationCenterOpen = useNotificationStore((state) => state.setNotificationCenterOpen)
+  const [isOpen, setIsOpen] = React.useState(false);
+  const notificationCenterOpen = useNotificationStore(
+    (state) => state.notificationCenterOpen,
+  );
+  const setNotificationCenterOpen = useNotificationStore(
+    (state) => state.setNotificationCenterOpen,
+  );
 
   const handleClose = React.useCallback(() => {
-    setIsOpen(false)
-    setNotificationCenterOpen(false)
-    props.onClose?.()
-  }, [props, setNotificationCenterOpen])
+    setIsOpen(false);
+    setNotificationCenterOpen(false);
+    props.onClose?.();
+  }, [props, setNotificationCenterOpen]);
 
   // Sync with store
   React.useEffect(() => {
-    setIsOpen(notificationCenterOpen)
-  }, [notificationCenterOpen])
+    setIsOpen(notificationCenterOpen);
+  }, [notificationCenterOpen]);
 
   return (
     <div className="relative">
@@ -289,7 +315,11 @@ export function NotificationCenterDropdown({
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 z-40" onClick={handleClose} aria-hidden="true" />
+          <div
+            className="fixed inset-0 z-40"
+            onClick={handleClose}
+            aria-hidden="true"
+          />
           {/* Dropdown */}
           <div className="absolute right-0 top-full z-50 mt-2">
             <NotificationCenter
@@ -302,10 +332,10 @@ export function NotificationCenterDropdown({
         </>
       )}
     </div>
-  )
+  );
 }
 
-NotificationCenter.displayName = 'NotificationCenter'
-NotificationCenterDropdown.displayName = 'NotificationCenterDropdown'
+NotificationCenter.displayName = "NotificationCenter";
+NotificationCenterDropdown.displayName = "NotificationCenterDropdown";
 
-export default NotificationCenter
+export default NotificationCenter;

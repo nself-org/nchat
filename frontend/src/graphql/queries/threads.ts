@@ -9,8 +9,12 @@
  * - Thread activity feed
  */
 
-import { gql } from '@apollo/client'
-import { THREAD_FRAGMENT, MESSAGE_FULL_FRAGMENT, USER_BASIC_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import {
+  THREAD_FRAGMENT,
+  MESSAGE_FULL_FRAGMENT,
+  USER_BASIC_FRAGMENT,
+} from "../fragments";
 
 // ============================================================================
 // QUERIES
@@ -26,7 +30,7 @@ export const GET_THREAD = gql`
     }
   }
   ${THREAD_FRAGMENT}
-`
+`;
 
 /**
  * Get messages in a thread with pagination
@@ -50,7 +54,9 @@ export const GET_THREAD_MESSAGES = gql`
     ) {
       ...MessageFull
     }
-    nchat_messages_aggregate(where: { thread_id: { _eq: $threadId }, is_deleted: { _eq: false } }) {
+    nchat_messages_aggregate(
+      where: { thread_id: { _eq: $threadId }, is_deleted: { _eq: false } }
+    ) {
       aggregate {
         count
       }
@@ -64,7 +70,7 @@ export const GET_THREAD_MESSAGES = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get thread participants
@@ -85,20 +91,26 @@ export const GET_THREAD_PARTICIPANTS = gql`
         status
       }
     }
-    nchat_thread_participants_aggregate(where: { thread_id: { _eq: $threadId } }) {
+    nchat_thread_participants_aggregate(
+      where: { thread_id: { _eq: $threadId } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get all threads in a channel
  */
 export const GET_CHANNEL_THREADS = gql`
-  query GetChannelThreads($channelId: uuid!, $limit: Int = 20, $offset: Int = 0) {
+  query GetChannelThreads(
+    $channelId: uuid!
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_threads(
       where: { channel_id: { _eq: $channelId } }
       order_by: { last_reply_at: desc }
@@ -122,7 +134,7 @@ export const GET_CHANNEL_THREADS = gql`
   }
   ${THREAD_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get threads that a user is participating in
@@ -158,7 +170,10 @@ export const GET_USER_THREADS = gql`
       last_read_at
       has_unread: thread {
         messages_aggregate(
-          where: { created_at: { _gt: "last_read_at" }, is_deleted: { _eq: false } }
+          where: {
+            created_at: { _gt: "last_read_at" }
+            is_deleted: { _eq: false }
+          }
         ) {
           aggregate {
             count
@@ -169,7 +184,7 @@ export const GET_USER_THREADS = gql`
   }
   ${THREAD_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get unread thread count for user
@@ -179,7 +194,12 @@ export const GET_UNREAD_THREADS_COUNT = gql`
     nchat_thread_participants_aggregate(
       where: {
         user_id: { _eq: $userId }
-        thread: { messages: { created_at: { _gt: "last_read_at" }, is_deleted: { _eq: false } } }
+        thread: {
+          messages: {
+            created_at: { _gt: "last_read_at" }
+            is_deleted: { _eq: false }
+          }
+        }
       }
     ) {
       aggregate {
@@ -187,13 +207,17 @@ export const GET_UNREAD_THREADS_COUNT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Search threads in a channel
  */
 export const SEARCH_CHANNEL_THREADS = gql`
-  query SearchChannelThreads($channelId: uuid!, $searchQuery: String!, $limit: Int = 20) {
+  query SearchChannelThreads(
+    $channelId: uuid!
+    $searchQuery: String!
+    $limit: Int = 20
+  ) {
     nchat_threads(
       where: {
         channel_id: { _eq: $channelId }
@@ -209,7 +233,7 @@ export const SEARCH_CHANNEL_THREADS = gql`
     }
   }
   ${THREAD_FRAGMENT}
-`
+`;
 
 /**
  * Get thread activity feed for a user
@@ -242,7 +266,7 @@ export const GET_THREAD_ACTIVITY_FEED = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get thread participants with their contribution stats
@@ -277,4 +301,4 @@ export const GET_THREAD_PARTICIPANT_STATS = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;

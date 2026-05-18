@@ -49,18 +49,18 @@ The Reporting & Flagging System provides comprehensive content and user reportin
 Universal reporting modal for all content types.
 
 ```tsx
-import { ReportModal } from '@/components/moderation'
+import { ReportModal } from "@/components/moderation";
 
 function MyComponent() {
-  const [showReport, setShowReport] = useState(false)
+  const [showReport, setShowReport] = useState(false);
 
   const target = {
-    type: 'user',
-    id: 'user-123',
-    name: 'John Doe',
-    username: 'johndoe',
-    avatarUrl: '/avatars/john.jpg',
-  }
+    type: "user",
+    id: "user-123",
+    name: "John Doe",
+    username: "johndoe",
+    avatarUrl: "/avatars/john.jpg",
+  };
 
   return (
     <ReportModal
@@ -70,11 +70,11 @@ function MyComponent() {
       reporterId="current-user-id"
       reporterName="Current User"
       onSubmit={(reportId) => {
-        console.log('Report submitted:', reportId)
-        setShowReport(false)
+        console.log("Report submitted:", reportId);
+        setShowReport(false);
       }}
     />
-  )
+  );
 }
 ```
 
@@ -93,22 +93,26 @@ function MyComponent() {
 Admin/moderator interface for managing reports.
 
 ```tsx
-import { ReportQueue } from '@/components/admin/moderation/ReportQueue'
+import { ReportQueue } from "@/components/admin/moderation/ReportQueue";
 
 function ModerationPage() {
-  const handleAction = async (reportId: string, action: string, notes?: string) => {
+  const handleAction = async (
+    reportId: string,
+    action: string,
+    notes?: string,
+  ) => {
     // Process the action
-    await fetch('/api/reports', {
-      method: 'PATCH',
+    await fetch("/api/reports", {
+      method: "PATCH",
       body: JSON.stringify({ reportId, action, notes }),
-    })
-  }
+    });
+  };
 
   const handleFetchReports = async (filter: ReportFilter) => {
-    const response = await fetch('/api/reports?' + new URLSearchParams(filter))
-    const data = await response.json()
-    return data.reports
-  }
+    const response = await fetch("/api/reports?" + new URLSearchParams(filter));
+    const data = await response.json();
+    return data.reports;
+  };
 
   return (
     <ReportQueue
@@ -118,7 +122,7 @@ function ModerationPage() {
       moderatorId="current-moderator-id"
       moderatorName="Moderator Name"
     />
-  )
+  );
 }
 ```
 
@@ -138,10 +142,10 @@ function ModerationPage() {
 Specialized modal for quick message reporting.
 
 ```tsx
-import { ReportMessageModal } from '@/components/moderation'
+import { ReportMessageModal } from "@/components/moderation";
 
 function MessageComponent({ message }) {
-  const { reportMessageModalOpen, openReportMessageModal } = useReportStore()
+  const { reportMessageModalOpen, openReportMessageModal } = useReportStore();
 
   const handleReport = () => {
     openReportMessageModal({
@@ -152,15 +156,15 @@ function MessageComponent({ message }) {
       channelId: message.channelId,
       channelName: message.channelName,
       createdAt: message.createdAt,
-    })
-  }
+    });
+  };
 
   return (
     <>
       <button onClick={handleReport}>Report Message</button>
       <ReportMessageModal />
     </>
-  )
+  );
 }
 ```
 
@@ -181,18 +185,18 @@ Pre-configured categories with priority levels:
 Add custom categories:
 
 ```ts
-import { createReportHandler } from '@/lib/moderation/report-handler'
+import { createReportHandler } from "@/lib/moderation/report-handler";
 
 const handler = createReportHandler({
   escalationRules: [
     {
-      categoryId: 'custom-category',
+      categoryId: "custom-category",
       autoEscalate: true,
-      escalateToPriority: 'high',
-      notifyRoles: ['admin', 'moderator'],
+      escalateToPriority: "high",
+      notifyRoles: ["admin", "moderator"],
     },
   ],
-})
+});
 ```
 
 ## API Routes
@@ -323,33 +327,36 @@ Delete a report (admin only).
 Server-side report processing engine.
 
 ```ts
-import { createReportHandler, createActionContext } from '@/lib/moderation/report-handler'
+import {
+  createReportHandler,
+  createActionContext,
+} from "@/lib/moderation/report-handler";
 
 const handler = createReportHandler({
   enableAutoModeration: true,
   enableNotifications: true,
   enableEscalation: true,
-  notificationChannels: ['in-app', 'email'],
-})
+  notificationChannels: ["in-app", "email"],
+});
 
 // Submit a report
 const result = await handler.submitReport({
-  reporterId: 'user-123',
-  targetType: 'message',
-  targetId: 'msg-456',
-  categoryId: 'spam',
-  description: 'This is spam content',
-})
+  reporterId: "user-123",
+  targetType: "message",
+  targetId: "msg-456",
+  categoryId: "spam",
+  description: "This is spam content",
+});
 
 // Process an action
-const context = createActionContext('report-123', 'moderator-456', 'approve', {
-  notes: 'Reviewed and approved',
-})
-const actionResult = await handler.processAction(context)
+const context = createActionContext("report-123", "moderator-456", "approve", {
+  notes: "Reviewed and approved",
+});
+const actionResult = await handler.processAction(context);
 
 // Get queue
-const queue = handler.getQueue()
-const pendingReports = queue.getPendingReports()
+const queue = handler.getQueue();
+const pendingReports = queue.getPendingReports();
 ```
 
 ## Workflow
@@ -419,13 +426,13 @@ Configure automatic escalation for serious violations:
 const handler = createReportHandler({
   escalationRules: [
     {
-      categoryId: 'hate-speech',
+      categoryId: "hate-speech",
       autoEscalate: true,
-      escalateToPriority: 'urgent',
-      notifyRoles: ['admin', 'moderator'],
+      escalateToPriority: "urgent",
+      notifyRoles: ["admin", "moderator"],
     },
   ],
-})
+});
 ```
 
 When a report matches an escalation rule:

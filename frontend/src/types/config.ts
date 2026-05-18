@@ -14,15 +14,15 @@
  */
 export interface SetupConfig {
   /** Whether setup is completed */
-  isCompleted: boolean
+  isCompleted: boolean;
   /** Current step index */
-  currentStep: number
+  currentStep: number;
   /** Steps that have been visited */
-  visitedSteps: number[]
+  visitedSteps: number[];
   /** When setup was completed */
-  completedAt?: Date
+  completedAt?: Date;
   /** Who completed setup */
-  completedBy?: string
+  completedBy?: string;
 }
 
 /**
@@ -30,33 +30,57 @@ export interface SetupConfig {
  */
 export interface SetupStep {
   /** Step ID */
-  id: string
+  id: string;
   /** Step name */
-  name: string
+  name: string;
   /** Step description */
-  description: string
+  description: string;
   /** Step icon */
-  icon?: string
+  icon?: string;
   /** Is step optional */
-  optional?: boolean
+  optional?: boolean;
   /** Validation function */
-  validate?: (config: AppConfig) => boolean
+  validate?: (config: AppConfig) => boolean;
 }
 
 /**
  * Setup steps list.
  */
 export const SetupSteps: SetupStep[] = [
-  { id: 'welcome', name: 'Welcome', description: 'Introduction to nchat setup' },
-  { id: 'owner', name: 'Owner Information', description: 'Your account details' },
-  { id: 'branding', name: 'App Branding', description: 'Logo, name, and identity' },
-  { id: 'theme', name: 'Theme & Colors', description: 'Visual customization' },
-  { id: 'landing', name: 'Landing Page', description: 'Homepage configuration' },
-  { id: 'auth', name: 'Authentication', description: 'Sign-in methods' },
-  { id: 'permissions', name: 'Access Control', description: 'Who can access your app' },
-  { id: 'features', name: 'Features', description: 'Enable/disable features' },
-  { id: 'review', name: 'Review & Launch', description: 'Final review and launch' },
-]
+  {
+    id: "welcome",
+    name: "Welcome",
+    description: "Introduction to nchat setup",
+  },
+  {
+    id: "owner",
+    name: "Owner Information",
+    description: "Your account details",
+  },
+  {
+    id: "branding",
+    name: "App Branding",
+    description: "Logo, name, and identity",
+  },
+  { id: "theme", name: "Theme & Colors", description: "Visual customization" },
+  {
+    id: "landing",
+    name: "Landing Page",
+    description: "Homepage configuration",
+  },
+  { id: "auth", name: "Authentication", description: "Sign-in methods" },
+  {
+    id: "permissions",
+    name: "Access Control",
+    description: "Who can access your app",
+  },
+  { id: "features", name: "Features", description: "Enable/disable features" },
+  {
+    id: "review",
+    name: "Review & Launch",
+    description: "Final review and launch",
+  },
+];
 
 // ============================================================================
 // Owner Configuration Types
@@ -67,15 +91,15 @@ export const SetupSteps: SetupStep[] = [
  */
 export interface OwnerConfig {
   /** Owner name */
-  name: string
+  name: string;
   /** Owner email */
-  email: string
+  email: string;
   /** Company/organization name */
-  company?: string
+  company?: string;
   /** Owner role/title */
-  role?: string
+  role?: string;
   /** Owner avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
 }
 
 // ============================================================================
@@ -87,23 +111,23 @@ export interface OwnerConfig {
  */
 export interface BrandingConfig {
   /** Application name */
-  appName: string
+  appName: string;
   /** Short tagline */
-  tagline?: string
+  tagline?: string;
   /** Logo URL */
-  logo?: string
+  logo?: string;
   /** Favicon URL */
-  favicon?: string
+  favicon?: string;
   /** Company name */
-  companyName?: string
+  companyName?: string;
   /** Website URL */
-  websiteUrl?: string
+  websiteUrl?: string;
   /** Logo scale factor (0.5 to 2.0) */
-  logoScale?: number
+  logoScale?: number;
   /** Logo position in header */
-  logoPosition?: 'left' | 'center'
+  logoPosition?: "left" | "center";
   /** Show app name next to logo */
-  showAppName?: boolean
+  showAppName?: boolean;
 }
 
 // ============================================================================
@@ -114,57 +138,57 @@ export interface BrandingConfig {
  * Theme preset names.
  */
 export type ThemePreset =
-  | 'nself'
-  | 'slack'
-  | 'discord'
-  | 'sunset'
-  | 'emerald'
-  | 'rose'
-  | 'purple'
-  | 'ocean'
-  | 'custom'
+  | "nself"
+  | "slack"
+  | "discord"
+  | "sunset"
+  | "emerald"
+  | "rose"
+  | "purple"
+  | "ocean"
+  | "custom";
 
 /**
  * Color scheme modes.
  */
-export type ColorScheme = 'light' | 'dark' | 'system'
+export type ColorScheme = "light" | "dark" | "system";
 
 /**
  * Theme color configuration.
  */
 export interface ThemeColors {
   /** Primary brand color */
-  primaryColor: string
+  primaryColor: string;
   /** Secondary color */
-  secondaryColor: string
+  secondaryColor: string;
   /** Accent color */
-  accentColor: string
+  accentColor: string;
   /** Background color */
-  backgroundColor: string
+  backgroundColor: string;
   /** Surface/card color */
-  surfaceColor: string
+  surfaceColor: string;
   /** Primary text color */
-  textColor: string
+  textColor: string;
   /** Muted/secondary text color */
-  mutedColor: string
+  mutedColor: string;
   /** Border color */
-  borderColor: string
+  borderColor: string;
   /** Primary button background */
-  buttonPrimaryBg: string
+  buttonPrimaryBg: string;
   /** Primary button text */
-  buttonPrimaryText: string
+  buttonPrimaryText: string;
   /** Secondary button background */
-  buttonSecondaryBg: string
+  buttonSecondaryBg: string;
   /** Secondary button text */
-  buttonSecondaryText: string
+  buttonSecondaryText: string;
   /** Success color */
-  successColor: string
+  successColor: string;
   /** Warning color */
-  warningColor: string
+  warningColor: string;
   /** Error color */
-  errorColor: string
+  errorColor: string;
   /** Info color */
-  infoColor: string
+  infoColor: string;
 }
 
 /**
@@ -172,48 +196,48 @@ export interface ThemeColors {
  */
 export interface ThemeConfig extends ThemeColors {
   /** Theme preset */
-  preset?: ThemePreset
+  preset?: ThemePreset;
   /** Color scheme mode */
-  colorScheme: ColorScheme
+  colorScheme: ColorScheme;
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Font family */
-  fontFamily: string
+  fontFamily: string;
   /** Custom CSS overrides */
-  customCSS?: string
+  customCSS?: string;
   /** Custom theme JSON (for import/export) */
-  customThemeJSON?: string
+  customThemeJSON?: string;
   /** Sidebar style */
-  sidebarStyle?: 'default' | 'compact' | 'minimal'
+  sidebarStyle?: "default" | "compact" | "minimal";
   /** Message density */
-  messageDensity?: 'comfortable' | 'compact' | 'cozy'
+  messageDensity?: "comfortable" | "compact" | "cozy";
 }
 
 /**
  * Default theme configuration.
  */
 export const DefaultThemeConfig: ThemeConfig = {
-  preset: 'nself',
-  primaryColor: '#38BDF8',
-  secondaryColor: '#0EA5E9',
-  accentColor: '#0284C7',
-  backgroundColor: '#0F0F1A',
-  surfaceColor: '#1E293B',
-  textColor: '#F8FAFC',
-  mutedColor: '#94A3B8',
-  borderColor: '#334155',
-  buttonPrimaryBg: '#38BDF8',
-  buttonPrimaryText: '#0F0F1A',
-  buttonSecondaryBg: '#334155',
-  buttonSecondaryText: '#F8FAFC',
-  successColor: '#10B981',
-  warningColor: '#F59E0B',
-  errorColor: '#EF4444',
-  infoColor: '#3B82F6',
-  borderRadius: '12px',
-  fontFamily: 'Inter, system-ui, sans-serif',
-  colorScheme: 'dark',
-}
+  preset: "nself",
+  primaryColor: "#38BDF8",
+  secondaryColor: "#0EA5E9",
+  accentColor: "#0284C7",
+  backgroundColor: "#0F0F1A",
+  surfaceColor: "#1E293B",
+  textColor: "#F8FAFC",
+  mutedColor: "#94A3B8",
+  borderColor: "#334155",
+  buttonPrimaryBg: "#38BDF8",
+  buttonPrimaryText: "#0F0F1A",
+  buttonSecondaryBg: "#334155",
+  buttonSecondaryText: "#F8FAFC",
+  successColor: "#10B981",
+  warningColor: "#F59E0B",
+  errorColor: "#EF4444",
+  infoColor: "#3B82F6",
+  borderRadius: "12px",
+  fontFamily: "Inter, system-ui, sans-serif",
+  colorScheme: "dark",
+};
 
 // ============================================================================
 // Landing Page Configuration Types
@@ -223,35 +247,35 @@ export const DefaultThemeConfig: ThemeConfig = {
  * Landing page theme templates.
  */
 export type LandingTheme =
-  | 'login-only'
-  | 'simple-landing'
-  | 'full-homepage'
-  | 'corporate'
-  | 'community'
+  | "login-only"
+  | "simple-landing"
+  | "full-homepage"
+  | "corporate"
+  | "community";
 
 /**
  * Landing page mode.
  */
-export type LandingMode = 'landing' | 'redirect' | 'chat'
+export type LandingMode = "landing" | "redirect" | "chat";
 
 /**
  * Landing page sections.
  */
 export interface LandingPages {
   /** Hero section */
-  hero: boolean
+  hero: boolean;
   /** Features section */
-  features: boolean
+  features: boolean;
   /** Pricing section */
-  pricing: boolean
+  pricing: boolean;
   /** About section */
-  about: boolean
+  about: boolean;
   /** Contact section */
-  contact: boolean
+  contact: boolean;
   /** Blog section */
-  blog: boolean
+  blog: boolean;
   /** Documentation section */
-  docs: boolean
+  docs: boolean;
 }
 
 /**
@@ -259,11 +283,11 @@ export interface LandingPages {
  */
 export interface HomepageConfig {
   /** Landing mode */
-  mode: LandingMode
+  mode: LandingMode;
   /** Landing page sections */
-  landingPages?: LandingPages
+  landingPages?: LandingPages;
   /** Redirect target (when mode is 'redirect') */
-  redirectTo?: '/login' | '/chat' | '/signup'
+  redirectTo?: "/login" | "/chat" | "/signup";
 }
 
 // ============================================================================
@@ -275,17 +299,17 @@ export interface HomepageConfig {
  */
 export interface IdMeConfig {
   /** Enable ID.me */
-  enabled: boolean
+  enabled: boolean;
   /** Allow military verification */
-  allowMilitary: boolean
+  allowMilitary: boolean;
   /** Allow police verification */
-  allowPolice: boolean
+  allowPolice: boolean;
   /** Allow first responders */
-  allowFirstResponders: boolean
+  allowFirstResponders: boolean;
   /** Allow government employees */
-  allowGovernment: boolean
+  allowGovernment: boolean;
   /** Require verification */
-  requireVerification: boolean
+  requireVerification: boolean;
 }
 
 /**
@@ -293,60 +317,60 @@ export interface IdMeConfig {
  */
 export interface AuthProvidersConfig {
   /** Email/password auth */
-  emailPassword: boolean
+  emailPassword: boolean;
   /** Magic links auth */
-  magicLinks: boolean
+  magicLinks: boolean;
   /** Google OAuth */
-  google: boolean
+  google: boolean;
   /** Facebook OAuth */
-  facebook: boolean
+  facebook: boolean;
   /** Twitter/X OAuth */
-  twitter: boolean
+  twitter: boolean;
   /** GitHub OAuth */
-  github: boolean
+  github: boolean;
   /** Discord OAuth */
-  discord: boolean
+  discord: boolean;
   /** Slack OAuth */
-  slack: boolean
+  slack: boolean;
   /** ID.me configuration */
-  idme: IdMeConfig
+  idme: IdMeConfig;
 }
 
 /**
  * Permission modes.
  */
 export type PermissionMode =
-  | 'allow-all'
-  | 'verified-only'
-  | 'idme-roles'
-  | 'domain-restricted'
-  | 'admin-only'
+  | "allow-all"
+  | "verified-only"
+  | "idme-roles"
+  | "domain-restricted"
+  | "admin-only";
 
 /**
  * ID.me role types.
  */
-export type IdMeRole = 'military' | 'police' | 'first-responder' | 'government'
+export type IdMeRole = "military" | "police" | "first-responder" | "government";
 
 /**
  * Authentication permissions configuration.
  */
 export interface AuthPermissionsConfig {
   /** Permission mode */
-  mode: PermissionMode
+  mode: PermissionMode;
   /** Require email verification */
-  requireEmailVerification: boolean
+  requireEmailVerification: boolean;
   /** Allowed email domains */
-  allowedDomains?: string[]
+  allowedDomains?: string[];
   /** Allowed ID.me roles */
-  allowedIdMeRoles?: IdMeRole[]
+  allowedIdMeRoles?: IdMeRole[];
   /** Require admin approval */
-  requireApproval: boolean
+  requireApproval: boolean;
   /** Auto-approve new users */
-  autoApprove?: boolean
+  autoApprove?: boolean;
   /** Welcome new members in channel */
-  welcomeNewMembers: boolean
+  welcomeNewMembers: boolean;
   /** Channel for new member announcements */
-  newMemberChannel?: string
+  newMemberChannel?: string;
 }
 
 // ============================================================================
@@ -358,57 +382,57 @@ export interface AuthPermissionsConfig {
  */
 export interface FeatureFlags {
   /** Enable public channels */
-  publicChannels: boolean
+  publicChannels: boolean;
   /** Enable private channels */
-  privateChannels: boolean
+  privateChannels: boolean;
   /** Enable direct messages */
-  directMessages: boolean
+  directMessages: boolean;
   /** Enable file uploads */
-  fileUploads: boolean
+  fileUploads: boolean;
   /** Enable voice messages */
-  voiceMessages: boolean
+  voiceMessages: boolean;
   /** Enable threads */
-  threads: boolean
+  threads: boolean;
   /** Enable reactions */
-  reactions: boolean
+  reactions: boolean;
   /** Enable search */
-  search: boolean
+  search: boolean;
   /** Enable guest access */
-  guestAccess: boolean
+  guestAccess: boolean;
   /** Enable invite links */
-  inviteLinks: boolean
+  inviteLinks: boolean;
   /** Enable channel categories */
-  channelCategories: boolean
+  channelCategories: boolean;
   /** Enable custom emojis */
-  customEmojis: boolean
+  customEmojis: boolean;
   /** Enable message scheduling */
-  messageScheduling: boolean
+  messageScheduling: boolean;
   /** Enable video conferencing */
-  videoConferencing: boolean
+  videoConferencing: boolean;
   /** Enable polls */
-  polls: boolean
+  polls: boolean;
   /** Enable stickers */
-  stickers: boolean
+  stickers: boolean;
   /** Enable bots */
-  bots: boolean
+  bots: boolean;
   /** Enable webhooks */
-  webhooks: boolean
+  webhooks: boolean;
   /** Enable analytics */
-  analytics: boolean
+  analytics: boolean;
   /** Enable read receipts */
-  readReceipts: boolean
+  readReceipts: boolean;
   /** Enable typing indicators */
-  typingIndicators: boolean
+  typingIndicators: boolean;
   /** Enable presence (online status) */
-  presence: boolean
+  presence: boolean;
   /** Enable message editing */
-  messageEditing: boolean
+  messageEditing: boolean;
   /** Enable message deletion */
-  messageDeletion: boolean
+  messageDeletion: boolean;
   /** Enable message pinning */
-  messagePinning: boolean
+  messagePinning: boolean;
   /** Enable bookmarks */
-  bookmarks: boolean
+  bookmarks: boolean;
 }
 
 /**
@@ -441,7 +465,7 @@ export const DefaultFeatureFlags: FeatureFlags = {
   messageDeletion: true,
   messagePinning: true,
   bookmarks: true,
-}
+};
 
 // ============================================================================
 // Integration Configuration Types
@@ -451,53 +475,53 @@ export const DefaultFeatureFlags: FeatureFlags = {
  * Slack integration configuration.
  */
 export interface SlackIntegration {
-  enabled: boolean
-  importChannels: boolean
-  syncMessages: boolean
+  enabled: boolean;
+  importChannels: boolean;
+  syncMessages: boolean;
 }
 
 /**
  * GitHub integration configuration.
  */
 export interface GitHubIntegration {
-  enabled: boolean
-  notifications: boolean
-  linkPullRequests: boolean
+  enabled: boolean;
+  notifications: boolean;
+  linkPullRequests: boolean;
 }
 
 /**
  * Jira integration configuration.
  */
 export interface JiraIntegration {
-  enabled: boolean
-  ticketNotifications: boolean
+  enabled: boolean;
+  ticketNotifications: boolean;
 }
 
 /**
  * Google Drive integration configuration.
  */
 export interface GoogleDriveIntegration {
-  enabled: boolean
-  fileSharing: boolean
+  enabled: boolean;
+  fileSharing: boolean;
 }
 
 /**
  * Webhook integration configuration.
  */
 export interface WebhookIntegration {
-  enabled: boolean
-  customEndpoints: string[]
+  enabled: boolean;
+  customEndpoints: string[];
 }
 
 /**
  * All integrations configuration.
  */
 export interface IntegrationsConfig {
-  slack: SlackIntegration
-  github: GitHubIntegration
-  jira: JiraIntegration
-  googleDrive: GoogleDriveIntegration
-  webhooks: WebhookIntegration
+  slack: SlackIntegration;
+  github: GitHubIntegration;
+  jira: JiraIntegration;
+  googleDrive: GoogleDriveIntegration;
+  webhooks: WebhookIntegration;
 }
 
 // ============================================================================
@@ -509,21 +533,21 @@ export interface IntegrationsConfig {
  */
 export interface ModerationConfig {
   /** Enable auto-moderation */
-  autoModeration: boolean
+  autoModeration: boolean;
   /** Enable profanity filter */
-  profanityFilter: boolean
+  profanityFilter: boolean;
   /** Enable spam detection */
-  spamDetection: boolean
+  spamDetection: boolean;
   /** Require message approval */
-  requireMessageApproval: boolean
+  requireMessageApproval: boolean;
   /** Roles that can moderate */
-  moderatorRoles: string[]
+  moderatorRoles: string[];
   /** Enable reporting system */
-  reportingSystem: boolean
+  reportingSystem: boolean;
   /** Custom blocked words */
-  blockedWords?: string[]
+  blockedWords?: string[];
   /** Link filtering */
-  linkFiltering?: 'allow' | 'warn' | 'block'
+  linkFiltering?: "allow" | "warn" | "block";
 }
 
 // ============================================================================
@@ -535,19 +559,19 @@ export interface ModerationConfig {
  */
 export interface SEOConfig {
   /** Page title */
-  title: string
+  title: string;
   /** Meta description */
-  description: string
+  description: string;
   /** Meta keywords */
-  keywords: string[]
+  keywords: string[];
   /** Open Graph image */
-  ogImage?: string
+  ogImage?: string;
   /** Twitter handle */
-  twitterHandle?: string
+  twitterHandle?: string;
   /** Robots directives */
-  robots?: string
+  robots?: string;
   /** Canonical URL */
-  canonicalUrl?: string
+  canonicalUrl?: string;
 }
 
 // ============================================================================
@@ -559,17 +583,17 @@ export interface SEOConfig {
  */
 export interface LegalConfig {
   /** Privacy policy URL */
-  privacyPolicyUrl?: string
+  privacyPolicyUrl?: string;
   /** Terms of service URL */
-  termsOfServiceUrl?: string
+  termsOfServiceUrl?: string;
   /** Cookie policy URL */
-  cookiePolicyUrl?: string
+  cookiePolicyUrl?: string;
   /** Support email */
-  supportEmail: string
+  supportEmail: string;
   /** GDPR compliance */
-  gdprCompliance?: boolean
+  gdprCompliance?: boolean;
   /** Data retention days */
-  dataRetentionDays?: number
+  dataRetentionDays?: number;
 }
 
 // ============================================================================
@@ -580,15 +604,15 @@ export interface LegalConfig {
  * Social links configuration.
  */
 export interface SocialLinksConfig {
-  twitter?: string
-  linkedin?: string
-  github?: string
-  discord?: string
-  slack?: string
-  website?: string
-  instagram?: string
-  facebook?: string
-  youtube?: string
+  twitter?: string;
+  linkedin?: string;
+  github?: string;
+  discord?: string;
+  slack?: string;
+  website?: string;
+  instagram?: string;
+  facebook?: string;
+  youtube?: string;
 }
 
 // ============================================================================
@@ -600,33 +624,33 @@ export interface SocialLinksConfig {
  */
 export interface AppConfig {
   /** Setup state */
-  setup: SetupConfig
+  setup: SetupConfig;
   /** Owner information */
-  owner: OwnerConfig
+  owner: OwnerConfig;
   /** Branding configuration */
-  branding: BrandingConfig
+  branding: BrandingConfig;
   /** Landing page theme */
-  landingTheme: LandingTheme
+  landingTheme: LandingTheme;
   /** Homepage configuration */
-  homepage: HomepageConfig
+  homepage: HomepageConfig;
   /** Authentication providers */
-  authProviders: AuthProvidersConfig
+  authProviders: AuthProvidersConfig;
   /** Authentication permissions */
-  authPermissions: AuthPermissionsConfig
+  authPermissions: AuthPermissionsConfig;
   /** Feature flags */
-  features: FeatureFlags
+  features: FeatureFlags;
   /** Integrations */
-  integrations: IntegrationsConfig
+  integrations: IntegrationsConfig;
   /** Moderation settings */
-  moderation: ModerationConfig
+  moderation: ModerationConfig;
   /** Theme configuration */
-  theme: ThemeConfig
+  theme: ThemeConfig;
   /** SEO configuration */
-  seo: SEOConfig
+  seo: SEOConfig;
   /** Legal configuration */
-  legal: LegalConfig
+  legal: LegalConfig;
   /** Social links */
-  social: SocialLinksConfig
+  social: SocialLinksConfig;
 }
 
 // ============================================================================
@@ -643,17 +667,17 @@ export const DefaultAppConfig: AppConfig = {
     visitedSteps: [0],
   },
   owner: {
-    name: '',
-    email: '',
+    name: "",
+    email: "",
   },
   branding: {
-    appName: 'nchat',
-    tagline: 'Team Communication Platform',
+    appName: "nchat",
+    tagline: "Team Communication Platform",
     logoScale: 1.0,
   },
-  landingTheme: 'simple-landing',
+  landingTheme: "simple-landing",
   homepage: {
-    mode: 'landing',
+    mode: "landing",
     landingPages: {
       hero: true,
       features: true,
@@ -683,12 +707,12 @@ export const DefaultAppConfig: AppConfig = {
     },
   },
   authPermissions: {
-    mode: 'allow-all',
+    mode: "allow-all",
     requireEmailVerification: false,
     requireApproval: false,
     autoApprove: true,
     welcomeNewMembers: true,
-    newMemberChannel: 'general',
+    newMemberChannel: "general",
   },
   features: DefaultFeatureFlags,
   integrations: {
@@ -703,20 +727,20 @@ export const DefaultAppConfig: AppConfig = {
     profanityFilter: false,
     spamDetection: true,
     requireMessageApproval: false,
-    moderatorRoles: ['admin', 'moderator'],
+    moderatorRoles: ["admin", "moderator"],
     reportingSystem: true,
   },
   theme: DefaultThemeConfig,
   seo: {
-    title: 'nchat - Team Communication Platform',
-    description: 'Modern team communication and collaboration platform',
-    keywords: ['chat', 'team', 'communication', 'collaboration', 'messaging'],
+    title: "nchat - Team Communication Platform",
+    description: "Modern team communication and collaboration platform",
+    keywords: ["chat", "team", "communication", "collaboration", "messaging"],
   },
   legal: {
-    supportEmail: 'support@example.com',
+    supportEmail: "support@example.com",
   },
   social: {},
-}
+};
 
 // ============================================================================
 // Config Update Types
@@ -726,23 +750,23 @@ export const DefaultAppConfig: AppConfig = {
  * Partial config update input.
  */
 export type ConfigUpdate = {
-  [K in keyof AppConfig]?: Partial<AppConfig[K]>
-}
+  [K in keyof AppConfig]?: Partial<AppConfig[K]>;
+};
 
 /**
  * Config change event.
  */
 export interface ConfigChangeEvent {
   /** Changed section */
-  section: keyof AppConfig
+  section: keyof AppConfig;
   /** Previous value */
-  previousValue: unknown
+  previousValue: unknown;
   /** New value */
-  newValue: unknown
+  newValue: unknown;
   /** When change occurred */
-  timestamp: Date
+  timestamp: Date;
   /** Who made the change */
-  changedBy?: string
+  changedBy?: string;
 }
 
 // ============================================================================
@@ -754,23 +778,23 @@ export interface ConfigChangeEvent {
  */
 export interface EnvironmentConfig {
   /** Environment name */
-  env: 'development' | 'staging' | 'production'
+  env: "development" | "staging" | "production";
   /** API base URL */
-  apiUrl: string
+  apiUrl: string;
   /** GraphQL endpoint */
-  graphqlUrl: string
+  graphqlUrl: string;
   /** Auth service URL */
-  authUrl: string
+  authUrl: string;
   /** Storage service URL */
-  storageUrl: string
+  storageUrl: string;
   /** WebSocket URL */
-  wsUrl: string
+  wsUrl: string;
   /** Use development auth */
-  useDevAuth: boolean
+  useDevAuth: boolean;
   /** Debug mode */
-  debug: boolean
+  debug: boolean;
   /** Log level */
-  logLevel: 'debug' | 'info' | 'warn' | 'error'
+  logLevel: "debug" | "info" | "warn" | "error";
 }
 
 /**
@@ -778,14 +802,17 @@ export interface EnvironmentConfig {
  */
 export function getEnvironmentConfig(): EnvironmentConfig {
   return {
-    env: (process.env.NODE_ENV as EnvironmentConfig['env']) || 'development',
-    apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
-    graphqlUrl: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql',
-    authUrl: process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:4000',
-    storageUrl: process.env.NEXT_PUBLIC_STORAGE_URL || 'http://localhost:9000',
-    wsUrl: process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001',
-    useDevAuth: process.env.NEXT_PUBLIC_USE_DEV_AUTH === 'true',
-    debug: process.env.NEXT_PUBLIC_DEBUG === 'true',
-    logLevel: (process.env.NEXT_PUBLIC_LOG_LEVEL as EnvironmentConfig['logLevel']) || 'info',
-  }
+    env: (process.env.NODE_ENV as EnvironmentConfig["env"]) || "development",
+    apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
+    graphqlUrl:
+      process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql",
+    authUrl: process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:4000",
+    storageUrl: process.env.NEXT_PUBLIC_STORAGE_URL || "http://localhost:9000",
+    wsUrl: process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3001",
+    useDevAuth: process.env.NEXT_PUBLIC_USE_DEV_AUTH === "true",
+    debug: process.env.NEXT_PUBLIC_DEBUG === "true",
+    logLevel:
+      (process.env.NEXT_PUBLIC_LOG_LEVEL as EnvironmentConfig["logLevel"]) ||
+      "info",
+  };
 }

@@ -11,10 +11,10 @@
  * - Real-time updates
  */
 
-'use client'
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
   Users,
@@ -28,34 +28,34 @@ import {
   Archive,
   Lock,
   Unlock,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { MessageItem, CompactMessageItem } from './message-item'
-import { MessageInput } from './message-input'
-import { ThreadSummaryPanel } from './ThreadSummaryPanel'
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { MessageItem, CompactMessageItem } from "./message-item";
+import { MessageInput } from "./message-input";
+import { ThreadSummaryPanel } from "./ThreadSummaryPanel";
 import {
   useThread,
   type ThreadMessage as HookThreadMessage,
   type ThreadParticipant,
-} from '@/hooks/use-thread'
-import { useAuth } from '@/contexts/auth-context'
-import { useAppConfig } from '@/contexts/app-config-context'
-import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
-import type { Message } from '@/types/message'
+} from "@/hooks/use-thread";
+import { useAuth } from "@/contexts/auth-context";
+import { useAppConfig } from "@/contexts/app-config-context";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import type { Message } from "@/types/message";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // TYPES
@@ -63,15 +63,15 @@ import { logger } from '@/lib/logger'
 
 export interface ThreadViewProps {
   /** Thread ID to display */
-  threadId: string
+  threadId: string;
   /** Callback when thread is closed */
-  onClose?: () => void
+  onClose?: () => void;
   /** Whether to show in standalone mode (full screen) */
-  standalone?: boolean
+  standalone?: boolean;
   /** Whether to use compact header */
-  compactHeader?: boolean
+  compactHeader?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -85,11 +85,11 @@ export function ThreadView({
   compactHeader = false,
   className,
 }: ThreadViewProps) {
-  const { user } = useAuth()
-  const { config } = useAppConfig()
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [showScrollToBottom, setShowScrollToBottom] = useState(false)
-  const [showSummary, setShowSummary] = useState(false)
+  const { user } = useAuth();
+  const { config } = useAppConfig();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   // Use thread hook
   const {
@@ -115,91 +115,92 @@ export function ThreadView({
     threadId,
     limit: 50,
     autoSubscribe: true,
-  })
+  });
 
   // Scroll to bottom on initial load
   useEffect(() => {
     if (messages.length > 0 && scrollRef.current) {
-      const scrollElement = scrollRef.current
-      scrollElement.scrollTop = scrollElement.scrollHeight
+      const scrollElement = scrollRef.current;
+      scrollElement.scrollTop = scrollElement.scrollHeight;
     }
-  }, [threadId]) // Only on mount or threadId change
+  }, [threadId]); // Only on mount or threadId change
 
   // Handle scroll events
   const handleScroll = useCallback(() => {
-    if (!scrollRef.current) return
+    if (!scrollRef.current) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 
     // Show scroll to bottom button if scrolled up
-    setShowScrollToBottom(distanceFromBottom > 200)
+    setShowScrollToBottom(distanceFromBottom > 200);
 
     // Load more when scrolling to top
     if (scrollTop < 100 && hasMore && !loadingMessages) {
-      loadMore()
+      loadMore();
     }
-  }, [hasMore, loadingMessages, loadMore])
+  }, [hasMore, loadingMessages, loadMore]);
 
   // Scroll to bottom function
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [])
+  }, []);
 
   // Handle sending a reply
   const handleSendReply = useCallback(
     async (content: string) => {
       try {
-        await sendReply(content)
-        scrollToBottom()
+        await sendReply(content);
+        scrollToBottom();
       } catch (err) {
-        logger.error('Failed to send reply:', err)
+        logger.error("Failed to send reply:", err);
       }
     },
-    [sendReply, scrollToBottom]
-  )
+    [sendReply, scrollToBottom],
+  );
 
   // Handle follow/unfollow
   const handleToggleFollow = useCallback(async () => {
     try {
       if (isParticipant) {
-        await leaveThread()
+        await leaveThread();
       } else {
-        await joinThread()
+        await joinThread();
       }
     } catch (err) {
-      logger.error('Failed to toggle follow:', err)
+      logger.error("Failed to toggle follow:", err);
     }
-  }, [isParticipant, joinThread, leaveThread])
+  }, [isParticipant, joinThread, leaveThread]);
 
   // Handle notification toggle
   const handleToggleNotifications = useCallback(async () => {
-    if (!thread) return
+    if (!thread) return;
 
     try {
       const currentState =
-        participants.find((p) => p.user_id === user?.id)?.notifications_enabled ?? true
-      await toggleNotifications(!currentState)
+        participants.find((p) => p.user_id === user?.id)
+          ?.notifications_enabled ?? true;
+      await toggleNotifications(!currentState);
     } catch (err) {
-      logger.error('Failed to toggle notifications:', err)
+      logger.error("Failed to toggle notifications:", err);
     }
-  }, [thread, participants, user?.id, toggleNotifications])
+  }, [thread, participants, user?.id, toggleNotifications]);
 
   // Convert hook messages to component messages
   const componentMessages = messages.map((msg: HookThreadMessage) => ({
     id: msg.id,
     channelId: msg.channel_id,
     content: msg.content,
-    type: msg.type as Message['type'],
+    type: msg.type as Message["type"],
     userId: msg.user_id,
     user: {
       id: msg.user.id,
       username: msg.user.username,
       displayName: msg.user.display_name,
       avatarUrl: msg.user.avatar_url,
-      status: msg.user.status as Message['user']['status'],
+      status: msg.user.status as Message["user"]["status"],
     },
     createdAt: new Date(msg.created_at),
     updatedAt: msg.edited_at ? new Date(msg.edited_at) : undefined,
@@ -207,7 +208,12 @@ export function ThreadView({
     editedAt: msg.edited_at ? new Date(msg.edited_at) : undefined,
     attachments: msg.attachments?.map((att: any) => ({
       id: att.id,
-      type: (att.file_type || 'file') as 'image' | 'video' | 'audio' | 'file' | 'link',
+      type: (att.file_type || "file") as
+        | "image"
+        | "video"
+        | "audio"
+        | "file"
+        | "link",
       url: att.file_url,
       name: att.file_name,
       size: att.file_size,
@@ -231,66 +237,83 @@ export function ThreadView({
     })),
     isPinned: msg.is_pinned,
     isDeleted: msg.is_deleted,
-  }))
+  }));
 
   // Get notification status for current user
   const notificationsEnabled =
-    participants.find((p) => p.user_id === user?.id)?.notifications_enabled ?? true
+    participants.find((p) => p.user_id === user?.id)?.notifications_enabled ??
+    true;
 
   // Loading state
   if (loading && !thread) {
     return (
-      <div className={cn('flex h-full items-center justify-center', className)}>
+      <div className={cn("flex h-full items-center justify-center", className)}>
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   // Error state
   if (error) {
     return (
-      <div className={cn('flex h-full items-center justify-center p-8', className)}>
+      <div
+        className={cn("flex h-full items-center justify-center p-8", className)}
+      >
         <div className="text-center">
           <p className="text-sm text-muted-foreground">Failed to load thread</p>
           <p className="mt-2 text-xs text-muted-foreground">{error.message}</p>
         </div>
       </div>
-    )
+    );
   }
 
   // No thread state
   if (!thread || !parentMessage) {
     return (
-      <div className={cn('flex h-full items-center justify-center p-8', className)}>
+      <div
+        className={cn("flex h-full items-center justify-center p-8", className)}
+      >
         <div className="text-center">
           <MessageSquare className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Thread not found</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex h-full flex-col bg-background', className)}>
+    <div className={cn("flex h-full flex-col bg-background", className)}>
       {/* Header */}
       <div
         className={cn(
-          'flex items-center justify-between border-b px-4',
-          compactHeader ? 'py-2' : 'py-3'
+          "flex items-center justify-between border-b px-4",
+          compactHeader ? "py-2" : "py-3",
         )}
       >
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {standalone && (
-            <Button variant="ghost" size="sm" onClick={onClose} className="shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="shrink-0"
+            >
               <ChevronLeft className="h-4 w-4" />
             </Button>
           )}
 
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <span className={cn('truncate font-semibold', compactHeader && 'text-sm')}>Thread</span>
+            <span
+              className={cn(
+                "truncate font-semibold",
+                compactHeader && "text-sm",
+              )}
+            >
+              Thread
+            </span>
             <Badge variant="secondary" className="shrink-0">
-              {totalCount} {totalCount === 1 ? 'reply' : 'replies'}
+              {totalCount} {totalCount === 1 ? "reply" : "replies"}
             </Badge>
             {hasUnread && (
               <Badge variant="destructive" className="shrink-0">
@@ -316,14 +339,19 @@ export function ThreadView({
               <Separator />
               <div className="max-h-64 overflow-y-auto">
                 {participants.map((participant: ThreadParticipant) => (
-                  <div key={participant.id} className="flex items-center gap-2 px-2 py-1.5">
+                  <div
+                    key={participant.id}
+                    className="flex items-center gap-2 px-2 py-1.5"
+                  >
                     <Avatar className="h-6 w-6">
                       <AvatarImage src={participant.user.avatar_url} />
                       <AvatarFallback className="text-xs">
                         {participant.user.display_name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="flex-1 truncate text-sm">{participant.user.display_name}</span>
+                    <span className="flex-1 truncate text-sm">
+                      {participant.user.display_name}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -339,7 +367,7 @@ export function ThreadView({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleToggleFollow}>
-                {isParticipant ? 'Unfollow thread' : 'Follow thread'}
+                {isParticipant ? "Unfollow thread" : "Follow thread"}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleToggleNotifications}>
                 {notificationsEnabled ? (
@@ -357,7 +385,7 @@ export function ThreadView({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowSummary(!showSummary)}>
                 <MessageSquare className="mr-2 h-4 w-4" />
-                {showSummary ? 'Hide' : 'Show'} AI Summary
+                {showSummary ? "Hide" : "Show"} AI Summary
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={markAsRead} disabled={!hasUnread}>
@@ -379,7 +407,7 @@ export function ThreadView({
         {showSummary && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden border-b"
           >
@@ -404,14 +432,18 @@ export function ThreadView({
         <div className="flex items-start gap-3">
           <Avatar className="h-10 w-10 shrink-0">
             <AvatarImage src={parentMessage.user.avatar_url} />
-            <AvatarFallback>{parentMessage.user.display_name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>
+              {parentMessage.user.display_name.charAt(0)}
+            </AvatarFallback>
           </Avatar>
 
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-baseline gap-2">
-              <span className="text-sm font-semibold">{parentMessage.user.display_name}</span>
+              <span className="text-sm font-semibold">
+                {parentMessage.user.display_name}
+              </span>
               <span className="text-xs text-muted-foreground">
-                {format(new Date(parentMessage.created_at), 'MMM d, h:mm a')}
+                {format(new Date(parentMessage.created_at), "MMM d, h:mm a")}
               </span>
             </div>
             <p className="text-sm leading-relaxed">{parentMessage.content}</p>
@@ -420,7 +452,11 @@ export function ThreadView({
       </div>
 
       {/* Thread messages */}
-      <ScrollArea ref={scrollRef} className="relative flex-1" onScroll={handleScroll}>
+      <ScrollArea
+        ref={scrollRef}
+        className="relative flex-1"
+        onScroll={handleScroll}
+      >
         {loadingMessages && hasMore && (
           <div className="flex items-center justify-center p-4">
             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -433,8 +469,14 @@ export function ThreadView({
               <CompactMessageItem
                 key={message.id}
                 message={message}
-                isGrouped={index > 0 && componentMessages[index - 1].userId === message.userId}
-                showAvatar={index === 0 || componentMessages[index - 1].userId !== message.userId}
+                isGrouped={
+                  index > 0 &&
+                  componentMessages[index - 1].userId === message.userId
+                }
+                showAvatar={
+                  index === 0 ||
+                  componentMessages[index - 1].userId !== message.userId
+                }
               />
             ))}
           </AnimatePresence>
@@ -487,5 +529,5 @@ export function ThreadView({
         )}
       </div>
     </div>
-  )
+  );
 }

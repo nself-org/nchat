@@ -1,39 +1,53 @@
-'use client'
+"use client";
 
 /**
  * AnalyticsHeader - Header component with date range picker and filters
  */
 
-import * as React from 'react'
-import { format } from 'date-fns'
-import { Calendar, ChevronDown, RefreshCw, Download, Filter, X } from 'lucide-react'
+import * as React from "react";
+import { format } from "date-fns";
+import {
+  Calendar,
+  ChevronDown,
+  RefreshCw,
+  Download,
+  Filter,
+  X,
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
-import { useAnalyticsStore } from '@/stores/analytics-store'
-import type { DateRangePreset, TimeGranularity } from '@/lib/analytics/analytics-types'
+import { useAnalyticsStore } from "@/stores/analytics-store";
+import type {
+  DateRangePreset,
+  TimeGranularity,
+} from "@/lib/analytics/analytics-types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AnalyticsHeaderProps {
-  title?: string
-  showFilters?: boolean
-  showExport?: boolean
-  onExport?: () => void
-  className?: string
+  title?: string;
+  showFilters?: boolean;
+  showExport?: boolean;
+  onExport?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -41,29 +55,29 @@ interface AnalyticsHeaderProps {
 // ============================================================================
 
 const dateRangePresets: { value: DateRangePreset; label: string }[] = [
-  { value: 'today', label: 'Today' },
-  { value: 'yesterday', label: 'Yesterday' },
-  { value: 'last7days', label: 'Last 7 days' },
-  { value: 'last30days', label: 'Last 30 days' },
-  { value: 'last90days', label: 'Last 90 days' },
-  { value: 'thisMonth', label: 'This month' },
-  { value: 'lastMonth', label: 'Last month' },
-  { value: 'thisYear', label: 'This year' },
-]
+  { value: "today", label: "Today" },
+  { value: "yesterday", label: "Yesterday" },
+  { value: "last7days", label: "Last 7 days" },
+  { value: "last30days", label: "Last 30 days" },
+  { value: "last90days", label: "Last 90 days" },
+  { value: "thisMonth", label: "This month" },
+  { value: "lastMonth", label: "Last month" },
+  { value: "thisYear", label: "This year" },
+];
 
 const granularityOptions: { value: TimeGranularity; label: string }[] = [
-  { value: 'hour', label: 'Hourly' },
-  { value: 'day', label: 'Daily' },
-  { value: 'week', label: 'Weekly' },
-  { value: 'month', label: 'Monthly' },
-]
+  { value: "hour", label: "Hourly" },
+  { value: "day", label: "Daily" },
+  { value: "week", label: "Weekly" },
+  { value: "month", label: "Monthly" },
+];
 
 // ============================================================================
 // Component
 // ============================================================================
 
 export function AnalyticsHeader({
-  title = 'Analytics',
+  title = "Analytics",
   showFilters = true,
   showExport = true,
   onExport,
@@ -82,35 +96,42 @@ export function AnalyticsHeader({
     setGranularity,
     resetFilters,
     refreshData,
-  } = useAnalyticsStore()
+  } = useAnalyticsStore();
 
-  const [isFilterOpen, setIsFilterOpen] = React.useState(false)
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
 
   const activeFiltersCount =
     (selectedChannelIds.length > 0 ? 1 : 0) +
     (selectedUserIds.length > 0 ? 1 : 0) +
-    (includeBots ? 1 : 0)
+    (includeBots ? 1 : 0);
 
   const handleRefresh = async () => {
-    await refreshData()
-  }
+    await refreshData();
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Title and Actions Row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
           {lastUpdated && (
             <p className="text-sm text-muted-foreground">
-              Last updated: {format(lastUpdated, 'MMM d, yyyy h:mm a')}
+              Last updated: {format(lastUpdated, "MMM d, yyyy h:mm a")}
             </p>
           )}
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
-            <RefreshCw className={cn('mr-2 h-4 w-4', isLoading && 'animate-spin')} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isLoading}
+          >
+            <RefreshCw
+              className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")}
+            />
             Refresh
           </Button>
 
@@ -129,7 +150,9 @@ export function AnalyticsHeader({
           {/* Date Range Selector */}
           <Select
             value={dateRangePreset}
-            onValueChange={(value) => setDateRangePreset(value as DateRangePreset)}
+            onValueChange={(value) =>
+              setDateRangePreset(value as DateRangePreset)
+            }
           >
             <SelectTrigger className="w-[180px]">
               <Calendar className="mr-2 h-4 w-4" />
@@ -146,7 +169,8 @@ export function AnalyticsHeader({
 
           {/* Date Display */}
           <div className="bg-muted/50 hidden rounded-md border px-3 py-2 text-sm sm:block">
-            {format(dateRange.start, 'MMM d, yyyy')} - {format(dateRange.end, 'MMM d, yyyy')}
+            {format(dateRange.start, "MMM d, yyyy")} -{" "}
+            {format(dateRange.end, "MMM d, yyyy")}
           </div>
 
           <Separator orientation="vertical" className="hidden h-8 sm:block" />
@@ -175,7 +199,10 @@ export function AnalyticsHeader({
                 <Filter className="mr-2 h-4 w-4" />
                 Filters
                 {activeFiltersCount > 0 && (
-                  <Badge variant="secondary" className="ml-2 h-5 w-5 rounded-full p-0 text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="ml-2 h-5 w-5 rounded-full p-0 text-xs"
+                  >
                     {activeFiltersCount}
                   </Badge>
                 )}
@@ -191,8 +218,8 @@ export function AnalyticsHeader({
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        resetFilters()
-                        setIsFilterOpen(false)
+                        resetFilters();
+                        setIsFilterOpen(false);
                       }}
                     >
                       <X className="mr-1 h-3 w-3" />
@@ -208,7 +235,7 @@ export function AnalyticsHeader({
                   <span className="text-sm font-medium">Channels</span>
                   <p className="text-xs text-muted-foreground">
                     {selectedChannelIds.length === 0
-                      ? 'All channels'
+                      ? "All channels"
                       : // eslint-disable-next-line no-restricted-syntax
                         `${selectedChannelIds.length} selected`}
                   </p>
@@ -220,7 +247,7 @@ export function AnalyticsHeader({
                   <span className="text-sm font-medium">Users</span>
                   <p className="text-xs text-muted-foreground">
                     {selectedUserIds.length === 0
-                      ? 'All users'
+                      ? "All users"
                       : // eslint-disable-next-line no-restricted-syntax
                         `${selectedUserIds.length} selected`}
                   </p>
@@ -230,8 +257,8 @@ export function AnalyticsHeader({
                 {/* Include Bots Toggle */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Include bots</span>
-                  <Badge variant={includeBots ? 'default' : 'outline'}>
-                    {includeBots ? 'Yes' : 'No'}
+                  <Badge variant={includeBots ? "default" : "outline"}>
+                    {includeBots ? "Yes" : "No"}
                   </Badge>
                 </div>
               </div>
@@ -244,13 +271,13 @@ export function AnalyticsHeader({
               {selectedChannelIds.length > 0 && (
                 <Badge variant="secondary">
                   {selectedChannelIds.length} channel
-                  {selectedChannelIds.length > 1 ? 's' : ''}
+                  {selectedChannelIds.length > 1 ? "s" : ""}
                 </Badge>
               )}
               {selectedUserIds.length > 0 && (
                 <Badge variant="secondary">
                   {selectedUserIds.length} user
-                  {selectedUserIds.length > 1 ? 's' : ''}
+                  {selectedUserIds.length > 1 ? "s" : ""}
                 </Badge>
               )}
               {includeBots && <Badge variant="secondary">Including bots</Badge>}
@@ -259,7 +286,7 @@ export function AnalyticsHeader({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default AnalyticsHeader
+export default AnalyticsHeader;

@@ -7,4 +7,4 @@
  * @version 1.0.0
  */
 
-export * from './knowledge-types'
+export * from "./knowledge-types";

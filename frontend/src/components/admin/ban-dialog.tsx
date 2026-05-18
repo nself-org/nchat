@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Ban, AlertTriangle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { Ban, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,83 +10,88 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export interface BanDialogUser {
-  id: string
-  username: string
-  displayName: string
-  email: string
-  avatarUrl?: string
-  status: 'active' | 'inactive' | 'banned'
+  id: string;
+  username: string;
+  displayName: string;
+  email: string;
+  avatarUrl?: string;
+  status: "active" | "inactive" | "banned";
 }
 
 interface BanDialogProps {
-  user: BanDialogUser | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  user: BanDialogUser | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onConfirm: (data: {
-    userId: string
-    reason: string
-    duration: string
-    notifyUser: boolean
-  }) => void
+    userId: string;
+    reason: string;
+    duration: string;
+    notifyUser: boolean;
+  }) => void;
 }
 
-export function BanDialog({ user, open, onOpenChange, onConfirm }: BanDialogProps) {
-  const [reason, setReason] = useState('')
-  const [duration, setDuration] = useState('permanent')
-  const [customDuration, setCustomDuration] = useState('')
-  const [notifyUser, setNotifyUser] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function BanDialog({
+  user,
+  open,
+  onOpenChange,
+  onConfirm,
+}: BanDialogProps) {
+  const [reason, setReason] = useState("");
+  const [duration, setDuration] = useState("permanent");
+  const [customDuration, setCustomDuration] = useState("");
+  const [notifyUser, setNotifyUser] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isBanned = user?.status === 'banned'
+  const isBanned = user?.status === "banned";
 
   const handleSubmit = async () => {
-    if (!user) return
+    if (!user) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       await onConfirm({
         userId: user.id,
         reason,
-        duration: duration === 'custom' ? customDuration : duration,
+        duration: duration === "custom" ? customDuration : duration,
         notifyUser,
-      })
-      onOpenChange(false)
+      });
+      onOpenChange(false);
       // Reset form
-      setReason('')
-      setDuration('permanent')
-      setCustomDuration('')
-      setNotifyUser(true)
+      setReason("");
+      setDuration("permanent");
+      setCustomDuration("");
+      setNotifyUser(true);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       // Reset form when closing
-      setReason('')
-      setDuration('permanent')
-      setCustomDuration('')
-      setNotifyUser(true)
+      setReason("");
+      setDuration("permanent");
+      setCustomDuration("");
+      setNotifyUser(true);
     }
-    onOpenChange(newOpen)
-  }
+    onOpenChange(newOpen);
+  };
 
-  if (!user) return null
+  if (!user) return null;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -107,8 +112,8 @@ export function BanDialog({ user, open, onOpenChange, onConfirm }: BanDialogProp
           </DialogTitle>
           <DialogDescription>
             {isBanned
-              ? 'This will remove the ban and restore access to this user.'
-              : 'This will prevent the user from accessing the workspace.'}
+              ? "This will remove the ban and restore access to this user."
+              : "This will prevent the user from accessing the workspace."}
           </DialogDescription>
         </DialogHeader>
 
@@ -117,7 +122,9 @@ export function BanDialog({ user, open, onOpenChange, onConfirm }: BanDialogProp
           <div className="bg-muted/30 flex items-center space-x-4 rounded-lg border p-4">
             <Avatar className="h-12 w-12">
               <AvatarImage src={user.avatarUrl} />
-              <AvatarFallback>{user.displayName.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarFallback>
+                {user.displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div>
               <p className="font-medium">{user.displayName}</p>
@@ -145,7 +152,7 @@ export function BanDialog({ user, open, onOpenChange, onConfirm }: BanDialogProp
                     <SelectItem value="custom">Custom</SelectItem>
                   </SelectContent>
                 </Select>
-                {duration === 'custom' && (
+                {duration === "custom" && (
                   <Input
                     placeholder="e.g., 3d, 2w, 6m"
                     value={customDuration}
@@ -186,8 +193,9 @@ export function BanDialog({ user, open, onOpenChange, onConfirm }: BanDialogProp
           {isBanned && (
             <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200">
               <p>
-                This user is currently banned. Unbanning will restore their access to the workspace
-                with their previous role and permissions.
+                This user is currently banned. Unbanning will restore their
+                access to the workspace with their previous role and
+                permissions.
               </p>
             </div>
           )}
@@ -198,14 +206,18 @@ export function BanDialog({ user, open, onOpenChange, onConfirm }: BanDialogProp
             Cancel
           </Button>
           <Button
-            variant={isBanned ? 'default' : 'destructive'}
+            variant={isBanned ? "default" : "destructive"}
             onClick={handleSubmit}
             disabled={isSubmitting || (!isBanned && !reason.trim())}
           >
-            {isSubmitting ? 'Processing...' : isBanned ? 'Unban User' : 'Ban User'}
+            {isSubmitting
+              ? "Processing..."
+              : isBanned
+                ? "Unban User"
+                : "Ban User"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

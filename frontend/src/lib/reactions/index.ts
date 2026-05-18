@@ -35,7 +35,7 @@ export {
   sortReactions,
   areReactionsAllowed,
   isEmojiAllowed,
-} from './platform-reactions'
+} from "./platform-reactions";
 
 // Re-export core reactions utilities
 export {
@@ -86,4 +86,4 @@ export {
   createOptimisticRemove,
   applyOptimisticUpdate,
   revertOptimisticUpdate,
-} from '../messages/reactions'
+} from "../messages/reactions";

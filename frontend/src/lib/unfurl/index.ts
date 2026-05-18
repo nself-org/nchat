@@ -65,7 +65,7 @@ export {
   punycodeToUnicode,
   unicodeToPunycode,
   parseProviderUrl,
-} from './url-parser'
+} from "./url-parser";
 
 // ============================================================================
 // Domain Rules
@@ -98,7 +98,7 @@ export {
   deserializeDomainRulesConfig,
   exportRules,
   importRules,
-} from './domain-rules'
+} from "./domain-rules";
 
 // ============================================================================
 // Provider Handlers
@@ -126,7 +126,7 @@ export {
   getOembedUrlForProvider,
   getEmbedUrlForProvider,
   parseHtmlWithProvider,
-} from './provider-handlers'
+} from "./provider-handlers";
 
 // ============================================================================
 // URL Resolver
@@ -145,14 +145,17 @@ export {
   resolveUrlCached,
   clearResolutionCache,
   getResolutionCacheStats,
-} from './url-resolver'
+} from "./url-resolver";
 
 // ============================================================================
 // Re-exports from other modules
 // ============================================================================
 
 // Re-export the main unfurl service
-export { getLinkUnfurlService, createLinkUnfurlService } from '@/services/messages/link-unfurl.service'
+export {
+  getLinkUnfurlService,
+  createLinkUnfurlService,
+} from "@/services/messages/link-unfurl.service";
 
 export type {
   LinkPreviewData,
@@ -161,7 +164,7 @@ export type {
   UnfurlOptions,
   OpenGraphData,
   TwitterCardData,
-} from '@/services/messages/link-unfurl.service'
+} from "@/services/messages/link-unfurl.service";
 
 // Re-export preferences hook (using dynamic import in components)
 // Note: The hook is exported from its own file for tree-shaking

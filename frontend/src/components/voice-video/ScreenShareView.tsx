@@ -11,16 +11,23 @@
  * - Picture-in-picture support
  */
 
-'use client'
+"use client";
 
-import React, { useRef, useEffect, useState } from 'react'
-import { MonitorUp, MonitorStop, Pin, Maximize, Minimize, Users } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn } from '@/lib/utils'
-import { VideoTile } from './VideoTile'
-import type { CallParticipant } from '@/types/calls'
+import React, { useRef, useEffect, useState } from "react";
+import {
+  MonitorUp,
+  MonitorStop,
+  Pin,
+  Maximize,
+  Minimize,
+  Users,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { VideoTile } from "./VideoTile";
+import type { CallParticipant } from "@/types/calls";
 
 // =============================================================================
 // Types
@@ -28,27 +35,27 @@ import type { CallParticipant } from '@/types/calls'
 
 export interface ScreenShareViewProps {
   /** Participant who is sharing screen */
-  participant: CallParticipant
+  participant: CallParticipant;
   /** Screen share stream */
-  stream: MediaStream | null
+  stream: MediaStream | null;
   /** All other participants */
-  participants: CallParticipant[]
+  participants: CallParticipant[];
   /** Local stream (for PiP) */
-  localStream?: MediaStream | null
+  localStream?: MediaStream | null;
   /** Local user info */
   localUser?: {
-    id: string
-    name: string
-    avatarUrl?: string
-  }
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  };
   /** Callbacks */
-  onStopSharing?: () => void
-  onPinParticipant?: (participantId: string) => void
+  onStopSharing?: () => void;
+  onPinParticipant?: (participantId: string) => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
-type ThumbnailPosition = 'right' | 'bottom'
+type ThumbnailPosition = "right" | "bottom";
 
 // =============================================================================
 // Component
@@ -64,68 +71,70 @@ export function ScreenShareView({
   onPinParticipant,
   className,
 }: ScreenShareViewProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [thumbnailPosition, setThumbnailPosition] = useState<ThumbnailPosition>('right')
-  const [showThumbnails, setShowThumbnails] = useState(true)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [thumbnailPosition, setThumbnailPosition] =
+    useState<ThumbnailPosition>("right");
+  const [showThumbnails, setShowThumbnails] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Attach screen share stream
   useEffect(() => {
     if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream
+      videoRef.current.srcObject = stream;
     }
-  }, [stream])
+  }, [stream]);
 
   // Auto-adjust thumbnail position based on screen aspect ratio
   useEffect(() => {
     const handleResize = () => {
-      const aspectRatio = window.innerWidth / window.innerHeight
-      setThumbnailPosition(aspectRatio > 1.5 ? 'right' : 'bottom')
-    }
+      const aspectRatio = window.innerWidth / window.innerHeight;
+      setThumbnailPosition(aspectRatio > 1.5 ? "right" : "bottom");
+    };
 
-    handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Fullscreen handlers
   const toggleFullscreen = async () => {
-    if (!containerRef.current) return
+    if (!containerRef.current) return;
 
     if (!isFullscreen) {
       try {
-        await containerRef.current.requestFullscreen()
-        setIsFullscreen(true)
+        await containerRef.current.requestFullscreen();
+        setIsFullscreen(true);
       } catch (error) {
-        console.error('Failed to enter fullscreen:', error)
+        console.error("Failed to enter fullscreen:", error);
       }
     } else {
       try {
-        await document.exitFullscreen()
-        setIsFullscreen(false)
+        await document.exitFullscreen();
+        setIsFullscreen(false);
       } catch (error) {
-        console.error('Failed to exit fullscreen:', error)
+        console.error("Failed to exit fullscreen:", error);
       }
     }
-  }
+  };
 
   // Listen for fullscreen changes
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+      setIsFullscreen(!!document.fullscreenElement);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // Filter out the presenter from participants list
-  const otherParticipants = participants.filter((p) => p.id !== participant.id)
+  const otherParticipants = participants.filter((p) => p.id !== participant.id);
 
   return (
-    <div ref={containerRef} className={cn('flex h-full w-full', className)}>
-      {thumbnailPosition === 'right' ? (
+    <div ref={containerRef} className={cn("flex h-full w-full", className)}>
+      {thumbnailPosition === "right" ? (
         <>
           {/* Main screen share area */}
           <div className="relative flex-1">
@@ -150,8 +159,10 @@ export function ScreenShareView({
             <div className="absolute left-4 top-4 flex items-center gap-2">
               <Badge className="bg-blue-600 text-white">
                 <MonitorUp className="mr-1 h-3 w-3" />
-                {(participant.user as any)?.name || participant.user?.displayName || 'Unknown'} is
-                presenting
+                {(participant.user as any)?.name ||
+                  participant.user?.displayName ||
+                  "Unknown"}{" "}
+                is presenting
               </Badge>
             </div>
 
@@ -171,10 +182,19 @@ export function ScreenShareView({
                 onClick={toggleFullscreen}
                 className="h-9 w-9 bg-black/60 backdrop-blur-sm hover:bg-black/80"
               >
-                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                {isFullscreen ? (
+                  <Minimize className="h-4 w-4" />
+                ) : (
+                  <Maximize className="h-4 w-4" />
+                )}
               </Button>
               {onStopSharing && participant.isLocal && (
-                <Button variant="destructive" size="sm" onClick={onStopSharing} className="h-9">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={onStopSharing}
+                  className="h-9"
+                >
                   <MonitorStop className="mr-2 h-4 w-4" />
                   Stop Sharing
                 </Button>
@@ -196,7 +216,11 @@ export function ScreenShareView({
                     <VideoTile
                       key={p.id}
                       participantId={p.id}
-                      name={(p.user as any)?.name || p.user?.displayName || 'Unknown'}
+                      name={
+                        (p.user as any)?.name ||
+                        p.user?.displayName ||
+                        "Unknown"
+                      }
                       avatarUrl={p.user?.avatarUrl}
                       stream={null}
                       isMuted={p.isMuted}
@@ -207,12 +231,12 @@ export function ScreenShareView({
                       connectionQuality={
                         p.connectionQuality
                           ? p.connectionQuality > 80
-                            ? 'excellent'
+                            ? "excellent"
                             : p.connectionQuality > 60
-                              ? 'good'
+                              ? "good"
                               : p.connectionQuality > 40
-                                ? 'fair'
-                                : 'poor'
+                                ? "fair"
+                                : "poor"
                           : undefined
                       }
                       onPin={onPinParticipant}
@@ -248,8 +272,10 @@ export function ScreenShareView({
               <div className="absolute left-4 top-4 flex items-center gap-2">
                 <Badge className="bg-blue-600 text-white">
                   <MonitorUp className="mr-1 h-3 w-3" />
-                  {(participant.user as any)?.name || participant.user?.displayName || 'Unknown'} is
-                  presenting
+                  {(participant.user as any)?.name ||
+                    participant.user?.displayName ||
+                    "Unknown"}{" "}
+                  is presenting
                 </Badge>
               </div>
 
@@ -276,7 +302,12 @@ export function ScreenShareView({
                   )}
                 </Button>
                 {onStopSharing && participant.isLocal && (
-                  <Button variant="destructive" size="sm" onClick={onStopSharing} className="h-9">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={onStopSharing}
+                    className="h-9"
+                  >
                     <MonitorStop className="mr-2 h-4 w-4" />
                     Stop Sharing
                   </Button>
@@ -293,7 +324,11 @@ export function ScreenShareView({
                       <VideoTile
                         key={p.id}
                         participantId={p.id}
-                        name={(p.user as any)?.name || p.user?.displayName || 'Unknown'}
+                        name={
+                          (p.user as any)?.name ||
+                          p.user?.displayName ||
+                          "Unknown"
+                        }
                         avatarUrl={p.user?.avatarUrl}
                         stream={null}
                         isMuted={p.isMuted}
@@ -304,12 +339,12 @@ export function ScreenShareView({
                         connectionQuality={
                           p.connectionQuality
                             ? p.connectionQuality > 80
-                              ? 'excellent'
+                              ? "excellent"
                               : p.connectionQuality > 60
-                                ? 'good'
+                                ? "good"
                                 : p.connectionQuality > 40
-                                  ? 'fair'
-                                  : 'poor'
+                                  ? "fair"
+                                  : "poor"
                             : undefined
                         }
                         onPin={onPinParticipant}
@@ -324,5 +359,5 @@ export function ScreenShareView({
         </>
       )}
     </div>
-  )
+  );
 }

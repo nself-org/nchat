@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button, type ButtonProps } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Phone, Video, Loader2, ChevronDown } from 'lucide-react'
+} from "@/components/ui/dropdown-menu";
+import { Phone, Video, Loader2, ChevronDown } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type CallType = 'audio' | 'video'
+export type CallType = "audio" | "video";
 
-export interface CallUserButtonProps extends Omit<ButtonProps, 'onClick'> {
-  userId: string
-  userName?: string
-  onCall: (userId: string, callType: CallType) => Promise<void> | void
-  showText?: boolean
-  defaultCallType?: CallType
-  showCallTypeSelector?: boolean
+export interface CallUserButtonProps extends Omit<ButtonProps, "onClick"> {
+  userId: string;
+  userName?: string;
+  onCall: (userId: string, callType: CallType) => Promise<void> | void;
+  showText?: boolean;
+  defaultCallType?: CallType;
+  showCallTypeSelector?: boolean;
 }
 
 // ============================================================================
@@ -38,29 +38,29 @@ const CallUserButton = React.forwardRef<HTMLButtonElement, CallUserButtonProps>(
       userName,
       onCall,
       showText = false,
-      defaultCallType = 'audio',
+      defaultCallType = "audio",
       showCallTypeSelector = true,
-      variant = 'outline',
-      size = 'default',
+      variant = "outline",
+      size = "default",
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const [isLoading, setIsLoading] = React.useState(false)
-    const [callType, setCallType] = React.useState<CallType>(defaultCallType)
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [callType, setCallType] = React.useState<CallType>(defaultCallType);
 
     const handleCall = async (type: CallType = callType) => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        await onCall(userId, type)
+        await onCall(userId, type);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    const Icon = callType === 'video' ? Video : Phone
-    const buttonText = `${callType === 'video' ? 'Video' : 'Audio'} call${userName ? ` ${userName}` : ''}`
+    const Icon = callType === "video" ? Video : Phone;
+    const buttonText = `${callType === "video" ? "Video" : "Audio"} call${userName ? ` ${userName}` : ""}`;
 
     // Simple button without dropdown
     if (!showCallTypeSelector) {
@@ -76,18 +76,20 @@ const CallUserButton = React.forwardRef<HTMLButtonElement, CallUserButtonProps>(
           {...props}
         >
           {isLoading ? (
-            <Loader2 className={cn('h-4 w-4 animate-spin', showText && 'mr-2')} />
+            <Loader2
+              className={cn("h-4 w-4 animate-spin", showText && "mr-2")}
+            />
           ) : (
-            <Icon className={cn('h-4 w-4', showText && 'mr-2')} />
+            <Icon className={cn("h-4 w-4", showText && "mr-2")} />
           )}
-          {showText && (isLoading ? 'Calling...' : 'Call')}
+          {showText && (isLoading ? "Calling..." : "Call")}
         </Button>
-      )
+      );
     }
 
     // Button with dropdown for call type selection
     return (
-      <div className={cn('flex', className)}>
+      <div className={cn("flex", className)}>
         <Button
           ref={ref}
           variant={variant}
@@ -99,11 +101,13 @@ const CallUserButton = React.forwardRef<HTMLButtonElement, CallUserButtonProps>(
           {...props}
         >
           {isLoading ? (
-            <Loader2 className={cn('h-4 w-4 animate-spin', showText && 'mr-2')} />
+            <Loader2
+              className={cn("h-4 w-4 animate-spin", showText && "mr-2")}
+            />
           ) : (
-            <Icon className={cn('h-4 w-4', showText && 'mr-2')} />
+            <Icon className={cn("h-4 w-4", showText && "mr-2")} />
           )}
-          {showText && (isLoading ? 'Calling...' : 'Call')}
+          {showText && (isLoading ? "Calling..." : "Call")}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -119,8 +123,8 @@ const CallUserButton = React.forwardRef<HTMLButtonElement, CallUserButtonProps>(
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => {
-                setCallType('audio')
-                handleCall('audio')
+                setCallType("audio");
+                handleCall("audio");
               }}
             >
               <Phone className="mr-2 h-4 w-4" />
@@ -128,8 +132,8 @@ const CallUserButton = React.forwardRef<HTMLButtonElement, CallUserButtonProps>(
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                setCallType('video')
-                handleCall('video')
+                setCallType("video");
+                handleCall("video");
               }}
             >
               <Video className="mr-2 h-4 w-4" />
@@ -138,9 +142,9 @@ const CallUserButton = React.forwardRef<HTMLButtonElement, CallUserButtonProps>(
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    )
-  }
-)
-CallUserButton.displayName = 'CallUserButton'
+    );
+  },
+);
+CallUserButton.displayName = "CallUserButton";
 
-export { CallUserButton }
+export { CallUserButton };

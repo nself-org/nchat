@@ -3,10 +3,10 @@
  * Shows and verifies safety numbers for identity verification
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -14,21 +14,21 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Shield, Check, Copy, QrCode } from 'lucide-react'
-import { useSafetyNumbers } from '@/hooks/use-safety-numbers'
-import QRCode from 'qrcode'
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Shield, Check, Copy, QrCode } from "lucide-react";
+import { useSafetyNumbers } from "@/hooks/use-safety-numbers";
+import QRCode from "qrcode";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export interface SafetyNumberDisplayProps {
-  localUserId: string
-  peerUserId: string
-  peerDeviceId: string
-  peerName: string
-  onVerified?: () => void
+  localUserId: string;
+  peerUserId: string;
+  peerDeviceId: string;
+  peerName: string;
+  onVerified?: () => void;
 }
 
 export function SafetyNumberDisplay({
@@ -38,24 +38,35 @@ export function SafetyNumberDisplay({
   peerName,
   onVerified,
 }: SafetyNumberDisplayProps) {
-  const { safetyNumber, isLoading, generateSafetyNumber, verifySafetyNumber, loadSafetyNumber } =
-    useSafetyNumbers()
+  const {
+    safetyNumber,
+    isLoading,
+    generateSafetyNumber,
+    verifySafetyNumber,
+    loadSafetyNumber,
+  } = useSafetyNumbers();
 
-  const [copied, setCopied] = useState(false)
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
-  const [showQR, setShowQR] = useState(false)
+  const [copied, setCopied] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [showQR, setShowQR] = useState(false);
 
   // Load or generate safety number
   useEffect(() => {
     const init = async () => {
-      const existing = await loadSafetyNumber(peerUserId)
+      const existing = await loadSafetyNumber(peerUserId);
       if (!existing) {
-        await generateSafetyNumber(localUserId, peerUserId, peerDeviceId)
+        await generateSafetyNumber(localUserId, peerUserId, peerDeviceId);
       }
-    }
+    };
 
-    init()
-  }, [localUserId, peerUserId, peerDeviceId, generateSafetyNumber, loadSafetyNumber])
+    init();
+  }, [
+    localUserId,
+    peerUserId,
+    peerDeviceId,
+    generateSafetyNumber,
+    loadSafetyNumber,
+  ]);
 
   // Generate QR code
   useEffect(() => {
@@ -65,22 +76,22 @@ export function SafetyNumberDisplay({
         margin: 2,
       })
         .then((url) => setQrCodeUrl(url))
-        .catch((err) => logger.error('QR code generation error:', err))
+        .catch((err) => logger.error("QR code generation error:", err));
     }
-  }, [safetyNumber])
+  }, [safetyNumber]);
 
   const handleCopy = () => {
     if (safetyNumber) {
-      navigator.clipboard.writeText(safetyNumber.safetyNumber)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      navigator.clipboard.writeText(safetyNumber.safetyNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-  }
+  };
 
   const handleVerify = async () => {
-    await verifySafetyNumber(peerUserId)
-    onVerified?.()
-  }
+    await verifySafetyNumber(peerUserId);
+    onVerified?.();
+  };
 
   if (isLoading || !safetyNumber) {
     return (
@@ -91,7 +102,7 @@ export function SafetyNumberDisplay({
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -110,20 +121,26 @@ export function SafetyNumberDisplay({
           )}
         </div>
         <CardDescription>
-          Verify this number with {peerName} to ensure your conversation is secure
+          Verify this number with {peerName} to ensure your conversation is
+          secure
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Alert>
           <AlertDescription>
-            Compare this number with {peerName}&apos;s safety number. If they match, your
-            conversation is secure and no one is intercepting your messages.
+            Compare this number with {peerName}&apos;s safety number. If they
+            match, your conversation is secure and no one is intercepting your
+            messages.
           </AlertDescription>
         </Alert>
 
         {showQR && qrCodeUrl ? (
           <div className="flex flex-col items-center space-y-4">
-            <img src={qrCodeUrl} alt="Safety Number QR Code" className="h-64 w-64" />
+            <img
+              src={qrCodeUrl}
+              alt="Safety Number QR Code"
+              className="h-64 w-64"
+            />
             <Button variant="outline" onClick={() => setShowQR(false)}>
               Show Number
             </Button>
@@ -151,7 +168,11 @@ export function SafetyNumberDisplay({
                 )}
               </Button>
               {qrCodeUrl && (
-                <Button variant="outline" className="flex-1" onClick={() => setShowQR(true)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowQR(true)}
+                >
                   <QrCode className="mr-2 h-4 w-4" />
                   Show QR Code
                 </Button>
@@ -163,9 +184,9 @@ export function SafetyNumberDisplay({
         {!safetyNumber.isVerified && (
           <Alert>
             <AlertDescription>
-              <strong>How to verify:</strong> Compare this number with {peerName} in person, over a
-              video call, or through another trusted channel. If the numbers match, mark it as
-              verified.
+              <strong>How to verify:</strong> Compare this number with{" "}
+              {peerName} in person, over a video call, or through another
+              trusted channel. If the numbers match, mark it as verified.
             </AlertDescription>
           </Alert>
         )}
@@ -184,7 +205,7 @@ export function SafetyNumberDisplay({
         )}
       </CardFooter>
     </Card>
-  )
+  );
 }
 
-export default SafetyNumberDisplay
+export default SafetyNumberDisplay;

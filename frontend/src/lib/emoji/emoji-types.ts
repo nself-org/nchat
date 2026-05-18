@@ -14,52 +14,52 @@
  */
 export interface Emoji {
   /** The emoji character itself (e.g., "thumbsup") */
-  id: string
+  id: string;
   /** The emoji character (e.g., "👍") */
-  emoji: string
+  emoji: string;
   /** Primary name/shortcode without colons (e.g., "thumbsup") */
-  name: string
+  name: string;
   /** Display name for UI (e.g., "Thumbs Up") */
-  displayName: string
+  displayName: string;
   /** Category ID (e.g., "people", "nature") */
-  category: EmojiCategory
+  category: EmojiCategory;
   /** Search keywords for finding this emoji */
-  keywords: string[]
+  keywords: string[];
   /** Alternative shortcodes (e.g., ["+1"]) */
-  aliases: string[]
+  aliases: string[];
   /** Whether this emoji supports skin tone modifiers */
-  supportsSkinTone: boolean
+  supportsSkinTone: boolean;
   /** Unicode version when this emoji was added */
-  version?: string
+  version?: string;
   /** Sort order within category */
-  order?: number
+  order?: number;
 }
 
 /**
  * Emoji categories matching Unicode standard
  */
 export type EmojiCategory =
-  | 'recent'
-  | 'frequent'
-  | 'smileys'
-  | 'people'
-  | 'animals'
-  | 'food'
-  | 'travel'
-  | 'activities'
-  | 'objects'
-  | 'symbols'
-  | 'flags'
-  | 'custom'
+  | "recent"
+  | "frequent"
+  | "smileys"
+  | "people"
+  | "animals"
+  | "food"
+  | "travel"
+  | "activities"
+  | "objects"
+  | "symbols"
+  | "flags"
+  | "custom";
 
 /**
  * Category metadata for display
  */
 export interface EmojiCategoryInfo {
-  id: EmojiCategory
-  name: string
-  icon: string
-  order: number
+  id: EmojiCategory;
+  name: string;
+  icon: string;
+  order: number;
 }
 
 // ============================================================================
@@ -71,52 +71,52 @@ export interface EmojiCategoryInfo {
  */
 export interface CustomEmoji {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Shortcode without colons (e.g., "company_logo") */
-  name: string
+  name: string;
   /** Full shortcode with colons (e.g., ":company_logo:") */
-  shortcode: string
+  shortcode: string;
   /** URL to the emoji image */
-  url: string
+  url: string;
   /** Thumbnail URL for smaller displays */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** Custom category for organization */
-  category?: string
+  category?: string;
   /** Alternative names/aliases */
-  aliases: string[]
+  aliases: string[];
   /** User ID who uploaded this emoji */
-  createdBy: string
+  createdBy: string;
   /** Username of uploader for display */
-  createdByUsername?: string
+  createdByUsername?: string;
   /** Creation timestamp */
-  createdAt: string
+  createdAt: string;
   /** Last update timestamp */
-  updatedAt?: string
+  updatedAt?: string;
   /** Whether this emoji is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Usage count for analytics */
-  usageCount: number
+  usageCount: number;
 }
 
 /**
  * Request payload for creating a custom emoji
  */
 export interface CreateCustomEmojiRequest {
-  name: string
-  file: File
-  category?: string
-  aliases?: string[]
+  name: string;
+  file: File;
+  category?: string;
+  aliases?: string[];
 }
 
 /**
  * Request payload for updating a custom emoji
  */
 export interface UpdateCustomEmojiRequest {
-  id: string
-  name?: string
-  category?: string
-  aliases?: string[]
-  enabled?: boolean
+  id: string;
+  name?: string;
+  category?: string;
+  aliases?: string[];
+  enabled?: boolean;
 }
 
 // ============================================================================
@@ -128,20 +128,20 @@ export interface UpdateCustomEmojiRequest {
  * Empty string = default yellow
  */
 export type SkinTone =
-  | '' // Default (yellow)
-  | '1F3FB' // Light skin tone
-  | '1F3FC' // Medium-light skin tone
-  | '1F3FD' // Medium skin tone
-  | '1F3FE' // Medium-dark skin tone
-  | '1F3FF' // Dark skin tone
+  | "" // Default (yellow)
+  | "1F3FB" // Light skin tone
+  | "1F3FC" // Medium-light skin tone
+  | "1F3FD" // Medium skin tone
+  | "1F3FE" // Medium-dark skin tone
+  | "1F3FF"; // Dark skin tone
 
 /**
  * Skin tone information for display
  */
 export interface SkinToneInfo {
-  value: SkinTone
-  name: string
-  emoji: string
+  value: SkinTone;
+  name: string;
+  emoji: string;
 }
 
 // ============================================================================
@@ -153,15 +153,15 @@ export interface SkinToneInfo {
  */
 export interface EmojiSearchResult {
   /** The emoji object */
-  emoji: Emoji | CustomEmoji
+  emoji: Emoji | CustomEmoji;
   /** Whether this is a custom emoji */
-  isCustom: boolean
+  isCustom: boolean;
   /** Relevance score (higher = more relevant) */
-  score: number
+  score: number;
   /** Matched field (name, keyword, alias) */
-  matchedField: 'name' | 'keyword' | 'alias'
+  matchedField: "name" | "keyword" | "alias";
   /** The matched portion for highlighting */
-  matchedText: string
+  matchedText: string;
 }
 
 /**
@@ -169,15 +169,15 @@ export interface EmojiSearchResult {
  */
 export interface EmojiSearchOptions {
   /** Maximum results to return */
-  limit?: number
+  limit?: number;
   /** Include custom emojis in results */
-  includeCustom?: boolean
+  includeCustom?: boolean;
   /** Filter by category */
-  category?: EmojiCategory | 'all'
+  category?: EmojiCategory | "all";
   /** Minimum score threshold */
-  minScore?: number
+  minScore?: number;
   /** Enable fuzzy matching */
-  fuzzy?: boolean
+  fuzzy?: boolean;
 }
 
 // ============================================================================
@@ -189,17 +189,17 @@ export interface EmojiSearchOptions {
  */
 export interface AutocompleteSuggestion {
   /** Unique ID for React key */
-  id: string
+  id: string;
   /** The emoji character or image URL */
-  emoji: string
+  emoji: string;
   /** Shortcode to display (e.g., ":thumbsup:") */
-  shortcode: string
+  shortcode: string;
   /** Whether this is a custom emoji */
-  isCustom: boolean
+  isCustom: boolean;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Preview text for the suggestion */
-  preview: string
+  preview: string;
 }
 
 /**
@@ -207,17 +207,17 @@ export interface AutocompleteSuggestion {
  */
 export interface AutocompleteState {
   /** Whether autocomplete is active */
-  isActive: boolean
+  isActive: boolean;
   /** Current search query (without colon prefix) */
-  query: string
+  query: string;
   /** Suggestions to display */
-  suggestions: AutocompleteSuggestion[]
+  suggestions: AutocompleteSuggestion[];
   /** Currently selected index */
-  selectedIndex: number
+  selectedIndex: number;
   /** Position in the text where autocomplete started */
-  triggerPosition: number
+  triggerPosition: number;
   /** Current cursor position */
-  cursorPosition: number
+  cursorPosition: number;
 }
 
 /**
@@ -225,17 +225,17 @@ export interface AutocompleteState {
  */
 export interface AutocompleteOptions {
   /** Minimum characters before showing suggestions */
-  minChars?: number
+  minChars?: number;
   /** Maximum suggestions to show */
-  maxSuggestions?: number
+  maxSuggestions?: number;
   /** Debounce delay in ms */
-  debounceMs?: number
+  debounceMs?: number;
   /** Enable fuzzy matching */
-  fuzzy?: boolean
+  fuzzy?: boolean;
   /** Include custom emojis */
-  includeCustom?: boolean
+  includeCustom?: boolean;
   /** Show recent emojis first */
-  prioritizeRecent?: boolean
+  prioritizeRecent?: boolean;
 }
 
 // ============================================================================
@@ -247,17 +247,17 @@ export interface AutocompleteOptions {
  */
 export interface EmojiUsage {
   /** Emoji character or shortcode */
-  emoji: string
+  emoji: string;
   /** Whether this is a custom emoji */
-  isCustom: boolean
+  isCustom: boolean;
   /** Custom emoji ID if applicable */
-  customEmojiId?: string
+  customEmojiId?: string;
   /** Total usage count */
-  count: number
+  count: number;
   /** Last used timestamp */
-  lastUsedAt: number
+  lastUsedAt: number;
   /** First used timestamp */
-  firstUsedAt: number
+  firstUsedAt: number;
 }
 
 /**
@@ -265,13 +265,13 @@ export interface EmojiUsage {
  */
 export interface RecentEmoji {
   /** Emoji character or URL */
-  emoji: string
+  emoji: string;
   /** Whether this is a custom emoji */
-  isCustom: boolean
+  isCustom: boolean;
   /** Custom emoji ID if applicable */
-  customEmojiId?: string
+  customEmojiId?: string;
   /** When this was used */
-  usedAt: number
+  usedAt: number;
 }
 
 // ============================================================================
@@ -282,9 +282,9 @@ export interface RecentEmoji {
  * Emoji picker position
  */
 export interface PickerPosition {
-  x: number
-  y: number
-  anchor?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  x: number;
+  y: number;
+  anchor?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 }
 
 /**
@@ -292,19 +292,19 @@ export interface PickerPosition {
  */
 export interface PickerState {
   /** Whether picker is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Target message ID for reactions */
-  targetMessageId: string | null
+  targetMessageId: string | null;
   /** Target channel ID */
-  targetChannelId: string | null
+  targetChannelId: string | null;
   /** Picker position on screen */
-  position: PickerPosition | null
+  position: PickerPosition | null;
   /** Active category tab */
-  activeCategory: EmojiCategory
+  activeCategory: EmojiCategory;
   /** Current search query */
-  searchQuery: string
+  searchQuery: string;
   /** Preview emoji on hover */
-  previewEmoji: Emoji | CustomEmoji | null
+  previewEmoji: Emoji | CustomEmoji | null;
 }
 
 // ============================================================================
@@ -316,21 +316,21 @@ export interface PickerState {
  */
 export interface EmojiSelectEvent {
   /** The selected emoji character */
-  emoji: string
+  emoji: string;
   /** The emoji shortcode */
-  shortcode: string
+  shortcode: string;
   /** Whether this is a custom emoji */
-  isCustom: boolean
+  isCustom: boolean;
   /** Custom emoji data if applicable */
-  customEmoji?: CustomEmoji
+  customEmoji?: CustomEmoji;
   /** Full emoji metadata */
-  metadata?: Emoji
+  metadata?: Emoji;
 }
 
 /**
  * Handler for emoji selection
  */
-export type EmojiSelectHandler = (event: EmojiSelectEvent) => void
+export type EmojiSelectHandler = (event: EmojiSelectEvent) => void;
 
 // ============================================================================
 // Shortcode Types
@@ -340,9 +340,9 @@ export type EmojiSelectHandler = (event: EmojiSelectEvent) => void
  * Shortcode mapping entry
  */
 export interface ShortcodeEntry {
-  shortcode: string
-  emoji: string
-  aliases: string[]
+  shortcode: string;
+  emoji: string;
+  aliases: string[];
 }
 
 /**
@@ -350,16 +350,16 @@ export interface ShortcodeEntry {
  */
 export interface ShortcodeParseResult {
   /** Original text */
-  original: string
+  original: string;
   /** Parsed text with emojis */
-  parsed: string
+  parsed: string;
   /** List of replacements made */
   replacements: Array<{
-    shortcode: string
-    emoji: string
-    start: number
-    end: number
-  }>
+    shortcode: string;
+    emoji: string;
+    start: number;
+    end: number;
+  }>;
 }
 
 // ============================================================================
@@ -371,34 +371,34 @@ export interface ShortcodeParseResult {
  */
 export interface EmojiStoreState {
   // Recent emojis
-  recentEmojis: RecentEmoji[]
-  maxRecentEmojis: number
+  recentEmojis: RecentEmoji[];
+  maxRecentEmojis: number;
 
   // Frequent emojis
-  frequentEmojis: Map<string, EmojiUsage>
+  frequentEmojis: Map<string, EmojiUsage>;
 
   // Custom emojis
-  customEmojis: Map<string, CustomEmoji>
-  customEmojiCategories: string[]
-  customEmojisLoaded: boolean
-  customEmojisLoading: boolean
-  customEmojisError: string | null
+  customEmojis: Map<string, CustomEmoji>;
+  customEmojiCategories: string[];
+  customEmojisLoaded: boolean;
+  customEmojisLoading: boolean;
+  customEmojisError: string | null;
 
   // Skin tone preference
-  skinTone: SkinTone
+  skinTone: SkinTone;
 
   // Picker state
-  picker: PickerState
+  picker: PickerState;
 
   // Autocomplete state
-  autocomplete: AutocompleteState
+  autocomplete: AutocompleteState;
 
   // Quick reactions (frequently used for message reactions)
-  quickReactions: string[]
+  quickReactions: string[];
 
   // Settings
-  autoReplaceShortcodes: boolean
-  showRecentFirst: boolean
+  autoReplaceShortcodes: boolean;
+  showRecentFirst: boolean;
 }
 
 /**
@@ -406,55 +406,71 @@ export interface EmojiStoreState {
  */
 export interface EmojiStoreActions {
   // Recent emojis
-  addRecentEmoji: (emoji: string, isCustom?: boolean, customEmojiId?: string) => void
-  clearRecentEmojis: () => void
-  setMaxRecentEmojis: (max: number) => void
+  addRecentEmoji: (
+    emoji: string,
+    isCustom?: boolean,
+    customEmojiId?: string,
+  ) => void;
+  clearRecentEmojis: () => void;
+  setMaxRecentEmojis: (max: number) => void;
 
   // Frequent emojis
-  recordEmojiUsage: (emoji: string, isCustom?: boolean, customEmojiId?: string) => void
-  getTopEmojis: (count: number) => string[]
-  clearFrequentEmojis: () => void
+  recordEmojiUsage: (
+    emoji: string,
+    isCustom?: boolean,
+    customEmojiId?: string,
+  ) => void;
+  getTopEmojis: (count: number) => string[];
+  clearFrequentEmojis: () => void;
 
   // Custom emojis
-  loadCustomEmojis: () => Promise<void>
-  addCustomEmoji: (emoji: CustomEmoji) => void
-  updateCustomEmoji: (id: string, updates: Partial<CustomEmoji>) => void
-  removeCustomEmoji: (id: string) => void
-  getCustomEmojiByShortcode: (shortcode: string) => CustomEmoji | undefined
+  loadCustomEmojis: () => Promise<void>;
+  addCustomEmoji: (emoji: CustomEmoji) => void;
+  updateCustomEmoji: (id: string, updates: Partial<CustomEmoji>) => void;
+  removeCustomEmoji: (id: string) => void;
+  getCustomEmojiByShortcode: (shortcode: string) => CustomEmoji | undefined;
 
   // Skin tone
-  setSkinTone: (tone: SkinTone) => void
+  setSkinTone: (tone: SkinTone) => void;
 
   // Picker
-  openPicker: (messageId?: string, channelId?: string, position?: PickerPosition) => void
-  closePicker: () => void
-  setPickerCategory: (category: EmojiCategory) => void
-  setPickerSearch: (query: string) => void
-  setPreviewEmoji: (emoji: Emoji | CustomEmoji | null) => void
+  openPicker: (
+    messageId?: string,
+    channelId?: string,
+    position?: PickerPosition,
+  ) => void;
+  closePicker: () => void;
+  setPickerCategory: (category: EmojiCategory) => void;
+  setPickerSearch: (query: string) => void;
+  setPreviewEmoji: (emoji: Emoji | CustomEmoji | null) => void;
 
   // Autocomplete
-  startAutocomplete: (query: string, triggerPosition: number, cursorPosition: number) => void
-  updateAutocomplete: (suggestions: AutocompleteSuggestion[]) => void
-  setAutocompleteIndex: (index: number) => void
-  closeAutocomplete: () => void
+  startAutocomplete: (
+    query: string,
+    triggerPosition: number,
+    cursorPosition: number,
+  ) => void;
+  updateAutocomplete: (suggestions: AutocompleteSuggestion[]) => void;
+  setAutocompleteIndex: (index: number) => void;
+  closeAutocomplete: () => void;
 
   // Quick reactions
-  setQuickReactions: (emojis: string[]) => void
-  addQuickReaction: (emoji: string) => void
-  removeQuickReaction: (emoji: string) => void
+  setQuickReactions: (emojis: string[]) => void;
+  addQuickReaction: (emoji: string) => void;
+  removeQuickReaction: (emoji: string) => void;
 
   // Settings
-  setAutoReplaceShortcodes: (enabled: boolean) => void
-  setShowRecentFirst: (enabled: boolean) => void
+  setAutoReplaceShortcodes: (enabled: boolean) => void;
+  setShowRecentFirst: (enabled: boolean) => void;
 
   // Reset
-  reset: () => void
+  reset: () => void;
 }
 
 /**
  * Combined emoji store type
  */
-export type EmojiStore = EmojiStoreState & EmojiStoreActions
+export type EmojiStore = EmojiStoreState & EmojiStoreActions;
 
 // ============================================================================
 // Hook Return Types
@@ -465,27 +481,27 @@ export type EmojiStore = EmojiStoreState & EmojiStoreActions
  */
 export interface UseEmojiAutocompleteReturn {
   /** Whether autocomplete is active */
-  isActive: boolean
+  isActive: boolean;
   /** Current query string */
-  query: string
+  query: string;
   /** Autocomplete suggestions */
-  suggestions: AutocompleteSuggestion[]
+  suggestions: AutocompleteSuggestion[];
   /** Currently selected index */
-  selectedIndex: number
+  selectedIndex: number;
   /** Handle text change to detect : trigger */
-  handleTextChange: (text: string, cursorPosition: number) => void
+  handleTextChange: (text: string, cursorPosition: number) => void;
   /** Select suggestion at index */
-  selectSuggestion: (index: number) => void
+  selectSuggestion: (index: number) => void;
   /** Select current suggestion */
-  selectCurrent: () => void
+  selectCurrent: () => void;
   /** Navigate up in suggestions */
-  navigateUp: () => void
+  navigateUp: () => void;
   /** Navigate down in suggestions */
-  navigateDown: () => void
+  navigateDown: () => void;
   /** Close autocomplete */
-  close: () => void
+  close: () => void;
   /** Get replacement text for selected suggestion */
-  getReplacementText: () => { text: string; cursorOffset: number } | null
+  getReplacementText: () => { text: string; cursorOffset: number } | null;
 }
 
 /**
@@ -493,15 +509,15 @@ export interface UseEmojiAutocompleteReturn {
  */
 export interface UseEmojiSearchReturn {
   /** Search results */
-  results: EmojiSearchResult[]
+  results: EmojiSearchResult[];
   /** Whether search is in progress */
-  isSearching: boolean
+  isSearching: boolean;
   /** Search error if any */
-  error: string | null
+  error: string | null;
   /** Perform search */
-  search: (query: string, options?: EmojiSearchOptions) => void
+  search: (query: string, options?: EmojiSearchOptions) => void;
   /** Clear search results */
-  clear: () => void
+  clear: () => void;
 }
 
 /**
@@ -509,15 +525,15 @@ export interface UseEmojiSearchReturn {
  */
 export interface UseRecentEmojisReturn {
   /** Recent emojis list */
-  recentEmojis: RecentEmoji[]
+  recentEmojis: RecentEmoji[];
   /** Frequently used emojis */
-  frequentEmojis: string[]
+  frequentEmojis: string[];
   /** Add emoji to recent */
-  addRecent: (emoji: string, isCustom?: boolean) => void
+  addRecent: (emoji: string, isCustom?: boolean) => void;
   /** Clear recent emojis */
-  clearRecent: () => void
+  clearRecent: () => void;
   /** Get top N frequent emojis */
-  getTopFrequent: (count: number) => string[]
+  getTopFrequent: (count: number) => string[];
 }
 
 // ============================================================================
@@ -529,36 +545,36 @@ export interface UseRecentEmojisReturn {
  */
 export interface EmojiAnalytics {
   /** Total emoji usages */
-  totalUsages: number
+  totalUsages: number;
   /** Usages by emoji */
   usagesByEmoji: Array<{
-    emoji: string
-    isCustom: boolean
-    count: number
-    percentage: number
-  }>
+    emoji: string;
+    isCustom: boolean;
+    count: number;
+    percentage: number;
+  }>;
   /** Usages over time */
   usageOverTime: Array<{
-    date: string
-    count: number
-  }>
+    date: string;
+    count: number;
+  }>;
   /** Top users by emoji usage */
   topUsers: Array<{
-    userId: string
-    username: string
-    count: number
-  }>
+    userId: string;
+    username: string;
+    count: number;
+  }>;
 }
 
 /**
  * Bulk emoji operation result
  */
 export interface BulkEmojiOperationResult {
-  success: boolean
-  processed: number
-  failed: number
+  success: boolean;
+  processed: number;
+  failed: number;
   errors: Array<{
-    id: string
-    error: string
-  }>
+    id: string;
+    error: string;
+  }>;
 }

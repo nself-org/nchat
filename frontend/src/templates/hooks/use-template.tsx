@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // useTemplate Hook
@@ -9,8 +9,15 @@
 //
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
-import type { ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
+import type { ReactNode } from "react";
 import type {
   PlatformTemplate,
   PartialTemplate,
@@ -19,7 +26,7 @@ import type {
   LayoutConfig,
   FeatureConfig,
   TerminologyConfig,
-} from '../types'
+} from "../types";
 import {
   loadTemplate,
   loadEnvTemplate,
@@ -27,7 +34,7 @@ import {
   customizeTemplate,
   generateTemplateCSS,
   getEnvTemplateId,
-} from '../index'
+} from "../index";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Template Context
@@ -35,222 +42,245 @@ import {
 
 interface TemplateContextValue {
   // Current template
-  template: PlatformTemplate | null
-  templateId: TemplateId
-  isLoading: boolean
-  error: Error | null
+  template: PlatformTemplate | null;
+  templateId: TemplateId;
+  isLoading: boolean;
+  error: Error | null;
 
   // Theme
-  theme: 'light' | 'dark'
-  setTheme: (theme: 'light' | 'dark' | 'system') => void
-  colors: ThemeColors
+  theme: "light" | "dark";
+  setTheme: (theme: "light" | "dark" | "system") => void;
+  colors: ThemeColors;
 
   // Layout
-  layout: LayoutConfig
+  layout: LayoutConfig;
 
   // Features
-  features: FeatureConfig
-  isFeatureEnabled: (feature: keyof FeatureConfig) => boolean
+  features: FeatureConfig;
+  isFeatureEnabled: (feature: keyof FeatureConfig) => boolean;
 
   // Terminology
-  terminology: TerminologyConfig
-  t: (key: keyof TerminologyConfig, replacements?: Record<string, string>) => string
+  terminology: TerminologyConfig;
+  t: (
+    key: keyof TerminologyConfig,
+    replacements?: Record<string, string>,
+  ) => string;
 
   // Customization
-  switchTemplate: (templateId: TemplateId) => Promise<void>
-  applyOverrides: (overrides: PartialTemplate) => void
+  switchTemplate: (templateId: TemplateId) => Promise<void>;
+  applyOverrides: (overrides: PartialTemplate) => void;
 }
 
-const TemplateContext = createContext<TemplateContextValue | null>(null)
+const TemplateContext = createContext<TemplateContextValue | null>(null);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Template Provider
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface TemplateProviderProps {
-  children: ReactNode
-  initialTemplateId?: TemplateId
+  children: ReactNode;
+  initialTemplateId?: TemplateId;
 }
 
-export function TemplateProvider({ children, initialTemplateId }: TemplateProviderProps) {
-  const [template, setTemplate] = useState<PlatformTemplate | null>(null)
-  const [templateId, setTemplateId] = useState<TemplateId>(initialTemplateId ?? getEnvTemplateId())
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-  const [theme, setThemeState] = useState<'light' | 'dark'>('dark')
-  const [overrides, setOverrides] = useState<PartialTemplate>({})
+export function TemplateProvider({
+  children,
+  initialTemplateId,
+}: TemplateProviderProps) {
+  const [template, setTemplate] = useState<PlatformTemplate | null>(null);
+  const [templateId, setTemplateId] = useState<TemplateId>(
+    initialTemplateId ?? getEnvTemplateId(),
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [theme, setThemeState] = useState<"light" | "dark">("dark");
+  const [overrides, setOverrides] = useState<PartialTemplate>({});
 
   // Load initial template
   useEffect(() => {
     async function loadInitialTemplate() {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
-        let loadedTemplate: PlatformTemplate
+        let loadedTemplate: PlatformTemplate;
 
         if (initialTemplateId) {
-          loadedTemplate = await loadTemplate(initialTemplateId)
+          loadedTemplate = await loadTemplate(initialTemplateId);
         } else {
-          loadedTemplate = await loadEnvTemplate()
+          loadedTemplate = await loadEnvTemplate();
         }
 
         // Apply environment variable overrides
-        loadedTemplate = applyEnvOverrides(loadedTemplate)
+        loadedTemplate = applyEnvOverrides(loadedTemplate);
 
-        setTemplate(loadedTemplate)
+        setTemplate(loadedTemplate);
 
         // Set initial theme mode
-        if (loadedTemplate.theme.defaultMode === 'system') {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-          setThemeState(prefersDark ? 'dark' : 'light')
+        if (loadedTemplate.theme.defaultMode === "system") {
+          const prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)",
+          ).matches;
+          setThemeState(prefersDark ? "dark" : "light");
         } else {
-          setThemeState(loadedTemplate.theme.defaultMode)
+          setThemeState(loadedTemplate.theme.defaultMode);
         }
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to load template'))
+        setError(
+          err instanceof Error ? err : new Error("Failed to load template"),
+        );
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    loadInitialTemplate()
-  }, [initialTemplateId])
+    loadInitialTemplate();
+  }, [initialTemplateId]);
 
   // Apply template CSS to document
   useEffect(() => {
-    if (!template) return
+    if (!template) return;
 
     const finalTemplate =
-      Object.keys(overrides).length > 0 ? customizeTemplate(template, overrides) : template
+      Object.keys(overrides).length > 0
+        ? customizeTemplate(template, overrides)
+        : template;
 
     // Generate and inject CSS
-    const css = generateTemplateCSS(finalTemplate)
-    let styleElement = document.getElementById('template-css') as HTMLStyleElement | null
+    const css = generateTemplateCSS(finalTemplate);
+    let styleElement = document.getElementById(
+      "template-css",
+    ) as HTMLStyleElement | null;
 
     if (!styleElement) {
-      styleElement = document.createElement('style')
-      styleElement.id = 'template-css'
-      document.head.appendChild(styleElement)
+      styleElement = document.createElement("style");
+      styleElement.id = "template-css";
+      document.head.appendChild(styleElement);
     }
 
-    styleElement.textContent = css
+    styleElement.textContent = css;
 
     // Apply theme class to document
-    document.documentElement.classList.remove('light', 'dark')
-    document.documentElement.classList.add(theme)
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
 
     return () => {
       if (styleElement) {
-        styleElement.remove()
+        styleElement.remove();
       }
-    }
-  }, [template, theme, overrides])
+    };
+  }, [template, theme, overrides]);
 
   // Set theme with system preference support
-  const setTheme = useCallback((newTheme: 'light' | 'dark' | 'system') => {
-    if (newTheme === 'system') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      setThemeState(prefersDark ? 'dark' : 'light')
+  const setTheme = useCallback((newTheme: "light" | "dark" | "system") => {
+    if (newTheme === "system") {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      setThemeState(prefersDark ? "dark" : "light");
 
       // Listen for system preference changes
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const handler = (e: MediaQueryListEvent) => {
-        setThemeState(e.matches ? 'dark' : 'light')
-      }
-      mediaQuery.addEventListener('change', handler)
-      return () => mediaQuery.removeEventListener('change', handler)
+        setThemeState(e.matches ? "dark" : "light");
+      };
+      mediaQuery.addEventListener("change", handler);
+      return () => mediaQuery.removeEventListener("change", handler);
     } else {
-      setThemeState(newTheme)
+      setThemeState(newTheme);
     }
-  }, [])
+  }, []);
 
   // Switch to a different template
   const switchTemplate = useCallback(
     async (newTemplateId: TemplateId) => {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
-        let loadedTemplate = await loadTemplate(newTemplateId)
-        loadedTemplate = applyEnvOverrides(loadedTemplate)
+        let loadedTemplate = await loadTemplate(newTemplateId);
+        loadedTemplate = applyEnvOverrides(loadedTemplate);
 
         if (Object.keys(overrides).length > 0) {
-          loadedTemplate = customizeTemplate(loadedTemplate, overrides)
+          loadedTemplate = customizeTemplate(loadedTemplate, overrides);
         }
 
-        setTemplate(loadedTemplate)
-        setTemplateId(newTemplateId)
+        setTemplate(loadedTemplate);
+        setTemplateId(newTemplateId);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to switch template'))
+        setError(
+          err instanceof Error ? err : new Error("Failed to switch template"),
+        );
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [overrides]
-  )
+    [overrides],
+  );
 
   // Apply custom overrides
   const applyOverrides = useCallback((newOverrides: PartialTemplate) => {
     setOverrides((prev) => ({
       ...prev,
       ...newOverrides,
-    }))
-  }, [])
+    }));
+  }, []);
 
   // Get current colors based on theme
   const colors = useMemo(() => {
     if (!template) {
       // Return empty colors while loading
-      return {} as ThemeColors
+      return {} as ThemeColors;
     }
-    return theme === 'dark' ? template.theme.dark : template.theme.light
-  }, [template, theme])
+    return theme === "dark" ? template.theme.dark : template.theme.light;
+  }, [template, theme]);
 
   // Get current layout
   const layout = useMemo(() => {
-    if (!template) return {} as LayoutConfig
-    return template.layout
-  }, [template])
+    if (!template) return {} as LayoutConfig;
+    return template.layout;
+  }, [template]);
 
   // Get current features
   const features = useMemo(() => {
-    if (!template) return {} as FeatureConfig
-    return template.features
-  }, [template])
+    if (!template) return {} as FeatureConfig;
+    return template.features;
+  }, [template]);
 
   // Check if a feature is enabled
   const isFeatureEnabled = useCallback(
     (feature: keyof FeatureConfig): boolean => {
-      if (!template) return false
-      const value = template.features[feature]
-      return typeof value === 'boolean' ? value : Boolean(value)
+      if (!template) return false;
+      const value = template.features[feature];
+      return typeof value === "boolean" ? value : Boolean(value);
     },
-    [template]
-  )
+    [template],
+  );
 
   // Get current terminology
   const terminology = useMemo(() => {
-    if (!template) return {} as TerminologyConfig
-    return template.terminology
-  }, [template])
+    if (!template) return {} as TerminologyConfig;
+    return template.terminology;
+  }, [template]);
 
   // Terminology translation helper
   const t = useCallback(
-    (key: keyof TerminologyConfig, replacements?: Record<string, string>): string => {
-      if (!template) return key as string
-      let text = template.terminology[key] || (key as string)
+    (
+      key: keyof TerminologyConfig,
+      replacements?: Record<string, string>,
+    ): string => {
+      if (!template) return key as string;
+      let text = template.terminology[key] || (key as string);
 
       if (replacements) {
         for (const [placeholder, value] of Object.entries(replacements)) {
-          text = text.replace(`{{${placeholder}}}`, value)
+          text = text.replace(`{{${placeholder}}}`, value);
         }
       }
 
-      return text
+      return text;
     },
-    [template]
-  )
+    [template],
+  );
 
   const value: TemplateContextValue = {
     template,
@@ -267,9 +297,13 @@ export function TemplateProvider({ children, initialTemplateId }: TemplateProvid
     t,
     switchTemplate,
     applyOverrides,
-  }
+  };
 
-  return <TemplateContext.Provider value={value}>{children}</TemplateContext.Provider>
+  return (
+    <TemplateContext.Provider value={value}>
+      {children}
+    </TemplateContext.Provider>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -280,53 +314,53 @@ export function TemplateProvider({ children, initialTemplateId }: TemplateProvid
  * Access the current platform template configuration
  */
 export function useTemplate(): TemplateContextValue {
-  const context = useContext(TemplateContext)
+  const context = useContext(TemplateContext);
 
   if (!context) {
-    throw new Error('useTemplate must be used within a TemplateProvider')
+    throw new Error("useTemplate must be used within a TemplateProvider");
   }
 
-  return context
+  return context;
 }
 
 /**
  * Get just the theme colors
  */
 export function useThemeColors(): ThemeColors {
-  const { colors } = useTemplate()
-  return colors
+  const { colors } = useTemplate();
+  return colors;
 }
 
 /**
  * Get just the layout config
  */
 export function useLayout(): LayoutConfig {
-  const { layout } = useTemplate()
-  return layout
+  const { layout } = useTemplate();
+  return layout;
 }
 
 /**
  * Get just the feature config
  */
 export function useFeatures(): FeatureConfig {
-  const { features } = useTemplate()
-  return features
+  const { features } = useTemplate();
+  return features;
 }
 
 /**
  * Check if a specific feature is enabled
  */
 export function useFeature(feature: keyof FeatureConfig): boolean {
-  const { isFeatureEnabled } = useTemplate()
-  return isFeatureEnabled(feature)
+  const { isFeatureEnabled } = useTemplate();
+  return isFeatureEnabled(feature);
 }
 
 /**
  * Get the terminology translation function
  */
 export function useTerminology() {
-  const { terminology, t } = useTemplate()
-  return { terminology, t }
+  const { terminology, t } = useTemplate();
+  return { terminology, t };
 }
 
-export default useTemplate
+export default useTemplate;

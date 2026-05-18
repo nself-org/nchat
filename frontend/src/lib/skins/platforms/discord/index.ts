@@ -37,13 +37,13 @@ export {
   discordDarkShadows,
   discordDetailedSkin,
   discordVisualConfig,
-} from './visual'
+} from "./visual";
 
 export type {
   DiscordExtendedColors,
   DiscordShadows,
   DiscordVisualConfig,
-} from './visual'
+} from "./visual";
 
 // -- Behavior ----------------------------------------------------------------
 export {
@@ -64,7 +64,7 @@ export {
   discordDetailedBehavior,
   discordExtendedBehavior,
   discordBehaviorConfig,
-} from './behavior'
+} from "./behavior";
 
 export type {
   DiscordGuildConfig,
@@ -83,7 +83,7 @@ export type {
   DiscordMediaConfig,
   DiscordExtendedBehavior,
   DiscordBehaviorConfig,
-} from './behavior'
+} from "./behavior";
 
 // -- Navigation --------------------------------------------------------------
 export {
@@ -106,7 +106,7 @@ export {
   getDiscordUserArea,
   getDiscordHeaderActionCount,
   getDiscordHeaderActionById,
-} from './navigation'
+} from "./navigation";
 
 export type {
   DiscordServerListItem,
@@ -118,7 +118,7 @@ export type {
   DiscordMembersPanelConfig,
   DiscordServerListConfig,
   DiscordNavigationConfig,
-} from './navigation'
+} from "./navigation";
 
 // -- Composer ----------------------------------------------------------------
 export {
@@ -138,7 +138,7 @@ export {
   getDiscordAttachmentCount,
   getDiscordSlashCommands,
   getDiscordBuiltInCommandCount,
-} from './composer'
+} from "./composer";
 
 export type {
   DiscordAttachmentMenuItem,
@@ -148,7 +148,7 @@ export type {
   DiscordMessageActionBarConfig,
   DiscordSendButtonConfig,
   DiscordComposerConfig,
-} from './composer'
+} from "./composer";
 
 // -- Parity Checklist --------------------------------------------------------
 export {
@@ -159,7 +159,7 @@ export {
   getDiscordParityItemById,
   verifyDiscordCriticalParity,
   getDiscordCategoryParityPercentage,
-} from './parity-checklist'
+} from "./parity-checklist";
 
 export type {
   DiscordParityPriority,
@@ -167,4 +167,4 @@ export type {
   DiscordParityStatus,
   DiscordParityChecklistItem,
   DiscordParityChecklist,
-} from './parity-checklist'
+} from "./parity-checklist";

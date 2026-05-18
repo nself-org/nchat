@@ -16,18 +16,18 @@
  * Get realtime server URL from environment
  */
 function getRealtimeUrl(): string {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return (
       process.env.NEXT_PUBLIC_REALTIME_URL ||
       process.env.NEXT_PUBLIC_REALTIME_WS_URL ||
-      'http://realtime.localhost:3101'
-    )
+      "http://realtime.localhost:3101"
+    );
   }
   return (
     process.env.NEXT_PUBLIC_REALTIME_URL ||
     process.env.NEXT_PUBLIC_REALTIME_WS_URL ||
-    'http://realtime.localhost:3101'
-  )
+    "http://realtime.localhost:3101"
+  );
 }
 
 /**
@@ -38,7 +38,7 @@ export const REALTIME_CONNECTION = {
   url: getRealtimeUrl(),
 
   /** Socket.io transports */
-  transports: ['websocket', 'polling'] as const,
+  transports: ["websocket", "polling"] as const,
 
   /** Auto-reconnection */
   autoReconnect: true,
@@ -50,8 +50,8 @@ export const REALTIME_CONNECTION = {
   timeout: 20000,
 
   /** Debug mode */
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 // ============================================================================
 // Feature Flags
@@ -62,20 +62,21 @@ export const REALTIME_CONNECTION = {
  */
 export const REALTIME_FEATURES = {
   /** Enable user presence tracking */
-  presence: process.env.NEXT_PUBLIC_FEATURE_USER_PRESENCE !== 'false',
+  presence: process.env.NEXT_PUBLIC_FEATURE_USER_PRESENCE !== "false",
 
   /** Enable typing indicators */
-  typing: process.env.NEXT_PUBLIC_FEATURE_TYPING_INDICATORS !== 'false',
+  typing: process.env.NEXT_PUBLIC_FEATURE_TYPING_INDICATORS !== "false",
 
   /** Enable delivery receipts */
-  deliveryReceipts: process.env.NEXT_PUBLIC_FEATURE_DELIVERY_RECEIPTS !== 'false',
+  deliveryReceipts:
+    process.env.NEXT_PUBLIC_FEATURE_DELIVERY_RECEIPTS !== "false",
 
   /** Enable offline message queue */
-  offlineQueue: process.env.NEXT_PUBLIC_FEATURE_OFFLINE_QUEUE !== 'false',
+  offlineQueue: process.env.NEXT_PUBLIC_FEATURE_OFFLINE_QUEUE !== "false",
 
   /** Enable auto-sync on reconnection */
-  autoSync: process.env.NEXT_PUBLIC_FEATURE_AUTO_SYNC !== 'false',
-}
+  autoSync: process.env.NEXT_PUBLIC_FEATURE_AUTO_SYNC !== "false",
+};
 
 // ============================================================================
 // Service Configurations
@@ -98,11 +99,12 @@ export const PRESENCE_CONFIG = {
   enablePrivacyFiltering: true,
 
   /** GraphQL endpoint for presence settings */
-  graphqlEndpoint: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://api.localhost/v1/graphql',
+  graphqlEndpoint:
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://api.localhost/v1/graphql",
 
   /** Debug mode */
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 /**
  * Typing service configuration
@@ -124,8 +126,8 @@ export const TYPING_CONFIG = {
   batchUpdateInterval: 500,
 
   /** Debug mode */
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 /**
  * Delivery receipts configuration
@@ -141,8 +143,8 @@ export const DELIVERY_CONFIG = {
   batchReadInterval: 1000,
 
   /** Debug mode */
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 /**
  * Offline queue configuration
@@ -161,11 +163,11 @@ export const OFFLINE_QUEUE_CONFIG = {
   maxRetryDelay: 30000,
 
   /** LocalStorage key */
-  storageKey: 'nchat:offline-queue',
+  storageKey: "nchat:offline-queue",
 
   /** Debug mode */
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 /**
  * Sync service configuration
@@ -181,11 +183,11 @@ export const SYNC_CONFIG = {
   syncTimeout: 30000,
 
   /** LocalStorage key for sync state */
-  storageKey: 'nchat:sync-state',
+  storageKey: "nchat:sync-state",
 
   /** Debug mode */
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 /**
  * Rooms service configuration
@@ -201,8 +203,8 @@ export const ROOMS_CONFIG = {
   cacheRoomData: true,
 
   /** Debug mode */
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 // ============================================================================
 // Default Privacy Settings
@@ -212,20 +214,20 @@ export const ROOMS_CONFIG = {
  * Default presence privacy settings for new users
  */
 export const DEFAULT_PRESENCE_PRIVACY = {
-  visibility: 'everyone' as const,
+  visibility: "everyone" as const,
   showLastSeen: true,
   showOnlineStatus: true,
   allowReadReceipts: true,
   invisibleMode: false,
-}
+};
 
 /**
  * Default typing privacy settings for new users
  */
 export const DEFAULT_TYPING_PRIVACY = {
   broadcastTyping: true,
-  typingVisibility: 'everyone' as const,
-}
+  typingVisibility: "everyone" as const,
+};
 
 // ============================================================================
 // Event Names
@@ -236,50 +238,50 @@ export const DEFAULT_TYPING_PRIVACY = {
  */
 export const REALTIME_EVENTS = {
   // Connection events
-  CONNECT: 'connect',
-  DISCONNECT: 'disconnect',
-  RECONNECT: 'reconnect',
-  RECONNECT_ATTEMPT: 'reconnect_attempt',
-  ERROR: 'error',
+  CONNECT: "connect",
+  DISCONNECT: "disconnect",
+  RECONNECT: "reconnect",
+  RECONNECT_ATTEMPT: "reconnect_attempt",
+  ERROR: "error",
 
   // Authentication events
-  AUTH: 'auth',
-  AUTH_SUCCESS: 'auth:success',
-  AUTH_ERROR: 'auth:error',
+  AUTH: "auth",
+  AUTH_SUCCESS: "auth:success",
+  AUTH_ERROR: "auth:error",
 
   // Message events
-  MESSAGE_NEW: 'message:new',
-  MESSAGE_UPDATE: 'message:update',
-  MESSAGE_DELETE: 'message:delete',
-  MESSAGE_SENT_ACK: 'message:sent_ack',
-  MESSAGE_DELIVERED: 'message:delivered',
-  MESSAGE_READ_BY: 'message:read_by',
-  MESSAGE_FAILED: 'message:failed',
+  MESSAGE_NEW: "message:new",
+  MESSAGE_UPDATE: "message:update",
+  MESSAGE_DELETE: "message:delete",
+  MESSAGE_SENT_ACK: "message:sent_ack",
+  MESSAGE_DELIVERED: "message:delivered",
+  MESSAGE_READ_BY: "message:read_by",
+  MESSAGE_FAILED: "message:failed",
 
   // Presence events
-  PRESENCE_UPDATE: 'presence:update',
-  PRESENCE_CHANGED: 'presence:changed',
-  PRESENCE_SUBSCRIBE: 'presence:subscribe',
-  PRESENCE_UNSUBSCRIBE: 'presence:unsubscribe',
-  PRESENCE_BULK: 'presence:bulk',
+  PRESENCE_UPDATE: "presence:update",
+  PRESENCE_CHANGED: "presence:changed",
+  PRESENCE_SUBSCRIBE: "presence:subscribe",
+  PRESENCE_UNSUBSCRIBE: "presence:unsubscribe",
+  PRESENCE_BULK: "presence:bulk",
 
   // Typing events
-  TYPING_START: 'typing:start',
-  TYPING_STOP: 'typing:stop',
-  TYPING_EVENT: 'typing:event',
-  TYPING_BATCH: 'typing:batch',
+  TYPING_START: "typing:start",
+  TYPING_STOP: "typing:stop",
+  TYPING_EVENT: "typing:event",
+  TYPING_BATCH: "typing:batch",
 
   // Room events
-  ROOM_JOIN: 'room:join',
-  ROOM_LEAVE: 'room:leave',
-  ROOM_JOINED: 'room:joined',
-  ROOM_LEFT: 'room:left',
+  ROOM_JOIN: "room:join",
+  ROOM_LEAVE: "room:leave",
+  ROOM_JOINED: "room:joined",
+  ROOM_LEFT: "room:left",
 
   // Sync events
-  SYNC_MESSAGES: 'sync:messages',
-  SYNC_CHANNELS: 'sync:channels',
-  SYNC_PRESENCE: 'sync:presence',
-} as const
+  SYNC_MESSAGES: "sync:messages",
+  SYNC_CHANNELS: "sync:channels",
+  SYNC_PRESENCE: "sync:presence",
+} as const;
 
 // ============================================================================
 // Connection Quality Thresholds
@@ -293,7 +295,7 @@ export const CONNECTION_QUALITY_THRESHOLDS = {
   good: 300, // 100-300ms
   fair: 600, // 300-600ms
   poor: Infinity, // > 600ms
-}
+};
 
 // ============================================================================
 // Exports
@@ -319,6 +321,6 @@ export const REALTIME_CONFIG = {
   },
   events: REALTIME_EVENTS,
   connectionQuality: CONNECTION_QUALITY_THRESHOLDS,
-}
+};
 
-export default REALTIME_CONFIG
+export default REALTIME_CONFIG;

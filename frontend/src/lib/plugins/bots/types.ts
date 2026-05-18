@@ -7,7 +7,7 @@
  * with reference platforms (Slack, Discord, Telegram).
  */
 
-import type { AppScope } from '../app-contract'
+import type { AppScope } from "../app-contract";
 
 // ============================================================================
 // BOT IDENTITY
@@ -19,66 +19,66 @@ import type { AppScope } from '../app-contract'
  */
 export interface BotAccount {
   /** Unique bot identifier */
-  id: string
+  id: string;
   /** Parent app ID (from app-contract) - every bot belongs to an app */
-  appId: string
+  appId: string;
   /** Bot username (unique, lowercase, alphanumeric + hyphens) */
-  username: string
+  username: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Short description (max 200 chars) */
-  description: string
+  description: string;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Bot homepage URL */
-  homepageUrl?: string
+  homepageUrl?: string;
   /** Whether the bot is verified (admin-verified) */
-  verified: boolean
+  verified: boolean;
   /** Bot account status */
-  status: BotAccountStatus
+  status: BotAccountStatus;
   /** Bot type classification */
-  botType: BotType
+  botType: BotType;
   /** Version string */
-  version: string
+  version: string;
   /** Creator user ID */
-  createdBy: string
+  createdBy: string;
   /** Creation timestamp */
-  createdAt: string
+  createdAt: string;
   /** Last update timestamp */
-  updatedAt: string
+  updatedAt: string;
 }
 
 /**
  * Bot account status.
  */
 export type BotAccountStatus =
-  | 'active'
-  | 'suspended'
-  | 'disabled'
-  | 'pending_review'
-  | 'deleted'
+  | "active"
+  | "suspended"
+  | "disabled"
+  | "pending_review"
+  | "deleted";
 
 /**
  * Bot type classification.
  */
 export type BotType =
-  | 'automation'     // Workflow and task automation
-  | 'notification'   // Push notifications and alerts
-  | 'moderation'     // Content moderation
-  | 'integration'    // Third-party service integrations
-  | 'ai_assistant'   // AI/ML powered assistants
-  | 'utility'        // General utility bots
-  | 'custom'         // Custom bots
+  | "automation" // Workflow and task automation
+  | "notification" // Push notifications and alerts
+  | "moderation" // Content moderation
+  | "integration" // Third-party service integrations
+  | "ai_assistant" // AI/ML powered assistants
+  | "utility" // General utility bots
+  | "custom"; // Custom bots
 
 /**
  * Bot profile update payload.
  */
 export interface BotProfileUpdate {
-  displayName?: string
-  description?: string
-  avatarUrl?: string
-  homepageUrl?: string
-  botType?: BotType
+  displayName?: string;
+  description?: string;
+  avatarUrl?: string;
+  homepageUrl?: string;
+  botType?: BotType;
 }
 
 // ============================================================================
@@ -90,15 +90,15 @@ export interface BotProfileUpdate {
  */
 export interface BotScopeGrant {
   /** The granted app scope */
-  scope: AppScope
+  scope: AppScope;
   /** Optional channel restrictions - if set, scope only applies to these channels */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Whether this scope was granted at install time (vs runtime) */
-  grantedAtInstall: boolean
+  grantedAtInstall: boolean;
   /** Who granted this scope */
-  grantedBy: string
+  grantedBy: string;
   /** When this scope was granted */
-  grantedAt: string
+  grantedAt: string;
 }
 
 /**
@@ -106,33 +106,39 @@ export interface BotScopeGrant {
  */
 export interface BotCapability {
   /** Capability name */
-  name: string
+  name: string;
   /** Human-readable description */
-  description: string
+  description: string;
   /** Scopes required for this capability */
-  requiredScopes: AppScope[]
+  requiredScopes: AppScope[];
   /** Whether this capability is currently active */
-  active: boolean
+  active: boolean;
 }
 
 /**
  * Pre-defined capability sets for common bot patterns.
  */
 export type BotCapabilityPreset =
-  | 'read_only'        // read:messages, read:channels, read:users
-  | 'responder'        // read + write:messages
-  | 'moderator'        // read + write + admin:moderation
-  | 'full_access'      // all scopes (requires admin approval)
+  | "read_only" // read:messages, read:channels, read:users
+  | "responder" // read + write:messages
+  | "moderator" // read + write + admin:moderation
+  | "full_access"; // all scopes (requires admin approval)
 
 /**
  * Mapping of capability presets to their required scopes.
  */
-export const CAPABILITY_PRESET_SCOPES: Record<BotCapabilityPreset, AppScope[]> = {
-  read_only: ['read:messages', 'read:channels', 'read:users'],
-  responder: ['read:messages', 'read:channels', 'write:messages'],
-  moderator: ['read:messages', 'read:channels', 'write:messages', 'admin:moderation'],
-  full_access: ['read:*', 'write:*', 'admin:*'],
-}
+export const CAPABILITY_PRESET_SCOPES: Record<BotCapabilityPreset, AppScope[]> =
+  {
+    read_only: ["read:messages", "read:channels", "read:users"],
+    responder: ["read:messages", "read:channels", "write:messages"],
+    moderator: [
+      "read:messages",
+      "read:channels",
+      "write:messages",
+      "admin:moderation",
+    ],
+    full_access: ["read:*", "write:*", "admin:*"],
+  };
 
 // ============================================================================
 // BOT INSTALLATION
@@ -143,35 +149,35 @@ export const CAPABILITY_PRESET_SCOPES: Record<BotCapabilityPreset, AppScope[]> =
  */
 export interface BotInstallation {
   /** Installation ID */
-  id: string
+  id: string;
   /** Bot account ID */
-  botId: string
+  botId: string;
   /** Workspace where installed */
-  workspaceId: string
+  workspaceId: string;
   /** Scope grants for this installation */
-  scopeGrants: BotScopeGrant[]
+  scopeGrants: BotScopeGrant[];
   /** Channels the bot is active in (empty = all allowed channels) */
-  activeChannels: string[]
+  activeChannels: string[];
   /** Installation status */
-  status: BotInstallationStatus
+  status: BotInstallationStatus;
   /** Configuration specific to this installation */
-  config: Record<string, unknown>
+  config: Record<string, unknown>;
   /** Who installed the bot */
-  installedBy: string
+  installedBy: string;
   /** When installed */
-  installedAt: string
+  installedAt: string;
   /** When last updated */
-  updatedAt: string
+  updatedAt: string;
 }
 
 /**
  * Bot installation status.
  */
 export type BotInstallationStatus =
-  | 'active'
-  | 'disabled'
-  | 'suspended'
-  | 'uninstalled'
+  | "active"
+  | "disabled"
+  | "suspended"
+  | "uninstalled";
 
 // ============================================================================
 // BOT RATE LIMITING
@@ -182,21 +188,21 @@ export type BotInstallationStatus =
  */
 export interface BotRateLimitConfig {
   /** Global requests per minute for this bot */
-  globalRequestsPerMinute: number
+  globalRequestsPerMinute: number;
   /** Burst allowance above the base rate */
-  burstAllowance: number
+  burstAllowance: number;
   /** Per-channel message rate (messages per minute per channel) */
-  channelMessageRate: number
+  channelMessageRate: number;
   /** Per-endpoint rate overrides */
-  endpointOverrides: Record<string, EndpointRateLimit>
+  endpointOverrides: Record<string, EndpointRateLimit>;
 }
 
 /**
  * Rate limit for a specific API endpoint.
  */
 export interface EndpointRateLimit {
-  requestsPerMinute: number
-  burstAllowance?: number
+  requestsPerMinute: number;
+  burstAllowance?: number;
 }
 
 /**
@@ -207,27 +213,27 @@ export const DEFAULT_BOT_RATE_LIMITS: BotRateLimitConfig = {
   burstAllowance: 10,
   channelMessageRate: 10,
   endpointOverrides: {
-    'messages:send': { requestsPerMinute: 30, burstAllowance: 5 },
-    'messages:edit': { requestsPerMinute: 20 },
-    'messages:delete': { requestsPerMinute: 10 },
-    'reactions:add': { requestsPerMinute: 20 },
-    'files:upload': { requestsPerMinute: 5 },
-    'channels:create': { requestsPerMinute: 2 },
-    'users:lookup': { requestsPerMinute: 30 },
+    "messages:send": { requestsPerMinute: 30, burstAllowance: 5 },
+    "messages:edit": { requestsPerMinute: 20 },
+    "messages:delete": { requestsPerMinute: 10 },
+    "reactions:add": { requestsPerMinute: 20 },
+    "files:upload": { requestsPerMinute: 5 },
+    "channels:create": { requestsPerMinute: 2 },
+    "users:lookup": { requestsPerMinute: 30 },
   },
-}
+};
 
 /**
  * Result of a bot rate limit check.
  */
 export interface BotRateLimitResult {
-  allowed: boolean
-  remaining: number
-  limit: number
-  resetAt: number
-  retryAfterMs: number
+  allowed: boolean;
+  remaining: number;
+  limit: number;
+  resetAt: number;
+  retryAfterMs: number;
   /** Which limit was hit (global, channel, or endpoint) */
-  limitType: 'global' | 'channel' | 'endpoint'
+  limitType: "global" | "channel" | "endpoint";
 }
 
 // ============================================================================
@@ -238,37 +244,37 @@ export interface BotRateLimitResult {
  * Moderation action that can be taken on a bot.
  */
 export type BotModerationAction =
-  | 'warn'           // Issue a warning
-  | 'restrict'       // Restrict to specific channels
-  | 'rate_reduce'    // Reduce rate limits
-  | 'suspend'        // Temporarily suspend
-  | 'force_uninstall' // Force uninstall from workspace
-  | 'ban'            // Permanently ban the bot
+  | "warn" // Issue a warning
+  | "restrict" // Restrict to specific channels
+  | "rate_reduce" // Reduce rate limits
+  | "suspend" // Temporarily suspend
+  | "force_uninstall" // Force uninstall from workspace
+  | "ban"; // Permanently ban the bot
 
 /**
  * A moderation action record.
  */
 export interface BotModerationRecord {
   /** Record ID */
-  id: string
+  id: string;
   /** Bot ID */
-  botId: string
+  botId: string;
   /** Workspace ID (if workspace-specific) */
-  workspaceId?: string
+  workspaceId?: string;
   /** The moderation action */
-  action: BotModerationAction
+  action: BotModerationAction;
   /** Reason for the action */
-  reason: string
+  reason: string;
   /** Who performed the action */
-  performedBy: string
+  performedBy: string;
   /** When the action was performed */
-  performedAt: string
+  performedAt: string;
   /** When the action expires (for temporary actions like suspend) */
-  expiresAt?: string
+  expiresAt?: string;
   /** Whether this action is currently active */
-  active: boolean
+  active: boolean;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -276,17 +282,17 @@ export interface BotModerationRecord {
  */
 export interface BotAbuseFlags {
   /** Whether the bot is sending messages too fast */
-  rateLimitViolations: number
+  rateLimitViolations: number;
   /** Whether the bot is attempting scope escalation */
-  scopeEscalationAttempts: number
+  scopeEscalationAttempts: number;
   /** Whether the bot is spamming channels */
-  spamScore: number
+  spamScore: number;
   /** Whether the bot is sending to unauthorized channels */
-  unauthorizedChannelAttempts: number
+  unauthorizedChannelAttempts: number;
   /** Last violation timestamp */
-  lastViolationAt?: string
+  lastViolationAt?: string;
   /** Whether the bot is currently flagged */
-  isFlagged: boolean
+  isFlagged: boolean;
 }
 
 // ============================================================================
@@ -297,43 +303,43 @@ export interface BotAbuseFlags {
  * Audit log event types for bot actions.
  */
 export type BotAuditEventType =
-  | 'bot.created'
-  | 'bot.updated'
-  | 'bot.deleted'
-  | 'bot.installed'
-  | 'bot.uninstalled'
-  | 'bot.enabled'
-  | 'bot.disabled'
-  | 'bot.suspended'
-  | 'bot.unsuspended'
-  | 'bot.scope_granted'
-  | 'bot.scope_revoked'
-  | 'bot.rate_limited'
-  | 'bot.moderation_action'
-  | 'bot.abuse_detected'
-  | 'bot.version_updated'
-  | 'bot.config_changed'
+  | "bot.created"
+  | "bot.updated"
+  | "bot.deleted"
+  | "bot.installed"
+  | "bot.uninstalled"
+  | "bot.enabled"
+  | "bot.disabled"
+  | "bot.suspended"
+  | "bot.unsuspended"
+  | "bot.scope_granted"
+  | "bot.scope_revoked"
+  | "bot.rate_limited"
+  | "bot.moderation_action"
+  | "bot.abuse_detected"
+  | "bot.version_updated"
+  | "bot.config_changed";
 
 /**
  * An audit log entry for bot actions.
  */
 export interface BotAuditEntry {
   /** Entry ID */
-  id: string
+  id: string;
   /** Event type */
-  eventType: BotAuditEventType
+  eventType: BotAuditEventType;
   /** Bot ID */
-  botId: string
+  botId: string;
   /** Who triggered the event (user ID or 'system') */
-  actorId: string
+  actorId: string;
   /** Workspace ID (if applicable) */
-  workspaceId?: string
+  workspaceId?: string;
   /** Event timestamp */
-  timestamp: string
+  timestamp: string;
   /** Human-readable description */
-  description: string
+  description: string;
   /** Event-specific data */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -343,43 +349,49 @@ export interface BotAuditEntry {
 /**
  * Valid state transitions for bot accounts.
  */
-export const BOT_ACCOUNT_TRANSITIONS: Record<BotAccountStatus, BotAccountStatus[]> = {
-  pending_review: ['active', 'suspended', 'deleted'],
-  active: ['suspended', 'disabled', 'deleted'],
-  suspended: ['active', 'deleted'],
-  disabled: ['active', 'deleted'],
+export const BOT_ACCOUNT_TRANSITIONS: Record<
+  BotAccountStatus,
+  BotAccountStatus[]
+> = {
+  pending_review: ["active", "suspended", "deleted"],
+  active: ["suspended", "disabled", "deleted"],
+  suspended: ["active", "deleted"],
+  disabled: ["active", "deleted"],
   deleted: [], // Terminal state
-}
+};
 
 /**
  * Valid state transitions for bot installations.
  */
-export const BOT_INSTALLATION_TRANSITIONS: Record<BotInstallationStatus, BotInstallationStatus[]> = {
-  active: ['disabled', 'suspended', 'uninstalled'],
-  disabled: ['active', 'uninstalled'],
-  suspended: ['active', 'uninstalled'],
-  uninstalled: ['active'], // Allow reinstall
-}
+export const BOT_INSTALLATION_TRANSITIONS: Record<
+  BotInstallationStatus,
+  BotInstallationStatus[]
+> = {
+  active: ["disabled", "suspended", "uninstalled"],
+  disabled: ["active", "uninstalled"],
+  suspended: ["active", "uninstalled"],
+  uninstalled: ["active"], // Allow reinstall
+};
 
 // ============================================================================
 // VALIDATION
 // ============================================================================
 
 /** Bot username regex: lowercase, alphanumeric + hyphens, 3-32 chars */
-export const BOT_USERNAME_REGEX = /^[a-z][a-z0-9-]{2,31}$/
+export const BOT_USERNAME_REGEX = /^[a-z][a-z0-9-]{2,31}$/;
 
 /** Maximum description length */
-export const MAX_BOT_DESCRIPTION_LENGTH = 200
+export const MAX_BOT_DESCRIPTION_LENGTH = 200;
 
 /** Maximum channels per installation */
-export const MAX_ACTIVE_CHANNELS = 500
+export const MAX_ACTIVE_CHANNELS = 500;
 
 /** Maximum scope grants per installation */
-export const MAX_SCOPE_GRANTS = 50
+export const MAX_SCOPE_GRANTS = 50;
 
 /**
  * Validate a bot username.
  */
 export function isValidBotUsername(username: string): boolean {
-  return BOT_USERNAME_REGEX.test(username)
+  return BOT_USERNAME_REGEX.test(username);
 }

@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Code2, Send, Eye, FileCode, Loader2, Sparkles } from 'lucide-react'
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight'
-import { lowlight } from '@/lib/markdown/syntax-highlighter'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Code2, Send, Eye, FileCode, Loader2, Sparkles } from "lucide-react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { lowlight } from "@/lib/markdown/syntax-highlighter";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -15,36 +15,39 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { CodeBlock } from './CodeBlock'
-import { getSupportedLanguages, normalizeLanguage } from '@/lib/markdown/syntax-highlighter'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CodeBlock } from "./CodeBlock";
+import {
+  getSupportedLanguages,
+  normalizeLanguage,
+} from "@/lib/markdown/syntax-highlighter";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface CodeSnippetModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onShare: (snippet: CodeSnippet) => Promise<void>
-  defaultLanguage?: string
-  defaultCode?: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onShare: (snippet: CodeSnippet) => Promise<void>;
+  defaultLanguage?: string;
+  defaultCode?: string;
 }
 
 export interface CodeSnippet {
-  title: string
-  language: string
-  code: string
-  description?: string
+  title: string;
+  language: string;
+  code: string;
+  description?: string;
 }
 
 /**
@@ -60,29 +63,29 @@ export function CodeSnippetModal({
   open,
   onOpenChange,
   onShare,
-  defaultLanguage = 'javascript',
-  defaultCode = '',
+  defaultLanguage = "javascript",
+  defaultCode = "",
 }: CodeSnippetModalProps) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [language, setLanguage] = useState(defaultLanguage)
-  const [isSharing, setIsSharing] = useState(false)
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit')
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [language, setLanguage] = useState(defaultLanguage);
+  const [isSharing, setIsSharing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
 
   // Get supported languages
-  const languages = getSupportedLanguages()
+  const languages = getSupportedLanguages();
 
   // Group languages by category
   const languagesByCategory = languages.reduce(
     (acc, lang) => {
       if (!acc[lang.category]) {
-        acc[lang.category] = []
+        acc[lang.category] = [];
       }
-      acc[lang.category].push(lang)
-      return acc
+      acc[lang.category].push(lang);
+      return acc;
     },
-    {} as Record<string, typeof languages>
-  )
+    {} as Record<string, typeof languages>,
+  );
 
   // Initialize TipTap editor with code block support
   const editor = useEditor({
@@ -94,40 +97,40 @@ export function CodeSnippetModal({
         lowlight,
         defaultLanguage: language,
         HTMLAttributes: {
-          class: 'hljs',
+          class: "hljs",
         },
       }),
     ],
     content: defaultCode
       ? `<pre><code class="language-${language}">${defaultCode}</code></pre>`
-      : '',
+      : "",
     editorProps: {
       attributes: {
         class: cn(
-          'prose prose-sm dark:prose-invert max-w-none',
-          'focus:outline-none min-h-[300px] max-h-[500px] overflow-y-auto',
-          'p-4 font-mono text-xs leading-relaxed'
+          "prose prose-sm dark:prose-invert max-w-none",
+          "focus:outline-none min-h-[300px] max-h-[500px] overflow-y-auto",
+          "p-4 font-mono text-xs leading-relaxed",
         ),
       },
     },
-  })
+  });
 
   // Update editor language when language changes
   useEffect(() => {
     if (editor && language) {
-      const normalized = normalizeLanguage(language)
-      editor.commands.updateAttributes('codeBlock', { language: normalized })
+      const normalized = normalizeLanguage(language);
+      editor.commands.updateAttributes("codeBlock", { language: normalized });
     }
-  }, [editor, language])
+  }, [editor, language]);
 
   // Handle share
   const handleShare = useCallback(async () => {
-    if (!editor || !title.trim()) return
+    if (!editor || !title.trim()) return;
 
-    const code = editor.getText()
-    if (!code.trim()) return
+    const code = editor.getText();
+    if (!code.trim()) return;
 
-    setIsSharing(true)
+    setIsSharing(true);
 
     try {
       await onShare({
@@ -135,40 +138,40 @@ export function CodeSnippetModal({
         language: normalizeLanguage(language),
         code: code.trim(),
         description: description.trim() || undefined,
-      })
+      });
 
       // Reset form
-      setTitle('')
-      setDescription('')
-      setLanguage('javascript')
-      editor.commands.clearContent()
-      onOpenChange(false)
+      setTitle("");
+      setDescription("");
+      setLanguage("javascript");
+      editor.commands.clearContent();
+      onOpenChange(false);
     } catch (error) {
-      logger.error('Failed to share snippet:', error)
+      logger.error("Failed to share snippet:", error);
     } finally {
-      setIsSharing(false)
+      setIsSharing(false);
     }
-  }, [editor, title, description, language, onShare, onOpenChange])
+  }, [editor, title, description, language, onShare, onOpenChange]);
 
   // Handle keyboard shortcuts
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        handleShare()
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        handleShare();
       }
     },
-    [handleShare]
-  )
+    [handleShare],
+  );
 
   useEffect(() => {
     if (open) {
-      document.addEventListener('keydown', handleKeyDown)
-      return () => document.removeEventListener('keydown', handleKeyDown)
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [open, handleKeyDown])
+  }, [open, handleKeyDown]);
 
-  const canShare = title.trim() && editor?.getText().trim()
+  const canShare = title.trim() && editor?.getText().trim();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -208,18 +211,20 @@ export function CodeSnippetModal({
                 <SelectValue placeholder="Select a language" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
-                {Object.entries(languagesByCategory).map(([category, langs]) => (
-                  <div key={category}>
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                      {category}
+                {Object.entries(languagesByCategory).map(
+                  ([category, langs]) => (
+                    <div key={category}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                        {category}
+                      </div>
+                      {langs.map((lang) => (
+                        <SelectItem key={lang.name} value={lang.name}>
+                          {lang.displayName}
+                        </SelectItem>
+                      ))}
                     </div>
-                    {langs.map((lang) => (
-                      <SelectItem key={lang.name} value={lang.name}>
-                        {lang.displayName}
-                      </SelectItem>
-                    ))}
-                  </div>
-                ))}
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -259,7 +264,10 @@ export function CodeSnippetModal({
             {/* Edit Tab */}
             <TabsContent value="edit" className="mt-4">
               <div className="bg-muted/30 rounded-lg border">
-                <EditorContent editor={editor} className="code-editor-content" />
+                <EditorContent
+                  editor={editor}
+                  className="code-editor-content"
+                />
               </div>
             </TabsContent>
 
@@ -285,10 +293,18 @@ export function CodeSnippetModal({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSharing}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSharing}
+          >
             Cancel
           </Button>
-          <Button onClick={handleShare} disabled={!canShare || isSharing} className="gap-2">
+          <Button
+            onClick={handleShare}
+            disabled={!canShare || isSharing}
+            className="gap-2"
+          >
             {isSharing ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -305,12 +321,13 @@ export function CodeSnippetModal({
 
         {/* Keyboard shortcut hint */}
         <div className="text-center text-xs text-muted-foreground">
-          Press <kbd className="rounded bg-muted px-1 font-mono">Cmd+Enter</kbd> or{' '}
-          <kbd className="rounded bg-muted px-1 font-mono">Ctrl+Enter</kbd> to share
+          Press <kbd className="rounded bg-muted px-1 font-mono">Cmd+Enter</kbd>{" "}
+          or <kbd className="rounded bg-muted px-1 font-mono">Ctrl+Enter</kbd>{" "}
+          to share
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 /**
@@ -328,10 +345,11 @@ export function CodeSnippetSuggestions() {
         <div className="flex-1 space-y-1">
           <p className="text-sm font-medium">AI Suggestions</p>
           <p className="text-xs text-muted-foreground">
-            Get AI-powered code completion and suggestions while typing. (Coming soon)
+            Get AI-powered code completion and suggestions while typing. (Coming
+            soon)
           </p>
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

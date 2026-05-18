@@ -16,7 +16,7 @@ export {
   SLACK_TOKEN_URL,
   SLACK_DEFAULT_SCOPES,
   type SlackClientConfig,
-} from './slack-client'
+} from "./slack-client";
 
 // Export OAuth
 export {
@@ -40,7 +40,7 @@ export {
   type SlackOAuthState,
   type SlackOAuthResult,
   type SlackOAuthError,
-} from './oauth'
+} from "./oauth";
 
 // Export formatter
 export {
@@ -60,7 +60,7 @@ export {
   type SlackNotificationIcon,
   type SlackNotificationColor,
   type SlackNotificationMetadata,
-} from './formatter'
+} from "./formatter";
 
 // Export types
 export type {
@@ -87,4 +87,4 @@ export type {
   SlackConversation,
   SlackChannelNotificationSettings,
   SlackIntegrationConfig,
-} from './types'
+} from "./types";

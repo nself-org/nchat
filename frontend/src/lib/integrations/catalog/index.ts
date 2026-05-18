@@ -57,23 +57,30 @@ export type {
   SyncConflict,
   SyncResult,
   InstalledIntegration,
-} from './types'
+} from "./types";
 
-export { ConnectorError } from './types'
+export { ConnectorError } from "./types";
 
 // Base Connector
-export { BaseConnector } from './base-connector'
-export type { ConnectorEventType, ConnectorEventListener } from './base-connector'
+export { BaseConnector } from "./base-connector";
+export type {
+  ConnectorEventType,
+  ConnectorEventListener,
+} from "./base-connector";
 
 // Connectors
-export { CalendarConnector } from '../connectors/calendar'
-export { TicketingConnector } from '../connectors/ticketing'
-export { CICDConnector } from '../connectors/ci-cd'
-export { DocsConnector } from '../connectors/docs'
-export { CRMConnector } from '../connectors/crm'
+export { CalendarConnector } from "../connectors/calendar";
+export { TicketingConnector } from "../connectors/ticketing";
+export { CICDConnector } from "../connectors/ci-cd";
+export { DocsConnector } from "../connectors/docs";
+export { CRMConnector } from "../connectors/crm";
 
 // Registry
-export { IntegrationRegistry, CredentialVault, HealthMonitor } from './registry'
+export {
+  IntegrationRegistry,
+  CredentialVault,
+  HealthMonitor,
+} from "./registry";
 
 // Sync Engine
-export { SyncEngine } from './sync-engine'
+export { SyncEngine } from "./sync-engine";

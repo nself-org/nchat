@@ -10,145 +10,145 @@
  * - Multi-workspace notification preferences
  */
 
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { gql } from '@apollo/client'
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+import { gql } from "@apollo/client";
 import {
   WorkspaceService,
   Workspace,
   WorkspaceMember,
   WorkspaceSettings,
   WorkspaceStats,
-} from './workspace.service'
+} from "./workspace.service";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface OwnershipTransferRequest {
-  workspaceId: string
-  currentOwnerId: string
-  newOwnerId: string
-  reason?: string
-  requireConfirmation?: boolean
+  workspaceId: string;
+  currentOwnerId: string;
+  newOwnerId: string;
+  reason?: string;
+  requireConfirmation?: boolean;
 }
 
 export interface OwnershipTransferResult {
-  success: boolean
-  transferId?: string
-  pendingConfirmation?: boolean
-  newOwner?: WorkspaceMember
-  previousOwner?: WorkspaceMember
+  success: boolean;
+  transferId?: string;
+  pendingConfirmation?: boolean;
+  newOwner?: WorkspaceMember;
+  previousOwner?: WorkspaceMember;
 }
 
 export interface EmergencyAccess {
-  id: string
-  workspaceId: string
-  backupOwnerId: string
-  grantedBy: string
-  grantedAt: string
-  expiresAt?: string | null
-  isActive: boolean
+  id: string;
+  workspaceId: string;
+  backupOwnerId: string;
+  grantedBy: string;
+  grantedAt: string;
+  expiresAt?: string | null;
+  isActive: boolean;
   backupOwner?: {
-    id: string
-    username: string
-    displayName: string
-    email?: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    email?: string;
+    avatarUrl?: string;
+  };
 }
 
 export interface WorkspaceAnalytics {
-  workspaceId: string
-  period: 'day' | 'week' | 'month' | 'year'
-  memberCount: number
-  activeMembers: number
-  newMembers: number
-  leftMembers: number
-  messageCount: number
-  fileCount: number
-  storageUsedBytes: number
-  channelCount: number
-  activeChannels: number
-  peakOnlineMembers: number
-  averageOnlineMembers: number
-  lastUpdated: string
+  workspaceId: string;
+  period: "day" | "week" | "month" | "year";
+  memberCount: number;
+  activeMembers: number;
+  newMembers: number;
+  leftMembers: number;
+  messageCount: number;
+  fileCount: number;
+  storageUsedBytes: number;
+  channelCount: number;
+  activeChannels: number;
+  peakOnlineMembers: number;
+  averageOnlineMembers: number;
+  lastUpdated: string;
 }
 
 export interface MessageRetentionPolicy {
-  workspaceId: string
-  enabled: boolean
-  retentionDays: number
-  excludeChannelIds: string[]
-  excludePinnedMessages: boolean
-  excludeFilesOlderThan?: number | null
-  lastCleanupAt?: string | null
-  messagesDeleted?: number
+  workspaceId: string;
+  enabled: boolean;
+  retentionDays: number;
+  excludeChannelIds: string[];
+  excludePinnedMessages: boolean;
+  excludeFilesOlderThan?: number | null;
+  lastCleanupAt?: string | null;
+  messagesDeleted?: number;
 }
 
 export interface StorageQuota {
-  workspaceId: string
-  totalBytes: number
-  usedBytes: number
-  fileCount: number
-  maxFileSize: number
-  allowedFileTypes: string[]
-  quotaEnforced: boolean
-  warningThreshold: number
+  workspaceId: string;
+  totalBytes: number;
+  usedBytes: number;
+  fileCount: number;
+  maxFileSize: number;
+  allowedFileTypes: string[];
+  quotaEnforced: boolean;
+  warningThreshold: number;
 }
 
 export interface WorkspaceNotificationPrefs {
-  workspaceId: string
-  userId: string
-  enabled: boolean
-  muteAll: boolean
-  muteUntil?: string | null
-  digestEnabled: boolean
-  digestFrequency: 'daily' | 'weekly' | 'never'
-  notifyOnMention: boolean
-  notifyOnDM: boolean
-  notifyOnChannel: boolean
-  soundEnabled: boolean
-  desktopEnabled: boolean
-  mobileEnabled: boolean
-  emailEnabled: boolean
+  workspaceId: string;
+  userId: string;
+  enabled: boolean;
+  muteAll: boolean;
+  muteUntil?: string | null;
+  digestEnabled: boolean;
+  digestFrequency: "daily" | "weekly" | "never";
+  notifyOnMention: boolean;
+  notifyOnDM: boolean;
+  notifyOnChannel: boolean;
+  soundEnabled: boolean;
+  desktopEnabled: boolean;
+  mobileEnabled: boolean;
+  emailEnabled: boolean;
 }
 
 export interface WorkspaceOnboardingStep {
-  id: string
-  title: string
-  description: string
-  type: 'welcome' | 'profile' | 'channels' | 'rules' | 'introduction'
-  required: boolean
-  order: number
-  completedBy?: string[]
+  id: string;
+  title: string;
+  description: string;
+  type: "welcome" | "profile" | "channels" | "rules" | "introduction";
+  required: boolean;
+  order: number;
+  completedBy?: string[];
 }
 
 export interface OnboardingConfig {
-  workspaceId: string
-  enabled: boolean
-  steps: WorkspaceOnboardingStep[]
-  welcomeMessage?: string | null
-  rulesAgreementRequired: boolean
-  profileCompletionRequired: boolean
-  assignDefaultChannels: boolean
-  defaultChannelIds: string[]
+  workspaceId: string;
+  enabled: boolean;
+  steps: WorkspaceOnboardingStep[];
+  welcomeMessage?: string | null;
+  rulesAgreementRequired: boolean;
+  profileCompletionRequired: boolean;
+  assignDefaultChannels: boolean;
+  defaultChannelIds: string[];
 }
 
 export interface DeactivatedMember {
-  id: string
-  workspaceId: string
-  userId: string
-  deactivatedBy: string
-  deactivatedAt: string
-  reason?: string | null
-  canRejoin: boolean
+  id: string;
+  workspaceId: string;
+  userId: string;
+  deactivatedBy: string;
+  deactivatedAt: string;
+  reason?: string | null;
+  canRejoin: boolean;
   user?: {
-    id: string
-    username: string
-    displayName: string
-    email?: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    email?: string;
+    avatarUrl?: string;
+  };
 }
 
 // ============================================================================
@@ -179,7 +179,7 @@ const GET_WORKSPACE_ANALYTICS = gql`
       created_at
     }
   }
-`
+`;
 
 const GET_STORAGE_QUOTA = gql`
   query GetStorageQuota($workspaceId: uuid!) {
@@ -194,7 +194,7 @@ const GET_STORAGE_QUOTA = gql`
       warning_threshold
     }
   }
-`
+`;
 
 const GET_MESSAGE_RETENTION = gql`
   query GetMessageRetention($workspaceId: uuid!) {
@@ -209,7 +209,7 @@ const GET_MESSAGE_RETENTION = gql`
       messages_deleted
     }
   }
-`
+`;
 
 const GET_EMERGENCY_ACCESS = gql`
   query GetEmergencyAccess($workspaceId: uuid!) {
@@ -232,11 +232,14 @@ const GET_EMERGENCY_ACCESS = gql`
       }
     }
   }
-`
+`;
 
 const GET_NOTIFICATION_PREFS = gql`
   query GetNotificationPrefs($workspaceId: uuid!, $userId: uuid!) {
-    nchat_workspace_notification_prefs_by_pk(workspace_id: $workspaceId, user_id: $userId) {
+    nchat_workspace_notification_prefs_by_pk(
+      workspace_id: $workspaceId
+      user_id: $userId
+    ) {
       workspace_id
       user_id
       enabled
@@ -253,7 +256,7 @@ const GET_NOTIFICATION_PREFS = gql`
       email_enabled
     }
   }
-`
+`;
 
 const GET_ONBOARDING_CONFIG = gql`
   query GetOnboardingConfig($workspaceId: uuid!) {
@@ -268,10 +271,14 @@ const GET_ONBOARDING_CONFIG = gql`
       default_channel_ids
     }
   }
-`
+`;
 
 const GET_DEACTIVATED_MEMBERS = gql`
-  query GetDeactivatedMembers($workspaceId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetDeactivatedMembers(
+    $workspaceId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_workspace_deactivated_members(
       where: { workspace_id: { _eq: $workspaceId } }
       order_by: { deactivated_at: desc }
@@ -301,7 +308,7 @@ const GET_DEACTIVATED_MEMBERS = gql`
       }
     }
   }
-`
+`;
 
 const UPDATE_MESSAGE_RETENTION = gql`
   mutation UpdateMessageRetention(
@@ -337,7 +344,7 @@ const UPDATE_MESSAGE_RETENTION = gql`
       retention_days
     }
   }
-`
+`;
 
 const UPDATE_STORAGE_QUOTA = gql`
   mutation UpdateStorageQuota(
@@ -359,14 +366,20 @@ const UPDATE_STORAGE_QUOTA = gql`
       }
       on_conflict: {
         constraint: nchat_workspace_storage_quotas_pkey
-        update_columns: [total_bytes, max_file_size, allowed_file_types, quota_enforced, warning_threshold]
+        update_columns: [
+          total_bytes
+          max_file_size
+          allowed_file_types
+          quota_enforced
+          warning_threshold
+        ]
       }
     ) {
       workspace_id
       total_bytes
     }
   }
-`
+`;
 
 const UPDATE_NOTIFICATION_PREFS = gql`
   mutation UpdateNotificationPrefs(
@@ -425,7 +438,7 @@ const UPDATE_NOTIFICATION_PREFS = gql`
       enabled
     }
   }
-`
+`;
 
 const GRANT_EMERGENCY_ACCESS = gql`
   mutation GrantEmergencyAccess(
@@ -451,7 +464,7 @@ const GRANT_EMERGENCY_ACCESS = gql`
       is_active
     }
   }
-`
+`;
 
 const REVOKE_EMERGENCY_ACCESS = gql`
   mutation RevokeEmergencyAccess($id: uuid!) {
@@ -463,7 +476,7 @@ const REVOKE_EMERGENCY_ACCESS = gql`
       is_active
     }
   }
-`
+`;
 
 const DEACTIVATE_MEMBER = gql`
   mutation DeactivateMember(
@@ -497,15 +510,22 @@ const DEACTIVATE_MEMBER = gql`
       can_rejoin
     }
     # Decrement member count
-    update_nchat_workspaces_by_pk(pk_columns: { id: $workspaceId }, _inc: { member_count: -1 }) {
+    update_nchat_workspaces_by_pk(
+      pk_columns: { id: $workspaceId }
+      _inc: { member_count: -1 }
+    ) {
       id
       member_count
     }
   }
-`
+`;
 
 const REACTIVATE_MEMBER = gql`
-  mutation ReactivateMember($deactivationId: uuid!, $workspaceId: uuid!, $userId: uuid!) {
+  mutation ReactivateMember(
+    $deactivationId: uuid!
+    $workspaceId: uuid!
+    $userId: uuid!
+  ) {
     # Remove from deactivated list
     delete_nchat_workspace_deactivated_members_by_pk(id: $deactivationId) {
       id
@@ -521,12 +541,15 @@ const REACTIVATE_MEMBER = gql`
       joined_at
     }
     # Increment member count
-    update_nchat_workspaces_by_pk(pk_columns: { id: $workspaceId }, _inc: { member_count: 1 }) {
+    update_nchat_workspaces_by_pk(
+      pk_columns: { id: $workspaceId }
+      _inc: { member_count: 1 }
+    ) {
       id
       member_count
     }
   }
-`
+`;
 
 const UPDATE_ONBOARDING_CONFIG = gql`
   mutation UpdateOnboardingConfig(
@@ -567,7 +590,7 @@ const UPDATE_ONBOARDING_CONFIG = gql`
       enabled
     }
   }
-`
+`;
 
 // ============================================================================
 // EXTENDED WORKSPACE SERVICE CLASS
@@ -582,24 +605,33 @@ export class ExtendedWorkspaceService extends WorkspaceService {
    * Initiate ownership transfer with optional confirmation
    */
   async initiateOwnershipTransfer(
-    request: OwnershipTransferRequest
+    request: OwnershipTransferRequest,
   ): Promise<OwnershipTransferResult> {
-    const { workspaceId, currentOwnerId, newOwnerId, reason, requireConfirmation = true } = request
+    const {
+      workspaceId,
+      currentOwnerId,
+      newOwnerId,
+      reason,
+      requireConfirmation = true,
+    } = request;
 
     // Verify current owner
-    const workspace = await this.getWorkspace(workspaceId)
+    const workspace = await this.getWorkspace(workspaceId);
     if (!workspace) {
-      throw new Error('Workspace not found')
+      throw new Error("Workspace not found");
     }
 
     if (workspace.ownerId !== currentOwnerId) {
-      throw new Error('Only the current owner can transfer ownership')
+      throw new Error("Only the current owner can transfer ownership");
     }
 
     // Verify new owner is a member
-    const newOwnerMembership = await this.checkMembership(workspaceId, newOwnerId)
+    const newOwnerMembership = await this.checkMembership(
+      workspaceId,
+      newOwnerId,
+    );
     if (!newOwnerMembership) {
-      throw new Error('New owner must be a workspace member')
+      throw new Error("New owner must be a workspace member");
     }
 
     if (requireConfirmation) {
@@ -609,22 +641,25 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         success: true,
         pendingConfirmation: true,
         transferId: `transfer_${Date.now()}`,
-      }
+      };
     }
 
     // Execute immediate transfer
-    await this.transferOwnership(workspaceId, currentOwnerId, newOwnerId)
+    await this.transferOwnership(workspaceId, currentOwnerId, newOwnerId);
 
     // Get updated membership info
-    const updatedNewOwner = await this.checkMembership(workspaceId, newOwnerId)
-    const updatedPreviousOwner = await this.checkMembership(workspaceId, currentOwnerId)
+    const updatedNewOwner = await this.checkMembership(workspaceId, newOwnerId);
+    const updatedPreviousOwner = await this.checkMembership(
+      workspaceId,
+      currentOwnerId,
+    );
 
     return {
       success: true,
       pendingConfirmation: false,
       newOwner: updatedNewOwner || undefined,
       previousOwner: updatedPreviousOwner || undefined,
-    }
+    };
   }
 
   /**
@@ -632,22 +667,25 @@ export class ExtendedWorkspaceService extends WorkspaceService {
    */
   async confirmOwnershipTransfer(
     _transferId: string,
-    _newOwnerId: string
+    _newOwnerId: string,
   ): Promise<OwnershipTransferResult> {
     // In a real implementation, this would look up the pending transfer
     // and execute it if the confirmation is from the correct user
     return {
       success: true,
       pendingConfirmation: false,
-    }
+    };
   }
 
   /**
    * Cancel a pending ownership transfer
    */
-  async cancelOwnershipTransfer(_transferId: string, _ownerId: string): Promise<boolean> {
+  async cancelOwnershipTransfer(
+    _transferId: string,
+    _ownerId: string,
+  ): Promise<boolean> {
     // In a real implementation, this would delete the pending transfer
-    return true
+    return true;
   }
 
   // ==========================================================================
@@ -661,22 +699,25 @@ export class ExtendedWorkspaceService extends WorkspaceService {
     workspaceId: string,
     backupOwnerId: string,
     grantedBy: string,
-    expiresAt?: string
+    expiresAt?: string,
   ): Promise<EmergencyAccess> {
     // Verify workspace and permissions
-    const workspace = await this.getWorkspace(workspaceId)
+    const workspace = await this.getWorkspace(workspaceId);
     if (!workspace) {
-      throw new Error('Workspace not found')
+      throw new Error("Workspace not found");
     }
 
     if (workspace.ownerId !== grantedBy) {
-      throw new Error('Only the owner can grant emergency access')
+      throw new Error("Only the owner can grant emergency access");
     }
 
     // Verify backup owner is a member
-    const backupMembership = await this.checkMembership(workspaceId, backupOwnerId)
+    const backupMembership = await this.checkMembership(
+      workspaceId,
+      backupOwnerId,
+    );
     if (!backupMembership) {
-      throw new Error('Backup owner must be a workspace member')
+      throw new Error("Backup owner must be a workspace member");
     }
 
     const { data } = await (this as any).client.mutate({
@@ -687,9 +728,11 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         grantedBy,
         expiresAt: expiresAt || null,
       },
-    })
+    });
 
-    return this.transformEmergencyAccess(data.insert_nchat_workspace_emergency_access_one)
+    return this.transformEmergencyAccess(
+      data.insert_nchat_workspace_emergency_access_one,
+    );
   }
 
   /**
@@ -699,12 +742,12 @@ export class ExtendedWorkspaceService extends WorkspaceService {
     const { data } = await (this as any).client.query({
       query: GET_EMERGENCY_ACCESS,
       variables: { workspaceId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    return (data.nchat_workspace_emergency_access || []).map((item: Record<string, unknown>) =>
-      this.transformEmergencyAccess(item)
-    )
+    return (data.nchat_workspace_emergency_access || []).map(
+      (item: Record<string, unknown>) => this.transformEmergencyAccess(item),
+    );
   }
 
   /**
@@ -714,8 +757,8 @@ export class ExtendedWorkspaceService extends WorkspaceService {
     await (this as any).client.mutate({
       mutation: REVOKE_EMERGENCY_ACCESS,
       variables: { id: accessId },
-    })
-    return true
+    });
+    return true;
   }
 
   // ==========================================================================
@@ -727,18 +770,21 @@ export class ExtendedWorkspaceService extends WorkspaceService {
    */
   async getAnalytics(
     workspaceId: string,
-    period: 'day' | 'week' | 'month' | 'year' = 'month'
+    period: "day" | "week" | "month" | "year" = "month",
   ): Promise<WorkspaceAnalytics | null> {
     const { data } = await (this as any).client.query({
       query: GET_WORKSPACE_ANALYTICS,
       variables: { workspaceId, period },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    if (!data.nchat_workspace_analytics || data.nchat_workspace_analytics.length === 0) {
+    if (
+      !data.nchat_workspace_analytics ||
+      data.nchat_workspace_analytics.length === 0
+    ) {
       // Return current stats as analytics if no historical data
-      const stats = await this.getWorkspaceStats(workspaceId)
-      if (!stats) return null
+      const stats = await this.getWorkspaceStats(workspaceId);
+      if (!stats) return null;
 
       return {
         workspaceId,
@@ -755,27 +801,27 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         peakOnlineMembers: stats.onlineMembers,
         averageOnlineMembers: stats.onlineMembers,
         lastUpdated: new Date().toISOString(),
-      }
+      };
     }
 
-    return this.transformAnalytics(data.nchat_workspace_analytics[0])
+    return this.transformAnalytics(data.nchat_workspace_analytics[0]);
   }
 
   /**
    * Get extended workspace statistics
    */
   async getExtendedStats(workspaceId: string): Promise<{
-    basic: WorkspaceStats | null
-    storage: StorageQuota | null
-    retention: MessageRetentionPolicy | null
+    basic: WorkspaceStats | null;
+    storage: StorageQuota | null;
+    retention: MessageRetentionPolicy | null;
   }> {
     const [basic, storage, retention] = await Promise.all([
       this.getWorkspaceStats(workspaceId),
       this.getStorageQuota(workspaceId),
       this.getMessageRetention(workspaceId),
-    ])
+    ]);
 
-    return { basic, storage, retention }
+    return { basic, storage, retention };
   }
 
   // ==========================================================================
@@ -789,14 +835,16 @@ export class ExtendedWorkspaceService extends WorkspaceService {
     const { data } = await (this as any).client.query({
       query: GET_STORAGE_QUOTA,
       variables: { workspaceId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!data.nchat_workspace_storage_quotas_by_pk) {
-      return null
+      return null;
     }
 
-    return this.transformStorageQuota(data.nchat_workspace_storage_quotas_by_pk)
+    return this.transformStorageQuota(
+      data.nchat_workspace_storage_quotas_by_pk,
+    );
   }
 
   /**
@@ -804,16 +852,16 @@ export class ExtendedWorkspaceService extends WorkspaceService {
    */
   async updateStorageQuota(
     workspaceId: string,
-    settings: Partial<StorageQuota>
+    settings: Partial<StorageQuota>,
   ): Promise<StorageQuota> {
-    const current = await this.getStorageQuota(workspaceId)
+    const current = await this.getStorageQuota(workspaceId);
     const defaults = {
       totalBytes: current?.totalBytes || 10737418240, // 10 GB
       maxFileSize: current?.maxFileSize || 104857600, // 100 MB
-      allowedFileTypes: current?.allowedFileTypes || ['*'],
+      allowedFileTypes: current?.allowedFileTypes || ["*"],
       quotaEnforced: current?.quotaEnforced ?? true,
       warningThreshold: current?.warningThreshold || 0.8,
-    }
+    };
 
     await (this as any).client.mutate({
       mutation: UPDATE_STORAGE_QUOTA,
@@ -821,17 +869,19 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         workspaceId,
         totalBytes: settings.totalBytes || defaults.totalBytes,
         maxFileSize: settings.maxFileSize || defaults.maxFileSize,
-        allowedFileTypes: settings.allowedFileTypes || defaults.allowedFileTypes,
+        allowedFileTypes:
+          settings.allowedFileTypes || defaults.allowedFileTypes,
         quotaEnforced: settings.quotaEnforced ?? defaults.quotaEnforced,
-        warningThreshold: settings.warningThreshold || defaults.warningThreshold,
+        warningThreshold:
+          settings.warningThreshold || defaults.warningThreshold,
       },
-    })
+    });
 
-    const updated = await this.getStorageQuota(workspaceId)
+    const updated = await this.getStorageQuota(workspaceId);
     if (!updated) {
-      throw new Error('Failed to update storage quota')
+      throw new Error("Failed to update storage quota");
     }
-    return updated
+    return updated;
   }
 
   // ==========================================================================
@@ -841,18 +891,22 @@ export class ExtendedWorkspaceService extends WorkspaceService {
   /**
    * Get message retention policy
    */
-  async getMessageRetention(workspaceId: string): Promise<MessageRetentionPolicy | null> {
+  async getMessageRetention(
+    workspaceId: string,
+  ): Promise<MessageRetentionPolicy | null> {
     const { data } = await (this as any).client.query({
       query: GET_MESSAGE_RETENTION,
       variables: { workspaceId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!data.nchat_workspace_retention_policies_by_pk) {
-      return null
+      return null;
     }
 
-    return this.transformRetentionPolicy(data.nchat_workspace_retention_policies_by_pk)
+    return this.transformRetentionPolicy(
+      data.nchat_workspace_retention_policies_by_pk,
+    );
   }
 
   /**
@@ -860,25 +914,30 @@ export class ExtendedWorkspaceService extends WorkspaceService {
    */
   async updateMessageRetention(
     workspaceId: string,
-    policy: Partial<MessageRetentionPolicy>
+    policy: Partial<MessageRetentionPolicy>,
   ): Promise<MessageRetentionPolicy> {
-    const current = await this.getMessageRetention(workspaceId)
+    const current = await this.getMessageRetention(workspaceId);
     const defaults = {
       enabled: false,
       retentionDays: 365,
       excludeChannelIds: [],
       excludePinnedMessages: true,
       excludeFilesOlderThan: null,
-    }
+    };
 
     await (this as any).client.mutate({
       mutation: UPDATE_MESSAGE_RETENTION,
       variables: {
         workspaceId,
         enabled: policy.enabled ?? current?.enabled ?? defaults.enabled,
-        retentionDays: policy.retentionDays || current?.retentionDays || defaults.retentionDays,
+        retentionDays:
+          policy.retentionDays ||
+          current?.retentionDays ||
+          defaults.retentionDays,
         excludeChannelIds:
-          policy.excludeChannelIds || current?.excludeChannelIds || defaults.excludeChannelIds,
+          policy.excludeChannelIds ||
+          current?.excludeChannelIds ||
+          defaults.excludeChannelIds,
         excludePinnedMessages:
           policy.excludePinnedMessages ??
           current?.excludePinnedMessages ??
@@ -888,13 +947,13 @@ export class ExtendedWorkspaceService extends WorkspaceService {
           current?.excludeFilesOlderThan ??
           defaults.excludeFilesOlderThan,
       },
-    })
+    });
 
-    const updated = await this.getMessageRetention(workspaceId)
+    const updated = await this.getMessageRetention(workspaceId);
     if (!updated) {
-      throw new Error('Failed to update retention policy')
+      throw new Error("Failed to update retention policy");
     }
-    return updated
+    return updated;
   }
 
   // ==========================================================================
@@ -906,19 +965,21 @@ export class ExtendedWorkspaceService extends WorkspaceService {
    */
   async getNotificationPrefs(
     workspaceId: string,
-    userId: string
+    userId: string,
   ): Promise<WorkspaceNotificationPrefs | null> {
     const { data } = await (this as any).client.query({
       query: GET_NOTIFICATION_PREFS,
       variables: { workspaceId, userId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!data.nchat_workspace_notification_prefs_by_pk) {
-      return null
+      return null;
     }
 
-    return this.transformNotificationPrefs(data.nchat_workspace_notification_prefs_by_pk)
+    return this.transformNotificationPrefs(
+      data.nchat_workspace_notification_prefs_by_pk,
+    );
   }
 
   /**
@@ -927,23 +988,24 @@ export class ExtendedWorkspaceService extends WorkspaceService {
   async updateNotificationPrefs(
     workspaceId: string,
     userId: string,
-    prefs: Partial<WorkspaceNotificationPrefs>
+    prefs: Partial<WorkspaceNotificationPrefs>,
   ): Promise<WorkspaceNotificationPrefs> {
-    const current = await this.getNotificationPrefs(workspaceId, userId)
-    const defaults: Omit<WorkspaceNotificationPrefs, 'workspaceId' | 'userId'> = {
-      enabled: true,
-      muteAll: false,
-      muteUntil: null,
-      digestEnabled: false,
-      digestFrequency: 'never',
-      notifyOnMention: true,
-      notifyOnDM: true,
-      notifyOnChannel: false,
-      soundEnabled: true,
-      desktopEnabled: true,
-      mobileEnabled: true,
-      emailEnabled: false,
-    }
+    const current = await this.getNotificationPrefs(workspaceId, userId);
+    const defaults: Omit<WorkspaceNotificationPrefs, "workspaceId" | "userId"> =
+      {
+        enabled: true,
+        muteAll: false,
+        muteUntil: null,
+        digestEnabled: false,
+        digestFrequency: "never",
+        notifyOnMention: true,
+        notifyOnDM: true,
+        notifyOnChannel: false,
+        soundEnabled: true,
+        desktopEnabled: true,
+        mobileEnabled: true,
+        emailEnabled: false,
+      };
 
     await (this as any).client.mutate({
       mutation: UPDATE_NOTIFICATION_PREFS,
@@ -953,26 +1015,44 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         enabled: prefs.enabled ?? current?.enabled ?? defaults.enabled,
         muteAll: prefs.muteAll ?? current?.muteAll ?? defaults.muteAll,
         muteUntil: prefs.muteUntil ?? current?.muteUntil ?? defaults.muteUntil,
-        digestEnabled: prefs.digestEnabled ?? current?.digestEnabled ?? defaults.digestEnabled,
+        digestEnabled:
+          prefs.digestEnabled ??
+          current?.digestEnabled ??
+          defaults.digestEnabled,
         digestFrequency:
-          prefs.digestFrequency || current?.digestFrequency || defaults.digestFrequency,
+          prefs.digestFrequency ||
+          current?.digestFrequency ||
+          defaults.digestFrequency,
         notifyOnMention:
-          prefs.notifyOnMention ?? current?.notifyOnMention ?? defaults.notifyOnMention,
-        notifyOnDM: prefs.notifyOnDM ?? current?.notifyOnDM ?? defaults.notifyOnDM,
+          prefs.notifyOnMention ??
+          current?.notifyOnMention ??
+          defaults.notifyOnMention,
+        notifyOnDM:
+          prefs.notifyOnDM ?? current?.notifyOnDM ?? defaults.notifyOnDM,
         notifyOnChannel:
-          prefs.notifyOnChannel ?? current?.notifyOnChannel ?? defaults.notifyOnChannel,
-        soundEnabled: prefs.soundEnabled ?? current?.soundEnabled ?? defaults.soundEnabled,
-        desktopEnabled: prefs.desktopEnabled ?? current?.desktopEnabled ?? defaults.desktopEnabled,
-        mobileEnabled: prefs.mobileEnabled ?? current?.mobileEnabled ?? defaults.mobileEnabled,
-        emailEnabled: prefs.emailEnabled ?? current?.emailEnabled ?? defaults.emailEnabled,
+          prefs.notifyOnChannel ??
+          current?.notifyOnChannel ??
+          defaults.notifyOnChannel,
+        soundEnabled:
+          prefs.soundEnabled ?? current?.soundEnabled ?? defaults.soundEnabled,
+        desktopEnabled:
+          prefs.desktopEnabled ??
+          current?.desktopEnabled ??
+          defaults.desktopEnabled,
+        mobileEnabled:
+          prefs.mobileEnabled ??
+          current?.mobileEnabled ??
+          defaults.mobileEnabled,
+        emailEnabled:
+          prefs.emailEnabled ?? current?.emailEnabled ?? defaults.emailEnabled,
       },
-    })
+    });
 
-    const updated = await this.getNotificationPrefs(workspaceId, userId)
+    const updated = await this.getNotificationPrefs(workspaceId, userId);
     if (!updated) {
-      throw new Error('Failed to update notification preferences')
+      throw new Error("Failed to update notification preferences");
     }
-    return updated
+    return updated;
   }
 
   // ==========================================================================
@@ -987,18 +1067,24 @@ export class ExtendedWorkspaceService extends WorkspaceService {
     userId: string,
     deactivatedBy: string,
     reason?: string,
-    canRejoin = true
+    canRejoin = true,
   ): Promise<DeactivatedMember> {
     // Verify the deactivator has permission
-    const deactivatorMembership = await this.checkMembership(workspaceId, deactivatedBy)
-    if (!deactivatorMembership || !['owner', 'admin'].includes(deactivatorMembership.role)) {
-      throw new Error('Only owners and admins can deactivate members')
+    const deactivatorMembership = await this.checkMembership(
+      workspaceId,
+      deactivatedBy,
+    );
+    if (
+      !deactivatorMembership ||
+      !["owner", "admin"].includes(deactivatorMembership.role)
+    ) {
+      throw new Error("Only owners and admins can deactivate members");
     }
 
     // Cannot deactivate owner
-    const workspace = await this.getWorkspace(workspaceId)
+    const workspace = await this.getWorkspace(workspaceId);
     if (workspace?.ownerId === userId) {
-      throw new Error('Cannot deactivate workspace owner')
+      throw new Error("Cannot deactivate workspace owner");
     }
 
     const { data } = await (this as any).client.mutate({
@@ -1010,9 +1096,11 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         reason: reason || null,
         canRejoin,
       },
-    })
+    });
 
-    return this.transformDeactivatedMember(data.insert_nchat_workspace_deactivated_members_one)
+    return this.transformDeactivatedMember(
+      data.insert_nchat_workspace_deactivated_members_one,
+    );
   }
 
   /**
@@ -1031,16 +1119,17 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         }
       `,
       variables: { id: deactivationId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const deactivation = deactivatedData.nchat_workspace_deactivated_members_by_pk
+    const deactivation =
+      deactivatedData.nchat_workspace_deactivated_members_by_pk;
     if (!deactivation) {
-      throw new Error('Deactivation record not found')
+      throw new Error("Deactivation record not found");
     }
 
     if (!deactivation.can_rejoin) {
-      throw new Error('This member is not allowed to rejoin')
+      throw new Error("This member is not allowed to rejoin");
     }
 
     const { data } = await (this as any).client.mutate({
@@ -1050,9 +1139,9 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         workspaceId: deactivation.workspace_id,
         userId: deactivation.user_id,
       },
-    })
+    });
 
-    return this.transformMemberData(data.insert_nchat_workspace_members_one)
+    return this.transformMemberData(data.insert_nchat_workspace_members_one);
   }
 
   /**
@@ -1061,24 +1150,29 @@ export class ExtendedWorkspaceService extends WorkspaceService {
   async getDeactivatedMembers(
     workspaceId: string,
     limit = 50,
-    offset = 0
-  ): Promise<{ members: DeactivatedMember[]; total: number; hasMore: boolean }> {
+    offset = 0,
+  ): Promise<{
+    members: DeactivatedMember[];
+    total: number;
+    hasMore: boolean;
+  }> {
     const { data } = await (this as any).client.query({
       query: GET_DEACTIVATED_MEMBERS,
       variables: { workspaceId, limit, offset },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     const members = (data.nchat_workspace_deactivated_members || []).map(
-      (item: Record<string, unknown>) => this.transformDeactivatedMember(item)
-    )
-    const total = data.nchat_workspace_deactivated_members_aggregate?.aggregate?.count || 0
+      (item: Record<string, unknown>) => this.transformDeactivatedMember(item),
+    );
+    const total =
+      data.nchat_workspace_deactivated_members_aggregate?.aggregate?.count || 0;
 
     return {
       members,
       total,
       hasMore: offset + limit < total,
-    }
+    };
   }
 
   // ==========================================================================
@@ -1088,18 +1182,22 @@ export class ExtendedWorkspaceService extends WorkspaceService {
   /**
    * Get onboarding configuration
    */
-  async getOnboardingConfig(workspaceId: string): Promise<OnboardingConfig | null> {
+  async getOnboardingConfig(
+    workspaceId: string,
+  ): Promise<OnboardingConfig | null> {
     const { data } = await (this as any).client.query({
       query: GET_ONBOARDING_CONFIG,
       variables: { workspaceId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!data.nchat_workspace_onboarding_by_pk) {
-      return null
+      return null;
     }
 
-    return this.transformOnboardingConfig(data.nchat_workspace_onboarding_by_pk)
+    return this.transformOnboardingConfig(
+      data.nchat_workspace_onboarding_by_pk,
+    );
   }
 
   /**
@@ -1107,10 +1205,10 @@ export class ExtendedWorkspaceService extends WorkspaceService {
    */
   async updateOnboardingConfig(
     workspaceId: string,
-    config: Partial<OnboardingConfig>
+    config: Partial<OnboardingConfig>,
   ): Promise<OnboardingConfig> {
-    const current = await this.getOnboardingConfig(workspaceId)
-    const defaults: Omit<OnboardingConfig, 'workspaceId'> = {
+    const current = await this.getOnboardingConfig(workspaceId);
+    const defaults: Omit<OnboardingConfig, "workspaceId"> = {
       enabled: false,
       steps: [],
       welcomeMessage: null,
@@ -1118,7 +1216,7 @@ export class ExtendedWorkspaceService extends WorkspaceService {
       profileCompletionRequired: false,
       assignDefaultChannels: true,
       defaultChannelIds: [],
-    }
+    };
 
     await (this as any).client.mutate({
       mutation: UPDATE_ONBOARDING_CONFIG,
@@ -1126,7 +1224,10 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         workspaceId,
         enabled: config.enabled ?? current?.enabled ?? defaults.enabled,
         steps: config.steps || current?.steps || defaults.steps,
-        welcomeMessage: config.welcomeMessage ?? current?.welcomeMessage ?? defaults.welcomeMessage,
+        welcomeMessage:
+          config.welcomeMessage ??
+          current?.welcomeMessage ??
+          defaults.welcomeMessage,
         rulesAgreementRequired:
           config.rulesAgreementRequired ??
           current?.rulesAgreementRequired ??
@@ -1140,22 +1241,26 @@ export class ExtendedWorkspaceService extends WorkspaceService {
           current?.assignDefaultChannels ??
           defaults.assignDefaultChannels,
         defaultChannelIds:
-          config.defaultChannelIds || current?.defaultChannelIds || defaults.defaultChannelIds,
+          config.defaultChannelIds ||
+          current?.defaultChannelIds ||
+          defaults.defaultChannelIds,
       },
-    })
+    });
 
-    const updated = await this.getOnboardingConfig(workspaceId)
+    const updated = await this.getOnboardingConfig(workspaceId);
     if (!updated) {
-      throw new Error('Failed to update onboarding config')
+      throw new Error("Failed to update onboarding config");
     }
-    return updated
+    return updated;
   }
 
   // ==========================================================================
   // TRANSFORM HELPERS
   // ==========================================================================
 
-  private transformEmergencyAccess(raw: Record<string, unknown>): EmergencyAccess {
+  private transformEmergencyAccess(
+    raw: Record<string, unknown>,
+  ): EmergencyAccess {
     return {
       id: raw.id as string,
       workspaceId: raw.workspace_id as string,
@@ -1167,21 +1272,24 @@ export class ExtendedWorkspaceService extends WorkspaceService {
       backupOwner: raw.backup_owner
         ? {
             id: (raw.backup_owner as Record<string, unknown>).id as string,
-            username: (raw.backup_owner as Record<string, unknown>).username as string,
-            displayName: (raw.backup_owner as Record<string, unknown>).display_name as string,
-            email: (raw.backup_owner as Record<string, unknown>).email as string | undefined,
-            avatarUrl: (raw.backup_owner as Record<string, unknown>).avatar_url as
+            username: (raw.backup_owner as Record<string, unknown>)
+              .username as string,
+            displayName: (raw.backup_owner as Record<string, unknown>)
+              .display_name as string,
+            email: (raw.backup_owner as Record<string, unknown>).email as
               | string
               | undefined,
+            avatarUrl: (raw.backup_owner as Record<string, unknown>)
+              .avatar_url as string | undefined,
           }
         : undefined,
-    }
+    };
   }
 
   private transformAnalytics(raw: Record<string, unknown>): WorkspaceAnalytics {
     return {
       workspaceId: raw.workspace_id as string,
-      period: raw.period as 'day' | 'week' | 'month' | 'year',
+      period: raw.period as "day" | "week" | "month" | "year",
       memberCount: (raw.member_count as number) || 0,
       activeMembers: (raw.active_members as number) || 0,
       newMembers: (raw.new_members as number) || 0,
@@ -1194,7 +1302,7 @@ export class ExtendedWorkspaceService extends WorkspaceService {
       peakOnlineMembers: (raw.peak_online_members as number) || 0,
       averageOnlineMembers: (raw.average_online_members as number) || 0,
       lastUpdated: raw.created_at as string,
-    }
+    };
   }
 
   private transformStorageQuota(raw: Record<string, unknown>): StorageQuota {
@@ -1204,13 +1312,15 @@ export class ExtendedWorkspaceService extends WorkspaceService {
       usedBytes: (raw.used_bytes as number) || 0,
       fileCount: (raw.file_count as number) || 0,
       maxFileSize: (raw.max_file_size as number) || 0,
-      allowedFileTypes: (raw.allowed_file_types as string[]) || ['*'],
+      allowedFileTypes: (raw.allowed_file_types as string[]) || ["*"],
       quotaEnforced: (raw.quota_enforced as boolean) ?? true,
       warningThreshold: (raw.warning_threshold as number) || 0.8,
-    }
+    };
   }
 
-  private transformRetentionPolicy(raw: Record<string, unknown>): MessageRetentionPolicy {
+  private transformRetentionPolicy(
+    raw: Record<string, unknown>,
+  ): MessageRetentionPolicy {
     return {
       workspaceId: raw.workspace_id as string,
       enabled: (raw.enabled as boolean) || false,
@@ -1220,10 +1330,12 @@ export class ExtendedWorkspaceService extends WorkspaceService {
       excludeFilesOlderThan: raw.exclude_files_older_than as number | null,
       lastCleanupAt: raw.last_cleanup_at as string | null,
       messagesDeleted: raw.messages_deleted as number | undefined,
-    }
+    };
   }
 
-  private transformNotificationPrefs(raw: Record<string, unknown>): WorkspaceNotificationPrefs {
+  private transformNotificationPrefs(
+    raw: Record<string, unknown>,
+  ): WorkspaceNotificationPrefs {
     return {
       workspaceId: raw.workspace_id as string,
       userId: raw.user_id as string,
@@ -1231,7 +1343,8 @@ export class ExtendedWorkspaceService extends WorkspaceService {
       muteAll: (raw.mute_all as boolean) || false,
       muteUntil: raw.mute_until as string | null,
       digestEnabled: (raw.digest_enabled as boolean) || false,
-      digestFrequency: (raw.digest_frequency as 'daily' | 'weekly' | 'never') || 'never',
+      digestFrequency:
+        (raw.digest_frequency as "daily" | "weekly" | "never") || "never",
       notifyOnMention: (raw.notify_on_mention as boolean) ?? true,
       notifyOnDM: (raw.notify_on_dm as boolean) ?? true,
       notifyOnChannel: (raw.notify_on_channel as boolean) || false,
@@ -1239,10 +1352,12 @@ export class ExtendedWorkspaceService extends WorkspaceService {
       desktopEnabled: (raw.desktop_enabled as boolean) ?? true,
       mobileEnabled: (raw.mobile_enabled as boolean) ?? true,
       emailEnabled: (raw.email_enabled as boolean) || false,
-    }
+    };
   }
 
-  private transformDeactivatedMember(raw: Record<string, unknown>): DeactivatedMember {
+  private transformDeactivatedMember(
+    raw: Record<string, unknown>,
+  ): DeactivatedMember {
     return {
       id: raw.id as string,
       workspaceId: raw.workspace_id as string,
@@ -1255,25 +1370,34 @@ export class ExtendedWorkspaceService extends WorkspaceService {
         ? {
             id: (raw.user as Record<string, unknown>).id as string,
             username: (raw.user as Record<string, unknown>).username as string,
-            displayName: (raw.user as Record<string, unknown>).display_name as string,
-            email: (raw.user as Record<string, unknown>).email as string | undefined,
-            avatarUrl: (raw.user as Record<string, unknown>).avatar_url as string | undefined,
+            displayName: (raw.user as Record<string, unknown>)
+              .display_name as string,
+            email: (raw.user as Record<string, unknown>).email as
+              | string
+              | undefined,
+            avatarUrl: (raw.user as Record<string, unknown>).avatar_url as
+              | string
+              | undefined,
           }
         : undefined,
-    }
+    };
   }
 
-  private transformOnboardingConfig(raw: Record<string, unknown>): OnboardingConfig {
+  private transformOnboardingConfig(
+    raw: Record<string, unknown>,
+  ): OnboardingConfig {
     return {
       workspaceId: raw.workspace_id as string,
       enabled: (raw.enabled as boolean) || false,
       steps: (raw.steps as WorkspaceOnboardingStep[]) || [],
       welcomeMessage: raw.welcome_message as string | null,
-      rulesAgreementRequired: (raw.rules_agreement_required as boolean) || false,
-      profileCompletionRequired: (raw.profile_completion_required as boolean) || false,
+      rulesAgreementRequired:
+        (raw.rules_agreement_required as boolean) || false,
+      profileCompletionRequired:
+        (raw.profile_completion_required as boolean) || false,
       assignDefaultChannels: (raw.assign_default_channels as boolean) ?? true,
       defaultChannelIds: (raw.default_channel_ids as string[]) || [],
-    }
+    };
   }
 
   // Transform member helper
@@ -1282,22 +1406,33 @@ export class ExtendedWorkspaceService extends WorkspaceService {
       id: raw.id as string,
       workspaceId: raw.workspace_id as string,
       userId: raw.user_id as string,
-      role: raw.role as 'owner' | 'admin' | 'moderator' | 'member' | 'guest',
+      role: raw.role as "owner" | "admin" | "moderator" | "member" | "guest",
       joinedAt: raw.joined_at as string,
       nickname: raw.nickname as string | null,
       user: raw.user
         ? {
             id: (raw.user as Record<string, unknown>).id as string,
             username: (raw.user as Record<string, unknown>).username as string,
-            displayName: (raw.user as Record<string, unknown>).display_name as string,
-            email: (raw.user as Record<string, unknown>).email as string | undefined,
-            avatarUrl: (raw.user as Record<string, unknown>).avatar_url as string | undefined,
-            bio: (raw.user as Record<string, unknown>).bio as string | undefined,
-            status: (raw.user as Record<string, unknown>).status as string | undefined,
-            createdAt: (raw.user as Record<string, unknown>).created_at as string | undefined,
+            displayName: (raw.user as Record<string, unknown>)
+              .display_name as string,
+            email: (raw.user as Record<string, unknown>).email as
+              | string
+              | undefined,
+            avatarUrl: (raw.user as Record<string, unknown>).avatar_url as
+              | string
+              | undefined,
+            bio: (raw.user as Record<string, unknown>).bio as
+              | string
+              | undefined,
+            status: (raw.user as Record<string, unknown>).status as
+              | string
+              | undefined,
+            createdAt: (raw.user as Record<string, unknown>).created_at as
+              | string
+              | undefined,
           }
         : undefined,
-    }
+    };
   }
 }
 
@@ -1305,19 +1440,19 @@ export class ExtendedWorkspaceService extends WorkspaceService {
 // SINGLETON FACTORY
 // ============================================================================
 
-let extendedWorkspaceServiceInstance: ExtendedWorkspaceService | null = null
+let extendedWorkspaceServiceInstance: ExtendedWorkspaceService | null = null;
 
 export function getExtendedWorkspaceService(
-  client: ApolloClient<NormalizedCacheObject>
+  client: ApolloClient<NormalizedCacheObject>,
 ): ExtendedWorkspaceService {
   if (!extendedWorkspaceServiceInstance) {
-    extendedWorkspaceServiceInstance = new ExtendedWorkspaceService(client)
+    extendedWorkspaceServiceInstance = new ExtendedWorkspaceService(client);
   }
-  return extendedWorkspaceServiceInstance
+  return extendedWorkspaceServiceInstance;
 }
 
 export function createExtendedWorkspaceService(
-  client: ApolloClient<NormalizedCacheObject>
+  client: ApolloClient<NormalizedCacheObject>,
 ): ExtendedWorkspaceService {
-  return new ExtendedWorkspaceService(client)
+  return new ExtendedWorkspaceService(client);
 }

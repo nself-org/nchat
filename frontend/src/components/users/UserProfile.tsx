@@ -1,62 +1,62 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { type ExtendedUserProfile } from './UserCard'
-import { UserProfileHeader } from './UserProfileHeader'
-import { UserProfileAbout } from './UserProfileAbout'
-import { UserProfileActivity } from './UserProfileActivity'
-import { UserProfileChannels } from './UserProfileChannels'
-import { UserProfileFiles } from './UserProfileFiles'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Skeleton } from '@/components/ui/skeleton'
-import { User, Activity, Hash, FileText } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { type ExtendedUserProfile } from "./UserCard";
+import { UserProfileHeader } from "./UserProfileHeader";
+import { UserProfileAbout } from "./UserProfileAbout";
+import { UserProfileActivity } from "./UserProfileActivity";
+import { UserProfileChannels } from "./UserProfileChannels";
+import { UserProfileFiles } from "./UserProfileFiles";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { User, Activity, Hash, FileText } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface Channel {
-  id: string
-  name: string
-  description?: string
-  isPrivate?: boolean
-  memberCount?: number
+  id: string;
+  name: string;
+  description?: string;
+  isPrivate?: boolean;
+  memberCount?: number;
 }
 
 export interface SharedFile {
-  id: string
-  name: string
-  type: string
-  size: number
-  uploadedAt: Date
-  url: string
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  uploadedAt: Date;
+  url: string;
 }
 
 export interface ActivityItem {
-  id: string
-  type: 'message' | 'reaction' | 'file' | 'channel_join' | 'status_change'
-  description: string
-  timestamp: Date
-  channelName?: string
-  channelId?: string
+  id: string;
+  type: "message" | "reaction" | "file" | "channel_join" | "status_change";
+  description: string;
+  timestamp: Date;
+  channelName?: string;
+  channelId?: string;
 }
 
 export interface UserProfileProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: ExtendedUserProfile | null
-  isLoading?: boolean
-  isOwnProfile?: boolean
-  sharedChannels?: Channel[]
-  sharedFiles?: SharedFile[]
-  recentActivity?: ActivityItem[]
-  onMessage?: () => void
-  onCall?: () => void
-  onBlock?: () => void
-  onReport?: () => void
-  onEditProfile?: () => void
-  onChannelClick?: (channel: Channel) => void
-  onFileClick?: (file: SharedFile) => void
+  user: ExtendedUserProfile | null;
+  isLoading?: boolean;
+  isOwnProfile?: boolean;
+  sharedChannels?: Channel[];
+  sharedFiles?: SharedFile[];
+  recentActivity?: ActivityItem[];
+  onMessage?: () => void;
+  onCall?: () => void;
+  onBlock?: () => void;
+  onReport?: () => void;
+  onEditProfile?: () => void;
+  onChannelClick?: (channel: Channel) => void;
+  onFileClick?: (file: SharedFile) => void;
 }
 
 // ============================================================================
@@ -82,13 +82,17 @@ const UserProfile = React.forwardRef<HTMLDivElement, UserProfileProps>(
       onFileClick,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const [activeTab, setActiveTab] = React.useState('about')
+    const [activeTab, setActiveTab] = React.useState("about");
 
     if (isLoading) {
       return (
-        <div ref={ref} className={cn('flex h-full flex-col', className)} {...props}>
+        <div
+          ref={ref}
+          className={cn("flex h-full flex-col", className)}
+          {...props}
+        >
           {/* Header skeleton */}
           <div className="relative">
             <Skeleton className="h-32 w-full" />
@@ -109,7 +113,7 @@ const UserProfile = React.forwardRef<HTMLDivElement, UserProfileProps>(
             <Skeleton className="h-20 w-full" />
           </div>
         </div>
-      )
+      );
     }
 
     if (!user) {
@@ -117,8 +121,8 @@ const UserProfile = React.forwardRef<HTMLDivElement, UserProfileProps>(
         <div
           ref={ref}
           className={cn(
-            'flex h-full flex-col items-center justify-center p-6 text-center',
-            className
+            "flex h-full flex-col items-center justify-center p-6 text-center",
+            className,
           )}
           {...props}
         >
@@ -128,11 +132,15 @@ const UserProfile = React.forwardRef<HTMLDivElement, UserProfileProps>(
             The user you are looking for does not exist or has been removed.
           </p>
         </div>
-      )
+      );
     }
 
     return (
-      <div ref={ref} className={cn('flex h-full flex-col', className)} {...props}>
+      <div
+        ref={ref}
+        className={cn("flex h-full flex-col", className)}
+        {...props}
+      >
         {/* Profile header */}
         <UserProfileHeader
           user={user}
@@ -145,7 +153,11 @@ const UserProfile = React.forwardRef<HTMLDivElement, UserProfileProps>(
         />
 
         {/* Tabbed content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex flex-1 flex-col"
+        >
           <div className="border-b px-6">
             <TabsList className="h-auto w-full justify-start bg-transparent p-0">
               <TabsTrigger
@@ -189,26 +201,35 @@ const UserProfile = React.forwardRef<HTMLDivElement, UserProfileProps>(
             </TabsContent>
 
             <TabsContent value="activity" className="m-0">
-              <UserProfileActivity activities={recentActivity} onChannelClick={onChannelClick} />
+              <UserProfileActivity
+                activities={recentActivity}
+                onChannelClick={onChannelClick}
+              />
             </TabsContent>
 
             {!isOwnProfile && (
               <TabsContent value="channels" className="m-0">
-                <UserProfileChannels channels={sharedChannels} onChannelClick={onChannelClick} />
+                <UserProfileChannels
+                  channels={sharedChannels}
+                  onChannelClick={onChannelClick}
+                />
               </TabsContent>
             )}
 
             {!isOwnProfile && (
               <TabsContent value="files" className="m-0">
-                <UserProfileFiles files={sharedFiles} onFileClick={onFileClick} />
+                <UserProfileFiles
+                  files={sharedFiles}
+                  onFileClick={onFileClick}
+                />
               </TabsContent>
             )}
           </ScrollArea>
         </Tabs>
       </div>
-    )
-  }
-)
-UserProfile.displayName = 'UserProfile'
+    );
+  },
+);
+UserProfile.displayName = "UserProfile";
 
-export { UserProfile }
+export { UserProfile };

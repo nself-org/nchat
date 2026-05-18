@@ -36,7 +36,7 @@ export {
   formatPollSettings,
   validatePollCreator,
   normalizePoll,
-} from './poll-store'
+} from "./poll-store";
 
 // Types from store
 export type {
@@ -50,7 +50,7 @@ export type {
   PollActions,
   PollStore,
   CreatePollInput,
-} from './poll-store'
+} from "./poll-store";
 
 // Hooks
 export {
@@ -62,7 +62,7 @@ export {
   usePollActions,
   usePollResults,
   useCanCreatePoll,
-} from './use-poll'
+} from "./use-poll";
 
 // Types from hooks
 export type {
@@ -70,4 +70,4 @@ export type {
   UsePollsResult,
   UseCreatePollResult,
   UsePollCreatorResult,
-} from './use-poll'
+} from "./use-poll";

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * RetryButton - Manual retry button component
@@ -7,21 +7,21 @@
  * or triggering reconnection.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button, type ButtonProps } from '@/components/ui/button'
-import { useConnectionStatus } from '@/hooks/useConnectionStatus'
-import { useOfflineQueue } from '@/hooks/useOfflineQueue'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button, type ButtonProps } from "@/components/ui/button";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export interface RetryButtonProps extends Omit<ButtonProps, 'onClick'> {
-  mode?: 'connection' | 'queue' | 'both'
-  showIcon?: boolean
-  showCount?: boolean
-  onRetry?: () => void
+export interface RetryButtonProps extends Omit<ButtonProps, "onClick"> {
+  mode?: "connection" | "queue" | "both";
+  showIcon?: boolean;
+  showCount?: boolean;
+  onRetry?: () => void;
 }
 
 // =============================================================================
@@ -30,67 +30,77 @@ export interface RetryButtonProps extends Omit<ButtonProps, 'onClick'> {
 
 export function RetryButton({
   className,
-  mode = 'both',
+  mode = "both",
   showIcon = true,
   showCount = true,
   onRetry,
   children,
   ...props
 }: RetryButtonProps) {
-  const { isOffline, isReconnecting, reconnect } = useConnectionStatus()
-  const { stats, retryFailed, isProcessing } = useOfflineQueue()
-  const [isRetrying, setIsRetrying] = React.useState(false)
+  const { isOffline, isReconnecting, reconnect } = useConnectionStatus();
+  const { stats, retryFailed, isProcessing } = useOfflineQueue();
+  const [isRetrying, setIsRetrying] = React.useState(false);
 
-  const failedCount = stats.failed
-  const hasFailedItems = failedCount > 0
-  const showRetryQueue = (mode === 'queue' || mode === 'both') && hasFailedItems
-  const showReconnect = (mode === 'connection' || mode === 'both') && isOffline
+  const failedCount = stats.failed;
+  const hasFailedItems = failedCount > 0;
+  const showRetryQueue =
+    (mode === "queue" || mode === "both") && hasFailedItems;
+  const showReconnect = (mode === "connection" || mode === "both") && isOffline;
 
   const handleClick = async () => {
-    setIsRetrying(true)
+    setIsRetrying(true);
 
     try {
       if (onRetry) {
-        await onRetry()
+        await onRetry();
       } else {
         if (showReconnect) {
-          reconnect()
+          reconnect();
         }
         if (showRetryQueue) {
-          await retryFailed()
+          await retryFailed();
         }
       }
     } finally {
-      setIsRetrying(false)
+      setIsRetrying(false);
     }
-  }
+  };
 
-  const isLoading = isRetrying || isProcessing || isReconnecting
+  const isLoading = isRetrying || isProcessing || isReconnecting;
 
   // Determine button text
-  let buttonText = children
+  let buttonText = children;
   if (!buttonText) {
     if (showReconnect && showRetryQueue) {
-      buttonText = 'Retry All'
+      buttonText = "Retry All";
     } else if (showReconnect) {
-      buttonText = 'Reconnect'
+      buttonText = "Reconnect";
     } else if (showRetryQueue) {
-      buttonText = `Retry${showCount && failedCount > 0 ? ` (${failedCount})` : ''}`
+      buttonText = `Retry${showCount && failedCount > 0 ? ` (${failedCount})` : ""}`;
     } else {
-      buttonText = 'Retry'
+      buttonText = "Retry";
     }
   }
 
   // Don't show if nothing to retry
   if (!showReconnect && !showRetryQueue && !onRetry) {
-    return null
+    return null;
   }
 
   return (
-    <Button className={cn(className)} onClick={handleClick} disabled={isLoading} {...props}>
+    <Button
+      className={cn(className)}
+      onClick={handleClick}
+      disabled={isLoading}
+      {...props}
+    >
       {showIcon &&
         (isLoading ? (
-          <svg className="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <svg
+            className="mr-2 h-4 w-4 animate-spin"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
             <circle
               className="opacity-25"
               cx="12"
@@ -106,7 +116,12 @@ export function RetryButton({
             />
           </svg>
         ) : (
-          <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className="mr-2 h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -117,7 +132,7 @@ export function RetryButton({
         ))}
       {buttonText}
     </Button>
-  )
+  );
 }
 
-export default RetryButton
+export default RetryButton;

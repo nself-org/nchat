@@ -1,93 +1,97 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { logger } from '@/lib/logger'
+import * as React from "react";
+import { logger } from "@/lib/logger";
 import {
   useNotificationStore,
   type Notification,
   type NotificationType,
-} from '@/stores/notification-store'
+} from "@/stores/notification-store";
 
 // Default icons for different notification types
-const DEFAULT_ICON = '/favicon.ico'
+const DEFAULT_ICON = "/favicon.ico";
 
 export interface DesktopNotificationOptions {
   /**
    * The notification title
    */
-  title: string
+  title: string;
 
   /**
    * The notification body text
    */
-  body: string
+  body: string;
 
   /**
    * Icon URL to display
    */
-  icon?: string
+  icon?: string;
 
   /**
    * Tag for grouping/replacing notifications
    */
-  tag?: string
+  tag?: string;
 
   /**
    * Whether the notification requires user interaction to dismiss
    */
-  requireInteraction?: boolean
+  requireInteraction?: boolean;
 
   /**
    * Whether the notification should be silent
    */
-  silent?: boolean
+  silent?: boolean;
 
   /**
    * Custom data to attach to the notification
    */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
 
   /**
    * Callback when notification is clicked
    */
-  onClick?: () => void
+  onClick?: () => void;
 
   /**
    * Callback when notification is closed
    */
-  onClose?: () => void
+  onClose?: () => void;
 
   /**
    * Callback when notification shows an error
    */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 export interface UseDesktopNotificationReturn {
   /**
    * Current permission status
    */
-  permission: NotificationPermission | 'default'
+  permission: NotificationPermission | "default";
 
   /**
    * Whether desktop notifications are supported
    */
-  isSupported: boolean
+  isSupported: boolean;
 
   /**
    * Request permission to show notifications
    */
-  requestPermission: () => Promise<NotificationPermission>
+  requestPermission: () => Promise<NotificationPermission>;
 
   /**
    * Show a desktop notification
    */
-  showNotification: (options: DesktopNotificationOptions) => globalThis.Notification | null
+  showNotification: (
+    options: DesktopNotificationOptions,
+  ) => globalThis.Notification | null;
 
   /**
    * Show a notification from the store notification object
    */
-  showFromNotification: (notification: Notification) => globalThis.Notification | null
+  showFromNotification: (
+    notification: Notification,
+  ) => globalThis.Notification | null;
 }
 
 /**
@@ -100,108 +104,117 @@ export interface UseDesktopNotificationReturn {
  * - Respect user preferences
  */
 export function useDesktopNotification(): UseDesktopNotificationReturn {
-  const permission = useNotificationStore((state) => state.desktopPermission)
-  const setDesktopPermission = useNotificationStore((state) => state.setDesktopPermission)
-  const preferences = useNotificationStore((state) => state.preferences)
-  const markAsRead = useNotificationStore((state) => state.markAsRead)
+  const permission = useNotificationStore((state) => state.desktopPermission);
+  const setDesktopPermission = useNotificationStore(
+    (state) => state.setDesktopPermission,
+  );
+  const preferences = useNotificationStore((state) => state.preferences);
+  const markAsRead = useNotificationStore((state) => state.markAsRead);
 
-  const isSupported = typeof window !== 'undefined' && 'Notification' in window
+  const isSupported = typeof window !== "undefined" && "Notification" in window;
 
   // Sync permission state on mount
   React.useEffect(() => {
     if (isSupported) {
-      setDesktopPermission(Notification.permission)
+      setDesktopPermission(Notification.permission);
     }
-  }, [isSupported, setDesktopPermission])
+  }, [isSupported, setDesktopPermission]);
 
   // Request permission
-  const requestPermission = React.useCallback(async (): Promise<NotificationPermission> => {
-    if (!isSupported) {
-      return 'denied'
-    }
+  const requestPermission =
+    React.useCallback(async (): Promise<NotificationPermission> => {
+      if (!isSupported) {
+        return "denied";
+      }
 
-    if (Notification.permission === 'granted') {
-      setDesktopPermission('granted')
-      return 'granted'
-    }
+      if (Notification.permission === "granted") {
+        setDesktopPermission("granted");
+        return "granted";
+      }
 
-    if (Notification.permission !== 'denied') {
-      const result = await Notification.requestPermission()
-      setDesktopPermission(result)
-      return result
-    }
+      if (Notification.permission !== "denied") {
+        const result = await Notification.requestPermission();
+        setDesktopPermission(result);
+        return result;
+      }
 
-    setDesktopPermission('denied')
-    return 'denied'
-  }, [isSupported, setDesktopPermission])
+      setDesktopPermission("denied");
+      return "denied";
+    }, [isSupported, setDesktopPermission]);
 
   // Check if DND is active
   const isDndActive = React.useCallback((): boolean => {
-    if (!preferences.dndSchedule.enabled) return false
+    if (!preferences.dndSchedule.enabled) return false;
 
-    const now = new Date()
-    const currentDay = now.getDay()
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    const now = new Date();
+    const currentDay = now.getDay();
+    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
     if (!preferences.dndSchedule.days.includes(currentDay)) {
-      return false
+      return false;
     }
 
-    const { startTime, endTime } = preferences.dndSchedule
+    const { startTime, endTime } = preferences.dndSchedule;
 
     // Handle overnight DND schedules
     if (startTime > endTime) {
-      return currentTime >= startTime || currentTime < endTime
+      return currentTime >= startTime || currentTime < endTime;
     }
 
-    return currentTime >= startTime && currentTime < endTime
-  }, [preferences.dndSchedule])
+    return currentTime >= startTime && currentTime < endTime;
+  }, [preferences.dndSchedule]);
 
   // Show notification
   const showNotification = React.useCallback(
     (options: DesktopNotificationOptions): globalThis.Notification | null => {
-      if (!isSupported || permission !== 'granted' || !preferences.desktopEnabled) {
-        return null
+      if (
+        !isSupported ||
+        permission !== "granted" ||
+        !preferences.desktopEnabled
+      ) {
+        return null;
       }
 
       if (isDndActive()) {
-        return null
+        return null;
       }
 
       try {
         const notification = new Notification(options.title, {
-          body: preferences.showPreview ? options.body : 'You have a new notification',
+          body: preferences.showPreview
+            ? options.body
+            : "You have a new notification",
           icon: options.icon || DEFAULT_ICON,
           tag: options.tag,
           requireInteraction: options.requireInteraction ?? false,
           silent: options.silent ?? !preferences.playSound,
           data: options.data,
-        })
+        });
 
         notification.onclick = () => {
-          window.focus()
-          options.onClick?.()
-          notification.close()
-        }
+          window.focus();
+          options.onClick?.();
+          notification.close();
+        };
 
         notification.onclose = () => {
-          options.onClose?.()
-        }
+          options.onClose?.();
+        };
 
         notification.onerror = (event) => {
-          options.onError?.(new Error('Desktop notification error'))
-          logger.error('Desktop notification error:', event)
-        }
+          options.onError?.(new Error("Desktop notification error"));
+          logger.error("Desktop notification error:", event);
+        };
 
-        return notification
+        return notification;
       } catch (error) {
-        logger.error('Failed to show desktop notification:', error)
-        options.onError?.(error as Error)
-        return null
+        logger.error("Failed to show desktop notification:", error);
+        options.onError?.(error as Error);
+        return null;
       }
     },
-    [isSupported, permission, preferences, isDndActive]
-  )
+    [isSupported, permission, preferences, isDndActive],
+  );
 
   // Show notification from store notification object
   const showFromNotification = React.useCallback(
@@ -216,10 +229,10 @@ export function useDesktopNotification(): UseDesktopNotificationReturn {
         channel_update: true,
         system: true,
         announcement: true,
-      }
+      };
 
       if (!typeEnabled[notification.type]) {
-        return null
+        return null;
       }
 
       return showNotification({
@@ -227,7 +240,7 @@ export function useDesktopNotification(): UseDesktopNotificationReturn {
         body: notification.body,
         icon: notification.actor?.avatarUrl || DEFAULT_ICON,
         tag: notification.id,
-        requireInteraction: notification.priority === 'urgent',
+        requireInteraction: notification.priority === "urgent",
         data: {
           notificationId: notification.id,
           channelId: notification.channelId,
@@ -236,15 +249,15 @@ export function useDesktopNotification(): UseDesktopNotificationReturn {
           actionUrl: notification.actionUrl,
         },
         onClick: () => {
-          markAsRead(notification.id)
+          markAsRead(notification.id);
           if (notification.actionUrl) {
-            window.location.href = notification.actionUrl
+            window.location.href = notification.actionUrl;
           }
         },
-      })
+      });
     },
-    [preferences, showNotification, markAsRead]
-  )
+    [preferences, showNotification, markAsRead],
+  );
 
   return {
     permission,
@@ -252,7 +265,7 @@ export function useDesktopNotification(): UseDesktopNotificationReturn {
     requestPermission,
     showNotification,
     showFromNotification,
-  }
+  };
 }
 
 /**
@@ -264,12 +277,12 @@ export interface DesktopNotificationPermissionButtonProps extends React.ButtonHT
   /**
    * Callback when permission is granted
    */
-  onGranted?: () => void
+  onGranted?: () => void;
 
   /**
    * Callback when permission is denied
    */
-  onDenied?: () => void
+  onDenied?: () => void;
 }
 
 export function DesktopNotificationPermissionButton({
@@ -278,41 +291,43 @@ export function DesktopNotificationPermissionButton({
   children,
   ...props
 }: DesktopNotificationPermissionButtonProps) {
-  const { permission, isSupported, requestPermission } = useDesktopNotification()
+  const { permission, isSupported, requestPermission } =
+    useDesktopNotification();
 
   const handleClick = React.useCallback(async () => {
-    const result = await requestPermission()
-    if (result === 'granted') {
-      onGranted?.()
+    const result = await requestPermission();
+    if (result === "granted") {
+      onGranted?.();
     } else {
-      onDenied?.()
+      onDenied?.();
     }
-  }, [requestPermission, onGranted, onDenied])
+  }, [requestPermission, onGranted, onDenied]);
 
   if (!isSupported) {
-    return null
+    return null;
   }
 
-  if (permission === 'granted') {
-    return null
+  if (permission === "granted") {
+    return null;
   }
 
-  if (permission === 'denied') {
+  if (permission === "denied") {
     return (
       <button {...props} disabled title="Notification permission was denied">
-        {children || 'Notifications blocked'}
+        {children || "Notifications blocked"}
       </button>
-    )
+    );
   }
 
   return (
     <button {...props} onClick={handleClick}>
-      {children || 'Enable notifications'}
+      {children || "Enable notifications"}
     </button>
-  )
+  );
 }
 
-useDesktopNotification.displayName = 'useDesktopNotification'
-DesktopNotificationPermissionButton.displayName = 'DesktopNotificationPermissionButton'
+useDesktopNotification.displayName = "useDesktopNotification";
+DesktopNotificationPermissionButton.displayName =
+  "DesktopNotificationPermissionButton";
 
-export default useDesktopNotification
+export default useDesktopNotification;

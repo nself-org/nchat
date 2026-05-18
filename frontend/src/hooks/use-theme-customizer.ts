@@ -5,13 +5,13 @@
  * Handles preset loading, color changes, typography, and export/import.
  */
 
-'use client'
+"use client";
 
-import { useState, useCallback, useEffect } from 'react'
-import { useAppConfig } from '@/contexts/app-config-context'
-import type { AppConfig } from '@/config/app-config'
-import { ThemeColors } from '@/lib/theme-presets'
-import { logger } from '@/lib/logger'
+import { useState, useCallback, useEffect } from "react";
+import { useAppConfig } from "@/contexts/app-config-context";
+import type { AppConfig } from "@/config/app-config";
+import { ThemeColors } from "@/lib/theme-presets";
+import { logger } from "@/lib/logger";
 import {
   CustomThemeConfig,
   defaultCustomTheme,
@@ -23,73 +23,74 @@ import {
   saveCustomThemeToStorage,
   loadCustomThemeFromStorage,
   clearCustomThemeFromStorage,
-} from '@/lib/theme/custom-theme'
+} from "@/lib/theme/custom-theme";
 
 export interface UseThemeCustomizerReturn {
   // Current theme state
-  theme: CustomThemeConfig
-  isModified: boolean
-  isLoading: boolean
+  theme: CustomThemeConfig;
+  isModified: boolean;
+  isLoading: boolean;
 
   // Color actions
-  updateColor: (key: keyof ThemeColors, value: string) => void
-  updateColors: (colors: Partial<ThemeColors>) => void
-  resetColor: (key: keyof ThemeColors) => void
-  resetAllColors: () => void
+  updateColor: (key: keyof ThemeColors, value: string) => void;
+  updateColors: (colors: Partial<ThemeColors>) => void;
+  resetColor: (key: keyof ThemeColors) => void;
+  resetAllColors: () => void;
 
   // Typography actions
-  setFontFamily: (font: string) => void
-  setFontScale: (scale: number) => void
+  setFontFamily: (font: string) => void;
+  setFontScale: (scale: number) => void;
 
   // Spacing actions
-  setBorderRadius: (radius: string) => void
-  setSpacingScale: (scale: number) => void
+  setBorderRadius: (radius: string) => void;
+  setSpacingScale: (scale: number) => void;
 
   // Color scheme
-  setColorScheme: (scheme: 'light' | 'dark' | 'system') => void
+  setColorScheme: (scheme: "light" | "dark" | "system") => void;
 
   // Custom CSS
-  setCustomCSS: (css: string) => void
+  setCustomCSS: (css: string) => void;
 
   // Preset actions
-  loadPreset: (presetKey: string, colorScheme?: 'light' | 'dark') => void
-  resetToPreset: () => void
+  loadPreset: (presetKey: string, colorScheme?: "light" | "dark") => void;
+  resetToPreset: () => void;
 
   // Save/Load actions
-  saveTheme: () => Promise<void>
-  loadTheme: () => void
-  resetTheme: () => void
+  saveTheme: () => Promise<void>;
+  loadTheme: () => void;
+  resetTheme: () => void;
 
   // Import/Export
-  exportJSON: () => string
-  importJSON: (json: string) => void
-  generateShareURL: () => string
-  downloadJSON: () => void
-  copyJSON: () => Promise<void>
+  exportJSON: () => string;
+  importJSON: (json: string) => void;
+  generateShareURL: () => string;
+  downloadJSON: () => void;
+  copyJSON: () => Promise<void>;
 }
 
 /**
  * Hook for theme customization
  */
 export function useThemeCustomizer(): UseThemeCustomizerReturn {
-  const { config, updateConfig } = useAppConfig()
-  const [theme, setTheme] = useState<CustomThemeConfig>(defaultCustomTheme)
-  const [originalTheme, setOriginalTheme] = useState<CustomThemeConfig>(defaultCustomTheme)
-  const [isModified, setIsModified] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const { config, updateConfig } = useAppConfig();
+  const [theme, setTheme] = useState<CustomThemeConfig>(defaultCustomTheme);
+  const [originalTheme, setOriginalTheme] =
+    useState<CustomThemeConfig>(defaultCustomTheme);
+  const [isModified, setIsModified] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Initialize theme from AppConfig or localStorage
   useEffect(() => {
     const initializeTheme = () => {
       try {
         // Try to load from localStorage first
-        const storedTheme = loadCustomThemeFromStorage()
+        const storedTheme = loadCustomThemeFromStorage();
         if (storedTheme) {
-          setTheme(storedTheme)
-          setOriginalTheme(storedTheme)
-          applyCustomTheme(storedTheme)
-          setIsLoading(false)
-          return
+          setTheme(storedTheme);
+          setOriginalTheme(storedTheme);
+          applyCustomTheme(storedTheme);
+          setIsLoading(false);
+          return;
         }
 
         // Otherwise, create from AppConfig
@@ -114,40 +115,41 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
           },
           fontFamily: config.theme.fontFamily || defaultCustomTheme.fontFamily,
           fontScale: 1.0,
-          borderRadius: config.theme.borderRadius || defaultCustomTheme.borderRadius,
+          borderRadius:
+            config.theme.borderRadius || defaultCustomTheme.borderRadius,
           spacingScale: 1.0,
           customCSS: config.theme.customCSS,
-          colorScheme: config.theme.colorScheme || 'dark',
+          colorScheme: config.theme.colorScheme || "dark",
           preset: config.theme.preset,
-        }
+        };
 
-        setTheme(configTheme)
-        setOriginalTheme(configTheme)
-        applyCustomTheme(configTheme)
+        setTheme(configTheme);
+        setOriginalTheme(configTheme);
+        applyCustomTheme(configTheme);
       } catch (error) {
-        logger.error('Failed to initialize theme:', error)
-        setTheme(defaultCustomTheme)
-        setOriginalTheme(defaultCustomTheme)
+        logger.error("Failed to initialize theme:", error);
+        setTheme(defaultCustomTheme);
+        setOriginalTheme(defaultCustomTheme);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    initializeTheme()
-  }, [config.theme])
+    initializeTheme();
+  }, [config.theme]);
 
   // Check if theme has been modified
   useEffect(() => {
-    const hasChanged = JSON.stringify(theme) !== JSON.stringify(originalTheme)
-    setIsModified(hasChanged)
-  }, [theme, originalTheme])
+    const hasChanged = JSON.stringify(theme) !== JSON.stringify(originalTheme);
+    setIsModified(hasChanged);
+  }, [theme, originalTheme]);
 
   // Apply theme changes to DOM
   useEffect(() => {
     if (!isLoading) {
-      applyCustomTheme(theme)
+      applyCustomTheme(theme);
     }
-  }, [theme, isLoading])
+  }, [theme, isLoading]);
 
   /**
    * Update a single color
@@ -159,8 +161,8 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
         ...prev.colors,
         [key]: value,
       },
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Update multiple colors at once
@@ -172,8 +174,8 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
         ...prev.colors,
         ...colors,
       },
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Reset a single color to original
@@ -186,10 +188,10 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
           ...prev.colors,
           [key]: originalTheme.colors[key],
         },
-      }))
+      }));
     },
-    [originalTheme]
-  )
+    [originalTheme],
+  );
 
   /**
    * Reset all colors to original
@@ -198,8 +200,8 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
     setTheme((prev) => ({
       ...prev,
       colors: { ...originalTheme.colors },
-    }))
-  }, [originalTheme])
+    }));
+  }, [originalTheme]);
 
   /**
    * Set font family
@@ -208,8 +210,8 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
     setTheme((prev) => ({
       ...prev,
       fontFamily: font,
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Set font scale
@@ -218,8 +220,8 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
     setTheme((prev) => ({
       ...prev,
       fontScale: scale,
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Set border radius
@@ -228,8 +230,8 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
     setTheme((prev) => ({
       ...prev,
       borderRadius: radius,
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Set spacing scale
@@ -238,18 +240,18 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
     setTheme((prev) => ({
       ...prev,
       spacingScale: scale,
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Set color scheme
    */
-  const setColorScheme = useCallback((scheme: 'light' | 'dark' | 'system') => {
+  const setColorScheme = useCallback((scheme: "light" | "dark" | "system") => {
     setTheme((prev) => ({
       ...prev,
       colorScheme: scheme,
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Set custom CSS
@@ -258,17 +260,17 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
     setTheme((prev) => ({
       ...prev,
       customCSS: css,
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Load a preset theme
    */
   const loadPreset = useCallback(
-    (presetKey: string, colorScheme?: 'light' | 'dark') => {
-      const scheme = colorScheme || theme.colorScheme
-      const actualScheme = scheme === 'system' ? 'dark' : scheme
-      const presetTheme = createThemeFromPreset(presetKey, actualScheme)
+    (presetKey: string, colorScheme?: "light" | "dark") => {
+      const scheme = colorScheme || theme.colorScheme;
+      const actualScheme = scheme === "system" ? "dark" : scheme;
+      const presetTheme = createThemeFromPreset(presetKey, actualScheme);
 
       setTheme((prev) => ({
         ...presetTheme,
@@ -278,17 +280,17 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
         borderRadius: prev.borderRadius,
         spacingScale: prev.spacingScale,
         customCSS: prev.customCSS,
-      }))
+      }));
     },
-    [theme.colorScheme]
-  )
+    [theme.colorScheme],
+  );
 
   /**
    * Reset to original preset
    */
   const resetToPreset = useCallback(() => {
-    setTheme(originalTheme)
-  }, [originalTheme])
+    setTheme(originalTheme);
+  }, [originalTheme]);
 
   /**
    * Save theme to AppConfig and localStorage
@@ -298,7 +300,7 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
       // Save to AppConfig
       await updateConfig({
         theme: {
-          preset: theme.preset as AppConfig['theme']['preset'],
+          preset: theme.preset as AppConfig["theme"]["preset"],
           primaryColor: theme.colors.primaryColor,
           secondaryColor: theme.colors.secondaryColor,
           accentColor: theme.colors.accentColor,
@@ -320,93 +322,93 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
           customCSS: theme.customCSS,
           colorScheme: theme.colorScheme,
         },
-      })
+      });
 
       // Save to localStorage
-      saveCustomThemeToStorage(theme)
+      saveCustomThemeToStorage(theme);
 
       // Update original theme
-      setOriginalTheme(theme)
-      setIsModified(false)
+      setOriginalTheme(theme);
+      setIsModified(false);
     } catch (error) {
-      logger.error('Failed to save theme:', error)
-      throw error
+      logger.error("Failed to save theme:", error);
+      throw error;
     }
-  }, [theme, updateConfig])
+  }, [theme, updateConfig]);
 
   /**
    * Load theme from localStorage
    */
   const loadTheme = useCallback(() => {
-    const storedTheme = loadCustomThemeFromStorage()
+    const storedTheme = loadCustomThemeFromStorage();
     if (storedTheme) {
-      setTheme(storedTheme)
-      setOriginalTheme(storedTheme)
-      applyCustomTheme(storedTheme)
+      setTheme(storedTheme);
+      setOriginalTheme(storedTheme);
+      applyCustomTheme(storedTheme);
     }
-  }, [])
+  }, []);
 
   /**
    * Reset theme to default
    */
   const resetTheme = useCallback(() => {
-    setTheme(defaultCustomTheme)
-    setOriginalTheme(defaultCustomTheme)
-    clearCustomThemeFromStorage()
-    applyCustomTheme(defaultCustomTheme)
-  }, [])
+    setTheme(defaultCustomTheme);
+    setOriginalTheme(defaultCustomTheme);
+    clearCustomThemeFromStorage();
+    applyCustomTheme(defaultCustomTheme);
+  }, []);
 
   /**
    * Export theme as JSON string
    */
   const exportJSON = useCallback(() => {
-    return exportThemeJSON(theme)
-  }, [theme])
+    return exportThemeJSON(theme);
+  }, [theme]);
 
   /**
    * Import theme from JSON string
    */
   const importJSON = useCallback((json: string) => {
     try {
-      const importedTheme = importThemeJSON(json)
-      setTheme(importedTheme)
-      applyCustomTheme(importedTheme)
+      const importedTheme = importThemeJSON(json);
+      setTheme(importedTheme);
+      applyCustomTheme(importedTheme);
     } catch (error) {
-      logger.error('Failed to import theme:', error)
-      throw error
+      logger.error("Failed to import theme:", error);
+      throw error;
     }
-  }, [])
+  }, []);
 
   /**
    * Generate shareable URL
    */
   const generateShareURL = useCallback(() => {
-    return generateThemeShareURL(theme)
-  }, [theme])
+    return generateThemeShareURL(theme);
+  }, [theme]);
 
   /**
    * Download theme as JSON file
    */
   const downloadJSON = useCallback(() => {
-    const json = exportThemeJSON(theme)
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `theme-${theme.preset || 'custom'}-${Date.now()}.json`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }, [theme])
+    const json = exportThemeJSON(theme);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `theme-${theme.preset || "custom"}-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [theme]);
 
   /**
    * Copy JSON to clipboard
    */
   const copyJSON = useCallback(async () => {
-    const json = exportThemeJSON(theme)
-    await navigator.clipboard.writeText(json)
-  }, [theme])
+    const json = exportThemeJSON(theme);
+    await navigator.clipboard.writeText(json);
+  }, [theme]);
 
   return {
     theme,
@@ -432,5 +434,5 @@ export function useThemeCustomizer(): UseThemeCustomizerReturn {
     generateShareURL,
     downloadJSON,
     copyJSON,
-  }
+  };
 }

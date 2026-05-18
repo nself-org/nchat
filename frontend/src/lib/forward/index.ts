@@ -46,7 +46,7 @@ export {
   selectHasFailedForwards,
   selectSearchQuery,
   selectCanForward,
-} from './forward-store'
+} from "./forward-store";
 
 // Hooks
 export {
@@ -54,4 +54,4 @@ export {
   useQuickForward,
   type UseForwardOptions,
   type UseForwardReturn,
-} from './use-forward'
+} from "./use-forward";

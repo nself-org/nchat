@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { SearchInput } from '@/components/search/search-input'
-import { useUserDirectoryStore } from '@/stores/user-directory-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { SearchInput } from "@/components/search/search-input";
+import { useUserDirectoryStore } from "@/stores/user-directory-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UserSearchProps extends React.HTMLAttributes<HTMLDivElement> {
-  onSearch?: (query: string) => void
-  placeholder?: string
-  autoFocus?: boolean
+  onSearch?: (query: string) => void;
+  placeholder?: string;
+  autoFocus?: boolean;
 }
 
 // ============================================================================
@@ -24,24 +24,25 @@ const UserSearch = React.forwardRef<HTMLDivElement, UserSearchProps>(
     {
       className,
       onSearch,
-      placeholder = 'Search users by name, username, or email...',
+      placeholder = "Search users by name, username, or email...",
       autoFocus = false,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const { searchQuery, setSearchQuery, isSearching } = useUserDirectoryStore()
+    const { searchQuery, setSearchQuery, isSearching } =
+      useUserDirectoryStore();
 
     const handleSearch = React.useCallback(
       (value: string) => {
-        setSearchQuery(value)
-        onSearch?.(value)
+        setSearchQuery(value);
+        onSearch?.(value);
       },
-      [setSearchQuery, onSearch]
-    )
+      [setSearchQuery, onSearch],
+    );
 
     return (
-      <div ref={ref} className={cn('w-full', className)} {...props}>
+      <div ref={ref} className={cn("w-full", className)} {...props}>
         <SearchInput
           value={searchQuery}
           onChange={handleSearch}
@@ -53,9 +54,9 @@ const UserSearch = React.forwardRef<HTMLDivElement, UserSearchProps>(
           size="md"
         />
       </div>
-    )
-  }
-)
-UserSearch.displayName = 'UserSearch'
+    );
+  },
+);
+UserSearch.displayName = "UserSearch";
 
-export { UserSearch }
+export { UserSearch };

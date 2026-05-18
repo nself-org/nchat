@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { ExternalLink, Copy, Link2 } from 'lucide-react'
+import * as React from "react";
+import { ExternalLink, Copy, Link2 } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -9,20 +9,20 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
   ContextMenuLabel,
-} from './context-menu-base'
+} from "./context-menu-base";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface LinkContextMenuProps {
-  children: React.ReactNode
-  url: string
-  text?: string // The displayed text for the link
-  onOpenInNewTab?: (url: string) => void
-  onCopyLink?: (url: string) => void
-  onCopyText?: (text: string) => void
-  disabled?: boolean
+  children: React.ReactNode;
+  url: string;
+  text?: string; // The displayed text for the link
+  onOpenInNewTab?: (url: string) => void;
+  onCopyLink?: (url: string) => void;
+  onCopyText?: (text: string) => void;
+  disabled?: boolean;
 }
 
 // ============================================================================
@@ -30,35 +30,35 @@ export interface LinkContextMenuProps {
 // ============================================================================
 
 function truncateUrl(url: string, maxLength: number = 40): string {
-  if (url.length <= maxLength) return url
+  if (url.length <= maxLength) return url;
 
   try {
-    const urlObj = new URL(url)
-    const domain = urlObj.hostname
-    const path = urlObj.pathname + urlObj.search + urlObj.hash
+    const urlObj = new URL(url);
+    const domain = urlObj.hostname;
+    const path = urlObj.pathname + urlObj.search + urlObj.hash;
 
     if (domain.length >= maxLength - 3) {
-      return domain.substring(0, maxLength - 3) + '...'
+      return domain.substring(0, maxLength - 3) + "...";
     }
 
-    const remainingLength = maxLength - domain.length - 4 // 4 for "..." and "/"
+    const remainingLength = maxLength - domain.length - 4; // 4 for "..." and "/"
     if (path.length > remainingLength && remainingLength > 0) {
-      return domain + path.substring(0, remainingLength) + '...'
+      return domain + path.substring(0, remainingLength) + "...";
     }
 
-    return domain + path
+    return domain + path;
   } catch {
     // If URL parsing fails, just truncate normally
-    return url.substring(0, maxLength - 3) + '...'
+    return url.substring(0, maxLength - 3) + "...";
   }
 }
 
 function getDomainFromUrl(url: string): string {
   try {
-    const urlObj = new URL(url)
-    return urlObj.hostname
+    const urlObj = new URL(url);
+    return urlObj.hostname;
   } catch {
-    return url
+    return url;
   }
 }
 
@@ -75,36 +75,36 @@ export function LinkContextMenu({
   onCopyText,
   disabled = false,
 }: LinkContextMenuProps) {
-  const displayText = text || url
-  const domain = getDomainFromUrl(url)
-  const hasDistinctText = text && text !== url
+  const displayText = text || url;
+  const domain = getDomainFromUrl(url);
+  const hasDistinctText = text && text !== url;
 
   const handleOpenInNewTab = React.useCallback(() => {
     if (onOpenInNewTab) {
-      onOpenInNewTab(url)
+      onOpenInNewTab(url);
     } else {
-      window.open(url, '_blank', 'noopener,noreferrer')
+      window.open(url, "_blank", "noopener,noreferrer");
     }
-  }, [url, onOpenInNewTab])
+  }, [url, onOpenInNewTab]);
 
   const handleCopyLink = React.useCallback(() => {
     if (onCopyLink) {
-      onCopyLink(url)
+      onCopyLink(url);
     } else {
-      navigator.clipboard.writeText(url)
+      navigator.clipboard.writeText(url);
     }
-  }, [url, onCopyLink])
+  }, [url, onCopyLink]);
 
   const handleCopyText = React.useCallback(() => {
     if (onCopyText) {
-      onCopyText(displayText)
+      onCopyText(displayText);
     } else {
-      navigator.clipboard.writeText(displayText)
+      navigator.clipboard.writeText(displayText);
     }
-  }, [displayText, onCopyText])
+  }, [displayText, onCopyText]);
 
   if (disabled) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
   return (
@@ -114,8 +114,12 @@ export function LinkContextMenu({
         {/* Link info header */}
         <ContextMenuLabel className="font-normal">
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium text-muted-foreground">{domain}</p>
-            <p className="text-muted-foreground/70 truncate text-xs">{truncateUrl(url, 50)}</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              {domain}
+            </p>
+            <p className="text-muted-foreground/70 truncate text-xs">
+              {truncateUrl(url, 50)}
+            </p>
           </div>
         </ContextMenuLabel>
 
@@ -142,13 +146,16 @@ export function LinkContextMenu({
 
         {/* Copy text (only if different from URL) */}
         {hasDistinctText && (
-          <ContextMenuItemWithIcon icon={<Copy className="h-4 w-4" />} onClick={handleCopyText}>
+          <ContextMenuItemWithIcon
+            icon={<Copy className="h-4 w-4" />}
+            onClick={handleCopyText}
+          >
             Copy text
           </ContextMenuItemWithIcon>
         )}
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }
 
-LinkContextMenu.displayName = 'LinkContextMenu'
+LinkContextMenu.displayName = "LinkContextMenu";

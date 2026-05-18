@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Fragments
@@ -29,7 +29,7 @@ export const PRESENCE_SETTINGS_FRAGMENT = gql`
     createdAt: created_at
     updatedAt: updated_at
   }
-`
+`;
 
 // ============================================================================
 // Queries
@@ -45,7 +45,7 @@ export const GET_PRESENCE_SETTINGS = gql`
     }
   }
   ${PRESENCE_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Get presence settings for multiple users
@@ -57,7 +57,7 @@ export const GET_PRESENCE_SETTINGS_BULK = gql`
     }
   }
   ${PRESENCE_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Check if user A can see user B's presence
@@ -93,13 +93,16 @@ export const GET_PRESENCE_VISIBILITY = gql`
 
     # Check for explicit contact relationship
     contactRelationship: nchat_contacts(
-      where: { user_id: { _eq: $viewerId }, contact_user_id: { _eq: $targetId } }
+      where: {
+        user_id: { _eq: $viewerId }
+        contact_user_id: { _eq: $targetId }
+      }
       limit: 1
     ) {
       id
     }
   }
-`
+`;
 
 /**
  * Get visible presence for multiple users with privacy filtering
@@ -117,7 +120,9 @@ export const GET_VISIBLE_PRESENCE = gql`
     }
 
     # Get all target users' presence settings
-    presenceSettings: nchat_presence_settings(where: { user_id: { _in: $targetIds } }) {
+    presenceSettings: nchat_presence_settings(
+      where: { user_id: { _in: $targetIds } }
+    ) {
       userId: user_id
       visibility
       showLastSeen: show_last_seen
@@ -143,7 +148,7 @@ export const GET_VISIBLE_PRESENCE = gql`
       contactUserId: contact_user_id
     }
   }
-`
+`;
 
 /**
  * Get contacts for a user (users with DM history or explicit contacts)
@@ -181,7 +186,7 @@ export const GET_USER_CONTACTS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Mutations
@@ -225,7 +230,7 @@ export const UPDATE_PRESENCE_SETTINGS = gql`
     }
   }
   ${PRESENCE_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Enable invisible mode (appear offline to others)
@@ -240,7 +245,7 @@ export const SET_INVISIBLE_MODE = gql`
     }
   }
   ${PRESENCE_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Reset presence settings to defaults
@@ -262,7 +267,7 @@ export const RESET_PRESENCE_SETTINGS = gql`
     }
   }
   ${PRESENCE_SETTINGS_FRAGMENT}
-`
+`;
 
 /**
  * Create default presence settings for new user
@@ -278,13 +283,16 @@ export const CREATE_DEFAULT_PRESENCE_SETTINGS = gql`
         allow_read_receipts: true
         invisible_mode: false
       }
-      on_conflict: { constraint: nchat_presence_settings_pkey, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_presence_settings_pkey
+        update_columns: []
+      }
     ) {
       ...PresenceSettingsFields
     }
   }
   ${PRESENCE_SETTINGS_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // Subscriptions
@@ -300,7 +308,7 @@ export const PRESENCE_SETTINGS_SUBSCRIPTION = gql`
     }
   }
   ${PRESENCE_SETTINGS_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // Types (for TypeScript)
@@ -309,32 +317,32 @@ export const PRESENCE_SETTINGS_SUBSCRIPTION = gql`
 /**
  * Presence visibility levels
  */
-export type PresenceVisibility = 'everyone' | 'contacts' | 'nobody'
+export type PresenceVisibility = "everyone" | "contacts" | "nobody";
 
 /**
  * Presence settings interface
  */
 export interface PresenceSettings {
-  id?: string
-  userId: string
-  visibility: PresenceVisibility
-  showLastSeen: boolean
-  showOnlineStatus: boolean
-  allowReadReceipts: boolean
-  invisibleMode: boolean
-  createdAt?: string
-  updatedAt?: string
+  id?: string;
+  userId: string;
+  visibility: PresenceVisibility;
+  showLastSeen: boolean;
+  showOnlineStatus: boolean;
+  allowReadReceipts: boolean;
+  invisibleMode: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /**
  * Presence settings input for updates
  */
 export interface PresenceSettingsInput {
-  visibility?: PresenceVisibility
-  showLastSeen?: boolean
-  showOnlineStatus?: boolean
-  allowReadReceipts?: boolean
-  invisibleMode?: boolean
+  visibility?: PresenceVisibility;
+  showLastSeen?: boolean;
+  showOnlineStatus?: boolean;
+  allowReadReceipts?: boolean;
+  invisibleMode?: boolean;
 }
 
 /**
@@ -342,22 +350,22 @@ export interface PresenceSettingsInput {
  */
 export const DEFAULT_PRESENCE_SETTINGS: Omit<
   PresenceSettings,
-  'userId' | 'id' | 'createdAt' | 'updatedAt'
+  "userId" | "id" | "createdAt" | "updatedAt"
 > = {
-  visibility: 'everyone',
+  visibility: "everyone",
   showLastSeen: true,
   showOnlineStatus: true,
   allowReadReceipts: true,
   invisibleMode: false,
-}
+};
 
 /**
  * Presence visibility result from canViewPresence check
  */
 export interface PresenceVisibilityResult {
-  canViewPresence: boolean
-  canViewLastSeen: boolean
-  canViewOnlineStatus: boolean
-  isContact: boolean
-  isInvisible: boolean
+  canViewPresence: boolean;
+  canViewLastSeen: boolean;
+  canViewOnlineStatus: boolean;
+  isContact: boolean;
+  isInvisible: boolean;
 }

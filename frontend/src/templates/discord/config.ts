@@ -13,7 +13,7 @@
 //
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import type { PlatformTemplate } from '../types'
+import type { PlatformTemplate } from "../types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Discord Color Palette
@@ -21,50 +21,50 @@ import type { PlatformTemplate } from '../types'
 
 export const discordColors = {
   // Brand colors
-  blurple: '#5865F2',
-  blurpleLight: '#7289DA', // Legacy blurple
-  green: '#57F287',
-  yellow: '#FEE75C',
-  fuchsia: '#EB459E',
-  red: '#ED4245',
-  white: '#FFFFFF',
-  black: '#000000',
+  blurple: "#5865F2",
+  blurpleLight: "#7289DA", // Legacy blurple
+  green: "#57F287",
+  yellow: "#FEE75C",
+  fuchsia: "#EB459E",
+  red: "#ED4245",
+  white: "#FFFFFF",
+  black: "#000000",
 
   // Grays (Dark theme backgrounds - layered from darkest to lightest)
-  gray950: '#0C0D0E', // Darkest (popover backgrounds)
-  gray900: '#111214', // Server list background
-  gray850: '#1E1F22', // Server list, borders
-  gray800: '#232428', // Channel list background
-  gray750: '#2B2D31', // Channel list, member list
-  gray700: '#313338', // Main content background
-  gray650: '#383A40', // Input background
-  gray600: '#3F4147', // Hover states
-  gray550: '#4E5058', // Secondary buttons
-  gray500: '#6D6F78', // Muted text
-  gray400: '#80848E', // Timestamps
-  gray300: '#949BA4', // Secondary text
-  gray200: '#B5BAC1', // Primary text (muted)
-  gray100: '#DBDEE1', // Primary text
-  gray50: '#F2F3F5', // Light mode background
+  gray950: "#0C0D0E", // Darkest (popover backgrounds)
+  gray900: "#111214", // Server list background
+  gray850: "#1E1F22", // Server list, borders
+  gray800: "#232428", // Channel list background
+  gray750: "#2B2D31", // Channel list, member list
+  gray700: "#313338", // Main content background
+  gray650: "#383A40", // Input background
+  gray600: "#3F4147", // Hover states
+  gray550: "#4E5058", // Secondary buttons
+  gray500: "#6D6F78", // Muted text
+  gray400: "#80848E", // Timestamps
+  gray300: "#949BA4", // Secondary text
+  gray200: "#B5BAC1", // Primary text (muted)
+  gray100: "#DBDEE1", // Primary text
+  gray50: "#F2F3F5", // Light mode background
 
   // Status colors
-  statusOnline: '#23A559',
-  statusIdle: '#F0B232',
-  statusDnd: '#F23F43',
-  statusOffline: '#80848E',
-  statusStreaming: '#593695',
+  statusOnline: "#23A559",
+  statusIdle: "#F0B232",
+  statusDnd: "#F23F43",
+  statusOffline: "#80848E",
+  statusStreaming: "#593695",
 
   // Role colors (common Discord role colors)
-  roleRed: '#E74C3C',
-  roleOrange: '#E67E22',
-  roleYellow: '#F1C40F',
-  roleGreen: '#2ECC71',
-  roleTeal: '#1ABC9C',
-  roleBlue: '#3498DB',
-  rolePurple: '#9B59B6',
-  rolePink: '#E91E63',
-  roleGray: '#95A5A6',
-} as const
+  roleRed: "#E74C3C",
+  roleOrange: "#E67E22",
+  roleYellow: "#F1C40F",
+  roleGreen: "#2ECC71",
+  roleTeal: "#1ABC9C",
+  roleBlue: "#3498DB",
+  rolePurple: "#9B59B6",
+  rolePink: "#E91E63",
+  roleGray: "#95A5A6",
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Discord Typography
@@ -72,20 +72,22 @@ export const discordColors = {
 
 export const discordTypography = {
   // Discord uses gg sans as primary font (we use similar alternatives)
-  fontFamily: '"gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
+  fontFamily:
+    '"gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
   fontFamilyCode:
     'Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace',
-  fontFamilyHeadline: '"gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
+  fontFamilyHeadline:
+    '"gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
 
   // Font sizes
   fontSize: {
-    xs: '12px',
-    sm: '14px',
-    base: '16px',
-    lg: '18px',
-    xl: '20px',
-    '2xl': '24px',
-    '3xl': '28px',
+    xs: "12px",
+    sm: "14px",
+    base: "16px",
+    lg: "18px",
+    xl: "20px",
+    "2xl": "24px",
+    "3xl": "28px",
   },
 
   // Font weights
@@ -102,7 +104,7 @@ export const discordTypography = {
     normal: 1.375,
     relaxed: 1.5,
   },
-} as const
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Discord Layout Dimensions
@@ -132,7 +134,7 @@ export const discordLayout = {
   headerHeight: 48,
 
   // Message area
-  messageMaxWidth: 'none', // Discord has no max width
+  messageMaxWidth: "none", // Discord has no max width
   messagePadding: 16,
   messageGap: 2,
   avatarSize: 40,
@@ -149,7 +151,7 @@ export const discordLayout = {
   inputMinHeight: 44,
   inputMaxHeight: 500,
   inputRadius: 8,
-} as const
+} as const;
 
 // ─────────────────────────────────────────════════════════════════════════────
 // Discord Animation Timings
@@ -157,19 +159,19 @@ export const discordLayout = {
 
 export const discordAnimations = {
   // Transitions
-  transitionFast: '100ms',
-  transitionNormal: '150ms',
-  transitionSlow: '200ms',
-  transitionExpand: '300ms',
+  transitionFast: "100ms",
+  transitionNormal: "150ms",
+  transitionSlow: "200ms",
+  transitionExpand: "300ms",
 
   // Easing
-  easeOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  easeInOut: 'cubic-bezier(0.4, 0, 0.6, 1)',
-  spring: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+  easeOut: "cubic-bezier(0.4, 0, 0.2, 1)",
+  easeInOut: "cubic-bezier(0.4, 0, 0.6, 1)",
+  spring: "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
 
   // Server icon hover
-  serverIconTransition: '150ms ease-out',
-} as const
+  serverIconTransition: "150ms ease-out",
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Discord Template Export
@@ -180,18 +182,19 @@ export const discordTemplate: PlatformTemplate = {
   // Identity
   // ─────────────────────────────────────────────────────────────────────────────
 
-  id: 'discord',
-  name: 'Discord',
-  description: 'Complete Discord clone with servers, categories, roles, and dark theme',
-  version: '2.0.0',
-  author: 'nself',
+  id: "discord",
+  name: "Discord",
+  description:
+    "Complete Discord clone with servers, categories, roles, and dark theme",
+  version: "2.0.0",
+  author: "nself",
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Theme Configuration (Discord Blurple Dark)
   // ─────────────────────────────────────────────────────────────────────────────
 
   theme: {
-    defaultMode: 'dark',
+    defaultMode: "dark",
 
     light: {
       // Primary colors (Discord Blurple)
@@ -200,26 +203,26 @@ export const discordTemplate: PlatformTemplate = {
       accentColor: discordColors.green,
 
       // Background colors (Light mode - rarely used)
-      backgroundColor: '#FFFFFF',
+      backgroundColor: "#FFFFFF",
       surfaceColor: discordColors.gray50,
-      cardColor: '#FFFFFF',
-      popoverColor: '#FFFFFF',
+      cardColor: "#FFFFFF",
+      popoverColor: "#FFFFFF",
 
       // Text colors
-      textColor: '#060607',
+      textColor: "#060607",
       textMutedColor: discordColors.gray550,
-      textInverseColor: '#FFFFFF',
+      textInverseColor: "#FFFFFF",
 
       // Border colors
-      borderColor: '#E3E5E8',
+      borderColor: "#E3E5E8",
       borderMutedColor: discordColors.gray50,
 
       // Button colors
       buttonPrimaryBg: discordColors.blurple,
-      buttonPrimaryText: '#FFFFFF',
+      buttonPrimaryText: "#FFFFFF",
       buttonSecondaryBg: discordColors.gray550,
-      buttonSecondaryText: '#FFFFFF',
-      buttonGhostHover: '#E3E5E8',
+      buttonSecondaryText: "#FFFFFF",
+      buttonGhostHover: "#E3E5E8",
 
       // Status colors
       successColor: discordColors.green,
@@ -228,7 +231,7 @@ export const discordTemplate: PlatformTemplate = {
       infoColor: discordColors.blurple,
 
       // Special colors
-      linkColor: '#00AFF4',
+      linkColor: "#00AFF4",
       focusRingColor: discordColors.blurple,
       selectionBg: `${discordColors.blurple}33`,
       highlightBg: `${discordColors.yellow}33`,
@@ -249,7 +252,7 @@ export const discordTemplate: PlatformTemplate = {
       // Text colors
       textColor: discordColors.gray100, // #DBDEE1
       textMutedColor: discordColors.gray200, // #B5BAC1
-      textInverseColor: '#060607',
+      textInverseColor: "#060607",
 
       // Border colors
       borderColor: discordColors.gray850, // #1E1F22
@@ -257,9 +260,9 @@ export const discordTemplate: PlatformTemplate = {
 
       // Button colors
       buttonPrimaryBg: discordColors.blurple,
-      buttonPrimaryText: '#FFFFFF',
+      buttonPrimaryText: "#FFFFFF",
       buttonSecondaryBg: discordColors.gray550,
-      buttonSecondaryText: '#FFFFFF',
+      buttonSecondaryText: "#FFFFFF",
       buttonGhostHover: discordColors.gray600,
 
       // Status colors
@@ -269,7 +272,7 @@ export const discordTemplate: PlatformTemplate = {
       infoColor: discordColors.blurple,
 
       // Special colors
-      linkColor: '#00AFF4',
+      linkColor: "#00AFF4",
       focusRingColor: discordColors.blurple,
       selectionBg: `${discordColors.blurple}33`,
       highlightBg: `${discordColors.yellow}22`,
@@ -282,7 +285,7 @@ export const discordTemplate: PlatformTemplate = {
 
   layout: {
     // Sidebar (Discord uses dual sidebar: server list + channel list)
-    sidebarPosition: 'left',
+    sidebarPosition: "left",
     sidebarWidth: discordLayout.channelListWidth,
     sidebarCollapsible: false, // Discord sidebar doesn't collapse
     sidebarCollapsedWidth: discordLayout.serverListWidth,
@@ -292,25 +295,25 @@ export const discordTemplate: PlatformTemplate = {
     showHeaderBorder: true,
 
     // Messages (Discord uses compact-ish density)
-    messageDensity: 'compact',
+    messageDensity: "compact",
     messageGrouping: true,
     messageGroupingTimeout: 7, // Discord groups messages within 7 minutes
 
     // Avatars (Discord uses circles)
-    avatarStyle: 'circle',
-    avatarSize: 'md', // 40px
-    showAvatarInGroup: 'first',
+    avatarStyle: "circle",
+    avatarSize: "md", // 40px
+    showAvatarInGroup: "first",
 
     // Channels (Discord shows category hierarchy)
     showChannelIcons: true,
     showChannelDescription: false,
     showMemberCount: false,
-    channelListDensity: 'compact',
+    channelListDensity: "compact",
 
     // Users
     showUserStatus: true,
     showPresenceDots: true,
-    presenceDotPosition: 'bottom-right',
+    presenceDotPosition: "bottom-right",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -320,13 +323,13 @@ export const discordTemplate: PlatformTemplate = {
   features: {
     // Threads
     threads: true,
-    threadStyle: 'inline', // Discord shows threads inline
+    threadStyle: "inline", // Discord shows threads inline
     threadPanelWidth: discordLayout.threadPanelWidth,
 
     // Reactions (inline style like Discord)
     reactions: true,
-    reactionStyle: 'inline',
-    quickReactions: ['👍', '😂', '😮', '❤️', '😢', '🔥', '👀', '✅'],
+    reactionStyle: "inline",
+    quickReactions: ["👍", "😂", "😮", "❤️", "😢", "🔥", "👀", "✅"],
     maxReactionsDisplay: 7,
 
     // Rich content
@@ -335,19 +338,28 @@ export const discordTemplate: PlatformTemplate = {
     codeBlocks: true,
     markdown: true,
     linkPreviews: true,
-    emojiPicker: 'custom',
+    emojiPicker: "custom",
     gifPicker: true,
 
     // Message actions
-    messageActions: ['react', 'reply', 'thread', 'pin', 'edit', 'delete', 'copy', 'report'],
+    messageActions: [
+      "react",
+      "reply",
+      "thread",
+      "pin",
+      "edit",
+      "delete",
+      "copy",
+      "report",
+    ],
     showActionsOnHover: true,
 
     // Real-time
     typing: true,
-    typingIndicatorStyle: 'text', // "User is typing..."
+    typingIndicatorStyle: "text", // "User is typing..."
     presence: true,
     readReceipts: false, // Discord doesn't show read receipts
-    readReceiptStyle: 'text',
+    readReceiptStyle: "text",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -356,35 +368,35 @@ export const discordTemplate: PlatformTemplate = {
 
   terminology: {
     // Core concepts (Discord terminology)
-    workspace: 'Server',
-    workspacePlural: 'Servers',
-    channel: 'Text Channel',
-    channelPlural: 'Text Channels',
-    directMessage: 'Direct Message',
-    directMessagePlural: 'Direct Messages',
-    directMessageShort: 'DM',
-    thread: 'Thread',
-    threadPlural: 'Threads',
-    member: 'Member',
-    memberPlural: 'Members',
-    message: 'Message',
-    messagePlural: 'Messages',
-    reaction: 'Reaction',
-    reactionPlural: 'Reactions',
+    workspace: "Server",
+    workspacePlural: "Servers",
+    channel: "Text Channel",
+    channelPlural: "Text Channels",
+    directMessage: "Direct Message",
+    directMessagePlural: "Direct Messages",
+    directMessageShort: "DM",
+    thread: "Thread",
+    threadPlural: "Threads",
+    member: "Member",
+    memberPlural: "Members",
+    message: "Message",
+    messagePlural: "Messages",
+    reaction: "Reaction",
+    reactionPlural: "Reactions",
 
     // Actions
-    sendMessage: 'Send Message',
-    editMessage: 'Edit Message',
-    deleteMessage: 'Delete Message',
-    replyToThread: 'Create Thread',
-    createChannel: 'Create Channel',
-    joinChannel: 'Join',
-    leaveChannel: 'Leave Server',
+    sendMessage: "Send Message",
+    editMessage: "Edit Message",
+    deleteMessage: "Delete Message",
+    replyToThread: "Create Thread",
+    createChannel: "Create Channel",
+    joinChannel: "Join",
+    leaveChannel: "Leave Server",
 
     // Placeholders
-    messageInputPlaceholder: 'Message #{{channel}}',
-    searchPlaceholder: 'Search',
-    newChannelPlaceholder: 'new-channel',
+    messageInputPlaceholder: "Message #{{channel}}",
+    searchPlaceholder: "Search",
+    newChannelPlaceholder: "new-channel",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -394,10 +406,10 @@ export const discordTemplate: PlatformTemplate = {
   animations: {
     enableAnimations: true,
     reducedMotion: false,
-    transitionDuration: 'normal',
-    messageAppear: 'fade',
-    sidebarTransition: 'slide',
-    modalTransition: 'scale',
+    transitionDuration: "normal",
+    messageAppear: "fade",
+    sidebarTransition: "slide",
+    modalTransition: "scale",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -596,6 +608,6 @@ export const discordTemplate: PlatformTemplate = {
   border-radius: 3px;
 }
 `,
-}
+};
 
-export default discordTemplate
+export default discordTemplate;

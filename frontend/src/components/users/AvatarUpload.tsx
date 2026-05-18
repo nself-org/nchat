@@ -1,25 +1,25 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Camera, Trash2, Upload, Loader2 } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Camera, Trash2, Upload, Loader2 } from "lucide-react";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface AvatarUploadProps extends React.HTMLAttributes<HTMLDivElement> {
-  currentAvatarUrl?: string
-  fallback?: string
-  onUpload: (file: File) => Promise<string>
-  onRemove?: () => Promise<void>
-  size?: 'sm' | 'md' | 'lg' | 'xl'
-  disabled?: boolean
-  maxSizeMB?: number
+  currentAvatarUrl?: string;
+  fallback?: string;
+  onUpload: (file: File) => Promise<string>;
+  onRemove?: () => Promise<void>;
+  size?: "sm" | "md" | "lg" | "xl";
+  disabled?: boolean;
+  maxSizeMB?: number;
 }
 
 // ============================================================================
@@ -27,27 +27,27 @@ export interface AvatarUploadProps extends React.HTMLAttributes<HTMLDivElement> 
 // ============================================================================
 
 const SIZE_CLASSES = {
-  sm: 'h-16 w-16',
-  md: 'h-20 w-20',
-  lg: 'h-24 w-24',
-  xl: 'h-32 w-32',
-}
+  sm: "h-16 w-16",
+  md: "h-20 w-20",
+  lg: "h-24 w-24",
+  xl: "h-32 w-32",
+};
 
 const BUTTON_SIZE_CLASSES = {
-  sm: 'h-6 w-6',
-  md: 'h-7 w-7',
-  lg: 'h-8 w-8',
-  xl: 'h-9 w-9',
-}
+  sm: "h-6 w-6",
+  md: "h-7 w-7",
+  lg: "h-8 w-8",
+  xl: "h-9 w-9",
+};
 
 const ICON_SIZE_CLASSES = {
-  sm: 'h-3 w-3',
-  md: 'h-3.5 w-3.5',
-  lg: 'h-4 w-4',
-  xl: 'h-4 w-4',
-}
+  sm: "h-3 w-3",
+  md: "h-3.5 w-3.5",
+  lg: "h-4 w-4",
+  xl: "h-4 w-4",
+};
 
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 // ============================================================================
 // Component
@@ -58,98 +58,102 @@ const AvatarUpload = React.forwardRef<HTMLDivElement, AvatarUploadProps>(
     {
       className,
       currentAvatarUrl,
-      fallback = '?',
+      fallback = "?",
       onUpload,
       onRemove,
-      size = 'lg',
+      size = "lg",
       disabled = false,
       maxSizeMB = 2,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const [isUploading, setIsUploading] = React.useState(false)
-    const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
-    const [error, setError] = React.useState<string | null>(null)
-    const fileInputRef = React.useRef<HTMLInputElement>(null)
+    const [isUploading, setIsUploading] = React.useState(false);
+    const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-    const maxSizeBytes = maxSizeMB * 1024 * 1024
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
     const handleFileSelect = React.useCallback(
       async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
+        const file = e.target.files?.[0];
+        if (!file) return;
 
         // Reset state
-        setError(null)
+        setError(null);
 
         // Validate file type
         if (!ACCEPTED_TYPES.includes(file.type)) {
-          setError('Please select a JPEG, PNG, GIF, or WebP image')
-          return
+          setError("Please select a JPEG, PNG, GIF, or WebP image");
+          return;
         }
 
         // Validate file size
         if (file.size > maxSizeBytes) {
-          setError(`Image must be less than ${maxSizeMB}MB`)
-          return
+          setError(`Image must be less than ${maxSizeMB}MB`);
+          return;
         }
 
-        setIsUploading(true)
+        setIsUploading(true);
 
         // Create preview
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onload = (e) => {
-          setPreviewUrl(e.target?.result as string)
-        }
-        reader.readAsDataURL(file)
+          setPreviewUrl(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
 
         try {
-          await onUpload(file)
+          await onUpload(file);
         } catch (err) {
-          setError('Failed to upload image. Please try again.')
-          setPreviewUrl(null)
-          logger.error('Avatar upload error:', err)
+          setError("Failed to upload image. Please try again.");
+          setPreviewUrl(null);
+          logger.error("Avatar upload error:", err);
         } finally {
-          setIsUploading(false)
+          setIsUploading(false);
           // Reset file input
           if (fileInputRef.current) {
-            fileInputRef.current.value = ''
+            fileInputRef.current.value = "";
           }
         }
       },
-      [onUpload, maxSizeBytes, maxSizeMB]
-    )
+      [onUpload, maxSizeBytes, maxSizeMB],
+    );
 
     const handleRemove = React.useCallback(async () => {
-      if (!onRemove) return
+      if (!onRemove) return;
 
-      setIsUploading(true)
-      setError(null)
+      setIsUploading(true);
+      setError(null);
       try {
-        await onRemove()
-        setPreviewUrl(null)
+        await onRemove();
+        setPreviewUrl(null);
       } catch (err) {
-        setError('Failed to remove image')
-        logger.error('Avatar remove error:', err)
+        setError("Failed to remove image");
+        logger.error("Avatar remove error:", err);
       } finally {
-        setIsUploading(false)
+        setIsUploading(false);
       }
-    }, [onRemove])
+    }, [onRemove]);
 
     const triggerFileSelect = () => {
       if (!disabled && !isUploading) {
-        fileInputRef.current?.click()
+        fileInputRef.current?.click();
       }
-    }
+    };
 
-    const displayUrl = previewUrl || currentAvatarUrl
+    const displayUrl = previewUrl || currentAvatarUrl;
 
     return (
-      <div ref={ref} className={cn('flex items-center gap-4', className)} {...props}>
+      <div
+        ref={ref}
+        className={cn("flex items-center gap-4", className)}
+        {...props}
+      >
         {/* Avatar with overlay */}
         <div className="group relative">
-          <Avatar className={cn(SIZE_CLASSES[size], 'border-2 border-muted')}>
+          <Avatar className={cn(SIZE_CLASSES[size], "border-2 border-muted")}>
             <AvatarImage src={displayUrl} alt="Avatar" />
             <AvatarFallback className="text-lg font-medium">
               {fallback.charAt(0).toUpperCase()}
@@ -163,8 +167,8 @@ const AvatarUpload = React.forwardRef<HTMLDivElement, AvatarUploadProps>(
                 type="button"
                 onClick={triggerFileSelect}
                 className={cn(
-                  'flex items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/30',
-                  BUTTON_SIZE_CLASSES[size]
+                  "flex items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/30",
+                  BUTTON_SIZE_CLASSES[size],
                 )}
                 aria-label="Upload new avatar"
               >
@@ -175,8 +179,8 @@ const AvatarUpload = React.forwardRef<HTMLDivElement, AvatarUploadProps>(
                   type="button"
                   onClick={handleRemove}
                   className={cn(
-                    'flex items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-red-500/80',
-                    BUTTON_SIZE_CLASSES[size]
+                    "flex items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-red-500/80",
+                    BUTTON_SIZE_CLASSES[size],
                   )}
                   aria-label="Remove avatar"
                 >
@@ -205,7 +209,7 @@ const AvatarUpload = React.forwardRef<HTMLDivElement, AvatarUploadProps>(
               disabled={disabled || isUploading}
             >
               <Upload className="mr-2 h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Upload Photo'}
+              {isUploading ? "Uploading..." : "Upload Photo"}
             </Button>
             {displayUrl && onRemove && (
               <Button
@@ -230,15 +234,15 @@ const AvatarUpload = React.forwardRef<HTMLDivElement, AvatarUploadProps>(
         <input
           ref={fileInputRef}
           type="file"
-          accept={ACCEPTED_TYPES.join(',')}
+          accept={ACCEPTED_TYPES.join(",")}
           onChange={handleFileSelect}
           className="hidden"
           disabled={disabled || isUploading}
         />
       </div>
-    )
-  }
-)
-AvatarUpload.displayName = 'AvatarUpload'
+    );
+  },
+);
+AvatarUpload.displayName = "AvatarUpload";
 
-export { AvatarUpload }
+export { AvatarUpload };

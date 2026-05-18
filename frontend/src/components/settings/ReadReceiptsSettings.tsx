@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import { SettingsSection } from './settings-section'
-import { SettingsToggle } from './SettingsToggle'
-import { useSettingsStore } from '@/stores/settings-store'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Info } from 'lucide-react'
+import { SettingsSection } from "./settings-section";
+import { SettingsToggle } from "./SettingsToggle";
+import { useSettingsStore } from "@/stores/settings-store";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 interface ReadReceiptsSettingsProps {
-  className?: string
+  className?: string;
 }
 
 /**
  * ReadReceiptsSettings - Control read receipt visibility
  */
 export function ReadReceiptsSettings({ className }: ReadReceiptsSettingsProps) {
-  const { settings, updatePrivacy } = useSettingsStore()
+  const { settings, updatePrivacy } = useSettingsStore();
 
   return (
     <SettingsSection
@@ -33,10 +33,10 @@ export function ReadReceiptsSettings({ className }: ReadReceiptsSettingsProps) {
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          This setting is reciprocal. If you turn off read receipts, you will no longer see when
-          others have read your messages either.
+          This setting is reciprocal. If you turn off read receipts, you will no
+          longer see when others have read your messages either.
         </AlertDescription>
       </Alert>
     </SettingsSection>
-  )
+  );
 }

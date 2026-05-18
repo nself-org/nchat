@@ -6,22 +6,22 @@
  * @module lib/validation/validate
  */
 
-import { z, ZodError } from 'zod'
-import { NextRequest } from 'next/server'
-import { ApiError, ValidationError } from '@/lib/api/middleware'
+import { z, ZodError } from "zod";
+import { NextRequest } from "next/server";
+import { ApiError, ValidationError } from "@/lib/api/middleware";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ValidationResult<T> {
-  success: true
-  data: T
+  success: true;
+  data: T;
 }
 
 interface ValidationFailure {
-  success: false
-  errors: Record<string, string[]>
+  success: false;
+  errors: Record<string, string[]>;
 }
 
 // ============================================================================
@@ -46,28 +46,28 @@ interface ValidationFailure {
  */
 export function validate<T>(
   schema: z.ZodSchema<T>,
-  data: unknown
+  data: unknown,
 ): ValidationResult<T> | ValidationFailure {
   try {
-    const validated = schema.parse(data)
-    return { success: true, data: validated }
+    const validated = schema.parse(data);
+    return { success: true, data: validated };
   } catch (error) {
     if (error instanceof ZodError) {
-      const errors: Record<string, string[]> = {}
+      const errors: Record<string, string[]> = {};
 
       for (const issue of error.issues) {
-        const path = issue.path.join('.')
+        const path = issue.path.join(".");
         if (!errors[path]) {
-          errors[path] = []
+          errors[path] = [];
         }
-        errors[path].push(issue.message)
+        errors[path].push(issue.message);
       }
 
-      return { success: false, errors }
+      return { success: false, errors };
     }
 
     // Unexpected error
-    throw error
+    throw error;
   }
 }
 
@@ -91,13 +91,13 @@ export function validate<T>(
  * ```
  */
 export function validateOrThrow<T>(schema: z.ZodSchema<T>, data: unknown): T {
-  const result = validate(schema, data)
+  const result = validate(schema, data);
 
   if (!result.success) {
-    throw new ValidationError(result.errors)
+    throw new ValidationError(result.errors);
   }
 
-  return result.data
+  return result.data;
 }
 
 // ============================================================================
@@ -123,17 +123,17 @@ export function validateOrThrow<T>(schema: z.ZodSchema<T>, data: unknown): T {
  */
 export async function validateRequestBody<T>(
   request: NextRequest,
-  schema: z.ZodSchema<T>
+  schema: z.ZodSchema<T>,
 ): Promise<T> {
-  let body: unknown
+  let body: unknown;
 
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    throw new ApiError('Invalid JSON body', 'INVALID_JSON', 400)
+    throw new ApiError("Invalid JSON body", "INVALID_JSON", 400);
   }
 
-  return validateOrThrow(schema, body)
+  return validateOrThrow(schema, body);
 }
 
 // ============================================================================
@@ -161,24 +161,27 @@ export async function validateRequestBody<T>(
  * }
  * ```
  */
-export function validateQueryParams<T>(request: NextRequest, schema: z.ZodSchema<T>): T {
-  const { searchParams } = new URL(request.url)
-  const params: Record<string, string | string[]> = {}
+export function validateQueryParams<T>(
+  request: NextRequest,
+  schema: z.ZodSchema<T>,
+): T {
+  const { searchParams } = new URL(request.url);
+  const params: Record<string, string | string[]> = {};
 
   for (const [key, value] of searchParams.entries()) {
     if (params[key]) {
       // Multiple values for same key
       if (Array.isArray(params[key])) {
-        ;(params[key] as string[]).push(value)
+        (params[key] as string[]).push(value);
       } else {
-        params[key] = [params[key] as string, value]
+        params[key] = [params[key] as string, value];
       }
     } else {
-      params[key] = value
+      params[key] = value;
     }
   }
 
-  return validateOrThrow(schema, params)
+  return validateOrThrow(schema, params);
 }
 
 // ============================================================================
@@ -210,9 +213,9 @@ export function validateQueryParams<T>(request: NextRequest, schema: z.ZodSchema
  */
 export function validatePathParams<T>(
   params: Record<string, string | string[]>,
-  schema: z.ZodSchema<T>
+  schema: z.ZodSchema<T>,
 ): T {
-  return validateOrThrow(schema, params)
+  return validateOrThrow(schema, params);
 }
 
 // ============================================================================
@@ -229,16 +232,16 @@ export function sanitizeHtml(html: string): string {
   return (
     html
       // Remove script tags
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
       // Remove iframe tags
-      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
       // Remove event handlers
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/on\w+='[^']*'/gi, '')
+      .replace(/on\w+="[^"]*"/gi, "")
+      .replace(/on\w+='[^']*'/gi, "")
       // Remove javascript: protocol
       .replace(/href="javascript:[^"]*"/gi, 'href="#"')
-      .replace(/src="javascript:[^"]*"/gi, '')
-  )
+      .replace(/src="javascript:[^"]*"/gi, "")
+  );
 }
 
 /**
@@ -253,9 +256,9 @@ export function sanitizeSql(sql: string): string {
       // Escape single quotes
       .replace(/'/g, "''")
       // Remove SQL comments
-      .replace(/--.*$/gm, '')
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-  )
+      .replace(/--.*$/gm, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+  );
 }
 
 /**
@@ -268,12 +271,12 @@ export function sanitizeFilename(filename: string): string {
   return (
     filename
       // Replace invalid characters with underscores
-      .replace(/[^a-zA-Z0-9._-]/g, '_')
+      .replace(/[^a-zA-Z0-9._-]/g, "_")
       // Remove leading/trailing dots and spaces
-      .replace(/^[.\s]+|[.\s]+$/g, '')
+      .replace(/^[.\s]+|[.\s]+$/g, "")
       // Limit length
       .substring(0, 255)
-  )
+  );
 }
 
 /**
@@ -284,16 +287,16 @@ export function sanitizeFilename(filename: string): string {
  */
 export function sanitizeUrl(url: string): string | null {
   try {
-    const parsed = new URL(url)
+    const parsed = new URL(url);
 
     // Only allow http and https protocols
-    if (!['http:', 'https:'].includes(parsed.protocol)) {
-      return null
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      return null;
     }
 
-    return parsed.toString()
+    return parsed.toString();
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -305,28 +308,30 @@ export function sanitizeUrl(url: string): string | null {
  * Check if value is a valid email
  */
 export function isEmail(value: unknown): value is string {
-  if (typeof value !== 'string') return false
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  if (typeof value !== "string") return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 /**
  * Check if value is a valid UUID
  */
 export function isUuid(value: unknown): value is string {
-  if (typeof value !== 'string') return false
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+  if (typeof value !== "string") return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 }
 
 /**
  * Check if value is a valid URL
  */
 export function isUrl(value: unknown): value is string {
-  if (typeof value !== 'string') return false
+  if (typeof value !== "string") return false;
   try {
-    new URL(value)
-    return true
+    new URL(value);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -334,6 +339,6 @@ export function isUrl(value: unknown): value is string {
  * Check if value is a valid hex color
  */
 export function isHexColor(value: unknown): value is string {
-  if (typeof value !== 'string') return false
-  return /^#[0-9A-Fa-f]{6}$/.test(value)
+  if (typeof value !== "string") return false;
+  return /^#[0-9A-Fa-f]{6}$/.test(value);
 }

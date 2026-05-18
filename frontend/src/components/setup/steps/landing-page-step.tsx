@@ -1,53 +1,66 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { type AppConfig, landingThemeTemplates } from '@/config/app-config'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Badge } from '@/components/ui/badge'
-import { Layout, ArrowRight, Home, Users, Building, Globe, CheckCircle } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { type AppConfig, landingThemeTemplates } from "@/config/app-config";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Badge } from "@/components/ui/badge";
+import {
+  Layout,
+  ArrowRight,
+  Home,
+  Users,
+  Building,
+  Globe,
+  CheckCircle,
+} from "lucide-react";
 
 interface LandingPageStepProps {
-  config: AppConfig
-  onUpdate: (updates: Partial<AppConfig>) => void
-  onValidate: (isValid: boolean) => void
+  config: AppConfig;
+  onUpdate: (updates: Partial<AppConfig>) => void;
+  onValidate: (isValid: boolean) => void;
 }
 
-export function LandingPageStep({ config, onUpdate, onValidate }: LandingPageStepProps) {
+export function LandingPageStep({
+  config,
+  onUpdate,
+  onValidate,
+}: LandingPageStepProps) {
   const [selectedTheme, setSelectedTheme] = useState<string>(
-    config.landingTheme || 'simple-landing'
-  )
+    config.landingTheme || "simple-landing",
+  );
 
   useEffect(() => {
-    onValidate(true) // Landing page step is always valid
-  }, [onValidate])
+    onValidate(true); // Landing page step is always valid
+  }, [onValidate]);
 
   const handleThemeSelect = (themeKey: string) => {
-    setSelectedTheme(themeKey)
-    const template = landingThemeTemplates[themeKey as keyof typeof landingThemeTemplates]
+    setSelectedTheme(themeKey);
+    const template =
+      landingThemeTemplates[themeKey as keyof typeof landingThemeTemplates];
 
     onUpdate({
-      landingTheme: themeKey as AppConfig['landingTheme'],
-      homepage: template.homepage as AppConfig['homepage'],
-    })
-  }
+      landingTheme: themeKey as AppConfig["landingTheme"],
+      homepage: template.homepage as AppConfig["homepage"],
+    });
+  };
 
   const getThemeIcon = (themeKey: string) => {
     switch (themeKey) {
-      case 'login-only':
-        return ArrowRight
-      case 'simple-landing':
-        return Home
-      case 'full-homepage':
-        return Layout
-      case 'corporate':
-        return Building
-      case 'community':
-        return Users
+      case "login-only":
+        return ArrowRight;
+      case "simple-landing":
+        return Home;
+      case "full-homepage":
+        return Layout;
+      case "corporate":
+        return Building;
+      case "community":
+        return Users;
       default:
-        return Globe
+        return Globe;
     }
-  }
+  };
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -70,7 +83,7 @@ export function LandingPageStep({ config, onUpdate, onValidate }: LandingPageSte
           </Label>
           <RadioGroup value={selectedTheme} onValueChange={handleThemeSelect}>
             {Object.entries(landingThemeTemplates).map(([key, template]) => {
-              const Icon = getThemeIcon(key)
+              const Icon = getThemeIcon(key);
               return (
                 <div
                   key={key}
@@ -101,7 +114,7 @@ export function LandingPageStep({ config, onUpdate, onValidate }: LandingPageSte
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </RadioGroup>
         </div>
@@ -125,5 +138,5 @@ export function LandingPageStep({ config, onUpdate, onValidate }: LandingPageSte
         </div>
       </div>
     </div>
-  )
+  );
 }

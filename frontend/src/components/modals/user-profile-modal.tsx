@@ -1,11 +1,16 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import {
   MessageSquare,
   UserPlus,
@@ -16,71 +21,74 @@ import {
   Calendar,
   Shield,
   AtSign,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-export type UserStatus = 'online' | 'away' | 'busy' | 'offline'
+export type UserStatus = "online" | "away" | "busy" | "offline";
 
 export interface UserProfile {
-  id: string
-  name: string
-  username: string
-  email: string
-  avatarUrl?: string
-  role: string
-  bio?: string
-  status: UserStatus
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  avatarUrl?: string;
+  role: string;
+  bio?: string;
+  status: UserStatus;
   customStatus?: {
-    emoji?: string
-    text: string
-    expiresAt?: Date
-  }
-  createdAt?: Date
-  timezone?: string
+    emoji?: string;
+    text: string;
+    expiresAt?: Date;
+  };
+  createdAt?: Date;
+  timezone?: string;
 }
 
 interface UserProfileModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  user: UserProfile | null
-  currentUserId?: string
-  onSendMessage?: (userId: string) => void
-  onAddToChannel?: (userId: string) => void
-  onBlockUser?: (userId: string) => void
-  onViewFullProfile?: (userId: string) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  user: UserProfile | null;
+  currentUserId?: string;
+  onSendMessage?: (userId: string) => void;
+  onAddToChannel?: (userId: string) => void;
+  onBlockUser?: (userId: string) => void;
+  onViewFullProfile?: (userId: string) => void;
 }
 
 const STATUS_COLORS: Record<UserStatus, string> = {
-  online: 'bg-green-500',
-  away: 'bg-yellow-500',
-  busy: 'bg-red-500',
-  offline: 'bg-gray-400',
-}
+  online: "bg-green-500",
+  away: "bg-yellow-500",
+  busy: "bg-red-500",
+  offline: "bg-gray-400",
+};
 
 const STATUS_LABELS: Record<UserStatus, string> = {
-  online: 'Active',
-  away: 'Away',
-  busy: 'Do not disturb',
-  offline: 'Offline',
-}
+  online: "Active",
+  away: "Away",
+  busy: "Do not disturb",
+  offline: "Offline",
+};
 
 const ROLE_BADGES: Record<
   string,
-  { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon?: React.ReactNode }
+  {
+    variant: "default" | "secondary" | "destructive" | "outline";
+    icon?: React.ReactNode;
+  }
 > = {
-  owner: { variant: 'default', icon: <Shield className="mr-1 h-3 w-3" /> },
-  admin: { variant: 'default', icon: <Shield className="mr-1 h-3 w-3" /> },
-  moderator: { variant: 'secondary' },
-  member: { variant: 'outline' },
-  guest: { variant: 'outline' },
-}
+  owner: { variant: "default", icon: <Shield className="mr-1 h-3 w-3" /> },
+  admin: { variant: "default", icon: <Shield className="mr-1 h-3 w-3" /> },
+  moderator: { variant: "secondary" },
+  member: { variant: "outline" },
+  guest: { variant: "outline" },
+};
 
 export function UserProfileModal({
   open,
@@ -92,30 +100,30 @@ export function UserProfileModal({
   onBlockUser,
   onViewFullProfile,
 }: UserProfileModalProps) {
-  const [blockConfirm, setBlockConfirm] = useState(false)
+  const [blockConfirm, setBlockConfirm] = useState(false);
 
-  if (!user) return null
+  if (!user) return null;
 
-  const isSelf = currentUserId === user.id
-  const roleConfig = ROLE_BADGES[user.role.toLowerCase()] || ROLE_BADGES.member
+  const isSelf = currentUserId === user.id;
+  const roleConfig = ROLE_BADGES[user.role.toLowerCase()] || ROLE_BADGES.member;
 
   const formatDate = (date?: Date) => {
-    if (!date) return 'Unknown'
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      year: 'numeric',
-    }).format(date)
-  }
+    if (!date) return "Unknown";
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  };
 
   const handleBlock = () => {
     if (blockConfirm && onBlockUser) {
-      onBlockUser(user.id)
-      setBlockConfirm(false)
-      onOpenChange(false)
+      onBlockUser(user.id);
+      setBlockConfirm(false);
+      onOpenChange(false);
     } else {
-      setBlockConfirm(true)
+      setBlockConfirm(true);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -133,8 +141,8 @@ export function UserProfileModal({
               </Avatar>
               <div
                 className={cn(
-                  'absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-background',
-                  STATUS_COLORS[user.status]
+                  "absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-background",
+                  STATUS_COLORS[user.status],
                 )}
               />
             </div>
@@ -163,7 +171,7 @@ export function UserProfileModal({
                       onClick={handleBlock}
                     >
                       <Ban className="mr-2 h-4 w-4" />
-                      {blockConfirm ? 'Click again to confirm' : 'Block user'}
+                      {blockConfirm ? "Click again to confirm" : "Block user"}
                     </DropdownMenuItem>
                   </>
                 )}
@@ -190,8 +198,12 @@ export function UserProfileModal({
 
           {/* Status */}
           <div className="flex items-center gap-2">
-            <div className={cn('h-2 w-2 rounded-full', STATUS_COLORS[user.status])} />
-            <span className="text-sm text-muted-foreground">{STATUS_LABELS[user.status]}</span>
+            <div
+              className={cn("h-2 w-2 rounded-full", STATUS_COLORS[user.status])}
+            />
+            <span className="text-sm text-muted-foreground">
+              {STATUS_LABELS[user.status]}
+            </span>
           </div>
 
           {/* Custom status */}
@@ -211,7 +223,11 @@ export function UserProfileModal({
           )}
 
           {/* Bio */}
-          {user.bio && <p className="text-sm leading-relaxed text-foreground">{user.bio}</p>}
+          {user.bio && (
+            <p className="text-sm leading-relaxed text-foreground">
+              {user.bio}
+            </p>
+          )}
 
           <Separator />
 
@@ -244,8 +260,8 @@ export function UserProfileModal({
               {onSendMessage && (
                 <Button
                   onClick={() => {
-                    onSendMessage(user.id)
-                    onOpenChange(false)
+                    onSendMessage(user.id);
+                    onOpenChange(false);
                   }}
                   className="flex-1"
                 >
@@ -257,8 +273,8 @@ export function UserProfileModal({
                 <Button
                   variant="outline"
                   onClick={() => {
-                    onAddToChannel(user.id)
-                    onOpenChange(false)
+                    onAddToChannel(user.id);
+                    onOpenChange(false);
                   }}
                   className="flex-1"
                 >
@@ -271,5 +287,5 @@ export function UserProfileModal({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

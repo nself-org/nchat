@@ -19,7 +19,7 @@
 //
 // ===============================================================================
 
-import type { PlatformTemplate } from '../types'
+import type { PlatformTemplate } from "../types";
 
 // ---------------------------------------------------------------------------
 // Telegram Brand Colors
@@ -27,38 +27,38 @@ import type { PlatformTemplate } from '../types'
 
 export const TELEGRAM_COLORS = {
   // Primary brand colors
-  telegramBlue: '#2AABEE',
-  telegramBlueDark: '#229ED9',
-  telegramBlueDeep: '#1E96C8',
-  telegramBlueLight: '#64C8F4',
+  telegramBlue: "#2AABEE",
+  telegramBlueDark: "#229ED9",
+  telegramBlueDeep: "#1E96C8",
+  telegramBlueLight: "#64C8F4",
 
   // Message bubble colors
-  bubbleOutgoing: '#EFFDDE', // Light green (own messages)
-  bubbleOutgoingDark: '#2B5278', // Dark mode outgoing
-  bubbleIncoming: '#FFFFFF',
-  bubbleIncomingDark: '#182533',
+  bubbleOutgoing: "#EFFDDE", // Light green (own messages)
+  bubbleOutgoingDark: "#2B5278", // Dark mode outgoing
+  bubbleIncoming: "#FFFFFF",
+  bubbleIncomingDark: "#182533",
 
   // Status colors
-  online: '#4DCD5E', // Green dot for online
-  typing: '#2AABEE', // Blue for typing indicator
+  online: "#4DCD5E", // Green dot for online
+  typing: "#2AABEE", // Blue for typing indicator
 
   // Checkmark colors
-  checkSent: '#A0B8C9', // Single check (sent)
-  checkDelivered: '#A0B8C9', // Double check (delivered)
-  checkRead: '#4FAE4E', // Double check green (read)
+  checkSent: "#A0B8C9", // Single check (sent)
+  checkDelivered: "#A0B8C9", // Double check (delivered)
+  checkRead: "#4FAE4E", // Double check green (read)
 
   // iOS-style colors used in Telegram
-  iosGray: '#8E8E93',
-  iosGrayLight: '#C7C7CC',
-  iosSeparator: '#C6C6C8',
-  iosBackground: '#EFEFF4',
+  iosGray: "#8E8E93",
+  iosGrayLight: "#C7C7CC",
+  iosSeparator: "#C6C6C8",
+  iosBackground: "#EFEFF4",
 
   // Dark mode specific
-  darkBackground: '#17212B',
-  darkSurface: '#232E3C',
-  darkCard: '#1C2733',
-  darkBorder: '#344352',
-} as const
+  darkBackground: "#17212B",
+  darkSurface: "#232E3C",
+  darkCard: "#1C2733",
+  darkBorder: "#344352",
+} as const;
 
 // ---------------------------------------------------------------------------
 // Typography Configuration
@@ -71,13 +71,13 @@ export const TELEGRAM_TYPOGRAPHY = {
     monospace: 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace',
   },
   fontSize: {
-    xs: '11px',
-    sm: '13px',
-    base: '15px',
-    lg: '17px',
-    xl: '20px',
-    '2xl': '24px',
-    '3xl': '30px',
+    xs: "11px",
+    sm: "13px",
+    base: "15px",
+    lg: "17px",
+    xl: "20px",
+    "2xl": "24px",
+    "3xl": "30px",
   },
   fontWeight: {
     normal: 400,
@@ -90,7 +90,7 @@ export const TELEGRAM_TYPOGRAPHY = {
     normal: 1.4,
     relaxed: 1.6,
   },
-} as const
+} as const;
 
 // ---------------------------------------------------------------------------
 // Message Bubble Configuration
@@ -98,43 +98,43 @@ export const TELEGRAM_TYPOGRAPHY = {
 
 export const TELEGRAM_BUBBLES = {
   // Bubble styling
-  borderRadius: '18px',
-  borderRadiusTail: '4px',
-  maxWidth: '75%',
-  minWidth: '60px',
+  borderRadius: "18px",
+  borderRadiusTail: "4px",
+  maxWidth: "75%",
+  minWidth: "60px",
   padding: {
-    horizontal: '12px',
-    vertical: '8px',
+    horizontal: "12px",
+    vertical: "8px",
   },
 
   // Tail configuration
   tail: {
     enabled: true,
-    width: '12px',
-    height: '16px',
+    width: "12px",
+    height: "16px",
   },
 
   // Spacing between messages
   spacing: {
-    sameUser: '2px',
-    differentUser: '12px',
-    withReply: '4px',
+    sameUser: "2px",
+    differentUser: "12px",
+    withReply: "4px",
   },
 
   // Media within bubbles
   media: {
-    borderRadius: '14px',
-    maxWidth: '320px',
-    maxHeight: '320px',
+    borderRadius: "14px",
+    maxWidth: "320px",
+    maxHeight: "320px",
   },
 
   // Voice message specific
   voice: {
-    waveformHeight: '28px',
+    waveformHeight: "28px",
     waveformBars: 32,
-    minWidth: '200px',
+    minWidth: "200px",
   },
-} as const
+} as const;
 
 // ---------------------------------------------------------------------------
 // Icons Configuration
@@ -142,65 +142,65 @@ export const TELEGRAM_BUBBLES = {
 
 export const TELEGRAM_ICONS = {
   // Navigation
-  menu: 'menu',
-  search: 'search',
-  back: 'arrow-left',
-  close: 'x',
-  more: 'more-vertical',
+  menu: "menu",
+  search: "search",
+  back: "arrow-left",
+  close: "x",
+  more: "more-vertical",
 
   // Chat types
-  privateChat: 'user',
-  group: 'users',
-  supergroup: 'users-2',
-  channel: 'megaphone',
-  bot: 'bot',
-  secretChat: 'lock',
+  privateChat: "user",
+  group: "users",
+  supergroup: "users-2",
+  channel: "megaphone",
+  bot: "bot",
+  secretChat: "lock",
 
   // Actions
-  send: 'send',
-  attach: 'paperclip',
-  camera: 'camera',
-  microphone: 'mic',
-  sticker: 'sticker',
-  gif: 'image',
-  poll: 'bar-chart-2',
-  location: 'map-pin',
-  contact: 'user-plus',
-  file: 'file',
+  send: "send",
+  attach: "paperclip",
+  camera: "camera",
+  microphone: "mic",
+  sticker: "sticker",
+  gif: "image",
+  poll: "bar-chart-2",
+  location: "map-pin",
+  contact: "user-plus",
+  file: "file",
 
   // Message status
-  sending: 'clock',
-  sent: 'check',
-  delivered: 'check-check',
-  read: 'check-check',
-  failed: 'alert-circle',
+  sending: "clock",
+  sent: "check",
+  delivered: "check-check",
+  read: "check-check",
+  failed: "alert-circle",
 
   // Features
-  pin: 'pin',
-  mute: 'bell-off',
-  unmute: 'bell',
-  edit: 'pencil',
-  delete: 'trash-2',
-  forward: 'forward',
-  reply: 'reply',
-  copy: 'copy',
-  select: 'check-square',
+  pin: "pin",
+  mute: "bell-off",
+  unmute: "bell",
+  edit: "pencil",
+  delete: "trash-2",
+  forward: "forward",
+  reply: "reply",
+  copy: "copy",
+  select: "check-square",
 
   // Profile
-  phone: 'phone',
-  username: 'at-sign',
-  bio: 'file-text',
-  notifications: 'bell',
-  mediaFiles: 'image',
-  links: 'link',
-  voiceMessages: 'mic',
-  groups: 'users',
+  phone: "phone",
+  username: "at-sign",
+  bio: "file-text",
+  notifications: "bell",
+  mediaFiles: "image",
+  links: "link",
+  voiceMessages: "mic",
+  groups: "users",
 
   // Misc
-  calendar: 'calendar',
-  timer: 'timer',
-  flame: 'flame', // For secret chat self-destruct
-} as const
+  calendar: "calendar",
+  timer: "timer",
+  flame: "flame", // For secret chat self-destruct
+} as const;
 
 // ---------------------------------------------------------------------------
 // Animation Configuration
@@ -209,54 +209,54 @@ export const TELEGRAM_ICONS = {
 export const TELEGRAM_ANIMATIONS = {
   // Transition durations
   duration: {
-    instant: '0ms',
-    fast: '150ms',
-    normal: '200ms',
-    slow: '300ms',
-    slower: '400ms',
+    instant: "0ms",
+    fast: "150ms",
+    normal: "200ms",
+    slow: "300ms",
+    slower: "400ms",
   },
 
   // Easing functions
   easing: {
-    default: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
-    easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
-    easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
-    easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
-    spring: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+    default: "cubic-bezier(0.25, 0.1, 0.25, 1)",
+    easeOut: "cubic-bezier(0, 0, 0.2, 1)",
+    easeIn: "cubic-bezier(0.4, 0, 1, 1)",
+    easeInOut: "cubic-bezier(0.4, 0, 0.2, 1)",
+    spring: "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
   },
 
   // Message animations
   message: {
     enter: {
-      duration: '200ms',
-      easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
-      transform: 'translateY(10px)',
+      duration: "200ms",
+      easing: "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      transform: "translateY(10px)",
       opacity: 0,
     },
     exit: {
-      duration: '150ms',
-      easing: 'cubic-bezier(0.4, 0, 1, 1)',
+      duration: "150ms",
+      easing: "cubic-bezier(0.4, 0, 1, 1)",
     },
   },
 
   // Chat list animations
   chatList: {
-    reorder: '300ms',
-    swipe: '200ms',
+    reorder: "300ms",
+    swipe: "200ms",
   },
 
   // Sticker animations
   sticker: {
-    hover: '150ms',
-    send: '250ms',
+    hover: "150ms",
+    send: "250ms",
   },
 
   // Typing indicator
   typingDots: {
-    duration: '1.4s',
-    delay: '0.2s',
+    duration: "1.4s",
+    delay: "0.2s",
   },
-} as const
+} as const;
 
 // ---------------------------------------------------------------------------
 // Complete Platform Template Export
@@ -267,19 +267,19 @@ export const telegramTemplate: PlatformTemplate = {
   // Identity
   // ---------------------------------------------------------------------------
 
-  id: 'telegram',
-  name: 'Telegram',
+  id: "telegram",
+  name: "Telegram",
   description:
-    'Complete Telegram clone with 100% feature parity - bubble messages, checkmarks, voice messages, stickers, and more',
-  version: '2.0.0',
-  author: 'nself',
+    "Complete Telegram clone with 100% feature parity - bubble messages, checkmarks, voice messages, stickers, and more",
+  version: "2.0.0",
+  author: "nself",
 
   // ---------------------------------------------------------------------------
   // Theme Configuration (Telegram Blue)
   // ---------------------------------------------------------------------------
 
   theme: {
-    defaultMode: 'light',
+    defaultMode: "light",
 
     light: {
       // Primary colors (Telegram Blue)
@@ -288,38 +288,38 @@ export const telegramTemplate: PlatformTemplate = {
       accentColor: TELEGRAM_COLORS.online, // iOS green for online status
 
       // Background colors
-      backgroundColor: '#FFFFFF',
+      backgroundColor: "#FFFFFF",
       surfaceColor: TELEGRAM_COLORS.iosBackground,
-      cardColor: '#FFFFFF',
-      popoverColor: '#FFFFFF',
+      cardColor: "#FFFFFF",
+      popoverColor: "#FFFFFF",
 
       // Text colors
-      textColor: '#000000',
+      textColor: "#000000",
       textMutedColor: TELEGRAM_COLORS.iosGray,
-      textInverseColor: '#FFFFFF',
+      textInverseColor: "#FFFFFF",
 
       // Border colors
       borderColor: TELEGRAM_COLORS.iosSeparator,
-      borderMutedColor: '#E5E5EA',
+      borderMutedColor: "#E5E5EA",
 
       // Button colors
       buttonPrimaryBg: TELEGRAM_COLORS.telegramBlue,
-      buttonPrimaryText: '#FFFFFF',
+      buttonPrimaryText: "#FFFFFF",
       buttonSecondaryBg: TELEGRAM_COLORS.iosBackground,
       buttonSecondaryText: TELEGRAM_COLORS.telegramBlue,
-      buttonGhostHover: '#F2F2F7',
+      buttonGhostHover: "#F2F2F7",
 
       // Status colors
-      successColor: '#34C759',
-      warningColor: '#FF9500',
-      errorColor: '#FF3B30',
+      successColor: "#34C759",
+      warningColor: "#FF9500",
+      errorColor: "#FF3B30",
       infoColor: TELEGRAM_COLORS.telegramBlue,
 
       // Special colors
       linkColor: TELEGRAM_COLORS.telegramBlue,
       focusRingColor: TELEGRAM_COLORS.telegramBlue,
-      selectionBg: 'rgba(42, 171, 238, 0.2)',
-      highlightBg: 'rgba(255, 214, 10, 0.2)',
+      selectionBg: "rgba(42, 171, 238, 0.2)",
+      highlightBg: "rgba(255, 214, 10, 0.2)",
 
       // Telegram-specific: Message bubbles
       messageBubbleOwn: TELEGRAM_COLORS.bubbleOutgoing,
@@ -339,9 +339,9 @@ export const telegramTemplate: PlatformTemplate = {
       popoverColor: TELEGRAM_COLORS.darkBackground,
 
       // Text colors
-      textColor: '#FFFFFF',
-      textMutedColor: '#708499',
-      textInverseColor: '#000000',
+      textColor: "#FFFFFF",
+      textMutedColor: "#708499",
+      textInverseColor: "#000000",
 
       // Border colors
       borderColor: TELEGRAM_COLORS.darkBorder,
@@ -349,22 +349,22 @@ export const telegramTemplate: PlatformTemplate = {
 
       // Button colors
       buttonPrimaryBg: TELEGRAM_COLORS.telegramBlue,
-      buttonPrimaryText: '#FFFFFF',
+      buttonPrimaryText: "#FFFFFF",
       buttonSecondaryBg: TELEGRAM_COLORS.darkSurface,
       buttonSecondaryText: TELEGRAM_COLORS.telegramBlue,
-      buttonGhostHover: '#2B3A4A',
+      buttonGhostHover: "#2B3A4A",
 
       // Status colors
-      successColor: '#34C759',
-      warningColor: '#FF9F0A',
-      errorColor: '#FF453A',
+      successColor: "#34C759",
+      warningColor: "#FF9F0A",
+      errorColor: "#FF453A",
       infoColor: TELEGRAM_COLORS.telegramBlue,
 
       // Special colors
       linkColor: TELEGRAM_COLORS.telegramBlue,
       focusRingColor: TELEGRAM_COLORS.telegramBlue,
-      selectionBg: 'rgba(42, 171, 238, 0.27)',
-      highlightBg: 'rgba(255, 214, 10, 0.13)',
+      selectionBg: "rgba(42, 171, 238, 0.27)",
+      highlightBg: "rgba(255, 214, 10, 0.13)",
 
       // Telegram-specific: Message bubbles
       messageBubbleOwn: TELEGRAM_COLORS.bubbleOutgoingDark,
@@ -378,7 +378,7 @@ export const telegramTemplate: PlatformTemplate = {
 
   layout: {
     // Sidebar (Telegram has narrow chat list)
-    sidebarPosition: 'left',
+    sidebarPosition: "left",
     sidebarWidth: 360,
     sidebarCollapsible: true,
     sidebarCollapsedWidth: 0, // Telegram fully hides sidebar on mobile
@@ -388,25 +388,25 @@ export const telegramTemplate: PlatformTemplate = {
     showHeaderBorder: true,
 
     // Messages (Telegram uses bubble style)
-    messageDensity: 'comfortable',
+    messageDensity: "comfortable",
     messageGrouping: true,
     messageGroupingTimeout: 1, // Telegram groups very tightly (1 minute)
 
     // Avatars (Telegram uses circles, hidden in consecutive messages)
-    avatarStyle: 'circle',
-    avatarSize: 'md',
-    showAvatarInGroup: 'last', // Telegram shows avatar at end of group
+    avatarStyle: "circle",
+    avatarSize: "md",
+    showAvatarInGroup: "last", // Telegram shows avatar at end of group
 
     // Chats (Telegram shows preview and time)
     showChannelIcons: false, // Telegram uses avatars instead
     showChannelDescription: true, // Shows last message preview
     showMemberCount: true,
-    channelListDensity: 'comfortable',
+    channelListDensity: "comfortable",
 
     // Users
     showUserStatus: true,
     showPresenceDots: true,
-    presenceDotPosition: 'bottom-right',
+    presenceDotPosition: "bottom-right",
   },
 
   // ---------------------------------------------------------------------------
@@ -416,13 +416,13 @@ export const telegramTemplate: PlatformTemplate = {
   features: {
     // Threads (Telegram has reply-to, not threads like Slack)
     threads: false,
-    threadStyle: 'inline',
+    threadStyle: "inline",
     threadPanelWidth: 0,
 
     // Reactions (Telegram has emoji reactions with quick-react menu)
     reactions: true,
-    reactionStyle: 'floating', // Reactions appear floating above message
-    quickReactions: ['👍', '❤️', '🔥', '🎉', '😢', '👎', '🤔'],
+    reactionStyle: "floating", // Reactions appear floating above message
+    quickReactions: ["👍", "❤️", "🔥", "🎉", "😢", "👎", "🤔"],
     maxReactionsDisplay: 3,
 
     // Rich content
@@ -431,19 +431,19 @@ export const telegramTemplate: PlatformTemplate = {
     codeBlocks: true,
     markdown: true,
     linkPreviews: true,
-    emojiPicker: 'native', // Telegram uses native emoji
+    emojiPicker: "native", // Telegram uses native emoji
     gifPicker: true,
 
     // Message actions (Telegram's swipe/long-press actions)
-    messageActions: ['reply', 'forward', 'copy', 'pin', 'edit', 'delete'],
+    messageActions: ["reply", "forward", "copy", "pin", "edit", "delete"],
     showActionsOnHover: false, // Telegram uses long-press/right-click on desktop
 
     // Real-time features
     typing: true,
-    typingIndicatorStyle: 'text', // "typing..." text style
+    typingIndicatorStyle: "text", // "typing..." text style
     presence: true,
     readReceipts: true,
-    readReceiptStyle: 'checkmarks', // Telegram's signature single/double checkmarks
+    readReceiptStyle: "checkmarks", // Telegram's signature single/double checkmarks
   },
 
   // ---------------------------------------------------------------------------
@@ -452,35 +452,35 @@ export const telegramTemplate: PlatformTemplate = {
 
   terminology: {
     // Core concepts
-    workspace: 'Telegram',
-    workspacePlural: 'Accounts',
-    channel: 'Chat',
-    channelPlural: 'Chats',
-    directMessage: 'Private Chat',
-    directMessagePlural: 'Private Chats',
-    directMessageShort: 'PM',
-    thread: 'Reply',
-    threadPlural: 'Replies',
-    member: 'Member',
-    memberPlural: 'Members',
-    message: 'Message',
-    messagePlural: 'Messages',
-    reaction: 'Reaction',
-    reactionPlural: 'Reactions',
+    workspace: "Telegram",
+    workspacePlural: "Accounts",
+    channel: "Chat",
+    channelPlural: "Chats",
+    directMessage: "Private Chat",
+    directMessagePlural: "Private Chats",
+    directMessageShort: "PM",
+    thread: "Reply",
+    threadPlural: "Replies",
+    member: "Member",
+    memberPlural: "Members",
+    message: "Message",
+    messagePlural: "Messages",
+    reaction: "Reaction",
+    reactionPlural: "Reactions",
 
     // Actions
-    sendMessage: 'Send',
-    editMessage: 'Edit',
-    deleteMessage: 'Delete',
-    replyToThread: 'Reply',
-    createChannel: 'New Group',
-    joinChannel: 'Join',
-    leaveChannel: 'Leave Group',
+    sendMessage: "Send",
+    editMessage: "Edit",
+    deleteMessage: "Delete",
+    replyToThread: "Reply",
+    createChannel: "New Group",
+    joinChannel: "Join",
+    leaveChannel: "Leave Group",
 
     // Placeholders
-    messageInputPlaceholder: 'Message',
-    searchPlaceholder: 'Search',
-    newChannelPlaceholder: 'Group Name',
+    messageInputPlaceholder: "Message",
+    searchPlaceholder: "Search",
+    newChannelPlaceholder: "Group Name",
   },
 
   // ---------------------------------------------------------------------------
@@ -490,10 +490,10 @@ export const telegramTemplate: PlatformTemplate = {
   animations: {
     enableAnimations: true,
     reducedMotion: false,
-    transitionDuration: 'fast',
-    messageAppear: 'slide', // Messages slide in from bottom
-    sidebarTransition: 'slide',
-    modalTransition: 'slide', // iOS-style slide up from bottom
+    transitionDuration: "fast",
+    messageAppear: "slide", // Messages slide in from bottom
+    sidebarTransition: "slide",
+    modalTransition: "slide", // iOS-style slide up from bottom
   },
 
   // ---------------------------------------------------------------------------
@@ -788,6 +788,6 @@ export const telegramTemplate: PlatformTemplate = {
       grid-template-rows: 1fr 1fr;
     }
   `,
-}
+};
 
-export default telegramTemplate
+export default telegramTemplate;

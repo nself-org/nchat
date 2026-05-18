@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MentionActivity Component
@@ -6,50 +6,55 @@
  * Displays a mention activity
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ActivityAvatar } from '../ActivityAvatar'
-import { ActivityDate } from '../ActivityDate'
-import { ActivityIcon } from '../ActivityIcon'
-import type { MentionActivity as MentionActivityType } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ActivityAvatar } from "../ActivityAvatar";
+import { ActivityDate } from "../ActivityDate";
+import { ActivityIcon } from "../ActivityIcon";
+import type { MentionActivity as MentionActivityType } from "@/lib/activity/activity-types";
 
 interface MentionActivityProps {
-  activity: MentionActivityType
-  onClick?: () => void
-  className?: string
+  activity: MentionActivityType;
+  onClick?: () => void;
+  className?: string;
 }
 
-export function MentionActivity({ activity, onClick, className }: MentionActivityProps) {
-  const { actor, mentionType, message, channel, thread, isRead, createdAt } = activity
+export function MentionActivity({
+  activity,
+  onClick,
+  className,
+}: MentionActivityProps) {
+  const { actor, mentionType, message, channel, thread, isRead, createdAt } =
+    activity;
 
   const getMentionText = () => {
     switch (mentionType) {
-      case 'everyone':
-        return 'mentioned @everyone'
-      case 'here':
-        return 'mentioned @here'
-      case 'channel':
-        return `mentioned #${channel.name}`
+      case "everyone":
+        return "mentioned @everyone";
+      case "here":
+        return "mentioned @here";
+      case "channel":
+        return `mentioned #${channel.name}`;
       default:
-        return 'mentioned you'
+        return "mentioned you";
     }
-  }
+  };
 
   return (
     <div
       className={cn(
-        'group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors',
-        'hover:bg-muted/50',
-        !isRead && 'bg-purple-50 dark:bg-purple-950/30',
-        className
+        "group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors",
+        "hover:bg-muted/50",
+        !isRead && "bg-purple-50 dark:bg-purple-950/30",
+        className,
       )}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
@@ -67,15 +72,18 @@ export function MentionActivity({ activity, onClick, className }: MentionActivit
           <div className="min-w-0 flex-1">
             {/* Header */}
             <div className="flex items-center gap-2">
-              <p className={cn('text-sm', !isRead && 'font-medium')}>
-                <span className="font-medium">{actor.displayName}</span> {getMentionText()}
+              <p className={cn("text-sm", !isRead && "font-medium")}>
+                <span className="font-medium">{actor.displayName}</span>{" "}
+                {getMentionText()}
               </p>
               <ActivityIcon type="mention" size="sm" />
             </div>
 
             {/* Message preview */}
             <div className="mt-2 rounded-md border bg-background p-2">
-              <p className="line-clamp-3 text-sm">{message.contentPreview || message.content}</p>
+              <p className="line-clamp-3 text-sm">
+                {message.contentPreview || message.content}
+              </p>
             </div>
 
             {/* Context info */}
@@ -87,7 +95,8 @@ export function MentionActivity({ activity, onClick, className }: MentionActivit
                 <>
                   <span>|</span>
                   <span>
-                    Thread ({thread.replyCount} {thread.replyCount === 1 ? 'reply' : 'replies'})
+                    Thread ({thread.replyCount}{" "}
+                    {thread.replyCount === 1 ? "reply" : "replies"})
                   </span>
                 </>
               )}
@@ -99,7 +108,7 @@ export function MentionActivity({ activity, onClick, className }: MentionActivit
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default MentionActivity
+export default MentionActivity;

@@ -4,20 +4,20 @@
  * Allows users to setup a new PIN with lock options
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -25,10 +25,19 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { setupPin, getPinStrength, isValidPinFormat, type PinSettings } from '@/lib/security/pin'
-import { isBiometricAvailable, getBiometricType, registerBiometric } from '@/lib/security/biometric'
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  setupPin,
+  getPinStrength,
+  isValidPinFormat,
+  type PinSettings,
+} from "@/lib/security/pin";
+import {
+  isBiometricAvailable,
+  getBiometricType,
+  registerBiometric,
+} from "@/lib/security/biometric";
 import {
   Shield,
   Lock,
@@ -37,76 +46,85 @@ import {
   Fingerprint,
   AlertCircle,
   CheckCircle2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface PinSetupProps {
-  userId: string
-  userName: string
-  onComplete?: (settings: PinSettings) => void
-  onCancel?: () => void
+  userId: string;
+  userName: string;
+  onComplete?: (settings: PinSettings) => void;
+  onCancel?: () => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupProps) {
+export function PinSetup({
+  userId,
+  userName,
+  onComplete,
+  onCancel,
+}: PinSetupProps) {
   // PIN input state
-  const [pin, setPin] = useState('')
-  const [confirmPin, setConfirmPin] = useState('')
-  const [showPin, setShowPin] = useState(false)
+  const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [showPin, setShowPin] = useState(false);
 
   // Lock options
-  const [lockOnClose, setLockOnClose] = useState(false)
-  const [lockOnBackground, setLockOnBackground] = useState(false)
-  const [lockTimeout, setLockTimeout] = useState<0 | 5 | 15 | 30 | 60>(15)
-  const [biometricEnabled, setBiometricEnabled] = useState(false)
+  const [lockOnClose, setLockOnClose] = useState(false);
+  const [lockOnBackground, setLockOnBackground] = useState(false);
+  const [lockTimeout, setLockTimeout] = useState<0 | 5 | 15 | 30 | 60>(15);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
 
   // Biometric support
-  const [biometricAvailable, setBiometricAvailable] = useState(false)
-  const [biometricType, setBiometricType] = useState('Biometric')
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricType, setBiometricType] = useState("Biometric");
 
   // UI state
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [step, setStep] = useState<'pin' | 'options' | 'biometric'>('pin')
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<"pin" | "options" | "biometric">("pin");
 
   // Check biometric availability
   useEffect(() => {
     async function checkBiometric() {
-      const available = await isBiometricAvailable()
-      setBiometricAvailable(available)
+      const available = await isBiometricAvailable();
+      setBiometricAvailable(available);
 
       if (available) {
-        const type = await getBiometricType()
-        setBiometricType(type)
+        const type = await getBiometricType();
+        setBiometricType(type);
       }
     }
 
-    checkBiometric()
-  }, [])
+    checkBiometric();
+  }, []);
 
   // PIN strength
-  const pinStrength = pin.length >= 4 ? getPinStrength(pin) : null
+  const pinStrength = pin.length >= 4 ? getPinStrength(pin) : null;
 
   // Validation
-  const isPinValid = isValidPinFormat(pin)
-  const isPinConfirmed = confirmPin.length > 0 && pin === confirmPin
+  const isPinValid = isValidPinFormat(pin);
+  const isPinConfirmed = confirmPin.length > 0 && pin === confirmPin;
   const canProceed =
-    step === 'pin' ? isPinValid && isPinConfirmed : step === 'options' ? true : true
+    step === "pin"
+      ? isPinValid && isPinConfirmed
+      : step === "options"
+        ? true
+        : true;
 
   // Handle PIN setup
   const handleSetupPin = async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       // Setup PIN
       const result = await setupPin(pin, confirmPin, {
@@ -114,41 +132,41 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
         lockOnBackground,
         lockTimeoutMinutes: lockTimeout,
         biometricEnabled: false, // Will enable after biometric setup
-      })
+      });
 
       if (!result.success) {
-        setError(result.error || 'Failed to setup PIN')
-        return
+        setError(result.error || "Failed to setup PIN");
+        return;
       }
 
       // If biometric enabled, proceed to biometric setup
       if (biometricEnabled && biometricAvailable) {
-        setStep('biometric')
+        setStep("biometric");
       } else {
         // Complete setup
         if (result.settings && onComplete) {
-          onComplete(result.settings)
+          onComplete(result.settings);
         }
       }
     } catch (err) {
-      logger.error('PIN setup error:', err)
-      setError('An unexpected error occurred')
+      logger.error("PIN setup error:", err);
+      setError("An unexpected error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Handle biometric setup
   const handleBiometricSetup = async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      const result = await registerBiometric(userId, userName)
+      const result = await registerBiometric(userId, userName);
 
       if (!result.success) {
-        setError(result.error || 'Failed to setup biometric authentication')
-        return
+        setError(result.error || "Failed to setup biometric authentication");
+        return;
       }
 
       // Update PIN settings to enable biometric
@@ -157,18 +175,18 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
         lockOnBackground,
         lockTimeoutMinutes: lockTimeout,
         biometricEnabled: true,
-      })
+      });
 
       if (pinSettings.settings && onComplete) {
-        onComplete(pinSettings.settings)
+        onComplete(pinSettings.settings);
       }
     } catch (err) {
-      logger.error('Biometric setup error:', err)
-      setError('Failed to setup biometric authentication')
+      logger.error("Biometric setup error:", err);
+      setError("Failed to setup biometric authentication");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Skip biometric setup
   const handleSkipBiometric = async () => {
@@ -177,12 +195,12 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
       lockOnBackground,
       lockTimeoutMinutes: lockTimeout,
       biometricEnabled: false,
-    })
+    });
 
     if (result.settings && onComplete) {
-      onComplete(result.settings)
+      onComplete(result.settings);
     }
-  }
+  };
 
   // Render PIN input step
   const renderPinStep = () => (
@@ -192,7 +210,9 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
           <Shield className="h-5 w-5" />
           Setup PIN Lock
         </CardTitle>
-        <CardDescription>Create a 4-6 digit PIN to secure your account</CardDescription>
+        <CardDescription>
+          Create a 4-6 digit PIN to secure your account
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -209,15 +229,15 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
           <div className="relative">
             <Input
               id="pin"
-              type={showPin ? 'text' : 'password'}
+              type={showPin ? "text" : "password"}
               inputMode="numeric"
               pattern="[0-9]*"
               maxLength={6}
               value={pin}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '')
-                setPin(value)
-                setError(null)
+                const value = e.target.value.replace(/\D/g, "");
+                setPin(value);
+                setError(null);
               }}
               placeholder="Enter PIN"
               className="pr-20"
@@ -229,7 +249,7 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
               className="absolute right-1 top-1/2 -translate-y-1/2"
               onClick={() => setShowPin(!showPin)}
             >
-              {showPin ? 'Hide' : 'Show'}
+              {showPin ? "Hide" : "Show"}
             </Button>
           </div>
 
@@ -238,27 +258,27 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
             <div className="flex items-center gap-2 text-sm">
               <div
                 className={cn(
-                  'h-2 w-full rounded-full',
-                  pinStrength.strength === 'weak' && 'bg-red-200',
-                  pinStrength.strength === 'medium' && 'bg-yellow-200',
-                  pinStrength.strength === 'strong' && 'bg-green-200'
+                  "h-2 w-full rounded-full",
+                  pinStrength.strength === "weak" && "bg-red-200",
+                  pinStrength.strength === "medium" && "bg-yellow-200",
+                  pinStrength.strength === "strong" && "bg-green-200",
                 )}
               >
                 <div
                   className={cn(
-                    'h-full rounded-full transition-all',
-                    pinStrength.strength === 'weak' && 'w-1/3 bg-red-500',
-                    pinStrength.strength === 'medium' && 'w-2/3 bg-yellow-500',
-                    pinStrength.strength === 'strong' && 'w-full bg-green-500'
+                    "h-full rounded-full transition-all",
+                    pinStrength.strength === "weak" && "w-1/3 bg-red-500",
+                    pinStrength.strength === "medium" && "w-2/3 bg-yellow-500",
+                    pinStrength.strength === "strong" && "w-full bg-green-500",
                   )}
                 />
               </div>
               <span
                 className={cn(
-                  'text-xs font-medium',
-                  pinStrength.strength === 'weak' && 'text-red-600',
-                  pinStrength.strength === 'medium' && 'text-yellow-600',
-                  pinStrength.strength === 'strong' && 'text-green-600'
+                  "text-xs font-medium",
+                  pinStrength.strength === "weak" && "text-red-600",
+                  pinStrength.strength === "medium" && "text-yellow-600",
+                  pinStrength.strength === "strong" && "text-green-600",
                 )}
               >
                 {pinStrength.message}
@@ -272,15 +292,15 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
           <Label htmlFor="confirm-pin">Confirm PIN</Label>
           <Input
             id="confirm-pin"
-            type={showPin ? 'text' : 'password'}
+            type={showPin ? "text" : "password"}
             inputMode="numeric"
             pattern="[0-9]*"
             maxLength={6}
             value={confirmPin}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, '')
-              setConfirmPin(value)
-              setError(null)
+              const value = e.target.value.replace(/\D/g, "");
+              setConfirmPin(value);
+              setError(null);
             }}
             placeholder="Confirm PIN"
           />
@@ -310,12 +330,15 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
             Cancel
           </Button>
         )}
-        <Button onClick={() => setStep('options')} disabled={!canProceed || isLoading}>
+        <Button
+          onClick={() => setStep("options")}
+          disabled={!canProceed || isLoading}
+        >
           Next: Lock Options
         </Button>
       </CardFooter>
     </>
-  )
+  );
 
   // Render lock options step
   const renderOptionsStep = () => (
@@ -339,7 +362,11 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
               Require PIN when you close and reopen the app
             </p>
           </div>
-          <Switch id="lock-close" checked={lockOnClose} onCheckedChange={setLockOnClose} />
+          <Switch
+            id="lock-close"
+            checked={lockOnClose}
+            onCheckedChange={setLockOnClose}
+          />
         </div>
 
         {/* Lock on background */}
@@ -367,7 +394,9 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
           </Label>
           <Select
             value={lockTimeout.toString()}
-            onValueChange={(value) => setLockTimeout(parseInt(value) as 0 | 5 | 15 | 30 | 60)}
+            onValueChange={(value) =>
+              setLockTimeout(parseInt(value) as 0 | 5 | 15 | 30 | 60)
+            }
           >
             <SelectTrigger id="lock-timeout">
               <SelectValue />
@@ -380,18 +409,25 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
               <SelectItem value="60">1 hour</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-sm text-muted-foreground">Lock after this period of inactivity</p>
+          <p className="text-sm text-muted-foreground">
+            Lock after this period of inactivity
+          </p>
         </div>
 
         {/* Biometric option */}
         {biometricAvailable && (
           <div className="flex items-center justify-between space-x-2">
             <div className="flex-1">
-              <Label htmlFor="biometric" className="flex items-center gap-2 text-base">
+              <Label
+                htmlFor="biometric"
+                className="flex items-center gap-2 text-base"
+              >
                 <Fingerprint className="h-4 w-4" />
                 Enable {biometricType}
               </Label>
-              <p className="text-sm text-muted-foreground">Unlock with biometric authentication</p>
+              <p className="text-sm text-muted-foreground">
+                Unlock with biometric authentication
+              </p>
             </div>
             <Switch
               id="biometric"
@@ -403,15 +439,17 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        <Button type="button" variant="outline" onClick={() => setStep('pin')}>
+        <Button type="button" variant="outline" onClick={() => setStep("pin")}>
           Back
         </Button>
         <Button onClick={handleSetupPin} disabled={isLoading}>
-          {biometricEnabled && biometricAvailable ? 'Next: Biometric Setup' : 'Complete Setup'}
+          {biometricEnabled && biometricAvailable
+            ? "Next: Biometric Setup"
+            : "Complete Setup"}
         </Button>
       </CardFooter>
     </>
-  )
+  );
 
   // Render biometric setup step
   const renderBiometricStep = () => (
@@ -421,7 +459,9 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
           <Fingerprint className="h-5 w-5" />
           Setup {biometricType}
         </CardTitle>
-        <CardDescription>Register your biometric authentication</CardDescription>
+        <CardDescription>
+          Register your biometric authentication
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -434,16 +474,23 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
 
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <Smartphone className="mb-4 h-16 w-16 text-muted-foreground" />
-          <p className="mb-2 text-lg font-medium">Ready to setup {biometricType}</p>
+          <p className="mb-2 text-lg font-medium">
+            Ready to setup {biometricType}
+          </p>
           <p className="max-w-md text-sm text-muted-foreground">
-            Click the button below to register your biometric authentication. You will be prompted
-            to use your device&apos;s biometric sensor.
+            Click the button below to register your biometric authentication.
+            You will be prompted to use your device&apos;s biometric sensor.
           </p>
         </div>
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        <Button type="button" variant="outline" onClick={handleSkipBiometric} disabled={isLoading}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleSkipBiometric}
+          disabled={isLoading}
+        >
           Skip for now
         </Button>
         <Button onClick={handleBiometricSetup} disabled={isLoading}>
@@ -451,13 +498,13 @@ export function PinSetup({ userId, userName, onComplete, onCancel }: PinSetupPro
         </Button>
       </CardFooter>
     </>
-  )
+  );
 
   return (
     <Card className="mx-auto w-full max-w-md">
-      {step === 'pin' && renderPinStep()}
-      {step === 'options' && renderOptionsStep()}
-      {step === 'biometric' && renderBiometricStep()}
+      {step === "pin" && renderPinStep()}
+      {step === "options" && renderOptionsStep()}
+      {step === "biometric" && renderBiometricStep()}
     </Card>
-  )
+  );
 }

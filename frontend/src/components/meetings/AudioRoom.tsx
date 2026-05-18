@@ -1,32 +1,44 @@
-'use client'
+"use client";
 
 /**
  * AudioRoom - Audio-only meeting room
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Meeting, RemoteParticipant, LocalUserState } from '@/lib/meetings/meeting-types'
-import { MeetingControls } from './MeetingControls'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Meeting,
+  RemoteParticipant,
+  LocalUserState,
+} from "@/lib/meetings/meeting-types";
+import { MeetingControls } from "./MeetingControls";
 import {
   useMeetingStore,
   selectRoomState,
   selectLocalUser,
   selectRemoteParticipants,
-} from '@/stores/meeting-store'
-import { Phone, Mic, MicOff, Volume2, VolumeX, Loader2, AlertCircle } from 'lucide-react'
+} from "@/stores/meeting-store";
+import {
+  Phone,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AudioRoomProps {
-  meeting: Meeting
-  onLeave?: () => void
-  onEnd?: () => void
+  meeting: Meeting;
+  onLeave?: () => void;
+  onEnd?: () => void;
 }
 
 // ============================================================================
@@ -34,29 +46,29 @@ interface AudioRoomProps {
 // ============================================================================
 
 export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
-  const roomState = useMeetingStore(selectRoomState)
-  const localUser = useMeetingStore(selectLocalUser)
-  const remoteParticipants = useMeetingStore(selectRemoteParticipants)
-  const { setConnected, setConnectionError } = useMeetingStore()
+  const roomState = useMeetingStore(selectRoomState);
+  const localUser = useMeetingStore(selectLocalUser);
+  const remoteParticipants = useMeetingStore(selectRemoteParticipants);
+  const { setConnected, setConnectionError } = useMeetingStore();
 
   // Simulate connection
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      setConnected(true)
-    }, 1500)
+      setConnected(true);
+    }, 1500);
 
-    return () => clearTimeout(timer)
-  }, [setConnected])
+    return () => clearTimeout(timer);
+  }, [setConnected]);
 
   // Get initials
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   // Connection states
   if (roomState?.isConnecting) {
@@ -69,7 +81,7 @@ export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
         <h2 className="mb-2 text-xl font-semibold">Connecting to audio...</h2>
         <p className="text-gray-400">{meeting.title}</p>
       </div>
-    )
+    );
   }
 
   if (roomState?.connectionError) {
@@ -85,14 +97,14 @@ export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
           <Button onClick={() => setConnectionError(null)}>Retry</Button>
         </div>
       </div>
-    )
+    );
   }
 
   const allParticipants = [
     // Local user as first
     {
-      id: 'local',
-      displayName: 'You',
+      id: "local",
+      displayName: "You",
       avatarUrl: null,
       isMuted: localUser?.isMuted ?? true,
       isSpeaking: false,
@@ -105,7 +117,7 @@ export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
       isMuted: p.isMuted,
       isSpeaking: p.isSpeaking,
     })),
-  ]
+  ];
 
   return (
     <div className="flex h-full flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -116,7 +128,7 @@ export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
             <Phone className="h-5 w-5" />
             <h2 className="font-semibold">{meeting.title}</h2>
           </div>
-          {meeting.status === 'live' && (
+          {meeting.status === "live" && (
             <Badge className="animate-pulse bg-red-500 text-white">LIVE</Badge>
           )}
         </div>
@@ -131,10 +143,10 @@ export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
               <div className="relative">
                 <Avatar
                   className={cn(
-                    'h-24 w-24 border-4 transition-all',
+                    "h-24 w-24 border-4 transition-all",
                     participant.isSpeaking
-                      ? 'border-green-500 ring-4 ring-green-500/30'
-                      : 'border-gray-600'
+                      ? "border-green-500 ring-4 ring-green-500/30"
+                      : "border-gray-600",
                   )}
                 >
                   <AvatarImage src={participant.avatarUrl || undefined} />
@@ -146,8 +158,8 @@ export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
                 {/* Mute indicator */}
                 <div
                   className={cn(
-                    'absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full',
-                    participant.isMuted ? 'bg-red-500' : 'bg-green-500'
+                    "absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full",
+                    participant.isMuted ? "bg-red-500" : "bg-green-500",
                   )}
                 >
                   {participant.isMuted ? (
@@ -166,7 +178,7 @@ export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
               {/* Name */}
               <p className="mt-3 text-sm font-medium">
                 {participant.displayName}
-                {participant.id === 'local' && ' (You)'}
+                {participant.id === "local" && " (You)"}
               </p>
             </div>
           ))}
@@ -188,7 +200,12 @@ export function AudioRoom({ meeting, onLeave, onEnd }: AudioRoomProps) {
       </div>
 
       {/* Controls */}
-      <MeetingControls meeting={meeting} variant="audio" onLeave={onLeave} onEnd={onEnd} />
+      <MeetingControls
+        meeting={meeting}
+        variant="audio"
+        onLeave={onLeave}
+        onEnd={onEnd}
+      />
     </div>
-  )
+  );
 }

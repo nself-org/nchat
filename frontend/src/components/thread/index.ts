@@ -9,7 +9,7 @@ export {
   type ThreadPanelProps,
   type ThreadPanelLayoutProps,
   type ThreadSlideInPanelProps,
-} from './thread-panel'
+} from "./thread-panel";
 
 // Header component
 export {
@@ -17,10 +17,13 @@ export {
   ThreadHeaderCompact,
   type ThreadHeaderProps,
   type ThreadHeaderCompactProps,
-} from './thread-header'
+} from "./thread-header";
 
 // Message list component (virtualized)
-export { ThreadMessageList, type ThreadMessageListProps } from './thread-message-list'
+export {
+  ThreadMessageList,
+  type ThreadMessageListProps,
+} from "./thread-message-list";
 
 // Reply input component
 export {
@@ -28,7 +31,7 @@ export {
   type ThreadReplyInputProps,
   type Mention,
   type Attachment,
-} from './thread-reply-input'
+} from "./thread-reply-input";
 
 // Preview component (for main chat)
 export {
@@ -42,7 +45,7 @@ export {
   type ThreadPreviewData,
   type ThreadPreviewParticipant,
   type StartThreadButtonProps,
-} from './thread-preview'
+} from "./thread-preview";
 
 // Participants component
 export {
@@ -50,7 +53,7 @@ export {
   ThreadParticipantList,
   type ThreadParticipantsProps,
   type ThreadParticipantListProps,
-} from './thread-participants'
+} from "./thread-participants";
 
 // Sidebar component (thread list)
 export {
@@ -58,4 +61,4 @@ export {
   ThreadSidebarTrigger,
   type ThreadSidebarProps,
   type ThreadSidebarTriggerProps,
-} from './thread-sidebar'
+} from "./thread-sidebar";

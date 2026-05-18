@@ -16,7 +16,7 @@ export {
   DISCORD_TOKEN_URL,
   DISCORD_DEFAULT_SCOPES,
   type DiscordClientConfig,
-} from './discord-client'
+} from "./discord-client";
 
 // Export OAuth
 export {
@@ -44,7 +44,7 @@ export {
   type DiscordOAuthState,
   type DiscordOAuthResult,
   type DiscordOAuthError,
-} from './oauth'
+} from "./oauth";
 
 // Export formatter
 export {
@@ -62,7 +62,7 @@ export {
   type DiscordNotificationIcon,
   type DiscordNotificationColor,
   type DiscordNotificationMetadata,
-} from './formatter'
+} from "./formatter";
 
 // Export types
 export type {
@@ -84,6 +84,6 @@ export type {
   DiscordChannelNotificationSettings,
   DiscordIntegrationConfig,
   DiscordUnfurlResult,
-} from './types'
+} from "./types";
 
-export { DiscordChannelType } from './types'
+export { DiscordChannelType } from "./types";

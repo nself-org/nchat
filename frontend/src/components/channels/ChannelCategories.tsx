@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
+import * as React from "react";
+import { useState } from "react";
 import {
   MessageSquare,
   Megaphone,
@@ -14,29 +14,29 @@ import {
   Hash,
   ChevronRight,
   Check,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   DEFAULT_CATEGORIES,
   type ChannelCategoryDefinition,
-} from '@/lib/channels/channel-categories'
-import type { Channel } from '@/stores/channel-store'
+} from "@/lib/channels/channel-categories";
+import type { Channel } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelCategoriesProps {
-  channels: Channel[]
-  selectedCategory?: string | null
-  onCategorySelect?: (categoryId: string | null) => void
-  variant?: 'default' | 'compact' | 'pills' | 'sidebar'
-  showCounts?: boolean
-  showAllOption?: boolean
-  className?: string
+  channels: Channel[];
+  selectedCategory?: string | null;
+  onCategorySelect?: (categoryId: string | null) => void;
+  variant?: "default" | "compact" | "pills" | "sidebar";
+  showCounts?: boolean;
+  showAllOption?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -56,10 +56,10 @@ const CATEGORY_ICON_MAP: Record<
   BookOpen,
   Archive,
   Hash,
-}
+};
 
 function getCategoryIcon(iconName: string) {
-  return CATEGORY_ICON_MAP[iconName] || Hash
+  return CATEGORY_ICON_MAP[iconName] || Hash;
 }
 
 // ============================================================================
@@ -70,36 +70,36 @@ export function ChannelCategories({
   channels,
   selectedCategory,
   onCategorySelect,
-  variant = 'default',
+  variant = "default",
   showCounts = true,
   showAllOption = true,
   className,
 }: ChannelCategoriesProps) {
   // Calculate channel counts per category
   const categoryCounts = React.useMemo(() => {
-    const counts = new Map<string | null, number>()
-    counts.set(null, channels.length) // All channels
+    const counts = new Map<string | null, number>();
+    counts.set(null, channels.length); // All channels
 
     for (const channel of channels) {
-      const categoryId = channel.categoryId
-      counts.set(categoryId, (counts.get(categoryId) || 0) + 1)
+      const categoryId = channel.categoryId;
+      counts.set(categoryId, (counts.get(categoryId) || 0) + 1);
     }
 
-    return counts
-  }, [channels])
+    return counts;
+  }, [channels]);
 
   // Filter categories that have channels
   const visibleCategories = DEFAULT_CATEGORIES.filter(
-    (cat) => cat.id !== 'archived' && (categoryCounts.get(cat.id) || 0) > 0
-  )
+    (cat) => cat.id !== "archived" && (categoryCounts.get(cat.id) || 0) > 0,
+  );
 
-  if (variant === 'pills') {
+  if (variant === "pills") {
     return (
-      <ScrollArea className={cn('w-full whitespace-nowrap', className)}>
+      <ScrollArea className={cn("w-full whitespace-nowrap", className)}>
         <div className="flex gap-2 pb-2">
           {showAllOption && (
             <Button
-              variant={selectedCategory === null ? 'default' : 'outline'}
+              variant={selectedCategory === null ? "default" : "outline"}
               size="sm"
               onClick={() => onCategorySelect?.(null)}
               className="flex-shrink-0"
@@ -113,14 +113,14 @@ export function ChannelCategories({
             </Button>
           )}
           {visibleCategories.map((category) => {
-            const Icon = getCategoryIcon(category.icon)
-            const isSelected = selectedCategory === category.id
-            const count = categoryCounts.get(category.id) || 0
+            const Icon = getCategoryIcon(category.icon);
+            const isSelected = selectedCategory === category.id;
+            const count = categoryCounts.get(category.id) || 0;
 
             return (
               <Button
                 key={category.id}
-                variant={isSelected ? 'default' : 'outline'}
+                variant={isSelected ? "default" : "outline"}
                 size="sm"
                 onClick={() => onCategorySelect?.(category.id)}
                 className="flex-shrink-0"
@@ -128,25 +128,28 @@ export function ChannelCategories({
                 <Icon className="mr-1.5 h-4 w-4" />
                 {category.name}
                 {showCounts && (
-                  <Badge variant={isSelected ? 'outline' : 'secondary'} className="ml-2 h-5 px-1.5">
+                  <Badge
+                    variant={isSelected ? "outline" : "secondary"}
+                    className="ml-2 h-5 px-1.5"
+                  >
                     {count}
                   </Badge>
                 )}
               </Button>
-            )
+            );
           })}
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-    )
+    );
   }
 
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
-      <div className={cn('flex flex-wrap gap-1.5', className)}>
+      <div className={cn("flex flex-wrap gap-1.5", className)}>
         {showAllOption && (
           <Badge
-            variant={selectedCategory === null ? 'default' : 'outline'}
+            variant={selectedCategory === null ? "default" : "outline"}
             className="cursor-pointer hover:bg-accent"
             onClick={() => onCategorySelect?.(null)}
           >
@@ -154,34 +157,34 @@ export function ChannelCategories({
           </Badge>
         )}
         {visibleCategories.map((category) => {
-          const isSelected = selectedCategory === category.id
-          const count = categoryCounts.get(category.id) || 0
+          const isSelected = selectedCategory === category.id;
+          const count = categoryCounts.get(category.id) || 0;
 
           return (
             <Badge
               key={category.id}
-              variant={isSelected ? 'default' : 'outline'}
+              variant={isSelected ? "default" : "outline"}
               className="cursor-pointer hover:bg-accent"
               onClick={() => onCategorySelect?.(category.id)}
             >
               {category.name} {showCounts && `(${count})`}
             </Badge>
-          )
+          );
         })}
       </div>
-    )
+    );
   }
 
-  if (variant === 'sidebar') {
+  if (variant === "sidebar") {
     return (
-      <div className={cn('space-y-1', className)}>
+      <div className={cn("space-y-1", className)}>
         {showAllOption && (
           <button
             onClick={() => onCategorySelect?.(null)}
             className={cn(
-              'flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
-              'hover:bg-accent',
-              selectedCategory === null && 'bg-accent font-medium'
+              "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors",
+              "hover:bg-accent",
+              selectedCategory === null && "bg-accent font-medium",
             )}
           >
             <div className="flex items-center gap-2">
@@ -189,23 +192,25 @@ export function ChannelCategories({
               <span>All Channels</span>
             </div>
             {showCounts && (
-              <span className="text-xs text-muted-foreground">{categoryCounts.get(null) || 0}</span>
+              <span className="text-xs text-muted-foreground">
+                {categoryCounts.get(null) || 0}
+              </span>
             )}
           </button>
         )}
         {visibleCategories.map((category) => {
-          const Icon = getCategoryIcon(category.icon)
-          const isSelected = selectedCategory === category.id
-          const count = categoryCounts.get(category.id) || 0
+          const Icon = getCategoryIcon(category.icon);
+          const isSelected = selectedCategory === category.id;
+          const count = categoryCounts.get(category.id) || 0;
 
           return (
             <button
               key={category.id}
               onClick={() => onCategorySelect?.(category.id)}
               className={cn(
-                'flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
-                'hover:bg-accent',
-                isSelected && 'bg-accent font-medium'
+                "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors",
+                "hover:bg-accent",
+                isSelected && "bg-accent font-medium",
               )}
             >
               <div className="flex items-center gap-2">
@@ -213,26 +218,33 @@ export function ChannelCategories({
                 <span>{category.name}</span>
               </div>
               <div className="flex items-center gap-2">
-                {showCounts && <span className="text-xs text-muted-foreground">{count}</span>}
+                {showCounts && (
+                  <span className="text-xs text-muted-foreground">{count}</span>
+                )}
                 {isSelected && <Check className="h-4 w-4 text-primary" />}
               </div>
             </button>
-          )
+          );
         })}
       </div>
-    )
+    );
   }
 
   // Default variant - card style
   return (
-    <div className={cn('grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4', className)}>
+    <div
+      className={cn(
+        "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4",
+        className,
+      )}
+    >
       {showAllOption && (
         <button
           onClick={() => onCategorySelect?.(null)}
           className={cn(
-            'flex flex-col items-center justify-center rounded-lg border p-4 transition-colors',
-            'hover:border-primary/50 hover:bg-accent',
-            selectedCategory === null && 'bg-primary/5 border-primary'
+            "flex flex-col items-center justify-center rounded-lg border p-4 transition-colors",
+            "hover:border-primary/50 hover:bg-accent",
+            selectedCategory === null && "bg-primary/5 border-primary",
           )}
         >
           <div className="mb-2 rounded-lg bg-muted p-2">
@@ -247,32 +259,37 @@ export function ChannelCategories({
         </button>
       )}
       {visibleCategories.map((category) => {
-        const Icon = getCategoryIcon(category.icon)
-        const isSelected = selectedCategory === category.id
-        const count = categoryCounts.get(category.id) || 0
+        const Icon = getCategoryIcon(category.icon);
+        const isSelected = selectedCategory === category.id;
+        const count = categoryCounts.get(category.id) || 0;
 
         return (
           <button
             key={category.id}
             onClick={() => onCategorySelect?.(category.id)}
             className={cn(
-              'flex flex-col items-center justify-center rounded-lg border p-4 transition-colors',
-              'hover:border-primary/50 hover:bg-accent',
-              isSelected && 'bg-primary/5 border-primary'
+              "flex flex-col items-center justify-center rounded-lg border p-4 transition-colors",
+              "hover:border-primary/50 hover:bg-accent",
+              isSelected && "bg-primary/5 border-primary",
             )}
           >
-            <div className="mb-2 rounded-lg p-2" style={{ backgroundColor: `${category.color}20` }}>
+            <div
+              className="mb-2 rounded-lg p-2"
+              style={{ backgroundColor: `${category.color}20` }}
+            >
               <Icon className="h-5 w-5" style={{ color: category.color }} />
             </div>
             <span className="text-sm font-medium">{category.name}</span>
             {showCounts && (
-              <span className="mt-1 text-xs text-muted-foreground">{count} channels</span>
+              <span className="mt-1 text-xs text-muted-foreground">
+                {count} channels
+              </span>
             )}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
-ChannelCategories.displayName = 'ChannelCategories'
+ChannelCategories.displayName = "ChannelCategories";

@@ -1,49 +1,49 @@
-'use client'
+"use client";
 
-import { memo, forwardRef, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, MoreVertical, Search, X, Menu } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { memo, forwardRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, MoreVertical, Search, X, Menu } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useMobileStore } from '@/lib/mobile/mobile-store'
-import { useSafeArea } from '@/lib/mobile/use-viewport'
+} from "@/components/ui/dropdown-menu";
+import { useMobileStore } from "@/lib/mobile/mobile-store";
+import { useSafeArea } from "@/lib/mobile/use-viewport";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface HeaderAction {
-  id: string
-  label: string
-  icon?: React.ReactNode
-  onClick: () => void
-  destructive?: boolean
-  disabled?: boolean
+  id: string;
+  label: string;
+  icon?: React.ReactNode;
+  onClick: () => void;
+  destructive?: boolean;
+  disabled?: boolean;
 }
 
 export interface MobileHeaderProps {
-  title?: string
-  subtitle?: string
-  showBack?: boolean
-  showMenu?: boolean
-  showSearch?: boolean
-  leftAction?: React.ReactNode
-  rightActions?: HeaderAction[]
-  rightContent?: React.ReactNode
-  onBack?: () => void
-  onMenuClick?: () => void
-  onSearchClick?: () => void
-  transparent?: boolean
-  elevated?: boolean
-  className?: string
-  children?: React.ReactNode
+  title?: string;
+  subtitle?: string;
+  showBack?: boolean;
+  showMenu?: boolean;
+  showSearch?: boolean;
+  leftAction?: React.ReactNode;
+  rightActions?: HeaderAction[];
+  rightContent?: React.ReactNode;
+  onBack?: () => void;
+  onMenuClick?: () => void;
+  onSearchClick?: () => void;
+  transparent?: boolean;
+  elevated?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 // ============================================================================
@@ -73,38 +73,38 @@ export const MobileHeader = memo(
       className,
       children,
     },
-    ref
+    ref,
   ) {
-    const { popView, openSidebar } = useMobileStore()
-    const safeArea = useSafeArea()
+    const { popView, openSidebar } = useMobileStore();
+    const safeArea = useSafeArea();
 
     const handleBack = useCallback(() => {
       if (onBack) {
-        onBack()
+        onBack();
       } else {
-        popView()
+        popView();
       }
-    }, [onBack, popView])
+    }, [onBack, popView]);
 
     const handleMenu = useCallback(() => {
       if (onMenuClick) {
-        onMenuClick()
+        onMenuClick();
       } else {
-        openSidebar()
+        openSidebar();
       }
-    }, [onMenuClick, openSidebar])
+    }, [onMenuClick, openSidebar]);
 
     return (
       <header
         ref={ref}
         className={cn(
-          'sticky top-0 z-40',
-          'flex flex-col',
-          !transparent && 'bg-background/95 backdrop-blur-lg',
-          elevated && 'shadow-sm',
-          'border-border/50 border-b',
-          'safe-area-top',
-          className
+          "sticky top-0 z-40",
+          "flex flex-col",
+          !transparent && "bg-background/95 backdrop-blur-lg",
+          elevated && "shadow-sm",
+          "border-border/50 border-b",
+          "safe-area-top",
+          className,
         )}
         style={{
           paddingTop: safeArea.top || 0,
@@ -144,9 +144,15 @@ export const MobileHeader = memo(
             {(title || subtitle) && (
               <div className="min-w-0 flex-1 pl-1">
                 {title && (
-                  <h1 className="truncate text-base font-semibold leading-tight">{title}</h1>
+                  <h1 className="truncate text-base font-semibold leading-tight">
+                    {title}
+                  </h1>
                 )}
-                {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}
+                {subtitle && (
+                  <p className="truncate text-xs text-muted-foreground">
+                    {subtitle}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -167,31 +173,35 @@ export const MobileHeader = memo(
 
             {rightContent}
 
-            {rightActions.length > 0 && <HeaderActionsMenu actions={rightActions} />}
+            {rightActions.length > 0 && (
+              <HeaderActionsMenu actions={rightActions} />
+            )}
           </div>
         </div>
 
         {/* Optional additional content (search bar, tabs, etc.) */}
         {children}
       </header>
-    )
-  })
-)
+    );
+  }),
+);
 
 // ============================================================================
 // Sub-components
 // ============================================================================
 
 interface HeaderActionsMenuProps {
-  actions: HeaderAction[]
+  actions: HeaderAction[];
 }
 
-const HeaderActionsMenu = memo(function HeaderActionsMenu({ actions }: HeaderActionsMenuProps) {
-  if (actions.length === 0) return null
+const HeaderActionsMenu = memo(function HeaderActionsMenu({
+  actions,
+}: HeaderActionsMenuProps) {
+  if (actions.length === 0) return null;
 
   // Show single action directly
   if (actions.length === 1) {
-    const action = actions[0]
+    const action = actions[0];
     return (
       <Button
         variant="ghost"
@@ -203,7 +213,7 @@ const HeaderActionsMenu = memo(function HeaderActionsMenu({ actions }: HeaderAct
       >
         {action.icon || <MoreVertical className="h-5 w-5" />}
       </Button>
-    )
+    );
   }
 
   // Show dropdown for multiple actions
@@ -227,8 +237,8 @@ const HeaderActionsMenu = memo(function HeaderActionsMenu({ actions }: HeaderAct
               onClick={action.onClick}
               disabled={action.disabled}
               className={cn(
-                'touch-manipulation',
-                action.destructive && 'text-destructive focus:text-destructive'
+                "touch-manipulation",
+                action.destructive && "text-destructive focus:text-destructive",
               )}
             >
               {action.icon && <span className="mr-2">{action.icon}</span>}
@@ -238,50 +248,50 @@ const HeaderActionsMenu = memo(function HeaderActionsMenu({ actions }: HeaderAct
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Search Header Variant
 // ============================================================================
 
 export interface MobileSearchHeaderProps {
-  value?: string
-  placeholder?: string
-  onChange?: (value: string) => void
-  onClose?: () => void
-  onSubmit?: (value: string) => void
-  autoFocus?: boolean
-  className?: string
+  value?: string;
+  placeholder?: string;
+  onChange?: (value: string) => void;
+  onClose?: () => void;
+  onSubmit?: (value: string) => void;
+  autoFocus?: boolean;
+  className?: string;
 }
 
 export const MobileSearchHeader = memo(function MobileSearchHeader({
-  value = '',
-  placeholder = 'Search...',
+  value = "",
+  placeholder = "Search...",
   onChange,
   onClose,
   onSubmit,
   autoFocus = true,
   className,
 }: MobileSearchHeaderProps) {
-  const safeArea = useSafeArea()
+  const safeArea = useSafeArea();
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
-      e.preventDefault()
-      onSubmit?.(value)
+      e.preventDefault();
+      onSubmit?.(value);
     },
-    [value, onSubmit]
-  )
+    [value, onSubmit],
+  );
 
   return (
     <header
       className={cn(
-        'sticky top-0 z-40',
-        'flex h-14 items-center gap-2 px-2',
-        'bg-background/95 backdrop-blur-lg',
-        'border-border/50 border-b',
-        className
+        "sticky top-0 z-40",
+        "flex h-14 items-center gap-2 px-2",
+        "bg-background/95 backdrop-blur-lg",
+        "border-border/50 border-b",
+        className,
       )}
       style={{ paddingTop: safeArea.top || 0 }}
     >
@@ -306,18 +316,18 @@ export const MobileSearchHeader = memo(function MobileSearchHeader({
             // eslint-disable-next-line jsx-a11y/no-autofocus -- Intentional UX for search focus
             autoFocus={autoFocus}
             className={cn(
-              'h-10 w-full pl-10 pr-10',
-              'rounded-full',
-              'bg-muted/50',
-              'text-sm placeholder:text-muted-foreground',
-              'focus:ring-primary/20 focus:outline-none focus:ring-2',
-              'touch-manipulation'
+              "h-10 w-full pl-10 pr-10",
+              "rounded-full",
+              "bg-muted/50",
+              "text-sm placeholder:text-muted-foreground",
+              "focus:ring-primary/20 focus:outline-none focus:ring-2",
+              "touch-manipulation",
             )}
           />
           {value && (
             <button
               type="button"
-              onClick={() => onChange?.('')}
+              onClick={() => onChange?.("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
             >
               <X className="h-4 w-4" />
@@ -326,22 +336,22 @@ export const MobileSearchHeader = memo(function MobileSearchHeader({
         </div>
       </form>
     </header>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Channel Header Variant
 // ============================================================================
 
 export interface MobileChannelHeaderProps {
-  channelName: string
-  channelIcon?: React.ReactNode
-  memberCount?: number
-  isOnline?: boolean
-  onBack?: () => void
-  onInfoClick?: () => void
-  onSearchClick?: () => void
-  className?: string
+  channelName: string;
+  channelIcon?: React.ReactNode;
+  memberCount?: number;
+  isOnline?: boolean;
+  onBack?: () => void;
+  onInfoClick?: () => void;
+  onSearchClick?: () => void;
+  className?: string;
 }
 
 export const MobileChannelHeader = memo(function MobileChannelHeader({
@@ -372,9 +382,9 @@ export const MobileChannelHeader = memo(function MobileChannelHeader({
             {isOnline !== undefined && (
               <span
                 className={cn(
-                  'absolute -bottom-0.5 -right-0.5',
-                  'h-3 w-3 rounded-full border-2 border-background',
-                  isOnline ? 'bg-green-500' : 'bg-muted-foreground'
+                  "absolute -bottom-0.5 -right-0.5",
+                  "h-3 w-3 rounded-full border-2 border-background",
+                  isOnline ? "bg-green-500" : "bg-muted-foreground",
                 )}
               />
             )}
@@ -385,14 +395,14 @@ export const MobileChannelHeader = memo(function MobileChannelHeader({
             <h1 className="truncate text-base font-semibold">{channelName}</h1>
             {memberCount !== undefined && (
               <p className="text-xs text-muted-foreground">
-                {memberCount} member{memberCount !== 1 ? 's' : ''}
+                {memberCount} member{memberCount !== 1 ? "s" : ""}
               </p>
             )}
           </div>
         </button>
       }
     />
-  )
-})
+  );
+});
 
-export default MobileHeader
+export default MobileHeader;

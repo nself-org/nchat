@@ -17,20 +17,23 @@
  * ```
  */
 
-import { Extension, mergeAttributes, Node } from '@tiptap/core'
-import Mention from '@tiptap/extension-mention'
-import { PluginKey } from '@tiptap/pm/state'
-import type { SuggestionOptions, SuggestionProps } from '@tiptap/suggestion'
-import type { Editor } from '@tiptap/core'
+import { Extension, mergeAttributes, Node } from "@tiptap/core";
+import Mention from "@tiptap/extension-mention";
+import { PluginKey } from "@tiptap/pm/state";
+import type { SuggestionOptions, SuggestionProps } from "@tiptap/suggestion";
+import type { Editor } from "@tiptap/core";
 import type {
   MentionableUser,
   MentionableChannel,
   MentionSuggestion,
   GroupMentionInfo,
   MentionPermissions,
-} from '@/lib/mentions/mention-types'
-import { GROUP_MENTIONS } from '@/lib/mentions/mention-types'
-import { filterMentionSuggestions, addRecentMention } from '@/lib/mentions/mention-autocomplete'
+} from "@/lib/mentions/mention-types";
+import { GROUP_MENTIONS } from "@/lib/mentions/mention-types";
+import {
+  filterMentionSuggestions,
+  addRecentMention,
+} from "@/lib/mentions/mention-autocomplete";
 
 // ============================================================================
 // Types
@@ -40,17 +43,17 @@ import { filterMentionSuggestions, addRecentMention } from '@/lib/mentions/menti
  * Props passed to suggestion renderer
  */
 export interface MentionSuggestionRenderProps extends SuggestionProps<MentionSuggestion> {
-  editor: Editor
+  editor: Editor;
 }
 
 /**
  * Suggestion renderer interface
  */
 export interface MentionSuggestionRenderer {
-  onStart: (props: MentionSuggestionRenderProps) => void
-  onUpdate: (props: MentionSuggestionRenderProps) => void
-  onKeyDown: (props: { event: KeyboardEvent }) => boolean
-  onExit: () => void
+  onStart: (props: MentionSuggestionRenderProps) => void;
+  onUpdate: (props: MentionSuggestionRenderProps) => void;
+  onKeyDown: (props: { event: KeyboardEvent }) => boolean;
+  onExit: () => void;
 }
 
 /**
@@ -58,17 +61,17 @@ export interface MentionSuggestionRenderer {
  */
 export interface UserMentionExtensionOptions {
   /** Function to get users for autocomplete */
-  getUsers: () => MentionableUser[]
+  getUsers: () => MentionableUser[];
   /** Function to get current user's permissions */
-  getPermissions?: () => MentionPermissions
+  getPermissions?: () => MentionPermissions;
   /** Channel member IDs for prioritization */
-  channelMemberIds?: Set<string>
+  channelMemberIds?: Set<string>;
   /** Callback when a mention is selected */
-  onSelect?: (user: MentionableUser) => void
+  onSelect?: (user: MentionableUser) => void;
   /** Render component for suggestions */
-  suggestionRenderer?: () => MentionSuggestionRenderer
+  suggestionRenderer?: () => MentionSuggestionRenderer;
   /** Additional HTML attributes */
-  HTMLAttributes?: Record<string, string>
+  HTMLAttributes?: Record<string, string>;
 }
 
 /**
@@ -76,21 +79,21 @@ export interface UserMentionExtensionOptions {
  */
 export interface ChannelMentionExtensionOptions {
   /** Function to get channels for autocomplete */
-  getChannels: () => MentionableChannel[]
+  getChannels: () => MentionableChannel[];
   /** Callback when a mention is selected */
-  onSelect?: (channel: MentionableChannel) => void
+  onSelect?: (channel: MentionableChannel) => void;
   /** Render component for suggestions */
-  suggestionRenderer?: () => MentionSuggestionRenderer
+  suggestionRenderer?: () => MentionSuggestionRenderer;
   /** Additional HTML attributes */
-  HTMLAttributes?: Record<string, string>
+  HTMLAttributes?: Record<string, string>;
 }
 
 // ============================================================================
 // Plugin Keys
 // ============================================================================
 
-export const UserMentionPluginKey = new PluginKey('userMention')
-export const ChannelMentionPluginKey = new PluginKey('channelMention')
+export const UserMentionPluginKey = new PluginKey("userMention");
+export const ChannelMentionPluginKey = new PluginKey("channelMention");
 
 // ============================================================================
 // User Mention Extension
@@ -99,7 +102,9 @@ export const ChannelMentionPluginKey = new PluginKey('channelMention')
 /**
  * Create the user mention extension (@username, @everyone, @here)
  */
-export function createUserMentionExtension(options: UserMentionExtensionOptions) {
+export function createUserMentionExtension(
+  options: UserMentionExtensionOptions,
+) {
   const {
     getUsers,
     getPermissions = () => ({
@@ -114,85 +119,85 @@ export function createUserMentionExtension(options: UserMentionExtensionOptions)
     onSelect,
     suggestionRenderer,
     HTMLAttributes = {},
-  } = options
+  } = options;
 
   return Mention.configure({
     HTMLAttributes: {
-      class: 'mention mention-user',
+      class: "mention mention-user",
       ...HTMLAttributes,
     },
     renderLabel({ options: opts, node }) {
-      return `${opts.suggestion.char}${node.attrs.label ?? node.attrs.id}`
+      return `${opts.suggestion.char}${node.attrs.label ?? node.attrs.id}`;
     },
     suggestion: {
-      char: '@',
+      char: "@",
       pluginKey: UserMentionPluginKey,
       allowSpaces: false,
-      allowedPrefixes: [' ', '\n', '\t', '(', '[', '{'],
+      allowedPrefixes: [" ", "\n", "\t", "(", "[", "{"],
 
       items: ({ query }): MentionSuggestion[] => {
-        const users = getUsers()
-        const permissions = getPermissions()
+        const users = getUsers();
+        const permissions = getPermissions();
 
         return filterMentionSuggestions({
           users,
           permissions,
-          trigger: '@',
+          trigger: "@",
           query,
           maxSuggestions: 10,
           prioritizeChannelMembers: true,
           channelMemberIds,
-        })
+        });
       },
 
       command: ({ editor, range, props }) => {
-        const suggestion = props as MentionSuggestion
+        const suggestion = props as MentionSuggestion;
 
         // Handle different suggestion types
-        if (suggestion.type === 'user') {
-          const user = suggestion.data as MentionableUser
+        if (suggestion.type === "user") {
+          const user = suggestion.data as MentionableUser;
           editor
             .chain()
             .focus()
             .insertContentAt(range, [
               {
-                type: 'mention',
+                type: "mention",
                 attrs: {
                   id: user.id,
                   label: user.displayName,
                   username: user.username,
-                  type: 'user',
+                  type: "user",
                 },
               },
-              { type: 'text', text: ' ' },
+              { type: "text", text: " " },
             ])
-            .run()
+            .run();
 
-          addRecentMention(user.username)
-          onSelect?.(user)
-        } else if (suggestion.type === 'group') {
-          const group = suggestion.data as GroupMentionInfo
+          addRecentMention(user.username);
+          onSelect?.(user);
+        } else if (suggestion.type === "group") {
+          const group = suggestion.data as GroupMentionInfo;
           editor
             .chain()
             .focus()
             .insertContentAt(range, [
               {
-                type: 'mention',
+                type: "mention",
                 attrs: {
                   id: group.type,
                   label: group.type,
                   type: group.type,
                 },
               },
-              { type: 'text', text: ' ' },
+              { type: "text", text: " " },
             ])
-            .run()
+            .run();
         }
       },
 
       render: suggestionRenderer,
     },
-  })
+  });
 }
 
 // ============================================================================
@@ -202,46 +207,53 @@ export function createUserMentionExtension(options: UserMentionExtensionOptions)
 /**
  * Create the channel mention extension (#channel)
  */
-export function createChannelMentionExtension(options: ChannelMentionExtensionOptions) {
-  const { getChannels, onSelect, suggestionRenderer, HTMLAttributes = {} } = options
+export function createChannelMentionExtension(
+  options: ChannelMentionExtensionOptions,
+) {
+  const {
+    getChannels,
+    onSelect,
+    suggestionRenderer,
+    HTMLAttributes = {},
+  } = options;
 
   // Create a custom extension that extends Mention with a different name
   const ChannelMention = Mention.extend({
-    name: 'channelMention',
+    name: "channelMention",
 
     addAttributes() {
       return {
         ...this.parent?.(),
         slug: {
           default: null,
-          parseHTML: (element) => element.getAttribute('data-channel-slug'),
+          parseHTML: (element) => element.getAttribute("data-channel-slug"),
           renderHTML: (attributes) => ({
-            'data-channel-slug': attributes.slug,
+            "data-channel-slug": attributes.slug,
           }),
         },
         type: {
-          default: 'channel',
+          default: "channel",
         },
-      }
+      };
     },
-  })
+  });
 
   return ChannelMention.configure({
     HTMLAttributes: {
-      class: 'mention mention-channel',
+      class: "mention mention-channel",
       ...HTMLAttributes,
     },
     renderLabel({ options: opts, node }) {
-      return `${opts.suggestion.char}${node.attrs.label ?? node.attrs.id}`
+      return `${opts.suggestion.char}${node.attrs.label ?? node.attrs.id}`;
     },
     suggestion: {
-      char: '#',
+      char: "#",
       pluginKey: ChannelMentionPluginKey,
       allowSpaces: false,
-      allowedPrefixes: [' ', '\n', '\t', '(', '[', '{'],
+      allowedPrefixes: [" ", "\n", "\t", "(", "[", "{"],
 
       items: ({ query }): MentionSuggestion[] => {
-        const channels = getChannels()
+        const channels = getChannels();
 
         return filterMentionSuggestions({
           channels,
@@ -253,39 +265,39 @@ export function createChannelMentionExtension(options: ChannelMentionExtensionOp
             canMentionChannel: false,
             canMentionRoles: false,
           },
-          trigger: '#',
+          trigger: "#",
           query,
           maxSuggestions: 10,
-        })
+        });
       },
 
       command: ({ editor, range, props }) => {
-        const suggestion = props as MentionSuggestion
-        const channel = suggestion.data as MentionableChannel
+        const suggestion = props as MentionSuggestion;
+        const channel = suggestion.data as MentionableChannel;
 
         editor
           .chain()
           .focus()
           .insertContentAt(range, [
             {
-              type: 'channelMention',
+              type: "channelMention",
               attrs: {
                 id: channel.id,
                 label: channel.name,
                 slug: channel.slug,
-                type: 'channel',
+                type: "channel",
               },
             },
-            { type: 'text', text: ' ' },
+            { type: "text", text: " " },
           ])
-          .run()
+          .run();
 
-        onSelect?.(channel)
+        onSelect?.(channel);
       },
 
       render: suggestionRenderer,
     },
-  })
+  });
 }
 
 // ============================================================================
@@ -297,26 +309,28 @@ export function createChannelMentionExtension(options: ChannelMentionExtensionOp
  */
 export interface CreateMentionExtensionsOptions {
   /** User mention options */
-  user?: Omit<UserMentionExtensionOptions, 'suggestionRenderer'>
+  user?: Omit<UserMentionExtensionOptions, "suggestionRenderer">;
   /** Channel mention options */
-  channel?: Omit<ChannelMentionExtensionOptions, 'suggestionRenderer'>
+  channel?: Omit<ChannelMentionExtensionOptions, "suggestionRenderer">;
   /** Shared suggestion renderer */
-  suggestionRenderer?: () => MentionSuggestionRenderer
+  suggestionRenderer?: () => MentionSuggestionRenderer;
 }
 
 /**
  * Create both user and channel mention extensions with shared configuration
  */
-export function createMentionExtensions(options: CreateMentionExtensionsOptions) {
-  const extensions = []
+export function createMentionExtensions(
+  options: CreateMentionExtensionsOptions,
+) {
+  const extensions = [];
 
   if (options.user) {
     extensions.push(
       createUserMentionExtension({
         ...options.user,
         suggestionRenderer: options.suggestionRenderer,
-      })
-    )
+      }),
+    );
   }
 
   if (options.channel) {
@@ -324,11 +338,11 @@ export function createMentionExtensions(options: CreateMentionExtensionsOptions)
       createChannelMentionExtension({
         ...options.channel,
         suggestionRenderer: options.suggestionRenderer,
-      })
-    )
+      }),
+    );
   }
 
-  return extensions
+  return extensions;
 }
 
 // ============================================================================
@@ -339,54 +353,54 @@ export function createMentionExtensions(options: CreateMentionExtensionsOptions)
  * Parse mention data from TipTap node
  */
 export function parseMentionFromNode(node: {
-  type: { name: string }
-  attrs: Record<string, unknown>
+  type: { name: string };
+  attrs: Record<string, unknown>;
 }) {
-  const attrs = node.attrs
-  const type = attrs.type as string
+  const attrs = node.attrs;
+  const type = attrs.type as string;
 
-  if (type === 'user') {
+  if (type === "user") {
     return {
-      type: 'user' as const,
+      type: "user" as const,
       userId: attrs.id as string,
       username: attrs.username as string,
       displayName: attrs.label as string,
-    }
-  } else if (type === 'channel') {
+    };
+  } else if (type === "channel") {
     return {
-      type: 'channel' as const,
+      type: "channel" as const,
       channelId: attrs.id as string,
       channelSlug: attrs.slug as string,
       channelName: attrs.label as string,
-    }
-  } else if (['everyone', 'here', 'channel'].includes(type)) {
+    };
+  } else if (["everyone", "here", "channel"].includes(type)) {
     return {
-      type: type as 'everyone' | 'here' | 'channel',
-    }
+      type: type as "everyone" | "here" | "channel",
+    };
   }
 
-  return null
+  return null;
 }
 
 /**
  * Serialize mention to plain text
  */
 export function serializeMentionToText(node: {
-  type: { name: string }
-  attrs: Record<string, unknown>
+  type: { name: string };
+  attrs: Record<string, unknown>;
 }): string {
-  const attrs = node.attrs
-  const type = attrs.type as string
+  const attrs = node.attrs;
+  const type = attrs.type as string;
 
-  if (type === 'user') {
-    return `@${attrs.username || attrs.label || attrs.id}`
-  } else if (type === 'channel') {
-    return `#${attrs.slug || attrs.label || attrs.id}`
-  } else if (['everyone', 'here', 'channel'].includes(type)) {
-    return `@${type}`
+  if (type === "user") {
+    return `@${attrs.username || attrs.label || attrs.id}`;
+  } else if (type === "channel") {
+    return `#${attrs.slug || attrs.label || attrs.id}`;
+  } else if (["everyone", "here", "channel"].includes(type)) {
+    return `@${type}`;
   }
 
-  return ''
+  return "";
 }
 
 /**
@@ -394,46 +408,46 @@ export function serializeMentionToText(node: {
  */
 export function extractMentionsFromEditor(editor: Editor) {
   const userMentions: Array<{
-    userId: string
-    username: string
-    displayName: string
-  }> = []
+    userId: string;
+    username: string;
+    displayName: string;
+  }> = [];
 
   const channelMentions: Array<{
-    channelId: string
-    channelSlug: string
-    channelName: string
-  }> = []
+    channelId: string;
+    channelSlug: string;
+    channelName: string;
+  }> = [];
 
-  let hasEveryone = false
-  let hasHere = false
-  let hasChannel = false
+  let hasEveryone = false;
+  let hasHere = false;
+  let hasChannel = false;
 
   editor.state.doc.descendants((node) => {
-    if (node.type.name === 'mention') {
-      const type = node.attrs.type as string
+    if (node.type.name === "mention") {
+      const type = node.attrs.type as string;
 
-      if (type === 'user') {
+      if (type === "user") {
         userMentions.push({
           userId: node.attrs.id,
           username: node.attrs.username || node.attrs.label,
           displayName: node.attrs.label,
-        })
-      } else if (type === 'everyone') {
-        hasEveryone = true
-      } else if (type === 'here') {
-        hasHere = true
-      } else if (type === 'channel') {
-        hasChannel = true
+        });
+      } else if (type === "everyone") {
+        hasEveryone = true;
+      } else if (type === "here") {
+        hasHere = true;
+      } else if (type === "channel") {
+        hasChannel = true;
       }
-    } else if (node.type.name === 'channelMention') {
+    } else if (node.type.name === "channelMention") {
       channelMentions.push({
         channelId: node.attrs.id,
         channelSlug: node.attrs.slug || node.attrs.label,
         channelName: node.attrs.label,
-      })
+      });
     }
-  })
+  });
 
   return {
     userMentions,
@@ -441,7 +455,7 @@ export function extractMentionsFromEditor(editor: Editor) {
     hasEveryone,
     hasHere,
     hasChannel,
-  }
+  };
 }
 
 // ============================================================================
@@ -506,7 +520,7 @@ export const TIPTAP_MENTION_STYLES = `
     color: hsl(var(--muted-foreground));
     font-style: italic;
   }
-`
+`;
 
 // ============================================================================
 // Utility Functions
@@ -516,33 +530,33 @@ export const TIPTAP_MENTION_STYLES = `
  * Check if cursor is inside a mention node
  */
 export function isCursorInMention(editor: Editor): boolean {
-  const { selection } = editor.state
-  const { $from } = selection
+  const { selection } = editor.state;
+  const { $from } = selection;
 
   // Check if parent or grandparent is a mention
   return (
-    $from.parent.type.name === 'mention' ||
-    $from.parent.type.name === 'channelMention' ||
+    $from.parent.type.name === "mention" ||
+    $from.parent.type.name === "channelMention" ||
     ($from.depth > 1 &&
-      ($from.node($from.depth - 1).type.name === 'mention' ||
-        $from.node($from.depth - 1).type.name === 'channelMention'))
-  )
+      ($from.node($from.depth - 1).type.name === "mention" ||
+        $from.node($from.depth - 1).type.name === "channelMention"))
+  );
 }
 
 /**
  * Get mention at current cursor position
  */
 export function getMentionAtCursor(editor: Editor) {
-  const { selection } = editor.state
-  const { $from } = selection
+  const { selection } = editor.state;
+  const { $from } = selection;
 
   // Walk up the tree to find a mention node
   for (let depth = $from.depth; depth >= 0; depth--) {
-    const node = $from.node(depth)
-    if (node.type.name === 'mention' || node.type.name === 'channelMention') {
-      return node
+    const node = $from.node(depth);
+    if (node.type.name === "mention" || node.type.name === "channelMention") {
+      return node;
     }
   }
 
-  return null
+  return null;
 }

@@ -2,7 +2,7 @@
  * GraphQL Queries and Mutations for E2EE
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // QUERIES
@@ -26,14 +26,16 @@ export const GET_MASTER_KEY_INFO = gql`
       last_used_at
     }
   }
-`
+`;
 
 /**
  * Get user's identity keys
  */
 export const GET_IDENTITY_KEYS = gql`
   query GetIdentityKeys($deviceId: String) {
-    nchat_identity_keys(where: { device_id: { _eq: $deviceId }, is_active: { _eq: true } }) {
+    nchat_identity_keys(
+      where: { device_id: { _eq: $deviceId }, is_active: { _eq: true } }
+    ) {
       id
       device_id
       identity_key_public
@@ -44,14 +46,16 @@ export const GET_IDENTITY_KEYS = gql`
       is_active
     }
   }
-`
+`;
 
 /**
  * Get all user's devices
  */
 export const GET_USER_DEVICES = gql`
   query GetUserDevices($userId: uuid!) {
-    nchat_identity_keys(where: { user_id: { _eq: $userId }, is_active: { _eq: true } }) {
+    nchat_identity_keys(
+      where: { user_id: { _eq: $userId }, is_active: { _eq: true } }
+    ) {
       device_id
       identity_key_public
       registration_id
@@ -59,7 +63,7 @@ export const GET_USER_DEVICES = gql`
       last_used_at
     }
   }
-`
+`;
 
 /**
  * Get prekey bundle for a user's device
@@ -83,7 +87,7 @@ export const GET_PREKEY_BUNDLE = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Get signed prekeys for a device
@@ -104,7 +108,7 @@ export const GET_SIGNED_PREKEYS = gql`
       is_active
     }
   }
-`
+`;
 
 /**
  * Get one-time prekeys for a device
@@ -112,7 +116,10 @@ export const GET_SIGNED_PREKEYS = gql`
 export const GET_ONE_TIME_PREKEYS = gql`
   query GetOneTimePreKeys($deviceId: String!, $isConsumed: Boolean) {
     nchat_one_time_prekeys(
-      where: { device_id: { _eq: $deviceId }, is_consumed: { _eq: $isConsumed } }
+      where: {
+        device_id: { _eq: $deviceId }
+        is_consumed: { _eq: $isConsumed }
+      }
       order_by: { key_id: asc }
     ) {
       id
@@ -125,7 +132,7 @@ export const GET_ONE_TIME_PREKEYS = gql`
       is_consumed
     }
   }
-`
+`;
 
 /**
  * Get Signal sessions
@@ -153,13 +160,17 @@ export const GET_SIGNAL_SESSIONS = gql`
       is_initiator
     }
   }
-`
+`;
 
 /**
  * Get session with specific peer
  */
 export const GET_SESSION_WITH_PEER = gql`
-  query GetSessionWithPeer($deviceId: String!, $peerUserId: uuid!, $peerDeviceId: String!) {
+  query GetSessionWithPeer(
+    $deviceId: String!
+    $peerUserId: uuid!
+    $peerDeviceId: String!
+  ) {
     nchat_signal_sessions(
       where: {
         device_id: { _eq: $deviceId }
@@ -181,7 +192,7 @@ export const GET_SESSION_WITH_PEER = gql`
       is_initiator
     }
   }
-`
+`;
 
 /**
  * Get safety numbers
@@ -201,7 +212,7 @@ export const GET_SAFETY_NUMBERS = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Check prekey inventory
@@ -216,14 +227,18 @@ export const CHECK_PREKEY_INVENTORY = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get E2EE audit log
  */
 export const GET_E2EE_AUDIT_LOG = gql`
   query GetE2EEAuditLog($limit: Int = 50, $offset: Int = 0) {
-    nchat_e2ee_audit_log(order_by: { created_at: desc }, limit: $limit, offset: $offset) {
+    nchat_e2ee_audit_log(
+      order_by: { created_at: desc }
+      limit: $limit
+      offset: $offset
+    ) {
       id
       event_type
       event_data
@@ -232,7 +247,7 @@ export const GET_E2EE_AUDIT_LOG = gql`
       created_at
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -268,7 +283,7 @@ export const SAVE_MASTER_KEY = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Save identity key
@@ -289,7 +304,11 @@ export const SAVE_IDENTITY_KEY = gql`
       }
       on_conflict: {
         constraint: nchat_identity_keys_user_id_device_id_key
-        update_columns: [identity_key_public, identity_key_private_encrypted, last_used_at]
+        update_columns: [
+          identity_key_public
+          identity_key_private_encrypted
+          last_used_at
+        ]
       }
     ) {
       id
@@ -297,7 +316,7 @@ export const SAVE_IDENTITY_KEY = gql`
       registration_id
     }
   }
-`
+`;
 
 /**
  * Save signed prekey
@@ -323,20 +342,28 @@ export const SAVE_SIGNED_PREKEY = gql`
       }
       on_conflict: {
         constraint: nchat_signed_prekeys_user_id_device_id_key_id_key
-        update_columns: [public_key, private_key_encrypted, signature, expires_at, is_active]
+        update_columns: [
+          public_key
+          private_key_encrypted
+          signature
+          expires_at
+          is_active
+        ]
       }
     ) {
       id
       key_id
     }
   }
-`
+`;
 
 /**
  * Save multiple one-time prekeys
  */
 export const SAVE_ONE_TIME_PREKEYS = gql`
-  mutation SaveOneTimePreKeys($prekeys: [nchat_one_time_prekeys_insert_input!]!) {
+  mutation SaveOneTimePreKeys(
+    $prekeys: [nchat_one_time_prekeys_insert_input!]!
+  ) {
     insert_nchat_one_time_prekeys(
       objects: $prekeys
       on_conflict: {
@@ -351,7 +378,7 @@ export const SAVE_ONE_TIME_PREKEYS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Consume one-time prekey
@@ -370,7 +397,11 @@ export const CONSUME_ONE_TIME_PREKEY = gql`
         key_id: { _eq: $keyId }
         is_consumed: { _eq: false }
       }
-      _set: { is_consumed: true, consumed_at: "now()", consumed_by: $consumedBy }
+      _set: {
+        is_consumed: true
+        consumed_at: "now()"
+        consumed_by: $consumedBy
+      }
     ) {
       affected_rows
       returning {
@@ -380,7 +411,7 @@ export const CONSUME_ONE_TIME_PREKEY = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Save Signal session
@@ -424,7 +455,7 @@ export const SAVE_SIGNAL_SESSION = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Update session metadata
@@ -457,7 +488,7 @@ export const UPDATE_SESSION_METADATA = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Save safety number
@@ -491,7 +522,7 @@ export const SAVE_SAFETY_NUMBER = gql`
       safety_number
     }
   }
-`
+`;
 
 /**
  * Verify safety number
@@ -500,7 +531,11 @@ export const VERIFY_SAFETY_NUMBER = gql`
   mutation VerifySafetyNumber($peerUserId: uuid!, $verifiedBy: uuid!) {
     update_nchat_safety_numbers(
       where: { peer_user_id: { _eq: $peerUserId } }
-      _set: { is_verified: true, verified_at: "now()", verified_by_user_id: $verifiedBy }
+      _set: {
+        is_verified: true
+        verified_at: "now()"
+        verified_by_user_id: $verifiedBy
+      }
     ) {
       affected_rows
       returning {
@@ -510,7 +545,7 @@ export const VERIFY_SAFETY_NUMBER = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Rotate signed prekey (mark old as inactive)
@@ -524,7 +559,7 @@ export const ROTATE_SIGNED_PREKEY = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Deactivate device
@@ -538,7 +573,7 @@ export const DEACTIVATE_DEVICE = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Log E2EE audit event
@@ -564,7 +599,7 @@ export const LOG_E2EE_AUDIT_EVENT = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Refresh prekey bundles materialized view
@@ -575,7 +610,7 @@ export const REFRESH_PREKEY_BUNDLES = gql`
       success
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -597,7 +632,7 @@ export const SUBSCRIBE_PREKEY_REQUESTS = gql`
       consumed_by
     }
   }
-`
+`;
 
 /**
  * Subscribe to session updates
@@ -615,7 +650,7 @@ export const SUBSCRIBE_SESSION_UPDATES = gql`
       last_ratchet_at
     }
   }
-`
+`;
 
 // ============================================================================
 // EXPORTS
@@ -654,4 +689,4 @@ export default {
     SUBSCRIBE_PREKEY_REQUESTS,
     SUBSCRIBE_SESSION_UPDATES,
   },
-}
+};

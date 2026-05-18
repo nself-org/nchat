@@ -27,7 +27,7 @@ import type {
   SkinBorderRadius,
   SkinIconStyle,
   SkinComponentStyles,
-} from '../../types'
+} from "../../types";
 
 // ============================================================================
 // DISCORD COLOR PALETTES
@@ -46,24 +46,24 @@ import type {
  * - Muted: #80848E (gray)
  */
 export const discordLightColors: SkinColorPalette = {
-  primary: '#5865F2',
-  secondary: '#4752C4',
-  accent: '#5865F2',
-  background: '#FFFFFF',
-  surface: '#F2F3F5',
-  text: '#313338',
-  textSecondary: '#5C5E66',
-  muted: '#80848E',
-  border: '#E1E2E4',
-  success: '#57F287',
-  warning: '#FEE75C',
-  error: '#ED4245',
-  info: '#5865F2',
-  buttonPrimaryBg: '#5865F2',
-  buttonPrimaryText: '#FFFFFF',
-  buttonSecondaryBg: '#6D6F78',
-  buttonSecondaryText: '#FFFFFF',
-}
+  primary: "#5865F2",
+  secondary: "#4752C4",
+  accent: "#5865F2",
+  background: "#FFFFFF",
+  surface: "#F2F3F5",
+  text: "#313338",
+  textSecondary: "#5C5E66",
+  muted: "#80848E",
+  border: "#E1E2E4",
+  success: "#57F287",
+  warning: "#FEE75C",
+  error: "#ED4245",
+  info: "#5865F2",
+  buttonPrimaryBg: "#5865F2",
+  buttonPrimaryText: "#FFFFFF",
+  buttonSecondaryBg: "#6D6F78",
+  buttonSecondaryText: "#FFFFFF",
+};
 
 /**
  * Discord dark mode color palette.
@@ -78,24 +78,24 @@ export const discordLightColors: SkinColorPalette = {
  * - Muted: #949BA4 (muted gray)
  */
 export const discordDarkColors: SkinColorPalette = {
-  primary: '#5865F2',
-  secondary: '#4752C4',
-  accent: '#5865F2',
-  background: '#313338',
-  surface: '#2B2D31',
-  text: '#DBDEE1',
-  textSecondary: '#B5BAC1',
-  muted: '#949BA4',
-  border: '#3F4147',
-  success: '#57F287',
-  warning: '#FEE75C',
-  error: '#ED4245',
-  info: '#5865F2',
-  buttonPrimaryBg: '#5865F2',
-  buttonPrimaryText: '#FFFFFF',
-  buttonSecondaryBg: '#4E5058',
-  buttonSecondaryText: '#DBDEE1',
-}
+  primary: "#5865F2",
+  secondary: "#4752C4",
+  accent: "#5865F2",
+  background: "#313338",
+  surface: "#2B2D31",
+  text: "#DBDEE1",
+  textSecondary: "#B5BAC1",
+  muted: "#949BA4",
+  border: "#3F4147",
+  success: "#57F287",
+  warning: "#FEE75C",
+  error: "#ED4245",
+  info: "#5865F2",
+  buttonPrimaryBg: "#5865F2",
+  buttonPrimaryText: "#FFFFFF",
+  buttonSecondaryBg: "#4E5058",
+  buttonSecondaryText: "#DBDEE1",
+};
 
 // ============================================================================
 // DISCORD-SPECIFIC EXTENDED COLORS
@@ -107,230 +107,230 @@ export const discordDarkColors: SkinColorPalette = {
  */
 export interface DiscordExtendedColors {
   /** Server list sidebar background */
-  serverListBg: string
+  serverListBg: string;
   /** Channel sidebar background */
-  channelSidebarBg: string
+  channelSidebarBg: string;
   /** Chat area background */
-  chatBg: string
+  chatBg: string;
   /** Members panel background */
-  membersPanelBg: string
+  membersPanelBg: string;
   /** Header bar background */
-  headerBg: string
+  headerBg: string;
   /** Header text color */
-  headerText: string
+  headerText: string;
   /** Header icon color */
-  headerIcon: string
+  headerIcon: string;
   /** Message hover background */
-  messageHoverBg: string
+  messageHoverBg: string;
   /** Mentioned message background */
-  mentionedMessageBg: string
+  mentionedMessageBg: string;
   /** Mentioned message left border */
-  mentionedMessageBorder: string
+  mentionedMessageBorder: string;
   /** Embed left border default color */
-  embedBorderDefault: string
+  embedBorderDefault: string;
   /** Embed background */
-  embedBg: string
+  embedBg: string;
   /** Code block background */
-  codeBlockBg: string
+  codeBlockBg: string;
   /** Inline code background */
-  inlineCodeBg: string
+  inlineCodeBg: string;
   /** Spoiler background */
-  spoilerBg: string
+  spoilerBg: string;
   /** Spoiler revealed background */
-  spoilerRevealedBg: string
+  spoilerRevealedBg: string;
   /** Link color in messages */
-  linkColor: string
+  linkColor: string;
   /** Channel text icon color (#) */
-  channelIconColor: string
+  channelIconColor: string;
   /** Voice channel icon color */
-  voiceChannelIconColor: string
+  voiceChannelIconColor: string;
   /** Stage channel icon color */
-  stageChannelIconColor: string
+  stageChannelIconColor: string;
   /** Forum channel icon color */
-  forumChannelIconColor: string
+  forumChannelIconColor: string;
   /** Announcement channel icon color */
-  announcementChannelIconColor: string
+  announcementChannelIconColor: string;
   /** Category text color */
-  categoryTextColor: string
+  categoryTextColor: string;
   /** Unread channel indicator */
-  unreadIndicator: string
+  unreadIndicator: string;
   /** Unread mentions badge */
-  unreadMentionsBadgeBg: string
+  unreadMentionsBadgeBg: string;
   /** Unread mentions badge text */
-  unreadMentionsBadgeText: string
+  unreadMentionsBadgeText: string;
   /** Voice connected indicator */
-  voiceConnectedBg: string
+  voiceConnectedBg: string;
   /** Nitro gradient start */
-  nitroGradientStart: string
+  nitroGradientStart: string;
   /** Nitro gradient end */
-  nitroGradientEnd: string
+  nitroGradientEnd: string;
   /** Boost gradient start */
-  boostGradientStart: string
+  boostGradientStart: string;
   /** Boost gradient end */
-  boostGradientEnd: string
+  boostGradientEnd: string;
   /** Role colors (sample set) */
-  roleAdmin: string
-  roleModerator: string
-  roleDefault: string
+  roleAdmin: string;
+  roleModerator: string;
+  roleDefault: string;
   /** Status indicator online */
-  statusOnline: string
+  statusOnline: string;
   /** Status indicator idle */
-  statusIdle: string
+  statusIdle: string;
   /** Status indicator DND */
-  statusDnd: string
+  statusDnd: string;
   /** Status indicator offline/invisible */
-  statusOffline: string
+  statusOffline: string;
   /** Status indicator streaming */
-  statusStreaming: string
+  statusStreaming: string;
   /** Typing indicator dots */
-  typingIndicatorColor: string
+  typingIndicatorColor: string;
   /** User area background (bottom left panel) */
-  userAreaBg: string
+  userAreaBg: string;
   /** Input field background */
-  inputBg: string
+  inputBg: string;
   /** Thread sidebar background */
-  threadSidebarBg: string
+  threadSidebarBg: string;
   /** Pinned message highlight */
-  pinnedMessageBg: string
+  pinnedMessageBg: string;
   /** Server icon selected indicator (white pill) */
-  serverIconIndicator: string
+  serverIconIndicator: string;
   /** Server folder background */
-  serverFolderBg: string
+  serverFolderBg: string;
   /** Reaction button background */
-  reactionBg: string
+  reactionBg: string;
   /** Reaction button active (self-reacted) */
-  reactionActiveBg: string
+  reactionActiveBg: string;
   /** Reaction button active border */
-  reactionActiveBorder: string
+  reactionActiveBorder: string;
   /** Tooltip background */
-  tooltipBg: string
+  tooltipBg: string;
   /** Tooltip text */
-  tooltipText: string
+  tooltipText: string;
   /** Blurple accent colors */
-  blurple: string
-  green: string
-  yellow: string
-  fuchsia: string
-  red: string
+  blurple: string;
+  green: string;
+  yellow: string;
+  fuchsia: string;
+  red: string;
 }
 
 export const discordExtendedLightColors: DiscordExtendedColors = {
-  serverListBg: '#E3E5E8',
-  channelSidebarBg: '#F2F3F5',
-  chatBg: '#FFFFFF',
-  membersPanelBg: '#F2F3F5',
-  headerBg: '#FFFFFF',
-  headerText: '#313338',
-  headerIcon: '#4E5058',
-  messageHoverBg: '#F2F3F5',
-  mentionedMessageBg: '#FDF5E8',
-  mentionedMessageBorder: '#F0B232',
-  embedBorderDefault: '#E1E2E4',
-  embedBg: '#F2F3F5',
-  codeBlockBg: '#F2F3F5',
-  inlineCodeBg: '#E8E8EB',
-  spoilerBg: '#C4C9CE',
-  spoilerRevealedBg: '#E8E8EB',
-  linkColor: '#006CE7',
-  channelIconColor: '#6D6F78',
-  voiceChannelIconColor: '#6D6F78',
-  stageChannelIconColor: '#6D6F78',
-  forumChannelIconColor: '#6D6F78',
-  announcementChannelIconColor: '#6D6F78',
-  categoryTextColor: '#5C5E66',
-  unreadIndicator: '#313338',
-  unreadMentionsBadgeBg: '#ED4245',
-  unreadMentionsBadgeText: '#FFFFFF',
-  voiceConnectedBg: '#57F287',
-  nitroGradientStart: '#FF73FA',
-  nitroGradientEnd: '#5865F2',
-  boostGradientStart: '#FF73FA',
-  boostGradientEnd: '#F47FFF',
-  roleAdmin: '#E74C3C',
-  roleModerator: '#3498DB',
-  roleDefault: '#99AAB5',
-  statusOnline: '#57F287',
-  statusIdle: '#FEE75C',
-  statusDnd: '#ED4245',
-  statusOffline: '#80848E',
-  statusStreaming: '#593695',
-  typingIndicatorColor: '#313338',
-  userAreaBg: '#EBEDEF',
-  inputBg: '#EBEDEF',
-  threadSidebarBg: '#FFFFFF',
-  pinnedMessageBg: '#F2F3F5',
-  serverIconIndicator: '#313338',
-  serverFolderBg: '#E1E2E4',
-  reactionBg: '#F2F3F5',
-  reactionActiveBg: '#DEE0FC',
-  reactionActiveBorder: '#5865F2',
-  tooltipBg: '#313338',
-  tooltipText: '#DBDEE1',
-  blurple: '#5865F2',
-  green: '#57F287',
-  yellow: '#FEE75C',
-  fuchsia: '#EB459E',
-  red: '#ED4245',
-}
+  serverListBg: "#E3E5E8",
+  channelSidebarBg: "#F2F3F5",
+  chatBg: "#FFFFFF",
+  membersPanelBg: "#F2F3F5",
+  headerBg: "#FFFFFF",
+  headerText: "#313338",
+  headerIcon: "#4E5058",
+  messageHoverBg: "#F2F3F5",
+  mentionedMessageBg: "#FDF5E8",
+  mentionedMessageBorder: "#F0B232",
+  embedBorderDefault: "#E1E2E4",
+  embedBg: "#F2F3F5",
+  codeBlockBg: "#F2F3F5",
+  inlineCodeBg: "#E8E8EB",
+  spoilerBg: "#C4C9CE",
+  spoilerRevealedBg: "#E8E8EB",
+  linkColor: "#006CE7",
+  channelIconColor: "#6D6F78",
+  voiceChannelIconColor: "#6D6F78",
+  stageChannelIconColor: "#6D6F78",
+  forumChannelIconColor: "#6D6F78",
+  announcementChannelIconColor: "#6D6F78",
+  categoryTextColor: "#5C5E66",
+  unreadIndicator: "#313338",
+  unreadMentionsBadgeBg: "#ED4245",
+  unreadMentionsBadgeText: "#FFFFFF",
+  voiceConnectedBg: "#57F287",
+  nitroGradientStart: "#FF73FA",
+  nitroGradientEnd: "#5865F2",
+  boostGradientStart: "#FF73FA",
+  boostGradientEnd: "#F47FFF",
+  roleAdmin: "#E74C3C",
+  roleModerator: "#3498DB",
+  roleDefault: "#99AAB5",
+  statusOnline: "#57F287",
+  statusIdle: "#FEE75C",
+  statusDnd: "#ED4245",
+  statusOffline: "#80848E",
+  statusStreaming: "#593695",
+  typingIndicatorColor: "#313338",
+  userAreaBg: "#EBEDEF",
+  inputBg: "#EBEDEF",
+  threadSidebarBg: "#FFFFFF",
+  pinnedMessageBg: "#F2F3F5",
+  serverIconIndicator: "#313338",
+  serverFolderBg: "#E1E2E4",
+  reactionBg: "#F2F3F5",
+  reactionActiveBg: "#DEE0FC",
+  reactionActiveBorder: "#5865F2",
+  tooltipBg: "#313338",
+  tooltipText: "#DBDEE1",
+  blurple: "#5865F2",
+  green: "#57F287",
+  yellow: "#FEE75C",
+  fuchsia: "#EB459E",
+  red: "#ED4245",
+};
 
 export const discordExtendedDarkColors: DiscordExtendedColors = {
-  serverListBg: '#1E1F22',
-  channelSidebarBg: '#2B2D31',
-  chatBg: '#313338',
-  membersPanelBg: '#2B2D31',
-  headerBg: '#313338',
-  headerText: '#F2F3F5',
-  headerIcon: '#B5BAC1',
-  messageHoverBg: '#2E3035',
-  mentionedMessageBg: '#444037',
-  mentionedMessageBorder: '#F0B232',
-  embedBorderDefault: '#202225',
-  embedBg: '#2B2D31',
-  codeBlockBg: '#2B2D31',
-  inlineCodeBg: '#3B3D44',
-  spoilerBg: '#3B3D44',
-  spoilerRevealedBg: '#3B3D44',
-  linkColor: '#00A8FC',
-  channelIconColor: '#949BA4',
-  voiceChannelIconColor: '#949BA4',
-  stageChannelIconColor: '#949BA4',
-  forumChannelIconColor: '#949BA4',
-  announcementChannelIconColor: '#949BA4',
-  categoryTextColor: '#949BA4',
-  unreadIndicator: '#F2F3F5',
-  unreadMentionsBadgeBg: '#ED4245',
-  unreadMentionsBadgeText: '#FFFFFF',
-  voiceConnectedBg: '#57F287',
-  nitroGradientStart: '#FF73FA',
-  nitroGradientEnd: '#5865F2',
-  boostGradientStart: '#FF73FA',
-  boostGradientEnd: '#F47FFF',
-  roleAdmin: '#E74C3C',
-  roleModerator: '#3498DB',
-  roleDefault: '#99AAB5',
-  statusOnline: '#57F287',
-  statusIdle: '#FEE75C',
-  statusDnd: '#ED4245',
-  statusOffline: '#80848E',
-  statusStreaming: '#593695',
-  typingIndicatorColor: '#DBDEE1',
-  userAreaBg: '#232428',
-  inputBg: '#383A40',
-  threadSidebarBg: '#2B2D31',
-  pinnedMessageBg: '#2E3035',
-  serverIconIndicator: '#FFFFFF',
-  serverFolderBg: '#2B2D31',
-  reactionBg: '#3B3D44',
-  reactionActiveBg: '#2A2D56',
-  reactionActiveBorder: '#5865F2',
-  tooltipBg: '#111214',
-  tooltipText: '#DBDEE1',
-  blurple: '#5865F2',
-  green: '#57F287',
-  yellow: '#FEE75C',
-  fuchsia: '#EB459E',
-  red: '#ED4245',
-}
+  serverListBg: "#1E1F22",
+  channelSidebarBg: "#2B2D31",
+  chatBg: "#313338",
+  membersPanelBg: "#2B2D31",
+  headerBg: "#313338",
+  headerText: "#F2F3F5",
+  headerIcon: "#B5BAC1",
+  messageHoverBg: "#2E3035",
+  mentionedMessageBg: "#444037",
+  mentionedMessageBorder: "#F0B232",
+  embedBorderDefault: "#202225",
+  embedBg: "#2B2D31",
+  codeBlockBg: "#2B2D31",
+  inlineCodeBg: "#3B3D44",
+  spoilerBg: "#3B3D44",
+  spoilerRevealedBg: "#3B3D44",
+  linkColor: "#00A8FC",
+  channelIconColor: "#949BA4",
+  voiceChannelIconColor: "#949BA4",
+  stageChannelIconColor: "#949BA4",
+  forumChannelIconColor: "#949BA4",
+  announcementChannelIconColor: "#949BA4",
+  categoryTextColor: "#949BA4",
+  unreadIndicator: "#F2F3F5",
+  unreadMentionsBadgeBg: "#ED4245",
+  unreadMentionsBadgeText: "#FFFFFF",
+  voiceConnectedBg: "#57F287",
+  nitroGradientStart: "#FF73FA",
+  nitroGradientEnd: "#5865F2",
+  boostGradientStart: "#FF73FA",
+  boostGradientEnd: "#F47FFF",
+  roleAdmin: "#E74C3C",
+  roleModerator: "#3498DB",
+  roleDefault: "#99AAB5",
+  statusOnline: "#57F287",
+  statusIdle: "#FEE75C",
+  statusDnd: "#ED4245",
+  statusOffline: "#80848E",
+  statusStreaming: "#593695",
+  typingIndicatorColor: "#DBDEE1",
+  userAreaBg: "#232428",
+  inputBg: "#383A40",
+  threadSidebarBg: "#2B2D31",
+  pinnedMessageBg: "#2E3035",
+  serverIconIndicator: "#FFFFFF",
+  serverFolderBg: "#2B2D31",
+  reactionBg: "#3B3D44",
+  reactionActiveBg: "#2A2D56",
+  reactionActiveBorder: "#5865F2",
+  tooltipBg: "#111214",
+  tooltipText: "#DBDEE1",
+  blurple: "#5865F2",
+  green: "#57F287",
+  yellow: "#FEE75C",
+  fuchsia: "#EB459E",
+  red: "#ED4245",
+};
 
 // ============================================================================
 // DISCORD TYPOGRAPHY
@@ -346,16 +346,16 @@ export const discordTypography: SkinTypography = {
     '"gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
   fontFamilyMono:
     '"gg sans Mono", "Source Code Pro", "Consolas", "Andale Mono WT", "Andale Mono", "Menlo", monospace',
-  fontSizeBase: '16px',
-  fontSizeSm: '12px',
-  fontSizeLg: '20px',
-  fontSizeXl: '24px',
+  fontSizeBase: "16px",
+  fontSizeSm: "12px",
+  fontSizeLg: "20px",
+  fontSizeXl: "24px",
   fontWeightNormal: 400,
   fontWeightMedium: 500,
   fontWeightBold: 700,
   lineHeight: 1.375,
-  letterSpacing: 'normal',
-}
+  letterSpacing: "normal",
+};
 
 // ============================================================================
 // DISCORD SPACING
@@ -367,15 +367,15 @@ export const discordTypography: SkinTypography = {
  * (0px gap for grouped messages).
  */
 export const discordSpacing: SkinSpacing = {
-  messageGap: '0px',
-  messagePadding: '2px 16px',
-  sidebarWidth: '240px',
-  headerHeight: '48px',
-  inputHeight: '44px',
-  avatarSize: '40px',
-  avatarSizeSm: '24px',
-  avatarSizeLg: '80px',
-}
+  messageGap: "0px",
+  messagePadding: "2px 16px",
+  sidebarWidth: "240px",
+  headerHeight: "48px",
+  inputHeight: "44px",
+  avatarSize: "40px",
+  avatarSizeSm: "24px",
+  avatarSizeLg: "80px",
+};
 
 // ============================================================================
 // DISCORD BORDER RADIUS
@@ -387,13 +387,13 @@ export const discordSpacing: SkinSpacing = {
  * Message reactions and buttons use 4px radius.
  */
 export const discordBorderRadius: SkinBorderRadius = {
-  none: '0px',
-  sm: '3px',
-  md: '4px',
-  lg: '8px',
-  xl: '16px',
-  full: '50%',
-}
+  none: "0px",
+  sm: "3px",
+  md: "4px",
+  lg: "8px",
+  xl: "16px",
+  full: "50%",
+};
 
 // ============================================================================
 // DISCORD ICON STYLE
@@ -404,10 +404,10 @@ export const discordBorderRadius: SkinBorderRadius = {
  * Channel type icons use specific filled designs.
  */
 export const discordIcons: SkinIconStyle = {
-  style: 'filled',
-  set: 'lucide',
+  style: "filled",
+  set: "lucide",
   strokeWidth: 2,
-}
+};
 
 // ============================================================================
 // DISCORD COMPONENT STYLES
@@ -418,14 +418,14 @@ export const discordIcons: SkinIconStyle = {
  * rounded-square avatars, compact sidebar, and minimal header.
  */
 export const discordComponentStyles: SkinComponentStyles = {
-  messageLayout: 'cozy',
-  avatarShape: 'rounded',
-  buttonStyle: 'default',
-  inputStyle: 'filled',
-  sidebarStyle: 'compact',
-  headerStyle: 'minimal',
-  scrollbarStyle: 'thin',
-}
+  messageLayout: "cozy",
+  avatarShape: "rounded",
+  buttonStyle: "default",
+  inputStyle: "filled",
+  sidebarStyle: "compact",
+  headerStyle: "minimal",
+  scrollbarStyle: "thin",
+};
 
 // ============================================================================
 // DISCORD SHADOW TOKENS
@@ -437,36 +437,37 @@ export const discordComponentStyles: SkinComponentStyles = {
  */
 export interface DiscordShadows {
   /** Header shadow (subtle bottom edge) */
-  header: string
+  header: string;
   /** Dropdown/popup shadow */
-  dropdown: string
+  dropdown: string;
   /** Modal/dialog shadow */
-  modal: string
+  modal: string;
   /** Toast notification shadow */
-  toast: string
+  toast: string;
   /** Context menu shadow */
-  contextMenu: string
+  contextMenu: string;
   /** Server icon tooltip shadow */
-  tooltip: string
+  tooltip: string;
 }
 
 export const discordLightShadows: DiscordShadows = {
-  header: '0 1px 0 rgba(6, 6, 7, 0.08)',
-  dropdown: '0 8px 16px rgba(0, 0, 0, 0.24)',
-  modal: '0 0 0 1px rgba(6, 6, 7, 0.08), 0 8px 16px rgba(0, 0, 0, 0.16)',
-  toast: '0 4px 12px rgba(0, 0, 0, 0.15)',
-  contextMenu: '0 8px 16px rgba(0, 0, 0, 0.24)',
-  tooltip: '0 8px 16px rgba(0, 0, 0, 0.24)',
-}
+  header: "0 1px 0 rgba(6, 6, 7, 0.08)",
+  dropdown: "0 8px 16px rgba(0, 0, 0, 0.24)",
+  modal: "0 0 0 1px rgba(6, 6, 7, 0.08), 0 8px 16px rgba(0, 0, 0, 0.16)",
+  toast: "0 4px 12px rgba(0, 0, 0, 0.15)",
+  contextMenu: "0 8px 16px rgba(0, 0, 0, 0.24)",
+  tooltip: "0 8px 16px rgba(0, 0, 0, 0.24)",
+};
 
 export const discordDarkShadows: DiscordShadows = {
-  header: '0 1px 0 rgba(4, 4, 5, 0.2), 0 1.5px 0 rgba(6, 6, 7, 0.05), 0 2px 0 rgba(4, 4, 5, 0.05)',
-  dropdown: '0 8px 16px rgba(0, 0, 0, 0.24)',
-  modal: '0 0 0 1px rgba(4, 4, 5, 0.15), 0 8px 16px rgba(0, 0, 0, 0.24)',
-  toast: '0 4px 12px rgba(0, 0, 0, 0.3)',
-  contextMenu: '0 8px 16px rgba(0, 0, 0, 0.24)',
-  tooltip: '0 8px 16px rgba(0, 0, 0, 0.24)',
-}
+  header:
+    "0 1px 0 rgba(4, 4, 5, 0.2), 0 1.5px 0 rgba(6, 6, 7, 0.05), 0 2px 0 rgba(4, 4, 5, 0.05)",
+  dropdown: "0 8px 16px rgba(0, 0, 0, 0.24)",
+  modal: "0 0 0 1px rgba(4, 4, 5, 0.15), 0 8px 16px rgba(0, 0, 0, 0.24)",
+  toast: "0 4px 12px rgba(0, 0, 0, 0.3)",
+  contextMenu: "0 8px 16px rgba(0, 0, 0, 0.24)",
+  tooltip: "0 8px 16px rgba(0, 0, 0, 0.24)",
+};
 
 // ============================================================================
 // ASSEMBLED DISCORD VISUAL SKIN
@@ -477,11 +478,11 @@ export const discordDarkShadows: DiscordShadows = {
  * VisualSkin with Discord's exact visual specifications.
  */
 export const discordDetailedSkin: VisualSkin = {
-  id: 'discord-detailed',
-  name: 'Discord',
+  id: "discord-detailed",
+  name: "Discord",
   description:
-    'Detailed Discord-parity visual skin with exact colors, typography, spacing, and component styles matching Discord Web/Desktop',
-  version: '0.9.1',
+    "Detailed Discord-parity visual skin with exact colors, typography, spacing, and component styles matching Discord Web/Desktop",
+  version: "0.9.1",
   colors: discordLightColors,
   typography: discordTypography,
   spacing: discordSpacing,
@@ -491,7 +492,7 @@ export const discordDetailedSkin: VisualSkin = {
   darkMode: {
     colors: discordDarkColors,
   },
-}
+};
 
 /**
  * Full Discord visual config including extended colors and shadows.
@@ -499,15 +500,15 @@ export const discordDetailedSkin: VisualSkin = {
  * the standard VisualSkin interface.
  */
 export interface DiscordVisualConfig {
-  skin: VisualSkin
+  skin: VisualSkin;
   extendedColors: {
-    light: DiscordExtendedColors
-    dark: DiscordExtendedColors
-  }
+    light: DiscordExtendedColors;
+    dark: DiscordExtendedColors;
+  };
   shadows: {
-    light: DiscordShadows
-    dark: DiscordShadows
-  }
+    light: DiscordShadows;
+    dark: DiscordShadows;
+  };
 }
 
 export const discordVisualConfig: DiscordVisualConfig = {
@@ -520,4 +521,4 @@ export const discordVisualConfig: DiscordVisualConfig = {
     light: discordLightShadows,
     dark: discordDarkShadows,
   },
-}
+};

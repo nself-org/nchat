@@ -6,169 +6,169 @@
  * Calculates percentiles (P50, P95, P99) for quality metrics.
  */
 
-import { gql } from '@apollo/client'
-import { getServerApolloClient } from '@/lib/apollo-client'
-import { logger } from '@/lib/logger'
+import { gql } from "@apollo/client";
+import { getServerApolloClient } from "@/lib/apollo-client";
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type QualityLevel = 'excellent' | 'good' | 'fair' | 'poor' | 'critical'
+export type QualityLevel = "excellent" | "good" | "fair" | "poor" | "critical";
 
-export type NetworkType = 'cellular' | 'wifi' | 'ethernet' | 'unknown'
+export type NetworkType = "cellular" | "wifi" | "ethernet" | "unknown";
 
-export type TimeGranularity = 'minute' | 'hour' | 'day' | 'week' | 'month'
+export type TimeGranularity = "minute" | "hour" | "day" | "week" | "month";
 
 export interface QualityMetricsSummary {
-  callId: string
-  roomId?: string
-  startTime: Date
-  endTime: Date
-  duration: number // seconds
-  participantCount: number
+  callId: string;
+  roomId?: string;
+  startTime: Date;
+  endTime: Date;
+  duration: number; // seconds
+  participantCount: number;
 
   // Audio quality
   audio: {
-    avgMos: number
-    avgJitter: number
-    avgPacketLoss: number
-    avgBitrate: number
-    p50Mos: number
-    p95Mos: number
-    p99Mos: number
-  }
+    avgMos: number;
+    avgJitter: number;
+    avgPacketLoss: number;
+    avgBitrate: number;
+    p50Mos: number;
+    p95Mos: number;
+    p99Mos: number;
+  };
 
   // Video quality
   video: {
-    avgBitrate: number
-    avgFrameRate: number
-    avgResolutionWidth: number
-    avgResolutionHeight: number
-    avgPacketLoss: number
-    p50FrameRate: number
-    p95FrameRate: number
-  }
+    avgBitrate: number;
+    avgFrameRate: number;
+    avgResolutionWidth: number;
+    avgResolutionHeight: number;
+    avgPacketLoss: number;
+    p50FrameRate: number;
+    p95FrameRate: number;
+  };
 
   // Network metrics
   network: {
-    avgRtt: number
-    avgBandwidth: number
-    p50Rtt: number
-    p95Rtt: number
-    p99Rtt: number
-  }
+    avgRtt: number;
+    avgBandwidth: number;
+    p50Rtt: number;
+    p95Rtt: number;
+    p99Rtt: number;
+  };
 
   // Overall quality
-  overallScore: number
-  qualityLevel: QualityLevel
-  issuesDetected: string[]
-  alertsTriggered: number
+  overallScore: number;
+  qualityLevel: QualityLevel;
+  issuesDetected: string[];
+  alertsTriggered: number;
 }
 
 export interface UserQualityHistory {
-  userId: string
-  username: string
-  displayName: string
-  callCount: number
-  totalDuration: number
-  avgQualityScore: number
-  qualityLevel: QualityLevel
-  issuesFrequency: Record<string, number>
-  networkTypeDistribution: Record<NetworkType, number>
-  deviceDistribution: Record<string, number>
+  userId: string;
+  username: string;
+  displayName: string;
+  callCount: number;
+  totalDuration: number;
+  avgQualityScore: number;
+  qualityLevel: QualityLevel;
+  issuesFrequency: Record<string, number>;
+  networkTypeDistribution: Record<NetworkType, number>;
+  deviceDistribution: Record<string, number>;
   recentCalls: Array<{
-    callId: string
-    timestamp: Date
-    duration: number
-    qualityScore: number
-    issues: string[]
-  }>
+    callId: string;
+    timestamp: Date;
+    duration: number;
+    qualityScore: number;
+    issues: string[];
+  }>;
 }
 
 export interface RoomQualityStats {
-  roomId: string
-  roomName: string
-  callCount: number
-  totalDuration: number
-  avgQualityScore: number
-  avgParticipants: number
-  peakParticipants: number
-  issuesFrequency: Record<string, number>
-  qualityTrend: 'improving' | 'stable' | 'degrading'
+  roomId: string;
+  roomName: string;
+  callCount: number;
+  totalDuration: number;
+  avgQualityScore: number;
+  avgParticipants: number;
+  peakParticipants: number;
+  issuesFrequency: Record<string, number>;
+  qualityTrend: "improving" | "stable" | "degrading";
   timeSeriesData: Array<{
-    timestamp: Date
-    qualityScore: number
-    callCount: number
-    issueCount: number
-  }>
+    timestamp: Date;
+    qualityScore: number;
+    callCount: number;
+    issueCount: number;
+  }>;
 }
 
 export interface QualityTimeSeriesPoint {
-  timestamp: Date
-  callCount: number
-  avgQualityScore: number
-  avgMos: number
-  avgPacketLoss: number
-  avgJitter: number
-  avgRtt: number
-  issueCount: number
-  alertCount: number
+  timestamp: Date;
+  callCount: number;
+  avgQualityScore: number;
+  avgMos: number;
+  avgPacketLoss: number;
+  avgJitter: number;
+  avgRtt: number;
+  issueCount: number;
+  alertCount: number;
   qualityDistribution: {
-    excellent: number
-    good: number
-    fair: number
-    poor: number
-    critical: number
-  }
+    excellent: number;
+    good: number;
+    fair: number;
+    poor: number;
+    critical: number;
+  };
 }
 
 export interface PercentileMetrics {
-  p50: number
-  p75: number
-  p90: number
-  p95: number
-  p99: number
+  p50: number;
+  p75: number;
+  p90: number;
+  p95: number;
+  p99: number;
 }
 
 export interface GeographicBreakdown {
-  region: string
-  country: string
-  callCount: number
-  avgQualityScore: number
-  avgRtt: number
-  issuesFrequency: Record<string, number>
+  region: string;
+  country: string;
+  callCount: number;
+  avgQualityScore: number;
+  avgRtt: number;
+  issuesFrequency: Record<string, number>;
 }
 
 export interface NetworkTypeBreakdown {
-  networkType: NetworkType
-  callCount: number
-  participantCount: number
-  avgQualityScore: number
-  avgBandwidth: number
-  issuesFrequency: Record<string, number>
+  networkType: NetworkType;
+  callCount: number;
+  participantCount: number;
+  avgQualityScore: number;
+  avgBandwidth: number;
+  issuesFrequency: Record<string, number>;
 }
 
 export interface DeviceBreakdown {
-  deviceType: string
-  browser: string
-  os: string
-  callCount: number
-  avgQualityScore: number
-  issuesFrequency: Record<string, number>
+  deviceType: string;
+  browser: string;
+  os: string;
+  callCount: number;
+  avgQualityScore: number;
+  issuesFrequency: Record<string, number>;
 }
 
 export interface QualityFilters {
-  startDate?: Date
-  endDate?: Date
-  callIds?: string[]
-  roomIds?: string[]
-  userIds?: string[]
-  networkTypes?: NetworkType[]
-  qualityLevels?: QualityLevel[]
-  minQualityScore?: number
-  maxQualityScore?: number
-  hasIssues?: boolean
+  startDate?: Date;
+  endDate?: Date;
+  callIds?: string[];
+  roomIds?: string[];
+  userIds?: string[];
+  networkTypes?: NetworkType[];
+  qualityLevels?: QualityLevel[];
+  minQualityScore?: number;
+  maxQualityScore?: number;
+  hasIssues?: boolean;
 }
 
 // =============================================================================
@@ -213,15 +213,12 @@ const GET_CALL_QUALITY_REPORTS = gql`
       rtc_stats
     }
   }
-`
+`;
 
 const GET_CALL_EVENTS = gql`
   query GetCallEvents($callId: uuid!, $eventTypes: [String!]) {
     nchat_call_events(
-      where: {
-        call_id: { _eq: $callId }
-        event_type: { _in: $eventTypes }
-      }
+      where: { call_id: { _eq: $callId }, event_type: { _in: $eventTypes } }
       order_by: { created_at: asc }
     ) {
       id
@@ -232,7 +229,7 @@ const GET_CALL_EVENTS = gql`
       created_at
     }
   }
-`
+`;
 
 const GET_CALL_PARTICIPANTS = gql`
   query GetCallParticipants($callId: uuid!) {
@@ -256,15 +253,12 @@ const GET_CALL_PARTICIPANTS = gql`
       }
     }
   }
-`
+`;
 
 const GET_CALLS_BY_ROOM = gql`
   query GetCallsByRoom($roomId: uuid!, $since: timestamptz, $limit: Int!) {
     nchat_calls(
-      where: {
-        room_id: { _eq: $roomId }
-        started_at: { _gte: $since }
-      }
+      where: { room_id: { _eq: $roomId }, started_at: { _gte: $since } }
       order_by: { started_at: desc }
       limit: $limit
     ) {
@@ -282,15 +276,12 @@ const GET_CALLS_BY_ROOM = gql`
       }
     }
   }
-`
+`;
 
 const GET_USER_CALL_HISTORY = gql`
   query GetUserCallHistory($userId: uuid!, $since: timestamptz, $limit: Int!) {
     nchat_call_participants(
-      where: {
-        user_id: { _eq: $userId }
-        joined_at: { _gte: $since }
-      }
+      where: { user_id: { _eq: $userId }, joined_at: { _gte: $since } }
       order_by: { joined_at: desc }
       limit: $limit
     ) {
@@ -314,7 +305,7 @@ const GET_USER_CALL_HISTORY = gql`
       }
     }
   }
-`
+`;
 
 const GET_QUALITY_AGGREGATES_BY_TIME = gql`
   query GetQualityAggregatesByTime(
@@ -323,9 +314,7 @@ const GET_QUALITY_AGGREGATES_BY_TIME = gql`
     $granularity: String!
   ) {
     nchat_call_quality_reports_aggregate(
-      where: {
-        reported_at: { _gte: $since, _lte: $until }
-      }
+      where: { reported_at: { _gte: $since, _lte: $until } }
     ) {
       aggregate {
         count
@@ -340,7 +329,7 @@ const GET_QUALITY_AGGREGATES_BY_TIME = gql`
       }
     }
   }
-`
+`;
 
 const INSERT_QUALITY_ALERT = gql`
   mutation InsertQualityAlert($alert: nchat_call_quality_alerts_insert_input!) {
@@ -353,17 +342,17 @@ const INSERT_QUALITY_ALERT = gql`
       created_at
     }
   }
-`
+`;
 
 // =============================================================================
 // Service Implementation
 // =============================================================================
 
 export class CallQualityMetricsService {
-  private client: ReturnType<typeof getServerApolloClient>
+  private client: ReturnType<typeof getServerApolloClient>;
 
   constructor() {
-    this.client = getServerApolloClient()
+    this.client = getServerApolloClient();
   }
 
   /**
@@ -372,49 +361,53 @@ export class CallQualityMetricsService {
    */
   calculateMOS(packetLoss: number, jitter: number, rtt: number): number {
     // Base R-factor
-    let r = 93.2
+    let r = 93.2;
 
     // Impact of delay (RTT)
-    const d = rtt / 2 // One-way delay
-    const id = 0.024 * d + 0.11 * (d - 177.3) * (d > 177.3 ? 1 : 0)
-    r -= id
+    const d = rtt / 2; // One-way delay
+    const id = 0.024 * d + 0.11 * (d - 177.3) * (d > 177.3 ? 1 : 0);
+    r -= id;
 
     // Impact of packet loss
-    const ie = 0 + 30 * Math.log(1 + 15 * packetLoss)
-    r -= ie
+    const ie = 0 + 30 * Math.log(1 + 15 * packetLoss);
+    r -= ie;
 
     // Impact of jitter (approximation)
-    r -= jitter * 0.1
+    r -= jitter * 0.1;
 
     // Clamp R-factor
-    r = Math.max(0, Math.min(100, r))
+    r = Math.max(0, Math.min(100, r));
 
     // Convert R-factor to MOS
-    if (r < 0) return 1
-    if (r > 100) return 4.5
+    if (r < 0) return 1;
+    if (r > 100) return 4.5;
 
-    const mos = 1 + 0.035 * r + 7e-6 * r * (r - 60) * (100 - r)
-    return Math.max(1, Math.min(5, mos))
+    const mos = 1 + 0.035 * r + 7e-6 * r * (r - 60) * (100 - r);
+    return Math.max(1, Math.min(5, mos));
   }
 
   /**
    * Determine quality level from MOS score
    */
   getQualityLevelFromMOS(mos: number): QualityLevel {
-    if (mos >= 4.3) return 'excellent'
-    if (mos >= 4.0) return 'good'
-    if (mos >= 3.6) return 'fair'
-    if (mos >= 3.1) return 'poor'
-    return 'critical'
+    if (mos >= 4.3) return "excellent";
+    if (mos >= 4.0) return "good";
+    if (mos >= 3.6) return "fair";
+    if (mos >= 3.1) return "poor";
+    return "critical";
   }
 
   /**
    * Calculate quality score (0-100) from metrics
    */
-  calculateQualityScore(packetLoss: number, jitter: number, rtt: number): number {
-    const mos = this.calculateMOS(packetLoss, jitter, rtt)
+  calculateQualityScore(
+    packetLoss: number,
+    jitter: number,
+    rtt: number,
+  ): number {
+    const mos = this.calculateMOS(packetLoss, jitter, rtt);
     // Map MOS (1-5) to score (0-100)
-    return Math.round(((mos - 1) / 4) * 100)
+    return Math.round(((mos - 1) / 4) * 100);
   }
 
   /**
@@ -422,18 +415,18 @@ export class CallQualityMetricsService {
    */
   calculatePercentiles(values: number[]): PercentileMetrics {
     if (values.length === 0) {
-      return { p50: 0, p75: 0, p90: 0, p95: 0, p99: 0 }
+      return { p50: 0, p75: 0, p90: 0, p95: 0, p99: 0 };
     }
 
-    const sorted = [...values].sort((a, b) => a - b)
+    const sorted = [...values].sort((a, b) => a - b);
 
     const percentile = (p: number): number => {
-      const index = (p / 100) * (sorted.length - 1)
-      const lower = Math.floor(index)
-      const upper = Math.ceil(index)
-      if (lower === upper) return sorted[lower]
-      return sorted[lower] + (sorted[upper] - sorted[lower]) * (index - lower)
-    }
+      const index = (p / 100) * (sorted.length - 1);
+      const lower = Math.floor(index);
+      const upper = Math.ceil(index);
+      if (lower === upper) return sorted[lower];
+      return sorted[lower] + (sorted[upper] - sorted[lower]) * (index - lower);
+    };
 
     return {
       p50: percentile(50),
@@ -441,109 +434,132 @@ export class CallQualityMetricsService {
       p90: percentile(90),
       p95: percentile(95),
       p99: percentile(99),
-    }
+    };
   }
 
   /**
    * Get call quality summary for a specific call
    */
-  async getCallQualitySummary(callId: string): Promise<QualityMetricsSummary | null> {
+  async getCallQualitySummary(
+    callId: string,
+  ): Promise<QualityMetricsSummary | null> {
     try {
-      const [reportsResult, participantsResult, eventsResult] = await Promise.all([
-        this.client.query({
-          query: GET_CALL_QUALITY_REPORTS,
-          variables: { callId, limit: 10000 },
-          fetchPolicy: 'no-cache',
-        }),
-        this.client.query({
-          query: GET_CALL_PARTICIPANTS,
-          variables: { callId },
-          fetchPolicy: 'no-cache',
-        }),
-        this.client.query({
-          query: GET_CALL_EVENTS,
-          variables: { callId, eventTypes: ['quality_changed', 'connection_issue'] },
-          fetchPolicy: 'no-cache',
-        }),
-      ])
+      const [reportsResult, participantsResult, eventsResult] =
+        await Promise.all([
+          this.client.query({
+            query: GET_CALL_QUALITY_REPORTS,
+            variables: { callId, limit: 10000 },
+            fetchPolicy: "no-cache",
+          }),
+          this.client.query({
+            query: GET_CALL_PARTICIPANTS,
+            variables: { callId },
+            fetchPolicy: "no-cache",
+          }),
+          this.client.query({
+            query: GET_CALL_EVENTS,
+            variables: {
+              callId,
+              eventTypes: ["quality_changed", "connection_issue"],
+            },
+            fetchPolicy: "no-cache",
+          }),
+        ]);
 
-      const reports = reportsResult.data?.nchat_call_quality_reports || []
-      const participants = participantsResult.data?.nchat_call_participants || []
-      const events = eventsResult.data?.nchat_call_events || []
+      const reports = reportsResult.data?.nchat_call_quality_reports || [];
+      const participants =
+        participantsResult.data?.nchat_call_participants || [];
+      const events = eventsResult.data?.nchat_call_events || [];
 
       if (reports.length === 0) {
-        return null
+        return null;
       }
 
       // Calculate metrics from reports
-      const packetLossValues: number[] = []
-      const jitterValues: number[] = []
-      const rttValues: number[] = []
-      const bitrateValues: number[] = []
-      const audioLevelValues: number[] = []
+      const packetLossValues: number[] = [];
+      const jitterValues: number[] = [];
+      const rttValues: number[] = [];
+      const bitrateValues: number[] = [];
+      const audioLevelValues: number[] = [];
 
       reports.forEach((report: Record<string, unknown>) => {
         if (report.packet_loss_rate !== null) {
-          packetLossValues.push(report.packet_loss_rate as number)
+          packetLossValues.push(report.packet_loss_rate as number);
         }
         if (report.jitter !== null) {
-          jitterValues.push(report.jitter as number)
+          jitterValues.push(report.jitter as number);
         }
         if (report.round_trip_time !== null) {
-          rttValues.push(report.round_trip_time as number)
+          rttValues.push(report.round_trip_time as number);
         }
         if (report.bitrate_sent !== null) {
-          bitrateValues.push(report.bitrate_sent as number)
+          bitrateValues.push(report.bitrate_sent as number);
         }
         if (report.audio_level !== null) {
-          audioLevelValues.push(report.audio_level as number)
+          audioLevelValues.push(report.audio_level as number);
         }
-      })
+      });
 
       // Calculate MOS scores
       const mosValues = packetLossValues.map((loss, i) =>
-        this.calculateMOS(loss, jitterValues[i] || 0, rttValues[i] || 0)
-      )
+        this.calculateMOS(loss, jitterValues[i] || 0, rttValues[i] || 0),
+      );
 
       const avgPacketLoss =
         packetLossValues.length > 0
-          ? packetLossValues.reduce((a, b) => a + b, 0) / packetLossValues.length
-          : 0
+          ? packetLossValues.reduce((a, b) => a + b, 0) /
+            packetLossValues.length
+          : 0;
       const avgJitter =
         jitterValues.length > 0
           ? jitterValues.reduce((a, b) => a + b, 0) / jitterValues.length
-          : 0
+          : 0;
       const avgRtt =
-        rttValues.length > 0 ? rttValues.reduce((a, b) => a + b, 0) / rttValues.length : 0
+        rttValues.length > 0
+          ? rttValues.reduce((a, b) => a + b, 0) / rttValues.length
+          : 0;
       const avgBitrate =
         bitrateValues.length > 0
           ? bitrateValues.reduce((a, b) => a + b, 0) / bitrateValues.length
-          : 0
+          : 0;
       const avgMos =
-        mosValues.length > 0 ? mosValues.reduce((a, b) => a + b, 0) / mosValues.length : 0
+        mosValues.length > 0
+          ? mosValues.reduce((a, b) => a + b, 0) / mosValues.length
+          : 0;
 
-      const mosPercentiles = this.calculatePercentiles(mosValues)
-      const rttPercentiles = this.calculatePercentiles(rttValues)
+      const mosPercentiles = this.calculatePercentiles(mosValues);
+      const rttPercentiles = this.calculatePercentiles(rttValues);
 
       // Determine issues and alerts
-      const issues: string[] = []
-      if (avgPacketLoss > 5) issues.push('high_packet_loss')
-      if (avgJitter > 50) issues.push('high_jitter')
-      if (avgRtt > 200) issues.push('high_rtt')
-      if (avgBitrate < 100) issues.push('low_bandwidth')
+      const issues: string[] = [];
+      if (avgPacketLoss > 5) issues.push("high_packet_loss");
+      if (avgJitter > 50) issues.push("high_jitter");
+      if (avgRtt > 200) issues.push("high_rtt");
+      if (avgBitrate < 100) issues.push("low_bandwidth");
 
       const alertsTriggered = events.filter(
         (e: { event_type: string }) =>
-          e.event_type === 'quality_changed' || e.event_type === 'connection_issue'
-      ).length
+          e.event_type === "quality_changed" ||
+          e.event_type === "connection_issue",
+      ).length;
 
       // Calculate timestamps
-      const timestamps = reports.map((r: { reported_at: string }) => new Date(r.reported_at))
-      const startTime = new Date(Math.min(...timestamps.map((t: Date) => t.getTime())))
-      const endTime = new Date(Math.max(...timestamps.map((t: Date) => t.getTime())))
-      const duration = (endTime.getTime() - startTime.getTime()) / 1000
+      const timestamps = reports.map(
+        (r: { reported_at: string }) => new Date(r.reported_at),
+      );
+      const startTime = new Date(
+        Math.min(...timestamps.map((t: Date) => t.getTime())),
+      );
+      const endTime = new Date(
+        Math.max(...timestamps.map((t: Date) => t.getTime())),
+      );
+      const duration = (endTime.getTime() - startTime.getTime()) / 1000;
 
-      const overallScore = this.calculateQualityScore(avgPacketLoss, avgJitter, avgRtt)
+      const overallScore = this.calculateQualityScore(
+        avgPacketLoss,
+        avgJitter,
+        avgRtt,
+      );
 
       return {
         callId,
@@ -581,10 +597,13 @@ export class CallQualityMetricsService {
         qualityLevel: this.getQualityLevelFromMOS(avgMos),
         issuesDetected: issues,
         alertsTriggered,
-      }
+      };
     } catch (error) {
-      logger.error('[CallQualityMetricsService] Error getting call summary:', error)
-      return null
+      logger.error(
+        "[CallQualityMetricsService] Error getting call summary:",
+        error,
+      );
+      return null;
     }
   }
 
@@ -594,120 +613,131 @@ export class CallQualityMetricsService {
   async getUserQualityHistory(
     userId: string,
     since?: Date,
-    limit: number = 50
+    limit: number = 50,
   ): Promise<UserQualityHistory | null> {
     try {
       const { data, errors } = await this.client.query({
         query: GET_USER_CALL_HISTORY,
         variables: {
           userId,
-          since: since?.toISOString() || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+          since:
+            since?.toISOString() ||
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
           limit,
         },
-        fetchPolicy: 'no-cache',
-      })
+        fetchPolicy: "no-cache",
+      });
 
       if (errors?.length) {
-        logger.error('[CallQualityMetricsService] GraphQL errors:', errors)
-        return null
+        logger.error("[CallQualityMetricsService] GraphQL errors:", errors);
+        return null;
       }
 
-      const participations = data?.nchat_call_participants || []
+      const participations = data?.nchat_call_participants || [];
 
       if (participations.length === 0) {
-        return null
+        return null;
       }
 
       // Aggregate metrics
-      const qualityScores: number[] = []
-      const issuesFrequency: Record<string, number> = {}
+      const qualityScores: number[] = [];
+      const issuesFrequency: Record<string, number> = {};
       const networkTypeDistribution: Record<NetworkType, number> = {
         cellular: 0,
         wifi: 0,
         ethernet: 0,
         unknown: 0,
-      }
-      const deviceDistribution: Record<string, number> = {}
-      let totalDuration = 0
+      };
+      const deviceDistribution: Record<string, number> = {};
+      let totalDuration = 0;
 
-      const recentCalls = participations.slice(0, 10).map((p: Record<string, unknown>) => {
-        const packetLoss = (p.avg_packet_loss as number) || 0
-        const jitter = (p.avg_jitter as number) || 0
-        const rtt = (p.avg_round_trip_time as number) || 0
-        const score = this.calculateQualityScore(packetLoss, jitter, rtt)
-        qualityScores.push(score)
+      const recentCalls = participations
+        .slice(0, 10)
+        .map((p: Record<string, unknown>) => {
+          const packetLoss = (p.avg_packet_loss as number) || 0;
+          const jitter = (p.avg_jitter as number) || 0;
+          const rtt = (p.avg_round_trip_time as number) || 0;
+          const score = this.calculateQualityScore(packetLoss, jitter, rtt);
+          qualityScores.push(score);
 
-        // Track issues
-        const issues: string[] = []
-        if (packetLoss > 5) {
-          issues.push('high_packet_loss')
-          issuesFrequency.high_packet_loss = (issuesFrequency.high_packet_loss || 0) + 1
-        }
-        if (jitter > 50) {
-          issues.push('high_jitter')
-          issuesFrequency.high_jitter = (issuesFrequency.high_jitter || 0) + 1
-        }
-        if (rtt > 200) {
-          issues.push('high_rtt')
-          issuesFrequency.high_rtt = (issuesFrequency.high_rtt || 0) + 1
-        }
+          // Track issues
+          const issues: string[] = [];
+          if (packetLoss > 5) {
+            issues.push("high_packet_loss");
+            issuesFrequency.high_packet_loss =
+              (issuesFrequency.high_packet_loss || 0) + 1;
+          }
+          if (jitter > 50) {
+            issues.push("high_jitter");
+            issuesFrequency.high_jitter =
+              (issuesFrequency.high_jitter || 0) + 1;
+          }
+          if (rtt > 200) {
+            issues.push("high_rtt");
+            issuesFrequency.high_rtt = (issuesFrequency.high_rtt || 0) + 1;
+          }
 
-        // Track network type
-        const networkType = (p.network_type as NetworkType) || 'unknown'
-        networkTypeDistribution[networkType]++
+          // Track network type
+          const networkType = (p.network_type as NetworkType) || "unknown";
+          networkTypeDistribution[networkType]++;
 
-        // Track device
-        const deviceInfo = p.device_info as Record<string, string> | null
-        if (deviceInfo?.browser) {
-          deviceDistribution[deviceInfo.browser] =
-            (deviceDistribution[deviceInfo.browser] || 0) + 1
-        }
+          // Track device
+          const deviceInfo = p.device_info as Record<string, string> | null;
+          if (deviceInfo?.browser) {
+            deviceDistribution[deviceInfo.browser] =
+              (deviceDistribution[deviceInfo.browser] || 0) + 1;
+          }
 
-        // Calculate duration
-        if (p.joined_at && p.left_at) {
-          const joined = new Date(p.joined_at as string)
-          const left = new Date(p.left_at as string)
-          totalDuration += (left.getTime() - joined.getTime()) / 1000
-        }
+          // Calculate duration
+          if (p.joined_at && p.left_at) {
+            const joined = new Date(p.joined_at as string);
+            const left = new Date(p.left_at as string);
+            totalDuration += (left.getTime() - joined.getTime()) / 1000;
+          }
 
-        const call = p.call as Record<string, unknown>
-        return {
-          callId: p.call_id as string,
-          timestamp: new Date(p.joined_at as string),
-          duration: p.left_at
-            ? (new Date(p.left_at as string).getTime() -
-                new Date(p.joined_at as string).getTime()) /
-              1000
-            : 0,
-          qualityScore: score,
-          issues,
-        }
-      })
+          const call = p.call as Record<string, unknown>;
+          return {
+            callId: p.call_id as string,
+            timestamp: new Date(p.joined_at as string),
+            duration: p.left_at
+              ? (new Date(p.left_at as string).getTime() -
+                  new Date(p.joined_at as string).getTime()) /
+                1000
+              : 0,
+            qualityScore: score,
+            issues,
+          };
+        });
 
       const avgQualityScore =
         qualityScores.length > 0
           ? qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length
-          : 0
+          : 0;
 
       // Get user info from first participation
-      const firstUser = participations[0]?.user as Record<string, unknown>
+      const firstUser = participations[0]?.user as Record<string, unknown>;
 
       return {
         userId,
-        username: (firstUser?.username as string) || '',
-        displayName: (firstUser?.display_name as string) || '',
+        username: (firstUser?.username as string) || "",
+        displayName: (firstUser?.display_name as string) || "",
         callCount: participations.length,
         totalDuration,
         avgQualityScore,
-        qualityLevel: this.getQualityLevelFromMOS(1 + (avgQualityScore / 100) * 4),
+        qualityLevel: this.getQualityLevelFromMOS(
+          1 + (avgQualityScore / 100) * 4,
+        ),
         issuesFrequency,
         networkTypeDistribution,
         deviceDistribution,
         recentCalls,
-      }
+      };
     } catch (error) {
-      logger.error('[CallQualityMetricsService] Error getting user history:', error)
-      return null
+      logger.error(
+        "[CallQualityMetricsService] Error getting user history:",
+        error,
+      );
+      return null;
     }
   }
 
@@ -717,10 +747,10 @@ export class CallQualityMetricsService {
   async getRoomQualityStats(
     roomId: string,
     since?: Date,
-    granularity: TimeGranularity = 'hour'
+    granularity: TimeGranularity = "hour",
   ): Promise<RoomQualityStats | null> {
     try {
-      const sinceDate = since || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      const sinceDate = since || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
       const { data, errors } = await this.client.query({
         query: GET_CALLS_BY_ROOM,
@@ -729,57 +759,61 @@ export class CallQualityMetricsService {
           since: sinceDate.toISOString(),
           limit: 1000,
         },
-        fetchPolicy: 'no-cache',
-      })
+        fetchPolicy: "no-cache",
+      });
 
       if (errors?.length) {
-        logger.error('[CallQualityMetricsService] GraphQL errors:', errors)
-        return null
+        logger.error("[CallQualityMetricsService] GraphQL errors:", errors);
+        return null;
       }
 
-      const calls = data?.nchat_calls || []
+      const calls = data?.nchat_calls || [];
 
       if (calls.length === 0) {
-        return null
+        return null;
       }
 
       // Get quality summaries for each call
       const qualitySummaries = await Promise.all(
-        calls.slice(0, 50).map((call: { id: string }) => this.getCallQualitySummary(call.id))
-      )
+        calls
+          .slice(0, 50)
+          .map((call: { id: string }) => this.getCallQualitySummary(call.id)),
+      );
 
-      const validSummaries = qualitySummaries.filter((s) => s !== null) as QualityMetricsSummary[]
+      const validSummaries = qualitySummaries.filter(
+        (s) => s !== null,
+      ) as QualityMetricsSummary[];
 
       if (validSummaries.length === 0) {
-        return null
+        return null;
       }
 
       // Aggregate statistics
-      const qualityScores = validSummaries.map((s) => s.overallScore)
-      const participantCounts = validSummaries.map((s) => s.participantCount)
-      const durations = validSummaries.map((s) => s.duration)
-      const issuesFrequency: Record<string, number> = {}
+      const qualityScores = validSummaries.map((s) => s.overallScore);
+      const participantCounts = validSummaries.map((s) => s.participantCount);
+      const durations = validSummaries.map((s) => s.duration);
+      const issuesFrequency: Record<string, number> = {};
 
       validSummaries.forEach((s) => {
         s.issuesDetected.forEach((issue) => {
-          issuesFrequency[issue] = (issuesFrequency[issue] || 0) + 1
-        })
-      })
+          issuesFrequency[issue] = (issuesFrequency[issue] || 0) + 1;
+        });
+      });
 
       const avgQualityScore =
-        qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length
+        qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length;
       const avgParticipants =
-        participantCounts.reduce((a, b) => a + b, 0) / participantCounts.length
-      const peakParticipants = Math.max(...participantCounts)
-      const totalDuration = durations.reduce((a, b) => a + b, 0)
+        participantCounts.reduce((a, b) => a + b, 0) / participantCounts.length;
+      const peakParticipants = Math.max(...participantCounts);
+      const totalDuration = durations.reduce((a, b) => a + b, 0);
 
       // Generate time series data
       const rawTimeSeries = this.generateTimeSeries(
         validSummaries,
         sinceDate,
         new Date(),
-        granularity
-      )
+        granularity,
+      );
 
       // Map to the expected format for RoomQualityStats
       const timeSeriesData = rawTimeSeries.map((point) => ({
@@ -787,14 +821,14 @@ export class CallQualityMetricsService {
         qualityScore: point.avgQualityScore,
         callCount: point.callCount,
         issueCount: point.issueCount,
-      }))
+      }));
 
       // Calculate quality trend
-      const qualityTrend = this.calculateQualityTrend(rawTimeSeries)
+      const qualityTrend = this.calculateQualityTrend(rawTimeSeries);
 
       return {
         roomId,
-        roomName: '', // Would need to query room info
+        roomName: "", // Would need to query room info
         callCount: calls.length,
         totalDuration,
         avgQualityScore,
@@ -803,10 +837,13 @@ export class CallQualityMetricsService {
         issuesFrequency,
         qualityTrend,
         timeSeriesData,
-      }
+      };
     } catch (error) {
-      logger.error('[CallQualityMetricsService] Error getting room stats:', error)
-      return null
+      logger.error(
+        "[CallQualityMetricsService] Error getting room stats:",
+        error,
+      );
+      return null;
     }
   }
 
@@ -817,48 +854,54 @@ export class CallQualityMetricsService {
     summaries: QualityMetricsSummary[],
     start: Date,
     end: Date,
-    granularity: TimeGranularity
+    granularity: TimeGranularity,
   ): QualityTimeSeriesPoint[] {
-    const buckets = new Map<string, QualityMetricsSummary[]>()
+    const buckets = new Map<string, QualityMetricsSummary[]>();
 
     // Group summaries by time bucket
     summaries.forEach((summary) => {
-      const bucketKey = this.getTimeBucketKey(summary.startTime, granularity)
+      const bucketKey = this.getTimeBucketKey(summary.startTime, granularity);
       if (!buckets.has(bucketKey)) {
-        buckets.set(bucketKey, [])
+        buckets.set(bucketKey, []);
       }
-      buckets.get(bucketKey)!.push(summary)
-    })
+      buckets.get(bucketKey)!.push(summary);
+    });
 
     // Generate complete time series with all buckets
-    const result: QualityTimeSeriesPoint[] = []
-    const current = new Date(start)
+    const result: QualityTimeSeriesPoint[] = [];
+    const current = new Date(start);
 
     while (current <= end) {
-      const bucketKey = this.getTimeBucketKey(current, granularity)
-      const bucketSummaries = buckets.get(bucketKey) || []
+      const bucketKey = this.getTimeBucketKey(current, granularity);
+      const bucketSummaries = buckets.get(bucketKey) || [];
 
-      const qualityDistribution = { excellent: 0, good: 0, fair: 0, poor: 0, critical: 0 }
-      let totalScore = 0
-      let totalMos = 0
-      let totalPacketLoss = 0
-      let totalJitter = 0
-      let totalRtt = 0
-      let issueCount = 0
-      let alertCount = 0
+      const qualityDistribution = {
+        excellent: 0,
+        good: 0,
+        fair: 0,
+        poor: 0,
+        critical: 0,
+      };
+      let totalScore = 0;
+      let totalMos = 0;
+      let totalPacketLoss = 0;
+      let totalJitter = 0;
+      let totalRtt = 0;
+      let issueCount = 0;
+      let alertCount = 0;
 
       bucketSummaries.forEach((s) => {
-        totalScore += s.overallScore
-        totalMos += s.audio.avgMos
-        totalPacketLoss += s.audio.avgPacketLoss
-        totalJitter += s.audio.avgJitter
-        totalRtt += s.network.avgRtt
-        issueCount += s.issuesDetected.length
-        alertCount += s.alertsTriggered
-        qualityDistribution[s.qualityLevel]++
-      })
+        totalScore += s.overallScore;
+        totalMos += s.audio.avgMos;
+        totalPacketLoss += s.audio.avgPacketLoss;
+        totalJitter += s.audio.avgJitter;
+        totalRtt += s.network.avgRtt;
+        issueCount += s.issuesDetected.length;
+        alertCount += s.alertsTriggered;
+        qualityDistribution[s.qualityLevel]++;
+      });
 
-      const count = bucketSummaries.length
+      const count = bucketSummaries.length;
 
       result.push({
         timestamp: new Date(current),
@@ -871,40 +914,40 @@ export class CallQualityMetricsService {
         issueCount,
         alertCount,
         qualityDistribution,
-      })
+      });
 
       // Advance to next bucket
-      this.advanceTimeBucket(current, granularity)
+      this.advanceTimeBucket(current, granularity);
     }
 
-    return result
+    return result;
   }
 
   /**
    * Get time bucket key for a date
    */
   private getTimeBucketKey(date: Date, granularity: TimeGranularity): string {
-    const d = new Date(date)
+    const d = new Date(date);
     switch (granularity) {
-      case 'minute':
-        d.setSeconds(0, 0)
-        break
-      case 'hour':
-        d.setMinutes(0, 0, 0)
-        break
-      case 'day':
-        d.setHours(0, 0, 0, 0)
-        break
-      case 'week':
-        d.setHours(0, 0, 0, 0)
-        d.setDate(d.getDate() - d.getDay())
-        break
-      case 'month':
-        d.setHours(0, 0, 0, 0)
-        d.setDate(1)
-        break
+      case "minute":
+        d.setSeconds(0, 0);
+        break;
+      case "hour":
+        d.setMinutes(0, 0, 0);
+        break;
+      case "day":
+        d.setHours(0, 0, 0, 0);
+        break;
+      case "week":
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() - d.getDay());
+        break;
+      case "month":
+        d.setHours(0, 0, 0, 0);
+        d.setDate(1);
+        break;
     }
-    return d.toISOString()
+    return d.toISOString();
   }
 
   /**
@@ -912,21 +955,21 @@ export class CallQualityMetricsService {
    */
   private advanceTimeBucket(date: Date, granularity: TimeGranularity): void {
     switch (granularity) {
-      case 'minute':
-        date.setMinutes(date.getMinutes() + 1)
-        break
-      case 'hour':
-        date.setHours(date.getHours() + 1)
-        break
-      case 'day':
-        date.setDate(date.getDate() + 1)
-        break
-      case 'week':
-        date.setDate(date.getDate() + 7)
-        break
-      case 'month':
-        date.setMonth(date.getMonth() + 1)
-        break
+      case "minute":
+        date.setMinutes(date.getMinutes() + 1);
+        break;
+      case "hour":
+        date.setHours(date.getHours() + 1);
+        break;
+      case "day":
+        date.setDate(date.getDate() + 1);
+        break;
+      case "week":
+        date.setDate(date.getDate() + 7);
+        break;
+      case "month":
+        date.setMonth(date.getMonth() + 1);
+        break;
     }
   }
 
@@ -934,37 +977,46 @@ export class CallQualityMetricsService {
    * Calculate quality trend from time series data
    */
   private calculateQualityTrend(
-    timeSeries: QualityTimeSeriesPoint[]
-  ): 'improving' | 'stable' | 'degrading' {
-    if (timeSeries.length < 2) return 'stable'
+    timeSeries: QualityTimeSeriesPoint[],
+  ): "improving" | "stable" | "degrading" {
+    if (timeSeries.length < 2) return "stable";
 
-    const validPoints = timeSeries.filter((p) => p.callCount > 0)
-    if (validPoints.length < 2) return 'stable'
+    const validPoints = timeSeries.filter((p) => p.callCount > 0);
+    if (validPoints.length < 2) return "stable";
 
-    const halfIndex = Math.floor(validPoints.length / 2)
-    const firstHalf = validPoints.slice(0, halfIndex)
-    const secondHalf = validPoints.slice(halfIndex)
+    const halfIndex = Math.floor(validPoints.length / 2);
+    const firstHalf = validPoints.slice(0, halfIndex);
+    const secondHalf = validPoints.slice(halfIndex);
 
     const firstAvg =
-      firstHalf.reduce((sum, p) => sum + p.avgQualityScore, 0) / firstHalf.length
+      firstHalf.reduce((sum, p) => sum + p.avgQualityScore, 0) /
+      firstHalf.length;
     const secondAvg =
-      secondHalf.reduce((sum, p) => sum + p.avgQualityScore, 0) / secondHalf.length
+      secondHalf.reduce((sum, p) => sum + p.avgQualityScore, 0) /
+      secondHalf.length;
 
-    const diff = secondAvg - firstAvg
+    const diff = secondAvg - firstAvg;
 
-    if (diff > 5) return 'improving'
-    if (diff < -5) return 'degrading'
-    return 'stable'
+    if (diff > 5) return "improving";
+    if (diff < -5) return "degrading";
+    return "stable";
   }
 
   /**
    * Get quality breakdown by network type
    */
-  async getNetworkTypeBreakdown(filters: QualityFilters): Promise<NetworkTypeBreakdown[]> {
+  async getNetworkTypeBreakdown(
+    filters: QualityFilters,
+  ): Promise<NetworkTypeBreakdown[]> {
     try {
       // This would need a more complex query aggregating by network_type
       // For now, return mock structure
-      const networkTypes: NetworkType[] = ['wifi', 'cellular', 'ethernet', 'unknown']
+      const networkTypes: NetworkType[] = [
+        "wifi",
+        "cellular",
+        "ethernet",
+        "unknown",
+      ];
 
       return networkTypes.map((networkType) => ({
         networkType,
@@ -973,36 +1025,49 @@ export class CallQualityMetricsService {
         avgQualityScore: 0,
         avgBandwidth: 0,
         issuesFrequency: {},
-      }))
+      }));
     } catch (error) {
-      logger.error('[CallQualityMetricsService] Error getting network breakdown:', error)
-      return []
+      logger.error(
+        "[CallQualityMetricsService] Error getting network breakdown:",
+        error,
+      );
+      return [];
     }
   }
 
   /**
    * Get quality breakdown by device/browser
    */
-  async getDeviceBreakdown(filters: QualityFilters): Promise<DeviceBreakdown[]> {
+  async getDeviceBreakdown(
+    filters: QualityFilters,
+  ): Promise<DeviceBreakdown[]> {
     try {
       // This would need aggregation by device_info
-      return []
+      return [];
     } catch (error) {
-      logger.error('[CallQualityMetricsService] Error getting device breakdown:', error)
-      return []
+      logger.error(
+        "[CallQualityMetricsService] Error getting device breakdown:",
+        error,
+      );
+      return [];
     }
   }
 
   /**
    * Get quality breakdown by geographic region
    */
-  async getGeographicBreakdown(filters: QualityFilters): Promise<GeographicBreakdown[]> {
+  async getGeographicBreakdown(
+    filters: QualityFilters,
+  ): Promise<GeographicBreakdown[]> {
     try {
       // This would need IP geolocation data
-      return []
+      return [];
     } catch (error) {
-      logger.error('[CallQualityMetricsService] Error getting geographic breakdown:', error)
-      return []
+      logger.error(
+        "[CallQualityMetricsService] Error getting geographic breakdown:",
+        error,
+      );
+      return [];
     }
   }
 
@@ -1011,19 +1076,19 @@ export class CallQualityMetricsService {
    */
   async getGlobalMetrics(
     since: Date,
-    until: Date = new Date()
+    until: Date = new Date(),
   ): Promise<{
-    totalCalls: number
-    totalDuration: number
-    avgQualityScore: number
-    avgMos: number
-    qualityDistribution: Record<QualityLevel, number>
-    topIssues: Array<{ issue: string; count: number; percentage: number }>
+    totalCalls: number;
+    totalDuration: number;
+    avgQualityScore: number;
+    avgMos: number;
+    qualityDistribution: Record<QualityLevel, number>;
+    topIssues: Array<{ issue: string; count: number; percentage: number }>;
     percentiles: {
-      qualityScore: PercentileMetrics
-      rtt: PercentileMetrics
-      packetLoss: PercentileMetrics
-    }
+      qualityScore: PercentileMetrics;
+      rtt: PercentileMetrics;
+      packetLoss: PercentileMetrics;
+    };
   }> {
     try {
       const { data } = await this.client.query({
@@ -1031,20 +1096,24 @@ export class CallQualityMetricsService {
         variables: {
           since: since.toISOString(),
           until: until.toISOString(),
-          granularity: 'day',
+          granularity: "day",
         },
-        fetchPolicy: 'no-cache',
-      })
+        fetchPolicy: "no-cache",
+      });
 
-      const agg = data?.nchat_call_quality_reports_aggregate?.aggregate
+      const agg = data?.nchat_call_quality_reports_aggregate?.aggregate;
 
-      const totalReports = parseInt(agg?.count || '0', 10)
-      const avgPacketLoss = parseFloat(agg?.avg?.packet_loss_rate || '0')
-      const avgJitter = parseFloat(agg?.avg?.jitter || '0')
-      const avgRtt = parseFloat(agg?.avg?.round_trip_time || '0')
+      const totalReports = parseInt(agg?.count || "0", 10);
+      const avgPacketLoss = parseFloat(agg?.avg?.packet_loss_rate || "0");
+      const avgJitter = parseFloat(agg?.avg?.jitter || "0");
+      const avgRtt = parseFloat(agg?.avg?.round_trip_time || "0");
 
-      const avgMos = this.calculateMOS(avgPacketLoss, avgJitter, avgRtt)
-      const avgQualityScore = this.calculateQualityScore(avgPacketLoss, avgJitter, avgRtt)
+      const avgMos = this.calculateMOS(avgPacketLoss, avgJitter, avgRtt);
+      const avgQualityScore = this.calculateQualityScore(
+        avgPacketLoss,
+        avgJitter,
+        avgRtt,
+      );
 
       return {
         totalCalls: totalReports,
@@ -1064,22 +1133,25 @@ export class CallQualityMetricsService {
           rtt: { p50: 0, p75: 0, p90: 0, p95: 0, p99: 0 },
           packetLoss: { p50: 0, p75: 0, p90: 0, p95: 0, p99: 0 },
         },
-      }
+      };
     } catch (error) {
-      logger.error('[CallQualityMetricsService] Error getting global metrics:', error)
-      throw error
+      logger.error(
+        "[CallQualityMetricsService] Error getting global metrics:",
+        error,
+      );
+      throw error;
     }
   }
 }
 
 // Singleton instance
-let serviceInstance: CallQualityMetricsService | null = null
+let serviceInstance: CallQualityMetricsService | null = null;
 
 export function getCallQualityMetricsService(): CallQualityMetricsService {
   if (!serviceInstance) {
-    serviceInstance = new CallQualityMetricsService()
+    serviceInstance = new CallQualityMetricsService();
   }
-  return serviceInstance
+  return serviceInstance;
 }
 
-export default CallQualityMetricsService
+export default CallQualityMetricsService;

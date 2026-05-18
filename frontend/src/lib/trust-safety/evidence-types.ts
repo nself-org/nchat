@@ -16,43 +16,43 @@
 /**
  * Unique identifier for evidence records
  */
-export type EvidenceId = string
+export type EvidenceId = string;
 
 /**
  * Evidence record status
  */
 export type EvidenceStatus =
-  | 'active' // Currently relevant and accessible
-  | 'archived' // Past retention period but preserved
-  | 'legal_hold' // Under legal hold, cannot be deleted
-  | 'deleted' // Marked for deletion (soft delete)
-  | 'purged' // Permanently removed (only after legal hold expires)
+  | "active" // Currently relevant and accessible
+  | "archived" // Past retention period but preserved
+  | "legal_hold" // Under legal hold, cannot be deleted
+  | "deleted" // Marked for deletion (soft delete)
+  | "purged"; // Permanently removed (only after legal hold expires)
 
 /**
  * Types of evidence that can be collected
  */
 export type EvidenceType =
-  | 'message' // Chat message content
-  | 'attachment' // File attachments
-  | 'user_profile' // User profile data
-  | 'channel_metadata' // Channel information
-  | 'moderation_action' // Moderation actions taken
-  | 'report' // User reports
-  | 'appeal' // Appeals submitted
-  | 'system_log' // System-generated logs
-  | 'audit_trail' // Audit log entries
-  | 'screenshot' // Screenshot evidence
-  | 'media' // Audio/video content
+  | "message" // Chat message content
+  | "attachment" // File attachments
+  | "user_profile" // User profile data
+  | "channel_metadata" // Channel information
+  | "moderation_action" // Moderation actions taken
+  | "report" // User reports
+  | "appeal" // Appeals submitted
+  | "system_log" // System-generated logs
+  | "audit_trail" // Audit log entries
+  | "screenshot" // Screenshot evidence
+  | "media"; // Audio/video content
 
 /**
  * Priority levels for evidence
  */
-export type EvidencePriority = 'low' | 'medium' | 'high' | 'critical'
+export type EvidencePriority = "low" | "medium" | "high" | "critical";
 
 /**
  * Hash algorithm used for integrity verification
  */
-export type HashAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512'
+export type HashAlgorithm = "SHA-256" | "SHA-384" | "SHA-512";
 
 // ============================================================================
 // Evidence Record
@@ -63,13 +63,13 @@ export type HashAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512'
  */
 export interface ContentHash {
   /** Hash algorithm used */
-  algorithm: HashAlgorithm
+  algorithm: HashAlgorithm;
   /** Hex-encoded hash value */
-  value: string
+  value: string;
   /** When the hash was computed */
-  computedAt: Date
+  computedAt: Date;
   /** Previous hash in the chain (for chained hashing) */
-  previousHash?: string
+  previousHash?: string;
 }
 
 /**
@@ -77,15 +77,15 @@ export interface ContentHash {
  */
 export interface EvidenceMetadata {
   /** Original source of the evidence */
-  source: string
+  source: string;
   /** Content type (MIME type if applicable) */
-  contentType?: string
+  contentType?: string;
   /** Size in bytes */
-  sizeBytes?: number
+  sizeBytes?: number;
   /** Original filename if applicable */
-  filename?: string
+  filename?: string;
   /** Additional key-value metadata */
-  custom?: Record<string, unknown>
+  custom?: Record<string, unknown>;
 }
 
 /**
@@ -93,11 +93,11 @@ export interface EvidenceMetadata {
  */
 export interface EvidenceReference {
   /** Type of reference */
-  type: 'evidence' | 'user' | 'channel' | 'message' | 'report' | 'case'
+  type: "evidence" | "user" | "channel" | "message" | "report" | "case";
   /** ID of referenced entity */
-  id: string
+  id: string;
   /** Relationship description */
-  relationship: string
+  relationship: string;
 }
 
 /**
@@ -105,61 +105,61 @@ export interface EvidenceReference {
  */
 export interface EvidenceRecord {
   /** Unique identifier */
-  id: EvidenceId
+  id: EvidenceId;
   /** Type of evidence */
-  type: EvidenceType
+  type: EvidenceType;
   /** Current status */
-  status: EvidenceStatus
+  status: EvidenceStatus;
   /** Priority level */
-  priority: EvidencePriority
+  priority: EvidencePriority;
 
   /** The actual content (may be encrypted) */
-  content: string
+  content: string;
   /** Whether content is encrypted */
-  isEncrypted: boolean
+  isEncrypted: boolean;
   /** Encryption key ID if encrypted */
-  encryptionKeyId?: string
+  encryptionKeyId?: string;
 
   /** Content integrity hash */
-  contentHash: ContentHash
+  contentHash: ContentHash;
   /** Chain hash linking to previous record */
-  chainHash?: ContentHash
+  chainHash?: ContentHash;
 
   /** Evidence metadata */
-  metadata: EvidenceMetadata
+  metadata: EvidenceMetadata;
 
   /** Related entities */
-  references: EvidenceReference[]
+  references: EvidenceReference[];
 
   /** Associated workspace */
-  workspaceId: string
+  workspaceId: string;
   /** Associated channel if applicable */
-  channelId?: string
+  channelId?: string;
   /** Associated user if applicable */
-  userId?: string
+  userId?: string;
 
   /** Who collected this evidence */
-  collectedBy: string
+  collectedBy: string;
   /** When it was collected */
-  collectedAt: Date
+  collectedAt: Date;
   /** Reason for collection */
-  collectionReason: string
+  collectionReason: string;
 
   /** Legal hold IDs applied to this evidence */
-  legalHoldIds: string[]
+  legalHoldIds: string[];
 
   /** Retention policy applied */
-  retentionPolicyId?: string
+  retentionPolicyId?: string;
   /** When this evidence should be reviewed for deletion */
-  retentionExpiresAt?: Date
+  retentionExpiresAt?: Date;
 
   /** When the record was created (immutable) */
-  createdAt: Date
+  createdAt: Date;
   /** Last status update */
-  updatedAt: Date
+  updatedAt: Date;
 
   /** Version for optimistic locking */
-  version: number
+  version: number;
 }
 
 // ============================================================================
@@ -170,51 +170,51 @@ export interface EvidenceRecord {
  * Types of custody events
  */
 export type CustodyEventType =
-  | 'collected' // Evidence first collected
-  | 'accessed' // Evidence was accessed/viewed
-  | 'exported' // Evidence was exported
-  | 'transferred' // Custody transferred to another party
-  | 'legal_hold_applied' // Legal hold placed on evidence
-  | 'legal_hold_released' // Legal hold removed
-  | 'status_changed' // Status was changed
-  | 'verified' // Integrity was verified
-  | 'failed_verification' // Integrity check failed
-  | 'archived' // Evidence was archived
-  | 'restored' // Evidence was restored from archive
-  | 'annotated' // Notes were added
+  | "collected" // Evidence first collected
+  | "accessed" // Evidence was accessed/viewed
+  | "exported" // Evidence was exported
+  | "transferred" // Custody transferred to another party
+  | "legal_hold_applied" // Legal hold placed on evidence
+  | "legal_hold_released" // Legal hold removed
+  | "status_changed" // Status was changed
+  | "verified" // Integrity was verified
+  | "failed_verification" // Integrity check failed
+  | "archived" // Evidence was archived
+  | "restored" // Evidence was restored from archive
+  | "annotated"; // Notes were added
 
 /**
  * Chain of custody entry
  */
 export interface CustodyEntry {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Evidence ID this entry relates to */
-  evidenceId: EvidenceId
+  evidenceId: EvidenceId;
   /** Type of custody event */
-  eventType: CustodyEventType
+  eventType: CustodyEventType;
   /** Who performed the action */
-  actorId: string
+  actorId: string;
   /** Actor's name (for record keeping) */
-  actorName?: string
+  actorName?: string;
   /** Actor's role at time of action */
-  actorRole: string
+  actorRole: string;
   /** When the event occurred */
-  timestamp: Date
+  timestamp: Date;
   /** IP address of actor */
-  ipAddress?: string
+  ipAddress?: string;
   /** User agent string */
-  userAgent?: string
+  userAgent?: string;
   /** Description of the action */
-  description: string
+  description: string;
   /** Any notes added */
-  notes?: string
+  notes?: string;
   /** Hash of this entry for verification */
-  entryHash: string
+  entryHash: string;
   /** Hash of previous entry (creates chain) */
-  previousEntryHash?: string
+  previousEntryHash?: string;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -222,15 +222,15 @@ export interface CustodyEntry {
  */
 export interface CustodyChain {
   /** Evidence ID */
-  evidenceId: EvidenceId
+  evidenceId: EvidenceId;
   /** All custody entries in chronological order */
-  entries: CustodyEntry[]
+  entries: CustodyEntry[];
   /** Hash of the complete chain */
-  chainHash: string
+  chainHash: string;
   /** Last verification timestamp */
-  lastVerified?: Date
+  lastVerified?: Date;
   /** Whether the chain is valid */
-  isValid: boolean
+  isValid: boolean;
 }
 
 // ============================================================================
@@ -241,69 +241,69 @@ export interface CustodyChain {
  * Legal hold status
  */
 export type LegalHoldStatus =
-  | 'active' // Currently in effect
-  | 'pending' // Scheduled to take effect
-  | 'released' // No longer in effect
-  | 'expired' // Past expiration date
+  | "active" // Currently in effect
+  | "pending" // Scheduled to take effect
+  | "released" // No longer in effect
+  | "expired"; // Past expiration date
 
 /**
  * Legal hold scope
  */
 export type LegalHoldScope =
-  | 'user' // All evidence related to a user
-  | 'channel' // All evidence in a channel
-  | 'workspace' // All evidence in a workspace
-  | 'date_range' // Evidence within a date range
-  | 'specific' // Specific evidence IDs
-  | 'query' // Evidence matching a query
+  | "user" // All evidence related to a user
+  | "channel" // All evidence in a channel
+  | "workspace" // All evidence in a workspace
+  | "date_range" // Evidence within a date range
+  | "specific" // Specific evidence IDs
+  | "query"; // Evidence matching a query
 
 /**
  * Legal hold record
  */
 export interface LegalHold {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Name of the legal hold */
-  name: string
+  name: string;
   /** Description and reason for the hold */
-  description: string
+  description: string;
   /** Current status */
-  status: LegalHoldStatus
+  status: LegalHoldStatus;
   /** Scope of the hold */
-  scope: LegalHoldScope
+  scope: LegalHoldScope;
 
   /** Target criteria based on scope */
-  criteria: LegalHoldCriteria
+  criteria: LegalHoldCriteria;
 
   /** Case number or reference */
-  caseReference?: string
+  caseReference?: string;
   /** Legal matter ID */
-  legalMatterId?: string
+  legalMatterId?: string;
 
   /** Who requested the hold */
-  requestedBy: string
+  requestedBy: string;
   /** Who approved the hold */
-  approvedBy?: string
+  approvedBy?: string;
   /** Legal counsel contact */
-  legalContact?: string
+  legalContact?: string;
 
   /** When the hold takes effect */
-  effectiveFrom: Date
+  effectiveFrom: Date;
   /** When the hold expires (if applicable) */
-  expiresAt?: Date
+  expiresAt?: Date;
 
   /** Evidence IDs currently under this hold */
-  evidenceIds: EvidenceId[]
+  evidenceIds: EvidenceId[];
   /** Count of evidence records */
-  evidenceCount: number
+  evidenceCount: number;
 
   /** When created */
-  createdAt: Date
+  createdAt: Date;
   /** Last updated */
-  updatedAt: Date
+  updatedAt: Date;
 
   /** Audit notes */
-  notes?: string[]
+  notes?: string[];
 }
 
 /**
@@ -311,23 +311,23 @@ export interface LegalHold {
  */
 export interface LegalHoldCriteria {
   /** User IDs to include */
-  userIds?: string[]
+  userIds?: string[];
   /** Channel IDs to include */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Workspace ID */
-  workspaceId?: string
+  workspaceId?: string;
   /** Date range start */
-  startDate?: Date
+  startDate?: Date;
   /** Date range end */
-  endDate?: Date
+  endDate?: Date;
   /** Specific evidence IDs */
-  evidenceIds?: EvidenceId[]
+  evidenceIds?: EvidenceId[];
   /** Search query */
-  query?: string
+  query?: string;
   /** Evidence types to include */
-  evidenceTypes?: EvidenceType[]
+  evidenceTypes?: EvidenceType[];
   /** Keywords to match */
-  keywords?: string[]
+  keywords?: string[];
 }
 
 // ============================================================================
@@ -339,38 +339,38 @@ export interface LegalHoldCriteria {
  */
 export interface RetentionPolicy {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Name of the policy */
-  name: string
+  name: string;
   /** Description */
-  description: string
+  description: string;
   /** Whether this policy is active */
-  isActive: boolean
+  isActive: boolean;
 
   /** Evidence types this policy applies to */
-  evidenceTypes: EvidenceType[]
+  evidenceTypes: EvidenceType[];
   /** Priority levels this policy applies to */
-  priorities?: EvidencePriority[]
+  priorities?: EvidencePriority[];
 
   /** Retention period in days */
-  retentionDays: number
+  retentionDays: number;
   /** Action to take when retention expires */
-  expirationAction: 'archive' | 'delete' | 'review'
+  expirationAction: "archive" | "delete" | "review";
 
   /** Whether to archive before deletion */
-  archiveBeforeDelete: boolean
+  archiveBeforeDelete: boolean;
   /** Archive retention in days (if archiving) */
-  archiveRetentionDays?: number
+  archiveRetentionDays?: number;
 
   /** Who can override this policy */
-  overrideRoles?: string[]
+  overrideRoles?: string[];
 
   /** When created */
-  createdAt: Date
+  createdAt: Date;
   /** Last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** Who created this policy */
-  createdBy: string
+  createdBy: string;
 }
 
 // ============================================================================
@@ -380,56 +380,61 @@ export interface RetentionPolicy {
 /**
  * Export format types
  */
-export type ExportFormat = 'json' | 'pdf' | 'csv' | 'eml' | 'zip'
+export type ExportFormat = "json" | "pdf" | "csv" | "eml" | "zip";
 
 /**
  * Export status
  */
-export type ExportStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'expired'
+export type ExportStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "expired";
 
 /**
  * Evidence export request
  */
 export interface EvidenceExportRequest {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Who requested the export */
-  requestedBy: string
+  requestedBy: string;
   /** When requested */
-  requestedAt: Date
+  requestedAt: Date;
 
   /** Evidence IDs to export */
-  evidenceIds: EvidenceId[]
+  evidenceIds: EvidenceId[];
   /** Export format */
-  format: ExportFormat
+  format: ExportFormat;
   /** Whether to include custody chain */
-  includeCustodyChain: boolean
+  includeCustodyChain: boolean;
   /** Whether to include verification data */
-  includeVerification: boolean
+  includeVerification: boolean;
   /** Whether to redact sensitive data */
-  redactSensitive: boolean
+  redactSensitive: boolean;
 
   /** Export status */
-  status: ExportStatus
+  status: ExportStatus;
   /** Processing progress (0-100) */
-  progress: number
+  progress: number;
 
   /** Result file URL (when completed) */
-  resultUrl?: string
+  resultUrl?: string;
   /** Result file hash */
-  resultHash?: ContentHash
+  resultHash?: ContentHash;
   /** Result file size */
-  resultSizeBytes?: number
+  resultSizeBytes?: number;
   /** When result expires */
-  resultExpiresAt?: Date
+  resultExpiresAt?: Date;
 
   /** Error message if failed */
-  error?: string
+  error?: string;
 
   /** When processing started */
-  startedAt?: Date
+  startedAt?: Date;
   /** When completed */
-  completedAt?: Date
+  completedAt?: Date;
 }
 
 /**
@@ -438,39 +443,39 @@ export interface EvidenceExportRequest {
 export interface EvidenceExportPackage {
   /** Export metadata */
   metadata: {
-    exportId: string
-    exportedAt: Date
-    exportedBy: string
-    format: ExportFormat
-    evidenceCount: number
-    totalSizeBytes: number
-  }
+    exportId: string;
+    exportedAt: Date;
+    exportedBy: string;
+    format: ExportFormat;
+    evidenceCount: number;
+    totalSizeBytes: number;
+  };
 
   /** Package integrity hash */
-  packageHash: ContentHash
+  packageHash: ContentHash;
 
   /** Manifest of included evidence */
   manifest: {
-    evidenceId: EvidenceId
-    type: EvidenceType
-    contentHash: string
-    filename?: string
-  }[]
+    evidenceId: EvidenceId;
+    type: EvidenceType;
+    contentHash: string;
+    filename?: string;
+  }[];
 
   /** Chain of custody for each evidence */
-  custodyChains?: Record<EvidenceId, CustodyChain>
+  custodyChains?: Record<EvidenceId, CustodyChain>;
 
   /** Verification certificate */
   verification: {
-    algorithm: HashAlgorithm
-    rootHash: string
-    timestamp: Date
-    signedBy?: string
-    signature?: string
-  }
+    algorithm: HashAlgorithm;
+    rootHash: string;
+    timestamp: Date;
+    signedBy?: string;
+    signature?: string;
+  };
 
   /** Evidence records (in JSON format, or paths in ZIP) */
-  evidence: EvidenceRecord[] | string[]
+  evidence: EvidenceRecord[] | string[];
 }
 
 // ============================================================================
@@ -481,47 +486,47 @@ export interface EvidenceExportPackage {
  * Audit event categories
  */
 export type AuditCategory =
-  | 'evidence' // Evidence-related events
-  | 'legal_hold' // Legal hold events
-  | 'export' // Export events
-  | 'access' // Access events
-  | 'configuration' // Configuration changes
-  | 'verification' // Verification events
+  | "evidence" // Evidence-related events
+  | "legal_hold" // Legal hold events
+  | "export" // Export events
+  | "access" // Access events
+  | "configuration" // Configuration changes
+  | "verification"; // Verification events
 
 /**
  * Audit trail entry
  */
 export interface AuditEntry {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Category of event */
-  category: AuditCategory
+  category: AuditCategory;
   /** Specific action */
-  action: string
+  action: string;
   /** Who performed the action */
-  actorId: string
+  actorId: string;
   /** Actor's role */
-  actorRole: string
+  actorRole: string;
   /** When it occurred */
-  timestamp: Date
+  timestamp: Date;
   /** IP address */
-  ipAddress?: string
+  ipAddress?: string;
   /** Target entity type */
-  targetType?: string
+  targetType?: string;
   /** Target entity ID */
-  targetId?: string
+  targetId?: string;
   /** Description of the action */
-  description: string
+  description: string;
   /** Before state (for changes) */
-  beforeState?: Record<string, unknown>
+  beforeState?: Record<string, unknown>;
   /** After state (for changes) */
-  afterState?: Record<string, unknown>
+  afterState?: Record<string, unknown>;
   /** Hash of this entry */
-  entryHash: string
+  entryHash: string;
   /** Hash of previous entry in chain */
-  previousHash?: string
+  previousHash?: string;
   /** Request ID for correlation */
-  requestId?: string
+  requestId?: string;
 }
 
 // ============================================================================
@@ -533,17 +538,17 @@ export interface AuditEntry {
  */
 export interface VerificationResult {
   /** Evidence ID verified */
-  evidenceId: EvidenceId
+  evidenceId: EvidenceId;
   /** Whether verification passed */
-  isValid: boolean
+  isValid: boolean;
   /** Timestamp of verification */
-  verifiedAt: Date
+  verifiedAt: Date;
   /** Who performed verification */
-  verifiedBy: string
+  verifiedBy: string;
   /** Checks performed */
-  checks: VerificationCheck[]
+  checks: VerificationCheck[];
   /** Overall result message */
-  message: string
+  message: string;
 }
 
 /**
@@ -551,15 +556,15 @@ export interface VerificationResult {
  */
 export interface VerificationCheck {
   /** Name of the check */
-  name: string
+  name: string;
   /** Whether it passed */
-  passed: boolean
+  passed: boolean;
   /** Expected value */
-  expected?: string
+  expected?: string;
   /** Actual value */
-  actual?: string
+  actual?: string;
   /** Error message if failed */
-  error?: string
+  error?: string;
 }
 
 // ============================================================================
@@ -571,29 +576,29 @@ export interface VerificationCheck {
  */
 export interface EvidenceCollectionRequest {
   /** Type of evidence to collect */
-  type: EvidenceType
+  type: EvidenceType;
   /** The content to preserve */
-  content: string
+  content: string;
   /** Whether content should be encrypted */
-  encrypt?: boolean
+  encrypt?: boolean;
   /** Priority level */
-  priority?: EvidencePriority
+  priority?: EvidencePriority;
   /** Collection reason */
-  reason: string
+  reason: string;
   /** Source of the evidence */
-  source: string
+  source: string;
   /** Associated workspace */
-  workspaceId: string
+  workspaceId: string;
   /** Associated channel */
-  channelId?: string
+  channelId?: string;
   /** Associated user */
-  userId?: string
+  userId?: string;
   /** Related entity references */
-  references?: Omit<EvidenceReference, 'id'>[]
+  references?: Omit<EvidenceReference, "id">[];
   /** Additional metadata */
-  metadata?: Partial<EvidenceMetadata>
+  metadata?: Partial<EvidenceMetadata>;
   /** Retention policy to apply */
-  retentionPolicyId?: string
+  retentionPolicyId?: string;
 }
 
 // ============================================================================
@@ -605,25 +610,25 @@ export interface EvidenceCollectionRequest {
  */
 export interface EvidenceStatistics {
   /** Total evidence count */
-  total: number
+  total: number;
   /** Count by status */
-  byStatus: Record<EvidenceStatus, number>
+  byStatus: Record<EvidenceStatus, number>;
   /** Count by type */
-  byType: Record<EvidenceType, number>
+  byType: Record<EvidenceType, number>;
   /** Count by priority */
-  byPriority: Record<EvidencePriority, number>
+  byPriority: Record<EvidencePriority, number>;
   /** Total size in bytes */
-  totalSizeBytes: number
+  totalSizeBytes: number;
   /** Evidence under legal hold */
-  underLegalHold: number
+  underLegalHold: number;
   /** Active legal holds */
-  activeLegalHolds: number
+  activeLegalHolds: number;
   /** Pending exports */
-  pendingExports: number
+  pendingExports: number;
   /** Last collection timestamp */
-  lastCollectedAt?: Date
+  lastCollectedAt?: Date;
   /** Last verification timestamp */
-  lastVerifiedAt?: Date
+  lastVerifiedAt?: Date;
 }
 
 // ============================================================================
@@ -634,25 +639,25 @@ export interface EvidenceStatistics {
  * Evidence-related error codes
  */
 export type EvidenceErrorCode =
-  | 'EVIDENCE_NOT_FOUND'
-  | 'EVIDENCE_LOCKED'
-  | 'LEGAL_HOLD_ACTIVE'
-  | 'INTEGRITY_CHECK_FAILED'
-  | 'CHAIN_BROKEN'
-  | 'UNAUTHORIZED_ACCESS'
-  | 'EXPORT_FAILED'
-  | 'ENCRYPTION_FAILED'
-  | 'RETENTION_POLICY_VIOLATION'
-  | 'INVALID_OPERATION'
+  | "EVIDENCE_NOT_FOUND"
+  | "EVIDENCE_LOCKED"
+  | "LEGAL_HOLD_ACTIVE"
+  | "INTEGRITY_CHECK_FAILED"
+  | "CHAIN_BROKEN"
+  | "UNAUTHORIZED_ACCESS"
+  | "EXPORT_FAILED"
+  | "ENCRYPTION_FAILED"
+  | "RETENTION_POLICY_VIOLATION"
+  | "INVALID_OPERATION";
 
 /**
  * Evidence error
  */
 export interface EvidenceError {
-  code: EvidenceErrorCode
-  message: string
-  evidenceId?: EvidenceId
-  details?: Record<string, unknown>
+  code: EvidenceErrorCode;
+  message: string;
+  evidenceId?: EvidenceId;
+  details?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -663,12 +668,15 @@ export interface EvidenceError {
  * Creates a new evidence record with defaults
  */
 export function createEvidenceRecord(
-  params: EvidenceCollectionRequest & { collectedBy: string }
-): Omit<EvidenceRecord, 'id' | 'contentHash' | 'chainHash' | 'version' | 'createdAt' | 'updatedAt'> {
+  params: EvidenceCollectionRequest & { collectedBy: string },
+): Omit<
+  EvidenceRecord,
+  "id" | "contentHash" | "chainHash" | "version" | "createdAt" | "updatedAt"
+> {
   return {
     type: params.type,
-    status: 'active',
-    priority: params.priority || 'medium',
+    status: "active",
+    priority: params.priority || "medium",
     content: params.content,
     isEncrypted: params.encrypt || false,
     metadata: {
@@ -687,24 +695,24 @@ export function createEvidenceRecord(
     collectionReason: params.reason,
     legalHoldIds: [],
     retentionPolicyId: params.retentionPolicyId,
-  }
+  };
 }
 
 /**
  * Creates a custody entry
  */
 export function createCustodyEntry(params: {
-  evidenceId: EvidenceId
-  eventType: CustodyEventType
-  actorId: string
-  actorRole: string
-  description: string
-  actorName?: string
-  ipAddress?: string
-  userAgent?: string
-  notes?: string
-  previousEntryHash?: string
-}): Omit<CustodyEntry, 'id' | 'entryHash' | 'timestamp'> {
+  evidenceId: EvidenceId;
+  eventType: CustodyEventType;
+  actorId: string;
+  actorRole: string;
+  description: string;
+  actorName?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  notes?: string;
+  previousEntryHash?: string;
+}): Omit<CustodyEntry, "id" | "entryHash" | "timestamp"> {
   return {
     evidenceId: params.evidenceId,
     eventType: params.eventType,
@@ -716,28 +724,34 @@ export function createCustodyEntry(params: {
     userAgent: params.userAgent,
     notes: params.notes,
     previousEntryHash: params.previousEntryHash,
-  }
+  };
 }
 
 /**
  * Creates a legal hold
  */
 export function createLegalHold(params: {
-  name: string
-  description: string
-  scope: LegalHoldScope
-  criteria: LegalHoldCriteria
-  requestedBy: string
-  effectiveFrom?: Date
-  expiresAt?: Date
-  caseReference?: string
-  legalMatterId?: string
-  legalContact?: string
-}): Omit<LegalHold, 'id' | 'evidenceIds' | 'evidenceCount' | 'createdAt' | 'updatedAt'> {
+  name: string;
+  description: string;
+  scope: LegalHoldScope;
+  criteria: LegalHoldCriteria;
+  requestedBy: string;
+  effectiveFrom?: Date;
+  expiresAt?: Date;
+  caseReference?: string;
+  legalMatterId?: string;
+  legalContact?: string;
+}): Omit<
+  LegalHold,
+  "id" | "evidenceIds" | "evidenceCount" | "createdAt" | "updatedAt"
+> {
   return {
     name: params.name,
     description: params.description,
-    status: params.effectiveFrom && params.effectiveFrom > new Date() ? 'pending' : 'active',
+    status:
+      params.effectiveFrom && params.effectiveFrom > new Date()
+        ? "pending"
+        : "active",
     scope: params.scope,
     criteria: params.criteria,
     caseReference: params.caseReference,
@@ -746,5 +760,5 @@ export function createLegalHold(params: {
     legalContact: params.legalContact,
     effectiveFrom: params.effectiveFrom || new Date(),
     expiresAt: params.expiresAt,
-  }
+  };
 }

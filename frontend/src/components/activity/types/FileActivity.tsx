@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * FileActivity Component
@@ -6,30 +6,44 @@
  * Displays a file shared activity
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ActivityAvatar } from '../ActivityAvatar'
-import { ActivityDate } from '../ActivityDate'
-import { formatFileSize } from '@/lib/activity/activity-formatter'
-import type { FileSharedActivity } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ActivityAvatar } from "../ActivityAvatar";
+import { ActivityDate } from "../ActivityDate";
+import { formatFileSize } from "@/lib/activity/activity-formatter";
+import type { FileSharedActivity } from "@/lib/activity/activity-types";
 
 interface FileActivityProps {
-  activity: FileSharedActivity
-  onClick?: () => void
-  className?: string
+  activity: FileSharedActivity;
+  onClick?: () => void;
+  className?: string;
 }
 
 // File type icon component
-function FileTypeIcon({ type, className }: { type: string; className?: string }) {
+function FileTypeIcon({
+  type,
+  className,
+}: {
+  type: string;
+  className?: string;
+}) {
   // Determine icon based on MIME type or file extension
   const isImage =
-    type.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(type)
-  const isVideo = type.startsWith('video/') || ['mp4', 'mov', 'avi', 'webm'].includes(type)
-  const isAudio = type.startsWith('audio/') || ['mp3', 'wav', 'ogg', 'm4a'].includes(type)
-  const isPdf = type === 'application/pdf' || type === 'pdf'
-  const isDoc = type.includes('document') || type.includes('word') || ['doc', 'docx'].includes(type)
+    type.startsWith("image/") ||
+    ["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(type);
+  const isVideo =
+    type.startsWith("video/") || ["mp4", "mov", "avi", "webm"].includes(type);
+  const isAudio =
+    type.startsWith("audio/") || ["mp3", "wav", "ogg", "m4a"].includes(type);
+  const isPdf = type === "application/pdf" || type === "pdf";
+  const isDoc =
+    type.includes("document") ||
+    type.includes("word") ||
+    ["doc", "docx"].includes(type);
   const isSheet =
-    type.includes('spreadsheet') || type.includes('excel') || ['xls', 'xlsx', 'csv'].includes(type)
+    type.includes("spreadsheet") ||
+    type.includes("excel") ||
+    ["xls", "xlsx", "csv"].includes(type);
 
   if (isImage) {
     return (
@@ -46,7 +60,7 @@ function FileTypeIcon({ type, className }: { type: string; className?: string })
         <circle cx="8.5" cy="8.5" r="1.5" />
         <polyline points="21 15 16 10 5 21" />
       </svg>
-    )
+    );
   }
 
   if (isVideo) {
@@ -63,7 +77,7 @@ function FileTypeIcon({ type, className }: { type: string; className?: string })
         <polygon points="23 7 16 12 23 17 23 7" />
         <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
       </svg>
-    )
+    );
   }
 
   if (isAudio) {
@@ -81,7 +95,7 @@ function FileTypeIcon({ type, className }: { type: string; className?: string })
         <circle cx="6" cy="18" r="3" />
         <circle cx="18" cy="16" r="3" />
       </svg>
-    )
+    );
   }
 
   if (isPdf) {
@@ -100,7 +114,7 @@ function FileTypeIcon({ type, className }: { type: string; className?: string })
         <line x1="16" y1="13" x2="8" y2="13" />
         <line x1="16" y1="17" x2="8" y2="17" />
       </svg>
-    )
+    );
   }
 
   // Default file icon
@@ -117,30 +131,35 @@ function FileTypeIcon({ type, className }: { type: string; className?: string })
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
       <polyline points="14 2 14 8 20 8" />
     </svg>
-  )
+  );
 }
 
-export function FileActivity({ activity, onClick, className }: FileActivityProps) {
-  const { actor, file, channel, message, isRead, createdAt } = activity
+export function FileActivity({
+  activity,
+  onClick,
+  className,
+}: FileActivityProps) {
+  const { actor, file, channel, message, isRead, createdAt } = activity;
 
   // Check if file has a thumbnail (for images)
-  const hasThumbnail = file.thumbnailUrl || (file.mimeType?.startsWith('image/') && file.url)
+  const hasThumbnail =
+    file.thumbnailUrl || (file.mimeType?.startsWith("image/") && file.url);
 
   return (
     <div
       className={cn(
-        'group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors',
-        'hover:bg-muted/50',
-        !isRead && 'bg-orange-50 dark:bg-orange-950/30',
-        className
+        "group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors",
+        "hover:bg-muted/50",
+        !isRead && "bg-orange-50 dark:bg-orange-950/30",
+        className,
       )}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
@@ -157,9 +176,9 @@ export function FileActivity({ activity, onClick, className }: FileActivityProps
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             {/* Header */}
-            <p className={cn('text-sm', !isRead && 'font-medium')}>
+            <p className={cn("text-sm", !isRead && "font-medium")}>
               <span className="font-medium">{actor.displayName}</span>
-              {' shared a file in '}
+              {" shared a file in "}
               <span className="font-medium">#{channel.name}</span>
             </p>
 
@@ -206,7 +225,7 @@ export function FileActivity({ activity, onClick, className }: FileActivityProps
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default FileActivity
+export default FileActivity;

@@ -4,7 +4,7 @@
  * Queries for fetching bookmarks, collections, and saved messages.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Bookmark Fragments
@@ -20,7 +20,7 @@ export const BOOKMARK_FRAGMENT = gql`
     tags
     collection_ids
   }
-`
+`;
 
 export const BOOKMARK_WITH_MESSAGE_FRAGMENT = gql`
   fragment BookmarkWithMessageFields on nchat_bookmarks {
@@ -57,14 +57,16 @@ export const BOOKMARK_WITH_MESSAGE_FRAGMENT = gql`
           count
         }
       }
-      thread_replies_aggregate: replies_aggregate(where: { is_deleted: { _eq: false } }) {
+      thread_replies_aggregate: replies_aggregate(
+        where: { is_deleted: { _eq: false } }
+      ) {
         aggregate {
           count
         }
       }
     }
   }
-`
+`;
 
 export const BOOKMARK_COLLECTION_FRAGMENT = gql`
   fragment BookmarkCollectionFields on nchat_bookmark_collections {
@@ -84,7 +86,7 @@ export const BOOKMARK_COLLECTION_FRAGMENT = gql`
       }
     }
   }
-`
+`;
 
 export const SAVED_MESSAGE_FRAGMENT = gql`
   fragment SavedMessageFields on nchat_saved_messages {
@@ -112,7 +114,7 @@ export const SAVED_MESSAGE_FRAGMENT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Bookmark Queries
@@ -130,7 +132,7 @@ export const GET_BOOKMARKS = gql`
       ...BookmarkWithMessageFields
     }
   }
-`
+`;
 
 export const GET_BOOKMARK_BY_ID = gql`
   ${BOOKMARK_WITH_MESSAGE_FRAGMENT}
@@ -139,7 +141,7 @@ export const GET_BOOKMARK_BY_ID = gql`
       ...BookmarkWithMessageFields
     }
   }
-`
+`;
 
 export const GET_BOOKMARK_BY_MESSAGE = gql`
   ${BOOKMARK_FRAGMENT}
@@ -151,7 +153,7 @@ export const GET_BOOKMARK_BY_MESSAGE = gql`
       ...BookmarkFields
     }
   }
-`
+`;
 
 export const GET_BOOKMARKS_BY_CHANNEL = gql`
   ${BOOKMARK_WITH_MESSAGE_FRAGMENT}
@@ -162,7 +164,10 @@ export const GET_BOOKMARKS_BY_CHANNEL = gql`
     $offset: Int = 0
   ) {
     nchat_bookmarks(
-      where: { user_id: { _eq: $userId }, message: { channel_id: { _eq: $channelId } } }
+      where: {
+        user_id: { _eq: $userId }
+        message: { channel_id: { _eq: $channelId } }
+      }
       order_by: { bookmarked_at: desc }
       limit: $limit
       offset: $offset
@@ -170,7 +175,7 @@ export const GET_BOOKMARKS_BY_CHANNEL = gql`
       ...BookmarkWithMessageFields
     }
   }
-`
+`;
 
 export const GET_BOOKMARKS_BY_COLLECTION = gql`
   ${BOOKMARK_WITH_MESSAGE_FRAGMENT}
@@ -181,7 +186,10 @@ export const GET_BOOKMARKS_BY_COLLECTION = gql`
     $offset: Int = 0
   ) {
     nchat_bookmarks(
-      where: { user_id: { _eq: $userId }, collection_ids: { _contains: $collectionId } }
+      where: {
+        user_id: { _eq: $userId }
+        collection_ids: { _contains: $collectionId }
+      }
       order_by: { bookmarked_at: desc }
       limit: $limit
       offset: $offset
@@ -189,11 +197,16 @@ export const GET_BOOKMARKS_BY_COLLECTION = gql`
       ...BookmarkWithMessageFields
     }
   }
-`
+`;
 
 export const GET_BOOKMARKS_BY_TAG = gql`
   ${BOOKMARK_WITH_MESSAGE_FRAGMENT}
-  query GetBookmarksByTag($userId: uuid!, $tag: String!, $limit: Int = 50, $offset: Int = 0) {
+  query GetBookmarksByTag(
+    $userId: uuid!
+    $tag: String!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_bookmarks(
       where: { user_id: { _eq: $userId }, tags: { _contains: $tag } }
       order_by: { bookmarked_at: desc }
@@ -203,7 +216,7 @@ export const GET_BOOKMARKS_BY_TAG = gql`
       ...BookmarkWithMessageFields
     }
   }
-`
+`;
 
 export const SEARCH_BOOKMARKS = gql`
   ${BOOKMARK_WITH_MESSAGE_FRAGMENT}
@@ -240,7 +253,7 @@ export const SEARCH_BOOKMARKS = gql`
       ...BookmarkWithMessageFields
     }
   }
-`
+`;
 
 export const GET_BOOKMARK_COUNT = gql`
   query GetBookmarkCount($userId: uuid!) {
@@ -250,7 +263,7 @@ export const GET_BOOKMARK_COUNT = gql`
       }
     }
   }
-`
+`;
 
 export const GET_BOOKMARK_STATS = gql`
   query GetBookmarkStats($userId: uuid!) {
@@ -262,7 +275,10 @@ export const GET_BOOKMARK_STATS = gql`
     }
 
     # By channel
-    by_channel: nchat_bookmarks(where: { user_id: { _eq: $userId } }, distinct_on: channel_id) {
+    by_channel: nchat_bookmarks(
+      where: { user_id: { _eq: $userId } }
+      distinct_on: channel_id
+    ) {
       message {
         channel_id
         channel {
@@ -274,14 +290,17 @@ export const GET_BOOKMARK_STATS = gql`
 
     # Recent activity (last 30 days)
     recent: nchat_bookmarks_aggregate(
-      where: { user_id: { _eq: $userId }, bookmarked_at: { _gte: "now() - interval '30 days'" } }
+      where: {
+        user_id: { _eq: $userId }
+        bookmarked_at: { _gte: "now() - interval '30 days'" }
+      }
     ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Bookmark Collection Queries
@@ -297,7 +316,7 @@ export const GET_BOOKMARK_COLLECTIONS = gql`
       ...BookmarkCollectionFields
     }
   }
-`
+`;
 
 export const GET_BOOKMARK_COLLECTION = gql`
   ${BOOKMARK_COLLECTION_FRAGMENT}
@@ -306,20 +325,28 @@ export const GET_BOOKMARK_COLLECTION = gql`
       ...BookmarkCollectionFields
     }
   }
-`
+`;
 
 export const GET_COLLECTION_WITH_BOOKMARKS = gql`
   ${BOOKMARK_COLLECTION_FRAGMENT}
   ${BOOKMARK_WITH_MESSAGE_FRAGMENT}
-  query GetCollectionWithBookmarks($collectionId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetCollectionWithBookmarks(
+    $collectionId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_bookmark_collections_by_pk(id: $collectionId) {
       ...BookmarkCollectionFields
-      bookmarks(order_by: { bookmarked_at: desc }, limit: $limit, offset: $offset) {
+      bookmarks(
+        order_by: { bookmarked_at: desc }
+        limit: $limit
+        offset: $offset
+      ) {
         ...BookmarkWithMessageFields
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Saved Messages Queries
@@ -337,7 +364,7 @@ export const GET_SAVED_MESSAGES = gql`
       ...SavedMessageFields
     }
   }
-`
+`;
 
 export const GET_SAVED_MESSAGE = gql`
   ${SAVED_MESSAGE_FRAGMENT}
@@ -346,7 +373,7 @@ export const GET_SAVED_MESSAGE = gql`
       ...SavedMessageFields
     }
   }
-`
+`;
 
 export const SEARCH_SAVED_MESSAGES = gql`
   ${SAVED_MESSAGE_FRAGMENT}
@@ -363,7 +390,12 @@ export const SEARCH_SAVED_MESSAGES = gql`
       where: {
         _and: [
           { user_id: { _eq: $userId } }
-          { _or: [{ content: { _ilike: $searchQuery } }, { note: { _ilike: $searchQuery } }] }
+          {
+            _or: [
+              { content: { _ilike: $searchQuery } }
+              { note: { _ilike: $searchQuery } }
+            ]
+          }
           { source_channel_id: { _eq: $channelId } }
           { saved_at: { _gte: $fromDate } }
           { saved_at: { _lte: $toDate } }
@@ -376,7 +408,7 @@ export const SEARCH_SAVED_MESSAGES = gql`
       ...SavedMessageFields
     }
   }
-`
+`;
 
 export const GET_SAVED_MESSAGE_COUNT = gql`
   query GetSavedMessageCount($userId: uuid!) {
@@ -386,7 +418,7 @@ export const GET_SAVED_MESSAGE_COUNT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Subscription Operations
@@ -403,7 +435,7 @@ export const BOOKMARK_SUBSCRIPTION = gql`
       ...BookmarkWithMessageFields
     }
   }
-`
+`;
 
 export const SAVED_MESSAGE_SUBSCRIPTION = gql`
   ${SAVED_MESSAGE_FRAGMENT}
@@ -416,4 +448,4 @@ export const SAVED_MESSAGE_SUBSCRIPTION = gql`
       ...SavedMessageFields
     }
   }
-`
+`;

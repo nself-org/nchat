@@ -43,27 +43,27 @@
  * ```
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { gql } from '@apollo/client'
-import type { ExportConfig } from '@/lib/import-export/types'
-import { randomUUID } from 'crypto'
+import { NextRequest, NextResponse } from "next/server";
+import { gql } from "@apollo/client";
+import type { ExportConfig } from "@/lib/import-export/types";
+import { randomUUID } from "crypto";
 import {
   successResponse,
   badRequestResponse,
   notFoundResponse,
   forbiddenResponse,
   internalErrorResponse,
-} from '@/lib/api/response'
+} from "@/lib/api/response";
 import {
   withErrorHandler,
   withRateLimit,
   withAuth,
   compose,
   type AuthenticatedRequest,
-} from '@/lib/api/middleware'
-import { withCsrfProtection } from '@/lib/security/csrf'
-import { getServerApolloClient } from '@/lib/apollo-client'
-import { logger } from '@/lib/logger'
+} from "@/lib/api/middleware";
+import { withCsrfProtection } from "@/lib/security/csrf";
+import { getServerApolloClient } from "@/lib/apollo-client";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Configuration
@@ -86,11 +86,11 @@ const CONFIG = {
   },
 
   // Valid export types
-  VALID_TYPES: ['messages', 'channel', 'user', 'all'] as const,
+  VALID_TYPES: ["messages", "channel", "user", "all"] as const,
 
   // Valid formats
-  VALID_FORMATS: ['json', 'csv'] as const,
-}
+  VALID_FORMATS: ["json", "csv"] as const,
+};
 
 // ============================================================================
 // GraphQL Queries for Export
@@ -154,7 +154,7 @@ const GET_MESSAGES_FOR_EXPORT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Query to get user's channels for export.
@@ -164,7 +164,10 @@ const GET_USER_CHANNELS_FOR_EXPORT = gql`
   query GetUserChannelsForExport($userId: uuid!, $channelIds: [uuid!]) {
     nchat_channels(
       where: {
-        _and: [{ members: { user_id: { _eq: $userId } } }, { id: { _in: $channelIds } }]
+        _and: [
+          { members: { user_id: { _eq: $userId } } }
+          { id: { _in: $channelIds } }
+        ]
       }
       order_by: { name: asc }
     ) {
@@ -178,7 +181,7 @@ const GET_USER_CHANNELS_FOR_EXPORT = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Query to get users in channels the requesting user has access to.
@@ -190,7 +193,10 @@ const GET_USERS_FOR_EXPORT = gql`
       where: {
         channel_memberships: {
           channel: {
-            _and: [{ members: { user_id: { _eq: $userId } } }, { id: { _in: $channelIds } }]
+            _and: [
+              { members: { user_id: { _eq: $userId } } }
+              { id: { _in: $channelIds } }
+            ]
           }
         }
       }
@@ -207,142 +213,142 @@ const GET_USERS_FOR_EXPORT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Types
 // ============================================================================
 
-type ExportType = (typeof CONFIG.VALID_TYPES)[number]
-type ExportFormat = (typeof CONFIG.VALID_FORMATS)[number]
-type ExportStatus = 'pending' | 'processing' | 'completed' | 'failed'
+type ExportType = (typeof CONFIG.VALID_TYPES)[number];
+type ExportFormat = (typeof CONFIG.VALID_FORMATS)[number];
+type ExportStatus = "pending" | "processing" | "completed" | "failed";
 
 interface ExportRequest {
-  type: ExportType
-  format?: ExportFormat
-  channelIds?: string[]
-  dateFrom?: string
-  dateTo?: string
-  includeAttachments?: boolean
+  type: ExportType;
+  format?: ExportFormat;
+  channelIds?: string[];
+  dateFrom?: string;
+  dateTo?: string;
+  includeAttachments?: boolean;
 }
 
 interface ExportJob {
-  id: string
-  userId: string
-  type: ExportType
-  format: ExportFormat
-  status: ExportStatus
-  progress: number
-  error?: string
-  downloadUrl?: string
-  fileSize?: number
-  createdAt: string
-  completedAt?: string
-  expiresAt: string
+  id: string;
+  userId: string;
+  type: ExportType;
+  format: ExportFormat;
+  status: ExportStatus;
+  progress: number;
+  error?: string;
+  downloadUrl?: string;
+  fileSize?: number;
+  createdAt: string;
+  completedAt?: string;
+  expiresAt: string;
   metadata: {
-    channelIds?: string[]
-    dateFrom?: string
-    dateTo?: string
-    includeAttachments?: boolean
-    messageCount?: number
-    fileCount?: number
-  }
+    channelIds?: string[];
+    dateFrom?: string;
+    dateTo?: string;
+    includeAttachments?: boolean;
+    messageCount?: number;
+    fileCount?: number;
+  };
 }
 
 interface ExportedMessage {
-  id: string
-  content: string
-  channelId: string
-  channelName: string
-  userId: string
-  userName: string
-  createdAt: string
-  editedAt?: string
+  id: string;
+  content: string;
+  channelId: string;
+  channelName: string;
+  userId: string;
+  userName: string;
+  createdAt: string;
+  editedAt?: string;
   attachments?: Array<{
-    id: string
-    filename: string
-    url: string
-    mimeType: string
-    size: number
-  }>
+    id: string;
+    filename: string;
+    url: string;
+    mimeType: string;
+    size: number;
+  }>;
   reactions?: Array<{
-    emoji: string
-    count: number
-    users: string[]
-  }>
+    emoji: string;
+    count: number;
+    users: string[];
+  }>;
 }
 
 // Types for database results
 interface DbMessage {
-  id: string
-  content: string
-  type: string
-  created_at: string
-  edited_at?: string
-  is_pinned: boolean
-  channel_id: string
-  user_id: string
+  id: string;
+  content: string;
+  type: string;
+  created_at: string;
+  edited_at?: string;
+  is_pinned: boolean;
+  channel_id: string;
+  user_id: string;
   channel: {
-    id: string
-    name: string
-    slug: string
-  }
+    id: string;
+    name: string;
+    slug: string;
+  };
   user: {
-    id: string
-    username: string
-    display_name: string
-  }
+    id: string;
+    username: string;
+    display_name: string;
+  };
   attachments: Array<{
-    id: string
-    file_name: string
-    file_url: string
-    file_type: string
-    file_size: number
-  }>
+    id: string;
+    file_name: string;
+    file_url: string;
+    file_type: string;
+    file_size: number;
+  }>;
   reactions: Array<{
-    emoji: string
-    user: { id: string }
-  }>
+    emoji: string;
+    user: { id: string };
+  }>;
 }
 
 interface DbChannel {
-  id: string
-  name: string
-  slug: string
-  description: string
-  type: string
-  is_private: boolean
-  is_archived: boolean
-  created_at: string
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  type: string;
+  is_private: boolean;
+  is_archived: boolean;
+  created_at: string;
 }
 
 interface DbUser {
-  id: string
-  username: string
-  display_name: string
-  email: string
-  avatar_url?: string
-  created_at: string
-  role?: { name: string }
+  id: string;
+  username: string;
+  display_name: string;
+  email: string;
+  avatar_url?: string;
+  created_at: string;
+  role?: { name: string };
 }
 
 // ============================================================================
 // In-Memory Storage (Job queue - in production, use Redis or database)
 // ============================================================================
 
-const exportJobs = new Map<string, ExportJob>()
-const exportData = new Map<string, ExportedMessage[]>()
+const exportJobs = new Map<string, ExportJob>();
+const exportData = new Map<string, ExportedMessage[]>();
 
 // Clean up expired jobs periodically
 setInterval(() => {
-  const now = Date.now()
+  const now = Date.now();
   for (const [id, job] of exportJobs.entries()) {
     if (now > new Date(job.expiresAt).getTime()) {
-      exportJobs.delete(id)
-      exportData.delete(id)
+      exportJobs.delete(id);
+      exportData.delete(id);
     }
   }
-}, 60000) // Every minute
+}, 60000); // Every minute
 
 // ============================================================================
 // Helpers
@@ -352,38 +358,44 @@ setInterval(() => {
  * Validate export request
  */
 function validateExportRequest(
-  body: unknown
+  body: unknown,
 ): { valid: true; request: ExportRequest } | { valid: false; error: string } {
-  if (!body || typeof body !== 'object') {
-    return { valid: false, error: 'Invalid request body' }
+  if (!body || typeof body !== "object") {
+    return { valid: false, error: "Invalid request body" };
   }
 
-  const data = body as Record<string, unknown>
+  const data = body as Record<string, unknown>;
 
   // Validate type
   if (!data.type || !CONFIG.VALID_TYPES.includes(data.type as ExportType)) {
     return {
       valid: false,
-      error: `Invalid export type. Valid types: ${CONFIG.VALID_TYPES.join(', ')}`,
-    }
+      error: `Invalid export type. Valid types: ${CONFIG.VALID_TYPES.join(", ")}`,
+    };
   }
 
   // Validate format
-  const format = (data.format as ExportFormat) || 'json'
+  const format = (data.format as ExportFormat) || "json";
   if (!CONFIG.VALID_FORMATS.includes(format)) {
     return {
       valid: false,
-      error: `Invalid format. Valid formats: ${CONFIG.VALID_FORMATS.join(', ')}`,
-    }
+      error: `Invalid format. Valid formats: ${CONFIG.VALID_FORMATS.join(", ")}`,
+    };
   }
 
   // Validate dates
-  if (data.dateFrom && (typeof data.dateFrom !== 'string' || isNaN(Date.parse(data.dateFrom)))) {
-    return { valid: false, error: 'Invalid dateFrom format' }
+  if (
+    data.dateFrom &&
+    (typeof data.dateFrom !== "string" || isNaN(Date.parse(data.dateFrom)))
+  ) {
+    return { valid: false, error: "Invalid dateFrom format" };
   }
 
-  if (data.dateTo && (typeof data.dateTo !== 'string' || isNaN(Date.parse(data.dateTo)))) {
-    return { valid: false, error: 'Invalid dateTo format' }
+  if (
+    data.dateTo &&
+    (typeof data.dateTo !== "string" || isNaN(Date.parse(data.dateTo)))
+  ) {
+    return { valid: false, error: "Invalid dateTo format" };
   }
 
   return {
@@ -391,12 +403,14 @@ function validateExportRequest(
     request: {
       type: data.type as ExportType,
       format,
-      channelIds: Array.isArray(data.channelIds) ? (data.channelIds as string[]) : undefined,
+      channelIds: Array.isArray(data.channelIds)
+        ? (data.channelIds as string[])
+        : undefined,
       dateFrom: data.dateFrom as string | undefined,
       dateTo: data.dateTo as string | undefined,
       includeAttachments: data.includeAttachments === true,
     },
-  }
+  };
 }
 
 /**
@@ -405,9 +419,9 @@ function validateExportRequest(
  */
 async function fetchMessagesForExport(
   userId: string,
-  request: ExportRequest
+  request: ExportRequest,
 ): Promise<ExportedMessage[]> {
-  const client = getServerApolloClient()
+  const client = getServerApolloClient();
 
   try {
     const { data } = await client.query({
@@ -419,37 +433,39 @@ async function fetchMessagesForExport(
         dateTo: request.dateTo || null,
         limit: CONFIG.MAX_MESSAGES,
       },
-      fetchPolicy: 'no-cache',
-    })
+      fetchPolicy: "no-cache",
+    });
 
-    const dbMessages: DbMessage[] = data?.nchat_messages || []
+    const dbMessages: DbMessage[] = data?.nchat_messages || [];
 
     // Transform database results to export format
     const messages: ExportedMessage[] = dbMessages.map((msg) => {
       // Group reactions by emoji
-      const reactionMap = new Map<string, string[]>()
+      const reactionMap = new Map<string, string[]>();
       for (const r of msg.reactions || []) {
-        const users = reactionMap.get(r.emoji) || []
-        users.push(r.user.id)
-        reactionMap.set(r.emoji, users)
+        const users = reactionMap.get(r.emoji) || [];
+        users.push(r.user.id);
+        reactionMap.set(r.emoji, users);
       }
-      const reactions = Array.from(reactionMap.entries()).map(([emoji, users]) => ({
-        emoji,
-        count: users.length,
-        users,
-      }))
+      const reactions = Array.from(reactionMap.entries()).map(
+        ([emoji, users]) => ({
+          emoji,
+          count: users.length,
+          users,
+        }),
+      );
 
       const message: ExportedMessage = {
         id: msg.id,
         content: msg.content,
         channelId: msg.channel_id,
-        channelName: msg.channel?.name || 'unknown',
+        channelName: msg.channel?.name || "unknown",
         userId: msg.user_id,
-        userName: msg.user?.display_name || msg.user?.username || 'unknown',
+        userName: msg.user?.display_name || msg.user?.username || "unknown",
         createdAt: msg.created_at,
         editedAt: msg.edited_at || undefined,
         reactions: reactions.length > 0 ? reactions : undefined,
-      }
+      };
 
       // Include attachments if requested
       if (request.includeAttachments && msg.attachments?.length > 0) {
@@ -459,16 +475,16 @@ async function fetchMessagesForExport(
           url: a.file_url,
           mimeType: a.file_type,
           size: a.file_size,
-        }))
+        }));
       }
 
-      return message
-    })
+      return message;
+    });
 
-    return messages
+    return messages;
   } catch (error) {
-    logger.error('Error fetching messages for export:', error)
-    throw new Error('Failed to fetch messages for export')
+    logger.error("Error fetching messages for export:", error);
+    throw new Error("Failed to fetch messages for export");
   }
 }
 
@@ -478,9 +494,9 @@ async function fetchMessagesForExport(
  */
 async function fetchChannelsForExport(
   userId: string,
-  channelIds?: string[]
+  channelIds?: string[],
 ): Promise<DbChannel[]> {
-  const client = getServerApolloClient()
+  const client = getServerApolloClient();
 
   try {
     const { data } = await client.query({
@@ -489,13 +505,13 @@ async function fetchChannelsForExport(
         userId,
         channelIds: channelIds?.length ? channelIds : null,
       },
-      fetchPolicy: 'no-cache',
-    })
+      fetchPolicy: "no-cache",
+    });
 
-    return data?.nchat_channels || []
+    return data?.nchat_channels || [];
   } catch (error) {
-    logger.error('Error fetching channels for export:', error)
-    throw new Error('Failed to fetch channels for export')
+    logger.error("Error fetching channels for export:", error);
+    throw new Error("Failed to fetch channels for export");
   }
 }
 
@@ -503,8 +519,11 @@ async function fetchChannelsForExport(
  * Fetch users for export from database.
  * Only returns users from channels where requesting user is also a member.
  */
-async function fetchUsersForExport(userId: string, channelIds?: string[]): Promise<DbUser[]> {
-  const client = getServerApolloClient()
+async function fetchUsersForExport(
+  userId: string,
+  channelIds?: string[],
+): Promise<DbUser[]> {
+  const client = getServerApolloClient();
 
   try {
     const { data } = await client.query({
@@ -513,13 +532,13 @@ async function fetchUsersForExport(userId: string, channelIds?: string[]): Promi
         userId,
         channelIds: channelIds?.length ? channelIds : null,
       },
-      fetchPolicy: 'no-cache',
-    })
+      fetchPolicy: "no-cache",
+    });
 
-    return data?.nchat_users || []
+    return data?.nchat_users || [];
   } catch (error) {
-    logger.error('Error fetching users for export:', error)
-    throw new Error('Failed to fetch users for export')
+    logger.error("Error fetching users for export:", error);
+    throw new Error("Failed to fetch users for export");
   }
 }
 
@@ -528,32 +547,32 @@ async function fetchUsersForExport(userId: string, channelIds?: string[]): Promi
  */
 function messagesToCsv(messages: ExportedMessage[]): string {
   const headers = [
-    'id',
-    'content',
-    'channel_id',
-    'channel_name',
-    'user_id',
-    'user_name',
-    'created_at',
-    'edited_at',
-    'attachment_count',
-    'reaction_count',
-  ]
+    "id",
+    "content",
+    "channel_id",
+    "channel_name",
+    "user_id",
+    "user_name",
+    "created_at",
+    "edited_at",
+    "attachment_count",
+    "reaction_count",
+  ];
 
   const rows = messages.map((msg) => [
     msg.id,
-    `"${(msg.content || '').replace(/"/g, '""')}"`,
+    `"${(msg.content || "").replace(/"/g, '""')}"`,
     msg.channelId,
     msg.channelName,
     msg.userId,
     msg.userName,
     msg.createdAt,
-    msg.editedAt || '',
+    msg.editedAt || "",
     String(msg.attachments?.length || 0),
     String(msg.reactions?.length || 0),
-  ])
+  ]);
 
-  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+  return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
 }
 
 /**
@@ -562,9 +581,9 @@ function messagesToCsv(messages: ExportedMessage[]): string {
 async function processExportJob(jobId: string, job: ExportJob): Promise<void> {
   try {
     // Update status to processing
-    job.status = 'processing'
-    job.progress = 10
-    exportJobs.set(jobId, job)
+    job.status = "processing";
+    job.progress = 10;
+    exportJobs.set(jobId, job);
 
     // Fetch data from database
     const messages = await fetchMessagesForExport(job.userId, {
@@ -574,39 +593,49 @@ async function processExportJob(jobId: string, job: ExportJob): Promise<void> {
       dateFrom: job.metadata.dateFrom,
       dateTo: job.metadata.dateTo,
       includeAttachments: job.metadata.includeAttachments,
-    })
+    });
 
-    job.progress = 50
-    exportJobs.set(jobId, job)
+    job.progress = 50;
+    exportJobs.set(jobId, job);
 
     // Store data
-    exportData.set(jobId, messages)
+    exportData.set(jobId, messages);
 
     // Update job metadata
-    job.metadata.messageCount = messages.length
-    job.metadata.fileCount = messages.reduce((count, m) => count + (m.attachments?.length || 0), 0)
+    job.metadata.messageCount = messages.length;
+    job.metadata.fileCount = messages.reduce(
+      (count, m) => count + (m.attachments?.length || 0),
+      0,
+    );
 
-    job.progress = 80
-    exportJobs.set(jobId, job)
+    job.progress = 80;
+    exportJobs.set(jobId, job);
 
     // Generate download URL
-    job.downloadUrl = `/api/export?jobId=${jobId}&download=true`
+    job.downloadUrl = `/api/export?jobId=${jobId}&download=true`;
 
     // Calculate file size
     const content =
-      job.format === 'csv' ? messagesToCsv(messages) : JSON.stringify(messages, null, 2)
-    job.fileSize = new TextEncoder().encode(content).length
+      job.format === "csv"
+        ? messagesToCsv(messages)
+        : JSON.stringify(messages, null, 2);
+    job.fileSize = new TextEncoder().encode(content).length;
 
     // Mark as completed
-    job.status = 'completed'
-    job.progress = 100
-    job.completedAt = new Date().toISOString()
-    exportJobs.set(jobId, job)
+    job.status = "completed";
+    job.progress = 100;
+    job.completedAt = new Date().toISOString();
+    exportJobs.set(jobId, job);
   } catch (error) {
-    logger.error('Export job failed:', error)
-    job.status = 'failed'
-    job.error = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Export failed'
-    exportJobs.set(jobId, job)
+    logger.error("Export job failed:", error);
+    job.status = "failed";
+    job.error =
+      error instanceof Error
+        ? error instanceof Error
+          ? error.message
+          : String(error)
+        : "Export failed";
+    exportJobs.set(jobId, job);
   }
 }
 
@@ -615,58 +644,64 @@ async function processExportJob(jobId: string, job: ExportJob): Promise<void> {
 // ============================================================================
 
 async function handleGet(request: AuthenticatedRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(request.url)
-  const jobId = searchParams.get('jobId')
-  const download = searchParams.get('download') === 'true'
+  const { searchParams } = new URL(request.url);
+  const jobId = searchParams.get("jobId");
+  const download = searchParams.get("download") === "true";
 
   if (!jobId) {
     // List user's export jobs
     const userJobs = Array.from(exportJobs.values())
       .filter((job) => job.userId === request.user.id)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 10)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .slice(0, 10);
 
-    return successResponse({ jobs: userJobs })
+    return successResponse({ jobs: userJobs });
   }
 
   // Get specific job
-  const job = exportJobs.get(jobId)
+  const job = exportJobs.get(jobId);
 
   if (!job) {
-    return notFoundResponse('Export job not found', 'JOB_NOT_FOUND')
+    return notFoundResponse("Export job not found", "JOB_NOT_FOUND");
   }
 
   // Verify ownership
   if (job.userId !== request.user.id) {
-    return forbiddenResponse('You do not have access to this export')
+    return forbiddenResponse("You do not have access to this export");
   }
 
   // Return status if not downloading
   if (!download) {
-    return successResponse({ job })
+    return successResponse({ job });
   }
 
   // Check if ready for download
-  if (job.status !== 'completed') {
-    return badRequestResponse(`Export is not ready. Status: ${job.status}`, 'EXPORT_NOT_READY')
+  if (job.status !== "completed") {
+    return badRequestResponse(
+      `Export is not ready. Status: ${job.status}`,
+      "EXPORT_NOT_READY",
+    );
   }
 
   // Get export data
-  const messages = exportData.get(jobId)
+  const messages = exportData.get(jobId);
 
   if (!messages) {
-    return notFoundResponse('Export data not found', 'DATA_NOT_FOUND')
+    return notFoundResponse("Export data not found", "DATA_NOT_FOUND");
   }
 
   // Generate content
-  let content: string
-  let contentType: string
-  let filename: string
+  let content: string;
+  let contentType: string;
+  let filename: string;
 
-  if (job.format === 'csv') {
-    content = messagesToCsv(messages)
-    contentType = 'text/csv'
-    filename = `nchat-export-${jobId}.csv`
+  if (job.format === "csv") {
+    content = messagesToCsv(messages);
+    contentType = "text/csv";
+    filename = `nchat-export-${jobId}.csv`;
   } else {
     content = JSON.stringify(
       {
@@ -675,77 +710,81 @@ async function handleGet(request: AuthenticatedRequest): Promise<NextResponse> {
         messages,
       },
       null,
-      2
-    )
-    contentType = 'application/json'
-    filename = `nchat-export-${jobId}.json`
+      2,
+    );
+    contentType = "application/json";
+    filename = `nchat-export-${jobId}.json`;
   }
 
   // Return file download
   return new NextResponse(content, {
     status: 200,
     headers: {
-      'Content-Type': contentType,
-      'Content-Disposition': `attachment; filename="${filename}"`,
-      'Content-Length': String(new TextEncoder().encode(content).length),
+      "Content-Type": contentType,
+      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Content-Length": String(new TextEncoder().encode(content).length),
     },
-  })
+  });
 }
 
 // ============================================================================
 // POST Handler - Create Export
 // ============================================================================
 
-async function handlePost(request: AuthenticatedRequest): Promise<NextResponse> {
-  let body: unknown
+async function handlePost(
+  request: AuthenticatedRequest,
+): Promise<NextResponse> {
+  let body: unknown;
 
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    return badRequestResponse('Invalid JSON body', 'INVALID_JSON')
+    return badRequestResponse("Invalid JSON body", "INVALID_JSON");
   }
 
   // Check if this is a new-style ExportConfig request
   const isNewStyleExport =
-    body && typeof body === 'object' && 'options' in body && 'filters' in body
+    body && typeof body === "object" && "options" in body && "filters" in body;
 
   if (isNewStyleExport) {
-    return handleNewStyleExport(request.user.id, body as ExportConfig)
+    return handleNewStyleExport(request.user.id, body as ExportConfig);
   }
 
-  const validation = validateExportRequest(body)
+  const validation = validateExportRequest(body);
   if (!validation.valid) {
     return badRequestResponse(
       (validation as { valid: false; error: string }).error,
-      'VALIDATION_ERROR'
-    )
+      "VALIDATION_ERROR",
+    );
   }
 
-  const { user } = request
-  const exportRequest = validation.request
+  const { user } = request;
+  const exportRequest = validation.request;
 
   // Check for existing pending/processing exports
   const existingJobs = Array.from(exportJobs.values()).filter(
-    (job) => job.userId === user.id && (job.status === 'pending' || job.status === 'processing')
-  )
+    (job) =>
+      job.userId === user.id &&
+      (job.status === "pending" || job.status === "processing"),
+  );
 
   if (existingJobs.length >= 2) {
     return badRequestResponse(
-      'You have too many pending exports. Please wait for them to complete.',
-      'TOO_MANY_EXPORTS'
-    )
+      "You have too many pending exports. Please wait for them to complete.",
+      "TOO_MANY_EXPORTS",
+    );
   }
 
   // Create export job
-  const jobId = randomUUID()
-  const now = new Date()
+  const jobId = randomUUID();
+  const now = new Date();
 
   const job: ExportJob = {
     id: jobId,
     userId: user.id,
     type: exportRequest.type,
-    format: exportRequest.format || 'json',
-    status: 'pending',
+    format: exportRequest.format || "json",
+    status: "pending",
     progress: 0,
     createdAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + CONFIG.JOB_EXPIRY).toISOString(),
@@ -755,14 +794,14 @@ async function handlePost(request: AuthenticatedRequest): Promise<NextResponse> 
       dateTo: exportRequest.dateTo,
       includeAttachments: exportRequest.includeAttachments,
     },
-  }
+  };
 
-  exportJobs.set(jobId, job)
+  exportJobs.set(jobId, job);
 
   // Start processing (in production, this would be queued)
   processExportJob(jobId, job).catch((error) => {
-    logger.error('Export processing error:', error)
-  })
+    logger.error("Export processing error:", error);
+  });
 
   return successResponse(
     {
@@ -772,10 +811,11 @@ async function handlePost(request: AuthenticatedRequest): Promise<NextResponse> 
         createdAt: job.createdAt,
         expiresAt: job.expiresAt,
       },
-      message: 'Export job created. Check status with GET /api/export?jobId=' + jobId,
+      message:
+        "Export job created. Check status with GET /api/export?jobId=" + jobId,
     },
-    { status: 202 }
-  )
+    { status: 202 },
+  );
 }
 
 // ============================================================================
@@ -784,50 +824,50 @@ async function handlePost(request: AuthenticatedRequest): Promise<NextResponse> 
 
 // Types for export data
 interface ExportUser {
-  id: string
-  username: string
-  display_name: string
-  email: string
-  role: string
-  created_at: string
+  id: string;
+  username: string;
+  display_name: string;
+  email: string;
+  role: string;
+  created_at: string;
 }
 
 interface ExportChannel {
-  id: string
-  name: string
-  slug: string
-  description: string
-  type: string
-  is_private: boolean
-  is_archived: boolean
-  created_at: string
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  type: string;
+  is_private: boolean;
+  is_archived: boolean;
+  created_at: string;
 }
 
 interface ExportMessage {
-  id: string
-  channel_id: string
-  user_id: string
-  content: string
-  type: string
-  created_at: string
-  is_pinned: boolean
+  id: string;
+  channel_id: string;
+  user_id: string;
+  content: string;
+  type: string;
+  created_at: string;
+  is_pinned: boolean;
 }
 
 async function handleNewStyleExport(
   userId: string,
-  config: ExportConfig
+  config: ExportConfig,
 ): Promise<NextResponse> {
   try {
     // Fetch real data from database with authorization
-    let users: ExportUser[] = []
-    let channels: ExportChannel[] = []
-    let messages: ExportMessage[] = []
+    let users: ExportUser[] = [];
+    let channels: ExportChannel[] = [];
+    let messages: ExportMessage[] = [];
 
-    const channelIds = config.filters.channelIds
+    const channelIds = config.filters.channelIds;
 
     // Fetch channels the user has access to
     if (config.options.includeChannels || config.options.includeMessages) {
-      const dbChannels = await fetchChannelsForExport(userId, channelIds)
+      const dbChannels = await fetchChannelsForExport(userId, channelIds);
       channels = dbChannels.map((c) => ({
         id: c.id,
         name: c.name,
@@ -837,98 +877,102 @@ async function handleNewStyleExport(
         is_private: c.is_private,
         is_archived: c.is_archived,
         created_at: c.created_at,
-      }))
+      }));
     }
 
     // If no channels found that user has access to, return empty
     if (channelIds?.length && channels.length === 0) {
-      return forbiddenResponse('You do not have access to the requested channels')
+      return forbiddenResponse(
+        "You do not have access to the requested channels",
+      );
     }
 
     // Get valid channel IDs for subsequent queries
-    const validChannelIds = channels.map((c) => c.id)
+    const validChannelIds = channels.map((c) => c.id);
 
     // Fetch users from accessible channels
     if (config.options.includeUsers) {
-      const dbUsers = await fetchUsersForExport(userId, validChannelIds)
+      const dbUsers = await fetchUsersForExport(userId, validChannelIds);
       users = dbUsers.map((u) => ({
         id: u.id,
         username: u.username,
         display_name: u.display_name,
         email: u.email,
-        role: u.role?.name || 'member',
+        role: u.role?.name || "member",
         created_at: u.created_at,
-      }))
+      }));
     }
 
     // Fetch messages from accessible channels
     if (config.options.includeMessages) {
       const exportedMessages = await fetchMessagesForExport(userId, {
-        type: 'messages',
+        type: "messages",
         channelIds: validChannelIds,
         dateFrom: config.filters.dateRange?.start,
         dateTo: config.filters.dateRange?.end,
         includeAttachments: config.options.includeAttachments,
-      })
+      });
 
       messages = exportedMessages.map((m) => ({
         id: m.id,
         channel_id: m.channelId,
         user_id: m.userId,
         content: m.content,
-        type: 'text',
+        type: "text",
         created_at: m.createdAt,
         is_pinned: false,
-      }))
+      }));
     }
 
     // Don't include channels if not requested
     if (!config.options.includeChannels) {
-      channels = []
+      channels = [];
     }
 
     // Apply date range filter for messages (already handled in query, but double-check)
     if (config.filters.dateRange) {
-      const { start, end } = config.filters.dateRange
+      const { start, end } = config.filters.dateRange;
       messages = messages.filter((m) => {
-        const msgDate = new Date(m.created_at)
-        if (start && msgDate < new Date(start)) return false
-        if (end && msgDate > new Date(end)) return false
-        return true
-      })
+        const msgDate = new Date(m.created_at);
+        if (start && msgDate < new Date(start)) return false;
+        if (end && msgDate > new Date(end)) return false;
+        return true;
+      });
     }
 
     // Anonymize users if requested
     if (config.options.anonymizeUsers) {
-      const userIdMap = new Map(users.map((u, index) => [u.id, `user_${index + 1}`]))
+      const userIdMap = new Map(
+        users.map((u, index) => [u.id, `user_${index + 1}`]),
+      );
       users = users.map((u, index) => ({
         ...u,
         username: `user_${index + 1}`,
         display_name: `User ${index + 1}`,
         email: `user${index + 1}@anonymized.local`,
-      }))
+      }));
       messages = messages.map((m) => ({
         ...m,
         user_id: userIdMap.get(m.user_id) || m.user_id,
-      }))
+      }));
     }
 
     // Generate export content
-    let content: string
-    let contentType: string
-    let filename: string
+    let content: string;
+    let contentType: string;
+    let filename: string;
 
-    if (config.format === 'csv') {
-      content = generateExportCsv(users, channels, messages, config.options)
-      contentType = 'text/csv'
-      filename = `nchat-export-${Date.now()}.csv`
+    if (config.format === "csv") {
+      content = generateExportCsv(users, channels, messages, config.options);
+      contentType = "text/csv";
+      filename = `nchat-export-${Date.now()}.csv`;
     } else {
       content = JSON.stringify(
         {
           metadata: {
             exportedAt: new Date().toISOString(),
-            format: 'json',
-            version: '1.0.0',
+            format: "json",
+            version: "1.0.0",
             filters: config.filters,
             stats: {
               usersExported: users.length,
@@ -941,22 +985,22 @@ async function handleNewStyleExport(
           ...(config.options.includeMessages && { messages }),
         },
         null,
-        2
-      )
-      contentType = 'application/json'
-      filename = `nchat-export-${Date.now()}.json`
+        2,
+      );
+      contentType = "application/json";
+      filename = `nchat-export-${Date.now()}.json`;
     }
 
     return new NextResponse(content, {
       status: 200,
       headers: {
-        'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="${filename}"`,
+        "Content-Type": contentType,
+        "Content-Disposition": `attachment; filename="${filename}"`,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Export failed:', error)
-    return internalErrorResponse('Failed to export data')
+    logger.error("Export failed:", error);
+    return internalErrorResponse("Failed to export data");
   }
 }
 
@@ -964,63 +1008,64 @@ function generateExportCsv(
   users: ExportUser[],
   channels: ExportChannel[],
   messages: ExportMessage[],
-  options: ExportConfig['options']
+  options: ExportConfig["options"],
 ): string {
-  const sections: string[] = []
+  const sections: string[] = [];
 
   if (options.includeUsers && users.length) {
-    const header = 'id,username,display_name,email,role,created_at'
+    const header = "id,username,display_name,email,role,created_at";
     const rows = users.map(
       (u) =>
-        `${u.id},${escapeExportCsv(u.username)},${escapeExportCsv(u.display_name)},${escapeExportCsv(u.email)},${u.role},${u.created_at}`
-    )
-    sections.push('# USERS\n' + header + '\n' + rows.join('\n'))
+        `${u.id},${escapeExportCsv(u.username)},${escapeExportCsv(u.display_name)},${escapeExportCsv(u.email)},${u.role},${u.created_at}`,
+    );
+    sections.push("# USERS\n" + header + "\n" + rows.join("\n"));
   }
 
   if (options.includeChannels && channels.length) {
-    const header = 'id,name,slug,description,type,is_private,is_archived,created_at'
+    const header =
+      "id,name,slug,description,type,is_private,is_archived,created_at";
     const rows = channels.map(
       (c) =>
-        `${c.id},${escapeExportCsv(c.name)},${escapeExportCsv(c.slug)},${escapeExportCsv(c.description)},${c.type},${c.is_private},${c.is_archived},${c.created_at}`
-    )
-    sections.push('# CHANNELS\n' + header + '\n' + rows.join('\n'))
+        `${c.id},${escapeExportCsv(c.name)},${escapeExportCsv(c.slug)},${escapeExportCsv(c.description)},${c.type},${c.is_private},${c.is_archived},${c.created_at}`,
+    );
+    sections.push("# CHANNELS\n" + header + "\n" + rows.join("\n"));
   }
 
   if (options.includeMessages && messages.length) {
-    const header = 'id,channel_id,user_id,content,type,created_at,is_pinned'
+    const header = "id,channel_id,user_id,content,type,created_at,is_pinned";
     const rows = messages.map(
       (m) =>
-        `${m.id},${m.channel_id},${m.user_id},${escapeExportCsv(m.content)},${m.type},${m.created_at},${m.is_pinned}`
-    )
-    sections.push('# MESSAGES\n' + header + '\n' + rows.join('\n'))
+        `${m.id},${m.channel_id},${m.user_id},${escapeExportCsv(m.content)},${m.type},${m.created_at},${m.is_pinned}`,
+    );
+    sections.push("# MESSAGES\n" + header + "\n" + rows.join("\n"));
   }
 
-  return sections.join('\n\n')
+  return sections.join("\n\n");
 }
 
 function escapeExportCsv(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`
+  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+    return `"${value.replace(/"/g, '""')}"`;
   }
-  return value
+  return value;
 }
 
 // ============================================================================
 // Export Handlers
 // ============================================================================
 
-export const GET = compose(withErrorHandler, withAuth)(handleGet)
+export const GET = compose(withErrorHandler, withAuth)(handleGet);
 
 export const POST = compose(
   withErrorHandler,
   withCsrfProtection,
   withRateLimit(CONFIG.RATE_LIMIT),
-  withAuth
-)(handlePost)
+  withAuth,
+)(handlePost);
 
 // ============================================================================
 // Route Configuration
 // ============================================================================
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";

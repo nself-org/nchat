@@ -6,19 +6,25 @@
  * (NEXT_PUBLIC_MODERATION_ENABLED=true). When absent, renders an upsell CTA.
  */
 
-'use client'
+"use client";
 
-import { Shield, BarChart3, Settings, ListChecks, ExternalLink } from 'lucide-react'
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ModerationDashboard } from '@/components/admin/moderation/ModerationDashboard'
-import { ModerationQueue } from '@/components/admin/moderation/ModerationQueue'
-import { ModerationSettings } from '@/components/admin/moderation/ModerationSettings'
-import { useAdminAccess } from '@/lib/admin/use-admin'
-import { nchatBundle } from '@/lib/features/bundle-detect'
+import {
+  Shield,
+  BarChart3,
+  Settings,
+  ListChecks,
+  ExternalLink,
+} from "lucide-react";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModerationDashboard } from "@/components/admin/moderation/ModerationDashboard";
+import { ModerationQueue } from "@/components/admin/moderation/ModerationQueue";
+import { ModerationSettings } from "@/components/admin/moderation/ModerationSettings";
+import { useAdminAccess } from "@/lib/admin/use-admin";
+import { nchatBundle } from "@/lib/features/bundle-detect";
 
 export default function ModerationPage() {
-  const { canModerate } = useAdminAccess()
+  const { canModerate } = useAdminAccess();
 
   // Bundle guard — moderation plugin required
   if (!nchatBundle.moderation) {
@@ -28,10 +34,13 @@ export default function ModerationPage() {
           <div className="mb-4 rounded-full bg-muted p-4">
             <Shield className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h2 className="mb-2 text-xl font-semibold">Moderation requires the nChat bundle</h2>
+          <h2 className="mb-2 text-xl font-semibold">
+            Moderation requires the nChat bundle
+          </h2>
           <p className="mb-6 max-w-md text-center text-muted-foreground">
-            AI-assisted moderation, auto-ban thresholds, and the moderation queue are part of the
-            nChat bundle ($0.99/mo). Install the moderation plugin to enable these tools.
+            AI-assisted moderation, auto-ban thresholds, and the moderation
+            queue are part of the nChat bundle ($0.99/mo). Install the
+            moderation plugin to enable these tools.
           </p>
           <div className="flex flex-col items-center gap-3">
             <a
@@ -44,12 +53,13 @@ export default function ModerationPage() {
               <ExternalLink className="h-4 w-4" />
             </a>
             <code className="rounded bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
-              nself plugin install moderation &amp;&amp; nself build &amp;&amp; nself start
+              nself plugin install moderation &amp;&amp; nself build &amp;&amp;
+              nself start
             </code>
           </div>
         </div>
       </AdminLayout>
-    )
+    );
   }
 
   if (!canModerate) {
@@ -63,7 +73,7 @@ export default function ModerationPage() {
           </p>
         </div>
       </AdminLayout>
-    )
+    );
   }
 
   return (
@@ -78,7 +88,8 @@ export default function ModerationPage() {
             <div>
               <h1 className="text-3xl font-bold">Content Moderation</h1>
               <p className="text-muted-foreground">
-                AI-powered moderation system with advanced detection and analytics
+                AI-powered moderation system with advanced detection and
+                analytics
               </p>
             </div>
           </div>
@@ -115,5 +126,5 @@ export default function ModerationPage() {
         </Tabs>
       </div>
     </AdminLayout>
-  )
+  );
 }

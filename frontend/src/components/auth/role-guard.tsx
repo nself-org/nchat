@@ -5,38 +5,43 @@
  * Shows access denied message if user doesn't have required role.
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/auth-context'
-import { type UserRole, hasRoleOrHigher, getRoleMetadata, ROLE_METADATA } from '@/lib/auth/roles'
-import { type Permission, hasPermission } from '@/lib/auth/permissions'
-import { AuthGuard } from './auth-guard'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  type UserRole,
+  hasRoleOrHigher,
+  getRoleMetadata,
+  ROLE_METADATA,
+} from "@/lib/auth/roles";
+import { type Permission, hasPermission } from "@/lib/auth/permissions";
+import { AuthGuard } from "./auth-guard";
 
 interface RoleGuardProps {
   /** Content to render when authorized */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Required role (user must have this role or higher) */
-  requiredRole?: UserRole
+  requiredRole?: UserRole;
   /** Allowed roles (user must have one of these roles) */
-  allowedRoles?: UserRole[]
+  allowedRoles?: UserRole[];
   /** Required permission (alternative to role check) */
-  requiredPermission?: Permission
+  requiredPermission?: Permission;
   /** Any of these permissions is sufficient */
-  anyPermissions?: Permission[]
+  anyPermissions?: Permission[];
   /** All of these permissions are required */
-  allPermissions?: Permission[]
+  allPermissions?: Permission[];
   /** Where to redirect if not authorized (default: shows access denied) */
-  redirectTo?: string
+  redirectTo?: string;
   /** Custom access denied component */
-  accessDeniedComponent?: React.ReactNode
+  accessDeniedComponent?: React.ReactNode;
   /** Custom loading component */
-  loadingComponent?: React.ReactNode
+  loadingComponent?: React.ReactNode;
   /** Callback when access is denied */
-  onAccessDenied?: () => void
+  onAccessDenied?: () => void;
   /** Whether to check auth first (default: true) */
-  requireAuth?: boolean
+  requireAuth?: boolean;
 }
 
 /**
@@ -46,12 +51,12 @@ function DefaultAccessDenied({
   requiredRole,
   userRole,
 }: {
-  requiredRole?: UserRole
-  userRole: UserRole | null
+  requiredRole?: UserRole;
+  userRole: UserRole | null;
 }) {
-  const router = useRouter()
-  const roleInfo = requiredRole ? getRoleMetadata(requiredRole) : null
-  const userRoleInfo = userRole ? getRoleMetadata(userRole) : null
+  const router = useRouter();
+  const roleInfo = requiredRole ? getRoleMetadata(requiredRole) : null;
+  const userRoleInfo = userRole ? getRoleMetadata(userRole) : null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -72,7 +77,9 @@ function DefaultAccessDenied({
           </svg>
         </div>
 
-        <h2 className="mb-2 text-xl font-semibold text-foreground">Access Denied</h2>
+        <h2 className="mb-2 text-xl font-semibold text-foreground">
+          Access Denied
+        </h2>
 
         <p className="mb-4 text-muted-foreground">
           You don&apos;t have permission to access this page.
@@ -81,15 +88,18 @@ function DefaultAccessDenied({
         {requiredRole && (
           <div className="bg-muted/50 mb-4 rounded-md p-3 text-sm">
             <p className="text-muted-foreground">
-              Required role:{' '}
+              Required role:{" "}
               <span className="font-medium" style={{ color: roleInfo?.color }}>
                 {roleInfo?.label}
               </span>
             </p>
             {userRole && (
               <p className="mt-1 text-muted-foreground">
-                Your role:{' '}
-                <span className="font-medium" style={{ color: userRoleInfo?.color }}>
+                Your role:{" "}
+                <span
+                  className="font-medium"
+                  style={{ color: userRoleInfo?.color }}
+                >
                   {userRoleInfo?.label}
                 </span>
               </p>
@@ -105,7 +115,7 @@ function DefaultAccessDenied({
             Go Back
           </button>
           <button
-            onClick={() => router.push('/chat')}
+            onClick={() => router.push("/chat")}
             className="text-primary-foreground hover:bg-primary/90 rounded-md bg-primary px-4 py-2 text-sm font-medium"
           >
             Go to Chat
@@ -113,7 +123,7 @@ function DefaultAccessDenied({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -132,32 +142,32 @@ export function RoleGuard({
   onAccessDenied,
   requireAuth = true,
 }: RoleGuardProps) {
-  const router = useRouter()
-  const { user, loading } = useAuth()
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (loading) return
+    if (loading) return;
 
     // If auth is required but user is not authenticated, let AuthGuard handle it
     if (requireAuth && !user) {
-      return
+      return;
     }
 
-    const userRole = user?.role ?? null
-    let authorized = false
+    const userRole = user?.role ?? null;
+    let authorized = false;
 
     // Check role requirements
     if (requiredRole && userRole) {
-      authorized = hasRoleOrHigher(userRole, requiredRole)
+      authorized = hasRoleOrHigher(userRole, requiredRole);
     } else if (allowedRoles && userRole) {
-      authorized = allowedRoles.includes(userRole)
+      authorized = allowedRoles.includes(userRole);
     } else if (requiredPermission && userRole) {
-      authorized = hasPermission(userRole, requiredPermission)
+      authorized = hasPermission(userRole, requiredPermission);
     } else if (anyPermissions && userRole) {
-      authorized = anyPermissions.some((p) => hasPermission(userRole, p))
+      authorized = anyPermissions.some((p) => hasPermission(userRole, p));
     } else if (allPermissions && userRole) {
-      authorized = allPermissions.every((p) => hasPermission(userRole, p))
+      authorized = allPermissions.every((p) => hasPermission(userRole, p));
     } else if (
       !requiredRole &&
       !allowedRoles &&
@@ -166,15 +176,15 @@ export function RoleGuard({
       !allPermissions
     ) {
       // No requirements specified, just needs auth (or not if requireAuth is false)
-      authorized = requireAuth ? !!user : true
+      authorized = requireAuth ? !!user : true;
     }
 
-    setIsAuthorized(authorized)
+    setIsAuthorized(authorized);
 
     if (!authorized) {
-      onAccessDenied?.()
+      onAccessDenied?.();
       if (redirectTo) {
-        router.replace(redirectTo)
+        router.replace(redirectTo);
       }
     }
   }, [
@@ -189,7 +199,7 @@ export function RoleGuard({
     redirectTo,
     router,
     onAccessDenied,
-  ])
+  ]);
 
   // Show loading while checking
   if (loading || isAuthorized === null) {
@@ -198,29 +208,34 @@ export function RoleGuard({
         <div className="flex min-h-screen items-center justify-center bg-background">
           <div className="flex flex-col items-center gap-4">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">Checking permissions...</p>
+            <p className="text-sm text-muted-foreground">
+              Checking permissions...
+            </p>
           </div>
         </div>
       )
-    )
+    );
   }
 
   // If not authorized and no redirect, show access denied
   if (!isAuthorized && !redirectTo) {
     return (
       accessDeniedComponent ?? (
-        <DefaultAccessDenied requiredRole={requiredRole} userRole={user?.role ?? null} />
+        <DefaultAccessDenied
+          requiredRole={requiredRole}
+          userRole={user?.role ?? null}
+        />
       )
-    )
+    );
   }
 
   // If not authorized with redirect, return null (redirect is happening)
   if (!isAuthorized) {
-    return null
+    return null;
   }
 
   // User is authorized
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
@@ -231,19 +246,19 @@ export function AuthRoleGuard({
   requiredRole,
   allowedRoles,
   requiredPermission,
-  loginRedirectTo = '/login',
+  loginRedirectTo = "/login",
   accessDeniedRedirectTo,
   loadingComponent,
   accessDeniedComponent,
 }: {
-  children: React.ReactNode
-  requiredRole?: UserRole
-  allowedRoles?: UserRole[]
-  requiredPermission?: Permission
-  loginRedirectTo?: string
-  accessDeniedRedirectTo?: string
-  loadingComponent?: React.ReactNode
-  accessDeniedComponent?: React.ReactNode
+  children: React.ReactNode;
+  requiredRole?: UserRole;
+  allowedRoles?: UserRole[];
+  requiredPermission?: Permission;
+  loginRedirectTo?: string;
+  accessDeniedRedirectTo?: string;
+  loadingComponent?: React.ReactNode;
+  accessDeniedComponent?: React.ReactNode;
 }) {
   return (
     <AuthGuard redirectTo={loginRedirectTo} loadingComponent={loadingComponent}>
@@ -259,7 +274,7 @@ export function AuthRoleGuard({
         {children}
       </RoleGuard>
     </AuthGuard>
-  )
+  );
 }
 
 /**
@@ -271,10 +286,10 @@ export function AdminGuard({
   loadingComponent,
   accessDeniedComponent,
 }: {
-  children: React.ReactNode
-  redirectTo?: string
-  loadingComponent?: React.ReactNode
-  accessDeniedComponent?: React.ReactNode
+  children: React.ReactNode;
+  redirectTo?: string;
+  loadingComponent?: React.ReactNode;
+  accessDeniedComponent?: React.ReactNode;
 }) {
   return (
     <AuthRoleGuard
@@ -285,7 +300,7 @@ export function AdminGuard({
     >
       {children}
     </AuthRoleGuard>
-  )
+  );
 }
 
 /**
@@ -297,10 +312,10 @@ export function ModeratorGuard({
   loadingComponent,
   accessDeniedComponent,
 }: {
-  children: React.ReactNode
-  redirectTo?: string
-  loadingComponent?: React.ReactNode
-  accessDeniedComponent?: React.ReactNode
+  children: React.ReactNode;
+  redirectTo?: string;
+  loadingComponent?: React.ReactNode;
+  accessDeniedComponent?: React.ReactNode;
 }) {
   return (
     <AuthRoleGuard
@@ -311,7 +326,7 @@ export function ModeratorGuard({
     >
       {children}
     </AuthRoleGuard>
-  )
+  );
 }
 
 /**
@@ -323,51 +338,51 @@ export function OwnerGuard({
   loadingComponent,
   accessDeniedComponent,
 }: {
-  children: React.ReactNode
-  redirectTo?: string
-  loadingComponent?: React.ReactNode
-  accessDeniedComponent?: React.ReactNode
+  children: React.ReactNode;
+  redirectTo?: string;
+  loadingComponent?: React.ReactNode;
+  accessDeniedComponent?: React.ReactNode;
 }) {
   return (
     <AuthRoleGuard
-      allowedRoles={['owner']}
+      allowedRoles={["owner"]}
       accessDeniedRedirectTo={redirectTo}
       loadingComponent={loadingComponent}
       accessDeniedComponent={accessDeniedComponent}
     >
       {children}
     </AuthRoleGuard>
-  )
+  );
 }
 
 /**
  * Hook for role-based authorization
  */
 export function useRoleGuard(options: {
-  requiredRole?: UserRole
-  allowedRoles?: UserRole[]
-  requiredPermission?: Permission
+  requiredRole?: UserRole;
+  allowedRoles?: UserRole[];
+  requiredPermission?: Permission;
 }): {
-  isAuthorized: boolean
-  isLoading: boolean
-  userRole: UserRole | null
+  isAuthorized: boolean;
+  isLoading: boolean;
+  userRole: UserRole | null;
 } {
-  const { user, loading } = useAuth()
-  const userRole = user?.role ?? null
+  const { user, loading } = useAuth();
+  const userRole = user?.role ?? null;
 
-  let isAuthorized = false
+  let isAuthorized = false;
 
   if (!loading && user) {
-    const { requiredRole, allowedRoles, requiredPermission } = options
+    const { requiredRole, allowedRoles, requiredPermission } = options;
 
     if (requiredRole && userRole) {
-      isAuthorized = hasRoleOrHigher(userRole, requiredRole)
+      isAuthorized = hasRoleOrHigher(userRole, requiredRole);
     } else if (allowedRoles && userRole) {
-      isAuthorized = allowedRoles.includes(userRole)
+      isAuthorized = allowedRoles.includes(userRole);
     } else if (requiredPermission && userRole) {
-      isAuthorized = hasPermission(userRole, requiredPermission)
+      isAuthorized = hasPermission(userRole, requiredPermission);
     } else if (!requiredRole && !allowedRoles && !requiredPermission) {
-      isAuthorized = true
+      isAuthorized = true;
     }
   }
 
@@ -375,7 +390,7 @@ export function useRoleGuard(options: {
     isAuthorized,
     isLoading: loading,
     userRole,
-  }
+  };
 }
 
 /**
@@ -384,10 +399,10 @@ export function useRoleGuard(options: {
 export function withRoleGuard<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   options: {
-    requiredRole?: UserRole
-    allowedRoles?: UserRole[]
-    redirectTo?: string
-  }
+    requiredRole?: UserRole;
+    allowedRoles?: UserRole[];
+    redirectTo?: string;
+  },
 ) {
   return function RoleGuardedComponent(props: P) {
     return (
@@ -398,8 +413,8 @@ export function withRoleGuard<P extends object>(
       >
         <WrappedComponent {...props} />
       </AuthRoleGuard>
-    )
-  }
+    );
+  };
 }
 
-export default RoleGuard
+export default RoleGuard;

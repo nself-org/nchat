@@ -1,39 +1,44 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { History, X, Maximize2, Minimize2 } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
-import type { MessageEditHistory, MessageVersion } from '@/lib/message-history'
-import { EditHistoryList, HistoryStats } from './EditHistoryList'
-import { VersionComparison } from './VersionComparison'
-import { OriginalVsCurrent } from './OriginalMessage'
-import { RestoreVersion } from './RestoreVersion'
-import { DeleteHistory } from './DeleteHistory'
+import { useState, useCallback } from "react";
+import { History, X, Maximize2, Minimize2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import type { MessageEditHistory, MessageVersion } from "@/lib/message-history";
+import { EditHistoryList, HistoryStats } from "./EditHistoryList";
+import { VersionComparison } from "./VersionComparison";
+import { OriginalVsCurrent } from "./OriginalMessage";
+import { RestoreVersion } from "./RestoreVersion";
+import { DeleteHistory } from "./DeleteHistory";
 
 export interface EditHistoryProps {
   /** Whether the modal is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Callback to close the modal */
-  onClose: () => void
+  onClose: () => void;
   /** The edit history to display */
-  history: MessageEditHistory | null
+  history: MessageEditHistory | null;
   /** Whether loading */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Whether user can restore versions */
-  canRestore?: boolean
+  canRestore?: boolean;
   /** Whether user can clear history */
-  canClear?: boolean
+  canClear?: boolean;
   /** Callback to restore a version */
-  onRestore?: (version: MessageVersion, reason?: string) => Promise<void>
+  onRestore?: (version: MessageVersion, reason?: string) => Promise<void>;
   /** Callback to clear history */
-  onClear?: (keepOriginal: boolean, reason?: string) => Promise<void>
+  onClear?: (keepOriginal: boolean, reason?: string) => Promise<void>;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -51,46 +56,48 @@ export function EditHistory({
   onClear,
   className,
 }: EditHistoryProps) {
-  const [selectedVersion, setSelectedVersion] = useState<MessageVersion | null>(null)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isRestoring, setIsRestoring] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [selectedVersion, setSelectedVersion] = useState<MessageVersion | null>(
+    null,
+  );
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleRestore = useCallback(
     async (version: MessageVersion, reason?: string) => {
-      if (!onRestore) return
-      setIsRestoring(true)
+      if (!onRestore) return;
+      setIsRestoring(true);
       try {
-        await onRestore(version, reason)
+        await onRestore(version, reason);
       } finally {
-        setIsRestoring(false)
+        setIsRestoring(false);
       }
     },
-    [onRestore]
-  )
+    [onRestore],
+  );
 
   const handleClear = useCallback(
     async (keepOriginal: boolean, reason?: string) => {
-      if (!onClear) return
-      setIsDeleting(true)
+      if (!onClear) return;
+      setIsDeleting(true);
       try {
-        await onClear(keepOriginal, reason)
+        await onClear(keepOriginal, reason);
       } finally {
-        setIsDeleting(false)
+        setIsDeleting(false);
       }
     },
-    [onClear]
-  )
+    [onClear],
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         className={cn(
-          'flex flex-col gap-0 p-0',
+          "flex flex-col gap-0 p-0",
           isFullscreen
-            ? 'max-w-screen h-screen max-h-screen w-screen rounded-none'
-            : 'max-h-[85vh] max-w-4xl',
-          className
+            ? "max-w-screen h-screen max-h-screen w-screen rounded-none"
+            : "max-h-[85vh] max-w-4xl",
+          className,
         )}
       >
         {/* Header */}
@@ -100,7 +107,7 @@ export function EditHistory({
             <DialogTitle>Edit History</DialogTitle>
             {history && (
               <span className="text-sm text-muted-foreground">
-                {history.editCount} edit{history.editCount !== 1 ? 's' : ''}
+                {history.editCount} edit{history.editCount !== 1 ? "s" : ""}
               </span>
             )}
           </div>
@@ -111,9 +118,18 @@ export function EditHistory({
               onClick={() => setIsFullscreen(!isFullscreen)}
               className="h-8 w-8"
             >
-              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              {isFullscreen ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
             </Button>
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8"
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -133,7 +149,10 @@ export function EditHistory({
             </p>
           </div>
         ) : (
-          <Tabs defaultValue="history" className="flex flex-1 flex-col overflow-hidden">
+          <Tabs
+            defaultValue="history"
+            className="flex flex-1 flex-col overflow-hidden"
+          >
             <TabsList className="mx-6 mt-4 grid w-fit grid-cols-3">
               <TabsTrigger value="history">History</TabsTrigger>
               <TabsTrigger value="compare">Compare</TabsTrigger>
@@ -150,7 +169,9 @@ export function EditHistory({
                   <HistoryStats history={history} />
                   <EditHistoryList
                     history={history}
-                    selectedVersionIds={selectedVersion ? [selectedVersion.id] : []}
+                    selectedVersionIds={
+                      selectedVersion ? [selectedVersion.id] : []
+                    }
                     onSelectVersion={setSelectedVersion}
                     onRestore={handleRestore}
                     canRestore={canRestore}
@@ -216,7 +237,7 @@ export function EditHistory({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 /**
@@ -242,7 +263,7 @@ function EditHistoryLoading() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -250,15 +271,15 @@ function EditHistoryLoading() {
  */
 export interface EditHistoryPanelProps {
   /** The edit history to display */
-  history: MessageEditHistory | null
+  history: MessageEditHistory | null;
   /** Whether loading */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Maximum height */
-  maxHeight?: string | number
+  maxHeight?: string | number;
   /** Callback when close is requested */
-  onClose?: () => void
+  onClose?: () => void;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 export function EditHistoryPanel({
@@ -270,14 +291,19 @@ export function EditHistoryPanel({
 }: EditHistoryPanelProps) {
   if (isLoading) {
     return (
-      <div className={cn('rounded-md border bg-card p-4', className)}>
+      <div className={cn("rounded-md border bg-card p-4", className)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <History className="h-4 w-4 text-muted-foreground" />
             <Skeleton className="h-4 w-24" />
           </div>
           {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-6 w-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-6 w-6"
+            >
               <X className="h-4 w-4" />
             </Button>
           )}
@@ -287,43 +313,59 @@ export function EditHistoryPanel({
           <Skeleton className="h-16 w-full" />
         </div>
       </div>
-    )
+    );
   }
 
   if (!history || history.versions.length === 0) {
     return (
-      <div className={cn('rounded-md border bg-card p-4', className)}>
+      <div className={cn("rounded-md border bg-card p-4", className)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-muted-foreground">
             <History className="h-4 w-4" />
             <span className="text-sm">No edit history</span>
           </div>
           {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-6 w-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-6 w-6"
+            >
               <X className="h-4 w-4" />
             </Button>
           )}
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('rounded-md border bg-card', className)}>
+    <div className={cn("rounded-md border bg-card", className)}>
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-2">
           <History className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">
-            Edit History ({history.editCount} edit{history.editCount !== 1 ? 's' : ''})
+            Edit History ({history.editCount} edit
+            {history.editCount !== 1 ? "s" : ""})
           </span>
         </div>
         {onClose && (
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-6 w-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-6 w-6"
+          >
             <X className="h-4 w-4" />
           </Button>
         )}
       </div>
-      <EditHistoryList history={history} mode="compact" maxHeight={maxHeight} className="p-2" />
+      <EditHistoryList
+        history={history}
+        mode="compact"
+        maxHeight={maxHeight}
+        className="p-2"
+      />
     </div>
-  )
+  );
 }

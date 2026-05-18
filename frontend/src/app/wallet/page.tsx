@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Wallet } from 'lucide-react'
+import * as React from "react";
+import { Wallet } from "lucide-react";
 import {
   WalletConnectButton,
   WalletModal,
@@ -13,12 +13,12 @@ import {
   TokenGate,
   TokenGateBadge,
   TipButton,
-} from '@/components/wallet'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useWallet } from '@/hooks/use-wallet'
+} from "@/components/wallet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useWallet } from "@/hooks/use-wallet";
 
 export default function WalletPage() {
-  const { isConnected } = useWallet()
+  const { isConnected } = useWallet();
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 py-8">
@@ -29,7 +29,9 @@ export default function WalletPage() {
             <Wallet className="h-8 w-8" />
             Crypto Wallet
           </h1>
-          <p className="mt-2 text-muted-foreground">Connect your wallet to access Web3 features</p>
+          <p className="mt-2 text-muted-foreground">
+            Connect your wallet to access Web3 features
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {isConnected ? <WalletStatus /> : <WalletConnectButton />}
@@ -71,7 +73,8 @@ export default function WalletPage() {
             <div className="space-y-2">
               <h2 className="text-xl font-semibold">Connect Your Wallet</h2>
               <p className="text-sm text-muted-foreground">
-                Connect your crypto wallet to view your tokens, NFTs, and transaction history
+                Connect your crypto wallet to view your tokens, NFTs, and
+                transaction history
               </p>
             </div>
             <WalletConnectButton />
@@ -83,15 +86,15 @@ export default function WalletPage() {
       <div className="space-y-4 rounded-lg border p-6">
         <h2 className="text-xl font-semibold">Token Gating Demo</h2>
         <p className="text-sm text-muted-foreground">
-          This section demonstrates token-gated content. Connect your wallet and hold the required
-          tokens to access.
+          This section demonstrates token-gated content. Connect your wallet and
+          hold the required tokens to access.
         </p>
 
         <TokenGate
           config={{
-            type: 'token',
-            contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC on Ethereum
-            minimumBalance: '1000000', // 1 USDC (6 decimals)
+            type: "token",
+            contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC on Ethereum
+            minimumBalance: "1000000", // 1 USDC (6 decimals)
           }}
           fallback={
             <div className="rounded-lg border border-dashed p-8 text-center">
@@ -138,5 +141,5 @@ export default function WalletPage() {
       <WalletModal />
       <TransactionModal />
     </div>
-  )
+  );
 }

@@ -153,7 +153,7 @@ const {
 
   // Info
   duration,
-} = useLiveStream(options)
+} = useLiveStream(options);
 ```
 
 ### useStreamViewer()
@@ -187,7 +187,7 @@ const {
   latency,
   volume,
   isMuted,
-} = useStreamViewer(options)
+} = useStreamViewer(options);
 ```
 
 ### useStreamChat()
@@ -203,14 +203,20 @@ const {
   pinMessage,
   unpinMessage,
   clear,
-} = useStreamChat(options)
+} = useStreamChat(options);
 ```
 
 ### useStreamReactions()
 
 ```typescript
-const { reactions, recentReactions, isSending, error, sendReaction, clearReactions } =
-  useStreamReactions(options)
+const {
+  reactions,
+  recentReactions,
+  isSending,
+  error,
+  sendReaction,
+  clearReactions,
+} = useStreamReactions(options);
 ```
 
 ## Quality Levels

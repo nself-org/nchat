@@ -1,5 +1,5 @@
-import { SidebarSkeleton } from '@/components/loading/sidebar-skeleton'
-import { ChatSkeleton } from '@/components/loading/chat-skeleton'
+import { SidebarSkeleton } from "@/components/loading/sidebar-skeleton";
+import { ChatSkeleton } from "@/components/loading/chat-skeleton";
 
 /**
  * Chat page loading skeleton
@@ -13,8 +13,13 @@ export default function ChatLoading() {
 
       {/* Main chat area skeleton */}
       <div className="flex-1">
-        <ChatSkeleton showHeader showInput showMemberPanel={false} messageCount={8} />
+        <ChatSkeleton
+          showHeader
+          showInput
+          showMemberPanel={false}
+          messageCount={8}
+        />
       </div>
     </div>
-  )
+  );
 }

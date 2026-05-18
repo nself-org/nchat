@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-import type { PlanTier, Currency } from '@/types/subscription.types'
+import type { PlanTier, Currency } from "@/types/subscription.types";
 
 // ============================================================================
 // Metered Dimension Types
@@ -18,43 +18,43 @@ import type { PlanTier, Currency } from '@/types/subscription.types'
  * Types of metered usage dimensions.
  */
 export type UsageDimensionType =
-  | 'storage' // Storage in bytes
-  | 'seats' // Active seats/users
-  | 'api_calls' // API requests
-  | 'bandwidth' // Data transfer in bytes
-  | 'messages' // Messages sent
-  | 'file_uploads' // Files uploaded
-  | 'video_minutes' // Video call minutes
-  | 'compute_units' // Generic compute units
+  | "storage" // Storage in bytes
+  | "seats" // Active seats/users
+  | "api_calls" // API requests
+  | "bandwidth" // Data transfer in bytes
+  | "messages" // Messages sent
+  | "file_uploads" // Files uploaded
+  | "video_minutes" // Video call minutes
+  | "compute_units"; // Generic compute units
 
 /**
  * Aggregation method for usage metrics.
  */
 export type UsageAggregationMethod =
-  | 'sum' // Sum all values (API calls, messages)
-  | 'max' // Maximum value in period (peak users)
-  | 'average' // Average over period
-  | 'last' // Last recorded value (storage)
-  | 'count' // Count of events
+  | "sum" // Sum all values (API calls, messages)
+  | "max" // Maximum value in period (peak users)
+  | "average" // Average over period
+  | "last" // Last recorded value (storage)
+  | "count"; // Count of events
 
 /**
  * Billing model for a usage dimension.
  */
 export type UsageBillingModel =
-  | 'flat' // Fixed price per unit
-  | 'tiered' // Different rates at different levels
-  | 'graduated' // Each tier applies only to units within that tier
-  | 'volume' // All units priced based on total volume
-  | 'package' // Price for bundles of units
+  | "flat" // Fixed price per unit
+  | "tiered" // Different rates at different levels
+  | "graduated" // Each tier applies only to units within that tier
+  | "volume" // All units priced based on total volume
+  | "package"; // Price for bundles of units
 
 /**
  * Reset behavior for usage counters.
  */
 export type UsageResetBehavior =
-  | 'billing_period' // Reset at end of each billing period
-  | 'calendar_month' // Reset on first of each month
-  | 'never' // Never reset (cumulative)
-  | 'custom' // Custom reset schedule
+  | "billing_period" // Reset at end of each billing period
+  | "calendar_month" // Reset on first of each month
+  | "never" // Never reset (cumulative)
+  | "custom"; // Custom reset schedule
 
 // ============================================================================
 // Metered Dimension Configuration
@@ -65,31 +65,31 @@ export type UsageResetBehavior =
  */
 export interface UsageDimensionConfig {
   /** Unique dimension key */
-  key: UsageDimensionType
+  key: UsageDimensionType;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Description */
-  description: string
+  description: string;
   /** Unit label (e.g., 'GB', 'seats', 'calls') */
-  unit: string
+  unit: string;
   /** Unit divisor for display (e.g., 1GB = 1024^3 bytes) */
-  unitDivisor: number
+  unitDivisor: number;
   /** Aggregation method */
-  aggregationMethod: UsageAggregationMethod
+  aggregationMethod: UsageAggregationMethod;
   /** Billing model */
-  billingModel: UsageBillingModel
+  billingModel: UsageBillingModel;
   /** Reset behavior */
-  resetBehavior: UsageResetBehavior
+  resetBehavior: UsageResetBehavior;
   /** Whether dimension is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Stripe meter ID (if using Stripe meters) */
-  stripeMeterName?: string
+  stripeMeterName?: string;
   /** Stripe meter event name */
-  stripeMeterEventName?: string
+  stripeMeterEventName?: string;
   /** Minimum billable amount */
-  minimumBillableAmount?: number
+  minimumBillableAmount?: number;
   /** Free tier allowance (before billing) */
-  freeTierAllowance?: number
+  freeTierAllowance?: number;
 }
 
 /**
@@ -97,11 +97,11 @@ export interface UsageDimensionConfig {
  */
 export interface UsagePricingTier {
   /** Start of tier (inclusive) */
-  upTo: number | null // null means unlimited
+  upTo: number | null; // null means unlimited
   /** Price per unit in cents */
-  pricePerUnit: number
+  pricePerUnit: number;
   /** Flat fee for this tier (for tiered billing) */
-  flatFee?: number
+  flatFee?: number;
 }
 
 /**
@@ -109,19 +109,19 @@ export interface UsagePricingTier {
  */
 export interface UsageDimensionPricing {
   /** Dimension key */
-  dimensionKey: UsageDimensionType
+  dimensionKey: UsageDimensionType;
   /** Currency */
-  currency: Currency
+  currency: Currency;
   /** Base price per unit in cents */
-  basePricePerUnit: number
+  basePricePerUnit: number;
   /** Pricing tiers (if tiered/graduated/volume) */
-  tiers?: UsagePricingTier[]
+  tiers?: UsagePricingTier[];
   /** Package size (if package billing) */
-  packageSize?: number
+  packageSize?: number;
   /** Package price in cents */
-  packagePrice?: number
+  packagePrice?: number;
   /** Plan-specific pricing overrides */
-  planOverrides?: Partial<Record<PlanTier, number>>
+  planOverrides?: Partial<Record<PlanTier, number>>;
 }
 
 // ============================================================================
@@ -133,43 +133,43 @@ export interface UsageDimensionPricing {
  */
 export interface UsageEvent {
   /** Unique event ID */
-  id: string
+  id: string;
   /** Organization/tenant ID */
-  organizationId: string
+  organizationId: string;
   /** Workspace ID (optional) */
-  workspaceId?: string
+  workspaceId?: string;
   /** User ID (optional, for per-user tracking) */
-  userId?: string
+  userId?: string;
   /** Usage dimension */
-  dimension: UsageDimensionType
+  dimension: UsageDimensionType;
   /** Quantity (positive for increment, negative for decrement) */
-  quantity: number
+  quantity: number;
   /** Event timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Idempotency key (prevents duplicate processing) */
-  idempotencyKey: string
+  idempotencyKey: string;
   /** Event metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
   /** Whether event has been processed for billing */
-  processed: boolean
+  processed: boolean;
   /** Processing timestamp */
-  processedAt?: Date
+  processedAt?: Date;
   /** Stripe meter event ID (if synced) */
-  stripeMeterEventId?: string
+  stripeMeterEventId?: string;
 }
 
 /**
  * Input for creating a usage event.
  */
 export interface CreateUsageEventInput {
-  organizationId: string
-  workspaceId?: string
-  userId?: string
-  dimension: UsageDimensionType
-  quantity: number
-  timestamp?: Date
-  idempotencyKey?: string
-  metadata?: Record<string, unknown>
+  organizationId: string;
+  workspaceId?: string;
+  userId?: string;
+  dimension: UsageDimensionType;
+  quantity: number;
+  timestamp?: Date;
+  idempotencyKey?: string;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -177,27 +177,27 @@ export interface CreateUsageEventInput {
  */
 export interface AggregatedUsage {
   /** Dimension key */
-  dimension: UsageDimensionType
+  dimension: UsageDimensionType;
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Billing period ID */
-  billingPeriodId: string
+  billingPeriodId: string;
   /** Period start */
-  periodStart: Date
+  periodStart: Date;
   /** Period end */
-  periodEnd: Date
+  periodEnd: Date;
   /** Total usage (based on aggregation method) */
-  totalUsage: number
+  totalUsage: number;
   /** Number of events */
-  eventCount: number
+  eventCount: number;
   /** Peak usage (max during period) */
-  peakUsage: number
+  peakUsage: number;
   /** Average usage */
-  averageUsage: number
+  averageUsage: number;
   /** Billable usage (after free tier) */
-  billableUsage: number
+  billableUsage: number;
   /** Last updated */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
@@ -205,13 +205,13 @@ export interface AggregatedUsage {
  */
 export interface UsageSnapshot {
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Snapshot timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Usage by dimension */
-  dimensions: Record<UsageDimensionType, DimensionSnapshot>
+  dimensions: Record<UsageDimensionType, DimensionSnapshot>;
   /** Current billing period */
-  billingPeriod: BillingPeriodInfo
+  billingPeriod: BillingPeriodInfo;
 }
 
 /**
@@ -219,25 +219,25 @@ export interface UsageSnapshot {
  */
 export interface DimensionSnapshot {
   /** Dimension key */
-  dimension: UsageDimensionType
+  dimension: UsageDimensionType;
   /** Current usage value */
-  currentUsage: number
+  currentUsage: number;
   /** Plan limit (null = unlimited) */
-  limit: number | null
+  limit: number | null;
   /** Free tier allowance */
-  freeTierAllowance: number
+  freeTierAllowance: number;
   /** Billable usage */
-  billableUsage: number
+  billableUsage: number;
   /** Usage percentage (null if unlimited) */
-  usagePercentage: number | null
+  usagePercentage: number | null;
   /** Remaining quota (null if unlimited) */
-  remainingQuota: number | null
+  remainingQuota: number | null;
   /** Alert status */
-  alertStatus: UsageAlertLevel
+  alertStatus: UsageAlertLevel;
   /** Projected usage at period end */
-  projectedUsage: number | null
+  projectedUsage: number | null;
   /** Projected overage */
-  projectedOverage: number | null
+  projectedOverage: number | null;
 }
 
 // ============================================================================
@@ -249,23 +249,23 @@ export interface DimensionSnapshot {
  */
 export interface BillingPeriodInfo {
   /** Period ID */
-  id: string
+  id: string;
   /** Period start */
-  startDate: Date
+  startDate: Date;
   /** Period end */
-  endDate: Date
+  endDate: Date;
   /** Days in period */
-  daysInPeriod: number
+  daysInPeriod: number;
   /** Days elapsed */
-  daysElapsed: number
+  daysElapsed: number;
   /** Days remaining */
-  daysRemaining: number
+  daysRemaining: number;
   /** Period progress percentage */
-  progressPercentage: number
+  progressPercentage: number;
   /** Billing interval */
-  interval: 'monthly' | 'yearly'
+  interval: "monthly" | "yearly";
   /** Is current period */
-  isCurrent: boolean
+  isCurrent: boolean;
 }
 
 /**
@@ -273,17 +273,17 @@ export interface BillingPeriodInfo {
  */
 export interface BillingPeriodUsage {
   /** Period info */
-  period: BillingPeriodInfo
+  period: BillingPeriodInfo;
   /** Usage by dimension */
-  usage: Record<UsageDimensionType, AggregatedUsage>
+  usage: Record<UsageDimensionType, AggregatedUsage>;
   /** Total estimated charges in cents */
-  estimatedCharges: number
+  estimatedCharges: number;
   /** Charges by dimension in cents */
-  chargesByDimension: Record<UsageDimensionType, number>
+  chargesByDimension: Record<UsageDimensionType, number>;
   /** Overages by dimension */
-  overages: Record<UsageDimensionType, number>
+  overages: Record<UsageDimensionType, number>;
   /** Whether any overages exist */
-  hasOverages: boolean
+  hasOverages: boolean;
 }
 
 // ============================================================================
@@ -293,76 +293,81 @@ export interface BillingPeriodUsage {
 /**
  * Alert severity levels.
  */
-export type UsageAlertLevel = 'normal' | 'info' | 'warning' | 'critical' | 'exceeded'
+export type UsageAlertLevel =
+  | "normal"
+  | "info"
+  | "warning"
+  | "critical"
+  | "exceeded";
 
 /**
  * Threshold configuration for alerts.
  */
 export interface UsageThresholdConfig {
   /** Dimension key */
-  dimension: UsageDimensionType
+  dimension: UsageDimensionType;
   /** Info threshold (percentage) */
-  infoThreshold: number
+  infoThreshold: number;
   /** Warning threshold (percentage) */
-  warningThreshold: number
+  warningThreshold: number;
   /** Critical threshold (percentage) */
-  criticalThreshold: number
+  criticalThreshold: number;
   /** Enable email notifications */
-  emailNotifications: boolean
+  emailNotifications: boolean;
   /** Enable in-app notifications */
-  inAppNotifications: boolean
+  inAppNotifications: boolean;
   /** Enable webhook notifications */
-  webhookNotifications: boolean
+  webhookNotifications: boolean;
   /** Custom webhook URL */
-  webhookUrl?: string
+  webhookUrl?: string;
 }
 
 /**
  * Default threshold configuration.
  */
-export const DEFAULT_THRESHOLDS: Omit<UsageThresholdConfig, 'dimension'> = {
+export const DEFAULT_THRESHOLDS: Omit<UsageThresholdConfig, "dimension"> = {
   infoThreshold: 50,
   warningThreshold: 75,
   criticalThreshold: 90,
   emailNotifications: true,
   inAppNotifications: true,
   webhookNotifications: false,
-}
+};
 
 /**
  * Usage alert.
  */
 export interface UsageAlert {
   /** Alert ID */
-  id: string
+  id: string;
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Dimension */
-  dimension: UsageDimensionType
+  dimension: UsageDimensionType;
   /** Alert level */
-  level: UsageAlertLevel
+  level: UsageAlertLevel;
   /** Current usage */
-  currentUsage: number
+  currentUsage: number;
   /** Limit */
-  limit: number
+  limit: number;
   /** Usage percentage */
-  percentage: number
+  percentage: number;
   /** Alert message */
-  message: string
+  message: string;
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Acknowledged timestamp */
-  acknowledgedAt?: Date
+  acknowledgedAt?: Date;
   /** Acknowledged by user ID */
-  acknowledgedBy?: string
+  acknowledgedBy?: string;
   /** Whether alert is active */
-  isActive: boolean
+  isActive: boolean;
   /** Notification status */
   notifications: {
-    emailSent: boolean
-    inAppSent: boolean
-    webhookSent: boolean
-  }
+    emailSent: boolean;
+    inAppSent: boolean;
+    webhookSent: boolean;
+  };
 }
 
 /**
@@ -370,13 +375,17 @@ export interface UsageAlert {
  */
 export interface AlertHistoryEntry {
   /** Alert */
-  alert: UsageAlert
+  alert: UsageAlert;
   /** Previous level */
-  previousLevel?: UsageAlertLevel
+  previousLevel?: UsageAlertLevel;
   /** Transition timestamp */
-  transitionAt: Date
+  transitionAt: Date;
   /** Trigger reason */
-  reason: 'threshold_crossed' | 'usage_decreased' | 'limit_changed' | 'period_reset'
+  reason:
+    | "threshold_crossed"
+    | "usage_decreased"
+    | "limit_changed"
+    | "period_reset";
 }
 
 // ============================================================================
@@ -387,27 +396,27 @@ export interface AlertHistoryEntry {
  * Overage handling strategy.
  */
 export type OverageStrategy =
-  | 'block' // Block usage when limit reached
-  | 'charge' // Allow and charge for overage
-  | 'warn' // Allow with warning only
-  | 'soft_block' // Block after grace period
+  | "block" // Block usage when limit reached
+  | "charge" // Allow and charge for overage
+  | "warn" // Allow with warning only
+  | "soft_block"; // Block after grace period
 
 /**
  * Overage configuration per dimension.
  */
 export interface OverageConfig {
   /** Dimension key */
-  dimension: UsageDimensionType
+  dimension: UsageDimensionType;
   /** Overage strategy */
-  strategy: OverageStrategy
+  strategy: OverageStrategy;
   /** Grace period in hours (for soft_block) */
-  gracePeriodHours?: number
+  gracePeriodHours?: number;
   /** Overage rate multiplier (e.g., 1.5 = 150% of base rate) */
-  overageRateMultiplier: number
+  overageRateMultiplier: number;
   /** Maximum overage allowed (null = unlimited) */
-  maxOverage: number | null
+  maxOverage: number | null;
   /** Hard cap (blocks even if strategy is charge) */
-  hardCap?: number
+  hardCap?: number;
 }
 
 /**
@@ -415,25 +424,25 @@ export interface OverageConfig {
  */
 export interface OverageRecord {
   /** Record ID */
-  id: string
+  id: string;
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Billing period ID */
-  billingPeriodId: string
+  billingPeriodId: string;
   /** Dimension */
-  dimension: UsageDimensionType
+  dimension: UsageDimensionType;
   /** Overage amount */
-  overageAmount: number
+  overageAmount: number;
   /** Overage charges in cents */
-  overageCharges: number
+  overageCharges: number;
   /** Rate applied per unit */
-  rateApplied: number
+  rateApplied: number;
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Whether invoiced */
-  invoiced: boolean
+  invoiced: boolean;
   /** Invoice ID */
-  invoiceId?: string
+  invoiceId?: string;
 }
 
 // ============================================================================
@@ -445,32 +454,32 @@ export interface OverageRecord {
  */
 export interface UsageInvoiceLineItem {
   /** Line item ID */
-  id: string
+  id: string;
   /** Dimension */
-  dimension: UsageDimensionType
+  dimension: UsageDimensionType;
   /** Description */
-  description: string
+  description: string;
   /** Usage quantity */
-  quantity: number
+  quantity: number;
   /** Unit */
-  unit: string
+  unit: string;
   /** Price per unit in cents */
-  unitPrice: number
+  unitPrice: number;
   /** Total amount in cents */
-  amount: number
+  amount: number;
   /** Is overage */
-  isOverage: boolean
+  isOverage: boolean;
   /** Period start */
-  periodStart: Date
+  periodStart: Date;
   /** Period end */
-  periodEnd: Date
+  periodEnd: Date;
   /** Tier breakdown (if tiered pricing) */
   tierBreakdown?: Array<{
-    tier: number
-    quantity: number
-    pricePerUnit: number
-    amount: number
-  }>
+    tier: number;
+    quantity: number;
+    pricePerUnit: number;
+    amount: number;
+  }>;
 }
 
 /**
@@ -478,23 +487,23 @@ export interface UsageInvoiceLineItem {
  */
 export interface UsageInvoiceSummary {
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Billing period */
-  billingPeriod: BillingPeriodInfo
+  billingPeriod: BillingPeriodInfo;
   /** Base subscription amount in cents */
-  baseSubscriptionAmount: number
+  baseSubscriptionAmount: number;
   /** Total usage amount in cents */
-  totalUsageAmount: number
+  totalUsageAmount: number;
   /** Total overage amount in cents */
-  totalOverageAmount: number
+  totalOverageAmount: number;
   /** Credits applied in cents */
-  creditsApplied: number
+  creditsApplied: number;
   /** Grand total in cents */
-  grandTotal: number
+  grandTotal: number;
   /** Line items */
-  lineItems: UsageInvoiceLineItem[]
+  lineItems: UsageInvoiceLineItem[];
   /** Currency */
-  currency: Currency
+  currency: Currency;
 }
 
 // ============================================================================
@@ -506,19 +515,19 @@ export interface UsageInvoiceSummary {
  */
 export interface UsageReportRequest {
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Start date */
-  startDate: Date
+  startDate: Date;
   /** End date */
-  endDate: Date
+  endDate: Date;
   /** Dimensions to include (all if not specified) */
-  dimensions?: UsageDimensionType[]
+  dimensions?: UsageDimensionType[];
   /** Group by interval */
-  groupBy?: 'hour' | 'day' | 'week' | 'month'
+  groupBy?: "hour" | "day" | "week" | "month";
   /** Include projections */
-  includeProjections?: boolean
+  includeProjections?: boolean;
   /** Include comparisons to previous period */
-  includePreviousPeriod?: boolean
+  includePreviousPeriod?: boolean;
 }
 
 /**
@@ -526,13 +535,13 @@ export interface UsageReportRequest {
  */
 export interface UsageReportDataPoint {
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Value */
-  value: number
+  value: number;
   /** Cumulative value */
-  cumulativeValue: number
+  cumulativeValue: number;
   /** Period comparison (percentage change) */
-  periodComparison?: number
+  periodComparison?: number;
 }
 
 /**
@@ -540,23 +549,23 @@ export interface UsageReportDataPoint {
  */
 export interface UsageReportResponse {
   /** Request parameters */
-  request: UsageReportRequest
+  request: UsageReportRequest;
   /** Generated timestamp */
-  generatedAt: Date
+  generatedAt: Date;
   /** Data by dimension */
-  data: Record<UsageDimensionType, UsageReportDataPoint[]>
+  data: Record<UsageDimensionType, UsageReportDataPoint[]>;
   /** Summary statistics */
   summary: {
-    totalUsage: Record<UsageDimensionType, number>
-    peakUsage: Record<UsageDimensionType, number>
-    averageUsage: Record<UsageDimensionType, number>
-    projectedMonthEnd: Record<UsageDimensionType, number>
-  }
+    totalUsage: Record<UsageDimensionType, number>;
+    peakUsage: Record<UsageDimensionType, number>;
+    averageUsage: Record<UsageDimensionType, number>;
+    projectedMonthEnd: Record<UsageDimensionType, number>;
+  };
   /** Cost breakdown */
   costs: {
-    actual: Record<UsageDimensionType, number>
-    projected: Record<UsageDimensionType, number>
-  }
+    actual: Record<UsageDimensionType, number>;
+    projected: Record<UsageDimensionType, number>;
+  };
 }
 
 // ============================================================================
@@ -567,34 +576,34 @@ export interface UsageReportResponse {
  * Usage billing event types.
  */
 export type UsageBillingEventType =
-  | 'usage.recorded'
-  | 'usage.aggregated'
-  | 'usage.threshold_warning'
-  | 'usage.threshold_critical'
-  | 'usage.limit_exceeded'
-  | 'usage.overage_started'
-  | 'usage.overage_charged'
-  | 'usage.period_reset'
-  | 'usage.invoice_generated'
-  | 'usage.sync_completed'
-  | 'usage.sync_failed'
+  | "usage.recorded"
+  | "usage.aggregated"
+  | "usage.threshold_warning"
+  | "usage.threshold_critical"
+  | "usage.limit_exceeded"
+  | "usage.overage_started"
+  | "usage.overage_charged"
+  | "usage.period_reset"
+  | "usage.invoice_generated"
+  | "usage.sync_completed"
+  | "usage.sync_failed";
 
 /**
  * Usage billing event.
  */
 export interface UsageBillingEvent {
   /** Event type */
-  type: UsageBillingEventType
+  type: UsageBillingEventType;
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Dimension (if applicable) */
-  dimension?: UsageDimensionType
+  dimension?: UsageDimensionType;
   /** Event data */
-  data: Record<string, unknown>
+  data: Record<string, unknown>;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Event ID */
-  eventId: string
+  eventId: string;
 }
 
 // ============================================================================
@@ -606,19 +615,19 @@ export interface UsageBillingEvent {
  */
 export interface RecordUsageResult {
   /** Success */
-  success: boolean
+  success: boolean;
   /** Event ID */
-  eventId?: string
+  eventId?: string;
   /** Error message */
-  error?: string
+  error?: string;
   /** Current usage after recording */
-  currentUsage?: number
+  currentUsage?: number;
   /** Alert triggered */
-  alertTriggered?: UsageAlert
+  alertTriggered?: UsageAlert;
   /** Whether limit was exceeded */
-  limitExceeded?: boolean
+  limitExceeded?: boolean;
   /** Overage amount (if applicable) */
-  overageAmount?: number
+  overageAmount?: number;
 }
 
 /**
@@ -626,23 +635,23 @@ export interface RecordUsageResult {
  */
 export interface CheckUsageResult {
   /** Within limit */
-  withinLimit: boolean
+  withinLimit: boolean;
   /** Current usage */
-  currentUsage: number
+  currentUsage: number;
   /** Limit */
-  limit: number | null
+  limit: number | null;
   /** Remaining quota */
-  remaining: number | null
+  remaining: number | null;
   /** Usage percentage */
-  percentage: number | null
+  percentage: number | null;
   /** Alert level */
-  alertLevel: UsageAlertLevel
+  alertLevel: UsageAlertLevel;
   /** Action required */
-  action: 'allow' | 'warn' | 'block'
+  action: "allow" | "warn" | "block";
   /** Reason for action */
-  reason?: string
+  reason?: string;
   /** Upgrade suggestion */
-  upgradeRequired?: PlanTier
+  upgradeRequired?: PlanTier;
 }
 
 /**
@@ -650,23 +659,26 @@ export interface CheckUsageResult {
  */
 export interface CalculateChargesResult {
   /** Total charges in cents */
-  totalCharges: number
+  totalCharges: number;
   /** Breakdown by dimension */
-  breakdown: Record<UsageDimensionType, {
-    usage: number
-    charges: number
-    overageCharges: number
-    tierBreakdown?: Array<{
-      tier: number
-      quantity: number
-      rate: number
-      amount: number
-    }>
-  }>
+  breakdown: Record<
+    UsageDimensionType,
+    {
+      usage: number;
+      charges: number;
+      overageCharges: number;
+      tierBreakdown?: Array<{
+        tier: number;
+        quantity: number;
+        rate: number;
+        amount: number;
+      }>;
+    }
+  >;
   /** Currency */
-  currency: Currency
+  currency: Currency;
   /** Period */
-  period: BillingPeriodInfo
+  period: BillingPeriodInfo;
 }
 
 // ============================================================================
@@ -676,109 +688,112 @@ export interface CalculateChargesResult {
 /**
  * Default dimension configurations.
  */
-export const DEFAULT_DIMENSION_CONFIGS: Record<UsageDimensionType, UsageDimensionConfig> = {
+export const DEFAULT_DIMENSION_CONFIGS: Record<
+  UsageDimensionType,
+  UsageDimensionConfig
+> = {
   storage: {
-    key: 'storage',
-    name: 'Storage',
-    description: 'File storage usage',
-    unit: 'GB',
+    key: "storage",
+    name: "Storage",
+    description: "File storage usage",
+    unit: "GB",
     unitDivisor: 1024 * 1024 * 1024,
-    aggregationMethod: 'last',
-    billingModel: 'tiered',
-    resetBehavior: 'never',
+    aggregationMethod: "last",
+    billingModel: "tiered",
+    resetBehavior: "never",
     enabled: true,
-    stripeMeterName: 'storage_gb',
-    stripeMeterEventName: 'storage_usage',
+    stripeMeterName: "storage_gb",
+    stripeMeterEventName: "storage_usage",
   },
   seats: {
-    key: 'seats',
-    name: 'Active Seats',
-    description: 'Active team member seats',
-    unit: 'seats',
+    key: "seats",
+    name: "Active Seats",
+    description: "Active team member seats",
+    unit: "seats",
     unitDivisor: 1,
-    aggregationMethod: 'max',
-    billingModel: 'flat',
-    resetBehavior: 'billing_period',
+    aggregationMethod: "max",
+    billingModel: "flat",
+    resetBehavior: "billing_period",
     enabled: true,
-    stripeMeterName: 'active_seats',
-    stripeMeterEventName: 'seat_usage',
+    stripeMeterName: "active_seats",
+    stripeMeterEventName: "seat_usage",
   },
   api_calls: {
-    key: 'api_calls',
-    name: 'API Calls',
-    description: 'API request count',
-    unit: 'calls',
+    key: "api_calls",
+    name: "API Calls",
+    description: "API request count",
+    unit: "calls",
     unitDivisor: 1,
-    aggregationMethod: 'sum',
-    billingModel: 'graduated',
-    resetBehavior: 'billing_period',
+    aggregationMethod: "sum",
+    billingModel: "graduated",
+    resetBehavior: "billing_period",
     enabled: true,
-    stripeMeterName: 'api_calls',
-    stripeMeterEventName: 'api_call',
+    stripeMeterName: "api_calls",
+    stripeMeterEventName: "api_call",
     freeTierAllowance: 1000,
   },
   bandwidth: {
-    key: 'bandwidth',
-    name: 'Bandwidth',
-    description: 'Data transfer usage',
-    unit: 'GB',
+    key: "bandwidth",
+    name: "Bandwidth",
+    description: "Data transfer usage",
+    unit: "GB",
     unitDivisor: 1024 * 1024 * 1024,
-    aggregationMethod: 'sum',
-    billingModel: 'tiered',
-    resetBehavior: 'billing_period',
+    aggregationMethod: "sum",
+    billingModel: "tiered",
+    resetBehavior: "billing_period",
     enabled: true,
-    stripeMeterName: 'bandwidth_gb',
-    stripeMeterEventName: 'bandwidth_usage',
+    stripeMeterName: "bandwidth_gb",
+    stripeMeterEventName: "bandwidth_usage",
   },
   messages: {
-    key: 'messages',
-    name: 'Messages',
-    description: 'Messages sent',
-    unit: 'messages',
+    key: "messages",
+    name: "Messages",
+    description: "Messages sent",
+    unit: "messages",
     unitDivisor: 1,
-    aggregationMethod: 'sum',
-    billingModel: 'package',
-    resetBehavior: 'billing_period',
+    aggregationMethod: "sum",
+    billingModel: "package",
+    resetBehavior: "billing_period",
     enabled: true,
     freeTierAllowance: 10000,
   },
   file_uploads: {
-    key: 'file_uploads',
-    name: 'File Uploads',
-    description: 'Files uploaded',
-    unit: 'files',
+    key: "file_uploads",
+    name: "File Uploads",
+    description: "Files uploaded",
+    unit: "files",
     unitDivisor: 1,
-    aggregationMethod: 'sum',
-    billingModel: 'flat',
-    resetBehavior: 'billing_period',
+    aggregationMethod: "sum",
+    billingModel: "flat",
+    resetBehavior: "billing_period",
     enabled: true,
   },
   video_minutes: {
-    key: 'video_minutes',
-    name: 'Video Minutes',
-    description: 'Video call duration',
-    unit: 'minutes',
+    key: "video_minutes",
+    name: "Video Minutes",
+    description: "Video call duration",
+    unit: "minutes",
     unitDivisor: 1,
-    aggregationMethod: 'sum',
-    billingModel: 'tiered',
-    resetBehavior: 'billing_period',
+    aggregationMethod: "sum",
+    billingModel: "tiered",
+    resetBehavior: "billing_period",
     enabled: true,
-    stripeMeterName: 'video_minutes',
-    stripeMeterEventName: 'video_usage',
+    stripeMeterName: "video_minutes",
+    stripeMeterEventName: "video_usage",
     freeTierAllowance: 60,
   },
   compute_units: {
-    key: 'compute_units',
-    name: 'Compute Units',
-    description: 'AI and processing usage',
-    unit: 'units',
+    key: "compute_units",
+    name: "Compute Units",
+    description: "AI and processing usage",
+    unit: "units",
     unitDivisor: 1,
-    aggregationMethod: 'sum',
-    billingModel: 'graduated',
-    resetBehavior: 'billing_period',
+    aggregationMethod: "sum",
+    billingModel: "graduated",
+    resetBehavior: "billing_period",
     enabled: true,
   },
-}
+};
 
 /**
  * Alert level thresholds (percentages).
@@ -789,16 +804,16 @@ export const ALERT_LEVEL_THRESHOLDS = {
   warning: 75,
   critical: 90,
   exceeded: 100,
-} as const
+} as const;
 
 /**
  * Default overage configuration.
  */
-export const DEFAULT_OVERAGE_CONFIG: Omit<OverageConfig, 'dimension'> = {
-  strategy: 'charge',
+export const DEFAULT_OVERAGE_CONFIG: Omit<OverageConfig, "dimension"> = {
+  strategy: "charge",
   overageRateMultiplier: 1.5,
   maxOverage: null,
-}
+};
 
 // ============================================================================
 // Error Types
@@ -808,18 +823,18 @@ export const DEFAULT_OVERAGE_CONFIG: Omit<OverageConfig, 'dimension'> = {
  * Usage billing error codes.
  */
 export enum UsageBillingErrorCode {
-  INVALID_DIMENSION = 'INVALID_DIMENSION',
-  INVALID_QUANTITY = 'INVALID_QUANTITY',
-  DUPLICATE_EVENT = 'DUPLICATE_EVENT',
-  LIMIT_EXCEEDED = 'LIMIT_EXCEEDED',
-  OVERAGE_BLOCKED = 'OVERAGE_BLOCKED',
-  BILLING_SYNC_FAILED = 'BILLING_SYNC_FAILED',
-  PERIOD_NOT_FOUND = 'PERIOD_NOT_FOUND',
-  AGGREGATION_ERROR = 'AGGREGATION_ERROR',
-  CALCULATION_ERROR = 'CALCULATION_ERROR',
-  STRIPE_SYNC_ERROR = 'STRIPE_SYNC_ERROR',
-  INVALID_PERIOD = 'INVALID_PERIOD',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  INVALID_DIMENSION = "INVALID_DIMENSION",
+  INVALID_QUANTITY = "INVALID_QUANTITY",
+  DUPLICATE_EVENT = "DUPLICATE_EVENT",
+  LIMIT_EXCEEDED = "LIMIT_EXCEEDED",
+  OVERAGE_BLOCKED = "OVERAGE_BLOCKED",
+  BILLING_SYNC_FAILED = "BILLING_SYNC_FAILED",
+  PERIOD_NOT_FOUND = "PERIOD_NOT_FOUND",
+  AGGREGATION_ERROR = "AGGREGATION_ERROR",
+  CALCULATION_ERROR = "CALCULATION_ERROR",
+  STRIPE_SYNC_ERROR = "STRIPE_SYNC_ERROR",
+  INVALID_PERIOD = "INVALID_PERIOD",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
 
 /**
@@ -830,10 +845,10 @@ export class UsageBillingError extends Error {
     public readonly code: UsageBillingErrorCode,
     message: string,
     public readonly dimension?: UsageDimensionType,
-    public readonly metadata?: Record<string, unknown>
+    public readonly metadata?: Record<string, unknown>,
   ) {
-    super(message)
-    this.name = 'UsageBillingError'
+    super(message);
+    this.name = "UsageBillingError";
   }
 }
 
@@ -845,11 +860,11 @@ export class UsageBillingError extends Error {
  * Get alert level for usage percentage.
  */
 export function getAlertLevel(percentage: number): UsageAlertLevel {
-  if (percentage >= ALERT_LEVEL_THRESHOLDS.exceeded) return 'exceeded'
-  if (percentage >= ALERT_LEVEL_THRESHOLDS.critical) return 'critical'
-  if (percentage >= ALERT_LEVEL_THRESHOLDS.warning) return 'warning'
-  if (percentage >= ALERT_LEVEL_THRESHOLDS.info) return 'info'
-  return 'normal'
+  if (percentage >= ALERT_LEVEL_THRESHOLDS.exceeded) return "exceeded";
+  if (percentage >= ALERT_LEVEL_THRESHOLDS.critical) return "critical";
+  if (percentage >= ALERT_LEVEL_THRESHOLDS.warning) return "warning";
+  if (percentage >= ALERT_LEVEL_THRESHOLDS.info) return "info";
+  return "normal";
 }
 
 /**
@@ -858,18 +873,18 @@ export function getAlertLevel(percentage: number): UsageAlertLevel {
 export function formatUsageValue(
   value: number,
   dimension: UsageDimensionType,
-  precision: number = 2
+  precision: number = 2,
 ): string {
-  const config = DEFAULT_DIMENSION_CONFIGS[dimension]
-  const displayValue = value / config.unitDivisor
+  const config = DEFAULT_DIMENSION_CONFIGS[dimension];
+  const displayValue = value / config.unitDivisor;
 
   if (displayValue >= 1000000) {
-    return `${(displayValue / 1000000).toFixed(precision)}M ${config.unit}`
+    return `${(displayValue / 1000000).toFixed(precision)}M ${config.unit}`;
   }
   if (displayValue >= 1000) {
-    return `${(displayValue / 1000).toFixed(precision)}K ${config.unit}`
+    return `${(displayValue / 1000).toFixed(precision)}K ${config.unit}`;
   }
-  return `${displayValue.toFixed(precision)} ${config.unit}`
+  return `${displayValue.toFixed(precision)} ${config.unit}`;
 }
 
 /**
@@ -877,44 +892,48 @@ export function formatUsageValue(
  */
 export function calculateBillingPeriod(
   startDate: Date,
-  interval: 'monthly' | 'yearly',
-  referenceDate: Date = new Date()
+  interval: "monthly" | "yearly",
+  referenceDate: Date = new Date(),
 ): BillingPeriodInfo {
-  const start = new Date(startDate)
-  const now = new Date(referenceDate)
+  const start = new Date(startDate);
+  const now = new Date(referenceDate);
 
   // Calculate period boundaries
-  let periodStart: Date
-  let periodEnd: Date
+  let periodStart: Date;
+  let periodEnd: Date;
 
-  if (interval === 'monthly') {
+  if (interval === "monthly") {
     // Find current period start
-    periodStart = new Date(now.getFullYear(), now.getMonth(), start.getDate())
+    periodStart = new Date(now.getFullYear(), now.getMonth(), start.getDate());
     if (periodStart > now) {
-      periodStart.setMonth(periodStart.getMonth() - 1)
+      periodStart.setMonth(periodStart.getMonth() - 1);
     }
-    periodEnd = new Date(periodStart)
-    periodEnd.setMonth(periodEnd.getMonth() + 1)
+    periodEnd = new Date(periodStart);
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
   } else {
     // Yearly
-    periodStart = new Date(now.getFullYear(), start.getMonth(), start.getDate())
+    periodStart = new Date(
+      now.getFullYear(),
+      start.getMonth(),
+      start.getDate(),
+    );
     if (periodStart > now) {
-      periodStart.setFullYear(periodStart.getFullYear() - 1)
+      periodStart.setFullYear(periodStart.getFullYear() - 1);
     }
-    periodEnd = new Date(periodStart)
-    periodEnd.setFullYear(periodEnd.getFullYear() + 1)
+    periodEnd = new Date(periodStart);
+    periodEnd.setFullYear(periodEnd.getFullYear() + 1);
   }
 
   const daysInPeriod = Math.ceil(
-    (periodEnd.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24)
-  )
+    (periodEnd.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24),
+  );
   const daysElapsed = Math.ceil(
-    (now.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24)
-  )
-  const daysRemaining = daysInPeriod - daysElapsed
+    (now.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  const daysRemaining = daysInPeriod - daysElapsed;
 
   return {
-    id: `${periodStart.toISOString().split('T')[0]}_${interval}`,
+    id: `${periodStart.toISOString().split("T")[0]}_${interval}`,
     startDate: periodStart,
     endDate: periodEnd,
     daysInPeriod,
@@ -923,7 +942,7 @@ export function calculateBillingPeriod(
     progressPercentage: Math.min(100, (daysElapsed / daysInPeriod) * 100),
     interval,
     isCurrent: now >= periodStart && now < periodEnd,
-  }
+  };
 }
 
 /**
@@ -933,10 +952,10 @@ export function generateIdempotencyKey(
   organizationId: string,
   dimension: UsageDimensionType,
   timestamp: Date,
-  suffix?: string
+  suffix?: string,
 ): string {
-  const base = `${organizationId}:${dimension}:${timestamp.getTime()}`
-  return suffix ? `${base}:${suffix}` : base
+  const base = `${organizationId}:${dimension}:${timestamp.getTime()}`;
+  return suffix ? `${base}:${suffix}` : base;
 }
 
 /**
@@ -946,22 +965,22 @@ export function validateUsageEventInput(input: CreateUsageEventInput): void {
   if (!input.organizationId) {
     throw new UsageBillingError(
       UsageBillingErrorCode.INVALID_DIMENSION,
-      'Organization ID is required'
-    )
+      "Organization ID is required",
+    );
   }
 
   if (!input.dimension || !DEFAULT_DIMENSION_CONFIGS[input.dimension]) {
     throw new UsageBillingError(
       UsageBillingErrorCode.INVALID_DIMENSION,
-      `Invalid dimension: ${input.dimension}`
-    )
+      `Invalid dimension: ${input.dimension}`,
+    );
   }
 
-  if (typeof input.quantity !== 'number' || !Number.isFinite(input.quantity)) {
+  if (typeof input.quantity !== "number" || !Number.isFinite(input.quantity)) {
     throw new UsageBillingError(
       UsageBillingErrorCode.INVALID_QUANTITY,
-      'Quantity must be a finite number',
-      input.dimension
-    )
+      "Quantity must be a finite number",
+      input.dimension,
+    );
   }
 }

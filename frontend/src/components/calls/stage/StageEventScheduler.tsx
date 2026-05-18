@@ -5,9 +5,9 @@
  * recurrence patterns, and speaker invitations.
  */
 
-'use client'
+"use client";
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback } from "react";
 import {
   Calendar,
   Clock,
@@ -19,17 +19,17 @@ import {
   Trash2,
   CalendarDays,
   AlertCircle,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -37,19 +37,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
+} from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -57,48 +57,45 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import {
-  Alert,
-  AlertDescription,
-} from '@/components/ui/alert'
+} from "@/components/ui/command";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import type {
   CreateStageEventInput,
   StageEvent,
   StageRecurrencePattern,
-} from '@/types/stage'
-import type { UserBasicInfo } from '@/types/user'
+} from "@/types/stage";
+import type { UserBasicInfo } from "@/types/user";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface StageEventSchedulerProps {
-  stageId: string
-  stageName: string
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSchedule: (input: CreateStageEventInput) => Promise<StageEvent>
-  availableSpeakers?: UserBasicInfo[]
-  className?: string
+  stageId: string;
+  stageName: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSchedule: (input: CreateStageEventInput) => Promise<StageEvent>;
+  availableSpeakers?: UserBasicInfo[];
+  className?: string;
 }
 
 interface FormState {
-  name: string
-  description: string
-  coverImageUrl: string
-  scheduledStart: string
-  scheduledStartTime: string
-  scheduledEnd: string
-  scheduledEndTime: string
-  coHostIds: string[]
-  invitedSpeakerIds: string[]
-  sendReminders: boolean
-  reminderMinutesBefore: number[]
-  isRecurring: boolean
-  recurrenceType: 'daily' | 'weekly' | 'biweekly' | 'monthly'
-  recurrenceDaysOfWeek: number[]
-  recurrenceEndDate: string
+  name: string;
+  description: string;
+  coverImageUrl: string;
+  scheduledStart: string;
+  scheduledStartTime: string;
+  scheduledEnd: string;
+  scheduledEndTime: string;
+  coHostIds: string[];
+  invitedSpeakerIds: string[];
+  sendReminders: boolean;
+  reminderMinutesBefore: number[];
+  isRecurring: boolean;
+  recurrenceType: "daily" | "weekly" | "biweekly" | "monthly";
+  recurrenceDaysOfWeek: number[];
+  recurrenceEndDate: string;
 }
 
 // =============================================================================
@@ -106,22 +103,22 @@ interface FormState {
 // =============================================================================
 
 const REMINDER_OPTIONS = [
-  { value: 5, label: '5 minutes before' },
-  { value: 15, label: '15 minutes before' },
-  { value: 30, label: '30 minutes before' },
-  { value: 60, label: '1 hour before' },
-  { value: 1440, label: '1 day before' },
-]
+  { value: 5, label: "5 minutes before" },
+  { value: 15, label: "15 minutes before" },
+  { value: 30, label: "30 minutes before" },
+  { value: 60, label: "1 hour before" },
+  { value: 1440, label: "1 day before" },
+];
 
 const DAYS_OF_WEEK = [
-  { value: 0, label: 'Sun' },
-  { value: 1, label: 'Mon' },
-  { value: 2, label: 'Tue' },
-  { value: 3, label: 'Wed' },
-  { value: 4, label: 'Thu' },
-  { value: 5, label: 'Fri' },
-  { value: 6, label: 'Sat' },
-]
+  { value: 0, label: "Sun" },
+  { value: 1, label: "Mon" },
+  { value: 2, label: "Tue" },
+  { value: 3, label: "Wed" },
+  { value: 4, label: "Thu" },
+  { value: 5, label: "Fri" },
+  { value: 6, label: "Sat" },
+];
 
 // =============================================================================
 // Helper Functions
@@ -129,21 +126,21 @@ const DAYS_OF_WEEK = [
 
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 function getDefaultDate(): string {
-  const date = new Date()
-  date.setDate(date.getDate() + 1)
-  return date.toISOString().split('T')[0]
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().split("T")[0];
 }
 
 function getDefaultTime(): string {
-  return '18:00'
+  return "18:00";
 }
 
 // =============================================================================
@@ -159,30 +156,30 @@ export function StageEventScheduler({
   availableSpeakers = [],
   className,
 }: StageEventSchedulerProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormState>({
-    name: '',
-    description: '',
-    coverImageUrl: '',
+    name: "",
+    description: "",
+    coverImageUrl: "",
     scheduledStart: getDefaultDate(),
     scheduledStartTime: getDefaultTime(),
-    scheduledEnd: '',
-    scheduledEndTime: '',
+    scheduledEnd: "",
+    scheduledEndTime: "",
     coHostIds: [],
     invitedSpeakerIds: [],
     sendReminders: true,
     reminderMinutesBefore: [15, 60],
     isRecurring: false,
-    recurrenceType: 'weekly',
+    recurrenceType: "weekly",
     recurrenceDaysOfWeek: [],
-    recurrenceEndDate: '',
-  })
+    recurrenceEndDate: "",
+  });
 
   const updateForm = useCallback((updates: Partial<FormState>) => {
-    setForm((prev) => ({ ...prev, ...updates }))
-  }, [])
+    setForm((prev) => ({ ...prev, ...updates }));
+  }, []);
 
   const toggleReminder = useCallback((minutes: number) => {
     setForm((prev) => ({
@@ -190,8 +187,8 @@ export function StageEventScheduler({
       reminderMinutesBefore: prev.reminderMinutesBefore.includes(minutes)
         ? prev.reminderMinutesBefore.filter((m) => m !== minutes)
         : [...prev.reminderMinutesBefore, minutes],
-    }))
-  }, [])
+    }));
+  }, []);
 
   const toggleDayOfWeek = useCallback((day: number) => {
     setForm((prev) => ({
@@ -199,53 +196,67 @@ export function StageEventScheduler({
       recurrenceDaysOfWeek: prev.recurrenceDaysOfWeek.includes(day)
         ? prev.recurrenceDaysOfWeek.filter((d) => d !== day)
         : [...prev.recurrenceDaysOfWeek, day],
-    }))
-  }, [])
+    }));
+  }, []);
 
-  const addSpeaker = useCallback((userId: string) => {
-    if (!form.invitedSpeakerIds.includes(userId)) {
-      updateForm({ invitedSpeakerIds: [...form.invitedSpeakerIds, userId] })
-    }
-  }, [form.invitedSpeakerIds, updateForm])
+  const addSpeaker = useCallback(
+    (userId: string) => {
+      if (!form.invitedSpeakerIds.includes(userId)) {
+        updateForm({ invitedSpeakerIds: [...form.invitedSpeakerIds, userId] });
+      }
+    },
+    [form.invitedSpeakerIds, updateForm],
+  );
 
-  const removeSpeaker = useCallback((userId: string) => {
-    updateForm({
-      invitedSpeakerIds: form.invitedSpeakerIds.filter((id) => id !== userId),
-    })
-  }, [form.invitedSpeakerIds, updateForm])
+  const removeSpeaker = useCallback(
+    (userId: string) => {
+      updateForm({
+        invitedSpeakerIds: form.invitedSpeakerIds.filter((id) => id !== userId),
+      });
+    },
+    [form.invitedSpeakerIds, updateForm],
+  );
 
   const handleSubmit = async () => {
     if (!form.name.trim()) {
-      setError('Event name is required')
-      return
+      setError("Event name is required");
+      return;
     }
 
     if (!form.scheduledStart || !form.scheduledStartTime) {
-      setError('Start date and time are required')
-      return
+      setError("Start date and time are required");
+      return;
     }
 
-    setIsSubmitting(true)
-    setError(null)
+    setIsSubmitting(true);
+    setError(null);
 
     try {
-      const scheduledStart = new Date(`${form.scheduledStart}T${form.scheduledStartTime}`)
-      let scheduledEnd: Date | undefined
+      const scheduledStart = new Date(
+        `${form.scheduledStart}T${form.scheduledStartTime}`,
+      );
+      let scheduledEnd: Date | undefined;
       if (form.scheduledEnd && form.scheduledEndTime) {
-        scheduledEnd = new Date(`${form.scheduledEnd}T${form.scheduledEndTime}`)
+        scheduledEnd = new Date(
+          `${form.scheduledEnd}T${form.scheduledEndTime}`,
+        );
       }
 
-      let recurrencePattern: StageRecurrencePattern | undefined
+      let recurrencePattern: StageRecurrencePattern | undefined;
       if (form.isRecurring) {
         recurrencePattern = {
           type: form.recurrenceType,
-          daysOfWeek: form.recurrenceType === 'weekly' || form.recurrenceType === 'biweekly'
-            ? form.recurrenceDaysOfWeek
-            : undefined,
+          daysOfWeek:
+            form.recurrenceType === "weekly" ||
+            form.recurrenceType === "biweekly"
+              ? form.recurrenceDaysOfWeek
+              : undefined,
           timeOfDay: form.scheduledStartTime,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          endDate: form.recurrenceEndDate ? new Date(form.recurrenceEndDate) : undefined,
-        }
+          endDate: form.recurrenceEndDate
+            ? new Date(form.recurrenceEndDate)
+            : undefined,
+        };
       }
 
       const input: CreateStageEventInput = {
@@ -255,49 +266,52 @@ export function StageEventScheduler({
         coverImageUrl: form.coverImageUrl.trim() || undefined,
         scheduledStart,
         scheduledEnd,
-        invitedSpeakerIds: form.invitedSpeakerIds.length > 0 ? form.invitedSpeakerIds : undefined,
+        invitedSpeakerIds:
+          form.invitedSpeakerIds.length > 0
+            ? form.invitedSpeakerIds
+            : undefined,
         coHostIds: form.coHostIds.length > 0 ? form.coHostIds : undefined,
         sendReminders: form.sendReminders,
         reminderMinutesBefore: form.reminderMinutesBefore,
         isRecurring: form.isRecurring,
         recurrencePattern,
-      }
+      };
 
-      await onSchedule(input)
-      onOpenChange(false)
+      await onSchedule(input);
+      onOpenChange(false);
 
       // Reset form
       setForm({
-        name: '',
-        description: '',
-        coverImageUrl: '',
+        name: "",
+        description: "",
+        coverImageUrl: "",
         scheduledStart: getDefaultDate(),
         scheduledStartTime: getDefaultTime(),
-        scheduledEnd: '',
-        scheduledEndTime: '',
+        scheduledEnd: "",
+        scheduledEndTime: "",
         coHostIds: [],
         invitedSpeakerIds: [],
         sendReminders: true,
         reminderMinutesBefore: [15, 60],
         isRecurring: false,
-        recurrenceType: 'weekly',
+        recurrenceType: "weekly",
         recurrenceDaysOfWeek: [],
-        recurrenceEndDate: '',
-      })
+        recurrenceEndDate: "",
+      });
     } catch (err) {
-      setError((err as Error).message)
+      setError((err as Error).message);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const selectedSpeakers = availableSpeakers.filter((s) =>
-    form.invitedSpeakerIds.includes(s.id)
-  )
+    form.invitedSpeakerIds.includes(s.id),
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-2xl', className)}>
+      <DialogContent className={cn("max-w-2xl", className)}>
         <DialogHeader>
           <DialogTitle>Schedule Stage Event</DialogTitle>
           <DialogDescription>
@@ -344,7 +358,9 @@ export function StageEventScheduler({
                 <Input
                   id="cover-image"
                   value={form.coverImageUrl}
-                  onChange={(e) => updateForm({ coverImageUrl: e.target.value })}
+                  onChange={(e) =>
+                    updateForm({ coverImageUrl: e.target.value })
+                  }
                   placeholder="https://..."
                 />
                 <Button variant="outline" size="icon">
@@ -363,13 +379,17 @@ export function StageEventScheduler({
                   <Input
                     type="date"
                     value={form.scheduledStart}
-                    onChange={(e) => updateForm({ scheduledStart: e.target.value })}
-                    min={new Date().toISOString().split('T')[0]}
+                    onChange={(e) =>
+                      updateForm({ scheduledStart: e.target.value })
+                    }
+                    min={new Date().toISOString().split("T")[0]}
                   />
                   <Input
                     type="time"
                     value={form.scheduledStartTime}
-                    onChange={(e) => updateForm({ scheduledStartTime: e.target.value })}
+                    onChange={(e) =>
+                      updateForm({ scheduledStartTime: e.target.value })
+                    }
                     className="w-28"
                   />
                 </div>
@@ -381,13 +401,17 @@ export function StageEventScheduler({
                   <Input
                     type="date"
                     value={form.scheduledEnd}
-                    onChange={(e) => updateForm({ scheduledEnd: e.target.value })}
+                    onChange={(e) =>
+                      updateForm({ scheduledEnd: e.target.value })
+                    }
                     min={form.scheduledStart}
                   />
                   <Input
                     type="time"
                     value={form.scheduledEndTime}
-                    onChange={(e) => updateForm({ scheduledEndTime: e.target.value })}
+                    onChange={(e) =>
+                      updateForm({ scheduledEndTime: e.target.value })
+                    }
                     className="w-28"
                   />
                 </div>
@@ -406,7 +430,11 @@ export function StageEventScheduler({
               {selectedSpeakers.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-2">
                   {selectedSpeakers.map((speaker) => (
-                    <Badge key={speaker.id} variant="secondary" className="gap-1 pr-1">
+                    <Badge
+                      key={speaker.id}
+                      variant="secondary"
+                      className="gap-1 pr-1"
+                    >
                       <Avatar className="h-5 w-5">
                         <AvatarImage src={speaker.avatarUrl} />
                         <AvatarFallback className="text-[10px]">
@@ -476,7 +504,9 @@ export function StageEventScheduler({
                 </Label>
                 <Switch
                   checked={form.sendReminders}
-                  onCheckedChange={(checked) => updateForm({ sendReminders: checked })}
+                  onCheckedChange={(checked) =>
+                    updateForm({ sendReminders: checked })
+                  }
                 />
               </div>
 
@@ -485,7 +515,11 @@ export function StageEventScheduler({
                   {REMINDER_OPTIONS.map((option) => (
                     <Button
                       key={option.value}
-                      variant={form.reminderMinutesBefore.includes(option.value) ? 'default' : 'outline'}
+                      variant={
+                        form.reminderMinutesBefore.includes(option.value)
+                          ? "default"
+                          : "outline"
+                      }
                       size="sm"
                       onClick={() => toggleReminder(option.value)}
                     >
@@ -507,7 +541,9 @@ export function StageEventScheduler({
                 </Label>
                 <Switch
                   checked={form.isRecurring}
-                  onCheckedChange={(checked) => updateForm({ isRecurring: checked })}
+                  onCheckedChange={(checked) =>
+                    updateForm({ isRecurring: checked })
+                  }
                 />
               </div>
 
@@ -515,9 +551,9 @@ export function StageEventScheduler({
                 <div className="space-y-3">
                   <Select
                     value={form.recurrenceType}
-                    onValueChange={(value: 'daily' | 'weekly' | 'biweekly' | 'monthly') =>
-                      updateForm({ recurrenceType: value })
-                    }
+                    onValueChange={(
+                      value: "daily" | "weekly" | "biweekly" | "monthly",
+                    ) => updateForm({ recurrenceType: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -530,12 +566,17 @@ export function StageEventScheduler({
                     </SelectContent>
                   </Select>
 
-                  {(form.recurrenceType === 'weekly' || form.recurrenceType === 'biweekly') && (
+                  {(form.recurrenceType === "weekly" ||
+                    form.recurrenceType === "biweekly") && (
                     <div className="flex flex-wrap gap-1">
                       {DAYS_OF_WEEK.map((day) => (
                         <Button
                           key={day.value}
-                          variant={form.recurrenceDaysOfWeek.includes(day.value) ? 'default' : 'outline'}
+                          variant={
+                            form.recurrenceDaysOfWeek.includes(day.value)
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
                           onClick={() => toggleDayOfWeek(day.value)}
                           className="w-10"
@@ -551,7 +592,9 @@ export function StageEventScheduler({
                     <Input
                       type="date"
                       value={form.recurrenceEndDate}
-                      onChange={(e) => updateForm({ recurrenceEndDate: e.target.value })}
+                      onChange={(e) =>
+                        updateForm({ recurrenceEndDate: e.target.value })
+                      }
                       min={form.scheduledStart}
                     />
                   </div>
@@ -581,7 +624,7 @@ export function StageEventScheduler({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default StageEventScheduler
+export default StageEventScheduler;

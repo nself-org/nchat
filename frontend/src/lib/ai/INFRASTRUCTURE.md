@@ -63,23 +63,23 @@ Advanced OpenAI integration with:
 **Usage:**
 
 ```typescript
-import { getOpenAIClient } from '@/lib/ai/providers/openai-client'
+import { getOpenAIClient } from "@/lib/ai/providers/openai-client";
 
-const client = getOpenAIClient()
+const client = getOpenAIClient();
 
 // Chat completion
 const response = await client.createChatCompletion({
   messages: [
-    { role: 'system', content: 'You are a helpful assistant.' },
-    { role: 'user', content: 'Hello!' },
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: "Hello!" },
   ],
   temperature: 0.7,
   maxTokens: 500,
-})
+});
 
 // Streaming
 for await (const chunk of client.createChatCompletionStream({ messages })) {
-  console.log(chunk.choices[0]?.delta?.content)
+  console.log(chunk.choices[0]?.delta?.content);
 }
 ```
 
@@ -95,21 +95,21 @@ Claude 3.5 integration with:
 **Usage:**
 
 ```typescript
-import { getAnthropicClient } from '@/lib/ai/providers/anthropic-client'
+import { getAnthropicClient } from "@/lib/ai/providers/anthropic-client";
 
-const client = getAnthropicClient()
+const client = getAnthropicClient();
 
 // Create message
 const response = await client.createMessage({
-  messages: [{ role: 'user', content: 'Hello!' }],
-  system: 'You are a helpful assistant.',
+  messages: [{ role: "user", content: "Hello!" }],
+  system: "You are a helpful assistant.",
   maxTokens: 1024,
-})
+});
 
 // Streaming
 for await (const event of client.createMessageStream({ messages })) {
-  if (event.type === 'content_block_delta') {
-    console.log(event.delta?.text)
+  if (event.type === "content_block_delta") {
+    console.log(event.delta?.text);
   }
 }
 ```
@@ -134,30 +134,33 @@ Redis-backed distributed rate limiting with:
 **Usage:**
 
 ```typescript
-import { getSummarizeUserLimiter, checkAIRateLimit } from '@/lib/ai/rate-limiter'
+import {
+  getSummarizeUserLimiter,
+  checkAIRateLimit,
+} from "@/lib/ai/rate-limiter";
 
 // Check rate limit
-const limiter = getSummarizeUserLimiter()
-const result = await limiter.checkUserLimit(userId, 'summarize')
+const limiter = getSummarizeUserLimiter();
+const result = await limiter.checkUserLimit(userId, "summarize");
 
 if (!result.allowed) {
   return Response.json(
-    { error: 'Rate limit exceeded' },
+    { error: "Rate limit exceeded" },
     {
       status: 429,
       headers: getRateLimitHeaders(result),
-    }
-  )
+    },
+  );
 }
 
 // Or use helper
 const rateLimitResult = await checkAIRateLimit({
   userId,
   orgId,
-  endpoint: 'summarize',
+  endpoint: "summarize",
   userLimiter: getSummarizeUserLimiter(),
   orgLimiter: getSummarizeOrgLimiter(),
-})
+});
 ```
 
 ### 3. Cost Tracker (`cost-tracker.ts`)
@@ -182,14 +185,14 @@ Comprehensive cost tracking and budget management:
 **Usage:**
 
 ```typescript
-import { getCostTracker } from '@/lib/ai/cost-tracker'
+import { getCostTracker } from "@/lib/ai/cost-tracker";
 
-const tracker = getCostTracker()
+const tracker = getCostTracker();
 
 // Track usage
 await tracker.trackUsage(
-  'summarize',
-  'gpt-4o-mini',
+  "summarize",
+  "gpt-4o-mini",
   {
     inputTokens: 500,
     outputTokens: 200,
@@ -199,22 +202,22 @@ await tracker.trackUsage(
     userId,
     orgId,
     requestId,
-  }
-)
+  },
+);
 
 // Get stats
-const stats = await tracker.getUserStats(userId, startDate, endDate)
-console.log('Total cost:', stats.totalCost)
+const stats = await tracker.getUserStats(userId, startDate, endDate);
+console.log("Total cost:", stats.totalCost);
 
 // Create budget alert
 await tracker.createBudgetAlert({
-  name: 'Monthly Budget',
+  name: "Monthly Budget",
   orgId,
   limit: 1000,
-  period: 'monthly',
+  period: "monthly",
   notifyAt: [50, 75, 90, 100],
   enabled: true,
-})
+});
 ```
 
 ### 4. Request Queue (`request-queue.ts`)
@@ -277,22 +280,22 @@ Intelligent caching with:
 **Usage:**
 
 ```typescript
-import { getSummarizationCache, cached } from '@/lib/ai/response-cache'
+import { getSummarizationCache, cached } from "@/lib/ai/response-cache";
 
-const cache = getSummarizationCache()
+const cache = getSummarizationCache();
 
 // Manual caching
-const cached = await cache.getByPayload(request)
-if (cached) return cached
+const cached = await cache.getByPayload(request);
+if (cached) return cached;
 
-const result = await summarize(request)
-await cache.setByPayload(request, result)
+const result = await summarize(request);
+await cache.setByPayload(request, result);
 
 // Decorator pattern
 class SummarizationService {
   @cached(getSummarizationCache(), { ttl: 1800 })
   async summarize(messages: Message[]) {
-    return await this.doSummarize(messages)
+    return await this.doSummarize(messages);
   }
 }
 ```
@@ -482,22 +485,22 @@ REDIS_DB=0
 
 ```typescript
 try {
-  const result = await client.createChatCompletion(request)
-  return result
+  const result = await client.createChatCompletion(request);
+  return result;
 } catch (error) {
   if (error instanceof OpenAIError) {
     switch (error.type) {
       case OpenAIErrorType.RATE_LIMIT:
         // Wait and retry
-        break
+        break;
       case OpenAIErrorType.INVALID_REQUEST:
         // Log and alert
-        break
+        break;
       default:
       // Fallback to alternative provider
     }
   }
-  throw error
+  throw error;
 }
 ```
 
@@ -506,18 +509,18 @@ try {
 Always track usage for billing and monitoring:
 
 ```typescript
-const result = await client.createChatCompletion(request)
+const result = await client.createChatCompletion(request);
 
 await costTracker.trackUsage(
-  'chat',
+  "chat",
   model,
   {
     inputTokens: result.usage.promptTokens,
     outputTokens: result.usage.completionTokens,
     totalTokens: result.usage.totalTokens,
   },
-  { userId, orgId, requestId }
-)
+  { userId, orgId, requestId },
+);
 ```
 
 ### 3. Rate Limiting
@@ -528,13 +531,13 @@ Check limits before expensive operations:
 const rateLimit = await checkAIRateLimit({
   userId,
   orgId,
-  endpoint: 'summarize',
+  endpoint: "summarize",
   userLimiter,
   orgLimiter,
-})
+});
 
 if (!rateLimit.allowed) {
-  throw new Error('Rate limit exceeded')
+  throw new Error("Rate limit exceeded");
 }
 ```
 
@@ -543,13 +546,13 @@ if (!rateLimit.allowed) {
 Use caching for idempotent operations:
 
 ```typescript
-const cacheKey = hashPayload(request)
-const cached = await cache.get(cacheKey)
-if (cached) return cached
+const cacheKey = hashPayload(request);
+const cached = await cache.get(cacheKey);
+if (cached) return cached;
 
-const result = await expensiveOperation(request)
-await cache.set(cacheKey, result, { ttl: 1800 })
-return result
+const result = await expensiveOperation(request);
+await cache.set(cacheKey, result, { ttl: 1800 });
+return result;
 ```
 
 ## Testing
@@ -557,37 +560,37 @@ return result
 ### Unit Tests
 
 ```typescript
-describe('CostTracker', () => {
-  it('calculates cost correctly', () => {
-    const tracker = new CostTracker()
-    const cost = tracker.calculateCost('gpt-4o-mini', {
+describe("CostTracker", () => {
+  it("calculates cost correctly", () => {
+    const tracker = new CostTracker();
+    const cost = tracker.calculateCost("gpt-4o-mini", {
       inputTokens: 1000,
       outputTokens: 500,
       totalTokens: 1500,
-    })
-    expect(cost.totalCost).toBe(0.45) // $0.15 + $0.30
-  })
-})
+    });
+    expect(cost.totalCost).toBe(0.45); // $0.15 + $0.30
+  });
+});
 ```
 
 ### Integration Tests
 
 ```typescript
-describe('Rate Limiter', () => {
-  it('enforces user limits', async () => {
-    const limiter = new RateLimiter({ maxRequests: 10, windowMs: 60000 })
+describe("Rate Limiter", () => {
+  it("enforces user limits", async () => {
+    const limiter = new RateLimiter({ maxRequests: 10, windowMs: 60000 });
 
     // Make 10 requests
     for (let i = 0; i < 10; i++) {
-      const result = await limiter.checkLimit('user-123')
-      expect(result.allowed).toBe(true)
+      const result = await limiter.checkLimit("user-123");
+      expect(result.allowed).toBe(true);
     }
 
     // 11th request should be blocked
-    const result = await limiter.checkLimit('user-123')
-    expect(result.allowed).toBe(false)
-  })
-})
+    const result = await limiter.checkLimit("user-123");
+    expect(result.allowed).toBe(false);
+  });
+});
 ```
 
 ## Troubleshooting

@@ -26,7 +26,7 @@
  * @version 1.0.0
  */
 
-import type { BehaviorPreset } from '../../types'
+import type { BehaviorPreset } from "../../types";
 
 // ============================================================================
 // SLACK-SPECIFIC BEHAVIOR TYPES
@@ -37,25 +37,25 @@ import type { BehaviorPreset } from '../../types'
  */
 export interface SlackWorkspaceConfig {
   /** Whether multi-workspace switching is enabled */
-  multiWorkspace: boolean
+  multiWorkspace: boolean;
   /** Maximum members per workspace (Enterprise Grid: unlimited) */
-  maxMembers: number
+  maxMembers: number;
   /** Workspace-level default notification preferences */
-  defaultNotifyLevel: 'all' | 'mentions' | 'none'
+  defaultNotifyLevel: "all" | "mentions" | "none";
   /** Whether workspace admins can restrict channel creation */
-  restrictChannelCreation: boolean
+  restrictChannelCreation: boolean;
   /** Whether workspace admins can restrict file uploads */
-  restrictFileUploads: boolean
+  restrictFileUploads: boolean;
   /** Custom emoji creation */
-  customEmojiCreation: boolean
+  customEmojiCreation: boolean;
   /** Workspace-wide retention policies */
-  retentionPolicies: boolean
+  retentionPolicies: boolean;
   /** SSO/SAML enforcement */
-  ssoEnforcement: boolean
+  ssoEnforcement: boolean;
   /** Workspace analytics */
-  analytics: boolean
+  analytics: boolean;
   /** Domain claiming */
-  domainClaiming: boolean
+  domainClaiming: boolean;
 }
 
 /**
@@ -63,19 +63,19 @@ export interface SlackWorkspaceConfig {
  */
 export interface SlackSectionsConfig {
   /** Whether user-defined sections are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum sections per user */
-  maxSections: number
+  maxSections: number;
   /** Default sections */
-  defaultSections: string[]
+  defaultSections: string[];
   /** Whether sections are collapsible */
-  collapsible: boolean
+  collapsible: boolean;
   /** Whether sections can be reordered */
-  reorderable: boolean
+  reorderable: boolean;
   /** Whether starred section is always shown */
-  starredSection: boolean
+  starredSection: boolean;
   /** Whether DMs section is always shown */
-  dmsSection: boolean
+  dmsSection: boolean;
 }
 
 /**
@@ -83,29 +83,29 @@ export interface SlackSectionsConfig {
  */
 export interface SlackHuddleConfig {
   /** Whether huddles are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum participants */
-  maxParticipants: number
+  maxParticipants: number;
   /** Whether video is available in huddles */
-  video: boolean
+  video: boolean;
   /** Whether screen sharing is available */
-  screenShare: boolean
+  screenShare: boolean;
   /** Whether huddles have threads */
-  threads: boolean
+  threads: boolean;
   /** Whether huddles can be started in channels */
-  inChannel: boolean
+  inChannel: boolean;
   /** Whether huddles can be started in DMs */
-  inDm: boolean
+  inDm: boolean;
   /** Whether huddles show live captions */
-  liveCaptions: boolean
+  liveCaptions: boolean;
   /** Whether huddle can have a drawing board */
-  drawingBoard: boolean
+  drawingBoard: boolean;
   /** Whether huddle notes are shared */
-  sharedNotes: boolean
+  sharedNotes: boolean;
   /** Huddle reactions (emoji reactions during call) */
-  reactions: boolean
+  reactions: boolean;
   /** Whether background noise suppression is available */
-  noiseSuppression: boolean
+  noiseSuppression: boolean;
 }
 
 /**
@@ -113,27 +113,27 @@ export interface SlackHuddleConfig {
  */
 export interface SlackCanvasConfig {
   /** Whether Canvas is enabled */
-  canvasEnabled: boolean
+  canvasEnabled: boolean;
   /** Whether Lists is enabled */
-  listsEnabled: boolean
+  listsEnabled: boolean;
   /** Maximum canvas size (characters) */
-  maxCanvasSize: number
+  maxCanvasSize: number;
   /** Whether canvas supports rich formatting */
-  richFormatting: boolean
+  richFormatting: boolean;
   /** Whether canvas supports code blocks */
-  codeBlocks: boolean
+  codeBlocks: boolean;
   /** Whether canvas supports embedded media */
-  embeddedMedia: boolean
+  embeddedMedia: boolean;
   /** Whether canvas supports checkboxes */
-  checkboxes: boolean
+  checkboxes: boolean;
   /** Whether canvas supports mentions */
-  mentions: boolean
+  mentions: boolean;
   /** Whether canvas supports comments */
-  comments: boolean
+  comments: boolean;
   /** Whether lists support custom fields */
-  customFields: boolean
+  customFields: boolean;
   /** Whether lists support status tracking */
-  statusTracking: boolean
+  statusTracking: boolean;
 }
 
 /**
@@ -141,21 +141,21 @@ export interface SlackCanvasConfig {
  */
 export interface SlackWorkflowConfig {
   /** Whether workflows are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum steps per workflow */
-  maxSteps: number
+  maxSteps: number;
   /** Trigger types */
-  triggerTypes: string[]
+  triggerTypes: string[];
   /** Whether custom steps are available */
-  customSteps: boolean
+  customSteps: boolean;
   /** Whether webhooks can trigger workflows */
-  webhookTriggers: boolean
+  webhookTriggers: boolean;
   /** Whether scheduled triggers are available */
-  scheduledTriggers: boolean
+  scheduledTriggers: boolean;
   /** Whether workflows can send messages */
-  messageSending: boolean
+  messageSending: boolean;
   /** Whether workflows can collect form data */
-  formCollection: boolean
+  formCollection: boolean;
 }
 
 /**
@@ -163,35 +163,35 @@ export interface SlackWorkflowConfig {
  */
 export interface SlackFormattingConfig {
   /** Bold (**text** or Ctrl+B) */
-  bold: boolean
+  bold: boolean;
   /** Italic (_text_ or Ctrl+I) */
-  italic: boolean
+  italic: boolean;
   /** Strikethrough (~text~) */
-  strikethrough: boolean
+  strikethrough: boolean;
   /** Inline code (`text`) */
-  inlineCode: boolean
+  inlineCode: boolean;
   /** Code blocks (```text```) */
-  codeBlocks: boolean
+  codeBlocks: boolean;
   /** Code blocks with syntax highlighting */
-  syntaxHighlighting: boolean
+  syntaxHighlighting: boolean;
   /** Block quotes (> text) */
-  blockQuotes: boolean
+  blockQuotes: boolean;
   /** Ordered lists (1. text) */
-  orderedLists: boolean
+  orderedLists: boolean;
   /** Unordered lists (- text or * text) */
-  unorderedLists: boolean
+  unorderedLists: boolean;
   /** Links with display text */
-  links: boolean
+  links: boolean;
   /** @mentions */
-  mentions: boolean
+  mentions: boolean;
   /** #channel mentions */
-  channelMentions: boolean
+  channelMentions: boolean;
   /** Custom emoji (:emoji:) */
-  customEmoji: boolean
+  customEmoji: boolean;
   /** Rich text editor (WYSIWYG toolbar) */
-  richTextEditor: boolean
+  richTextEditor: boolean;
   /** Markdown rendering in messages */
-  markdownRendering: boolean
+  markdownRendering: boolean;
 }
 
 /**
@@ -199,31 +199,31 @@ export interface SlackFormattingConfig {
  */
 export interface SlackSearchConfig {
   /** Whether search is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** in: modifier (search within channel) */
-  inModifier: boolean
+  inModifier: boolean;
   /** from: modifier (search by sender) */
-  fromModifier: boolean
+  fromModifier: boolean;
   /** before: modifier (date-based) */
-  beforeModifier: boolean
+  beforeModifier: boolean;
   /** after: modifier (date-based) */
-  afterModifier: boolean
+  afterModifier: boolean;
   /** has: modifier (has:link, has:file, has:reaction, has:pin, has:star) */
-  hasModifier: boolean
+  hasModifier: boolean;
   /** is: modifier (is:thread, is:saved) */
-  isModifier: boolean
+  isModifier: boolean;
   /** to: modifier (DMs to specific user) */
-  toModifier: boolean
+  toModifier: boolean;
   /** Saved searches */
-  savedSearches: boolean
+  savedSearches: boolean;
   /** Recent searches */
-  recentSearches: boolean
+  recentSearches: boolean;
   /** Search result filters (messages, files, channels, people) */
-  resultFilters: string[]
+  resultFilters: string[];
   /** Search result sorting */
-  sortOptions: string[]
+  sortOptions: string[];
   /** Whether search supports regex */
-  regexSupport: boolean
+  regexSupport: boolean;
 }
 
 /**
@@ -231,27 +231,27 @@ export interface SlackSearchConfig {
  */
 export interface SlackAppConfig {
   /** Whether slash commands are enabled */
-  slashCommands: boolean
+  slashCommands: boolean;
   /** Whether message shortcuts/actions are available */
-  messageActions: boolean
+  messageActions: boolean;
   /** Whether modal dialogs from apps are supported */
-  modalDialogs: boolean
+  modalDialogs: boolean;
   /** Whether app home tabs are supported */
-  homeTab: boolean
+  homeTab: boolean;
   /** Whether interactive messages (buttons, selects) work */
-  interactiveMessages: boolean
+  interactiveMessages: boolean;
   /** Whether unfurl previews from apps are shown */
-  unfurlPreviews: boolean
+  unfurlPreviews: boolean;
   /** Whether incoming webhooks are supported */
-  incomingWebhooks: boolean
+  incomingWebhooks: boolean;
   /** Whether outgoing webhooks are supported */
-  outgoingWebhooks: boolean
+  outgoingWebhooks: boolean;
   /** Whether bot users are supported */
-  botUsers: boolean
+  botUsers: boolean;
   /** Whether OAuth app installation is supported */
-  oauthApps: boolean
+  oauthApps: boolean;
   /** Whether the app directory is accessible */
-  appDirectory: boolean
+  appDirectory: boolean;
 }
 
 /**
@@ -259,19 +259,19 @@ export interface SlackAppConfig {
  */
 export interface SlackRemindersConfig {
   /** Whether reminders are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Whether scheduled messages are supported */
-  scheduledMessages: boolean
+  scheduledMessages: boolean;
   /** Whether /remind slash command works */
-  slashRemind: boolean
+  slashRemind: boolean;
   /** Whether message-level "remind me" action works */
-  remindMeAction: boolean
+  remindMeAction: boolean;
   /** Preset reminder times */
-  presetTimes: string[]
+  presetTimes: string[];
   /** Custom date/time selection */
-  customDateTime: boolean
+  customDateTime: boolean;
   /** Whether recurring reminders are supported */
-  recurring: boolean
+  recurring: boolean;
 }
 
 /**
@@ -279,17 +279,17 @@ export interface SlackRemindersConfig {
  */
 export interface SlackDmConfig {
   /** Whether 1:1 DMs are supported */
-  directMessages: boolean
+  directMessages: boolean;
   /** Whether multi-party DMs (MPDM) are supported */
-  multiPartyDms: boolean
+  multiPartyDms: boolean;
   /** Maximum MPDM participants */
-  maxMpdmMembers: number
+  maxMpdmMembers: number;
   /** Whether DMs can be converted to channels */
-  convertToChannel: boolean
+  convertToChannel: boolean;
   /** Whether DMs show typing indicators */
-  typingIndicator: boolean
+  typingIndicator: boolean;
   /** Whether DMs show online/away status */
-  presenceStatus: boolean
+  presenceStatus: boolean;
 }
 
 /**
@@ -297,16 +297,16 @@ export interface SlackDmConfig {
  * Includes all Slack-specific features beyond the standard BehaviorPreset.
  */
 export interface SlackExtendedBehavior {
-  workspace: SlackWorkspaceConfig
-  sections: SlackSectionsConfig
-  huddles: SlackHuddleConfig
-  canvas: SlackCanvasConfig
-  workflows: SlackWorkflowConfig
-  formatting: SlackFormattingConfig
-  search: SlackSearchConfig
-  apps: SlackAppConfig
-  reminders: SlackRemindersConfig
-  dms: SlackDmConfig
+  workspace: SlackWorkspaceConfig;
+  sections: SlackSectionsConfig;
+  huddles: SlackHuddleConfig;
+  canvas: SlackCanvasConfig;
+  workflows: SlackWorkflowConfig;
+  formatting: SlackFormattingConfig;
+  search: SlackSearchConfig;
+  apps: SlackAppConfig;
+  reminders: SlackRemindersConfig;
+  dms: SlackDmConfig;
 }
 
 // ============================================================================
@@ -316,7 +316,7 @@ export interface SlackExtendedBehavior {
 export const slackWorkspaceConfig: SlackWorkspaceConfig = {
   multiWorkspace: true,
   maxMembers: 500000,
-  defaultNotifyLevel: 'mentions',
+  defaultNotifyLevel: "mentions",
   restrictChannelCreation: false,
   restrictFileUploads: false,
   customEmojiCreation: true,
@@ -324,7 +324,7 @@ export const slackWorkspaceConfig: SlackWorkspaceConfig = {
   ssoEnforcement: false,
   analytics: true,
   domainClaiming: true,
-}
+};
 
 // ============================================================================
 // SLACK SECTIONS CONFIG
@@ -333,12 +333,12 @@ export const slackWorkspaceConfig: SlackWorkspaceConfig = {
 export const slackSectionsConfig: SlackSectionsConfig = {
   enabled: true,
   maxSections: 100,
-  defaultSections: ['Channels', 'Direct messages'],
+  defaultSections: ["Channels", "Direct messages"],
   collapsible: true,
   reorderable: true,
   starredSection: true,
   dmsSection: true,
-}
+};
 
 // ============================================================================
 // SLACK HUDDLE CONFIG
@@ -357,7 +357,7 @@ export const slackHuddleConfig: SlackHuddleConfig = {
   sharedNotes: true,
   reactions: true,
   noiseSuppression: true,
-}
+};
 
 // ============================================================================
 // SLACK CANVAS CONFIG
@@ -375,7 +375,7 @@ export const slackCanvasConfig: SlackCanvasConfig = {
   comments: true,
   customFields: true,
   statusTracking: true,
-}
+};
 
 // ============================================================================
 // SLACK WORKFLOW CONFIG
@@ -384,13 +384,19 @@ export const slackCanvasConfig: SlackCanvasConfig = {
 export const slackWorkflowConfig: SlackWorkflowConfig = {
   enabled: true,
   maxSteps: 100,
-  triggerTypes: ['shortcut', 'new-channel-member', 'emoji-reaction', 'webhook', 'schedule'],
+  triggerTypes: [
+    "shortcut",
+    "new-channel-member",
+    "emoji-reaction",
+    "webhook",
+    "schedule",
+  ],
   customSteps: true,
   webhookTriggers: true,
   scheduledTriggers: true,
   messageSending: true,
   formCollection: true,
-}
+};
 
 // ============================================================================
 // SLACK FORMATTING CONFIG
@@ -412,7 +418,7 @@ export const slackFormattingConfig: SlackFormattingConfig = {
   customEmoji: true,
   richTextEditor: true,
   markdownRendering: true,
-}
+};
 
 // ============================================================================
 // SLACK SEARCH CONFIG
@@ -429,10 +435,10 @@ export const slackSearchConfig: SlackSearchConfig = {
   toModifier: true,
   savedSearches: true,
   recentSearches: true,
-  resultFilters: ['messages', 'files', 'channels', 'people'],
-  sortOptions: ['relevance', 'recent'],
+  resultFilters: ["messages", "files", "channels", "people"],
+  sortOptions: ["relevance", "recent"],
   regexSupport: false,
-}
+};
 
 // ============================================================================
 // SLACK APP CONFIG
@@ -450,7 +456,7 @@ export const slackAppConfig: SlackAppConfig = {
   botUsers: true,
   oauthApps: true,
   appDirectory: true,
-}
+};
 
 // ============================================================================
 // SLACK REMINDERS CONFIG
@@ -461,10 +467,10 @@ export const slackRemindersConfig: SlackRemindersConfig = {
   scheduledMessages: true,
   slashRemind: true,
   remindMeAction: true,
-  presetTimes: ['20min', '1h', '3h', 'tomorrow-9am', 'next-week'],
+  presetTimes: ["20min", "1h", "3h", "tomorrow-9am", "next-week"],
   customDateTime: true,
   recurring: true,
-}
+};
 
 // ============================================================================
 // SLACK DM CONFIG
@@ -477,7 +483,7 @@ export const slackDmConfig: SlackDmConfig = {
   convertToChannel: true,
   typingIndicator: true,
   presenceStatus: true,
-}
+};
 
 // ============================================================================
 // SLACK DETAILED BEHAVIOR PRESET
@@ -489,20 +495,20 @@ export const slackDmConfig: SlackDmConfig = {
  * and interaction patterns.
  */
 export const slackDetailedBehavior: BehaviorPreset = {
-  id: 'slack-detailed',
-  name: 'Slack',
+  id: "slack-detailed",
+  name: "Slack",
   description:
-    'Detailed Slack behavior preset with exact feature flags, limits, and interaction patterns matching Slack as of 2026',
-  version: '0.9.1',
+    "Detailed Slack behavior preset with exact feature flags, limits, and interaction patterns matching Slack as of 2026",
+  version: "0.9.1",
   messaging: {
     editWindow: 0, // unlimited
     deleteWindow: 0, // unlimited
     deleteForEveryone: false, // only admins can delete others' messages
     deleteForEveryoneWindow: 0,
     showEditedIndicator: true,
-    reactionStyle: 'full-picker',
+    reactionStyle: "full-picker",
     maxReactionsPerMessage: 23,
-    threadingModel: 'side-panel',
+    threadingModel: "side-panel",
     maxMessageLength: 40000,
     forwarding: true,
     forwardLimit: 0, // unlimited
@@ -512,7 +518,7 @@ export const slackDetailedBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['public', 'private', 'dm', 'group-dm'],
+    types: ["public", "private", "dm", "group-dm"],
     hierarchy: false,
     categories: false, // uses "sections" instead (user-defined)
     forums: false,
@@ -522,7 +528,7 @@ export const slackDetailedBehavior: BehaviorPreset = {
     slowMode: false,
   },
   presence: {
-    states: ['online', 'away', 'dnd', 'offline'],
+    states: ["online", "away", "dnd", "offline"],
     showLastSeen: false,
     lastSeenPrivacy: false,
     customStatus: true,
@@ -544,8 +550,8 @@ export const slackDetailedBehavior: BehaviorPreset = {
     huddles: true,
   },
   notifications: {
-    defaultLevel: 'mentions',
-    mentionRules: ['user', 'channel', 'here', 'everyone'],
+    defaultLevel: "mentions",
+    mentionRules: ["user", "channel", "here", "everyone"],
     quietHours: true,
     threadNotifications: true,
     soundEnabled: true,
@@ -567,7 +573,7 @@ export const slackDetailedBehavior: BehaviorPreset = {
     readReceiptsOptional: false,
     lastSeen: false,
     lastSeenPrivacy: false,
-    profileVisibility: 'everyone',
+    profileVisibility: "everyone",
     onlineStatusVisible: true,
     e2eeDefault: false,
     disappearingMessages: false,
@@ -607,7 +613,7 @@ export const slackDetailedBehavior: BehaviorPreset = {
     channelBookmarks: true,
     pinnedItems: true,
   },
-}
+};
 
 // ============================================================================
 // SLACK EXTENDED BEHAVIOR CONFIG
@@ -624,18 +630,18 @@ export const slackExtendedBehavior: SlackExtendedBehavior = {
   apps: slackAppConfig,
   reminders: slackRemindersConfig,
   dms: slackDmConfig,
-}
+};
 
 /**
  * Complete Slack behavior configuration including both the standard
  * BehaviorPreset and Slack-specific extensions.
  */
 export interface SlackBehaviorConfig {
-  preset: BehaviorPreset
-  extended: SlackExtendedBehavior
+  preset: BehaviorPreset;
+  extended: SlackExtendedBehavior;
 }
 
 export const slackBehaviorConfig: SlackBehaviorConfig = {
   preset: slackDetailedBehavior,
   extended: slackExtendedBehavior,
-}
+};

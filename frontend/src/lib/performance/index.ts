@@ -4,4 +4,4 @@
  * Utilities for monitoring and optimizing application performance.
  */
 
-export * from './memory-monitor'
+export * from "./memory-monitor";

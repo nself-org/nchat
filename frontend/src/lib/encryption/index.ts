@@ -81,7 +81,7 @@ export {
   // Fingerprinting
   getKeyFingerprint,
   formatFingerprint,
-} from './crypto-primitives'
+} from "./crypto-primitives";
 
 // Identity key management
 export {
@@ -94,7 +94,7 @@ export {
   getIdentityFingerprint,
   type StoredIdentity,
   type IdentityKeyInfo,
-} from './identity'
+} from "./identity";
 
 // Signed prekey management
 export {
@@ -106,7 +106,7 @@ export {
   rotateSignedPreKeyIfNeeded,
   verifySignedPreKey,
   type StoredSignedPreKey,
-} from './prekey'
+} from "./prekey";
 
 // X3DH key exchange
 export {
@@ -118,7 +118,7 @@ export {
   type X3DHInitiatorResult,
   type X3DHResponderResult,
   type X3DHInitialMessage,
-} from './key-exchange'
+} from "./key-exchange";
 
 // Session management
 export {
@@ -132,7 +132,7 @@ export {
   type SessionId,
   type StoredSession,
   type SessionInfo,
-} from './session'
+} from "./session";
 
 // Double Ratchet
 export {
@@ -144,7 +144,7 @@ export {
   decryptWithRatchet,
   type EncryptedPayload,
   type DecryptedPayload,
-} from './ratchet'
+} from "./ratchet";
 
 // Group encryption
 export {
@@ -158,7 +158,7 @@ export {
   type SenderKey,
   type SenderKeyDistribution,
   type EncryptedGroupMessage,
-} from './group-encryption'
+} from "./group-encryption";
 
 // Multi-device key management
 export {
@@ -171,35 +171,42 @@ export {
   unlinkDevice,
   type LocalDevice,
   type LinkedDevice,
-} from './device-keys'
+} from "./device-keys";
 
 // ============================================================================
 // High-Level API
 // ============================================================================
 
-import { IdentityKeyManager, getIdentityManager } from './identity'
-import { SignedPreKeyManager, getSignedPreKeyManager } from './prekey'
-import { SessionManager, getSessionManager, createSession } from './session'
+import { IdentityKeyManager, getIdentityManager } from "./identity";
+import { SignedPreKeyManager, getSignedPreKeyManager } from "./prekey";
+import { SessionManager, getSessionManager, createSession } from "./session";
 import {
   DoubleRatchet,
   createSenderRatchet,
   createReceiverRatchet,
   restoreRatchet,
-} from './ratchet'
-import { GroupEncryptionManager, getGroupEncryptionManager } from './group-encryption'
-import { DeviceKeyManager, getDeviceKeyManager } from './device-keys'
-import { X3DH } from './key-exchange'
+} from "./ratchet";
+import {
+  GroupEncryptionManager,
+  getGroupEncryptionManager,
+} from "./group-encryption";
+import { DeviceKeyManager, getDeviceKeyManager } from "./device-keys";
+import { X3DH } from "./key-exchange";
 import type {
   EncryptedMessage,
   PreKeyBundle,
   SessionState,
   MessageHeader,
-} from '@/types/encryption'
+} from "@/types/encryption";
 
-import { EncryptionError, EncryptionErrorType } from '@/types/encryption'
-import { concatUint8Arrays, uint8ArrayToBase64, base64ToUint8Array } from './crypto-primitives'
+import { EncryptionError, EncryptionErrorType } from "@/types/encryption";
+import {
+  concatUint8Arrays,
+  uint8ArrayToBase64,
+  base64ToUint8Array,
+} from "./crypto-primitives";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 /**
  * Initializes the encryption system
@@ -209,27 +216,27 @@ import { logger } from '@/lib/logger'
  */
 export async function initializeEncryption(): Promise<void> {
   // Initialize identity key manager
-  const identityManager = getIdentityManager()
-  await identityManager.initialize()
+  const identityManager = getIdentityManager();
+  await identityManager.initialize();
 
   // Initialize signed prekey manager
-  const signedPreKeyManager = getSignedPreKeyManager()
-  await signedPreKeyManager.initialize()
+  const signedPreKeyManager = getSignedPreKeyManager();
+  await signedPreKeyManager.initialize();
 
   // Initialize session manager
-  const sessionManager = getSessionManager()
-  await sessionManager.initialize()
+  const sessionManager = getSessionManager();
+  await sessionManager.initialize();
 
   // Initialize group encryption manager
-  const groupManager = getGroupEncryptionManager()
-  await groupManager.initialize()
+  const groupManager = getGroupEncryptionManager();
+  await groupManager.initialize();
 
   // Initialize device key manager
-  const deviceManager = getDeviceKeyManager()
-  await deviceManager.initialize()
+  const deviceManager = getDeviceKeyManager();
+  await deviceManager.initialize();
 
   // Check if signed prekey rotation is needed
-  await signedPreKeyManager.rotateIfNeeded()
+  await signedPreKeyManager.rotateIfNeeded();
 
   // REMOVED: console.log('E2E encryption initialized')
 }
@@ -245,70 +252,70 @@ export async function initializeEncryption(): Promise<void> {
 export async function encryptMessage(
   recipientId: string,
   plaintext: string,
-  preKeyBundle?: PreKeyBundle
+  preKeyBundle?: PreKeyBundle,
 ): Promise<EncryptedMessage> {
-  const encoder = new TextEncoder()
-  const plaintextBytes = encoder.encode(plaintext)
+  const encoder = new TextEncoder();
+  const plaintextBytes = encoder.encode(plaintext);
 
-  const sessionManager = getSessionManager()
-  let session = await sessionManager.getSession(recipientId)
-  let isPreKeyMessage = false
+  const sessionManager = getSessionManager();
+  let session = await sessionManager.getSession(recipientId);
+  let isPreKeyMessage = false;
 
   // Create session if needed
   if (!session) {
     if (!preKeyBundle) {
       throw new EncryptionError(
         EncryptionErrorType.NO_SESSION,
-        `No session with ${recipientId} and no prekey bundle provided`
-      )
+        `No session with ${recipientId} and no prekey bundle provided`,
+      );
     }
 
-    await sessionManager.createSession(recipientId, preKeyBundle)
-    session = await sessionManager.getSession(recipientId)
-    isPreKeyMessage = true
+    await sessionManager.createSession(recipientId, preKeyBundle);
+    session = await sessionManager.getSession(recipientId);
+    isPreKeyMessage = true;
   }
 
   if (!session) {
     throw new EncryptionError(
       EncryptionErrorType.NO_SESSION,
-      `Failed to establish session with ${recipientId}`
-    )
+      `Failed to establish session with ${recipientId}`,
+    );
   }
 
   // Create Double Ratchet from session state
-  const ratchet = await restoreRatchet(session)
+  const ratchet = await restoreRatchet(session);
 
   // Encrypt the message
-  const { header, ciphertext, iv } = await ratchet.encrypt(plaintextBytes)
+  const { header, ciphertext, iv } = await ratchet.encrypt(plaintextBytes);
 
   // Update session state
-  const updatedState = ratchet.exportSessionState()
-  updatedState.remoteIdentityKey = session.remoteIdentityKey
-  await sessionManager.updateSession(recipientId, updatedState)
+  const updatedState = ratchet.exportSessionState();
+  updatedState.remoteIdentityKey = session.remoteIdentityKey;
+  await sessionManager.updateSession(recipientId, updatedState);
 
   // Get signed prekey ID
-  const signedPreKeyManager = getSignedPreKeyManager()
-  const signedPreKey = await signedPreKeyManager.getCurrentSignedPreKey()
+  const signedPreKeyManager = getSignedPreKeyManager();
+  const signedPreKey = await signedPreKeyManager.getCurrentSignedPreKey();
 
   // Get registration ID
-  const identityManager = getIdentityManager()
-  const registrationId = await identityManager.getRegistrationId()
+  const identityManager = getIdentityManager();
+  const registrationId = await identityManager.getRegistrationId();
 
   const encryptedMessage: EncryptedMessage = {
-    type: isPreKeyMessage ? 'prekey' : 'message',
+    type: isPreKeyMessage ? "prekey" : "message",
     registrationId,
     signedPreKeyId: signedPreKey.keyId,
     header,
     ciphertext: concatUint8Arrays(iv, ciphertext),
     timestamp: Date.now(),
-  }
+  };
 
   if (isPreKeyMessage) {
-    const identityKeyPair = await identityManager.getIdentityKeyPair()
-    encryptedMessage.baseKey = identityKeyPair.publicKey
+    const identityKeyPair = await identityManager.getIdentityKeyPair();
+    encryptedMessage.baseKey = identityKeyPair.publicKey;
   }
 
-  return encryptedMessage
+  return encryptedMessage;
 }
 
 /**
@@ -320,18 +327,18 @@ export async function encryptMessage(
  */
 export async function decryptMessage(
   senderId: string,
-  encryptedMessage: EncryptedMessage
+  encryptedMessage: EncryptedMessage,
 ): Promise<string> {
-  const sessionManager = getSessionManager()
-  let session = await sessionManager.getSession(senderId)
+  const sessionManager = getSessionManager();
+  let session = await sessionManager.getSession(senderId);
 
   // Handle prekey messages (new session)
-  if (encryptedMessage.type === 'prekey' && !session) {
+  if (encryptedMessage.type === "prekey" && !session) {
     if (!encryptedMessage.baseKey) {
       throw new EncryptionError(
         EncryptionErrorType.INVALID_MESSAGE,
-        'Prekey message missing base key'
-      )
+        "Prekey message missing base key",
+      );
     }
 
     session = await sessionManager.createSessionFromPreKeyMessage(senderId, {
@@ -339,31 +346,38 @@ export async function decryptMessage(
       ephemeralKey: encryptedMessage.header.ratchetKey,
       signedPreKeyId: encryptedMessage.signedPreKeyId,
       oneTimePreKeyId: encryptedMessage.preKeyId,
-    })
+    });
   }
 
   if (!session) {
-    throw new EncryptionError(EncryptionErrorType.NO_SESSION, `No session with ${senderId}`)
+    throw new EncryptionError(
+      EncryptionErrorType.NO_SESSION,
+      `No session with ${senderId}`,
+    );
   }
 
   // Create Double Ratchet from session state
-  const ratchet = await restoreRatchet(session)
+  const ratchet = await restoreRatchet(session);
 
   // Extract IV and ciphertext
-  const iv = encryptedMessage.ciphertext.slice(0, 12)
-  const ciphertext = encryptedMessage.ciphertext.slice(12)
+  const iv = encryptedMessage.ciphertext.slice(0, 12);
+  const ciphertext = encryptedMessage.ciphertext.slice(12);
 
   // Decrypt the message
-  const { plaintext } = await ratchet.decrypt(encryptedMessage.header, ciphertext, iv)
+  const { plaintext } = await ratchet.decrypt(
+    encryptedMessage.header,
+    ciphertext,
+    iv,
+  );
 
   // Update session state
-  const updatedState = ratchet.exportSessionState()
-  updatedState.remoteIdentityKey = session.remoteIdentityKey
-  await sessionManager.updateSession(senderId, updatedState)
+  const updatedState = ratchet.exportSessionState();
+  updatedState.remoteIdentityKey = session.remoteIdentityKey;
+  await sessionManager.updateSession(senderId, updatedState);
 
   // Decode plaintext
-  const decoder = new TextDecoder()
-  return decoder.decode(plaintext)
+  const decoder = new TextDecoder();
+  return decoder.decode(plaintext);
 }
 
 /**
@@ -375,13 +389,13 @@ export async function decryptMessage(
  */
 export async function encryptGroupMessage(
   groupId: string,
-  plaintext: string
-): Promise<ReturnType<GroupEncryptionManager['encryptGroupMessage']>> {
-  const encoder = new TextEncoder()
-  const plaintextBytes = encoder.encode(plaintext)
+  plaintext: string,
+): Promise<ReturnType<GroupEncryptionManager["encryptGroupMessage"]>> {
+  const encoder = new TextEncoder();
+  const plaintextBytes = encoder.encode(plaintext);
 
-  const groupManager = getGroupEncryptionManager()
-  return groupManager.encryptGroupMessage(groupId, plaintextBytes)
+  const groupManager = getGroupEncryptionManager();
+  return groupManager.encryptGroupMessage(groupId, plaintextBytes);
 }
 
 /**
@@ -393,13 +407,16 @@ export async function encryptGroupMessage(
  */
 export async function decryptGroupMessageContent(
   senderId: string,
-  message: Awaited<ReturnType<GroupEncryptionManager['encryptGroupMessage']>>
+  message: Awaited<ReturnType<GroupEncryptionManager["encryptGroupMessage"]>>,
 ): Promise<string> {
-  const groupManager = getGroupEncryptionManager()
-  const plaintextBytes = await groupManager.decryptGroupMessage(senderId, message)
+  const groupManager = getGroupEncryptionManager();
+  const plaintextBytes = await groupManager.decryptGroupMessage(
+    senderId,
+    message,
+  );
 
-  const decoder = new TextDecoder()
-  return decoder.decode(plaintextBytes)
+  const decoder = new TextDecoder();
+  return decoder.decode(plaintextBytes);
 }
 
 /**
@@ -407,10 +424,10 @@ export async function decryptGroupMessageContent(
  */
 export async function isEncryptionInitialized(): Promise<boolean> {
   try {
-    const identityManager = getIdentityManager()
-    return identityManager.hasIdentity()
+    const identityManager = getIdentityManager();
+    return identityManager.hasIdentity();
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -418,12 +435,12 @@ export async function isEncryptionInitialized(): Promise<boolean> {
  * Gets the local user's prekey bundle for sharing
  */
 export async function getLocalPreKeyBundle(): Promise<PreKeyBundle> {
-  const identityManager = getIdentityManager()
-  const signedPreKeyManager = getSignedPreKeyManager()
+  const identityManager = getIdentityManager();
+  const signedPreKeyManager = getSignedPreKeyManager();
 
-  const identityKeyPair = await identityManager.getIdentityKeyPair()
-  const registrationId = await identityManager.getRegistrationId()
-  const signedPreKey = await signedPreKeyManager.getPublicPreKeyData()
+  const identityKeyPair = await identityManager.getIdentityKeyPair();
+  const registrationId = await identityManager.getRegistrationId();
+  const signedPreKey = await signedPreKeyManager.getPublicPreKeyData();
 
   return {
     identityKey: identityKeyPair.publicKey,
@@ -434,7 +451,7 @@ export async function getLocalPreKeyBundle(): Promise<PreKeyBundle> {
       signature: signedPreKey.signature,
     },
     // oneTimePreKey would be included if available
-  }
+  };
 }
 
 /**
@@ -443,17 +460,17 @@ export async function getLocalPreKeyBundle(): Promise<PreKeyBundle> {
  * This removes all keys and sessions. Use with caution.
  */
 export async function clearAllEncryptionData(): Promise<void> {
-  const identityManager = getIdentityManager()
-  const signedPreKeyManager = getSignedPreKeyManager()
-  const sessionManager = getSessionManager()
-  const groupManager = getGroupEncryptionManager()
-  const deviceManager = getDeviceKeyManager()
+  const identityManager = getIdentityManager();
+  const signedPreKeyManager = getSignedPreKeyManager();
+  const sessionManager = getSessionManager();
+  const groupManager = getGroupEncryptionManager();
+  const deviceManager = getDeviceKeyManager();
 
-  await identityManager.clearIdentity()
-  await signedPreKeyManager.clear()
-  await sessionManager.clearAllSessions()
-  await groupManager.clearAll()
-  await deviceManager.clearAllDeviceData()
+  await identityManager.clearIdentity();
+  await signedPreKeyManager.clear();
+  await sessionManager.clearAllSessions();
+  await groupManager.clearAll();
+  await deviceManager.clearAllDeviceData();
 
-  logger.warn('All encryption data cleared')
+  logger.warn("All encryption data cleared");
 }

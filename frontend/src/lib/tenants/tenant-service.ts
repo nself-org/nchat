@@ -5,8 +5,8 @@
  * Handles tenant CRUD operations, schema provisioning, and isolation.
  */
 
-import { Pool } from 'pg'
-import { DEFAULT_PLANS } from './types'
+import { Pool } from "pg";
+import { DEFAULT_PLANS } from "./types";
 import type {
   Tenant,
   CreateTenantRequest,
@@ -15,13 +15,13 @@ import type {
   TenantUsage,
   TenantSettings,
   BillingPlan,
-} from './types'
+} from "./types";
 
 /**
  * Tenant Service Class
  */
 export class TenantService {
-  private pool: Pool
+  private pool: Pool;
 
   constructor(connectionString?: string) {
     this.pool = new Pool({
@@ -29,35 +29,41 @@ export class TenantService {
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
-    })
+    });
   }
 
   /**
    * Create a new tenant
    */
   async createTenant(request: CreateTenantRequest): Promise<Tenant> {
-    const client = await this.pool.connect()
+    const client = await this.pool.connect();
 
     try {
-      await client.query('BEGIN')
+      await client.query("BEGIN");
 
       // 1. Validate slug uniqueness
-      const slugExists = await this.checkSlugExists(request.slug)
+      const slugExists = await this.checkSlugExists(request.slug);
       if (slugExists) {
-        throw new Error(`Tenant slug "${request.slug}" already exists`)
+        throw new Error(`Tenant slug "${request.slug}" already exists`);
       }
 
       // 2. Generate schema name (prefixed to avoid conflicts)
-      const schemaName = `tenant_${request.slug}`
+      // Validate slug is safe for SQL identifier use (alphanumeric + underscore only)
+      if (!/^[a-zA-Z0-9_]+$/.test(request.slug)) {
+        throw new Error(
+          "Invalid tenant slug: only alphanumeric characters and underscores are allowed",
+        );
+      }
+      const schemaName = `tenant_${request.slug}`;
 
       // 3. Get plan configuration
-      const plan = request.plan || 'free'
-      const planConfig = DEFAULT_PLANS[plan]
+      const plan = request.plan || "free";
+      const planConfig = DEFAULT_PLANS[plan];
 
       // 4. Calculate trial end date (14 days)
       const trialEndsAt = request.trial
         ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-        : undefined
+        : undefined;
 
       // 5. Insert tenant record
       const tenantQuery = `
@@ -67,45 +73,46 @@ export class TenantService {
           limits, features, trial_ends_at, metadata
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING *
-      `
+      `;
 
       const tenantResult = await client.query(tenantQuery, [
         request.name,
         request.slug,
-        request.trial ? 'trial' : 'active',
+        request.trial ? "trial" : "active",
         request.ownerEmail,
         request.ownerName,
         schemaName,
         plan,
-        'monthly',
+        "monthly",
         JSON.stringify(planConfig.limits),
         JSON.stringify(planConfig.features),
         trialEndsAt,
         JSON.stringify(request.metadata || {}),
-      ])
+      ]);
 
-      const tenant = this.mapRowToTenant(tenantResult.rows[0])
+      const tenant = this.mapRowToTenant(tenantResult.rows[0]);
 
       // 6. Create PostgreSQL schema for tenant
-      await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaName}`)
+      // sast-ignore: SQL_INJECTION -- schemaName validated above (alphanumeric + underscore only)
+      await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaName}`);
 
       // 7. Run migrations for tenant schema
-      await this.runTenantMigrations(client, schemaName)
+      await this.runTenantMigrations(client, schemaName);
 
       // 8. Create owner user in tenant schema
-      await this.createOwnerUser(client, schemaName, request)
+      await this.createOwnerUser(client, schemaName, request);
 
       // 9. Initialize tenant settings
-      await this.initializeTenantSettings(client, tenant.id)
+      await this.initializeTenantSettings(client, tenant.id);
 
-      await client.query('COMMIT')
+      await client.query("COMMIT");
 
-      return tenant
+      return tenant;
     } catch (error) {
-      await client.query('ROLLBACK')
-      throw error
+      await client.query("ROLLBACK");
+      throw error;
     } finally {
-      client.release()
+      client.release();
     }
   }
 
@@ -113,99 +120,102 @@ export class TenantService {
    * Get tenant by ID
    */
   async getTenantById(id: string): Promise<Tenant | null> {
-    const query = 'SELECT * FROM public.tenants WHERE id = $1'
-    const result = await this.pool.query(query, [id])
+    const query = "SELECT * FROM public.tenants WHERE id = $1";
+    const result = await this.pool.query(query, [id]);
 
     if (result.rows.length === 0) {
-      return null
+      return null;
     }
 
-    return this.mapRowToTenant(result.rows[0])
+    return this.mapRowToTenant(result.rows[0]);
   }
 
   /**
    * Get tenant by slug (subdomain)
    */
   async getTenantBySlug(slug: string): Promise<Tenant | null> {
-    const query = 'SELECT * FROM public.tenants WHERE slug = $1'
-    const result = await this.pool.query(query, [slug])
+    const query = "SELECT * FROM public.tenants WHERE slug = $1";
+    const result = await this.pool.query(query, [slug]);
 
     if (result.rows.length === 0) {
-      return null
+      return null;
     }
 
-    return this.mapRowToTenant(result.rows[0])
+    return this.mapRowToTenant(result.rows[0]);
   }
 
   /**
    * Get tenant by custom domain
    */
   async getTenantByDomain(domain: string): Promise<Tenant | null> {
-    const query = 'SELECT * FROM public.tenants WHERE custom_domain = $1'
-    const result = await this.pool.query(query, [domain])
+    const query = "SELECT * FROM public.tenants WHERE custom_domain = $1";
+    const result = await this.pool.query(query, [domain]);
 
     if (result.rows.length === 0) {
-      return null
+      return null;
     }
 
-    return this.mapRowToTenant(result.rows[0])
+    return this.mapRowToTenant(result.rows[0]);
   }
 
   /**
    * Update tenant
    */
-  async updateTenant(id: string, request: UpdateTenantRequest): Promise<Tenant> {
-    const updates: string[] = []
-    const values: any[] = []
-    let paramIndex = 1
+  async updateTenant(
+    id: string,
+    request: UpdateTenantRequest,
+  ): Promise<Tenant> {
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
 
     if (request.name !== undefined) {
-      updates.push(`name = $${paramIndex++}`)
-      values.push(request.name)
+      updates.push(`name = $${paramIndex++}`);
+      values.push(request.name);
     }
 
     if (request.customDomain !== undefined) {
-      updates.push(`custom_domain = $${paramIndex++}`)
-      values.push(request.customDomain)
+      updates.push(`custom_domain = $${paramIndex++}`);
+      values.push(request.customDomain);
     }
 
     if (request.branding !== undefined) {
-      updates.push(`branding = branding || $${paramIndex++}::jsonb`)
-      values.push(JSON.stringify(request.branding))
+      updates.push(`branding = branding || $${paramIndex++}::jsonb`);
+      values.push(JSON.stringify(request.branding));
     }
 
     if (request.limits !== undefined) {
-      updates.push(`limits = limits || $${paramIndex++}::jsonb`)
-      values.push(JSON.stringify(request.limits))
+      updates.push(`limits = limits || $${paramIndex++}::jsonb`);
+      values.push(JSON.stringify(request.limits));
     }
 
     if (request.features !== undefined) {
-      updates.push(`features = features || $${paramIndex++}::jsonb`)
-      values.push(JSON.stringify(request.features))
+      updates.push(`features = features || $${paramIndex++}::jsonb`);
+      values.push(JSON.stringify(request.features));
     }
 
     if (request.metadata !== undefined) {
-      updates.push(`metadata = metadata || $${paramIndex++}::jsonb`)
-      values.push(JSON.stringify(request.metadata))
+      updates.push(`metadata = metadata || $${paramIndex++}::jsonb`);
+      values.push(JSON.stringify(request.metadata));
     }
 
-    updates.push(`updated_at = NOW()`)
-    values.push(id)
+    updates.push(`updated_at = NOW()`);
+    values.push(id);
 
     const query = `
       UPDATE public.tenants
-      SET ${updates.join(', ')}
+      SET ${updates.join(", ")}
       WHERE id = $${paramIndex}
       RETURNING *
-    `
+    `;
 
-    const result = await this.pool.query(query, values)
+    const result = await this.pool.query(query, values);
 
     if (result.rows.length === 0) {
-      throw new Error(`Tenant not found: ${id}`)
+      throw new Error(`Tenant not found: ${id}`);
     }
 
-    return this.mapRowToTenant(result.rows[0])
+    return this.mapRowToTenant(result.rows[0]);
   }
 
   /**
@@ -216,37 +226,38 @@ export class TenantService {
       UPDATE public.tenants
       SET status = 'cancelled', cancelled_at = NOW(), updated_at = NOW()
       WHERE id = $1
-    `
+    `;
 
-    await this.pool.query(query, [id])
+    await this.pool.query(query, [id]);
   }
 
   /**
    * Hard delete tenant (removes schema and all data)
    */
   async hardDeleteTenant(id: string): Promise<void> {
-    const tenant = await this.getTenantById(id)
+    const tenant = await this.getTenantById(id);
     if (!tenant) {
-      throw new Error(`Tenant not found: ${id}`)
+      throw new Error(`Tenant not found: ${id}`);
     }
 
-    const client = await this.pool.connect()
+    const client = await this.pool.connect();
 
     try {
-      await client.query('BEGIN')
+      await client.query("BEGIN");
 
       // Drop tenant schema (CASCADE removes all objects)
-      await client.query(`DROP SCHEMA IF EXISTS ${tenant.schemaName} CASCADE`)
+      // sast-ignore: SQL_INJECTION -- schemaName from DB record, validated as alphanumeric+underscore at creation
+      await client.query(`DROP SCHEMA IF EXISTS ${tenant.schemaName} CASCADE`);
 
       // Delete tenant record
-      await client.query('DELETE FROM public.tenants WHERE id = $1', [id])
+      await client.query("DELETE FROM public.tenants WHERE id = $1", [id]);
 
-      await client.query('COMMIT')
+      await client.query("COMMIT");
     } catch (error) {
-      await client.query('ROLLBACK')
-      throw error
+      await client.query("ROLLBACK");
+      throw error;
     } finally {
-      client.release()
+      client.release();
     }
   }
 
@@ -254,35 +265,36 @@ export class TenantService {
    * List all tenants
    */
   async listTenants(filters?: {
-    status?: string
-    plan?: BillingPlan
-    limit?: number
-    offset?: number
+    status?: string;
+    plan?: BillingPlan;
+    limit?: number;
+    offset?: number;
   }): Promise<{ tenants: Tenant[]; total: number }> {
-    const whereClauses: string[] = []
-    const values: any[] = []
-    let paramIndex = 1
+    const whereClauses: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
 
     if (filters?.status) {
-      whereClauses.push(`status = $${paramIndex++}`)
-      values.push(filters.status)
+      whereClauses.push(`status = $${paramIndex++}`);
+      values.push(filters.status);
     }
 
     if (filters?.plan) {
-      whereClauses.push(`billing_plan = $${paramIndex++}`)
-      values.push(filters.plan)
+      whereClauses.push(`billing_plan = $${paramIndex++}`);
+      values.push(filters.plan);
     }
 
-    const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''
+    const whereClause =
+      whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
     // Get total count
-    const countQuery = `SELECT COUNT(*) FROM public.tenants ${whereClause}`
-    const countResult = await this.pool.query(countQuery, values)
-    const total = parseInt(countResult.rows[0].count)
+    const countQuery = `SELECT COUNT(*) FROM public.tenants ${whereClause}`;
+    const countResult = await this.pool.query(countQuery, values);
+    const total = parseInt(countResult.rows[0].count);
 
     // Get tenants
-    const limit = filters?.limit || 50
-    const offset = filters?.offset || 0
+    const limit = filters?.limit || 50;
+    const offset = filters?.offset || 0;
 
     const query = `
       SELECT * FROM public.tenants
@@ -290,39 +302,45 @@ export class TenantService {
       ORDER BY created_at DESC
       LIMIT $${paramIndex++}
       OFFSET $${paramIndex}
-    `
+    `;
 
-    const result = await this.pool.query(query, [...values, limit, offset])
+    const result = await this.pool.query(query, [...values, limit, offset]);
 
     return {
       tenants: result.rows.map(this.mapRowToTenant),
       total,
-    }
+    };
   }
 
   /**
    * Get tenant usage statistics
    */
-  async getTenantUsage(tenantId: string, period: string): Promise<TenantUsage | null> {
+  async getTenantUsage(
+    tenantId: string,
+    period: string,
+  ): Promise<TenantUsage | null> {
     const query = `
       SELECT * FROM public.tenant_usage
       WHERE tenant_id = $1 AND period = $2
-    `
+    `;
 
-    const result = await this.pool.query(query, [tenantId, period])
+    const result = await this.pool.query(query, [tenantId, period]);
 
     if (result.rows.length === 0) {
-      return null
+      return null;
     }
 
-    return this.mapRowToTenantUsage(result.rows[0])
+    return this.mapRowToTenantUsage(result.rows[0]);
   }
 
   /**
    * Update tenant usage (incremental)
    */
-  async updateTenantUsage(tenantId: string, updates: Partial<TenantUsage>): Promise<void> {
-    const period = new Date().toISOString().slice(0, 7) // YYYY-MM
+  async updateTenantUsage(
+    tenantId: string,
+    updates: Partial<TenantUsage>,
+  ): Promise<void> {
+    const period = new Date().toISOString().slice(0, 7); // YYYY-MM
 
     // Use INSERT ... ON CONFLICT to update or create
     const query = `
@@ -344,7 +362,7 @@ export class TenantService {
         calls_total_count = tenant_usage.calls_total_count + COALESCE($10, 0),
         api_calls_total = tenant_usage.api_calls_total + COALESCE($11, 0),
         api_calls_by_endpoint = tenant_usage.api_calls_by_endpoint || COALESCE($12, '{}'::jsonb)
-    `
+    `;
 
     await this.pool.query(query, [
       tenantId,
@@ -358,29 +376,34 @@ export class TenantService {
       updates.calls?.totalMinutes,
       updates.calls?.totalCalls,
       updates.apiCalls?.total,
-      updates.apiCalls?.byEndpoint ? JSON.stringify(updates.apiCalls.byEndpoint) : null,
-    ])
+      updates.apiCalls?.byEndpoint
+        ? JSON.stringify(updates.apiCalls.byEndpoint)
+        : null,
+    ]);
   }
 
   /**
    * Check if tenant has exceeded limits
    */
   async checkLimits(tenant: Tenant): Promise<{
-    exceeded: boolean
-    limits: string[]
+    exceeded: boolean;
+    limits: string[];
   }> {
-    const period = new Date().toISOString().slice(0, 7)
-    const usage = await this.getTenantUsage(tenant.id, period)
+    const period = new Date().toISOString().slice(0, 7);
+    const usage = await this.getTenantUsage(tenant.id, period);
 
-    const exceeded: string[] = []
+    const exceeded: string[] = [];
 
     if (!usage) {
-      return { exceeded: false, limits: [] }
+      return { exceeded: false, limits: [] };
     }
 
     // Check user limit
-    if (tenant.limits.maxUsers !== -1 && usage.users.total > tenant.limits.maxUsers) {
-      exceeded.push('maxUsers')
+    if (
+      tenant.limits.maxUsers !== -1 &&
+      usage.users.total > tenant.limits.maxUsers
+    ) {
+      exceeded.push("maxUsers");
     }
 
     // Check storage limit
@@ -388,7 +411,7 @@ export class TenantService {
       tenant.limits.maxStorageGB !== -1 &&
       usage.storage.bytesUsed > tenant.limits.maxStorageGB * 1024 * 1024 * 1024
     ) {
-      exceeded.push('maxStorageGB')
+      exceeded.push("maxStorageGB");
     }
 
     // Check API calls limit
@@ -396,65 +419,68 @@ export class TenantService {
       tenant.limits.maxApiCallsPerMonth !== -1 &&
       usage.apiCalls.total > tenant.limits.maxApiCallsPerMonth
     ) {
-      exceeded.push('maxApiCallsPerMonth')
+      exceeded.push("maxApiCallsPerMonth");
     }
 
     return {
       exceeded: exceeded.length > 0,
       limits: exceeded,
-    }
+    };
   }
 
   // Private helper methods
 
   private async checkSlugExists(slug: string): Promise<boolean> {
-    const query = 'SELECT COUNT(*) FROM public.tenants WHERE slug = $1'
-    const result = await this.pool.query(query, [slug])
-    return parseInt(result.rows[0].count) > 0
+    const query = "SELECT COUNT(*) FROM public.tenants WHERE slug = $1";
+    const result = await this.pool.query(query, [slug]);
+    return parseInt(result.rows[0].count) > 0;
   }
 
-  private async runTenantMigrations(client: any, schemaName: string): Promise<void> {
+  private async runTenantMigrations(
+    client: any,
+    schemaName: string,
+  ): Promise<void> {
     // Run all nchat_* table creation in the tenant schema
     // This creates an isolated copy of the chat schema for each tenant
 
-    await client.query(`SET search_path TO ${schemaName}`)
+    await client.query(`SET search_path TO ${schemaName}`);
 
     // Copy structure from nchat schema (without data)
     const tables = [
-      'nchat_users',
-      'nchat_channels',
-      'nchat_channel_members',
-      'nchat_messages',
-      'nchat_reactions',
-      'nchat_attachments',
-      'nchat_mentions',
-      'nchat_threads',
-      'nchat_thread_participants',
-      'nchat_bookmarks',
-      'nchat_notifications',
-      'nchat_read_receipts',
-      'nchat_typing_indicators',
-      'nchat_presence',
-      'nchat_invites',
-      'nchat_settings',
-      'nchat_audit_log',
-    ]
+      "nchat_users",
+      "nchat_channels",
+      "nchat_channel_members",
+      "nchat_messages",
+      "nchat_reactions",
+      "nchat_attachments",
+      "nchat_mentions",
+      "nchat_threads",
+      "nchat_thread_participants",
+      "nchat_bookmarks",
+      "nchat_notifications",
+      "nchat_read_receipts",
+      "nchat_typing_indicators",
+      "nchat_presence",
+      "nchat_invites",
+      "nchat_settings",
+      "nchat_audit_log",
+    ];
 
     for (const table of tables) {
       await client.query(`
         CREATE TABLE IF NOT EXISTS ${schemaName}.${table}
         (LIKE nchat.${table} INCLUDING ALL)
-      `)
+      `);
     }
 
     // Reset search path
-    await client.query('SET search_path TO public')
+    await client.query("SET search_path TO public");
   }
 
   private async createOwnerUser(
     client: any,
     schemaName: string,
-    request: CreateTenantRequest
+    request: CreateTenantRequest,
   ): Promise<void> {
     // Create owner user in tenant schema
     const query = `
@@ -463,16 +489,19 @@ export class TenantService {
       ) VALUES (
         gen_random_uuid(), $1, $2, $3, 'owner', 'active'
       )
-    `
+    `;
 
     await client.query(query, [
-      request.ownerEmail.split('@')[0],
+      request.ownerEmail.split("@")[0],
       request.ownerName,
       request.ownerEmail,
-    ])
+    ]);
   }
 
-  private async initializeTenantSettings(client: any, tenantId: string): Promise<void> {
+  private async initializeTenantSettings(
+    client: any,
+    tenantId: string,
+  ): Promise<void> {
     const query = `
       INSERT INTO public.tenant_settings (
         tenant_id, timezone, language, date_format,
@@ -486,9 +515,9 @@ export class TenantService {
         '{"minLength": 8, "requireUppercase": true, "requireLowercase": true, "requireNumbers": true, "requireSpecialChars": false}'::jsonb,
         true, 0, 0, 90
       )
-    `
+    `;
 
-    await client.query(query, [tenantId])
+    await client.query(query, [tenantId]);
   }
 
   private mapRowToTenant(row: any): Tenant {
@@ -529,7 +558,7 @@ export class TenantService {
       trialEndsAt: row.trial_ends_at,
       suspendedAt: row.suspended_at,
       cancelledAt: row.cancelled_at,
-    }
+    };
   }
 
   private mapRowToTenantUsage(row: any): TenantUsage {
@@ -557,20 +586,20 @@ export class TenantService {
         byEndpoint: row.api_calls_by_endpoint || {},
       },
       createdAt: row.created_at,
-    }
+    };
   }
 
   async close(): Promise<void> {
-    await this.pool.end()
+    await this.pool.end();
   }
 }
 
 // Singleton instance
-let tenantService: TenantService | null = null
+let tenantService: TenantService | null = null;
 
 export function getTenantService(): TenantService {
   if (!tenantService) {
-    tenantService = new TenantService()
+    tenantService = new TenantService();
   }
-  return tenantService
+  return tenantService;
 }

@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChannelSkeletonProps {
-  className?: string
-  variant?: 'list' | 'header' | 'info-panel' | 'members'
+  className?: string;
+  variant?: "list" | "header" | "info-panel" | "members";
 }
 
 // ============================================================================
@@ -17,12 +17,17 @@ interface ChannelSkeletonProps {
 // ============================================================================
 
 interface SkeletonPrimitiveProps {
-  className?: string
-  style?: React.CSSProperties
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 function Skeleton({ className, style }: SkeletonPrimitiveProps) {
-  return <div className={cn('animate-pulse rounded-md bg-muted', className)} style={style} />
+  return (
+    <div
+      className={cn("animate-pulse rounded-md bg-muted", className)}
+      style={style}
+    />
+  );
 }
 
 // ============================================================================
@@ -60,7 +65,10 @@ function ChannelListSkeleton() {
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="flex items-center gap-2 px-2 py-1.5">
             <Skeleton className="h-4 w-4" />
-            <Skeleton className="h-4" style={{ width: `${60 + Math.random() * 80}px` }} />
+            <Skeleton
+              className="h-4"
+              style={{ width: `${60 + Math.random() * 80}px` }}
+            />
           </div>
         ))}
       </div>
@@ -74,7 +82,10 @@ function ChannelListSkeleton() {
         {[1, 2].map((i) => (
           <div key={i} className="flex items-center gap-2 px-2 py-1.5">
             <Skeleton className="h-4 w-4" />
-            <Skeleton className="h-4" style={{ width: `${50 + Math.random() * 60}px` }} />
+            <Skeleton
+              className="h-4"
+              style={{ width: `${50 + Math.random() * 60}px` }}
+            />
           </div>
         ))}
       </div>
@@ -96,7 +107,7 @@ function ChannelListSkeleton() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -118,7 +129,7 @@ function ChannelHeaderSkeleton() {
         <Skeleton className="h-8 w-8" />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -171,7 +182,7 @@ function ChannelInfoPanelSkeleton() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -222,32 +233,35 @@ function ChannelMembersSkeleton() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
-export function ChannelSkeleton({ className, variant = 'list' }: ChannelSkeletonProps) {
+export function ChannelSkeleton({
+  className,
+  variant = "list",
+}: ChannelSkeletonProps) {
   const content = React.useMemo(() => {
     switch (variant) {
-      case 'header':
-        return <ChannelHeaderSkeleton />
-      case 'info-panel':
-        return <ChannelInfoPanelSkeleton />
-      case 'members':
-        return <ChannelMembersSkeleton />
-      case 'list':
+      case "header":
+        return <ChannelHeaderSkeleton />;
+      case "info-panel":
+        return <ChannelInfoPanelSkeleton />;
+      case "members":
+        return <ChannelMembersSkeleton />;
+      case "list":
       default:
-        return <ChannelListSkeleton />
+        return <ChannelListSkeleton />;
     }
-  }, [variant])
+  }, [variant]);
 
-  return <div className={className}>{content}</div>
+  return <div className={className}>{content}</div>;
 }
 
-ChannelSkeleton.displayName = 'ChannelSkeleton'
+ChannelSkeleton.displayName = "ChannelSkeleton";
 
 // Export individual skeletons for direct use
 export {
@@ -256,4 +270,4 @@ export {
   ChannelInfoPanelSkeleton,
   ChannelMembersSkeleton,
   Skeleton,
-}
+};

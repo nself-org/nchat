@@ -3,7 +3,7 @@
  * Guilds, Communities, Broadcast Lists, Categories, and Permissions
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // FRAGMENTS
@@ -24,7 +24,7 @@ export const CATEGORY_FRAGMENT = gql`
     createdAt
     updatedAt
   }
-`
+`;
 
 export const GUILD_FRAGMENT = gql`
   fragment GuildFields on Workspace {
@@ -54,7 +54,7 @@ export const GUILD_FRAGMENT = gql`
     createdAt
     updatedAt
   }
-`
+`;
 
 export const BROADCAST_LIST_FRAGMENT = gql`
   fragment BroadcastListFields on BroadcastList {
@@ -76,7 +76,7 @@ export const BROADCAST_LIST_FRAGMENT = gql`
     createdAt
     updatedAt
   }
-`
+`;
 
 export const BROADCAST_MESSAGE_FRAGMENT = gql`
   fragment BroadcastMessageFields on BroadcastMessage {
@@ -93,7 +93,7 @@ export const BROADCAST_MESSAGE_FRAGMENT = gql`
     readCount
     failedCount
   }
-`
+`;
 
 export const PERMISSION_OVERRIDE_FRAGMENT = gql`
   fragment PermissionOverrideFields on ChannelPermissionOverride {
@@ -107,7 +107,7 @@ export const PERMISSION_OVERRIDE_FRAGMENT = gql`
     createdBy
     expiresAt
   }
-`
+`;
 
 // ============================================================================
 // CATEGORY QUERIES
@@ -117,7 +117,10 @@ export const GET_CATEGORIES = gql`
   ${CATEGORY_FRAGMENT}
   query GetCategories($workspaceId: uuid!, $includeSystem: Boolean) {
     nchat_channel_categories(
-      where: { workspace_id: { _eq: $workspaceId }, is_system: { _eq: $includeSystem } }
+      where: {
+        workspace_id: { _eq: $workspaceId }
+        is_system: { _eq: $includeSystem }
+      }
       order_by: { position: asc }
     ) {
       ...CategoryFields
@@ -128,7 +131,7 @@ export const GET_CATEGORIES = gql`
       }
     }
   }
-`
+`;
 
 export const GET_CATEGORY_WITH_CHANNELS = gql`
   ${CATEGORY_FRAGMENT}
@@ -150,7 +153,7 @@ export const GET_CATEGORY_WITH_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // CATEGORY MUTATIONS
@@ -163,16 +166,22 @@ export const CREATE_CATEGORY = gql`
       ...CategoryFields
     }
   }
-`
+`;
 
 export const UPDATE_CATEGORY = gql`
   ${CATEGORY_FRAGMENT}
-  mutation UpdateCategory($id: uuid!, $updates: nchat_channel_categories_set_input!) {
-    update_nchat_channel_categories_by_pk(pk_columns: { id: $id }, _set: $updates) {
+  mutation UpdateCategory(
+    $id: uuid!
+    $updates: nchat_channel_categories_set_input!
+  ) {
+    update_nchat_channel_categories_by_pk(
+      pk_columns: { id: $id }
+      _set: $updates
+    ) {
       ...CategoryFields
     }
   }
-`
+`;
 
 export const DELETE_CATEGORY = gql`
   mutation DeleteCategory($id: uuid!) {
@@ -180,7 +189,7 @@ export const DELETE_CATEGORY = gql`
       id
     }
   }
-`
+`;
 
 export const REORDER_CATEGORIES = gql`
   mutation ReorderCategories($updates: [nchat_channel_categories_updates!]!) {
@@ -188,7 +197,7 @@ export const REORDER_CATEGORIES = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // GUILD QUERIES
@@ -208,7 +217,7 @@ export const GET_GUILDS = gql`
       ...GuildFields
     }
   }
-`
+`;
 
 export const GET_GUILD_BY_SLUG = gql`
   ${GUILD_FRAGMENT}
@@ -224,7 +233,7 @@ export const GET_GUILD_BY_SLUG = gql`
       ...GuildFields
     }
   }
-`
+`;
 
 export const GET_GUILD_STRUCTURE = gql`
   ${GUILD_FRAGMENT}
@@ -251,7 +260,7 @@ export const GET_GUILD_STRUCTURE = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // GUILD MUTATIONS
@@ -264,7 +273,7 @@ export const CREATE_GUILD = gql`
       ...GuildFields
     }
   }
-`
+`;
 
 export const UPDATE_GUILD = gql`
   ${GUILD_FRAGMENT}
@@ -273,16 +282,19 @@ export const UPDATE_GUILD = gql`
       ...GuildFields
     }
   }
-`
+`;
 
 export const DELETE_GUILD = gql`
   mutation DeleteGuild($id: uuid!) {
-    update_nchat_workspaces_by_pk(pk_columns: { id: $id }, _set: { is_active: false }) {
+    update_nchat_workspaces_by_pk(
+      pk_columns: { id: $id }
+      _set: { is_active: false }
+    ) {
       id
       isActive
     }
   }
-`
+`;
 
 // ============================================================================
 // BROADCAST LIST QUERIES
@@ -292,31 +304,40 @@ export const GET_BROADCAST_LISTS = gql`
   ${BROADCAST_LIST_FRAGMENT}
   query GetBroadcastLists($workspaceId: uuid!, $ownerId: uuid) {
     nchat_broadcast_lists(
-      where: { workspace_id: { _eq: $workspaceId }, owner_id: { _eq: $ownerId } }
+      where: {
+        workspace_id: { _eq: $workspaceId }
+        owner_id: { _eq: $ownerId }
+      }
       order_by: { created_at: desc }
     ) {
       ...BroadcastListFields
     }
   }
-`
+`;
 
 export const GET_BROADCAST_LIST = gql`
   ${BROADCAST_LIST_FRAGMENT}
   query GetBroadcastList($id: uuid!) {
     nchat_broadcast_lists_by_pk(id: $id) {
       ...BroadcastListFields
-      subscribers: nchat_broadcast_subscribers(where: { status: { _eq: "active" } }) {
+      subscribers: nchat_broadcast_subscribers(
+        where: { status: { _eq: "active" } }
+      ) {
         userId
         subscribedAt
         notificationsEnabled
       }
     }
   }
-`
+`;
 
 export const GET_BROADCAST_MESSAGES = gql`
   ${BROADCAST_MESSAGE_FRAGMENT}
-  query GetBroadcastMessages($broadcastListId: uuid!, $limit: Int, $offset: Int) {
+  query GetBroadcastMessages(
+    $broadcastListId: uuid!
+    $limit: Int
+    $offset: Int
+  ) {
     nchat_broadcast_messages(
       where: { broadcast_list_id: { _eq: $broadcastListId } }
       order_by: { sent_at: desc }
@@ -326,7 +347,7 @@ export const GET_BROADCAST_MESSAGES = gql`
       ...BroadcastMessageFields
     }
   }
-`
+`;
 
 // ============================================================================
 // BROADCAST LIST MUTATIONS
@@ -339,16 +360,22 @@ export const CREATE_BROADCAST_LIST = gql`
       ...BroadcastListFields
     }
   }
-`
+`;
 
 export const UPDATE_BROADCAST_LIST = gql`
   ${BROADCAST_LIST_FRAGMENT}
-  mutation UpdateBroadcastList($id: uuid!, $updates: nchat_broadcast_lists_set_input!) {
-    update_nchat_broadcast_lists_by_pk(pk_columns: { id: $id }, _set: $updates) {
+  mutation UpdateBroadcastList(
+    $id: uuid!
+    $updates: nchat_broadcast_lists_set_input!
+  ) {
+    update_nchat_broadcast_lists_by_pk(
+      pk_columns: { id: $id }
+      _set: $updates
+    ) {
       ...BroadcastListFields
     }
   }
-`
+`;
 
 export const DELETE_BROADCAST_LIST = gql`
   mutation DeleteBroadcastList($id: uuid!) {
@@ -356,10 +383,12 @@ export const DELETE_BROADCAST_LIST = gql`
       id
     }
   }
-`
+`;
 
 export const ADD_SUBSCRIBERS = gql`
-  mutation AddSubscribers($subscribers: [nchat_broadcast_subscribers_insert_input!]!) {
+  mutation AddSubscribers(
+    $subscribers: [nchat_broadcast_subscribers_insert_input!]!
+  ) {
     insert_nchat_broadcast_subscribers(
       objects: $subscribers
       on_conflict: {
@@ -370,18 +399,21 @@ export const ADD_SUBSCRIBERS = gql`
       affected_rows
     }
   }
-`
+`;
 
 export const REMOVE_SUBSCRIBER = gql`
   mutation RemoveSubscriber($broadcastListId: uuid!, $userId: uuid!) {
     update_nchat_broadcast_subscribers(
-      where: { broadcast_list_id: { _eq: $broadcastListId }, user_id: { _eq: $userId } }
+      where: {
+        broadcast_list_id: { _eq: $broadcastListId }
+        user_id: { _eq: $userId }
+      }
       _set: { status: "unsubscribed", unsubscribed_at: "now()" }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 export const SEND_BROADCAST = gql`
   ${BROADCAST_MESSAGE_FRAGMENT}
@@ -390,7 +422,7 @@ export const SEND_BROADCAST = gql`
       ...BroadcastMessageFields
     }
   }
-`
+`;
 
 // ============================================================================
 // PERMISSION OVERRIDE QUERIES
@@ -399,11 +431,13 @@ export const SEND_BROADCAST = gql`
 export const GET_CHANNEL_PERMISSIONS = gql`
   ${PERMISSION_OVERRIDE_FRAGMENT}
   query GetChannelPermissions($channelId: uuid!) {
-    nchat_channel_permission_overrides(where: { channel_id: { _eq: $channelId } }) {
+    nchat_channel_permission_overrides(
+      where: { channel_id: { _eq: $channelId } }
+    ) {
       ...PermissionOverrideFields
     }
   }
-`
+`;
 
 export const GET_USER_CHANNEL_PERMISSIONS = gql`
   ${PERMISSION_OVERRIDE_FRAGMENT}
@@ -429,7 +463,7 @@ export const GET_USER_CHANNEL_PERMISSIONS = gql`
       ...PermissionOverrideFields
     }
   }
-`
+`;
 
 // ============================================================================
 // PERMISSION OVERRIDE MUTATIONS
@@ -437,12 +471,14 @@ export const GET_USER_CHANNEL_PERMISSIONS = gql`
 
 export const CREATE_PERMISSION_OVERRIDE = gql`
   ${PERMISSION_OVERRIDE_FRAGMENT}
-  mutation CreatePermissionOverride($input: nchat_channel_permission_overrides_insert_input!) {
+  mutation CreatePermissionOverride(
+    $input: nchat_channel_permission_overrides_insert_input!
+  ) {
     insert_nchat_channel_permission_overrides_one(object: $input) {
       ...PermissionOverrideFields
     }
   }
-`
+`;
 
 export const UPDATE_PERMISSION_OVERRIDE = gql`
   ${PERMISSION_OVERRIDE_FRAGMENT}
@@ -450,11 +486,14 @@ export const UPDATE_PERMISSION_OVERRIDE = gql`
     $id: uuid!
     $updates: nchat_channel_permission_overrides_set_input!
   ) {
-    update_nchat_channel_permission_overrides_by_pk(pk_columns: { id: $id }, _set: $updates) {
+    update_nchat_channel_permission_overrides_by_pk(
+      pk_columns: { id: $id }
+      _set: $updates
+    ) {
       ...PermissionOverrideFields
     }
   }
-`
+`;
 
 export const DELETE_PERMISSION_OVERRIDE = gql`
   mutation DeletePermissionOverride($id: uuid!) {
@@ -462,7 +501,7 @@ export const DELETE_PERMISSION_OVERRIDE = gql`
       id
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -475,7 +514,7 @@ export const SUBSCRIBE_TO_GUILD_UPDATES = gql`
       ...GuildFields
     }
   }
-`
+`;
 
 export const SUBSCRIBE_TO_CATEGORY_UPDATES = gql`
   ${CATEGORY_FRAGMENT}
@@ -487,11 +526,13 @@ export const SUBSCRIBE_TO_CATEGORY_UPDATES = gql`
       ...CategoryFields
     }
   }
-`
+`;
 
 export const SUBSCRIBE_TO_BROADCAST_DELIVERIES = gql`
   subscription SubscribeToBroadcastDeliveries($broadcastMessageId: uuid!) {
-    nchat_broadcast_deliveries(where: { broadcast_message_id: { _eq: $broadcastMessageId } }) {
+    nchat_broadcast_deliveries(
+      where: { broadcast_message_id: { _eq: $broadcastMessageId } }
+    ) {
       id
       userId
       status
@@ -501,13 +542,15 @@ export const SUBSCRIBE_TO_BROADCAST_DELIVERIES = gql`
       errorMessage
     }
   }
-`
+`;
 
 export const SUBSCRIBE_TO_PERMISSION_CHANGES = gql`
   ${PERMISSION_OVERRIDE_FRAGMENT}
   subscription SubscribeToPermissionChanges($channelId: uuid!) {
-    nchat_channel_permission_overrides(where: { channel_id: { _eq: $channelId } }) {
+    nchat_channel_permission_overrides(
+      where: { channel_id: { _eq: $channelId } }
+    ) {
       ...PermissionOverrideFields
     }
   }
-`
+`;

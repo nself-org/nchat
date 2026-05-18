@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -10,42 +10,42 @@ import {
   Settings,
   ArrowLeft,
   Shield,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 const navItems = [
   {
-    title: 'Dashboard',
-    href: '/admin',
+    title: "Dashboard",
+    href: "/admin",
     icon: LayoutDashboard,
   },
   {
-    title: 'Users',
-    href: '/admin/users',
+    title: "Users",
+    href: "/admin/users",
     icon: Users,
   },
   {
-    title: 'Channels',
-    href: '/admin/channels',
+    title: "Channels",
+    href: "/admin/channels",
     icon: Hash,
   },
   {
-    title: 'Audit Log',
-    href: '/admin/audit',
+    title: "Audit Log",
+    href: "/admin/audit",
     icon: ClipboardList,
   },
   {
-    title: 'Settings',
-    href: '/admin/config',
+    title: "Settings",
+    href: "/admin/config",
     icon: Settings,
   },
-]
+];
 
 export function AdminNav() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <div className="bg-muted/30 flex h-screen w-64 flex-col border-r">
@@ -58,19 +58,23 @@ export function AdminNav() {
         <nav className="space-y-1">
           {navItems.map((item) => {
             const isActive =
-              pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))
+              pathname === item.href ||
+              (item.href !== "/admin" && pathname.startsWith(item.href));
 
             return (
               <Link key={item.href} href={item.href}>
                 <Button
-                  variant={isActive ? 'secondary' : 'ghost'}
-                  className={cn('w-full justify-start', isActive && 'bg-secondary')}
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start",
+                    isActive && "bg-secondary",
+                  )}
                 >
                   <item.icon className="mr-2 h-4 w-4" />
                   {item.title}
                 </Button>
               </Link>
-            )
+            );
           })}
         </nav>
       </ScrollArea>
@@ -86,5 +90,5 @@ export function AdminNav() {
         </Link>
       </div>
     </div>
-  )
+  );
 }

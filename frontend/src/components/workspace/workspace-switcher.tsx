@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Workspace Switcher Component
@@ -11,10 +11,17 @@
  * - Workspace search
  */
 
-import * as React from 'react'
-import { Check, ChevronDown, Plus, Search, Building2, Settings } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import {
+  Check,
+  ChevronDown,
+  Plus,
+  Search,
+  Building2,
+  Settings,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,23 +30,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuGroup,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useWorkspaceSwitcher, type WorkspaceWithMembership } from '@/hooks/use-workspace'
-import Link from 'next/link'
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  useWorkspaceSwitcher,
+  type WorkspaceWithMembership,
+} from "@/hooks/use-workspace";
+import Link from "next/link";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 interface WorkspaceSwitcherProps {
-  className?: string
-  showCreateButton?: boolean
-  onCreateClick?: () => void
-  onSettingsClick?: (workspaceId: string) => void
+  className?: string;
+  showCreateButton?: boolean;
+  onCreateClick?: () => void;
+  onSettingsClick?: (workspaceId: string) => void;
 }
 
 // ============================================================================
@@ -48,23 +58,23 @@ interface WorkspaceSwitcherProps {
 
 function getWorkspaceInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((word) => word[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 function getRoleBadgeVariant(
-  role: string
-): 'default' | 'secondary' | 'destructive' | 'outline' {
+  role: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (role) {
-    case 'owner':
-      return 'default'
-    case 'admin':
-      return 'secondary'
+    case "owner":
+      return "default";
+    case "admin":
+      return "secondary";
     default:
-      return 'outline'
+      return "outline";
   }
 }
 
@@ -73,10 +83,10 @@ function getRoleBadgeVariant(
 // ============================================================================
 
 interface WorkspaceItemProps {
-  workspace: WorkspaceWithMembership
-  isCurrent: boolean
-  onClick: () => void
-  onSettingsClick?: () => void
+  workspace: WorkspaceWithMembership;
+  isCurrent: boolean;
+  onClick: () => void;
+  onSettingsClick?: () => void;
 }
 
 function WorkspaceItem({
@@ -88,8 +98,8 @@ function WorkspaceItem({
   return (
     <DropdownMenuItem
       className={cn(
-        'flex items-center gap-3 cursor-pointer py-2',
-        isCurrent && 'bg-accent'
+        "flex items-center gap-3 cursor-pointer py-2",
+        isCurrent && "bg-accent",
       )}
       onClick={onClick}
     >
@@ -110,9 +120,7 @@ function WorkspaceItem({
           <span className="font-medium truncate">
             {workspace.workspace.name}
           </span>
-          {isCurrent && (
-            <Check className="h-4 w-4 text-primary shrink-0" />
-          )}
+          {isCurrent && <Check className="h-4 w-4 text-primary shrink-0" />}
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Badge
@@ -131,15 +139,15 @@ function WorkspaceItem({
           size="icon"
           className="h-6 w-6 opacity-0 group-hover:opacity-100"
           onClick={(e) => {
-            e.stopPropagation()
-            onSettingsClick()
+            e.stopPropagation();
+            onSettingsClick();
           }}
         >
           <Settings className="h-3 w-3" />
         </Button>
       )}
     </DropdownMenuItem>
-  )
+  );
 }
 
 // ============================================================================
@@ -158,44 +166,44 @@ export function WorkspaceSwitcher({
     recentWorkspaces,
     switchWorkspace,
     loading,
-  } = useWorkspaceSwitcher()
+  } = useWorkspaceSwitcher();
 
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [searchQuery, setSearchQuery] = React.useState('')
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   // Filter workspaces by search query
   const filteredWorkspaces = React.useMemo(() => {
-    if (!searchQuery.trim()) return workspaces
-    const query = searchQuery.toLowerCase()
+    if (!searchQuery.trim()) return workspaces;
+    const query = searchQuery.toLowerCase();
     return workspaces.filter(
       (w) =>
         w.workspace.name.toLowerCase().includes(query) ||
-        w.workspace.slug.toLowerCase().includes(query)
-    )
-  }, [workspaces, searchQuery])
+        w.workspace.slug.toLowerCase().includes(query),
+    );
+  }, [workspaces, searchQuery]);
 
   // Handle workspace selection
   const handleSelect = React.useCallback(
     (workspaceId: string) => {
-      switchWorkspace(workspaceId)
-      setIsOpen(false)
-      setSearchQuery('')
+      switchWorkspace(workspaceId);
+      setIsOpen(false);
+      setSearchQuery("");
     },
-    [switchWorkspace]
-  )
+    [switchWorkspace],
+  );
 
   // Close dropdown and reset search on open state change
   React.useEffect(() => {
     if (!isOpen) {
-      setSearchQuery('')
+      setSearchQuery("");
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   if (loading) {
     return (
       <Button
         variant="outline"
-        className={cn('w-[200px] justify-between', className)}
+        className={cn("w-[200px] justify-between", className)}
         disabled
       >
         <div className="flex items-center gap-2">
@@ -203,14 +211,14 @@ export function WorkspaceSwitcher({
           <span className="text-muted-foreground">Loading...</span>
         </div>
       </Button>
-    )
+    );
   }
 
   if (!currentWorkspace && workspaces.length === 0) {
     return (
       <Button
         variant="outline"
-        className={cn('w-[200px] justify-between', className)}
+        className={cn("w-[200px] justify-between", className)}
         onClick={onCreateClick}
       >
         <div className="flex items-center gap-2">
@@ -218,7 +226,7 @@ export function WorkspaceSwitcher({
           <span>Create Workspace</span>
         </div>
       </Button>
-    )
+    );
   }
 
   return (
@@ -228,7 +236,7 @@ export function WorkspaceSwitcher({
           variant="outline"
           role="combobox"
           aria-expanded={isOpen}
-          className={cn('w-[200px] justify-between', className)}
+          className={cn("w-[200px] justify-between", className)}
         >
           <div className="flex items-center gap-2 truncate">
             {currentWorkspace ? (
@@ -257,11 +265,7 @@ export function WorkspaceSwitcher({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        className="w-[280px]"
-        align="start"
-        sideOffset={4}
-      >
+      <DropdownMenuContent className="w-[280px]" align="start" sideOffset={4}>
         {/* Search */}
         <div className="p-2">
           <div className="relative">
@@ -289,9 +293,7 @@ export function WorkspaceSwitcher({
                   <WorkspaceItem
                     key={workspace.workspace.id}
                     workspace={workspace}
-                    isCurrent={
-                      currentWorkspace?.id === workspace.workspace.id
-                    }
+                    isCurrent={currentWorkspace?.id === workspace.workspace.id}
                     onClick={() => handleSelect(workspace.workspace.id)}
                     onSettingsClick={
                       onSettingsClick
@@ -307,7 +309,7 @@ export function WorkspaceSwitcher({
 
           {/* All Workspaces */}
           <DropdownMenuLabel className="text-xs text-muted-foreground">
-            {searchQuery ? 'Search Results' : 'All Workspaces'}
+            {searchQuery ? "Search Results" : "All Workspaces"}
           </DropdownMenuLabel>
           <DropdownMenuGroup>
             {filteredWorkspaces.length > 0 ? (
@@ -315,9 +317,7 @@ export function WorkspaceSwitcher({
                 <WorkspaceItem
                   key={workspace.workspace.id}
                   workspace={workspace}
-                  isCurrent={
-                    currentWorkspace?.id === workspace.workspace.id
-                  }
+                  isCurrent={currentWorkspace?.id === workspace.workspace.id}
                   onClick={() => handleSelect(workspace.workspace.id)}
                   onSettingsClick={
                     onSettingsClick
@@ -328,9 +328,7 @@ export function WorkspaceSwitcher({
               ))
             ) : (
               <div className="py-6 text-center text-sm text-muted-foreground">
-                {searchQuery
-                  ? 'No workspaces found'
-                  : 'No workspaces yet'}
+                {searchQuery ? "No workspaces found" : "No workspaces yet"}
               </div>
             )}
           </DropdownMenuGroup>
@@ -351,7 +349,7 @@ export function WorkspaceSwitcher({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
-export default WorkspaceSwitcher
+export default WorkspaceSwitcher;

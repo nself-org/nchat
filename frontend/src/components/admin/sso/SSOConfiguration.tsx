@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SSO Configuration Component
@@ -6,9 +6,9 @@
  * Admin UI for configuring SAML/SSO connections
  */
 
-import * as React from 'react'
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   SSOProvider,
   SSOConnection,
@@ -18,13 +18,13 @@ import {
   getSAMLService,
   createSSOConnectionFromPreset,
   testSSOConnection,
-} from '@/lib/auth/saml'
-import { UserRole } from '@/lib/auth/roles'
+} from "@/lib/auth/saml";
+import { UserRole } from "@/lib/auth/roles";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -32,14 +32,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -47,11 +47,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus,
   Trash2,
@@ -61,156 +61,161 @@ import {
   XCircle,
   Download,
   AlertTriangle,
-} from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export function SSOConfiguration() {
-  const [connections, setConnections] = useState<SSOConnection[]>([])
-  const [selectedConnection, setSelectedConnection] = useState<SSOConnection | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [isCreating, setIsCreating] = useState(false)
-  const { toast } = useToast()
+  const [connections, setConnections] = useState<SSOConnection[]>([]);
+  const [selectedConnection, setSelectedConnection] =
+    useState<SSOConnection | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const { toast } = useToast();
 
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   React.useEffect(() => {
-    loadConnections()
-  }, [])
+    loadConnections();
+  }, []);
 
   const loadConnections = async () => {
     try {
-      setIsLoading(true)
-      const service = getSAMLService()
-      const allConnections = await service.getAllConnections()
-      setConnections(allConnections)
+      setIsLoading(true);
+      const service = getSAMLService();
+      const allConnections = await service.getAllConnections();
+      setConnections(allConnections);
     } catch (error) {
       toast({
-        title: 'Error loading SSO connections',
+        title: "Error loading SSO connections",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleCreateConnection = async (data: Partial<SSOConnection>) => {
     try {
-      const service = getSAMLService()
+      const service = getSAMLService();
       const connection: SSOConnection = {
         id: crypto.randomUUID(),
-        name: data.name || 'New SSO Connection',
-        provider: data.provider || 'generic-saml',
+        name: data.name || "New SSO Connection",
+        provider: data.provider || "generic-saml",
         enabled: false,
         config: data.config || ({} as SAMLConfiguration),
         createdAt: new Date(),
         updatedAt: new Date(),
         ...data,
-      }
+      };
 
-      await service.addConnection(connection)
-      await loadConnections()
-      setIsCreating(false)
+      await service.addConnection(connection);
+      await loadConnections();
+      setIsCreating(false);
 
       toast({
-        title: 'SSO Connection Created',
+        title: "SSO Connection Created",
         description: `${connection.name} has been created successfully.`,
-      })
+      });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
-  const handleUpdateConnection = async (id: string, updates: Partial<SSOConnection>) => {
+  const handleUpdateConnection = async (
+    id: string,
+    updates: Partial<SSOConnection>,
+  ) => {
     try {
-      const service = getSAMLService()
-      await service.updateConnection(id, updates)
-      await loadConnections()
-      setIsEditing(false)
-      setSelectedConnection(null)
+      const service = getSAMLService();
+      await service.updateConnection(id, updates);
+      await loadConnections();
+      setIsEditing(false);
+      setSelectedConnection(null);
 
       toast({
-        title: 'SSO Connection Updated',
-        description: 'Connection settings have been saved.',
-      })
+        title: "SSO Connection Updated",
+        description: "Connection settings have been saved.",
+      });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleDeleteConnection = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this SSO connection?')) return
+    if (!confirm("Are you sure you want to delete this SSO connection?"))
+      return;
 
     try {
-      const service = getSAMLService()
-      await service.removeConnection(id)
-      await loadConnections()
-      setSelectedConnection(null)
+      const service = getSAMLService();
+      await service.removeConnection(id);
+      await loadConnections();
+      setSelectedConnection(null);
 
       toast({
-        title: 'SSO Connection Deleted',
-        description: 'The connection has been removed.',
-      })
+        title: "SSO Connection Deleted",
+        description: "The connection has been removed.",
+      });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleTestConnection = async (id: string) => {
     try {
-      const result = await testSSOConnection(id)
+      const result = await testSSOConnection(id);
 
       if (result.success) {
         toast({
-          title: 'Connection Test Successful',
-          description: 'SSO connection is properly configured.',
-        })
+          title: "Connection Test Successful",
+          description: "SSO connection is properly configured.",
+        });
       } else {
         toast({
-          title: 'Connection Test Failed',
-          description: result.error || 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Connection Test Failed",
+          description: result.error || "Unknown error",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleDownloadMetadata = (connection: SSOConnection) => {
-    const service = getSAMLService()
-    const metadata = service.generateSPMetadata(connection)
+    const service = getSAMLService();
+    const metadata = service.generateSPMetadata(connection);
 
-    const blob = new Blob([metadata], { type: 'application/xml' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${connection.name.replace(/\s+/g, '-')}-sp-metadata.xml`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([metadata], { type: "application/xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${connection.name.replace(/\s+/g, "-")}-sp-metadata.xml`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-6">
@@ -250,15 +255,17 @@ export function SSOConfiguration() {
                       <Shield className="h-5 w-5" />
                       {connection.name}
                     </CardTitle>
-                    <CardDescription>{SSO_PROVIDER_NAMES[connection.provider]}</CardDescription>
+                    <CardDescription>
+                      {SSO_PROVIDER_NAMES[connection.provider]}
+                    </CardDescription>
                   </div>
-                  <Badge variant={connection.enabled ? 'default' : 'secondary'}>
+                  <Badge variant={connection.enabled ? "default" : "secondary"}>
                     {connection.enabled ? (
                       <CheckCircle className="mr-1 h-3 w-3" />
                     ) : (
                       <XCircle className="mr-1 h-3 w-3" />
                     )}
-                    {connection.enabled ? 'Active' : 'Inactive'}
+                    {connection.enabled ? "Active" : "Inactive"}
                   </Badge>
                 </div>
               </CardHeader>
@@ -273,14 +280,18 @@ export function SSOConfiguration() {
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-xs text-muted-foreground">No domains</span>
+                      <span className="text-xs text-muted-foreground">
+                        No domains
+                      </span>
                     )}
                   </div>
                 </div>
                 <div className="text-sm">
-                  <span className="text-muted-foreground">JIT Provisioning:</span>
+                  <span className="text-muted-foreground">
+                    JIT Provisioning:
+                  </span>
                   <span className="ml-2">
-                    {connection.config.jitProvisioning ? 'Enabled' : 'Disabled'}
+                    {connection.config.jitProvisioning ? "Enabled" : "Disabled"}
                   </span>
                 </div>
               </CardContent>
@@ -290,8 +301,8 @@ export function SSOConfiguration() {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setSelectedConnection(connection)
-                      setIsEditing(true)
+                      setSelectedConnection(connection);
+                      setIsEditing(true);
                     }}
                   >
                     <Edit className="mr-1 h-4 w-4" />
@@ -349,21 +360,21 @@ export function SSOConfiguration() {
           connection={isEditing ? selectedConnection : null}
           open={isCreating || isEditing}
           onClose={() => {
-            setIsCreating(false)
-            setIsEditing(false)
-            setSelectedConnection(null)
+            setIsCreating(false);
+            setIsEditing(false);
+            setSelectedConnection(null);
           }}
           onSave={(data) => {
             if (isEditing && selectedConnection) {
-              handleUpdateConnection(selectedConnection.id, data)
+              handleUpdateConnection(selectedConnection.id, data);
             } else {
-              handleCreateConnection(data)
+              handleCreateConnection(data);
             }
           }}
         />
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -371,54 +382,66 @@ export function SSOConfiguration() {
 // ============================================================================
 
 interface SSOConnectionDialogProps {
-  connection: SSOConnection | null
-  open: boolean
-  onClose: () => void
-  onSave: (data: Partial<SSOConnection>) => void
+  connection: SSOConnection | null;
+  open: boolean;
+  onClose: () => void;
+  onSave: (data: Partial<SSOConnection>) => void;
 }
 
-function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectionDialogProps) {
+function SSOConnectionDialog({
+  connection,
+  open,
+  onClose,
+  onSave,
+}: SSOConnectionDialogProps) {
   const [formData, setFormData] = useState<Partial<SSOConnection>>(
     connection || {
-      name: '',
-      provider: 'generic-saml' as SSOProvider,
+      name: "",
+      provider: "generic-saml" as SSOProvider,
       enabled: false,
       domains: [],
       config: {
-        idpEntityId: '',
-        idpSsoUrl: '',
-        idpCertificate: '',
+        idpEntityId: "",
+        idpSsoUrl: "",
+        idpCertificate: "",
         spEntityId: `${window.location.origin}/auth/saml`,
         spAssertionConsumerUrl: `${window.location.origin}/api/auth/saml/callback`,
-        nameIdFormat: 'email',
+        nameIdFormat: "email",
         attributeMapping: {
-          email: 'email',
+          email: "email",
         },
         jitProvisioning: true,
-        defaultRole: 'member' as UserRole,
+        defaultRole: "member" as UserRole,
       } as SAMLConfiguration,
-    }
-  )
+    },
+  );
 
   const handleProviderChange = (provider: SSOProvider) => {
-    const preset = createSSOConnectionFromPreset(provider, formData.config || {})
+    const preset = createSSOConnectionFromPreset(
+      provider,
+      formData.config || {},
+    );
     setFormData({
       ...formData,
       provider,
       config: preset.config,
-    })
-  }
+    });
+  };
 
   const handleSave = () => {
-    onSave(formData)
-  }
+    onSave(formData);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{connection ? 'Edit SSO Connection' : 'Create SSO Connection'}</DialogTitle>
-          <DialogDescription>Configure SAML 2.0 single sign-on authentication</DialogDescription>
+          <DialogTitle>
+            {connection ? "Edit SSO Connection" : "Create SSO Connection"}
+          </DialogTitle>
+          <DialogDescription>
+            Configure SAML 2.0 single sign-on authentication
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="basic" className="w-full">
@@ -436,7 +459,9 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="e.g., Acme Corp SSO"
               />
             </div>
@@ -445,7 +470,9 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <Label htmlFor="provider">Provider</Label>
               <Select
                 value={formData.provider}
-                onValueChange={(value) => handleProviderChange(value as SSOProvider)}
+                onValueChange={(value) =>
+                  handleProviderChange(value as SSOProvider)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -464,7 +491,9 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <Switch
                 id="enabled"
                 checked={formData.enabled}
-                onCheckedChange={(checked) => setFormData({ ...formData, enabled: checked })}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, enabled: checked })
+                }
               />
               <Label htmlFor="enabled">Enable this connection</Label>
             </div>
@@ -473,11 +502,11 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <Label htmlFor="domains">Allowed Email Domains</Label>
               <Input
                 id="domains"
-                value={formData.domains?.join(', ') || ''}
+                value={formData.domains?.join(", ") || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    domains: e.target.value.split(',').map((d) => d.trim()),
+                    domains: e.target.value.split(",").map((d) => d.trim()),
                   })
                 }
                 placeholder="example.com, acme.com"
@@ -494,11 +523,14 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <Label htmlFor="idpEntityId">IdP Entity ID</Label>
               <Input
                 id="idpEntityId"
-                value={formData.config?.idpEntityId || ''}
+                value={formData.config?.idpEntityId || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    config: { ...formData.config!, idpEntityId: e.target.value },
+                    config: {
+                      ...formData.config!,
+                      idpEntityId: e.target.value,
+                    },
                   })
                 }
                 placeholder="https://idp.example.com/saml/metadata"
@@ -509,7 +541,7 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <Label htmlFor="idpSsoUrl">IdP SSO URL</Label>
               <Input
                 id="idpSsoUrl"
-                value={formData.config?.idpSsoUrl || ''}
+                value={formData.config?.idpSsoUrl || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -521,14 +553,19 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="idpCertificate">IdP Certificate (X.509 PEM)</Label>
+              <Label htmlFor="idpCertificate">
+                IdP Certificate (X.509 PEM)
+              </Label>
               <Textarea
                 id="idpCertificate"
-                value={formData.config?.idpCertificate || ''}
+                value={formData.config?.idpCertificate || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    config: { ...formData.config!, idpCertificate: e.target.value },
+                    config: {
+                      ...formData.config!,
+                      idpCertificate: e.target.value,
+                    },
                   })
                 }
                 placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
@@ -544,11 +581,13 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
                 <p className="text-sm font-medium">
-                  Pre-configured for {SSO_PROVIDER_NAMES[formData.provider || 'generic-saml']}
+                  Pre-configured for{" "}
+                  {SSO_PROVIDER_NAMES[formData.provider || "generic-saml"]}
                 </p>
               </div>
               <p className="text-xs text-muted-foreground">
-                These mappings have been automatically configured based on your provider selection.
+                These mappings have been automatically configured based on your
+                provider selection.
               </p>
             </div>
 
@@ -556,7 +595,7 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <Label htmlFor="emailAttr">Email Attribute</Label>
               <Input
                 id="emailAttr"
-                value={formData.config?.attributeMapping.email || ''}
+                value={formData.config?.attributeMapping.email || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -577,7 +616,7 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
                 <Label htmlFor="firstNameAttr">First Name Attribute</Label>
                 <Input
                   id="firstNameAttr"
-                  value={formData.config?.attributeMapping.firstName || ''}
+                  value={formData.config?.attributeMapping.firstName || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -597,7 +636,7 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
                 <Label htmlFor="lastNameAttr">Last Name Attribute</Label>
                 <Input
                   id="lastNameAttr"
-                  value={formData.config?.attributeMapping.lastName || ''}
+                  value={formData.config?.attributeMapping.lastName || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -615,10 +654,12 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="groupsAttr">Groups Attribute (for role mapping)</Label>
+              <Label htmlFor="groupsAttr">
+                Groups Attribute (for role mapping)
+              </Label>
               <Input
                 id="groupsAttr"
-                value={formData.config?.attributeMapping.groups || ''}
+                value={formData.config?.attributeMapping.groups || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -648,7 +689,9 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
                   })
                 }
               />
-              <Label htmlFor="jitProvisioning">Enable Just-in-Time Provisioning</Label>
+              <Label htmlFor="jitProvisioning">
+                Enable Just-in-Time Provisioning
+              </Label>
             </div>
 
             <div className="space-y-2">
@@ -658,7 +701,10 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
                 onValueChange={(value) =>
                   setFormData({
                     ...formData,
-                    config: { ...formData.config!, defaultRole: value as UserRole },
+                    config: {
+                      ...formData.config!,
+                      defaultRole: value as UserRole,
+                    },
                   })
                 }
               >
@@ -679,7 +725,9 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
               <h4 className="font-medium">Service Provider URLs</h4>
               <div className="space-y-2">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Entity ID</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Entity ID
+                  </Label>
                   <Input
                     value={formData.config?.spEntityId}
                     readOnly
@@ -706,12 +754,12 @@ function SSOConnectionDialog({ connection, open, onClose, onSave }: SSOConnectio
             Cancel
           </Button>
           <Button onClick={handleSave}>
-            {connection ? 'Update Connection' : 'Create Connection'}
+            {connection ? "Update Connection" : "Create Connection"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default SSOConfiguration
+export default SSOConfiguration;

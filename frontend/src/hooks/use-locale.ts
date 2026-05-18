@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * @fileoverview Locale hook for nself-chat
@@ -7,8 +7,8 @@
  * formatting dates/numbers, and detecting RTL.
  */
 
-import { useCallback, useMemo } from 'react'
-import { useLocaleStore } from '@/stores/locale-store'
+import { useCallback, useMemo } from "react";
+import { useLocaleStore } from "@/stores/locale-store";
 import {
   formatDate,
   formatTime,
@@ -16,7 +16,7 @@ import {
   formatSmartDate,
   formatMessageTime,
   type FormatDateOptions,
-} from '@/lib/i18n/date-formats'
+} from "@/lib/i18n/date-formats";
 import {
   formatNumber,
   formatCurrency,
@@ -26,51 +26,73 @@ import {
   type NumberFormatOptions,
   type CurrencyFormatOptions,
   type PercentFormatOptions,
-} from '@/lib/i18n/number-formats'
-import { isRTL, getDirection } from '@/lib/i18n/rtl'
-import { SUPPORTED_LOCALES, type LocaleCode, type LocaleConfig } from '@/lib/i18n/locales'
+} from "@/lib/i18n/number-formats";
+import { isRTL, getDirection } from "@/lib/i18n/rtl";
+import {
+  SUPPORTED_LOCALES,
+  type LocaleCode,
+  type LocaleConfig,
+} from "@/lib/i18n/locales";
 
 /**
  * Use locale hook return type
  */
 export interface UseLocaleReturn {
   /** Current locale code */
-  locale: LocaleCode
+  locale: LocaleCode;
   /** Current locale configuration */
-  localeConfig: LocaleConfig | undefined
+  localeConfig: LocaleConfig | undefined;
   /** Whether current locale is RTL */
-  isRTL: boolean
+  isRTL: boolean;
   /** Text direction for current locale */
-  direction: 'ltr' | 'rtl'
+  direction: "ltr" | "rtl";
   /** Whether locale is loading */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error message if any */
-  error: string | null
+  error: string | null;
 
   /** Change the current locale */
-  setLocale: (locale: LocaleCode) => Promise<void>
+  setLocale: (locale: LocaleCode) => Promise<void>;
 
   /** Format a date */
-  formatDate: (date: Date | number | string, options?: FormatDateOptions) => string
+  formatDate: (
+    date: Date | number | string,
+    options?: FormatDateOptions,
+  ) => string;
   /** Format time only */
-  formatTime: (date: Date | number | string, options?: { withSeconds?: boolean }) => string
+  formatTime: (
+    date: Date | number | string,
+    options?: { withSeconds?: boolean },
+  ) => string;
   /** Format relative time */
-  formatRelativeTime: (date: Date | number | string, options?: { addSuffix?: boolean }) => string
+  formatRelativeTime: (
+    date: Date | number | string,
+    options?: { addSuffix?: boolean },
+  ) => string;
   /** Format smart date (contextual) */
-  formatSmartDate: (date: Date | number | string, options?: { showTime?: boolean }) => string
+  formatSmartDate: (
+    date: Date | number | string,
+    options?: { showTime?: boolean },
+  ) => string;
   /** Format message timestamp */
-  formatMessageTime: (date: Date | number | string) => string
+  formatMessageTime: (date: Date | number | string) => string;
 
   /** Format a number */
-  formatNumber: (value: number, options?: NumberFormatOptions) => string
+  formatNumber: (value: number, options?: NumberFormatOptions) => string;
   /** Format currency */
-  formatCurrency: (value: number, options?: CurrencyFormatOptions) => string
+  formatCurrency: (value: number, options?: CurrencyFormatOptions) => string;
   /** Format percentage */
-  formatPercent: (value: number, options?: PercentFormatOptions) => string
+  formatPercent: (value: number, options?: PercentFormatOptions) => string;
   /** Format compact number */
-  formatCompact: (value: number, options?: { compactDisplay?: 'short' | 'long' }) => string
+  formatCompact: (
+    value: number,
+    options?: { compactDisplay?: "short" | "long" },
+  ) => string;
   /** Format bytes */
-  formatBytes: (bytes: number, options?: { decimals?: number; binary?: boolean }) => string
+  formatBytes: (
+    bytes: number,
+    options?: { decimals?: number; binary?: boolean },
+  ) => string;
 }
 
 /**
@@ -92,94 +114,94 @@ export interface UseLocaleReturn {
  * ```
  */
 export function useLocale(): UseLocaleReturn {
-  const currentLocale = useLocaleStore((state) => state.currentLocale)
-  const isLoading = useLocaleStore((state) => state.isLoading)
-  const error = useLocaleStore((state) => state.error)
-  const setLocaleAction = useLocaleStore((state) => state.setLocale)
+  const currentLocale = useLocaleStore((state) => state.currentLocale);
+  const isLoading = useLocaleStore((state) => state.isLoading);
+  const error = useLocaleStore((state) => state.error);
+  const setLocaleAction = useLocaleStore((state) => state.setLocale);
 
-  const localeConfig = SUPPORTED_LOCALES[currentLocale]
-  const rtl = isRTL(currentLocale)
-  const direction = getDirection(currentLocale)
+  const localeConfig = SUPPORTED_LOCALES[currentLocale];
+  const rtl = isRTL(currentLocale);
+  const direction = getDirection(currentLocale);
 
   // Memoized setLocale
   const setLocale = useCallback(
     async (locale: LocaleCode) => {
-      await setLocaleAction(locale)
+      await setLocaleAction(locale);
     },
-    [setLocaleAction]
-  )
+    [setLocaleAction],
+  );
 
   // Memoized date formatters
   const formatDateFn = useCallback(
     (date: Date | number | string, options?: FormatDateOptions) => {
-      return formatDate(date, { ...options, locale: currentLocale })
+      return formatDate(date, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   const formatTimeFn = useCallback(
     (date: Date | number | string, options?: { withSeconds?: boolean }) => {
-      return formatTime(date, { ...options, locale: currentLocale })
+      return formatTime(date, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   const formatRelativeTimeFn = useCallback(
     (date: Date | number | string, options?: { addSuffix?: boolean }) => {
-      return formatRelativeTime(date, { ...options, locale: currentLocale })
+      return formatRelativeTime(date, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   const formatSmartDateFn = useCallback(
     (date: Date | number | string, options?: { showTime?: boolean }) => {
-      return formatSmartDate(date, { ...options, locale: currentLocale })
+      return formatSmartDate(date, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   const formatMessageTimeFn = useCallback(
     (date: Date | number | string) => {
-      return formatMessageTime(date, { locale: currentLocale })
+      return formatMessageTime(date, { locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   // Memoized number formatters
   const formatNumberFn = useCallback(
     (value: number, options?: NumberFormatOptions) => {
-      return formatNumber(value, { ...options, locale: currentLocale })
+      return formatNumber(value, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   const formatCurrencyFn = useCallback(
     (value: number, options?: CurrencyFormatOptions) => {
-      return formatCurrency(value, { ...options, locale: currentLocale })
+      return formatCurrency(value, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   const formatPercentFn = useCallback(
     (value: number, options?: PercentFormatOptions) => {
-      return formatPercent(value, { ...options, locale: currentLocale })
+      return formatPercent(value, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   const formatCompactFn = useCallback(
-    (value: number, options?: { compactDisplay?: 'short' | 'long' }) => {
-      return formatCompact(value, { ...options, locale: currentLocale })
+    (value: number, options?: { compactDisplay?: "short" | "long" }) => {
+      return formatCompact(value, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   const formatBytesFn = useCallback(
     (bytes: number, options?: { decimals?: number; binary?: boolean }) => {
-      return formatBytes(bytes, { ...options, locale: currentLocale })
+      return formatBytes(bytes, { ...options, locale: currentLocale });
     },
-    [currentLocale]
-  )
+    [currentLocale],
+  );
 
   return useMemo(
     () => ({
@@ -219,8 +241,8 @@ export function useLocale(): UseLocaleReturn {
       formatPercentFn,
       formatCompactFn,
       formatBytesFn,
-    ]
-  )
+    ],
+  );
 }
 
 /**
@@ -229,8 +251,8 @@ export function useLocale(): UseLocaleReturn {
  * @returns Whether the current locale is RTL
  */
 export function useIsRTL(): boolean {
-  const currentLocale = useLocaleStore((state) => state.currentLocale)
-  return isRTL(currentLocale)
+  const currentLocale = useLocaleStore((state) => state.currentLocale);
+  return isRTL(currentLocale);
 }
 
 /**
@@ -238,9 +260,9 @@ export function useIsRTL(): boolean {
  *
  * @returns Text direction ('ltr' or 'rtl')
  */
-export function useDirection(): 'ltr' | 'rtl' {
-  const currentLocale = useLocaleStore((state) => state.currentLocale)
-  return getDirection(currentLocale)
+export function useDirection(): "ltr" | "rtl" {
+  const currentLocale = useLocaleStore((state) => state.currentLocale);
+  return getDirection(currentLocale);
 }
 
 /**
@@ -249,8 +271,8 @@ export function useDirection(): 'ltr' | 'rtl' {
  * @returns Current locale configuration
  */
 export function useLocaleConfig(): LocaleConfig | undefined {
-  const currentLocale = useLocaleStore((state) => state.currentLocale)
-  return SUPPORTED_LOCALES[currentLocale]
+  const currentLocale = useLocaleStore((state) => state.currentLocale);
+  return SUPPORTED_LOCALES[currentLocale];
 }
 
-export default useLocale
+export default useLocale;

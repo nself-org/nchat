@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Monitor,
   Smartphone,
@@ -11,10 +11,16 @@ import {
   RefreshCw,
   Clock,
   MapPin,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,17 +30,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { cn } from '@/lib/utils'
-import type { UserDevice, DeviceType } from '@/lib/admin/users/user-types'
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
+import type { UserDevice, DeviceType } from "@/lib/admin/users/user-types";
 
 interface UserDevicesProps {
-  devices: UserDevice[]
-  userId: string
-  isLoading?: boolean
-  onRemoveDevice?: (deviceId: string) => Promise<void>
-  onTrustDevice?: (deviceId: string, trusted: boolean) => Promise<void>
-  onRefresh?: () => void
+  devices: UserDevice[];
+  userId: string;
+  isLoading?: boolean;
+  onRemoveDevice?: (deviceId: string) => Promise<void>;
+  onTrustDevice?: (deviceId: string, trusted: boolean) => Promise<void>;
+  onRefresh?: () => void;
 }
 
 const deviceIcons: Record<DeviceType, React.ReactNode> = {
@@ -42,7 +48,7 @@ const deviceIcons: Record<DeviceType, React.ReactNode> = {
   mobile: <Smartphone className="h-5 w-5" />,
   tablet: <Tablet className="h-5 w-5" />,
   unknown: <Monitor className="h-5 w-5" />,
-}
+};
 
 export function UserDevices({
   devices,
@@ -52,46 +58,46 @@ export function UserDevices({
   onTrustDevice,
   onRefresh,
 }: UserDevicesProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedDevice, setSelectedDevice] = useState<UserDevice | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState<UserDevice | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleRemoveDevice = async () => {
-    if (!selectedDevice || !onRemoveDevice) return
+    if (!selectedDevice || !onRemoveDevice) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
     try {
-      await onRemoveDevice(selectedDevice.id)
+      await onRemoveDevice(selectedDevice.id);
     } finally {
-      setIsProcessing(false)
-      setDeleteDialogOpen(false)
-      setSelectedDevice(null)
+      setIsProcessing(false);
+      setDeleteDialogOpen(false);
+      setSelectedDevice(null);
     }
-  }
+  };
 
   const handleToggleTrust = async (device: UserDevice) => {
-    if (!onTrustDevice) return
+    if (!onTrustDevice) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
     try {
-      await onTrustDevice(device.id, !device.isTrusted)
+      await onTrustDevice(device.id, !device.isTrusted);
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const days = Math.floor(diff / 86400000)
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / 86400000);
 
-    if (days < 1) return 'Today'
-    if (days === 1) return 'Yesterday'
-    if (days < 7) return `${days} days ago`
+    if (days < 1) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
 
-    return date.toLocaleDateString()
-  }
+    return date.toLocaleDateString();
+  };
 
   return (
     <>
@@ -100,7 +106,9 @@ export function UserDevices({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Known Devices</CardTitle>
-              <CardDescription>Devices this user has logged in from</CardDescription>
+              <CardDescription>
+                Devices this user has logged in from
+              </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={onRefresh}>
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -112,7 +120,10 @@ export function UserDevices({
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-4 rounded-lg border p-4">
+                <div
+                  key={i}
+                  className="flex items-center gap-4 rounded-lg border p-4"
+                >
                   <div className="h-12 w-12 animate-pulse rounded-lg bg-muted" />
                   <div className="flex-1 space-y-2">
                     <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
@@ -132,16 +143,18 @@ export function UserDevices({
                 <div
                   key={device.id}
                   className={cn(
-                    'flex items-center justify-between rounded-lg border p-4',
+                    "flex items-center justify-between rounded-lg border p-4",
                     device.isTrusted &&
-                      'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50'
+                      "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50",
                   )}
                 >
                   <div className="flex items-center gap-4">
                     <div
                       className={cn(
-                        'flex h-12 w-12 items-center justify-center rounded-lg',
-                        device.isTrusted ? 'bg-green-100 dark:bg-green-900' : 'bg-muted'
+                        "flex h-12 w-12 items-center justify-center rounded-lg",
+                        device.isTrusted
+                          ? "bg-green-100 dark:bg-green-900"
+                          : "bg-muted",
                       )}
                     >
                       {deviceIcons[device.deviceType]}
@@ -160,7 +173,9 @@ export function UserDevices({
                             Trusted
                           </Badge>
                         )}
-                        {device.isVerified && <Badge variant="secondary">Verified</Badge>}
+                        {device.isVerified && (
+                          <Badge variant="secondary">Verified</Badge>
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {device.browser && device.os && (
@@ -174,7 +189,8 @@ export function UserDevices({
                           <span className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             {device.lastLocation.city}
-                            {device.lastLocation.country && `, ${device.lastLocation.country}`}
+                            {device.lastLocation.country &&
+                              `, ${device.lastLocation.country}`}
                           </span>
                         )}
                         <span className="flex items-center gap-1">
@@ -212,8 +228,8 @@ export function UserDevices({
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setSelectedDevice(device)
-                        setDeleteDialogOpen(true)
+                        setSelectedDevice(device);
+                        setDeleteDialogOpen(true);
                       }}
                       className="text-destructive hover:text-destructive"
                     >
@@ -233,16 +249,19 @@ export function UserDevices({
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Device</AlertDialogTitle>
             <AlertDialogDescription>
-              Remove <strong>{selectedDevice?.deviceName}</strong> from the user's known devices. If
-              they log in from this device again, it will be added back to the list.
+              Remove <strong>{selectedDevice?.deviceName}</strong> from the
+              user's known devices. If they log in from this device again, it
+              will be added back to the list.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isProcessing}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
-                e.preventDefault()
-                handleRemoveDevice()
+                e.preventDefault();
+                handleRemoveDevice();
               }}
               disabled={isProcessing}
               className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
@@ -253,7 +272,7 @@ export function UserDevices({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
-export default UserDevices
+export default UserDevices;

@@ -8,32 +8,32 @@
  * @version 1.0.0
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback, useRef } from 'react'
-import { useAuth } from '@/contexts/auth-context'
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import {
   realtimeClient,
   RealtimeConnectionState,
   RealtimeClientConfig,
   RealtimeError,
-} from '@/services/realtime/realtime-client'
+} from "@/services/realtime/realtime-client";
 import {
   initializePresenceService,
   resetPresenceService,
   getPresenceService,
-} from '@/services/realtime/presence.service'
+} from "@/services/realtime/presence.service";
 import {
   initializeTypingService,
   resetTypingService,
   getTypingService,
-} from '@/services/realtime/typing.service'
-import { logger } from '@/lib/logger'
+} from "@/services/realtime/typing.service";
+import { logger } from "@/lib/logger";
 import {
   initializeRoomsService,
   resetRoomsService,
   getRoomsService,
-} from '@/services/realtime/rooms.service'
+} from "@/services/realtime/rooms.service";
 
 // ============================================================================
 // Types
@@ -44,15 +44,15 @@ import {
  */
 export interface UseRealtimeOptions {
   /** Auto-connect on mount */
-  autoConnect?: boolean
+  autoConnect?: boolean;
   /** Enable presence tracking */
-  enablePresence?: boolean
+  enablePresence?: boolean;
   /** Enable typing indicators */
-  enableTyping?: boolean
+  enableTyping?: boolean;
   /** Enable debug logging */
-  debug?: boolean
+  debug?: boolean;
   /** Client configuration overrides */
-  config?: Partial<RealtimeClientConfig>
+  config?: Partial<RealtimeClientConfig>;
 }
 
 /**
@@ -60,29 +60,29 @@ export interface UseRealtimeOptions {
  */
 export interface UseRealtimeReturn {
   /** Whether connected to the realtime server */
-  isConnected: boolean
+  isConnected: boolean;
   /** Whether authenticated with the server */
-  isAuthenticated: boolean
+  isAuthenticated: boolean;
   /** Current connection state */
-  connectionState: RealtimeConnectionState
+  connectionState: RealtimeConnectionState;
   /** Connection error if any */
-  error: RealtimeError | null
+  error: RealtimeError | null;
   /** Number of reconnection attempts */
-  reconnectAttempts: number
+  reconnectAttempts: number;
   /** Socket ID */
-  socketId: string | undefined
+  socketId: string | undefined;
   /** Connect to the realtime server */
-  connect: () => Promise<void>
+  connect: () => Promise<void>;
   /** Disconnect from the realtime server */
-  disconnect: () => void
+  disconnect: () => void;
   /** Reconnect to the server */
-  reconnect: () => Promise<void>
+  reconnect: () => Promise<void>;
   /** Subscribe to an event */
-  on: <T = unknown>(event: string, callback: (data: T) => void) => () => void
+  on: <T = unknown>(event: string, callback: (data: T) => void) => () => void;
   /** Emit an event */
-  emit: <T = unknown>(event: string, data?: T) => void
+  emit: <T = unknown>(event: string, data?: T) => void;
   /** Emit an event and wait for response */
-  emitAsync: <T = unknown, R = unknown>(event: string, data?: T) => Promise<R>
+  emitAsync: <T = unknown, R = unknown>(event: string, data?: T) => Promise<R>;
 }
 
 // ============================================================================
@@ -122,25 +122,28 @@ export interface UseRealtimeReturn {
  * }
  * ```
  */
-export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn {
+export function useRealtime(
+  options: UseRealtimeOptions = {},
+): UseRealtimeReturn {
   const {
     autoConnect = true,
     enablePresence = true,
     enableTyping = true,
     debug = false,
     config,
-  } = options
+  } = options;
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   // State
-  const [connectionState, setConnectionState] = useState<RealtimeConnectionState>('disconnected')
-  const [error, setError] = useState<RealtimeError | null>(null)
-  const [reconnectAttempts, setReconnectAttempts] = useState(0)
+  const [connectionState, setConnectionState] =
+    useState<RealtimeConnectionState>("disconnected");
+  const [error, setError] = useState<RealtimeError | null>(null);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
   // Refs
-  const isInitializedRef = useRef(false)
-  const unsubscribersRef = useRef<Array<() => void>>([])
+  const isInitializedRef = useRef(false);
+  const unsubscribersRef = useRef<Array<() => void>>([]);
 
   // ============================================================================
   // Connection Management
@@ -151,67 +154,67 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
    */
   const connect = useCallback(async (): Promise<void> => {
     if (!user) {
-      throw new Error('User must be authenticated to connect')
+      throw new Error("User must be authenticated to connect");
     }
 
     try {
-      setError(null)
+      setError(null);
 
       // Initialize client
       realtimeClient.initialize({
         debug,
         ...config,
-      })
+      });
 
       // Connect with token (in dev mode, use a mock token)
       // In production, this would be a JWT from the auth service
-      const token = `user:${user.id}`
-      await realtimeClient.connect(token)
+      const token = `user:${user.id}`;
+      await realtimeClient.connect(token);
 
       // Initialize services
       if (enablePresence) {
-        initializePresenceService({ debug })
+        initializePresenceService({ debug });
       }
 
       if (enableTyping) {
-        initializeTypingService({ debug })
+        initializeTypingService({ debug });
       }
 
-      initializeRoomsService({ debug })
+      initializeRoomsService({ debug });
 
-      isInitializedRef.current = true
+      isInitializedRef.current = true;
     } catch (err) {
       const error: RealtimeError = {
-        code: 'CONNECTION_FAILED',
-        message: err instanceof Error ? err.message : 'Failed to connect',
-      }
-      setError(error)
-      throw err
+        code: "CONNECTION_FAILED",
+        message: err instanceof Error ? err.message : "Failed to connect",
+      };
+      setError(error);
+      throw err;
     }
-  }, [user, debug, config, enablePresence, enableTyping])
+  }, [user, debug, config, enablePresence, enableTyping]);
 
   /**
    * Disconnect from the realtime server
    */
   const disconnect = useCallback((): void => {
     // Reset services
-    resetPresenceService()
-    resetTypingService()
-    resetRoomsService()
+    resetPresenceService();
+    resetTypingService();
+    resetRoomsService();
 
     // Disconnect client
-    realtimeClient.disconnect()
+    realtimeClient.disconnect();
 
-    isInitializedRef.current = false
-  }, [])
+    isInitializedRef.current = false;
+  }, []);
 
   /**
    * Reconnect to the server
    */
   const reconnect = useCallback(async (): Promise<void> => {
-    disconnect()
-    await connect()
-  }, [connect, disconnect])
+    disconnect();
+    await connect();
+  }, [connect, disconnect]);
 
   // ============================================================================
   // Event Handling
@@ -222,24 +225,27 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
    */
   const on = useCallback(
     <T = unknown>(event: string, callback: (data: T) => void): (() => void) => {
-      return realtimeClient.on<T>(event, callback)
+      return realtimeClient.on<T>(event, callback);
     },
-    []
-  )
+    [],
+  );
 
   /**
    * Emit an event
    */
   const emit = useCallback(<T = unknown>(event: string, data?: T): void => {
-    realtimeClient.emit(event, data)
-  }, [])
+    realtimeClient.emit(event, data);
+  }, []);
 
   /**
    * Emit an event and wait for response
    */
-  const emitAsync = useCallback(<T = unknown, R = unknown>(event: string, data?: T): Promise<R> => {
-    return realtimeClient.emitAsync<T, R>(event, data)
-  }, [])
+  const emitAsync = useCallback(
+    <T = unknown, R = unknown>(event: string, data?: T): Promise<R> => {
+      return realtimeClient.emitAsync<T, R>(event, data);
+    },
+    [],
+  );
 
   // ============================================================================
   // Effects
@@ -250,39 +256,43 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
    */
   useEffect(() => {
     const unsub = realtimeClient.onConnectionStateChange((state) => {
-      setConnectionState(state)
-    })
+      setConnectionState(state);
+    });
 
-    unsubscribersRef.current.push(unsub)
+    unsubscribersRef.current.push(unsub);
 
     return () => {
-      unsub()
-      unsubscribersRef.current = unsubscribersRef.current.filter((u) => u !== unsub)
-    }
-  }, [])
+      unsub();
+      unsubscribersRef.current = unsubscribersRef.current.filter(
+        (u) => u !== unsub,
+      );
+    };
+  }, []);
 
   /**
    * Subscribe to errors
    */
   useEffect(() => {
     const unsub = realtimeClient.onError((err) => {
-      setError(err)
-    })
+      setError(err);
+    });
 
-    unsubscribersRef.current.push(unsub)
+    unsubscribersRef.current.push(unsub);
 
     return () => {
-      unsub()
-      unsubscribersRef.current = unsubscribersRef.current.filter((u) => u !== unsub)
-    }
-  }, [])
+      unsub();
+      unsubscribersRef.current = unsubscribersRef.current.filter(
+        (u) => u !== unsub,
+      );
+    };
+  }, []);
 
   /**
    * Track reconnection attempts
    */
   useEffect(() => {
-    setReconnectAttempts(realtimeClient.reconnectAttemptCount)
-  }, [connectionState])
+    setReconnectAttempts(realtimeClient.reconnectAttemptCount);
+  }, [connectionState]);
 
   /**
    * Auto-connect when user is available
@@ -291,18 +301,18 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
     if (autoConnect && user && !isInitializedRef.current) {
       connect().catch((err) => {
         if (debug) {
-          logger.error('[useRealtime] Auto-connect failed:', err)
+          logger.error("[useRealtime] Auto-connect failed:", err);
         }
-      })
+      });
     }
 
     return () => {
       // Disconnect on unmount
       if (isInitializedRef.current) {
-        disconnect()
+        disconnect();
       }
-    }
-  }, [autoConnect, user, connect, disconnect, debug])
+    };
+  }, [autoConnect, user, connect, disconnect, debug]);
 
   // ============================================================================
   // Return
@@ -321,7 +331,7 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
     on,
     emit,
     emitAsync,
-  }
+  };
 }
 
-export default useRealtime
+export default useRealtime;

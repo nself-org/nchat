@@ -1,32 +1,48 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { HelpCircle, MessageSquare, Clock, CheckCircle, FileText } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import * as React from "react";
+import {
+  HelpCircle,
+  MessageSquare,
+  Clock,
+  CheckCircle,
+  FileText,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SupportChannelProps {
-  isSelected?: boolean
-  onClick?: () => void
-  className?: string
+  isSelected?: boolean;
+  onClick?: () => void;
+  className?: string;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function SupportChannel({ isSelected = false, onClick, className }: SupportChannelProps) {
+export function SupportChannel({
+  isSelected = false,
+  onClick,
+  className,
+}: SupportChannelProps) {
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all hover:shadow-md',
-        isSelected && 'border-primary ring-1 ring-primary',
-        className
+        "cursor-pointer transition-all hover:shadow-md",
+        isSelected && "border-primary ring-1 ring-primary",
+        className,
       )}
       onClick={onClick}
     >
@@ -39,8 +55,8 @@ export function SupportChannel({ isSelected = false, onClick, className }: Suppo
         </div>
         <CardTitle className="text-lg">Support / Help</CardTitle>
         <CardDescription>
-          A channel for questions, support requests, and getting help. Includes thread-based Q&A and
-          slow mode.
+          A channel for questions, support requests, and getting help. Includes
+          thread-based Q&A and slow mode.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -75,13 +91,14 @@ export function SupportChannel({ isSelected = false, onClick, className }: Suppo
         </div>
         <div className="text-xs text-muted-foreground">
           <p>
-            <strong>Best for:</strong> IT help desk, customer support, FAQ channels, onboarding
-            questions, or any scenario where people need assistance.
+            <strong>Best for:</strong> IT help desk, customer support, FAQ
+            channels, onboarding questions, or any scenario where people need
+            assistance.
           </p>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-SupportChannel.displayName = 'SupportChannel'
+SupportChannel.displayName = "SupportChannel";

@@ -1,53 +1,61 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { Search, Bot, Sparkles, Filter, X, ChevronRight, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { useState, useCallback } from "react";
+import {
+  Search,
+  Bot,
+  Sparkles,
+  Filter,
+  X,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet'
-import { BotCard, BotCardSkeleton } from './bot-card'
-import { cn } from '@/lib/utils'
-import type { Bot as BotType } from '@/graphql/bots'
-import type { BotCategory } from '@/lib/bots/bot-store'
+} from "@/components/ui/sheet";
+import { BotCard, BotCardSkeleton } from "./bot-card";
+import { cn } from "@/lib/utils";
+import type { Bot as BotType } from "@/graphql/bots";
+import type { BotCategory } from "@/lib/bots/bot-store";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface BotMarketplaceProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  bots: BotType[]
-  featuredBots?: BotType[]
-  categories?: BotCategory[]
-  loading?: boolean
-  totalCount?: number
-  selectedCategory?: string
-  searchQuery?: string
-  onSearch: (query: string) => void
-  onFilterCategory: (category: string | undefined) => void
-  onLoadMore?: () => void
-  onInstall: (bot: BotType) => void
-  onViewDetails: (bot: BotType) => void
-  installedBotIds?: string[]
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  bots: BotType[];
+  featuredBots?: BotType[];
+  categories?: BotCategory[];
+  loading?: boolean;
+  totalCount?: number;
+  selectedCategory?: string;
+  searchQuery?: string;
+  onSearch: (query: string) => void;
+  onFilterCategory: (category: string | undefined) => void;
+  onLoadMore?: () => void;
+  onInstall: (bot: BotType) => void;
+  onViewDetails: (bot: BotType) => void;
+  installedBotIds?: string[];
 }
 
-type SortOption = 'popular' | 'rating' | 'newest' | 'name'
+type SortOption = "popular" | "rating" | "newest" | "name";
 
 // ============================================================================
 // COMPONENT
@@ -62,7 +70,7 @@ export function BotMarketplace({
   loading = false,
   totalCount = 0,
   selectedCategory,
-  searchQuery = '',
+  searchQuery = "",
   onSearch,
   onFilterCategory,
   onLoadMore,
@@ -70,49 +78,51 @@ export function BotMarketplace({
   onViewDetails,
   installedBotIds = [],
 }: BotMarketplaceProps) {
-  const [localSearch, setLocalSearch] = useState(searchQuery)
-  const [sortBy, setSortBy] = useState<SortOption>('popular')
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [sortBy, setSortBy] = useState<SortOption>("popular");
 
   const handleSearchSubmit = useCallback(
     (e: React.FormEvent) => {
-      e.preventDefault()
-      onSearch(localSearch)
+      e.preventDefault();
+      onSearch(localSearch);
     },
-    [localSearch, onSearch]
-  )
+    [localSearch, onSearch],
+  );
 
   const handleClearSearch = useCallback(() => {
-    setLocalSearch('')
-    onSearch('')
-  }, [onSearch])
+    setLocalSearch("");
+    onSearch("");
+  }, [onSearch]);
 
   const handleCategoryClick = useCallback(
     (categorySlug: string) => {
       if (selectedCategory === categorySlug) {
-        onFilterCategory(undefined)
+        onFilterCategory(undefined);
       } else {
-        onFilterCategory(categorySlug)
+        onFilterCategory(categorySlug);
       }
     },
-    [selectedCategory, onFilterCategory]
-  )
+    [selectedCategory, onFilterCategory],
+  );
 
   const sortedBots = [...bots].sort((a, b) => {
     switch (sortBy) {
-      case 'popular':
-        return (b.installCount || 0) - (a.installCount || 0)
-      case 'rating':
-        return (b.rating || 0) - (a.rating || 0)
-      case 'newest':
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      case 'name':
-        return a.name.localeCompare(b.name)
+      case "popular":
+        return (b.installCount || 0) - (a.installCount || 0);
+      case "rating":
+        return (b.rating || 0) - (a.rating || 0);
+      case "newest":
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      case "name":
+        return a.name.localeCompare(b.name);
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
-  const hasMore = bots.length < totalCount
+  const hasMore = bots.length < totalCount;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -124,7 +134,9 @@ export function BotMarketplace({
               <Bot className="h-5 w-5" />
               Bot Marketplace
             </SheetTitle>
-            <SheetDescription>Discover and install bots to enhance your workspace</SheetDescription>
+            <SheetDescription>
+              Discover and install bots to enhance your workspace
+            </SheetDescription>
           </SheetHeader>
 
           {/* Search and Filters */}
@@ -149,7 +161,10 @@ export function BotMarketplace({
             </form>
 
             <div className="flex items-center gap-2">
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+              <Select
+                value={sortBy}
+                onValueChange={(v) => setSortBy(v as SortOption)}
+              >
                 <SelectTrigger className="w-[140px]">
                   <Filter className="mr-2 h-4 w-4" />
                   <SelectValue />
@@ -168,7 +183,8 @@ export function BotMarketplace({
                   className="hover:bg-secondary/80 cursor-pointer"
                   onClick={() => onFilterCategory(undefined)}
                 >
-                  {categories.find((c) => c.slug === selectedCategory)?.name || selectedCategory}
+                  {categories.find((c) => c.slug === selectedCategory)?.name ||
+                    selectedCategory}
                   <X className="ml-1 h-3 w-3" />
                 </Badge>
               )}
@@ -210,15 +226,17 @@ export function BotMarketplace({
                         key={category.id}
                         onClick={() => handleCategoryClick(category.slug)}
                         className={cn(
-                          'flex items-center justify-between rounded-lg border p-3 text-left transition-colors',
+                          "flex items-center justify-between rounded-lg border p-3 text-left transition-colors",
                           selectedCategory === category.slug
-                            ? 'bg-primary/10 border-primary'
-                            : 'hover:bg-muted'
+                            ? "bg-primary/10 border-primary"
+                            : "hover:bg-muted",
                         )}
                       >
                         <div>
                           <p className="font-medium">{category.name}</p>
-                          <p className="text-sm text-muted-foreground">{category.botsCount} bots</p>
+                          <p className="text-sm text-muted-foreground">
+                            {category.botsCount} bots
+                          </p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </button>
@@ -234,10 +252,13 @@ export function BotMarketplace({
                     {searchQuery
                       ? `Search results for "${searchQuery}"`
                       : selectedCategory
-                        ? categories.find((c) => c.slug === selectedCategory)?.name || 'Bots'
-                        : 'All Bots'}
+                        ? categories.find((c) => c.slug === selectedCategory)
+                            ?.name || "Bots"
+                        : "All Bots"}
                   </h3>
-                  <span className="text-sm text-muted-foreground">{totalCount} bots</span>
+                  <span className="text-sm text-muted-foreground">
+                    {totalCount} bots
+                  </span>
                 </div>
 
                 {loading && bots.length === 0 ? (
@@ -274,7 +295,11 @@ export function BotMarketplace({
                     )}
 
                     {hasMore && onLoadMore && !loading && (
-                      <Button variant="outline" className="w-full" onClick={onLoadMore}>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={onLoadMore}
+                      >
                         Load More
                       </Button>
                     )}
@@ -286,7 +311,7 @@ export function BotMarketplace({
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }
 
 // ============================================================================
@@ -300,7 +325,7 @@ export function BotMarketplaceInline({
   loading = false,
   totalCount = 0,
   selectedCategory,
-  searchQuery = '',
+  searchQuery = "",
   onSearch,
   onFilterCategory,
   onLoadMore,
@@ -308,39 +333,41 @@ export function BotMarketplaceInline({
   onViewDetails,
   installedBotIds = [],
   className,
-}: Omit<BotMarketplaceProps, 'open' | 'onOpenChange'> & {
-  className?: string
+}: Omit<BotMarketplaceProps, "open" | "onOpenChange"> & {
+  className?: string;
 }) {
-  const [localSearch, setLocalSearch] = useState(searchQuery)
-  const [sortBy, setSortBy] = useState<SortOption>('popular')
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [sortBy, setSortBy] = useState<SortOption>("popular");
 
   const handleSearchSubmit = useCallback(
     (e: React.FormEvent) => {
-      e.preventDefault()
-      onSearch(localSearch)
+      e.preventDefault();
+      onSearch(localSearch);
     },
-    [localSearch, onSearch]
-  )
+    [localSearch, onSearch],
+  );
 
   const sortedBots = [...bots].sort((a, b) => {
     switch (sortBy) {
-      case 'popular':
-        return (b.installCount || 0) - (a.installCount || 0)
-      case 'rating':
-        return (b.rating || 0) - (a.rating || 0)
-      case 'newest':
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      case 'name':
-        return a.name.localeCompare(b.name)
+      case "popular":
+        return (b.installCount || 0) - (a.installCount || 0);
+      case "rating":
+        return (b.rating || 0) - (a.rating || 0);
+      case "newest":
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      case "name":
+        return a.name.localeCompare(b.name);
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
-  const hasMore = bots.length < totalCount
+  const hasMore = bots.length < totalCount;
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Search and Filters */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <form onSubmit={handleSearchSubmit} className="relative flex-1">
@@ -353,7 +380,10 @@ export function BotMarketplaceInline({
           />
         </form>
 
-        <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+        <Select
+          value={sortBy}
+          onValueChange={(v) => setSortBy(v as SortOption)}
+        >
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -370,7 +400,7 @@ export function BotMarketplaceInline({
       {categories.length > 0 && (
         <div className="flex flex-wrap gap-2">
           <Button
-            variant={!selectedCategory ? 'default' : 'outline'}
+            variant={!selectedCategory ? "default" : "outline"}
             size="sm"
             onClick={() => onFilterCategory(undefined)}
           >
@@ -379,10 +409,16 @@ export function BotMarketplaceInline({
           {categories.map((category) => (
             <Button
               key={category.id}
-              variant={selectedCategory === category.slug ? 'default' : 'outline'}
+              variant={
+                selectedCategory === category.slug ? "default" : "outline"
+              }
               size="sm"
               onClick={() =>
-                onFilterCategory(selectedCategory === category.slug ? undefined : category.slug)
+                onFilterCategory(
+                  selectedCategory === category.slug
+                    ? undefined
+                    : category.slug,
+                )
               }
             >
               {category.name}
@@ -420,7 +456,7 @@ export function BotMarketplaceInline({
               ? `Search results`
               : selectedCategory
                 ? categories.find((c) => c.slug === selectedCategory)?.name
-                : 'All Bots'}
+                : "All Bots"}
           </h3>
           <span className="text-sm text-muted-foreground">
             {sortedBots.length} of {totalCount} bots
@@ -437,7 +473,9 @@ export function BotMarketplaceInline({
           <div className="rounded-lg border border-dashed py-12 text-center">
             <Bot className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
             <p className="font-medium">No bots found</p>
-            <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+            <p className="text-sm text-muted-foreground">
+              Try adjusting your search or filters
+            </p>
           </div>
         ) : (
           <>
@@ -455,7 +493,11 @@ export function BotMarketplaceInline({
 
             {hasMore && onLoadMore && (
               <div className="mt-6 flex justify-center">
-                <Button variant="outline" onClick={onLoadMore} disabled={loading}>
+                <Button
+                  variant="outline"
+                  onClick={onLoadMore}
+                  disabled={loading}
+                >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Load More
                 </Button>
@@ -465,5 +507,5 @@ export function BotMarketplaceInline({
         )}
       </section>
     </div>
-  )
+  );
 }

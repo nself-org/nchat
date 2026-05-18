@@ -15,9 +15,9 @@
  * - Keyboard shortcuts support
  */
 
-'use client'
+"use client";
 
-import React, { useEffect, useCallback } from 'react'
+import React, { useEffect, useCallback } from "react";
 import {
   Mic,
   MicOff,
@@ -37,18 +37,23 @@ import {
   Hand,
   Maximize,
   Minimize,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 // =============================================================================
 // Types
@@ -56,37 +61,37 @@ import { cn } from '@/lib/utils'
 
 export interface CallControlsProps {
   /** Mute state */
-  isMuted: boolean
+  isMuted: boolean;
   /** Video state */
-  isVideoEnabled: boolean
+  isVideoEnabled: boolean;
   /** Screen sharing state */
-  isScreenSharing: boolean
+  isScreenSharing: boolean;
   /** Call type */
-  callType: 'voice' | 'video'
+  callType: "voice" | "video";
   /** Number of participants */
-  participantCount: number
+  participantCount: number;
   /** Recording state (optional) */
-  isRecording?: boolean
+  isRecording?: boolean;
   /** Show participant list */
-  showParticipants?: boolean
+  showParticipants?: boolean;
   /** Show chat */
-  showChat?: boolean
+  showChat?: boolean;
   /** Fullscreen state */
-  isFullscreen?: boolean
+  isFullscreen?: boolean;
   /** Callbacks */
-  onToggleMute: () => void
-  onToggleVideo: () => void
-  onToggleScreenShare: () => void
-  onEndCall: () => void
-  onToggleRecording?: () => void
-  onToggleParticipants?: () => void
-  onToggleChat?: () => void
-  onOpenSettings?: () => void
-  onSwitchCamera?: () => void
-  onToggleFullscreen?: () => void
-  onRaiseHand?: () => void
+  onToggleMute: () => void;
+  onToggleVideo: () => void;
+  onToggleScreenShare: () => void;
+  onEndCall: () => void;
+  onToggleRecording?: () => void;
+  onToggleParticipants?: () => void;
+  onToggleChat?: () => void;
+  onOpenSettings?: () => void;
+  onSwitchCamera?: () => void;
+  onToggleFullscreen?: () => void;
+  onRaiseHand?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // =============================================================================
@@ -121,41 +126,41 @@ export function CallControls({
     (e: KeyboardEvent) => {
       // Only handle if no input is focused
       if (
-        document.activeElement?.tagName === 'INPUT' ||
-        document.activeElement?.tagName === 'TEXTAREA'
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
       ) {
-        return
+        return;
       }
 
       switch (e.key.toLowerCase()) {
-        case 'm':
-          onToggleMute()
-          break
-        case 'v':
-          if (callType === 'video') {
-            onToggleVideo()
+        case "m":
+          onToggleMute();
+          break;
+        case "v":
+          if (callType === "video") {
+            onToggleVideo();
           }
-          break
-        case 's':
+          break;
+        case "s":
           if (e.shiftKey) {
-            onToggleScreenShare()
+            onToggleScreenShare();
           }
-          break
-        case 'escape':
+          break;
+        case "escape":
           if (isFullscreen && onToggleFullscreen) {
-            onToggleFullscreen()
+            onToggleFullscreen();
           }
-          break
-        case 'c':
+          break;
+        case "c":
           if (onToggleChat) {
-            onToggleChat()
+            onToggleChat();
           }
-          break
-        case 'p':
+          break;
+        case "p":
           if (onToggleParticipants) {
-            onToggleParticipants()
+            onToggleParticipants();
           }
-          break
+          break;
       }
     },
     [
@@ -167,20 +172,20 @@ export function CallControls({
       onToggleFullscreen,
       callType,
       isFullscreen,
-    ]
-  )
+    ],
+  );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [handleKeyPress])
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [handleKeyPress]);
 
   return (
     <TooltipProvider>
       <div
         className={cn(
-          'absolute bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6',
-          className
+          "absolute bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6",
+          className,
         )}
       >
         <div className="mx-auto flex max-w-4xl items-center justify-between">
@@ -190,12 +195,13 @@ export function CallControls({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={showParticipants ? 'default' : 'secondary'}
+                    variant={showParticipants ? "default" : "secondary"}
                     size="icon"
                     onClick={onToggleParticipants}
                     className={cn(
-                      'relative h-11 w-11 rounded-full',
-                      showParticipants && 'bg-white text-black hover:bg-white/90'
+                      "relative h-11 w-11 rounded-full",
+                      showParticipants &&
+                        "bg-white text-black hover:bg-white/90",
                     )}
                   >
                     <Users className="h-5 w-5" />
@@ -219,12 +225,12 @@ export function CallControls({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={showChat ? 'default' : 'secondary'}
+                    variant={showChat ? "default" : "secondary"}
                     size="icon"
                     onClick={onToggleChat}
                     className={cn(
-                      'h-11 w-11 rounded-full',
-                      showChat && 'bg-white text-black hover:bg-white/90'
+                      "h-11 w-11 rounded-full",
+                      showChat && "bg-white text-black hover:bg-white/90",
                     )}
                   >
                     <MessageSquare className="h-5 w-5" />
@@ -243,25 +249,29 @@ export function CallControls({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={isMuted ? 'destructive' : 'secondary'}
+                  variant={isMuted ? "destructive" : "secondary"}
                   size="icon"
                   onClick={onToggleMute}
                   className="h-12 w-12 rounded-full"
                 >
-                  {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                  {isMuted ? (
+                    <MicOff className="h-5 w-5" />
+                  ) : (
+                    <Mic className="h-5 w-5" />
+                  )}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isMuted ? 'Unmute' : 'Mute'} (M)</p>
+                <p>{isMuted ? "Unmute" : "Mute"} (M)</p>
               </TooltipContent>
             </Tooltip>
 
             {/* Video (only for video calls) */}
-            {callType === 'video' && (
+            {callType === "video" && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={!isVideoEnabled ? 'destructive' : 'secondary'}
+                    variant={!isVideoEnabled ? "destructive" : "secondary"}
                     size="icon"
                     onClick={onToggleVideo}
                     className="h-12 w-12 rounded-full"
@@ -274,7 +284,7 @@ export function CallControls({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{isVideoEnabled ? 'Stop' : 'Start'} Video (V)</p>
+                  <p>{isVideoEnabled ? "Stop" : "Start"} Video (V)</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -283,12 +293,12 @@ export function CallControls({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={isScreenSharing ? 'default' : 'secondary'}
+                  variant={isScreenSharing ? "default" : "secondary"}
                   size="icon"
                   onClick={onToggleScreenShare}
                   className={cn(
-                    'h-12 w-12 rounded-full',
-                    isScreenSharing && 'bg-blue-600 hover:bg-blue-700'
+                    "h-12 w-12 rounded-full",
+                    isScreenSharing && "bg-blue-600 hover:bg-blue-700",
                   )}
                 >
                   {isScreenSharing ? (
@@ -299,7 +309,7 @@ export function CallControls({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isScreenSharing ? 'Stop' : 'Share'} Screen (Shift+S)</p>
+                <p>{isScreenSharing ? "Stop" : "Share"} Screen (Shift+S)</p>
               </TooltipContent>
             </Tooltip>
 
@@ -326,12 +336,16 @@ export function CallControls({
             {/* More options menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="h-11 w-11 rounded-full">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-11 w-11 rounded-full"
+                >
                   <MoreVertical className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                {onSwitchCamera && callType === 'video' && (
+                {onSwitchCamera && callType === "video" && (
                   <>
                     <DropdownMenuItem onClick={onSwitchCamera}>
                       <Camera className="mr-2 h-4 w-4" />
@@ -345,11 +359,13 @@ export function CallControls({
                   <DropdownMenuItem onClick={onToggleRecording}>
                     <div
                       className={cn(
-                        'mr-2 h-2 w-2 rounded-full',
-                        isRecording ? 'animate-pulse bg-red-600' : 'bg-gray-400'
+                        "mr-2 h-2 w-2 rounded-full",
+                        isRecording
+                          ? "animate-pulse bg-red-600"
+                          : "bg-gray-400",
                       )}
                     />
-                    {isRecording ? 'Stop Recording' : 'Start Recording'}
+                    {isRecording ? "Stop Recording" : "Start Recording"}
                   </DropdownMenuItem>
                 )}
 
@@ -392,9 +408,10 @@ export function CallControls({
 
         {/* Keyboard shortcuts hint */}
         <div className="mt-2 text-center text-xs text-gray-400">
-          Press M to {isMuted ? 'unmute' : 'mute'} • V to toggle video • Shift+S to share screen
+          Press M to {isMuted ? "unmute" : "mute"} • V to toggle video • Shift+S
+          to share screen
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }

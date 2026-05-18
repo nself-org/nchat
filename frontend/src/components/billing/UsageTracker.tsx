@@ -3,55 +3,65 @@
  * Display current usage and limits for the plan
  */
 
-'use client'
+"use client";
 
-import { AlertTriangle, TrendingUp, CheckCircle2 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import type { UsageLimits, UsageWarning, PlanTier } from '@/types/billing'
-import { UsageTracker as UsageTrackerLib } from '@/lib/usage-tracker'
-import { PLANS } from '@/config/billing-plans'
-import { cn } from '@/lib/utils'
+import { AlertTriangle, TrendingUp, CheckCircle2 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import type { UsageLimits, UsageWarning, PlanTier } from "@/types/billing";
+import { UsageTracker as UsageTrackerLib } from "@/lib/usage-tracker";
+import { PLANS } from "@/config/billing-plans";
+import { cn } from "@/lib/utils";
 
 interface UsageTrackerProps {
-  limits: UsageLimits
-  onUpgrade?: () => void
-  className?: string
+  limits: UsageLimits;
+  onUpgrade?: () => void;
+  className?: string;
 }
 
-export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps) {
-  const { current, limits: planLimits, warnings, exceeded, plan } = limits
+export function UsageTracker({
+  limits,
+  onUpgrade,
+  className,
+}: UsageTrackerProps) {
+  const { current, limits: planLimits, warnings, exceeded, plan } = limits;
 
   const getUsageColor = (percentage: number) => {
-    if (percentage >= 100) return 'text-red-600'
-    if (percentage >= 90) return 'text-orange-600'
-    if (percentage >= 75) return 'text-yellow-600'
-    return 'text-green-600'
-  }
+    if (percentage >= 100) return "text-red-600";
+    if (percentage >= 90) return "text-orange-600";
+    if (percentage >= 75) return "text-yellow-600";
+    return "text-green-600";
+  };
 
   const getProgressColor = (percentage: number) => {
-    if (percentage >= 100) return 'bg-red-600'
-    if (percentage >= 90) return 'bg-orange-600'
-    if (percentage >= 75) return 'bg-yellow-600'
-    return 'bg-green-600'
-  }
+    if (percentage >= 100) return "bg-red-600";
+    if (percentage >= 90) return "bg-orange-600";
+    if (percentage >= 75) return "bg-yellow-600";
+    return "bg-green-600";
+  };
 
   const UsageItem = ({
     label,
     current,
     limit,
-    unit = '',
+    unit = "",
   }: {
-    label: string
-    current: number
-    limit: number | null
-    unit?: string
+    label: string;
+    current: number;
+    limit: number | null;
+    unit?: string;
   }) => {
-    const percentage = UsageTrackerLib.getUsagePercentage(current, limit)
-    const formatted = UsageTrackerLib.formatUsage(current, limit, unit)
+    const percentage = UsageTrackerLib.getUsagePercentage(current, limit);
+    const formatted = UsageTrackerLib.formatUsage(current, limit, unit);
 
     return (
       <div className="space-y-2">
@@ -59,62 +69,67 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
           <span className="font-medium">{label}</span>
           <span className={getUsageColor(percentage)}>{formatted}</span>
         </div>
-        <Progress value={percentage} className={cn('h-2', getProgressColor(percentage))} />
+        <Progress
+          value={percentage}
+          className={cn("h-2", getProgressColor(percentage))}
+        />
         {percentage >= 90 && (
           <p className="text-xs text-muted-foreground">
-            {percentage >= 100 ? 'Limit reached' : 'Approaching limit'}
+            {percentage >= 100 ? "Limit reached" : "Approaching limit"}
           </p>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   const WarningCard = ({ warning }: { warning: UsageWarning }) => {
-    const Icon = warning.severity === 'critical' ? AlertTriangle : TrendingUp
+    const Icon = warning.severity === "critical" ? AlertTriangle : TrendingUp;
 
     return (
       <div
         className={cn(
-          'flex items-start gap-3 rounded-lg border p-3',
-          warning.severity === 'critical' && 'border-red-500 bg-red-50',
-          warning.severity === 'warning' && 'border-orange-500 bg-orange-50',
-          warning.severity === 'info' && 'border-blue-500 bg-blue-50'
+          "flex items-start gap-3 rounded-lg border p-3",
+          warning.severity === "critical" && "border-red-500 bg-red-50",
+          warning.severity === "warning" && "border-orange-500 bg-orange-50",
+          warning.severity === "info" && "border-blue-500 bg-blue-50",
         )}
       >
         <Icon
           className={cn(
-            'mt-0.5 h-5 w-5',
-            warning.severity === 'critical' && 'text-red-600',
-            warning.severity === 'warning' && 'text-orange-600',
-            warning.severity === 'info' && 'text-blue-600'
+            "mt-0.5 h-5 w-5",
+            warning.severity === "critical" && "text-red-600",
+            warning.severity === "warning" && "text-orange-600",
+            warning.severity === "info" && "text-blue-600",
           )}
         />
         <div className="flex-1 space-y-1">
           <p className="text-sm font-medium">{warning.feature}</p>
           <p className="text-xs text-muted-foreground">
-            Using {warning.current.toLocaleString()} of {warning.limit.toLocaleString()} (
-            {warning.percentage.toFixed(1)}%)
+            Using {warning.current.toLocaleString()} of{" "}
+            {warning.limit.toLocaleString()} ({warning.percentage.toFixed(1)}%)
           </p>
         </div>
         <Badge
           variant={
-            warning.severity === 'critical'
-              ? 'destructive'
-              : warning.severity === 'warning'
-                ? 'default'
-                : 'secondary'
+            warning.severity === "critical"
+              ? "destructive"
+              : warning.severity === "warning"
+                ? "default"
+                : "secondary"
           }
         >
           {warning.severity}
         </Badge>
       </div>
-    )
-  }
+    );
+  };
 
-  const suggestedPlan = exceeded ? UsageTrackerLib.suggestUpgrade(plan, current) : null
+  const suggestedPlan = exceeded
+    ? UsageTrackerLib.suggestUpgrade(plan, current)
+    : null;
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Current Plan */}
       <Card>
         <CardHeader>
@@ -124,7 +139,7 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
               <CardDescription>{PLANS[plan].description}</CardDescription>
             </div>
             <Badge variant="outline" className="px-4 py-2 text-lg">
-              {plan === 'free' ? 'Free' : `$${PLANS[plan].price.monthly}/mo`}
+              {plan === "free" ? "Free" : `$${PLANS[plan].price.monthly}/mo`}
             </Badge>
           </div>
         </CardHeader>
@@ -132,13 +147,15 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <Alert variant={exceeded ? 'destructive' : 'default'}>
+        <Alert variant={exceeded ? "destructive" : "default"}>
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>{exceeded ? 'Usage Limits Exceeded' : 'Approaching Usage Limits'}</AlertTitle>
+          <AlertTitle>
+            {exceeded ? "Usage Limits Exceeded" : "Approaching Usage Limits"}
+          </AlertTitle>
           <AlertDescription>
             {exceeded
-              ? 'You have exceeded your plan limits. Some features may be restricted.'
-              : 'You are approaching your plan limits. Consider upgrading to avoid interruption.'}
+              ? "You have exceeded your plan limits. Some features may be restricted."
+              : "You are approaching your plan limits. Consider upgrading to avoid interruption."}
           </AlertDescription>
         </Alert>
       )}
@@ -147,11 +164,21 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
       <Card>
         <CardHeader>
           <CardTitle>Usage Overview</CardTitle>
-          <CardDescription>Current usage for the billing period</CardDescription>
+          <CardDescription>
+            Current usage for the billing period
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <UsageItem label="Users" current={current.users} limit={planLimits.maxUsers} />
-          <UsageItem label="Channels" current={current.channels} limit={planLimits.maxChannels} />
+          <UsageItem
+            label="Users"
+            current={current.users}
+            limit={planLimits.maxUsers}
+          />
+          <UsageItem
+            label="Channels"
+            current={current.channels}
+            limit={planLimits.maxChannels}
+          />
           <UsageItem
             label="Messages"
             current={current.messages}
@@ -168,7 +195,11 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
             current={current.integrations}
             limit={planLimits.maxIntegrations}
           />
-          <UsageItem label="Bots" current={current.bots} limit={planLimits.maxBots} />
+          <UsageItem
+            label="Bots"
+            current={current.bots}
+            limit={planLimits.maxBots}
+          />
           {planLimits.aiModerationMinutes !== null && (
             <UsageItem
               label="AI Minutes"
@@ -211,7 +242,8 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
               Upgrade Recommended
             </CardTitle>
             <CardDescription>
-              The {PLANS[suggestedPlan].name} plan would accommodate your current usage
+              The {PLANS[suggestedPlan].name} plan would accommodate your
+              current usage
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -220,7 +252,7 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <span>
                   {PLANS[suggestedPlan].features.maxUsers === null
-                    ? 'Unlimited users'
+                    ? "Unlimited users"
                     : `Up to ${PLANS[suggestedPlan].features.maxUsers} users`}
                 </span>
               </div>
@@ -228,7 +260,7 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <span>
                   {PLANS[suggestedPlan].features.maxStorageGB === null
-                    ? 'Unlimited storage'
+                    ? "Unlimited storage"
                     : `${PLANS[suggestedPlan].features.maxStorageGB}GB storage`}
                 </span>
               </div>
@@ -236,18 +268,19 @@ export function UsageTracker({ limits, onUpgrade, className }: UsageTrackerProps
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <span>
                   {PLANS[suggestedPlan].features.maxMessagesPerMonth === null
-                    ? 'Unlimited messages'
+                    ? "Unlimited messages"
                     : `${PLANS[suggestedPlan].features.maxMessagesPerMonth.toLocaleString()} messages/month`}
                 </span>
               </div>
             </div>
 
             <Button className="w-full" size="lg" onClick={onUpgrade}>
-              Upgrade to {PLANS[suggestedPlan].name} - ${PLANS[suggestedPlan].price.monthly}/month
+              Upgrade to {PLANS[suggestedPlan].name} - $
+              {PLANS[suggestedPlan].price.monthly}/month
             </Button>
           </CardContent>
         </Card>
       )}
     </div>
-  )
+  );
 }

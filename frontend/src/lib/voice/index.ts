@@ -21,7 +21,7 @@ export {
   type RecorderCallbacks,
   type AudioRecorderError,
   type MicrophonePermissionState,
-} from './audio-recorder'
+} from "./audio-recorder";
 
 // Waveform Analyzer
 export {
@@ -36,7 +36,7 @@ export {
   type WaveformAnalyzerOptions,
   type RealtimeWaveformData,
   type WaveformUpdateCallback,
-} from './waveform-analyzer'
+} from "./waveform-analyzer";
 
 // Voice Recorder Hook
 export {
@@ -47,7 +47,7 @@ export {
   type VoiceRecorderActions,
   type UseVoiceRecorderReturn,
   type UseVoiceRecorderOptions,
-} from './use-voice-recorder'
+} from "./use-voice-recorder";
 
 // Voice Player Hook
 export {
@@ -61,4 +61,4 @@ export {
   type VoicePlayerActions,
   type UseVoicePlayerReturn,
   type UseVoicePlayerOptions,
-} from './use-voice-player'
+} from "./use-voice-player";

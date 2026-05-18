@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback, RefObject } from 'react'
+import { useState, useEffect, useCallback, RefObject } from "react";
 
 interface ScrollPosition {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 /**
@@ -15,29 +15,29 @@ export function useScrollPosition(): ScrollPosition {
   const [scrollPosition, setScrollPosition] = useState<ScrollPosition>({
     x: 0,
     y: 0,
-  })
+  });
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
     const handleScroll = () => {
       setScrollPosition({
         x: window.scrollX,
         y: window.scrollY,
-      })
-    }
+      });
+    };
 
     // Set initial position
-    handleScroll()
+    handleScroll();
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
-  return scrollPosition
+  return scrollPosition;
 }
 
 /**
@@ -46,23 +46,23 @@ export function useScrollPosition(): ScrollPosition {
  * @returns scrollToBottom function
  */
 export function useScrollToBottom<T extends HTMLElement = HTMLElement>(
-  ref: RefObject<T | null>
+  ref: RefObject<T | null>,
 ): {
-  scrollToBottom: (behavior?: ScrollBehavior) => void
+  scrollToBottom: (behavior?: ScrollBehavior) => void;
 } {
   const scrollToBottom = useCallback(
-    (behavior: ScrollBehavior = 'smooth') => {
+    (behavior: ScrollBehavior = "smooth") => {
       if (ref.current) {
         ref.current.scrollTo({
           top: ref.current.scrollHeight,
           behavior,
-        })
+        });
       }
     },
-    [ref]
-  )
+    [ref],
+  );
 
-  return { scrollToBottom }
+  return { scrollToBottom };
 }
 
 /**
@@ -73,31 +73,31 @@ export function useScrollToBottom<T extends HTMLElement = HTMLElement>(
  */
 export function useIsAtBottom<T extends HTMLElement = HTMLElement>(
   ref: RefObject<T | null>,
-  threshold: number = 100
+  threshold: number = 100,
 ): boolean {
-  const [isAtBottom, setIsAtBottom] = useState(true)
+  const [isAtBottom, setIsAtBottom] = useState(true);
 
   useEffect(() => {
-    const element = ref.current
-    if (!element) return
+    const element = ref.current;
+    if (!element) return;
 
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = element
-      const distanceFromBottom = scrollHeight - scrollTop - clientHeight
-      setIsAtBottom(distanceFromBottom <= threshold)
-    }
+      const { scrollTop, scrollHeight, clientHeight } = element;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      setIsAtBottom(distanceFromBottom <= threshold);
+    };
 
     // Set initial value
-    handleScroll()
+    handleScroll();
 
-    element.addEventListener('scroll', handleScroll, { passive: true })
+    element.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      element.removeEventListener('scroll', handleScroll)
-    }
-  }, [ref, threshold])
+      element.removeEventListener("scroll", handleScroll);
+    };
+  }, [ref, threshold]);
 
-  return isAtBottom
+  return isAtBottom;
 }
 
 /**
@@ -108,48 +108,48 @@ export function useIsAtBottom<T extends HTMLElement = HTMLElement>(
  */
 export function useScrollManagement<T extends HTMLElement = HTMLElement>(
   ref: RefObject<T | null>,
-  threshold: number = 100
+  threshold: number = 100,
 ): {
-  isAtBottom: boolean
-  scrollToBottom: (behavior?: ScrollBehavior) => void
-  scrollPosition: { top: number; left: number }
+  isAtBottom: boolean;
+  scrollToBottom: (behavior?: ScrollBehavior) => void;
+  scrollPosition: { top: number; left: number };
 } {
-  const [isAtBottom, setIsAtBottom] = useState(true)
-  const [scrollPosition, setScrollPosition] = useState({ top: 0, left: 0 })
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  const [scrollPosition, setScrollPosition] = useState({ top: 0, left: 0 });
 
   const scrollToBottom = useCallback(
-    (behavior: ScrollBehavior = 'smooth') => {
+    (behavior: ScrollBehavior = "smooth") => {
       if (ref.current) {
         ref.current.scrollTo({
           top: ref.current.scrollHeight,
           behavior,
-        })
+        });
       }
     },
-    [ref]
-  )
+    [ref],
+  );
 
   useEffect(() => {
-    const element = ref.current
-    if (!element) return
+    const element = ref.current;
+    if (!element) return;
 
     const handleScroll = () => {
-      const { scrollTop, scrollLeft, scrollHeight, clientHeight } = element
-      const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+      const { scrollTop, scrollLeft, scrollHeight, clientHeight } = element;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 
-      setIsAtBottom(distanceFromBottom <= threshold)
-      setScrollPosition({ top: scrollTop, left: scrollLeft })
-    }
+      setIsAtBottom(distanceFromBottom <= threshold);
+      setScrollPosition({ top: scrollTop, left: scrollLeft });
+    };
 
     // Set initial value
-    handleScroll()
+    handleScroll();
 
-    element.addEventListener('scroll', handleScroll, { passive: true })
+    element.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      element.removeEventListener('scroll', handleScroll)
-    }
-  }, [ref, threshold])
+      element.removeEventListener("scroll", handleScroll);
+    };
+  }, [ref, threshold]);
 
-  return { isAtBottom, scrollToBottom, scrollPosition }
+  return { isAtBottom, scrollToBottom, scrollPosition };
 }

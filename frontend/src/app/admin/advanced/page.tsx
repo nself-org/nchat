@@ -9,100 +9,114 @@
  * - Real-time analytics
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import { Zap, Users, Hash, FileText, Activity, Settings, ChevronRight } from 'lucide-react'
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import Link from 'next/link'
-import { useAuth } from '@/contexts/auth-context'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import {
+  Zap,
+  Users,
+  Hash,
+  FileText,
+  Activity,
+  Settings,
+  ChevronRight,
+} from "lucide-react";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { useAuth } from "@/contexts/auth-context";
 
 // Import our new components
-import { BulkUserOperations } from '@/components/admin/bulk/BulkUserOperations'
-import { BulkChannelOperations } from '@/components/admin/bulk/BulkChannelOperations'
-import { AutomationManager } from '@/components/admin/automation/AutomationManager'
-import { SystemHealthDashboard } from '@/components/admin/monitoring/SystemHealthDashboard'
-import { EnhancedAuditLog } from '@/components/admin/audit/EnhancedAuditLog'
+import { BulkUserOperations } from "@/components/admin/bulk/BulkUserOperations";
+import { BulkChannelOperations } from "@/components/admin/bulk/BulkChannelOperations";
+import { AutomationManager } from "@/components/admin/automation/AutomationManager";
+import { SystemHealthDashboard } from "@/components/admin/monitoring/SystemHealthDashboard";
+import { EnhancedAuditLog } from "@/components/admin/audit/EnhancedAuditLog";
 
 // Mock data for demonstration
 const mockUsers = [
   {
-    id: '1',
-    username: 'alice',
-    displayName: 'Alice Johnson',
-    email: 'alice@example.com',
-    role: { id: 'member', name: 'Member', permissions: [] },
+    id: "1",
+    username: "alice",
+    displayName: "Alice Johnson",
+    email: "alice@example.com",
+    role: { id: "member", name: "Member", permissions: [] },
     isActive: true,
     isBanned: false,
-    createdAt: '2024-01-15T10:00:00Z',
-    lastSeenAt: '2024-01-29T14:30:00Z',
+    createdAt: "2024-01-15T10:00:00Z",
+    lastSeenAt: "2024-01-29T14:30:00Z",
     messagesCount: 450,
     channelsCount: 12,
   },
   {
-    id: '2',
-    username: 'bob',
-    displayName: 'Bob Smith',
-    email: 'bob@example.com',
-    role: { id: 'moderator', name: 'Moderator', permissions: [] },
+    id: "2",
+    username: "bob",
+    displayName: "Bob Smith",
+    email: "bob@example.com",
+    role: { id: "moderator", name: "Moderator", permissions: [] },
     isActive: true,
     isBanned: false,
-    createdAt: '2024-01-10T09:00:00Z',
-    lastSeenAt: '2024-01-29T16:00:00Z',
+    createdAt: "2024-01-10T09:00:00Z",
+    lastSeenAt: "2024-01-29T16:00:00Z",
     messagesCount: 678,
     channelsCount: 15,
   },
-]
+];
 
 const mockChannels = [
   {
-    id: '1',
-    name: 'general',
-    slug: 'general',
-    description: 'General discussion',
-    type: 'public',
+    id: "1",
+    name: "general",
+    slug: "general",
+    description: "General discussion",
+    type: "public",
     isPrivate: false,
     isArchived: false,
-    createdAt: '2024-01-01T00:00:00Z',
-    creator: { id: '1', username: 'alice', displayName: 'Alice Johnson' },
+    createdAt: "2024-01-01T00:00:00Z",
+    creator: { id: "1", username: "alice", displayName: "Alice Johnson" },
     membersCount: 156,
     messagesCount: 4521,
   },
   {
-    id: '2',
-    name: 'engineering',
-    slug: 'engineering',
-    description: 'Engineering team channel',
-    type: 'private',
+    id: "2",
+    name: "engineering",
+    slug: "engineering",
+    description: "Engineering team channel",
+    type: "private",
     isPrivate: true,
     isArchived: false,
-    createdAt: '2024-01-02T00:00:00Z',
-    creator: { id: '2', username: 'bob', displayName: 'Bob Smith' },
+    createdAt: "2024-01-02T00:00:00Z",
+    creator: { id: "2", username: "bob", displayName: "Bob Smith" },
     membersCount: 24,
     messagesCount: 1856,
   },
-]
+];
 
 export default function AdvancedAdminPage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
-  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([])
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!loading && (!user || !['owner', 'admin'].includes(user.role))) {
-      router.push('/chat')
+    if (!loading && (!user || !["owner", "admin"].includes(user.role))) {
+      router.push("/chat");
     }
-  }, [user, loading, router])
+  }, [user, loading, router]);
 
-  if (loading || !user || !['owner', 'admin'].includes(user.role)) {
-    return null
+  if (loading || !user || !["owner", "admin"].includes(user.role)) {
+    return null;
   }
 
   return (
@@ -112,7 +126,8 @@ export default function AdvancedAdminPage() {
         <div>
           <h1 className="text-3xl font-bold">Advanced Administration</h1>
           <p className="text-muted-foreground">
-            Powerful tools for bulk operations, automation, and system monitoring
+            Powerful tools for bulk operations, automation, and system
+            monitoring
           </p>
         </div>
 
@@ -193,28 +208,36 @@ export default function AdvancedAdminPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>User Management</CardTitle>
-                  <CardDescription>Perform bulk operations on user accounts</CardDescription>
+                  <CardDescription>
+                    Perform bulk operations on user accounts
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between rounded-lg border p-3">
                       <div>
                         <p className="font-medium">Total Users</p>
-                        <p className="text-sm text-muted-foreground">156 active accounts</p>
+                        <p className="text-sm text-muted-foreground">
+                          156 active accounts
+                        </p>
                       </div>
                       <Badge>156</Badge>
                     </div>
                     <div className="flex items-center justify-between rounded-lg border p-3">
                       <div>
                         <p className="font-medium">Pending Invites</p>
-                        <p className="text-sm text-muted-foreground">Awaiting acceptance</p>
+                        <p className="text-sm text-muted-foreground">
+                          Awaiting acceptance
+                        </p>
                       </div>
                       <Badge variant="secondary">8</Badge>
                     </div>
                     <div className="flex items-center justify-between rounded-lg border p-3">
                       <div>
                         <p className="font-medium">Suspended</p>
-                        <p className="text-sm text-muted-foreground">Temporary suspensions</p>
+                        <p className="text-sm text-muted-foreground">
+                          Temporary suspensions
+                        </p>
                       </div>
                       <Badge variant="destructive">2</Badge>
                     </div>
@@ -243,28 +266,36 @@ export default function AdvancedAdminPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Channel Management</CardTitle>
-                  <CardDescription>Perform bulk operations on channels</CardDescription>
+                  <CardDescription>
+                    Perform bulk operations on channels
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between rounded-lg border p-3">
                       <div>
                         <p className="font-medium">Total Channels</p>
-                        <p className="text-sm text-muted-foreground">Public and private</p>
+                        <p className="text-sm text-muted-foreground">
+                          Public and private
+                        </p>
                       </div>
                       <Badge>24</Badge>
                     </div>
                     <div className="flex items-center justify-between rounded-lg border p-3">
                       <div>
                         <p className="font-medium">Public Channels</p>
-                        <p className="text-sm text-muted-foreground">Accessible to all</p>
+                        <p className="text-sm text-muted-foreground">
+                          Accessible to all
+                        </p>
                       </div>
                       <Badge variant="secondary">18</Badge>
                     </div>
                     <div className="flex items-center justify-between rounded-lg border p-3">
                       <div>
                         <p className="font-medium">Archived</p>
-                        <p className="text-sm text-muted-foreground">No longer active</p>
+                        <p className="text-sm text-muted-foreground">
+                          No longer active
+                        </p>
                       </div>
                       <Badge variant="outline">3</Badge>
                     </div>
@@ -336,7 +367,7 @@ export default function AdvancedAdminPage() {
         </Card>
       </div>
     </AdminLayout>
-  )
+  );
 }
 
 // ============================================================================
@@ -344,12 +375,12 @@ export default function AdvancedAdminPage() {
 // ============================================================================
 
 interface QuickStatCardProps {
-  title: string
-  value: string
-  icon: React.ReactNode
-  description: string
-  href: string
-  variant?: 'default' | 'success' | 'warning' | 'error'
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  description: string;
+  href: string;
+  variant?: "default" | "success" | "warning" | "error";
 }
 
 function QuickStatCard({
@@ -358,14 +389,14 @@ function QuickStatCard({
   icon,
   description,
   href,
-  variant = 'default',
+  variant = "default",
 }: QuickStatCardProps) {
   const colorClasses = {
-    default: 'border-border',
-    success: 'border-green-500/20 bg-green-500/5',
-    warning: 'border-yellow-500/20 bg-yellow-500/5',
-    error: 'border-red-500/20 bg-red-500/5',
-  }
+    default: "border-border",
+    success: "border-green-500/20 bg-green-500/5",
+    warning: "border-yellow-500/20 bg-yellow-500/5",
+    error: "border-red-500/20 bg-red-500/5",
+  };
 
   return (
     <Link href={href}>
@@ -382,13 +413,13 @@ function QuickStatCard({
         </CardContent>
       </Card>
     </Link>
-  )
+  );
 }
 
 interface FeatureCardProps {
-  title: string
-  description: string
-  icon: React.ReactNode
+  title: string;
+  description: string;
+  icon: React.ReactNode;
 }
 
 function FeatureCard({ title, description, icon }: FeatureCardProps) {
@@ -400,5 +431,5 @@ function FeatureCard({ title, description, icon }: FeatureCardProps) {
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
-  )
+  );
 }

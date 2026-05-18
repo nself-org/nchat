@@ -4,79 +4,92 @@
  * Allows users to reset their password using a token from email.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Label } from '@/components/ui/label'
-import { Loader2, Lock, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react'
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
+import {
+  Loader2,
+  Lock,
+  CheckCircle2,
+  AlertCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 export default function ResetPasswordPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const token = searchParams.get('token')
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [message, setMessage] = useState('')
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setStatus('idle')
-    setMessage('')
+    e.preventDefault();
+    setIsLoading(true);
+    setStatus("idle");
+    setMessage("");
 
     // Validate passwords match
     if (newPassword !== confirmPassword) {
-      setStatus('error')
-      setMessage('Passwords do not match')
-      setIsLoading(false)
-      return
+      setStatus("error");
+      setMessage("Passwords do not match");
+      setIsLoading(false);
+      return;
     }
 
     // Validate password strength
     if (newPassword.length < 8) {
-      setStatus('error')
-      setMessage('Password must be at least 8 characters')
-      setIsLoading(false)
-      return
+      setStatus("error");
+      setMessage("Password must be at least 8 characters");
+      setIsLoading(false);
+      return;
     }
 
     try {
-      const response = await fetch('/api/auth/password-reset', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/password-reset", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        setStatus('success')
-        setMessage(data.message || 'Password reset successfully!')
+        setStatus("success");
+        setMessage(data.message || "Password reset successfully!");
 
         // Redirect to login after 2 seconds
         setTimeout(() => {
-          router.push('/login?reset=success')
-        }, 2000)
+          router.push("/login?reset=success");
+        }, 2000);
       } else {
-        setStatus('error')
-        setMessage(data.error?.message || 'Failed to reset password')
+        setStatus("error");
+        setMessage(data.error?.message || "Failed to reset password");
       }
     } catch (error) {
-      setStatus('error')
-      setMessage('An error occurred. Please try again.')
+      setStatus("error");
+      setMessage("An error occurred. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!token) {
     return (
@@ -85,16 +98,21 @@ export default function ResetPasswordPage() {
           <CardHeader className="text-center">
             <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-600" />
             <CardTitle>Invalid Reset Link</CardTitle>
-            <CardDescription>This password reset link is invalid or has expired</CardDescription>
+            <CardDescription>
+              This password reset link is invalid or has expired
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push('/auth/forgot-password')} className="w-full">
+            <Button
+              onClick={() => router.push("/auth/forgot-password")}
+              className="w-full"
+            >
               Request New Link
             </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -109,25 +127,30 @@ export default function ResetPasswordPage() {
         </CardHeader>
 
         <CardContent>
-          {status === 'success' ? (
+          {status === "success" ? (
             <div className="space-y-4">
               <Alert className="border-green-200 bg-green-50">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">{message}</AlertDescription>
+                <AlertDescription className="text-green-800">
+                  {message}
+                </AlertDescription>
               </Alert>
 
               <div className="space-y-3">
                 <p className="text-center text-sm text-muted-foreground">
                   Redirecting you to login page...
                 </p>
-                <Button onClick={() => router.push('/login')} className="w-full">
+                <Button
+                  onClick={() => router.push("/login")}
+                  className="w-full"
+                >
                   Continue to Login
                 </Button>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {status === 'error' && (
+              {status === "error" && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{message}</AlertDescription>
@@ -139,7 +162,7 @@ export default function ResetPasswordPage() {
                 <div className="relative">
                   <Input
                     id="newPassword"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter new password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -164,14 +187,16 @@ export default function ResetPasswordPage() {
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
+                <p className="text-xs text-muted-foreground">
+                  Must be at least 8 characters
+                </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -196,7 +221,11 @@ export default function ResetPasswordPage() {
               </Button>
 
               <div className="text-center">
-                <Button variant="link" onClick={() => router.push('/login')} type="button">
+                <Button
+                  variant="link"
+                  onClick={() => router.push("/login")}
+                  type="button"
+                >
                   Back to Login
                 </Button>
               </div>
@@ -205,5 +234,5 @@ export default function ResetPasswordPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

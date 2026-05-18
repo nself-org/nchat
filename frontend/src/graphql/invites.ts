@@ -1,72 +1,72 @@
-import { gql } from '@apollo/client'
-import { CHANNEL_BASIC_FRAGMENT, USER_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import { CHANNEL_BASIC_FRAGMENT, USER_BASIC_FRAGMENT } from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type InviteType = 'channel' | 'workspace'
+export type InviteType = "channel" | "workspace";
 
 export interface Invite {
-  id: string
-  code: string
-  type: InviteType
-  channelId: string | null
+  id: string;
+  code: string;
+  type: InviteType;
+  channelId: string | null;
   channel: {
-    id: string
-    name: string
-    slug: string
-    description: string | null
-    type: string
-    isPrivate: boolean
-    membersCount: number
-  } | null
-  creatorId: string
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    type: string;
+    isPrivate: boolean;
+    membersCount: number;
+  } | null;
+  creatorId: string;
   creator: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl: string | null
-  }
-  maxUses: number | null
-  useCount: number
-  expiresAt: string | null
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+  maxUses: number | null;
+  useCount: number;
+  expiresAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateInviteVariables {
-  code: string
-  type: InviteType
-  channelId?: string | null
-  creatorId: string
-  maxUses?: number | null
-  expiresAt?: string | null
+  code: string;
+  type: InviteType;
+  channelId?: string | null;
+  creatorId: string;
+  maxUses?: number | null;
+  expiresAt?: string | null;
 }
 
 export interface GetInviteVariables {
-  code: string
+  code: string;
 }
 
 export interface AcceptInviteVariables {
-  inviteId: string
-  userId: string
+  inviteId: string;
+  userId: string;
 }
 
 export interface RevokeInviteVariables {
-  id: string
+  id: string;
 }
 
 export interface GetChannelInvitesVariables {
-  channelId: string
-  limit?: number
-  offset?: number
+  channelId: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetWorkspaceInvitesVariables {
-  limit?: number
-  offset?: number
+  limit?: number;
+  offset?: number;
 }
 
 // ============================================================================
@@ -100,7 +100,7 @@ export const INVITE_FRAGMENT = gql`
   }
   ${CHANNEL_BASIC_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const INVITE_USAGE_FRAGMENT = gql`
   fragment InviteUsage on nchat_invite_usages {
@@ -113,7 +113,7 @@ export const INVITE_USAGE_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -124,12 +124,15 @@ export const INVITE_USAGE_FRAGMENT = gql`
  */
 export const GET_INVITE = gql`
   query GetInvite($code: String!) {
-    nchat_invites(where: { code: { _eq: $code }, is_active: { _eq: true } }, limit: 1) {
+    nchat_invites(
+      where: { code: { _eq: $code }, is_active: { _eq: true } }
+      limit: 1
+    ) {
       ...Invite
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get invite by ID
@@ -141,13 +144,17 @@ export const GET_INVITE_BY_ID = gql`
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get all invites for a channel
  */
 export const GET_CHANNEL_INVITES = gql`
-  query GetChannelInvites($channelId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetChannelInvites(
+    $channelId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_invites(
       where: { channel_id: { _eq: $channelId }, type: { _eq: "channel" } }
       order_by: { created_at: desc }
@@ -156,14 +163,16 @@ export const GET_CHANNEL_INVITES = gql`
     ) {
       ...Invite
     }
-    nchat_invites_aggregate(where: { channel_id: { _eq: $channelId }, type: { _eq: "channel" } }) {
+    nchat_invites_aggregate(
+      where: { channel_id: { _eq: $channelId }, type: { _eq: "channel" } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get all workspace invites
@@ -185,7 +194,7 @@ export const GET_WORKSPACE_INVITES = gql`
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get invites created by a user
@@ -202,7 +211,7 @@ export const GET_USER_INVITES = gql`
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get invite usage history
@@ -224,7 +233,7 @@ export const GET_INVITE_USAGE = gql`
     }
   }
   ${INVITE_USAGE_FRAGMENT}
-`
+`;
 
 /**
  * Check if user has already used an invite
@@ -239,7 +248,7 @@ export const CHECK_INVITE_USAGE = gql`
       used_at
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -273,7 +282,7 @@ export const CREATE_INVITE = gql`
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Accept an invite (join channel/workspace)
@@ -283,7 +292,10 @@ export const ACCEPT_INVITE = gql`
     # Record the usage
     insert_nchat_invite_usages_one(
       object: { invite_id: $inviteId, user_id: $userId }
-      on_conflict: { constraint: nchat_invite_usages_invite_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_invite_usages_invite_id_user_id_key
+        update_columns: []
+      }
     ) {
       id
       invite_id
@@ -291,22 +303,32 @@ export const ACCEPT_INVITE = gql`
       used_at
     }
     # Increment use count
-    update_nchat_invites_by_pk(pk_columns: { id: $inviteId }, _inc: { use_count: 1 }) {
+    update_nchat_invites_by_pk(
+      pk_columns: { id: $inviteId }
+      _inc: { use_count: 1 }
+    ) {
       id
       use_count
     }
   }
-`
+`;
 
 /**
  * Accept a channel invite and add user as member
  */
 export const ACCEPT_CHANNEL_INVITE = gql`
-  mutation AcceptChannelInvite($inviteId: uuid!, $userId: uuid!, $channelId: uuid!) {
+  mutation AcceptChannelInvite(
+    $inviteId: uuid!
+    $userId: uuid!
+    $channelId: uuid!
+  ) {
     # Record the usage
     insert_nchat_invite_usages_one(
       object: { invite_id: $inviteId, user_id: $userId }
-      on_conflict: { constraint: nchat_invite_usages_invite_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_invite_usages_invite_id_user_id_key
+        update_columns: []
+      }
     ) {
       id
       used_at
@@ -314,7 +336,10 @@ export const ACCEPT_CHANNEL_INVITE = gql`
     # Add user to channel
     insert_nchat_channel_members_one(
       object: { channel_id: $channelId, user_id: $userId, role: "member" }
-      on_conflict: { constraint: nchat_channel_members_channel_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_channel_members_channel_id_user_id_key
+        update_columns: []
+      }
     ) {
       id
       channel_id
@@ -325,13 +350,16 @@ export const ACCEPT_CHANNEL_INVITE = gql`
       }
     }
     # Increment use count
-    update_nchat_invites_by_pk(pk_columns: { id: $inviteId }, _inc: { use_count: 1 }) {
+    update_nchat_invites_by_pk(
+      pk_columns: { id: $inviteId }
+      _inc: { use_count: 1 }
+    ) {
       id
       use_count
     }
   }
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Revoke an invite (deactivate it)
@@ -347,7 +375,7 @@ export const REVOKE_INVITE = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Delete an invite permanently
@@ -358,13 +386,18 @@ export const DELETE_INVITE = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Update invite settings
  */
 export const UPDATE_INVITE = gql`
-  mutation UpdateInvite($id: uuid!, $maxUses: Int, $expiresAt: timestamptz, $isActive: Boolean) {
+  mutation UpdateInvite(
+    $id: uuid!
+    $maxUses: Int
+    $expiresAt: timestamptz
+    $isActive: Boolean
+  ) {
     update_nchat_invites_by_pk(
       pk_columns: { id: $id }
       _set: {
@@ -378,7 +411,7 @@ export const UPDATE_INVITE = gql`
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Reactivate an expired or revoked invite
@@ -393,7 +426,7 @@ export const REACTIVATE_INVITE = gql`
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -409,7 +442,7 @@ export const INVITE_SUBSCRIPTION = gql`
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to channel invites
@@ -424,4 +457,4 @@ export const CHANNEL_INVITES_SUBSCRIPTION = gql`
     }
   }
   ${INVITE_FRAGMENT}
-`
+`;

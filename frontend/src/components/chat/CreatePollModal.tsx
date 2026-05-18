@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Create Poll Modal Component
@@ -8,20 +8,27 @@
  * expiration times, and advanced features.
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
-import { X, Plus, Calendar, Settings2, HelpCircle, Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
+import { useState, useCallback, useMemo, useEffect } from "react";
+import {
+  X,
+  Plus,
+  Calendar,
+  Settings2,
+  HelpCircle,
+  Sparkles,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -29,27 +36,36 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/use-toast'
-import type { CreatePollInput, PollSettings, PollResultsVisibility } from '@/types/poll'
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import type {
+  CreatePollInput,
+  PollSettings,
+  PollResultsVisibility,
+} from "@/types/poll";
 
 interface CreatePollModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onCreatePoll: (input: CreatePollInput) => Promise<void>
-  channelId: string
-  defaultSettings?: Partial<PollSettings>
+  isOpen: boolean;
+  onClose: () => void;
+  onCreatePoll: (input: CreatePollInput) => Promise<void>;
+  channelId: string;
+  defaultSettings?: Partial<PollSettings>;
 }
 
-const MIN_OPTIONS = 2
-const MAX_OPTIONS = 10
-const MAX_QUESTION_LENGTH = 300
-const MAX_OPTION_LENGTH = 100
-const MAX_DESCRIPTION_LENGTH = 500
+const MIN_OPTIONS = 2;
+const MAX_OPTIONS = 10;
+const MAX_QUESTION_LENGTH = 300;
+const MAX_OPTION_LENGTH = 100;
+const MAX_DESCRIPTION_LENGTH = 500;
 
 export function CreatePollModal({
   isOpen,
@@ -58,191 +74,218 @@ export function CreatePollModal({
   channelId,
   defaultSettings,
 }: CreatePollModalProps) {
-  const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic')
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
 
   // Basic fields
-  const [question, setQuestion] = useState('')
-  const [description, setDescription] = useState('')
-  const [options, setOptions] = useState<string[]>(['', ''])
+  const [question, setQuestion] = useState("");
+  const [description, setDescription] = useState("");
+  const [options, setOptions] = useState<string[]>(["", ""]);
 
   // Settings
-  const [allowMultiple, setAllowMultiple] = useState(defaultSettings?.allowMultiple ?? false)
-  const [maxSelections, setMaxSelections] = useState(defaultSettings?.maxSelections ?? 2)
-  const [minSelections, setMinSelections] = useState(defaultSettings?.minSelections ?? 1)
-  const [isAnonymous, setIsAnonymous] = useState(defaultSettings?.isAnonymous ?? false)
-  const [resultsVisibility, setResultsVisibility] = useState<PollResultsVisibility>(
-    defaultSettings?.resultsVisibility ?? 'after_vote'
-  )
-  const [allowVoteChange, setAllowVoteChange] = useState(defaultSettings?.allowVoteChange ?? true)
-  const [allowAddOptions, setAllowAddOptions] = useState(defaultSettings?.allowAddOptions ?? false)
-  const [showVoterNames, setShowVoterNames] = useState(defaultSettings?.showVoterNames ?? true)
+  const [allowMultiple, setAllowMultiple] = useState(
+    defaultSettings?.allowMultiple ?? false,
+  );
+  const [maxSelections, setMaxSelections] = useState(
+    defaultSettings?.maxSelections ?? 2,
+  );
+  const [minSelections, setMinSelections] = useState(
+    defaultSettings?.minSelections ?? 1,
+  );
+  const [isAnonymous, setIsAnonymous] = useState(
+    defaultSettings?.isAnonymous ?? false,
+  );
+  const [resultsVisibility, setResultsVisibility] =
+    useState<PollResultsVisibility>(
+      defaultSettings?.resultsVisibility ?? "after_vote",
+    );
+  const [allowVoteChange, setAllowVoteChange] = useState(
+    defaultSettings?.allowVoteChange ?? true,
+  );
+  const [allowAddOptions, setAllowAddOptions] = useState(
+    defaultSettings?.allowAddOptions ?? false,
+  );
+  const [showVoterNames, setShowVoterNames] = useState(
+    defaultSettings?.showVoterNames ?? true,
+  );
   const [showRealTimeResults, setShowRealTimeResults] = useState(
-    defaultSettings?.showRealTimeResults ?? true
-  )
+    defaultSettings?.showRealTimeResults ?? true,
+  );
 
   // Expiration
-  const [hasExpiration, setHasExpiration] = useState(false)
-  const [expirationDate, setExpirationDate] = useState('')
-  const [expirationTime, setExpirationTime] = useState('')
+  const [hasExpiration, setHasExpiration] = useState(false);
+  const [expirationDate, setExpirationDate] = useState("");
+  const [expirationTime, setExpirationTime] = useState("");
 
   // Quick duration presets
-  const [quickDuration, setQuickDuration] = useState<string>('')
+  const [quickDuration, setQuickDuration] = useState<string>("");
 
   // Validation
-  const [errors, setErrors] = useState<string[]>([])
-  const [isCreating, setIsCreating] = useState(false)
+  const [errors, setErrors] = useState<string[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
 
   // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
-      setQuestion('')
-      setDescription('')
-      setOptions(['', ''])
-      setAllowMultiple(defaultSettings?.allowMultiple ?? false)
-      setMaxSelections(defaultSettings?.maxSelections ?? 2)
-      setMinSelections(defaultSettings?.minSelections ?? 1)
-      setIsAnonymous(defaultSettings?.isAnonymous ?? false)
-      setResultsVisibility(defaultSettings?.resultsVisibility ?? 'after_vote')
-      setAllowVoteChange(defaultSettings?.allowVoteChange ?? true)
-      setAllowAddOptions(defaultSettings?.allowAddOptions ?? false)
-      setShowVoterNames(defaultSettings?.showVoterNames ?? true)
-      setShowRealTimeResults(defaultSettings?.showRealTimeResults ?? true)
-      setHasExpiration(false)
-      setExpirationDate('')
-      setExpirationTime('')
-      setQuickDuration('')
-      setErrors([])
-      setActiveTab('basic')
+      setQuestion("");
+      setDescription("");
+      setOptions(["", ""]);
+      setAllowMultiple(defaultSettings?.allowMultiple ?? false);
+      setMaxSelections(defaultSettings?.maxSelections ?? 2);
+      setMinSelections(defaultSettings?.minSelections ?? 1);
+      setIsAnonymous(defaultSettings?.isAnonymous ?? false);
+      setResultsVisibility(defaultSettings?.resultsVisibility ?? "after_vote");
+      setAllowVoteChange(defaultSettings?.allowVoteChange ?? true);
+      setAllowAddOptions(defaultSettings?.allowAddOptions ?? false);
+      setShowVoterNames(defaultSettings?.showVoterNames ?? true);
+      setShowRealTimeResults(defaultSettings?.showRealTimeResults ?? true);
+      setHasExpiration(false);
+      setExpirationDate("");
+      setExpirationTime("");
+      setQuickDuration("");
+      setErrors([]);
+      setActiveTab("basic");
     }
-  }, [isOpen, defaultSettings])
+  }, [isOpen, defaultSettings]);
 
   // Add option
   const handleAddOption = useCallback(() => {
     if (options.length < MAX_OPTIONS) {
-      setOptions([...options, ''])
+      setOptions([...options, ""]);
     }
-  }, [options])
+  }, [options]);
 
   // Remove option
   const handleRemoveOption = useCallback(
     (index: number) => {
       if (options.length > MIN_OPTIONS) {
-        setOptions(options.filter((_, i) => i !== index))
+        setOptions(options.filter((_, i) => i !== index));
       }
     },
-    [options]
-  )
+    [options],
+  );
 
   // Update option
   const handleOptionChange = useCallback(
     (index: number, value: string) => {
-      const newOptions = [...options]
-      newOptions[index] = value
-      setOptions(newOptions)
+      const newOptions = [...options];
+      newOptions[index] = value;
+      setOptions(newOptions);
     },
-    [options]
-  )
+    [options],
+  );
 
   // Handle quick duration selection
   const handleQuickDuration = useCallback((duration: string) => {
-    setQuickDuration(duration)
-    setHasExpiration(true)
+    setQuickDuration(duration);
+    setHasExpiration(true);
 
-    const now = new Date()
-    let closesAt: Date
+    const now = new Date();
+    let closesAt: Date;
 
     switch (duration) {
-      case '1h':
-        closesAt = new Date(now.getTime() + 60 * 60 * 1000)
-        break
-      case '6h':
-        closesAt = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-        break
-      case '1d':
-        closesAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
-        break
-      case '3d':
-        closesAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
-        break
-      case '1w':
-        closesAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-        break
-      case 'custom':
-        setExpirationDate('')
-        setExpirationTime('')
-        return
+      case "1h":
+        closesAt = new Date(now.getTime() + 60 * 60 * 1000);
+        break;
+      case "6h":
+        closesAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+        break;
+      case "1d":
+        closesAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        break;
+      case "3d":
+        closesAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+        break;
+      case "1w":
+        closesAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        break;
+      case "custom":
+        setExpirationDate("");
+        setExpirationTime("");
+        return;
       default:
-        return
+        return;
     }
 
-    setExpirationDate(closesAt.toISOString().split('T')[0])
-    setExpirationTime(closesAt.toTimeString().slice(0, 5))
-  }, [])
+    setExpirationDate(closesAt.toISOString().split("T")[0]);
+    setExpirationTime(closesAt.toTimeString().slice(0, 5));
+  }, []);
 
   // Validate form
   const validateForm = useCallback((): boolean => {
-    const validationErrors: string[] = []
+    const validationErrors: string[] = [];
 
     // Validate question
     if (!question.trim()) {
-      validationErrors.push('Question is required')
+      validationErrors.push("Question is required");
     } else if (question.length > MAX_QUESTION_LENGTH) {
-      validationErrors.push(`Question must be ${MAX_QUESTION_LENGTH} characters or less`)
+      validationErrors.push(
+        `Question must be ${MAX_QUESTION_LENGTH} characters or less`,
+      );
     }
 
     // Validate description
     if (description.length > MAX_DESCRIPTION_LENGTH) {
-      validationErrors.push(`Description must be ${MAX_DESCRIPTION_LENGTH} characters or less`)
+      validationErrors.push(
+        `Description must be ${MAX_DESCRIPTION_LENGTH} characters or less`,
+      );
     }
 
     // Validate options
-    const trimmedOptions = options.map((o) => o.trim()).filter((o) => o.length > 0)
+    const trimmedOptions = options
+      .map((o) => o.trim())
+      .filter((o) => o.length > 0);
     if (trimmedOptions.length < MIN_OPTIONS) {
-      validationErrors.push(`At least ${MIN_OPTIONS} options are required`)
+      validationErrors.push(`At least ${MIN_OPTIONS} options are required`);
     }
 
     const duplicates = trimmedOptions.filter(
-      (item, index) => trimmedOptions.indexOf(item.toLowerCase()) !== index
-    )
+      (item, index) => trimmedOptions.indexOf(item.toLowerCase()) !== index,
+    );
     if (duplicates.length > 0) {
-      validationErrors.push('Options must be unique')
+      validationErrors.push("Options must be unique");
     }
 
     options.forEach((option, index) => {
       if (option.trim() && option.length > MAX_OPTION_LENGTH) {
-        validationErrors.push(`Option ${index + 1} must be ${MAX_OPTION_LENGTH} characters or less`)
+        validationErrors.push(
+          `Option ${index + 1} must be ${MAX_OPTION_LENGTH} characters or less`,
+        );
       }
-    })
+    });
 
     // Validate multiple choice settings
     if (allowMultiple) {
       if (maxSelections < 1 || maxSelections > trimmedOptions.length) {
-        validationErrors.push('Maximum selections must be between 1 and the number of options')
+        validationErrors.push(
+          "Maximum selections must be between 1 and the number of options",
+        );
       }
       if (minSelections < 1 || minSelections > maxSelections) {
-        validationErrors.push('Minimum selections must be between 1 and maximum selections')
+        validationErrors.push(
+          "Minimum selections must be between 1 and maximum selections",
+        );
       }
     }
 
     // Validate expiration
     if (hasExpiration && expirationDate && expirationTime) {
-      const closesAt = new Date(`${expirationDate}T${expirationTime}`)
-      const now = new Date()
-      const minExpiration = new Date(now.getTime() + 5 * 60 * 1000) // 5 minutes
+      const closesAt = new Date(`${expirationDate}T${expirationTime}`);
+      const now = new Date();
+      const minExpiration = new Date(now.getTime() + 5 * 60 * 1000); // 5 minutes
 
       if (closesAt < minExpiration) {
-        validationErrors.push('Poll must be active for at least 5 minutes')
+        validationErrors.push("Poll must be active for at least 5 minutes");
       }
 
-      const maxExpiration = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days
+      const maxExpiration = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
       if (closesAt > maxExpiration) {
-        validationErrors.push('Poll cannot be active for more than 30 days')
+        validationErrors.push("Poll cannot be active for more than 30 days");
       }
     }
 
-    setErrors(validationErrors)
-    return validationErrors.length === 0
+    setErrors(validationErrors);
+    return validationErrors.length === 0;
   }, [
     question,
     description,
@@ -253,24 +296,26 @@ export function CreatePollModal({
     hasExpiration,
     expirationDate,
     expirationTime,
-  ])
+  ]);
 
   // Handle create poll
   const handleCreatePoll = useCallback(async () => {
     if (!validateForm()) {
-      setActiveTab('basic')
-      return
+      setActiveTab("basic");
+      return;
     }
 
-    const trimmedOptions = options.map((o) => o.trim()).filter((o) => o.length > 0)
+    const trimmedOptions = options
+      .map((o) => o.trim())
+      .filter((o) => o.length > 0);
 
     const closesAt =
       hasExpiration && expirationDate && expirationTime
         ? new Date(`${expirationDate}T${expirationTime}`)
-        : undefined
+        : undefined;
 
     const settings: PollSettings = {
-      type: allowMultiple ? 'multiple' : 'single',
+      type: allowMultiple ? "multiple" : "single",
       allowMultiple,
       maxSelections: allowMultiple ? maxSelections : undefined,
       minSelections: allowMultiple ? minSelections : undefined,
@@ -278,12 +323,12 @@ export function CreatePollModal({
       resultsVisibility,
       allowVoteChange,
       allowAddOptions,
-      addOptionsPermission: 'anyone',
+      addOptionsPermission: "anyone",
       requireComment: false,
       showVoterNames: !isAnonymous && showVoterNames,
       showRealTimeResults,
       isQuiz: false,
-    }
+    };
 
     const input: CreatePollInput = {
       question: question.trim(),
@@ -292,25 +337,28 @@ export function CreatePollModal({
       settings,
       channelId,
       closesAt,
-    }
+    };
 
-    setIsCreating(true)
+    setIsCreating(true);
     try {
-      await onCreatePoll(input)
+      await onCreatePoll(input);
       toast({
-        title: 'Poll created',
-        description: 'Your poll has been created successfully',
-      })
-      onClose()
+        title: "Poll created",
+        description: "Your poll has been created successfully",
+      });
+      onClose();
     } catch (error) {
       toast({
-        title: 'Failed to create poll',
-        description: error instanceof Error ? error.message : 'Please try again',
-        variant: 'destructive',
-      })
-      setErrors([error instanceof Error ? error.message : 'Failed to create poll'])
+        title: "Failed to create poll",
+        description:
+          error instanceof Error ? error.message : "Please try again",
+        variant: "destructive",
+      });
+      setErrors([
+        error instanceof Error ? error.message : "Failed to create poll",
+      ]);
     } finally {
-      setIsCreating(false)
+      setIsCreating(false);
     }
   }, [
     validateForm,
@@ -333,19 +381,19 @@ export function CreatePollModal({
     onCreatePoll,
     onClose,
     toast,
-  ])
+  ]);
 
   // Calculate minimum expiration time
   const minExpirationDateTime = useMemo(() => {
-    const min = new Date(Date.now() + 5 * 60 * 1000)
-    return min.toISOString().slice(0, 16)
-  }, [])
+    const min = new Date(Date.now() + 5 * 60 * 1000);
+    return min.toISOString().slice(0, 16);
+  }, []);
 
   // Calculate maximum expiration time
   const maxExpirationDateTime = useMemo(() => {
-    const max = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    return max.toISOString().slice(0, 16)
-  }, [])
+    const max = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    return max.toISOString().slice(0, 16);
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -355,10 +403,15 @@ export function CreatePollModal({
             <Sparkles className="h-5 w-5 text-primary" />
             Create a Poll
           </DialogTitle>
-          <DialogDescription>Ask your team a question and gather their opinions</DialogDescription>
+          <DialogDescription>
+            Ask your team a question and gather their opinions
+          </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'basic' | 'advanced')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as "basic" | "advanced")}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="basic">Basic</TabsTrigger>
             <TabsTrigger value="advanced">
@@ -416,7 +469,9 @@ export function CreatePollModal({
                     <Input
                       placeholder={`Option ${index + 1}`}
                       value={option}
-                      onChange={(e) => handleOptionChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleOptionChange(index, e.target.value)
+                      }
                       maxLength={MAX_OPTION_LENGTH}
                     />
                     {options.length > MIN_OPTIONS && (
@@ -461,7 +516,11 @@ export function CreatePollModal({
                     Let people select more than one option
                   </div>
                 </div>
-                <Switch id="multiple" checked={allowMultiple} onCheckedChange={setAllowMultiple} />
+                <Switch
+                  id="multiple"
+                  checked={allowMultiple}
+                  onCheckedChange={setAllowMultiple}
+                />
               </div>
 
               {allowMultiple && (
@@ -475,7 +534,9 @@ export function CreatePollModal({
                         min={1}
                         max={maxSelections}
                         value={minSelections}
-                        onChange={(e) => setMinSelections(parseInt(e.target.value, 10) || 1)}
+                        onChange={(e) =>
+                          setMinSelections(parseInt(e.target.value, 10) || 1)
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -484,9 +545,13 @@ export function CreatePollModal({
                         id="max-selections"
                         type="number"
                         min={minSelections}
-                        max={options.filter((o) => o.trim()).length || MAX_OPTIONS}
+                        max={
+                          options.filter((o) => o.trim()).length || MAX_OPTIONS
+                        }
                         value={maxSelections}
-                        onChange={(e) => setMaxSelections(parseInt(e.target.value, 10) || 2)}
+                        onChange={(e) =>
+                          setMaxSelections(parseInt(e.target.value, 10) || 2)
+                        }
                       />
                     </div>
                   </div>
@@ -500,7 +565,11 @@ export function CreatePollModal({
                     Hide who voted for each option
                   </div>
                 </div>
-                <Switch id="anonymous" checked={isAnonymous} onCheckedChange={setIsAnonymous} />
+                <Switch
+                  id="anonymous"
+                  checked={isAnonymous}
+                  onCheckedChange={setIsAnonymous}
+                />
               </div>
             </div>
 
@@ -532,17 +601,19 @@ export function CreatePollModal({
                     <Label>Quick Duration</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { value: '1h', label: '1 Hour' },
-                        { value: '6h', label: '6 Hours' },
-                        { value: '1d', label: '1 Day' },
-                        { value: '3d', label: '3 Days' },
-                        { value: '1w', label: '1 Week' },
-                        { value: 'custom', label: 'Custom' },
+                        { value: "1h", label: "1 Hour" },
+                        { value: "6h", label: "6 Hours" },
+                        { value: "1d", label: "1 Day" },
+                        { value: "3d", label: "3 Days" },
+                        { value: "1w", label: "1 Week" },
+                        { value: "custom", label: "Custom" },
                       ].map(({ value, label }) => (
                         <Button
                           key={value}
                           type="button"
-                          variant={quickDuration === value ? 'default' : 'outline'}
+                          variant={
+                            quickDuration === value ? "default" : "outline"
+                          }
                           size="sm"
                           onClick={() => handleQuickDuration(value)}
                         >
@@ -553,7 +624,7 @@ export function CreatePollModal({
                   </div>
 
                   {/* Custom date/time */}
-                  {quickDuration === 'custom' && (
+                  {quickDuration === "custom" && (
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="expiration-date">Date</Label>
@@ -562,8 +633,8 @@ export function CreatePollModal({
                           type="date"
                           value={expirationDate}
                           onChange={(e) => setExpirationDate(e.target.value)}
-                          min={minExpirationDateTime.split('T')[0]}
-                          max={maxExpirationDateTime.split('T')[0]}
+                          min={minExpirationDateTime.split("T")[0]}
+                          max={maxExpirationDateTime.split("T")[0]}
                         />
                       </div>
                       <div className="space-y-2">
@@ -647,7 +718,9 @@ export function CreatePollModal({
                 <Label htmlFor="results-visibility">Results Visibility</Label>
                 <Select
                   value={resultsVisibility}
-                  onValueChange={(value) => setResultsVisibility(value as PollResultsVisibility)}
+                  onValueChange={(value) =>
+                    setResultsVisibility(value as PollResultsVisibility)
+                  }
                 >
                   <SelectTrigger id="results-visibility">
                     <SelectValue />
@@ -655,13 +728,18 @@ export function CreatePollModal({
                   <SelectContent>
                     <SelectItem value="always">Always visible</SelectItem>
                     <SelectItem value="after_vote">After voting</SelectItem>
-                    <SelectItem value="after_close">After poll closes</SelectItem>
+                    <SelectItem value="after_close">
+                      After poll closes
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="text-xs text-muted-foreground">
-                  {resultsVisibility === 'always' && 'Results are visible to everyone'}
-                  {resultsVisibility === 'after_vote' && 'Results visible only after voting'}
-                  {resultsVisibility === 'after_close' && 'Results visible only after poll closes'}
+                  {resultsVisibility === "always" &&
+                    "Results are visible to everyone"}
+                  {resultsVisibility === "after_vote" &&
+                    "Results visible only after voting"}
+                  {resultsVisibility === "after_close" &&
+                    "Results visible only after poll closes"}
                 </div>
               </div>
             </div>
@@ -680,14 +758,19 @@ export function CreatePollModal({
         )}
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose} disabled={isCreating}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isCreating}
+          >
             Cancel
           </Button>
           <Button onClick={handleCreatePoll} disabled={isCreating}>
-            {isCreating ? 'Creating...' : 'Create Poll'}
+            {isCreating ? "Creating..." : "Create Poll"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

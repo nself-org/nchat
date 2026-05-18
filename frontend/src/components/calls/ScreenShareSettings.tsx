@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Screen Share Settings Component
@@ -7,19 +7,25 @@
  * Includes quality presets, frame rates, and optimization options.
  */
 
-import * as React from 'react'
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Switch } from '@/components/ui/switch'
-import { Slider } from '@/components/ui/slider'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Info, Zap, Network, Save } from 'lucide-react'
-import type { ScreenCaptureOptions } from '@/lib/webrtc/screen-capture'
+import * as React from "react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Info, Zap, Network, Save } from "lucide-react";
+import type { ScreenCaptureOptions } from "@/lib/webrtc/screen-capture";
 
 // =============================================================================
 // Types
@@ -27,13 +33,13 @@ import type { ScreenCaptureOptions } from '@/lib/webrtc/screen-capture'
 
 export interface ScreenShareSettingsProps {
   /** Current settings */
-  settings?: ScreenCaptureOptions
+  settings?: ScreenCaptureOptions;
   /** Callback when settings are saved */
-  onSave: (settings: ScreenCaptureOptions) => void
+  onSave: (settings: ScreenCaptureOptions) => void;
   /** Whether system audio is supported */
-  supportsSystemAudio?: boolean
+  supportsSystemAudio?: boolean;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // =============================================================================
@@ -42,30 +48,30 @@ export interface ScreenShareSettingsProps {
 
 const QUALITY_INFO = {
   auto: {
-    resolution: '1920x1080',
-    bitrate: '2.5 Mbps',
-    network: '5+ Mbps',
-    description: 'Automatically adjusts based on network',
+    resolution: "1920x1080",
+    bitrate: "2.5 Mbps",
+    network: "5+ Mbps",
+    description: "Automatically adjusts based on network",
   },
-  '720p': {
-    resolution: '1280x720',
-    bitrate: '1.5 Mbps',
-    network: '3+ Mbps',
-    description: 'Lower quality, better for slow connections',
+  "720p": {
+    resolution: "1280x720",
+    bitrate: "1.5 Mbps",
+    network: "3+ Mbps",
+    description: "Lower quality, better for slow connections",
   },
-  '1080p': {
-    resolution: '1920x1080',
-    bitrate: '2.5 Mbps',
-    network: '5+ Mbps',
-    description: 'Standard quality, good balance',
+  "1080p": {
+    resolution: "1920x1080",
+    bitrate: "2.5 Mbps",
+    network: "5+ Mbps",
+    description: "Standard quality, good balance",
   },
-  '4k': {
-    resolution: '3840x2160',
-    bitrate: '8 Mbps',
-    network: '20+ Mbps',
-    description: 'Highest quality, requires fast connection',
+  "4k": {
+    resolution: "3840x2160",
+    bitrate: "8 Mbps",
+    network: "20+ Mbps",
+    description: "Highest quality, requires fast connection",
   },
-}
+};
 
 // =============================================================================
 // Component
@@ -79,40 +85,42 @@ export function ScreenShareSettings({
 }: ScreenShareSettingsProps) {
   const [settings, setSettings] = useState<ScreenCaptureOptions>(
     initialSettings ?? {
-      quality: 'auto',
+      quality: "auto",
       frameRate: 30,
       captureSystemAudio: false,
       captureCursor: true,
       allowSurfaceSwitching: true,
-    }
-  )
+    },
+  );
 
-  const currentQualityInfo = QUALITY_INFO[settings.quality ?? 'auto']
+  const currentQualityInfo = QUALITY_INFO[settings.quality ?? "auto"];
 
   // ==========================================================================
   // Handlers
   // ==========================================================================
 
   const handleSave = () => {
-    onSave(settings)
-  }
+    onSave(settings);
+  };
 
   const updateSetting = <K extends keyof ScreenCaptureOptions>(
     key: K,
-    value: ScreenCaptureOptions[K]
+    value: ScreenCaptureOptions[K],
   ) => {
-    setSettings((prev) => ({ ...prev, [key]: value }))
-  }
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
 
   // ==========================================================================
   // Render
   // ==========================================================================
 
   return (
-    <Card className={cn('w-full max-w-2xl', className)}>
+    <Card className={cn("w-full max-w-2xl", className)}>
       <CardHeader>
         <CardTitle>Screen Share Settings</CardTitle>
-        <CardDescription>Configure quality, performance, and advanced options</CardDescription>
+        <CardDescription>
+          Configure quality, performance, and advanced options
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Quality Settings */}
@@ -120,7 +128,9 @@ export function ScreenShareSettings({
           <div className="flex items-center justify-between">
             <div>
               <Label className="text-base font-semibold">Quality Preset</Label>
-              <p className="text-sm text-muted-foreground">Choose video quality and resolution</p>
+              <p className="text-sm text-muted-foreground">
+                Choose video quality and resolution
+              </p>
             </div>
             <Badge variant="outline">
               <Zap className="mr-1 h-3 w-3" />
@@ -131,7 +141,7 @@ export function ScreenShareSettings({
           <RadioGroup
             value={settings.quality}
             onValueChange={(value) =>
-              updateSetting('quality', value as ScreenCaptureOptions['quality'])
+              updateSetting("quality", value as ScreenCaptureOptions["quality"])
             }
           >
             {Object.entries(QUALITY_INFO).map(([key, info]) => (
@@ -145,9 +155,11 @@ export function ScreenShareSettings({
                     htmlFor={key}
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    {key === 'auto' ? 'Auto' : key.toUpperCase()}
+                    {key === "auto" ? "Auto" : key.toUpperCase()}
                   </Label>
-                  <p className="text-sm text-muted-foreground">{info.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {info.description}
+                  </p>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span>{info.resolution}</span>
                     <span>•</span>
@@ -180,16 +192,16 @@ export function ScreenShareSettings({
               <Label htmlFor="frameRate">{settings.frameRate ?? 30} fps</Label>
               <Badge variant="outline">
                 {settings.frameRate! >= 60
-                  ? 'Smooth'
+                  ? "Smooth"
                   : settings.frameRate! >= 30
-                    ? 'Standard'
-                    : 'Economy'}
+                    ? "Standard"
+                    : "Economy"}
               </Badge>
             </div>
             <Slider
               id="frameRate"
               value={[settings.frameRate ?? 30]}
-              onValueChange={(value) => updateSetting('frameRate', value[0])}
+              onValueChange={(value) => updateSetting("frameRate", value[0])}
               min={15}
               max={60}
               step={15}
@@ -209,7 +221,9 @@ export function ScreenShareSettings({
         <div className="space-y-4">
           <div>
             <Label className="text-base font-semibold">Audio Options</Label>
-            <p className="text-sm text-muted-foreground">Capture system audio along with screen</p>
+            <p className="text-sm text-muted-foreground">
+              Capture system audio along with screen
+            </p>
           </div>
 
           <div className="flex items-center justify-between space-x-2">
@@ -224,7 +238,9 @@ export function ScreenShareSettings({
             <Switch
               id="systemAudio"
               checked={settings.captureSystemAudio ?? false}
-              onCheckedChange={(checked) => updateSetting('captureSystemAudio', checked)}
+              onCheckedChange={(checked) =>
+                updateSetting("captureSystemAudio", checked)
+              }
               disabled={!supportsSystemAudio}
             />
           </div>
@@ -233,7 +249,8 @@ export function ScreenShareSettings({
             <div className="flex items-start gap-2 rounded-md bg-amber-50 p-3 text-sm dark:bg-amber-950">
               <Info className="mt-0.5 h-4 w-4 text-amber-600 dark:text-amber-400" />
               <div className="text-amber-900 dark:text-amber-100">
-                System audio capture is only supported in Chrome and Edge browsers.
+                System audio capture is only supported in Chrome and Edge
+                browsers.
               </div>
             </div>
           )}
@@ -245,7 +262,9 @@ export function ScreenShareSettings({
         <div className="space-y-4">
           <div>
             <Label className="text-base font-semibold">Display Options</Label>
-            <p className="text-sm text-muted-foreground">Customize how your screen is shared</p>
+            <p className="text-sm text-muted-foreground">
+              Customize how your screen is shared
+            </p>
           </div>
 
           <div className="space-y-3">
@@ -261,13 +280,18 @@ export function ScreenShareSettings({
               <Switch
                 id="cursor"
                 checked={settings.captureCursor ?? true}
-                onCheckedChange={(checked) => updateSetting('captureCursor', checked)}
+                onCheckedChange={(checked) =>
+                  updateSetting("captureCursor", checked)
+                }
               />
             </div>
 
             <div className="flex items-center justify-between space-x-2">
               <div className="flex-1">
-                <Label htmlFor="surfaceSwitching" className="text-sm font-medium">
+                <Label
+                  htmlFor="surfaceSwitching"
+                  className="text-sm font-medium"
+                >
                   Allow Surface Switching
                 </Label>
                 <p className="text-sm text-muted-foreground">
@@ -277,7 +301,9 @@ export function ScreenShareSettings({
               <Switch
                 id="surfaceSwitching"
                 checked={settings.allowSurfaceSwitching ?? true}
-                onCheckedChange={(checked) => updateSetting('allowSurfaceSwitching', checked)}
+                onCheckedChange={(checked) =>
+                  updateSetting("allowSurfaceSwitching", checked)
+                }
               />
             </div>
           </div>
@@ -293,7 +319,8 @@ export function ScreenShareSettings({
           </div>
           <ul className="ml-6 list-disc space-y-1 text-sm text-muted-foreground">
             <li>
-              <strong>Presentations:</strong> 720p @ 30fps (better compatibility)
+              <strong>Presentations:</strong> 720p @ 30fps (better
+              compatibility)
             </li>
             <li>
               <strong>Design/Video:</strong> 1080p @ 60fps (higher quality)
@@ -316,5 +343,5 @@ export function ScreenShareSettings({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

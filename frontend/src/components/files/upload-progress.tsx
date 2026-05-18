@@ -1,41 +1,46 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { X, RotateCcw, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Progress } from '@/components/ui/progress'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import * as React from "react";
+import { X, RotateCcw, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export type UploadStatus = 'pending' | 'uploading' | 'completed' | 'error'
+export type UploadStatus = "pending" | "uploading" | "completed" | "error";
 
 export interface UploadProgressProps {
   /** Upload progress percentage (0-100) */
-  progress: number
+  progress: number;
   /** Upload status */
-  status: UploadStatus
+  status: UploadStatus;
   /** Error message (when status is 'error') */
-  errorMessage?: string
+  errorMessage?: string;
   /** Show percentage text */
-  showPercentage?: boolean
+  showPercentage?: boolean;
   /** Show status icon */
-  showStatusIcon?: boolean
+  showStatusIcon?: boolean;
   /** Show cancel button */
-  showCancel?: boolean
+  showCancel?: boolean;
   /** Show retry button (on error) */
-  showRetry?: boolean
+  showRetry?: boolean;
   /** Cancel callback */
-  onCancel?: () => void
+  onCancel?: () => void;
   /** Retry callback */
-  onRetry?: () => void
+  onRetry?: () => void;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -44,27 +49,27 @@ export interface UploadProgressProps {
 
 const SIZE_CONFIG = {
   sm: {
-    progressHeight: 'h-1',
-    iconSize: 'h-3 w-3',
-    buttonSize: 'h-5 w-5',
-    fontSize: 'text-xs',
-    gap: 'gap-1.5',
+    progressHeight: "h-1",
+    iconSize: "h-3 w-3",
+    buttonSize: "h-5 w-5",
+    fontSize: "text-xs",
+    gap: "gap-1.5",
   },
   md: {
-    progressHeight: 'h-2',
-    iconSize: 'h-4 w-4',
-    buttonSize: 'h-6 w-6',
-    fontSize: 'text-sm',
-    gap: 'gap-2',
+    progressHeight: "h-2",
+    iconSize: "h-4 w-4",
+    buttonSize: "h-6 w-6",
+    fontSize: "text-sm",
+    gap: "gap-2",
   },
   lg: {
-    progressHeight: 'h-3',
-    iconSize: 'h-5 w-5',
-    buttonSize: 'h-8 w-8',
-    fontSize: 'text-base',
-    gap: 'gap-3',
+    progressHeight: "h-3",
+    iconSize: "h-5 w-5",
+    buttonSize: "h-8 w-8",
+    fontSize: "text-base",
+    gap: "gap-3",
   },
-} as const
+} as const;
 
 // ============================================================================
 // COMPONENT
@@ -94,47 +99,66 @@ export function UploadProgress({
   showRetry = true,
   onCancel,
   onRetry,
-  size = 'md',
+  size = "md",
   className,
 }: UploadProgressProps) {
-  const config = SIZE_CONFIG[size]
+  const config = SIZE_CONFIG[size];
 
   // Determine colors based on status
   const getProgressColor = () => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-500'
-      case 'error':
-        return 'bg-destructive'
+      case "completed":
+        return "bg-green-500";
+      case "error":
+        return "bg-destructive";
       default:
-        return 'bg-primary'
+        return "bg-primary";
     }
-  }
+  };
 
   // Render status icon
   const renderStatusIcon = () => {
-    if (!showStatusIcon) return null
+    if (!showStatusIcon) return null;
 
     switch (status) {
-      case 'pending':
-        return <Loader2 className={cn(config.iconSize, 'animate-spin text-muted-foreground')} />
-      case 'uploading':
-        return <Loader2 className={cn(config.iconSize, 'animate-spin text-primary')} />
-      case 'completed':
-        return <CheckCircle2 className={cn(config.iconSize, 'text-green-500')} />
-      case 'error':
-        return <AlertCircle className={cn(config.iconSize, 'text-destructive')} />
+      case "pending":
+        return (
+          <Loader2
+            className={cn(
+              config.iconSize,
+              "animate-spin text-muted-foreground",
+            )}
+          />
+        );
+      case "uploading":
+        return (
+          <Loader2
+            className={cn(config.iconSize, "animate-spin text-primary")}
+          />
+        );
+      case "completed":
+        return (
+          <CheckCircle2 className={cn(config.iconSize, "text-green-500")} />
+        );
+      case "error":
+        return (
+          <AlertCircle className={cn(config.iconSize, "text-destructive")} />
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   // Render action buttons
   const renderActions = () => {
-    const buttons: React.ReactNode[] = []
+    const buttons: React.ReactNode[] = [];
 
     // Cancel button (for pending/uploading)
-    if (showCancel && (status === 'pending' || status === 'uploading') && onCancel) {
+    if (
+      showCancel &&
+      (status === "pending" || status === "uploading") &&
+      onCancel
+    ) {
       buttons.push(
         <TooltipProvider key="cancel">
           <Tooltip>
@@ -142,7 +166,10 @@ export function UploadProgress({
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn(config.buttonSize, 'text-muted-foreground hover:text-destructive')}
+                className={cn(
+                  config.buttonSize,
+                  "text-muted-foreground hover:text-destructive",
+                )}
                 onClick={onCancel}
               >
                 <X className={config.iconSize} />
@@ -153,12 +180,12 @@ export function UploadProgress({
               <p>Cancel upload</p>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-      )
+        </TooltipProvider>,
+      );
     }
 
     // Retry button (for error)
-    if (showRetry && status === 'error' && onRetry) {
+    if (showRetry && status === "error" && onRetry) {
       buttons.push(
         <TooltipProvider key="retry">
           <Tooltip>
@@ -166,7 +193,10 @@ export function UploadProgress({
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn(config.buttonSize, 'text-muted-foreground hover:text-primary')}
+                className={cn(
+                  config.buttonSize,
+                  "text-muted-foreground hover:text-primary",
+                )}
                 onClick={onRetry}
               >
                 <RotateCcw className={config.iconSize} />
@@ -177,16 +207,18 @@ export function UploadProgress({
               <p>Retry upload</p>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-      )
+        </TooltipProvider>,
+      );
     }
 
-    return buttons.length > 0 ? <div className="flex items-center gap-0.5">{buttons}</div> : null
-  }
+    return buttons.length > 0 ? (
+      <div className="flex items-center gap-0.5">{buttons}</div>
+    ) : null;
+  };
 
   return (
-    <div className={cn('w-full', className)}>
-      <div className={cn('flex items-center', config.gap)}>
+    <div className={cn("w-full", className)}>
+      <div className={cn("flex items-center", config.gap)}>
         {/* Status icon */}
         {renderStatusIcon()}
 
@@ -196,9 +228,9 @@ export function UploadProgress({
             value={progress}
             className={cn(
               config.progressHeight,
-              '[&>div]:transition-all',
-              status === 'error' && '[&>div]:bg-destructive',
-              status === 'completed' && '[&>div]:bg-green-500'
+              "[&>div]:transition-all",
+              status === "error" && "[&>div]:bg-destructive",
+              status === "completed" && "[&>div]:bg-green-500",
             )}
           />
         </div>
@@ -208,11 +240,11 @@ export function UploadProgress({
           <span
             className={cn(
               config.fontSize,
-              'min-w-[3ch] text-right tabular-nums',
-              status === 'error' ? 'text-destructive' : 'text-muted-foreground'
+              "min-w-[3ch] text-right tabular-nums",
+              status === "error" ? "text-destructive" : "text-muted-foreground",
             )}
           >
-            {status === 'error' ? '!' : `${Math.round(progress)}%`}
+            {status === "error" ? "!" : `${Math.round(progress)}%`}
           </span>
         )}
 
@@ -221,11 +253,13 @@ export function UploadProgress({
       </div>
 
       {/* Error message */}
-      {status === 'error' && errorMessage && (
-        <p className={cn('mt-1 text-destructive', config.fontSize)}>{errorMessage}</p>
+      {status === "error" && errorMessage && (
+        <p className={cn("mt-1 text-destructive", config.fontSize)}>
+          {errorMessage}
+        </p>
       )}
     </div>
-  )
+  );
 }
 
 /**
@@ -233,17 +267,17 @@ export function UploadProgress({
  */
 export interface CircularUploadProgressProps {
   /** Progress percentage (0-100) */
-  progress: number
+  progress: number;
   /** Upload status */
-  status: UploadStatus
+  status: UploadStatus;
   /** Size in pixels */
-  size?: number
+  size?: number;
   /** Stroke width */
-  strokeWidth?: number
+  strokeWidth?: number;
   /** Show percentage in center */
-  showPercentage?: boolean
+  showPercentage?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 export function CircularUploadProgress({
@@ -254,39 +288,46 @@ export function CircularUploadProgress({
   showPercentage = true,
   className,
 }: CircularUploadProgressProps) {
-  const radius = (size - strokeWidth) / 2
-  const circumference = radius * 2 * Math.PI
-  const offset = circumference - (progress / 100) * circumference
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (progress / 100) * circumference;
 
   // Get stroke color based on status
   const getStrokeColor = () => {
     switch (status) {
-      case 'completed':
-        return 'stroke-green-500'
-      case 'error':
-        return 'stroke-destructive'
+      case "completed":
+        return "stroke-green-500";
+      case "error":
+        return "stroke-destructive";
       default:
-        return 'stroke-primary'
+        return "stroke-primary";
     }
-  }
+  };
 
   // Render center content
   const renderCenter = () => {
-    if (status === 'completed') {
-      return <CheckCircle2 className="h-4 w-4 text-green-500" />
+    if (status === "completed") {
+      return <CheckCircle2 className="h-4 w-4 text-green-500" />;
     }
-    if (status === 'error') {
-      return <AlertCircle className="h-4 w-4 text-destructive" />
+    if (status === "error") {
+      return <AlertCircle className="h-4 w-4 text-destructive" />;
     }
     if (showPercentage) {
-      return <span className="text-xs font-medium tabular-nums">{Math.round(progress)}</span>
+      return (
+        <span className="text-xs font-medium tabular-nums">
+          {Math.round(progress)}
+        </span>
+      );
     }
-    return null
-  }
+    return null;
+  };
 
   return (
     <div
-      className={cn('relative inline-flex items-center justify-center', className)}
+      className={cn(
+        "relative inline-flex items-center justify-center",
+        className,
+      )}
       style={{ width: size, height: size }}
     >
       <svg
@@ -294,8 +335,8 @@ export function CircularUploadProgress({
         height={size}
         viewBox={`0 0 ${size} ${size}`}
         className={cn(
-          '-rotate-90 transform',
-          status === 'uploading' && progress < 100 && 'animate-pulse'
+          "-rotate-90 transform",
+          status === "uploading" && progress < 100 && "animate-pulse",
         )}
       >
         {/* Background circle */}
@@ -318,11 +359,13 @@ export function CircularUploadProgress({
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          className={cn('transition-all duration-300', getStrokeColor())}
+          className={cn("transition-all duration-300", getStrokeColor())}
         />
       </svg>
       {/* Center content */}
-      <div className="absolute inset-0 flex items-center justify-center">{renderCenter()}</div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        {renderCenter()}
+      </div>
     </div>
-  )
+  );
 }

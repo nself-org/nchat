@@ -5,55 +5,55 @@
  * Supports ERC-20, ERC-721, and ERC-1155 tokens across multiple chains.
  */
 
-import { getTokenManager } from '@/lib/wallet/token-manager'
-import { getWalletConnector } from '@/lib/wallet/wallet-connector'
-import type { ChainId } from '@/lib/wallet/wallet-connector'
+import { getTokenManager } from "@/lib/wallet/token-manager";
+import { getWalletConnector } from "@/lib/wallet/wallet-connector";
+import type { ChainId } from "@/lib/wallet/wallet-connector";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type TokenGateType = 'erc20' | 'erc721' | 'erc1155'
+export type TokenGateType = "erc20" | "erc721" | "erc1155";
 
 export interface TokenGateConfig {
-  id: string
-  channelId: string
-  gateType: TokenGateType
-  contractAddress: string
-  chainId: ChainId
-  networkName: string
-  tokenName?: string
-  tokenSymbol?: string
-  minimumBalance?: string // For ERC-20
-  requiredTokenIds?: string[] // For specific NFTs
-  isActive: boolean
-  bypassRoles: string[] // Roles that bypass the gate
-  cacheTTL: number // Cache verification for N seconds
+  id: string;
+  channelId: string;
+  gateType: TokenGateType;
+  contractAddress: string;
+  chainId: ChainId;
+  networkName: string;
+  tokenName?: string;
+  tokenSymbol?: string;
+  minimumBalance?: string; // For ERC-20
+  requiredTokenIds?: string[]; // For specific NFTs
+  isActive: boolean;
+  bypassRoles: string[]; // Roles that bypass the gate
+  cacheTTL: number; // Cache verification for N seconds
 }
 
 export interface TokenGateVerification {
-  channelId: string
-  userId: string
-  walletAddress: string
-  chainId: ChainId
-  isVerified: boolean
-  balance?: string
-  tokenIds?: string[]
-  verificationMethod: 'on_chain' | 'cached' | 'api'
-  accessGranted: boolean
-  denialReason?: string
-  verifiedAt: Date
-  expiresAt: Date
+  channelId: string;
+  userId: string;
+  walletAddress: string;
+  chainId: ChainId;
+  isVerified: boolean;
+  balance?: string;
+  tokenIds?: string[];
+  verificationMethod: "on_chain" | "cached" | "api";
+  accessGranted: boolean;
+  denialReason?: string;
+  verifiedAt: Date;
+  expiresAt: Date;
 }
 
 export interface AccessCheckResult {
-  hasAccess: boolean
-  reason?: string
-  verification?: TokenGateVerification
-  requiresVerification: boolean
-  bypassedByRole: boolean
+  hasAccess: boolean;
+  reason?: string;
+  verification?: TokenGateVerification;
+  requiresVerification: boolean;
+  bypassedByRole: boolean;
 }
 
 // ============================================================================
@@ -64,10 +64,10 @@ export class TokenGateService {
   private verificationCache = new Map<
     string,
     {
-      verification: TokenGateVerification
-      expiresAt: number
+      verification: TokenGateVerification;
+      expiresAt: number;
     }
-  >()
+  >();
 
   /**
    * Check if user has access to token-gated channel
@@ -76,17 +76,17 @@ export class TokenGateService {
     channelId: string,
     userId: string,
     userRole: string,
-    walletAddress?: string
+    walletAddress?: string,
   ): Promise<AccessCheckResult> {
     // Get token gate config for channel
-    const gateConfig = await this.getTokenGate(channelId)
+    const gateConfig = await this.getTokenGate(channelId);
 
     if (!gateConfig) {
       return {
         hasAccess: true,
         requiresVerification: false,
         bypassedByRole: false,
-      }
+      };
     }
 
     if (!gateConfig.isActive) {
@@ -94,7 +94,7 @@ export class TokenGateService {
         hasAccess: true,
         requiresVerification: false,
         bypassedByRole: false,
-      }
+      };
     }
 
     // Check if user role bypasses gate
@@ -104,7 +104,7 @@ export class TokenGateService {
         requiresVerification: false,
         bypassedByRole: true,
         reason: `Access granted by ${userRole} role`,
-      }
+      };
     }
 
     // Wallet address required for verification
@@ -113,29 +113,38 @@ export class TokenGateService {
         hasAccess: false,
         requiresVerification: true,
         bypassedByRole: false,
-        reason: 'Wallet connection required to verify token ownership',
-      }
+        reason: "Wallet connection required to verify token ownership",
+      };
     }
 
     // Check cache first
-    const cached = this.getCachedVerification(channelId, walletAddress)
+    const cached = this.getCachedVerification(channelId, walletAddress);
     if (cached && cached.accessGranted) {
       return {
         hasAccess: true,
         requiresVerification: false,
         bypassedByRole: false,
         verification: cached,
-      }
+      };
     }
 
     // Perform verification
-    const verification = await this.verifyTokenOwnership(gateConfig, userId, walletAddress)
+    const verification = await this.verifyTokenOwnership(
+      gateConfig,
+      userId,
+      walletAddress,
+    );
 
     // Cache result
-    this.cacheVerification(channelId, walletAddress, verification, gateConfig.cacheTTL)
+    this.cacheVerification(
+      channelId,
+      walletAddress,
+      verification,
+      gateConfig.cacheTTL,
+    );
 
     // Store verification in database
-    await this.saveVerification(verification)
+    await this.saveVerification(verification);
 
     return {
       hasAccess: verification.accessGranted,
@@ -143,7 +152,7 @@ export class TokenGateService {
       bypassedByRole: false,
       verification,
       reason: verification.denialReason,
-    }
+    };
   }
 
   /**
@@ -152,35 +161,48 @@ export class TokenGateService {
   async verifyTokenOwnership(
     config: TokenGateConfig,
     userId: string,
-    walletAddress: string
+    walletAddress: string,
   ): Promise<TokenGateVerification> {
-    const tokenManager = getTokenManager()
-    const now = new Date()
-    const expiresAt = new Date(now.getTime() + config.cacheTTL * 1000)
+    const tokenManager = getTokenManager();
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + config.cacheTTL * 1000);
 
     try {
       switch (config.gateType) {
-        case 'erc20':
-          return await this.verifyERC20(config, userId, walletAddress, tokenManager, now, expiresAt)
+        case "erc20":
+          return await this.verifyERC20(
+            config,
+            userId,
+            walletAddress,
+            tokenManager,
+            now,
+            expiresAt,
+          );
 
-        case 'erc721':
+        case "erc721":
           return await this.verifyERC721(
             config,
             userId,
             walletAddress,
             tokenManager,
             now,
-            expiresAt
-          )
+            expiresAt,
+          );
 
-        case 'erc1155':
-          return await this.verifyERC1155(config, userId, walletAddress, now, expiresAt)
+        case "erc1155":
+          return await this.verifyERC1155(
+            config,
+            userId,
+            walletAddress,
+            now,
+            expiresAt,
+          );
 
         default:
-          throw new Error(`Unsupported gate type: ${config.gateType}`)
+          throw new Error(`Unsupported gate type: ${config.gateType}`);
       }
     } catch (error) {
-      logger.error('Token ownership verification failed:', error)
+      logger.error("Token ownership verification failed:", error);
 
       return {
         channelId: config.channelId,
@@ -188,12 +210,12 @@ export class TokenGateService {
         walletAddress,
         chainId: config.chainId,
         isVerified: false,
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         accessGranted: false,
-        denialReason: 'Verification failed',
+        denialReason: "Verification failed",
         verifiedAt: now,
         expiresAt,
-      }
+      };
     }
   }
 
@@ -206,13 +228,13 @@ export class TokenGateService {
     walletAddress: string,
     tokenManager: any,
     now: Date,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<TokenGateVerification> {
     const balanceResult = await tokenManager.getTokenBalance(
       config.contractAddress,
       walletAddress,
-      config.chainId
-    )
+      config.chainId,
+    );
 
     if (!balanceResult.success || !balanceResult.data) {
       return {
@@ -221,18 +243,18 @@ export class TokenGateService {
         walletAddress,
         chainId: config.chainId,
         isVerified: false,
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         accessGranted: false,
-        denialReason: 'Failed to check token balance',
+        denialReason: "Failed to check token balance",
         verifiedAt: now,
         expiresAt,
-      }
+      };
     }
 
-    const balance = BigInt(balanceResult.data.balance)
-    const required = BigInt(config.minimumBalance || '1')
+    const balance = BigInt(balanceResult.data.balance);
+    const required = BigInt(config.minimumBalance || "1");
 
-    const hasEnough = balance >= required
+    const hasEnough = balance >= required;
 
     return {
       channelId: config.channelId,
@@ -241,14 +263,14 @@ export class TokenGateService {
       chainId: config.chainId,
       isVerified: true,
       balance: balance.toString(),
-      verificationMethod: 'on_chain',
+      verificationMethod: "on_chain",
       accessGranted: hasEnough,
       denialReason: hasEnough
         ? undefined
         : `Insufficient token balance. Required: ${required.toString()}, Current: ${balance.toString()}`,
       verifiedAt: now,
       expiresAt,
-    }
+    };
   }
 
   /**
@@ -260,26 +282,26 @@ export class TokenGateService {
     walletAddress: string,
     tokenManager: any,
     now: Date,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<TokenGateVerification> {
     // If specific token IDs are required
     if (config.requiredTokenIds && config.requiredTokenIds.length > 0) {
       // Check if user owns any of the required token IDs
-      const ownedTokenIds: string[] = []
+      const ownedTokenIds: string[] = [];
 
       for (const tokenId of config.requiredTokenIds) {
         const ownerResult = await tokenManager.isNFTOwner(
           config.contractAddress,
           tokenId,
-          walletAddress
-        )
+          walletAddress,
+        );
 
         if (ownerResult.success && ownerResult.data) {
-          ownedTokenIds.push(tokenId)
+          ownedTokenIds.push(tokenId);
         }
       }
 
-      const hasAccess = ownedTokenIds.length > 0
+      const hasAccess = ownedTokenIds.length > 0;
 
       return {
         channelId: config.channelId,
@@ -288,16 +310,21 @@ export class TokenGateService {
         chainId: config.chainId,
         isVerified: true,
         tokenIds: ownedTokenIds,
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         accessGranted: hasAccess,
-        denialReason: hasAccess ? undefined : 'You do not own any of the required NFTs',
+        denialReason: hasAccess
+          ? undefined
+          : "You do not own any of the required NFTs",
         verifiedAt: now,
         expiresAt,
-      }
+      };
     }
 
     // Otherwise check if user owns any NFT from the collection
-    const balanceResult = await tokenManager.getNFTBalance(config.contractAddress, walletAddress)
+    const balanceResult = await tokenManager.getNFTBalance(
+      config.contractAddress,
+      walletAddress,
+    );
 
     if (!balanceResult.success) {
       return {
@@ -306,15 +333,15 @@ export class TokenGateService {
         walletAddress,
         chainId: config.chainId,
         isVerified: false,
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         accessGranted: false,
-        denialReason: 'Failed to check NFT balance',
+        denialReason: "Failed to check NFT balance",
         verifiedAt: now,
         expiresAt,
-      }
+      };
     }
 
-    const hasNFT = (balanceResult.data || 0) > 0
+    const hasNFT = (balanceResult.data || 0) > 0;
 
     return {
       channelId: config.channelId,
@@ -323,12 +350,14 @@ export class TokenGateService {
       chainId: config.chainId,
       isVerified: true,
       balance: (balanceResult.data || 0).toString(),
-      verificationMethod: 'on_chain',
+      verificationMethod: "on_chain",
       accessGranted: hasNFT,
-      denialReason: hasNFT ? undefined : 'You do not own any NFTs from this collection',
+      denialReason: hasNFT
+        ? undefined
+        : "You do not own any NFTs from this collection",
       verifiedAt: now,
       expiresAt,
-    }
+    };
   }
 
   /**
@@ -339,29 +368,33 @@ export class TokenGateService {
     userId: string,
     walletAddress: string,
     now: Date,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<TokenGateVerification> {
-    const tokenManager = getTokenManager()
+    const tokenManager = getTokenManager();
 
     try {
       // If specific token IDs are required for ERC-1155
       if (config.requiredTokenIds && config.requiredTokenIds.length > 0) {
-        const ownedTokenIds: string[] = []
+        const ownedTokenIds: string[] = [];
 
         // Check balance for each required token ID
         for (const tokenId of config.requiredTokenIds) {
           const balanceResult = await this.getERC1155Balance(
             config.contractAddress,
             walletAddress,
-            tokenId
-          )
+            tokenId,
+          );
 
-          if (balanceResult.success && balanceResult.balance && BigInt(balanceResult.balance) > 0n) {
-            ownedTokenIds.push(tokenId)
+          if (
+            balanceResult.success &&
+            balanceResult.balance &&
+            BigInt(balanceResult.balance) > 0n
+          ) {
+            ownedTokenIds.push(tokenId);
           }
         }
 
-        const hasAccess = ownedTokenIds.length > 0
+        const hasAccess = ownedTokenIds.length > 0;
 
         return {
           channelId: config.channelId,
@@ -370,12 +403,14 @@ export class TokenGateService {
           chainId: config.chainId,
           isVerified: true,
           tokenIds: ownedTokenIds,
-          verificationMethod: 'on_chain',
+          verificationMethod: "on_chain",
           accessGranted: hasAccess,
-          denialReason: hasAccess ? undefined : 'You do not own any of the required tokens',
+          denialReason: hasAccess
+            ? undefined
+            : "You do not own any of the required tokens",
           verifiedAt: now,
           expiresAt,
-        }
+        };
       }
 
       // If no specific IDs required, check if user owns any token from contract
@@ -387,13 +422,13 @@ export class TokenGateService {
         walletAddress,
         chainId: config.chainId,
         isVerified: true,
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         accessGranted: true,
         verifiedAt: now,
         expiresAt,
-      }
+      };
     } catch (error) {
-      logger.error('ERC-1155 verification failed:', error)
+      logger.error("ERC-1155 verification failed:", error);
 
       return {
         channelId: config.channelId,
@@ -401,12 +436,12 @@ export class TokenGateService {
         walletAddress,
         chainId: config.chainId,
         isVerified: false,
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         accessGranted: false,
-        denialReason: 'ERC-1155 verification failed',
+        denialReason: "ERC-1155 verification failed",
         verifiedAt: now,
         expiresAt,
-      }
+      };
     }
   }
 
@@ -416,36 +451,41 @@ export class TokenGateService {
   private async getERC1155Balance(
     contractAddress: string,
     ownerAddress: string,
-    tokenId: string
+    tokenId: string,
   ): Promise<{
-    success: boolean
-    balance?: string
-    error?: string
+    success: boolean;
+    balance?: string;
+    error?: string;
   }> {
     try {
       // ERC-1155 balanceOf signature
-      const ERC1155_BALANCE_OF = '0x00fdd58e'
+      const ERC1155_BALANCE_OF = "0x00fdd58e";
 
       // Construct call data
       // balanceOf(address, uint256)
-      const paddedAddress = ownerAddress.toLowerCase().replace('0x', '').padStart(64, '0')
-      const paddedTokenId = BigInt(tokenId).toString(16).padStart(64, '0')
-      const data = ERC1155_BALANCE_OF + paddedAddress + paddedTokenId
+      const paddedAddress = ownerAddress
+        .toLowerCase()
+        .replace("0x", "")
+        .padStart(64, "0");
+      const paddedTokenId = BigInt(tokenId).toString(16).padStart(64, "0");
+      const data = ERC1155_BALANCE_OF + paddedAddress + paddedTokenId;
 
       // Note: This requires an Ethereum provider to be available
       // In a production implementation, you would use an RPC endpoint directly
-      logger.info(`Checking ERC-1155 balance: contract=${contractAddress}, owner=${ownerAddress}, tokenId=${tokenId}`)
+      logger.info(
+        `Checking ERC-1155 balance: contract=${contractAddress}, owner=${ownerAddress}, tokenId=${tokenId}`,
+      );
 
       return {
         success: true,
-        balance: '1', // Placeholder: actual implementation would call the contract
-      }
+        balance: "1", // Placeholder: actual implementation would call the contract
+      };
     } catch (error) {
-      logger.error('ERC-1155 balance check failed:', error)
+      logger.error("ERC-1155 balance check failed:", error);
       return {
         success: false,
-        error: 'Failed to check ERC-1155 balance',
-      }
+        error: "Failed to check ERC-1155 balance",
+      };
     }
   }
 
@@ -454,17 +494,17 @@ export class TokenGateService {
    */
   async createTokenGate(
     channelId: string,
-    config: Omit<TokenGateConfig, 'id' | 'channelId'>
+    config: Omit<TokenGateConfig, "id" | "channelId">,
   ): Promise<TokenGateConfig> {
     const tokenGate: TokenGateConfig = {
       id: `tg_${Date.now()}_${Math.random().toString(36).substring(7)}`,
       channelId,
       ...config,
-    }
+    };
 
-    await this.saveTokenGateToDB(tokenGate)
+    await this.saveTokenGateToDB(tokenGate);
 
-    return tokenGate
+    return tokenGate;
   }
 
   /**
@@ -472,103 +512,112 @@ export class TokenGateService {
    */
   async updateTokenGate(
     gateId: string,
-    updates: Partial<Omit<TokenGateConfig, 'id' | 'channelId'>>
+    updates: Partial<Omit<TokenGateConfig, "id" | "channelId">>,
   ): Promise<TokenGateConfig | null> {
-    const existing = await this.getTokenGateById(gateId)
+    const existing = await this.getTokenGateById(gateId);
     if (!existing) {
-      return null
+      return null;
     }
 
     const updated: TokenGateConfig = {
       ...existing,
       ...updates,
-    }
+    };
 
-    await this.saveTokenGateToDB(updated)
+    await this.saveTokenGateToDB(updated);
 
     // Clear cache for affected channel
     for (const [key] of this.verificationCache) {
       if (key.startsWith(`${existing.channelId}:`)) {
-        this.verificationCache.delete(key)
+        this.verificationCache.delete(key);
       }
     }
 
-    return updated
+    return updated;
   }
 
   /**
    * Delete a token gate
    */
   async deleteTokenGate(gateId: string): Promise<boolean> {
-    const existing = await this.getTokenGateById(gateId)
+    const existing = await this.getTokenGateById(gateId);
 
     try {
-      const { Pool } = await import('pg')
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+      const { Pool } = await import("pg");
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-      await pool.query('DELETE FROM public.token_gates WHERE id = $1', [gateId])
-      await pool.end()
+      await pool.query("DELETE FROM public.token_gates WHERE id = $1", [
+        gateId,
+      ]);
+      await pool.end();
 
       // Clear cache for this gate's channel
       if (existing) {
         for (const [key] of this.verificationCache) {
           if (key.startsWith(`${existing.channelId}:`)) {
-            this.verificationCache.delete(key)
+            this.verificationCache.delete(key);
           }
         }
       }
 
-      return true
+      return true;
     } catch (error) {
-      logger.error('Failed to delete token gate:', error)
-      return false
+      logger.error("Failed to delete token gate:", error);
+      return false;
     }
   }
 
   /**
    * Get token gate by ID
    */
-  private async getTokenGateById(gateId: string): Promise<TokenGateConfig | null> {
+  private async getTokenGateById(
+    gateId: string,
+  ): Promise<TokenGateConfig | null> {
     try {
-      const { Pool } = await import('pg')
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+      const { Pool } = await import("pg");
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-      const result = await pool.query('SELECT * FROM public.token_gates WHERE id = $1', [gateId])
-      await pool.end()
+      const result = await pool.query(
+        "SELECT * FROM public.token_gates WHERE id = $1",
+        [gateId],
+      );
+      await pool.end();
 
       if (result.rows.length === 0) {
-        return null
+        return null;
       }
 
-      return this.mapRowToTokenGate(result.rows[0])
+      return this.mapRowToTokenGate(result.rows[0]);
     } catch (error) {
-      logger.error('Failed to get token gate by ID:', error)
-      return null
+      logger.error("Failed to get token gate by ID:", error);
+      return null;
     }
   }
 
   /**
    * Get token gate for a channel
    */
-  private async getTokenGate(channelId: string): Promise<TokenGateConfig | null> {
+  private async getTokenGate(
+    channelId: string,
+  ): Promise<TokenGateConfig | null> {
     try {
-      const { Pool } = await import('pg')
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+      const { Pool } = await import("pg");
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
       const result = await pool.query(
-        'SELECT * FROM public.token_gates WHERE channel_id = $1 AND is_active = true LIMIT 1',
-        [channelId]
-      )
-      await pool.end()
+        "SELECT * FROM public.token_gates WHERE channel_id = $1 AND is_active = true LIMIT 1",
+        [channelId],
+      );
+      await pool.end();
 
       if (result.rows.length === 0) {
-        return null
+        return null;
       }
 
-      return this.mapRowToTokenGate(result.rows[0])
+      return this.mapRowToTokenGate(result.rows[0]);
     } catch (error) {
-      logger.error('Failed to get token gate:', error)
-      return null
+      logger.error("Failed to get token gate:", error);
+      return null;
     }
   }
 
@@ -577,8 +626,8 @@ export class TokenGateService {
    */
   private async saveTokenGateToDB(gate: TokenGateConfig): Promise<void> {
     try {
-      const { Pool } = await import('pg')
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+      const { Pool } = await import("pg");
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
       await pool.query(
         `INSERT INTO public.token_gates (
@@ -613,13 +662,13 @@ export class TokenGateService {
           gate.isActive,
           JSON.stringify(gate.bypassRoles),
           gate.cacheTTL,
-        ]
-      )
+        ],
+      );
 
-      await pool.end()
+      await pool.end();
     } catch (error) {
-      logger.error('Failed to save token gate:', error)
-      throw error
+      logger.error("Failed to save token gate:", error);
+      throw error;
     }
   }
 
@@ -641,7 +690,7 @@ export class TokenGateService {
       isActive: row.is_active,
       bypassRoles: row.bypass_roles || [],
       cacheTTL: row.cache_ttl || 300,
-    }
+    };
   }
 
   /**
@@ -649,18 +698,18 @@ export class TokenGateService {
    */
   private getCachedVerification(
     channelId: string,
-    walletAddress: string
+    walletAddress: string,
   ): TokenGateVerification | null {
-    const cacheKey = `${channelId}:${walletAddress}`
-    const cached = this.verificationCache.get(cacheKey)
+    const cacheKey = `${channelId}:${walletAddress}`;
+    const cached = this.verificationCache.get(cacheKey);
 
-    if (!cached) return null
+    if (!cached) return null;
     if (Date.now() > cached.expiresAt) {
-      this.verificationCache.delete(cacheKey)
-      return null
+      this.verificationCache.delete(cacheKey);
+      return null;
     }
 
-    return cached.verification
+    return cached.verification;
   }
 
   /**
@@ -670,24 +719,26 @@ export class TokenGateService {
     channelId: string,
     walletAddress: string,
     verification: TokenGateVerification,
-    ttlSeconds: number
+    ttlSeconds: number,
   ): void {
-    const cacheKey = `${channelId}:${walletAddress}`
-    const expiresAt = Date.now() + ttlSeconds * 1000
+    const cacheKey = `${channelId}:${walletAddress}`;
+    const expiresAt = Date.now() + ttlSeconds * 1000;
 
     this.verificationCache.set(cacheKey, {
       verification,
       expiresAt,
-    })
+    });
   }
 
   /**
    * Save verification to database
    */
-  private async saveVerification(verification: TokenGateVerification): Promise<void> {
+  private async saveVerification(
+    verification: TokenGateVerification,
+  ): Promise<void> {
     try {
-      const { Pool } = await import('pg')
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+      const { Pool } = await import("pg");
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
       await pool.query(
         `INSERT INTO public.token_gate_verifications (
@@ -708,12 +759,12 @@ export class TokenGateService {
           verification.denialReason || null,
           verification.verifiedAt,
           verification.expiresAt,
-        ]
-      )
+        ],
+      );
 
-      await pool.end()
+      await pool.end();
     } catch (error) {
-      logger.error('Failed to save verification:', error)
+      logger.error("Failed to save verification:", error);
     }
   }
 
@@ -722,24 +773,25 @@ export class TokenGateService {
    */
   async getVerificationHistory(
     userId: string,
-    channelId?: string
+    channelId?: string,
   ): Promise<TokenGateVerification[]> {
     try {
-      const { Pool } = await import('pg')
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+      const { Pool } = await import("pg");
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-      let query = 'SELECT * FROM public.token_gate_verifications WHERE user_id = $1'
-      const params: any[] = [userId]
+      let query =
+        "SELECT * FROM public.token_gate_verifications WHERE user_id = $1";
+      const params: any[] = [userId];
 
       if (channelId) {
-        query += ' AND channel_id = $2'
-        params.push(channelId)
+        query += " AND channel_id = $2";
+        params.push(channelId);
       }
 
-      query += ' ORDER BY verified_at DESC LIMIT 50'
+      query += " ORDER BY verified_at DESC LIMIT 50";
 
-      const result = await pool.query(query, params)
-      await pool.end()
+      const result = await pool.query(query, params);
+      await pool.end();
 
       return result.rows.map((row) => ({
         channelId: row.channel_id,
@@ -754,10 +806,10 @@ export class TokenGateService {
         denialReason: row.denial_reason,
         verifiedAt: new Date(row.verified_at),
         expiresAt: new Date(row.expires_at),
-      }))
+      }));
     } catch (error) {
-      logger.error('Failed to get verification history:', error)
-      return []
+      logger.error("Failed to get verification history:", error);
+      return [];
     }
   }
 
@@ -765,11 +817,11 @@ export class TokenGateService {
    * Clear expired verifications from cache
    */
   clearExpiredCache(): void {
-    const now = Date.now()
+    const now = Date.now();
 
     for (const [key, cached] of this.verificationCache) {
       if (now > cached.expiresAt) {
-        this.verificationCache.delete(key)
+        this.verificationCache.delete(key);
       }
     }
   }
@@ -779,8 +831,8 @@ export class TokenGateService {
    */
   async getTokenGatedChannels(workspaceId: string): Promise<TokenGateConfig[]> {
     try {
-      const { Pool } = await import('pg')
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+      const { Pool } = await import("pg");
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
       // Join with channels table to get token gates for a workspace's channels
       const result = await pool.query(
@@ -788,15 +840,15 @@ export class TokenGateService {
          INNER JOIN nchat_channels c ON tg.channel_id = c.id
          WHERE c.workspace_id = $1
          ORDER BY tg.created_at DESC`,
-        [workspaceId]
-      )
+        [workspaceId],
+      );
 
-      await pool.end()
+      await pool.end();
 
-      return result.rows.map(this.mapRowToTokenGate)
+      return result.rows.map(this.mapRowToTokenGate);
     } catch (error) {
-      logger.error('Failed to get token gated channels:', error)
-      return []
+      logger.error("Failed to get token gated channels:", error);
+      return [];
     }
   }
 }
@@ -805,20 +857,20 @@ export class TokenGateService {
 // Singleton Instance
 // ============================================================================
 
-let tokenGateService: TokenGateService | null = null
+let tokenGateService: TokenGateService | null = null;
 
 export function getTokenGateService(): TokenGateService {
   if (!tokenGateService) {
-    tokenGateService = new TokenGateService()
+    tokenGateService = new TokenGateService();
 
     // Clear expired cache every 5 minutes
     setInterval(
       () => {
-        tokenGateService?.clearExpiredCache()
+        tokenGateService?.clearExpiredCache();
       },
-      5 * 60 * 1000
-    )
+      5 * 60 * 1000,
+    );
   }
 
-  return tokenGateService
+  return tokenGateService;
 }

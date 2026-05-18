@@ -4,9 +4,9 @@
  * Settings UI for managing notification preferences.
  */
 
-'use client'
+"use client";
 
-import React, { useCallback } from 'react'
+import React, { useCallback } from "react";
 import {
   Bell,
   BellOff,
@@ -20,24 +20,34 @@ import {
   Megaphone,
   Settings,
   RefreshCw,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
-import { useNotificationPreferences } from '@/hooks/use-notification-preferences'
-import { usePushSubscription } from '@/hooks/use-push-subscription'
-import { NotificationChannel, NotificationCategory, FrequencyType } from '@/types/notifications'
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { useNotificationPreferences } from "@/hooks/use-notification-preferences";
+import { usePushSubscription } from "@/hooks/use-push-subscription";
+import {
+  NotificationChannel,
+  NotificationCategory,
+  FrequencyType,
+} from "@/types/notifications";
 
 // =============================================================================
 // Types
@@ -47,12 +57,12 @@ export interface NotificationPreferencesProps {
   /**
    * Additional class name
    */
-  className?: string
+  className?: string;
 
   /**
    * Callback when preferences are saved
    */
-  onSave?: () => void
+  onSave?: () => void;
 }
 
 // =============================================================================
@@ -60,17 +70,17 @@ export interface NotificationPreferencesProps {
 // =============================================================================
 
 interface ChannelSectionProps {
-  channel: NotificationChannel
-  title: string
-  description: string
-  icon: React.ElementType
-  enabled: boolean
-  frequency: FrequencyType
-  categories: Record<NotificationCategory, boolean>
-  onToggle: (enabled: boolean) => void
-  onFrequencyChange: (frequency: FrequencyType) => void
-  onCategoryToggle: (category: NotificationCategory, enabled: boolean) => void
-  isLoading?: boolean
+  channel: NotificationChannel;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  enabled: boolean;
+  frequency: FrequencyType;
+  categories: Record<NotificationCategory, boolean>;
+  onToggle: (enabled: boolean) => void;
+  onFrequencyChange: (frequency: FrequencyType) => void;
+  onCategoryToggle: (category: NotificationCategory, enabled: boolean) => void;
+  isLoading?: boolean;
 }
 
 function ChannelSection({
@@ -86,12 +96,15 @@ function ChannelSection({
   onCategoryToggle,
   isLoading,
 }: ChannelSectionProps) {
-  const categoryLabels: Record<NotificationCategory, { label: string; icon: React.ElementType }> = {
-    transactional: { label: 'Messages & Mentions', icon: MessageSquare },
-    marketing: { label: 'Marketing & Updates', icon: Megaphone },
-    system: { label: 'System & Security', icon: Settings },
-    alert: { label: 'Alerts & Reminders', icon: AlertTriangle },
-  }
+  const categoryLabels: Record<
+    NotificationCategory,
+    { label: string; icon: React.ElementType }
+  > = {
+    transactional: { label: "Messages & Mentions", icon: MessageSquare },
+    marketing: { label: "Marketing & Updates", icon: Megaphone },
+    system: { label: "System & Security", icon: Settings },
+    alert: { label: "Alerts & Reminders", icon: AlertTriangle },
+  };
 
   return (
     <Card>
@@ -103,7 +116,9 @@ function ChannelSection({
             </div>
             <div>
               <CardTitle className="text-base">{title}</CardTitle>
-              <CardDescription className="text-xs">{description}</CardDescription>
+              <CardDescription className="text-xs">
+                {description}
+              </CardDescription>
             </div>
           </div>
           <Switch
@@ -147,9 +162,13 @@ function ChannelSection({
           <div className="space-y-3">
             <Label className="text-sm text-muted-foreground">Categories</Label>
             {Object.entries(categories).map(([category, isEnabled]) => {
-              const { label, icon: CategoryIcon } = categoryLabels[category as NotificationCategory]
+              const { label, icon: CategoryIcon } =
+                categoryLabels[category as NotificationCategory];
               return (
-                <div key={category} className="flex items-center justify-between">
+                <div
+                  key={category}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center gap-2">
                     <CategoryIcon className="h-4 w-4 text-muted-foreground" />
                     <Label className="text-sm">{label}</Label>
@@ -157,19 +176,22 @@ function ChannelSection({
                   <Switch
                     checked={isEnabled}
                     onCheckedChange={(checked) =>
-                      onCategoryToggle(category as NotificationCategory, checked)
+                      onCategoryToggle(
+                        category as NotificationCategory,
+                        checked,
+                      )
                     }
                     disabled={isLoading}
                     aria-label={`Enable ${label}`}
                   />
                 </div>
-              )
+              );
             })}
           </div>
         </CardContent>
       )}
     </Card>
-  )
+  );
 }
 
 // =============================================================================
@@ -186,22 +208,22 @@ function PushSubscriptionSection() {
     requestPermission,
     subscribe,
     unsubscribe,
-  } = usePushSubscription()
+  } = usePushSubscription();
 
   const handleToggle = useCallback(async () => {
     if (isSubscribed) {
-      await unsubscribe()
+      await unsubscribe();
     } else {
-      if (permission === 'default') {
-        const result = await requestPermission()
-        if (result === 'granted') {
-          await subscribe()
+      if (permission === "default") {
+        const result = await requestPermission();
+        if (result === "granted") {
+          await subscribe();
         }
-      } else if (permission === 'granted') {
-        await subscribe()
+      } else if (permission === "granted") {
+        await subscribe();
       }
     }
-  }, [isSubscribed, permission, requestPermission, subscribe, unsubscribe])
+  }, [isSubscribed, permission, requestPermission, subscribe, unsubscribe]);
 
   if (!isSupported) {
     return (
@@ -209,17 +231,19 @@ function PushSubscriptionSection() {
         <CardContent className="flex items-center gap-3 py-4">
           <BellOff className="h-5 w-5 text-muted-foreground" />
           <div>
-            <p className="text-sm font-medium">Push notifications not supported</p>
+            <p className="text-sm font-medium">
+              Push notifications not supported
+            </p>
             <p className="text-xs text-muted-foreground">
               Your browser does not support push notifications
             </p>
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  if (permission === 'denied') {
+  if (permission === "denied") {
     return (
       <Card className="border-destructive/50">
         <CardContent className="flex items-center gap-3 py-4">
@@ -232,7 +256,7 @@ function PushSubscriptionSection() {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -241,8 +265,8 @@ function PushSubscriptionSection() {
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              'flex h-10 w-10 items-center justify-center rounded-lg',
-              isSubscribed ? 'bg-primary/10' : 'bg-muted'
+              "flex h-10 w-10 items-center justify-center rounded-lg",
+              isSubscribed ? "bg-primary/10" : "bg-muted",
             )}
           >
             {isSubscribed ? (
@@ -253,17 +277,19 @@ function PushSubscriptionSection() {
           </div>
           <div>
             <p className="text-sm font-medium">
-              {isSubscribed ? 'Push notifications enabled' : 'Enable push notifications'}
+              {isSubscribed
+                ? "Push notifications enabled"
+                : "Enable push notifications"}
             </p>
             <p className="text-xs text-muted-foreground">
               {isSubscribed
-                ? 'You will receive notifications on this device'
-                : 'Get notified even when the app is not open'}
+                ? "You will receive notifications on this device"
+                : "Get notified even when the app is not open"}
             </p>
           </div>
         </div>
         <Button
-          variant={isSubscribed ? 'outline' : 'default'}
+          variant={isSubscribed ? "outline" : "default"}
           size="sm"
           onClick={handleToggle}
           disabled={isLoading}
@@ -271,9 +297,9 @@ function PushSubscriptionSection() {
           {isLoading ? (
             <RefreshCw className="h-4 w-4 animate-spin" />
           ) : isSubscribed ? (
-            'Disable'
+            "Disable"
           ) : (
-            'Enable'
+            "Enable"
           )}
         </Button>
       </CardContent>
@@ -283,14 +309,17 @@ function PushSubscriptionSection() {
         </CardContent>
       )}
     </Card>
-  )
+  );
 }
 
 // =============================================================================
 // Main Component
 // =============================================================================
 
-export function NotificationPreferences({ className, onSave }: NotificationPreferencesProps) {
+export function NotificationPreferences({
+  className,
+  onSave,
+}: NotificationPreferencesProps) {
   const {
     preferences,
     isLoading,
@@ -303,37 +332,37 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
     resetPreferences,
   } = useNotificationPreferences({
     onUpdate: onSave,
-  })
+  });
 
   const handleQuietHoursToggle = useCallback(
     async (enabled: boolean) => {
       if (enabled) {
         await setQuietHours({
-          start: '22:00',
-          end: '08:00',
+          start: "22:00",
+          end: "08:00",
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        })
+        });
       } else {
-        await setQuietHours(null)
+        await setQuietHours(null);
       }
     },
-    [setQuietHours]
-  )
+    [setQuietHours],
+  );
 
   const handleQuietHoursChange = useCallback(
-    async (field: 'start' | 'end', value: string) => {
+    async (field: "start" | "end", value: string) => {
       if (preferences.quietHours) {
         await setQuietHours({
           ...preferences.quietHours,
           [field]: value,
-        })
+        });
       }
     },
-    [preferences.quietHours, setQuietHours]
-  )
+    [preferences.quietHours, setQuietHours],
+  );
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Push Notifications */}
       <div className="space-y-3">
         <h3 className="text-sm font-medium">Browser Notifications</h3>
@@ -351,9 +380,13 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
           enabled={preferences.email.enabled}
           frequency={preferences.email.frequency}
           categories={preferences.email.categories}
-          onToggle={(enabled) => toggleChannel('email', enabled)}
-          onFrequencyChange={(frequency) => setChannelFrequency('email', frequency)}
-          onCategoryToggle={(category, enabled) => toggleCategory('email', category, enabled)}
+          onToggle={(enabled) => toggleChannel("email", enabled)}
+          onFrequencyChange={(frequency) =>
+            setChannelFrequency("email", frequency)
+          }
+          onCategoryToggle={(category, enabled) =>
+            toggleCategory("email", category, enabled)
+          }
           isLoading={isLoading}
         />
       </div>
@@ -369,9 +402,13 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
           enabled={preferences.push.enabled}
           frequency={preferences.push.frequency}
           categories={preferences.push.categories}
-          onToggle={(enabled) => toggleChannel('push', enabled)}
-          onFrequencyChange={(frequency) => setChannelFrequency('push', frequency)}
-          onCategoryToggle={(category, enabled) => toggleCategory('push', category, enabled)}
+          onToggle={(enabled) => toggleChannel("push", enabled)}
+          onFrequencyChange={(frequency) =>
+            setChannelFrequency("push", frequency)
+          }
+          onCategoryToggle={(category, enabled) =>
+            toggleCategory("push", category, enabled)
+          }
           isLoading={isLoading}
         />
       </div>
@@ -387,9 +424,13 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
           enabled={preferences.sms.enabled}
           frequency={preferences.sms.frequency}
           categories={preferences.sms.categories}
-          onToggle={(enabled) => toggleChannel('sms', enabled)}
-          onFrequencyChange={(frequency) => setChannelFrequency('sms', frequency)}
-          onCategoryToggle={(category, enabled) => toggleCategory('sms', category, enabled)}
+          onToggle={(enabled) => toggleChannel("sms", enabled)}
+          onFrequencyChange={(frequency) =>
+            setChannelFrequency("sms", frequency)
+          }
+          onCategoryToggle={(category, enabled) =>
+            toggleCategory("sms", category, enabled)
+          }
           isLoading={isLoading}
         />
       </div>
@@ -429,7 +470,9 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
                   <Input
                     type="time"
                     value={preferences.quietHours.start}
-                    onChange={(e) => handleQuietHoursChange('start', e.target.value)}
+                    onChange={(e) =>
+                      handleQuietHoursChange("start", e.target.value)
+                    }
                     disabled={isLoading}
                   />
                 </div>
@@ -438,7 +481,9 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
                   <Input
                     type="time"
                     value={preferences.quietHours.end}
-                    onChange={(e) => handleQuietHoursChange('end', e.target.value)}
+                    onChange={(e) =>
+                      handleQuietHoursChange("end", e.target.value)
+                    }
                     disabled={isLoading}
                   />
                 </div>
@@ -479,11 +524,17 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
               <Separator />
               <div className="flex items-center gap-4">
                 <div className="flex-1">
-                  <Label className="text-xs text-muted-foreground">Frequency</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Frequency
+                  </Label>
                   <Select
                     value={preferences.digest.frequency}
                     onValueChange={(v) =>
-                      setDigest(true, v as 'daily' | 'weekly', preferences.digest.time)
+                      setDigest(
+                        true,
+                        v as "daily" | "weekly",
+                        preferences.digest.time,
+                      )
                     }
                     disabled={isLoading}
                   >
@@ -501,7 +552,13 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
                   <Input
                     type="time"
                     value={preferences.digest.time}
-                    onChange={(e) => setDigest(true, preferences.digest.frequency, e.target.value)}
+                    onChange={(e) =>
+                      setDigest(
+                        true,
+                        preferences.digest.frequency,
+                        e.target.value,
+                      )
+                    }
                     disabled={isLoading}
                   />
                 </div>
@@ -531,7 +588,7 @@ export function NotificationPreferences({ className, onSave }: NotificationPrefe
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
-export default NotificationPreferences
+export default NotificationPreferences;

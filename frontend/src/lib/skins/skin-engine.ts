@@ -23,11 +23,11 @@ import type {
   ResolvedSkinState,
   SkinRegistry,
   SkinColorPalette,
-} from './types'
+} from "./types";
 
-import { visualSkins } from './visual-skins'
-import { behaviorPresets } from './behavior-presets'
-import { compositeProfiles } from './composite-profiles'
+import { visualSkins } from "./visual-skins";
+import { behaviorPresets } from "./behavior-presets";
+import { compositeProfiles } from "./composite-profiles";
 
 // ============================================================================
 // DEEP MERGE
@@ -39,34 +39,34 @@ import { compositeProfiles } from './composite-profiles'
  */
 export function deepMerge<T extends Record<string, unknown>>(
   target: T,
-  source: DeepPartial<T>
+  source: DeepPartial<T>,
 ): T {
-  const result = { ...target }
+  const result = { ...target };
 
   for (const key of Object.keys(source) as (keyof T)[]) {
-    const sourceVal = source[key]
-    if (sourceVal === undefined) continue
+    const sourceVal = source[key];
+    if (sourceVal === undefined) continue;
 
-    const targetVal = target[key]
+    const targetVal = target[key];
 
     if (
       sourceVal !== null &&
-      typeof sourceVal === 'object' &&
+      typeof sourceVal === "object" &&
       !Array.isArray(sourceVal) &&
       targetVal !== null &&
-      typeof targetVal === 'object' &&
+      typeof targetVal === "object" &&
       !Array.isArray(targetVal)
     ) {
       result[key] = deepMerge(
         targetVal as Record<string, unknown>,
-        sourceVal as DeepPartial<Record<string, unknown>>
-      ) as T[keyof T]
+        sourceVal as DeepPartial<Record<string, unknown>>,
+      ) as T[keyof T];
     } else {
-      result[key] = sourceVal as T[keyof T]
+      result[key] = sourceVal as T[keyof T];
     }
   }
 
-  return result
+  return result;
 }
 
 // ============================================================================
@@ -81,28 +81,34 @@ export function createRegistry(): SkinRegistry {
     skins: { ...visualSkins },
     behaviors: { ...behaviorPresets },
     profiles: { ...compositeProfiles },
-  }
+  };
 }
 
 /**
  * Register a custom skin at runtime.
  */
 export function registerSkin(registry: SkinRegistry, skin: VisualSkin): void {
-  registry.skins[skin.id] = skin
+  registry.skins[skin.id] = skin;
 }
 
 /**
  * Register a custom behavior preset at runtime.
  */
-export function registerBehavior(registry: SkinRegistry, behavior: BehaviorPreset): void {
-  registry.behaviors[behavior.id] = behavior
+export function registerBehavior(
+  registry: SkinRegistry,
+  behavior: BehaviorPreset,
+): void {
+  registry.behaviors[behavior.id] = behavior;
 }
 
 /**
  * Register a custom composite profile at runtime.
  */
-export function registerProfile(registry: SkinRegistry, profile: CompositeProfile): void {
-  registry.profiles[profile.id] = profile
+export function registerProfile(
+  registry: SkinRegistry,
+  profile: CompositeProfile,
+): void {
+  registry.profiles[profile.id] = profile;
 }
 
 // ============================================================================
@@ -115,13 +121,20 @@ export function registerProfile(registry: SkinRegistry, profile: CompositeProfil
 export function getSkin(
   skinId: string,
   overrides?: DeepPartial<VisualSkin>,
-  registry?: SkinRegistry
+  registry?: SkinRegistry,
 ): VisualSkin | undefined {
-  const source = registry ?? { skins: visualSkins, behaviors: behaviorPresets, profiles: compositeProfiles }
-  const base = source.skins[skinId]
-  if (!base) return undefined
-  if (!overrides) return base
-  return deepMerge(base as unknown as Record<string, unknown>, overrides as unknown as DeepPartial<Record<string, unknown>>) as unknown as VisualSkin
+  const source = registry ?? {
+    skins: visualSkins,
+    behaviors: behaviorPresets,
+    profiles: compositeProfiles,
+  };
+  const base = source.skins[skinId];
+  if (!base) return undefined;
+  if (!overrides) return base;
+  return deepMerge(
+    base as unknown as Record<string, unknown>,
+    overrides as unknown as DeepPartial<Record<string, unknown>>,
+  ) as unknown as VisualSkin;
 }
 
 /**
@@ -130,13 +143,20 @@ export function getSkin(
 export function getBehavior(
   behaviorId: string,
   overrides?: DeepPartial<BehaviorPreset>,
-  registry?: SkinRegistry
+  registry?: SkinRegistry,
 ): BehaviorPreset | undefined {
-  const source = registry ?? { skins: visualSkins, behaviors: behaviorPresets, profiles: compositeProfiles }
-  const base = source.behaviors[behaviorId]
-  if (!base) return undefined
-  if (!overrides) return base
-  return deepMerge(base as unknown as Record<string, unknown>, overrides as unknown as DeepPartial<Record<string, unknown>>) as unknown as BehaviorPreset
+  const source = registry ?? {
+    skins: visualSkins,
+    behaviors: behaviorPresets,
+    profiles: compositeProfiles,
+  };
+  const base = source.behaviors[behaviorId];
+  if (!base) return undefined;
+  if (!overrides) return base;
+  return deepMerge(
+    base as unknown as Record<string, unknown>,
+    overrides as unknown as DeepPartial<Record<string, unknown>>,
+  ) as unknown as BehaviorPreset;
 }
 
 /**
@@ -144,31 +164,31 @@ export function getBehavior(
  */
 export function getProfile(
   profileId: string,
-  registry?: SkinRegistry
+  registry?: SkinRegistry,
 ): ResolvedSkinState | undefined {
-  const source = registry ?? { skins: visualSkins, behaviors: behaviorPresets, profiles: compositeProfiles }
-  const profile = source.profiles[profileId]
-  if (!profile) return undefined
+  const source = registry ?? {
+    skins: visualSkins,
+    behaviors: behaviorPresets,
+    profiles: compositeProfiles,
+  };
+  const profile = source.profiles[profileId];
+  if (!profile) return undefined;
 
-  const skin = getSkin(
-    profile.skinId,
-    profile.overrides?.skin,
-    source
-  )
+  const skin = getSkin(profile.skinId, profile.overrides?.skin, source);
   const behavior = getBehavior(
     profile.behaviorId,
     profile.overrides?.behavior,
-    source
-  )
+    source,
+  );
 
-  if (!skin || !behavior) return undefined
+  if (!skin || !behavior) return undefined;
 
   return {
     skin,
     behavior,
     profileId: profile.id,
     isDarkMode: false,
-  }
+  };
 }
 
 /**
@@ -179,17 +199,17 @@ export function resolveIndependent(
   behaviorId: string,
   skinOverrides?: DeepPartial<VisualSkin>,
   behaviorOverrides?: DeepPartial<BehaviorPreset>,
-  registry?: SkinRegistry
+  registry?: SkinRegistry,
 ): ResolvedSkinState | undefined {
-  const skin = getSkin(skinId, skinOverrides, registry)
-  const behavior = getBehavior(behaviorId, behaviorOverrides, registry)
-  if (!skin || !behavior) return undefined
+  const skin = getSkin(skinId, skinOverrides, registry);
+  const behavior = getBehavior(behaviorId, behaviorOverrides, registry);
+  if (!skin || !behavior) return undefined;
 
   return {
     skin,
     behavior,
     isDarkMode: false,
-  }
+  };
 }
 
 // ============================================================================
@@ -201,7 +221,7 @@ export function resolveIndependent(
  */
 export function colorsToCSSVariables(
   colors: SkinColorPalette,
-  prefix: string = '--skin'
+  prefix: string = "--skin",
 ): Record<string, string> {
   return {
     [`${prefix}-primary`]: colors.primary,
@@ -221,7 +241,7 @@ export function colorsToCSSVariables(
     [`${prefix}-button-primary-text`]: colors.buttonPrimaryText,
     [`${prefix}-button-secondary-bg`]: colors.buttonSecondaryBg,
     [`${prefix}-button-secondary-text`]: colors.buttonSecondaryText,
-  }
+  };
 }
 
 /**
@@ -231,9 +251,9 @@ export function colorsToCSSVariables(
 export function skinToCSSVariables(
   skin: VisualSkin,
   isDarkMode: boolean = false,
-  prefix: string = '--skin'
+  prefix: string = "--skin",
 ): Record<string, string> {
-  const colors = isDarkMode ? skin.darkMode.colors : skin.colors
+  const colors = isDarkMode ? skin.darkMode.colors : skin.colors;
   const vars: Record<string, string> = {
     ...colorsToCSSVariables(colors, prefix),
     // Typography
@@ -264,9 +284,9 @@ export function skinToCSSVariables(
     [`${prefix}-radius-lg`]: skin.borderRadius.lg,
     [`${prefix}-radius-xl`]: skin.borderRadius.xl,
     [`${prefix}-radius-full`]: skin.borderRadius.full,
-  }
+  };
 
-  return vars
+  return vars;
 }
 
 /**
@@ -276,15 +296,15 @@ export function skinToCSSVariables(
 export function applySkin(
   skin: VisualSkin,
   isDarkMode: boolean = false,
-  target?: HTMLElement
+  target?: HTMLElement,
 ): void {
-  if (typeof document === 'undefined') return
+  if (typeof document === "undefined") return;
 
-  const element = target ?? document.documentElement
-  const vars = skinToCSSVariables(skin, isDarkMode)
+  const element = target ?? document.documentElement;
+  const vars = skinToCSSVariables(skin, isDarkMode);
 
   for (const [prop, value] of Object.entries(vars)) {
-    element.style.setProperty(prop, value)
+    element.style.setProperty(prop, value);
   }
 }
 
@@ -292,18 +312,18 @@ export function applySkin(
  * Remove all skin CSS variables from a DOM element.
  */
 export function removeSkinVariables(
-  prefix: string = '--skin',
-  target?: HTMLElement
+  prefix: string = "--skin",
+  target?: HTMLElement,
 ): void {
-  if (typeof document === 'undefined') return
+  if (typeof document === "undefined") return;
 
-  const element = target ?? document.documentElement
-  const style = element.style
+  const element = target ?? document.documentElement;
+  const style = element.style;
 
   for (let i = style.length - 1; i >= 0; i--) {
-    const prop = style.item(i)
+    const prop = style.item(i);
     if (prop.startsWith(prefix)) {
-      style.removeProperty(prop)
+      style.removeProperty(prop);
     }
   }
 }
@@ -315,9 +335,9 @@ export function removeSkinVariables(
 export function applyBehavior(
   behaviorId: string,
   overrides?: DeepPartial<BehaviorPreset>,
-  registry?: SkinRegistry
+  registry?: SkinRegistry,
 ): BehaviorPreset | undefined {
-  return getBehavior(behaviorId, overrides, registry)
+  return getBehavior(behaviorId, overrides, registry);
 }
 
 /**
@@ -328,12 +348,12 @@ export function switchSkin(
   isDarkMode: boolean = false,
   overrides?: DeepPartial<VisualSkin>,
   registry?: SkinRegistry,
-  target?: HTMLElement
+  target?: HTMLElement,
 ): VisualSkin | undefined {
-  const skin = getSkin(newSkinId, overrides, registry)
-  if (!skin) return undefined
-  applySkin(skin, isDarkMode, target)
-  return skin
+  const skin = getSkin(newSkinId, overrides, registry);
+  if (!skin) return undefined;
+  applySkin(skin, isDarkMode, target);
+  return skin;
 }
 
 /**
@@ -342,14 +362,14 @@ export function switchSkin(
 export function resetSkin(
   isDarkMode: boolean = false,
   target?: HTMLElement,
-  registry?: SkinRegistry
+  registry?: SkinRegistry,
 ): ResolvedSkinState | undefined {
-  removeSkinVariables('--skin', target)
-  const state = getProfile('nchat', registry)
+  removeSkinVariables("--skin", target);
+  const state = getProfile("nchat", registry);
   if (state) {
-    applySkin(state.skin, isDarkMode, target)
+    applySkin(state.skin, isDarkMode, target);
   }
-  return state
+  return state;
 }
 
 // ============================================================================
@@ -357,116 +377,137 @@ export function resetSkin(
 // ============================================================================
 
 const REQUIRED_COLOR_KEYS: (keyof SkinColorPalette)[] = [
-  'primary', 'secondary', 'accent', 'background', 'surface',
-  'text', 'textSecondary', 'muted', 'border',
-  'success', 'warning', 'error', 'info',
-  'buttonPrimaryBg', 'buttonPrimaryText',
-  'buttonSecondaryBg', 'buttonSecondaryText',
-]
+  "primary",
+  "secondary",
+  "accent",
+  "background",
+  "surface",
+  "text",
+  "textSecondary",
+  "muted",
+  "border",
+  "success",
+  "warning",
+  "error",
+  "info",
+  "buttonPrimaryBg",
+  "buttonPrimaryText",
+  "buttonSecondaryBg",
+  "buttonSecondaryText",
+];
 
 /**
  * Validate that a skin has all required fields.
  */
 export function validateSkin(skin: VisualSkin): SkinValidationResult {
-  const errors: string[] = []
-  const warnings: string[] = []
+  const errors: string[] = [];
+  const warnings: string[] = [];
 
-  if (!skin.id) errors.push('Skin must have an id')
-  if (!skin.name) errors.push('Skin must have a name')
-  if (!skin.version) warnings.push('Skin is missing a version string')
+  if (!skin.id) errors.push("Skin must have an id");
+  if (!skin.name) errors.push("Skin must have a name");
+  if (!skin.version) warnings.push("Skin is missing a version string");
 
   // Validate light mode colors
   if (!skin.colors) {
-    errors.push('Skin must have light mode colors')
+    errors.push("Skin must have light mode colors");
   } else {
     for (const key of REQUIRED_COLOR_KEYS) {
       if (!skin.colors[key]) {
-        errors.push(`Missing light mode color: ${key}`)
+        errors.push(`Missing light mode color: ${key}`);
       }
     }
   }
 
   // Validate dark mode colors
   if (!skin.darkMode?.colors) {
-    errors.push('Skin must have dark mode colors')
+    errors.push("Skin must have dark mode colors");
   } else {
     for (const key of REQUIRED_COLOR_KEYS) {
       if (!skin.darkMode.colors[key]) {
-        errors.push(`Missing dark mode color: ${key}`)
+        errors.push(`Missing dark mode color: ${key}`);
       }
     }
   }
 
   // Validate typography
   if (!skin.typography) {
-    errors.push('Skin must have typography settings')
+    errors.push("Skin must have typography settings");
   } else {
-    if (!skin.typography.fontFamily) errors.push('Missing typography.fontFamily')
-    if (!skin.typography.fontSizeBase) errors.push('Missing typography.fontSizeBase')
+    if (!skin.typography.fontFamily)
+      errors.push("Missing typography.fontFamily");
+    if (!skin.typography.fontSizeBase)
+      errors.push("Missing typography.fontSizeBase");
   }
 
   // Validate spacing
   if (!skin.spacing) {
-    errors.push('Skin must have spacing settings')
+    errors.push("Skin must have spacing settings");
   }
 
   // Validate border radius
   if (!skin.borderRadius) {
-    errors.push('Skin must have borderRadius settings')
+    errors.push("Skin must have borderRadius settings");
   }
 
   // Validate icons
   if (!skin.icons) {
-    warnings.push('Skin is missing icon configuration')
+    warnings.push("Skin is missing icon configuration");
   }
 
   // Validate components
   if (!skin.components) {
-    warnings.push('Skin is missing component style configuration')
+    warnings.push("Skin is missing component style configuration");
   }
 
-  return { valid: errors.length === 0, errors, warnings }
+  return { valid: errors.length === 0, errors, warnings };
 }
 
 /**
  * Validate that a behavior preset has all required fields.
  */
-export function validateBehavior(behavior: BehaviorPreset): SkinValidationResult {
-  const errors: string[] = []
-  const warnings: string[] = []
+export function validateBehavior(
+  behavior: BehaviorPreset,
+): SkinValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
 
-  if (!behavior.id) errors.push('Behavior must have an id')
-  if (!behavior.name) errors.push('Behavior must have a name')
-  if (!behavior.version) warnings.push('Behavior is missing a version string')
+  if (!behavior.id) errors.push("Behavior must have an id");
+  if (!behavior.name) errors.push("Behavior must have a name");
+  if (!behavior.version) warnings.push("Behavior is missing a version string");
 
   // Validate sections
-  if (!behavior.messaging) errors.push('Behavior must have messaging section')
-  if (!behavior.channels) errors.push('Behavior must have channels section')
-  if (!behavior.presence) errors.push('Behavior must have presence section')
-  if (!behavior.calls) errors.push('Behavior must have calls section')
-  if (!behavior.notifications) errors.push('Behavior must have notifications section')
-  if (!behavior.moderation) errors.push('Behavior must have moderation section')
-  if (!behavior.privacy) errors.push('Behavior must have privacy section')
-  if (!behavior.features) errors.push('Behavior must have features section')
+  if (!behavior.messaging) errors.push("Behavior must have messaging section");
+  if (!behavior.channels) errors.push("Behavior must have channels section");
+  if (!behavior.presence) errors.push("Behavior must have presence section");
+  if (!behavior.calls) errors.push("Behavior must have calls section");
+  if (!behavior.notifications)
+    errors.push("Behavior must have notifications section");
+  if (!behavior.moderation)
+    errors.push("Behavior must have moderation section");
+  if (!behavior.privacy) errors.push("Behavior must have privacy section");
+  if (!behavior.features) errors.push("Behavior must have features section");
 
   // Validate messaging specifics
   if (behavior.messaging) {
-    if (typeof behavior.messaging.maxMessageLength !== 'number') {
-      errors.push('messaging.maxMessageLength must be a number')
+    if (typeof behavior.messaging.maxMessageLength !== "number") {
+      errors.push("messaging.maxMessageLength must be a number");
     }
     if (behavior.messaging.maxMessageLength <= 0) {
-      errors.push('messaging.maxMessageLength must be positive')
+      errors.push("messaging.maxMessageLength must be positive");
     }
   }
 
   // Validate channels
   if (behavior.channels) {
-    if (!Array.isArray(behavior.channels.types) || behavior.channels.types.length === 0) {
-      errors.push('channels.types must be a non-empty array')
+    if (
+      !Array.isArray(behavior.channels.types) ||
+      behavior.channels.types.length === 0
+    ) {
+      errors.push("channels.types must be a non-empty array");
     }
   }
 
-  return { valid: errors.length === 0, errors, warnings }
+  return { valid: errors.length === 0, errors, warnings };
 }
 
 /**
@@ -475,24 +516,30 @@ export function validateBehavior(behavior: BehaviorPreset): SkinValidationResult
  */
 export function validateProfile(
   profile: CompositeProfile,
-  registry?: SkinRegistry
+  registry?: SkinRegistry,
 ): SkinValidationResult {
-  const source = registry ?? { skins: visualSkins, behaviors: behaviorPresets, profiles: compositeProfiles }
-  const errors: string[] = []
-  const warnings: string[] = []
+  const source = registry ?? {
+    skins: visualSkins,
+    behaviors: behaviorPresets,
+    profiles: compositeProfiles,
+  };
+  const errors: string[] = [];
+  const warnings: string[] = [];
 
-  if (!profile.id) errors.push('Profile must have an id')
-  if (!profile.name) errors.push('Profile must have a name')
-  if (!profile.skinId) errors.push('Profile must have a skinId')
-  if (!profile.behaviorId) errors.push('Profile must have a behaviorId')
+  if (!profile.id) errors.push("Profile must have an id");
+  if (!profile.name) errors.push("Profile must have a name");
+  if (!profile.skinId) errors.push("Profile must have a skinId");
+  if (!profile.behaviorId) errors.push("Profile must have a behaviorId");
 
   if (profile.skinId && !source.skins[profile.skinId]) {
-    errors.push(`Referenced skin "${profile.skinId}" not found in registry`)
+    errors.push(`Referenced skin "${profile.skinId}" not found in registry`);
   }
 
   if (profile.behaviorId && !source.behaviors[profile.behaviorId]) {
-    errors.push(`Referenced behavior "${profile.behaviorId}" not found in registry`)
+    errors.push(
+      `Referenced behavior "${profile.behaviorId}" not found in registry`,
+    );
   }
 
-  return { valid: errors.length === 0, errors, warnings }
+  return { valid: errors.length === 0, errors, warnings };
 }

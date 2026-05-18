@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useHotkey Hook
@@ -19,48 +19,48 @@
  * ```
  */
 
-import { useEffect, useCallback, useRef, useMemo } from 'react'
+import { useEffect, useCallback, useRef, useMemo } from "react";
 import {
   matchesShortcut,
   shouldIgnoreShortcut,
   formatShortcut,
   isMacOS,
-} from '@/lib/keyboard/shortcut-utils'
+} from "@/lib/keyboard/shortcut-utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type HotkeyCallback = (event: KeyboardEvent) => void | boolean
+export type HotkeyCallback = (event: KeyboardEvent) => void | boolean;
 
 export interface UseHotkeyOptions {
   /** Whether the hotkey is enabled (default: true) */
-  enabled?: boolean
+  enabled?: boolean;
   /** Allow hotkey to work when input/textarea is focused (default: false) */
-  enableOnInputs?: boolean
+  enableOnInputs?: boolean;
   /** Allow hotkey to work when contenteditable element is focused (default: false) */
-  enableOnContentEditable?: boolean
+  enableOnContentEditable?: boolean;
   /** Prevent default browser behavior (default: false) */
-  preventDefault?: boolean
+  preventDefault?: boolean;
   /** Stop event propagation (default: true) */
-  stopPropagation?: boolean
+  stopPropagation?: boolean;
   /** Event phase to listen on (default: false for bubble) */
-  capture?: boolean
+  capture?: boolean;
   /** Target element (default: document) */
-  target?: HTMLElement | Document | null
+  target?: HTMLElement | Document | null;
   /** Dependencies for the callback */
-  deps?: React.DependencyList
+  deps?: React.DependencyList;
   /** Description for accessibility */
-  description?: string
+  description?: string;
 }
 
 export interface UseHotkeyReturn {
   /** Formatted key combination for display */
-  displayKey: string
+  displayKey: string;
   /** Whether the hotkey is currently enabled */
-  isEnabled: boolean
+  isEnabled: boolean;
   /** Manually trigger the hotkey callback */
-  trigger: () => void
+  trigger: () => void;
 }
 
 // ============================================================================
@@ -78,7 +78,7 @@ export interface UseHotkeyReturn {
 export function useHotkey(
   keys: string,
   callback: HotkeyCallback,
-  options: UseHotkeyOptions = {}
+  options: UseHotkeyOptions = {},
 ): UseHotkeyReturn {
   const {
     enabled = true,
@@ -89,77 +89,93 @@ export function useHotkey(
     capture = false,
     target = null,
     deps = [],
-  } = options
+  } = options;
 
-  const callbackRef = useRef(callback)
-  const isMac = useMemo(() => isMacOS(), [])
-  const displayKey = useMemo(() => formatShortcut(keys, { useMacSymbols: isMac }), [keys, isMac])
+  const callbackRef = useRef(callback);
+  const isMac = useMemo(() => isMacOS(), []);
+  const displayKey = useMemo(
+    () => formatShortcut(keys, { useMacSymbols: isMac }),
+    [keys, isMac],
+  );
 
   // Update callback ref when callback changes
   useEffect(() => {
-    callbackRef.current = callback
-  }, [callback])
+    callbackRef.current = callback;
+  }, [callback]);
 
   // Main event handler
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
       // Check if enabled
-      if (!enabled) return
+      if (!enabled) return;
 
       // Check if keys match
-      if (!matchesShortcut(event, keys)) return
+      if (!matchesShortcut(event, keys)) return;
 
       // Check if we should ignore based on focus
       const shouldIgnore = shouldIgnoreShortcut(event, {
         enableOnInputs,
         enableOnContentEditable,
-      })
+      });
 
-      if (shouldIgnore) return
+      if (shouldIgnore) return;
 
       // Prevent default if specified
       if (preventDefault) {
-        event.preventDefault()
+        event.preventDefault();
       }
 
       // Execute callback
-      const result = callbackRef.current(event)
+      const result = callbackRef.current(event);
 
       // Stop propagation unless callback returned false
       if (stopPropagation && result !== false) {
-        event.stopPropagation()
+        event.stopPropagation();
       }
     },
-    [keys, enabled, enableOnInputs, enableOnContentEditable, preventDefault, stopPropagation]
-  )
+    [
+      keys,
+      enabled,
+      enableOnInputs,
+      enableOnContentEditable,
+      preventDefault,
+      stopPropagation,
+    ],
+  );
 
   // Register event listener
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) return;
 
-    const eventTarget = target || document
+    const eventTarget = target || document;
 
-    eventTarget.addEventListener('keydown', handleKeydown as EventListener, { capture })
+    eventTarget.addEventListener("keydown", handleKeydown as EventListener, {
+      capture,
+    });
 
     return () => {
-      eventTarget.removeEventListener('keydown', handleKeydown as EventListener, { capture })
-    }
-  }, [handleKeydown, enabled, target, capture, ...deps])
+      eventTarget.removeEventListener(
+        "keydown",
+        handleKeydown as EventListener,
+        { capture },
+      );
+    };
+  }, [handleKeydown, enabled, target, capture, ...deps]);
 
   // Manual trigger function
   const trigger = useCallback(() => {
-    const syntheticEvent = new KeyboardEvent('keydown', {
+    const syntheticEvent = new KeyboardEvent("keydown", {
       bubbles: true,
       cancelable: true,
-    })
-    callbackRef.current(syntheticEvent)
-  }, [])
+    });
+    callbackRef.current(syntheticEvent);
+  }, []);
 
   return {
     displayKey,
     isEnabled: enabled,
     trigger,
-  }
+  };
 }
 
 // ============================================================================
@@ -176,12 +192,12 @@ export function useHotkey(
  */
 export function useEscapeKey(
   callback: HotkeyCallback,
-  options: Omit<UseHotkeyOptions, 'keys'> = {}
+  options: Omit<UseHotkeyOptions, "keys"> = {},
 ): UseHotkeyReturn {
-  return useHotkey('escape', callback, {
+  return useHotkey("escape", callback, {
     enableOnInputs: true, // Escape typically works in inputs
     ...options,
-  })
+  });
 }
 
 /**
@@ -194,9 +210,9 @@ export function useEscapeKey(
  */
 export function useEnterKey(
   callback: HotkeyCallback,
-  options: Omit<UseHotkeyOptions, 'keys'> = {}
+  options: Omit<UseHotkeyOptions, "keys"> = {},
 ): UseHotkeyReturn {
-  return useHotkey('enter', callback, options)
+  return useHotkey("enter", callback, options);
 }
 
 /**
@@ -211,9 +227,9 @@ export function useEnterKey(
 export function useModKey(
   key: string,
   callback: HotkeyCallback,
-  options: Omit<UseHotkeyOptions, 'keys'> = {}
+  options: Omit<UseHotkeyOptions, "keys"> = {},
 ): UseHotkeyReturn {
-  return useHotkey(`mod+${key}`, callback, options)
+  return useHotkey(`mod+${key}`, callback, options);
 }
 
 /**
@@ -229,29 +245,29 @@ export function useModKey(
  */
 export function useArrowKeys(
   handlers: {
-    up?: HotkeyCallback
-    down?: HotkeyCallback
-    left?: HotkeyCallback
-    right?: HotkeyCallback
+    up?: HotkeyCallback;
+    down?: HotkeyCallback;
+    left?: HotkeyCallback;
+    right?: HotkeyCallback;
   },
-  options: Omit<UseHotkeyOptions, 'keys'> = {}
+  options: Omit<UseHotkeyOptions, "keys"> = {},
 ): void {
-  useHotkey('arrowup', handlers.up || (() => {}), {
+  useHotkey("arrowup", handlers.up || (() => {}), {
     ...options,
     enabled: options.enabled !== false && !!handlers.up,
-  })
-  useHotkey('arrowdown', handlers.down || (() => {}), {
+  });
+  useHotkey("arrowdown", handlers.down || (() => {}), {
     ...options,
     enabled: options.enabled !== false && !!handlers.down,
-  })
-  useHotkey('arrowleft', handlers.left || (() => {}), {
+  });
+  useHotkey("arrowleft", handlers.left || (() => {}), {
     ...options,
     enabled: options.enabled !== false && !!handlers.left,
-  })
-  useHotkey('arrowright', handlers.right || (() => {}), {
+  });
+  useHotkey("arrowright", handlers.right || (() => {}), {
     ...options,
     enabled: options.enabled !== false && !!handlers.right,
-  })
+  });
 }
 
 // ============================================================================
@@ -259,9 +275,9 @@ export function useArrowKeys(
 // ============================================================================
 
 export interface HotkeyDefinition {
-  keys: string
-  callback: HotkeyCallback
-  options?: Omit<UseHotkeyOptions, 'deps'>
+  keys: string;
+  callback: HotkeyCallback;
+  options?: Omit<UseHotkeyOptions, "deps">;
 }
 
 /**
@@ -278,69 +294,73 @@ export interface HotkeyDefinition {
  */
 export function useHotkeys(
   hotkeys: HotkeyDefinition[],
-  globalOptions: Omit<UseHotkeyOptions, 'keys'> = {}
+  globalOptions: Omit<UseHotkeyOptions, "keys"> = {},
 ): void {
-  const callbacksRef = useRef<Map<string, HotkeyCallback>>(new Map())
+  const callbacksRef = useRef<Map<string, HotkeyCallback>>(new Map());
 
   // Update refs
   useEffect(() => {
-    callbacksRef.current.clear()
+    callbacksRef.current.clear();
     for (const hotkey of hotkeys) {
-      callbacksRef.current.set(hotkey.keys, hotkey.callback)
+      callbacksRef.current.set(hotkey.keys, hotkey.callback);
     }
-  }, [hotkeys])
+  }, [hotkeys]);
 
   // Create combined handler
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
       for (const hotkey of hotkeys) {
-        const options = { ...globalOptions, ...hotkey.options }
+        const options = { ...globalOptions, ...hotkey.options };
         const {
           enabled = true,
           enableOnInputs = false,
           enableOnContentEditable = false,
           preventDefault = false,
           stopPropagation = true,
-        } = options
+        } = options;
 
-        if (!enabled) continue
-        if (!matchesShortcut(event, hotkey.keys)) continue
+        if (!enabled) continue;
+        if (!matchesShortcut(event, hotkey.keys)) continue;
 
         const shouldIgnore = shouldIgnoreShortcut(event, {
           enableOnInputs,
           enableOnContentEditable,
-        })
+        });
 
-        if (shouldIgnore) continue
+        if (shouldIgnore) continue;
 
         if (preventDefault) {
-          event.preventDefault()
+          event.preventDefault();
         }
 
-        const callback = callbacksRef.current.get(hotkey.keys)
+        const callback = callbacksRef.current.get(hotkey.keys);
         if (callback) {
-          const result = callback(event)
+          const result = callback(event);
           if (stopPropagation && result !== false) {
-            event.stopPropagation()
-            return
+            event.stopPropagation();
+            return;
           }
         }
       }
     },
-    [hotkeys, globalOptions]
-  )
+    [hotkeys, globalOptions],
+  );
 
   // Register listener
   useEffect(() => {
-    const target = globalOptions.target || document
-    const capture = globalOptions.capture || false
+    const target = globalOptions.target || document;
+    const capture = globalOptions.capture || false;
 
-    target.addEventListener('keydown', handleKeydown as EventListener, { capture })
+    target.addEventListener("keydown", handleKeydown as EventListener, {
+      capture,
+    });
 
     return () => {
-      target.removeEventListener('keydown', handleKeydown as EventListener, { capture })
-    }
-  }, [handleKeydown, globalOptions.target, globalOptions.capture])
+      target.removeEventListener("keydown", handleKeydown as EventListener, {
+        capture,
+      });
+    };
+  }, [handleKeydown, globalOptions.target, globalOptions.capture]);
 }
 
 // ============================================================================
@@ -362,14 +382,14 @@ export function useHotkeys(
 export function useConditionalHotkey(
   keys: string,
   callback: HotkeyCallback,
-  options: UseHotkeyOptions & { when: boolean }
+  options: UseHotkeyOptions & { when: boolean },
 ): UseHotkeyReturn {
-  const { when, ...restOptions } = options
+  const { when, ...restOptions } = options;
 
   return useHotkey(keys, callback, {
     ...restOptions,
     enabled: when && options.enabled !== false,
-  })
+  });
 }
 
 // ============================================================================
@@ -389,22 +409,22 @@ export function useScopedHotkey(
   ref: React.RefObject<HTMLElement>,
   keys: string,
   callback: HotkeyCallback,
-  options: Omit<UseHotkeyOptions, 'target'> = {}
+  options: Omit<UseHotkeyOptions, "target"> = {},
 ): UseHotkeyReturn {
-  const [target, setTarget] = React.useState<HTMLElement | null>(null)
+  const [target, setTarget] = React.useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    setTarget(ref.current)
-  }, [ref])
+    setTarget(ref.current);
+  }, [ref]);
 
   return useHotkey(keys, callback, {
     ...options,
     target,
     enabled: options.enabled !== false && target !== null,
-  })
+  });
 }
 
 // Need to import React for useScopedHotkey
-import React from 'react'
+import React from "react";
 
-export default useHotkey
+export default useHotkey;

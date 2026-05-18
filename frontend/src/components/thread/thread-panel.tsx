@@ -1,19 +1,24 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useCallback, useEffect } from 'react'
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
-import { GripVertical, Users } from 'lucide-react'
-import { useAuth } from '@/contexts/auth-context'
-import { useThread, type UseThreadOptions } from '@/hooks/use-thread'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
-import { ThreadHeader, ThreadHeaderCompact } from './thread-header'
-import { ThreadMessageList } from './thread-message-list'
-import { ThreadReplyInput, type Mention } from './thread-reply-input'
-import { ThreadParticipantList } from './thread-participants'
+import * as React from "react";
+import { useState, useCallback, useEffect } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { GripVertical, Users } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { useThread, type UseThreadOptions } from "@/hooks/use-thread";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { ThreadHeader, ThreadHeaderCompact } from "./thread-header";
+import { ThreadMessageList } from "./thread-message-list";
+import { ThreadReplyInput, type Mention } from "./thread-reply-input";
+import { ThreadParticipantList } from "./thread-participants";
 
 // ============================================================================
 // TYPES
@@ -21,25 +26,25 @@ import { ThreadParticipantList } from './thread-participants'
 
 export interface ThreadPanelProps {
   /** The thread ID to display */
-  threadId: string
+  threadId: string;
   /** Handler for closing the panel */
-  onClose: () => void
+  onClose: () => void;
   /** Whether to use compact header */
-  compactHeader?: boolean
+  compactHeader?: boolean;
   /** Default panel width percentage (0-100) */
-  defaultWidth?: number
+  defaultWidth?: number;
   /** Minimum panel width percentage */
-  minWidth?: number
+  minWidth?: number;
   /** Maximum panel width percentage */
-  maxWidth?: number
+  maxWidth?: number;
   /** Handler for mention search */
-  onMentionSearch?: (query: string) => Promise<Mention[]>
+  onMentionSearch?: (query: string) => Promise<Mention[]>;
   /** Additional class name for the panel */
-  className?: string
+  className?: string;
   /** Position of the panel */
-  position?: 'right' | 'left'
+  position?: "right" | "left";
   /** Whether to show as a standalone panel (not in a resizable group) */
-  standalone?: boolean
+  standalone?: boolean;
 }
 
 // ============================================================================
@@ -88,7 +93,7 @@ function ThreadPanelSkeleton() {
         <Skeleton className="h-10 w-full rounded-md" />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -99,15 +104,15 @@ function ResizeHandle({ className }: { className?: string }) {
   return (
     <PanelResizeHandle
       className={cn(
-        'bg-border/50 hover:bg-primary/20 group relative w-1.5 transition-all duration-150 hover:w-2',
-        'flex items-center justify-center',
-        className
+        "bg-border/50 hover:bg-primary/20 group relative w-1.5 transition-all duration-150 hover:w-2",
+        "flex items-center justify-center",
+        className,
       )}
     >
       <div className="absolute inset-y-0 -left-1 -right-1 z-10" />
       <GripVertical className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
     </PanelResizeHandle>
-  )
+  );
 }
 
 // ============================================================================
@@ -123,12 +128,12 @@ export function ThreadPanel({
   maxWidth = 50,
   onMentionSearch,
   className,
-  position = 'right',
+  position = "right",
   standalone = false,
 }: ThreadPanelProps) {
-  const { user } = useAuth()
-  const [showParticipants, setShowParticipants] = useState(false)
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true)
+  const { user } = useAuth();
+  const [showParticipants, setShowParticipants] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   // Use thread hook
   const {
@@ -148,42 +153,42 @@ export function ThreadPanel({
     toggleNotifications,
     isParticipant,
     hasUnread,
-  } = useThread({ threadId, autoSubscribe: true })
+  } = useThread({ threadId, autoSubscribe: true });
 
   // Update notifications state when participant data loads
   useEffect(() => {
     if (user && participants.length > 0) {
-      const userParticipation = participants.find((p) => p.user_id === user.id)
+      const userParticipation = participants.find((p) => p.user_id === user.id);
       if (userParticipation) {
-        setNotificationsEnabled(userParticipation.notifications_enabled)
+        setNotificationsEnabled(userParticipation.notifications_enabled);
       }
     }
-  }, [participants, user])
+  }, [participants, user]);
 
   // Handle notification toggle
   const handleToggleNotifications = useCallback(
     async (enabled: boolean) => {
-      setNotificationsEnabled(enabled)
-      await toggleNotifications(enabled)
+      setNotificationsEnabled(enabled);
+      await toggleNotifications(enabled);
     },
-    [toggleNotifications]
-  )
+    [toggleNotifications],
+  );
 
   // Handle send reply
   const handleSendReply = useCallback(
     async (content: string, attachments?: File[]) => {
-      await sendReply(content, attachments)
+      await sendReply(content, attachments);
     },
-    [sendReply]
-  )
+    [sendReply],
+  );
 
   // Panel content
   const panelContent = (
     <div
       className={cn(
-        'flex h-full flex-col border-l bg-background',
-        position === 'left' && 'border-l-0 border-r',
-        className
+        "flex h-full flex-col border-l bg-background",
+        position === "left" && "border-l-0 border-r",
+        className,
       )}
     >
       {/* Loading state */}
@@ -260,11 +265,11 @@ export function ThreadPanel({
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 
   // Standalone mode (no resize)
   if (standalone) {
-    return panelContent
+    return panelContent;
   }
 
   // Resizable panel mode
@@ -273,11 +278,11 @@ export function ThreadPanel({
       defaultSize={defaultWidth}
       minSize={minWidth}
       maxSize={maxWidth}
-      order={position === 'right' ? 2 : 0}
+      order={position === "right" ? 2 : 0}
     >
       {panelContent}
     </Panel>
-  )
+  );
 }
 
 // ============================================================================
@@ -286,17 +291,17 @@ export function ThreadPanel({
 
 export interface ThreadPanelLayoutProps {
   /** Main content (chat messages) */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Thread ID to display (null if no thread is open) */
-  threadId: string | null
+  threadId: string | null;
   /** Handler for closing the thread */
-  onCloseThread: () => void
+  onCloseThread: () => void;
   /** Handler for mention search */
-  onMentionSearch?: (query: string) => Promise<Mention[]>
+  onMentionSearch?: (query: string) => Promise<Mention[]>;
   /** Default thread panel width percentage */
-  defaultThreadWidth?: number
+  defaultThreadWidth?: number;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 export function ThreadPanelLayout({
@@ -310,11 +315,14 @@ export function ThreadPanelLayout({
   return (
     <PanelGroup
       direction="horizontal"
-      className={cn('h-full', className)}
+      className={cn("h-full", className)}
       autoSaveId="nchat-thread-panel"
     >
       {/* Main content panel */}
-      <Panel defaultSize={threadId ? 100 - defaultThreadWidth : 100} minSize={50}>
+      <Panel
+        defaultSize={threadId ? 100 - defaultThreadWidth : 100}
+        minSize={50}
+      >
         {children}
       </Panel>
 
@@ -331,7 +339,7 @@ export function ThreadPanelLayout({
         </>
       )}
     </PanelGroup>
-  )
+  );
 }
 
 // ============================================================================
@@ -340,15 +348,15 @@ export function ThreadPanelLayout({
 
 export interface ThreadSlideInPanelProps {
   /** Whether the panel is open */
-  open: boolean
+  open: boolean;
   /** Thread ID to display */
-  threadId: string | null
+  threadId: string | null;
   /** Handler for closing the panel */
-  onClose: () => void
+  onClose: () => void;
   /** Handler for mention search */
-  onMentionSearch?: (query: string) => Promise<Mention[]>
+  onMentionSearch?: (query: string) => Promise<Mention[]>;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 export function ThreadSlideInPanel({
@@ -361,17 +369,17 @@ export function ThreadSlideInPanel({
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && open) {
-        onClose()
+      if (e.key === "Escape" && open) {
+        onClose();
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [open, onClose])
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [open, onClose]);
 
   if (!open || !threadId) {
-    return null
+    return null;
   }
 
   return (
@@ -386,12 +394,12 @@ export function ThreadSlideInPanel({
       {/* Panel */}
       <div
         className={cn(
-          'fixed inset-y-0 right-0 z-50',
-          'w-full max-w-md',
-          'transform transition-transform duration-300 ease-out',
-          'shadow-2xl',
-          open ? 'translate-x-0' : 'translate-x-full',
-          className
+          "fixed inset-y-0 right-0 z-50",
+          "w-full max-w-md",
+          "transform transition-transform duration-300 ease-out",
+          "shadow-2xl",
+          open ? "translate-x-0" : "translate-x-full",
+          className,
         )}
       >
         <ThreadPanel
@@ -403,7 +411,7 @@ export function ThreadSlideInPanel({
         />
       </div>
     </>
-  )
+  );
 }
 
-export default ThreadPanel
+export default ThreadPanel;

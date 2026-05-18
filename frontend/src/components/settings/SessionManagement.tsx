@@ -10,15 +10,21 @@
  * - Geographic anomaly detection
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +35,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,11 +43,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useSessions } from '@/hooks/use-sessions'
-import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@/lib/utils'
-import { formatSessionTime, formatLocation } from '@/lib/security/session-store'
+} from "@/components/ui/dropdown-menu";
+import { useSessions } from "@/hooks/use-sessions";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
+import {
+  formatSessionTime,
+  formatLocation,
+} from "@/lib/security/session-store";
 import {
   Monitor,
   Smartphone,
@@ -62,10 +71,10 @@ import {
   Activity,
   Info,
   ExternalLink,
-} from 'lucide-react'
+} from "lucide-react";
 
 export function SessionManagement() {
-  const { isDevMode } = useAuth()
+  const { isDevMode } = useAuth();
   const {
     sessions,
     currentSession,
@@ -83,45 +92,47 @@ export function SessionManagement() {
     suspiciousActivityScore,
     hasGeoAnomaly,
     requiresVerification,
-  } = useSessions()
+  } = useSessions();
 
-  const [isRevoking, setIsRevoking] = useState(false)
-  const [revokingSessionId, setRevokingSessionId] = useState<string | null>(null)
-  const [showNotifications, setShowNotifications] = useState(false)
+  const [isRevoking, setIsRevoking] = useState(false);
+  const [revokingSessionId, setRevokingSessionId] = useState<string | null>(
+    null,
+  );
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // ============================================================================
   // Handlers
   // ============================================================================
 
   const handleRevokeSession = async (sessionId: string) => {
-    setRevokingSessionId(sessionId)
-    setIsRevoking(true)
+    setRevokingSessionId(sessionId);
+    setIsRevoking(true);
     try {
-      const success = await revokeSession(sessionId)
+      const success = await revokeSession(sessionId);
       if (success) {
-        await refreshSessions()
+        await refreshSessions();
       }
     } finally {
-      setIsRevoking(false)
-      setRevokingSessionId(null)
+      setIsRevoking(false);
+      setRevokingSessionId(null);
     }
-  }
+  };
 
   const handleRevokeAllOthers = async () => {
-    setIsRevoking(true)
+    setIsRevoking(true);
     try {
-      const success = await revokeAllOtherSessions()
+      const success = await revokeAllOtherSessions();
       if (success) {
-        await refreshSessions()
+        await refreshSessions();
       }
     } finally {
-      setIsRevoking(false)
+      setIsRevoking(false);
     }
-  }
+  };
 
   const handleRefresh = async () => {
-    await refreshSessions()
-  }
+    await refreshSessions();
+  };
 
   // ============================================================================
   // Device Icon Helper
@@ -129,14 +140,14 @@ export function SessionManagement() {
 
   const getDeviceIcon = (device: string) => {
     switch (device.toLowerCase()) {
-      case 'mobile':
-        return Smartphone
-      case 'tablet':
-        return Tablet
+      case "mobile":
+        return Smartphone;
+      case "tablet":
+        return Tablet;
       default:
-        return Monitor
+        return Monitor;
     }
-  }
+  };
 
   // ============================================================================
   // Render
@@ -172,8 +183,13 @@ export function SessionManagement() {
           </Button>
 
           {/* Refresh Button */}
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
-            <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
           </Button>
         </div>
       </div>
@@ -183,7 +199,8 @@ export function SessionManagement() {
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            Development mode: Sessions are simulated. Actions will not persist to database.
+            Development mode: Sessions are simulated. Actions will not persist
+            to database.
           </AlertDescription>
         </Alert>
       )}
@@ -194,7 +211,8 @@ export function SessionManagement() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Verification Required</AlertTitle>
           <AlertDescription>
-            Suspicious activity detected on your account. Please verify your identity.
+            Suspicious activity detected on your account. Please verify your
+            identity.
           </AlertDescription>
         </Alert>
       )}
@@ -204,8 +222,8 @@ export function SessionManagement() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Unusual Location Detected</AlertTitle>
           <AlertDescription>
-            We detected a login from an unusual location. If this wasn't you, please revoke all
-            sessions and change your password immediately.
+            We detected a login from an unusual location. If this wasn't you,
+            please revoke all sessions and change your password immediately.
           </AlertDescription>
         </Alert>
       )}
@@ -215,8 +233,8 @@ export function SessionManagement() {
           <Shield className="h-4 w-4" />
           <AlertTitle>Security Alert</AlertTitle>
           <AlertDescription>
-            Suspicious activity score: {suspiciousActivityScore}/100. Please review your active
-            sessions below.
+            Suspicious activity score: {suspiciousActivityScore}/100. Please
+            review your active sessions below.
           </AlertDescription>
         </Alert>
       )}
@@ -236,13 +254,21 @@ export function SessionManagement() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Security Notifications</CardTitle>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={markAllNotificationsRead}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={markAllNotificationsRead}
+                >
                   Mark all read
                 </Button>
                 <Button variant="ghost" size="sm" onClick={clearNotifications}>
                   Clear
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setShowNotifications(false)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowNotifications(false)}
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -253,30 +279,33 @@ export function SessionManagement() {
               <div
                 key={notification.id}
                 className={cn(
-                  'hover:bg-accent/50 flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors',
-                  !notification.read && 'bg-accent/30'
+                  "hover:bg-accent/50 flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
+                  !notification.read && "bg-accent/30",
                 )}
                 role="button"
                 tabIndex={0}
                 onClick={() => markNotificationRead(notification.id)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    markNotificationRead(notification.id)
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    markNotificationRead(notification.id);
                   }
                 }}
               >
                 <div
                   className={cn(
-                    'mt-0.5 rounded-full p-1.5',
-                    notification.severity === 'critical' && 'bg-red-500/10 text-red-500',
-                    notification.severity === 'warning' && 'bg-yellow-500/10 text-yellow-600',
-                    notification.severity === 'info' && 'bg-blue-500/10 text-blue-500'
+                    "mt-0.5 rounded-full p-1.5",
+                    notification.severity === "critical" &&
+                      "bg-red-500/10 text-red-500",
+                    notification.severity === "warning" &&
+                      "bg-yellow-500/10 text-yellow-600",
+                    notification.severity === "info" &&
+                      "bg-blue-500/10 text-blue-500",
                   )}
                 >
-                  {notification.severity === 'critical' ? (
+                  {notification.severity === "critical" ? (
                     <AlertTriangle className="h-4 w-4" />
-                  ) : notification.severity === 'warning' ? (
+                  ) : notification.severity === "warning" ? (
                     <AlertCircle className="h-4 w-4" />
                   ) : (
                     <Info className="h-4 w-4" />
@@ -286,10 +315,15 @@ export function SessionManagement() {
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium">{notification.title}</p>
                     {!notification.read && (
-                      <Badge variant="secondary" className="h-1.5 w-1.5 rounded-full p-0" />
+                      <Badge
+                        variant="secondary"
+                        className="h-1.5 w-1.5 rounded-full p-0"
+                      />
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{notification.message}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {notification.message}
+                  </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {formatSessionTime(notification.timestamp)}
                   </p>
@@ -315,31 +349,35 @@ export function SessionManagement() {
                 <div className="h-2 overflow-hidden rounded-full bg-muted">
                   <div
                     className={cn(
-                      'h-full transition-all',
-                      suspiciousActivityScore < 30 && 'bg-green-500',
+                      "h-full transition-all",
+                      suspiciousActivityScore < 30 && "bg-green-500",
                       suspiciousActivityScore >= 30 &&
                         suspiciousActivityScore < 60 &&
-                        'bg-yellow-500',
+                        "bg-yellow-500",
                       suspiciousActivityScore >= 60 &&
                         suspiciousActivityScore < 80 &&
-                        'bg-orange-500',
-                      suspiciousActivityScore >= 80 && 'bg-red-500'
+                        "bg-orange-500",
+                      suspiciousActivityScore >= 80 && "bg-red-500",
                     )}
                     style={{ width: `${suspiciousActivityScore}%` }}
                   />
                 </div>
               </div>
-              <span className="text-sm font-medium">{suspiciousActivityScore}/100</span>
+              <span className="text-sm font-medium">
+                {suspiciousActivityScore}/100
+              </span>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              {suspiciousActivityScore < 30 && 'Your account activity looks normal'}
+              {suspiciousActivityScore < 30 &&
+                "Your account activity looks normal"}
               {suspiciousActivityScore >= 30 &&
                 suspiciousActivityScore < 60 &&
-                'Some unusual activity detected'}
+                "Some unusual activity detected"}
               {suspiciousActivityScore >= 60 &&
                 suspiciousActivityScore < 80 &&
-                'Suspicious activity detected'}
-              {suspiciousActivityScore >= 80 && 'High-risk activity detected - take action now'}
+                "Suspicious activity detected"}
+              {suspiciousActivityScore >= 80 &&
+                "High-risk activity detected - take action now"}
             </p>
           </CardContent>
         </Card>
@@ -350,7 +388,9 @@ export function SessionManagement() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Current Session</CardTitle>
-            <CardDescription>This is the device you're using right now</CardDescription>
+            <CardDescription>
+              This is the device you're using right now
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <SessionCard session={currentSession} isCurrent />
@@ -365,7 +405,9 @@ export function SessionManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Other Active Sessions</CardTitle>
-                <CardDescription>{otherSessions.length} other active session(s)</CardDescription>
+                <CardDescription>
+                  {otherSessions.length} other active session(s)
+                </CardDescription>
               </div>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -376,11 +418,14 @@ export function SessionManagement() {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Sign out all other sessions?</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      Sign out all other sessions?
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will sign you out of {otherSessions.length} other device
-                      {otherSessions.length !== 1 ? 's' : ''}. You will need to sign in again on
-                      those devices.
+                      This will sign you out of {otherSessions.length} other
+                      device
+                      {otherSessions.length !== 1 ? "s" : ""}. You will need to
+                      sign in again on those devices.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -395,7 +440,7 @@ export function SessionManagement() {
                           Signing out...
                         </>
                       ) : (
-                        'Sign Out All'
+                        "Sign Out All"
                       )}
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -453,18 +498,21 @@ export function SessionManagement() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
-            Sessions are automatically created when you sign in and expire after a period of
-            inactivity.
+            Sessions are automatically created when you sign in and expire after
+            a period of inactivity.
           </p>
-          <p>For security, we recommend signing out of devices you no longer use or recognize.</p>
           <p>
-            If you notice suspicious activity, sign out all sessions and change your password
-            immediately.
+            For security, we recommend signing out of devices you no longer use
+            or recognize.
+          </p>
+          <p>
+            If you notice suspicious activity, sign out all sessions and change
+            your password immediately.
           </p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -472,31 +520,44 @@ export function SessionManagement() {
 // ============================================================================
 
 interface SessionCardProps {
-  session: any
-  isCurrent?: boolean
-  onRevoke?: () => void
-  isRevoking?: boolean
+  session: any;
+  isCurrent?: boolean;
+  onRevoke?: () => void;
+  isRevoking?: boolean;
 }
 
-function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardProps) {
+function SessionCard({
+  session,
+  isCurrent,
+  onRevoke,
+  isRevoking,
+}: SessionCardProps) {
   const DeviceIcon =
-    session.device.toLowerCase() === 'mobile'
+    session.device.toLowerCase() === "mobile"
       ? Smartphone
-      : session.device.toLowerCase() === 'tablet'
+      : session.device.toLowerCase() === "tablet"
         ? Tablet
-        : Monitor
+        : Monitor;
 
   return (
     <div
       className={cn(
-        'flex items-start gap-4 rounded-lg border p-4 transition-colors',
-        isCurrent && 'bg-primary/5 border-primary/20'
+        "flex items-start gap-4 rounded-lg border p-4 transition-colors",
+        isCurrent && "bg-primary/5 border-primary/20",
       )}
     >
       {/* Device Icon */}
-      <div className={cn('shrink-0 rounded-full p-2.5', isCurrent ? 'bg-primary/10' : 'bg-muted')}>
+      <div
+        className={cn(
+          "shrink-0 rounded-full p-2.5",
+          isCurrent ? "bg-primary/10" : "bg-muted",
+        )}
+      >
         <DeviceIcon
-          className={cn('h-5 w-5', isCurrent ? 'text-primary' : 'text-muted-foreground')}
+          className={cn(
+            "h-5 w-5",
+            isCurrent ? "text-primary" : "text-muted-foreground",
+          )}
         />
       </div>
 
@@ -530,9 +591,13 @@ function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardPr
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5" />
-            {isCurrent ? 'Active now' : `Last active ${formatSessionTime(session.lastActiveAt)}`}
+            {isCurrent
+              ? "Active now"
+              : `Last active ${formatSessionTime(session.lastActiveAt)}`}
           </div>
-          <div className="text-xs">Created {formatSessionTime(session.createdAt)}</div>
+          <div className="text-xs">
+            Created {formatSessionTime(session.createdAt)}
+          </div>
         </div>
       </div>
 
@@ -541,7 +606,12 @@ function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardPr
         <AlertDialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="shrink-0" disabled={isRevoking}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="shrink-0"
+                disabled={isRevoking}
+              >
                 {isRevoking ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -564,8 +634,8 @@ function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardPr
             <AlertDialogHeader>
               <AlertDialogTitle>Sign out this session?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will sign you out of {session.browser} on {session.os}. You will need to sign
-                in again on that device.
+                This will sign you out of {session.browser} on {session.os}. You
+                will need to sign in again on that device.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -581,7 +651,7 @@ function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardPr
         </AlertDialog>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -592,8 +662,8 @@ function SessionSkeleton({ isCurrent }: { isCurrent?: boolean }) {
   return (
     <div
       className={cn(
-        'flex items-start gap-4 rounded-lg border p-4',
-        isCurrent && 'bg-primary/5 border-primary/20'
+        "flex items-start gap-4 rounded-lg border p-4",
+        isCurrent && "bg-primary/5 border-primary/20",
       )}
     >
       <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
@@ -603,5 +673,5 @@ function SessionSkeleton({ isCurrent }: { isCurrent?: boolean }) {
         <Skeleton className="h-4 w-32" />
       </div>
     </div>
-  )
+  );
 }

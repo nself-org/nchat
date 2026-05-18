@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   Settings,
   Users,
@@ -10,46 +10,46 @@ import {
   BarChart3,
   Crown,
   AlertTriangle,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-import { TeamSettings } from '@/components/admin/team/TeamSettings'
-import { InviteMembers } from '@/components/admin/team/InviteMembers'
-import { TeamMembers } from '@/components/admin/team/TeamMembers'
-import { TeamBilling } from '@/components/admin/team/TeamBilling'
-import { TeamDangerZone } from '@/components/admin/team/TeamDangerZone'
+import { TeamSettings } from "@/components/admin/team/TeamSettings";
+import { InviteMembers } from "@/components/admin/team/InviteMembers";
+import { TeamMembers } from "@/components/admin/team/TeamMembers";
+import { TeamBilling } from "@/components/admin/team/TeamBilling";
+import { TeamDangerZone } from "@/components/admin/team/TeamDangerZone";
 
-import { useTeamStore } from '@/stores/team-store'
-import { teamManager } from '@/lib/team/team-manager'
+import { useTeamStore } from "@/stores/team-store";
+import { teamManager } from "@/lib/team/team-manager";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export default function TeamManagementPage() {
-  const { team, setTeam, setLoadingTeam } = useTeamStore()
-  const [activeTab, setActiveTab] = useState('settings')
+  const { team, setTeam, setLoadingTeam } = useTeamStore();
+  const [activeTab, setActiveTab] = useState("settings");
 
   // For demo purposes, using a hardcoded team ID
   // In production, this would come from the authenticated user's context
-  const teamId = 'team-1'
+  const teamId = "team-1";
 
   useEffect(() => {
     const loadTeam = async () => {
-      setLoadingTeam(true)
+      setLoadingTeam(true);
       try {
-        const teamData = await teamManager.getTeam(teamId)
-        setTeam(teamData)
+        const teamData = await teamManager.getTeam(teamId);
+        setTeam(teamData);
       } catch (error) {
-        logger.error('Failed to load team:', error)
+        logger.error("Failed to load team:", error);
       } finally {
-        setLoadingTeam(false)
+        setLoadingTeam(false);
       }
-    }
+    };
 
-    loadTeam()
-  }, [teamId])
+    loadTeam();
+  }, [teamId]);
 
   return (
     <div className="container mx-auto space-y-6 p-6">
@@ -57,7 +57,9 @@ export default function TeamManagementPage() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">Team Management</h1>
+            <h1 className="text-4xl font-bold tracking-tight">
+              Team Management
+            </h1>
             <p className="text-muted-foreground">
               Manage your workspace settings, members, and billing
             </p>
@@ -68,7 +70,8 @@ export default function TeamManagementPage() {
                 {team.slug}
               </Badge>
               <Badge className="text-sm">
-                {team.memberCount} {team.memberCount === 1 ? 'Member' : 'Members'}
+                {team.memberCount}{" "}
+                {team.memberCount === 1 ? "Member" : "Members"}
               </Badge>
             </div>
           )}
@@ -106,7 +109,9 @@ export default function TeamManagementPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {team?.messageCount ? Math.round(team.messageCount / 1000) + 'K' : 0}
+              {team?.messageCount
+                ? Math.round(team.messageCount / 1000) + "K"
+                : 0}
             </div>
             <p className="text-xs text-muted-foreground">Total messages</p>
           </CardContent>
@@ -119,7 +124,9 @@ export default function TeamManagementPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {team?.storageUsed ? teamManager.formatFileSize(team.storageUsed) : '0 GB'}
+              {team?.storageUsed
+                ? teamManager.formatFileSize(team.storageUsed)
+                : "0 GB"}
             </div>
             <p className="text-xs text-muted-foreground">Of available quota</p>
           </CardContent>
@@ -127,7 +134,11 @@ export default function TeamManagementPage() {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
@@ -172,5 +183,5 @@ export default function TeamManagementPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

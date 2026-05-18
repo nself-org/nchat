@@ -5,7 +5,7 @@
  */
 
 // Types
-export * from './onboarding-types'
+export * from "./onboarding-types";
 
 // Step Definitions
 export {
@@ -27,7 +27,7 @@ export {
   defaultOnboardingPreferences,
   defaultNotificationSettings,
   defaultUserProfile,
-} from './onboarding-steps'
+} from "./onboarding-steps";
 
 // Onboarding Manager
 export {
@@ -55,7 +55,7 @@ export {
   shouldShowOnboarding,
   canSkipRemainingOnboarding,
   formatTimeEstimate,
-} from './onboarding-manager'
+} from "./onboarding-manager";
 
 // Tour Manager
 export {
@@ -78,7 +78,7 @@ export {
   tourActionHandlers,
   executeTourAction,
   defaultTourConfig,
-} from './tour-manager'
+} from "./tour-manager";
 
 // Feature Discovery
 export {
@@ -103,7 +103,7 @@ export {
   markAllWhatsNewSeen,
   dismissWhatsNew,
   defaultFeatureDiscoveryConfig,
-} from './feature-discovery'
+} from "./feature-discovery";
 
 // Analytics
 export {
@@ -128,4 +128,4 @@ export {
   getAnalyticsSummary,
   clearAnalytics,
   exportAnalytics,
-} from './onboarding-analytics'
+} from "./onboarding-analytics";

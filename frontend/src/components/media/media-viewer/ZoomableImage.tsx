@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ZoomableImage - Image component with pinch-to-zoom and pan support
@@ -13,56 +13,63 @@
  * - Accessibility support
  */
 
-import * as React from 'react'
-import { useCallback, useRef, useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { useGestures, type Point } from '@/hooks/use-gestures'
-import { Button } from '@/components/ui/button'
-import { ZoomIn, ZoomOut, RotateCcw, RotateCw, Maximize2, Minimize2 } from 'lucide-react'
+import * as React from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { useGestures, type Point } from "@/hooks/use-gestures";
+import { Button } from "@/components/ui/button";
+import {
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  RotateCw,
+  Maximize2,
+  Minimize2,
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ZoomableImageProps {
-  src: string
-  alt: string
-  className?: string
-  containerClassName?: string
+  src: string;
+  alt: string;
+  className?: string;
+  containerClassName?: string;
 
   // Zoom controls
-  minZoom?: number
-  maxZoom?: number
-  initialZoom?: number
-  zoomStep?: number
+  minZoom?: number;
+  maxZoom?: number;
+  initialZoom?: number;
+  zoomStep?: number;
 
   // Callbacks
-  onZoomChange?: (zoom: number) => void
-  onPanChange?: (x: number, y: number) => void
-  onRotationChange?: (rotation: number) => void
-  onDoubleTap?: () => void
-  onLoad?: () => void
-  onError?: () => void
+  onZoomChange?: (zoom: number) => void;
+  onPanChange?: (x: number, y: number) => void;
+  onRotationChange?: (rotation: number) => void;
+  onDoubleTap?: () => void;
+  onLoad?: () => void;
+  onError?: () => void;
 
   // UI options
-  showControls?: boolean
-  showZoomLevel?: boolean
-  enableRotation?: boolean
-  enableMomentum?: boolean
-  reducedMotion?: boolean
+  showControls?: boolean;
+  showZoomLevel?: boolean;
+  enableRotation?: boolean;
+  enableMomentum?: boolean;
+  reducedMotion?: boolean;
 
   // Constraints
-  constrainToContainer?: boolean
+  constrainToContainer?: boolean;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const DEFAULT_MIN_ZOOM = 0.5
-const DEFAULT_MAX_ZOOM = 5
-const DEFAULT_ZOOM_STEP = 0.5
-const DOUBLE_TAP_ZOOM = 2.5
+const DEFAULT_MIN_ZOOM = 0.5;
+const DEFAULT_MAX_ZOOM = 5;
+const DEFAULT_ZOOM_STEP = 0.5;
+const DOUBLE_TAP_ZOOM = 2.5;
 
 // ============================================================================
 // Component
@@ -91,46 +98,46 @@ export function ZoomableImage({
   constrainToContainer = true,
 }: ZoomableImageProps) {
   // State
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [hasError, setHasError] = useState(false)
-  const [rotation, setRotation] = useState(0)
-  const [showControlsOverlay, setShowControlsOverlay] = useState(true)
-  const hideControlsTimer = useRef<NodeJS.Timeout | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const imageRef = useRef<HTMLImageElement>(null)
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [showControlsOverlay, setShowControlsOverlay] = useState(true);
+  const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   // Handle double tap to toggle zoom
   const handleDoubleTap = useCallback(
     (point: Point) => {
-      onDoubleTap?.()
+      onDoubleTap?.();
 
       // Get current zoom from gesture state
-      const currentZoom = gestureReturn.state.scale
+      const currentZoom = gestureReturn.state.scale;
 
       if (currentZoom === 1) {
         // Zoom in to point
-        gestureReturn.zoomToPoint(DOUBLE_TAP_ZOOM, point)
+        gestureReturn.zoomToPoint(DOUBLE_TAP_ZOOM, point);
       } else {
         // Reset zoom
-        gestureReturn.reset()
+        gestureReturn.reset();
       }
     },
-    [onDoubleTap]
-  )
+    [onDoubleTap],
+  );
 
   // Initialize gesture hook
   const gestureReturn = useGestures(
     {
       onZoomChange: (scale) => {
-        onZoomChange?.(scale)
+        onZoomChange?.(scale);
       },
       onPanChange: (x, y) => {
-        onPanChange?.(x, y)
+        onPanChange?.(x, y);
       },
       onDoubleTap: handleDoubleTap,
       onRotationChange: (rot) => {
-        setRotation(rot)
-        onRotationChange?.(rot)
+        setRotation(rot);
+        onRotationChange?.(rot);
       },
     },
     {
@@ -144,95 +151,101 @@ export function ZoomableImage({
       enableMomentum,
       enableRotation: false, // We'll handle rotation separately with buttons
       reducedMotion,
-    }
-  )
+    },
+  );
 
-  const { state, zoomIn: gestureZoomIn, zoomOut: gestureZoomOut, reset, getTransformStyle } = gestureReturn
+  const {
+    state,
+    zoomIn: gestureZoomIn,
+    zoomOut: gestureZoomOut,
+    reset,
+    getTransformStyle,
+  } = gestureReturn;
 
   // Control handlers
   const handleZoomIn = useCallback(() => {
-    gestureZoomIn(zoomStep)
-  }, [gestureZoomIn, zoomStep])
+    gestureZoomIn(zoomStep);
+  }, [gestureZoomIn, zoomStep]);
 
   const handleZoomOut = useCallback(() => {
-    gestureZoomOut(zoomStep)
-  }, [gestureZoomOut, zoomStep])
+    gestureZoomOut(zoomStep);
+  }, [gestureZoomOut, zoomStep]);
 
   const handleRotateLeft = useCallback(() => {
-    const newRotation = (rotation - 90 + 360) % 360
-    setRotation(newRotation)
-    onRotationChange?.(newRotation)
-  }, [rotation, onRotationChange])
+    const newRotation = (rotation - 90 + 360) % 360;
+    setRotation(newRotation);
+    onRotationChange?.(newRotation);
+  }, [rotation, onRotationChange]);
 
   const handleRotateRight = useCallback(() => {
-    const newRotation = (rotation + 90) % 360
-    setRotation(newRotation)
-    onRotationChange?.(newRotation)
-  }, [rotation, onRotationChange])
+    const newRotation = (rotation + 90) % 360;
+    setRotation(newRotation);
+    onRotationChange?.(newRotation);
+  }, [rotation, onRotationChange]);
 
   const handleReset = useCallback(() => {
-    reset()
-    setRotation(0)
-    onRotationChange?.(0)
-  }, [reset, onRotationChange])
+    reset();
+    setRotation(0);
+    onRotationChange?.(0);
+  }, [reset, onRotationChange]);
 
   // Image load handlers
   const handleLoad = useCallback(() => {
-    setIsLoaded(true)
-    setHasError(false)
-    onLoad?.()
-  }, [onLoad])
+    setIsLoaded(true);
+    setHasError(false);
+    onLoad?.();
+  }, [onLoad]);
 
   const handleError = useCallback(() => {
-    setHasError(true)
-    setIsLoaded(false)
-    onError?.()
-  }, [onError])
+    setHasError(true);
+    setIsLoaded(false);
+    onError?.();
+  }, [onError]);
 
   // Controls visibility
   const handleMouseMove = useCallback(() => {
-    setShowControlsOverlay(true)
+    setShowControlsOverlay(true);
     if (hideControlsTimer.current) {
-      clearTimeout(hideControlsTimer.current)
+      clearTimeout(hideControlsTimer.current);
     }
     hideControlsTimer.current = setTimeout(() => {
-      setShowControlsOverlay(false)
-    }, 3000)
-  }, [])
+      setShowControlsOverlay(false);
+    }, 3000);
+  }, []);
 
   // Cleanup
   useEffect(() => {
     return () => {
       if (hideControlsTimer.current) {
-        clearTimeout(hideControlsTimer.current)
+        clearTimeout(hideControlsTimer.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Reset state when src changes
   useEffect(() => {
-    setIsLoaded(false)
-    setHasError(false)
-    reset()
-    setRotation(0)
-  }, [src, reset])
+    setIsLoaded(false);
+    setHasError(false);
+    reset();
+    setRotation(0);
+  }, [src, reset]);
 
   // Get combined transform style
-  const transformStyle = getTransformStyle()
+  const transformStyle = getTransformStyle();
   const combinedStyle: React.CSSProperties = {
     ...transformStyle,
     transform: `${transformStyle.transform} rotate(${rotation}deg)`.replace(
       /rotate\(0deg\)\s*rotate/,
-      'rotate'
+      "rotate",
     ),
-  }
+  };
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        'relative flex h-full w-full items-center justify-center overflow-hidden bg-black/95',
-        containerClassName
+        "relative flex h-full w-full items-center justify-center overflow-hidden bg-black/95",
+        containerClassName,
       )}
       onMouseMove={handleMouseMove}
       data-testid="zoomable-image-container"
@@ -284,9 +297,9 @@ export function ZoomableImage({
           alt={alt}
           style={combinedStyle}
           className={cn(
-            'max-h-full max-w-full select-none object-contain',
-            !isLoaded && 'opacity-0',
-            className
+            "max-h-full max-w-full select-none object-contain",
+            !isLoaded && "opacity-0",
+            className,
           )}
           draggable={false}
           onLoad={handleLoad}
@@ -299,8 +312,8 @@ export function ZoomableImage({
       {showZoomLevel && isLoaded && (
         <div
           className={cn(
-            'absolute left-4 top-4 rounded-lg bg-black/60 px-3 py-1.5 text-sm text-white backdrop-blur-sm transition-opacity',
-            showControlsOverlay ? 'opacity-100' : 'opacity-0'
+            "absolute left-4 top-4 rounded-lg bg-black/60 px-3 py-1.5 text-sm text-white backdrop-blur-sm transition-opacity",
+            showControlsOverlay ? "opacity-100" : "opacity-0",
           )}
           data-testid="zoom-level"
         >
@@ -312,8 +325,10 @@ export function ZoomableImage({
       {showControls && isLoaded && (
         <div
           className={cn(
-            'absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-lg bg-black/60 p-1 backdrop-blur-sm transition-opacity',
-            showControlsOverlay ? 'opacity-100' : 'pointer-events-none opacity-0'
+            "absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-lg bg-black/60 p-1 backdrop-blur-sm transition-opacity",
+            showControlsOverlay
+              ? "opacity-100"
+              : "pointer-events-none opacity-0",
           )}
           data-testid="controls"
         >
@@ -398,7 +413,7 @@ export function ZoomableImage({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default ZoomableImage
+export default ZoomableImage;

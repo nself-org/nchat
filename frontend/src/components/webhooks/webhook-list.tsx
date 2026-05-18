@@ -1,43 +1,54 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
-import { Search, Filter, SortAsc, Plus, RefreshCw, Webhook } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useState, useMemo } from "react";
+import {
+  Search,
+  Filter,
+  SortAsc,
+  Plus,
+  RefreshCw,
+  Webhook,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { WebhookItem, WebhookItemSkeleton } from './webhook-item'
-import { Webhook as WebhookType, WebhookStatus, WebhookFilterOptions } from '@/lib/webhooks'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { WebhookItem, WebhookItemSkeleton } from "./webhook-item";
+import {
+  Webhook as WebhookType,
+  WebhookStatus,
+  WebhookFilterOptions,
+} from "@/lib/webhooks";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface WebhookListProps {
-  webhooks: WebhookType[]
-  isLoading?: boolean
-  error?: string | null
-  selectedWebhook?: WebhookType | null
-  channels?: Array<{ id: string; name: string }>
-  onCreateNew?: () => void
-  onEdit?: (webhook: WebhookType) => void
-  onDelete?: (webhook: WebhookType) => void
-  onTest?: (webhook: WebhookType) => void
-  onToggleStatus?: (webhook: WebhookType) => void
-  onSelect?: (webhook: WebhookType) => void
-  onRefresh?: () => void
-  showFilters?: boolean
-  showHeader?: boolean
-  maxHeight?: string
-  emptyMessage?: string
+  webhooks: WebhookType[];
+  isLoading?: boolean;
+  error?: string | null;
+  selectedWebhook?: WebhookType | null;
+  channels?: Array<{ id: string; name: string }>;
+  onCreateNew?: () => void;
+  onEdit?: (webhook: WebhookType) => void;
+  onDelete?: (webhook: WebhookType) => void;
+  onTest?: (webhook: WebhookType) => void;
+  onToggleStatus?: (webhook: WebhookType) => void;
+  onSelect?: (webhook: WebhookType) => void;
+  onRefresh?: () => void;
+  showFilters?: boolean;
+  showHeader?: boolean;
+  maxHeight?: string;
+  emptyMessage?: string;
 }
 
 // ============================================================================
@@ -59,73 +70,78 @@ export function WebhookList({
   onRefresh,
   showFilters = true,
   showHeader = true,
-  maxHeight = '600px',
-  emptyMessage = 'No webhooks found',
+  maxHeight = "600px",
+  emptyMessage = "No webhooks found",
 }: WebhookListProps) {
   const [filters, setFilters] = useState<WebhookFilterOptions>({
-    status: 'all',
-    channelId: 'all',
-    search: '',
-    sortBy: 'created_at',
-    sortOrder: 'desc',
-  })
+    status: "all",
+    channelId: "all",
+    search: "",
+    sortBy: "created_at",
+    sortOrder: "desc",
+  });
 
   // Filter and sort webhooks
   const filteredWebhooks = useMemo(() => {
-    let result = [...webhooks]
+    let result = [...webhooks];
 
     // Filter by status
-    if (filters.status && filters.status !== 'all') {
-      result = result.filter((w) => w.status === filters.status)
+    if (filters.status && filters.status !== "all") {
+      result = result.filter((w) => w.status === filters.status);
     }
 
     // Filter by channel
-    if (filters.channelId && filters.channelId !== 'all') {
-      result = result.filter((w) => w.channel_id === filters.channelId)
+    if (filters.channelId && filters.channelId !== "all") {
+      result = result.filter((w) => w.channel_id === filters.channelId);
     }
 
     // Filter by search
     if (filters.search) {
-      const searchLower = filters.search.toLowerCase()
+      const searchLower = filters.search.toLowerCase();
       result = result.filter(
         (w) =>
           w.name.toLowerCase().includes(searchLower) ||
-          w.channel?.name?.toLowerCase().includes(searchLower)
-      )
+          w.channel?.name?.toLowerCase().includes(searchLower),
+      );
     }
 
     // Sort
     result.sort((a, b) => {
-      let comparison = 0
+      let comparison = 0;
 
       switch (filters.sortBy) {
-        case 'name':
-          comparison = a.name.localeCompare(b.name)
-          break
-        case 'last_used_at':
+        case "name":
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case "last_used_at":
           comparison =
-            new Date(a.last_used_at || 0).getTime() - new Date(b.last_used_at || 0).getTime()
-          break
-        case 'created_at':
+            new Date(a.last_used_at || 0).getTime() -
+            new Date(b.last_used_at || 0).getTime();
+          break;
+        case "created_at":
         default:
-          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-          break
+          comparison =
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
       }
 
-      return filters.sortOrder === 'desc' ? -comparison : comparison
-    })
+      return filters.sortOrder === "desc" ? -comparison : comparison;
+    });
 
-    return result
-  }, [webhooks, filters])
+    return result;
+  }, [webhooks, filters]);
 
-  const handleFilterChange = (key: keyof WebhookFilterOptions, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-  }
+  const handleFilterChange = (
+    key: keyof WebhookFilterOptions,
+    value: string,
+  ) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   // Stats
-  const activeCount = webhooks.filter((w) => w.status === 'active').length
-  const pausedCount = webhooks.filter((w) => w.status === 'paused').length
-  const totalCount = webhooks.length
+  const activeCount = webhooks.filter((w) => w.status === "active").length;
+  const pausedCount = webhooks.filter((w) => w.status === "paused").length;
+  const totalCount = webhooks.length;
 
   return (
     <Card className="flex h-full flex-col">
@@ -141,8 +157,15 @@ export function WebhookList({
             </div>
             <div className="flex items-center gap-2">
               {onRefresh && (
-                <Button variant="ghost" size="icon" onClick={onRefresh} disabled={isLoading}>
-                  <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onRefresh}
+                  disabled={isLoading}
+                >
+                  <RefreshCw
+                    className={cn("h-4 w-4", isLoading && "animate-spin")}
+                  />
                 </Button>
               )}
               {onCreateNew && (
@@ -166,15 +189,15 @@ export function WebhookList({
               <Input
                 placeholder="Search webhooks..."
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
                 className="pl-9"
               />
             </div>
 
             {/* Status Filter */}
             <Select
-              value={filters.status || 'all'}
-              onValueChange={(value) => handleFilterChange('status', value)}
+              value={filters.status || "all"}
+              onValueChange={(value) => handleFilterChange("status", value)}
             >
               <SelectTrigger className="w-[130px]">
                 <Filter className="mr-2 h-4 w-4" />
@@ -191,8 +214,10 @@ export function WebhookList({
             {/* Channel Filter */}
             {channels.length > 0 && (
               <Select
-                value={filters.channelId || 'all'}
-                onValueChange={(value) => handleFilterChange('channelId', value)}
+                value={filters.channelId || "all"}
+                onValueChange={(value) =>
+                  handleFilterChange("channelId", value)
+                }
               >
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Channel" />
@@ -212,11 +237,11 @@ export function WebhookList({
             <Select
               value={`${filters.sortBy}-${filters.sortOrder}`}
               onValueChange={(value) => {
-                const [sortBy, sortOrder] = value.split('-') as [
-                  WebhookFilterOptions['sortBy'],
-                  WebhookFilterOptions['sortOrder'],
-                ]
-                setFilters((prev) => ({ ...prev, sortBy, sortOrder }))
+                const [sortBy, sortOrder] = value.split("-") as [
+                  WebhookFilterOptions["sortBy"],
+                  WebhookFilterOptions["sortOrder"],
+                ];
+                setFilters((prev) => ({ ...prev, sortBy, sortOrder }));
               }}
             >
               <SelectTrigger className="w-[160px]">
@@ -246,22 +271,24 @@ export function WebhookList({
           <div className="space-y-3 pr-4">
             {isLoading ? (
               // Loading skeletons
-              Array.from({ length: 3 }).map((_, i) => <WebhookItemSkeleton key={i} />)
+              Array.from({ length: 3 }).map((_, i) => (
+                <WebhookItemSkeleton key={i} />
+              ))
             ) : filteredWebhooks.length === 0 ? (
               // Empty state
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Webhook className="text-muted-foreground/50 h-12 w-12" />
                 <h3 className="mt-4 text-lg font-semibold">
-                  {filters.search || filters.status !== 'all'
-                    ? 'No matching webhooks'
+                  {filters.search || filters.status !== "all"
+                    ? "No matching webhooks"
                     : emptyMessage}
                 </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {filters.search || filters.status !== 'all'
-                    ? 'Try adjusting your filters'
-                    : 'Create a webhook to get started'}
+                  {filters.search || filters.status !== "all"
+                    ? "Try adjusting your filters"
+                    : "Create a webhook to get started"}
                 </p>
-                {onCreateNew && !filters.search && filters.status === 'all' && (
+                {onCreateNew && !filters.search && filters.status === "all" && (
                   <Button className="mt-4" onClick={onCreateNew}>
                     <Plus className="mr-2 h-4 w-4" />
                     Create Webhook
@@ -294,7 +321,7 @@ export function WebhookList({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -302,10 +329,10 @@ export function WebhookList({
 // ============================================================================
 
 export interface SimpleWebhookListProps {
-  webhooks: WebhookType[]
-  isLoading?: boolean
-  selectedId?: string
-  onSelect: (webhook: WebhookType) => void
+  webhooks: WebhookType[];
+  isLoading?: boolean;
+  selectedId?: string;
+  onSelect: (webhook: WebhookType) => void;
 }
 
 export function SimpleWebhookList({
@@ -321,11 +348,15 @@ export function SimpleWebhookList({
           <WebhookItemSkeleton key={i} compact />
         ))}
       </div>
-    )
+    );
   }
 
   if (webhooks.length === 0) {
-    return <div className="py-8 text-center text-muted-foreground">No webhooks available</div>
+    return (
+      <div className="py-8 text-center text-muted-foreground">
+        No webhooks available
+      </div>
+    );
   }
 
   return (
@@ -340,7 +371,7 @@ export function SimpleWebhookList({
         />
       ))}
     </div>
-  )
+  );
 }
 
-export default WebhookList
+export default WebhookList;

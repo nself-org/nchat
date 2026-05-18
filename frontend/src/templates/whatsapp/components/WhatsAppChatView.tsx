@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // WhatsApp Chat View Component
@@ -8,33 +8,33 @@
 //
 // ===============================================================================
 
-import { ReactNode } from 'react'
-import { cn } from '@/lib/utils'
-import { WHATSAPP_COLORS } from '../config'
-import { ArrowLeft, Search, Phone, Video, MoreVertical } from 'lucide-react'
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { WHATSAPP_COLORS } from "../config";
+import { ArrowLeft, Search, Phone, Video, MoreVertical } from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface WhatsAppChatViewProps {
-  chatId?: string
-  chatName?: string
-  chatAvatar?: string
-  chatType?: 'private' | 'group' | 'broadcast' | 'business'
-  memberCount?: number
-  lastSeen?: string
-  isOnline?: boolean
-  isTyping?: boolean
-  children?: ReactNode
-  composer?: ReactNode
-  onBackClick?: () => void
-  onSearchClick?: () => void
-  onCallClick?: () => void
-  onVideoCallClick?: () => void
-  onMenuClick?: () => void
-  onHeaderClick?: () => void
-  className?: string
+  chatId?: string;
+  chatName?: string;
+  chatAvatar?: string;
+  chatType?: "private" | "group" | "broadcast" | "business";
+  memberCount?: number;
+  lastSeen?: string;
+  isOnline?: boolean;
+  isTyping?: boolean;
+  children?: ReactNode;
+  composer?: ReactNode;
+  onBackClick?: () => void;
+  onSearchClick?: () => void;
+  onCallClick?: () => void;
+  onVideoCallClick?: () => void;
+  onMenuClick?: () => void;
+  onHeaderClick?: () => void;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -43,9 +43,9 @@ export interface WhatsAppChatViewProps {
 
 export function WhatsAppChatView({
   chatId,
-  chatName = 'Chat',
+  chatName = "Chat",
   chatAvatar,
-  chatType = 'private',
+  chatType = "private",
   memberCount,
   lastSeen,
   isOnline,
@@ -62,25 +62,28 @@ export function WhatsAppChatView({
 }: WhatsAppChatViewProps) {
   const getSubtitle = () => {
     if (isTyping) {
-      return 'typing...'
+      return "typing...";
     }
-    if (chatType === 'group') {
-      return memberCount ? `${memberCount} participants` : 'Group'
+    if (chatType === "group") {
+      return memberCount ? `${memberCount} participants` : "Group";
     }
-    if (chatType === 'broadcast') {
-      return memberCount ? `${memberCount} recipients` : 'Broadcast list'
+    if (chatType === "broadcast") {
+      return memberCount ? `${memberCount} recipients` : "Broadcast list";
     }
     if (isOnline) {
-      return 'online'
+      return "online";
     }
-    return lastSeen || 'last seen recently'
-  }
+    return lastSeen || "last seen recently";
+  };
 
   if (!chatId) {
     return (
       <div
-        className={cn('flex flex-1 flex-col items-center justify-center', className)}
-        style={{ backgroundColor: '#222E35' }}
+        className={cn(
+          "flex flex-1 flex-col items-center justify-center",
+          className,
+        )}
+        style={{ backgroundColor: "#222E35" }}
       >
         <div className="text-center">
           <div className="mx-auto mb-8 h-[190px] w-[320px]">
@@ -111,16 +114,16 @@ export function WhatsAppChatView({
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex h-full flex-col', className)}>
+    <div className={cn("flex h-full flex-col", className)}>
       {/* Header */}
       <header
         className="flex items-center gap-3 px-4 py-2"
         style={{
-          backgroundColor: '#202C33',
+          backgroundColor: "#202C33",
           minHeight: 60,
         }}
       >
@@ -134,28 +137,42 @@ export function WhatsAppChatView({
         </button>
 
         {/* Avatar & Info */}
-        <button onClick={onHeaderClick} className="flex min-w-0 flex-1 items-center gap-3">
+        <button
+          onClick={onHeaderClick}
+          className="flex min-w-0 flex-1 items-center gap-3"
+        >
           <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
             {chatAvatar ? (
-              <img src={chatAvatar} alt={chatName} className="h-full w-full object-cover" />
+              <img
+                src={chatAvatar}
+                alt={chatName}
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div
                 className="flex h-full w-full items-center justify-center"
-                style={{ backgroundColor: '#6B7C85' }}
+                style={{ backgroundColor: "#6B7C85" }}
               >
-                <span className="font-medium text-white">{chatName[0]?.toUpperCase()}</span>
+                <span className="font-medium text-white">
+                  {chatName[0]?.toUpperCase()}
+                </span>
               </div>
             )}
           </div>
 
           <div className="min-w-0 text-left">
-            <h1 className="truncate font-medium" style={{ color: WHATSAPP_COLORS.textPrimaryDark }}>
+            <h1
+              className="truncate font-medium"
+              style={{ color: WHATSAPP_COLORS.textPrimaryDark }}
+            >
               {chatName}
             </h1>
             <p
               className="truncate text-xs"
               style={{
-                color: isTyping ? WHATSAPP_COLORS.primaryGreen : WHATSAPP_COLORS.textSecondaryDark,
+                color: isTyping
+                  ? WHATSAPP_COLORS.primaryGreen
+                  : WHATSAPP_COLORS.textSecondaryDark,
               }}
             >
               {getSubtitle()}
@@ -199,7 +216,7 @@ export function WhatsAppChatView({
       {/* Messages Area with WhatsApp pattern background */}
       <div
         className="whatsapp-chat-bg flex-1 overflow-y-auto"
-        style={{ backgroundColor: '#0B141A' }}
+        style={{ backgroundColor: "#0B141A" }}
       >
         {children}
       </div>
@@ -207,7 +224,7 @@ export function WhatsAppChatView({
       {/* Composer */}
       {composer}
     </div>
-  )
+  );
 }
 
-export default WhatsAppChatView
+export default WhatsAppChatView;

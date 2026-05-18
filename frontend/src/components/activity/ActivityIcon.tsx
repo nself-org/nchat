@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ActivityIcon Component
@@ -6,9 +6,12 @@
  * Displays an icon representing the activity type
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import type { ActivityType, ActivityIconProps } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import type {
+  ActivityType,
+  ActivityIconProps,
+} from "@/lib/activity/activity-types";
 
 // SVG icons for each activity type
 const icons: Record<ActivityType, React.FC<{ className?: string }>> = {
@@ -296,59 +299,63 @@ const icons: Record<ActivityType, React.FC<{ className?: string }>> = {
       <line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
   ),
-}
+};
 
 // Color classes for each activity type
 const colorClasses: Record<ActivityType, string> = {
-  message: 'text-blue-500 bg-blue-50 dark:bg-blue-950',
-  reaction: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-950',
-  mention: 'text-purple-500 bg-purple-50 dark:bg-purple-950',
-  reply: 'text-green-500 bg-green-50 dark:bg-green-950',
-  thread_reply: 'text-green-500 bg-green-50 dark:bg-green-950',
-  channel_created: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950',
-  channel_archived: 'text-gray-500 bg-gray-50 dark:bg-gray-900',
-  channel_unarchived: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950',
-  member_joined: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950',
-  member_left: 'text-red-500 bg-red-50 dark:bg-red-950',
-  member_invited: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950',
-  file_shared: 'text-orange-500 bg-orange-50 dark:bg-orange-950',
-  call_started: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-950',
-  call_ended: 'text-gray-500 bg-gray-50 dark:bg-gray-900',
-  reminder_due: 'text-amber-500 bg-amber-50 dark:bg-amber-950',
-  task_completed: 'text-green-500 bg-green-50 dark:bg-green-950',
-  task_assigned: 'text-blue-500 bg-blue-50 dark:bg-blue-950',
-  integration_event: 'text-violet-500 bg-violet-50 dark:bg-violet-950',
-  system: 'text-gray-500 bg-gray-50 dark:bg-gray-900',
-}
+  message: "text-blue-500 bg-blue-50 dark:bg-blue-950",
+  reaction: "text-yellow-500 bg-yellow-50 dark:bg-yellow-950",
+  mention: "text-purple-500 bg-purple-50 dark:bg-purple-950",
+  reply: "text-green-500 bg-green-50 dark:bg-green-950",
+  thread_reply: "text-green-500 bg-green-50 dark:bg-green-950",
+  channel_created: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950",
+  channel_archived: "text-gray-500 bg-gray-50 dark:bg-gray-900",
+  channel_unarchived: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950",
+  member_joined: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950",
+  member_left: "text-red-500 bg-red-50 dark:bg-red-950",
+  member_invited: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950",
+  file_shared: "text-orange-500 bg-orange-50 dark:bg-orange-950",
+  call_started: "text-cyan-500 bg-cyan-50 dark:bg-cyan-950",
+  call_ended: "text-gray-500 bg-gray-50 dark:bg-gray-900",
+  reminder_due: "text-amber-500 bg-amber-50 dark:bg-amber-950",
+  task_completed: "text-green-500 bg-green-50 dark:bg-green-950",
+  task_assigned: "text-blue-500 bg-blue-50 dark:bg-blue-950",
+  integration_event: "text-violet-500 bg-violet-50 dark:bg-violet-950",
+  system: "text-gray-500 bg-gray-50 dark:bg-gray-900",
+};
 
 // Size classes
 const sizeClasses = {
-  sm: 'h-6 w-6 p-1',
-  md: 'h-8 w-8 p-1.5',
-  lg: 'h-10 w-10 p-2',
-}
+  sm: "h-6 w-6 p-1",
+  md: "h-8 w-8 p-1.5",
+  lg: "h-10 w-10 p-2",
+};
 
 const iconSizeClasses = {
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-6 w-6',
-}
+  sm: "h-4 w-4",
+  md: "h-5 w-5",
+  lg: "h-6 w-6",
+};
 
-export function ActivityIcon({ type, size = 'md', className }: ActivityIconProps) {
-  const IconComponent = icons[type] || icons.system
+export function ActivityIcon({
+  type,
+  size = "md",
+  className,
+}: ActivityIconProps) {
+  const IconComponent = icons[type] || icons.system;
 
   return (
     <div
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-full',
+        "flex shrink-0 items-center justify-center rounded-full",
         sizeClasses[size],
         colorClasses[type],
-        className
+        className,
       )}
     >
       <IconComponent className={iconSizeClasses[size]} />
     </div>
-  )
+  );
 }
 
-export default ActivityIcon
+export default ActivityIcon;

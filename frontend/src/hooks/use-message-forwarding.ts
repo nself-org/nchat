@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useMessageForwarding Hook
@@ -6,12 +6,12 @@
  * Hook for forwarding messages to multiple destinations.
  */
 
-import { useCallback } from 'react'
-import { useMutation } from '@apollo/client'
-import { useAuth } from '@/contexts/auth-context'
-import { useToast } from '@/hooks/use-toast'
-import { logger } from '@/lib/logger'
-import { FORWARD_MESSAGE } from '@/graphql/mutations/messages'
+import { useCallback } from "react";
+import { useMutation } from "@apollo/client";
+import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/lib/logger";
+import { FORWARD_MESSAGE } from "@/graphql/mutations/messages";
 import {
   useForwardingStore,
   createForwardRequest,
@@ -21,54 +21,63 @@ import {
   type ForwardingMode,
   type ForwardOperationResult,
   type ForwardResult,
-} from '@/lib/messages/message-forwarding'
+} from "@/lib/messages/message-forwarding";
 
 export function useMessageForwarding() {
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const store = useForwardingStore()
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const store = useForwardingStore();
 
-  const [forwardMessageMutation] = useMutation(FORWARD_MESSAGE)
+  const [forwardMessageMutation] = useMutation(FORWARD_MESSAGE);
 
   const forwardMessages = useCallback(
     async (
       messages: ForwardableMessage[],
       destinations: ForwardDestination[],
       mode: ForwardingMode,
-      comment?: string
+      comment?: string,
     ) => {
       if (!user) {
         toast({
-          title: 'Error',
-          description: 'You must be logged in to forward messages',
-          variant: 'destructive',
-        })
-        return
+          title: "Error",
+          description: "You must be logged in to forward messages",
+          variant: "destructive",
+        });
+        return;
       }
 
       try {
-        logger.debug('Forwarding messages', {
+        logger.debug("Forwarding messages", {
           messageCount: messages.length,
           destinationCount: destinations.length,
           mode,
-        })
+        });
 
-        store.startForwarding()
+        store.startForwarding();
 
-        const request = createForwardRequest(messages, destinations, mode, user.id, comment)
-        const results: ForwardResult[] = []
+        const request = createForwardRequest(
+          messages,
+          destinations,
+          mode,
+          user.id,
+          comment,
+        );
+        const results: ForwardResult[] = [];
 
         // Forward to each destination
         for (const destination of destinations) {
           try {
-            const messageIds: string[] = []
+            const messageIds: string[] = [];
 
             for (const message of messages) {
-              const { content, attribution } = formatForwardedContent(message, mode)
+              const { content, attribution } = formatForwardedContent(
+                message,
+                mode,
+              );
 
               const fullContent = comment
-                ? `${comment}\n\n${content}${attribution ? `\n\n${attribution}` : ''}`
-                : `${content}${attribution ? `\n\n${attribution}` : ''}`
+                ? `${comment}\n\n${content}${attribution ? `\n\n${attribution}` : ""}`
+                : `${content}${attribution ? `\n\n${attribution}` : ""}`;
 
               const result = await forwardMessageMutation({
                 variables: {
@@ -77,10 +86,10 @@ export function useMessageForwarding() {
                   content: fullContent,
                   userId: user.id,
                 },
-              })
+              });
 
               if (result.data?.insert_nchat_messages_one?.id) {
-                messageIds.push(result.data.insert_nchat_messages_one.id)
+                messageIds.push(result.data.insert_nchat_messages_one.id);
               }
             }
 
@@ -88,20 +97,23 @@ export function useMessageForwarding() {
               destination,
               success: true,
               messageIds,
-            })
+            });
 
-            logger.info('Successfully forwarded to destination', { destination: destination.name })
+            logger.info("Successfully forwarded to destination", {
+              destination: destination.name,
+            });
           } catch (error) {
             logger.error(
-              'Failed to forward to destination',
+              "Failed to forward to destination",
               error instanceof Error ? error : new Error(String(error)),
-              { destination: destination.name }
-            )
+              { destination: destination.name },
+            );
             results.push({
               destination,
               success: false,
-              error: error instanceof Error ? error.message : 'Failed to forward',
-            })
+              error:
+                error instanceof Error ? error.message : "Failed to forward",
+            });
           }
         }
 
@@ -110,45 +122,48 @@ export function useMessageForwarding() {
           results,
           successCount: results.filter((r) => r.success).length,
           failureCount: results.filter((r) => !r.success).length,
-        }
+        };
 
-        store.finishForwarding(operationResult)
+        store.finishForwarding(operationResult);
 
         if (operationResult.successCount > 0) {
           toast({
-            title: 'Messages forwarded',
-            description: `Successfully forwarded to ${operationResult.successCount} destination${operationResult.successCount !== 1 ? 's' : ''}`,
-          })
+            title: "Messages forwarded",
+            description: `Successfully forwarded to ${operationResult.successCount} destination${operationResult.successCount !== 1 ? "s" : ""}`,
+          });
         }
 
         if (operationResult.failureCount > 0) {
           toast({
-            title: 'Partial failure',
-            description: `Failed to forward to ${operationResult.failureCount} destination${operationResult.failureCount !== 1 ? 's' : ''}`,
-            variant: 'destructive',
-          })
+            title: "Partial failure",
+            description: `Failed to forward to ${operationResult.failureCount} destination${operationResult.failureCount !== 1 ? "s" : ""}`,
+            variant: "destructive",
+          });
         }
 
-        logger.info('Forward operation completed', {
+        logger.info("Forward operation completed", {
           successCount: operationResult.successCount,
           failureCount: operationResult.failureCount,
-        })
-        return operationResult
+        });
+        return operationResult;
       } catch (error) {
         logger.error(
-          'Failed to forward messages',
-          error instanceof Error ? error : new Error(String(error))
-        )
+          "Failed to forward messages",
+          error instanceof Error ? error : new Error(String(error)),
+        );
         toast({
-          title: 'Error',
-          description: error instanceof Error ? error.message : 'Failed to forward messages',
-          variant: 'destructive',
-        })
-        throw error
+          title: "Error",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to forward messages",
+          variant: "destructive",
+        });
+        throw error;
       }
     },
-    [user, store, forwardMessageMutation, toast]
-  )
+    [user, store, forwardMessageMutation, toast],
+  );
 
   return {
     // Modal state
@@ -175,5 +190,5 @@ export function useMessageForwarding() {
     // History
     history: store.forwardHistory,
     clearHistory: store.clearHistory,
-  }
+  };
 }

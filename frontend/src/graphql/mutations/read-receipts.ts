@@ -1,7 +1,11 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const MARK_CHANNEL_READ = gql`
-  mutation MarkChannelRead($channelId: uuid!, $userId: uuid!, $messageId: uuid!) {
+  mutation MarkChannelRead(
+    $channelId: uuid!
+    $userId: uuid!
+    $messageId: uuid!
+  ) {
     insert_nchat_read_status_one(
       object: {
         channel_id: $channelId
@@ -18,7 +22,7 @@ export const MARK_CHANNEL_READ = gql`
       last_read_at
     }
   }
-`
+`;
 
 export const UPDATE_LAST_READ = gql`
   mutation UpdateLastRead($channelId: uuid!, $userId: uuid!) {
@@ -29,4 +33,4 @@ export const UPDATE_LAST_READ = gql`
       affected_rows
     }
   }
-`
+`;

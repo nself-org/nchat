@@ -25,12 +25,16 @@ import type {
   PenaltyBoxEntry,
   EndpointCategory,
   DEFAULT_TIER_MULTIPLIERS,
-} from './types'
+} from "./types";
 
-import { getRedisStore, createRedisStore } from './redis-store'
-import { getMemoryStore, createMemoryStore, getEdgeStore } from './memory-store'
+import { getRedisStore, createRedisStore } from "./redis-store";
+import {
+  getMemoryStore,
+  createMemoryStore,
+  getEdgeStore,
+} from "./memory-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Rate Limit Configurations
@@ -44,12 +48,12 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
   auth: {
     maxRequests: 5,
     windowSeconds: 60, // 5 per minute
-    keyPrefix: 'rl:auth',
+    keyPrefix: "rl:auth",
   },
   auth_sensitive: {
     maxRequests: 3,
     windowSeconds: 300, // 3 per 5 minutes (password reset, 2FA setup)
-    keyPrefix: 'rl:auth:sensitive',
+    keyPrefix: "rl:auth:sensitive",
   },
 
   // Messages - moderate limits
@@ -57,20 +61,20 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
     maxRequests: 60,
     windowSeconds: 60, // 60 per minute for reading
     burst: 20,
-    keyPrefix: 'rl:messages',
+    keyPrefix: "rl:messages",
   },
   messages_create: {
     maxRequests: 30,
     windowSeconds: 60, // 30 per minute for sending
     burst: 10,
-    keyPrefix: 'rl:messages:create',
+    keyPrefix: "rl:messages:create",
   },
 
   // File uploads - strict
   file_upload: {
     maxRequests: 10,
     windowSeconds: 60, // 10 per minute
-    keyPrefix: 'rl:upload',
+    keyPrefix: "rl:upload",
   },
 
   // Search - moderate
@@ -78,7 +82,7 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
     maxRequests: 60,
     windowSeconds: 60, // 60 per minute
     burst: 20,
-    keyPrefix: 'rl:search',
+    keyPrefix: "rl:search",
   },
 
   // General API - standard
@@ -86,7 +90,7 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
     maxRequests: 100,
     windowSeconds: 60, // 100 per minute
     burst: 50,
-    keyPrefix: 'rl:api',
+    keyPrefix: "rl:api",
   },
 
   // GraphQL - moderate with burst
@@ -94,14 +98,14 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
     maxRequests: 120,
     windowSeconds: 60, // 120 per minute
     burst: 30,
-    keyPrefix: 'rl:graphql',
+    keyPrefix: "rl:graphql",
   },
 
   // WebSocket connections - per connection limit
   websocket: {
     maxRequests: 5,
     windowSeconds: 60, // 5 connections per minute
-    keyPrefix: 'rl:ws',
+    keyPrefix: "rl:ws",
   },
 
   // Admin endpoints - higher limits
@@ -109,7 +113,7 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
     maxRequests: 200,
     windowSeconds: 60, // 200 per minute
     burst: 50,
-    keyPrefix: 'rl:admin',
+    keyPrefix: "rl:admin",
   },
 
   // Webhooks - high limits
@@ -117,7 +121,7 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
     maxRequests: 100,
     windowSeconds: 60,
     burst: 50,
-    keyPrefix: 'rl:webhook',
+    keyPrefix: "rl:webhook",
   },
 
   // Bot API - moderate
@@ -125,7 +129,7 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
     maxRequests: 60,
     windowSeconds: 60,
     burst: 20,
-    keyPrefix: 'rl:bot',
+    keyPrefix: "rl:bot",
   },
 
   // AI endpoints - strict
@@ -133,66 +137,66 @@ export const RATE_LIMIT_CONFIGS: Record<EndpointCategory, RateLimitConfig> = {
     maxRequests: 20,
     windowSeconds: 60, // 20 per minute
     burst: 5,
-    keyPrefix: 'rl:ai',
+    keyPrefix: "rl:ai",
   },
 
   // Export endpoints - very strict
   export: {
     maxRequests: 5,
     windowSeconds: 3600, // 5 per hour
-    keyPrefix: 'rl:export',
+    keyPrefix: "rl:export",
   },
-}
+};
 
 /**
  * Endpoint path to category mapping
  */
 export const ENDPOINT_CATEGORY_MAP: Record<string, EndpointCategory> = {
   // Auth endpoints
-  '/api/auth/signin': 'auth',
-  '/api/auth/signup': 'auth',
-  '/api/auth/change-password': 'auth_sensitive',
-  '/api/auth/2fa': 'auth_sensitive',
-  '/api/auth/verify-password': 'auth_sensitive',
-  '/api/auth/oauth': 'auth',
-  '/api/auth/sessions': 'auth',
+  "/api/auth/signin": "auth",
+  "/api/auth/signup": "auth",
+  "/api/auth/change-password": "auth_sensitive",
+  "/api/auth/2fa": "auth_sensitive",
+  "/api/auth/verify-password": "auth_sensitive",
+  "/api/auth/oauth": "auth",
+  "/api/auth/sessions": "auth",
 
   // Message endpoints
-  '/api/messages': 'messages',
+  "/api/messages": "messages",
 
   // File uploads
-  '/api/storage': 'file_upload',
-  '/api/upload': 'file_upload',
+  "/api/storage": "file_upload",
+  "/api/upload": "file_upload",
 
   // Search
-  '/api/search': 'search',
-  '/api/ai/search': 'search',
+  "/api/search": "search",
+  "/api/ai/search": "search",
 
   // AI endpoints
-  '/api/ai': 'ai',
-  '/api/ai/embed': 'ai',
-  '/api/ai/digest': 'ai',
-  '/api/translate': 'ai',
+  "/api/ai": "ai",
+  "/api/ai/embed": "ai",
+  "/api/ai/digest": "ai",
+  "/api/translate": "ai",
 
   // Admin endpoints
-  '/api/admin': 'admin',
+  "/api/admin": "admin",
 
   // Bot endpoints
-  '/api/bots': 'bot',
+  "/api/bots": "bot",
 
   // Webhook endpoints
-  '/api/webhook': 'webhook',
+  "/api/webhook": "webhook",
 
   // Export endpoints
-  '/api/export': 'export',
-  '/api/compliance/export': 'export',
-  '/api/analytics/export': 'export',
-  '/api/audit/export': 'export',
+  "/api/export": "export",
+  "/api/compliance/export": "export",
+  "/api/analytics/export": "export",
+  "/api/audit/export": "export",
 
   // GraphQL
-  '/api/graphql': 'graphql',
-  '/v1/graphql': 'graphql',
-}
+  "/api/graphql": "graphql",
+  "/v1/graphql": "graphql",
+};
 
 // ============================================================================
 // Rate Limit Service Class
@@ -200,31 +204,31 @@ export const ENDPOINT_CATEGORY_MAP: Record<string, EndpointCategory> = {
 
 export interface RateLimitServiceOptions {
   /** Force a specific store type */
-  storeType?: 'redis' | 'memory' | 'edge' | 'auto'
+  storeType?: "redis" | "memory" | "edge" | "auto";
   /** Custom tier multipliers */
-  tierMultipliers?: Partial<TierMultipliers>
+  tierMultipliers?: Partial<TierMultipliers>;
   /** Enable penalty box */
-  enablePenaltyBox?: boolean
+  enablePenaltyBox?: boolean;
   /** Penalty box violation threshold */
-  violationThreshold?: number
+  violationThreshold?: number;
   /** Penalty box duration in seconds */
-  penaltyDuration?: number
+  penaltyDuration?: number;
   /** Bypass tokens for internal services */
-  bypassTokens?: string[]
+  bypassTokens?: string[];
   /** Admin user IDs that bypass limits */
-  adminBypassIds?: string[]
+  adminBypassIds?: string[];
 }
 
 export class RateLimitService {
-  private store: RateLimitStore | null = null
-  private storeInitPromise: Promise<void> | null = null
-  private readonly options: Required<RateLimitServiceOptions>
-  private readonly penaltyBox = new Map<string, PenaltyBoxEntry>()
-  private readonly violations = new Map<string, number>()
+  private store: RateLimitStore | null = null;
+  private storeInitPromise: Promise<void> | null = null;
+  private readonly options: Required<RateLimitServiceOptions>;
+  private readonly penaltyBox = new Map<string, PenaltyBoxEntry>();
+  private readonly violations = new Map<string, number>();
 
   constructor(options: RateLimitServiceOptions = {}) {
     this.options = {
-      storeType: options.storeType || 'auto',
+      storeType: options.storeType || "auto",
       tierMultipliers: {
         guest: 0.5,
         member: 1.0,
@@ -239,81 +243,86 @@ export class RateLimitService {
       penaltyDuration: options.penaltyDuration || 3600, // 1 hour
       bypassTokens: options.bypassTokens || [],
       adminBypassIds: options.adminBypassIds || [],
-    }
+    };
   }
 
   /**
    * Initialize the store
    */
   private async initStore(): Promise<void> {
-    if (this.store) return
+    if (this.store) return;
 
     if (this.storeInitPromise) {
-      await this.storeInitPromise
-      return
+      await this.storeInitPromise;
+      return;
     }
 
-    this.storeInitPromise = this.doInitStore()
-    await this.storeInitPromise
-    this.storeInitPromise = null
+    this.storeInitPromise = this.doInitStore();
+    await this.storeInitPromise;
+    this.storeInitPromise = null;
   }
 
   private async doInitStore(): Promise<void> {
-    const { storeType } = this.options
+    const { storeType } = this.options;
 
-    if (storeType === 'edge') {
-      this.store = getEdgeStore()
+    if (storeType === "edge") {
+      this.store = getEdgeStore();
       // REMOVED: console.log('[RateLimitService] Using edge memory store')
-      return
+      return;
     }
 
-    if (storeType === 'memory') {
-      this.store = getMemoryStore()
+    if (storeType === "memory") {
+      this.store = getMemoryStore();
       // REMOVED: console.log('[RateLimitService] Using memory store')
-      return
+      return;
     }
 
-    if (storeType === 'redis') {
+    if (storeType === "redis") {
       try {
-        const redisStore = getRedisStore()
-        const isHealthy = await redisStore.isHealthy()
+        const redisStore = getRedisStore();
+        const isHealthy = await redisStore.isHealthy();
         if (isHealthy) {
-          this.store = redisStore
+          this.store = redisStore;
           // REMOVED: console.log('[RateLimitService] Using Redis store')
-          return
+          return;
         }
       } catch (error) {
-        logger.error('[RateLimitService] Failed to connect to Redis:', error)
+        logger.error("[RateLimitService] Failed to connect to Redis:", error);
       }
-      throw new Error('Redis store requested but not available')
+      throw new Error("Redis store requested but not available");
     }
 
     // Auto mode: try Redis first, fallback to memory
-    if (storeType === 'auto') {
+    if (storeType === "auto") {
       // Check if Redis is configured
-      const redisConfigured = !!(process.env.REDIS_URL || process.env.REDIS_HOST)
+      const redisConfigured = !!(
+        process.env.REDIS_URL || process.env.REDIS_HOST
+      );
 
       if (redisConfigured) {
         try {
-          const redisStore = getRedisStore()
+          const redisStore = getRedisStore();
           // Wait a bit for connection
-          await new Promise((resolve) => setTimeout(resolve, 100))
-          const isHealthy = await redisStore.isHealthy()
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          const isHealthy = await redisStore.isHealthy();
 
           if (isHealthy) {
-            this.store = redisStore
+            this.store = redisStore;
             // REMOVED: console.log('[RateLimitService] Using Redis store (auto-detected)')
-            return
+            return;
           }
         } catch (error) {
-          logger.warn('[RateLimitService] Redis not available, falling back to memory:', {
-            error: error instanceof Error ? error.message : String(error),
-          })
+          logger.warn(
+            "[RateLimitService] Redis not available, falling back to memory:",
+            {
+              error: error instanceof Error ? error.message : String(error),
+            },
+          );
         }
       }
 
       // Fallback to memory store
-      this.store = getMemoryStore()
+      this.store = getMemoryStore();
       // REMOVED: console.log('[RateLimitService] Using memory store (fallback)')
     }
   }
@@ -322,71 +331,77 @@ export class RateLimitService {
    * Get the current store
    */
   private async getStore(): Promise<RateLimitStore> {
-    await this.initStore()
+    await this.initStore();
     if (!this.store) {
-      throw new Error('Rate limit store not initialized')
+      throw new Error("Rate limit store not initialized");
     }
-    return this.store
+    return this.store;
   }
 
   /**
    * Calculate effective limit based on user tier
    */
   private getEffectiveLimit(baseLimit: number, tier?: UserTier): number {
-    if (!tier) return baseLimit
+    if (!tier) return baseLimit;
 
-    const multiplier = this.options.tierMultipliers[tier] || 1.0
-    return Math.floor(baseLimit * multiplier)
+    const multiplier = this.options.tierMultipliers[tier] || 1.0;
+    return Math.floor(baseLimit * multiplier);
   }
 
   /**
    * Check if identifier should bypass rate limiting
    */
   private shouldBypass(metadata?: RateLimitMetadata): boolean {
-    if (!metadata) return false
+    if (!metadata) return false;
 
     // Check bypass tokens
-    if (metadata.apiKey && this.options.bypassTokens.includes(metadata.apiKey)) {
-      return true
+    if (
+      metadata.apiKey &&
+      this.options.bypassTokens.includes(metadata.apiKey)
+    ) {
+      return true;
     }
 
     // Check admin bypass
-    if (metadata.userId && this.options.adminBypassIds.includes(metadata.userId)) {
-      return true
+    if (
+      metadata.userId &&
+      this.options.adminBypassIds.includes(metadata.userId)
+    ) {
+      return true;
     }
 
     // Internal tier bypasses
-    if (metadata.userRole === 'internal') {
-      return true
+    if (metadata.userRole === "internal") {
+      return true;
     }
 
-    return false
+    return false;
   }
 
   /**
    * Check if identifier is in penalty box
    */
   isBlocked(identifier: string): PenaltyBoxEntry | null {
-    const entry = this.penaltyBox.get(identifier)
-    if (!entry) return null
+    const entry = this.penaltyBox.get(identifier);
+    if (!entry) return null;
 
     if (Date.now() > entry.expiresAt) {
-      this.penaltyBox.delete(identifier)
-      return null
+      this.penaltyBox.delete(identifier);
+      return null;
     }
 
-    return entry
+    return entry;
   }
 
   /**
    * Record a violation
    */
   private recordViolation(identifier: string, reason: string): void {
-    if (!this.options.enablePenaltyBox) return
+    if (!this.options.enablePenaltyBox) return;
 
-    const current = this.violations.get(identifier) || 0
-    const newCount = current + 1
-    this.violations.set(identifier, newCount)
+    const current = this.violations.get(identifier) || 0;
+    const newCount = current + 1;
+    this.violations.set(identifier, newCount);
 
     if (newCount >= this.options.violationThreshold) {
       // Add to penalty box
@@ -396,13 +411,13 @@ export class RateLimitService {
         expiresAt: Date.now() + this.options.penaltyDuration * 1000,
         violations: newCount,
         createdAt: Date.now(),
-      }
-      this.penaltyBox.set(identifier, entry)
-      this.violations.delete(identifier)
+      };
+      this.penaltyBox.set(identifier, entry);
+      this.violations.delete(identifier);
 
       console.warn(
-        `[RateLimitService] Added ${identifier} to penalty box for ${this.options.penaltyDuration}s`
-      )
+        `[RateLimitService] Added ${identifier} to penalty box for ${this.options.penaltyDuration}s`,
+      );
     }
   }
 
@@ -412,68 +427,74 @@ export class RateLimitService {
   getConfigForEndpoint(path: string, method?: string): RateLimitConfig {
     // Check for exact match
     if (ENDPOINT_CATEGORY_MAP[path]) {
-      return RATE_LIMIT_CONFIGS[ENDPOINT_CATEGORY_MAP[path]]
+      return RATE_LIMIT_CONFIGS[ENDPOINT_CATEGORY_MAP[path]];
     }
 
     // Check for prefix match
     for (const [endpoint, category] of Object.entries(ENDPOINT_CATEGORY_MAP)) {
       if (path.startsWith(endpoint)) {
         // Special case: POST to messages is message creation
-        if (category === 'messages' && method === 'POST') {
-          return RATE_LIMIT_CONFIGS.messages_create
+        if (category === "messages" && method === "POST") {
+          return RATE_LIMIT_CONFIGS.messages_create;
         }
-        return RATE_LIMIT_CONFIGS[category]
+        return RATE_LIMIT_CONFIGS[category];
       }
     }
 
     // Default to general API
-    return RATE_LIMIT_CONFIGS.api_general
+    return RATE_LIMIT_CONFIGS.api_general;
   }
 
   /**
    * Build rate limit key from metadata
    */
-  buildKey(category: EndpointCategory | string, metadata?: RateLimitMetadata): string {
-    const parts: string[] = []
+  buildKey(
+    category: EndpointCategory | string,
+    metadata?: RateLimitMetadata,
+  ): string {
+    const parts: string[] = [];
 
     // Prefer user ID over IP for authenticated requests
     if (metadata?.userId) {
-      parts.push(`user:${metadata.userId}`)
+      parts.push(`user:${metadata.userId}`);
     } else if (metadata?.ip) {
-      parts.push(`ip:${metadata.ip}`)
+      parts.push(`ip:${metadata.ip}`);
     } else {
-      parts.push('anonymous')
+      parts.push("anonymous");
     }
 
     // Add path for per-endpoint limiting
     if (metadata?.path) {
-      parts.push(metadata.path.replace(/\//g, ':'))
+      parts.push(metadata.path.replace(/\//g, ":"));
     }
 
-    return parts.join(':')
+    return parts.join(":");
   }
 
   /**
    * Check rate limit
    */
-  async check(category: EndpointCategory, metadata?: RateLimitMetadata): Promise<RateLimitResult> {
+  async check(
+    category: EndpointCategory,
+    metadata?: RateLimitMetadata,
+  ): Promise<RateLimitResult> {
     // Check bypass
     if (this.shouldBypass(metadata)) {
-      const config = RATE_LIMIT_CONFIGS[category]
+      const config = RATE_LIMIT_CONFIGS[category];
       return {
         allowed: true,
         remaining: config.maxRequests,
         reset: Math.ceil(Date.now() / 1000) + config.windowSeconds,
         limit: config.maxRequests,
         current: 0,
-      }
+      };
     }
 
     // Check penalty box
-    const identifier = metadata?.userId || metadata?.ip || 'anonymous'
-    const blocked = this.isBlocked(identifier)
+    const identifier = metadata?.userId || metadata?.ip || "anonymous";
+    const blocked = this.isBlocked(identifier);
     if (blocked) {
-      const retryAfter = Math.ceil((blocked.expiresAt - Date.now()) / 1000)
+      const retryAfter = Math.ceil((blocked.expiresAt - Date.now()) / 1000);
       return {
         allowed: false,
         remaining: 0,
@@ -481,29 +502,32 @@ export class RateLimitService {
         limit: 0,
         current: 0,
         retryAfter,
-      }
+      };
     }
 
-    const store = await this.getStore()
-    const baseConfig = RATE_LIMIT_CONFIGS[category]
+    const store = await this.getStore();
+    const baseConfig = RATE_LIMIT_CONFIGS[category];
 
     // Apply tier multiplier
-    const effectiveLimit = this.getEffectiveLimit(baseConfig.maxRequests, metadata?.userRole)
+    const effectiveLimit = this.getEffectiveLimit(
+      baseConfig.maxRequests,
+      metadata?.userRole,
+    );
 
     const config: RateLimitConfig = {
       ...baseConfig,
       maxRequests: effectiveLimit,
-    }
+    };
 
-    const key = this.buildKey(category, metadata)
-    const result = await store.check(key, config)
+    const key = this.buildKey(category, metadata);
+    const result = await store.check(key, config);
 
     // Record violation if rate limited
     if (!result.allowed) {
-      this.recordViolation(identifier, category)
+      this.recordViolation(identifier, category);
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -512,103 +536,116 @@ export class RateLimitService {
   async checkEndpoint(
     path: string,
     method: string,
-    metadata?: RateLimitMetadata
+    metadata?: RateLimitMetadata,
   ): Promise<RateLimitResult> {
-    const config = this.getConfigForEndpoint(path, method)
-    const category = this.getCategoryForEndpoint(path, method)
+    const config = this.getConfigForEndpoint(path, method);
+    const category = this.getCategoryForEndpoint(path, method);
 
     // Add path to metadata for key building
     const fullMetadata: RateLimitMetadata = {
       ...metadata,
       path,
       method,
-    }
+    };
 
-    return this.check(category, fullMetadata)
+    return this.check(category, fullMetadata);
   }
 
   /**
    * Get category for endpoint
    */
-  private getCategoryForEndpoint(path: string, method?: string): EndpointCategory {
+  private getCategoryForEndpoint(
+    path: string,
+    method?: string,
+  ): EndpointCategory {
     // Check for exact match
     if (ENDPOINT_CATEGORY_MAP[path]) {
-      const category = ENDPOINT_CATEGORY_MAP[path]
-      if (category === 'messages' && method === 'POST') {
-        return 'messages_create'
+      const category = ENDPOINT_CATEGORY_MAP[path];
+      if (category === "messages" && method === "POST") {
+        return "messages_create";
       }
-      return category
+      return category;
     }
 
     // Check for prefix match
     for (const [endpoint, category] of Object.entries(ENDPOINT_CATEGORY_MAP)) {
       if (path.startsWith(endpoint)) {
-        if (category === 'messages' && method === 'POST') {
-          return 'messages_create'
+        if (category === "messages" && method === "POST") {
+          return "messages_create";
         }
-        return category
+        return category;
       }
     }
 
-    return 'api_general'
+    return "api_general";
   }
 
   /**
    * Get current status without incrementing
    */
-  async status(category: EndpointCategory, metadata?: RateLimitMetadata): Promise<RateLimitResult> {
-    const store = await this.getStore()
-    const baseConfig = RATE_LIMIT_CONFIGS[category]
-    const effectiveLimit = this.getEffectiveLimit(baseConfig.maxRequests, metadata?.userRole)
+  async status(
+    category: EndpointCategory,
+    metadata?: RateLimitMetadata,
+  ): Promise<RateLimitResult> {
+    const store = await this.getStore();
+    const baseConfig = RATE_LIMIT_CONFIGS[category];
+    const effectiveLimit = this.getEffectiveLimit(
+      baseConfig.maxRequests,
+      metadata?.userRole,
+    );
 
     const config: RateLimitConfig = {
       ...baseConfig,
       maxRequests: effectiveLimit,
-    }
+    };
 
-    const key = this.buildKey(category, metadata)
-    return store.status(key, config)
+    const key = this.buildKey(category, metadata);
+    return store.status(key, config);
   }
 
   /**
    * Reset rate limit for a user/IP
    */
   async reset(identifier: string): Promise<void> {
-    const store = await this.getStore()
-    await store.reset(identifier)
+    const store = await this.getStore();
+    await store.reset(identifier);
 
     // Also remove from penalty box
-    this.penaltyBox.delete(identifier)
-    this.violations.delete(identifier)
+    this.penaltyBox.delete(identifier);
+    this.violations.delete(identifier);
   }
 
   /**
    * Manually add to penalty box
    */
-  addToPenaltyBox(identifier: string, reason: string, durationSeconds?: number): void {
-    const duration = durationSeconds || this.options.penaltyDuration
+  addToPenaltyBox(
+    identifier: string,
+    reason: string,
+    durationSeconds?: number,
+  ): void {
+    const duration = durationSeconds || this.options.penaltyDuration;
     const entry: PenaltyBoxEntry = {
       identifier,
       reason,
       expiresAt: Date.now() + duration * 1000,
       violations: 0,
       createdAt: Date.now(),
-    }
-    this.penaltyBox.set(identifier, entry)
+    };
+    this.penaltyBox.set(identifier, entry);
   }
 
   /**
    * Remove from penalty box
    */
   removeFromPenaltyBox(identifier: string): void {
-    this.penaltyBox.delete(identifier)
+    this.penaltyBox.delete(identifier);
   }
 
   /**
    * Get all penalty box entries
    */
   getPenaltyBoxEntries(): PenaltyBoxEntry[] {
-    return Array.from(this.penaltyBox.values())
+    return Array.from(this.penaltyBox.values());
   }
 
   /**
@@ -616,10 +653,10 @@ export class RateLimitService {
    */
   async isHealthy(): Promise<boolean> {
     try {
-      const store = await this.getStore()
-      return store.isHealthy()
+      const store = await this.getStore();
+      return store.isHealthy();
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -628,10 +665,10 @@ export class RateLimitService {
    */
   async getStoreName(): Promise<string> {
     try {
-      const store = await this.getStore()
-      return store.getName()
+      const store = await this.getStore();
+      return store.getName();
     } catch {
-      return 'unknown'
+      return "unknown";
     }
   }
 
@@ -639,10 +676,10 @@ export class RateLimitService {
    * Clear all rate limits (for testing)
    */
   async clearAll(): Promise<void> {
-    const store = await this.getStore()
-    await store.clear()
-    this.penaltyBox.clear()
-    this.violations.clear()
+    const store = await this.getStore();
+    await store.clear();
+    this.penaltyBox.clear();
+    this.violations.clear();
   }
 }
 
@@ -650,23 +687,27 @@ export class RateLimitService {
 // Singleton Instance
 // ============================================================================
 
-let rateLimitServiceInstance: RateLimitService | null = null
+let rateLimitServiceInstance: RateLimitService | null = null;
 
 /**
  * Get the global rate limit service instance
  */
-export function getRateLimitService(options?: RateLimitServiceOptions): RateLimitService {
+export function getRateLimitService(
+  options?: RateLimitServiceOptions,
+): RateLimitService {
   if (!rateLimitServiceInstance) {
-    rateLimitServiceInstance = new RateLimitService(options)
+    rateLimitServiceInstance = new RateLimitService(options);
   }
-  return rateLimitServiceInstance
+  return rateLimitServiceInstance;
 }
 
 /**
  * Create a new rate limit service instance
  */
-export function createRateLimitService(options?: RateLimitServiceOptions): RateLimitService {
-  return new RateLimitService(options)
+export function createRateLimitService(
+  options?: RateLimitServiceOptions,
+): RateLimitService {
+  return new RateLimitService(options);
 }
 
 // ============================================================================
@@ -678,10 +719,10 @@ export function createRateLimitService(options?: RateLimitServiceOptions): RateL
  */
 export async function checkRateLimit(
   category: EndpointCategory,
-  metadata?: RateLimitMetadata
+  metadata?: RateLimitMetadata,
 ): Promise<RateLimitResult> {
-  const service = getRateLimitService()
-  return service.check(category, metadata)
+  const service = getRateLimitService();
+  return service.check(category, metadata);
 }
 
 /**
@@ -690,8 +731,8 @@ export async function checkRateLimit(
 export async function checkEndpointRateLimit(
   path: string,
   method: string,
-  metadata?: RateLimitMetadata
+  metadata?: RateLimitMetadata,
 ): Promise<RateLimitResult> {
-  const service = getRateLimitService()
-  return service.checkEndpoint(path, method, metadata)
+  const service = getRateLimitService();
+  return service.checkEndpoint(path, method, metadata);
 }

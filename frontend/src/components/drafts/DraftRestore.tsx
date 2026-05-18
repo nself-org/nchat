@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * DraftRestore - Restore draft to composer
@@ -6,15 +6,15 @@
  * UI component for restoring a saved draft
  */
 
-import * as React from 'react'
-import { useState, useCallback, useEffect } from 'react'
-import { RefreshCw, X, FileText } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import type { Draft, DraftContextType } from '@/lib/drafts/draft-types'
-import { getDraftPreview, createContextKey } from '@/lib/drafts'
-import { useDraftsStore } from '@/stores/drafts-store'
+import * as React from "react";
+import { useState, useCallback, useEffect } from "react";
+import { RefreshCw, X, FileText } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import type { Draft, DraftContextType } from "@/lib/drafts/draft-types";
+import { getDraftPreview, createContextKey } from "@/lib/drafts";
+import { useDraftsStore } from "@/stores/drafts-store";
 
 // ============================================================================
 // Types
@@ -22,17 +22,17 @@ import { useDraftsStore } from '@/stores/drafts-store'
 
 export interface DraftRestoreProps {
   /** Context type */
-  contextType: DraftContextType
+  contextType: DraftContextType;
   /** Context ID */
-  contextId: string
+  contextId: string;
   /** Auto-show when draft exists */
-  autoShow?: boolean
+  autoShow?: boolean;
   /** Called when draft is restored */
-  onRestore?: (draft: Draft) => void
+  onRestore?: (draft: Draft) => void;
   /** Called when restore is dismissed */
-  onDismiss?: () => void
+  onDismiss?: () => void;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -47,42 +47,42 @@ export function DraftRestore({
   onDismiss,
   className,
 }: DraftRestoreProps) {
-  const [isDismissed, setIsDismissed] = useState(false)
-  const [isRestoring, setIsRestoring] = useState(false)
+  const [isDismissed, setIsDismissed] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
 
-  const contextKey = createContextKey(contextType, contextId)
-  const draft = useDraftsStore((state) => state.drafts.get(contextKey))
-  const restoreDraft = useDraftsStore((state) => state.restoreDraft)
+  const contextKey = createContextKey(contextType, contextId);
+  const draft = useDraftsStore((state) => state.drafts.get(contextKey));
+  const restoreDraft = useDraftsStore((state) => state.restoreDraft);
 
   // Reset dismissed state when context changes
   useEffect(() => {
-    setIsDismissed(false)
-  }, [contextKey])
+    setIsDismissed(false);
+  }, [contextKey]);
 
   // Handle restore
   const handleRestore = useCallback(async () => {
-    if (!draft) return
+    if (!draft) return;
 
-    setIsRestoring(true)
+    setIsRestoring(true);
     try {
-      const restoredDraft = await restoreDraft(contextKey)
+      const restoredDraft = await restoreDraft(contextKey);
       if (restoredDraft) {
-        onRestore?.(restoredDraft)
+        onRestore?.(restoredDraft);
       }
     } finally {
-      setIsRestoring(false)
+      setIsRestoring(false);
     }
-  }, [draft, restoreDraft, contextKey, onRestore])
+  }, [draft, restoreDraft, contextKey, onRestore]);
 
   // Handle dismiss
   const handleDismiss = useCallback(() => {
-    setIsDismissed(true)
-    onDismiss?.()
-  }, [onDismiss])
+    setIsDismissed(true);
+    onDismiss?.();
+  }, [onDismiss]);
 
   // Don't show if no draft or dismissed
-  const hasDraft = draft && draft.content.trim().length > 0
-  const shouldShow = autoShow && hasDraft && !isDismissed
+  const hasDraft = draft && draft.content.trim().length > 0;
+  const shouldShow = autoShow && hasDraft && !isDismissed;
 
   return (
     <AnimatePresence>
@@ -93,8 +93,8 @@ export function DraftRestore({
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            'flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/30',
-            className
+            "flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/30",
+            className,
           )}
         >
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
@@ -118,8 +118,10 @@ export function DraftRestore({
               disabled={isRestoring}
               className="gap-1.5 border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900"
             >
-              <RefreshCw className={cn('h-3.5 w-3.5', isRestoring && 'animate-spin')} />
-              {isRestoring ? 'Restoring...' : 'Restore'}
+              <RefreshCw
+                className={cn("h-3.5 w-3.5", isRestoring && "animate-spin")}
+              />
+              {isRestoring ? "Restoring..." : "Restore"}
             </Button>
 
             <Button
@@ -134,7 +136,7 @@ export function DraftRestore({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 // ============================================================================
@@ -142,10 +144,10 @@ export function DraftRestore({
 // ============================================================================
 
 export interface DraftRestoreMinimalProps {
-  contextType: DraftContextType
-  contextId: string
-  onRestore?: (draft: Draft) => void
-  className?: string
+  contextType: DraftContextType;
+  contextId: string;
+  onRestore?: (draft: Draft) => void;
+  className?: string;
 }
 
 /**
@@ -157,26 +159,26 @@ export function DraftRestoreMinimal({
   onRestore,
   className,
 }: DraftRestoreMinimalProps) {
-  const contextKey = createContextKey(contextType, contextId)
-  const draft = useDraftsStore((state) => state.drafts.get(contextKey))
-  const restoreDraft = useDraftsStore((state) => state.restoreDraft)
+  const contextKey = createContextKey(contextType, contextId);
+  const draft = useDraftsStore((state) => state.drafts.get(contextKey));
+  const restoreDraft = useDraftsStore((state) => state.restoreDraft);
 
   const handleRestore = useCallback(async () => {
-    const restoredDraft = await restoreDraft(contextKey)
+    const restoredDraft = await restoreDraft(contextKey);
     if (restoredDraft) {
-      onRestore?.(restoredDraft)
+      onRestore?.(restoredDraft);
     }
-  }, [restoreDraft, contextKey, onRestore])
+  }, [restoreDraft, contextKey, onRestore]);
 
-  const hasDraft = draft && draft.content.trim().length > 0
+  const hasDraft = draft && draft.content.trim().length > 0;
 
-  if (!hasDraft) return null
+  if (!hasDraft) return null;
 
   return (
     <div
       className={cn(
-        'flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400',
-        className
+        "flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400",
+        className,
       )}
     >
       <FileText className="h-4 w-4" />
@@ -188,7 +190,7 @@ export function DraftRestoreMinimal({
         Restore
       </button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -196,10 +198,10 @@ export function DraftRestoreMinimal({
 // ============================================================================
 
 export interface DraftRestoreToastProps {
-  draft: Draft
-  onRestore: () => void
-  onDismiss: () => void
-  className?: string
+  draft: Draft;
+  onRestore: () => void;
+  onDismiss: () => void;
+  className?: string;
 }
 
 /**
@@ -217,8 +219,8 @@ export function DraftRestoreToast({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
       className={cn(
-        'fixed bottom-4 right-4 z-50 flex items-center gap-3 rounded-lg border bg-background p-4 shadow-lg',
-        className
+        "fixed bottom-4 right-4 z-50 flex items-center gap-3 rounded-lg border bg-background p-4 shadow-lg",
+        className,
       )}
     >
       <FileText className="h-5 w-5 text-amber-500" />
@@ -239,7 +241,7 @@ export function DraftRestoreToast({
         </Button>
       </div>
     </motion.div>
-  )
+  );
 }
 
-export default DraftRestore
+export default DraftRestore;

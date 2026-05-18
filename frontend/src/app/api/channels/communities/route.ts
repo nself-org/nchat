@@ -5,14 +5,14 @@
  * POST /api/channels/communities - Create community
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { gql } from '@apollo/client'
-import { logger } from '@/lib/logger'
-import { apolloClient } from '@/lib/apollo-client'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { gql } from "@apollo/client";
+import { logger } from "@/lib/logger";
+import { apolloClient } from "@/lib/apollo-client";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // =============================================================================
 // Schema Validation
@@ -23,27 +23,27 @@ const createCommunitySchema = z.object({
   name: z.string().min(2).max(100),
   description: z.string().max(500).optional(),
   iconUrl: z.string().url().optional(),
-  addGroupsPermission: z.enum(['admin', 'member']).default('admin'),
+  addGroupsPermission: z.enum(["admin", "member"]).default("admin"),
   membersCanInvite: z.boolean().default(true),
   approvalRequired: z.boolean().default(false),
   eventsEnabled: z.boolean().default(false),
   maxGroups: z.number().int().min(1).max(100).default(20),
   maxMembers: z.number().int().min(10).max(100000).default(5000),
-})
+});
 
 const communityFiltersSchema = z.object({
   workspaceId: z.string().uuid(),
   includeGroups: z.boolean().default(false),
   limit: z.number().int().min(1).max(100).default(20),
   offset: z.number().int().min(0).default(0),
-})
+});
 
 // =============================================================================
 // Helper Functions
 // =============================================================================
 
 function getUserIdFromRequest(request: NextRequest): string | null {
-  return request.headers.get('x-user-id') || null
+  return request.headers.get("x-user-id") || null;
 }
 
 function transformCommunity(raw: Record<string, unknown>) {
@@ -65,7 +65,7 @@ function transformCommunity(raw: Record<string, unknown>) {
     createdBy: raw.created_by,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
-  }
+  };
 }
 
 // =============================================================================
@@ -74,45 +74,48 @@ function transformCommunity(raw: Record<string, unknown>) {
 
 export async function GET(request: NextRequest) {
   try {
-    logger.info('GET /api/channels/communities - List communities')
+    logger.info("GET /api/channels/communities - List communities");
 
-    const { searchParams } = new URL(request.url)
-    const workspaceId = searchParams.get('workspaceId')
+    const { searchParams } = new URL(request.url);
+    const workspaceId = searchParams.get("workspaceId");
 
     if (!workspaceId) {
       return NextResponse.json(
-        { success: false, error: 'workspaceId is required' },
-        { status: 400 }
-      )
+        { success: false, error: "workspaceId is required" },
+        { status: 400 },
+      );
     }
 
     const filters = communityFiltersSchema.parse({
       workspaceId,
-      includeGroups: searchParams.get('includeGroups') === 'true',
-      limit: Number(searchParams.get('limit')) || 20,
-      offset: Number(searchParams.get('offset')) || 0,
-    })
+      includeGroups: searchParams.get("includeGroups") === "true",
+      limit: Number(searchParams.get("limit")) || 20,
+      offset: Number(searchParams.get("offset")) || 0,
+    });
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
 
     // Fetch communities from database
     const { data } = await apolloClient.query({
-      query: filters.includeGroups ? GET_COMMUNITIES_WITH_GROUPS_QUERY : GET_COMMUNITIES_QUERY,
+      query: filters.includeGroups
+        ? GET_COMMUNITIES_WITH_GROUPS_QUERY
+        : GET_COMMUNITIES_QUERY,
       variables: {
         workspaceId: filters.workspaceId,
         limit: filters.limit,
         offset: filters.offset,
       },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const communities = (data?.nchat_communities || []).map(transformCommunity)
-    const total = data?.nchat_communities_aggregate?.aggregate?.count || communities.length
+    const communities = (data?.nchat_communities || []).map(transformCommunity);
+    const total =
+      data?.nchat_communities_aggregate?.aggregate?.count || communities.length;
 
-    logger.info('GET /api/channels/communities - Success', {
+    logger.info("GET /api/channels/communities - Success", {
       total,
       returned: communities.length,
-    })
+    });
 
     return NextResponse.json({
       success: true,
@@ -123,19 +126,23 @@ export async function GET(request: NextRequest) {
         total,
         hasMore: filters.offset + filters.limit < total,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error fetching communities:', error as Error)
+    logger.error("Error fetching communities:", error as Error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid query parameters', details: error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid query parameters",
+          details: error.errors,
+        },
+        { status: 400 },
+      );
     }
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch communities' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to fetch communities" },
+      { status: 500 },
+    );
   }
 }
 
@@ -145,28 +152,32 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('POST /api/channels/communities - Create community')
+    logger.info("POST /api/channels/communities - Create community");
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     // Parse and validate request body
-    const body = await request.json()
-    const validation = createCommunitySchema.safeParse(body)
+    const body = await request.json();
+    const validation = createCommunitySchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request body', details: validation.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request body",
+          details: validation.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const data = validation.data
+    const data = validation.data;
 
     // First, create the announcement channel for this community
     const { data: channelData } = await apolloClient.mutate({
@@ -174,15 +185,15 @@ export async function POST(request: NextRequest) {
       variables: {
         workspaceId: data.workspaceId,
         name: `${data.name} Announcements`,
-        slug: `${data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-announcements`,
+        slug: `${data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-announcements`,
         description: `Announcement channel for ${data.name} community`,
         createdBy: userId,
       },
-    })
+    });
 
-    const announcementChannel = channelData?.insert_nchat_channels_one
+    const announcementChannel = channelData?.insert_nchat_channels_one;
     if (!announcementChannel) {
-      throw new Error('Failed to create announcement channel')
+      throw new Error("Failed to create announcement channel");
     }
 
     // Create the community
@@ -202,18 +213,18 @@ export async function POST(request: NextRequest) {
         maxMembers: data.maxMembers,
         createdBy: userId,
       },
-    })
+    });
 
-    const community = communityData?.insert_nchat_communities_one
+    const community = communityData?.insert_nchat_communities_one;
     if (!community) {
-      throw new Error('Failed to create community')
+      throw new Error("Failed to create community");
     }
 
-    logger.info('POST /api/channels/communities - Success', {
+    logger.info("POST /api/channels/communities - Success", {
       communityId: community.id,
       name: data.name,
       createdBy: userId,
-    })
+    });
 
     return NextResponse.json(
       {
@@ -226,22 +237,26 @@ export async function POST(request: NextRequest) {
             slug: announcementChannel.slug,
           },
         },
-        message: 'Community created successfully',
+        message: "Community created successfully",
       },
-      { status: 201 }
-    )
+      { status: 201 },
+    );
   } catch (error) {
-    logger.error('Error creating community:', error as Error)
+    logger.error("Error creating community:", error as Error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request body', details: error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request body",
+          details: error.errors,
+        },
+        { status: 400 },
+      );
     }
     return NextResponse.json(
-      { success: false, error: 'Failed to create community' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to create community" },
+      { status: 500 },
+    );
   }
 }
 
@@ -275,16 +290,22 @@ const GET_COMMUNITIES_QUERY = gql`
       created_at
       updated_at
     }
-    nchat_communities_aggregate(where: { workspace_id: { _eq: $workspaceId } }) {
+    nchat_communities_aggregate(
+      where: { workspace_id: { _eq: $workspaceId } }
+    ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 const GET_COMMUNITIES_WITH_GROUPS_QUERY = gql`
-  query GetCommunitiesWithGroups($workspaceId: uuid!, $limit: Int!, $offset: Int!) {
+  query GetCommunitiesWithGroups(
+    $workspaceId: uuid!
+    $limit: Int!
+    $offset: Int!
+  ) {
     nchat_communities(
       where: { workspace_id: { _eq: $workspaceId } }
       order_by: { created_at: desc }
@@ -332,13 +353,15 @@ const GET_COMMUNITIES_WITH_GROUPS_QUERY = gql`
         }
       }
     }
-    nchat_communities_aggregate(where: { workspace_id: { _eq: $workspaceId } }) {
+    nchat_communities_aggregate(
+      where: { workspace_id: { _eq: $workspaceId } }
+    ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 const CREATE_ANNOUNCEMENT_CHANNEL_MUTATION = gql`
   mutation CreateAnnouncementChannel(
@@ -365,7 +388,7 @@ const CREATE_ANNOUNCEMENT_CHANNEL_MUTATION = gql`
       slug
     }
   }
-`
+`;
 
 const CREATE_COMMUNITY_MUTATION = gql`
   mutation CreateCommunity(
@@ -419,4 +442,4 @@ const CREATE_COMMUNITY_MUTATION = gql`
       updated_at
     }
   }
-`
+`;

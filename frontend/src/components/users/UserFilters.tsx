@@ -1,56 +1,72 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
-import { type UserRole, type PresenceStatus } from '@/stores/user-store'
-import { useUserDirectoryStore } from '@/stores/user-directory-store'
-import { Filter, X, Users, Building2, Briefcase, MapPin, Circle } from 'lucide-react'
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { type UserRole, type PresenceStatus } from "@/stores/user-store";
+import { useUserDirectoryStore } from "@/stores/user-directory-store";
+import {
+  Filter,
+  X,
+  Users,
+  Building2,
+  Briefcase,
+  MapPin,
+  Circle,
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UserFiltersProps extends React.HTMLAttributes<HTMLDivElement> {
-  departments?: string[]
-  teams?: string[]
-  locations?: string[]
-  showDepartmentFilter?: boolean
-  showTeamFilter?: boolean
-  showLocationFilter?: boolean
-  compact?: boolean
+  departments?: string[];
+  teams?: string[];
+  locations?: string[];
+  showDepartmentFilter?: boolean;
+  showTeamFilter?: boolean;
+  showLocationFilter?: boolean;
+  compact?: boolean;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const ROLES: { value: UserRole | 'all'; label: string }[] = [
-  { value: 'all', label: 'All Roles' },
-  { value: 'owner', label: 'Owner' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'moderator', label: 'Moderator' },
-  { value: 'member', label: 'Member' },
-  { value: 'guest', label: 'Guest' },
-]
+const ROLES: { value: UserRole | "all"; label: string }[] = [
+  { value: "all", label: "All Roles" },
+  { value: "owner", label: "Owner" },
+  { value: "admin", label: "Admin" },
+  { value: "moderator", label: "Moderator" },
+  { value: "member", label: "Member" },
+  { value: "guest", label: "Guest" },
+];
 
-const PRESENCE_OPTIONS: { value: PresenceStatus | 'all'; label: string; color: string }[] = [
-  { value: 'all', label: 'All Status', color: '' },
-  { value: 'online', label: 'Online', color: 'bg-green-500' },
-  { value: 'away', label: 'Away', color: 'bg-yellow-500' },
-  { value: 'dnd', label: 'Do Not Disturb', color: 'bg-red-500' },
-  { value: 'offline', label: 'Offline', color: 'bg-gray-500' },
-]
+const PRESENCE_OPTIONS: {
+  value: PresenceStatus | "all";
+  label: string;
+  color: string;
+}[] = [
+  { value: "all", label: "All Status", color: "" },
+  { value: "online", label: "Online", color: "bg-green-500" },
+  { value: "away", label: "Away", color: "bg-yellow-500" },
+  { value: "dnd", label: "Do Not Disturb", color: "bg-red-500" },
+  { value: "offline", label: "Offline", color: "bg-gray-500" },
+];
 
 // ============================================================================
 // Component
@@ -69,7 +85,7 @@ const UserFilters = React.forwardRef<HTMLDivElement, UserFiltersProps>(
       compact = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     const {
       roleFilter,
@@ -83,29 +99,36 @@ const UserFilters = React.forwardRef<HTMLDivElement, UserFiltersProps>(
       setTeamFilter,
       setLocationFilter,
       clearFilters,
-    } = useUserDirectoryStore()
+    } = useUserDirectoryStore();
 
     const activeFilterCount = [
-      roleFilter !== 'all',
-      presenceFilter !== 'all',
-      departmentFilter !== 'all',
-      teamFilter !== 'all',
-      locationFilter !== 'all',
-    ].filter(Boolean).length
+      roleFilter !== "all",
+      presenceFilter !== "all",
+      departmentFilter !== "all",
+      teamFilter !== "all",
+      locationFilter !== "all",
+    ].filter(Boolean).length;
 
-    const hasActiveFilters = activeFilterCount > 0
+    const hasActiveFilters = activeFilterCount > 0;
 
     // Compact mode - just a filter button with popover
     if (compact) {
       return (
-        <div ref={ref} className={cn('flex items-center gap-2', className)} {...props}>
+        <div
+          ref={ref}
+          className={cn("flex items-center gap-2", className)}
+          {...props}
+        >
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
                 <Filter className="h-4 w-4" />
                 Filters
                 {hasActiveFilters && (
-                  <Badge variant="secondary" className="ml-1 h-5 w-5 justify-center p-0">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-5 w-5 justify-center p-0"
+                  >
                     {activeFilterCount}
                   </Badge>
                 )}
@@ -149,19 +172,27 @@ const UserFilters = React.forwardRef<HTMLDivElement, UserFiltersProps>(
             </PopoverContent>
           </Popover>
           {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="h-8 px-2"
+            >
               <X className="h-4 w-4" />
             </Button>
           )}
         </div>
-      )
+      );
     }
 
     // Full filter bar
     return (
       <div
         ref={ref}
-        className={cn('bg-muted/30 flex flex-wrap items-center gap-3 rounded-lg p-4', className)}
+        className={cn(
+          "bg-muted/30 flex flex-wrap items-center gap-3 rounded-lg p-4",
+          className,
+        )}
         {...props}
       >
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -172,7 +203,7 @@ const UserFilters = React.forwardRef<HTMLDivElement, UserFiltersProps>(
         {/* Role filter */}
         <Select
           value={roleFilter}
-          onValueChange={(value) => setRoleFilter(value as UserRole | 'all')}
+          onValueChange={(value) => setRoleFilter(value as UserRole | "all")}
         >
           <SelectTrigger className="h-9 w-[140px]">
             <Users className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -190,7 +221,9 @@ const UserFilters = React.forwardRef<HTMLDivElement, UserFiltersProps>(
         {/* Presence filter */}
         <Select
           value={presenceFilter}
-          onValueChange={(value) => setPresenceFilter(value as PresenceStatus | 'all')}
+          onValueChange={(value) =>
+            setPresenceFilter(value as PresenceStatus | "all")
+          }
         >
           <SelectTrigger className="h-9 w-[160px]">
             <Circle className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -200,7 +233,11 @@ const UserFilters = React.forwardRef<HTMLDivElement, UserFiltersProps>(
             {PRESENCE_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 <div className="flex items-center gap-2">
-                  {option.color && <span className={cn('h-2 w-2 rounded-full', option.color)} />}
+                  {option.color && (
+                    <span
+                      className={cn("h-2 w-2 rounded-full", option.color)}
+                    />
+                  )}
                   {option.label}
                 </div>
               </SelectItem>
@@ -275,32 +312,32 @@ const UserFilters = React.forwardRef<HTMLDivElement, UserFiltersProps>(
           </Button>
         )}
       </div>
-    )
-  }
-)
-UserFilters.displayName = 'UserFilters'
+    );
+  },
+);
+UserFilters.displayName = "UserFilters";
 
 // ============================================================================
 // Helper Component - Filter Content (used in popover)
 // ============================================================================
 
 interface FilterContentProps {
-  departments: string[]
-  teams: string[]
-  locations: string[]
-  showDepartmentFilter: boolean
-  showTeamFilter: boolean
-  showLocationFilter: boolean
-  roleFilter: UserRole | 'all'
-  presenceFilter: PresenceStatus | 'all'
-  departmentFilter: string
-  teamFilter: string
-  locationFilter: string
-  setRoleFilter: (value: UserRole | 'all') => void
-  setPresenceFilter: (value: PresenceStatus | 'all') => void
-  setDepartmentFilter: (value: string) => void
-  setTeamFilter: (value: string) => void
-  setLocationFilter: (value: string) => void
+  departments: string[];
+  teams: string[];
+  locations: string[];
+  showDepartmentFilter: boolean;
+  showTeamFilter: boolean;
+  showLocationFilter: boolean;
+  roleFilter: UserRole | "all";
+  presenceFilter: PresenceStatus | "all";
+  departmentFilter: string;
+  teamFilter: string;
+  locationFilter: string;
+  setRoleFilter: (value: UserRole | "all") => void;
+  setPresenceFilter: (value: PresenceStatus | "all") => void;
+  setDepartmentFilter: (value: string) => void;
+  setTeamFilter: (value: string) => void;
+  setLocationFilter: (value: string) => void;
 }
 
 function FilterContent({
@@ -330,7 +367,7 @@ function FilterContent({
         </span>
         <Select
           value={roleFilter}
-          onValueChange={(value) => setRoleFilter(value as UserRole | 'all')}
+          onValueChange={(value) => setRoleFilter(value as UserRole | "all")}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select role" />
@@ -352,7 +389,9 @@ function FilterContent({
         </span>
         <Select
           value={presenceFilter}
-          onValueChange={(value) => setPresenceFilter(value as PresenceStatus | 'all')}
+          onValueChange={(value) =>
+            setPresenceFilter(value as PresenceStatus | "all")
+          }
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select status" />
@@ -361,7 +400,11 @@ function FilterContent({
             {PRESENCE_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 <div className="flex items-center gap-2">
-                  {option.color && <span className={cn('h-2 w-2 rounded-full', option.color)} />}
+                  {option.color && (
+                    <span
+                      className={cn("h-2 w-2 rounded-full", option.color)}
+                    />
+                  )}
                   {option.label}
                 </div>
               </SelectItem>
@@ -436,7 +479,7 @@ function FilterContent({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export { UserFilters }
+export { UserFilters };

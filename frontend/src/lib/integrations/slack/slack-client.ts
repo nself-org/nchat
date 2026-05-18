@@ -17,66 +17,69 @@ import type {
   SlackFile,
   SlackImportOptions,
   SlackSyncResult,
-} from '../types'
+} from "../types";
 
-import { buildAuthUrl, tokenResponseToCredentials } from '../integration-manager'
+import {
+  buildAuthUrl,
+  tokenResponseToCredentials,
+} from "../integration-manager";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-export const SLACK_API_BASE = 'https://slack.com/api'
-export const SLACK_AUTH_URL = 'https://slack.com/oauth/v2/authorize'
-export const SLACK_TOKEN_URL = 'https://slack.com/api/oauth.v2.access'
+export const SLACK_API_BASE = "https://slack.com/api";
+export const SLACK_AUTH_URL = "https://slack.com/oauth/v2/authorize";
+export const SLACK_TOKEN_URL = "https://slack.com/api/oauth.v2.access";
 
 export const SLACK_DEFAULT_SCOPES = [
-  'channels:history',
-  'channels:read',
-  'chat:write',
-  'files:read',
-  'groups:history',
-  'groups:read',
-  'im:history',
-  'im:read',
-  'mpim:history',
-  'mpim:read',
-  'users:read',
-  'users:read.email',
-]
+  "channels:history",
+  "channels:read",
+  "chat:write",
+  "files:read",
+  "groups:history",
+  "groups:read",
+  "im:history",
+  "im:read",
+  "mpim:history",
+  "mpim:read",
+  "users:read",
+  "users:read.email",
+];
 
 // ============================================================================
 // Slack API Response Types
 // ============================================================================
 
 interface SlackApiResponse {
-  ok: boolean
-  error?: string
-  warning?: string
+  ok: boolean;
+  error?: string;
+  warning?: string;
   response_metadata?: {
-    next_cursor?: string
-    warnings?: string[]
-  }
+    next_cursor?: string;
+    warnings?: string[];
+  };
 }
 
 interface SlackChannelsListResponse extends SlackApiResponse {
-  channels: SlackChannel[]
+  channels: SlackChannel[];
 }
 
 interface SlackUsersListResponse extends SlackApiResponse {
-  members: SlackUser[]
+  members: SlackUser[];
 }
 
 interface SlackConversationsHistoryResponse extends SlackApiResponse {
-  messages: SlackMessage[]
-  has_more: boolean
+  messages: SlackMessage[];
+  has_more: boolean;
 }
 
 interface SlackPostMessageResponse extends SlackApiResponse {
-  channel: string
-  ts: string
-  message: SlackMessage
+  channel: string;
+  ts: string;
+  message: SlackMessage;
 }
 
 // ============================================================================
@@ -84,10 +87,10 @@ interface SlackPostMessageResponse extends SlackApiResponse {
 // ============================================================================
 
 export interface SlackClientConfig {
-  clientId: string
-  clientSecret: string
-  redirectUri: string
-  scopes?: string[]
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  scopes?: string[];
 }
 
 // ============================================================================
@@ -98,10 +101,10 @@ export interface SlackClientConfig {
  * Slack API client for making authenticated requests
  */
 export class SlackApiClient {
-  private accessToken: string
+  private accessToken: string;
 
   constructor(accessToken: string) {
-    this.accessToken = accessToken
+    this.accessToken = accessToken;
   }
 
   /**
@@ -109,32 +112,35 @@ export class SlackApiClient {
    */
   async get<T extends SlackApiResponse>(
     endpoint: string,
-    params?: Record<string, string>
+    params?: Record<string, string>,
   ): Promise<T> {
-    const url = new URL(`${SLACK_API_BASE}/${endpoint}`)
+    const url = new URL(`${SLACK_API_BASE}/${endpoint}`);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          url.searchParams.set(key, value)
+          url.searchParams.set(key, value);
         }
-      })
+      });
     }
 
     const response = await fetch(url.toString(), {
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${this.accessToken}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-    })
+    });
 
-    const data: T = await response.json()
+    const data: T = await response.json();
 
     if (!data.ok) {
-      throw new SlackApiError(data.error || 'Unknown Slack API error', endpoint)
+      throw new SlackApiError(
+        data.error || "Unknown Slack API error",
+        endpoint,
+      );
     }
 
-    return data
+    return data;
   }
 
   /**
@@ -142,24 +148,27 @@ export class SlackApiClient {
    */
   async post<T extends SlackApiResponse>(
     endpoint: string,
-    body?: Record<string, unknown>
+    body?: Record<string, unknown>,
   ): Promise<T> {
     const response = await fetch(`${SLACK_API_BASE}/${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${this.accessToken}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: body ? JSON.stringify(body) : undefined,
-    })
+    });
 
-    const data: T = await response.json()
+    const data: T = await response.json();
 
     if (!data.ok) {
-      throw new SlackApiError(data.error || 'Unknown Slack API error', endpoint)
+      throw new SlackApiError(
+        data.error || "Unknown Slack API error",
+        endpoint,
+      );
     }
 
-    return data
+    return data;
   }
 
   // ==========================================================================
@@ -170,51 +179,53 @@ export class SlackApiClient {
    * List all public channels
    */
   async listChannels(cursor?: string): Promise<{
-    channels: SlackChannel[]
-    nextCursor?: string
+    channels: SlackChannel[];
+    nextCursor?: string;
   }> {
     const params: Record<string, string> = {
-      types: 'public_channel',
-      exclude_archived: 'true',
-      limit: '200',
-    }
+      types: "public_channel",
+      exclude_archived: "true",
+      limit: "200",
+    };
     if (cursor) {
-      params.cursor = cursor
+      params.cursor = cursor;
     }
 
-    const response = await this.get<SlackChannelsListResponse>('conversations.list', params)
+    const response = await this.get<SlackChannelsListResponse>(
+      "conversations.list",
+      params,
+    );
 
     return {
       channels: response.channels,
       nextCursor: response.response_metadata?.next_cursor || undefined,
-    }
+    };
   }
 
   /**
    * List all channels (paginated, fetches all)
    */
   async listAllChannels(): Promise<SlackChannel[]> {
-    const allChannels: SlackChannel[] = []
-    let cursor: string | undefined
+    const allChannels: SlackChannel[] = [];
+    let cursor: string | undefined;
 
     do {
-      const result = await this.listChannels(cursor)
-      allChannels.push(...result.channels)
-      cursor = result.nextCursor
-    } while (cursor)
+      const result = await this.listChannels(cursor);
+      allChannels.push(...result.channels);
+      cursor = result.nextCursor;
+    } while (cursor);
 
-    return allChannels
+    return allChannels;
   }
 
   /**
    * Get channel info
    */
   async getChannelInfo(channelId: string): Promise<SlackChannel> {
-    const response = await this.get<SlackApiResponse & { channel: SlackChannel }>(
-      'conversations.info',
-      { channel: channelId }
-    )
-    return response.channel
+    const response = await this.get<
+      SlackApiResponse & { channel: SlackChannel }
+    >("conversations.info", { channel: channelId });
+    return response.channel;
   }
 
   // ==========================================================================
@@ -225,46 +236,52 @@ export class SlackApiClient {
    * List all users
    */
   async listUsers(cursor?: string): Promise<{
-    users: SlackUser[]
-    nextCursor?: string
+    users: SlackUser[];
+    nextCursor?: string;
   }> {
-    const params: Record<string, string> = { limit: '200' }
+    const params: Record<string, string> = { limit: "200" };
     if (cursor) {
-      params.cursor = cursor
+      params.cursor = cursor;
     }
 
-    const response = await this.get<SlackUsersListResponse>('users.list', params)
+    const response = await this.get<SlackUsersListResponse>(
+      "users.list",
+      params,
+    );
 
     return {
       users: response.members,
       nextCursor: response.response_metadata?.next_cursor || undefined,
-    }
+    };
   }
 
   /**
    * List all users (paginated, fetches all)
    */
   async listAllUsers(): Promise<SlackUser[]> {
-    const allUsers: SlackUser[] = []
-    let cursor: string | undefined
+    const allUsers: SlackUser[] = [];
+    let cursor: string | undefined;
 
     do {
-      const result = await this.listUsers(cursor)
-      allUsers.push(...result.users)
-      cursor = result.nextCursor
-    } while (cursor)
+      const result = await this.listUsers(cursor);
+      allUsers.push(...result.users);
+      cursor = result.nextCursor;
+    } while (cursor);
 
-    return allUsers
+    return allUsers;
   }
 
   /**
    * Get user info
    */
   async getUserInfo(userId: string): Promise<SlackUser> {
-    const response = await this.get<SlackApiResponse & { user: SlackUser }>('users.info', {
-      user: userId,
-    })
-    return response.user
+    const response = await this.get<SlackApiResponse & { user: SlackUser }>(
+      "users.info",
+      {
+        user: userId,
+      },
+    );
+    return response.user;
   }
 
   // ==========================================================================
@@ -277,34 +294,34 @@ export class SlackApiClient {
   async getChannelHistory(
     channelId: string,
     options?: {
-      cursor?: string
-      oldest?: string
-      latest?: string
-      limit?: number
-    }
+      cursor?: string;
+      oldest?: string;
+      latest?: string;
+      limit?: number;
+    },
   ): Promise<{
-    messages: SlackMessage[]
-    hasMore: boolean
-    nextCursor?: string
+    messages: SlackMessage[];
+    hasMore: boolean;
+    nextCursor?: string;
   }> {
     const params: Record<string, string> = {
       channel: channelId,
       limit: String(options?.limit || 100),
-    }
-    if (options?.cursor) params.cursor = options.cursor
-    if (options?.oldest) params.oldest = options.oldest
-    if (options?.latest) params.latest = options.latest
+    };
+    if (options?.cursor) params.cursor = options.cursor;
+    if (options?.oldest) params.oldest = options.oldest;
+    if (options?.latest) params.latest = options.latest;
 
     const response = await this.get<SlackConversationsHistoryResponse>(
-      'conversations.history',
-      params
-    )
+      "conversations.history",
+      params,
+    );
 
     return {
       messages: response.messages,
       hasMore: response.has_more,
       nextCursor: response.response_metadata?.next_cursor,
-    }
+    };
   }
 
   /**
@@ -313,24 +330,24 @@ export class SlackApiClient {
   async getAllChannelHistory(
     channelId: string,
     options?: {
-      oldest?: string
-      latest?: string
-    }
+      oldest?: string;
+      latest?: string;
+    },
   ): Promise<SlackMessage[]> {
-    const allMessages: SlackMessage[] = []
-    let cursor: string | undefined
+    const allMessages: SlackMessage[] = [];
+    let cursor: string | undefined;
 
     do {
       const result = await this.getChannelHistory(channelId, {
         cursor,
         oldest: options?.oldest,
         latest: options?.latest,
-      })
-      allMessages.push(...result.messages)
-      cursor = result.nextCursor
-    } while (cursor)
+      });
+      allMessages.push(...result.messages);
+      cursor = result.nextCursor;
+    } while (cursor);
 
-    return allMessages
+    return allMessages;
   }
 
   /**
@@ -340,21 +357,24 @@ export class SlackApiClient {
     channelId: string,
     text: string,
     options?: {
-      threadTs?: string
-      username?: string
-      iconEmoji?: string
-    }
+      threadTs?: string;
+      username?: string;
+      iconEmoji?: string;
+    },
   ): Promise<SlackMessage> {
     const body: Record<string, unknown> = {
       channel: channelId,
       text,
-    }
-    if (options?.threadTs) body.thread_ts = options.threadTs
-    if (options?.username) body.username = options.username
-    if (options?.iconEmoji) body.icon_emoji = options.iconEmoji
+    };
+    if (options?.threadTs) body.thread_ts = options.threadTs;
+    if (options?.username) body.username = options.username;
+    if (options?.iconEmoji) body.icon_emoji = options.iconEmoji;
 
-    const response = await this.post<SlackPostMessageResponse>('chat.postMessage', body)
-    return response.message
+    const response = await this.post<SlackPostMessageResponse>(
+      "chat.postMessage",
+      body,
+    );
+    return response.message;
   }
 
   // ==========================================================================
@@ -365,21 +385,21 @@ export class SlackApiClient {
    * Test authentication
    */
   async testAuth(): Promise<{
-    url: string
-    team: string
-    user: string
-    teamId: string
-    userId: string
+    url: string;
+    team: string;
+    user: string;
+    teamId: string;
+    userId: string;
   }> {
     const response = await this.get<
       SlackApiResponse & {
-        url: string
-        team: string
-        user: string
-        team_id: string
-        user_id: string
+        url: string;
+        team: string;
+        user: string;
+        team_id: string;
+        user_id: string;
       }
-    >('auth.test')
+    >("auth.test");
 
     return {
       url: response.url,
@@ -387,14 +407,14 @@ export class SlackApiClient {
       user: response.user,
       teamId: response.team_id,
       userId: response.user_id,
-    }
+    };
   }
 
   /**
    * Revoke token
    */
   async revokeToken(): Promise<void> {
-    await this.get<SlackApiResponse>('auth.revoke')
+    await this.get<SlackApiResponse>("auth.revoke");
   }
 }
 
@@ -403,14 +423,14 @@ export class SlackApiClient {
 // ============================================================================
 
 export class SlackApiError extends Error {
-  public readonly code: string
-  public readonly endpoint: string
+  public readonly code: string;
+  public readonly endpoint: string;
 
   constructor(code: string, endpoint: string) {
-    super(`Slack API error: ${code} (endpoint: ${endpoint})`)
-    this.name = 'SlackApiError'
-    this.code = code
-    this.endpoint = endpoint
+    super(`Slack API error: ${code} (endpoint: ${endpoint})`);
+    this.name = "SlackApiError";
+    this.code = code;
+    this.endpoint = endpoint;
   }
 }
 
@@ -422,19 +442,19 @@ export class SlackApiError extends Error {
  * Slack integration provider implementation
  */
 export class SlackIntegrationProvider implements IntegrationProvider {
-  readonly id = 'slack' as const
-  readonly name = 'Slack'
-  readonly icon = 'slack'
-  readonly description = 'Import channels and sync messages from Slack'
-  readonly category = 'communication' as const
-  readonly scopes: string[]
+  readonly id = "slack" as const;
+  readonly name = "Slack";
+  readonly icon = "slack";
+  readonly description = "Import channels and sync messages from Slack";
+  readonly category = "communication" as const;
+  readonly scopes: string[];
 
-  private config: SlackClientConfig
-  private client: SlackApiClient | null = null
+  private config: SlackClientConfig;
+  private client: SlackApiClient | null = null;
 
   constructor(config: SlackClientConfig) {
-    this.config = config
-    this.scopes = config.scopes || SLACK_DEFAULT_SCOPES
+    this.config = config;
+    this.scopes = config.scopes || SLACK_DEFAULT_SCOPES;
   }
 
   /**
@@ -444,9 +464,9 @@ export class SlackIntegrationProvider implements IntegrationProvider {
     return buildAuthUrl(SLACK_AUTH_URL, {
       client_id: this.config.clientId,
       redirect_uri: config?.redirectUri || this.config.redirectUri,
-      scope: (config?.scopes || this.scopes).join(','),
-      state: config?.state || '',
-    })
+      scope: (config?.scopes || this.scopes).join(","),
+      state: config?.state || "",
+    });
   }
 
   /**
@@ -463,27 +483,29 @@ export class SlackIntegrationProvider implements IntegrationProvider {
   async disconnect(): Promise<void> {
     if (this.client) {
       try {
-        await this.client.revokeToken()
+        await this.client.revokeToken();
       } catch (error) {
         // Ignore errors during revocation
-        logger.warn('Failed to revoke Slack token:', { context: error })
+        logger.warn("Failed to revoke Slack token:", { context: error });
       }
-      this.client = null
+      this.client = null;
     }
   }
 
   /**
    * Handle OAuth callback
    */
-  async handleCallback(params: OAuthCallbackParams): Promise<IntegrationCredentials> {
+  async handleCallback(
+    params: OAuthCallbackParams,
+  ): Promise<IntegrationCredentials> {
     if (!params.code) {
-      throw new Error('Missing authorization code')
+      throw new Error("Missing authorization code");
     }
 
     const response = await fetch(SLACK_TOKEN_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
         client_id: this.config.clientId,
@@ -491,56 +513,58 @@ export class SlackIntegrationProvider implements IntegrationProvider {
         code: params.code,
         redirect_uri: this.config.redirectUri,
       }),
-    })
+    });
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (!data.ok) {
-      throw new Error(data.error || 'Failed to exchange code for token')
+      throw new Error(data.error || "Failed to exchange code for token");
     }
 
     // Slack returns tokens differently for bot vs user tokens
-    const accessToken = data.access_token || data.authed_user?.access_token
+    const accessToken = data.access_token || data.authed_user?.access_token;
 
     if (!accessToken) {
-      throw new Error('No access token in response')
+      throw new Error("No access token in response");
     }
 
-    this.client = new SlackApiClient(accessToken)
+    this.client = new SlackApiClient(accessToken);
 
     return {
       accessToken,
       refreshToken: data.refresh_token,
-      tokenType: data.token_type || 'Bearer',
+      tokenType: data.token_type || "Bearer",
       scope: data.scope,
-    }
+    };
   }
 
   /**
    * Refresh access token
    */
-  async refreshToken(credentials: IntegrationCredentials): Promise<IntegrationCredentials> {
+  async refreshToken(
+    credentials: IntegrationCredentials,
+  ): Promise<IntegrationCredentials> {
     if (!credentials.refreshToken) {
-      throw new Error('No refresh token available')
+      throw new Error("No refresh token available");
     }
 
     const response = await fetch(SLACK_TOKEN_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
         client_id: this.config.clientId,
         client_secret: this.config.clientSecret,
-        grant_type: 'refresh_token',
+        grant_type: "refresh_token",
         refresh_token: credentials.refreshToken,
       }),
-    })
+    });
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (!data.ok) {
-      throw new Error(data.error || 'Failed to refresh token')
+      throw new Error(data.error || "Failed to refresh token");
     }
 
     return tokenResponseToCredentials({
@@ -549,7 +573,7 @@ export class SlackIntegrationProvider implements IntegrationProvider {
       expires_in: data.expires_in,
       token_type: data.token_type,
       scope: data.scope,
-    })
+    });
   }
 
   /**
@@ -562,40 +586,42 @@ export class SlackIntegrationProvider implements IntegrationProvider {
       icon: this.icon,
       description: this.description,
       category: this.category,
-      status: 'disconnected',
+      status: "disconnected",
       scopes: this.scopes,
       config: {},
-    }
+    };
 
     if (this.client) {
       try {
-        const auth = await this.client.testAuth()
-        status.status = 'connected'
+        const auth = await this.client.testAuth();
+        status.status = "connected";
         status.config = {
           team: auth.team,
           teamId: auth.teamId,
           user: auth.user,
           userId: auth.userId,
-        }
+        };
       } catch {
-        status.status = 'error'
-        status.error = 'Failed to verify connection'
+        status.status = "error";
+        status.error = "Failed to verify connection";
       }
     }
 
-    return status
+    return status;
   }
 
   /**
    * Validate credentials
    */
-  async validateCredentials(credentials: IntegrationCredentials): Promise<boolean> {
-    const testClient = new SlackApiClient(credentials.accessToken)
+  async validateCredentials(
+    credentials: IntegrationCredentials,
+  ): Promise<boolean> {
+    const testClient = new SlackApiClient(credentials.accessToken);
     try {
-      await testClient.testAuth()
-      return true
+      await testClient.testAuth();
+      return true;
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -608,12 +634,12 @@ export class SlackIntegrationProvider implements IntegrationProvider {
    */
   getClient(credentials?: IntegrationCredentials): SlackApiClient {
     if (credentials) {
-      this.client = new SlackApiClient(credentials.accessToken)
+      this.client = new SlackApiClient(credentials.accessToken);
     }
     if (!this.client) {
-      throw new Error('Slack client not initialized. Please connect first.')
+      throw new Error("Slack client not initialized. Please connect first.");
     }
-    return this.client
+    return this.client;
   }
 
   /**
@@ -621,66 +647,79 @@ export class SlackIntegrationProvider implements IntegrationProvider {
    */
   async importHistory(
     credentials: IntegrationCredentials,
-    options?: SlackImportOptions
+    options?: SlackImportOptions,
   ): Promise<SlackSyncResult> {
-    const client = this.getClient(credentials)
+    const client = this.getClient(credentials);
     const result: SlackSyncResult = {
       success: false,
       channelsSynced: 0,
       messagesSynced: 0,
       usersSynced: 0,
       errors: [],
-    }
+    };
 
     try {
       // Fetch users first for mapping
-      const users = await client.listAllUsers()
-      result.usersSynced = users.length
+      const users = await client.listAllUsers();
+      result.usersSynced = users.length;
 
       // Fetch channels
-      let channels = await client.listAllChannels()
+      let channels = await client.listAllChannels();
 
       // Filter channels if specified
       if (options?.channelIds?.length) {
-        channels = channels.filter((c) => options.channelIds!.includes(c.id))
+        channels = channels.filter((c) => options.channelIds!.includes(c.id));
       }
 
       // Import each channel's history
       for (const channel of channels) {
         try {
-          const historyOptions: { oldest?: string; latest?: string } = {}
+          const historyOptions: { oldest?: string; latest?: string } = {};
 
           if (options?.startDate) {
-            historyOptions.oldest = (new Date(options.startDate).getTime() / 1000).toString()
+            historyOptions.oldest = (
+              new Date(options.startDate).getTime() / 1000
+            ).toString();
           }
           if (options?.endDate) {
-            historyOptions.latest = (new Date(options.endDate).getTime() / 1000).toString()
+            historyOptions.latest = (
+              new Date(options.endDate).getTime() / 1000
+            ).toString();
           }
 
-          const messages = await client.getAllChannelHistory(channel.id, historyOptions)
-          result.messagesSynced += messages.length
-          result.channelsSynced++
+          const messages = await client.getAllChannelHistory(
+            channel.id,
+            historyOptions,
+          );
+          result.messagesSynced += messages.length;
+          result.channelsSynced++;
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-          result.errors.push(`Failed to import channel ${channel.name}: ${errorMessage}`)
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+          result.errors.push(
+            `Failed to import channel ${channel.name}: ${errorMessage}`,
+          );
         }
       }
 
-      result.success = result.errors.length === 0
+      result.success = result.errors.length === 0;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      result.errors.push(`Import failed: ${errorMessage}`)
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      result.errors.push(`Import failed: ${errorMessage}`);
     }
 
-    return result
+    return result;
   }
 
   /**
    * Sync channels from Slack
    */
-  async syncChannels(credentials: IntegrationCredentials): Promise<SlackChannel[]> {
-    const client = this.getClient(credentials)
-    return client.listAllChannels()
+  async syncChannels(
+    credentials: IntegrationCredentials,
+  ): Promise<SlackChannel[]> {
+    const client = this.getClient(credentials);
+    return client.listAllChannels();
   }
 
   /**
@@ -691,12 +730,12 @@ export class SlackIntegrationProvider implements IntegrationProvider {
     channelId: string,
     message: string,
     options?: {
-      threadTs?: string
-      username?: string
-    }
+      threadTs?: string;
+      username?: string;
+    },
   ): Promise<SlackMessage> {
-    const client = this.getClient(credentials)
-    return client.postMessage(channelId, message, options)
+    const client = this.getClient(credentials);
+    return client.postMessage(channelId, message, options);
   }
 }
 
@@ -707,6 +746,8 @@ export class SlackIntegrationProvider implements IntegrationProvider {
 /**
  * Create a Slack integration provider
  */
-export function createSlackProvider(config: SlackClientConfig): SlackIntegrationProvider {
-  return new SlackIntegrationProvider(config)
+export function createSlackProvider(
+  config: SlackClientConfig,
+): SlackIntegrationProvider {
+  return new SlackIntegrationProvider(config);
 }

@@ -1,6 +1,12 @@
-import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
-import { Webhook, WebhookDelivery, WebhookStats, WebhooksStore, WebhooksState } from './types'
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
+import {
+  Webhook,
+  WebhookDelivery,
+  WebhookStats,
+  WebhooksStore,
+  WebhooksState,
+} from "./types";
 
 // ============================================================================
 // INITIAL STATE
@@ -14,7 +20,7 @@ const initialState: WebhooksState = {
   stats: null,
   isLoading: false,
   error: null,
-}
+};
 
 // ============================================================================
 // STORE
@@ -34,7 +40,7 @@ export const useWebhookStore = create<WebhooksStore>()(
          * Set all webhooks (replaces existing)
          */
         setWebhooks: (webhooks: Webhook[]) => {
-          set({ webhooks }, false, 'setWebhooks')
+          set({ webhooks }, false, "setWebhooks");
         },
 
         /**
@@ -46,8 +52,8 @@ export const useWebhookStore = create<WebhooksStore>()(
               webhooks: [webhook, ...state.webhooks],
             }),
             false,
-            'addWebhook'
-          )
+            "addWebhook",
+          );
         },
 
         /**
@@ -56,15 +62,17 @@ export const useWebhookStore = create<WebhooksStore>()(
         updateWebhook: (id: string, updates: Partial<Webhook>) => {
           set(
             (state) => ({
-              webhooks: state.webhooks.map((w) => (w.id === id ? { ...w, ...updates } : w)),
+              webhooks: state.webhooks.map((w) =>
+                w.id === id ? { ...w, ...updates } : w,
+              ),
               selectedWebhook:
                 state.selectedWebhook?.id === id
                   ? { ...state.selectedWebhook, ...updates }
                   : state.selectedWebhook,
             }),
             false,
-            'updateWebhook'
-          )
+            "updateWebhook",
+          );
         },
 
         /**
@@ -74,18 +82,19 @@ export const useWebhookStore = create<WebhooksStore>()(
           set(
             (state) => ({
               webhooks: state.webhooks.filter((w) => w.id !== id),
-              selectedWebhook: state.selectedWebhook?.id === id ? null : state.selectedWebhook,
+              selectedWebhook:
+                state.selectedWebhook?.id === id ? null : state.selectedWebhook,
             }),
             false,
-            'removeWebhook'
-          )
+            "removeWebhook",
+          );
         },
 
         /**
          * Set the currently selected webhook
          */
         setSelectedWebhook: (webhook: Webhook | null) => {
-          set({ selectedWebhook: webhook }, false, 'setSelectedWebhook')
+          set({ selectedWebhook: webhook }, false, "setSelectedWebhook");
         },
 
         // ====================================================================
@@ -96,7 +105,7 @@ export const useWebhookStore = create<WebhooksStore>()(
          * Set deliveries for selected webhook
          */
         setDeliveries: (deliveries: WebhookDelivery[]) => {
-          set({ deliveries }, false, 'setDeliveries')
+          set({ deliveries }, false, "setDeliveries");
         },
 
         /**
@@ -106,11 +115,14 @@ export const useWebhookStore = create<WebhooksStore>()(
           set(
             (state) => ({
               deliveries: [delivery, ...state.deliveries],
-              recentDeliveries: [delivery, ...state.recentDeliveries].slice(0, 10),
+              recentDeliveries: [delivery, ...state.recentDeliveries].slice(
+                0,
+                10,
+              ),
             }),
             false,
-            'addDelivery'
-          )
+            "addDelivery",
+          );
         },
 
         /**
@@ -119,21 +131,23 @@ export const useWebhookStore = create<WebhooksStore>()(
         updateDelivery: (id: string, updates: Partial<WebhookDelivery>) => {
           set(
             (state) => ({
-              deliveries: state.deliveries.map((d) => (d.id === id ? { ...d, ...updates } : d)),
+              deliveries: state.deliveries.map((d) =>
+                d.id === id ? { ...d, ...updates } : d,
+              ),
               recentDeliveries: state.recentDeliveries.map((d) =>
-                d.id === id ? { ...d, ...updates } : d
+                d.id === id ? { ...d, ...updates } : d,
               ),
             }),
             false,
-            'updateDelivery'
-          )
+            "updateDelivery",
+          );
         },
 
         /**
          * Set recent deliveries (across all webhooks)
          */
         setRecentDeliveries: (deliveries: WebhookDelivery[]) => {
-          set({ recentDeliveries: deliveries }, false, 'setRecentDeliveries')
+          set({ recentDeliveries: deliveries }, false, "setRecentDeliveries");
         },
 
         // ====================================================================
@@ -144,7 +158,7 @@ export const useWebhookStore = create<WebhooksStore>()(
          * Set webhook statistics
          */
         setStats: (stats: WebhookStats | null) => {
-          set({ stats }, false, 'setStats')
+          set({ stats }, false, "setStats");
         },
 
         // ====================================================================
@@ -155,34 +169,36 @@ export const useWebhookStore = create<WebhooksStore>()(
          * Set loading state
          */
         setLoading: (loading: boolean) => {
-          set({ isLoading: loading }, false, 'setLoading')
+          set({ isLoading: loading }, false, "setLoading");
         },
 
         /**
          * Set error state
          */
         setError: (error: string | null) => {
-          set({ error }, false, 'setError')
+          set({ error }, false, "setError");
         },
 
         /**
          * Reset store to initial state
          */
         reset: () => {
-          set(initialState, false, 'reset')
+          set(initialState, false, "reset");
         },
       }),
       {
-        name: 'nchat-webhooks-store',
+        name: "nchat-webhooks-store",
         partialize: (state) => ({
           // Only persist non-sensitive data
-          selectedWebhook: state.selectedWebhook ? { id: state.selectedWebhook.id } : null,
+          selectedWebhook: state.selectedWebhook
+            ? { id: state.selectedWebhook.id }
+            : null,
         }),
-      }
+      },
     ),
-    { name: 'WebhooksStore' }
-  )
-)
+    { name: "WebhooksStore" },
+  ),
+);
 
 // ============================================================================
 // SELECTORS
@@ -191,30 +207,36 @@ export const useWebhookStore = create<WebhooksStore>()(
 /**
  * Select webhooks by status
  */
-export const selectWebhooksByStatus = (status: Webhook['status']) => {
-  return useWebhookStore.getState().webhooks.filter((w) => w.status === status)
-}
+export const selectWebhooksByStatus = (status: Webhook["status"]) => {
+  return useWebhookStore.getState().webhooks.filter((w) => w.status === status);
+};
 
 /**
  * Select webhooks by channel
  */
 export const selectWebhooksByChannel = (channelId: string) => {
-  return useWebhookStore.getState().webhooks.filter((w) => w.channel_id === channelId)
-}
+  return useWebhookStore
+    .getState()
+    .webhooks.filter((w) => w.channel_id === channelId);
+};
 
 /**
  * Select active webhooks count
  */
 export const selectActiveWebhooksCount = () => {
-  return useWebhookStore.getState().webhooks.filter((w) => w.status === 'active').length
-}
+  return useWebhookStore
+    .getState()
+    .webhooks.filter((w) => w.status === "active").length;
+};
 
 /**
  * Select failed deliveries
  */
 export const selectFailedDeliveries = () => {
-  return useWebhookStore.getState().deliveries.filter((d) => d.status === 'failed')
-}
+  return useWebhookStore
+    .getState()
+    .deliveries.filter((d) => d.status === "failed");
+};
 
 /**
  * Select pending deliveries
@@ -222,8 +244,10 @@ export const selectFailedDeliveries = () => {
 export const selectPendingDeliveries = () => {
   return useWebhookStore
     .getState()
-    .deliveries.filter((d) => d.status === 'pending' || d.status === 'retrying')
-}
+    .deliveries.filter(
+      (d) => d.status === "pending" || d.status === "retrying",
+    );
+};
 
 // ============================================================================
 // HOOKS
@@ -232,35 +256,43 @@ export const selectPendingDeliveries = () => {
 /**
  * Hook to get webhooks filtered by status
  */
-export const useWebhooksByStatus = (status: Webhook['status'] | 'all') => {
+export const useWebhooksByStatus = (status: Webhook["status"] | "all") => {
   return useWebhookStore((state) =>
-    status === 'all' ? state.webhooks : state.webhooks.filter((w) => w.status === status)
-  )
-}
+    status === "all"
+      ? state.webhooks
+      : state.webhooks.filter((w) => w.status === status),
+  );
+};
 
 /**
  * Hook to get webhooks filtered by channel
  */
-export const useWebhooksByChannel = (channelId: string | 'all') => {
+export const useWebhooksByChannel = (channelId: string | "all") => {
   return useWebhookStore((state) =>
-    channelId === 'all' ? state.webhooks : state.webhooks.filter((w) => w.channel_id === channelId)
-  )
-}
+    channelId === "all"
+      ? state.webhooks
+      : state.webhooks.filter((w) => w.channel_id === channelId),
+  );
+};
 
 /**
  * Hook to get webhook by ID
  */
 export const useWebhookById = (id: string) => {
-  return useWebhookStore((state) => state.webhooks.find((w) => w.id === id))
-}
+  return useWebhookStore((state) => state.webhooks.find((w) => w.id === id));
+};
 
 /**
  * Hook to get deliveries filtered by status
  */
-export const useDeliveriesByStatus = (status: WebhookDelivery['status'] | 'all') => {
+export const useDeliveriesByStatus = (
+  status: WebhookDelivery["status"] | "all",
+) => {
   return useWebhookStore((state) =>
-    status === 'all' ? state.deliveries : state.deliveries.filter((d) => d.status === status)
-  )
-}
+    status === "all"
+      ? state.deliveries
+      : state.deliveries.filter((d) => d.status === status),
+  );
+};
 
-export default useWebhookStore
+export default useWebhookStore;

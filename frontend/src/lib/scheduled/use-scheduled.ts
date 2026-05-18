@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * React Hook for Scheduled Messages
@@ -25,9 +25,12 @@
  * ```
  */
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useMutation, useQuery } from '@apollo/client'
-import { useScheduledStore, type ScheduledMessageDraft } from './scheduled-store'
+import { useCallback, useEffect, useMemo } from "react";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  useScheduledStore,
+  type ScheduledMessageDraft,
+} from "./scheduled-store";
 import {
   GET_SCHEDULED_MESSAGES,
   GET_CHANNEL_SCHEDULED_MESSAGES,
@@ -38,54 +41,56 @@ import {
   SEND_SCHEDULED_NOW,
   BULK_CANCEL_SCHEDULED_MESSAGES,
   type ScheduledMessage,
-} from '@/graphql/scheduled'
-import { useFeatureEnabled } from '@/lib/features/hooks/use-feature'
-import { FEATURES } from '@/lib/features/feature-flags'
+} from "@/graphql/scheduled";
+import { useFeatureEnabled } from "@/lib/features/hooks/use-feature";
+import { FEATURES } from "@/lib/features/feature-flags";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UseScheduledOptions {
-  userId: string
-  channelId?: string
-  autoFetch?: boolean
+  userId: string;
+  channelId?: string;
+  autoFetch?: boolean;
 }
 
 export interface UseScheduledReturn {
   // Data
-  messages: ScheduledMessage[]
-  messagesForChannel: ScheduledMessage[]
-  pendingCount: number
-  nextScheduled: ScheduledMessage | undefined
-  isFeatureEnabled: boolean
+  messages: ScheduledMessage[];
+  messagesForChannel: ScheduledMessage[];
+  pendingCount: number;
+  nextScheduled: ScheduledMessage | undefined;
+  isFeatureEnabled: boolean;
 
   // Loading States
-  isLoading: boolean
-  isScheduling: boolean
-  isUpdating: boolean
-  isCancelling: boolean
-  isSendingNow: boolean
+  isLoading: boolean;
+  isScheduling: boolean;
+  isUpdating: boolean;
+  isCancelling: boolean;
+  isSendingNow: boolean;
 
   // Error State
-  error: string | null
+  error: string | null;
 
   // Actions
-  fetchScheduledMessages: () => Promise<void>
-  scheduleMessage: (draft: ScheduledMessageDraft) => Promise<ScheduledMessage | null>
+  fetchScheduledMessages: () => Promise<void>;
+  scheduleMessage: (
+    draft: ScheduledMessageDraft,
+  ) => Promise<ScheduledMessage | null>;
   updateScheduledMessage: (
     id: string,
-    updates: Partial<ScheduledMessageDraft>
-  ) => Promise<ScheduledMessage | null>
-  cancelScheduledMessage: (id: string) => Promise<boolean>
-  sendNow: (id: string) => Promise<ScheduledMessage | null>
-  bulkCancel: (ids: string[]) => Promise<number>
+    updates: Partial<ScheduledMessageDraft>,
+  ) => Promise<ScheduledMessage | null>;
+  cancelScheduledMessage: (id: string) => Promise<boolean>;
+  sendNow: (id: string) => Promise<ScheduledMessage | null>;
+  bulkCancel: (ids: string[]) => Promise<number>;
 
   // UI Helpers
-  openScheduleModal: (channelId?: string, content?: string) => void
-  closeScheduleModal: () => void
-  editMessage: (message: ScheduledMessage) => void
-  getMessageById: (id: string) => ScheduledMessage | undefined
+  openScheduleModal: (channelId?: string, content?: string) => void;
+  closeScheduleModal: () => void;
+  editMessage: (message: ScheduledMessage) => void;
+  getMessageById: (id: string) => ScheduledMessage | undefined;
 }
 
 // ============================================================================
@@ -98,7 +103,7 @@ export function useScheduled({
   autoFetch = true,
 }: UseScheduledOptions): UseScheduledReturn {
   // Feature flag check
-  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_SCHEDULE)
+  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_SCHEDULE);
 
   // Store state
   const {
@@ -118,7 +123,7 @@ export function useScheduled({
     getMessagesForChannel,
     getPendingCount,
     getNextScheduled,
-  } = useScheduledStore()
+  } = useScheduledStore();
 
   // GraphQL queries and mutations
   const {
@@ -126,61 +131,78 @@ export function useScheduled({
     loading: queryLoading,
     refetch,
   } = useQuery(GET_SCHEDULED_MESSAGES, {
-    variables: { userId, channelId, status: 'pending' },
+    variables: { userId, channelId, status: "pending" },
     skip: !isFeatureEnabled || !autoFetch,
-    fetchPolicy: 'cache-and-network',
-  })
+    fetchPolicy: "cache-and-network",
+  });
 
-  const [createMutation, { loading: createLoading }] = useMutation(CREATE_SCHEDULED_MESSAGE)
-  const [updateMutation, { loading: updateLoading }] = useMutation(UPDATE_SCHEDULED_MESSAGE)
-  const [deleteMutation, { loading: deleteLoading }] = useMutation(DELETE_SCHEDULED_MESSAGE)
-  const [sendNowMutation, { loading: sendNowLoading }] = useMutation(SEND_SCHEDULED_NOW)
-  const [bulkCancelMutation] = useMutation(BULK_CANCEL_SCHEDULED_MESSAGES)
+  const [createMutation, { loading: createLoading }] = useMutation(
+    CREATE_SCHEDULED_MESSAGE,
+  );
+  const [updateMutation, { loading: updateLoading }] = useMutation(
+    UPDATE_SCHEDULED_MESSAGE,
+  );
+  const [deleteMutation, { loading: deleteLoading }] = useMutation(
+    DELETE_SCHEDULED_MESSAGE,
+  );
+  const [sendNowMutation, { loading: sendNowLoading }] =
+    useMutation(SEND_SCHEDULED_NOW);
+  const [bulkCancelMutation] = useMutation(BULK_CANCEL_SCHEDULED_MESSAGES);
 
   // Sync query data to store
   useEffect(() => {
     if (scheduledData?.nchat_scheduled_messages) {
-      setMessages(scheduledData.nchat_scheduled_messages)
+      setMessages(scheduledData.nchat_scheduled_messages);
     }
-  }, [scheduledData, setMessages])
+  }, [scheduledData, setMessages]);
 
   // Sync loading state
   useEffect(() => {
-    setLoading(queryLoading)
-  }, [queryLoading, setLoading])
+    setLoading(queryLoading);
+  }, [queryLoading, setLoading]);
 
   // Memoized values
   const messagesForChannel = useMemo(
     () => (channelId ? getMessagesForChannel(channelId) : []),
-    [channelId, getMessagesForChannel, messages]
-  )
+    [channelId, getMessagesForChannel, messages],
+  );
 
-  const pendingCount = useMemo(() => getPendingCount(), [messages, getPendingCount])
+  const pendingCount = useMemo(
+    () => getPendingCount(),
+    [messages, getPendingCount],
+  );
 
-  const nextScheduled = useMemo(() => getNextScheduled(), [messages, getNextScheduled])
+  const nextScheduled = useMemo(
+    () => getNextScheduled(),
+    [messages, getNextScheduled],
+  );
 
   // Actions
   const fetchScheduledMessages = useCallback(async () => {
-    if (!isFeatureEnabled) return
-    setLoading(true)
-    setError(null)
+    if (!isFeatureEnabled) return;
+    setLoading(true);
+    setError(null);
     try {
-      await refetch()
+      await refetch();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch scheduled messages')
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch scheduled messages",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [isFeatureEnabled, refetch, setLoading, setError])
+  }, [isFeatureEnabled, refetch, setLoading, setError]);
 
   const scheduleMessage = useCallback(
     async (draft: ScheduledMessageDraft): Promise<ScheduledMessage | null> => {
       if (!isFeatureEnabled) {
-        setError('Scheduled messages feature is not enabled')
-        return null
+        setError("Scheduled messages feature is not enabled");
+        return null;
       }
 
-      setError(null)
+      setError(null);
       try {
         const { data } = await createMutation({
           variables: {
@@ -189,37 +211,38 @@ export function useScheduled({
             content: draft.content,
             scheduledAt: draft.scheduledAt.toISOString(),
             timezone: draft.timezone,
-            type: draft.type || 'text',
+            type: draft.type || "text",
             metadata: draft.metadata,
           },
-        })
+        });
 
         if (data?.insert_nchat_scheduled_messages_one) {
-          const newMessage = data.insert_nchat_scheduled_messages_one
-          addMessage(newMessage)
-          return newMessage
+          const newMessage = data.insert_nchat_scheduled_messages_one;
+          addMessage(newMessage);
+          return newMessage;
         }
-        return null
+        return null;
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to schedule message'
-        setError(errorMessage)
-        throw err
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to schedule message";
+        setError(errorMessage);
+        throw err;
       }
     },
-    [isFeatureEnabled, userId, createMutation, addMessage, setError]
-  )
+    [isFeatureEnabled, userId, createMutation, addMessage, setError],
+  );
 
   const updateScheduledMessage = useCallback(
     async (
       id: string,
-      updates: Partial<ScheduledMessageDraft>
+      updates: Partial<ScheduledMessageDraft>,
     ): Promise<ScheduledMessage | null> => {
       if (!isFeatureEnabled) {
-        setError('Scheduled messages feature is not enabled')
-        return null
+        setError("Scheduled messages feature is not enabled");
+        return null;
       }
 
-      setError(null)
+      setError(null);
       try {
         const { data } = await updateMutation({
           variables: {
@@ -229,127 +252,134 @@ export function useScheduled({
             timezone: updates.timezone,
             metadata: updates.metadata,
           },
-        })
+        });
 
         if (data?.update_nchat_scheduled_messages_by_pk) {
-          const updatedMessage = data.update_nchat_scheduled_messages_by_pk
-          updateMessage(id, updatedMessage)
-          return updatedMessage
+          const updatedMessage = data.update_nchat_scheduled_messages_by_pk;
+          updateMessage(id, updatedMessage);
+          return updatedMessage;
         }
-        return null
+        return null;
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : 'Failed to update scheduled message'
-        setError(errorMessage)
-        throw err
+          err instanceof Error
+            ? err.message
+            : "Failed to update scheduled message";
+        setError(errorMessage);
+        throw err;
       }
     },
-    [isFeatureEnabled, updateMutation, updateMessage, setError]
-  )
+    [isFeatureEnabled, updateMutation, updateMessage, setError],
+  );
 
   const cancelScheduledMessage = useCallback(
     async (id: string): Promise<boolean> => {
       if (!isFeatureEnabled) {
-        setError('Scheduled messages feature is not enabled')
-        return false
+        setError("Scheduled messages feature is not enabled");
+        return false;
       }
 
-      setError(null)
+      setError(null);
       try {
         const { data } = await deleteMutation({
           variables: { id },
-        })
+        });
 
         if (data?.update_nchat_scheduled_messages_by_pk) {
-          removeMessage(id)
-          return true
+          removeMessage(id);
+          return true;
         }
-        return false
+        return false;
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : 'Failed to cancel scheduled message'
-        setError(errorMessage)
-        throw err
+          err instanceof Error
+            ? err.message
+            : "Failed to cancel scheduled message";
+        setError(errorMessage);
+        throw err;
       }
     },
-    [isFeatureEnabled, deleteMutation, removeMessage, setError]
-  )
+    [isFeatureEnabled, deleteMutation, removeMessage, setError],
+  );
 
   const sendNow = useCallback(
     async (id: string): Promise<ScheduledMessage | null> => {
       if (!isFeatureEnabled) {
-        setError('Scheduled messages feature is not enabled')
-        return null
+        setError("Scheduled messages feature is not enabled");
+        return null;
       }
 
-      setError(null)
+      setError(null);
       try {
         const { data } = await sendNowMutation({
           variables: { id },
-        })
+        });
 
         if (data?.update_nchat_scheduled_messages_by_pk) {
-          const sentMessage = data.update_nchat_scheduled_messages_by_pk
+          const sentMessage = data.update_nchat_scheduled_messages_by_pk;
           // Remove from pending list since it's being sent immediately
-          removeMessage(id)
-          return sentMessage
+          removeMessage(id);
+          return sentMessage;
         }
-        return null
+        return null;
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to send message'
-        setError(errorMessage)
-        throw err
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to send message";
+        setError(errorMessage);
+        throw err;
       }
     },
-    [isFeatureEnabled, sendNowMutation, removeMessage, setError]
-  )
+    [isFeatureEnabled, sendNowMutation, removeMessage, setError],
+  );
 
   const bulkCancel = useCallback(
     async (ids: string[]): Promise<number> => {
       if (!isFeatureEnabled) {
-        setError('Scheduled messages feature is not enabled')
-        return 0
+        setError("Scheduled messages feature is not enabled");
+        return 0;
       }
 
-      if (ids.length === 0) return 0
+      if (ids.length === 0) return 0;
 
-      setError(null)
+      setError(null);
       try {
         const { data } = await bulkCancelMutation({
           variables: { ids },
-        })
+        });
 
         if (data?.update_nchat_scheduled_messages?.affected_rows) {
           for (const id of ids) {
-            removeMessage(id)
+            removeMessage(id);
           }
-          return data.update_nchat_scheduled_messages.affected_rows
+          return data.update_nchat_scheduled_messages.affected_rows;
         }
-        return 0
+        return 0;
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : 'Failed to cancel scheduled messages'
-        setError(errorMessage)
-        throw err
+          err instanceof Error
+            ? err.message
+            : "Failed to cancel scheduled messages";
+        setError(errorMessage);
+        throw err;
       }
     },
-    [isFeatureEnabled, bulkCancelMutation, removeMessage, setError]
-  )
+    [isFeatureEnabled, bulkCancelMutation, removeMessage, setError],
+  );
 
   // UI Helpers
   const openScheduleModal = useCallback(
     (modalChannelId?: string, content?: string) => {
-      openModal(modalChannelId || channelId, content)
+      openModal(modalChannelId || channelId, content);
     },
-    [openModal, channelId]
-  )
+    [openModal, channelId],
+  );
 
   const editMessage = useCallback(
     (message: ScheduledMessage) => {
-      setEditingMessage(message)
+      setEditingMessage(message);
     },
-    [setEditingMessage]
-  )
+    [setEditingMessage],
+  );
 
   return {
     // Data
@@ -382,7 +412,7 @@ export function useScheduled({
     closeScheduleModal: closeModal,
     editMessage,
     getMessageById,
-  }
+  };
 }
 
 // ============================================================================
@@ -393,19 +423,22 @@ export function useScheduled({
  * Hook to get scheduled messages for a specific channel
  */
 export function useChannelScheduledMessages(userId: string, channelId: string) {
-  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_SCHEDULE)
-  const { getMessagesForChannel } = useScheduledStore()
+  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_SCHEDULE);
+  const { getMessagesForChannel } = useScheduledStore();
 
-  const { data, loading, error, refetch } = useQuery(GET_CHANNEL_SCHEDULED_MESSAGES, {
-    variables: { channelId, userId },
-    skip: !isFeatureEnabled || !channelId,
-    fetchPolicy: 'cache-and-network',
-  })
+  const { data, loading, error, refetch } = useQuery(
+    GET_CHANNEL_SCHEDULED_MESSAGES,
+    {
+      variables: { channelId, userId },
+      skip: !isFeatureEnabled || !channelId,
+      fetchPolicy: "cache-and-network",
+    },
+  );
 
   const messages = useMemo(
     () => data?.nchat_scheduled_messages || getMessagesForChannel(channelId),
-    [data, channelId, getMessagesForChannel]
-  )
+    [data, channelId, getMessagesForChannel],
+  );
 
   return {
     messages,
@@ -413,7 +446,7 @@ export function useChannelScheduledMessages(userId: string, channelId: string) {
     error: error?.message || null,
     refetch,
     isFeatureEnabled,
-  }
+  };
 }
 
 // ============================================================================
@@ -424,23 +457,25 @@ export function useChannelScheduledMessages(userId: string, channelId: string) {
  * Hook to get the count of pending scheduled messages
  */
 export function useScheduledMessagesCount(userId: string) {
-  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_SCHEDULE)
-  const { getPendingCount } = useScheduledStore()
+  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_SCHEDULE);
+  const { getPendingCount } = useScheduledStore();
 
   const { data, loading } = useQuery(GET_SCHEDULED_MESSAGES_COUNT, {
     variables: { userId },
     skip: !isFeatureEnabled,
     pollInterval: 60000, // Poll every minute
-  })
+  });
 
   const count = useMemo(
-    () => data?.nchat_scheduled_messages_aggregate?.aggregate?.count ?? getPendingCount(),
-    [data, getPendingCount]
-  )
+    () =>
+      data?.nchat_scheduled_messages_aggregate?.aggregate?.count ??
+      getPendingCount(),
+    [data, getPendingCount],
+  );
 
   return {
     count,
     loading,
     isFeatureEnabled,
-  }
+  };
 }

@@ -4,28 +4,28 @@
  * GET /api/trust-safety/statistics - Get comprehensive statistics
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 import {
   getEvidenceCollector,
   getLegalHoldService,
   getEvidenceExportService,
-} from '@/services/trust-safety'
+} from "@/services/trust-safety";
 
-const collector = getEvidenceCollector()
-const legalHoldService = getLegalHoldService(undefined, collector)
-const exportService = getEvidenceExportService(undefined, collector)
+const collector = getEvidenceCollector();
+const legalHoldService = getLegalHoldService(undefined, collector);
+const exportService = getEvidenceExportService(undefined, collector);
 
 /**
  * GET - Get comprehensive trust & safety statistics
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const workspaceId = searchParams.get('workspaceId') || undefined
+    const { searchParams } = new URL(request.url);
+    const workspaceId = searchParams.get("workspaceId") || undefined;
 
-    const evidenceStats = collector.getStatistics(workspaceId)
-    const legalHoldStats = legalHoldService.getStatistics()
-    const exportStats = exportService.getStatistics()
+    const evidenceStats = collector.getStatistics(workspaceId);
+    const legalHoldStats = legalHoldService.getStatistics();
+    const exportStats = exportService.getStatistics();
 
     return NextResponse.json({
       success: true,
@@ -36,7 +36,9 @@ export async function GET(request: NextRequest) {
           byType: evidenceStats.byType,
           byPriority: evidenceStats.byPriority,
           totalSizeBytes: evidenceStats.totalSizeBytes,
-          totalSizeMB: Math.round(evidenceStats.totalSizeBytes / (1024 * 1024) * 100) / 100,
+          totalSizeMB:
+            Math.round((evidenceStats.totalSizeBytes / (1024 * 1024)) * 100) /
+            100,
           underLegalHold: evidenceStats.underLegalHold,
           lastCollectedAt: evidenceStats.lastCollectedAt,
         },
@@ -53,16 +55,18 @@ export async function GET(request: NextRequest) {
           byStatus: exportStats.byStatus,
           byFormat: exportStats.byFormat,
           totalEvidenceExported: exportStats.totalEvidenceExported,
-          averageProcessingTimeMs: Math.round(exportStats.averageProcessingTimeMs),
+          averageProcessingTimeMs: Math.round(
+            exportStats.averageProcessingTimeMs,
+          ),
         },
         timestamp: new Date().toISOString(),
       },
-    })
+    });
   } catch (error) {
-    console.error('Statistics error:', error)
+    console.error("Statistics error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to retrieve statistics' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to retrieve statistics" },
+      { status: 500 },
+    );
   }
 }

@@ -5,9 +5,9 @@
  */
 
 // Dialogs
-export { ReportDialog } from './ReportDialog'
-export { ModerationActionDialog } from './ModerationActionDialog'
-export { AppealDialog } from './AppealDialog'
+export { ReportDialog } from "./ReportDialog";
+export { ModerationActionDialog } from "./ModerationActionDialog";
+export { AppealDialog } from "./AppealDialog";
 
 // Settings
-export { SlowmodeSettings } from './SlowmodeSettings'
+export { SlowmodeSettings } from "./SlowmodeSettings";

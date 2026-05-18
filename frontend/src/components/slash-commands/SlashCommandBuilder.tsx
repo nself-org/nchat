@@ -1,55 +1,66 @@
-'use client'
+"use client";
 
 /**
  * SlashCommandBuilder - Main builder interface for creating/editing slash commands
  */
 
-import { useState, useCallback, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Save, X, ChevronLeft, ChevronRight, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useAuth } from '@/contexts/auth-context'
+import { useState, useCallback, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Save,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/auth-context";
 
-import { CommandInfo } from './CommandInfo'
-import { CommandTrigger } from './CommandTrigger'
-import { CommandArguments } from './CommandArguments'
-import { CommandAction } from './CommandAction'
-import { CommandPreview } from './CommandPreview'
-import { CommandTesting } from './CommandTesting'
-import { CommandPermissions } from './CommandPermissions'
-import { CommandChannels } from './CommandChannels'
-import { CommandResponse } from './CommandResponse'
-import { CommandWebhook } from './CommandWebhook'
-import { CommandWorkflow } from './CommandWorkflow'
+import { CommandInfo } from "./CommandInfo";
+import { CommandTrigger } from "./CommandTrigger";
+import { CommandArguments } from "./CommandArguments";
+import { CommandAction } from "./CommandAction";
+import { CommandPreview } from "./CommandPreview";
+import { CommandTesting } from "./CommandTesting";
+import { CommandPermissions } from "./CommandPermissions";
+import { CommandChannels } from "./CommandChannels";
+import { CommandResponse } from "./CommandResponse";
+import { CommandWebhook } from "./CommandWebhook";
+import { CommandWorkflow } from "./CommandWorkflow";
 
-import { useSlashCommandsStore } from '@/stores/slash-commands-store'
-import { validateCommand } from '@/lib/slash-commands'
-import type { CommandDraft, CommandValidation } from '@/lib/slash-commands/command-types'
-import { cn } from '@/lib/utils'
+import { useSlashCommandsStore } from "@/stores/slash-commands-store";
+import { validateCommand } from "@/lib/slash-commands";
+import type {
+  CommandDraft,
+  CommandValidation,
+} from "@/lib/slash-commands/command-types";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface SlashCommandBuilderProps {
-  commandId?: string
-  onSave?: (command: CommandDraft) => void
-  onCancel?: () => void
-  className?: string
+  commandId?: string;
+  onSave?: (command: CommandDraft) => void;
+  onCancel?: () => void;
+  className?: string;
 }
 
 type BuilderTab =
-  | 'info'
-  | 'arguments'
-  | 'action'
-  | 'permissions'
-  | 'channels'
-  | 'response'
-  | 'preview'
-  | 'test'
+  | "info"
+  | "arguments"
+  | "action"
+  | "permissions"
+  | "channels"
+  | "response"
+  | "preview"
+  | "test";
 
 // ============================================================================
 // Component
@@ -61,93 +72,101 @@ export function SlashCommandBuilder({
   onCancel,
   className,
 }: SlashCommandBuilderProps) {
-  const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState<BuilderTab>('info')
-  const [isSaving, setIsSaving] = useState(false)
-  const [validation, setValidation] = useState<CommandValidation | null>(null)
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<BuilderTab>("info");
+  const [isSaving, setIsSaving] = useState(false);
+  const [validation, setValidation] = useState<CommandValidation | null>(null);
 
-  const { editingCommand, startEditing, updateDraft, saveDraft, cancelEditing, commands } =
-    useSlashCommandsStore()
+  const {
+    editingCommand,
+    startEditing,
+    updateDraft,
+    saveDraft,
+    cancelEditing,
+    commands,
+  } = useSlashCommandsStore();
 
   // Initialize editing state
   useEffect(() => {
     if (commandId) {
-      const existing = commands.get(commandId)
+      const existing = commands.get(commandId);
       if (existing) {
         startEditing({
           ...existing,
-        })
+        });
       }
     } else if (!editingCommand) {
-      startEditing()
+      startEditing();
     }
-  }, [commandId, commands, startEditing, editingCommand])
+  }, [commandId, commands, startEditing, editingCommand]);
 
   // Validate on changes
   useEffect(() => {
     if (editingCommand) {
       const result = validateCommand(editingCommand, {
         existingCommandId: commandId,
-      })
-      setValidation(result)
+      });
+      setValidation(result);
     }
-  }, [editingCommand, commandId])
+  }, [editingCommand, commandId]);
 
   // Handle save
   const handleSave = useCallback(async () => {
-    if (!editingCommand || !validation?.isValid) return
+    if (!editingCommand || !validation?.isValid) return;
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-      const saved = saveDraft(user?.id || 'anonymous')
+      const saved = saveDraft(user?.id || "anonymous");
       if (saved) {
-        onSave?.(editingCommand)
+        onSave?.(editingCommand);
       }
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }, [editingCommand, validation, saveDraft, onSave])
+  }, [editingCommand, validation, saveDraft, onSave]);
 
   // Handle cancel
   const handleCancel = useCallback(() => {
-    cancelEditing()
-    onCancel?.()
-  }, [cancelEditing, onCancel])
+    cancelEditing();
+    onCancel?.();
+  }, [cancelEditing, onCancel]);
 
   // Tab navigation
   const tabs: { id: BuilderTab; label: string }[] = [
-    { id: 'info', label: 'Basic Info' },
-    { id: 'arguments', label: 'Arguments' },
-    { id: 'action', label: 'Action' },
-    { id: 'permissions', label: 'Permissions' },
-    { id: 'channels', label: 'Channels' },
-    { id: 'response', label: 'Response' },
-    { id: 'preview', label: 'Preview' },
-    { id: 'test', label: 'Test' },
-  ]
+    { id: "info", label: "Basic Info" },
+    { id: "arguments", label: "Arguments" },
+    { id: "action", label: "Action" },
+    { id: "permissions", label: "Permissions" },
+    { id: "channels", label: "Channels" },
+    { id: "response", label: "Response" },
+    { id: "preview", label: "Preview" },
+    { id: "test", label: "Test" },
+  ];
 
-  const currentIndex = tabs.findIndex((t) => t.id === activeTab)
-  const canGoBack = currentIndex > 0
-  const canGoNext = currentIndex < tabs.length - 1
+  const currentIndex = tabs.findIndex((t) => t.id === activeTab);
+  const canGoBack = currentIndex > 0;
+  const canGoNext = currentIndex < tabs.length - 1;
 
   if (!editingCommand) {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex flex-col gap-6', className)}>
+    <div className={cn("flex flex-col gap-6", className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{commandId ? 'Edit Command' : 'Create Command'}</h1>
+          <h1 className="text-2xl font-bold">
+            {commandId ? "Edit Command" : "Create Command"}
+          </h1>
           <p className="text-sm text-muted-foreground">
             {commandId
-              ? `Editing /${editingCommand.trigger || '...'}`
-              : 'Create a new custom slash command'}
+              ? `Editing /${editingCommand.trigger || "..."}`
+              : "Create a new custom slash command"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -155,7 +174,10 @@ export function SlashCommandBuilder({
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!validation?.isValid || isSaving}>
+          <Button
+            onClick={handleSave}
+            disabled={!validation?.isValid || isSaving}
+          >
             {isSaving ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -218,10 +240,17 @@ export function SlashCommandBuilder({
         <div className="lg:col-span-2">
           <Card>
             <CardHeader className="pb-0">
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as BuilderTab)}>
+              <Tabs
+                value={activeTab}
+                onValueChange={(v) => setActiveTab(v as BuilderTab)}
+              >
                 <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
                   {tabs.map((tab) => (
-                    <TabsTrigger key={tab.id} value={tab.id} className="text-xs">
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className="text-xs"
+                    >
                       {tab.label}
                     </TabsTrigger>
                   ))}
@@ -237,12 +266,14 @@ export function SlashCommandBuilder({
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {activeTab === 'info' && (
+                  {activeTab === "info" && (
                     <div className="space-y-6">
                       <CommandTrigger
                         value={editingCommand.trigger}
                         aliases={editingCommand.aliases}
-                        onChange={(trigger, aliases) => updateDraft({ trigger, aliases })}
+                        onChange={(trigger, aliases) =>
+                          updateDraft({ trigger, aliases })
+                        }
                       />
                       <CommandInfo
                         name={editingCommand.name}
@@ -256,73 +287,88 @@ export function SlashCommandBuilder({
                     </div>
                   )}
 
-                  {activeTab === 'arguments' && (
+                  {activeTab === "arguments" && (
                     <CommandArguments
                       arguments={editingCommand.arguments || []}
                       onChange={(args) => updateDraft({ arguments: args })}
                     />
                   )}
 
-                  {activeTab === 'action' && (
+                  {activeTab === "action" && (
                     <div className="space-y-6">
                       <CommandAction
                         actionType={editingCommand.actionType}
                         action={editingCommand.action}
-                        onChange={(actionType, action) => updateDraft({ actionType, action })}
+                        onChange={(actionType, action) =>
+                          updateDraft({ actionType, action })
+                        }
                       />
-                      {editingCommand.actionType === 'webhook' && (
+                      {editingCommand.actionType === "webhook" && (
                         <CommandWebhook
                           webhook={editingCommand.webhook}
                           onChange={(webhook) =>
-                            updateDraft({ webhook: webhook as typeof editingCommand.webhook })
+                            updateDraft({
+                              webhook: webhook as typeof editingCommand.webhook,
+                            })
                           }
                         />
                       )}
-                      {editingCommand.actionType === 'workflow' && (
+                      {editingCommand.actionType === "workflow" && (
                         <CommandWorkflow
                           workflow={editingCommand.workflow}
                           onChange={(workflow) =>
-                            updateDraft({ workflow: workflow as typeof editingCommand.workflow })
+                            updateDraft({
+                              workflow:
+                                workflow as typeof editingCommand.workflow,
+                            })
                           }
                         />
                       )}
                     </div>
                   )}
 
-                  {activeTab === 'permissions' && (
+                  {activeTab === "permissions" && (
                     <CommandPermissions
                       permissions={editingCommand.permissions}
                       onChange={(permissions) =>
                         updateDraft({
-                          permissions: permissions as typeof editingCommand.permissions,
+                          permissions:
+                            permissions as typeof editingCommand.permissions,
                         })
                       }
                     />
                   )}
 
-                  {activeTab === 'channels' && (
+                  {activeTab === "channels" && (
                     <CommandChannels
                       channels={editingCommand.channels}
                       onChange={(channels) =>
-                        updateDraft({ channels: channels as typeof editingCommand.channels })
+                        updateDraft({
+                          channels: channels as typeof editingCommand.channels,
+                        })
                       }
                     />
                   )}
 
-                  {activeTab === 'response' && (
+                  {activeTab === "response" && (
                     <CommandResponse
                       responseConfig={editingCommand.responseConfig}
                       onChange={(responseConfig) =>
                         updateDraft({
-                          responseConfig: responseConfig as typeof editingCommand.responseConfig,
+                          responseConfig:
+                            responseConfig as typeof editingCommand.responseConfig,
                         })
                       }
                     />
                   )}
 
-                  {activeTab === 'preview' && <CommandPreview command={editingCommand} />}
+                  {activeTab === "preview" && (
+                    <CommandPreview command={editingCommand} />
+                  )}
 
-                  {activeTab === 'test' && <CommandTesting command={editingCommand} />}
+                  {activeTab === "test" && (
+                    <CommandTesting command={editingCommand} />
+                  )}
                 </motion.div>
               </AnimatePresence>
 
@@ -342,8 +388,10 @@ export function SlashCommandBuilder({
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={cn(
-                        'h-2 w-2 rounded-full transition-colors',
-                        i === currentIndex ? 'bg-primary' : 'hover:bg-muted-foreground/50 bg-muted'
+                        "h-2 w-2 rounded-full transition-colors",
+                        i === currentIndex
+                          ? "bg-primary"
+                          : "hover:bg-muted-foreground/50 bg-muted",
                       )}
                     />
                   ))}
@@ -390,7 +438,7 @@ export function SlashCommandBuilder({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default SlashCommandBuilder
+export default SlashCommandBuilder;

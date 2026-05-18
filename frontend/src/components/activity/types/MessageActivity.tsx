@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MessageActivity Component
@@ -6,36 +6,40 @@
  * Displays a message activity
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ActivityAvatar } from '../ActivityAvatar'
-import { ActivityDate } from '../ActivityDate'
-import type { MessageActivity as MessageActivityType } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ActivityAvatar } from "../ActivityAvatar";
+import { ActivityDate } from "../ActivityDate";
+import type { MessageActivity as MessageActivityType } from "@/lib/activity/activity-types";
 
 interface MessageActivityProps {
-  activity: MessageActivityType
-  onClick?: () => void
-  className?: string
+  activity: MessageActivityType;
+  onClick?: () => void;
+  className?: string;
 }
 
-export function MessageActivity({ activity, onClick, className }: MessageActivityProps) {
-  const { actor, message, channel, isRead, createdAt } = activity
+export function MessageActivity({
+  activity,
+  onClick,
+  className,
+}: MessageActivityProps) {
+  const { actor, message, channel, isRead, createdAt } = activity;
 
   return (
     <div
       className={cn(
-        'group flex cursor-pointer gap-3 rounded-lg p-3 transition-colors',
-        'hover:bg-muted/50',
-        !isRead && 'bg-primary/5',
-        className
+        "group flex cursor-pointer gap-3 rounded-lg p-3 transition-colors",
+        "hover:bg-muted/50",
+        !isRead && "bg-primary/5",
+        className,
       )}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
@@ -52,9 +56,9 @@ export function MessageActivity({ activity, onClick, className }: MessageActivit
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             {/* Header */}
-            <p className={cn('text-sm', !isRead && 'font-medium')}>
+            <p className={cn("text-sm", !isRead && "font-medium")}>
               <span className="font-medium">{actor.displayName}</span>
-              {' sent a message in '}
+              {" sent a message in "}
               <span className="font-medium text-primary">#{channel.name}</span>
             </p>
 
@@ -69,7 +73,7 @@ export function MessageActivity({ activity, onClick, className }: MessageActivit
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default MessageActivity
+export default MessageActivity;

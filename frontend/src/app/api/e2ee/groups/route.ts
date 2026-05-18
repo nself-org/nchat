@@ -6,36 +6,36 @@
  * - GET: Get group E2EE status
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CreateGroupRequest {
-  groupId: string
-  groupName: string
+  groupId: string;
+  groupName: string;
   members: Array<{
-    userId: string
-    deviceId: string
-    role?: 'admin' | 'member'
-  }>
+    userId: string;
+    deviceId: string;
+    role?: "admin" | "member";
+  }>;
 }
 
 interface GroupStatusResponse {
-  groupId: string
-  groupName: string
-  memberCount: number
-  epoch: number
-  isActive: boolean
-  createdAt: number
-  lastActivityAt: number
+  groupId: string;
+  groupName: string;
+  memberCount: number;
+  epoch: number;
+  isActive: boolean;
+  createdAt: number;
+  lastActivityAt: number;
   keyCollectionProgress: {
-    collected: number
-    total: number
-    percentage: number
-  }
+    collected: number;
+    total: number;
+    percentage: number;
+  };
 }
 
 // ============================================================================
@@ -44,30 +44,30 @@ interface GroupStatusResponse {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: CreateGroupRequest = await request.json()
+    const body: CreateGroupRequest = await request.json();
 
     // Validate request
     if (!body.groupId || !body.groupName) {
       return NextResponse.json(
-        { error: 'Missing required fields: groupId, groupName' },
-        { status: 400 }
-      )
+        { error: "Missing required fields: groupId, groupName" },
+        { status: 400 },
+      );
     }
 
     if (!body.members || !Array.isArray(body.members)) {
       return NextResponse.json(
-        { error: 'Members must be an array' },
-        { status: 400 }
-      )
+        { error: "Members must be an array" },
+        { status: 400 },
+      );
     }
 
     // Validate each member
     for (const member of body.members) {
       if (!member.userId || !member.deviceId) {
         return NextResponse.json(
-          { error: 'Each member must have userId and deviceId' },
-          { status: 400 }
-        )
+          { error: "Each member must have userId and deviceId" },
+          { status: 400 },
+        );
       }
     }
 
@@ -78,10 +78,10 @@ export async function POST(request: NextRequest) {
     // 4. Store group metadata in database
     // 5. Queue sender key distribution to members
 
-    logger.info('Group E2EE session creation requested', {
+    logger.info("Group E2EE session creation requested", {
       groupId: body.groupId,
       memberCount: body.members.length,
-    })
+    });
 
     const response = {
       success: true,
@@ -89,16 +89,16 @@ export async function POST(request: NextRequest) {
       groupName: body.groupName,
       epoch: 0,
       memberCount: body.members.length,
-      message: 'Group E2EE session created. Sender key distribution initiated.',
-    }
+      message: "Group E2EE session created. Sender key distribution initiated.",
+    };
 
-    return NextResponse.json(response, { status: 201 })
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    logger.error('Failed to create group E2EE session', { error })
+    logger.error("Failed to create group E2EE session", { error });
     return NextResponse.json(
-      { error: 'Failed to create group E2EE session' },
-      { status: 500 }
-    )
+      { error: "Failed to create group E2EE session" },
+      { status: 500 },
+    );
   }
 }
 
@@ -108,8 +108,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const groupId = searchParams.get('groupId')
+    const { searchParams } = new URL(request.url);
+    const groupId = searchParams.get("groupId");
 
     if (groupId) {
       // Get specific group status
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
 
       const response: GroupStatusResponse = {
         groupId,
-        groupName: 'Example Group',
+        groupName: "Example Group",
         memberCount: 5,
         epoch: 0,
         isActive: true,
@@ -128,9 +128,9 @@ export async function GET(request: NextRequest) {
           total: 5,
           percentage: 80,
         },
-      }
+      };
 
-      return NextResponse.json(response)
+      return NextResponse.json(response);
     }
 
     // List all groups
@@ -138,27 +138,27 @@ export async function GET(request: NextRequest) {
 
     const groups = [
       {
-        groupId: 'group-1',
-        groupName: 'Team Alpha',
+        groupId: "group-1",
+        groupName: "Team Alpha",
         memberCount: 5,
         epoch: 2,
         isActive: true,
       },
       {
-        groupId: 'group-2',
-        groupName: 'Project Beta',
+        groupId: "group-2",
+        groupName: "Project Beta",
         memberCount: 12,
         epoch: 0,
         isActive: true,
       },
-    ]
+    ];
 
-    return NextResponse.json({ groups })
+    return NextResponse.json({ groups });
   } catch (error) {
-    logger.error('Failed to get group E2EE status', { error })
+    logger.error("Failed to get group E2EE status", { error });
     return NextResponse.json(
-      { error: 'Failed to get group status' },
-      { status: 500 }
-    )
+      { error: "Failed to get group status" },
+      { status: 500 },
+    );
   }
 }

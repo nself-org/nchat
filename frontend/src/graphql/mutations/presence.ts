@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const UPDATE_PRESENCE = gql`
   mutation UpdatePresence(
@@ -25,13 +25,16 @@ export const UPDATE_PRESENCE = gql`
       last_seen
     }
   }
-`
+`;
 
 export const HEARTBEAT = gql`
   mutation Heartbeat($userId: uuid!) {
-    update_nchat_presence_by_pk(pk_columns: { user_id: $userId }, _set: { last_seen: "now()" }) {
+    update_nchat_presence_by_pk(
+      pk_columns: { user_id: $userId }
+      _set: { last_seen: "now()" }
+    ) {
       user_id
       last_seen
     }
   }
-`
+`;

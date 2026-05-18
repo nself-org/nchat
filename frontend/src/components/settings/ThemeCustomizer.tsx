@@ -12,11 +12,11 @@
  * - Share theme link
  */
 
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import {
   Palette,
   Type,
@@ -35,33 +35,33 @@ import {
   Sparkles,
   Check,
   AlertCircle,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Slider } from '@/components/ui/slider'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
+} from "@/components/ui/accordion";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { SettingsColorPicker } from './SettingsColorPicker'
-import { useThemeCustomizer } from '@/hooks/use-theme-customizer'
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SettingsColorPicker } from "./SettingsColorPicker";
+import { useThemeCustomizer } from "@/hooks/use-theme-customizer";
+import { useToast } from "@/hooks/use-toast";
 import {
   colorProperties,
   fontFamilies,
@@ -69,10 +69,10 @@ import {
   fontScaleOptions,
   spacingScaleOptions,
   getThemePresets,
-} from '@/lib/theme/custom-theme'
+} from "@/lib/theme/custom-theme";
 
 interface ThemeCustomizerProps {
-  className?: string
+  className?: string;
 }
 
 /**
@@ -99,170 +99,176 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
     downloadJSON,
     copyJSON,
     generateShareURL,
-  } = useThemeCustomizer()
+  } = useThemeCustomizer();
 
-  const { toast } = useToast()
-  const [showPreview, setShowPreview] = useState(true)
-  const [importJSONInput, setImportJSONInput] = useState('')
-  const [activeTab, setActiveTab] = useState('colors')
+  const { toast } = useToast();
+  const [showPreview, setShowPreview] = useState(true);
+  const [importJSONInput, setImportJSONInput] = useState("");
+  const [activeTab, setActiveTab] = useState("colors");
 
-  const themePresets = useMemo(() => getThemePresets(), [])
+  const themePresets = useMemo(() => getThemePresets(), []);
 
   // Group colors by category
   const colorsByCategory = useMemo(() => {
-    const grouped: Record<string, Array<(typeof colorProperties)[number]>> = {}
+    const grouped: Record<string, Array<(typeof colorProperties)[number]>> = {};
     colorProperties.forEach((prop) => {
       if (!grouped[prop.category]) {
-        grouped[prop.category] = []
+        grouped[prop.category] = [];
       }
-      grouped[prop.category].push(prop)
-    })
-    return grouped
-  }, [])
+      grouped[prop.category].push(prop);
+    });
+    return grouped;
+  }, []);
 
   /**
    * Handle save theme
    */
   const handleSave = async () => {
     try {
-      await saveTheme()
+      await saveTheme();
       toast({
-        title: 'Theme saved',
-        description: 'Your theme has been saved successfully.',
-      })
+        title: "Theme saved",
+        description: "Your theme has been saved successfully.",
+      });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to save theme. Please try again.',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to save theme. Please try again.",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   /**
    * Handle reset theme
    */
   const handleReset = () => {
-    resetTheme()
+    resetTheme();
     toast({
-      title: 'Theme reset',
-      description: 'Theme has been reset to default.',
-    })
-  }
+      title: "Theme reset",
+      description: "Theme has been reset to default.",
+    });
+  };
 
   /**
    * Handle reset to preset
    */
   const handleResetToPreset = () => {
-    resetToPreset()
+    resetToPreset();
     toast({
-      title: 'Changes discarded',
-      description: 'Theme has been reset to last saved state.',
-    })
-  }
+      title: "Changes discarded",
+      description: "Theme has been reset to last saved state.",
+    });
+  };
 
   /**
    * Handle preset selection
    */
   const handlePresetSelect = (presetKey: string) => {
-    loadPreset(presetKey)
+    loadPreset(presetKey);
     toast({
-      title: 'Preset loaded',
+      title: "Preset loaded",
       description: `Loaded ${presetKey} theme preset.`,
-    })
-  }
+    });
+  };
 
   /**
    * Handle export JSON
    */
   const handleExportJSON = () => {
-    downloadJSON()
+    downloadJSON();
     toast({
-      title: 'Theme exported',
-      description: 'Theme JSON file has been downloaded.',
-    })
-  }
+      title: "Theme exported",
+      description: "Theme JSON file has been downloaded.",
+    });
+  };
 
   /**
    * Handle copy JSON
    */
   const handleCopyJSON = async () => {
     try {
-      await copyJSON()
+      await copyJSON();
       toast({
-        title: 'JSON copied',
-        description: 'Theme JSON copied to clipboard.',
-      })
+        title: "JSON copied",
+        description: "Theme JSON copied to clipboard.",
+      });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to copy to clipboard.',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to copy to clipboard.",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   /**
    * Handle import JSON
    */
   const handleImportJSON = () => {
     try {
-      importJSON(importJSONInput)
-      setImportJSONInput('')
+      importJSON(importJSONInput);
+      setImportJSONInput("");
       toast({
-        title: 'Theme imported',
-        description: 'Theme has been imported successfully.',
-      })
+        title: "Theme imported",
+        description: "Theme has been imported successfully.",
+      });
     } catch (error) {
       toast({
-        title: 'Import failed',
-        description: error instanceof Error ? error.message : 'Invalid JSON',
-        variant: 'destructive',
-      })
+        title: "Import failed",
+        description: error instanceof Error ? error.message : "Invalid JSON",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   /**
    * Handle share theme
    */
   const handleShareTheme = async () => {
     try {
-      const url = generateShareURL()
-      await navigator.clipboard.writeText(url)
+      const url = generateShareURL();
+      await navigator.clipboard.writeText(url);
       toast({
-        title: 'Share link copied',
-        description: 'Theme share link copied to clipboard.',
-      })
+        title: "Share link copied",
+        description: "Theme share link copied to clipboard.",
+      });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to generate share link.',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to generate share link.",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   if (isLoading) {
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn("space-y-4", className)}>
         <div className="h-64 animate-pulse rounded-lg bg-muted" />
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Theme Customizer</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Theme Customizer
+          </h2>
           <p className="text-muted-foreground">
             Customize colors, typography, and spacing to match your brand.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowPreview(!showPreview)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPreview(!showPreview)}
+          >
             {showPreview ? (
               <>
                 <EyeOff className="mr-2 h-4 w-4" />
@@ -292,7 +298,11 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
           Save Theme
         </Button>
 
-        <Button variant="outline" onClick={handleResetToPreset} disabled={!isModified}>
+        <Button
+          variant="outline"
+          onClick={handleResetToPreset}
+          disabled={!isModified}
+        >
           <RotateCcw className="mr-2 h-4 w-4" />
           Discard Changes
         </Button>
@@ -327,7 +337,7 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
         {showPreview && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
           >
@@ -368,7 +378,7 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
         <TabsContent value="colors" className="space-y-6">
           <Accordion
             type="multiple"
-            defaultValue={['Brand', 'Surfaces', 'Text', 'Buttons', 'Status']}
+            defaultValue={["Brand", "Surfaces", "Text", "Buttons", "Status"]}
           >
             {Object.entries(colorsByCategory).map(([category, props]) => (
               <AccordionItem key={category} value={category}>
@@ -399,8 +409,8 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
           <div>
             <h3 className="mb-4 text-lg font-semibold">Theme Presets</h3>
             <p className="mb-6 text-sm text-muted-foreground">
-              Choose a pre-designed theme as a starting point. You can customize it further in the
-              Colors tab.
+              Choose a pre-designed theme as a starting point. You can customize
+              it further in the Colors tab.
             </p>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -409,7 +419,9 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
                   key={preset.preset}
                   preset={preset}
                   isActive={theme.preset === preset.preset}
-                  colorScheme={theme.colorScheme === 'system' ? 'dark' : theme.colorScheme}
+                  colorScheme={
+                    theme.colorScheme === "system" ? "dark" : theme.colorScheme
+                  }
                   onSelect={() => handlePresetSelect(preset.preset)}
                 />
               ))}
@@ -434,8 +446,10 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
                     {fontFamilies.map((font) => (
                       <SelectItem key={font.value} value={font.value}>
                         <span style={{ fontFamily: font.value }}>
-                          {font.label}{' '}
-                          <span className="text-muted-foreground">({font.category})</span>
+                          {font.label}{" "}
+                          <span className="text-muted-foreground">
+                            ({font.category})
+                          </span>
                         </span>
                       </SelectItem>
                     ))}
@@ -470,7 +484,12 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
               {/* Preview */}
               <div className="space-y-2 rounded-lg border p-4">
                 <p className="text-xs text-muted-foreground">Preview</p>
-                <div style={{ fontFamily: theme.fontFamily, fontSize: `${theme.fontScale}rem` }}>
+                <div
+                  style={{
+                    fontFamily: theme.fontFamily,
+                    fontSize: `${theme.fontScale}rem`,
+                  }}
+                >
                   <p className="text-2xl font-bold">The quick brown fox</p>
                   <p className="text-lg">jumps over the lazy dog</p>
                   <p className="text-base">1234567890</p>
@@ -496,13 +515,16 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
                       type="button"
                       onClick={() => setBorderRadius(option.value)}
                       className={cn(
-                        'flex h-16 flex-col items-center justify-center gap-1 rounded-lg border-2 transition-colors',
+                        "flex h-16 flex-col items-center justify-center gap-1 rounded-lg border-2 transition-colors",
                         theme.borderRadius === option.value
-                          ? 'bg-primary/10 border-primary'
-                          : 'border-border hover:border-muted-foreground'
+                          ? "bg-primary/10 border-primary"
+                          : "border-border hover:border-muted-foreground",
                       )}
                     >
-                      <div className="h-6 w-6 bg-primary" style={{ borderRadius: option.value }} />
+                      <div
+                        className="h-6 w-6 bg-primary"
+                        style={{ borderRadius: option.value }}
+                      />
                       <span className="text-xs">{option.label}</span>
                     </button>
                   ))}
@@ -546,7 +568,10 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
                   >
                     Button with custom spacing and radius
                   </div>
-                  <div className="flex gap-2" style={{ gap: `${theme.spacingScale * 0.5}rem` }}>
+                  <div
+                    className="flex gap-2"
+                    style={{ gap: `${theme.spacingScale * 0.5}rem` }}
+                  >
                     <div
                       className="flex-1 bg-muted p-2"
                       style={{ borderRadius: theme.borderRadius }}
@@ -576,7 +601,7 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
             </p>
 
             <Textarea
-              value={theme.customCSS || ''}
+              value={theme.customCSS || ""}
               onChange={(e) => setCustomCSS(e.target.value)}
               placeholder="/* Your custom CSS here */&#10;.my-custom-class {&#10;  color: red;&#10;}"
               className="font-mono text-sm"
@@ -588,7 +613,8 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
           <Card className="p-6">
             <h3 className="mb-4 text-lg font-semibold">Import Theme JSON</h3>
             <p className="mb-4 text-sm text-muted-foreground">
-              Paste a theme JSON to import it. This will replace your current theme.
+              Paste a theme JSON to import it. This will replace your current
+              theme.
             </p>
 
             <div className="space-y-4">
@@ -600,7 +626,10 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
                 rows={8}
               />
 
-              <Button onClick={handleImportJSON} disabled={!importJSONInput.trim()}>
+              <Button
+                onClick={handleImportJSON}
+                disabled={!importJSONInput.trim()}
+              >
                 <Upload className="mr-2 h-4 w-4" />
                 Import Theme
               </Button>
@@ -609,7 +638,7 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 /**
@@ -617,33 +646,44 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
  */
 interface PresetCardProps {
   preset: {
-    name: string
-    preset: string
-    light: any
-    dark: any
-  }
-  isActive: boolean
-  colorScheme: 'light' | 'dark'
-  onSelect: () => void
+    name: string;
+    preset: string;
+    light: any;
+    dark: any;
+  };
+  isActive: boolean;
+  colorScheme: "light" | "dark";
+  onSelect: () => void;
 }
 
-function PresetCard({ preset, isActive, colorScheme, onSelect }: PresetCardProps) {
-  const colors = colorScheme === 'dark' ? preset.dark : preset.light
+function PresetCard({
+  preset,
+  isActive,
+  colorScheme,
+  onSelect,
+}: PresetCardProps) {
+  const colors = colorScheme === "dark" ? preset.dark : preset.light;
 
   return (
     <button
       type="button"
       onClick={onSelect}
       className={cn(
-        'group relative overflow-hidden rounded-lg border-2 text-left transition-all hover:shadow-lg',
+        "group relative overflow-hidden rounded-lg border-2 text-left transition-all hover:shadow-lg",
         isActive
-          ? 'border-primary ring-2 ring-primary ring-offset-2'
-          : 'border-border hover:border-muted-foreground'
+          ? "border-primary ring-2 ring-primary ring-offset-2"
+          : "border-border hover:border-muted-foreground",
       )}
     >
       {/* Color Preview */}
-      <div className="h-24 p-4" style={{ backgroundColor: colors.backgroundColor }}>
-        <div className="h-full rounded" style={{ backgroundColor: colors.surfaceColor }}>
+      <div
+        className="h-24 p-4"
+        style={{ backgroundColor: colors.backgroundColor }}
+      >
+        <div
+          className="h-full rounded"
+          style={{ backgroundColor: colors.surfaceColor }}
+        >
           <div className="flex h-full items-center justify-center gap-2 p-2">
             <div
               className="h-8 w-8 rounded-full"
@@ -653,7 +693,10 @@ function PresetCard({ preset, isActive, colorScheme, onSelect }: PresetCardProps
               className="h-8 w-8 rounded-full"
               style={{ backgroundColor: colors.secondaryColor }}
             />
-            <div className="h-8 w-8 rounded-full" style={{ backgroundColor: colors.accentColor }} />
+            <div
+              className="h-8 w-8 rounded-full"
+              style={{ backgroundColor: colors.accentColor }}
+            />
           </div>
         </div>
       </div>
@@ -666,7 +709,7 @@ function PresetCard({ preset, isActive, colorScheme, onSelect }: PresetCardProps
         </div>
       </div>
     </button>
-  )
+  );
 }
 
 /**
@@ -736,9 +779,12 @@ function ThemePreview({ theme }: { theme: any }) {
             className="h-8 flex-1 rounded"
             style={{ backgroundColor: theme.colors.errorColor }}
           />
-          <div className="h-8 flex-1 rounded" style={{ backgroundColor: theme.colors.infoColor }} />
+          <div
+            className="h-8 flex-1 rounded"
+            style={{ backgroundColor: theme.colors.infoColor }}
+          />
         </div>
       </div>
     </div>
-  )
+  );
 }

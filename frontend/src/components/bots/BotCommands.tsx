@@ -1,33 +1,37 @@
-'use client'
+"use client";
 
 /**
  * Bot Commands Component
  * Define slash commands for your bot
  */
 
-import * as React from 'react'
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import type { BotBuilderAction, BotCommandDefinition, CommandArgument } from '@/lib/bots'
+import * as React from "react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import type {
+  BotBuilderAction,
+  BotCommandDefinition,
+  CommandArgument,
+} from "@/lib/bots";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 interface BotCommandsProps {
-  actions: BotBuilderAction[]
-  onAdd: (action: BotBuilderAction) => void
-  onRemove: (actionId: string) => void
-  className?: string
+  actions: BotBuilderAction[];
+  onAdd: (action: BotBuilderAction) => void;
+  onRemove: (actionId: string) => void;
+  className?: string;
 }
 
 interface CommandDraft {
-  name: string
-  description: string
-  response: string
-  arguments: CommandArgument[]
+  name: string;
+  description: string;
+  response: string;
+  arguments: CommandArgument[];
 }
 
 // ============================================================================
@@ -35,61 +39,68 @@ interface CommandDraft {
 // ============================================================================
 
 const ARGUMENT_TYPES = [
-  { value: 'string', label: 'Text' },
-  { value: 'number', label: 'Number' },
-  { value: 'boolean', label: 'Yes/No' },
-  { value: 'user', label: 'User' },
-  { value: 'channel', label: 'Channel' },
-  { value: 'duration', label: 'Duration' },
-]
+  { value: "string", label: "Text" },
+  { value: "number", label: "Number" },
+  { value: "boolean", label: "Yes/No" },
+  { value: "user", label: "User" },
+  { value: "channel", label: "Channel" },
+  { value: "duration", label: "Duration" },
+];
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-export function BotCommands({ actions, onAdd, onRemove, className }: BotCommandsProps) {
-  const [isAdding, setIsAdding] = useState(false)
+export function BotCommands({
+  actions,
+  onAdd,
+  onRemove,
+  className,
+}: BotCommandsProps) {
+  const [isAdding, setIsAdding] = useState(false);
   const [draft, setDraft] = useState<CommandDraft>({
-    name: '',
-    description: '',
-    response: '',
+    name: "",
+    description: "",
+    response: "",
     arguments: [],
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Filter command actions
-  const commandActions = actions.filter((a) => a.type === 'send_message' && a.config.isCommand)
+  const commandActions = actions.filter(
+    (a) => a.type === "send_message" && a.config.isCommand,
+  );
 
   // Validate draft
   const validateDraft = (): boolean => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!draft.name.trim()) {
-      newErrors.name = 'Command name is required'
+      newErrors.name = "Command name is required";
     } else if (!/^[a-z][a-z0-9_-]*$/.test(draft.name)) {
       newErrors.name =
-        'Command name must start with a letter and contain only lowercase letters, numbers, hyphens, and underscores'
+        "Command name must start with a letter and contain only lowercase letters, numbers, hyphens, and underscores";
     }
 
     if (!draft.description.trim()) {
-      newErrors.description = 'Description is required'
+      newErrors.description = "Description is required";
     }
 
     if (!draft.response.trim()) {
-      newErrors.response = 'Response is required'
+      newErrors.response = "Response is required";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   // Add a command
   const handleAdd = () => {
-    if (!validateDraft()) return
+    if (!validateDraft()) return;
 
     const action: BotBuilderAction = {
       id: `cmd_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
-      type: 'send_message',
+      type: "send_message",
       config: {
         isCommand: true,
         command: draft.name,
@@ -98,19 +109,19 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
         arguments: draft.arguments,
       },
       order: commandActions.length,
-    }
+    };
 
-    onAdd(action)
+    onAdd(action);
 
     // Reset
     setDraft({
-      name: '',
-      description: '',
-      response: '',
+      name: "",
+      description: "",
+      response: "",
       arguments: [],
-    })
-    setIsAdding(false)
-  }
+    });
+    setIsAdding(false);
+  };
 
   // Add an argument
   const addArgument = () => {
@@ -119,33 +130,39 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
       arguments: [
         ...prev.arguments,
         {
-          name: '',
-          description: '',
-          type: 'string' as const,
+          name: "",
+          description: "",
+          type: "string" as const,
           required: false,
         },
       ],
-    }))
-  }
+    }));
+  };
 
   // Update an argument
-  const updateArgument = (index: number, field: keyof CommandArgument, value: unknown) => {
+  const updateArgument = (
+    index: number,
+    field: keyof CommandArgument,
+    value: unknown,
+  ) => {
     setDraft((prev) => ({
       ...prev,
-      arguments: prev.arguments.map((arg, i) => (i === index ? { ...arg, [field]: value } : arg)),
-    }))
-  }
+      arguments: prev.arguments.map((arg, i) =>
+        i === index ? { ...arg, [field]: value } : arg,
+      ),
+    }));
+  };
 
   // Remove an argument
   const removeArgument = (index: number) => {
     setDraft((prev) => ({
       ...prev,
       arguments: prev.arguments.filter((_, i) => i !== index),
-    }))
-  }
+    }));
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Existing Commands */}
       {commandActions.length > 0 && (
         <div className="space-y-2">
@@ -160,10 +177,13 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
                   <p className="mt-1 text-sm text-muted-foreground">
                     {action.config.description as string}
                   </p>
-                  {(action.config.arguments as CommandArgument[])?.length > 0 && (
+                  {(action.config.arguments as CommandArgument[])?.length >
+                    0 && (
                     <div className="mt-2 text-xs text-muted-foreground">
-                      Arguments:{' '}
-                      {(action.config.arguments as CommandArgument[]).map((a) => a.name).join(', ')}
+                      Arguments:{" "}
+                      {(action.config.arguments as CommandArgument[])
+                        .map((a) => a.name)
+                        .join(", ")}
                     </div>
                   )}
                 </div>
@@ -188,7 +208,10 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
 
           {/* Command Name */}
           <div>
-            <label htmlFor="command-name" className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="command-name"
+              className="mb-1 block text-sm font-medium"
+            >
               Command Name
             </label>
             <div className="flex items-center">
@@ -205,57 +228,75 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
                 }
                 placeholder="mycommand"
                 className={cn(
-                  'flex-1 rounded-md border bg-background px-3 py-2',
-                  errors.name ? 'border-destructive' : 'border-input'
+                  "flex-1 rounded-md border bg-background px-3 py-2",
+                  errors.name ? "border-destructive" : "border-input",
                 )}
               />
             </div>
-            {errors.name && <p className="mt-1 text-sm text-destructive">{errors.name}</p>}
+            {errors.name && (
+              <p className="mt-1 text-sm text-destructive">{errors.name}</p>
+            )}
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="command-description" className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="command-description"
+              className="mb-1 block text-sm font-medium"
+            >
               Description
             </label>
             <input
               id="command-description"
               type="text"
               value={draft.description}
-              onChange={(e) => setDraft((prev) => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, description: e.target.value }))
+              }
               placeholder="What does this command do?"
               className={cn(
-                'w-full rounded-md border bg-background px-3 py-2',
-                errors.description ? 'border-destructive' : 'border-input'
+                "w-full rounded-md border bg-background px-3 py-2",
+                errors.description ? "border-destructive" : "border-input",
               )}
             />
             {errors.description && (
-              <p className="mt-1 text-sm text-destructive">{errors.description}</p>
+              <p className="mt-1 text-sm text-destructive">
+                {errors.description}
+              </p>
             )}
           </div>
 
           {/* Arguments */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="block text-sm font-medium">Arguments (optional)</span>
+              <span className="block text-sm font-medium">
+                Arguments (optional)
+              </span>
               <Button variant="outline" size="sm" onClick={addArgument}>
                 Add Argument
               </Button>
             </div>
 
             {draft.arguments.map((arg, index) => (
-              <div key={index} className="mb-2 flex items-start gap-2 rounded-md border p-2">
+              <div
+                key={index}
+                className="mb-2 flex items-start gap-2 rounded-md border p-2"
+              >
                 <input
                   type="text"
                   value={arg.name}
-                  onChange={(e) => updateArgument(index, 'name', e.target.value)}
+                  onChange={(e) =>
+                    updateArgument(index, "name", e.target.value)
+                  }
                   placeholder="name"
                   aria-label={`Argument ${index + 1} name`}
                   className="flex-1 rounded border border-input bg-background px-2 py-1 text-sm"
                 />
                 <select
                   value={arg.type}
-                  onChange={(e) => updateArgument(index, 'type', e.target.value)}
+                  onChange={(e) =>
+                    updateArgument(index, "type", e.target.value)
+                  }
                   aria-label={`Argument ${index + 1} type`}
                   className="rounded border border-input bg-background px-2 py-1 text-sm"
                 >
@@ -269,12 +310,18 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
                   <input
                     type="checkbox"
                     checked={arg.required}
-                    onChange={(e) => updateArgument(index, 'required', e.target.checked)}
+                    onChange={(e) =>
+                      updateArgument(index, "required", e.target.checked)
+                    }
                     className="mr-1"
                   />
                   Required
                 </label>
-                <Button variant="ghost" size="sm" onClick={() => removeArgument(index)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeArgument(index)}
+                >
                   X
                 </Button>
               </div>
@@ -283,24 +330,31 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
 
           {/* Response */}
           <div>
-            <label htmlFor="command-response" className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="command-response"
+              className="mb-1 block text-sm font-medium"
+            >
               Response Message
             </label>
             <textarea
               id="command-response"
               value={draft.response}
-              onChange={(e) => setDraft((prev) => ({ ...prev, response: e.target.value }))}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, response: e.target.value }))
+              }
               placeholder="The message to send when this command is used"
               rows={3}
               className={cn(
-                'w-full resize-none rounded-md border bg-background px-3 py-2',
-                errors.response ? 'border-destructive' : 'border-input'
+                "w-full resize-none rounded-md border bg-background px-3 py-2",
+                errors.response ? "border-destructive" : "border-input",
               )}
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Use {'{user}'} for username, {'{channel}'} for channel name
+              Use {"{user}"} for username, {"{channel}"} for channel name
             </p>
-            {errors.response && <p className="mt-1 text-sm text-destructive">{errors.response}</p>}
+            {errors.response && (
+              <p className="mt-1 text-sm text-destructive">{errors.response}</p>
+            )}
           </div>
 
           {/* Actions */}
@@ -308,8 +362,8 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
             <Button
               variant="outline"
               onClick={() => {
-                setIsAdding(false)
-                setErrors({})
+                setIsAdding(false);
+                setErrors({});
               }}
             >
               Cancel
@@ -318,7 +372,11 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
           </div>
         </Card>
       ) : (
-        <Button variant="outline" onClick={() => setIsAdding(true)} className="w-full">
+        <Button
+          variant="outline"
+          onClick={() => setIsAdding(true)}
+          className="w-full"
+        >
           + Add Command
         </Button>
       )}
@@ -326,12 +384,12 @@ export function BotCommands({ actions, onAdd, onRemove, className }: BotCommands
       {/* Help */}
       <div className="text-sm text-muted-foreground">
         <p>
-          Commands allow users to interact with your bot using slash commands like{' '}
-          <code className="text-primary">/mycommand</code>.
+          Commands allow users to interact with your bot using slash commands
+          like <code className="text-primary">/mycommand</code>.
         </p>
       </div>
     </div>
-  )
+  );
 }
 
-export default BotCommands
+export default BotCommands;

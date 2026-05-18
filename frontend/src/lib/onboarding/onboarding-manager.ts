@@ -12,9 +12,9 @@ import type {
   OnboardingStepStatus,
   OnboardingProgress,
   OnboardingConfig,
-} from './onboarding-types'
+} from "./onboarding-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   onboardingSteps,
   getStepById,
@@ -23,7 +23,7 @@ import {
   getStepIndex,
   getTotalSteps,
   validateStep,
-} from './onboarding-steps'
+} from "./onboarding-steps";
 
 // ============================================================================
 // State Management
@@ -35,17 +35,17 @@ import {
 export function createInitialOnboardingState(userId: string): OnboardingState {
   const steps: OnboardingStepState[] = onboardingSteps.map((step) => ({
     stepId: step.id,
-    status: 'pending' as OnboardingStepStatus,
+    status: "pending" as OnboardingStepStatus,
     data: {},
-  }))
+  }));
 
   return {
     userId,
-    status: 'not_started',
-    currentStepId: 'welcome',
+    status: "not_started",
+    currentStepId: "welcome",
     steps,
     version: 1,
-  }
+  };
 }
 
 /**
@@ -53,9 +53,9 @@ export function createInitialOnboardingState(userId: string): OnboardingState {
  */
 export function getStepState(
   state: OnboardingState,
-  stepId: OnboardingStepId
+  stepId: OnboardingStepId,
 ): OnboardingStepState | undefined {
-  return state.steps.find((s) => s.stepId === stepId)
+  return state.steps.find((s) => s.stepId === stepId);
 }
 
 /**
@@ -64,12 +64,14 @@ export function getStepState(
 export function updateStepState(
   state: OnboardingState,
   stepId: OnboardingStepId,
-  updates: Partial<OnboardingStepState>
+  updates: Partial<OnboardingStepState>,
 ): OnboardingState {
   return {
     ...state,
-    steps: state.steps.map((step) => (step.stepId === stepId ? { ...step, ...updates } : step)),
-  }
+    steps: state.steps.map((step) =>
+      step.stepId === stepId ? { ...step, ...updates } : step,
+    ),
+  };
 }
 
 // ============================================================================
@@ -79,16 +81,22 @@ export function updateStepState(
 /**
  * Calculate onboarding progress
  */
-export function calculateOnboardingProgress(state: OnboardingState): OnboardingProgress {
-  const completedSteps = state.steps.filter((s) => s.status === 'completed').length
-  const skippedSteps = state.steps.filter((s) => s.status === 'skipped').length
-  const totalSteps = getTotalSteps()
+export function calculateOnboardingProgress(
+  state: OnboardingState,
+): OnboardingProgress {
+  const completedSteps = state.steps.filter(
+    (s) => s.status === "completed",
+  ).length;
+  const skippedSteps = state.steps.filter((s) => s.status === "skipped").length;
+  const totalSteps = getTotalSteps();
 
   const percentComplete =
-    totalSteps > 0 ? Math.round(((completedSteps + skippedSteps) / totalSteps) * 100) : 0
+    totalSteps > 0
+      ? Math.round(((completedSteps + skippedSteps) / totalSteps) * 100)
+      : 0;
 
-  const currentStep = getStepById(state.currentStepId)
-  const nextStep = getNextStep(state.currentStepId)
+  const currentStep = getStepById(state.currentStepId);
+  const nextStep = getNextStep(state.currentStepId);
 
   return {
     totalSteps,
@@ -97,30 +105,32 @@ export function calculateOnboardingProgress(state: OnboardingState): OnboardingP
     percentComplete,
     currentStep: currentStep ?? null,
     nextStep: nextStep ?? null,
-  }
+  };
 }
 
 /**
  * Check if onboarding is completed
  */
 export function isOnboardingCompleted(state: OnboardingState): boolean {
-  if (state.status === 'completed') return true
+  if (state.status === "completed") return true;
 
   // Check if all required steps are completed
-  const requiredSteps = onboardingSteps.filter((step) => step.required)
+  const requiredSteps = onboardingSteps.filter((step) => step.required);
   const completedRequired = requiredSteps.every((step) => {
-    const stepState = getStepState(state, step.id)
-    return stepState?.status === 'completed'
-  })
+    const stepState = getStepState(state, step.id);
+    return stepState?.status === "completed";
+  });
 
-  return completedRequired
+  return completedRequired;
 }
 
 /**
  * Check if all steps are done (completed or skipped)
  */
 export function areAllStepsDone(state: OnboardingState): boolean {
-  return state.steps.every((step) => step.status === 'completed' || step.status === 'skipped')
+  return state.steps.every(
+    (step) => step.status === "completed" || step.status === "skipped",
+  );
 }
 
 // ============================================================================
@@ -133,13 +143,15 @@ export function areAllStepsDone(state: OnboardingState): boolean {
 export function startOnboarding(state: OnboardingState): OnboardingState {
   return {
     ...state,
-    status: 'in_progress',
+    status: "in_progress",
     startedAt: new Date(),
-    currentStepId: 'welcome',
+    currentStepId: "welcome",
     steps: state.steps.map((step, index) =>
-      index === 0 ? { ...step, status: 'in_progress' as OnboardingStepStatus } : step
+      index === 0
+        ? { ...step, status: "in_progress" as OnboardingStepStatus }
+        : step,
     ),
-  }
+  };
 }
 
 /**
@@ -147,138 +159,141 @@ export function startOnboarding(state: OnboardingState): OnboardingState {
  */
 export function completeCurrentStep(
   state: OnboardingState,
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>,
 ): OnboardingState {
-  const currentStepState = getStepState(state, state.currentStepId)
-  if (!currentStepState) return state
+  const currentStepState = getStepState(state, state.currentStepId);
+  if (!currentStepState) return state;
 
   // Validate step data if provided
   if (data) {
-    const validation = validateStep(state.currentStepId, data)
+    const validation = validateStep(state.currentStepId, data);
     if (!validation.isValid) {
-      logger.error('Step validation failed:', validation.errors)
-      return state
+      logger.error("Step validation failed:", validation.errors);
+      return state;
     }
   }
 
   // Mark current step as completed
   let newState = updateStepState(state, state.currentStepId, {
-    status: 'completed',
+    status: "completed",
     completedAt: new Date(),
     data: data ?? currentStepState.data,
-  })
+  });
 
   // Get next step
-  const nextStep = getNextStep(state.currentStepId)
+  const nextStep = getNextStep(state.currentStepId);
 
   if (nextStep) {
     // Move to next step
     newState = {
       ...newState,
       currentStepId: nextStep.id,
-    }
+    };
 
     // Mark next step as in progress
     newState = updateStepState(newState, nextStep.id, {
-      status: 'in_progress',
-    })
+      status: "in_progress",
+    });
   } else {
     // No more steps, complete onboarding
     newState = {
       ...newState,
-      status: 'completed',
+      status: "completed",
       completedAt: new Date(),
-    }
+    };
   }
 
-  return newState
+  return newState;
 }
 
 /**
  * Skip current step and move to next
  */
 export function skipCurrentStep(state: OnboardingState): OnboardingState {
-  const currentStep = getStepById(state.currentStepId)
-  if (!currentStep || !currentStep.canSkip) return state
+  const currentStep = getStepById(state.currentStepId);
+  if (!currentStep || !currentStep.canSkip) return state;
 
   // Mark current step as skipped
   let newState = updateStepState(state, state.currentStepId, {
-    status: 'skipped',
+    status: "skipped",
     skippedAt: new Date(),
-  })
+  });
 
   // Get next step
-  const nextStep = getNextStep(state.currentStepId)
+  const nextStep = getNextStep(state.currentStepId);
 
   if (nextStep) {
     // Move to next step
     newState = {
       ...newState,
       currentStepId: nextStep.id,
-    }
+    };
 
     // Mark next step as in progress
     newState = updateStepState(newState, nextStep.id, {
-      status: 'in_progress',
-    })
+      status: "in_progress",
+    });
   } else {
     // No more steps, complete onboarding
     newState = {
       ...newState,
-      status: 'completed',
+      status: "completed",
       completedAt: new Date(),
-    }
+    };
   }
 
-  return newState
+  return newState;
 }
 
 /**
  * Go to previous step
  */
 export function goToPreviousStep(state: OnboardingState): OnboardingState {
-  const prevStep = getPreviousStep(state.currentStepId)
-  if (!prevStep) return state
+  const prevStep = getPreviousStep(state.currentStepId);
+  if (!prevStep) return state;
 
   // Reset current step to pending
   let newState = updateStepState(state, state.currentStepId, {
-    status: 'pending',
-  })
+    status: "pending",
+  });
 
   // Move to previous step and mark as in progress
   newState = {
     ...newState,
     currentStepId: prevStep.id,
-  }
+  };
 
   newState = updateStepState(newState, prevStep.id, {
-    status: 'in_progress',
-  })
+    status: "in_progress",
+  });
 
-  return newState
+  return newState;
 }
 
 /**
  * Go to specific step
  */
-export function goToStep(state: OnboardingState, stepId: OnboardingStepId): OnboardingState {
-  const step = getStepById(stepId)
-  if (!step) return state
+export function goToStep(
+  state: OnboardingState,
+  stepId: OnboardingStepId,
+): OnboardingState {
+  const step = getStepById(stepId);
+  if (!step) return state;
 
   // Can only go to completed/skipped steps or the next pending step
-  const stepState = getStepState(state, stepId)
-  const currentIndex = getStepIndex(state.currentStepId)
-  const targetIndex = getStepIndex(stepId)
+  const stepState = getStepState(state, stepId);
+  const currentIndex = getStepIndex(state.currentStepId);
+  const targetIndex = getStepIndex(stepId);
 
   // Allow going backwards or to the current step
-  if (targetIndex > currentIndex && stepState?.status === 'pending') {
-    return state
+  if (targetIndex > currentIndex && stepState?.status === "pending") {
+    return state;
   }
 
   return {
     ...state,
     currentStepId: stepId,
-  }
+  };
 }
 
 /**
@@ -287,21 +302,24 @@ export function goToStep(state: OnboardingState, stepId: OnboardingStepId): Onbo
 export function skipOnboarding(state: OnboardingState): OnboardingState {
   return {
     ...state,
-    status: 'skipped',
+    status: "skipped",
     skippedAt: new Date(),
     steps: state.steps.map((step) => ({
       ...step,
-      status: step.status === 'completed' ? 'completed' : ('skipped' as OnboardingStepStatus),
-      skippedAt: step.status !== 'completed' ? new Date() : step.skippedAt,
+      status:
+        step.status === "completed"
+          ? "completed"
+          : ("skipped" as OnboardingStepStatus),
+      skippedAt: step.status !== "completed" ? new Date() : step.skippedAt,
     })),
-  }
+  };
 }
 
 /**
  * Reset onboarding
  */
 export function resetOnboarding(state: OnboardingState): OnboardingState {
-  return createInitialOnboardingState(state.userId)
+  return createInitialOnboardingState(state.userId);
 }
 
 // ============================================================================
@@ -314,14 +332,14 @@ export function resetOnboarding(state: OnboardingState): OnboardingState {
 export function updateStepData(
   state: OnboardingState,
   stepId: OnboardingStepId,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): OnboardingState {
-  const stepState = getStepState(state, stepId)
-  if (!stepState) return state
+  const stepState = getStepState(state, stepId);
+  if (!stepState) return state;
 
   return updateStepState(state, stepId, {
     data: { ...stepState.data, ...data },
-  })
+  });
 }
 
 /**
@@ -329,9 +347,9 @@ export function updateStepData(
  */
 export function getStepData(
   state: OnboardingState,
-  stepId: OnboardingStepId
+  stepId: OnboardingStepId,
 ): Record<string, unknown> | undefined {
-  return getStepState(state, stepId)?.data
+  return getStepState(state, stepId)?.data;
 }
 
 // ============================================================================
@@ -352,30 +370,41 @@ export function serializeOnboardingState(state: OnboardingState): string {
       completedAt: step.completedAt?.toISOString(),
       skippedAt: step.skippedAt?.toISOString(),
     })),
-  })
+  });
 }
 
 /**
  * Deserialize onboarding state from storage
  */
-export function deserializeOnboardingState(json: string): OnboardingState | null {
+export function deserializeOnboardingState(
+  json: string,
+): OnboardingState | null {
   try {
-    const parsed = JSON.parse(json)
+    const parsed = JSON.parse(json);
     return {
       ...parsed,
       startedAt: parsed.startedAt ? new Date(parsed.startedAt) : undefined,
-      completedAt: parsed.completedAt ? new Date(parsed.completedAt) : undefined,
+      completedAt: parsed.completedAt
+        ? new Date(parsed.completedAt)
+        : undefined,
       skippedAt: parsed.skippedAt ? new Date(parsed.skippedAt) : undefined,
       steps: parsed.steps.map(
-        (step: OnboardingStepState & { completedAt?: string; skippedAt?: string }) => ({
+        (
+          step: OnboardingStepState & {
+            completedAt?: string;
+            skippedAt?: string;
+          },
+        ) => ({
           ...step,
-          completedAt: step.completedAt ? new Date(step.completedAt) : undefined,
+          completedAt: step.completedAt
+            ? new Date(step.completedAt)
+            : undefined,
           skippedAt: step.skippedAt ? new Date(step.skippedAt) : undefined,
-        })
+        }),
       ),
-    }
+    };
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -388,37 +417,37 @@ export function deserializeOnboardingState(json: string): OnboardingState | null
  */
 export const defaultOnboardingConfig: OnboardingConfig = {
   enabled: true,
-  requiredSteps: ['welcome', 'profile-setup', 'completion'],
+  requiredSteps: ["welcome", "profile-setup", "completion"],
   optionalSteps: [
-    'avatar-upload',
-    'preferences',
-    'notification-permission',
-    'join-channels',
-    'invite-team',
-    'tour',
+    "avatar-upload",
+    "preferences",
+    "notification-permission",
+    "join-channels",
+    "invite-team",
+    "tour",
   ],
-  defaultChannels: ['general', 'random'],
+  defaultChannels: ["general", "random"],
   showTourOnCompletion: true,
   allowSkipAll: true,
   collectAnalytics: true,
   version: 1,
-}
+};
 
 /**
  * Apply configuration to onboarding state
  */
 export function applyOnboardingConfig(
   state: OnboardingState,
-  config: OnboardingConfig
+  config: OnboardingConfig,
 ): OnboardingState {
   // Filter steps based on configuration
-  const enabledStepIds = [...config.requiredSteps, ...config.optionalSteps]
+  const enabledStepIds = [...config.requiredSteps, ...config.optionalSteps];
 
   return {
     ...state,
     steps: state.steps.filter((step) => enabledStepIds.includes(step.stepId)),
     version: config.version,
-  }
+  };
 }
 
 // ============================================================================
@@ -430,12 +459,12 @@ export function applyOnboardingConfig(
  */
 export function getStatusLabel(status: OnboardingStatus): string {
   const labels: Record<OnboardingStatus, string> = {
-    not_started: 'Not Started',
-    in_progress: 'In Progress',
-    completed: 'Completed',
-    skipped: 'Skipped',
-  }
-  return labels[status]
+    not_started: "Not Started",
+    in_progress: "In Progress",
+    completed: "Completed",
+    skipped: "Skipped",
+  };
+  return labels[status];
 }
 
 /**
@@ -443,12 +472,12 @@ export function getStatusLabel(status: OnboardingStatus): string {
  */
 export function getStepStatusLabel(status: OnboardingStepStatus): string {
   const labels: Record<OnboardingStepStatus, string> = {
-    pending: 'Pending',
-    in_progress: 'In Progress',
-    completed: 'Completed',
-    skipped: 'Skipped',
-  }
-  return labels[status]
+    pending: "Pending",
+    in_progress: "In Progress",
+    completed: "Completed",
+    skipped: "Skipped",
+  };
+  return labels[status];
 }
 
 /**
@@ -456,12 +485,12 @@ export function getStepStatusLabel(status: OnboardingStepStatus): string {
  */
 export function shouldShowOnboarding(
   state: OnboardingState | null,
-  config: OnboardingConfig
+  config: OnboardingConfig,
 ): boolean {
-  if (!config.enabled) return false
-  if (!state) return true
-  if (state.status === 'completed' || state.status === 'skipped') return false
-  return true
+  if (!config.enabled) return false;
+  if (!state) return true;
+  if (state.status === "completed" || state.status === "skipped") return false;
+  return true;
 }
 
 /**
@@ -469,17 +498,17 @@ export function shouldShowOnboarding(
  */
 export function canSkipRemainingOnboarding(
   state: OnboardingState,
-  config: OnboardingConfig
+  config: OnboardingConfig,
 ): boolean {
-  if (!config.allowSkipAll) return false
+  if (!config.allowSkipAll) return false;
 
   // Check if all required steps are completed
   const requiredStepsCompleted = config.requiredSteps.every((stepId) => {
-    const stepState = getStepState(state, stepId)
-    return stepState?.status === 'completed'
-  })
+    const stepState = getStepState(state, stepId);
+    return stepState?.status === "completed";
+  });
 
-  return requiredStepsCompleted
+  return requiredStepsCompleted;
 }
 
 /**
@@ -487,8 +516,8 @@ export function canSkipRemainingOnboarding(
  */
 export function formatTimeEstimate(seconds: number): string {
   if (seconds < 60) {
-    return `${seconds} seconds`
+    return `${seconds} seconds`;
   }
-  const minutes = Math.ceil(seconds / 60)
-  return minutes === 1 ? '1 minute' : `${minutes} minutes`
+  const minutes = Math.ceil(seconds / 60);
+  return minutes === 1 ? "1 minute" : `${minutes} minutes`;
 }

@@ -24,7 +24,7 @@
  * @version 1.0.0
  */
 
-import type { BehaviorPreset } from '../../types'
+import type { BehaviorPreset } from "../../types";
 
 // ============================================================================
 // DISCORD-SPECIFIC BEHAVIOR TYPES
@@ -35,39 +35,39 @@ import type { BehaviorPreset } from '../../types'
  */
 export interface DiscordGuildConfig {
   /** Whether servers/guilds are supported */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum servers a user can join */
-  maxServersPerUser: number
+  maxServersPerUser: number;
   /** Maximum members per server (with boosts) */
-  maxMembersPerServer: number
+  maxMembersPerServer: number;
   /** Maximum roles per server */
-  maxRolesPerServer: number
+  maxRolesPerServer: number;
   /** Maximum custom emoji per server (base) */
-  maxEmoji: number
+  maxEmoji: number;
   /** Maximum custom emoji per server (with boosts) */
-  maxEmojiBoosted: number
+  maxEmojiBoosted: number;
   /** Maximum stickers per server */
-  maxStickers: number
+  maxStickers: number;
   /** Maximum stickers per server (with boosts) */
-  maxStickersBoosted: number
+  maxStickersBoosted: number;
   /** Server templates */
-  templates: boolean
+  templates: boolean;
   /** Server discovery listing */
-  discovery: boolean
+  discovery: boolean;
   /** Server banner */
-  banner: boolean
+  banner: boolean;
   /** Server invite splash screen */
-  inviteSplash: boolean
+  inviteSplash: boolean;
   /** Vanity URL */
-  vanityUrl: boolean
+  vanityUrl: boolean;
   /** Welcome screen */
-  welcomeScreen: boolean
+  welcomeScreen: boolean;
   /** Server rules channel */
-  rulesChannel: boolean
+  rulesChannel: boolean;
   /** Community features */
-  communityFeatures: boolean
+  communityFeatures: boolean;
   /** Member verification gate */
-  memberVerification: boolean
+  memberVerification: boolean;
 }
 
 /**
@@ -75,29 +75,29 @@ export interface DiscordGuildConfig {
  */
 export interface DiscordChannelTypesConfig {
   /** Text channels (#) */
-  text: boolean
+  text: boolean;
   /** Voice channels (always-on) */
-  voice: boolean
+  voice: boolean;
   /** Stage channels (speaker/audience) */
-  stage: boolean
+  stage: boolean;
   /** Forum channels (post-based) */
-  forum: boolean
+  forum: boolean;
   /** Announcement channels (cross-server follows) */
-  announcement: boolean
+  announcement: boolean;
   /** Rules channel */
-  rules: boolean
+  rules: boolean;
   /** Category containers */
-  categories: boolean
+  categories: boolean;
   /** DMs */
-  dm: boolean
+  dm: boolean;
   /** Group DMs (max 10) */
-  groupDm: boolean
+  groupDm: boolean;
   /** Maximum channels per server */
-  maxChannelsPerServer: number
+  maxChannelsPerServer: number;
   /** Maximum categories per server */
-  maxCategoriesPerServer: number
+  maxCategoriesPerServer: number;
   /** Maximum channels per category */
-  maxChannelsPerCategory: number
+  maxChannelsPerCategory: number;
 }
 
 /**
@@ -105,19 +105,19 @@ export interface DiscordChannelTypesConfig {
  */
 export interface DiscordThreadConfig {
   /** Public threads */
-  publicThreads: boolean
+  publicThreads: boolean;
   /** Private threads */
-  privateThreads: boolean
+  privateThreads: boolean;
   /** Auto-archive durations available (in minutes) */
-  autoArchiveDurations: number[]
+  autoArchiveDurations: number[];
   /** Default auto-archive duration (in minutes) */
-  defaultAutoArchiveDuration: number
+  defaultAutoArchiveDuration: number;
   /** Maximum thread members (non-boosted) */
-  maxThreadMembers: number
+  maxThreadMembers: number;
   /** Thread creation from any message */
-  createFromMessage: boolean
+  createFromMessage: boolean;
   /** Thread count limit per channel */
-  maxActiveThreadsPerChannel: number
+  maxActiveThreadsPerChannel: number;
 }
 
 /**
@@ -125,25 +125,25 @@ export interface DiscordThreadConfig {
  */
 export interface DiscordRoleConfig {
   /** Hierarchical role system */
-  hierarchical: boolean
+  hierarchical: boolean;
   /** Role colors */
-  roleColors: boolean
+  roleColors: boolean;
   /** Role icons (Nitro/Boost) */
-  roleIcons: boolean
+  roleIcons: boolean;
   /** Role hoisting (display separately) */
-  hoisting: boolean
+  hoisting: boolean;
   /** Role mentioning */
-  mentionable: boolean
+  mentionable: boolean;
   /** @everyone role */
-  everyoneRole: boolean
+  everyoneRole: boolean;
   /** Channel permission overrides */
-  channelOverrides: boolean
+  channelOverrides: boolean;
   /** Category permission inheritance */
-  categoryInheritance: boolean
+  categoryInheritance: boolean;
   /** Permission calculator (hierarchical) */
-  permissionCalculation: 'hierarchical'
+  permissionCalculation: "hierarchical";
   /** Key Discord permissions */
-  permissions: string[]
+  permissions: string[];
 }
 
 /**
@@ -151,31 +151,31 @@ export interface DiscordRoleConfig {
  */
 export interface DiscordNitroConfig {
   /** Nitro subscription tiers */
-  tiers: ('none' | 'nitro-basic' | 'nitro')[]
+  tiers: ("none" | "nitro-basic" | "nitro")[];
   /** Custom emoji from any server */
-  crossServerEmoji: boolean
+  crossServerEmoji: boolean;
   /** Animated avatar */
-  animatedAvatar: boolean
+  animatedAvatar: boolean;
   /** Animated banner */
-  animatedBanner: boolean
+  animatedBanner: boolean;
   /** Custom profile theme */
-  customProfileTheme: boolean
+  customProfileTheme: boolean;
   /** Higher upload limit in MB (Nitro) */
-  uploadLimitMB: number
+  uploadLimitMB: number;
   /** Base upload limit in MB */
-  baseUploadLimitMB: number
+  baseUploadLimitMB: number;
   /** HD video streaming */
-  hdVideoStreaming: boolean
+  hdVideoStreaming: boolean;
   /** Custom stickers */
-  customStickers: boolean
+  customStickers: boolean;
   /** Server boosting included */
-  serverBoostIncluded: number
+  serverBoostIncluded: number;
   /** Profile badge */
-  profileBadge: boolean
+  profileBadge: boolean;
   /** Custom app icons */
-  customAppIcons: boolean
+  customAppIcons: boolean;
   /** Super reactions */
-  superReactions: boolean
+  superReactions: boolean;
 }
 
 /**
@@ -183,21 +183,21 @@ export interface DiscordNitroConfig {
  */
 export interface DiscordStageConfig {
   /** Stage channels enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Speaker/audience model */
-  speakerAudienceModel: boolean
+  speakerAudienceModel: boolean;
   /** Request to speak (raise hand) */
-  requestToSpeak: boolean
+  requestToSpeak: boolean;
   /** Moderator controls */
-  moderatorControls: boolean
+  moderatorControls: boolean;
   /** Auto-move to audience on join */
-  autoMoveToAudience: boolean
+  autoMoveToAudience: boolean;
   /** Stage instance topics */
-  topics: boolean
+  topics: boolean;
   /** Stage discovery */
-  discovery: boolean
+  discovery: boolean;
   /** Maximum speakers */
-  maxSpeakers: number
+  maxSpeakers: number;
 }
 
 /**
@@ -205,25 +205,25 @@ export interface DiscordStageConfig {
  */
 export interface DiscordForumConfig {
   /** Forum channels enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Tags for categorizing posts */
-  tags: boolean
+  tags: boolean;
   /** Maximum tags per forum */
-  maxTags: number
+  maxTags: number;
   /** Required tags on new posts */
-  requireTags: boolean
+  requireTags: boolean;
   /** Default sort order */
-  defaultSortOrder: 'latest-activity' | 'creation-date'
+  defaultSortOrder: "latest-activity" | "creation-date";
   /** Default layout */
-  defaultLayout: 'list' | 'gallery'
+  defaultLayout: "list" | "gallery";
   /** Post guidelines/template */
-  postGuidelines: boolean
+  postGuidelines: boolean;
   /** Auto-archive inactive posts */
-  autoArchive: boolean
+  autoArchive: boolean;
   /** Reactions on posts */
-  reactions: boolean
+  reactions: boolean;
   /** Default reaction emoji */
-  defaultReactionEmoji: boolean
+  defaultReactionEmoji: boolean;
 }
 
 /**
@@ -231,30 +231,30 @@ export interface DiscordForumConfig {
  */
 export interface DiscordVoiceConfig {
   /** Always-on voice channels */
-  alwaysOn: boolean
+  alwaysOn: boolean;
   /** Push-to-talk option */
-  pushToTalk: boolean
+  pushToTalk: boolean;
   /** Voice activity detection */
-  voiceActivityDetection: boolean
+  voiceActivityDetection: boolean;
   /** Screen share in voice */
-  screenShare: boolean
+  screenShare: boolean;
   /** Video in voice */
-  video: boolean
+  video: boolean;
   /** Go Live streaming */
-  goLive: boolean
+  goLive: boolean;
   /** Maximum video quality */
-  maxVideoQuality: '720p' | '1080p'
+  maxVideoQuality: "720p" | "1080p";
   /** Noise suppression */
-  noiseSuppression: boolean
+  noiseSuppression: boolean;
   /** Echo cancellation */
-  echoCancellation: boolean
+  echoCancellation: boolean;
   /** User limit per voice channel (0 = unlimited) */
-  maxUsersPerChannel: number
+  maxUsersPerChannel: number;
   /** Bitrate range (kbps) */
-  bitrateMin: number
-  bitrateMax: number
+  bitrateMin: number;
+  bitrateMax: number;
   /** Soundboard */
-  soundboard: boolean
+  soundboard: boolean;
 }
 
 /**
@@ -262,21 +262,21 @@ export interface DiscordVoiceConfig {
  */
 export interface DiscordBoostConfig {
   /** Boost system enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Boost tiers */
-  tiers: number[]
+  tiers: number[];
   /** Boosts needed for tier 1 */
-  tier1Threshold: number
+  tier1Threshold: number;
   /** Boosts needed for tier 2 */
-  tier2Threshold: number
+  tier2Threshold: number;
   /** Boosts needed for tier 3 */
-  tier3Threshold: number
+  tier3Threshold: number;
   /** Tier 1 perks */
-  tier1Perks: string[]
+  tier1Perks: string[];
   /** Tier 2 perks */
-  tier2Perks: string[]
+  tier2Perks: string[];
   /** Tier 3 perks */
-  tier3Perks: string[]
+  tier3Perks: string[];
 }
 
 /**
@@ -284,27 +284,27 @@ export interface DiscordBoostConfig {
  */
 export interface DiscordAutoModConfig {
   /** AutoMod enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Keyword filtering */
-  keywordFilter: boolean
+  keywordFilter: boolean;
   /** Mention spam detection */
-  mentionSpamDetection: boolean
+  mentionSpamDetection: boolean;
   /** Regex patterns */
-  regexPatterns: boolean
+  regexPatterns: boolean;
   /** Maximum keyword filter rules */
-  maxKeywordRules: number
+  maxKeywordRules: number;
   /** Maximum regex rules */
-  maxRegexRules: number
+  maxRegexRules: number;
   /** Block message action */
-  blockMessage: boolean
+  blockMessage: boolean;
   /** Send alert action */
-  sendAlert: boolean
+  sendAlert: boolean;
   /** Timeout action */
-  timeout: boolean
+  timeout: boolean;
   /** Exempt roles */
-  exemptRoles: boolean
+  exemptRoles: boolean;
   /** Exempt channels */
-  exemptChannels: boolean
+  exemptChannels: boolean;
 }
 
 /**
@@ -312,21 +312,21 @@ export interface DiscordAutoModConfig {
  */
 export interface DiscordEventsConfig {
   /** Scheduled events enabled */
-  enabled: boolean
+  enabled: boolean;
   /** RSVP (interested count) */
-  rsvp: boolean
+  rsvp: boolean;
   /** Event types */
-  eventTypes: ('voice' | 'stage' | 'external')[]
+  eventTypes: ("voice" | "stage" | "external")[];
   /** Recurring events */
-  recurring: boolean
+  recurring: boolean;
   /** Event cover image */
-  coverImage: boolean
+  coverImage: boolean;
   /** Event reminders */
-  reminders: boolean
+  reminders: boolean;
   /** Event description */
-  description: boolean
+  description: boolean;
   /** Maximum scheduled events */
-  maxEvents: number
+  maxEvents: number;
 }
 
 /**
@@ -334,17 +334,17 @@ export interface DiscordEventsConfig {
  */
 export interface DiscordOnboardingConfig {
   /** Server onboarding enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Verification levels */
-  verificationLevels: ('none' | 'low' | 'medium' | 'high' | 'highest')[]
+  verificationLevels: ("none" | "low" | "medium" | "high" | "highest")[];
   /** Default verification level */
-  defaultVerificationLevel: 'none' | 'low' | 'medium' | 'high' | 'highest'
+  defaultVerificationLevel: "none" | "low" | "medium" | "high" | "highest";
   /** Server rules acceptance */
-  rulesAcceptance: boolean
+  rulesAcceptance: boolean;
   /** Onboarding prompts/questions */
-  onboardingPrompts: boolean
+  onboardingPrompts: boolean;
   /** Default channels selection */
-  defaultChannels: boolean
+  defaultChannels: boolean;
 }
 
 /**
@@ -352,37 +352,37 @@ export interface DiscordOnboardingConfig {
  */
 export interface DiscordFormattingConfig {
   /** Bold (**text**) */
-  bold: boolean
+  bold: boolean;
   /** Italic (*text* or _text_) */
-  italic: boolean
+  italic: boolean;
   /** Underline (__text__) */
-  underline: boolean
+  underline: boolean;
   /** Strikethrough (~~text~~) */
-  strikethrough: boolean
+  strikethrough: boolean;
   /** Code inline (`code`) */
-  inlineCode: boolean
+  inlineCode: boolean;
   /** Code blocks (```code```) */
-  codeBlocks: boolean
+  codeBlocks: boolean;
   /** Code block syntax highlighting */
-  syntaxHighlighting: boolean
+  syntaxHighlighting: boolean;
   /** Spoiler tags (||text||) */
-  spoiler: boolean
+  spoiler: boolean;
   /** Block quote (> text or >>> text) */
-  blockQuote: boolean
+  blockQuote: boolean;
   /** Headings (# ## ###) */
-  headings: boolean
+  headings: boolean;
   /** Bulleted lists (- or *) */
-  bulletedLists: boolean
+  bulletedLists: boolean;
   /** Numbered lists (1.) */
-  numberedLists: boolean
+  numberedLists: boolean;
   /** Masked links [text](url) */
-  maskedLinks: boolean
+  maskedLinks: boolean;
   /** Timestamp formatting (<t:unix:style>) */
-  timestamps: boolean
+  timestamps: boolean;
   /** Custom emoji in text */
-  customEmoji: boolean
+  customEmoji: boolean;
   /** Animated emoji (Nitro) */
-  animatedEmoji: boolean
+  animatedEmoji: boolean;
 }
 
 /**
@@ -390,29 +390,29 @@ export interface DiscordFormattingConfig {
  */
 export interface DiscordMediaConfig {
   /** Maximum file upload size (MB) - standard */
-  maxFileSizeMB: number
+  maxFileSizeMB: number;
   /** Maximum file upload size (MB) - Nitro */
-  maxFileSizeNitroMB: number
+  maxFileSizeNitroMB: number;
   /** Maximum file upload size (MB) - Nitro Basic */
-  maxFileSizeNitroBasicMB: number
+  maxFileSizeNitroBasicMB: number;
   /** Image embeds */
-  imageEmbeds: boolean
+  imageEmbeds: boolean;
   /** Video embeds */
-  videoEmbeds: boolean
+  videoEmbeds: boolean;
   /** Tenor GIF integration */
-  tenorGifs: boolean
+  tenorGifs: boolean;
   /** Custom sticker packs */
-  customStickers: boolean
+  customStickers: boolean;
   /** Voice messages */
-  voiceMessages: boolean
+  voiceMessages: boolean;
   /** Maximum attachments per message */
-  maxAttachmentsPerMessage: number
+  maxAttachmentsPerMessage: number;
   /** Image spoiler tags */
-  imageSpoilers: boolean
+  imageSpoilers: boolean;
   /** Drag and drop upload */
-  dragAndDrop: boolean
+  dragAndDrop: boolean;
   /** Clipboard paste upload */
-  clipboardPaste: boolean
+  clipboardPaste: boolean;
 }
 
 /**
@@ -420,20 +420,20 @@ export interface DiscordMediaConfig {
  * Includes all Discord-specific features beyond the standard BehaviorPreset.
  */
 export interface DiscordExtendedBehavior {
-  guild: DiscordGuildConfig
-  channelTypes: DiscordChannelTypesConfig
-  threads: DiscordThreadConfig
-  roles: DiscordRoleConfig
-  nitro: DiscordNitroConfig
-  stage: DiscordStageConfig
-  forum: DiscordForumConfig
-  voice: DiscordVoiceConfig
-  boost: DiscordBoostConfig
-  autoMod: DiscordAutoModConfig
-  events: DiscordEventsConfig
-  onboarding: DiscordOnboardingConfig
-  formatting: DiscordFormattingConfig
-  media: DiscordMediaConfig
+  guild: DiscordGuildConfig;
+  channelTypes: DiscordChannelTypesConfig;
+  threads: DiscordThreadConfig;
+  roles: DiscordRoleConfig;
+  nitro: DiscordNitroConfig;
+  stage: DiscordStageConfig;
+  forum: DiscordForumConfig;
+  voice: DiscordVoiceConfig;
+  boost: DiscordBoostConfig;
+  autoMod: DiscordAutoModConfig;
+  events: DiscordEventsConfig;
+  onboarding: DiscordOnboardingConfig;
+  formatting: DiscordFormattingConfig;
+  media: DiscordMediaConfig;
 }
 
 // ============================================================================
@@ -458,7 +458,7 @@ export const discordGuildConfig: DiscordGuildConfig = {
   rulesChannel: true,
   communityFeatures: true,
   memberVerification: true,
-}
+};
 
 // ============================================================================
 // DISCORD CHANNEL TYPES CONFIG
@@ -477,7 +477,7 @@ export const discordChannelTypesConfig: DiscordChannelTypesConfig = {
   maxChannelsPerServer: 500,
   maxCategoriesPerServer: 50,
   maxChannelsPerCategory: 50,
-}
+};
 
 // ============================================================================
 // DISCORD THREAD CONFIG
@@ -491,7 +491,7 @@ export const discordThreadConfig: DiscordThreadConfig = {
   maxThreadMembers: 1000,
   createFromMessage: true,
   maxActiveThreadsPerChannel: 1000,
-}
+};
 
 // ============================================================================
 // DISCORD ROLE CONFIG
@@ -506,56 +506,56 @@ export const discordRoleConfig: DiscordRoleConfig = {
   everyoneRole: true,
   channelOverrides: true,
   categoryInheritance: true,
-  permissionCalculation: 'hierarchical',
+  permissionCalculation: "hierarchical",
   permissions: [
-    'VIEW_CHANNEL',
-    'MANAGE_CHANNELS',
-    'MANAGE_ROLES',
-    'MANAGE_EMOJI_AND_STICKERS',
-    'VIEW_AUDIT_LOG',
-    'MANAGE_WEBHOOKS',
-    'MANAGE_SERVER',
-    'CREATE_INVITE',
-    'CHANGE_NICKNAME',
-    'MANAGE_NICKNAMES',
-    'KICK_MEMBERS',
-    'BAN_MEMBERS',
-    'TIMEOUT_MEMBERS',
-    'SEND_MESSAGES',
-    'SEND_MESSAGES_IN_THREADS',
-    'CREATE_PUBLIC_THREADS',
-    'CREATE_PRIVATE_THREADS',
-    'EMBED_LINKS',
-    'ATTACH_FILES',
-    'ADD_REACTIONS',
-    'USE_EXTERNAL_EMOJI',
-    'USE_EXTERNAL_STICKERS',
-    'MENTION_EVERYONE',
-    'MANAGE_MESSAGES',
-    'MANAGE_THREADS',
-    'READ_MESSAGE_HISTORY',
-    'SEND_TTS_MESSAGES',
-    'USE_APPLICATION_COMMANDS',
-    'CONNECT',
-    'SPEAK',
-    'VIDEO',
-    'USE_VOICE_ACTIVITY',
-    'PRIORITY_SPEAKER',
-    'MUTE_MEMBERS',
-    'DEAFEN_MEMBERS',
-    'MOVE_MEMBERS',
-    'USE_SOUNDBOARD',
-    'MANAGE_EVENTS',
-    'ADMINISTRATOR',
+    "VIEW_CHANNEL",
+    "MANAGE_CHANNELS",
+    "MANAGE_ROLES",
+    "MANAGE_EMOJI_AND_STICKERS",
+    "VIEW_AUDIT_LOG",
+    "MANAGE_WEBHOOKS",
+    "MANAGE_SERVER",
+    "CREATE_INVITE",
+    "CHANGE_NICKNAME",
+    "MANAGE_NICKNAMES",
+    "KICK_MEMBERS",
+    "BAN_MEMBERS",
+    "TIMEOUT_MEMBERS",
+    "SEND_MESSAGES",
+    "SEND_MESSAGES_IN_THREADS",
+    "CREATE_PUBLIC_THREADS",
+    "CREATE_PRIVATE_THREADS",
+    "EMBED_LINKS",
+    "ATTACH_FILES",
+    "ADD_REACTIONS",
+    "USE_EXTERNAL_EMOJI",
+    "USE_EXTERNAL_STICKERS",
+    "MENTION_EVERYONE",
+    "MANAGE_MESSAGES",
+    "MANAGE_THREADS",
+    "READ_MESSAGE_HISTORY",
+    "SEND_TTS_MESSAGES",
+    "USE_APPLICATION_COMMANDS",
+    "CONNECT",
+    "SPEAK",
+    "VIDEO",
+    "USE_VOICE_ACTIVITY",
+    "PRIORITY_SPEAKER",
+    "MUTE_MEMBERS",
+    "DEAFEN_MEMBERS",
+    "MOVE_MEMBERS",
+    "USE_SOUNDBOARD",
+    "MANAGE_EVENTS",
+    "ADMINISTRATOR",
   ],
-}
+};
 
 // ============================================================================
 // DISCORD NITRO CONFIG
 // ============================================================================
 
 export const discordNitroConfig: DiscordNitroConfig = {
-  tiers: ['none', 'nitro-basic', 'nitro'],
+  tiers: ["none", "nitro-basic", "nitro"],
   crossServerEmoji: true,
   animatedAvatar: true,
   animatedBanner: true,
@@ -568,7 +568,7 @@ export const discordNitroConfig: DiscordNitroConfig = {
   profileBadge: true,
   customAppIcons: true,
   superReactions: true,
-}
+};
 
 // ============================================================================
 // DISCORD STAGE CONFIG
@@ -583,7 +583,7 @@ export const discordStageConfig: DiscordStageConfig = {
   topics: true,
   discovery: true,
   maxSpeakers: 50,
-}
+};
 
 // ============================================================================
 // DISCORD FORUM CONFIG
@@ -594,13 +594,13 @@ export const discordForumConfig: DiscordForumConfig = {
   tags: true,
   maxTags: 20,
   requireTags: true,
-  defaultSortOrder: 'latest-activity',
-  defaultLayout: 'list',
+  defaultSortOrder: "latest-activity",
+  defaultLayout: "list",
   postGuidelines: true,
   autoArchive: true,
   reactions: true,
   defaultReactionEmoji: true,
-}
+};
 
 // ============================================================================
 // DISCORD VOICE CONFIG
@@ -613,14 +613,14 @@ export const discordVoiceConfig: DiscordVoiceConfig = {
   screenShare: true,
   video: true,
   goLive: true,
-  maxVideoQuality: '1080p',
+  maxVideoQuality: "1080p",
   noiseSuppression: true,
   echoCancellation: true,
   maxUsersPerChannel: 99,
   bitrateMin: 8,
   bitrateMax: 384,
   soundboard: true,
-}
+};
 
 // ============================================================================
 // DISCORD BOOST CONFIG
@@ -633,31 +633,31 @@ export const discordBoostConfig: DiscordBoostConfig = {
   tier2Threshold: 7,
   tier3Threshold: 14,
   tier1Perks: [
-    '50 extra emoji slots',
-    '15 extra sticker slots',
-    '128kbps audio quality',
-    'Animated server icon',
-    'Custom invite splash',
-    'Stream at 720p 60fps',
+    "50 extra emoji slots",
+    "15 extra sticker slots",
+    "128kbps audio quality",
+    "Animated server icon",
+    "Custom invite splash",
+    "Stream at 720p 60fps",
   ],
   tier2Perks: [
-    '100 extra emoji slots',
-    '30 extra sticker slots',
-    '256kbps audio quality',
-    'Server banner',
-    '50MB upload limit for everyone',
-    'Stream at 1080p 60fps',
-    'Custom role icons',
+    "100 extra emoji slots",
+    "30 extra sticker slots",
+    "256kbps audio quality",
+    "Server banner",
+    "50MB upload limit for everyone",
+    "Stream at 1080p 60fps",
+    "Custom role icons",
   ],
   tier3Perks: [
-    '200 extra emoji slots',
-    '60 extra sticker slots',
-    '384kbps audio quality',
-    'Animated server banner',
-    '100MB upload limit for everyone',
-    'Vanity URL',
+    "200 extra emoji slots",
+    "60 extra sticker slots",
+    "384kbps audio quality",
+    "Animated server banner",
+    "100MB upload limit for everyone",
+    "Vanity URL",
   ],
-}
+};
 
 // ============================================================================
 // DISCORD AUTOMOD CONFIG
@@ -675,7 +675,7 @@ export const discordAutoModConfig: DiscordAutoModConfig = {
   timeout: true,
   exemptRoles: true,
   exemptChannels: true,
-}
+};
 
 // ============================================================================
 // DISCORD EVENTS CONFIG
@@ -684,13 +684,13 @@ export const discordAutoModConfig: DiscordAutoModConfig = {
 export const discordEventsConfig: DiscordEventsConfig = {
   enabled: true,
   rsvp: true,
-  eventTypes: ['voice', 'stage', 'external'],
+  eventTypes: ["voice", "stage", "external"],
   recurring: true,
   coverImage: true,
   reminders: true,
   description: true,
   maxEvents: 100,
-}
+};
 
 // ============================================================================
 // DISCORD ONBOARDING CONFIG
@@ -698,12 +698,12 @@ export const discordEventsConfig: DiscordEventsConfig = {
 
 export const discordOnboardingConfig: DiscordOnboardingConfig = {
   enabled: true,
-  verificationLevels: ['none', 'low', 'medium', 'high', 'highest'],
-  defaultVerificationLevel: 'medium',
+  verificationLevels: ["none", "low", "medium", "high", "highest"],
+  defaultVerificationLevel: "medium",
   rulesAcceptance: true,
   onboardingPrompts: true,
   defaultChannels: true,
-}
+};
 
 // ============================================================================
 // DISCORD FORMATTING CONFIG
@@ -726,7 +726,7 @@ export const discordFormattingConfig: DiscordFormattingConfig = {
   timestamps: true,
   customEmoji: true,
   animatedEmoji: true,
-}
+};
 
 // ============================================================================
 // DISCORD MEDIA CONFIG
@@ -745,7 +745,7 @@ export const discordMediaConfig: DiscordMediaConfig = {
   imageSpoilers: true,
   dragAndDrop: true,
   clipboardPaste: true,
-}
+};
 
 // ============================================================================
 // DISCORD DETAILED BEHAVIOR PRESET
@@ -757,20 +757,20 @@ export const discordMediaConfig: DiscordMediaConfig = {
  * and interaction patterns.
  */
 export const discordDetailedBehavior: BehaviorPreset = {
-  id: 'discord-detailed',
-  name: 'Discord',
+  id: "discord-detailed",
+  name: "Discord",
   description:
-    'Detailed Discord behavior preset with exact feature flags, limits, and interaction patterns matching Discord as of 2026',
-  version: '0.9.1',
+    "Detailed Discord behavior preset with exact feature flags, limits, and interaction patterns matching Discord as of 2026",
+  version: "0.9.1",
   messaging: {
     editWindow: 0, // unlimited
     deleteWindow: 0, // unlimited
     deleteForEveryone: false, // only mods can manage messages
     deleteForEveryoneWindow: 0,
     showEditedIndicator: true,
-    reactionStyle: 'full-picker',
+    reactionStyle: "full-picker",
     maxReactionsPerMessage: 20,
-    threadingModel: 'inline',
+    threadingModel: "inline",
     maxMessageLength: 2000,
     forwarding: false,
     forwardLimit: 0,
@@ -780,7 +780,16 @@ export const discordDetailedBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['public', 'private', 'dm', 'group-dm', 'forum', 'voice', 'stage', 'announcement'],
+    types: [
+      "public",
+      "private",
+      "dm",
+      "group-dm",
+      "forum",
+      "voice",
+      "stage",
+      "announcement",
+    ],
     hierarchy: true,
     categories: true,
     forums: true,
@@ -790,7 +799,7 @@ export const discordDetailedBehavior: BehaviorPreset = {
     slowMode: true,
   },
   presence: {
-    states: ['online', 'idle', 'dnd', 'invisible', 'offline'],
+    states: ["online", "idle", "dnd", "invisible", "offline"],
     showLastSeen: false,
     lastSeenPrivacy: false,
     customStatus: true,
@@ -812,8 +821,8 @@ export const discordDetailedBehavior: BehaviorPreset = {
     huddles: false,
   },
   notifications: {
-    defaultLevel: 'mentions',
-    mentionRules: ['user', 'role', 'here', 'everyone'],
+    defaultLevel: "mentions",
+    mentionRules: ["user", "role", "here", "everyone"],
     quietHours: false,
     threadNotifications: true,
     soundEnabled: true,
@@ -835,7 +844,7 @@ export const discordDetailedBehavior: BehaviorPreset = {
     readReceiptsOptional: false,
     lastSeen: false,
     lastSeenPrivacy: false,
-    profileVisibility: 'everyone',
+    profileVisibility: "everyone",
     onlineStatusVisible: true,
     e2eeDefault: false,
     disappearingMessages: false,
@@ -875,7 +884,7 @@ export const discordDetailedBehavior: BehaviorPreset = {
     appDirectory: true,
     soundboard: true,
   },
-}
+};
 
 // ============================================================================
 // DISCORD EXTENDED BEHAVIOR CONFIG
@@ -896,18 +905,18 @@ export const discordExtendedBehavior: DiscordExtendedBehavior = {
   onboarding: discordOnboardingConfig,
   formatting: discordFormattingConfig,
   media: discordMediaConfig,
-}
+};
 
 /**
  * Complete Discord behavior configuration including both the standard
  * BehaviorPreset and Discord-specific extensions.
  */
 export interface DiscordBehaviorConfig {
-  preset: BehaviorPreset
-  extended: DiscordExtendedBehavior
+  preset: BehaviorPreset;
+  extended: DiscordExtendedBehavior;
 }
 
 export const discordBehaviorConfig: DiscordBehaviorConfig = {
   preset: discordDetailedBehavior,
   extended: discordExtendedBehavior,
-}
+};

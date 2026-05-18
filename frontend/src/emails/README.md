@@ -95,15 +95,15 @@ This creates:
 ### 4. Send Your First Email
 
 ```typescript
-import { sendWelcomeEmail } from '@/lib/email/templates'
+import { sendWelcomeEmail } from "@/lib/email/templates";
 
 await sendWelcomeEmail(
-  { email: 'user@example.com', name: 'John' },
+  { email: "user@example.com", name: "John" },
   {
-    userName: 'John',
-    loginUrl: 'https://app.example.com/login',
-  }
-)
+    userName: "John",
+    loginUrl: "https://app.example.com/login",
+  },
+);
 ```
 
 ## Usage
@@ -118,48 +118,48 @@ import {
   sendMentionNotification,
   sendDMNotification,
   sendDigest,
-} from '@/lib/email/templates'
+} from "@/lib/email/templates";
 
 // Welcome email
 await sendWelcomeEmail(
-  { email: 'user@example.com', name: 'Alice' },
+  { email: "user@example.com", name: "Alice" },
   {
-    userName: 'Alice',
-    loginUrl: 'https://app.com/login',
-  }
-)
+    userName: "Alice",
+    loginUrl: "https://app.com/login",
+  },
+);
 
 // Email verification
 await sendEmailVerification(
-  { email: 'user@example.com' },
+  { email: "user@example.com" },
   {
-    userName: 'Alice',
-    verificationUrl: 'https://app.com/verify?token=abc',
-    verificationCode: '123456',
-  }
-)
+    userName: "Alice",
+    verificationUrl: "https://app.com/verify?token=abc",
+    verificationCode: "123456",
+  },
+);
 
 // Password reset
 await sendPasswordReset(
-  { email: 'user@example.com' },
+  { email: "user@example.com" },
   {
-    resetUrl: 'https://app.com/reset?token=xyz',
-    ipAddress: '192.168.1.1',
-  }
-)
+    resetUrl: "https://app.com/reset?token=xyz",
+    ipAddress: "192.168.1.1",
+  },
+);
 
 // Mention notification
 await sendMentionNotification(
-  { email: 'user@example.com', name: 'Alice' },
+  { email: "user@example.com", name: "Alice" },
   {
-    userName: 'Alice',
-    mentionedBy: { name: 'Bob' },
-    channel: { name: 'general', type: 'public' },
-    messagePreview: '@Alice check this out!',
-    messageUrl: 'https://app.com/chat/general/msg123',
+    userName: "Alice",
+    mentionedBy: { name: "Bob" },
+    channel: { name: "general", type: "public" },
+    messagePreview: "@Alice check this out!",
+    messageUrl: "https://app.com/chat/general/msg123",
     timestamp: new Date(),
-  }
-)
+  },
+);
 ```
 
 ### Sending via API
@@ -245,19 +245,22 @@ Users can control their email notifications:
 
 ```typescript
 // Get user preferences
-const prefs = await db.query('SELECT * FROM nchat_email_preferences WHERE user_id = $1', [userId])
+const prefs = await db.query(
+  "SELECT * FROM nchat_email_preferences WHERE user_id = $1",
+  [userId],
+);
 
 // Check if email should be sent
-const shouldSend = await db.query('SELECT should_send_email($1, $2)', [
+const shouldSend = await db.query("SELECT should_send_email($1, $2)", [
   userId,
-  'mention-notification',
-])
+  "mention-notification",
+]);
 
 // Update preferences
-await db.query('UPDATE nchat_email_preferences SET mention_enabled = $1 WHERE user_id = $2', [
-  false,
-  userId,
-])
+await db.query(
+  "UPDATE nchat_email_preferences SET mention_enabled = $1 WHERE user_id = $2",
+  [false, userId],
+);
 ```
 
 ### Unsubscribe
@@ -266,7 +269,7 @@ Each user has a unique unsubscribe token:
 
 ```typescript
 // Generate unsubscribe URL
-const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${user.unsubscribeToken}`
+const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${user.unsubscribeToken}`;
 ```
 
 ## Email Queue
@@ -281,10 +284,10 @@ The queue processes emails with:
 ### Queue Status
 
 ```typescript
-import { getEmailQueueStatus } from '@/lib/email/templates'
+import { getEmailQueueStatus } from "@/lib/email/templates";
 
-const status = getEmailQueueStatus()
-console.log(status)
+const status = getEmailQueueStatus();
+console.log(status);
 // {
 //   total: 10,
 //   pending: 5,
@@ -316,8 +319,17 @@ await db.query(
     user_id, type, channel_id, message_id,
     message_preview, channel_name, sender_name, item_url
   ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-  [userId, 'mention', channelId, messageId, preview, channelName, senderName, url]
-)
+  [
+    userId,
+    "mention",
+    channelId,
+    messageId,
+    preview,
+    channelName,
+    senderName,
+    url,
+  ],
+);
 ```
 
 ### Sending Digest
@@ -328,37 +340,37 @@ const items = await db.query(
   `SELECT * FROM nchat_email_digest_items
    WHERE user_id = $1 AND included_in_digest = false
    ORDER BY created_at DESC`,
-  [userId]
-)
+  [userId],
+);
 
 // Calculate stats
 const stats = {
   totalMessages: items.length,
-  totalMentions: items.filter((i) => i.type === 'mention').length,
-  totalDirectMessages: items.filter((i) => i.type === 'direct_message').length,
-  totalReactions: items.filter((i) => i.type === 'reaction').length,
+  totalMentions: items.filter((i) => i.type === "mention").length,
+  totalDirectMessages: items.filter((i) => i.type === "direct_message").length,
+  totalReactions: items.filter((i) => i.type === "reaction").length,
   activeChannels: [...new Set(items.map((i) => i.channel_name))],
-}
+};
 
 // Send digest
 await sendDigest(
   { email: user.email, name: user.name },
   {
     userName: user.name,
-    frequency: 'daily',
+    frequency: "daily",
     dateRange: { start: yesterday, end: now },
     items: items.map(formatItem),
     stats,
-  }
-)
+  },
+);
 
 // Mark items as included
 await db.query(
   `UPDATE nchat_email_digest_items
    SET included_in_digest = true, digest_sent_at = NOW()
    WHERE user_id = $1 AND included_in_digest = false`,
-  [userId]
-)
+  [userId],
+);
 ```
 
 ## Email Tracking
@@ -370,8 +382,8 @@ Track delivery and engagement:
 await db.query(
   `INSERT INTO nchat_email_tracking (email_id, event, metadata)
    VALUES ($1, $2, $3)`,
-  [emailId, 'opened', { userAgent, ipAddress }]
-)
+  [emailId, "opened", { userAgent, ipAddress }],
+);
 
 // Get email stats
 const stats = await db.query(
@@ -381,8 +393,8 @@ const stats = await db.query(
     COUNT(*) FILTER (WHERE event = 'clicked') as clicked
    FROM nchat_email_tracking
    WHERE email_id = $1`,
-  [emailId]
-)
+  [emailId],
+);
 ```
 
 ## Customizing Templates
@@ -392,13 +404,13 @@ const stats = await db.query(
 Set global branding for all emails:
 
 ```typescript
-import { setEmailBranding } from '@/lib/email/templates'
+import { setEmailBranding } from "@/lib/email/templates";
 
 setEmailBranding({
-  appName: 'My App',
-  logoUrl: 'https://example.com/logo.png',
-  supportEmail: 'support@example.com',
-})
+  appName: "My App",
+  logoUrl: "https://example.com/logo.png",
+  supportEmail: "support@example.com",
+});
 ```
 
 ### Custom Templates
@@ -407,24 +419,27 @@ Create your own template:
 
 ```tsx
 // src/emails/templates/custom.tsx
-import EmailLayout from '../components/EmailLayout'
-import EmailHeading from '../components/EmailHeading'
-import EmailButton from '../components/EmailButton'
-import { Text } from '@react-email/components'
+import EmailLayout from "../components/EmailLayout";
+import EmailHeading from "../components/EmailHeading";
+import EmailButton from "../components/EmailButton";
+import { Text } from "@react-email/components";
 
 interface CustomEmailProps {
-  userName: string
-  customData: string
+  userName: string;
+  customData: string;
 }
 
-export default function CustomEmail({ userName, customData }: CustomEmailProps) {
+export default function CustomEmail({
+  userName,
+  customData,
+}: CustomEmailProps) {
   return (
     <EmailLayout preview="Your custom email">
       <EmailHeading>Hello {userName}!</EmailHeading>
       <Text>{customData}</Text>
       <EmailButton href="https://example.com">Take Action</EmailButton>
     </EmailLayout>
-  )
+  );
 }
 ```
 

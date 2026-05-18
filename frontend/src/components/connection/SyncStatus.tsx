@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SyncStatus - Sync status display component
@@ -6,20 +6,20 @@
  * Shows the current sync status and progress.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Progress } from '@/components/ui/progress'
-import { useOfflineSync } from '@/hooks/useOfflineCache'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import { useOfflineSync } from "@/hooks/useOfflineCache";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface SyncStatusProps {
-  className?: string
-  showProgress?: boolean
-  showLastSync?: boolean
-  compact?: boolean
+  className?: string;
+  showProgress?: boolean;
+  showLastSync?: boolean;
+  compact?: boolean;
 }
 
 // =============================================================================
@@ -27,15 +27,15 @@ export interface SyncStatusProps {
 // =============================================================================
 
 function formatLastSync(date: Date | null): string {
-  if (!date) return 'Never'
+  if (!date) return "Never";
 
-  const now = new Date()
-  const diff = now.getTime() - new Date(date).getTime()
+  const now = new Date();
+  const diff = now.getTime() - new Date(date).getTime();
 
-  if (diff < 60000) return 'Just now'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
-  return new Date(date).toLocaleDateString()
+  if (diff < 60000) return "Just now";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return new Date(date).toLocaleDateString();
 }
 
 // =============================================================================
@@ -48,15 +48,20 @@ export function SyncStatus({
   showLastSync = true,
   compact = false,
 }: SyncStatusProps) {
-  const { status, progress, error, lastSyncAt, sync, cancel } = useOfflineSync()
-  const isSyncing = status === 'syncing'
+  const { status, progress, error, lastSyncAt, sync, cancel } =
+    useOfflineSync();
+  const isSyncing = status === "syncing";
 
   if (compact) {
     return (
-      <div className={cn('flex items-center gap-2', className)}>
+      <div className={cn("flex items-center gap-2", className)}>
         {isSyncing ? (
           <>
-            <svg className="h-4 w-4 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+            <svg
+              className="h-4 w-4 animate-spin text-primary"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
               <circle
                 className="opacity-25"
                 cx="12"
@@ -71,9 +76,11 @@ export function SyncStatus({
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            <span className="text-xs text-muted-foreground">Syncing {Math.round(progress)}%</span>
+            <span className="text-xs text-muted-foreground">
+              Syncing {Math.round(progress)}%
+            </span>
           </>
-        ) : status === 'completed' ? (
+        ) : status === "completed" ? (
           <>
             <svg
               className="h-4 w-4 text-green-500"
@@ -92,7 +99,7 @@ export function SyncStatus({
               Synced {formatLastSync(lastSyncAt)}
             </span>
           </>
-        ) : status === 'failed' ? (
+        ) : status === "failed" ? (
           <>
             <svg
               className="h-4 w-4 text-red-500"
@@ -117,15 +124,19 @@ export function SyncStatus({
           )
         )}
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {isSyncing ? (
-            <svg className="h-4 w-4 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+            <svg
+              className="h-4 w-4 animate-spin text-primary"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
               <circle
                 className="opacity-25"
                 cx="12"
@@ -155,30 +166,42 @@ export function SyncStatus({
               />
             </svg>
           )}
-          <span className="text-sm font-medium">{isSyncing ? 'Syncing...' : 'Sync Status'}</span>
+          <span className="text-sm font-medium">
+            {isSyncing ? "Syncing..." : "Sync Status"}
+          </span>
         </div>
 
         {!isSyncing && (
-          <button onClick={() => sync()} className="hover:text-primary/80 text-xs text-primary">
+          <button
+            onClick={() => sync()}
+            className="hover:text-primary/80 text-xs text-primary"
+          >
             Sync now
           </button>
         )}
         {isSyncing && (
-          <button onClick={cancel} className="text-xs text-muted-foreground hover:text-foreground">
+          <button
+            onClick={cancel}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
             Cancel
           </button>
         )}
       </div>
 
-      {showProgress && isSyncing && <Progress value={progress} className="h-1" />}
+      {showProgress && isSyncing && (
+        <Progress value={progress} className="h-1" />
+      )}
 
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       {showLastSync && !isSyncing && (
-        <p className="text-xs text-muted-foreground">Last synced: {formatLastSync(lastSyncAt)}</p>
+        <p className="text-xs text-muted-foreground">
+          Last synced: {formatLastSync(lastSyncAt)}
+        </p>
       )}
     </div>
-  )
+  );
 }
 
-export default SyncStatus
+export default SyncStatus;

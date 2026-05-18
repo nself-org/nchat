@@ -13,7 +13,7 @@
  * User roles in the system, ordered by privilege level (highest to lowest).
  * Used for RBAC (Role-Based Access Control) throughout the application.
  */
-export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+export type UserRole = "owner" | "admin" | "moderator" | "member" | "guest";
 
 /**
  * Numeric privilege levels for each role (higher = more privileges).
@@ -25,29 +25,29 @@ export const UserRoleLevel: Record<UserRole, number> = {
   moderator: 60,
   member: 40,
   guest: 20,
-} as const
+} as const;
 
 /**
  * Human-readable labels for user roles.
  */
 export const UserRoleLabels: Record<UserRole, string> = {
-  owner: 'Owner',
-  admin: 'Administrator',
-  moderator: 'Moderator',
-  member: 'Member',
-  guest: 'Guest',
-} as const
+  owner: "Owner",
+  admin: "Administrator",
+  moderator: "Moderator",
+  member: "Member",
+  guest: "Guest",
+} as const;
 
 /**
  * Role descriptions for UI display.
  */
 export const UserRoleDescriptions: Record<UserRole, string> = {
-  owner: 'Full system access and control',
-  admin: 'Manage users, channels, and settings',
-  moderator: 'Manage messages and moderate content',
-  member: 'Standard user with chat access',
-  guest: 'Limited read-only access',
-} as const
+  owner: "Full system access and control",
+  admin: "Manage users, channels, and settings",
+  moderator: "Manage messages and moderate content",
+  member: "Standard user with chat access",
+  guest: "Limited read-only access",
+} as const;
 
 // ============================================================================
 // User Presence Types
@@ -56,36 +56,36 @@ export const UserRoleDescriptions: Record<UserRole, string> = {
 /**
  * User presence status indicating online state.
  */
-export type UserPresenceStatus = 'online' | 'away' | 'dnd' | 'offline'
+export type UserPresenceStatus = "online" | "away" | "dnd" | "offline";
 
 /**
  * Human-readable labels for presence statuses.
  */
 export const UserPresenceLabels: Record<UserPresenceStatus, string> = {
-  online: 'Online',
-  away: 'Away',
-  dnd: 'Do Not Disturb',
-  offline: 'Offline',
-} as const
+  online: "Online",
+  away: "Away",
+  dnd: "Do Not Disturb",
+  offline: "Offline",
+} as const;
 
 /**
  * Full presence information for a user.
  */
 export interface UserPresence {
   /** Current presence status */
-  status: UserPresenceStatus
+  status: UserPresenceStatus;
   /** When the status was last updated */
-  lastUpdatedAt: Date
+  lastUpdatedAt: Date;
   /** When the user was last seen active */
-  lastSeenAt?: Date
+  lastSeenAt?: Date;
   /** Optional custom status message */
-  customStatus?: UserStatus
+  customStatus?: UserStatus;
   /** Device information if tracking multiple sessions */
-  device?: 'desktop' | 'mobile' | 'web'
+  device?: "desktop" | "mobile" | "web";
   /** Whether user is currently active (not idle) */
-  isActive: boolean
+  isActive: boolean;
   /** Automatic away timeout in minutes (0 = disabled) */
-  autoAwayTimeout?: number
+  autoAwayTimeout?: number;
 }
 
 // ============================================================================
@@ -97,38 +97,43 @@ export interface UserPresence {
  */
 export interface UserStatus {
   /** Status emoji (single emoji character) */
-  emoji?: string
+  emoji?: string;
   /** Status text message */
-  text: string
+  text: string;
   /** When the status expires (null = never) */
-  expiresAt?: Date | null
+  expiresAt?: Date | null;
   /** When the status was set */
-  setAt: Date
+  setAt: Date;
 }
 
 /**
  * Preset status options for quick selection.
  */
 export interface UserStatusPreset {
-  id: string
-  emoji: string
-  text: string
+  id: string;
+  emoji: string;
+  text: string;
   /** Duration in minutes (null = indefinite) */
-  duration?: number | null
+  duration?: number | null;
 }
 
 /**
  * Default status presets available to all users.
  */
 export const DefaultStatusPresets: UserStatusPreset[] = [
-  { id: 'in-meeting', emoji: '📅', text: 'In a meeting', duration: 60 },
-  { id: 'commuting', emoji: '🚗', text: 'Commuting', duration: 60 },
-  { id: 'lunch', emoji: '🍽️', text: 'Out for lunch', duration: 60 },
-  { id: 'vacationing', emoji: '🌴', text: 'Vacationing', duration: null },
-  { id: 'working-remotely', emoji: '🏠', text: 'Working remotely', duration: null },
-  { id: 'sick', emoji: '🤒', text: 'Out sick', duration: null },
-  { id: 'focusing', emoji: '🎯', text: 'Focusing', duration: 120 },
-]
+  { id: "in-meeting", emoji: "📅", text: "In a meeting", duration: 60 },
+  { id: "commuting", emoji: "🚗", text: "Commuting", duration: 60 },
+  { id: "lunch", emoji: "🍽️", text: "Out for lunch", duration: 60 },
+  { id: "vacationing", emoji: "🌴", text: "Vacationing", duration: null },
+  {
+    id: "working-remotely",
+    emoji: "🏠",
+    text: "Working remotely",
+    duration: null,
+  },
+  { id: "sick", emoji: "🤒", text: "Out sick", duration: null },
+  { id: "focusing", emoji: "🎯", text: "Focusing", duration: 120 },
+];
 
 // ============================================================================
 // User Permissions Types
@@ -140,52 +145,52 @@ export const DefaultStatusPresets: UserStatusPreset[] = [
  */
 export interface UserPermissions {
   // Channel permissions
-  canCreatePublicChannels: boolean
-  canCreatePrivateChannels: boolean
-  canDeleteChannels: boolean
-  canArchiveChannels: boolean
-  canManageChannelMembers: boolean
-  canManageChannelSettings: boolean
+  canCreatePublicChannels: boolean;
+  canCreatePrivateChannels: boolean;
+  canDeleteChannels: boolean;
+  canArchiveChannels: boolean;
+  canManageChannelMembers: boolean;
+  canManageChannelSettings: boolean;
 
   // Message permissions
-  canSendMessages: boolean
-  canEditOwnMessages: boolean
-  canDeleteOwnMessages: boolean
-  canDeleteAnyMessage: boolean
-  canPinMessages: boolean
-  canMentionEveryone: boolean
-  canMentionHere: boolean
+  canSendMessages: boolean;
+  canEditOwnMessages: boolean;
+  canDeleteOwnMessages: boolean;
+  canDeleteAnyMessage: boolean;
+  canPinMessages: boolean;
+  canMentionEveryone: boolean;
+  canMentionHere: boolean;
 
   // File permissions
-  canUploadFiles: boolean
-  canDeleteAnyFile: boolean
-  maxUploadSizeMB: number
+  canUploadFiles: boolean;
+  canDeleteAnyFile: boolean;
+  maxUploadSizeMB: number;
 
   // User management permissions
-  canInviteUsers: boolean
-  canRemoveUsers: boolean
-  canBanUsers: boolean
-  canManageRoles: boolean
-  canViewUserDetails: boolean
+  canInviteUsers: boolean;
+  canRemoveUsers: boolean;
+  canBanUsers: boolean;
+  canManageRoles: boolean;
+  canViewUserDetails: boolean;
 
   // Moderation permissions
-  canMuteUsers: boolean
-  canWarnUsers: boolean
-  canViewModerationLogs: boolean
-  canManageReports: boolean
+  canMuteUsers: boolean;
+  canWarnUsers: boolean;
+  canViewModerationLogs: boolean;
+  canManageReports: boolean;
 
   // Admin permissions
-  canAccessAdminPanel: boolean
-  canManageAppSettings: boolean
-  canManageIntegrations: boolean
-  canManageBots: boolean
-  canViewAnalytics: boolean
+  canAccessAdminPanel: boolean;
+  canManageAppSettings: boolean;
+  canManageIntegrations: boolean;
+  canManageBots: boolean;
+  canViewAnalytics: boolean;
 
   // Special permissions
-  canBypassSlowMode: boolean
-  canBypassRateLimit: boolean
-  canUseCustomEmojis: boolean
-  canManageCustomEmojis: boolean
+  canBypassSlowMode: boolean;
+  canBypassRateLimit: boolean;
+  canUseCustomEmojis: boolean;
+  canManageCustomEmojis: boolean;
 }
 
 /**
@@ -372,7 +377,7 @@ export const DefaultRolePermissions: Record<UserRole, UserPermissions> = {
     canUseCustomEmojis: false,
     canManageCustomEmojis: false,
   },
-}
+};
 
 // ============================================================================
 // User Profile Types
@@ -383,46 +388,46 @@ export const DefaultRolePermissions: Record<UserRole, UserPermissions> = {
  */
 export interface UserProfile {
   /** User's bio/about text */
-  bio?: string
+  bio?: string;
   /** User's location */
-  location?: string
+  location?: string;
   /** User's timezone (IANA format, e.g., 'America/New_York') */
-  timezone?: string
+  timezone?: string;
   /** User's preferred language (ISO 639-1, e.g., 'en') */
-  language?: string
+  language?: string;
   /** User's website URL */
-  website?: string
+  website?: string;
   /** User's phone number */
-  phone?: string
+  phone?: string;
   /** User's job title */
-  jobTitle?: string
+  jobTitle?: string;
   /** User's department */
-  department?: string
+  department?: string;
   /** User's organization */
-  organization?: string
+  organization?: string;
   /** User's pronouns */
-  pronouns?: string
+  pronouns?: string;
   /** Social media links */
-  socialLinks?: UserSocialLinks
+  socialLinks?: UserSocialLinks;
   /** Profile banner image URL */
-  bannerUrl?: string
+  bannerUrl?: string;
   /** When profile was last updated */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
  * Social media links for user profiles.
  */
 export interface UserSocialLinks {
-  twitter?: string
-  linkedin?: string
-  github?: string
-  discord?: string
-  instagram?: string
-  facebook?: string
-  youtube?: string
-  twitch?: string
-  custom?: { label: string; url: string }[]
+  twitter?: string;
+  linkedin?: string;
+  github?: string;
+  discord?: string;
+  instagram?: string;
+  facebook?: string;
+  youtube?: string;
+  twitch?: string;
+  custom?: { label: string; url: string }[];
 }
 
 // ============================================================================
@@ -434,34 +439,34 @@ export interface UserSocialLinks {
  */
 export interface UserNotificationSettings {
   /** Enable all notifications */
-  enabled: boolean
+  enabled: boolean;
   /** Play sound for notifications */
-  sound: boolean
+  sound: boolean;
   /** Show desktop notifications */
-  desktop: boolean
+  desktop: boolean;
   /** Email notification preferences */
   email: {
-    enabled: boolean
-    directMessages: boolean
-    mentions: boolean
-    digest: 'none' | 'daily' | 'weekly'
-  }
+    enabled: boolean;
+    directMessages: boolean;
+    mentions: boolean;
+    digest: "none" | "daily" | "weekly";
+  };
   /** Push notification preferences */
   push: {
-    enabled: boolean
-    directMessages: boolean
-    mentions: boolean
-    threads: boolean
-  }
+    enabled: boolean;
+    directMessages: boolean;
+    mentions: boolean;
+    threads: boolean;
+  };
   /** Quiet hours settings */
   quietHours: {
-    enabled: boolean
-    startTime: string // HH:MM format
-    endTime: string // HH:MM format
-    timezone: string
-  }
+    enabled: boolean;
+    startTime: string; // HH:MM format
+    endTime: string; // HH:MM format
+    timezone: string;
+  };
   /** Keywords to trigger notifications */
-  keywords: string[]
+  keywords: string[];
 }
 
 /**
@@ -469,19 +474,19 @@ export interface UserNotificationSettings {
  */
 export interface UserPrivacySettings {
   /** Who can send direct messages */
-  allowDirectMessages: 'everyone' | 'contacts' | 'none'
+  allowDirectMessages: "everyone" | "contacts" | "none";
   /** Show online status to others */
-  showOnlineStatus: boolean
+  showOnlineStatus: boolean;
   /** Show typing indicator to others */
-  showTypingIndicator: boolean
+  showTypingIndicator: boolean;
   /** Show read receipts to others */
-  showReadReceipts: boolean
+  showReadReceipts: boolean;
   /** Allow profile to be found in search */
-  allowProfileSearch: boolean
+  allowProfileSearch: boolean;
   /** Show email address in profile */
-  showEmail: boolean
+  showEmail: boolean;
   /** Show profile to guests */
-  showProfileToGuests: boolean
+  showProfileToGuests: boolean;
 }
 
 /**
@@ -489,34 +494,34 @@ export interface UserPrivacySettings {
  */
 export interface UserAppearanceSettings {
   /** Theme mode */
-  theme: 'light' | 'dark' | 'system'
+  theme: "light" | "dark" | "system";
   /** Compact message display */
-  compactMode: boolean
+  compactMode: boolean;
   /** Show message timestamps */
-  showTimestamps: boolean
+  showTimestamps: boolean;
   /** Time format */
-  timeFormat: '12h' | '24h'
+  timeFormat: "12h" | "24h";
   /** Date format */
-  dateFormat: 'mdy' | 'dmy' | 'ymd'
+  dateFormat: "mdy" | "dmy" | "ymd";
   /** Font size scaling */
-  fontSize: 'small' | 'medium' | 'large'
+  fontSize: "small" | "medium" | "large";
   /** Show user avatars in messages */
-  showAvatars: boolean
+  showAvatars: boolean;
   /** Show link previews */
-  showLinkPreviews: boolean
+  showLinkPreviews: boolean;
   /** Show emoji reactions inline */
-  showReactionsInline: boolean
+  showReactionsInline: boolean;
   /** Animation settings */
-  reduceMotion: boolean
+  reduceMotion: boolean;
 }
 
 /**
  * Combined user settings.
  */
 export interface UserSettings {
-  notifications: UserNotificationSettings
-  privacy: UserPrivacySettings
-  appearance: UserAppearanceSettings
+  notifications: UserNotificationSettings;
+  privacy: UserPrivacySettings;
+  appearance: UserAppearanceSettings;
 }
 
 // ============================================================================
@@ -528,39 +533,39 @@ export interface UserSettings {
  */
 export interface User {
   /** Unique user identifier (UUID) */
-  id: string
+  id: string;
   /** Unique username (lowercase, alphanumeric + underscores) */
-  username: string
+  username: string;
   /** Display name shown in UI */
-  displayName: string
+  displayName: string;
   /** Email address */
-  email: string
+  email: string;
   /** Whether email is verified */
-  emailVerified: boolean
+  emailVerified: boolean;
   /** Avatar image URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** User's role in the system */
-  role: UserRole
+  role: UserRole;
   /** Whether user account is active */
-  isActive: boolean
+  isActive: boolean;
   /** Whether user is a bot */
-  isBot: boolean
+  isBot: boolean;
   /** Account creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last update timestamp */
-  updatedAt: Date
+  updatedAt: Date;
   /** Last login timestamp */
-  lastLoginAt?: Date
+  lastLoginAt?: Date;
   /** Current presence information */
-  presence?: UserPresence
+  presence?: UserPresence;
   /** Extended profile information */
-  profile?: UserProfile
+  profile?: UserProfile;
   /** User settings */
-  settings?: UserSettings
+  settings?: UserSettings;
   /** Computed permissions (from role + overrides) */
-  permissions?: UserPermissions
+  permissions?: UserPermissions;
   /** Authentication metadata */
-  authMetadata?: UserAuthMetadata
+  authMetadata?: UserAuthMetadata;
 }
 
 /**
@@ -568,17 +573,17 @@ export interface User {
  */
 export interface UserAuthMetadata {
   /** Auth provider used (email, google, github, etc.) */
-  provider: string
+  provider: string;
   /** Provider-specific user ID */
-  providerId?: string
+  providerId?: string;
   /** ID.me verification status */
-  idmeVerified?: boolean
+  idmeVerified?: boolean;
   /** ID.me verification groups */
-  idmeGroups?: ('military' | 'police' | 'first-responder' | 'government')[]
+  idmeGroups?: ("military" | "police" | "first-responder" | "government")[];
   /** Two-factor authentication enabled */
-  twoFactorEnabled?: boolean
+  twoFactorEnabled?: boolean;
   /** Last password change */
-  passwordChangedAt?: Date
+  passwordChangedAt?: Date;
 }
 
 // ============================================================================
@@ -590,13 +595,13 @@ export interface UserAuthMetadata {
  */
 export interface UserBlock {
   /** User who created the block */
-  userId: string
+  userId: string;
   /** User who is blocked */
-  blockedUserId: string
+  blockedUserId: string;
   /** When the block was created */
-  createdAt: Date
+  createdAt: Date;
   /** Reason for blocking (optional) */
-  reason?: string
+  reason?: string;
 }
 
 /**
@@ -604,15 +609,15 @@ export interface UserBlock {
  */
 export interface UserContact {
   /** User who added the contact */
-  userId: string
+  userId: string;
   /** The contact user */
-  contactUserId: string
+  contactUserId: string;
   /** Custom nickname for the contact */
-  nickname?: string
+  nickname?: string;
   /** Whether this is a favorite contact */
-  isFavorite: boolean
+  isFavorite: boolean;
   /** When the contact was added */
-  createdAt: Date
+  createdAt: Date;
 }
 
 // ============================================================================
@@ -624,32 +629,32 @@ export interface UserContact {
  */
 export interface UserSession {
   /** Session ID */
-  id: string
+  id: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** Session token (for auth) */
-  token: string
+  token: string;
   /** Refresh token */
-  refreshToken?: string
+  refreshToken?: string;
   /** Device information */
   device: {
-    type: 'desktop' | 'mobile' | 'tablet' | 'web'
-    os?: string
-    browser?: string
-    name?: string
-  }
+    type: "desktop" | "mobile" | "tablet" | "web";
+    os?: string;
+    browser?: string;
+    name?: string;
+  };
   /** IP address */
-  ipAddress?: string
+  ipAddress?: string;
   /** Location (from IP) */
-  location?: string
+  location?: string;
   /** Session creation time */
-  createdAt: Date
+  createdAt: Date;
   /** Last activity time */
-  lastActiveAt: Date
+  lastActiveAt: Date;
   /** Session expiration time */
-  expiresAt: Date
+  expiresAt: Date;
   /** Whether this is the current session */
-  isCurrent: boolean
+  isCurrent: boolean;
 }
 
 // ============================================================================
@@ -661,23 +666,23 @@ export interface UserSession {
  */
 export interface UserModerationAction {
   /** Action ID */
-  id: string
+  id: string;
   /** User who performed the action */
-  moderatorId: string
+  moderatorId: string;
   /** User the action was performed on */
-  targetUserId: string
+  targetUserId: string;
   /** Type of action */
-  action: 'warn' | 'mute' | 'unmute' | 'ban' | 'unban' | 'kick' | 'role_change'
+  action: "warn" | "mute" | "unmute" | "ban" | "unban" | "kick" | "role_change";
   /** Reason for the action */
-  reason?: string
+  reason?: string;
   /** Duration in minutes (for timed actions) */
-  duration?: number
+  duration?: number;
   /** When the action expires */
-  expiresAt?: Date
+  expiresAt?: Date;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
   /** When the action was performed */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
@@ -685,17 +690,17 @@ export interface UserModerationAction {
  */
 export interface UserMute {
   /** User who is muted */
-  userId: string
+  userId: string;
   /** Channel ID (null = server-wide mute) */
-  channelId?: string | null
+  channelId?: string | null;
   /** Who muted the user */
-  mutedBy: string
+  mutedBy: string;
   /** Reason for mute */
-  reason?: string
+  reason?: string;
   /** When mute was created */
-  createdAt: Date
+  createdAt: Date;
   /** When mute expires (null = permanent) */
-  expiresAt?: Date | null
+  expiresAt?: Date | null;
 }
 
 /**
@@ -703,15 +708,15 @@ export interface UserMute {
  */
 export interface UserBan {
   /** User who is banned */
-  userId: string
+  userId: string;
   /** Who banned the user */
-  bannedBy: string
+  bannedBy: string;
   /** Reason for ban */
-  reason?: string
+  reason?: string;
   /** When ban was created */
-  createdAt: Date
+  createdAt: Date;
   /** When ban expires (null = permanent) */
-  expiresAt?: Date | null
+  expiresAt?: Date | null;
 }
 
 // ============================================================================
@@ -721,47 +726,50 @@ export interface UserBan {
 /**
  * Minimal user info for display in lists and mentions.
  */
-export type UserBasicInfo = Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl' | 'role'>
+export type UserBasicInfo = Pick<
+  User,
+  "id" | "username" | "displayName" | "avatarUrl" | "role"
+>;
 
 /**
  * User info with presence for member lists.
  */
 export type UserWithPresence = UserBasicInfo & {
-  presence: UserPresence
-}
+  presence: UserPresence;
+};
 
 /**
  * User info for message display.
  */
 export type MessageUser = UserBasicInfo & {
-  status?: UserPresenceStatus
-}
+  status?: UserPresenceStatus;
+};
 
 /**
  * Input type for creating a new user.
  */
 export interface CreateUserInput {
-  username: string
-  displayName: string
-  email: string
-  password?: string
-  role?: UserRole
-  avatarUrl?: string
-  profile?: Partial<UserProfile>
+  username: string;
+  displayName: string;
+  email: string;
+  password?: string;
+  role?: UserRole;
+  avatarUrl?: string;
+  profile?: Partial<UserProfile>;
 }
 
 /**
  * Input type for updating a user.
  */
 export interface UpdateUserInput {
-  username?: string
-  displayName?: string
-  email?: string
-  avatarUrl?: string
-  role?: UserRole
-  isActive?: boolean
-  profile?: Partial<UserProfile>
-  settings?: Partial<UserSettings>
+  username?: string;
+  displayName?: string;
+  email?: string;
+  avatarUrl?: string;
+  role?: UserRole;
+  isActive?: boolean;
+  profile?: Partial<UserProfile>;
+  settings?: Partial<UserSettings>;
 }
 
 /**
@@ -769,17 +777,17 @@ export interface UpdateUserInput {
  */
 export interface UserFilter {
   /** Search by username or display name */
-  search?: string
+  search?: string;
   /** Filter by roles */
-  roles?: UserRole[]
+  roles?: UserRole[];
   /** Filter by presence status */
-  presence?: UserPresenceStatus[]
+  presence?: UserPresenceStatus[];
   /** Filter by active status */
-  isActive?: boolean
+  isActive?: boolean;
   /** Filter by bot status */
-  isBot?: boolean
+  isBot?: boolean;
   /** Include users from specific channels */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Exclude specific users */
-  excludeIds?: string[]
+  excludeIds?: string[];
 }

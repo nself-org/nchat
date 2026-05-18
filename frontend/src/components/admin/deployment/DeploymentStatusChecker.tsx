@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import {
   CheckCircle2,
   XCircle,
@@ -14,211 +14,231 @@ import {
   Globe,
   Activity,
   Clock,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
 interface HealthCheck {
-  name: string
-  status: 'healthy' | 'degraded' | 'unhealthy' | 'checking'
-  message?: string
-  url?: string
-  icon: React.ReactNode
+  name: string;
+  status: "healthy" | "degraded" | "unhealthy" | "checking";
+  message?: string;
+  url?: string;
+  icon: React.ReactNode;
 }
 
 interface DeploymentInfo {
-  environment: string
-  region: string
-  deployedAt: string
-  version: string
-  commitSha?: string
-  buildTime?: string
+  environment: string;
+  region: string;
+  deployedAt: string;
+  version: string;
+  commitSha?: string;
+  buildTime?: string;
 }
 
 export default function DeploymentStatusChecker() {
-  const [isChecking, setIsChecking] = useState(false)
-  const [lastChecked, setLastChecked] = useState<Date | null>(null)
-  const [healthChecks, setHealthChecks] = useState<HealthCheck[]>([])
-  const [deploymentInfo, setDeploymentInfo] = useState<DeploymentInfo | null>(null)
+  const [isChecking, setIsChecking] = useState(false);
+  const [lastChecked, setLastChecked] = useState<Date | null>(null);
+  const [healthChecks, setHealthChecks] = useState<HealthCheck[]>([]);
+  const [deploymentInfo, setDeploymentInfo] = useState<DeploymentInfo | null>(
+    null,
+  );
 
   useEffect(() => {
-    performHealthCheck()
-    loadDeploymentInfo()
-  }, [])
+    performHealthCheck();
+    loadDeploymentInfo();
+  }, []);
 
   const performHealthCheck = async () => {
-    setIsChecking(true)
+    setIsChecking(true);
 
     const checks: HealthCheck[] = [
       {
-        name: 'Frontend',
-        status: 'checking',
+        name: "Frontend",
+        status: "checking",
         icon: <Globe className="h-4 w-4" />,
       },
       {
-        name: 'GraphQL API',
-        status: 'checking',
+        name: "GraphQL API",
+        status: "checking",
         url: process.env.NEXT_PUBLIC_GRAPHQL_URL,
         icon: <Server className="h-4 w-4" />,
       },
       {
-        name: 'Authentication',
-        status: 'checking',
+        name: "Authentication",
+        status: "checking",
         url: process.env.NEXT_PUBLIC_AUTH_URL,
         icon: <Shield className="h-4 w-4" />,
       },
       {
-        name: 'Storage',
-        status: 'checking',
+        name: "Storage",
+        status: "checking",
         url: process.env.NEXT_PUBLIC_STORAGE_URL,
         icon: <HardDrive className="h-4 w-4" />,
       },
       {
-        name: 'Database',
-        status: 'checking',
+        name: "Database",
+        status: "checking",
         icon: <Database className="h-4 w-4" />,
       },
-    ]
+    ];
 
-    setHealthChecks(checks)
+    setHealthChecks(checks);
 
     // Check Frontend (always healthy if we're running)
-    checks[0].status = 'healthy'
-    checks[0].message = 'Frontend is running'
+    checks[0].status = "healthy";
+    checks[0].message = "Frontend is running";
 
     // Check GraphQL API
     try {
-      const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL
+      const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
       if (graphqlUrl) {
         const response = await fetch(graphqlUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            query: '{ __typename }',
+            query: "{ __typename }",
           }),
-        })
-        checks[1].status = response.ok ? 'healthy' : 'degraded'
-        checks[1].message = response.ok ? 'GraphQL API is responsive' : `HTTP ${response.status}`
+        });
+        checks[1].status = response.ok ? "healthy" : "degraded";
+        checks[1].message = response.ok
+          ? "GraphQL API is responsive"
+          : `HTTP ${response.status}`;
       } else {
-        checks[1].status = 'unhealthy'
-        checks[1].message = 'GraphQL URL not configured'
+        checks[1].status = "unhealthy";
+        checks[1].message = "GraphQL URL not configured";
       }
     } catch (error) {
-      checks[1].status = 'unhealthy'
-      checks[1].message = 'Cannot connect to GraphQL API'
+      checks[1].status = "unhealthy";
+      checks[1].message = "Cannot connect to GraphQL API";
     }
 
     // Check Authentication
     try {
-      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL
+      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL;
       if (authUrl) {
         const response = await fetch(`${authUrl}/healthz`, {
-          method: 'GET',
-        })
-        checks[2].status = response.ok ? 'healthy' : 'degraded'
-        checks[2].message = response.ok ? 'Auth service is responsive' : `HTTP ${response.status}`
+          method: "GET",
+        });
+        checks[2].status = response.ok ? "healthy" : "degraded";
+        checks[2].message = response.ok
+          ? "Auth service is responsive"
+          : `HTTP ${response.status}`;
       } else {
-        checks[2].status = 'unhealthy'
-        checks[2].message = 'Auth URL not configured'
+        checks[2].status = "unhealthy";
+        checks[2].message = "Auth URL not configured";
       }
     } catch (error) {
-      checks[2].status = 'unhealthy'
-      checks[2].message = 'Cannot connect to Auth service'
+      checks[2].status = "unhealthy";
+      checks[2].message = "Cannot connect to Auth service";
     }
 
     // Check Storage
     try {
-      const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL
+      const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL;
       if (storageUrl) {
         const response = await fetch(`${storageUrl}/healthz`, {
-          method: 'GET',
-        })
-        checks[3].status = response.ok ? 'healthy' : 'degraded'
+          method: "GET",
+        });
+        checks[3].status = response.ok ? "healthy" : "degraded";
         checks[3].message = response.ok
-          ? 'Storage service is responsive'
-          : `HTTP ${response.status}`
+          ? "Storage service is responsive"
+          : `HTTP ${response.status}`;
       } else {
-        checks[3].status = 'unhealthy'
-        checks[3].message = 'Storage URL not configured'
+        checks[3].status = "unhealthy";
+        checks[3].message = "Storage URL not configured";
       }
     } catch (error) {
-      checks[3].status = 'unhealthy'
-      checks[3].message = 'Cannot connect to Storage service'
+      checks[3].status = "unhealthy";
+      checks[3].message = "Cannot connect to Storage service";
     }
 
     // Check Database (via GraphQL)
     try {
-      const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL
-      if (graphqlUrl && checks[1].status === 'healthy') {
+      const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
+      if (graphqlUrl && checks[1].status === "healthy") {
         // Database is healthy if GraphQL is healthy
-        checks[4].status = 'healthy'
-        checks[4].message = 'Database is accessible via GraphQL'
+        checks[4].status = "healthy";
+        checks[4].message = "Database is accessible via GraphQL";
       } else {
-        checks[4].status = 'degraded'
-        checks[4].message = 'Database status depends on GraphQL'
+        checks[4].status = "degraded";
+        checks[4].message = "Database status depends on GraphQL";
       }
     } catch (error) {
-      checks[4].status = 'unhealthy'
-      checks[4].message = 'Cannot verify database status'
+      checks[4].status = "unhealthy";
+      checks[4].message = "Cannot verify database status";
     }
 
-    setHealthChecks(checks)
-    setLastChecked(new Date())
-    setIsChecking(false)
-  }
+    setHealthChecks(checks);
+    setLastChecked(new Date());
+    setIsChecking(false);
+  };
 
   const loadDeploymentInfo = () => {
     const info: DeploymentInfo = {
-      environment: process.env.NEXT_PUBLIC_ENV || 'production',
-      region: process.env.VERCEL_REGION || 'Unknown',
-      deployedAt: process.env.VERCEL_GIT_COMMIT_AUTHORED_DATE || new Date().toISOString(),
-      version: process.env.NEXT_PUBLIC_RELEASE_VERSION || '0.9.1',
-      commitSha: process.env.VERCEL_GIT_COMMIT_SHA?.substring(0, 7) || 'Unknown',
+      environment: process.env.NEXT_PUBLIC_ENV || "production",
+      region: process.env.VERCEL_REGION || "Unknown",
+      deployedAt:
+        process.env.VERCEL_GIT_COMMIT_AUTHORED_DATE || new Date().toISOString(),
+      version: process.env.NEXT_PUBLIC_RELEASE_VERSION || "0.9.1",
+      commitSha:
+        process.env.VERCEL_GIT_COMMIT_SHA?.substring(0, 7) || "Unknown",
       buildTime: process.env.BUILD_TIME,
-    }
-    setDeploymentInfo(info)
-  }
+    };
+    setDeploymentInfo(info);
+  };
 
-  const getStatusIcon = (status: HealthCheck['status']) => {
+  const getStatusIcon = (status: HealthCheck["status"]) => {
     switch (status) {
-      case 'healthy':
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />
-      case 'degraded':
-        return <AlertCircle className="h-4 w-4 text-yellow-500" />
-      case 'unhealthy':
-        return <XCircle className="h-4 w-4 text-red-500" />
-      case 'checking':
-        return <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+      case "healthy":
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case "degraded":
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+      case "unhealthy":
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case "checking":
+        return (
+          <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+        );
     }
-  }
+  };
 
-  const getStatusBadge = (status: HealthCheck['status']) => {
+  const getStatusBadge = (status: HealthCheck["status"]) => {
     switch (status) {
-      case 'healthy':
-        return <Badge variant="default">Healthy</Badge>
-      case 'degraded':
-        return <Badge variant="secondary">Degraded</Badge>
-      case 'unhealthy':
-        return <Badge variant="destructive">Unhealthy</Badge>
-      case 'checking':
-        return <Badge variant="outline">Checking...</Badge>
+      case "healthy":
+        return <Badge variant="default">Healthy</Badge>;
+      case "degraded":
+        return <Badge variant="secondary">Degraded</Badge>;
+      case "unhealthy":
+        return <Badge variant="destructive">Unhealthy</Badge>;
+      case "checking":
+        return <Badge variant="outline">Checking...</Badge>;
     }
-  }
+  };
 
   const overallHealth = healthChecks.length
-    ? healthChecks.every((check) => check.status === 'healthy')
-      ? 'healthy'
-      : healthChecks.some((check) => check.status === 'unhealthy')
-        ? 'unhealthy'
-        : 'degraded'
-    : 'checking'
+    ? healthChecks.every((check) => check.status === "healthy")
+      ? "healthy"
+      : healthChecks.some((check) => check.status === "unhealthy")
+        ? "unhealthy"
+        : "degraded"
+    : "checking";
 
-  const healthyCount = healthChecks.filter((check) => check.status === 'healthy').length
-  const healthPercentage = healthChecks.length ? (healthyCount / healthChecks.length) * 100 : 0
+  const healthyCount = healthChecks.filter(
+    (check) => check.status === "healthy",
+  ).length;
+  const healthPercentage = healthChecks.length
+    ? (healthyCount / healthChecks.length) * 100
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -231,7 +251,9 @@ export default function DeploymentStatusChecker() {
                 <Activity className="h-5 w-5" />
                 Deployment Status
               </CardTitle>
-              <CardDescription>Monitor the health of your deployment and services</CardDescription>
+              <CardDescription>
+                Monitor the health of your deployment and services
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               {getStatusBadge(overallHealth)}
@@ -241,7 +263,9 @@ export default function DeploymentStatusChecker() {
                 onClick={performHealthCheck}
                 disabled={isChecking}
               >
-                <RefreshCw className={`mr-2 h-4 w-4 ${isChecking ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`mr-2 h-4 w-4 ${isChecking ? "animate-spin" : ""}`}
+                />
                 Refresh
               </Button>
             </div>
@@ -283,7 +307,9 @@ export default function DeploymentStatusChecker() {
                     <div>
                       <div className="text-sm font-medium">{check.name}</div>
                       {check.message && (
-                        <div className="text-xs text-muted-foreground">{check.message}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {check.message}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -292,7 +318,7 @@ export default function DeploymentStatusChecker() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => window.open(check.url, '_blank')}
+                        onClick={() => window.open(check.url, "_blank")}
                       >
                         <ExternalLink className="h-3 w-3" />
                       </Button>
@@ -317,7 +343,9 @@ export default function DeploymentStatusChecker() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="text-muted-foreground">Environment</div>
-                <div className="font-medium capitalize">{deploymentInfo.environment}</div>
+                <div className="font-medium capitalize">
+                  {deploymentInfo.environment}
+                </div>
               </div>
               <div>
                 <div className="text-muted-foreground">Region</div>
@@ -329,7 +357,9 @@ export default function DeploymentStatusChecker() {
               </div>
               <div>
                 <div className="text-muted-foreground">Commit</div>
-                <div className="font-mono text-xs">{deploymentInfo.commitSha}</div>
+                <div className="font-mono text-xs">
+                  {deploymentInfo.commitSha}
+                </div>
               </div>
               <div className="col-span-2">
                 <div className="text-muted-foreground">Deployed At</div>
@@ -343,38 +373,39 @@ export default function DeploymentStatusChecker() {
       )}
 
       {/* Warnings and Alerts */}
-      {overallHealth === 'unhealthy' && (
+      {overallHealth === "unhealthy" && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Service Issues Detected</AlertTitle>
           <AlertDescription>
-            One or more services are experiencing issues. Please check the service health above and
-            verify your environment configuration.
+            One or more services are experiencing issues. Please check the
+            service health above and verify your environment configuration.
           </AlertDescription>
         </Alert>
       )}
 
-      {overallHealth === 'degraded' && (
+      {overallHealth === "degraded" && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Degraded Performance</AlertTitle>
           <AlertDescription>
-            Some services are experiencing degraded performance. This may affect functionality.
-            Monitor the situation and check logs for more details.
+            Some services are experiencing degraded performance. This may affect
+            functionality. Monitor the situation and check logs for more
+            details.
           </AlertDescription>
         </Alert>
       )}
 
-      {process.env.NEXT_PUBLIC_USE_DEV_AUTH === 'true' && (
+      {process.env.NEXT_PUBLIC_USE_DEV_AUTH === "true" && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Development Mode Active</AlertTitle>
           <AlertDescription>
-            Development authentication is enabled. This is NOT secure for production. Set
-            NEXT_PUBLIC_USE_DEV_AUTH=false before deploying.
+            Development authentication is enabled. This is NOT secure for
+            production. Set NEXT_PUBLIC_USE_DEV_AUTH=false before deploying.
           </AlertDescription>
         </Alert>
       )}
     </div>
-  )
+  );
 }

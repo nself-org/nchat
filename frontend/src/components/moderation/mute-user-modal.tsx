@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MuteUserModal - Modal for moderators to mute a user
@@ -6,7 +6,7 @@
  * Allows setting mute duration and scope (specific channel or global).
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,64 +14,79 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { useMutation } from '@apollo/client'
-import { MUTE_USER } from '@/graphql/moderation'
-import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@/lib/utils'
-import { VolumeX, Loader2, CheckCircle2, AlertTriangle, Clock, Globe, Hash } from 'lucide-react'
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useMutation } from "@apollo/client";
+import { MUTE_USER } from "@/graphql/moderation";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
+import {
+  VolumeX,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  Globe,
+  Hash,
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type MuteDuration = '15m' | '1h' | '4h' | '24h' | '7d' | '30d' | 'permanent'
+export type MuteDuration =
+  | "15m"
+  | "1h"
+  | "4h"
+  | "24h"
+  | "7d"
+  | "30d"
+  | "permanent";
 
 export interface MuteDurationOption {
-  value: MuteDuration
-  label: string
-  description: string
+  value: MuteDuration;
+  label: string;
+  description: string;
 }
 
 export interface MuteUserModalProps {
   /** Whether the modal is open */
-  open: boolean
+  open: boolean;
   /** Callback when open state changes */
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void;
   /** User to mute */
   user: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
   /** Current channel (optional, for channel-specific mutes) */
   channel?: {
-    id: string
-    name: string
-  }
+    id: string;
+    name: string;
+  };
   /** Available channels for channel-specific mutes */
   channels?: Array<{
-    id: string
-    name: string
-  }>
+    id: string;
+    name: string;
+  }>;
   /** Callback after successful mute */
-  onMuted?: () => void
+  onMuted?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -80,41 +95,41 @@ export interface MuteUserModalProps {
 
 const MUTE_DURATIONS: MuteDurationOption[] = [
   {
-    value: '15m',
-    label: '15 minutes',
-    description: 'Short cooldown period',
+    value: "15m",
+    label: "15 minutes",
+    description: "Short cooldown period",
   },
   {
-    value: '1h',
-    label: '1 hour',
-    description: 'One hour timeout',
+    value: "1h",
+    label: "1 hour",
+    description: "One hour timeout",
   },
   {
-    value: '4h',
-    label: '4 hours',
-    description: 'Half-day timeout',
+    value: "4h",
+    label: "4 hours",
+    description: "Half-day timeout",
   },
   {
-    value: '24h',
-    label: '24 hours',
-    description: 'Full day timeout',
+    value: "24h",
+    label: "24 hours",
+    description: "Full day timeout",
   },
   {
-    value: '7d',
-    label: '7 days',
-    description: 'Week-long mute',
+    value: "7d",
+    label: "7 days",
+    description: "Week-long mute",
   },
   {
-    value: '30d',
-    label: '30 days',
-    description: 'Month-long mute',
+    value: "30d",
+    label: "30 days",
+    description: "Month-long mute",
   },
   {
-    value: 'permanent',
-    label: 'Permanent',
-    description: 'Until manually unmuted',
+    value: "permanent",
+    label: "Permanent",
+    description: "Until manually unmuted",
   },
-]
+];
 
 // ============================================================================
 // Helper Functions
@@ -122,30 +137,30 @@ const MUTE_DURATIONS: MuteDurationOption[] = [
 
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 function calculateMuteUntil(duration: MuteDuration): Date | null {
-  const now = new Date()
+  const now = new Date();
   switch (duration) {
-    case '15m':
-      return new Date(now.getTime() + 15 * 60 * 1000)
-    case '1h':
-      return new Date(now.getTime() + 60 * 60 * 1000)
-    case '4h':
-      return new Date(now.getTime() + 4 * 60 * 60 * 1000)
-    case '24h':
-      return new Date(now.getTime() + 24 * 60 * 60 * 1000)
-    case '7d':
-      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-    case '30d':
-      return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
-    case 'permanent':
-      return null // No end date for permanent mutes
+    case "15m":
+      return new Date(now.getTime() + 15 * 60 * 1000);
+    case "1h":
+      return new Date(now.getTime() + 60 * 60 * 1000);
+    case "4h":
+      return new Date(now.getTime() + 4 * 60 * 60 * 1000);
+    case "24h":
+      return new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    case "7d":
+      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    case "30d":
+      return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    case "permanent":
+      return null; // No end date for permanent mutes
   }
 }
 
@@ -162,54 +177,57 @@ export function MuteUserModal({
   onMuted,
   className,
 }: MuteUserModalProps) {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser } = useAuth();
 
   // Form state
-  const [selectedDuration, setSelectedDuration] = React.useState<MuteDuration>('1h')
-  const [isGlobal, setIsGlobal] = React.useState(false)
-  const [selectedChannelId, setSelectedChannelId] = React.useState<string>(channel?.id || '')
-  const [reason, setReason] = React.useState('')
+  const [selectedDuration, setSelectedDuration] =
+    React.useState<MuteDuration>("1h");
+  const [isGlobal, setIsGlobal] = React.useState(false);
+  const [selectedChannelId, setSelectedChannelId] = React.useState<string>(
+    channel?.id || "",
+  );
+  const [reason, setReason] = React.useState("");
 
   // Submission state
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [submitError, setSubmitError] = React.useState<string | null>(null)
-  const [submitSuccess, setSubmitSuccess] = React.useState(false)
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = React.useState(false);
 
   // GraphQL mutation
-  const [muteUserMutation] = useMutation(MUTE_USER)
+  const [muteUserMutation] = useMutation(MUTE_USER);
 
   // Reset form when modal opens
   React.useEffect(() => {
     if (open) {
-      setSelectedDuration('1h')
-      setIsGlobal(false)
-      setSelectedChannelId(channel?.id || '')
-      setReason('')
-      setSubmitError(null)
-      setSubmitSuccess(false)
+      setSelectedDuration("1h");
+      setIsGlobal(false);
+      setSelectedChannelId(channel?.id || "");
+      setReason("");
+      setSubmitError(null);
+      setSubmitSuccess(false);
     }
-  }, [open, channel?.id])
+  }, [open, channel?.id]);
 
   // Handle form submission
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent) => {
-      e.preventDefault()
+      e.preventDefault();
 
       if (!currentUser?.id) {
-        setSubmitError('You must be logged in to mute users')
-        return
+        setSubmitError("You must be logged in to mute users");
+        return;
       }
 
       if (!isGlobal && !selectedChannelId) {
-        setSubmitError('Please select a channel or enable global mute')
-        return
+        setSubmitError("Please select a channel or enable global mute");
+        return;
       }
 
-      setIsSubmitting(true)
-      setSubmitError(null)
+      setIsSubmitting(true);
+      setSubmitError(null);
 
       try {
-        const mutedUntil = calculateMuteUntil(selectedDuration)
+        const mutedUntil = calculateMuteUntil(selectedDuration);
 
         await muteUserMutation({
           variables: {
@@ -220,20 +238,21 @@ export function MuteUserModal({
             mutedUntil: mutedUntil?.toISOString() || null,
             isGlobal,
           },
-        })
+        });
 
-        setSubmitSuccess(true)
-        onMuted?.()
+        setSubmitSuccess(true);
+        onMuted?.();
 
         // Close modal after a short delay to show success state
         setTimeout(() => {
-          onOpenChange(false)
-        }, 2000)
+          onOpenChange(false);
+        }, 2000);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to mute user'
-        setSubmitError(errorMessage)
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to mute user";
+        setSubmitError(errorMessage);
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
     [
@@ -246,12 +265,12 @@ export function MuteUserModal({
       muteUserMutation,
       onMuted,
       onOpenChange,
-    ]
-  )
+    ],
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('sm:max-w-lg', className)}>
+      <DialogContent className={cn("sm:max-w-lg", className)}>
         {submitSuccess ? (
           // Success state
           <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -260,13 +279,13 @@ export function MuteUserModal({
             </div>
             <h3 className="mb-2 text-lg font-semibold">User Muted</h3>
             <p className="max-w-xs text-sm text-muted-foreground">
-              {user.displayName} has been muted{' '}
+              {user.displayName} has been muted{" "}
               {isGlobal
-                ? 'globally'
+                ? "globally"
                 : `in #${channels.find((c) => c.id === selectedChannelId)?.name || channel?.name}`}
-              {selectedDuration !== 'permanent'
+              {selectedDuration !== "permanent"
                 ? ` for ${MUTE_DURATIONS.find((d) => d.value === selectedDuration)?.label}`
-                : ' permanently'}
+                : " permanently"}
               .
             </p>
           </div>
@@ -289,11 +308,15 @@ export function MuteUserModal({
               <div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-                  <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                  <AvatarFallback>
+                    {getInitials(user.displayName)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{user.displayName}</p>
-                  <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
+                  <p className="truncate text-sm text-muted-foreground">
+                    @{user.username}
+                  </p>
                 </div>
               </div>
 
@@ -304,15 +327,19 @@ export function MuteUserModal({
                   {/* Global toggle */}
                   <div
                     className={cn(
-                      'flex items-center justify-between rounded-lg border p-3 transition-colors',
-                      isGlobal ? 'bg-primary/5 border-primary' : 'bg-muted/50 border-transparent'
+                      "flex items-center justify-between rounded-lg border p-3 transition-colors",
+                      isGlobal
+                        ? "bg-primary/5 border-primary"
+                        : "bg-muted/50 border-transparent",
                     )}
                   >
                     <div className="flex items-center gap-3">
                       <Globe className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <p className="text-sm font-medium">Global Mute</p>
-                        <p className="text-xs text-muted-foreground">Mute in all channels</p>
+                        <p className="text-xs text-muted-foreground">
+                          Mute in all channels
+                        </p>
                       </div>
                     </div>
                     <Switch checked={isGlobal} onCheckedChange={setIsGlobal} />
@@ -328,13 +355,18 @@ export function MuteUserModal({
                         <Hash className="h-3 w-3" />
                         Or select a specific channel
                       </Label>
-                      <Select value={selectedChannelId} onValueChange={setSelectedChannelId}>
+                      <Select
+                        value={selectedChannelId}
+                        onValueChange={setSelectedChannelId}
+                      >
                         <SelectTrigger id="channel-select">
                           <SelectValue placeholder="Select channel" />
                         </SelectTrigger>
                         <SelectContent>
                           {channel && (
-                            <SelectItem value={channel.id}># {channel.name} (current)</SelectItem>
+                            <SelectItem value={channel.id}>
+                              # {channel.name} (current)
+                            </SelectItem>
                           )}
                           {channels
                             .filter((c) => c.id !== channel?.id)
@@ -358,25 +390,32 @@ export function MuteUserModal({
                 </Label>
                 <RadioGroup
                   value={selectedDuration}
-                  onValueChange={(value) => setSelectedDuration(value as MuteDuration)}
+                  onValueChange={(value) =>
+                    setSelectedDuration(value as MuteDuration)
+                  }
                   className="grid grid-cols-2 gap-2"
                 >
                   {MUTE_DURATIONS.map((duration) => (
                     <div
                       key={duration.value}
                       className={cn(
-                        'flex cursor-pointer items-center space-x-2 rounded-lg border p-3 transition-colors',
+                        "flex cursor-pointer items-center space-x-2 rounded-lg border p-3 transition-colors",
                         selectedDuration === duration.value
-                          ? 'bg-primary/5 border-primary'
-                          : 'hover:bg-muted/50 border-transparent'
+                          ? "bg-primary/5 border-primary"
+                          : "hover:bg-muted/50 border-transparent",
                       )}
                     >
-                      <RadioGroupItem value={duration.value} id={`duration-${duration.value}`} />
+                      <RadioGroupItem
+                        value={duration.value}
+                        id={`duration-${duration.value}`}
+                      />
                       <Label
                         htmlFor={`duration-${duration.value}`}
                         className="flex-1 cursor-pointer"
                       >
-                        <span className="text-sm font-medium">{duration.label}</span>
+                        <span className="text-sm font-medium">
+                          {duration.label}
+                        </span>
                       </Label>
                     </div>
                   ))}
@@ -397,7 +436,9 @@ export function MuteUserModal({
                   maxLength={200}
                   className="resize-none"
                 />
-                <p className="text-right text-xs text-muted-foreground">{reason.length}/200</p>
+                <p className="text-right text-xs text-muted-foreground">
+                  {reason.length}/200
+                </p>
               </div>
 
               {/* Error message */}
@@ -441,7 +482,7 @@ export function MuteUserModal({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default MuteUserModal
+export default MuteUserModal;

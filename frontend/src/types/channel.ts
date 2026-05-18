@@ -5,7 +5,7 @@
  * Supports public/private channels, direct messages, and group DMs.
  */
 
-import type { UserBasicInfo, UserRole } from './user'
+import type { UserBasicInfo, UserRole } from "./user";
 
 // ============================================================================
 // Channel Type Definitions
@@ -14,32 +14,32 @@ import type { UserBasicInfo, UserRole } from './user'
 /**
  * Types of channels available in the system.
  */
-export type ChannelType = 'public' | 'private' | 'direct' | 'group_dm'
+export type ChannelType = "public" | "private" | "direct" | "group_dm";
 
 /**
  * Human-readable labels for channel types.
  */
 export const ChannelTypeLabels: Record<ChannelType, string> = {
-  public: 'Public Channel',
-  private: 'Private Channel',
-  direct: 'Direct Message',
-  group_dm: 'Group Direct Message',
-} as const
+  public: "Public Channel",
+  private: "Private Channel",
+  direct: "Direct Message",
+  group_dm: "Group Direct Message",
+} as const;
 
 /**
  * Icons for channel types (emoji representation).
  */
 export const ChannelTypeIcons: Record<ChannelType, string> = {
-  public: '#',
-  private: '🔒',
-  direct: '💬',
-  group_dm: '👥',
-} as const
+  public: "#",
+  private: "🔒",
+  direct: "💬",
+  group_dm: "👥",
+} as const;
 
 /**
  * Channel visibility status.
  */
-export type ChannelVisibility = 'visible' | 'hidden' | 'archived'
+export type ChannelVisibility = "visible" | "hidden" | "archived";
 
 // ============================================================================
 // Channel Category Types
@@ -50,40 +50,40 @@ export type ChannelVisibility = 'visible' | 'hidden' | 'archived'
  */
 export interface ChannelCategory {
   /** Unique category identifier */
-  id: string
+  id: string;
   /** Category name */
-  name: string
+  name: string;
   /** Category description */
-  description?: string
+  description?: string;
   /** Display order position */
-  position: number
+  position: number;
   /** Whether the category is collapsed in the sidebar */
-  isCollapsed: boolean
+  isCollapsed: boolean;
   /** Channels in this category */
-  channelIds: string[]
+  channelIds: string[];
   /** When the category was created */
-  createdAt: Date
+  createdAt: Date;
   /** When the category was last updated */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
  * Input for creating a new category.
  */
 export interface CreateChannelCategoryInput {
-  name: string
-  description?: string
-  position?: number
+  name: string;
+  description?: string;
+  position?: number;
 }
 
 /**
  * Input for updating a category.
  */
 export interface UpdateChannelCategoryInput {
-  name?: string
-  description?: string
-  position?: number
-  isCollapsed?: boolean
+  name?: string;
+  description?: string;
+  position?: number;
+  isCollapsed?: boolean;
 }
 
 // ============================================================================
@@ -93,40 +93,52 @@ export interface UpdateChannelCategoryInput {
 /**
  * Slow mode duration options (in seconds).
  */
-export type SlowModeDuration = 0 | 5 | 10 | 15 | 30 | 60 | 120 | 300 | 600 | 900 | 1800 | 3600
+export type SlowModeDuration =
+  | 0
+  | 5
+  | 10
+  | 15
+  | 30
+  | 60
+  | 120
+  | 300
+  | 600
+  | 900
+  | 1800
+  | 3600;
 
 /**
  * Channel-specific settings and permissions.
  */
 export interface ChannelSettings {
   /** Allow message reactions */
-  allowReactions: boolean
+  allowReactions: boolean;
   /** Allow message threads */
-  allowThreads: boolean
+  allowThreads: boolean;
   /** Allow file uploads */
-  allowFileUploads: boolean
+  allowFileUploads: boolean;
   /** Allow link previews */
-  allowLinkPreviews: boolean
+  allowLinkPreviews: boolean;
   /** Allow @everyone mentions */
-  allowEveryoneMentions: boolean
+  allowEveryoneMentions: boolean;
   /** Allow @here mentions */
-  allowHereMentions: boolean
+  allowHereMentions: boolean;
   /** Slow mode delay in seconds (0 = disabled) */
-  slowModeDelay: SlowModeDuration
+  slowModeDelay: SlowModeDuration;
   /** Auto-archive inactive threads after days (0 = disabled) */
-  autoArchiveThreadsDays: 0 | 1 | 3 | 7
+  autoArchiveThreadsDays: 0 | 1 | 3 | 7;
   /** Default message notification level */
-  defaultNotificationLevel: ChannelNotificationLevel
+  defaultNotificationLevel: ChannelNotificationLevel;
   /** Whether channel is NSFW (age-restricted) */
-  isNsfw: boolean
+  isNsfw: boolean;
   /** Minimum role required to send messages */
-  minRoleToSend?: UserRole
+  minRoleToSend?: UserRole;
   /** Minimum role required to create threads */
-  minRoleToThread?: UserRole
+  minRoleToThread?: UserRole;
   /** Minimum role required to mention @everyone */
-  minRoleToMentionEveryone?: UserRole
+  minRoleToMentionEveryone?: UserRole;
   /** Custom permissions for this channel */
-  customPermissions?: ChannelPermissionOverrides[]
+  customPermissions?: ChannelPermissionOverrides[];
 }
 
 /**
@@ -141,46 +153,46 @@ export const DefaultChannelSettings: ChannelSettings = {
   allowHereMentions: true,
   slowModeDelay: 0,
   autoArchiveThreadsDays: 0,
-  defaultNotificationLevel: 'all',
+  defaultNotificationLevel: "all",
   isNsfw: false,
-}
+};
 
 /**
  * Notification level for a channel.
  */
-export type ChannelNotificationLevel = 'all' | 'mentions' | 'none'
+export type ChannelNotificationLevel = "all" | "mentions" | "none";
 
 /**
  * Permission overrides for a specific role in a channel.
  */
 export interface ChannelPermissionOverrides {
   /** Role or user ID this override applies to */
-  targetId: string
+  targetId: string;
   /** Whether this is a role or user override */
-  targetType: 'role' | 'user'
+  targetType: "role" | "user";
   /** Permissions to allow (overrides deny) */
-  allow: Partial<ChannelPermissionFlags>
+  allow: Partial<ChannelPermissionFlags>;
   /** Permissions to deny */
-  deny: Partial<ChannelPermissionFlags>
+  deny: Partial<ChannelPermissionFlags>;
 }
 
 /**
  * Channel-specific permission flags.
  */
 export interface ChannelPermissionFlags {
-  viewChannel: boolean
-  sendMessages: boolean
-  createThreads: boolean
-  sendMessagesInThreads: boolean
-  embedLinks: boolean
-  attachFiles: boolean
-  addReactions: boolean
-  useExternalEmojis: boolean
-  mentionEveryone: boolean
-  manageMessages: boolean
-  manageThreads: boolean
-  readMessageHistory: boolean
-  sendVoiceMessages: boolean
+  viewChannel: boolean;
+  sendMessages: boolean;
+  createThreads: boolean;
+  sendMessagesInThreads: boolean;
+  embedLinks: boolean;
+  attachFiles: boolean;
+  addReactions: boolean;
+  useExternalEmojis: boolean;
+  mentionEveryone: boolean;
+  manageMessages: boolean;
+  manageThreads: boolean;
+  readMessageHistory: boolean;
+  sendVoiceMessages: boolean;
 }
 
 // ============================================================================
@@ -192,31 +204,31 @@ export interface ChannelPermissionFlags {
  */
 export interface ChannelMember {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User information */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** When the user joined the channel */
-  joinedAt: Date
+  joinedAt: Date;
   /** User's notification preferences for this channel */
-  notificationLevel: ChannelNotificationLevel
+  notificationLevel: ChannelNotificationLevel;
   /** Whether channel is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** When mute expires (null = indefinite) */
-  mutedUntil?: Date | null
+  mutedUntil?: Date | null;
   /** Whether channel is pinned/favorited */
-  isPinned: boolean
+  isPinned: boolean;
   /** Last message ID the user has read */
-  lastReadMessageId?: string
+  lastReadMessageId?: string;
   /** Last time user read the channel */
-  lastReadAt?: Date
+  lastReadAt?: Date;
   /** Unread message count */
-  unreadCount: number
+  unreadCount: number;
   /** Unread mention count */
-  unreadMentionCount: number
+  unreadMentionCount: number;
   /** Custom nickname in this channel */
-  nickname?: string
+  nickname?: string;
 }
 
 /**
@@ -224,10 +236,10 @@ export interface ChannelMember {
  */
 export type ChannelMemberBasic = Pick<
   ChannelMember,
-  'channelId' | 'userId' | 'joinedAt' | 'notificationLevel' | 'isMuted'
+  "channelId" | "userId" | "joinedAt" | "notificationLevel" | "isMuted"
 > & {
-  user: UserBasicInfo
-}
+  user: UserBasicInfo;
+};
 
 // ============================================================================
 // Channel Invite Types
@@ -238,34 +250,34 @@ export type ChannelMemberBasic = Pick<
  */
 export interface ChannelInvite {
   /** Unique invite code */
-  code: string
+  code: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** User who created the invite */
-  createdBy: string
+  createdBy: string;
   /** When the invite was created */
-  createdAt: Date
+  createdAt: Date;
   /** When the invite expires (null = never) */
-  expiresAt?: Date | null
+  expiresAt?: Date | null;
   /** Maximum number of uses (null = unlimited) */
-  maxUses?: number | null
+  maxUses?: number | null;
   /** Current number of times used */
-  uses: number
+  uses: number;
   /** Whether the invite is active */
-  isActive: boolean
+  isActive: boolean;
   /** Whether to grant temporary membership */
-  isTemporary: boolean
+  isTemporary: boolean;
 }
 
 /**
  * Input for creating a channel invite.
  */
 export interface CreateChannelInviteInput {
-  channelId: string
+  channelId: string;
   /** Duration in seconds (null = never expires) */
-  expiresIn?: number | null
-  maxUses?: number | null
-  isTemporary?: boolean
+  expiresIn?: number | null;
+  maxUses?: number | null;
+  isTemporary?: boolean;
 }
 
 // ============================================================================
@@ -277,79 +289,79 @@ export interface CreateChannelInviteInput {
  */
 export interface Channel {
   /** Unique channel identifier */
-  id: string
+  id: string;
   /** Channel name (for public/private channels) */
-  name: string
+  name: string;
   /** Channel description */
-  description?: string
+  description?: string;
   /** Channel topic (displayed in header) */
-  topic?: string
+  topic?: string;
   /** Channel type */
-  type: ChannelType
+  type: ChannelType;
   /** Channel visibility */
-  visibility: ChannelVisibility
+  visibility: ChannelVisibility;
   /** Channel icon URL or emoji */
-  icon?: string
+  icon?: string;
   /** Category this channel belongs to */
-  categoryId?: string
+  categoryId?: string;
   /** Display order within category */
-  position: number
+  position: number;
   /** Channel creator */
-  createdBy: string
+  createdBy: string;
   /** When the channel was created */
-  createdAt: Date
+  createdAt: Date;
   /** When the channel was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** Channel settings */
-  settings: ChannelSettings
+  settings: ChannelSettings;
   /** Number of members (cached) */
-  memberCount: number
+  memberCount: number;
   /** Last message timestamp */
-  lastMessageAt?: Date
+  lastMessageAt?: Date;
   /** Last message ID */
-  lastMessageId?: string
+  lastMessageId?: string;
   /** Whether channel is default (users auto-join) */
-  isDefault: boolean
+  isDefault: boolean;
   /** Whether channel is read-only (announcements) */
-  isReadOnly: boolean
+  isReadOnly: boolean;
   /** Whether channel is archived */
-  isArchived: boolean
+  isArchived: boolean;
   /** When channel was archived */
-  archivedAt?: Date
+  archivedAt?: Date;
   /** Who archived the channel */
-  archivedBy?: string
+  archivedBy?: string;
   /** Pinned message IDs */
-  pinnedMessageIds?: string[]
+  pinnedMessageIds?: string[];
 }
 
 /**
  * Direct message channel with participant information.
  */
-export interface DirectMessageChannel extends Omit<Channel, 'name' | 'type'> {
-  type: 'direct'
+export interface DirectMessageChannel extends Omit<Channel, "name" | "type"> {
+  type: "direct";
   /** The other participant (for display) */
-  participant: UserBasicInfo
+  participant: UserBasicInfo;
   /** Participants in the DM */
-  participantIds: [string, string]
+  participantIds: [string, string];
 }
 
 /**
  * Group DM channel with participant information.
  */
-export interface GroupDMChannel extends Omit<Channel, 'type'> {
-  type: 'group_dm'
+export interface GroupDMChannel extends Omit<Channel, "type"> {
+  type: "group_dm";
   /** All participants in the group */
-  participants: UserBasicInfo[]
+  participants: UserBasicInfo[];
   /** Participant user IDs */
-  participantIds: string[]
+  participantIds: string[];
   /** Owner of the group DM */
-  ownerId: string
+  ownerId: string;
 }
 
 /**
  * Union type for all channel variations.
  */
-export type AnyChannel = Channel | DirectMessageChannel | GroupDMChannel
+export type AnyChannel = Channel | DirectMessageChannel | GroupDMChannel;
 
 // ============================================================================
 // Channel State Types
@@ -360,9 +372,9 @@ export type AnyChannel = Channel | DirectMessageChannel | GroupDMChannel
  */
 export interface ChannelWithMembership extends Channel {
   /** Current user's membership */
-  membership?: ChannelMember
+  membership?: ChannelMember;
   /** Whether current user is a member */
-  isMember: boolean
+  isMember: boolean;
 }
 
 /**
@@ -370,33 +382,33 @@ export interface ChannelWithMembership extends Channel {
  */
 export interface ChannelListItem {
   /** Channel ID */
-  id: string
+  id: string;
   /** Channel name */
-  name: string
+  name: string;
   /** Channel type */
-  type: ChannelType
+  type: ChannelType;
   /** Channel icon */
-  icon?: string
+  icon?: string;
   /** Unread count */
-  unreadCount: number
+  unreadCount: number;
   /** Unread mention count */
-  unreadMentionCount: number
+  unreadMentionCount: number;
   /** Whether channel is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Whether channel is pinned */
-  isPinned: boolean
+  isPinned: boolean;
   /** Last message preview */
   lastMessage?: {
-    content: string
-    authorName: string
-    timestamp: Date
-  }
+    content: string;
+    authorName: string;
+    timestamp: Date;
+  };
   /** Category ID (for organization) */
-  categoryId?: string
+  categoryId?: string;
   /** Position for sorting */
-  position: number
+  position: number;
   /** Whether channel is active/selected */
-  isActive?: boolean
+  isActive?: boolean;
 }
 
 /**
@@ -404,29 +416,29 @@ export interface ChannelListItem {
  */
 export interface Thread {
   /** Thread ID (same as root message ID) */
-  id: string
+  id: string;
   /** Parent channel ID */
-  channelId: string
+  channelId: string;
   /** Root message ID */
-  rootMessageId: string
+  rootMessageId: string;
   /** Thread name (from root message preview) */
-  name: string
+  name: string;
   /** Thread owner (root message author) */
-  ownerId: string
+  ownerId: string;
   /** Number of replies */
-  replyCount: number
+  replyCount: number;
   /** Participating users */
-  participantIds: string[]
+  participantIds: string[];
   /** Last reply timestamp */
-  lastReplyAt?: Date
+  lastReplyAt?: Date;
   /** Last reply user ID */
-  lastReplyUserId?: string
+  lastReplyUserId?: string;
   /** When thread was created */
-  createdAt: Date
+  createdAt: Date;
   /** Whether thread is archived */
-  isArchived: boolean
+  isArchived: boolean;
   /** Whether thread is locked (no new replies) */
-  isLocked: boolean
+  isLocked: boolean;
 }
 
 // ============================================================================
@@ -437,32 +449,32 @@ export interface Thread {
  * Input for creating a new channel.
  */
 export interface CreateChannelInput {
-  name: string
-  type: ChannelType
-  description?: string
-  topic?: string
-  icon?: string
-  categoryId?: string
-  isDefault?: boolean
-  isReadOnly?: boolean
-  settings?: Partial<ChannelSettings>
+  name: string;
+  type: ChannelType;
+  description?: string;
+  topic?: string;
+  icon?: string;
+  categoryId?: string;
+  isDefault?: boolean;
+  isReadOnly?: boolean;
+  settings?: Partial<ChannelSettings>;
   /** Initial member IDs (for private/group_dm) */
-  memberIds?: string[]
+  memberIds?: string[];
 }
 
 /**
  * Input for updating a channel.
  */
 export interface UpdateChannelInput {
-  name?: string
-  description?: string
-  topic?: string
-  icon?: string
-  categoryId?: string
-  position?: number
-  isDefault?: boolean
-  isReadOnly?: boolean
-  settings?: Partial<ChannelSettings>
+  name?: string;
+  description?: string;
+  topic?: string;
+  icon?: string;
+  categoryId?: string;
+  position?: number;
+  isDefault?: boolean;
+  isReadOnly?: boolean;
+  settings?: Partial<ChannelSettings>;
 }
 
 /**
@@ -470,17 +482,17 @@ export interface UpdateChannelInput {
  */
 export interface CreateDirectMessageInput {
   /** User ID to start DM with */
-  userId: string
+  userId: string;
 }
 
 /**
  * Input for creating a group DM.
  */
 export interface CreateGroupDMInput {
-  name?: string
-  icon?: string
+  name?: string;
+  icon?: string;
   /** User IDs to include (2-10 users) */
-  userIds: string[]
+  userIds: string[];
 }
 
 // ============================================================================
@@ -492,32 +504,37 @@ export interface CreateGroupDMInput {
  */
 export interface ChannelFilter {
   /** Search by name or description */
-  search?: string
+  search?: string;
   /** Filter by channel types */
-  types?: ChannelType[]
+  types?: ChannelType[];
   /** Filter by category */
-  categoryId?: string
+  categoryId?: string;
   /** Include archived channels */
-  includeArchived?: boolean
+  includeArchived?: boolean;
   /** Only channels user is a member of */
-  onlyJoined?: boolean
+  onlyJoined?: boolean;
   /** Only channels with unread messages */
-  onlyUnread?: boolean
+  onlyUnread?: boolean;
   /** Only pinned channels */
-  onlyPinned?: boolean
+  onlyPinned?: boolean;
 }
 
 /**
  * Channel sort options.
  */
-export type ChannelSortBy = 'name' | 'created' | 'lastMessage' | 'memberCount' | 'position'
+export type ChannelSortBy =
+  | "name"
+  | "created"
+  | "lastMessage"
+  | "memberCount"
+  | "position";
 
 /**
  * Channel sort order.
  */
 export interface ChannelSortOptions {
-  sortBy: ChannelSortBy
-  sortOrder: 'asc' | 'desc'
+  sortBy: ChannelSortBy;
+  sortOrder: "asc" | "desc";
 }
 
 // ============================================================================
@@ -528,30 +545,30 @@ export interface ChannelSortOptions {
  * Channel update event types.
  */
 export type ChannelUpdateType =
-  | 'created'
-  | 'updated'
-  | 'deleted'
-  | 'archived'
-  | 'unarchived'
-  | 'member_joined'
-  | 'member_left'
-  | 'member_updated'
-  | 'settings_updated'
-  | 'topic_changed'
-  | 'pinned_messages_changed'
+  | "created"
+  | "updated"
+  | "deleted"
+  | "archived"
+  | "unarchived"
+  | "member_joined"
+  | "member_left"
+  | "member_updated"
+  | "settings_updated"
+  | "topic_changed"
+  | "pinned_messages_changed";
 
 /**
  * Channel update event payload.
  */
 export interface ChannelUpdateEvent {
-  type: ChannelUpdateType
-  channelId: string
-  channel?: Channel
-  userId?: string
-  member?: ChannelMember
-  previousValue?: unknown
-  newValue?: unknown
-  timestamp: Date
+  type: ChannelUpdateType;
+  channelId: string;
+  channel?: Channel;
+  userId?: string;
+  member?: ChannelMember;
+  previousValue?: unknown;
+  newValue?: unknown;
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -562,31 +579,38 @@ export interface ChannelUpdateEvent {
  * Check if a channel is a DM or group DM.
  */
 export function isDirectMessage(
-  channel: AnyChannel
+  channel: AnyChannel,
 ): channel is DirectMessageChannel | GroupDMChannel {
-  return channel.type === 'direct' || channel.type === 'group_dm'
+  return channel.type === "direct" || channel.type === "group_dm";
 }
 
 /**
  * Check if a channel is a regular channel.
  */
 export function isRegularChannel(channel: AnyChannel): channel is Channel {
-  return channel.type === 'public' || channel.type === 'private'
+  return channel.type === "public" || channel.type === "private";
 }
 
 /**
  * Get display name for a channel (handles DMs).
  */
-export function getChannelDisplayName(channel: AnyChannel, currentUserId?: string): string {
-  if (channel.type === 'direct') {
-    const dmChannel = channel as DirectMessageChannel
-    return dmChannel.participant?.displayName || 'Direct Message'
+export function getChannelDisplayName(
+  channel: AnyChannel,
+  currentUserId?: string,
+): string {
+  if (channel.type === "direct") {
+    const dmChannel = channel as DirectMessageChannel;
+    return dmChannel.participant?.displayName || "Direct Message";
   }
-  if (channel.type === 'group_dm') {
-    const groupChannel = channel as GroupDMChannel
-    if (groupChannel.name) return groupChannel.name
-    const otherParticipants = groupChannel.participants?.filter((p) => p.id !== currentUserId)
-    return otherParticipants?.map((p) => p.displayName).join(', ') || 'Group Chat'
+  if (channel.type === "group_dm") {
+    const groupChannel = channel as GroupDMChannel;
+    if (groupChannel.name) return groupChannel.name;
+    const otherParticipants = groupChannel.participants?.filter(
+      (p) => p.id !== currentUserId,
+    );
+    return (
+      otherParticipants?.map((p) => p.displayName).join(", ") || "Group Chat"
+    );
   }
-  return channel.name
+  return channel.name;
 }

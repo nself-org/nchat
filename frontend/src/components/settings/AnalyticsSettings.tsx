@@ -4,16 +4,22 @@
  * User-facing privacy controls for analytics and tracking
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertCircle,
   CheckCircle2,
@@ -24,122 +30,144 @@ import {
   Activity,
   Eye,
   EyeOff,
-} from 'lucide-react'
-import { analyticsPrivacy } from '@/lib/analytics/privacy'
-import type { ConsentStatus, PrivacySettings } from '@/lib/analytics/types'
-import { analytics } from '@/lib/analytics/events'
+} from "lucide-react";
+import { analyticsPrivacy } from "@/lib/analytics/privacy";
+import type { ConsentStatus, PrivacySettings } from "@/lib/analytics/types";
+import { analytics } from "@/lib/analytics/events";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export function AnalyticsSettings() {
-  const [consent, setConsent] = useState<ConsentStatus>(analyticsPrivacy.getConsent())
-  const [settings, setSettings] = useState<PrivacySettings>(analyticsPrivacy.getPrivacySettings())
-  const [hasConsented, setHasConsented] = useState(analyticsPrivacy.hasProvidedConsent())
-  const [saving, setSaving] = useState(false)
-  const [showPrivacyInfo, setShowPrivacyInfo] = useState(false)
+  const [consent, setConsent] = useState<ConsentStatus>(
+    analyticsPrivacy.getConsent(),
+  );
+  const [settings, setSettings] = useState<PrivacySettings>(
+    analyticsPrivacy.getPrivacySettings(),
+  );
+  const [hasConsented, setHasConsented] = useState(
+    analyticsPrivacy.hasProvidedConsent(),
+  );
+  const [saving, setSaving] = useState(false);
+  const [showPrivacyInfo, setShowPrivacyInfo] = useState(false);
 
   useEffect(() => {
     // Load current settings
-    setConsent(analyticsPrivacy.getConsent())
-    setSettings(analyticsPrivacy.getPrivacySettings())
-    setHasConsented(analyticsPrivacy.hasProvidedConsent())
-  }, [])
+    setConsent(analyticsPrivacy.getConsent());
+    setSettings(analyticsPrivacy.getPrivacySettings());
+    setHasConsented(analyticsPrivacy.hasProvidedConsent());
+  }, []);
 
-  const handleConsentChange = async (field: keyof ConsentStatus, value: boolean) => {
-    const updated = { ...consent, [field]: value }
-    setConsent(updated)
-
-    try {
-      setSaving(true)
-      await analyticsPrivacy.setConsent({ [field]: value })
-      setHasConsented(true)
-    } catch (error) {
-      logger.error('Failed to update consent:', error)
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleSettingsChange = async (field: keyof PrivacySettings, value: boolean) => {
-    const updated = { ...settings, [field]: value }
-    setSettings(updated)
+  const handleConsentChange = async (
+    field: keyof ConsentStatus,
+    value: boolean,
+  ) => {
+    const updated = { ...consent, [field]: value };
+    setConsent(updated);
 
     try {
-      setSaving(true)
-      await analyticsPrivacy.setPrivacySettings({ [field]: value })
+      setSaving(true);
+      await analyticsPrivacy.setConsent({ [field]: value });
+      setHasConsented(true);
     } catch (error) {
-      logger.error('Failed to update settings:', error)
+      logger.error("Failed to update consent:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
+
+  const handleSettingsChange = async (
+    field: keyof PrivacySettings,
+    value: boolean,
+  ) => {
+    const updated = { ...settings, [field]: value };
+    setSettings(updated);
+
+    try {
+      setSaving(true);
+      await analyticsPrivacy.setPrivacySettings({ [field]: value });
+    } catch (error) {
+      logger.error("Failed to update settings:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleAcceptAll = async () => {
     try {
-      setSaving(true)
-      await analyticsPrivacy.acceptAll()
-      setConsent(analyticsPrivacy.getConsent())
-      setHasConsented(true)
+      setSaving(true);
+      await analyticsPrivacy.acceptAll();
+      setConsent(analyticsPrivacy.getConsent());
+      setHasConsented(true);
     } catch (error) {
-      logger.error('Failed to accept all:', error)
+      logger.error("Failed to accept all:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleRejectAll = async () => {
     try {
-      setSaving(true)
-      await analyticsPrivacy.rejectAll()
-      setConsent(analyticsPrivacy.getConsent())
-      setHasConsented(true)
+      setSaving(true);
+      await analyticsPrivacy.rejectAll();
+      setConsent(analyticsPrivacy.getConsent());
+      setHasConsented(true);
     } catch (error) {
-      logger.error('Failed to reject all:', error)
+      logger.error("Failed to reject all:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleExportData = async () => {
     try {
-      const data = await analyticsPrivacy.exportUserData()
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `analytics-data-${new Date().toISOString()}.json`
-      a.click()
-      URL.revokeObjectURL(url)
+      const data = await analyticsPrivacy.exportUserData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `analytics-data-${new Date().toISOString()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch (error) {
-      logger.error('Failed to export data:', error)
+      logger.error("Failed to export data:", error);
     }
-  }
+  };
 
   const handleClearData = async () => {
-    if (!confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
-      return
+    if (
+      !confirm(
+        "Are you sure you want to clear all analytics data? This cannot be undone.",
+      )
+    ) {
+      return;
     }
 
     try {
-      setSaving(true)
-      await analyticsPrivacy.clearAllData()
-      setConsent(analyticsPrivacy.getConsent())
-      setHasConsented(false)
+      setSaving(true);
+      await analyticsPrivacy.clearAllData();
+      setConsent(analyticsPrivacy.getConsent());
+      setHasConsented(false);
     } catch (error) {
-      logger.error('Failed to clear data:', error)
+      logger.error("Failed to clear data:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
-  const privacyInfo = analyticsPrivacy.getPrivacyPolicySummary()
+  const privacyInfo = analyticsPrivacy.getPrivacyPolicySummary();
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Analytics & Privacy</h2>
-        <p className="text-muted-foreground">Control what data we collect and how we use it</p>
+        <h2 className="text-2xl font-bold tracking-tight">
+          Analytics & Privacy
+        </h2>
+        <p className="text-muted-foreground">
+          Control what data we collect and how we use it
+        </p>
       </div>
 
       {/* Consent Banner */}
@@ -149,7 +177,9 @@ export function AnalyticsSettings() {
           <AlertDescription>
             <div className="space-y-4">
               <p className="font-medium">We respect your privacy</p>
-              <p className="text-sm">{analyticsPrivacy.getConsentBannerMessage()}</p>
+              <p className="text-sm">
+                {analyticsPrivacy.getConsentBannerMessage()}
+              </p>
               <div className="flex gap-2">
                 <Button onClick={handleAcceptAll} size="sm">
                   Accept All
@@ -200,7 +230,9 @@ export function AnalyticsSettings() {
             <Switch
               id="analytics"
               checked={consent.analytics}
-              onCheckedChange={(checked) => handleConsentChange('analytics', checked)}
+              onCheckedChange={(checked) =>
+                handleConsentChange("analytics", checked)
+              }
               disabled={saving}
             />
           </div>
@@ -220,7 +252,9 @@ export function AnalyticsSettings() {
             <Switch
               id="performance"
               checked={consent.performance}
-              onCheckedChange={(checked) => handleConsentChange('performance', checked)}
+              onCheckedChange={(checked) =>
+                handleConsentChange("performance", checked)
+              }
               disabled={saving}
             />
           </div>
@@ -240,7 +274,9 @@ export function AnalyticsSettings() {
             <Switch
               id="errorTracking"
               checked={consent.errorTracking}
-              onCheckedChange={(checked) => handleConsentChange('errorTracking', checked)}
+              onCheckedChange={(checked) =>
+                handleConsentChange("errorTracking", checked)
+              }
               disabled={saving}
             />
           </div>
@@ -260,7 +296,9 @@ export function AnalyticsSettings() {
             <Switch
               id="crashReporting"
               checked={consent.crashReporting}
-              onCheckedChange={(checked) => handleConsentChange('crashReporting', checked)}
+              onCheckedChange={(checked) =>
+                handleConsentChange("crashReporting", checked)
+              }
               disabled={saving}
             />
           </div>
@@ -274,7 +312,9 @@ export function AnalyticsSettings() {
             <Shield className="h-5 w-5" />
             Privacy Settings
           </CardTitle>
-          <CardDescription>Additional privacy options for enhanced protection</CardDescription>
+          <CardDescription>
+            Additional privacy options for enhanced protection
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Anonymize IP */}
@@ -290,7 +330,9 @@ export function AnalyticsSettings() {
             <Switch
               id="anonymizeIp"
               checked={settings.anonymizeIp}
-              onCheckedChange={(checked) => handleSettingsChange('anonymizeIp', checked)}
+              onCheckedChange={(checked) =>
+                handleSettingsChange("anonymizeIp", checked)
+              }
               disabled={saving}
             />
           </div>
@@ -300,7 +342,10 @@ export function AnalyticsSettings() {
           {/* Anonymize User ID */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="anonymizeUserId" className="text-base font-medium">
+              <Label
+                htmlFor="anonymizeUserId"
+                className="text-base font-medium"
+              >
                 Anonymize User ID
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -310,7 +355,9 @@ export function AnalyticsSettings() {
             <Switch
               id="anonymizeUserId"
               checked={settings.anonymizeUserId}
-              onCheckedChange={(checked) => handleSettingsChange('anonymizeUserId', checked)}
+              onCheckedChange={(checked) =>
+                handleSettingsChange("anonymizeUserId", checked)
+              }
               disabled={saving}
             />
           </div>
@@ -326,10 +373,16 @@ export function AnalyticsSettings() {
             onClick={() => setShowPrivacyInfo(!showPrivacyInfo)}
           >
             <span className="flex items-center gap-2">
-              {showPrivacyInfo ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPrivacyInfo ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
               What Data We Collect
             </span>
-            <Badge variant="secondary">{showPrivacyInfo ? 'Hide' : 'Show'}</Badge>
+            <Badge variant="secondary">
+              {showPrivacyInfo ? "Hide" : "Show"}
+            </Badge>
           </Button>
         </CardHeader>
 
@@ -392,22 +445,33 @@ export function AnalyticsSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Data Management</CardTitle>
-          <CardDescription>Export or delete your analytics data</CardDescription>
+          <CardDescription>
+            Export or delete your analytics data
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
-            <Button onClick={handleExportData} variant="outline" className="gap-2">
+            <Button
+              onClick={handleExportData}
+              variant="outline"
+              className="gap-2"
+            >
               <Download className="h-4 w-4" />
               Export My Data
             </Button>
-            <Button onClick={handleClearData} variant="destructive" className="gap-2">
+            <Button
+              onClick={handleClearData}
+              variant="destructive"
+              className="gap-2"
+            >
               <Trash2 className="h-4 w-4" />
               Clear All Data
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Export includes your consent preferences and privacy settings. Clearing data will reset
-            all analytics and require you to provide consent again.
+            Export includes your consent preferences and privacy settings.
+            Clearing data will reset all analytics and require you to provide
+            consent again.
           </p>
         </CardContent>
       </Card>
@@ -425,19 +489,27 @@ export function AnalyticsSettings() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-muted-foreground">Screen Views</p>
-                <p className="font-medium">{analytics.getSessionData()?.screenViews || 0}</p>
+                <p className="font-medium">
+                  {analytics.getSessionData()?.screenViews || 0}
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Events</p>
-                <p className="font-medium">{analytics.getSessionData()?.events || 0}</p>
+                <p className="font-medium">
+                  {analytics.getSessionData()?.events || 0}
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Errors</p>
-                <p className="font-medium">{analytics.getSessionData()?.errors || 0}</p>
+                <p className="font-medium">
+                  {analytics.getSessionData()?.errors || 0}
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Platform</p>
-                <p className="font-medium capitalize">{analytics.getPlatform()}</p>
+                <p className="font-medium capitalize">
+                  {analytics.getPlatform()}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -454,5 +526,5 @@ export function AnalyticsSettings() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

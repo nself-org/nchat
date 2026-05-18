@@ -1,22 +1,32 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Role, EffectivePermissions } from '@/lib/admin/roles/role-types'
-import { canManageRole, sortRolesByPosition } from '@/lib/admin/roles/role-hierarchy'
-import { RoleBadge } from './RoleBadge'
-import { RoleIconPreview } from './RoleIcon'
-import { Button } from '@/components/ui/button'
-import { GripVertical, ArrowUp, ArrowDown, Shield, Users, Lock } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Role, EffectivePermissions } from "@/lib/admin/roles/role-types";
+import {
+  canManageRole,
+  sortRolesByPosition,
+} from "@/lib/admin/roles/role-hierarchy";
+import { RoleBadge } from "./RoleBadge";
+import { RoleIconPreview } from "./RoleIcon";
+import { Button } from "@/components/ui/button";
+import {
+  GripVertical,
+  ArrowUp,
+  ArrowDown,
+  Shield,
+  Users,
+  Lock,
+} from "lucide-react";
 
 interface RoleHierarchyProps {
-  roles: Role[]
-  currentUserPermissions?: EffectivePermissions | null
-  selectedRoleId?: string | null
-  onSelectRole?: (roleId: string) => void
-  onMoveRole?: (roleId: string, direction: 'up' | 'down') => void
-  onReorder?: (reorderedRoles: Role[]) => void
-  className?: string
+  roles: Role[];
+  currentUserPermissions?: EffectivePermissions | null;
+  selectedRoleId?: string | null;
+  onSelectRole?: (roleId: string) => void;
+  onMoveRole?: (roleId: string, direction: "up" | "down") => void;
+  onReorder?: (reorderedRoles: Role[]) => void;
+  className?: string;
 }
 
 /**
@@ -31,32 +41,32 @@ export function RoleHierarchy({
   onReorder,
   className,
 }: RoleHierarchyProps) {
-  const sortedRoles = React.useMemo(() => sortRolesByPosition(roles), [roles])
+  const sortedRoles = React.useMemo(() => sortRolesByPosition(roles), [roles]);
 
   const canManage = (role: Role): boolean => {
-    if (!currentUserPermissions) return false
-    return canManageRole(currentUserPermissions.highestRole, role)
-  }
+    if (!currentUserPermissions) return false;
+    return canManageRole(currentUserPermissions.highestRole, role);
+  };
 
   const canMoveUp = (role: Role, index: number): boolean => {
-    if (index === 0) return false
-    if (!canManage(role)) return false
+    if (index === 0) return false;
+    if (!canManage(role)) return false;
     // Can't move above a role you can't manage
-    const roleAbove = sortedRoles[index - 1]
-    return canManage(roleAbove)
-  }
+    const roleAbove = sortedRoles[index - 1];
+    return canManage(roleAbove);
+  };
 
   const canMoveDown = (role: Role, index: number): boolean => {
-    if (index === sortedRoles.length - 1) return false
-    if (!canManage(role)) return false
-    return true
-  }
+    if (index === sortedRoles.length - 1) return false;
+    if (!canManage(role)) return false;
+    return true;
+  };
 
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn("space-y-1", className)}>
       <div className="mb-4 text-sm text-muted-foreground">
-        Roles are displayed from highest authority (top) to lowest (bottom). Higher roles can manage
-        lower roles.
+        Roles are displayed from highest authority (top) to lowest (bottom).
+        Higher roles can manage lower roles.
       </div>
 
       <div className="relative">
@@ -66,8 +76,8 @@ export function RoleHierarchy({
         {/* Role items */}
         <div className="space-y-2">
           {sortedRoles.map((role, index) => {
-            const canEdit = canManage(role)
-            const isSelected = selectedRoleId === role.id
+            const canEdit = canManage(role);
+            const isSelected = selectedRoleId === role.id;
 
             return (
               <HierarchyItem
@@ -80,10 +90,10 @@ export function RoleHierarchy({
                 canMoveUp={canMoveUp(role, index)}
                 canMoveDown={canMoveDown(role, index)}
                 onSelect={() => onSelectRole?.(role.id)}
-                onMoveUp={() => onMoveRole?.(role.id, 'up')}
-                onMoveDown={() => onMoveRole?.(role.id, 'down')}
+                onMoveUp={() => onMoveRole?.(role.id, "up")}
+                onMoveDown={() => onMoveRole?.(role.id, "down")}
               />
-            )
+            );
           })}
         </div>
       </div>
@@ -104,23 +114,23 @@ export function RoleHierarchy({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
  * HierarchyItem - Single role in hierarchy view
  */
 interface HierarchyItemProps {
-  role: Role
-  index: number
-  totalRoles: number
-  isSelected?: boolean
-  canEdit?: boolean
-  canMoveUp?: boolean
-  canMoveDown?: boolean
-  onSelect?: () => void
-  onMoveUp?: () => void
-  onMoveDown?: () => void
+  role: Role;
+  index: number;
+  totalRoles: number;
+  isSelected?: boolean;
+  canEdit?: boolean;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
+  onSelect?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }
 
 function HierarchyItem({
@@ -135,23 +145,23 @@ function HierarchyItem({
   onMoveUp,
   onMoveDown,
 }: HierarchyItemProps) {
-  const memberCount = role.memberCount ?? 0
+  const memberCount = role.memberCount ?? 0;
 
   return (
     <div
       className={cn(
-        'group relative flex cursor-pointer items-center gap-3 rounded-lg border p-3 pl-10 transition-all',
-        'hover:shadow-sm',
-        isSelected && 'bg-primary/5 ring-2 ring-primary',
-        !canEdit && 'opacity-75'
+        "group relative flex cursor-pointer items-center gap-3 rounded-lg border p-3 pl-10 transition-all",
+        "hover:shadow-sm",
+        isSelected && "bg-primary/5 ring-2 ring-primary",
+        !canEdit && "opacity-75",
       )}
       role="button"
       tabIndex={0}
       onClick={onSelect}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onSelect?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect?.();
         }
       }}
     >
@@ -185,7 +195,9 @@ function HierarchyItem({
           <span className="truncate font-medium" style={{ color: role.color }}>
             {role.name}
           </span>
-          {role.isBuiltIn && <Lock size={12} className="text-muted-foreground" />}
+          {role.isBuiltIn && (
+            <Lock size={12} className="text-muted-foreground" />
+          )}
         </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="font-mono">Position: {role.position}</span>
@@ -205,8 +217,8 @@ function HierarchyItem({
             className="h-6 w-6"
             disabled={!canMoveUp}
             onClick={(e) => {
-              e.stopPropagation()
-              onMoveUp?.()
+              e.stopPropagation();
+              onMoveUp?.();
             }}
             title="Move up (higher authority)"
           >
@@ -218,8 +230,8 @@ function HierarchyItem({
             className="h-6 w-6"
             disabled={!canMoveDown}
             onClick={(e) => {
-              e.stopPropagation()
-              onMoveDown?.()
+              e.stopPropagation();
+              onMoveDown?.();
             }}
             title="Move down (lower authority)"
           >
@@ -239,25 +251,29 @@ function HierarchyItem({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 /**
  * HierarchyComparison - Compare two roles in hierarchy
  */
 interface HierarchyComparisonProps {
-  roleA: Role
-  roleB: Role
-  className?: string
+  roleA: Role;
+  roleB: Role;
+  className?: string;
 }
 
-export function HierarchyComparison({ roleA, roleB, className }: HierarchyComparisonProps) {
-  const isAHigher = roleA.position > roleB.position
-  const higher = isAHigher ? roleA : roleB
-  const lower = isAHigher ? roleB : roleA
+export function HierarchyComparison({
+  roleA,
+  roleB,
+  className,
+}: HierarchyComparisonProps) {
+  const isAHigher = roleA.position > roleB.position;
+  const higher = isAHigher ? roleA : roleB;
+  const lower = isAHigher ? roleB : roleA;
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       <div className="flex items-center justify-center gap-4">
         <RoleBadge name={higher.name} color={higher.color} icon={higher.icon} />
         <div className="flex flex-col items-center text-muted-foreground">
@@ -269,13 +285,15 @@ export function HierarchyComparison({ roleA, roleB, className }: HierarchyCompar
 
       <div className="rounded-lg border p-3 text-sm text-muted-foreground">
         <p>
-          <strong style={{ color: higher.color }}>{higher.name}</strong> has position{' '}
-          {higher.position}, which is {higher.position - lower.position} higher than{' '}
-          <strong style={{ color: lower.color }}>{lower.name}</strong> (position {lower.position}).
+          <strong style={{ color: higher.color }}>{higher.name}</strong> has
+          position {higher.position}, which is{" "}
+          {higher.position - lower.position} higher than{" "}
+          <strong style={{ color: lower.color }}>{lower.name}</strong> (position{" "}
+          {lower.position}).
         </p>
       </div>
     </div>
-  )
+  );
 }
 
-export default RoleHierarchy
+export default RoleHierarchy;

@@ -57,9 +57,9 @@ NEXT_PUBLIC_RELEASE_VERSION=0.8.0
 ### 4. Initialize Analytics
 
 ```typescript
-import { initializeAnalytics } from '@/lib/analytics'
+import { initializeAnalytics } from "@/lib/analytics";
 
-await initializeAnalytics()
+await initializeAnalytics();
 ```
 
 ## Usage
@@ -67,29 +67,29 @@ await initializeAnalytics()
 ### Track Events
 
 ```typescript
-import { analytics } from '@/lib/analytics/events'
+import { analytics } from "@/lib/analytics/events";
 
 // Message sent
 await analytics.trackMessageSent({
-  channel_id: 'channel-123',
-  channel_type: 'public',
+  channel_id: "channel-123",
+  channel_type: "public",
   message_length: 50,
   has_attachment: false,
   has_mention: true,
   has_emoji: false,
   is_thread: false,
-})
+});
 
 // Screen view
-await analytics.trackScreenView('channel_list', 'ChannelListScreen')
+await analytics.trackScreenView("channel_list", "ChannelListScreen");
 
 // Error
 await analytics.trackError({
-  error_type: 'NetworkError',
-  error_message: 'Failed to load',
+  error_type: "NetworkError",
+  error_message: "Failed to load",
   fatal: false,
-  context: '/chat',
-})
+  context: "/chat",
+});
 ```
 
 ### Use React Hook
@@ -111,13 +111,13 @@ function MyComponent() {
 ### Manage Consent
 
 ```typescript
-import { analyticsPrivacy } from '@/lib/analytics/privacy'
+import { analyticsPrivacy } from "@/lib/analytics/privacy";
 
 // Accept all
-await analyticsPrivacy.acceptAll()
+await analyticsPrivacy.acceptAll();
 
 // Reject all
-await analyticsPrivacy.rejectAll()
+await analyticsPrivacy.rejectAll();
 
 // Granular control
 await analyticsPrivacy.setConsent({
@@ -125,13 +125,13 @@ await analyticsPrivacy.setConsent({
   performance: true,
   errorTracking: false,
   crashReporting: false,
-})
+});
 
 // Export data
-const data = await analyticsPrivacy.exportUserData()
+const data = await analyticsPrivacy.exportUserData();
 
 // Clear data
-await analyticsPrivacy.clearAllData()
+await analyticsPrivacy.clearAllData();
 ```
 
 ## Module Structure
@@ -211,14 +211,14 @@ Initialize analytics with optional configuration.
 ```typescript
 await initializeAnalytics({
   enabled: true,
-  providers: ['firebase', 'sentry'],
+  providers: ["firebase", "sentry"],
   firebase: {
-    measurementId: 'G-XXXXXXXXXX',
-    appId: '1:XXXX:web:XXXX',
-    apiKey: 'XXXX',
+    measurementId: "G-XXXXXXXXXX",
+    appId: "1:XXXX:web:XXXX",
+    apiKey: "XXXX",
   },
   sentry: {
-    dsn: 'https://xxx@sentry.io/xxx',
+    dsn: "https://xxx@sentry.io/xxx",
     tracesSampleRate: 0.1,
     replaysSampleRate: 0.1,
   },
@@ -229,7 +229,7 @@ await initializeAnalytics({
     crashReporting: true,
   },
   debugMode: false,
-})
+});
 ```
 
 ### analytics.trackXXX(event)
@@ -395,7 +395,7 @@ const {
   setConsent,
   sessionData,
   platform,
-} = useAnalytics()
+} = useAnalytics();
 ```
 
 ### usePerformanceTracking(screenName)
@@ -492,10 +492,10 @@ adb shell setprop debug.firebase.analytics.app io.nself.chat
 
 ```typescript
 // Clear consent
-localStorage.removeItem('analytics-consent')
+localStorage.removeItem("analytics-consent");
 
 // Reload app
-window.location.reload()
+window.location.reload();
 
 // Verify banner appears
 ```

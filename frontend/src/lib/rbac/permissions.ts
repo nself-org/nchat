@@ -4,7 +4,13 @@
  * Provides functions to check user permissions based on their role.
  */
 
-import { ROLES, ROLE_HIERARCHY, PERMISSIONS, type Role, type Permission } from '@/types/rbac'
+import {
+  ROLES,
+  ROLE_HIERARCHY,
+  PERMISSIONS,
+  type Role,
+  type Permission,
+} from "@/types/rbac";
 
 /**
  * Default permissions for each role
@@ -53,24 +59,24 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.ROLE_VIEW,
   ],
   guest: [PERMISSIONS.USER_VIEW],
-}
+};
 
 /**
  * Check if a user with the given role has a specific permission
  */
 export function hasPermission(userRole: Role, permission: Permission): boolean {
   // Owner always has all permissions
-  if (userRole === ROLES.OWNER) return true
+  if (userRole === ROLES.OWNER) return true;
 
-  const rolePermissions = DEFAULT_ROLE_PERMISSIONS[userRole] || []
-  return rolePermissions.includes(permission)
+  const rolePermissions = DEFAULT_ROLE_PERMISSIONS[userRole] || [];
+  return rolePermissions.includes(permission);
 }
 
 /**
  * Check if a user's role is at or above the required role level
  */
 export function hasRole(userRole: Role, requiredRole: Role): boolean {
-  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole]
+  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
 }
 
 /**
@@ -78,17 +84,17 @@ export function hasRole(userRole: Role, requiredRole: Role): boolean {
  */
 export function canManageRole(userRole: Role, targetRole: Role): boolean {
   // Owner can manage anyone except other owners
-  if (userRole === ROLES.OWNER) return targetRole !== ROLES.OWNER
+  if (userRole === ROLES.OWNER) return targetRole !== ROLES.OWNER;
 
   // Others can only manage roles below them
-  return ROLE_HIERARCHY[userRole] > ROLE_HIERARCHY[targetRole]
+  return ROLE_HIERARCHY[userRole] > ROLE_HIERARCHY[targetRole];
 }
 
 /**
  * Check if a role is the owner role
  */
 export function isOwner(role: Role): boolean {
-  return role === ROLES.OWNER
+  return role === ROLES.OWNER;
 }
 
 /**
@@ -98,32 +104,34 @@ export function isOwner(role: Role): boolean {
 export function canModifyUser(
   actorRole: Role,
   targetRole: Role,
-  action: 'delete' | 'demote' | 'ban'
+  action: "delete" | "demote" | "ban",
 ): boolean {
   // Nobody can delete, demote, or ban an owner
-  if (targetRole === ROLES.OWNER) return false
+  if (targetRole === ROLES.OWNER) return false;
 
   // Must have higher role to modify
-  return ROLE_HIERARCHY[actorRole] > ROLE_HIERARCHY[targetRole]
+  return ROLE_HIERARCHY[actorRole] > ROLE_HIERARCHY[targetRole];
 }
 
 /**
  * Get all permissions for a given role
  */
 export function getRolePermissions(role: Role): Permission[] {
-  return DEFAULT_ROLE_PERMISSIONS[role] || []
+  return DEFAULT_ROLE_PERMISSIONS[role] || [];
 }
 
 /**
  * Get the display name for a role
  */
 export function getRoleDisplayName(role: Role): string {
-  return role.charAt(0).toUpperCase() + role.slice(1)
+  return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
 /**
  * Get all roles sorted by hierarchy (highest first)
  */
 export function getAllRolesSorted(): Role[] {
-  return Object.values(ROLES).sort((a, b) => ROLE_HIERARCHY[b] - ROLE_HIERARCHY[a])
+  return Object.values(ROLES).sort(
+    (a, b) => ROLE_HIERARCHY[b] - ROLE_HIERARCHY[a],
+  );
 }

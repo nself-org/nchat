@@ -5,26 +5,38 @@
  * Shows quality level, signal bars, and detailed metrics.
  */
 
-'use client'
+"use client";
 
-import { useMemo } from 'react'
-import { QualityLevel, QualityMetrics } from '@/lib/calls'
-import { cn } from '@/lib/utils'
-import { Signal, SignalHigh, SignalLow, SignalMedium, SignalZero, Info } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Badge } from '@/components/ui/badge'
+import { useMemo } from "react";
+import { QualityLevel, QualityMetrics } from "@/lib/calls";
+import { cn } from "@/lib/utils";
+import {
+  Signal,
+  SignalHigh,
+  SignalLow,
+  SignalMedium,
+  SignalZero,
+  Info,
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface CallQualityIndicatorProps {
-  quality: QualityLevel
-  metrics?: QualityMetrics | null
-  className?: string
-  variant?: 'simple' | 'detailed' | 'minimal'
-  showLabel?: boolean
-  showMetrics?: boolean
+  quality: QualityLevel;
+  metrics?: QualityMetrics | null;
+  className?: string;
+  variant?: "simple" | "detailed" | "minimal";
+  showLabel?: boolean;
+  showMetrics?: boolean;
 }
 
 // =============================================================================
@@ -35,19 +47,19 @@ export function CallQualityIndicator({
   quality,
   metrics,
   className,
-  variant = 'simple',
+  variant = "simple",
   showLabel = true,
   showMetrics = true,
 }: CallQualityIndicatorProps) {
-  const config = getQualityConfig(quality)
+  const config = getQualityConfig(quality);
 
-  if (variant === 'minimal') {
+  if (variant === "minimal") {
     return (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className={cn('inline-flex items-center', className)}>
-              <config.icon className={cn('h-4 w-4', config.iconClassName)} />
+            <div className={cn("inline-flex items-center", className)}>
+              <config.icon className={cn("h-4 w-4", config.iconClassName)} />
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -64,28 +76,30 @@ export function CallQualityIndicator({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
+    );
   }
 
-  if (variant === 'simple') {
+  if (variant === "simple") {
     return (
-      <div className={cn('inline-flex items-center gap-2', className)}>
-        <config.icon className={cn('h-4 w-4', config.iconClassName)} />
+      <div className={cn("inline-flex items-center gap-2", className)}>
+        <config.icon className={cn("h-4 w-4", config.iconClassName)} />
         {showLabel && (
-          <span className={cn('text-sm font-medium', config.textClassName)}>{config.label}</span>
+          <span className={cn("text-sm font-medium", config.textClassName)}>
+            {config.label}
+          </span>
         )}
       </div>
-    )
+    );
   }
 
   // Detailed variant
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn("space-y-3", className)}>
       {/* Quality header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <config.icon className={cn('h-5 w-5', config.iconClassName)} />
-          <span className={cn('text-sm font-medium', config.textClassName)}>
+          <config.icon className={cn("h-5 w-5", config.iconClassName)} />
+          <span className={cn("text-sm font-medium", config.textClassName)}>
             {config.label} Quality
           </span>
         </div>
@@ -153,7 +167,7 @@ export function CallQualityIndicator({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -161,10 +175,10 @@ export function CallQualityIndicator({
 // =============================================================================
 
 interface MetricItemProps {
-  label: string
-  value: string
-  warning?: boolean
-  critical?: boolean
+  label: string;
+  value: string;
+  warning?: boolean;
+  critical?: boolean;
 }
 
 function MetricItem({ label, value, warning, critical }: MetricItemProps) {
@@ -173,15 +187,15 @@ function MetricItem({ label, value, warning, critical }: MetricItemProps) {
       <span className="text-muted-foreground">{label}</span>
       <span
         className={cn(
-          'font-mono font-medium',
-          critical && 'text-red-600',
-          !critical && warning && 'text-yellow-600'
+          "font-mono font-medium",
+          critical && "text-red-600",
+          !critical && warning && "text-yellow-600",
         )}
       >
         {value}
       </span>
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -189,53 +203,53 @@ function MetricItem({ label, value, warning, critical }: MetricItemProps) {
 // =============================================================================
 
 interface QualityConfig {
-  label: string
-  icon: React.ComponentType<{ className?: string }>
-  iconClassName: string
-  textClassName: string
-  badgeVariant: 'default' | 'secondary' | 'destructive' | 'outline'
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  iconClassName: string;
+  textClassName: string;
+  badgeVariant: "default" | "secondary" | "destructive" | "outline";
 }
 
 function getQualityConfig(quality: QualityLevel): QualityConfig {
   const configs: Record<QualityLevel, QualityConfig> = {
     excellent: {
-      label: 'Excellent',
+      label: "Excellent",
       icon: Signal,
-      iconClassName: 'text-green-600',
-      textClassName: 'text-green-600',
-      badgeVariant: 'default',
+      iconClassName: "text-green-600",
+      textClassName: "text-green-600",
+      badgeVariant: "default",
     },
     good: {
-      label: 'Good',
+      label: "Good",
       icon: SignalHigh,
-      iconClassName: 'text-blue-600',
-      textClassName: 'text-blue-600',
-      badgeVariant: 'secondary',
+      iconClassName: "text-blue-600",
+      textClassName: "text-blue-600",
+      badgeVariant: "secondary",
     },
     fair: {
-      label: 'Fair',
+      label: "Fair",
       icon: SignalMedium,
-      iconClassName: 'text-yellow-600',
-      textClassName: 'text-yellow-600',
-      badgeVariant: 'outline',
+      iconClassName: "text-yellow-600",
+      textClassName: "text-yellow-600",
+      badgeVariant: "outline",
     },
     poor: {
-      label: 'Poor',
+      label: "Poor",
       icon: SignalLow,
-      iconClassName: 'text-orange-600',
-      textClassName: 'text-orange-600',
-      badgeVariant: 'outline',
+      iconClassName: "text-orange-600",
+      textClassName: "text-orange-600",
+      badgeVariant: "outline",
     },
     critical: {
-      label: 'Critical',
+      label: "Critical",
       icon: SignalZero,
-      iconClassName: 'text-red-600',
-      textClassName: 'text-red-600',
-      badgeVariant: 'destructive',
+      iconClassName: "text-red-600",
+      textClassName: "text-red-600",
+      badgeVariant: "destructive",
     },
-  }
+  };
 
-  return configs[quality]
+  return configs[quality];
 }
 
 // =============================================================================
@@ -243,32 +257,41 @@ function getQualityConfig(quality: QualityLevel): QualityConfig {
 // =============================================================================
 
 export interface QualityAlertProps {
-  quality: QualityLevel
-  message?: string
-  suggestions?: string[]
-  onDismiss?: () => void
+  quality: QualityLevel;
+  message?: string;
+  suggestions?: string[];
+  onDismiss?: () => void;
 }
 
-export function QualityAlert({ quality, message, suggestions, onDismiss }: QualityAlertProps) {
-  const config = getQualityConfig(quality)
+export function QualityAlert({
+  quality,
+  message,
+  suggestions,
+  onDismiss,
+}: QualityAlertProps) {
+  const config = getQualityConfig(quality);
 
-  if (quality === 'excellent' || quality === 'good') {
-    return null
+  if (quality === "excellent" || quality === "good") {
+    return null;
   }
 
   return (
     <div
       className={cn(
-        'space-y-2 rounded-lg border p-3',
-        quality === 'critical' && 'border-red-600 bg-red-50 dark:bg-red-950',
-        quality === 'poor' && 'border-orange-600 bg-orange-50 dark:bg-orange-950',
-        quality === 'fair' && 'border-yellow-600 bg-yellow-50 dark:bg-yellow-950'
+        "space-y-2 rounded-lg border p-3",
+        quality === "critical" && "border-red-600 bg-red-50 dark:bg-red-950",
+        quality === "poor" &&
+          "border-orange-600 bg-orange-50 dark:bg-orange-950",
+        quality === "fair" &&
+          "border-yellow-600 bg-yellow-50 dark:bg-yellow-950",
       )}
     >
       <div className="flex items-start gap-2">
-        <Info className={cn('mt-0.5 h-4 w-4', config.iconClassName)} />
+        <Info className={cn("mt-0.5 h-4 w-4", config.iconClassName)} />
         <div className="flex-1 space-y-1">
-          <p className="text-sm font-medium">{message || `Call quality is ${quality}`}</p>
+          <p className="text-sm font-medium">
+            {message || `Call quality is ${quality}`}
+          </p>
           {suggestions && suggestions.length > 0 && (
             <ul className="space-y-1 text-xs text-muted-foreground">
               {suggestions.map((suggestion, i) => (
@@ -288,5 +311,5 @@ export function QualityAlert({ quality, message, suggestions, onDismiss }: Quali
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -9,32 +9,32 @@
  * DELETE /api/security/panic - Deactivate panic mode
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { createWipeService } from '@/services/security/wipe.service'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { createWipeService } from "@/services/security/wipe.service";
 import {
   createPanicModeManager,
   type PanicModeConfig,
   type PanicActivationMethod,
-} from '@/lib/security/panic-mode'
+} from "@/lib/security/panic-mode";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ActivatePanicBody {
-  method?: PanicActivationMethod
-  reason: string
-  notifyContacts?: boolean
-  preserveEvidence?: boolean
+  method?: PanicActivationMethod;
+  reason: string;
+  notifyContacts?: boolean;
+  preserveEvidence?: boolean;
 }
 
 interface UpdatePanicConfigBody {
-  config: Partial<PanicModeConfig>
+  config: Partial<PanicModeConfig>;
 }
 
 interface DeactivatePanicBody {
-  masterPassword: string
+  masterPassword: string;
 }
 
 // ============================================================================
@@ -43,31 +43,31 @@ interface DeactivatePanicBody {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as ActivatePanicBody
+    const body = (await request.json()) as ActivatePanicBody;
 
     if (!body.reason) {
       return NextResponse.json(
-        { error: 'Reason is required' },
-        { status: 400 }
-      )
+        { error: "Reason is required" },
+        { status: 400 },
+      );
     }
 
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
     const activation = await wipeService.emergencyLockout({
       reason: body.reason,
-      activationMethod: body.method || 'manual',
+      activationMethod: body.method || "manual",
       notifyContacts: body.notifyContacts,
       preserveEvidence: body.preserveEvidence,
-    })
+    });
 
-    wipeService.destroy()
+    wipeService.destroy();
 
-    logger.security('Panic mode activated via API', {
+    logger.security("Panic mode activated via API", {
       activationId: activation.id,
       method: activation.method,
-    })
+    });
 
     return NextResponse.json({
       success: true,
@@ -81,14 +81,14 @@ export async function POST(request: NextRequest) {
         decoyActivated: activation.decoyActivated,
         notificationsSent: activation.notificationsSent,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Panic activation API error', error)
+    logger.error("Panic activation API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -98,12 +98,12 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
-    const status = await wipeService.getPanicStatus()
+    const status = await wipeService.getPanicStatus();
 
-    wipeService.destroy()
+    wipeService.destroy();
 
     return NextResponse.json({
       state: status.state,
@@ -128,14 +128,14 @@ export async function GET() {
         lockoutDuration: status.config.lockoutDuration,
         requireReSetup: status.config.requireReSetup,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Panic status API error', error)
+    logger.error("Panic status API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -145,25 +145,25 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const body = (await request.json()) as UpdatePanicConfigBody
+    const body = (await request.json()) as UpdatePanicConfigBody;
 
     if (!body.config) {
       return NextResponse.json(
-        { error: 'Configuration is required' },
-        { status: 400 }
-      )
+        { error: "Configuration is required" },
+        { status: 400 },
+      );
     }
 
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
-    await wipeService.updatePanicConfig(body.config)
+    await wipeService.updatePanicConfig(body.config);
 
-    const status = await wipeService.getPanicStatus()
+    const status = await wipeService.getPanicStatus();
 
-    wipeService.destroy()
+    wipeService.destroy();
 
-    logger.info('Panic mode configuration updated via API')
+    logger.info("Panic mode configuration updated via API");
 
     return NextResponse.json({
       success: true,
@@ -173,14 +173,14 @@ export async function PUT(request: NextRequest) {
         notifyContacts: status.config.notifyContacts,
         lockoutDuration: status.config.lockoutDuration,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Panic config update API error', error)
+    logger.error("Panic config update API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -190,41 +190,44 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const body = (await request.json()) as DeactivatePanicBody
+    const body = (await request.json()) as DeactivatePanicBody;
 
     if (!body.masterPassword) {
       return NextResponse.json(
-        { error: 'Master password is required' },
-        { status: 400 }
-      )
+        { error: "Master password is required" },
+        { status: 400 },
+      );
     }
 
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
-    const success = await wipeService.deactivatePanicMode(body.masterPassword)
+    const success = await wipeService.deactivatePanicMode(body.masterPassword);
 
-    wipeService.destroy()
+    wipeService.destroy();
 
     if (success) {
-      logger.security('Panic mode deactivated via API')
+      logger.security("Panic mode deactivated via API");
 
       return NextResponse.json({
         success: true,
-        message: 'Panic mode deactivated',
-      })
+        message: "Panic mode deactivated",
+      });
     }
 
     return NextResponse.json(
-      { error: 'Failed to deactivate - invalid password or still in lockout period' },
-      { status: 403 }
-    )
+      {
+        error:
+          "Failed to deactivate - invalid password or still in lockout period",
+      },
+      { status: 403 },
+    );
   } catch (error) {
-    logger.error('Panic deactivation API error', error)
+    logger.error("Panic deactivation API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

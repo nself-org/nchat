@@ -4,16 +4,16 @@
  * Interactive GraphQL explorer for testing queries, mutations, and subscriptions.
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 export default function GraphQLPlaygroundPage() {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
     return (
@@ -23,7 +23,7 @@ export default function GraphQLPlaygroundPage() {
           <p className="text-gray-600">Loading GraphQL Playground...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -31,7 +31,8 @@ export default function GraphQLPlaygroundPage() {
       <div className="border-b border-gray-200 bg-white px-6 py-4">
         <h1 className="text-2xl font-bold text-gray-900">GraphQL Playground</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Interactive GraphQL explorer - Test queries, mutations, and subscriptions
+          Interactive GraphQL explorer - Test queries, mutations, and
+          subscriptions
         </p>
       </div>
 
@@ -100,14 +101,20 @@ export default function GraphQLPlaygroundPage() {
             </div>
 
             <div className="rounded-lg bg-blue-50 p-4">
-              <h3 className="mb-2 font-medium text-blue-900">GraphQL Endpoint</h3>
+              <h3 className="mb-2 font-medium text-blue-900">
+                GraphQL Endpoint
+              </h3>
               <code className="text-sm text-blue-800">
-                {process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'}
+                {process.env.NEXT_PUBLIC_GRAPHQL_URL ||
+                  "http://localhost:8080/v1/graphql"}
               </code>
 
               <div className="mt-4">
                 <a
-                  href={process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'}
+                  href={
+                    process.env.NEXT_PUBLIC_GRAPHQL_URL ||
+                    "http://localhost:8080/v1/graphql"
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -127,25 +134,31 @@ export default function GraphQLPlaygroundPage() {
               className="rounded-lg border border-gray-200 p-4 hover:border-gray-300 hover:shadow-sm"
             >
               <h3 className="font-medium">GraphQL Schema</h3>
-              <p className="mt-1 text-sm text-gray-600">Complete schema reference</p>
+              <p className="mt-1 text-sm text-gray-600">
+                Complete schema reference
+              </p>
             </a>
             <a
               href="/docs/api/graphql-queries.md"
               className="rounded-lg border border-gray-200 p-4 hover:border-gray-300 hover:shadow-sm"
             >
               <h3 className="font-medium">Queries</h3>
-              <p className="mt-1 text-sm text-gray-600">Query examples and patterns</p>
+              <p className="mt-1 text-sm text-gray-600">
+                Query examples and patterns
+              </p>
             </a>
             <a
               href="/docs/api/graphql-mutations.md"
               className="rounded-lg border border-gray-200 p-4 hover:border-gray-300 hover:shadow-sm"
             >
               <h3 className="font-medium">Mutations</h3>
-              <p className="mt-1 text-sm text-gray-600">Create, update, delete operations</p>
+              <p className="mt-1 text-sm text-gray-600">
+                Create, update, delete operations
+              </p>
             </a>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

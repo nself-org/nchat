@@ -42,21 +42,21 @@
  */
 export interface SlackRailItem {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Display label */
-  label: string
+  label: string;
   /** Icon name (from icon set) */
-  icon: string
+  icon: string;
   /** Icon name when item is active */
-  activeIcon: string
+  activeIcon: string;
   /** Badge type shown on the item */
-  badgeType: 'count' | 'dot' | 'none'
+  badgeType: "count" | "dot" | "none";
   /** Whether this item is the default/landing view */
-  isDefault: boolean
+  isDefault: boolean;
   /** Route/path associated with this item */
-  route: string
+  route: string;
   /** Tooltip text */
-  tooltip: string
+  tooltip: string;
 }
 
 /**
@@ -64,15 +64,15 @@ export interface SlackRailItem {
  */
 export interface SlackWorkspaceItem {
   /** Workspace ID */
-  id: string
+  id: string;
   /** Workspace name */
-  name: string
+  name: string;
   /** Workspace icon URL (or initials) */
-  iconUrl: string
+  iconUrl: string;
   /** Notification badge count */
-  badgeCount: number
+  badgeCount: number;
   /** Whether this workspace is currently active */
-  isActive: boolean
+  isActive: boolean;
 }
 
 /**
@@ -80,19 +80,19 @@ export interface SlackWorkspaceItem {
  */
 export interface SlackSidebarSection {
   /** Section ID */
-  id: string
+  id: string;
   /** Section display name */
-  name: string
+  name: string;
   /** Whether the section is collapsed */
-  collapsed: boolean
+  collapsed: boolean;
   /** Whether the section is the default */
-  isDefault: boolean
+  isDefault: boolean;
   /** Whether the section is reorderable */
-  reorderable: boolean
+  reorderable: boolean;
   /** Item count in the section */
-  itemCount: number
+  itemCount: number;
   /** Section icon (optional) */
-  icon?: string
+  icon?: string;
 }
 
 /**
@@ -100,31 +100,31 @@ export interface SlackSidebarSection {
  */
 export interface SlackChannelListItem {
   /** Channel/DM ID */
-  id: string
+  id: string;
   /** Display name */
-  name: string
+  name: string;
   /** Channel type */
-  type: 'public' | 'private' | 'dm' | 'mpdm' | 'app'
+  type: "public" | "private" | "dm" | "mpdm" | "app";
   /** Prefix icon (# for public, lock for private, user for DM) */
-  prefixIcon: string
+  prefixIcon: string;
   /** Whether the channel has unread messages */
-  hasUnread: boolean
+  hasUnread: boolean;
   /** Unread count (0 if no unreads) */
-  unreadCount: number
+  unreadCount: number;
   /** Whether the channel has a mention */
-  hasMention: boolean
+  hasMention: boolean;
   /** Mention count */
-  mentionCount: number
+  mentionCount: number;
   /** Whether the channel is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Whether the channel is starred */
-  isStarred: boolean
+  isStarred: boolean;
   /** Whether there is an active huddle */
-  hasActiveHuddle: boolean
+  hasActiveHuddle: boolean;
   /** Presence status (for DMs) */
-  presenceStatus?: 'online' | 'away' | 'dnd' | 'offline'
+  presenceStatus?: "online" | "away" | "dnd" | "offline";
   /** Section this item belongs to */
-  sectionId: string
+  sectionId: string;
 }
 
 /**
@@ -132,27 +132,27 @@ export interface SlackChannelListItem {
  */
 export interface SlackHeaderConfig {
   /** Channel header height */
-  height: string
+  height: string;
   /** Header background color */
-  backgroundColor: string
+  backgroundColor: string;
   /** Header text color */
-  textColor: string
+  textColor: string;
   /** Header icon color */
-  iconColor: string
+  iconColor: string;
   /** Whether channel name is shown */
-  showChannelName: boolean
+  showChannelName: boolean;
   /** Whether channel topic is shown */
-  showTopic: boolean
+  showTopic: boolean;
   /** Whether member count is shown */
-  showMemberCount: boolean
+  showMemberCount: boolean;
   /** Whether star/bookmark icon is shown */
-  showStar: boolean
+  showStar: boolean;
   /** Header action buttons */
-  actions: SlackHeaderAction[]
+  actions: SlackHeaderAction[];
   /** Header border style */
-  borderBottom: string
+  borderBottom: string;
   /** Header shadow */
-  shadow: string
+  shadow: string;
 }
 
 /**
@@ -160,17 +160,17 @@ export interface SlackHeaderConfig {
  */
 export interface SlackHeaderAction {
   /** Action ID */
-  id: string
+  id: string;
   /** Icon name */
-  icon: string
+  icon: string;
   /** Label */
-  label: string
+  label: string;
   /** Tooltip */
-  tooltip: string
+  tooltip: string;
   /** Whether this opens a panel or dropdown */
-  panelType: 'panel' | 'dropdown' | 'modal' | 'none'
+  panelType: "panel" | "dropdown" | "modal" | "none";
   /** Sort order */
-  order: number
+  order: number;
 }
 
 /**
@@ -178,25 +178,25 @@ export interface SlackHeaderAction {
  */
 export interface SlackRailConfig {
   /** Rail width */
-  width: string
+  width: string;
   /** Rail background color */
-  backgroundColor: string
+  backgroundColor: string;
   /** Rail item hover background */
-  itemHoverBg: string
+  itemHoverBg: string;
   /** Rail item active background */
-  itemActiveBg: string
+  itemActiveBg: string;
   /** Rail item text color */
-  itemTextColor: string
+  itemTextColor: string;
   /** Rail item active text color */
-  itemActiveTextColor: string
+  itemActiveTextColor: string;
   /** Rail item icon size */
-  iconSize: string
+  iconSize: string;
   /** Rail item padding */
-  itemPadding: string
+  itemPadding: string;
   /** Workspace icon size */
-  workspaceIconSize: string
+  workspaceIconSize: string;
   /** Whether the workspace switcher is shown */
-  showWorkspaceSwitcher: boolean
+  showWorkspaceSwitcher: boolean;
 }
 
 /**
@@ -204,31 +204,31 @@ export interface SlackRailConfig {
  */
 export interface SlackNavigationConfig {
   /** Platform variant */
-  platform: 'desktop' | 'mobile'
+  platform: "desktop" | "mobile";
   /** Left rail navigation items */
-  railItems: SlackRailItem[]
+  railItems: SlackRailItem[];
   /** Left rail configuration */
-  rail: SlackRailConfig
+  rail: SlackRailConfig;
   /** Default sidebar sections */
-  defaultSections: SlackSidebarSection[]
+  defaultSections: SlackSidebarSection[];
   /** Channel header configuration */
-  header: SlackHeaderConfig
+  header: SlackHeaderConfig;
   /** Sidebar width */
-  sidebarWidth: string
+  sidebarWidth: string;
   /** Sidebar background color */
-  sidebarBg: string
+  sidebarBg: string;
   /** Sidebar text color */
-  sidebarText: string
+  sidebarText: string;
   /** Sidebar border */
-  sidebarBorder: string
+  sidebarBorder: string;
   /** Thread panel width */
-  threadPanelWidth: string
+  threadPanelWidth: string;
   /** Whether thread panel is resizable */
-  threadPanelResizable: boolean
+  threadPanelResizable: boolean;
   /** Search bar placement */
-  searchPlacement: 'header' | 'sidebar-top'
+  searchPlacement: "header" | "sidebar-top";
   /** Search bar width */
-  searchBarWidth: string
+  searchBarWidth: string;
 }
 
 // ============================================================================
@@ -237,56 +237,56 @@ export interface SlackNavigationConfig {
 
 export const slackRailItems: SlackRailItem[] = [
   {
-    id: 'home',
-    label: 'Home',
-    icon: 'home',
-    activeIcon: 'home',
-    badgeType: 'count',
+    id: "home",
+    label: "Home",
+    icon: "home",
+    activeIcon: "home",
+    badgeType: "count",
     isDefault: true,
-    route: '/home',
-    tooltip: 'Home',
+    route: "/home",
+    tooltip: "Home",
   },
   {
-    id: 'dms',
-    label: 'DMs',
-    icon: 'message-square',
-    activeIcon: 'message-square',
-    badgeType: 'count',
+    id: "dms",
+    label: "DMs",
+    icon: "message-square",
+    activeIcon: "message-square",
+    badgeType: "count",
     isDefault: false,
-    route: '/dms',
-    tooltip: 'Direct messages',
+    route: "/dms",
+    tooltip: "Direct messages",
   },
   {
-    id: 'activity',
-    label: 'Activity',
-    icon: 'bell',
-    activeIcon: 'bell',
-    badgeType: 'count',
+    id: "activity",
+    label: "Activity",
+    icon: "bell",
+    activeIcon: "bell",
+    badgeType: "count",
     isDefault: false,
-    route: '/activity',
-    tooltip: 'Activity',
+    route: "/activity",
+    tooltip: "Activity",
   },
   {
-    id: 'later',
-    label: 'Later',
-    icon: 'bookmark',
-    activeIcon: 'bookmark',
-    badgeType: 'count',
+    id: "later",
+    label: "Later",
+    icon: "bookmark",
+    activeIcon: "bookmark",
+    badgeType: "count",
     isDefault: false,
-    route: '/later',
-    tooltip: 'Later',
+    route: "/later",
+    tooltip: "Later",
   },
   {
-    id: 'more',
-    label: 'More',
-    icon: 'more-horizontal',
-    activeIcon: 'more-horizontal',
-    badgeType: 'none',
+    id: "more",
+    label: "More",
+    icon: "more-horizontal",
+    activeIcon: "more-horizontal",
+    badgeType: "none",
     isDefault: false,
-    route: '/more',
-    tooltip: 'More',
+    route: "/more",
+    tooltip: "More",
   },
-]
+];
 
 // ============================================================================
 // SLACK MOBILE RAIL ITEMS
@@ -294,56 +294,56 @@ export const slackRailItems: SlackRailItem[] = [
 
 export const slackMobileRailItems: SlackRailItem[] = [
   {
-    id: 'home',
-    label: 'Home',
-    icon: 'home',
-    activeIcon: 'home',
-    badgeType: 'count',
+    id: "home",
+    label: "Home",
+    icon: "home",
+    activeIcon: "home",
+    badgeType: "count",
     isDefault: true,
-    route: '/home',
-    tooltip: 'Home',
+    route: "/home",
+    tooltip: "Home",
   },
   {
-    id: 'dms',
-    label: 'DMs',
-    icon: 'message-square',
-    activeIcon: 'message-square',
-    badgeType: 'count',
+    id: "dms",
+    label: "DMs",
+    icon: "message-square",
+    activeIcon: "message-square",
+    badgeType: "count",
     isDefault: false,
-    route: '/dms',
-    tooltip: 'Direct messages',
+    route: "/dms",
+    tooltip: "Direct messages",
   },
   {
-    id: 'activity',
-    label: 'Activity',
-    icon: 'bell',
-    activeIcon: 'bell',
-    badgeType: 'count',
+    id: "activity",
+    label: "Activity",
+    icon: "bell",
+    activeIcon: "bell",
+    badgeType: "count",
     isDefault: false,
-    route: '/activity',
-    tooltip: 'Activity',
+    route: "/activity",
+    tooltip: "Activity",
   },
   {
-    id: 'search',
-    label: 'Search',
-    icon: 'search',
-    activeIcon: 'search',
-    badgeType: 'none',
+    id: "search",
+    label: "Search",
+    icon: "search",
+    activeIcon: "search",
+    badgeType: "none",
     isDefault: false,
-    route: '/search',
-    tooltip: 'Search',
+    route: "/search",
+    tooltip: "Search",
   },
   {
-    id: 'you',
-    label: 'You',
-    icon: 'user',
-    activeIcon: 'user',
-    badgeType: 'none',
+    id: "you",
+    label: "You",
+    icon: "user",
+    activeIcon: "user",
+    badgeType: "none",
     isDefault: false,
-    route: '/you',
-    tooltip: 'You',
+    route: "/you",
+    tooltip: "You",
   },
-]
+];
 
 // ============================================================================
 // SLACK HEADER ACTIONS
@@ -351,54 +351,54 @@ export const slackMobileRailItems: SlackRailItem[] = [
 
 export const slackHeaderActions: SlackHeaderAction[] = [
   {
-    id: 'huddle',
-    icon: 'headphones',
-    label: 'Huddle',
-    tooltip: 'Start a huddle',
-    panelType: 'none',
+    id: "huddle",
+    icon: "headphones",
+    label: "Huddle",
+    tooltip: "Start a huddle",
+    panelType: "none",
     order: 1,
   },
   {
-    id: 'canvas',
-    icon: 'file-text',
-    label: 'Canvas',
-    tooltip: 'Open canvas',
-    panelType: 'panel',
+    id: "canvas",
+    icon: "file-text",
+    label: "Canvas",
+    tooltip: "Open canvas",
+    panelType: "panel",
     order: 2,
   },
   {
-    id: 'members',
-    icon: 'users',
-    label: 'Members',
-    tooltip: 'View members',
-    panelType: 'panel',
+    id: "members",
+    icon: "users",
+    label: "Members",
+    tooltip: "View members",
+    panelType: "panel",
     order: 3,
   },
   {
-    id: 'pins',
-    icon: 'pin',
-    label: 'Pins',
-    tooltip: 'View pinned items',
-    panelType: 'panel',
+    id: "pins",
+    icon: "pin",
+    label: "Pins",
+    tooltip: "View pinned items",
+    panelType: "panel",
     order: 4,
   },
   {
-    id: 'bookmarks',
-    icon: 'bookmark',
-    label: 'Bookmarks',
-    tooltip: 'View bookmarks',
-    panelType: 'panel',
+    id: "bookmarks",
+    icon: "bookmark",
+    label: "Bookmarks",
+    tooltip: "View bookmarks",
+    panelType: "panel",
     order: 5,
   },
   {
-    id: 'search',
-    icon: 'search',
-    label: 'Search',
-    tooltip: 'Search in conversation',
-    panelType: 'panel',
+    id: "search",
+    icon: "search",
+    label: "Search",
+    tooltip: "Search in conversation",
+    panelType: "panel",
     order: 6,
   },
-]
+];
 
 // ============================================================================
 // SLACK DEFAULT SECTIONS
@@ -406,128 +406,128 @@ export const slackHeaderActions: SlackHeaderAction[] = [
 
 export const slackDefaultSections: SlackSidebarSection[] = [
   {
-    id: 'starred',
-    name: 'Starred',
+    id: "starred",
+    name: "Starred",
     collapsed: false,
     isDefault: true,
     reorderable: false,
     itemCount: 0,
-    icon: 'star',
+    icon: "star",
   },
   {
-    id: 'channels',
-    name: 'Channels',
+    id: "channels",
+    name: "Channels",
     collapsed: false,
     isDefault: true,
     reorderable: true,
     itemCount: 0,
-    icon: 'hash',
+    icon: "hash",
   },
   {
-    id: 'direct-messages',
-    name: 'Direct messages',
+    id: "direct-messages",
+    name: "Direct messages",
     collapsed: false,
     isDefault: true,
     reorderable: true,
     itemCount: 0,
-    icon: 'message-square',
+    icon: "message-square",
   },
   {
-    id: 'apps',
-    name: 'Apps',
+    id: "apps",
+    name: "Apps",
     collapsed: true,
     isDefault: true,
     reorderable: true,
     itemCount: 0,
-    icon: 'grid',
+    icon: "grid",
   },
-]
+];
 
 // ============================================================================
 // SLACK DESKTOP NAVIGATION CONFIG (LIGHT)
 // ============================================================================
 
 export const slackDesktopNavigation: SlackNavigationConfig = {
-  platform: 'desktop',
+  platform: "desktop",
   railItems: slackRailItems,
   rail: {
-    width: '68px',
-    backgroundColor: '#4A154B',
-    itemHoverBg: '#3A1040',
-    itemActiveBg: '#FFFFFF1A',
-    itemTextColor: '#FFFFFF',
-    itemActiveTextColor: '#FFFFFF',
-    iconSize: '20px',
-    itemPadding: '8px 12px',
-    workspaceIconSize: '36px',
+    width: "68px",
+    backgroundColor: "#4A154B",
+    itemHoverBg: "#3A1040",
+    itemActiveBg: "#FFFFFF1A",
+    itemTextColor: "#FFFFFF",
+    itemActiveTextColor: "#FFFFFF",
+    iconSize: "20px",
+    itemPadding: "8px 12px",
+    workspaceIconSize: "36px",
     showWorkspaceSwitcher: true,
   },
   defaultSections: slackDefaultSections,
   header: {
-    height: '49px',
-    backgroundColor: '#FFFFFF',
-    textColor: '#1D1C1D',
-    iconColor: '#616061',
+    height: "49px",
+    backgroundColor: "#FFFFFF",
+    textColor: "#1D1C1D",
+    iconColor: "#616061",
     showChannelName: true,
     showTopic: true,
     showMemberCount: true,
     showStar: true,
     actions: slackHeaderActions,
-    borderBottom: '1px solid #DDDDDC',
-    shadow: 'none',
+    borderBottom: "1px solid #DDDDDC",
+    shadow: "none",
   },
-  sidebarWidth: '260px',
-  sidebarBg: '#4A154B',
-  sidebarText: '#FFFFFF',
-  sidebarBorder: 'none',
-  threadPanelWidth: '400px',
+  sidebarWidth: "260px",
+  sidebarBg: "#4A154B",
+  sidebarText: "#FFFFFF",
+  sidebarBorder: "none",
+  threadPanelWidth: "400px",
   threadPanelResizable: true,
-  searchPlacement: 'header',
-  searchBarWidth: '100%',
-}
+  searchPlacement: "header",
+  searchBarWidth: "100%",
+};
 
 // ============================================================================
 // SLACK MOBILE NAVIGATION CONFIG (LIGHT)
 // ============================================================================
 
 export const slackMobileNavigation: SlackNavigationConfig = {
-  platform: 'mobile',
+  platform: "mobile",
   railItems: slackMobileRailItems,
   rail: {
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-    itemHoverBg: '#F8F8F8',
-    itemActiveBg: '#F0EDFF',
-    itemTextColor: '#616061',
-    itemActiveTextColor: '#611F69',
-    iconSize: '24px',
-    itemPadding: '8px',
-    workspaceIconSize: '28px',
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    itemHoverBg: "#F8F8F8",
+    itemActiveBg: "#F0EDFF",
+    itemTextColor: "#616061",
+    itemActiveTextColor: "#611F69",
+    iconSize: "24px",
+    itemPadding: "8px",
+    workspaceIconSize: "28px",
     showWorkspaceSwitcher: true,
   },
   defaultSections: slackDefaultSections,
   header: {
-    height: '49px',
-    backgroundColor: '#FFFFFF',
-    textColor: '#1D1C1D',
-    iconColor: '#616061',
+    height: "49px",
+    backgroundColor: "#FFFFFF",
+    textColor: "#1D1C1D",
+    iconColor: "#616061",
     showChannelName: true,
     showTopic: false,
     showMemberCount: false,
     showStar: false,
     actions: slackHeaderActions.slice(0, 3), // huddle, canvas, members only
-    borderBottom: '1px solid #DDDDDC',
-    shadow: 'none',
+    borderBottom: "1px solid #DDDDDC",
+    shadow: "none",
   },
-  sidebarWidth: '100%',
-  sidebarBg: '#FFFFFF',
-  sidebarText: '#1D1C1D',
-  sidebarBorder: 'none',
-  threadPanelWidth: '100%',
+  sidebarWidth: "100%",
+  sidebarBg: "#FFFFFF",
+  sidebarText: "#1D1C1D",
+  sidebarBorder: "none",
+  threadPanelWidth: "100%",
   threadPanelResizable: false,
-  searchPlacement: 'header',
-  searchBarWidth: '100%',
-}
+  searchPlacement: "header",
+  searchBarWidth: "100%",
+};
 
 // ============================================================================
 // DARK MODE NAVIGATION CONFIGS
@@ -537,41 +537,41 @@ export const slackDesktopNavigationDark: SlackNavigationConfig = {
   ...slackDesktopNavigation,
   rail: {
     ...slackDesktopNavigation.rail,
-    backgroundColor: '#1A1D21',
-    itemHoverBg: '#27242C',
-    itemActiveBg: '#FFFFFF1A',
+    backgroundColor: "#1A1D21",
+    itemHoverBg: "#27242C",
+    itemActiveBg: "#FFFFFF1A",
   },
   header: {
     ...slackDesktopNavigation.header,
-    backgroundColor: '#222529',
-    textColor: '#D1D2D3',
-    iconColor: '#D1D2D3',
-    borderBottom: '1px solid #35383C',
+    backgroundColor: "#222529",
+    textColor: "#D1D2D3",
+    iconColor: "#D1D2D3",
+    borderBottom: "1px solid #35383C",
   },
-  sidebarBg: '#1A1D21',
-  sidebarText: '#D1D2D3',
-}
+  sidebarBg: "#1A1D21",
+  sidebarText: "#D1D2D3",
+};
 
 export const slackMobileNavigationDark: SlackNavigationConfig = {
   ...slackMobileNavigation,
   rail: {
     ...slackMobileNavigation.rail,
-    backgroundColor: '#1A1D21',
-    itemHoverBg: '#222529',
-    itemActiveBg: '#2D2A35',
-    itemTextColor: '#ABABAD',
-    itemActiveTextColor: '#D1B3D3',
+    backgroundColor: "#1A1D21",
+    itemHoverBg: "#222529",
+    itemActiveBg: "#2D2A35",
+    itemTextColor: "#ABABAD",
+    itemActiveTextColor: "#D1B3D3",
   },
   header: {
     ...slackMobileNavigation.header,
-    backgroundColor: '#222529',
-    textColor: '#D1D2D3',
-    iconColor: '#D1D2D3',
-    borderBottom: '1px solid #35383C',
+    backgroundColor: "#222529",
+    textColor: "#D1D2D3",
+    iconColor: "#D1D2D3",
+    borderBottom: "1px solid #35383C",
   },
-  sidebarBg: '#1A1D21',
-  sidebarText: '#D1D2D3',
-}
+  sidebarBg: "#1A1D21",
+  sidebarText: "#D1D2D3",
+};
 
 // ============================================================================
 // NAVIGATION HELPERS
@@ -581,65 +581,63 @@ export const slackMobileNavigationDark: SlackNavigationConfig = {
  * Get the Slack navigation configuration for the given platform and mode.
  */
 export function getSlackNavigation(
-  platform: 'desktop' | 'mobile',
-  isDarkMode: boolean = false
+  platform: "desktop" | "mobile",
+  isDarkMode: boolean = false,
 ): SlackNavigationConfig {
-  if (platform === 'mobile') {
-    return isDarkMode ? slackMobileNavigationDark : slackMobileNavigation
+  if (platform === "mobile") {
+    return isDarkMode ? slackMobileNavigationDark : slackMobileNavigation;
   }
-  return isDarkMode ? slackDesktopNavigationDark : slackDesktopNavigation
+  return isDarkMode ? slackDesktopNavigationDark : slackDesktopNavigation;
 }
 
 /**
  * Get the default rail item for Slack navigation.
  */
 export function getSlackDefaultRailItem(
-  platform: 'desktop' | 'mobile'
+  platform: "desktop" | "mobile",
 ): SlackRailItem {
-  const nav = getSlackNavigation(platform)
-  return nav.railItems.find((t) => t.isDefault) ?? nav.railItems[0]
+  const nav = getSlackNavigation(platform);
+  return nav.railItems.find((t) => t.isDefault) ?? nav.railItems[0];
 }
 
 /**
  * Get the rail item count for a given platform.
  */
-export function getSlackRailItemCount(
-  platform: 'desktop' | 'mobile'
-): number {
-  const nav = getSlackNavigation(platform)
-  return nav.railItems.length
+export function getSlackRailItemCount(platform: "desktop" | "mobile"): number {
+  const nav = getSlackNavigation(platform);
+  return nav.railItems.length;
 }
 
 /**
  * Find a rail item by its ID.
  */
 export function getSlackRailItemById(
-  platform: 'desktop' | 'mobile',
-  itemId: string
+  platform: "desktop" | "mobile",
+  itemId: string,
 ): SlackRailItem | undefined {
-  const nav = getSlackNavigation(platform)
-  return nav.railItems.find((t) => t.id === itemId)
+  const nav = getSlackNavigation(platform);
+  return nav.railItems.find((t) => t.id === itemId);
 }
 
 /**
  * Get the header action count.
  */
 export function getSlackHeaderActionCount(): number {
-  return slackHeaderActions.length
+  return slackHeaderActions.length;
 }
 
 /**
  * Find a header action by its ID.
  */
 export function getSlackHeaderActionById(
-  actionId: string
+  actionId: string,
 ): SlackHeaderAction | undefined {
-  return slackHeaderActions.find((a) => a.id === actionId)
+  return slackHeaderActions.find((a) => a.id === actionId);
 }
 
 /**
  * Get the default section count.
  */
 export function getSlackDefaultSectionCount(): number {
-  return slackDefaultSections.length
+  return slackDefaultSections.length;
 }

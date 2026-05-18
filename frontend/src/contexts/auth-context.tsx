@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Authentication Context for nself-chat
@@ -15,123 +15,147 @@ import {
   ReactNode,
   useCallback,
   useMemo,
-} from 'react'
-import { useRouter } from 'next/navigation'
-import { authConfig, isTwoFactorRequired, verifySecurityConfiguration } from '@/config/auth.config'
-import { FauxAuthService } from '@/services/auth/faux-auth.service'
-import { NhostAuthService } from '@/services/auth/nhost-auth.service'
-import { setSentryUser, clearSentryUser, captureError } from '@/lib/sentry-utils'
+} from "react";
+import { useRouter } from "next/navigation";
+import {
+  authConfig,
+  isTwoFactorRequired,
+  verifySecurityConfiguration,
+} from "@/config/auth.config";
+import { FauxAuthService } from "@/services/auth/faux-auth.service";
+import { NhostAuthService } from "@/services/auth/nhost-auth.service";
+import {
+  setSentryUser,
+  clearSentryUser,
+  captureError,
+} from "@/lib/sentry-utils";
 import type {
   AuthUser,
   UserRole,
   OAuthProvider,
   TwoFactorStatus,
-} from '@/services/auth/auth.interface'
-import type { AppRole, UserAppContext } from '@/types/app-rbac'
-import { logger } from '@/lib/logger'
+} from "@/services/auth/auth.interface";
+import type { AppRole, UserAppContext } from "@/types/app-rbac";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface User {
-  id: string
-  email: string
-  username: string
-  displayName: string
-  avatarUrl?: string
-  role: UserRole
-  emailVerified?: boolean
-  createdAt?: string
-  lastLoginAt?: string
+  id: string;
+  email: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
+  role: UserRole;
+  emailVerified?: boolean;
+  createdAt?: string;
+  lastLoginAt?: string;
   // Per-app RBAC (monorepo compatibility)
-  appRoles?: AppRole[] // User's roles in the current app
-  appContext?: UserAppContext // Full app context with permissions
+  appRoles?: AppRole[]; // User's roles in the current app
+  appContext?: UserAppContext; // Full app context with permissions
 }
 
 interface SignInOptions {
-  redirectTo?: string
+  redirectTo?: string;
 }
 
 interface SignUpOptions {
-  displayName?: string
-  redirectTo?: string
+  displayName?: string;
+  redirectTo?: string;
 }
 
 interface OAuthOptions {
-  provider: OAuthProvider
-  redirectTo?: string
-  scopes?: string[]
+  provider: OAuthProvider;
+  redirectTo?: string;
+  scopes?: string[];
 }
 
 interface AuthContextType {
   // State
-  user: User | null
-  loading: boolean
-  isAuthenticated: boolean
-  isDevMode: boolean
+  user: User | null;
+  loading: boolean;
+  isAuthenticated: boolean;
+  isDevMode: boolean;
 
   // Core auth methods
-  signIn: (email: string, password: string, options?: SignInOptions) => Promise<void>
+  signIn: (
+    email: string,
+    password: string,
+    options?: SignInOptions,
+  ) => Promise<void>;
   signUp: (
     email: string,
     password: string,
     username: string,
     displayName?: string,
-    options?: SignUpOptions
-  ) => Promise<void>
-  signOut: () => Promise<void>
-  updateProfile: (data: Partial<User>) => Promise<void>
+    options?: SignUpOptions,
+  ) => Promise<void>;
+  signOut: () => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
 
   // OAuth methods
-  signInWithOAuth: (options: OAuthOptions) => Promise<void>
-  handleOAuthCallback: (params: URLSearchParams) => Promise<void>
+  signInWithOAuth: (options: OAuthOptions) => Promise<void>;
+  handleOAuthCallback: (params: URLSearchParams) => Promise<void>;
 
   // Magic link methods
-  sendMagicLink: (email: string) => Promise<{ success: boolean }>
-  verifyMagicLink: (token: string) => Promise<void>
+  sendMagicLink: (email: string) => Promise<{ success: boolean }>;
+  verifyMagicLink: (token: string) => Promise<void>;
 
   // Password methods
-  requestPasswordReset: (email: string) => Promise<{ success: boolean }>
-  resetPassword: (token: string, newPassword: string) => Promise<{ success: boolean }>
-  changePassword: (oldPassword: string, newPassword: string) => Promise<{ success: boolean }>
+  requestPasswordReset: (email: string) => Promise<{ success: boolean }>;
+  resetPassword: (
+    token: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean }>;
+  changePassword: (
+    oldPassword: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean }>;
 
   // Email verification
-  sendEmailVerification: (email: string) => Promise<{ success: boolean }>
-  verifyEmail: (token: string) => Promise<{ success: boolean }>
+  sendEmailVerification: (email: string) => Promise<{ success: boolean }>;
+  verifyEmail: (token: string) => Promise<{ success: boolean }>;
 
   // 2FA methods
-  getTwoFactorStatus: () => Promise<TwoFactorStatus>
-  generateTOTPSecret: () => Promise<{ secret: string; otpauthUrl: string; qrCodeDataUrl: string }>
-  enableTOTP: (code: string) => Promise<{ success: boolean; backupCodes?: string[] }>
-  disableTOTP: (code: string) => Promise<{ success: boolean }>
-  verifyTOTP: (ticket: string, code: string) => Promise<void>
+  getTwoFactorStatus: () => Promise<TwoFactorStatus>;
+  generateTOTPSecret: () => Promise<{
+    secret: string;
+    otpauthUrl: string;
+    qrCodeDataUrl: string;
+  }>;
+  enableTOTP: (
+    code: string,
+  ) => Promise<{ success: boolean; backupCodes?: string[] }>;
+  disableTOTP: (code: string) => Promise<{ success: boolean }>;
+  verifyTOTP: (ticket: string, code: string) => Promise<void>;
 
   // Session helpers
-  getAccessToken: () => string | null
-  refreshSession: () => Promise<void>
+  getAccessToken: () => string | null;
+  refreshSession: () => Promise<void>;
 
   // Dev mode only
-  switchUser?: (userId: string) => Promise<void>
+  switchUser?: (userId: string) => Promise<void>;
 }
 
 // ============================================================================
 // Context
 // ============================================================================
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ============================================================================
 // Auth Service Initialization
 // ============================================================================
 
 // Verify security configuration on module load
-if (typeof window === 'undefined') {
+if (typeof window === "undefined") {
   // Server-side only
   try {
-    verifySecurityConfiguration()
+    verifySecurityConfiguration();
   } catch (error) {
-    logger.error('Security configuration error:', error)
+    logger.error("Security configuration error:", error);
   }
 }
 
@@ -140,21 +164,21 @@ if (typeof window === 'undefined') {
 const createAuthService = () => {
   // Double-check security in production
   if (authConfig.isProduction && authConfig.useDevAuth) {
-    throw new Error('[SECURITY] FATAL: Cannot use dev auth in production')
+    throw new Error("[SECURITY] FATAL: Cannot use dev auth in production");
   }
 
-  return authConfig.useDevAuth ? new FauxAuthService() : new NhostAuthService()
-}
+  return authConfig.useDevAuth ? new FauxAuthService() : new NhostAuthService();
+};
 
 // ============================================================================
 // Provider Component
 // ============================================================================
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [authService] = useState(createAuthService)
-  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [authService] = useState(createAuthService);
+  const router = useRouter();
 
   // ==========================================================================
   // Initialize auth state
@@ -163,21 +187,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const currentUser = await authService.getCurrentUser()
+        const currentUser = await authService.getCurrentUser();
         if (currentUser) {
           const mappedUser: User = {
             id: currentUser.id,
             email: currentUser.email,
-            username: currentUser.username || currentUser.email.split('@')[0],
+            username: currentUser.username || currentUser.email.split("@")[0],
             displayName:
-              currentUser.displayName || currentUser.username || currentUser.email.split('@')[0],
+              currentUser.displayName ||
+              currentUser.username ||
+              currentUser.email.split("@")[0],
             avatarUrl: currentUser.avatarUrl || undefined,
             role: currentUser.role,
             emailVerified: currentUser.emailVerified,
             createdAt: currentUser.createdAt,
             lastLoginAt: currentUser.lastLoginAt,
-          }
-          setUser(mappedUser)
+          };
+          setUser(mappedUser);
 
           // Set user context in Sentry for error tracking
           setSentryUser({
@@ -185,21 +211,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: mappedUser.email,
             username: mappedUser.username,
             role: mappedUser.role,
-          })
+          });
         }
       } catch (error) {
-        logger.error('Auth check failed:', error)
+        logger.error("Auth check failed:", error);
         captureError(error as Error, {
-          tags: { context: 'auth-check' },
-          level: 'warning',
-        })
+          tags: { context: "auth-check" },
+          level: "warning",
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    checkAuth()
-  }, [authService])
+    checkAuth();
+  }, [authService]);
 
   // ==========================================================================
   // Core Auth Methods
@@ -208,39 +234,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(
     async (email: string, password: string, options?: SignInOptions) => {
       try {
-        setLoading(true)
-        const response = await authService.signIn(email, password)
+        setLoading(true);
+        const response = await authService.signIn(email, password);
 
         // Check if 2FA is required
-        if ('requires2FA' in response && response.requires2FA) {
+        if ("requires2FA" in response && response.requires2FA) {
           // Store MFA ticket in session storage for verification
-          if (typeof window !== 'undefined' && response.mfaTicket) {
-            sessionStorage.setItem('nchat-mfa-ticket', response.mfaTicket)
+          if (typeof window !== "undefined" && response.mfaTicket) {
+            sessionStorage.setItem("nchat-mfa-ticket", response.mfaTicket);
           }
-          router.push('/auth/2fa-verify')
-          return
+          router.push("/auth/2fa-verify");
+          return;
         }
 
         // Check if email verification is required
-        if ('requiresEmailVerification' in response && response.requiresEmailVerification) {
-          router.push('/auth/verify-email-sent')
-          return
+        if (
+          "requiresEmailVerification" in response &&
+          response.requiresEmailVerification
+        ) {
+          router.push("/auth/verify-email-sent");
+          return;
         }
 
         const mappedUser: User = {
           id: response.user.id,
           email: response.user.email,
-          username: response.user.username || response.user.email.split('@')[0],
+          username: response.user.username || response.user.email.split("@")[0],
           displayName:
             response.user.displayName ||
             response.user.username ||
-            response.user.email.split('@')[0],
+            response.user.email.split("@")[0],
           avatarUrl: response.user.avatarUrl || undefined,
           role: response.user.role,
           emailVerified: response.user.emailVerified,
-        }
+        };
 
-        setUser(mappedUser)
+        setUser(mappedUser);
 
         // Set user context in Sentry
         setSentryUser({
@@ -248,32 +277,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: mappedUser.email,
           username: mappedUser.username,
           role: mappedUser.role,
-        })
+        });
 
         // Check if 2FA setup is required for this role
         if (isTwoFactorRequired(mappedUser.role)) {
-          const status = await getTwoFactorStatus()
+          const status = await getTwoFactorStatus();
           if (!status.enabled) {
-            router.push('/settings/security?setup2fa=true')
-            return
+            router.push("/settings/security?setup2fa=true");
+            return;
           }
         }
 
-        router.push(options?.redirectTo || '/chat')
+        router.push(options?.redirectTo || "/chat");
       } catch (error) {
-        logger.error('Sign in error:', error)
+        logger.error("Sign in error:", error);
         captureError(error as Error, {
-          tags: { context: 'sign-in' },
+          tags: { context: "sign-in" },
           extra: { email },
-          level: 'error',
-        })
-        throw error
+          level: "error",
+        });
+        throw error;
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
-    [authService, router]
-  )
+    [authService, router],
+  );
 
   const signUp = useCallback(
     async (
@@ -281,23 +310,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password: string,
       username: string,
       displayName?: string,
-      options?: SignUpOptions
+      options?: SignUpOptions,
     ) => {
       try {
-        setLoading(true)
+        setLoading(true);
 
         // For Nhost service, pass options
         const response = authConfig.useDevAuth
           ? await authService.signUp(email, password, username)
-          : await (authService as NhostAuthService).signUp(email, password, username, {
-              displayName: displayName || username,
-              redirectTo: options?.redirectTo,
-            })
+          : await (authService as NhostAuthService).signUp(
+              email,
+              password,
+              username,
+              {
+                displayName: displayName || username,
+                redirectTo: options?.redirectTo,
+              },
+            );
 
         // Check if email verification is required
-        if ('requiresEmailVerification' in response && response.requiresEmailVerification) {
-          router.push('/auth/verify-email-sent')
-          return
+        if (
+          "requiresEmailVerification" in response &&
+          response.requiresEmailVerification
+        ) {
+          router.push("/auth/verify-email-sent");
+          return;
         }
 
         const mappedUser: User = {
@@ -307,9 +344,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           displayName: response.user.displayName || displayName || username,
           avatarUrl: response.user.avatarUrl || undefined,
           role: response.user.role,
-        }
+        };
 
-        setUser(mappedUser)
+        setUser(mappedUser);
 
         // Set user context in Sentry
         setSentryUser({
@@ -317,81 +354,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: mappedUser.email,
           username: mappedUser.username,
           role: mappedUser.role,
-        })
+        });
 
         // Check if this is the first user (they become owner and go to setup)
-        if (response.user.role === 'owner') {
-          router.push('/setup')
+        if (response.user.role === "owner") {
+          router.push("/setup");
         } else {
-          router.push(options?.redirectTo || '/chat')
+          router.push(options?.redirectTo || "/chat");
         }
       } catch (error) {
-        logger.error('Sign up error:', error)
+        logger.error("Sign up error:", error);
         captureError(error as Error, {
-          tags: { context: 'sign-up' },
+          tags: { context: "sign-up" },
           extra: { email },
-          level: 'error',
-        })
-        throw error
+          level: "error",
+        });
+        throw error;
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
-    [authService, router]
-  )
+    [authService, router],
+  );
 
   const signOut = useCallback(async () => {
     try {
-      await authService.signOut()
-      setUser(null)
-      clearSentryUser()
-      router.push('/')
+      await authService.signOut();
+      setUser(null);
+      clearSentryUser();
+      router.push("/");
     } catch (error) {
-      logger.error('Sign out error:', error)
+      logger.error("Sign out error:", error);
       captureError(error as Error, {
-        tags: { context: 'sign-out' },
-        level: 'warning',
-      })
-      throw error
+        tags: { context: "sign-out" },
+        level: "warning",
+      });
+      throw error;
     }
-  }, [authService, router])
+  }, [authService, router]);
 
   const updateProfile = useCallback(
     async (data: Partial<User>) => {
       try {
         if (authConfig.useDevAuth) {
           // In dev mode, just update the user locally
-          setUser((prev) => (prev ? { ...prev, ...data } : null))
+          setUser((prev) => (prev ? { ...prev, ...data } : null));
         } else {
           // Production profile update via Nhost
-          const response = await authService.updateProfile(data)
+          const response = await authService.updateProfile(data);
           if (response.user) {
             const mappedUser: User = {
               id: response.user.id,
               email: response.user.email,
-              username: response.user.username || response.user.email.split('@')[0],
+              username:
+                response.user.username || response.user.email.split("@")[0],
               displayName:
                 response.user.displayName ||
                 response.user.username ||
-                response.user.email.split('@')[0],
+                response.user.email.split("@")[0],
               avatarUrl: response.user.avatarUrl || undefined,
               role: response.user.role,
               emailVerified: response.user.emailVerified,
-            }
-            setUser(mappedUser)
+            };
+            setUser(mappedUser);
           }
         }
       } catch (error) {
-        logger.error('Profile update error:', error)
+        logger.error("Profile update error:", error);
         captureError(error as Error, {
-          tags: { context: 'update-profile' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "update-profile" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   // ==========================================================================
   // OAuth Methods
@@ -400,74 +438,76 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithOAuth = useCallback(
     async (options: OAuthOptions) => {
       if (authConfig.useDevAuth) {
-        throw new Error('OAuth is not available in development mode')
+        throw new Error("OAuth is not available in development mode");
       }
 
       try {
-        await (authService as NhostAuthService).signInWithOAuth(options)
+        await (authService as NhostAuthService).signInWithOAuth(options);
       } catch (error) {
-        logger.error('OAuth sign in error:', error)
+        logger.error("OAuth sign in error:", error);
         captureError(error as Error, {
-          tags: { context: 'oauth-sign-in', provider: options.provider },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "oauth-sign-in", provider: options.provider },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   const handleOAuthCallback = useCallback(
     async (params: URLSearchParams) => {
       if (authConfig.useDevAuth) {
-        throw new Error('OAuth is not available in development mode')
+        throw new Error("OAuth is not available in development mode");
       }
 
       try {
-        setLoading(true)
-        const response = await (authService as NhostAuthService).handleOAuthCallback(params)
+        setLoading(true);
+        const response = await (
+          authService as NhostAuthService
+        ).handleOAuthCallback(params);
 
         const mappedUser: User = {
           id: response.user.id,
           email: response.user.email,
-          username: response.user.username || response.user.email.split('@')[0],
+          username: response.user.username || response.user.email.split("@")[0],
           displayName:
             response.user.displayName ||
             response.user.username ||
-            response.user.email.split('@')[0],
+            response.user.email.split("@")[0],
           avatarUrl: response.user.avatarUrl || undefined,
           role: response.user.role,
           emailVerified: response.user.emailVerified,
-        }
+        };
 
-        setUser(mappedUser)
+        setUser(mappedUser);
 
         setSentryUser({
           id: mappedUser.id,
           email: mappedUser.email,
           username: mappedUser.username,
           role: mappedUser.role,
-        })
+        });
 
         // Check if this is first user
-        if (response.user.role === 'owner') {
-          router.push('/setup')
+        if (response.user.role === "owner") {
+          router.push("/setup");
         } else {
-          router.push('/chat')
+          router.push("/chat");
         }
       } catch (error) {
-        logger.error('OAuth callback error:', error)
+        logger.error("OAuth callback error:", error);
         captureError(error as Error, {
-          tags: { context: 'oauth-callback' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "oauth-callback" },
+          level: "error",
+        });
+        throw error;
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
-    [authService, router]
-  )
+    [authService, router],
+  );
 
   // ==========================================================================
   // Magic Link Methods
@@ -477,69 +517,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string) => {
       if (authConfig.useDevAuth) {
         // In dev mode, simulate success
-        return { success: true }
+        return { success: true };
       }
 
       try {
-        return await (authService as NhostAuthService).sendMagicLink(email)
+        return await (authService as NhostAuthService).sendMagicLink(email);
       } catch (error) {
-        logger.error('Send magic link error:', error)
+        logger.error("Send magic link error:", error);
         captureError(error as Error, {
-          tags: { context: 'send-magic-link' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "send-magic-link" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   const verifyMagicLink = useCallback(
     async (token: string) => {
       if (authConfig.useDevAuth) {
-        throw new Error('Magic links are not available in development mode')
+        throw new Error("Magic links are not available in development mode");
       }
 
       try {
-        setLoading(true)
-        const response = await (authService as NhostAuthService).verifyMagicLink(token)
+        setLoading(true);
+        const response = await (
+          authService as NhostAuthService
+        ).verifyMagicLink(token);
 
         const mappedUser: User = {
           id: response.user.id,
           email: response.user.email,
-          username: response.user.username || response.user.email.split('@')[0],
+          username: response.user.username || response.user.email.split("@")[0],
           displayName:
             response.user.displayName ||
             response.user.username ||
-            response.user.email.split('@')[0],
+            response.user.email.split("@")[0],
           avatarUrl: response.user.avatarUrl || undefined,
           role: response.user.role,
           emailVerified: true,
-        }
+        };
 
-        setUser(mappedUser)
+        setUser(mappedUser);
 
         setSentryUser({
           id: mappedUser.id,
           email: mappedUser.email,
           username: mappedUser.username,
           role: mappedUser.role,
-        })
+        });
 
-        router.push('/chat')
+        router.push("/chat");
       } catch (error) {
-        logger.error('Verify magic link error:', error)
+        logger.error("Verify magic link error:", error);
         captureError(error as Error, {
-          tags: { context: 'verify-magic-link' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "verify-magic-link" },
+          level: "error",
+        });
+        throw error;
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
-    [authService, router]
-  )
+    [authService, router],
+  );
 
   // ==========================================================================
   // Password Methods
@@ -548,62 +590,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const requestPasswordReset = useCallback(
     async (email: string) => {
       if (authConfig.useDevAuth) {
-        return { success: true }
+        return { success: true };
       }
 
       try {
-        return await (authService as NhostAuthService).requestPasswordReset(email)
+        return await (authService as NhostAuthService).requestPasswordReset(
+          email,
+        );
       } catch (error) {
-        logger.error('Request password reset error:', error)
+        logger.error("Request password reset error:", error);
         captureError(error as Error, {
-          tags: { context: 'request-password-reset' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "request-password-reset" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   const resetPassword = useCallback(
     async (token: string, newPassword: string) => {
       if (authConfig.useDevAuth) {
-        return { success: true }
+        return { success: true };
       }
 
       try {
-        return await (authService as NhostAuthService).resetPassword(token, newPassword)
+        return await (authService as NhostAuthService).resetPassword(
+          token,
+          newPassword,
+        );
       } catch (error) {
-        logger.error('Reset password error:', error)
+        logger.error("Reset password error:", error);
         captureError(error as Error, {
-          tags: { context: 'reset-password' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "reset-password" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   const changePassword = useCallback(
     async (oldPassword: string, newPassword: string) => {
       if (authConfig.useDevAuth) {
-        return { success: true }
+        return { success: true };
       }
 
       try {
-        return await (authService as NhostAuthService).changePassword(oldPassword, newPassword)
+        return await (authService as NhostAuthService).changePassword(
+          oldPassword,
+          newPassword,
+        );
       } catch (error) {
-        logger.error('Change password error:', error)
+        logger.error("Change password error:", error);
         captureError(error as Error, {
-          tags: { context: 'change-password' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "change-password" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   // ==========================================================================
   // Email Verification Methods
@@ -612,42 +662,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const sendEmailVerification = useCallback(
     async (email: string) => {
       if (authConfig.useDevAuth) {
-        return { success: true }
+        return { success: true };
       }
 
       try {
-        return await (authService as NhostAuthService).sendEmailVerification(email)
+        return await (authService as NhostAuthService).sendEmailVerification(
+          email,
+        );
       } catch (error) {
-        logger.error('Send email verification error:', error)
+        logger.error("Send email verification error:", error);
         captureError(error as Error, {
-          tags: { context: 'send-email-verification' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "send-email-verification" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   const verifyEmail = useCallback(
     async (token: string) => {
       if (authConfig.useDevAuth) {
-        return { success: true }
+        return { success: true };
       }
 
       try {
-        return await (authService as NhostAuthService).verifyEmail(token)
+        return await (authService as NhostAuthService).verifyEmail(token);
       } catch (error) {
-        logger.error('Verify email error:', error)
+        logger.error("Verify email error:", error);
         captureError(error as Error, {
-          tags: { context: 'verify-email' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "verify-email" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   // ==========================================================================
   // 2FA Methods
@@ -655,125 +707,128 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const getTwoFactorStatus = useCallback(async (): Promise<TwoFactorStatus> => {
     if (authConfig.useDevAuth) {
-      return { enabled: false, method: null, hasBackupCodes: false }
+      return { enabled: false, method: null, hasBackupCodes: false };
     }
 
     try {
-      return await (authService as NhostAuthService).getTwoFactorStatus()
+      return await (authService as NhostAuthService).getTwoFactorStatus();
     } catch (error) {
-      logger.error('Get 2FA status error:', error)
-      return { enabled: false, method: null, hasBackupCodes: false }
+      logger.error("Get 2FA status error:", error);
+      return { enabled: false, method: null, hasBackupCodes: false };
     }
-  }, [authService])
+  }, [authService]);
 
   const generateTOTPSecret = useCallback(async () => {
     if (authConfig.useDevAuth) {
-      throw new Error('2FA is not available in development mode')
+      throw new Error("2FA is not available in development mode");
     }
 
     try {
-      return await (authService as NhostAuthService).generateTOTPSecret()
+      return await (authService as NhostAuthService).generateTOTPSecret();
     } catch (error) {
-      logger.error('Generate TOTP secret error:', error)
+      logger.error("Generate TOTP secret error:", error);
       captureError(error as Error, {
-        tags: { context: 'generate-totp-secret' },
-        level: 'error',
-      })
-      throw error
+        tags: { context: "generate-totp-secret" },
+        level: "error",
+      });
+      throw error;
     }
-  }, [authService])
+  }, [authService]);
 
   const enableTOTP = useCallback(
     async (code: string) => {
       if (authConfig.useDevAuth) {
-        throw new Error('2FA is not available in development mode')
+        throw new Error("2FA is not available in development mode");
       }
 
       try {
-        return await (authService as NhostAuthService).enableTOTP(code)
+        return await (authService as NhostAuthService).enableTOTP(code);
       } catch (error) {
-        logger.error('Enable TOTP error:', error)
+        logger.error("Enable TOTP error:", error);
         captureError(error as Error, {
-          tags: { context: 'enable-totp' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "enable-totp" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   const disableTOTP = useCallback(
     async (code: string) => {
       if (authConfig.useDevAuth) {
-        throw new Error('2FA is not available in development mode')
+        throw new Error("2FA is not available in development mode");
       }
 
       try {
-        return await (authService as NhostAuthService).disableTOTP(code)
+        return await (authService as NhostAuthService).disableTOTP(code);
       } catch (error) {
-        logger.error('Disable TOTP error:', error)
+        logger.error("Disable TOTP error:", error);
         captureError(error as Error, {
-          tags: { context: 'disable-totp' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "disable-totp" },
+          level: "error",
+        });
+        throw error;
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   const verifyTOTP = useCallback(
     async (ticket: string, code: string) => {
       if (authConfig.useDevAuth) {
-        throw new Error('2FA is not available in development mode')
+        throw new Error("2FA is not available in development mode");
       }
 
       try {
-        setLoading(true)
-        const response = await (authService as NhostAuthService).verifyTOTP(ticket, code)
+        setLoading(true);
+        const response = await (authService as NhostAuthService).verifyTOTP(
+          ticket,
+          code,
+        );
 
         const mappedUser: User = {
           id: response.user.id,
           email: response.user.email,
-          username: response.user.username || response.user.email.split('@')[0],
+          username: response.user.username || response.user.email.split("@")[0],
           displayName:
             response.user.displayName ||
             response.user.username ||
-            response.user.email.split('@')[0],
+            response.user.email.split("@")[0],
           avatarUrl: response.user.avatarUrl || undefined,
           role: response.user.role,
           emailVerified: response.user.emailVerified,
-        }
+        };
 
-        setUser(mappedUser)
+        setUser(mappedUser);
 
         setSentryUser({
           id: mappedUser.id,
           email: mappedUser.email,
           username: mappedUser.username,
           role: mappedUser.role,
-        })
+        });
 
         // Clear MFA ticket
-        if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('nchat-mfa-ticket')
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("nchat-mfa-ticket");
         }
 
-        router.push('/chat')
+        router.push("/chat");
       } catch (error) {
-        logger.error('Verify TOTP error:', error)
+        logger.error("Verify TOTP error:", error);
         captureError(error as Error, {
-          tags: { context: 'verify-totp' },
-          level: 'error',
-        })
-        throw error
+          tags: { context: "verify-totp" },
+          level: "error",
+        });
+        throw error;
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
-    [authService, router]
-  )
+    [authService, router],
+  );
 
   // ==========================================================================
   // Session Helpers
@@ -781,18 +836,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const getAccessToken = useCallback(() => {
     if (authConfig.useDevAuth) {
-      return 'dev-token'
+      return "dev-token";
     }
-    return (authService as NhostAuthService).getAccessToken?.() || null
-  }, [authService])
+    return (authService as NhostAuthService).getAccessToken?.() || null;
+  }, [authService]);
 
   const refreshSession = useCallback(async () => {
     try {
-      await authService.refreshToken()
+      await authService.refreshToken();
     } catch (error) {
-      logger.error('Refresh session error:', error)
+      logger.error("Refresh session error:", error);
     }
-  }, [authService])
+  }, [authService]);
 
   // ==========================================================================
   // Dev Mode User Switching
@@ -800,31 +855,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const switchUser = useCallback(
     async (userId: string) => {
-      if (!authConfig.useDevAuth) return
+      if (!authConfig.useDevAuth) return;
 
       try {
-        const fauxAuth = authService as FauxAuthService
-        const response = await fauxAuth.switchUser(userId)
+        const fauxAuth = authService as FauxAuthService;
+        const response = await fauxAuth.switchUser(userId);
         if (response) {
           const mappedUser: User = {
             id: response.user.id,
             email: response.user.email,
-            username: response.user.username || response.user.email.split('@')[0],
+            username:
+              response.user.username || response.user.email.split("@")[0],
             displayName:
               response.user.displayName ||
               response.user.username ||
-              response.user.email.split('@')[0],
+              response.user.email.split("@")[0],
             avatarUrl: response.user.avatarUrl || undefined,
             role: response.user.role,
-          }
-          setUser(mappedUser)
+          };
+          setUser(mappedUser);
         }
       } catch (error) {
-        logger.error('Switch user error:', error)
+        logger.error("Switch user error:", error);
       }
     },
-    [authService]
-  )
+    [authService],
+  );
 
   // ==========================================================================
   // Context Value
@@ -899,10 +955,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       getAccessToken,
       refreshSession,
       switchUser,
-    ]
-  )
+    ],
+  );
 
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+  );
 }
 
 // ============================================================================
@@ -910,11 +968,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 // ============================================================================
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
+  return context;
 }
 
 // ============================================================================
@@ -922,10 +980,10 @@ export function useAuth() {
 // ============================================================================
 
 interface AuthGuardProps {
-  children: ReactNode
-  fallback?: ReactNode
-  requiredRole?: UserRole | UserRole[]
-  require2FA?: boolean
+  children: ReactNode;
+  fallback?: ReactNode;
+  requiredRole?: UserRole | UserRole[];
+  require2FA?: boolean;
 }
 
 export function AuthGuard({
@@ -934,24 +992,24 @@ export function AuthGuard({
   requiredRole,
   require2FA = false,
 }: AuthGuardProps) {
-  const { user, loading, isAuthenticated, getTwoFactorStatus } = useAuth()
-  const router = useRouter()
-  const [checking2FA, setChecking2FA] = useState(require2FA)
+  const { user, loading, isAuthenticated, getTwoFactorStatus } = useAuth();
+  const router = useRouter();
+  const [checking2FA, setChecking2FA] = useState(require2FA);
 
   useEffect(() => {
-    if (loading) return
+    if (loading) return;
 
     if (!isAuthenticated) {
-      router.push('/login')
-      return
+      router.push("/login");
+      return;
     }
 
     // Check role requirements
     if (requiredRole && user) {
-      const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole]
+      const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
       if (!roles.includes(user.role)) {
-        router.push('/unauthorized')
-        return
+        router.push("/unauthorized");
+        return;
       }
     }
 
@@ -959,24 +1017,32 @@ export function AuthGuard({
     if (require2FA && user && !authConfig.useDevAuth) {
       getTwoFactorStatus().then((status) => {
         if (!status.enabled && isTwoFactorRequired(user.role)) {
-          router.push('/settings/security?setup2fa=true')
+          router.push("/settings/security?setup2fa=true");
         }
-        setChecking2FA(false)
-      })
+        setChecking2FA(false);
+      });
     } else {
-      setChecking2FA(false)
+      setChecking2FA(false);
     }
-  }, [loading, isAuthenticated, user, requiredRole, require2FA, router, getTwoFactorStatus])
+  }, [
+    loading,
+    isAuthenticated,
+    user,
+    requiredRole,
+    require2FA,
+    router,
+    getTwoFactorStatus,
+  ]);
 
   if (loading || checking2FA) {
-    return <>{fallback}</>
+    return <>{fallback}</>;
   }
 
   if (!isAuthenticated) {
-    return <>{fallback}</>
+    return <>{fallback}</>;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
-export default AuthContext
+export default AuthContext;

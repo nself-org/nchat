@@ -23,7 +23,7 @@ export type {
   BotAbuseFlags,
   BotAuditEventType,
   BotAuditEntry,
-} from './types'
+} from "./types";
 
 export {
   CAPABILITY_PRESET_SCOPES,
@@ -35,23 +35,35 @@ export {
   MAX_ACTIVE_CHANNELS,
   MAX_SCOPE_GRANTS,
   isValidBotUsername,
-} from './types'
+} from "./types";
 
 // Identity
-export { BotIdentityManager, BotAccountStore, BotIdentityError } from './bot-identity'
+export {
+  BotIdentityManager,
+  BotAccountStore,
+  BotIdentityError,
+} from "./bot-identity";
 
 // Scopes
-export { BotScopeManager, BotScopeValidator, BotScopeError } from './bot-scopes'
+export {
+  BotScopeManager,
+  BotScopeValidator,
+  BotScopeError,
+} from "./bot-scopes";
 
 // Rate Limiting
-export { BotRateLimiter } from './bot-rate-limiter'
+export { BotRateLimiter } from "./bot-rate-limiter";
 
 // Moderation
-export { BotModerationManager, BotModerationStore, BotModerationError } from './bot-moderation'
+export {
+  BotModerationManager,
+  BotModerationStore,
+  BotModerationError,
+} from "./bot-moderation";
 
 // Lifecycle (main entry point)
 export {
   BotLifecycleManager,
   BotInstallationStore,
   BotLifecycleError,
-} from './bot-lifecycle'
+} from "./bot-lifecycle";

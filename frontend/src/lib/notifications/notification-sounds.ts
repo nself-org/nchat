@@ -8,9 +8,9 @@
  * - Preloading
  */
 
-import type { NotificationSound, NotificationType } from './notification-types'
+import type { NotificationSound, NotificationType } from "./notification-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Sound Library
@@ -22,104 +22,182 @@ import { logger } from '@/lib/logger'
 export const NOTIFICATION_SOUNDS: NotificationSound[] = [
   // Default sounds
   {
-    id: 'default',
-    name: 'Default',
-    url: '/sounds/notification.mp3',
-    category: 'default',
+    id: "default",
+    name: "Default",
+    url: "/sounds/notification.mp3",
+    category: "default",
     duration: 1000,
   },
   {
-    id: 'mention',
-    name: 'Mention',
-    url: '/sounds/mention.mp3',
-    category: 'default',
+    id: "mention",
+    name: "Mention",
+    url: "/sounds/mention.mp3",
+    category: "default",
     duration: 800,
   },
-  { id: 'dm', name: 'Direct Message', url: '/sounds/dm.mp3', category: 'default', duration: 1000 },
   {
-    id: 'thread',
-    name: 'Thread Reply',
-    url: '/sounds/thread.mp3',
-    category: 'default',
+    id: "dm",
+    name: "Direct Message",
+    url: "/sounds/dm.mp3",
+    category: "default",
+    duration: 1000,
+  },
+  {
+    id: "thread",
+    name: "Thread Reply",
+    url: "/sounds/thread.mp3",
+    category: "default",
     duration: 700,
   },
   {
-    id: 'reaction',
-    name: 'Reaction',
-    url: '/sounds/reaction.mp3',
-    category: 'default',
+    id: "reaction",
+    name: "Reaction",
+    url: "/sounds/reaction.mp3",
+    category: "default",
     duration: 500,
   },
 
   // System sounds
-  { id: 'system', name: 'System', url: '/sounds/system.mp3', category: 'system', duration: 600 },
-  { id: 'alert', name: 'Alert', url: '/sounds/alert.mp3', category: 'system', duration: 1200 },
-  { id: 'success', name: 'Success', url: '/sounds/success.mp3', category: 'system', duration: 800 },
-  { id: 'error', name: 'Error', url: '/sounds/error.mp3', category: 'system', duration: 900 },
+  {
+    id: "system",
+    name: "System",
+    url: "/sounds/system.mp3",
+    category: "system",
+    duration: 600,
+  },
+  {
+    id: "alert",
+    name: "Alert",
+    url: "/sounds/alert.mp3",
+    category: "system",
+    duration: 1200,
+  },
+  {
+    id: "success",
+    name: "Success",
+    url: "/sounds/success.mp3",
+    category: "system",
+    duration: 800,
+  },
+  {
+    id: "error",
+    name: "Error",
+    url: "/sounds/error.mp3",
+    category: "system",
+    duration: 900,
+  },
 
   // Additional sounds
-  { id: 'pop', name: 'Pop', url: '/sounds/pop.mp3', category: 'default', duration: 300 },
-  { id: 'ding', name: 'Ding', url: '/sounds/ding.mp3', category: 'default', duration: 500 },
-  { id: 'chime', name: 'Chime', url: '/sounds/chime.mp3', category: 'default', duration: 1000 },
-  { id: 'bell', name: 'Bell', url: '/sounds/bell.mp3', category: 'default', duration: 800 },
-  { id: 'knock', name: 'Knock', url: '/sounds/knock.mp3', category: 'default', duration: 600 },
-  { id: 'whoosh', name: 'Whoosh', url: '/sounds/whoosh.mp3', category: 'default', duration: 400 },
-  { id: 'subtle', name: 'Subtle', url: '/sounds/subtle.mp3', category: 'default', duration: 500 },
-  { id: 'none', name: 'None (Silent)', url: '', category: 'system', duration: 0 },
-]
+  {
+    id: "pop",
+    name: "Pop",
+    url: "/sounds/pop.mp3",
+    category: "default",
+    duration: 300,
+  },
+  {
+    id: "ding",
+    name: "Ding",
+    url: "/sounds/ding.mp3",
+    category: "default",
+    duration: 500,
+  },
+  {
+    id: "chime",
+    name: "Chime",
+    url: "/sounds/chime.mp3",
+    category: "default",
+    duration: 1000,
+  },
+  {
+    id: "bell",
+    name: "Bell",
+    url: "/sounds/bell.mp3",
+    category: "default",
+    duration: 800,
+  },
+  {
+    id: "knock",
+    name: "Knock",
+    url: "/sounds/knock.mp3",
+    category: "default",
+    duration: 600,
+  },
+  {
+    id: "whoosh",
+    name: "Whoosh",
+    url: "/sounds/whoosh.mp3",
+    category: "default",
+    duration: 400,
+  },
+  {
+    id: "subtle",
+    name: "Subtle",
+    url: "/sounds/subtle.mp3",
+    category: "default",
+    duration: 500,
+  },
+  {
+    id: "none",
+    name: "None (Silent)",
+    url: "",
+    category: "system",
+    duration: 0,
+  },
+];
 
 /**
  * Default sounds for notification types
  */
 export const DEFAULT_SOUNDS_BY_TYPE: Record<NotificationType, string> = {
-  mention: 'mention',
-  direct_message: 'dm',
-  thread_reply: 'thread',
-  reaction: 'reaction',
-  channel_invite: 'ding',
-  channel_update: 'subtle',
-  system: 'system',
-  announcement: 'alert',
-  keyword: 'mention',
-}
+  mention: "mention",
+  direct_message: "dm",
+  thread_reply: "thread",
+  reaction: "reaction",
+  channel_invite: "ding",
+  channel_update: "subtle",
+  system: "system",
+  announcement: "alert",
+  keyword: "mention",
+};
 
 /**
  * Fallback sound (base64 encoded beep)
  */
 const FALLBACK_SOUND =
-  'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU' +
-  'tvT38AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+  "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU" +
+  "tvT38AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 // ============================================================================
 // Audio Cache
 // ============================================================================
 
-const audioCache = new Map<string, HTMLAudioElement>()
-let preloaded = false
+const audioCache = new Map<string, HTMLAudioElement>();
+let preloaded = false;
 
 /**
  * Get or create audio element for a sound
  */
 function getAudioElement(soundId: string): HTMLAudioElement | null {
-  if (typeof window === 'undefined') return null
+  if (typeof window === "undefined") return null;
 
   // Check cache
   if (audioCache.has(soundId)) {
-    return audioCache.get(soundId)!
+    return audioCache.get(soundId)!;
   }
 
   // Find sound
-  const sound = NOTIFICATION_SOUNDS.find((s) => s.id === soundId)
-  const url = sound?.url || FALLBACK_SOUND
+  const sound = NOTIFICATION_SOUNDS.find((s) => s.id === soundId);
+  const url = sound?.url || FALLBACK_SOUND;
 
-  if (!url || soundId === 'none') return null
+  if (!url || soundId === "none") return null;
 
   // Create and cache audio element
-  const audio = new Audio(url)
-  audio.preload = 'auto'
-  audioCache.set(soundId, audio)
+  const audio = new Audio(url);
+  audio.preload = "auto";
+  audioCache.set(soundId, audio);
 
-  return audio
+  return audio;
 }
 
 // ============================================================================
@@ -129,24 +207,27 @@ function getAudioElement(soundId: string): HTMLAudioElement | null {
 /**
  * Play a notification sound
  */
-export async function playNotificationSound(soundId: string, volume: number = 80): Promise<void> {
-  if (soundId === 'none') return
+export async function playNotificationSound(
+  soundId: string,
+  volume: number = 80,
+): Promise<void> {
+  if (soundId === "none") return;
 
-  const audio = getAudioElement(soundId)
-  if (!audio) return
+  const audio = getAudioElement(soundId);
+  if (!audio) return;
 
   try {
-    audio.volume = Math.max(0, Math.min(1, volume / 100))
-    audio.currentTime = 0
-    await audio.play()
+    audio.volume = Math.max(0, Math.min(1, volume / 100));
+    audio.currentTime = 0;
+    await audio.play();
   } catch (error) {
     // Try fallback sound
     try {
-      const fallbackAudio = new Audio(FALLBACK_SOUND)
-      fallbackAudio.volume = Math.max(0, Math.min(1, volume / 100))
-      await fallbackAudio.play()
+      const fallbackAudio = new Audio(FALLBACK_SOUND);
+      fallbackAudio.volume = Math.max(0, Math.min(1, volume / 100));
+      await fallbackAudio.play();
     } catch {
-      logger.warn('Failed to play notification sound:', { context: error })
+      logger.warn("Failed to play notification sound:", { context: error });
     }
   }
 }
@@ -157,10 +238,10 @@ export async function playNotificationSound(soundId: string, volume: number = 80
 export async function playSoundForType(
   type: NotificationType,
   volume: number = 80,
-  customSound?: string
+  customSound?: string,
 ): Promise<void> {
-  const soundId = customSound || DEFAULT_SOUNDS_BY_TYPE[type] || 'default'
-  await playNotificationSound(soundId, volume)
+  const soundId = customSound || DEFAULT_SOUNDS_BY_TYPE[type] || "default";
+  await playNotificationSound(soundId, volume);
 }
 
 /**
@@ -168,19 +249,19 @@ export async function playSoundForType(
  */
 export function stopAllSounds(): void {
   audioCache.forEach((audio) => {
-    audio.pause()
-    audio.currentTime = 0
-  })
+    audio.pause();
+    audio.currentTime = 0;
+  });
 }
 
 /**
  * Stop a specific sound
  */
 export function stopSound(soundId: string): void {
-  const audio = audioCache.get(soundId)
+  const audio = audioCache.get(soundId);
   if (audio) {
-    audio.pause()
-    audio.currentTime = 0
+    audio.pause();
+    audio.currentTime = 0;
   }
 }
 
@@ -192,42 +273,42 @@ export function stopSound(soundId: string): void {
  * Preload all notification sounds
  */
 export function preloadSounds(): void {
-  if (preloaded || typeof window === 'undefined') return
+  if (preloaded || typeof window === "undefined") return;
 
   NOTIFICATION_SOUNDS.forEach((sound) => {
-    if (sound.url && sound.id !== 'none') {
-      getAudioElement(sound.id)
+    if (sound.url && sound.id !== "none") {
+      getAudioElement(sound.id);
     }
-  })
+  });
 
-  preloaded = true
+  preloaded = true;
 }
 
 /**
  * Preload specific sounds
  */
 export function preloadSpecificSounds(soundIds: string[]): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   soundIds.forEach((id) => {
-    getAudioElement(id)
-  })
+    getAudioElement(id);
+  });
 }
 
 /**
  * Check if sounds are preloaded
  */
 export function areSoundsPreloaded(): boolean {
-  return preloaded
+  return preloaded;
 }
 
 /**
  * Clear audio cache
  */
 export function clearAudioCache(): void {
-  stopAllSounds()
-  audioCache.clear()
-  preloaded = false
+  stopAllSounds();
+  audioCache.clear();
+  preloaded = false;
 }
 
 // ============================================================================
@@ -238,28 +319,30 @@ export function clearAudioCache(): void {
  * Get sound by ID
  */
 export function getSoundById(soundId: string): NotificationSound | undefined {
-  return NOTIFICATION_SOUNDS.find((s) => s.id === soundId)
+  return NOTIFICATION_SOUNDS.find((s) => s.id === soundId);
 }
 
 /**
  * Get sounds by category
  */
-export function getSoundsByCategory(category: NotificationSound['category']): NotificationSound[] {
-  return NOTIFICATION_SOUNDS.filter((s) => s.category === category)
+export function getSoundsByCategory(
+  category: NotificationSound["category"],
+): NotificationSound[] {
+  return NOTIFICATION_SOUNDS.filter((s) => s.category === category);
 }
 
 /**
  * Get all available sounds
  */
 export function getAvailableSounds(): NotificationSound[] {
-  return NOTIFICATION_SOUNDS
+  return NOTIFICATION_SOUNDS;
 }
 
 /**
  * Get sound name by ID
  */
 export function getSoundName(soundId: string): string {
-  return getSoundById(soundId)?.name || soundId
+  return getSoundById(soundId)?.name || soundId;
 }
 
 // ============================================================================
@@ -273,44 +356,46 @@ export function addCustomSound(
   id: string,
   name: string,
   url: string,
-  duration: number = 1000
+  duration: number = 1000,
 ): NotificationSound {
   const customSound: NotificationSound = {
     id: `custom_${id}`,
     name,
     url,
-    category: 'custom',
+    category: "custom",
     duration,
-  }
+  };
 
   // Add to the sounds array (in memory only)
-  NOTIFICATION_SOUNDS.push(customSound)
+  NOTIFICATION_SOUNDS.push(customSound);
 
   // Preload the new sound
-  getAudioElement(customSound.id)
+  getAudioElement(customSound.id);
 
-  return customSound
+  return customSound;
 }
 
 /**
  * Remove a custom sound
  */
 export function removeCustomSound(soundId: string): boolean {
-  const index = NOTIFICATION_SOUNDS.findIndex((s) => s.id === soundId && s.category === 'custom')
+  const index = NOTIFICATION_SOUNDS.findIndex(
+    (s) => s.id === soundId && s.category === "custom",
+  );
 
-  if (index === -1) return false
+  if (index === -1) return false;
 
-  NOTIFICATION_SOUNDS.splice(index, 1)
-  audioCache.delete(soundId)
+  NOTIFICATION_SOUNDS.splice(index, 1);
+  audioCache.delete(soundId);
 
-  return true
+  return true;
 }
 
 /**
  * Get custom sounds
  */
 export function getCustomSounds(): NotificationSound[] {
-  return getSoundsByCategory('custom')
+  return getSoundsByCategory("custom");
 }
 
 // ============================================================================
@@ -321,24 +406,26 @@ export function getCustomSounds(): NotificationSound[] {
  * Normalize volume to 0-100 range
  */
 export function normalizeVolume(volume: number): number {
-  return Math.max(0, Math.min(100, Math.round(volume)))
+  return Math.max(0, Math.min(100, Math.round(volume)));
 }
 
 /**
  * Convert volume to audio level (0-1)
  */
 export function volumeToAudioLevel(volume: number): number {
-  return normalizeVolume(volume) / 100
+  return normalizeVolume(volume) / 100;
 }
 
 /**
  * Get volume icon based on level
  */
-export function getVolumeIcon(volume: number): 'muted' | 'low' | 'medium' | 'high' {
-  if (volume === 0) return 'muted'
-  if (volume < 33) return 'low'
-  if (volume < 66) return 'medium'
-  return 'high'
+export function getVolumeIcon(
+  volume: number,
+): "muted" | "low" | "medium" | "high" {
+  if (volume === 0) return "muted";
+  if (volume < 33) return "low";
+  if (volume < 66) return "medium";
+  return "high";
 }
 
 // ============================================================================
@@ -349,23 +436,23 @@ export function getVolumeIcon(volume: number): 'muted' | 'low' | 'medium' | 'hig
  * Play a test sound at specified volume
  */
 export async function playTestSound(
-  soundId: string = 'default',
-  volume: number = 80
+  soundId: string = "default",
+  volume: number = 80,
 ): Promise<void> {
-  await playNotificationSound(soundId, volume)
+  await playNotificationSound(soundId, volume);
 }
 
 /**
  * Play a test beep (always works, for permission testing)
  */
 export async function playTestBeep(volume: number = 80): Promise<void> {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   try {
-    const audio = new Audio(FALLBACK_SOUND)
-    audio.volume = volumeToAudioLevel(volume)
-    await audio.play()
+    const audio = new Audio(FALLBACK_SOUND);
+    audio.volume = volumeToAudioLevel(volume);
+    await audio.play();
   } catch (error) {
-    logger.warn('Failed to play test beep:', { context: error })
+    logger.warn("Failed to play test beep:", { context: error });
   }
 }

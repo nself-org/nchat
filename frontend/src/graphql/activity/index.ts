@@ -31,7 +31,7 @@ export {
   ARCHIVE_READ_ACTIVITIES,
   DELETE_ACTIVITY,
   UPDATE_ACTIVITY_PREFERENCES,
-} from './activity-queries'
+} from "./activity-queries";
 
 // Subscriptions
 export {
@@ -50,4 +50,4 @@ export {
   THREAD_ACTIVITY_SUBSCRIPTION,
   FILE_ACTIVITY_SUBSCRIPTION,
   ACTIVITY_READ_STATE_SUBSCRIPTION,
-} from './activity-subscriptions'
+} from "./activity-subscriptions";

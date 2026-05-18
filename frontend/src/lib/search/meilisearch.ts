@@ -21,56 +21,57 @@
 // Configuration
 // ============================================================================
 
-const MEILISEARCH_URL = process.env.NEXT_PUBLIC_MEILISEARCH_URL
-const MEILISEARCH_PUBLIC_KEY = process.env.NEXT_PUBLIC_MEILISEARCH_PUBLIC_KEY ?? ''
+const MEILISEARCH_URL = process.env.NEXT_PUBLIC_MEILISEARCH_URL;
+const MEILISEARCH_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_MEILISEARCH_PUBLIC_KEY ?? "";
 
 /** Index name for messages — must match the MeiliSearch index created by the
  *  Advanced Search plugin (meilisearch-client.ts INDEX_NAMES.MESSAGES). */
-const MESSAGES_INDEX = 'messages'
+const MESSAGES_INDEX = "messages";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface MessageSearchHit {
-  id: string
-  channel_id: string
-  user_id: string | null
-  thread_id: string | null
-  parent_message_id: string | null
-  content_search: string
-  content_plain: string | null
-  type: string
-  is_pinned: boolean | null
-  reaction_count: number | null
-  reply_count: number | null
-  created_at: string
-  updated_at: string
+  id: string;
+  channel_id: string;
+  user_id: string | null;
+  thread_id: string | null;
+  parent_message_id: string | null;
+  content_search: string;
+  content_plain: string | null;
+  type: string;
+  is_pinned: boolean | null;
+  reaction_count: number | null;
+  reply_count: number | null;
+  created_at: string;
+  updated_at: string;
   /** MeiliSearch formatted/highlighted snippets when attributesToHighlight is used */
-  _formatted?: Partial<MessageSearchHit>
+  _formatted?: Partial<MessageSearchHit>;
 }
 
 export interface SearchMessagesOptions {
   /** Maximum number of results to return (default: 20, max: 100) */
-  limit?: number
+  limit?: number;
   /** Number of results to skip for pagination (default: 0) */
-  offset?: number
+  offset?: number;
   /** Filter to a specific channel ID */
-  channelId?: string
+  channelId?: string;
   /** Filter to a specific user ID (author) */
-  userId?: string
+  userId?: string;
 }
 
 export interface SearchMessagesResult {
-  hits: MessageSearchHit[]
+  hits: MessageSearchHit[];
   /** Estimated total number of matching documents */
-  estimatedTotalHits: number
+  estimatedTotalHits: number;
   /** Search engine processing time in milliseconds */
-  processingTimeMs: number
+  processingTimeMs: number;
   /** Whether more results are available beyond the current page */
-  hasMore: boolean
+  hasMore: boolean;
   /** The backend path used: 'meilisearch' | 'proxy' */
-  via: 'meilisearch' | 'proxy'
+  via: "meilisearch" | "proxy";
 }
 
 // ============================================================================
@@ -78,68 +79,70 @@ export interface SearchMessagesResult {
 // ============================================================================
 
 interface MeiliSearchResponse {
-  hits: MessageSearchHit[]
-  estimatedTotalHits?: number
-  processingTimeMs?: number
-  limit?: number
-  offset?: number
+  hits: MessageSearchHit[];
+  estimatedTotalHits?: number;
+  processingTimeMs?: number;
+  limit?: number;
+  offset?: number;
 }
 
 async function searchViaMeiliSearch(
   query: string,
-  options: SearchMessagesOptions
+  options: SearchMessagesOptions,
 ): Promise<SearchMessagesResult> {
-  const limit = Math.min(options.limit ?? 20, 100)
-  const offset = options.offset ?? 0
+  const limit = Math.min(options.limit ?? 20, 100);
+  const offset = options.offset ?? 0;
 
-  const filters: string[] = []
+  const filters: string[] = [];
   if (options.channelId) {
-    filters.push(`channel_id = "${options.channelId}"`)
+    filters.push(`channel_id = "${options.channelId}"`);
   }
   if (options.userId) {
-    filters.push(`user_id = "${options.userId}"`)
+    filters.push(`user_id = "${options.userId}"`);
   }
 
   const body: Record<string, unknown> = {
     q: query,
     limit,
     offset,
-    attributesToHighlight: ['content_search', 'content_plain'],
-    highlightPreTag: '<mark>',
-    highlightPostTag: '</mark>',
+    attributesToHighlight: ["content_search", "content_plain"],
+    highlightPreTag: "<mark>",
+    highlightPostTag: "</mark>",
     cropLength: 200,
-  }
+  };
 
   if (filters.length > 0) {
-    body.filter = filters.join(' AND ')
+    body.filter = filters.join(" AND ");
   }
 
-  const url = `${MEILISEARCH_URL}/indexes/${MESSAGES_INDEX}/search`
+  const url = `${MEILISEARCH_URL}/indexes/${MESSAGES_INDEX}/search`;
 
   const response = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      ...(MEILISEARCH_PUBLIC_KEY ? { Authorization: `Bearer ${MEILISEARCH_PUBLIC_KEY}` } : {}),
+      "Content-Type": "application/json",
+      ...(MEILISEARCH_PUBLIC_KEY
+        ? { Authorization: `Bearer ${MEILISEARCH_PUBLIC_KEY}` }
+        : {}),
     },
     body: JSON.stringify(body),
-  })
+  });
 
   if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`MeiliSearch search failed (${response.status}): ${text}`)
+    const text = await response.text();
+    throw new Error(`MeiliSearch search failed (${response.status}): ${text}`);
   }
 
-  const data: MeiliSearchResponse = await response.json()
-  const estimatedTotalHits = data.estimatedTotalHits ?? 0
+  const data: MeiliSearchResponse = await response.json();
+  const estimatedTotalHits = data.estimatedTotalHits ?? 0;
 
   return {
     hits: data.hits,
     estimatedTotalHits,
     processingTimeMs: data.processingTimeMs ?? 0,
     hasMore: offset + limit < estimatedTotalHits,
-    via: 'meilisearch',
-  }
+    via: "meilisearch",
+  };
 }
 
 // ============================================================================
@@ -147,53 +150,55 @@ async function searchViaMeiliSearch(
 // ============================================================================
 
 interface ProxyResponse {
-  results?: MessageSearchHit[]
-  hits?: MessageSearchHit[]
-  total?: number
-  totalCount?: number
-  estimatedTotalHits?: number
-  processingTimeMs?: number
+  results?: MessageSearchHit[];
+  hits?: MessageSearchHit[];
+  total?: number;
+  totalCount?: number;
+  estimatedTotalHits?: number;
+  processingTimeMs?: number;
 }
 
 async function searchViaProxy(
   query: string,
-  options: SearchMessagesOptions
+  options: SearchMessagesOptions,
 ): Promise<SearchMessagesResult> {
-  const limit = Math.min(options.limit ?? 20, 100)
-  const offset = options.offset ?? 0
+  const limit = Math.min(options.limit ?? 20, 100);
+  const offset = options.offset ?? 0;
 
   const params = new URLSearchParams({
     q: query,
     limit: String(limit),
     offset: String(offset),
-  })
+  });
 
   if (options.channelId) {
-    params.set('channel_id', options.channelId)
+    params.set("channel_id", options.channelId);
   }
   if (options.userId) {
-    params.set('user_id', options.userId)
+    params.set("user_id", options.userId);
   }
 
-  const response = await fetch(`/api/plugins/search/search?${params.toString()}`)
+  const searchUrl = `/api/plugins/search/search?${params.toString()}`;
+  const response = await fetch(searchUrl);
 
   if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`Search proxy failed (${response.status}): ${text}`)
+    const text = await response.text();
+    throw new Error(`Search proxy failed (${response.status}): ${text}`);
   }
 
-  const data: ProxyResponse = await response.json()
+  const data: ProxyResponse = await response.json();
 
-  const hits: MessageSearchHit[] = data.results ?? data.hits ?? []
-  const estimatedTotalHits = data.estimatedTotalHits ?? data.totalCount ?? data.total ?? 0
+  const hits: MessageSearchHit[] = data.results ?? data.hits ?? [];
+  const estimatedTotalHits =
+    data.estimatedTotalHits ?? data.totalCount ?? data.total ?? 0;
 
   return {
     hits,
     estimatedTotalHits,
     processingTimeMs: data.processingTimeMs ?? 0,
     hasMore: offset + limit < estimatedTotalHits,
-    via: 'proxy',
-  }
+    via: "proxy",
+  };
 }
 
 // ============================================================================
@@ -215,9 +220,9 @@ async function searchViaProxy(
  */
 export async function searchMessages(
   query: string,
-  options: SearchMessagesOptions = {}
+  options: SearchMessagesOptions = {},
 ): Promise<SearchMessagesResult> {
-  const trimmed = query.trim()
+  const trimmed = query.trim();
 
   if (!trimmed) {
     return {
@@ -225,15 +230,15 @@ export async function searchMessages(
       estimatedTotalHits: 0,
       processingTimeMs: 0,
       hasMore: false,
-      via: MEILISEARCH_URL ? 'meilisearch' : 'proxy',
-    }
+      via: MEILISEARCH_URL ? "meilisearch" : "proxy",
+    };
   }
 
   if (MEILISEARCH_URL) {
-    return searchViaMeiliSearch(trimmed, options)
+    return searchViaMeiliSearch(trimmed, options);
   }
 
-  return searchViaProxy(trimmed, options)
+  return searchViaProxy(trimmed, options);
 }
 
 /**
@@ -241,5 +246,5 @@ export async function searchMessages(
  * Components can use this to show search-engine-specific UI hints.
  */
 export function isMeiliSearchConfigured(): boolean {
-  return Boolean(MEILISEARCH_URL)
+  return Boolean(MEILISEARCH_URL);
 }

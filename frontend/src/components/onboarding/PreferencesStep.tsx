@@ -1,22 +1,33 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Settings, Sun, Moon, Monitor, Volume2, VolumeX, Mail } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { cn } from '@/lib/utils'
-import type { OnboardingStepProps, OnboardingPreferences } from '@/lib/onboarding/onboarding-types'
-import { defaultOnboardingPreferences } from '@/lib/onboarding/onboarding-steps'
+import { useState } from "react";
+import {
+  Settings,
+  Sun,
+  Moon,
+  Monitor,
+  Volume2,
+  VolumeX,
+  Mail,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
+import type {
+  OnboardingStepProps,
+  OnboardingPreferences,
+} from "@/lib/onboarding/onboarding-types";
+import { defaultOnboardingPreferences } from "@/lib/onboarding/onboarding-steps";
 
 interface PreferencesStepProps extends OnboardingStepProps {
-  initialData?: Partial<OnboardingPreferences>
-  onDataChange?: (data: OnboardingPreferences) => void
+  initialData?: Partial<OnboardingPreferences>;
+  onDataChange?: (data: OnboardingPreferences) => void;
 }
 
-type ThemeOption = OnboardingPreferences['theme']
-type DensityOption = OnboardingPreferences['messageDensity']
-type EmailDigestOption = OnboardingPreferences['emailDigest']
+type ThemeOption = OnboardingPreferences["theme"];
+type DensityOption = OnboardingPreferences["messageDensity"];
+type EmailDigestOption = OnboardingPreferences["emailDigest"];
 
 export function PreferencesStep({
   onNext,
@@ -30,34 +41,50 @@ export function PreferencesStep({
   const [preferences, setPreferences] = useState<OnboardingPreferences>({
     ...defaultOnboardingPreferences,
     ...initialData,
-  })
+  });
 
   const handleChange = <K extends keyof OnboardingPreferences>(
     key: K,
-    value: OnboardingPreferences[K]
+    value: OnboardingPreferences[K],
   ) => {
-    const newPreferences = { ...preferences, [key]: value }
-    setPreferences(newPreferences)
-    onDataChange?.(newPreferences)
-  }
+    const newPreferences = { ...preferences, [key]: value };
+    setPreferences(newPreferences);
+    onDataChange?.(newPreferences);
+  };
 
-  const themeOptions: { value: ThemeOption; label: string; icon: React.ReactNode }[] = [
-    { value: 'light', label: 'Light', icon: <Sun className="h-5 w-5" /> },
-    { value: 'dark', label: 'Dark', icon: <Moon className="h-5 w-5" /> },
-    { value: 'system', label: 'System', icon: <Monitor className="h-5 w-5" /> },
-  ]
+  const themeOptions: {
+    value: ThemeOption;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
+    { value: "light", label: "Light", icon: <Sun className="h-5 w-5" /> },
+    { value: "dark", label: "Dark", icon: <Moon className="h-5 w-5" /> },
+    { value: "system", label: "System", icon: <Monitor className="h-5 w-5" /> },
+  ];
 
-  const densityOptions: { value: DensityOption; label: string; description: string }[] = [
-    { value: 'compact', label: 'Compact', description: 'More messages visible' },
-    { value: 'comfortable', label: 'Comfortable', description: 'Balanced spacing' },
-    { value: 'spacious', label: 'Spacious', description: 'Easier to read' },
-  ]
+  const densityOptions: {
+    value: DensityOption;
+    label: string;
+    description: string;
+  }[] = [
+    {
+      value: "compact",
+      label: "Compact",
+      description: "More messages visible",
+    },
+    {
+      value: "comfortable",
+      label: "Comfortable",
+      description: "Balanced spacing",
+    },
+    { value: "spacious", label: "Spacious", description: "Easier to read" },
+  ];
 
   const emailDigestOptions: { value: EmailDigestOption; label: string }[] = [
-    { value: 'none', label: 'Never' },
-    { value: 'daily', label: 'Daily' },
-    { value: 'weekly', label: 'Weekly' },
-  ]
+    { value: "none", label: "Never" },
+    { value: "daily", label: "Daily" },
+    { value: "weekly", label: "Weekly" },
+  ];
 
   return (
     <div className="flex flex-col px-4 py-6">
@@ -84,28 +111,30 @@ export function PreferencesStep({
               <button
                 key={option.value}
                 type="button"
-                onClick={() => handleChange('theme', option.value)}
+                onClick={() => handleChange("theme", option.value)}
                 className={cn(
-                  'flex flex-col items-center justify-center rounded-xl border-2 p-4 transition-all',
+                  "flex flex-col items-center justify-center rounded-xl border-2 p-4 transition-all",
                   preferences.theme === option.value
-                    ? 'bg-primary/5 border-primary'
-                    : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                    ? "bg-primary/5 border-primary"
+                    : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
                 )}
               >
                 <span
                   className={cn(
-                    'mb-2',
-                    preferences.theme === option.value ? 'text-primary' : 'text-zinc-500'
+                    "mb-2",
+                    preferences.theme === option.value
+                      ? "text-primary"
+                      : "text-zinc-500",
                   )}
                 >
                   {option.icon}
                 </span>
                 <span
                   className={cn(
-                    'text-sm font-medium',
+                    "text-sm font-medium",
                     preferences.theme === option.value
-                      ? 'text-primary'
-                      : 'text-zinc-700 dark:text-zinc-300'
+                      ? "text-primary"
+                      : "text-zinc-700 dark:text-zinc-300",
                   )}
                 >
                   {option.label}
@@ -123,33 +152,35 @@ export function PreferencesStep({
               <button
                 key={option.value}
                 type="button"
-                onClick={() => handleChange('messageDensity', option.value)}
+                onClick={() => handleChange("messageDensity", option.value)}
                 className={cn(
-                  'flex w-full items-center justify-between rounded-lg border-2 p-3 text-left transition-all',
+                  "flex w-full items-center justify-between rounded-lg border-2 p-3 text-left transition-all",
                   preferences.messageDensity === option.value
-                    ? 'bg-primary/5 border-primary'
-                    : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                    ? "bg-primary/5 border-primary"
+                    : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
                 )}
               >
                 <div>
                   <div
                     className={cn(
-                      'font-medium',
+                      "font-medium",
                       preferences.messageDensity === option.value
-                        ? 'text-primary'
-                        : 'text-zinc-900 dark:text-white'
+                        ? "text-primary"
+                        : "text-zinc-900 dark:text-white",
                     )}
                   >
                     {option.label}
                   </div>
-                  <div className="text-sm text-zinc-500">{option.description}</div>
+                  <div className="text-sm text-zinc-500">
+                    {option.description}
+                  </div>
                 </div>
                 <div
                   className={cn(
-                    'flex h-4 w-4 items-center justify-center rounded-full border-2',
+                    "flex h-4 w-4 items-center justify-center rounded-full border-2",
                     preferences.messageDensity === option.value
-                      ? 'border-primary'
-                      : 'border-zinc-300 dark:border-zinc-600'
+                      ? "border-primary"
+                      : "border-zinc-300 dark:border-zinc-600",
                   )}
                 >
                   {preferences.messageDensity === option.value && (
@@ -173,24 +204,36 @@ export function PreferencesStep({
                   <VolumeX className="h-5 w-5 text-zinc-500" />
                 )}
                 <div>
-                  <div className="font-medium text-zinc-900 dark:text-white">Sound Effects</div>
-                  <div className="text-sm text-zinc-500">Play sounds for notifications</div>
+                  <div className="font-medium text-zinc-900 dark:text-white">
+                    Sound Effects
+                  </div>
+                  <div className="text-sm text-zinc-500">
+                    Play sounds for notifications
+                  </div>
                 </div>
               </div>
               <Switch
                 checked={preferences.soundsEnabled}
-                onCheckedChange={(checked) => handleChange('soundsEnabled', checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("soundsEnabled", checked)
+                }
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-medium text-zinc-900 dark:text-white">Show Online Status</div>
-                <div className="text-sm text-zinc-500">Let others see when you're online</div>
+                <div className="font-medium text-zinc-900 dark:text-white">
+                  Show Online Status
+                </div>
+                <div className="text-sm text-zinc-500">
+                  Let others see when you're online
+                </div>
               </div>
               <Switch
                 checked={preferences.showOnlineStatus}
-                onCheckedChange={(checked) => handleChange('showOnlineStatus', checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("showOnlineStatus", checked)
+                }
               />
             </div>
           </div>
@@ -207,19 +250,21 @@ export function PreferencesStep({
               <button
                 key={option.value}
                 type="button"
-                onClick={() => handleChange('emailDigest', option.value)}
+                onClick={() => handleChange("emailDigest", option.value)}
                 className={cn(
-                  'flex-1 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all',
+                  "flex-1 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all",
                   preferences.emailDigest === option.value
-                    ? 'bg-primary/5 border-primary text-primary'
-                    : 'border-zinc-200 text-zinc-700 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600'
+                    ? "bg-primary/5 border-primary text-primary"
+                    : "border-zinc-200 text-zinc-700 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600",
                 )}
               >
                 {option.label}
               </button>
             ))}
           </div>
-          <p className="text-xs text-zinc-500">Receive a summary of activity you may have missed</p>
+          <p className="text-xs text-zinc-500">
+            Receive a summary of activity you may have missed
+          </p>
         </div>
       </div>
 
@@ -243,5 +288,5 @@ export function PreferencesStep({
         </div>
       </div>
     </div>
-  )
+  );
 }

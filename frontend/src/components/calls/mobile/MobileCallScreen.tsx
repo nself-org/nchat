@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Mobile Call Screen
@@ -7,9 +7,9 @@
  * gestures, and native mobile UI patterns.
  */
 
-import * as React from 'react'
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { cn } from "@/lib/utils";
 import {
   Phone,
   PhoneOff,
@@ -23,14 +23,14 @@ import {
   MoreVertical,
   Maximize2,
   Users,
-} from 'lucide-react'
-import { useCallStore } from '@/stores/call-store'
-import { formatCallDuration } from '@/components/call/call-controls'
-import { useMobilePiP } from '@/hooks/use-mobile-pip'
-import { useMobileOrientation } from '@/hooks/use-mobile-orientation'
-import { useBatteryStatus } from '@/hooks/use-battery-status'
+} from "lucide-react";
+import { useCallStore } from "@/stores/call-store";
+import { formatCallDuration } from "@/components/call/call-controls";
+import { useMobilePiP } from "@/hooks/use-mobile-pip";
+import { useMobileOrientation } from "@/hooks/use-mobile-orientation";
+import { useBatteryStatus } from "@/hooks/use-battery-status";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
@@ -38,13 +38,13 @@ import { logger } from '@/lib/logger'
 
 export interface MobileCallScreenProps {
   /** Whether the call screen is visible */
-  isVisible: boolean
+  isVisible: boolean;
   /** Callback when screen is minimized */
-  onMinimize?: () => void
+  onMinimize?: () => void;
   /** Callback when more options is opened */
-  onOpenMore?: () => void
+  onOpenMore?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // =============================================================================
@@ -52,21 +52,27 @@ export interface MobileCallScreenProps {
 // =============================================================================
 
 interface VideoTileProps {
-  stream: MediaStream
-  name: string
-  isMuted: boolean
-  isSpeaking: boolean
-  isLocal?: boolean
+  stream: MediaStream;
+  name: string;
+  isMuted: boolean;
+  isSpeaking: boolean;
+  isLocal?: boolean;
 }
 
-function VideoTile({ stream, name, isMuted, isSpeaking, isLocal }: VideoTileProps) {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
+function VideoTile({
+  stream,
+  name,
+  isMuted,
+  isSpeaking,
+  isLocal,
+}: VideoTileProps) {
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
     if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream
+      videoRef.current.srcObject = stream;
     }
-  }, [stream])
+  }, [stream]);
 
   return (
     <div className="relative aspect-video overflow-hidden rounded-lg bg-gray-900">
@@ -97,7 +103,7 @@ function VideoTile({ stream, name, isMuted, isSpeaking, isLocal }: VideoTileProp
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -105,63 +111,63 @@ function VideoTile({ stream, name, isMuted, isSpeaking, isLocal }: VideoTileProp
 // =============================================================================
 
 interface TouchControlProps {
-  icon: React.ReactNode
-  label: string
-  isActive?: boolean
-  variant?: 'default' | 'danger' | 'primary'
-  onPress: () => void
-  onLongPress?: () => void
+  icon: React.ReactNode;
+  label: string;
+  isActive?: boolean;
+  variant?: "default" | "danger" | "primary";
+  onPress: () => void;
+  onLongPress?: () => void;
 }
 
 function TouchControl({
   icon,
   label,
   isActive,
-  variant = 'default',
+  variant = "default",
   onPress,
   onLongPress,
 }: TouchControlProps) {
-  const [isPressed, setIsPressed] = React.useState(false)
-  const longPressTimer = React.useRef<NodeJS.Timeout | null>(null)
+  const [isPressed, setIsPressed] = React.useState(false);
+  const longPressTimer = React.useRef<NodeJS.Timeout | null>(null);
 
   const handleTouchStart = () => {
-    setIsPressed(true)
+    setIsPressed(true);
     if (onLongPress) {
       longPressTimer.current = setTimeout(() => {
-        if (onLongPress) onLongPress()
+        if (onLongPress) onLongPress();
         // Haptic feedback
-        if ('vibrate' in navigator) {
-          navigator.vibrate(50)
+        if ("vibrate" in navigator) {
+          navigator.vibrate(50);
         }
-      }, 500)
+      }, 500);
     }
-  }
+  };
 
   const handleTouchEnd = () => {
-    setIsPressed(false)
+    setIsPressed(false);
     if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current)
-      onPress()
+      clearTimeout(longPressTimer.current);
+      onPress();
       // Light haptic feedback
-      if ('vibrate' in navigator) {
-        navigator.vibrate(10)
+      if ("vibrate" in navigator) {
+        navigator.vibrate(10);
       }
     }
-  }
+  };
 
   const handleTouchCancel = () => {
-    setIsPressed(false)
+    setIsPressed(false);
     if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current)
+      clearTimeout(longPressTimer.current);
     }
-  }
+  };
 
   const getBackgroundColor = () => {
-    if (variant === 'danger') return 'bg-red-500 active:bg-red-600'
-    if (variant === 'primary') return 'bg-blue-500 active:bg-blue-600'
-    if (isActive) return 'bg-green-500 active:bg-green-600'
-    return 'bg-gray-800 active:bg-gray-700'
-  }
+    if (variant === "danger") return "bg-red-500 active:bg-red-600";
+    if (variant === "primary") return "bg-blue-500 active:bg-blue-600";
+    if (isActive) return "bg-green-500 active:bg-green-600";
+    return "bg-gray-800 active:bg-gray-700";
+  };
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -172,11 +178,11 @@ function TouchControl({
         onTouchCancel={handleTouchCancel}
         onClick={onPress}
         className={cn(
-          'relative flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg',
-          'focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900',
-          'transition-all duration-150',
+          "relative flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg",
+          "focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900",
+          "transition-all duration-150",
           getBackgroundColor(),
-          isPressed && 'scale-95'
+          isPressed && "scale-95",
         )}
         whileTap={{ scale: 0.9 }}
         aria-label={label}
@@ -185,7 +191,7 @@ function TouchControl({
       </motion.button>
       <span className="text-xs text-white/80">{label}</span>
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -198,99 +204,102 @@ export function MobileCallScreen({
   onOpenMore,
   className,
 }: MobileCallScreenProps) {
-  const activeCall = useCallStore((state) => state.activeCall)
-  const toggleLocalMute = useCallStore((state) => state.toggleLocalMute)
-  const toggleLocalVideo = useCallStore((state) => state.toggleLocalVideo)
-  const endCall = useCallStore((state) => state.endCall)
+  const activeCall = useCallStore((state) => state.activeCall);
+  const toggleLocalMute = useCallStore((state) => state.toggleLocalMute);
+  const toggleLocalVideo = useCallStore((state) => state.toggleLocalVideo);
+  const endCall = useCallStore((state) => state.endCall);
 
-  const { orientation, isPortrait } = useMobileOrientation()
-  const { batteryLevel, isLowBattery } = useBatteryStatus()
-  const { enablePiP, isPiPSupported } = useMobilePiP()
+  const { orientation, isPortrait } = useMobileOrientation();
+  const { batteryLevel, isLowBattery } = useBatteryStatus();
+  const { enablePiP, isPiPSupported } = useMobilePiP();
 
-  const [callDuration, setCallDuration] = React.useState(0)
-  const [showControls, setShowControls] = React.useState(true)
-  const [isFullscreen, setIsFullscreen] = React.useState(false)
+  const [callDuration, setCallDuration] = React.useState(0);
+  const [showControls, setShowControls] = React.useState(true);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
 
-  const y = useMotionValue(0)
-  const opacity = useTransform(y, [0, 150], [1, 0])
-  const scale = useTransform(y, [0, 150], [1, 0.8])
+  const y = useMotionValue(0);
+  const opacity = useTransform(y, [0, 150], [1, 0]);
+  const scale = useTransform(y, [0, 150], [1, 0.8]);
 
   // Update call duration
   React.useEffect(() => {
-    if (!activeCall || activeCall.state !== 'connected') return
+    if (!activeCall || activeCall.state !== "connected") return;
 
     const interval = setInterval(() => {
       if (activeCall.connectedAt) {
         const duration = Math.floor(
-          (Date.now() - new Date(activeCall.connectedAt).getTime()) / 1000
-        )
-        setCallDuration(duration)
+          (Date.now() - new Date(activeCall.connectedAt).getTime()) / 1000,
+        );
+        setCallDuration(duration);
       }
-    }, 1000)
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [activeCall])
+    return () => clearInterval(interval);
+  }, [activeCall]);
 
   // Auto-hide controls after 3 seconds
   React.useEffect(() => {
-    if (!showControls) return
+    if (!showControls) return;
 
     const timer = setTimeout(() => {
-      setShowControls(false)
-    }, 3000)
+      setShowControls(false);
+    }, 3000);
 
-    return () => clearTimeout(timer)
-  }, [showControls])
+    return () => clearTimeout(timer);
+  }, [showControls]);
 
   // Handle drag to minimize
-  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     if (info.offset.y > 100) {
-      onMinimize?.()
+      onMinimize?.();
     }
-  }
+  };
 
   // Toggle controls on tap
   const handleScreenTap = () => {
-    setShowControls((prev) => !prev)
-  }
+    setShowControls((prev) => !prev);
+  };
 
   // Toggle fullscreen
   const handleFullscreen = async () => {
     try {
       if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen()
-        setIsFullscreen(true)
+        await document.documentElement.requestFullscreen();
+        setIsFullscreen(true);
       } else {
-        await document.exitFullscreen()
-        setIsFullscreen(false)
+        await document.exitFullscreen();
+        setIsFullscreen(false);
       }
     } catch (err) {
-      logger.error('Failed to toggle fullscreen:', err)
+      logger.error("Failed to toggle fullscreen:", err);
     }
-  }
+  };
 
   // Handle end call
   const handleEndCall = () => {
-    endCall('completed')
-  }
+    endCall("completed");
+  };
 
   if (!isVisible || !activeCall) {
-    return null
+    return null;
   }
 
-  const isVideoCall = activeCall.type === 'video'
-  const isMuted = activeCall.isLocalMuted
-  const isVideoEnabled = activeCall.isLocalVideoEnabled
-  const participants = Array.from(activeCall.participants.values())
-  const localStream = activeCall.localStream
-  const remoteStreams = Array.from(activeCall.remoteStreams.entries())
+  const isVideoCall = activeCall.type === "video";
+  const isMuted = activeCall.isLocalMuted;
+  const isVideoEnabled = activeCall.isLocalVideoEnabled;
+  const participants = Array.from(activeCall.participants.values());
+  const localStream = activeCall.localStream;
+  const remoteStreams = Array.from(activeCall.remoteStreams.entries());
 
   return (
     <motion.div
       className={cn(
-        'fixed inset-0 z-50 flex flex-col bg-gray-900',
-        'safe-area-inset', // Use safe area for notch/home indicator
-        className
+        "fixed inset-0 z-50 flex flex-col bg-gray-900",
+        "safe-area-inset", // Use safe area for notch/home indicator
+        className,
       )}
       style={{ opacity, scale }}
       initial={{ opacity: 0 }}
@@ -335,7 +344,7 @@ export function MobileCallScreen({
                   : `Group Call (${participants.length + 1})`}
               </h2>
               <p className="text-sm text-white/60">
-                {activeCall.state === 'connected'
+                {activeCall.state === "connected"
                   ? formatCallDuration(callDuration)
                   : activeCall.state}
               </p>
@@ -381,38 +390,43 @@ export function MobileCallScreen({
         className="relative flex-1"
         onClick={handleScreenTap}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleScreenTap()
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleScreenTap();
           }
         }}
         onTouchStart={handleScreenTap}
       >
         {isVideoCall ? (
           <div
-            className={cn('h-full w-full p-2', isPortrait ? 'flex flex-col gap-2' : 'flex gap-2')}
+            className={cn(
+              "h-full w-full p-2",
+              isPortrait ? "flex flex-col gap-2" : "flex gap-2",
+            )}
           >
             {/* Remote Streams */}
             {remoteStreams.map(([participantId, stream]) => {
-              const participant = participants.find((p) => p.id === participantId)
+              const participant = participants.find(
+                (p) => p.id === participantId,
+              );
               return (
                 <div key={participantId} className="flex-1">
                   <VideoTile
                     stream={stream}
-                    name={participant?.name || 'Unknown'}
+                    name={participant?.name || "Unknown"}
                     isMuted={participant?.isMuted || false}
                     isSpeaking={participant?.isSpeaking || false}
                   />
                 </div>
-              )
+              );
             })}
 
             {/* Local Stream (Picture-in-Picture) */}
             {localStream && isVideoEnabled && (
               <motion.div
                 className={cn(
-                  'absolute bottom-20 right-4 z-10 h-32 w-24',
-                  isPortrait ? 'h-32 w-24' : 'h-24 w-32'
+                  "absolute bottom-20 right-4 z-10 h-32 w-24",
+                  isPortrait ? "h-32 w-24" : "h-24 w-32",
                 )}
                 drag
                 dragConstraints={{
@@ -441,8 +455,12 @@ export function MobileCallScreen({
                 <div className="mb-4 flex h-32 w-32 items-center justify-center rounded-full bg-gray-800">
                   <Users size={48} className="text-white" />
                 </div>
-                <h3 className="text-2xl font-semibold text-white">{participants[0].name}</h3>
-                <p className="mt-2 text-white/60">{formatCallDuration(callDuration)}</p>
+                <h3 className="text-2xl font-semibold text-white">
+                  {participants[0].name}
+                </h3>
+                <p className="mt-2 text-white/60">
+                  {formatCallDuration(callDuration)}
+                </p>
               </div>
             )}
           </div>
@@ -459,7 +477,7 @@ export function MobileCallScreen({
           {/* Mute Toggle */}
           <TouchControl
             icon={isMuted ? <MicOff size={24} /> : <Mic size={24} />}
-            label={isMuted ? 'Unmute' : 'Mute'}
+            label={isMuted ? "Unmute" : "Mute"}
             isActive={!isMuted}
             onPress={toggleLocalMute}
           />
@@ -467,8 +485,10 @@ export function MobileCallScreen({
           {/* Video Toggle (Video Calls Only) */}
           {isVideoCall && (
             <TouchControl
-              icon={isVideoEnabled ? <Video size={24} /> : <VideoOff size={24} />}
-              label={isVideoEnabled ? 'Stop Video' : 'Start Video'}
+              icon={
+                isVideoEnabled ? <Video size={24} /> : <VideoOff size={24} />
+              }
+              label={isVideoEnabled ? "Stop Video" : "Start Video"}
               isActive={isVideoEnabled}
               onPress={toggleLocalVideo}
             />
@@ -494,24 +514,32 @@ export function MobileCallScreen({
 
           {/* Picture-in-Picture (if supported) */}
           {isPiPSupported && isVideoCall && (
-            <TouchControl icon={<Maximize2 size={24} />} label="PiP" onPress={enablePiP} />
+            <TouchControl
+              icon={<Maximize2 size={24} />}
+              label="PiP"
+              onPress={enablePiP}
+            />
           )}
         </div>
       </motion.div>
 
       {/* Low Battery Warning */}
-      {isLowBattery && activeCall.state === 'connected' && callDuration > 60 && (
-        <motion.div
-          className="absolute left-4 right-4 top-20 rounded-lg bg-yellow-500/90 p-3 text-sm text-black backdrop-blur-sm"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <p className="font-medium">Low Battery ({batteryLevel}%)</p>
-          <p className="mt-1 text-xs">Consider switching to audio-only to save battery.</p>
-        </motion.div>
-      )}
+      {isLowBattery &&
+        activeCall.state === "connected" &&
+        callDuration > 60 && (
+          <motion.div
+            className="absolute left-4 right-4 top-20 rounded-lg bg-yellow-500/90 p-3 text-sm text-black backdrop-blur-sm"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <p className="font-medium">Low Battery ({batteryLevel}%)</p>
+            <p className="mt-1 text-xs">
+              Consider switching to audio-only to save battery.
+            </p>
+          </motion.div>
+        )}
     </motion.div>
-  )
+  );
 }
 
 // =============================================================================

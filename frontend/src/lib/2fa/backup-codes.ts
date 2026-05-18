@@ -5,10 +5,10 @@
  * for Two-Factor Authentication recovery.
  */
 
-import { randomBytes } from 'crypto'
-import bcrypt from 'bcryptjs'
+import { randomBytes } from "crypto";
+import bcrypt from "bcryptjs";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 /**
  * Generate backup codes
@@ -16,17 +16,17 @@ import { logger } from '@/lib/logger'
  * @returns Array of backup codes
  */
 export function generateBackupCodes(count: number = 10): string[] {
-  const codes: string[] = []
+  const codes: string[] = [];
 
   for (let i = 0; i < count; i++) {
     // Generate 8 random bytes = 16 hex characters
-    const code = randomBytes(4).toString('hex').toUpperCase()
+    const code = randomBytes(4).toString("hex").toUpperCase();
     // Format as XXXX-XXXX for better readability
-    const formattedCode = `${code.slice(0, 4)}-${code.slice(4)}`
-    codes.push(formattedCode)
+    const formattedCode = `${code.slice(0, 4)}-${code.slice(4)}`;
+    codes.push(formattedCode);
   }
 
-  return codes
+  return codes;
 }
 
 /**
@@ -35,11 +35,11 @@ export function generateBackupCodes(count: number = 10): string[] {
  * @returns Bcrypt hash
  */
 export async function hashBackupCode(code: string): Promise<string> {
-  const saltRounds = 10
+  const saltRounds = 10;
   // Normalize code: remove dashes/spaces and uppercase for consistent hashing
-  const normalizedCode = code.replace(/[-\s]/g, '').toUpperCase()
-  const hash = await bcrypt.hash(normalizedCode, saltRounds)
-  return hash
+  const normalizedCode = code.replace(/[-\s]/g, "").toUpperCase();
+  const hash = await bcrypt.hash(normalizedCode, saltRounds);
+  return hash;
 }
 
 /**
@@ -48,14 +48,17 @@ export async function hashBackupCode(code: string): Promise<string> {
  * @param hash - Stored hash
  * @returns true if code matches hash
  */
-export async function verifyBackupCode(code: string, hash: string): Promise<boolean> {
+export async function verifyBackupCode(
+  code: string,
+  hash: string,
+): Promise<boolean> {
   try {
-    const cleanCode = code.replace(/[-\s]/g, '').toUpperCase()
-    const isMatch = await bcrypt.compare(cleanCode, hash)
-    return isMatch
+    const cleanCode = code.replace(/[-\s]/g, "").toUpperCase();
+    const isMatch = await bcrypt.compare(cleanCode, hash);
+    return isMatch;
   } catch (error) {
-    logger.error('Backup code verification error:', error)
-    return false
+    logger.error("Backup code verification error:", error);
+    return false;
   }
 }
 
@@ -66,8 +69,8 @@ export async function verifyBackupCode(code: string, hash: string): Promise<bool
  */
 export function isValidBackupCodeFormat(code: string): boolean {
   // Accept with or without dash: XXXX-XXXX or XXXXXXXX
-  const cleanCode = code.replace(/[-\s]/g, '')
-  return /^[A-F0-9]{8}$/i.test(cleanCode)
+  const cleanCode = code.replace(/[-\s]/g, "");
+  return /^[A-F0-9]{8}$/i.test(cleanCode);
 }
 
 /**
@@ -76,11 +79,11 @@ export function isValidBackupCodeFormat(code: string): boolean {
  * @returns Formatted code (XXXX-XXXX)
  */
 export function formatBackupCode(code: string): string {
-  const cleanCode = code.replace(/[-\s]/g, '').toUpperCase()
+  const cleanCode = code.replace(/[-\s]/g, "").toUpperCase();
   if (cleanCode.length !== 8) {
-    return code // Return as-is if invalid length
+    return code; // Return as-is if invalid length
   }
-  return `${cleanCode.slice(0, 4)}-${cleanCode.slice(4)}`
+  return `${cleanCode.slice(0, 4)}-${cleanCode.slice(4)}`;
 }
 
 /**
@@ -89,16 +92,16 @@ export function formatBackupCode(code: string): string {
  * @returns Array of objects with code and hash
  */
 export async function generateAndHashBackupCodes(
-  count: number = 10
+  count: number = 10,
 ): Promise<Array<{ code: string; hash: string }>> {
-  const codes = generateBackupCodes(count)
+  const codes = generateBackupCodes(count);
   const hashedCodes = await Promise.all(
     codes.map(async (code) => ({
       code,
       hash: await hashBackupCode(code),
-    }))
-  )
-  return hashedCodes
+    })),
+  );
+  return hashedCodes;
 }
 
 /**
@@ -107,24 +110,28 @@ export async function generateAndHashBackupCodes(
  * @param username - User identifier
  * @returns Formatted text for download
  */
-export function formatBackupCodesForDownload(codes: string[], username: string): string {
-  const header = `nchat Backup Codes for ${username}`
-  const divider = '='.repeat(header.length)
-  const date = new Date().toISOString().split('T')[0]
+export function formatBackupCodesForDownload(
+  codes: string[],
+  username: string,
+): string {
+  const header = `nchat Backup Codes for ${username}`;
+  const divider = "=".repeat(header.length);
+  const date = new Date().toISOString().split("T")[0];
 
-  let text = `${header}\n${divider}\n\n`
-  text += `Generated: ${date}\n\n`
-  text += 'Keep these codes in a safe place. Each code can only be used once.\n\n'
-  text += 'Backup Codes:\n\n'
+  let text = `${header}\n${divider}\n\n`;
+  text += `Generated: ${date}\n\n`;
+  text +=
+    "Keep these codes in a safe place. Each code can only be used once.\n\n";
+  text += "Backup Codes:\n\n";
 
   codes.forEach((code, index) => {
-    text += `${String(index + 1).padStart(2, ' ')}. ${code}\n`
-  })
+    text += `${String(index + 1).padStart(2, " ")}. ${code}\n`;
+  });
 
-  text += '\n' + divider + '\n'
-  text += 'IMPORTANT: Store these codes securely and do not share them.\n'
+  text += "\n" + divider + "\n";
+  text += "IMPORTANT: Store these codes securely and do not share them.\n";
 
-  return text
+  return text;
 }
 
 /**
@@ -133,8 +140,11 @@ export function formatBackupCodesForDownload(codes: string[], username: string):
  * @param username - User identifier
  * @returns HTML string for printing
  */
-export function formatBackupCodesForPrint(codes: string[], username: string): string {
-  const date = new Date().toLocaleDateString()
+export function formatBackupCodesForPrint(
+  codes: string[],
+  username: string,
+): string {
+  const date = new Date().toLocaleDateString();
 
   return `
     <!DOCTYPE html>
@@ -189,7 +199,7 @@ export function formatBackupCodesForPrint(codes: string[], username: string): st
         <p>Keep these codes in a safe place. Each code can only be used once.</p>
       </div>
       <ul class="codes">
-        ${codes.map((code, i) => `<li>${String(i + 1).padStart(2, '0')}. ${code}</li>`).join('')}
+        ${codes.map((code, i) => `<li>${String(i + 1).padStart(2, "0")}. ${code}</li>`).join("")}
       </ul>
       <div class="warning">
         <strong>IMPORTANT:</strong> Store these codes securely and do not share them with anyone.
@@ -197,7 +207,7 @@ export function formatBackupCodesForPrint(codes: string[], username: string): st
       </div>
     </body>
     </html>
-  `
+  `;
 }
 
 /**
@@ -206,11 +216,11 @@ export function formatBackupCodesForPrint(codes: string[], username: string): st
  * @returns Masked code (****-XXXX)
  */
 export function maskBackupCode(code: string): string {
-  const cleanCode = code.replace(/[-\s]/g, '')
+  const cleanCode = code.replace(/[-\s]/g, "");
   if (cleanCode.length !== 8) {
-    return '****-****'
+    return "****-****";
   }
-  return `****-${cleanCode.slice(4)}`
+  return `****-${cleanCode.slice(4)}`;
 }
 
 /**
@@ -218,8 +228,10 @@ export function maskBackupCode(code: string): string {
  * @param codes - Array of backup code objects with 'used_at' property
  * @returns Number of unused codes
  */
-export function countRemainingCodes(codes: Array<{ used_at: Date | null }>): number {
-  return codes.filter((code) => code.used_at === null).length
+export function countRemainingCodes(
+  codes: Array<{ used_at: Date | null }>,
+): number {
+  return codes.filter((code) => code.used_at === null).length;
 }
 
 /**
@@ -228,6 +240,9 @@ export function countRemainingCodes(codes: Array<{ used_at: Date | null }>): num
  * @param threshold - Threshold to trigger warning (default: 3)
  * @returns true if codes should be regenerated
  */
-export function shouldRegenerateCodes(remainingCount: number, threshold: number = 3): boolean {
-  return remainingCount <= threshold
+export function shouldRegenerateCodes(
+  remainingCount: number,
+  threshold: number = 3,
+): boolean {
+  return remainingCount <= threshold;
 }

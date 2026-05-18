@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useEffect, useRef } from 'react'
-import { useSocket } from './use-socket'
-import type { ServerToClientEvents } from '@/lib/realtime/typed-events'
+import { useEffect, useRef } from "react";
+import { useSocket } from "./use-socket";
+import type { ServerToClientEvents } from "@/lib/realtime/typed-events";
 
-type EventName = keyof ServerToClientEvents
-type EventCallback<E extends EventName> = ServerToClientEvents[E]
+type EventName = keyof ServerToClientEvents;
+type EventCallback<E extends EventName> = ServerToClientEvents[E];
 
 /**
  * Hook for subscribing to specific typed Socket.io events
@@ -25,27 +25,29 @@ type EventCallback<E extends EventName> = ServerToClientEvents[E]
 export function useSocketEvent<E extends EventName>(
   event: E,
   callback: EventCallback<E>,
-  enabled = true
+  enabled = true,
 ) {
-  const { subscribe, isConnected } = useSocket()
-  const callbackRef = useRef(callback)
+  const { subscribe, isConnected } = useSocket();
+  const callbackRef = useRef(callback);
 
   // Keep callback ref up to date to avoid stale closures
   useEffect(() => {
-    callbackRef.current = callback
-  }, [callback])
+    callbackRef.current = callback;
+  }, [callback]);
 
   useEffect(() => {
-    if (!isConnected || !enabled) return
+    if (!isConnected || !enabled) return;
 
     const handler = (...args: Parameters<EventCallback<E>>) => {
-      ;(callbackRef.current as (...args: Parameters<EventCallback<E>>) => void)(...args)
-    }
+      (callbackRef.current as (...args: Parameters<EventCallback<E>>) => void)(
+        ...args,
+      );
+    };
 
     // Type assertion needed due to the generic constraints
     return subscribe(
       event as Parameters<typeof subscribe>[0],
-      handler as Parameters<typeof subscribe>[1]
-    )
-  }, [event, enabled, isConnected, subscribe])
+      handler as Parameters<typeof subscribe>[1],
+    );
+  }, [event, enabled, isConnected, subscribe]);
 }

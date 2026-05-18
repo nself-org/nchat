@@ -5,10 +5,19 @@
  */
 
 // Install Prompt
-export { InstallPrompt, InstallButton, type InstallPromptProps } from './install-prompt'
+export {
+  InstallPrompt,
+  InstallButton,
+  type InstallPromptProps,
+} from "./install-prompt";
 
 // Update Prompt
-export { UpdatePrompt, UpdateIndicator, UpdateToast, type UpdatePromptProps } from './update-prompt'
+export {
+  UpdatePrompt,
+  UpdateIndicator,
+  UpdateToast,
+  type UpdatePromptProps,
+} from "./update-prompt";
 
 // Offline Indicator
 export {
@@ -16,4 +25,4 @@ export {
   OfflineBadge,
   OfflineOverlay,
   type OfflineIndicatorProps,
-} from './offline-indicator'
+} from "./offline-indicator";

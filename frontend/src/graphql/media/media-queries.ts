@@ -4,7 +4,7 @@
  * GraphQL operations for the media gallery system.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Fragments
@@ -17,7 +17,7 @@ export const MEDIA_USER_FRAGMENT = gql`
     display_name
     avatar_url
   }
-`
+`;
 
 export const MEDIA_ITEM_FRAGMENT = gql`
   fragment MediaItemFragment on nchat_media {
@@ -52,7 +52,7 @@ export const MEDIA_ITEM_FRAGMENT = gql`
     }
   }
   ${MEDIA_USER_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // Queries
@@ -68,7 +68,12 @@ export const GET_MEDIA = gql`
     $where: nchat_media_bool_exp
     $orderBy: [nchat_media_order_by!]
   ) {
-    nchat_media(limit: $limit, offset: $offset, where: $where, order_by: $orderBy) {
+    nchat_media(
+      limit: $limit
+      offset: $offset
+      where: $where
+      order_by: $orderBy
+    ) {
       ...MediaItemFragment
     }
     nchat_media_aggregate(where: $where) {
@@ -78,13 +83,18 @@ export const GET_MEDIA = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Get media items by channel
  */
 export const GET_CHANNEL_MEDIA = gql`
-  query GetChannelMedia($channelId: uuid!, $limit: Int = 50, $offset: Int = 0, $fileType: String) {
+  query GetChannelMedia(
+    $channelId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+    $fileType: String
+  ) {
     nchat_media(
       where: {
         channel_id: { _eq: $channelId }
@@ -110,7 +120,7 @@ export const GET_CHANNEL_MEDIA = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Get media items by thread
@@ -125,20 +135,27 @@ export const GET_THREAD_MEDIA = gql`
     ) {
       ...MediaItemFragment
     }
-    nchat_media_aggregate(where: { thread_id: { _eq: $threadId }, is_deleted: { _eq: false } }) {
+    nchat_media_aggregate(
+      where: { thread_id: { _eq: $threadId }, is_deleted: { _eq: false } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Get media items by user
  */
 export const GET_USER_MEDIA = gql`
-  query GetUserMedia($userId: uuid!, $limit: Int = 50, $offset: Int = 0, $fileType: String) {
+  query GetUserMedia(
+    $userId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+    $fileType: String
+  ) {
     nchat_media(
       where: {
         uploaded_by_id: { _eq: $userId }
@@ -164,7 +181,7 @@ export const GET_USER_MEDIA = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Get single media item by ID
@@ -176,7 +193,7 @@ export const GET_MEDIA_BY_ID = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Search media by filename
@@ -220,7 +237,7 @@ export const SEARCH_MEDIA = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Get media statistics by type
@@ -302,7 +319,7 @@ export const GET_MEDIA_STATS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Mutations
@@ -318,7 +335,7 @@ export const INSERT_MEDIA = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Insert multiple media items
@@ -332,7 +349,7 @@ export const INSERT_MEDIA_BULK = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Update a media item
@@ -344,33 +361,39 @@ export const UPDATE_MEDIA = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Soft delete a media item
  */
 export const DELETE_MEDIA = gql`
   mutation DeleteMedia($id: uuid!) {
-    update_nchat_media_by_pk(pk_columns: { id: $id }, _set: { is_deleted: true }) {
+    update_nchat_media_by_pk(
+      pk_columns: { id: $id }
+      _set: { is_deleted: true }
+    ) {
       id
       is_deleted
     }
   }
-`
+`;
 
 /**
  * Soft delete multiple media items
  */
 export const DELETE_MEDIA_BULK = gql`
   mutation DeleteMediaBulk($ids: [uuid!]!) {
-    update_nchat_media(where: { id: { _in: $ids } }, _set: { is_deleted: true }) {
+    update_nchat_media(
+      where: { id: { _in: $ids } }
+      _set: { is_deleted: true }
+    ) {
       affected_rows
       returning {
         id
       }
     }
   }
-`
+`;
 
 /**
  * Hard delete a media item (permanent)
@@ -381,19 +404,22 @@ export const HARD_DELETE_MEDIA = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Restore a soft-deleted media item
  */
 export const RESTORE_MEDIA = gql`
   mutation RestoreMedia($id: uuid!) {
-    update_nchat_media_by_pk(pk_columns: { id: $id }, _set: { is_deleted: false }) {
+    update_nchat_media_by_pk(
+      pk_columns: { id: $id }
+      _set: { is_deleted: false }
+    ) {
       ...MediaItemFragment
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // Subscriptions
@@ -413,7 +439,7 @@ export const SUBSCRIBE_CHANNEL_MEDIA = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to media updates
@@ -425,60 +451,60 @@ export const SUBSCRIBE_MEDIA_UPDATES = gql`
     }
   }
   ${MEDIA_ITEM_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // Type Definitions for Query Results
 // ============================================================================
 
 export interface MediaQueryResult {
-  nchat_media: MediaItemResult[]
+  nchat_media: MediaItemResult[];
   nchat_media_aggregate: {
     aggregate: {
-      count: number
-    }
-  }
+      count: number;
+    };
+  };
 }
 
 export interface MediaItemResult {
-  id: string
-  file_name: string
-  file_type: string
-  mime_type: string
-  file_size: number
-  file_extension: string
-  url: string
-  thumbnail_url: string | null
-  preview_url: string | null
-  download_url: string | null
-  channel_id: string | null
-  thread_id: string | null
-  message_id: string | null
-  uploaded_by_id: string
-  width: number | null
-  height: number | null
-  duration: number | null
-  metadata: Record<string, unknown> | null
-  is_deleted: boolean
-  created_at: string
-  updated_at: string
+  id: string;
+  file_name: string;
+  file_type: string;
+  mime_type: string;
+  file_size: number;
+  file_extension: string;
+  url: string;
+  thumbnail_url: string | null;
+  preview_url: string | null;
+  download_url: string | null;
+  channel_id: string | null;
+  thread_id: string | null;
+  message_id: string | null;
+  uploaded_by_id: string;
+  width: number | null;
+  height: number | null;
+  duration: number | null;
+  metadata: Record<string, unknown> | null;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
   uploaded_by: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url: string | null
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+  };
   channel: {
-    id: string
-    name: string
-    slug: string
-  } | null
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
 }
 
 export interface MediaStatsResult {
-  images: { aggregate: { count: number; sum: { file_size: number } } }
-  videos: { aggregate: { count: number; sum: { file_size: number } } }
-  audio: { aggregate: { count: number; sum: { file_size: number } } }
-  documents: { aggregate: { count: number; sum: { file_size: number } } }
-  total: { aggregate: { count: number; sum: { file_size: number } } }
+  images: { aggregate: { count: number; sum: { file_size: number } } };
+  videos: { aggregate: { count: number; sum: { file_size: number } } };
+  audio: { aggregate: { count: number; sum: { file_size: number } } };
+  documents: { aggregate: { count: number; sum: { file_size: number } } };
+  total: { aggregate: { count: number; sum: { file_size: number } } };
 }

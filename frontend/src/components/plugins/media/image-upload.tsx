@@ -3,104 +3,106 @@
  * Upload interface with preview for Media Pipeline plugin
  */
 
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { Upload, X, Image as ImageIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { useMediaUpload } from '@/hooks/use-media-plugin'
-import { cn } from '@/lib/utils'
+import { useState, useCallback } from "react";
+import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { useMediaUpload } from "@/hooks/use-media-plugin";
+import { cn } from "@/lib/utils";
 
 interface ImageUploadProps {
-  onUploadComplete?: (url: string, id: string) => void
-  maxSizeMB?: number
-  acceptedFormats?: string[]
+  onUploadComplete?: (url: string, id: string) => void;
+  maxSizeMB?: number;
+  acceptedFormats?: string[];
 }
 
 export function ImageUpload({
   onUploadComplete,
   maxSizeMB = 10,
-  acceptedFormats = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  acceptedFormats = ["image/jpeg", "image/png", "image/webp", "image/gif"],
 }: ImageUploadProps) {
-  const { uploadImage, isUploading, uploadProgress, error } = useMediaUpload()
-  const [preview, setPreview] = useState<string | null>(null)
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
-  const [dragActive, setDragActive] = useState(false)
+  const { uploadImage, isUploading, uploadProgress, error } = useMediaUpload();
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   const handleFile = useCallback(
     async (file: File) => {
       // Validate file type
       if (!acceptedFormats.includes(file.type)) {
-        alert(`Invalid file type. Accepted formats: ${acceptedFormats.join(', ')}`)
-        return
+        alert(
+          `Invalid file type. Accepted formats: ${acceptedFormats.join(", ")}`,
+        );
+        return;
       }
 
       // Validate file size
-      const maxSizeBytes = maxSizeMB * 1024 * 1024
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
       if (file.size > maxSizeBytes) {
-        alert(`File too large. Maximum size: ${maxSizeMB}MB`)
-        return
+        alert(`File too large. Maximum size: ${maxSizeMB}MB`);
+        return;
       }
 
       // Create preview
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        setPreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+        setPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
 
       // Upload
-      const result = await uploadImage(file)
+      const result = await uploadImage(file);
       if (result) {
-        setUploadedUrl(result.url)
-        onUploadComplete?.(result.url, result.id)
+        setUploadedUrl(result.url);
+        onUploadComplete?.(result.url, result.id);
       }
     },
-    [uploadImage, acceptedFormats, maxSizeMB, onUploadComplete]
-  )
+    [uploadImage, acceptedFormats, maxSizeMB, onUploadComplete],
+  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
-      e.preventDefault()
-      setDragActive(false)
+      e.preventDefault();
+      setDragActive(false);
 
-      const file = e.dataTransfer.files[0]
+      const file = e.dataTransfer.files[0];
       if (file) {
-        handleFile(file)
+        handleFile(file);
       }
     },
-    [handleFile]
-  )
+    [handleFile],
+  );
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
+      const file = e.target.files?.[0];
       if (file) {
-        handleFile(file)
+        handleFile(file);
       }
     },
-    [handleFile]
-  )
+    [handleFile],
+  );
 
   const handleClear = () => {
-    setPreview(null)
-    setUploadedUrl(null)
-  }
+    setPreview(null);
+    setUploadedUrl(null);
+  };
 
   return (
     <Card>
       <CardContent className="p-6">
         <div
           className={cn(
-            'relative rounded-lg border-2 border-dashed p-8 transition-colors',
-            dragActive && 'bg-primary/5 border-primary',
-            !dragActive && 'border-muted-foreground/25'
+            "relative rounded-lg border-2 border-dashed p-8 transition-colors",
+            dragActive && "bg-primary/5 border-primary",
+            !dragActive && "border-muted-foreground/25",
           )}
           onDragOver={(e) => {
-            e.preventDefault()
-            setDragActive(true)
+            e.preventDefault();
+            setDragActive(true);
           }}
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
@@ -111,10 +113,14 @@ export function ImageUpload({
                 <Upload className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium">Drag and drop an image, or click to browse</p>
+                <p className="text-sm font-medium">
+                  Drag and drop an image, or click to browse
+                </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Max {maxSizeMB}MB •{' '}
-                  {acceptedFormats.map((f) => f.split('/')[1].toUpperCase()).join(', ')}
+                  Max {maxSizeMB}MB •{" "}
+                  {acceptedFormats
+                    .map((f) => f.split("/")[1].toUpperCase())
+                    .join(", ")}
                 </p>
               </div>
               <Button variant="secondary" asChild>
@@ -122,7 +128,7 @@ export function ImageUpload({
                   <input
                     type="file"
                     className="hidden"
-                    accept={acceptedFormats.join(',')}
+                    accept={acceptedFormats.join(",")}
                     onChange={handleChange}
                     disabled={isUploading}
                   />
@@ -133,7 +139,11 @@ export function ImageUpload({
           ) : (
             <div className="relative">
               {preview && (
-                <img src={preview} alt="Preview" className="mx-auto max-h-96 rounded-lg" />
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="mx-auto max-h-96 rounded-lg"
+                />
               )}
               <Button
                 variant="destructive"
@@ -169,5 +179,5 @@ export function ImageUpload({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

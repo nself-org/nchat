@@ -5,26 +5,31 @@
  * Handles connection, authentication, reconnection, and error management.
  */
 
-import { io, Socket } from 'socket.io-client'
-import type { ServerToClientEvents, ClientToServerEvents } from './events'
+import { io, Socket } from "socket.io-client";
+import type { ServerToClientEvents, ClientToServerEvents } from "./events";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // Connection states
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'error'
+export type ConnectionState =
+  | "disconnected"
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "error";
 
 // Connection state listeners
-type ConnectionStateListener = (state: ConnectionState) => void
-const connectionStateListeners = new Set<ConnectionStateListener>()
+type ConnectionStateListener = (state: ConnectionState) => void;
+const connectionStateListeners = new Set<ConnectionStateListener>();
 
 // Current connection state
-let currentConnectionState: ConnectionState = 'disconnected'
+let currentConnectionState: ConnectionState = "disconnected";
 
 // Socket instance (lazy initialized)
-let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null
+let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 
 // Auth token for socket authentication
-let authToken: string | null = null
+let authToken: string | null = null;
 
 /**
  * Socket configuration options
@@ -39,30 +44,30 @@ const SOCKET_CONFIG = {
 
   // Connection settings
   timeout: 20000,
-  transports: ['websocket', 'polling'] as ('websocket' | 'polling')[],
+  transports: ["websocket", "polling"] as ("websocket" | "polling")[],
 
   // Auto connect disabled - we connect manually after auth
   autoConnect: false,
 
   // Path for socket.io server
-  path: '/socket.io',
-}
+  path: "/socket.io",
+};
 
 /**
  * Get the socket URL from environment
  */
 function getSocketUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SOCKET_URL
+  const url = process.env.NEXT_PUBLIC_SOCKET_URL;
   if (!url) {
     // Default to same origin in production, localhost in development
-    if (typeof window !== 'undefined') {
-      return process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3001'
-        : window.location.origin
+    if (typeof window !== "undefined") {
+      return process.env.NODE_ENV === "development"
+        ? "http://localhost:3001"
+        : window.location.origin;
     }
-    return 'http://localhost:3001'
+    return "http://localhost:3001";
   }
-  return url
+  return url;
 }
 
 /**
@@ -70,120 +75,129 @@ function getSocketUrl(): string {
  */
 function setConnectionState(state: ConnectionState): void {
   if (currentConnectionState !== state) {
-    currentConnectionState = state
-    connectionStateListeners.forEach((listener) => listener(state))
+    currentConnectionState = state;
+    connectionStateListeners.forEach((listener) => listener(state));
   }
 }
 
 /**
  * Subscribe to connection state changes
  */
-export function subscribeToConnectionState(listener: ConnectionStateListener): () => void {
-  connectionStateListeners.add(listener)
+export function subscribeToConnectionState(
+  listener: ConnectionStateListener,
+): () => void {
+  connectionStateListeners.add(listener);
   // Immediately notify with current state
-  listener(currentConnectionState)
+  listener(currentConnectionState);
 
   return () => {
-    connectionStateListeners.delete(listener)
-  }
+    connectionStateListeners.delete(listener);
+  };
 }
 
 /**
  * Get current connection state
  */
 export function getConnectionState(): ConnectionState {
-  return currentConnectionState
+  return currentConnectionState;
 }
 
 /**
  * Initialize socket event handlers
  */
-function initializeSocketHandlers(sock: Socket<ServerToClientEvents, ClientToServerEvents>): void {
+function initializeSocketHandlers(
+  sock: Socket<ServerToClientEvents, ClientToServerEvents>,
+): void {
   // Connection events
-  sock.on('connect', () => {
-    setConnectionState('connected')
-  })
+  sock.on("connect", () => {
+    setConnectionState("connected");
+  });
 
-  sock.on('disconnect', (reason) => {
-    setConnectionState('disconnected')
+  sock.on("disconnect", (reason) => {
+    setConnectionState("disconnected");
 
     // Handle specific disconnect reasons
-    if (reason === 'io server disconnect') {
+    if (reason === "io server disconnect") {
       // Server initiated disconnect, may need to reconnect manually
     }
-  })
+  });
 
-  sock.on('connect_error', (error) => {
-    logger.error('[Socket] Connection error:', error.message)
-    setConnectionState('error')
-  })
+  sock.on("connect_error", (error) => {
+    logger.error("[Socket] Connection error:", error.message);
+    setConnectionState("error");
+  });
 
   // Reconnection events
-  sock.io.on('reconnect_attempt', (attempt) => {
-    setConnectionState('reconnecting')
-  })
+  sock.io.on("reconnect_attempt", (attempt) => {
+    setConnectionState("reconnecting");
+  });
 
-  sock.io.on('reconnect', (attempt) => {
-    setConnectionState('connected')
-  })
+  sock.io.on("reconnect", (attempt) => {
+    setConnectionState("connected");
+  });
 
-  sock.io.on('reconnect_error', (error) => {
-    logger.error('[Socket] Reconnection error:', error.message)
-  })
+  sock.io.on("reconnect_error", (error) => {
+    logger.error("[Socket] Reconnection error:", error.message);
+  });
 
-  sock.io.on('reconnect_failed', () => {
-    logger.error('[Socket] Reconnection failed after max attempts')
-    setConnectionState('error')
-  })
+  sock.io.on("reconnect_failed", () => {
+    logger.error("[Socket] Reconnection failed after max attempts");
+    setConnectionState("error");
+  });
 
   // Error event
-  sock.io.on('error', (error) => {
-    logger.error('[Socket] Error:', error)
-    setConnectionState('error')
-  })
+  sock.io.on("error", (error) => {
+    logger.error("[Socket] Error:", error);
+    setConnectionState("error");
+  });
 }
 
 /**
  * Get or create the socket instance
  */
-export function getSocket(): Socket<ServerToClientEvents, ClientToServerEvents> | null {
-  return socket
+export function getSocket(): Socket<
+  ServerToClientEvents,
+  ClientToServerEvents
+> | null {
+  return socket;
 }
 
 /**
  * Create and initialize the socket connection
  */
-export function createSocket(token?: string): Socket<ServerToClientEvents, ClientToServerEvents> {
+export function createSocket(
+  token?: string,
+): Socket<ServerToClientEvents, ClientToServerEvents> {
   // Store token for reconnection
   if (token) {
-    authToken = token
+    authToken = token;
   }
 
   // If socket already exists and is connected, return it
   if (socket?.connected) {
-    return socket
+    return socket;
   }
 
   // If socket exists but disconnected, clean up first
   if (socket) {
-    socket.removeAllListeners()
-    socket.disconnect()
+    socket.removeAllListeners();
+    socket.disconnect();
   }
 
-  const socketUrl = getSocketUrl()
+  const socketUrl = getSocketUrl();
 
   // Create new socket instance with auth
   socket = io(socketUrl, {
     ...SOCKET_CONFIG,
     auth: authToken ? { token: authToken } : undefined,
-  })
+  });
 
   // Initialize event handlers
-  initializeSocketHandlers(socket)
+  initializeSocketHandlers(socket);
 
-  setConnectionState('connecting')
+  setConnectionState("connecting");
 
-  return socket
+  return socket;
 }
 
 /**
@@ -191,20 +205,20 @@ export function createSocket(token?: string): Socket<ServerToClientEvents, Clien
  */
 export function connect(token?: string): void {
   if (token) {
-    authToken = token
+    authToken = token;
   }
 
   if (!socket) {
-    createSocket(token)
+    createSocket(token);
   }
 
   if (socket && !socket.connected) {
     // Update auth if token changed
     if (authToken) {
-      socket.auth = { token: authToken }
+      socket.auth = { token: authToken };
     }
-    setConnectionState('connecting')
-    socket.connect()
+    setConnectionState("connecting");
+    socket.connect();
   }
 }
 
@@ -213,8 +227,8 @@ export function connect(token?: string): void {
  */
 export function disconnect(): void {
   if (socket) {
-    socket.disconnect()
-    setConnectionState('disconnected')
+    socket.disconnect();
+    setConnectionState("disconnected");
   }
 }
 
@@ -222,15 +236,15 @@ export function disconnect(): void {
  * Update authentication token
  */
 export function updateAuthToken(token: string | null): void {
-  authToken = token
+  authToken = token;
 
   if (socket) {
-    socket.auth = token ? { token } : {}
+    socket.auth = token ? { token } : {};
 
     // If connected, reconnect with new token
     if (socket.connected) {
-      socket.disconnect()
-      socket.connect()
+      socket.disconnect();
+      socket.connect();
     }
   }
 }
@@ -239,14 +253,14 @@ export function updateAuthToken(token: string | null): void {
  * Check if socket is connected
  */
 export function isConnected(): boolean {
-  return socket?.connected ?? false
+  return socket?.connected ?? false;
 }
 
 /**
  * Get socket ID
  */
 export function getSocketId(): string | undefined {
-  return socket?.id
+  return socket?.id;
 }
 
 /**
@@ -257,9 +271,9 @@ export function emit<K extends keyof ClientToServerEvents>(
   ...args: Parameters<ClientToServerEvents[K]>
 ): void {
   if (socket?.connected) {
-    socket.emit(event, ...args)
+    socket.emit(event, ...args);
   } else {
-    logger.warn('[Socket] Cannot emit, not connected', { event })
+    logger.warn("[Socket] Cannot emit, not connected", { event });
   }
 }
 
@@ -268,10 +282,10 @@ export function emit<K extends keyof ClientToServerEvents>(
  */
 export function on<K extends keyof ServerToClientEvents>(
   event: K,
-  handler: ServerToClientEvents[K]
+  handler: ServerToClientEvents[K],
 ): void {
   if (socket) {
-    socket.on(event, handler as never)
+    socket.on(event, handler as never);
   }
 }
 
@@ -280,13 +294,13 @@ export function on<K extends keyof ServerToClientEvents>(
  */
 export function off<K extends keyof ServerToClientEvents>(
   event: K,
-  handler?: ServerToClientEvents[K]
+  handler?: ServerToClientEvents[K],
 ): void {
   if (socket) {
     if (handler) {
-      socket.off(event, handler as never)
+      socket.off(event, handler as never);
     } else {
-      socket.off(event)
+      socket.off(event);
     }
   }
 }
@@ -301,24 +315,24 @@ export function emitWithAck<K extends keyof ClientToServerEvents>(
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
     if (!socket?.connected) {
-      reject(new Error('Socket not connected'))
-      return
+      reject(new Error("Socket not connected"));
+      return;
     }
 
     const timeout = setTimeout(() => {
-      reject(new Error('Socket emit timeout'))
-    }, 10000)
+      reject(new Error("Socket emit timeout"));
+    }, 10000);
 
     // Use type assertion to handle acknowledgment callback
     // Socket.io supports callbacks as the last argument for ack
     const callback = (response: unknown) => {
-      clearTimeout(timeout)
-      resolve(response)
-    }
+      clearTimeout(timeout);
+      resolve(response);
+    };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(socket as any).emit(event, ...args, callback)
-  })
+    (socket as any).emit(event, ...args, callback);
+  });
 }
 
 /**
@@ -326,15 +340,15 @@ export function emitWithAck<K extends keyof ClientToServerEvents>(
  */
 export function cleanup(): void {
   if (socket) {
-    socket.removeAllListeners()
-    socket.disconnect()
-    socket = null
+    socket.removeAllListeners();
+    socket.disconnect();
+    socket = null;
   }
-  authToken = null
-  connectionStateListeners.clear()
-  setConnectionState('disconnected')
+  authToken = null;
+  connectionStateListeners.clear();
+  setConnectionState("disconnected");
 }
 
 // Export socket type for use in other modules
-export type { Socket }
-export type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>
+export type { Socket };
+export type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   Bot,
   CheckCircle,
@@ -13,7 +13,7 @@ import {
   Globe,
   HelpCircle,
   FileText,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,32 +31,36 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { BotPermissions, BotPermissionsCompact } from './bot-permissions'
-import type { Bot as BotType, BotPermission, BotInstallation } from '@/graphql/bots'
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { BotPermissions, BotPermissionsCompact } from "./bot-permissions";
+import type {
+  Bot as BotType,
+  BotPermission,
+  BotInstallation,
+} from "@/graphql/bots";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface BotSettingsModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  bot: BotType | null
-  installations?: BotInstallation[]
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  bot: BotType | null;
+  installations?: BotInstallation[];
   onUpdatePermissions?: (
     botId: string,
     channelId: string,
-    permissions: BotPermission[]
-  ) => Promise<void>
-  onRemoveBot?: (botId: string, channelId?: string) => Promise<void>
-  onViewProfile?: (bot: BotType) => void
+    permissions: BotPermission[],
+  ) => Promise<void>;
+  onRemoveBot?: (botId: string, channelId?: string) => Promise<void>;
+  onViewProfile?: (bot: BotType) => void;
 }
 
 // ============================================================================
@@ -72,73 +76,82 @@ export function BotSettingsModal({
   onRemoveBot,
   onViewProfile,
 }: BotSettingsModalProps) {
-  const [activeTab, setActiveTab] = useState('info')
-  const [editedPermissions, setEditedPermissions] = useState<Record<string, BotPermission[]>>({})
-  const [saving, setSaving] = useState(false)
-  const [removeDialogOpen, setRemoveDialogOpen] = useState(false)
-  const [channelToRemove, setChannelToRemove] = useState<string | null>(null)
-  const [removing, setRemoving] = useState(false)
+  const [activeTab, setActiveTab] = useState("info");
+  const [editedPermissions, setEditedPermissions] = useState<
+    Record<string, BotPermission[]>
+  >({});
+  const [saving, setSaving] = useState(false);
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [channelToRemove, setChannelToRemove] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
 
   // Initialize edited permissions from installations
   useEffect(() => {
     if (installations.length > 0) {
-      const perms: Record<string, BotPermission[]> = {}
+      const perms: Record<string, BotPermission[]> = {};
       for (const inst of installations) {
-        perms[inst.channelId] = [...inst.permissions]
+        perms[inst.channelId] = [...inst.permissions];
       }
-      setEditedPermissions(perms)
+      setEditedPermissions(perms);
     }
-  }, [installations])
+  }, [installations]);
 
-  const handlePermissionChange = (channelId: string, permissions: BotPermission[]) => {
+  const handlePermissionChange = (
+    channelId: string,
+    permissions: BotPermission[],
+  ) => {
     setEditedPermissions((prev) => ({
       ...prev,
       [channelId]: permissions,
-    }))
-  }
+    }));
+  };
 
   const hasPermissionChanges = (channelId: string): boolean => {
-    const original = installations.find((i) => i.channelId === channelId)
-    const edited = editedPermissions[channelId]
-    if (!original || !edited) return false
+    const original = installations.find((i) => i.channelId === channelId);
+    const edited = editedPermissions[channelId];
+    if (!original || !edited) return false;
 
-    if (original.permissions.length !== edited.length) return true
-    return !original.permissions.every((p) => edited.includes(p))
-  }
+    if (original.permissions.length !== edited.length) return true;
+    return !original.permissions.every((p) => edited.includes(p));
+  };
 
   const handleSavePermissions = async (channelId: string) => {
-    if (!bot || !onUpdatePermissions) return
+    if (!bot || !onUpdatePermissions) return;
 
-    setSaving(true)
+    setSaving(true);
     try {
-      await onUpdatePermissions(bot.id, channelId, editedPermissions[channelId])
+      await onUpdatePermissions(
+        bot.id,
+        channelId,
+        editedPermissions[channelId],
+      );
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleRemoveClick = (channelId: string | null) => {
-    setChannelToRemove(channelId)
-    setRemoveDialogOpen(true)
-  }
+    setChannelToRemove(channelId);
+    setRemoveDialogOpen(true);
+  };
 
   const handleConfirmRemove = async () => {
-    if (!bot || !onRemoveBot) return
+    if (!bot || !onRemoveBot) return;
 
-    setRemoving(true)
+    setRemoving(true);
     try {
-      await onRemoveBot(bot.id, channelToRemove ?? undefined)
+      await onRemoveBot(bot.id, channelToRemove ?? undefined);
       if (!channelToRemove) {
-        onOpenChange(false)
+        onOpenChange(false);
       }
     } finally {
-      setRemoving(false)
-      setRemoveDialogOpen(false)
-      setChannelToRemove(null)
+      setRemoving(false);
+      setRemoveDialogOpen(false);
+      setChannelToRemove(null);
     }
-  }
+  };
 
-  if (!bot) return null
+  if (!bot) return null;
 
   return (
     <>
@@ -155,12 +168,18 @@ export function BotSettingsModal({
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <DialogTitle className="text-xl">{bot.name}</DialogTitle>
-                  {bot.verified && <CheckCircle className="h-5 w-5 text-primary" />}
+                  {bot.verified && (
+                    <CheckCircle className="h-5 w-5 text-primary" />
+                  )}
                 </div>
-                <DialogDescription className="mt-1">{bot.description}</DialogDescription>
+                <DialogDescription className="mt-1">
+                  {bot.description}
+                </DialogDescription>
                 <div className="mt-2 flex items-center gap-2">
                   <Badge variant="secondary">{bot.status}</Badge>
-                  {bot.category && <Badge variant="outline">{bot.category}</Badge>}
+                  {bot.category && (
+                    <Badge variant="outline">{bot.category}</Badge>
+                  )}
                 </div>
               </div>
             </div>
@@ -169,7 +188,9 @@ export function BotSettingsModal({
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="info">Info</TabsTrigger>
-              <TabsTrigger value="channels">Channels ({installations.length})</TabsTrigger>
+              <TabsTrigger value="channels">
+                Channels ({installations.length})
+              </TabsTrigger>
               <TabsTrigger value="permissions">Permissions</TabsTrigger>
             </TabsList>
 
@@ -227,7 +248,11 @@ export function BotSettingsModal({
                   />
                 )}
                 {bot.owner && (
-                  <InfoRow icon={Shield} label="Developer" value={bot.owner.displayName} />
+                  <InfoRow
+                    icon={Shield}
+                    label="Developer"
+                    value={bot.owner.displayName}
+                  />
                 )}
               </div>
 
@@ -236,8 +261,8 @@ export function BotSettingsModal({
                   variant="outline"
                   className="w-full"
                   onClick={() => {
-                    onOpenChange(false)
-                    onViewProfile(bot)
+                    onOpenChange(false);
+                    onViewProfile(bot);
                   }}
                 >
                   View Full Profile
@@ -262,14 +287,16 @@ export function BotSettingsModal({
                         <div className="flex items-center gap-2">
                           <Hash className="h-4 w-4 text-muted-foreground" />
                           <span className="font-medium">
-                            {installation.channel?.name || 'Unknown channel'}
+                            {installation.channel?.name || "Unknown channel"}
                           </span>
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
                           className="text-destructive hover:text-destructive"
-                          onClick={() => handleRemoveClick(installation.channelId)}
+                          onClick={() =>
+                            handleRemoveClick(installation.channelId)
+                          }
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -290,15 +317,21 @@ export function BotSettingsModal({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Hash className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{installations[0].channel?.name}</span>
+                      <span className="font-medium">
+                        {installations[0].channel?.name}
+                      </span>
                     </div>
                     {hasPermissionChanges(installations[0].channelId) && (
                       <Button
                         size="sm"
-                        onClick={() => handleSavePermissions(installations[0].channelId)}
+                        onClick={() =>
+                          handleSavePermissions(installations[0].channelId)
+                        }
                         disabled={saving}
                       >
-                        {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {saving && (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
                         Save Changes
                       </Button>
                     )}
@@ -310,7 +343,10 @@ export function BotSettingsModal({
                         installations[0].permissions
                       }
                       onChange={(perms) =>
-                        handlePermissionChange(installations[0].channelId, perms)
+                        handlePermissionChange(
+                          installations[0].channelId,
+                          perms,
+                        )
                       }
                       showDescriptions
                     />
@@ -320,29 +356,37 @@ export function BotSettingsModal({
                 <ScrollArea className="h-[300px] pr-4">
                   <div className="space-y-4">
                     {installations.map((installation) => (
-                      <div key={installation.id} className="space-y-3 rounded-lg border p-3">
+                      <div
+                        key={installation.id}
+                        className="space-y-3 rounded-lg border p-3"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Hash className="h-4 w-4 text-muted-foreground" />
                             <span className="font-medium">
-                              {installation.channel?.name || 'Unknown'}
+                              {installation.channel?.name || "Unknown"}
                             </span>
                           </div>
                           {hasPermissionChanges(installation.channelId) && (
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleSavePermissions(installation.channelId)}
+                              onClick={() =>
+                                handleSavePermissions(installation.channelId)
+                              }
                               disabled={saving}
                             >
-                              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              {saving && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              )}
                               Save
                             </Button>
                           )}
                         </div>
                         <BotPermissionsCompact
                           permissions={
-                            editedPermissions[installation.channelId] || installation.permissions
+                            editedPermissions[installation.channelId] ||
+                            installation.permissions
                           }
                         />
                       </div>
@@ -385,15 +429,17 @@ export function BotSettingsModal({
             <AlertDialogDescription>
               {channelToRemove ? (
                 <>
-                  Are you sure you want to remove <strong>{bot.name}</strong> from this channel? The
-                  bot will no longer be able to access messages or send notifications in this
-                  channel.
+                  Are you sure you want to remove <strong>{bot.name}</strong>{" "}
+                  from this channel? The bot will no longer be able to access
+                  messages or send notifications in this channel.
                 </>
               ) : (
                 <>
-                  Are you sure you want to remove <strong>{bot.name}</strong> from your entire
-                  workspace? This will remove it from all {installations.length} channel
-                  {installations.length !== 1 ? 's' : ''} where it&apos;s installed.
+                  Are you sure you want to remove <strong>{bot.name}</strong>{" "}
+                  from your entire workspace? This will remove it from all{" "}
+                  {installations.length} channel
+                  {installations.length !== 1 ? "s" : ""} where it&apos;s
+                  installed.
                 </>
               )}
             </AlertDialogDescription>
@@ -412,7 +458,7 @@ export function BotSettingsModal({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
 // ============================================================================
@@ -424,9 +470,9 @@ function InfoRow({
   label,
   value,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: React.ReactNode
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: React.ReactNode;
 }) {
   return (
     <div className="flex items-center gap-3">
@@ -438,5 +484,5 @@ function InfoRow({
         <p className="font-medium">{value}</p>
       </div>
     </div>
-  )
+  );
 }

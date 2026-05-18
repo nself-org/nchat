@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import Link from 'next/link'
+import * as React from "react";
+import { useState } from "react";
+import Link from "next/link";
 import {
   Hash,
   Lock,
@@ -16,12 +16,12 @@ import {
   Activity,
   MoreVertical,
   ExternalLink,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -29,44 +29,44 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { JoinChannelButton } from './JoinChannelButton'
-import { ChannelStats } from './ChannelStats'
-import { SimilarChannels } from './SimilarChannels'
-import type { Channel } from '@/stores/channel-store'
+} from "@/components/ui/dropdown-menu";
+import { JoinChannelButton } from "./JoinChannelButton";
+import { ChannelStats } from "./ChannelStats";
+import { SimilarChannels } from "./SimilarChannels";
+import type { Channel } from "@/stores/channel-store";
 import {
   formatMemberCount,
   formatTimeAgo,
   getActivityLevel,
   getActivityLevelLabel,
   getActivityLevelColor,
-} from '@/lib/channels/channel-stats'
+} from "@/lib/channels/channel-stats";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelPreviewProps {
-  channel: Channel
-  allChannels?: Channel[]
-  isJoined?: boolean
-  isMuted?: boolean
-  showStats?: boolean
-  showSimilar?: boolean
-  showActions?: boolean
-  onJoin?: (channelId: string) => void
-  onLeave?: (channelId: string) => void
-  onMuteToggle?: (channelId: string) => void
-  onShare?: (channelId: string) => void
-  trigger?: React.ReactNode
-  className?: string
+  channel: Channel;
+  allChannels?: Channel[];
+  isJoined?: boolean;
+  isMuted?: boolean;
+  showStats?: boolean;
+  showSimilar?: boolean;
+  showActions?: boolean;
+  onJoin?: (channelId: string) => void;
+  onLeave?: (channelId: string) => void;
+  onMuteToggle?: (channelId: string) => void;
+  onShare?: (channelId: string) => void;
+  trigger?: React.ReactNode;
+  className?: string;
 }
 
 // ============================================================================
@@ -88,17 +88,17 @@ export function ChannelPreview({
   trigger,
   className,
 }: ChannelPreviewProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const isPrivate = channel.type === 'private'
-  const activityLevel = getActivityLevel(channel)
+  const [isOpen, setIsOpen] = useState(false);
+  const isPrivate = channel.type === "private";
+  const activityLevel = getActivityLevel(channel);
 
   const handleJoin = async () => {
-    onJoin?.(channel.id)
-  }
+    onJoin?.(channel.id);
+  };
 
   const handleLeave = async () => {
-    onLeave?.(channel.id)
-  }
+    onLeave?.(channel.id);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -109,14 +109,16 @@ export function ChannelPreview({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className={cn('max-h-[85vh] max-w-2xl overflow-y-auto', className)}>
+      <DialogContent
+        className={cn("max-h-[85vh] max-w-2xl overflow-y-auto", className)}
+      >
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div
                 className={cn(
-                  'rounded-lg p-3',
-                  channel.color ? `bg-[${channel.color}]/10` : 'bg-muted'
+                  "rounded-lg p-3",
+                  channel.color ? `bg-[${channel.color}]/10` : "bg-muted",
                 )}
               >
                 {isPrivate ? (
@@ -132,7 +134,9 @@ export function ChannelPreview({
                     <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                   )}
                 </DialogTitle>
-                {channel.topic && <DialogDescription>{channel.topic}</DialogDescription>}
+                {channel.topic && (
+                  <DialogDescription>{channel.topic}</DialogDescription>
+                )}
               </div>
             </div>
             {showActions && (
@@ -149,7 +153,9 @@ export function ChannelPreview({
                   </DropdownMenuItem>
                   {isJoined && (
                     <>
-                      <DropdownMenuItem onClick={() => onMuteToggle?.(channel.id)}>
+                      <DropdownMenuItem
+                        onClick={() => onMuteToggle?.(channel.id)}
+                      >
                         {isMuted ? (
                           <>
                             <Bell className="mr-2 h-4 w-4" />
@@ -191,12 +197,16 @@ export function ChannelPreview({
             <Badge
               variant="outline"
               className={cn(
-                'text-xs',
-                activityLevel === 'very-active' && 'border-green-500 text-green-600',
-                activityLevel === 'active' && 'border-emerald-500 text-emerald-600',
-                activityLevel === 'moderate' && 'border-yellow-500 text-yellow-600',
-                activityLevel === 'quiet' && 'border-orange-500 text-orange-600',
-                activityLevel === 'inactive' && 'border-gray-400 text-gray-500'
+                "text-xs",
+                activityLevel === "very-active" &&
+                  "border-green-500 text-green-600",
+                activityLevel === "active" &&
+                  "border-emerald-500 text-emerald-600",
+                activityLevel === "moderate" &&
+                  "border-yellow-500 text-yellow-600",
+                activityLevel === "quiet" &&
+                  "border-orange-500 text-orange-600",
+                activityLevel === "inactive" && "border-gray-400 text-gray-500",
               )}
             >
               <Activity className="mr-1 h-3 w-3" />
@@ -208,7 +218,9 @@ export function ChannelPreview({
           {channel.description && (
             <div>
               <h4 className="mb-2 text-sm font-medium">About</h4>
-              <p className="text-sm text-muted-foreground">{channel.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {channel.description}
+              </p>
             </div>
           )}
 
@@ -261,8 +273,13 @@ export function ChannelPreview({
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   {channel.members.slice(0, 5).map((member, index) => (
-                    <Avatar key={member.userId} className="h-8 w-8 border-2 border-background">
-                      <AvatarFallback>{member.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <Avatar
+                      key={member.userId}
+                      className="h-8 w-8 border-2 border-background"
+                    >
+                      <AvatarFallback>
+                        {member.userId.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   ))}
                 </div>
@@ -277,7 +294,7 @@ export function ChannelPreview({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-ChannelPreview.displayName = 'ChannelPreview'
+ChannelPreview.displayName = "ChannelPreview";

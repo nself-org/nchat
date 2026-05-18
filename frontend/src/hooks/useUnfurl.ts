@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useUnfurl - Hook for URL unfurling operations
@@ -6,38 +6,43 @@
  * Provides utilities for detecting and unfurling URLs in text
  */
 
-import { useCallback, useMemo } from 'react'
-import { extractUrls, isValidUrl, detectUrlType, mightHavePreview } from '@/lib/link-preview'
+import { useCallback, useMemo } from "react";
+import {
+  extractUrls,
+  isValidUrl,
+  detectUrlType,
+  mightHavePreview,
+} from "@/lib/link-preview";
 import {
   useLinkPreviewStore,
   selectSettings,
   selectAllBlockedDomains,
-} from '@/stores/link-preview-store'
+} from "@/stores/link-preview-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UrlInfo {
-  url: string
-  type: ReturnType<typeof detectUrlType>
-  mightHavePreview: boolean
-  isBlocked: boolean
+  url: string;
+  type: ReturnType<typeof detectUrlType>;
+  mightHavePreview: boolean;
+  isBlocked: boolean;
 }
 
 export interface UseUnfurlResult {
   /** Extract URLs from text */
-  extractUrls: (text: string) => string[]
+  extractUrls: (text: string) => string[];
   /** Get information about a URL */
-  getUrlInfo: (url: string) => UrlInfo
+  getUrlInfo: (url: string) => UrlInfo;
   /** Check if URL should be unfurled */
-  shouldUnfurl: (url: string) => boolean
+  shouldUnfurl: (url: string) => boolean;
   /** Check if URL is blocked */
-  isBlocked: (url: string) => boolean
+  isBlocked: (url: string) => boolean;
   /** Detect URL type */
-  detectType: (url: string) => ReturnType<typeof detectUrlType>
+  detectType: (url: string) => ReturnType<typeof detectUrlType>;
   /** User settings */
-  settings: ReturnType<typeof selectSettings>
+  settings: ReturnType<typeof selectSettings>;
 }
 
 // ============================================================================
@@ -45,38 +50,40 @@ export interface UseUnfurlResult {
 // ============================================================================
 
 export function useUnfurl(): UseUnfurlResult {
-  const settings = useLinkPreviewStore(selectSettings)
-  const blockedDomains = useLinkPreviewStore(selectAllBlockedDomains)
+  const settings = useLinkPreviewStore(selectSettings);
+  const blockedDomains = useLinkPreviewStore(selectAllBlockedDomains);
 
   // Check if URL is blocked
   const isBlocked = useCallback(
     (url: string): boolean => {
-      if (!isValidUrl(url)) return true
+      if (!isValidUrl(url)) return true;
 
       try {
-        const domain = new URL(url).hostname.toLowerCase().replace(/^www\./, '')
+        const domain = new URL(url).hostname
+          .toLowerCase()
+          .replace(/^www\./, "");
         return blockedDomains.some(
-          (blocked) => domain === blocked || domain.endsWith(`.${blocked}`)
-        )
+          (blocked) => domain === blocked || domain.endsWith(`.${blocked}`),
+        );
       } catch {
-        return true
+        return true;
       }
     },
-    [blockedDomains]
-  )
+    [blockedDomains],
+  );
 
   // Check if URL should be unfurled
   const shouldUnfurl = useCallback(
     (url: string): boolean => {
-      if (!settings.enabled) return false
-      if (!settings.autoUnfurl) return false
-      if (!isValidUrl(url)) return false
-      if (isBlocked(url)) return false
-      if (!mightHavePreview(url)) return false
-      return true
+      if (!settings.enabled) return false;
+      if (!settings.autoUnfurl) return false;
+      if (!isValidUrl(url)) return false;
+      if (isBlocked(url)) return false;
+      if (!mightHavePreview(url)) return false;
+      return true;
     },
-    [settings.enabled, settings.autoUnfurl, isBlocked]
-  )
+    [settings.enabled, settings.autoUnfurl, isBlocked],
+  );
 
   // Get URL information
   const getUrlInfo = useCallback(
@@ -86,15 +93,15 @@ export function useUnfurl(): UseUnfurlResult {
         type: detectUrlType(url),
         mightHavePreview: mightHavePreview(url),
         isBlocked: isBlocked(url),
-      }
+      };
     },
-    [isBlocked]
-  )
+    [isBlocked],
+  );
 
   // Detect URL type
   const detectType = useCallback((url: string) => {
-    return detectUrlType(url)
-  }, [])
+    return detectUrlType(url);
+  }, []);
 
   return {
     extractUrls,
@@ -103,7 +110,7 @@ export function useUnfurl(): UseUnfurlResult {
     isBlocked,
     detectType,
     settings,
-  }
+  };
 }
 
 // ============================================================================
@@ -112,31 +119,34 @@ export function useUnfurl(): UseUnfurlResult {
 
 export interface UseUrlDetectionOptions {
   /** Maximum URLs to detect */
-  maxUrls?: number
+  maxUrls?: number;
   /** Filter out blocked URLs */
-  filterBlocked?: boolean
+  filterBlocked?: boolean;
 }
 
 export interface DetectedUrl extends UrlInfo {
-  index: number
-  length: number
+  index: number;
+  length: number;
 }
 
-export function useUrlDetection(text: string, options: UseUrlDetectionOptions = {}): DetectedUrl[] {
-  const { maxUrls = 10, filterBlocked = true } = options
-  const { isBlocked } = useUnfurl()
+export function useUrlDetection(
+  text: string,
+  options: UseUrlDetectionOptions = {},
+): DetectedUrl[] {
+  const { maxUrls = 10, filterBlocked = true } = options;
+  const { isBlocked } = useUnfurl();
 
   return useMemo(() => {
-    const urls = extractUrls(text)
-    const detected: DetectedUrl[] = []
+    const urls = extractUrls(text);
+    const detected: DetectedUrl[] = [];
 
     for (const url of urls) {
-      if (detected.length >= maxUrls) break
+      if (detected.length >= maxUrls) break;
 
-      const blocked = isBlocked(url)
-      if (filterBlocked && blocked) continue
+      const blocked = isBlocked(url);
+      if (filterBlocked && blocked) continue;
 
-      const index = text.indexOf(url)
+      const index = text.indexOf(url);
       detected.push({
         url,
         type: detectUrlType(url),
@@ -144,11 +154,11 @@ export function useUrlDetection(text: string, options: UseUrlDetectionOptions = 
         isBlocked: blocked,
         index,
         length: url.length,
-      })
+      });
     }
 
-    return detected
-  }, [text, maxUrls, filterBlocked, isBlocked])
+    return detected;
+  }, [text, maxUrls, filterBlocked, isBlocked]);
 }
 
 // ============================================================================
@@ -156,17 +166,19 @@ export function useUrlDetection(text: string, options: UseUrlDetectionOptions = 
 // ============================================================================
 
 export interface UseUrlValidationResult {
-  isValid: boolean
-  domain: string | null
-  protocol: string | null
-  type: ReturnType<typeof detectUrlType>
-  isBlocked: boolean
-  canPreview: boolean
+  isValid: boolean;
+  domain: string | null;
+  protocol: string | null;
+  type: ReturnType<typeof detectUrlType>;
+  isBlocked: boolean;
+  canPreview: boolean;
 }
 
-export function useUrlValidation(url: string | null | undefined): UseUrlValidationResult {
-  const { isBlocked } = useUnfurl()
-  const settings = useLinkPreviewStore(selectSettings)
+export function useUrlValidation(
+  url: string | null | undefined,
+): UseUrlValidationResult {
+  const { isBlocked } = useUnfurl();
+  const settings = useLinkPreviewStore(selectSettings);
 
   return useMemo(() => {
     if (!url) {
@@ -174,48 +186,48 @@ export function useUrlValidation(url: string | null | undefined): UseUrlValidati
         isValid: false,
         domain: null,
         protocol: null,
-        type: 'generic' as const,
+        type: "generic" as const,
         isBlocked: false,
         canPreview: false,
-      }
+      };
     }
 
-    const valid = isValidUrl(url)
+    const valid = isValidUrl(url);
     if (!valid) {
       return {
         isValid: false,
         domain: null,
         protocol: null,
-        type: 'generic' as const,
+        type: "generic" as const,
         isBlocked: false,
         canPreview: false,
-      }
+      };
     }
 
     try {
-      const parsed = new URL(url)
-      const blocked = isBlocked(url)
-      const type = detectUrlType(url)
+      const parsed = new URL(url);
+      const blocked = isBlocked(url);
+      const type = detectUrlType(url);
 
       return {
         isValid: true,
-        domain: parsed.hostname.replace(/^www\./, ''),
-        protocol: parsed.protocol.replace(':', ''),
+        domain: parsed.hostname.replace(/^www\./, ""),
+        protocol: parsed.protocol.replace(":", ""),
         type,
         isBlocked: blocked,
         canPreview: settings.enabled && !blocked && mightHavePreview(url),
-      }
+      };
     } catch {
       return {
         isValid: false,
         domain: null,
         protocol: null,
-        type: 'generic' as const,
+        type: "generic" as const,
         isBlocked: false,
         canPreview: false,
-      }
+      };
     }
-  }, [url, isBlocked, settings.enabled])
+  }, [url, isBlocked, settings.enabled]);
 }
 
-export default useUnfurl
+export default useUnfurl;

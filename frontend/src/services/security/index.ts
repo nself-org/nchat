@@ -25,4 +25,4 @@ export {
   type WipeServiceEventType,
   type WipeServiceEvent,
   type WipeServiceEventListener,
-} from './wipe.service'
+} from "./wipe.service";

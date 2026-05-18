@@ -17,20 +17,24 @@ import type {
   SignedPreKey,
   OneTimePreKey,
   EncryptionConfig,
-} from '@/types/encryption'
+} from "@/types/encryption";
 
-import { EncryptionError, EncryptionErrorType, DEFAULT_ENCRYPTION_CONFIG } from '@/types/encryption'
+import {
+  EncryptionError,
+  EncryptionErrorType,
+  DEFAULT_ENCRYPTION_CONFIG,
+} from "@/types/encryption";
 import {
   uint8ArrayToBase64,
   base64ToUint8Array,
   uint8ArrayToHex,
   randomBytes,
-} from './crypto-primitives'
-import { X3DH, X3DHInitialMessage } from './key-exchange'
-import { getIdentityManager } from './identity'
-import { getSignedPreKeyManager } from './prekey'
+} from "./crypto-primitives";
+import { X3DH, X3DHInitialMessage } from "./key-exchange";
+import { getIdentityManager } from "./identity";
+import { getSignedPreKeyManager } from "./prekey";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -40,43 +44,43 @@ import { logger } from '@/lib/logger'
  * Session identifier (user_id + device_id)
  */
 export interface SessionId {
-  peerId: string
-  deviceId?: string
+  peerId: string;
+  deviceId?: string;
 }
 
 /**
  * Stored session data (serializable)
  */
 export interface StoredSession {
-  peerId: string
-  deviceId?: string
-  state: string // base64-encoded encrypted state
-  version: number
-  createdAt: number
-  updatedAt: number
+  peerId: string;
+  deviceId?: string;
+  state: string; // base64-encoded encrypted state
+  version: number;
+  createdAt: number;
+  updatedAt: number;
 }
 
 /**
  * Session info for display
  */
 export interface SessionInfo {
-  peerId: string
-  deviceId?: string
-  isActive: boolean
-  lastActivityAt: Date
-  messageCount: number
-  hasForwardSecrecy: boolean
+  peerId: string;
+  deviceId?: string;
+  isActive: boolean;
+  lastActivityAt: Date;
+  messageCount: number;
+  hasForwardSecrecy: boolean;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const SESSION_STORAGE_KEY_PREFIX = 'nchat_session_'
-const SESSION_DB_NAME = 'nchat_sessions'
-const SESSION_STORE_NAME = 'sessions'
-const SESSION_VERSION = 1
-const MAX_SKIPPED_KEYS = 1000
+const SESSION_STORAGE_KEY_PREFIX = "nchat_session_";
+const SESSION_DB_NAME = "nchat_sessions";
+const SESSION_STORE_NAME = "sessions";
+const SESSION_VERSION = 1;
+const MAX_SKIPPED_KEYS = 1000;
 
 // ============================================================================
 // Session Manager
@@ -89,14 +93,14 @@ const MAX_SKIPPED_KEYS = 1000
  * Handles session creation, retrieval, storage, and cleanup.
  */
 export class SessionManager {
-  private static instance: SessionManager
-  private sessions: Map<string, SessionState> = new Map()
-  private db: IDBDatabase | null = null
-  private initialized = false
-  private config: EncryptionConfig
+  private static instance: SessionManager;
+  private sessions: Map<string, SessionState> = new Map();
+  private db: IDBDatabase | null = null;
+  private initialized = false;
+  private config: EncryptionConfig;
 
   private constructor(config?: Partial<EncryptionConfig>) {
-    this.config = { ...DEFAULT_ENCRYPTION_CONFIG, ...config }
+    this.config = { ...DEFAULT_ENCRYPTION_CONFIG, ...config };
   }
 
   /**
@@ -104,9 +108,9 @@ export class SessionManager {
    */
   static getInstance(config?: Partial<EncryptionConfig>): SessionManager {
     if (!SessionManager.instance) {
-      SessionManager.instance = new SessionManager(config)
+      SessionManager.instance = new SessionManager(config);
     }
-    return SessionManager.instance
+    return SessionManager.instance;
   }
 
   /**
@@ -114,18 +118,18 @@ export class SessionManager {
    * Opens the IndexedDB database and loads cached sessions
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return
+    if (this.initialized) return;
 
     try {
-      this.db = await this.openDatabase()
-      await this.loadSessions()
-      this.initialized = true
+      this.db = await this.openDatabase();
+      await this.loadSessions();
+      this.initialized = true;
     } catch (error) {
       throw new EncryptionError(
         EncryptionErrorType.STORAGE_ERROR,
-        'Failed to initialize session manager',
-        error
-      )
+        "Failed to initialize session manager",
+        error,
+      );
     }
   }
 
@@ -136,17 +140,25 @@ export class SessionManager {
    * @param preKeyBundle - The peer's prekey bundle
    * @returns The initial message to send with the first encrypted message
    */
-  async createSession(peerId: string, preKeyBundle: PreKeyBundle): Promise<X3DHInitialMessage> {
-    await this.ensureInitialized()
+  async createSession(
+    peerId: string,
+    preKeyBundle: PreKeyBundle,
+  ): Promise<X3DHInitialMessage> {
+    await this.ensureInitialized();
 
-    const identityManager = getIdentityManager()
-    const identityKeyPair = await identityManager.getIdentityKeyPair()
+    const identityManager = getIdentityManager();
+    const identityKeyPair = await identityManager.getIdentityKeyPair();
 
     // Perform X3DH key exchange
-    const x3dhResult = await X3DH.initiatorCalculateSecret(identityKeyPair, preKeyBundle)
+    const x3dhResult = await X3DH.initiatorCalculateSecret(
+      identityKeyPair,
+      preKeyBundle,
+    );
 
     // Derive initial keys
-    const { rootKey, chainKey } = await X3DH.deriveInitialKeys(x3dhResult.sharedSecret)
+    const { rootKey, chainKey } = await X3DH.deriveInitialKeys(
+      x3dhResult.sharedSecret,
+    );
 
     // Create initial session state
     const sessionState: SessionState = {
@@ -162,18 +174,18 @@ export class SessionManager {
       skippedMessageKeys: [],
       createdAt: Date.now(),
       lastActivityAt: Date.now(),
-    }
+    };
 
     // Store the session
-    await this.storeSession(peerId, sessionState)
+    await this.storeSession(peerId, sessionState);
 
     // Create the initial message
     return X3DH.createInitialMessage(
       identityKeyPair.publicKey,
       x3dhResult.ephemeralKeyPair.publicKey,
       preKeyBundle.signedPreKey.keyId,
-      preKeyBundle.oneTimePreKey?.keyId
-    )
+      preKeyBundle.oneTimePreKey?.keyId,
+    );
   }
 
   /**
@@ -185,32 +197,38 @@ export class SessionManager {
    */
   async createSessionFromPreKeyMessage(
     senderId: string,
-    initialMessage: X3DHInitialMessage
+    initialMessage: X3DHInitialMessage,
   ): Promise<SessionState> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    const identityManager = getIdentityManager()
-    const signedPreKeyManager = getSignedPreKeyManager()
+    const identityManager = getIdentityManager();
+    const signedPreKeyManager = getSignedPreKeyManager();
 
-    const identityKeyPair = await identityManager.getIdentityKeyPair()
+    const identityKeyPair = await identityManager.getIdentityKeyPair();
 
     // Get the signed prekey that was used
-    const signedPreKey = await signedPreKeyManager.getSignedPreKey(initialMessage.signedPreKeyId)
+    const signedPreKey = await signedPreKeyManager.getSignedPreKey(
+      initialMessage.signedPreKeyId,
+    );
 
     if (!signedPreKey) {
       throw new EncryptionError(
         EncryptionErrorType.PREKEY_NOT_FOUND,
-        `Signed prekey ${initialMessage.signedPreKeyId} not found`
-      )
+        `Signed prekey ${initialMessage.signedPreKeyId} not found`,
+      );
     }
 
     // Get the one-time prekey if used
-    let oneTimePreKey: OneTimePreKey | null = null
+    let oneTimePreKey: OneTimePreKey | null = null;
     if (initialMessage.oneTimePreKeyId !== undefined) {
-      oneTimePreKey = await this.getOneTimePreKey(initialMessage.oneTimePreKeyId)
+      oneTimePreKey = await this.getOneTimePreKey(
+        initialMessage.oneTimePreKeyId,
+      );
       if (!oneTimePreKey) {
         // One-time prekey may have been used already - proceed without it
-        logger.warn(`One-time prekey ${initialMessage.oneTimePreKeyId} not found`)
+        logger.warn(
+          `One-time prekey ${initialMessage.oneTimePreKeyId} not found`,
+        );
       }
     }
 
@@ -220,11 +238,13 @@ export class SessionManager {
       signedPreKey,
       oneTimePreKey,
       initialMessage.identityKey,
-      initialMessage.ephemeralKey
-    )
+      initialMessage.ephemeralKey,
+    );
 
     // Derive initial keys
-    const { rootKey, chainKey } = await X3DH.deriveInitialKeys(x3dhResult.sharedSecret)
+    const { rootKey, chainKey } = await X3DH.deriveInitialKeys(
+      x3dhResult.sharedSecret,
+    );
 
     // Create session state (as receiver)
     const sessionState: SessionState = {
@@ -240,17 +260,17 @@ export class SessionManager {
       skippedMessageKeys: [],
       createdAt: Date.now(),
       lastActivityAt: Date.now(),
-    }
+    };
 
     // Store the session
-    await this.storeSession(senderId, sessionState)
+    await this.storeSession(senderId, sessionState);
 
     // Mark one-time prekey as used
     if (oneTimePreKey && initialMessage.oneTimePreKeyId !== undefined) {
-      await this.markOneTimePreKeyUsed(initialMessage.oneTimePreKeyId)
+      await this.markOneTimePreKeyUsed(initialMessage.oneTimePreKeyId);
     }
 
-    return sessionState
+    return sessionState;
   }
 
   /**
@@ -260,8 +280,8 @@ export class SessionManager {
    * @returns The session state or null if no session exists
    */
   async getSession(peerId: string): Promise<SessionState | null> {
-    await this.ensureInitialized()
-    return this.sessions.get(this.getSessionKey(peerId)) || null
+    await this.ensureInitialized();
+    return this.sessions.get(this.getSessionKey(peerId)) || null;
   }
 
   /**
@@ -271,8 +291,8 @@ export class SessionManager {
    * @returns True if a session exists
    */
   async hasSession(peerId: string): Promise<boolean> {
-    await this.ensureInitialized()
-    return this.sessions.has(this.getSessionKey(peerId))
+    await this.ensureInitialized();
+    return this.sessions.has(this.getSessionKey(peerId));
   }
 
   /**
@@ -281,11 +301,14 @@ export class SessionManager {
    * @param peerId - The peer's user ID
    * @param sessionState - The updated session state
    */
-  async updateSession(peerId: string, sessionState: SessionState): Promise<void> {
-    await this.ensureInitialized()
+  async updateSession(
+    peerId: string,
+    sessionState: SessionState,
+  ): Promise<void> {
+    await this.ensureInitialized();
 
-    sessionState.lastActivityAt = Date.now()
-    await this.storeSession(peerId, sessionState)
+    sessionState.lastActivityAt = Date.now();
+    await this.storeSession(peerId, sessionState);
   }
 
   /**
@@ -294,18 +317,18 @@ export class SessionManager {
    * @param peerId - The peer's user ID
    */
   async deleteSession(peerId: string): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    const key = this.getSessionKey(peerId)
-    this.sessions.delete(key)
+    const key = this.getSessionKey(peerId);
+    this.sessions.delete(key);
 
     if (this.db) {
-      await this.deleteFromDatabase(key)
+      await this.deleteFromDatabase(key);
     }
 
     // Also remove from localStorage
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(SESSION_STORAGE_KEY_PREFIX + key)
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(SESSION_STORAGE_KEY_PREFIX + key);
     }
   }
 
@@ -316,16 +339,19 @@ export class SessionManager {
    * @returns Session info or null if no session exists
    */
   async getSessionInfo(peerId: string): Promise<SessionInfo | null> {
-    const session = await this.getSession(peerId)
-    if (!session) return null
+    const session = await this.getSession(peerId);
+    if (!session) return null;
 
     return {
       peerId,
       isActive: true,
       lastActivityAt: new Date(session.lastActivityAt),
-      messageCount: session.sendingMessageNumber + session.receivingMessageNumber,
-      hasForwardSecrecy: session.sendingRatchetKey !== null || session.receivingRatchetKey !== null,
-    }
+      messageCount:
+        session.sendingMessageNumber + session.receivingMessageNumber,
+      hasForwardSecrecy:
+        session.sendingRatchetKey !== null ||
+        session.receivingRatchetKey !== null,
+    };
   }
 
   /**
@@ -334,22 +360,24 @@ export class SessionManager {
    * @returns Array of session info objects
    */
   async getAllSessions(): Promise<SessionInfo[]> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    const sessions: SessionInfo[] = []
+    const sessions: SessionInfo[] = [];
     for (const [key, session] of this.sessions) {
-      const peerId = this.getPeerIdFromKey(key)
+      const peerId = this.getPeerIdFromKey(key);
       sessions.push({
         peerId,
         isActive: true,
         lastActivityAt: new Date(session.lastActivityAt),
-        messageCount: session.sendingMessageNumber + session.receivingMessageNumber,
+        messageCount:
+          session.sendingMessageNumber + session.receivingMessageNumber,
         hasForwardSecrecy:
-          session.sendingRatchetKey !== null || session.receivingRatchetKey !== null,
-      })
+          session.sendingRatchetKey !== null ||
+          session.receivingRatchetKey !== null,
+      });
     }
 
-    return sessions
+    return sessions;
   }
 
   /**
@@ -364,14 +392,14 @@ export class SessionManager {
     peerId: string,
     ratchetKey: string,
     messageNumber: number,
-    messageKey: Uint8Array
+    messageKey: Uint8Array,
   ): Promise<void> {
-    const session = await this.getSession(peerId)
+    const session = await this.getSession(peerId);
     if (!session) {
       throw new EncryptionError(
         EncryptionErrorType.NO_SESSION,
-        `No session found for peer ${peerId}`
-      )
+        `No session found for peer ${peerId}`,
+      );
     }
 
     // Add the skipped key
@@ -379,14 +407,14 @@ export class SessionManager {
       ratchetKey,
       messageNumber,
       messageKey,
-    })
+    });
 
     // Limit the number of skipped keys
     if (session.skippedMessageKeys.length > MAX_SKIPPED_KEYS) {
-      session.skippedMessageKeys.shift()
+      session.skippedMessageKeys.shift();
     }
 
-    await this.updateSession(peerId, session)
+    await this.updateSession(peerId, session);
   }
 
   /**
@@ -400,47 +428,47 @@ export class SessionManager {
   async getAndRemoveSkippedMessageKey(
     peerId: string,
     ratchetKey: string,
-    messageNumber: number
+    messageNumber: number,
   ): Promise<Uint8Array | null> {
-    const session = await this.getSession(peerId)
-    if (!session) return null
+    const session = await this.getSession(peerId);
+    if (!session) return null;
 
     const index = session.skippedMessageKeys.findIndex(
-      (k) => k.ratchetKey === ratchetKey && k.messageNumber === messageNumber
-    )
+      (k) => k.ratchetKey === ratchetKey && k.messageNumber === messageNumber,
+    );
 
-    if (index === -1) return null
+    if (index === -1) return null;
 
-    const [skipped] = session.skippedMessageKeys.splice(index, 1)
-    await this.updateSession(peerId, session)
+    const [skipped] = session.skippedMessageKeys.splice(index, 1);
+    await this.updateSession(peerId, session);
 
-    return skipped.messageKey
+    return skipped.messageKey;
   }
 
   /**
    * Clears all sessions
    */
   async clearAllSessions(): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    this.sessions.clear()
+    this.sessions.clear();
 
     if (this.db) {
-      const tx = this.db.transaction(SESSION_STORE_NAME, 'readwrite')
-      const store = tx.objectStore(SESSION_STORE_NAME)
-      store.clear()
+      const tx = this.db.transaction(SESSION_STORE_NAME, "readwrite");
+      const store = tx.objectStore(SESSION_STORE_NAME);
+      store.clear();
     }
 
     // Clear localStorage
-    if (typeof localStorage !== 'undefined') {
-      const keysToRemove: string[] = []
+    if (typeof localStorage !== "undefined") {
+      const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i)
+        const key = localStorage.key(i);
         if (key?.startsWith(SESSION_STORAGE_KEY_PREFIX)) {
-          keysToRemove.push(key)
+          keysToRemove.push(key);
         }
       }
-      keysToRemove.forEach((key) => localStorage.removeItem(key))
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
     }
   }
 
@@ -450,20 +478,20 @@ export class SessionManager {
    * @param maxAge - Maximum session age in milliseconds
    */
   async cleanupOldSessions(maxAge?: number): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    const cutoff = Date.now() - (maxAge || this.config.sessionTimeout)
-    const toDelete: string[] = []
+    const cutoff = Date.now() - (maxAge || this.config.sessionTimeout);
+    const toDelete: string[] = [];
 
     for (const [key, session] of this.sessions) {
       if (session.lastActivityAt < cutoff) {
-        toDelete.push(key)
+        toDelete.push(key);
       }
     }
 
     for (const key of toDelete) {
-      const peerId = this.getPeerIdFromKey(key)
-      await this.deleteSession(peerId)
+      const peerId = this.getPeerIdFromKey(key);
+      await this.deleteSession(peerId);
     }
   }
 
@@ -476,7 +504,7 @@ export class SessionManager {
    */
   private async ensureInitialized(): Promise<void> {
     if (!this.initialized) {
-      await this.initialize()
+      await this.initialize();
     }
   }
 
@@ -484,32 +512,35 @@ export class SessionManager {
    * Gets the storage key for a peer
    */
   private getSessionKey(peerId: string, deviceId?: string): string {
-    return deviceId ? `${peerId}_${deviceId}` : peerId
+    return deviceId ? `${peerId}_${deviceId}` : peerId;
   }
 
   /**
    * Extracts peer ID from storage key
    */
   private getPeerIdFromKey(key: string): string {
-    const parts = key.split('_')
-    return parts[0]
+    const parts = key.split("_");
+    return parts[0];
   }
 
   /**
    * Stores a session in memory and persistent storage
    */
-  private async storeSession(peerId: string, sessionState: SessionState): Promise<void> {
-    const key = this.getSessionKey(peerId)
-    this.sessions.set(key, sessionState)
+  private async storeSession(
+    peerId: string,
+    sessionState: SessionState,
+  ): Promise<void> {
+    const key = this.getSessionKey(peerId);
+    this.sessions.set(key, sessionState);
 
     // Store in IndexedDB
     if (this.db) {
-      await this.saveToDatabase(key, sessionState)
+      await this.saveToDatabase(key, sessionState);
     }
 
     // Fallback to localStorage
-    if (typeof localStorage !== 'undefined') {
-      this.saveToLocalStorage(key, sessionState)
+    if (typeof localStorage !== "undefined") {
+      this.saveToLocalStorage(key, sessionState);
     }
   }
 
@@ -518,27 +549,29 @@ export class SessionManager {
    */
   private async openDatabase(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      if (typeof indexedDB === 'undefined') {
-        reject(new Error('IndexedDB not available'))
-        return
+      if (typeof indexedDB === "undefined") {
+        reject(new Error("IndexedDB not available"));
+        return;
       }
 
-      const request = indexedDB.open(SESSION_DB_NAME, SESSION_VERSION)
+      const request = indexedDB.open(SESSION_DB_NAME, SESSION_VERSION);
 
-      request.onerror = () => reject(request.error)
+      request.onerror = () => reject(request.error);
 
-      request.onsuccess = () => resolve(request.result)
+      request.onsuccess = () => resolve(request.result);
 
       request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result
+        const db = (event.target as IDBOpenDBRequest).result;
 
         if (!db.objectStoreNames.contains(SESSION_STORE_NAME)) {
-          const store = db.createObjectStore(SESSION_STORE_NAME, { keyPath: 'key' })
-          store.createIndex('peerId', 'peerId', { unique: false })
-          store.createIndex('updatedAt', 'updatedAt', { unique: false })
+          const store = db.createObjectStore(SESSION_STORE_NAME, {
+            keyPath: "key",
+          });
+          store.createIndex("peerId", "peerId", { unique: false });
+          store.createIndex("updatedAt", "updatedAt", { unique: false });
         }
-      }
-    })
+      };
+    });
   }
 
   /**
@@ -548,66 +581,74 @@ export class SessionManager {
     // Try IndexedDB first
     if (this.db) {
       try {
-        const sessions = await this.loadFromDatabase()
+        const sessions = await this.loadFromDatabase();
         for (const session of sessions) {
-          this.sessions.set(session.key, this.deserializeSessionState(session.state))
+          this.sessions.set(
+            session.key,
+            this.deserializeSessionState(session.state),
+          );
         }
-        return
+        return;
       } catch (error) {
-        logger.error('Failed to load sessions from IndexedDB:', error)
+        logger.error("Failed to load sessions from IndexedDB:", error);
       }
     }
 
     // Fallback to localStorage
-    if (typeof localStorage !== 'undefined') {
-      this.loadFromLocalStorage()
+    if (typeof localStorage !== "undefined") {
+      this.loadFromLocalStorage();
     }
   }
 
   /**
    * Loads sessions from IndexedDB
    */
-  private async loadFromDatabase(): Promise<Array<{ key: string; state: string }>> {
+  private async loadFromDatabase(): Promise<
+    Array<{ key: string; state: string }>
+  > {
     return new Promise((resolve, reject) => {
       if (!this.db) {
-        resolve([])
-        return
+        resolve([]);
+        return;
       }
 
-      const tx = this.db.transaction(SESSION_STORE_NAME, 'readonly')
-      const store = tx.objectStore(SESSION_STORE_NAME)
-      const request = store.getAll()
+      const tx = this.db.transaction(SESSION_STORE_NAME, "readonly");
+      const store = tx.objectStore(SESSION_STORE_NAME);
+      const request = store.getAll();
 
-      request.onerror = () => reject(request.error)
-      request.onsuccess = () => resolve(request.result || [])
-    })
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result || []);
+    });
   }
 
   /**
    * Saves a session to IndexedDB
    */
-  private async saveToDatabase(key: string, sessionState: SessionState): Promise<void> {
+  private async saveToDatabase(
+    key: string,
+    sessionState: SessionState,
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
-        resolve()
-        return
+        resolve();
+        return;
       }
 
-      const tx = this.db.transaction(SESSION_STORE_NAME, 'readwrite')
-      const store = tx.objectStore(SESSION_STORE_NAME)
+      const tx = this.db.transaction(SESSION_STORE_NAME, "readwrite");
+      const store = tx.objectStore(SESSION_STORE_NAME);
 
       const record = {
         key,
         peerId: this.getPeerIdFromKey(key),
         state: this.serializeSessionState(sessionState),
         updatedAt: Date.now(),
-      }
+      };
 
-      const request = store.put(record)
+      const request = store.put(record);
 
-      request.onerror = () => reject(request.error)
-      request.onsuccess = () => resolve()
-    })
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve();
+    });
   }
 
   /**
@@ -616,17 +657,17 @@ export class SessionManager {
   private async deleteFromDatabase(key: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
-        resolve()
-        return
+        resolve();
+        return;
       }
 
-      const tx = this.db.transaction(SESSION_STORE_NAME, 'readwrite')
-      const store = tx.objectStore(SESSION_STORE_NAME)
-      const request = store.delete(key)
+      const tx = this.db.transaction(SESSION_STORE_NAME, "readwrite");
+      const store = tx.objectStore(SESSION_STORE_NAME);
+      const request = store.delete(key);
 
-      request.onerror = () => reject(request.error)
-      request.onsuccess = () => resolve()
-    })
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve();
+    });
   }
 
   /**
@@ -634,10 +675,10 @@ export class SessionManager {
    */
   private saveToLocalStorage(key: string, sessionState: SessionState): void {
     try {
-      const serialized = this.serializeSessionState(sessionState)
-      localStorage.setItem(SESSION_STORAGE_KEY_PREFIX + key, serialized)
+      const serialized = this.serializeSessionState(sessionState);
+      localStorage.setItem(SESSION_STORAGE_KEY_PREFIX + key, serialized);
     } catch (error) {
-      logger.error('Failed to save session to localStorage:', error)
+      logger.error("Failed to save session to localStorage:", error);
     }
   }
 
@@ -646,16 +687,16 @@ export class SessionManager {
    */
   private loadFromLocalStorage(): void {
     for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
+      const key = localStorage.key(i);
       if (key?.startsWith(SESSION_STORAGE_KEY_PREFIX)) {
         try {
-          const stored = localStorage.getItem(key)
+          const stored = localStorage.getItem(key);
           if (stored) {
-            const sessionKey = key.replace(SESSION_STORAGE_KEY_PREFIX, '')
-            this.sessions.set(sessionKey, this.deserializeSessionState(stored))
+            const sessionKey = key.replace(SESSION_STORAGE_KEY_PREFIX, "");
+            this.sessions.set(sessionKey, this.deserializeSessionState(stored));
           }
         } catch (error) {
-          logger.error(`Failed to load session ${key}:`, error)
+          logger.error(`Failed to load session ${key}:`, error);
         }
       }
     }
@@ -668,7 +709,9 @@ export class SessionManager {
     const serializable = {
       remoteIdentityKey: uint8ArrayToBase64(state.remoteIdentityKey),
       rootKey: uint8ArrayToBase64(state.rootKey),
-      sendingChainKey: state.sendingChainKey ? uint8ArrayToBase64(state.sendingChainKey) : null,
+      sendingChainKey: state.sendingChainKey
+        ? uint8ArrayToBase64(state.sendingChainKey)
+        : null,
       receivingChainKey: state.receivingChainKey
         ? uint8ArrayToBase64(state.receivingChainKey)
         : null,
@@ -688,21 +731,23 @@ export class SessionManager {
       })),
       createdAt: state.createdAt,
       lastActivityAt: state.lastActivityAt,
-    }
+    };
 
-    return JSON.stringify(serializable)
+    return JSON.stringify(serializable);
   }
 
   /**
    * Deserializes session state from storage
    */
   private deserializeSessionState(serialized: string): SessionState {
-    const parsed = JSON.parse(serialized)
+    const parsed = JSON.parse(serialized);
 
     return {
       remoteIdentityKey: base64ToUint8Array(parsed.remoteIdentityKey),
       rootKey: base64ToUint8Array(parsed.rootKey),
-      sendingChainKey: parsed.sendingChainKey ? base64ToUint8Array(parsed.sendingChainKey) : null,
+      sendingChainKey: parsed.sendingChainKey
+        ? base64ToUint8Array(parsed.sendingChainKey)
+        : null,
       receivingChainKey: parsed.receivingChainKey
         ? base64ToUint8Array(parsed.receivingChainKey)
         : null,
@@ -716,15 +761,19 @@ export class SessionManager {
       receivingMessageNumber: parsed.receivingMessageNumber,
       previousChainLength: parsed.previousChainLength,
       skippedMessageKeys: parsed.skippedMessageKeys.map(
-        (k: { ratchetKey: string; messageNumber: number; messageKey: string }) => ({
+        (k: {
+          ratchetKey: string;
+          messageNumber: number;
+          messageKey: string;
+        }) => ({
           ratchetKey: k.ratchetKey,
           messageNumber: k.messageNumber,
           messageKey: base64ToUint8Array(k.messageKey),
-        })
+        }),
       ),
       createdAt: parsed.createdAt,
       lastActivityAt: parsed.lastActivityAt,
-    }
+    };
   }
 
   /**
@@ -733,7 +782,7 @@ export class SessionManager {
   private async getOneTimePreKey(keyId: number): Promise<OneTimePreKey | null> {
     // This should be implemented to retrieve from actual one-time prekey storage
     // For now, return null (would be handled by a separate OTP manager)
-    return null
+    return null;
   }
 
   /**
@@ -753,7 +802,7 @@ export class SessionManager {
  * Gets the global session manager instance
  */
 export function getSessionManager(): SessionManager {
-  return SessionManager.getInstance()
+  return SessionManager.getInstance();
 }
 
 /**
@@ -761,35 +810,35 @@ export function getSessionManager(): SessionManager {
  */
 export async function createSession(
   peerId: string,
-  preKeyBundle: PreKeyBundle
+  preKeyBundle: PreKeyBundle,
 ): Promise<X3DHInitialMessage> {
-  return getSessionManager().createSession(peerId, preKeyBundle)
+  return getSessionManager().createSession(peerId, preKeyBundle);
 }
 
 /**
  * Gets an existing session
  */
 export async function getSession(peerId: string): Promise<SessionState | null> {
-  return getSessionManager().getSession(peerId)
+  return getSessionManager().getSession(peerId);
 }
 
 /**
  * Checks if a session exists
  */
 export async function hasSession(peerId: string): Promise<boolean> {
-  return getSessionManager().hasSession(peerId)
+  return getSessionManager().hasSession(peerId);
 }
 
 /**
  * Deletes a session
  */
 export async function deleteSession(peerId: string): Promise<void> {
-  return getSessionManager().deleteSession(peerId)
+  return getSessionManager().deleteSession(peerId);
 }
 
 /**
  * Gets info about all sessions
  */
 export async function getAllSessionInfo(): Promise<SessionInfo[]> {
-  return getSessionManager().getAllSessions()
+  return getSessionManager().getAllSessions();
 }

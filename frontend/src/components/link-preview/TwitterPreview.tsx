@@ -1,22 +1,22 @@
-'use client'
+"use client";
 
 /**
  * TwitterPreview - Twitter/X post embed preview
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import type { TwitterPostData } from '@/lib/link-preview'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import type { TwitterPostData } from "@/lib/link-preview";
 
 export interface TwitterPreviewProps {
   /** Twitter post data */
-  data: TwitterPostData
+  data: TwitterPostData;
   /** Show embed iframe */
-  showEmbed?: boolean
+  showEmbed?: boolean;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Children (for action buttons) */
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export function TwitterPreview({
@@ -26,22 +26,26 @@ export function TwitterPreview({
   children,
 }: TwitterPreviewProps) {
   const handleClick = () => {
-    window.open(data.url, '_blank', 'noopener,noreferrer')
-  }
+    window.open(data.url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm',
-        'transition-all duration-200 hover:border-[#1DA1F2]/50 hover:shadow-md',
-        className
+        "group relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
+        "transition-all duration-200 hover:border-[#1DA1F2]/50 hover:shadow-md",
+        className,
       )}
     >
       {/* Header */}
       <div className="flex items-center gap-3 border-b p-3">
         {/* Twitter/X logo */}
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-black">
-          <svg className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+          <svg
+            className="h-4 w-4 text-white"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
         </div>
@@ -61,7 +65,9 @@ export function TwitterPreview({
               </svg>
             )}
           </div>
-          <span className="text-xs text-muted-foreground">@{data.authorUsername}</span>
+          <span className="text-xs text-muted-foreground">
+            @{data.authorUsername}
+          </span>
         </div>
       </div>
 
@@ -72,22 +78,26 @@ export function TwitterPreview({
         role="link"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleClick()
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
           }
         }}
       >
-        {data.content && <p className="whitespace-pre-wrap break-words text-sm">{data.content}</p>}
+        {data.content && (
+          <p className="whitespace-pre-wrap break-words text-sm">
+            {data.content}
+          </p>
+        )}
 
         {/* Media */}
         {data.mediaUrls && data.mediaUrls.length > 0 && (
           <div
             className={cn(
-              'mt-3 grid gap-1 overflow-hidden rounded-lg',
-              data.mediaUrls.length === 1 && 'grid-cols-1',
-              data.mediaUrls.length === 2 && 'grid-cols-2',
-              data.mediaUrls.length >= 3 && 'grid-cols-2'
+              "mt-3 grid gap-1 overflow-hidden rounded-lg",
+              data.mediaUrls.length === 1 && "grid-cols-1",
+              data.mediaUrls.length === 2 && "grid-cols-2",
+              data.mediaUrls.length >= 3 && "grid-cols-2",
             )}
           >
             {data.mediaUrls.slice(0, 4).map((url, i) => (
@@ -96,9 +106,9 @@ export function TwitterPreview({
                 src={url}
                 alt=""
                 className={cn(
-                  'w-full object-cover',
-                  data.mediaUrls!.length === 1 && 'max-h-80',
-                  data.mediaUrls!.length > 1 && 'aspect-square'
+                  "w-full object-cover",
+                  data.mediaUrls!.length === 1 && "max-h-80",
+                  data.mediaUrls!.length > 1 && "aspect-square",
                 )}
                 loading="lazy"
               />
@@ -110,7 +120,9 @@ export function TwitterPreview({
         {data.quotedTweet && (
           <div className="bg-muted/50 mt-3 rounded-lg border p-3">
             <div className="mb-1 flex items-center gap-2">
-              <span className="text-xs font-medium">{data.quotedTweet.authorDisplayName}</span>
+              <span className="text-xs font-medium">
+                {data.quotedTweet.authorDisplayName}
+              </span>
               <span className="text-xs text-muted-foreground">
                 @{data.quotedTweet.authorUsername}
               </span>
@@ -125,7 +137,12 @@ export function TwitterPreview({
         <div className="flex items-center gap-4 px-3 pb-3 text-xs text-muted-foreground">
           {data.replyCount !== undefined && (
             <span className="flex items-center gap-1">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -138,7 +155,12 @@ export function TwitterPreview({
           )}
           {data.retweetCount !== undefined && (
             <span className="flex items-center gap-1">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -151,7 +173,12 @@ export function TwitterPreview({
           )}
           {data.likeCount !== undefined && (
             <span className="flex items-center gap-1">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -179,7 +206,7 @@ export function TwitterPreview({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default TwitterPreview
+export default TwitterPreview;

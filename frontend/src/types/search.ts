@@ -5,10 +5,10 @@
  * Supports message search, user search, channel search, and file search.
  */
 
-import type { UserBasicInfo } from './user'
-import type { Channel } from './channel'
-import type { Message } from './message'
-import type { Attachment } from './attachment'
+import type { UserBasicInfo } from "./user";
+import type { Channel } from "./channel";
+import type { Message } from "./message";
+import type { Attachment } from "./attachment";
 
 // ============================================================================
 // Search Result Type Definitions
@@ -17,22 +17,27 @@ import type { Attachment } from './attachment'
 /**
  * Types of searchable entities.
  */
-export type SearchResultType = 'message' | 'user' | 'channel' | 'file' | 'thread'
+export type SearchResultType =
+  | "message"
+  | "user"
+  | "channel"
+  | "file"
+  | "thread";
 
 /**
  * Search scope options.
  */
-export type SearchScope = 'all' | 'messages' | 'users' | 'channels' | 'files'
+export type SearchScope = "all" | "messages" | "users" | "channels" | "files";
 
 /**
  * Search sort options.
  */
-export type SearchSortBy = 'relevance' | 'date' | 'popularity'
+export type SearchSortBy = "relevance" | "date" | "popularity";
 
 /**
  * Search sort order.
  */
-export type SearchSortOrder = 'asc' | 'desc'
+export type SearchSortOrder = "asc" | "desc";
 
 // ============================================================================
 // Search Query Types
@@ -43,15 +48,15 @@ export type SearchSortOrder = 'asc' | 'desc'
  */
 export interface SearchQuery {
   /** Search text */
-  query: string
+  query: string;
   /** Search scope */
-  scope: SearchScope
+  scope: SearchScope;
   /** Filters to apply */
-  filters?: SearchFilters
+  filters?: SearchFilters;
   /** Sort options */
-  sort?: SearchSortOptions
+  sort?: SearchSortOptions;
   /** Pagination */
-  pagination?: SearchPagination
+  pagination?: SearchPagination;
 }
 
 /**
@@ -59,27 +64,27 @@ export interface SearchQuery {
  */
 export interface AdvancedSearchQuery extends SearchQuery {
   /** Exact phrase to match */
-  exactPhrase?: string
+  exactPhrase?: string;
   /** Words that must be included */
-  includeWords?: string[]
+  includeWords?: string[];
   /** Words to exclude */
-  excludeWords?: string[]
+  excludeWords?: string[];
   /** Use fuzzy matching */
-  fuzzy?: boolean
+  fuzzy?: boolean;
   /** Fuzzy distance (1-3) */
-  fuzzyDistance?: number
+  fuzzyDistance?: number;
   /** Highlight matches */
-  highlight?: boolean
+  highlight?: boolean;
   /** Highlight tag (for HTML) */
-  highlightTag?: string
+  highlightTag?: string;
 }
 
 /**
  * Search sort options.
  */
 export interface SearchSortOptions {
-  sortBy: SearchSortBy
-  sortOrder: SearchSortOrder
+  sortBy: SearchSortBy;
+  sortOrder: SearchSortOrder;
 }
 
 /**
@@ -87,11 +92,11 @@ export interface SearchSortOptions {
  */
 export interface SearchPagination {
   /** Page number (1-based) */
-  page: number
+  page: number;
   /** Results per page */
-  perPage: number
+  perPage: number;
   /** Cursor for cursor-based pagination */
-  cursor?: string
+  cursor?: string;
 }
 
 // ============================================================================
@@ -103,19 +108,19 @@ export interface SearchPagination {
  */
 export interface SearchFilters {
   /** Filter by channel IDs */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Filter by user IDs (authors) */
-  userIds?: string[]
+  userIds?: string[];
   /** Filter by date range */
-  dateRange?: DateRangeFilter
+  dateRange?: DateRangeFilter;
   /** Filter by message properties */
-  message?: MessageSearchFilters
+  message?: MessageSearchFilters;
   /** Filter by file properties */
-  file?: FileSearchFilters
+  file?: FileSearchFilters;
   /** Filter by channel properties */
-  channel?: ChannelSearchFilters
+  channel?: ChannelSearchFilters;
   /** Filter by user properties */
-  user?: UserSearchFilters
+  user?: UserSearchFilters;
 }
 
 /**
@@ -123,47 +128,47 @@ export interface SearchFilters {
  */
 export interface DateRangeFilter {
   /** Start date (inclusive) */
-  from?: Date
+  from?: Date;
   /** End date (inclusive) */
-  to?: Date
+  to?: Date;
   /** Relative time (e.g., 'last_7_days') */
-  relative?: RelativeDateRange
+  relative?: RelativeDateRange;
 }
 
 /**
  * Relative date range options.
  */
 export type RelativeDateRange =
-  | 'today'
-  | 'yesterday'
-  | 'last_7_days'
-  | 'last_30_days'
-  | 'last_90_days'
-  | 'last_year'
-  | 'this_week'
-  | 'this_month'
-  | 'this_year'
+  | "today"
+  | "yesterday"
+  | "last_7_days"
+  | "last_30_days"
+  | "last_90_days"
+  | "last_year"
+  | "this_week"
+  | "this_month"
+  | "this_year";
 
 /**
  * Message-specific search filters.
  */
 export interface MessageSearchFilters {
   /** Has attachments */
-  hasAttachments?: boolean
+  hasAttachments?: boolean;
   /** Has links */
-  hasLinks?: boolean
+  hasLinks?: boolean;
   /** Has reactions */
-  hasReactions?: boolean
+  hasReactions?: boolean;
   /** Is pinned */
-  isPinned?: boolean
+  isPinned?: boolean;
   /** Is in thread */
-  isThreadReply?: boolean
+  isThreadReply?: boolean;
   /** Mentions current user */
-  mentionsMe?: boolean
+  mentionsMe?: boolean;
   /** From bots */
-  fromBots?: boolean
+  fromBots?: boolean;
   /** Message types to include */
-  messageTypes?: string[]
+  messageTypes?: string[];
 }
 
 /**
@@ -171,15 +176,15 @@ export interface MessageSearchFilters {
  */
 export interface FileSearchFilters {
   /** File types */
-  fileTypes?: ('image' | 'video' | 'audio' | 'document' | 'other')[]
+  fileTypes?: ("image" | "video" | "audio" | "document" | "other")[];
   /** File extensions */
-  extensions?: string[]
+  extensions?: string[];
   /** Min file size in bytes */
-  minSize?: number
+  minSize?: number;
   /** Max file size in bytes */
-  maxSize?: number
+  maxSize?: number;
   /** Uploaded by user IDs */
-  uploadedBy?: string[]
+  uploadedBy?: string[];
 }
 
 /**
@@ -187,13 +192,13 @@ export interface FileSearchFilters {
  */
 export interface ChannelSearchFilters {
   /** Channel types */
-  types?: ('public' | 'private' | 'direct' | 'group_dm')[]
+  types?: ("public" | "private" | "direct" | "group_dm")[];
   /** Include archived channels */
-  includeArchived?: boolean
+  includeArchived?: boolean;
   /** Only channels user is member of */
-  onlyJoined?: boolean
+  onlyJoined?: boolean;
   /** Has unread messages */
-  hasUnread?: boolean
+  hasUnread?: boolean;
 }
 
 /**
@@ -201,13 +206,13 @@ export interface ChannelSearchFilters {
  */
 export interface UserSearchFilters {
   /** User roles */
-  roles?: ('owner' | 'admin' | 'moderator' | 'member' | 'guest')[]
+  roles?: ("owner" | "admin" | "moderator" | "member" | "guest")[];
   /** Online status */
-  status?: ('online' | 'away' | 'dnd' | 'offline')[]
+  status?: ("online" | "away" | "dnd" | "offline")[];
   /** Include bots */
-  includeBots?: boolean
+  includeBots?: boolean;
   /** Include deactivated users */
-  includeDeactivated?: boolean
+  includeDeactivated?: boolean;
 }
 
 // ============================================================================
@@ -219,11 +224,11 @@ export interface UserSearchFilters {
  */
 export interface BaseSearchResult {
   /** Result type */
-  type: SearchResultType
+  type: SearchResultType;
   /** Relevance score */
-  score: number
+  score: number;
   /** Highlighted snippets */
-  highlights?: SearchHighlight[]
+  highlights?: SearchHighlight[];
 }
 
 /**
@@ -231,86 +236,89 @@ export interface BaseSearchResult {
  */
 export interface SearchHighlight {
   /** Field that was matched */
-  field: string
+  field: string;
   /** Highlighted text with markers */
-  text: string
+  text: string;
   /** Match positions */
-  positions?: { start: number; end: number }[]
+  positions?: { start: number; end: number }[];
 }
 
 /**
  * Message search result.
  */
 export interface MessageSearchResult extends BaseSearchResult {
-  type: 'message'
+  type: "message";
   /** The message */
-  message: Message
+  message: Message;
   /** Channel info */
-  channel: Pick<Channel, 'id' | 'name' | 'type'>
+  channel: Pick<Channel, "id" | "name" | "type">;
   /** Thread info (if thread reply) */
   thread?: {
-    id: string
-    rootMessagePreview: string
-  }
+    id: string;
+    rootMessagePreview: string;
+  };
 }
 
 /**
  * User search result.
  */
 export interface UserSearchResult extends BaseSearchResult {
-  type: 'user'
+  type: "user";
   /** The user */
   user: UserBasicInfo & {
-    bio?: string
-    email?: string
-  }
+    bio?: string;
+    email?: string;
+  };
   /** Mutual channels count */
-  mutualChannelsCount?: number
+  mutualChannelsCount?: number;
 }
 
 /**
  * Channel search result.
  */
 export interface ChannelSearchResult extends BaseSearchResult {
-  type: 'channel'
+  type: "channel";
   /** The channel */
-  channel: Pick<Channel, 'id' | 'name' | 'type' | 'description' | 'memberCount'>
+  channel: Pick<
+    Channel,
+    "id" | "name" | "type" | "description" | "memberCount"
+  >;
   /** Whether user is member */
-  isMember: boolean
+  isMember: boolean;
   /** Last activity */
-  lastActivityAt?: Date
+  lastActivityAt?: Date;
 }
 
 /**
  * File search result.
  */
 export interface FileSearchResult extends BaseSearchResult {
-  type: 'file'
+  type: "file";
   /** The attachment */
-  file: Attachment
+  file: Attachment;
   /** Message the file is attached to */
-  message: Pick<Message, 'id' | 'channelId' | 'createdAt'>
+  message: Pick<Message, "id" | "channelId" | "createdAt">;
   /** Channel info */
-  channel: Pick<Channel, 'id' | 'name'>
+  channel: Pick<Channel, "id" | "name">;
   /** Uploader info */
-  uploadedBy: UserBasicInfo
+  uploadedBy: UserBasicInfo;
 }
 
 /**
  * Thread search result.
  */
 export interface ThreadSearchResult extends BaseSearchResult {
-  type: 'thread'
+  type: "thread";
   /** Thread ID */
-  threadId: string
+  threadId: string;
   /** Root message */
-  rootMessage: Message
+  rootMessage: Message;
   /** Reply count */
-  replyCount: number
+  replyCount: number;
   /** Last reply */
-  lastReply?: Message
+  lastReply?: Message;
   /** Channel info */
-  channel: Pick<Channel, 'id' | 'name'>
+  channel: Pick<Channel, "id" | "name">;
 }
 
 /**
@@ -321,7 +329,7 @@ export type SearchResult =
   | UserSearchResult
   | ChannelSearchResult
   | FileSearchResult
-  | ThreadSearchResult
+  | ThreadSearchResult;
 
 // ============================================================================
 // Search Response Types
@@ -332,15 +340,15 @@ export type SearchResult =
  */
 export interface SearchResponse<T extends SearchResult = SearchResult> {
   /** Search results */
-  results: T[]
+  results: T[];
   /** Total results count */
-  totalCount: number
+  totalCount: number;
   /** Pagination info */
-  pagination: SearchResponsePagination
+  pagination: SearchResponsePagination;
   /** Search metadata */
-  metadata: SearchMetadata
+  metadata: SearchMetadata;
   /** Facets/aggregations */
-  facets?: SearchFacets
+  facets?: SearchFacets;
 }
 
 /**
@@ -348,15 +356,15 @@ export interface SearchResponse<T extends SearchResult = SearchResult> {
  */
 export interface SearchResponsePagination {
   /** Current page */
-  page: number
+  page: number;
   /** Results per page */
-  perPage: number
+  perPage: number;
   /** Total pages */
-  totalPages: number
+  totalPages: number;
   /** Has more results */
-  hasMore: boolean
+  hasMore: boolean;
   /** Next cursor (for cursor-based pagination) */
-  nextCursor?: string
+  nextCursor?: string;
 }
 
 /**
@@ -364,17 +372,17 @@ export interface SearchResponsePagination {
  */
 export interface SearchMetadata {
   /** Original query */
-  query: string
+  query: string;
   /** Time taken in milliseconds */
-  took: number
+  took: number;
   /** Search scope used */
-  scope: SearchScope
+  scope: SearchScope;
   /** Applied filters */
-  appliedFilters: string[]
+  appliedFilters: string[];
   /** Corrected query (if spell-check applied) */
-  correctedQuery?: string
+  correctedQuery?: string;
   /** Search suggestions */
-  suggestions?: string[]
+  suggestions?: string[];
 }
 
 /**
@@ -382,15 +390,15 @@ export interface SearchMetadata {
  */
 export interface SearchFacets {
   /** Results by type */
-  byType?: { type: SearchResultType; count: number }[]
+  byType?: { type: SearchResultType; count: number }[];
   /** Results by channel */
-  byChannel?: { channelId: string; channelName: string; count: number }[]
+  byChannel?: { channelId: string; channelName: string; count: number }[];
   /** Results by user */
-  byUser?: { userId: string; userName: string; count: number }[]
+  byUser?: { userId: string; userName: string; count: number }[];
   /** Results by date */
-  byDate?: { date: string; count: number }[]
+  byDate?: { date: string; count: number }[];
   /** Results by file type */
-  byFileType?: { fileType: string; count: number }[]
+  byFileType?: { fileType: string; count: number }[];
 }
 
 // ============================================================================
@@ -402,15 +410,15 @@ export interface SearchFacets {
  */
 export interface SearchSuggestion {
   /** Suggestion type */
-  type: 'query' | 'user' | 'channel' | 'filter'
+  type: "query" | "user" | "channel" | "filter";
   /** Display text */
-  text: string
+  text: string;
   /** Value to use */
-  value: string
+  value: string;
   /** Icon (emoji or URL) */
-  icon?: string
+  icon?: string;
   /** Description */
-  description?: string
+  description?: string;
 }
 
 /**
@@ -418,17 +426,17 @@ export interface SearchSuggestion {
  */
 export interface QuickSearchResult {
   /** Result type */
-  type: SearchResultType
+  type: SearchResultType;
   /** Display title */
-  title: string
+  title: string;
   /** Display subtitle */
-  subtitle?: string
+  subtitle?: string;
   /** Icon/avatar URL */
-  icon?: string
+  icon?: string;
   /** Navigation URL */
-  url: string
+  url: string;
   /** Entity ID */
-  id: string
+  id: string;
 }
 
 /**
@@ -437,15 +445,15 @@ export interface QuickSearchResult {
 export interface QuickSearchResponse {
   /** Quick results by category */
   results: {
-    messages: QuickSearchResult[]
-    users: QuickSearchResult[]
-    channels: QuickSearchResult[]
-    files: QuickSearchResult[]
-  }
+    messages: QuickSearchResult[];
+    users: QuickSearchResult[];
+    channels: QuickSearchResult[];
+    files: QuickSearchResult[];
+  };
   /** Total matches */
-  totalMatches: number
+  totalMatches: number;
   /** Has more results */
-  hasMore: boolean
+  hasMore: boolean;
 }
 
 // ============================================================================
@@ -457,17 +465,17 @@ export interface QuickSearchResponse {
  */
 export interface SearchHistoryItem {
   /** History item ID */
-  id: string
+  id: string;
   /** Search query */
-  query: string
+  query: string;
   /** Search scope */
-  scope: SearchScope
+  scope: SearchScope;
   /** Filters used */
-  filters?: SearchFilters
+  filters?: SearchFilters;
   /** When search was performed */
-  searchedAt: Date
+  searchedAt: Date;
   /** Number of results */
-  resultCount: number
+  resultCount: number;
 }
 
 /**
@@ -475,19 +483,19 @@ export interface SearchHistoryItem {
  */
 export interface SavedSearch {
   /** Saved search ID */
-  id: string
+  id: string;
   /** Display name */
-  name: string
+  name: string;
   /** Search query */
-  query: SearchQuery
+  query: SearchQuery;
   /** Who created it */
-  createdBy: string
+  createdBy: string;
   /** When it was created */
-  createdAt: Date
+  createdAt: Date;
   /** When it was last used */
-  lastUsedAt?: Date
+  lastUsedAt?: Date;
   /** Usage count */
-  usageCount: number
+  usageCount: number;
 }
 
 // ============================================================================
@@ -499,34 +507,34 @@ export interface SavedSearch {
  */
 export interface SearchConfig {
   /** Enable search */
-  enabled: boolean
+  enabled: boolean;
   /** Search engine type */
-  engine: 'postgres' | 'meilisearch' | 'typesense' | 'elasticsearch'
+  engine: "postgres" | "meilisearch" | "typesense" | "elasticsearch";
   /** Minimum query length */
-  minQueryLength: number
+  minQueryLength: number;
   /** Maximum results per page */
-  maxResultsPerPage: number
+  maxResultsPerPage: number;
   /** Enable fuzzy search */
-  fuzzySearch: boolean
+  fuzzySearch: boolean;
   /** Enable search suggestions */
-  suggestions: boolean
+  suggestions: boolean;
   /** Enable search history */
-  history: boolean
+  history: boolean;
   /** History retention days */
-  historyRetentionDays: number
+  historyRetentionDays: number;
   /** Enable spell check */
-  spellCheck: boolean
+  spellCheck: boolean;
   /** Enable synonyms */
-  synonyms: boolean
+  synonyms: boolean;
   /** Index real-time */
-  realTimeIndex: boolean
+  realTimeIndex: boolean;
   /** Searchable fields */
   searchableFields: {
-    messages: string[]
-    users: string[]
-    channels: string[]
-    files: string[]
-  }
+    messages: string[];
+    users: string[];
+    channels: string[];
+    files: string[];
+  };
 }
 
 /**
@@ -534,7 +542,7 @@ export interface SearchConfig {
  */
 export const DefaultSearchConfig: SearchConfig = {
   enabled: true,
-  engine: 'postgres',
+  engine: "postgres",
   minQueryLength: 2,
   maxResultsPerPage: 50,
   fuzzySearch: true,
@@ -545,12 +553,12 @@ export const DefaultSearchConfig: SearchConfig = {
   synonyms: false,
   realTimeIndex: true,
   searchableFields: {
-    messages: ['content'],
-    users: ['username', 'displayName', 'email', 'bio'],
-    channels: ['name', 'description', 'topic'],
-    files: ['name'],
+    messages: ["content"],
+    users: ["username", "displayName", "email", "bio"],
+    channels: ["name", "description", "topic"],
+    files: ["name"],
   },
-}
+};
 
 // ============================================================================
 // Utility Types
@@ -560,11 +568,11 @@ export const DefaultSearchConfig: SearchConfig = {
  * Search filter preset.
  */
 export interface SearchFilterPreset {
-  id: string
-  name: string
-  description?: string
-  filters: SearchFilters
-  icon?: string
+  id: string;
+  name: string;
+  description?: string;
+  filters: SearchFilters;
+  icon?: string;
 }
 
 /**
@@ -572,67 +580,70 @@ export interface SearchFilterPreset {
  */
 export const CommonSearchPresets: SearchFilterPreset[] = [
   {
-    id: 'mentions',
-    name: 'Mentions',
-    description: 'Messages that mention you',
+    id: "mentions",
+    name: "Mentions",
+    description: "Messages that mention you",
     filters: { message: { mentionsMe: true } },
-    icon: '@',
+    icon: "@",
   },
   {
-    id: 'files',
-    name: 'Files',
-    description: 'Messages with attachments',
+    id: "files",
+    name: "Files",
+    description: "Messages with attachments",
     filters: { message: { hasAttachments: true } },
-    icon: '📎',
+    icon: "📎",
   },
   {
-    id: 'links',
-    name: 'Links',
-    description: 'Messages with links',
+    id: "links",
+    name: "Links",
+    description: "Messages with links",
     filters: { message: { hasLinks: true } },
-    icon: '🔗',
+    icon: "🔗",
   },
   {
-    id: 'pinned',
-    name: 'Pinned',
-    description: 'Pinned messages',
+    id: "pinned",
+    name: "Pinned",
+    description: "Pinned messages",
     filters: { message: { isPinned: true } },
-    icon: '📌',
+    icon: "📌",
   },
   {
-    id: 'images',
-    name: 'Images',
-    description: 'Image files',
-    filters: { file: { fileTypes: ['image'] } },
-    icon: '🖼️',
+    id: "images",
+    name: "Images",
+    description: "Image files",
+    filters: { file: { fileTypes: ["image"] } },
+    icon: "🖼️",
   },
   {
-    id: 'documents',
-    name: 'Documents',
-    description: 'Document files',
-    filters: { file: { fileTypes: ['document'] } },
-    icon: '📄',
+    id: "documents",
+    name: "Documents",
+    description: "Document files",
+    filters: { file: { fileTypes: ["document"] } },
+    icon: "📄",
   },
-]
+];
 
 /**
  * Build search URL with query parameters.
  */
-export function buildSearchUrl(query: SearchQuery, baseUrl = '/search'): string {
-  const params = new URLSearchParams()
-  params.set('q', query.query)
-  params.set('scope', query.scope)
+export function buildSearchUrl(
+  query: SearchQuery,
+  baseUrl = "/search",
+): string {
+  const params = new URLSearchParams();
+  params.set("q", query.query);
+  params.set("scope", query.scope);
   if (query.filters) {
-    params.set('filters', JSON.stringify(query.filters))
+    params.set("filters", JSON.stringify(query.filters));
   }
   if (query.sort) {
-    params.set('sort', `${query.sort.sortBy}:${query.sort.sortOrder}`)
+    params.set("sort", `${query.sort.sortBy}:${query.sort.sortOrder}`);
   }
   if (query.pagination) {
-    params.set('page', String(query.pagination.page))
-    params.set('perPage', String(query.pagination.perPage))
+    params.set("page", String(query.pagination.page));
+    params.set("perPage", String(query.pagination.perPage));
   }
-  return `${baseUrl}?${params.toString()}`
+  return `${baseUrl}?${params.toString()}`;
 }
 
 /**
@@ -640,40 +651,40 @@ export function buildSearchUrl(query: SearchQuery, baseUrl = '/search'): string 
  */
 export function parseSearchUrl(url: string): SearchQuery | null {
   try {
-    const urlObj = new URL(url, 'http://localhost')
-    const q = urlObj.searchParams.get('q')
-    if (!q) return null
+    const urlObj = new URL(url, "http://localhost");
+    const q = urlObj.searchParams.get("q");
+    if (!q) return null;
 
     const query: SearchQuery = {
       query: q,
-      scope: (urlObj.searchParams.get('scope') as SearchScope) || 'all',
-    }
+      scope: (urlObj.searchParams.get("scope") as SearchScope) || "all",
+    };
 
-    const filters = urlObj.searchParams.get('filters')
+    const filters = urlObj.searchParams.get("filters");
     if (filters) {
-      query.filters = JSON.parse(filters)
+      query.filters = JSON.parse(filters);
     }
 
-    const sort = urlObj.searchParams.get('sort')
+    const sort = urlObj.searchParams.get("sort");
     if (sort) {
-      const [sortBy, sortOrder] = sort.split(':')
+      const [sortBy, sortOrder] = sort.split(":");
       query.sort = {
         sortBy: sortBy as SearchSortBy,
         sortOrder: sortOrder as SearchSortOrder,
-      }
+      };
     }
 
-    const page = urlObj.searchParams.get('page')
-    const perPage = urlObj.searchParams.get('perPage')
+    const page = urlObj.searchParams.get("page");
+    const perPage = urlObj.searchParams.get("perPage");
     if (page || perPage) {
       query.pagination = {
         page: page ? parseInt(page, 10) : 1,
         perPage: perPage ? parseInt(perPage, 10) : 20,
-      }
+      };
     }
 
-    return query
+    return query;
   } catch {
-    return null
+    return null;
   }
 }

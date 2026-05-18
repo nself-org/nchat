@@ -1,16 +1,24 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import { UserPlus, Search, Copy, Check, Link, Mail, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import * as React from "react";
+import { useState } from "react";
+import {
+  UserPlus,
+  Search,
+  Copy,
+  Check,
+  Link,
+  Mail,
+  Loader2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -18,36 +26,36 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import type { Channel } from '@/stores/channel-store'
+} from "@/components/ui/dialog";
+import type { Channel } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelInviteProps {
-  channel: Channel
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  onInvite?: (userIds: string[]) => Promise<void>
-  className?: string
+  channel: Channel;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onInvite?: (userIds: string[]) => Promise<void>;
+  className?: string;
 }
 
 interface User {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl?: string
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
 }
 
 // Mock users for demo
 const MOCK_USERS: User[] = [
-  { id: '1', username: 'alice', displayName: 'Alice Smith' },
-  { id: '2', username: 'bob', displayName: 'Bob Johnson' },
-  { id: '3', username: 'charlie', displayName: 'Charlie Brown' },
-  { id: '4', username: 'diana', displayName: 'Diana Prince' },
-  { id: '5', username: 'eve', displayName: 'Eve Wilson' },
-]
+  { id: "1", username: "alice", displayName: "Alice Smith" },
+  { id: "2", username: "bob", displayName: "Bob Johnson" },
+  { id: "3", username: "charlie", displayName: "Charlie Brown" },
+  { id: "4", username: "diana", displayName: "Diana Prince" },
+  { id: "5", username: "eve", displayName: "Eve Wilson" },
+];
 
 // ============================================================================
 // Component
@@ -60,65 +68,67 @@ export function ChannelInvite({
   onInvite,
   className,
 }: ChannelInviteProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set())
-  const [isInviting, setIsInviting] = useState(false)
-  const [copied, setCopied] = useState(false)
-  const [emailAddresses, setEmailAddresses] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [isInviting, setIsInviting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [emailAddresses, setEmailAddresses] = useState("");
 
   // Filter users by search
   const filteredUsers = MOCK_USERS.filter(
     (user) =>
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.displayName.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+      user.displayName.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   // Toggle user selection
   const toggleUser = (userId: string) => {
     setSelectedUsers((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(userId)) {
-        next.delete(userId)
+        next.delete(userId);
       } else {
-        next.add(userId)
+        next.add(userId);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   // Handle invite
   const handleInvite = async () => {
-    if (selectedUsers.size === 0) return
+    if (selectedUsers.size === 0) return;
 
     try {
-      setIsInviting(true)
-      await onInvite?.(Array.from(selectedUsers))
-      setSelectedUsers(new Set())
-      onOpenChange?.(false)
+      setIsInviting(true);
+      await onInvite?.(Array.from(selectedUsers));
+      setSelectedUsers(new Set());
+      onOpenChange?.(false);
     } finally {
-      setIsInviting(false)
+      setIsInviting(false);
     }
-  }
+  };
 
   // Generate invite link
-  const inviteLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/invite/channel/${channel.slug}`
+  const inviteLink = `${typeof window !== "undefined" ? window.location.origin : ""}/invite/channel/${channel.slug}`;
 
   // Copy invite link
   const copyLink = async () => {
-    await navigator.clipboard.writeText(inviteLink)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+    await navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-md', className)}>
+      <DialogContent className={cn("max-w-md", className)}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
             Invite to #{channel.name}
           </DialogTitle>
-          <DialogDescription>Invite people to join this channel</DialogDescription>
+          <DialogDescription>
+            Invite people to join this channel
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="users" className="mt-4">
@@ -143,15 +153,15 @@ export function ChannelInvite({
             <ScrollArea className="h-[200px]">
               <div className="space-y-1">
                 {filteredUsers.map((user) => {
-                  const checkboxId = `user-checkbox-${user.id}`
+                  const checkboxId = `user-checkbox-${user.id}`;
                   return (
                     <label
                       key={user.id}
                       htmlFor={checkboxId}
                       className={cn(
-                        'flex cursor-pointer items-center gap-3 rounded-md p-2',
-                        'hover:bg-accent',
-                        selectedUsers.has(user.id) && 'bg-accent'
+                        "flex cursor-pointer items-center gap-3 rounded-md p-2",
+                        "hover:bg-accent",
+                        selectedUsers.has(user.id) && "bg-accent",
                       )}
                     >
                       <Checkbox
@@ -160,28 +170,42 @@ export function ChannelInvite({
                         onCheckedChange={() => toggleUser(user.id)}
                       />
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatarUrl} alt={user.displayName} />
+                        <AvatarImage
+                          src={user.avatarUrl}
+                          alt={user.displayName}
+                        />
                         <AvatarFallback>
                           {user.displayName.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{user.displayName}</p>
-                        <p className="text-xs text-muted-foreground">@{user.username}</p>
+                        <p className="truncate text-sm font-medium">
+                          {user.displayName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          @{user.username}
+                        </p>
                       </div>
                     </label>
-                  )
+                  );
                 })}
 
                 {filteredUsers.length === 0 && (
-                  <p className="py-8 text-center text-sm text-muted-foreground">No users found</p>
+                  <p className="py-8 text-center text-sm text-muted-foreground">
+                    No users found
+                  </p>
                 )}
               </div>
             </ScrollArea>
 
             <DialogFooter>
-              <Button onClick={handleInvite} disabled={selectedUsers.size === 0 || isInviting}>
-                {isInviting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button
+                onClick={handleInvite}
+                disabled={selectedUsers.size === 0 || isInviting}
+              >
+                {isInviting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Invite {selectedUsers.size > 0 && `(${selectedUsers.size})`}
               </Button>
             </DialogFooter>
@@ -211,7 +235,12 @@ export function ChannelInvite({
               <div className="space-y-2 text-xs text-muted-foreground">
                 <p>- Link expires in 7 days</p>
                 <p>- Anyone with the link can join</p>
-                <p>- {channel.type === 'private' ? 'Requires approval' : 'Instant access'}</p>
+                <p>
+                  -{" "}
+                  {channel.type === "private"
+                    ? "Requires approval"
+                    : "Instant access"}
+                </p>
               </div>
             </div>
           </TabsContent>
@@ -230,10 +259,10 @@ export function ChannelInvite({
                 placeholder="email@example.com, another@example.com"
                 rows={4}
                 className={cn(
-                  'flex w-full rounded-md border border-input bg-background px-3 py-2',
-                  'text-sm ring-offset-background placeholder:text-muted-foreground',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  'disabled:cursor-not-allowed disabled:opacity-50'
+                  "flex w-full rounded-md border border-input bg-background px-3 py-2",
+                  "text-sm ring-offset-background placeholder:text-muted-foreground",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
                 )}
               />
             </div>
@@ -248,7 +277,7 @@ export function ChannelInvite({
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-ChannelInvite.displayName = 'ChannelInvite'
+ChannelInvite.displayName = "ChannelInvite";

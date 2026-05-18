@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ReportMessageModal - Modal for reporting a specific message
@@ -7,7 +7,7 @@
  * for reporting it (spam, harassment, etc.).
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,23 +15,23 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useReportStore,
   REPORT_REASONS,
   type ReportReason,
   type MessageInfo,
-} from '@/lib/moderation/report-store'
-import { useMutation } from '@apollo/client'
-import { REPORT_MESSAGE } from '@/graphql/moderation'
-import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@/lib/utils'
+} from "@/lib/moderation/report-store";
+import { useMutation } from "@apollo/client";
+import { REPORT_MESSAGE } from "@/graphql/moderation";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
 import {
   Flag,
   Loader2,
@@ -40,7 +40,7 @@ import {
   AlertTriangle,
   Clock,
   Hash,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
@@ -48,15 +48,15 @@ import {
 
 export interface ReportMessageModalProps {
   /** Whether the modal is open (controlled mode) */
-  open?: boolean
+  open?: boolean;
   /** Callback when open state changes (controlled mode) */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
   /** Message to report (optional, uses store state if not provided) */
-  message?: MessageInfo
+  message?: MessageInfo;
   /** Callback after successful report submission */
-  onReported?: () => void
+  onReported?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -65,26 +65,26 @@ export interface ReportMessageModalProps {
 
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 function formatTimestamp(dateString: string): string {
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function truncateContent(content: string, maxLength: number = 200): string {
-  if (content.length <= maxLength) return content
-  return content.slice(0, maxLength).trim() + '...'
+  if (content.length <= maxLength) return content;
+  return content.slice(0, maxLength).trim() + "...";
 }
 
 // ============================================================================
@@ -92,7 +92,7 @@ function truncateContent(content: string, maxLength: number = 200): string {
 // ============================================================================
 
 interface MessagePreviewProps {
-  message: MessageInfo
+  message: MessageInfo;
 }
 
 function MessagePreview({ message }: MessagePreviewProps) {
@@ -110,15 +110,22 @@ function MessagePreview({ message }: MessagePreviewProps) {
       {/* Message content */}
       <div className="flex items-start gap-3">
         <Avatar className="h-8 w-8 flex-shrink-0">
-          <AvatarImage src={message.user.avatarUrl} alt={message.user.displayName} />
+          <AvatarImage
+            src={message.user.avatarUrl}
+            alt={message.user.displayName}
+          />
           <AvatarFallback className="text-xs">
             {getInitials(message.user.displayName)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{message.user.displayName}</span>
-            <span className="text-xs text-muted-foreground">@{message.user.username}</span>
+            <span className="text-sm font-medium">
+              {message.user.displayName}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              @{message.user.username}
+            </span>
           </div>
           <p className="text-foreground/90 mt-1 whitespace-pre-wrap break-words text-sm">
             {truncateContent(message.content)}
@@ -126,7 +133,7 @@ function MessagePreview({ message }: MessagePreviewProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -140,7 +147,7 @@ export function ReportMessageModal({
   onReported,
   className,
 }: ReportMessageModalProps) {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser } = useAuth();
   const {
     reportMessageModalOpen,
     reportMessageTarget,
@@ -152,54 +159,55 @@ export function ReportMessageModal({
     setSubmitError,
     setSubmitSuccess,
     resetFormState,
-  } = useReportStore()
+  } = useReportStore();
 
   // Form state
-  const [selectedReason, setSelectedReason] = React.useState<ReportReason | null>(null)
-  const [details, setDetails] = React.useState('')
+  const [selectedReason, setSelectedReason] =
+    React.useState<ReportReason | null>(null);
+  const [details, setDetails] = React.useState("");
 
   // GraphQL mutation
-  const [reportMessageMutation] = useMutation(REPORT_MESSAGE)
+  const [reportMessageMutation] = useMutation(REPORT_MESSAGE);
 
   // Determine target message and open state
-  const targetMessage = propMessage || reportMessageTarget
-  const isOpen = open ?? reportMessageModalOpen
+  const targetMessage = propMessage || reportMessageTarget;
+  const isOpen = open ?? reportMessageModalOpen;
 
   // Reset form when modal opens
   React.useEffect(() => {
     if (isOpen) {
-      setSelectedReason(null)
-      setDetails('')
-      resetFormState()
+      setSelectedReason(null);
+      setDetails("");
+      resetFormState();
     }
-  }, [isOpen, resetFormState])
+  }, [isOpen, resetFormState]);
 
   // Handle close
   const handleOpenChange = React.useCallback(
     (newOpen: boolean) => {
       if (!newOpen) {
         if (onOpenChange) {
-          onOpenChange(false)
+          onOpenChange(false);
         } else {
-          closeReportMessageModal()
+          closeReportMessageModal();
         }
       }
     },
-    [onOpenChange, closeReportMessageModal]
-  )
+    [onOpenChange, closeReportMessageModal],
+  );
 
   // Handle form submission
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent) => {
-      e.preventDefault()
+      e.preventDefault();
 
       if (!targetMessage || !currentUser?.id || !selectedReason) {
-        setSubmitError('Please select a reason for the report')
-        return
+        setSubmitError("Please select a reason for the report");
+        return;
       }
 
-      setSubmitting(true)
-      setSubmitError(null)
+      setSubmitting(true);
+      setSubmitError(null);
 
       try {
         await reportMessageMutation({
@@ -209,20 +217,21 @@ export function ReportMessageModal({
             reason: selectedReason,
             details: details.trim() || null,
           },
-        })
+        });
 
-        setSubmitSuccess(true)
-        onReported?.()
+        setSubmitSuccess(true);
+        onReported?.();
 
         // Close modal after a short delay to show success state
         setTimeout(() => {
-          handleOpenChange(false)
-        }, 2000)
+          handleOpenChange(false);
+        }, 2000);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to submit report'
-        setSubmitError(errorMessage)
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to submit report";
+        setSubmitError(errorMessage);
       } finally {
-        setSubmitting(false)
+        setSubmitting(false);
       }
     },
     [
@@ -236,14 +245,14 @@ export function ReportMessageModal({
       setSubmitSuccess,
       onReported,
       handleOpenChange,
-    ]
-  )
+    ],
+  );
 
-  if (!targetMessage) return null
+  if (!targetMessage) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className={cn('sm:max-w-lg', className)}>
+      <DialogContent className={cn("sm:max-w-lg", className)}>
         {submitSuccess ? (
           // Success state
           <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -252,8 +261,8 @@ export function ReportMessageModal({
             </div>
             <h3 className="mb-2 text-lg font-semibold">Report Submitted</h3>
             <p className="max-w-xs text-sm text-muted-foreground">
-              Thank you for reporting this message. Our moderation team will review it and take
-              appropriate action.
+              Thank you for reporting this message. Our moderation team will
+              review it and take appropriate action.
             </p>
           </div>
         ) : (
@@ -280,21 +289,24 @@ export function ReportMessageModal({
               {/* Reason selection */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">
-                  Why are you reporting this message? <span className="text-destructive">*</span>
+                  Why are you reporting this message?{" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <ScrollArea className="h-[180px] pr-4">
                   <RadioGroup
-                    value={selectedReason || ''}
-                    onValueChange={(value) => setSelectedReason(value as ReportReason)}
+                    value={selectedReason || ""}
+                    onValueChange={(value) =>
+                      setSelectedReason(value as ReportReason)
+                    }
                   >
                     {REPORT_REASONS.map((reason) => (
                       <div
                         key={reason.value}
                         className={cn(
-                          'flex cursor-pointer items-start space-x-3 rounded-lg border p-3 transition-colors',
+                          "flex cursor-pointer items-start space-x-3 rounded-lg border p-3 transition-colors",
                           selectedReason === reason.value
-                            ? 'bg-primary/5 border-primary'
-                            : 'hover:bg-muted/50 border-transparent'
+                            ? "bg-primary/5 border-primary"
+                            : "hover:bg-muted/50 border-transparent",
                         )}
                       >
                         <RadioGroupItem
@@ -302,7 +314,10 @@ export function ReportMessageModal({
                           id={`msg-${reason.value}`}
                           className="mt-0.5"
                         />
-                        <Label htmlFor={`msg-${reason.value}`} className="flex-1 cursor-pointer">
+                        <Label
+                          htmlFor={`msg-${reason.value}`}
+                          className="flex-1 cursor-pointer"
+                        >
                           <span className="font-medium">{reason.label}</span>
                           <p className="mt-0.5 text-xs text-muted-foreground">
                             {reason.description}
@@ -328,7 +343,9 @@ export function ReportMessageModal({
                   maxLength={500}
                   className="resize-none"
                 />
-                <p className="text-right text-xs text-muted-foreground">{details.length}/500</p>
+                <p className="text-right text-xs text-muted-foreground">
+                  {details.length}/500
+                </p>
               </div>
 
               {/* Error message */}
@@ -371,7 +388,7 @@ export function ReportMessageModal({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default ReportMessageModal
+export default ReportMessageModal;

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Stream Chat Component
@@ -9,20 +9,20 @@
  * @module components/livestream/StreamChat
  */
 
-import * as React from 'react'
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import * as React from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Send,
   MoreVertical,
@@ -33,30 +33,30 @@ import {
   AlertCircle,
   MessageSquare,
   Users,
-} from 'lucide-react'
-import type { StreamChatMessage, ChatMode } from '@/services/livestream/types'
+} from "lucide-react";
+import type { StreamChatMessage, ChatMode } from "@/services/livestream/types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface StreamChatProps {
-  streamId: string
-  messages: StreamChatMessage[]
-  pinnedMessage?: StreamChatMessage
-  viewerCount?: number
-  chatMode?: ChatMode
-  slowModeSeconds?: number
-  isStreamer?: boolean
-  isModerator?: boolean
-  currentUserId?: string
-  onSendMessage: (content: string) => Promise<void>
-  onDeleteMessage?: (messageId: string) => Promise<void>
-  onPinMessage?: (messageId: string) => Promise<void>
-  onUnpinMessage?: (messageId: string) => Promise<void>
-  onTimeoutUser?: (userId: string, seconds: number) => Promise<void>
-  onBanUser?: (userId: string) => Promise<void>
-  className?: string
+  streamId: string;
+  messages: StreamChatMessage[];
+  pinnedMessage?: StreamChatMessage;
+  viewerCount?: number;
+  chatMode?: ChatMode;
+  slowModeSeconds?: number;
+  isStreamer?: boolean;
+  isModerator?: boolean;
+  currentUserId?: string;
+  onSendMessage: (content: string) => Promise<void>;
+  onDeleteMessage?: (messageId: string) => Promise<void>;
+  onPinMessage?: (messageId: string) => Promise<void>;
+  onUnpinMessage?: (messageId: string) => Promise<void>;
+  onTimeoutUser?: (userId: string, seconds: number) => Promise<void>;
+  onBanUser?: (userId: string) => Promise<void>;
+  className?: string;
 }
 
 // ============================================================================
@@ -68,7 +68,7 @@ export function StreamChat({
   messages,
   pinnedMessage,
   viewerCount = 0,
-  chatMode = 'open',
+  chatMode = "open",
   slowModeSeconds = 0,
   isStreamer = false,
   isModerator = false,
@@ -81,15 +81,15 @@ export function StreamChat({
   onBanUser,
   className,
 }: StreamChatProps) {
-  const [messageInput, setMessageInput] = useState('')
-  const [isSending, setIsSending] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [cooldownSeconds, setCooldownSeconds] = useState(0)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [messageInput, setMessageInput] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const canModerate = isStreamer || isModerator
-  const isChatDisabled = chatMode === 'disabled'
+  const canModerate = isStreamer || isModerator;
+  const isChatDisabled = chatMode === "disabled";
 
   // ==========================================================================
   // Auto-scroll to bottom
@@ -97,63 +97,70 @@ export function StreamChat({
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages])
+  }, [messages]);
 
   // ==========================================================================
   // Slow mode cooldown
   // ==========================================================================
 
   useEffect(() => {
-    if (cooldownSeconds <= 0) return
+    if (cooldownSeconds <= 0) return;
 
     const timer = setInterval(() => {
-      setCooldownSeconds((prev) => Math.max(0, prev - 1))
-    }, 1000)
+      setCooldownSeconds((prev) => Math.max(0, prev - 1));
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [cooldownSeconds])
+    return () => clearInterval(timer);
+  }, [cooldownSeconds]);
 
   // ==========================================================================
   // Send Message
   // ==========================================================================
 
   const handleSendMessage = useCallback(async () => {
-    const content = messageInput.trim()
+    const content = messageInput.trim();
 
     if (!content || isSending || cooldownSeconds > 0 || isChatDisabled) {
-      return
+      return;
     }
 
     if (content.length > 500) {
-      setError('Message too long (max 500 characters)')
-      return
+      setError("Message too long (max 500 characters)");
+      return;
     }
 
-    setIsSending(true)
-    setError(null)
+    setIsSending(true);
+    setError(null);
 
     try {
-      await onSendMessage(content)
-      setMessageInput('')
+      await onSendMessage(content);
+      setMessageInput("");
 
       if (slowModeSeconds > 0) {
-        setCooldownSeconds(slowModeSeconds)
+        setCooldownSeconds(slowModeSeconds);
       }
     } catch (err) {
-      setError((err as Error).message)
+      setError((err as Error).message);
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
-  }, [messageInput, isSending, cooldownSeconds, isChatDisabled, slowModeSeconds, onSendMessage])
+  }, [
+    messageInput,
+    isSending,
+    cooldownSeconds,
+    isChatDisabled,
+    slowModeSeconds,
+    onSendMessage,
+  ]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
-  }
+  };
 
   // ==========================================================================
   // Message Actions
@@ -162,57 +169,59 @@ export function StreamChat({
   const handleDeleteMessage = useCallback(
     async (messageId: string) => {
       try {
-        await onDeleteMessage?.(messageId)
+        await onDeleteMessage?.(messageId);
       } catch (err) {
-        setError('Failed to delete message')
+        setError("Failed to delete message");
       }
     },
-    [onDeleteMessage]
-  )
+    [onDeleteMessage],
+  );
 
   const handlePinMessage = useCallback(
     async (messageId: string) => {
       try {
         if (pinnedMessage?.id === messageId) {
-          await onUnpinMessage?.(messageId)
+          await onUnpinMessage?.(messageId);
         } else {
-          await onPinMessage?.(messageId)
+          await onPinMessage?.(messageId);
         }
       } catch (err) {
-        setError('Failed to pin message')
+        setError("Failed to pin message");
       }
     },
-    [pinnedMessage, onPinMessage, onUnpinMessage]
-  )
+    [pinnedMessage, onPinMessage, onUnpinMessage],
+  );
 
   const handleTimeoutUser = useCallback(
     async (userId: string) => {
       try {
-        await onTimeoutUser?.(userId, 600) // 10 minute timeout
+        await onTimeoutUser?.(userId, 600); // 10 minute timeout
       } catch (err) {
-        setError('Failed to timeout user')
+        setError("Failed to timeout user");
       }
     },
-    [onTimeoutUser]
-  )
+    [onTimeoutUser],
+  );
 
   const handleBanUser = useCallback(
     async (userId: string) => {
       try {
-        await onBanUser?.(userId)
+        await onBanUser?.(userId);
       } catch (err) {
-        setError('Failed to ban user')
+        setError("Failed to ban user");
       }
     },
-    [onBanUser]
-  )
+    [onBanUser],
+  );
 
   // ==========================================================================
   // Render
   // ==========================================================================
 
   return (
-    <div className={cn('flex flex-col h-full bg-background border-l', className)}>
+    <div
+      className={cn("flex flex-col h-full bg-background border-l", className)}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b">
         <div className="flex items-center gap-2">
@@ -226,12 +235,12 @@ export function StreamChat({
       </div>
 
       {/* Chat Mode Banner */}
-      {chatMode !== 'open' && (
+      {chatMode !== "open" && (
         <div className="flex items-center gap-2 px-3 py-2 bg-muted text-xs">
           <AlertCircle className="h-3 w-3" />
-          {chatMode === 'disabled' && 'Chat is disabled'}
-          {chatMode === 'followers' && 'Followers-only mode'}
-          {chatMode === 'subscribers' && 'Subscribers-only mode'}
+          {chatMode === "disabled" && "Chat is disabled"}
+          {chatMode === "followers" && "Followers-only mode"}
+          {chatMode === "subscribers" && "Subscribers-only mode"}
         </div>
       )}
 
@@ -251,7 +260,9 @@ export function StreamChat({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
                 <span className="text-xs font-medium">
-                  {pinnedMessage.user?.displayName ?? pinnedMessage.user?.username ?? 'Unknown'}
+                  {pinnedMessage.user?.displayName ??
+                    pinnedMessage.user?.username ??
+                    "Unknown"}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground truncate">
@@ -284,7 +295,9 @@ export function StreamChat({
               isPinned={pinnedMessage?.id === message.id}
               onDelete={() => handleDeleteMessage(message.id)}
               onPin={() => handlePinMessage(message.id)}
-              onTimeout={() => message.userId && handleTimeoutUser(message.userId)}
+              onTimeout={() =>
+                message.userId && handleTimeoutUser(message.userId)
+              }
               onBan={() => message.userId && handleBanUser(message.userId)}
             />
           ))}
@@ -308,10 +321,10 @@ export function StreamChat({
             onKeyDown={handleKeyDown}
             placeholder={
               isChatDisabled
-                ? 'Chat is disabled'
+                ? "Chat is disabled"
                 : cooldownSeconds > 0
                   ? `Wait ${cooldownSeconds}s...`
-                  : 'Send a message...'
+                  : "Send a message..."
             }
             disabled={isChatDisabled || cooldownSeconds > 0}
             maxLength={500}
@@ -336,7 +349,7 @@ export function StreamChat({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -344,14 +357,14 @@ export function StreamChat({
 // ============================================================================
 
 interface ChatMessageProps {
-  message: StreamChatMessage
-  isOwnMessage: boolean
-  canModerate: boolean
-  isPinned: boolean
-  onDelete: () => void
-  onPin: () => void
-  onTimeout: () => void
-  onBan: () => void
+  message: StreamChatMessage;
+  isOwnMessage: boolean;
+  canModerate: boolean;
+  isPinned: boolean;
+  onDelete: () => void;
+  onPin: () => void;
+  onTimeout: () => void;
+  onBan: () => void;
 }
 
 function ChatMessage({
@@ -369,17 +382,18 @@ function ChatMessage({
       <div className="text-xs text-muted-foreground italic">
         Message deleted
       </div>
-    )
+    );
   }
 
-  const displayName = message.user?.displayName ?? message.user?.username ?? 'Anonymous'
-  const initials = displayName.slice(0, 2).toUpperCase()
+  const displayName =
+    message.user?.displayName ?? message.user?.username ?? "Anonymous";
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <div
       className={cn(
-        'group flex items-start gap-2',
-        isPinned && 'bg-accent/30 -mx-2 px-2 py-1 rounded'
+        "group flex items-start gap-2",
+        isPinned && "bg-accent/30 -mx-2 px-2 py-1 rounded",
       )}
     >
       <Avatar className="h-6 w-6 flex-shrink-0">
@@ -391,9 +405,9 @@ function ChatMessage({
         <div className="flex items-center gap-1">
           <span
             className={cn(
-              'text-xs font-medium',
-              message.user?.isModerator && 'text-green-600',
-              message.user?.isSubscriber && 'text-purple-600'
+              "text-xs font-medium",
+              message.user?.isModerator && "text-green-600",
+              message.user?.isSubscriber && "text-purple-600",
             )}
           >
             {displayName}
@@ -430,7 +444,7 @@ function ChatMessage({
               <>
                 <DropdownMenuItem onClick={onPin}>
                   <Pin className="h-4 w-4 mr-2" />
-                  {isPinned ? 'Unpin' : 'Pin'} Message
+                  {isPinned ? "Unpin" : "Pin"} Message
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </>
@@ -456,7 +470,7 @@ function ChatMessage({
         </DropdownMenu>
       )}
     </div>
-  )
+  );
 }
 
-export default StreamChat
+export default StreamChat;

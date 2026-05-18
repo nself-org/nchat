@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * FeatureGateAny and FeatureGateAll Components
@@ -24,10 +24,10 @@
  * ```
  */
 
-import { useEffect, useMemo } from 'react'
-import type { ReactNode } from 'react'
-import type { FeatureFlag } from '../types'
-import { useFeatures } from '../hooks/use-feature'
+import { useEffect, useMemo } from "react";
+import type { ReactNode } from "react";
+import type { FeatureFlag } from "../types";
+import { useFeatures } from "../hooks/use-feature";
 
 // ============================================================================
 // FEATURE GATE ANY
@@ -37,30 +37,30 @@ export interface FeatureGateAnyProps {
   /**
    * Array of feature flags to check (renders if ANY are enabled)
    */
-  features: FeatureFlag[]
+  features: FeatureFlag[];
 
   /**
    * Content to render when any feature is enabled
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * Content to render when all features are disabled
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 
   /**
    * Callback fired after the feature check completes
    * Receives array of enabled features from the provided list
    */
-  onCheck?: (enabledFeatures: FeatureFlag[]) => void
+  onCheck?: (enabledFeatures: FeatureFlag[]) => void;
 
   /**
    * If true, requires at least this many features to be enabled
    * @default 1
    */
-  minRequired?: number
+  minRequired?: number;
 }
 
 /**
@@ -107,19 +107,22 @@ export function FeatureGateAny({
   onCheck,
   minRequired = 1,
 }: FeatureGateAnyProps): ReactNode {
-  const { isEnabled, loading } = useFeatures()
+  const { isEnabled, loading } = useFeatures();
 
-  const enabledFeatures = useMemo(() => features.filter((f) => isEnabled(f)), [features, isEnabled])
+  const enabledFeatures = useMemo(
+    () => features.filter((f) => isEnabled(f)),
+    [features, isEnabled],
+  );
 
-  const shouldRender = enabledFeatures.length >= minRequired
+  const shouldRender = enabledFeatures.length >= minRequired;
 
   useEffect(() => {
     if (!loading && onCheck) {
-      onCheck(enabledFeatures)
+      onCheck(enabledFeatures);
     }
-  }, [enabledFeatures, loading, onCheck])
+  }, [enabledFeatures, loading, onCheck]);
 
-  return shouldRender ? children : fallback
+  return shouldRender ? children : fallback;
 }
 
 // ============================================================================
@@ -130,24 +133,24 @@ export interface FeatureGateAllProps {
   /**
    * Array of feature flags to check (renders only if ALL are enabled)
    */
-  features: FeatureFlag[]
+  features: FeatureFlag[];
 
   /**
    * Content to render when all features are enabled
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * Content to render when any feature is disabled
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 
   /**
    * Callback fired after the feature check completes
    * Receives boolean indicating if all enabled, and array of missing features
    */
-  onCheck?: (allEnabled: boolean, missingFeatures: FeatureFlag[]) => void
+  onCheck?: (allEnabled: boolean, missingFeatures: FeatureFlag[]) => void;
 }
 
 /**
@@ -186,23 +189,23 @@ export function FeatureGateAll({
   fallback = null,
   onCheck,
 }: FeatureGateAllProps): ReactNode {
-  const { isEnabled, loading } = useFeatures()
+  const { isEnabled, loading } = useFeatures();
 
   const { allEnabled, missingFeatures } = useMemo(() => {
-    const missing = features.filter((f) => !isEnabled(f))
+    const missing = features.filter((f) => !isEnabled(f));
     return {
       allEnabled: missing.length === 0,
       missingFeatures: missing,
-    }
-  }, [features, isEnabled])
+    };
+  }, [features, isEnabled]);
 
   useEffect(() => {
     if (!loading && onCheck) {
-      onCheck(allEnabled, missingFeatures)
+      onCheck(allEnabled, missingFeatures);
     }
-  }, [allEnabled, missingFeatures, loading, onCheck])
+  }, [allEnabled, missingFeatures, loading, onCheck]);
 
-  return allEnabled ? children : fallback
+  return allEnabled ? children : fallback;
 }
 
 // ============================================================================
@@ -213,23 +216,23 @@ export interface FeatureGateNoneProps {
   /**
    * Array of feature flags to check (renders if NONE are enabled)
    */
-  features: FeatureFlag[]
+  features: FeatureFlag[];
 
   /**
    * Content to render when no features are enabled
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * Content to render when any feature is enabled
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 
   /**
    * Callback fired after the feature check completes
    */
-  onCheck?: (noneEnabled: boolean) => void
+  onCheck?: (noneEnabled: boolean) => void;
 }
 
 /**
@@ -255,17 +258,20 @@ export function FeatureGateNone({
   fallback = null,
   onCheck,
 }: FeatureGateNoneProps): ReactNode {
-  const { isEnabled, loading } = useFeatures()
+  const { isEnabled, loading } = useFeatures();
 
-  const noneEnabled = useMemo(() => !features.some((f) => isEnabled(f)), [features, isEnabled])
+  const noneEnabled = useMemo(
+    () => !features.some((f) => isEnabled(f)),
+    [features, isEnabled],
+  );
 
   useEffect(() => {
     if (!loading && onCheck) {
-      onCheck(noneEnabled)
+      onCheck(noneEnabled);
     }
-  }, [noneEnabled, loading, onCheck])
+  }, [noneEnabled, loading, onCheck]);
 
-  return noneEnabled ? children : fallback
+  return noneEnabled ? children : fallback;
 }
 
 // ============================================================================
@@ -276,17 +282,17 @@ export interface FeatureSwitchProps {
   /**
    * Feature flag to check
    */
-  feature: FeatureFlag
+  feature: FeatureFlag;
 
   /**
    * Content to render when feature is enabled
    */
-  enabled: ReactNode
+  enabled: ReactNode;
 
   /**
    * Content to render when feature is disabled
    */
-  disabled: ReactNode
+  disabled: ReactNode;
 }
 
 /**
@@ -304,9 +310,13 @@ export interface FeatureSwitchProps {
  * />
  * ```
  */
-export function FeatureSwitch({ feature, enabled, disabled }: FeatureSwitchProps): ReactNode {
-  const { isEnabled } = useFeatures()
-  return isEnabled(feature) ? enabled : disabled
+export function FeatureSwitch({
+  feature,
+  enabled,
+  disabled,
+}: FeatureSwitchProps): ReactNode {
+  const { isEnabled } = useFeatures();
+  return isEnabled(feature) ? enabled : disabled;
 }
 
 // ============================================================================
@@ -319,15 +329,15 @@ export interface FeatureCasesProps {
    * First enabled feature's content will be rendered
    */
   cases: Array<{
-    feature: FeatureFlag
-    render: ReactNode
-  }>
+    feature: FeatureFlag;
+    render: ReactNode;
+  }>;
 
   /**
    * Content to render if no features are enabled
    * @default null
    */
-  default?: ReactNode
+  default?: ReactNode;
 }
 
 /**
@@ -352,15 +362,15 @@ export function FeatureCases({
   cases,
   default: defaultContent = null,
 }: FeatureCasesProps): ReactNode {
-  const { isEnabled } = useFeatures()
+  const { isEnabled } = useFeatures();
 
   for (const { feature, render } of cases) {
     if (isEnabled(feature)) {
-      return render
+      return render;
     }
   }
 
-  return defaultContent
+  return defaultContent;
 }
 
 // ============================================================================
@@ -373,23 +383,24 @@ export function FeatureCases({
 export function withFeatureGateAny<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   features: FeatureFlag[],
-  FallbackComponent?: React.ComponentType<P>
+  FallbackComponent?: React.ComponentType<P>,
 ): React.FC<P> {
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  const displayName =
+    WrappedComponent.displayName || WrappedComponent.name || "Component";
 
   const FeatureGatedComponent: React.FC<P> = (props) => {
-    const { isAnyEnabled } = useFeatures()
+    const { isAnyEnabled } = useFeatures();
 
     if (!isAnyEnabled(features)) {
-      return FallbackComponent ? <FallbackComponent {...props} /> : null
+      return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
 
-    return <WrappedComponent {...props} />
-  }
+    return <WrappedComponent {...props} />;
+  };
 
-  FeatureGatedComponent.displayName = `FeatureGatedAny(${displayName})`
+  FeatureGatedComponent.displayName = `FeatureGatedAny(${displayName})`;
 
-  return FeatureGatedComponent
+  return FeatureGatedComponent;
 }
 
 /**
@@ -398,23 +409,24 @@ export function withFeatureGateAny<P extends object>(
 export function withFeatureGateAll<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   features: FeatureFlag[],
-  FallbackComponent?: React.ComponentType<P>
+  FallbackComponent?: React.ComponentType<P>,
 ): React.FC<P> {
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  const displayName =
+    WrappedComponent.displayName || WrappedComponent.name || "Component";
 
   const FeatureGatedComponent: React.FC<P> = (props) => {
-    const { areAllEnabled } = useFeatures()
+    const { areAllEnabled } = useFeatures();
 
     if (!areAllEnabled(features)) {
-      return FallbackComponent ? <FallbackComponent {...props} /> : null
+      return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
 
-    return <WrappedComponent {...props} />
-  }
+    return <WrappedComponent {...props} />;
+  };
 
-  FeatureGatedComponent.displayName = `FeatureGatedAll(${displayName})`
+  FeatureGatedComponent.displayName = `FeatureGatedAll(${displayName})`;
 
-  return FeatureGatedComponent
+  return FeatureGatedComponent;
 }
 
 // ============================================================================
@@ -422,63 +434,69 @@ export function withFeatureGateAll<P extends object>(
 // ============================================================================
 
 export interface FeatureGateAnyRenderProps {
-  features: FeatureFlag[]
+  features: FeatureFlag[];
   children: (state: {
-    anyEnabled: boolean
-    enabledFeatures: FeatureFlag[]
-    disabledFeatures: FeatureFlag[]
-  }) => ReactNode
+    anyEnabled: boolean;
+    enabledFeatures: FeatureFlag[];
+    disabledFeatures: FeatureFlag[];
+  }) => ReactNode;
 }
 
 /**
  * Render prop version of FeatureGateAny
  */
-export function FeatureGateAnyRender({ features, children }: FeatureGateAnyRenderProps): ReactNode {
-  const { isEnabled } = useFeatures()
+export function FeatureGateAnyRender({
+  features,
+  children,
+}: FeatureGateAnyRenderProps): ReactNode {
+  const { isEnabled } = useFeatures();
 
   const state = useMemo(() => {
-    const enabledFeatures = features.filter((f) => isEnabled(f))
-    const disabledFeatures = features.filter((f) => !isEnabled(f))
+    const enabledFeatures = features.filter((f) => isEnabled(f));
+    const disabledFeatures = features.filter((f) => !isEnabled(f));
     return {
       anyEnabled: enabledFeatures.length > 0,
       enabledFeatures,
       disabledFeatures,
-    }
-  }, [features, isEnabled])
+    };
+  }, [features, isEnabled]);
 
-  return children(state)
+  return children(state);
 }
 
 export interface FeatureGateAllRenderProps {
-  features: FeatureFlag[]
+  features: FeatureFlag[];
   children: (state: {
-    allEnabled: boolean
-    enabledFeatures: FeatureFlag[]
-    missingFeatures: FeatureFlag[]
-  }) => ReactNode
+    allEnabled: boolean;
+    enabledFeatures: FeatureFlag[];
+    missingFeatures: FeatureFlag[];
+  }) => ReactNode;
 }
 
 /**
  * Render prop version of FeatureGateAll
  */
-export function FeatureGateAllRender({ features, children }: FeatureGateAllRenderProps): ReactNode {
-  const { isEnabled } = useFeatures()
+export function FeatureGateAllRender({
+  features,
+  children,
+}: FeatureGateAllRenderProps): ReactNode {
+  const { isEnabled } = useFeatures();
 
   const state = useMemo(() => {
-    const enabledFeatures = features.filter((f) => isEnabled(f))
-    const missingFeatures = features.filter((f) => !isEnabled(f))
+    const enabledFeatures = features.filter((f) => isEnabled(f));
+    const missingFeatures = features.filter((f) => !isEnabled(f));
     return {
       allEnabled: missingFeatures.length === 0,
       enabledFeatures,
       missingFeatures,
-    }
-  }, [features, isEnabled])
+    };
+  }, [features, isEnabled]);
 
-  return children(state)
+  return children(state);
 }
 
 // ============================================================================
 // DEFAULT EXPORTS
 // ============================================================================
 
-export default FeatureGateAny
+export default FeatureGateAny;

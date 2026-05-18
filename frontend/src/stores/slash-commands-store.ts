@@ -4,9 +4,9 @@
  * Zustand store for managing slash commands state
  */
 
-import { create } from 'zustand'
-import { devtools, subscribeWithSelector, persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, subscribeWithSelector, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 import type {
   SlashCommand,
   CommandDraft,
@@ -16,7 +16,7 @@ import type {
   CommandContext,
   CommandResult,
   SlashCommandsState,
-} from '@/lib/slash-commands/command-types'
+} from "@/lib/slash-commands/command-types";
 import {
   initializeRegistry,
   registerCommand,
@@ -28,7 +28,7 @@ import {
   getCommandsByCategory,
   getCommandSuggestions,
   executeCommand,
-} from '@/lib/slash-commands'
+} from "@/lib/slash-commands";
 
 // ============================================================================
 // Types
@@ -36,50 +36,50 @@ import {
 
 export interface SlashCommandsActions {
   // Initialization
-  initialize: () => void
+  initialize: () => void;
 
   // Command Management
-  loadCustomCommands: (commands: SlashCommand[]) => void
-  addCommand: (command: SlashCommand) => void
-  updateCommand: (id: string, updates: Partial<SlashCommand>) => void
-  removeCommand: (id: string) => void
-  enableCommand: (id: string) => void
-  disableCommand: (id: string) => void
+  loadCustomCommands: (commands: SlashCommand[]) => void;
+  addCommand: (command: SlashCommand) => void;
+  updateCommand: (id: string, updates: Partial<SlashCommand>) => void;
+  removeCommand: (id: string) => void;
+  enableCommand: (id: string) => void;
+  disableCommand: (id: string) => void;
 
   // Command Builder
-  startEditing: (command?: CommandDraft) => void
-  updateDraft: (updates: Partial<CommandDraft>) => void
-  saveDraft: (createdBy: string) => SlashCommand | null
-  cancelEditing: () => void
+  startEditing: (command?: CommandDraft) => void;
+  updateDraft: (updates: Partial<CommandDraft>) => void;
+  saveDraft: (createdBy: string) => SlashCommand | null;
+  cancelEditing: () => void;
 
   // Command Execution
   execute: (
     input: string,
-    context: Omit<CommandContext, 'args' | 'flags' | 'rawInput' | 'timestamp'>
-  ) => Promise<CommandResult>
-  addExecution: (execution: CommandExecution) => void
-  clearExecutionHistory: () => void
+    context: Omit<CommandContext, "args" | "flags" | "rawInput" | "timestamp">,
+  ) => Promise<CommandResult>;
+  addExecution: (execution: CommandExecution) => void;
+  clearExecutionHistory: () => void;
 
   // Search & Filter
-  setSearchQuery: (query: string) => void
-  setSelectedCategory: (category: CommandCategory | 'all') => void
+  setSearchQuery: (query: string) => void;
+  setSelectedCategory: (category: CommandCategory | "all") => void;
   getSuggestions: (
     input: string,
     options?: {
-      channelType?: 'public' | 'private' | 'direct' | 'group'
-      userRole?: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
-    }
-  ) => CommandSuggestion[]
+      channelType?: "public" | "private" | "direct" | "group";
+      userRole?: "owner" | "admin" | "moderator" | "member" | "guest";
+    },
+  ) => CommandSuggestion[];
 
   // Loading State
-  setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
 
   // Reset
-  reset: () => void
+  reset: () => void;
 }
 
-export type SlashCommandsStore = SlashCommandsState & SlashCommandsActions
+export type SlashCommandsStore = SlashCommandsState & SlashCommandsActions;
 
 // ============================================================================
 // Initial State
@@ -94,9 +94,9 @@ const initialState: SlashCommandsState = {
   isLoading: false,
   error: null,
   executionHistory: [],
-  searchQuery: '',
-  selectedCategory: 'all',
-}
+  searchQuery: "",
+  selectedCategory: "all",
+};
 
 // ============================================================================
 // Store
@@ -114,26 +114,28 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
           // --------------------------------
           initialize: () => {
             // Initialize the registry
-            initializeRegistry()
+            initializeRegistry();
 
             // Get built-in commands
-            const builtIn = getBuiltInCommands()
-            const all = getAllCommands()
+            const builtIn = getBuiltInCommands();
+            const all = getAllCommands();
 
             set(
               (state) => {
-                state.builtInCommands = builtIn
-                state.commands = new Map(all.map((c) => [c.id, c]))
+                state.builtInCommands = builtIn;
+                state.commands = new Map(all.map((c) => [c.id, c]));
                 state.commandsByTrigger = new Map(
                   all.flatMap((c) => [
                     [c.trigger, c],
-                    ...(c.aliases?.map((a) => [a, c] as [string, SlashCommand]) || []),
-                  ])
-                )
+                    ...(c.aliases?.map(
+                      (a) => [a, c] as [string, SlashCommand],
+                    ) || []),
+                  ]),
+                );
               },
               false,
-              'slashCommands/initialize'
-            )
+              "slashCommands/initialize",
+            );
           },
 
           // --------------------------------
@@ -141,112 +143,119 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
           // --------------------------------
           loadCustomCommands: (commands) => {
             // Register with the registry
-            registerCustomCommands(commands)
+            registerCustomCommands(commands);
 
             set(
               (state) => {
-                state.customCommands = commands
+                state.customCommands = commands;
                 // Update commands map
                 for (const cmd of commands) {
-                  state.commands.set(cmd.id, cmd)
-                  state.commandsByTrigger.set(cmd.trigger, cmd)
+                  state.commands.set(cmd.id, cmd);
+                  state.commandsByTrigger.set(cmd.trigger, cmd);
                   cmd.aliases?.forEach((alias) => {
-                    state.commandsByTrigger.set(alias, cmd)
-                  })
+                    state.commandsByTrigger.set(alias, cmd);
+                  });
                 }
               },
               false,
-              'slashCommands/loadCustomCommands'
-            )
+              "slashCommands/loadCustomCommands",
+            );
           },
 
           addCommand: (command) => {
             // Register with the registry
-            registerCommand(command)
+            registerCommand(command);
 
             set(
               (state) => {
-                state.commands.set(command.id, command)
-                state.commandsByTrigger.set(command.trigger, command)
+                state.commands.set(command.id, command);
+                state.commandsByTrigger.set(command.trigger, command);
                 command.aliases?.forEach((alias) => {
-                  state.commandsByTrigger.set(alias, command)
-                })
+                  state.commandsByTrigger.set(alias, command);
+                });
                 if (!command.isBuiltIn) {
-                  state.customCommands.push(command)
+                  state.customCommands.push(command);
                 }
               },
               false,
-              'slashCommands/addCommand'
-            )
+              "slashCommands/addCommand",
+            );
           },
 
           updateCommand: (id, updates) => {
-            const command = get().commands.get(id)
-            if (!command || command.isBuiltIn) return
+            const command = get().commands.get(id);
+            if (!command || command.isBuiltIn) return;
 
             const updatedCommand: SlashCommand = {
               ...command,
               ...updates,
               updatedAt: new Date().toISOString(),
-            }
+            };
 
             // Re-register with registry
-            unregisterCommand(id)
-            registerCommand(updatedCommand)
+            unregisterCommand(id);
+            registerCommand(updatedCommand);
 
             set(
               (state) => {
                 // Remove old trigger mappings
-                state.commandsByTrigger.delete(command.trigger)
+                state.commandsByTrigger.delete(command.trigger);
                 command.aliases?.forEach((alias) => {
-                  state.commandsByTrigger.delete(alias)
-                })
+                  state.commandsByTrigger.delete(alias);
+                });
 
                 // Add updated command
-                state.commands.set(id, updatedCommand)
-                state.commandsByTrigger.set(updatedCommand.trigger, updatedCommand)
+                state.commands.set(id, updatedCommand);
+                state.commandsByTrigger.set(
+                  updatedCommand.trigger,
+                  updatedCommand,
+                );
                 updatedCommand.aliases?.forEach((alias) => {
-                  state.commandsByTrigger.set(alias, updatedCommand)
-                })
+                  state.commandsByTrigger.set(alias, updatedCommand);
+                });
 
                 // Update custom commands list
-                const index = state.customCommands.findIndex((c) => c.id === id)
+                const index = state.customCommands.findIndex(
+                  (c) => c.id === id,
+                );
                 if (index >= 0) {
-                  state.customCommands[index] = updatedCommand
+                  state.customCommands[index] = updatedCommand;
                 }
               },
               false,
-              'slashCommands/updateCommand'
-            )
+              "slashCommands/updateCommand",
+            );
           },
 
           removeCommand: (id) => {
-            const command = get().commands.get(id)
-            if (!command || command.isBuiltIn) return
+            const command = get().commands.get(id);
+            if (!command || command.isBuiltIn) return;
 
             // Unregister from registry
-            unregisterCommand(id)
+            unregisterCommand(id);
 
             set(
               (state) => {
-                state.commands.delete(id)
-                state.commandsByTrigger.delete(command.trigger)
+                state.commands.delete(id);
+                state.commandsByTrigger.delete(command.trigger);
                 command.aliases?.forEach((alias) => {
-                  state.commandsByTrigger.delete(alias)
-                })
-                state.customCommands = state.customCommands.filter((c) => c.id !== id)
+                  state.commandsByTrigger.delete(alias);
+                });
+                state.customCommands = state.customCommands.filter(
+                  (c) => c.id !== id,
+                );
               },
               false,
-              'slashCommands/removeCommand'
-            )
+              "slashCommands/removeCommand",
+            );
           },
 
           enableCommand: (id) => {
-            get().updateCommand(id, { isEnabled: true })
+            get().updateCommand(id, { isEnabled: true });
           },
 
           disableCommand: (id) => {
-            get().updateCommand(id, { isEnabled: false })
+            get().updateCommand(id, { isEnabled: false });
           },
 
           // --------------------------------
@@ -256,32 +265,32 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
             set(
               (state) => {
                 state.editingCommand = command || {
-                  trigger: '',
+                  trigger: "",
                   arguments: [],
                   permissions: {
-                    minRole: 'member',
+                    minRole: "member",
                     allowGuests: false,
                   },
                   channels: {
-                    allowedTypes: ['public', 'private', 'direct', 'group'],
+                    allowedTypes: ["public", "private", "direct", "group"],
                     allowInThreads: true,
                   },
                   responseConfig: {
-                    type: 'ephemeral',
+                    type: "ephemeral",
                     ephemeral: true,
                     showTyping: false,
                   },
-                  actionType: 'message',
+                  actionType: "message",
                   action: {
-                    type: 'message',
+                    type: "message",
                   },
                   isEnabled: true,
                   isBuiltIn: false,
-                }
+                };
               },
               false,
-              'slashCommands/startEditing'
-            )
+              "slashCommands/startEditing",
+            );
           },
 
           updateDraft: (updates) => {
@@ -291,104 +300,106 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
                   state.editingCommand = {
                     ...state.editingCommand,
                     ...updates,
-                  }
+                  };
                 }
               },
               false,
-              'slashCommands/updateDraft'
-            )
+              "slashCommands/updateDraft",
+            );
           },
 
           saveDraft: (createdBy) => {
-            const draft = get().editingCommand
-            if (!draft || !draft.trigger) return null
+            const draft = get().editingCommand;
+            if (!draft || !draft.trigger) return null;
 
-            const now = new Date().toISOString()
-            const id = draft.id || `custom-${draft.trigger}-${Date.now()}`
+            const now = new Date().toISOString();
+            const id = draft.id || `custom-${draft.trigger}-${Date.now()}`;
 
             const command: SlashCommand = {
               id,
               trigger: draft.trigger,
               aliases: draft.aliases,
               name: draft.name || draft.trigger,
-              description: draft.description || '',
+              description: draft.description || "",
               helpText: draft.helpText,
               usage: draft.usage,
-              category: draft.category || 'custom',
+              category: draft.category || "custom",
               arguments: draft.arguments || [],
               permissions: draft.permissions || {
-                minRole: 'member',
+                minRole: "member",
                 allowGuests: false,
               },
               channels: draft.channels || {
-                allowedTypes: ['public', 'private', 'direct', 'group'],
+                allowedTypes: ["public", "private", "direct", "group"],
                 allowInThreads: true,
               },
               responseConfig: draft.responseConfig || {
-                type: 'ephemeral',
+                type: "ephemeral",
                 ephemeral: true,
                 showTyping: false,
               },
               webhook: draft.webhook,
               workflow: draft.workflow,
-              actionType: draft.actionType || 'message',
-              action: draft.action || { type: 'message' },
+              actionType: draft.actionType || "message",
+              action: draft.action || { type: "message" },
               isEnabled: draft.isEnabled ?? true,
               isBuiltIn: false,
               icon: draft.icon,
               order: draft.order,
               cooldown: draft.cooldown,
-              createdAt: draft.id ? get().commands.get(draft.id)?.createdAt || now : now,
+              createdAt: draft.id
+                ? get().commands.get(draft.id)?.createdAt || now
+                : now,
               updatedAt: now,
               createdBy,
-            }
+            };
 
             // Add or update command
             if (get().commands.has(id)) {
-              get().updateCommand(id, command)
+              get().updateCommand(id, command);
             } else {
-              get().addCommand(command)
+              get().addCommand(command);
             }
 
             // Clear editing state
             set(
               (state) => {
-                state.editingCommand = null
+                state.editingCommand = null;
               },
               false,
-              'slashCommands/saveDraft'
-            )
+              "slashCommands/saveDraft",
+            );
 
-            return command
+            return command;
           },
 
           cancelEditing: () => {
             set(
               (state) => {
-                state.editingCommand = null
+                state.editingCommand = null;
               },
               false,
-              'slashCommands/cancelEditing'
-            )
+              "slashCommands/cancelEditing",
+            );
           },
 
           // --------------------------------
           // Command Execution
           // --------------------------------
           execute: async (input, context) => {
-            const startTime = Date.now()
-            const result = await executeCommand(input, context)
-            const duration = Date.now() - startTime
+            const startTime = Date.now();
+            const result = await executeCommand(input, context);
+            const duration = Date.now() - startTime;
 
             // Extract trigger from input
-            const triggerMatch = input.trim().match(/^\/(\S+)/)
-            const trigger = triggerMatch?.[1] || ''
-            const command = get().commandsByTrigger.get(trigger)
+            const triggerMatch = input.trim().match(/^\/(\S+)/);
+            const trigger = triggerMatch?.[1] || "";
+            const command = get().commandsByTrigger.get(trigger);
 
             // Record execution
             const execution: CommandExecution = {
               id: `exec-${Date.now()}`,
-              commandId: command?.id || '',
+              commandId: command?.id || "",
               trigger,
               userId: context.userId,
               channelId: context.channelId,
@@ -396,11 +407,11 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
               result,
               executedAt: new Date().toISOString(),
               duration,
-            }
+            };
 
-            get().addExecution(execution)
+            get().addExecution(execution);
 
-            return result
+            return result;
           },
 
           addExecution: (execution) => {
@@ -409,21 +420,21 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
                 state.executionHistory = [
                   execution,
                   ...state.executionHistory.slice(0, 99), // Keep last 100
-                ]
+                ];
               },
               false,
-              'slashCommands/addExecution'
-            )
+              "slashCommands/addExecution",
+            );
           },
 
           clearExecutionHistory: () => {
             set(
               (state) => {
-                state.executionHistory = []
+                state.executionHistory = [];
               },
               false,
-              'slashCommands/clearExecutionHistory'
-            )
+              "slashCommands/clearExecutionHistory",
+            );
           },
 
           // --------------------------------
@@ -432,21 +443,21 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
           setSearchQuery: (query) => {
             set(
               (state) => {
-                state.searchQuery = query
+                state.searchQuery = query;
               },
               false,
-              'slashCommands/setSearchQuery'
-            )
+              "slashCommands/setSearchQuery",
+            );
           },
 
           setSelectedCategory: (category) => {
             set(
               (state) => {
-                state.selectedCategory = category
+                state.selectedCategory = category;
               },
               false,
-              'slashCommands/setSelectedCategory'
-            )
+              "slashCommands/setSelectedCategory",
+            );
           },
 
           getSuggestions: (input, options) => {
@@ -454,7 +465,7 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
               limit: 10,
               channelType: options?.channelType,
               userRole: options?.userRole,
-            })
+            });
           },
 
           // --------------------------------
@@ -463,21 +474,21 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
           setLoading: (loading) => {
             set(
               (state) => {
-                state.isLoading = loading
+                state.isLoading = loading;
               },
               false,
-              'slashCommands/setLoading'
-            )
+              "slashCommands/setLoading",
+            );
           },
 
           setError: (error) => {
             set(
               (state) => {
-                state.error = error
+                state.error = error;
               },
               false,
-              'slashCommands/setError'
-            )
+              "slashCommands/setError",
+            );
           },
 
           // --------------------------------
@@ -491,12 +502,12 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
                 commandsByTrigger: new Map(),
               }),
               false,
-              'slashCommands/reset'
-            )
+              "slashCommands/reset",
+            );
           },
         })),
         {
-          name: 'nchat-slash-commands',
+          name: "nchat-slash-commands",
           // Only persist custom commands and execution history
           partialize: (state) => ({
             customCommands: state.customCommands,
@@ -506,77 +517,83 @@ export const useSlashCommandsStore = create<SlashCommandsStore>()(
           onRehydrateStorage: () => (state) => {
             if (state) {
               // Re-initialize after rehydration
-              state.initialize()
+              state.initialize();
               if (state.customCommands.length > 0) {
-                state.loadCustomCommands(state.customCommands)
+                state.loadCustomCommands(state.customCommands);
               }
             }
           },
-        }
-      )
+        },
+      ),
     ),
-    { name: 'slash-commands-store' }
-  )
-)
+    { name: "slash-commands-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectAllCommands = (state: SlashCommandsStore) => Array.from(state.commands.values())
+export const selectAllCommands = (state: SlashCommandsStore) =>
+  Array.from(state.commands.values());
 
 export const selectEnabledCommands = (state: SlashCommandsStore) =>
-  Array.from(state.commands.values()).filter((c) => c.isEnabled)
+  Array.from(state.commands.values()).filter((c) => c.isEnabled);
 
-export const selectBuiltInCommands = (state: SlashCommandsStore) => state.builtInCommands
+export const selectBuiltInCommands = (state: SlashCommandsStore) =>
+  state.builtInCommands;
 
-export const selectCustomCommands = (state: SlashCommandsStore) => state.customCommands
+export const selectCustomCommands = (state: SlashCommandsStore) =>
+  state.customCommands;
 
 export const selectCommandById = (id: string) => (state: SlashCommandsStore) =>
-  state.commands.get(id)
+  state.commands.get(id);
 
-export const selectCommandByTrigger = (trigger: string) => (state: SlashCommandsStore) =>
-  state.commandsByTrigger.get(trigger.toLowerCase())
+export const selectCommandByTrigger =
+  (trigger: string) => (state: SlashCommandsStore) =>
+    state.commandsByTrigger.get(trigger.toLowerCase());
 
 export const selectFilteredCommands = (state: SlashCommandsStore) => {
-  let commands = Array.from(state.commands.values())
+  let commands = Array.from(state.commands.values());
 
   // Filter by category
-  if (state.selectedCategory !== 'all') {
-    commands = commands.filter((c) => c.category === state.selectedCategory)
+  if (state.selectedCategory !== "all") {
+    commands = commands.filter((c) => c.category === state.selectedCategory);
   }
 
   // Filter by search query
   if (state.searchQuery) {
-    const query = state.searchQuery.toLowerCase()
+    const query = state.searchQuery.toLowerCase();
     commands = commands.filter(
       (c) =>
         c.trigger.toLowerCase().includes(query) ||
         c.name.toLowerCase().includes(query) ||
         c.description.toLowerCase().includes(query) ||
-        c.aliases?.some((a) => a.toLowerCase().includes(query))
-    )
+        c.aliases?.some((a) => a.toLowerCase().includes(query)),
+    );
   }
 
   // Sort by order, then by name
   return commands.sort((a, b) => {
     if (a.order !== undefined && b.order !== undefined) {
-      return a.order - b.order
+      return a.order - b.order;
     }
-    if (a.order !== undefined) return -1
-    if (b.order !== undefined) return 1
-    return a.name.localeCompare(b.name)
-  })
-}
+    if (a.order !== undefined) return -1;
+    if (b.order !== undefined) return 1;
+    return a.name.localeCompare(b.name);
+  });
+};
 
-export const selectIsEditing = (state: SlashCommandsStore) => state.editingCommand !== null
+export const selectIsEditing = (state: SlashCommandsStore) =>
+  state.editingCommand !== null;
 
-export const selectEditingCommand = (state: SlashCommandsStore) => state.editingCommand
+export const selectEditingCommand = (state: SlashCommandsStore) =>
+  state.editingCommand;
 
 export const selectRecentExecutions =
   (count = 10) =>
   (state: SlashCommandsStore) =>
-    state.executionHistory.slice(0, count)
+    state.executionHistory.slice(0, count);
 
 // ============================================================================
 // Hooks
@@ -586,10 +603,12 @@ export const selectRecentExecutions =
  * Initialize the store on first use
  */
 export function useInitializeSlashCommands() {
-  const initialize = useSlashCommandsStore((state) => state.initialize)
-  const isInitialized = useSlashCommandsStore((state) => state.commands.size > 0)
+  const initialize = useSlashCommandsStore((state) => state.initialize);
+  const isInitialized = useSlashCommandsStore(
+    (state) => state.commands.size > 0,
+  );
 
   if (!isInitialized) {
-    initialize()
+    initialize();
   }
 }

@@ -1,104 +1,112 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { type AppConfig } from '@/config/app-config'
-import { EnhancedInput } from '@/components/ui/enhanced-input'
-import { User, Mail, UserCheck } from 'lucide-react'
-import { isDevelopment } from '@/lib/environment'
+import { useState, useEffect } from "react";
+import { type AppConfig } from "@/config/app-config";
+import { EnhancedInput } from "@/components/ui/enhanced-input";
+import { User, Mail, UserCheck } from "lucide-react";
+import { isDevelopment } from "@/lib/environment";
 
 interface OwnerInfoStepProps {
-  config: AppConfig
-  onUpdate: (updates: Partial<AppConfig>) => void
-  onValidate: (isValid: boolean) => void
+  config: AppConfig;
+  onUpdate: (updates: Partial<AppConfig>) => void;
+  onValidate: (isValid: boolean) => void;
 }
 
-export function OwnerInfoStep({ config, onUpdate, onValidate }: OwnerInfoStepProps) {
+export function OwnerInfoStep({
+  config,
+  onUpdate,
+  onValidate,
+}: OwnerInfoStepProps) {
   // Detect development environment using hostname-based detection
-  const isDev = isDevelopment()
+  const isDev = isDevelopment();
 
   // In development, ALWAYS use prefilled values regardless of config
   const getInitialValues = () => {
     if (isDev) {
       // In dev, always prefill these values
       return {
-        email: 'owner@nself.org',
-        name: 'Admin User',
-        role: 'Platform Owner',
-      }
+        email: "owner@nself.org",
+        name: "Admin User",
+        role: "Platform Owner",
+      };
     }
 
     // In production, use config values
     return {
-      email: config.owner?.email || '',
-      name: config.owner?.name || '',
-      role: config.owner?.role || '',
-    }
-  }
+      email: config.owner?.email || "",
+      name: config.owner?.name || "",
+      role: config.owner?.role || "",
+    };
+  };
 
-  const initialValues = getInitialValues()
+  const initialValues = getInitialValues();
 
-  const [formData, setFormData] = useState(initialValues)
+  const [formData, setFormData] = useState(initialValues);
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
 
   const validateForm = (showErrors = false) => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     // Only show errors if field has been touched (blurred) and showErrors is true
-    if (showErrors && touchedFields.has('name') && formData.name.trim() === '') {
-      newErrors.name = 'Name is required'
+    if (
+      showErrors &&
+      touchedFields.has("name") &&
+      formData.name.trim() === ""
+    ) {
+      newErrors.name = "Name is required";
     }
 
-    if (showErrors && touchedFields.has('email')) {
-      if (formData.email.trim() === '') {
-        newErrors.email = 'Email is required'
+    if (showErrors && touchedFields.has("email")) {
+      if (formData.email.trim() === "") {
+        newErrors.email = "Email is required";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = 'Please enter a valid email address'
+        newErrors.email = "Please enter a valid email address";
       }
     }
 
-    setErrors(newErrors)
+    setErrors(newErrors);
     // Check validity regardless of showing errors
     const isValid =
-      formData.name.trim() !== '' &&
-      formData.email.trim() !== '' &&
-      (!formData.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-    onValidate(isValid)
-    return isValid
-  }
+      formData.name.trim() !== "" &&
+      formData.email.trim() !== "" &&
+      (!formData.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email));
+    onValidate(isValid);
+    return isValid;
+  };
 
   useEffect(() => {
     // Validate without showing errors initially
-    validateForm(touchedFields.size > 0)
-  }, [formData])
+    validateForm(touchedFields.size > 0);
+  }, [formData]);
 
   useEffect(() => {
     // On mount in dev mode, immediately update parent with prefilled values
     if (isDev) {
       onUpdate({
         owner: initialValues,
-      })
+      });
     }
 
     // Run initial validation
-    validateForm(false)
-  }, [])
+    validateForm(false);
+  }, []);
 
   const handleChange = (field: keyof typeof formData, value: string) => {
-    const updated = { ...formData, [field]: value }
-    setFormData(updated)
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
 
     onUpdate({
       owner: updated,
-    })
-  }
+    });
+  };
 
   const handleBlur = (field: string) => {
-    setTouchedFields((prev) => new Set([...prev, field]))
+    setTouchedFields((prev) => new Set([...prev, field]));
     // Force validation with errors after blur
-    setTimeout(() => validateForm(true), 0)
-  }
+    setTimeout(() => validateForm(true), 0);
+  };
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -106,10 +114,12 @@ export function OwnerInfoStep({ config, onUpdate, onValidate }: OwnerInfoStepPro
         <div className="shadow-glow mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00D4FF] to-[#0EA5E9]">
           <User className="h-6 w-6 text-zinc-900" />
         </div>
-        <h2 className="mb-3 text-2xl font-bold text-zinc-900 dark:text-white">Owner Information</h2>
+        <h2 className="mb-3 text-2xl font-bold text-zinc-900 dark:text-white">
+          Owner Information
+        </h2>
         <p className="mx-auto max-w-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
-          Set up your admin account. You'll automatically become the platform owner when you sign in
-          with this email.
+          Set up your admin account. You'll automatically become the platform
+          owner when you sign in with this email.
         </p>
         {isDev && (
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/30 dark:text-amber-200">
@@ -126,8 +136,8 @@ export function OwnerInfoStep({ config, onUpdate, onValidate }: OwnerInfoStepPro
             label="Full Name *"
             icon={<User className="h-4 w-4" />}
             value={formData.name}
-            onChange={(e) => handleChange('name', e.target.value)}
-            onBlur={() => handleBlur('name')}
+            onChange={(e) => handleChange("name", e.target.value)}
+            onBlur={() => handleBlur("name")}
             error={errors.name}
           />
 
@@ -138,8 +148,8 @@ export function OwnerInfoStep({ config, onUpdate, onValidate }: OwnerInfoStepPro
               label="Email Address *"
               icon={<Mail className="h-4 w-4" />}
               value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              onBlur={() => handleBlur('email')}
+              onChange={(e) => handleChange("email", e.target.value)}
+              onBlur={() => handleBlur("email")}
               error={errors.email}
             />
             <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
@@ -153,7 +163,7 @@ export function OwnerInfoStep({ config, onUpdate, onValidate }: OwnerInfoStepPro
               label="Your Role"
               icon={<UserCheck className="h-4 w-4" />}
               value={formData.role}
-              onChange={(e) => handleChange('role', e.target.value)}
+              onChange={(e) => handleChange("role", e.target.value)}
               placeholder="e.g., CEO, Administrator, Team Lead"
             />
             <span className="absolute right-3 top-3 text-xs text-zinc-400 dark:text-zinc-500">
@@ -172,13 +182,18 @@ export function OwnerInfoStep({ config, onUpdate, onValidate }: OwnerInfoStepPro
                 Automatic Owner Assignment
               </h3>
               <p className="mb-3 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                When you first sign in to your platform with this email address (via any
-                authentication method), you'll automatically be granted owner privileges with full
-                administrative access.
+                When you first sign in to your platform with this email address
+                (via any authentication method), you'll automatically be granted
+                owner privileges with full administrative access.
               </p>
               <div className="text-xs text-zinc-600 dark:text-zinc-400">
-                <p className="mb-1 font-medium">✓ Works with any login method:</p>
-                <p>Email/Password • Google • GitHub • Magic Links • Other providers</p>
+                <p className="mb-1 font-medium">
+                  ✓ Works with any login method:
+                </p>
+                <p>
+                  Email/Password • Google • GitHub • Magic Links • Other
+                  providers
+                </p>
               </div>
             </div>
           </div>
@@ -188,19 +203,21 @@ export function OwnerInfoStep({ config, onUpdate, onValidate }: OwnerInfoStepPro
           <div className="flex gap-3">
             <div className="flex-shrink-0">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700">
-                <span className="text-sm text-zinc-600 dark:text-zinc-400">🔒</span>
+                <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                  🔒
+                </span>
               </div>
             </div>
             <div className="text-sm text-zinc-700 dark:text-zinc-300">
               <p className="mb-1 font-medium">Privacy & Security</p>
               <p>
-                Your information is stored locally and used only for platform configuration. We
-                never share your data with third parties.
+                Your information is stored locally and used only for platform
+                configuration. We never share your data with third parties.
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

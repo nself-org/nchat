@@ -37,13 +37,13 @@ export {
   whatsappDarkShadows,
   whatsappDetailedSkin,
   whatsappVisualConfig,
-} from './visual'
+} from "./visual";
 
 export type {
   WhatsAppExtendedColors,
   WhatsAppShadows,
   WhatsAppVisualConfig,
-} from './visual'
+} from "./visual";
 
 // ── Behavior ────────────────────────────────────────────────────────────
 export {
@@ -57,7 +57,7 @@ export {
   whatsappDetailedBehavior,
   whatsappExtendedBehavior,
   whatsappBehaviorConfig,
-} from './behavior'
+} from "./behavior";
 
 export type {
   WhatsAppStatusConfig,
@@ -69,7 +69,7 @@ export type {
   WhatsAppGroupAdminConfig,
   WhatsAppExtendedBehavior,
   WhatsAppBehaviorConfig,
-} from './behavior'
+} from "./behavior";
 
 // ── Navigation ──────────────────────────────────────────────────────────
 export {
@@ -85,7 +85,7 @@ export {
   getWhatsAppDefaultTab,
   getWhatsAppTabCount,
   getWhatsAppTabById,
-} from './navigation'
+} from "./navigation";
 
 export type {
   NavigationTab,
@@ -94,7 +94,7 @@ export type {
   HeaderAction,
   ChatListNavConfig,
   WhatsAppNavigationConfig,
-} from './navigation'
+} from "./navigation";
 
 // ── Composer ────────────────────────────────────────────────────────────
 export {
@@ -113,7 +113,7 @@ export {
   getWhatsAppAttachmentMenu,
   getWhatsAppAttachmentById,
   getWhatsAppAttachmentCount,
-} from './composer'
+} from "./composer";
 
 export type {
   AttachmentMenuItem,
@@ -122,7 +122,7 @@ export type {
   ReplyPreviewConfig,
   SendButtonConfig,
   WhatsAppComposerConfig,
-} from './composer'
+} from "./composer";
 
 // ── Parity Checklist ────────────────────────────────────────────────────
 export {
@@ -133,7 +133,7 @@ export {
   getParityItemById,
   verifyCriticalParity,
   getCategoryParityPercentage,
-} from './parity-checklist'
+} from "./parity-checklist";
 
 export type {
   ParityPriority,
@@ -141,4 +141,4 @@ export type {
   ParityStatus,
   ParityChecklistItem,
   WhatsAppParityChecklist,
-} from './parity-checklist'
+} from "./parity-checklist";

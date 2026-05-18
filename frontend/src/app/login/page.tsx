@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useAuth } from '@/contexts/auth-context'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -12,45 +12,47 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import Link from 'next/link'
-import { authConfig } from '@/config/auth.config'
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
+import { authConfig } from "@/config/auth.config";
 
 export default function LoginPage() {
-  const { signIn, isDevMode, switchUser } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { signIn, isDevMode, switchUser } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      await signIn(email, password)
+      await signIn(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign in')
+      setError(err instanceof Error ? err.message : "Failed to sign in");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDevLogin = async (userId: string) => {
-    if (!switchUser) return
-    setLoading(true)
-    await switchUser(userId)
-    setLoading(false)
-  }
+    if (!switchUser) return;
+    setLoading(true);
+    await switchUser(userId);
+    setLoading(false);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Sign in to nChat</CardTitle>
-          <CardDescription>Enter your email and password to access your workspace</CardDescription>
+          <CardDescription>
+            Enter your email and password to access your workspace
+          </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -63,7 +65,8 @@ export default function LoginPage() {
             {isDevMode && (
               <Alert>
                 <AlertDescription>
-                  <strong>Dev Mode:</strong> Use any credentials or choose a test user below
+                  <strong>Dev Mode:</strong> Use any credentials or choose a
+                  test user below
                 </AlertDescription>
               </Alert>
             )}
@@ -96,7 +99,7 @@ export default function LoginPage() {
 
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? "Signing in..." : "Sign in"}
             </Button>
 
             {isDevMode && (
@@ -136,7 +139,7 @@ export default function LoginPage() {
             )}
 
             <div className="text-center text-sm">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link href="/signup" className="text-primary hover:underline">
                 Sign up
               </Link>
@@ -145,5 +148,5 @@ export default function LoginPage() {
         </form>
       </Card>
     </div>
-  )
+  );
 }

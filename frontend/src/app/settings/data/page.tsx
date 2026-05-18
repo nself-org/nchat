@@ -1,29 +1,38 @@
-'use client'
+"use client";
 
-import dynamic from 'next/dynamic'
-import Link from 'next/link'
-import { ChevronLeft, Database, Download, Trash2, Shield } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ComplianceSkeleton } from '@/components/ui/loading-skeletons'
-import { SettingsLayout } from '@/components/settings'
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { ChevronLeft, Database, Download, Trash2, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ComplianceSkeleton } from "@/components/ui/loading-skeletons";
+import { SettingsLayout } from "@/components/settings";
 
 // Lazy load heavy compliance components
 const DataExportRequest = dynamic(
-  () => import('@/components/compliance').then((mod) => ({ default: mod.DataExportRequest })),
-  { loading: () => <ComplianceSkeleton />, ssr: false }
-)
+  () =>
+    import("@/components/compliance").then((mod) => ({
+      default: mod.DataExportRequest,
+    })),
+  { loading: () => <ComplianceSkeleton />, ssr: false },
+);
 
 const DataDeletionRequest = dynamic(
-  () => import('@/components/compliance').then((mod) => ({ default: mod.DataDeletionRequest })),
-  { loading: () => <ComplianceSkeleton />, ssr: false }
-)
+  () =>
+    import("@/components/compliance").then((mod) => ({
+      default: mod.DataDeletionRequest,
+    })),
+  { loading: () => <ComplianceSkeleton />, ssr: false },
+);
 
 const ConsentManager = dynamic(
-  () => import('@/components/compliance').then((mod) => ({ default: mod.ConsentManager })),
-  { loading: () => <ComplianceSkeleton />, ssr: false }
-)
+  () =>
+    import("@/components/compliance").then((mod) => ({
+      default: mod.ConsentManager,
+    })),
+  { loading: () => <ComplianceSkeleton />, ssr: false },
+);
 
 export default function UserDataPage() {
   return (
@@ -52,7 +61,9 @@ export default function UserDataPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="mb-4 text-sm text-muted-foreground">Download a copy of all your data</p>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Download a copy of all your data
+              </p>
               <Link href="#export">
                 <Button variant="outline" size="sm" className="w-full">
                   Request Export
@@ -69,7 +80,9 @@ export default function UserDataPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="mb-4 text-sm text-muted-foreground">Request deletion of your data</p>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Request deletion of your data
+              </p>
               <Link href="#delete">
                 <Button variant="outline" size="sm" className="w-full">
                   Request Deletion
@@ -86,7 +99,9 @@ export default function UserDataPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="mb-4 text-sm text-muted-foreground">Manage your consent preferences</p>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Manage your consent preferences
+              </p>
               <Link href="#consent">
                 <Button variant="outline" size="sm" className="w-full">
                   Manage Consent
@@ -118,5 +133,5 @@ export default function UserDataPage() {
         </Tabs>
       </div>
     </SettingsLayout>
-  )
+  );
 }

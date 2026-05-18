@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Message Actions Hook
@@ -13,89 +13,97 @@
  * - Bulk operations
  */
 
-import { useCallback, useState } from 'react'
-import { useAuth } from '@/contexts/auth-context'
-import { useToast } from '@/hooks/use-toast'
-import { logger } from '@/lib/logger'
-import type { Message, MessageAction, MessageActionPermissions } from '@/types/message'
+import { useCallback, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/lib/logger";
+import type {
+  Message,
+  MessageAction,
+  MessageActionPermissions,
+} from "@/types/message";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface MessageActionHandlers {
-  onReact: (messageId: string, emoji: string) => Promise<void>
-  onRemoveReaction: (messageId: string, emoji: string) => Promise<void>
-  onReply: (message: Message) => void
-  onThread: (message: Message) => void
-  onEdit: (message: Message) => void
-  onDelete: (messageId: string) => Promise<void>
-  onPin: (messageId: string) => Promise<void>
-  onUnpin: (messageId: string) => Promise<void>
-  onBookmark: (messageId: string) => Promise<void>
-  onUnbookmark: (messageId: string) => Promise<void>
-  onForward: (message: Message) => void
-  onCopy: (message: Message) => void
-  onCopyLink: (message: Message) => void
-  onReport: (message: Message) => void
-  onMarkUnread: (messageId: string) => Promise<void>
-  onViewDetails: (message: Message) => void
-  onViewEditHistory: (message: Message) => void
-  onViewReactions: (message: Message) => void
+  onReact: (messageId: string, emoji: string) => Promise<void>;
+  onRemoveReaction: (messageId: string, emoji: string) => Promise<void>;
+  onReply: (message: Message) => void;
+  onThread: (message: Message) => void;
+  onEdit: (message: Message) => void;
+  onDelete: (messageId: string) => Promise<void>;
+  onPin: (messageId: string) => Promise<void>;
+  onUnpin: (messageId: string) => Promise<void>;
+  onBookmark: (messageId: string) => Promise<void>;
+  onUnbookmark: (messageId: string) => Promise<void>;
+  onForward: (message: Message) => void;
+  onCopy: (message: Message) => void;
+  onCopyLink: (message: Message) => void;
+  onReport: (message: Message) => void;
+  onMarkUnread: (messageId: string) => Promise<void>;
+  onViewDetails: (message: Message) => void;
+  onViewEditHistory: (message: Message) => void;
+  onViewReactions: (message: Message) => void;
 }
 
 export interface BulkActionHandlers {
-  onBulkDelete: (messageIds: string[]) => Promise<void>
-  onBulkForward: (messages: Message[]) => void
-  onBulkCopy: (messages: Message[]) => void
+  onBulkDelete: (messageIds: string[]) => Promise<void>;
+  onBulkForward: (messages: Message[]) => void;
+  onBulkCopy: (messages: Message[]) => void;
 }
 
 export interface MessageSelectionState {
-  selectedMessages: Set<string>
-  toggleSelection: (messageId: string) => void
-  selectAll: (messageIds: string[]) => void
-  clearSelection: () => void
-  isSelectionMode: boolean
-  enterSelectionMode: () => void
-  exitSelectionMode: () => void
+  selectedMessages: Set<string>;
+  toggleSelection: (messageId: string) => void;
+  selectAll: (messageIds: string[]) => void;
+  clearSelection: () => void;
+  isSelectionMode: boolean;
+  enterSelectionMode: () => void;
+  exitSelectionMode: () => void;
 }
 
 export interface UseMessageActionsOptions {
   /** Channel ID for context */
-  channelId: string
+  channelId: string;
   /** Callback when reply action is triggered */
-  onReplyMessage?: (message: Message) => void
+  onReplyMessage?: (message: Message) => void;
   /** Callback when thread action is triggered */
-  onOpenThread?: (message: Message) => void
+  onOpenThread?: (message: Message) => void;
   /** Callback when edit action is triggered */
-  onEditMessage?: (message: Message) => void
+  onEditMessage?: (message: Message) => void;
   /** Callback when delete action is triggered */
-  onDeleteMessage?: (messageId: string) => Promise<void>
+  onDeleteMessage?: (messageId: string) => Promise<void>;
   /** Callback when forward action is triggered */
-  onForwardMessage?: (message: Message) => void
+  onForwardMessage?: (message: Message) => void;
   /** Callback when report action is triggered */
-  onReportMessage?: (message: Message) => void
+  onReportMessage?: (message: Message) => void;
   /** Callback when view details is triggered */
-  onViewMessageDetails?: (message: Message) => void
+  onViewMessageDetails?: (message: Message) => void;
   /** Enable bulk operations */
-  enableBulkOperations?: boolean
+  enableBulkOperations?: boolean;
 }
 
 export interface UseMessageActionsReturn {
   /** Message action handlers */
-  handlers: MessageActionHandlers
+  handlers: MessageActionHandlers;
   /** Bulk action handlers */
-  bulkHandlers: BulkActionHandlers
+  bulkHandlers: BulkActionHandlers;
   /** Selection state */
-  selection: MessageSelectionState
+  selection: MessageSelectionState;
   /** Handle a message action */
-  handleAction: (action: MessageAction, message: Message, data?: unknown) => void | Promise<void>
+  handleAction: (
+    action: MessageAction,
+    message: Message,
+    data?: unknown,
+  ) => void | Promise<void>;
   /** Check if action is available */
-  canPerformAction: (action: MessageAction, message: Message) => boolean
+  canPerformAction: (action: MessageAction, message: Message) => boolean;
   /** Get permissions for a message */
-  getPermissions: (message: Message) => MessageActionPermissions
+  getPermissions: (message: Message) => MessageActionPermissions;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
 }
 
 // ============================================================================
@@ -105,7 +113,9 @@ export interface UseMessageActionsReturn {
 /**
  * Hook for managing message actions
  */
-export function useMessageActions(options: UseMessageActionsOptions): UseMessageActionsReturn {
+export function useMessageActions(
+  options: UseMessageActionsOptions,
+): UseMessageActionsReturn {
   const {
     channelId,
     onReplyMessage,
@@ -116,15 +126,17 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
     onReportMessage,
     onViewMessageDetails,
     enableBulkOperations = false,
-  } = options
+  } = options;
 
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Selection state
-  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set())
-  const [isSelectionMode, setIsSelectionMode] = useState(false)
+  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(
+    new Set(),
+  );
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   // ============================================================================
   // Permissions
@@ -145,14 +157,14 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
           canReport: false,
           canCopy: true,
           canMarkUnread: false,
-        }
+        };
       }
 
-      const isOwnMessage = user.id === message.userId
-      const userRole = user.role || 'member'
-      const isModerator = ['owner', 'admin', 'moderator'].includes(userRole)
-      const isGuest = userRole === 'guest'
-      const isDeleted = message.isDeleted || false
+      const isOwnMessage = user.id === message.userId;
+      const userRole = user.role || "member";
+      const isModerator = ["owner", "admin", "moderator"].includes(userRole);
+      const isGuest = userRole === "guest";
+      const isDeleted = message.isDeleted || false;
 
       return {
         canReact: !isGuest && !isDeleted,
@@ -166,47 +178,47 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
         canReport: !isGuest && !isOwnMessage && !isDeleted,
         canCopy: true,
         canMarkUnread: !isGuest,
-      }
+      };
     },
-    [user]
-  )
+    [user],
+  );
 
   const canPerformAction = useCallback(
     (action: MessageAction, message: Message): boolean => {
-      const permissions = getPermissions(message)
+      const permissions = getPermissions(message);
 
       switch (action) {
-        case 'react':
-          return permissions.canReact
-        case 'reply':
-          return permissions.canReply
-        case 'thread':
-          return permissions.canThread
-        case 'edit':
-          return permissions.canEdit
-        case 'delete':
-          return permissions.canDelete
-        case 'pin':
-        case 'unpin':
-          return permissions.canPin
-        case 'bookmark':
-        case 'unbookmark':
-          return permissions.canBookmark
-        case 'forward':
-          return permissions.canForward
-        case 'copy':
-        case 'copy-link':
-          return permissions.canCopy
-        case 'report':
-          return permissions.canReport
-        case 'mark-unread':
-          return permissions.canMarkUnread
+        case "react":
+          return permissions.canReact;
+        case "reply":
+          return permissions.canReply;
+        case "thread":
+          return permissions.canThread;
+        case "edit":
+          return permissions.canEdit;
+        case "delete":
+          return permissions.canDelete;
+        case "pin":
+        case "unpin":
+          return permissions.canPin;
+        case "bookmark":
+        case "unbookmark":
+          return permissions.canBookmark;
+        case "forward":
+          return permissions.canForward;
+        case "copy":
+        case "copy-link":
+          return permissions.canCopy;
+        case "report":
+          return permissions.canReport;
+        case "mark-unread":
+          return permissions.canMarkUnread;
         default:
-          return false
+          return false;
       }
     },
-    [getPermissions]
-  )
+    [getPermissions],
+  );
 
   // ============================================================================
   // Action Handlers
@@ -216,359 +228,361 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
     async (messageId: string, emoji: string) => {
       if (!user) {
         toast({
-          title: 'Authentication required',
-          description: 'You must be logged in to react to messages',
-          variant: 'destructive',
-        })
-        return
+          title: "Authentication required",
+          description: "You must be logged in to react to messages",
+          variant: "destructive",
+        });
+        return;
       }
 
       try {
-        logger.info('Adding reaction', { messageId, emoji, userId: user.id })
+        logger.info("Adding reaction", { messageId, emoji, userId: user.id });
 
         // Optimistic update would go here
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
-        logger.info('Reaction added', { messageId, emoji })
+        logger.info("Reaction added", { messageId, emoji });
       } catch (error) {
-        logger.error('Failed to add reaction', error, { messageId, emoji })
+        logger.error("Failed to add reaction", error, { messageId, emoji });
         toast({
-          title: 'Failed to add reaction',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to add reaction",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       }
     },
-    [user, toast]
-  )
+    [user, toast],
+  );
 
   const onRemoveReaction = useCallback(
     async (messageId: string, emoji: string) => {
-      if (!user) return
+      if (!user) return;
 
       try {
-        logger.info('Removing reaction', { messageId, emoji, userId: user.id })
+        logger.info("Removing reaction", { messageId, emoji, userId: user.id });
 
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
-        logger.info('Reaction removed', { messageId, emoji })
+        logger.info("Reaction removed", { messageId, emoji });
       } catch (error) {
-        logger.error('Failed to remove reaction', error, { messageId, emoji })
+        logger.error("Failed to remove reaction", error, { messageId, emoji });
         toast({
-          title: 'Failed to remove reaction',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to remove reaction",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       }
     },
-    [user, toast]
-  )
+    [user, toast],
+  );
 
   const onReply = useCallback(
     (message: Message) => {
       if (onReplyMessage) {
-        onReplyMessage(message)
+        onReplyMessage(message);
       } else {
-        logger.warn('No reply handler provided')
+        logger.warn("No reply handler provided");
       }
     },
-    [onReplyMessage]
-  )
+    [onReplyMessage],
+  );
 
   const onThread = useCallback(
     (message: Message) => {
       if (onOpenThread) {
-        onOpenThread(message)
+        onOpenThread(message);
       } else {
-        logger.warn('No thread handler provided')
+        logger.warn("No thread handler provided");
       }
     },
-    [onOpenThread]
-  )
+    [onOpenThread],
+  );
 
   const onEdit = useCallback(
     (message: Message) => {
       if (onEditMessage) {
-        onEditMessage(message)
+        onEditMessage(message);
       } else {
-        logger.warn('No edit handler provided')
+        logger.warn("No edit handler provided");
       }
     },
-    [onEditMessage]
-  )
+    [onEditMessage],
+  );
 
   const onDelete = useCallback(
     async (messageId: string) => {
-      if (!user) return
+      if (!user) return;
 
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
         if (onDeleteMessage) {
-          await onDeleteMessage(messageId)
+          await onDeleteMessage(messageId);
         } else {
-          logger.info('Deleting message', { messageId })
-          await new Promise((resolve) => setTimeout(resolve, 500))
+          logger.info("Deleting message", { messageId });
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
 
         toast({
-          title: 'Message deleted',
-          description: 'The message has been deleted',
-        })
+          title: "Message deleted",
+          description: "The message has been deleted",
+        });
 
-        logger.info('Message deleted', { messageId })
+        logger.info("Message deleted", { messageId });
       } catch (error) {
-        logger.error('Failed to delete message', error, { messageId })
+        logger.error("Failed to delete message", error, { messageId });
         toast({
-          title: 'Failed to delete message',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to delete message",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [user, onDeleteMessage, toast]
-  )
+    [user, onDeleteMessage, toast],
+  );
 
   const onPin = useCallback(
     async (messageId: string) => {
-      if (!user) return
+      if (!user) return;
 
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
-        logger.info('Pinning message', { messageId, channelId })
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        logger.info("Pinning message", { messageId, channelId });
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         toast({
-          title: 'Message pinned',
-          description: 'The message has been pinned to the channel',
-        })
+          title: "Message pinned",
+          description: "The message has been pinned to the channel",
+        });
 
-        logger.info('Message pinned', { messageId })
+        logger.info("Message pinned", { messageId });
       } catch (error) {
-        logger.error('Failed to pin message', error, { messageId })
+        logger.error("Failed to pin message", error, { messageId });
         toast({
-          title: 'Failed to pin message',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to pin message",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [user, channelId, toast]
-  )
+    [user, channelId, toast],
+  );
 
   const onUnpin = useCallback(
     async (messageId: string) => {
-      if (!user) return
+      if (!user) return;
 
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
-        logger.info('Unpinning message', { messageId, channelId })
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        logger.info("Unpinning message", { messageId, channelId });
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         toast({
-          title: 'Message unpinned',
-          description: 'The message has been unpinned from the channel',
-        })
+          title: "Message unpinned",
+          description: "The message has been unpinned from the channel",
+        });
 
-        logger.info('Message unpinned', { messageId })
+        logger.info("Message unpinned", { messageId });
       } catch (error) {
-        logger.error('Failed to unpin message', error, { messageId })
+        logger.error("Failed to unpin message", error, { messageId });
         toast({
-          title: 'Failed to unpin message',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to unpin message",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [user, channelId, toast]
-  )
+    [user, channelId, toast],
+  );
 
   const onBookmark = useCallback(
     async (messageId: string) => {
-      if (!user) return
+      if (!user) return;
 
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
-        logger.info('Bookmarking message', { messageId, userId: user.id })
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        logger.info("Bookmarking message", { messageId, userId: user.id });
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         toast({
-          title: 'Message saved',
-          description: 'The message has been added to your saved items',
-        })
+          title: "Message saved",
+          description: "The message has been added to your saved items",
+        });
 
-        logger.info('Message bookmarked', { messageId })
+        logger.info("Message bookmarked", { messageId });
       } catch (error) {
-        logger.error('Failed to bookmark message', error, { messageId })
+        logger.error("Failed to bookmark message", error, { messageId });
         toast({
-          title: 'Failed to save message',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to save message",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [user, toast]
-  )
+    [user, toast],
+  );
 
   const onUnbookmark = useCallback(
     async (messageId: string) => {
-      if (!user) return
+      if (!user) return;
 
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
-        logger.info('Removing bookmark', { messageId, userId: user.id })
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        logger.info("Removing bookmark", { messageId, userId: user.id });
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         toast({
-          title: 'Bookmark removed',
-          description: 'The message has been removed from your saved items',
-        })
+          title: "Bookmark removed",
+          description: "The message has been removed from your saved items",
+        });
 
-        logger.info('Bookmark removed', { messageId })
+        logger.info("Bookmark removed", { messageId });
       } catch (error) {
-        logger.error('Failed to remove bookmark', error, { messageId })
+        logger.error("Failed to remove bookmark", error, { messageId });
         toast({
-          title: 'Failed to remove bookmark',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to remove bookmark",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [user, toast]
-  )
+    [user, toast],
+  );
 
   const onForward = useCallback(
     (message: Message) => {
       if (onForwardMessage) {
-        onForwardMessage(message)
+        onForwardMessage(message);
       } else {
-        logger.warn('No forward handler provided')
+        logger.warn("No forward handler provided");
       }
     },
-    [onForwardMessage]
-  )
+    [onForwardMessage],
+  );
 
   const onCopy = useCallback(
     (message: Message) => {
       try {
-        navigator.clipboard.writeText(message.content)
+        navigator.clipboard.writeText(message.content);
 
         toast({
-          title: 'Message copied',
-          description: 'Message text copied to clipboard',
-        })
+          title: "Message copied",
+          description: "Message text copied to clipboard",
+        });
 
-        logger.info('Message copied to clipboard', { messageId: message.id })
+        logger.info("Message copied to clipboard", { messageId: message.id });
       } catch (error) {
-        logger.error('Failed to copy message', error, { messageId: message.id })
+        logger.error("Failed to copy message", error, {
+          messageId: message.id,
+        });
         toast({
-          title: 'Failed to copy',
-          description: 'Could not copy message to clipboard',
-          variant: 'destructive',
-        })
+          title: "Failed to copy",
+          description: "Could not copy message to clipboard",
+          variant: "destructive",
+        });
       }
     },
-    [toast]
-  )
+    [toast],
+  );
 
   const onCopyLink = useCallback(
     (message: Message) => {
       try {
-        const url = `${window.location.origin}/chat/${message.channelId}?message=${message.id}`
-        navigator.clipboard.writeText(url)
+        const url = `${window.location.origin}/chat/${message.channelId}?message=${message.id}`;
+        navigator.clipboard.writeText(url);
 
         toast({
-          title: 'Link copied',
-          description: 'Message link copied to clipboard',
-        })
+          title: "Link copied",
+          description: "Message link copied to clipboard",
+        });
 
-        logger.info('Message link copied', { messageId: message.id, url })
+        logger.info("Message link copied", { messageId: message.id, url });
       } catch (error) {
-        logger.error('Failed to copy link', error, { messageId: message.id })
+        logger.error("Failed to copy link", error, { messageId: message.id });
         toast({
-          title: 'Failed to copy link',
-          description: 'Could not copy link to clipboard',
-          variant: 'destructive',
-        })
+          title: "Failed to copy link",
+          description: "Could not copy link to clipboard",
+          variant: "destructive",
+        });
       }
     },
-    [toast]
-  )
+    [toast],
+  );
 
   const onReport = useCallback(
     (message: Message) => {
       if (onReportMessage) {
-        onReportMessage(message)
+        onReportMessage(message);
       } else {
-        logger.warn('No report handler provided')
+        logger.warn("No report handler provided");
       }
     },
-    [onReportMessage]
-  )
+    [onReportMessage],
+  );
 
   const onMarkUnread = useCallback(
     async (messageId: string) => {
-      if (!user) return
+      if (!user) return;
 
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
-        logger.info('Marking as unread', { messageId, userId: user.id })
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        logger.info("Marking as unread", { messageId, userId: user.id });
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         toast({
-          title: 'Marked as unread',
-          description: 'The channel has been marked as unread',
-        })
+          title: "Marked as unread",
+          description: "The channel has been marked as unread",
+        });
 
-        logger.info('Marked as unread', { messageId })
+        logger.info("Marked as unread", { messageId });
       } catch (error) {
-        logger.error('Failed to mark as unread', error, { messageId })
+        logger.error("Failed to mark as unread", error, { messageId });
         toast({
-          title: 'Failed to mark as unread',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to mark as unread",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [user, toast]
-  )
+    [user, toast],
+  );
 
   const onViewDetails = useCallback(
     (message: Message) => {
       if (onViewMessageDetails) {
-        onViewMessageDetails(message)
+        onViewMessageDetails(message);
       } else {
-        logger.info('Viewing message details', { messageId: message.id })
+        logger.info("Viewing message details", { messageId: message.id });
         // Could open a modal here
       }
     },
-    [onViewMessageDetails]
-  )
+    [onViewMessageDetails],
+  );
 
   const onViewEditHistory = useCallback((message: Message) => {
-    logger.info('Viewing edit history', { messageId: message.id })
-  }, [])
+    logger.info("Viewing edit history", { messageId: message.id });
+  }, []);
 
   const onViewReactions = useCallback((message: Message) => {
-    logger.info('Viewing reactions', { messageId: message.id })
-  }, [])
+    logger.info("Viewing reactions", { messageId: message.id });
+  }, []);
 
   // ============================================================================
   // Bulk Action Handlers
@@ -576,87 +590,88 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
 
   const onBulkDelete = useCallback(
     async (messageIds: string[]) => {
-      if (!user || messageIds.length === 0) return
+      if (!user || messageIds.length === 0) return;
 
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
-        logger.info('Bulk deleting messages', {
+        logger.info("Bulk deleting messages", {
           count: messageIds.length,
           messageIds,
-        })
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         toast({
-          title: 'Messages deleted',
+          title: "Messages deleted",
           description: `${messageIds.length} messages have been deleted`,
-        })
+        });
 
-        setSelectedMessages(new Set())
-        setIsSelectionMode(false)
+        setSelectedMessages(new Set());
+        setIsSelectionMode(false);
 
-        logger.info('Bulk delete completed', { count: messageIds.length })
+        logger.info("Bulk delete completed", { count: messageIds.length });
       } catch (error) {
-        logger.error('Failed to bulk delete', error, {
+        logger.error("Failed to bulk delete", error, {
           count: messageIds.length,
-        })
+        });
         toast({
-          title: 'Failed to delete messages',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          variant: 'destructive',
-        })
+          title: "Failed to delete messages",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [user, toast]
-  )
+    [user, toast],
+  );
 
   const onBulkForward = useCallback(
     (messages: Message[]) => {
-      if (messages.length === 0) return
+      if (messages.length === 0) return;
 
-      logger.info('Bulk forwarding messages', { count: messages.length })
+      logger.info("Bulk forwarding messages", { count: messages.length });
       toast({
-        title: 'Forward messages',
+        title: "Forward messages",
         description: `Select destination for ${messages.length} messages`,
-      })
+      });
     },
-    [toast]
-  )
+    [toast],
+  );
 
   const onBulkCopy = useCallback(
     (messages: Message[]) => {
-      if (messages.length === 0) return
+      if (messages.length === 0) return;
 
       try {
         const text = messages
           .map(
-            (m) => `[${new Date(m.createdAt).toLocaleString()}] ${m.user.displayName}: ${m.content}`
+            (m) =>
+              `[${new Date(m.createdAt).toLocaleString()}] ${m.user.displayName}: ${m.content}`,
           )
-          .join('\n\n')
+          .join("\n\n");
 
-        navigator.clipboard.writeText(text)
+        navigator.clipboard.writeText(text);
 
         toast({
-          title: 'Messages copied',
+          title: "Messages copied",
           description: `${messages.length} messages copied to clipboard`,
-        })
+        });
 
-        logger.info('Bulk copy completed', { count: messages.length })
+        logger.info("Bulk copy completed", { count: messages.length });
       } catch (error) {
-        logger.error('Failed to bulk copy', error, {
+        logger.error("Failed to bulk copy", error, {
           count: messages.length,
-        })
+        });
         toast({
-          title: 'Failed to copy messages',
-          description: 'Could not copy messages to clipboard',
-          variant: 'destructive',
-        })
+          title: "Failed to copy messages",
+          description: "Could not copy messages to clipboard",
+          variant: "destructive",
+        });
       }
     },
-    [toast]
-  )
+    [toast],
+  );
 
   // ============================================================================
   // Selection Handlers
@@ -664,32 +679,32 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
 
   const toggleSelection = useCallback((messageId: string) => {
     setSelectedMessages((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(messageId)) {
-        next.delete(messageId)
+        next.delete(messageId);
       } else {
-        next.add(messageId)
+        next.add(messageId);
       }
-      return next
-    })
-  }, [])
+      return next;
+    });
+  }, []);
 
   const selectAll = useCallback((messageIds: string[]) => {
-    setSelectedMessages(new Set(messageIds))
-  }, [])
+    setSelectedMessages(new Set(messageIds));
+  }, []);
 
   const clearSelection = useCallback(() => {
-    setSelectedMessages(new Set())
-  }, [])
+    setSelectedMessages(new Set());
+  }, []);
 
   const enterSelectionMode = useCallback(() => {
-    setIsSelectionMode(true)
-  }, [])
+    setIsSelectionMode(true);
+  }, []);
 
   const exitSelectionMode = useCallback(() => {
-    setIsSelectionMode(false)
-    setSelectedMessages(new Set())
-  }, [])
+    setIsSelectionMode(false);
+    setSelectedMessages(new Set());
+  }, []);
 
   // ============================================================================
   // Main Action Handler
@@ -698,47 +713,47 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
   const handleAction = useCallback(
     (action: MessageAction, message: Message, data?: unknown) => {
       if (!canPerformAction(action, message)) {
-        logger.warn('Action not permitted', { action, messageId: message.id })
+        logger.warn("Action not permitted", { action, messageId: message.id });
         toast({
-          title: 'Action not permitted',
-          description: 'You do not have permission to perform this action',
-          variant: 'destructive',
-        })
-        return
+          title: "Action not permitted",
+          description: "You do not have permission to perform this action",
+          variant: "destructive",
+        });
+        return;
       }
 
       switch (action) {
-        case 'react':
-          const emoji = (data as { emoji?: string })?.emoji || '👍'
-          return onReact(message.id, emoji)
-        case 'reply':
-          return onReply(message)
-        case 'thread':
-          return onThread(message)
-        case 'edit':
-          return onEdit(message)
-        case 'delete':
-          return onDelete(message.id)
-        case 'pin':
-          return onPin(message.id)
-        case 'unpin':
-          return onUnpin(message.id)
-        case 'bookmark':
-          return onBookmark(message.id)
-        case 'unbookmark':
-          return onUnbookmark(message.id)
-        case 'forward':
-          return onForward(message)
-        case 'copy':
-          return onCopy(message)
-        case 'copy-link':
-          return onCopyLink(message)
-        case 'report':
-          return onReport(message)
-        case 'mark-unread':
-          return onMarkUnread(message.id)
+        case "react":
+          const emoji = (data as { emoji?: string })?.emoji || "👍";
+          return onReact(message.id, emoji);
+        case "reply":
+          return onReply(message);
+        case "thread":
+          return onThread(message);
+        case "edit":
+          return onEdit(message);
+        case "delete":
+          return onDelete(message.id);
+        case "pin":
+          return onPin(message.id);
+        case "unpin":
+          return onUnpin(message.id);
+        case "bookmark":
+          return onBookmark(message.id);
+        case "unbookmark":
+          return onUnbookmark(message.id);
+        case "forward":
+          return onForward(message);
+        case "copy":
+          return onCopy(message);
+        case "copy-link":
+          return onCopyLink(message);
+        case "report":
+          return onReport(message);
+        case "mark-unread":
+          return onMarkUnread(message.id);
         default:
-          logger.warn('Unknown action', { action })
+          logger.warn("Unknown action", { action });
       }
     },
     [
@@ -758,8 +773,8 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
       onReport,
       onMarkUnread,
       toast,
-    ]
-  )
+    ],
+  );
 
   // ============================================================================
   // Return
@@ -804,5 +819,5 @@ export function useMessageActions(options: UseMessageActionsOptions): UseMessage
     canPerformAction,
     getPermissions,
     isLoading,
-  }
+  };
 }

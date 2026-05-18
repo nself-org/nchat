@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Template Card Component
@@ -9,8 +9,8 @@
 //
 // ===============================================================================
 
-import React, { useCallback } from 'react'
-import Link from 'next/link'
+import React, { useCallback } from "react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -18,26 +18,26 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import type { TemplateId } from '@/templates/types'
-import { templateBranding } from '@/lib/demo/sample-data'
-import { templateRegistry } from '@/templates/index'
-import { themePresets } from '@/lib/theme-presets'
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { TemplateId } from "@/templates/types";
+import { templateBranding } from "@/lib/demo/sample-data";
+import { templateRegistry } from "@/templates/index";
+import { themePresets } from "@/lib/theme-presets";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface TemplateCardProps {
-  templateId: TemplateId
-  isActive?: boolean
-  showTryButton?: boolean
-  showCompareButton?: boolean
-  onTryClick?: (templateId: TemplateId) => void
-  onCompareClick?: (templateId: TemplateId) => void
-  className?: string
+  templateId: TemplateId;
+  isActive?: boolean;
+  showTryButton?: boolean;
+  showCompareButton?: boolean;
+  onTryClick?: (templateId: TemplateId) => void;
+  onCompareClick?: (templateId: TemplateId) => void;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -45,16 +45,16 @@ export interface TemplateCardProps {
 // -------------------------------------------------------------------------------
 
 interface ColorPreviewProps {
-  colors: string[]
-  size?: 'sm' | 'md' | 'lg'
+  colors: string[];
+  size?: "sm" | "md" | "lg";
 }
 
-function ColorPreview({ colors, size = 'md' }: ColorPreviewProps) {
+function ColorPreview({ colors, size = "md" }: ColorPreviewProps) {
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8',
-  }
+    sm: "w-4 h-4",
+    md: "w-6 h-6",
+    lg: "w-8 h-8",
+  };
 
   return (
     <div className="flex gap-1">
@@ -67,7 +67,7 @@ function ColorPreview({ colors, size = 'md' }: ColorPreviewProps) {
         />
       ))}
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -75,11 +75,11 @@ function ColorPreview({ colors, size = 'md' }: ColorPreviewProps) {
 // -------------------------------------------------------------------------------
 
 interface TemplateIconProps {
-  templateId: TemplateId
-  className?: string
+  templateId: TemplateId;
+  className?: string;
 }
 
-function TemplateIcon({ templateId, className = '' }: TemplateIconProps) {
+function TemplateIcon({ templateId, className = "" }: TemplateIconProps) {
   // SVG icons for each template
   const icons: Record<TemplateId, React.ReactElement> = {
     default: (
@@ -114,9 +114,9 @@ function TemplateIcon({ templateId, className = '' }: TemplateIconProps) {
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
       </svg>
     ),
-  }
+  };
 
-  return icons[templateId] || icons.default
+  return icons[templateId] || icons.default;
 }
 
 // -------------------------------------------------------------------------------
@@ -130,11 +130,11 @@ export function TemplateCard({
   showCompareButton = false,
   onTryClick,
   onCompareClick,
-  className = '',
+  className = "",
 }: TemplateCardProps) {
-  const branding = templateBranding[templateId]
-  const registryEntry = templateRegistry[templateId]
-  const preset = themePresets[templateId] || themePresets.nself
+  const branding = templateBranding[templateId];
+  const registryEntry = templateRegistry[templateId];
+  const preset = themePresets[templateId] || themePresets.nself;
 
   // Get theme colors for preview
   const previewColors = [
@@ -143,23 +143,23 @@ export function TemplateCard({
     preset.dark.accentColor,
     preset.dark.backgroundColor,
     preset.dark.surfaceColor,
-  ]
+  ];
 
   const handleTryClick = useCallback(() => {
     if (onTryClick) {
-      onTryClick(templateId)
+      onTryClick(templateId);
     }
-  }, [onTryClick, templateId])
+  }, [onTryClick, templateId]);
 
   const handleCompareClick = useCallback(() => {
     if (onCompareClick) {
-      onCompareClick(templateId)
+      onCompareClick(templateId);
     }
-  }, [onCompareClick, templateId])
+  }, [onCompareClick, templateId]);
 
   return (
     <Card
-      className={`relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg ${isActive ? 'ring-2 ring-primary' : ''} ${className} `}
+      className={`relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg ${isActive ? "ring-2 ring-primary" : ""} ${className} `}
     >
       {/* Active Badge */}
       {isActive && (
@@ -183,7 +183,10 @@ export function TemplateCard({
         {/* Mock UI Preview */}
         <div className="absolute inset-2 flex overflow-hidden rounded-lg border border-white/10">
           {/* Sidebar */}
-          <div className="h-full w-14" style={{ backgroundColor: preset.dark.surfaceColor }}>
+          <div
+            className="h-full w-14"
+            style={{ backgroundColor: preset.dark.surfaceColor }}
+          >
             <div className="space-y-2 p-2">
               {[1, 2, 3].map((i) => (
                 <div
@@ -191,7 +194,9 @@ export function TemplateCard({
                   className="aspect-square w-full rounded-lg"
                   style={{
                     backgroundColor:
-                      i === 1 ? preset.dark.primaryColor : preset.dark.borderColor || '#333',
+                      i === 1
+                        ? preset.dark.primaryColor
+                        : preset.dark.borderColor || "#333",
                     opacity: i === 1 ? 1 : 0.5,
                   }}
                 />
@@ -203,7 +208,10 @@ export function TemplateCard({
           <div className="flex-1 p-2">
             <div
               className="mb-2 h-3 w-full rounded"
-              style={{ backgroundColor: preset.dark.primaryColor, opacity: 0.7 }}
+              style={{
+                backgroundColor: preset.dark.primaryColor,
+                opacity: 0.7,
+              }}
             />
             <div className="space-y-1.5">
               {[1, 2, 3].map((i) => (
@@ -211,7 +219,7 @@ export function TemplateCard({
                   key={i}
                   className="h-2 rounded"
                   style={{
-                    backgroundColor: preset.dark.textColor || '#fff',
+                    backgroundColor: preset.dark.textColor || "#fff",
                     opacity: 0.2,
                     width: `${70 + Math.random() * 30}%`,
                   }}
@@ -231,11 +239,16 @@ export function TemplateCard({
             className="flex h-10 w-10 items-center justify-center rounded-lg"
             style={{ backgroundColor: preset.dark.primaryColor }}
           >
-            <TemplateIcon templateId={templateId} className="h-6 w-6 text-white" />
+            <TemplateIcon
+              templateId={templateId}
+              className="h-6 w-6 text-white"
+            />
           </div>
           <div>
             <CardTitle className="text-lg">{branding.name}</CardTitle>
-            <CardDescription className="text-xs">{branding.tagline}</CardDescription>
+            <CardDescription className="text-xs">
+              {branding.tagline}
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -262,8 +275,16 @@ export function TemplateCard({
 
       <CardFooter className="gap-2 pt-2">
         {showTryButton && (
-          <Button className="flex-1" onClick={handleTryClick} asChild={!onTryClick}>
-            {onTryClick ? 'Try Demo' : <Link href={`/demo/${templateId}`}>Try Demo</Link>}
+          <Button
+            className="flex-1"
+            onClick={handleTryClick}
+            asChild={!onTryClick}
+          >
+            {onTryClick ? (
+              "Try Demo"
+            ) : (
+              <Link href={`/demo/${templateId}`}>Try Demo</Link>
+            )}
           </Button>
         )}
         {showCompareButton && (
@@ -273,7 +294,7 @@ export function TemplateCard({
         )}
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -281,31 +302,31 @@ export function TemplateCard({
 // -------------------------------------------------------------------------------
 
 export interface TemplateCardCompactProps {
-  templateId: TemplateId
-  isActive?: boolean
-  onClick?: (templateId: TemplateId) => void
-  className?: string
+  templateId: TemplateId;
+  isActive?: boolean;
+  onClick?: (templateId: TemplateId) => void;
+  className?: string;
 }
 
 export function TemplateCardCompact({
   templateId,
   isActive = false,
   onClick,
-  className = '',
+  className = "",
 }: TemplateCardCompactProps) {
-  const branding = templateBranding[templateId]
-  const preset = themePresets[templateId] || themePresets.nself
+  const branding = templateBranding[templateId];
+  const preset = themePresets[templateId] || themePresets.nself;
 
   const handleClick = useCallback(() => {
     if (onClick) {
-      onClick(templateId)
+      onClick(templateId);
     }
-  }, [onClick, templateId])
+  }, [onClick, templateId]);
 
   return (
     <button
       onClick={handleClick}
-      className={`hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all ${isActive ? 'bg-primary/10 border-primary' : 'border-border'} ${className} `}
+      className={`hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all ${isActive ? "bg-primary/10 border-primary" : "border-border"} ${className} `}
     >
       <div
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
@@ -315,7 +336,9 @@ export function TemplateCardCompact({
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{branding.name}</p>
-        <p className="truncate text-xs text-muted-foreground">{branding.tagline}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {branding.tagline}
+        </p>
       </div>
       {isActive && (
         <Badge variant="default" className="shrink-0">
@@ -323,7 +346,7 @@ export function TemplateCardCompact({
         </Badge>
       )}
     </button>
-  )
+  );
 }
 
-export default TemplateCard
+export default TemplateCard;

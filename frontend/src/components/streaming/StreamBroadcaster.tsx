@@ -7,39 +7,52 @@
  * @module components/streaming/StreamBroadcaster
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useLiveStream } from '@/hooks/use-live-stream'
-import type { StreamQuality, CreateStreamInput } from '@/lib/streaming'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { useState } from "react";
+import { useLiveStream } from "@/hooks/use-live-stream";
+import type { StreamQuality, CreateStreamInput } from "@/lib/streaming";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Video, VideoOff, Mic, MicOff, Radio, Square, Users, Clock, Settings } from 'lucide-react'
+} from "@/components/ui/select";
+import {
+  Video,
+  VideoOff,
+  Mic,
+  MicOff,
+  Radio,
+  Square,
+  Users,
+  Clock,
+  Settings,
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface StreamBroadcasterProps {
-  channelId: string
-  onStreamEnded?: () => void
+  channelId: string;
+  onStreamEnded?: () => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcasterProps) {
+export function StreamBroadcaster({
+  channelId,
+  onStreamEnded,
+}: StreamBroadcasterProps) {
   // Stream hook
   const {
     stream,
@@ -65,17 +78,17 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
     availableMicrophones,
   } = useLiveStream({
     onStreamEnded,
-  })
+  });
 
   // Local state
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [quality, setQuality] = useState<StreamQuality>('720p')
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true)
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true)
-  const [selectedCamera, setSelectedCamera] = useState<string>('')
-  const [selectedMicrophone, setSelectedMicrophone] = useState<string>('')
-  const [showSettings, setShowSettings] = useState(false)
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [quality, setQuality] = useState<StreamQuality>("720p");
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const [selectedCamera, setSelectedCamera] = useState<string>("");
+  const [selectedMicrophone, setSelectedMicrophone] = useState<string>("");
+  const [showSettings, setShowSettings] = useState(false);
 
   // ==========================================================================
   // Handlers
@@ -83,8 +96,8 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
 
   const handleCreateStream = async () => {
     if (!title.trim()) {
-      alert('Please enter a stream title')
-      return
+      alert("Please enter a stream title");
+      return;
     }
 
     const input: CreateStreamInput = {
@@ -94,75 +107,75 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
       maxResolution: quality,
       enableChat: true,
       enableReactions: true,
-    }
+    };
 
-    await createStream(input)
-  }
+    await createStream(input);
+  };
 
   const handleGoLive = async () => {
     if (!stream) {
-      await handleCreateStream()
+      await handleCreateStream();
     }
 
     if (stream) {
-      await startBroadcast(quality)
+      await startBroadcast(quality);
     }
-  }
+  };
 
   const handleEndStream = async () => {
-    if (confirm('Are you sure you want to end this stream?')) {
-      await endStream()
+    if (confirm("Are you sure you want to end this stream?")) {
+      await endStream();
     }
-  }
+  };
 
   const handleToggleVideo = () => {
-    const newState = !isVideoEnabled
-    toggleVideo(newState)
-    setIsVideoEnabled(newState)
-  }
+    const newState = !isVideoEnabled;
+    toggleVideo(newState);
+    setIsVideoEnabled(newState);
+  };
 
   const handleToggleAudio = () => {
-    const newState = !isAudioEnabled
-    toggleAudio(newState)
-    setIsAudioEnabled(newState)
-  }
+    const newState = !isAudioEnabled;
+    toggleAudio(newState);
+    setIsAudioEnabled(newState);
+  };
 
   const handleCameraChange = async (deviceId: string) => {
-    setSelectedCamera(deviceId)
+    setSelectedCamera(deviceId);
     if (isBroadcasting) {
-      await switchCamera(deviceId)
+      await switchCamera(deviceId);
     }
-  }
+  };
 
   const handleMicrophoneChange = async (deviceId: string) => {
-    setSelectedMicrophone(deviceId)
+    setSelectedMicrophone(deviceId);
     if (isBroadcasting) {
-      await switchMicrophone(deviceId)
+      await switchMicrophone(deviceId);
     }
-  }
+  };
 
   const handleQualityChange = async (newQuality: StreamQuality) => {
-    setQuality(newQuality)
+    setQuality(newQuality);
     if (isBroadcasting) {
-      await changeQuality(newQuality)
+      await changeQuality(newQuality);
     }
-  }
+  };
 
   // ==========================================================================
   // Format Duration
   // ==========================================================================
 
   const formatDuration = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
 
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
 
-    return `${minutes}:${secs.toString().padStart(2, '0')}`
-  }
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // ==========================================================================
   // Render
@@ -176,7 +189,7 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
           <video
             ref={(el) => {
               if (el && localStream) {
-                el.srcObject = localStream
+                el.srcObject = localStream;
               }
             }}
             autoPlay
@@ -221,19 +234,27 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
           <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
             <Button
               size="icon"
-              variant={isVideoEnabled ? 'default' : 'destructive'}
+              variant={isVideoEnabled ? "default" : "destructive"}
               onClick={handleToggleVideo}
               disabled={!isBroadcasting}
             >
-              {isVideoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+              {isVideoEnabled ? (
+                <Video className="h-5 w-5" />
+              ) : (
+                <VideoOff className="h-5 w-5" />
+              )}
             </Button>
             <Button
               size="icon"
-              variant={isAudioEnabled ? 'default' : 'destructive'}
+              variant={isAudioEnabled ? "default" : "destructive"}
               onClick={handleToggleAudio}
               disabled={!isBroadcasting}
             >
-              {isAudioEnabled ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+              {isAudioEnabled ? (
+                <Mic className="h-5 w-5" />
+              ) : (
+                <MicOff className="h-5 w-5" />
+              )}
             </Button>
           </div>
         )}
@@ -290,7 +311,10 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
 
             <div>
               <Label htmlFor="microphone">Microphone</Label>
-              <Select value={selectedMicrophone} onValueChange={handleMicrophoneChange}>
+              <Select
+                value={selectedMicrophone}
+                onValueChange={handleMicrophoneChange}
+              >
                 <SelectTrigger id="microphone">
                   <SelectValue placeholder="Select microphone" />
                 </SelectTrigger>
@@ -307,7 +331,10 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
 
           <div>
             <Label htmlFor="quality">Stream Quality</Label>
-            <Select value={quality} onValueChange={(v) => handleQualityChange(v as StreamQuality)}>
+            <Select
+              value={quality}
+              onValueChange={(v) => handleQualityChange(v as StreamQuality)}
+            >
               <SelectTrigger id="quality">
                 <SelectValue />
               </SelectTrigger>
@@ -326,14 +353,16 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
       {isBroadcasting && connectionState && (
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Connection Status:</span>
+            <span className="text-sm text-muted-foreground">
+              Connection Status:
+            </span>
             <span
               className={`text-sm font-semibold ${
-                connectionState === 'connected'
-                  ? 'text-green-600'
-                  : connectionState === 'connecting'
-                    ? 'text-yellow-600'
-                    : 'text-red-600'
+                connectionState === "connected"
+                  ? "text-green-600"
+                  : connectionState === "connecting"
+                    ? "text-yellow-600"
+                    : "text-red-600"
               }`}
             >
               {connectionState}
@@ -379,7 +408,11 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
           </Button>
         )}
 
-        <Button variant="outline" size="lg" onClick={() => setShowSettings(!showSettings)}>
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={() => setShowSettings(!showSettings)}
+        >
           <Settings className="h-5 w-5" />
         </Button>
       </div>
@@ -395,5 +428,5 @@ export function StreamBroadcaster({ channelId, onStreamEnded }: StreamBroadcaste
         </Card>
       )}
     </div>
-  )
+  );
 }

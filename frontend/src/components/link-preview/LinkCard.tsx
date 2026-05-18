@@ -1,41 +1,41 @@
-'use client'
+"use client";
 
 /**
  * LinkCard - Card layout for link previews
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { LinkImage } from './LinkImage'
-import { LinkTitle } from './LinkTitle'
-import { LinkDescription } from './LinkDescription'
-import { LinkDomain } from './LinkDomain'
-import type { LinkPreviewData } from '@/lib/link-preview'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { LinkImage } from "./LinkImage";
+import { LinkTitle } from "./LinkTitle";
+import { LinkDescription } from "./LinkDescription";
+import { LinkDomain } from "./LinkDomain";
+import type { LinkPreviewData } from "@/lib/link-preview";
 
 export interface LinkCardProps {
   /** Preview data */
-  data: LinkPreviewData
+  data: LinkPreviewData;
   /** Card layout variant */
-  variant?: 'vertical' | 'horizontal' | 'compact'
+  variant?: "vertical" | "horizontal" | "compact";
   /** Show image */
-  showImage?: boolean
+  showImage?: boolean;
   /** Show description */
-  showDescription?: boolean
+  showDescription?: boolean;
   /** Show favicon */
-  showFavicon?: boolean
+  showFavicon?: boolean;
   /** Maximum image height */
-  maxImageHeight?: number
+  maxImageHeight?: number;
   /** Click handler */
-  onClick?: () => void
+  onClick?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Children (for action buttons, etc.) */
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export function LinkCard({
   data,
-  variant = 'vertical',
+  variant = "vertical",
   showImage = true,
   showDescription = true,
   showFavicon = true,
@@ -44,32 +44,32 @@ export function LinkCard({
   className,
   children,
 }: LinkCardProps) {
-  const hasImage = showImage && data.image
+  const hasImage = showImage && data.image;
 
   const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
-      onClick()
+      onClick();
     } else {
-      window.open(data.url, '_blank', 'noopener,noreferrer')
+      window.open(data.url, "_blank", "noopener,noreferrer");
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleClick(e as unknown as React.MouseEvent)
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleClick(e as unknown as React.MouseEvent);
     }
-  }
+  };
 
   // Vertical layout (image on top)
-  if (variant === 'vertical') {
+  if (variant === "vertical") {
     return (
       <div
         className={cn(
-          'group relative rounded-lg border bg-card text-card-foreground shadow-sm',
-          'hover:border-primary/50 transition-all duration-200 hover:shadow-md',
-          'cursor-pointer overflow-hidden',
-          className
+          "group relative rounded-lg border bg-card text-card-foreground shadow-sm",
+          "hover:border-primary/50 transition-all duration-200 hover:shadow-md",
+          "cursor-pointer overflow-hidden",
+          className,
         )}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
@@ -98,10 +98,16 @@ export function LinkCard({
             showFavicon={showFavicon}
           />
 
-          {data.title && <LinkTitle title={data.title} maxLines={2} size="sm" />}
+          {data.title && (
+            <LinkTitle title={data.title} maxLines={2} size="sm" />
+          )}
 
           {showDescription && data.description && (
-            <LinkDescription description={data.description} maxLines={2} size="sm" />
+            <LinkDescription
+              description={data.description}
+              maxLines={2}
+              size="sm"
+            />
           )}
         </div>
 
@@ -111,18 +117,18 @@ export function LinkCard({
           </div>
         )}
       </div>
-    )
+    );
   }
 
   // Horizontal layout (image on left)
-  if (variant === 'horizontal') {
+  if (variant === "horizontal") {
     return (
       <div
         className={cn(
-          'group relative flex rounded-lg border bg-card text-card-foreground shadow-sm',
-          'hover:border-primary/50 transition-all duration-200 hover:shadow-md',
-          'cursor-pointer overflow-hidden',
-          className
+          "group relative flex rounded-lg border bg-card text-card-foreground shadow-sm",
+          "hover:border-primary/50 transition-all duration-200 hover:shadow-md",
+          "cursor-pointer overflow-hidden",
+          className,
         )}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
@@ -153,10 +159,16 @@ export function LinkCard({
             showFavicon={showFavicon}
           />
 
-          {data.title && <LinkTitle title={data.title} maxLines={2} size="sm" />}
+          {data.title && (
+            <LinkTitle title={data.title} maxLines={2} size="sm" />
+          )}
 
           {showDescription && data.description && (
-            <LinkDescription description={data.description} maxLines={2} size="sm" />
+            <LinkDescription
+              description={data.description}
+              maxLines={2}
+              size="sm"
+            />
           )}
         </div>
 
@@ -166,17 +178,17 @@ export function LinkCard({
           </div>
         )}
       </div>
-    )
+    );
   }
 
   // Compact layout (minimal)
   return (
     <div
       className={cn(
-        'group relative flex items-center gap-3 rounded-lg border bg-card p-2 text-card-foreground',
-        'hover:border-primary/50 hover:bg-accent/50 transition-all duration-200',
-        'cursor-pointer overflow-hidden',
-        className
+        "group relative flex items-center gap-3 rounded-lg border bg-card p-2 text-card-foreground",
+        "hover:border-primary/50 hover:bg-accent/50 transition-all duration-200",
+        "cursor-pointer overflow-hidden",
+        className,
       )}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -196,7 +208,12 @@ export function LinkCard({
         </div>
       ) : showFavicon && data.favicon ? (
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center">
-          <img src={data.favicon} alt="" className="h-6 w-6 rounded" loading="lazy" />
+          <img
+            src={data.favicon}
+            alt=""
+            className="h-6 w-6 rounded"
+            loading="lazy"
+          />
         </div>
       ) : null}
 
@@ -229,7 +246,7 @@ export function LinkCard({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default LinkCard
+export default LinkCard;

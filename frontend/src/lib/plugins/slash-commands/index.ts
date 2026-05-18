@@ -23,12 +23,12 @@ export type {
   PermissionCheckResult,
   PluginCommandSuggestion,
   ExecutionResult,
-} from './types'
+} from "./types";
 
-export { ROLE_HIERARCHY, meetsRoleRequirement } from './types'
+export { ROLE_HIERARCHY, meetsRoleRequirement } from "./types";
 
 // Registry
-export { CommandRegistry, CommandRegistryError } from './command-registry'
+export { CommandRegistry, CommandRegistryError } from "./command-registry";
 
 // Parser
 export {
@@ -37,39 +37,39 @@ export {
   parseArgs,
   parseAndValidateArg,
   parseInput,
-} from './command-parser'
+} from "./command-parser";
 
 // Executor
 export {
   CommandExecutor,
   CommandRateLimiter,
   type ExecutorConfig,
-} from './command-executor'
+} from "./command-executor";
 
 // Built-in commands
 export {
   registerBuiltInCommands,
   getBuiltInDefinitions,
   getBuiltInCommandNames,
-} from './built-in-commands'
+} from "./built-in-commands";
 
 // ============================================================================
 // CONVENIENCE: Create a fully-initialized engine
 // ============================================================================
 
-import { CommandRegistry } from './command-registry'
-import { CommandExecutor, type ExecutorConfig } from './command-executor'
-import { registerBuiltInCommands } from './built-in-commands'
+import { CommandRegistry } from "./command-registry";
+import { CommandExecutor, type ExecutorConfig } from "./command-executor";
+import { registerBuiltInCommands } from "./built-in-commands";
 
 /**
  * Create a fully-initialized slash command engine with built-in commands registered.
  */
 export function createSlashCommandEngine(config?: Partial<ExecutorConfig>): {
-  registry: CommandRegistry
-  executor: CommandExecutor
+  registry: CommandRegistry;
+  executor: CommandExecutor;
 } {
-  const registry = new CommandRegistry()
-  registerBuiltInCommands(registry)
-  const executor = new CommandExecutor(registry, config)
-  return { registry, executor }
+  const registry = new CommandRegistry();
+  registerBuiltInCommands(registry);
+  const executor = new CommandExecutor(registry, config);
+  return { registry, executor };
 }

@@ -4,9 +4,9 @@
  * Integrates with the draft manager for comprehensive draft functionality
  */
 
-import { create } from 'zustand'
-import { devtools, subscribeWithSelector } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 import type {
   Draft,
   DraftContextType,
@@ -17,8 +17,13 @@ import type {
   AutoSaveStatus,
   DraftFilterOptions,
   DraftSortOptions,
-} from '@/lib/drafts/draft-types'
-import { getDraftManager, createContextKey, hasDraftContent, getDraftPreview } from '@/lib/drafts'
+} from "@/lib/drafts/draft-types";
+import {
+  getDraftManager,
+  createContextKey,
+  hasDraftContent,
+  getDraftPreview,
+} from "@/lib/drafts";
 
 // ============================================================================
 // Types
@@ -26,30 +31,30 @@ import { getDraftManager, createContextKey, hasDraftContent, getDraftPreview } f
 
 export interface DraftsState {
   // Draft data
-  drafts: Map<string, Draft>
-  draftMetadata: DraftMetadata[]
+  drafts: Map<string, Draft>;
+  draftMetadata: DraftMetadata[];
 
   // Active draft
-  activeDraftKey: string | null
+  activeDraftKey: string | null;
 
   // Auto-save state
-  autoSaveStatus: AutoSaveStatus
-  lastAutoSaveTime: number | null
-  autoSaveError: string | null
+  autoSaveStatus: AutoSaveStatus;
+  lastAutoSaveTime: number | null;
+  autoSaveError: string | null;
 
   // Loading states
-  isLoading: boolean
-  isInitialized: boolean
-  error: string | null
+  isLoading: boolean;
+  isInitialized: boolean;
+  error: string | null;
 
   // Configuration
-  autoSaveEnabled: boolean
-  autoSaveDebounceMs: number
+  autoSaveEnabled: boolean;
+  autoSaveDebounceMs: number;
 }
 
 export interface DraftsActions {
   // Initialization
-  initialize: () => Promise<void>
+  initialize: () => Promise<void>;
 
   // Draft CRUD
   saveDraft: (
@@ -57,60 +62,60 @@ export interface DraftsActions {
     contextId: string,
     content: string,
     options?: {
-      contentHtml?: string
-      replyToMessageId?: string | null
-      replyToPreview?: DraftReplyPreview
-      attachments?: DraftAttachment[]
-      mentions?: DraftMention[]
-    }
-  ) => Promise<Draft>
+      contentHtml?: string;
+      replyToMessageId?: string | null;
+      replyToPreview?: DraftReplyPreview;
+      attachments?: DraftAttachment[];
+      mentions?: DraftMention[];
+    },
+  ) => Promise<Draft>;
 
   scheduleAutoSave: (
     contextType: DraftContextType,
     contextId: string,
     content: string,
     options?: {
-      contentHtml?: string
-      replyToMessageId?: string | null
-      replyToPreview?: DraftReplyPreview
-      attachments?: DraftAttachment[]
-      mentions?: DraftMention[]
-    }
-  ) => void
+      contentHtml?: string;
+      replyToMessageId?: string | null;
+      replyToPreview?: DraftReplyPreview;
+      attachments?: DraftAttachment[];
+      mentions?: DraftMention[];
+    },
+  ) => void;
 
-  getDraft: (contextKey: string) => Draft | undefined
-  getDraftByContext: (type: DraftContextType, id: string) => Draft | undefined
+  getDraft: (contextKey: string) => Draft | undefined;
+  getDraftByContext: (type: DraftContextType, id: string) => Draft | undefined;
 
-  deleteDraft: (contextKey: string) => Promise<boolean>
-  deleteByContext: (type: DraftContextType, id: string) => Promise<boolean>
-  clearAllDrafts: () => Promise<void>
+  deleteDraft: (contextKey: string) => Promise<boolean>;
+  deleteByContext: (type: DraftContextType, id: string) => Promise<boolean>;
+  clearAllDrafts: () => Promise<void>;
 
   // Draft restoration
-  restoreDraft: (contextKey: string) => Promise<Draft | null>
+  restoreDraft: (contextKey: string) => Promise<Draft | null>;
 
   // Active draft
-  setActiveDraftKey: (key: string | null) => void
+  setActiveDraftKey: (key: string | null) => void;
 
   // Query
-  getDraftCount: () => number
-  hasDraft: (contextKey: string) => boolean
-  hasDraftForContext: (type: DraftContextType, id: string) => boolean
-  getFilteredDrafts: (options: DraftFilterOptions) => Draft[]
-  getSortedDrafts: (options: DraftSortOptions) => Draft[]
+  getDraftCount: () => number;
+  hasDraft: (contextKey: string) => boolean;
+  hasDraftForContext: (type: DraftContextType, id: string) => boolean;
+  getFilteredDrafts: (options: DraftFilterOptions) => Draft[];
+  getSortedDrafts: (options: DraftSortOptions) => Draft[];
 
   // Auto-save
-  setAutoSaveEnabled: (enabled: boolean) => void
-  setAutoSaveDebounce: (ms: number) => void
-  updateAutoSaveStatus: (status: AutoSaveStatus, error?: string | null) => void
+  setAutoSaveEnabled: (enabled: boolean) => void;
+  setAutoSaveDebounce: (ms: number) => void;
+  updateAutoSaveStatus: (status: AutoSaveStatus, error?: string | null) => void;
 
   // Refresh
-  refreshDrafts: () => Promise<void>
+  refreshDrafts: () => Promise<void>;
 
   // Utility
-  reset: () => void
+  reset: () => void;
 }
 
-export type DraftsStore = DraftsState & DraftsActions
+export type DraftsStore = DraftsState & DraftsActions;
 
 // ============================================================================
 // Initial State
@@ -120,7 +125,7 @@ const initialState: DraftsState = {
   drafts: new Map(),
   draftMetadata: [],
   activeDraftKey: null,
-  autoSaveStatus: 'idle',
+  autoSaveStatus: "idle",
   lastAutoSaveTime: null,
   autoSaveError: null,
   isLoading: false,
@@ -128,7 +133,7 @@ const initialState: DraftsState = {
   error: null,
   autoSaveEnabled: true,
   autoSaveDebounceMs: 500,
-}
+};
 
 // ============================================================================
 // Store
@@ -145,120 +150,123 @@ export const useDraftsStore = create<DraftsStore>()(
         // ========================================================================
 
         initialize: async () => {
-          if (get().isInitialized) return
+          if (get().isInitialized) return;
 
           set(
             (state) => {
-              state.isLoading = true
-              state.error = null
+              state.isLoading = true;
+              state.error = null;
             },
             false,
-            'drafts/initialize/start'
-          )
+            "drafts/initialize/start",
+          );
 
           try {
-            const manager = getDraftManager()
+            const manager = getDraftManager();
 
             // Load all drafts
-            const drafts = await manager.getAllWithContent()
-            const metadata = await manager.getDraftMetadata()
+            const drafts = await manager.getAllWithContent();
+            const metadata = await manager.getDraftMetadata();
 
             // Subscribe to draft events
             manager.addEventListener((event) => {
-              const store = get()
+              const store = get();
 
               switch (event.type) {
-                case 'created':
-                case 'updated':
+                case "created":
+                case "updated":
                   if (event.draft) {
                     set(
                       (state) => {
-                        state.drafts.set(event.contextKey!, event.draft!)
+                        state.drafts.set(event.contextKey!, event.draft!);
                       },
                       false,
-                      `drafts/${event.type}`
-                    )
+                      `drafts/${event.type}`,
+                    );
                     // Refresh metadata
-                    store.refreshDrafts()
+                    store.refreshDrafts();
                   }
-                  break
+                  break;
 
-                case 'deleted':
+                case "deleted":
                   set(
                     (state) => {
-                      state.drafts.delete(event.contextKey!)
+                      state.drafts.delete(event.contextKey!);
                     },
                     false,
-                    'drafts/deleted'
-                  )
-                  store.refreshDrafts()
-                  break
+                    "drafts/deleted",
+                  );
+                  store.refreshDrafts();
+                  break;
 
-                case 'cleared':
+                case "cleared":
                   set(
                     (state) => {
-                      state.drafts.clear()
-                      state.draftMetadata = []
+                      state.drafts.clear();
+                      state.draftMetadata = [];
                     },
                     false,
-                    'drafts/cleared'
-                  )
-                  break
+                    "drafts/cleared",
+                  );
+                  break;
 
-                case 'autosave_start':
+                case "autosave_start":
                   set(
                     (state) => {
-                      state.autoSaveStatus = 'saving'
+                      state.autoSaveStatus = "saving";
                     },
                     false,
-                    'drafts/autosave/start'
-                  )
-                  break
+                    "drafts/autosave/start",
+                  );
+                  break;
 
-                case 'autosave_complete':
+                case "autosave_complete":
                   set(
                     (state) => {
-                      state.autoSaveStatus = 'saved'
-                      state.lastAutoSaveTime = event.timestamp
-                      state.autoSaveError = null
+                      state.autoSaveStatus = "saved";
+                      state.lastAutoSaveTime = event.timestamp;
+                      state.autoSaveError = null;
                     },
                     false,
-                    'drafts/autosave/complete'
-                  )
-                  break
+                    "drafts/autosave/complete",
+                  );
+                  break;
 
-                case 'autosave_error':
+                case "autosave_error":
                   set(
                     (state) => {
-                      state.autoSaveStatus = 'error'
-                      state.autoSaveError = event.error || 'Save failed'
+                      state.autoSaveStatus = "error";
+                      state.autoSaveError = event.error || "Save failed";
                     },
                     false,
-                    'drafts/autosave/error'
-                  )
-                  break
+                    "drafts/autosave/error",
+                  );
+                  break;
               }
-            })
+            });
 
             set(
               (state) => {
-                state.drafts = new Map(drafts.map((d) => [d.contextKey, d]))
-                state.draftMetadata = metadata
-                state.isLoading = false
-                state.isInitialized = true
+                state.drafts = new Map(drafts.map((d) => [d.contextKey, d]));
+                state.draftMetadata = metadata;
+                state.isLoading = false;
+                state.isInitialized = true;
               },
               false,
-              'drafts/initialize/complete'
-            )
+              "drafts/initialize/complete",
+            );
           } catch (error) {
             set(
               (state) => {
-                state.isLoading = false
-                state.error = error instanceof Error ? error.message : 'Failed to load drafts'
+                state.isLoading = false;
+                state.error =
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to load drafts";
               },
               false,
-              'drafts/initialize/error'
-            )
+              "drafts/initialize/error",
+            );
           }
         },
 
@@ -267,75 +275,80 @@ export const useDraftsStore = create<DraftsStore>()(
         // ========================================================================
 
         saveDraft: async (contextType, contextId, content, options) => {
-          const manager = getDraftManager()
-          const draft = await manager.save(contextType, contextId, content, options)
+          const manager = getDraftManager();
+          const draft = await manager.save(
+            contextType,
+            contextId,
+            content,
+            options,
+          );
 
           set(
             (state) => {
-              state.drafts.set(draft.contextKey, draft)
+              state.drafts.set(draft.contextKey, draft);
             },
             false,
-            'drafts/saveDraft'
-          )
+            "drafts/saveDraft",
+          );
 
           // Refresh metadata
-          get().refreshDrafts()
+          get().refreshDrafts();
 
-          return draft
+          return draft;
         },
 
         scheduleAutoSave: (contextType, contextId, content, options) => {
-          const manager = getDraftManager()
-          manager.scheduleAutoSave(contextType, contextId, content, options)
+          const manager = getDraftManager();
+          manager.scheduleAutoSave(contextType, contextId, content, options);
         },
 
         getDraft: (contextKey) => {
-          return get().drafts.get(contextKey)
+          return get().drafts.get(contextKey);
         },
 
         getDraftByContext: (type, id) => {
-          return get().drafts.get(createContextKey(type, id))
+          return get().drafts.get(createContextKey(type, id));
         },
 
         deleteDraft: async (contextKey) => {
-          const manager = getDraftManager()
-          const success = await manager.delete(contextKey)
+          const manager = getDraftManager();
+          const success = await manager.delete(contextKey);
 
           if (success) {
             set(
               (state) => {
-                state.drafts.delete(contextKey)
+                state.drafts.delete(contextKey);
                 if (state.activeDraftKey === contextKey) {
-                  state.activeDraftKey = null
+                  state.activeDraftKey = null;
                 }
               },
               false,
-              'drafts/deleteDraft'
-            )
+              "drafts/deleteDraft",
+            );
 
-            get().refreshDrafts()
+            get().refreshDrafts();
           }
 
-          return success
+          return success;
         },
 
         deleteByContext: async (type, id) => {
-          return get().deleteDraft(createContextKey(type, id))
+          return get().deleteDraft(createContextKey(type, id));
         },
 
         clearAllDrafts: async () => {
-          const manager = getDraftManager()
-          await manager.clearAll()
+          const manager = getDraftManager();
+          await manager.clearAll();
 
           set(
             (state) => {
-              state.drafts.clear()
-              state.draftMetadata = []
-              state.activeDraftKey = null
+              state.drafts.clear();
+              state.draftMetadata = [];
+              state.activeDraftKey = null;
             },
             false,
-            'drafts/clearAll'
-          )
+            "drafts/clearAll",
+          );
         },
 
         // ========================================================================
@@ -343,8 +356,8 @@ export const useDraftsStore = create<DraftsStore>()(
         // ========================================================================
 
         restoreDraft: async (contextKey) => {
-          const manager = getDraftManager()
-          return await manager.restore(contextKey)
+          const manager = getDraftManager();
+          return await manager.restore(contextKey);
         },
 
         // ========================================================================
@@ -354,11 +367,11 @@ export const useDraftsStore = create<DraftsStore>()(
         setActiveDraftKey: (key) => {
           set(
             (state) => {
-              state.activeDraftKey = key
+              state.activeDraftKey = key;
             },
             false,
-            'drafts/setActiveDraftKey'
-          )
+            "drafts/setActiveDraftKey",
+          );
         },
 
         // ========================================================================
@@ -366,77 +379,92 @@ export const useDraftsStore = create<DraftsStore>()(
         // ========================================================================
 
         getDraftCount: () => {
-          const drafts = Array.from(get().drafts.values())
-          return drafts.filter(hasDraftContent).length
+          const drafts = Array.from(get().drafts.values());
+          return drafts.filter(hasDraftContent).length;
         },
 
         hasDraft: (contextKey) => {
-          const draft = get().drafts.get(contextKey)
-          return hasDraftContent(draft)
+          const draft = get().drafts.get(contextKey);
+          return hasDraftContent(draft);
         },
 
         hasDraftForContext: (type, id) => {
-          return get().hasDraft(createContextKey(type, id))
+          return get().hasDraft(createContextKey(type, id));
         },
 
         getFilteredDrafts: (options) => {
-          let drafts = Array.from(get().drafts.values()).filter(hasDraftContent)
+          let drafts = Array.from(get().drafts.values()).filter(
+            hasDraftContent,
+          );
 
           if (options.contextType) {
-            drafts = drafts.filter((d) => d.contextType === options.contextType)
+            drafts = drafts.filter(
+              (d) => d.contextType === options.contextType,
+            );
           }
 
           if (options.hasAttachments !== undefined) {
             drafts = drafts.filter((d) =>
               options.hasAttachments
                 ? d.attachmentIds.length > 0 || (d.attachments?.length ?? 0) > 0
-                : d.attachmentIds.length === 0 && (d.attachments?.length ?? 0) === 0
-            )
+                : d.attachmentIds.length === 0 &&
+                  (d.attachments?.length ?? 0) === 0,
+            );
           }
 
           if (options.isReply !== undefined) {
             drafts = drafts.filter((d) =>
-              options.isReply ? d.replyToMessageId !== null : d.replyToMessageId === null
-            )
+              options.isReply
+                ? d.replyToMessageId !== null
+                : d.replyToMessageId === null,
+            );
           }
 
           if (options.modifiedAfter !== undefined) {
-            drafts = drafts.filter((d) => d.lastModified > options.modifiedAfter!)
+            drafts = drafts.filter(
+              (d) => d.lastModified > options.modifiedAfter!,
+            );
           }
 
           if (options.modifiedBefore !== undefined) {
-            drafts = drafts.filter((d) => d.lastModified < options.modifiedBefore!)
+            drafts = drafts.filter(
+              (d) => d.lastModified < options.modifiedBefore!,
+            );
           }
 
           if (options.searchTerm) {
-            const term = options.searchTerm.toLowerCase()
-            drafts = drafts.filter((d) => d.content.toLowerCase().includes(term))
+            const term = options.searchTerm.toLowerCase();
+            drafts = drafts.filter((d) =>
+              d.content.toLowerCase().includes(term),
+            );
           }
 
-          return drafts
+          return drafts;
         },
 
         getSortedDrafts: (options) => {
-          const drafts = Array.from(get().drafts.values()).filter(hasDraftContent)
+          const drafts = Array.from(get().drafts.values()).filter(
+            hasDraftContent,
+          );
 
           return [...drafts].sort((a, b) => {
-            let comparison = 0
+            let comparison = 0;
 
             switch (options.field) {
-              case 'lastModified':
-                comparison = a.lastModified - b.lastModified
-                break
-              case 'createdAt':
-                comparison = a.createdAt - b.createdAt
-                break
-              case 'contextName':
+              case "lastModified":
+                comparison = a.lastModified - b.lastModified;
+                break;
+              case "createdAt":
+                comparison = a.createdAt - b.createdAt;
+                break;
+              case "contextName":
                 // Simple comparison by context key
-                comparison = a.contextKey.localeCompare(b.contextKey)
-                break
+                comparison = a.contextKey.localeCompare(b.contextKey);
+                break;
             }
 
-            return options.direction === 'desc' ? -comparison : comparison
-          })
+            return options.direction === "desc" ? -comparison : comparison;
+          });
         },
 
         // ========================================================================
@@ -444,43 +472,43 @@ export const useDraftsStore = create<DraftsStore>()(
         // ========================================================================
 
         setAutoSaveEnabled: (enabled) => {
-          const manager = getDraftManager()
-          manager.configureAutoSave({ enabled })
+          const manager = getDraftManager();
+          manager.configureAutoSave({ enabled });
 
           set(
             (state) => {
-              state.autoSaveEnabled = enabled
+              state.autoSaveEnabled = enabled;
             },
             false,
-            'drafts/setAutoSaveEnabled'
-          )
+            "drafts/setAutoSaveEnabled",
+          );
         },
 
         setAutoSaveDebounce: (ms) => {
-          const manager = getDraftManager()
-          manager.configureAutoSave({ debounceMs: ms })
+          const manager = getDraftManager();
+          manager.configureAutoSave({ debounceMs: ms });
 
           set(
             (state) => {
-              state.autoSaveDebounceMs = ms
+              state.autoSaveDebounceMs = ms;
             },
             false,
-            'drafts/setAutoSaveDebounce'
-          )
+            "drafts/setAutoSaveDebounce",
+          );
         },
 
         updateAutoSaveStatus: (status, error = null) => {
           set(
             (state) => {
-              state.autoSaveStatus = status
-              state.autoSaveError = error
-              if (status === 'saved') {
-                state.lastAutoSaveTime = Date.now()
+              state.autoSaveStatus = status;
+              state.autoSaveError = error;
+              if (status === "saved") {
+                state.lastAutoSaveTime = Date.now();
               }
             },
             false,
-            'drafts/updateAutoSaveStatus'
-          )
+            "drafts/updateAutoSaveStatus",
+          );
         },
 
         // ========================================================================
@@ -488,16 +516,16 @@ export const useDraftsStore = create<DraftsStore>()(
         // ========================================================================
 
         refreshDrafts: async () => {
-          const manager = getDraftManager()
-          const metadata = await manager.getDraftMetadata()
+          const manager = getDraftManager();
+          const metadata = await manager.getDraftMetadata();
 
           set(
             (state) => {
-              state.draftMetadata = metadata
+              state.draftMetadata = metadata;
             },
             false,
-            'drafts/refreshMetadata'
-          )
+            "drafts/refreshMetadata",
+          );
         },
 
         // ========================================================================
@@ -511,14 +539,14 @@ export const useDraftsStore = create<DraftsStore>()(
               drafts: new Map(),
             }),
             false,
-            'drafts/reset'
-          )
+            "drafts/reset",
+          );
         },
-      }))
+      })),
     ),
-    { name: 'drafts-store' }
-  )
-)
+    { name: "drafts-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
@@ -527,55 +555,57 @@ export const useDraftsStore = create<DraftsStore>()(
 /**
  * Select all drafts as array
  */
-export const selectDrafts = (state: DraftsStore) => Array.from(state.drafts.values())
+export const selectDrafts = (state: DraftsStore) =>
+  Array.from(state.drafts.values());
 
 /**
  * Select drafts with content
  */
 export const selectDraftsWithContent = (state: DraftsStore) =>
-  Array.from(state.drafts.values()).filter(hasDraftContent)
+  Array.from(state.drafts.values()).filter(hasDraftContent);
 
 /**
  * Select draft by context key
  */
 export const selectDraft = (contextKey: string) => (state: DraftsStore) =>
-  state.drafts.get(contextKey)
+  state.drafts.get(contextKey);
 
 /**
  * Select draft by context type and ID
  */
-export const selectDraftByContext = (type: DraftContextType, id: string) => (state: DraftsStore) =>
-  state.drafts.get(createContextKey(type, id))
+export const selectDraftByContext =
+  (type: DraftContextType, id: string) => (state: DraftsStore) =>
+    state.drafts.get(createContextKey(type, id));
 
 /**
  * Select draft count
  */
 export const selectDraftCount = (state: DraftsStore) =>
-  Array.from(state.drafts.values()).filter(hasDraftContent).length
+  Array.from(state.drafts.values()).filter(hasDraftContent).length;
 
 /**
  * Select if context has draft
  */
 export const selectHasDraft = (contextKey: string) => (state: DraftsStore) =>
-  hasDraftContent(state.drafts.get(contextKey))
+  hasDraftContent(state.drafts.get(contextKey));
 
 /**
  * Select if context has draft by type and ID
  */
 export const selectHasDraftForContext =
   (type: DraftContextType, id: string) => (state: DraftsStore) =>
-    hasDraftContent(state.drafts.get(createContextKey(type, id)))
+    hasDraftContent(state.drafts.get(createContextKey(type, id)));
 
 /**
  * Select active draft
  */
 export const selectActiveDraft = (state: DraftsStore) =>
-  state.activeDraftKey ? state.drafts.get(state.activeDraftKey) : undefined
+  state.activeDraftKey ? state.drafts.get(state.activeDraftKey) : undefined;
 
 /**
  * Select draft metadata
  */
-export const selectDraftMetadata = (state: DraftsStore) => state.draftMetadata
+export const selectDraftMetadata = (state: DraftsStore) => state.draftMetadata;
 
 /**
  * Select auto-save state
@@ -585,25 +615,31 @@ export const selectAutoSaveState = (state: DraftsStore) => ({
   lastSaveTime: state.lastAutoSaveTime,
   error: state.autoSaveError,
   enabled: state.autoSaveEnabled,
-})
+});
 
 /**
  * Select drafts by context type
  */
-export const selectDraftsByType = (type: DraftContextType) => (state: DraftsStore) =>
-  Array.from(state.drafts.values()).filter((d) => d.contextType === type && hasDraftContent(d))
+export const selectDraftsByType =
+  (type: DraftContextType) => (state: DraftsStore) =>
+    Array.from(state.drafts.values()).filter(
+      (d) => d.contextType === type && hasDraftContent(d),
+    );
 
 /**
  * Select channel drafts
  */
-export const selectChannelDrafts = (state: DraftsStore) => selectDraftsByType('channel')(state)
+export const selectChannelDrafts = (state: DraftsStore) =>
+  selectDraftsByType("channel")(state);
 
 /**
  * Select thread drafts
  */
-export const selectThreadDrafts = (state: DraftsStore) => selectDraftsByType('thread')(state)
+export const selectThreadDrafts = (state: DraftsStore) =>
+  selectDraftsByType("thread")(state);
 
 /**
  * Select DM drafts
  */
-export const selectDMDrafts = (state: DraftsStore) => selectDraftsByType('dm')(state)
+export const selectDMDrafts = (state: DraftsStore) =>
+  selectDraftsByType("dm")(state);

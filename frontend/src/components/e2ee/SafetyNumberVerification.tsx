@@ -3,12 +3,18 @@
  * Displays and manages safety number verification for E2EE contacts
  */
 
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { QRCodeSVG } from 'qrcode.react'
-import { Check, Copy, AlertTriangle, Shield, QrCode as QrCodeIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import React, { useState, useEffect } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import {
+  Check,
+  Copy,
+  AlertTriangle,
+  Shield,
+  QrCode as QrCodeIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,33 +22,33 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 interface SafetyNumberVerificationProps {
-  localUserId: string
-  peerUserId: string
-  peerUserName: string
-  peerIdentityKey: Uint8Array
-  onVerify?: (verified: boolean) => void
-  onClose?: () => void
+  localUserId: string;
+  peerUserId: string;
+  peerUserName: string;
+  peerIdentityKey: Uint8Array;
+  onVerify?: (verified: boolean) => void;
+  onClose?: () => void;
 }
 
 interface SafetyNumberData {
-  safetyNumber: string
-  formattedSafetyNumber: string
-  qrCodeData: string
-  isVerified: boolean
-  verifiedAt: string | null
+  safetyNumber: string;
+  formattedSafetyNumber: string;
+  qrCodeData: string;
+  isVerified: boolean;
+  verifiedAt: string | null;
 }
 
 // ============================================================================
@@ -57,128 +63,138 @@ export function SafetyNumberVerification({
   onVerify,
   onClose,
 }: SafetyNumberVerificationProps) {
-  const [safetyNumberData, setSafetyNumberData] = useState<SafetyNumberData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [verifying, setVerifying] = useState(false)
-  const [copied, setCopied] = useState(false)
-  const { toast } = useToast()
+  const [safetyNumberData, setSafetyNumberData] =
+    useState<SafetyNumberData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [verifying, setVerifying] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   // Load safety number on mount
   useEffect(() => {
-    loadSafetyNumber()
-  }, [localUserId, peerUserId])
+    loadSafetyNumber();
+  }, [localUserId, peerUserId]);
 
   async function loadSafetyNumber() {
     try {
-      setLoading(true)
+      setLoading(true);
 
-      const response = await fetch(`/api/e2ee/safety-number/${peerUserId}?format=both`, {
-        method: 'GET',
-      })
+      const response = await fetch(
+        `/api/e2ee/safety-number/${peerUserId}?format=both`,
+        {
+          method: "GET",
+        },
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to load safety number')
+        throw new Error("Failed to load safety number");
       }
 
-      const data = await response.json()
-      setSafetyNumberData(data)
+      const data = await response.json();
+      setSafetyNumberData(data);
     } catch (error) {
-      logger.error('Failed to load safety number:', error)
+      logger.error("Failed to load safety number:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load safety number',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to load safety number",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   async function handleVerify() {
     try {
-      setVerifying(true)
+      setVerifying(true);
 
-      const response = await fetch(`/api/e2ee/safety-number/${peerUserId}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          safetyNumber: safetyNumberData?.safetyNumber,
-        }),
-      })
+      const response = await fetch(
+        `/api/e2ee/safety-number/${peerUserId}/verify`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            safetyNumber: safetyNumberData?.safetyNumber,
+          }),
+        },
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to verify safety number')
+        throw new Error("Failed to verify safety number");
       }
 
       toast({
-        title: 'Verified',
+        title: "Verified",
         description: `Safety number verified for ${peerUserName}`,
-      })
+      });
 
       if (onVerify) {
-        onVerify(true)
+        onVerify(true);
       }
 
       // Reload to get updated verification status
-      await loadSafetyNumber()
+      await loadSafetyNumber();
     } catch (error) {
-      logger.error('Failed to verify safety number:', error)
+      logger.error("Failed to verify safety number:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to verify safety number',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to verify safety number",
+        variant: "destructive",
+      });
     } finally {
-      setVerifying(false)
+      setVerifying(false);
     }
   }
 
   async function handleUnverify() {
     try {
-      setVerifying(true)
+      setVerifying(true);
 
-      const response = await fetch(`/api/e2ee/safety-number/${peerUserId}/verify`, {
-        method: 'DELETE',
-      })
+      const response = await fetch(
+        `/api/e2ee/safety-number/${peerUserId}/verify`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to unverify safety number')
+        throw new Error("Failed to unverify safety number");
       }
 
       toast({
-        title: 'Unverified',
+        title: "Unverified",
         description: `Safety number unverified for ${peerUserName}`,
-      })
+      });
 
       if (onVerify) {
-        onVerify(false)
+        onVerify(false);
       }
 
       // Reload to get updated verification status
-      await loadSafetyNumber()
+      await loadSafetyNumber();
     } catch (error) {
-      logger.error('Failed to unverify safety number:', error)
+      logger.error("Failed to unverify safety number:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to unverify safety number',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to unverify safety number",
+        variant: "destructive",
+      });
     } finally {
-      setVerifying(false)
+      setVerifying(false);
     }
   }
 
   function handleCopy() {
-    if (!safetyNumberData) return
+    if (!safetyNumberData) return;
 
-    navigator.clipboard.writeText(safetyNumberData.formattedSafetyNumber)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    navigator.clipboard.writeText(safetyNumberData.formattedSafetyNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
 
     toast({
-      title: 'Copied',
-      description: 'Safety number copied to clipboard',
-    })
+      title: "Copied",
+      description: "Safety number copied to clipboard",
+    });
   }
 
   if (loading) {
@@ -193,7 +209,7 @@ export function SafetyNumberVerification({
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!safetyNumberData) {
@@ -212,7 +228,7 @@ export function SafetyNumberVerification({
           </Alert>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -242,9 +258,11 @@ export function SafetyNumberVerification({
         {safetyNumberData.isVerified ? (
           <Alert className="border-green-200 bg-green-50">
             <Check className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-800">Safety Number Verified</AlertTitle>
+            <AlertTitle className="text-green-800">
+              Safety Number Verified
+            </AlertTitle>
             <AlertDescription className="text-green-700">
-              You have verified this safety number on{' '}
+              You have verified this safety number on{" "}
               {new Date(safetyNumberData.verifiedAt!).toLocaleDateString()}
             </AlertDescription>
           </Alert>
@@ -253,8 +271,8 @@ export function SafetyNumberVerification({
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Not Yet Verified</AlertTitle>
             <AlertDescription>
-              Verify this safety number to ensure your messages are encrypted end-to-end and not
-              being intercepted.
+              Verify this safety number to ensure your messages are encrypted
+              end-to-end and not being intercepted.
             </AlertDescription>
           </Alert>
         )}
@@ -272,13 +290,15 @@ export function SafetyNumberVerification({
               <span className="text-sm font-medium">Your Safety Number</span>
               <div className="relative">
                 <div className="select-all rounded-lg border bg-gray-50 p-4 text-center font-mono text-lg tracking-wider">
-                  {safetyNumberData.formattedSafetyNumber.split(' ').map((group, i) => (
-                    <React.Fragment key={i}>
-                      {group}
-                      {i % 2 === 1 && i < 11 && <br />}
-                      {i % 2 === 0 && i < 11 && ' '}
-                    </React.Fragment>
-                  ))}
+                  {safetyNumberData.formattedSafetyNumber
+                    .split(" ")
+                    .map((group, i) => (
+                      <React.Fragment key={i}>
+                        {group}
+                        {i % 2 === 1 && i < 11 && <br />}
+                        {i % 2 === 0 && i < 11 && " "}
+                      </React.Fragment>
+                    ))}
                 </div>
                 <Button
                   variant="outline"
@@ -305,7 +325,9 @@ export function SafetyNumberVerification({
               <p className="font-medium">How to verify:</p>
               <ol className="ml-2 list-inside list-decimal space-y-1">
                 <li>Compare this number with {peerUserName}'s number</li>
-                <li>You can do this in person, over a phone call, or via video</li>
+                <li>
+                  You can do this in person, over a phone call, or via video
+                </li>
                 <li>If the numbers match, tap "Mark as Verified" below</li>
                 <li>If they don't match, DO NOT mark as verified</li>
               </ol>
@@ -343,14 +365,15 @@ export function SafetyNumberVerification({
         <div className="space-y-2 text-sm text-gray-600">
           <p className="font-medium">What is a safety number?</p>
           <p>
-            A safety number is a unique fingerprint derived from your encryption keys and{' '}
-            {peerUserName}'s encryption keys. If this number matches on both devices, you can be
-            confident that your messages are encrypted end-to-end and not being intercepted by a
-            third party.
+            A safety number is a unique fingerprint derived from your encryption
+            keys and {peerUserName}'s encryption keys. If this number matches on
+            both devices, you can be confident that your messages are encrypted
+            end-to-end and not being intercepted by a third party.
           </p>
           <p className="mt-2">
-            <strong>Important:</strong> This number will change if you or {peerUserName} reinstall
-            the app or change devices. You'll be notified when this happens.
+            <strong>Important:</strong> This number will change if you or{" "}
+            {peerUserName} reinstall the app or change devices. You'll be
+            notified when this happens.
           </p>
         </div>
       </CardContent>
@@ -363,7 +386,11 @@ export function SafetyNumberVerification({
         )}
         <div className="flex gap-2">
           {safetyNumberData.isVerified ? (
-            <Button variant="outline" onClick={handleUnverify} disabled={verifying}>
+            <Button
+              variant="outline"
+              onClick={handleUnverify}
+              disabled={verifying}
+            >
               Unverify
             </Button>
           ) : (
@@ -381,7 +408,7 @@ export function SafetyNumberVerification({
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
-export default SafetyNumberVerification
+export default SafetyNumberVerification;

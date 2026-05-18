@@ -1,43 +1,47 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { Plus, Store, RefreshCw, Bot as BotIcon } from 'lucide-react'
-import { useAuth } from '@/contexts/auth-context'
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { BotList, BotListCards } from '@/components/bots/bot-list'
-import { AddBotModal } from '@/components/bots/add-bot-modal'
-import { BotSettingsModal } from '@/components/bots/bot-settings-modal'
-import { BotMarketplace, BotMarketplaceInline } from '@/components/bots/bot-marketplace'
-import { BotProfile } from '@/components/bots/bot-profile'
-import { useBots, useBotCommands, useBotReviews } from '@/lib/bots/use-bots'
-import { useBotStore } from '@/lib/bots/bot-store'
-import { useFeature } from '@/lib/features/hooks/use-feature'
-import { FEATURES } from '@/lib/features/feature-flags'
-import type { Bot, BotPermission } from '@/graphql/bots'
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Plus, Store, RefreshCw, Bot as BotIcon } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BotList, BotListCards } from "@/components/bots/bot-list";
+import { AddBotModal } from "@/components/bots/add-bot-modal";
+import { BotSettingsModal } from "@/components/bots/bot-settings-modal";
+import {
+  BotMarketplace,
+  BotMarketplaceInline,
+} from "@/components/bots/bot-marketplace";
+import { BotProfile } from "@/components/bots/bot-profile";
+import { useBots, useBotCommands, useBotReviews } from "@/lib/bots/use-bots";
+import { useBotStore } from "@/lib/bots/bot-store";
+import { useFeature } from "@/lib/features/hooks/use-feature";
+import { FEATURES } from "@/lib/features/feature-flags";
+import type { Bot, BotPermission } from "@/graphql/bots";
 
 // Mock channels for demo purposes
 const mockChannels = [
-  { id: 'ch-1', name: 'general' },
-  { id: 'ch-2', name: 'random' },
-  { id: 'ch-3', name: 'engineering' },
-  { id: 'ch-4', name: 'design' },
-  { id: 'ch-5', name: 'product' },
-]
+  { id: "ch-1", name: "general" },
+  { id: "ch-2", name: "random" },
+  { id: "ch-3", name: "engineering" },
+  { id: "ch-4", name: "design" },
+  { id: "ch-5", name: "product" },
+];
 
-type ViewMode = 'list' | 'marketplace' | 'profile'
+type ViewMode = "list" | "marketplace" | "profile";
 
 export default function BotsManagementPage() {
-  const { user, loading: authLoading } = useAuth()
-  const router = useRouter()
-  const { enabled: botsEnabled } = useFeature(FEATURES.BOTS)
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const { enabled: botsEnabled } = useFeature(FEATURES.BOTS);
 
   // State
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
-  const [listStyle, setListStyle] = useState<'table' | 'cards'>('table')
-  const [selectedBotForProfile, setSelectedBotForProfile] = useState<Bot | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [listStyle, setListStyle] = useState<"table" | "cards">("table");
+  const [selectedBotForProfile, setSelectedBotForProfile] =
+    useState<Bot | null>(null);
 
   // Bots hook
   const {
@@ -59,85 +63,91 @@ export default function BotsManagementPage() {
     refreshBots,
   } = useBots({
     autoFetch: true,
-    useMockData: process.env.NEXT_PUBLIC_USE_DEV_AUTH === 'true',
-  })
+    useMockData: process.env.NEXT_PUBLIC_USE_DEV_AUTH === "true",
+  });
 
   // Store for UI state
-  const store = useBotStore()
+  const store = useBotStore();
 
   // Bot details hooks
-  const { commands, loading: commandsLoading } = useBotCommands(selectedBotForProfile?.id || null)
+  const { commands, loading: commandsLoading } = useBotCommands(
+    selectedBotForProfile?.id || null,
+  );
   const {
     reviews,
     loading: reviewsLoading,
     loadMore: loadMoreReviews,
-  } = useBotReviews(selectedBotForProfile?.id || null)
+  } = useBotReviews(selectedBotForProfile?.id || null);
 
   // Get installations for selected bot
   const selectedBotInstallations = selectedBotForProfile
     ? installedBots.filter((i) => i.botId === selectedBotForProfile.id)
-    : []
+    : [];
 
   // Auth check
   useEffect(() => {
-    if (!authLoading && (!user || !['owner', 'admin'].includes(user.role))) {
-      router.push('/chat')
+    if (!authLoading && (!user || !["owner", "admin"].includes(user.role))) {
+      router.push("/chat");
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading, router]);
 
   // Handlers
   const handleConfigureBot = useCallback((bot: Bot) => {
-    store.openSettingsModal(bot)
-  }, [])
+    store.openSettingsModal(bot);
+  }, []);
 
   const handleRemoveBot = useCallback(
     async (botId: string, channelId?: string) => {
-      await removeBot(botId, channelId)
+      await removeBot(botId, channelId);
     },
-    [removeBot]
-  )
+    [removeBot],
+  );
 
   const handleViewBotDetails = useCallback((bot: Bot) => {
-    setSelectedBotForProfile(bot)
-    setViewMode('profile')
-  }, [])
+    setSelectedBotForProfile(bot);
+    setViewMode("profile");
+  }, []);
 
   const handleInstallBot = useCallback((bot: Bot) => {
-    setSelectedBotForProfile(bot)
-    store.openAddBotModal()
-  }, [])
+    setSelectedBotForProfile(bot);
+    store.openAddBotModal();
+  }, []);
 
   const handleInstallFromModal = useCallback(
-    async (botId: string, channelIds: string[], permissions: BotPermission[]) => {
-      await installBot(botId, channelIds, permissions)
-      store.closeAddBotModal()
+    async (
+      botId: string,
+      channelIds: string[],
+      permissions: BotPermission[],
+    ) => {
+      await installBot(botId, channelIds, permissions);
+      store.closeAddBotModal();
     },
-    [installBot]
-  )
+    [installBot],
+  );
 
   const handleAddByToken = useCallback(
     async (token: string, channelIds: string[]) => {
-      await addBotByToken(token, channelIds)
-      store.closeAddBotModal()
+      await addBotByToken(token, channelIds);
+      store.closeAddBotModal();
     },
-    [addBotByToken]
-  )
+    [addBotByToken],
+  );
 
   const handleUpdatePermissions = useCallback(
     async (botId: string, channelId: string, permissions: BotPermission[]) => {
-      await updateBotSettings(botId, channelId, permissions)
+      await updateBotSettings(botId, channelId, permissions);
     },
-    [updateBotSettings]
-  )
+    [updateBotSettings],
+  );
 
   const handleBackFromProfile = useCallback(() => {
-    setSelectedBotForProfile(null)
-    setViewMode('list')
-  }, [])
+    setSelectedBotForProfile(null);
+    setViewMode("list");
+  }, []);
 
   // Loading / auth state
-  if (authLoading || !user || !['owner', 'admin'].includes(user.role)) {
-    return null
+  if (authLoading || !user || !["owner", "admin"].includes(user.role)) {
+    return null;
   }
 
   // Bundle upsell — bots plugin not installed
@@ -148,10 +158,13 @@ export default function BotsManagementPage() {
           <div className="mb-4 rounded-full bg-muted p-4">
             <BotIcon className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h2 className="mb-2 text-xl font-semibold">Bots require the nChat bundle</h2>
+          <h2 className="mb-2 text-xl font-semibold">
+            Bots require the nChat bundle
+          </h2>
           <p className="mb-6 max-w-md text-center text-muted-foreground">
-            The bots plugin — programmable bot accounts and slash-command runtime — is part of the
-            nChat bundle ($0.99/mo). Install it to create and manage bots for this workspace.
+            The bots plugin — programmable bot accounts and slash-command
+            runtime — is part of the nChat bundle ($0.99/mo). Install it to
+            create and manage bots for this workspace.
           </p>
           <div className="flex flex-col items-center gap-3">
             <a
@@ -164,12 +177,13 @@ export default function BotsManagementPage() {
               <Plus className="h-4 w-4" />
             </a>
             <code className="rounded bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
-              nself plugin install bots &amp;&amp; nself build &amp;&amp; nself start
+              nself plugin install bots &amp;&amp; nself build &amp;&amp; nself
+              start
             </code>
           </div>
         </div>
       </AdminLayout>
-    )
+    );
   }
 
   return (
@@ -179,14 +193,27 @@ export default function BotsManagementPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Bots</h1>
-            <p className="text-muted-foreground">Manage bot integrations for your workspace</p>
+            <p className="text-muted-foreground">
+              Manage bot integrations for your workspace
+            </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={refreshBots} disabled={isLoading}>
-              <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshBots}
+              disabled={isLoading}
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
               Refresh
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setViewMode('marketplace')}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode("marketplace")}
+            >
               <Store className="mr-2 h-4 w-4" />
               Marketplace
             </Button>
@@ -205,22 +232,24 @@ export default function BotsManagementPage() {
         )}
 
         {/* Content */}
-        {viewMode === 'profile' && selectedBotForProfile ? (
+        {viewMode === "profile" && selectedBotForProfile ? (
           <BotProfile
             bot={selectedBotForProfile}
             commands={commands}
             reviews={reviews}
-            installed={installedBots.some((i) => i.botId === selectedBotForProfile.id)}
+            installed={installedBots.some(
+              (i) => i.botId === selectedBotForProfile.id,
+            )}
             loading={commandsLoading || reviewsLoading}
             onInstall={handleInstallBot}
             onBack={handleBackFromProfile}
             onLoadMoreReviews={loadMoreReviews}
           />
-        ) : viewMode === 'marketplace' ? (
+        ) : viewMode === "marketplace" ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Bot Marketplace</h2>
-              <Button variant="ghost" onClick={() => setViewMode('list')}>
+              <Button variant="ghost" onClick={() => setViewMode("list")}>
                 Back to Installed
               </Button>
             </div>
@@ -242,21 +271,23 @@ export default function BotsManagementPage() {
           <Tabs defaultValue="installed" className="space-y-4">
             <div className="flex items-center justify-between">
               <TabsList>
-                <TabsTrigger value="installed">Installed ({installedBots.length})</TabsTrigger>
+                <TabsTrigger value="installed">
+                  Installed ({installedBots.length})
+                </TabsTrigger>
                 <TabsTrigger value="available">Available</TabsTrigger>
               </TabsList>
               <div className="flex gap-2">
                 <Button
-                  variant={listStyle === 'table' ? 'secondary' : 'ghost'}
+                  variant={listStyle === "table" ? "secondary" : "ghost"}
                   size="sm"
-                  onClick={() => setListStyle('table')}
+                  onClick={() => setListStyle("table")}
                 >
                   Table
                 </Button>
                 <Button
-                  variant={listStyle === 'cards' ? 'secondary' : 'ghost'}
+                  variant={listStyle === "cards" ? "secondary" : "ghost"}
                   size="sm"
-                  onClick={() => setListStyle('cards')}
+                  onClick={() => setListStyle("cards")}
                 >
                   Cards
                 </Button>
@@ -264,7 +295,7 @@ export default function BotsManagementPage() {
             </div>
 
             <TabsContent value="installed">
-              {listStyle === 'table' ? (
+              {listStyle === "table" ? (
                 <BotList
                   bots={installedBots}
                   loading={isInstalledLoading}
@@ -289,17 +320,24 @@ export default function BotsManagementPage() {
             <TabsContent value="available">
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {featuredBots
-                  .filter((bot) => !installedBots.some((i) => i.botId === bot.id))
+                  .filter(
+                    (bot) => !installedBots.some((i) => i.botId === bot.id),
+                  )
                   .slice(0, 6)
                   .map((bot) => (
-                    <div key={bot.id} className="space-y-3 rounded-lg border bg-card p-4">
+                    <div
+                      key={bot.id}
+                      className="space-y-3 rounded-lg border bg-card p-4"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
                           <BotIcon className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                           <h3 className="font-medium">{bot.name}</h3>
-                          <p className="text-sm text-muted-foreground">{bot.category}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {bot.category}
+                          </p>
                         </div>
                       </div>
                       <p className="line-clamp-2 text-sm text-muted-foreground">
@@ -314,7 +352,11 @@ export default function BotsManagementPage() {
                         >
                           Details
                         </Button>
-                        <Button size="sm" className="flex-1" onClick={() => handleInstallBot(bot)}>
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleInstallBot(bot)}
+                        >
                           Install
                         </Button>
                       </div>
@@ -322,7 +364,10 @@ export default function BotsManagementPage() {
                   ))}
               </div>
               <div className="mt-6 text-center">
-                <Button variant="outline" onClick={() => setViewMode('marketplace')}>
+                <Button
+                  variant="outline"
+                  onClick={() => setViewMode("marketplace")}
+                >
                   Browse All Bots
                   <Store className="ml-2 h-4 w-4" />
                 </Button>
@@ -342,8 +387,8 @@ export default function BotsManagementPage() {
         onAddByToken={handleAddByToken}
         onInstallBot={handleInstallFromModal}
         onOpenMarketplace={() => {
-          store.closeAddBotModal()
-          setViewMode('marketplace')
+          store.closeAddBotModal();
+          setViewMode("marketplace");
         }}
       />
 
@@ -375,5 +420,5 @@ export default function BotsManagementPage() {
         installedBotIds={installedBots.map((i) => i.botId)}
       />
     </AdminLayout>
-  )
+  );
 }

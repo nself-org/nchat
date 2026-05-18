@@ -46,12 +46,16 @@ export type {
   CategoryConfigs,
   RateLimitExceededEvent,
   PenaltyBoxAddedEvent,
-} from './types'
+} from "./types";
 
-export { DEFAULT_TIER_MULTIPLIERS } from './types'
+export { DEFAULT_TIER_MULTIPLIERS } from "./types";
 
 // Stores
-export { RedisRateLimitStore, getRedisStore, createRedisStore } from './redis-store'
+export {
+  RedisRateLimitStore,
+  getRedisStore,
+  createRedisStore,
+} from "./redis-store";
 
 export {
   MemoryRateLimitStore,
@@ -59,7 +63,7 @@ export {
   getMemoryStore,
   createMemoryStore,
   getEdgeStore,
-} from './memory-store'
+} from "./memory-store";
 
 // Service
 export {
@@ -70,6 +74,6 @@ export {
   checkEndpointRateLimit,
   RATE_LIMIT_CONFIGS,
   ENDPOINT_CATEGORY_MAP,
-} from './rate-limit-service'
+} from "./rate-limit-service";
 
-export type { RateLimitServiceOptions } from './rate-limit-service'
+export type { RateLimitServiceOptions } from "./rate-limit-service";

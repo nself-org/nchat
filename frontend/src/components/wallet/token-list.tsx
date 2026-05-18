@@ -1,50 +1,57 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Coins, RefreshCw, Send } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useTokens } from '@/hooks/use-tokens'
-import { useWalletStore } from '@/stores/wallet-store'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { Coins, RefreshCw, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTokens } from "@/hooks/use-tokens";
+import { useWalletStore } from "@/stores/wallet-store";
+import { cn } from "@/lib/utils";
 
 interface TokenListProps {
-  className?: string
-  onTokenSelect?: (tokenAddress: string) => void
+  className?: string;
+  onTokenSelect?: (tokenAddress: string) => void;
 }
 
 export function TokenList({ className, onTokenSelect }: TokenListProps) {
-  const { tokens, isLoadingTokens, fetchCommonTokens } = useTokens()
-  const { setTransactionModalOpen, setSelectedToken } = useWalletStore()
+  const { tokens, isLoadingTokens, fetchCommonTokens } = useTokens();
+  const { setTransactionModalOpen, setSelectedToken } = useWalletStore();
 
   const handleRefresh = async () => {
-    await fetchCommonTokens()
-  }
+    await fetchCommonTokens();
+  };
 
   const handleTokenClick = (tokenAddress: string) => {
     if (onTokenSelect) {
-      onTokenSelect(tokenAddress)
+      onTokenSelect(tokenAddress);
     }
-  }
+  };
 
   const handleSendToken = (token: (typeof tokens)[0]) => {
-    setSelectedToken(token)
-    setTransactionModalOpen(true)
-  }
+    setSelectedToken(token);
+    setTransactionModalOpen(true);
+  };
 
   React.useEffect(() => {
-    fetchCommonTokens()
-  }, [fetchCommonTokens])
+    fetchCommonTokens();
+  }, [fetchCommonTokens]);
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-lg font-semibold">
           <Coins className="h-5 w-5" />
           Tokens
         </h3>
-        <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isLoadingTokens}>
-          <RefreshCw className={cn('h-4 w-4', isLoadingTokens && 'animate-spin')} />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={isLoadingTokens}
+        >
+          <RefreshCw
+            className={cn("h-4 w-4", isLoadingTokens && "animate-spin")}
+          />
         </Button>
       </div>
 
@@ -71,9 +78,9 @@ export function TokenList({ className, onTokenSelect }: TokenListProps) {
                 className="flex cursor-pointer items-center justify-between rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
                 onClick={() => handleTokenClick(token.token.address)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    handleTokenClick(token.token.address)
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleTokenClick(token.token.address);
                   }
                 }}
                 role="button"
@@ -93,20 +100,24 @@ export function TokenList({ className, onTokenSelect }: TokenListProps) {
                   )}
                   <div>
                     <div className="font-medium">{token.token.symbol}</div>
-                    <div className="text-xs text-muted-foreground">{token.token.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {token.token.name}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-right">
                     <div className="font-medium">{token.balanceFormatted}</div>
-                    <div className="text-xs text-muted-foreground">{token.token.symbol}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {token.token.symbol}
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      handleSendToken(token)
+                      e.stopPropagation();
+                      handleSendToken(token);
                     }}
                   >
                     <Send className="h-4 w-4" />
@@ -118,5 +129,5 @@ export function TokenList({ className, onTokenSelect }: TokenListProps) {
         </ScrollArea>
       )}
     </div>
-  )
+  );
 }

@@ -1,89 +1,92 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useNotificationStore, type NotificationType } from '@/stores/notification-store'
+import * as React from "react";
+import {
+  useNotificationStore,
+  type NotificationType,
+} from "@/stores/notification-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // Default sound URLs for different notification types
 const DEFAULT_SOUNDS: Record<NotificationType, string> = {
-  mention: '/sounds/mention.mp3',
-  direct_message: '/sounds/message.mp3',
-  thread_reply: '/sounds/thread.mp3',
-  reaction: '/sounds/reaction.mp3',
-  channel_invite: '/sounds/invite.mp3',
-  channel_update: '/sounds/update.mp3',
-  system: '/sounds/system.mp3',
-  announcement: '/sounds/announcement.mp3',
-}
+  mention: "/sounds/mention.mp3",
+  direct_message: "/sounds/message.mp3",
+  thread_reply: "/sounds/thread.mp3",
+  reaction: "/sounds/reaction.mp3",
+  channel_invite: "/sounds/invite.mp3",
+  channel_update: "/sounds/update.mp3",
+  system: "/sounds/system.mp3",
+  announcement: "/sounds/announcement.mp3",
+};
 
 // Fallback to a simple beep if no audio file available
 const FALLBACK_SOUND =
-  'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU' +
-  'tvT38AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+  "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU" +
+  "tvT38AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 export interface NotificationSoundOptions {
   /**
    * Type of notification to determine sound
    */
-  type?: NotificationType
+  type?: NotificationType;
 
   /**
    * Custom sound URL (overrides type-based selection)
    */
-  soundUrl?: string
+  soundUrl?: string;
 
   /**
    * Volume level (0-100)
    */
-  volume?: number
+  volume?: number;
 
   /**
    * Whether to force play even if preferences have sound disabled
    */
-  force?: boolean
+  force?: boolean;
 }
 
 export interface UseNotificationSoundReturn {
   /**
    * Play a notification sound
    */
-  play: (options?: NotificationSoundOptions) => Promise<void>
+  play: (options?: NotificationSoundOptions) => Promise<void>;
 
   /**
    * Stop the currently playing sound
    */
-  stop: () => void
+  stop: () => void;
 
   /**
    * Whether sound is currently playing
    */
-  isPlaying: boolean
+  isPlaying: boolean;
 
   /**
    * Whether sound is enabled in preferences
    */
-  isSoundEnabled: boolean
+  isSoundEnabled: boolean;
 
   /**
    * Current volume from preferences
    */
-  volume: number
+  volume: number;
 
   /**
    * Set the volume
    */
-  setVolume: (volume: number) => void
+  setVolume: (volume: number) => void;
 
   /**
    * Toggle sound on/off
    */
-  toggleSound: () => void
+  toggleSound: () => void;
 
   /**
    * Preload sounds for faster playback
    */
-  preloadSounds: () => void
+  preloadSounds: () => void;
 }
 
 /**
@@ -96,142 +99,148 @@ export interface UseNotificationSoundReturn {
  * - DND awareness
  */
 export function useNotificationSound(): UseNotificationSoundReturn {
-  const preferences = useNotificationStore((state) => state.preferences)
-  const updatePreferences = useNotificationStore((state) => state.updatePreferences)
+  const preferences = useNotificationStore((state) => state.preferences);
+  const updatePreferences = useNotificationStore(
+    (state) => state.updatePreferences,
+  );
 
-  const audioRef = React.useRef<HTMLAudioElement | null>(null)
-  const preloadedAudio = React.useRef<Map<string, HTMLAudioElement>>(new Map())
-  const [isPlaying, setIsPlaying] = React.useState(false)
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const preloadedAudio = React.useRef<Map<string, HTMLAudioElement>>(new Map());
+  const [isPlaying, setIsPlaying] = React.useState(false);
 
   // Check if DND is active
   const isDndActive = React.useCallback((): boolean => {
-    if (!preferences.dndSchedule.enabled) return false
+    if (!preferences.dndSchedule.enabled) return false;
 
-    const now = new Date()
-    const currentDay = now.getDay()
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+    const now = new Date();
+    const currentDay = now.getDay();
+    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
     if (!preferences.dndSchedule.days.includes(currentDay)) {
-      return false
+      return false;
     }
 
-    const { startTime, endTime } = preferences.dndSchedule
+    const { startTime, endTime } = preferences.dndSchedule;
 
     if (startTime > endTime) {
-      return currentTime >= startTime || currentTime < endTime
+      return currentTime >= startTime || currentTime < endTime;
     }
 
-    return currentTime >= startTime && currentTime < endTime
-  }, [preferences.dndSchedule])
+    return currentTime >= startTime && currentTime < endTime;
+  }, [preferences.dndSchedule]);
 
   // Play sound
   const play = React.useCallback(
     async (options: NotificationSoundOptions = {}): Promise<void> => {
-      const { type = 'system', soundUrl, volume, force = false } = options
+      const { type = "system", soundUrl, volume, force = false } = options;
 
       // Check if sound should be played
       if (!force && (!preferences.soundEnabled || !preferences.playSound)) {
-        return
+        return;
       }
 
       // Check DND
       if (!force && isDndActive()) {
-        return
+        return;
       }
 
       // Determine sound URL
-      const url = soundUrl || preferences.customSoundUrl || DEFAULT_SOUNDS[type] || FALLBACK_SOUND
-      const effectiveVolume = volume ?? preferences.soundVolume
+      const url =
+        soundUrl ||
+        preferences.customSoundUrl ||
+        DEFAULT_SOUNDS[type] ||
+        FALLBACK_SOUND;
+      const effectiveVolume = volume ?? preferences.soundVolume;
 
       try {
         // Check for preloaded audio
-        let audio = preloadedAudio.current.get(url)
+        let audio = preloadedAudio.current.get(url);
 
         if (!audio) {
-          audio = new Audio(url)
-          audio.preload = 'auto'
+          audio = new Audio(url);
+          audio.preload = "auto";
         }
 
-        audio.volume = effectiveVolume / 100
-        audio.currentTime = 0
-        audioRef.current = audio
+        audio.volume = effectiveVolume / 100;
+        audio.currentTime = 0;
+        audioRef.current = audio;
 
-        setIsPlaying(true)
+        setIsPlaying(true);
 
         audio.onended = () => {
-          setIsPlaying(false)
-        }
+          setIsPlaying(false);
+        };
 
         audio.onerror = () => {
           // Try fallback sound
           if (url !== FALLBACK_SOUND) {
-            const fallback = new Audio(FALLBACK_SOUND)
-            fallback.volume = effectiveVolume / 100
+            const fallback = new Audio(FALLBACK_SOUND);
+            fallback.volume = effectiveVolume / 100;
             fallback.play().catch(() => {
-              logger.warn('Failed to play notification sound')
-            })
+              logger.warn("Failed to play notification sound");
+            });
           }
-          setIsPlaying(false)
-        }
+          setIsPlaying(false);
+        };
 
-        await audio.play()
+        await audio.play();
       } catch (error) {
         // Audio play failed (usually due to autoplay restrictions)
-        logger.warn('Failed to play notification sound:', { context: error })
-        setIsPlaying(false)
+        logger.warn("Failed to play notification sound:", { context: error });
+        setIsPlaying(false);
       }
     },
-    [preferences, isDndActive]
-  )
+    [preferences, isDndActive],
+  );
 
   // Stop sound
   const stop = React.useCallback(() => {
     if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
-      setIsPlaying(false)
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
     }
-  }, [])
+  }, []);
 
   // Set volume
   const setVolume = React.useCallback(
     (volume: number) => {
-      const clampedVolume = Math.max(0, Math.min(100, volume))
-      updatePreferences({ soundVolume: clampedVolume })
+      const clampedVolume = Math.max(0, Math.min(100, volume));
+      updatePreferences({ soundVolume: clampedVolume });
 
       if (audioRef.current) {
-        audioRef.current.volume = clampedVolume / 100
+        audioRef.current.volume = clampedVolume / 100;
       }
     },
-    [updatePreferences]
-  )
+    [updatePreferences],
+  );
 
   // Toggle sound
   const toggleSound = React.useCallback(() => {
-    updatePreferences({ soundEnabled: !preferences.soundEnabled })
-  }, [preferences.soundEnabled, updatePreferences])
+    updatePreferences({ soundEnabled: !preferences.soundEnabled });
+  }, [preferences.soundEnabled, updatePreferences]);
 
   // Preload sounds
   const preloadSounds = React.useCallback(() => {
     Object.entries(DEFAULT_SOUNDS).forEach(([, url]) => {
       if (!preloadedAudio.current.has(url)) {
-        const audio = new Audio()
-        audio.preload = 'auto'
-        audio.src = url
-        preloadedAudio.current.set(url, audio)
+        const audio = new Audio();
+        audio.preload = "auto";
+        audio.src = url;
+        preloadedAudio.current.set(url, audio);
       }
-    })
-  }, [])
+    });
+  }, []);
 
   // Cleanup on unmount
   React.useEffect(() => {
     return () => {
       if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
+        audioRef.current.pause();
+        audioRef.current = null;
       }
-    }
-  }, [])
+    };
+  }, []);
 
   return {
     play,
@@ -242,7 +251,7 @@ export function useNotificationSound(): UseNotificationSoundReturn {
     setVolume,
     toggleSound,
     preloadSounds,
-  }
+  };
 }
 
 /**
@@ -254,32 +263,32 @@ export interface NotificationSoundPlayerProps {
   /**
    * Whether the sound should play
    */
-  shouldPlay: boolean
+  shouldPlay: boolean;
 
   /**
    * Notification type for sound selection
    */
-  type?: NotificationType
+  type?: NotificationType;
 
   /**
    * Custom sound URL
    */
-  soundUrl?: string
+  soundUrl?: string;
 
   /**
    * Volume override
    */
-  volume?: number
+  volume?: number;
 
   /**
    * Callback when sound starts playing
    */
-  onPlayStart?: () => void
+  onPlayStart?: () => void;
 
   /**
    * Callback when sound finishes playing
    */
-  onPlayEnd?: () => void
+  onPlayEnd?: () => void;
 }
 
 export function NotificationSoundPlayer({
@@ -290,25 +299,25 @@ export function NotificationSoundPlayer({
   onPlayStart,
   onPlayEnd,
 }: NotificationSoundPlayerProps) {
-  const { play, isPlaying } = useNotificationSound()
-  const hasPlayedRef = React.useRef(false)
+  const { play, isPlaying } = useNotificationSound();
+  const hasPlayedRef = React.useRef(false);
 
   React.useEffect(() => {
     if (shouldPlay && !hasPlayedRef.current) {
-      hasPlayedRef.current = true
-      onPlayStart?.()
+      hasPlayedRef.current = true;
+      onPlayStart?.();
       play({ type, soundUrl, volume }).then(() => {
-        onPlayEnd?.()
-      })
+        onPlayEnd?.();
+      });
     }
 
     if (!shouldPlay) {
-      hasPlayedRef.current = false
+      hasPlayedRef.current = false;
     }
-  }, [shouldPlay, type, soundUrl, volume, play, onPlayStart, onPlayEnd])
+  }, [shouldPlay, type, soundUrl, volume, play, onPlayStart, onPlayEnd]);
 
   // This component doesn't render anything
-  return null
+  return null;
 }
 
 /**
@@ -320,12 +329,12 @@ export interface SoundVolumeControlProps extends React.HTMLAttributes<HTMLDivEle
   /**
    * Whether to show the mute toggle
    */
-  showMuteToggle?: boolean
+  showMuteToggle?: boolean;
 
   /**
    * Whether to show the current volume value
    */
-  showValue?: boolean
+  showValue?: boolean;
 }
 
 export function SoundVolumeControl({
@@ -334,16 +343,17 @@ export function SoundVolumeControl({
   className,
   ...props
 }: SoundVolumeControlProps) {
-  const { isSoundEnabled, volume, setVolume, toggleSound, play } = useNotificationSound()
+  const { isSoundEnabled, volume, setVolume, toggleSound, play } =
+    useNotificationSound();
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseInt(e.target.value, 10)
-    setVolume(newVolume)
-  }
+    const newVolume = parseInt(e.target.value, 10);
+    setVolume(newVolume);
+  };
 
   const handleTestSound = () => {
-    play({ type: 'system', force: true })
-  }
+    play({ type: "system", force: true });
+  };
 
   return (
     <div className={className} {...props}>
@@ -353,7 +363,7 @@ export function SoundVolumeControl({
             type="button"
             onClick={toggleSound}
             className="rounded p-1 hover:bg-accent"
-            aria-label={isSoundEnabled ? 'Mute' : 'Unmute'}
+            aria-label={isSoundEnabled ? "Mute" : "Unmute"}
           >
             {isSoundEnabled ? (
               <svg
@@ -404,7 +414,9 @@ export function SoundVolumeControl({
         />
 
         {showValue && (
-          <span className="w-10 text-right text-sm text-muted-foreground">{volume}%</span>
+          <span className="w-10 text-right text-sm text-muted-foreground">
+            {volume}%
+          </span>
         )}
 
         <button
@@ -416,11 +428,11 @@ export function SoundVolumeControl({
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-useNotificationSound.displayName = 'useNotificationSound'
-NotificationSoundPlayer.displayName = 'NotificationSoundPlayer'
-SoundVolumeControl.displayName = 'SoundVolumeControl'
+useNotificationSound.displayName = "useNotificationSound";
+NotificationSoundPlayer.displayName = "NotificationSoundPlayer";
+SoundVolumeControl.displayName = "SoundVolumeControl";
 
-export default useNotificationSound
+export default useNotificationSound;

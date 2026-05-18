@@ -1,36 +1,36 @@
-'use client'
+"use client";
 
-import dynamic from 'next/dynamic'
-import { useEffect, useState } from 'react'
-import 'swagger-ui-react/swagger-ui.css'
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+import "swagger-ui-react/swagger-ui.css";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // Dynamically import SwaggerUI to avoid SSR issues
-const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false })
+const SwaggerUI = dynamic(() => import("swagger-ui-react"), { ssr: false });
 
 export default function ApiDocsPage() {
-  const [spec, setSpec] = useState<any>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [spec, setSpec] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch the OpenAPI spec
-    fetch('/openapi.yaml')
+    fetch("/openapi.yaml")
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Failed to fetch OpenAPI spec')
+          throw new Error("Failed to fetch OpenAPI spec");
         }
-        return response.text()
+        return response.text();
       })
       .then((yamlText) => {
         // SwaggerUI can parse YAML directly
-        setSpec(yamlText)
+        setSpec(yamlText);
       })
       .catch((err) => {
-        logger.error('Error loading OpenAPI spec:', err)
-        setError(err.message)
-      })
-  }, [])
+        logger.error("Error loading OpenAPI spec:", err);
+        setError(err.message);
+      });
+  }, []);
 
   if (error) {
     return (
@@ -57,7 +57,7 @@ export default function ApiDocsPage() {
           <p className="text-center text-gray-600">{error}</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!spec) {
@@ -68,7 +68,7 @@ export default function ApiDocsPage() {
           <p className="text-gray-600">Loading API documentation...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -203,5 +203,5 @@ export default function ApiDocsPage() {
 
       <SwaggerUI spec={spec} />
     </div>
-  )
+  );
 }

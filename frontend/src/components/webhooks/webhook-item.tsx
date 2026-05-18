@@ -1,35 +1,55 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { MoreHorizontal, Pencil, Trash2, Pause, Play, Send, Copy, Check, Hash } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Pause,
+  Play,
+  Send,
+  Copy,
+  Check,
+  Hash,
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { Webhook, getWebhookStatusColor, copyWebhookUrl, formatDeliveryTime } from '@/lib/webhooks'
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import {
+  Webhook,
+  getWebhookStatusColor,
+  copyWebhookUrl,
+  formatDeliveryTime,
+} from "@/lib/webhooks";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface WebhookItemProps {
-  webhook: Webhook
-  onEdit?: (webhook: Webhook) => void
-  onDelete?: (webhook: Webhook) => void
-  onTest?: (webhook: Webhook) => void
-  onToggleStatus?: (webhook: Webhook) => void
-  onSelect?: (webhook: Webhook) => void
-  isSelected?: boolean
-  showChannel?: boolean
-  compact?: boolean
+  webhook: Webhook;
+  onEdit?: (webhook: Webhook) => void;
+  onDelete?: (webhook: Webhook) => void;
+  onTest?: (webhook: Webhook) => void;
+  onToggleStatus?: (webhook: Webhook) => void;
+  onSelect?: (webhook: Webhook) => void;
+  isSelected?: boolean;
+  showChannel?: boolean;
+  compact?: boolean;
 }
 
 // ============================================================================
@@ -47,41 +67,41 @@ export function WebhookItem({
   showChannel = true,
   compact = false,
 }: WebhookItemProps) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
   const handleCopyUrl = async () => {
-    const success = await copyWebhookUrl(webhook.url)
+    const success = await copyWebhookUrl(webhook.url);
     if (success) {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-  }
+  };
 
-  const statusVariant = getWebhookStatusColor(webhook.status)
-  const isActive = webhook.status === 'active'
+  const statusVariant = getWebhookStatusColor(webhook.status);
+  const isActive = webhook.status === "active";
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   if (compact) {
     return (
       <div
         className={cn(
-          'flex items-center gap-3 rounded-lg border p-3 transition-colors',
-          'hover:bg-accent/50 cursor-pointer',
-          isSelected && 'border-primary bg-accent'
+          "flex items-center gap-3 rounded-lg border p-3 transition-colors",
+          "hover:bg-accent/50 cursor-pointer",
+          isSelected && "border-primary bg-accent",
         )}
         onClick={() => onSelect?.(webhook)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onSelect?.(webhook)
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onSelect?.(webhook);
           }
         }}
         role="button"
@@ -89,7 +109,9 @@ export function WebhookItem({
       >
         <Avatar className="h-8 w-8">
           <AvatarImage src={webhook.avatar_url} alt={webhook.name} />
-          <AvatarFallback className="text-xs">{getInitials(webhook.name)}</AvatarFallback>
+          <AvatarFallback className="text-xs">
+            {getInitials(webhook.name)}
+          </AvatarFallback>
         </Avatar>
 
         <div className="min-w-0 flex-1">
@@ -107,15 +129,15 @@ export function WebhookItem({
           )}
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
       className={cn(
-        'group flex items-center gap-4 rounded-lg border bg-card p-4 transition-colors',
-        'hover:bg-accent/50',
-        isSelected && 'border-primary ring-1 ring-primary'
+        "group flex items-center gap-4 rounded-lg border bg-card p-4 transition-colors",
+        "hover:bg-accent/50",
+        isSelected && "border-primary ring-1 ring-primary",
       )}
     >
       {/* Avatar */}
@@ -151,8 +173,8 @@ export function WebhookItem({
                   size="icon"
                   className="h-7 w-7 shrink-0"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    handleCopyUrl()
+                    e.stopPropagation();
+                    handleCopyUrl();
                   }}
                 >
                   {copied ? (
@@ -163,7 +185,7 @@ export function WebhookItem({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{copied ? 'Copied!' : 'Copy URL'}</p>
+                <p>{copied ? "Copied!" : "Copy URL"}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -187,8 +209,8 @@ export function WebhookItem({
                 size="icon"
                 className="h-8 w-8"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onTest?.(webhook)
+                  e.stopPropagation();
+                  onTest?.(webhook);
                 }}
               >
                 <Send className="h-4 w-4" />
@@ -208,15 +230,19 @@ export function WebhookItem({
                 size="icon"
                 className="h-8 w-8"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onToggleStatus?.(webhook)
+                  e.stopPropagation();
+                  onToggleStatus?.(webhook);
                 }}
               >
-                {isActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                {isActive ? (
+                  <Pause className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{isActive ? 'Pause' : 'Activate'}</p>
+              <p>{isActive ? "Pause" : "Activate"}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -235,8 +261,8 @@ export function WebhookItem({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={(e) => {
-                e.stopPropagation()
-                onEdit?.(webhook)
+                e.stopPropagation();
+                onEdit?.(webhook);
               }}
             >
               <Pencil className="mr-2 h-4 w-4" />
@@ -244,8 +270,8 @@ export function WebhookItem({
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
-                e.stopPropagation()
-                handleCopyUrl()
+                e.stopPropagation();
+                handleCopyUrl();
               }}
             >
               <Copy className="mr-2 h-4 w-4" />
@@ -254,8 +280,8 @@ export function WebhookItem({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={(e) => {
-                e.stopPropagation()
-                onDelete?.(webhook)
+                e.stopPropagation();
+                onDelete?.(webhook);
               }}
               className="text-destructive focus:text-destructive"
             >
@@ -266,14 +292,18 @@ export function WebhookItem({
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // SKELETON
 // ============================================================================
 
-export function WebhookItemSkeleton({ compact = false }: { compact?: boolean }) {
+export function WebhookItemSkeleton({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
   if (compact) {
     return (
       <div className="flex items-center gap-3 rounded-lg border p-3">
@@ -283,7 +313,7 @@ export function WebhookItemSkeleton({ compact = false }: { compact?: boolean }) 
           <div className="h-3 w-20 animate-pulse rounded bg-muted" />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -295,7 +325,7 @@ export function WebhookItemSkeleton({ compact = false }: { compact?: boolean }) 
         <div className="h-6 w-full animate-pulse rounded bg-muted" />
       </div>
     </div>
-  )
+  );
 }
 
-export default WebhookItem
+export default WebhookItem;

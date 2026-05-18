@@ -5,9 +5,9 @@
  * to admit or deny them.
  */
 
-'use client'
+"use client";
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState } from "react";
 import {
   DoorClosed,
   UserCheck,
@@ -17,29 +17,29 @@ import {
   CheckCircle,
   XCircle,
   Search,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { GroupCallParticipant } from '@/services/calls/group-call.service'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { GroupCallParticipant } from "@/services/calls/group-call.service";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface LobbyPanelProps {
-  lobbyParticipants: GroupCallParticipant[]
-  isHost: boolean
-  isCoHost: boolean
-  onAdmit: (participantId: string) => void
-  onAdmitAll: () => void
-  onDeny: (participantId: string, reason?: string) => void
-  onDenyAll: (reason?: string) => void
-  className?: string
+  lobbyParticipants: GroupCallParticipant[];
+  isHost: boolean;
+  isCoHost: boolean;
+  onAdmit: (participantId: string) => void;
+  onAdmitAll: () => void;
+  onDeny: (participantId: string, reason?: string) => void;
+  onDenyAll: (reason?: string) => void;
+  className?: string;
 }
 
 // =============================================================================
@@ -48,29 +48,29 @@ export interface LobbyPanelProps {
 
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 function formatWaitTime(joinedAt: Date): string {
-  const now = new Date()
-  const diffMs = now.getTime() - joinedAt.getTime()
-  const diffSecs = Math.floor(diffMs / 1000)
+  const now = new Date();
+  const diffMs = now.getTime() - joinedAt.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
 
   if (diffSecs < 60) {
-    return `${diffSecs}s`
+    return `${diffSecs}s`;
   }
 
-  const diffMins = Math.floor(diffSecs / 60)
+  const diffMins = Math.floor(diffSecs / 60);
   if (diffMins < 60) {
-    return `${diffMins}m`
+    return `${diffMins}m`;
   }
 
-  const diffHours = Math.floor(diffMins / 60)
-  return `${diffHours}h ${diffMins % 60}m`
+  const diffHours = Math.floor(diffMins / 60);
+  return `${diffHours}h ${diffMins % 60}m`;
 }
 
 // =============================================================================
@@ -87,28 +87,28 @@ export function LobbyPanel({
   onDenyAll,
   className,
 }: LobbyPanelProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const canManage = isHost || isCoHost
+  const [searchQuery, setSearchQuery] = useState("");
+  const canManage = isHost || isCoHost;
 
   const filteredParticipants = useMemo(() => {
     return lobbyParticipants.filter((p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }, [lobbyParticipants, searchQuery])
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [lobbyParticipants, searchQuery]);
 
   // Sort by wait time (longest first)
   const sortedParticipants = useMemo(() => {
     return [...filteredParticipants].sort(
-      (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
-    )
-  }, [filteredParticipants])
+      (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime(),
+    );
+  }, [filteredParticipants]);
 
   if (!canManage) {
-    return null
+    return null;
   }
 
   return (
-    <Card className={cn('flex h-full flex-col', className)}>
+    <Card className={cn("flex h-full flex-col", className)}>
       <CardHeader className="border-b pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -190,7 +190,7 @@ export function LobbyPanel({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // =============================================================================
@@ -198,21 +198,27 @@ export function LobbyPanel({
 // =============================================================================
 
 interface LobbyParticipantItemProps {
-  participant: GroupCallParticipant
-  onAdmit: () => void
-  onDeny: () => void
+  participant: GroupCallParticipant;
+  onAdmit: () => void;
+  onDeny: () => void;
 }
 
-function LobbyParticipantItem({ participant, onAdmit, onDeny }: LobbyParticipantItemProps) {
-  const [waitTime, setWaitTime] = useState(formatWaitTime(participant.joinedAt))
+function LobbyParticipantItem({
+  participant,
+  onAdmit,
+  onDeny,
+}: LobbyParticipantItemProps) {
+  const [waitTime, setWaitTime] = useState(
+    formatWaitTime(participant.joinedAt),
+  );
 
   // Update wait time every second
   React.useEffect(() => {
     const interval = setInterval(() => {
-      setWaitTime(formatWaitTime(participant.joinedAt))
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [participant.joinedAt])
+      setWaitTime(formatWaitTime(participant.joinedAt));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [participant.joinedAt]);
 
   return (
     <div className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50">
@@ -251,7 +257,7 @@ function LobbyParticipantItem({ participant, onAdmit, onDeny }: LobbyParticipant
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -259,34 +265,39 @@ function LobbyParticipantItem({ participant, onAdmit, onDeny }: LobbyParticipant
 // =============================================================================
 
 export interface WaitingInLobbyProps {
-  hostName?: string
-  callTitle?: string
-  onLeave: () => void
-  className?: string
+  hostName?: string;
+  callTitle?: string;
+  onLeave: () => void;
+  className?: string;
 }
 
-export function WaitingInLobby({ hostName, callTitle, onLeave, className }: WaitingInLobbyProps) {
-  const [waitTime, setWaitTime] = useState(0)
+export function WaitingInLobby({
+  hostName,
+  callTitle,
+  onLeave,
+  className,
+}: WaitingInLobbyProps) {
+  const [waitTime, setWaitTime] = useState(0);
 
   // Update wait time every second
   React.useEffect(() => {
     const interval = setInterval(() => {
-      setWaitTime((t) => t + 1)
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
+      setWaitTime((t) => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   return (
     <div
       className={cn(
-        'flex h-full flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-8 dark:from-blue-950/20 dark:to-purple-950/20',
-        className
+        "flex h-full flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-8 dark:from-blue-950/20 dark:to-purple-950/20",
+        className,
       )}
     >
       <div className="max-w-md text-center">
@@ -312,7 +323,8 @@ export function WaitingInLobby({ hostName, callTitle, onLeave, className }: Wait
         {/* Host Name */}
         {hostName && (
           <p className="mb-4 text-sm text-muted-foreground">
-            Host: <span className="font-medium text-foreground">{hostName}</span>
+            Host:{" "}
+            <span className="font-medium text-foreground">{hostName}</span>
           </p>
         )}
 
@@ -339,5 +351,5 @@ export function WaitingInLobby({ hostName, callTitle, onLeave, className }: Wait
         </Button>
       </div>
     </div>
-  )
+  );
 }

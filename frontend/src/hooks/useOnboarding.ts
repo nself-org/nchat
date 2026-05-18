@@ -4,68 +4,76 @@
  * Provides easy access to onboarding state and actions
  */
 
-import { useCallback, useMemo, useEffect } from 'react'
-import { useOnboardingStore } from '@/stores/onboarding-store'
-import type { OnboardingStepId, OnboardingProgress } from '@/lib/onboarding/onboarding-types'
-import { getStepById, canSkipStep } from '@/lib/onboarding/onboarding-steps'
+import { useCallback, useMemo, useEffect } from "react";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import type {
+  OnboardingStepId,
+  OnboardingProgress,
+} from "@/lib/onboarding/onboarding-types";
+import { getStepById, canSkipStep } from "@/lib/onboarding/onboarding-steps";
 
 interface UseOnboardingOptions {
   /**
    * User ID for initializing onboarding
    */
-  userId?: string
+  userId?: string;
   /**
    * Auto-initialize onboarding on mount
    */
-  autoInit?: boolean
+  autoInit?: boolean;
   /**
    * Callback when onboarding is completed
    */
-  onComplete?: () => void
+  onComplete?: () => void;
   /**
    * Callback when onboarding is skipped
    */
-  onSkip?: () => void
+  onSkip?: () => void;
 }
 
 interface UseOnboardingReturn {
   // State
-  isLoading: boolean
-  isActive: boolean
-  isCompleted: boolean
-  currentStep: OnboardingStepId | null
-  currentStepData: ReturnType<typeof getStepById> | null
-  progress: OnboardingProgress | null
-  canSkipCurrentStep: boolean
+  isLoading: boolean;
+  isActive: boolean;
+  isCompleted: boolean;
+  currentStep: OnboardingStepId | null;
+  currentStepData: ReturnType<typeof getStepById> | null;
+  progress: OnboardingProgress | null;
+  canSkipCurrentStep: boolean;
 
   // Form data - using Record types for flexibility
-  profileData: Record<string, unknown>
-  preferencesData: Record<string, unknown>
-  notificationSettings: Record<string, unknown>
-  selectedChannels: string[]
-  teamInvitations: { email: string; role?: 'admin' | 'moderator' | 'member' }[]
+  profileData: Record<string, unknown>;
+  preferencesData: Record<string, unknown>;
+  notificationSettings: Record<string, unknown>;
+  selectedChannels: string[];
+  teamInvitations: { email: string; role?: "admin" | "moderator" | "member" }[];
 
   // Actions
-  start: () => void
-  next: (data?: Record<string, unknown>) => void
-  previous: () => void
-  skip: () => void
-  skipAll: () => void
-  goTo: (stepId: OnboardingStepId) => void
-  reset: () => void
+  start: () => void;
+  next: (data?: Record<string, unknown>) => void;
+  previous: () => void;
+  skip: () => void;
+  skipAll: () => void;
+  goTo: (stepId: OnboardingStepId) => void;
+  reset: () => void;
 
   // Form actions
-  updateProfile: (data: Record<string, unknown>) => void
-  updatePreferences: (data: Record<string, unknown>) => void
-  updateNotifications: (data: Record<string, unknown>) => void
-  selectChannels: (channelIds: string[]) => void
-  toggleChannel: (channelId: string) => void
-  addInvitation: (invitation: { email: string; role?: 'admin' | 'moderator' | 'member' }) => void
-  removeInvitation: (email: string) => void
+  updateProfile: (data: Record<string, unknown>) => void;
+  updatePreferences: (data: Record<string, unknown>) => void;
+  updateNotifications: (data: Record<string, unknown>) => void;
+  selectChannels: (channelIds: string[]) => void;
+  toggleChannel: (channelId: string) => void;
+  addInvitation: (invitation: {
+    email: string;
+    role?: "admin" | "moderator" | "member";
+  }) => void;
+  removeInvitation: (email: string) => void;
 }
 
-export function useOnboarding(options: UseOnboardingOptions = {}): UseOnboardingReturn {
-  const { userId, autoInit = true, onComplete, onSkip } = options
+export function useOnboarding(
+  options: UseOnboardingOptions = {},
+): UseOnboardingReturn {
+  const { userId, autoInit = true, onComplete, onSkip } = options;
 
   const {
     onboarding,
@@ -91,118 +99,119 @@ export function useOnboarding(options: UseOnboardingOptions = {}): UseOnboarding
     addTeamInvitation,
     removeTeamInvitation,
     getOnboardingProgress,
-  } = useOnboardingStore()
+  } = useOnboardingStore();
 
   // Initialize on mount if userId provided and autoInit enabled
   useEffect(() => {
     if (autoInit && userId) {
-      initialize(userId)
+      initialize(userId);
     }
-  }, [autoInit, userId, initialize])
+  }, [autoInit, userId, initialize]);
 
   // Watch for completion
   useEffect(() => {
-    if (onboarding?.status === 'completed' && onComplete) {
-      onComplete()
+    if (onboarding?.status === "completed" && onComplete) {
+      onComplete();
     }
-    if (onboarding?.status === 'skipped' && onSkip) {
-      onSkip()
+    if (onboarding?.status === "skipped" && onSkip) {
+      onSkip();
     }
-  }, [onboarding?.status, onComplete, onSkip])
+  }, [onboarding?.status, onComplete, onSkip]);
 
   // Computed state
-  const isActive = onboarding?.status === 'in_progress'
-  const isCompleted = onboarding?.status === 'completed' || onboarding?.status === 'skipped'
-  const currentStep = onboarding?.currentStepId ?? null
-  const currentStepData = currentStep ? getStepById(currentStep) : null
-  const progress = getOnboardingProgress()
-  const canSkipCurrentStep = currentStep ? canSkipStep(currentStep) : false
+  const isActive = onboarding?.status === "in_progress";
+  const isCompleted =
+    onboarding?.status === "completed" || onboarding?.status === "skipped";
+  const currentStep = onboarding?.currentStepId ?? null;
+  const currentStepData = currentStep ? getStepById(currentStep) : null;
+  const progress = getOnboardingProgress();
+  const canSkipCurrentStep = currentStep ? canSkipStep(currentStep) : false;
 
   // Actions
   const start = useCallback(() => {
-    startOnboarding()
-  }, [startOnboarding])
+    startOnboarding();
+  }, [startOnboarding]);
 
   const next = useCallback(
     (data?: Record<string, unknown>) => {
-      completeStep(data)
+      completeStep(data);
     },
-    [completeStep]
-  )
+    [completeStep],
+  );
 
   const previous = useCallback(() => {
-    previousStep()
-  }, [previousStep])
+    previousStep();
+  }, [previousStep]);
 
   const skip = useCallback(() => {
-    skipStep()
-  }, [skipStep])
+    skipStep();
+  }, [skipStep]);
 
   const skipAll = useCallback(() => {
-    skipAllOnboarding()
-    onSkip?.()
-  }, [skipAllOnboarding, onSkip])
+    skipAllOnboarding();
+    onSkip?.();
+  }, [skipAllOnboarding, onSkip]);
 
   const goTo = useCallback(
     (stepId: OnboardingStepId) => {
-      goToStep(stepId)
+      goToStep(stepId);
     },
-    [goToStep]
-  )
+    [goToStep],
+  );
 
   const reset = useCallback(() => {
-    resetOnboarding()
-  }, [resetOnboarding])
+    resetOnboarding();
+  }, [resetOnboarding]);
 
   // Form actions
   const updateProfile = useCallback(
     (data: Partial<typeof profileData>) => {
-      updateProfileData(data)
+      updateProfileData(data);
     },
-    [updateProfileData]
-  )
+    [updateProfileData],
+  );
 
   const updatePreferences = useCallback(
     (data: Partial<typeof preferencesData>) => {
-      updatePreferencesData(data)
+      updatePreferencesData(data);
     },
-    [updatePreferencesData]
-  )
+    [updatePreferencesData],
+  );
 
   const updateNotifications = useCallback(
     (data: Partial<typeof notificationSettings>) => {
-      updateNotificationSettings(data)
+      updateNotificationSettings(data);
     },
-    [updateNotificationSettings]
-  )
+    [updateNotificationSettings],
+  );
 
   const selectChannels = useCallback(
     (channelIds: string[]) => {
-      setSelectedChannels(channelIds)
+      setSelectedChannels(channelIds);
     },
-    [setSelectedChannels]
-  )
+    [setSelectedChannels],
+  );
 
   const toggleChannel = useCallback(
     (channelId: string) => {
-      toggleChannelSelection(channelId)
+      toggleChannelSelection(channelId);
     },
-    [toggleChannelSelection]
-  )
+    [toggleChannelSelection],
+  );
 
   const addInvitation = useCallback(
     (invitation: (typeof teamInvitations)[0]) => {
-      addTeamInvitation(invitation)
+      addTeamInvitation(invitation);
     },
-    [addTeamInvitation]
-  )
+    [addTeamInvitation],
+  );
 
   const removeInvitation = useCallback(
     (email: string) => {
-      removeTeamInvitation(email)
+      removeTeamInvitation(email);
     },
-    [removeTeamInvitation]
-  )
+    [removeTeamInvitation],
+  );
 
   return {
     // State
@@ -238,20 +247,21 @@ export function useOnboarding(options: UseOnboardingOptions = {}): UseOnboarding
     toggleChannel,
     addInvitation,
     removeInvitation,
-  }
+  };
 }
 
 /**
  * Hook to check if onboarding should be shown
  */
 export function useShouldShowOnboarding(userId?: string): boolean {
-  const { onboarding, onboardingConfig, initialize, shouldShowOnboarding } = useOnboardingStore()
+  const { onboarding, onboardingConfig, initialize, shouldShowOnboarding } =
+    useOnboardingStore();
 
   useEffect(() => {
     if (userId) {
-      initialize(userId)
+      initialize(userId);
     }
-  }, [userId, initialize])
+  }, [userId, initialize]);
 
-  return shouldShowOnboarding()
+  return shouldShowOnboarding();
 }

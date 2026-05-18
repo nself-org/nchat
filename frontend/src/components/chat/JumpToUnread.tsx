@@ -10,10 +10,10 @@
  * - Auto-hide when at unread position
  */
 
-'use client'
+"use client";
 
-import React, { useCallback, useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useCallback, useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowDown,
   ArrowUp,
@@ -22,11 +22,16 @@ import {
   Hash,
   MessageCircle,
   SkipForward,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { useHotkey } from '@/hooks/use-hotkey'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useHotkey } from "@/hooks/use-hotkey";
 
 // ============================================================================
 // Types
@@ -34,28 +39,28 @@ import { useHotkey } from '@/hooks/use-hotkey'
 
 export interface JumpToUnreadProps {
   /** Whether there are unread messages */
-  hasUnread: boolean
+  hasUnread: boolean;
   /** Number of unread messages */
-  unreadCount?: number
+  unreadCount?: number;
   /** Number of unread mentions */
-  mentionCount?: number
+  mentionCount?: number;
   /** Callback to jump to first unread */
-  onJumpToUnread: () => void
+  onJumpToUnread: () => void;
   /** Callback to jump to latest */
-  onJumpToLatest?: () => void
+  onJumpToLatest?: () => void;
   /** Whether currently scrolled to bottom */
-  isAtBottom?: boolean
+  isAtBottom?: boolean;
   /** Custom className */
-  className?: string
+  className?: string;
   /** Show jump to latest button instead */
-  showJumpToLatest?: boolean
+  showJumpToLatest?: boolean;
   /** Position on screen */
-  position?: 'bottom-right' | 'bottom-center' | 'bottom-left'
+  position?: "bottom-right" | "bottom-center" | "bottom-left";
 }
 
 export interface JumpToUnreadButtonProps extends JumpToUnreadProps {
   /** Button variant */
-  variant?: 'default' | 'compact' | 'minimal'
+  variant?: "default" | "compact" | "minimal";
 }
 
 // ============================================================================
@@ -70,48 +75,48 @@ export function JumpToUnreadButton({
   onJumpToLatest,
   isAtBottom = false,
   showJumpToLatest = false,
-  position = 'bottom-center',
-  variant = 'default',
+  position = "bottom-center",
+  variant = "default",
   className,
 }: JumpToUnreadButtonProps) {
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(false);
 
   // Show button when:
   // 1. Has unread and not showing jump to latest, OR
   // 2. Showing jump to latest and not at bottom
   useEffect(() => {
     if (showJumpToLatest) {
-      setIsVisible(!isAtBottom)
+      setIsVisible(!isAtBottom);
     } else {
-      setIsVisible(hasUnread)
+      setIsVisible(hasUnread);
     }
-  }, [hasUnread, isAtBottom, showJumpToLatest])
+  }, [hasUnread, isAtBottom, showJumpToLatest]);
 
   // Keyboard shortcut: Alt+Shift+U to jump to unread
-  useHotkey('alt+shift+u', () => {
+  useHotkey("alt+shift+u", () => {
     if (hasUnread) {
-      onJumpToUnread()
+      onJumpToUnread();
     }
-  })
+  });
 
   const handleClick = useCallback(() => {
     if (showJumpToLatest && onJumpToLatest) {
-      onJumpToLatest()
+      onJumpToLatest();
     } else {
-      onJumpToUnread()
+      onJumpToUnread();
     }
-  }, [showJumpToLatest, onJumpToLatest, onJumpToUnread])
+  }, [showJumpToLatest, onJumpToLatest, onJumpToUnread]);
 
-  const hasMention = mentionCount > 0
+  const hasMention = mentionCount > 0;
 
   const positionClasses = {
-    'bottom-right': 'bottom-4 right-4',
-    'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
-    'bottom-left': 'bottom-4 left-4',
-  }
+    "bottom-right": "bottom-4 right-4",
+    "bottom-center": "bottom-4 left-1/2 -translate-x-1/2",
+    "bottom-left": "bottom-4 left-4",
+  };
 
   // Compact variant - just icon + count
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <AnimatePresence>
         {isVisible && (
@@ -119,8 +124,8 @@ export function JumpToUnreadButton({
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className={cn('fixed z-50', positionClasses[position], className)}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className={cn("fixed z-50", positionClasses[position], className)}
           >
             <TooltipProvider>
               <Tooltip>
@@ -129,9 +134,11 @@ export function JumpToUnreadButton({
                     onClick={handleClick}
                     size="icon"
                     className={cn(
-                      'h-10 w-10 rounded-full shadow-lg',
-                      hasMention && 'bg-red-500 hover:bg-red-600',
-                      !hasMention && !showJumpToLatest && 'bg-blue-500 hover:bg-blue-600'
+                      "h-10 w-10 rounded-full shadow-lg",
+                      hasMention && "bg-red-500 hover:bg-red-600",
+                      !hasMention &&
+                        !showJumpToLatest &&
+                        "bg-blue-500 hover:bg-blue-600",
                     )}
                   >
                     {showJumpToLatest ? (
@@ -143,17 +150,17 @@ export function JumpToUnreadButton({
                     )}
                     <span className="sr-only">
                       {showJumpToLatest
-                        ? 'Jump to latest'
-                        : `Jump to ${unreadCount} unread message${unreadCount !== 1 ? 's' : ''}`}
+                        ? "Jump to latest"
+                        : `Jump to ${unreadCount} unread message${unreadCount !== 1 ? "s" : ""}`}
                     </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p>
                     {showJumpToLatest
-                      ? 'Jump to latest messages'
+                      ? "Jump to latest messages"
                       : hasMention
-                        ? `${mentionCount} mention${mentionCount !== 1 ? 's' : ''}`
+                        ? `${mentionCount} mention${mentionCount !== 1 ? "s" : ""}`
                         : `${unreadCount} unread`}
                   </p>
                   <p className="text-xs text-muted-foreground">Alt+Shift+U</p>
@@ -163,11 +170,11 @@ export function JumpToUnreadButton({
           </motion.div>
         )}
       </AnimatePresence>
-    )
+    );
   }
 
   // Minimal variant - very subtle
-  if (variant === 'minimal') {
+  if (variant === "minimal") {
     return (
       <AnimatePresence>
         {isVisible && (
@@ -175,7 +182,7 @@ export function JumpToUnreadButton({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className={cn('fixed z-50', positionClasses[position], className)}
+            className={cn("fixed z-50", positionClasses[position], className)}
           >
             <Button
               onClick={handleClick}
@@ -185,15 +192,15 @@ export function JumpToUnreadButton({
             >
               <ChevronDown className="mr-1 h-4 w-4" />
               {showJumpToLatest
-                ? 'Jump to latest'
+                ? "Jump to latest"
                 : hasMention
-                  ? `${mentionCount} mention${mentionCount !== 1 ? 's' : ''}`
+                  ? `${mentionCount} mention${mentionCount !== 1 ? "s" : ""}`
                   : `${unreadCount} unread`}
             </Button>
           </motion.div>
         )}
       </AnimatePresence>
-    )
+    );
   }
 
   // Default variant - full featured
@@ -204,16 +211,18 @@ export function JumpToUnreadButton({
           initial={{ opacity: 0, y: 20, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.9 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className={cn('fixed z-50', positionClasses[position], className)}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className={cn("fixed z-50", positionClasses[position], className)}
         >
           <Button
             onClick={handleClick}
             size="default"
             className={cn(
-              'rounded-full shadow-lg transition-all hover:shadow-xl',
-              hasMention && 'bg-red-500 hover:bg-red-600',
-              !hasMention && !showJumpToLatest && 'bg-blue-500 hover:bg-blue-600'
+              "rounded-full shadow-lg transition-all hover:shadow-xl",
+              hasMention && "bg-red-500 hover:bg-red-600",
+              !hasMention &&
+                !showJumpToLatest &&
+                "bg-blue-500 hover:bg-blue-600",
             )}
           >
             {showJumpToLatest ? (
@@ -225,14 +234,14 @@ export function JumpToUnreadButton({
               <>
                 <Bell className="mr-2 h-4 w-4" />
                 <span className="font-semibold">
-                  {mentionCount} mention{mentionCount !== 1 ? 's' : ''}
+                  {mentionCount} mention{mentionCount !== 1 ? "s" : ""}
                 </span>
               </>
             ) : (
               <>
                 <ChevronDown className="mr-2 h-4 w-4" />
                 <span>
-                  {unreadCount} new message{unreadCount !== 1 ? 's' : ''}
+                  {unreadCount} new message{unreadCount !== 1 ? "s" : ""}
                 </span>
               </>
             )}
@@ -240,7 +249,7 @@ export function JumpToUnreadButton({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 // ============================================================================
@@ -249,15 +258,15 @@ export function JumpToUnreadButton({
 
 export interface JumpToChannelProps {
   /** Callback to jump to next unread channel */
-  onNextUnread: () => void
+  onNextUnread: () => void;
   /** Callback to jump to previous unread channel */
-  onPrevUnread: () => void
+  onPrevUnread: () => void;
   /** Whether there are unread channels */
-  hasUnreadChannels: boolean
+  hasUnreadChannels: boolean;
   /** Number of unread channels */
-  unreadChannelCount?: number
+  unreadChannelCount?: number;
   /** Custom className */
-  className?: string
+  className?: string;
 }
 
 export function JumpToChannel({
@@ -268,17 +277,22 @@ export function JumpToChannel({
   className,
 }: JumpToChannelProps) {
   // Keyboard shortcuts
-  useHotkey('alt+shift+up', onPrevUnread)
-  useHotkey('alt+shift+down', onNextUnread)
+  useHotkey("alt+shift+up", onPrevUnread);
+  useHotkey("alt+shift+down", onNextUnread);
 
-  if (!hasUnreadChannels) return null
+  if (!hasUnreadChannels) return null;
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button onClick={onPrevUnread} variant="ghost" size="icon" className="h-8 w-8">
+            <Button
+              onClick={onPrevUnread}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+            >
               <ArrowUp className="h-4 w-4" />
               <span className="sr-only">Previous unread channel</span>
             </Button>
@@ -291,13 +305,18 @@ export function JumpToChannel({
       </TooltipProvider>
 
       <span className="text-xs text-muted-foreground">
-        {unreadChannelCount} unread channel{unreadChannelCount !== 1 ? 's' : ''}
+        {unreadChannelCount} unread channel{unreadChannelCount !== 1 ? "s" : ""}
       </span>
 
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button onClick={onNextUnread} variant="ghost" size="icon" className="h-8 w-8">
+            <Button
+              onClick={onNextUnread}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+            >
               <ArrowDown className="h-4 w-4" />
               <span className="sr-only">Next unread channel</span>
             </Button>
@@ -309,7 +328,7 @@ export function JumpToChannel({
         </Tooltip>
       </TooltipProvider>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -318,13 +337,13 @@ export function JumpToChannel({
 
 export interface JumpToMentionProps {
   /** Whether there are unread mentions */
-  hasMentions: boolean
+  hasMentions: boolean;
   /** Number of unread mentions */
-  mentionCount?: number
+  mentionCount?: number;
   /** Callback to jump to next mention */
-  onJumpToMention: () => void
+  onJumpToMention: () => void;
   /** Custom className */
-  className?: string
+  className?: string;
 }
 
 export function JumpToMention({
@@ -334,13 +353,13 @@ export function JumpToMention({
   className,
 }: JumpToMentionProps) {
   // Keyboard shortcut: Alt+Shift+M
-  useHotkey('alt+shift+m', () => {
+  useHotkey("alt+shift+m", () => {
     if (hasMentions) {
-      onJumpToMention()
+      onJumpToMention();
     }
-  })
+  });
 
-  if (!hasMentions) return null
+  if (!hasMentions) return null;
 
   return (
     <motion.div
@@ -360,7 +379,7 @@ export function JumpToMention({
             >
               <Bell className="mr-2 h-4 w-4" />
               <span>
-                {mentionCount} mention{mentionCount !== 1 ? 's' : ''}
+                {mentionCount} mention{mentionCount !== 1 ? "s" : ""}
               </span>
             </Button>
           </TooltipTrigger>
@@ -371,7 +390,7 @@ export function JumpToMention({
         </Tooltip>
       </TooltipProvider>
     </motion.div>
-  )
+  );
 }
 
 // ============================================================================
@@ -381,26 +400,26 @@ export function JumpToMention({
 export interface UnreadNavigationProps {
   /** Message-level unread info */
   messageUnread?: {
-    hasUnread: boolean
-    unreadCount: number
-    mentionCount: number
-    onJumpToUnread: () => void
-  }
+    hasUnread: boolean;
+    unreadCount: number;
+    mentionCount: number;
+    onJumpToUnread: () => void;
+  };
   /** Channel-level unread info */
   channelUnread?: {
-    hasUnreadChannels: boolean
-    unreadChannelCount: number
-    onNextUnread: () => void
-    onPrevUnread: () => void
-  }
+    hasUnreadChannels: boolean;
+    unreadChannelCount: number;
+    onNextUnread: () => void;
+    onPrevUnread: () => void;
+  };
   /** Whether at bottom of messages */
-  isAtBottom?: boolean
+  isAtBottom?: boolean;
   /** Show jump to latest */
-  showJumpToLatest?: boolean
+  showJumpToLatest?: boolean;
   /** Jump to latest callback */
-  onJumpToLatest?: () => void
+  onJumpToLatest?: () => void;
   /** Custom className */
-  className?: string
+  className?: string;
 }
 
 export function UnreadNavigation({
@@ -412,7 +431,7 @@ export function UnreadNavigation({
   className,
 }: UnreadNavigationProps) {
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       {/* Channel navigation */}
       {channelUnread && channelUnread.hasUnreadChannels && (
         <JumpToChannel
@@ -436,11 +455,11 @@ export function UnreadNavigation({
         />
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export default JumpToUnreadButton
+export default JumpToUnreadButton;

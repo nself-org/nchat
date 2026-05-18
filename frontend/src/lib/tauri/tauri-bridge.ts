@@ -6,20 +6,23 @@
  * Tauri's invoke and event APIs.
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // Type definitions for Tauri APIs
 declare global {
   interface Window {
     __TAURI__?: {
       core: {
-        invoke: <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>
-      }
+        invoke: <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
+      };
       event: {
-        listen: <T>(event: string, handler: (event: { payload: T }) => void) => Promise<() => void>
-        emit: (event: string, payload?: unknown) => Promise<void>
-      }
-    }
+        listen: <T>(
+          event: string,
+          handler: (event: { payload: T }) => void,
+        ) => Promise<() => void>;
+        emit: (event: string, payload?: unknown) => Promise<void>;
+      };
+    };
   }
 }
 
@@ -27,7 +30,7 @@ declare global {
  * Check if running inside Tauri
  */
 export function isTauri(): boolean {
-  return typeof window !== 'undefined' && window.__TAURI__ !== undefined
+  return typeof window !== "undefined" && window.__TAURI__ !== undefined;
 }
 
 /**
@@ -35,20 +38,23 @@ export function isTauri(): boolean {
  */
 function getTauriApi() {
   if (!isTauri()) {
-    return null
+    return null;
   }
-  return window.__TAURI__
+  return window.__TAURI__;
 }
 
 /**
  * Invoke a Tauri command
  */
-export async function invoke<T>(command: string, args?: Record<string, unknown>): Promise<T> {
-  const api = getTauriApi()
+export async function invoke<T>(
+  command: string,
+  args?: Record<string, unknown>,
+): Promise<T> {
+  const api = getTauriApi();
   if (!api) {
-    throw new Error('Tauri API not available')
+    throw new Error("Tauri API not available");
   }
-  return api.core.invoke<T>(command, args)
+  return api.core.invoke<T>(command, args);
 }
 
 /**
@@ -57,53 +63,58 @@ export async function invoke<T>(command: string, args?: Record<string, unknown>)
 export async function invokeOrFallback<T>(
   command: string,
   args?: Record<string, unknown>,
-  fallback?: T
+  fallback?: T,
 ): Promise<T> {
   if (!isTauri()) {
     if (fallback !== undefined) {
-      return fallback
+      return fallback;
     }
-    throw new Error('Tauri API not available and no fallback provided')
+    throw new Error("Tauri API not available and no fallback provided");
   }
-  return invoke<T>(command, args)
+  return invoke<T>(command, args);
 }
 
 /**
  * Listen to a Tauri event
  */
-export async function listen<T>(event: string, handler: (payload: T) => void): Promise<() => void> {
-  const api = getTauriApi()
+export async function listen<T>(
+  event: string,
+  handler: (payload: T) => void,
+): Promise<() => void> {
+  const api = getTauriApi();
   if (!api) {
     // Return a no-op unsubscribe function
-    return () => {}
+    return () => {};
   }
-  return api.event.listen<T>(event, (e) => handler(e.payload))
+  return api.event.listen<T>(event, (e) => handler(e.payload));
 }
 
 /**
  * Emit a Tauri event
  */
 export async function emit(event: string, payload?: unknown): Promise<void> {
-  const api = getTauriApi()
+  const api = getTauriApi();
   if (!api) {
-    logger.warn('Tauri API not available, event not emitted:', { event })
-    return
+    logger.warn("Tauri API not available, event not emitted:", { event });
+    return;
   }
-  return api.event.emit(event, payload)
+  return api.event.emit(event, payload);
 }
 
 /**
  * Get the current platform
  */
-export async function getPlatform(): Promise<'macos' | 'windows' | 'linux' | 'web'> {
+export async function getPlatform(): Promise<
+  "macos" | "windows" | "linux" | "web"
+> {
   if (!isTauri()) {
-    return 'web'
+    return "web";
   }
   try {
-    const platform = await invoke<string>('get_platform')
-    return platform as 'macos' | 'windows' | 'linux'
+    const platform = await invoke<string>("get_platform");
+    return platform as "macos" | "windows" | "linux";
   } catch {
-    return 'web'
+    return "web";
   }
 }
 
@@ -112,38 +123,45 @@ export async function getPlatform(): Promise<'macos' | 'windows' | 'linux' | 'we
  */
 export async function getAppVersion(): Promise<string> {
   if (!isTauri()) {
-    return process.env.NEXT_PUBLIC_APP_VERSION || '0.9.1'
+    return process.env.NEXT_PUBLIC_APP_VERSION || "0.9.1";
   }
-  return invoke<string>('get_app_version')
+  return invoke<string>("get_app_version");
 }
 
 /**
  * Greet command for testing
  */
 export async function greet(name: string): Promise<string> {
-  return invokeOrFallback<string>('greet', { name }, `Hello, ${name}! (running in web mode)`)
+  return invokeOrFallback<string>(
+    "greet",
+    { name },
+    `Hello, ${name}! (running in web mode)`,
+  );
 }
 
 /**
  * Environment information
  */
 export interface TauriEnvironment {
-  isTauri: boolean
-  platform: 'macos' | 'windows' | 'linux' | 'web'
-  version: string
+  isTauri: boolean;
+  platform: "macos" | "windows" | "linux" | "web";
+  version: string;
 }
 
 /**
  * Get complete environment information
  */
 export async function getEnvironment(): Promise<TauriEnvironment> {
-  const [platform, version] = await Promise.all([getPlatform(), getAppVersion()])
+  const [platform, version] = await Promise.all([
+    getPlatform(),
+    getAppVersion(),
+  ]);
 
   return {
     isTauri: isTauri(),
     platform,
     version,
-  }
+  };
 }
 
 export default {
@@ -156,4 +174,4 @@ export default {
   getAppVersion,
   greet,
   getEnvironment,
-}
+};

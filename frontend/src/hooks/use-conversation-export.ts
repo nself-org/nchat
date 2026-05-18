@@ -5,7 +5,7 @@
  * Provides progress tracking, format selection, and download handling.
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback } from "react";
 import type {
   ExportFormat,
   ExportScope,
@@ -14,37 +14,37 @@ import type {
   ExportProgress,
   ExportStats,
   ExportJob,
-} from '@/services/export'
+} from "@/services/export";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface UseConversationExportOptions {
-  onProgress?: (progress: ExportProgress) => void
-  onComplete?: (stats: ExportStats, downloadUrl: string) => void
-  onError?: (error: Error) => void
+  onProgress?: (progress: ExportProgress) => void;
+  onComplete?: (stats: ExportStats, downloadUrl: string) => void;
+  onError?: (error: Error) => void;
 }
 
 export interface UseConversationExportReturn {
   // State
-  isExporting: boolean
-  progress: ExportProgress | null
-  stats: ExportStats | null
-  error: Error | null
-  downloadUrl: string | null
-  activeJobs: ExportJob[]
+  isExporting: boolean;
+  progress: ExportProgress | null;
+  stats: ExportStats | null;
+  error: Error | null;
+  downloadUrl: string | null;
+  activeJobs: ExportJob[];
 
   // Actions
-  startExport: (options: ExportOptions) => Promise<void>
-  cancelExport: (jobId?: string) => void
-  downloadExport: (jobId: string) => Promise<void>
-  getJobStatus: (jobId: string) => Promise<ExportJob | null>
-  clearCompleted: () => void
+  startExport: (options: ExportOptions) => Promise<void>;
+  cancelExport: (jobId?: string) => void;
+  downloadExport: (jobId: string) => Promise<void>;
+  getJobStatus: (jobId: string) => Promise<ExportJob | null>;
+  clearCompleted: () => void;
 
   // Utilities
-  estimateExportSize: (channelIds: string[]) => Promise<number>
-  getSupportedFormats: () => typeof SUPPORTED_FORMATS
+  estimateExportSize: (channelIds: string[]) => Promise<number>;
+  getSupportedFormats: () => typeof SUPPORTED_FORMATS;
 }
 
 // ============================================================================
@@ -52,147 +52,154 @@ export interface UseConversationExportReturn {
 // ============================================================================
 
 const SUPPORTED_FORMATS: Array<{
-  value: ExportFormat
-  label: string
-  mimeType: string
-  extension: string
-  description: string
+  value: ExportFormat;
+  label: string;
+  mimeType: string;
+  extension: string;
+  description: string;
 }> = [
   {
-    value: 'json',
-    label: 'JSON',
-    mimeType: 'application/json',
-    extension: 'json',
-    description: 'Full fidelity, machine-readable format',
+    value: "json",
+    label: "JSON",
+    mimeType: "application/json",
+    extension: "json",
+    description: "Full fidelity, machine-readable format",
   },
   {
-    value: 'html',
-    label: 'HTML',
-    mimeType: 'text/html',
-    extension: 'html',
-    description: 'Human-readable archive with styling',
+    value: "html",
+    label: "HTML",
+    mimeType: "text/html",
+    extension: "html",
+    description: "Human-readable archive with styling",
   },
   {
-    value: 'text',
-    label: 'Plain Text',
-    mimeType: 'text/plain',
-    extension: 'txt',
-    description: 'Simple text transcript',
+    value: "text",
+    label: "Plain Text",
+    mimeType: "text/plain",
+    extension: "txt",
+    description: "Simple text transcript",
   },
   {
-    value: 'csv',
-    label: 'CSV',
-    mimeType: 'text/csv',
-    extension: 'csv',
-    description: 'Spreadsheet-compatible format',
+    value: "csv",
+    label: "CSV",
+    mimeType: "text/csv",
+    extension: "csv",
+    description: "Spreadsheet-compatible format",
   },
-]
+];
 
-const POLL_INTERVAL = 1000 // 1 second
+const POLL_INTERVAL = 1000; // 1 second
 
 // ============================================================================
 // HOOK IMPLEMENTATION
 // ============================================================================
 
 export function useConversationExport(
-  options: UseConversationExportOptions = {}
+  options: UseConversationExportOptions = {},
 ): UseConversationExportReturn {
-  const { onProgress, onComplete, onError } = options
+  const { onProgress, onComplete, onError } = options;
 
   // State
-  const [isExporting, setIsExporting] = useState(false)
-  const [progress, setProgress] = useState<ExportProgress | null>(null)
-  const [stats, setStats] = useState<ExportStats | null>(null)
-  const [error, setError] = useState<Error | null>(null)
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
-  const [activeJobs, setActiveJobs] = useState<ExportJob[]>([])
-  const [pollIntervalId, setPollIntervalId] = useState<NodeJS.Timeout | null>(null)
+  const [isExporting, setIsExporting] = useState(false);
+  const [progress, setProgress] = useState<ExportProgress | null>(null);
+  const [stats, setStats] = useState<ExportStats | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [activeJobs, setActiveJobs] = useState<ExportJob[]>([]);
+  const [pollIntervalId, setPollIntervalId] = useState<NodeJS.Timeout | null>(
+    null,
+  );
 
   /**
    * Start an export operation
    */
   const startExport = useCallback(
     async (exportOptions: ExportOptions) => {
-      setIsExporting(true)
+      setIsExporting(true);
       setProgress({
-        status: 'processing',
+        status: "processing",
         progress: 0,
-        currentPhase: 'Starting export...',
+        currentPhase: "Starting export...",
         itemsProcessed: 0,
         totalItems: 0,
-      })
-      setError(null)
-      setDownloadUrl(null)
+      });
+      setError(null);
+      setDownloadUrl(null);
 
       try {
         // For small exports, use direct download
         // For large exports, use job-based processing
-        const response = await fetch('/api/conversations/export', {
-          method: 'POST',
+        const response = await fetch("/api/conversations/export", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(exportOptions),
-        })
+        });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.message || `Export failed: ${response.statusText}`)
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.message || `Export failed: ${response.statusText}`,
+          );
         }
 
         // Check if this is a job-based response or direct download
-        const contentType = response.headers.get('Content-Type')
+        const contentType = response.headers.get("Content-Type");
 
-        if (contentType?.includes('application/json')) {
+        if (contentType?.includes("application/json")) {
           // Job-based response - start polling
-          const jobData = await response.json()
+          const jobData = await response.json();
 
           if (jobData.jobId) {
             const job: ExportJob = {
               id: jobData.jobId,
-              userId: '',
-              status: 'pending',
+              userId: "",
+              status: "pending",
               progress: 0,
               options: exportOptions,
               createdAt: new Date(),
               expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-            }
+            };
 
-            setActiveJobs((prev) => [...prev, job])
-            startPolling(jobData.jobId)
+            setActiveJobs((prev) => [...prev, job]);
+            startPolling(jobData.jobId);
           } else if (jobData.downloadUrl) {
             // Direct download URL
-            setDownloadUrl(jobData.downloadUrl)
+            setDownloadUrl(jobData.downloadUrl);
             setProgress({
-              status: 'completed',
+              status: "completed",
               progress: 100,
-              currentPhase: 'Complete',
+              currentPhase: "Complete",
               itemsProcessed: jobData.stats?.totalMessages || 0,
               totalItems: jobData.stats?.totalMessages || 0,
-            })
-            setStats(jobData.stats)
-            onComplete?.(jobData.stats, jobData.downloadUrl)
+            });
+            setStats(jobData.stats);
+            onComplete?.(jobData.stats, jobData.downloadUrl);
           }
         } else {
           // Direct file download
-          const blob = await response.blob()
-          const url = URL.createObjectURL(blob)
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
 
           // Extract filename from Content-Disposition header
-          const disposition = response.headers.get('Content-Disposition')
-          const filenameMatch = disposition?.match(/filename="(.+)"/)
-          const filename = filenameMatch?.[1] || `export.${exportOptions.format}`
+          const disposition = response.headers.get("Content-Disposition");
+          const filenameMatch = disposition?.match(/filename="(.+)"/);
+          const filename =
+            filenameMatch?.[1] || `export.${exportOptions.format}`;
 
           // Trigger download
-          const link = document.createElement('a')
-          link.href = url
-          link.download = filename
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
 
           const exportStats: ExportStats = {
-            totalMessages: parseInt(response.headers.get('X-Export-Messages') || '0'),
+            totalMessages: parseInt(
+              response.headers.get("X-Export-Messages") || "0",
+            ),
             totalThreads: 0,
             totalReactions: 0,
             totalMedia: 0,
@@ -203,37 +210,38 @@ export function useConversationExport(
             users: 0,
             fileSizeBytes: blob.size,
             duration: 0,
-          }
+          };
 
-          setDownloadUrl(url)
-          setStats(exportStats)
+          setDownloadUrl(url);
+          setStats(exportStats);
           setProgress({
-            status: 'completed',
+            status: "completed",
             progress: 100,
-            currentPhase: 'Complete',
+            currentPhase: "Complete",
             itemsProcessed: exportStats.totalMessages,
             totalItems: exportStats.totalMessages,
-          })
+          });
 
-          onComplete?.(exportStats, url)
+          onComplete?.(exportStats, url);
         }
       } catch (err) {
-        const exportError = err instanceof Error ? err : new Error('Export failed')
-        setError(exportError)
+        const exportError =
+          err instanceof Error ? err : new Error("Export failed");
+        setError(exportError);
         setProgress({
-          status: 'failed',
+          status: "failed",
           progress: 0,
-          currentPhase: 'Failed',
+          currentPhase: "Failed",
           itemsProcessed: 0,
           totalItems: 0,
-        })
-        onError?.(exportError)
+        });
+        onError?.(exportError);
       } finally {
-        setIsExporting(false)
+        setIsExporting(false);
       }
     },
-    [onComplete, onError]
-  )
+    [onComplete, onError],
+  );
 
   /**
    * Start polling for job status
@@ -242,56 +250,61 @@ export function useConversationExport(
     (jobId: string) => {
       const intervalId = setInterval(async () => {
         try {
-          const response = await fetch(`/api/conversations/export?jobId=${jobId}`)
+          const response = await fetch(
+            `/api/conversations/export?jobId=${jobId}`,
+          );
 
           if (!response.ok) {
-            throw new Error('Failed to get job status')
+            throw new Error("Failed to get job status");
           }
 
-          const job: ExportJob = await response.json()
+          const job: ExportJob = await response.json();
 
           // Update active jobs
-          setActiveJobs((prev) =>
-            prev.map((j) => (j.id === jobId ? job : j))
-          )
+          setActiveJobs((prev) => prev.map((j) => (j.id === jobId ? job : j)));
 
           // Update progress
           const newProgress: ExportProgress = {
-            status: job.status === 'completed' ? 'completed' : job.status === 'failed' ? 'failed' : 'processing',
+            status:
+              job.status === "completed"
+                ? "completed"
+                : job.status === "failed"
+                  ? "failed"
+                  : "processing",
             progress: job.progress,
             currentPhase: job.status,
             itemsProcessed: job.stats?.totalMessages || 0,
             totalItems: job.stats?.totalMessages || 0,
-          }
+          };
 
-          setProgress(newProgress)
-          onProgress?.(newProgress)
+          setProgress(newProgress);
+          onProgress?.(newProgress);
 
           // Check if complete
-          if (job.status === 'completed' && job.downloadUrl) {
-            clearInterval(intervalId)
-            setPollIntervalId(null)
-            setDownloadUrl(job.downloadUrl)
-            setStats(job.stats || null)
-            setIsExporting(false)
-            onComplete?.(job.stats!, job.downloadUrl)
-          } else if (job.status === 'failed') {
-            clearInterval(intervalId)
-            setPollIntervalId(null)
-            setError(new Error(job.errorMessage || 'Export failed'))
-            setIsExporting(false)
-            onError?.(new Error(job.errorMessage || 'Export failed'))
+          if (job.status === "completed" && job.downloadUrl) {
+            clearInterval(intervalId);
+            setPollIntervalId(null);
+            setDownloadUrl(job.downloadUrl);
+            setStats(job.stats || null);
+            setIsExporting(false);
+            onComplete?.(job.stats!, job.downloadUrl);
+          } else if (job.status === "failed") {
+            clearInterval(intervalId);
+            setPollIntervalId(null);
+            setError(new Error(job.errorMessage || "Export failed"));
+            setIsExporting(false);
+            onError?.(new Error(job.errorMessage || "Export failed"));
           }
         } catch (err) {
           // Continue polling on error
-          console.error('Polling error:', err)
+          console.error("Polling error:", err);
         }
-      }, POLL_INTERVAL)
+      }, POLL_INTERVAL);
 
-      setPollIntervalId(intervalId)
+      setPollIntervalId(intervalId);
     },
-    [onProgress, onComplete, onError]
-  )
+    [onProgress, onComplete, onError],
+  );
 
   /**
    * Cancel an export operation
@@ -299,26 +312,26 @@ export function useConversationExport(
   const cancelExport = useCallback(
     (jobId?: string) => {
       if (pollIntervalId) {
-        clearInterval(pollIntervalId)
-        setPollIntervalId(null)
+        clearInterval(pollIntervalId);
+        setPollIntervalId(null);
       }
 
-      setIsExporting(false)
-      setProgress(null)
+      setIsExporting(false);
+      setProgress(null);
 
       if (jobId) {
-        setActiveJobs((prev) => prev.filter((j) => j.id !== jobId))
+        setActiveJobs((prev) => prev.filter((j) => j.id !== jobId));
 
         // Optionally notify server to cancel
         fetch(`/api/conversations/export/${jobId}`, {
-          method: 'DELETE',
+          method: "DELETE",
         }).catch(() => {
           // Ignore cancellation errors
-        })
+        });
       }
     },
-    [pollIntervalId]
-  )
+    [pollIntervalId],
+  );
 
   /**
    * Download a completed export
@@ -326,33 +339,33 @@ export function useConversationExport(
   const downloadExport = useCallback(async (jobId: string) => {
     try {
       const response = await fetch(
-        `/api/conversations/export?jobId=${jobId}&download=true`
-      )
+        `/api/conversations/export?jobId=${jobId}&download=true`,
+      );
 
       if (!response.ok) {
-        throw new Error('Download failed')
+        throw new Error("Download failed");
       }
 
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
 
-      const disposition = response.headers.get('Content-Disposition')
-      const filenameMatch = disposition?.match(/filename="(.+)"/)
-      const filename = filenameMatch?.[1] || 'export'
+      const disposition = response.headers.get("Content-Disposition");
+      const filenameMatch = disposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch?.[1] || "export";
 
-      const link = document.createElement('a')
-      link.href = url
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-      URL.revokeObjectURL(url)
+      URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Download failed'))
-      throw err
+      setError(err instanceof Error ? err : new Error("Download failed"));
+      throw err;
     }
-  }, [])
+  }, []);
 
   /**
    * Get status of a specific job
@@ -360,28 +373,30 @@ export function useConversationExport(
   const getJobStatus = useCallback(
     async (jobId: string): Promise<ExportJob | null> => {
       try {
-        const response = await fetch(`/api/conversations/export?jobId=${jobId}`)
+        const response = await fetch(
+          `/api/conversations/export?jobId=${jobId}`,
+        );
 
         if (!response.ok) {
-          return null
+          return null;
         }
 
-        return await response.json()
+        return await response.json();
       } catch {
-        return null
+        return null;
       }
     },
-    []
-  )
+    [],
+  );
 
   /**
    * Clear completed jobs from the list
    */
   const clearCompleted = useCallback(() => {
     setActiveJobs((prev) =>
-      prev.filter((j) => j.status !== 'completed' && j.status !== 'failed')
-    )
-  }, [])
+      prev.filter((j) => j.status !== "completed" && j.status !== "failed"),
+    );
+  }, []);
 
   /**
    * Estimate export size for given channels
@@ -389,31 +404,31 @@ export function useConversationExport(
   const estimateExportSize = useCallback(
     async (channelIds: string[]): Promise<number> => {
       try {
-        const response = await fetch('/api/conversations/export/estimate', {
-          method: 'POST',
+        const response = await fetch("/api/conversations/export/estimate", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ channelIds }),
-        })
+        });
 
         if (!response.ok) {
-          return 0
+          return 0;
         }
 
-        const data = await response.json()
-        return data.estimatedSize || 0
+        const data = await response.json();
+        return data.estimatedSize || 0;
       } catch {
-        return 0
+        return 0;
       }
     },
-    []
-  )
+    [],
+  );
 
   /**
    * Get list of supported formats
    */
-  const getSupportedFormats = useCallback(() => SUPPORTED_FORMATS, [])
+  const getSupportedFormats = useCallback(() => SUPPORTED_FORMATS, []);
 
   return {
     // State
@@ -434,7 +449,7 @@ export function useConversationExport(
     // Utilities
     estimateExportSize,
     getSupportedFormats,
-  }
+  };
 }
 
-export default useConversationExport
+export default useConversationExport;

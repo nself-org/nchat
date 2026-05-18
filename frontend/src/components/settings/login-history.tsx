@@ -1,21 +1,24 @@
-'use client'
+"use client";
 
-import { useEffect, useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useEffect, useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useSecurity, type LoginAttempt } from '@/lib/security/use-security'
-import { formatLocation, formatSessionTime } from '@/lib/security/session-store'
-import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import { useSecurity, type LoginAttempt } from "@/lib/security/use-security";
+import {
+  formatLocation,
+  formatSessionTime,
+} from "@/lib/security/session-store";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
 import {
   Monitor,
   Smartphone,
@@ -30,125 +33,131 @@ import {
   Globe,
   Shield,
   Filter,
-} from 'lucide-react'
+} from "lucide-react";
 
-type FilterType = 'all' | 'success' | 'failed'
+type FilterType = "all" | "success" | "failed";
 
 export function LoginHistory() {
-  const { isDevMode } = useAuth()
-  const { loginHistory, loginHistoryTotal, loginHistoryPage, loadLoginHistory, loadingHistory } =
-    useSecurity()
+  const { isDevMode } = useAuth();
+  const {
+    loginHistory,
+    loginHistoryTotal,
+    loginHistoryPage,
+    loadLoginHistory,
+    loadingHistory,
+  } = useSecurity();
 
-  const [filter, setFilter] = useState<FilterType>('all')
+  const [filter, setFilter] = useState<FilterType>("all");
 
   // Load history on mount
   useEffect(() => {
-    loadLoginHistory(1)
-  }, [loadLoginHistory])
+    loadLoginHistory(1);
+  }, [loadLoginHistory]);
 
   // Filter change handler
   const handleFilterChange = useCallback(
     (value: string) => {
-      setFilter(value as FilterType)
-      loadLoginHistory(1)
+      setFilter(value as FilterType);
+      loadLoginHistory(1);
     },
-    [loadLoginHistory]
-  )
+    [loadLoginHistory],
+  );
 
   // Pagination handlers
   const handlePreviousPage = useCallback(() => {
     if (loginHistoryPage > 1) {
-      loadLoginHistory(loginHistoryPage - 1)
+      loadLoginHistory(loginHistoryPage - 1);
     }
-  }, [loginHistoryPage, loadLoginHistory])
+  }, [loginHistoryPage, loadLoginHistory]);
 
   const handleNextPage = useCallback(() => {
-    const totalPages = Math.ceil(loginHistoryTotal / 10)
+    const totalPages = Math.ceil(loginHistoryTotal / 10);
     if (loginHistoryPage < totalPages) {
-      loadLoginHistory(loginHistoryPage + 1)
+      loadLoginHistory(loginHistoryPage + 1);
     }
-  }, [loginHistoryPage, loginHistoryTotal, loadLoginHistory])
+  }, [loginHistoryPage, loginHistoryTotal, loadLoginHistory]);
 
   // Demo login history for development mode
   const demoHistory: LoginAttempt[] = [
     {
-      id: '1',
-      userId: 'user-1',
+      id: "1",
+      userId: "user-1",
       success: true,
-      ipAddress: '192.168.1.100',
-      device: 'Desktop',
-      browser: 'Chrome',
-      os: 'macOS',
-      location: { city: 'New York', country: 'United States' },
+      ipAddress: "192.168.1.100",
+      device: "Desktop",
+      browser: "Chrome",
+      os: "macOS",
+      location: { city: "New York", country: "United States" },
       createdAt: new Date().toISOString(),
     },
     {
-      id: '2',
-      userId: 'user-1',
+      id: "2",
+      userId: "user-1",
       success: true,
-      ipAddress: '192.168.1.101',
-      device: 'Mobile',
-      browser: 'Safari',
-      os: 'iOS',
-      location: { city: 'New York', country: 'United States' },
+      ipAddress: "192.168.1.101",
+      device: "Mobile",
+      browser: "Safari",
+      os: "iOS",
+      location: { city: "New York", country: "United States" },
       createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     },
     {
-      id: '3',
-      userId: 'user-1',
+      id: "3",
+      userId: "user-1",
       success: false,
-      ipAddress: '10.0.0.55',
-      device: 'Desktop',
-      browser: 'Firefox',
-      os: 'Windows',
-      location: { city: 'Los Angeles', country: 'United States' },
-      failureReason: 'Invalid password',
+      ipAddress: "10.0.0.55",
+      device: "Desktop",
+      browser: "Firefox",
+      os: "Windows",
+      location: { city: "Los Angeles", country: "United States" },
+      failureReason: "Invalid password",
       createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     },
     {
-      id: '4',
-      userId: 'user-1',
+      id: "4",
+      userId: "user-1",
       success: true,
-      ipAddress: '192.168.1.102',
-      device: 'Tablet',
-      browser: 'Chrome',
-      os: 'Android',
-      location: { city: 'Chicago', country: 'United States' },
+      ipAddress: "192.168.1.102",
+      device: "Tablet",
+      browser: "Chrome",
+      os: "Android",
+      location: { city: "Chicago", country: "United States" },
       createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
-      id: '5',
-      userId: 'user-1',
+      id: "5",
+      userId: "user-1",
       success: false,
-      ipAddress: '203.0.113.50',
-      device: 'Desktop',
-      browser: 'Chrome',
-      os: 'Linux',
-      location: { city: 'Unknown', country: 'Unknown' },
-      failureReason: 'Account locked',
+      ipAddress: "203.0.113.50",
+      device: "Desktop",
+      browser: "Chrome",
+      os: "Linux",
+      location: { city: "Unknown", country: "Unknown" },
+      failureReason: "Account locked",
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     },
-  ]
+  ];
 
   // Use demo history in dev mode if no real history
-  const displayHistory = isDevMode && loginHistory.length === 0 ? demoHistory : loginHistory
+  const displayHistory =
+    isDevMode && loginHistory.length === 0 ? demoHistory : loginHistory;
 
   // Apply filter
   const filteredHistory = displayHistory.filter((attempt) => {
-    if (filter === 'all') return true
-    if (filter === 'success') return attempt.success
-    if (filter === 'failed') return !attempt.success
-    return true
-  })
+    if (filter === "all") return true;
+    if (filter === "success") return attempt.success;
+    if (filter === "failed") return !attempt.success;
+    return true;
+  });
 
   // Calculate statistics
   const stats = {
     total: displayHistory.length,
     successful: displayHistory.filter((a) => a.success).length,
     failed: displayHistory.filter((a) => !a.success).length,
-  }
+  };
 
-  const totalPages = Math.ceil(loginHistoryTotal / 10) || 1
+  const totalPages = Math.ceil(loginHistoryTotal / 10) || 1;
 
   // Loading state
   if (loadingHistory && !isDevMode) {
@@ -163,7 +172,7 @@ export function LoginHistory() {
         <HistorySkeleton />
         <HistorySkeleton />
       </div>
-    )
+    );
   }
 
   return (
@@ -172,7 +181,9 @@ export function LoginHistory() {
       {isDevMode && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>In development mode, login history is simulated.</AlertDescription>
+          <AlertDescription>
+            In development mode, login history is simulated.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -190,7 +201,12 @@ export function LoginHistory() {
           icon={CheckCircle2}
           variant="success"
         />
-        <StatCard label="Failed" value={stats.failed} icon={XCircle} variant="danger" />
+        <StatCard
+          label="Failed"
+          value={stats.failed}
+          icon={XCircle}
+          variant="danger"
+        />
       </div>
 
       {/* Filter */}
@@ -208,7 +224,9 @@ export function LoginHistory() {
             </SelectContent>
           </Select>
         </div>
-        <p className="text-sm text-muted-foreground">{filteredHistory.length} results</p>
+        <p className="text-sm text-muted-foreground">
+          {filteredHistory.length} results
+        </p>
       </div>
 
       {/* History List */}
@@ -223,7 +241,9 @@ export function LoginHistory() {
           <Shield className="mx-auto mb-4 h-12 w-12 opacity-50" />
           <p>No login attempts found</p>
           <p className="text-sm">
-            {filter !== 'all' ? 'Try changing the filter' : 'Login history will appear here'}
+            {filter !== "all"
+              ? "Try changing the filter"
+              : "Login history will appear here"}
           </p>
         </div>
       )}
@@ -257,7 +277,7 @@ export function LoginHistory() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -265,34 +285,34 @@ export function LoginHistory() {
 // ============================================================================
 
 interface StatCardProps {
-  label: string
-  value: number
-  icon: React.ElementType
-  variant: 'default' | 'success' | 'danger'
+  label: string;
+  value: number;
+  icon: React.ElementType;
+  variant: "default" | "success" | "danger";
 }
 
 function StatCard({ label, value, icon: Icon, variant }: StatCardProps) {
   const variantStyles = {
-    default: 'bg-muted text-foreground',
-    success: 'bg-green-500/10 text-green-600',
-    danger: 'bg-red-500/10 text-red-600',
-  }
+    default: "bg-muted text-foreground",
+    success: "bg-green-500/10 text-green-600",
+    danger: "bg-red-500/10 text-red-600",
+  };
 
   const iconStyles = {
-    default: 'text-muted-foreground',
-    success: 'text-green-600',
-    danger: 'text-red-600',
-  }
+    default: "text-muted-foreground",
+    success: "text-green-600",
+    danger: "text-red-600",
+  };
 
   return (
-    <div className={cn('rounded-lg p-4', variantStyles[variant])}>
+    <div className={cn("rounded-lg p-4", variantStyles[variant])}>
       <div className="flex items-center gap-2">
-        <Icon className={cn('h-4 w-4', iconStyles[variant])} />
+        <Icon className={cn("h-4 w-4", iconStyles[variant])} />
         <span className="text-sm font-medium">{label}</span>
       </div>
       <p className="mt-1 text-2xl font-bold">{value}</p>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -300,27 +320,30 @@ function StatCard({ label, value, icon: Icon, variant }: StatCardProps) {
 // ============================================================================
 
 interface LoginAttemptCardProps {
-  attempt: LoginAttempt
+  attempt: LoginAttempt;
 }
 
 function LoginAttemptCard({ attempt }: LoginAttemptCardProps) {
   const DeviceIcon =
-    attempt.device.toLowerCase() === 'mobile'
+    attempt.device.toLowerCase() === "mobile"
       ? Smartphone
-      : attempt.device.toLowerCase() === 'tablet'
+      : attempt.device.toLowerCase() === "tablet"
         ? Tablet
-        : Monitor
+        : Monitor;
 
   return (
     <div
       className={cn(
-        'flex items-start gap-4 rounded-lg border p-4',
-        !attempt.success && 'border-red-500/20 bg-red-500/5'
+        "flex items-start gap-4 rounded-lg border p-4",
+        !attempt.success && "border-red-500/20 bg-red-500/5",
       )}
     >
       {/* Status Icon */}
       <div
-        className={cn('rounded-full p-2', attempt.success ? 'bg-green-500/10' : 'bg-red-500/10')}
+        className={cn(
+          "rounded-full p-2",
+          attempt.success ? "bg-green-500/10" : "bg-red-500/10",
+        )}
       >
         {attempt.success ? (
           <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -336,14 +359,14 @@ function LoginAttemptCard({ attempt }: LoginAttemptCardProps) {
             {attempt.browser} on {attempt.os}
           </span>
           <Badge
-            variant={attempt.success ? 'secondary' : 'destructive'}
+            variant={attempt.success ? "secondary" : "destructive"}
             className={cn(
               attempt.success
-                ? 'border-green-500/20 bg-green-500/10 text-green-600'
-                : 'border-red-500/20 bg-red-500/10 text-red-600'
+                ? "border-green-500/20 bg-green-500/10 text-green-600"
+                : "border-red-500/20 bg-red-500/10 text-red-600",
             )}
           >
-            {attempt.success ? 'Successful' : 'Failed'}
+            {attempt.success ? "Successful" : "Failed"}
           </Badge>
         </div>
 
@@ -365,7 +388,7 @@ function LoginAttemptCard({ attempt }: LoginAttemptCardProps) {
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
             {formatSessionTime(attempt.createdAt)}
-            {' - '}
+            {" - "}
             {new Date(attempt.createdAt).toLocaleString()}
           </div>
           {!attempt.success && attempt.failureReason && (
@@ -377,7 +400,7 @@ function LoginAttemptCard({ attempt }: LoginAttemptCardProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -394,5 +417,5 @@ function HistorySkeleton() {
         <Skeleton className="h-4 w-40" />
       </div>
     </div>
-  )
+  );
 }

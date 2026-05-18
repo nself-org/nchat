@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Upload,
   FileText,
@@ -13,8 +13,8 @@ import {
   Users,
   Hash,
   FileUp,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -23,23 +23,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Progress } from '@/components/ui/progress'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import {
   detectImportFormat,
   parseWhatsAppExport,
@@ -51,88 +51,104 @@ import {
   type ImportProgress,
   type ImportStats,
   type ParsedImportData,
-} from '@/services/import'
+} from "@/services/import";
 
 interface Channel {
-  id: string
-  name: string
-  type: 'public' | 'private' | 'direct' | 'group'
+  id: string;
+  name: string;
+  type: "public" | "private" | "direct" | "group";
 }
 
 interface ConversationImportProps {
-  channels: Channel[]
-  onImportComplete?: (stats: ImportStats) => void
-  className?: string
+  channels: Channel[];
+  onImportComplete?: (stats: ImportStats) => void;
+  className?: string;
 }
 
 const PLATFORM_INFO: Record<
   ImportPlatform,
   {
-    label: string
-    description: string
-    icon: React.ReactNode
-    fileTypes: string
-    instructions: string
+    label: string;
+    description: string;
+    icon: React.ReactNode;
+    fileTypes: string;
+    instructions: string;
   }
 > = {
   nchat: {
-    label: 'nchat Export',
-    description: 'Re-import a previous nchat export',
+    label: "nchat Export",
+    description: "Re-import a previous nchat export",
     icon: <MessageSquare className="h-5 w-5" />,
-    fileTypes: '.json',
-    instructions: 'Upload a JSON file from a previous nchat export.',
+    fileTypes: ".json",
+    instructions: "Upload a JSON file from a previous nchat export.",
   },
   whatsapp: {
-    label: 'WhatsApp',
-    description: 'Import from WhatsApp export',
+    label: "WhatsApp",
+    description: "Import from WhatsApp export",
     icon: <MessageSquare className="h-5 w-5 text-green-500" />,
-    fileTypes: '.txt,.zip',
+    fileTypes: ".txt,.zip",
     instructions:
       'In WhatsApp, open a chat, tap More > Export chat, and choose "Without media". Upload the .txt file.',
   },
   telegram: {
-    label: 'Telegram',
-    description: 'Import from Telegram export',
+    label: "Telegram",
+    description: "Import from Telegram export",
     icon: <MessageSquare className="h-5 w-5 text-blue-500" />,
-    fileTypes: '.json,.html',
+    fileTypes: ".json,.html",
     instructions:
-      'In Telegram Desktop, go to Settings > Advanced > Export Data. Choose JSON format and upload the result.json file.',
+      "In Telegram Desktop, go to Settings > Advanced > Export Data. Choose JSON format and upload the result.json file.",
   },
   slack: {
-    label: 'Slack',
-    description: 'Import from Slack export',
+    label: "Slack",
+    description: "Import from Slack export",
     icon: <Hash className="h-5 w-5 text-purple-500" />,
-    fileTypes: '.zip,.json',
+    fileTypes: ".zip,.json",
     instructions:
-      'From Slack admin, export your workspace data. Upload the ZIP file or extracted JSON files.',
+      "From Slack admin, export your workspace data. Upload the ZIP file or extracted JSON files.",
   },
   discord: {
-    label: 'Discord',
-    description: 'Import from Discord export',
+    label: "Discord",
+    description: "Import from Discord export",
     icon: <Hash className="h-5 w-5 text-indigo-500" />,
-    fileTypes: '.json',
+    fileTypes: ".json",
     instructions:
-      'Use a Discord data export tool like DiscordChatExporter. Upload the JSON export file.',
+      "Use a Discord data export tool like DiscordChatExporter. Upload the JSON export file.",
   },
   generic: {
-    label: 'Generic',
-    description: 'Import from CSV or JSON',
+    label: "Generic",
+    description: "Import from CSV or JSON",
     icon: <FileText className="h-5 w-5" />,
-    fileTypes: '.json,.csv',
-    instructions: 'Upload a JSON or CSV file with message data.',
+    fileTypes: ".json,.csv",
+    instructions: "Upload a JSON or CSV file with message data.",
   },
-}
+};
 
 const CONFLICT_OPTIONS: Array<{
-  value: ConflictResolution
-  label: string
-  description: string
+  value: ConflictResolution;
+  label: string;
+  description: string;
 }> = [
-  { value: 'skip', label: 'Skip Duplicates', description: 'Keep existing messages, skip imports' },
-  { value: 'overwrite', label: 'Overwrite', description: 'Replace existing with imported' },
-  { value: 'duplicate', label: 'Create Copies', description: 'Import as new messages' },
-  { value: 'merge', label: 'Merge', description: 'Combine content and metadata' },
-]
+  {
+    value: "skip",
+    label: "Skip Duplicates",
+    description: "Keep existing messages, skip imports",
+  },
+  {
+    value: "overwrite",
+    label: "Overwrite",
+    description: "Replace existing with imported",
+  },
+  {
+    value: "duplicate",
+    label: "Create Copies",
+    description: "Import as new messages",
+  },
+  {
+    value: "merge",
+    label: "Merge",
+    description: "Combine content and metadata",
+  },
+];
 
 /**
  * ConversationImport - Comprehensive import dialog for conversation history
@@ -142,105 +158,109 @@ export function ConversationImport({
   onImportComplete,
   className,
 }: ConversationImportProps) {
-  const { toast } = useToast()
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const [open, setOpen] = React.useState(false)
+  const { toast } = useToast();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [open, setOpen] = React.useState(false);
   const [step, setStep] = React.useState<
-    'upload' | 'preview' | 'options' | 'progress' | 'complete'
-  >('upload')
+    "upload" | "preview" | "options" | "progress" | "complete"
+  >("upload");
 
   // File state
-  const [file, setFile] = React.useState<File | null>(null)
-  const [parsedData, setParsedData] = React.useState<ParsedImportData | null>(null)
-  const [parseError, setParseError] = React.useState<string | null>(null)
+  const [file, setFile] = React.useState<File | null>(null);
+  const [parsedData, setParsedData] = React.useState<ParsedImportData | null>(
+    null,
+  );
+  const [parseError, setParseError] = React.useState<string | null>(null);
 
   // Import options
-  const [platform, setPlatform] = React.useState<ImportPlatform | null>(null)
-  const [targetChannelId, setTargetChannelId] = React.useState<string>('')
-  const [createMissingChannels, setCreateMissingChannels] = React.useState(true)
-  const [createMissingUsers, setCreateMissingUsers] = React.useState(false)
-  const [importMedia, setImportMedia] = React.useState(true)
-  const [importReactions, setImportReactions] = React.useState(true)
-  const [importThreads, setImportThreads] = React.useState(true)
-  const [preserveTimestamps, setPreserveTimestamps] = React.useState(true)
-  const [conflictResolution, setConflictResolution] = React.useState<ConflictResolution>('skip')
+  const [platform, setPlatform] = React.useState<ImportPlatform | null>(null);
+  const [targetChannelId, setTargetChannelId] = React.useState<string>("");
+  const [createMissingChannels, setCreateMissingChannels] =
+    React.useState(true);
+  const [createMissingUsers, setCreateMissingUsers] = React.useState(false);
+  const [importMedia, setImportMedia] = React.useState(true);
+  const [importReactions, setImportReactions] = React.useState(true);
+  const [importThreads, setImportThreads] = React.useState(true);
+  const [preserveTimestamps, setPreserveTimestamps] = React.useState(true);
+  const [conflictResolution, setConflictResolution] =
+    React.useState<ConflictResolution>("skip");
 
   // Progress state
   const [progress, setProgress] = React.useState<ImportProgress>({
-    status: 'pending',
-    phase: '',
+    status: "pending",
+    phase: "",
     progress: 0,
     itemsProcessed: 0,
     totalItems: 0,
     errors: [],
     warnings: [],
-  })
-  const [stats, setStats] = React.useState<ImportStats | null>(null)
+  });
+  const [stats, setStats] = React.useState<ImportStats | null>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (!selectedFile) return
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
 
-    setFile(selectedFile)
-    setParseError(null)
+    setFile(selectedFile);
+    setParseError(null);
 
     try {
-      const content = await selectedFile.text()
-      const detectedPlatform = detectImportFormat(content)
-      setPlatform(detectedPlatform)
+      const content = await selectedFile.text();
+      const detectedPlatform = detectImportFormat(content);
+      setPlatform(detectedPlatform);
 
       // Parse the file
-      let parsed: ParsedImportData
+      let parsed: ParsedImportData;
 
       switch (detectedPlatform) {
-        case 'whatsapp':
-          parsed = parseWhatsAppExport(content)
-          break
-        case 'telegram':
-          parsed = parseTelegramExport(content)
-          break
-        case 'nchat':
-          parsed = parseNchatExport(content)
-          break
+        case "whatsapp":
+          parsed = parseWhatsAppExport(content);
+          break;
+        case "telegram":
+          parsed = parseTelegramExport(content);
+          break;
+        case "nchat":
+          parsed = parseNchatExport(content);
+          break;
         default:
-          throw new Error(`Unsupported format: ${detectedPlatform}`)
+          throw new Error(`Unsupported format: ${detectedPlatform}`);
       }
 
-      setParsedData(parsed)
-      setStep('preview')
+      setParsedData(parsed);
+      setStep("preview");
     } catch (error) {
       setParseError(
-        error instanceof Error ? error.message : 'Failed to parse file'
-      )
+        error instanceof Error ? error.message : "Failed to parse file",
+      );
     }
-  }
+  };
 
   const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
-    const droppedFile = e.dataTransfer.files?.[0]
+    const droppedFile = e.dataTransfer.files?.[0];
     if (droppedFile) {
       // Trigger the same logic as file input
       const event = {
         target: { files: [droppedFile] },
-      } as unknown as React.ChangeEvent<HTMLInputElement>
-      await handleFileSelect(event)
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      await handleFileSelect(event);
     }
-  }
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   const handleImport = async () => {
-    if (!parsedData || !platform) return
+    if (!parsedData || !platform) return;
 
-    setStep('progress')
+    setStep("progress");
     setProgress({
-      status: 'importing',
-      phase: 'Starting import...',
+      status: "importing",
+      phase: "Starting import...",
       progress: 0,
       itemsProcessed: 0,
       totalItems:
@@ -249,13 +269,13 @@ export function ConversationImport({
         parsedData.messages.length,
       errors: [],
       warnings: [],
-    })
+    });
 
     try {
-      const response = await fetch('/api/conversations/import', {
-        method: 'POST',
+      const response = await fetch("/api/conversations/import", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           platform,
@@ -272,82 +292,83 @@ export function ConversationImport({
             conflictResolution,
           },
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Import failed')
+        throw new Error("Import failed");
       }
 
-      const result = await response.json()
+      const result = await response.json();
 
-      setStats(result.stats)
+      setStats(result.stats);
       setProgress({
-        status: 'completed',
-        phase: 'Complete',
+        status: "completed",
+        phase: "Complete",
         progress: 100,
         itemsProcessed: result.stats.messagesImported,
         totalItems: result.stats.messagesImported,
         errors: result.errors || [],
         warnings: result.warnings || [],
-      })
-      setStep('complete')
+      });
+      setStep("complete");
 
-      onImportComplete?.(result.stats)
+      onImportComplete?.(result.stats);
 
       toast({
-        title: 'Import complete',
+        title: "Import complete",
         description: `Successfully imported ${result.stats.messagesImported} messages`,
-      })
+      });
     } catch (error) {
       setProgress({
-        status: 'failed',
-        phase: 'Failed',
+        status: "failed",
+        phase: "Failed",
         progress: 0,
         itemsProcessed: 0,
         totalItems: 0,
         errors: [
           {
-            code: 'IMPORT_FAILED',
-            message: error instanceof Error ? error.message : 'Import failed',
+            code: "IMPORT_FAILED",
+            message: error instanceof Error ? error.message : "Import failed",
             recoverable: false,
           },
         ],
         warnings: [],
-      })
+      });
 
       toast({
-        title: 'Import failed',
-        description: error instanceof Error ? error.message : 'An error occurred',
-        variant: 'destructive',
-      })
+        title: "Import failed",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleClose = () => {
-    setOpen(false)
+    setOpen(false);
     // Reset state after close animation
     setTimeout(() => {
-      setStep('upload')
-      setFile(null)
-      setParsedData(null)
-      setParseError(null)
-      setPlatform(null)
+      setStep("upload");
+      setFile(null);
+      setParsedData(null);
+      setParseError(null);
+      setPlatform(null);
       setProgress({
-        status: 'pending',
-        phase: '',
+        status: "pending",
+        phase: "",
         progress: 0,
         itemsProcessed: 0,
         totalItems: 0,
         errors: [],
         warnings: [],
-      })
-      setStats(null)
-    }, 200)
-  }
+      });
+      setStats(null);
+    }, 200);
+  };
 
   const estimatedTime = parsedData
     ? Math.ceil(estimateImportTime(parsedData) / 1000)
-    : 0
+    : 0;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -364,15 +385,15 @@ export function ConversationImport({
             Import Conversations
           </DialogTitle>
           <DialogDescription>
-            {step === 'upload' && 'Upload an export file from another platform'}
-            {step === 'preview' && 'Review the data before importing'}
-            {step === 'options' && 'Configure import options'}
-            {step === 'progress' && 'Importing your conversations...'}
-            {step === 'complete' && 'Import completed'}
+            {step === "upload" && "Upload an export file from another platform"}
+            {step === "preview" && "Review the data before importing"}
+            {step === "options" && "Configure import options"}
+            {step === "progress" && "Importing your conversations..."}
+            {step === "complete" && "Import completed"}
           </DialogDescription>
         </DialogHeader>
 
-        {step === 'upload' && (
+        {step === "upload" && (
           <div className="space-y-6 py-4">
             {/* File Drop Zone */}
             <div
@@ -408,7 +429,7 @@ export function ConversationImport({
               <Label className="text-sm font-medium">Supported Platforms</Label>
               <div className="grid grid-cols-2 gap-2">
                 {Object.entries(PLATFORM_INFO)
-                  .filter(([key]) => key !== 'generic')
+                  .filter(([key]) => key !== "generic")
                   .map(([key, info]) => (
                     <div
                       key={key}
@@ -423,7 +444,7 @@ export function ConversationImport({
           </div>
         )}
 
-        {step === 'preview' && parsedData && platform && (
+        {step === "preview" && parsedData && platform && (
           <div className="space-y-4 py-4">
             {/* Platform Detection */}
             <Alert>
@@ -437,7 +458,9 @@ export function ConversationImport({
             {/* Preview Stats */}
             <div className="grid grid-cols-3 gap-4 bg-muted/50 rounded-lg p-4">
               <div className="text-center">
-                <p className="text-2xl font-bold">{parsedData.messages.length}</p>
+                <p className="text-2xl font-bold">
+                  {parsedData.messages.length}
+                </p>
                 <p className="text-sm text-muted-foreground">Messages</p>
               </div>
               <div className="text-center">
@@ -445,7 +468,9 @@ export function ConversationImport({
                 <p className="text-sm text-muted-foreground">Users</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold">{parsedData.channels.length}</p>
+                <p className="text-2xl font-bold">
+                  {parsedData.channels.length}
+                </p>
                 <p className="text-sm text-muted-foreground">Channels</p>
               </div>
             </div>
@@ -453,13 +478,13 @@ export function ConversationImport({
             {/* Date Range */}
             {parsedData.messages.length > 0 && (
               <div className="text-sm text-muted-foreground">
-                Date range:{' '}
+                Date range:{" "}
                 {new Date(
-                  parsedData.messages[0].createdAt
-                ).toLocaleDateString()}{' '}
-                -{' '}
+                  parsedData.messages[0].createdAt,
+                ).toLocaleDateString()}{" "}
+                -{" "}
                 {new Date(
-                  parsedData.messages[parsedData.messages.length - 1].createdAt
+                  parsedData.messages[parsedData.messages.length - 1].createdAt,
                 ).toLocaleDateString()}
               </div>
             )}
@@ -508,7 +533,7 @@ export function ConversationImport({
           </div>
         )}
 
-        {step === 'options' && (
+        {step === "options" && (
           <div className="space-y-4 py-4">
             {/* Target Channel */}
             <div className="space-y-2">
@@ -530,7 +555,8 @@ export function ConversationImport({
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Import all messages to a single channel, or preserve the original structure
+                Import all messages to a single channel, or preserve the
+                original structure
               </p>
             </div>
 
@@ -546,7 +572,10 @@ export function ConversationImport({
                     checked={createMissingChannels}
                     onCheckedChange={(c) => setCreateMissingChannels(!!c)}
                   />
-                  <Label htmlFor="createChannels" className="text-sm cursor-pointer">
+                  <Label
+                    htmlFor="createChannels"
+                    className="text-sm cursor-pointer"
+                  >
                     Create missing channels
                   </Label>
                 </div>
@@ -556,7 +585,10 @@ export function ConversationImport({
                     checked={createMissingUsers}
                     onCheckedChange={(c) => setCreateMissingUsers(!!c)}
                   />
-                  <Label htmlFor="createUsers" className="text-sm cursor-pointer">
+                  <Label
+                    htmlFor="createUsers"
+                    className="text-sm cursor-pointer"
+                  >
                     Create missing users
                   </Label>
                 </div>
@@ -566,7 +598,10 @@ export function ConversationImport({
                     checked={importMedia}
                     onCheckedChange={(c) => setImportMedia(!!c)}
                   />
-                  <Label htmlFor="importMedia" className="text-sm cursor-pointer">
+                  <Label
+                    htmlFor="importMedia"
+                    className="text-sm cursor-pointer"
+                  >
                     Import media files
                   </Label>
                 </div>
@@ -576,7 +611,10 @@ export function ConversationImport({
                     checked={importReactions}
                     onCheckedChange={(c) => setImportReactions(!!c)}
                   />
-                  <Label htmlFor="importReactions" className="text-sm cursor-pointer">
+                  <Label
+                    htmlFor="importReactions"
+                    className="text-sm cursor-pointer"
+                  >
                     Import reactions
                   </Label>
                 </div>
@@ -586,7 +624,10 @@ export function ConversationImport({
                     checked={importThreads}
                     onCheckedChange={(c) => setImportThreads(!!c)}
                   />
-                  <Label htmlFor="importThreads" className="text-sm cursor-pointer">
+                  <Label
+                    htmlFor="importThreads"
+                    className="text-sm cursor-pointer"
+                  >
                     Import threads
                   </Label>
                 </div>
@@ -596,7 +637,10 @@ export function ConversationImport({
                     checked={preserveTimestamps}
                     onCheckedChange={(c) => setPreserveTimestamps(!!c)}
                   />
-                  <Label htmlFor="preserveTimestamps" className="text-sm cursor-pointer">
+                  <Label
+                    htmlFor="preserveTimestamps"
+                    className="text-sm cursor-pointer"
+                  >
                     Preserve timestamps
                   </Label>
                 </div>
@@ -640,13 +684,13 @@ export function ConversationImport({
           </div>
         )}
 
-        {step === 'progress' && (
+        {step === "progress" && (
           <div className="space-y-6 py-8">
             <div className="flex flex-col items-center justify-center text-center">
-              {progress.status === 'importing' && (
+              {progress.status === "importing" && (
                 <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
               )}
-              {progress.status === 'failed' && (
+              {progress.status === "failed" && (
                 <AlertCircle className="h-12 w-12 text-destructive mb-4" />
               )}
               <p className="font-medium">{progress.phase}</p>
@@ -669,7 +713,7 @@ export function ConversationImport({
           </div>
         )}
 
-        {step === 'complete' && stats && (
+        {step === "complete" && stats && (
           <div className="space-y-6 py-8">
             <div className="flex flex-col items-center justify-center text-center">
               <Check className="h-12 w-12 text-green-500 mb-4" />
@@ -681,7 +725,9 @@ export function ConversationImport({
 
             <div className="grid grid-cols-2 gap-4 bg-muted/50 rounded-lg p-4">
               <div>
-                <p className="text-sm text-muted-foreground">Messages Imported</p>
+                <p className="text-sm text-muted-foreground">
+                  Messages Imported
+                </p>
                 <p className="text-lg font-medium">
                   {stats.messagesImported.toLocaleString()}
                 </p>
@@ -720,7 +766,9 @@ export function ConversationImport({
                 {progress.warnings.length > 0 && (
                   <Alert>
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>{progress.warnings.length} Warning(s)</AlertTitle>
+                    <AlertTitle>
+                      {progress.warnings.length} Warning(s)
+                    </AlertTitle>
                     <AlertDescription>
                       {progress.warnings[0].message}
                       {progress.warnings.length > 1 &&
@@ -734,29 +782,29 @@ export function ConversationImport({
         )}
 
         <DialogFooter>
-          {step === 'upload' && (
+          {step === "upload" && (
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
           )}
-          {step === 'preview' && (
+          {step === "preview" && (
             <>
               <Button
                 variant="outline"
                 onClick={() => {
-                  setStep('upload')
-                  setFile(null)
-                  setParsedData(null)
+                  setStep("upload");
+                  setFile(null);
+                  setParsedData(null);
                 }}
               >
                 Back
               </Button>
-              <Button onClick={() => setStep('options')}>Continue</Button>
+              <Button onClick={() => setStep("options")}>Continue</Button>
             </>
           )}
-          {step === 'options' && (
+          {step === "options" && (
             <>
-              <Button variant="outline" onClick={() => setStep('preview')}>
+              <Button variant="outline" onClick={() => setStep("preview")}>
                 Back
               </Button>
               <Button onClick={handleImport}>
@@ -764,20 +812,20 @@ export function ConversationImport({
               </Button>
             </>
           )}
-          {step === 'progress' && progress.status !== 'failed' && (
+          {step === "progress" && progress.status !== "failed" && (
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
           )}
-          {(step === 'complete' || progress.status === 'failed') && (
+          {(step === "complete" || progress.status === "failed") && (
             <Button onClick={handleClose}>
-              {progress.status === 'failed' ? 'Close' : 'Done'}
+              {progress.status === "failed" ? "Close" : "Done"}
             </Button>
           )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default ConversationImport
+export default ConversationImport;

@@ -5,93 +5,93 @@
  * Uses SendGrid in production, SMTP/Mailpit in development.
  */
 
-import { render } from '@react-email/render'
-import { logger } from '@/lib/logger'
+import { render } from "@react-email/render";
+import { logger } from "@/lib/logger";
 
 // Email templates
-import EmailVerification from '@/emails/templates/email-verification'
-import PasswordResetEmail from '@/emails/templates/password-reset'
-import WelcomeEmail from '@/emails/templates/welcome'
-import NewLoginEmail from '@/emails/templates/new-login'
-import PasswordChangedEmail from '@/emails/templates/password-changed'
+import EmailVerification from "@/emails/templates/email-verification";
+import PasswordResetEmail from "@/emails/templates/password-reset";
+import WelcomeEmail from "@/emails/templates/welcome";
+import NewLoginEmail from "@/emails/templates/new-login";
+import PasswordChangedEmail from "@/emails/templates/password-changed";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface EmailOptions {
-  to: string | string[]
-  subject: string
-  html: string
-  text?: string
-  from?: string
-  replyTo?: string
+  to: string | string[];
+  subject: string;
+  html: string;
+  text?: string;
+  from?: string;
+  replyTo?: string;
 }
 
 export interface EmailVerificationOptions {
-  to: string
-  userName?: string
-  verificationUrl: string
-  verificationCode?: string
-  appName?: string
-  logoUrl?: string
-  expiresInHours?: number
+  to: string;
+  userName?: string;
+  verificationUrl: string;
+  verificationCode?: string;
+  appName?: string;
+  logoUrl?: string;
+  expiresInHours?: number;
 }
 
 export interface PasswordResetOptions {
-  to: string
-  userName?: string
-  resetUrl: string
-  appName?: string
-  logoUrl?: string
-  expiresInMinutes?: number
-  ipAddress?: string
-  userAgent?: string
+  to: string;
+  userName?: string;
+  resetUrl: string;
+  appName?: string;
+  logoUrl?: string;
+  expiresInMinutes?: number;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface TwoFactorCodeOptions {
-  to: string
-  userName?: string
-  code: string
-  appName?: string
-  logoUrl?: string
-  expiresInMinutes?: number
+  to: string;
+  userName?: string;
+  code: string;
+  appName?: string;
+  logoUrl?: string;
+  expiresInMinutes?: number;
 }
 
 export interface MagicLinkOptions {
-  to: string
-  userName?: string
-  magicLinkUrl: string
-  appName?: string
-  logoUrl?: string
-  expiresInMinutes?: number
+  to: string;
+  userName?: string;
+  magicLinkUrl: string;
+  appName?: string;
+  logoUrl?: string;
+  expiresInMinutes?: number;
 }
 
 export interface WelcomeEmailOptions {
-  to: string
-  userName: string
-  appName?: string
-  logoUrl?: string
-  loginUrl?: string
+  to: string;
+  userName: string;
+  appName?: string;
+  logoUrl?: string;
+  loginUrl?: string;
 }
 
 export interface NewLoginOptions {
-  to: string
-  userName?: string
-  ipAddress?: string
-  userAgent?: string
-  location?: string
-  appName?: string
-  logoUrl?: string
+  to: string;
+  userName?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  location?: string;
+  appName?: string;
+  logoUrl?: string;
 }
 
 export interface PasswordChangedOptions {
-  to: string
-  userName?: string
-  ipAddress?: string
-  userAgent?: string
-  appName?: string
-  logoUrl?: string
+  to: string;
+  userName?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  appName?: string;
+  logoUrl?: string;
 }
 
 // ============================================================================
@@ -99,36 +99,40 @@ export interface PasswordChangedOptions {
 // ============================================================================
 
 class EmailService {
-  private provider: 'sendgrid' | 'smtp' | 'console'
-  private fromEmail: string
-  private fromName: string
-  private appName: string
+  private provider: "sendgrid" | "smtp" | "console";
+  private fromEmail: string;
+  private fromName: string;
+  private appName: string;
 
   constructor() {
     // Determine provider based on environment
-    const isDevelopment = process.env.NODE_ENV === 'development'
-    const hasResend = !!process.env.RESEND_API_KEY
-    const hasSendGrid = !!process.env.SENDGRID_API_KEY
-    const hasSmtp = !!process.env.SMTP_HOST
+    const isDevelopment = process.env.NODE_ENV === "development";
+    const hasResend = !!process.env.RESEND_API_KEY;
+    const hasSendGrid = !!process.env.SENDGRID_API_KEY;
+    const hasSmtp = !!process.env.SMTP_HOST;
 
     if (hasSendGrid) {
-      this.provider = 'sendgrid'
+      this.provider = "sendgrid";
     } else if (hasSmtp) {
-      this.provider = 'smtp'
+      this.provider = "smtp";
     } else if (isDevelopment) {
-      this.provider = 'console'
-      logger.info('[Email] Using console provider in development mode')
+      this.provider = "console";
+      logger.info("[Email] Using console provider in development mode");
     } else {
-      this.provider = 'console'
-      logger.warn('[Email] No email provider configured, using console fallback')
+      this.provider = "console";
+      logger.warn(
+        "[Email] No email provider configured, using console fallback",
+      );
     }
 
     this.fromEmail =
-      process.env.EMAIL_FROM || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'noreply@nchat.app'
-    this.fromName = process.env.EMAIL_FROM_NAME || 'nChat'
-    this.appName = process.env.NEXT_PUBLIC_APP_NAME || 'nChat'
+      process.env.EMAIL_FROM ||
+      process.env.NEXT_PUBLIC_SUPPORT_EMAIL ||
+      "noreply@nchat.app";
+    this.fromName = process.env.EMAIL_FROM_NAME || "nChat";
+    this.appName = process.env.NEXT_PUBLIC_APP_NAME || "nChat";
 
-    logger.info(`[Email] Initialized with provider: ${this.provider}`)
+    logger.info(`[Email] Initialized with provider: ${this.provider}`);
   }
 
   /**
@@ -136,29 +140,31 @@ class EmailService {
    */
   async send(options: EmailOptions): Promise<boolean> {
     try {
-      const from = options.from || `${this.fromName} <${this.fromEmail}>`
+      const from = options.from || `${this.fromName} <${this.fromEmail}>`;
 
       switch (this.provider) {
-        case 'sendgrid':
-          return await this.sendWithSendGrid({ ...options, from })
-        case 'smtp':
-          return await this.sendWithSMTP({ ...options, from })
-        case 'console':
-          return await this.sendWithConsole({ ...options, from })
+        case "sendgrid":
+          return await this.sendWithSendGrid({ ...options, from });
+        case "smtp":
+          return await this.sendWithSMTP({ ...options, from });
+        case "console":
+          return await this.sendWithConsole({ ...options, from });
         default:
-          logger.error('[Email] Unknown provider:', this.provider)
-          return false
+          logger.error("[Email] Unknown provider:", this.provider);
+          return false;
       }
     } catch (error) {
-      logger.error('[Email] Send error:', error)
-      return false
+      logger.error("[Email] Send error:", error);
+      return false;
     }
   }
 
   /**
    * Send email verification
    */
-  async sendEmailVerification(options: EmailVerificationOptions): Promise<boolean> {
+  async sendEmailVerification(
+    options: EmailVerificationOptions,
+  ): Promise<boolean> {
     try {
       const html = await render(
         EmailVerification({
@@ -168,17 +174,17 @@ class EmailService {
           appName: options.appName || this.appName,
           logoUrl: options.logoUrl,
           expiresInHours: options.expiresInHours,
-        })
-      )
+        }),
+      );
 
       return await this.send({
         to: options.to,
         subject: `Verify your email for ${options.appName || this.appName}`,
         html,
-      })
+      });
     } catch (error) {
-      logger.error('[Email] Email verification send error:', error)
-      return false
+      logger.error("[Email] Email verification send error:", error);
+      return false;
     }
   }
 
@@ -196,17 +202,17 @@ class EmailService {
           expiresInMinutes: options.expiresInMinutes,
           ipAddress: options.ipAddress,
           userAgent: options.userAgent,
-        })
-      )
+        }),
+      );
 
       return await this.send({
         to: options.to,
         subject: `Reset your ${options.appName || this.appName} password`,
         html,
-      })
+      });
     } catch (error) {
-      logger.error('[Email] Password reset send error:', error)
-      return false
+      logger.error("[Email] Password reset send error:", error);
+      return false;
     }
   }
 
@@ -221,16 +227,16 @@ class EmailService {
         code: options.code,
         appName: options.appName || this.appName,
         expiresInMinutes: options.expiresInMinutes || 10,
-      })
+      });
 
       return await this.send({
         to: options.to,
         subject: `Your ${options.appName || this.appName} verification code`,
         html,
-      })
+      });
     } catch (error) {
-      logger.error('[Email] 2FA code send error:', error)
-      return false
+      logger.error("[Email] 2FA code send error:", error);
+      return false;
     }
   }
 
@@ -244,16 +250,16 @@ class EmailService {
         magicLinkUrl: options.magicLinkUrl,
         appName: options.appName || this.appName,
         expiresInMinutes: options.expiresInMinutes || 15,
-      })
+      });
 
       return await this.send({
         to: options.to,
         subject: `Sign in to ${options.appName || this.appName}`,
         html,
-      })
+      });
     } catch (error) {
-      logger.error('[Email] Magic link send error:', error)
-      return false
+      logger.error("[Email] Magic link send error:", error);
+      return false;
     }
   }
 
@@ -268,17 +274,17 @@ class EmailService {
           appName: options.appName || this.appName,
           logoUrl: options.logoUrl,
           loginUrl: options.loginUrl,
-        })
-      )
+        }),
+      );
 
       return await this.send({
         to: options.to,
         subject: `Welcome to ${options.appName || this.appName}!`,
         html,
-      })
+      });
     } catch (error) {
-      logger.error('[Email] Welcome email send error:', error)
-      return false
+      logger.error("[Email] Welcome email send error:", error);
+      return false;
     }
   }
 
@@ -294,24 +300,26 @@ class EmailService {
           location: options.location as any,
           appName: options.appName || this.appName,
           logoUrl: options.logoUrl,
-        })
-      )
+        }),
+      );
 
       return await this.send({
         to: options.to,
         subject: `New login to your ${options.appName || this.appName} account`,
         html,
-      })
+      });
     } catch (error) {
-      logger.error('[Email] New login notification send error:', error)
-      return false
+      logger.error("[Email] New login notification send error:", error);
+      return false;
     }
   }
 
   /**
    * Send password changed notification
    */
-  async sendPasswordChangedNotification(options: PasswordChangedOptions): Promise<boolean> {
+  async sendPasswordChangedNotification(
+    options: PasswordChangedOptions,
+  ): Promise<boolean> {
     try {
       const html = await render(
         PasswordChangedEmail({
@@ -319,17 +327,17 @@ class EmailService {
           ipAddress: options.ipAddress,
           appName: options.appName || this.appName,
           logoUrl: options.logoUrl,
-        })
-      )
+        }),
+      );
 
       return await this.send({
         to: options.to,
         subject: `Your ${options.appName || this.appName} password was changed`,
         html,
-      })
+      });
     } catch (error) {
-      logger.error('[Email] Password changed notification send error:', error)
-      return false
+      logger.error("[Email] Password changed notification send error:", error);
+      return false;
     }
   }
 
@@ -342,8 +350,8 @@ class EmailService {
    */
   private async sendWithSendGrid(options: EmailOptions): Promise<boolean> {
     try {
-      const sgMail = await import('@sendgrid/mail')
-      sgMail.default.setApiKey(process.env.SENDGRID_API_KEY!)
+      const sgMail = await import("@sendgrid/mail");
+      sgMail.default.setApiKey(process.env.SENDGRID_API_KEY!);
 
       const msg = {
         to: options.to,
@@ -352,14 +360,14 @@ class EmailService {
         html: options.html,
         text: options.text,
         replyTo: options.replyTo,
-      }
+      };
 
-      await sgMail.default.send(msg)
-      logger.info('[Email] Sent via SendGrid', { to: options.to })
-      return true
+      await sgMail.default.send(msg);
+      logger.info("[Email] Sent via SendGrid", { to: options.to });
+      return true;
     } catch (error) {
-      logger.error('[Email] SendGrid error', error)
-      return false
+      logger.error("[Email] SendGrid error", error);
+      return false;
     }
   }
 
@@ -368,19 +376,19 @@ class EmailService {
    */
   private async sendWithSMTP(options: EmailOptions): Promise<boolean> {
     try {
-      const nodemailer = await import('nodemailer')
+      const nodemailer = await import("nodemailer");
 
       const transporter = nodemailer.default.createTransport({
-        host: process.env.SMTP_HOST || 'localhost',
-        port: parseInt(process.env.SMTP_PORT || '1025'),
-        secure: process.env.SMTP_SECURE === 'true',
+        host: process.env.SMTP_HOST || "localhost",
+        port: parseInt(process.env.SMTP_PORT || "1025"),
+        secure: process.env.SMTP_SECURE === "true",
         auth: process.env.SMTP_USER
           ? {
               user: process.env.SMTP_USER,
               pass: process.env.SMTP_PASSWORD,
             }
           : undefined,
-      })
+      });
 
       await transporter.sendMail({
         from: options.from || this.fromEmail,
@@ -389,13 +397,13 @@ class EmailService {
         html: options.html,
         text: options.text,
         replyTo: options.replyTo,
-      })
+      });
 
-      logger.info('[Email] Sent via SMTP', { to: options.to })
-      return true
+      logger.info("[Email] Sent via SMTP", { to: options.to });
+      return true;
     } catch (error) {
-      logger.error('[Email] SMTP error', error)
-      return false
+      logger.error("[Email] SMTP error", error);
+      return false;
     }
   }
 
@@ -403,30 +411,37 @@ class EmailService {
    * Console fallback (development)
    */
   private async sendWithConsole(options: EmailOptions): Promise<boolean> {
-    const toStr = Array.isArray(options.to) ? options.to.join(', ') : options.to
-    logger.info('[Email] Console mode - Email would be sent', {
+    const toStr = Array.isArray(options.to)
+      ? options.to.join(", ")
+      : options.to;
+    logger.info("[Email] Console mode - Email would be sent", {
       to: toStr,
       from: options.from,
       subject: options.subject,
       htmlLength: options.html.length,
-    })
+    });
 
     // In development, also extract URLs from HTML for easy testing
-    const urlMatches = options.html.match(/href="([^"]+)"/g)
+    const urlMatches = options.html.match(/href="([^"]+)"/g);
     if (urlMatches) {
-      const links: string[] = []
+      const links: string[] = [];
       urlMatches.forEach((match) => {
-        const url = match.match(/href="([^"]+)"/)?.[1]
-        if (url && (url.includes('verify') || url.includes('reset') || url.includes('magic'))) {
-          links.push(url)
+        const url = match.match(/href="([^"]+)"/)?.[1];
+        if (
+          url &&
+          (url.includes("verify") ||
+            url.includes("reset") ||
+            url.includes("magic"))
+        ) {
+          links.push(url);
         }
-      })
+      });
       if (links.length > 0) {
-        logger.info('[Email] Links found', { links })
+        logger.info("[Email] Links found", { links });
       }
     }
 
-    return true
+    return true;
   }
 
   // ==========================================================================
@@ -437,10 +452,10 @@ class EmailService {
    * Generate 2FA code HTML
    */
   private generate2FACodeHTML(options: {
-    userName?: string
-    code: string
-    appName: string
-    expiresInMinutes: number
+    userName?: string;
+    code: string;
+    appName: string;
+    expiresInMinutes: number;
   }): string {
     return `
 <!DOCTYPE html>
@@ -456,7 +471,7 @@ class EmailService {
   </div>
 
   <div style="background: white; padding: 40px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px;">
-    ${options.userName ? `<p style="font-size: 16px; margin: 0 0 20px;">Hi ${options.userName},</p>` : ''}
+    ${options.userName ? `<p style="font-size: 16px; margin: 0 0 20px;">Hi ${options.userName},</p>` : ""}
 
     <p style="font-size: 16px; margin: 0 0 20px;">
       Use this verification code to complete your two-factor authentication:
@@ -489,17 +504,17 @@ class EmailService {
   </div>
 </body>
 </html>
-    `.trim()
+    `.trim();
   }
 
   /**
    * Generate magic link HTML
    */
   private generateMagicLinkHTML(options: {
-    userName?: string
-    magicLinkUrl: string
-    appName: string
-    expiresInMinutes: number
+    userName?: string;
+    magicLinkUrl: string;
+    appName: string;
+    expiresInMinutes: number;
   }): string {
     return `
 <!DOCTYPE html>
@@ -515,7 +530,7 @@ class EmailService {
   </div>
 
   <div style="background: white; padding: 40px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px;">
-    ${options.userName ? `<p style="font-size: 16px; margin: 0 0 20px;">Hi ${options.userName},</p>` : ''}
+    ${options.userName ? `<p style="font-size: 16px; margin: 0 0 20px;">Hi ${options.userName},</p>` : ""}
 
     <p style="font-size: 16px; margin: 0 0 20px;">
       Click the button below to sign in to your ${options.appName} account. This link will expire in ${options.expiresInMinutes} minutes.
@@ -552,7 +567,7 @@ class EmailService {
   </div>
 </body>
 </html>
-    `.trim()
+    `.trim();
   }
 }
 
@@ -560,4 +575,4 @@ class EmailService {
 // Singleton Instance
 // ============================================================================
 
-export const emailService = new EmailService()
+export const emailService = new EmailService();

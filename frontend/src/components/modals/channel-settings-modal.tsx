@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Channel Settings Modal Component
@@ -8,4 +8,4 @@
 export {
   EditChannelModal as default,
   EditChannelModal as ChannelSettingsModal,
-} from './edit-channel-modal'
+} from "./edit-channel-modal";

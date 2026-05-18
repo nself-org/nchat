@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import * as React from "react";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -14,18 +14,23 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { COLLECTION_LIMITS, getRandomColor, getRandomIcon } from '@/lib/saved'
+} from "@/components/ui/dialog";
+import { COLLECTION_LIMITS, getRandomColor, getRandomIcon } from "@/lib/saved";
 
 export interface CreateCollectionProps {
   /** Whether the dialog is open */
-  open: boolean
+  open: boolean;
   /** Callback when dialog is closed */
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void;
   /** Callback when collection is created */
-  onCreate: (data: { name: string; description?: string; icon?: string; color?: string }) => void
+  onCreate: (data: {
+    name: string;
+    description?: string;
+    icon?: string;
+    color?: string;
+  }) => void;
   /** Whether creation is in progress */
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 /**
@@ -37,41 +42,45 @@ export function CreateCollection({
   onCreate,
   isLoading = false,
 }: CreateCollectionProps) {
-  const [name, setName] = React.useState('')
-  const [description, setDescription] = React.useState('')
-  const [color, setColor] = React.useState(() => getRandomColor())
-  const [icon, setIcon] = React.useState(() => getRandomIcon())
-  const [error, setError] = React.useState<string | null>(null)
+  const [name, setName] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [color, setColor] = React.useState(() => getRandomColor());
+  const [icon, setIcon] = React.useState(() => getRandomIcon());
+  const [error, setError] = React.useState<string | null>(null);
 
   // Reset form when dialog opens
   React.useEffect(() => {
     if (open) {
-      setName('')
-      setDescription('')
-      setColor(getRandomColor())
-      setIcon(getRandomIcon())
-      setError(null)
+      setName("");
+      setDescription("");
+      setColor(getRandomColor());
+      setIcon(getRandomIcon());
+      setError(null);
     }
-  }, [open])
+  }, [open]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const trimmedName = name.trim()
+    const trimmedName = name.trim();
 
     if (!trimmedName) {
-      setError('Collection name is required')
-      return
+      setError("Collection name is required");
+      return;
     }
 
     if (trimmedName.length > COLLECTION_LIMITS.MAX_NAME_LENGTH) {
-      setError(`Name cannot exceed ${COLLECTION_LIMITS.MAX_NAME_LENGTH} characters`)
-      return
+      setError(
+        `Name cannot exceed ${COLLECTION_LIMITS.MAX_NAME_LENGTH} characters`,
+      );
+      return;
     }
 
     if (description.length > COLLECTION_LIMITS.MAX_DESCRIPTION_LENGTH) {
-      setError(`Description cannot exceed ${COLLECTION_LIMITS.MAX_DESCRIPTION_LENGTH} characters`)
-      return
+      setError(
+        `Description cannot exceed ${COLLECTION_LIMITS.MAX_DESCRIPTION_LENGTH} characters`,
+      );
+      return;
     }
 
     onCreate({
@@ -79,8 +88,8 @@ export function CreateCollection({
       description: description.trim() || undefined,
       icon,
       color,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -101,8 +110,8 @@ export function CreateCollection({
                 id="name"
                 value={name}
                 onChange={(e) => {
-                  setName(e.target.value)
-                  setError(null)
+                  setName(e.target.value);
+                  setError(null);
                 }}
                 placeholder="My Collection"
                 maxLength={COLLECTION_LIMITS.MAX_NAME_LENGTH}
@@ -133,10 +142,10 @@ export function CreateCollection({
                     key={c}
                     type="button"
                     className={cn(
-                      'h-8 w-8 rounded-full border-2 transition-transform hover:scale-110',
+                      "h-8 w-8 rounded-full border-2 transition-transform hover:scale-110",
                       color === c
-                        ? 'border-primary ring-2 ring-primary ring-offset-2'
-                        : 'border-transparent'
+                        ? "border-primary ring-2 ring-primary ring-offset-2"
+                        : "border-transparent",
                     )}
                     style={{ backgroundColor: c }}
                     onClick={() => setColor(c)}
@@ -151,14 +160,18 @@ export function CreateCollection({
               <div className="flex items-center gap-2">
                 <div
                   className="flex h-8 w-8 items-center justify-center rounded"
-                  style={{ backgroundColor: color + '20', color }}
+                  style={{ backgroundColor: color + "20", color }}
                 >
                   <span className="text-lg">{getIconEmoji(icon)}</span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{name || 'Collection Name'}</p>
+                  <p className="text-sm font-medium">
+                    {name || "Collection Name"}
+                  </p>
                   {description && (
-                    <p className="truncate text-xs text-muted-foreground">{description}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {description}
+                    </p>
                   )}
                 </div>
               </div>
@@ -184,29 +197,29 @@ export function CreateCollection({
                   Creating...
                 </>
               ) : (
-                'Create Collection'
+                "Create Collection"
               )}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // Helper to get emoji for icon name
 function getIconEmoji(icon: string): string {
   const iconMap: Record<string, string> = {
-    bookmark: '\u{1F516}',
-    star: '\u{2B50}',
-    heart: '\u{2764}\u{FE0F}',
-    folder: '\u{1F4C1}',
-    tag: '\u{1F3F7}\u{FE0F}',
-    flag: '\u{1F6A9}',
-    lightbulb: '\u{1F4A1}',
-    check: '\u{2705}',
-    clock: '\u{1F552}',
-    archive: '\u{1F4E6}',
-  }
-  return iconMap[icon] ?? '\u{1F4C1}'
+    bookmark: "\u{1F516}",
+    star: "\u{2B50}",
+    heart: "\u{2764}\u{FE0F}",
+    folder: "\u{1F4C1}",
+    tag: "\u{1F3F7}\u{FE0F}",
+    flag: "\u{1F6A9}",
+    lightbulb: "\u{1F4A1}",
+    check: "\u{2705}",
+    clock: "\u{1F552}",
+    archive: "\u{1F4E6}",
+  };
+  return iconMap[icon] ?? "\u{1F4C1}";
 }

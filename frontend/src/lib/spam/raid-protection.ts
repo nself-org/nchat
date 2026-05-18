@@ -16,142 +16,147 @@
  * - Attacker profiling
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export type RaidType =
-  | 'mass_join'
-  | 'invite_abuse'
-  | 'spam_wave'
-  | 'account_wave'
-  | 'coordinated_attack'
-  | 'mention_raid'
-  | 'dm_spam'
+  | "mass_join"
+  | "invite_abuse"
+  | "spam_wave"
+  | "account_wave"
+  | "coordinated_attack"
+  | "mention_raid"
+  | "dm_spam";
 
-export type RaidSeverity = 'low' | 'medium' | 'high' | 'critical'
-export type RaidStatus = 'detected' | 'active' | 'mitigated' | 'resolved' | 'escalated'
+export type RaidSeverity = "low" | "medium" | "high" | "critical";
+export type RaidStatus =
+  | "detected"
+  | "active"
+  | "mitigated"
+  | "resolved"
+  | "escalated";
 
-export type LockdownLevel = 'none' | 'partial' | 'full' | 'emergency'
+export type LockdownLevel = "none" | "partial" | "full" | "emergency";
 
 export interface RaidEvent {
-  id: string
-  type: RaidType
-  severity: RaidSeverity
-  status: RaidStatus
-  workspaceId: string
-  channelId?: string
-  detectedAt: Date
-  resolvedAt?: Date
-  participantCount: number
-  participants: string[]
-  inviteLinkUsed?: string
-  metrics: RaidMetrics
-  mitigations: RaidMitigation[]
-  notes: string[]
+  id: string;
+  type: RaidType;
+  severity: RaidSeverity;
+  status: RaidStatus;
+  workspaceId: string;
+  channelId?: string;
+  detectedAt: Date;
+  resolvedAt?: Date;
+  participantCount: number;
+  participants: string[];
+  inviteLinkUsed?: string;
+  metrics: RaidMetrics;
+  mitigations: RaidMitigation[];
+  notes: string[];
 }
 
 export interface RaidMetrics {
-  joinsPerMinute: number
-  accountsCreatedRecently: number
-  similarUsernames: number
-  newAccountPercentage: number
-  singleSourcePercentage: number // % from same IP/invite
-  averageAccountAge: number // In days
+  joinsPerMinute: number;
+  accountsCreatedRecently: number;
+  similarUsernames: number;
+  newAccountPercentage: number;
+  singleSourcePercentage: number; // % from same IP/invite
+  averageAccountAge: number; // In days
 }
 
 export interface RaidMitigation {
   type:
-    | 'lockdown'
-    | 'ban_wave'
-    | 'invite_revoke'
-    | 'slowmode'
-    | 'verification_required'
-    | 'dm_restriction'
-    | 'manual_review'
-  appliedAt: Date
-  appliedBy: string
-  details: string
-  undoneAt?: Date
+    | "lockdown"
+    | "ban_wave"
+    | "invite_revoke"
+    | "slowmode"
+    | "verification_required"
+    | "dm_restriction"
+    | "manual_review";
+  appliedAt: Date;
+  appliedBy: string;
+  details: string;
+  undoneAt?: Date;
 }
 
 export interface JoinEvent {
-  userId: string
-  username: string
-  workspaceId: string
-  channelId?: string
-  inviteCode?: string
-  sourceIp?: string
-  accountCreatedAt: Date
-  joinedAt: Date
-  userAgent?: string
+  userId: string;
+  username: string;
+  workspaceId: string;
+  channelId?: string;
+  inviteCode?: string;
+  sourceIp?: string;
+  accountCreatedAt: Date;
+  joinedAt: Date;
+  userAgent?: string;
 }
 
 export interface LockdownState {
-  level: LockdownLevel
-  workspaceId: string
-  channelId?: string
-  activatedAt: Date
-  activatedBy: string
-  reason: string
-  autoLiftAt?: Date
-  restrictions: LockdownRestrictions
+  level: LockdownLevel;
+  workspaceId: string;
+  channelId?: string;
+  activatedAt: Date;
+  activatedBy: string;
+  reason: string;
+  autoLiftAt?: Date;
+  restrictions: LockdownRestrictions;
 }
 
 export interface LockdownRestrictions {
-  blockNewJoins: boolean
-  blockNewMessages: boolean
-  requireVerification: boolean
-  slowmodeSeconds: number
-  blockInviteCreation: boolean
-  blockDMs: boolean
-  allowedRoles: string[] // Roles exempt from restrictions
+  blockNewJoins: boolean;
+  blockNewMessages: boolean;
+  requireVerification: boolean;
+  slowmodeSeconds: number;
+  blockInviteCreation: boolean;
+  blockDMs: boolean;
+  allowedRoles: string[]; // Roles exempt from restrictions
 }
 
 export interface InviteTracker {
-  code: string
-  workspaceId: string
-  channelId?: string
-  createdBy: string
-  createdAt: Date
-  expiresAt?: Date
-  maxUses?: number
-  uses: number
-  usedBy: string[]
-  revoked: boolean
-  revokedAt?: Date
-  revokedReason?: string
+  code: string;
+  workspaceId: string;
+  channelId?: string;
+  createdBy: string;
+  createdAt: Date;
+  expiresAt?: Date;
+  maxUses?: number;
+  uses: number;
+  usedBy: string[];
+  revoked: boolean;
+  revokedAt?: Date;
+  revokedReason?: string;
 }
 
 export interface RaidProtectionConfig {
   // Join velocity thresholds
-  joinVelocityThreshold: number // Joins per minute to trigger alert
-  joinVelocityWindow: number // Window in milliseconds
-  joinVelocityCritical: number // Joins per minute for critical alert
+  joinVelocityThreshold: number; // Joins per minute to trigger alert
+  joinVelocityWindow: number; // Window in milliseconds
+  joinVelocityCritical: number; // Joins per minute for critical alert
 
   // Account age thresholds
-  newAccountThreshold: number // Account age in hours to be considered "new"
-  newAccountPercentageThreshold: number // % of new accounts to trigger alert
+  newAccountThreshold: number; // Account age in hours to be considered "new"
+  newAccountPercentageThreshold: number; // % of new accounts to trigger alert
 
   // Pattern detection
-  similarUsernameThreshold: number // Number of similar usernames to trigger
-  singleSourceThreshold: number // % from same source to trigger
+  similarUsernameThreshold: number; // Number of similar usernames to trigger
+  singleSourceThreshold: number; // % from same source to trigger
 
   // Auto-mitigation
-  autoLockdownEnabled: boolean
-  autoLockdownThreshold: RaidSeverity // Severity to trigger auto-lockdown
-  autoLockdownDuration: number // Duration in milliseconds
-  autoBanEnabled: boolean
-  autoBanThreshold: number // Join velocity to trigger auto-ban
+  autoLockdownEnabled: boolean;
+  autoLockdownThreshold: RaidSeverity; // Severity to trigger auto-lockdown
+  autoLockdownDuration: number; // Duration in milliseconds
+  autoBanEnabled: boolean;
+  autoBanThreshold: number; // Join velocity to trigger auto-ban
 
   // Cooldown
-  alertCooldown: number // Minimum time between alerts
+  alertCooldown: number; // Minimum time between alerts
 
   // Exemptions
-  exemptRoles: string[]
-  trustedInviteCodes: string[]
+  exemptRoles: string[];
+  trustedInviteCodes: string[];
 }
 
 export const DEFAULT_RAID_CONFIG: RaidProtectionConfig = {
@@ -166,16 +171,16 @@ export const DEFAULT_RAID_CONFIG: RaidProtectionConfig = {
   singleSourceThreshold: 80, // 80% from same source
 
   autoLockdownEnabled: true,
-  autoLockdownThreshold: 'high',
+  autoLockdownThreshold: "high",
   autoLockdownDuration: 30 * 60 * 1000, // 30 minutes
   autoBanEnabled: false,
   autoBanThreshold: 50, // 50 joins/min
 
   alertCooldown: 5 * 60 * 1000, // 5 minutes
 
-  exemptRoles: ['admin', 'moderator', 'trusted'],
+  exemptRoles: ["admin", "moderator", "trusted"],
   trustedInviteCodes: [],
-}
+};
 
 // Lockdown presets
 export const LOCKDOWN_PRESETS: Record<LockdownLevel, LockdownRestrictions> = {
@@ -195,7 +200,7 @@ export const LOCKDOWN_PRESETS: Record<LockdownLevel, LockdownRestrictions> = {
     slowmodeSeconds: 30,
     blockInviteCreation: true,
     blockDMs: false,
-    allowedRoles: ['admin', 'moderator', 'trusted'],
+    allowedRoles: ["admin", "moderator", "trusted"],
   },
   full: {
     blockNewJoins: true,
@@ -204,7 +209,7 @@ export const LOCKDOWN_PRESETS: Record<LockdownLevel, LockdownRestrictions> = {
     slowmodeSeconds: 60,
     blockInviteCreation: true,
     blockDMs: true,
-    allowedRoles: ['admin', 'moderator'],
+    allowedRoles: ["admin", "moderator"],
   },
   emergency: {
     blockNewJoins: true,
@@ -213,26 +218,26 @@ export const LOCKDOWN_PRESETS: Record<LockdownLevel, LockdownRestrictions> = {
     slowmodeSeconds: 300,
     blockInviteCreation: true,
     blockDMs: true,
-    allowedRoles: ['admin'],
+    allowedRoles: ["admin"],
   },
-}
+};
 
 // ============================================================================
 // Raid Protection Class
 // ============================================================================
 
 export class RaidProtection {
-  private config: RaidProtectionConfig
-  private joinHistory: Map<string, JoinEvent[]> = new Map() // workspaceId -> joins
-  private raidEvents: Map<string, RaidEvent> = new Map()
-  private lockdowns: Map<string, LockdownState> = new Map()
-  private invites: Map<string, InviteTracker> = new Map()
-  private lastAlertTime: Map<string, number> = new Map()
-  private cleanupInterval: ReturnType<typeof setInterval> | null = null
+  private config: RaidProtectionConfig;
+  private joinHistory: Map<string, JoinEvent[]> = new Map(); // workspaceId -> joins
+  private raidEvents: Map<string, RaidEvent> = new Map();
+  private lockdowns: Map<string, LockdownState> = new Map();
+  private invites: Map<string, InviteTracker> = new Map();
+  private lastAlertTime: Map<string, number> = new Map();
+  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(config: Partial<RaidProtectionConfig> = {}) {
-    this.config = { ...DEFAULT_RAID_CONFIG, ...config }
-    this.startCleanup()
+    this.config = { ...DEFAULT_RAID_CONFIG, ...config };
+    this.startCleanup();
   }
 
   // ==========================================================================
@@ -243,61 +248,61 @@ export class RaidProtection {
    * Records a join event and checks for raid patterns
    */
   recordJoin(event: JoinEvent): {
-    allowed: boolean
-    raidDetected: boolean
-    raid?: RaidEvent
-    reason?: string
+    allowed: boolean;
+    raidDetected: boolean;
+    raid?: RaidEvent;
+    reason?: string;
   } {
-    const { workspaceId, channelId } = event
+    const { workspaceId, channelId } = event;
 
     // Check if lockdown is active
-    const lockdown = this.getLockdown(workspaceId, channelId)
+    const lockdown = this.getLockdown(workspaceId, channelId);
     if (lockdown && lockdown.restrictions.blockNewJoins) {
       return {
         allowed: false,
         raidDetected: false,
-        reason: 'Server is currently in lockdown mode',
-      }
+        reason: "Server is currently in lockdown mode",
+      };
     }
 
     // Add to history
-    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId
-    const history = this.joinHistory.get(key) || []
-    history.push(event)
-    this.joinHistory.set(key, history)
+    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId;
+    const history = this.joinHistory.get(key) || [];
+    history.push(event);
+    this.joinHistory.set(key, history);
 
     // Clean old entries
-    this.cleanJoinHistory(key)
+    this.cleanJoinHistory(key);
 
     // Track invite usage
     if (event.inviteCode) {
-      this.recordInviteUse(event.inviteCode, event.userId)
+      this.recordInviteUse(event.inviteCode, event.userId);
     }
 
     // Analyze for raid patterns
-    const analysis = this.analyzeJoinPatterns(workspaceId, channelId)
+    const analysis = this.analyzeJoinPatterns(workspaceId, channelId);
 
     if (analysis.isRaid) {
       const raid = this.createOrUpdateRaid(
         workspaceId,
         channelId,
         analysis,
-        event
-      )
+        event,
+      );
 
       // Apply auto-mitigations if configured
       if (this.shouldAutoMitigate(raid)) {
-        this.applyAutoMitigation(raid)
+        this.applyAutoMitigation(raid);
       }
 
       return {
         allowed: !lockdown?.restrictions.blockNewJoins,
         raidDetected: true,
         raid,
-      }
+      };
     }
 
-    return { allowed: true, raidDetected: false }
+    return { allowed: true, raidDetected: false };
   }
 
   /**
@@ -306,16 +311,16 @@ export class RaidProtection {
   getJoinVelocity(
     workspaceId: string,
     channelId?: string,
-    windowMs?: number
+    windowMs?: number,
   ): number {
-    const window = windowMs || this.config.joinVelocityWindow
-    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId
-    const history = this.joinHistory.get(key) || []
+    const window = windowMs || this.config.joinVelocityWindow;
+    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId;
+    const history = this.joinHistory.get(key) || [];
 
-    const cutoff = Date.now() - window
-    const recentJoins = history.filter((j) => j.joinedAt.getTime() > cutoff)
+    const cutoff = Date.now() - window;
+    const recentJoins = history.filter((j) => j.joinedAt.getTime() > cutoff);
 
-    return (recentJoins.length / window) * 60000 // Per minute
+    return (recentJoins.length / window) * 60000; // Per minute
   }
 
   /**
@@ -324,11 +329,11 @@ export class RaidProtection {
   getRecentJoins(
     workspaceId: string,
     channelId?: string,
-    limit: number = 100
+    limit: number = 100,
   ): JoinEvent[] {
-    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId
-    const history = this.joinHistory.get(key) || []
-    return history.slice(-limit)
+    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId;
+    const history = this.joinHistory.get(key) || [];
+    return history.slice(-limit);
   }
 
   // ==========================================================================
@@ -340,89 +345,91 @@ export class RaidProtection {
    */
   analyzeJoinPatterns(
     workspaceId: string,
-    channelId?: string
+    channelId?: string,
   ): {
-    isRaid: boolean
-    severity: RaidSeverity
-    type: RaidType
-    metrics: RaidMetrics
-    reasons: string[]
+    isRaid: boolean;
+    severity: RaidSeverity;
+    type: RaidType;
+    metrics: RaidMetrics;
+    reasons: string[];
   } {
-    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId
-    const history = this.joinHistory.get(key) || []
+    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId;
+    const history = this.joinHistory.get(key) || [];
 
-    const windowCutoff = Date.now() - this.config.joinVelocityWindow
-    const recentJoins = history.filter((j) => j.joinedAt.getTime() > windowCutoff)
+    const windowCutoff = Date.now() - this.config.joinVelocityWindow;
+    const recentJoins = history.filter(
+      (j) => j.joinedAt.getTime() > windowCutoff,
+    );
 
-    const metrics = this.calculateMetrics(recentJoins)
-    const reasons: string[] = []
-    let severity: RaidSeverity = 'low'
-    let type: RaidType = 'mass_join'
+    const metrics = this.calculateMetrics(recentJoins);
+    const reasons: string[] = [];
+    let severity: RaidSeverity = "low";
+    let type: RaidType = "mass_join";
 
     // Check join velocity
     if (metrics.joinsPerMinute >= this.config.joinVelocityCritical) {
-      severity = 'critical'
+      severity = "critical";
       reasons.push(
-        `Critical join velocity: ${metrics.joinsPerMinute.toFixed(1)}/min`
-      )
+        `Critical join velocity: ${metrics.joinsPerMinute.toFixed(1)}/min`,
+      );
     } else if (metrics.joinsPerMinute >= this.config.joinVelocityThreshold) {
-      severity = 'high'
-      reasons.push(`High join velocity: ${metrics.joinsPerMinute.toFixed(1)}/min`)
+      severity = "high";
+      reasons.push(
+        `High join velocity: ${metrics.joinsPerMinute.toFixed(1)}/min`,
+      );
     }
 
     // Check new account percentage
     if (
       metrics.newAccountPercentage >= this.config.newAccountPercentageThreshold
     ) {
-      severity = this.upgradeSeverity(severity, 'medium')
-      type = 'account_wave'
-      reasons.push(
-        `${metrics.newAccountPercentage.toFixed(0)}% new accounts`
-      )
+      severity = this.upgradeSeverity(severity, "medium");
+      type = "account_wave";
+      reasons.push(`${metrics.newAccountPercentage.toFixed(0)}% new accounts`);
     }
 
     // Check single source
     if (metrics.singleSourcePercentage >= this.config.singleSourceThreshold) {
-      severity = this.upgradeSeverity(severity, 'medium')
-      type = 'invite_abuse'
+      severity = this.upgradeSeverity(severity, "medium");
+      type = "invite_abuse";
       reasons.push(
-        `${metrics.singleSourcePercentage.toFixed(0)}% from single source`
-      )
+        `${metrics.singleSourcePercentage.toFixed(0)}% from single source`,
+      );
     }
 
     // Check similar usernames
     if (metrics.similarUsernames >= this.config.similarUsernameThreshold) {
-      severity = this.upgradeSeverity(severity, 'medium')
-      type = 'coordinated_attack'
-      reasons.push(`${metrics.similarUsernames} similar usernames detected`)
+      severity = this.upgradeSeverity(severity, "medium");
+      type = "coordinated_attack";
+      reasons.push(`${metrics.similarUsernames} similar usernames detected`);
     }
 
-    const isRaid = reasons.length > 0
+    const isRaid = reasons.length > 0;
 
-    return { isRaid, severity, type, metrics, reasons }
+    return { isRaid, severity, type, metrics, reasons };
   }
 
   /**
    * Gets active raids
    */
   getActiveRaids(workspaceId?: string): RaidEvent[] {
-    const raids: RaidEvent[] = []
+    const raids: RaidEvent[] = [];
     for (const raid of this.raidEvents.values()) {
-      if (workspaceId && raid.workspaceId !== workspaceId) continue
-      if (raid.status === 'detected' || raid.status === 'active') {
-        raids.push(raid)
+      if (workspaceId && raid.workspaceId !== workspaceId) continue;
+      if (raid.status === "detected" || raid.status === "active") {
+        raids.push(raid);
       }
     }
     return raids.sort(
-      (a, b) => b.detectedAt.getTime() - a.detectedAt.getTime()
-    )
+      (a, b) => b.detectedAt.getTime() - a.detectedAt.getTime(),
+    );
   }
 
   /**
    * Gets raid by ID
    */
   getRaid(raidId: string): RaidEvent | undefined {
-    return this.raidEvents.get(raidId)
+    return this.raidEvents.get(raidId);
   }
 
   /**
@@ -431,20 +438,20 @@ export class RaidProtection {
   updateRaidStatus(
     raidId: string,
     status: RaidStatus,
-    note?: string
+    note?: string,
   ): RaidEvent | null {
-    const raid = this.raidEvents.get(raidId)
-    if (!raid) return null
+    const raid = this.raidEvents.get(raidId);
+    if (!raid) return null;
 
-    raid.status = status
-    if (status === 'resolved' || status === 'mitigated') {
-      raid.resolvedAt = new Date()
+    raid.status = status;
+    if (status === "resolved" || status === "mitigated") {
+      raid.resolvedAt = new Date();
     }
     if (note) {
-      raid.notes.push(`[${new Date().toISOString()}] ${note}`)
+      raid.notes.push(`[${new Date().toISOString()}] ${note}`);
     }
 
-    return raid
+    return raid;
   }
 
   // ==========================================================================
@@ -459,20 +466,20 @@ export class RaidProtection {
     workspaceId: string,
     activatedBy: string,
     options: {
-      channelId?: string
-      reason?: string
-      duration?: number
-      customRestrictions?: Partial<LockdownRestrictions>
-    } = {}
+      channelId?: string;
+      reason?: string;
+      duration?: number;
+      customRestrictions?: Partial<LockdownRestrictions>;
+    } = {},
   ): LockdownState {
     const key = options.channelId
       ? `${workspaceId}:${options.channelId}`
-      : workspaceId
+      : workspaceId;
 
     const restrictions: LockdownRestrictions = {
       ...LOCKDOWN_PRESETS[level],
       ...options.customRestrictions,
-    }
+    };
 
     const lockdown: LockdownState = {
       level,
@@ -482,21 +489,21 @@ export class RaidProtection {
       activatedBy,
       reason: options.reason || `Lockdown activated: ${level}`,
       restrictions,
-    }
+    };
 
     if (options.duration) {
-      lockdown.autoLiftAt = new Date(Date.now() + options.duration)
+      lockdown.autoLiftAt = new Date(Date.now() + options.duration);
     }
 
-    this.lockdowns.set(key, lockdown)
+    this.lockdowns.set(key, lockdown);
 
     logger.info(`Lockdown activated: ${level}`, {
       workspaceId,
       channelId: options.channelId,
       activatedBy,
-    })
+    });
 
-    return lockdown
+    return lockdown;
   }
 
   /**
@@ -505,21 +512,21 @@ export class RaidProtection {
   deactivateLockdown(
     workspaceId: string,
     channelId?: string,
-    deactivatedBy?: string
+    deactivatedBy?: string,
   ): boolean {
-    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId
-    const existed = this.lockdowns.has(key)
+    const key = channelId ? `${workspaceId}:${channelId}` : workspaceId;
+    const existed = this.lockdowns.has(key);
 
     if (existed) {
-      this.lockdowns.delete(key)
-      logger.info('Lockdown deactivated', {
+      this.lockdowns.delete(key);
+      logger.info("Lockdown deactivated", {
         workspaceId,
         channelId,
         deactivatedBy,
-      })
+      });
     }
 
-    return existed
+    return existed;
   }
 
   /**
@@ -528,80 +535,86 @@ export class RaidProtection {
   getLockdown(workspaceId: string, channelId?: string): LockdownState | null {
     // Check channel-specific lockdown first
     if (channelId) {
-      const channelKey = `${workspaceId}:${channelId}`
-      const channelLockdown = this.lockdowns.get(channelKey)
-      if (channelLockdown) return channelLockdown
+      const channelKey = `${workspaceId}:${channelId}`;
+      const channelLockdown = this.lockdowns.get(channelKey);
+      if (channelLockdown) return channelLockdown;
     }
 
     // Check workspace lockdown
-    return this.lockdowns.get(workspaceId) || null
+    return this.lockdowns.get(workspaceId) || null;
   }
 
   /**
    * Checks if lockdown is active
    */
   isLockedDown(workspaceId: string, channelId?: string): boolean {
-    const lockdown = this.getLockdown(workspaceId, channelId)
-    return lockdown !== null && lockdown.level !== 'none'
+    const lockdown = this.getLockdown(workspaceId, channelId);
+    return lockdown !== null && lockdown.level !== "none";
   }
 
   /**
    * Checks if action is allowed during lockdown
    */
   isActionAllowed(
-    action: 'join' | 'message' | 'invite' | 'dm',
+    action: "join" | "message" | "invite" | "dm",
     workspaceId: string,
     userRole?: string,
-    channelId?: string
+    channelId?: string,
   ): { allowed: boolean; reason?: string } {
-    const lockdown = this.getLockdown(workspaceId, channelId)
+    const lockdown = this.getLockdown(workspaceId, channelId);
 
-    if (!lockdown || lockdown.level === 'none') {
-      return { allowed: true }
+    if (!lockdown || lockdown.level === "none") {
+      return { allowed: true };
     }
 
     // Check if role is exempt
     if (userRole && lockdown.restrictions.allowedRoles.includes(userRole)) {
-      return { allowed: true }
+      return { allowed: true };
     }
 
     switch (action) {
-      case 'join':
+      case "join":
         if (lockdown.restrictions.blockNewJoins) {
-          return { allowed: false, reason: 'New joins are blocked during lockdown' }
+          return {
+            allowed: false,
+            reason: "New joins are blocked during lockdown",
+          };
         }
-        break
-      case 'message':
+        break;
+      case "message":
         if (lockdown.restrictions.blockNewMessages) {
           return {
             allowed: false,
-            reason: 'Messages are restricted during lockdown',
-          }
+            reason: "Messages are restricted during lockdown",
+          };
         }
-        break
-      case 'invite':
+        break;
+      case "invite":
         if (lockdown.restrictions.blockInviteCreation) {
           return {
             allowed: false,
-            reason: 'Invite creation is blocked during lockdown',
-          }
+            reason: "Invite creation is blocked during lockdown",
+          };
         }
-        break
-      case 'dm':
+        break;
+      case "dm":
         if (lockdown.restrictions.blockDMs) {
-          return { allowed: false, reason: 'DMs are restricted during lockdown' }
+          return {
+            allowed: false,
+            reason: "DMs are restricted during lockdown",
+          };
         }
-        break
+        break;
     }
 
-    return { allowed: true }
+    return { allowed: true };
   }
 
   /**
    * Gets active lockdowns
    */
   getActiveLockdowns(): LockdownState[] {
-    return Array.from(this.lockdowns.values())
+    return Array.from(this.lockdowns.values());
   }
 
   // ==========================================================================
@@ -611,43 +624,45 @@ export class RaidProtection {
   /**
    * Registers an invite
    */
-  registerInvite(invite: Omit<InviteTracker, 'uses' | 'usedBy' | 'revoked'>): void {
+  registerInvite(
+    invite: Omit<InviteTracker, "uses" | "usedBy" | "revoked">,
+  ): void {
     const tracker: InviteTracker = {
       ...invite,
       uses: 0,
       usedBy: [],
       revoked: false,
-    }
-    this.invites.set(invite.code, tracker)
+    };
+    this.invites.set(invite.code, tracker);
   }
 
   /**
    * Records invite use
    */
   recordInviteUse(code: string, userId: string): InviteTracker | null {
-    const invite = this.invites.get(code)
-    if (!invite) return null
+    const invite = this.invites.get(code);
+    if (!invite) return null;
 
-    invite.uses++
-    invite.usedBy.push(userId)
+    invite.uses++;
+    invite.usedBy.push(userId);
 
-    return invite
+    return invite;
   }
 
   /**
    * Revokes an invite
    */
   revokeInvite(code: string, reason: string): boolean {
-    const invite = this.invites.get(code)
-    if (!invite) return false
+    const invite = this.invites.get(code);
+    if (!invite) return false;
 
-    invite.revoked = true
-    invite.revokedAt = new Date()
-    invite.revokedReason = reason
+    invite.revoked = true;
+    invite.revokedAt = new Date();
+    invite.revokedReason = reason;
 
-    logger.info(`Invite revoked: ${code}`, { reason })
+    logger.info(`Invite revoked: ${code}`, { reason });
 
-    return true
+    return true;
   }
 
   /**
@@ -656,48 +671,48 @@ export class RaidProtection {
   revokeAllInvites(
     workspaceId: string,
     channelId?: string,
-    reason: string = 'Bulk revocation'
+    reason: string = "Bulk revocation",
   ): number {
-    let revoked = 0
+    let revoked = 0;
 
     for (const invite of this.invites.values()) {
-      if (invite.workspaceId !== workspaceId) continue
-      if (channelId && invite.channelId !== channelId) continue
-      if (invite.revoked) continue
+      if (invite.workspaceId !== workspaceId) continue;
+      if (channelId && invite.channelId !== channelId) continue;
+      if (invite.revoked) continue;
 
-      invite.revoked = true
-      invite.revokedAt = new Date()
-      invite.revokedReason = reason
-      revoked++
+      invite.revoked = true;
+      invite.revokedAt = new Date();
+      invite.revokedReason = reason;
+      revoked++;
     }
 
-    return revoked
+    return revoked;
   }
 
   /**
    * Gets invite tracker
    */
   getInvite(code: string): InviteTracker | undefined {
-    return this.invites.get(code)
+    return this.invites.get(code);
   }
 
   /**
    * Gets active invites
    */
   getActiveInvites(workspaceId: string, channelId?: string): InviteTracker[] {
-    const invites: InviteTracker[] = []
+    const invites: InviteTracker[] = [];
 
     for (const invite of this.invites.values()) {
-      if (invite.workspaceId !== workspaceId) continue
-      if (channelId && invite.channelId !== channelId) continue
-      if (invite.revoked) continue
-      if (invite.expiresAt && invite.expiresAt.getTime() < Date.now()) continue
-      if (invite.maxUses && invite.uses >= invite.maxUses) continue
+      if (invite.workspaceId !== workspaceId) continue;
+      if (channelId && invite.channelId !== channelId) continue;
+      if (invite.revoked) continue;
+      if (invite.expiresAt && invite.expiresAt.getTime() < Date.now()) continue;
+      if (invite.maxUses && invite.uses >= invite.maxUses) continue;
 
-      invites.push(invite)
+      invites.push(invite);
     }
 
-    return invites
+    return invites;
   }
 
   /**
@@ -706,7 +721,7 @@ export class RaidProtection {
   getSuspiciousInvites(threshold: number = 20): InviteTracker[] {
     return Array.from(this.invites.values())
       .filter((i) => !i.revoked && i.uses >= threshold)
-      .sort((a, b) => b.uses - a.uses)
+      .sort((a, b) => b.uses - a.uses);
   }
 
   // ==========================================================================
@@ -718,53 +733,56 @@ export class RaidProtection {
    */
   applyMitigation(
     raidId: string,
-    mitigation: Omit<RaidMitigation, 'appliedAt'>
+    mitigation: Omit<RaidMitigation, "appliedAt">,
   ): RaidEvent | null {
-    const raid = this.raidEvents.get(raidId)
-    if (!raid) return null
+    const raid = this.raidEvents.get(raidId);
+    if (!raid) return null;
 
     raid.mitigations.push({
       ...mitigation,
       appliedAt: new Date(),
-    })
+    });
 
-    raid.status = 'active'
+    raid.status = "active";
 
     logger.info(`Mitigation applied to raid ${raidId}`, {
       type: mitigation.type,
       details: mitigation.details,
-    })
+    });
 
-    return raid
+    return raid;
   }
 
   /**
    * Bans raid participants
    */
-  banRaidParticipants(raidId: string, moderatorId: string): {
-    banned: string[]
-    failed: string[]
+  banRaidParticipants(
+    raidId: string,
+    moderatorId: string,
+  ): {
+    banned: string[];
+    failed: string[];
   } {
-    const raid = this.raidEvents.get(raidId)
-    if (!raid) return { banned: [], failed: [] }
+    const raid = this.raidEvents.get(raidId);
+    if (!raid) return { banned: [], failed: [] };
 
-    const banned: string[] = []
-    const failed: string[] = []
+    const banned: string[] = [];
+    const failed: string[] = [];
 
     // In a real implementation, this would call the moderation engine
     // For now, we just track the intent
     for (const userId of raid.participants) {
       // Would call: moderationEngine.banUser(...)
-      banned.push(userId)
+      banned.push(userId);
     }
 
     this.applyMitigation(raidId, {
-      type: 'ban_wave',
+      type: "ban_wave",
       appliedBy: moderatorId,
       details: `Banned ${banned.length} participants`,
-    })
+    });
 
-    return { banned, failed }
+    return { banned, failed };
   }
 
   // ==========================================================================
@@ -775,14 +793,14 @@ export class RaidProtection {
    * Updates configuration
    */
   updateConfig(config: Partial<RaidProtectionConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
   }
 
   /**
    * Gets configuration
    */
   getConfig(): RaidProtectionConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 
   /**
@@ -790,7 +808,7 @@ export class RaidProtection {
    */
   addTrustedInvite(code: string): void {
     if (!this.config.trustedInviteCodes.includes(code)) {
-      this.config.trustedInviteCodes.push(code)
+      this.config.trustedInviteCodes.push(code);
     }
   }
 
@@ -798,12 +816,12 @@ export class RaidProtection {
    * Removes trusted invite code
    */
   removeTrustedInvite(code: string): boolean {
-    const index = this.config.trustedInviteCodes.indexOf(code)
+    const index = this.config.trustedInviteCodes.indexOf(code);
     if (index > -1) {
-      this.config.trustedInviteCodes.splice(index, 1)
-      return true
+      this.config.trustedInviteCodes.splice(index, 1);
+      return true;
     }
-    return false
+    return false;
   }
 
   // ==========================================================================
@@ -814,21 +832,21 @@ export class RaidProtection {
    * Gets raid statistics
    */
   getStats(): {
-    totalRaids: number
-    activeRaids: number
-    mitigatedRaids: number
-    activeLockdowns: number
-    totalInvites: number
-    revokedInvites: number
-    bySeverity: Record<RaidSeverity, number>
-    byType: Record<RaidType, number>
+    totalRaids: number;
+    activeRaids: number;
+    mitigatedRaids: number;
+    activeLockdowns: number;
+    totalInvites: number;
+    revokedInvites: number;
+    bySeverity: Record<RaidSeverity, number>;
+    byType: Record<RaidType, number>;
   } {
     const bySeverity: Record<RaidSeverity, number> = {
       low: 0,
       medium: 0,
       high: 0,
       critical: 0,
-    }
+    };
 
     const byType: Record<RaidType, number> = {
       mass_join: 0,
@@ -838,26 +856,26 @@ export class RaidProtection {
       coordinated_attack: 0,
       mention_raid: 0,
       dm_spam: 0,
-    }
+    };
 
-    let activeRaids = 0
-    let mitigatedRaids = 0
+    let activeRaids = 0;
+    let mitigatedRaids = 0;
 
     for (const raid of this.raidEvents.values()) {
-      bySeverity[raid.severity]++
-      byType[raid.type]++
+      bySeverity[raid.severity]++;
+      byType[raid.type]++;
 
-      if (raid.status === 'detected' || raid.status === 'active') {
-        activeRaids++
+      if (raid.status === "detected" || raid.status === "active") {
+        activeRaids++;
       }
-      if (raid.status === 'mitigated' || raid.status === 'resolved') {
-        mitigatedRaids++
+      if (raid.status === "mitigated" || raid.status === "resolved") {
+        mitigatedRaids++;
       }
     }
 
-    let revokedInvites = 0
+    let revokedInvites = 0;
     for (const invite of this.invites.values()) {
-      if (invite.revoked) revokedInvites++
+      if (invite.revoked) revokedInvites++;
     }
 
     return {
@@ -869,7 +887,7 @@ export class RaidProtection {
       revokedInvites,
       bySeverity,
       byType,
-    }
+    };
   }
 
   // ==========================================================================
@@ -877,42 +895,43 @@ export class RaidProtection {
   // ==========================================================================
 
   private calculateMetrics(joins: JoinEvent[]): RaidMetrics {
-    const now = Date.now()
-    const windowMs = this.config.joinVelocityWindow
+    const now = Date.now();
+    const windowMs = this.config.joinVelocityWindow;
 
     // Join velocity
-    const joinsPerMinute = (joins.length / windowMs) * 60000
+    const joinsPerMinute = (joins.length / windowMs) * 60000;
 
     // Account age analysis
-    const newAccountThresholdMs = this.config.newAccountThreshold * 60 * 60 * 1000
-    let newAccounts = 0
-    let totalAge = 0
+    const newAccountThresholdMs =
+      this.config.newAccountThreshold * 60 * 60 * 1000;
+    let newAccounts = 0;
+    let totalAge = 0;
 
     for (const join of joins) {
-      const accountAge = now - join.accountCreatedAt.getTime()
-      totalAge += accountAge / (24 * 60 * 60 * 1000) // In days
+      const accountAge = now - join.accountCreatedAt.getTime();
+      totalAge += accountAge / (24 * 60 * 60 * 1000); // In days
 
       if (accountAge < newAccountThresholdMs) {
-        newAccounts++
+        newAccounts++;
       }
     }
 
     // Source analysis
-    const sourceCounts = new Map<string, number>()
+    const sourceCounts = new Map<string, number>();
     for (const join of joins) {
-      const source = join.inviteCode || join.sourceIp || 'unknown'
-      sourceCounts.set(source, (sourceCounts.get(source) || 0) + 1)
+      const source = join.inviteCode || join.sourceIp || "unknown";
+      sourceCounts.set(source, (sourceCounts.get(source) || 0) + 1);
     }
 
-    let maxSourceCount = 0
+    let maxSourceCount = 0;
     for (const count of sourceCounts.values()) {
-      maxSourceCount = Math.max(maxSourceCount, count)
+      maxSourceCount = Math.max(maxSourceCount, count);
     }
 
     // Username similarity
     const similarUsernames = this.countSimilarUsernames(
-      joins.map((j) => j.username)
-    )
+      joins.map((j) => j.username),
+    );
 
     return {
       joinsPerMinute,
@@ -923,65 +942,65 @@ export class RaidProtection {
       singleSourcePercentage:
         joins.length > 0 ? (maxSourceCount / joins.length) * 100 : 0,
       averageAccountAge: joins.length > 0 ? totalAge / joins.length : 0,
-    }
+    };
   }
 
   private countSimilarUsernames(usernames: string[]): number {
-    let similarCount = 0
-    const patterns = new Map<string, number>()
+    let similarCount = 0;
+    const patterns = new Map<string, number>();
 
     for (const username of usernames) {
       // Normalize: remove numbers, lowercase
-      const normalized = username.toLowerCase().replace(/[0-9]/g, '')
-      const count = (patterns.get(normalized) || 0) + 1
-      patterns.set(normalized, count)
+      const normalized = username.toLowerCase().replace(/[0-9]/g, "");
+      const count = (patterns.get(normalized) || 0) + 1;
+      patterns.set(normalized, count);
 
       if (count >= 3) {
-        similarCount++
+        similarCount++;
       }
     }
 
-    return similarCount
+    return similarCount;
   }
 
   private createOrUpdateRaid(
     workspaceId: string,
     channelId: string | undefined,
     analysis: {
-      severity: RaidSeverity
-      type: RaidType
-      metrics: RaidMetrics
-      reasons: string[]
+      severity: RaidSeverity;
+      type: RaidType;
+      metrics: RaidMetrics;
+      reasons: string[];
     },
-    event: JoinEvent
+    event: JoinEvent,
   ): RaidEvent {
     // Check for existing active raid
-    const existingRaid = this.findActiveRaid(workspaceId, channelId)
+    const existingRaid = this.findActiveRaid(workspaceId, channelId);
 
     if (existingRaid) {
       // Update existing raid
       if (!existingRaid.participants.includes(event.userId)) {
-        existingRaid.participants.push(event.userId)
-        existingRaid.participantCount++
+        existingRaid.participants.push(event.userId);
+        existingRaid.participantCount++;
       }
-      existingRaid.metrics = analysis.metrics
+      existingRaid.metrics = analysis.metrics;
       existingRaid.severity = this.upgradeSeverity(
         existingRaid.severity,
-        analysis.severity
-      )
+        analysis.severity,
+      );
 
-      return existingRaid
+      return existingRaid;
     }
 
     // Check alert cooldown
-    const lastAlert = this.lastAlertTime.get(workspaceId) || 0
+    const lastAlert = this.lastAlertTime.get(workspaceId) || 0;
     if (Date.now() - lastAlert < this.config.alertCooldown) {
       // Still in cooldown, return mock raid without creating new alert
       return {
-        id: 'cooldown',
+        id: "cooldown",
         type: analysis.type,
         severity: analysis.severity,
-        status: 'detected',
+        status: "detected",
         workspaceId,
         channelId,
         detectedAt: new Date(),
@@ -990,7 +1009,7 @@ export class RaidProtection {
         metrics: analysis.metrics,
         mitigations: [],
         notes: analysis.reasons,
-      }
+      };
     }
 
     // Create new raid
@@ -998,7 +1017,7 @@ export class RaidProtection {
       id: this.generateId(),
       type: analysis.type,
       severity: analysis.severity,
-      status: 'detected',
+      status: "detected",
       workspaceId,
       channelId,
       detectedAt: new Date(),
@@ -1008,128 +1027,128 @@ export class RaidProtection {
       metrics: analysis.metrics,
       mitigations: [],
       notes: analysis.reasons,
-    }
+    };
 
-    this.raidEvents.set(raid.id, raid)
-    this.lastAlertTime.set(workspaceId, Date.now())
+    this.raidEvents.set(raid.id, raid);
+    this.lastAlertTime.set(workspaceId, Date.now());
 
     logger.warn(`Raid detected: ${raid.type}`, {
       raidId: raid.id,
       severity: raid.severity,
       workspaceId,
-    })
+    });
 
-    return raid
+    return raid;
   }
 
   private findActiveRaid(
     workspaceId: string,
-    channelId?: string
+    channelId?: string,
   ): RaidEvent | undefined {
     for (const raid of this.raidEvents.values()) {
-      if (raid.workspaceId !== workspaceId) continue
-      if (channelId && raid.channelId !== channelId) continue
-      if (raid.status === 'detected' || raid.status === 'active') {
-        return raid
+      if (raid.workspaceId !== workspaceId) continue;
+      if (channelId && raid.channelId !== channelId) continue;
+      if (raid.status === "detected" || raid.status === "active") {
+        return raid;
       }
     }
-    return undefined
+    return undefined;
   }
 
   private shouldAutoMitigate(raid: RaidEvent): boolean {
-    if (!this.config.autoLockdownEnabled) return false
+    if (!this.config.autoLockdownEnabled) return false;
 
-    const severityOrder: RaidSeverity[] = ['low', 'medium', 'high', 'critical']
+    const severityOrder: RaidSeverity[] = ["low", "medium", "high", "critical"];
     const thresholdIndex = severityOrder.indexOf(
-      this.config.autoLockdownThreshold
-    )
-    const raidIndex = severityOrder.indexOf(raid.severity)
+      this.config.autoLockdownThreshold,
+    );
+    const raidIndex = severityOrder.indexOf(raid.severity);
 
-    return raidIndex >= thresholdIndex
+    return raidIndex >= thresholdIndex;
   }
 
   private applyAutoMitigation(raid: RaidEvent): void {
-    const { workspaceId, channelId, severity } = raid
+    const { workspaceId, channelId, severity } = raid;
 
     // Determine lockdown level based on severity
-    let lockdownLevel: LockdownLevel = 'partial'
-    if (severity === 'critical') {
-      lockdownLevel = 'emergency'
-    } else if (severity === 'high') {
-      lockdownLevel = 'full'
+    let lockdownLevel: LockdownLevel = "partial";
+    if (severity === "critical") {
+      lockdownLevel = "emergency";
+    } else if (severity === "high") {
+      lockdownLevel = "full";
     }
 
     // Activate lockdown
-    this.activateLockdown(lockdownLevel, workspaceId, 'system', {
+    this.activateLockdown(lockdownLevel, workspaceId, "system", {
       channelId,
       reason: `Auto-lockdown due to ${raid.type} raid`,
       duration: this.config.autoLockdownDuration,
-    })
+    });
 
     // Revoke invites if invite abuse
-    if (raid.type === 'invite_abuse' && raid.inviteLinkUsed) {
-      this.revokeInvite(raid.inviteLinkUsed, 'Suspected raid invite')
+    if (raid.type === "invite_abuse" && raid.inviteLinkUsed) {
+      this.revokeInvite(raid.inviteLinkUsed, "Suspected raid invite");
     }
 
     // Record mitigation
     this.applyMitigation(raid.id, {
-      type: 'lockdown',
-      appliedBy: 'system',
+      type: "lockdown",
+      appliedBy: "system",
       details: `Auto-applied ${lockdownLevel} lockdown`,
-    })
+    });
   }
 
   private upgradeSeverity(
     current: RaidSeverity,
-    candidate: RaidSeverity
+    candidate: RaidSeverity,
   ): RaidSeverity {
-    const order: RaidSeverity[] = ['low', 'medium', 'high', 'critical']
-    const currentIndex = order.indexOf(current)
-    const candidateIndex = order.indexOf(candidate)
-    return candidateIndex > currentIndex ? candidate : current
+    const order: RaidSeverity[] = ["low", "medium", "high", "critical"];
+    const currentIndex = order.indexOf(current);
+    const candidateIndex = order.indexOf(candidate);
+    return candidateIndex > currentIndex ? candidate : current;
   }
 
   private cleanJoinHistory(key: string): void {
-    const history = this.joinHistory.get(key)
-    if (!history) return
+    const history = this.joinHistory.get(key);
+    if (!history) return;
 
-    const cutoff = Date.now() - this.config.joinVelocityWindow * 10 // Keep 10x window
-    const filtered = history.filter((j) => j.joinedAt.getTime() > cutoff)
+    const cutoff = Date.now() - this.config.joinVelocityWindow * 10; // Keep 10x window
+    const filtered = history.filter((j) => j.joinedAt.getTime() > cutoff);
 
     if (filtered.length !== history.length) {
-      this.joinHistory.set(key, filtered)
+      this.joinHistory.set(key, filtered);
     }
   }
 
   private startCleanup(): void {
     this.cleanupInterval = setInterval(
       () => this.cleanup(),
-      5 * 60 * 1000 // Every 5 minutes
-    )
+      5 * 60 * 1000, // Every 5 minutes
+    );
   }
 
   private cleanup(): void {
-    const now = Date.now()
+    const now = Date.now();
 
     // Clean up expired lockdowns
     for (const [key, lockdown] of this.lockdowns) {
       if (lockdown.autoLiftAt && lockdown.autoLiftAt.getTime() < now) {
-        this.lockdowns.delete(key)
-        logger.info('Lockdown auto-lifted', {
+        this.lockdowns.delete(key);
+        logger.info("Lockdown auto-lifted", {
           workspaceId: lockdown.workspaceId,
           channelId: lockdown.channelId,
-        })
+        });
       }
     }
 
     // Clean up old join history
     for (const key of this.joinHistory.keys()) {
-      this.cleanJoinHistory(key)
+      this.cleanJoinHistory(key);
     }
   }
 
   private generateId(): string {
-    return `raid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    return `raid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   // ==========================================================================
@@ -1141,8 +1160,8 @@ export class RaidProtection {
    */
   destroy(): void {
     if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval)
-      this.cleanupInterval = null
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
     }
   }
 
@@ -1150,11 +1169,11 @@ export class RaidProtection {
    * Clears all data
    */
   clear(): void {
-    this.joinHistory.clear()
-    this.raidEvents.clear()
-    this.lockdowns.clear()
-    this.invites.clear()
-    this.lastAlertTime.clear()
+    this.joinHistory.clear();
+    this.raidEvents.clear();
+    this.lockdowns.clear();
+    this.invites.clear();
+    this.lastAlertTime.clear();
   }
 }
 
@@ -1162,19 +1181,19 @@ export class RaidProtection {
 // Factory and Singleton
 // ============================================================================
 
-let protectionInstance: RaidProtection | null = null
+let protectionInstance: RaidProtection | null = null;
 
 export function getRaidProtection(
-  config?: Partial<RaidProtectionConfig>
+  config?: Partial<RaidProtectionConfig>,
 ): RaidProtection {
   if (!protectionInstance || config) {
-    protectionInstance = new RaidProtection(config)
+    protectionInstance = new RaidProtection(config);
   }
-  return protectionInstance
+  return protectionInstance;
 }
 
 export function createRaidProtection(
-  config?: Partial<RaidProtectionConfig>
+  config?: Partial<RaidProtectionConfig>,
 ): RaidProtection {
-  return new RaidProtection(config)
+  return new RaidProtection(config);
 }

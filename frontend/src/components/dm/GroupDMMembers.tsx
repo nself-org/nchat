@@ -1,33 +1,40 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { MoreVertical, Crown, Shield, UserMinus, MessageSquare, User } from 'lucide-react'
-import type { DirectMessage, DMParticipant } from '@/lib/dm/dm-types'
-import { canRemoveFromGroup, canChangeRole } from '@/lib/dm'
-import { useDMStore } from '@/stores/dm-store'
+} from "@/components/ui/dropdown-menu";
+import {
+  MoreVertical,
+  Crown,
+  Shield,
+  UserMinus,
+  MessageSquare,
+  User,
+} from "lucide-react";
+import type { DirectMessage, DMParticipant } from "@/lib/dm/dm-types";
+import { canRemoveFromGroup, canChangeRole } from "@/lib/dm";
+import { useDMStore } from "@/stores/dm-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface GroupDMMembersProps {
-  dm: DirectMessage
-  currentUserId: string
-  onMemberClick?: (participant: DMParticipant) => void
-  onStartDM?: (userId: string) => void
-  className?: string
+  dm: DirectMessage;
+  currentUserId: string;
+  onMemberClick?: (participant: DMParticipant) => void;
+  onStartDM?: (userId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -41,30 +48,32 @@ export function GroupDMMembers({
   onStartDM,
   className,
 }: GroupDMMembersProps) {
-  const { removeParticipant, updateParticipant } = useDMStore()
+  const { removeParticipant, updateParticipant } = useDMStore();
 
   // Sort participants: owner first, then admins, then members
   const sortedParticipants = [...dm.participants].sort((a, b) => {
-    const roleOrder = { owner: 0, admin: 1, member: 2 }
-    return roleOrder[a.role] - roleOrder[b.role]
-  })
+    const roleOrder = { owner: 0, admin: 1, member: 2 };
+    return roleOrder[a.role] - roleOrder[b.role];
+  });
 
   const handleRemoveMember = (userId: string) => {
-    removeParticipant(dm.id, userId)
-  }
+    removeParticipant(dm.id, userId);
+  };
 
   const handlePromoteToAdmin = (userId: string) => {
-    updateParticipant(dm.id, userId, { role: 'admin' })
-  }
+    updateParticipant(dm.id, userId, { role: "admin" });
+  };
 
   const handleDemoteToMember = (userId: string) => {
-    updateParticipant(dm.id, userId, { role: 'member' })
-  }
+    updateParticipant(dm.id, userId, { role: "member" });
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-sm font-semibold">Members ({dm.participantCount})</h3>
+        <h3 className="text-sm font-semibold">
+          Members ({dm.participantCount})
+        </h3>
       </div>
 
       <ScrollArea className="h-[400px]">
@@ -85,7 +94,7 @@ export function GroupDMMembers({
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -93,14 +102,14 @@ export function GroupDMMembers({
 // ============================================================================
 
 interface MemberItemProps {
-  participant: DMParticipant
-  dm: DirectMessage
-  currentUserId: string
-  onMemberClick?: (participant: DMParticipant) => void
-  onStartDM?: (userId: string) => void
-  onRemove: () => void
-  onPromote: () => void
-  onDemote: () => void
+  participant: DMParticipant;
+  dm: DirectMessage;
+  currentUserId: string;
+  onMemberClick?: (participant: DMParticipant) => void;
+  onStartDM?: (userId: string) => void;
+  onRemove: () => void;
+  onPromote: () => void;
+  onDemote: () => void;
 }
 
 function MemberItem({
@@ -113,42 +122,57 @@ function MemberItem({
   onPromote,
   onDemote,
 }: MemberItemProps) {
-  const { user } = participant
-  const isCurrentUser = participant.userId === currentUserId
-  const canRemove = canRemoveFromGroup(dm, currentUserId, participant.userId)
-  const canPromote = canChangeRole(dm, currentUserId, participant.userId, 'admin')
-  const canDemote = canChangeRole(dm, currentUserId, participant.userId, 'member')
+  const { user } = participant;
+  const isCurrentUser = participant.userId === currentUserId;
+  const canRemove = canRemoveFromGroup(dm, currentUserId, participant.userId);
+  const canPromote = canChangeRole(
+    dm,
+    currentUserId,
+    participant.userId,
+    "admin",
+  );
+  const canDemote = canChangeRole(
+    dm,
+    currentUserId,
+    participant.userId,
+    "member",
+  );
 
   const statusColor = {
-    online: 'bg-green-500',
-    away: 'bg-yellow-500',
-    busy: 'bg-red-500',
-    offline: 'bg-gray-400',
-  }[user.status]
+    online: "bg-green-500",
+    away: "bg-yellow-500",
+    busy: "bg-red-500",
+    offline: "bg-gray-400",
+  }[user.status];
 
   const roleIcon = {
     owner: <Crown className="h-3.5 w-3.5 text-yellow-500" />,
     admin: <Shield className="h-3.5 w-3.5 text-blue-500" />,
     member: null,
-  }[participant.role]
+  }[participant.role];
 
   const roleBadge = {
-    owner: 'Owner',
-    admin: 'Admin',
+    owner: "Owner",
+    admin: "Admin",
     member: null,
-  }[participant.role]
+  }[participant.role];
 
   return (
     <div className="group flex items-center gap-3 rounded-md px-2 py-2 hover:bg-accent">
-      <button className="relative flex-shrink-0" onClick={() => onMemberClick?.(participant)}>
+      <button
+        className="relative flex-shrink-0"
+        onClick={() => onMemberClick?.(participant)}
+      >
         <Avatar className="h-10 w-10">
           <AvatarImage src={user.avatarUrl || undefined} />
-          <AvatarFallback>{user.displayName.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {user.displayName.charAt(0).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <span
           className={cn(
-            'absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background',
-            statusColor
+            "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background",
+            statusColor,
           )}
         />
       </button>
@@ -160,7 +184,9 @@ function MemberItem({
             onClick={() => onMemberClick?.(participant)}
           >
             {user.displayName}
-            {isCurrentUser && <span className="ml-1 text-muted-foreground">(you)</span>}
+            {isCurrentUser && (
+              <span className="ml-1 text-muted-foreground">(you)</span>
+            )}
           </button>
           {roleIcon}
           {roleBadge && (
@@ -169,7 +195,9 @@ function MemberItem({
             </Badge>
           )}
         </div>
-        <p className="truncate text-xs text-muted-foreground">@{user.username}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          @{user.username}
+        </p>
       </div>
 
       {/* Actions */}
@@ -200,13 +228,13 @@ function MemberItem({
             {(canPromote.allowed || canDemote.allowed) && (
               <>
                 <DropdownMenuSeparator />
-                {participant.role === 'member' && canPromote.allowed && (
+                {participant.role === "member" && canPromote.allowed && (
                   <DropdownMenuItem onClick={onPromote}>
                     <Shield className="mr-2 h-4 w-4" />
                     Make admin
                   </DropdownMenuItem>
                 )}
-                {participant.role === 'admin' && canDemote.allowed && (
+                {participant.role === "admin" && canDemote.allowed && (
                   <DropdownMenuItem onClick={onDemote}>
                     <Shield className="mr-2 h-4 w-4" />
                     Remove admin
@@ -231,7 +259,7 @@ function MemberItem({
         </DropdownMenu>
       )}
     </div>
-  )
+  );
 }
 
-GroupDMMembers.displayName = 'GroupDMMembers'
+GroupDMMembers.displayName = "GroupDMMembers";

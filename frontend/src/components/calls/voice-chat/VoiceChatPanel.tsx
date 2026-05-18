@@ -5,21 +5,21 @@
  * controls, and voice chat status.
  */
 
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { useState, useMemo } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
 import {
   Mic,
   MicOff,
@@ -37,40 +37,40 @@ import {
   Share2,
   Calendar,
   Clock,
-} from 'lucide-react'
+} from "lucide-react";
 import type {
   VoiceChat,
   VoiceChatParticipant,
   VoiceChatRole,
-} from '@/types/voice-chat'
+} from "@/types/voice-chat";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface VoiceChatPanelProps {
-  voiceChat: VoiceChat
-  participants: VoiceChatParticipant[]
-  currentUserId: string
-  currentUserRole: VoiceChatRole
-  isMuted: boolean
-  isHandRaised: boolean
-  activeSpeakerId: string | null
-  pendingHandCount: number
-  isRecording: boolean
-  recordingDuration: number
-  onToggleMute: () => void
-  onRaiseHand: () => void
-  onLowerHand: () => void
-  onLeave: () => void
-  onEnd: () => void
-  onInviteToSpeak: (userId: string) => void
-  onMoveToListeners: (userId: string) => void
-  onMuteParticipant: (userId: string) => void
-  onRemoveParticipant: (userId: string) => void
-  onOpenSettings: () => void
-  onShareInviteLink: () => void
-  className?: string
+  voiceChat: VoiceChat;
+  participants: VoiceChatParticipant[];
+  currentUserId: string;
+  currentUserRole: VoiceChatRole;
+  isMuted: boolean;
+  isHandRaised: boolean;
+  activeSpeakerId: string | null;
+  pendingHandCount: number;
+  isRecording: boolean;
+  recordingDuration: number;
+  onToggleMute: () => void;
+  onRaiseHand: () => void;
+  onLowerHand: () => void;
+  onLeave: () => void;
+  onEnd: () => void;
+  onInviteToSpeak: (userId: string) => void;
+  onMoveToListeners: (userId: string) => void;
+  onMuteParticipant: (userId: string) => void;
+  onRemoveParticipant: (userId: string) => void;
+  onOpenSettings: () => void;
+  onShareInviteLink: () => void;
+  className?: string;
 }
 
 // =============================================================================
@@ -79,12 +79,12 @@ interface VoiceChatPanelProps {
 
 function RoleIcon({ role }: { role: VoiceChatRole }) {
   switch (role) {
-    case 'creator':
-      return <Crown className="h-3.5 w-3.5 text-amber-500" />
-    case 'admin':
-      return <Shield className="h-3.5 w-3.5 text-blue-500" />
+    case "creator":
+      return <Crown className="h-3.5 w-3.5 text-amber-500" />;
+    case "admin":
+      return <Shield className="h-3.5 w-3.5 text-blue-500" />;
     default:
-      return null
+      return null;
   }
 }
 
@@ -98,31 +98,32 @@ function ParticipantItem({
   onMuteParticipant,
   onRemoveParticipant,
 }: {
-  participant: VoiceChatParticipant
-  isCurrentUser: boolean
-  canManage: boolean
-  isActiveSpeaker: boolean
-  onInviteToSpeak: () => void
-  onMoveToListeners: () => void
-  onMuteParticipant: () => void
-  onRemoveParticipant: () => void
+  participant: VoiceChatParticipant;
+  isCurrentUser: boolean;
+  canManage: boolean;
+  isActiveSpeaker: boolean;
+  onInviteToSpeak: () => void;
+  onMoveToListeners: () => void;
+  onMuteParticipant: () => void;
+  onRemoveParticipant: () => void;
 }) {
-  const [showMenu, setShowMenu] = useState(false)
+  const [showMenu, setShowMenu] = useState(false);
 
-  const isSpeaker = participant.role !== 'listener'
-  const initials = participant.user.displayName
-    ?.split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) || '?'
+  const isSpeaker = participant.role !== "listener";
+  const initials =
+    participant.user.displayName
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "?";
 
   return (
     <div
       className={cn(
-        'flex items-center gap-3 p-2 rounded-lg transition-colors',
-        isActiveSpeaker && 'bg-primary/10 ring-2 ring-primary/30',
-        !isActiveSpeaker && 'hover:bg-muted/50'
+        "flex items-center gap-3 p-2 rounded-lg transition-colors",
+        isActiveSpeaker && "bg-primary/10 ring-2 ring-primary/30",
+        !isActiveSpeaker && "hover:bg-muted/50",
       )}
     >
       <div className="relative">
@@ -144,7 +145,7 @@ function ParticipantItem({
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-sm truncate">
             {participant.user.displayName}
-            {isCurrentUser && ' (you)'}
+            {isCurrentUser && " (you)"}
           </span>
           <RoleIcon role={participant.role} />
         </div>
@@ -162,13 +163,15 @@ function ParticipantItem({
         ) : (
           <Mic
             className={cn(
-              'h-4 w-4',
-              participant.isSpeaking ? 'text-green-500' : 'text-muted-foreground'
+              "h-4 w-4",
+              participant.isSpeaking
+                ? "text-green-500"
+                : "text-muted-foreground",
             )}
           />
         )}
 
-        {canManage && !isCurrentUser && participant.role !== 'creator' && (
+        {canManage && !isCurrentUser && participant.role !== "creator" && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -193,19 +196,19 @@ function ParticipantItem({
             <button
               className="w-full text-left px-3 py-2 text-sm hover:bg-muted rounded"
               onClick={() => {
-                onInviteToSpeak()
-                setShowMenu(false)
+                onInviteToSpeak();
+                setShowMenu(false);
               }}
             >
               Invite to speak
             </button>
           )}
-          {isSpeaker && participant.role !== 'creator' && (
+          {isSpeaker && participant.role !== "creator" && (
             <button
               className="w-full text-left px-3 py-2 text-sm hover:bg-muted rounded"
               onClick={() => {
-                onMoveToListeners()
-                setShowMenu(false)
+                onMoveToListeners();
+                setShowMenu(false);
               }}
             >
               Move to listeners
@@ -214,18 +217,18 @@ function ParticipantItem({
           <button
             className="w-full text-left px-3 py-2 text-sm hover:bg-muted rounded"
             onClick={() => {
-              onMuteParticipant()
-              setShowMenu(false)
+              onMuteParticipant();
+              setShowMenu(false);
             }}
           >
-            {participant.isMuted ? 'Request unmute' : 'Mute'}
+            {participant.isMuted ? "Request unmute" : "Mute"}
           </button>
           <Separator className="my-1" />
           <button
             className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded"
             onClick={() => {
-              onRemoveParticipant()
-              setShowMenu(false)
+              onRemoveParticipant();
+              setShowMenu(false);
             }}
           >
             Remove
@@ -233,7 +236,7 @@ function ParticipantItem({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -264,32 +267,32 @@ export function VoiceChatPanel({
   onShareInviteLink,
   className,
 }: VoiceChatPanelProps) {
-  const isCreator = currentUserRole === 'creator'
-  const isAdmin = currentUserRole === 'admin' || isCreator
-  const canSpeak = currentUserRole !== 'listener'
+  const isCreator = currentUserRole === "creator";
+  const isAdmin = currentUserRole === "admin" || isCreator;
+  const canSpeak = currentUserRole !== "listener";
 
   const speakers = useMemo(
-    () => participants.filter((p) => p.role !== 'listener'),
-    [participants]
-  )
+    () => participants.filter((p) => p.role !== "listener"),
+    [participants],
+  );
 
   const listeners = useMemo(
-    () => participants.filter((p) => p.role === 'listener'),
-    [participants]
-  )
+    () => participants.filter((p) => p.role === "listener"),
+    [participants],
+  );
 
   const formatDuration = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600)
-    const mins = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
     if (hrs > 0) {
-      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   return (
-    <div className={cn('flex flex-col h-full bg-background', className)}>
+    <div className={cn("flex flex-col h-full bg-background", className)}>
       {/* Header */}
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
@@ -306,7 +309,7 @@ export function VoiceChatPanel({
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Users className="h-3 w-3" />
                 <span>{participants.length} participants</span>
-                {voiceChat.status === 'live' && (
+                {voiceChat.status === "live" && (
                   <>
                     <Circle className="h-1.5 w-1.5 fill-green-500 text-green-500" />
                     <span className="text-green-600">Live</span>
@@ -341,7 +344,11 @@ export function VoiceChatPanel({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={onOpenSettings}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={onOpenSettings}
+                    >
                       <Settings className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -356,7 +363,8 @@ export function VoiceChatPanel({
           <div className="mt-2 flex items-center gap-2 p-2 bg-amber-500/10 rounded-lg">
             <Hand className="h-4 w-4 text-amber-600" />
             <span className="text-sm text-amber-700">
-              {pendingHandCount} {pendingHandCount === 1 ? 'person wants' : 'people want'} to speak
+              {pendingHandCount}{" "}
+              {pendingHandCount === 1 ? "person wants" : "people want"} to speak
             </span>
           </div>
         )}
@@ -384,9 +392,15 @@ export function VoiceChatPanel({
                   canManage={isAdmin}
                   isActiveSpeaker={participant.userId === activeSpeakerId}
                   onInviteToSpeak={() => onInviteToSpeak(participant.userId)}
-                  onMoveToListeners={() => onMoveToListeners(participant.userId)}
-                  onMuteParticipant={() => onMuteParticipant(participant.userId)}
-                  onRemoveParticipant={() => onRemoveParticipant(participant.userId)}
+                  onMoveToListeners={() =>
+                    onMoveToListeners(participant.userId)
+                  }
+                  onMuteParticipant={() =>
+                    onMuteParticipant(participant.userId)
+                  }
+                  onRemoveParticipant={() =>
+                    onRemoveParticipant(participant.userId)
+                  }
                 />
               ))}
             </div>
@@ -412,9 +426,15 @@ export function VoiceChatPanel({
                     canManage={isAdmin}
                     isActiveSpeaker={false}
                     onInviteToSpeak={() => onInviteToSpeak(participant.userId)}
-                    onMoveToListeners={() => onMoveToListeners(participant.userId)}
-                    onMuteParticipant={() => onMuteParticipant(participant.userId)}
-                    onRemoveParticipant={() => onRemoveParticipant(participant.userId)}
+                    onMoveToListeners={() =>
+                      onMoveToListeners(participant.userId)
+                    }
+                    onMuteParticipant={() =>
+                      onMuteParticipant(participant.userId)
+                    }
+                    onRemoveParticipant={() =>
+                      onRemoveParticipant(participant.userId)
+                    }
                   />
                 ))}
               </div>
@@ -432,11 +452,11 @@ export function VoiceChatPanel({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isMuted ? 'secondary' : 'default'}
+                    variant={isMuted ? "secondary" : "default"}
                     size="lg"
                     className={cn(
-                      'rounded-full w-14 h-14',
-                      !isMuted && 'bg-green-600 hover:bg-green-700'
+                      "rounded-full w-14 h-14",
+                      !isMuted && "bg-green-600 hover:bg-green-700",
                     )}
                     onClick={onToggleMute}
                   >
@@ -447,9 +467,7 @@ export function VoiceChatPanel({
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  {isMuted ? 'Unmute' : 'Mute'}
-                </TooltipContent>
+                <TooltipContent>{isMuted ? "Unmute" : "Mute"}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
@@ -460,11 +478,11 @@ export function VoiceChatPanel({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isHandRaised ? 'default' : 'secondary'}
+                    variant={isHandRaised ? "default" : "secondary"}
                     size="lg"
                     className={cn(
-                      'rounded-full w-14 h-14',
-                      isHandRaised && 'bg-amber-500 hover:bg-amber-600'
+                      "rounded-full w-14 h-14",
+                      isHandRaised && "bg-amber-500 hover:bg-amber-600",
                     )}
                     onClick={isHandRaised ? onLowerHand : onRaiseHand}
                   >
@@ -472,7 +490,7 @@ export function VoiceChatPanel({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {isHandRaised ? 'Lower hand' : 'Raise hand to speak'}
+                  {isHandRaised ? "Lower hand" : "Raise hand to speak"}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -492,14 +510,14 @@ export function VoiceChatPanel({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {isCreator ? 'End voice chat' : 'Leave'}
+                {isCreator ? "End voice chat" : "Leave"}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default VoiceChatPanel
+export default VoiceChatPanel;

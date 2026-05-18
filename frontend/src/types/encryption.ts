@@ -13,55 +13,55 @@
  * Identity key pair for long-term user identity
  */
 export interface IdentityKeyPair {
-  publicKey: Uint8Array
-  privateKey: Uint8Array
+  publicKey: Uint8Array;
+  privateKey: Uint8Array;
 }
 
 /**
  * Signed prekey for X3DH key agreement
  */
 export interface SignedPreKey {
-  keyId: number
-  publicKey: Uint8Array
-  privateKey: Uint8Array
-  signature: Uint8Array
-  timestamp: number
+  keyId: number;
+  publicKey: Uint8Array;
+  privateKey: Uint8Array;
+  signature: Uint8Array;
+  timestamp: number;
 }
 
 /**
  * One-time prekey for X3DH forward secrecy
  */
 export interface OneTimePreKey {
-  keyId: number
-  publicKey: Uint8Array
-  privateKey: Uint8Array
+  keyId: number;
+  publicKey: Uint8Array;
+  privateKey: Uint8Array;
 }
 
 /**
  * Public prekey bundle for initiating session
  */
 export interface PreKeyBundle {
-  identityKey: Uint8Array
-  registrationId: number
+  identityKey: Uint8Array;
+  registrationId: number;
   signedPreKey: {
-    keyId: number
-    publicKey: Uint8Array
-    signature: Uint8Array
-  }
+    keyId: number;
+    publicKey: Uint8Array;
+    signature: Uint8Array;
+  };
   oneTimePreKey?: {
-    keyId: number
-    publicKey: Uint8Array
-  }
+    keyId: number;
+    publicKey: Uint8Array;
+  };
 }
 
 /**
  * Local prekey bundle (includes private keys)
  */
 export interface LocalPreKeyBundle {
-  identityKeyPair: IdentityKeyPair
-  registrationId: number
-  signedPreKey: SignedPreKey
-  oneTimePreKeys: OneTimePreKey[]
+  identityKeyPair: IdentityKeyPair;
+  registrationId: number;
+  signedPreKey: SignedPreKey;
+  oneTimePreKeys: OneTimePreKey[];
 }
 
 // ============================================================================
@@ -73,46 +73,46 @@ export interface LocalPreKeyBundle {
  */
 export interface SessionState {
   /** Remote identity key */
-  remoteIdentityKey: Uint8Array
+  remoteIdentityKey: Uint8Array;
   /** Current root key */
-  rootKey: Uint8Array
+  rootKey: Uint8Array;
   /** Sending chain key */
-  sendingChainKey: Uint8Array | null
+  sendingChainKey: Uint8Array | null;
   /** Receiving chain key */
-  receivingChainKey: Uint8Array | null
+  receivingChainKey: Uint8Array | null;
   /** Sending ratchet private key */
-  sendingRatchetKey: Uint8Array | null
+  sendingRatchetKey: Uint8Array | null;
   /** Receiving ratchet public key */
-  receivingRatchetKey: Uint8Array | null
+  receivingRatchetKey: Uint8Array | null;
   /** Number of messages sent in current sending chain */
-  sendingMessageNumber: number
+  sendingMessageNumber: number;
   /** Number of messages received in current receiving chain */
-  receivingMessageNumber: number
+  receivingMessageNumber: number;
   /** Length of previous sending chain */
-  previousChainLength: number
+  previousChainLength: number;
   /** Skipped message keys for out-of-order delivery */
   skippedMessageKeys: Array<{
-    ratchetKey: string // hex-encoded public key
-    messageNumber: number
-    messageKey: Uint8Array
-  }>
+    ratchetKey: string; // hex-encoded public key
+    messageNumber: number;
+    messageKey: Uint8Array;
+  }>;
   /** Session creation timestamp */
-  createdAt: number
+  createdAt: number;
   /** Last activity timestamp */
-  lastActivityAt: number
+  lastActivityAt: number;
 }
 
 /**
  * Session record stored in database
  */
 export interface SessionRecord {
-  id: string
-  userId: string
-  peerId: string
-  sessionState: SessionState
-  version: number
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  userId: string;
+  peerId: string;
+  sessionState: SessionState;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ============================================================================
@@ -124,21 +124,21 @@ export interface SessionRecord {
  */
 export interface EncryptedMessage {
   /** Message type: prekey (initial) or message (subsequent) */
-  type: 'prekey' | 'message'
+  type: "prekey" | "message";
   /** Sender's registration ID */
-  registrationId: number
+  registrationId: number;
   /** PreKey ID used (only for prekey messages) */
-  preKeyId?: number
+  preKeyId?: number;
   /** Signed PreKey ID used */
-  signedPreKeyId: number
+  signedPreKeyId: number;
   /** Ephemeral base key (only for prekey messages) */
-  baseKey?: Uint8Array
+  baseKey?: Uint8Array;
   /** Message header */
-  header: MessageHeader
+  header: MessageHeader;
   /** Encrypted ciphertext */
-  ciphertext: Uint8Array
+  ciphertext: Uint8Array;
   /** Message timestamp */
-  timestamp: number
+  timestamp: number;
 }
 
 /**
@@ -146,11 +146,11 @@ export interface EncryptedMessage {
  */
 export interface MessageHeader {
   /** Current ratchet public key */
-  ratchetKey: Uint8Array
+  ratchetKey: Uint8Array;
   /** Message number in current chain */
-  messageNumber: number
+  messageNumber: number;
   /** Previous chain length */
-  previousChainLength: number
+  previousChainLength: number;
 }
 
 /**
@@ -158,13 +158,13 @@ export interface MessageHeader {
  */
 export interface DecryptedMessage {
   /** Plaintext content */
-  plaintext: string
+  plaintext: string;
   /** Message timestamp */
-  timestamp: number
+  timestamp: number;
   /** Whether signature was verified */
-  verified: boolean
+  verified: boolean;
   /** Attachments if any */
-  attachments?: DecryptedAttachment[]
+  attachments?: DecryptedAttachment[];
 }
 
 /**
@@ -172,30 +172,30 @@ export interface DecryptedMessage {
  */
 export interface EncryptedAttachment {
   /** Unique attachment ID */
-  id: string
+  id: string;
   /** Encrypted data */
-  ciphertext: Uint8Array
+  ciphertext: Uint8Array;
   /** Encryption key (encrypted with message key) */
-  key: Uint8Array
+  key: Uint8Array;
   /** HMAC for verification */
-  hmac: Uint8Array
+  hmac: Uint8Array;
   /** Original filename */
-  filename: string
+  filename: string;
   /** MIME type */
-  mimeType: string
+  mimeType: string;
   /** Original size */
-  size: number
+  size: number;
 }
 
 /**
  * Decrypted attachment
  */
 export interface DecryptedAttachment {
-  id: string
-  data: Uint8Array
-  filename: string
-  mimeType: string
-  size: number
+  id: string;
+  data: Uint8Array;
+  filename: string;
+  mimeType: string;
+  size: number;
 }
 
 // ============================================================================
@@ -207,22 +207,22 @@ export interface DecryptedAttachment {
  */
 export interface SafetyNumber {
   /** 60-digit numeric string */
-  displayString: string
+  displayString: string;
   /** Data for QR code */
-  qrCodeData: Uint8Array
+  qrCodeData: Uint8Array;
   /** Fingerprint bytes */
-  fingerprint: Uint8Array
+  fingerprint: Uint8Array;
 }
 
 /**
  * Verification state for a contact
  */
 export interface VerificationState {
-  peerId: string
-  isVerified: boolean
-  verifiedAt?: Date
-  safetyNumber: SafetyNumber
-  verificationMethod?: 'qr' | 'numeric' | 'in-person'
+  peerId: string;
+  isVerified: boolean;
+  verifiedAt?: Date;
+  safetyNumber: SafetyNumber;
+  verificationMethod?: "qr" | "numeric" | "in-person";
 }
 
 // ============================================================================
@@ -233,17 +233,17 @@ export interface VerificationState {
  * Key change event
  */
 export interface KeyChangeEvent {
-  userId: string
-  oldKeyFingerprint: string
-  newKeyFingerprint: string
-  timestamp: Date
-  deviceId?: string
+  userId: string;
+  oldKeyFingerprint: string;
+  newKeyFingerprint: string;
+  timestamp: Date;
+  deviceId?: string;
 }
 
 /**
  * Key change response action
  */
-export type KeyChangeAction = 'accept' | 'block' | 'pending'
+export type KeyChangeAction = "accept" | "block" | "pending";
 
 // ============================================================================
 // Secret Chat Types
@@ -253,53 +253,53 @@ export type KeyChangeAction = 'accept' | 'block' | 'pending'
  * Secret chat (E2E encrypted direct message)
  */
 export interface SecretChat {
-  id: string
-  participants: [string, string]
-  isEncrypted: true
+  id: string;
+  participants: [string, string];
+  isEncrypted: true;
   /** Disappearing message timer in seconds (0 = off) */
-  disappearingMessageTimer: number
+  disappearingMessageTimer: number;
   /** Secret chat creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last message timestamp */
-  lastMessageAt?: Date
+  lastMessageAt?: Date;
   /** Chat status */
-  status: 'pending' | 'active' | 'ended'
+  status: "pending" | "active" | "ended";
   /** Initiator user ID */
-  initiatorId: string
+  initiatorId: string;
   /** Layer (protocol version) */
-  layer: number
+  layer: number;
 }
 
 /**
  * Disappearing message state
  */
 export interface DisappearingMessage {
-  messageId: string
-  chatId: string
+  messageId: string;
+  chatId: string;
   /** Timestamp when message should be deleted */
-  expiresAt: Date
+  expiresAt: Date;
   /** Timer duration in seconds */
-  timerDuration: number
+  timerDuration: number;
   /** Whether timer started (message was read) */
-  timerStarted: boolean
+  timerStarted: boolean;
   /** When timer started */
-  timerStartedAt?: Date
+  timerStartedAt?: Date;
 }
 
 /**
  * View-once message state
  */
 export interface ViewOnceMessage {
-  messageId: string
-  chatId: string
+  messageId: string;
+  chatId: string;
   /** Number of times viewed */
-  viewCount: number
+  viewCount: number;
   /** Maximum views allowed */
-  maxViews: number
+  maxViews: number;
   /** Whether message has been viewed */
-  hasBeenViewed: boolean
+  hasBeenViewed: boolean;
   /** First view timestamp */
-  firstViewedAt?: Date
+  firstViewedAt?: Date;
 }
 
 // ============================================================================
@@ -310,55 +310,55 @@ export interface ViewOnceMessage {
  * Device information
  */
 export interface DeviceInfo {
-  deviceId: string
-  deviceName: string
-  platform: 'ios' | 'android' | 'web' | 'desktop' | 'unknown'
-  osVersion?: string
-  appVersion?: string
-  lastSeen: Date
-  createdAt: Date
-  isCurrentDevice: boolean
+  deviceId: string;
+  deviceName: string;
+  platform: "ios" | "android" | "web" | "desktop" | "unknown";
+  osVersion?: string;
+  appVersion?: string;
+  lastSeen: Date;
+  createdAt: Date;
+  isCurrentDevice: boolean;
 }
 
 /**
  * Active session information
  */
 export interface DeviceSession {
-  id: string
-  deviceId: string
-  deviceName: string
-  platform: DeviceInfo['platform']
-  ipAddress?: string
-  location?: string
-  lastActive: Date
-  createdAt: Date
-  isCurrentSession: boolean
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  platform: DeviceInfo["platform"];
+  ipAddress?: string;
+  location?: string;
+  lastActive: Date;
+  createdAt: Date;
+  isCurrentSession: boolean;
 }
 
 /**
  * Login alert
  */
 export interface LoginAlert {
-  id: string
-  timestamp: Date
-  device: string
-  location: string
-  ip: string
-  isNew: boolean
-  isAcknowledged: boolean
-  isSuspicious: boolean
+  id: string;
+  timestamp: Date;
+  device: string;
+  location: string;
+  ip: string;
+  isNew: boolean;
+  isAcknowledged: boolean;
+  isSuspicious: boolean;
 }
 
 /**
  * Device link request
  */
 export interface DeviceLinkRequest {
-  code: string
-  expiresAt: Date
-  qrData: string
-  sourceDeviceId: string
-  sourceDeviceName: string
-  status: 'pending' | 'completed' | 'expired' | 'cancelled'
+  code: string;
+  expiresAt: Date;
+  qrData: string;
+  sourceDeviceId: string;
+  sourceDeviceName: string;
+  status: "pending" | "completed" | "expired" | "cancelled";
 }
 
 // ============================================================================
@@ -368,32 +368,32 @@ export interface DeviceLinkRequest {
 /**
  * Biometric authentication type
  */
-export type BiometricType = 'face' | 'fingerprint' | 'iris' | 'none'
+export type BiometricType = "face" | "fingerprint" | "iris" | "none";
 
 /**
  * Biometric authentication state
  */
 export interface BiometricState {
-  isAvailable: boolean
-  isEnabled: boolean
-  type: BiometricType
-  lastAuthAt?: Date
+  isAvailable: boolean;
+  isEnabled: boolean;
+  type: BiometricType;
+  lastAuthAt?: Date;
 }
 
 /**
  * Auto-lock interval options (in seconds)
  */
-export type AutoLockInterval = 0 | 30 | 60 | 300 | 900 | 1800
+export type AutoLockInterval = 0 | 30 | 60 | 300 | 900 | 1800;
 
 /**
  * App lock state
  */
 export interface AppLockState {
-  isLocked: boolean
-  lockType: 'pin' | 'biometric' | 'both'
-  autoLockInterval: AutoLockInterval
-  lockedAt?: Date
-  lastUnlockAt?: Date
+  isLocked: boolean;
+  lockType: "pin" | "biometric" | "both";
+  autoLockInterval: AutoLockInterval;
+  lockedAt?: Date;
+  lastUnlockAt?: Date;
 }
 
 // ============================================================================
@@ -404,25 +404,25 @@ export interface AppLockState {
  * Stored key bundle
  */
 export interface StoredKeyBundle {
-  userId: string
-  identityKeyPair: IdentityKeyPair
-  registrationId: number
-  signedPreKey: SignedPreKey
-  oneTimePreKeys: OneTimePreKey[]
-  createdAt: number
-  updatedAt: number
-  version: number
+  userId: string;
+  identityKeyPair: IdentityKeyPair;
+  registrationId: number;
+  signedPreKey: SignedPreKey;
+  oneTimePreKeys: OneTimePreKey[];
+  createdAt: number;
+  updatedAt: number;
+  version: number;
 }
 
 /**
  * Key store statistics
  */
 export interface KeyStoreStats {
-  hasIdentityKey: boolean
-  signedPreKeyCount: number
-  oneTimePreKeyCount: number
-  sessionCount: number
-  lastRotatedAt?: Date
+  hasIdentityKey: boolean;
+  signedPreKeyCount: number;
+  oneTimePreKeyCount: number;
+  sessionCount: number;
+  lastRotatedAt?: Date;
 }
 
 // ============================================================================
@@ -434,15 +434,15 @@ export interface KeyStoreStats {
  */
 export interface EncryptionConfig {
   /** Pool size for one-time prekeys */
-  otpPoolSize: number
+  otpPoolSize: number;
   /** Threshold to replenish OTP pool */
-  otpReplenishThreshold: number
+  otpReplenishThreshold: number;
   /** Signed prekey rotation interval (ms) */
-  signedPreKeyRotationInterval: number
+  signedPreKeyRotationInterval: number;
   /** Maximum skipped message keys to store */
-  maxSkippedMessageKeys: number
+  maxSkippedMessageKeys: number;
   /** Session timeout (ms) */
-  sessionTimeout: number
+  sessionTimeout: number;
 }
 
 /**
@@ -454,7 +454,7 @@ export const DEFAULT_ENCRYPTION_CONFIG: EncryptionConfig = {
   signedPreKeyRotationInterval: 7 * 24 * 60 * 60 * 1000, // 7 days
   maxSkippedMessageKeys: 1000,
   sessionTimeout: 30 * 24 * 60 * 60 * 1000, // 30 days
-}
+};
 
 // ============================================================================
 // Protocol Constants
@@ -482,11 +482,11 @@ export const PROTOCOL_CONSTANTS = {
   PROTOCOL_VERSION: 3,
   /** Info strings for HKDF */
   HKDF_INFO: {
-    ROOT_KEY: 'WhisperRatchet',
-    CHAIN_KEY: 'WhisperMessageKeys',
-    MESSAGE_KEY: 'WhisperMessageKeys',
+    ROOT_KEY: "WhisperRatchet",
+    CHAIN_KEY: "WhisperMessageKeys",
+    MESSAGE_KEY: "WhisperMessageKeys",
   },
-} as const
+} as const;
 
 // ============================================================================
 // Error Types
@@ -496,19 +496,19 @@ export const PROTOCOL_CONSTANTS = {
  * Encryption error types
  */
 export enum EncryptionErrorType {
-  NO_SESSION = 'NO_SESSION',
-  INVALID_SESSION = 'INVALID_SESSION',
-  INVALID_MESSAGE = 'INVALID_MESSAGE',
-  INVALID_SIGNATURE = 'INVALID_SIGNATURE',
-  KEY_NOT_FOUND = 'KEY_NOT_FOUND',
-  PREKEY_NOT_FOUND = 'PREKEY_NOT_FOUND',
-  DUPLICATE_MESSAGE = 'DUPLICATE_MESSAGE',
-  OUTDATED_MESSAGE = 'OUTDATED_MESSAGE',
-  DECRYPTION_FAILED = 'DECRYPTION_FAILED',
-  ENCRYPTION_FAILED = 'ENCRYPTION_FAILED',
-  KEY_GENERATION_FAILED = 'KEY_GENERATION_FAILED',
-  STORAGE_ERROR = 'STORAGE_ERROR',
-  NETWORK_ERROR = 'NETWORK_ERROR',
+  NO_SESSION = "NO_SESSION",
+  INVALID_SESSION = "INVALID_SESSION",
+  INVALID_MESSAGE = "INVALID_MESSAGE",
+  INVALID_SIGNATURE = "INVALID_SIGNATURE",
+  KEY_NOT_FOUND = "KEY_NOT_FOUND",
+  PREKEY_NOT_FOUND = "PREKEY_NOT_FOUND",
+  DUPLICATE_MESSAGE = "DUPLICATE_MESSAGE",
+  OUTDATED_MESSAGE = "OUTDATED_MESSAGE",
+  DECRYPTION_FAILED = "DECRYPTION_FAILED",
+  ENCRYPTION_FAILED = "ENCRYPTION_FAILED",
+  KEY_GENERATION_FAILED = "KEY_GENERATION_FAILED",
+  STORAGE_ERROR = "STORAGE_ERROR",
+  NETWORK_ERROR = "NETWORK_ERROR",
 }
 
 /**
@@ -518,9 +518,9 @@ export class EncryptionError extends Error {
   constructor(
     public type: EncryptionErrorType,
     message: string,
-    public details?: unknown
+    public details?: unknown,
   ) {
-    super(message)
-    this.name = 'EncryptionError'
+    super(message);
+    this.name = "EncryptionError";
   }
 }

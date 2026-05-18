@@ -1,33 +1,36 @@
-'use client'
+"use client";
 
 /**
  * CommandPreview - Preview command in action
  */
 
-import { Hash, User, Clock, Tag } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import type { CommandDraft } from '@/lib/slash-commands/command-types'
-import { commandCategories } from '@/lib/slash-commands/built-in-commands'
-import { cn } from '@/lib/utils'
+import { Hash, User, Clock, Tag } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import type { CommandDraft } from "@/lib/slash-commands/command-types";
+import { commandCategories } from "@/lib/slash-commands/built-in-commands";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandPreviewProps {
-  command: CommandDraft
-  compact?: boolean
+  command: CommandDraft;
+  compact?: boolean;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function CommandPreview({ command, compact = false }: CommandPreviewProps) {
+export function CommandPreview({
+  command,
+  compact = false,
+}: CommandPreviewProps) {
   const category = command.category
     ? commandCategories[command.category as keyof typeof commandCategories]
-    : null
+    : null;
 
   if (compact) {
     return (
@@ -35,19 +38,22 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
         {/* Trigger */}
         <div className="flex items-center gap-2">
           <code className="bg-primary/10 rounded px-2 py-1 font-mono text-primary">
-            /{command.trigger || 'command'}
+            /{command.trigger || "command"}
           </code>
           {command.aliases && command.aliases.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              +{command.aliases.length} alias{command.aliases.length > 1 ? 'es' : ''}
+              +{command.aliases.length} alias
+              {command.aliases.length > 1 ? "es" : ""}
             </span>
           )}
         </div>
 
         {/* Name & Description */}
         <div>
-          <p className="font-medium">{command.name || 'Untitled Command'}</p>
-          <p className="text-sm text-muted-foreground">{command.description || 'No description'}</p>
+          <p className="font-medium">{command.name || "Untitled Command"}</p>
+          <p className="text-sm text-muted-foreground">
+            {command.description || "No description"}
+          </p>
         </div>
 
         {/* Quick Stats */}
@@ -61,18 +67,20 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
             {command.arguments?.length || 0} args
           </Badge>
           <Badge variant="secondary" className="text-xs">
-            {command.permissions?.minRole || 'member'}
+            {command.permissions?.minRole || "member"}
           </Badge>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
       {/* Command Card Preview */}
       <div className="space-y-4">
-        <h4 className="text-sm font-medium text-muted-foreground">Command Card</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">
+          Command Card
+        </h4>
         <div className="rounded-lg border bg-card p-4">
           <div className="flex items-start gap-3">
             <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg text-primary">
@@ -81,7 +89,7 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <code className="font-mono text-sm text-primary">
-                  /{command.trigger || 'command'}
+                  /{command.trigger || "command"}
                 </code>
                 {category && (
                   <Badge variant="outline" className="text-xs">
@@ -89,9 +97,11 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
                   </Badge>
                 )}
               </div>
-              <h3 className="mt-1 font-medium">{command.name || 'Untitled Command'}</h3>
+              <h3 className="mt-1 font-medium">
+                {command.name || "Untitled Command"}
+              </h3>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                {command.description || 'No description provided'}
+                {command.description || "No description provided"}
               </p>
             </div>
           </div>
@@ -115,14 +125,18 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
       <div className="space-y-4">
         <h4 className="text-sm font-medium text-muted-foreground">Usage</h4>
         <div className="bg-muted/30 rounded-lg border p-4">
-          <code className="font-mono text-sm">{command.usage || generateUsage(command)}</code>
+          <code className="font-mono text-sm">
+            {command.usage || generateUsage(command)}
+          </code>
         </div>
       </div>
 
       {/* Arguments Preview */}
       {command.arguments && command.arguments.length > 0 && (
         <div className="space-y-4">
-          <h4 className="text-sm font-medium text-muted-foreground">Arguments</h4>
+          <h4 className="text-sm font-medium text-muted-foreground">
+            Arguments
+          </h4>
           <div className="rounded-lg border">
             <table className="w-full text-sm">
               <thead>
@@ -173,15 +187,15 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
               </div>
               <p className="mt-1">
                 <code className="bg-primary/10 rounded px-1 font-mono text-primary">
-                  /{command.trigger || 'command'}
+                  /{command.trigger || "command"}
                 </code>
                 {command.arguments?.some((a) => a.required) && (
                   <span className="text-muted-foreground">
-                    {' '}
+                    {" "}
                     {command.arguments
                       .filter((a) => a.required)
                       .map((a) => `<${a.name}>`)
-                      .join(' ')}
+                      .join(" ")}
                   </span>
                 )}
               </p>
@@ -189,7 +203,7 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
           </div>
 
           {/* Response Preview */}
-          {command.actionType === 'message' && command.action?.message && (
+          {command.actionType === "message" && command.action?.message && (
             <div className="mt-4 flex items-start gap-3 border-t pt-4">
               <Avatar className="bg-primary/10 h-8 w-8">
                 <AvatarFallback className="text-primary">
@@ -203,7 +217,9 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
                     BOT
                   </Badge>
                 </div>
-                <p className="mt-1 text-sm">{previewMessage(command.action.message)}</p>
+                <p className="mt-1 text-sm">
+                  {previewMessage(command.action.message)}
+                </p>
               </div>
             </div>
           )}
@@ -216,16 +232,20 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline">
             <User className="mr-1 h-3 w-3" />
-            {command.permissions?.minRole || 'member'}+ can use
+            {command.permissions?.minRole || "member"}+ can use
           </Badge>
-          {command.permissions?.allowGuests && <Badge variant="secondary">Guests allowed</Badge>}
+          {command.permissions?.allowGuests && (
+            <Badge variant="secondary">Guests allowed</Badge>
+          )}
           {command.channels?.allowedTypes && (
-            <Badge variant="outline">{command.channels.allowedTypes.length} channel types</Badge>
+            <Badge variant="outline">
+              {command.channels.allowedTypes.length} channel types
+            </Badge>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -233,40 +253,40 @@ export function CommandPreview({ command, compact = false }: CommandPreviewProps
 // ============================================================================
 
 function generateUsage(command: CommandDraft): string {
-  let usage = `/${command.trigger || 'command'}`
+  let usage = `/${command.trigger || "command"}`;
 
   const positionalArgs = command.arguments
     ?.filter((a) => a.position !== undefined)
-    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
   if (positionalArgs) {
     for (const arg of positionalArgs) {
       if (arg.required) {
-        usage += ` <${arg.name}>`
+        usage += ` <${arg.name}>`;
       } else {
-        usage += ` [${arg.name}]`
+        usage += ` [${arg.name}]`;
       }
     }
   }
 
-  const flags = command.arguments?.filter((a) => a.flag)
+  const flags = command.arguments?.filter((a) => a.flag);
   if (flags && flags.length > 0) {
     for (const flag of flags) {
-      usage += ` [--${flag.flag}]`
+      usage += ` [--${flag.flag}]`;
     }
   }
 
-  return usage
+  return usage;
 }
 
 function previewMessage(template: string): string {
   // Replace template variables with example values
   return template
-    .replace(/\{\{username\}\}/g, 'john_doe')
-    .replace(/\{\{displayName\}\}/g, 'John Doe')
-    .replace(/\{\{channelName\}\}/g, 'general')
-    .replace(/\{\{userId\}\}/g, 'user-123')
-    .replace(/\{\{[^}]+\}\}/g, '...')
+    .replace(/\{\{username\}\}/g, "john_doe")
+    .replace(/\{\{displayName\}\}/g, "John Doe")
+    .replace(/\{\{channelName\}\}/g, "general")
+    .replace(/\{\{userId\}\}/g, "user-123")
+    .replace(/\{\{[^}]+\}\}/g, "...");
 }
 
-export default CommandPreview
+export default CommandPreview;

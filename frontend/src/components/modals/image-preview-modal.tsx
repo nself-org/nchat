@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect, useCallback } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   X,
   Download,
@@ -13,28 +13,28 @@ import {
   ChevronRight,
   Maximize2,
   Minimize2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import * as VisuallyHidden from '@radix-ui/react-visually-hidden'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 export interface ImageItem {
-  id: string
-  url: string
-  name?: string
-  width?: number
-  height?: number
+  id: string;
+  url: string;
+  name?: string;
+  width?: number;
+  height?: number;
 }
 
 interface ImagePreviewModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  images: ImageItem[]
-  initialIndex?: number
-  onDownload?: (image: ImageItem) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  images: ImageItem[];
+  initialIndex?: number;
+  onDownload?: (image: ImageItem) => void;
 }
 
-const ZOOM_LEVELS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3]
-const DEFAULT_ZOOM_INDEX = 2 // 100%
+const ZOOM_LEVELS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
+const DEFAULT_ZOOM_INDEX = 2; // 100%
 
 export function ImagePreviewModal({
   open,
@@ -43,154 +43,158 @@ export function ImagePreviewModal({
   initialIndex = 0,
   onDownload,
 }: ImagePreviewModalProps) {
-  const [currentIndex, setCurrentIndex] = useState(initialIndex)
-  const [zoomIndex, setZoomIndex] = useState(DEFAULT_ZOOM_INDEX)
-  const [rotation, setRotation] = useState(0)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isDragging, setIsDragging] = useState(false)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [zoomIndex, setZoomIndex] = useState(DEFAULT_ZOOM_INDEX);
+  const [rotation, setRotation] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  const currentImage = images[currentIndex]
-  const zoom = ZOOM_LEVELS[zoomIndex]
-  const hasMultipleImages = images.length > 1
+  const currentImage = images[currentIndex];
+  const zoom = ZOOM_LEVELS[zoomIndex];
+  const hasMultipleImages = images.length > 1;
 
   // Reset state when modal opens
   useEffect(() => {
     if (open) {
-      setCurrentIndex(initialIndex)
-      setZoomIndex(DEFAULT_ZOOM_INDEX)
-      setRotation(0)
-      setPosition({ x: 0, y: 0 })
+      setCurrentIndex(initialIndex);
+      setZoomIndex(DEFAULT_ZOOM_INDEX);
+      setRotation(0);
+      setPosition({ x: 0, y: 0 });
     }
-  }, [open, initialIndex])
+  }, [open, initialIndex]);
 
   // Keyboard navigation
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'ArrowLeft':
+        case "ArrowLeft":
           if (hasMultipleImages) {
-            setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))
-            resetView()
+            setCurrentIndex((prev) =>
+              prev > 0 ? prev - 1 : images.length - 1,
+            );
+            resetView();
           }
-          break
-        case 'ArrowRight':
+          break;
+        case "ArrowRight":
           if (hasMultipleImages) {
-            setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))
-            resetView()
+            setCurrentIndex((prev) =>
+              prev < images.length - 1 ? prev + 1 : 0,
+            );
+            resetView();
           }
-          break
-        case '+':
-        case '=':
-          handleZoomIn()
-          break
-        case '-':
-          handleZoomOut()
-          break
-        case 'r':
-          handleRotate()
-          break
-        case '0':
-          resetView()
-          break
-        case 'Escape':
+          break;
+        case "+":
+        case "=":
+          handleZoomIn();
+          break;
+        case "-":
+          handleZoomOut();
+          break;
+        case "r":
+          handleRotate();
+          break;
+        case "0":
+          resetView();
+          break;
+        case "Escape":
           if (isFullscreen) {
-            setIsFullscreen(false)
+            setIsFullscreen(false);
           } else {
-            onOpenChange(false)
+            onOpenChange(false);
           }
-          break
+          break;
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [open, hasMultipleImages, images.length, isFullscreen, onOpenChange])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, hasMultipleImages, images.length, isFullscreen, onOpenChange]);
 
   const resetView = useCallback(() => {
-    setZoomIndex(DEFAULT_ZOOM_INDEX)
-    setRotation(0)
-    setPosition({ x: 0, y: 0 })
-  }, [])
+    setZoomIndex(DEFAULT_ZOOM_INDEX);
+    setRotation(0);
+    setPosition({ x: 0, y: 0 });
+  }, []);
 
   const handleZoomIn = () => {
-    setZoomIndex((prev) => Math.min(prev + 1, ZOOM_LEVELS.length - 1))
-  }
+    setZoomIndex((prev) => Math.min(prev + 1, ZOOM_LEVELS.length - 1));
+  };
 
   const handleZoomOut = () => {
-    setZoomIndex((prev) => Math.max(prev - 1, 0))
-  }
+    setZoomIndex((prev) => Math.max(prev - 1, 0));
+  };
 
   const handleRotate = () => {
-    setRotation((prev) => (prev + 90) % 360)
-  }
+    setRotation((prev) => (prev + 90) % 360);
+  };
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))
-    resetView()
-  }
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+    resetView();
+  };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))
-    resetView()
-  }
+    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+    resetView();
+  };
 
   const handleDownload = () => {
     if (onDownload) {
-      onDownload(currentImage)
+      onDownload(currentImage);
     } else {
       // Default download behavior
-      const link = document.createElement('a')
-      link.href = currentImage.url
-      link.download = currentImage.name || `image-${currentImage.id}`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const link = document.createElement("a");
+      link.href = currentImage.url;
+      link.download = currentImage.name || `image-${currentImage.id}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  }
+  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (zoom > 1) {
-      setIsDragging(true)
-      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y })
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     }
-  }
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging && zoom > 1) {
       setPosition({
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y,
-      })
+      });
     }
-  }
+  };
 
   const handleMouseUp = () => {
-    setIsDragging(false)
-  }
+    setIsDragging(false);
+  };
 
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (e.deltaY < 0) {
-      handleZoomIn()
+      handleZoomIn();
     } else {
-      handleZoomOut()
+      handleZoomOut();
     }
-  }
+  };
 
-  if (!currentImage) return null
+  if (!currentImage) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          'gap-0 border-none bg-black/95 p-0',
+          "gap-0 border-none bg-black/95 p-0",
           isFullscreen
-            ? 'h-screen w-screen max-w-none rounded-none'
-            : 'h-auto max-h-[90vh] w-auto max-w-[90vw]'
+            ? "h-screen w-screen max-w-none rounded-none"
+            : "h-auto max-h-[90vh] w-auto max-w-[90vw]",
         )}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
@@ -202,7 +206,9 @@ export function ImagePreviewModal({
         <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent p-4">
           <div className="flex items-center gap-2">
             {currentImage.name && (
-              <span className="text-sm font-medium text-white">{currentImage.name}</span>
+              <span className="text-sm font-medium text-white">
+                {currentImage.name}
+              </span>
             )}
             {hasMultipleImages && (
               <span className="text-sm text-white/60">
@@ -221,7 +227,9 @@ export function ImagePreviewModal({
             >
               <ZoomOut className="h-4 w-4" />
             </Button>
-            <span className="w-12 text-center text-sm text-white">{Math.round(zoom * 100)}%</span>
+            <span className="w-12 text-center text-sm text-white">
+              {Math.round(zoom * 100)}%
+            </span>
             <Button
               variant="ghost"
               size="icon"
@@ -245,7 +253,11 @@ export function ImagePreviewModal({
               onClick={() => setIsFullscreen(!isFullscreen)}
               className="text-white hover:bg-white/20"
             >
-              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              {isFullscreen ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
             </Button>
             <Button
               variant="ghost"
@@ -270,10 +282,10 @@ export function ImagePreviewModal({
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Application role manages own interaction */}
         <div
           className={cn(
-            'flex items-center justify-center overflow-hidden',
-            isFullscreen ? 'h-screen w-screen' : 'h-[70vh] w-full',
-            zoom > 1 ? 'cursor-grab' : 'cursor-default',
-            isDragging && 'cursor-grabbing'
+            "flex items-center justify-center overflow-hidden",
+            isFullscreen ? "h-screen w-screen" : "h-[70vh] w-full",
+            zoom > 1 ? "cursor-grab" : "cursor-default",
+            isDragging && "cursor-grabbing",
           )}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -285,11 +297,11 @@ export function ImagePreviewModal({
         >
           <img
             src={currentImage.url}
-            alt={currentImage.name || 'Preview'}
+            alt={currentImage.name || "Preview"}
             className="max-h-full max-w-full select-none object-contain"
             style={{
               transform: `scale(${zoom}) rotate(${rotation}deg) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
-              transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+              transition: isDragging ? "none" : "transform 0.2s ease-out",
             }}
             draggable={false}
           />
@@ -325,14 +337,14 @@ export function ImagePreviewModal({
                 <button
                   key={image.id}
                   onClick={() => {
-                    setCurrentIndex(index)
-                    resetView()
+                    setCurrentIndex(index);
+                    resetView();
                   }}
                   className={cn(
-                    'h-12 w-12 overflow-hidden rounded-lg border-2 transition-all',
+                    "h-12 w-12 overflow-hidden rounded-lg border-2 transition-all",
                     index === currentIndex
-                      ? 'scale-110 border-white'
-                      : 'border-transparent opacity-60 hover:opacity-100'
+                      ? "scale-110 border-white"
+                      : "border-transparent opacity-60 hover:opacity-100",
                   )}
                 >
                   <img
@@ -347,5 +359,5 @@ export function ImagePreviewModal({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

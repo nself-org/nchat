@@ -17,4 +17,4 @@ export {
   VALID_GROUPS,
   GROUP_SCOPES,
   GROUP_LABELS,
-} from './idme-verification.service'
+} from "./idme-verification.service";

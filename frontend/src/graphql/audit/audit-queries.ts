@@ -4,7 +4,7 @@
  * GraphQL queries for fetching audit log data.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Fragments
@@ -47,7 +47,7 @@ export const AUDIT_ENTRY_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 export const AUDIT_STATISTICS_FRAGMENT = gql`
   fragment AuditStatisticsFields on nchat_audit_statistics {
@@ -61,7 +61,7 @@ export const AUDIT_STATISTICS_FRAGMENT = gql`
     top_actions
     calculated_at
   }
-`
+`;
 
 // ============================================================================
 // Queries
@@ -78,7 +78,12 @@ export const GET_AUDIT_LOGS = gql`
     $where: nchat_audit_logs_bool_exp
     $order_by: [nchat_audit_logs_order_by!]
   ) {
-    nchat_audit_logs(limit: $limit, offset: $offset, where: $where, order_by: $order_by) {
+    nchat_audit_logs(
+      limit: $limit
+      offset: $offset
+      where: $where
+      order_by: $order_by
+    ) {
       ...AuditEntryFields
     }
     nchat_audit_logs_aggregate(where: $where) {
@@ -87,7 +92,7 @@ export const GET_AUDIT_LOGS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get a single audit log entry by ID
@@ -99,14 +104,18 @@ export const GET_AUDIT_LOG_BY_ID = gql`
       ...AuditEntryFields
     }
   }
-`
+`;
 
 /**
  * Get audit logs by actor ID
  */
 export const GET_AUDIT_LOGS_BY_ACTOR = gql`
   ${AUDIT_ENTRY_FRAGMENT}
-  query GetAuditLogsByActor($actorId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetAuditLogsByActor(
+    $actorId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_audit_logs(
       where: { actor_id: { _eq: $actorId } }
       order_by: { timestamp: desc }
@@ -121,7 +130,7 @@ export const GET_AUDIT_LOGS_BY_ACTOR = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get audit logs by resource
@@ -135,7 +144,10 @@ export const GET_AUDIT_LOGS_BY_RESOURCE = gql`
     $offset: Int = 0
   ) {
     nchat_audit_logs(
-      where: { resource_type: { _eq: $resourceType }, resource_id: { _eq: $resourceId } }
+      where: {
+        resource_type: { _eq: $resourceType }
+        resource_id: { _eq: $resourceId }
+      }
       order_by: { timestamp: desc }
       limit: $limit
       offset: $offset
@@ -143,14 +155,17 @@ export const GET_AUDIT_LOGS_BY_RESOURCE = gql`
       ...AuditEntryFields
     }
     nchat_audit_logs_aggregate(
-      where: { resource_type: { _eq: $resourceType }, resource_id: { _eq: $resourceId } }
+      where: {
+        resource_type: { _eq: $resourceType }
+        resource_id: { _eq: $resourceId }
+      }
     ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 /**
  * Get security events
@@ -172,7 +187,7 @@ export const GET_SECURITY_EVENTS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get admin actions
@@ -194,7 +209,7 @@ export const GET_ADMIN_ACTIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get user activity
@@ -209,7 +224,10 @@ export const GET_USER_ACTIVITY = gql`
     $offset: Int = 0
   ) {
     nchat_audit_logs(
-      where: { actor_id: { _eq: $userId }, timestamp: { _gte: $startDate, _lte: $endDate } }
+      where: {
+        actor_id: { _eq: $userId }
+        timestamp: { _gte: $startDate, _lte: $endDate }
+      }
       order_by: { timestamp: desc }
       limit: $limit
       offset: $offset
@@ -217,21 +235,28 @@ export const GET_USER_ACTIVITY = gql`
       ...AuditEntryFields
     }
     nchat_audit_logs_aggregate(
-      where: { actor_id: { _eq: $userId }, timestamp: { _gte: $startDate, _lte: $endDate } }
+      where: {
+        actor_id: { _eq: $userId }
+        timestamp: { _gte: $startDate, _lte: $endDate }
+      }
     ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 /**
  * Get channel activity
  */
 export const GET_CHANNEL_ACTIVITY = gql`
   ${AUDIT_ENTRY_FRAGMENT}
-  query GetChannelActivity($channelId: String!, $limit: Int = 50, $offset: Int = 0) {
+  query GetChannelActivity(
+    $channelId: String!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_audit_logs(
       where: {
         _or: [
@@ -258,7 +283,7 @@ export const GET_CHANNEL_ACTIVITY = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get failed events
@@ -280,7 +305,7 @@ export const GET_FAILED_EVENTS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get high severity events (critical and error)
@@ -296,13 +321,15 @@ export const GET_HIGH_SEVERITY_EVENTS = gql`
     ) {
       ...AuditEntryFields
     }
-    nchat_audit_logs_aggregate(where: { severity: { _in: ["critical", "error"] } }) {
+    nchat_audit_logs_aggregate(
+      where: { severity: { _in: ["critical", "error"] } }
+    ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 /**
  * Get audit statistics
@@ -337,14 +364,17 @@ export const GET_AUDIT_STATISTICS = gql`
       }
     }
     failed_events: nchat_audit_logs_aggregate(
-      where: { success: { _eq: false }, timestamp: { _gte: $startDate, _lte: $endDate } }
+      where: {
+        success: { _eq: false }
+        timestamp: { _gte: $startDate, _lte: $endDate }
+      }
     ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 /**
  * Get audit settings
@@ -379,14 +409,18 @@ export const GET_AUDIT_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Search audit logs
  */
 export const SEARCH_AUDIT_LOGS = gql`
   ${AUDIT_ENTRY_FRAGMENT}
-  query SearchAuditLogs($searchQuery: String!, $limit: Int = 20, $offset: Int = 0) {
+  query SearchAuditLogs(
+    $searchQuery: String!
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_audit_logs(
       where: {
         _or: [
@@ -421,7 +455,7 @@ export const SEARCH_AUDIT_LOGS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Subscriptions
@@ -437,7 +471,7 @@ export const AUDIT_LOG_SUBSCRIPTION = gql`
       ...AuditEntryFields
     }
   }
-`
+`;
 
 /**
  * Subscribe to security events
@@ -453,7 +487,7 @@ export const SECURITY_EVENT_SUBSCRIPTION = gql`
       ...AuditEntryFields
     }
   }
-`
+`;
 
 /**
  * Subscribe to high severity events
@@ -469,4 +503,4 @@ export const HIGH_SEVERITY_SUBSCRIPTION = gql`
       ...AuditEntryFields
     }
   }
-`
+`;

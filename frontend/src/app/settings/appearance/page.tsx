@@ -1,20 +1,26 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useTheme } from 'next-themes'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Palette, Sun, Moon, Monitor } from 'lucide-react'
+import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Palette, Sun, Moon, Monitor } from "lucide-react";
 
 export default function AppearancePage() {
-  const [mounted, setMounted] = useState(false)
-  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   // Avoid hydration mismatch
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
     return (
@@ -29,7 +35,7 @@ export default function AppearancePage() {
           </CardHeader>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -43,7 +49,9 @@ export default function AppearancePage() {
         <Card>
           <CardHeader>
             <CardTitle>Theme</CardTitle>
-            <CardDescription>Select your preferred color scheme</CardDescription>
+            <CardDescription>
+              Select your preferred color scheme
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <RadioGroup
@@ -56,7 +64,9 @@ export default function AppearancePage() {
                 <Sun className="h-5 w-5 text-yellow-500" />
                 <Label htmlFor="light" className="flex-1 cursor-pointer">
                   <div className="font-medium">Light</div>
-                  <div className="text-sm text-muted-foreground">A clean, bright interface</div>
+                  <div className="text-sm text-muted-foreground">
+                    A clean, bright interface
+                  </div>
                 </Label>
               </div>
               <div className="hover:bg-muted/50 flex cursor-pointer items-center space-x-3 rounded-lg border p-4">
@@ -64,7 +74,9 @@ export default function AppearancePage() {
                 <Moon className="h-5 w-5 text-blue-500" />
                 <Label htmlFor="dark" className="flex-1 cursor-pointer">
                   <div className="font-medium">Dark</div>
-                  <div className="text-sm text-muted-foreground">Easy on the eyes in low light</div>
+                  <div className="text-sm text-muted-foreground">
+                    Easy on the eyes in low light
+                  </div>
                 </Label>
               </div>
               <div className="hover:bg-muted/50 flex cursor-pointer items-center space-x-3 rounded-lg border p-4">
@@ -72,7 +84,9 @@ export default function AppearancePage() {
                 <Monitor className="h-5 w-5 text-gray-500" />
                 <Label htmlFor="system" className="flex-1 cursor-pointer">
                   <div className="font-medium">System</div>
-                  <div className="text-sm text-muted-foreground">Match your device settings</div>
+                  <div className="text-sm text-muted-foreground">
+                    Match your device settings
+                  </div>
                 </Label>
               </div>
             </RadioGroup>
@@ -88,14 +102,16 @@ export default function AppearancePage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              To change the platform template (Slack, Discord, Telegram, WhatsApp, or nself
-              default), set the{' '}
-              <code className="rounded bg-muted px-1">NEXT_PUBLIC_PLATFORM_TEMPLATE</code>{' '}
+              To change the platform template (Slack, Discord, Telegram,
+              WhatsApp, or nself default), set the{" "}
+              <code className="rounded bg-muted px-1">
+                NEXT_PUBLIC_PLATFORM_TEMPLATE
+              </code>{" "}
               environment variable.
             </p>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

@@ -8,4 +8,4 @@
  * @version 1.0.0
  */
 
-export * from './typing'
+export * from "./typing";

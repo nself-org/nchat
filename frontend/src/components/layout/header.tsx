@@ -1,15 +1,17 @@
-'use client'
+"use client";
 
-import { usePathname } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { NotificationBell } from '@/components/notifications/NotificationBell'
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 export function Header() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   // Extract channel name from pathname
-  const channelName = pathname.includes('/channel/') ? pathname.split('/channel/')[1] : 'general'
+  const channelName = pathname.includes("/channel/")
+    ? pathname.split("/channel/")[1]
+    : "general";
 
   return (
     <header className="flex h-16 items-center justify-between border-b px-6">
@@ -29,5 +31,5 @@ export function Header() {
         <NotificationBell />
       </div>
     </header>
-  )
+  );
 }

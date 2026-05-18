@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Trash2,
   AlertTriangle,
@@ -10,13 +10,19 @@ import {
   XCircle,
   Loader2,
   HelpCircle,
-} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +30,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,14 +40,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { useComplianceStore } from '@/stores/compliance-store'
+} from "@/components/ui/alert-dialog";
+import { useComplianceStore } from "@/stores/compliance-store";
 import type {
   DataDeletionRequest as DeletionRequest,
   DeletionScope,
-} from '@/lib/compliance/compliance-types'
+} from "@/lib/compliance/compliance-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   DELETION_SCOPES,
   COOLING_OFF_PERIOD_DAYS,
@@ -51,18 +57,18 @@ import {
   isInCoolingOffPeriod,
   getRemainingCoolingOffDays,
   getScopeLabel,
-} from '@/lib/compliance/data-deletion'
+} from "@/lib/compliance/data-deletion";
 
 interface DeletionRequestCardProps {
-  request: DeletionRequest
-  onCancel: (id: string) => void
+  request: DeletionRequest;
+  onCancel: (id: string) => void;
 }
 
 function DeletionRequestCard({ request, onCancel }: DeletionRequestCardProps) {
-  const statusInfo = getDeletionStatusInfo(request.status)
-  const { canCancel } = canCancelDeletion(request)
-  const inCoolingOff = isInCoolingOffPeriod(request)
-  const remainingDays = getRemainingCoolingOffDays(request)
+  const statusInfo = getDeletionStatusInfo(request.status);
+  const { canCancel } = canCancelDeletion(request);
+  const inCoolingOff = isInCoolingOffPeriod(request);
+  const remainingDays = getRemainingCoolingOffDays(request);
 
   const StatusIcon = {
     pending: Clock,
@@ -72,16 +78,16 @@ function DeletionRequestCard({ request, onCancel }: DeletionRequestCardProps) {
     completed: CheckCircle,
     rejected: XCircle,
     cancelled: XCircle,
-  }[request.status]
+  }[request.status];
 
   return (
     <Card
       className={
-        request.status === 'completed'
-          ? 'border-green-200 bg-green-50/50'
-          : request.status === 'rejected' || request.status === 'cancelled'
-            ? 'border-gray-200 bg-gray-50/50'
-            : ''
+        request.status === "completed"
+          ? "border-green-200 bg-green-50/50"
+          : request.status === "rejected" || request.status === "cancelled"
+            ? "border-gray-200 bg-gray-50/50"
+            : ""
       }
     >
       <CardContent className="pt-6">
@@ -89,17 +95,18 @@ function DeletionRequestCard({ request, onCancel }: DeletionRequestCardProps) {
           <div className="flex items-start gap-4">
             <div
               className={`rounded-lg p-2 ${
-                request.status === 'completed'
-                  ? 'bg-green-100 text-green-600'
-                  : request.status === 'rejected' || request.status === 'cancelled'
-                    ? 'bg-gray-100 text-gray-400'
-                    : request.status === 'processing'
-                      ? 'bg-red-100 text-red-600'
-                      : 'bg-yellow-100 text-yellow-600'
+                request.status === "completed"
+                  ? "bg-green-100 text-green-600"
+                  : request.status === "rejected" ||
+                      request.status === "cancelled"
+                    ? "bg-gray-100 text-gray-400"
+                    : request.status === "processing"
+                      ? "bg-red-100 text-red-600"
+                      : "bg-yellow-100 text-yellow-600"
               }`}
             >
               <StatusIcon
-                className={`h-5 w-5 ${request.status === 'processing' ? 'animate-spin' : ''}`}
+                className={`h-5 w-5 ${request.status === "processing" ? "animate-spin" : ""}`}
               />
             </div>
             <div>
@@ -107,11 +114,12 @@ function DeletionRequestCard({ request, onCancel }: DeletionRequestCardProps) {
                 <p className="font-medium">Deletion Request</p>
                 <Badge
                   variant={
-                    request.status === 'completed'
-                      ? 'default'
-                      : request.status === 'rejected' || request.status === 'cancelled'
-                        ? 'secondary'
-                        : 'destructive'
+                    request.status === "completed"
+                      ? "default"
+                      : request.status === "rejected" ||
+                          request.status === "cancelled"
+                        ? "secondary"
+                        : "destructive"
                   }
                 >
                   {statusInfo.label}
@@ -130,7 +138,9 @@ function DeletionRequestCard({ request, onCancel }: DeletionRequestCardProps) {
                 </p>
               )}
               {request.rejectionReason && (
-                <p className="mt-2 text-sm text-red-600">Reason: {request.rejectionReason}</p>
+                <p className="mt-2 text-sm text-red-600">
+                  Reason: {request.rejectionReason}
+                </p>
               )}
               {request.legalHoldBlocked && (
                 <p className="mt-2 text-sm text-orange-600">
@@ -141,76 +151,89 @@ function DeletionRequestCard({ request, onCancel }: DeletionRequestCardProps) {
             </div>
           </div>
           {canCancel && (
-            <Button variant="outline" size="sm" onClick={() => onCancel(request.id)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onCancel(request.id)}
+            >
               Cancel Request
             </Button>
           )}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function DataDeletionRequest() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const [selectedScope, setSelectedScope] = useState<DeletionScope>('full_account')
-  const [reason, setReason] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedScope, setSelectedScope] =
+    useState<DeletionScope>("full_account");
+  const [reason, setReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { deletionRequests, legalHolds, addDeletionRequest, updateDeletionRequest } =
-    useComplianceStore()
+  const {
+    deletionRequests,
+    legalHolds,
+    addDeletionRequest,
+    updateDeletionRequest,
+  } = useComplianceStore();
 
   // Mock user data
   const currentUser = {
-    id: 'user-123',
-    email: 'user@example.com',
-  }
+    id: "user-123",
+    email: "user@example.com",
+  };
 
-  const userRequests = deletionRequests.filter((r) => r.userId === currentUser.id)
+  const userRequests = deletionRequests.filter(
+    (r) => r.userId === currentUser.id,
+  );
   const hasPendingRequest = userRequests.some((r) =>
-    ['pending', 'pending_verification', 'approved', 'processing'].includes(r.status)
-  )
+    ["pending", "pending_verification", "approved", "processing"].includes(
+      r.status,
+    ),
+  );
 
   const handleOpenDialog = () => {
-    setSelectedScope('full_account')
-    setReason('')
-    setIsDialogOpen(true)
-  }
+    setSelectedScope("full_account");
+    setReason("");
+    setIsDialogOpen(true);
+  };
 
   const handleProceed = () => {
-    setIsDialogOpen(false)
-    setIsConfirmOpen(true)
-  }
+    setIsDialogOpen(false);
+    setIsConfirmOpen(true);
+  };
 
   const handleSubmit = async () => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const request = createDeletionRequest(currentUser.id, currentUser.email, {
         scope: selectedScope,
         reason: reason || undefined,
-      })
+      });
 
-      addDeletionRequest(request)
+      addDeletionRequest(request);
 
-      setIsConfirmOpen(false)
+      setIsConfirmOpen(false);
       alert(
-        'Your deletion request has been submitted. Please check your email to verify your identity.'
-      )
+        "Your deletion request has been submitted. Please check your email to verify your identity.",
+      );
     } catch (error) {
-      logger.error('Failed to submit deletion request:', error)
-      alert('Failed to submit deletion request. Please try again.')
+      logger.error("Failed to submit deletion request:", error);
+      alert("Failed to submit deletion request. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleCancel = (id: string) => {
-    if (confirm('Are you sure you want to cancel this deletion request?')) {
-      updateDeletionRequest(id, { status: 'cancelled' })
+    if (confirm("Are you sure you want to cancel this deletion request?")) {
+      updateDeletionRequest(id, { status: "cancelled" });
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -237,7 +260,10 @@ export function DataDeletionRequest() {
               <ul className="list-inside list-disc space-y-1 text-sm text-red-700">
                 <li>All selected data will be permanently deleted</li>
                 <li>You will not be able to recover any deleted data</li>
-                <li>You have {COOLING_OFF_PERIOD_DAYS} days to cancel after approval</li>
+                <li>
+                  You have {COOLING_OFF_PERIOD_DAYS} days to cancel after
+                  approval
+                </li>
                 <li>Some data may be retained for legal compliance</li>
               </ul>
             </div>
@@ -258,15 +284,21 @@ export function DataDeletionRequest() {
             <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
               <div className="flex items-center gap-2 text-yellow-700">
                 <Clock className="h-5 w-5" />
-                <span className="font-medium">You already have a pending deletion request</span>
+                <span className="font-medium">
+                  You already have a pending deletion request
+                </span>
               </div>
               <p className="mt-1 text-sm text-yellow-600">
-                Please wait for the current request to be processed or cancel it to submit a new
-                one.
+                Please wait for the current request to be processed or cancel it
+                to submit a new one.
               </p>
             </div>
           ) : (
-            <Button variant="destructive" onClick={handleOpenDialog} className="w-full sm:w-auto">
+            <Button
+              variant="destructive"
+              onClick={handleOpenDialog}
+              className="w-full sm:w-auto"
+            >
               <Trash2 className="mr-2 h-4 w-4" />
               Request Data Deletion
             </Button>
@@ -280,9 +312,17 @@ export function DataDeletionRequest() {
           <h3 className="text-lg font-medium">Your Deletion Requests</h3>
           <div className="space-y-4">
             {userRequests
-              .sort((a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime())
+              .sort(
+                (a, b) =>
+                  new Date(b.requestedAt).getTime() -
+                  new Date(a.requestedAt).getTime(),
+              )
               .map((request) => (
-                <DeletionRequestCard key={request.id} request={request} onCancel={handleCancel} />
+                <DeletionRequestCard
+                  key={request.id}
+                  request={request}
+                  onCancel={handleCancel}
+                />
               ))}
           </div>
         </div>
@@ -298,18 +338,20 @@ export function DataDeletionRequest() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
-            Under GDPR Article 17, you have the right to have your personal data erased ("right to
-            be forgotten"). This applies when:
+            Under GDPR Article 17, you have the right to have your personal data
+            erased ("right to be forgotten"). This applies when:
           </p>
           <ul className="list-inside list-disc space-y-1">
             <li>The data is no longer necessary for its original purpose</li>
             <li>You withdraw consent</li>
-            <li>You object to processing and there are no overriding grounds</li>
+            <li>
+              You object to processing and there are no overriding grounds
+            </li>
             <li>The data was unlawfully processed</li>
           </ul>
           <p className="mt-4">
-            <strong>Note:</strong> Some data may be retained for legal compliance, legitimate
-            business purposes, or active legal holds.
+            <strong>Note:</strong> Some data may be retained for legal
+            compliance, legitimate business purposes, or active legal holds.
           </p>
         </CardContent>
       </Card>
@@ -319,30 +361,44 @@ export function DataDeletionRequest() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Choose Deletion Scope</DialogTitle>
-            <DialogDescription>Select what data you want to delete</DialogDescription>
+            <DialogDescription>
+              Select what data you want to delete
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <RadioGroup
               value={selectedScope}
-              onValueChange={(value) => setSelectedScope(value as DeletionScope)}
+              onValueChange={(value) =>
+                setSelectedScope(value as DeletionScope)
+              }
             >
               {DELETION_SCOPES.map((scope) => (
                 <label
                   key={scope.scope}
                   htmlFor={scope.scope}
                   className={`flex cursor-pointer items-start space-x-3 rounded-lg border p-4 transition-colors ${
-                    selectedScope === scope.scope ? 'border-red-300 bg-red-50' : 'hover:bg-muted/50'
+                    selectedScope === scope.scope
+                      ? "border-red-300 bg-red-50"
+                      : "hover:bg-muted/50"
                   }`}
                 >
                   <RadioGroupItem value={scope.scope} id={scope.scope} />
                   <div className="flex-1">
-                    <span className="cursor-pointer font-medium">{scope.label}</span>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{scope.description}</p>
+                    <span className="cursor-pointer font-medium">
+                      {scope.label}
+                    </span>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      {scope.description}
+                    </p>
                     {scope.categories.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {scope.categories.map((cat) => (
-                          <Badge key={cat} variant="outline" className="text-xs">
+                          <Badge
+                            key={cat}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {cat}
                           </Badge>
                         ))}
@@ -386,19 +442,21 @@ export function DataDeletionRequest() {
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
               <p>
-                You are about to request deletion of your data with scope:{' '}
+                You are about to request deletion of your data with scope:{" "}
                 <strong>{getScopeLabel(selectedScope)}</strong>
               </p>
               <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
                 <p className="font-medium">This action cannot be undone.</p>
                 <p className="mt-1 text-sm">
-                  Once processed, your data will be permanently deleted from our systems. You have{' '}
-                  {COOLING_OFF_PERIOD_DAYS} days after approval to cancel.
+                  Once processed, your data will be permanently deleted from our
+                  systems. You have {COOLING_OFF_PERIOD_DAYS} days after
+                  approval to cancel.
                 </p>
               </div>
               <p className="text-sm">
-                A verification email will be sent to <strong>{currentUser.email}</strong>. You must
-                verify your identity before the request is processed.
+                A verification email will be sent to{" "}
+                <strong>{currentUser.email}</strong>. You must verify your
+                identity before the request is processed.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -415,12 +473,12 @@ export function DataDeletionRequest() {
                   Submitting...
                 </>
               ) : (
-                'Yes, Delete My Data'
+                "Yes, Delete My Data"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

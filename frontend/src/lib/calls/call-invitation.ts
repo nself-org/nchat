@@ -5,43 +5,43 @@
  * and timeout management.
  */
 
-import { EventEmitter } from 'events'
+import { EventEmitter } from "events";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface CallInvitation {
-  id: string
-  callerId: string
-  callerName: string
-  callerAvatarUrl?: string
-  type: 'voice' | 'video'
-  channelId?: string
-  receivedAt: Date
-  expiresAt: Date
-  status: 'pending' | 'accepted' | 'declined' | 'missed' | 'cancelled'
+  id: string;
+  callerId: string;
+  callerName: string;
+  callerAvatarUrl?: string;
+  type: "voice" | "video";
+  channelId?: string;
+  receivedAt: Date;
+  expiresAt: Date;
+  status: "pending" | "accepted" | "declined" | "missed" | "cancelled";
 }
 
 export interface InvitationConfig {
-  ringToneUrl?: string
-  ringVolume?: number
-  ringDuration?: number // milliseconds
-  timeout?: number // milliseconds until missed
-  vibrate?: boolean
-  vibratePattern?: number[]
-  enableNotifications?: boolean
-  notificationSound?: boolean
+  ringToneUrl?: string;
+  ringVolume?: number;
+  ringDuration?: number; // milliseconds
+  timeout?: number; // milliseconds until missed
+  vibrate?: boolean;
+  vibratePattern?: number[];
+  enableNotifications?: boolean;
+  notificationSound?: boolean;
 }
 
 export interface InvitationManagerConfig extends InvitationConfig {
-  onInvitation?: (invitation: CallInvitation) => void
-  onTimeout?: (invitation: CallInvitation) => void
-  onAccepted?: (invitation: CallInvitation) => void
-  onDeclined?: (invitation: CallInvitation) => void
-  onCancelled?: (invitation: CallInvitation) => void
+  onInvitation?: (invitation: CallInvitation) => void;
+  onTimeout?: (invitation: CallInvitation) => void;
+  onAccepted?: (invitation: CallInvitation) => void;
+  onDeclined?: (invitation: CallInvitation) => void;
+  onCancelled?: (invitation: CallInvitation) => void;
 }
 
 // =============================================================================
@@ -49,7 +49,7 @@ export interface InvitationManagerConfig extends InvitationConfig {
 // =============================================================================
 
 const DEFAULT_CONFIG: Required<InvitationConfig> = {
-  ringToneUrl: '/sounds/ringtone.mp3',
+  ringToneUrl: "/sounds/ringtone.mp3",
   ringVolume: 0.8,
   ringDuration: 30000, // 30 seconds
   timeout: 30000, // 30 seconds until missed
@@ -57,30 +57,30 @@ const DEFAULT_CONFIG: Required<InvitationConfig> = {
   vibratePattern: [500, 500, 500], // vibrate for 500ms, pause 500ms, repeat
   enableNotifications: true,
   notificationSound: true,
-}
+};
 
 // =============================================================================
 // Call Invitation Manager
 // =============================================================================
 
 export class CallInvitationManager extends EventEmitter {
-  private invitations = new Map<string, CallInvitation>()
-  private config: Required<InvitationConfig>
-  private callbacks: InvitationManagerConfig
-  private audio: HTMLAudioElement | null = null
-  private timeouts = new Map<string, NodeJS.Timeout>()
-  private vibrateInterval: NodeJS.Timeout | null = null
+  private invitations = new Map<string, CallInvitation>();
+  private config: Required<InvitationConfig>;
+  private callbacks: InvitationManagerConfig;
+  private audio: HTMLAudioElement | null = null;
+  private timeouts = new Map<string, NodeJS.Timeout>();
+  private vibrateInterval: NodeJS.Timeout | null = null;
 
   constructor(config: InvitationManagerConfig = {}) {
-    super()
-    this.config = { ...DEFAULT_CONFIG, ...config }
-    this.callbacks = config
+    super();
+    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.callbacks = config;
 
     // Initialize audio element
-    if (typeof window !== 'undefined') {
-      this.audio = new Audio(this.config.ringToneUrl)
-      this.audio.loop = true
-      this.audio.volume = this.config.ringVolume
+    if (typeof window !== "undefined") {
+      this.audio = new Audio(this.config.ringToneUrl);
+      this.audio.loop = true;
+      this.audio.volume = this.config.ringVolume;
     }
   }
 
@@ -91,14 +91,14 @@ export class CallInvitationManager extends EventEmitter {
     id: string,
     callerId: string,
     callerName: string,
-    type: 'voice' | 'video',
+    type: "voice" | "video",
     options?: {
-      callerAvatarUrl?: string
-      channelId?: string
-    }
+      callerAvatarUrl?: string;
+      channelId?: string;
+    },
   ): CallInvitation {
-    const now = new Date()
-    const expiresAt = new Date(now.getTime() + this.config.timeout)
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + this.config.timeout);
 
     const invitation: CallInvitation = {
       id,
@@ -109,184 +109,186 @@ export class CallInvitationManager extends EventEmitter {
       channelId: options?.channelId,
       receivedAt: now,
       expiresAt,
-      status: 'pending',
-    }
+      status: "pending",
+    };
 
     // Store invitation
-    this.invitations.set(id, invitation)
+    this.invitations.set(id, invitation);
 
     // Start ringing
-    this.startRinging()
+    this.startRinging();
 
     // Set timeout
     const timeout = setTimeout(() => {
-      this.timeout(id)
-    }, this.config.timeout)
-    this.timeouts.set(id, timeout)
+      this.timeout(id);
+    }, this.config.timeout);
+    this.timeouts.set(id, timeout);
 
     // Show notification
     if (this.config.enableNotifications) {
-      this.showNotification(invitation)
+      this.showNotification(invitation);
     }
 
     // Emit event
-    this.emit('invitation', invitation)
+    this.emit("invitation", invitation);
     if (this.callbacks.onInvitation) {
-      this.callbacks.onInvitation(invitation)
+      this.callbacks.onInvitation(invitation);
     }
 
-    return invitation
+    return invitation;
   }
 
   /**
    * Get invitation by ID
    */
   getInvitation(id: string): CallInvitation | undefined {
-    return this.invitations.get(id)
+    return this.invitations.get(id);
   }
 
   /**
    * Get all active invitations
    */
   getActiveInvitations(): CallInvitation[] {
-    return Array.from(this.invitations.values()).filter((inv) => inv.status === 'pending')
+    return Array.from(this.invitations.values()).filter(
+      (inv) => inv.status === "pending",
+    );
   }
 
   /**
    * Check if there are active invitations
    */
   hasActiveInvitations(): boolean {
-    return this.getActiveInvitations().length > 0
+    return this.getActiveInvitations().length > 0;
   }
 
   /**
    * Accept invitation
    */
   acceptInvitation(id: string): boolean {
-    const invitation = this.invitations.get(id)
-    if (!invitation || invitation.status !== 'pending') {
-      return false
+    const invitation = this.invitations.get(id);
+    if (!invitation || invitation.status !== "pending") {
+      return false;
     }
 
     // Update status
-    invitation.status = 'accepted'
+    invitation.status = "accepted";
 
     // Stop ringing
-    this.stopRinging()
+    this.stopRinging();
 
     // Clear timeout
-    this.clearInvitationTimeout(id)
+    this.clearInvitationTimeout(id);
 
     // Emit event
-    this.emit('accepted', invitation)
+    this.emit("accepted", invitation);
     if (this.callbacks.onAccepted) {
-      this.callbacks.onAccepted(invitation)
+      this.callbacks.onAccepted(invitation);
     }
 
     // Remove invitation after short delay
     setTimeout(() => {
-      this.invitations.delete(id)
-    }, 1000)
+      this.invitations.delete(id);
+    }, 1000);
 
-    return true
+    return true;
   }
 
   /**
    * Decline invitation
    */
   declineInvitation(id: string): boolean {
-    const invitation = this.invitations.get(id)
-    if (!invitation || invitation.status !== 'pending') {
-      return false
+    const invitation = this.invitations.get(id);
+    if (!invitation || invitation.status !== "pending") {
+      return false;
     }
 
     // Update status
-    invitation.status = 'declined'
+    invitation.status = "declined";
 
     // Stop ringing if no more active invitations
     if (!this.hasActiveInvitations()) {
-      this.stopRinging()
+      this.stopRinging();
     }
 
     // Clear timeout
-    this.clearInvitationTimeout(id)
+    this.clearInvitationTimeout(id);
 
     // Emit event
-    this.emit('declined', invitation)
+    this.emit("declined", invitation);
     if (this.callbacks.onDeclined) {
-      this.callbacks.onDeclined(invitation)
+      this.callbacks.onDeclined(invitation);
     }
 
     // Remove invitation
     setTimeout(() => {
-      this.invitations.delete(id)
-    }, 1000)
+      this.invitations.delete(id);
+    }, 1000);
 
-    return true
+    return true;
   }
 
   /**
    * Cancel invitation (caller cancelled)
    */
   cancelInvitation(id: string): boolean {
-    const invitation = this.invitations.get(id)
-    if (!invitation || invitation.status !== 'pending') {
-      return false
+    const invitation = this.invitations.get(id);
+    if (!invitation || invitation.status !== "pending") {
+      return false;
     }
 
     // Update status
-    invitation.status = 'cancelled'
+    invitation.status = "cancelled";
 
     // Stop ringing if no more active invitations
     if (!this.hasActiveInvitations()) {
-      this.stopRinging()
+      this.stopRinging();
     }
 
     // Clear timeout
-    this.clearInvitationTimeout(id)
+    this.clearInvitationTimeout(id);
 
     // Emit event
-    this.emit('cancelled', invitation)
+    this.emit("cancelled", invitation);
     if (this.callbacks.onCancelled) {
-      this.callbacks.onCancelled(invitation)
+      this.callbacks.onCancelled(invitation);
     }
 
     // Remove invitation
     setTimeout(() => {
-      this.invitations.delete(id)
-    }, 1000)
+      this.invitations.delete(id);
+    }, 1000);
 
-    return true
+    return true;
   }
 
   /**
    * Handle invitation timeout (missed call)
    */
   private timeout(id: string): void {
-    const invitation = this.invitations.get(id)
-    if (!invitation || invitation.status !== 'pending') {
-      return
+    const invitation = this.invitations.get(id);
+    if (!invitation || invitation.status !== "pending") {
+      return;
     }
 
     // Update status
-    invitation.status = 'missed'
+    invitation.status = "missed";
 
     // Stop ringing if no more active invitations
     if (!this.hasActiveInvitations()) {
-      this.stopRinging()
+      this.stopRinging();
     }
 
     // Emit event
-    this.emit('timeout', invitation)
-    this.emit('missed', invitation)
+    this.emit("timeout", invitation);
+    this.emit("missed", invitation);
     if (this.callbacks.onTimeout) {
-      this.callbacks.onTimeout(invitation)
+      this.callbacks.onTimeout(invitation);
     }
 
     // Remove invitation
     setTimeout(() => {
-      this.invitations.delete(id)
-    }, 5000) // Keep missed call for 5 seconds
+      this.invitations.delete(id);
+    }, 5000); // Keep missed call for 5 seconds
   }
 
   /**
@@ -296,21 +298,25 @@ export class CallInvitationManager extends EventEmitter {
     // Play audio
     if (this.audio && !this.isRinging()) {
       this.audio.play().catch((err) => {
-        logger.error('Failed to play ringtone:', err)
-      })
+        logger.error("Failed to play ringtone:", err);
+      });
     }
 
     // Start vibration
-    if (this.config.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) {
+    if (
+      this.config.vibrate &&
+      typeof navigator !== "undefined" &&
+      navigator.vibrate
+    ) {
       this.vibrateInterval = setInterval(
         () => {
-          navigator.vibrate(this.config.vibratePattern)
+          navigator.vibrate(this.config.vibratePattern);
         },
-        this.config.vibratePattern.reduce((a, b) => a + b, 0)
-      )
+        this.config.vibratePattern.reduce((a, b) => a + b, 0),
+      );
     }
 
-    this.emit('ringing-started')
+    this.emit("ringing-started");
   }
 
   /**
@@ -319,38 +325,38 @@ export class CallInvitationManager extends EventEmitter {
   private stopRinging(): void {
     // Stop audio
     if (this.audio && !this.audio.paused) {
-      this.audio.pause()
-      this.audio.currentTime = 0
+      this.audio.pause();
+      this.audio.currentTime = 0;
     }
 
     // Stop vibration
     if (this.vibrateInterval) {
-      clearInterval(this.vibrateInterval)
-      this.vibrateInterval = null
+      clearInterval(this.vibrateInterval);
+      this.vibrateInterval = null;
     }
 
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(0)
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(0);
     }
 
-    this.emit('ringing-stopped')
+    this.emit("ringing-stopped");
   }
 
   /**
    * Check if currently ringing
    */
   isRinging(): boolean {
-    return this.audio ? !this.audio.paused : false
+    return this.audio ? !this.audio.paused : false;
   }
 
   /**
    * Clear invitation timeout
    */
   private clearInvitationTimeout(id: string): void {
-    const timeout = this.timeouts.get(id)
+    const timeout = this.timeouts.get(id);
     if (timeout) {
-      clearTimeout(timeout)
-      this.timeouts.delete(id)
+      clearTimeout(timeout);
+      this.timeouts.delete(id);
     }
   }
 
@@ -358,31 +364,34 @@ export class CallInvitationManager extends EventEmitter {
    * Show browser notification
    */
   private async showNotification(invitation: CallInvitation): Promise<void> {
-    if (typeof window === 'undefined' || !('Notification' in window)) {
-      return
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      return;
     }
 
     // Request permission if needed
-    if (Notification.permission === 'default') {
-      await Notification.requestPermission()
+    if (Notification.permission === "default") {
+      await Notification.requestPermission();
     }
 
     // Show notification if permitted
-    if (Notification.permission === 'granted') {
-      const notification = new Notification(`Incoming ${invitation.type} call`, {
-        body: `${invitation.callerName} is calling you`,
-        icon: invitation.callerAvatarUrl || '/icons/call-icon.png',
-        tag: `call-${invitation.id}`,
-        requireInteraction: true,
-        silent: !this.config.notificationSound,
-      })
+    if (Notification.permission === "granted") {
+      const notification = new Notification(
+        `Incoming ${invitation.type} call`,
+        {
+          body: `${invitation.callerName} is calling you`,
+          icon: invitation.callerAvatarUrl || "/icons/call-icon.png",
+          tag: `call-${invitation.id}`,
+          requireInteraction: true,
+          silent: !this.config.notificationSound,
+        },
+      );
 
       // Handle notification clicks
       notification.onclick = () => {
-        window.focus()
-        notification.close()
-        this.emit('notification-clicked', invitation)
-      }
+        window.focus();
+        notification.close();
+        this.emit("notification-clicked", invitation);
+      };
     }
   }
 
@@ -390,14 +399,14 @@ export class CallInvitationManager extends EventEmitter {
    * Update configuration
    */
   updateConfig(config: Partial<InvitationConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
 
     // Update audio if changed
     if (config.ringToneUrl && this.audio) {
-      this.audio.src = config.ringToneUrl
+      this.audio.src = config.ringToneUrl;
     }
     if (config.ringVolume !== undefined && this.audio) {
-      this.audio.volume = config.ringVolume
+      this.audio.volume = config.ringVolume;
     }
   }
 
@@ -406,21 +415,21 @@ export class CallInvitationManager extends EventEmitter {
    */
   cleanup(): void {
     // Stop ringing
-    this.stopRinging()
+    this.stopRinging();
 
     // Clear all timeouts
     for (const timeout of this.timeouts.values()) {
-      clearTimeout(timeout)
+      clearTimeout(timeout);
     }
-    this.timeouts.clear()
+    this.timeouts.clear();
 
     // Clear invitations
-    this.invitations.clear()
+    this.invitations.clear();
 
     // Remove audio element
     if (this.audio) {
-      this.audio.pause()
-      this.audio = null
+      this.audio.pause();
+      this.audio = null;
     }
   }
 
@@ -428,22 +437,22 @@ export class CallInvitationManager extends EventEmitter {
    * Get invitation statistics
    */
   getStats(): {
-    total: number
-    pending: number
-    accepted: number
-    declined: number
-    missed: number
-    cancelled: number
+    total: number;
+    pending: number;
+    accepted: number;
+    declined: number;
+    missed: number;
+    cancelled: number;
   } {
-    const invitations = Array.from(this.invitations.values())
+    const invitations = Array.from(this.invitations.values());
     return {
       total: invitations.length,
-      pending: invitations.filter((i) => i.status === 'pending').length,
-      accepted: invitations.filter((i) => i.status === 'accepted').length,
-      declined: invitations.filter((i) => i.status === 'declined').length,
-      missed: invitations.filter((i) => i.status === 'missed').length,
-      cancelled: invitations.filter((i) => i.status === 'cancelled').length,
-    }
+      pending: invitations.filter((i) => i.status === "pending").length,
+      accepted: invitations.filter((i) => i.status === "accepted").length,
+      declined: invitations.filter((i) => i.status === "declined").length,
+      missed: invitations.filter((i) => i.status === "missed").length,
+      cancelled: invitations.filter((i) => i.status === "cancelled").length,
+    };
   }
 }
 
@@ -454,6 +463,8 @@ export class CallInvitationManager extends EventEmitter {
 /**
  * Create a new call invitation manager
  */
-export function createInvitationManager(config?: InvitationManagerConfig): CallInvitationManager {
-  return new CallInvitationManager(config)
+export function createInvitationManager(
+  config?: InvitationManagerConfig,
+): CallInvitationManager {
+  return new CallInvitationManager(config);
 }

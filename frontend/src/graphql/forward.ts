@@ -1,67 +1,71 @@
-import { gql } from '@apollo/client'
-import { MESSAGE_FULL_FRAGMENT, CHANNEL_BASIC_FRAGMENT, USER_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import {
+  MESSAGE_FULL_FRAGMENT,
+  CHANNEL_BASIC_FRAGMENT,
+  USER_BASIC_FRAGMENT,
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface ForwardMessageVariables {
-  originalMessageId: string
-  targetChannelId: string
-  userId: string
-  comment?: string
+  originalMessageId: string;
+  targetChannelId: string;
+  userId: string;
+  comment?: string;
 }
 
 export interface ForwardMessageToMultipleVariables {
-  originalMessageId: string
-  targetChannelIds: string[]
-  userId: string
-  comment?: string
+  originalMessageId: string;
+  targetChannelIds: string[];
+  userId: string;
+  comment?: string;
 }
 
 export interface GetForwardDestinationsVariables {
-  search?: string
-  limit?: number
-  offset?: number
-  userId?: string
+  search?: string;
+  limit?: number;
+  offset?: number;
+  userId?: string;
 }
 
 export interface GetRecentForwardDestinationsVariables {
-  userId: string
-  limit?: number
+  userId: string;
+  limit?: number;
 }
 
 export interface ForwardedMessageData {
-  id: string
-  content: string
-  type: string
-  created_at: string
-  channel_id: string
+  id: string;
+  content: string;
+  type: string;
+  created_at: string;
+  channel_id: string;
   user: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
   forwarded_from: {
-    id: string
-    content: string
-    type: string
-    created_at: string
-    channel_id: string
+    id: string;
+    content: string;
+    type: string;
+    created_at: string;
+    channel_id: string;
     user: {
-      id: string
-      username: string
-      display_name: string
-      avatar_url?: string
-    }
+      id: string;
+      username: string;
+      display_name: string;
+      avatar_url?: string;
+    };
     channel: {
-      id: string
-      name: string
-      slug: string
-      type: string
-    }
-  }
+      id: string;
+      name: string;
+      slug: string;
+      type: string;
+    };
+  };
 }
 
 // ============================================================================
@@ -117,7 +121,7 @@ export const FORWARD_MESSAGE = gql`
   ${MESSAGE_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Forward a message to multiple destinations at once
@@ -156,7 +160,7 @@ export const FORWARD_MESSAGE_TO_MULTIPLE = gql`
   }
   ${CHANNEL_BASIC_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -169,12 +173,22 @@ export const FORWARD_MESSAGE_TO_MULTIPLE = gql`
  * Includes recent activity for sorting purposes.
  */
 export const GET_FORWARD_DESTINATIONS = gql`
-  query GetForwardDestinations($search: String, $limit: Int = 50, $offset: Int = 0, $userId: uuid) {
+  query GetForwardDestinations(
+    $search: String
+    $limit: Int = 50
+    $offset: Int = 0
+    $userId: uuid
+  ) {
     nchat_channels(
       where: {
         _and: [
           { is_archived: { _eq: false } }
-          { _or: [{ name: { _ilike: $search } }, { description: { _ilike: $search } }] }
+          {
+            _or: [
+              { name: { _ilike: $search } }
+              { description: { _ilike: $search } }
+            ]
+          }
         ]
       }
       order_by: [{ updated_at: desc }, { name: asc }]
@@ -202,7 +216,7 @@ export const GET_FORWARD_DESTINATIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get channels where the user recently sent forwards
@@ -212,7 +226,11 @@ export const GET_FORWARD_DESTINATIONS = gql`
 export const GET_RECENT_FORWARD_DESTINATIONS = gql`
   query GetRecentForwardDestinations($userId: uuid!, $limit: Int = 10) {
     nchat_messages(
-      where: { user_id: { _eq: $userId }, type: { _eq: "forwarded" }, is_deleted: { _eq: false } }
+      where: {
+        user_id: { _eq: $userId }
+        type: { _eq: "forwarded" }
+        is_deleted: { _eq: false }
+      }
       order_by: { created_at: desc }
       limit: $limit
       distinct_on: channel_id
@@ -235,7 +253,7 @@ export const GET_RECENT_FORWARD_DESTINATIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get the original message with full details for the forwarded message display
@@ -278,7 +296,7 @@ export const GET_FORWARDED_MESSAGE_DETAILS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get forwarded messages count for analytics
@@ -286,14 +304,17 @@ export const GET_FORWARDED_MESSAGE_DETAILS = gql`
 export const GET_FORWARD_COUNT = gql`
   query GetForwardCount($messageId: uuid!) {
     nchat_messages_aggregate(
-      where: { forwarded_from_id: { _eq: $messageId }, is_deleted: { _eq: false } }
+      where: {
+        forwarded_from_id: { _eq: $messageId }
+        is_deleted: { _eq: false }
+      }
     ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -338,4 +359,4 @@ export const FORWARDED_MESSAGES_SUBSCRIPTION = gql`
   }
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;

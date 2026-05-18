@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { DataRetentionSettings } from '@/components/compliance'
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DataRetentionSettings } from "@/components/compliance";
 
 export default function RetentionPage() {
   return (
@@ -18,5 +18,5 @@ export default function RetentionPage() {
       </div>
       <DataRetentionSettings />
     </div>
-  )
+  );
 }

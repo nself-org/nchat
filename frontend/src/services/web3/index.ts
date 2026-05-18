@@ -46,4 +46,4 @@ export {
   clearVerificationCache,
   clearWalletCache,
   clearContractCache,
-} from './token-gate.service'
+} from "./token-gate.service";

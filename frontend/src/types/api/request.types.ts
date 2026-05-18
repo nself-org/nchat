@@ -5,9 +5,9 @@
  * Organized by domain for easy discovery and use.
  */
 
-import type { UserRole } from '../user'
-import type { ChannelType } from '../channel'
-import type { MemberRole } from '../database/enums'
+import type { UserRole } from "../user";
+import type { ChannelType } from "../channel";
+import type { MemberRole } from "../database/enums";
 
 // ============================================================================
 // Common Request Types
@@ -18,13 +18,13 @@ import type { MemberRole } from '../database/enums'
  */
 export interface PaginationParams {
   /** Page number (1-based) */
-  page?: number
+  page?: number;
   /** Items per page (default: 20, max: 100) */
-  limit?: number
+  limit?: number;
   /** Cursor for cursor-based pagination */
-  cursor?: string
+  cursor?: string;
   /** Direction for cursor pagination */
-  direction?: 'forward' | 'backward'
+  direction?: "forward" | "backward";
 }
 
 /**
@@ -32,9 +32,9 @@ export interface PaginationParams {
  */
 export interface SortParams<T extends string = string> {
   /** Field to sort by */
-  sortBy?: T
+  sortBy?: T;
   /** Sort direction */
-  sortOrder?: 'asc' | 'desc'
+  sortOrder?: "asc" | "desc";
 }
 
 /**
@@ -42,9 +42,9 @@ export interface SortParams<T extends string = string> {
  */
 export interface DateRangeParams {
   /** Start date (ISO 8601) */
-  startDate?: string
+  startDate?: string;
   /** End date (ISO 8601) */
-  endDate?: string
+  endDate?: string;
 }
 
 /**
@@ -52,11 +52,11 @@ export interface DateRangeParams {
  */
 export interface SearchParams {
   /** Search query string */
-  query: string
+  query: string;
   /** Fields to search in */
-  fields?: string[]
+  fields?: string[];
   /** Use fuzzy matching */
-  fuzzy?: boolean
+  fuzzy?: boolean;
 }
 
 // ============================================================================
@@ -68,13 +68,13 @@ export interface SearchParams {
  */
 export interface LoginRequest {
   /** User email */
-  email: string
+  email: string;
   /** User password */
-  password: string
+  password: string;
   /** Remember session */
-  rememberMe?: boolean
+  rememberMe?: boolean;
   /** Device information */
-  deviceInfo?: DeviceInfo
+  deviceInfo?: DeviceInfo;
 }
 
 /**
@@ -82,17 +82,17 @@ export interface LoginRequest {
  */
 export interface DeviceInfo {
   /** Device type */
-  type?: 'desktop' | 'mobile' | 'tablet' | 'web'
+  type?: "desktop" | "mobile" | "tablet" | "web";
   /** Device name */
-  name?: string
+  name?: string;
   /** Operating system */
-  os?: string
+  os?: string;
   /** Browser name */
-  browser?: string
+  browser?: string;
   /** App version */
-  appVersion?: string
+  appVersion?: string;
   /** Push notification token */
-  pushToken?: string
+  pushToken?: string;
 }
 
 /**
@@ -100,19 +100,19 @@ export interface DeviceInfo {
  */
 export interface RegisterRequest {
   /** User email */
-  email: string
+  email: string;
   /** User password */
-  password: string
+  password: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Username (optional) */
-  username?: string
+  username?: string;
   /** Accepted terms of service */
-  acceptedTerms: boolean
+  acceptedTerms: boolean;
   /** Marketing opt-in */
-  marketingOptIn?: boolean
+  marketingOptIn?: boolean;
   /** Invite code (if joining workspace) */
-  inviteCode?: string
+  inviteCode?: string;
 }
 
 /**
@@ -120,7 +120,7 @@ export interface RegisterRequest {
  */
 export interface PasswordResetRequest {
   /** User email */
-  email: string
+  email: string;
 }
 
 /**
@@ -128,9 +128,9 @@ export interface PasswordResetRequest {
  */
 export interface PasswordResetConfirmRequest {
   /** Reset token */
-  token: string
+  token: string;
   /** New password */
-  newPassword: string
+  newPassword: string;
 }
 
 /**
@@ -138,9 +138,9 @@ export interface PasswordResetConfirmRequest {
  */
 export interface ChangePasswordRequest {
   /** Current password */
-  currentPassword: string
+  currentPassword: string;
   /** New password */
-  newPassword: string
+  newPassword: string;
 }
 
 /**
@@ -148,13 +148,13 @@ export interface ChangePasswordRequest {
  */
 export interface OAuthLoginRequest {
   /** OAuth provider */
-  provider: 'google' | 'github' | 'discord' | 'apple'
+  provider: "google" | "github" | "discord" | "apple";
   /** OAuth code */
-  code: string
+  code: string;
   /** Redirect URI used */
-  redirectUri: string
+  redirectUri: string;
   /** State parameter */
-  state?: string
+  state?: string;
 }
 
 /**
@@ -162,7 +162,7 @@ export interface OAuthLoginRequest {
  */
 export interface RefreshTokenRequest {
   /** Refresh token */
-  refreshToken: string
+  refreshToken: string;
 }
 
 /**
@@ -170,11 +170,11 @@ export interface RefreshTokenRequest {
  */
 export interface MfaVerifyRequest {
   /** MFA code */
-  code: string
+  code: string;
   /** MFA method used */
-  method: 'totp' | 'sms' | 'email'
+  method: "totp" | "sms" | "email";
   /** Trust this device */
-  trustDevice?: boolean
+  trustDevice?: boolean;
 }
 
 // ============================================================================
@@ -186,25 +186,25 @@ export interface MfaVerifyRequest {
  */
 export interface UpdateProfileRequest {
   /** Display name */
-  displayName?: string
+  displayName?: string;
   /** Username */
-  username?: string
+  username?: string;
   /** Bio */
-  bio?: string
+  bio?: string;
   /** Location */
-  location?: string
+  location?: string;
   /** Website URL */
-  website?: string
+  website?: string;
   /** Timezone (IANA format) */
-  timezone?: string
+  timezone?: string;
   /** Language preference */
-  language?: string
+  language?: string;
   /** Pronouns */
-  pronouns?: string
+  pronouns?: string;
   /** Job title */
-  jobTitle?: string
+  jobTitle?: string;
   /** Company/organization */
-  company?: string
+  company?: string;
 }
 
 /**
@@ -213,35 +213,35 @@ export interface UpdateProfileRequest {
 export interface UpdateSettingsRequest {
   /** Notification settings */
   notifications?: {
-    enabled?: boolean
-    sound?: boolean
-    desktop?: boolean
+    enabled?: boolean;
+    sound?: boolean;
+    desktop?: boolean;
     email?: {
-      enabled?: boolean
-      directMessages?: boolean
-      mentions?: boolean
-      digest?: 'none' | 'daily' | 'weekly'
-    }
+      enabled?: boolean;
+      directMessages?: boolean;
+      mentions?: boolean;
+      digest?: "none" | "daily" | "weekly";
+    };
     push?: {
-      enabled?: boolean
-      directMessages?: boolean
-      mentions?: boolean
-    }
-  }
+      enabled?: boolean;
+      directMessages?: boolean;
+      mentions?: boolean;
+    };
+  };
   /** Privacy settings */
   privacy?: {
-    allowDirectMessages?: 'everyone' | 'contacts' | 'none'
-    showOnlineStatus?: boolean
-    showTypingIndicator?: boolean
-    showReadReceipts?: boolean
-  }
+    allowDirectMessages?: "everyone" | "contacts" | "none";
+    showOnlineStatus?: boolean;
+    showTypingIndicator?: boolean;
+    showReadReceipts?: boolean;
+  };
   /** Appearance settings */
   appearance?: {
-    theme?: 'light' | 'dark' | 'system'
-    compactMode?: boolean
-    fontSize?: 'small' | 'medium' | 'large'
-    timeFormat?: '12h' | '24h'
-  }
+    theme?: "light" | "dark" | "system";
+    compactMode?: boolean;
+    fontSize?: "small" | "medium" | "large";
+    timeFormat?: "12h" | "24h";
+  };
 }
 
 /**
@@ -249,11 +249,11 @@ export interface UpdateSettingsRequest {
  */
 export interface UpdateStatusRequest {
   /** Status emoji */
-  emoji?: string
+  emoji?: string;
   /** Status text */
-  text?: string
+  text?: string;
   /** Status expiration (ISO 8601) */
-  expiresAt?: string | null
+  expiresAt?: string | null;
 }
 
 /**
@@ -261,9 +261,9 @@ export interface UpdateStatusRequest {
  */
 export interface UpdatePresenceRequest {
   /** Presence status */
-  status: 'online' | 'away' | 'dnd' | 'offline'
+  status: "online" | "away" | "dnd" | "offline";
   /** Custom message */
-  customMessage?: string
+  customMessage?: string;
 }
 
 /**
@@ -271,17 +271,17 @@ export interface UpdatePresenceRequest {
  */
 export interface UserSearchRequest extends PaginationParams, SearchParams {
   /** Filter by roles */
-  roles?: UserRole[]
+  roles?: UserRole[];
   /** Filter by status */
-  status?: 'active' | 'inactive' | 'suspended'
+  status?: "active" | "inactive" | "suspended";
   /** Filter by presence */
-  presence?: ('online' | 'away' | 'dnd' | 'offline')[]
+  presence?: ("online" | "away" | "dnd" | "offline")[];
   /** Exclude user IDs */
-  excludeIds?: string[]
+  excludeIds?: string[];
   /** Include only from channel */
-  channelId?: string
+  channelId?: string;
   /** Include only from workspace */
-  workspaceId?: string
+  workspaceId?: string;
 }
 
 // ============================================================================
@@ -293,25 +293,25 @@ export interface UserSearchRequest extends PaginationParams, SearchParams {
  */
 export interface CreateChannelRequest {
   /** Channel name */
-  name: string
+  name: string;
   /** Channel type */
-  type: ChannelType
+  type: ChannelType;
   /** Description */
-  description?: string
+  description?: string;
   /** Topic */
-  topic?: string
+  topic?: string;
   /** Icon (emoji or URL) */
-  icon?: string
+  icon?: string;
   /** Category ID */
-  categoryId?: string
+  categoryId?: string;
   /** Is default channel */
-  isDefault?: boolean
+  isDefault?: boolean;
   /** Is read-only (announcements) */
-  isReadOnly?: boolean
+  isReadOnly?: boolean;
   /** Initial member IDs */
-  memberIds?: string[]
+  memberIds?: string[];
   /** Channel settings */
-  settings?: ChannelSettingsInput
+  settings?: ChannelSettingsInput;
 }
 
 /**
@@ -319,19 +319,19 @@ export interface CreateChannelRequest {
  */
 export interface ChannelSettingsInput {
   /** Allow reactions */
-  allowReactions?: boolean
+  allowReactions?: boolean;
   /** Allow threads */
-  allowThreads?: boolean
+  allowThreads?: boolean;
   /** Allow file uploads */
-  allowFileUploads?: boolean
+  allowFileUploads?: boolean;
   /** Allow link previews */
-  allowLinkPreviews?: boolean
+  allowLinkPreviews?: boolean;
   /** Slow mode delay (seconds) */
-  slowModeDelay?: number
+  slowModeDelay?: number;
   /** Default notification level */
-  defaultNotificationLevel?: 'all' | 'mentions' | 'none'
+  defaultNotificationLevel?: "all" | "mentions" | "none";
   /** Is NSFW */
-  isNsfw?: boolean
+  isNsfw?: boolean;
 }
 
 /**
@@ -339,23 +339,23 @@ export interface ChannelSettingsInput {
  */
 export interface UpdateChannelRequest {
   /** Channel name */
-  name?: string
+  name?: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Topic */
-  topic?: string
+  topic?: string;
   /** Icon */
-  icon?: string
+  icon?: string;
   /** Category ID */
-  categoryId?: string | null
+  categoryId?: string | null;
   /** Position */
-  position?: number
+  position?: number;
   /** Is default */
-  isDefault?: boolean
+  isDefault?: boolean;
   /** Is read-only */
-  isReadOnly?: boolean
+  isReadOnly?: boolean;
   /** Settings */
-  settings?: ChannelSettingsInput
+  settings?: ChannelSettingsInput;
 }
 
 /**
@@ -363,7 +363,7 @@ export interface UpdateChannelRequest {
  */
 export interface CreateDMRequest {
   /** User ID to start DM with */
-  userId: string
+  userId: string;
 }
 
 /**
@@ -371,11 +371,11 @@ export interface CreateDMRequest {
  */
 export interface CreateGroupDMRequest {
   /** Group name */
-  name?: string
+  name?: string;
   /** Group icon */
-  icon?: string
+  icon?: string;
   /** User IDs (2-10) */
-  userIds: string[]
+  userIds: string[];
 }
 
 /**
@@ -383,11 +383,11 @@ export interface CreateGroupDMRequest {
  */
 export interface ChannelMemberActionRequest {
   /** User ID */
-  userId: string
+  userId: string;
   /** Action */
-  action: 'add' | 'remove' | 'update_role'
+  action: "add" | "remove" | "update_role";
   /** New role (for update_role) */
-  role?: MemberRole
+  role?: MemberRole;
 }
 
 /**
@@ -395,13 +395,13 @@ export interface ChannelMemberActionRequest {
  */
 export interface CreateChannelInviteRequest {
   /** Expiration duration (seconds, null = never) */
-  expiresIn?: number | null
+  expiresIn?: number | null;
   /** Maximum uses (null = unlimited) */
-  maxUses?: number | null
+  maxUses?: number | null;
   /** Temporary membership */
-  isTemporary?: boolean
+  isTemporary?: boolean;
   /** Target email (private invite) */
-  targetEmail?: string
+  targetEmail?: string;
 }
 
 /**
@@ -409,17 +409,17 @@ export interface CreateChannelInviteRequest {
  */
 export interface ChannelSearchRequest extends PaginationParams, SearchParams {
   /** Filter by types */
-  types?: ChannelType[]
+  types?: ChannelType[];
   /** Filter by category */
-  categoryId?: string
+  categoryId?: string;
   /** Include archived */
-  includeArchived?: boolean
+  includeArchived?: boolean;
   /** Only channels user is member of */
-  onlyJoined?: boolean
+  onlyJoined?: boolean;
   /** Only with unread messages */
-  onlyUnread?: boolean
+  onlyUnread?: boolean;
   /** Sort options */
-  sort?: SortParams<'name' | 'created' | 'lastMessage' | 'memberCount'>
+  sort?: SortParams<"name" | "created" | "lastMessage" | "memberCount">;
 }
 
 // ============================================================================
@@ -431,30 +431,30 @@ export interface ChannelSearchRequest extends PaginationParams, SearchParams {
  */
 export interface SendMessageRequest {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Message content */
-  content: string
+  content: string;
   /** Reply to message ID */
-  replyToId?: string
+  replyToId?: string;
   /** Thread ID (for thread replies) */
-  threadId?: string
+  threadId?: string;
   /** Attachment IDs */
-  attachmentIds?: string[]
+  attachmentIds?: string[];
   /** Sticker ID */
-  stickerId?: string
+  stickerId?: string;
   /** Poll ID */
-  pollId?: string
+  pollId?: string;
   /** Mentions */
   mentions?: {
-    users?: string[]
-    channels?: string[]
-    everyone?: boolean
-    here?: boolean
-  }
+    users?: string[];
+    channels?: string[];
+    everyone?: boolean;
+    here?: boolean;
+  };
   /** Silent message (no notifications) */
-  silent?: boolean
+  silent?: boolean;
   /** Scheduled send time (ISO 8601) */
-  scheduledAt?: string
+  scheduledAt?: string;
 }
 
 /**
@@ -462,27 +462,28 @@ export interface SendMessageRequest {
  */
 export interface EditMessageRequest {
   /** New content */
-  content: string
+  content: string;
 }
 
 /**
  * Message search request.
  */
-export interface MessageSearchRequest extends PaginationParams, SearchParams, DateRangeParams {
+export interface MessageSearchRequest
+  extends PaginationParams, SearchParams, DateRangeParams {
   /** Filter by channel IDs */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Filter by user IDs (authors) */
-  authorIds?: string[]
+  authorIds?: string[];
   /** Has attachments */
-  hasAttachments?: boolean
+  hasAttachments?: boolean;
   /** Has links */
-  hasLinks?: boolean
+  hasLinks?: boolean;
   /** Is pinned */
-  isPinned?: boolean
+  isPinned?: boolean;
   /** Mentions current user */
-  mentionsMe?: boolean
+  mentionsMe?: boolean;
   /** Sort options */
-  sort?: SortParams<'relevance' | 'date'>
+  sort?: SortParams<"relevance" | "date">;
 }
 
 /**
@@ -490,7 +491,7 @@ export interface MessageSearchRequest extends PaginationParams, SearchParams, Da
  */
 export interface ReactionRequest {
   /** Emoji character or custom emoji ID */
-  emoji: string
+  emoji: string;
 }
 
 /**
@@ -498,9 +499,9 @@ export interface ReactionRequest {
  */
 export interface MarkReadRequest {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Last read message ID */
-  messageId: string
+  messageId: string;
 }
 
 /**
@@ -508,9 +509,9 @@ export interface MarkReadRequest {
  */
 export interface BulkMessageActionRequest {
   /** Message IDs */
-  messageIds: string[]
+  messageIds: string[];
   /** Action */
-  action: 'delete' | 'pin' | 'unpin'
+  action: "delete" | "pin" | "unpin";
 }
 
 // ============================================================================
@@ -522,9 +523,9 @@ export interface BulkMessageActionRequest {
  */
 export interface CreateThreadRequest {
   /** Root message ID */
-  messageId: string
+  messageId: string;
   /** Thread name (optional) */
-  name?: string
+  name?: string;
 }
 
 /**
@@ -532,11 +533,11 @@ export interface CreateThreadRequest {
  */
 export interface UpdateThreadRequest {
   /** Thread name */
-  name?: string
+  name?: string;
   /** Is locked */
-  isLocked?: boolean
+  isLocked?: boolean;
   /** Is archived */
-  isArchived?: boolean
+  isArchived?: boolean;
 }
 
 // ============================================================================
@@ -548,15 +549,15 @@ export interface UpdateThreadRequest {
  */
 export interface FileUploadRequest {
   /** Original filename */
-  filename: string
+  filename: string;
   /** MIME type */
-  mimeType: string
+  mimeType: string;
   /** File size in bytes */
-  size: number
+  size: number;
   /** Upload context */
-  context: 'message' | 'avatar' | 'banner' | 'workspace' | 'emoji'
+  context: "message" | "avatar" | "banner" | "workspace" | "emoji";
   /** Associated entity ID */
-  entityId?: string
+  entityId?: string;
 }
 
 /**
@@ -564,9 +565,9 @@ export interface FileUploadRequest {
  */
 export interface CompleteUploadRequest {
   /** Upload ID */
-  uploadId: string
+  uploadId: string;
   /** File checksum (optional) */
-  checksum?: string
+  checksum?: string;
 }
 
 // ============================================================================
@@ -578,17 +579,17 @@ export interface CompleteUploadRequest {
  */
 export interface CreateWorkspaceRequest {
   /** Workspace name */
-  name: string
+  name: string;
   /** URL slug */
-  slug: string
+  slug: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Logo URL */
-  logoUrl?: string
+  logoUrl?: string;
   /** Primary color */
-  primaryColor?: string
+  primaryColor?: string;
   /** Is public */
-  isPublic?: boolean
+  isPublic?: boolean;
 }
 
 /**
@@ -596,27 +597,27 @@ export interface CreateWorkspaceRequest {
  */
 export interface UpdateWorkspaceRequest {
   /** Workspace name */
-  name?: string
+  name?: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Logo URL */
-  logoUrl?: string
+  logoUrl?: string;
   /** Icon URL */
-  iconUrl?: string
+  iconUrl?: string;
   /** Banner URL */
-  bannerUrl?: string
+  bannerUrl?: string;
   /** Primary color */
-  primaryColor?: string
+  primaryColor?: string;
   /** Is public */
-  isPublic?: boolean
+  isPublic?: boolean;
   /** Is discoverable */
-  isDiscoverable?: boolean
+  isDiscoverable?: boolean;
   /** Allow invites */
-  allowInvites?: boolean
+  allowInvites?: boolean;
   /** Require approval */
-  requireApproval?: boolean
+  requireApproval?: boolean;
   /** Default channel ID */
-  defaultChannelId?: string
+  defaultChannelId?: string;
 }
 
 /**
@@ -624,13 +625,13 @@ export interface UpdateWorkspaceRequest {
  */
 export interface CreateWorkspaceInviteRequest {
   /** Max uses */
-  maxUses?: number | null
+  maxUses?: number | null;
   /** Expiration (seconds) */
-  expiresIn?: number | null
+  expiresIn?: number | null;
   /** Target email */
-  targetEmail?: string
+  targetEmail?: string;
   /** Target role */
-  targetRole?: MemberRole
+  targetRole?: MemberRole;
 }
 
 // ============================================================================
@@ -642,40 +643,40 @@ export interface CreateWorkspaceInviteRequest {
  */
 export interface UpdateNotificationPreferencesRequest {
   /** Global enabled */
-  enabled?: boolean
+  enabled?: boolean;
   /** Email settings */
   email?: {
-    enabled?: boolean
-    directMessages?: boolean
-    mentions?: boolean
-    threadReplies?: boolean
-    digestFrequency?: 'none' | 'hourly' | 'daily' | 'weekly'
-  }
+    enabled?: boolean;
+    directMessages?: boolean;
+    mentions?: boolean;
+    threadReplies?: boolean;
+    digestFrequency?: "none" | "hourly" | "daily" | "weekly";
+  };
   /** Push settings */
   push?: {
-    enabled?: boolean
-    directMessages?: boolean
-    mentions?: boolean
-    threadReplies?: boolean
-    reactions?: boolean
-    showPreview?: boolean
-  }
+    enabled?: boolean;
+    directMessages?: boolean;
+    mentions?: boolean;
+    threadReplies?: boolean;
+    reactions?: boolean;
+    showPreview?: boolean;
+  };
   /** Desktop settings */
   desktop?: {
-    enabled?: boolean
-    directMessages?: boolean
-    mentions?: boolean
-    playSound?: boolean
-  }
+    enabled?: boolean;
+    directMessages?: boolean;
+    mentions?: boolean;
+    playSound?: boolean;
+  };
   /** Quiet hours */
   quietHours?: {
-    enabled?: boolean
-    startTime?: string
-    endTime?: string
-    timezone?: string
-  }
+    enabled?: boolean;
+    startTime?: string;
+    endTime?: string;
+    timezone?: string;
+  };
   /** Keywords */
-  keywords?: string[]
+  keywords?: string[];
 }
 
 /**
@@ -683,9 +684,9 @@ export interface UpdateNotificationPreferencesRequest {
  */
 export interface MarkNotificationsReadRequest {
   /** Notification IDs (empty = all) */
-  notificationIds?: string[]
+  notificationIds?: string[];
   /** Mark all before timestamp */
-  before?: string
+  before?: string;
 }
 
 // ============================================================================
@@ -697,15 +698,15 @@ export interface MarkNotificationsReadRequest {
  */
 export interface CreateWebhookRequest {
   /** Webhook name */
-  name: string
+  name: string;
   /** Destination URL */
-  url: string
+  url: string;
   /** Event types to send */
-  events: string[]
+  events: string[];
   /** Channel ID (optional) */
-  channelId?: string
+  channelId?: string;
   /** Is enabled */
-  isEnabled?: boolean
+  isEnabled?: boolean;
 }
 
 /**
@@ -713,13 +714,13 @@ export interface CreateWebhookRequest {
  */
 export interface UpdateWebhookRequest {
   /** Webhook name */
-  name?: string
+  name?: string;
   /** Destination URL */
-  url?: string
+  url?: string;
   /** Event types */
-  events?: string[]
+  events?: string[];
   /** Is enabled */
-  isEnabled?: boolean
+  isEnabled?: boolean;
 }
 
 /**
@@ -727,13 +728,13 @@ export interface UpdateWebhookRequest {
  */
 export interface CreateIncomingWebhookRequest {
   /** Webhook name */
-  name: string
+  name: string;
   /** Target channel ID */
-  channelId: string
+  channelId: string;
   /** Custom avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Custom username */
-  username?: string
+  username?: string;
 }
 
 // ============================================================================
@@ -745,13 +746,13 @@ export interface CreateIncomingWebhookRequest {
  */
 export interface ReportContentRequest {
   /** Content type */
-  type: 'message' | 'user' | 'channel'
+  type: "message" | "user" | "channel";
   /** Content ID */
-  targetId: string
+  targetId: string;
   /** Report reason */
-  reason: 'spam' | 'harassment' | 'inappropriate' | 'violence' | 'other'
+  reason: "spam" | "harassment" | "inappropriate" | "violence" | "other";
   /** Additional details */
-  details?: string
+  details?: string;
 }
 
 // ============================================================================
@@ -763,15 +764,15 @@ export interface ReportContentRequest {
  */
 export interface ModerationActionRequest {
   /** Target user ID */
-  userId: string
+  userId: string;
   /** Action type */
-  action: 'warn' | 'mute' | 'kick' | 'ban'
+  action: "warn" | "mute" | "kick" | "ban";
   /** Reason */
-  reason?: string
+  reason?: string;
   /** Duration (seconds, for mute/ban) */
-  duration?: number | null
+  duration?: number | null;
   /** Delete messages */
-  deleteMessages?: boolean
+  deleteMessages?: boolean;
   /** Delete messages from last N hours */
-  deleteMessageHours?: number
+  deleteMessageHours?: number;
 }

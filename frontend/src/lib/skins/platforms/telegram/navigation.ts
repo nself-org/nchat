@@ -30,21 +30,21 @@
  */
 export interface TelegramNavigationTab {
   /** Unique identifier for the tab */
-  id: string
+  id: string;
   /** Display label */
-  label: string
+  label: string;
   /** Icon name (from icon set) */
-  icon: string
+  icon: string;
   /** Icon name when tab is active */
-  activeIcon: string
+  activeIcon: string;
   /** Badge type shown on the tab */
-  badgeType: 'count' | 'dot' | 'none'
+  badgeType: "count" | "dot" | "none";
   /** Whether this tab is the default/landing tab */
-  isDefault: boolean
+  isDefault: boolean;
   /** Route/path associated with this tab */
-  route: string
+  route: string;
   /** Nested sub-routes */
-  subRoutes?: string[]
+  subRoutes?: string[];
 }
 
 /**
@@ -52,17 +52,17 @@ export interface TelegramNavigationTab {
  */
 export interface TelegramDrawerItem {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Display label */
-  label: string
+  label: string;
   /** Icon name */
-  icon: string
+  icon: string;
   /** Route/action */
-  route: string
+  route: string;
   /** Whether this opens a new view or triggers an action */
-  type: 'navigate' | 'action'
+  type: "navigate" | "action";
   /** Divider after this item */
-  dividerAfter: boolean
+  dividerAfter: boolean;
 }
 
 /**
@@ -70,31 +70,31 @@ export interface TelegramDrawerItem {
  */
 export interface TelegramNavigationLayout {
   /** Primary navigation style */
-  style: 'drawer' | 'bottom-tabs' | 'sidebar'
+  style: "drawer" | "bottom-tabs" | "sidebar";
   /** Chat folder tabs position */
-  folderTabsPosition: 'top' | 'none'
+  folderTabsPosition: "top" | "none";
   /** Whether the navigation is collapsible */
-  collapsible: boolean
+  collapsible: boolean;
   /** Whether folder tabs show labels */
-  showFolderLabels: boolean
+  showFolderLabels: boolean;
   /** Folder tab indicator style */
-  folderIndicatorStyle: 'underline' | 'background' | 'pill'
+  folderIndicatorStyle: "underline" | "background" | "pill";
   /** Active folder indicator color */
-  folderIndicatorColor: string
+  folderIndicatorColor: string;
   /** Inactive folder text color */
-  folderInactiveColor: string
+  folderInactiveColor: string;
   /** Active folder text color */
-  folderActiveColor: string
+  folderActiveColor: string;
   /** Folder tab bar background */
-  folderBarBackground: string
+  folderBarBackground: string;
   /** Tab bar height */
-  folderBarHeight: string
+  folderBarHeight: string;
   /** Search bar background color */
-  searchBarBg: string
+  searchBarBg: string;
   /** Search bar text color */
-  searchBarText: string
+  searchBarText: string;
   /** Search bar placeholder color */
-  searchBarPlaceholder: string
+  searchBarPlaceholder: string;
 }
 
 /**
@@ -102,23 +102,23 @@ export interface TelegramNavigationLayout {
  */
 export interface TelegramHeaderBarConfig {
   /** Header height */
-  height: string
+  height: string;
   /** Header background color */
-  backgroundColor: string
+  backgroundColor: string;
   /** Header text color */
-  textColor: string
+  textColor: string;
   /** Header icon color */
-  iconColor: string
+  iconColor: string;
   /** App title shown in header */
-  title: string
+  title: string;
   /** Whether title is shown */
-  showTitle: boolean
+  showTitle: boolean;
   /** Whether hamburger menu icon is shown */
-  hamburgerMenu: boolean
+  hamburgerMenu: boolean;
   /** Whether search icon is shown in header */
-  searchIcon: boolean
+  searchIcon: boolean;
   /** Header shadow/elevation */
-  elevation: string
+  elevation: string;
 }
 
 /**
@@ -126,27 +126,27 @@ export interface TelegramHeaderBarConfig {
  */
 export interface TelegramChatListNavConfig {
   /** Whether the chat list is the primary view */
-  isPrimaryView: boolean
+  isPrimaryView: boolean;
   /** Chat list layout mode */
-  layout: 'full-width' | 'sidebar' | 'split-view'
+  layout: "full-width" | "sidebar" | "split-view";
   /** Whether there's a floating action button */
-  floatingActionButton: boolean
+  floatingActionButton: boolean;
   /** FAB icon */
-  fabIcon: string
+  fabIcon: string;
   /** FAB action */
-  fabAction: string
+  fabAction: string;
   /** Search placement */
-  searchPlacement: 'header' | 'inline' | 'floating'
+  searchPlacement: "header" | "inline" | "floating";
   /** Whether long-press context menu is available */
-  longPressMenu: boolean
+  longPressMenu: boolean;
   /** Whether swipe-to-archive is available */
-  swipeToArchive: boolean
+  swipeToArchive: boolean;
   /** Whether swipe-to-pin is available */
-  swipeToPin: boolean
+  swipeToPin: boolean;
   /** Whether swipe-to-mute is available */
-  swipeToMute: boolean
+  swipeToMute: boolean;
   /** Whether swipe-to-read is available */
-  swipeToRead: boolean
+  swipeToRead: boolean;
 }
 
 /**
@@ -154,17 +154,17 @@ export interface TelegramChatListNavConfig {
  */
 export interface TelegramNavigationConfig {
   /** Platform variant */
-  platform: 'mobile' | 'desktop'
+  platform: "mobile" | "desktop";
   /** Drawer menu items */
-  drawerItems: TelegramDrawerItem[]
+  drawerItems: TelegramDrawerItem[];
   /** Chat folder default tabs */
-  defaultFolderTabs: TelegramNavigationTab[]
+  defaultFolderTabs: TelegramNavigationTab[];
   /** Layout configuration */
-  layout: TelegramNavigationLayout
+  layout: TelegramNavigationLayout;
   /** Header bar configuration */
-  header: TelegramHeaderBarConfig
+  header: TelegramHeaderBarConfig;
   /** Chat list navigation */
-  chatList: TelegramChatListNavConfig
+  chatList: TelegramChatListNavConfig;
 }
 
 // ============================================================================
@@ -173,62 +173,62 @@ export interface TelegramNavigationConfig {
 
 export const telegramDrawerItems: TelegramDrawerItem[] = [
   {
-    id: 'new-group',
-    label: 'New Group',
-    icon: 'users',
-    route: '/new-group',
-    type: 'navigate',
+    id: "new-group",
+    label: "New Group",
+    icon: "users",
+    route: "/new-group",
+    type: "navigate",
     dividerAfter: false,
   },
   {
-    id: 'new-channel',
-    label: 'New Channel',
-    icon: 'megaphone',
-    route: '/new-channel',
-    type: 'navigate',
+    id: "new-channel",
+    label: "New Channel",
+    icon: "megaphone",
+    route: "/new-channel",
+    type: "navigate",
     dividerAfter: false,
   },
   {
-    id: 'contacts',
-    label: 'Contacts',
-    icon: 'contact',
-    route: '/contacts',
-    type: 'navigate',
+    id: "contacts",
+    label: "Contacts",
+    icon: "contact",
+    route: "/contacts",
+    type: "navigate",
     dividerAfter: false,
   },
   {
-    id: 'calls',
-    label: 'Calls',
-    icon: 'phone',
-    route: '/calls',
-    type: 'navigate',
+    id: "calls",
+    label: "Calls",
+    icon: "phone",
+    route: "/calls",
+    type: "navigate",
     dividerAfter: false,
   },
   {
-    id: 'people-nearby',
-    label: 'People Nearby',
-    icon: 'map-pin',
-    route: '/people-nearby',
-    type: 'navigate',
+    id: "people-nearby",
+    label: "People Nearby",
+    icon: "map-pin",
+    route: "/people-nearby",
+    type: "navigate",
     dividerAfter: false,
   },
   {
-    id: 'saved-messages',
-    label: 'Saved Messages',
-    icon: 'bookmark',
-    route: '/saved-messages',
-    type: 'navigate',
+    id: "saved-messages",
+    label: "Saved Messages",
+    icon: "bookmark",
+    route: "/saved-messages",
+    type: "navigate",
     dividerAfter: true,
   },
   {
-    id: 'settings',
-    label: 'Settings',
-    icon: 'settings',
-    route: '/settings',
-    type: 'navigate',
+    id: "settings",
+    label: "Settings",
+    icon: "settings",
+    route: "/settings",
+    type: "navigate",
     dividerAfter: false,
   },
-]
+];
 
 // ============================================================================
 // TELEGRAM DEFAULT FOLDER TABS
@@ -236,113 +236,113 @@ export const telegramDrawerItems: TelegramDrawerItem[] = [
 
 export const telegramDefaultFolderTabs: TelegramNavigationTab[] = [
   {
-    id: 'all-chats',
-    label: 'All Chats',
-    icon: 'message-circle',
-    activeIcon: 'message-circle',
-    badgeType: 'count',
+    id: "all-chats",
+    label: "All Chats",
+    icon: "message-circle",
+    activeIcon: "message-circle",
+    badgeType: "count",
     isDefault: true,
-    route: '/chats',
+    route: "/chats",
   },
-]
+];
 
 // ============================================================================
 // TELEGRAM MOBILE NAVIGATION
 // ============================================================================
 
 export const telegramMobileNavigation: TelegramNavigationConfig = {
-  platform: 'mobile',
+  platform: "mobile",
   drawerItems: telegramDrawerItems,
   defaultFolderTabs: telegramDefaultFolderTabs,
   layout: {
-    style: 'drawer',
-    folderTabsPosition: 'top',
+    style: "drawer",
+    folderTabsPosition: "top",
     collapsible: false,
     showFolderLabels: true,
-    folderIndicatorStyle: 'underline',
-    folderIndicatorColor: '#3390EC',
-    folderInactiveColor: '#707579',
-    folderActiveColor: '#3390EC',
-    folderBarBackground: '#FFFFFF',
-    folderBarHeight: '40px',
-    searchBarBg: '#F0F2F5',
-    searchBarText: '#000000',
-    searchBarPlaceholder: '#707579',
+    folderIndicatorStyle: "underline",
+    folderIndicatorColor: "#3390EC",
+    folderInactiveColor: "#707579",
+    folderActiveColor: "#3390EC",
+    folderBarBackground: "#FFFFFF",
+    folderBarHeight: "40px",
+    searchBarBg: "#F0F2F5",
+    searchBarText: "#000000",
+    searchBarPlaceholder: "#707579",
   },
   header: {
-    height: '56px',
-    backgroundColor: '#4A8ECB',
-    textColor: '#FFFFFF',
-    iconColor: '#FFFFFF',
-    title: 'Telegram',
+    height: "56px",
+    backgroundColor: "#4A8ECB",
+    textColor: "#FFFFFF",
+    iconColor: "#FFFFFF",
+    title: "Telegram",
     showTitle: true,
     hamburgerMenu: true,
     searchIcon: true,
-    elevation: '0 1px 2px rgba(0, 0, 0, 0.1)',
+    elevation: "0 1px 2px rgba(0, 0, 0, 0.1)",
   },
   chatList: {
     isPrimaryView: true,
-    layout: 'full-width',
+    layout: "full-width",
     floatingActionButton: true,
-    fabIcon: 'pencil',
-    fabAction: 'new-message',
-    searchPlacement: 'header',
+    fabIcon: "pencil",
+    fabAction: "new-message",
+    searchPlacement: "header",
     longPressMenu: true,
     swipeToArchive: true,
     swipeToPin: true,
     swipeToMute: true,
     swipeToRead: true,
   },
-}
+};
 
 // ============================================================================
 // TELEGRAM DESKTOP NAVIGATION
 // ============================================================================
 
 export const telegramDesktopNavigation: TelegramNavigationConfig = {
-  platform: 'desktop',
+  platform: "desktop",
   drawerItems: telegramDrawerItems,
   defaultFolderTabs: telegramDefaultFolderTabs,
   layout: {
-    style: 'sidebar',
-    folderTabsPosition: 'top',
+    style: "sidebar",
+    folderTabsPosition: "top",
     collapsible: false,
     showFolderLabels: true,
-    folderIndicatorStyle: 'underline',
-    folderIndicatorColor: '#3390EC',
-    folderInactiveColor: '#707579',
-    folderActiveColor: '#3390EC',
-    folderBarBackground: '#FFFFFF',
-    folderBarHeight: '36px',
-    searchBarBg: '#F0F2F5',
-    searchBarText: '#000000',
-    searchBarPlaceholder: '#707579',
+    folderIndicatorStyle: "underline",
+    folderIndicatorColor: "#3390EC",
+    folderInactiveColor: "#707579",
+    folderActiveColor: "#3390EC",
+    folderBarBackground: "#FFFFFF",
+    folderBarHeight: "36px",
+    searchBarBg: "#F0F2F5",
+    searchBarText: "#000000",
+    searchBarPlaceholder: "#707579",
   },
   header: {
-    height: '56px',
-    backgroundColor: '#FFFFFF',
-    textColor: '#000000',
-    iconColor: '#707579',
-    title: '',
+    height: "56px",
+    backgroundColor: "#FFFFFF",
+    textColor: "#000000",
+    iconColor: "#707579",
+    title: "",
     showTitle: false,
     hamburgerMenu: true,
     searchIcon: false,
-    elevation: '0 1px 2px rgba(0, 0, 0, 0.05)',
+    elevation: "0 1px 2px rgba(0, 0, 0, 0.05)",
   },
   chatList: {
     isPrimaryView: true,
-    layout: 'sidebar',
+    layout: "sidebar",
     floatingActionButton: false,
-    fabIcon: '',
-    fabAction: '',
-    searchPlacement: 'inline',
+    fabIcon: "",
+    fabAction: "",
+    searchPlacement: "inline",
     longPressMenu: false,
     swipeToArchive: false,
     swipeToPin: false,
     swipeToMute: false,
     swipeToRead: false,
   },
-}
+};
 
 // ============================================================================
 // DARK MODE NAVIGATION CONFIGS
@@ -352,43 +352,43 @@ export const telegramMobileNavigationDark: TelegramNavigationConfig = {
   ...telegramMobileNavigation,
   layout: {
     ...telegramMobileNavigation.layout,
-    folderIndicatorColor: '#6AB2F2',
-    folderInactiveColor: '#6D7883',
-    folderActiveColor: '#6AB2F2',
-    folderBarBackground: '#17212B',
-    searchBarBg: '#242F3D',
-    searchBarText: '#F5F5F5',
-    searchBarPlaceholder: '#6D7883',
+    folderIndicatorColor: "#6AB2F2",
+    folderInactiveColor: "#6D7883",
+    folderActiveColor: "#6AB2F2",
+    folderBarBackground: "#17212B",
+    searchBarBg: "#242F3D",
+    searchBarText: "#F5F5F5",
+    searchBarPlaceholder: "#6D7883",
   },
   header: {
     ...telegramMobileNavigation.header,
-    backgroundColor: '#17212B',
-    textColor: '#F5F5F5',
-    iconColor: '#AAAAAA',
-    elevation: '0 1px 2px rgba(0, 0, 0, 0.3)',
+    backgroundColor: "#17212B",
+    textColor: "#F5F5F5",
+    iconColor: "#AAAAAA",
+    elevation: "0 1px 2px rgba(0, 0, 0, 0.3)",
   },
-}
+};
 
 export const telegramDesktopNavigationDark: TelegramNavigationConfig = {
   ...telegramDesktopNavigation,
   layout: {
     ...telegramDesktopNavigation.layout,
-    folderIndicatorColor: '#6AB2F2',
-    folderInactiveColor: '#6D7883',
-    folderActiveColor: '#6AB2F2',
-    folderBarBackground: '#17212B',
-    searchBarBg: '#242F3D',
-    searchBarText: '#F5F5F5',
-    searchBarPlaceholder: '#6D7883',
+    folderIndicatorColor: "#6AB2F2",
+    folderInactiveColor: "#6D7883",
+    folderActiveColor: "#6AB2F2",
+    folderBarBackground: "#17212B",
+    searchBarBg: "#242F3D",
+    searchBarText: "#F5F5F5",
+    searchBarPlaceholder: "#6D7883",
   },
   header: {
     ...telegramDesktopNavigation.header,
-    backgroundColor: '#17212B',
-    textColor: '#F5F5F5',
-    iconColor: '#6D7883',
-    elevation: '0 1px 2px rgba(0, 0, 0, 0.2)',
+    backgroundColor: "#17212B",
+    textColor: "#F5F5F5",
+    iconColor: "#6D7883",
+    elevation: "0 1px 2px rgba(0, 0, 0, 0.2)",
   },
-}
+};
 
 // ============================================================================
 // NAVIGATION HELPERS
@@ -398,41 +398,44 @@ export const telegramDesktopNavigationDark: TelegramNavigationConfig = {
  * Get the Telegram navigation configuration for the given platform and mode.
  */
 export function getTelegramNavigation(
-  platform: 'mobile' | 'desktop',
-  isDarkMode: boolean = false
+  platform: "mobile" | "desktop",
+  isDarkMode: boolean = false,
 ): TelegramNavigationConfig {
-  if (platform === 'mobile') {
-    return isDarkMode ? telegramMobileNavigationDark : telegramMobileNavigation
+  if (platform === "mobile") {
+    return isDarkMode ? telegramMobileNavigationDark : telegramMobileNavigation;
   }
-  return isDarkMode ? telegramDesktopNavigationDark : telegramDesktopNavigation
+  return isDarkMode ? telegramDesktopNavigationDark : telegramDesktopNavigation;
 }
 
 /**
  * Get the default folder tab for Telegram navigation.
  */
 export function getTelegramDefaultTab(): TelegramNavigationTab {
-  return telegramDefaultFolderTabs.find((t) => t.isDefault) ?? telegramDefaultFolderTabs[0]
+  return (
+    telegramDefaultFolderTabs.find((t) => t.isDefault) ??
+    telegramDefaultFolderTabs[0]
+  );
 }
 
 /**
  * Get the drawer item count.
  */
 export function getTelegramDrawerItemCount(): number {
-  return telegramDrawerItems.length
+  return telegramDrawerItems.length;
 }
 
 /**
  * Find a drawer item by its ID.
  */
 export function getTelegramDrawerItemById(
-  itemId: string
+  itemId: string,
 ): TelegramDrawerItem | undefined {
-  return telegramDrawerItems.find((item) => item.id === itemId)
+  return telegramDrawerItems.find((item) => item.id === itemId);
 }
 
 /**
  * Get drawer items that have dividers after them (section separators).
  */
 export function getTelegramDrawerDividers(): TelegramDrawerItem[] {
-  return telegramDrawerItems.filter((item) => item.dividerAfter)
+  return telegramDrawerItems.filter((item) => item.dividerAfter);
 }

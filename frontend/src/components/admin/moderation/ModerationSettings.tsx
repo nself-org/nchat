@@ -3,96 +3,105 @@
  * Configure AI moderation policies and thresholds
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Slider } from '@/components/ui/slider'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Save, Settings, Shield, AlertTriangle, X } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import type { ModerationPolicy } from '@/lib/moderation/ai-moderator'
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Save, Settings, Shield, AlertTriangle, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import type { ModerationPolicy } from "@/lib/moderation/ai-moderator";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export function ModerationSettings() {
-  const { toast } = useToast()
-  const [policy, setPolicy] = useState<ModerationPolicy | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [customWord, setCustomWord] = useState('')
+  const { toast } = useToast();
+  const [policy, setPolicy] = useState<ModerationPolicy | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [customWord, setCustomWord] = useState("");
 
   useEffect(() => {
-    fetchPolicy()
-  }, [])
+    fetchPolicy();
+  }, []);
 
   const fetchPolicy = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await fetch('/api/moderation/analyze')
-      const data = await response.json()
+      const response = await fetch("/api/moderation/analyze");
+      const data = await response.json();
 
       if (data.success && data.policy) {
-        setPolicy(data.policy)
+        setPolicy(data.policy);
       }
     } catch (error) {
-      logger.error('Failed to fetch policy:', error)
+      logger.error("Failed to fetch policy:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load moderation settings',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to load moderation settings",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const savePolicy = async () => {
-    if (!policy) return
+    if (!policy) return;
 
-    setSaving(true)
+    setSaving(true);
     try {
-      const response = await fetch('/api/moderation/analyze', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/moderation/analyze", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ policy }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
         toast({
-          title: 'Success',
-          description: 'Moderation settings saved successfully',
-        })
+          title: "Success",
+          description: "Moderation settings saved successfully",
+        });
       } else {
-        throw new Error(data.error || 'Failed to save')
+        throw new Error(data.error || "Failed to save");
       }
     } catch (error) {
-      logger.error('Failed to save policy:', error)
+      logger.error("Failed to save policy:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to save moderation settings',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to save moderation settings",
+        variant: "destructive",
+      });
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const updatePolicy = (updates: Partial<ModerationPolicy>) => {
     if (policy) {
-      setPolicy({ ...policy, ...updates })
+      setPolicy({ ...policy, ...updates });
     }
-  }
+  };
 
-  const updateThreshold = (key: keyof ModerationPolicy['thresholds'], value: number) => {
+  const updateThreshold = (
+    key: keyof ModerationPolicy["thresholds"],
+    value: number,
+  ) => {
     if (policy) {
       setPolicy({
         ...policy,
@@ -100,54 +109,54 @@ export function ModerationSettings() {
           ...policy.thresholds,
           [key]: value,
         },
-      })
+      });
     }
-  }
+  };
 
   const addBlockedWord = () => {
-    if (!policy || !customWord.trim()) return
+    if (!policy || !customWord.trim()) return;
 
     if (!policy.customBlockedWords.includes(customWord.trim())) {
       updatePolicy({
         customBlockedWords: [...policy.customBlockedWords, customWord.trim()],
-      })
-      setCustomWord('')
+      });
+      setCustomWord("");
     }
-  }
+  };
 
   const removeBlockedWord = (word: string) => {
-    if (!policy) return
+    if (!policy) return;
 
     updatePolicy({
       customBlockedWords: policy.customBlockedWords.filter((w) => w !== word),
-    })
-  }
+    });
+  };
 
   const addAllowedWord = () => {
-    if (!policy || !customWord.trim()) return
+    if (!policy || !customWord.trim()) return;
 
     if (!policy.customAllowedWords.includes(customWord.trim())) {
       updatePolicy({
         customAllowedWords: [...policy.customAllowedWords, customWord.trim()],
-      })
-      setCustomWord('')
+      });
+      setCustomWord("");
     }
-  }
+  };
 
   const removeAllowedWord = (word: string) => {
-    if (!policy) return
+    if (!policy) return;
 
     updatePolicy({
       customAllowedWords: policy.customAllowedWords.filter((w) => w !== word),
-    })
-  }
+    });
+  };
 
   if (loading || !policy) {
     return (
       <div className="flex h-64 items-center justify-center">
         <p className="text-muted-foreground">Loading settings...</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -156,11 +165,13 @@ export function ModerationSettings() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Moderation Settings</h2>
-          <p className="text-muted-foreground">Configure AI moderation policies</p>
+          <p className="text-muted-foreground">
+            Configure AI moderation policies
+          </p>
         </div>
         <Button onClick={savePolicy} disabled={saving}>
           <Save className="mr-2 h-4 w-4" />
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
 
@@ -186,7 +197,9 @@ export function ModerationSettings() {
           <Card>
             <CardHeader>
               <CardTitle>AI Detection Features</CardTitle>
-              <CardDescription>Enable or disable specific AI detection modules</CardDescription>
+              <CardDescription>
+                Enable or disable specific AI detection modules
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -199,7 +212,9 @@ export function ModerationSettings() {
                 <Switch
                   id="toxicity"
                   checked={policy.enableToxicityDetection}
-                  onCheckedChange={(checked) => updatePolicy({ enableToxicityDetection: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ enableToxicityDetection: checked })
+                  }
                 />
               </div>
 
@@ -213,7 +228,9 @@ export function ModerationSettings() {
                 <Switch
                   id="nsfw"
                   checked={policy.enableNSFWDetection}
-                  onCheckedChange={(checked) => updatePolicy({ enableNSFWDetection: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ enableNSFWDetection: checked })
+                  }
                 />
               </div>
 
@@ -227,7 +244,9 @@ export function ModerationSettings() {
                 <Switch
                   id="spam"
                   checked={policy.enableSpamDetection}
-                  onCheckedChange={(checked) => updatePolicy({ enableSpamDetection: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ enableSpamDetection: checked })
+                  }
                 />
               </div>
 
@@ -241,7 +260,9 @@ export function ModerationSettings() {
                 <Switch
                   id="profanity"
                   checked={policy.enableProfanityFilter}
-                  onCheckedChange={(checked) => updatePolicy({ enableProfanityFilter: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ enableProfanityFilter: checked })
+                  }
                 />
               </div>
 
@@ -269,7 +290,9 @@ export function ModerationSettings() {
           <Card>
             <CardHeader>
               <CardTitle>Detection Thresholds</CardTitle>
-              <CardDescription>Adjust sensitivity for each detection type (0-100%)</CardDescription>
+              <CardDescription>
+                Adjust sensitivity for each detection type (0-100%)
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
@@ -281,7 +304,9 @@ export function ModerationSettings() {
                 </div>
                 <Slider
                   value={[policy.thresholds.toxicity * 100]}
-                  onValueChange={([value]) => updateThreshold('toxicity', value / 100)}
+                  onValueChange={([value]) =>
+                    updateThreshold("toxicity", value / 100)
+                  }
                   max={100}
                   step={5}
                 />
@@ -296,7 +321,9 @@ export function ModerationSettings() {
                 </div>
                 <Slider
                   value={[policy.thresholds.nsfw * 100]}
-                  onValueChange={([value]) => updateThreshold('nsfw', value / 100)}
+                  onValueChange={([value]) =>
+                    updateThreshold("nsfw", value / 100)
+                  }
                   max={100}
                   step={5}
                 />
@@ -311,7 +338,9 @@ export function ModerationSettings() {
                 </div>
                 <Slider
                   value={[policy.thresholds.spam * 100]}
-                  onValueChange={([value]) => updateThreshold('spam', value / 100)}
+                  onValueChange={([value]) =>
+                    updateThreshold("spam", value / 100)
+                  }
                   max={100}
                   step={5}
                 />
@@ -326,7 +355,9 @@ export function ModerationSettings() {
                 </div>
                 <Slider
                   value={[policy.thresholds.profanity * 100]}
-                  onValueChange={([value]) => updateThreshold('profanity', value / 100)}
+                  onValueChange={([value]) =>
+                    updateThreshold("profanity", value / 100)
+                  }
                   max={100}
                   step={5}
                 />
@@ -337,7 +368,9 @@ export function ModerationSettings() {
           <Card>
             <CardHeader>
               <CardTitle>Action Thresholds</CardTitle>
-              <CardDescription>When to trigger different moderation actions</CardDescription>
+              <CardDescription>
+                When to trigger different moderation actions
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
@@ -349,7 +382,9 @@ export function ModerationSettings() {
                 </div>
                 <Slider
                   value={[policy.thresholds.flagThreshold * 100]}
-                  onValueChange={([value]) => updateThreshold('flagThreshold', value / 100)}
+                  onValueChange={([value]) =>
+                    updateThreshold("flagThreshold", value / 100)
+                  }
                   max={100}
                   step={5}
                 />
@@ -364,7 +399,9 @@ export function ModerationSettings() {
                 </div>
                 <Slider
                   value={[policy.thresholds.hideThreshold * 100]}
-                  onValueChange={([value]) => updateThreshold('hideThreshold', value / 100)}
+                  onValueChange={([value]) =>
+                    updateThreshold("hideThreshold", value / 100)
+                  }
                   max={100}
                   step={5}
                 />
@@ -379,7 +416,9 @@ export function ModerationSettings() {
                 </div>
                 <Slider
                   value={[policy.thresholds.muteThreshold * 100]}
-                  onValueChange={([value]) => updateThreshold('muteThreshold', value / 100)}
+                  onValueChange={([value]) =>
+                    updateThreshold("muteThreshold", value / 100)
+                  }
                   max={100}
                   step={5}
                 />
@@ -394,7 +433,9 @@ export function ModerationSettings() {
                 </div>
                 <Slider
                   value={[policy.thresholds.banThreshold * 100]}
-                  onValueChange={([value]) => updateThreshold('banThreshold', value / 100)}
+                  onValueChange={([value]) =>
+                    updateThreshold("banThreshold", value / 100)
+                  }
                   max={100}
                   step={5}
                 />
@@ -423,7 +464,9 @@ export function ModerationSettings() {
                 <Switch
                   id="autoFlag"
                   checked={policy.autoFlag}
-                  onCheckedChange={(checked) => updatePolicy({ autoFlag: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ autoFlag: checked })
+                  }
                 />
               </div>
 
@@ -437,7 +480,9 @@ export function ModerationSettings() {
                 <Switch
                   id="autoHide"
                   checked={policy.autoHide}
-                  onCheckedChange={(checked) => updatePolicy({ autoHide: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ autoHide: checked })
+                  }
                 />
               </div>
 
@@ -451,7 +496,9 @@ export function ModerationSettings() {
                 <Switch
                   id="autoWarn"
                   checked={policy.autoWarn}
-                  onCheckedChange={(checked) => updatePolicy({ autoWarn: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ autoWarn: checked })
+                  }
                 />
               </div>
 
@@ -465,7 +512,9 @@ export function ModerationSettings() {
                 <Switch
                   id="autoMute"
                   checked={policy.autoMute}
-                  onCheckedChange={(checked) => updatePolicy({ autoMute: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ autoMute: checked })
+                  }
                 />
               </div>
 
@@ -479,7 +528,9 @@ export function ModerationSettings() {
                 <Switch
                   id="autoBan"
                   checked={policy.autoBan}
-                  onCheckedChange={(checked) => updatePolicy({ autoBan: checked })}
+                  onCheckedChange={(checked) =>
+                    updatePolicy({ autoBan: checked })
+                  }
                 />
               </div>
             </CardContent>
@@ -499,7 +550,7 @@ export function ModerationSettings() {
                   placeholder="Add blocked word..."
                   value={customWord}
                   onChange={(e) => setCustomWord(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && addBlockedWord()}
+                  onKeyDown={(e) => e.key === "Enter" && addBlockedWord()}
                 />
                 <Button onClick={addBlockedWord}>Add</Button>
               </div>
@@ -522,7 +573,9 @@ export function ModerationSettings() {
           <Card>
             <CardHeader>
               <CardTitle>Allowed Words</CardTitle>
-              <CardDescription>Words to allow even if flagged by AI</CardDescription>
+              <CardDescription>
+                Words to allow even if flagged by AI
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
@@ -530,7 +583,7 @@ export function ModerationSettings() {
                   placeholder="Add allowed word..."
                   value={customWord}
                   onChange={(e) => setCustomWord(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && addAllowedWord()}
+                  onKeyDown={(e) => e.key === "Enter" && addAllowedWord()}
                 />
                 <Button onClick={addAllowedWord}>Add</Button>
               </div>
@@ -538,7 +591,10 @@ export function ModerationSettings() {
                 {policy.customAllowedWords.map((word) => (
                   <Badge key={word} variant="secondary">
                     {word}
-                    <button onClick={() => removeAllowedWord(word)} className="ml-2">
+                    <button
+                      onClick={() => removeAllowedWord(word)}
+                      className="ml-2"
+                    >
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
@@ -549,5 +605,5 @@ export function ModerationSettings() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

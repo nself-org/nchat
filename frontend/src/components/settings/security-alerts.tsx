@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Security Alerts Component
@@ -7,27 +7,33 @@
  * Part of the security settings page.
  */
 
-import { useState } from 'react'
-import { Bell, AlertTriangle, Mail, Smartphone } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
+import { useState } from "react";
+import { Bell, AlertTriangle, Mail, Smartphone } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AlertSetting {
-  id: string
-  label: string
-  description: string
-  email: boolean
-  push: boolean
+  id: string;
+  label: string;
+  description: string;
+  email: boolean;
+  push: boolean;
 }
 
 interface SecurityAlertsProps {
-  onSettingsChange?: (settings: AlertSetting[]) => void
+  onSettingsChange?: (settings: AlertSetting[]) => void;
 }
 
 // ============================================================================
@@ -36,41 +42,41 @@ interface SecurityAlertsProps {
 
 const defaultAlertSettings: AlertSetting[] = [
   {
-    id: 'new-login',
-    label: 'New device login',
-    description: 'Get notified when your account is accessed from a new device',
+    id: "new-login",
+    label: "New device login",
+    description: "Get notified when your account is accessed from a new device",
     email: true,
     push: true,
   },
   {
-    id: 'password-change',
-    label: 'Password changes',
-    description: 'Get notified when your password is changed',
+    id: "password-change",
+    label: "Password changes",
+    description: "Get notified when your password is changed",
     email: true,
     push: true,
   },
   {
-    id: 'failed-attempts',
-    label: 'Failed login attempts',
-    description: 'Get notified when there are multiple failed login attempts',
+    id: "failed-attempts",
+    label: "Failed login attempts",
+    description: "Get notified when there are multiple failed login attempts",
     email: true,
     push: false,
   },
   {
-    id: '2fa-changes',
-    label: 'Two-factor authentication changes',
-    description: 'Get notified when 2FA settings are modified',
+    id: "2fa-changes",
+    label: "Two-factor authentication changes",
+    description: "Get notified when 2FA settings are modified",
     email: true,
     push: true,
   },
   {
-    id: 'suspicious-activity',
-    label: 'Suspicious activity',
-    description: 'Get notified about unusual account activity',
+    id: "suspicious-activity",
+    label: "Suspicious activity",
+    description: "Get notified about unusual account activity",
     email: true,
     push: true,
   },
-]
+];
 
 // ============================================================================
 // Alert Setting Row Component
@@ -81,9 +87,9 @@ function AlertSettingRow({
   onToggleEmail,
   onTogglePush,
 }: {
-  setting: AlertSetting
-  onToggleEmail: (id: string) => void
-  onTogglePush: (id: string) => void
+  setting: AlertSetting;
+  onToggleEmail: (id: string) => void;
+  onTogglePush: (id: string) => void;
 }) {
   return (
     <div className="flex flex-col justify-between gap-4 py-4 sm:flex-row sm:items-center">
@@ -118,7 +124,7 @@ function AlertSettingRow({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -126,39 +132,44 @@ function AlertSettingRow({
 // ============================================================================
 
 export function SecurityAlerts({ onSettingsChange }: SecurityAlertsProps) {
-  const [settings, setSettings] = useState<AlertSetting[]>(defaultAlertSettings)
+  const [settings, setSettings] =
+    useState<AlertSetting[]>(defaultAlertSettings);
 
   const handleToggleEmail = (id: string) => {
     setSettings((prev) => {
-      const updated = prev.map((s) => (s.id === id ? { ...s, email: !s.email } : s))
-      onSettingsChange?.(updated)
-      return updated
-    })
-  }
+      const updated = prev.map((s) =>
+        s.id === id ? { ...s, email: !s.email } : s,
+      );
+      onSettingsChange?.(updated);
+      return updated;
+    });
+  };
 
   const handleTogglePush = (id: string) => {
     setSettings((prev) => {
-      const updated = prev.map((s) => (s.id === id ? { ...s, push: !s.push } : s))
-      onSettingsChange?.(updated)
-      return updated
-    })
-  }
+      const updated = prev.map((s) =>
+        s.id === id ? { ...s, push: !s.push } : s,
+      );
+      onSettingsChange?.(updated);
+      return updated;
+    });
+  };
 
   const enableAllEmail = () => {
     setSettings((prev) => {
-      const updated = prev.map((s) => ({ ...s, email: true }))
-      onSettingsChange?.(updated)
-      return updated
-    })
-  }
+      const updated = prev.map((s) => ({ ...s, email: true }));
+      onSettingsChange?.(updated);
+      return updated;
+    });
+  };
 
   const enableAllPush = () => {
     setSettings((prev) => {
-      const updated = prev.map((s) => ({ ...s, push: true }))
-      onSettingsChange?.(updated)
-      return updated
-    })
-  }
+      const updated = prev.map((s) => ({ ...s, push: true }));
+      onSettingsChange?.(updated);
+      return updated;
+    });
+  };
 
   return (
     <Card>
@@ -167,7 +178,9 @@ export function SecurityAlerts({ onSettingsChange }: SecurityAlertsProps) {
           <Bell className="h-5 w-5" />
           <CardTitle className="text-lg">Security Alerts</CardTitle>
         </div>
-        <CardDescription>Choose how you want to be notified about security events</CardDescription>
+        <CardDescription>
+          Choose how you want to be notified about security events
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -209,12 +222,12 @@ export function SecurityAlerts({ onSettingsChange }: SecurityAlertsProps) {
           <div className="text-sm">
             <p className="font-medium">Important security alerts</p>
             <p className="text-muted-foreground">
-              Critical security alerts (like account lockouts) will always be sent to your email,
-              regardless of these settings.
+              Critical security alerts (like account lockouts) will always be
+              sent to your email, regardless of these settings.
             </p>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

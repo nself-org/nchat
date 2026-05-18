@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CommandGroup
@@ -6,11 +6,14 @@
  * Groups related commands together with a heading.
  */
 
-import * as React from 'react'
-import { Command as CommandPrimitive } from 'cmdk'
-import { ChevronDown, ChevronRight, type LucideIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { Command, CommandGroup as CommandGroupType } from '@/lib/command-palette/command-types'
+import * as React from "react";
+import { Command as CommandPrimitive } from "cmdk";
+import { ChevronDown, ChevronRight, type LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type {
+  Command,
+  CommandGroup as CommandGroupType,
+} from "@/lib/command-palette/command-types";
 
 // ============================================================================
 // Types
@@ -18,19 +21,19 @@ import type { Command, CommandGroup as CommandGroupType } from '@/lib/command-pa
 
 export interface CommandGroupProps {
   /** Group heading */
-  heading: string
+  heading: string;
   /** Optional icon */
-  icon?: LucideIcon
+  icon?: LucideIcon;
   /** Child content */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Whether the group is collapsible */
-  collapsible?: boolean
+  collapsible?: boolean;
   /** Whether the group is initially collapsed */
-  defaultCollapsed?: boolean
+  defaultCollapsed?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Additional heading CSS classes */
-  headingClassName?: string
+  headingClassName?: string;
 }
 
 // ============================================================================
@@ -46,35 +49,35 @@ export function CommandGroup({
   className,
   headingClassName,
 }: CommandGroupProps) {
-  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed)
+  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
 
   const toggleCollapse = React.useCallback(() => {
     if (collapsible) {
-      setIsCollapsed((prev) => !prev)
+      setIsCollapsed((prev) => !prev);
     }
-  }, [collapsible])
+  }, [collapsible]);
 
-  const ChevronIcon = isCollapsed ? ChevronRight : ChevronDown
+  const ChevronIcon = isCollapsed ? ChevronRight : ChevronDown;
 
   return (
     <CommandPrimitive.Group
-      className={cn('overflow-hidden py-1', className)}
+      className={cn("overflow-hidden py-1", className)}
       heading={
         <div
           className={cn(
-            'flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-muted-foreground',
-            collapsible && 'cursor-pointer hover:text-foreground',
-            headingClassName
+            "flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-muted-foreground",
+            collapsible && "cursor-pointer hover:text-foreground",
+            headingClassName,
           )}
           onClick={toggleCollapse}
-          role={collapsible ? 'button' : undefined}
+          role={collapsible ? "button" : undefined}
           tabIndex={collapsible ? 0 : undefined}
           onKeyDown={
             collapsible
               ? (e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    toggleCollapse()
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggleCollapse();
                   }
                 }
               : undefined
@@ -88,7 +91,7 @@ export function CommandGroup({
     >
       {!isCollapsed && children}
     </CommandPrimitive.Group>
-  )
+  );
 }
 
 // ============================================================================
@@ -96,7 +99,11 @@ export function CommandGroup({
 // ============================================================================
 
 export function CommandSeparator({ className }: { className?: string }) {
-  return <CommandPrimitive.Separator className={cn('-mx-1 h-px bg-border', className)} />
+  return (
+    <CommandPrimitive.Separator
+      className={cn("-mx-1 h-px bg-border", className)}
+    />
+  );
 }
 
-export default CommandGroup
+export default CommandGroup;

@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import { format } from 'date-fns'
+import * as React from "react";
+import { useState } from "react";
+import { format } from "date-fns";
 import {
   X,
   Hash,
@@ -17,29 +17,33 @@ import {
   Link as LinkIcon,
   Copy,
   Check,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { ChannelMembers } from './channel-members'
-import { PinnedMessages } from './pinned-messages'
-import { useChannelStore, selectActiveChannel, type Channel } from '@/stores/channel-store'
-import { useUIStore } from '@/stores/ui-store'
-import { useAuth } from '@/contexts/auth-context'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { ChannelMembers } from "./channel-members";
+import { PinnedMessages } from "./pinned-messages";
+import {
+  useChannelStore,
+  selectActiveChannel,
+  type Channel,
+} from "@/stores/channel-store";
+import { useUIStore } from "@/stores/ui-store";
+import { useAuth } from "@/contexts/auth-context";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChannelInfoPanelProps {
-  className?: string
-  onClose?: () => void
+  className?: string;
+  onClose?: () => void;
 }
 
-type TabValue = 'about' | 'members' | 'pinned' | 'files' | 'settings'
+type TabValue = "about" | "members" | "pinned" | "files" | "settings";
 
 // ============================================================================
 // Helper Components
@@ -51,10 +55,10 @@ function InfoRow({
   value,
   action,
 }: {
-  icon: React.ElementType
-  label: string
-  value: React.ReactNode
-  action?: React.ReactNode
+  icon: React.ElementType;
+  label: string;
+  value: React.ReactNode;
+  action?: React.ReactNode;
 }) {
   return (
     <div className="flex items-start gap-3 py-2">
@@ -65,81 +69,92 @@ function InfoRow({
       </div>
       {action}
     </div>
-  )
+  );
 }
 
 function ChannelIcon({ channel }: { channel: Channel }) {
-  const isDM = channel.type === 'direct' || channel.type === 'group'
+  const isDM = channel.type === "direct" || channel.type === "group";
 
   if (isDM) {
     return (
       <Avatar className="h-16 w-16">
-        <AvatarImage src={channel.otherUserAvatar} alt={channel.otherUserName} />
+        <AvatarImage
+          src={channel.otherUserAvatar}
+          alt={channel.otherUserName}
+        />
         <AvatarFallback className="text-xl">
-          {channel.otherUserName?.charAt(0).toUpperCase() || channel.name.charAt(0).toUpperCase()}
+          {channel.otherUserName?.charAt(0).toUpperCase() ||
+            channel.name.charAt(0).toUpperCase()}
         </AvatarFallback>
       </Avatar>
-    )
+    );
   }
 
   return (
     <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
-      {channel.type === 'private' ? (
+      {channel.type === "private" ? (
         <Lock className="h-8 w-8 text-muted-foreground" />
       ) : (
         <Hash className="h-8 w-8 text-muted-foreground" />
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) {
-  const { user } = useAuth()
-  const isAdmin = user?.role === 'owner' || user?.role === 'admin'
+export function ChannelInfoPanel({
+  className,
+  onClose,
+}: ChannelInfoPanelProps) {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "owner" || user?.role === "admin";
 
-  const channel = useChannelStore(selectActiveChannel)
-  const { setMembersPanelOpen, openModal } = useUIStore()
+  const channel = useChannelStore(selectActiveChannel);
+  const { setMembersPanelOpen, openModal } = useUIStore();
 
-  const [activeTab, setActiveTab] = useState<TabValue>('about')
-  const [copied, setCopied] = useState(false)
+  const [activeTab, setActiveTab] = useState<TabValue>("about");
+  const [copied, setCopied] = useState(false);
 
   const handleClose = () => {
     if (onClose) {
-      onClose()
+      onClose();
     } else {
-      setMembersPanelOpen(false)
+      setMembersPanelOpen(false);
     }
-  }
+  };
 
   const handleEditChannel = () => {
     if (channel) {
-      openModal('channel-settings', { channelId: channel.id })
+      openModal("channel-settings", { channelId: channel.id });
     }
-  }
+  };
 
   const handleCopyLink = async () => {
-    if (!channel) return
-    const url = `${window.location.origin}/chat/channel/${channel.slug}`
-    await navigator.clipboard.writeText(url)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+    if (!channel) return;
+    const url = `${window.location.origin}/chat/channel/${channel.slug}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   if (!channel) {
-    return null
+    return null;
   }
 
-  const isDM = channel.type === 'direct' || channel.type === 'group'
+  const isDM = channel.type === "direct" || channel.type === "group";
 
   return (
-    <div className={cn('flex h-full flex-col border-l bg-background', className)}>
+    <div
+      className={cn("flex h-full flex-col border-l bg-background", className)}
+    >
       {/* Header */}
       <div className="flex h-14 items-center justify-between border-b px-4">
-        <h2 className="font-semibold">{isDM ? 'Conversation Details' : 'Channel Details'}</h2>
+        <h2 className="font-semibold">
+          {isDM ? "Conversation Details" : "Channel Details"}
+        </h2>
         <Button variant="ghost" size="icon" onClick={handleClose}>
           <X className="h-4 w-4" />
         </Button>
@@ -155,7 +170,12 @@ export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) 
                 {isDM ? channel.otherUserName || channel.name : channel.name}
               </h3>
               {isAdmin && !isDM && (
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleEditChannel}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={handleEditChannel}
+                >
                   <Edit2 className="h-3.5 w-3.5" />
                 </Button>
               )}
@@ -167,15 +187,16 @@ export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) 
             )}
             <div className="mt-2 flex items-center gap-2">
               <Badge variant="secondary" className="text-xs">
-                {channel.type === 'private'
-                  ? 'Private'
-                  : channel.type === 'public'
-                    ? 'Public'
-                    : 'Direct'}
+                {channel.type === "private"
+                  ? "Private"
+                  : channel.type === "public"
+                    ? "Public"
+                    : "Direct"}
               </Badge>
               {!isDM && (
                 <span className="text-xs text-muted-foreground">
-                  {channel.memberCount} member{channel.memberCount !== 1 ? 's' : ''}
+                  {channel.memberCount} member
+                  {channel.memberCount !== 1 ? "s" : ""}
                 </span>
               )}
             </div>
@@ -224,7 +245,9 @@ export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) 
                 <InfoRow
                   icon={FileText}
                   label="Description"
-                  value={<p className="whitespace-pre-wrap">{channel.description}</p>}
+                  value={
+                    <p className="whitespace-pre-wrap">{channel.description}</p>
+                  }
                 />
               )}
 
@@ -232,7 +255,7 @@ export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) 
               <InfoRow
                 icon={Calendar}
                 label="Created"
-                value={format(new Date(channel.createdAt), 'MMMM d, yyyy')}
+                value={format(new Date(channel.createdAt), "MMMM d, yyyy")}
               />
 
               {/* Creator */}
@@ -258,9 +281,13 @@ export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) 
                 <InfoRow
                   icon={Users}
                   label="Members"
-                  value={`${channel.memberCount} member${channel.memberCount !== 1 ? 's' : ''}`}
+                  value={`${channel.memberCount} member${channel.memberCount !== 1 ? "s" : ""}`}
                   action={
-                    <Button variant="ghost" size="sm" onClick={() => setActiveTab('members')}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setActiveTab("members")}
+                    >
                       View all
                     </Button>
                   }
@@ -324,7 +351,9 @@ export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) 
                 <Button
                   variant="outline"
                   className="w-full justify-start"
-                  onClick={() => openModal('invite-members', { channelId: channel.id })}
+                  onClick={() =>
+                    openModal("invite-members", { channelId: channel.id })
+                  }
                 >
                   <Users className="mr-2 h-4 w-4" />
                   Invite people
@@ -335,12 +364,12 @@ export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) 
                     variant="destructive"
                     className="w-full"
                     onClick={() =>
-                      openModal('confirm-action', {
-                        title: 'Archive Channel',
+                      openModal("confirm-action", {
+                        title: "Archive Channel",
                         message: `Are you sure you want to archive #${channel.name}? Members will no longer be able to send messages.`,
-                        confirmLabel: 'Archive',
+                        confirmLabel: "Archive",
                         onConfirm: () => {
-                          useChannelStore.getState().archiveChannel(channel.id)
+                          useChannelStore.getState().archiveChannel(channel.id);
                         },
                       })
                     }
@@ -354,7 +383,7 @@ export function ChannelInfoPanel({ className, onClose }: ChannelInfoPanelProps) 
         )}
       </Tabs>
     </div>
-  )
+  );
 }
 
-ChannelInfoPanel.displayName = 'ChannelInfoPanel'
+ChannelInfoPanel.displayName = "ChannelInfoPanel";

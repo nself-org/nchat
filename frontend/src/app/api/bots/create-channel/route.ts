@@ -5,13 +5,13 @@
  * Allows bots to create new channels
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { gql } from '@apollo/client'
-import { getApolloClient } from '@/lib/apollo-client'
-import { withBotAuth } from '@/lib/api/bot-auth'
-import { BotPermission } from '@/lib/bots/permissions'
+import { NextRequest, NextResponse } from "next/server";
+import { gql } from "@apollo/client";
+import { getApolloClient } from "@/lib/apollo-client";
+import { withBotAuth } from "@/lib/api/bot-auth";
+import { BotPermission } from "@/lib/bots/permissions";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 /**
  * GraphQL mutation to create channel
@@ -41,16 +41,16 @@ const CREATE_CHANNEL = gql`
       created_by
     }
   }
-`
+`;
 
 /**
  * Request body schema
  */
 interface CreateChannelRequest {
-  name: string
-  description?: string
-  isPrivate?: boolean
-  metadata?: Record<string, any>
+  name: string;
+  description?: string;
+  isPrivate?: boolean;
+  metadata?: Record<string, any>;
 }
 
 /**
@@ -59,11 +59,14 @@ interface CreateChannelRequest {
 export const POST = withBotAuth(async (request: NextRequest, auth) => {
   try {
     // Parse request body
-    const body = (await request.json()) as CreateChannelRequest
+    const body = (await request.json()) as CreateChannelRequest;
 
     // Validate required fields
     if (!body.name || body.name.trim().length === 0) {
-      return NextResponse.json({ error: 'name is required and cannot be empty' }, { status: 400 })
+      return NextResponse.json(
+        { error: "name is required and cannot be empty" },
+        { status: 400 },
+      );
     }
 
     // Validate name format
@@ -71,22 +74,22 @@ export const POST = withBotAuth(async (request: NextRequest, auth) => {
       return NextResponse.json(
         {
           error:
-            'name must be 1-50 characters, lowercase letters, numbers, hyphens, and underscores only',
+            "name must be 1-50 characters, lowercase letters, numbers, hyphens, and underscores only",
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     // Validate description length
     if (body.description && body.description.length > 500) {
       return NextResponse.json(
-        { error: 'description exceeds maximum length of 500 characters' },
-        { status: 400 }
-      )
+        { error: "description exceeds maximum length of 500 characters" },
+        { status: 400 },
+      );
     }
 
     // Create channel
-    const client = getApolloClient()
+    const client = getApolloClient();
     const { data, errors } = await client.mutate({
       mutation: CREATE_CHANNEL,
       variables: {
@@ -101,30 +104,32 @@ export const POST = withBotAuth(async (request: NextRequest, auth) => {
           botName: auth.botName,
         },
       },
-    })
+    });
 
     if (errors || !data?.insert_nchat_channels_one) {
-      logger.error('GraphQL errors:', errors)
+      logger.error("GraphQL errors:", errors);
 
       // Check for unique constraint violation
       const isDuplicateName = errors?.some(
-        (e: { message: string }) => e.message.includes('unique constraint') || e.message.includes('duplicate key')
-      )
+        (e: { message: string }) =>
+          e.message.includes("unique constraint") ||
+          e.message.includes("duplicate key"),
+      );
 
       if (isDuplicateName) {
         return NextResponse.json(
-          { error: 'A channel with this name already exists' },
-          { status: 409 }
-        )
+          { error: "A channel with this name already exists" },
+          { status: 409 },
+        );
       }
 
       return NextResponse.json(
-        { error: 'Failed to create channel', details: errors },
-        { status: 500 }
-      )
+        { error: "Failed to create channel", details: errors },
+        { status: 500 },
+      );
     }
 
-    const channel = data.insert_nchat_channels_one
+    const channel = data.insert_nchat_channels_one;
 
     return NextResponse.json({
       success: true,
@@ -136,9 +141,16 @@ export const POST = withBotAuth(async (request: NextRequest, auth) => {
         createdAt: channel.created_at,
         createdBy: channel.created_by,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error creating channel:', error)
-    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) || 'Internal server error' }, { status: 500 })
+    logger.error("Error creating channel:", error);
+    return NextResponse.json(
+      {
+        error:
+          (error instanceof Error ? error.message : String(error)) ||
+          "Internal server error",
+      },
+      { status: 500 },
+    );
   }
-}, BotPermission.CHANNELS_CREATE)
+}, BotPermission.CHANNELS_CREATE);

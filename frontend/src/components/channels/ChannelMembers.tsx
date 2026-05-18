@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useMemo } from 'react'
+import * as React from "react";
+import { useState, useMemo } from "react";
 import {
   Users,
   Search,
@@ -13,21 +13,27 @@ import {
   ShieldCheck,
   ShieldX,
   Loader2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,23 +43,23 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { ChannelInvite } from './ChannelInvite'
-import type { Channel, ChannelMember } from '@/stores/channel-store'
-import { formatTimeAgo } from '@/lib/channels/channel-stats'
+} from "@/components/ui/alert-dialog";
+import { ChannelInvite } from "./ChannelInvite";
+import type { Channel, ChannelMember } from "@/stores/channel-store";
+import { formatTimeAgo } from "@/lib/channels/channel-stats";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelMembersProps {
-  channel: Channel
-  isAdmin?: boolean
-  currentUserId?: string
-  onInvite?: (userIds: string[]) => Promise<void>
-  onRemove?: (userId: string) => Promise<void>
-  onPromote?: (userId: string, role: 'admin' | 'member') => Promise<void>
-  className?: string
+  channel: Channel;
+  isAdmin?: boolean;
+  currentUserId?: string;
+  onInvite?: (userIds: string[]) => Promise<void>;
+  onRemove?: (userId: string) => Promise<void>;
+  onPromote?: (userId: string, role: "admin" | "member") => Promise<void>;
+  className?: string;
 }
 
 // ============================================================================
@@ -69,20 +75,22 @@ export function ChannelMembers({
   onPromote,
   className,
 }: ChannelMembersProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showInviteDialog, setShowInviteDialog] = useState(false)
-  const [removingUserId, setRemovingUserId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [removingUserId, setRemovingUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Filter members by search
   const filteredMembers = useMemo(() => {
-    if (!channel.members) return []
+    if (!channel.members) return [];
 
-    if (!searchQuery) return channel.members
+    if (!searchQuery) return channel.members;
 
-    const query = searchQuery.toLowerCase()
-    return channel.members.filter((member) => member.userId.toLowerCase().includes(query))
-  }, [channel.members, searchQuery])
+    const query = searchQuery.toLowerCase();
+    return channel.members.filter((member) =>
+      member.userId.toLowerCase().includes(query),
+    );
+  }, [channel.members, searchQuery]);
 
   // Group members by role
   const { owners, admins, members } = useMemo(() => {
@@ -90,44 +98,44 @@ export function ChannelMembers({
       owners: [] as ChannelMember[],
       admins: [] as ChannelMember[],
       members: [] as ChannelMember[],
-    }
+    };
 
     for (const member of filteredMembers) {
-      if (member.role === 'owner') {
-        result.owners.push(member)
-      } else if (member.role === 'admin') {
-        result.admins.push(member)
+      if (member.role === "owner") {
+        result.owners.push(member);
+      } else if (member.role === "admin") {
+        result.admins.push(member);
       } else {
-        result.members.push(member)
+        result.members.push(member);
       }
     }
 
-    return result
-  }, [filteredMembers])
+    return result;
+  }, [filteredMembers]);
 
   const handleRemove = async (userId: string) => {
     try {
-      setIsLoading(true)
-      await onRemove?.(userId)
+      setIsLoading(true);
+      await onRemove?.(userId);
     } finally {
-      setIsLoading(false)
-      setRemovingUserId(null)
+      setIsLoading(false);
+      setRemovingUserId(null);
     }
-  }
+  };
 
-  const handlePromote = async (userId: string, role: 'admin' | 'member') => {
+  const handlePromote = async (userId: string, role: "admin" | "member") => {
     try {
-      setIsLoading(true)
-      await onPromote?.(userId, role)
+      setIsLoading(true);
+      await onPromote?.(userId, role);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const renderMemberRow = (member: ChannelMember) => {
-    const isCurrentUser = member.userId === currentUserId
-    const isOwner = member.role === 'owner'
-    const canManage = isAdmin && !isOwner && !isCurrentUser
+    const isCurrentUser = member.userId === currentUserId;
+    const isOwner = member.role === "owner";
+    const canManage = isAdmin && !isOwner && !isCurrentUser;
 
     return (
       <div
@@ -135,23 +143,32 @@ export function ChannelMembers({
         className="hover:bg-accent/50 flex items-center gap-3 rounded-lg p-3"
       >
         <Avatar className="h-10 w-10">
-          <AvatarFallback>{member.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {member.userId.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="truncate font-medium">
               {member.userId}
-              {isCurrentUser && ' (you)'}
+              {isCurrentUser && " (you)"}
             </span>
-            {member.role === 'owner' && <Crown className="h-4 w-4 text-yellow-500" />}
-            {member.role === 'admin' && <Shield className="h-4 w-4 text-blue-500" />}
+            {member.role === "owner" && (
+              <Crown className="h-4 w-4 text-yellow-500" />
+            )}
+            {member.role === "admin" && (
+              <Shield className="h-4 w-4 text-blue-500" />
+            )}
           </div>
           <p className="text-xs text-muted-foreground">
             Joined {formatTimeAgo(new Date(member.joinedAt))}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant={member.role === 'owner' ? 'default' : 'secondary'} className="text-xs">
+          <Badge
+            variant={member.role === "owner" ? "default" : "secondary"}
+            className="text-xs"
+          >
             {member.role}
           </Badge>
           {canManage && (
@@ -162,13 +179,17 @@ export function ChannelMembers({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {member.role === 'member' ? (
-                  <DropdownMenuItem onClick={() => handlePromote(member.userId, 'admin')}>
+                {member.role === "member" ? (
+                  <DropdownMenuItem
+                    onClick={() => handlePromote(member.userId, "admin")}
+                  >
                     <ShieldCheck className="mr-2 h-4 w-4" />
                     Make admin
                   </DropdownMenuItem>
                 ) : (
-                  <DropdownMenuItem onClick={() => handlePromote(member.userId, 'member')}>
+                  <DropdownMenuItem
+                    onClick={() => handlePromote(member.userId, "member")}
+                  >
                     <ShieldX className="mr-2 h-4 w-4" />
                     Remove admin
                   </DropdownMenuItem>
@@ -186,11 +207,11 @@ export function ChannelMembers({
           )}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -199,7 +220,9 @@ export function ChannelMembers({
                 <Users className="h-5 w-5" />
                 Members ({channel.memberCount})
               </CardTitle>
-              <CardDescription>People who have access to this channel</CardDescription>
+              <CardDescription>
+                People who have access to this channel
+              </CardDescription>
             </div>
             {isAdmin && (
               <Button onClick={() => setShowInviteDialog(true)}>
@@ -257,7 +280,9 @@ export function ChannelMembers({
               {/* Empty state */}
               {filteredMembers.length === 0 && (
                 <div className="py-8 text-center text-muted-foreground">
-                  {searchQuery ? `No members match "${searchQuery}"` : 'No members in this channel'}
+                  {searchQuery
+                    ? `No members match "${searchQuery}"`
+                    : "No members in this channel"}
                 </div>
               )}
             </div>
@@ -274,13 +299,16 @@ export function ChannelMembers({
       />
 
       {/* Remove Confirmation Dialog */}
-      <AlertDialog open={removingUserId !== null} onOpenChange={() => setRemovingUserId(null)}>
+      <AlertDialog
+        open={removingUserId !== null}
+        onOpenChange={() => setRemovingUserId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove member?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this member from #{channel.name}? They will no longer
-              have access to this channel.
+              Are you sure you want to remove this member from #{channel.name}?
+              They will no longer have access to this channel.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -296,7 +324,7 @@ export function ChannelMembers({
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
 
-ChannelMembers.displayName = 'ChannelMembers'
+ChannelMembers.displayName = "ChannelMembers";

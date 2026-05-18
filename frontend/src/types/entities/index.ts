@@ -4,4 +4,4 @@
  * Central export for all chat entity types
  */
 
-export * from './chat-entity.types'
+export * from "./chat-entity.types";

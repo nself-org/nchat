@@ -5,13 +5,13 @@
  * Connects to the Hasura GraphQL backend via WebSocket.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   CHANNEL_BASIC_FRAGMENT,
   CHANNEL_FULL_FRAGMENT,
   CHANNEL_MEMBER_FRAGMENT,
   USER_BASIC_FRAGMENT,
-} from '../fragments'
+} from "../fragments";
 
 // ============================================================================
 // CHANNEL SUBSCRIPTIONS
@@ -27,7 +27,7 @@ export const CHANNEL_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to all channels updates (for sidebar)
@@ -36,7 +36,11 @@ export const CHANNELS_LIST_SUBSCRIPTION = gql`
   subscription ChannelsListSubscription($includeArchived: Boolean = false) {
     nchat_channels(
       where: { is_archived: { _eq: $includeArchived } }
-      order_by: [{ category_id: asc_nulls_last }, { position: asc }, { name: asc }]
+      order_by: [
+        { category_id: asc_nulls_last }
+        { position: asc }
+        { name: asc }
+      ]
     ) {
       ...ChannelBasic
       member_count
@@ -44,7 +48,7 @@ export const CHANNELS_LIST_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to channel updates within a category
@@ -61,7 +65,7 @@ export const CATEGORY_CHANNELS_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to channel activity (last message, member count)
@@ -76,7 +80,7 @@ export const CHANNEL_ACTIVITY_SUBSCRIPTION = gql`
       last_message_id
     }
   }
-`
+`;
 
 // ============================================================================
 // CHANNEL MEMBERS SUBSCRIPTIONS
@@ -95,7 +99,7 @@ export const CHANNEL_MEMBERS_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to a specific member's status in a channel
@@ -118,7 +122,7 @@ export const CHANNEL_MEMBER_SUBSCRIPTION = gql`
       mention_count
     }
   }
-`
+`;
 
 /**
  * Subscribe to online members in a channel
@@ -142,7 +146,7 @@ export const CHANNEL_ONLINE_MEMBERS_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to member count changes
@@ -159,7 +163,7 @@ export const CHANNEL_MEMBER_COUNT_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // USER CHANNEL SUBSCRIPTIONS
@@ -171,8 +175,14 @@ export const CHANNEL_MEMBER_COUNT_SUBSCRIPTION = gql`
 export const USER_CHANNELS_SUBSCRIPTION = gql`
   subscription UserChannelsSubscription($userId: uuid!) {
     nchat_channel_members(
-      where: { user_id: { _eq: $userId }, channel: { is_archived: { _eq: false } } }
-      order_by: [{ is_pinned: desc }, { channel: { last_message_at: desc_nulls_last } }]
+      where: {
+        user_id: { _eq: $userId }
+        channel: { is_archived: { _eq: false } }
+      }
+      order_by: [
+        { is_pinned: desc }
+        { channel: { last_message_at: desc_nulls_last } }
+      ]
     ) {
       channel {
         ...ChannelFull
@@ -188,7 +198,7 @@ export const USER_CHANNELS_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to user's unread counts across all channels
@@ -196,7 +206,10 @@ export const USER_CHANNELS_SUBSCRIPTION = gql`
 export const USER_UNREAD_COUNTS_SUBSCRIPTION = gql`
   subscription UserUnreadCountsSubscription($userId: uuid!) {
     nchat_channel_members(
-      where: { user_id: { _eq: $userId }, channel: { is_archived: { _eq: false } } }
+      where: {
+        user_id: { _eq: $userId }
+        channel: { is_archived: { _eq: false } }
+      }
     ) {
       channel_id
       unread_count
@@ -209,7 +222,7 @@ export const USER_UNREAD_COUNTS_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to user's DM channel updates
@@ -219,7 +232,10 @@ export const USER_DM_CHANNELS_SUBSCRIPTION = gql`
     nchat_channel_members(
       where: {
         user_id: { _eq: $userId }
-        channel: { type: { _in: ["direct", "group"] }, is_archived: { _eq: false } }
+        channel: {
+          type: { _in: ["direct", "group"] }
+          is_archived: { _eq: false }
+        }
       }
       order_by: { channel: { last_message_at: desc_nulls_last } }
     ) {
@@ -241,13 +257,16 @@ export const USER_DM_CHANNELS_SUBSCRIPTION = gql`
   }
   ${CHANNEL_BASIC_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to a user's membership in a specific channel
  */
 export const USER_CHANNEL_MEMBERSHIP_SUBSCRIPTION = gql`
-  subscription UserChannelMembershipSubscription($channelId: uuid!, $userId: uuid!) {
+  subscription UserChannelMembershipSubscription(
+    $channelId: uuid!
+    $userId: uuid!
+  ) {
     nchat_channel_members(
       where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }
       limit: 1
@@ -275,7 +294,7 @@ export const USER_CHANNEL_MEMBERSHIP_SUBSCRIPTION = gql`
       joined_at
     }
   }
-`
+`;
 
 // ============================================================================
 // TYPING INDICATORS
@@ -297,7 +316,7 @@ export const CHANNEL_TYPING_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // CHANNEL EVENTS
@@ -309,7 +328,11 @@ export const CHANNEL_TYPING_SUBSCRIPTION = gql`
 export const NEW_CHANNELS_SUBSCRIPTION = gql`
   subscription NewChannelsSubscription($since: timestamptz!) {
     nchat_channels(
-      where: { created_at: { _gt: $since }, type: { _eq: "public" }, is_archived: { _eq: false } }
+      where: {
+        created_at: { _gt: $since }
+        type: { _eq: "public" }
+        is_archived: { _eq: false }
+      }
       order_by: { created_at: desc }
       limit: 10
     ) {
@@ -317,7 +340,7 @@ export const NEW_CHANNELS_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to channel archive/unarchive events
@@ -335,7 +358,7 @@ export const CHANNEL_ARCHIVE_EVENTS_SUBSCRIPTION = gql`
       archived_at
     }
   }
-`
+`;
 
 // ============================================================================
 // PINNED MESSAGES
@@ -363,7 +386,7 @@ export const CHANNEL_PINNED_MESSAGES_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // CHANNEL PRESENCE
@@ -384,4 +407,4 @@ export const CHANNEL_PRESENCE_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;

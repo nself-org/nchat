@@ -1,108 +1,111 @@
-'use client'
+"use client";
 
 /**
  * AuditChannelActivity - Channel activity log component
  */
 
-import { useState, useMemo } from 'react'
-import { Hash, Users, Clock, Activity, TrendingUp } from 'lucide-react'
+import { useState, useMemo } from "react";
+import { Hash, Users, Clock, Activity, TrendingUp } from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 
-import type { AuditLogEntry, AuditAction } from '@/lib/audit/audit-types'
-import { formatTimestamp } from '@/lib/audit/audit-formatter'
-import { getActionDisplayName } from '@/lib/audit/audit-events'
-import { AuditTimeline } from './AuditTimeline'
-import { AuditEventCard } from './AuditEventCard'
+import type { AuditLogEntry, AuditAction } from "@/lib/audit/audit-types";
+import { formatTimestamp } from "@/lib/audit/audit-formatter";
+import { getActionDisplayName } from "@/lib/audit/audit-events";
+import { AuditTimeline } from "./AuditTimeline";
+import { AuditEventCard } from "./AuditEventCard";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AuditChannelActivityProps {
-  channelId: string
+  channelId: string;
   channelInfo?: {
-    name?: string
-    description?: string
-    isPrivate?: boolean
-    memberCount?: number
-  }
-  entries: AuditLogEntry[]
-  onEntryClick?: (entry: AuditLogEntry) => void
-  className?: string
+    name?: string;
+    description?: string;
+    isPrivate?: boolean;
+    memberCount?: number;
+  };
+  entries: AuditLogEntry[];
+  onEntryClick?: (entry: AuditLogEntry) => void;
+  className?: string;
 }
 
 interface ChannelActivitySummary {
-  totalEvents: number
-  messagesCreated: number
-  messagesEdited: number
-  messagesDeleted: number
-  membersAdded: number
-  membersRemoved: number
-  uniqueActors: number
-  topActors: { id: string; name: string; count: number }[]
-  lastActivity: Date | null
+  totalEvents: number;
+  messagesCreated: number;
+  messagesEdited: number;
+  messagesDeleted: number;
+  membersAdded: number;
+  membersRemoved: number;
+  uniqueActors: number;
+  topActors: { id: string; name: string; count: number }[];
+  lastActivity: Date | null;
 }
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
-function calculateChannelSummary(entries: AuditLogEntry[]): ChannelActivitySummary {
-  let messagesCreated = 0
-  let messagesEdited = 0
-  let messagesDeleted = 0
-  let membersAdded = 0
-  let membersRemoved = 0
+function calculateChannelSummary(
+  entries: AuditLogEntry[],
+): ChannelActivitySummary {
+  let messagesCreated = 0;
+  let messagesEdited = 0;
+  let messagesDeleted = 0;
+  let membersAdded = 0;
+  let membersRemoved = 0;
 
-  const actorCounts = new Map<string, { name: string; count: number }>()
+  const actorCounts = new Map<string, { name: string; count: number }>();
 
   entries.forEach((entry) => {
     // Count by action
     switch (entry.action) {
-      case 'create':
-        if (entry.category === 'message') messagesCreated++
-        break
-      case 'edit':
-        if (entry.category === 'message') messagesEdited++
-        break
-      case 'delete':
-        if (entry.category === 'message') messagesDeleted++
-        break
-      case 'member_add':
-        membersAdded++
-        break
-      case 'member_remove':
-        membersRemoved++
-        break
+      case "create":
+        if (entry.category === "message") messagesCreated++;
+        break;
+      case "edit":
+        if (entry.category === "message") messagesEdited++;
+        break;
+      case "delete":
+        if (entry.category === "message") messagesDeleted++;
+        break;
+      case "member_add":
+        membersAdded++;
+        break;
+      case "member_remove":
+        membersRemoved++;
+        break;
     }
 
     // Count actors
-    const actorId = entry.actor.id
-    const actorName = entry.actor.displayName || entry.actor.username || entry.actor.id
-    const existing = actorCounts.get(actorId)
+    const actorId = entry.actor.id;
+    const actorName =
+      entry.actor.displayName || entry.actor.username || entry.actor.id;
+    const existing = actorCounts.get(actorId);
     if (existing) {
-      existing.count++
+      existing.count++;
     } else {
-      actorCounts.set(actorId, { name: actorName, count: 1 })
+      actorCounts.set(actorId, { name: actorName, count: 1 });
     }
-  })
+  });
 
   const topActors = Array.from(actorCounts.entries())
     .map(([id, data]) => ({ id, ...data }))
     .sort((a, b) => b.count - a.count)
-    .slice(0, 5)
+    .slice(0, 5);
 
   return {
     totalEvents: entries.length,
@@ -114,7 +117,7 @@ function calculateChannelSummary(entries: AuditLogEntry[]): ChannelActivitySumma
     uniqueActors: actorCounts.size,
     topActors,
     lastActivity: entries.length > 0 ? new Date(entries[0].timestamp) : null,
-  }
+  };
 }
 
 // ============================================================================
@@ -128,49 +131,51 @@ export function AuditChannelActivity({
   onEntryClick,
   className,
 }: AuditChannelActivityProps) {
-  const [viewMode, setViewMode] = useState<'timeline' | 'cards'>('timeline')
-  const [actionFilter, setActionFilter] = useState<string>('all')
-  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('all')
+  const [viewMode, setViewMode] = useState<"timeline" | "cards">("timeline");
+  const [actionFilter, setActionFilter] = useState<string>("all");
+  const [timeRange, setTimeRange] = useState<
+    "today" | "week" | "month" | "all"
+  >("all");
 
   const filteredEntries = useMemo(() => {
-    let result = entries
+    let result = entries;
 
     // Action filter
-    if (actionFilter !== 'all') {
-      result = result.filter((e) => e.action === actionFilter)
+    if (actionFilter !== "all") {
+      result = result.filter((e) => e.action === actionFilter);
     }
 
     // Time range filter
-    if (timeRange !== 'all') {
-      const now = new Date()
-      let startDate: Date
+    if (timeRange !== "all") {
+      const now = new Date();
+      let startDate: Date;
 
       switch (timeRange) {
-        case 'today':
-          startDate = new Date(now.setHours(0, 0, 0, 0))
-          break
-        case 'week':
-          startDate = new Date(now.setDate(now.getDate() - 7))
-          break
-        case 'month':
-          startDate = new Date(now.setMonth(now.getMonth() - 1))
-          break
+        case "today":
+          startDate = new Date(now.setHours(0, 0, 0, 0));
+          break;
+        case "week":
+          startDate = new Date(now.setDate(now.getDate() - 7));
+          break;
+        case "month":
+          startDate = new Date(now.setMonth(now.getMonth() - 1));
+          break;
         default:
-          startDate = new Date(0)
+          startDate = new Date(0);
       }
 
-      result = result.filter((e) => new Date(e.timestamp) >= startDate)
+      result = result.filter((e) => new Date(e.timestamp) >= startDate);
     }
 
-    return result
-  }, [entries, actionFilter, timeRange])
+    return result;
+  }, [entries, actionFilter, timeRange]);
 
-  const summary = useMemo(() => calculateChannelSummary(entries), [entries])
+  const summary = useMemo(() => calculateChannelSummary(entries), [entries]);
 
-  const channelName = channelInfo?.name || channelId
+  const channelName = channelInfo?.name || channelId;
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Channel Header */}
       <Card>
         <CardContent className="p-4">
@@ -181,12 +186,18 @@ export function AuditChannelActivity({
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold">{channelName}</h2>
-                {channelInfo?.isPrivate && <Badge variant="secondary">Private</Badge>}
+                {channelInfo?.isPrivate && (
+                  <Badge variant="secondary">Private</Badge>
+                )}
               </div>
               {channelInfo?.description && (
-                <p className="mt-1 text-sm text-muted-foreground">{channelInfo.description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {channelInfo.description}
+                </p>
               )}
-              <p className="mt-1 font-mono text-xs text-muted-foreground">{channelId}</p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">
+                {channelId}
+              </p>
             </div>
             <div className="text-right">
               {channelInfo?.memberCount !== undefined && (
@@ -201,8 +212,8 @@ export function AuditChannelActivity({
               </div>
               <p className="font-medium">
                 {summary.lastActivity
-                  ? formatTimestamp(summary.lastActivity, 'relative')
-                  : 'No activity'}
+                  ? formatTimestamp(summary.lastActivity, "relative")
+                  : "No activity"}
               </p>
             </div>
           </div>
@@ -255,7 +266,9 @@ export function AuditChannelActivity({
                   key={actor.id}
                   className="bg-muted/50 flex items-center gap-2 rounded-lg px-3 py-2"
                 >
-                  <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    #{index + 1}
+                  </span>
                   <Avatar className="h-6 w-6">
                     <AvatarFallback className="text-xs">
                       {actor.name.charAt(0).toUpperCase()}
@@ -288,7 +301,10 @@ export function AuditChannelActivity({
             </SelectContent>
           </Select>
 
-          <Select value={timeRange} onValueChange={(v) => setTimeRange(v as typeof timeRange)}>
+          <Select
+            value={timeRange}
+            onValueChange={(v) => setTimeRange(v as typeof timeRange)}
+          >
             <SelectTrigger className="w-[130px]">
               <SelectValue placeholder="Time range" />
             </SelectTrigger>
@@ -303,16 +319,16 @@ export function AuditChannelActivity({
 
         <div className="flex items-center gap-1 rounded-lg border p-1">
           <Button
-            variant={viewMode === 'timeline' ? 'secondary' : 'ghost'}
+            variant={viewMode === "timeline" ? "secondary" : "ghost"}
             size="sm"
-            onClick={() => setViewMode('timeline')}
+            onClick={() => setViewMode("timeline")}
           >
             Timeline
           </Button>
           <Button
-            variant={viewMode === 'cards' ? 'secondary' : 'ghost'}
+            variant={viewMode === "cards" ? "secondary" : "ghost"}
             size="sm"
-            onClick={() => setViewMode('cards')}
+            onClick={() => setViewMode("cards")}
           >
             Cards
           </Button>
@@ -327,7 +343,7 @@ export function AuditChannelActivity({
             <p>No activity found for the selected filters</p>
           </CardContent>
         </Card>
-      ) : viewMode === 'timeline' ? (
+      ) : viewMode === "timeline" ? (
         <AuditTimeline
           entries={filteredEntries}
           onEntryClick={onEntryClick}
@@ -337,10 +353,14 @@ export function AuditChannelActivity({
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {filteredEntries.map((entry) => (
-            <AuditEventCard key={entry.id} entry={entry} onClick={() => onEntryClick?.(entry)} />
+            <AuditEventCard
+              key={entry.id}
+              entry={entry}
+              onClick={() => onEntryClick?.(entry)}
+            />
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }

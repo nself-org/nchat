@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   type TreasuryAccount,
   type TreasuryTransaction,
@@ -22,7 +22,7 @@ import {
   type PayoutCurrency,
   PayoutErrorCode,
   PayoutError,
-} from './payout-types'
+} from "./payout-types";
 
 // ============================================================================
 // Treasury Manager
@@ -38,9 +38,9 @@ import {
  * - Reserve holds ensure funds are earmarked for pending payouts
  */
 export class TreasuryManager {
-  private accounts: Map<string, TreasuryAccount> = new Map()
-  private transactions: Map<string, TreasuryTransaction[]> = new Map() // accountId -> transactions
-  private log = logger.scope('TreasuryManager')
+  private accounts: Map<string, TreasuryAccount> = new Map();
+  private transactions: Map<string, TreasuryTransaction[]> = new Map(); // accountId -> transactions
+  private log = logger.scope("TreasuryManager");
 
   // --------------------------------------------------------------------------
   // Account Operations
@@ -50,31 +50,31 @@ export class TreasuryManager {
    * Create a new treasury account.
    */
   createAccount(params: {
-    id: string
-    workspaceId: string
-    name: string
-    currency: PayoutCurrency
-    initialBalance?: number
-    minimumBalance?: number
-    maximumBalance?: number
-    now?: number
+    id: string;
+    workspaceId: string;
+    name: string;
+    currency: PayoutCurrency;
+    initialBalance?: number;
+    minimumBalance?: number;
+    maximumBalance?: number;
+    now?: number;
   }): TreasuryAccount {
     if (this.accounts.has(params.id)) {
       throw new PayoutError(
         PayoutErrorCode.INVALID_INPUT,
-        `Account ${params.id} already exists`
-      )
+        `Account ${params.id} already exists`,
+      );
     }
 
-    const now = params.now ?? Date.now()
-    const initialBalance = params.initialBalance || 0
+    const now = params.now ?? Date.now();
+    const initialBalance = params.initialBalance || 0;
 
     const account: TreasuryAccount = {
       id: params.id,
       workspaceId: params.workspaceId,
       name: params.name,
       currency: params.currency,
-      status: 'active',
+      status: "active",
       totalBalance: initialBalance,
       availableBalance: initialBalance,
       reservedBalance: 0,
@@ -85,38 +85,38 @@ export class TreasuryManager {
       createdAt: now,
       updatedAt: now,
       version: 0,
-    }
+    };
 
-    this.accounts.set(params.id, account)
-    this.transactions.set(params.id, [])
+    this.accounts.set(params.id, account);
+    this.transactions.set(params.id, []);
 
     // Record initial deposit if balance > 0
     if (initialBalance > 0) {
       this.recordTransaction(params.id, {
-        type: 'deposit',
+        type: "deposit",
         amount: initialBalance,
-        description: 'Initial deposit',
-        createdBy: 'system',
+        description: "Initial deposit",
+        createdBy: "system",
         now,
-      })
+      });
     }
 
-    this.log.info('Treasury account created', {
+    this.log.info("Treasury account created", {
       accountId: params.id,
       workspaceId: params.workspaceId,
       currency: params.currency,
       initialBalance,
-    })
+    });
 
-    return { ...account }
+    return { ...account };
   }
 
   /**
    * Get a treasury account by ID.
    */
   getAccount(accountId: string): TreasuryAccount | undefined {
-    const account = this.accounts.get(accountId)
-    return account ? { ...account } : undefined
+    const account = this.accounts.get(accountId);
+    return account ? { ...account } : undefined;
   }
 
   /**
@@ -125,50 +125,50 @@ export class TreasuryManager {
   getAccountByWorkspace(workspaceId: string): TreasuryAccount | undefined {
     for (const account of this.accounts.values()) {
       if (account.workspaceId === workspaceId) {
-        return { ...account }
+        return { ...account };
       }
     }
-    return undefined
+    return undefined;
   }
 
   /**
    * Freeze a treasury account (block all operations).
    */
   freezeAccount(accountId: string, now?: number): TreasuryAccount {
-    const account = this.getAccountInternal(accountId)
-    if (account.status === 'frozen') {
+    const account = this.getAccountInternal(accountId);
+    if (account.status === "frozen") {
       throw new PayoutError(
         PayoutErrorCode.TREASURY_FROZEN,
-        `Account ${accountId} is already frozen`
-      )
+        `Account ${accountId} is already frozen`,
+      );
     }
 
-    account.status = 'frozen'
-    account.updatedAt = now ?? Date.now()
-    account.version += 1
+    account.status = "frozen";
+    account.updatedAt = now ?? Date.now();
+    account.version += 1;
 
-    this.log.security('Treasury account frozen', { accountId })
-    return { ...account }
+    this.log.security("Treasury account frozen", { accountId });
+    return { ...account };
   }
 
   /**
    * Unfreeze a treasury account.
    */
   unfreezeAccount(accountId: string, now?: number): TreasuryAccount {
-    const account = this.getAccountInternal(accountId)
-    if (account.status !== 'frozen') {
+    const account = this.getAccountInternal(accountId);
+    if (account.status !== "frozen") {
       throw new PayoutError(
         PayoutErrorCode.INVALID_INPUT,
-        `Account ${accountId} is not frozen`
-      )
+        `Account ${accountId} is not frozen`,
+      );
     }
 
-    account.status = 'active'
-    account.updatedAt = now ?? Date.now()
-    account.version += 1
+    account.status = "active";
+    account.updatedAt = now ?? Date.now();
+    account.version += 1;
 
-    this.log.info('Treasury account unfrozen', { accountId })
-    return { ...account }
+    this.log.info("Treasury account unfrozen", { accountId });
+    return { ...account };
   }
 
   // --------------------------------------------------------------------------
@@ -183,38 +183,38 @@ export class TreasuryManager {
     amount: number,
     description: string,
     createdBy: string,
-    options?: { reference?: string; externalId?: string; now?: number }
+    options?: { reference?: string; externalId?: string; now?: number },
   ): TreasuryTransaction {
-    this.validateAmount(amount)
-    const account = this.getAccountInternal(accountId)
-    this.ensureNotFrozen(account)
+    this.validateAmount(amount);
+    const account = this.getAccountInternal(accountId);
+    this.ensureNotFrozen(account);
 
-    const newTotal = account.totalBalance + amount
+    const newTotal = account.totalBalance + amount;
     if (newTotal > account.maximumBalance) {
       throw new PayoutError(
         PayoutErrorCode.BALANCE_ABOVE_MAXIMUM,
         `Deposit would exceed maximum balance. Current: ${account.totalBalance}, Deposit: ${amount}, Max: ${account.maximumBalance}`,
         undefined,
-        { accountId, amount, maximumBalance: account.maximumBalance }
-      )
+        { accountId, amount, maximumBalance: account.maximumBalance },
+      );
     }
 
     const tx = this.recordTransaction(accountId, {
-      type: 'deposit',
+      type: "deposit",
       amount,
       description,
       createdBy,
       reference: options?.reference,
       externalId: options?.externalId,
       now: options?.now,
-    })
+    });
 
-    account.totalBalance += amount
-    account.availableBalance += amount
-    account.updatedAt = tx.createdAt
-    account.version += 1
+    account.totalBalance += amount;
+    account.availableBalance += amount;
+    account.updatedAt = tx.createdAt;
+    account.version += 1;
 
-    return tx
+    return tx;
   }
 
   /**
@@ -225,47 +225,47 @@ export class TreasuryManager {
     amount: number,
     description: string,
     createdBy: string,
-    options?: { reference?: string; externalId?: string; now?: number }
+    options?: { reference?: string; externalId?: string; now?: number },
   ): TreasuryTransaction {
-    this.validateAmount(amount)
-    const account = this.getAccountInternal(accountId)
-    this.ensureNotFrozen(account)
+    this.validateAmount(amount);
+    const account = this.getAccountInternal(accountId);
+    this.ensureNotFrozen(account);
 
     if (amount > account.availableBalance) {
       throw new PayoutError(
         PayoutErrorCode.INSUFFICIENT_FUNDS,
         `Insufficient available funds. Available: ${account.availableBalance}, Requested: ${amount}`,
         undefined,
-        { accountId, amount, available: account.availableBalance }
-      )
+        { accountId, amount, available: account.availableBalance },
+      );
     }
 
-    const newTotal = account.totalBalance - amount
+    const newTotal = account.totalBalance - amount;
     if (newTotal < account.minimumBalance) {
       throw new PayoutError(
         PayoutErrorCode.BALANCE_BELOW_MINIMUM,
         `Withdrawal would breach minimum balance. Current: ${account.totalBalance}, Withdrawal: ${amount}, Min: ${account.minimumBalance}`,
         undefined,
-        { accountId, amount, minimumBalance: account.minimumBalance }
-      )
+        { accountId, amount, minimumBalance: account.minimumBalance },
+      );
     }
 
     const tx = this.recordTransaction(accountId, {
-      type: 'withdrawal',
+      type: "withdrawal",
       amount: -amount,
       description,
       createdBy,
       reference: options?.reference,
       externalId: options?.externalId,
       now: options?.now,
-    })
+    });
 
-    account.totalBalance -= amount
-    account.availableBalance -= amount
-    account.updatedAt = tx.createdAt
-    account.version += 1
+    account.totalBalance -= amount;
+    account.availableBalance -= amount;
+    account.updatedAt = tx.createdAt;
+    account.version += 1;
 
-    return tx
+    return tx;
   }
 
   /**
@@ -277,37 +277,37 @@ export class TreasuryManager {
     amount: number,
     payoutId: string,
     createdBy: string,
-    now?: number
+    now?: number,
   ): TreasuryTransaction {
-    this.validateAmount(amount)
-    const account = this.getAccountInternal(accountId)
-    this.ensureNotFrozen(account)
+    this.validateAmount(amount);
+    const account = this.getAccountInternal(accountId);
+    this.ensureNotFrozen(account);
 
     if (amount > account.availableBalance) {
       throw new PayoutError(
         PayoutErrorCode.INSUFFICIENT_FUNDS,
         `Insufficient available funds for reserve hold. Available: ${account.availableBalance}, Requested: ${amount}`,
         payoutId,
-        { accountId, amount, available: account.availableBalance }
-      )
+        { accountId, amount, available: account.availableBalance },
+      );
     }
 
     const tx = this.recordTransaction(accountId, {
-      type: 'reserve_hold',
+      type: "reserve_hold",
       amount: -amount, // Reduces available (but not total)
       description: `Reserve hold for payout ${payoutId}`,
       createdBy,
       payoutId,
       now,
-    })
+    });
 
-    account.availableBalance -= amount
-    account.reservedBalance += amount
-    account.pendingOutgoing += amount
-    account.updatedAt = tx.createdAt
-    account.version += 1
+    account.availableBalance -= amount;
+    account.reservedBalance += amount;
+    account.pendingOutgoing += amount;
+    account.updatedAt = tx.createdAt;
+    account.version += 1;
 
-    return tx
+    return tx;
   }
 
   /**
@@ -319,36 +319,36 @@ export class TreasuryManager {
     amount: number,
     payoutId: string,
     createdBy: string,
-    now?: number
+    now?: number,
   ): TreasuryTransaction {
-    this.validateAmount(amount)
-    const account = this.getAccountInternal(accountId)
+    this.validateAmount(amount);
+    const account = this.getAccountInternal(accountId);
 
     if (amount > account.reservedBalance) {
       throw new PayoutError(
         PayoutErrorCode.INVALID_INPUT,
         `Cannot release more than reserved. Reserved: ${account.reservedBalance}, Release: ${amount}`,
         payoutId,
-        { accountId, amount, reserved: account.reservedBalance }
-      )
+        { accountId, amount, reserved: account.reservedBalance },
+      );
     }
 
     const tx = this.recordTransaction(accountId, {
-      type: 'reserve_release',
+      type: "reserve_release",
       amount, // Adds back to available
       description: `Reserve release for payout ${payoutId}`,
       createdBy,
       payoutId,
       now,
-    })
+    });
 
-    account.availableBalance += amount
-    account.reservedBalance -= amount
-    account.pendingOutgoing -= amount
-    account.updatedAt = tx.createdAt
-    account.version += 1
+    account.availableBalance += amount;
+    account.reservedBalance -= amount;
+    account.pendingOutgoing -= amount;
+    account.updatedAt = tx.createdAt;
+    account.version += 1;
 
-    return tx
+    return tx;
   }
 
   /**
@@ -360,35 +360,35 @@ export class TreasuryManager {
     amount: number,
     payoutId: string,
     createdBy: string,
-    now?: number
+    now?: number,
   ): TreasuryTransaction {
-    this.validateAmount(amount)
-    const account = this.getAccountInternal(accountId)
+    this.validateAmount(amount);
+    const account = this.getAccountInternal(accountId);
 
     if (amount > account.reservedBalance) {
       throw new PayoutError(
         PayoutErrorCode.INVALID_INPUT,
         `Cannot execute payout for more than reserved. Reserved: ${account.reservedBalance}, Payout: ${amount}`,
-        payoutId
-      )
+        payoutId,
+      );
     }
 
     const tx = this.recordTransaction(accountId, {
-      type: 'payout',
+      type: "payout",
       amount: -amount,
       description: `Payout executed: ${payoutId}`,
       createdBy,
       payoutId,
       now,
-    })
+    });
 
-    account.totalBalance -= amount
-    account.reservedBalance -= amount
-    account.pendingOutgoing -= amount
-    account.updatedAt = tx.createdAt
-    account.version += 1
+    account.totalBalance -= amount;
+    account.reservedBalance -= amount;
+    account.pendingOutgoing -= amount;
+    account.updatedAt = tx.createdAt;
+    account.version += 1;
 
-    return tx
+    return tx;
   }
 
   /**
@@ -399,24 +399,24 @@ export class TreasuryManager {
     amount: number,
     description: string,
     createdBy: string,
-    now?: number
+    now?: number,
   ): TreasuryTransaction {
-    const account = this.getAccountInternal(accountId)
+    const account = this.getAccountInternal(accountId);
 
     const tx = this.recordTransaction(accountId, {
-      type: 'adjustment',
+      type: "adjustment",
       amount,
       description,
       createdBy,
       now,
-    })
+    });
 
-    account.totalBalance += amount
-    account.availableBalance += amount
-    account.updatedAt = tx.createdAt
-    account.version += 1
+    account.totalBalance += amount;
+    account.availableBalance += amount;
+    account.updatedAt = tx.createdAt;
+    account.version += 1;
 
-    return tx
+    return tx;
   }
 
   // --------------------------------------------------------------------------
@@ -427,66 +427,69 @@ export class TreasuryManager {
    * Reconcile an account by replaying all transactions.
    */
   reconcile(accountId: string, now?: number): TreasuryReconciliationResult {
-    const account = this.getAccountInternal(accountId)
-    const transactions = this.transactions.get(accountId) || []
+    const account = this.getAccountInternal(accountId);
+    const transactions = this.transactions.get(accountId) || [];
 
     // Replay transactions to compute expected balance
-    let computedTotal = 0
-    let computedReserved = 0
-    const issues: string[] = []
+    let computedTotal = 0;
+    let computedReserved = 0;
+    const issues: string[] = [];
 
     for (const tx of transactions) {
       switch (tx.type) {
-        case 'deposit':
-          computedTotal += Math.abs(tx.amount)
-          break
-        case 'withdrawal':
-          computedTotal -= Math.abs(tx.amount)
-          break
-        case 'reserve_hold':
-          computedReserved += Math.abs(tx.amount)
-          break
-        case 'reserve_release':
-          computedReserved -= Math.abs(tx.amount)
-          break
-        case 'payout':
-          computedTotal -= Math.abs(tx.amount)
-          computedReserved -= Math.abs(tx.amount)
-          break
-        case 'adjustment':
-          computedTotal += tx.amount
-          break
-        case 'fee':
-          computedTotal -= Math.abs(tx.amount)
-          break
-        case 'refund_received':
-          computedTotal += Math.abs(tx.amount)
-          break
+        case "deposit":
+          computedTotal += Math.abs(tx.amount);
+          break;
+        case "withdrawal":
+          computedTotal -= Math.abs(tx.amount);
+          break;
+        case "reserve_hold":
+          computedReserved += Math.abs(tx.amount);
+          break;
+        case "reserve_release":
+          computedReserved -= Math.abs(tx.amount);
+          break;
+        case "payout":
+          computedTotal -= Math.abs(tx.amount);
+          computedReserved -= Math.abs(tx.amount);
+          break;
+        case "adjustment":
+          computedTotal += tx.amount;
+          break;
+        case "fee":
+          computedTotal -= Math.abs(tx.amount);
+          break;
+        case "refund_received":
+          computedTotal += Math.abs(tx.amount);
+          break;
         default:
-          break
+          break;
       }
     }
 
-    const computedAvailable = computedTotal - computedReserved
-    const discrepancyTotal = account.totalBalance - computedTotal
+    const computedAvailable = computedTotal - computedReserved;
+    const discrepancyTotal = account.totalBalance - computedTotal;
 
     if (discrepancyTotal !== 0) {
       issues.push(
-        `Total balance mismatch: recorded=${account.totalBalance}, computed=${computedTotal}, discrepancy=${discrepancyTotal}`
-      )
+        `Total balance mismatch: recorded=${account.totalBalance}, computed=${computedTotal}, discrepancy=${discrepancyTotal}`,
+      );
     }
 
     if (account.reservedBalance !== computedReserved) {
       issues.push(
-        `Reserved balance mismatch: recorded=${account.reservedBalance}, computed=${computedReserved}`
-      )
+        `Reserved balance mismatch: recorded=${account.reservedBalance}, computed=${computedReserved}`,
+      );
     }
 
     // Check invariant: available + reserved = total
-    if (account.availableBalance + account.reservedBalance !== account.totalBalance) {
+    if (
+      account.availableBalance + account.reservedBalance !==
+      account.totalBalance
+    ) {
       issues.push(
-        `Balance invariant violated: available(${account.availableBalance}) + reserved(${account.reservedBalance}) != total(${account.totalBalance})`
-      )
+        `Balance invariant violated: available(${account.availableBalance}) + reserved(${account.reservedBalance}) != total(${account.totalBalance})`,
+      );
     }
 
     return {
@@ -498,14 +501,14 @@ export class TreasuryManager {
       isBalanced: issues.length === 0,
       transactionCount: transactions.length,
       issues,
-    }
+    };
   }
 
   /**
    * Take a snapshot of the current treasury state.
    */
   snapshot(accountId: string, now?: number): TreasurySnapshot {
-    const account = this.getAccountInternal(accountId)
+    const account = this.getAccountInternal(accountId);
     return {
       accountId,
       timestamp: now ?? Date.now(),
@@ -514,7 +517,7 @@ export class TreasuryManager {
       reservedBalance: account.reservedBalance,
       pendingOutgoing: account.pendingOutgoing,
       pendingIncoming: account.pendingIncoming,
-    }
+    };
   }
 
   // --------------------------------------------------------------------------
@@ -527,32 +530,32 @@ export class TreasuryManager {
   getTransactions(
     accountId: string,
     options?: {
-      type?: TreasuryTransactionType
-      payoutId?: string
-      limit?: number
-      offset?: number
-    }
+      type?: TreasuryTransactionType;
+      payoutId?: string;
+      limit?: number;
+      offset?: number;
+    },
   ): TreasuryTransaction[] {
-    let txs = this.transactions.get(accountId) || []
+    let txs = this.transactions.get(accountId) || [];
 
     if (options?.type) {
-      txs = txs.filter((t) => t.type === options.type)
+      txs = txs.filter((t) => t.type === options.type);
     }
     if (options?.payoutId) {
-      txs = txs.filter((t) => t.payoutId === options.payoutId)
+      txs = txs.filter((t) => t.payoutId === options.payoutId);
     }
 
-    const offset = options?.offset || 0
-    const limit = options?.limit || txs.length
+    const offset = options?.offset || 0;
+    const limit = options?.limit || txs.length;
 
-    return txs.slice(offset, offset + limit).map((t) => ({ ...t }))
+    return txs.slice(offset, offset + limit).map((t) => ({ ...t }));
   }
 
   /**
    * Get total transaction count for an account.
    */
   getTransactionCount(accountId: string): number {
-    return (this.transactions.get(accountId) || []).length
+    return (this.transactions.get(accountId) || []).length;
   }
 
   // --------------------------------------------------------------------------
@@ -560,22 +563,22 @@ export class TreasuryManager {
   // --------------------------------------------------------------------------
 
   private getAccountInternal(accountId: string): TreasuryAccount {
-    const account = this.accounts.get(accountId)
+    const account = this.accounts.get(accountId);
     if (!account) {
       throw new PayoutError(
         PayoutErrorCode.ACCOUNT_NOT_FOUND,
-        `Treasury account ${accountId} not found`
-      )
+        `Treasury account ${accountId} not found`,
+      );
     }
-    return account
+    return account;
   }
 
   private ensureNotFrozen(account: TreasuryAccount): void {
-    if (account.status === 'frozen') {
+    if (account.status === "frozen") {
       throw new PayoutError(
         PayoutErrorCode.TREASURY_FROZEN,
-        `Treasury account ${account.id} is frozen`
-      )
+        `Treasury account ${account.id} is frozen`,
+      );
     }
   }
 
@@ -583,33 +586,33 @@ export class TreasuryManager {
     if (amount <= 0) {
       throw new PayoutError(
         PayoutErrorCode.INVALID_INPUT,
-        `Amount must be positive, got ${amount}`
-      )
+        `Amount must be positive, got ${amount}`,
+      );
     }
     if (!Number.isFinite(amount)) {
       throw new PayoutError(
         PayoutErrorCode.INVALID_INPUT,
-        `Amount must be finite, got ${amount}`
-      )
+        `Amount must be finite, got ${amount}`,
+      );
     }
   }
 
   private recordTransaction(
     accountId: string,
     params: {
-      type: TreasuryTransactionType
-      amount: number
-      description: string
-      createdBy: string
-      reference?: string
-      externalId?: string
-      payoutId?: string
-      now?: number
-    }
+      type: TreasuryTransactionType;
+      amount: number;
+      description: string;
+      createdBy: string;
+      reference?: string;
+      externalId?: string;
+      payoutId?: string;
+      now?: number;
+    },
   ): TreasuryTransaction {
-    const account = this.accounts.get(accountId)!
-    const txs = this.transactions.get(accountId) || []
-    const now = params.now ?? Date.now()
+    const account = this.accounts.get(accountId)!;
+    const txs = this.transactions.get(accountId) || [];
+    const now = params.now ?? Date.now();
 
     const tx: TreasuryTransaction = {
       id: `tx_${now}_${txs.length}_${Math.random().toString(36).slice(2, 8)}`,
@@ -625,20 +628,20 @@ export class TreasuryManager {
       externalId: params.externalId,
       createdAt: now,
       createdBy: params.createdBy,
-    }
+    };
 
-    txs.push(tx)
-    this.transactions.set(accountId, txs)
+    txs.push(tx);
+    this.transactions.set(accountId, txs);
 
-    return { ...tx }
+    return { ...tx };
   }
 
   /**
    * Clear all data (for testing).
    */
   clear(): void {
-    this.accounts.clear()
-    this.transactions.clear()
+    this.accounts.clear();
+    this.transactions.clear();
   }
 }
 
@@ -646,28 +649,28 @@ export class TreasuryManager {
 // Singleton
 // ============================================================================
 
-let treasuryManagerInstance: TreasuryManager | null = null
+let treasuryManagerInstance: TreasuryManager | null = null;
 
 /**
  * Get the singleton treasury manager.
  */
 export function getTreasuryManager(): TreasuryManager {
   if (!treasuryManagerInstance) {
-    treasuryManagerInstance = new TreasuryManager()
+    treasuryManagerInstance = new TreasuryManager();
   }
-  return treasuryManagerInstance
+  return treasuryManagerInstance;
 }
 
 /**
  * Create a new treasury manager (for custom setup).
  */
 export function createTreasuryManager(): TreasuryManager {
-  return new TreasuryManager()
+  return new TreasuryManager();
 }
 
 /**
  * Reset the singleton (for testing).
  */
 export function resetTreasuryManager(): void {
-  treasuryManagerInstance = null
+  treasuryManagerInstance = null;
 }

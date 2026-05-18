@@ -8,19 +8,19 @@
  * Wrap your app with <CallProvider> to enable calls throughout.
  */
 
-'use client'
+"use client";
 
-import React from 'react'
-import { useCall } from '@/hooks/use-call'
-import { CallInterface } from './CallInterface'
-import { useCallStore } from '@/stores/call-store'
+import React from "react";
+import { useCall } from "@/hooks/use-call";
+import { CallInterface } from "./CallInterface";
+import { useCallStore } from "@/stores/call-store";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface CallProviderProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 // =============================================================================
@@ -47,10 +47,10 @@ export function CallProvider({ children }: CallProviderProps) {
     toggleMute,
     toggleVideo,
     toggleScreenShare,
-  } = useCall()
+  } = useCall();
 
   // Get connection quality from store
-  const _activeCall = useCallStore((state) => state.activeCall)
+  const _activeCall = useCallStore((state) => state.activeCall);
 
   // Get remote participant (first one for 1:1 calls)
   const remoteUser =
@@ -60,16 +60,17 @@ export function CallProvider({ children }: CallProviderProps) {
           name: participants[0].name,
           avatarUrl: participants[0].avatarUrl,
         }
-      : null
+      : null;
 
   // Get remote stream (first one for 1:1 calls)
-  const remoteStream = remoteStreams.size > 0 ? Array.from(remoteStreams.values())[0] : null
+  const remoteStream =
+    remoteStreams.size > 0 ? Array.from(remoteStreams.values())[0] : null;
 
   // Determine connection quality based on call state
-  const connectionQuality: 'excellent' | 'good' | 'fair' | 'poor' =
-    callState === 'connected' ? 'good' : 'fair'
+  const connectionQuality: "excellent" | "good" | "fair" | "poor" =
+    callState === "connected" ? "good" : "fair";
 
-  const isReconnecting = callState === 'reconnecting'
+  const isReconnecting = callState === "reconnecting";
 
   // Get first incoming call
   const incomingCall =
@@ -81,7 +82,7 @@ export function CallProvider({ children }: CallProviderProps) {
           callerAvatarUrl: incomingCalls[0].callerAvatarUrl,
           type: incomingCalls[0].type,
         }
-      : null
+      : null;
 
   return (
     <>
@@ -110,7 +111,7 @@ export function CallProvider({ children }: CallProviderProps) {
         onDeclineIncoming={(callId) => declineCall(callId)}
       />
     </>
-  )
+  );
 }
 
 /**

@@ -10,10 +10,10 @@
  * - Silent post (no notification)
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
+import * as React from "react";
+import { useState } from "react";
 import {
   Send,
   Image as ImageIcon,
@@ -24,36 +24,41 @@ import {
   BellOff,
   X,
   Clock,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import type { Channel } from '@/types/advanced-channels'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { Channel } from "@/types/advanced-channels";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelPostComposerProps {
-  channel: Channel
-  onPost?: (post: PostData) => Promise<void>
-  onSchedulePost?: (post: PostData, scheduledFor: Date) => Promise<void>
-  className?: string
+  channel: Channel;
+  onPost?: (post: PostData) => Promise<void>;
+  onSchedulePost?: (post: PostData, scheduledFor: Date) => Promise<void>;
+  className?: string;
 }
 
 export interface PostData {
-  content: string
-  attachments: File[]
-  signMessage: boolean
-  disableComments: boolean
-  silentPost: boolean
-  scheduledFor?: Date
+  content: string;
+  attachments: File[];
+  signMessage: boolean;
+  disableComments: boolean;
+  silentPost: boolean;
+  scheduledFor?: Date;
 }
 
 // ============================================================================
@@ -66,30 +71,30 @@ export function ChannelPostComposer({
   onSchedulePost,
   className,
 }: ChannelPostComposerProps) {
-  const [content, setContent] = useState('')
-  const [attachments, setAttachments] = useState<File[]>([])
-  const [signMessage, setSignMessage] = useState(true)
-  const [disableComments, setDisableComments] = useState(false)
-  const [silentPost, setSilentPost] = useState(false)
-  const [isPosting, setIsPosting] = useState(false)
-  const [showScheduler, setShowScheduler] = useState(false)
+  const [content, setContent] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [signMessage, setSignMessage] = useState(true);
+  const [disableComments, setDisableComments] = useState(false);
+  const [silentPost, setSilentPost] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [showScheduler, setShowScheduler] = useState(false);
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    setAttachments((prev) => [...prev, ...files])
-  }
+    const files = Array.from(e.target.files || []);
+    setAttachments((prev) => [...prev, ...files]);
+  };
 
   const removeAttachment = (index: number) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index))
-  }
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handlePost = async () => {
-    if (!content.trim() && attachments.length === 0) return
-    if (!onPost) return
+    if (!content.trim() && attachments.length === 0) return;
+    if (!onPost) return;
 
-    setIsPosting(true)
+    setIsPosting(true);
     try {
       await onPost({
         content: content.trim(),
@@ -97,24 +102,24 @@ export function ChannelPostComposer({
         signMessage,
         disableComments,
         silentPost,
-      })
+      });
       // Reset form
-      setContent('')
-      setAttachments([])
-      setSignMessage(true)
-      setDisableComments(false)
-      setSilentPost(false)
+      setContent("");
+      setAttachments([]);
+      setSignMessage(true);
+      setDisableComments(false);
+      setSilentPost(false);
     } catch (error) {
-      logger.error('Failed to post:', error)
+      logger.error("Failed to post:", error);
     } finally {
-      setIsPosting(false)
+      setIsPosting(false);
     }
-  }
+  };
 
-  const canPost = (content.trim() || attachments.length > 0) && !isPosting
+  const canPost = (content.trim() || attachments.length > 0) && !isPosting;
 
   return (
-    <div className={cn('border-t bg-background', className)}>
+    <div className={cn("border-t bg-background", className)}>
       <div className="p-4">
         {/* Post type indicator */}
         <div className="mb-3 flex items-center gap-2">
@@ -122,7 +127,9 @@ export function ChannelPostComposer({
             <User className="h-3 w-3" />
             Posting as Admin
           </Badge>
-          {channel.subtype === 'gigagroup' && <Badge variant="secondary">Admin-only post</Badge>}
+          {channel.subtype === "gigagroup" && (
+            <Badge variant="secondary">Admin-only post</Badge>
+          )}
         </div>
 
         {/* Text editor */}
@@ -131,7 +138,9 @@ export function ChannelPostComposer({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={
-              channel.isReadonly ? 'Write a channel post...' : 'Write an announcement...'
+              channel.isReadonly
+                ? "Write a channel post..."
+                : "Write an announcement..."
             }
             rows={4}
             className="resize-none"
@@ -169,13 +178,20 @@ export function ChannelPostComposer({
                   Sign message with author name
                 </Label>
               </div>
-              <Switch id="sign-message" checked={signMessage} onCheckedChange={setSignMessage} />
+              <Switch
+                id="sign-message"
+                checked={signMessage}
+                onCheckedChange={setSignMessage}
+              />
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MessageSquareOff className="h-4 w-4 text-muted-foreground" />
-                <Label htmlFor="disable-comments" className="text-sm font-normal">
+                <Label
+                  htmlFor="disable-comments"
+                  className="text-sm font-normal"
+                >
                   Disable comments
                 </Label>
               </div>
@@ -193,7 +209,11 @@ export function ChannelPostComposer({
                   Send without notification (silent)
                 </Label>
               </div>
-              <Switch id="silent-post" checked={silentPost} onCheckedChange={setSilentPost} />
+              <Switch
+                id="silent-post"
+                checked={silentPost}
+                onCheckedChange={setSilentPost}
+              />
             </div>
           </div>
 
@@ -285,7 +305,7 @@ export function ChannelPostComposer({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ChannelPostComposer
+export default ChannelPostComposer;

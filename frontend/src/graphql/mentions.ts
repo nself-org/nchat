@@ -1,32 +1,32 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   MENTION_FRAGMENT,
   MESSAGE_BASIC_FRAGMENT,
   USER_BASIC_FRAGMENT,
   CHANNEL_BASIC_FRAGMENT,
-} from './fragments'
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type MentionType = 'user' | 'channel' | 'everyone' | 'here'
+export type MentionType = "user" | "channel" | "everyone" | "here";
 
 export interface GetMentionsVariables {
-  userId: string
-  limit?: number
-  offset?: number
-  unreadOnly?: boolean
+  userId: string;
+  limit?: number;
+  offset?: number;
+  unreadOnly?: boolean;
 }
 
 export interface CreateMentionVariables {
-  messageId: string
-  userId: string
-  type: MentionType
+  messageId: string;
+  userId: string;
+  type: MentionType;
 }
 
 export interface MentionSubscriptionVariables {
-  userId: string
+  userId: string;
 }
 
 // ============================================================================
@@ -47,7 +47,14 @@ export const GET_MENTIONS = gql`
       where: {
         user_id: { _eq: $userId }
         message: { is_deleted: { _eq: false } }
-        _and: [{ _or: [{ is_read: { _eq: false } }, { is_read: { _neq: $unreadOnly } }] }]
+        _and: [
+          {
+            _or: [
+              { is_read: { _eq: false } }
+              { is_read: { _neq: $unreadOnly } }
+            ]
+          }
+        ]
       }
       order_by: { created_at: desc }
       limit: $limit
@@ -58,7 +65,10 @@ export const GET_MENTIONS = gql`
       read_at
     }
     nchat_mentions_aggregate(
-      where: { user_id: { _eq: $userId }, message: { is_deleted: { _eq: false } } }
+      where: {
+        user_id: { _eq: $userId }
+        message: { is_deleted: { _eq: false } }
+      }
     ) {
       aggregate {
         count
@@ -66,7 +76,7 @@ export const GET_MENTIONS = gql`
     }
   }
   ${MENTION_FRAGMENT}
-`
+`;
 
 /**
  * Get unread mentions count
@@ -85,13 +95,18 @@ export const GET_UNREAD_MENTIONS_COUNT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get mentions in a specific channel
  */
 export const GET_CHANNEL_MENTIONS = gql`
-  query GetChannelMentions($channelId: uuid!, $userId: uuid!, $limit: Int = 20, $offset: Int = 0) {
+  query GetChannelMentions(
+    $channelId: uuid!
+    $userId: uuid!
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_mentions(
       where: {
         user_id: { _eq: $userId }
@@ -106,7 +121,7 @@ export const GET_CHANNEL_MENTIONS = gql`
     }
   }
   ${MENTION_FRAGMENT}
-`
+`;
 
 /**
  * Get recent mentions grouped by channel
@@ -119,7 +134,10 @@ export const GET_MENTIONS_BY_CHANNEL = gql`
         name
         slug
         mentions: messages(
-          where: { mentions: { user_id: { _eq: $userId } }, is_deleted: { _eq: false } }
+          where: {
+            mentions: { user_id: { _eq: $userId } }
+            is_deleted: { _eq: false }
+          }
           order_by: { created_at: desc }
           limit: $limit
         ) {
@@ -138,14 +156,17 @@ export const GET_MENTIONS_BY_CHANNEL = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get mentions for a specific message
  */
 export const GET_MESSAGE_MENTIONS = gql`
   query GetMessageMentions($messageId: uuid!) {
-    nchat_mentions(where: { message_id: { _eq: $messageId } }, order_by: { type: asc }) {
+    nchat_mentions(
+      where: { message_id: { _eq: $messageId } }
+      order_by: { type: asc }
+    ) {
       id
       type
       user_id
@@ -155,18 +176,27 @@ export const GET_MESSAGE_MENTIONS = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Search users for @mention autocomplete
  */
 export const SEARCH_MENTIONABLE_USERS = gql`
-  query SearchMentionableUsers($search: String!, $channelId: uuid, $limit: Int = 10) {
+  query SearchMentionableUsers(
+    $search: String!
+    $channelId: uuid
+    $limit: Int = 10
+  ) {
     # Channel members first (if channel specified)
     channel_members: nchat_users(
       where: {
         _and: [
-          { _or: [{ username: { _ilike: $search } }, { display_name: { _ilike: $search } }] }
+          {
+            _or: [
+              { username: { _ilike: $search } }
+              { display_name: { _ilike: $search } }
+            ]
+          }
           { is_active: { _eq: true } }
           { channel_memberships: { channel_id: { _eq: $channelId } } }
         ]
@@ -183,7 +213,10 @@ export const SEARCH_MENTIONABLE_USERS = gql`
     # All workspace users
     all_users: nchat_users(
       where: {
-        _or: [{ username: { _ilike: $search } }, { display_name: { _ilike: $search } }]
+        _or: [
+          { username: { _ilike: $search } }
+          { display_name: { _ilike: $search } }
+        ]
         is_active: { _eq: true }
       }
       limit: $limit
@@ -196,21 +229,23 @@ export const SEARCH_MENTIONABLE_USERS = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get @here and @everyone mention eligibility
  */
 export const GET_MENTION_PERMISSIONS = gql`
   query GetMentionPermissions($channelId: uuid!, $userId: uuid!) {
-    nchat_channel_members(where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }) {
+    nchat_channel_members(
+      where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }
+    ) {
       role
       channel {
         settings
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -224,7 +259,10 @@ export const CREATE_MENTIONS = gql`
   mutation CreateMentions($mentions: [nchat_mentions_insert_input!]!) {
     insert_nchat_mentions(
       objects: $mentions
-      on_conflict: { constraint: nchat_mentions_message_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_mentions_message_id_user_id_key
+        update_columns: []
+      }
     ) {
       affected_rows
       returning {
@@ -235,7 +273,7 @@ export const CREATE_MENTIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Mark a mention as read
@@ -251,7 +289,7 @@ export const MARK_MENTION_READ = gql`
       read_at
     }
   }
-`
+`;
 
 /**
  * Mark multiple mentions as read
@@ -265,7 +303,7 @@ export const MARK_MENTIONS_READ = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Mark all mentions as read for a user
@@ -283,7 +321,7 @@ export const MARK_ALL_MENTIONS_READ = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Delete mentions for a message (when message is deleted)
@@ -294,13 +332,16 @@ export const DELETE_MESSAGE_MENTIONS = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Update mentions for a message (when message is edited)
  */
 export const UPDATE_MESSAGE_MENTIONS = gql`
-  mutation UpdateMessageMentions($messageId: uuid!, $mentions: [nchat_mentions_insert_input!]!) {
+  mutation UpdateMessageMentions(
+    $messageId: uuid!
+    $mentions: [nchat_mentions_insert_input!]!
+  ) {
     # Delete existing mentions
     delete_nchat_mentions(where: { message_id: { _eq: $messageId } }) {
       affected_rows
@@ -315,7 +356,7 @@ export const UPDATE_MESSAGE_MENTIONS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -327,7 +368,10 @@ export const UPDATE_MESSAGE_MENTIONS = gql`
 export const MENTION_SUBSCRIPTION = gql`
   subscription MentionSubscription($userId: uuid!) {
     nchat_mentions(
-      where: { user_id: { _eq: $userId }, message: { is_deleted: { _eq: false } } }
+      where: {
+        user_id: { _eq: $userId }
+        message: { is_deleted: { _eq: false } }
+      }
       order_by: { created_at: desc }
       limit: 1
     ) {
@@ -336,7 +380,7 @@ export const MENTION_SUBSCRIPTION = gql`
     }
   }
   ${MENTION_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to unread mentions count
@@ -355,7 +399,7 @@ export const UNREAD_MENTIONS_COUNT_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to mentions stream
@@ -386,7 +430,7 @@ export const MENTIONS_STREAM_SUBSCRIPTION = gql`
   }
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to channel mentions for a user
@@ -411,4 +455,4 @@ export const CHANNEL_MENTIONS_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;

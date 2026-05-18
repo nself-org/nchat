@@ -1,146 +1,159 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { Image as ImageIcon, Upload, Sparkles, Edit2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { useWhiteLabelStore } from '@/stores/white-label-store'
-import { LogoUploader } from './LogoUploader'
-import { LogoEditor } from './LogoEditor'
-import { LogoPresets } from './LogoPresets'
-import { createLogoVariants, type ProcessedLogo } from '@/lib/white-label/logo-processor'
+import { useState, useCallback } from "react";
+import { Image as ImageIcon, Upload, Sparkles, Edit2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useWhiteLabelStore } from "@/stores/white-label-store";
+import { LogoUploader } from "./LogoUploader";
+import { LogoEditor } from "./LogoEditor";
+import { LogoPresets } from "./LogoPresets";
+import {
+  createLogoVariants,
+  type ProcessedLogo,
+} from "@/lib/white-label/logo-processor";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface Step2LogoBuilderProps {
-  onValidChange?: (isValid: boolean) => void
-  className?: string
+  onValidChange?: (isValid: boolean) => void;
+  className?: string;
 }
 
-type Tab = 'upload' | 'generate' | 'edit'
+type Tab = "upload" | "generate" | "edit";
 
-export function Step2LogoBuilder({ onValidChange, className }: Step2LogoBuilderProps) {
-  const { config, updateLogo, setPreviewLogo, markStepComplete } = useWhiteLabelStore()
-  const [activeTab, setActiveTab] = useState<Tab>('upload')
-  const [tempLogo, setTempLogo] = useState<string | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
+export function Step2LogoBuilder({
+  onValidChange,
+  className,
+}: Step2LogoBuilderProps) {
+  const { config, updateLogo, setPreviewLogo, markStepComplete } =
+    useWhiteLabelStore();
+  const [activeTab, setActiveTab] = useState<Tab>("upload");
+  const [tempLogo, setTempLogo] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleLogoUpload = useCallback(
     async (dataUrl: string | null) => {
       if (!dataUrl) {
-        updateLogo({ original: undefined, light: undefined, dark: undefined })
-        setPreviewLogo(null)
-        return
+        updateLogo({ original: undefined, light: undefined, dark: undefined });
+        setPreviewLogo(null);
+        return;
       }
 
-      setIsProcessing(true)
+      setIsProcessing(true);
       try {
-        const variants = await createLogoVariants(dataUrl)
+        const variants = await createLogoVariants(dataUrl);
         updateLogo({
           original: variants.original.dataUrl,
           light: variants.light.dataUrl,
           dark: variants.dark.dataUrl,
           width: variants.original.width,
           height: variants.original.height,
-          format: variants.original.format as 'png' | 'svg' | 'jpg' | 'webp',
-        })
-        setPreviewLogo(variants.original.dataUrl)
-        markStepComplete('logo')
-        onValidChange?.(true)
+          format: variants.original.format as "png" | "svg" | "jpg" | "webp",
+        });
+        setPreviewLogo(variants.original.dataUrl);
+        markStepComplete("logo");
+        onValidChange?.(true);
       } catch (error) {
-        logger.error('Failed to process logo:', error)
+        logger.error("Failed to process logo:", error);
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
     },
-    [updateLogo, setPreviewLogo, markStepComplete, onValidChange]
-  )
+    [updateLogo, setPreviewLogo, markStepComplete, onValidChange],
+  );
 
   const handlePresetSelect = useCallback(
     async (_preset: unknown, dataUrl: string) => {
-      setIsProcessing(true)
+      setIsProcessing(true);
       try {
-        const variants = await createLogoVariants(dataUrl)
+        const variants = await createLogoVariants(dataUrl);
         updateLogo({
           original: variants.original.dataUrl,
           light: variants.light.dataUrl,
           dark: variants.dark.dataUrl,
           width: variants.original.width,
           height: variants.original.height,
-          format: 'png',
-        })
-        setPreviewLogo(variants.original.dataUrl)
-        markStepComplete('logo')
-        onValidChange?.(true)
+          format: "png",
+        });
+        setPreviewLogo(variants.original.dataUrl);
+        markStepComplete("logo");
+        onValidChange?.(true);
       } catch (error) {
-        logger.error('Failed to process preset logo:', error)
+        logger.error("Failed to process preset logo:", error);
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
     },
-    [updateLogo, setPreviewLogo, markStepComplete, onValidChange]
-  )
+    [updateLogo, setPreviewLogo, markStepComplete, onValidChange],
+  );
 
   const handleEditClick = useCallback(() => {
     if (config.logo.original) {
-      setTempLogo(config.logo.original)
-      setActiveTab('edit')
+      setTempLogo(config.logo.original);
+      setActiveTab("edit");
     }
-  }, [config.logo.original])
+  }, [config.logo.original]);
 
   const handleEditSave = useCallback(
     async (result: ProcessedLogo) => {
-      setIsProcessing(true)
+      setIsProcessing(true);
       try {
-        const variants = await createLogoVariants(result.dataUrl)
+        const variants = await createLogoVariants(result.dataUrl);
         updateLogo({
           original: variants.original.dataUrl,
           light: variants.light.dataUrl,
           dark: variants.dark.dataUrl,
           width: variants.original.width,
           height: variants.original.height,
-          format: 'png',
-        })
-        setPreviewLogo(variants.original.dataUrl)
-        setTempLogo(null)
-        setActiveTab('upload')
+          format: "png",
+        });
+        setPreviewLogo(variants.original.dataUrl);
+        setTempLogo(null);
+        setActiveTab("upload");
       } catch (error) {
-        logger.error('Failed to save edited logo:', error)
+        logger.error("Failed to save edited logo:", error);
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
     },
-    [updateLogo, setPreviewLogo]
-  )
+    [updateLogo, setPreviewLogo],
+  );
 
   const handleEditCancel = useCallback(() => {
-    setTempLogo(null)
-    setActiveTab('upload')
-  }, [])
+    setTempLogo(null);
+    setActiveTab("upload");
+  }, []);
 
   const tabs = [
-    { id: 'upload' as const, label: 'Upload', icon: Upload },
-    { id: 'generate' as const, label: 'Generate', icon: Sparkles },
-  ]
+    { id: "upload" as const, label: "Upload", icon: Upload },
+    { id: "generate" as const, label: "Generate", icon: Sparkles },
+  ];
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div className="text-center">
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg">
           <ImageIcon className="h-6 w-6 text-white" />
         </div>
-        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">Logo Builder</h2>
+        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">
+          Logo Builder
+        </h2>
         <p className="mx-auto max-w-md text-zinc-600 dark:text-zinc-400">
-          Upload your logo or generate one from a template. We'll create light and dark variants
-          automatically.
+          Upload your logo or generate one from a template. We'll create light
+          and dark variants automatically.
         </p>
       </div>
 
       {/* Tab content */}
       <div className="mx-auto max-w-lg">
-        {activeTab === 'edit' && tempLogo ? (
-          <LogoEditor src={tempLogo} onSave={handleEditSave} onCancel={handleEditCancel} />
+        {activeTab === "edit" && tempLogo ? (
+          <LogoEditor
+            src={tempLogo}
+            onSave={handleEditSave}
+            onCancel={handleEditCancel}
+          />
         ) : (
           <>
             {/* Tab buttons */}
@@ -150,10 +163,10 @@ export function Step2LogoBuilder({ onValidChange, className }: Step2LogoBuilderP
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all',
+                    "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
                     activeTab === tab.id
-                      ? 'dark:bg-sky-900/30 bg-sky-100 text-sky-700 dark:text-sky-300'
-                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'
+                      ? "dark:bg-sky-900/30 bg-sky-100 text-sky-700 dark:text-sky-300"
+                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700",
                   )}
                 >
                   <tab.icon className="h-4 w-4" />
@@ -163,7 +176,7 @@ export function Step2LogoBuilder({ onValidChange, className }: Step2LogoBuilderP
             </div>
 
             {/* Upload tab */}
-            {activeTab === 'upload' && (
+            {activeTab === "upload" && (
               <div className="space-y-4">
                 {config.logo.original ? (
                   <div className="space-y-4">
@@ -190,7 +203,9 @@ export function Step2LogoBuilder({ onValidChange, className }: Step2LogoBuilderP
                     {/* Logo variants */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700">
-                        <p className="mb-2 text-center text-xs text-zinc-500">Light Mode</p>
+                        <p className="mb-2 text-center text-xs text-zinc-500">
+                          Light Mode
+                        </p>
                         {config.logo.light && (
                           <img
                             src={config.logo.light}
@@ -200,7 +215,9 @@ export function Step2LogoBuilder({ onValidChange, className }: Step2LogoBuilderP
                         )}
                       </div>
                       <div className="rounded-xl border border-zinc-200 bg-zinc-900 p-4 dark:border-zinc-700">
-                        <p className="mb-2 text-center text-xs text-zinc-400">Dark Mode</p>
+                        <p className="mb-2 text-center text-xs text-zinc-400">
+                          Dark Mode
+                        </p>
                         {config.logo.dark && (
                           <img
                             src={config.logo.dark}
@@ -242,9 +259,12 @@ export function Step2LogoBuilder({ onValidChange, className }: Step2LogoBuilderP
             )}
 
             {/* Generate tab */}
-            {activeTab === 'generate' && (
+            {activeTab === "generate" && (
               <div className="space-y-4">
-                <LogoPresets appName={config.appInfo.appName} onSelect={handlePresetSelect} />
+                <LogoPresets
+                  appName={config.appInfo.appName}
+                  onSelect={handlePresetSelect}
+                />
 
                 {isProcessing && (
                   <div className="py-4 text-center">
@@ -275,5 +295,5 @@ export function Step2LogoBuilder({ onValidChange, className }: Step2LogoBuilderP
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CommandLoading
@@ -6,9 +6,9 @@
  * Loading state component for the command palette.
  */
 
-import * as React from 'react'
-import { Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -16,13 +16,13 @@ import { cn } from '@/lib/utils'
 
 export interface CommandLoadingProps {
   /** Custom message to display */
-  message?: string
+  message?: string;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Show loading skeletons instead of spinner */
-  showSkeletons?: boolean
+  showSkeletons?: boolean;
   /** Number of skeleton items to show */
-  skeletonCount?: number
+  skeletonCount?: number;
 }
 
 // ============================================================================
@@ -44,7 +44,7 @@ function CommandSkeleton() {
       {/* Shortcut skeleton */}
       <div className="h-5 w-12 animate-pulse rounded bg-muted" />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -52,27 +52,32 @@ function CommandSkeleton() {
 // ============================================================================
 
 export function CommandLoading({
-  message = 'Loading...',
+  message = "Loading...",
   className,
   showSkeletons = false,
   skeletonCount = 5,
 }: CommandLoadingProps) {
   if (showSkeletons) {
     return (
-      <div className={cn('py-2', className)}>
+      <div className={cn("py-2", className)}>
         {Array.from({ length: skeletonCount }).map((_, index) => (
           <CommandSkeleton key={index} />
         ))}
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12 text-center', className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-12 text-center",
+        className,
+      )}
+    >
       <Loader2 className="mb-3 h-8 w-8 animate-spin text-muted-foreground" />
       <p className="text-sm text-muted-foreground">{message}</p>
     </div>
-  )
+  );
 }
 
-export default CommandLoading
+export default CommandLoading;

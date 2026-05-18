@@ -1,32 +1,41 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Role } from '@/lib/admin/roles/role-types'
-import { RoleBadge } from './RoleBadge'
-import { RoleIconPreview } from './RoleIcon'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Role } from "@/lib/admin/roles/role-types";
+import { RoleBadge } from "./RoleBadge";
+import { RoleIconPreview } from "./RoleIcon";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Users, MoreVertical, Edit2, Copy, Trash2, Shield, Star, GripVertical } from 'lucide-react'
+} from "@/components/ui/dropdown-menu";
+import {
+  Users,
+  MoreVertical,
+  Edit2,
+  Copy,
+  Trash2,
+  Shield,
+  Star,
+  GripVertical,
+} from "lucide-react";
 
 interface RoleCardProps {
-  role: Role
-  isSelected?: boolean
-  canManage?: boolean
-  onSelect?: () => void
-  onEdit?: () => void
-  onDuplicate?: () => void
-  onDelete?: () => void
-  onViewMembers?: () => void
-  draggable?: boolean
-  className?: string
+  role: Role;
+  isSelected?: boolean;
+  canManage?: boolean;
+  onSelect?: () => void;
+  onEdit?: () => void;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
+  onViewMembers?: () => void;
+  draggable?: boolean;
+  className?: string;
 }
 
 /**
@@ -44,14 +53,14 @@ export function RoleCard({
   draggable = false,
   className,
 }: RoleCardProps) {
-  const memberCount = role.memberCount ?? 0
+  const memberCount = role.memberCount ?? 0;
 
   return (
     <Card
       className={cn(
-        'group relative cursor-pointer transition-all hover:shadow-md',
-        isSelected && 'ring-2 ring-primary',
-        className
+        "group relative cursor-pointer transition-all hover:shadow-md",
+        isSelected && "ring-2 ring-primary",
+        className,
       )}
       onClick={onSelect}
     >
@@ -64,7 +73,10 @@ export function RoleCard({
         )}
 
         {/* Role color indicator */}
-        <div className="h-10 w-1 rounded-full" style={{ backgroundColor: role.color }} />
+        <div
+          className="h-10 w-1 rounded-full"
+          style={{ backgroundColor: role.color }}
+        />
 
         {/* Role icon */}
         <div
@@ -81,7 +93,10 @@ export function RoleCard({
         {/* Role info */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="truncate font-semibold" style={{ color: role.color }}>
+            <h3
+              className="truncate font-semibold"
+              style={{ color: role.color }}
+            >
               {role.name}
             </h3>
             {role.isBuiltIn && (
@@ -96,7 +111,9 @@ export function RoleCard({
             )}
           </div>
           {role.description && (
-            <p className="truncate text-sm text-muted-foreground">{role.description}</p>
+            <p className="truncate text-sm text-muted-foreground">
+              {role.description}
+            </p>
           )}
         </div>
 
@@ -128,8 +145,8 @@ export function RoleCard({
               {onEdit && (
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onEdit()
+                    e.stopPropagation();
+                    onEdit();
                   }}
                 >
                   <Edit2 size={14} className="mr-2" />
@@ -139,8 +156,8 @@ export function RoleCard({
               {onViewMembers && (
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onViewMembers()
+                    e.stopPropagation();
+                    onViewMembers();
                   }}
                 >
                   <Users size={14} className="mr-2" />
@@ -150,8 +167,8 @@ export function RoleCard({
               {onDuplicate && !role.isBuiltIn && (
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onDuplicate()
+                    e.stopPropagation();
+                    onDuplicate();
                   }}
                 >
                   <Copy size={14} className="mr-2" />
@@ -164,8 +181,8 @@ export function RoleCard({
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onDelete()
+                      e.stopPropagation();
+                      onDelete();
                     }}
                   >
                     <Trash2 size={14} className="mr-2" />
@@ -178,17 +195,17 @@ export function RoleCard({
         )}
       </div>
     </Card>
-  )
+  );
 }
 
 /**
  * RoleCardCompact - A more compact version of the role card
  */
 interface RoleCardCompactProps {
-  role: Role
-  isSelected?: boolean
-  onClick?: () => void
-  className?: string
+  role: Role;
+  isSelected?: boolean;
+  onClick?: () => void;
+  className?: string;
 }
 
 export function RoleCardCompact({
@@ -200,17 +217,17 @@ export function RoleCardCompact({
   return (
     <div
       className={cn(
-        'flex cursor-pointer items-center gap-2 rounded-lg border p-2 transition-all hover:bg-accent',
-        isSelected && 'bg-accent ring-1 ring-primary',
-        className
+        "flex cursor-pointer items-center gap-2 rounded-lg border p-2 transition-all hover:bg-accent",
+        isSelected && "bg-accent ring-1 ring-primary",
+        className,
       )}
       role="button"
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
@@ -227,9 +244,11 @@ export function RoleCardCompact({
       <span className="flex-1 truncate text-sm" style={{ color: role.color }}>
         {role.name}
       </span>
-      {role.isBuiltIn && <span className="text-[10px] text-muted-foreground">Built-in</span>}
+      {role.isBuiltIn && (
+        <span className="text-[10px] text-muted-foreground">Built-in</span>
+      )}
     </div>
-  )
+  );
 }
 
 /**
@@ -249,7 +268,7 @@ export function RoleCardSkeleton() {
         <div className="h-6 w-10 rounded bg-muted" />
       </div>
     </Card>
-  )
+  );
 }
 
-export default RoleCard
+export default RoleCard;

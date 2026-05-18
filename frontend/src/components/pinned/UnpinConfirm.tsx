@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,20 +12,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import type { PinnedMessage } from '@/lib/pinned'
+} from "@/components/ui/alert-dialog";
+import type { PinnedMessage } from "@/lib/pinned";
 
 export interface UnpinConfirmProps {
   /** Whether the dialog is open */
-  open: boolean
+  open: boolean;
   /** Callback when dialog is closed */
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void;
   /** The pinned message to unpin */
-  pin: PinnedMessage | null
+  pin: PinnedMessage | null;
   /** Callback when unpin is confirmed */
-  onConfirm: (pin: PinnedMessage) => void
+  onConfirm: (pin: PinnedMessage) => void;
   /** Whether unpin is in progress */
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 /**
@@ -40,14 +40,14 @@ export function UnpinConfirm({
 }: UnpinConfirmProps) {
   const handleConfirm = () => {
     if (pin) {
-      onConfirm(pin)
+      onConfirm(pin);
     }
-  }
+  };
 
   const truncateContent = (content: string, maxLength: number = 100) => {
-    if (content.length <= maxLength) return content
-    return content.slice(0, maxLength).trim() + '...'
-  }
+    if (content.length <= maxLength) return content;
+    return content.slice(0, maxLength).trim() + "...";
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -57,12 +57,14 @@ export function UnpinConfirm({
           <AlertDialogDescription asChild>
             <div className="space-y-3">
               <p>
-                This will remove the message from the pinned messages list. The message will remain
-                in the channel.
+                This will remove the message from the pinned messages list. The
+                message will remain in the channel.
               </p>
               {pin && (
                 <div className="bg-muted/50 rounded-md border p-3">
-                  <p className="mb-1 text-sm font-medium">{pin.message.user.displayName}</p>
+                  <p className="mb-1 text-sm font-medium">
+                    {pin.message.user.displayName}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     {truncateContent(pin.message.content)}
                   </p>
@@ -78,10 +80,10 @@ export function UnpinConfirm({
             disabled={isLoading}
             className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
           >
-            {isLoading ? 'Unpinning...' : 'Unpin'}
+            {isLoading ? "Unpinning..." : "Unpin"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

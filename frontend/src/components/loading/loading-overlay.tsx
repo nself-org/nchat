@@ -1,35 +1,35 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Spinner, type SpinnerProps } from './spinner'
+import { cn } from "@/lib/utils";
+import { Spinner, type SpinnerProps } from "./spinner";
 
 interface LoadingOverlayProps {
   /** Whether the overlay is visible */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Loading message */
-  message?: string
+  message?: string;
   /** Spinner size */
-  spinnerSize?: SpinnerProps['size']
+  spinnerSize?: SpinnerProps["size"];
   /** Spinner color */
-  spinnerColor?: SpinnerProps['color']
+  spinnerColor?: SpinnerProps["color"];
   /** Background opacity */
-  opacity?: 'light' | 'medium' | 'heavy' | 'solid'
+  opacity?: "light" | "medium" | "heavy" | "solid";
   /** Whether to blur the background */
-  blur?: boolean
+  blur?: boolean;
   /** Position: covers parent container or full screen */
-  fullScreen?: boolean
+  fullScreen?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Children to render behind the overlay */
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 const opacityClasses = {
-  light: 'bg-background/40',
-  medium: 'bg-background/60',
-  heavy: 'bg-background/80',
-  solid: 'bg-background',
-}
+  light: "bg-background/40",
+  medium: "bg-background/60",
+  heavy: "bg-background/80",
+  solid: "bg-background",
+};
 
 /**
  * Semi-transparent overlay with centered loading spinner
@@ -38,39 +38,41 @@ const opacityClasses = {
 export function LoadingOverlay({
   isLoading = true,
   message,
-  spinnerSize = 'lg',
-  spinnerColor = 'default',
-  opacity = 'medium',
+  spinnerSize = "lg",
+  spinnerColor = "default",
+  opacity = "medium",
   blur = true,
   fullScreen = false,
   className,
   children,
 }: LoadingOverlayProps) {
   if (!isLoading && !children) {
-    return null
+    return null;
   }
 
   return (
-    <div className={cn('relative', fullScreen && 'h-screen w-screen')}>
+    <div className={cn("relative", fullScreen && "h-screen w-screen")}>
       {children}
 
       {isLoading && (
         <div
           className={cn(
-            'absolute inset-0 z-50 flex flex-col items-center justify-center',
+            "absolute inset-0 z-50 flex flex-col items-center justify-center",
             opacityClasses[opacity],
-            blur && 'backdrop-blur-sm',
-            fullScreen && 'fixed',
-            className
+            blur && "backdrop-blur-sm",
+            fullScreen && "fixed",
+            className,
           )}
         >
           <Spinner size={spinnerSize} color={spinnerColor} />
 
-          {message && <p className="mt-3 text-sm text-muted-foreground">{message}</p>}
+          {message && (
+            <p className="mt-3 text-sm text-muted-foreground">{message}</p>
+          )}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
@@ -81,23 +83,25 @@ export function CardLoadingOverlay({
   isLoading = true,
   message,
   className,
-}: Pick<LoadingOverlayProps, 'isLoading' | 'message' | 'className'>) {
+}: Pick<LoadingOverlayProps, "isLoading" | "message" | "className">) {
   if (!isLoading) {
-    return null
+    return null;
   }
 
   return (
     <div
       className={cn(
-        'absolute inset-0 z-10 flex flex-col items-center justify-center',
-        'bg-background/60 rounded-lg backdrop-blur-[2px]',
-        className
+        "absolute inset-0 z-10 flex flex-col items-center justify-center",
+        "bg-background/60 rounded-lg backdrop-blur-[2px]",
+        className,
       )}
     >
       <Spinner size="md" />
-      {message && <p className="mt-2 text-xs text-muted-foreground">{message}</p>}
+      {message && (
+        <p className="mt-2 text-xs text-muted-foreground">{message}</p>
+      )}
     </div>
-  )
+  );
 }
 
 /**
@@ -106,22 +110,22 @@ export function CardLoadingOverlay({
 export function InlineLoadingOverlay({
   isLoading = true,
   className,
-}: Pick<LoadingOverlayProps, 'isLoading' | 'className'>) {
+}: Pick<LoadingOverlayProps, "isLoading" | "className">) {
   if (!isLoading) {
-    return null
+    return null;
   }
 
   return (
     <div
       className={cn(
-        'absolute inset-0 z-10 flex items-center justify-center',
-        'bg-background/50',
-        className
+        "absolute inset-0 z-10 flex items-center justify-center",
+        "bg-background/50",
+        className,
       )}
     >
       <Spinner size="sm" />
     </div>
-  )
+  );
 }
 
 /**
@@ -130,25 +134,25 @@ export function InlineLoadingOverlay({
  */
 export function ModalLoadingOverlay({
   isLoading = true,
-  message = 'Processing...',
+  message = "Processing...",
   className,
-}: Pick<LoadingOverlayProps, 'isLoading' | 'message' | 'className'>) {
+}: Pick<LoadingOverlayProps, "isLoading" | "message" | "className">) {
   if (!isLoading) {
-    return null
+    return null;
   }
 
   return (
     <div
       className={cn(
-        'absolute inset-0 z-50 flex flex-col items-center justify-center',
-        'bg-background/90 rounded-lg backdrop-blur-sm',
-        className
+        "absolute inset-0 z-50 flex flex-col items-center justify-center",
+        "bg-background/90 rounded-lg backdrop-blur-sm",
+        className,
       )}
     >
       <Spinner size="lg" />
       <p className="mt-4 text-sm font-medium text-foreground">{message}</p>
     </div>
-  )
+  );
 }
 
 /**
@@ -158,29 +162,31 @@ export function ModalLoadingOverlay({
 export function WithLoadingOverlay({
   isLoading,
   message,
-  opacity = 'medium',
+  opacity = "medium",
   blur = true,
   className,
   overlayClassName,
   children,
 }: LoadingOverlayProps & { overlayClassName?: string }) {
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn("relative", className)}>
       {children}
 
       {isLoading && (
         <div
           className={cn(
-            'absolute inset-0 z-50 flex flex-col items-center justify-center',
+            "absolute inset-0 z-50 flex flex-col items-center justify-center",
             opacityClasses[opacity],
-            blur && 'backdrop-blur-sm',
-            overlayClassName
+            blur && "backdrop-blur-sm",
+            overlayClassName,
           )}
         >
           <Spinner size="lg" />
-          {message && <p className="mt-3 text-sm text-muted-foreground">{message}</p>}
+          {message && (
+            <p className="mt-3 text-sm text-muted-foreground">{message}</p>
+          )}
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -1,98 +1,112 @@
-'use client'
+"use client";
 
 /**
  * CommandWebhook - Configure webhook settings
  */
 
-import { useState } from 'react'
-import { Webhook, Plus, X, TestTube, CheckCircle, XCircle, Loader2 } from 'lucide-react'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useState } from "react";
+import {
+  Webhook,
+  Plus,
+  X,
+  TestTube,
+  CheckCircle,
+  XCircle,
+  Loader2,
+} from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { CommandWebhook as CommandWebhookType } from '@/lib/slash-commands/command-types'
+} from "@/components/ui/select";
+import type { CommandWebhook as CommandWebhookType } from "@/lib/slash-commands/command-types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandWebhookProps {
-  webhook?: Partial<CommandWebhookType>
-  onChange: (webhook: Partial<CommandWebhookType>) => void
+  webhook?: Partial<CommandWebhookType>;
+  onChange: (webhook: Partial<CommandWebhookType>) => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) {
-  const [newHeaderKey, setNewHeaderKey] = useState('')
-  const [newHeaderValue, setNewHeaderValue] = useState('')
-  const [isTesting, setIsTesting] = useState(false)
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
+export function CommandWebhook({
+  webhook = {},
+  onChange,
+}: CommandWebhookProps) {
+  const [newHeaderKey, setNewHeaderKey] = useState("");
+  const [newHeaderValue, setNewHeaderValue] = useState("");
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   const handleAddHeader = () => {
-    if (!newHeaderKey.trim()) return
-    const headers = webhook.headers || {}
+    if (!newHeaderKey.trim()) return;
+    const headers = webhook.headers || {};
     onChange({
       ...webhook,
       headers: { ...headers, [newHeaderKey.trim()]: newHeaderValue },
-    })
-    setNewHeaderKey('')
-    setNewHeaderValue('')
-  }
+    });
+    setNewHeaderKey("");
+    setNewHeaderValue("");
+  };
 
   const handleRemoveHeader = (key: string) => {
-    const headers = { ...webhook.headers }
-    delete headers[key]
-    onChange({ ...webhook, headers })
-  }
+    const headers = { ...webhook.headers };
+    delete headers[key];
+    onChange({ ...webhook, headers });
+  };
 
   const handleTestWebhook = async () => {
     if (!webhook.url) {
-      setTestResult({ success: false, message: 'Webhook URL is required' })
-      return
+      setTestResult({ success: false, message: "Webhook URL is required" });
+      return;
     }
 
-    setIsTesting(true)
-    setTestResult(null)
+    setIsTesting(true);
+    setTestResult(null);
 
     try {
-      const response = await fetch('/api/test-webhook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/test-webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url: webhook.url,
-          method: webhook.method || 'POST',
+          method: webhook.method || "POST",
           headers: webhook.headers,
-          body: webhook.bodyTemplate || '{}',
+          body: webhook.bodyTemplate || "{}",
         }),
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
       setTestResult({
         success: response.ok,
         message: response.ok
           ? `Success! Response status: ${result.status}`
-          : `Failed: ${result.error || 'Unknown error'}`,
-      })
+          : `Failed: ${result.error || "Unknown error"}`,
+      });
     } catch (error) {
       setTestResult({
         success: false,
-        message: error instanceof Error ? error.message : 'Connection failed',
-      })
+        message: error instanceof Error ? error.message : "Connection failed",
+      });
     } finally {
-      setIsTesting(false)
+      setIsTesting(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -112,7 +126,7 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
         <div className="space-y-2 sm:col-span-3">
           <Label>Webhook URL</Label>
           <Input
-            value={webhook.url || ''}
+            value={webhook.url || ""}
             onChange={(e) => onChange({ ...webhook, url: e.target.value })}
             placeholder="https://api.example.com/webhook"
           />
@@ -120,9 +134,12 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
         <div className="space-y-2">
           <Label>Method</Label>
           <Select
-            value={webhook.method || 'POST'}
+            value={webhook.method || "POST"}
             onValueChange={(value) =>
-              onChange({ ...webhook, method: value as CommandWebhookType['method'] })
+              onChange({
+                ...webhook,
+                method: value as CommandWebhookType["method"],
+              })
             }
           >
             <SelectTrigger>
@@ -179,9 +196,9 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
             placeholder="Value"
             className="flex-1"
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                handleAddHeader()
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddHeader();
               }
             }}
           />
@@ -196,12 +213,14 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
       </div>
 
       {/* Body Template */}
-      {webhook.method !== 'GET' && (
+      {webhook.method !== "GET" && (
         <div className="space-y-3">
           <Label>Request Body Template</Label>
           <Textarea
-            value={webhook.bodyTemplate || ''}
-            onChange={(e) => onChange({ ...webhook, bodyTemplate: e.target.value })}
+            value={webhook.bodyTemplate || ""}
+            onChange={(e) =>
+              onChange({ ...webhook, bodyTemplate: e.target.value })
+            }
             placeholder={`{
   "command": "{{trigger}}",
   "user": "{{username}}",
@@ -212,7 +231,8 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
             className="font-mono text-sm"
           />
           <p className="text-xs text-muted-foreground">
-            JSON body to send. Use {'{{variable}}'} placeholders for dynamic data.
+            JSON body to send. Use {"{{variable}}"} placeholders for dynamic
+            data.
           </p>
         </div>
       )}
@@ -225,7 +245,7 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
             type="number"
             min={1000}
             max={30000}
-            value={webhook.timeout || ''}
+            value={webhook.timeout || ""}
             onChange={(e) =>
               onChange({
                 ...webhook,
@@ -234,7 +254,9 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
             }
             placeholder="5000"
           />
-          <p className="text-xs text-muted-foreground">Default: 5000ms (5 seconds)</p>
+          <p className="text-xs text-muted-foreground">
+            Default: 5000ms (5 seconds)
+          </p>
         </div>
         <div className="space-y-2">
           <Label>Retry Attempts</Label>
@@ -242,7 +264,7 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
             type="number"
             min={0}
             max={5}
-            value={webhook.retry?.attempts || ''}
+            value={webhook.retry?.attempts || ""}
             onChange={(e) =>
               onChange({
                 ...webhook,
@@ -254,7 +276,9 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
             }
             placeholder="0"
           />
-          <p className="text-xs text-muted-foreground">Number of retries on failure</p>
+          <p className="text-xs text-muted-foreground">
+            Number of retries on failure
+          </p>
         </div>
       </div>
 
@@ -268,7 +292,7 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
           <div className="space-y-2">
             <Label className="text-xs">Message Path</Label>
             <Input
-              value={webhook.responseMapping?.messagePath || ''}
+              value={webhook.responseMapping?.messagePath || ""}
               onChange={(e) =>
                 onChange({
                   ...webhook,
@@ -285,7 +309,7 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
           <div className="space-y-2">
             <Label className="text-xs">Success Path</Label>
             <Input
-              value={webhook.responseMapping?.successPath || ''}
+              value={webhook.responseMapping?.successPath || ""}
               onChange={(e) =>
                 onChange({
                   ...webhook,
@@ -302,7 +326,7 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
           <div className="space-y-2">
             <Label className="text-xs">Error Path</Label>
             <Input
-              value={webhook.responseMapping?.errorPath || ''}
+              value={webhook.responseMapping?.errorPath || ""}
               onChange={(e) =>
                 onChange({
                   ...webhook,
@@ -321,7 +345,11 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
 
       {/* Test Button */}
       <div className="space-y-3">
-        <Button variant="outline" onClick={handleTestWebhook} disabled={!webhook.url || isTesting}>
+        <Button
+          variant="outline"
+          onClick={handleTestWebhook}
+          disabled={!webhook.url || isTesting}
+        >
           {isTesting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -334,8 +362,8 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
           <div
             className={`flex items-center gap-2 rounded-lg border p-3 ${
               testResult.success
-                ? 'border-green-500/20 bg-green-500/10 text-green-600'
-                : 'border-red-500/20 bg-red-500/10 text-red-600'
+                ? "border-green-500/20 bg-green-500/10 text-green-600"
+                : "border-red-500/20 bg-red-500/10 text-red-600"
             }`}
           >
             {testResult.success ? (
@@ -348,7 +376,7 @@ export function CommandWebhook({ webhook = {}, onChange }: CommandWebhookProps) 
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default CommandWebhook
+export default CommandWebhook;

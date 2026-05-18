@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Scheduled Message Item Component
@@ -17,16 +17,16 @@
  * ```
  */
 
-import { useMemo, useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useMemo, useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +36,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   Clock,
   Hash,
@@ -49,24 +49,24 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { ScheduledMessage } from '@/graphql/scheduled'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { ScheduledMessage } from "@/graphql/scheduled";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ScheduledMessageItemProps {
-  message: ScheduledMessage
-  onEdit?: (message: ScheduledMessage) => void
-  onCancel?: (id: string) => Promise<void>
-  onSendNow?: (id: string) => Promise<void>
-  isEditing?: boolean
-  isCancelling?: boolean
-  isSending?: boolean
-  compact?: boolean
-  className?: string
+  message: ScheduledMessage;
+  onEdit?: (message: ScheduledMessage) => void;
+  onCancel?: (id: string) => Promise<void>;
+  onSendNow?: (id: string) => Promise<void>;
+  isEditing?: boolean;
+  isCancelling?: boolean;
+  isSending?: boolean;
+  compact?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -74,89 +74,89 @@ interface ScheduledMessageItemProps {
 // ============================================================================
 
 function formatScheduledTime(date: string, timezone: string): string {
-  const d = new Date(date)
-  return d.toLocaleString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
+  const d = new Date(date);
+  return d.toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
     hour12: true,
     timeZone: timezone,
-  })
+  });
 }
 
 function formatRelativeTime(date: string): string {
-  const d = new Date(date)
-  const now = new Date()
-  const diffMs = d.getTime() - now.getTime()
+  const d = new Date(date);
+  const now = new Date();
+  const diffMs = d.getTime() - now.getTime();
 
   if (diffMs < 0) {
-    return 'Past due'
+    return "Past due";
   }
 
-  const diffMinutes = Math.floor(diffMs / (1000 * 60))
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffMinutes < 60) {
-    return `in ${diffMinutes}m`
+    return `in ${diffMinutes}m`;
   }
 
   if (diffHours < 24) {
-    return `in ${diffHours}h`
+    return `in ${diffHours}h`;
   }
 
   if (diffDays < 7) {
-    return `in ${diffDays}d`
+    return `in ${diffDays}d`;
   }
 
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function getStatusConfig(status: ScheduledMessage['status']) {
+function getStatusConfig(status: ScheduledMessage["status"]) {
   switch (status) {
-    case 'pending':
+    case "pending":
       return {
         icon: Clock,
-        label: 'Scheduled',
-        variant: 'secondary' as const,
-        className: 'text-blue-500',
-      }
-    case 'sent':
+        label: "Scheduled",
+        variant: "secondary" as const,
+        className: "text-blue-500",
+      };
+    case "sent":
       return {
         icon: CheckCircle,
-        label: 'Sent',
-        variant: 'secondary' as const,
-        className: 'text-green-500',
-      }
-    case 'cancelled':
+        label: "Sent",
+        variant: "secondary" as const,
+        className: "text-green-500",
+      };
+    case "cancelled":
       return {
         icon: XCircle,
-        label: 'Cancelled',
-        variant: 'outline' as const,
-        className: 'text-muted-foreground',
-      }
-    case 'failed':
+        label: "Cancelled",
+        variant: "outline" as const,
+        className: "text-muted-foreground",
+      };
+    case "failed":
       return {
         icon: AlertCircle,
-        label: 'Failed',
-        variant: 'destructive' as const,
-        className: 'text-destructive',
-      }
+        label: "Failed",
+        variant: "destructive" as const,
+        className: "text-destructive",
+      };
     default:
       return {
         icon: Clock,
         label: status,
-        variant: 'secondary' as const,
-        className: '',
-      }
+        variant: "secondary" as const,
+        className: "",
+      };
   }
 }
 
 function truncateContent(content: string, maxLength: number = 150): string {
-  if (content.length <= maxLength) return content
-  return content.slice(0, maxLength).trim() + '...'
+  if (content.length <= maxLength) return content;
+  return content.slice(0, maxLength).trim() + "...";
 }
 
 // ============================================================================
@@ -174,61 +174,66 @@ export function ScheduledMessageItem({
   compact = false,
   className,
 }: ScheduledMessageItemProps) {
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
-  const [showSendNowDialog, setShowSendNowDialog] = useState(false)
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showSendNowDialog, setShowSendNowDialog] = useState(false);
 
-  const statusConfig = useMemo(() => getStatusConfig(message.status), [message.status])
-  const StatusIcon = statusConfig.icon
+  const statusConfig = useMemo(
+    () => getStatusConfig(message.status),
+    [message.status],
+  );
+  const StatusIcon = statusConfig.icon;
 
   const scheduledTimeFormatted = useMemo(
     () => formatScheduledTime(message.scheduled_at, message.timezone),
-    [message.scheduled_at, message.timezone]
-  )
+    [message.scheduled_at, message.timezone],
+  );
 
   const relativeTime = useMemo(
     () => formatRelativeTime(message.scheduled_at),
-    [message.scheduled_at]
-  )
+    [message.scheduled_at],
+  );
 
-  const isActionable = message.status === 'pending'
-  const isProcessing = isEditing || isCancelling || isSending
+  const isActionable = message.status === "pending";
+  const isProcessing = isEditing || isCancelling || isSending;
 
   const handleEdit = useCallback(() => {
     if (onEdit && isActionable) {
-      onEdit(message)
+      onEdit(message);
     }
-  }, [onEdit, message, isActionable])
+  }, [onEdit, message, isActionable]);
 
   const handleCancel = useCallback(async () => {
     if (onCancel && isActionable) {
-      await onCancel(message.id)
-      setShowCancelDialog(false)
+      await onCancel(message.id);
+      setShowCancelDialog(false);
     }
-  }, [onCancel, message.id, isActionable])
+  }, [onCancel, message.id, isActionable]);
 
   const handleSendNow = useCallback(async () => {
     if (onSendNow && isActionable) {
-      await onSendNow(message.id)
-      setShowSendNowDialog(false)
+      await onSendNow(message.id);
+      setShowSendNowDialog(false);
     }
-  }, [onSendNow, message.id, isActionable])
+  }, [onSendNow, message.id, isActionable]);
 
   if (compact) {
     return (
       <div
         className={cn(
-          'flex items-center gap-3 rounded-lg border bg-card p-2',
-          isProcessing && 'opacity-60',
-          className
+          "flex items-center gap-3 rounded-lg border bg-card p-2",
+          isProcessing && "opacity-60",
+          className,
         )}
       >
-        <div className={cn('flex-shrink-0', statusConfig.className)}>
+        <div className={cn("flex-shrink-0", statusConfig.className)}>
           <StatusIcon className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm">{truncateContent(message.content, 50)}</p>
+          <p className="truncate text-sm">
+            {truncateContent(message.content, 50)}
+          </p>
           <p className="text-xs text-muted-foreground">
-            {relativeTime} - #{message.channel?.name || 'unknown'}
+            {relativeTime} - #{message.channel?.name || "unknown"}
           </p>
         </div>
         {isActionable && (
@@ -267,17 +272,17 @@ export function ScheduledMessageItem({
           </DropdownMenu>
         )}
       </div>
-    )
+    );
   }
 
   return (
     <>
       <div
         className={cn(
-          'rounded-lg border bg-card p-4 transition-colors',
-          'hover:border-accent-foreground/20',
-          isProcessing && 'pointer-events-none opacity-60',
-          className
+          "rounded-lg border bg-card p-4 transition-colors",
+          "hover:border-accent-foreground/20",
+          isProcessing && "pointer-events-none opacity-60",
+          className,
         )}
       >
         {/* Header */}
@@ -293,7 +298,7 @@ export function ScheduledMessageItem({
               ) : (
                 <Hash className="h-3 w-3" />
               )}
-              {message.channel?.name || 'Unknown channel'}
+              {message.channel?.name || "Unknown channel"}
             </Badge>
           </div>
 
@@ -310,7 +315,10 @@ export function ScheduledMessageItem({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onEdit && (
-                  <DropdownMenuItem onClick={handleEdit} disabled={isProcessing}>
+                  <DropdownMenuItem
+                    onClick={handleEdit}
+                    disabled={isProcessing}
+                  >
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit message
                   </DropdownMenuItem>
@@ -355,11 +363,13 @@ export function ScheduledMessageItem({
         </div>
 
         {/* Error Message (for failed status) */}
-        {message.status === 'failed' && message.error_message && (
+        {message.status === "failed" && message.error_message && (
           <div className="bg-destructive/10 border-destructive/20 mt-3 rounded-md border p-2">
             <div className="flex items-start gap-2">
               <AlertCircle className="mt-0.5 h-4 w-4 text-destructive" />
-              <p className="text-sm text-destructive">{message.error_message}</p>
+              <p className="text-sm text-destructive">
+                {message.error_message}
+              </p>
             </div>
           </div>
         )}
@@ -368,7 +378,12 @@ export function ScheduledMessageItem({
         {isActionable && (onEdit || onSendNow || onCancel) && (
           <div className="mt-4 flex items-center gap-2 border-t pt-3">
             {onEdit && (
-              <Button variant="outline" size="sm" onClick={handleEdit} disabled={isProcessing}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEdit}
+                disabled={isProcessing}
+              >
                 {isEditing ? (
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                 ) : (
@@ -418,8 +433,8 @@ export function ScheduledMessageItem({
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel scheduled message?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will cancel the scheduled message and it will not be sent. This action cannot be
-              undone.
+              This will cancel the scheduled message and it will not be sent.
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -440,8 +455,9 @@ export function ScheduledMessageItem({
           <AlertDialogHeader>
             <AlertDialogTitle>Send message now?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will send the message immediately instead of at the scheduled time. The message
-              will be sent to #{message.channel?.name || 'the channel'}.
+              This will send the message immediately instead of at the scheduled
+              time. The message will be sent to #
+              {message.channel?.name || "the channel"}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -454,7 +470,7 @@ export function ScheduledMessageItem({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
-export default ScheduledMessageItem
+export default ScheduledMessageItem;

@@ -1,102 +1,105 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Hash, Users, Lock, Check, Star } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import type { OnboardingStepProps, SuggestedChannel } from '@/lib/onboarding/onboarding-types'
+import { useState } from "react";
+import { Hash, Users, Lock, Check, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import type {
+  OnboardingStepProps,
+  SuggestedChannel,
+} from "@/lib/onboarding/onboarding-types";
 
 interface JoinChannelsStepProps extends OnboardingStepProps {
-  suggestedChannels?: SuggestedChannel[]
-  selectedChannelIds?: string[]
-  onSelectionChange?: (channelIds: string[]) => void
+  suggestedChannels?: SuggestedChannel[];
+  selectedChannelIds?: string[];
+  onSelectionChange?: (channelIds: string[]) => void;
 }
 
 // Default suggested channels for demo
 const defaultSuggestedChannels: SuggestedChannel[] = [
   {
-    id: '1',
-    name: 'general',
-    slug: 'general',
-    description: 'Company-wide announcements and updates',
+    id: "1",
+    name: "general",
+    slug: "general",
+    description: "Company-wide announcements and updates",
     memberCount: 150,
-    category: 'Company',
+    category: "Company",
     isDefault: true,
     isRecommended: true,
   },
   {
-    id: '2',
-    name: 'random',
-    slug: 'random',
-    description: 'Non-work banter and water cooler conversation',
+    id: "2",
+    name: "random",
+    slug: "random",
+    description: "Non-work banter and water cooler conversation",
     memberCount: 120,
-    category: 'Social',
+    category: "Social",
     isDefault: true,
     isRecommended: true,
   },
   {
-    id: '3',
-    name: 'help',
-    slug: 'help',
-    description: 'Get help with tools and processes',
+    id: "3",
+    name: "help",
+    slug: "help",
+    description: "Get help with tools and processes",
     memberCount: 90,
-    category: 'Support',
+    category: "Support",
     isDefault: false,
     isRecommended: true,
   },
   {
-    id: '4',
-    name: 'introductions',
-    slug: 'introductions',
-    description: 'Introduce yourself to the team',
+    id: "4",
+    name: "introductions",
+    slug: "introductions",
+    description: "Introduce yourself to the team",
     memberCount: 130,
-    category: 'Social',
+    category: "Social",
     isDefault: false,
     isRecommended: true,
   },
   {
-    id: '5',
-    name: 'engineering',
-    slug: 'engineering',
-    description: 'Engineering team discussions',
+    id: "5",
+    name: "engineering",
+    slug: "engineering",
+    description: "Engineering team discussions",
     memberCount: 45,
-    category: 'Teams',
+    category: "Teams",
     isDefault: false,
     isRecommended: false,
   },
   {
-    id: '6',
-    name: 'design',
-    slug: 'design',
-    description: 'Design team collaboration',
+    id: "6",
+    name: "design",
+    slug: "design",
+    description: "Design team collaboration",
     memberCount: 30,
-    category: 'Teams',
+    category: "Teams",
     isDefault: false,
     isRecommended: false,
   },
   {
-    id: '7',
-    name: 'product',
-    slug: 'product',
-    description: 'Product updates and discussions',
+    id: "7",
+    name: "product",
+    slug: "product",
+    description: "Product updates and discussions",
     memberCount: 40,
-    category: 'Teams',
+    category: "Teams",
     isDefault: false,
     isRecommended: false,
   },
   {
-    id: '8',
-    name: 'announcements',
-    slug: 'announcements',
-    description: 'Official company announcements (read-only)',
+    id: "8",
+    name: "announcements",
+    slug: "announcements",
+    description: "Official company announcements (read-only)",
     memberCount: 150,
-    category: 'Company',
+    category: "Company",
     isDefault: true,
     isRecommended: false,
   },
-]
+];
 
 export function JoinChannelsStep({
   onNext,
@@ -110,54 +113,56 @@ export function JoinChannelsStep({
 }: JoinChannelsStepProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>(
     initialSelected ??
-      suggestedChannels.filter((c) => c.isDefault || c.isRecommended).map((c) => c.id)
-  )
-  const [searchQuery, setSearchQuery] = useState('')
+      suggestedChannels
+        .filter((c) => c.isDefault || c.isRecommended)
+        .map((c) => c.id),
+  );
+  const [searchQuery, setSearchQuery] = useState("");
 
   const toggleChannel = (channelId: string) => {
-    const channel = suggestedChannels.find((c) => c.id === channelId)
-    if (channel?.isDefault) return // Can't unselect default channels
+    const channel = suggestedChannels.find((c) => c.id === channelId);
+    if (channel?.isDefault) return; // Can't unselect default channels
 
     const newSelected = selectedIds.includes(channelId)
       ? selectedIds.filter((id) => id !== channelId)
-      : [...selectedIds, channelId]
+      : [...selectedIds, channelId];
 
-    setSelectedIds(newSelected)
-    onSelectionChange?.(newSelected)
-  }
+    setSelectedIds(newSelected);
+    onSelectionChange?.(newSelected);
+  };
 
   const selectAll = () => {
-    const allIds = suggestedChannels.map((c) => c.id)
-    setSelectedIds(allIds)
-    onSelectionChange?.(allIds)
-  }
+    const allIds = suggestedChannels.map((c) => c.id);
+    setSelectedIds(allIds);
+    onSelectionChange?.(allIds);
+  };
 
   const selectRecommended = () => {
     const recommendedIds = suggestedChannels
       .filter((c) => c.isDefault || c.isRecommended)
-      .map((c) => c.id)
-    setSelectedIds(recommendedIds)
-    onSelectionChange?.(recommendedIds)
-  }
+      .map((c) => c.id);
+    setSelectedIds(recommendedIds);
+    onSelectionChange?.(recommendedIds);
+  };
 
   const filteredChannels = suggestedChannels.filter(
     (channel) =>
       channel.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      channel.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+      channel.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   // Group channels by category
   const groupedChannels = filteredChannels.reduce(
     (acc, channel) => {
-      const category = channel.category || 'Other'
+      const category = channel.category || "Other";
       if (!acc[category]) {
-        acc[category] = []
+        acc[category] = [];
       }
-      acc[category].push(channel)
-      return acc
+      acc[category].push(channel);
+      return acc;
     },
-    {} as Record<string, SuggestedChannel[]>
-  )
+    {} as Record<string, SuggestedChannel[]>,
+  );
 
   return (
     <div className="flex flex-col px-4 py-6">
@@ -166,9 +171,12 @@ export function JoinChannelsStep({
         <div className="from-primary/20 to-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
           <Hash className="h-8 w-8 text-primary" />
         </div>
-        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">Join Channels</h2>
+        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">
+          Join Channels
+        </h2>
         <p className="mx-auto max-w-md text-zinc-600 dark:text-zinc-400">
-          Select the channels you'd like to join. You can always join more later.
+          Select the channels you'd like to join. You can always join more
+          later.
         </p>
       </div>
 
@@ -192,7 +200,8 @@ export function JoinChannelsStep({
         </div>
 
         <p className="text-sm text-zinc-500">
-          {selectedIds.length} channel{selectedIds.length !== 1 ? 's' : ''} selected
+          {selectedIds.length} channel{selectedIds.length !== 1 ? "s" : ""}{" "}
+          selected
         </p>
       </div>
 
@@ -205,8 +214,8 @@ export function JoinChannelsStep({
             </h3>
             <div className="space-y-2">
               {channels.map((channel) => {
-                const isSelected = selectedIds.includes(channel.id)
-                const isDefault = channel.isDefault
+                const isSelected = selectedIds.includes(channel.id);
+                const isDefault = channel.isDefault;
 
                 return (
                   <button
@@ -215,20 +224,20 @@ export function JoinChannelsStep({
                     onClick={() => toggleChannel(channel.id)}
                     disabled={isDefault}
                     className={cn(
-                      'flex w-full items-start gap-3 rounded-lg border-2 p-3 text-left transition-all',
+                      "flex w-full items-start gap-3 rounded-lg border-2 p-3 text-left transition-all",
                       isSelected
-                        ? 'bg-primary/5 border-primary'
-                        : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600',
-                      isDefault && 'cursor-default'
+                        ? "bg-primary/5 border-primary"
+                        : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
+                      isDefault && "cursor-default",
                     )}
                   >
                     {/* Selection Indicator */}
                     <div
                       className={cn(
-                        'mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2',
+                        "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2",
                         isSelected
-                          ? 'border-primary bg-primary'
-                          : 'border-zinc-300 dark:border-zinc-600'
+                          ? "border-primary bg-primary"
+                          : "border-zinc-300 dark:border-zinc-600",
                       )}
                     >
                       {isSelected && <Check className="h-3 w-3 text-white" />}
@@ -264,7 +273,7 @@ export function JoinChannelsStep({
                       </div>
                     </div>
                   </button>
-                )
+                );
               })}
             </div>
           </div>
@@ -295,10 +304,11 @@ export function JoinChannelsStep({
             </Button>
           )}
           <Button onClick={onNext}>
-            Join {selectedIds.length} Channel{selectedIds.length !== 1 ? 's' : ''}
+            Join {selectedIds.length} Channel
+            {selectedIds.length !== 1 ? "s" : ""}
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

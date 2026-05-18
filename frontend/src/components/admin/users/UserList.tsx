@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useState } from "react";
+import Link from "next/link";
 import {
   MoreHorizontal,
   Eye,
@@ -15,12 +15,12 @@ import {
   UserCog,
   Activity,
   Smartphone,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,34 +28,41 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { UserSearch } from './UserSearch'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import { getUserInitials, formatLastSeen } from '@/lib/admin/users/user-manager'
-import type { AdminUser } from '@/lib/admin/users/user-types'
+} from "@/components/ui/dropdown-menu";
+import { UserSearch } from "./UserSearch";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import {
+  getUserInitials,
+  formatLastSeen,
+} from "@/lib/admin/users/user-manager";
+import type { AdminUser } from "@/lib/admin/users/user-types";
 
 interface UserListProps {
-  users: AdminUser[]
-  isLoading?: boolean
-  showSearch?: boolean
+  users: AdminUser[];
+  isLoading?: boolean;
+  showSearch?: boolean;
 }
 
 const roleColors: Record<string, string> = {
-  owner: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
-  admin: 'bg-red-500/10 text-red-600 border-red-500/20',
-  moderator: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  member: 'bg-green-500/10 text-green-600 border-green-500/20',
-  guest: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
-}
+  owner: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+  admin: "bg-red-500/10 text-red-600 border-red-500/20",
+  moderator: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  member: "bg-green-500/10 text-green-600 border-green-500/20",
+  guest: "bg-gray-500/10 text-gray-600 border-gray-500/20",
+};
 
 const statusColors: Record<string, string> = {
-  active: 'bg-green-500',
-  inactive: 'bg-gray-400',
-  banned: 'bg-red-500',
-}
+  active: "bg-green-500",
+  inactive: "bg-gray-400",
+  banned: "bg-red-500",
+};
 
-export function UserList({ users, isLoading = false, showSearch = true }: UserListProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+export function UserList({
+  users,
+  isLoading = false,
+  showSearch = true,
+}: UserListProps) {
+  const [searchQuery, setSearchQuery] = useState("");
 
   const {
     selectedUserIds,
@@ -70,34 +77,35 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
     openImpersonateModal,
     openResetPasswordModal,
     setSelectionMode,
-  } = useUserManagementStore()
+  } = useUserManagementStore();
 
   const filteredUsers = users.filter((user) => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
     return (
       user.username.toLowerCase().includes(query) ||
       user.displayName.toLowerCase().includes(query) ||
       user.email.toLowerCase().includes(query)
-    )
-  })
+    );
+  });
 
-  const getUserStatus = (user: AdminUser): 'active' | 'inactive' | 'banned' => {
-    if (user.isBanned) return 'banned'
-    if (!user.isActive) return 'inactive'
-    return 'active'
-  }
+  const getUserStatus = (user: AdminUser): "active" | "inactive" | "banned" => {
+    if (user.isBanned) return "banned";
+    if (!user.isActive) return "inactive";
+    return "active";
+  };
 
   const isAllSelected =
-    filteredUsers.length > 0 && filteredUsers.every((u) => selectedUserIds.includes(u.id))
+    filteredUsers.length > 0 &&
+    filteredUsers.every((u) => selectedUserIds.includes(u.id));
 
   const handleSelectAll = () => {
     if (isAllSelected) {
-      clearUserSelection()
+      clearUserSelection();
     } else {
-      selectAllUsers()
+      selectAllUsers();
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -166,7 +174,7 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -222,22 +230,25 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
             <tbody>
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-muted-foreground"
+                  >
                     No users found
                   </td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => {
-                  const status = getUserStatus(user)
-                  const isOwner = user.role.name === 'owner'
-                  const isSelected = selectedUserIds.includes(user.id)
+                  const status = getUserStatus(user);
+                  const isOwner = user.role.name === "owner";
+                  const isSelected = selectedUserIds.includes(user.id);
 
                   return (
                     <tr
                       key={user.id}
                       className={cn(
-                        'hover:bg-muted/50 border-b last:border-b-0',
-                        isSelected && 'bg-muted/30'
+                        "hover:bg-muted/50 border-b last:border-b-0",
+                        isSelected && "bg-muted/30",
                       )}
                     >
                       <td className="px-4 py-3">
@@ -250,8 +261,13 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-                            <AvatarFallback>{getUserInitials(user.displayName)}</AvatarFallback>
+                            <AvatarImage
+                              src={user.avatarUrl}
+                              alt={user.displayName}
+                            />
+                            <AvatarFallback>
+                              {getUserInitials(user.displayName)}
+                            </AvatarFallback>
                           </Avatar>
                           <div>
                             <Link
@@ -269,14 +285,22 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
                       <td className="px-4 py-3">
                         <Badge
                           variant="outline"
-                          className={cn('capitalize', roleColors[user.role.name.toLowerCase()])}
+                          className={cn(
+                            "capitalize",
+                            roleColors[user.role.name.toLowerCase()],
+                          )}
                         >
                           {user.role.name}
                         </Badge>
                       </td>
                       <td className="hidden px-4 py-3 md:table-cell">
                         <div className="flex items-center space-x-2">
-                          <div className={cn('h-2 w-2 rounded-full', statusColors[status])} />
+                          <div
+                            className={cn(
+                              "h-2 w-2 rounded-full",
+                              statusColors[status],
+                            )}
+                          />
                           <span className="text-sm capitalize">{status}</span>
                         </div>
                       </td>
@@ -289,7 +313,11 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
                       <td className="px-4 py-3 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <MoreHorizontal className="h-4 w-4" />
                               <span className="sr-only">Open menu</span>
                             </Button>
@@ -303,7 +331,9 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
                                 View Details
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openUserModal('edit', user)}>
+                            <DropdownMenuItem
+                              onClick={() => openUserModal("edit", user)}
+                            >
                               <Edit className="mr-2 h-4 w-4" />
                               Edit User
                             </DropdownMenuItem>
@@ -315,7 +345,9 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
                               Change Role
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => openResetPasswordModal(user)}>
+                            <DropdownMenuItem
+                              onClick={() => openResetPasswordModal(user)}
+                            >
                               <Key className="mr-2 h-4 w-4" />
                               Reset Password
                             </DropdownMenuItem>
@@ -328,19 +360,23 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/users/${user.id}?tab=activity`}>
+                              <Link
+                                href={`/admin/users/${user.id}?tab=activity`}
+                              >
                                 <Activity className="mr-2 h-4 w-4" />
                                 View Activity
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/users/${user.id}?tab=sessions`}>
+                              <Link
+                                href={`/admin/users/${user.id}?tab=sessions`}
+                              >
                                 <Smartphone className="mr-2 h-4 w-4" />
                                 View Sessions
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            {status === 'banned' ? (
+                            {status === "banned" ? (
                               <DropdownMenuItem
                                 onClick={() => openBanModal(user)}
                                 disabled={isOwner}
@@ -364,7 +400,10 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
                                 Reactivate
                               </DropdownMenuItem>
                             ) : (
-                              <DropdownMenuItem disabled={isOwner} className="text-orange-600">
+                              <DropdownMenuItem
+                                disabled={isOwner}
+                                className="text-orange-600"
+                              >
                                 <UserX className="mr-2 h-4 w-4" />
                                 Deactivate
                               </DropdownMenuItem>
@@ -381,7 +420,7 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
                         </DropdownMenu>
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
@@ -389,7 +428,7 @@ export function UserList({ users, isLoading = false, showSearch = true }: UserLi
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default UserList
+export default UserList;

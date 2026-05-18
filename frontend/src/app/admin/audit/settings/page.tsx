@@ -1,35 +1,44 @@
-'use client'
+"use client";
 
 /**
  * Admin Audit Settings Page - Retention and configuration settings
  */
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/auth-context'
-import { Settings, ArrowLeft, Save, Loader2 } from 'lucide-react'
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import { Settings, ArrowLeft, Save, Loader2 } from "lucide-react";
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { useAuditStore } from '@/stores/audit-store'
-import type { AuditRetentionPolicy, AuditSettings } from '@/lib/audit/audit-types'
-import { defaultAuditSettings } from '@/lib/audit/audit-retention'
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { useAuditStore } from "@/stores/audit-store";
+import type {
+  AuditRetentionPolicy,
+  AuditSettings,
+} from "@/lib/audit/audit-types";
+import { defaultAuditSettings } from "@/lib/audit/audit-retention";
 
-import { AuditLogRetention } from '@/components/audit'
+import { AuditLogRetention } from "@/components/audit";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Component
 // ============================================================================
 
 export default function AuditSettingsPage() {
-  const { user, loading: authLoading } = useAuth()
-  const router = useRouter()
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const {
     settings,
     isSavingSettings,
@@ -38,94 +47,102 @@ export default function AuditSettingsPage() {
     updateRetentionPolicy,
     removeRetentionPolicy,
     setSavingSettings,
-  } = useAuditStore()
+  } = useAuditStore();
 
   const [localSettings, setLocalSettings] = useState<AuditSettings>(
-    settings || defaultAuditSettings
-  )
-  const [hasChanges, setHasChanges] = useState(false)
+    settings || defaultAuditSettings,
+  );
+  const [hasChanges, setHasChanges] = useState(false);
 
   // Auth check
   useEffect(() => {
-    if (!authLoading && (!user || !['owner', 'admin'].includes(user.role))) {
-      router.push('/chat')
+    if (!authLoading && (!user || !["owner", "admin"].includes(user.role))) {
+      router.push("/chat");
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading, router]);
 
   // Sync with store
   useEffect(() => {
     if (settings) {
-      setLocalSettings(settings)
+      setLocalSettings(settings);
     }
-  }, [settings])
+  }, [settings]);
 
-  const handleSettingsChange = useCallback((updates: Partial<AuditSettings>) => {
-    setLocalSettings((prev) => ({ ...prev, ...updates }))
-    setHasChanges(true)
-  }, [])
+  const handleSettingsChange = useCallback(
+    (updates: Partial<AuditSettings>) => {
+      setLocalSettings((prev) => ({ ...prev, ...updates }));
+      setHasChanges(true);
+    },
+    [],
+  );
 
   const handlePolicyAdd = useCallback((policy: AuditRetentionPolicy) => {
     setLocalSettings((prev) => ({
       ...prev,
       policies: [...prev.policies, policy],
-    }))
-    setHasChanges(true)
-  }, [])
+    }));
+    setHasChanges(true);
+  }, []);
 
-  const handlePolicyUpdate = useCallback((id: string, updates: Partial<AuditRetentionPolicy>) => {
-    setLocalSettings((prev) => ({
-      ...prev,
-      policies: prev.policies.map((p) =>
-        p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p
-      ),
-    }))
-    setHasChanges(true)
-  }, [])
+  const handlePolicyUpdate = useCallback(
+    (id: string, updates: Partial<AuditRetentionPolicy>) => {
+      setLocalSettings((prev) => ({
+        ...prev,
+        policies: prev.policies.map((p) =>
+          p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p,
+        ),
+      }));
+      setHasChanges(true);
+    },
+    [],
+  );
 
   const handlePolicyDelete = useCallback((id: string) => {
     setLocalSettings((prev) => ({
       ...prev,
       policies: prev.policies.filter((p) => p.id !== id),
-    }))
-    setHasChanges(true)
-  }, [])
+    }));
+    setHasChanges(true);
+  }, []);
 
   const handleSave = async () => {
-    setSavingSettings(true)
+    setSavingSettings(true);
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Update store
-      setSettings(localSettings)
+      setSettings(localSettings);
 
       // Update policies in store
       localSettings.policies.forEach((policy) => {
-        const existingPolicy = settings.policies.find((p) => p.id === policy.id)
+        const existingPolicy = settings.policies.find(
+          (p) => p.id === policy.id,
+        );
         if (existingPolicy) {
-          updateRetentionPolicy(policy.id, policy)
+          updateRetentionPolicy(policy.id, policy);
         } else {
-          addRetentionPolicy(policy)
+          addRetentionPolicy(policy);
         }
-      })
+      });
 
       // Remove deleted policies
       settings.policies.forEach((policy) => {
         if (!localSettings.policies.find((p) => p.id === policy.id)) {
-          removeRetentionPolicy(policy.id)
+          removeRetentionPolicy(policy.id);
         }
-      })
+      });
 
-      setHasChanges(false)
+      setHasChanges(false);
     } catch (error) {
-      logger.error('Failed to save settings:', error)
+      logger.error("Failed to save settings:", error);
     } finally {
-      setSavingSettings(false)
+      setSavingSettings(false);
     }
-  }
+  };
 
-  if (authLoading || !user || !['owner', 'admin'].includes(user.role)) {
-    return null
+  if (authLoading || !user || !["owner", "admin"].includes(user.role)) {
+    return null;
   }
 
   return (
@@ -138,7 +155,7 @@ export default function AuditSettingsPage() {
               variant="ghost"
               size="sm"
               className="mb-2"
-              onClick={() => router.push('/admin/audit')}
+              onClick={() => router.push("/admin/audit")}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Audit Logs
@@ -151,7 +168,10 @@ export default function AuditSettingsPage() {
               Configure audit logging, retention policies, and export settings
             </p>
           </div>
-          <Button onClick={handleSave} disabled={!hasChanges || isSavingSettings}>
+          <Button
+            onClick={handleSave}
+            disabled={!hasChanges || isSavingSettings}
+          >
             {isSavingSettings ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -170,7 +190,9 @@ export default function AuditSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>General Settings</CardTitle>
-            <CardDescription>Configure basic audit logging behavior</CardDescription>
+            <CardDescription>
+              Configure basic audit logging behavior
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -185,7 +207,9 @@ export default function AuditSettingsPage() {
               <Switch
                 id="audit-enabled"
                 checked={localSettings.enabled}
-                onCheckedChange={(checked) => handleSettingsChange({ enabled: checked })}
+                onCheckedChange={(checked) =>
+                  handleSettingsChange({ enabled: checked })
+                }
               />
             </div>
 
@@ -201,7 +225,9 @@ export default function AuditSettingsPage() {
               <Switch
                 id="realtime-enabled"
                 checked={localSettings.realTimeEnabled}
-                onCheckedChange={(checked) => handleSettingsChange({ realTimeEnabled: checked })}
+                onCheckedChange={(checked) =>
+                  handleSettingsChange({ realTimeEnabled: checked })
+                }
               />
             </div>
 
@@ -235,7 +261,9 @@ export default function AuditSettingsPage() {
               <Switch
                 id="ip-logging"
                 checked={localSettings.ipLoggingEnabled}
-                onCheckedChange={(checked) => handleSettingsChange({ ipLoggingEnabled: checked })}
+                onCheckedChange={(checked) =>
+                  handleSettingsChange({ ipLoggingEnabled: checked })
+                }
               />
             </div>
 
@@ -251,7 +279,9 @@ export default function AuditSettingsPage() {
               <Switch
                 id="geo-location"
                 checked={localSettings.geoLocationEnabled}
-                onCheckedChange={(checked) => handleSettingsChange({ geoLocationEnabled: checked })}
+                onCheckedChange={(checked) =>
+                  handleSettingsChange({ geoLocationEnabled: checked })
+                }
               />
             </div>
           </CardContent>
@@ -280,7 +310,9 @@ export default function AuditSettingsPage() {
               <p className="text-sm">
                 Scheduled exports and advanced export configuration coming soon.
               </p>
-              <p className="mt-1 text-xs">For now, use the Export button in the Audit Logs page.</p>
+              <p className="mt-1 text-xs">
+                For now, use the Export button in the Audit Logs page.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -310,5 +342,5 @@ export default function AuditSettingsPage() {
         )}
       </div>
     </AdminLayout>
-  )
+  );
 }

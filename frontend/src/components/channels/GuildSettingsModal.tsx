@@ -11,10 +11,10 @@
  * - Emoji and stickers
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
+import * as React from "react";
+import { useState } from "react";
 import {
   Settings,
   Shield,
@@ -31,16 +31,16 @@ import {
   Lock,
   Eye,
   Ban,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -48,29 +48,29 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import type { Workspace } from '@/types/advanced-channels'
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { Workspace } from "@/types/advanced-channels";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface GuildSettingsModalProps {
-  workspace: Workspace
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  onSave?: (updates: Partial<Workspace>) => Promise<void>
-  className?: string
+  workspace: Workspace;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSave?: (updates: Partial<Workspace>) => Promise<void>;
+  className?: string;
 }
 
 // ============================================================================
@@ -81,8 +81,8 @@ function OverviewTab({
   workspace,
   onChange,
 }: {
-  workspace: Workspace
-  onChange: (updates: Partial<Workspace>) => void
+  workspace: Workspace;
+  onChange: (updates: Partial<Workspace>) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -101,7 +101,9 @@ function OverviewTab({
               <Upload className="mr-2 h-4 w-4" />
               Upload Image
             </Button>
-            <p className="text-xs text-muted-foreground">Recommended: 512x512px, PNG or JPG</p>
+            <p className="text-xs text-muted-foreground">
+              Recommended: 512x512px, PNG or JPG
+            </p>
           </div>
         </div>
       </div>
@@ -122,7 +124,7 @@ function OverviewTab({
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={workspace.description || ''}
+          value={workspace.description || ""}
           onChange={(e) => onChange({ description: e.target.value })}
           placeholder="Tell people what this server is about"
           rows={3}
@@ -159,7 +161,9 @@ function OverviewTab({
             </Button>
           </div>
         )}
-        <p className="text-xs text-muted-foreground">Recommended: 1920x1080px, PNG or JPG</p>
+        <p className="text-xs text-muted-foreground">
+          Recommended: 1920x1080px, PNG or JPG
+        </p>
       </div>
 
       {/* Vanity URL */}
@@ -169,7 +173,7 @@ function OverviewTab({
           <span className="text-sm text-muted-foreground">discord.gg/</span>
           <Input
             id="vanity-url"
-            value={workspace.vanityUrl || ''}
+            value={workspace.vanityUrl || ""}
             onChange={(e) => onChange({ vanityUrl: e.target.value })}
             placeholder="custom-url"
             className="flex-1"
@@ -180,7 +184,7 @@ function OverviewTab({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -191,8 +195,8 @@ function ModerationTab({
   workspace,
   onChange,
 }: {
-  workspace: Workspace
-  onChange: (updates: Partial<Workspace>) => void
+  workspace: Workspace;
+  onChange: (updates: Partial<Workspace>) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -201,7 +205,9 @@ function ModerationTab({
         <Label htmlFor="verification">Verification Level</Label>
         <Select
           value={workspace.verificationLevel.toString()}
-          onValueChange={(value) => onChange({ verificationLevel: parseInt(value) })}
+          onValueChange={(value) =>
+            onChange({ verificationLevel: parseInt(value) })
+          }
         >
           <SelectTrigger id="verification">
             <SelectValue />
@@ -209,7 +215,9 @@ function ModerationTab({
           <SelectContent>
             <SelectItem value="0">None - Unrestricted</SelectItem>
             <SelectItem value="1">Low - Verified email required</SelectItem>
-            <SelectItem value="2">Medium - Registered for 5+ minutes</SelectItem>
+            <SelectItem value="2">
+              Medium - Registered for 5+ minutes
+            </SelectItem>
             <SelectItem value="3">High - Member for 10+ minutes</SelectItem>
             <SelectItem value="4">Highest - Verified phone required</SelectItem>
           </SelectContent>
@@ -221,14 +229,18 @@ function ModerationTab({
         <Label htmlFor="content-filter">Explicit Content Filter</Label>
         <Select
           value={workspace.explicitContentFilter.toString()}
-          onValueChange={(value) => onChange({ explicitContentFilter: parseInt(value) })}
+          onValueChange={(value) =>
+            onChange({ explicitContentFilter: parseInt(value) })
+          }
         >
           <SelectTrigger id="content-filter">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="0">Don't scan any media</SelectItem>
-            <SelectItem value="1">Scan media from members without roles</SelectItem>
+            <SelectItem value="1">
+              Scan media from members without roles
+            </SelectItem>
             <SelectItem value="2">Scan media from all members</SelectItem>
           </SelectContent>
         </Select>
@@ -238,9 +250,9 @@ function ModerationTab({
       <div className="space-y-2">
         <Label htmlFor="system-channel">System Messages Channel</Label>
         <Select
-          value={workspace.systemChannelId || 'none'}
+          value={workspace.systemChannelId || "none"}
           onValueChange={(value) =>
-            onChange({ systemChannelId: value === 'none' ? undefined : value })
+            onChange({ systemChannelId: value === "none" ? undefined : value })
           }
         >
           <SelectTrigger id="system-channel">
@@ -261,9 +273,9 @@ function ModerationTab({
       <div className="space-y-2">
         <Label htmlFor="rules-channel">Rules Channel</Label>
         <Select
-          value={workspace.rulesChannelId || 'none'}
+          value={workspace.rulesChannelId || "none"}
           onValueChange={(value) =>
-            onChange({ rulesChannelId: value === 'none' ? undefined : value })
+            onChange({ rulesChannelId: value === "none" ? undefined : value })
           }
         >
           <SelectTrigger id="rules-channel">
@@ -283,7 +295,9 @@ function ModerationTab({
       <div className="flex items-center justify-between rounded-lg border p-4">
         <div className="space-y-0.5">
           <Label htmlFor="discoverable">Enable Server Discovery</Label>
-          <p className="text-sm text-muted-foreground">Show this server in Server Discovery</p>
+          <p className="text-sm text-muted-foreground">
+            Show this server in Server Discovery
+          </p>
         </div>
         <Switch
           id="discoverable"
@@ -292,7 +306,7 @@ function ModerationTab({
         />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -304,43 +318,46 @@ function BoostTab({ workspace }: { workspace: Workspace }) {
     {
       tier: 0,
       boosts: 0,
-      perks: ['128 Kbps Audio', '50 MB Upload Limit', '50 Emoji Slots'],
+      perks: ["128 Kbps Audio", "50 MB Upload Limit", "50 Emoji Slots"],
     },
     {
       tier: 1,
       boosts: 2,
       perks: [
-        '128 Kbps Audio',
-        '+ Animated Server Icon',
-        '+ Custom Server Invite Background',
-        '+ 100 Emoji Slots (50 extra)',
+        "128 Kbps Audio",
+        "+ Animated Server Icon",
+        "+ Custom Server Invite Background",
+        "+ 100 Emoji Slots (50 extra)",
       ],
     },
     {
       tier: 2,
       boosts: 7,
       perks: [
-        '256 Kbps Audio',
-        '+ Server Banner',
-        '+ 150 Emoji Slots (50 extra)',
-        '+ 50 MB Upload Limit for all members',
+        "256 Kbps Audio",
+        "+ Server Banner",
+        "+ 150 Emoji Slots (50 extra)",
+        "+ 50 MB Upload Limit for all members",
       ],
     },
     {
       tier: 3,
       boosts: 14,
       perks: [
-        '384 Kbps Audio',
-        '+ Custom Server Invite URL',
-        '+ 250 Emoji Slots (100 extra)',
-        '+ 100 MB Upload Limit for all members',
+        "384 Kbps Audio",
+        "+ Custom Server Invite URL",
+        "+ 250 Emoji Slots (100 extra)",
+        "+ 100 MB Upload Limit for all members",
       ],
     },
-  ]
+  ];
 
-  const currentLevel = boostLevels[workspace.boostTier]
-  const nextLevel = boostLevels[Math.min(workspace.boostTier + 1, 3)]
-  const progress = workspace.boostTier < 3 ? (workspace.boostCount / nextLevel.boosts) * 100 : 100
+  const currentLevel = boostLevels[workspace.boostTier];
+  const nextLevel = boostLevels[Math.min(workspace.boostTier + 1, 3)];
+  const progress =
+    workspace.boostTier < 3
+      ? (workspace.boostCount / nextLevel.boosts) * 100
+      : 100;
 
   return (
     <div className="space-y-6">
@@ -353,9 +370,13 @@ function BoostTab({ workspace }: { workspace: Workspace }) {
             </div>
             <div>
               <h3 className="font-semibold">
-                {workspace.boostTier === 0 ? 'Not Boosted' : `Tier ${workspace.boostTier}`}
+                {workspace.boostTier === 0
+                  ? "Not Boosted"
+                  : `Tier ${workspace.boostTier}`}
               </h3>
-              <p className="text-sm text-muted-foreground">{workspace.boostCount} Boosts</p>
+              <p className="text-sm text-muted-foreground">
+                {workspace.boostCount} Boosts
+              </p>
             </div>
           </div>
           <Button variant="secondary" className="gap-2">
@@ -390,7 +411,10 @@ function BoostTab({ workspace }: { workspace: Workspace }) {
         <h4 className="font-semibold">Current Perks</h4>
         <div className="grid gap-2">
           {currentLevel.perks.map((perk, i) => (
-            <div key={i} className="flex items-center gap-2 rounded-lg border p-3">
+            <div
+              key={i}
+              className="flex items-center gap-2 rounded-lg border p-3"
+            >
               <Zap className="h-4 w-4 text-pink-500" />
               <span className="text-sm">{perk}</span>
             </div>
@@ -418,7 +442,7 @@ function BoostTab({ workspace }: { workspace: Workspace }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -432,41 +456,43 @@ export function GuildSettingsModal({
   onSave,
   className,
 }: GuildSettingsModalProps) {
-  const [updates, setUpdates] = useState<Partial<Workspace>>({})
-  const [isSaving, setIsSaving] = useState(false)
+  const [updates, setUpdates] = useState<Partial<Workspace>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
-  const mergedWorkspace = { ...workspace, ...updates }
+  const mergedWorkspace = { ...workspace, ...updates };
 
   const handleChange = (newUpdates: Partial<Workspace>) => {
-    setUpdates((prev) => ({ ...prev, ...newUpdates }))
-  }
+    setUpdates((prev) => ({ ...prev, ...newUpdates }));
+  };
 
   const handleSave = async () => {
-    if (!onSave) return
+    if (!onSave) return;
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-      await onSave(updates)
-      setUpdates({})
-      onOpenChange?.(false)
+      await onSave(updates);
+      setUpdates({});
+      onOpenChange?.(false);
     } catch (error) {
-      logger.error('Failed to save workspace settings:', error)
+      logger.error("Failed to save workspace settings:", error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
-  const hasChanges = Object.keys(updates).length > 0
+  const hasChanges = Object.keys(updates).length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-4xl', className)}>
+      <DialogContent className={cn("max-w-4xl", className)}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
             Server Settings
           </DialogTitle>
-          <DialogDescription>Manage your server settings and preferences</DialogDescription>
+          <DialogDescription>
+            Manage your server settings and preferences
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
@@ -481,11 +507,17 @@ export function GuildSettingsModal({
 
           <ScrollArea className="h-[500px] pr-4">
             <TabsContent value="overview" className="space-y-4">
-              <OverviewTab workspace={mergedWorkspace} onChange={handleChange} />
+              <OverviewTab
+                workspace={mergedWorkspace}
+                onChange={handleChange}
+              />
             </TabsContent>
 
             <TabsContent value="moderation" className="space-y-4">
-              <ModerationTab workspace={mergedWorkspace} onChange={handleChange} />
+              <ModerationTab
+                workspace={mergedWorkspace}
+                onChange={handleChange}
+              />
             </TabsContent>
 
             <TabsContent value="boost" className="space-y-4">
@@ -495,7 +527,11 @@ export function GuildSettingsModal({
         </Tabs>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange?.(false)} disabled={isSaving}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange?.(false)}
+            disabled={isSaving}
+          >
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={!hasChanges || isSaving}>
@@ -514,7 +550,7 @@ export function GuildSettingsModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default GuildSettingsModal
+export default GuildSettingsModal;

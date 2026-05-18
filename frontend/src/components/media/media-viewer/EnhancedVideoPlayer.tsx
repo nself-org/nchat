@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * EnhancedVideoPlayer - Full-featured video player component
@@ -16,11 +16,11 @@
  * - Time display
  */
 
-import * as React from 'react'
-import { useCallback, useRef, useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Slider } from '@/components/ui/slider'
+import * as React from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   Play,
   Pause,
@@ -34,82 +34,82 @@ import {
   Settings,
   PictureInPicture,
   Loader2,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface EnhancedVideoPlayerProps {
-  src: string
-  poster?: string
-  title?: string
-  className?: string
+  src: string;
+  poster?: string;
+  title?: string;
+  className?: string;
 
   // Playback options
-  autoPlay?: boolean
-  loop?: boolean
-  muted?: boolean
-  preload?: 'none' | 'metadata' | 'auto'
+  autoPlay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
+  preload?: "none" | "metadata" | "auto";
 
   // Initial state
-  initialTime?: number
-  initialVolume?: number
-  initialPlaybackRate?: number
+  initialTime?: number;
+  initialVolume?: number;
+  initialPlaybackRate?: number;
 
   // UI options
-  showControls?: boolean
-  showProgress?: boolean
-  showVolume?: boolean
-  showPlaybackRate?: boolean
-  showFullscreen?: boolean
-  showPictureInPicture?: boolean
-  showSkipButtons?: boolean
-  showTimeDisplay?: boolean
+  showControls?: boolean;
+  showProgress?: boolean;
+  showVolume?: boolean;
+  showPlaybackRate?: boolean;
+  showFullscreen?: boolean;
+  showPictureInPicture?: boolean;
+  showSkipButtons?: boolean;
+  showTimeDisplay?: boolean;
 
   // Callbacks
-  onPlay?: () => void
-  onPause?: () => void
-  onTimeUpdate?: (time: number) => void
-  onDurationChange?: (duration: number) => void
-  onVolumeChange?: (volume: number) => void
-  onEnded?: () => void
-  onError?: (error: Error) => void
-  onFullscreenChange?: (isFullscreen: boolean) => void
-  onPictureInPictureChange?: (isPip: boolean) => void
+  onPlay?: () => void;
+  onPause?: () => void;
+  onTimeUpdate?: (time: number) => void;
+  onDurationChange?: (duration: number) => void;
+  onVolumeChange?: (volume: number) => void;
+  onEnded?: () => void;
+  onError?: (error: Error) => void;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
+  onPictureInPictureChange?: (isPip: boolean) => void;
 
   // Control overrides
-  isPlaying?: boolean
-  currentTime?: number
-  volume?: number
-  playbackRate?: number
-  isFullscreen?: boolean
+  isPlaying?: boolean;
+  currentTime?: number;
+  volume?: number;
+  playbackRate?: number;
+  isFullscreen?: boolean;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-const SKIP_SECONDS = 10
-const HIDE_CONTROLS_DELAY = 3000
+const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+const SKIP_SECONDS = 10;
+const HIDE_CONTROLS_DELAY = 3000;
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
 function formatTime(seconds: number): string {
-  if (!isFinite(seconds) || seconds < 0) return '0:00'
+  if (!isFinite(seconds) || seconds < 0) return "0:00";
 
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = Math.floor(seconds % 60)
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
 
   if (hours > 0) {
-    return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   }
 
-  return `${minutes}:${String(secs).padStart(2, '0')}`
+  return `${minutes}:${String(secs).padStart(2, "0")}`;
 }
 
 // ============================================================================
@@ -124,7 +124,7 @@ export function EnhancedVideoPlayer({
   autoPlay = false,
   loop = false,
   muted = false,
-  preload = 'metadata',
+  preload = "metadata",
   initialTime = 0,
   initialVolume = 1,
   initialPlaybackRate = 1,
@@ -152,65 +152,66 @@ export function EnhancedVideoPlayer({
   isFullscreen: controlledIsFullscreen,
 }: EnhancedVideoPlayerProps) {
   // Refs
-  const containerRef = useRef<HTMLDivElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const hideControlsTimer = useRef<NodeJS.Timeout | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
 
   // State
-  const [internalIsPlaying, setInternalIsPlaying] = useState(autoPlay)
-  const [internalCurrentTime, setInternalCurrentTime] = useState(initialTime)
-  const [internalVolume, setInternalVolume] = useState(initialVolume)
-  const [internalPlaybackRate, setInternalPlaybackRate] = useState(initialPlaybackRate)
-  const [internalIsFullscreen, setInternalIsFullscreen] = useState(false)
+  const [internalIsPlaying, setInternalIsPlaying] = useState(autoPlay);
+  const [internalCurrentTime, setInternalCurrentTime] = useState(initialTime);
+  const [internalVolume, setInternalVolume] = useState(initialVolume);
+  const [internalPlaybackRate, setInternalPlaybackRate] =
+    useState(initialPlaybackRate);
+  const [internalIsFullscreen, setInternalIsFullscreen] = useState(false);
 
-  const [duration, setDuration] = useState(0)
-  const [isBuffering, setIsBuffering] = useState(false)
-  const [isMuted, setIsMuted] = useState(muted)
-  const [isPictureInPicture, setIsPictureInPicture] = useState(false)
-  const [showControlsOverlay, setShowControlsOverlay] = useState(true)
-  const [showPlaybackRateMenu, setShowPlaybackRateMenu] = useState(false)
-  const [isSeeking, setIsSeeking] = useState(false)
+  const [duration, setDuration] = useState(0);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [isMuted, setIsMuted] = useState(muted);
+  const [isPictureInPicture, setIsPictureInPicture] = useState(false);
+  const [showControlsOverlay, setShowControlsOverlay] = useState(true);
+  const [showPlaybackRateMenu, setShowPlaybackRateMenu] = useState(false);
+  const [isSeeking, setIsSeeking] = useState(false);
 
   // Controlled vs uncontrolled
-  const isPlaying = controlledIsPlaying ?? internalIsPlaying
-  const currentTime = controlledCurrentTime ?? internalCurrentTime
-  const volume = controlledVolume ?? internalVolume
-  const playbackRate = controlledPlaybackRate ?? internalPlaybackRate
-  const isFullscreen = controlledIsFullscreen ?? internalIsFullscreen
+  const isPlaying = controlledIsPlaying ?? internalIsPlaying;
+  const currentTime = controlledCurrentTime ?? internalCurrentTime;
+  const volume = controlledVolume ?? internalVolume;
+  const playbackRate = controlledPlaybackRate ?? internalPlaybackRate;
+  const isFullscreen = controlledIsFullscreen ?? internalIsFullscreen;
 
   // ========================================================================
   // Playback Control
   // ========================================================================
 
   const play = useCallback(async () => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
     try {
-      await video.play()
-      setInternalIsPlaying(true)
-      onPlay?.()
+      await video.play();
+      setInternalIsPlaying(true);
+      onPlay?.();
     } catch (error) {
-      console.error('Failed to play video:', error)
+      console.error("Failed to play video:", error);
     }
-  }, [onPlay])
+  }, [onPlay]);
 
   const pause = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    video.pause()
-    setInternalIsPlaying(false)
-    onPause?.()
-  }, [onPause])
+    video.pause();
+    setInternalIsPlaying(false);
+    onPause?.();
+  }, [onPause]);
 
   const togglePlay = useCallback(() => {
     if (isPlaying) {
-      pause()
+      pause();
     } else {
-      play()
+      play();
     }
-  }, [isPlaying, play, pause])
+  }, [isPlaying, play, pause]);
 
   // ========================================================================
   // Seeking
@@ -218,24 +219,24 @@ export function EnhancedVideoPlayer({
 
   const seek = useCallback(
     (time: number) => {
-      const video = videoRef.current
-      if (!video) return
+      const video = videoRef.current;
+      if (!video) return;
 
-      const clampedTime = Math.max(0, Math.min(time, duration))
-      video.currentTime = clampedTime
-      setInternalCurrentTime(clampedTime)
-      onTimeUpdate?.(clampedTime)
+      const clampedTime = Math.max(0, Math.min(time, duration));
+      video.currentTime = clampedTime;
+      setInternalCurrentTime(clampedTime);
+      onTimeUpdate?.(clampedTime);
     },
-    [duration, onTimeUpdate]
-  )
+    [duration, onTimeUpdate],
+  );
 
   const skipForward = useCallback(() => {
-    seek(currentTime + SKIP_SECONDS)
-  }, [currentTime, seek])
+    seek(currentTime + SKIP_SECONDS);
+  }, [currentTime, seek]);
 
   const skipBackward = useCallback(() => {
-    seek(currentTime - SKIP_SECONDS)
-  }, [currentTime, seek])
+    seek(currentTime - SKIP_SECONDS);
+  }, [currentTime, seek]);
 
   // ========================================================================
   // Volume Control
@@ -243,172 +244,172 @@ export function EnhancedVideoPlayer({
 
   const setVolume = useCallback(
     (newVolume: number) => {
-      const video = videoRef.current
-      if (!video) return
+      const video = videoRef.current;
+      if (!video) return;
 
-      const clampedVolume = Math.max(0, Math.min(1, newVolume))
-      video.volume = clampedVolume
-      setInternalVolume(clampedVolume)
-      onVolumeChangeProp?.(clampedVolume)
+      const clampedVolume = Math.max(0, Math.min(1, newVolume));
+      video.volume = clampedVolume;
+      setInternalVolume(clampedVolume);
+      onVolumeChangeProp?.(clampedVolume);
 
       if (clampedVolume > 0 && isMuted) {
-        video.muted = false
-        setIsMuted(false)
+        video.muted = false;
+        setIsMuted(false);
       }
     },
-    [isMuted, onVolumeChangeProp]
-  )
+    [isMuted, onVolumeChangeProp],
+  );
 
   const toggleMute = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    video.muted = !isMuted
-    setIsMuted(!isMuted)
-  }, [isMuted])
+    video.muted = !isMuted;
+    setIsMuted(!isMuted);
+  }, [isMuted]);
 
   // ========================================================================
   // Playback Rate
   // ========================================================================
 
   const setPlaybackRateValue = useCallback((rate: number) => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    video.playbackRate = rate
-    setInternalPlaybackRate(rate)
-    setShowPlaybackRateMenu(false)
-  }, [])
+    video.playbackRate = rate;
+    setInternalPlaybackRate(rate);
+    setShowPlaybackRateMenu(false);
+  }, []);
 
   // ========================================================================
   // Fullscreen
   // ========================================================================
 
   const enterFullscreen = useCallback(async () => {
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
     try {
       if (container.requestFullscreen) {
-        await container.requestFullscreen()
+        await container.requestFullscreen();
       }
-      setInternalIsFullscreen(true)
-      onFullscreenChange?.(true)
+      setInternalIsFullscreen(true);
+      onFullscreenChange?.(true);
     } catch (error) {
-      console.error('Failed to enter fullscreen:', error)
+      console.error("Failed to enter fullscreen:", error);
     }
-  }, [onFullscreenChange])
+  }, [onFullscreenChange]);
 
   const exitFullscreen = useCallback(async () => {
     try {
       if (document.exitFullscreen) {
-        await document.exitFullscreen()
+        await document.exitFullscreen();
       }
-      setInternalIsFullscreen(false)
-      onFullscreenChange?.(false)
+      setInternalIsFullscreen(false);
+      onFullscreenChange?.(false);
     } catch (error) {
-      console.error('Failed to exit fullscreen:', error)
+      console.error("Failed to exit fullscreen:", error);
     }
-  }, [onFullscreenChange])
+  }, [onFullscreenChange]);
 
   const toggleFullscreen = useCallback(() => {
     if (isFullscreen) {
-      exitFullscreen()
+      exitFullscreen();
     } else {
-      enterFullscreen()
+      enterFullscreen();
     }
-  }, [isFullscreen, enterFullscreen, exitFullscreen])
+  }, [isFullscreen, enterFullscreen, exitFullscreen]);
 
   // ========================================================================
   // Picture-in-Picture
   // ========================================================================
 
   const togglePictureInPicture = useCallback(async () => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
     try {
       if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture()
-        setIsPictureInPicture(false)
-        onPictureInPictureChange?.(false)
+        await document.exitPictureInPicture();
+        setIsPictureInPicture(false);
+        onPictureInPictureChange?.(false);
       } else if (document.pictureInPictureEnabled) {
-        await video.requestPictureInPicture()
-        setIsPictureInPicture(true)
-        onPictureInPictureChange?.(true)
+        await video.requestPictureInPicture();
+        setIsPictureInPicture(true);
+        onPictureInPictureChange?.(true);
       }
     } catch (error) {
-      console.error('Failed to toggle Picture-in-Picture:', error)
+      console.error("Failed to toggle Picture-in-Picture:", error);
     }
-  }, [onPictureInPictureChange])
+  }, [onPictureInPictureChange]);
 
   // ========================================================================
   // Video Event Handlers
   // ========================================================================
 
   const handleLoadedMetadata = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    setDuration(video.duration)
-    onDurationChange?.(video.duration)
+    setDuration(video.duration);
+    onDurationChange?.(video.duration);
 
     // Set initial time
     if (initialTime > 0) {
-      video.currentTime = initialTime
+      video.currentTime = initialTime;
     }
 
     // Set initial playback rate
-    video.playbackRate = initialPlaybackRate
-  }, [initialTime, initialPlaybackRate, onDurationChange])
+    video.playbackRate = initialPlaybackRate;
+  }, [initialTime, initialPlaybackRate, onDurationChange]);
 
   const handleTimeUpdate = useCallback(() => {
-    const video = videoRef.current
-    if (!video || isSeeking) return
+    const video = videoRef.current;
+    if (!video || isSeeking) return;
 
-    setInternalCurrentTime(video.currentTime)
-    onTimeUpdate?.(video.currentTime)
-  }, [isSeeking, onTimeUpdate])
+    setInternalCurrentTime(video.currentTime);
+    onTimeUpdate?.(video.currentTime);
+  }, [isSeeking, onTimeUpdate]);
 
   const handleEnded = useCallback(() => {
-    setInternalIsPlaying(false)
-    onEnded?.()
-  }, [onEnded])
+    setInternalIsPlaying(false);
+    onEnded?.();
+  }, [onEnded]);
 
   const handleWaiting = useCallback(() => {
-    setIsBuffering(true)
-  }, [])
+    setIsBuffering(true);
+  }, []);
 
   const handlePlaying = useCallback(() => {
-    setIsBuffering(false)
-  }, [])
+    setIsBuffering(false);
+  }, []);
 
   const handleError = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    const error = video.error
-    onError?.(new Error(error?.message || 'Video playback error'))
-  }, [onError])
+    const error = video.error;
+    onError?.(new Error(error?.message || "Video playback error"));
+  }, [onError]);
 
   // ========================================================================
   // Controls Visibility
   // ========================================================================
 
   const showControlsTemporarily = useCallback(() => {
-    setShowControlsOverlay(true)
+    setShowControlsOverlay(true);
 
     if (hideControlsTimer.current) {
-      clearTimeout(hideControlsTimer.current)
+      clearTimeout(hideControlsTimer.current);
     }
 
     if (isPlaying) {
       hideControlsTimer.current = setTimeout(() => {
-        setShowControlsOverlay(false)
-        setShowPlaybackRateMenu(false)
-      }, HIDE_CONTROLS_DELAY)
+        setShowControlsOverlay(false);
+        setShowPlaybackRateMenu(false);
+      }, HIDE_CONTROLS_DELAY);
     }
-  }, [isPlaying])
+  }, [isPlaying]);
 
   // ========================================================================
   // Keyboard Shortcuts
@@ -417,51 +418,51 @@ export function EnhancedVideoPlayer({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle if video container is focused or video is in focus
-      if (!containerRef.current?.contains(document.activeElement)) return
+      if (!containerRef.current?.contains(document.activeElement)) return;
 
       switch (e.key) {
-        case ' ':
-        case 'k':
-          e.preventDefault()
-          togglePlay()
-          break
-        case 'ArrowLeft':
-          e.preventDefault()
-          skipBackward()
-          break
-        case 'ArrowRight':
-          e.preventDefault()
-          skipForward()
-          break
-        case 'ArrowUp':
-          e.preventDefault()
-          setVolume(Math.min(1, volume + 0.1))
-          break
-        case 'ArrowDown':
-          e.preventDefault()
-          setVolume(Math.max(0, volume - 0.1))
-          break
-        case 'm':
-          e.preventDefault()
-          toggleMute()
-          break
-        case 'f':
-          e.preventDefault()
-          toggleFullscreen()
-          break
-        case 'Escape':
+        case " ":
+        case "k":
+          e.preventDefault();
+          togglePlay();
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          skipBackward();
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          skipForward();
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setVolume(Math.min(1, volume + 0.1));
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          setVolume(Math.max(0, volume - 0.1));
+          break;
+        case "m":
+          e.preventDefault();
+          toggleMute();
+          break;
+        case "f":
+          e.preventDefault();
+          toggleFullscreen();
+          break;
+        case "Escape":
           if (isFullscreen) {
-            e.preventDefault()
-            exitFullscreen()
+            e.preventDefault();
+            exitFullscreen();
           }
-          break
+          break;
       }
 
-      showControlsTemporarily()
-    }
+      showControlsTemporarily();
+    };
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [
     togglePlay,
     skipBackward,
@@ -473,7 +474,7 @@ export function EnhancedVideoPlayer({
     isFullscreen,
     exitFullscreen,
     showControlsTemporarily,
-  ])
+  ]);
 
   // ========================================================================
   // Fullscreen Change Detection
@@ -481,14 +482,15 @@ export function EnhancedVideoPlayer({
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      const isNowFullscreen = !!document.fullscreenElement
-      setInternalIsFullscreen(isNowFullscreen)
-      onFullscreenChange?.(isNowFullscreen)
-    }
+      const isNowFullscreen = !!document.fullscreenElement;
+      setInternalIsFullscreen(isNowFullscreen);
+      onFullscreenChange?.(isNowFullscreen);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [onFullscreenChange])
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, [onFullscreenChange]);
 
   // ========================================================================
   // Cleanup
@@ -497,35 +499,36 @@ export function EnhancedVideoPlayer({
   useEffect(() => {
     return () => {
       if (hideControlsTimer.current) {
-        clearTimeout(hideControlsTimer.current)
+        clearTimeout(hideControlsTimer.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // ========================================================================
   // Progress Percentage
   // ========================================================================
 
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   // ========================================================================
   // Volume Icon
   // ========================================================================
 
-  const VolumeIcon = isMuted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2
+  const VolumeIcon =
+    isMuted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        'group relative flex h-full w-full items-center justify-center bg-black',
-        className
+        "group relative flex h-full w-full items-center justify-center bg-black",
+        className,
       )}
       onMouseMove={showControlsTemporarily}
       onMouseLeave={() => isPlaying && setShowControlsOverlay(false)}
       tabIndex={0}
       role="application"
-      aria-label={`Video player${title ? `: ${title}` : ''}`}
+      aria-label={`Video player${title ? `: ${title}` : ""}`}
       data-testid="enhanced-video-player"
     >
       {/* Video element */}
@@ -582,8 +585,10 @@ export function EnhancedVideoPlayer({
       {showControls && (
         <div
           className={cn(
-            'absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-4 pt-10 transition-opacity',
-            showControlsOverlay || !isPlaying ? 'opacity-100' : 'pointer-events-none opacity-0'
+            "absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-4 pt-10 transition-opacity",
+            showControlsOverlay || !isPlaying
+              ? "opacity-100"
+              : "pointer-events-none opacity-0",
           )}
           data-testid="controls"
         >
@@ -605,12 +610,12 @@ export function EnhancedVideoPlayer({
                   max={100}
                   step={0.1}
                   onValueChange={([value]) => {
-                    setIsSeeking(true)
-                    const time = (value / 100) * duration
-                    seek(time)
+                    setIsSeeking(true);
+                    const time = (value / 100) * duration;
+                    seek(time);
                   }}
                   onValueCommit={() => {
-                    setIsSeeking(false)
+                    setIsSeeking(false);
                   }}
                   className="cursor-pointer"
                   aria-label="Video progress"
@@ -638,7 +643,7 @@ export function EnhancedVideoPlayer({
                 size="icon"
                 className="h-9 w-9 text-white hover:bg-white/20"
                 onClick={togglePlay}
-                aria-label={isPlaying ? 'Pause' : 'Play'}
+                aria-label={isPlaying ? "Pause" : "Play"}
                 data-testid="play-pause-button"
               >
                 {isPlaying ? (
@@ -683,7 +688,7 @@ export function EnhancedVideoPlayer({
                     size="icon"
                     className="h-9 w-9 text-white hover:bg-white/20"
                     onClick={toggleMute}
-                    aria-label={isMuted ? 'Unmute' : 'Mute'}
+                    aria-label={isMuted ? "Unmute" : "Mute"}
                     data-testid="mute-button"
                   >
                     <VolumeIcon className="h-5 w-5" />
@@ -711,7 +716,9 @@ export function EnhancedVideoPlayer({
                     variant="ghost"
                     size="sm"
                     className="h-9 px-3 text-sm font-medium text-white hover:bg-white/20"
-                    onClick={() => setShowPlaybackRateMenu(!showPlaybackRateMenu)}
+                    onClick={() =>
+                      setShowPlaybackRateMenu(!showPlaybackRateMenu)
+                    }
                     aria-label="Playback speed"
                     data-testid="playback-rate-button"
                   >
@@ -727,8 +734,8 @@ export function EnhancedVideoPlayer({
                         <button
                           key={rate}
                           className={cn(
-                            'block w-full px-4 py-1.5 text-left text-sm text-white hover:bg-white/20',
-                            rate === playbackRate && 'bg-white/10'
+                            "block w-full px-4 py-1.5 text-left text-sm text-white hover:bg-white/20",
+                            rate === playbackRate && "bg-white/10",
                           )}
                           onClick={() => setPlaybackRateValue(rate)}
                           data-testid={`rate-${rate}`}
@@ -748,7 +755,11 @@ export function EnhancedVideoPlayer({
                   size="icon"
                   className="h-9 w-9 text-white hover:bg-white/20"
                   onClick={togglePictureInPicture}
-                  aria-label={isPictureInPicture ? 'Exit Picture-in-Picture' : 'Picture-in-Picture'}
+                  aria-label={
+                    isPictureInPicture
+                      ? "Exit Picture-in-Picture"
+                      : "Picture-in-Picture"
+                  }
                   data-testid="pip-button"
                 >
                   <PictureInPicture className="h-5 w-5" />
@@ -762,7 +773,7 @@ export function EnhancedVideoPlayer({
                   size="icon"
                   className="h-9 w-9 text-white hover:bg-white/20"
                   onClick={toggleFullscreen}
-                  aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                  aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
                   data-testid="fullscreen-button"
                 >
                   {isFullscreen ? (
@@ -777,7 +788,7 @@ export function EnhancedVideoPlayer({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default EnhancedVideoPlayer
+export default EnhancedVideoPlayer;

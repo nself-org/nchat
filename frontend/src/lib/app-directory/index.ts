@@ -3,22 +3,22 @@
  */
 
 // Types
-export * from './app-types'
+export * from "./app-types";
 
 // Categories
-export * from './app-categories'
+export * from "./app-categories";
 
 // Permissions
-export * from './app-permissions'
+export * from "./app-permissions";
 
 // Registry
-export * from './app-registry'
+export * from "./app-registry";
 
 // Search
-export * from './app-search'
+export * from "./app-search";
 
 // Ratings
-export * from './app-ratings'
+export * from "./app-ratings";
 
 // Installer
-export * from './app-installer'
+export * from "./app-installer";

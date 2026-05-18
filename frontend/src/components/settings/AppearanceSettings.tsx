@@ -1,27 +1,27 @@
-'use client'
+"use client";
 
-import { SettingsSection } from './settings-section'
-import { ThemeSettings } from './ThemeSettings'
-import { FontSettings } from './FontSettings'
-import { CompactModeSettings } from './CompactModeSettings'
-import { SidebarSettings } from './SidebarSettings'
-import { MessageDisplaySettings } from './MessageDisplaySettings'
-import { EmojiSettings } from './EmojiSettings'
-import { AnimationSettings } from './AnimationSettings'
-import { SettingsColorPicker } from './SettingsColorPicker'
-import { SettingsReset } from './SettingsReset'
-import { useSettingsStore } from '@/stores/settings-store'
-import { Palette } from 'lucide-react'
+import { SettingsSection } from "./settings-section";
+import { ThemeSettings } from "./ThemeSettings";
+import { FontSettings } from "./FontSettings";
+import { CompactModeSettings } from "./CompactModeSettings";
+import { SidebarSettings } from "./SidebarSettings";
+import { MessageDisplaySettings } from "./MessageDisplaySettings";
+import { EmojiSettings } from "./EmojiSettings";
+import { AnimationSettings } from "./AnimationSettings";
+import { SettingsColorPicker } from "./SettingsColorPicker";
+import { SettingsReset } from "./SettingsReset";
+import { useSettingsStore } from "@/stores/settings-store";
+import { Palette } from "lucide-react";
 
 interface AppearanceSettingsProps {
-  className?: string
+  className?: string;
 }
 
 /**
  * AppearanceSettings - Theme, colors, and display preferences
  */
 export function AppearanceSettings({ className }: AppearanceSettingsProps) {
-  const { settings, updateAppearance, resetAppearance } = useSettingsStore()
+  const { settings, updateAppearance, resetAppearance } = useSettingsStore();
 
   return (
     <div className={className}>
@@ -32,14 +32,19 @@ export function AppearanceSettings({ className }: AppearanceSettingsProps) {
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Appearance</h1>
-          <p className="text-sm text-muted-foreground">Customize the look and feel of the app</p>
+          <p className="text-sm text-muted-foreground">
+            Customize the look and feel of the app
+          </p>
         </div>
       </div>
 
       <div className="space-y-6">
         <ThemeSettings />
 
-        <SettingsSection title="Accent Color" description="Choose your primary accent color">
+        <SettingsSection
+          title="Accent Color"
+          description="Choose your primary accent color"
+        >
           <SettingsColorPicker
             id="accent-color"
             label="Accent color"
@@ -64,5 +69,5 @@ export function AppearanceSettings({ className }: AppearanceSettingsProps) {
         />
       </div>
     </div>
-  )
+  );
 }

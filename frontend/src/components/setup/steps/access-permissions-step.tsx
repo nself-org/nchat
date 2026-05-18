@@ -1,17 +1,20 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { type AppConfig, authPermissionDescriptions } from '@/config/app-config'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Switch } from '@/components/ui/switch'
-import { Input } from '@/components/ui/input'
-import { Users, Shield, CheckCircle } from 'lucide-react'
+import { useState, useEffect } from "react";
+import {
+  type AppConfig,
+  authPermissionDescriptions,
+} from "@/config/app-config";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Users, Shield, CheckCircle } from "lucide-react";
 
 interface AccessPermissionsStepProps {
-  config: AppConfig
-  onUpdate: (updates: Partial<AppConfig>) => void
-  onValidate: (isValid: boolean) => void
+  config: AppConfig;
+  onUpdate: (updates: Partial<AppConfig>) => void;
+  onValidate: (isValid: boolean) => void;
 }
 
 export function AccessPermissionsStep({
@@ -19,17 +22,17 @@ export function AccessPermissionsStep({
   onUpdate,
   onValidate,
 }: AccessPermissionsStepProps) {
-  const [permissions, setPermissions] = useState(config.authPermissions)
+  const [permissions, setPermissions] = useState(config.authPermissions);
 
   useEffect(() => {
-    onValidate(true) // Always valid
-  }, [onValidate])
+    onValidate(true); // Always valid
+  }, [onValidate]);
 
   const handlePermissionChange = (updates: Partial<typeof permissions>) => {
-    const updated = { ...permissions, ...updates }
-    setPermissions(updated)
-    onUpdate({ authPermissions: updated })
-  }
+    const updated = { ...permissions, ...updates };
+    setPermissions(updated);
+    onUpdate({ authPermissions: updated });
+  };
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -56,23 +59,27 @@ export function AccessPermissionsStep({
               handlePermissionChange({ mode: value as typeof permissions.mode })
             }
           >
-            {Object.entries(authPermissionDescriptions).map(([key, description]) => (
-              <div
-                key={key}
-                className="flex items-start gap-3 rounded-xl border border-zinc-900/10 bg-white p-3 transition-all duration-300 hover:border-[#00D4FF]/30 dark:border-white/10 dark:bg-zinc-900 dark:hover:border-[#00D4FF]/30"
-              >
-                <RadioGroupItem value={key} id={key} className="mt-1" />
-                <div className="flex-1">
-                  <Label
-                    htmlFor={key}
-                    className="cursor-pointer font-medium capitalize text-zinc-900 dark:text-white"
-                  >
-                    {key.replace(/-/g, ' ')}
-                  </Label>
-                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{description}</p>
+            {Object.entries(authPermissionDescriptions).map(
+              ([key, description]) => (
+                <div
+                  key={key}
+                  className="flex items-start gap-3 rounded-xl border border-zinc-900/10 bg-white p-3 transition-all duration-300 hover:border-[#00D4FF]/30 dark:border-white/10 dark:bg-zinc-900 dark:hover:border-[#00D4FF]/30"
+                >
+                  <RadioGroupItem value={key} id={key} className="mt-1" />
+                  <div className="flex-1">
+                    <Label
+                      htmlFor={key}
+                      className="cursor-pointer font-medium capitalize text-zinc-900 dark:text-white"
+                    >
+                      {key.replace(/-/g, " ")}
+                    </Label>
+                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                      {description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ),
+            )}
           </RadioGroup>
         </div>
 
@@ -110,13 +117,17 @@ export function AccessPermissionsStep({
               </div>
               <Switch
                 checked={permissions.requireApproval}
-                onCheckedChange={(checked) => handlePermissionChange({ requireApproval: checked })}
+                onCheckedChange={(checked) =>
+                  handlePermissionChange({ requireApproval: checked })
+                }
               />
             </div>
 
             <div className="flex items-center justify-between rounded-xl border border-zinc-900/10 bg-white p-3 transition-all duration-300 hover:border-[#00D4FF]/30 dark:border-white/10 dark:bg-zinc-900 dark:hover:border-[#00D4FF]/30">
               <div>
-                <div className="font-medium text-zinc-900 dark:text-white">Welcome New Members</div>
+                <div className="font-medium text-zinc-900 dark:text-white">
+                  Welcome New Members
+                </div>
                 <div className="text-sm text-zinc-600 dark:text-zinc-400">
                   Send welcome messages to new users
                 </div>
@@ -130,21 +141,24 @@ export function AccessPermissionsStep({
             </div>
           </div>
 
-          {permissions.mode === 'domain-restricted' && (
+          {permissions.mode === "domain-restricted" && (
             <div className="space-y-2">
-              <Label htmlFor="domains" className="text-zinc-900 dark:text-white">
+              <Label
+                htmlFor="domains"
+                className="text-zinc-900 dark:text-white"
+              >
                 Allowed Email Domains
               </Label>
               <Input
                 id="domains"
                 placeholder="example.com, company.org"
-                value={permissions.allowedDomains?.join(', ') || ''}
+                value={permissions.allowedDomains?.join(", ") || ""}
                 onChange={(e) => {
                   const domains = e.target.value
-                    .split(',')
+                    .split(",")
                     .map((d) => d.trim())
-                    .filter(Boolean)
-                  handlePermissionChange({ allowedDomains: domains })
+                    .filter(Boolean);
+                  handlePermissionChange({ allowedDomains: domains });
                 }}
               />
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -171,5 +185,5 @@ export function AccessPermissionsStep({
         </div>
       </div>
     </div>
-  )
+  );
 }

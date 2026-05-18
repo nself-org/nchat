@@ -19,16 +19,16 @@ TipTap-based rich text editor for nself-chat with full feature support.
 ## Quick Start
 
 ```tsx
-import { RichEditor, type RichEditorRef } from '@/components/editor'
-import { useRef } from 'react'
+import { RichEditor, type RichEditorRef } from "@/components/editor";
+import { useRef } from "react";
 
 function ChatInput() {
-  const editorRef = useRef<RichEditorRef>(null)
+  const editorRef = useRef<RichEditorRef>(null);
 
   const handleSubmit = (html: string, json: JSONContent) => {
-    console.log('Message:', html)
-    editorRef.current?.clear()
-  }
+    console.log("Message:", html);
+    editorRef.current?.clear();
+  };
 
   return (
     <RichEditor
@@ -36,15 +36,20 @@ function ChatInput() {
       placeholder="Type a message..."
       onSubmit={handleSubmit}
       users={[
-        { id: '1', username: 'alice', displayName: 'Alice', presence: 'online' },
-        { id: '2', username: 'bob', displayName: 'Bob', presence: 'away' },
+        {
+          id: "1",
+          username: "alice",
+          displayName: "Alice",
+          presence: "online",
+        },
+        { id: "2", username: "bob", displayName: "Bob", presence: "away" },
       ]}
       channels={[
-        { id: '1', name: 'general', type: 'public' },
-        { id: '2', name: 'random', type: 'public' },
+        { id: "1", name: "general", type: "public" },
+        { id: "2", name: "random", type: "public" },
       ]}
     />
-  )
+  );
 }
 ```
 
@@ -80,7 +85,11 @@ Main editor component with toolbar, suggestions, and send button.
 Minimal editor without toolbar or send button.
 
 ```tsx
-<SimpleEditor value={content} onChange={(html) => {}} placeholder="Write something..." />
+<SimpleEditor
+  value={content}
+  onChange={(html) => {}}
+  placeholder="Write something..."
+/>
 ```
 
 ### EditorToolbar
@@ -147,12 +156,12 @@ const {
   channelState,
   emojiState,
 } = useRichEditor({
-  placeholder: 'Type here...',
+  placeholder: "Type here...",
   maxLength: 4000,
   users: [],
   channels: [],
   onSubmit: (html, json) => {},
-})
+});
 ```
 
 ### useCharacterCount
@@ -160,7 +169,7 @@ const {
 Simple hook for character counting.
 
 ```tsx
-const count = useCharacterCount(editor)
+const count = useCharacterCount(editor);
 ```
 
 ### useEditorFocus
@@ -168,7 +177,7 @@ const count = useCharacterCount(editor)
 Track editor focus state.
 
 ```tsx
-const isFocused = useEditorFocus(editor)
+const isFocused = useEditorFocus(editor);
 ```
 
 ## Extensions
@@ -204,7 +213,7 @@ The editor uses these TipTap extensions:
 Import the CSS file for proper styling:
 
 ```tsx
-import '@/components/editor/editor.css'
+import "@/components/editor/editor.css";
 ```
 
 The CSS includes:
@@ -221,24 +230,24 @@ The CSS includes:
 
 ```typescript
 interface MentionUser {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl?: string
-  presence?: 'online' | 'away' | 'dnd' | 'offline'
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
+  presence?: "online" | "away" | "dnd" | "offline";
 }
 
 interface MentionChannel {
-  id: string
-  name: string
-  type: 'public' | 'private' | 'direct' | 'group'
-  icon?: string | null
+  id: string;
+  name: string;
+  type: "public" | "private" | "direct" | "group";
+  icon?: string | null;
 }
 
 interface EmojiSuggestion {
-  shortcode: string
-  emoji: string
-  name: string
+  shortcode: string;
+  emoji: string;
+  name: string;
 }
 ```
 
@@ -247,8 +256,11 @@ interface EmojiSuggestion {
 Use helper functions to convert from store types:
 
 ```typescript
-import { userProfileToMentionUser, channelToMentionChannel } from '@/components/editor'
+import {
+  userProfileToMentionUser,
+  channelToMentionChannel,
+} from "@/components/editor";
 
-const mentionUsers = users.map(userProfileToMentionUser)
-const mentionChannels = channels.map(channelToMentionChannel)
+const mentionUsers = users.map(userProfileToMentionUser);
+const mentionChannels = channels.map(channelToMentionChannel);
 ```

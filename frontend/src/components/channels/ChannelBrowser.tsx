@@ -1,54 +1,54 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useMemo, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { LayoutGrid, List, Plus, Hash, RefreshCw, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ChannelSearch } from './ChannelSearch'
-import { ChannelFilters } from './ChannelFilters'
-import { ChannelCategories } from './ChannelCategories'
-import { ChannelCard } from './ChannelCard'
-import { FeaturedChannels } from './FeaturedChannels'
-import { PopularChannels } from './PopularChannels'
-import { RecentChannels } from './RecentChannels'
-import { TrendingChannels } from './TrendingChannels'
-import { ChannelSuggestions } from './ChannelSuggestions'
+import * as React from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { LayoutGrid, List, Plus, Hash, RefreshCw, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChannelSearch } from "./ChannelSearch";
+import { ChannelFilters } from "./ChannelFilters";
+import { ChannelCategories } from "./ChannelCategories";
+import { ChannelCard } from "./ChannelCard";
+import { FeaturedChannels } from "./FeaturedChannels";
+import { PopularChannels } from "./PopularChannels";
+import { RecentChannels } from "./RecentChannels";
+import { TrendingChannels } from "./TrendingChannels";
+import { ChannelSuggestions } from "./ChannelSuggestions";
 import {
   getDiscoveryResults,
   filterChannels,
   type DiscoveryFilters,
-} from '@/lib/channels/channel-discovery'
-import type { Channel } from '@/stores/channel-store'
-import { useAuth } from '@/contexts/auth-context'
+} from "@/lib/channels/channel-discovery";
+import type { Channel } from "@/stores/channel-store";
+import { useAuth } from "@/contexts/auth-context";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelBrowserProps {
-  channels: Channel[]
-  joinedChannelIds?: Set<string>
-  isLoading?: boolean
-  showCreateButton?: boolean
-  showSearch?: boolean
-  showFilters?: boolean
-  showCategories?: boolean
-  showFeatured?: boolean
-  showPopular?: boolean
-  showRecent?: boolean
-  showTrending?: boolean
-  showSuggestions?: boolean
-  defaultView?: 'discover' | 'browse' | 'categories'
-  onJoin?: (channelId: string) => void
-  onLeave?: (channelId: string) => void
-  onRefresh?: () => void
-  className?: string
+  channels: Channel[];
+  joinedChannelIds?: Set<string>;
+  isLoading?: boolean;
+  showCreateButton?: boolean;
+  showSearch?: boolean;
+  showFilters?: boolean;
+  showCategories?: boolean;
+  showFeatured?: boolean;
+  showPopular?: boolean;
+  showRecent?: boolean;
+  showTrending?: boolean;
+  showSuggestions?: boolean;
+  defaultView?: "discover" | "browse" | "categories";
+  onJoin?: (channelId: string) => void;
+  onLeave?: (channelId: string) => void;
+  onRefresh?: () => void;
+  className?: string;
 }
 
-type ViewLayout = 'grid' | 'list'
+type ViewLayout = "grid" | "list";
 
 // ============================================================================
 // Component
@@ -67,88 +67,88 @@ export function ChannelBrowser({
   showRecent = true,
   showTrending = true,
   showSuggestions = true,
-  defaultView = 'discover',
+  defaultView = "discover",
   onJoin,
   onLeave,
   onRefresh,
   className,
 }: ChannelBrowserProps) {
-  const router = useRouter()
-  const { user } = useAuth()
+  const router = useRouter();
+  const { user } = useAuth();
 
-  const [activeTab, setActiveTab] = useState(defaultView)
-  const [layout, setLayout] = useState<ViewLayout>('grid')
+  const [activeTab, setActiveTab] = useState(defaultView);
+  const [layout, setLayout] = useState<ViewLayout>("grid");
   const [filters, setFilters] = useState<DiscoveryFilters>({
-    sortBy: 'activity',
-    sortDirection: 'desc',
+    sortBy: "activity",
+    sortDirection: "desc",
     excludePrivate: true,
-  })
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
+  });
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // User context for suggestions
   const userContext = useMemo(
     () => ({
-      userId: user?.id || '',
+      userId: user?.id || "",
       joinedChannelIds: Array.from(joinedChannelIds),
       recentActivityChannelIds: [],
       role: user?.role,
     }),
-    [user, joinedChannelIds]
-  )
+    [user, joinedChannelIds],
+  );
 
   // Filtered channels based on current filters
   const filteredChannels = useMemo(() => {
-    let result = channels
+    let result = channels;
 
     // Apply category filter
     if (selectedCategory !== null) {
-      result = result.filter((c) => c.categoryId === selectedCategory)
+      result = result.filter((c) => c.categoryId === selectedCategory);
     }
 
     // Apply search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       result = result.filter(
         (c) =>
           c.name.toLowerCase().includes(query) ||
           c.description?.toLowerCase().includes(query) ||
-          c.topic?.toLowerCase().includes(query)
-      )
+          c.topic?.toLowerCase().includes(query),
+      );
     }
 
     // Apply other filters
-    result = filterChannels(result, filters)
+    result = filterChannels(result, filters);
 
-    return result
-  }, [channels, selectedCategory, searchQuery, filters])
+    return result;
+  }, [channels, selectedCategory, searchQuery, filters]);
 
   // Handle search
   const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query)
-    setActiveTab('browse')
-  }, [])
+    setSearchQuery(query);
+    setActiveTab("browse");
+  }, []);
 
   // Handle channel selection from search
   const handleSearchResultSelect = useCallback(
     (channel: Channel) => {
-      router.push(`/chat/channel/${channel.slug}`)
+      router.push(`/chat/channel/${channel.slug}`);
     },
-    [router]
-  )
+    [router],
+  );
 
   // Handle category selection
   const handleCategorySelect = useCallback((categoryId: string | null) => {
-    setSelectedCategory(categoryId)
+    setSelectedCategory(categoryId);
     if (categoryId !== null) {
-      setActiveTab('browse')
+      setActiveTab("browse");
     }
-  }, [])
+  }, []);
 
   // Handle create channel
   const handleCreateChannel = useCallback(() => {
-    router.push('/channels/create')
-  }, [router])
+    router.push("/channels/create");
+  }, [router]);
 
   // Render channel grid/list
   const renderChannelList = () => {
@@ -157,7 +157,7 @@ export function ChannelBrowser({
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      )
+      );
     }
 
     if (filteredChannels.length === 0) {
@@ -168,7 +168,7 @@ export function ChannelBrowser({
           <p className="mb-4 text-sm text-muted-foreground">
             {searchQuery
               ? `No channels match "${searchQuery}"`
-              : 'Try adjusting your filters or create a new channel'}
+              : "Try adjusting your filters or create a new channel"}
           </p>
           {showCreateButton && (
             <Button onClick={handleCreateChannel}>
@@ -177,10 +177,10 @@ export function ChannelBrowser({
             </Button>
           )}
         </div>
-      )
+      );
     }
 
-    if (layout === 'list') {
+    if (layout === "list") {
       return (
         <div className="space-y-2">
           {filteredChannels.map((channel) => (
@@ -194,7 +194,7 @@ export function ChannelBrowser({
             />
           ))}
         </div>
-      )
+      );
     }
 
     return (
@@ -210,16 +210,18 @@ export function ChannelBrowser({
           />
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold">Channel Browser</h1>
-          <p className="text-muted-foreground">Discover and join channels that interest you</p>
+          <p className="text-muted-foreground">
+            Discover and join channels that interest you
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {onRefresh && (
@@ -251,24 +253,26 @@ export function ChannelBrowser({
           <TabsList>
             <TabsTrigger value="discover">Discover</TabsTrigger>
             <TabsTrigger value="browse">Browse All</TabsTrigger>
-            {showCategories && <TabsTrigger value="categories">Categories</TabsTrigger>}
+            {showCategories && (
+              <TabsTrigger value="categories">Categories</TabsTrigger>
+            )}
           </TabsList>
 
-          {activeTab === 'browse' && (
+          {activeTab === "browse" && (
             <div className="flex items-center gap-2">
               <Button
-                variant={layout === 'grid' ? 'secondary' : 'ghost'}
+                variant={layout === "grid" ? "secondary" : "ghost"}
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => setLayout('grid')}
+                onClick={() => setLayout("grid")}
               >
                 <LayoutGrid className="h-4 w-4" />
               </Button>
               <Button
-                variant={layout === 'list' ? 'secondary' : 'ghost'}
+                variant={layout === "list" ? "secondary" : "ghost"}
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => setLayout('list')}
+                onClick={() => setLayout("list")}
               >
                 <List className="h-4 w-4" />
               </Button>
@@ -295,7 +299,7 @@ export function ChannelBrowser({
               channels={channels}
               joinedChannelIds={joinedChannelIds}
               limit={4}
-              onViewAll={() => setActiveTab('browse')}
+              onViewAll={() => setActiveTab("browse")}
               onJoin={onJoin}
               onLeave={onLeave}
             />
@@ -307,7 +311,7 @@ export function ChannelBrowser({
               joinedChannelIds={joinedChannelIds}
               limit={6}
               layout="scroll"
-              onViewAll={() => setActiveTab('browse')}
+              onViewAll={() => setActiveTab("browse")}
               onJoin={onJoin}
               onLeave={onLeave}
             />
@@ -319,7 +323,7 @@ export function ChannelBrowser({
               joinedChannelIds={joinedChannelIds}
               limit={6}
               layout="scroll"
-              onViewAll={() => setActiveTab('browse')}
+              onViewAll={() => setActiveTab("browse")}
               onJoin={onJoin}
               onLeave={onLeave}
             />
@@ -331,7 +335,7 @@ export function ChannelBrowser({
               joinedChannelIds={joinedChannelIds}
               limit={6}
               layout="scroll"
-              onViewAll={() => setActiveTab('browse')}
+              onViewAll={() => setActiveTab("browse")}
               onJoin={onJoin}
               onLeave={onLeave}
             />
@@ -340,7 +344,9 @@ export function ChannelBrowser({
 
         {/* Browse Tab */}
         <TabsContent value="browse" className="mt-6 space-y-4">
-          {showFilters && <ChannelFilters filters={filters} onFiltersChange={setFilters} />}
+          {showFilters && (
+            <ChannelFilters filters={filters} onFiltersChange={setFilters} />
+          )}
 
           {showCategories && (
             <ChannelCategories
@@ -355,7 +361,11 @@ export function ChannelBrowser({
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>{filteredChannels.length} channels</span>
             {searchQuery && (
-              <Button variant="ghost" size="sm" onClick={() => setSearchQuery('')}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchQuery("")}
+              >
                 Clear search
               </Button>
             )}
@@ -371,9 +381,9 @@ export function ChannelBrowser({
               channels={channels}
               selectedCategory={selectedCategory}
               onCategorySelect={(categoryId) => {
-                handleCategorySelect(categoryId)
+                handleCategorySelect(categoryId);
                 if (categoryId !== null) {
-                  setActiveTab('browse')
+                  setActiveTab("browse");
                 }
               }}
               variant="default"
@@ -383,7 +393,7 @@ export function ChannelBrowser({
         )}
       </Tabs>
     </div>
-  )
+  );
 }
 
-ChannelBrowser.displayName = 'ChannelBrowser'
+ChannelBrowser.displayName = "ChannelBrowser";

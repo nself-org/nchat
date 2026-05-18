@@ -5,7 +5,7 @@
  * voice channels, and related functionality.
  */
 
-import type { User, UserBasicInfo } from './user'
+import type { User, UserBasicInfo } from "./user";
 
 // ============================================================================
 // Call Types
@@ -14,27 +14,34 @@ import type { User, UserBasicInfo } from './user'
 /**
  * Types of calls supported
  */
-export type CallType = 'voice' | 'video' | 'screen_share'
+export type CallType = "voice" | "video" | "screen_share";
 
 /**
  * Call status throughout its lifecycle
  */
-export type CallStatus = 'ringing' | 'active' | 'ended' | 'missed' | 'declined' | 'busy' | 'failed'
+export type CallStatus =
+  | "ringing"
+  | "active"
+  | "ended"
+  | "missed"
+  | "declined"
+  | "busy"
+  | "failed";
 
 /**
  * Reason for call ending
  */
 export type CallEndReason =
-  | 'completed'
-  | 'declined'
-  | 'busy'
-  | 'timeout'
-  | 'cancelled'
-  | 'failed'
-  | 'no_answer'
-  | 'network_error'
-  | 'user_hangup'
-  | 'remote_hangup'
+  | "completed"
+  | "declined"
+  | "busy"
+  | "timeout"
+  | "cancelled"
+  | "failed"
+  | "no_answer"
+  | "network_error"
+  | "user_hangup"
+  | "remote_hangup";
 
 // ============================================================================
 // Call Interfaces
@@ -45,31 +52,31 @@ export type CallEndReason =
  */
 export interface Call {
   /** Unique call identifier */
-  id: string
+  id: string;
   /** Type of call */
-  type: CallType
+  type: CallType;
   /** Current call status */
-  status: CallStatus
+  status: CallStatus;
   /** User who initiated the call */
-  initiatorId: string
+  initiatorId: string;
   /** Initiator user details */
-  initiator?: UserBasicInfo
+  initiator?: UserBasicInfo;
   /** Associated channel ID (for group calls) */
-  channelId?: string
+  channelId?: string;
   /** When call started ringing */
-  createdAt: Date
+  createdAt: Date;
   /** When call was answered/connected */
-  startedAt?: Date
+  startedAt?: Date;
   /** When call ended */
-  endedAt?: Date
+  endedAt?: Date;
   /** Call duration in seconds */
-  durationSeconds?: number
+  durationSeconds?: number;
   /** Reason for ending */
-  endReason?: CallEndReason
+  endReason?: CallEndReason;
   /** Call participants */
-  participants: CallParticipant[]
+  participants: CallParticipant[];
   /** Additional metadata */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -77,29 +84,29 @@ export interface Call {
  */
 export interface CallParticipant {
   /** Participant ID */
-  id: string
+  id: string;
   /** Call ID */
-  callId: string
+  callId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user?: UserBasicInfo
+  user?: UserBasicInfo;
   /** When they joined the call */
-  joinedAt: Date
+  joinedAt: Date;
   /** When they left the call */
-  leftAt?: Date
+  leftAt?: Date;
   /** Whether audio is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Whether video is off */
-  isVideoOff: boolean
+  isVideoOff: boolean;
   /** Whether they are sharing screen */
-  isScreenSharing: boolean
+  isScreenSharing: boolean;
   /** Whether this participant is speaking */
-  isSpeaking?: boolean
+  isSpeaking?: boolean;
   /** Connection quality (0-100) */
-  connectionQuality?: number
+  connectionQuality?: number;
   /** Whether this is the current user */
-  isLocal?: boolean
+  isLocal?: boolean;
 }
 
 /**
@@ -107,15 +114,15 @@ export interface CallParticipant {
  */
 export interface IncomingCall {
   /** Call information */
-  call: Call
+  call: Call;
   /** Caller information */
-  caller: UserBasicInfo
+  caller: UserBasicInfo;
   /** When the call was received */
-  receivedAt: Date
+  receivedAt: Date;
   /** Whether to show notification */
-  showNotification: boolean
+  showNotification: boolean;
   /** Whether to play ringtone */
-  playRingtone: boolean
+  playRingtone: boolean;
 }
 
 // ============================================================================
@@ -125,57 +132,62 @@ export interface IncomingCall {
 /**
  * WebRTC signaling message types
  */
-export type SignalType = 'offer' | 'answer' | 'ice-candidate' | 'hangup' | 'renegotiate'
+export type SignalType =
+  | "offer"
+  | "answer"
+  | "ice-candidate"
+  | "hangup"
+  | "renegotiate";
 
 /**
  * Call signaling message
  */
 export interface CallSignal {
   /** Signal type */
-  type: SignalType
+  type: SignalType;
   /** Associated call ID */
-  callId: string
+  callId: string;
   /** Sender user ID */
-  senderId: string
+  senderId: string;
   /** Target user ID */
-  targetId: string
+  targetId: string;
   /** SDP offer/answer or ICE candidate */
-  payload: RTCSessionDescriptionInit | RTCIceCandidateInit | null
+  payload: RTCSessionDescriptionInit | RTCIceCandidateInit | null;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
  * Call lifecycle event types
  */
 export type CallEventType =
-  | 'incoming'
-  | 'answered'
-  | 'rejected'
-  | 'ended'
-  | 'participant-joined'
-  | 'participant-left'
-  | 'mute-changed'
-  | 'video-changed'
-  | 'screen-share-started'
-  | 'screen-share-stopped'
-  | 'connection-state-changed'
-  | 'quality-changed'
+  | "incoming"
+  | "answered"
+  | "rejected"
+  | "ended"
+  | "participant-joined"
+  | "participant-left"
+  | "mute-changed"
+  | "video-changed"
+  | "screen-share-started"
+  | "screen-share-stopped"
+  | "connection-state-changed"
+  | "quality-changed";
 
 /**
  * Call event for state updates
  */
 export interface CallEvent {
   /** Event type */
-  type: CallEventType
+  type: CallEventType;
   /** Associated call ID */
-  callId: string
+  callId: string;
   /** User ID related to the event */
-  userId: string
+  userId: string;
   /** Event timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Additional event data */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -187,37 +199,37 @@ export interface CallEvent {
  */
 export interface CallState {
   /** Current active call */
-  currentCall: Call | null
+  currentCall: Call | null;
   /** Incoming calls queue */
-  incomingCalls: IncomingCall[]
+  incomingCalls: IncomingCall[];
   /** Local media stream */
-  localStream: MediaStream | null
+  localStream: MediaStream | null;
   /** Remote streams by participant ID */
-  remoteStreams: Map<string, MediaStream>
+  remoteStreams: Map<string, MediaStream>;
   /** Screen share stream */
-  screenShareStream: MediaStream | null
+  screenShareStream: MediaStream | null;
   /** Whether local audio is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Whether local video is off */
-  isVideoOff: boolean
+  isVideoOff: boolean;
   /** Whether screen sharing */
-  isScreenSharing: boolean
+  isScreenSharing: boolean;
   /** Connection state */
-  connectionState: CallConnectionState
+  connectionState: CallConnectionState;
   /** Call timer (seconds) */
-  callDuration: number
+  callDuration: number;
 }
 
 /**
  * Call connection states
  */
 export type CallConnectionState =
-  | 'idle'
-  | 'connecting'
-  | 'connected'
-  | 'reconnecting'
-  | 'failed'
-  | 'closed'
+  | "idle"
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "failed"
+  | "closed";
 
 // ============================================================================
 // Call Configuration
@@ -228,19 +240,19 @@ export type CallConnectionState =
  */
 export interface CallServiceConfig {
   /** Ringtone audio URL */
-  ringtoneUrl?: string
+  ringtoneUrl?: string;
   /** Ring timeout in milliseconds */
-  ringTimeout: number
+  ringTimeout: number;
   /** Auto reconnect on disconnect */
-  autoReconnect: boolean
+  autoReconnect: boolean;
   /** Max reconnect attempts */
-  maxReconnectAttempts: number
+  maxReconnectAttempts: number;
   /** Reconnect delay in milliseconds */
-  reconnectDelay: number
+  reconnectDelay: number;
   /** Enable video by default */
-  defaultVideoEnabled: boolean
+  defaultVideoEnabled: boolean;
   /** Enable audio by default */
-  defaultAudioEnabled: boolean
+  defaultAudioEnabled: boolean;
 }
 
 /**
@@ -253,7 +265,7 @@ export const DEFAULT_CALL_CONFIG: CallServiceConfig = {
   reconnectDelay: 1000,
   defaultVideoEnabled: false,
   defaultAudioEnabled: true,
-}
+};
 
 // ============================================================================
 // Call Quality Types
@@ -264,25 +276,25 @@ export const DEFAULT_CALL_CONFIG: CallServiceConfig = {
  */
 export interface CallQualityMetrics {
   /** Bitrate in kbps */
-  bitrate: number
+  bitrate: number;
   /** Packets lost */
-  packetsLost: number
+  packetsLost: number;
   /** Jitter in ms */
-  jitter: number
+  jitter: number;
   /** Round trip time in ms */
-  roundTripTime: number
+  roundTripTime: number;
   /** Frame rate (video only) */
-  frameRate?: number
+  frameRate?: number;
   /** Resolution (video only) */
-  resolution?: { width: number; height: number }
+  resolution?: { width: number; height: number };
   /** Quality score (0-100) */
-  qualityScore: number
+  qualityScore: number;
 }
 
 /**
  * Quality levels for adaptive bitrate
  */
-export type QualityLevel = 'low' | 'medium' | 'high' | 'hd'
+export type QualityLevel = "low" | "medium" | "high" | "hd";
 
 /**
  * Quality preset configurations
@@ -290,17 +302,17 @@ export type QualityLevel = 'low' | 'medium' | 'high' | 'hd'
 export const QUALITY_PRESETS: Record<
   QualityLevel,
   {
-    width: number
-    height: number
-    frameRate: number
-    bitrate: number
+    width: number;
+    height: number;
+    frameRate: number;
+    bitrate: number;
   }
 > = {
   low: { width: 320, height: 240, frameRate: 15, bitrate: 250 },
   medium: { width: 640, height: 480, frameRate: 24, bitrate: 500 },
   high: { width: 1280, height: 720, frameRate: 30, bitrate: 1500 },
   hd: { width: 1920, height: 1080, frameRate: 30, bitrate: 3000 },
-}
+};
 
 // ============================================================================
 // Call History Types
@@ -311,21 +323,21 @@ export const QUALITY_PRESETS: Record<
  */
 export interface CallHistoryEntry {
   /** Call ID */
-  id: string
+  id: string;
   /** Call type */
-  type: CallType
+  type: CallType;
   /** Call direction */
-  direction: 'incoming' | 'outgoing'
+  direction: "incoming" | "outgoing";
   /** Other participant(s) */
-  participants: UserBasicInfo[]
+  participants: UserBasicInfo[];
   /** Call status/outcome */
-  status: CallStatus
+  status: CallStatus;
   /** Call duration in seconds */
-  duration?: number
+  duration?: number;
   /** When the call occurred */
-  timestamp: Date
+  timestamp: Date;
   /** Whether call was missed */
-  isMissed: boolean
+  isMissed: boolean;
 }
 
 // ============================================================================
@@ -336,16 +348,19 @@ export interface CallHistoryEntry {
  * Call action types for the call service
  */
 export type CallAction =
-  | { type: 'START_CALL'; payload: { targetUserIds: string[]; callType: CallType } }
-  | { type: 'ACCEPT_CALL'; payload: { callId: string; withVideo: boolean } }
-  | { type: 'REJECT_CALL'; payload: { callId: string; reason?: string } }
-  | { type: 'END_CALL'; payload: { callId: string } }
-  | { type: 'TOGGLE_MUTE' }
-  | { type: 'TOGGLE_VIDEO' }
-  | { type: 'TOGGLE_SCREEN_SHARE' }
-  | { type: 'SWITCH_CAMERA' }
-  | { type: 'SET_AUDIO_DEVICE'; payload: { deviceId: string } }
-  | { type: 'SET_VIDEO_DEVICE'; payload: { deviceId: string } }
+  | {
+      type: "START_CALL";
+      payload: { targetUserIds: string[]; callType: CallType };
+    }
+  | { type: "ACCEPT_CALL"; payload: { callId: string; withVideo: boolean } }
+  | { type: "REJECT_CALL"; payload: { callId: string; reason?: string } }
+  | { type: "END_CALL"; payload: { callId: string } }
+  | { type: "TOGGLE_MUTE" }
+  | { type: "TOGGLE_VIDEO" }
+  | { type: "TOGGLE_SCREEN_SHARE" }
+  | { type: "SWITCH_CAMERA" }
+  | { type: "SET_AUDIO_DEVICE"; payload: { deviceId: string } }
+  | { type: "SET_VIDEO_DEVICE"; payload: { deviceId: string } };
 
 // ============================================================================
 // Voice Channel Types
@@ -356,19 +371,19 @@ export type CallAction =
  */
 export interface VoiceChannel {
   /** Voice channel ID */
-  id: string
+  id: string;
   /** Parent text channel ID */
-  channelId: string
+  channelId: string;
   /** Voice channel name */
-  name: string
+  name: string;
   /** Maximum users (0 = unlimited) */
-  userLimit: number
+  userLimit: number;
   /** Audio bitrate in bps */
-  bitrate: number
+  bitrate: number;
   /** When channel was created */
-  createdAt: Date
+  createdAt: Date;
   /** Current participants */
-  participants: VoiceChannelParticipant[]
+  participants: VoiceChannelParticipant[];
 }
 
 /**
@@ -376,21 +391,21 @@ export interface VoiceChannel {
  */
 export interface VoiceChannelParticipant {
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user?: UserBasicInfo
+  user?: UserBasicInfo;
   /** When they joined */
-  joinedAt: Date
+  joinedAt: Date;
   /** Whether self-muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Whether self-deafened */
-  isDeafened: boolean
+  isDeafened: boolean;
   /** Whether currently speaking */
-  isSpeaking: boolean
+  isSpeaking: boolean;
   /** Server mute status (by moderator) */
-  isServerMuted?: boolean
+  isServerMuted?: boolean;
   /** Server deafen status (by moderator) */
-  isServerDeafened?: boolean
+  isServerDeafened?: boolean;
 }
 
 /**
@@ -398,15 +413,15 @@ export interface VoiceChannelParticipant {
  */
 export interface VoiceChannelState {
   /** Available voice channels */
-  channels: VoiceChannel[]
+  channels: VoiceChannel[];
   /** Currently joined channel */
-  currentChannel: VoiceChannel | null
+  currentChannel: VoiceChannel | null;
   /** Local mute state */
-  isMuted: boolean
+  isMuted: boolean;
   /** Local deafen state */
-  isDeafened: boolean
+  isDeafened: boolean;
   /** Connection state */
-  connectionState: CallConnectionState
+  connectionState: CallConnectionState;
 }
 
 // ============================================================================
@@ -418,25 +433,25 @@ export interface VoiceChannelState {
  */
 export interface VoiceMessage {
   /** Voice message ID */
-  id: string
+  id: string;
   /** Message ID it's attached to */
-  messageId: string
+  messageId: string;
   /** Audio file URL */
-  audioUrl: string
+  audioUrl: string;
   /** Duration in seconds */
-  duration: number
+  duration: number;
   /** Waveform data for visualization */
-  waveformData: number[]
+  waveformData: number[];
   /** Transcription text (if available) */
-  transcription?: string
+  transcription?: string;
   /** Transcription confidence (0-1) */
-  transcriptionConfidence?: number
+  transcriptionConfidence?: number;
   /** File size in bytes */
-  fileSize: number
+  fileSize: number;
   /** MIME type */
-  mimeType: string
+  mimeType: string;
   /** When recorded */
-  recordedAt: Date
+  recordedAt: Date;
 }
 
 /**
@@ -444,13 +459,13 @@ export interface VoiceMessage {
  */
 export interface TranscriptionResult {
   /** Full transcription text */
-  text: string
+  text: string;
   /** Overall confidence (0-1) */
-  confidence: number
+  confidence: number;
   /** Word-level details */
-  words: TranscriptionWord[]
+  words: TranscriptionWord[];
   /** Language detected */
-  language?: string
+  language?: string;
 }
 
 /**
@@ -458,13 +473,13 @@ export interface TranscriptionResult {
  */
 export interface TranscriptionWord {
   /** The word */
-  word: string
+  word: string;
   /** Start time in seconds */
-  startTime: number
+  startTime: number;
   /** End time in seconds */
-  endTime: number
+  endTime: number;
   /** Confidence for this word (0-1) */
-  confidence: number
+  confidence: number;
 }
 
 // ============================================================================
@@ -476,13 +491,13 @@ export interface TranscriptionWord {
  */
 export interface IceServer {
   /** Server URL(s) */
-  urls: string | string[]
+  urls: string | string[];
   /** Username for TURN */
-  username?: string
+  username?: string;
   /** Credential for TURN */
-  credential?: string
+  credential?: string;
   /** Credential type */
-  credentialType?: 'password' | 'oauth'
+  credentialType?: "password" | "oauth";
 }
 
 /**
@@ -490,11 +505,11 @@ export interface IceServer {
  */
 export interface IceServerConfig {
   /** STUN servers */
-  stunServers: IceServer[]
+  stunServers: IceServer[];
   /** TURN servers */
-  turnServers: IceServer[]
+  turnServers: IceServer[];
   /** ICE transport policy */
-  iceTransportPolicy: RTCIceTransportPolicy
+  iceTransportPolicy: RTCIceTransportPolicy;
 }
 
 // ============================================================================
@@ -506,13 +521,13 @@ export interface IceServerConfig {
  */
 export interface SpeakerInfo {
   /** Participant ID */
-  participantId: string
+  participantId: string;
   /** Current volume level (0-1) */
-  volume: number
+  volume: number;
   /** Whether currently speaking */
-  isSpeaking: boolean
+  isSpeaking: boolean;
   /** Last spoken timestamp */
-  lastSpokeAt?: Date
+  lastSpokeAt?: Date;
 }
 
 /**
@@ -520,11 +535,11 @@ export interface SpeakerInfo {
  */
 export interface DominantSpeakerEvent {
   /** Previous dominant speaker ID */
-  previousSpeakerId: string | null
+  previousSpeakerId: string | null;
   /** New dominant speaker ID */
-  currentSpeakerId: string | null
+  currentSpeakerId: string | null;
   /** Timestamp of change */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -536,11 +551,11 @@ export interface DominantSpeakerEvent {
  */
 export interface PipState {
   /** Whether PiP is supported */
-  isSupported: boolean
+  isSupported: boolean;
   /** Whether currently in PiP mode */
-  isActive: boolean
+  isActive: boolean;
   /** PiP window dimensions */
-  dimensions?: { width: number; height: number }
+  dimensions?: { width: number; height: number };
 }
 
 // ============================================================================
@@ -552,34 +567,40 @@ export interface PipState {
  */
 export interface CallControlState {
   /** Button ID */
-  id: string
+  id: string;
   /** Whether enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Whether active/toggled on */
-  active: boolean
+  active: boolean;
   /** Tooltip text */
-  tooltip: string
+  tooltip: string;
   /** Loading state */
-  loading?: boolean
+  loading?: boolean;
 }
 
 /**
  * Grid layout for group call participants
  */
-export type CallGridLayout = '1x1' | '2x1' | '2x2' | '3x2' | '3x3' | 'spotlight'
+export type CallGridLayout =
+  | "1x1"
+  | "2x1"
+  | "2x2"
+  | "3x2"
+  | "3x3"
+  | "spotlight";
 
 /**
  * Video tile display mode
  */
 export interface VideoTileState {
   /** Participant ID */
-  participantId: string
+  participantId: string;
   /** Whether tile is pinned/spotlighted */
-  isPinned: boolean
+  isPinned: boolean;
   /** Whether tile is expanded */
-  isExpanded: boolean
+  isExpanded: boolean;
   /** Tile position in grid */
-  position: number
+  position: number;
 }
 
 // ============================================================================
@@ -591,25 +612,25 @@ export interface VideoTileState {
  */
 export interface CallServiceCallbacks {
   /** Called when an incoming call is received */
-  onIncomingCall?: (call: IncomingCall) => void
+  onIncomingCall?: (call: IncomingCall) => void;
   /** Called when call state changes */
-  onCallStateChange?: (call: Call) => void
+  onCallStateChange?: (call: Call) => void;
   /** Called when a call is answered */
-  onCallAnswered?: (call: Call) => void
+  onCallAnswered?: (call: Call) => void;
   /** Called when a call ends */
-  onCallEnded?: (call: Call, reason: CallEndReason) => void
+  onCallEnded?: (call: Call, reason: CallEndReason) => void;
   /** Called when a call is missed */
-  onCallMissed?: (call: Call) => void
+  onCallMissed?: (call: Call) => void;
   /** Called when remote stream is received */
-  onRemoteStream?: (stream: MediaStream, participantId: string) => void
+  onRemoteStream?: (stream: MediaStream, participantId: string) => void;
   /** Called when a participant joins */
-  onParticipantJoined?: (participant: CallParticipant) => void
+  onParticipantJoined?: (participant: CallParticipant) => void;
   /** Called when a participant leaves */
-  onParticipantLeft?: (participant: CallParticipant) => void
+  onParticipantLeft?: (participant: CallParticipant) => void;
   /** Called when connection state changes */
-  onConnectionStateChange?: (state: CallConnectionState) => void
+  onConnectionStateChange?: (state: CallConnectionState) => void;
   /** Called on error */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 // ============================================================================
@@ -620,33 +641,35 @@ export interface CallServiceCallbacks {
  * Check if a call is active
  */
 export function isCallActive(call: Call): boolean {
-  return call.status === 'active'
+  return call.status === "active";
 }
 
 /**
  * Check if a call is ringing
  */
 export function isCallRinging(call: Call): boolean {
-  return call.status === 'ringing'
+  return call.status === "ringing";
 }
 
 /**
  * Check if a call has ended
  */
 export function isCallEnded(call: Call): boolean {
-  return ['ended', 'missed', 'declined', 'busy', 'failed'].includes(call.status)
+  return ["ended", "missed", "declined", "busy", "failed"].includes(
+    call.status,
+  );
 }
 
 /**
  * Check if a call is a video call
  */
 export function isVideoCall(call: Call): boolean {
-  return call.type === 'video'
+  return call.type === "video";
 }
 
 /**
  * Check if a call is a group call
  */
 export function isGroupCall(call: Call): boolean {
-  return call.participants.length > 2
+  return call.participants.length > 2;
 }

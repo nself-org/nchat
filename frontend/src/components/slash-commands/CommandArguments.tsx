@@ -1,95 +1,123 @@
-'use client'
+"use client";
 
 /**
  * CommandArguments - Define command arguments and options
  */
 
-import { useState, useCallback } from 'react'
-import { motion, AnimatePresence, Reorder } from 'framer-motion'
-import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Settings2 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
+import {
+  Plus,
+  Trash2,
+  GripVertical,
+  ChevronDown,
+  ChevronUp,
+  Settings2,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import type { CommandArgument, CommandArgType } from '@/lib/slash-commands/command-types'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import type {
+  CommandArgument,
+  CommandArgType,
+} from "@/lib/slash-commands/command-types";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandArgumentsProps {
-  arguments: CommandArgument[]
-  onChange: (args: CommandArgument[]) => void
+  arguments: CommandArgument[];
+  onChange: (args: CommandArgument[]) => void;
 }
 
 // ============================================================================
 // Argument Types
 // ============================================================================
 
-const argumentTypes: { value: CommandArgType; label: string; description: string }[] = [
-  { value: 'string', label: 'Text', description: 'Plain text input' },
-  { value: 'number', label: 'Number', description: 'Numeric value' },
-  { value: 'boolean', label: 'Boolean', description: 'True/false toggle' },
-  { value: 'user', label: 'User', description: '@mention a user' },
-  { value: 'channel', label: 'Channel', description: '#channel reference' },
-  { value: 'duration', label: 'Duration', description: 'Time duration (1h, 30m)' },
-  { value: 'date', label: 'Date', description: 'Date value' },
-  { value: 'time', label: 'Time', description: 'Time value' },
-  { value: 'datetime', label: 'Date & Time', description: 'Full timestamp' },
-  { value: 'choice', label: 'Choice', description: 'Select from options' },
-  { value: 'rest', label: 'Rest', description: 'Capture remaining text' },
-]
+const argumentTypes: {
+  value: CommandArgType;
+  label: string;
+  description: string;
+}[] = [
+  { value: "string", label: "Text", description: "Plain text input" },
+  { value: "number", label: "Number", description: "Numeric value" },
+  { value: "boolean", label: "Boolean", description: "True/false toggle" },
+  { value: "user", label: "User", description: "@mention a user" },
+  { value: "channel", label: "Channel", description: "#channel reference" },
+  {
+    value: "duration",
+    label: "Duration",
+    description: "Time duration (1h, 30m)",
+  },
+  { value: "date", label: "Date", description: "Date value" },
+  { value: "time", label: "Time", description: "Time value" },
+  { value: "datetime", label: "Date & Time", description: "Full timestamp" },
+  { value: "choice", label: "Choice", description: "Select from options" },
+  { value: "rest", label: "Rest", description: "Capture remaining text" },
+];
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function CommandArguments({ arguments: args, onChange }: CommandArgumentsProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+export function CommandArguments({
+  arguments: args,
+  onChange,
+}: CommandArgumentsProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Generate unique ID
-  const generateId = () => `arg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+  const generateId = () =>
+    `arg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
   // Add new argument
   const handleAdd = useCallback(() => {
-    const position = args.filter((a) => a.position !== undefined).length
+    const position = args.filter((a) => a.position !== undefined).length;
     const newArg: CommandArgument = {
       id: generateId(),
       name: `arg${position + 1}`,
-      type: 'string',
-      description: '',
+      type: "string",
+      description: "",
       required: false,
       position,
-    }
-    onChange([...args, newArg])
-    setExpandedId(newArg.id)
-  }, [args, onChange])
+    };
+    onChange([...args, newArg]);
+    setExpandedId(newArg.id);
+  }, [args, onChange]);
 
   // Update argument
   const handleUpdate = useCallback(
     (id: string, updates: Partial<CommandArgument>) => {
-      onChange(args.map((arg) => (arg.id === id ? { ...arg, ...updates } : arg)))
+      onChange(
+        args.map((arg) => (arg.id === id ? { ...arg, ...updates } : arg)),
+      );
     },
-    [args, onChange]
-  )
+    [args, onChange],
+  );
 
   // Remove argument
   const handleRemove = useCallback(
     (id: string) => {
-      onChange(args.filter((arg) => arg.id !== id))
+      onChange(args.filter((arg) => arg.id !== id));
     },
-    [args, onChange]
-  )
+    [args, onChange],
+  );
 
   // Reorder arguments
   const handleReorder = useCallback(
@@ -98,14 +126,14 @@ export function CommandArguments({ arguments: args, onChange }: CommandArguments
       const reordered = newOrder.map((arg, index) => ({
         ...arg,
         position: arg.position !== undefined ? index : undefined,
-      }))
-      onChange(reordered)
+      }));
+      onChange(reordered);
     },
-    [onChange]
-  )
+    [onChange],
+  );
 
-  const positionalArgs = args.filter((a) => a.position !== undefined)
-  const flagArgs = args.filter((a) => a.flag)
+  const positionalArgs = args.filter((a) => a.position !== undefined);
+  const flagArgs = args.filter((a) => a.flag);
 
   return (
     <div className="space-y-6">
@@ -113,8 +141,8 @@ export function CommandArguments({ arguments: args, onChange }: CommandArguments
       <div className="bg-muted/30 rounded-lg border p-4">
         <h3 className="font-medium">Command Arguments</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Define the inputs your command accepts. Positional arguments are parsed in order, while
-          flags use --name format.
+          Define the inputs your command accepts. Positional arguments are
+          parsed in order, while flags use --name format.
         </p>
       </div>
 
@@ -127,15 +155,17 @@ export function CommandArguments({ arguments: args, onChange }: CommandArguments
 
         {positionalArgs.length === 0 ? (
           <div className="rounded-lg border border-dashed p-6 text-center">
-            <p className="text-sm text-muted-foreground">No positional arguments defined yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No positional arguments defined yet.
+            </p>
           </div>
         ) : (
           <Reorder.Group
             axis="y"
             values={positionalArgs}
             onReorder={(newOrder) => {
-              const flagsKept = args.filter((a) => a.flag)
-              handleReorder([...newOrder, ...flagsKept])
+              const flagsKept = args.filter((a) => a.flag);
+              handleReorder([...newOrder, ...flagsKept]);
             }}
             className="space-y-2"
           >
@@ -145,7 +175,9 @@ export function CommandArguments({ arguments: args, onChange }: CommandArguments
                   key={arg.id}
                   argument={arg}
                   isExpanded={expandedId === arg.id}
-                  onToggle={() => setExpandedId(expandedId === arg.id ? null : arg.id)}
+                  onToggle={() =>
+                    setExpandedId(expandedId === arg.id ? null : arg.id)
+                  }
                   onUpdate={(updates) => handleUpdate(arg.id, updates)}
                   onRemove={() => handleRemove(arg.id)}
                 />
@@ -181,7 +213,9 @@ export function CommandArguments({ arguments: args, onChange }: CommandArguments
                   key={arg.id}
                   argument={arg}
                   isExpanded={expandedId === arg.id}
-                  onToggle={() => setExpandedId(expandedId === arg.id ? null : arg.id)}
+                  onToggle={() =>
+                    setExpandedId(expandedId === arg.id ? null : arg.id)
+                  }
                   onUpdate={(updates) => handleUpdate(arg.id, updates)}
                   onRemove={() => handleRemove(arg.id)}
                   isFlag
@@ -198,13 +232,13 @@ export function CommandArguments({ arguments: args, onChange }: CommandArguments
             const newArg: CommandArgument = {
               id: generateId(),
               name: `option${flagArgs.length + 1}`,
-              type: 'string',
-              description: '',
+              type: "string",
+              description: "",
               required: false,
               flag: `option${flagArgs.length + 1}`,
-            }
-            onChange([...args, newArg])
-            setExpandedId(newArg.id)
+            };
+            onChange([...args, newArg]);
+            setExpandedId(newArg.id);
           }}
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -217,26 +251,26 @@ export function CommandArguments({ arguments: args, onChange }: CommandArguments
         <div className="bg-muted/30 rounded-lg border p-4">
           <h4 className="text-sm font-medium">Usage Preview</h4>
           <code className="mt-2 block font-mono text-sm">
-            /command{' '}
+            /command{" "}
             {positionalArgs.map((arg) => (
               <span key={arg.id}>
                 {arg.required ? (
                   <span className="text-primary">&lt;{arg.name}&gt;</span>
                 ) : (
                   <span className="text-muted-foreground">[{arg.name}]</span>
-                )}{' '}
+                )}{" "}
               </span>
             ))}
             {flagArgs.map((arg) => (
               <span key={arg.id} className="text-muted-foreground">
-                [--{arg.flag} {arg.name}]{' '}
+                [--{arg.flag} {arg.name}]{" "}
               </span>
             ))}
           </code>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -244,12 +278,12 @@ export function CommandArguments({ arguments: args, onChange }: CommandArguments
 // ============================================================================
 
 interface ArgumentItemProps {
-  argument: CommandArgument
-  isExpanded: boolean
-  onToggle: () => void
-  onUpdate: (updates: Partial<CommandArgument>) => void
-  onRemove: () => void
-  isFlag?: boolean
+  argument: CommandArgument;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onUpdate: (updates: Partial<CommandArgument>) => void;
+  onRemove: () => void;
+  isFlag?: boolean;
 }
 
 function ArgumentItem({
@@ -260,13 +294,16 @@ function ArgumentItem({
   onRemove,
   isFlag,
 }: ArgumentItemProps) {
-  const typeInfo = argumentTypes.find((t) => t.value === argument.type)
+  const typeInfo = argumentTypes.find((t) => t.value === argument.type);
 
   return (
     <Reorder.Item
       value={argument}
       id={argument.id}
-      className={cn('rounded-lg border bg-card', isExpanded && 'ring-primary/20 ring-2')}
+      className={cn(
+        "rounded-lg border bg-card",
+        isExpanded && "ring-primary/20 ring-2",
+      )}
     >
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         {/* Header */}
@@ -290,13 +327,19 @@ function ArgumentItem({
               )}
             </div>
             {argument.description && (
-              <p className="text-xs text-muted-foreground">{argument.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {argument.description}
+              </p>
             )}
           </div>
 
           <CollapsibleTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
-              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </Button>
           </CollapsibleTrigger>
 
@@ -333,7 +376,9 @@ function ArgumentItem({
                 <Label>Type</Label>
                 <Select
                   value={argument.type}
-                  onValueChange={(value) => onUpdate({ type: value as CommandArgType })}
+                  onValueChange={(value) =>
+                    onUpdate({ type: value as CommandArgType })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -370,7 +415,7 @@ function ArgumentItem({
                 <div className="space-y-2">
                   <Label>Flag Name</Label>
                   <Input
-                    value={argument.flag || ''}
+                    value={argument.flag || ""}
                     onChange={(e) => onUpdate({ flag: e.target.value })}
                     placeholder="flag"
                   />
@@ -378,8 +423,10 @@ function ArgumentItem({
                 <div className="space-y-2">
                   <Label>Short Flag</Label>
                   <Input
-                    value={argument.shortFlag || ''}
-                    onChange={(e) => onUpdate({ shortFlag: e.target.value.slice(0, 1) })}
+                    value={argument.shortFlag || ""}
+                    onChange={(e) =>
+                      onUpdate({ shortFlag: e.target.value.slice(0, 1) })
+                    }
                     placeholder="f"
                     maxLength={1}
                   />
@@ -406,7 +453,7 @@ function ArgumentItem({
               <div className="space-y-2">
                 <Label>Default Value</Label>
                 <Input
-                  value={String(argument.defaultValue || '')}
+                  value={String(argument.defaultValue || "")}
                   onChange={(e) => onUpdate({ defaultValue: e.target.value })}
                   placeholder="Optional default value"
                 />
@@ -414,17 +461,19 @@ function ArgumentItem({
             )}
 
             {/* Choices (for choice type) */}
-            {argument.type === 'choice' && (
+            {argument.type === "choice" && (
               <div className="space-y-2">
                 <Label>Choices</Label>
-                <p className="text-xs text-muted-foreground">Enter one choice per line</p>
+                <p className="text-xs text-muted-foreground">
+                  Enter one choice per line
+                </p>
                 <textarea
                   className="min-h-[100px] w-full rounded-md border bg-background p-2 font-mono text-sm"
-                  value={argument.choices?.map((c) => c.value).join('\n') || ''}
+                  value={argument.choices?.map((c) => c.value).join("\n") || ""}
                   onChange={(e) =>
                     onUpdate({
                       choices: e.target.value
-                        .split('\n')
+                        .split("\n")
                         .filter((v) => v.trim())
                         .map((v) => ({ value: v.trim(), label: v.trim() })),
                     })
@@ -437,26 +486,28 @@ option3"
             )}
 
             {/* Validation (for string/number types) */}
-            {['string', 'number'].includes(argument.type) && (
+            {["string", "number"].includes(argument.type) && (
               <div className="space-y-3">
                 <Label className="flex items-center gap-2">
                   <Settings2 className="h-4 w-4" />
                   Validation Rules
                 </Label>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {argument.type === 'string' && (
+                  {argument.type === "string" && (
                     <>
                       <div className="space-y-2">
                         <Label className="text-xs">Min Length</Label>
                         <Input
                           type="number"
                           min={0}
-                          value={argument.validation?.minLength || ''}
+                          value={argument.validation?.minLength || ""}
                           onChange={(e) =>
                             onUpdate({
                               validation: {
                                 ...argument.validation,
-                                minLength: e.target.value ? parseInt(e.target.value) : undefined,
+                                minLength: e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
                               },
                             })
                           }
@@ -467,12 +518,14 @@ option3"
                         <Input
                           type="number"
                           min={0}
-                          value={argument.validation?.maxLength || ''}
+                          value={argument.validation?.maxLength || ""}
                           onChange={(e) =>
                             onUpdate({
                               validation: {
                                 ...argument.validation,
-                                maxLength: e.target.value ? parseInt(e.target.value) : undefined,
+                                maxLength: e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
                               },
                             })
                           }
@@ -480,18 +533,20 @@ option3"
                       </div>
                     </>
                   )}
-                  {argument.type === 'number' && (
+                  {argument.type === "number" && (
                     <>
                       <div className="space-y-2">
                         <Label className="text-xs">Minimum</Label>
                         <Input
                           type="number"
-                          value={argument.validation?.min ?? ''}
+                          value={argument.validation?.min ?? ""}
                           onChange={(e) =>
                             onUpdate({
                               validation: {
                                 ...argument.validation,
-                                min: e.target.value ? parseFloat(e.target.value) : undefined,
+                                min: e.target.value
+                                  ? parseFloat(e.target.value)
+                                  : undefined,
                               },
                             })
                           }
@@ -501,12 +556,14 @@ option3"
                         <Label className="text-xs">Maximum</Label>
                         <Input
                           type="number"
-                          value={argument.validation?.max ?? ''}
+                          value={argument.validation?.max ?? ""}
                           onChange={(e) =>
                             onUpdate({
                               validation: {
                                 ...argument.validation,
-                                max: e.target.value ? parseFloat(e.target.value) : undefined,
+                                max: e.target.value
+                                  ? parseFloat(e.target.value)
+                                  : undefined,
                               },
                             })
                           }
@@ -521,7 +578,7 @@ option3"
         </CollapsibleContent>
       </Collapsible>
     </Reorder.Item>
-  )
+  );
 }
 
-export default CommandArguments
+export default CommandArguments;

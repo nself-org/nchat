@@ -1,27 +1,27 @@
-import { io, Socket } from 'socket.io-client'
-import { SOCKET_CONFIG } from './config'
-import type { SocketEvent } from './events'
+import { io, Socket } from "socket.io-client";
+import { SOCKET_CONFIG } from "./config";
+import type { SocketEvent } from "./events";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface SocketPoolOptions {
-  maxConnections?: number
-  idleTimeout?: number
-  reconnectDelay?: number
+  maxConnections?: number;
+  idleTimeout?: number;
+  reconnectDelay?: number;
 }
 
 interface SocketStats {
-  totalConnections: number
-  activeConnections: number
-  idleConnections: number
-  failedConnections: number
-  reconnections: number
-  totalDataSent: number
-  totalDataReceived: number
+  totalConnections: number;
+  activeConnections: number;
+  idleConnections: number;
+  failedConnections: number;
+  reconnections: number;
+  totalDataSent: number;
+  totalDataReceived: number;
 }
 
 // =============================================================================
@@ -29,11 +29,11 @@ interface SocketStats {
 // =============================================================================
 
 class SocketManager {
-  private socket: Socket | null = null
-  private listeners: Map<string, Set<Function>> = new Map()
-  private pool: Map<string, Socket> = new Map()
-  private poolTimestamps: Map<string, number> = new Map()
-  private poolOptions: Required<SocketPoolOptions>
+  private socket: Socket | null = null;
+  private listeners: Map<string, Set<Function>> = new Map();
+  private pool: Map<string, Socket> = new Map();
+  private poolTimestamps: Map<string, number> = new Map();
+  private poolOptions: Required<SocketPoolOptions>;
   private stats: SocketStats = {
     totalConnections: 0,
     activeConnections: 0,
@@ -42,19 +42,19 @@ class SocketManager {
     reconnections: 0,
     totalDataSent: 0,
     totalDataReceived: 0,
-  }
-  private heartbeatInterval?: NodeJS.Timeout
-  private cleanupInterval?: NodeJS.Timeout
+  };
+  private heartbeatInterval?: NodeJS.Timeout;
+  private cleanupInterval?: NodeJS.Timeout;
 
   constructor(options: SocketPoolOptions = {}) {
     this.poolOptions = {
       maxConnections: options.maxConnections || 5,
       idleTimeout: options.idleTimeout || 300000, // 5 minutes
       reconnectDelay: options.reconnectDelay || 1000,
-    }
+    };
 
     // Start background maintenance
-    this.startMaintenance()
+    this.startMaintenance();
   }
 
   /**
@@ -62,22 +62,22 @@ class SocketManager {
    */
   connect(token?: string): Socket {
     // Return existing connection if active
-    if (this.socket?.connected) return this.socket
+    if (this.socket?.connected) return this.socket;
 
     // Try to get from pool
-    const pooled = this.getFromPool()
+    const pooled = this.getFromPool();
     if (pooled?.connected) {
-      this.socket = pooled
-      this.stats.activeConnections++
-      return pooled
+      this.socket = pooled;
+      this.stats.activeConnections++;
+      return pooled;
     }
 
     // Create new connection
-    this.socket = this.createSocket(token)
-    this.stats.totalConnections++
-    this.stats.activeConnections++
+    this.socket = this.createSocket(token);
+    this.stats.totalConnections++;
+    this.stats.activeConnections++;
 
-    return this.socket
+    return this.socket;
   }
 
   /**
@@ -90,42 +90,42 @@ class SocketManager {
       reconnection: true,
       reconnectionDelay: this.poolOptions.reconnectDelay,
       reconnectionAttempts: 5,
-    })
+    });
 
     // Track connection events
-    socket.on('connect', () => {
-      this.stats.activeConnections++
-    })
+    socket.on("connect", () => {
+      this.stats.activeConnections++;
+    });
 
-    socket.on('disconnect', (reason) => {
-      this.stats.activeConnections--
+    socket.on("disconnect", (reason) => {
+      this.stats.activeConnections--;
 
       // Attempt reconnect for unexpected disconnects
-      if (reason === 'io server disconnect') {
-        socket.connect()
-        this.stats.reconnections++
+      if (reason === "io server disconnect") {
+        socket.connect();
+        this.stats.reconnections++;
       }
-    })
+    });
 
-    socket.on('error', (error) => {
-      logger.error('[Socket] Error:', error)
-      this.stats.failedConnections++
-    })
+    socket.on("error", (error) => {
+      logger.error("[Socket] Error:", error);
+      this.stats.failedConnections++;
+    });
 
-    socket.on('reconnect', (attemptNumber) => {
-      this.stats.reconnections++
-    })
+    socket.on("reconnect", (attemptNumber) => {
+      this.stats.reconnections++;
+    });
 
     // Track data transfer
     socket.onAny(() => {
-      this.stats.totalDataReceived++
-    })
+      this.stats.totalDataReceived++;
+    });
 
     socket.onAnyOutgoing(() => {
-      this.stats.totalDataSent++
-    })
+      this.stats.totalDataSent++;
+    });
 
-    return socket
+    return socket;
   }
 
   /**
@@ -134,13 +134,16 @@ class SocketManager {
   disconnect(): void {
     if (this.socket) {
       // Return to pool if below max connections
-      if (this.pool.size < this.poolOptions.maxConnections && this.socket.connected) {
-        this.returnToPool(this.socket)
+      if (
+        this.pool.size < this.poolOptions.maxConnections &&
+        this.socket.connected
+      ) {
+        this.returnToPool(this.socket);
       } else {
-        this.socket.disconnect()
+        this.socket.disconnect();
       }
-      this.socket = null
-      this.stats.activeConnections--
+      this.socket = null;
+      this.stats.activeConnections--;
     }
   }
 
@@ -148,74 +151,74 @@ class SocketManager {
    * Force disconnect and clear pool
    */
   disconnectAll(): void {
-    this.socket?.disconnect()
-    this.socket = null
+    this.socket?.disconnect();
+    this.socket = null;
 
     for (const socket of this.pool.values()) {
-      socket.disconnect()
+      socket.disconnect();
     }
-    this.pool.clear()
+    this.pool.clear();
 
-    this.stats.activeConnections = 0
-    this.stats.idleConnections = 0
+    this.stats.activeConnections = 0;
+    this.stats.idleConnections = 0;
   }
 
   /**
    * Emit event on socket
    */
   emit<T>(event: SocketEvent, data: T): void {
-    this.socket?.emit(event, data)
-    this.stats.totalDataSent++
+    this.socket?.emit(event, data);
+    this.stats.totalDataSent++;
   }
 
   /**
    * Listen to socket event
    */
   on<T>(event: SocketEvent, callback: (data: T) => void): () => void {
-    this.socket?.on(event, callback)
+    this.socket?.on(event, callback);
 
     if (!this.listeners.has(event)) {
-      this.listeners.set(event, new Set())
+      this.listeners.set(event, new Set());
     }
-    this.listeners.get(event)?.add(callback)
+    this.listeners.get(event)?.add(callback);
 
-    return () => this.off(event, callback)
+    return () => this.off(event, callback);
   }
 
   /**
    * Remove event listener
    */
   off<T>(event: SocketEvent, callback: (data: T) => void): void {
-    this.socket?.off(event, callback)
-    this.listeners.get(event)?.delete(callback)
+    this.socket?.off(event, callback);
+    this.listeners.get(event)?.delete(callback);
   }
 
   /**
    * Get statistics
    */
   getStats(): SocketStats {
-    return { ...this.stats }
+    return { ...this.stats };
   }
 
   /**
    * Check if connected
    */
   get isConnected(): boolean {
-    return this.socket?.connected ?? false
+    return this.socket?.connected ?? false;
   }
 
   /**
    * Get socket ID
    */
   get socketId(): string | undefined {
-    return this.socket?.id
+    return this.socket?.id;
   }
 
   /**
    * Get current pool size
    */
   get poolSize(): number {
-    return this.pool.size
+    return this.pool.size;
   }
 
   // -------------------------------------------------------------------------
@@ -228,13 +231,13 @@ class SocketManager {
   private getFromPool(): Socket | null {
     for (const [id, socket] of this.pool.entries()) {
       if (socket.connected) {
-        this.pool.delete(id)
-        this.poolTimestamps.delete(id)
-        this.stats.idleConnections--
-        return socket
+        this.pool.delete(id);
+        this.poolTimestamps.delete(id);
+        this.stats.idleConnections--;
+        return socket;
       }
     }
-    return null
+    return null;
   }
 
   /**
@@ -242,9 +245,9 @@ class SocketManager {
    */
   private returnToPool(socket: Socket): void {
     if (socket.id && !this.pool.has(socket.id)) {
-      this.pool.set(socket.id, socket)
-      this.poolTimestamps.set(socket.id, Date.now())
-      this.stats.idleConnections++
+      this.pool.set(socket.id, socket);
+      this.poolTimestamps.set(socket.id, Date.now());
+      this.stats.idleConnections++;
     }
   }
 
@@ -256,33 +259,33 @@ class SocketManager {
     this.heartbeatInterval = setInterval(() => {
       for (const socket of this.pool.values()) {
         if (socket.connected) {
-          socket.emit('ping')
+          socket.emit("ping");
         }
       }
-    }, 30000) // Every 30 seconds
+    }, 30000); // Every 30 seconds
 
     // Cleanup idle connections
     this.cleanupInterval = setInterval(() => {
-      this.cleanupIdleConnections()
-    }, 60000) // Every minute
+      this.cleanupIdleConnections();
+    }, 60000); // Every minute
   }
 
   /**
    * Clean up idle connections past timeout
    */
   private cleanupIdleConnections(): void {
-    const now = Date.now()
+    const now = Date.now();
 
     for (const [id, socket] of this.pool.entries()) {
       // Check if socket hasn't been used recently
-      const lastUsed = this.poolTimestamps.get(id) || now
-      const idleTime = now - lastUsed
+      const lastUsed = this.poolTimestamps.get(id) || now;
+      const idleTime = now - lastUsed;
 
       if (idleTime > this.poolOptions.idleTimeout) {
-        socket.disconnect()
-        this.pool.delete(id)
-        this.poolTimestamps.delete(id)
-        this.stats.idleConnections--
+        socket.disconnect();
+        this.pool.delete(id);
+        this.poolTimestamps.delete(id);
+        this.stats.idleConnections--;
       }
     }
   }
@@ -292,16 +295,16 @@ class SocketManager {
    */
   destroy(): void {
     if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval)
-      this.heartbeatInterval = undefined
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = undefined;
     }
 
     if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval)
-      this.cleanupInterval = undefined
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = undefined;
     }
 
-    this.disconnectAll()
+    this.disconnectAll();
   }
 }
 
@@ -309,4 +312,4 @@ class SocketManager {
 // Singleton Export
 // =============================================================================
 
-export const socketManager = new SocketManager()
+export const socketManager = new SocketManager();

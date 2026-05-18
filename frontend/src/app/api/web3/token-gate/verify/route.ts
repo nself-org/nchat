@@ -4,15 +4,15 @@
  * POST /api/web3/token-gate/verify - Verify access to a token-gated resource
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { logger } from "@/lib/logger";
 
 import {
   checkAccess,
   batchCheckAccess,
   getUserAccessStatus,
-} from '@/services/web3/token-gate.service'
+} from "@/services/web3/token-gate.service";
 
 // =============================================================================
 // VALIDATION SCHEMAS
@@ -20,22 +20,25 @@ import {
 
 const verifyAccessSchema = z.object({
   userId: z.string().min(1),
-  resourceType: z.enum(['channel', 'feature', 'role', 'workspace']),
+  resourceType: z.enum(["channel", "feature", "role", "workspace"]),
   resourceId: z.string().min(1),
-  walletAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional(),
+  walletAddress: z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{40}$/)
+    .optional(),
   userRoles: z.array(z.string()).optional(),
   forceRefresh: z.boolean().optional(),
-})
+});
 
 const batchVerifySchema = z.object({
   requests: z.array(verifyAccessSchema).min(1).max(100),
-})
+});
 
 const userStatusSchema = z.object({
   userId: z.string().min(1),
   walletAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
   userRoles: z.array(z.string()).optional(),
-})
+});
 
 // =============================================================================
 // POST /api/web3/token-gate/verify
@@ -43,26 +46,26 @@ const userStatusSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const mode = searchParams.get('mode') || 'single'
+    const searchParams = request.nextUrl.searchParams;
+    const mode = searchParams.get("mode") || "single";
 
-    const body = await request.json()
+    const body = await request.json();
 
     switch (mode) {
-      case 'single': {
-        const validationResult = verifyAccessSchema.safeParse(body)
+      case "single": {
+        const validationResult = verifyAccessSchema.safeParse(body);
 
         if (!validationResult.success) {
           return NextResponse.json(
             {
-              error: 'Validation failed',
+              error: "Validation failed",
               details: validationResult.error.errors,
             },
-            { status: 400 }
-          )
+            { status: 400 },
+          );
         }
 
-        const result = await checkAccess(validationResult.data)
+        const result = await checkAccess(validationResult.data);
 
         // Return appropriate status based on access
         if (!result.hasAccess) {
@@ -76,8 +79,8 @@ export async function POST(request: NextRequest) {
               inGracePeriod: result.inGracePeriod,
               gracePeriodEndsAt: result.gracePeriodEndsAt,
             },
-            { status: 403 }
-          )
+            { status: 403 },
+          );
         }
 
         return NextResponse.json({
@@ -90,56 +93,60 @@ export async function POST(request: NextRequest) {
           gracePeriodEndsAt: result.gracePeriodEndsAt,
           cacheExpiresAt: result.cacheExpiresAt,
           verificationResult: result.verificationResult,
-        })
+        });
       }
 
-      case 'batch': {
-        const validationResult = batchVerifySchema.safeParse(body)
+      case "batch": {
+        const validationResult = batchVerifySchema.safeParse(body);
 
         if (!validationResult.success) {
           return NextResponse.json(
             {
-              error: 'Validation failed',
+              error: "Validation failed",
               details: validationResult.error.errors,
             },
-            { status: 400 }
-          )
+            { status: 400 },
+          );
         }
 
-        const results = await batchCheckAccess(validationResult.data.requests)
+        const results = await batchCheckAccess(validationResult.data.requests);
 
         // Convert Map to object for JSON serialization
-        const resultsObject: Record<string, unknown> = {}
+        const resultsObject: Record<string, unknown> = {};
         for (const [key, value] of results.entries()) {
-          resultsObject[key] = value
+          resultsObject[key] = value;
         }
 
         return NextResponse.json({
           results: resultsObject,
           total: results.size,
-        })
+        });
       }
 
-      case 'user-status': {
-        const validationResult = userStatusSchema.safeParse(body)
+      case "user-status": {
+        const validationResult = userStatusSchema.safeParse(body);
 
         if (!validationResult.success) {
           return NextResponse.json(
             {
-              error: 'Validation failed',
+              error: "Validation failed",
               details: validationResult.error.errors,
             },
-            { status: 400 }
-          )
+            { status: 400 },
+          );
         }
 
-        const { userId, walletAddress, userRoles } = validationResult.data
-        const results = await getUserAccessStatus(userId, walletAddress, userRoles)
+        const { userId, walletAddress, userRoles } = validationResult.data;
+        const results = await getUserAccessStatus(
+          userId,
+          walletAddress,
+          userRoles,
+        );
 
         // Convert Map to object for JSON serialization
-        const resultsObject: Record<string, unknown> = {}
+        const resultsObject: Record<string, unknown> = {};
         for (const [key, value] of results.entries()) {
-          resultsObject[key] = value
+          resultsObject[key] = value;
         }
 
         return NextResponse.json({
@@ -147,19 +154,28 @@ export async function POST(request: NextRequest) {
           walletAddress,
           gates: resultsObject,
           totalGates: results.size,
-          accessibleGates: Array.from(results.values()).filter((r) => r.hasAccess).length,
-        })
+          accessibleGates: Array.from(results.values()).filter(
+            (r) => r.hasAccess,
+          ).length,
+        });
       }
 
       default:
         return NextResponse.json(
-          { error: `Unknown mode: ${mode}. Valid modes: single, batch, user-status` },
-          { status: 400 }
-        )
+          {
+            error: `Unknown mode: ${mode}. Valid modes: single, batch, user-status`,
+          },
+          { status: 400 },
+        );
     }
   } catch (error) {
-    logger.error('Error verifying token gate access:', error)
-    const message = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    logger.error("Error verifying token gate access:", error);
+    const message =
+      error instanceof Error
+        ? error instanceof Error
+          ? error.message
+          : String(error)
+        : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

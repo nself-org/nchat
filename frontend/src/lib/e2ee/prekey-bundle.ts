@@ -12,7 +12,7 @@
  * - Server synchronization helpers
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   type PreKeyBundle,
   type IdentityKeyPair,
@@ -22,26 +22,26 @@ import {
   generateSignedPreKey,
   generateOneTimePreKeys,
   generateRegistrationId,
-} from './x3dh'
+} from "./x3dh";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** Minimum number of one-time pre-keys to maintain */
-const MIN_ONE_TIME_PREKEYS = 10
+const MIN_ONE_TIME_PREKEYS = 10;
 
 /** Default number of one-time pre-keys to generate */
-const DEFAULT_ONE_TIME_PREKEY_COUNT = 100
+const DEFAULT_ONE_TIME_PREKEY_COUNT = 100;
 
 /** Signed pre-key rotation interval (7 days) */
-const SIGNED_PREKEY_ROTATION_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000
+const SIGNED_PREKEY_ROTATION_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Storage key for pre-key bundle */
-const BUNDLE_STORAGE_KEY = 'nchat_prekey_bundle'
+const BUNDLE_STORAGE_KEY = "nchat_prekey_bundle";
 
 /** Storage key for key state */
-const KEY_STATE_STORAGE_KEY = 'nchat_e2ee_key_state'
+const KEY_STATE_STORAGE_KEY = "nchat_e2ee_key_state";
 
 // ============================================================================
 // Types
@@ -52,89 +52,89 @@ const KEY_STATE_STORAGE_KEY = 'nchat_e2ee_key_state'
  */
 export interface PreKeyBundleState {
   /** User ID */
-  userId: string
+  userId: string;
   /** Device ID */
-  deviceId: string
+  deviceId: string;
   /** Registration ID */
-  registrationId: number
+  registrationId: number;
   /** Identity key pair */
-  identityKeyPair: SerializedKeyPair
+  identityKeyPair: SerializedKeyPair;
   /** Current signed pre-key */
-  signedPreKey: SerializedSignedPreKey
+  signedPreKey: SerializedSignedPreKey;
   /** Previous signed pre-key (for transition period) */
-  previousSignedPreKey?: SerializedSignedPreKey
+  previousSignedPreKey?: SerializedSignedPreKey;
   /** One-time pre-keys */
-  oneTimePreKeys: SerializedOneTimePreKey[]
+  oneTimePreKeys: SerializedOneTimePreKey[];
   /** When bundle was last updated */
-  lastUpdatedAt: Date
+  lastUpdatedAt: Date;
   /** When signed pre-key was last rotated */
-  signedPreKeyRotatedAt: Date
+  signedPreKeyRotatedAt: Date;
   /** Version number for conflict resolution */
-  version: number
+  version: number;
 }
 
 /**
  * Serialized key pair for storage
  */
 export interface SerializedKeyPair {
-  publicKey: string // Base64
-  privateKey: string // Base64
+  publicKey: string; // Base64
+  privateKey: string; // Base64
 }
 
 /**
  * Serialized signed pre-key for storage
  */
 export interface SerializedSignedPreKey {
-  keyId: number
-  keyPair: SerializedKeyPair
-  signature: string // Base64
-  timestamp: number
-  expiresAt?: number
+  keyId: number;
+  keyPair: SerializedKeyPair;
+  signature: string; // Base64
+  timestamp: number;
+  expiresAt?: number;
 }
 
 /**
  * Serialized one-time pre-key for storage
  */
 export interface SerializedOneTimePreKey {
-  keyId: number
-  publicKey: string // Base64
-  privateKey: string // Base64
-  used: boolean
-  createdAt: number
+  keyId: number;
+  publicKey: string; // Base64
+  privateKey: string; // Base64
+  used: boolean;
+  createdAt: number;
 }
 
 /**
  * Pre-key bundle validation result
  */
 export interface ValidationResult {
-  valid: boolean
-  errors: string[]
-  warnings: string[]
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
 }
 
 /**
  * Server sync request for pre-keys
  */
 export interface PreKeySyncRequest {
-  registrationId: number
-  identityKey: string // Base64
+  registrationId: number;
+  identityKey: string; // Base64
   signedPreKey: {
-    keyId: number
-    publicKey: string // Base64
-    signature: string // Base64
-  }
+    keyId: number;
+    publicKey: string; // Base64
+    signature: string; // Base64
+  };
   oneTimePreKeys: Array<{
-    keyId: number
-    publicKey: string // Base64
-  }>
+    keyId: number;
+    publicKey: string; // Base64
+  }>;
 }
 
 /**
  * Server response for pre-key consumption
  */
 export interface PreKeyConsumptionResponse {
-  consumedKeyIds: number[]
-  remainingCount: number
+  consumedKeyIds: number[];
+  remainingCount: number;
 }
 
 // ============================================================================
@@ -145,23 +145,23 @@ export interface PreKeyConsumptionResponse {
  * Converts bytes to Base64
  */
 function bytesToBase64(bytes: Uint8Array): string {
-  let binary = ''
+  let binary = "";
   for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i])
+    binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary)
+  return btoa(binary);
 }
 
 /**
  * Converts Base64 to bytes
  */
 function base64ToBytes(base64: string): Uint8Array {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
+    bytes[i] = binary.charCodeAt(i);
   }
-  return bytes
+  return bytes;
 }
 
 /**
@@ -171,19 +171,21 @@ function serializeIdentityKeyPair(keyPair: IdentityKeyPair): SerializedKeyPair {
   return {
     publicKey: bytesToBase64(keyPair.publicKey),
     privateKey: bytesToBase64(keyPair.privateKey),
-  }
+  };
 }
 
 /**
  * Deserializes an identity key pair
  */
-function deserializeIdentityKeyPair(serialized: SerializedKeyPair): IdentityKeyPair {
+function deserializeIdentityKeyPair(
+  serialized: SerializedKeyPair,
+): IdentityKeyPair {
   return {
-    type: 'identity',
+    type: "identity",
     publicKey: base64ToBytes(serialized.publicKey),
     privateKey: base64ToBytes(serialized.privateKey),
     createdAt: new Date(),
-  }
+  };
 }
 
 /**
@@ -199,22 +201,24 @@ function serializeSignedPreKey(key: SignedPreKey): SerializedSignedPreKey {
     signature: bytesToBase64(key.signature),
     timestamp: key.timestamp,
     expiresAt: key.expiresAt,
-  }
+  };
 }
 
 /**
  * Deserializes a signed pre-key
  */
-function deserializeSignedPreKey(serialized: SerializedSignedPreKey): SignedPreKey {
+function deserializeSignedPreKey(
+  serialized: SerializedSignedPreKey,
+): SignedPreKey {
   return {
-    type: 'signed-prekey',
+    type: "signed-prekey",
     keyId: serialized.keyId,
     publicKey: base64ToBytes(serialized.keyPair.publicKey),
     privateKey: base64ToBytes(serialized.keyPair.privateKey),
     signature: base64ToBytes(serialized.signature),
     timestamp: serialized.timestamp,
     expiresAt: serialized.expiresAt,
-  }
+  };
 }
 
 /**
@@ -227,20 +231,22 @@ function serializeOneTimePreKey(key: OneTimePreKey): SerializedOneTimePreKey {
     privateKey: bytesToBase64(key.privateKey),
     used: key.used ?? false,
     createdAt: Date.now(),
-  }
+  };
 }
 
 /**
  * Deserializes a one-time pre-key
  */
-function deserializeOneTimePreKey(serialized: SerializedOneTimePreKey): OneTimePreKey {
+function deserializeOneTimePreKey(
+  serialized: SerializedOneTimePreKey,
+): OneTimePreKey {
   return {
-    type: 'one-time-prekey',
+    type: "one-time-prekey",
     keyId: serialized.keyId,
     publicKey: base64ToBytes(serialized.publicKey),
     privateKey: base64ToBytes(serialized.privateKey),
     used: serialized.used,
-  }
+  };
 }
 
 // ============================================================================
@@ -251,12 +257,13 @@ function deserializeOneTimePreKey(serialized: SerializedOneTimePreKey): OneTimeP
  * Manages pre-key bundles for E2EE
  */
 export class PreKeyBundleManager {
-  private state: PreKeyBundleState | null = null
-  private storage: Storage | null = null
-  private initialized = false
+  private state: PreKeyBundleState | null = null;
+  private storage: Storage | null = null;
+  private initialized = false;
 
   constructor(storage?: Storage) {
-    this.storage = storage ?? (typeof localStorage !== 'undefined' ? localStorage : null)
+    this.storage =
+      storage ?? (typeof localStorage !== "undefined" ? localStorage : null);
   }
 
   // ==========================================================================
@@ -268,31 +275,38 @@ export class PreKeyBundleManager {
    */
   async initialize(userId: string, deviceId: string): Promise<void> {
     if (this.initialized) {
-      return
+      return;
     }
 
     // Try to load existing state
-    const loadedState = this.loadState()
-    if (loadedState && loadedState.userId === userId && loadedState.deviceId === deviceId) {
-      this.state = loadedState
-      logger.info('Pre-key bundle loaded from storage')
+    const loadedState = this.loadState();
+    if (
+      loadedState &&
+      loadedState.userId === userId &&
+      loadedState.deviceId === deviceId
+    ) {
+      this.state = loadedState;
+      logger.info("Pre-key bundle loaded from storage");
     } else {
       // Generate new keys
-      await this.generateNewBundle(userId, deviceId)
-      logger.info('Generated new pre-key bundle')
+      await this.generateNewBundle(userId, deviceId);
+      logger.info("Generated new pre-key bundle");
     }
 
-    this.initialized = true
+    this.initialized = true;
   }
 
   /**
    * Generates a completely new bundle
    */
   async generateNewBundle(userId: string, deviceId: string): Promise<void> {
-    const registrationId = generateRegistrationId()
-    const identityKeyPair = await generateIdentityKeyPair(deviceId)
-    const signedPreKey = await generateSignedPreKey(identityKeyPair, 1)
-    const oneTimePreKeys = await generateOneTimePreKeys(1, DEFAULT_ONE_TIME_PREKEY_COUNT)
+    const registrationId = generateRegistrationId();
+    const identityKeyPair = await generateIdentityKeyPair(deviceId);
+    const signedPreKey = await generateSignedPreKey(identityKeyPair, 1);
+    const oneTimePreKeys = await generateOneTimePreKeys(
+      1,
+      DEFAULT_ONE_TIME_PREKEY_COUNT,
+    );
 
     this.state = {
       userId,
@@ -304,16 +318,16 @@ export class PreKeyBundleManager {
       lastUpdatedAt: new Date(),
       signedPreKeyRotatedAt: new Date(),
       version: 1,
-    }
+    };
 
-    this.saveState()
+    this.saveState();
   }
 
   /**
    * Checks if manager is initialized
    */
   isInitialized(): boolean {
-    return this.initialized && this.state !== null
+    return this.initialized && this.state !== null;
   }
 
   // ==========================================================================
@@ -325,10 +339,10 @@ export class PreKeyBundleManager {
    */
   getPreKeyBundle(): PreKeyBundle {
     if (!this.state) {
-      throw new Error('Pre-key bundle manager not initialized')
+      throw new Error("Pre-key bundle manager not initialized");
     }
 
-    const unusedOneTimePreKey = this.state.oneTimePreKeys.find((k) => !k.used)
+    const unusedOneTimePreKey = this.state.oneTimePreKeys.find((k) => !k.used);
 
     return {
       userId: this.state.userId,
@@ -343,7 +357,7 @@ export class PreKeyBundleManager {
         ? base64ToBytes(unusedOneTimePreKey.publicKey)
         : undefined,
       version: 1,
-    }
+    };
   }
 
   /**
@@ -351,9 +365,9 @@ export class PreKeyBundleManager {
    */
   getIdentityKeyPair(): IdentityKeyPair | null {
     if (!this.state) {
-      return null
+      return null;
     }
-    return deserializeIdentityKeyPair(this.state.identityKeyPair)
+    return deserializeIdentityKeyPair(this.state.identityKeyPair);
   }
 
   /**
@@ -361,9 +375,9 @@ export class PreKeyBundleManager {
    */
   getSignedPreKey(): SignedPreKey | null {
     if (!this.state) {
-      return null
+      return null;
     }
-    return deserializeSignedPreKey(this.state.signedPreKey)
+    return deserializeSignedPreKey(this.state.signedPreKey);
   }
 
   /**
@@ -371,15 +385,15 @@ export class PreKeyBundleManager {
    */
   getOneTimePreKey(keyId: number): OneTimePreKey | null {
     if (!this.state) {
-      return null
+      return null;
     }
 
-    const serialized = this.state.oneTimePreKeys.find((k) => k.keyId === keyId)
+    const serialized = this.state.oneTimePreKeys.find((k) => k.keyId === keyId);
     if (!serialized) {
-      return null
+      return null;
     }
 
-    return deserializeOneTimePreKey(serialized)
+    return deserializeOneTimePreKey(serialized);
   }
 
   /**
@@ -387,12 +401,12 @@ export class PreKeyBundleManager {
    */
   getUnusedOneTimePreKeys(): OneTimePreKey[] {
     if (!this.state) {
-      return []
+      return [];
     }
 
     return this.state.oneTimePreKeys
       .filter((k) => !k.used)
-      .map(deserializeOneTimePreKey)
+      .map(deserializeOneTimePreKey);
   }
 
   /**
@@ -400,16 +414,16 @@ export class PreKeyBundleManager {
    */
   getUnusedOneTimePreKeyCount(): number {
     if (!this.state) {
-      return 0
+      return 0;
     }
-    return this.state.oneTimePreKeys.filter((k) => !k.used).length
+    return this.state.oneTimePreKeys.filter((k) => !k.used).length;
   }
 
   /**
    * Gets the registration ID
    */
   getRegistrationId(): number {
-    return this.state?.registrationId ?? 0
+    return this.state?.registrationId ?? 0;
   }
 
   // ==========================================================================
@@ -421,14 +435,14 @@ export class PreKeyBundleManager {
    */
   markOneTimePreKeyUsed(keyId: number): void {
     if (!this.state) {
-      return
+      return;
     }
 
-    const key = this.state.oneTimePreKeys.find((k) => k.keyId === keyId)
+    const key = this.state.oneTimePreKeys.find((k) => k.keyId === keyId);
     if (key) {
-      key.used = true
-      this.saveState()
-      logger.debug('Marked one-time pre-key as used', { keyId })
+      key.used = true;
+      this.saveState();
+      logger.debug("Marked one-time pre-key as used", { keyId });
     }
   }
 
@@ -437,19 +451,21 @@ export class PreKeyBundleManager {
    */
   cleanupUsedOneTimePreKeys(): number {
     if (!this.state) {
-      return 0
+      return 0;
     }
 
-    const before = this.state.oneTimePreKeys.length
-    this.state.oneTimePreKeys = this.state.oneTimePreKeys.filter((k) => !k.used)
-    const removed = before - this.state.oneTimePreKeys.length
+    const before = this.state.oneTimePreKeys.length;
+    this.state.oneTimePreKeys = this.state.oneTimePreKeys.filter(
+      (k) => !k.used,
+    );
+    const removed = before - this.state.oneTimePreKeys.length;
 
     if (removed > 0) {
-      this.saveState()
-      logger.debug('Cleaned up used one-time pre-keys', { removed })
+      this.saveState();
+      logger.debug("Cleaned up used one-time pre-keys", { removed });
     }
 
-    return removed
+    return removed;
   }
 
   /**
@@ -457,16 +473,16 @@ export class PreKeyBundleManager {
    */
   async replenishOneTimePreKeysIfNeeded(): Promise<OneTimePreKey[]> {
     if (!this.state) {
-      return []
+      return [];
     }
 
-    const unusedCount = this.getUnusedOneTimePreKeyCount()
+    const unusedCount = this.getUnusedOneTimePreKeyCount();
     if (unusedCount >= MIN_ONE_TIME_PREKEYS) {
-      return []
+      return [];
     }
 
-    const countToGenerate = DEFAULT_ONE_TIME_PREKEY_COUNT - unusedCount
-    return this.generateMoreOneTimePreKeys(countToGenerate)
+    const countToGenerate = DEFAULT_ONE_TIME_PREKEY_COUNT - unusedCount;
+    return this.generateMoreOneTimePreKeys(countToGenerate);
   }
 
   /**
@@ -474,24 +490,27 @@ export class PreKeyBundleManager {
    */
   async generateMoreOneTimePreKeys(count: number): Promise<OneTimePreKey[]> {
     if (!this.state) {
-      return []
+      return [];
     }
 
-    const maxKeyId = Math.max(0, ...this.state.oneTimePreKeys.map((k) => k.keyId))
-    const newKeys = await generateOneTimePreKeys(maxKeyId + 1, count)
+    const maxKeyId = Math.max(
+      0,
+      ...this.state.oneTimePreKeys.map((k) => k.keyId),
+    );
+    const newKeys = await generateOneTimePreKeys(maxKeyId + 1, count);
 
     // Add to state
     for (const key of newKeys) {
-      this.state.oneTimePreKeys.push(serializeOneTimePreKey(key))
+      this.state.oneTimePreKeys.push(serializeOneTimePreKey(key));
     }
 
-    this.state.lastUpdatedAt = new Date()
-    this.state.version++
-    this.saveState()
+    this.state.lastUpdatedAt = new Date();
+    this.state.version++;
+    this.saveState();
 
-    logger.info('Generated new one-time pre-keys', { count })
+    logger.info("Generated new one-time pre-keys", { count });
 
-    return newKeys
+    return newKeys;
   }
 
   // ==========================================================================
@@ -503,11 +522,12 @@ export class PreKeyBundleManager {
    */
   needsSignedPreKeyRotation(): boolean {
     if (!this.state) {
-      return false
+      return false;
     }
 
-    const timeSinceRotation = Date.now() - this.state.signedPreKeyRotatedAt.getTime()
-    return timeSinceRotation >= SIGNED_PREKEY_ROTATION_INTERVAL_MS
+    const timeSinceRotation =
+      Date.now() - this.state.signedPreKeyRotatedAt.getTime();
+    return timeSinceRotation >= SIGNED_PREKEY_ROTATION_INTERVAL_MS;
   }
 
   /**
@@ -515,25 +535,30 @@ export class PreKeyBundleManager {
    */
   async rotateSignedPreKey(): Promise<SignedPreKey> {
     if (!this.state) {
-      throw new Error('Pre-key bundle manager not initialized')
+      throw new Error("Pre-key bundle manager not initialized");
     }
 
-    const identityKeyPair = deserializeIdentityKeyPair(this.state.identityKeyPair)
-    const newKeyId = this.state.signedPreKey.keyId + 1
-    const newSignedPreKey = await generateSignedPreKey(identityKeyPair, newKeyId)
+    const identityKeyPair = deserializeIdentityKeyPair(
+      this.state.identityKeyPair,
+    );
+    const newKeyId = this.state.signedPreKey.keyId + 1;
+    const newSignedPreKey = await generateSignedPreKey(
+      identityKeyPair,
+      newKeyId,
+    );
 
     // Keep previous signed pre-key for transition
-    this.state.previousSignedPreKey = this.state.signedPreKey
-    this.state.signedPreKey = serializeSignedPreKey(newSignedPreKey)
-    this.state.signedPreKeyRotatedAt = new Date()
-    this.state.lastUpdatedAt = new Date()
-    this.state.version++
+    this.state.previousSignedPreKey = this.state.signedPreKey;
+    this.state.signedPreKey = serializeSignedPreKey(newSignedPreKey);
+    this.state.signedPreKeyRotatedAt = new Date();
+    this.state.lastUpdatedAt = new Date();
+    this.state.version++;
 
-    this.saveState()
+    this.saveState();
 
-    logger.info('Rotated signed pre-key', { newKeyId })
+    logger.info("Rotated signed pre-key", { newKeyId });
 
-    return newSignedPreKey
+    return newSignedPreKey;
   }
 
   /**
@@ -541,9 +566,9 @@ export class PreKeyBundleManager {
    */
   async rotateSignedPreKeyIfNeeded(): Promise<SignedPreKey | null> {
     if (this.needsSignedPreKeyRotation()) {
-      return this.rotateSignedPreKey()
+      return this.rotateSignedPreKey();
     }
-    return null
+    return null;
   }
 
   // ==========================================================================
@@ -555,7 +580,7 @@ export class PreKeyBundleManager {
    */
   createSyncRequest(): PreKeySyncRequest {
     if (!this.state) {
-      throw new Error('Pre-key bundle manager not initialized')
+      throw new Error("Pre-key bundle manager not initialized");
     }
 
     return {
@@ -572,17 +597,19 @@ export class PreKeyBundleManager {
           keyId: k.keyId,
           publicKey: k.publicKey,
         })),
-    }
+    };
   }
 
   /**
    * Creates a partial sync request for replenishment
    */
-  createReplenishmentRequest(newKeys: OneTimePreKey[]): PreKeySyncRequest['oneTimePreKeys'] {
+  createReplenishmentRequest(
+    newKeys: OneTimePreKey[],
+  ): PreKeySyncRequest["oneTimePreKeys"] {
     return newKeys.map((k) => ({
       keyId: k.keyId,
       publicKey: bytesToBase64(k.publicKey),
-    }))
+    }));
   }
 
   /**
@@ -590,17 +617,17 @@ export class PreKeyBundleManager {
    */
   handleConsumptionResponse(response: PreKeyConsumptionResponse): void {
     if (!this.state) {
-      return
+      return;
     }
 
     for (const keyId of response.consumedKeyIds) {
-      this.markOneTimePreKeyUsed(keyId)
+      this.markOneTimePreKeyUsed(keyId);
     }
 
-    logger.debug('Handled pre-key consumption response', {
+    logger.debug("Handled pre-key consumption response", {
       consumed: response.consumedKeyIds.length,
       remaining: response.remainingCount,
-    })
+    });
   }
 
   // ==========================================================================
@@ -611,77 +638,86 @@ export class PreKeyBundleManager {
    * Validates the current bundle state
    */
   validateBundle(): ValidationResult {
-    const errors: string[] = []
-    const warnings: string[] = []
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
     if (!this.state) {
-      return { valid: false, errors: ['Bundle not initialized'], warnings: [] }
+      return { valid: false, errors: ["Bundle not initialized"], warnings: [] };
     }
 
     // Check identity key
-    if (!this.state.identityKeyPair.publicKey || !this.state.identityKeyPair.privateKey) {
-      errors.push('Missing identity key pair')
+    if (
+      !this.state.identityKeyPair.publicKey ||
+      !this.state.identityKeyPair.privateKey
+    ) {
+      errors.push("Missing identity key pair");
     }
 
     // Check signed pre-key
-    if (!this.state.signedPreKey.keyPair.publicKey || !this.state.signedPreKey.signature) {
-      errors.push('Missing or invalid signed pre-key')
+    if (
+      !this.state.signedPreKey.keyPair.publicKey ||
+      !this.state.signedPreKey.signature
+    ) {
+      errors.push("Missing or invalid signed pre-key");
     }
 
     // Check signed pre-key age
     if (this.needsSignedPreKeyRotation()) {
-      warnings.push('Signed pre-key needs rotation')
+      warnings.push("Signed pre-key needs rotation");
     }
 
     // Check one-time pre-keys
-    const unusedCount = this.getUnusedOneTimePreKeyCount()
+    const unusedCount = this.getUnusedOneTimePreKeyCount();
     if (unusedCount === 0) {
-      warnings.push('No one-time pre-keys available')
+      warnings.push("No one-time pre-keys available");
     } else if (unusedCount < MIN_ONE_TIME_PREKEYS) {
-      warnings.push(`Low one-time pre-key count: ${unusedCount}`)
+      warnings.push(`Low one-time pre-key count: ${unusedCount}`);
     }
 
     return {
       valid: errors.length === 0,
       errors,
       warnings,
-    }
+    };
   }
 
   /**
    * Validates a remote pre-key bundle
    */
   static validateRemoteBundle(bundle: PreKeyBundle): ValidationResult {
-    const errors: string[] = []
-    const warnings: string[] = []
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
     // Check required fields
     if (!bundle.userId) {
-      errors.push('Missing user ID')
+      errors.push("Missing user ID");
     }
     if (!bundle.deviceId) {
-      errors.push('Missing device ID')
+      errors.push("Missing device ID");
     }
     if (!bundle.identityKey || bundle.identityKey.length === 0) {
-      errors.push('Missing identity key')
+      errors.push("Missing identity key");
     }
     if (!bundle.signedPreKey || bundle.signedPreKey.length === 0) {
-      errors.push('Missing signed pre-key')
+      errors.push("Missing signed pre-key");
     }
-    if (!bundle.signedPreKeySignature || bundle.signedPreKeySignature.length === 0) {
-      errors.push('Missing signed pre-key signature')
+    if (
+      !bundle.signedPreKeySignature ||
+      bundle.signedPreKeySignature.length === 0
+    ) {
+      errors.push("Missing signed pre-key signature");
     }
 
     // Check optional one-time pre-key
     if (!bundle.oneTimePreKey) {
-      warnings.push('No one-time pre-key in bundle')
+      warnings.push("No one-time pre-key in bundle");
     }
 
     return {
       valid: errors.length === 0,
       errors,
       warnings,
-    }
+    };
   }
 
   // ==========================================================================
@@ -693,7 +729,7 @@ export class PreKeyBundleManager {
    */
   private saveState(): void {
     if (!this.storage || !this.state) {
-      return
+      return;
     }
 
     try {
@@ -701,10 +737,10 @@ export class PreKeyBundleManager {
         ...this.state,
         lastUpdatedAt: this.state.lastUpdatedAt.toISOString(),
         signedPreKeyRotatedAt: this.state.signedPreKeyRotatedAt.toISOString(),
-      })
-      this.storage.setItem(KEY_STATE_STORAGE_KEY, serialized)
+      });
+      this.storage.setItem(KEY_STATE_STORAGE_KEY, serialized);
     } catch (error) {
-      logger.error('Failed to save pre-key bundle state', { error })
+      logger.error("Failed to save pre-key bundle state", { error });
     }
   }
 
@@ -713,24 +749,24 @@ export class PreKeyBundleManager {
    */
   private loadState(): PreKeyBundleState | null {
     if (!this.storage) {
-      return null
+      return null;
     }
 
     try {
-      const serialized = this.storage.getItem(KEY_STATE_STORAGE_KEY)
+      const serialized = this.storage.getItem(KEY_STATE_STORAGE_KEY);
       if (!serialized) {
-        return null
+        return null;
       }
 
-      const parsed = JSON.parse(serialized)
+      const parsed = JSON.parse(serialized);
       return {
         ...parsed,
         lastUpdatedAt: new Date(parsed.lastUpdatedAt),
         signedPreKeyRotatedAt: new Date(parsed.signedPreKeyRotatedAt),
-      }
+      };
     } catch (error) {
-      logger.error('Failed to load pre-key bundle state', { error })
-      return null
+      logger.error("Failed to load pre-key bundle state", { error });
+      return null;
     }
   }
 
@@ -739,10 +775,10 @@ export class PreKeyBundleManager {
    */
   clearState(): void {
     if (this.storage) {
-      this.storage.removeItem(KEY_STATE_STORAGE_KEY)
+      this.storage.removeItem(KEY_STATE_STORAGE_KEY);
     }
-    this.state = null
-    this.initialized = false
+    this.state = null;
+    this.initialized = false;
   }
 
   // ==========================================================================
@@ -760,7 +796,7 @@ export class PreKeyBundleManager {
           lastUpdatedAt: new Date(this.state.lastUpdatedAt),
           signedPreKeyRotatedAt: new Date(this.state.signedPreKeyRotatedAt),
         }
-      : null
+      : null;
   }
 
   /**
@@ -771,9 +807,9 @@ export class PreKeyBundleManager {
       ...state,
       lastUpdatedAt: new Date(state.lastUpdatedAt),
       signedPreKeyRotatedAt: new Date(state.signedPreKeyRotatedAt),
-    }
-    this.saveState()
-    this.initialized = true
+    };
+    this.saveState();
+    this.initialized = true;
   }
 
   // ==========================================================================
@@ -786,17 +822,17 @@ export class PreKeyBundleManager {
   destroy(): void {
     if (this.state) {
       // Wipe private keys from memory (best effort)
-      this.state.identityKeyPair.privateKey = ''
-      this.state.signedPreKey.keyPair.privateKey = ''
+      this.state.identityKeyPair.privateKey = "";
+      this.state.signedPreKey.keyPair.privateKey = "";
       for (const key of this.state.oneTimePreKeys) {
-        key.privateKey = ''
+        key.privateKey = "";
       }
     }
 
-    this.state = null
-    this.initialized = false
+    this.state = null;
+    this.initialized = false;
 
-    logger.debug('Pre-key bundle manager destroyed')
+    logger.debug("Pre-key bundle manager destroyed");
   }
 }
 
@@ -810,15 +846,15 @@ export class PreKeyBundleManager {
 export async function createPreKeyBundleManager(
   userId: string,
   deviceId: string,
-  storage?: Storage
+  storage?: Storage,
 ): Promise<PreKeyBundleManager> {
-  const manager = new PreKeyBundleManager(storage)
-  await manager.initialize(userId, deviceId)
-  return manager
+  const manager = new PreKeyBundleManager(storage);
+  await manager.initialize(userId, deviceId);
+  return manager;
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export default PreKeyBundleManager
+export default PreKeyBundleManager;

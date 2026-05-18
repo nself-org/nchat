@@ -5,11 +5,11 @@
  * Supports all real-time features including messages, presence, typing, and notifications.
  */
 
-import type { UserBasicInfo, UserPresence, UserPresenceStatus } from './user'
-import type { Channel, ChannelMember } from './channel'
-import type { Message, TypingUser } from './message'
-import type { Notification } from './notification'
-import type { Reaction } from './emoji'
+import type { UserBasicInfo, UserPresence, UserPresenceStatus } from "./user";
+import type { Channel, ChannelMember } from "./channel";
+import type { Message, TypingUser } from "./message";
+import type { Notification } from "./notification";
+import type { Reaction } from "./emoji";
 
 // ============================================================================
 // Socket Connection Types
@@ -19,32 +19,32 @@ import type { Reaction } from './emoji'
  * Socket connection states.
  */
 export type SocketConnectionState =
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'reconnecting'
-  | 'error'
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "reconnecting"
+  | "error";
 
 /**
  * Socket connection info.
  */
 export interface SocketConnectionInfo {
   /** Current connection state */
-  state: SocketConnectionState
+  state: SocketConnectionState;
   /** Socket ID (when connected) */
-  socketId?: string
+  socketId?: string;
   /** Connection timestamp */
-  connectedAt?: Date
+  connectedAt?: Date;
   /** Disconnection timestamp */
-  disconnectedAt?: Date
+  disconnectedAt?: Date;
   /** Reconnection attempt count */
-  reconnectAttempts: number
+  reconnectAttempts: number;
   /** Last error */
-  lastError?: SocketError
+  lastError?: SocketError;
   /** Latency in milliseconds */
-  latency?: number
+  latency?: number;
   /** Transport type */
-  transport?: 'websocket' | 'polling'
+  transport?: "websocket" | "polling";
 }
 
 /**
@@ -52,13 +52,13 @@ export interface SocketConnectionInfo {
  */
 export interface SocketError {
   /** Error code */
-  code: string
+  code: string;
   /** Error message */
-  message: string
+  message: string;
   /** Error details */
-  details?: unknown
+  details?: unknown;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
@@ -66,23 +66,23 @@ export interface SocketError {
  */
 export interface SocketConnectionOptions {
   /** Authentication token */
-  token?: string
+  token?: string;
   /** Auto-reconnect on disconnect */
-  autoReconnect: boolean
+  autoReconnect: boolean;
   /** Maximum reconnection attempts */
-  maxReconnectAttempts: number
+  maxReconnectAttempts: number;
   /** Reconnection delay in ms */
-  reconnectDelay: number
+  reconnectDelay: number;
   /** Reconnection delay max in ms */
-  reconnectDelayMax: number
+  reconnectDelayMax: number;
   /** Connection timeout in ms */
-  connectionTimeout: number
+  connectionTimeout: number;
   /** Enable heartbeat */
-  heartbeat: boolean
+  heartbeat: boolean;
   /** Heartbeat interval in ms */
-  heartbeatInterval: number
+  heartbeatInterval: number;
   /** Transport priority */
-  transports: ('websocket' | 'polling')[]
+  transports: ("websocket" | "polling")[];
 }
 
 /**
@@ -96,8 +96,8 @@ export const DefaultSocketConnectionOptions: SocketConnectionOptions = {
   connectionTimeout: 20000,
   heartbeat: true,
   heartbeatInterval: 25000,
-  transports: ['websocket', 'polling'],
-}
+  transports: ["websocket", "polling"],
+};
 
 // ============================================================================
 // Socket Event Names
@@ -108,77 +108,77 @@ export const DefaultSocketConnectionOptions: SocketConnectionOptions = {
  */
 export type ClientToServerEvent =
   // Connection events
-  | 'authenticate'
-  | 'disconnect'
-  | 'ping'
+  | "authenticate"
+  | "disconnect"
+  | "ping"
   // Channel events
-  | 'channel:join'
-  | 'channel:leave'
-  | 'channel:subscribe'
-  | 'channel:unsubscribe'
+  | "channel:join"
+  | "channel:leave"
+  | "channel:subscribe"
+  | "channel:unsubscribe"
   // Message events
-  | 'message:send'
-  | 'message:edit'
-  | 'message:delete'
-  | 'message:read'
-  | 'message:typing_start'
-  | 'message:typing_stop'
+  | "message:send"
+  | "message:edit"
+  | "message:delete"
+  | "message:read"
+  | "message:typing_start"
+  | "message:typing_stop"
   // Reaction events
-  | 'reaction:add'
-  | 'reaction:remove'
+  | "reaction:add"
+  | "reaction:remove"
   // Presence events
-  | 'presence:update'
-  | 'presence:subscribe'
-  | 'presence:unsubscribe'
+  | "presence:update"
+  | "presence:subscribe"
+  | "presence:unsubscribe"
   // Thread events
-  | 'thread:subscribe'
-  | 'thread:unsubscribe'
+  | "thread:subscribe"
+  | "thread:unsubscribe";
 
 /**
  * Server-to-client event names.
  */
 export type ServerToClientEvent =
   // Connection events
-  | 'connected'
-  | 'authenticated'
-  | 'authentication_error'
-  | 'disconnected'
-  | 'pong'
-  | 'error'
+  | "connected"
+  | "authenticated"
+  | "authentication_error"
+  | "disconnected"
+  | "pong"
+  | "error"
   // Channel events
-  | 'channel:joined'
-  | 'channel:left'
-  | 'channel:created'
-  | 'channel:updated'
-  | 'channel:deleted'
-  | 'channel:member_joined'
-  | 'channel:member_left'
-  | 'channel:member_updated'
+  | "channel:joined"
+  | "channel:left"
+  | "channel:created"
+  | "channel:updated"
+  | "channel:deleted"
+  | "channel:member_joined"
+  | "channel:member_left"
+  | "channel:member_updated"
   // Message events
-  | 'message:new'
-  | 'message:updated'
-  | 'message:deleted'
-  | 'message:pinned'
-  | 'message:unpinned'
-  | 'message:typing'
-  | 'message:read_receipt'
+  | "message:new"
+  | "message:updated"
+  | "message:deleted"
+  | "message:pinned"
+  | "message:unpinned"
+  | "message:typing"
+  | "message:read_receipt"
   // Reaction events
-  | 'reaction:added'
-  | 'reaction:removed'
+  | "reaction:added"
+  | "reaction:removed"
   // Presence events
-  | 'presence:changed'
-  | 'presence:bulk_update'
+  | "presence:changed"
+  | "presence:bulk_update"
   // Thread events
-  | 'thread:new'
-  | 'thread:reply'
-  | 'thread:updated'
+  | "thread:new"
+  | "thread:reply"
+  | "thread:updated"
   // Notification events
-  | 'notification:new'
-  | 'notification:read'
-  | 'notification:count_update'
+  | "notification:new"
+  | "notification:read"
+  | "notification:count_update"
   // User events
-  | 'user:updated'
-  | 'user:status_changed'
+  | "user:updated"
+  | "user:status_changed";
 
 // ============================================================================
 // Client-to-Server Event Payloads
@@ -189,13 +189,13 @@ export type ServerToClientEvent =
  */
 export interface AuthenticatePayload {
   /** JWT token */
-  token: string
+  token: string;
   /** Device info */
   device?: {
-    type: 'desktop' | 'mobile' | 'web'
-    os?: string
-    browser?: string
-  }
+    type: "desktop" | "mobile" | "web";
+    os?: string;
+    browser?: string;
+  };
 }
 
 /**
@@ -203,9 +203,9 @@ export interface AuthenticatePayload {
  */
 export interface ChannelJoinPayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Last message ID (for sync) */
-  lastMessageId?: string
+  lastMessageId?: string;
 }
 
 /**
@@ -213,7 +213,7 @@ export interface ChannelJoinPayload {
  */
 export interface ChannelLeavePayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
 }
 
 /**
@@ -221,17 +221,17 @@ export interface ChannelLeavePayload {
  */
 export interface MessageSendPayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Message content */
-  content: string
+  content: string;
   /** Reply to message ID */
-  replyToId?: string
+  replyToId?: string;
   /** Thread ID */
-  threadId?: string
+  threadId?: string;
   /** Client-generated message ID (for optimistic updates) */
-  clientMessageId?: string
+  clientMessageId?: string;
   /** Attachments (IDs of already uploaded files) */
-  attachmentIds?: string[]
+  attachmentIds?: string[];
 }
 
 /**
@@ -239,9 +239,9 @@ export interface MessageSendPayload {
  */
 export interface MessageEditPayload {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** New content */
-  content: string
+  content: string;
 }
 
 /**
@@ -249,7 +249,7 @@ export interface MessageEditPayload {
  */
 export interface MessageDeletePayload {
   /** Message ID */
-  messageId: string
+  messageId: string;
 }
 
 /**
@@ -257,9 +257,9 @@ export interface MessageDeletePayload {
  */
 export interface MessageReadPayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Last read message ID */
-  messageId: string
+  messageId: string;
 }
 
 /**
@@ -267,9 +267,9 @@ export interface MessageReadPayload {
  */
 export interface TypingPayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Thread ID (if typing in thread) */
-  threadId?: string
+  threadId?: string;
 }
 
 /**
@@ -277,13 +277,13 @@ export interface TypingPayload {
  */
 export interface ReactionPayload {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Emoji character or custom emoji ID */
-  emoji: string
+  emoji: string;
   /** Is custom emoji */
-  isCustom?: boolean
+  isCustom?: boolean;
 }
 
 /**
@@ -291,13 +291,13 @@ export interface ReactionPayload {
  */
 export interface PresenceUpdatePayload {
   /** Presence status */
-  status: UserPresenceStatus
+  status: UserPresenceStatus;
   /** Custom status */
   customStatus?: {
-    emoji?: string
-    text: string
-    expiresAt?: Date
-  }
+    emoji?: string;
+    text: string;
+    expiresAt?: Date;
+  };
 }
 
 /**
@@ -305,7 +305,7 @@ export interface PresenceUpdatePayload {
  */
 export interface PresenceSubscribePayload {
   /** User IDs to subscribe to */
-  userIds: string[]
+  userIds: string[];
 }
 
 /**
@@ -313,7 +313,7 @@ export interface PresenceSubscribePayload {
  */
 export interface ThreadSubscribePayload {
   /** Thread ID */
-  threadId: string
+  threadId: string;
 }
 
 // ============================================================================
@@ -325,11 +325,11 @@ export interface ThreadSubscribePayload {
  */
 export interface ConnectedPayload {
   /** Socket ID */
-  socketId: string
+  socketId: string;
   /** Server timestamp */
-  serverTime: Date
+  serverTime: Date;
   /** Protocol version */
-  protocolVersion: string
+  protocolVersion: string;
 }
 
 /**
@@ -337,11 +337,11 @@ export interface ConnectedPayload {
  */
 export interface AuthenticatedPayload {
   /** User info */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Session ID */
-  sessionId: string
+  sessionId: string;
   /** Channels to auto-join */
-  channels: { id: string; name: string }[]
+  channels: { id: string; name: string }[];
 }
 
 /**
@@ -349,9 +349,9 @@ export interface AuthenticatedPayload {
  */
 export interface AuthenticationErrorPayload {
   /** Error code */
-  code: 'invalid_token' | 'expired_token' | 'missing_token' | 'unauthorized'
+  code: "invalid_token" | "expired_token" | "missing_token" | "unauthorized";
   /** Error message */
-  message: string
+  message: string;
 }
 
 /**
@@ -359,11 +359,11 @@ export interface AuthenticationErrorPayload {
  */
 export interface MessageNewPayload {
   /** The message */
-  message: Message
+  message: Message;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Thread ID (if in thread) */
-  threadId?: string
+  threadId?: string;
 }
 
 /**
@@ -371,11 +371,11 @@ export interface MessageNewPayload {
  */
 export interface MessageUpdatedPayload {
   /** Updated message */
-  message: Message
+  message: Message;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Previous content */
-  previousContent?: string
+  previousContent?: string;
 }
 
 /**
@@ -383,13 +383,13 @@ export interface MessageUpdatedPayload {
  */
 export interface MessageDeletedPayload {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Who deleted it */
-  deletedBy: string
+  deletedBy: string;
   /** Timestamp */
-  deletedAt: Date
+  deletedAt: Date;
 }
 
 /**
@@ -397,11 +397,11 @@ export interface MessageDeletedPayload {
  */
 export interface TypingEventPayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Thread ID (if in thread) */
-  threadId?: string
+  threadId?: string;
   /** Users currently typing */
-  users: TypingUser[]
+  users: TypingUser[];
 }
 
 /**
@@ -409,13 +409,13 @@ export interface TypingEventPayload {
  */
 export interface ReadReceiptPayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** User who read */
-  userId: string
+  userId: string;
   /** Message ID read up to */
-  messageId: string
+  messageId: string;
   /** Timestamp */
-  readAt: Date
+  readAt: Date;
 }
 
 /**
@@ -423,13 +423,13 @@ export interface ReadReceiptPayload {
  */
 export interface ReactionAddedPayload {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Reaction */
-  reaction: Reaction
+  reaction: Reaction;
   /** User who added */
-  user: UserBasicInfo
+  user: UserBasicInfo;
 }
 
 /**
@@ -437,13 +437,13 @@ export interface ReactionAddedPayload {
  */
 export interface ReactionRemovedPayload {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Emoji that was removed */
-  emoji: string
+  emoji: string;
   /** User who removed */
-  userId: string
+  userId: string;
 }
 
 /**
@@ -451,11 +451,11 @@ export interface ReactionRemovedPayload {
  */
 export interface PresenceChangedPayload {
   /** User ID */
-  userId: string
+  userId: string;
   /** New presence */
-  presence: UserPresence
+  presence: UserPresence;
   /** Previous status */
-  previousStatus?: UserPresenceStatus
+  previousStatus?: UserPresenceStatus;
 }
 
 /**
@@ -463,7 +463,7 @@ export interface PresenceChangedPayload {
  */
 export interface PresenceBulkUpdatePayload {
   /** Presence updates by user ID */
-  presences: { userId: string; presence: UserPresence }[]
+  presences: { userId: string; presence: UserPresence }[];
 }
 
 /**
@@ -471,9 +471,9 @@ export interface PresenceBulkUpdatePayload {
  */
 export interface ChannelCreatedPayload {
   /** The channel */
-  channel: Channel
+  channel: Channel;
   /** Who created it */
-  createdBy: UserBasicInfo
+  createdBy: UserBasicInfo;
 }
 
 /**
@@ -481,11 +481,11 @@ export interface ChannelCreatedPayload {
  */
 export interface ChannelUpdatedPayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Updated fields */
-  updates: Partial<Channel>
+  updates: Partial<Channel>;
   /** Who updated it */
-  updatedBy: UserBasicInfo
+  updatedBy: UserBasicInfo;
 }
 
 /**
@@ -493,11 +493,11 @@ export interface ChannelUpdatedPayload {
  */
 export interface ChannelMemberEventPayload {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** The member */
-  member: ChannelMember
+  member: ChannelMember;
   /** Event actor (who added/removed) */
-  actor?: UserBasicInfo
+  actor?: UserBasicInfo;
 }
 
 /**
@@ -505,7 +505,7 @@ export interface ChannelMemberEventPayload {
  */
 export interface NotificationEventPayload {
   /** The notification */
-  notification: Notification
+  notification: Notification;
 }
 
 /**
@@ -513,9 +513,9 @@ export interface NotificationEventPayload {
  */
 export interface NotificationCountUpdatePayload {
   /** Total unread count */
-  total: number
+  total: number;
   /** Unread by type */
-  byType: Record<string, number>
+  byType: Record<string, number>;
 }
 
 /**
@@ -523,15 +523,15 @@ export interface NotificationCountUpdatePayload {
  */
 export interface UserStatusChangedPayload {
   /** User ID */
-  userId: string
+  userId: string;
   /** User info */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** New status */
   status: {
-    emoji?: string
-    text: string
-    expiresAt?: Date
-  } | null
+    emoji?: string;
+    text: string;
+    expiresAt?: Date;
+  } | null;
 }
 
 // ============================================================================
@@ -542,74 +542,87 @@ export interface UserStatusChangedPayload {
  * Client-to-server event map.
  */
 export interface ClientToServerEvents {
-  authenticate: (payload: AuthenticatePayload) => void
-  disconnect: () => void
-  ping: () => void
-  'channel:join': (payload: ChannelJoinPayload) => void
-  'channel:leave': (payload: ChannelLeavePayload) => void
-  'channel:subscribe': (payload: ChannelJoinPayload) => void
-  'channel:unsubscribe': (payload: ChannelLeavePayload) => void
-  'message:send': (
+  authenticate: (payload: AuthenticatePayload) => void;
+  disconnect: () => void;
+  ping: () => void;
+  "channel:join": (payload: ChannelJoinPayload) => void;
+  "channel:leave": (payload: ChannelLeavePayload) => void;
+  "channel:subscribe": (payload: ChannelJoinPayload) => void;
+  "channel:unsubscribe": (payload: ChannelLeavePayload) => void;
+  "message:send": (
     payload: MessageSendPayload,
-    callback: (response: SocketResponse<Message>) => void
-  ) => void
-  'message:edit': (
+    callback: (response: SocketResponse<Message>) => void,
+  ) => void;
+  "message:edit": (
     payload: MessageEditPayload,
-    callback: (response: SocketResponse<Message>) => void
-  ) => void
-  'message:delete': (
+    callback: (response: SocketResponse<Message>) => void,
+  ) => void;
+  "message:delete": (
     payload: MessageDeletePayload,
-    callback: (response: SocketResponse<void>) => void
-  ) => void
-  'message:read': (payload: MessageReadPayload) => void
-  'message:typing_start': (payload: TypingPayload) => void
-  'message:typing_stop': (payload: TypingPayload) => void
-  'reaction:add': (payload: ReactionPayload) => void
-  'reaction:remove': (payload: ReactionPayload) => void
-  'presence:update': (payload: PresenceUpdatePayload) => void
-  'presence:subscribe': (payload: PresenceSubscribePayload) => void
-  'presence:unsubscribe': (payload: PresenceSubscribePayload) => void
-  'thread:subscribe': (payload: ThreadSubscribePayload) => void
-  'thread:unsubscribe': (payload: ThreadSubscribePayload) => void
+    callback: (response: SocketResponse<void>) => void,
+  ) => void;
+  "message:read": (payload: MessageReadPayload) => void;
+  "message:typing_start": (payload: TypingPayload) => void;
+  "message:typing_stop": (payload: TypingPayload) => void;
+  "reaction:add": (payload: ReactionPayload) => void;
+  "reaction:remove": (payload: ReactionPayload) => void;
+  "presence:update": (payload: PresenceUpdatePayload) => void;
+  "presence:subscribe": (payload: PresenceSubscribePayload) => void;
+  "presence:unsubscribe": (payload: PresenceSubscribePayload) => void;
+  "thread:subscribe": (payload: ThreadSubscribePayload) => void;
+  "thread:unsubscribe": (payload: ThreadSubscribePayload) => void;
 }
 
 /**
  * Server-to-client event map.
  */
 export interface ServerToClientEvents {
-  connected: (payload: ConnectedPayload) => void
-  authenticated: (payload: AuthenticatedPayload) => void
-  authentication_error: (payload: AuthenticationErrorPayload) => void
-  disconnected: (reason: string) => void
-  pong: () => void
-  error: (error: SocketError) => void
-  'channel:joined': (payload: { channelId: string }) => void
-  'channel:left': (payload: { channelId: string }) => void
-  'channel:created': (payload: ChannelCreatedPayload) => void
-  'channel:updated': (payload: ChannelUpdatedPayload) => void
-  'channel:deleted': (payload: { channelId: string }) => void
-  'channel:member_joined': (payload: ChannelMemberEventPayload) => void
-  'channel:member_left': (payload: ChannelMemberEventPayload) => void
-  'channel:member_updated': (payload: ChannelMemberEventPayload) => void
-  'message:new': (payload: MessageNewPayload) => void
-  'message:updated': (payload: MessageUpdatedPayload) => void
-  'message:deleted': (payload: MessageDeletedPayload) => void
-  'message:pinned': (payload: MessageNewPayload) => void
-  'message:unpinned': (payload: { messageId: string; channelId: string }) => void
-  'message:typing': (payload: TypingEventPayload) => void
-  'message:read_receipt': (payload: ReadReceiptPayload) => void
-  'reaction:added': (payload: ReactionAddedPayload) => void
-  'reaction:removed': (payload: ReactionRemovedPayload) => void
-  'presence:changed': (payload: PresenceChangedPayload) => void
-  'presence:bulk_update': (payload: PresenceBulkUpdatePayload) => void
-  'thread:new': (payload: { threadId: string; channelId: string; rootMessage: Message }) => void
-  'thread:reply': (payload: MessageNewPayload) => void
-  'thread:updated': (payload: { threadId: string; replyCount: number; lastReplyAt: Date }) => void
-  'notification:new': (payload: NotificationEventPayload) => void
-  'notification:read': (payload: { notificationId: string }) => void
-  'notification:count_update': (payload: NotificationCountUpdatePayload) => void
-  'user:updated': (payload: { user: UserBasicInfo }) => void
-  'user:status_changed': (payload: UserStatusChangedPayload) => void
+  connected: (payload: ConnectedPayload) => void;
+  authenticated: (payload: AuthenticatedPayload) => void;
+  authentication_error: (payload: AuthenticationErrorPayload) => void;
+  disconnected: (reason: string) => void;
+  pong: () => void;
+  error: (error: SocketError) => void;
+  "channel:joined": (payload: { channelId: string }) => void;
+  "channel:left": (payload: { channelId: string }) => void;
+  "channel:created": (payload: ChannelCreatedPayload) => void;
+  "channel:updated": (payload: ChannelUpdatedPayload) => void;
+  "channel:deleted": (payload: { channelId: string }) => void;
+  "channel:member_joined": (payload: ChannelMemberEventPayload) => void;
+  "channel:member_left": (payload: ChannelMemberEventPayload) => void;
+  "channel:member_updated": (payload: ChannelMemberEventPayload) => void;
+  "message:new": (payload: MessageNewPayload) => void;
+  "message:updated": (payload: MessageUpdatedPayload) => void;
+  "message:deleted": (payload: MessageDeletedPayload) => void;
+  "message:pinned": (payload: MessageNewPayload) => void;
+  "message:unpinned": (payload: {
+    messageId: string;
+    channelId: string;
+  }) => void;
+  "message:typing": (payload: TypingEventPayload) => void;
+  "message:read_receipt": (payload: ReadReceiptPayload) => void;
+  "reaction:added": (payload: ReactionAddedPayload) => void;
+  "reaction:removed": (payload: ReactionRemovedPayload) => void;
+  "presence:changed": (payload: PresenceChangedPayload) => void;
+  "presence:bulk_update": (payload: PresenceBulkUpdatePayload) => void;
+  "thread:new": (payload: {
+    threadId: string;
+    channelId: string;
+    rootMessage: Message;
+  }) => void;
+  "thread:reply": (payload: MessageNewPayload) => void;
+  "thread:updated": (payload: {
+    threadId: string;
+    replyCount: number;
+    lastReplyAt: Date;
+  }) => void;
+  "notification:new": (payload: NotificationEventPayload) => void;
+  "notification:read": (payload: { notificationId: string }) => void;
+  "notification:count_update": (
+    payload: NotificationCountUpdatePayload,
+  ) => void;
+  "user:updated": (payload: { user: UserBasicInfo }) => void;
+  "user:status_changed": (payload: UserStatusChangedPayload) => void;
 }
 
 // ============================================================================
@@ -621,17 +634,17 @@ export interface ServerToClientEvents {
  */
 export interface SocketResponse<T = unknown> {
   /** Success indicator */
-  success: boolean
+  success: boolean;
   /** Response data */
-  data?: T
+  data?: T;
   /** Error (if failed) */
-  error?: SocketError
+  error?: SocketError;
 }
 
 /**
  * Socket acknowledgement callback.
  */
-export type SocketAck<T = unknown> = (response: SocketResponse<T>) => void
+export type SocketAck<T = unknown> = (response: SocketResponse<T>) => void;
 
 // ============================================================================
 // Socket State Types
@@ -642,21 +655,21 @@ export type SocketAck<T = unknown> = (response: SocketResponse<T>) => void
  */
 export interface SocketState {
   /** Connection info */
-  connection: SocketConnectionInfo
+  connection: SocketConnectionInfo;
   /** Authenticated user */
-  user?: UserBasicInfo
+  user?: UserBasicInfo;
   /** Joined channel IDs */
-  joinedChannels: Set<string>
+  joinedChannels: Set<string>;
   /** Subscribed thread IDs */
-  subscribedThreads: Set<string>
+  subscribedThreads: Set<string>;
   /** Subscribed user presence IDs */
-  subscribedPresence: Set<string>
+  subscribedPresence: Set<string>;
   /** Pending messages (optimistic updates) */
-  pendingMessages: Map<string, Message>
+  pendingMessages: Map<string, Message>;
   /** Typing states by channel */
-  typingStates: Map<string, TypingUser[]>
+  typingStates: Map<string, TypingUser[]>;
   /** Presence cache */
-  presenceCache: Map<string, UserPresence>
+  presenceCache: Map<string, UserPresence>;
 }
 
 // ============================================================================
@@ -666,18 +679,17 @@ export interface SocketState {
 /**
  * Socket event handler type.
  */
-export type SocketEventHandler<T> = (payload: T) => void | Promise<void>
+export type SocketEventHandler<T> = (payload: T) => void | Promise<void>;
 
 /**
  * Socket event listener cleanup function.
  */
-export type SocketEventCleanup = () => void
+export type SocketEventCleanup = () => void;
 
 /**
  * Extract payload type from event map.
  */
-export type ExtractEventPayload<TEvents, TEvent extends keyof TEvents> = TEvents[TEvent] extends (
-  payload: infer P
-) => void
-  ? P
-  : never
+export type ExtractEventPayload<
+  TEvents,
+  TEvent extends keyof TEvents,
+> = TEvents[TEvent] extends (payload: infer P) => void ? P : never;

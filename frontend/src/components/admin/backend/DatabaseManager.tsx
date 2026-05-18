@@ -1,69 +1,84 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Database, Upload, Download, Play, RotateCcw, FileCode, Users, Table } from 'lucide-react'
-import { useState } from 'react'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Database,
+  Upload,
+  Download,
+  Play,
+  RotateCcw,
+  FileCode,
+  Users,
+  Table,
+} from "lucide-react";
+import { useState } from "react";
 
 interface Migration {
-  id: string
-  name: string
-  status: 'applied' | 'pending' | 'failed'
-  appliedAt?: string
+  id: string;
+  name: string;
+  status: "applied" | "pending" | "failed";
+  appliedAt?: string;
 }
 
 export function DatabaseManager() {
   const [migrations, setMigrations] = useState<Migration[]>([
     {
-      id: '001',
-      name: 'create_users_table',
-      status: 'applied',
-      appliedAt: '2026-01-25 10:30:00',
+      id: "001",
+      name: "create_users_table",
+      status: "applied",
+      appliedAt: "2026-01-25 10:30:00",
     },
     {
-      id: '002',
-      name: 'create_channels_table',
-      status: 'applied',
-      appliedAt: '2026-01-26 14:15:00',
+      id: "002",
+      name: "create_channels_table",
+      status: "applied",
+      appliedAt: "2026-01-26 14:15:00",
     },
     {
-      id: '003',
-      name: 'create_messages_table',
-      status: 'applied',
-      appliedAt: '2026-01-27 09:45:00',
+      id: "003",
+      name: "create_messages_table",
+      status: "applied",
+      appliedAt: "2026-01-27 09:45:00",
     },
     {
-      id: '004',
-      name: 'add_message_reactions',
-      status: 'pending',
+      id: "004",
+      name: "add_message_reactions",
+      status: "pending",
     },
-  ])
+  ]);
 
   const [dbStats, setDbStats] = useState({
-    size: '256 MB',
+    size: "256 MB",
     tables: 15,
     connections: 12,
     maxConnections: 100,
-  })
+  });
 
   const handleRunMigrations = async () => {
     // In production: execute `nself db migrate up` via API
     // REMOVED: console.log('Running migrations...')
-  }
+  };
 
   const handleBackup = async () => {
     // In production: execute `nself db backup` via API
     // REMOVED: console.log('Creating backup...')
-  }
+  };
 
   const handleSeed = async () => {
     // In production: execute `nself db seed` via API
     // REMOVED: console.log('Seeding database...')
-  }
+  };
 
-  const pendingCount = migrations.filter((m) => m.status === 'pending').length
-  const appliedCount = migrations.filter((m) => m.status === 'applied').length
+  const pendingCount = migrations.filter((m) => m.status === "pending").length;
+  const appliedCount = migrations.filter((m) => m.status === "applied").length;
 
   return (
     <div className="space-y-4">
@@ -121,7 +136,11 @@ export function DatabaseManager() {
                 <FileCode className="mr-2 h-4 w-4" />
                 Create Migration
               </Button>
-              <Button size="sm" onClick={handleRunMigrations} disabled={pendingCount === 0}>
+              <Button
+                size="sm"
+                onClick={handleRunMigrations}
+                disabled={pendingCount === 0}
+              >
                 <Play className="mr-2 h-4 w-4" />
                 Run Migrations ({pendingCount})
               </Button>
@@ -138,11 +157,11 @@ export function DatabaseManager() {
                 <div className="flex items-center gap-3">
                   <Badge
                     variant={
-                      migration.status === 'applied'
-                        ? 'default'
-                        : migration.status === 'pending'
-                          ? 'secondary'
-                          : 'destructive'
+                      migration.status === "applied"
+                        ? "default"
+                        : migration.status === "pending"
+                          ? "secondary"
+                          : "destructive"
                     }
                   >
                     {migration.status}
@@ -158,7 +177,7 @@ export function DatabaseManager() {
                     )}
                   </div>
                 </div>
-                {migration.status === 'applied' && (
+                {migration.status === "applied" && (
                   <Button size="sm" variant="ghost">
                     <RotateCcw className="h-4 w-4" />
                   </Button>
@@ -220,9 +239,21 @@ export function DatabaseManager() {
         <CardContent>
           <div className="space-y-2">
             {[
-              { name: 'nchat_20260131_093000.sql', size: '145 MB', date: '2026-01-31 09:30' },
-              { name: 'nchat_20260130_093000.sql', size: '142 MB', date: '2026-01-30 09:30' },
-              { name: 'nchat_20260129_093000.sql', size: '138 MB', date: '2026-01-29 09:30' },
+              {
+                name: "nchat_20260131_093000.sql",
+                size: "145 MB",
+                date: "2026-01-31 09:30",
+              },
+              {
+                name: "nchat_20260130_093000.sql",
+                size: "142 MB",
+                date: "2026-01-30 09:30",
+              },
+              {
+                name: "nchat_20260129_093000.sql",
+                size: "138 MB",
+                date: "2026-01-29 09:30",
+              },
             ].map((backup) => (
               <div
                 key={backup.name}
@@ -248,5 +279,5 @@ export function DatabaseManager() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

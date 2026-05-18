@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,15 +8,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import {
   BarChart3,
   Plus,
@@ -32,31 +32,31 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertCircle,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { usePollCreator, useCreatePoll } from '@/lib/polls/use-poll'
-import type { PollSettings } from '@/lib/polls/poll-store'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { usePollCreator, useCreatePoll } from "@/lib/polls/use-poll";
+import type { PollSettings } from "@/lib/polls/poll-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CreatePollModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  channelId: string
-  onPollCreated?: (pollId: string) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channelId: string;
+  onPollCreated?: (pollId: string) => void;
 }
 
 interface PollOptionInputProps {
-  index: number
-  value: string
-  onChange: (value: string) => void
-  onRemove: () => void
-  canRemove: boolean
-  disabled?: boolean
+  index: number;
+  value: string;
+  onChange: (value: string) => void;
+  onRemove: () => void;
+  canRemove: boolean;
+  disabled?: boolean;
 }
 
 // ============================================================================
@@ -102,7 +102,7 @@ function PollOptionInput({
         </Button>
       )}
     </div>
-  )
+  );
 }
 
 function PollPreview({
@@ -111,20 +111,20 @@ function PollPreview({
   settings,
   endsAt,
 }: {
-  question: string
-  options: string[]
-  settings: PollSettings
-  endsAt: Date | null
+  question: string;
+  options: string[];
+  settings: PollSettings;
+  endsAt: Date | null;
 }) {
-  const [previewVote, setPreviewVote] = useState<number | null>(null)
-  const validOptions = options.filter((o) => o.trim())
+  const [previewVote, setPreviewVote] = useState<number | null>(null);
+  const validOptions = options.filter((o) => o.trim());
 
   // Simulated vote counts for preview
   const previewVotes = useMemo(() => {
-    return validOptions.map(() => Math.floor(Math.random() * 50))
-  }, [validOptions.length])
+    return validOptions.map(() => Math.floor(Math.random() * 50));
+  }, [validOptions.length]);
 
-  const totalVotes = previewVotes.reduce((a, b) => a + b, 0)
+  const totalVotes = previewVotes.reduce((a, b) => a + b, 0);
 
   return (
     <div className="bg-muted/30 space-y-4 rounded-xl border p-4">
@@ -133,7 +133,9 @@ function PollPreview({
           <BarChart3 className="h-5 w-5 text-primary" />
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="text-base font-semibold">{question || 'Your question here...'}</h4>
+          <h4 className="text-base font-semibold">
+            {question || "Your question here..."}
+          </h4>
           <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
             <span>{totalVotes} votes</span>
             {endsAt && (
@@ -150,8 +152,10 @@ function PollPreview({
       <div className="space-y-2">
         {validOptions.map((option, index) => {
           const percentage =
-            totalVotes > 0 ? Math.round((previewVotes[index] / totalVotes) * 100) : 0
-          const isSelected = previewVote === index
+            totalVotes > 0
+              ? Math.round((previewVotes[index] / totalVotes) * 100)
+              : 0;
+          const isSelected = previewVote === index;
 
           return (
             <button
@@ -159,33 +163,39 @@ function PollPreview({
               type="button"
               onClick={() => setPreviewVote(isSelected ? null : index)}
               className={cn(
-                'relative w-full overflow-hidden rounded-lg border p-3 text-left transition-all',
+                "relative w-full overflow-hidden rounded-lg border p-3 text-left transition-all",
                 isSelected
-                  ? 'bg-primary/5 border-primary'
-                  : 'hover:border-primary/50 hover:bg-accent/50 border-border'
+                  ? "bg-primary/5 border-primary"
+                  : "hover:border-primary/50 hover:bg-accent/50 border-border",
               )}
             >
               {/* Progress background */}
               <div
                 className={cn(
-                  'absolute inset-y-0 left-0 transition-all',
-                  isSelected ? 'bg-primary/10' : 'bg-muted'
+                  "absolute inset-y-0 left-0 transition-all",
+                  isSelected ? "bg-primary/10" : "bg-muted",
                 )}
                 style={{ width: `${percentage}%` }}
               />
 
               <div className="relative flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {isSelected && <CheckCircle2 className="h-4 w-4 text-primary" />}
-                  <span className={cn('text-sm', isSelected && 'font-medium')}>{option}</span>
+                  {isSelected && (
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                  )}
+                  <span className={cn("text-sm", isSelected && "font-medium")}>
+                    {option}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">{previewVotes[index]}</span>
+                  <span className="text-muted-foreground">
+                    {previewVotes[index]}
+                  </span>
                   <span className="font-medium">{percentage}%</span>
                 </div>
               </div>
             </button>
-          )
+          );
         })}
       </div>
 
@@ -215,7 +225,7 @@ function PollPreview({
         This is a preview. Click options to see how voting works.
       </p>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -244,29 +254,32 @@ export function CreatePollModal({
     setEndsAt,
     setStep,
     reset,
-  } = usePollCreator()
+  } = usePollCreator();
 
-  const { createPoll, creating } = useCreatePoll()
-  const [submitting, setSubmitting] = useState(false)
+  const { createPoll, creating } = useCreatePoll();
+  const [submitting, setSubmitting] = useState(false);
 
-  const validOptions = useMemo(() => options.filter((o) => o.trim()), [options])
+  const validOptions = useMemo(
+    () => options.filter((o) => o.trim()),
+    [options],
+  );
 
   const handleClose = useCallback(() => {
-    onOpenChange(false)
+    onOpenChange(false);
     // Delay reset to allow animation to complete
     setTimeout(() => {
-      reset()
-      setStep('create')
-    }, 300)
-  }, [onOpenChange, reset, setStep])
+      reset();
+      setStep("create");
+    }, 300);
+  }, [onOpenChange, reset, setStep]);
 
   const handleSubmit = useCallback(async () => {
-    if (!isValid || submitting) return
+    if (!isValid || submitting) return;
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       // Generate a temporary message ID (in real implementation, message would be created first)
-      const messageId = `poll-msg-${Date.now()}`
+      const messageId = `poll-msg-${Date.now()}`;
 
       const poll = await createPoll({
         channelId,
@@ -275,16 +288,16 @@ export function CreatePollModal({
         options: validOptions,
         settings,
         endsAt,
-      })
+      });
 
       if (poll) {
-        onPollCreated?.(poll.id)
-        handleClose()
+        onPollCreated?.(poll.id);
+        handleClose();
       }
     } catch (error) {
-      logger.error('Failed to create poll:', error)
+      logger.error("Failed to create poll:", error);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }, [
     isValid,
@@ -297,22 +310,22 @@ export function CreatePollModal({
     endsAt,
     onPollCreated,
     handleClose,
-  ])
+  ]);
 
   const handleDateChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value
-      setEndsAt(value ? new Date(value) : null)
+      const value = e.target.value;
+      setEndsAt(value ? new Date(value) : null);
     },
-    [setEndsAt]
-  )
+    [setEndsAt],
+  );
 
   const formatDateForInput = (date: Date | null) => {
-    if (!date) return ''
-    const offset = date.getTimezoneOffset()
-    const localDate = new Date(date.getTime() - offset * 60 * 1000)
-    return localDate.toISOString().slice(0, 16)
-  }
+    if (!date) return "";
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60 * 1000);
+    return localDate.toISOString().slice(0, 16);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -320,12 +333,12 @@ export function CreatePollModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-primary" />
-            {step === 'create' ? 'Create a Poll' : 'Preview Poll'}
+            {step === "create" ? "Create a Poll" : "Preview Poll"}
           </DialogTitle>
           <DialogDescription>
-            {step === 'create'
-              ? 'Create a poll to gather opinions from your team.'
-              : 'Review your poll before posting.'}
+            {step === "create"
+              ? "Create a poll to gather opinions from your team."
+              : "Review your poll before posting."}
           </DialogDescription>
         </DialogHeader>
 
@@ -333,21 +346,21 @@ export function CreatePollModal({
         <div className="flex items-center gap-2 px-1">
           <div
             className={cn(
-              'h-1 flex-1 rounded-full transition-colors',
-              step === 'create' ? 'bg-primary' : 'bg-primary/30'
+              "h-1 flex-1 rounded-full transition-colors",
+              step === "create" ? "bg-primary" : "bg-primary/30",
             )}
           />
           <div
             className={cn(
-              'h-1 flex-1 rounded-full transition-colors',
-              step === 'preview' ? 'bg-primary' : 'bg-muted'
+              "h-1 flex-1 rounded-full transition-colors",
+              step === "preview" ? "bg-primary" : "bg-muted",
             )}
           />
         </div>
 
         <ScrollArea className="-mx-6 flex-1 px-6">
           <div className="space-y-6 py-4">
-            {step === 'create' ? (
+            {step === "create" ? (
               <>
                 {/* Question input */}
                 <div className="space-y-2">
@@ -363,7 +376,9 @@ export function CreatePollModal({
                     maxLength={500}
                     className="text-base"
                   />
-                  <p className="text-right text-xs text-muted-foreground">{question.length}/500</p>
+                  <p className="text-right text-xs text-muted-foreground">
+                    {question.length}/500
+                  </p>
                 </div>
 
                 {/* Options */}
@@ -416,7 +431,10 @@ export function CreatePollModal({
                     {/* Multiple choice */}
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label htmlFor="multiple-votes" className="cursor-pointer font-normal">
+                        <Label
+                          htmlFor="multiple-votes"
+                          className="cursor-pointer font-normal"
+                        >
                           Allow multiple choices
                         </Label>
                         <p className="text-xs text-muted-foreground">
@@ -426,7 +444,9 @@ export function CreatePollModal({
                       <Switch
                         id="multiple-votes"
                         checked={settings.allowMultipleVotes}
-                        onCheckedChange={(checked) => setSettings({ allowMultipleVotes: checked })}
+                        onCheckedChange={(checked) =>
+                          setSettings({ allowMultipleVotes: checked })
+                        }
                         disabled={creating || submitting}
                       />
                     </div>
@@ -448,7 +468,9 @@ export function CreatePollModal({
                       <Switch
                         id="anonymous"
                         checked={settings.isAnonymous}
-                        onCheckedChange={(checked) => setSettings({ isAnonymous: checked })}
+                        onCheckedChange={(checked) =>
+                          setSettings({ isAnonymous: checked })
+                        }
                         disabled={creating || submitting}
                       />
                     </div>
@@ -470,7 +492,9 @@ export function CreatePollModal({
                       <Switch
                         id="add-options"
                         checked={settings.allowAddOptions}
-                        onCheckedChange={(checked) => setSettings({ allowAddOptions: checked })}
+                        onCheckedChange={(checked) =>
+                          setSettings({ allowAddOptions: checked })
+                        }
                         disabled={creating || submitting}
                       />
                     </div>
@@ -494,7 +518,8 @@ export function CreatePollModal({
                     disabled={creating || submitting}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Poll will automatically close at this time. Leave empty for no end date.
+                    Poll will automatically close at this time. Leave empty for
+                    no end date.
                   </p>
                 </div>
 
@@ -503,7 +528,9 @@ export function CreatePollModal({
                   <div className="bg-destructive/10 border-destructive/20 rounded-lg border p-3">
                     <div className="flex items-center gap-2 text-sm text-destructive">
                       <AlertCircle className="h-4 w-4" />
-                      <span className="font-medium">Please fix the following:</span>
+                      <span className="font-medium">
+                        Please fix the following:
+                      </span>
                     </div>
                     <ul className="text-destructive/80 mt-2 list-inside list-disc text-sm">
                       {errors.map((error, index) => (
@@ -525,24 +552,37 @@ export function CreatePollModal({
         </ScrollArea>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          {step === 'create' ? (
+          {step === "create" ? (
             <>
-              <Button variant="outline" onClick={handleClose} disabled={submitting}>
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={submitting}
+              >
                 Cancel
               </Button>
-              <Button onClick={() => setStep('preview')} disabled={!isValid || submitting}>
+              <Button
+                onClick={() => setStep("preview")}
+                disabled={!isValid || submitting}
+              >
                 Preview
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={() => setStep('create')} disabled={submitting}>
+              <Button
+                variant="outline"
+                onClick={() => setStep("create")}
+                disabled={submitting}
+              >
                 <ChevronLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
               <Button onClick={handleSubmit} disabled={!isValid || submitting}>
-                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {submitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Create Poll
               </Button>
             </>
@@ -550,7 +590,7 @@ export function CreatePollModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default CreatePollModal
+export default CreatePollModal;

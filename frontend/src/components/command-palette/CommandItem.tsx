@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CommandItem
@@ -6,13 +6,16 @@
  * Individual command item in the command list.
  */
 
-import * as React from 'react'
-import { Command as CommandPrimitive } from 'cmdk'
-import { cn } from '@/lib/utils'
-import { CommandIcon } from './CommandIcon'
-import { CommandShortcut } from './CommandShortcut'
-import type { Command, CommandMatch } from '@/lib/command-palette/command-types'
-import { getHighlightedSegments } from '@/lib/command-palette/command-search'
+import * as React from "react";
+import { Command as CommandPrimitive } from "cmdk";
+import { cn } from "@/lib/utils";
+import { CommandIcon } from "./CommandIcon";
+import { CommandShortcut } from "./CommandShortcut";
+import type {
+  Command,
+  CommandMatch,
+} from "@/lib/command-palette/command-types";
+import { getHighlightedSegments } from "@/lib/command-palette/command-search";
 
 // ============================================================================
 // Types
@@ -20,17 +23,17 @@ import { getHighlightedSegments } from '@/lib/command-palette/command-search'
 
 export interface CommandItemProps {
   /** The command data */
-  command: Command
+  command: Command;
   /** Whether this item is currently selected */
-  isSelected?: boolean
+  isSelected?: boolean;
   /** Click handler */
-  onSelect?: (command: Command) => void
+  onSelect?: (command: Command) => void;
   /** Matches for highlighting */
-  matches?: CommandMatch[]
+  matches?: CommandMatch[];
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Whether to show the description */
-  showDescription?: boolean
+  showDescription?: boolean;
 }
 
 // ============================================================================
@@ -38,31 +41,34 @@ export interface CommandItemProps {
 // ============================================================================
 
 interface HighlightedTextProps {
-  text: string
-  matches?: Array<{ start: number; end: number }>
-  className?: string
+  text: string;
+  matches?: Array<{ start: number; end: number }>;
+  className?: string;
 }
 
 function HighlightedText({ text, matches, className }: HighlightedTextProps) {
   if (!matches || matches.length === 0) {
-    return <span className={className}>{text}</span>
+    return <span className={className}>{text}</span>;
   }
 
-  const segments = getHighlightedSegments(text, matches)
+  const segments = getHighlightedSegments(text, matches);
 
   return (
     <span className={className}>
       {segments.map((segment, index) =>
         segment.highlighted ? (
-          <mark key={index} className="bg-primary/20 rounded-sm px-0.5 text-foreground">
+          <mark
+            key={index}
+            className="bg-primary/20 rounded-sm px-0.5 text-foreground"
+          >
             {segment.text}
           </mark>
         ) : (
           <span key={index}>{segment.text}</span>
-        )
+        ),
       )}
     </span>
-  )
+  );
 }
 
 // ============================================================================
@@ -78,20 +84,20 @@ export function CommandItem({
   showDescription = true,
 }: CommandItemProps) {
   // Get matches for name field
-  const nameMatches = matches.filter((m) => m.field === 'name')
+  const nameMatches = matches.filter((m) => m.field === "name");
 
   return (
     <CommandPrimitive.Item
       value={command.id}
       onSelect={() => onSelect?.(command)}
       className={cn(
-        'relative flex cursor-pointer select-none items-center gap-3 rounded-md px-3 py-2 text-sm outline-none',
-        'aria-selected:text-accent-foreground aria-selected:bg-accent',
-        'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        'hover:text-accent-foreground hover:bg-accent',
-        isSelected && 'text-accent-foreground bg-accent',
-        command.status === 'disabled' && 'pointer-events-none opacity-50',
-        className
+        "relative flex cursor-pointer select-none items-center gap-3 rounded-md px-3 py-2 text-sm outline-none",
+        "aria-selected:text-accent-foreground aria-selected:bg-accent",
+        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "hover:text-accent-foreground hover:bg-accent",
+        isSelected && "text-accent-foreground bg-accent",
+        command.status === "disabled" && "pointer-events-none opacity-50",
+        className,
       )}
       data-selected={isSelected}
     >
@@ -99,7 +105,7 @@ export function CommandItem({
       <CommandIcon
         icon={command.icon}
         size="md"
-        className={cn(isSelected && 'bg-accent-foreground/10')}
+        className={cn(isSelected && "bg-accent-foreground/10")}
       />
 
       {/* Content */}
@@ -121,14 +127,18 @@ export function CommandItem({
 
         {/* Description */}
         {showDescription && command.description && (
-          <p className="truncate text-xs text-muted-foreground">{command.description}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {command.description}
+          </p>
         )}
       </div>
 
       {/* Shortcut */}
-      {command.shortcut && <CommandShortcut keys={command.shortcut.keys} size="sm" />}
+      {command.shortcut && (
+        <CommandShortcut keys={command.shortcut.keys} size="sm" />
+      )}
     </CommandPrimitive.Item>
-  )
+  );
 }
 
-export default CommandItem
+export default CommandItem;

@@ -5,20 +5,31 @@
  */
 
 // Main modal/panel
-export { EditHistory, EditHistoryPanel } from './EditHistory'
-export type { EditHistoryProps, EditHistoryPanelProps } from './EditHistory'
+export { EditHistory, EditHistoryPanel } from "./EditHistory";
+export type { EditHistoryProps, EditHistoryPanelProps } from "./EditHistory";
 
 // List components
-export { EditHistoryList, HistoryTimeline, HistoryStats } from './EditHistoryList'
+export {
+  EditHistoryList,
+  HistoryTimeline,
+  HistoryStats,
+} from "./EditHistoryList";
 export type {
   EditHistoryListProps,
   HistoryTimelineProps,
   HistoryStatsProps,
-} from './EditHistoryList'
+} from "./EditHistoryList";
 
 // Item components
-export { EditHistoryItem, EditHistoryItemSkeleton, CompactHistoryItem } from './EditHistoryItem'
-export type { EditHistoryItemProps, CompactHistoryItemProps } from './EditHistoryItem'
+export {
+  EditHistoryItem,
+  EditHistoryItemSkeleton,
+  CompactHistoryItem,
+} from "./EditHistoryItem";
+export type {
+  EditHistoryItemProps,
+  CompactHistoryItemProps,
+} from "./EditHistoryItem";
 
 // Diff components
 export {
@@ -28,7 +39,7 @@ export {
   SideBySideDiff,
   DiffPreview,
   DiffStatsBar,
-} from './EditDiff'
+} from "./EditDiff";
 export type {
   EditDiffProps,
   DiffSegmentsProps,
@@ -36,20 +47,29 @@ export type {
   SideBySideDiffProps,
   DiffPreviewProps,
   DiffStatsBarProps,
-} from './EditDiff'
+} from "./EditDiff";
 
 // Timestamp components
-export { EditTimestamp, TimeRange, VersionTimestamp, EditTiming } from './EditTimestamp'
+export {
+  EditTimestamp,
+  TimeRange,
+  VersionTimestamp,
+  EditTiming,
+} from "./EditTimestamp";
 export type {
   EditTimestampProps,
   TimeRangeProps,
   VersionTimestampProps,
   EditTimingProps,
-} from './EditTimestamp'
+} from "./EditTimestamp";
 
 // Indicator components
-export { EditedIndicator, EditedBadge, EditedText } from './EditedIndicator'
-export type { EditedIndicatorProps, EditedBadgeProps, EditedTextProps } from './EditedIndicator'
+export { EditedIndicator, EditedBadge, EditedText } from "./EditedIndicator";
+export type {
+  EditedIndicatorProps,
+  EditedBadgeProps,
+  EditedTextProps,
+} from "./EditedIndicator";
 
 // Original message components
 export {
@@ -57,25 +77,37 @@ export {
   OriginalMessagePreview,
   OriginalVsCurrent,
   InlineOriginal,
-} from './OriginalMessage'
+} from "./OriginalMessage";
 export type {
   OriginalMessageProps,
   OriginalMessagePreviewProps,
   OriginalVsCurrentProps,
   InlineOriginalProps,
-} from './OriginalMessage'
+} from "./OriginalMessage";
 
 // Comparison components
-export { VersionComparison, QuickComparison, TabbedVersionView } from './VersionComparison'
+export {
+  VersionComparison,
+  QuickComparison,
+  TabbedVersionView,
+} from "./VersionComparison";
 export type {
   VersionComparisonProps,
   QuickComparisonProps,
   TabbedVersionViewProps,
-} from './VersionComparison'
+} from "./VersionComparison";
 
 // Admin components
-export { RestoreVersion, RestoreButton, RestoreSuccess } from './RestoreVersion'
-export type { RestoreVersionProps, RestoreButtonProps, RestoreSuccessProps } from './RestoreVersion'
+export {
+  RestoreVersion,
+  RestoreButton,
+  RestoreSuccess,
+} from "./RestoreVersion";
+export type {
+  RestoreVersionProps,
+  RestoreButtonProps,
+  RestoreSuccessProps,
+} from "./RestoreVersion";
 
-export { DeleteHistory, DeleteVersions } from './DeleteHistory'
-export type { DeleteHistoryProps, DeleteVersionsProps } from './DeleteHistory'
+export { DeleteHistory, DeleteVersions } from "./DeleteHistory";
+export type { DeleteHistoryProps, DeleteVersionsProps } from "./DeleteHistory";

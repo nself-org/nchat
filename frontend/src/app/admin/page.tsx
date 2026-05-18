@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import dynamic from 'next/dynamic'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useAuth } from '@/contexts/auth-context'
+import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/contexts/auth-context";
 import {
   Users,
   Hash,
@@ -14,21 +14,30 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-} from 'lucide-react'
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { StatsCard } from '@/components/admin/stats-card'
-import { generateMockActivityData } from '@/components/admin/activity-chart'
-import { ChartSkeleton } from '@/components/ui/loading-skeletons'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "lucide-react";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { StatsCard } from "@/components/admin/stats-card";
+import { generateMockActivityData } from "@/components/admin/activity-chart";
+import { ChartSkeleton } from "@/components/ui/loading-skeletons";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Lazy load heavy chart component (recharts)
 const ActivityChart = dynamic(
-  () => import('@/components/admin/activity-chart').then((mod) => ({ default: mod.ActivityChart })),
-  { loading: () => <ChartSkeleton />, ssr: false }
-)
+  () =>
+    import("@/components/admin/activity-chart").then((mod) => ({
+      default: mod.ActivityChart,
+    })),
+  { loading: () => <ChartSkeleton />, ssr: false },
+);
 
 // Mock data for demonstration
 const mockStats = {
@@ -38,73 +47,73 @@ const mockStats = {
   totalMessages: 12847,
   newUsersThisWeek: 12,
   messagesThisWeek: 2341,
-}
+};
 
 const mockRecentActivity = [
   {
-    id: '1',
-    type: 'user.joined',
-    user: { name: 'Alice Johnson', avatar: '' },
-    description: 'joined the workspace',
-    time: '2 minutes ago',
+    id: "1",
+    type: "user.joined",
+    user: { name: "Alice Johnson", avatar: "" },
+    description: "joined the workspace",
+    time: "2 minutes ago",
   },
   {
-    id: '2',
-    type: 'channel.created',
-    user: { name: 'Bob Smith', avatar: '' },
-    description: 'created channel #engineering',
-    time: '15 minutes ago',
+    id: "2",
+    type: "channel.created",
+    user: { name: "Bob Smith", avatar: "" },
+    description: "created channel #engineering",
+    time: "15 minutes ago",
   },
   {
-    id: '3',
-    type: 'user.role_changed',
-    user: { name: 'Charlie Brown', avatar: '' },
-    description: 'was promoted to moderator',
-    time: '1 hour ago',
+    id: "3",
+    type: "user.role_changed",
+    user: { name: "Charlie Brown", avatar: "" },
+    description: "was promoted to moderator",
+    time: "1 hour ago",
   },
   {
-    id: '4',
-    type: 'message.flagged',
-    user: { name: 'System', avatar: '' },
-    description: 'flagged a message in #general',
-    time: '2 hours ago',
+    id: "4",
+    type: "message.flagged",
+    user: { name: "System", avatar: "" },
+    description: "flagged a message in #general",
+    time: "2 hours ago",
   },
   {
-    id: '5',
-    type: 'user.joined',
-    user: { name: 'Diana Prince', avatar: '' },
-    description: 'joined the workspace',
-    time: '3 hours ago',
+    id: "5",
+    type: "user.joined",
+    user: { name: "Diana Prince", avatar: "" },
+    description: "joined the workspace",
+    time: "3 hours ago",
   },
-]
+];
 
 const mockSystemHealth = [
-  { name: 'Database', status: 'healthy' as const },
-  { name: 'Auth Service', status: 'healthy' as const },
-  { name: 'Storage', status: 'healthy' as const },
-  { name: 'Real-time', status: 'warning' as const },
-]
+  { name: "Database", status: "healthy" as const },
+  { name: "Auth Service", status: "healthy" as const },
+  { name: "Storage", status: "healthy" as const },
+  { name: "Real-time", status: "warning" as const },
+];
 
 export default function AdminDashboardPage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-  const [activityData, setActivityData] = useState(generateMockActivityData(7))
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('7d')
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [activityData, setActivityData] = useState(generateMockActivityData(7));
+  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("7d");
 
   useEffect(() => {
-    if (!loading && (!user || !['owner', 'admin'].includes(user.role))) {
-      router.push('/chat')
+    if (!loading && (!user || !["owner", "admin"].includes(user.role))) {
+      router.push("/chat");
     }
-  }, [user, loading, router])
+  }, [user, loading, router]);
 
-  const handleTimeRangeChange = (range: '7d' | '30d' | '90d') => {
-    setTimeRange(range)
-    const days = range === '7d' ? 7 : range === '30d' ? 30 : 90
-    setActivityData(generateMockActivityData(days))
-  }
+  const handleTimeRangeChange = (range: "7d" | "30d" | "90d") => {
+    setTimeRange(range);
+    const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;
+    setActivityData(generateMockActivityData(days));
+  };
 
-  if (loading || !user || !['owner', 'admin'].includes(user.role)) {
-    return null
+  if (loading || !user || !["owner", "admin"].includes(user.role)) {
+    return null;
   }
 
   return (
@@ -113,7 +122,9 @@ export default function AdminDashboardPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your workspace activity and health</p>
+          <p className="text-muted-foreground">
+            Overview of your workspace activity and health
+          </p>
         </div>
 
         {/* Stats Grid */}
@@ -125,7 +136,7 @@ export default function AdminDashboardPage() {
             icon={Users}
             trend={{
               value: 8,
-              label: 'from last week',
+              label: "from last week",
               isPositive: true,
             }}
           />
@@ -142,7 +153,7 @@ export default function AdminDashboardPage() {
             icon={MessageSquare}
             trend={{
               value: 12,
-              label: 'from last week',
+              label: "from last week",
               isPositive: true,
             }}
           />
@@ -168,8 +179,12 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base font-medium">Recent Activity</CardTitle>
-                <CardDescription>Latest actions in your workspace</CardDescription>
+                <CardTitle className="text-base font-medium">
+                  Recent Activity
+                </CardTitle>
+                <CardDescription>
+                  Latest actions in your workspace
+                </CardDescription>
               </div>
               <Link href="/admin/audit">
                 <Button variant="ghost" size="sm">
@@ -190,8 +205,12 @@ export default function AdminDashboardPage() {
                     </Avatar>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm">
-                        <span className="font-medium">{activity.user.name}</span>{' '}
-                        <span className="text-muted-foreground">{activity.description}</span>
+                        <span className="font-medium">
+                          {activity.user.name}
+                        </span>{" "}
+                        <span className="text-muted-foreground">
+                          {activity.description}
+                        </span>
                       </p>
                       <p className="flex items-center text-xs text-muted-foreground">
                         <Clock className="mr-1 h-3 w-3" />
@@ -209,7 +228,9 @@ export default function AdminDashboardPage() {
             {/* System Health */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base font-medium">System Health</CardTitle>
+                <CardTitle className="text-base font-medium">
+                  System Health
+                </CardTitle>
                 <CardDescription>Status of backend services</CardDescription>
               </CardHeader>
               <CardContent>
@@ -219,21 +240,25 @@ export default function AdminDashboardPage() {
                       key={service.name}
                       className="flex items-center justify-between rounded-lg border p-3"
                     >
-                      <span className="text-sm font-medium">{service.name}</span>
+                      <span className="text-sm font-medium">
+                        {service.name}
+                      </span>
                       <Badge
-                        variant={service.status === 'healthy' ? 'default' : 'secondary'}
+                        variant={
+                          service.status === "healthy" ? "default" : "secondary"
+                        }
                         className={
-                          service.status === 'healthy'
-                            ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20'
-                            : 'bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20'
+                          service.status === "healthy"
+                            ? "bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                            : "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20"
                         }
                       >
-                        {service.status === 'healthy' ? (
+                        {service.status === "healthy" ? (
                           <CheckCircle className="mr-1 h-3 w-3" />
                         ) : (
                           <AlertTriangle className="mr-1 h-3 w-3" />
                         )}
-                        {service.status === 'healthy' ? 'Healthy' : 'Warning'}
+                        {service.status === "healthy" ? "Healthy" : "Warning"}
                       </Badge>
                     </div>
                   ))}
@@ -244,7 +269,9 @@ export default function AdminDashboardPage() {
             {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base font-medium">Quick Actions</CardTitle>
+                <CardTitle className="text-base font-medium">
+                  Quick Actions
+                </CardTitle>
                 <CardDescription>Common administrative tasks</CardDescription>
               </CardHeader>
               <CardContent>
@@ -274,5 +301,5 @@ export default function AdminDashboardPage() {
         </div>
       </div>
     </AdminLayout>
-  )
+  );
 }

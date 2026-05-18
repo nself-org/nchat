@@ -10,10 +10,10 @@
  * - Audit logging
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { getServerApolloClient } from '@/lib/apollo-client'
-import { getAuthenticatedUser, getClientIp } from '@/lib/api/middleware'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { getServerApolloClient } from "@/lib/apollo-client";
+import { getAuthenticatedUser, getClientIp } from "@/lib/api/middleware";
 import {
   successResponse,
   createdResponse,
@@ -21,9 +21,9 @@ import {
   notFoundResponse,
   forbiddenResponse,
   internalErrorResponse,
-} from '@/lib/api/response'
-import { logAuditEvent } from '@/lib/audit/audit-logger'
-import { logger } from '@/lib/logger'
+} from "@/lib/api/response";
+import { logAuditEvent } from "@/lib/audit/audit-logger";
+import { logger } from "@/lib/logger";
 import {
   GET_CALL_BY_ID,
   GET_CALL_PARTICIPANTS,
@@ -33,7 +33,7 @@ import {
   ADD_CALL_PARTICIPANTS,
   REMOVE_CALL_PARTICIPANT,
   GET_EXISTING_PARTICIPANTS,
-} from '@/graphql/calls'
+} from "@/graphql/calls";
 
 // =============================================================================
 // Schema Validation
@@ -42,50 +42,50 @@ import {
 const addParticipantsSchema = z.object({
   userIds: z.array(z.string().uuid()).min(1).max(50),
   notify: z.boolean().default(true),
-})
+});
 
 const removeParticipantSchema = z.object({
   userId: z.string().uuid(),
   reason: z.string().optional(),
-})
+});
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface CallAccessResult {
-  hasAccess: boolean
-  isParticipant: boolean
-  isCaller: boolean
-  isChannelMember: boolean
-  channelRole?: string
+  hasAccess: boolean;
+  isParticipant: boolean;
+  isCaller: boolean;
+  isChannelMember: boolean;
+  channelRole?: string;
   call?: {
-    id: string
-    status: string
-    callerId: string
-    channelId?: string
-  }
+    id: string;
+    status: string;
+    callerId: string;
+    channelId?: string;
+  };
 }
 
 interface ParticipantData {
-  id: string
-  callId: string
-  userId: string
+  id: string;
+  callId: string;
+  userId: string;
   user: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl: string | null
-  }
-  joinedAt: string | null
-  leftAt: string | null
-  isMuted: boolean
-  isVideoOff: boolean
-  isScreenSharing: boolean
-  isSpeaking: boolean
-  connectionQuality: number | null
-  invitedBy?: string
-  isLocal: boolean
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+  joinedAt: string | null;
+  leftAt: string | null;
+  isMuted: boolean;
+  isVideoOff: boolean;
+  isScreenSharing: boolean;
+  isSpeaking: boolean;
+  connectionQuality: number | null;
+  invitedBy?: string;
+  isLocal: boolean;
 }
 
 // =============================================================================
@@ -95,17 +95,20 @@ interface ParticipantData {
 /**
  * Check if a user has access to a call
  */
-async function checkCallAccess(userId: string, callId: string): Promise<CallAccessResult> {
+async function checkCallAccess(
+  userId: string,
+  callId: string,
+): Promise<CallAccessResult> {
   try {
-    const client = getServerApolloClient()
+    const client = getServerApolloClient();
     const { data } = await client.query({
       query: CHECK_CALL_ACCESS,
       variables: { callId, userId },
-      fetchPolicy: 'no-cache',
-    })
+      fetchPolicy: "no-cache",
+    });
 
-    const call = data?.nchat_calls_by_pk
-    const activeParticipant = data?.nchat_call_participants?.[0]
+    const call = data?.nchat_calls_by_pk;
+    const activeParticipant = data?.nchat_call_participants?.[0];
 
     if (!call) {
       return {
@@ -113,16 +116,16 @@ async function checkCallAccess(userId: string, callId: string): Promise<CallAcce
         isParticipant: false,
         isCaller: false,
         isChannelMember: false,
-      }
+      };
     }
 
-    const isCaller = call.caller_id === userId
-    const isParticipant = !!activeParticipant
-    const channelMember = call.channel?.members?.[0]
-    const isChannelMember = !!channelMember
+    const isCaller = call.caller_id === userId;
+    const isParticipant = !!activeParticipant;
+    const channelMember = call.channel?.members?.[0];
+    const isChannelMember = !!channelMember;
 
     // Access granted if: caller, active participant, or channel member
-    const hasAccess = isCaller || isParticipant || isChannelMember
+    const hasAccess = isCaller || isParticipant || isChannelMember;
 
     return {
       hasAccess,
@@ -136,15 +139,15 @@ async function checkCallAccess(userId: string, callId: string): Promise<CallAcce
         callerId: call.caller_id,
         channelId: call.channel_id,
       },
-    }
+    };
   } catch (error) {
-    logger.error('[checkCallAccess] Error:', error)
+    logger.error("[checkCallAccess] Error:", error);
     return {
       hasAccess: false,
       isParticipant: false,
       isCaller: false,
       isChannelMember: false,
-    }
+    };
   }
 }
 
@@ -153,15 +156,15 @@ async function checkCallAccess(userId: string, callId: string): Promise<CallAcce
  */
 function canManageParticipants(accessResult: CallAccessResult): boolean {
   // Caller can always manage participants
-  if (accessResult.isCaller) return true
+  if (accessResult.isCaller) return true;
 
   // Channel admins/moderators can manage participants
   if (accessResult.isChannelMember) {
-    const role = accessResult.channelRole
-    return role === 'admin' || role === 'moderator' || role === 'owner'
+    const role = accessResult.channelRole;
+    return role === "admin" || role === "moderator" || role === "owner";
   }
 
-  return false
+  return false;
 }
 
 /**
@@ -169,7 +172,7 @@ function canManageParticipants(accessResult: CallAccessResult): boolean {
  */
 function transformParticipant(
   dbParticipant: Record<string, unknown>,
-  currentUserId: string
+  currentUserId: string,
 ): ParticipantData {
   return {
     id: dbParticipant.id as string,
@@ -177,9 +180,13 @@ function transformParticipant(
     userId: dbParticipant.user_id as string,
     user: {
       id: (dbParticipant.user as Record<string, unknown>)?.id as string,
-      username: (dbParticipant.user as Record<string, unknown>)?.username as string,
-      displayName: (dbParticipant.user as Record<string, unknown>)?.display_name as string,
-      avatarUrl: ((dbParticipant.user as Record<string, unknown>)?.avatar_url as string) || null,
+      username: (dbParticipant.user as Record<string, unknown>)
+        ?.username as string,
+      displayName: (dbParticipant.user as Record<string, unknown>)
+        ?.display_name as string,
+      avatarUrl:
+        ((dbParticipant.user as Record<string, unknown>)
+          ?.avatar_url as string) || null,
     },
     joinedAt: (dbParticipant.joined_at as string) || null,
     leftAt: (dbParticipant.left_at as string) || null,
@@ -190,7 +197,7 @@ function transformParticipant(
     connectionQuality: (dbParticipant.connection_quality as number) || null,
     invitedBy: dbParticipant.invited_by as string | undefined,
     isLocal: dbParticipant.user_id === currentUserId,
-  }
+  };
 }
 
 // =============================================================================
@@ -200,58 +207,69 @@ function transformParticipant(
 /**
  * List all participants in a call
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const { id: callId } = await params
+    const { id: callId } = await params;
 
     // Validate call ID format
     if (!callId || !z.string().uuid().safeParse(callId).success) {
-      return badRequestResponse('Invalid call ID', 'INVALID_CALL_ID')
+      return badRequestResponse("Invalid call ID", "INVALID_CALL_ID");
     }
 
     // Authenticate user
-    const user = await getAuthenticatedUser(request)
+    const user = await getAuthenticatedUser(request);
     if (!user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     // Check if user has access to this call
-    const accessResult = await checkCallAccess(user.id, callId)
+    const accessResult = await checkCallAccess(user.id, callId);
     if (!accessResult.hasAccess) {
-      return forbiddenResponse('You do not have access to this call', 'CALL_ACCESS_DENIED')
+      return forbiddenResponse(
+        "You do not have access to this call",
+        "CALL_ACCESS_DENIED",
+      );
     }
 
     // Fetch participants from database
-    const client = getServerApolloClient()
+    const client = getServerApolloClient();
     const { data, errors } = await client.query({
       query: GET_CALL_PARTICIPANTS,
       variables: { callId },
-      fetchPolicy: 'no-cache',
-    })
+      fetchPolicy: "no-cache",
+    });
 
     if (errors?.length) {
-      logger.error('[GET participants] GraphQL errors:', errors)
-      return internalErrorResponse('Failed to fetch participants')
+      logger.error("[GET participants] GraphQL errors:", errors);
+      return internalErrorResponse("Failed to fetch participants");
     }
 
-    const dbParticipants = data?.nchat_call_participants || []
+    const dbParticipants = data?.nchat_call_participants || [];
 
     // Transform to API format
     const participants = dbParticipants.map((p: Record<string, unknown>) =>
-      transformParticipant(p, user.id)
-    )
+      transformParticipant(p, user.id),
+    );
 
     // Filter to only active participants (not left)
-    const activeParticipants = participants.filter((p: ParticipantData) => !p.leftAt)
+    const activeParticipants = participants.filter(
+      (p: ParticipantData) => !p.leftAt,
+    );
 
     return successResponse({
       participants: activeParticipants,
       count: activeParticipants.length,
       totalCount: participants.length,
-    })
+    });
   } catch (error) {
-    logger.error('[GET participants] Error:', error)
-    return internalErrorResponse('Internal server error')
+    logger.error("[GET participants] Error:", error);
+    return internalErrorResponse("Internal server error");
   }
 }
 
@@ -262,102 +280,119 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 /**
  * Add participant(s) to a call
  */
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const { id: callId } = await params
+    const { id: callId } = await params;
 
     // Validate call ID format
     if (!callId || !z.string().uuid().safeParse(callId).success) {
-      return badRequestResponse('Invalid call ID', 'INVALID_CALL_ID')
+      return badRequestResponse("Invalid call ID", "INVALID_CALL_ID");
     }
 
     // Parse and validate request body
-    let body: unknown
+    let body: unknown;
     try {
-      body = await request.json()
+      body = await request.json();
     } catch {
-      return badRequestResponse('Invalid JSON body', 'INVALID_JSON')
+      return badRequestResponse("Invalid JSON body", "INVALID_JSON");
     }
 
-    const validation = addParticipantsSchema.safeParse(body)
+    const validation = addParticipantsSchema.safeParse(body);
     if (!validation.success) {
-      return badRequestResponse('Invalid request body', 'VALIDATION_ERROR', {
+      return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
         errors: validation.error.errors,
-      })
+      });
     }
 
-    const { userIds, notify } = validation.data
+    const { userIds, notify } = validation.data;
 
     // Authenticate user
-    const user = await getAuthenticatedUser(request)
+    const user = await getAuthenticatedUser(request);
     if (!user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     // Check if user has access and permission to add participants
-    const accessResult = await checkCallAccess(user.id, callId)
+    const accessResult = await checkCallAccess(user.id, callId);
 
     if (!accessResult.call) {
-      return notFoundResponse('Call not found', 'CALL_NOT_FOUND')
+      return notFoundResponse("Call not found", "CALL_NOT_FOUND");
     }
 
-    if (accessResult.call.status === 'ended') {
-      return badRequestResponse('Cannot add participants to an ended call', 'CALL_ENDED')
+    if (accessResult.call.status === "ended") {
+      return badRequestResponse(
+        "Cannot add participants to an ended call",
+        "CALL_ENDED",
+      );
     }
 
     if (!accessResult.hasAccess) {
-      return forbiddenResponse('You do not have access to this call', 'CALL_ACCESS_DENIED')
+      return forbiddenResponse(
+        "You do not have access to this call",
+        "CALL_ACCESS_DENIED",
+      );
     }
 
     if (!canManageParticipants(accessResult)) {
       return forbiddenResponse(
-        'You do not have permission to add participants',
-        'INSUFFICIENT_PERMISSIONS'
-      )
+        "You do not have permission to add participants",
+        "INSUFFICIENT_PERMISSIONS",
+      );
     }
 
-    const client = getServerApolloClient()
+    const client = getServerApolloClient();
 
     // Check which users already exist and are active in the call
     const { data: existingData } = await client.query({
       query: GET_EXISTING_PARTICIPANTS,
       variables: { callId, userIds },
-      fetchPolicy: 'no-cache',
-    })
+      fetchPolicy: "no-cache",
+    });
 
     const existingUserIds = new Set(
       (existingData?.nchat_call_participants || []).map(
-        (p: { user_id: string }) => p.user_id
-      )
-    )
+        (p: { user_id: string }) => p.user_id,
+      ),
+    );
 
     // Filter to only new users
-    const newUserIds = userIds.filter((id) => !existingUserIds.has(id))
+    const newUserIds = userIds.filter((id) => !existingUserIds.has(id));
 
     if (newUserIds.length === 0) {
       return badRequestResponse(
-        'All specified users are already participants in this call',
-        'ALREADY_PARTICIPANTS'
-      )
+        "All specified users are already participants in this call",
+        "ALREADY_PARTICIPANTS",
+      );
     }
 
     // Verify the users exist
     const { data: usersData } = await client.query({
       query: GET_USERS_BY_IDS,
       variables: { userIds: newUserIds },
-      fetchPolicy: 'no-cache',
-    })
+      fetchPolicy: "no-cache",
+    });
 
-    const existingUsers = usersData?.nchat_users || []
-    const existingUserIdsSet = new Set(existingUsers.map((u: { id: string }) => u.id))
-    const validUserIds = newUserIds.filter((id) => existingUserIdsSet.has(id))
+    const existingUsers = usersData?.nchat_users || [];
+    const existingUserIdsSet = new Set(
+      existingUsers.map((u: { id: string }) => u.id),
+    );
+    const validUserIds = newUserIds.filter((id) => existingUserIdsSet.has(id));
 
     if (validUserIds.length === 0) {
-      return badRequestResponse('No valid users found to add', 'USERS_NOT_FOUND')
+      return badRequestResponse(
+        "No valid users found to add",
+        "USERS_NOT_FOUND",
+      );
     }
 
     // Prepare participant records
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
     const participantInserts = validUserIds.map((participantUserId) => ({
       call_id: callId,
       user_id: participantUserId,
@@ -367,40 +402,41 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       is_video_enabled: false,
       is_screen_sharing: false,
       invited_by: user.id,
-    }))
+    }));
 
     // Insert participants
     const { data: insertData, errors: insertErrors } = await client.mutate({
       mutation: ADD_CALL_PARTICIPANTS,
       variables: { participants: participantInserts },
-    })
+    });
 
     if (insertErrors?.length) {
-      logger.error('[POST participants] GraphQL errors:', insertErrors)
-      return internalErrorResponse('Failed to add participants')
+      logger.error("[POST participants] GraphQL errors:", insertErrors);
+      return internalErrorResponse("Failed to add participants");
     }
 
-    const addedParticipants = insertData?.insert_nchat_call_participants?.returning || []
+    const addedParticipants =
+      insertData?.insert_nchat_call_participants?.returning || [];
 
     // Log audit event for each added participant
-    const ipAddress = getClientIp(request)
+    const ipAddress = getClientIp(request);
     for (const participant of addedParticipants) {
       await logAuditEvent({
-        action: 'member_add',
+        action: "member_add",
         actor: {
           id: user.id,
-          type: 'user',
+          type: "user",
           email: user.email,
           displayName: user.displayName,
         },
-        category: 'channel',
+        category: "channel",
         resource: {
-          type: 'channel',
+          type: "channel",
           id: callId,
           name: `Call ${callId.substring(0, 8)}`,
         },
         target: {
-          type: 'user',
+          type: "user",
           id: participant.user_id,
         },
         description: `Added participant ${participant.user?.username || participant.user_id} to call`,
@@ -412,18 +448,20 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         },
         ipAddress,
         success: true,
-      })
+      });
     }
 
     // Transform for response
-    const responseParticipants = addedParticipants.map((p: Record<string, unknown>) =>
-      transformParticipant(p, user.id)
-    )
+    const responseParticipants = addedParticipants.map(
+      (p: Record<string, unknown>) => transformParticipant(p, user.id),
+    );
 
     // Send call invitations via the notify plugin when available
     if (notify && addedParticipants.length > 0) {
       // await sendCallInvitations(callId, validUserIds, user)
-      logger.info(`[POST participants] Call invitation pending for ${validUserIds.length} users (requires notify plugin)`)
+      logger.info(
+        `[POST participants] Call invitation pending for ${validUserIds.length} users (requires notify plugin)`,
+      );
     }
 
     return createdResponse({
@@ -432,10 +470,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       addedCount: addedParticipants.length,
       skippedCount: userIds.length - validUserIds.length,
       message: `${addedParticipants.length} participant(s) added to call`,
-    })
+    });
   } catch (error) {
-    logger.error('[POST participants] Error:', error)
-    return internalErrorResponse('Internal server error')
+    logger.error("[POST participants] Error:", error);
+    return internalErrorResponse("Internal server error");
   }
 }
 
@@ -448,86 +486,101 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id: callId } = await params
+    const { id: callId } = await params;
 
     // Validate call ID format
     if (!callId || !z.string().uuid().safeParse(callId).success) {
-      return badRequestResponse('Invalid call ID', 'INVALID_CALL_ID')
+      return badRequestResponse("Invalid call ID", "INVALID_CALL_ID");
     }
 
     // Parse and validate request body
-    let body: unknown
+    let body: unknown;
     try {
-      body = await request.json()
+      body = await request.json();
     } catch {
-      return badRequestResponse('Invalid JSON body', 'INVALID_JSON')
+      return badRequestResponse("Invalid JSON body", "INVALID_JSON");
     }
 
-    const validation = removeParticipantSchema.safeParse(body)
+    const validation = removeParticipantSchema.safeParse(body);
     if (!validation.success) {
-      return badRequestResponse('Invalid request body', 'VALIDATION_ERROR', {
+      return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
         errors: validation.error.errors,
-      })
+      });
     }
 
-    const { userId: targetUserId, reason } = validation.data
+    const { userId: targetUserId, reason } = validation.data;
 
     // Authenticate user
-    const user = await getAuthenticatedUser(request)
+    const user = await getAuthenticatedUser(request);
     if (!user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     // Check call access
-    const accessResult = await checkCallAccess(user.id, callId)
+    const accessResult = await checkCallAccess(user.id, callId);
 
     if (!accessResult.call) {
-      return notFoundResponse('Call not found', 'CALL_NOT_FOUND')
+      return notFoundResponse("Call not found", "CALL_NOT_FOUND");
     }
 
     if (!accessResult.hasAccess) {
-      return forbiddenResponse('You do not have access to this call', 'CALL_ACCESS_DENIED')
+      return forbiddenResponse(
+        "You do not have access to this call",
+        "CALL_ACCESS_DENIED",
+      );
     }
 
     // Determine if this is self-removal or removal of another user
-    const isSelf = user.id === targetUserId
+    const isSelf = user.id === targetUserId;
 
     // Permission check: can remove self, or need permission to remove others
     if (!isSelf && !canManageParticipants(accessResult)) {
       return forbiddenResponse(
-        'You do not have permission to remove other participants',
-        'INSUFFICIENT_PERMISSIONS'
-      )
+        "You do not have permission to remove other participants",
+        "INSUFFICIENT_PERMISSIONS",
+      );
     }
 
-    const client = getServerApolloClient()
+    const client = getServerApolloClient();
 
     // Check if target user is a participant
     const { data: participantData } = await client.query({
       query: GET_CALL_PARTICIPANT,
       variables: { callId, userId: targetUserId },
-      fetchPolicy: 'no-cache',
-    })
+      fetchPolicy: "no-cache",
+    });
 
-    const participant = participantData?.nchat_call_participants?.[0]
+    const participant = participantData?.nchat_call_participants?.[0];
     if (!participant) {
-      return notFoundResponse('Participant not found in this call', 'PARTICIPANT_NOT_FOUND')
+      return notFoundResponse(
+        "Participant not found in this call",
+        "PARTICIPANT_NOT_FOUND",
+      );
     }
 
     if (participant.left_at) {
-      return badRequestResponse('Participant has already left the call', 'ALREADY_LEFT')
+      return badRequestResponse(
+        "Participant has already left the call",
+        "ALREADY_LEFT",
+      );
     }
 
     // Cannot remove the call owner/caller unless it's themselves
     if (targetUserId === accessResult.call.callerId && !isSelf) {
-      return forbiddenResponse('Cannot remove the call initiator', 'CANNOT_REMOVE_CALLER')
+      return forbiddenResponse(
+        "Cannot remove the call initiator",
+        "CANNOT_REMOVE_CALLER",
+      );
     }
 
     // Update participant record
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
     const { data: updateData, errors: updateErrors } = await client.mutate({
       mutation: REMOVE_CALL_PARTICIPANT,
       variables: {
@@ -535,39 +588,40 @@ export async function DELETE(
         userId: targetUserId,
         leftAt: now,
         removedBy: isSelf ? null : user.id,
-        removeReason: reason || (isSelf ? 'left' : 'removed'),
+        removeReason: reason || (isSelf ? "left" : "removed"),
       },
-    })
+    });
 
     if (updateErrors?.length) {
-      logger.error('[DELETE participants] GraphQL errors:', updateErrors)
-      return internalErrorResponse('Failed to remove participant')
+      logger.error("[DELETE participants] GraphQL errors:", updateErrors);
+      return internalErrorResponse("Failed to remove participant");
     }
 
-    const updatedParticipant = updateData?.update_nchat_call_participants?.returning?.[0]
+    const updatedParticipant =
+      updateData?.update_nchat_call_participants?.returning?.[0];
 
     if (!updatedParticipant) {
-      return internalErrorResponse('Failed to update participant record')
+      return internalErrorResponse("Failed to update participant record");
     }
 
     // Log audit event
-    const ipAddress = getClientIp(request)
+    const ipAddress = getClientIp(request);
     await logAuditEvent({
-      action: 'member_remove',
+      action: "member_remove",
       actor: {
         id: user.id,
-        type: 'user',
+        type: "user",
         email: user.email,
         displayName: user.displayName,
       },
-      category: 'channel',
+      category: "channel",
       resource: {
-        type: 'channel',
+        type: "channel",
         id: callId,
         name: `Call ${callId.substring(0, 8)}`,
       },
       target: {
-        type: 'user',
+        type: "user",
         id: targetUserId,
       },
       description: isSelf
@@ -577,12 +631,12 @@ export async function DELETE(
         callId,
         participantId: participant.id,
         targetUserId,
-        reason: reason || (isSelf ? 'left' : 'removed'),
+        reason: reason || (isSelf ? "left" : "removed"),
         isSelfRemoval: isSelf,
       },
       ipAddress,
       success: true,
-    })
+    });
 
     return successResponse({
       success: true,
@@ -594,10 +648,10 @@ export async function DELETE(
         removedBy: updatedParticipant.removed_by,
         removeReason: updatedParticipant.remove_reason,
       },
-      message: isSelf ? 'Left call' : 'Participant removed from call',
-    })
+      message: isSelf ? "Left call" : "Participant removed from call",
+    });
   } catch (error) {
-    logger.error('[DELETE participants] Error:', error)
-    return internalErrorResponse('Internal server error')
+    logger.error("[DELETE participants] Error:", error);
+    return internalErrorResponse("Internal server error");
   }
 }

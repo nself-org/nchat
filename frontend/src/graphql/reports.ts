@@ -4,82 +4,91 @@
  * Handles user reports, message reports, and moderation workflows
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, MESSAGE_BASIC_FRAGMENT, CHANNEL_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import {
+  USER_BASIC_FRAGMENT,
+  MESSAGE_BASIC_FRAGMENT,
+  CHANNEL_BASIC_FRAGMENT,
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export type ReportReason =
-  | 'spam'
-  | 'harassment'
-  | 'hate_speech'
-  | 'violence'
-  | 'nudity'
-  | 'sexual_content'
-  | 'misinformation'
-  | 'impersonation'
-  | 'copyright'
-  | 'self_harm'
-  | 'bullying'
-  | 'scam'
-  | 'other'
+  | "spam"
+  | "harassment"
+  | "hate_speech"
+  | "violence"
+  | "nudity"
+  | "sexual_content"
+  | "misinformation"
+  | "impersonation"
+  | "copyright"
+  | "self_harm"
+  | "bullying"
+  | "scam"
+  | "other";
 
-export type ReportStatus = 'pending' | 'under_review' | 'resolved' | 'dismissed' | 'escalated'
+export type ReportStatus =
+  | "pending"
+  | "under_review"
+  | "resolved"
+  | "dismissed"
+  | "escalated";
 
-export type ReportType = 'user' | 'message' | 'channel'
+export type ReportType = "user" | "message" | "channel";
 
-export type ReportPriority = 'low' | 'medium' | 'high' | 'critical'
+export type ReportPriority = "low" | "medium" | "high" | "critical";
 
 export interface ReportUserVariables {
-  reporterId: string
-  reportedUserId: string
-  reason: ReportReason
-  details?: string
-  evidenceUrls?: string[]
-  priority?: ReportPriority
+  reporterId: string;
+  reportedUserId: string;
+  reason: ReportReason;
+  details?: string;
+  evidenceUrls?: string[];
+  priority?: ReportPriority;
 }
 
 export interface ReportMessageVariables {
-  reporterId: string
-  messageId: string
-  reason: ReportReason
-  details?: string
-  priority?: ReportPriority
+  reporterId: string;
+  messageId: string;
+  reason: ReportReason;
+  details?: string;
+  priority?: ReportPriority;
 }
 
 export interface GetReportsVariables {
-  status?: ReportStatus
-  type?: ReportType
-  priority?: ReportPriority
-  reason?: ReportReason
-  limit?: number
-  offset?: number
+  status?: ReportStatus;
+  type?: ReportType;
+  priority?: ReportPriority;
+  reason?: ReportReason;
+  limit?: number;
+  offset?: number;
 }
 
 export interface ResolveReportVariables {
-  reportId: string
-  moderatorId: string
-  status: 'resolved' | 'dismissed'
-  notes?: string
-  actionTaken?: string
+  reportId: string;
+  moderatorId: string;
+  status: "resolved" | "dismissed";
+  notes?: string;
+  actionTaken?: string;
 }
 
 export interface EscalateReportVariables {
-  reportId: string
-  escalatedBy: string
-  reason: string
+  reportId: string;
+  escalatedBy: string;
+  reason: string;
 }
 
 export interface GetReportDetailsVariables {
-  reportId: string
+  reportId: string;
 }
 
 export interface GetUserReportHistoryVariables {
-  userId: string
-  limit?: number
-  offset?: number
+  userId: string;
+  limit?: number;
+  offset?: number;
 }
 
 // ============================================================================
@@ -113,7 +122,7 @@ export const USER_REPORT_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const MESSAGE_REPORT_FRAGMENT = gql`
   fragment MessageReport on nchat_message_reports {
@@ -146,7 +155,7 @@ export const MESSAGE_REPORT_FRAGMENT = gql`
   ${USER_BASIC_FRAGMENT}
   ${MESSAGE_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 export const REPORT_ACTIVITY_FRAGMENT = gql`
   fragment ReportActivity on nchat_report_activities {
@@ -162,7 +171,7 @@ export const REPORT_ACTIVITY_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -239,15 +248,22 @@ export const GET_REPORTS = gql`
   }
   ${USER_REPORT_FRAGMENT}
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get user reports only (admin only)
  */
 export const GET_USER_REPORTS = gql`
-  query GetUserReports($status: String, $priority: String, $limit: Int = 50, $offset: Int = 0) {
+  query GetUserReports(
+    $status: String
+    $priority: String
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_user_reports(
-      where: { _and: [{ status: { _eq: $status } }, { priority: { _eq: $priority } }] }
+      where: {
+        _and: [{ status: { _eq: $status } }, { priority: { _eq: $priority } }]
+      }
       order_by: [{ priority: desc }, { created_at: desc }]
       limit: $limit
       offset: $offset
@@ -255,7 +271,9 @@ export const GET_USER_REPORTS = gql`
       ...UserReport
     }
     nchat_user_reports_aggregate(
-      where: { _and: [{ status: { _eq: $status } }, { priority: { _eq: $priority } }] }
+      where: {
+        _and: [{ status: { _eq: $status } }, { priority: { _eq: $priority } }]
+      }
     ) {
       aggregate {
         count
@@ -263,15 +281,22 @@ export const GET_USER_REPORTS = gql`
     }
   }
   ${USER_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get message reports only (admin only)
  */
 export const GET_MESSAGE_REPORTS = gql`
-  query GetMessageReports($status: String, $priority: String, $limit: Int = 50, $offset: Int = 0) {
+  query GetMessageReports(
+    $status: String
+    $priority: String
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_message_reports(
-      where: { _and: [{ status: { _eq: $status } }, { priority: { _eq: $priority } }] }
+      where: {
+        _and: [{ status: { _eq: $status } }, { priority: { _eq: $priority } }]
+      }
       order_by: [{ priority: desc }, { created_at: desc }]
       limit: $limit
       offset: $offset
@@ -279,7 +304,9 @@ export const GET_MESSAGE_REPORTS = gql`
       ...MessageReport
     }
     nchat_message_reports_aggregate(
-      where: { _and: [{ status: { _eq: $status } }, { priority: { _eq: $priority } }] }
+      where: {
+        _and: [{ status: { _eq: $status } }, { priority: { _eq: $priority } }]
+      }
     ) {
       aggregate {
         count
@@ -287,7 +314,7 @@ export const GET_MESSAGE_REPORTS = gql`
     }
   }
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get a single user report by ID
@@ -303,7 +330,7 @@ export const GET_USER_REPORT = gql`
   }
   ${USER_REPORT_FRAGMENT}
   ${REPORT_ACTIVITY_FRAGMENT}
-`
+`;
 
 /**
  * Get a single message report by ID
@@ -319,7 +346,7 @@ export const GET_MESSAGE_REPORT = gql`
   }
   ${MESSAGE_REPORT_FRAGMENT}
   ${REPORT_ACTIVITY_FRAGMENT}
-`
+`;
 
 /**
  * Get reports for a specific user (reports against them)
@@ -333,14 +360,16 @@ export const GET_REPORTS_AGAINST_USER = gql`
     ) {
       ...UserReport
     }
-    nchat_user_reports_aggregate(where: { reported_user_id: { _eq: $userId } }) {
+    nchat_user_reports_aggregate(
+      where: { reported_user_id: { _eq: $userId } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${USER_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get reports submitted by a user
@@ -364,7 +393,7 @@ export const GET_REPORTS_BY_USER = gql`
   }
   ${USER_REPORT_FRAGMENT}
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get report statistics
@@ -377,31 +406,42 @@ export const GET_REPORT_STATS = gql`
       }
     }
 
-    pending: nchat_user_reports_aggregate(where: { status: { _eq: "pending" } }) {
+    pending: nchat_user_reports_aggregate(
+      where: { status: { _eq: "pending" } }
+    ) {
       aggregate {
         count
       }
     }
 
-    under_review: nchat_user_reports_aggregate(where: { status: { _eq: "under_review" } }) {
+    under_review: nchat_user_reports_aggregate(
+      where: { status: { _eq: "under_review" } }
+    ) {
       aggregate {
         count
       }
     }
 
-    resolved: nchat_user_reports_aggregate(where: { status: { _eq: "resolved" } }) {
+    resolved: nchat_user_reports_aggregate(
+      where: { status: { _eq: "resolved" } }
+    ) {
       aggregate {
         count
       }
     }
 
-    dismissed: nchat_user_reports_aggregate(where: { status: { _eq: "dismissed" } }) {
+    dismissed: nchat_user_reports_aggregate(
+      where: { status: { _eq: "dismissed" } }
+    ) {
       aggregate {
         count
       }
     }
 
-    by_reason: nchat_user_reports(distinct_on: reason, order_by: { reason: asc }) {
+    by_reason: nchat_user_reports(
+      distinct_on: reason
+      order_by: { reason: asc }
+    ) {
       reason
     }
 
@@ -411,13 +451,17 @@ export const GET_REPORT_STATS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Check if user has already reported something
  */
 export const CHECK_EXISTING_REPORT = gql`
-  query CheckExistingReport($reporterId: uuid!, $reportedUserId: uuid, $messageId: uuid) {
+  query CheckExistingReport(
+    $reporterId: uuid!
+    $reportedUserId: uuid
+    $messageId: uuid
+  ) {
     user_report: nchat_user_reports(
       where: {
         _and: [
@@ -446,7 +490,7 @@ export const CHECK_EXISTING_REPORT = gql`
       status
     }
   }
-`
+`;
 
 /**
  * Get pending reports count
@@ -469,7 +513,7 @@ export const GET_PENDING_REPORTS_COUNT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -502,7 +546,7 @@ export const REPORT_USER = gql`
     }
   }
   ${USER_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Report a message
@@ -529,7 +573,7 @@ export const REPORT_MESSAGE = gql`
     }
   }
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Update report status (admin/moderator only)
@@ -565,7 +609,7 @@ export const UPDATE_REPORT_STATUS = gql`
   }
   ${USER_REPORT_FRAGMENT}
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Resolve a user report (admin/moderator only)
@@ -593,7 +637,7 @@ export const RESOLVE_USER_REPORT = gql`
     }
   }
   ${USER_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Resolve a message report (admin/moderator only)
@@ -621,7 +665,7 @@ export const RESOLVE_MESSAGE_REPORT = gql`
     }
   }
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Escalate a report
@@ -670,7 +714,7 @@ export const ESCALATE_REPORT = gql`
   }
   ${USER_REPORT_FRAGMENT}
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Add activity to a report (for audit trail)
@@ -696,7 +740,7 @@ export const ADD_REPORT_ACTIVITY = gql`
     }
   }
   ${REPORT_ACTIVITY_FRAGMENT}
-`
+`;
 
 /**
  * Bulk update report statuses
@@ -738,7 +782,7 @@ export const BULK_UPDATE_REPORTS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Delete a report (admin only)
@@ -755,7 +799,7 @@ export const DELETE_REPORT = gql`
       id
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -783,7 +827,7 @@ export const NEW_REPORTS_SUBSCRIPTION = gql`
   }
   ${USER_REPORT_FRAGMENT}
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to report status changes
@@ -802,7 +846,7 @@ export const REPORT_STATUS_SUBSCRIPTION = gql`
   }
   ${USER_REPORT_FRAGMENT}
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to pending reports count
@@ -825,7 +869,7 @@ export const PENDING_REPORTS_COUNT_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to report activities
@@ -840,4 +884,4 @@ export const REPORT_ACTIVITIES_SUBSCRIPTION = gql`
     }
   }
   ${REPORT_ACTIVITY_FRAGMENT}
-`
+`;

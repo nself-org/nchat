@@ -1,53 +1,57 @@
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, USER_PROFILE_FRAGMENT, USER_PRESENCE_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import {
+  USER_BASIC_FRAGMENT,
+  USER_PROFILE_FRAGMENT,
+  USER_PRESENCE_FRAGMENT,
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type UserStatus = 'online' | 'away' | 'busy' | 'offline' | 'invisible'
+export type UserStatus = "online" | "away" | "busy" | "offline" | "invisible";
 
 export interface GetUserVariables {
-  id?: string
-  username?: string
-  email?: string
+  id?: string;
+  username?: string;
+  email?: string;
 }
 
 export interface GetUsersVariables {
-  limit?: number
-  offset?: number
-  search?: string
-  roleId?: string
+  limit?: number;
+  offset?: number;
+  search?: string;
+  roleId?: string;
 }
 
 export interface UpdateProfileVariables {
-  id: string
-  displayName?: string
-  bio?: string
-  avatarUrl?: string
-  timezone?: string
-  locale?: string
+  id: string;
+  displayName?: string;
+  bio?: string;
+  avatarUrl?: string;
+  timezone?: string;
+  locale?: string;
 }
 
 export interface UpdateStatusVariables {
-  userId: string
-  status?: string
-  statusEmoji?: string
-  statusExpiresAt?: string
+  userId: string;
+  status?: string;
+  statusEmoji?: string;
+  statusExpiresAt?: string;
 }
 
 export interface UpdatePresenceVariables {
-  userId: string
-  status: UserStatus
-  device?: string
+  userId: string;
+  status: UserStatus;
+  device?: string;
 }
 
 export interface UserSubscriptionVariables {
-  userId: string
+  userId: string;
 }
 
 export interface UsersSubscriptionVariables {
-  userIds: string[]
+  userIds: string[];
 }
 
 // ============================================================================
@@ -61,7 +65,11 @@ export const GET_USER = gql`
   query GetUser($id: uuid, $username: String, $email: String) {
     nchat_users(
       where: {
-        _or: [{ id: { _eq: $id } }, { username: { _eq: $username } }, { email: { _eq: $email } }]
+        _or: [
+          { id: { _eq: $id } }
+          { username: { _eq: $username } }
+          { email: { _eq: $email } }
+        ]
       }
       limit: 1
     ) {
@@ -84,7 +92,7 @@ export const GET_USER = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 /**
  * Get user profile with detailed information
@@ -124,13 +132,18 @@ export const GET_USER_PROFILE = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 /**
  * Get all users (workspace members) with pagination and search
  */
 export const GET_USERS = gql`
-  query GetUsers($limit: Int = 50, $offset: Int = 0, $search: String, $roleId: uuid) {
+  query GetUsers(
+    $limit: Int = 50
+    $offset: Int = 0
+    $search: String
+    $roleId: uuid
+  ) {
     nchat_users(
       where: {
         _and: [
@@ -176,7 +189,7 @@ export const GET_USERS = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 /**
  * Get online users
@@ -191,7 +204,7 @@ export const GET_ONLINE_USERS = gql`
     }
   }
   ${USER_PRESENCE_FRAGMENT}
-`
+`;
 
 /**
  * Get user presence/status
@@ -203,7 +216,7 @@ export const GET_USER_PRESENCE = gql`
     }
   }
   ${USER_PRESENCE_FRAGMENT}
-`
+`;
 
 /**
  * Get presence for multiple users
@@ -217,7 +230,7 @@ export const GET_USERS_PRESENCE = gql`
       device
     }
   }
-`
+`;
 
 /**
  * Get users by role
@@ -235,7 +248,7 @@ export const GET_USERS_BY_ROLE = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get current user with all details
@@ -258,17 +271,26 @@ export const GET_CURRENT_USER = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 /**
  * Search users for mentions
  */
 export const SEARCH_USERS_FOR_MENTION = gql`
-  query SearchUsersForMention($search: String!, $channelId: uuid, $limit: Int = 10) {
+  query SearchUsersForMention(
+    $search: String!
+    $channelId: uuid
+    $limit: Int = 10
+  ) {
     nchat_users(
       where: {
         _and: [
-          { _or: [{ username: { _ilike: $search } }, { display_name: { _ilike: $search } }] }
+          {
+            _or: [
+              { username: { _ilike: $search } }
+              { display_name: { _ilike: $search } }
+            ]
+          }
           { is_active: { _eq: true } }
           # Optionally filter by channel membership
           { channel_memberships: { channel_id: { _eq: $channelId } } }
@@ -284,7 +306,7 @@ export const SEARCH_USERS_FOR_MENTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -317,7 +339,7 @@ export const UPDATE_PROFILE = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 /**
  * Update user status (custom status message)
@@ -344,7 +366,7 @@ export const UPDATE_STATUS = gql`
       status_expires_at
     }
   }
-`
+`;
 
 /**
  * Clear user status
@@ -360,7 +382,7 @@ export const CLEAR_STATUS = gql`
       status_emoji
     }
   }
-`
+`;
 
 /**
  * Update user presence (online/away/busy/offline)
@@ -368,7 +390,12 @@ export const CLEAR_STATUS = gql`
 export const UPDATE_PRESENCE = gql`
   mutation UpdatePresence($userId: uuid!, $status: String!, $device: String) {
     insert_nchat_user_presence_one(
-      object: { user_id: $userId, status: $status, device: $device, last_seen_at: "now()" }
+      object: {
+        user_id: $userId
+        status: $status
+        device: $device
+        last_seen_at: "now()"
+      }
       on_conflict: {
         constraint: nchat_user_presence_user_id_key
         update_columns: [status, device, last_seen_at]
@@ -380,7 +407,7 @@ export const UPDATE_PRESENCE = gql`
       device
     }
   }
-`
+`;
 
 /**
  * Set user as offline
@@ -399,19 +426,22 @@ export const SET_OFFLINE = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Update user settings (JSON field)
  */
 export const UPDATE_USER_SETTINGS = gql`
   mutation UpdateUserSettings($userId: uuid!, $settings: jsonb!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _append: { settings: $settings }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _append: { settings: $settings }
+    ) {
       id
       settings
     }
   }
-`
+`;
 
 /**
  * Update notification preferences
@@ -426,7 +456,7 @@ export const UPDATE_NOTIFICATION_PREFERENCES = gql`
       notification_preferences
     }
   }
-`
+`;
 
 /**
  * Update user avatar
@@ -441,7 +471,7 @@ export const UPDATE_AVATAR = gql`
       avatar_url
     }
   }
-`
+`;
 
 /**
  * Delete user avatar
@@ -456,7 +486,7 @@ export const DELETE_AVATAR = gql`
       avatar_url
     }
   }
-`
+`;
 
 /**
  * Deactivate user account
@@ -472,11 +502,14 @@ export const DEACTIVATE_USER = gql`
       deactivated_at
     }
     # Also set offline
-    update_nchat_user_presence(where: { user_id: { _eq: $userId } }, _set: { status: "offline" }) {
+    update_nchat_user_presence(
+      where: { user_id: { _eq: $userId } }
+      _set: { status: "offline" }
+    ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Reactivate user account
@@ -491,14 +524,17 @@ export const REACTIVATE_USER = gql`
       is_active
     }
   }
-`
+`;
 
 /**
  * Update user role (admin only)
  */
 export const UPDATE_USER_ROLE = gql`
   mutation UpdateUserRole($userId: uuid!, $roleId: uuid!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { role_id: $roleId }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { role_id: $roleId }
+    ) {
       id
       role {
         id
@@ -507,7 +543,7 @@ export const UPDATE_USER_ROLE = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -523,7 +559,7 @@ export const PRESENCE_SUBSCRIPTION = gql`
     }
   }
   ${USER_PRESENCE_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to all online users presence
@@ -540,7 +576,7 @@ export const ALL_PRESENCE_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to specific users' presence (for channel members)
@@ -554,7 +590,7 @@ export const USERS_PRESENCE_SUBSCRIPTION = gql`
       device
     }
   }
-`
+`;
 
 /**
  * Subscribe to user status changes (custom status)
@@ -568,7 +604,7 @@ export const USER_STATUS_SUBSCRIPTION = gql`
       status_expires_at
     }
   }
-`
+`;
 
 /**
  * Subscribe to user profile updates
@@ -580,7 +616,7 @@ export const USER_PROFILE_SUBSCRIPTION = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to presence stream (new presence events)
@@ -601,4 +637,4 @@ export const PRESENCE_STREAM_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;

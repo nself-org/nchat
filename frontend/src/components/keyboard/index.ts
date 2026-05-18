@@ -34,7 +34,7 @@ export {
   KeyboardShortcutsModal,
   useKeyboardShortcutsModal,
   type KeyboardShortcutsModalProps,
-} from './keyboard-shortcuts-modal'
+} from "./keyboard-shortcuts-modal";
 
 // Key display
 export {
@@ -48,7 +48,7 @@ export {
   type KeyComboProps,
   type KeySize,
   type KeyVariant,
-} from './shortcut-key'
+} from "./shortcut-key";
 
 // Shortcut items
 export {
@@ -58,7 +58,7 @@ export {
   type ShortcutItemProps,
   type ShortcutItemCompactProps,
   type ShortcutItemEditableProps,
-} from './shortcut-item'
+} from "./shortcut-item";
 
 // Category display
 export {
@@ -67,4 +67,4 @@ export {
   type ShortcutCategoryProps,
   type ShortcutCategoryListProps,
   type ShortcutData,
-} from './shortcut-category'
+} from "./shortcut-category";

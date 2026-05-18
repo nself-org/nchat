@@ -10,7 +10,7 @@ import {
   SetReminderModal,
   ReminderNotificationContainer,
   MessageQuickRemind,
-} from '@/components/reminders'
+} from "@/components/reminders";
 
 function MyApp() {
   return (
@@ -22,12 +22,20 @@ function MyApp() {
       <RemindersList userId={currentUser.id} />
 
       {/* Quick remind from message */}
-      <MessageQuickRemind messageId={message.id} channelId={channel.id} userId={currentUser.id} />
+      <MessageQuickRemind
+        messageId={message.id}
+        channelId={channel.id}
+        userId={currentUser.id}
+      />
 
       {/* Create/Edit modal */}
-      <SetReminderModal open={isOpen} onOpenChange={setIsOpen} userId={currentUser.id} />
+      <SetReminderModal
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        userId={currentUser.id}
+      />
     </>
-  )
+  );
 }
 ```
 
@@ -50,15 +58,15 @@ Main modal for creating and editing reminders.
 
 ```typescript
 interface SetReminderModalProps {
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  userId: string
-  messageId?: string
-  channelId?: string
-  initialContent?: string
-  editingReminder?: Reminder | null
-  onSuccess?: (reminder: Reminder) => void
-  onCancel?: () => void
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  userId: string;
+  messageId?: string;
+  channelId?: string;
+  initialContent?: string;
+  editingReminder?: Reminder | null;
+  onSuccess?: (reminder: Reminder) => void;
+  onCancel?: () => void;
 }
 ```
 
@@ -81,16 +89,16 @@ Display and manage all reminders with filtering and grouping.
 
 ```typescript
 interface RemindersListProps {
-  userId: string
-  channelId?: string
-  onEdit?: (reminder: Reminder) => void
-  onCreateNew?: () => void
-  showFilters?: boolean
-  showSearch?: boolean
-  showTabs?: boolean
-  maxHeight?: string | number
-  emptyMessage?: string
-  className?: string
+  userId: string;
+  channelId?: string;
+  onEdit?: (reminder: Reminder) => void;
+  onCreateNew?: () => void;
+  showFilters?: boolean;
+  showSearch?: boolean;
+  showTabs?: boolean;
+  maxHeight?: string | number;
+  emptyMessage?: string;
+  className?: string;
 }
 ```
 
@@ -112,14 +120,14 @@ Individual reminder card with actions.
 
 ```typescript
 interface ReminderItemProps {
-  reminder: Reminder
-  onComplete?: (id: string) => void
-  onEdit?: (reminder: Reminder) => void
-  onDelete?: (id: string) => void
-  onSnooze?: (id: string) => void
-  isLoading?: boolean
-  showChannel?: boolean
-  compact?: boolean
+  reminder: Reminder;
+  onComplete?: (id: string) => void;
+  onEdit?: (reminder: Reminder) => void;
+  onDelete?: (id: string) => void;
+  onSnooze?: (id: string) => void;
+  isLoading?: boolean;
+  showChannel?: boolean;
+  compact?: boolean;
 }
 ```
 
@@ -148,10 +156,10 @@ Notification components for due reminders.
 
 ```tsx
 // Add to root layout
-;<ReminderNotificationContainer userId={user.id} />
+<ReminderNotificationContainer userId={user.id} />;
 
 // Or use hook directly
-const { activeNotification, dismissNotification } = useReminderNotifications()
+const { activeNotification, dismissNotification } = useReminderNotifications();
 ```
 
 ---
@@ -214,13 +222,13 @@ Date and time selection with timezone support.
 
 ```typescript
 interface ReminderTimePickerProps {
-  value: Date
-  onChange: (date: Date) => void
-  timezone?: string
-  onTimezoneChange?: (timezone: string) => void
-  minDate?: Date
-  showTimezone?: boolean
-  presets?: TimePreset[]
+  value: Date;
+  onChange: (date: Date) => void;
+  timezone?: string;
+  onTimezoneChange?: (timezone: string) => void;
+  minDate?: Date;
+  showTimezone?: boolean;
+  presets?: TimePreset[];
 }
 ```
 
@@ -233,7 +241,7 @@ interface ReminderTimePickerProps {
 Main hook for reminders functionality.
 
 ```tsx
-import { useReminders } from '@/lib/reminders/use-reminders'
+import { useReminders } from "@/lib/reminders/use-reminders";
 
 function MyComponent() {
   const {
@@ -268,9 +276,9 @@ function MyComponent() {
     // UI helpers
     openReminderModal,
     closeReminderModal,
-  } = useReminders({ userId: currentUser.id })
+  } = useReminders({ userId: currentUser.id });
 
-  return <div>{/* Your UI */}</div>
+  return <div>{/* Your UI */}</div>;
 }
 ```
 
@@ -283,13 +291,20 @@ function MyComponent() {
 Zustand store for global reminder state.
 
 ```tsx
-import { useReminderStore } from '@/lib/reminders/reminder-store'
+import { useReminderStore } from "@/lib/reminders/reminder-store";
 
 function MyComponent() {
-  const { reminders, dueReminders, isModalOpen, filter, setFilter, openModal, closeModal } =
-    useReminderStore()
+  const {
+    reminders,
+    dueReminders,
+    isModalOpen,
+    filter,
+    setFilter,
+    openModal,
+    closeModal,
+  } = useReminderStore();
 
-  return <div>{/* Your UI */}</div>
+  return <div>{/* Your UI */}</div>;
 }
 ```
 
@@ -300,11 +315,11 @@ function MyComponent() {
 ### Example 1: Message Reminder
 
 ```tsx
-import { SetReminderModal } from '@/components/reminders'
-import { useState } from 'react'
+import { SetReminderModal } from "@/components/reminders";
+import { useState } from "react";
 
 function MessageWithReminder({ message, user }) {
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <>
@@ -321,14 +336,14 @@ function MessageWithReminder({ message, user }) {
         initialContent={message.content}
       />
     </>
-  )
+  );
 }
 ```
 
 ### Example 2: Quick Remind Menu
 
 ```tsx
-import { QuickRemind } from '@/components/reminders'
+import { QuickRemind } from "@/components/reminders";
 
 function MessageActions({ message }) {
   return (
@@ -342,19 +357,19 @@ function MessageActions({ message }) {
         />
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 ```
 
 ### Example 3: Reminders Page
 
 ```tsx
-import { RemindersList, SetReminderModal } from '@/components/reminders'
-import { useState } from 'react'
+import { RemindersList, SetReminderModal } from "@/components/reminders";
+import { useState } from "react";
 
 function RemindersPage({ user }) {
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
 
   return (
     <div>
@@ -365,8 +380,8 @@ function RemindersPage({ user }) {
         showFilters
         showSearch
         onEdit={(reminder) => {
-          setEditing(reminder)
-          setModalOpen(true)
+          setEditing(reminder);
+          setModalOpen(true);
         }}
         onCreateNew={() => setModalOpen(true)}
       />
@@ -377,19 +392,19 @@ function RemindersPage({ user }) {
         userId={user.id}
         editingReminder={editing}
         onSuccess={() => {
-          setModalOpen(false)
-          setEditing(null)
+          setModalOpen(false);
+          setEditing(null);
         }}
       />
     </div>
-  )
+  );
 }
 ```
 
 ### Example 4: Notification Container
 
 ```tsx
-import { ReminderNotificationContainer } from '@/components/reminders'
+import { ReminderNotificationContainer } from "@/components/reminders";
 
 function AppLayout({ children, user }) {
   return (
@@ -405,7 +420,7 @@ function AppLayout({ children, user }) {
         maxNotifications={3}
       />
     </div>
-  )
+  );
 }
 ```
 
@@ -462,13 +477,18 @@ Notifications require:
 All components are fully typed. Import types:
 
 ```tsx
-import type { Reminder, ReminderDraft, ReminderFilter, RecurrenceRule } from '@/graphql/reminders'
+import type {
+  Reminder,
+  ReminderDraft,
+  ReminderFilter,
+  RecurrenceRule,
+} from "@/graphql/reminders";
 
 import type {
   RemindersListProps,
   SetReminderModalProps,
   ReminderItemProps,
-} from '@/components/reminders'
+} from "@/components/reminders";
 ```
 
 ---
@@ -476,29 +496,29 @@ import type {
 ## Testing
 
 ```tsx
-import { render, screen, fireEvent } from '@testing-library/react'
-import { SetReminderModal } from '@/components/reminders'
+import { render, screen, fireEvent } from "@testing-library/react";
+import { SetReminderModal } from "@/components/reminders";
 
-test('creates reminder', async () => {
-  const onSuccess = jest.fn()
+test("creates reminder", async () => {
+  const onSuccess = jest.fn();
 
-  render(<SetReminderModal open userId="user-1" onSuccess={onSuccess} />)
+  render(<SetReminderModal open userId="user-1" onSuccess={onSuccess} />);
 
   // Enter content
-  const input = screen.getByPlaceholderText('Enter your reminder...')
-  fireEvent.change(input, { target: { value: 'Test' } })
+  const input = screen.getByPlaceholderText("Enter your reminder...");
+  fireEvent.change(input, { target: { value: "Test" } });
 
   // Select time
-  const in1Hour = screen.getByText('In 1 hour')
-  fireEvent.click(in1Hour)
+  const in1Hour = screen.getByText("In 1 hour");
+  fireEvent.click(in1Hour);
 
   // Submit
-  const submit = screen.getByText('Set Reminder')
-  fireEvent.click(submit)
+  const submit = screen.getByText("Set Reminder");
+  fireEvent.click(submit);
 
   // Verify
-  await waitFor(() => expect(onSuccess).toHaveBeenCalled())
-})
+  await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+});
 ```
 
 ---

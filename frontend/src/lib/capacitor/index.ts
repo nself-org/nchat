@@ -8,8 +8,13 @@
 // Video Service
 // =============================================================================
 
-export { video, trimVideoWeb } from './video'
-export type { VideoFile, VideoRecordingOptions, VideoTrimOptions, VideoTrimResult } from './video'
+export { video, trimVideoWeb } from "./video";
+export type {
+  VideoFile,
+  VideoRecordingOptions,
+  VideoTrimOptions,
+  VideoTrimResult,
+} from "./video";
 
 // =============================================================================
 // Voice Recording Service
@@ -20,8 +25,12 @@ export {
   drawWaveform,
   createAnimatedWaveform,
   formatDuration,
-} from './voice-recording'
-export type { VoiceRecording, RecordingOptions, WaveformVisualizerOptions } from './voice-recording'
+} from "./voice-recording";
+export type {
+  VoiceRecording,
+  RecordingOptions,
+  WaveformVisualizerOptions,
+} from "./voice-recording";
 
 // =============================================================================
 // Permissions Manager
@@ -32,8 +41,12 @@ export {
   areAllPermissionsGranted,
   requestMissingPermissions,
   requestPermissionWithRationale,
-} from './permissions'
-export type { PermissionType, PermissionStatus, PermissionResult } from './permissions'
+} from "./permissions";
+export type {
+  PermissionType,
+  PermissionStatus,
+  PermissionResult,
+} from "./permissions";
 
 // =============================================================================
 // Re-export Native Plugins (from platforms/capacitor)

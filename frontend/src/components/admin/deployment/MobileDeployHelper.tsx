@@ -1,12 +1,18 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Progress } from '@/components/ui/progress'
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import {
   CheckCircle2,
   XCircle,
@@ -23,156 +29,165 @@ import {
   Terminal,
   FileText,
   HelpCircle,
-} from 'lucide-react'
+} from "lucide-react";
 
 interface DeploymentStatus {
-  platform: 'ios' | 'android'
-  status: 'not-started' | 'building' | 'uploading' | 'processing' | 'complete' | 'error'
-  progress: number
-  message: string
-  version?: string
-  buildNumber?: string
-  url?: string
-  error?: string
+  platform: "ios" | "android";
+  status:
+    | "not-started"
+    | "building"
+    | "uploading"
+    | "processing"
+    | "complete"
+    | "error";
+  progress: number;
+  message: string;
+  version?: string;
+  buildNumber?: string;
+  url?: string;
+  error?: string;
 }
 
 interface MobileDeployHelperProps {
-  onDeploy?: (platform: 'ios' | 'android', track: string) => Promise<void>
-  className?: string
+  onDeploy?: (platform: "ios" | "android", track: string) => Promise<void>;
+  className?: string;
 }
 
-export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperProps) {
+export function MobileDeployHelper({
+  onDeploy,
+  className,
+}: MobileDeployHelperProps) {
   const [iosStatus, setIosStatus] = useState<DeploymentStatus>({
-    platform: 'ios',
-    status: 'not-started',
+    platform: "ios",
+    status: "not-started",
     progress: 0,
-    message: 'Ready to deploy',
-  })
+    message: "Ready to deploy",
+  });
 
   const [androidStatus, setAndroidStatus] = useState<DeploymentStatus>({
-    platform: 'android',
-    status: 'not-started',
+    platform: "android",
+    status: "not-started",
     progress: 0,
-    message: 'Ready to deploy',
-  })
+    message: "Ready to deploy",
+  });
 
-  const [copied, setCopied] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState('overview')
+  const [copied, setCopied] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Simulate checking deployment status on mount
   useEffect(() => {
-    checkDeploymentStatus()
-  }, [])
+    checkDeploymentStatus();
+  }, []);
 
   const checkDeploymentStatus = async () => {
     try {
       // In a real implementation, this would check actual deployment status
       // from your CI/CD system or deployment tracking service
-      const response = await fetch('/api/admin/deployment/status')
+      const response = await fetch("/api/admin/deployment/status");
       if (response.ok) {
-        const data = await response.json()
-        if (data.ios) setIosStatus(data.ios)
-        if (data.android) setAndroidStatus(data.android)
+        const data = await response.json();
+        if (data.ios) setIosStatus(data.ios);
+        if (data.android) setAndroidStatus(data.android);
       }
     } catch (error) {
       // Silently fail - deployment status is optional
     }
-  }
+  };
 
-  const handleDeploy = async (platform: 'ios' | 'android', track: string) => {
-    const setStatus = platform === 'ios' ? setIosStatus : setAndroidStatus
+  const handleDeploy = async (platform: "ios" | "android", track: string) => {
+    const setStatus = platform === "ios" ? setIosStatus : setAndroidStatus;
 
     setStatus({
       platform,
-      status: 'building',
+      status: "building",
       progress: 10,
-      message: 'Building application...',
-    })
+      message: "Building application...",
+    });
 
     try {
       if (onDeploy) {
-        await onDeploy(platform, track)
+        await onDeploy(platform, track);
       }
 
       // Simulate deployment progress
       setStatus({
         platform,
-        status: 'uploading',
+        status: "uploading",
         progress: 50,
-        message: 'Uploading to store...',
-      })
+        message: "Uploading to store...",
+      });
 
       // This would be replaced with actual deployment logic
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       setStatus({
         platform,
-        status: 'processing',
+        status: "processing",
         progress: 80,
-        message: 'Processing upload...',
-      })
+        message: "Processing upload...",
+      });
 
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       setStatus({
         platform,
-        status: 'complete',
+        status: "complete",
         progress: 100,
-        message: 'Deployment complete!',
-        version: '1.0.0',
+        message: "Deployment complete!",
+        version: "1.0.0",
         buildNumber: Date.now().toString(),
-      })
+      });
     } catch (error) {
       setStatus({
         platform,
-        status: 'error',
+        status: "error",
         progress: 0,
-        message: 'Deployment failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      })
+        message: "Deployment failed",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
-  }
+  };
 
   const copyToClipboard = async (text: string, label: string) => {
-    await navigator.clipboard.writeText(text)
-    setCopied(label)
-    setTimeout(() => setCopied(null), 2000)
-  }
+    await navigator.clipboard.writeText(text);
+    setCopied(label);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
-  const getStatusIcon = (status: DeploymentStatus['status']) => {
+  const getStatusIcon = (status: DeploymentStatus["status"]) => {
     switch (status) {
-      case 'complete':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />
-      case 'error':
-        return <XCircle className="h-5 w-5 text-red-500" />
-      case 'building':
-      case 'uploading':
-      case 'processing':
-        return <Clock className="h-5 w-5 animate-pulse text-blue-500" />
+      case "complete":
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      case "error":
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case "building":
+      case "uploading":
+      case "processing":
+        return <Clock className="h-5 w-5 animate-pulse text-blue-500" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-400" />
+        return <AlertCircle className="h-5 w-5 text-gray-400" />;
     }
-  }
+  };
 
-  const getStatusBadge = (status: DeploymentStatus['status']) => {
+  const getStatusBadge = (status: DeploymentStatus["status"]) => {
     const variants: Record<
-      DeploymentStatus['status'],
-      'default' | 'secondary' | 'destructive' | 'outline'
+      DeploymentStatus["status"],
+      "default" | "secondary" | "destructive" | "outline"
     > = {
-      'not-started': 'secondary',
-      building: 'default',
-      uploading: 'default',
-      processing: 'default',
-      complete: 'default',
-      error: 'destructive',
-    }
+      "not-started": "secondary",
+      building: "default",
+      uploading: "default",
+      processing: "default",
+      complete: "default",
+      error: "destructive",
+    };
 
     return (
-      <Badge variant={variants[status] || 'secondary'}>
-        {status.replace('-', ' ').toUpperCase()}
+      <Badge variant={variants[status] || "secondary"}>
+        {status.replace("-", " ").toUpperCase()}
       </Badge>
-    )
-  }
+    );
+  };
 
   return (
     <div className={className}>
@@ -208,9 +223,9 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                   {getStatusIcon(iosStatus.status)}
                   <div className="flex-1 space-y-2">
                     <p className="text-sm">{iosStatus.message}</p>
-                    {iosStatus.status !== 'not-started' &&
-                      iosStatus.status !== 'complete' &&
-                      iosStatus.status !== 'error' && (
+                    {iosStatus.status !== "not-started" &&
+                      iosStatus.status !== "complete" &&
+                      iosStatus.status !== "error" && (
                         <Progress value={iosStatus.progress} className="h-2" />
                       )}
                     {iosStatus.version && (
@@ -229,11 +244,11 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
 
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => handleDeploy('ios', 'testflight')}
+                    onClick={() => handleDeploy("ios", "testflight")}
                     disabled={
-                      iosStatus.status === 'building' ||
-                      iosStatus.status === 'uploading' ||
-                      iosStatus.status === 'processing'
+                      iosStatus.status === "building" ||
+                      iosStatus.status === "uploading" ||
+                      iosStatus.status === "processing"
                     }
                   >
                     <Upload className="mr-2 h-4 w-4" />
@@ -241,11 +256,11 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => handleDeploy('ios', 'production')}
+                    onClick={() => handleDeploy("ios", "production")}
                     disabled={
-                      iosStatus.status === 'building' ||
-                      iosStatus.status === 'uploading' ||
-                      iosStatus.status === 'processing'
+                      iosStatus.status === "building" ||
+                      iosStatus.status === "uploading" ||
+                      iosStatus.status === "processing"
                     }
                   >
                     <Upload className="mr-2 h-4 w-4" />
@@ -268,20 +283,26 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                   {getStatusIcon(androidStatus.status)}
                   <div className="flex-1 space-y-2">
                     <p className="text-sm">{androidStatus.message}</p>
-                    {androidStatus.status !== 'not-started' &&
-                      androidStatus.status !== 'complete' &&
-                      androidStatus.status !== 'error' && (
-                        <Progress value={androidStatus.progress} className="h-2" />
+                    {androidStatus.status !== "not-started" &&
+                      androidStatus.status !== "complete" &&
+                      androidStatus.status !== "error" && (
+                        <Progress
+                          value={androidStatus.progress}
+                          className="h-2"
+                        />
                       )}
                     {androidStatus.version && (
                       <p className="text-xs text-muted-foreground">
-                        Version: {androidStatus.version} ({androidStatus.buildNumber})
+                        Version: {androidStatus.version} (
+                        {androidStatus.buildNumber})
                       </p>
                     )}
                     {androidStatus.error && (
                       <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{androidStatus.error}</AlertDescription>
+                        <AlertDescription>
+                          {androidStatus.error}
+                        </AlertDescription>
                       </Alert>
                     )}
                   </div>
@@ -289,11 +310,11 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
 
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => handleDeploy('android', 'internal')}
+                    onClick={() => handleDeploy("android", "internal")}
                     disabled={
-                      androidStatus.status === 'building' ||
-                      androidStatus.status === 'uploading' ||
-                      androidStatus.status === 'processing'
+                      androidStatus.status === "building" ||
+                      androidStatus.status === "uploading" ||
+                      androidStatus.status === "processing"
                     }
                   >
                     <Upload className="mr-2 h-4 w-4" />
@@ -301,11 +322,11 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => handleDeploy('android', 'beta')}
+                    onClick={() => handleDeploy("android", "beta")}
                     disabled={
-                      androidStatus.status === 'building' ||
-                      androidStatus.status === 'uploading' ||
-                      androidStatus.status === 'processing'
+                      androidStatus.status === "building" ||
+                      androidStatus.status === "uploading" ||
+                      androidStatus.status === "processing"
                     }
                   >
                     <Upload className="mr-2 h-4 w-4" />
@@ -322,7 +343,11 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start" asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                asChild
+              >
                 <a
                   href="https://appstoreconnect.apple.com"
                   target="_blank"
@@ -332,8 +357,16 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                   Open App Store Connect
                 </a>
               </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <a href="https://play.google.com/console" target="_blank" rel="noopener noreferrer">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                asChild
+              >
+                <a
+                  href="https://play.google.com/console"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Open Google Play Console
                 </a>
@@ -341,7 +374,7 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => setActiveTab('guides')}
+                onClick={() => setActiveTab("guides")}
               >
                 <FileText className="mr-2 h-4 w-4" />
                 View Deployment Guides
@@ -355,7 +388,9 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
           <Card>
             <CardHeader>
               <CardTitle>iOS Deployment</CardTitle>
-              <CardDescription>Deploy to TestFlight or App Store</CardDescription>
+              <CardDescription>
+                Deploy to TestFlight or App Store
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Prerequisites */}
@@ -386,18 +421,20 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                 <h3 className="font-semibold">Deployment Command</h3>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                    <code className="text-sm">./scripts/deploy-mobile-ios.sh --testflight</code>
+                    <code className="text-sm">
+                      ./scripts/deploy-mobile-ios.sh --testflight
+                    </code>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() =>
                         copyToClipboard(
-                          './scripts/deploy-mobile-ios.sh --testflight',
-                          'ios-testflight'
+                          "./scripts/deploy-mobile-ios.sh --testflight",
+                          "ios-testflight",
                         )
                       }
                     >
-                      {copied === 'ios-testflight' ? (
+                      {copied === "ios-testflight" ? (
                         <Check className="h-4 w-4" />
                       ) : (
                         <Copy className="h-4 w-4" />
@@ -405,18 +442,20 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                     </Button>
                   </div>
                   <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                    <code className="text-sm">./scripts/deploy-mobile-ios.sh --production</code>
+                    <code className="text-sm">
+                      ./scripts/deploy-mobile-ios.sh --production
+                    </code>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() =>
                         copyToClipboard(
-                          './scripts/deploy-mobile-ios.sh --production',
-                          'ios-production'
+                          "./scripts/deploy-mobile-ios.sh --production",
+                          "ios-production",
                         )
                       }
                     >
-                      {copied === 'ios-production' ? (
+                      {copied === "ios-production" ? (
                         <Check className="h-4 w-4" />
                       ) : (
                         <Copy className="h-4 w-4" />
@@ -428,23 +467,34 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
 
               {/* Environment Variables */}
               <div className="space-y-3">
-                <h3 className="font-semibold">Required Environment Variables</h3>
+                <h3 className="font-semibold">
+                  Required Environment Variables
+                </h3>
                 <div className="space-y-2">
                   {[
-                    { key: 'APPLE_TEAM_ID', description: 'Your Apple Team ID' },
-                    { key: 'APPLE_ID', description: 'Your Apple ID email' },
-                    { key: 'APP_SPECIFIC_PASSWORD', description: 'App-specific password' },
+                    { key: "APPLE_TEAM_ID", description: "Your Apple Team ID" },
+                    { key: "APPLE_ID", description: "Your Apple ID email" },
+                    {
+                      key: "APP_SPECIFIC_PASSWORD",
+                      description: "App-specific password",
+                    },
                   ].map(({ key, description }) => (
                     <div key={key} className="rounded-lg border p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-mono text-sm font-semibold">{key}</p>
-                          <p className="text-xs text-muted-foreground">{description}</p>
+                          <p className="font-mono text-sm font-semibold">
+                            {key}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {description}
+                          </p>
                         </div>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => copyToClipboard(`export ${key}=""`, key)}
+                          onClick={() =>
+                            copyToClipboard(`export ${key}=""`, key)
+                          }
                         >
                           {copied === key ? (
                             <Check className="h-4 w-4" />
@@ -463,8 +513,9 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                 <HelpCircle className="h-4 w-4" />
                 <AlertTitle>Next Steps</AlertTitle>
                 <AlertDescription>
-                  After deployment, check App Store Connect for processing status (10-30 minutes).
-                  Then configure TestFlight or submit for App Review.
+                  After deployment, check App Store Connect for processing
+                  status (10-30 minutes). Then configure TestFlight or submit
+                  for App Review.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -476,7 +527,9 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
           <Card>
             <CardHeader>
               <CardTitle>Android Deployment</CardTitle>
-              <CardDescription>Deploy to Google Play testing tracks or production</CardDescription>
+              <CardDescription>
+                Deploy to Google Play testing tracks or production
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Prerequisites */}
@@ -507,18 +560,20 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                 <h3 className="font-semibold">Deployment Commands</h3>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                    <code className="text-sm">./scripts/deploy-mobile-android.sh --internal</code>
+                    <code className="text-sm">
+                      ./scripts/deploy-mobile-android.sh --internal
+                    </code>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() =>
                         copyToClipboard(
-                          './scripts/deploy-mobile-android.sh --internal',
-                          'android-internal'
+                          "./scripts/deploy-mobile-android.sh --internal",
+                          "android-internal",
                         )
                       }
                     >
-                      {copied === 'android-internal' ? (
+                      {copied === "android-internal" ? (
                         <Check className="h-4 w-4" />
                       ) : (
                         <Copy className="h-4 w-4" />
@@ -526,15 +581,20 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                     </Button>
                   </div>
                   <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                    <code className="text-sm">./scripts/deploy-mobile-android.sh --beta</code>
+                    <code className="text-sm">
+                      ./scripts/deploy-mobile-android.sh --beta
+                    </code>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() =>
-                        copyToClipboard('./scripts/deploy-mobile-android.sh --beta', 'android-beta')
+                        copyToClipboard(
+                          "./scripts/deploy-mobile-android.sh --beta",
+                          "android-beta",
+                        )
                       }
                     >
-                      {copied === 'android-beta' ? (
+                      {copied === "android-beta" ? (
                         <Check className="h-4 w-4" />
                       ) : (
                         <Copy className="h-4 w-4" />
@@ -542,18 +602,20 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                     </Button>
                   </div>
                   <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                    <code className="text-sm">./scripts/deploy-mobile-android.sh --production</code>
+                    <code className="text-sm">
+                      ./scripts/deploy-mobile-android.sh --production
+                    </code>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() =>
                         copyToClipboard(
-                          './scripts/deploy-mobile-android.sh --production',
-                          'android-production'
+                          "./scripts/deploy-mobile-android.sh --production",
+                          "android-production",
                         )
                       }
                     >
-                      {copied === 'android-production' ? (
+                      {copied === "android-production" ? (
                         <Check className="h-4 w-4" />
                       ) : (
                         <Copy className="h-4 w-4" />
@@ -565,24 +627,41 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
 
               {/* Environment Variables */}
               <div className="space-y-3">
-                <h3 className="font-semibold">Required Environment Variables</h3>
+                <h3 className="font-semibold">
+                  Required Environment Variables
+                </h3>
                 <div className="space-y-2">
                   {[
-                    { key: 'ANDROID_KEYSTORE_PATH', description: 'Path to release keystore' },
-                    { key: 'ANDROID_KEYSTORE_PASSWORD', description: 'Keystore password' },
-                    { key: 'ANDROID_KEY_ALIAS', description: 'Key alias name' },
-                    { key: 'ANDROID_KEY_PASSWORD', description: 'Key password' },
+                    {
+                      key: "ANDROID_KEYSTORE_PATH",
+                      description: "Path to release keystore",
+                    },
+                    {
+                      key: "ANDROID_KEYSTORE_PASSWORD",
+                      description: "Keystore password",
+                    },
+                    { key: "ANDROID_KEY_ALIAS", description: "Key alias name" },
+                    {
+                      key: "ANDROID_KEY_PASSWORD",
+                      description: "Key password",
+                    },
                   ].map(({ key, description }) => (
                     <div key={key} className="rounded-lg border p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-mono text-sm font-semibold">{key}</p>
-                          <p className="text-xs text-muted-foreground">{description}</p>
+                          <p className="font-mono text-sm font-semibold">
+                            {key}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {description}
+                          </p>
                         </div>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => copyToClipboard(`export ${key}=""`, key)}
+                          onClick={() =>
+                            copyToClipboard(`export ${key}=""`, key)
+                          }
                         >
                           {copied === key ? (
                             <Check className="h-4 w-4" />
@@ -601,8 +680,9 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                 <HelpCircle className="h-4 w-4" />
                 <AlertTitle>Next Steps</AlertTitle>
                 <AlertDescription>
-                  After building, manually upload the AAB file to Google Play Console. Internal
-                  testing is available immediately, Beta requires Pre-launch report (1-2 hours).
+                  After building, manually upload the AAB file to Google Play
+                  Console. Internal testing is available immediately, Beta
+                  requires Pre-launch report (1-2 hours).
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -614,10 +694,16 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
           <Card>
             <CardHeader>
               <CardTitle>Deployment Guides</CardTitle>
-              <CardDescription>Comprehensive guides and troubleshooting resources</CardDescription>
+              <CardDescription>
+                Comprehensive guides and troubleshooting resources
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-between" asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between"
+                asChild
+              >
                 <a href="/docs/guides/deployment/mobile-deployment.md">
                   <span className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
@@ -626,7 +712,11 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                   <ChevronRight className="h-4 w-4" />
                 </a>
               </Button>
-              <Button variant="outline" className="w-full justify-between" asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between"
+                asChild
+              >
                 <a href="/docs/guides/deployment/mobile-deployment-troubleshooting.md">
                   <span className="flex items-center gap-2">
                     <Terminal className="h-4 w-4" />
@@ -635,7 +725,11 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                   <ChevronRight className="h-4 w-4" />
                 </a>
               </Button>
-              <Button variant="outline" className="w-full justify-between" asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between"
+                asChild
+              >
                 <a
                   href="https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases"
                   target="_blank"
@@ -648,7 +742,11 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
                   <ChevronRight className="h-4 w-4" />
                 </a>
               </Button>
-              <Button variant="outline" className="w-full justify-between" asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between"
+                asChild
+              >
                 <a
                   href="https://developer.android.com/distribute/best-practices/launch/launch-checklist"
                   target="_blank"
@@ -670,29 +768,35 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold">Create iOS Release Keystore</h4>
+                <h4 className="text-sm font-semibold">
+                  Create iOS Release Keystore
+                </h4>
                 <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                  <code className="text-xs">Managed by Xcode automatically</code>
+                  <code className="text-xs">
+                    Managed by Xcode automatically
+                  </code>
                 </div>
               </div>
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold">Create Android Release Keystore</h4>
+                <h4 className="text-sm font-semibold">
+                  Create Android Release Keystore
+                </h4>
                 <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
                   <code className="text-xs">
-                    keytool -genkey -v -keystore release.keystore -alias upload-key -keyalg RSA
-                    -keysize 2048 -validity 10000
+                    keytool -genkey -v -keystore release.keystore -alias
+                    upload-key -keyalg RSA -keysize 2048 -validity 10000
                   </code>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() =>
                       copyToClipboard(
-                        'keytool -genkey -v -keystore release.keystore -alias upload-key -keyalg RSA -keysize 2048 -validity 10000',
-                        'keytool'
+                        "keytool -genkey -v -keystore release.keystore -alias upload-key -keyalg RSA -keysize 2048 -validity 10000",
+                        "keytool",
                       )
                     }
                   >
-                    {copied === 'keytool' ? (
+                    {copied === "keytool" ? (
                       <Check className="h-4 w-4" />
                     ) : (
                       <Copy className="h-4 w-4" />
@@ -705,5 +809,5 @@ export function MobileDeployHelper({ onDeploy, className }: MobileDeployHelperPr
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

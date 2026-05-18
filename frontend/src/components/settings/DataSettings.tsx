@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { SettingsSection } from './settings-section'
-import { Button } from '@/components/ui/button'
-import { Download, Trash2, AlertCircle, Check } from 'lucide-react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useState } from "react";
+import { SettingsSection } from "./settings-section";
+import { Button } from "@/components/ui/button";
+import { Download, Trash2, AlertCircle, Check } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,28 +14,28 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 
 interface DataSettingsProps {
-  className?: string
+  className?: string;
 }
 
 /**
  * DataSettings - Manage your data
  */
 export function DataSettings({ className }: DataSettingsProps) {
-  const [downloadLoading, setDownloadLoading] = useState(false)
-  const [downloadSuccess, setDownloadSuccess] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [deleteSuccess, setDeleteSuccess] = useState(false)
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   const handleDownloadData = async () => {
-    setDownloadLoading(true)
-    setDownloadSuccess(false)
+    setDownloadLoading(true);
+    setDownloadSuccess(false);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Simulate file download
       const data = {
@@ -43,40 +43,40 @@ export function DataSettings({ className }: DataSettingsProps) {
         messages: [],
         channels: [],
         profile: {},
-      }
+      };
 
       const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: 'application/json',
-      })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `nchat-data-${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `nchat-data-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
-      setDownloadSuccess(true)
-      setTimeout(() => setDownloadSuccess(false), 5000)
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 5000);
     } finally {
-      setDownloadLoading(false)
+      setDownloadLoading(false);
     }
-  }
+  };
 
   const handleDeleteData = async () => {
-    setDeleteLoading(true)
+    setDeleteLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      setDeleteSuccess(true)
-      setDeleteDialogOpen(false)
-      setTimeout(() => setDeleteSuccess(false), 5000)
+      setDeleteSuccess(true);
+      setDeleteDialogOpen(false);
+      setTimeout(() => setDeleteSuccess(false), 5000);
     } finally {
-      setDeleteLoading(false)
+      setDeleteLoading(false);
     }
-  }
+  };
 
   return (
     <SettingsSection
@@ -121,12 +121,18 @@ export function DataSettings({ className }: DataSettingsProps) {
         {/* Delete message history */}
         <div className="border-destructive/30 bg-destructive/5 flex items-center justify-between rounded-lg border p-4">
           <div className="flex-1">
-            <p className="font-medium text-destructive">Delete message history</p>
+            <p className="font-medium text-destructive">
+              Delete message history
+            </p>
             <p className="text-sm text-muted-foreground">
               Permanently delete all your messages. This cannot be undone.
             </p>
           </div>
-          <Button variant="destructive" onClick={() => setDeleteDialogOpen(true)} className="gap-2">
+          <Button
+            variant="destructive"
+            onClick={() => setDeleteDialogOpen(true)}
+            className="gap-2"
+          >
             <Trash2 className="h-4 w-4" />
             Delete
           </Button>
@@ -135,7 +141,9 @@ export function DataSettings({ className }: DataSettingsProps) {
         {deleteSuccess && (
           <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
             <Check className="h-4 w-4" />
-            <AlertDescription>Your message history has been deleted.</AlertDescription>
+            <AlertDescription>
+              Your message history has been deleted.
+            </AlertDescription>
           </Alert>
         )}
 
@@ -143,8 +151,8 @@ export function DataSettings({ className }: DataSettingsProps) {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Deleting your data is permanent and cannot be reversed. Consider downloading a copy
-            first.
+            Deleting your data is permanent and cannot be reversed. Consider
+            downloading a copy first.
           </AlertDescription>
         </Alert>
       </div>
@@ -159,24 +167,28 @@ export function DataSettings({ className }: DataSettingsProps) {
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
               <p>
-                This will permanently delete all your messages from all channels and direct message
-                conversations.
+                This will permanently delete all your messages from all channels
+                and direct message conversations.
               </p>
-              <p className="font-medium text-destructive">This action cannot be undone.</p>
+              <p className="font-medium text-destructive">
+                This action cannot be undone.
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteLoading}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteData}
               disabled={deleteLoading}
               className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
             >
-              {deleteLoading ? 'Deleting...' : 'Delete all messages'}
+              {deleteLoading ? "Deleting..." : "Delete all messages"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </SettingsSection>
-  )
+  );
 }

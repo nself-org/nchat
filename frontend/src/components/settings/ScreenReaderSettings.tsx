@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import { SettingsSection } from './settings-section'
-import { SettingsToggle } from './SettingsToggle'
-import { useSettingsStore } from '@/stores/settings-store'
+import { SettingsSection } from "./settings-section";
+import { SettingsToggle } from "./SettingsToggle";
+import { useSettingsStore } from "@/stores/settings-store";
 
 interface ScreenReaderSettingsProps {
-  className?: string
+  className?: string;
 }
 
 /**
  * ScreenReaderSettings - Screen reader optimization options
  */
 export function ScreenReaderSettings({ className }: ScreenReaderSettingsProps) {
-  const { settings, updateAccessibility } = useSettingsStore()
+  const { settings, updateAccessibility } = useSettingsStore();
 
   return (
     <SettingsSection
@@ -25,7 +25,9 @@ export function ScreenReaderSettings({ className }: ScreenReaderSettingsProps) {
         label="Screen reader optimization"
         description="Enhance ARIA labels and descriptions for better screen reader compatibility"
         checked={settings.accessibility.screenReaderMode}
-        onCheckedChange={(checked) => updateAccessibility({ screenReaderMode: checked })}
+        onCheckedChange={(checked) =>
+          updateAccessibility({ screenReaderMode: checked })
+        }
       />
 
       <SettingsToggle
@@ -33,7 +35,9 @@ export function ScreenReaderSettings({ className }: ScreenReaderSettingsProps) {
         label="Announce new messages"
         description="Automatically announce new chat messages to screen readers"
         checked={settings.accessibility.announceMessages}
-        onCheckedChange={(checked) => updateAccessibility({ announceMessages: checked })}
+        onCheckedChange={(checked) =>
+          updateAccessibility({ announceMessages: checked })
+        }
       />
 
       <SettingsToggle
@@ -41,8 +45,10 @@ export function ScreenReaderSettings({ className }: ScreenReaderSettingsProps) {
         label="Prefer captions"
         description="Show captions or transcripts for audio and video content when available"
         checked={settings.accessibility.preferCaptions}
-        onCheckedChange={(checked) => updateAccessibility({ preferCaptions: checked })}
+        onCheckedChange={(checked) =>
+          updateAccessibility({ preferCaptions: checked })
+        }
       />
     </SettingsSection>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
+import * as React from "react";
+import { useState } from "react";
 import {
   Settings,
   Hash,
@@ -14,22 +14,28 @@ import {
   Users,
   Palette,
   Loader2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,26 +46,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { ChannelPermissions } from './ChannelPermissions'
-import { ChannelMembers } from './ChannelMembers'
-import { EncryptionBadge } from '@/components/security/encryption-badge'
-import type { Channel, ChannelType } from '@/stores/channel-store'
-import { DEFAULT_CATEGORIES } from '@/lib/channels/channel-categories'
-import { CATEGORY_COLORS } from '@/lib/channels/channel-categories'
+} from "@/components/ui/alert-dialog";
+import { ChannelPermissions } from "./ChannelPermissions";
+import { ChannelMembers } from "./ChannelMembers";
+import { EncryptionBadge } from "@/components/security/encryption-badge";
+import type { Channel, ChannelType } from "@/stores/channel-store";
+import { DEFAULT_CATEGORIES } from "@/lib/channels/channel-categories";
+import { CATEGORY_COLORS } from "@/lib/channels/channel-categories";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelSettingsProps {
-  channel: Channel
-  isAdmin?: boolean
-  onSave?: (updates: Partial<Channel>) => Promise<void>
-  onArchive?: () => Promise<void>
-  onDelete?: () => Promise<void>
-  onLeave?: () => Promise<void>
-  className?: string
+  channel: Channel;
+  isAdmin?: boolean;
+  onSave?: (updates: Partial<Channel>) => Promise<void>;
+  onArchive?: () => Promise<void>;
+  onDelete?: () => Promise<void>;
+  onLeave?: () => Promise<void>;
+  className?: string;
 }
 
 // ============================================================================
@@ -75,26 +81,29 @@ export function ChannelSettings({
   onLeave,
   className,
 }: ChannelSettingsProps) {
-  const [isSaving, setIsSaving] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: channel.name,
-    description: channel.description || '',
-    topic: channel.topic || '',
+    description: channel.description || "",
+    topic: channel.topic || "",
     type: channel.type,
-    categoryId: channel.categoryId || '',
+    categoryId: channel.categoryId || "",
     color: channel.color || CATEGORY_COLORS[0],
     isDefault: channel.isDefault,
-    isEncrypted: (channel as Channel & { isEncrypted?: boolean }).isEncrypted ?? false,
-  })
+    isEncrypted:
+      (channel as Channel & { isEncrypted?: boolean }).isEncrypted ?? false,
+  });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSave = async () => {
     try {
-      setIsSaving(true)
+      setIsSaving(true);
       await onSave?.({
         name: formData.name,
         description: formData.description || null,
@@ -104,26 +113,27 @@ export function ChannelSettings({
         color: formData.color,
         isDefault: formData.isDefault,
         isEncrypted: formData.isEncrypted,
-      } as Partial<Channel>)
+      } as Partial<Channel>);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
-  const channelIsEncrypted = (channel as Channel & { isEncrypted?: boolean }).isEncrypted ?? false
+  const channelIsEncrypted =
+    (channel as Channel & { isEncrypted?: boolean }).isEncrypted ?? false;
 
   const hasChanges =
     formData.name !== channel.name ||
-    formData.description !== (channel.description || '') ||
-    formData.topic !== (channel.topic || '') ||
+    formData.description !== (channel.description || "") ||
+    formData.topic !== (channel.topic || "") ||
     formData.type !== channel.type ||
-    formData.categoryId !== (channel.categoryId || '') ||
+    formData.categoryId !== (channel.categoryId || "") ||
     formData.color !== (channel.color || CATEGORY_COLORS[0]) ||
     formData.isDefault !== channel.isDefault ||
-    formData.isEncrypted !== channelIsEncrypted
+    formData.isEncrypted !== channelIsEncrypted;
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       <Tabs defaultValue="general">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general">
@@ -149,7 +159,9 @@ export function ChannelSettings({
           <Card>
             <CardHeader>
               <CardTitle>Channel Information</CardTitle>
-              <CardDescription>Basic information about this channel</CardDescription>
+              <CardDescription>
+                Basic information about this channel
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -200,7 +212,9 @@ export function ChannelSettings({
           <Card>
             <CardHeader>
               <CardTitle>Organization</CardTitle>
-              <CardDescription>How this channel is organized in the sidebar</CardDescription>
+              <CardDescription>
+                How this channel is organized in the sidebar
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -208,7 +222,10 @@ export function ChannelSettings({
                 <Select
                   value={formData.type}
                   onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, type: value as ChannelType }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      type: value as ChannelType,
+                    }))
                   }
                   disabled={!isAdmin}
                 >
@@ -236,7 +253,9 @@ export function ChannelSettings({
                 <Label htmlFor="category">Category</Label>
                 <Select
                   value={formData.categoryId}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, categoryId: value }))}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, categoryId: value }))
+                  }
                   disabled={!isAdmin}
                 >
                   <SelectTrigger>
@@ -244,11 +263,13 @@ export function ChannelSettings({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">No category</SelectItem>
-                    {DEFAULT_CATEGORIES.filter((c) => c.id !== 'archived').map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
+                    {DEFAULT_CATEGORIES.filter((c) => c.id !== "archived").map(
+                      (category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -260,13 +281,15 @@ export function ChannelSettings({
                     <button
                       key={color}
                       type="button"
-                      onClick={() => isAdmin && setFormData((prev) => ({ ...prev, color }))}
+                      onClick={() =>
+                        isAdmin && setFormData((prev) => ({ ...prev, color }))
+                      }
                       className={cn(
-                        'h-8 w-8 rounded-full border-2 transition-all',
+                        "h-8 w-8 rounded-full border-2 transition-all",
                         formData.color === color
-                          ? 'scale-110 border-foreground'
-                          : 'border-transparent',
-                        !isAdmin && 'cursor-not-allowed opacity-50'
+                          ? "scale-110 border-foreground"
+                          : "border-transparent",
+                        !isAdmin && "cursor-not-allowed opacity-50",
                       )}
                       style={{ backgroundColor: color }}
                       disabled={!isAdmin}
@@ -296,12 +319,16 @@ export function ChannelSettings({
                   <div className="flex items-center gap-2">
                     <Label>End-to-End Encryption</Label>
                     {formData.isEncrypted && (
-                      <EncryptionBadge level="encrypted" size="sm" showTooltip={false} />
+                      <EncryptionBadge
+                        level="encrypted"
+                        size="sm"
+                        showTooltip={false}
+                      />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Encrypt all messages in this channel. Members must exchange keys before reading
-                    messages.
+                    Encrypt all messages in this channel. Members must exchange
+                    keys before reading messages.
                   </p>
                 </div>
                 <Switch
@@ -340,14 +367,18 @@ export function ChannelSettings({
           <Card className="border-destructive/50">
             <CardHeader>
               <CardTitle className="text-destructive">Danger Zone</CardTitle>
-              <CardDescription>Irreversible actions that affect this channel</CardDescription>
+              <CardDescription>
+                Irreversible actions that affect this channel
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Leave Channel */}
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div>
                   <p className="font-medium">Leave Channel</p>
-                  <p className="text-sm text-muted-foreground">Remove yourself from this channel</p>
+                  <p className="text-sm text-muted-foreground">
+                    Remove yourself from this channel
+                  </p>
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -357,12 +388,15 @@ export function ChannelSettings({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Leave channel?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to leave #{channel.name}? You can rejoin at any time.
+                        Are you sure you want to leave #{channel.name}? You can
+                        rejoin at any time.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={onLeave}>Leave</AlertDialogAction>
+                      <AlertDialogAction onClick={onLeave}>
+                        Leave
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -389,13 +423,16 @@ export function ChannelSettings({
                         <AlertDialogHeader>
                           <AlertDialogTitle>Archive channel?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will archive #{channel.name}. No one will be able to send new
-                            messages, but the history will be preserved.
+                            This will archive #{channel.name}. No one will be
+                            able to send new messages, but the history will be
+                            preserved.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={onArchive}>Archive</AlertDialogAction>
+                          <AlertDialogAction onClick={onArchive}>
+                            Archive
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
@@ -404,7 +441,9 @@ export function ChannelSettings({
                   {/* Delete Channel */}
                   <div className="border-destructive/50 flex items-center justify-between rounded-lg border p-4">
                     <div>
-                      <p className="font-medium text-destructive">Delete Channel</p>
+                      <p className="font-medium text-destructive">
+                        Delete Channel
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         Permanently delete this channel and all messages
                       </p>
@@ -420,8 +459,8 @@ export function ChannelSettings({
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete channel?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete #
-                            {channel.name} and all of its messages.
+                            This action cannot be undone. This will permanently
+                            delete #{channel.name} and all of its messages.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -443,7 +482,7 @@ export function ChannelSettings({
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
-ChannelSettings.displayName = 'ChannelSettings'
+ChannelSettings.displayName = "ChannelSettings";

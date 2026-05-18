@@ -12,32 +12,32 @@
  */
 
 // Types
-export * from './types'
+export * from "./types";
 
 // Recording Pipeline Service
 export {
   RecordingPipelineService,
   getRecordingPipeline,
   createRecordingPipeline,
-} from './recording-pipeline.service'
+} from "./recording-pipeline.service";
 
 // Retention Policy Service
 export {
   RetentionPolicyService,
   getRetentionPolicyService,
   createRetentionPolicyService,
-} from './retention-policy.service'
+} from "./retention-policy.service";
 
 // Playback ACL Service
 export {
   PlaybackACLService,
   getPlaybackACLService,
   createPlaybackACLService,
-} from './playback-acl.service'
+} from "./playback-acl.service";
 
 // Redaction Service
 export {
   RedactionService,
   getRedactionService,
   createRedactionService,
-} from './redaction.service'
+} from "./redaction.service";

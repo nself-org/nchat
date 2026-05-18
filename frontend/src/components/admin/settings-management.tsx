@@ -1,22 +1,28 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export function SettingsManagement() {
   const [settings, setSettings] = useState({
-    appName: 'nChat',
-    appTagline: 'Team Communication Platform',
+    appName: "nChat",
+    appTagline: "Team Communication Platform",
     allowRegistration: true,
     maxFileSize: 100,
     messageRetentionDays: 0,
-  })
+  });
 
-  const handleSave = () => {}
+  const handleSave = () => {};
 
   return (
     <Card>
@@ -31,7 +37,9 @@ export function SettingsManagement() {
             <Input
               id="appName"
               value={settings.appName}
-              onChange={(e) => setSettings({ ...settings, appName: e.target.value })}
+              onChange={(e) =>
+                setSettings({ ...settings, appName: e.target.value })
+              }
             />
           </div>
 
@@ -40,14 +48,18 @@ export function SettingsManagement() {
             <Input
               id="appTagline"
               value={settings.appTagline}
-              onChange={(e) => setSettings({ ...settings, appTagline: e.target.value })}
+              onChange={(e) =>
+                setSettings({ ...settings, appTagline: e.target.value })
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="allowRegistration">Allow Registration</Label>
-              <p className="text-sm text-muted-foreground">Allow new users to sign up</p>
+              <p className="text-sm text-muted-foreground">
+                Allow new users to sign up
+              </p>
             </div>
             <Switch
               id="allowRegistration"
@@ -64,7 +76,12 @@ export function SettingsManagement() {
               id="maxFileSize"
               type="number"
               value={settings.maxFileSize}
-              onChange={(e) => setSettings({ ...settings, maxFileSize: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  maxFileSize: parseInt(e.target.value),
+                })
+              }
             />
           </div>
 
@@ -75,15 +92,20 @@ export function SettingsManagement() {
               type="number"
               value={settings.messageRetentionDays}
               onChange={(e) =>
-                setSettings({ ...settings, messageRetentionDays: parseInt(e.target.value) })
+                setSettings({
+                  ...settings,
+                  messageRetentionDays: parseInt(e.target.value),
+                })
               }
             />
-            <p className="text-sm text-muted-foreground">0 means messages are kept forever</p>
+            <p className="text-sm text-muted-foreground">
+              0 means messages are kept forever
+            </p>
           </div>
         </div>
 
         <Button onClick={handleSave}>Save Settings</Button>
       </CardContent>
     </Card>
-  )
+  );
 }

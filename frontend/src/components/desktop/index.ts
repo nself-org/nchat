@@ -6,11 +6,11 @@
  * running in a web browser.
  */
 
-export { TitleBar, type TitleBarProps } from './TitleBar'
-export { WindowControls, type WindowControlsProps } from './WindowControls'
-export { TrayMenu, type TrayMenuProps } from './TrayMenu'
+export { TitleBar, type TitleBarProps } from "./TitleBar";
+export { WindowControls, type WindowControlsProps } from "./WindowControls";
+export { TrayMenu, type TrayMenuProps } from "./TrayMenu";
 export {
   UpdateNotification,
   type UpdateNotificationProps,
   type UpdateNotificationRenderProps,
-} from './UpdateNotification'
+} from "./UpdateNotification";

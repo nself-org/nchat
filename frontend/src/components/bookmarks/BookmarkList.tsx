@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * BookmarkList Component
@@ -7,8 +7,8 @@
  * Supports collections, tags, search, and various view modes.
  */
 
-import { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Bookmark,
   BookmarkCheck,
@@ -29,9 +29,9 @@ import {
   SortAsc,
   SortDesc,
   X,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,95 +41,99 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import {
   useBookmarks,
   useBookmarkMutations,
   useBookmarkCollections,
   useBookmarkExport,
-} from '@/hooks/use-bookmarks'
-import { useJumpToMessage } from '@/hooks/use-messages'
-import type { BookmarkFilter, BookmarkSortBy, BookmarkExportFormat } from '@/types/bookmark'
+} from "@/hooks/use-bookmarks";
+import { useJumpToMessage } from "@/hooks/use-messages";
+import type {
+  BookmarkFilter,
+  BookmarkSortBy,
+  BookmarkExportFormat,
+} from "@/types/bookmark";
 // formatRelativeTime is defined locally at the bottom of this file
 
 interface BookmarkListProps {
-  className?: string
-  showFilters?: boolean
-  showStats?: boolean
-  viewMode?: 'list' | 'grid'
-  defaultCollection?: string
+  className?: string;
+  showFilters?: boolean;
+  showStats?: boolean;
+  viewMode?: "list" | "grid";
+  defaultCollection?: string;
 }
 
 export function BookmarkList({
   className,
   showFilters = true,
   showStats = true,
-  viewMode: initialViewMode = 'list',
+  viewMode: initialViewMode = "list",
 }: BookmarkListProps) {
   // State
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filter, setFilter] = useState<BookmarkFilter>({})
-  const [sortBy, setSortBy] = useState<BookmarkSortBy>('bookmarked_at_desc')
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>(initialViewMode)
-  const [selectedBookmarks, setSelectedBookmarks] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filter, setFilter] = useState<BookmarkFilter>({});
+  const [sortBy, setSortBy] = useState<BookmarkSortBy>("bookmarked_at_desc");
+  const [viewMode, setViewMode] = useState<"list" | "grid">(initialViewMode);
+  const [selectedBookmarks, setSelectedBookmarks] = useState<string[]>([]);
 
   // Hooks
   const { bookmarks, loading, loadMore } = useBookmarks(
     { ...filter, searchQuery: searchQuery || undefined },
-    sortBy
-  )
-  const { collections } = useBookmarkCollections()
-  const { removeBookmark, batchRemoveBookmarks } = useBookmarkMutations()
-  const { jumpToMessage } = useJumpToMessage()
-  const { exportBookmarks } = useBookmarkExport()
+    sortBy,
+  );
+  const { collections } = useBookmarkCollections();
+  const { removeBookmark, batchRemoveBookmarks } = useBookmarkMutations();
+  const { jumpToMessage } = useJumpToMessage();
+  const { exportBookmarks } = useBookmarkExport();
 
   // Computed
   const channels = useMemo(() => {
-    const channelMap = new Map()
+    const channelMap = new Map();
     bookmarks.forEach((b) => {
       if (!channelMap.has(b.message.channel_id)) {
         channelMap.set(b.message.channel_id, {
           id: b.message.channel_id,
           name: b.message.channel.name,
-        })
+        });
       }
-    })
-    return Array.from(channelMap.values())
-  }, [bookmarks])
+    });
+    return Array.from(channelMap.values());
+  }, [bookmarks]);
 
   const tags = useMemo(() => {
-    const tagSet = new Set<string>()
+    const tagSet = new Set<string>();
     bookmarks.forEach((b) => {
-      b.tags?.forEach((tag: string) => tagSet.add(tag))
-    })
-    return Array.from(tagSet).sort()
-  }, [bookmarks])
+      b.tags?.forEach((tag: string) => tagSet.add(tag));
+    });
+    return Array.from(tagSet).sort();
+  }, [bookmarks]);
 
   // Handlers
   const handleRemove = async (bookmarkId: string) => {
-    await removeBookmark(bookmarkId)
-  }
+    await removeBookmark(bookmarkId);
+  };
 
   const handleBatchRemove = async () => {
-    await batchRemoveBookmarks(selectedBookmarks)
-    setSelectedBookmarks([])
-  }
+    await batchRemoveBookmarks(selectedBookmarks);
+    setSelectedBookmarks([]);
+  };
 
   const handleJumpToMessage = (messageId: string, channelId: string) => {
-    jumpToMessage(messageId, channelId)
-  }
+    jumpToMessage(messageId, channelId);
+  };
 
   const handleExport = async (format: BookmarkExportFormat) => {
     await exportBookmarks(format, {
@@ -137,19 +141,21 @@ export function BookmarkList({
       includeContent: true,
       includeAttachments: true,
       includeMetadata: true,
-    })
-  }
+    });
+  };
 
   const toggleSelection = (bookmarkId: string) => {
     setSelectedBookmarks((prev) =>
-      prev.includes(bookmarkId) ? prev.filter((id) => id !== bookmarkId) : [...prev, bookmarkId]
-    )
-  }
+      prev.includes(bookmarkId)
+        ? prev.filter((id) => id !== bookmarkId)
+        : [...prev, bookmarkId],
+    );
+  };
 
   const clearFilters = () => {
-    setFilter({})
-    setSearchQuery('')
-  }
+    setFilter({});
+    setSearchQuery("");
+  };
 
   if (loading && bookmarks.length === 0) {
     return (
@@ -159,11 +165,11 @@ export function BookmarkList({
           <p className="text-sm text-muted-foreground">Loading bookmarks...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex h-full flex-col', className)}>
+    <div className={cn("flex h-full flex-col", className)}>
       {/* Header */}
       <div className="border-b px-6 py-4">
         <div className="flex items-center justify-between">
@@ -172,7 +178,8 @@ export function BookmarkList({
             <div>
               <h2 className="text-xl font-semibold">Bookmarks</h2>
               <p className="text-sm text-muted-foreground">
-                {bookmarks.length} {bookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
+                {bookmarks.length}{" "}
+                {bookmarks.length === 1 ? "bookmark" : "bookmarks"}
               </p>
             </div>
           </div>
@@ -181,17 +188,17 @@ export function BookmarkList({
             {/* View mode toggle */}
             <div className="flex items-center gap-1 rounded-lg border p-1">
               <Button
-                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                variant={viewMode === "list" ? "secondary" : "ghost"}
                 size="sm"
-                onClick={() => setViewMode('list')}
+                onClick={() => setViewMode("list")}
                 className="h-7 px-2"
               >
                 <List className="h-4 w-4" />
               </Button>
               <Button
-                variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                variant={viewMode === "grid" ? "secondary" : "ghost"}
                 size="sm"
-                onClick={() => setViewMode('grid')}
+                onClick={() => setViewMode("grid")}
                 className="h-7 px-2"
               >
                 <Grid className="h-4 w-4" />
@@ -207,10 +214,10 @@ export function BookmarkList({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleExport('json')}>
+                <DropdownMenuItem onClick={() => handleExport("json")}>
                   Export as JSON
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('csv')}>
+                <DropdownMenuItem onClick={() => handleExport("csv")}>
                   Export as CSV
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -218,7 +225,11 @@ export function BookmarkList({
 
             {/* Batch actions */}
             {selectedBookmarks.length > 0 && (
-              <Button variant="destructive" size="sm" onClick={handleBatchRemove}>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBatchRemove}
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete {selectedBookmarks.length}
               </Button>
@@ -243,7 +254,7 @@ export function BookmarkList({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setSearchQuery('')}
+                onClick={() => setSearchQuery("")}
                 className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
               >
                 <X className="h-4 w-4" />
@@ -255,9 +266,12 @@ export function BookmarkList({
           <div className="flex items-center gap-2">
             {/* Channel filter */}
             <Select
-              value={filter.channelId || 'all'}
+              value={filter.channelId || "all"}
               onValueChange={(value) =>
-                setFilter((f) => ({ ...f, channelId: value === 'all' ? undefined : value }))
+                setFilter((f) => ({
+                  ...f,
+                  channelId: value === "all" ? undefined : value,
+                }))
               }
             >
               <SelectTrigger className="w-[180px]">
@@ -275,9 +289,12 @@ export function BookmarkList({
 
             {/* Collection filter */}
             <Select
-              value={filter.collectionId || 'all'}
+              value={filter.collectionId || "all"}
               onValueChange={(value) =>
-                setFilter((f) => ({ ...f, collectionId: value === 'all' ? undefined : value }))
+                setFilter((f) => ({
+                  ...f,
+                  collectionId: value === "all" ? undefined : value,
+                }))
               }
             >
               <SelectTrigger className="w-[180px]">
@@ -296,9 +313,12 @@ export function BookmarkList({
             {/* Tag filter */}
             {tags.length > 0 && (
               <Select
-                value={filter.tag || 'all'}
+                value={filter.tag || "all"}
                 onValueChange={(value) =>
-                  setFilter((f) => ({ ...f, tag: value === 'all' ? undefined : value }))
+                  setFilter((f) => ({
+                    ...f,
+                    tag: value === "all" ? undefined : value,
+                  }))
                 }
               >
                 <SelectTrigger className="w-[180px]">
@@ -316,7 +336,10 @@ export function BookmarkList({
             )}
 
             {/* Sort */}
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as BookmarkSortBy)}>
+            <Select
+              value={sortBy}
+              onValueChange={(value) => setSortBy(value as BookmarkSortBy)}
+            >
               <SelectTrigger className="w-[200px]">
                 <SelectValue />
               </SelectTrigger>
@@ -333,14 +356,21 @@ export function BookmarkList({
                     Oldest first
                   </div>
                 </SelectItem>
-                <SelectItem value="message_created_at_desc">Message date (newest)</SelectItem>
-                <SelectItem value="message_created_at_asc">Message date (oldest)</SelectItem>
+                <SelectItem value="message_created_at_desc">
+                  Message date (newest)
+                </SelectItem>
+                <SelectItem value="message_created_at_asc">
+                  Message date (oldest)
+                </SelectItem>
                 <SelectItem value="channel_name">Channel name</SelectItem>
               </SelectContent>
             </Select>
 
             {/* Clear filters */}
-            {(filter.channelId || filter.collectionId || filter.tag || searchQuery) && (
+            {(filter.channelId ||
+              filter.collectionId ||
+              filter.tag ||
+              searchQuery) && (
               <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="mr-2 h-4 w-4" />
                 Clear
@@ -358,12 +388,15 @@ export function BookmarkList({
               <BookmarkCheck className="text-muted-foreground/50 mb-4 h-12 w-12" />
               <h3 className="mb-2 text-lg font-medium">No bookmarks found</h3>
               <p className="text-sm text-muted-foreground">
-                {searchQuery || filter.channelId || filter.collectionId || filter.tag
-                  ? 'Try adjusting your filters'
-                  : 'Start bookmarking messages to see them here'}
+                {searchQuery ||
+                filter.channelId ||
+                filter.collectionId ||
+                filter.tag
+                  ? "Try adjusting your filters"
+                  : "Start bookmarking messages to see them here"}
               </p>
             </div>
-          ) : viewMode === 'list' ? (
+          ) : viewMode === "list" ? (
             <div className="space-y-3">
               <AnimatePresence mode="popLayout">
                 {bookmarks.map((bookmark) => (
@@ -395,7 +428,9 @@ export function BookmarkList({
                               />
                             ) : (
                               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full text-primary">
-                                {bookmark.message.user.display_name.charAt(0).toUpperCase()}
+                                {bookmark.message.user.display_name
+                                  .charAt(0)
+                                  .toUpperCase()}
                               </div>
                             )}
                           </div>
@@ -411,7 +446,9 @@ export function BookmarkList({
                                 in #{bookmark.message.channel.name}
                               </span>
                               <span className="text-xs text-muted-foreground">
-                                {formatRelativeTime(new Date(bookmark.message.created_at))}
+                                {formatRelativeTime(
+                                  new Date(bookmark.message.created_at),
+                                )}
                               </span>
                             </div>
 
@@ -432,13 +469,20 @@ export function BookmarkList({
                             {/* Tags and metadata */}
                             <div className="flex items-center gap-2">
                               {bookmark.tags?.map((tag: string) => (
-                                <Badge key={tag} variant="secondary" className="text-xs">
+                                <Badge
+                                  key={tag}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
                                   <Hash className="mr-1 h-3 w-3" />
                                   {tag}
                                 </Badge>
                               ))}
                               <span className="text-xs text-muted-foreground">
-                                Bookmarked {formatRelativeTime(new Date(bookmark.bookmarked_at))}
+                                Bookmarked{" "}
+                                {formatRelativeTime(
+                                  new Date(bookmark.bookmarked_at),
+                                )}
                               </span>
                             </div>
                           </div>
@@ -459,7 +503,7 @@ export function BookmarkList({
                                 onClick={() =>
                                   handleJumpToMessage(
                                     bookmark.message_id,
-                                    bookmark.message.channel_id
+                                    bookmark.message.channel_id,
                                   )
                                 }
                               >
@@ -526,7 +570,9 @@ export function BookmarkList({
                                 />
                               ) : (
                                 <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full text-xs text-primary">
-                                  {bookmark.message.user.display_name.charAt(0).toUpperCase()}
+                                  {bookmark.message.user.display_name
+                                    .charAt(0)
+                                    .toUpperCase()}
                                 </div>
                               )}
                               <div className="min-w-0">
@@ -540,7 +586,11 @@ export function BookmarkList({
                             </div>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 p-0"
+                                >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -549,7 +599,7 @@ export function BookmarkList({
                                   onClick={() =>
                                     handleJumpToMessage(
                                       bookmark.message_id,
-                                      bookmark.message.channel_id
+                                      bookmark.message.channel_id,
                                     )
                                   }
                                 >
@@ -577,20 +627,31 @@ export function BookmarkList({
                           <div className="space-y-2">
                             {bookmark.tags && bookmark.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1">
-                                {bookmark.tags.slice(0, 2).map((tag: string) => (
-                                  <Badge key={tag} variant="secondary" className="text-xs">
-                                    {tag}
-                                  </Badge>
-                                ))}
+                                {bookmark.tags
+                                  .slice(0, 2)
+                                  .map((tag: string) => (
+                                    <Badge
+                                      key={tag}
+                                      variant="secondary"
+                                      className="text-xs"
+                                    >
+                                      {tag}
+                                    </Badge>
+                                  ))}
                                 {bookmark.tags.length > 2 && (
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     +{bookmark.tags.length - 2}
                                   </Badge>
                                 )}
                               </div>
                             )}
                             <p className="text-xs text-muted-foreground">
-                              {formatRelativeTime(new Date(bookmark.bookmarked_at))}
+                              {formatRelativeTime(
+                                new Date(bookmark.bookmarked_at),
+                              )}
                             </p>
                           </div>
                         </div>
@@ -613,27 +674,27 @@ export function BookmarkList({
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
 // Helper function for relative time formatting
 function formatRelativeTime(date: Date): string {
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
   if (days > 7) {
-    return date.toLocaleDateString()
+    return date.toLocaleDateString();
   } else if (days > 0) {
-    return `${days}d ago`
+    return `${days}d ago`;
   } else if (hours > 0) {
-    return `${hours}h ago`
+    return `${hours}h ago`;
   } else if (minutes > 0) {
-    return `${minutes}m ago`
+    return `${minutes}m ago`;
   } else {
-    return 'Just now'
+    return "Just now";
   }
 }

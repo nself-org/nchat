@@ -5,7 +5,7 @@
  */
 
 // Types
-export * from './activity-types'
+export * from "./activity-types";
 
 // Formatter
 export {
@@ -20,7 +20,7 @@ export {
   formatCallDuration,
   getActivityEmoji,
   getActivityActionUrl,
-} from './activity-formatter'
+} from "./activity-formatter";
 
 // Filters
 export {
@@ -45,7 +45,7 @@ export {
   combineFilters,
   hasActiveFilters,
   clearFilters,
-} from './activity-filters'
+} from "./activity-filters";
 
 // Aggregator
 export {
@@ -56,8 +56,8 @@ export {
   getUnreadCount,
   splitByReadStatus,
   reaggregateAfterRead,
-} from './activity-aggregator'
-export type { AggregationConfig } from './activity-aggregator'
+} from "./activity-aggregator";
+export type { AggregationConfig } from "./activity-aggregator";
 
 // Collector
 export {
@@ -88,7 +88,7 @@ export {
   createSystemActivity,
   notificationToActivity,
   notificationsToActivities,
-} from './activity-collector'
+} from "./activity-collector";
 export type {
   RawUser,
   RawChannel,
@@ -96,7 +96,7 @@ export type {
   RawThread,
   RawFile,
   RawNotification,
-} from './activity-collector'
+} from "./activity-collector";
 
 // Manager
 export {
@@ -111,4 +111,4 @@ export {
   ActivityFeedManager,
   getActivityManager,
   resetActivityManager,
-} from './activity-manager'
+} from "./activity-manager";

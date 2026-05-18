@@ -14,68 +14,80 @@
 /**
  * Severity levels for vulnerability findings
  */
-export type VulnerabilitySeverity = 'critical' | 'high' | 'moderate' | 'low' | 'info'
+export type VulnerabilitySeverity =
+  | "critical"
+  | "high"
+  | "moderate"
+  | "low"
+  | "info";
 
 /**
  * Package ecosystem types
  */
-export type PackageEcosystem = 'npm' | 'pypi' | 'maven' | 'nuget' | 'rubygems' | 'go' | 'cargo'
+export type PackageEcosystem =
+  | "npm"
+  | "pypi"
+  | "maven"
+  | "nuget"
+  | "rubygems"
+  | "go"
+  | "cargo";
 
 /**
  * A vulnerability in a dependency
  */
 export interface DependencyVulnerability {
-  id: string
-  advisoryId: string
-  packageName: string
-  packageVersion: string
-  ecosystem: PackageEcosystem
-  severity: VulnerabilitySeverity
-  title: string
-  description: string
-  cve?: string
-  cwe?: string[]
+  id: string;
+  advisoryId: string;
+  packageName: string;
+  packageVersion: string;
+  ecosystem: PackageEcosystem;
+  severity: VulnerabilitySeverity;
+  title: string;
+  description: string;
+  cve?: string;
+  cwe?: string[];
   cvss?: {
-    score: number
-    vector?: string
-  }
-  affectedVersions: string
-  patchedVersions?: string
-  recommendation: string
-  references: string[]
-  publishedAt?: Date
-  updatedAt?: Date
+    score: number;
+    vector?: string;
+  };
+  affectedVersions: string;
+  patchedVersions?: string;
+  recommendation: string;
+  references: string[];
+  publishedAt?: Date;
+  updatedAt?: Date;
 }
 
 /**
  * A dependency in the project
  */
 export interface Dependency {
-  name: string
-  version: string
-  ecosystem: PackageEcosystem
-  isDev: boolean
-  isTransitive: boolean
-  parent?: string
-  license?: string
-  repository?: string
-  homepage?: string
+  name: string;
+  version: string;
+  ecosystem: PackageEcosystem;
+  isDev: boolean;
+  isTransitive: boolean;
+  parent?: string;
+  license?: string;
+  repository?: string;
+  homepage?: string;
 }
 
 /**
  * License compliance status
  */
-export type LicenseStatus = 'allowed' | 'restricted' | 'unknown' | 'copyleft'
+export type LicenseStatus = "allowed" | "restricted" | "unknown" | "copyleft";
 
 /**
  * License finding for a dependency
  */
 export interface LicenseFinding {
-  packageName: string
-  packageVersion: string
-  license: string
-  status: LicenseStatus
-  reason?: string
+  packageName: string;
+  packageVersion: string;
+  license: string;
+  status: LicenseStatus;
+  reason?: string;
 }
 
 /**
@@ -83,89 +95,89 @@ export interface LicenseFinding {
  */
 export interface DependencyScannerConfig {
   /** Minimum severity to report */
-  minSeverity?: VulnerabilitySeverity
+  minSeverity?: VulnerabilitySeverity;
   /** Check dev dependencies */
-  checkDevDependencies?: boolean
+  checkDevDependencies?: boolean;
   /** Check transitive dependencies */
-  checkTransitive?: boolean
+  checkTransitive?: boolean;
   /** Allowed licenses (allowlist) */
-  allowedLicenses?: string[]
+  allowedLicenses?: string[];
   /** Restricted licenses (blocklist) */
-  restrictedLicenses?: string[]
+  restrictedLicenses?: string[];
   /** Packages to ignore */
-  ignoredPackages?: string[]
+  ignoredPackages?: string[];
   /** Fail on vulnerabilities */
-  failOnVulnerabilities?: boolean
+  failOnVulnerabilities?: boolean;
   /** Fail on restricted licenses */
-  failOnRestrictedLicenses?: boolean
+  failOnRestrictedLicenses?: boolean;
   /** CVSS score threshold for critical */
-  cvssThreshold?: number
+  cvssThreshold?: number;
 }
 
 /**
  * Result of a dependency scan
  */
 export interface DependencyScanResult {
-  dependencies: Dependency[]
-  vulnerabilities: DependencyVulnerability[]
-  licenseFindings: LicenseFinding[]
-  scanDuration: number
-  timestamp: Date
+  dependencies: Dependency[];
+  vulnerabilities: DependencyVulnerability[];
+  licenseFindings: LicenseFinding[];
+  scanDuration: number;
+  timestamp: Date;
   summary: {
-    totalDependencies: number
-    directDependencies: number
-    devDependencies: number
-    transitiveDependencies: number
+    totalDependencies: number;
+    directDependencies: number;
+    devDependencies: number;
+    transitiveDependencies: number;
     vulnerabilities: {
-      critical: number
-      high: number
-      moderate: number
-      low: number
-      info: number
-    }
+      critical: number;
+      high: number;
+      moderate: number;
+      low: number;
+      info: number;
+    };
     licenses: {
-      allowed: number
-      restricted: number
-      unknown: number
-      copyleft: number
-    }
-  }
-  passed: boolean
+      allowed: number;
+      restricted: number;
+      unknown: number;
+      copyleft: number;
+    };
+  };
+  passed: boolean;
 }
 
 /**
  * Package.json structure (simplified)
  */
 export interface PackageJson {
-  name?: string
-  version?: string
-  dependencies?: Record<string, string>
-  devDependencies?: Record<string, string>
-  peerDependencies?: Record<string, string>
-  optionalDependencies?: Record<string, string>
+  name?: string;
+  version?: string;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
 }
 
 /**
  * Package lock structure (simplified)
  */
 export interface PackageLock {
-  name?: string
-  version?: string
-  lockfileVersion?: number
-  packages?: Record<string, PackageLockEntry>
-  dependencies?: Record<string, PackageLockEntry>
+  name?: string;
+  version?: string;
+  lockfileVersion?: number;
+  packages?: Record<string, PackageLockEntry>;
+  dependencies?: Record<string, PackageLockEntry>;
 }
 
 interface PackageLockEntry {
-  version?: string
-  resolved?: string
-  integrity?: string
-  dev?: boolean
-  optional?: boolean
-  peer?: boolean
-  requires?: Record<string, string>
-  dependencies?: Record<string, PackageLockEntry>
-  license?: string
+  version?: string;
+  resolved?: string;
+  integrity?: string;
+  dev?: boolean;
+  optional?: boolean;
+  peer?: boolean;
+  requires?: Record<string, string>;
+  dependencies?: Record<string, PackageLockEntry>;
+  license?: string;
 }
 
 // ============================================================================
@@ -177,18 +189,18 @@ interface PackageLockEntry {
  * In production, this would be fetched from npm audit, Snyk, or OSV
  */
 export interface VulnerabilityDbEntry {
-  id: string
-  packageName: string
-  affectedVersions: string
-  severity: VulnerabilitySeverity
-  title: string
-  description: string
-  cve?: string
-  cwe?: string[]
-  cvss?: number
-  patchedVersions?: string
-  recommendation: string
-  references: string[]
+  id: string;
+  packageName: string;
+  affectedVersions: string;
+  severity: VulnerabilitySeverity;
+  title: string;
+  description: string;
+  cve?: string;
+  cwe?: string[];
+  cvss?: number;
+  patchedVersions?: string;
+  recommendation: string;
+  references: string[];
 }
 
 /**
@@ -197,48 +209,49 @@ export interface VulnerabilityDbEntry {
  */
 export const KNOWN_VULNERABILITIES: VulnerabilityDbEntry[] = [
   {
-    id: 'GHSA-1234',
-    packageName: 'lodash',
-    affectedVersions: '<4.17.21',
-    severity: 'critical',
-    title: 'Prototype Pollution in lodash',
-    description: 'Versions of lodash prior to 4.17.21 are vulnerable to prototype pollution',
-    cve: 'CVE-2021-23337',
-    cwe: ['CWE-1321'],
+    id: "GHSA-1234",
+    packageName: "lodash",
+    affectedVersions: "<4.17.21",
+    severity: "critical",
+    title: "Prototype Pollution in lodash",
+    description:
+      "Versions of lodash prior to 4.17.21 are vulnerable to prototype pollution",
+    cve: "CVE-2021-23337",
+    cwe: ["CWE-1321"],
     cvss: 7.4,
-    patchedVersions: '>=4.17.21',
-    recommendation: 'Upgrade lodash to version 4.17.21 or later',
-    references: ['https://github.com/advisories/GHSA-1234'],
+    patchedVersions: ">=4.17.21",
+    recommendation: "Upgrade lodash to version 4.17.21 or later",
+    references: ["https://github.com/advisories/GHSA-1234"],
   },
   {
-    id: 'GHSA-5678',
-    packageName: 'axios',
-    affectedVersions: '<0.21.2',
-    severity: 'high',
-    title: 'Server-Side Request Forgery in axios',
-    description: 'axios before 0.21.2 allows SSRF via the baseURL option',
-    cve: 'CVE-2021-3749',
-    cwe: ['CWE-918'],
+    id: "GHSA-5678",
+    packageName: "axios",
+    affectedVersions: "<0.21.2",
+    severity: "high",
+    title: "Server-Side Request Forgery in axios",
+    description: "axios before 0.21.2 allows SSRF via the baseURL option",
+    cve: "CVE-2021-3749",
+    cwe: ["CWE-918"],
     cvss: 7.5,
-    patchedVersions: '>=0.21.2',
-    recommendation: 'Upgrade axios to version 0.21.2 or later',
-    references: ['https://github.com/advisories/GHSA-5678'],
+    patchedVersions: ">=0.21.2",
+    recommendation: "Upgrade axios to version 0.21.2 or later",
+    references: ["https://github.com/advisories/GHSA-5678"],
   },
   {
-    id: 'GHSA-9012',
-    packageName: 'minimist',
-    affectedVersions: '<1.2.6',
-    severity: 'high',
-    title: 'Prototype Pollution in minimist',
-    description: 'minimist before 1.2.6 is vulnerable to prototype pollution',
-    cve: 'CVE-2021-44906',
-    cwe: ['CWE-1321'],
+    id: "GHSA-9012",
+    packageName: "minimist",
+    affectedVersions: "<1.2.6",
+    severity: "high",
+    title: "Prototype Pollution in minimist",
+    description: "minimist before 1.2.6 is vulnerable to prototype pollution",
+    cve: "CVE-2021-44906",
+    cwe: ["CWE-1321"],
     cvss: 9.8,
-    patchedVersions: '>=1.2.6',
-    recommendation: 'Upgrade minimist to version 1.2.6 or later',
-    references: ['https://github.com/advisories/GHSA-9012'],
+    patchedVersions: ">=1.2.6",
+    recommendation: "Upgrade minimist to version 1.2.6 or later",
+    references: ["https://github.com/advisories/GHSA-9012"],
   },
-]
+];
 
 // ============================================================================
 // License Configuration
@@ -248,44 +261,51 @@ export const KNOWN_VULNERABILITIES: VulnerabilityDbEntry[] = [
  * Default allowed licenses (permissive)
  */
 export const DEFAULT_ALLOWED_LICENSES = [
-  'MIT',
-  'Apache-2.0',
-  'BSD-2-Clause',
-  'BSD-3-Clause',
-  'ISC',
-  'CC0-1.0',
-  'CC-BY-3.0',
-  'CC-BY-4.0',
-  '0BSD',
-  'Unlicense',
-  'Python-2.0',
-  'Zlib',
-  'WTFPL',
-  'BlueOak-1.0.0',
-]
+  "MIT",
+  "Apache-2.0",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "CC0-1.0",
+  "CC-BY-3.0",
+  "CC-BY-4.0",
+  "0BSD",
+  "Unlicense",
+  "Python-2.0",
+  "Zlib",
+  "WTFPL",
+  "BlueOak-1.0.0",
+];
 
 /**
  * Default restricted licenses (copyleft or problematic)
  */
 export const DEFAULT_RESTRICTED_LICENSES = [
-  'GPL-2.0',
-  'GPL-2.0-only',
-  'GPL-3.0',
-  'GPL-3.0-only',
-  'AGPL-3.0',
-  'AGPL-3.0-only',
-  'LGPL-2.0',
-  'LGPL-2.1',
-  'LGPL-3.0',
-  'SSPL-1.0',
-  'CC-BY-NC-4.0',
-  'CC-BY-NC-SA-4.0',
-]
+  "GPL-2.0",
+  "GPL-2.0-only",
+  "GPL-3.0",
+  "GPL-3.0-only",
+  "AGPL-3.0",
+  "AGPL-3.0-only",
+  "LGPL-2.0",
+  "LGPL-2.1",
+  "LGPL-3.0",
+  "SSPL-1.0",
+  "CC-BY-NC-4.0",
+  "CC-BY-NC-SA-4.0",
+];
 
 /**
  * Copyleft licenses (require disclosure)
  */
-export const COPYLEFT_LICENSES = ['GPL-2.0', 'GPL-3.0', 'AGPL-3.0', 'LGPL-2.0', 'LGPL-2.1', 'LGPL-3.0']
+export const COPYLEFT_LICENSES = [
+  "GPL-2.0",
+  "GPL-3.0",
+  "AGPL-3.0",
+  "LGPL-2.0",
+  "LGPL-2.1",
+  "LGPL-3.0",
+];
 
 // ============================================================================
 // Severity Utilities
@@ -297,18 +317,21 @@ const SEVERITY_ORDER: Record<VulnerabilitySeverity, number> = {
   moderate: 3,
   low: 2,
   info: 1,
-}
+};
 
-function meetsMinSeverity(severity: VulnerabilitySeverity, minSeverity: VulnerabilitySeverity): boolean {
-  return SEVERITY_ORDER[severity] >= SEVERITY_ORDER[minSeverity]
+function meetsMinSeverity(
+  severity: VulnerabilitySeverity,
+  minSeverity: VulnerabilitySeverity,
+): boolean {
+  return SEVERITY_ORDER[severity] >= SEVERITY_ORDER[minSeverity];
 }
 
 function cvssToSeverity(cvss: number): VulnerabilitySeverity {
-  if (cvss >= 9.0) return 'critical'
-  if (cvss >= 7.0) return 'high'
-  if (cvss >= 4.0) return 'moderate'
-  if (cvss >= 0.1) return 'low'
-  return 'info'
+  if (cvss >= 9.0) return "critical";
+  if (cvss >= 7.0) return "high";
+  if (cvss >= 4.0) return "moderate";
+  if (cvss >= 0.1) return "low";
+  return "info";
 }
 
 // ============================================================================
@@ -318,15 +341,17 @@ function cvssToSeverity(cvss: number): VulnerabilitySeverity {
 /**
  * Parse a semantic version string
  */
-function parseVersion(version: string): { major: number; minor: number; patch: number; prerelease?: string } | null {
-  const match = version.match(/^v?(\d+)\.(\d+)\.(\d+)(?:-(.+))?/)
-  if (!match) return null
+function parseVersion(
+  version: string,
+): { major: number; minor: number; patch: number; prerelease?: string } | null {
+  const match = version.match(/^v?(\d+)\.(\d+)\.(\d+)(?:-(.+))?/);
+  if (!match) return null;
   return {
     major: parseInt(match[1], 10),
     minor: parseInt(match[2], 10),
     patch: parseInt(match[3], 10),
     prerelease: match[4],
-  }
+  };
 }
 
 /**
@@ -334,16 +359,16 @@ function parseVersion(version: string): { major: number; minor: number; patch: n
  * Returns: -1 if a < b, 0 if a == b, 1 if a > b
  */
 function compareVersions(a: string, b: string): number {
-  const va = parseVersion(a)
-  const vb = parseVersion(b)
+  const va = parseVersion(a);
+  const vb = parseVersion(b);
 
-  if (!va || !vb) return 0
+  if (!va || !vb) return 0;
 
-  if (va.major !== vb.major) return va.major < vb.major ? -1 : 1
-  if (va.minor !== vb.minor) return va.minor < vb.minor ? -1 : 1
-  if (va.patch !== vb.patch) return va.patch < vb.patch ? -1 : 1
+  if (va.major !== vb.major) return va.major < vb.major ? -1 : 1;
+  if (va.minor !== vb.minor) return va.minor < vb.minor ? -1 : 1;
+  if (va.patch !== vb.patch) return va.patch < vb.patch ? -1 : 1;
 
-  return 0
+  return 0;
 }
 
 /**
@@ -351,33 +376,33 @@ function compareVersions(a: string, b: string): number {
  * Supports: <1.0.0, <=1.0.0, >1.0.0, >=1.0.0, =1.0.0
  */
 function satisfiesConstraint(version: string, constraint: string): boolean {
-  const trimmed = constraint.trim()
+  const trimmed = constraint.trim();
 
-  if (trimmed.startsWith('>=')) {
-    return compareVersions(version, trimmed.slice(2)) >= 0
+  if (trimmed.startsWith(">=")) {
+    return compareVersions(version, trimmed.slice(2)) >= 0;
   }
-  if (trimmed.startsWith('>')) {
-    return compareVersions(version, trimmed.slice(1)) > 0
+  if (trimmed.startsWith(">")) {
+    return compareVersions(version, trimmed.slice(1)) > 0;
   }
-  if (trimmed.startsWith('<=')) {
-    return compareVersions(version, trimmed.slice(2)) <= 0
+  if (trimmed.startsWith("<=")) {
+    return compareVersions(version, trimmed.slice(2)) <= 0;
   }
-  if (trimmed.startsWith('<')) {
-    return compareVersions(version, trimmed.slice(1)) < 0
+  if (trimmed.startsWith("<")) {
+    return compareVersions(version, trimmed.slice(1)) < 0;
   }
-  if (trimmed.startsWith('=')) {
-    return compareVersions(version, trimmed.slice(1)) === 0
+  if (trimmed.startsWith("=")) {
+    return compareVersions(version, trimmed.slice(1)) === 0;
   }
 
-  return false
+  return false;
 }
 
 /**
  * Check if a version is affected by a vulnerability constraint
  */
 function isVersionAffected(version: string, affectedVersions: string): boolean {
-  const cleanVersion = version.replace(/^[\^~]/, '')
-  return satisfiesConstraint(cleanVersion, affectedVersions)
+  const cleanVersion = version.replace(/^[\^~]/, "");
+  return satisfiesConstraint(cleanVersion, affectedVersions);
 }
 
 // ============================================================================
@@ -388,102 +413,105 @@ function isVersionAffected(version: string, affectedVersions: string): boolean {
  * Dependency Scanner class
  */
 export class DependencyScanner {
-  private config: DependencyScannerConfig
-  private vulnerabilityDb: VulnerabilityDbEntry[]
+  private config: DependencyScannerConfig;
+  private vulnerabilityDb: VulnerabilityDbEntry[];
 
   constructor(config: DependencyScannerConfig = {}) {
     this.config = {
-      minSeverity: config.minSeverity ?? 'low',
+      minSeverity: config.minSeverity ?? "low",
       checkDevDependencies: config.checkDevDependencies ?? true,
       checkTransitive: config.checkTransitive ?? true,
       allowedLicenses: config.allowedLicenses ?? DEFAULT_ALLOWED_LICENSES,
-      restrictedLicenses: config.restrictedLicenses ?? DEFAULT_RESTRICTED_LICENSES,
+      restrictedLicenses:
+        config.restrictedLicenses ?? DEFAULT_RESTRICTED_LICENSES,
       ignoredPackages: config.ignoredPackages ?? [],
       failOnVulnerabilities: config.failOnVulnerabilities ?? true,
       failOnRestrictedLicenses: config.failOnRestrictedLicenses ?? false,
       cvssThreshold: config.cvssThreshold ?? 9.0,
-    }
-    this.vulnerabilityDb = [...KNOWN_VULNERABILITIES]
+    };
+    this.vulnerabilityDb = [...KNOWN_VULNERABILITIES];
   }
 
   /**
    * Parse dependencies from package.json
    */
   parseDependencies(packageJson: PackageJson): Dependency[] {
-    const dependencies: Dependency[] = []
+    const dependencies: Dependency[] = [];
 
     // Production dependencies
     if (packageJson.dependencies) {
       for (const [name, version] of Object.entries(packageJson.dependencies)) {
         dependencies.push({
           name,
-          version: version.replace(/^[\^~]/, ''),
-          ecosystem: 'npm',
+          version: version.replace(/^[\^~]/, ""),
+          ecosystem: "npm",
           isDev: false,
           isTransitive: false,
-        })
+        });
       }
     }
 
     // Dev dependencies
     if (this.config.checkDevDependencies && packageJson.devDependencies) {
-      for (const [name, version] of Object.entries(packageJson.devDependencies)) {
+      for (const [name, version] of Object.entries(
+        packageJson.devDependencies,
+      )) {
         dependencies.push({
           name,
-          version: version.replace(/^[\^~]/, ''),
-          ecosystem: 'npm',
+          version: version.replace(/^[\^~]/, ""),
+          ecosystem: "npm",
           isDev: true,
           isTransitive: false,
-        })
+        });
       }
     }
 
-    return dependencies
+    return dependencies;
   }
 
   /**
    * Parse dependencies from package-lock.json for transitive deps
    */
   parsePackageLock(lockfile: PackageLock): Dependency[] {
-    const dependencies: Dependency[] = []
+    const dependencies: Dependency[] = [];
 
     const processEntry = (
       name: string,
       entry: PackageLockEntry,
       isTransitive: boolean,
-      parent?: string
+      parent?: string,
     ) => {
-      if (!entry.version) return
+      if (!entry.version) return;
 
       const dep: Dependency = {
-        name: name.replace(/^node_modules\//, ''),
+        name: name.replace(/^node_modules\//, ""),
         version: entry.version,
-        ecosystem: 'npm',
+        ecosystem: "npm",
         isDev: entry.dev ?? false,
         isTransitive,
         parent,
         license: entry.license,
-      }
+      };
 
       // Skip if dev dependencies are disabled
-      if (dep.isDev && !this.config.checkDevDependencies) return
+      if (dep.isDev && !this.config.checkDevDependencies) return;
 
       // Skip if transitive dependencies are disabled
-      if (dep.isTransitive && !this.config.checkTransitive) return
+      if (dep.isTransitive && !this.config.checkTransitive) return;
 
       // Skip ignored packages
-      if (this.config.ignoredPackages?.includes(dep.name)) return
+      if (this.config.ignoredPackages?.includes(dep.name)) return;
 
-      dependencies.push(dep)
-    }
+      dependencies.push(dep);
+    };
 
     // Process packages (npm v7+ lockfile format)
     if (lockfile.packages) {
       for (const [path, entry] of Object.entries(lockfile.packages)) {
-        if (path === '') continue // Skip root
-        const name = path.replace(/^node_modules\//, '')
-        const isTransitive = path.includes('node_modules/node_modules')
-        processEntry(name, entry, isTransitive)
+        if (path === "") continue; // Skip root
+        const name = path.replace(/^node_modules\//, "");
+        const isTransitive = path.includes("node_modules/node_modules");
+        processEntry(name, entry, isTransitive);
       }
     }
 
@@ -491,35 +519,37 @@ export class DependencyScanner {
     if (lockfile.dependencies) {
       const processNested = (
         deps: Record<string, PackageLockEntry>,
-        parent?: string
+        parent?: string,
       ) => {
         for (const [name, entry] of Object.entries(deps)) {
-          processEntry(name, entry, !!parent, parent)
+          processEntry(name, entry, !!parent, parent);
 
           if (entry.dependencies) {
-            processNested(entry.dependencies, name)
+            processNested(entry.dependencies, name);
           }
         }
-      }
+      };
 
-      processNested(lockfile.dependencies)
+      processNested(lockfile.dependencies);
     }
 
-    return dependencies
+    return dependencies;
   }
 
   /**
    * Check a dependency for vulnerabilities
    */
   checkVulnerabilities(dependency: Dependency): DependencyVulnerability[] {
-    const vulnerabilities: DependencyVulnerability[] = []
+    const vulnerabilities: DependencyVulnerability[] = [];
 
     for (const vuln of this.vulnerabilityDb) {
-      if (vuln.packageName !== dependency.name) continue
+      if (vuln.packageName !== dependency.name) continue;
 
       if (isVersionAffected(dependency.version, vuln.affectedVersions)) {
-        if (!meetsMinSeverity(vuln.severity, this.config.minSeverity ?? 'low')) {
-          continue
+        if (
+          !meetsMinSeverity(vuln.severity, this.config.minSeverity ?? "low")
+        ) {
+          continue;
         }
 
         vulnerabilities.push({
@@ -538,11 +568,11 @@ export class DependencyScanner {
           patchedVersions: vuln.patchedVersions,
           recommendation: vuln.recommendation,
           references: vuln.references,
-        })
+        });
       }
     }
 
-    return vulnerabilities
+    return vulnerabilities;
   }
 
   /**
@@ -553,31 +583,33 @@ export class DependencyScanner {
       return {
         packageName: dependency.name,
         packageVersion: dependency.version,
-        license: 'UNKNOWN',
-        status: 'unknown',
-        reason: 'License not specified in package metadata',
-      }
+        license: "UNKNOWN",
+        status: "unknown",
+        reason: "License not specified in package metadata",
+      };
     }
 
-    const license = dependency.license.toUpperCase()
-    const allowedLicenses = this.config.allowedLicenses?.map((l) => l.toUpperCase()) ?? []
-    const restrictedLicenses = this.config.restrictedLicenses?.map((l) => l.toUpperCase()) ?? []
-    const copyleftLicenses = COPYLEFT_LICENSES.map((l) => l.toUpperCase())
+    const license = dependency.license.toUpperCase();
+    const allowedLicenses =
+      this.config.allowedLicenses?.map((l) => l.toUpperCase()) ?? [];
+    const restrictedLicenses =
+      this.config.restrictedLicenses?.map((l) => l.toUpperCase()) ?? [];
+    const copyleftLicenses = COPYLEFT_LICENSES.map((l) => l.toUpperCase());
 
-    let status: LicenseStatus = 'unknown'
-    let reason: string | undefined
+    let status: LicenseStatus = "unknown";
+    let reason: string | undefined;
 
     if (restrictedLicenses.includes(license)) {
-      status = 'restricted'
-      reason = 'License is on the restricted list'
+      status = "restricted";
+      reason = "License is on the restricted list";
     } else if (copyleftLicenses.includes(license)) {
-      status = 'copyleft'
-      reason = 'Copyleft license may require source code disclosure'
+      status = "copyleft";
+      reason = "Copyleft license may require source code disclosure";
     } else if (allowedLicenses.includes(license)) {
-      status = 'allowed'
+      status = "allowed";
     } else {
-      status = 'unknown'
-      reason = 'License not recognized'
+      status = "unknown";
+      reason = "License not recognized";
     }
 
     return {
@@ -586,30 +618,30 @@ export class DependencyScanner {
       license: dependency.license,
       status,
       reason,
-    }
+    };
   }
 
   /**
    * Scan dependencies for vulnerabilities and license issues
    */
   scan(dependencies: Dependency[]): DependencyScanResult {
-    const startTime = Date.now()
-    const allVulnerabilities: DependencyVulnerability[] = []
-    const allLicenseFindings: LicenseFinding[] = []
+    const startTime = Date.now();
+    const allVulnerabilities: DependencyVulnerability[] = [];
+    const allLicenseFindings: LicenseFinding[] = [];
 
     for (const dep of dependencies) {
       // Check vulnerabilities
-      const vulns = this.checkVulnerabilities(dep)
-      allVulnerabilities.push(...vulns)
+      const vulns = this.checkVulnerabilities(dep);
+      allVulnerabilities.push(...vulns);
 
       // Check license
-      const licenseFinding = this.checkLicense(dep)
+      const licenseFinding = this.checkLicense(dep);
       if (licenseFinding) {
-        allLicenseFindings.push(licenseFinding)
+        allLicenseFindings.push(licenseFinding);
       }
     }
 
-    const scanDuration = Date.now() - startTime
+    const scanDuration = Date.now() - startTime;
 
     // Calculate summary
     const summary = {
@@ -618,32 +650,41 @@ export class DependencyScanner {
       devDependencies: dependencies.filter((d) => d.isDev).length,
       transitiveDependencies: dependencies.filter((d) => d.isTransitive).length,
       vulnerabilities: {
-        critical: allVulnerabilities.filter((v) => v.severity === 'critical').length,
-        high: allVulnerabilities.filter((v) => v.severity === 'high').length,
-        moderate: allVulnerabilities.filter((v) => v.severity === 'moderate').length,
-        low: allVulnerabilities.filter((v) => v.severity === 'low').length,
-        info: allVulnerabilities.filter((v) => v.severity === 'info').length,
+        critical: allVulnerabilities.filter((v) => v.severity === "critical")
+          .length,
+        high: allVulnerabilities.filter((v) => v.severity === "high").length,
+        moderate: allVulnerabilities.filter((v) => v.severity === "moderate")
+          .length,
+        low: allVulnerabilities.filter((v) => v.severity === "low").length,
+        info: allVulnerabilities.filter((v) => v.severity === "info").length,
       },
       licenses: {
-        allowed: allLicenseFindings.filter((l) => l.status === 'allowed').length,
-        restricted: allLicenseFindings.filter((l) => l.status === 'restricted').length,
-        unknown: allLicenseFindings.filter((l) => l.status === 'unknown').length,
-        copyleft: allLicenseFindings.filter((l) => l.status === 'copyleft').length,
+        allowed: allLicenseFindings.filter((l) => l.status === "allowed")
+          .length,
+        restricted: allLicenseFindings.filter((l) => l.status === "restricted")
+          .length,
+        unknown: allLicenseFindings.filter((l) => l.status === "unknown")
+          .length,
+        copyleft: allLicenseFindings.filter((l) => l.status === "copyleft")
+          .length,
       },
-    }
+    };
 
     // Determine if scan passed
-    let passed = true
+    let passed = true;
 
     if (this.config.failOnVulnerabilities) {
-      if (summary.vulnerabilities.critical > 0 || summary.vulnerabilities.high > 0) {
-        passed = false
+      if (
+        summary.vulnerabilities.critical > 0 ||
+        summary.vulnerabilities.high > 0
+      ) {
+        passed = false;
       }
     }
 
     if (this.config.failOnRestrictedLicenses) {
       if (summary.licenses.restricted > 0) {
-        passed = false
+        passed = false;
       }
     }
 
@@ -655,69 +696,72 @@ export class DependencyScanner {
       timestamp: new Date(),
       summary,
       passed,
-    }
+    };
   }
 
   /**
    * Scan from package.json content
    */
-  scanFromPackageJson(packageJsonContent: string, lockfileContent?: string): DependencyScanResult {
-    const packageJson: PackageJson = JSON.parse(packageJsonContent)
-    let dependencies = this.parseDependencies(packageJson)
+  scanFromPackageJson(
+    packageJsonContent: string,
+    lockfileContent?: string,
+  ): DependencyScanResult {
+    const packageJson: PackageJson = JSON.parse(packageJsonContent);
+    let dependencies = this.parseDependencies(packageJson);
 
     // If lockfile is provided, use it for transitive deps
     if (lockfileContent) {
-      const lockfile: PackageLock = JSON.parse(lockfileContent)
-      const lockDeps = this.parsePackageLock(lockfile)
+      const lockfile: PackageLock = JSON.parse(lockfileContent);
+      const lockDeps = this.parsePackageLock(lockfile);
 
       // Merge dependencies, preferring lockfile versions
-      const depMap = new Map<string, Dependency>()
+      const depMap = new Map<string, Dependency>();
       for (const dep of dependencies) {
-        depMap.set(dep.name, dep)
+        depMap.set(dep.name, dep);
       }
       for (const dep of lockDeps) {
         if (!depMap.has(dep.name)) {
-          depMap.set(dep.name, dep)
+          depMap.set(dep.name, dep);
         } else {
           // Update with lockfile info
-          const existing = depMap.get(dep.name)!
-          existing.version = dep.version
-          existing.license = dep.license
-          existing.isTransitive = dep.isTransitive
+          const existing = depMap.get(dep.name)!;
+          existing.version = dep.version;
+          existing.license = dep.license;
+          existing.isTransitive = dep.isTransitive;
         }
       }
-      dependencies = Array.from(depMap.values())
+      dependencies = Array.from(depMap.values());
     }
 
-    return this.scan(dependencies)
+    return this.scan(dependencies);
   }
 
   /**
    * Add a vulnerability to the database
    */
   addVulnerability(vuln: VulnerabilityDbEntry): void {
-    this.vulnerabilityDb.push(vuln)
+    this.vulnerabilityDb.push(vuln);
   }
 
   /**
    * Clear the vulnerability database
    */
   clearVulnerabilityDb(): void {
-    this.vulnerabilityDb = []
+    this.vulnerabilityDb = [];
   }
 
   /**
    * Update configuration
    */
   configure(config: Partial<DependencyScannerConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
   }
 
   /**
    * Get current configuration
    */
   getConfig(): DependencyScannerConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 }
 
@@ -728,8 +772,10 @@ export class DependencyScanner {
 /**
  * Create a new dependency scanner with default configuration
  */
-export function createDependencyScanner(config?: DependencyScannerConfig): DependencyScanner {
-  return new DependencyScanner(config)
+export function createDependencyScanner(
+  config?: DependencyScannerConfig,
+): DependencyScanner {
+  return new DependencyScanner(config);
 }
 
 /**
@@ -737,12 +783,12 @@ export function createDependencyScanner(config?: DependencyScannerConfig): Depen
  */
 export function createCIDependencyScanner(): DependencyScanner {
   return new DependencyScanner({
-    minSeverity: 'moderate',
+    minSeverity: "moderate",
     checkDevDependencies: false,
     checkTransitive: true,
     failOnVulnerabilities: true,
     failOnRestrictedLicenses: true,
-  })
+  });
 }
 
 /**
@@ -750,13 +796,13 @@ export function createCIDependencyScanner(): DependencyScanner {
  */
 export function createStrictDependencyScanner(): DependencyScanner {
   return new DependencyScanner({
-    minSeverity: 'low',
+    minSeverity: "low",
     checkDevDependencies: true,
     checkTransitive: true,
     failOnVulnerabilities: true,
     failOnRestrictedLicenses: true,
     cvssThreshold: 7.0,
-  })
+  });
 }
 
 // ============================================================================
@@ -771,25 +817,25 @@ export function formatVulnerability(vuln: DependencyVulnerability): string {
     `[${vuln.severity.toUpperCase()}] ${vuln.title}`,
     `  Package: ${vuln.packageName}@${vuln.packageVersion}`,
     `  Advisory: ${vuln.advisoryId}`,
-  ]
+  ];
 
   if (vuln.cve) {
-    parts.push(`  CVE: ${vuln.cve}`)
+    parts.push(`  CVE: ${vuln.cve}`);
   }
 
   if (vuln.cvss) {
-    parts.push(`  CVSS: ${vuln.cvss.score}`)
+    parts.push(`  CVSS: ${vuln.cvss.score}`);
   }
 
-  parts.push(`  Affected: ${vuln.affectedVersions}`)
+  parts.push(`  Affected: ${vuln.affectedVersions}`);
 
   if (vuln.patchedVersions) {
-    parts.push(`  Patched: ${vuln.patchedVersions}`)
+    parts.push(`  Patched: ${vuln.patchedVersions}`);
   }
 
-  parts.push(`  Recommendation: ${vuln.recommendation}`)
+  parts.push(`  Recommendation: ${vuln.recommendation}`);
 
-  return parts.join('\n')
+  return parts.join("\n");
 }
 
 /**
@@ -797,101 +843,105 @@ export function formatVulnerability(vuln: DependencyVulnerability): string {
  */
 export function formatLicenseFinding(finding: LicenseFinding): string {
   const statusIcon = {
-    allowed: 'OK',
-    restricted: 'BLOCKED',
-    unknown: 'WARN',
-    copyleft: 'CAUTION',
-  }[finding.status]
+    allowed: "OK",
+    restricted: "BLOCKED",
+    unknown: "WARN",
+    copyleft: "CAUTION",
+  }[finding.status];
 
-  let line = `[${statusIcon}] ${finding.packageName}@${finding.packageVersion}: ${finding.license}`
+  let line = `[${statusIcon}] ${finding.packageName}@${finding.packageVersion}: ${finding.license}`;
 
   if (finding.reason) {
-    line += ` (${finding.reason})`
+    line += ` (${finding.reason})`;
   }
 
-  return line
+  return line;
 }
 
 /**
  * Format scan result as a report
  */
-export function formatDependencyScanReport(result: DependencyScanResult): string {
+export function formatDependencyScanReport(
+  result: DependencyScanResult,
+): string {
   const lines = [
-    '# Dependency Scan Report',
-    '',
-    '## Summary',
+    "# Dependency Scan Report",
+    "",
+    "## Summary",
     `- Total Dependencies: ${result.summary.totalDependencies}`,
     `- Direct Dependencies: ${result.summary.directDependencies}`,
     `- Dev Dependencies: ${result.summary.devDependencies}`,
     `- Transitive Dependencies: ${result.summary.transitiveDependencies}`,
     `- Scan Duration: ${result.scanDuration}ms`,
-    `- Status: ${result.passed ? 'PASSED' : 'FAILED'}`,
-    '',
-    '## Vulnerabilities',
+    `- Status: ${result.passed ? "PASSED" : "FAILED"}`,
+    "",
+    "## Vulnerabilities",
     `- Critical: ${result.summary.vulnerabilities.critical}`,
     `- High: ${result.summary.vulnerabilities.high}`,
     `- Moderate: ${result.summary.vulnerabilities.moderate}`,
     `- Low: ${result.summary.vulnerabilities.low}`,
-    '',
-    '## Licenses',
+    "",
+    "## Licenses",
     `- Allowed: ${result.summary.licenses.allowed}`,
     `- Restricted: ${result.summary.licenses.restricted}`,
     `- Unknown: ${result.summary.licenses.unknown}`,
     `- Copyleft: ${result.summary.licenses.copyleft}`,
-  ]
+  ];
 
   if (result.vulnerabilities.length > 0) {
-    lines.push('', '## Vulnerability Details', '')
+    lines.push("", "## Vulnerability Details", "");
     for (const vuln of result.vulnerabilities) {
-      lines.push(formatVulnerability(vuln), '')
+      lines.push(formatVulnerability(vuln), "");
     }
   }
 
-  if (result.licenseFindings.filter((f) => f.status !== 'allowed').length > 0) {
-    lines.push('', '## License Issues', '')
-    for (const finding of result.licenseFindings.filter((f) => f.status !== 'allowed')) {
-      lines.push(formatLicenseFinding(finding))
+  if (result.licenseFindings.filter((f) => f.status !== "allowed").length > 0) {
+    lines.push("", "## License Issues", "");
+    for (const finding of result.licenseFindings.filter(
+      (f) => f.status !== "allowed",
+    )) {
+      lines.push(formatLicenseFinding(finding));
     }
   }
 
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 /**
  * Group vulnerabilities by severity
  */
 export function groupVulnerabilitiesBySeverity(
-  vulnerabilities: DependencyVulnerability[]
+  vulnerabilities: DependencyVulnerability[],
 ): Map<VulnerabilitySeverity, DependencyVulnerability[]> {
-  const groups = new Map<VulnerabilitySeverity, DependencyVulnerability[]>()
+  const groups = new Map<VulnerabilitySeverity, DependencyVulnerability[]>();
 
   for (const vuln of vulnerabilities) {
     if (!groups.has(vuln.severity)) {
-      groups.set(vuln.severity, [])
+      groups.set(vuln.severity, []);
     }
-    groups.get(vuln.severity)!.push(vuln)
+    groups.get(vuln.severity)!.push(vuln);
   }
 
-  return groups
+  return groups;
 }
 
 /**
  * Group vulnerabilities by package
  */
 export function groupVulnerabilitiesByPackage(
-  vulnerabilities: DependencyVulnerability[]
+  vulnerabilities: DependencyVulnerability[],
 ): Map<string, DependencyVulnerability[]> {
-  const groups = new Map<string, DependencyVulnerability[]>()
+  const groups = new Map<string, DependencyVulnerability[]>();
 
   for (const vuln of vulnerabilities) {
-    const key = `${vuln.packageName}@${vuln.packageVersion}`
+    const key = `${vuln.packageName}@${vuln.packageVersion}`;
     if (!groups.has(key)) {
-      groups.set(key, [])
+      groups.set(key, []);
     }
-    groups.get(key)!.push(vuln)
+    groups.get(key)!.push(vuln);
   }
 
-  return groups
+  return groups;
 }
 
 /**
@@ -902,7 +952,7 @@ export function shouldBlockDeployment(result: DependencyScanResult): boolean {
     result.summary.vulnerabilities.critical > 0 ||
     result.summary.vulnerabilities.high > 0 ||
     result.summary.licenses.restricted > 0
-  )
+  );
 }
 
 /**
@@ -910,18 +960,18 @@ export function shouldBlockDeployment(result: DependencyScanResult): boolean {
  */
 export function getSeverityColor(severity: VulnerabilitySeverity): string {
   switch (severity) {
-    case 'critical':
-      return '\x1b[31m' // Red
-    case 'high':
-      return '\x1b[33m' // Yellow
-    case 'moderate':
-      return '\x1b[36m' // Cyan
-    case 'low':
-      return '\x1b[32m' // Green
-    case 'info':
-      return '\x1b[37m' // White
+    case "critical":
+      return "\x1b[31m"; // Red
+    case "high":
+      return "\x1b[33m"; // Yellow
+    case "moderate":
+      return "\x1b[36m"; // Cyan
+    case "low":
+      return "\x1b[32m"; // Green
+    case "info":
+      return "\x1b[37m"; // White
     default:
-      return '\x1b[0m' // Reset
+      return "\x1b[0m"; // Reset
   }
 }
 
@@ -930,15 +980,15 @@ export function getSeverityColor(severity: VulnerabilitySeverity): string {
  */
 export function getLicenseStatusColor(status: LicenseStatus): string {
   switch (status) {
-    case 'allowed':
-      return '\x1b[32m' // Green
-    case 'restricted':
-      return '\x1b[31m' // Red
-    case 'copyleft':
-      return '\x1b[33m' // Yellow
-    case 'unknown':
-      return '\x1b[36m' // Cyan
+    case "allowed":
+      return "\x1b[32m"; // Green
+    case "restricted":
+      return "\x1b[31m"; // Red
+    case "copyleft":
+      return "\x1b[33m"; // Yellow
+    case "unknown":
+      return "\x1b[36m"; // Cyan
     default:
-      return '\x1b[0m' // Reset
+      return "\x1b[0m"; // Reset
   }
 }

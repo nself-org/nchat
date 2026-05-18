@@ -4,11 +4,11 @@
  * Lightbox gallery for viewing multiple images with navigation.
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useCallback, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import * as React from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
@@ -20,36 +20,36 @@ import {
   RotateCw,
   Maximize,
   Grid,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import type { Attachment } from '@/types/attachment'
-import type { AttachmentItem } from '@/hooks/use-attachments'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import type { Attachment } from "@/types/attachment";
+import type { AttachmentItem } from "@/hooks/use-attachments";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-type GalleryImage = Attachment | AttachmentItem
+type GalleryImage = Attachment | AttachmentItem;
 
 export interface ImageGalleryProps {
   /** Images to display */
-  images: GalleryImage[]
+  images: GalleryImage[];
   /** Initially selected image index */
-  initialIndex?: number
+  initialIndex?: number;
   /** Whether gallery is open */
-  open?: boolean
+  open?: boolean;
   /** Callback when open state changes */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Enable keyboard navigation */
-  enableKeyboard?: boolean
+  enableKeyboard?: boolean;
   /** Enable swipe gestures */
-  enableSwipe?: boolean
+  enableSwipe?: boolean;
   /** Show thumbnail strip */
-  showThumbnails?: boolean
+  showThumbnails?: boolean;
 }
 
 // ============================================================================
@@ -66,116 +66,126 @@ export function ImageGallery({
   enableSwipe = true,
   showThumbnails = true,
 }: ImageGalleryProps) {
-  const [currentIndex, setCurrentIndex] = useState(initialIndex)
-  const [zoom, setZoom] = useState(1)
-  const [rotation, setRotation] = useState(0)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
-  const imageRef = useRef<HTMLDivElement>(null)
-  const startPos = useRef({ x: 0, y: 0 })
+  const imageRef = useRef<HTMLDivElement>(null);
+  const startPos = useRef({ x: 0, y: 0 });
 
   // Reset state when opening
   useEffect(() => {
     if (open) {
-      setCurrentIndex(initialIndex)
-      setZoom(1)
-      setRotation(0)
-      setPosition({ x: 0, y: 0 })
+      setCurrentIndex(initialIndex);
+      setZoom(1);
+      setRotation(0);
+      setPosition({ x: 0, y: 0 });
     }
-  }, [open, initialIndex])
+  }, [open, initialIndex]);
 
   // ============================================================================
   // Navigation
   // ============================================================================
 
   const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % images.length)
-    setZoom(1)
-    setRotation(0)
-    setPosition({ x: 0, y: 0 })
-  }, [images.length])
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+    setZoom(1);
+    setRotation(0);
+    setPosition({ x: 0, y: 0 });
+  }, [images.length]);
 
   const goToPrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
-    setZoom(1)
-    setRotation(0)
-    setPosition({ x: 0, y: 0 })
-  }, [images.length])
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    setZoom(1);
+    setRotation(0);
+    setPosition({ x: 0, y: 0 });
+  }, [images.length]);
 
   const goToIndex = useCallback((index: number) => {
-    setCurrentIndex(index)
-    setZoom(1)
-    setRotation(0)
-    setPosition({ x: 0, y: 0 })
-  }, [])
+    setCurrentIndex(index);
+    setZoom(1);
+    setRotation(0);
+    setPosition({ x: 0, y: 0 });
+  }, []);
 
   // ============================================================================
   // Zoom Controls
   // ============================================================================
 
   const zoomIn = useCallback(() => {
-    setZoom((prev) => Math.min(prev * 1.5, 5))
-  }, [])
+    setZoom((prev) => Math.min(prev * 1.5, 5));
+  }, []);
 
   const zoomOut = useCallback(() => {
-    setZoom((prev) => Math.max(prev / 1.5, 0.5))
-  }, [])
+    setZoom((prev) => Math.max(prev / 1.5, 0.5));
+  }, []);
 
   const resetZoom = useCallback(() => {
-    setZoom(1)
-    setPosition({ x: 0, y: 0 })
-  }, [])
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  }, []);
 
   const rotate = useCallback(() => {
-    setRotation((prev) => (prev + 90) % 360)
-  }, [])
+    setRotation((prev) => (prev + 90) % 360);
+  }, []);
 
   // ============================================================================
   // Keyboard Navigation
   // ============================================================================
 
   useEffect(() => {
-    if (!open || !enableKeyboard) return
+    if (!open || !enableKeyboard) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault()
-          goToPrev()
-          break
-        case 'ArrowRight':
-          e.preventDefault()
-          goToNext()
-          break
-        case 'Escape':
-          e.preventDefault()
-          onOpenChange?.(false)
-          break
-        case '+':
-        case '=':
-          e.preventDefault()
-          zoomIn()
-          break
-        case '-':
-          e.preventDefault()
-          zoomOut()
-          break
-        case '0':
-          e.preventDefault()
-          resetZoom()
-          break
-        case 'r':
-        case 'R':
-          e.preventDefault()
-          rotate()
-          break
+        case "ArrowLeft":
+          e.preventDefault();
+          goToPrev();
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          goToNext();
+          break;
+        case "Escape":
+          e.preventDefault();
+          onOpenChange?.(false);
+          break;
+        case "+":
+        case "=":
+          e.preventDefault();
+          zoomIn();
+          break;
+        case "-":
+          e.preventDefault();
+          zoomOut();
+          break;
+        case "0":
+          e.preventDefault();
+          resetZoom();
+          break;
+        case "r":
+        case "R":
+          e.preventDefault();
+          rotate();
+          break;
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [open, enableKeyboard, goToNext, goToPrev, onOpenChange, zoomIn, zoomOut, resetZoom, rotate])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    open,
+    enableKeyboard,
+    goToNext,
+    goToPrev,
+    onOpenChange,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    rotate,
+  ]);
 
   // ============================================================================
   // Mouse/Touch Drag
@@ -183,102 +193,110 @@ export function ImageGallery({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (zoom <= 1) return
-      setIsDragging(true)
+      if (zoom <= 1) return;
+      setIsDragging(true);
       startPos.current = {
         x: e.clientX - position.x,
         y: e.clientY - position.y,
-      }
+      };
     },
-    [zoom, position]
-  )
+    [zoom, position],
+  );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!isDragging) return
+      if (!isDragging) return;
       setPosition({
         x: e.clientX - startPos.current.x,
         y: e.clientY - startPos.current.y,
-      })
+      });
     },
-    [isDragging]
-  )
+    [isDragging],
+  );
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+    setIsDragging(false);
+  }, []);
 
   // ============================================================================
   // Touch Swipe
   // ============================================================================
 
-  const touchStart = useRef({ x: 0, y: 0 })
+  const touchStart = useRef({ x: 0, y: 0 });
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStart.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
-    }
-  }, [])
+    };
+  }, []);
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
-      if (!enableSwipe || zoom > 1) return
+      if (!enableSwipe || zoom > 1) return;
 
-      const deltaX = e.changedTouches[0].clientX - touchStart.current.x
-      const deltaY = e.changedTouches[0].clientY - touchStart.current.y
+      const deltaX = e.changedTouches[0].clientX - touchStart.current.x;
+      const deltaY = e.changedTouches[0].clientY - touchStart.current.y;
 
       // Only handle horizontal swipes
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
         if (deltaX > 0) {
-          goToPrev()
+          goToPrev();
         } else {
-          goToNext()
+          goToNext();
         }
       }
     },
-    [enableSwipe, zoom, goToPrev, goToNext]
-  )
+    [enableSwipe, zoom, goToPrev, goToNext],
+  );
 
   // ============================================================================
   // Download
   // ============================================================================
 
   const handleDownload = useCallback(() => {
-    const image = images[currentIndex]
+    const image = images[currentIndex];
     if (image.url) {
-      const link = document.createElement('a')
-      link.href = image.url
-      link.download = image.name
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const link = document.createElement("a");
+      link.href = image.url;
+      link.download = image.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  }, [images, currentIndex])
+  }, [images, currentIndex]);
 
   // ============================================================================
   // Render
   // ============================================================================
 
-  if (images.length === 0) return null
+  if (images.length === 0) return null;
 
-  const currentImage = images[currentIndex]
+  const currentImage = images[currentIndex];
   const imageUrl =
-    currentImage.url || ('previewUrl' in currentImage ? currentImage.previewUrl : undefined)
+    currentImage.url ||
+    ("previewUrl" in currentImage ? currentImage.previewUrl : undefined);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={cn('h-screen w-screen max-w-none gap-0 border-0 bg-black/95 p-0', className)}
+        className={cn(
+          "h-screen w-screen max-w-none gap-0 border-0 bg-black/95 p-0",
+          className,
+        )}
       >
-        <DialogTitle className="sr-only">Image Gallery - {currentImage.name}</DialogTitle>
+        <DialogTitle className="sr-only">
+          Image Gallery - {currentImage.name}
+        </DialogTitle>
         {/* Header */}
         <div className="absolute left-0 right-0 top-0 z-50 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent p-4">
           <div className="flex items-center gap-4 text-white">
             <span className="text-sm opacity-75">
               {currentIndex + 1} / {images.length}
             </span>
-            <span className="max-w-[200px] truncate text-sm font-medium">{currentImage.name}</span>
+            <span className="max-w-[200px] truncate text-sm font-medium">
+              {currentImage.name}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -292,7 +310,9 @@ export function ImageGallery({
             >
               <ZoomOut className="h-5 w-5" />
             </Button>
-            <span className="w-12 text-center text-sm text-white">{Math.round(zoom * 100)}%</span>
+            <span className="w-12 text-center text-sm text-white">
+              {Math.round(zoom * 100)}%
+            </span>
             <Button
               variant="ghost"
               size="icon"
@@ -339,7 +359,7 @@ export function ImageGallery({
                 variant="ghost"
                 size="icon"
                 className="text-white hover:bg-white/20"
-                onClick={() => window.open(currentImage.url, '_blank')}
+                onClick={() => window.open(currentImage.url, "_blank")}
               >
                 <ExternalLink className="h-5 w-5" />
               </Button>
@@ -370,7 +390,9 @@ export function ImageGallery({
           onMouseLeave={handleMouseUp}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          style={{ cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
+          style={{
+            cursor: zoom > 1 ? (isDragging ? "grabbing" : "grab") : "default",
+          }}
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -381,7 +403,7 @@ export function ImageGallery({
               transition={{ duration: 0.2 }}
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${zoom}) rotate(${rotation}deg)`,
-                transition: isDragging ? 'none' : 'transform 0.2s',
+                transition: isDragging ? "none" : "transform 0.2s",
               }}
             >
               {imageUrl ? (
@@ -428,36 +450,41 @@ export function ImageGallery({
             <div className="flex items-center justify-center gap-2 overflow-x-auto">
               {images.map((image, index) => {
                 const thumbUrl =
-                  image.thumbnailUrl || ('previewUrl' in image ? image.previewUrl : image.url)
+                  image.thumbnailUrl ||
+                  ("previewUrl" in image ? image.previewUrl : image.url);
                 return (
                   <motion.button
                     key={image.id}
                     className={cn(
-                      'h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all',
+                      "h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all",
                       index === currentIndex
-                        ? 'scale-110 border-white'
-                        : 'border-transparent opacity-60 hover:opacity-100'
+                        ? "scale-110 border-white"
+                        : "border-transparent opacity-60 hover:opacity-100",
                     )}
                     onClick={() => goToIndex(index)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     {thumbUrl ? (
-                      <img src={thumbUrl} alt={image.name} className="h-full w-full object-cover" />
+                      <img
+                        src={thumbUrl}
+                        alt={image.name}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-white/20">
                         <Grid className="h-6 w-6 text-white/60" />
                       </div>
                     )}
                   </motion.button>
-                )
+                );
               })}
             </div>
           </div>
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -466,64 +493,72 @@ export function ImageGallery({
 
 export interface ImageGalleryGridProps {
   /** Images to display */
-  images: GalleryImage[]
+  images: GalleryImage[];
   /** Maximum images to show before "show more" */
-  maxVisible?: number
+  maxVisible?: number;
   /** Image size */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Click handler */
-  onImageClick?: (index: number) => void
+  onImageClick?: (index: number) => void;
 }
 
 export function ImageGalleryGrid({
   images,
   maxVisible = 4,
-  size = 'md',
+  size = "md",
   className,
   onImageClick,
 }: ImageGalleryGridProps) {
-  const [galleryOpen, setGalleryOpen] = useState(false)
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const visibleImages = images.slice(0, maxVisible)
-  const remainingCount = images.length - maxVisible
+  const visibleImages = images.slice(0, maxVisible);
+  const remainingCount = images.length - maxVisible;
 
   const sizeClasses = {
-    sm: 'w-16 h-16',
-    md: 'w-24 h-24',
-    lg: 'w-32 h-32',
-  }
+    sm: "w-16 h-16",
+    md: "w-24 h-24",
+    lg: "w-32 h-32",
+  };
 
   const handleClick = useCallback(
     (index: number) => {
-      setSelectedIndex(index)
-      setGalleryOpen(true)
-      onImageClick?.(index)
+      setSelectedIndex(index);
+      setGalleryOpen(true);
+      onImageClick?.(index);
     },
-    [onImageClick]
-  )
+    [onImageClick],
+  );
 
   return (
     <>
-      <div className={cn('flex flex-wrap gap-2', className)}>
+      <div className={cn("flex flex-wrap gap-2", className)}>
         {visibleImages.map((image, index) => {
           const thumbUrl =
-            image.thumbnailUrl || ('previewUrl' in image ? image.previewUrl : image.url)
+            image.thumbnailUrl ||
+            ("previewUrl" in image ? image.previewUrl : image.url);
 
-          const isLast = index === maxVisible - 1 && remainingCount > 0
+          const isLast = index === maxVisible - 1 && remainingCount > 0;
 
           return (
             <motion.button
               key={image.id}
-              className={cn('relative overflow-hidden rounded-lg border', sizeClasses[size])}
+              className={cn(
+                "relative overflow-hidden rounded-lg border",
+                sizeClasses[size],
+              )}
               onClick={() => handleClick(index)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               {thumbUrl ? (
-                <img src={thumbUrl} alt={image.name} className="h-full w-full object-cover" />
+                <img
+                  src={thumbUrl}
+                  alt={image.name}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-muted">
                   <Grid className="h-6 w-6 text-muted-foreground" />
@@ -532,11 +567,13 @@ export function ImageGalleryGrid({
 
               {isLast && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                  <span className="font-medium text-white">+{remainingCount}</span>
+                  <span className="font-medium text-white">
+                    +{remainingCount}
+                  </span>
                 </div>
               )}
             </motion.button>
-          )
+          );
         })}
       </div>
 
@@ -547,5 +584,5 @@ export function ImageGalleryGrid({
         onOpenChange={setGalleryOpen}
       />
     </>
-  )
+  );
 }

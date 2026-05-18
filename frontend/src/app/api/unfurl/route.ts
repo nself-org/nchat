@@ -18,14 +18,14 @@
  * @returns { success: boolean, data?: LinkPreviewData, error?: string, cached?: boolean }
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 import {
   getLinkUnfurlService,
   hashUrl,
   type LinkPreviewData,
   type UnfurlResult,
-} from '@/services/messages/link-unfurl.service'
-import { logger } from '@/lib/logger'
+} from "@/services/messages/link-unfurl.service";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // CONFIGURATION
@@ -43,39 +43,40 @@ const CONFIG = {
   // Maximum content size (5 MB)
   MAX_CONTENT_SIZE: 5 * 1024 * 1024,
   // Cache control header
-  CACHE_CONTROL: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
-}
+  CACHE_CONTROL:
+    "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+};
 
 // ============================================================================
 // RATE LIMITING (In-memory, use Redis in production)
 // ============================================================================
 
 interface RateLimitEntry {
-  count: number
-  resetAt: number
-  requests: number[]
+  count: number;
+  resetAt: number;
+  requests: number[];
 }
 
-const rateLimitMap = new Map<string, RateLimitEntry>()
-const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
+const rateLimitMap = new Map<string, RateLimitEntry>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 
 /**
  * Check and update rate limit for a client
  */
 function checkRateLimit(clientId: string): {
-  allowed: boolean
-  remaining: number
-  retryAfter?: number
+  allowed: boolean;
+  remaining: number;
+  retryAfter?: number;
 } {
-  const now = Date.now()
-  const windowStart = now - RATE_LIMIT_WINDOW_MS
-  let entry = rateLimitMap.get(clientId)
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT_WINDOW_MS;
+  let entry = rateLimitMap.get(clientId);
 
   // Clean up old entries periodically
   if (rateLimitMap.size > 10000) {
     for (const [key, e] of rateLimitMap.entries()) {
       if (now > e.resetAt) {
-        rateLimitMap.delete(key)
+        rateLimitMap.delete(key);
       }
     }
   }
@@ -85,25 +86,30 @@ function checkRateLimit(clientId: string): {
       count: 1,
       resetAt: now + RATE_LIMIT_WINDOW_MS,
       requests: [now],
-    }
-    rateLimitMap.set(clientId, entry)
-    return { allowed: true, remaining: CONFIG.RATE_LIMIT_PER_MINUTE - 1 }
+    };
+    rateLimitMap.set(clientId, entry);
+    return { allowed: true, remaining: CONFIG.RATE_LIMIT_PER_MINUTE - 1 };
   }
 
   // Sliding window: remove old requests
-  entry.requests = entry.requests.filter((t) => t > windowStart)
-  const currentCount = entry.requests.length
+  entry.requests = entry.requests.filter((t) => t > windowStart);
+  const currentCount = entry.requests.length;
 
   if (currentCount >= CONFIG.RATE_LIMIT_PER_MINUTE) {
-    const oldestRequest = entry.requests[0]
-    const retryAfter = Math.ceil((oldestRequest + RATE_LIMIT_WINDOW_MS - now) / 1000)
-    return { allowed: false, remaining: 0, retryAfter }
+    const oldestRequest = entry.requests[0];
+    const retryAfter = Math.ceil(
+      (oldestRequest + RATE_LIMIT_WINDOW_MS - now) / 1000,
+    );
+    return { allowed: false, remaining: 0, retryAfter };
   }
 
-  entry.requests.push(now)
-  entry.count = entry.requests.length
+  entry.requests.push(now);
+  entry.count = entry.requests.length;
 
-  return { allowed: true, remaining: CONFIG.RATE_LIMIT_PER_MINUTE - entry.count }
+  return {
+    allowed: true,
+    remaining: CONFIG.RATE_LIMIT_PER_MINUTE - entry.count,
+  };
 }
 
 // ============================================================================
@@ -111,27 +117,27 @@ function checkRateLimit(clientId: string): {
 // ============================================================================
 
 interface CacheEntry {
-  data: LinkPreviewData
-  expiresAt: number
+  data: LinkPreviewData;
+  expiresAt: number;
 }
 
-const serverCache = new Map<string, CacheEntry>()
-const MAX_CACHE_SIZE = 1000
-const CACHE_DURATION_MS = CONFIG.CACHE_TTL_HOURS * 60 * 60 * 1000
+const serverCache = new Map<string, CacheEntry>();
+const MAX_CACHE_SIZE = 1000;
+const CACHE_DURATION_MS = CONFIG.CACHE_TTL_HOURS * 60 * 60 * 1000;
 
 /**
  * Get cached preview by URL hash
  */
 function getCachedPreview(urlHash: string): LinkPreviewData | null {
-  const entry = serverCache.get(urlHash)
-  if (!entry) return null
+  const entry = serverCache.get(urlHash);
+  if (!entry) return null;
 
   if (Date.now() > entry.expiresAt) {
-    serverCache.delete(urlHash)
-    return null
+    serverCache.delete(urlHash);
+    return null;
   }
 
-  return entry.data
+  return entry.data;
 }
 
 /**
@@ -141,18 +147,18 @@ function setCachedPreview(urlHash: string, data: LinkPreviewData): void {
   // Enforce cache size limit
   if (serverCache.size >= MAX_CACHE_SIZE) {
     // Remove oldest 20%
-    const entries = Array.from(serverCache.entries())
-    entries.sort((a, b) => a[1].expiresAt - b[1].expiresAt)
-    const toRemove = entries.slice(0, Math.floor(MAX_CACHE_SIZE * 0.2))
+    const entries = Array.from(serverCache.entries());
+    entries.sort((a, b) => a[1].expiresAt - b[1].expiresAt);
+    const toRemove = entries.slice(0, Math.floor(MAX_CACHE_SIZE * 0.2));
     for (const [key] of toRemove) {
-      serverCache.delete(key)
+      serverCache.delete(key);
     }
   }
 
   serverCache.set(urlHash, {
     data,
     expiresAt: Date.now() + CACHE_DURATION_MS,
-  })
+  });
 }
 
 // ============================================================================
@@ -165,15 +171,15 @@ function setCachedPreview(urlHash: string, data: LinkPreviewData): void {
 function getClientId(request: NextRequest): string {
   // Try to get user ID from session
   const sessionCookie =
-    request.cookies.get('nchat-session')?.value ||
-    request.cookies.get('nhostSession')?.value ||
-    request.cookies.get('nchat-dev-session')?.value
+    request.cookies.get("nchat-session")?.value ||
+    request.cookies.get("nhostSession")?.value ||
+    request.cookies.get("nchat-dev-session")?.value;
 
   if (sessionCookie) {
     try {
-      const parsed = JSON.parse(sessionCookie)
+      const parsed = JSON.parse(sessionCookie);
       if (parsed.userId || parsed.sub) {
-        return `user:${parsed.userId || parsed.sub}`
+        return `user:${parsed.userId || parsed.sub}`;
       }
     } catch {
       // Ignore parsing errors
@@ -182,26 +188,30 @@ function getClientId(request: NextRequest): string {
 
   // Fall back to IP address
   const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    request.headers.get('cf-connecting-ip') ||
-    '127.0.0.1'
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("cf-connecting-ip") ||
+    "127.0.0.1";
 
-  return `ip:${ip}`
+  return `ip:${ip}`;
 }
 
 /**
  * Create error response
  */
-function errorResponse(message: string, errorCode: string, status: number = 400): NextResponse {
+function errorResponse(
+  message: string,
+  errorCode: string,
+  status: number = 400,
+): NextResponse {
   return NextResponse.json(
     {
       success: false,
       error: message,
       errorCode,
     },
-    { status }
-  )
+    { status },
+  );
 }
 
 /**
@@ -209,10 +219,10 @@ function errorResponse(message: string, errorCode: string, status: number = 400)
  */
 function isValidUrl(url: string): boolean {
   try {
-    const parsed = new URL(url)
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -237,56 +247,59 @@ function isValidUrl(url: string): boolean {
  * - cached?: boolean
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const log = logger.scope('API:unfurl')
+  const log = logger.scope("API:unfurl");
 
   // Rate limiting
-  const clientId = getClientId(request)
-  const rateLimit = checkRateLimit(clientId)
+  const clientId = getClientId(request);
+  const rateLimit = checkRateLimit(clientId);
 
   if (!rateLimit.allowed) {
-    log.warn('Rate limit exceeded', { clientId, retryAfter: rateLimit.retryAfter })
+    log.warn("Rate limit exceeded", {
+      clientId,
+      retryAfter: rateLimit.retryAfter,
+    });
     return NextResponse.json(
       {
         success: false,
         error: `Rate limit exceeded. Try again in ${rateLimit.retryAfter} seconds.`,
-        errorCode: 'RATE_LIMITED',
+        errorCode: "RATE_LIMITED",
         retryAfter: rateLimit.retryAfter,
       },
       {
         status: 429,
         headers: {
-          'Retry-After': String(rateLimit.retryAfter),
-          'X-RateLimit-Limit': String(CONFIG.RATE_LIMIT_PER_MINUTE),
-          'X-RateLimit-Remaining': '0',
+          "Retry-After": String(rateLimit.retryAfter),
+          "X-RateLimit-Limit": String(CONFIG.RATE_LIMIT_PER_MINUTE),
+          "X-RateLimit-Remaining": "0",
         },
-      }
-    )
+      },
+    );
   }
 
   try {
     // Parse request body
-    const body = await request.json().catch(() => ({}))
-    const { url, skipCache = false } = body
+    const body = await request.json().catch(() => ({}));
+    const { url, skipCache = false } = body;
 
     // Validate URL
-    if (!url || typeof url !== 'string') {
-      return errorResponse('URL is required', 'MISSING_URL')
+    if (!url || typeof url !== "string") {
+      return errorResponse("URL is required", "MISSING_URL");
     }
 
     if (!isValidUrl(url)) {
-      return errorResponse('Invalid URL format', 'INVALID_URL')
+      return errorResponse("Invalid URL format", "INVALID_URL");
     }
 
-    log.debug('Unfurling URL', { url, clientId, skipCache })
+    log.debug("Unfurling URL", { url, clientId, skipCache });
 
     // Generate URL hash for caching
-    const urlHash = hashUrl(url)
+    const urlHash = hashUrl(url);
 
     // Check cache
     if (!skipCache) {
-      const cached = getCachedPreview(urlHash)
+      const cached = getCachedPreview(urlHash);
       if (cached) {
-        log.info('Returning cached preview', { url, urlHash })
+        log.info("Returning cached preview", { url, urlHash });
         return NextResponse.json(
           {
             success: true,
@@ -295,64 +308,71 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           },
           {
             headers: {
-              'Cache-Control': CONFIG.CACHE_CONTROL,
-              'X-Cache': 'HIT',
-              'X-RateLimit-Limit': String(CONFIG.RATE_LIMIT_PER_MINUTE),
-              'X-RateLimit-Remaining': String(rateLimit.remaining),
+              "Cache-Control": CONFIG.CACHE_CONTROL,
+              "X-Cache": "HIT",
+              "X-RateLimit-Limit": String(CONFIG.RATE_LIMIT_PER_MINUTE),
+              "X-RateLimit-Remaining": String(rateLimit.remaining),
             },
-          }
-        )
+          },
+        );
       }
     }
 
     // Get the unfurl service and unfurl the URL
-    const service = getLinkUnfurlService()
+    const service = getLinkUnfurlService();
     const result: UnfurlResult = await service.unfurlUrl(url, {
       timeout: CONFIG.TIMEOUT_MS,
       maxRedirects: CONFIG.MAX_REDIRECTS,
       maxContentSize: CONFIG.MAX_CONTENT_SIZE,
       cacheTtlHours: CONFIG.CACHE_TTL_HOURS,
-    })
+    });
 
     if (!result.success || !result.data) {
-      log.warn('Unfurl failed', { url, error: result.error, errorCode: result.errorCode })
+      log.warn("Unfurl failed", {
+        url,
+        error: result.error,
+        errorCode: result.errorCode,
+      });
 
       // Map error codes to HTTP status codes
-      let status = 400
-      if (result.errorCode === 'SSRF_BLOCKED' || result.errorCode === 'DNS_RESOLUTION_FAILED') {
-        status = 403
-      } else if (result.errorCode === 'TIMEOUT') {
-        status = 504
-      } else if (result.errorCode === 'NOT_FOUND') {
-        status = 404
-      } else if (result.errorCode === 'CONTENT_TOO_LARGE') {
-        status = 413
+      let status = 400;
+      if (
+        result.errorCode === "SSRF_BLOCKED" ||
+        result.errorCode === "DNS_RESOLUTION_FAILED"
+      ) {
+        status = 403;
+      } else if (result.errorCode === "TIMEOUT") {
+        status = 504;
+      } else if (result.errorCode === "NOT_FOUND") {
+        status = 404;
+      } else if (result.errorCode === "CONTENT_TOO_LARGE") {
+        status = 413;
       }
 
       return NextResponse.json(
         {
           success: false,
-          error: result.error || 'Failed to unfurl URL',
-          errorCode: result.errorCode || 'FETCH_FAILED',
+          error: result.error || "Failed to unfurl URL",
+          errorCode: result.errorCode || "FETCH_FAILED",
         },
         {
           status,
           headers: {
-            'X-RateLimit-Limit': String(CONFIG.RATE_LIMIT_PER_MINUTE),
-            'X-RateLimit-Remaining': String(rateLimit.remaining),
+            "X-RateLimit-Limit": String(CONFIG.RATE_LIMIT_PER_MINUTE),
+            "X-RateLimit-Remaining": String(rateLimit.remaining),
           },
-        }
-      )
+        },
+      );
     }
 
     // Cache the result
-    setCachedPreview(urlHash, result.data)
+    setCachedPreview(urlHash, result.data);
 
-    log.info('URL unfurled successfully', {
+    log.info("URL unfurled successfully", {
       url,
       title: result.data.title,
       type: result.data.type,
-    })
+    });
 
     return NextResponse.json(
       {
@@ -362,27 +382,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
       {
         headers: {
-          'Cache-Control': CONFIG.CACHE_CONTROL,
-          'X-Cache': 'MISS',
-          'X-RateLimit-Limit': String(CONFIG.RATE_LIMIT_PER_MINUTE),
-          'X-RateLimit-Remaining': String(rateLimit.remaining),
+          "Cache-Control": CONFIG.CACHE_CONTROL,
+          "X-Cache": "MISS",
+          "X-RateLimit-Limit": String(CONFIG.RATE_LIMIT_PER_MINUTE),
+          "X-RateLimit-Remaining": String(rateLimit.remaining),
         },
-      }
-    )
+      },
+    );
   } catch (error) {
     log.error(
-      'Unexpected error in unfurl API',
-      error instanceof Error ? error : new Error(String(error))
-    )
+      "Unexpected error in unfurl API",
+      error instanceof Error ? error : new Error(String(error)),
+    );
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error',
-        errorCode: 'INTERNAL_ERROR',
+        error: "Internal server error",
+        errorCode: "INTERNAL_ERROR",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -392,25 +412,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  * Alternative GET endpoint for URL unfurling.
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(request.url)
-  const url = searchParams.get('url')
-  const skipCache = searchParams.get('skipCache') === 'true'
+  const { searchParams } = new URL(request.url);
+  const url = searchParams.get("url");
+  const skipCache = searchParams.get("skipCache") === "true";
 
   if (!url) {
-    return errorResponse('URL parameter is required', 'MISSING_URL')
+    return errorResponse("URL parameter is required", "MISSING_URL");
   }
 
   // Create a POST-like request to reuse the handler
   const fakeRequest = new NextRequest(request.url, {
-    method: 'POST',
+    method: "POST",
     headers: request.headers,
     body: JSON.stringify({ url, skipCache }),
-  })
+  });
 
   // Copy cookies
   for (const cookie of request.cookies.getAll()) {
-    fakeRequest.cookies.set(cookie.name, cookie.value)
+    fakeRequest.cookies.set(cookie.name, cookie.value);
   }
 
-  return POST(fakeRequest)
+  return POST(fakeRequest);
 }

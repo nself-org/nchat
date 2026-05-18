@@ -1,31 +1,37 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface User {
-  id: string
-  username: string
-  displayName: string
-  email: string
-  role: string
-  status: string
-  avatarUrl?: string
+  id: string;
+  username: string;
+  displayName: string;
+  email: string;
+  role: string;
+  status: string;
+  avatarUrl?: string;
 }
 
 export function UsersManagement() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [users] = useState<User[]>([])
+  const [searchQuery, setSearchQuery] = useState("");
+  const [users] = useState<User[]>([]);
 
   const filteredUsers = users.filter(
     (user) =>
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   return (
     <Card>
@@ -44,7 +50,9 @@ export function UsersManagement() {
 
         <div className="space-y-4">
           {filteredUsers.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground">No users found</div>
+            <div className="py-8 text-center text-muted-foreground">
+              No users found
+            </div>
           ) : (
             filteredUsers.map((user) => (
               <div
@@ -54,7 +62,9 @@ export function UsersManagement() {
                 <div className="flex items-center space-x-4">
                   <Avatar>
                     <AvatarImage src={user.avatarUrl} />
-                    <AvatarFallback>{user.displayName.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {user.displayName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-medium">{user.displayName}</p>
@@ -78,5 +88,5 @@ export function UsersManagement() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

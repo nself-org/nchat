@@ -4,7 +4,7 @@
  * Queries for fetching roles, permissions, and related data.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Role Fragments
@@ -31,7 +31,7 @@ export const ROLE_FRAGMENT = gql`
       }
     }
   }
-`
+`;
 
 export const ROLE_MEMBER_FRAGMENT = gql`
   fragment RoleMemberFields on nchat_user_roles {
@@ -48,7 +48,7 @@ export const ROLE_MEMBER_FRAGMENT = gql`
       email
     }
   }
-`
+`;
 
 export const ROLE_HISTORY_FRAGMENT = gql`
   fragment RoleHistoryFields on nchat_role_history {
@@ -65,7 +65,7 @@ export const ROLE_HISTORY_FRAGMENT = gql`
     timestamp
     reason
   }
-`
+`;
 
 // ============================================================================
 // Role Queries
@@ -81,7 +81,7 @@ export const GET_ROLES = gql`
       ...RoleFields
     }
   }
-`
+`;
 
 /**
  * Get a single role by ID
@@ -93,7 +93,7 @@ export const GET_ROLE = gql`
       ...RoleFields
     }
   }
-`
+`;
 
 /**
  * Get role by name
@@ -105,7 +105,7 @@ export const GET_ROLE_BY_NAME = gql`
       ...RoleFields
     }
   }
-`
+`;
 
 /**
  * Get default role
@@ -117,7 +117,7 @@ export const GET_DEFAULT_ROLE = gql`
       ...RoleFields
     }
   }
-`
+`;
 
 /**
  * Get built-in roles
@@ -125,11 +125,14 @@ export const GET_DEFAULT_ROLE = gql`
 export const GET_BUILT_IN_ROLES = gql`
   ${ROLE_FRAGMENT}
   query GetBuiltInRoles {
-    nchat_roles(where: { is_built_in: { _eq: true } }, order_by: { position: desc }) {
+    nchat_roles(
+      where: { is_built_in: { _eq: true } }
+      order_by: { position: desc }
+    ) {
       ...RoleFields
     }
   }
-`
+`;
 
 /**
  * Get custom roles
@@ -137,11 +140,14 @@ export const GET_BUILT_IN_ROLES = gql`
 export const GET_CUSTOM_ROLES = gql`
   ${ROLE_FRAGMENT}
   query GetCustomRoles {
-    nchat_roles(where: { is_built_in: { _eq: false } }, order_by: { position: desc }) {
+    nchat_roles(
+      where: { is_built_in: { _eq: false } }
+      order_by: { position: desc }
+    ) {
       ...RoleFields
     }
   }
-`
+`;
 
 /**
  * Search roles
@@ -150,13 +156,18 @@ export const SEARCH_ROLES = gql`
   ${ROLE_FRAGMENT}
   query SearchRoles($search: String!) {
     nchat_roles(
-      where: { _or: [{ name: { _ilike: $search } }, { description: { _ilike: $search } }] }
+      where: {
+        _or: [
+          { name: { _ilike: $search } }
+          { description: { _ilike: $search } }
+        ]
+      }
       order_by: { position: desc }
     ) {
       ...RoleFields
     }
   }
-`
+`;
 
 // ============================================================================
 // Role Members Queries
@@ -182,7 +193,7 @@ export const GET_ROLE_MEMBERS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get roles for a user
@@ -190,7 +201,10 @@ export const GET_ROLE_MEMBERS = gql`
 export const GET_USER_ROLES = gql`
   ${ROLE_FRAGMENT}
   query GetUserRoles($userId: uuid!) {
-    nchat_user_roles(where: { user_id: { _eq: $userId } }, order_by: { role: { position: desc } }) {
+    nchat_user_roles(
+      where: { user_id: { _eq: $userId } }
+      order_by: { role: { position: desc } }
+    ) {
       assigned_at
       assigned_by
       expires_at
@@ -199,26 +213,30 @@ export const GET_USER_ROLES = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Check if user has a specific role
  */
 export const CHECK_USER_ROLE = gql`
   query CheckUserRole($userId: uuid!, $roleId: uuid!) {
-    nchat_user_roles(where: { user_id: { _eq: $userId }, role_id: { _eq: $roleId } }) {
+    nchat_user_roles(
+      where: { user_id: { _eq: $userId }, role_id: { _eq: $roleId } }
+    ) {
       role_id
       assigned_at
     }
   }
-`
+`;
 
 /**
  * Get users with a specific permission
  */
 export const GET_USERS_WITH_PERMISSION = gql`
   query GetUsersWithPermission($permission: String!) {
-    nchat_user_roles(where: { role: { permissions: { _contains: [$permission] } } }) {
+    nchat_user_roles(
+      where: { role: { permissions: { _contains: [$permission] } } }
+    ) {
       user_id
       user {
         id
@@ -233,7 +251,7 @@ export const GET_USERS_WITH_PERMISSION = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Role History Queries
@@ -259,7 +277,7 @@ export const GET_USER_ROLE_HISTORY = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get role history for a role
@@ -281,7 +299,7 @@ export const GET_ROLE_HISTORY = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get recent role changes
@@ -298,7 +316,7 @@ export const GET_RECENT_ROLE_CHANGES = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Permission Queries
@@ -318,7 +336,7 @@ export const GET_PERMISSIONS = gql`
       requires_admin
     }
   }
-`
+`;
 
 /**
  * Get permissions by category
@@ -333,7 +351,7 @@ export const GET_PERMISSIONS_BY_CATEGORY = gql`
       requires_admin
     }
   }
-`
+`;
 
 // ============================================================================
 // Statistics Queries
@@ -368,7 +386,7 @@ export const GET_ROLE_STATS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get permission usage stats
@@ -381,4 +399,4 @@ export const GET_PERMISSION_USAGE = gql`
       permissions
     }
   }
-`
+`;

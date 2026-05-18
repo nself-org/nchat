@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { formatDistanceToNow } from 'date-fns'
+import * as React from "react";
+import { formatDistanceToNow } from "date-fns";
 import {
   MoreHorizontal,
   ExternalLink,
@@ -13,42 +13,42 @@ import {
   StarOff,
   Bell,
   Edit,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { SavedMessage } from '@/lib/saved'
-import { SavedIndicator } from './SavedIndicator'
+} from "@/components/ui/dropdown-menu";
+import type { SavedMessage } from "@/lib/saved";
+import { SavedIndicator } from "./SavedIndicator";
 
 export interface SavedMessageCardProps {
   /** The saved message */
-  saved: SavedMessage
+  saved: SavedMessage;
   /** Callback to navigate to the message */
-  onJumpToMessage?: (messageId: string, channelId: string) => void
+  onJumpToMessage?: (messageId: string, channelId: string) => void;
   /** Callback to unsave the message */
-  onUnsave?: (saved: SavedMessage) => void
+  onUnsave?: (saved: SavedMessage) => void;
   /** Callback to toggle star */
-  onToggleStar?: (saved: SavedMessage) => void
+  onToggleStar?: (saved: SavedMessage) => void;
   /** Callback to add to collection */
-  onAddToCollection?: (saved: SavedMessage) => void
+  onAddToCollection?: (saved: SavedMessage) => void;
   /** Callback to edit note */
-  onEditNote?: (saved: SavedMessage) => void
+  onEditNote?: (saved: SavedMessage) => void;
   /** Callback to set reminder */
-  onSetReminder?: (saved: SavedMessage) => void
+  onSetReminder?: (saved: SavedMessage) => void;
   /** Callback to copy message content */
-  onCopy?: (content: string) => void
+  onCopy?: (content: string) => void;
   /** Compact display mode */
-  compact?: boolean
+  compact?: boolean;
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -66,57 +66,62 @@ export function SavedMessageCard({
   compact = false,
   className,
 }: SavedMessageCardProps) {
-  const { message, savedAt, note, tags, isStarred, reminderAt } = saved
+  const { message, savedAt, note, tags, isStarred, reminderAt } = saved;
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   const truncateContent = (content: string, maxLength: number = 200) => {
-    if (content.length <= maxLength) return content
-    return content.slice(0, maxLength).trim() + '...'
-  }
+    if (content.length <= maxLength) return content;
+    return content.slice(0, maxLength).trim() + "...";
+  };
 
   const handleJumpToMessage = () => {
-    onJumpToMessage?.(message.id, message.channelId)
-  }
+    onJumpToMessage?.(message.id, message.channelId);
+  };
 
   const handleCopy = () => {
-    onCopy?.(message.content)
-    navigator.clipboard.writeText(message.content)
-  }
+    onCopy?.(message.content);
+    navigator.clipboard.writeText(message.content);
+  };
 
   if (compact) {
     return (
       <div
         className={cn(
-          'hover:bg-muted/50 group flex cursor-pointer items-start gap-2 rounded-md p-2',
-          className
+          "hover:bg-muted/50 group flex cursor-pointer items-start gap-2 rounded-md p-2",
+          className,
         )}
         role="button"
         tabIndex={0}
         onClick={handleJumpToMessage}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleJumpToMessage()
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleJumpToMessage();
           }
         }}
       >
         <Avatar className="h-6 w-6 flex-shrink-0">
-          <AvatarImage src={message.user.avatarUrl} alt={message.user.displayName} />
+          <AvatarImage
+            src={message.user.avatarUrl}
+            alt={message.user.displayName}
+          />
           <AvatarFallback className="text-xs">
             {getInitials(message.user.displayName)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-medium">{message.user.displayName}</span>
+            <span className="truncate text-sm font-medium">
+              {message.user.displayName}
+            </span>
             <SavedIndicator size="sm" isStarred={isStarred} />
           </div>
           <p className="truncate text-sm text-muted-foreground">
@@ -124,31 +129,44 @@ export function SavedMessageCard({
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
       className={cn(
-        'hover:bg-muted/30 group rounded-lg border bg-card p-4 transition-colors',
-        isStarred && 'border-yellow-200 dark:border-yellow-900/50',
-        className
+        "hover:bg-muted/30 group rounded-lg border bg-card p-4 transition-colors",
+        isStarred && "border-yellow-200 dark:border-yellow-900/50",
+        className,
       )}
     >
       {/* Header */}
       <div className="mb-2 flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarImage src={message.user.avatarUrl} alt={message.user.displayName} />
-            <AvatarFallback>{getInitials(message.user.displayName)}</AvatarFallback>
+            <AvatarImage
+              src={message.user.avatarUrl}
+              alt={message.user.displayName}
+            />
+            <AvatarFallback>
+              {getInitials(message.user.displayName)}
+            </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="truncate font-medium">{message.user.displayName}</span>
-              <SavedIndicator variant="badge" savedAt={savedAt} isStarred={isStarred} />
+              <span className="truncate font-medium">
+                {message.user.displayName}
+              </span>
+              <SavedIndicator
+                variant="badge"
+                savedAt={savedAt}
+                isStarred={isStarred}
+              />
             </div>
             <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+              {formatDistanceToNow(new Date(message.createdAt), {
+                addSuffix: true,
+              })}
             </span>
           </div>
         </div>
@@ -188,11 +206,11 @@ export function SavedMessageCard({
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEditNote?.(saved)}>
               <Edit className="mr-2 h-4 w-4" />
-              {note ? 'Edit note' : 'Add note'}
+              {note ? "Edit note" : "Add note"}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onSetReminder?.(saved)}>
               <Bell className="mr-2 h-4 w-4" />
-              {reminderAt ? 'Edit reminder' : 'Set reminder'}
+              {reminderAt ? "Edit reminder" : "Set reminder"}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleCopy}>
               <Copy className="mr-2 h-4 w-4" />
@@ -221,7 +239,7 @@ export function SavedMessageCard({
           <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
             <span>
               {message.attachments.length} attachment
-              {message.attachments.length > 1 ? 's' : ''}
+              {message.attachments.length > 1 ? "s" : ""}
             </span>
           </div>
         )}
@@ -249,18 +267,25 @@ export function SavedMessageCard({
         {reminderAt && (
           <div className="mt-2 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
             <Bell className="h-3 w-3" />
-            <span>Reminder: {formatDistanceToNow(reminderAt, { addSuffix: true })}</span>
+            <span>
+              Reminder: {formatDistanceToNow(reminderAt, { addSuffix: true })}
+            </span>
           </div>
         )}
 
         {/* Footer */}
         <div className="mt-3 flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleJumpToMessage}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs"
+            onClick={handleJumpToMessage}
+          >
             <ExternalLink className="mr-1 h-3 w-3" />
             View in channel
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

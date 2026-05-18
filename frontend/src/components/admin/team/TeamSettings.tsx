@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Building2,
   Globe,
@@ -16,99 +16,108 @@ import {
   Shield,
   Bell,
   Sliders,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
-import { useTeamStore } from '@/stores/team-store'
-import { teamManager } from '@/lib/team/team-manager'
-import type { TeamSettings as TeamSettingsType } from '@/lib/team/team-types'
+import { useTeamStore } from "@/stores/team-store";
+import { teamManager } from "@/lib/team/team-manager";
+import type { TeamSettings as TeamSettingsType } from "@/lib/team/team-types";
 
 // Form schema
 const teamSettingsSchema = z.object({
-  name: z.string().min(1, 'Team name is required').max(100),
+  name: z.string().min(1, "Team name is required").max(100),
   slug: z
     .string()
-    .min(3, 'Slug must be at least 3 characters')
+    .min(3, "Slug must be at least 3 characters")
     .max(50)
-    .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'),
+    .regex(
+      /^[a-z0-9-]+$/,
+      "Slug can only contain lowercase letters, numbers, and hyphens",
+    ),
   description: z.string().max(500).optional(),
-  website: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   timezone: z.string(),
   language: z.string(),
-  defaultRole: z.enum(['owner', 'admin', 'member']),
-})
+  defaultRole: z.enum(["owner", "admin", "member"]),
+});
 
-type TeamSettingsForm = z.infer<typeof teamSettingsSchema>
+type TeamSettingsForm = z.infer<typeof teamSettingsSchema>;
 
 interface TeamSettingsProps {
-  teamId: string
+  teamId: string;
 }
 
 export function TeamSettings({ teamId }: TeamSettingsProps) {
-  const { team, settings, setTeam, setSettings } = useTeamStore()
-  const [activeTab, setActiveTab] = useState('general')
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveSuccess, setSaveSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { team, settings, setTeam, setSettings } = useTeamStore();
+  const [activeTab, setActiveTab] = useState("general");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<TeamSettingsForm>({
     resolver: zodResolver(teamSettingsSchema),
     defaultValues: {
-      name: team?.name || '',
-      slug: team?.slug || '',
-      description: team?.description || '',
-      website: team?.website || '',
-      timezone: 'America/New_York',
-      language: 'en',
-      defaultRole: 'member',
+      name: team?.name || "",
+      slug: team?.slug || "",
+      description: team?.description || "",
+      website: team?.website || "",
+      timezone: "America/New_York",
+      language: "en",
+      defaultRole: "member",
     },
-  })
+  });
 
   // Load team data
   useEffect(() => {
     const loadTeam = async () => {
       try {
-        const teamData = await teamManager.getTeam(teamId)
-        setTeam(teamData)
+        const teamData = await teamManager.getTeam(teamId);
+        setTeam(teamData);
 
         // Update form with loaded data
         form.reset({
           name: teamData.name,
           slug: teamData.slug,
-          description: teamData.description || '',
-          website: teamData.website || '',
-          timezone: teamData.timezone || 'America/New_York',
-          language: teamData.language || 'en',
+          description: teamData.description || "",
+          website: teamData.website || "",
+          timezone: teamData.timezone || "America/New_York",
+          language: teamData.language || "en",
           defaultRole: teamData.defaultRole,
-        })
+        });
       } catch (_err) {
-        setError('Failed to load team settings')
+        setError("Failed to load team settings");
       }
-    }
+    };
 
-    loadTeam()
-  }, [teamId])
+    loadTeam();
+  }, [teamId]);
 
   const onSubmit = async (data: TeamSettingsForm) => {
-    setIsSaving(true)
-    setSaveSuccess(false)
-    setError(null)
+    setIsSaving(true);
+    setSaveSuccess(false);
+    setError(null);
 
     try {
       const result = await teamManager.updateTeamSettings(teamId, {
@@ -119,35 +128,35 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
         timezone: data.timezone,
         language: data.language,
         defaultRole: data.defaultRole,
-      } as Partial<TeamSettingsType>)
+      } as Partial<TeamSettingsType>);
 
       if (result.success) {
-        setSaveSuccess(true)
+        setSaveSuccess(true);
         if (result.data) {
-          setTeam(result.data)
+          setTeam(result.data);
         }
-        setTimeout(() => setSaveSuccess(false), 3000)
+        setTimeout(() => setSaveSuccess(false), 3000);
       } else {
-        setError(result.error || 'Failed to save settings')
+        setError(result.error || "Failed to save settings");
       }
     } catch (_err) {
-      setError('An unexpected error occurred')
+      setError("An unexpected error occurred");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   // Auto-generate slug from name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value
-    form.setValue('name', name)
+    const name = e.target.value;
+    form.setValue("name", name);
 
     // Only auto-generate if slug hasn't been manually edited
     if (!form.formState.dirtyFields.slug) {
-      const slug = teamManager.generateSlug(name)
-      form.setValue('slug', slug)
+      const slug = teamManager.generateSlug(name);
+      form.setValue("slug", slug);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -155,7 +164,9 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Team Settings</h1>
-          <p className="text-muted-foreground">Manage your workspace settings and preferences</p>
+          <p className="text-muted-foreground">
+            Manage your workspace settings and preferences
+          </p>
         </div>
       </div>
 
@@ -187,7 +198,10 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
             <Shield className="h-4 w-4" />
             <span className="hidden sm:inline">Security</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
+          <TabsTrigger
+            value="notifications"
+            className="flex items-center gap-2"
+          >
             <Bell className="h-4 w-4" />
             <span className="hidden sm:inline">Notifications</span>
           </TabsTrigger>
@@ -201,30 +215,42 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
                   <Building2 className="h-5 w-5" />
                   Team Information
                 </CardTitle>
-                <CardDescription>Basic information about your workspace</CardDescription>
+                <CardDescription>
+                  Basic information about your workspace
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Team Name *</Label>
                   <Input
                     id="name"
-                    {...form.register('name')}
+                    {...form.register("name")}
                     onChange={handleNameChange}
                     placeholder="Acme Inc."
                   />
                   {form.formState.errors.name && (
-                    <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.name.message}
+                    </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="slug">Team URL Slug *</Label>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">workspace.com/</span>
-                    <Input id="slug" {...form.register('slug')} placeholder="acme-inc" />
+                    <span className="text-sm text-muted-foreground">
+                      workspace.com/
+                    </span>
+                    <Input
+                      id="slug"
+                      {...form.register("slug")}
+                      placeholder="acme-inc"
+                    />
                   </div>
                   {form.formState.errors.slug && (
-                    <p className="text-sm text-destructive">{form.formState.errors.slug.message}</p>
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.slug.message}
+                    </p>
                   )}
                   <p className="text-xs text-muted-foreground">
                     Only lowercase letters, numbers, and hyphens
@@ -235,7 +261,7 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
                   <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
-                    {...form.register('description')}
+                    {...form.register("description")}
                     placeholder="A brief description of your team..."
                     rows={3}
                   />
@@ -253,7 +279,7 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
                     <Input
                       id="website"
                       type="url"
-                      {...form.register('website')}
+                      {...form.register("website")}
                       placeholder="https://example.com"
                     />
                   </div>
@@ -270,21 +296,37 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
                     <Select
-                      value={form.watch('timezone')}
-                      onValueChange={(value) => form.setValue('timezone', value)}
+                      value={form.watch("timezone")}
+                      onValueChange={(value) =>
+                        form.setValue("timezone", value)
+                      }
                     >
                       <SelectTrigger id="timezone">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
-                        <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
-                        <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
-                        <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
-                        <SelectItem value="Europe/London">London (GMT)</SelectItem>
-                        <SelectItem value="Europe/Paris">Paris (CET)</SelectItem>
+                        <SelectItem value="America/New_York">
+                          Eastern Time (ET)
+                        </SelectItem>
+                        <SelectItem value="America/Chicago">
+                          Central Time (CT)
+                        </SelectItem>
+                        <SelectItem value="America/Denver">
+                          Mountain Time (MT)
+                        </SelectItem>
+                        <SelectItem value="America/Los_Angeles">
+                          Pacific Time (PT)
+                        </SelectItem>
+                        <SelectItem value="Europe/London">
+                          London (GMT)
+                        </SelectItem>
+                        <SelectItem value="Europe/Paris">
+                          Paris (CET)
+                        </SelectItem>
                         <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
-                        <SelectItem value="Australia/Sydney">Sydney (AEDT)</SelectItem>
+                        <SelectItem value="Australia/Sydney">
+                          Sydney (AEDT)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -292,8 +334,10 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
                   <div className="space-y-2">
                     <Label htmlFor="language">Language</Label>
                     <Select
-                      value={form.watch('language')}
-                      onValueChange={(value) => form.setValue('language', value)}
+                      value={form.watch("language")}
+                      onValueChange={(value) =>
+                        form.setValue("language", value)
+                      }
                     >
                       <SelectTrigger id="language">
                         <SelectValue />
@@ -313,10 +357,14 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
                 <Separator />
 
                 <div className="space-y-2">
-                  <Label htmlFor="defaultRole">Default Role for New Members</Label>
+                  <Label htmlFor="defaultRole">
+                    Default Role for New Members
+                  </Label>
                   <Select
-                    value={form.watch('defaultRole')}
-                    onValueChange={(value) => form.setValue('defaultRole', value as any)}
+                    value={form.watch("defaultRole")}
+                    onValueChange={(value) =>
+                      form.setValue("defaultRole", value as any)
+                    }
                   >
                     <SelectTrigger id="defaultRole">
                       <SelectValue />
@@ -334,7 +382,11 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
             </Card>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => form.reset()}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => form.reset()}
+              >
                 Reset
               </Button>
               <Button type="submit" disabled={isSaving}>
@@ -357,7 +409,9 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Feature Toggles</CardTitle>
-                <CardDescription>Enable or disable features for your team</CardDescription>
+                <CardDescription>
+                  Enable or disable features for your team
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FeatureToggle
@@ -429,7 +483,9 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Security Settings</CardTitle>
-                <CardDescription>Configure security and access controls</CardDescription>
+                <CardDescription>
+                  Configure security and access controls
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -466,7 +522,12 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
 
                 <div className="space-y-2">
                   <Label>Session Timeout (minutes)</Label>
-                  <Input type="number" defaultValue="480" min="15" max="10080" />
+                  <Input
+                    type="number"
+                    defaultValue="480"
+                    min="15"
+                    max="10080"
+                  />
                   <p className="text-xs text-muted-foreground">
                     Users will be logged out after this period of inactivity
                   </p>
@@ -495,7 +556,9 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>Configure default notification settings</CardDescription>
+                <CardDescription>
+                  Configure default notification settings
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -511,7 +574,9 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Mention Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Notify when users are mentioned</p>
+                    <p className="text-sm text-muted-foreground">
+                      Notify when users are mentioned
+                    </p>
                   </div>
                   <Switch defaultChecked />
                 </div>
@@ -563,7 +628,7 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
         </form>
       </Tabs>
     </div>
-  )
+  );
 }
 
 // Feature Toggle Component
@@ -573,10 +638,10 @@ function FeatureToggle({
   description,
   defaultChecked = true,
 }: {
-  id: string
-  label: string
-  description: string
-  defaultChecked?: boolean
+  id: string;
+  label: string;
+  description: string;
+  defaultChecked?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between rounded-lg border p-4">
@@ -586,7 +651,7 @@ function FeatureToggle({
       </div>
       <Switch id={id} defaultChecked={defaultChecked} />
     </div>
-  )
+  );
 }
 
-export default TeamSettings
+export default TeamSettings;

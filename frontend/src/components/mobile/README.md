@@ -86,68 +86,73 @@ All components are already installed as part of the nself-chat project. They use
 ### Basic Touch-Optimized Button
 
 ```tsx
-import { TouchButton } from '@/components/mobile'
+import { TouchButton } from "@/components/mobile";
 
 function MyComponent() {
   return (
-    <TouchButton variant="default" size="default" hapticFeedback onClick={handleClick}>
+    <TouchButton
+      variant="default"
+      size="default"
+      hapticFeedback
+      onClick={handleClick}
+    >
       Tap Me
     </TouchButton>
-  )
+  );
 }
 ```
 
 ### Pull to Refresh
 
 ```tsx
-import { PullToRefresh } from '@/components/mobile'
+import { PullToRefresh } from "@/components/mobile";
 
 function MessageList() {
   const handleRefresh = async () => {
-    await fetchNewMessages()
-  }
+    await fetchNewMessages();
+  };
 
   return (
     <PullToRefresh onRefresh={handleRefresh} hapticFeedback>
       <MessageList messages={messages} />
     </PullToRefresh>
-  )
+  );
 }
 ```
 
 ### Long Press Menu
 
 ```tsx
-import { LongPressMenu } from '@/components/mobile'
+import { LongPressMenu } from "@/components/mobile";
 
 function MessageItem({ message }) {
   const menuItems = [
     {
-      id: 'reply',
-      label: 'Reply',
+      id: "reply",
+      label: "Reply",
       icon: <Reply />,
       onClick: () => handleReply(message),
     },
     {
-      id: 'delete',
-      label: 'Delete',
+      id: "delete",
+      label: "Delete",
       destructive: true,
       onClick: () => handleDelete(message),
     },
-  ]
+  ];
 
   return (
     <LongPressMenu items={menuItems}>
       <div className="message">{message.content}</div>
     </LongPressMenu>
-  )
+  );
 }
 ```
 
 ### Swipe Actions
 
 ```tsx
-import { MessageSwipeActions } from '@/components/mobile'
+import { MessageSwipeActions } from "@/components/mobile";
 
 function Message({ message, isOwn }) {
   return (
@@ -159,17 +164,19 @@ function Message({ message, isOwn }) {
     >
       <MessageContent message={message} />
     </MessageSwipeActions>
-  )
+  );
 }
 ```
 
 ### Virtual Scrolling
 
 ```tsx
-import { VirtualMessageList } from '@/components/mobile'
+import { VirtualMessageList } from "@/components/mobile";
 
 function ChatView({ messages }) {
-  const renderMessage = (message, index) => <MessageItem key={message.id} message={message} />
+  const renderMessage = (message, index) => (
+    <MessageItem key={message.id} message={message} />
+  );
 
   return (
     <VirtualMessageList
@@ -180,17 +187,17 @@ function ChatView({ messages }) {
       onLoadMore={loadMoreMessages}
       estimatedMessageHeight={72}
     />
-  )
+  );
 }
 ```
 
 ### Bottom Sheet
 
 ```tsx
-import { BottomSheet } from '@/components/mobile'
+import { BottomSheet } from "@/components/mobile";
 
 function MyComponent() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <BottomSheet
@@ -203,51 +210,61 @@ function MyComponent() {
         <h2>Bottom Sheet Content</h2>
       </div>
     </BottomSheet>
-  )
+  );
 }
 ```
 
 ### Date & Time Pickers
 
 ```tsx
-import { MobileDatePicker, MobileTimePicker } from '@/components/mobile'
+import { MobileDatePicker, MobileTimePicker } from "@/components/mobile";
 
 function ScheduleForm() {
-  const [date, setDate] = useState(new Date())
-  const [time, setTime] = useState(new Date())
+  const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState(new Date());
 
   return (
     <div className="space-y-4">
-      <MobileDatePicker value={date} onChange={setDate} minDate={new Date()} highlightToday />
+      <MobileDatePicker
+        value={date}
+        onChange={setDate}
+        minDate={new Date()}
+        highlightToday
+      />
 
-      <MobileTimePicker value={time} onChange={setTime} format="12h" minuteStep={15} />
+      <MobileTimePicker
+        value={time}
+        onChange={setTime}
+        format="12h"
+        minuteStep={15}
+      />
     </div>
-  )
+  );
 }
 ```
 
 ### Safe Area Handling
 
 ```tsx
-import { SafeAreaView, FixedBottomBar } from '@/components/mobile'
+import { SafeAreaView, FixedBottomBar } from "@/components/mobile";
 
 function Layout({ children }) {
   return (
-    <SafeAreaView edges={['top', 'bottom']}>
+    <SafeAreaView edges={["top", "bottom"]}>
       {children}
 
       <FixedBottomBar>
         <NavigationBar />
       </FixedBottomBar>
     </SafeAreaView>
-  )
+  );
 }
 ```
 
 ### Keyboard Avoidance
 
 ```tsx
-import { KeyboardAvoidingView } from '@/components/mobile'
+import { KeyboardAvoidingView } from "@/components/mobile";
 
 function ChatInput() {
   return (
@@ -257,18 +274,18 @@ function ChatInput() {
         <button>Send</button>
       </div>
     </KeyboardAvoidingView>
-  )
+  );
 }
 ```
 
 ### Gesture Navigation
 
 ```tsx
-import { GestureNavigation } from '@/components/mobile'
-import { useRouter } from 'next/navigation'
+import { GestureNavigation } from "@/components/mobile";
+import { useRouter } from "next/navigation";
 
 function PageWithGestures() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <GestureNavigation
@@ -279,21 +296,27 @@ function PageWithGestures() {
     >
       <PageContent />
     </GestureNavigation>
-  )
+  );
 }
 ```
 
 ### Pinch to Zoom
 
 ```tsx
-import { PinchZoom } from '@/components/mobile'
+import { PinchZoom } from "@/components/mobile";
 
 function ImageViewer({ imageUrl }) {
   return (
-    <PinchZoom minScale={1} maxScale={4} enableRotation enableDownload downloadUrl={imageUrl}>
+    <PinchZoom
+      minScale={1}
+      maxScale={4}
+      enableRotation
+      enableDownload
+      downloadUrl={imageUrl}
+    >
       <img src={imageUrl} alt="Zoomable" />
     </PinchZoom>
-  )
+  );
 }
 ```
 
@@ -320,7 +343,12 @@ All touch-optimized components meet iOS (44pt) and Android (48dp) minimum tap ta
 #### TouchListItem
 
 ```tsx
-<TouchListItem onClick={handler} href="/path" disabled={boolean} hapticFeedback={boolean}>
+<TouchListItem
+  onClick={handler}
+  href="/path"
+  disabled={boolean}
+  hapticFeedback={boolean}
+>
   <ItemContent />
 </TouchListItem>
 ```
@@ -353,7 +381,7 @@ All touch-optimized components meet iOS (44pt) and Android (48dp) minimum tap ta
   items={menuItems}
   duration={500}
   hapticFeedback={true}
-  onLongPressStart={() => console.log('Started')}
+  onLongPressStart={() => console.log("Started")}
 >
   <Content />
 </LongPressMenu>
@@ -363,12 +391,12 @@ All touch-optimized components meet iOS (44pt) and Android (48dp) minimum tap ta
 
 ```tsx
 interface MenuItem {
-  id: string
-  label: string
-  icon?: ReactNode
-  destructive?: boolean
-  disabled?: boolean
-  onClick: () => void
+  id: string;
+  label: string;
+  icon?: ReactNode;
+  destructive?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
 }
 ```
 
@@ -451,7 +479,7 @@ import { safeAreaClasses } from '@/components/mobile'
 **Hook:**
 
 ```tsx
-const { isKeyboardVisible, keyboardHeight } = useKeyboard()
+const { isKeyboardVisible, keyboardHeight } = useKeyboard();
 ```
 
 ---
@@ -503,7 +531,7 @@ Provide visual feedback for gestures:
 Always handle safe areas for full-screen views:
 
 ```tsx
-<SafeAreaView edges={['top', 'bottom']}>
+<SafeAreaView edges={["top", "bottom"]}>
   <FullScreenContent />
 </SafeAreaView>
 ```
@@ -535,10 +563,14 @@ Prevent inputs from being hidden:
 Show skeleton loaders while loading:
 
 ```tsx
-import { MessageSkeleton } from '@/components/mobile'
+import { MessageSkeleton } from "@/components/mobile";
 
 {
-  isLoading ? <MessageSkeleton count={5} /> : <MessageList messages={messages} />
+  isLoading ? (
+    <MessageSkeleton count={5} />
+  ) : (
+    <MessageList messages={messages} />
+  );
 }
 ```
 
@@ -579,7 +611,7 @@ onClick, onMouseEnter, onMouseLeave
 ### Platform Detection
 
 ```tsx
-import { isMobile, isIOS, isAndroid } from '@/lib/platform-detect'
+import { isMobile, isIOS, isAndroid } from "@/lib/platform-detect";
 
 if (isMobile) {
   // Show mobile UI
@@ -624,35 +656,35 @@ All components support:
 ### Unit Tests
 
 ```tsx
-import { render, fireEvent } from '@testing-library/react'
-import { TouchButton } from '@/components/mobile'
+import { render, fireEvent } from "@testing-library/react";
+import { TouchButton } from "@/components/mobile";
 
-test('TouchButton triggers haptic feedback', () => {
-  const mockVibrate = jest.fn()
-  navigator.vibrate = mockVibrate
+test("TouchButton triggers haptic feedback", () => {
+  const mockVibrate = jest.fn();
+  navigator.vibrate = mockVibrate;
 
-  const { getByText } = render(<TouchButton hapticFeedback>Click</TouchButton>)
+  const { getByText } = render(<TouchButton hapticFeedback>Click</TouchButton>);
 
-  fireEvent.click(getByText('Click'))
-  expect(mockVibrate).toHaveBeenCalledWith(10)
-})
+  fireEvent.click(getByText("Click"));
+  expect(mockVibrate).toHaveBeenCalledWith(10);
+});
 ```
 
 ### E2E Tests
 
 ```tsx
 // Playwright mobile test
-test('swipe to delete message', async ({ page }) => {
-  await page.goto('/chat')
+test("swipe to delete message", async ({ page }) => {
+  await page.goto("/chat");
 
-  const message = page.locator('[data-testid="message-1"]')
+  const message = page.locator('[data-testid="message-1"]');
 
   // Simulate swipe left
-  await message.swipe({ x: -100, y: 0 })
+  await message.swipe({ x: -100, y: 0 });
 
   // Verify delete action appears
-  await expect(page.locator('[data-testid="delete-action"]')).toBeVisible()
-})
+  await expect(page.locator('[data-testid="delete-action"]')).toBeVisible();
+});
 ```
 
 ---

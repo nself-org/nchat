@@ -5,9 +5,9 @@
  * Supports HLS/DASH streaming with LiveKit.
  */
 
-'use client'
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from "react";
 import {
   Play,
   Pause,
@@ -22,70 +22,70 @@ import {
   MessageSquare,
   Share2,
   MoreVertical,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Slider } from '@/components/ui/slider'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Input } from '@/components/ui/input'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface StreamMetadata {
-  streamId: string
-  title: string
-  description?: string
+  streamId: string;
+  title: string;
+  description?: string;
   streamer: {
-    id: string
-    name: string
-    avatarUrl?: string
-  }
-  viewerCount: number
-  startedAt: Date
-  isLive: boolean
-  thumbnailUrl?: string
-  category?: string
-  tags?: string[]
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  };
+  viewerCount: number;
+  startedAt: Date;
+  isLive: boolean;
+  thumbnailUrl?: string;
+  category?: string;
+  tags?: string[];
 }
 
 export interface StreamMessage {
-  id: string
-  userId: string
-  userName: string
-  userAvatarUrl?: string
-  message: string
-  timestamp: Date
-  isHighlighted?: boolean
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatarUrl?: string;
+  message: string;
+  timestamp: Date;
+  isHighlighted?: boolean;
 }
 
 export interface StreamReaction {
-  type: 'heart' | 'thumbsup' | 'smile' | 'fire' | 'clap'
-  count: number
+  type: "heart" | "thumbsup" | "smile" | "fire" | "clap";
+  count: number;
 }
 
 export interface StreamPlayerProps {
-  metadata: StreamMetadata
-  streamUrl?: string
-  messages?: StreamMessage[]
-  reactions?: StreamReaction[]
-  onSendMessage?: (message: string) => void
-  onReaction?: (type: StreamReaction['type']) => void
-  onFollow?: () => void
-  onShare?: () => void
-  className?: string
+  metadata: StreamMetadata;
+  streamUrl?: string;
+  messages?: StreamMessage[];
+  reactions?: StreamReaction[];
+  onSendMessage?: (message: string) => void;
+  onReaction?: (type: StreamReaction["type"]) => void;
+  onFollow?: () => void;
+  onShare?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -107,20 +107,22 @@ export function StreamPlayer({
   // State
   // ==========================================================================
 
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
-  const [volume, setVolume] = useState(100)
-  const [showControls, setShowControls] = useState(true)
-  const [showChat, setShowChat] = useState(true)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [chatMessage, setChatMessage] = useState('')
-  const [quality, setQuality] = useState<'auto' | '1080p' | '720p' | '480p' | '360p'>('auto')
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(100);
+  const [showControls, setShowControls] = useState(true);
+  const [showChat, setShowChat] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [chatMessage, setChatMessage] = useState("");
+  const [quality, setQuality] = useState<
+    "auto" | "1080p" | "720p" | "480p" | "360p"
+  >("auto");
 
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const chatScrollRef = useRef<HTMLDivElement>(null)
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // ==========================================================================
   // Effects
@@ -129,42 +131,42 @@ export function StreamPlayer({
   // Auto-hide controls
   useEffect(() => {
     const handleMouseMove = () => {
-      setShowControls(true)
+      setShowControls(true);
 
       if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
+        clearTimeout(controlsTimeoutRef.current);
       }
 
       controlsTimeoutRef.current = setTimeout(() => {
         if (isPlaying) {
-          setShowControls(false)
+          setShowControls(false);
         }
-      }, 3000)
-    }
+      }, 3000);
+    };
 
-    containerRef.current?.addEventListener('mousemove', handleMouseMove)
+    containerRef.current?.addEventListener("mousemove", handleMouseMove);
 
     return () => {
-      containerRef.current?.removeEventListener('mousemove', handleMouseMove)
+      containerRef.current?.removeEventListener("mousemove", handleMouseMove);
       if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
+        clearTimeout(controlsTimeoutRef.current);
       }
-    }
-  }, [isPlaying])
+    };
+  }, [isPlaying]);
 
   // Auto-scroll chat
   useEffect(() => {
     if (chatScrollRef.current) {
-      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
-  }, [messages])
+  }, [messages]);
 
   // Initialize video
   useEffect(() => {
     if (videoRef.current && streamUrl) {
-      videoRef.current.src = streamUrl
+      videoRef.current.src = streamUrl;
     }
-  }, [streamUrl])
+  }, [streamUrl]);
 
   // ==========================================================================
   // Handlers
@@ -173,86 +175,91 @@ export function StreamPlayer({
   const handlePlayPause = () => {
     if (videoRef.current) {
       if (isPlaying) {
-        videoRef.current.pause()
+        videoRef.current.pause();
       } else {
-        videoRef.current.play()
+        videoRef.current.play();
       }
-      setIsPlaying(!isPlaying)
+      setIsPlaying(!isPlaying);
     }
-  }
+  };
 
   const handleMuteToggle = () => {
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted
-      setIsMuted(!isMuted)
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
     }
-  }
+  };
 
   const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0]
-    setVolume(newVolume)
+    const newVolume = value[0];
+    setVolume(newVolume);
     if (videoRef.current) {
-      videoRef.current.volume = newVolume / 100
+      videoRef.current.volume = newVolume / 100;
     }
     if (newVolume === 0) {
-      setIsMuted(true)
+      setIsMuted(true);
     } else if (isMuted) {
-      setIsMuted(false)
+      setIsMuted(false);
     }
-  }
+  };
 
   const handleFullscreen = () => {
     if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen()
-      setIsFullscreen(true)
+      containerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
     } else {
-      document.exitFullscreen()
-      setIsFullscreen(false)
+      document.exitFullscreen();
+      setIsFullscreen(false);
     }
-  }
+  };
 
   const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (chatMessage.trim() && onSendMessage) {
-      onSendMessage(chatMessage.trim())
-      setChatMessage('')
+      onSendMessage(chatMessage.trim());
+      setChatMessage("");
     }
-  }
+  };
 
-  const handleReaction = (type: StreamReaction['type']) => {
-    onReaction?.(type)
-    toast.success('Reaction sent!')
-  }
+  const handleReaction = (type: StreamReaction["type"]) => {
+    onReaction?.(type);
+    toast.success("Reaction sent!");
+  };
 
   const formatDuration = (seconds: number): string => {
-    const hrs = Math.floor(seconds / 3600)
-    const mins = Math.floor((seconds % 3600) / 60)
-    const secs = Math.floor(seconds % 60)
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
 
     if (hrs > 0) {
-      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const formatViewerCount = (count: number): string => {
     if (count >= 1000000) {
-      return `${(count / 1000000).toFixed(1)}M`
+      return `${(count / 1000000).toFixed(1)}M`;
     }
     if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`
+      return `${(count / 1000).toFixed(1)}K`;
     }
-    return count.toString()
-  }
+    return count.toString();
+  };
 
-  const streamDuration = Math.floor((Date.now() - metadata.startedAt.getTime()) / 1000)
+  const streamDuration = Math.floor(
+    (Date.now() - metadata.startedAt.getTime()) / 1000,
+  );
 
   // ==========================================================================
   // Render
   // ==========================================================================
 
   return (
-    <div ref={containerRef} className={cn('relative flex h-full flex-col bg-black', className)}>
+    <div
+      ref={containerRef}
+      className={cn("relative flex h-full flex-col bg-black", className)}
+    >
       {/* Video Container */}
       <div className="relative flex-1">
         {/* Video Element */}
@@ -279,7 +286,9 @@ export function StreamPlayer({
           <div className="rounded-lg bg-black/60 px-3 py-2 backdrop-blur">
             <div className="flex items-center gap-2 text-white">
               <Users className="h-4 w-4" />
-              <span className="font-semibold">{formatViewerCount(metadata.viewerCount)}</span>
+              <span className="font-semibold">
+                {formatViewerCount(metadata.viewerCount)}
+              </span>
             </div>
           </div>
         </div>
@@ -288,19 +297,19 @@ export function StreamPlayer({
         <div className="absolute bottom-24 right-4 flex flex-col gap-2">
           {[
             {
-              type: 'heart' as const,
+              type: "heart" as const,
               icon: Heart,
-              count: reactions.find((r) => r.type === 'heart')?.count || 0,
+              count: reactions.find((r) => r.type === "heart")?.count || 0,
             },
             {
-              type: 'thumbsup' as const,
+              type: "thumbsup" as const,
               icon: ThumbsUp,
-              count: reactions.find((r) => r.type === 'thumbsup')?.count || 0,
+              count: reactions.find((r) => r.type === "thumbsup")?.count || 0,
             },
             {
-              type: 'smile' as const,
+              type: "smile" as const,
               icon: Smile,
-              count: reactions.find((r) => r.type === 'smile')?.count || 0,
+              count: reactions.find((r) => r.type === "smile")?.count || 0,
             },
           ].map(({ type, icon: Icon, count }) => (
             <Button
@@ -311,7 +320,11 @@ export function StreamPlayer({
               className="flex-col gap-1 rounded-full bg-black/60 p-3 backdrop-blur hover:bg-black/80"
             >
               <Icon className="h-6 w-6 text-white" />
-              {count > 0 && <span className="text-xs text-white">{formatViewerCount(count)}</span>}
+              {count > 0 && (
+                <span className="text-xs text-white">
+                  {formatViewerCount(count)}
+                </span>
+              )}
             </Button>
           ))}
         </div>
@@ -319,8 +332,8 @@ export function StreamPlayer({
         {/* Controls Overlay */}
         <div
           className={cn(
-            'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 transition-opacity duration-300',
-            !showControls && 'opacity-0'
+            "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 transition-opacity duration-300",
+            !showControls && "opacity-0",
           )}
         >
           {/* Progress Bar */}
@@ -333,7 +346,7 @@ export function StreamPlayer({
                 className="w-full"
                 onValueChange={(value) => {
                   if (videoRef.current) {
-                    videoRef.current.currentTime = value[0]
+                    videoRef.current.currentTime = value[0];
                   }
                 }}
               />
@@ -349,7 +362,11 @@ export function StreamPlayer({
                 onClick={handlePlayPause}
                 className="text-white hover:bg-white/20"
               >
-                {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                {isPlaying ? (
+                  <Pause className="h-6 w-6" />
+                ) : (
+                  <Play className="h-6 w-6" />
+                )}
               </Button>
 
               <div className="flex items-center gap-2">
@@ -359,7 +376,11 @@ export function StreamPlayer({
                   onClick={handleMuteToggle}
                   className="text-white hover:bg-white/20"
                 >
-                  {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  {isMuted ? (
+                    <VolumeX className="h-5 w-5" />
+                  ) : (
+                    <Volume2 className="h-5 w-5" />
+                  )}
                 </Button>
                 <Slider
                   value={[volume]}
@@ -376,7 +397,8 @@ export function StreamPlayer({
                 </Badge>
               ) : (
                 <span className="text-sm text-white">
-                  {formatDuration(currentTime)} / {formatDuration(videoRef.current?.duration || 0)}
+                  {formatDuration(currentTime)} /{" "}
+                  {formatDuration(videoRef.current?.duration || 0)}
                 </span>
               )}
             </div>
@@ -384,17 +406,23 @@ export function StreamPlayer({
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20"
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     {quality}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {(['auto', '1080p', '720p', '480p', '360p'] as const).map((q) => (
-                    <DropdownMenuItem key={q} onClick={() => setQuality(q)}>
-                      {q}
-                    </DropdownMenuItem>
-                  ))}
+                  {(["auto", "1080p", "720p", "480p", "360p"] as const).map(
+                    (q) => (
+                      <DropdownMenuItem key={q} onClick={() => setQuality(q)}>
+                        {q}
+                      </DropdownMenuItem>
+                    ),
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -427,12 +455,17 @@ export function StreamPlayer({
           <div className="border-b border-gray-700 p-4">
             <div className="flex items-start gap-3">
               <Avatar className="h-12 w-12">
-                <AvatarImage src={metadata.streamer.avatarUrl} alt={metadata.streamer.name} />
+                <AvatarImage
+                  src={metadata.streamer.avatarUrl}
+                  alt={metadata.streamer.name}
+                />
                 <AvatarFallback>{metadata.streamer.name[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <h3 className="font-semibold text-white">{metadata.title}</h3>
-                <p className="text-sm text-gray-400">{metadata.streamer.name}</p>
+                <p className="text-sm text-gray-400">
+                  {metadata.streamer.name}
+                </p>
                 {metadata.category && (
                   <Badge variant="secondary" className="mt-1">
                     {metadata.category}
@@ -461,22 +494,27 @@ export function StreamPlayer({
                 <div
                   key={msg.id}
                   className={cn(
-                    'rounded-lg p-2',
-                    msg.isHighlighted && 'border border-yellow-500/50 bg-yellow-500/20'
+                    "rounded-lg p-2",
+                    msg.isHighlighted &&
+                      "border border-yellow-500/50 bg-yellow-500/20",
                   )}
                 >
                   <div className="flex items-start gap-2">
                     <Avatar className="h-6 w-6">
                       <AvatarImage src={msg.userAvatarUrl} />
-                      <AvatarFallback className="text-xs">{msg.userName[0]}</AvatarFallback>
+                      <AvatarFallback className="text-xs">
+                        {msg.userName[0]}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-baseline gap-2">
-                        <span className="text-sm font-semibold text-white">{msg.userName}</span>
+                        <span className="text-sm font-semibold text-white">
+                          {msg.userName}
+                        </span>
                         <span className="text-xs text-gray-500">
                           {new Date(msg.timestamp).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
+                            hour: "2-digit",
+                            minute: "2-digit",
                           })}
                         </span>
                       </div>
@@ -490,7 +528,10 @@ export function StreamPlayer({
 
           {/* Chat Input */}
           {onSendMessage && (
-            <form onSubmit={handleSendMessage} className="border-t border-gray-700 p-4">
+            <form
+              onSubmit={handleSendMessage}
+              className="border-t border-gray-700 p-4"
+            >
               <div className="flex gap-2">
                 <Input
                   value={chatMessage}
@@ -507,7 +548,7 @@ export function StreamPlayer({
         </Card>
       )}
     </div>
-  )
+  );
 }
 
-export default StreamPlayer
+export default StreamPlayer;

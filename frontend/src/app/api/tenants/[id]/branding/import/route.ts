@@ -4,9 +4,9 @@
  * POST /api/tenants/[id]/branding/import - Import branding from JSON
  */
 
-import { NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { z } from 'zod'
+import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
 import {
   compose,
   withErrorHandler,
@@ -14,15 +14,16 @@ import {
   withLogging,
   AuthenticatedRequest,
   RouteContext,
-} from '@/lib/api/middleware'
+} from "@/lib/api/middleware";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 // 1MB limit for branding import files
-const MAX_IMPORT_SIZE = 1024 * 1024
+const MAX_IMPORT_SIZE = 1024 * 1024;
 
-const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://api.localhost/v1/graphql'
-const ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET
+const GRAPHQL_URL =
+  process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://api.localhost/v1/graphql";
+const ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
 
 // Validation schema for imported branding JSON
 const BrandingImportSchema = z.object({
@@ -36,11 +37,14 @@ const BrandingImportSchema = z.object({
   faviconUrl: z.string().url().max(2048).optional(),
   appName: z.string().max(100).optional(),
   tagline: z.string().max(255).optional(),
-  customCSS: z.string().max(50 * 1024).optional(), // 50KB max CSS
+  customCSS: z
+    .string()
+    .max(50 * 1024)
+    .optional(), // 50KB max CSS
   fontFamily: z.string().max(100).optional(),
-})
+});
 
-type BrandingImport = z.infer<typeof BrandingImportSchema>
+type BrandingImport = z.infer<typeof BrandingImportSchema>;
 
 /**
  * Resolve and optionally re-host external logo/favicon URLs.
@@ -48,12 +52,12 @@ type BrandingImport = z.infer<typeof BrandingImportSchema>
  * when object storage is available.
  */
 function resolveAssetUrl(url: string | undefined): string | undefined {
-  if (!url) return undefined
+  if (!url) return undefined;
   // For now, accept the URL as-is (already validated by zod as a valid URL).
   // To re-download and self-host, upload to MinIO/storage here and return the
   // internal URL instead. Left as a no-op so callers receive a working URL rather
   // than a silent gap.
-  return url
+  return url;
 }
 
 /**
@@ -62,64 +66,70 @@ function resolveAssetUrl(url: string | undefined): string | undefined {
 export const POST = compose(
   withErrorHandler,
   withLogging,
-  withAuth
+  withAuth,
 )(async (request: AuthenticatedRequest, context: RouteContext) => {
-  const { id: tenantId } = (await context.params) as { id: string }
-  const { user } = request
+  const { id: tenantId } = (await context.params) as { id: string };
+  const { user } = request;
 
   // Only admins and owners can import branding
-  if (!['admin', 'owner'].includes(user.role)) {
+  if (!["admin", "owner"].includes(user.role)) {
     return NextResponse.json(
-      { success: false, error: 'Insufficient permissions. Admin role required.' },
-      { status: 403 }
-    )
+      {
+        success: false,
+        error: "Insufficient permissions. Admin role required.",
+      },
+      { status: 403 },
+    );
   }
 
-  const formData = await request.formData()
-  const file = formData.get('file') as File | null
+  const formData = await request.formData();
+  const file = formData.get("file") as File | null;
 
   if (!file) {
-    return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: "No file provided" },
+      { status: 400 },
+    );
   }
 
   // Enforce file size limit
   if (file.size > MAX_IMPORT_SIZE) {
     return NextResponse.json(
-      { success: false, error: 'Import file exceeds 1MB limit' },
-      { status: 400 }
-    )
+      { success: false, error: "Import file exceeds 1MB limit" },
+      { status: 400 },
+    );
   }
 
   // Read and parse JSON
-  const text = await file.text()
-  let rawBranding: unknown
+  const text = await file.text();
+  let rawBranding: unknown;
   try {
-    rawBranding = JSON.parse(text)
+    rawBranding = JSON.parse(text);
   } catch {
     return NextResponse.json(
-      { success: false, error: 'Invalid JSON file' },
-      { status: 400 }
-    )
+      { success: false, error: "Invalid JSON file" },
+      { status: 400 },
+    );
   }
 
   // Validate branding structure with strict schema
-  const validation = BrandingImportSchema.safeParse(rawBranding)
+  const validation = BrandingImportSchema.safeParse(rawBranding);
   if (!validation.success) {
     return NextResponse.json(
       {
         success: false,
-        error: 'Invalid branding configuration',
+        error: "Invalid branding configuration",
         details: validation.error.flatten().fieldErrors,
       },
-      { status: 400 }
-    )
+      { status: 400 },
+    );
   }
 
-  const branding: BrandingImport = validation.data
+  const branding: BrandingImport = validation.data;
 
   // Resolve asset URLs (re-host from external sources when storage is available)
-  const resolvedLogoUrl = resolveAssetUrl(branding.logoUrl)
-  const resolvedFaviconUrl = resolveAssetUrl(branding.faviconUrl)
+  const resolvedLogoUrl = resolveAssetUrl(branding.logoUrl);
+  const resolvedFaviconUrl = resolveAssetUrl(branding.faviconUrl);
 
   // Persist to database
   if (ADMIN_SECRET) {
@@ -132,50 +142,58 @@ export const POST = compose(
           affected_rows
         }
       }
-    `
+    `;
 
     const dbData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
-    }
+    };
 
-    if (branding.appName !== undefined) dbData.app_name = branding.appName
-    if (branding.tagline !== undefined) dbData.tagline = branding.tagline
-    if (resolvedLogoUrl !== undefined) dbData.logo_url = resolvedLogoUrl
-    if (resolvedFaviconUrl !== undefined) dbData.favicon_url = resolvedFaviconUrl
-    if (branding.fontFamily !== undefined) dbData.primary_font = branding.fontFamily
+    if (branding.appName !== undefined) dbData.app_name = branding.appName;
+    if (branding.tagline !== undefined) dbData.tagline = branding.tagline;
+    if (resolvedLogoUrl !== undefined) dbData.logo_url = resolvedLogoUrl;
+    if (resolvedFaviconUrl !== undefined)
+      dbData.favicon_url = resolvedFaviconUrl;
+    if (branding.fontFamily !== undefined)
+      dbData.primary_font = branding.fontFamily;
 
     const response = await fetch(GRAPHQL_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': ADMIN_SECRET,
+        "Content-Type": "application/json",
+        "x-hasura-admin-secret": ADMIN_SECRET,
       },
-      body: JSON.stringify({ query: mutation, variables: { tenantId, data: dbData } }),
-    })
+      body: JSON.stringify({
+        query: mutation,
+        variables: { tenantId, data: dbData },
+      }),
+    });
 
-    const result = await response.json()
+    const result = await response.json();
 
     if (result.errors) {
-      logger.warn('GraphQL errors persisting imported branding:', {
+      logger.warn("GraphQL errors persisting imported branding:", {
         tenantId,
         errors: result.errors,
-      })
+      });
       // Continue — return the parsed branding even if DB write failed
     } else {
-      logger.info('Imported branding persisted to database:', {
+      logger.info("Imported branding persisted to database:", {
         tenantId,
         affectedRows: result.data?.update_nchat_tenant_branding?.affected_rows,
-      })
+      });
     }
   } else {
-    logger.warn('HASURA_ADMIN_SECRET not set, imported branding not persisted', { tenantId })
+    logger.warn(
+      "HASURA_ADMIN_SECRET not set, imported branding not persisted",
+      { tenantId },
+    );
   }
 
-  logger.info('Branding configuration imported:', {
+  logger.info("Branding configuration imported:", {
     tenantId,
     userId: user.id,
     version: branding.version,
-  })
+  });
 
   return NextResponse.json({
     success: true,
@@ -193,10 +211,10 @@ export const POST = compose(
         {
           timestamp: new Date(),
           userId: user.id,
-          action: 'import',
-          changes: { source: 'file_import' },
+          action: "import",
+          changes: { source: "file_import" },
         },
       ],
     },
-  })
-})
+  });
+});

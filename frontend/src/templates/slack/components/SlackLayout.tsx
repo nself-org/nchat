@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Slack Layout Component
@@ -9,20 +9,20 @@
 //
 // ===============================================================================
 
-import { ReactNode, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { slackColors, slackComponentStyles } from '../config'
+import { ReactNode, useState } from "react";
+import { cn } from "@/lib/utils";
+import { slackColors, slackComponentStyles } from "../config";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface SlackLayoutProps {
-  children: ReactNode
-  sidebar?: ReactNode
-  header?: ReactNode
-  threadPanel?: ReactNode
-  className?: string
+  children: ReactNode;
+  sidebar?: ReactNode;
+  header?: ReactNode;
+  threadPanel?: ReactNode;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -36,26 +36,29 @@ export function SlackLayout({
   threadPanel,
   className,
 }: SlackLayoutProps) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [isThreadOpen, setIsThreadOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isThreadOpen, setIsThreadOpen] = useState(false);
 
   return (
     <div
       className={cn(
-        'slack-template flex h-screen w-screen overflow-hidden',
-        'bg-white dark:bg-[#1A1D21]',
-        className
+        "slack-template flex h-screen w-screen overflow-hidden",
+        "bg-white dark:bg-[#1A1D21]",
+        className,
       )}
       style={{
-        fontFamily: '"Slack-Lato", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif',
+        fontFamily:
+          '"Slack-Lato", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif',
       }}
     >
       {/* Sidebar */}
       {sidebar && (
         <aside
           className={cn(
-            'flex flex-shrink-0 flex-col transition-all duration-200',
-            isSidebarCollapsed ? 'w-[72px]' : `w-[${slackComponentStyles.sidebar.width}px]`
+            "flex flex-shrink-0 flex-col transition-all duration-200",
+            isSidebarCollapsed
+              ? "w-[72px]"
+              : `w-[${slackComponentStyles.sidebar.width}px]`,
           )}
           style={{
             width: isSidebarCollapsed
@@ -91,8 +94,8 @@ export function SlackLayout({
           {threadPanel && isThreadOpen && (
             <aside
               className={cn(
-                'flex-shrink-0 border-l border-[#DDDDDD] dark:border-[#35383C]',
-                'bg-white dark:bg-[#222529]'
+                "flex-shrink-0 border-l border-[#DDDDDD] dark:border-[#35383C]",
+                "bg-white dark:bg-[#222529]",
               )}
               style={{ width: slackComponentStyles.thread.width }}
             >
@@ -102,7 +105,7 @@ export function SlackLayout({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default SlackLayout
+export default SlackLayout;

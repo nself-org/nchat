@@ -4,53 +4,54 @@
  * REST API endpoints for bookmark operations including export functionality.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
-const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://api.localhost/v1/graphql'
-const ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET
+const GRAPHQL_URL =
+  process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://api.localhost/v1/graphql";
+const ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
 
 interface HasuraBookmark {
-  id: string
-  user_id: string
-  message_id: string
-  note: string | null
-  created_at: string
+  id: string;
+  user_id: string;
+  message_id: string;
+  note: string | null;
+  created_at: string;
   message?: {
-    id: string
-    content: string
-    created_at: string
-    channel?: { id: string; name: string }
-    user?: { id: string; display_name: string }
-  }
+    id: string;
+    content: string;
+    created_at: string;
+    channel?: { id: string; name: string };
+    user?: { id: string; display_name: string };
+  };
 }
 
 async function fetchBookmarksFromDatabase(
   userId: string,
   limit = 50,
   offset = 0,
-  channelId?: string
+  channelId?: string,
 ): Promise<{ bookmarks: HasuraBookmark[]; total: number }> {
   if (!ADMIN_SECRET) {
-    logger.warn('HASURA_ADMIN_SECRET not set, cannot fetch bookmarks')
-    return { bookmarks: [], total: 0 }
+    logger.warn("HASURA_ADMIN_SECRET not set, cannot fetch bookmarks");
+    return { bookmarks: [], total: 0 };
   }
 
   const channelFilter = channelId
-    ? ', message: { channel_id: { _eq: $channelId } }'
-    : ''
+    ? ", message: { channel_id: { _eq: $channelId } }"
+    : "";
 
   const query = `
     query GetBookmarksREST(
       $userId: uuid!
       $limit: Int!
       $offset: Int!
-      ${channelId ? '$channelId: uuid' : ''}
+      ${channelId ? "$channelId: uuid" : ""}
     ) {
       nchat_bookmarks(
         where: {
           user_id: { _eq: $userId }
-          message: { is_deleted: { _eq: false }${channelId ? ', channel_id: { _eq: $channelId }' : ''} }
+          message: { is_deleted: { _eq: false }${channelId ? ", channel_id: { _eq: $channelId }" : ""} }
         }
         order_by: { created_at: desc }
         limit: $limit
@@ -86,31 +87,31 @@ async function fetchBookmarksFromDatabase(
         }
       }
     }
-  `
+  `;
 
-  const variables: Record<string, unknown> = { userId, limit, offset }
-  if (channelId) variables.channelId = channelId
+  const variables: Record<string, unknown> = { userId, limit, offset };
+  if (channelId) variables.channelId = channelId;
 
   const response = await fetch(GRAPHQL_URL, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': ADMIN_SECRET,
+      "Content-Type": "application/json",
+      "x-hasura-admin-secret": ADMIN_SECRET,
     },
     body: JSON.stringify({ query, variables }),
-  })
+  });
 
-  const result = await response.json()
+  const result = await response.json();
 
   if (result.errors) {
-    logger.error('GraphQL error fetching bookmarks:', result.errors)
-    return { bookmarks: [], total: 0 }
+    logger.error("GraphQL error fetching bookmarks:", result.errors);
+    return { bookmarks: [], total: 0 };
   }
 
   return {
     bookmarks: result.data?.nchat_bookmarks ?? [],
     total: result.data?.nchat_bookmarks_aggregate?.aggregate?.count ?? 0,
-  }
+  };
 }
 
 // ============================================================================
@@ -119,24 +120,35 @@ async function fetchBookmarksFromDatabase(
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId')
-    const export_format = searchParams.get('export')
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get("userId");
+    const export_format = searchParams.get("export");
 
     if (!userId) {
-      return NextResponse.json({ error: 'userId is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "userId is required" },
+        { status: 400 },
+      );
     }
 
     // If export parameter is provided, handle export
     if (export_format) {
-      return handleExport(userId, export_format, searchParams)
+      return handleExport(userId, export_format, searchParams);
     }
 
-    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100)
-    const offset = parseInt(searchParams.get('offset') || '0', 10)
-    const channelId = searchParams.get('channelId') || undefined
+    const limit = Math.min(
+      parseInt(searchParams.get("limit") || "50", 10),
+      100,
+    );
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
+    const channelId = searchParams.get("channelId") || undefined;
 
-    const { bookmarks, total } = await fetchBookmarksFromDatabase(userId, limit, offset, channelId)
+    const { bookmarks, total } = await fetchBookmarksFromDatabase(
+      userId,
+      limit,
+      offset,
+      channelId,
+    );
 
     return NextResponse.json({
       bookmarks: bookmarks.map((b) => ({
@@ -161,13 +173,13 @@ export async function GET(request: NextRequest) {
           : null,
       })),
       total,
-    })
+    });
   } catch (error) {
-    logger.error('Failed to get bookmarks', error as Error)
+    logger.error("Failed to get bookmarks", error as Error);
     return NextResponse.json(
-      { error: 'Failed to get bookmarks', details: (error as Error).message },
-      { status: 500 }
-    )
+      { error: "Failed to get bookmarks", details: (error as Error).message },
+      { status: 500 },
+    );
   }
 }
 
@@ -177,27 +189,30 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { action, ...data } = body
+    const body = await request.json();
+    const { action, ...data } = body;
 
     switch (action) {
-      case 'add':
-        return handleAddBookmark(data)
-      case 'remove':
-        return handleRemoveBookmark(data)
-      case 'update':
-        return handleUpdateBookmark(data)
-      case 'export':
-        return handleExportBookmarks(data)
+      case "add":
+        return handleAddBookmark(data);
+      case "remove":
+        return handleRemoveBookmark(data);
+      case "update":
+        return handleUpdateBookmark(data);
+      case "export":
+        return handleExportBookmarks(data);
       default:
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error) {
-    logger.error('Failed to process bookmark action', error as Error)
+    logger.error("Failed to process bookmark action", error as Error);
     return NextResponse.json(
-      { error: 'Failed to process bookmark action', details: (error as Error).message },
-      { status: 500 }
-    )
+      {
+        error: "Failed to process bookmark action",
+        details: (error as Error).message,
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -206,27 +221,30 @@ export async function POST(request: NextRequest) {
 // ============================================================================
 
 async function handleAddBookmark(data: {
-  userId: string
-  messageId: string
-  note?: string
-  tags?: string[]
-  collectionIds?: string[]
+  userId: string;
+  messageId: string;
+  note?: string;
+  tags?: string[];
+  collectionIds?: string[];
 }) {
   try {
-    const { userId, messageId, note } = data
+    const { userId, messageId, note } = data;
 
     if (!userId || !messageId) {
-      return NextResponse.json({ error: 'userId and messageId are required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "userId and messageId are required" },
+        { status: 400 },
+      );
     }
 
-    logger.info('Adding bookmark', { userId, messageId })
+    logger.info("Adding bookmark", { userId, messageId });
 
     if (!ADMIN_SECRET) {
-      logger.warn('HASURA_ADMIN_SECRET not set, bookmark not persisted')
+      logger.warn("HASURA_ADMIN_SECRET not set, bookmark not persisted");
       return NextResponse.json(
-        { error: 'Bookmark service unavailable' },
-        { status: 503 }
-      )
+        { error: "Bookmark service unavailable" },
+        { status: 503 },
+      );
     }
 
     const mutation = `
@@ -245,28 +263,34 @@ async function handleAddBookmark(data: {
           created_at
         }
       }
-    `
+    `;
 
     const response = await fetch(GRAPHQL_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': ADMIN_SECRET,
+        "Content-Type": "application/json",
+        "x-hasura-admin-secret": ADMIN_SECRET,
       },
-      body: JSON.stringify({ query: mutation, variables: { userId, messageId, note } }),
-    })
+      body: JSON.stringify({
+        query: mutation,
+        variables: { userId, messageId, note },
+      }),
+    });
 
-    const result = await response.json()
+    const result = await response.json();
 
     if (result.errors) {
-      logger.error('GraphQL error adding bookmark:', result.errors)
-      return NextResponse.json({ error: 'Failed to add bookmark' }, { status: 500 })
+      logger.error("GraphQL error adding bookmark:", result.errors);
+      return NextResponse.json(
+        { error: "Failed to add bookmark" },
+        { status: 500 },
+      );
     }
 
-    const bookmark = result.data?.insert_nchat_bookmarks_one
+    const bookmark = result.data?.insert_nchat_bookmarks_one;
     return NextResponse.json({
       success: true,
-      message: 'Bookmark added successfully',
+      message: "Bookmark added successfully",
       bookmark: {
         id: bookmark?.id,
         userId: bookmark?.user_id,
@@ -274,36 +298,39 @@ async function handleAddBookmark(data: {
         note: bookmark?.note,
         bookmarkedAt: bookmark?.created_at,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Failed to add bookmark', error as Error)
-    throw error
+    logger.error("Failed to add bookmark", error as Error);
+    throw error;
   }
 }
 
 async function handleRemoveBookmark(data: {
-  bookmarkId?: string
-  userId?: string
-  messageId?: string
+  bookmarkId?: string;
+  userId?: string;
+  messageId?: string;
 }) {
   try {
-    const { bookmarkId, userId, messageId } = data
+    const { bookmarkId, userId, messageId } = data;
 
     if (!bookmarkId && !(userId && messageId)) {
       return NextResponse.json(
-        { error: 'bookmarkId or (userId + messageId) is required' },
-        { status: 400 }
-      )
+        { error: "bookmarkId or (userId + messageId) is required" },
+        { status: 400 },
+      );
     }
 
-    logger.info('Removing bookmark', { bookmarkId, userId, messageId })
+    logger.info("Removing bookmark", { bookmarkId, userId, messageId });
 
     if (!ADMIN_SECRET) {
-      return NextResponse.json({ error: 'Bookmark service unavailable' }, { status: 503 })
+      return NextResponse.json(
+        { error: "Bookmark service unavailable" },
+        { status: 503 },
+      );
     }
 
-    let mutation: string
-    let variables: Record<string, unknown>
+    let mutation: string;
+    let variables: Record<string, unknown>;
 
     if (bookmarkId) {
       mutation = `
@@ -312,8 +339,8 @@ async function handleRemoveBookmark(data: {
             affected_rows
           }
         }
-      `
-      variables = { id: bookmarkId }
+      `;
+      variables = { id: bookmarkId };
     } else {
       mutation = `
         mutation RemoveBookmarkByMessage($userId: uuid!, $messageId: uuid!) {
@@ -323,50 +350,62 @@ async function handleRemoveBookmark(data: {
             affected_rows
           }
         }
-      `
-      variables = { userId, messageId }
+      `;
+      variables = { userId, messageId };
     }
 
     const response = await fetch(GRAPHQL_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': ADMIN_SECRET,
+        "Content-Type": "application/json",
+        "x-hasura-admin-secret": ADMIN_SECRET,
       },
       body: JSON.stringify({ query: mutation, variables }),
-    })
+    });
 
-    const result = await response.json()
+    const result = await response.json();
 
     if (result.errors) {
-      logger.error('GraphQL error removing bookmark:', result.errors)
-      return NextResponse.json({ error: 'Failed to remove bookmark' }, { status: 500 })
+      logger.error("GraphQL error removing bookmark:", result.errors);
+      return NextResponse.json(
+        { error: "Failed to remove bookmark" },
+        { status: 500 },
+      );
     }
 
-    return NextResponse.json({ success: true, message: 'Bookmark removed successfully' })
+    return NextResponse.json({
+      success: true,
+      message: "Bookmark removed successfully",
+    });
   } catch (error) {
-    logger.error('Failed to remove bookmark', error as Error)
-    throw error
+    logger.error("Failed to remove bookmark", error as Error);
+    throw error;
   }
 }
 
 async function handleUpdateBookmark(data: {
-  bookmarkId: string
-  note?: string
-  tags?: string[]
-  collectionIds?: string[]
+  bookmarkId: string;
+  note?: string;
+  tags?: string[];
+  collectionIds?: string[];
 }) {
   try {
-    const { bookmarkId, note } = data
+    const { bookmarkId, note } = data;
 
     if (!bookmarkId) {
-      return NextResponse.json({ error: 'bookmarkId is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "bookmarkId is required" },
+        { status: 400 },
+      );
     }
 
-    logger.info('Updating bookmark', { bookmarkId })
+    logger.info("Updating bookmark", { bookmarkId });
 
     if (!ADMIN_SECRET) {
-      return NextResponse.json({ error: 'Bookmark service unavailable' }, { status: 503 })
+      return NextResponse.json(
+        { error: "Bookmark service unavailable" },
+        { status: 503 },
+      );
     }
 
     const mutation = `
@@ -384,28 +423,34 @@ async function handleUpdateBookmark(data: {
           }
         }
       }
-    `
+    `;
 
     const response = await fetch(GRAPHQL_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': ADMIN_SECRET,
+        "Content-Type": "application/json",
+        "x-hasura-admin-secret": ADMIN_SECRET,
       },
-      body: JSON.stringify({ query: mutation, variables: { id: bookmarkId, note } }),
-    })
+      body: JSON.stringify({
+        query: mutation,
+        variables: { id: bookmarkId, note },
+      }),
+    });
 
-    const result = await response.json()
+    const result = await response.json();
 
     if (result.errors) {
-      logger.error('GraphQL error updating bookmark:', result.errors)
-      return NextResponse.json({ error: 'Failed to update bookmark' }, { status: 500 })
+      logger.error("GraphQL error updating bookmark:", result.errors);
+      return NextResponse.json(
+        { error: "Failed to update bookmark" },
+        { status: 500 },
+      );
     }
 
-    const updated = result.data?.update_nchat_bookmarks?.returning?.[0]
+    const updated = result.data?.update_nchat_bookmarks?.returning?.[0];
     return NextResponse.json({
       success: true,
-      message: 'Bookmark updated successfully',
+      message: "Bookmark updated successfully",
       bookmark: updated
         ? {
             id: updated.id,
@@ -415,35 +460,42 @@ async function handleUpdateBookmark(data: {
             bookmarkedAt: updated.created_at,
           }
         : null,
-    })
+    });
   } catch (error) {
-    logger.error('Failed to update bookmark', error as Error)
-    throw error
+    logger.error("Failed to update bookmark", error as Error);
+    throw error;
   }
 }
 
 async function handleExportBookmarks(data: {
-  userId: string
-  format: 'json' | 'csv' | 'markdown' | 'html'
+  userId: string;
+  format: "json" | "csv" | "markdown" | "html";
   options?: {
-    includeContent?: boolean
-    includeAttachments?: boolean
-    includeMetadata?: boolean
-    collectionIds?: string[]
-    channelIds?: string[]
-  }
+    includeContent?: boolean;
+    includeAttachments?: boolean;
+    includeMetadata?: boolean;
+    collectionIds?: string[];
+    channelIds?: string[];
+  };
 }) {
   try {
-    const { userId, format } = data
+    const { userId, format } = data;
 
     if (!userId) {
-      return NextResponse.json({ error: 'userId is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "userId is required" },
+        { status: 400 },
+      );
     }
 
-    logger.info('Exporting bookmarks', { userId, format })
+    logger.info("Exporting bookmarks", { userId, format });
 
     // Fetch all bookmarks for export (up to 1000)
-    const { bookmarks, total } = await fetchBookmarksFromDatabase(userId, 1000, 0)
+    const { bookmarks, total } = await fetchBookmarksFromDatabase(
+      userId,
+      1000,
+      0,
+    );
 
     const exportData = {
       exportedAt: new Date().toISOString(),
@@ -451,7 +503,7 @@ async function handleExportBookmarks(data: {
       totalCount: total,
       bookmarks: bookmarks.map((b) => ({
         id: b.id,
-        content: b.message?.content ?? '',
+        content: b.message?.content ?? "",
         bookmarkedAt: b.created_at,
         note: b.note,
         tags: [] as string[],
@@ -460,20 +512,28 @@ async function handleExportBookmarks(data: {
           ? { displayName: b.message.user.display_name }
           : null,
       })),
-    }
+    };
 
-    return formatAndServeExport(exportData, format)
+    return formatAndServeExport(exportData, format);
   } catch (error) {
-    logger.error('Failed to export bookmarks', error as Error)
-    throw error
+    logger.error("Failed to export bookmarks", error as Error);
+    throw error;
   }
 }
 
-async function handleExport(userId: string, format: string, searchParams: URLSearchParams) {
+async function handleExport(
+  userId: string,
+  format: string,
+  searchParams: URLSearchParams,
+) {
   try {
-    logger.info('Exporting bookmarks via GET', { userId, format })
+    logger.info("Exporting bookmarks via GET", { userId, format });
 
-    const { bookmarks, total } = await fetchBookmarksFromDatabase(userId, 1000, 0)
+    const { bookmarks, total } = await fetchBookmarksFromDatabase(
+      userId,
+      1000,
+      0,
+    );
 
     const exportData = {
       exportedAt: new Date().toISOString(),
@@ -481,7 +541,7 @@ async function handleExport(userId: string, format: string, searchParams: URLSea
       totalCount: total,
       bookmarks: bookmarks.map((b) => ({
         id: b.id,
-        content: b.message?.content ?? '',
+        content: b.message?.content ?? "",
         bookmarkedAt: b.created_at,
         note: b.note,
         tags: [] as string[],
@@ -491,16 +551,16 @@ async function handleExport(userId: string, format: string, searchParams: URLSea
           : null,
       })),
       options: {
-        includeContent: searchParams.get('includeContent') !== 'false',
-        includeAttachments: searchParams.get('includeAttachments') === 'true',
-        includeMetadata: searchParams.get('includeMetadata') === 'true',
+        includeContent: searchParams.get("includeContent") !== "false",
+        includeAttachments: searchParams.get("includeAttachments") === "true",
+        includeMetadata: searchParams.get("includeMetadata") === "true",
       },
-    }
+    };
 
-    return formatAndServeExport(exportData, format)
+    return formatAndServeExport(exportData, format);
   } catch (error) {
-    logger.error('Failed to export bookmarks', error as Error)
-    throw error
+    logger.error("Failed to export bookmarks", error as Error);
+    throw error;
   }
 }
 
@@ -509,120 +569,132 @@ async function handleExport(userId: string, format: string, searchParams: URLSea
 // ============================================================================
 
 interface ExportBookmark {
-  id: string
-  content: string
-  bookmarkedAt: string
-  note: string | null
-  tags: string[]
-  channel: { id: string; name: string } | null
-  author: { displayName: string } | null
+  id: string;
+  content: string;
+  bookmarkedAt: string;
+  note: string | null;
+  tags: string[];
+  channel: { id: string; name: string } | null;
+  author: { displayName: string } | null;
 }
 
 interface ExportData {
-  exportedAt: string
-  format: string
-  totalCount: number
-  bookmarks: ExportBookmark[]
+  exportedAt: string;
+  format: string;
+  totalCount: number;
+  bookmarks: ExportBookmark[];
 }
 
-function formatAndServeExport(exportData: ExportData, format: string): NextResponse {
-  let content: string
-  let mimeType: string
-  const filename = `bookmarks-${Date.now()}`
+function formatAndServeExport(
+  exportData: ExportData,
+  format: string,
+): NextResponse {
+  let content: string;
+  let mimeType: string;
+  const filename = `bookmarks-${Date.now()}`;
 
   switch (format) {
-    case 'csv':
-      content = convertToCSV(exportData)
-      mimeType = 'text/csv'
+    case "csv":
+      content = convertToCSV(exportData);
+      mimeType = "text/csv";
       return new NextResponse(content, {
         headers: {
-          'Content-Type': mimeType,
-          'Content-Disposition': `attachment; filename="${filename}.csv"`,
+          "Content-Type": mimeType,
+          "Content-Disposition": `attachment; filename="${filename}.csv"`,
         },
-      })
-    case 'markdown':
-      content = convertToMarkdown(exportData)
-      mimeType = 'text/markdown'
+      });
+    case "markdown":
+      content = convertToMarkdown(exportData);
+      mimeType = "text/markdown";
       return new NextResponse(content, {
         headers: {
-          'Content-Type': mimeType,
-          'Content-Disposition': `attachment; filename="${filename}.md"`,
+          "Content-Type": mimeType,
+          "Content-Disposition": `attachment; filename="${filename}.md"`,
         },
-      })
-    case 'html':
-      content = convertToHTML(exportData)
-      mimeType = 'text/html'
+      });
+    case "html":
+      content = convertToHTML(exportData);
+      mimeType = "text/html";
       return new NextResponse(content, {
         headers: {
-          'Content-Type': mimeType,
-          'Content-Disposition': `attachment; filename="${filename}.html"`,
+          "Content-Type": mimeType,
+          "Content-Disposition": `attachment; filename="${filename}.html"`,
         },
-      })
-    case 'json':
+      });
+    case "json":
     default:
-      content = JSON.stringify(exportData, null, 2)
+      content = JSON.stringify(exportData, null, 2);
       return new NextResponse(content, {
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Disposition': `attachment; filename="${filename}.json"`,
+          "Content-Type": "application/json",
+          "Content-Disposition": `attachment; filename="${filename}.json"`,
         },
-      })
+      });
   }
 }
 
 function convertToCSV(data: ExportData): string {
-  const headers = ['ID', 'Content', 'Bookmarked At', 'Note', 'Tags', 'Channel', 'Author']
+  const headers = [
+    "ID",
+    "Content",
+    "Bookmarked At",
+    "Note",
+    "Tags",
+    "Channel",
+    "Author",
+  ];
   const rows = data.bookmarks.map((b) => [
     b.id,
-    `"${(b.content || '').replace(/"/g, '""')}"`,
+    `"${(b.content || "").replace(/"/g, '""')}"`,
     b.bookmarkedAt,
-    `"${(b.note || '').replace(/"/g, '""')}"`,
-    b.tags.join('; '),
-    b.channel?.name || '',
-    b.author?.displayName || '',
-  ])
-  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+    `"${(b.note || "").replace(/"/g, '""')}"`,
+    b.tags.join("; "),
+    b.channel?.name || "",
+    b.author?.displayName || "",
+  ]);
+  return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
 }
 
 function convertToMarkdown(data: ExportData): string {
-  let md = `# Bookmarks Export\n\nExported at: ${data.exportedAt}\nTotal bookmarks: ${data.totalCount}\n\n---\n\n`
+  let md = `# Bookmarks Export\n\nExported at: ${data.exportedAt}\nTotal bookmarks: ${data.totalCount}\n\n---\n\n`;
   if (data.bookmarks.length === 0) {
-    md += 'No bookmarks to export.\n'
+    md += "No bookmarks to export.\n";
   } else {
     data.bookmarks.forEach((b, index) => {
-      md += `## ${index + 1}. ${b.channel?.name || 'Unknown Channel'}\n\n`
-      md += `**Author:** ${b.author?.displayName || 'Unknown'}\n`
-      md += `**Bookmarked:** ${b.bookmarkedAt}\n\n`
-      if (b.content) md += `${b.content}\n\n`
-      if (b.note) md += `> Note: ${b.note}\n\n`
-      if (b.tags.length > 0) md += `Tags: ${b.tags.join(', ')}\n\n`
-      md += `---\n\n`
-    })
+      md += `## ${index + 1}. ${b.channel?.name || "Unknown Channel"}\n\n`;
+      md += `**Author:** ${b.author?.displayName || "Unknown"}\n`;
+      md += `**Bookmarked:** ${b.bookmarkedAt}\n\n`;
+      if (b.content) md += `${b.content}\n\n`;
+      if (b.note) md += `> Note: ${b.note}\n\n`;
+      if (b.tags.length > 0) md += `Tags: ${b.tags.join(", ")}\n\n`;
+      md += `---\n\n`;
+    });
   }
-  return md
+  return md;
 }
 
 function convertToHTML(data: ExportData): string {
-  const bookmarkItems = data.bookmarks.length === 0
-    ? '<p>No bookmarks to export.</p>'
-    : data.bookmarks
-        .map(
-          (b) => `
+  const bookmarkItems =
+    data.bookmarks.length === 0
+      ? "<p>No bookmarks to export.</p>"
+      : data.bookmarks
+          .map(
+            (b) => `
   <div class="bookmark">
     <div class="bookmark-header">
-      <span><strong>${b.author?.displayName || 'Unknown'}</strong> in #${b.channel?.name || 'unknown'}</span>
+      <span><strong>${b.author?.displayName || "Unknown"}</strong> in #${b.channel?.name || "unknown"}</span>
       <span>${b.bookmarkedAt}</span>
     </div>
-    ${b.content ? `<div class="bookmark-content">${b.content}</div>` : ''}
-    ${b.note ? `<div class="bookmark-note">Note: ${b.note}</div>` : ''}
+    ${b.content ? `<div class="bookmark-content">${b.content}</div>` : ""}
+    ${b.note ? `<div class="bookmark-note">Note: ${b.note}</div>` : ""}
     ${
       b.tags.length > 0
-        ? `<div class="tags">${b.tags.map((t) => `<span class="tag">${t}</span>`).join('')}</div>`
-        : ''
+        ? `<div class="tags">${b.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>`
+        : ""
     }
-  </div>`
-        )
-        .join('\n')
+  </div>`,
+          )
+          .join("\n");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -649,5 +721,5 @@ function convertToHTML(data: ExportData): string {
   </div>
   ${bookmarkItems}
 </body>
-</html>`
+</html>`;
 }

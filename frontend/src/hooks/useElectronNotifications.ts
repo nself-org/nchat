@@ -5,10 +5,10 @@
  * Provides notification controls and settings management.
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { logger } from '@/lib/logger'
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { logger } from "@/lib/logger";
 import {
   isElectron,
   showNotification,
@@ -27,45 +27,45 @@ import {
   type NotificationResult,
   type NotificationSettings,
   type NotificationActionPayload,
-} from '@/lib/electron'
+} from "@/lib/electron";
 
 export interface UseElectronNotificationsReturn {
   /** Whether notifications are supported */
-  isSupported: boolean
+  isSupported: boolean;
   /** Notification permission status */
-  permission: 'granted' | 'denied' | 'default' | 'unsupported'
+  permission: "granted" | "denied" | "default" | "unsupported";
   /** Current notification settings */
-  settings: NotificationSettings | null
+  settings: NotificationSettings | null;
   /** Whether Do Not Disturb is active */
-  isDnd: boolean
+  isDnd: boolean;
   /** Whether settings are loading */
-  isLoading: boolean
+  isLoading: boolean;
   /** Show a notification */
-  notify: (options: NotificationOptions) => Promise<NotificationResult>
+  notify: (options: NotificationOptions) => Promise<NotificationResult>;
   /** Show a message notification */
   notifyMessage: (options: {
-    senderName: string
-    message: string
-    channelName?: string
-    channelId?: string
-    dmId?: string
-    avatar?: string
-  }) => Promise<NotificationResult>
+    senderName: string;
+    message: string;
+    channelName?: string;
+    channelId?: string;
+    dmId?: string;
+    avatar?: string;
+  }) => Promise<NotificationResult>;
   /** Show a mention notification */
   notifyMention: (options: {
-    senderName: string
-    message: string
-    channelName?: string
-    channelId?: string
-  }) => Promise<NotificationResult>
+    senderName: string;
+    message: string;
+    channelName?: string;
+    channelId?: string;
+  }) => Promise<NotificationResult>;
   /** Request notification permission */
-  requestPermission: () => Promise<'granted' | 'denied' | 'default'>
+  requestPermission: () => Promise<"granted" | "denied" | "default">;
   /** Update notification settings */
-  updateSettings: (settings: Partial<NotificationSettings>) => Promise<void>
+  updateSettings: (settings: Partial<NotificationSettings>) => Promise<void>;
   /** Set unread count badge */
-  setBadge: (count: number) => Promise<void>
+  setBadge: (count: number) => Promise<void>;
   /** Flash the taskbar/dock */
-  flash: (flash: boolean) => Promise<void>
+  flash: (flash: boolean) => Promise<void>;
 }
 
 /**
@@ -87,13 +87,13 @@ export interface UseElectronNotificationsReturn {
  * ```
  */
 export function useElectronNotifications(): UseElectronNotificationsReturn {
-  const [settings, setSettings] = useState<NotificationSettings | null>(null)
-  const [isDnd, setIsDnd] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [settings, setSettings] = useState<NotificationSettings | null>(null);
+  const [isDnd, setIsDnd] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check support and permission
-  const isSupported = useMemo(() => areNotificationsSupported(), [])
-  const permission = useMemo(() => getNotificationPermission(), [])
+  const isSupported = useMemo(() => areNotificationsSupported(), []);
+  const permission = useMemo(() => getNotificationPermission(), []);
 
   // Load settings
   useEffect(() => {
@@ -102,65 +102,68 @@ export function useElectronNotifications(): UseElectronNotificationsReturn {
         const [notificationSettings, dndActive] = await Promise.all([
           getNotificationSettings(),
           isDndActive(),
-        ])
-        setSettings(notificationSettings)
-        setIsDnd(dndActive)
+        ]);
+        setSettings(notificationSettings);
+        setIsDnd(dndActive);
       } catch (error) {
-        logger.error('Failed to load notification settings:', error)
+        logger.error("Failed to load notification settings:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
-    load()
-  }, [])
+    load();
+  }, []);
 
   // Notification methods
   const notify = useCallback(async (options: NotificationOptions) => {
-    return showNotification(options)
-  }, [])
+    return showNotification(options);
+  }, []);
 
   const notifyMessage = useCallback(
     async (options: {
-      senderName: string
-      message: string
-      channelName?: string
-      channelId?: string
-      dmId?: string
-      avatar?: string
+      senderName: string;
+      message: string;
+      channelName?: string;
+      channelId?: string;
+      dmId?: string;
+      avatar?: string;
     }) => {
-      return showMessageNotification(options)
+      return showMessageNotification(options);
     },
-    []
-  )
+    [],
+  );
 
   const notifyMention = useCallback(
     async (options: {
-      senderName: string
-      message: string
-      channelName?: string
-      channelId?: string
+      senderName: string;
+      message: string;
+      channelName?: string;
+      channelId?: string;
     }) => {
-      return showMentionNotification(options)
+      return showMentionNotification(options);
     },
-    []
-  )
+    [],
+  );
 
   const requestPermission = useCallback(async () => {
-    return requestNotificationPermission()
-  }, [])
+    return requestNotificationPermission();
+  }, []);
 
-  const updateSettings = useCallback(async (newSettings: Partial<NotificationSettings>) => {
-    await setNotificationSettings(newSettings)
-    setSettings((prev) => (prev ? { ...prev, ...newSettings } : null))
-  }, [])
+  const updateSettings = useCallback(
+    async (newSettings: Partial<NotificationSettings>) => {
+      await setNotificationSettings(newSettings);
+      setSettings((prev) => (prev ? { ...prev, ...newSettings } : null));
+    },
+    [],
+  );
 
   const setBadge = useCallback(async (count: number) => {
-    await setUnreadCount(count)
-  }, [])
+    await setUnreadCount(count);
+  }, []);
 
   const flash = useCallback(async (shouldFlash: boolean) => {
-    await flashFrame(shouldFlash)
-  }, [])
+    await flashFrame(shouldFlash);
+  }, []);
 
   return useMemo(
     () => ({
@@ -190,119 +193,129 @@ export function useElectronNotifications(): UseElectronNotificationsReturn {
       updateSettings,
       setBadge,
       flash,
-    ]
-  )
+    ],
+  );
 }
 
 /**
  * Hook to handle notification action events
  */
-export function useNotificationActions(handler: (action: NotificationActionPayload) => void): void {
+export function useNotificationActions(
+  handler: (action: NotificationActionPayload) => void,
+): void {
   useEffect(() => {
-    if (!isElectron()) return
-    return onNotificationAction(handler)
-  }, [handler])
+    if (!isElectron()) return;
+    return onNotificationAction(handler);
+  }, [handler]);
 }
 
 /**
  * Hook to manage unread count badge
  */
 export function useUnreadBadge(): {
-  count: number
-  setCount: (count: number) => void
-  increment: () => void
-  decrement: () => void
-  reset: () => void
+  count: number;
+  setCount: (count: number) => void;
+  increment: () => void;
+  decrement: () => void;
+  reset: () => void;
 } {
-  const [count, setCountState] = useState(0)
+  const [count, setCountState] = useState(0);
 
   const setCount = useCallback(async (newCount: number) => {
-    const value = Math.max(0, newCount)
-    setCountState(value)
-    await setUnreadCount(value)
-  }, [])
+    const value = Math.max(0, newCount);
+    setCountState(value);
+    await setUnreadCount(value);
+  }, []);
 
   const increment = useCallback(async () => {
     setCountState((prev) => {
-      const newCount = prev + 1
-      setUnreadCount(newCount)
-      return newCount
-    })
-  }, [])
+      const newCount = prev + 1;
+      setUnreadCount(newCount);
+      return newCount;
+    });
+  }, []);
 
   const decrement = useCallback(async () => {
     setCountState((prev) => {
-      const newCount = Math.max(0, prev - 1)
-      setUnreadCount(newCount)
-      return newCount
-    })
-  }, [])
+      const newCount = Math.max(0, prev - 1);
+      setUnreadCount(newCount);
+      return newCount;
+    });
+  }, []);
 
   const reset = useCallback(async () => {
-    setCountState(0)
-    await setUnreadCount(0)
-  }, [])
+    setCountState(0);
+    await setUnreadCount(0);
+  }, []);
 
-  return { count, setCount, increment, decrement, reset }
+  return { count, setCount, increment, decrement, reset };
 }
 
 /**
  * Hook for Do Not Disturb status
  */
 export function useDoNotDisturb(): {
-  isActive: boolean
-  enable: () => Promise<void>
-  disable: () => Promise<void>
-  toggle: () => Promise<void>
-  setSchedule: (start: string | undefined, end: string | undefined) => Promise<void>
+  isActive: boolean;
+  enable: () => Promise<void>;
+  disable: () => Promise<void>;
+  toggle: () => Promise<void>;
+  setSchedule: (
+    start: string | undefined,
+    end: string | undefined,
+  ) => Promise<void>;
 } {
-  const [isActive, setIsActive] = useState(false)
-  const [settings, setSettings] = useState<NotificationSettings | null>(null)
+  const [isActive, setIsActive] = useState(false);
+  const [settings, setSettings] = useState<NotificationSettings | null>(null);
 
   useEffect(() => {
     async function load() {
       const [active, notificationSettings] = await Promise.all([
         isDndActive(),
         getNotificationSettings(),
-      ])
-      setIsActive(active)
-      setSettings(notificationSettings)
+      ]);
+      setIsActive(active);
+      setSettings(notificationSettings);
     }
-    load()
-  }, [])
+    load();
+  }, []);
 
   const enable = useCallback(async () => {
-    await setNotificationSettings({ doNotDisturb: true })
-    setIsActive(true)
-    setSettings((prev) => (prev ? { ...prev, doNotDisturb: true } : null))
-  }, [])
+    await setNotificationSettings({ doNotDisturb: true });
+    setIsActive(true);
+    setSettings((prev) => (prev ? { ...prev, doNotDisturb: true } : null));
+  }, []);
 
   const disable = useCallback(async () => {
-    await setNotificationSettings({ doNotDisturb: false })
-    setIsActive(await isDndActive())
-    setSettings((prev) => (prev ? { ...prev, doNotDisturb: false } : null))
-  }, [])
+    await setNotificationSettings({ doNotDisturb: false });
+    setIsActive(await isDndActive());
+    setSettings((prev) => (prev ? { ...prev, doNotDisturb: false } : null));
+  }, []);
 
   const toggle = useCallback(async () => {
     if (settings?.doNotDisturb) {
-      await disable()
+      await disable();
     } else {
-      await enable()
+      await enable();
     }
-  }, [settings, enable, disable])
+  }, [settings, enable, disable]);
 
-  const setSchedule = useCallback(async (start: string | undefined, end: string | undefined) => {
-    await setNotificationSettings({
-      doNotDisturbStart: start,
-      doNotDisturbEnd: end,
-    })
-    setIsActive(await isDndActive())
-    setSettings((prev) =>
-      prev ? { ...prev, doNotDisturbStart: start, doNotDisturbEnd: end } : null
-    )
-  }, [])
+  const setSchedule = useCallback(
+    async (start: string | undefined, end: string | undefined) => {
+      await setNotificationSettings({
+        doNotDisturbStart: start,
+        doNotDisturbEnd: end,
+      });
+      setIsActive(await isDndActive());
+      setSettings((prev) =>
+        prev
+          ? { ...prev, doNotDisturbStart: start, doNotDisturbEnd: end }
+          : null,
+      );
+    },
+    [],
+  );
 
-  return { isActive, enable, disable, toggle, setSchedule }
+  return { isActive, enable, disable, toggle, setSchedule };
 }
 
-export default useElectronNotifications
+export default useElectronNotifications;

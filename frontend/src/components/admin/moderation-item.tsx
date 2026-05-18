@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from "date-fns";
 import {
   AlertTriangle,
   MessageSquare,
@@ -11,12 +11,12 @@ import {
   XCircle,
   Eye,
   MoreHorizontal,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,54 +24,58 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { ModerationReport, ReportType } from '@/lib/admin/admin-store'
+} from "@/components/ui/dropdown-menu";
+import { ModerationReport, ReportType } from "@/lib/admin/admin-store";
 
 interface ModerationItemProps {
-  report: ModerationReport
-  onView?: (report: ModerationReport) => void
-  onApprove?: (report: ModerationReport) => void
-  onDismiss?: (report: ModerationReport) => void
-  onDeleteContent?: (report: ModerationReport) => void
-  onWarnUser?: (report: ModerationReport) => void
-  onBanUser?: (report: ModerationReport) => void
-  isProcessing?: boolean
+  report: ModerationReport;
+  onView?: (report: ModerationReport) => void;
+  onApprove?: (report: ModerationReport) => void;
+  onDismiss?: (report: ModerationReport) => void;
+  onDeleteContent?: (report: ModerationReport) => void;
+  onWarnUser?: (report: ModerationReport) => void;
+  onBanUser?: (report: ModerationReport) => void;
+  isProcessing?: boolean;
 }
 
 const reportTypeConfig: Record<
   ReportType,
-  { label: string; icon: React.ComponentType<{ className?: string }>; color: string }
+  {
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    color: string;
+  }
 > = {
   spam: {
-    label: 'Spam',
+    label: "Spam",
     icon: AlertTriangle,
-    color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
+    color: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
   },
   harassment: {
-    label: 'Harassment',
+    label: "Harassment",
     icon: AlertTriangle,
-    color: 'bg-red-500/10 text-red-600 border-red-500/20',
+    color: "bg-red-500/10 text-red-600 border-red-500/20",
   },
   inappropriate: {
-    label: 'Inappropriate',
+    label: "Inappropriate",
     icon: AlertTriangle,
-    color: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+    color: "bg-orange-500/10 text-orange-600 border-orange-500/20",
   },
   other: {
-    label: 'Other',
+    label: "Other",
     icon: AlertTriangle,
-    color: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
+    color: "bg-gray-500/10 text-gray-600 border-gray-500/20",
   },
-}
+};
 
 const getInitials = (name: string) => {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
-}
+    .slice(0, 2);
+};
 
 export function ModerationItem({
   report,
@@ -83,32 +87,45 @@ export function ModerationItem({
   onBanUser,
   isProcessing = false,
 }: ModerationItemProps) {
-  const typeConfig = reportTypeConfig[report.type] || reportTypeConfig.other
-  const TypeIcon = typeConfig.icon
+  const typeConfig = reportTypeConfig[report.type] || reportTypeConfig.other;
+  const TypeIcon = typeConfig.icon;
 
-  const isResolved = report.status === 'resolved' || report.status === 'dismissed'
+  const isResolved =
+    report.status === "resolved" || report.status === "dismissed";
 
   return (
-    <Card className={cn('transition-all hover:shadow-md', isResolved && 'opacity-60')}>
+    <Card
+      className={cn(
+        "transition-all hover:shadow-md",
+        isResolved && "opacity-60",
+      )}
+    >
       <CardContent className="p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           {/* Report Info */}
           <div className="flex-1 space-y-3">
             {/* Header */}
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className={cn('capitalize', typeConfig.color)}>
+              <Badge
+                variant="outline"
+                className={cn("capitalize", typeConfig.color)}
+              >
                 <TypeIcon className="mr-1 h-3 w-3" />
                 {typeConfig.label}
               </Badge>
               <span className="text-sm text-muted-foreground">
-                {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+                {formatDistanceToNow(new Date(report.createdAt), {
+                  addSuffix: true,
+                })}
               </span>
               {isResolved && (
                 <Badge
-                  variant={report.status === 'resolved' ? 'default' : 'secondary'}
+                  variant={
+                    report.status === "resolved" ? "default" : "secondary"
+                  }
                   className="ml-auto sm:ml-0"
                 >
-                  {report.status === 'resolved' ? 'Resolved' : 'Dismissed'}
+                  {report.status === "resolved" ? "Resolved" : "Dismissed"}
                 </Badge>
               )}
             </div>
@@ -161,14 +178,18 @@ export function ModerationItem({
             {report.reportedUser && !report.reportedMessage && (
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Reported user:</span>
+                <span className="text-sm text-muted-foreground">
+                  Reported user:
+                </span>
                 <Avatar className="h-5 w-5">
                   <AvatarImage src={report.reportedUser.avatarUrl} />
                   <AvatarFallback className="text-[10px]">
                     {getInitials(report.reportedUser.displayName)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium">{report.reportedUser.displayName}</span>
+                <span className="text-sm font-medium">
+                  {report.reportedUser.displayName}
+                </span>
               </div>
             )}
 
@@ -178,9 +199,11 @@ export function ModerationItem({
                 <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
                   <CheckCircle className="h-3 w-3" />
                   <span>
-                    Resolved by {report.moderator?.displayName ?? 'Unknown'}{' '}
+                    Resolved by {report.moderator?.displayName ?? "Unknown"}{" "}
                     {report.resolvedAt &&
-                      formatDistanceToNow(new Date(report.resolvedAt), { addSuffix: true })}
+                      formatDistanceToNow(new Date(report.resolvedAt), {
+                        addSuffix: true,
+                      })}
                   </span>
                 </div>
                 <p className="text-sm">{report.resolution}</p>
@@ -262,7 +285,7 @@ export function ModerationItem({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // Skeleton for loading state
@@ -290,7 +313,7 @@ export function ModerationItemSkeleton() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default ModerationItem
+export default ModerationItem;

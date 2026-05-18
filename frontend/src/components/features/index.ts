@@ -15,4 +15,4 @@ export {
   type FeatureGateInvertedProps,
   type FeatureGateAnyProps,
   type FeatureGateAllProps,
-} from './feature-gate'
+} from "./feature-gate";

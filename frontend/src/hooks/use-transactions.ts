@@ -4,15 +4,15 @@
  * Provides transaction sending, tracking, and history
  */
 
-import { useCallback } from 'react'
-import { useWalletStore } from '@/stores/wallet-store'
-import { getTransactionManager } from '@/lib/wallet/transaction-manager'
-import { getWalletConnector } from '@/lib/wallet/wallet-connector'
+import { useCallback } from "react";
+import { useWalletStore } from "@/stores/wallet-store";
+import { getTransactionManager } from "@/lib/wallet/transaction-manager";
+import { getWalletConnector } from "@/lib/wallet/wallet-connector";
 import type {
   TransactionRequest,
   GasEstimate,
   TransactionReceipt,
-} from '@/lib/wallet/transaction-manager'
+} from "@/lib/wallet/transaction-manager";
 
 export function useTransactions() {
   const {
@@ -22,18 +22,18 @@ export function useTransactions() {
     addPendingTransaction,
     updatePendingTransaction,
     removePendingTransaction,
-  } = useWalletStore()
+  } = useWalletStore();
 
-  const walletConnector = getWalletConnector()
+  const walletConnector = getWalletConnector();
   const transactionManager = getTransactionManager(
-    walletConnector.getEthereumProvider() ?? undefined
-  )
+    walletConnector.getEthereumProvider() ?? undefined,
+  );
 
   // Send transaction
   const sendTransaction = useCallback(
-    async (tx: Omit<TransactionRequest, 'from'>) => {
+    async (tx: Omit<TransactionRequest, "from">) => {
       if (!address) {
-        return { success: false, error: 'Wallet not connected' }
+        return { success: false, error: "Wallet not connected" };
       }
 
       try {
@@ -41,35 +41,40 @@ export function useTransactions() {
           ...tx,
           from: address,
           chainId: chainId ?? undefined,
-        })
+        });
 
         if (result.success && result.data) {
           // Transaction is tracked automatically by transactionManager
-          return { success: true, hash: result.data }
+          return { success: true, hash: result.data };
         }
 
-        return { success: false, error: 'Failed to send transaction' }
+        return { success: false, error: "Failed to send transaction" };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       }
     },
-    [address, chainId, transactionManager]
-  )
+    [address, chainId, transactionManager],
+  );
 
   // Send ETH
   const sendETH = useCallback(
     async (to: string, amount: string) => {
-      const amountWei = transactionManager.etherToWei(amount)
-      return sendTransaction({ to, value: amountWei })
+      const amountWei = transactionManager.etherToWei(amount);
+      return sendTransaction({ to, value: amountWei });
     },
-    [sendTransaction, transactionManager]
-  )
+    [sendTransaction, transactionManager],
+  );
 
   // Estimate gas
   const estimateGas = useCallback(
-    async (tx: Omit<TransactionRequest, 'from'>): Promise<GasEstimate | null> => {
+    async (
+      tx: Omit<TransactionRequest, "from">,
+    ): Promise<GasEstimate | null> => {
       if (!address) {
-        return null
+        return null;
       }
 
       try {
@@ -77,65 +82,75 @@ export function useTransactions() {
           ...tx,
           from: address,
           chainId: chainId ?? undefined,
-        })
+        });
 
         if (result.success && result.data) {
-          return result.data
+          return result.data;
         }
 
-        return null
+        return null;
       } catch {
-        return null
+        return null;
       }
     },
-    [address, chainId, transactionManager]
-  )
+    [address, chainId, transactionManager],
+  );
 
   // Get gas prices
   const getGasPrices = useCallback(async () => {
     try {
-      const result = await transactionManager.getGasPrices()
-      return result
+      const result = await transactionManager.getGasPrices();
+      return result;
     } catch (err) {
-      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : "Unknown error",
+      };
     }
-  }, [transactionManager])
+  }, [transactionManager]);
 
   // Get transaction receipt
   const getTransactionReceipt = useCallback(
     async (hash: string): Promise<TransactionReceipt | null> => {
       try {
-        const result = await transactionManager.getTransactionReceipt(hash)
+        const result = await transactionManager.getTransactionReceipt(hash);
 
         if (result.success && result.data) {
-          return result.data
+          return result.data;
         }
 
-        return null
+        return null;
       } catch {
-        return null
+        return null;
       }
     },
-    [transactionManager]
-  )
+    [transactionManager],
+  );
 
   // Wait for transaction confirmation
   const waitForTransaction = useCallback(
     async (hash: string, confirmations = 1, timeout = 60000) => {
       try {
-        const result = await transactionManager.waitForTransaction(hash, confirmations, timeout)
+        const result = await transactionManager.waitForTransaction(
+          hash,
+          confirmations,
+          timeout,
+        );
 
         if (result.success && result.data) {
-          return { success: true, receipt: result.data }
+          return { success: true, receipt: result.data };
         }
 
-        return { success: false, error: 'Transaction confirmation timeout' }
+        return { success: false, error: "Transaction confirmation timeout" };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       }
     },
-    [transactionManager]
-  )
+    [transactionManager],
+  );
 
   // Speed up transaction
   const speedUpTransaction = useCallback(
@@ -143,79 +158,85 @@ export function useTransactions() {
       try {
         const result = await transactionManager.speedUpTransaction(hash, {
           gasPriceMultiplier: multiplier,
-        })
+        });
 
         if (result.success && result.data) {
-          return { success: true, newHash: result.data }
+          return { success: true, newHash: result.data };
         }
 
-        return { success: false, error: 'Failed to speed up transaction' }
+        return { success: false, error: "Failed to speed up transaction" };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       }
     },
-    [transactionManager]
-  )
+    [transactionManager],
+  );
 
   // Cancel transaction
   const cancelTransaction = useCallback(
     async (hash: string) => {
       try {
-        const result = await transactionManager.cancelTransaction(hash)
+        const result = await transactionManager.cancelTransaction(hash);
 
         if (result.success && result.data) {
-          return { success: true, cancelHash: result.data }
+          return { success: true, cancelHash: result.data };
         }
 
-        return { success: false, error: 'Failed to cancel transaction' }
+        return { success: false, error: "Failed to cancel transaction" };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       }
     },
-    [transactionManager]
-  )
+    [transactionManager],
+  );
 
   // Get nonce
   const getNonce = useCallback(async () => {
     if (!address) {
-      return null
+      return null;
     }
 
     try {
-      const result = await transactionManager.getNonce(address)
+      const result = await transactionManager.getNonce(address);
 
       if (result.success && result.data !== undefined) {
-        return result.data
+        return result.data;
       }
 
-      return null
+      return null;
     } catch {
-      return null
+      return null;
     }
-  }, [address, transactionManager])
+  }, [address, transactionManager]);
 
   // Format gas price
   const formatGasPrice = useCallback(
     (gasPrice: string) => {
-      return transactionManager.formatGasPrice(gasPrice)
+      return transactionManager.formatGasPrice(gasPrice);
     },
-    [transactionManager]
-  )
+    [transactionManager],
+  );
 
   // Wei/Ether conversion utilities
   const weiToEther = useCallback(
     (wei: string) => {
-      return transactionManager.weiToEther(wei)
+      return transactionManager.weiToEther(wei);
     },
-    [transactionManager]
-  )
+    [transactionManager],
+  );
 
   const etherToWei = useCallback(
     (ether: string) => {
-      return transactionManager.etherToWei(ether)
+      return transactionManager.etherToWei(ether);
     },
-    [transactionManager]
-  )
+    [transactionManager],
+  );
 
   return {
     // State
@@ -236,5 +257,5 @@ export function useTransactions() {
     formatGasPrice,
     weiToEther,
     etherToWei,
-  }
+  };
 }

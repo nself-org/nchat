@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Screen Share Controls Component
@@ -7,11 +7,11 @@
  * Supports screen/window/tab selection, quality settings, and system audio.
  */
 
-import * as React from 'react'
-import { useState } from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { useState } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Monitor,
   MonitorOff,
@@ -20,7 +20,7 @@ import {
   Volume2,
   VolumeX,
   Maximize,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,65 +30,67 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-} from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
-import type { ScreenCaptureOptions } from '@/lib/webrtc/screen-capture'
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import type { ScreenCaptureOptions } from "@/lib/webrtc/screen-capture";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export interface ScreenShareControlsProps extends VariantProps<typeof controlsVariants> {
+export interface ScreenShareControlsProps extends VariantProps<
+  typeof controlsVariants
+> {
   /** Whether screen sharing is active */
-  isSharing: boolean
+  isSharing: boolean;
   /** Whether system audio is supported */
-  supportsSystemAudio: boolean
+  supportsSystemAudio: boolean;
   /** Whether system audio is enabled */
-  hasAudio?: boolean
+  hasAudio?: boolean;
   /** Current quality setting */
-  quality?: 'auto' | '720p' | '1080p' | '4k'
+  quality?: "auto" | "720p" | "1080p" | "4k";
   /** Current frame rate */
-  frameRate?: number
+  frameRate?: number;
   /** Share type */
-  shareType?: 'screen' | 'window' | 'tab'
+  shareType?: "screen" | "window" | "tab";
   /** Callback when share is started */
-  onStartShare: (options: ScreenCaptureOptions) => void
+  onStartShare: (options: ScreenCaptureOptions) => void;
   /** Callback when share is stopped */
-  onStopShare: () => void
+  onStopShare: () => void;
   /** Callback when quality is changed */
-  onQualityChange?: (quality: 'auto' | '720p' | '1080p' | '4k') => void
+  onQualityChange?: (quality: "auto" | "720p" | "1080p" | "4k") => void;
   /** Callback when frame rate is changed */
-  onFrameRateChange?: (frameRate: number) => void
+  onFrameRateChange?: (frameRate: number) => void;
   /** Callback when settings is clicked */
-  onOpenSettings?: () => void
+  onOpenSettings?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Whether controls are disabled */
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 // =============================================================================
 // Variants
 // =============================================================================
 
-const controlsVariants = cva('flex items-center gap-2', {
+const controlsVariants = cva("flex items-center gap-2", {
   variants: {
     variant: {
-      default: '',
-      compact: 'gap-1',
-      inline: 'flex-wrap',
+      default: "",
+      compact: "gap-1",
+      inline: "flex-wrap",
     },
     size: {
-      sm: 'text-sm',
-      default: 'text-base',
-      lg: 'text-lg',
+      sm: "text-sm",
+      default: "text-base",
+      lg: "text-lg",
     },
   },
   defaultVariants: {
-    variant: 'default',
-    size: 'default',
+    variant: "default",
+    size: "default",
   },
-})
+});
 
 // =============================================================================
 // Component
@@ -98,7 +100,7 @@ export function ScreenShareControls({
   isSharing,
   supportsSystemAudio,
   hasAudio = false,
-  quality = 'auto',
+  quality = "auto",
   frameRate = 30,
   shareType,
   onStartShare,
@@ -112,46 +114,46 @@ export function ScreenShareControls({
   disabled = false,
 }: ScreenShareControlsProps) {
   const [captureOptions, setCaptureOptions] = useState<ScreenCaptureOptions>({
-    quality: 'auto',
+    quality: "auto",
     frameRate: 30,
     captureSystemAudio: false,
     captureCursor: true,
     allowSurfaceSwitching: true,
-  })
+  });
 
   // ==========================================================================
   // Handlers
   // ==========================================================================
 
   const handleStartShare = () => {
-    onStartShare(captureOptions)
-  }
+    onStartShare(captureOptions);
+  };
 
   const handleQualityChange = (value: string) => {
-    const newQuality = value as 'auto' | '720p' | '1080p' | '4k'
-    setCaptureOptions((prev) => ({ ...prev, quality: newQuality }))
-    onQualityChange?.(newQuality)
-  }
+    const newQuality = value as "auto" | "720p" | "1080p" | "4k";
+    setCaptureOptions((prev) => ({ ...prev, quality: newQuality }));
+    onQualityChange?.(newQuality);
+  };
 
   const handleFrameRateChange = (value: string) => {
-    const newFrameRate = parseInt(value, 10)
-    setCaptureOptions((prev) => ({ ...prev, frameRate: newFrameRate }))
-    onFrameRateChange?.(newFrameRate)
-  }
+    const newFrameRate = parseInt(value, 10);
+    setCaptureOptions((prev) => ({ ...prev, frameRate: newFrameRate }));
+    onFrameRateChange?.(newFrameRate);
+  };
 
   const handleToggleAudio = () => {
     setCaptureOptions((prev) => ({
       ...prev,
       captureSystemAudio: !prev.captureSystemAudio,
-    }))
-  }
+    }));
+  };
 
   const handleToggleCursor = () => {
     setCaptureOptions((prev) => ({
       ...prev,
       captureCursor: !prev.captureCursor,
-    }))
-  }
+    }));
+  };
 
   // ==========================================================================
   // Render
@@ -165,7 +167,7 @@ export function ScreenShareControls({
           <DropdownMenuTrigger asChild>
             <Button
               variant="default"
-              size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'default'}
+              size={size === "sm" ? "sm" : size === "lg" ? "lg" : "default"}
               disabled={disabled}
             >
               <Monitor className="mr-2 h-4 w-4" />
@@ -211,7 +213,10 @@ export function ScreenShareControls({
             <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
               Options
             </DropdownMenuLabel>
-            <DropdownMenuItem onClick={handleToggleAudio} disabled={!supportsSystemAudio}>
+            <DropdownMenuItem
+              onClick={handleToggleAudio}
+              disabled={!supportsSystemAudio}
+            >
               <div className="flex w-full items-center justify-between">
                 <span>System Audio</span>
                 {captureOptions.captureSystemAudio ? (
@@ -229,7 +234,9 @@ export function ScreenShareControls({
             <DropdownMenuItem onClick={handleToggleCursor}>
               <div className="flex w-full items-center justify-between">
                 <span>Show Cursor</span>
-                {captureOptions.captureCursor && <span className="text-green-500">✓</span>}
+                {captureOptions.captureCursor && (
+                  <span className="text-green-500">✓</span>
+                )}
               </div>
             </DropdownMenuItem>
 
@@ -250,7 +257,7 @@ export function ScreenShareControls({
           {/* Stop Button */}
           <Button
             variant="destructive"
-            size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'default'}
+            size={size === "sm" ? "sm" : size === "lg" ? "lg" : "default"}
             onClick={onStopShare}
             disabled={disabled}
           >
@@ -291,7 +298,7 @@ export function ScreenShareControls({
         </>
       )}
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -305,22 +312,26 @@ export function ScreenShareButton({
   disabled = false,
   className,
 }: {
-  isSharing: boolean
-  onStartShare: () => void
-  onStopShare: () => void
-  disabled?: boolean
-  className?: string
+  isSharing: boolean;
+  onStartShare: () => void;
+  onStopShare: () => void;
+  disabled?: boolean;
+  className?: string;
 }) {
   return (
     <Button
-      variant={isSharing ? 'destructive' : 'default'}
+      variant={isSharing ? "destructive" : "default"}
       size="icon"
       onClick={isSharing ? onStopShare : onStartShare}
       disabled={disabled}
       className={className}
-      title={isSharing ? 'Stop screen sharing' : 'Share screen'}
+      title={isSharing ? "Stop screen sharing" : "Share screen"}
     >
-      {isSharing ? <MonitorOff className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+      {isSharing ? (
+        <MonitorOff className="h-4 w-4" />
+      ) : (
+        <Monitor className="h-4 w-4" />
+      )}
     </Button>
-  )
+  );
 }

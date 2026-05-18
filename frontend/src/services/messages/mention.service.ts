@@ -5,10 +5,10 @@
  * Supports user mentions (@user), channel mentions (#channel), and special mentions (@everyone, @here).
  */
 
-import { ApolloClient, NormalizedCacheObject, gql } from '@apollo/client'
-import { logger } from '@/lib/logger'
-import type { MessageMention, MentionType } from '@/types/message'
-import type { APIResponse } from '@/types/api'
+import { ApolloClient, NormalizedCacheObject, gql } from "@apollo/client";
+import { logger } from "@/lib/logger";
+import type { MessageMention, MentionType } from "@/types/message";
+import type { APIResponse } from "@/types/api";
 
 // ============================================================================
 // GRAPHQL QUERIES
@@ -23,18 +23,20 @@ const GET_USERS_BY_USERNAME = gql`
       avatar_url
     }
   }
-`
+`;
 
 const GET_CHANNELS_BY_SLUG = gql`
   query GetChannelsBySlug($slugs: [String!]!, $workspaceId: uuid) {
-    nchat_channels(where: { slug: { _in: $slugs }, workspace_id: { _eq: $workspaceId } }) {
+    nchat_channels(
+      where: { slug: { _in: $slugs }, workspace_id: { _eq: $workspaceId } }
+    ) {
       id
       name
       slug
       type
     }
   }
-`
+`;
 
 const GET_CHANNEL_MEMBERS = gql`
   query GetChannelMembers($channelId: uuid!) {
@@ -47,7 +49,7 @@ const GET_CHANNEL_MEMBERS = gql`
       }
     }
   }
-`
+`;
 
 const GET_ONLINE_CHANNEL_MEMBERS = gql`
   query GetOnlineChannelMembers($channelId: uuid!) {
@@ -65,7 +67,7 @@ const GET_ONLINE_CHANNEL_MEMBERS = gql`
       }
     }
   }
-`
+`;
 
 const CREATE_MENTION_NOTIFICATION = gql`
   mutation CreateMentionNotification(
@@ -93,36 +95,36 @@ const CREATE_MENTION_NOTIFICATION = gql`
       created_at
     }
   }
-`
+`;
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface ParsedMention {
-  type: MentionType
-  raw: string
-  value: string
-  startIndex: number
-  endIndex: number
+  type: MentionType;
+  raw: string;
+  value: string;
+  startIndex: number;
+  endIndex: number;
 }
 
 export interface ResolvedMention extends ParsedMention {
-  id?: string
-  displayName?: string
-  avatarUrl?: string
+  id?: string;
+  displayName?: string;
+  avatarUrl?: string;
 }
 
 export interface MentionNotificationInput {
-  messageId: string
-  channelId: string
-  actorId: string
-  actorName: string
-  messagePreview: string
+  messageId: string;
+  channelId: string;
+  actorId: string;
+  actorName: string;
+  messagePreview: string;
 }
 
 export interface MentionServiceConfig {
-  apolloClient: ApolloClient<NormalizedCacheObject>
+  apolloClient: ApolloClient<NormalizedCacheObject>;
 }
 
 // ============================================================================
@@ -130,23 +132,23 @@ export interface MentionServiceConfig {
 // ============================================================================
 
 // Pattern for @username mentions
-const USER_MENTION_PATTERN = /@([a-zA-Z0-9_-]+)/g
+const USER_MENTION_PATTERN = /@([a-zA-Z0-9_-]+)/g;
 
 // Pattern for #channel mentions
-const CHANNEL_MENTION_PATTERN = /#([a-zA-Z0-9_-]+)/g
+const CHANNEL_MENTION_PATTERN = /#([a-zA-Z0-9_-]+)/g;
 
 // Pattern for @everyone and @here
-const SPECIAL_MENTION_PATTERN = /@(everyone|here)\b/gi
+const SPECIAL_MENTION_PATTERN = /@(everyone|here)\b/gi;
 
 // ============================================================================
 // MENTION SERVICE CLASS
 // ============================================================================
 
 export class MentionService {
-  private client: ApolloClient<NormalizedCacheObject>
+  private client: ApolloClient<NormalizedCacheObject>;
 
   constructor(config: MentionServiceConfig) {
-    this.client = config.apolloClient
+    this.client = config.apolloClient;
   }
 
   // ==========================================================================
@@ -157,50 +159,50 @@ export class MentionService {
    * Parse all mentions from a message content
    */
   parseMentions(content: string): ParsedMention[] {
-    const mentions: ParsedMention[] = []
+    const mentions: ParsedMention[] = [];
 
     // Parse user mentions (@username)
-    let match: RegExpExecArray | null
-    const userPattern = new RegExp(USER_MENTION_PATTERN.source, 'g')
+    let match: RegExpExecArray | null;
+    const userPattern = new RegExp(USER_MENTION_PATTERN.source, "g");
     while ((match = userPattern.exec(content)) !== null) {
       mentions.push({
-        type: 'user',
+        type: "user",
         raw: match[0],
         value: match[1],
         startIndex: match.index,
         endIndex: match.index + match[0].length,
-      })
+      });
     }
 
     // Parse channel mentions (#channel)
-    const channelPattern = new RegExp(CHANNEL_MENTION_PATTERN.source, 'g')
+    const channelPattern = new RegExp(CHANNEL_MENTION_PATTERN.source, "g");
     while ((match = channelPattern.exec(content)) !== null) {
       mentions.push({
-        type: 'channel',
+        type: "channel",
         raw: match[0],
         value: match[1],
         startIndex: match.index,
         endIndex: match.index + match[0].length,
-      })
+      });
     }
 
     // Parse special mentions (@everyone, @here)
-    const specialPattern = new RegExp(SPECIAL_MENTION_PATTERN.source, 'gi')
+    const specialPattern = new RegExp(SPECIAL_MENTION_PATTERN.source, "gi");
     while ((match = specialPattern.exec(content)) !== null) {
-      const mentionType = match[1].toLowerCase() as 'everyone' | 'here'
+      const mentionType = match[1].toLowerCase() as "everyone" | "here";
       mentions.push({
         type: mentionType,
         raw: match[0],
         value: match[1],
         startIndex: match.index,
         endIndex: match.index + match[0].length,
-      })
+      });
     }
 
     // Sort by position
-    mentions.sort((a, b) => a.startIndex - b.startIndex)
+    mentions.sort((a, b) => a.startIndex - b.startIndex);
 
-    return mentions
+    return mentions;
   }
 
   /**
@@ -211,35 +213,35 @@ export class MentionService {
       USER_MENTION_PATTERN.test(content) ||
       CHANNEL_MENTION_PATTERN.test(content) ||
       SPECIAL_MENTION_PATTERN.test(content)
-    )
+    );
   }
 
   /**
    * Check if content mentions @everyone
    */
   mentionsEveryone(content: string): boolean {
-    return /@everyone\b/i.test(content)
+    return /@everyone\b/i.test(content);
   }
 
   /**
    * Check if content mentions @here
    */
   mentionsHere(content: string): boolean {
-    return /@here\b/i.test(content)
+    return /@here\b/i.test(content);
   }
 
   /**
    * Extract user IDs from parsed mentions
    */
   extractUserMentions(mentions: ParsedMention[]): string[] {
-    return mentions.filter((m) => m.type === 'user').map((m) => m.value)
+    return mentions.filter((m) => m.type === "user").map((m) => m.value);
   }
 
   /**
    * Extract channel slugs from parsed mentions
    */
   extractChannelMentions(mentions: ParsedMention[]): string[] {
-    return mentions.filter((m) => m.type === 'channel').map((m) => m.value)
+    return mentions.filter((m) => m.type === "channel").map((m) => m.value);
   }
 
   // ==========================================================================
@@ -251,13 +253,15 @@ export class MentionService {
    */
   async resolveMentions(
     mentions: ParsedMention[],
-    workspaceId?: string
+    workspaceId?: string,
   ): Promise<APIResponse<ResolvedMention[]>> {
     try {
-      logger.debug('MentionService.resolveMentions', { mentionCount: mentions.length })
+      logger.debug("MentionService.resolveMentions", {
+        mentionCount: mentions.length,
+      });
 
-      const usernames = this.extractUserMentions(mentions)
-      const channelSlugs = this.extractChannelMentions(mentions)
+      const usernames = this.extractUserMentions(mentions);
+      const channelSlugs = this.extractChannelMentions(mentions);
 
       // Fetch users and channels in parallel
       const [usersResult, channelsResult] = await Promise.all([
@@ -265,59 +269,59 @@ export class MentionService {
           ? this.client.query({
               query: GET_USERS_BY_USERNAME,
               variables: { usernames },
-              fetchPolicy: 'network-only',
+              fetchPolicy: "network-only",
             })
           : { data: { nchat_users: [] } },
         channelSlugs.length > 0
           ? this.client.query({
               query: GET_CHANNELS_BY_SLUG,
               variables: { slugs: channelSlugs, workspaceId },
-              fetchPolicy: 'network-only',
+              fetchPolicy: "network-only",
             })
           : { data: { nchat_channels: [] } },
-      ])
+      ]);
 
       // Create lookup maps
-      const userMap = new Map<string, Record<string, unknown>>()
+      const userMap = new Map<string, Record<string, unknown>>();
       for (const user of usersResult.data.nchat_users || []) {
-        userMap.set(user.username.toLowerCase(), user)
+        userMap.set(user.username.toLowerCase(), user);
       }
 
-      const channelMap = new Map<string, Record<string, unknown>>()
+      const channelMap = new Map<string, Record<string, unknown>>();
       for (const channel of channelsResult.data.nchat_channels || []) {
-        channelMap.set(channel.slug.toLowerCase(), channel)
+        channelMap.set(channel.slug.toLowerCase(), channel);
       }
 
       // Resolve mentions
       const resolved: ResolvedMention[] = mentions.map((mention) => {
-        if (mention.type === 'user') {
-          const user = userMap.get(mention.value.toLowerCase())
+        if (mention.type === "user") {
+          const user = userMap.get(mention.value.toLowerCase());
           return {
             ...mention,
             id: user?.id as string | undefined,
             displayName: user?.display_name as string | undefined,
             avatarUrl: user?.avatar_url as string | undefined,
-          }
-        } else if (mention.type === 'channel') {
-          const channel = channelMap.get(mention.value.toLowerCase())
+          };
+        } else if (mention.type === "channel") {
+          const channel = channelMap.get(mention.value.toLowerCase());
           return {
             ...mention,
             id: channel?.id as string | undefined,
             displayName: channel?.name as string | undefined,
-          }
+          };
         } else {
           // @everyone or @here
-          return mention
+          return mention;
         }
-      })
+      });
 
       return {
         success: true,
         data: resolved,
-      }
+      };
     } catch (error) {
-      logger.error('MentionService.resolveMentions failed', error as Error)
-      return this.handleError(error)
+      logger.error("MentionService.resolveMentions failed", error as Error);
+      return this.handleError(error);
     }
   }
 
@@ -326,29 +330,31 @@ export class MentionService {
    */
   async getEveryoneUserIds(channelId: string): Promise<APIResponse<string[]>> {
     try {
-      logger.debug('MentionService.getEveryoneUserIds', { channelId })
+      logger.debug("MentionService.getEveryoneUserIds", { channelId });
 
       const { data, error } = await this.client.query({
         query: GET_CHANNEL_MEMBERS,
         variables: { channelId },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (error) {
-        throw error
+        throw error;
       }
 
       const userIds = (data.nchat_channel_members || []).map(
-        (m: Record<string, unknown>) => m.user_id as string
-      )
+        (m: Record<string, unknown>) => m.user_id as string,
+      );
 
       return {
         success: true,
         data: userIds,
-      }
+      };
     } catch (error) {
-      logger.error('MentionService.getEveryoneUserIds failed', error as Error, { channelId })
-      return this.handleError(error)
+      logger.error("MentionService.getEveryoneUserIds failed", error as Error, {
+        channelId,
+      });
+      return this.handleError(error);
     }
   }
 
@@ -357,29 +363,31 @@ export class MentionService {
    */
   async getHereUserIds(channelId: string): Promise<APIResponse<string[]>> {
     try {
-      logger.debug('MentionService.getHereUserIds', { channelId })
+      logger.debug("MentionService.getHereUserIds", { channelId });
 
       const { data, error } = await this.client.query({
         query: GET_ONLINE_CHANNEL_MEMBERS,
         variables: { channelId },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (error) {
-        throw error
+        throw error;
       }
 
       const userIds = (data.nchat_channel_members || []).map(
-        (m: Record<string, unknown>) => m.user_id as string
-      )
+        (m: Record<string, unknown>) => m.user_id as string,
+      );
 
       return {
         success: true,
         data: userIds,
-      }
+      };
     } catch (error) {
-      logger.error('MentionService.getHereUserIds failed', error as Error, { channelId })
-      return this.handleError(error)
+      logger.error("MentionService.getHereUserIds failed", error as Error, {
+        channelId,
+      });
+      return this.handleError(error);
     }
   }
 
@@ -392,56 +400,56 @@ export class MentionService {
    */
   async notifyMentionedUsers(
     content: string,
-    input: MentionNotificationInput
+    input: MentionNotificationInput,
   ): Promise<APIResponse<{ notifiedCount: number }>> {
     try {
-      logger.debug('MentionService.notifyMentionedUsers', {
+      logger.debug("MentionService.notifyMentionedUsers", {
         messageId: input.messageId,
         channelId: input.channelId,
-      })
+      });
 
-      const mentions = this.parseMentions(content)
-      const resolved = await this.resolveMentions(mentions)
+      const mentions = this.parseMentions(content);
+      const resolved = await this.resolveMentions(mentions);
 
       if (!resolved.success || !resolved.data) {
-        throw new Error('Failed to resolve mentions')
+        throw new Error("Failed to resolve mentions");
       }
 
       // Collect user IDs to notify
-      const userIdsToNotify = new Set<string>()
+      const userIdsToNotify = new Set<string>();
 
       // Add directly mentioned users
       for (const mention of resolved.data) {
-        if (mention.type === 'user' && mention.id) {
-          userIdsToNotify.add(mention.id)
+        if (mention.type === "user" && mention.id) {
+          userIdsToNotify.add(mention.id);
         }
       }
 
       // Handle @everyone
       if (this.mentionsEveryone(content)) {
-        const everyoneResult = await this.getEveryoneUserIds(input.channelId)
+        const everyoneResult = await this.getEveryoneUserIds(input.channelId);
         if (everyoneResult.success && everyoneResult.data) {
           for (const userId of everyoneResult.data) {
-            userIdsToNotify.add(userId)
+            userIdsToNotify.add(userId);
           }
         }
       }
 
       // Handle @here
       if (this.mentionsHere(content)) {
-        const hereResult = await this.getHereUserIds(input.channelId)
+        const hereResult = await this.getHereUserIds(input.channelId);
         if (hereResult.success && hereResult.data) {
           for (const userId of hereResult.data) {
-            userIdsToNotify.add(userId)
+            userIdsToNotify.add(userId);
           }
         }
       }
 
       // Remove the actor from notifications (don't notify yourself)
-      userIdsToNotify.delete(input.actorId)
+      userIdsToNotify.delete(input.actorId);
 
       // Create notifications
-      let notifiedCount = 0
+      let notifiedCount = 0;
       for (const userId of userIdsToNotify) {
         try {
           await this.client.mutate({
@@ -454,30 +462,34 @@ export class MentionService {
               title: `${input.actorName} mentioned you`,
               body: input.messagePreview.substring(0, 100),
             },
-          })
-          notifiedCount++
+          });
+          notifiedCount++;
         } catch (notifyError) {
-          logger.warn('Failed to create mention notification', {
+          logger.warn("Failed to create mention notification", {
             userId,
             messageId: input.messageId,
-          })
+          });
         }
       }
 
-      logger.info('MentionService.notifyMentionedUsers success', {
+      logger.info("MentionService.notifyMentionedUsers success", {
         messageId: input.messageId,
         notifiedCount,
-      })
+      });
 
       return {
         success: true,
         data: { notifiedCount },
-      }
+      };
     } catch (error) {
-      logger.error('MentionService.notifyMentionedUsers failed', error as Error, {
-        messageId: input.messageId,
-      })
-      return this.handleError(error)
+      logger.error(
+        "MentionService.notifyMentionedUsers failed",
+        error as Error,
+        {
+          messageId: input.messageId,
+        },
+      );
+      return this.handleError(error);
     }
   }
 
@@ -490,41 +502,43 @@ export class MentionService {
    */
   formatMentionsAsHtml(content: string, mentions: ResolvedMention[]): string {
     if (mentions.length === 0) {
-      return content
+      return content;
     }
 
-    let result = ''
-    let lastIndex = 0
+    let result = "";
+    let lastIndex = 0;
 
     for (const mention of mentions) {
       // Add text before the mention
-      result += this.escapeHtml(content.substring(lastIndex, mention.startIndex))
+      result += this.escapeHtml(
+        content.substring(lastIndex, mention.startIndex),
+      );
 
       // Add the formatted mention
-      if (mention.type === 'user') {
+      if (mention.type === "user") {
         if (mention.id) {
-          result += `<span class="mention mention-user" data-user-id="${mention.id}">@${mention.displayName || mention.value}</span>`
+          result += `<span class="mention mention-user" data-user-id="${mention.id}">@${mention.displayName || mention.value}</span>`;
         } else {
-          result += `<span class="mention mention-unresolved">@${mention.value}</span>`
+          result += `<span class="mention mention-unresolved">@${mention.value}</span>`;
         }
-      } else if (mention.type === 'channel') {
+      } else if (mention.type === "channel") {
         if (mention.id) {
-          result += `<a class="mention mention-channel" href="/chat/${mention.id}" data-channel-id="${mention.id}">#${mention.displayName || mention.value}</a>`
+          result += `<a class="mention mention-channel" href="/chat/${mention.id}" data-channel-id="${mention.id}">#${mention.displayName || mention.value}</a>`;
         } else {
-          result += `<span class="mention mention-unresolved">#${mention.value}</span>`
+          result += `<span class="mention mention-unresolved">#${mention.value}</span>`;
         }
       } else {
         // @everyone or @here
-        result += `<span class="mention mention-special">@${mention.value}</span>`
+        result += `<span class="mention mention-special">@${mention.value}</span>`;
       }
 
-      lastIndex = mention.endIndex
+      lastIndex = mention.endIndex;
     }
 
     // Add remaining text
-    result += this.escapeHtml(content.substring(lastIndex))
+    result += this.escapeHtml(content.substring(lastIndex));
 
-    return result
+    return result;
   }
 
   /**
@@ -532,8 +546,8 @@ export class MentionService {
    */
   stripMentionHtml(html: string): string {
     return html
-      .replace(/<span class="mention[^"]*"[^>]*>([^<]+)<\/span>/g, '$1')
-      .replace(/<a class="mention[^"]*"[^>]*>([^<]+)<\/a>/g, '$1')
+      .replace(/<span class="mention[^"]*"[^>]*>([^<]+)<\/span>/g, "$1")
+      .replace(/<a class="mention[^"]*"[^>]*>([^<]+)<\/a>/g, "$1");
   }
 
   /**
@@ -541,11 +555,11 @@ export class MentionService {
    */
   private escapeHtml(text: string): string {
     return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   // ==========================================================================
@@ -556,16 +570,16 @@ export class MentionService {
    * Handle errors
    */
   private handleError<T>(error: unknown): APIResponse<T> {
-    const err = error as Error
+    const err = error as Error;
 
     return {
       success: false,
       error: {
-        code: 'INTERNAL_ERROR',
+        code: "INTERNAL_ERROR",
         status: 500,
-        message: err.message || 'An error occurred',
+        message: err.message || "An error occurred",
       },
-    }
+    };
   }
 }
 
@@ -573,27 +587,27 @@ export class MentionService {
 // SINGLETON INSTANCE
 // ============================================================================
 
-let mentionServiceInstance: MentionService | null = null
+let mentionServiceInstance: MentionService | null = null;
 
 /**
  * Get or create the mention service singleton
  */
 export function getMentionService(
-  apolloClient: ApolloClient<NormalizedCacheObject>
+  apolloClient: ApolloClient<NormalizedCacheObject>,
 ): MentionService {
   if (!mentionServiceInstance) {
-    mentionServiceInstance = new MentionService({ apolloClient })
+    mentionServiceInstance = new MentionService({ apolloClient });
   }
-  return mentionServiceInstance
+  return mentionServiceInstance;
 }
 
 /**
  * Create a new mention service instance
  */
 export function createMentionService(
-  apolloClient: ApolloClient<NormalizedCacheObject>
+  apolloClient: ApolloClient<NormalizedCacheObject>,
 ): MentionService {
-  return new MentionService({ apolloClient })
+  return new MentionService({ apolloClient });
 }
 
-export default MentionService
+export default MentionService;

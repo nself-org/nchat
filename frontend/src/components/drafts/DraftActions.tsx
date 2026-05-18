@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * DraftActions - Action buttons for draft management
@@ -6,18 +6,25 @@
  * Send, edit, delete draft actions
  */
 
-import * as React from 'react'
-import { useState, useCallback } from 'react'
-import { Send, Edit, Trash2, MoreHorizontal, Copy, RefreshCw } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { useState, useCallback } from "react";
+import {
+  Send,
+  Edit,
+  Trash2,
+  MoreHorizontal,
+  Copy,
+  RefreshCw,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,9 +34,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import type { Draft } from '@/lib/drafts/draft-types'
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { Draft } from "@/lib/drafts/draft-types";
 
 // ============================================================================
 // Types
@@ -37,29 +49,29 @@ import type { Draft } from '@/lib/drafts/draft-types'
 
 export interface DraftActionsProps {
   /** The draft to act upon */
-  draft: Draft
+  draft: Draft;
   /** Layout variant */
-  variant?: 'buttons' | 'icons' | 'dropdown'
+  variant?: "buttons" | "icons" | "dropdown";
   /** Button size */
-  size?: 'sm' | 'default' | 'lg'
+  size?: "sm" | "default" | "lg";
   /** Show labels on buttons */
-  showLabels?: boolean
+  showLabels?: boolean;
   /** Disable all actions */
-  disabled?: boolean
+  disabled?: boolean;
 
   /** Called when user wants to send the draft */
-  onSend?: (draft: Draft) => void | Promise<void>
+  onSend?: (draft: Draft) => void | Promise<void>;
   /** Called when user wants to edit the draft */
-  onEdit?: (draft: Draft) => void | Promise<void>
+  onEdit?: (draft: Draft) => void | Promise<void>;
   /** Called when user wants to delete the draft */
-  onDelete?: (draft: Draft) => void | Promise<void>
+  onDelete?: (draft: Draft) => void | Promise<void>;
   /** Called when user wants to copy the draft content */
-  onCopy?: (draft: Draft) => void | Promise<void>
+  onCopy?: (draft: Draft) => void | Promise<void>;
   /** Called when user wants to restore the draft */
-  onRestore?: (draft: Draft) => void | Promise<void>
+  onRestore?: (draft: Draft) => void | Promise<void>;
 
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -68,8 +80,8 @@ export interface DraftActionsProps {
 
 export function DraftActions({
   draft,
-  variant = 'buttons',
-  size = 'default',
+  variant = "buttons",
+  size = "default",
   showLabels = true,
   disabled = false,
   onSend,
@@ -79,54 +91,54 @@ export function DraftActions({
   onRestore,
   className,
 }: DraftActionsProps) {
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [isLoading, setIsLoading] = useState<'send' | 'delete' | null>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState<"send" | "delete" | null>(null);
 
   // Handlers
   const handleSend = useCallback(async () => {
-    if (!onSend) return
-    setIsLoading('send')
+    if (!onSend) return;
+    setIsLoading("send");
     try {
-      await onSend(draft)
+      await onSend(draft);
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
-  }, [onSend, draft])
+  }, [onSend, draft]);
 
   const handleEdit = useCallback(() => {
-    onEdit?.(draft)
-  }, [onEdit, draft])
+    onEdit?.(draft);
+  }, [onEdit, draft]);
 
   const handleDeleteClick = useCallback(() => {
-    setShowDeleteDialog(true)
-  }, [])
+    setShowDeleteDialog(true);
+  }, []);
 
   const handleDeleteConfirm = useCallback(async () => {
-    if (!onDelete) return
-    setIsLoading('delete')
+    if (!onDelete) return;
+    setIsLoading("delete");
     try {
-      await onDelete(draft)
+      await onDelete(draft);
     } finally {
-      setIsLoading(null)
-      setShowDeleteDialog(false)
+      setIsLoading(null);
+      setShowDeleteDialog(false);
     }
-  }, [onDelete, draft])
+  }, [onDelete, draft]);
 
   const handleCopy = useCallback(async () => {
     if (onCopy) {
-      await onCopy(draft)
+      await onCopy(draft);
     } else {
       // Default copy behavior
-      await navigator.clipboard.writeText(draft.content)
+      await navigator.clipboard.writeText(draft.content);
     }
-  }, [onCopy, draft])
+  }, [onCopy, draft]);
 
   const handleRestore = useCallback(() => {
-    onRestore?.(draft)
-  }, [onRestore, draft])
+    onRestore?.(draft);
+  }, [onRestore, draft]);
 
   // Render based on variant
-  if (variant === 'dropdown') {
+  if (variant === "dropdown") {
     return (
       <>
         <DropdownMenu>
@@ -161,7 +173,10 @@ export function DraftActions({
             {onDelete && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleDeleteClick} className="text-destructive">
+                <DropdownMenuItem
+                  onClick={handleDeleteClick}
+                  className="text-destructive"
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete draft
                 </DropdownMenuItem>
@@ -174,17 +189,17 @@ export function DraftActions({
           open={showDeleteDialog}
           onOpenChange={setShowDeleteDialog}
           onConfirm={handleDeleteConfirm}
-          isLoading={isLoading === 'delete'}
+          isLoading={isLoading === "delete"}
         />
       </>
-    )
+    );
   }
 
-  if (variant === 'icons') {
+  if (variant === "icons") {
     return (
       <>
         <TooltipProvider delayDuration={300}>
-          <div className={cn('flex items-center gap-1', className)}>
+          <div className={cn("flex items-center gap-1", className)}>
             {onRestore && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -226,7 +241,7 @@ export function DraftActions({
                     variant="ghost"
                     size="sm"
                     onClick={handleSend}
-                    disabled={disabled || isLoading === 'send'}
+                    disabled={disabled || isLoading === "send"}
                     className="h-8 w-8 p-0"
                   >
                     <Send className="h-4 w-4" />
@@ -243,7 +258,7 @@ export function DraftActions({
                     variant="ghost"
                     size="sm"
                     onClick={handleDeleteClick}
-                    disabled={disabled || isLoading === 'delete'}
+                    disabled={disabled || isLoading === "delete"}
                     className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -259,16 +274,16 @@ export function DraftActions({
           open={showDeleteDialog}
           onOpenChange={setShowDeleteDialog}
           onConfirm={handleDeleteConfirm}
-          isLoading={isLoading === 'delete'}
+          isLoading={isLoading === "delete"}
         />
       </>
-    )
+    );
   }
 
   // Default: buttons variant
   return (
     <>
-      <div className={cn('flex items-center gap-2', className)}>
+      <div className={cn("flex items-center gap-2", className)}>
         {onRestore && (
           <Button
             variant="outline"
@@ -278,7 +293,7 @@ export function DraftActions({
             className="gap-1.5"
           >
             <RefreshCw className="h-4 w-4" />
-            {showLabels && 'Restore'}
+            {showLabels && "Restore"}
           </Button>
         )}
 
@@ -291,7 +306,7 @@ export function DraftActions({
             className="gap-1.5"
           >
             <Edit className="h-4 w-4" />
-            {showLabels && 'Edit'}
+            {showLabels && "Edit"}
           </Button>
         )}
 
@@ -300,11 +315,11 @@ export function DraftActions({
             variant="default"
             size={size}
             onClick={handleSend}
-            disabled={disabled || isLoading === 'send'}
+            disabled={disabled || isLoading === "send"}
             className="gap-1.5"
           >
             <Send className="h-4 w-4" />
-            {showLabels && (isLoading === 'send' ? 'Sending...' : 'Send')}
+            {showLabels && (isLoading === "send" ? "Sending..." : "Send")}
           </Button>
         )}
 
@@ -313,11 +328,11 @@ export function DraftActions({
             variant="ghost"
             size={size}
             onClick={handleDeleteClick}
-            disabled={disabled || isLoading === 'delete'}
+            disabled={disabled || isLoading === "delete"}
             className="gap-1.5 text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
-            {showLabels && 'Delete'}
+            {showLabels && "Delete"}
           </Button>
         )}
       </div>
@@ -326,10 +341,10 @@ export function DraftActions({
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         onConfirm={handleDeleteConfirm}
-        isLoading={isLoading === 'delete'}
+        isLoading={isLoading === "delete"}
       />
     </>
-  )
+  );
 }
 
 // ============================================================================
@@ -337,20 +352,26 @@ export function DraftActions({
 // ============================================================================
 
 interface DeleteDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onConfirm: () => void
-  isLoading?: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  isLoading?: boolean;
 }
 
-function DeleteDialog({ open, onOpenChange, onConfirm, isLoading }: DeleteDialogProps) {
+function DeleteDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  isLoading,
+}: DeleteDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete draft?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete this draft. This action cannot be undone.
+            This will permanently delete this draft. This action cannot be
+            undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -360,12 +381,12 @@ function DeleteDialog({ open, onOpenChange, onConfirm, isLoading }: DeleteDialog
             disabled={isLoading}
             className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
           >
-            {isLoading ? 'Deleting...' : 'Delete'}
+            {isLoading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
 
-export default DraftActions
+export default DraftActions;

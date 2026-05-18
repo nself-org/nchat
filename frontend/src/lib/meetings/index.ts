@@ -8,7 +8,7 @@
 // Types
 // ============================================================================
 
-export * from './meeting-types'
+export * from "./meeting-types";
 
 // ============================================================================
 // Scheduler Utilities
@@ -42,9 +42,9 @@ export {
   // Time slot utilities
   generateTimeSlots,
   getDurationOptions,
-} from './meeting-scheduler'
+} from "./meeting-scheduler";
 
-export type { ValidationResult, TimeSlot } from './meeting-scheduler'
+export type { ValidationResult, TimeSlot } from "./meeting-scheduler";
 
 // ============================================================================
 // Invite Utilities
@@ -78,7 +78,7 @@ export {
   generateInviteMessage,
   generateUpdateMessage,
   generateCancellationMessage,
-} from './meeting-invites'
+} from "./meeting-invites";
 
 // ============================================================================
 // Reminder Utilities
@@ -112,9 +112,9 @@ export {
   cancelAllReminders,
   scheduleAllReminders,
   getScheduledReminders,
-} from './meeting-reminders'
+} from "./meeting-reminders";
 
-export type { ReminderNotification } from './meeting-reminders'
+export type { ReminderNotification } from "./meeting-reminders";
 
 // ============================================================================
 // Link Utilities
@@ -145,6 +145,6 @@ export {
   // Room type helpers
   getRoomTypeIcon,
   getRoomTypeLabel,
-} from './meeting-links'
+} from "./meeting-links";
 
-export type { CalendarEvent, ShareContent } from './meeting-links'
+export type { CalendarEvent, ShareContent } from "./meeting-links";

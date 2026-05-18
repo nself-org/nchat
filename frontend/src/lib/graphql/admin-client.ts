@@ -25,9 +25,14 @@
  * ```
  */
 
-import { ApolloClient, InMemoryCache, HttpLink, NormalizedCacheObject } from '@apollo/client'
+import {
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+  NormalizedCacheObject,
+} from "@apollo/client";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Security Validation
@@ -38,37 +43,37 @@ import { logger } from '@/lib/logger'
  * These are dev-stub defaults that must never reach a real Hasura instance.
  */
 const KNOWN_BAD_ADMIN_SECRETS = [
-  'dummy-admin-secret',
-  'dummy-secret-for-build-only-must-be-at-least-32-chars',
-  'hasura-admin-secret-dev',
-  'changeme',
-  'changeme123',
-  'secret',
-  'admin',
-]
+  "dummy-admin-secret",
+  "dummy-secret-for-build-only-must-be-at-least-32-chars",
+  "hasura-admin-secret-dev",
+  "changeme",
+  "changeme123",
+  "secret",
+  "admin",
+];
 
 /**
  * Returns true when the value is a known dev-stub that must be rejected.
  */
 function isKnownBadSecret(secret: string): boolean {
-  const lower = secret.toLowerCase()
+  const lower = secret.toLowerCase();
   return (
     KNOWN_BAD_ADMIN_SECRETS.includes(lower) ||
-    lower.startsWith('dummy') ||
-    lower.startsWith('test') ||
-    lower === ''
-  )
+    lower.startsWith("dummy") ||
+    lower.startsWith("test") ||
+    lower === ""
+  );
 }
 
 /**
  * Ensure this code only runs on the server
  */
 function enforceServerSide(): void {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     throw new Error(
-      'SECURITY VIOLATION: Admin GraphQL client can only be used server-side. ' +
-        'This code attempted to run in the browser, which would expose admin credentials.'
-    )
+      "SECURITY VIOLATION: Admin GraphQL client can only be used server-side. " +
+        "This code attempted to run in the browser, which would expose admin credentials.",
+    );
   }
 }
 
@@ -76,67 +81,76 @@ function enforceServerSide(): void {
  * Validate required environment variables
  */
 function validateEnvironment(): {
-  graphqlUrl: string
-  adminSecret: string
+  graphqlUrl: string;
+  adminSecret: string;
 } {
   // Skip validation during build — allowed only in development with explicit opt-in.
   // SKIP_ENV_VALIDATION must NEVER be used in production.
-  if (process.env.SKIP_ENV_VALIDATION === 'true') {
-    if (process.env.NODE_ENV === 'production') {
+  if (process.env.SKIP_ENV_VALIDATION === "true") {
+    if (process.env.NODE_ENV === "production") {
       throw new Error(
-        'CRITICAL: SKIP_ENV_VALIDATION cannot be used in production. ' +
-          'Set HASURA_ADMIN_SECRET and NEXT_PUBLIC_GRAPHQL_URL instead.'
-      )
+        "CRITICAL: SKIP_ENV_VALIDATION cannot be used in production. " +
+          "Set HASURA_ADMIN_SECRET and NEXT_PUBLIC_GRAPHQL_URL instead.",
+      );
     }
-    if (process.env.NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET !== 'true') {
+    if (process.env.NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET !== "true") {
       throw new Error(
-        'CRITICAL: SKIP_ENV_VALIDATION requires NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET=true in development. ' +
-          'Set HASURA_ADMIN_SECRET for a real backend, or set NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET=true for local builds.'
-      )
+        "CRITICAL: SKIP_ENV_VALIDATION requires NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET=true in development. " +
+          "Set HASURA_ADMIN_SECRET for a real backend, or set NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET=true for local builds.",
+      );
     }
     // Dev-only path: use a placeholder that Hasura will reject rather than a
     // recognisable dummy string. Any actual Hasura call will fail with an auth
     // error — that is intentional; this path is for build-time only.
-    logger.warn('SKIP_ENV_VALIDATION is true — admin client is build-time placeholder (dev only)')
+    logger.warn(
+      "SKIP_ENV_VALIDATION is true — admin client is build-time placeholder (dev only)",
+    );
     return {
-      graphqlUrl: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql',
-      adminSecret: '__build_time_placeholder__',
-    }
+      graphqlUrl:
+        process.env.NEXT_PUBLIC_GRAPHQL_URL ||
+        "http://localhost:8080/v1/graphql",
+      // sast-ignore: HARDCODED_CREDENTIAL -- placeholder string used during SSG build; not an actual secret
+      adminSecret: "__build_time_placeholder__",
+    };
   }
 
-  const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL
-  const adminSecret = process.env.HASURA_ADMIN_SECRET
+  const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
+  const adminSecret = process.env.HASURA_ADMIN_SECRET;
 
   if (!graphqlUrl) {
-    throw new Error('FATAL: NEXT_PUBLIC_GRAPHQL_URL environment variable must be set')
+    throw new Error(
+      "FATAL: NEXT_PUBLIC_GRAPHQL_URL environment variable must be set",
+    );
   }
 
   if (!adminSecret) {
     throw new Error(
-      'FATAL: HASURA_ADMIN_SECRET environment variable must be set. ' +
-        'Generate with: openssl rand -hex 32'
-    )
+      "FATAL: HASURA_ADMIN_SECRET environment variable must be set. " +
+        "Generate with: openssl rand -hex 32",
+    );
   }
 
   if (isKnownBadSecret(adminSecret)) {
     throw new Error(
-      'FATAL: HASURA_ADMIN_SECRET is set to a known insecure dev-stub value. ' +
-        'Generate a real secret with: openssl rand -hex 32'
-    )
+      "FATAL: HASURA_ADMIN_SECRET is set to a known insecure dev-stub value. " +
+        "Generate a real secret with: openssl rand -hex 32",
+    );
   }
 
   if (adminSecret.length < 32) {
-    throw new Error('FATAL: HASURA_ADMIN_SECRET must be at least 32 characters')
+    throw new Error(
+      "FATAL: HASURA_ADMIN_SECRET must be at least 32 characters",
+    );
   }
 
-  return { graphqlUrl, adminSecret }
+  return { graphqlUrl, adminSecret };
 }
 
 // ============================================================================
 // Client Singleton
 // ============================================================================
 
-let adminClientInstance: ApolloClient<NormalizedCacheObject> | null = null
+let adminClientInstance: ApolloClient<NormalizedCacheObject> | null = null;
 
 /**
  * Get or create the admin GraphQL client
@@ -155,26 +169,26 @@ let adminClientInstance: ApolloClient<NormalizedCacheObject> | null = null
  */
 export function getAdminClient(): ApolloClient<NormalizedCacheObject> {
   // Security check - must be server-side
-  enforceServerSide()
+  enforceServerSide();
 
   // Return existing instance if available
   if (adminClientInstance) {
-    return adminClientInstance
+    return adminClientInstance;
   }
 
   // Validate environment
-  const { graphqlUrl, adminSecret } = validateEnvironment()
+  const { graphqlUrl, adminSecret } = validateEnvironment();
 
   // Create HTTP link with admin credentials
   const httpLink = new HttpLink({
     uri: graphqlUrl,
     headers: {
-      'x-hasura-admin-secret': adminSecret,
-      'Content-Type': 'application/json',
+      "x-hasura-admin-secret": adminSecret,
+      "Content-Type": "application/json",
     },
     // Disable credentials since we're using admin secret
-    credentials: 'omit',
-  })
+    credentials: "omit",
+  });
 
   // Create client with error handling
   adminClientInstance = new ApolloClient({
@@ -194,16 +208,16 @@ export function getAdminClient(): ApolloClient<NormalizedCacheObject> {
     // Always use network-only for admin queries (no cache)
     defaultOptions: {
       query: {
-        fetchPolicy: 'network-only',
-        errorPolicy: 'all',
+        fetchPolicy: "network-only",
+        errorPolicy: "all",
       },
       mutate: {
-        errorPolicy: 'all',
+        errorPolicy: "all",
       },
     },
-  })
+  });
 
-  return adminClientInstance
+  return adminClientInstance;
 }
 
 /**
@@ -213,8 +227,8 @@ export function getAdminClient(): ApolloClient<NormalizedCacheObject> {
  * In production, this should never be called.
  */
 export function resetAdminClient(): void {
-  enforceServerSide()
-  adminClientInstance = null
+  enforceServerSide();
+  adminClientInstance = null;
 }
 
 // ============================================================================
@@ -233,19 +247,22 @@ export function resetAdminClient(): void {
 export async function adminQuery<
   TData = any,
   TVariables extends Record<string, any> = Record<string, any>,
->(query: any, variables?: TVariables): Promise<{ data: TData | null; errors?: readonly any[] }> {
-  enforceServerSide()
+>(
+  query: any,
+  variables?: TVariables,
+): Promise<{ data: TData | null; errors?: readonly any[] }> {
+  enforceServerSide();
 
-  const client = getAdminClient()
+  const client = getAdminClient();
   const result = await client.query<TData, TVariables>({
     query,
     variables,
-  })
+  });
 
   return {
     data: result.data || null,
     errors: result.errors,
-  }
+  };
 }
 
 /**
@@ -260,19 +277,22 @@ export async function adminQuery<
 export async function adminMutate<
   TData = any,
   TVariables extends Record<string, any> = Record<string, any>,
->(mutation: any, variables?: TVariables): Promise<{ data: TData | null; errors?: readonly any[] }> {
-  enforceServerSide()
+>(
+  mutation: any,
+  variables?: TVariables,
+): Promise<{ data: TData | null; errors?: readonly any[] }> {
+  enforceServerSide();
 
-  const client = getAdminClient()
+  const client = getAdminClient();
   const result = await client.mutate<TData, TVariables>({
     mutation,
     variables,
-  })
+  });
 
   return {
     data: result.data || null,
     errors: result.errors,
-  }
+  };
 }
 
 // ============================================================================
@@ -283,18 +303,20 @@ export async function adminMutate<
  * Check if a GraphQL result has errors
  */
 export function hasGraphQLErrors(result: {
-  errors?: readonly any[]
+  errors?: readonly any[];
 }): result is { errors: readonly any[] } {
-  return Array.isArray(result.errors) && result.errors.length > 0
+  return Array.isArray(result.errors) && result.errors.length > 0;
 }
 
 /**
  * Get error message from GraphQL errors
  */
-export function getGraphQLErrorMessage(result: { errors?: readonly any[] }): string {
+export function getGraphQLErrorMessage(result: {
+  errors?: readonly any[];
+}): string {
   if (!hasGraphQLErrors(result)) {
-    return 'Unknown error'
+    return "Unknown error";
   }
 
-  return result.errors.map((err) => err.message).join(', ')
+  return result.errors.map((err) => err.message).join(", ");
 }

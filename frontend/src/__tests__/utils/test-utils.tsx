@@ -5,12 +5,26 @@
  * Provides a consistent testing setup with all required providers.
  */
 
-import React, { ReactElement, ReactNode } from 'react'
-import { render, RenderOptions, RenderResult, waitFor } from '@testing-library/react'
-import userEvent, { UserEvent } from '@testing-library/user-event'
-import { useMessageStore, MessageStore, MessageState } from '@/stores/message-store'
-import { useChannelStore, ChannelStore, Channel, ChannelType } from '@/stores/channel-store'
-import { useUIStore } from '@/stores/ui-store'
+import React, { ReactElement, ReactNode } from "react";
+import {
+  render,
+  RenderOptions,
+  RenderResult,
+  waitFor,
+} from "@testing-library/react";
+import userEvent, { UserEvent } from "@testing-library/user-event";
+import {
+  useMessageStore,
+  MessageStore,
+  MessageState,
+} from "@/stores/message-store";
+import {
+  useChannelStore,
+  ChannelStore,
+  Channel,
+  ChannelType,
+} from "@/stores/channel-store";
+import { useUIStore } from "@/stores/ui-store";
 import {
   createMockUser,
   createMockChannel,
@@ -18,8 +32,8 @@ import {
   MockUser,
   MockChannel,
   MockMessage,
-} from '../mocks/handlers'
-import type { Message, MessageUser, Reaction } from '@/types/message'
+} from "../mocks/handlers";
+import type { Message, MessageUser, Reaction } from "@/types/message";
 
 // ============================================================================
 // Types
@@ -27,62 +41,62 @@ import type { Message, MessageUser, Reaction } from '@/types/message'
 
 interface WrapperOptions {
   /** Initial authenticated user */
-  user?: MockUser | null
+  user?: MockUser | null;
   /** Initial app config */
-  config?: Partial<AppConfig>
+  config?: Partial<AppConfig>;
   /** Initial channels */
-  channels?: MockChannel[]
+  channels?: MockChannel[];
   /** Initial messages by channel */
-  messages?: Record<string, MockMessage[]>
+  messages?: Record<string, MockMessage[]>;
   /** Initial active channel ID */
-  activeChannelId?: string | null
+  activeChannelId?: string | null;
   /** Initial route/pathname */
-  pathname?: string
+  pathname?: string;
   /** Whether user is authenticated */
-  isAuthenticated?: boolean
+  isAuthenticated?: boolean;
 }
 
-interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
-  wrapperOptions?: WrapperOptions
+interface CustomRenderOptions extends Omit<RenderOptions, "wrapper"> {
+  wrapperOptions?: WrapperOptions;
 }
 
 interface CustomRenderResult extends RenderResult {
-  user: UserEvent
+  user: UserEvent;
 }
 
 interface AppConfig {
   setup: {
-    completed: boolean
-    completedSteps: string[]
-    currentStep: number
-  }
+    completed: boolean;
+    completedSteps: string[];
+    currentStep: number;
+  };
   owner: {
-    name: string
-    email: string
-    company: string
-  }
+    name: string;
+    email: string;
+    company: string;
+  };
   branding: {
-    appName: string
-    logo: string | null
-    favicon: string | null
-    tagline: string
-  }
+    appName: string;
+    logo: string | null;
+    favicon: string | null;
+    tagline: string;
+  };
   auth: {
-    methods: { email: boolean; google: boolean; github: boolean }
-    permissions: 'allow-all' | 'verified-only' | 'admin-only'
-  }
+    methods: { email: boolean; google: boolean; github: boolean };
+    permissions: "allow-all" | "verified-only" | "admin-only";
+  };
   features: {
-    channels: boolean
-    directMessages: boolean
-    threads: boolean
-    reactions: boolean
-    fileUploads: boolean
-  }
+    channels: boolean;
+    directMessages: boolean;
+    threads: boolean;
+    reactions: boolean;
+    fileUploads: boolean;
+  };
   theme: {
-    mode: 'light' | 'dark' | 'system'
-    preset: string
-    colors: Record<string, string>
-  }
+    mode: "light" | "dark" | "system";
+    preset: string;
+    colors: Record<string, string>;
+  };
 }
 
 // ============================================================================
@@ -90,33 +104,33 @@ interface AppConfig {
 // ============================================================================
 
 const defaultUser: MockUser = createMockUser({
-  id: 'test-user-1',
-  username: 'testuser',
-  displayName: 'Test User',
-  email: 'test@example.com',
-  role: 'member',
-})
+  id: "test-user-1",
+  username: "testuser",
+  displayName: "Test User",
+  email: "test@example.com",
+  role: "member",
+});
 
 const defaultConfig: AppConfig = {
   setup: {
     completed: true,
-    completedSteps: ['welcome', 'owner-info', 'auth-methods'],
+    completedSteps: ["welcome", "owner-info", "auth-methods"],
     currentStep: 3,
   },
   owner: {
-    name: 'Test Owner',
-    email: 'owner@test.com',
-    company: 'Test Company',
+    name: "Test Owner",
+    email: "owner@test.com",
+    company: "Test Company",
   },
   branding: {
-    appName: 'nchat',
+    appName: "nchat",
     logo: null,
     favicon: null,
-    tagline: 'Team Communication Platform',
+    tagline: "Team Communication Platform",
   },
   auth: {
     methods: { email: true, google: false, github: false },
-    permissions: 'allow-all',
+    permissions: "allow-all",
   },
   features: {
     channels: true,
@@ -126,25 +140,25 @@ const defaultConfig: AppConfig = {
     fileUploads: true,
   },
   theme: {
-    mode: 'system',
-    preset: 'default',
+    mode: "system",
+    preset: "default",
     colors: {},
   },
-}
+};
 
 // ============================================================================
 // Mock Providers
 // ============================================================================
 
 const MockAuthContext = React.createContext<{
-  user: MockUser | null
-  loading: boolean
-  signIn: jest.Mock
-  signUp: jest.Mock
-  signOut: jest.Mock
-  updateProfile: jest.Mock
-  switchUser?: jest.Mock
-  isDevMode: boolean
+  user: MockUser | null;
+  loading: boolean;
+  signIn: jest.Mock;
+  signUp: jest.Mock;
+  signOut: jest.Mock;
+  updateProfile: jest.Mock;
+  switchUser?: jest.Mock;
+  isDevMode: boolean;
 }>({
   user: null,
   loading: false,
@@ -154,36 +168,36 @@ const MockAuthContext = React.createContext<{
   updateProfile: jest.fn(),
   switchUser: jest.fn(),
   isDevMode: true,
-})
+});
 
 const MockAppConfigContext = React.createContext<{
-  config: AppConfig
-  updateConfig: jest.Mock
-  resetConfig: jest.Mock
-  isLoading: boolean
-  saveConfig: jest.Mock
+  config: AppConfig;
+  updateConfig: jest.Mock;
+  resetConfig: jest.Mock;
+  isLoading: boolean;
+  saveConfig: jest.Mock;
 }>({
   config: defaultConfig,
   updateConfig: jest.fn(),
   resetConfig: jest.fn(),
   isLoading: false,
   saveConfig: jest.fn(),
-})
+});
 
 const MockThemeContext = React.createContext<{
-  theme: 'light' | 'dark' | 'system'
-  setTheme: jest.Mock
-  resolvedTheme: 'light' | 'dark'
+  theme: "light" | "dark" | "system";
+  setTheme: jest.Mock;
+  resolvedTheme: "light" | "dark";
 }>({
-  theme: 'system',
+  theme: "system",
   setTheme: jest.fn(),
-  resolvedTheme: 'light',
-})
+  resolvedTheme: "light",
+});
 
 // Export hooks for use in tests
-export const useAuth = () => React.useContext(MockAuthContext)
-export const useAppConfig = () => React.useContext(MockAppConfigContext)
-export const useTheme = () => React.useContext(MockThemeContext)
+export const useAuth = () => React.useContext(MockAuthContext);
+export const useAppConfig = () => React.useContext(MockAppConfigContext);
+export const useTheme = () => React.useContext(MockThemeContext);
 
 // ============================================================================
 // Test Wrapper Component
@@ -197,11 +211,11 @@ function createTestWrapper(options: WrapperOptions = {}) {
     messages = {},
     activeChannelId = null,
     isAuthenticated = true,
-  } = options
+  } = options;
 
   // Setup initial store state if provided
   if (channels.length > 0) {
-    const channelStore = useChannelStore.getState()
+    const channelStore = useChannelStore.getState();
     const formattedChannels: Channel[] = channels.map((c) => ({
       id: c.id,
       name: c.name,
@@ -209,7 +223,7 @@ function createTestWrapper(options: WrapperOptions = {}) {
       description: c.description || null,
       type: c.type as ChannelType,
       categoryId: null,
-      createdBy: c.creator?.id || 'user-1',
+      createdBy: c.creator?.id || "user-1",
       createdAt: c.created_at,
       updatedAt: c.created_at,
       topic: c.topic || null,
@@ -220,27 +234,27 @@ function createTestWrapper(options: WrapperOptions = {}) {
       memberCount: c.members_aggregate?.aggregate?.count || 0,
       lastMessageAt: null,
       lastMessagePreview: null,
-    }))
-    channelStore.setChannels(formattedChannels)
+    }));
+    channelStore.setChannels(formattedChannels);
     if (activeChannelId) {
-      channelStore.setActiveChannel(activeChannelId)
+      channelStore.setActiveChannel(activeChannelId);
     }
   }
 
   // Setup message store if provided
   if (Object.keys(messages).length > 0) {
-    const messageStore = useMessageStore.getState()
+    const messageStore = useMessageStore.getState();
     Object.entries(messages).forEach(([channelId, msgs]) => {
       const formattedMessages: Message[] = msgs.map((m) => ({
         id: m.id,
         channelId,
         content: m.content,
-        type: m.type as Message['type'],
-        userId: m.user?.id || 'user-1',
+        type: m.type as Message["type"],
+        userId: m.user?.id || "user-1",
         user: {
-          id: m.user?.id || 'user-1',
-          username: m.user?.username || 'user',
-          displayName: m.user?.displayName || 'User',
+          id: m.user?.id || "user-1",
+          username: m.user?.username || "user",
+          displayName: m.user?.displayName || "User",
           avatarUrl: m.user?.avatarUrl,
         } as MessageUser,
         createdAt: new Date(m.created_at),
@@ -252,9 +266,9 @@ function createTestWrapper(options: WrapperOptions = {}) {
           users: [],
           hasReacted: false,
         })) as Reaction[],
-      }))
-      messageStore.setMessages(channelId, formattedMessages)
-    })
+      }));
+      messageStore.setMessages(channelId, formattedMessages);
+    });
   }
 
   const TestWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -267,32 +281,36 @@ function createTestWrapper(options: WrapperOptions = {}) {
       updateProfile: jest.fn(),
       switchUser: jest.fn(),
       isDevMode: true,
-    }
+    };
 
     const configValue = {
       config: { ...defaultConfig, ...config } as AppConfig,
-      updateConfig: jest.fn().mockResolvedValue({ ...defaultConfig, ...config }),
+      updateConfig: jest
+        .fn()
+        .mockResolvedValue({ ...defaultConfig, ...config }),
       resetConfig: jest.fn(),
       isLoading: false,
       saveConfig: jest.fn().mockResolvedValue(undefined),
-    }
+    };
 
     const themeValue = {
-      theme: config.theme?.mode || 'system',
+      theme: config.theme?.mode || "system",
       setTheme: jest.fn(),
-      resolvedTheme: 'light' as const,
-    }
+      resolvedTheme: "light" as const,
+    };
 
     return (
       <MockAuthContext.Provider value={authValue}>
         <MockAppConfigContext.Provider value={configValue}>
-          <MockThemeContext.Provider value={themeValue}>{children}</MockThemeContext.Provider>
+          <MockThemeContext.Provider value={themeValue}>
+            {children}
+          </MockThemeContext.Provider>
         </MockAppConfigContext.Provider>
       </MockAuthContext.Provider>
-    )
-  }
+    );
+  };
 
-  return TestWrapper
+  return TestWrapper;
 }
 
 // ============================================================================
@@ -302,19 +320,22 @@ function createTestWrapper(options: WrapperOptions = {}) {
 /**
  * Custom render function that wraps components with all required providers
  */
-function customRender(ui: ReactElement, options: CustomRenderOptions = {}): CustomRenderResult {
-  const { wrapperOptions, ...renderOptions } = options
-  const Wrapper = createTestWrapper(wrapperOptions)
+function customRender(
+  ui: ReactElement,
+  options: CustomRenderOptions = {},
+): CustomRenderResult {
+  const { wrapperOptions, ...renderOptions } = options;
+  const Wrapper = createTestWrapper(wrapperOptions);
 
   return {
     ...render(ui, { wrapper: Wrapper, ...renderOptions }),
     user: userEvent.setup(),
-  }
+  };
 }
 
 // Re-export everything from @testing-library/react
-export * from '@testing-library/react'
-export { customRender as render }
+export * from "@testing-library/react";
+export { customRender as render };
 
 // ============================================================================
 // Store Utilities
@@ -324,42 +345,46 @@ export { customRender as render }
  * Reset all Zustand stores to their initial state
  */
 export const resetStores = () => {
-  useMessageStore.getState().reset()
-  useChannelStore.getState().resetChannelStore()
+  useMessageStore.getState().reset();
+  useChannelStore.getState().resetChannelStore();
   // UIStore reset if available
-  if (typeof useUIStore.getState().reset === 'function') {
-    ;(useUIStore.getState() as any).reset()
+  if (typeof useUIStore.getState().reset === "function") {
+    (useUIStore.getState() as any).reset();
   }
-}
+};
 
 /**
  * Create a message store with initial state for testing
  */
-export const createMockMessageStore = (initialState?: Partial<MessageState>) => {
-  const store = useMessageStore.getState()
+export const createMockMessageStore = (
+  initialState?: Partial<MessageState>,
+) => {
+  const store = useMessageStore.getState();
   if (initialState) {
     if (initialState.messagesByChannel) {
-      Object.entries(initialState.messagesByChannel).forEach(([channelId, messages]) => {
-        store.setMessages(channelId, messages)
-      })
+      Object.entries(initialState.messagesByChannel).forEach(
+        ([channelId, messages]) => {
+          store.setMessages(channelId, messages);
+        },
+      );
     }
     if (initialState.currentChannelId) {
-      store.setCurrentChannel(initialState.currentChannelId)
+      store.setCurrentChannel(initialState.currentChannelId);
     }
   }
-  return store
-}
+  return store;
+};
 
 /**
  * Create a channel store with initial state for testing
  */
 export const createMockChannelStore = (initialChannels?: Channel[]) => {
-  const store = useChannelStore.getState()
+  const store = useChannelStore.getState();
   if (initialChannels) {
-    store.setChannels(initialChannels)
+    store.setChannels(initialChannels);
   }
-  return store
-}
+  return store;
+};
 
 // ============================================================================
 // Wait Helpers
@@ -370,18 +395,18 @@ export const createMockChannelStore = (initialChannels?: Channel[]) => {
  */
 export const waitForCondition = async (
   condition: () => boolean,
-  options?: { timeout?: number; interval?: number }
+  options?: { timeout?: number; interval?: number },
 ) => {
-  const { timeout = 5000, interval = 50 } = options || {}
-  const startTime = Date.now()
+  const { timeout = 5000, interval = 50 } = options || {};
+  const startTime = Date.now();
 
   while (!condition()) {
     if (Date.now() - startTime > timeout) {
-      throw new Error('Timeout waiting for condition')
+      throw new Error("Timeout waiting for condition");
     }
-    await new Promise((resolve) => setTimeout(resolve, interval))
+    await new Promise((resolve) => setTimeout(resolve, interval));
   }
-}
+};
 
 /**
  * Wait for store state to match expected value
@@ -389,41 +414,43 @@ export const waitForCondition = async (
 export const waitForStoreState = async <T,>(
   selector: () => T,
   expected: T,
-  options?: { timeout?: number }
+  options?: { timeout?: number },
 ) => {
   await waitFor(
     () => {
-      expect(selector()).toEqual(expected)
+      expect(selector()).toEqual(expected);
     },
-    { timeout: options?.timeout || 5000 }
-  )
-}
+    { timeout: options?.timeout || 5000 },
+  );
+};
 
 /**
  * Wait for async operation with retry
  */
 export const waitForAsync = async <T,>(
   asyncFn: () => Promise<T>,
-  options?: { timeout?: number; retries?: number }
+  options?: { timeout?: number; retries?: number },
 ): Promise<T> => {
-  const { timeout = 5000, retries = 3 } = options || {}
-  let lastError: Error | null = null
+  const { timeout = 5000, retries = 3 } = options || {};
+  let lastError: Error | null = null;
 
   for (let i = 0; i < retries; i++) {
     try {
       const result = await Promise.race([
         asyncFn(),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout)),
-      ])
-      return result
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout")), timeout),
+        ),
+      ]);
+      return result;
     } catch (error) {
-      lastError = error as Error
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      lastError = error as Error;
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
 
-  throw lastError || new Error('Failed after retries')
-}
+  throw lastError || new Error("Failed after retries");
+};
 
 // ============================================================================
 // Mock Data Helpers
@@ -433,30 +460,30 @@ export const waitForAsync = async <T,>(
  * Create a full mock message for testing
  */
 export const createTestMessage = (overrides?: Partial<Message>): Message => {
-  const mockMsg = createMockMessage(overrides as any)
+  const mockMsg = createMockMessage(overrides as any);
   return {
     id: mockMsg.id,
-    channelId: 'channel-1',
+    channelId: "channel-1",
     content: mockMsg.content,
-    type: mockMsg.type as Message['type'],
-    userId: mockMsg.user?.id || 'user-1',
+    type: mockMsg.type as Message["type"],
+    userId: mockMsg.user?.id || "user-1",
     user: {
-      id: mockMsg.user?.id || 'user-1',
-      username: mockMsg.user?.username || 'testuser',
-      displayName: mockMsg.user?.displayName || 'Test User',
+      id: mockMsg.user?.id || "user-1",
+      username: mockMsg.user?.username || "testuser",
+      displayName: mockMsg.user?.displayName || "Test User",
       avatarUrl: mockMsg.user?.avatarUrl,
     },
     createdAt: new Date(mockMsg.created_at),
     isEdited: mockMsg.is_edited,
     ...overrides,
-  }
-}
+  };
+};
 
 /**
  * Create a full mock channel for testing
  */
 export const createTestChannel = (overrides?: Partial<Channel>): Channel => {
-  const mockCh = createMockChannel(overrides as any)
+  const mockCh = createMockChannel(overrides as any);
   return {
     id: mockCh.id,
     name: mockCh.name,
@@ -464,7 +491,7 @@ export const createTestChannel = (overrides?: Partial<Channel>): Channel => {
     description: mockCh.description || null,
     type: mockCh.type as ChannelType,
     categoryId: null,
-    createdBy: mockCh.creator?.id || 'user-1',
+    createdBy: mockCh.creator?.id || "user-1",
     createdAt: mockCh.created_at,
     updatedAt: mockCh.created_at,
     topic: mockCh.topic || null,
@@ -476,8 +503,8 @@ export const createTestChannel = (overrides?: Partial<Channel>): Channel => {
     lastMessageAt: null,
     lastMessagePreview: null,
     ...overrides,
-  }
-}
+  };
+};
 
 // ============================================================================
 // Assertion Helpers
@@ -487,23 +514,27 @@ export const createTestChannel = (overrides?: Partial<Channel>): Channel => {
  * Assert that an element has focus
  */
 export const expectFocused = (element: HTMLElement) => {
-  expect(document.activeElement).toBe(element)
-}
+  expect(document.activeElement).toBe(element);
+};
 
 /**
  * Assert that a specific number of elements exist
  */
-export const expectCount = (container: HTMLElement, selector: string, count: number) => {
-  const elements = container.querySelectorAll(selector)
-  expect(elements.length).toBe(count)
-}
+export const expectCount = (
+  container: HTMLElement,
+  selector: string,
+  count: number,
+) => {
+  const elements = container.querySelectorAll(selector);
+  expect(elements.length).toBe(count);
+};
 
 /**
  * Assert that text is visible in the document
  */
 export const expectTextVisible = (text: string) => {
-  expect(document.body).toHaveTextContent(text)
-}
+  expect(document.body).toHaveTextContent(text);
+};
 
 // ============================================================================
 // Event Simulation Helpers
@@ -512,10 +543,14 @@ export const expectTextVisible = (text: string) => {
 /**
  * Simulate typing into an input element
  */
-export const typeIntoInput = async (user: UserEvent, element: HTMLElement, text: string) => {
-  await user.clear(element)
-  await user.type(element, text)
-}
+export const typeIntoInput = async (
+  user: UserEvent,
+  element: HTMLElement,
+  text: string,
+) => {
+  await user.clear(element);
+  await user.type(element, text);
+};
 
 /**
  * Simulate keyboard shortcut
@@ -523,16 +558,16 @@ export const typeIntoInput = async (user: UserEvent, element: HTMLElement, text:
 export const pressKey = async (
   user: UserEvent,
   key: string,
-  options?: { shift?: boolean; ctrl?: boolean; alt?: boolean; meta?: boolean }
+  options?: { shift?: boolean; ctrl?: boolean; alt?: boolean; meta?: boolean },
 ) => {
-  const { shift, ctrl, alt, meta } = options || {}
-  let keyString = key
-  if (shift) keyString = `{Shift>}${keyString}{/Shift}`
-  if (ctrl) keyString = `{Control>}${keyString}{/Control}`
-  if (alt) keyString = `{Alt>}${keyString}{/Alt}`
-  if (meta) keyString = `{Meta>}${keyString}{/Meta}`
-  await user.keyboard(keyString)
-}
+  const { shift, ctrl, alt, meta } = options || {};
+  let keyString = key;
+  if (shift) keyString = `{Shift>}${keyString}{/Shift}`;
+  if (ctrl) keyString = `{Control>}${keyString}{/Control}`;
+  if (alt) keyString = `{Alt>}${keyString}{/Alt}`;
+  if (meta) keyString = `{Meta>}${keyString}{/Meta}`;
+  await user.keyboard(keyString);
+};
 
 // ============================================================================
 // Debug Helpers
@@ -541,14 +576,14 @@ export const pressKey = async (
 /**
  * Log the current store state for debugging
  */
-export const logStoreState = (storeName: 'message' | 'channel' | 'ui') => {
+export const logStoreState = (storeName: "message" | "channel" | "ui") => {
   const stores = {
     message: useMessageStore,
     channel: useChannelStore,
     ui: useUIStore,
-  }
-  console.log(`[${storeName} store]:`, stores[storeName].getState())
-}
+  };
+  console.log(`[${storeName} store]:`, stores[storeName].getState());
+};
 
 /**
  * Create a test snapshot of store state
@@ -557,4 +592,4 @@ export const getStoreSnapshot = () => ({
   message: useMessageStore.getState(),
   channel: useChannelStore.getState(),
   ui: useUIStore.getState(),
-})
+});

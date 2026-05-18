@@ -1,14 +1,26 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import { ArrowRightLeft, Crown, AlertTriangle, Search, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import * as React from "react";
+import { useState } from "react";
+import {
+  ArrowRightLeft,
+  Crown,
+  AlertTriangle,
+  Search,
+  Loader2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -18,19 +30,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import type { Channel, ChannelMember } from '@/stores/channel-store'
+} from "@/components/ui/alert-dialog";
+import type { Channel, ChannelMember } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelTransferProps {
-  channel: Channel
-  currentUserId: string
-  isOwner?: boolean
-  onTransfer?: (newOwnerId: string) => Promise<void>
-  className?: string
+  channel: Channel;
+  currentUserId: string;
+  isOwner?: boolean;
+  onTransfer?: (newOwnerId: string) => Promise<void>;
+  className?: string;
 }
 
 // ============================================================================
@@ -44,49 +56,52 @@ export function ChannelTransfer({
   onTransfer,
   className,
 }: ChannelTransferProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
-  const [showDialog, setShowDialog] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
 
   // Get eligible members (admins who are not the current owner)
   const eligibleMembers = (channel.members || []).filter(
-    (m) => m.userId !== currentUserId && (m.role === 'admin' || m.role === 'member')
-  )
+    (m) =>
+      m.userId !== currentUserId && (m.role === "admin" || m.role === "member"),
+  );
 
   const filteredMembers = eligibleMembers.filter((m) =>
-    m.userId.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+    m.userId.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   const selectedMember = selectedUserId
     ? eligibleMembers.find((m) => m.userId === selectedUserId)
-    : null
+    : null;
 
   const handleTransfer = async () => {
-    if (!selectedUserId) return
+    if (!selectedUserId) return;
 
     try {
-      setIsLoading(true)
-      await onTransfer?.(selectedUserId)
-      setShowDialog(false)
-      setSelectedUserId(null)
+      setIsLoading(true);
+      await onTransfer?.(selectedUserId);
+      setShowDialog(false);
+      setSelectedUserId(null);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!isOwner) {
-    return null
+    return null;
   }
 
   return (
-    <Card className={cn('border-yellow-500/50', className)}>
+    <Card className={cn("border-yellow-500/50", className)}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-yellow-600">
           <ArrowRightLeft className="h-5 w-5" />
           Transfer Ownership
         </CardTitle>
-        <CardDescription>Transfer channel ownership to another member</CardDescription>
+        <CardDescription>
+          Transfer channel ownership to another member
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2 rounded-lg bg-yellow-500/10 p-4">
@@ -138,17 +153,21 @@ export function ChannelTransfer({
                       key={member.userId}
                       onClick={() => setSelectedUserId(member.userId)}
                       className={cn(
-                        'flex w-full items-center gap-3 rounded-lg p-3 text-left',
-                        'transition-colors hover:bg-accent',
-                        selectedUserId === member.userId && 'bg-accent'
+                        "flex w-full items-center gap-3 rounded-lg p-3 text-left",
+                        "transition-colors hover:bg-accent",
+                        selectedUserId === member.userId && "bg-accent",
                       )}
                     >
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback>{member.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>
+                          {member.userId.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium">{member.userId}</p>
-                        <p className="text-xs text-muted-foreground">Current role: {member.role}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Current role: {member.role}
+                        </p>
                       </div>
                       {selectedUserId === member.userId && (
                         <Crown className="h-5 w-5 text-yellow-500" />
@@ -167,15 +186,17 @@ export function ChannelTransfer({
               {selectedMember && (
                 <div className="rounded-lg bg-muted p-3">
                   <p className="text-sm">
-                    <strong>{selectedMember.userId}</strong> will become the new owner of #
-                    {channel.name}
+                    <strong>{selectedMember.userId}</strong> will become the new
+                    owner of #{channel.name}
                   </p>
                 </div>
               )}
             </div>
 
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setSelectedUserId(null)}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel onClick={() => setSelectedUserId(null)}>
+                Cancel
+              </AlertDialogCancel>
               <Button
                 variant="default"
                 onClick={handleTransfer}
@@ -191,7 +212,7 @@ export function ChannelTransfer({
         </AlertDialog>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-ChannelTransfer.displayName = 'ChannelTransfer'
+ChannelTransfer.displayName = "ChannelTransfer";

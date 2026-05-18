@@ -22,7 +22,7 @@
  * @version 1.0.0
  */
 
-import type { BehaviorPreset } from '../../types'
+import type { BehaviorPreset } from "../../types";
 
 // ============================================================================
 // TELEGRAM-SPECIFIC BEHAVIOR TYPES
@@ -33,21 +33,21 @@ import type { BehaviorPreset } from '../../types'
  */
 export interface TelegramChatFoldersConfig {
   /** Whether chat folders are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum custom folders a user can create */
-  maxFolders: number
+  maxFolders: number;
   /** Maximum chats per folder */
-  maxChatsPerFolder: number
+  maxChatsPerFolder: number;
   /** Folder icon support */
-  folderIcons: boolean
+  folderIcons: boolean;
   /** Smart filter types available */
-  smartFilters: string[]
+  smartFilters: string[];
   /** Whether folder tabs are shown at top of chat list */
-  folderTabs: boolean
+  folderTabs: boolean;
   /** Whether folders can include/exclude chat types */
-  includeExcludeFilters: boolean
+  includeExcludeFilters: boolean;
   /** Shareable folder links */
-  shareableFolderLinks: boolean
+  shareableFolderLinks: boolean;
 }
 
 /**
@@ -55,25 +55,25 @@ export interface TelegramChatFoldersConfig {
  */
 export interface TelegramSecretChatsConfig {
   /** Whether secret chats are available */
-  enabled: boolean
+  enabled: boolean;
   /** End-to-end encryption (client-to-client, not server-stored) */
-  e2eeClientToClient: boolean
+  e2eeClientToClient: boolean;
   /** Self-destruct timer available */
-  selfDestructTimer: boolean
+  selfDestructTimer: boolean;
   /** Self-destruct timer options */
-  selfDestructOptions: string[]
+  selfDestructOptions: string[];
   /** Screenshot protection/notification */
-  screenshotProtection: boolean
+  screenshotProtection: boolean;
   /** Forward restriction (cannot forward secret chat messages) */
-  forwardRestriction: boolean
+  forwardRestriction: boolean;
   /** No cloud storage (messages stay on device) */
-  noCloudStorage: boolean
+  noCloudStorage: boolean;
   /** Encryption indicator (lock icon) */
-  encryptionIndicator: boolean
+  encryptionIndicator: boolean;
   /** Key visualization (emoji grid for verification) */
-  keyVisualization: boolean
+  keyVisualization: boolean;
   /** Message auto-delete after read */
-  autoDeleteAfterRead: boolean
+  autoDeleteAfterRead: boolean;
 }
 
 /**
@@ -81,29 +81,29 @@ export interface TelegramSecretChatsConfig {
  */
 export interface TelegramChannelConfig {
   /** Whether channels (broadcast) are supported */
-  enabled: boolean
+  enabled: boolean;
   /** Unlimited subscribers */
-  unlimitedSubscribers: boolean
+  unlimitedSubscribers: boolean;
   /** Sign messages option (show admin name) */
-  signMessages: boolean
+  signMessages: boolean;
   /** Discussion group linked to channel */
-  discussionGroup: boolean
+  discussionGroup: boolean;
   /** Channel admin roles granularity */
-  adminRoles: string[]
+  adminRoles: string[];
   /** Post reactions */
-  postReactions: boolean
+  postReactions: boolean;
   /** Post comments (via discussion group) */
-  postComments: boolean
+  postComments: boolean;
   /** Channel statistics / analytics */
-  channelStatistics: boolean
+  channelStatistics: boolean;
   /** Silent broadcast option */
-  silentBroadcast: boolean
+  silentBroadcast: boolean;
   /** Scheduled posts */
-  scheduledPosts: boolean
+  scheduledPosts: boolean;
   /** Post editing (no time limit) */
-  postEditing: boolean
+  postEditing: boolean;
   /** Post pinning */
-  postPinning: boolean
+  postPinning: boolean;
 }
 
 /**
@@ -111,33 +111,33 @@ export interface TelegramChannelConfig {
  */
 export interface TelegramSupergroupConfig {
   /** Whether supergroups are supported */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum members */
-  maxMembers: number
+  maxMembers: number;
   /** Slow mode available */
-  slowMode: boolean
+  slowMode: boolean;
   /** Slow mode interval options in seconds */
-  slowModeIntervals: number[]
+  slowModeIntervals: number[];
   /** Granular admin rights */
-  adminRights: string[]
+  adminRights: string[];
   /** Granular member restrictions */
-  memberRestrictions: string[]
+  memberRestrictions: string[];
   /** Message pinning */
-  pinning: boolean
+  pinning: boolean;
   /** Max pinned messages */
-  maxPinnedMessages: number
+  maxPinnedMessages: number;
   /** Group sticker set */
-  groupStickerSet: boolean
+  groupStickerSet: boolean;
   /** Anti-spam mode */
-  antiSpamMode: boolean
+  antiSpamMode: boolean;
   /** Admin approval for new members */
-  memberApproval: boolean
+  memberApproval: boolean;
   /** Topics/Forum mode */
-  topicsMode: boolean
+  topicsMode: boolean;
   /** Group invite links with expiration */
-  inviteLinksWithExpiry: boolean
+  inviteLinksWithExpiry: boolean;
   /** Group statistics */
-  groupStatistics: boolean
+  groupStatistics: boolean;
 }
 
 /**
@@ -145,27 +145,27 @@ export interface TelegramSupergroupConfig {
  */
 export interface TelegramBotConfig {
   /** Whether bots are supported */
-  enabled: boolean
+  enabled: boolean;
   /** Inline bots (@bot query in any chat) */
-  inlineBots: boolean
+  inlineBots: boolean;
   /** Custom keyboards (reply keyboards) */
-  customKeyboards: boolean
+  customKeyboards: boolean;
   /** Inline keyboards (buttons below messages) */
-  inlineKeyboards: boolean
+  inlineKeyboards: boolean;
   /** Bot commands (/ prefix) */
-  botCommands: boolean
+  botCommands: boolean;
   /** Mini Apps / Web Apps */
-  miniApps: boolean
+  miniApps: boolean;
   /** Bot payments */
-  botPayments: boolean
+  botPayments: boolean;
   /** Bot games */
-  botGames: boolean
+  botGames: boolean;
   /** Bot API for custom development */
-  botApi: boolean
+  botApi: boolean;
   /** Deep linking support */
-  deepLinking: boolean
+  deepLinking: boolean;
   /** Bot menu button */
-  menuButton: boolean
+  menuButton: boolean;
 }
 
 /**
@@ -173,27 +173,27 @@ export interface TelegramBotConfig {
  */
 export interface TelegramFormattingConfig {
   /** Bold (**text**) */
-  bold: boolean
+  bold: boolean;
   /** Italic (__text__) */
-  italic: boolean
+  italic: boolean;
   /** Underline */
-  underline: boolean
+  underline: boolean;
   /** Strikethrough (~~text~~) */
-  strikethrough: boolean
+  strikethrough: boolean;
   /** Monospace / code (`text`) */
-  monospace: boolean
+  monospace: boolean;
   /** Code blocks (```text```) */
-  codeBlocks: boolean
+  codeBlocks: boolean;
   /** Spoiler text (||text||) */
-  spoiler: boolean
+  spoiler: boolean;
   /** Quote (> text) */
-  quote: boolean
+  quote: boolean;
   /** Links with custom text [text](url) */
-  customLinks: boolean
+  customLinks: boolean;
   /** Formatting toolbar in UI */
-  formattingToolbar: boolean
+  formattingToolbar: boolean;
   /** Markdown input support */
-  markdownInput: boolean
+  markdownInput: boolean;
 }
 
 /**
@@ -201,41 +201,41 @@ export interface TelegramFormattingConfig {
  */
 export interface TelegramMediaConfig {
   /** Maximum image size in MB */
-  maxImageSizeMB: number
+  maxImageSizeMB: number;
   /** Maximum video size in MB */
-  maxVideoSizeMB: number
+  maxVideoSizeMB: number;
   /** Maximum file size in MB */
-  maxFileSizeMB: number
+  maxFileSizeMB: number;
   /** Maximum audio size in MB */
-  maxAudioSizeMB: number
+  maxAudioSizeMB: number;
   /** Maximum photos in album (media group) */
-  maxPhotosInAlbum: number
+  maxPhotosInAlbum: number;
   /** Media grouping (albums) */
-  mediaGrouping: boolean
+  mediaGrouping: boolean;
   /** Instant View (formatted articles) */
-  instantView: boolean
+  instantView: boolean;
   /** GIF search integration */
-  gifSearch: boolean
+  gifSearch: boolean;
   /** Sticker packs */
-  stickerPacks: boolean
+  stickerPacks: boolean;
   /** Animated stickers (TGS format) */
-  animatedStickers: boolean
+  animatedStickers: boolean;
   /** Video stickers */
-  videoStickers: boolean
+  videoStickers: boolean;
   /** Custom sticker creation */
-  customStickers: boolean
+  customStickers: boolean;
   /** Image compression before sending */
-  imageCompression: boolean
+  imageCompression: boolean;
   /** Send as file (uncompressed) option */
-  sendAsFile: boolean
+  sendAsFile: boolean;
   /** Built-in photo editor */
-  photoEditor: boolean
+  photoEditor: boolean;
   /** Video messages (circular bubbles) */
-  videoMessages: boolean
+  videoMessages: boolean;
   /** Video message max duration in seconds */
-  videoMessageMaxSec: number
+  videoMessageMaxSec: number;
   /** Theme sharing */
-  themeSharing: boolean
+  themeSharing: boolean;
 }
 
 /**
@@ -243,41 +243,41 @@ export interface TelegramMediaConfig {
  */
 export interface TelegramPrivacyConfig {
   /** Phone number privacy (who can see) */
-  phoneNumberPrivacy: boolean
+  phoneNumberPrivacy: boolean;
   /** Phone number privacy options */
-  phoneNumberOptions: string[]
+  phoneNumberOptions: string[];
   /** Last seen granularity */
-  lastSeenGranularity: boolean
+  lastSeenGranularity: boolean;
   /** Last seen options */
-  lastSeenOptions: string[]
+  lastSeenOptions: string[];
   /** Profile photo privacy */
-  profilePhotoPrivacy: boolean
+  profilePhotoPrivacy: boolean;
   /** Profile photo options */
-  profilePhotoOptions: string[]
+  profilePhotoOptions: string[];
   /** Who can forward your messages (show forwarded-from link) */
-  forwardPrivacy: boolean
+  forwardPrivacy: boolean;
   /** Forward privacy options */
-  forwardOptions: string[]
+  forwardOptions: string[];
   /** Who can call you */
-  callPrivacy: boolean
+  callPrivacy: boolean;
   /** Call privacy options */
-  callOptions: string[]
+  callOptions: string[];
   /** Who can add you to groups */
-  groupPrivacy: boolean
+  groupPrivacy: boolean;
   /** Group privacy options */
-  groupOptions: string[]
+  groupOptions: string[];
   /** Bio/about text privacy */
-  bioPrivacy: boolean
+  bioPrivacy: boolean;
   /** Passcode lock */
-  passcodeLock: boolean
+  passcodeLock: boolean;
   /** Two-step verification (2FA) */
-  twoStepVerification: boolean
+  twoStepVerification: boolean;
   /** Active sessions management */
-  activeSessions: boolean
+  activeSessions: boolean;
   /** Delete account timer */
-  deleteAccountTimer: boolean
+  deleteAccountTimer: boolean;
   /** Delete account timer options */
-  deleteAccountOptions: string[]
+  deleteAccountOptions: string[];
 }
 
 /**
@@ -285,31 +285,31 @@ export interface TelegramPrivacyConfig {
  */
 export interface TelegramChatListConfig {
   /** Whether chats can be pinned to the top */
-  pinChats: boolean
+  pinChats: boolean;
   /** Maximum number of pinned chats */
-  maxPinnedChats: number
+  maxPinnedChats: number;
   /** Whether chats can be archived */
-  archiveChats: boolean
+  archiveChats: boolean;
   /** Whether archived chats auto-unarchive on new messages */
-  autoUnarchive: boolean
+  autoUnarchive: boolean;
   /** Whether chats can be marked as unread */
-  markUnread: boolean
+  markUnread: boolean;
   /** Whether chat list has a search bar */
-  searchBar: boolean
+  searchBar: boolean;
   /** Whether chat list shows message preview */
-  messagePreview: boolean
+  messagePreview: boolean;
   /** Whether chat list shows delivery status */
-  deliveryStatus: boolean
+  deliveryStatus: boolean;
   /** Whether chat list shows timestamp */
-  timestamp: boolean
+  timestamp: boolean;
   /** Whether swipe actions are available */
-  swipeActions: boolean
+  swipeActions: boolean;
   /** Whether chats can be muted */
-  muteChats: boolean
+  muteChats: boolean;
   /** Mute duration options */
-  muteDurationOptions: string[]
+  muteDurationOptions: string[];
   /** Whether chat can be marked as read */
-  markRead: boolean
+  markRead: boolean;
 }
 
 /**
@@ -317,49 +317,49 @@ export interface TelegramChatListConfig {
  */
 export interface TelegramAdditionalFeaturesConfig {
   /** Multiple accounts support */
-  multipleAccounts: boolean
+  multipleAccounts: boolean;
   /** Maximum accounts */
-  maxAccounts: number
+  maxAccounts: number;
   /** Cloud drafts synced across devices */
-  cloudDrafts: boolean
+  cloudDrafts: boolean;
   /** Cross-device sync */
-  crossDeviceSync: boolean
+  crossDeviceSync: boolean;
   /** Nearby people discovery */
-  nearbyPeople: boolean
+  nearbyPeople: boolean;
   /** People nearby / location-based groups */
-  locationBasedGroups: boolean
+  locationBasedGroups: boolean;
   /** Saved Messages (self-chat) */
-  savedMessages: boolean
+  savedMessages: boolean;
   /** Recent actions log for admins */
-  recentActions: boolean
+  recentActions: boolean;
   /** Animated emoji */
-  animatedEmoji: boolean
+  animatedEmoji: boolean;
   /** Custom emoji */
-  customEmoji: boolean
+  customEmoji: boolean;
   /** Premium features tier */
-  premiumTier: boolean
+  premiumTier: boolean;
   /** Translation feature */
-  messageTranslation: boolean
+  messageTranslation: boolean;
   /** Stories feature */
-  stories: boolean
+  stories: boolean;
   /** Username marketplace */
-  usernameMarketplace: boolean
+  usernameMarketplace: boolean;
 }
 
 /**
  * Complete Telegram extended behavior configuration.
  */
 export interface TelegramExtendedBehavior {
-  chatFolders: TelegramChatFoldersConfig
-  secretChats: TelegramSecretChatsConfig
-  channels: TelegramChannelConfig
-  supergroups: TelegramSupergroupConfig
-  bots: TelegramBotConfig
-  formatting: TelegramFormattingConfig
-  media: TelegramMediaConfig
-  privacy: TelegramPrivacyConfig
-  chatList: TelegramChatListConfig
-  additionalFeatures: TelegramAdditionalFeaturesConfig
+  chatFolders: TelegramChatFoldersConfig;
+  secretChats: TelegramSecretChatsConfig;
+  channels: TelegramChannelConfig;
+  supergroups: TelegramSupergroupConfig;
+  bots: TelegramBotConfig;
+  formatting: TelegramFormattingConfig;
+  media: TelegramMediaConfig;
+  privacy: TelegramPrivacyConfig;
+  chatList: TelegramChatListConfig;
+  additionalFeatures: TelegramAdditionalFeaturesConfig;
 }
 
 // ============================================================================
@@ -372,18 +372,18 @@ export const telegramChatFoldersConfig: TelegramChatFoldersConfig = {
   maxChatsPerFolder: 200,
   folderIcons: true,
   smartFilters: [
-    'unread',
-    'unmuted',
-    'personal',
-    'non-contacts',
-    'groups',
-    'channels',
-    'bots',
+    "unread",
+    "unmuted",
+    "personal",
+    "non-contacts",
+    "groups",
+    "channels",
+    "bots",
   ],
   folderTabs: true,
   includeExcludeFilters: true,
   shareableFolderLinks: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM SECRET CHATS CONFIG
@@ -394,8 +394,22 @@ export const telegramSecretChatsConfig: TelegramSecretChatsConfig = {
   e2eeClientToClient: true,
   selfDestructTimer: true,
   selfDestructOptions: [
-    '1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', '10s',
-    '15s', '30s', '1m', '1h', '1d', '1w',
+    "1s",
+    "2s",
+    "3s",
+    "4s",
+    "5s",
+    "6s",
+    "7s",
+    "8s",
+    "9s",
+    "10s",
+    "15s",
+    "30s",
+    "1m",
+    "1h",
+    "1d",
+    "1w",
   ],
   screenshotProtection: true,
   forwardRestriction: true,
@@ -403,7 +417,7 @@ export const telegramSecretChatsConfig: TelegramSecretChatsConfig = {
   encryptionIndicator: true,
   keyVisualization: true,
   autoDeleteAfterRead: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM CHANNEL CONFIG
@@ -415,13 +429,13 @@ export const telegramChannelConfig: TelegramChannelConfig = {
   signMessages: true,
   discussionGroup: true,
   adminRoles: [
-    'change-channel-info',
-    'post-messages',
-    'edit-messages',
-    'delete-messages',
-    'invite-users',
-    'manage-voice-chats',
-    'add-admins',
+    "change-channel-info",
+    "post-messages",
+    "edit-messages",
+    "delete-messages",
+    "invite-users",
+    "manage-voice-chats",
+    "add-admins",
   ],
   postReactions: true,
   postComments: true,
@@ -430,7 +444,7 @@ export const telegramChannelConfig: TelegramChannelConfig = {
   scheduledPosts: true,
   postEditing: true,
   postPinning: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM SUPERGROUP CONFIG
@@ -442,29 +456,29 @@ export const telegramSupergroupConfig: TelegramSupergroupConfig = {
   slowMode: true,
   slowModeIntervals: [0, 10, 30, 60, 300, 900, 3600],
   adminRights: [
-    'change-group-info',
-    'delete-messages',
-    'ban-users',
-    'invite-users',
-    'pin-messages',
-    'manage-voice-chats',
-    'add-admins',
-    'remain-anonymous',
-    'manage-topics',
+    "change-group-info",
+    "delete-messages",
+    "ban-users",
+    "invite-users",
+    "pin-messages",
+    "manage-voice-chats",
+    "add-admins",
+    "remain-anonymous",
+    "manage-topics",
   ],
   memberRestrictions: [
-    'send-messages',
-    'send-media',
-    'send-stickers',
-    'send-gifs',
-    'send-games',
-    'use-inline-bots',
-    'embed-links',
-    'send-polls',
-    'change-info',
-    'invite-users',
-    'pin-messages',
-    'manage-topics',
+    "send-messages",
+    "send-media",
+    "send-stickers",
+    "send-gifs",
+    "send-games",
+    "use-inline-bots",
+    "embed-links",
+    "send-polls",
+    "change-info",
+    "invite-users",
+    "pin-messages",
+    "manage-topics",
   ],
   pinning: true,
   maxPinnedMessages: 100,
@@ -474,7 +488,7 @@ export const telegramSupergroupConfig: TelegramSupergroupConfig = {
   topicsMode: true,
   inviteLinksWithExpiry: true,
   groupStatistics: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM BOT CONFIG
@@ -492,7 +506,7 @@ export const telegramBotConfig: TelegramBotConfig = {
   botApi: true,
   deepLinking: true,
   menuButton: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM FORMATTING CONFIG
@@ -510,7 +524,7 @@ export const telegramFormattingConfig: TelegramFormattingConfig = {
   customLinks: true,
   formattingToolbar: true,
   markdownInput: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM MEDIA CONFIG
@@ -535,7 +549,7 @@ export const telegramMediaConfig: TelegramMediaConfig = {
   videoMessages: true,
   videoMessageMaxSec: 60,
   themeSharing: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM PRIVACY CONFIG
@@ -543,24 +557,24 @@ export const telegramMediaConfig: TelegramMediaConfig = {
 
 export const telegramPrivacyConfig: TelegramPrivacyConfig = {
   phoneNumberPrivacy: true,
-  phoneNumberOptions: ['everybody', 'my-contacts', 'nobody'],
+  phoneNumberOptions: ["everybody", "my-contacts", "nobody"],
   lastSeenGranularity: true,
-  lastSeenOptions: ['everybody', 'my-contacts', 'nobody'],
+  lastSeenOptions: ["everybody", "my-contacts", "nobody"],
   profilePhotoPrivacy: true,
-  profilePhotoOptions: ['everybody', 'my-contacts', 'nobody'],
+  profilePhotoOptions: ["everybody", "my-contacts", "nobody"],
   forwardPrivacy: true,
-  forwardOptions: ['everybody', 'my-contacts', 'nobody'],
+  forwardOptions: ["everybody", "my-contacts", "nobody"],
   callPrivacy: true,
-  callOptions: ['everybody', 'my-contacts', 'nobody'],
+  callOptions: ["everybody", "my-contacts", "nobody"],
   groupPrivacy: true,
-  groupOptions: ['everybody', 'my-contacts', 'nobody'],
+  groupOptions: ["everybody", "my-contacts", "nobody"],
   bioPrivacy: true,
   passcodeLock: true,
   twoStepVerification: true,
   activeSessions: true,
   deleteAccountTimer: true,
-  deleteAccountOptions: ['1-month', '3-months', '6-months', '12-months'],
-}
+  deleteAccountOptions: ["1-month", "3-months", "6-months", "12-months"],
+};
 
 // ============================================================================
 // TELEGRAM CHAT LIST CONFIG
@@ -578,30 +592,38 @@ export const telegramChatListConfig: TelegramChatListConfig = {
   timestamp: true,
   swipeActions: true,
   muteChats: true,
-  muteDurationOptions: ['1-hour', '4-hours', '8-hours', '1-day', '3-days', 'forever'],
+  muteDurationOptions: [
+    "1-hour",
+    "4-hours",
+    "8-hours",
+    "1-day",
+    "3-days",
+    "forever",
+  ],
   markRead: true,
-}
+};
 
 // ============================================================================
 // TELEGRAM ADDITIONAL FEATURES CONFIG
 // ============================================================================
 
-export const telegramAdditionalFeaturesConfig: TelegramAdditionalFeaturesConfig = {
-  multipleAccounts: true,
-  maxAccounts: 3,
-  cloudDrafts: true,
-  crossDeviceSync: true,
-  nearbyPeople: true,
-  locationBasedGroups: true,
-  savedMessages: true,
-  recentActions: true,
-  animatedEmoji: true,
-  customEmoji: true,
-  premiumTier: true,
-  messageTranslation: true,
-  stories: true,
-  usernameMarketplace: true,
-}
+export const telegramAdditionalFeaturesConfig: TelegramAdditionalFeaturesConfig =
+  {
+    multipleAccounts: true,
+    maxAccounts: 3,
+    cloudDrafts: true,
+    crossDeviceSync: true,
+    nearbyPeople: true,
+    locationBasedGroups: true,
+    savedMessages: true,
+    recentActions: true,
+    animatedEmoji: true,
+    customEmoji: true,
+    premiumTier: true,
+    messageTranslation: true,
+    stories: true,
+    usernameMarketplace: true,
+  };
 
 // ============================================================================
 // TELEGRAM DETAILED BEHAVIOR PRESET
@@ -613,20 +635,20 @@ export const telegramAdditionalFeaturesConfig: TelegramAdditionalFeaturesConfig 
  * and interaction patterns.
  */
 export const telegramDetailedBehavior: BehaviorPreset = {
-  id: 'telegram-detailed',
-  name: 'Telegram',
+  id: "telegram-detailed",
+  name: "Telegram",
   description:
-    'Detailed Telegram behavior preset with exact feature flags, limits, and interaction patterns matching Telegram as of 2026',
-  version: '0.9.1',
+    "Detailed Telegram behavior preset with exact feature flags, limits, and interaction patterns matching Telegram as of 2026",
+  version: "0.9.1",
   messaging: {
     editWindow: 0, // Unlimited edit window (48h for bots, unlimited for users)
     deleteWindow: 0, // Unlimited delete-for-self
     deleteForEveryone: true,
     deleteForEveryoneWindow: 0, // Unlimited (Telegram allows deleting any message at any time)
     showEditedIndicator: true,
-    reactionStyle: 'quick-reactions',
+    reactionStyle: "quick-reactions",
     maxReactionsPerMessage: 3,
-    threadingModel: 'reply-chain',
+    threadingModel: "reply-chain",
     maxMessageLength: 4096,
     forwarding: true,
     forwardLimit: 100, // Telegram allows forwarding to many chats
@@ -636,7 +658,7 @@ export const telegramDetailedBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['public', 'private', 'dm', 'group-dm', 'broadcast', 'forum'],
+    types: ["public", "private", "dm", "group-dm", "broadcast", "forum"],
     hierarchy: false,
     categories: false,
     forums: true, // Topics mode in supergroups
@@ -646,7 +668,14 @@ export const telegramDetailedBehavior: BehaviorPreset = {
     slowMode: true,
   },
   presence: {
-    states: ['online', 'offline', 'recently', 'within-week', 'within-month', 'long-time-ago'],
+    states: [
+      "online",
+      "offline",
+      "recently",
+      "within-week",
+      "within-month",
+      "long-time-ago",
+    ],
     showLastSeen: true,
     lastSeenPrivacy: true,
     customStatus: true,
@@ -668,8 +697,8 @@ export const telegramDetailedBehavior: BehaviorPreset = {
     huddles: false,
   },
   notifications: {
-    defaultLevel: 'all',
-    mentionRules: ['user', 'everyone'],
+    defaultLevel: "all",
+    mentionRules: ["user", "everyone"],
     quietHours: true,
     threadNotifications: true,
     soundEnabled: true,
@@ -691,11 +720,11 @@ export const telegramDetailedBehavior: BehaviorPreset = {
     readReceiptsOptional: false, // Telegram always shows read receipts in 1-on-1
     lastSeen: true,
     lastSeenPrivacy: true,
-    profileVisibility: 'everyone',
+    profileVisibility: "everyone",
     onlineStatusVisible: true,
     e2eeDefault: false, // Secret chats are opt-in, not default
     disappearingMessages: true,
-    disappearingOptions: ['off', '1d', '1w', '1m'],
+    disappearingOptions: ["off", "1d", "1w", "1m"],
   },
   features: {
     richText: true, // Telegram supports rich text formatting
@@ -739,7 +768,7 @@ export const telegramDetailedBehavior: BehaviorPreset = {
     spoilerText: true,
     messageTranslation: true,
   },
-}
+};
 
 // ============================================================================
 // TELEGRAM EXTENDED BEHAVIOR CONFIG
@@ -756,18 +785,18 @@ export const telegramExtendedBehavior: TelegramExtendedBehavior = {
   privacy: telegramPrivacyConfig,
   chatList: telegramChatListConfig,
   additionalFeatures: telegramAdditionalFeaturesConfig,
-}
+};
 
 /**
  * Complete Telegram behavior configuration including both the standard
  * BehaviorPreset and Telegram-specific extensions.
  */
 export interface TelegramBehaviorConfig {
-  preset: BehaviorPreset
-  extended: TelegramExtendedBehavior
+  preset: BehaviorPreset;
+  extended: TelegramExtendedBehavior;
 }
 
 export const telegramBehaviorConfig: TelegramBehaviorConfig = {
   preset: telegramDetailedBehavior,
   extended: telegramExtendedBehavior,
-}
+};

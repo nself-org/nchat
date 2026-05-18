@@ -4,35 +4,35 @@
  * Check availability of AI features
  */
 
-import { NextResponse } from 'next/server'
-import { getMessageSummarizer } from '@/lib/ai/message-summarizer'
-import { getSmartSearch } from '@/lib/ai/smart-search'
+import { NextResponse } from "next/server";
+import { getMessageSummarizer } from "@/lib/ai/message-summarizer";
+import { getSmartSearch } from "@/lib/ai/smart-search";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 interface AIStatusResponse {
   summarization: {
-    available: boolean
-    provider: string
-  }
+    available: boolean;
+    provider: string;
+  };
   search: {
-    available: boolean
-    provider: string
-    semantic: boolean
-  }
+    available: boolean;
+    provider: string;
+    semantic: boolean;
+  };
   cacheStats?: {
-    size: number
-    maxSize: number
-  }
+    size: number;
+    maxSize: number;
+  };
 }
 
 export async function GET() {
   try {
-    const summarizer = getMessageSummarizer()
-    const search = getSmartSearch()
+    const summarizer = getMessageSummarizer();
+    const search = getSmartSearch();
 
     const status: AIStatusResponse = {
       summarization: {
@@ -42,21 +42,21 @@ export async function GET() {
       search: {
         available: search.available(),
         provider: search.getProvider(),
-        semantic: search.getProvider() !== 'local',
+        semantic: search.getProvider() !== "local",
       },
       cacheStats: search.getCacheStats(),
-    }
+    };
 
-    return NextResponse.json(status)
+    return NextResponse.json(status);
   } catch (error) {
-    logger.error('AI status check error:', error)
+    logger.error("AI status check error:", error);
 
     return NextResponse.json(
       {
-        error: 'Failed to check AI status',
+        error: "Failed to check AI status",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -65,9 +65,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
-  })
+  });
 }

@@ -11,124 +11,124 @@
 
 export interface StorageQuota {
   /** Entity ID (userId, channelId, or teamId) */
-  entityId: string
+  entityId: string;
   /** Entity type */
-  entityType: 'user' | 'channel' | 'team'
+  entityType: "user" | "channel" | "team";
   /** Total storage limit in bytes */
-  limit: number
+  limit: number;
   /** Current usage in bytes */
-  used: number
+  used: number;
   /** Usage percentage (0-100) */
-  percentage: number
+  percentage: number;
   /** Soft limit threshold (percentage, e.g., 80) */
-  softLimitThreshold: number
+  softLimitThreshold: number;
   /** Whether soft limit has been exceeded */
-  softLimitExceeded: boolean
+  softLimitExceeded: boolean;
   /** Whether hard limit has been exceeded */
-  hardLimitExceeded: boolean
+  hardLimitExceeded: boolean;
   /** Last calculated timestamp */
-  lastCalculated: Date
+  lastCalculated: Date;
 }
 
 export interface StorageUsageBreakdown {
   /** Total usage in bytes */
-  total: number
+  total: number;
   /** Usage by type */
   byType: {
-    messages: number
-    files: number
-    images: number
-    videos: number
-    audio: number
-    documents: number
-    archives: number
-    code: number
-    other: number
-    cache: number
-  }
+    messages: number;
+    files: number;
+    images: number;
+    videos: number;
+    audio: number;
+    documents: number;
+    archives: number;
+    code: number;
+    other: number;
+    cache: number;
+  };
   /** Usage by user (for team/channel) */
-  byUser?: Map<string, number>
+  byUser?: Map<string, number>;
   /** Usage by channel (for team) */
-  byChannel?: Map<string, number>
+  byChannel?: Map<string, number>;
   /** Largest files */
   largestFiles: Array<{
-    id: string
-    name: string
-    size: number
-    mimeType: string
-    uploadedAt: Date
-    uploadedBy: string
-  }>
+    id: string;
+    name: string;
+    size: number;
+    mimeType: string;
+    uploadedAt: Date;
+    uploadedBy: string;
+  }>;
   /** Oldest files */
   oldestFiles: Array<{
-    id: string
-    name: string
-    size: number
-    mimeType: string
-    uploadedAt: Date
-    uploadedBy: string
-  }>
+    id: string;
+    name: string;
+    size: number;
+    mimeType: string;
+    uploadedAt: Date;
+    uploadedBy: string;
+  }>;
 }
 
 export interface StorageTier {
-  id: string
-  name: string
+  id: string;
+  name: string;
   /** Storage limit in bytes */
-  limit: number
+  limit: number;
   /** Price per month (USD cents) */
-  priceMonthly: number
+  priceMonthly: number;
   /** Features included */
-  features: string[]
+  features: string[];
 }
 
 export interface QuotaWarning {
-  id: string
-  entityId: string
-  entityType: 'user' | 'channel' | 'team'
-  type: 'approaching' | 'exceeded' | 'critical'
+  id: string;
+  entityId: string;
+  entityType: "user" | "channel" | "team";
+  type: "approaching" | "exceeded" | "critical";
   /** Percentage at which warning was triggered */
-  threshold: number
-  message: string
-  timestamp: Date
-  acknowledged: boolean
+  threshold: number;
+  message: string;
+  timestamp: Date;
+  acknowledged: boolean;
 }
 
 export interface CleanupPolicy {
   /** Enable automatic cleanup */
-  enabled: boolean
+  enabled: boolean;
   /** Delete files older than (days) */
-  deleteOlderThan?: number
+  deleteOlderThan?: number;
   /** Compress images older than (days) */
-  compressImagesOlderThan?: number
+  compressImagesOlderThan?: number;
   /** Archive messages older than (days) */
-  archiveMessagesOlderThan?: number
+  archiveMessagesOlderThan?: number;
   /** Delete cache older than (days) */
-  deleteCacheOlderThan?: number
+  deleteCacheOlderThan?: number;
   /** Minimum free space to maintain (percentage) */
-  maintainFreeSpace?: number
+  maintainFreeSpace?: number;
 }
 
 export interface StorageStats {
   /** Total storage allocated (bytes) */
-  totalAllocated: number
+  totalAllocated: number;
   /** Total storage used (bytes) */
-  totalUsed: number
+  totalUsed: number;
   /** Total storage available (bytes) */
-  totalAvailable: number
+  totalAvailable: number;
   /** Number of files */
-  fileCount: number
+  fileCount: number;
   /** Number of users */
-  userCount: number
+  userCount: number;
   /** Number of channels */
-  channelCount: number
+  channelCount: number;
   /** Average file size (bytes) */
-  averageFileSize: number
+  averageFileSize: number;
   /** Largest file size (bytes) */
-  largestFileSize: number
+  largestFileSize: number;
   /** Growth rate (bytes per day) */
-  growthRate: number
+  growthRate: number;
   /** Projected days until full */
-  daysUntilFull: number | null
+  daysUntilFull: number | null;
 }
 
 // ============================================================================
@@ -138,73 +138,78 @@ export interface StorageStats {
 /** Default storage tiers */
 export const STORAGE_TIERS: StorageTier[] = [
   {
-    id: 'free',
-    name: 'Free',
+    id: "free",
+    name: "Free",
     limit: 5 * 1024 * 1024 * 1024, // 5 GB
     priceMonthly: 0,
-    features: ['5 GB storage', 'Basic file types', '10 MB max file size', '90 days retention'],
+    features: [
+      "5 GB storage",
+      "Basic file types",
+      "10 MB max file size",
+      "90 days retention",
+    ],
   },
   {
-    id: 'starter',
-    name: 'Starter',
+    id: "starter",
+    name: "Starter",
     limit: 25 * 1024 * 1024 * 1024, // 25 GB
     priceMonthly: 999, // $9.99
     features: [
-      '25 GB storage',
-      'All file types',
-      '100 MB max file size',
-      '1 year retention',
-      'Advanced search',
+      "25 GB storage",
+      "All file types",
+      "100 MB max file size",
+      "1 year retention",
+      "Advanced search",
     ],
   },
   {
-    id: 'professional',
-    name: 'Professional',
+    id: "professional",
+    name: "Professional",
     limit: 100 * 1024 * 1024 * 1024, // 100 GB
     priceMonthly: 2999, // $29.99
     features: [
-      '100 GB storage',
-      'All file types',
-      '500 MB max file size',
-      'Unlimited retention',
-      'Advanced search',
-      'Version history',
-      'Custom retention policies',
+      "100 GB storage",
+      "All file types",
+      "500 MB max file size",
+      "Unlimited retention",
+      "Advanced search",
+      "Version history",
+      "Custom retention policies",
     ],
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
+    id: "enterprise",
+    name: "Enterprise",
     limit: 1024 * 1024 * 1024 * 1024, // 1 TB
     priceMonthly: 9999, // $99.99
     features: [
-      '1 TB storage',
-      'All file types',
-      'Unlimited file size',
-      'Unlimited retention',
-      'Advanced search',
-      'Version history',
-      'Custom retention policies',
-      'Priority support',
-      'SLA guarantee',
+      "1 TB storage",
+      "All file types",
+      "Unlimited file size",
+      "Unlimited retention",
+      "Advanced search",
+      "Version history",
+      "Custom retention policies",
+      "Priority support",
+      "SLA guarantee",
     ],
   },
-]
+];
 
 /** Default per-user quota (5 GB) */
-export const DEFAULT_USER_QUOTA = 5 * 1024 * 1024 * 1024
+export const DEFAULT_USER_QUOTA = 5 * 1024 * 1024 * 1024;
 
 /** Default per-channel quota (10 GB) */
-export const DEFAULT_CHANNEL_QUOTA = 10 * 1024 * 1024 * 1024
+export const DEFAULT_CHANNEL_QUOTA = 10 * 1024 * 1024 * 1024;
 
 /** Default team quota (100 GB) */
-export const DEFAULT_TEAM_QUOTA = 100 * 1024 * 1024 * 1024
+export const DEFAULT_TEAM_QUOTA = 100 * 1024 * 1024 * 1024;
 
 /** Soft limit warning threshold (percentage) */
-export const SOFT_LIMIT_THRESHOLD = 80
+export const SOFT_LIMIT_THRESHOLD = 80;
 
 /** Critical threshold (percentage) */
-export const CRITICAL_THRESHOLD = 95
+export const CRITICAL_THRESHOLD = 95;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -214,29 +219,29 @@ export const CRITICAL_THRESHOLD = 95
  * Format bytes to human-readable string
  */
 export function formatBytes(bytes: number, decimals = 2): string {
-  if (bytes === 0) return '0 B'
+  if (bytes === 0) return "0 B";
 
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "KB", "MB", "GB", "TB", "PB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
 /**
  * Calculate storage percentage
  */
 export function calculatePercentage(used: number, limit: number): number {
-  if (limit === 0) return 0
-  return Math.min(Math.round((used / limit) * 100), 100)
+  if (limit === 0) return 0;
+  return Math.min(Math.round((used / limit) * 100), 100);
 }
 
 /**
  * Check if quota is exceeded
  */
 export function isQuotaExceeded(used: number, limit: number): boolean {
-  return used >= limit
+  return used >= limit;
 }
 
 /**
@@ -245,10 +250,10 @@ export function isQuotaExceeded(used: number, limit: number): boolean {
 export function isSoftLimitExceeded(
   used: number,
   limit: number,
-  threshold: number = SOFT_LIMIT_THRESHOLD
+  threshold: number = SOFT_LIMIT_THRESHOLD,
 ): boolean {
-  const percentage = calculatePercentage(used, limit)
-  return percentage >= threshold
+  const percentage = calculatePercentage(used, limit);
+  return percentage >= threshold;
 }
 
 /**
@@ -256,14 +261,14 @@ export function isSoftLimitExceeded(
  */
 export function getQuotaStatus(
   used: number,
-  limit: number
-): 'ok' | 'warning' | 'critical' | 'exceeded' {
-  const percentage = calculatePercentage(used, limit)
+  limit: number,
+): "ok" | "warning" | "critical" | "exceeded" {
+  const percentage = calculatePercentage(used, limit);
 
-  if (percentage >= 100) return 'exceeded'
-  if (percentage >= CRITICAL_THRESHOLD) return 'critical'
-  if (percentage >= SOFT_LIMIT_THRESHOLD) return 'warning'
-  return 'ok'
+  if (percentage >= 100) return "exceeded";
+  if (percentage >= CRITICAL_THRESHOLD) return "critical";
+  if (percentage >= SOFT_LIMIT_THRESHOLD) return "warning";
+  return "ok";
 }
 
 /**
@@ -272,14 +277,14 @@ export function getQuotaStatus(
 export function estimateDaysUntilFull(
   used: number,
   limit: number,
-  growthRatePerDay: number
+  growthRatePerDay: number,
 ): number | null {
-  if (growthRatePerDay <= 0) return null
-  if (used >= limit) return 0
+  if (growthRatePerDay <= 0) return null;
+  if (used >= limit) return 0;
 
-  const remaining = limit - used
-  const days = Math.ceil(remaining / growthRatePerDay)
-  return days
+  const remaining = limit - used;
+  const days = Math.ceil(remaining / growthRatePerDay);
+  return days;
 }
 
 // ============================================================================
@@ -287,24 +292,27 @@ export function estimateDaysUntilFull(
 // ============================================================================
 
 export class QuotaManager {
-  private quotaCache: Map<string, StorageQuota> = new Map()
-  private warningsCache: Map<string, QuotaWarning[]> = new Map()
+  private quotaCache: Map<string, StorageQuota> = new Map();
+  private warningsCache: Map<string, QuotaWarning[]> = new Map();
 
   /**
    * Get storage quota for an entity
    */
-  async getQuota(entityId: string, entityType: 'user' | 'channel' | 'team'): Promise<StorageQuota> {
-    const cacheKey = `${entityType}:${entityId}`
+  async getQuota(
+    entityId: string,
+    entityType: "user" | "channel" | "team",
+  ): Promise<StorageQuota> {
+    const cacheKey = `${entityType}:${entityId}`;
 
     // Check cache first
-    const cached = this.quotaCache.get(cacheKey)
+    const cached = this.quotaCache.get(cacheKey);
     if (cached && Date.now() - cached.lastCalculated.getTime() < 60000) {
-      return cached
+      return cached;
     }
 
-    const limit = this.getDefaultLimit(entityType)
-    const used = await this.calculateUsage(entityId, entityType)
-    const percentage = calculatePercentage(used, limit)
+    const limit = this.getDefaultLimit(entityType);
+    const used = await this.calculateUsage(entityId, entityType);
+    const percentage = calculatePercentage(used, limit);
 
     const quota: StorageQuota = {
       entityId,
@@ -316,12 +324,12 @@ export class QuotaManager {
       softLimitExceeded: isSoftLimitExceeded(used, limit),
       hardLimitExceeded: isQuotaExceeded(used, limit),
       lastCalculated: new Date(),
-    }
+    };
 
     // Cache for 1 minute
-    this.quotaCache.set(cacheKey, quota)
+    this.quotaCache.set(cacheKey, quota);
 
-    return quota
+    return quota;
   }
 
   /**
@@ -329,25 +337,28 @@ export class QuotaManager {
    */
   async updateQuota(
     entityId: string,
-    entityType: 'user' | 'channel' | 'team',
-    newLimit: number
+    entityType: "user" | "channel" | "team",
+    newLimit: number,
   ): Promise<StorageQuota> {
     // Invalidate cache
-    const cacheKey = `${entityType}:${entityId}`
-    this.quotaCache.delete(cacheKey)
+    const cacheKey = `${entityType}:${entityId}`;
+    this.quotaCache.delete(cacheKey);
 
     // Recalculate
-    return this.getQuota(entityId, entityType)
+    return this.getQuota(entityId, entityType);
   }
 
   /**
    * Calculate storage usage for an entity
    */
-  async calculateUsage(entityId: string, entityType: 'user' | 'channel' | 'team'): Promise<number> {
+  async calculateUsage(
+    entityId: string,
+    entityType: "user" | "channel" | "team",
+  ): Promise<number> {
     // This is a placeholder implementation
 
     // Simulate usage calculation
-    return Math.floor(Math.random() * 5 * 1024 * 1024 * 1024)
+    return Math.floor(Math.random() * 5 * 1024 * 1024 * 1024);
   }
 
   /**
@@ -355,10 +366,10 @@ export class QuotaManager {
    */
   async getUsageBreakdown(
     entityId: string,
-    entityType: 'user' | 'channel' | 'team'
+    entityType: "user" | "channel" | "team",
   ): Promise<StorageUsageBreakdown> {
     // Placeholder implementation
-    const total = await this.calculateUsage(entityId, entityType)
+    const total = await this.calculateUsage(entityId, entityType);
 
     return {
       total,
@@ -376,7 +387,7 @@ export class QuotaManager {
       },
       largestFiles: [],
       oldestFiles: [],
-    }
+    };
   }
 
   /**
@@ -384,27 +395,27 @@ export class QuotaManager {
    */
   async canUpload(
     entityId: string,
-    entityType: 'user' | 'channel' | 'team',
-    fileSize: number
+    entityType: "user" | "channel" | "team",
+    fileSize: number,
   ): Promise<{ allowed: boolean; reason?: string }> {
-    const quota = await this.getQuota(entityId, entityType)
+    const quota = await this.getQuota(entityId, entityType);
 
     if (quota.hardLimitExceeded) {
       return {
         allowed: false,
-        reason: 'Storage quota exceeded',
-      }
+        reason: "Storage quota exceeded",
+      };
     }
 
-    const projectedUsage = quota.used + fileSize
+    const projectedUsage = quota.used + fileSize;
     if (projectedUsage > quota.limit) {
       return {
         allowed: false,
         reason: `Upload would exceed quota by ${formatBytes(projectedUsage - quota.limit)}`,
-      }
+      };
     }
 
-    return { allowed: true }
+    return { allowed: true };
   }
 
   /**
@@ -412,16 +423,16 @@ export class QuotaManager {
    */
   async recordUpload(
     entityId: string,
-    entityType: 'user' | 'channel' | 'team',
-    fileSize: number
+    entityType: "user" | "channel" | "team",
+    fileSize: number,
   ): Promise<void> {
     // Invalidate cache
-    const cacheKey = `${entityType}:${entityId}`
-    this.quotaCache.delete(cacheKey)
+    const cacheKey = `${entityType}:${entityId}`;
+    this.quotaCache.delete(cacheKey);
 
     // Check if warning should be triggered
-    const quota = await this.getQuota(entityId, entityType)
-    await this.checkAndCreateWarnings(quota)
+    const quota = await this.getQuota(entityId, entityType);
+    await this.checkAndCreateWarnings(quota);
   }
 
   /**
@@ -429,12 +440,12 @@ export class QuotaManager {
    */
   async recordDeletion(
     entityId: string,
-    entityType: 'user' | 'channel' | 'team',
-    fileSize: number
+    entityType: "user" | "channel" | "team",
+    fileSize: number,
   ): Promise<void> {
     // Invalidate cache
-    const cacheKey = `${entityType}:${entityId}`
-    this.quotaCache.delete(cacheKey)
+    const cacheKey = `${entityType}:${entityId}`;
+    this.quotaCache.delete(cacheKey);
   }
 
   /**
@@ -442,64 +453,64 @@ export class QuotaManager {
    */
   async getWarnings(
     entityId: string,
-    entityType: 'user' | 'channel' | 'team'
+    entityType: "user" | "channel" | "team",
   ): Promise<QuotaWarning[]> {
-    const cacheKey = `${entityType}:${entityId}`
+    const cacheKey = `${entityType}:${entityId}`;
 
     // Check cache
-    const cached = this.warningsCache.get(cacheKey)
-    if (cached) return cached
+    const cached = this.warningsCache.get(cacheKey);
+    if (cached) return cached;
 
-    const warnings: QuotaWarning[] = []
+    const warnings: QuotaWarning[] = [];
 
-    this.warningsCache.set(cacheKey, warnings)
-    return warnings
+    this.warningsCache.set(cacheKey, warnings);
+    return warnings;
   }
 
   /**
    * Check quota and create warnings if needed
    */
   private async checkAndCreateWarnings(quota: StorageQuota): Promise<void> {
-    const warnings: QuotaWarning[] = []
+    const warnings: QuotaWarning[] = [];
 
     if (quota.hardLimitExceeded) {
       warnings.push({
         id: `${quota.entityType}:${quota.entityId}:exceeded`,
         entityId: quota.entityId,
         entityType: quota.entityType,
-        type: 'exceeded',
+        type: "exceeded",
         threshold: 100,
         message: `Storage quota exceeded (${formatBytes(quota.used)} / ${formatBytes(quota.limit)})`,
         timestamp: new Date(),
         acknowledged: false,
-      })
+      });
     } else if (quota.percentage >= CRITICAL_THRESHOLD) {
       warnings.push({
         id: `${quota.entityType}:${quota.entityId}:critical`,
         entityId: quota.entityId,
         entityType: quota.entityType,
-        type: 'critical',
+        type: "critical",
         threshold: CRITICAL_THRESHOLD,
         message: `Storage quota critical (${quota.percentage}% used)`,
         timestamp: new Date(),
         acknowledged: false,
-      })
+      });
     } else if (quota.softLimitExceeded) {
       warnings.push({
         id: `${quota.entityType}:${quota.entityId}:approaching`,
         entityId: quota.entityId,
         entityType: quota.entityType,
-        type: 'approaching',
+        type: "approaching",
         threshold: quota.softLimitThreshold,
         message: `Storage quota approaching limit (${quota.percentage}% used)`,
         timestamp: new Date(),
         acknowledged: false,
-      })
+      });
     }
 
     if (warnings.length > 0) {
-      const cacheKey = `${quota.entityType}:${quota.entityId}`
-      this.warningsCache.set(cacheKey, warnings)
+      const cacheKey = `${quota.entityType}:${quota.entityId}`;
+      this.warningsCache.set(cacheKey, warnings);
     }
   }
 
@@ -508,20 +519,20 @@ export class QuotaManager {
    */
   async acknowledgeWarning(warningId: string): Promise<void> {
     // Invalidate warnings cache
-    this.warningsCache.clear()
+    this.warningsCache.clear();
   }
 
   /**
    * Get default limit for entity type
    */
-  private getDefaultLimit(entityType: 'user' | 'channel' | 'team'): number {
+  private getDefaultLimit(entityType: "user" | "channel" | "team"): number {
     switch (entityType) {
-      case 'user':
-        return DEFAULT_USER_QUOTA
-      case 'channel':
-        return DEFAULT_CHANNEL_QUOTA
-      case 'team':
-        return DEFAULT_TEAM_QUOTA
+      case "user":
+        return DEFAULT_USER_QUOTA;
+      case "channel":
+        return DEFAULT_CHANNEL_QUOTA;
+      case "team":
+        return DEFAULT_TEAM_QUOTA;
     }
   }
 
@@ -543,9 +554,9 @@ export class QuotaManager {
       daysUntilFull: estimateDaysUntilFull(
         45 * 1024 * 1024 * 1024,
         100 * 1024 * 1024 * 1024,
-        500 * 1024 * 1024
+        500 * 1024 * 1024,
       ),
-    }
+    };
   }
 
   /**
@@ -553,18 +564,18 @@ export class QuotaManager {
    */
   async applyCleanupPolicy(
     entityId: string,
-    entityType: 'user' | 'channel' | 'team',
-    policy: CleanupPolicy
+    entityType: "user" | "channel" | "team",
+    policy: CleanupPolicy,
   ): Promise<{ filesDeleted: number; spaceFree: number }> {
     if (!policy.enabled) {
-      return { filesDeleted: 0, spaceFree: 0 }
+      return { filesDeleted: 0, spaceFree: 0 };
     }
 
     // Placeholder implementation
     return {
       filesDeleted: 0,
       spaceFree: 0,
-    }
+    };
   }
 }
 
@@ -572,4 +583,4 @@ export class QuotaManager {
 // SINGLETON INSTANCE
 // ============================================================================
 
-export const quotaManager = new QuotaManager()
+export const quotaManager = new QuotaManager();

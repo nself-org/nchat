@@ -17,7 +17,7 @@
  * - Optional fallback to identified delivery
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   type SealedSenderEnvelope,
   type UnsealedMessage,
@@ -29,28 +29,31 @@ import {
   envelopeFromBase64,
   validateEnvelopeStructure,
   SEALED_SENDER_VERSION,
-} from './sealed-sender'
-import { type SenderCertificateManager, createSenderCertificateManager } from './sender-certificate'
-import { type SenderCertificate } from './sealed-sender'
+} from "./sealed-sender";
+import {
+  type SenderCertificateManager,
+  createSenderCertificateManager,
+} from "./sender-certificate";
+import { type SenderCertificate } from "./sealed-sender";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** Unidentified access key length */
-const ACCESS_KEY_LENGTH = 16
+const ACCESS_KEY_LENGTH = 16;
 
 /** Token expiration for unidentified delivery (1 hour) */
-export const UNIDENTIFIED_TOKEN_VALIDITY_MS = 60 * 60 * 1000
+export const UNIDENTIFIED_TOKEN_VALIDITY_MS = 60 * 60 * 1000;
 
 /** Maximum number of unidentified messages per token */
-export const MAX_MESSAGES_PER_TOKEN = 100
+export const MAX_MESSAGES_PER_TOKEN = 100;
 
 /** Rate limit window (messages per minute) */
-export const RATE_LIMIT_WINDOW_MS = 60 * 1000
+export const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 
 /** Maximum messages per rate limit window */
-export const MAX_MESSAGES_PER_WINDOW = 30
+export const MAX_MESSAGES_PER_WINDOW = 30;
 
 // ============================================================================
 // Types
@@ -61,13 +64,13 @@ export const MAX_MESSAGES_PER_WINDOW = 30
  */
 export interface UnidentifiedAccessConfig {
   /** Whether user accepts unidentified delivery */
-  allowUnidentifiedDelivery: boolean
+  allowUnidentifiedDelivery: boolean;
   /** Access key for this user (derived from profile key) */
-  accessKey?: Uint8Array
+  accessKey?: Uint8Array;
   /** Whether to require certificate verification */
-  requireCertificate: boolean
+  requireCertificate: boolean;
   /** Optional list of blocked sender fingerprints */
-  blockedSenders?: string[]
+  blockedSenders?: string[];
 }
 
 /**
@@ -75,17 +78,17 @@ export interface UnidentifiedAccessConfig {
  */
 export interface UnidentifiedDeliveryToken {
   /** Token ID */
-  tokenId: string
+  tokenId: string;
   /** Recipient user ID */
-  recipientUserId: string
+  recipientUserId: string;
   /** Token creation time */
-  createdAt: number
+  createdAt: number;
   /** Token expiration time */
-  expiresAt: number
+  expiresAt: number;
   /** Number of messages sent with this token */
-  messageCount: number
+  messageCount: number;
   /** Whether the token is still valid */
-  isValid: boolean
+  isValid: boolean;
 }
 
 /**
@@ -93,17 +96,17 @@ export interface UnidentifiedDeliveryToken {
  */
 export interface UnidentifiedMessage {
   /** Sealed sender envelope (Base64) */
-  envelope: string
+  envelope: string;
   /** Recipient user ID */
-  recipientUserId: string
+  recipientUserId: string;
   /** Recipient device ID */
-  recipientDeviceId: string
+  recipientDeviceId: string;
   /** Optional delivery token */
-  deliveryToken?: string
+  deliveryToken?: string;
   /** Message timestamp */
-  timestamp: number
+  timestamp: number;
   /** Whether this is a fallback to identified delivery */
-  identifiedFallback: boolean
+  identifiedFallback: boolean;
 }
 
 /**
@@ -111,15 +114,15 @@ export interface UnidentifiedMessage {
  */
 export interface DeliveryResult {
   /** Whether delivery was successful */
-  success: boolean
+  success: boolean;
   /** Message ID assigned by server */
-  messageId?: string
+  messageId?: string;
   /** Error message if failed */
-  error?: string
+  error?: string;
   /** Whether fallback to identified was used */
-  usedIdentifiedFallback: boolean
+  usedIdentifiedFallback: boolean;
   /** New delivery token if issued */
-  newToken?: UnidentifiedDeliveryToken
+  newToken?: UnidentifiedDeliveryToken;
 }
 
 /**
@@ -127,15 +130,15 @@ export interface DeliveryResult {
  */
 export interface UnidentifiedSenderContext {
   /** User ID */
-  userId: string
+  userId: string;
   /** Device ID */
-  deviceId: string
+  deviceId: string;
   /** Identity public key */
-  identityPublicKey: Uint8Array
+  identityPublicKey: Uint8Array;
   /** Identity private key */
-  identityPrivateKey: Uint8Array
+  identityPrivateKey: Uint8Array;
   /** Certificate manager */
-  certificateManager: SenderCertificateManager
+  certificateManager: SenderCertificateManager;
 }
 
 /**
@@ -143,17 +146,17 @@ export interface UnidentifiedSenderContext {
  */
 export interface UnidentifiedRecipientContext {
   /** User ID */
-  userId: string
+  userId: string;
   /** Device ID */
-  deviceId: string
+  deviceId: string;
   /** Identity public key */
-  identityPublicKey: Uint8Array
+  identityPublicKey: Uint8Array;
   /** Identity private key */
-  identityPrivateKey: Uint8Array
+  identityPrivateKey: Uint8Array;
   /** Access configuration */
-  accessConfig: UnidentifiedAccessConfig
+  accessConfig: UnidentifiedAccessConfig;
   /** Callback to verify sender certificates */
-  verifyCertificate: (cert: SenderCertificate) => Promise<boolean>
+  verifyCertificate: (cert: SenderCertificate) => Promise<boolean>;
 }
 
 /**
@@ -161,9 +164,9 @@ export interface UnidentifiedRecipientContext {
  */
 interface RateLimitState {
   /** Message timestamps in current window */
-  timestamps: number[]
+  timestamps: number[];
   /** Number of messages in current window */
-  count: number
+  count: number;
 }
 
 // ============================================================================
@@ -176,20 +179,20 @@ interface RateLimitState {
 export function deriveAccessKey(profileKey: Uint8Array): Uint8Array {
   // Simple derivation: take first ACCESS_KEY_LENGTH bytes
   // In production, use HKDF with proper info string
-  const accessKey = new Uint8Array(ACCESS_KEY_LENGTH)
+  const accessKey = new Uint8Array(ACCESS_KEY_LENGTH);
   for (let i = 0; i < ACCESS_KEY_LENGTH; i++) {
-    accessKey[i] = profileKey[i % profileKey.length]
+    accessKey[i] = profileKey[i % profileKey.length];
   }
-  return accessKey
+  return accessKey;
 }
 
 /**
  * Generates a random access key
  */
 export function generateAccessKey(): Uint8Array {
-  const accessKey = new Uint8Array(ACCESS_KEY_LENGTH)
-  crypto.getRandomValues(accessKey)
-  return accessKey
+  const accessKey = new Uint8Array(ACCESS_KEY_LENGTH);
+  crypto.getRandomValues(accessKey);
+  return accessKey;
 }
 
 /**
@@ -197,19 +200,19 @@ export function generateAccessKey(): Uint8Array {
  */
 export function validateAccessKey(
   providedKey: Uint8Array,
-  expectedKey: Uint8Array
+  expectedKey: Uint8Array,
 ): boolean {
   if (providedKey.length !== expectedKey.length) {
-    return false
+    return false;
   }
 
   // Constant-time comparison
-  let result = 0
+  let result = 0;
   for (let i = 0; i < providedKey.length; i++) {
-    result |= providedKey[i] ^ expectedKey[i]
+    result |= providedKey[i] ^ expectedKey[i];
   }
 
-  return result === 0
+  return result === 0;
 }
 
 // ============================================================================
@@ -219,14 +222,16 @@ export function validateAccessKey(
 /**
  * Generates a new delivery token
  */
-export function generateDeliveryToken(recipientUserId: string): UnidentifiedDeliveryToken {
-  const tokenBytes = new Uint8Array(16)
-  crypto.getRandomValues(tokenBytes)
+export function generateDeliveryToken(
+  recipientUserId: string,
+): UnidentifiedDeliveryToken {
+  const tokenBytes = new Uint8Array(16);
+  crypto.getRandomValues(tokenBytes);
   const tokenId = Array.from(tokenBytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 
-  const now = Date.now()
+  const now = Date.now();
 
   return {
     tokenId,
@@ -235,42 +240,44 @@ export function generateDeliveryToken(recipientUserId: string): UnidentifiedDeli
     expiresAt: now + UNIDENTIFIED_TOKEN_VALIDITY_MS,
     messageCount: 0,
     isValid: true,
-  }
+  };
 }
 
 /**
  * Validates a delivery token
  */
 export function validateDeliveryToken(token: UnidentifiedDeliveryToken): {
-  valid: boolean
-  error?: string
+  valid: boolean;
+  error?: string;
 } {
-  const now = Date.now()
+  const now = Date.now();
 
   if (!token.isValid) {
-    return { valid: false, error: 'Token has been revoked' }
+    return { valid: false, error: "Token has been revoked" };
   }
 
   if (now >= token.expiresAt) {
-    return { valid: false, error: 'Token has expired' }
+    return { valid: false, error: "Token has expired" };
   }
 
   if (token.messageCount >= MAX_MESSAGES_PER_TOKEN) {
-    return { valid: false, error: 'Token message limit exceeded' }
+    return { valid: false, error: "Token message limit exceeded" };
   }
 
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
  * Increments token usage
  */
-export function useDeliveryToken(token: UnidentifiedDeliveryToken): UnidentifiedDeliveryToken {
+export function useDeliveryToken(
+  token: UnidentifiedDeliveryToken,
+): UnidentifiedDeliveryToken {
   return {
     ...token,
     messageCount: token.messageCount + 1,
     isValid: token.messageCount + 1 < MAX_MESSAGES_PER_TOKEN,
-  }
+  };
 }
 
 // ============================================================================
@@ -281,76 +288,82 @@ export function useDeliveryToken(token: UnidentifiedDeliveryToken): Unidentified
  * Rate limiter for unidentified delivery
  */
 export class UnidentifiedDeliveryRateLimiter {
-  private states: Map<string, RateLimitState> = new Map()
-  private windowMs: number
-  private maxMessages: number
+  private states: Map<string, RateLimitState> = new Map();
+  private windowMs: number;
+  private maxMessages: number;
 
   constructor(
     windowMs: number = RATE_LIMIT_WINDOW_MS,
-    maxMessages: number = MAX_MESSAGES_PER_WINDOW
+    maxMessages: number = MAX_MESSAGES_PER_WINDOW,
   ) {
-    this.windowMs = windowMs
-    this.maxMessages = maxMessages
+    this.windowMs = windowMs;
+    this.maxMessages = maxMessages;
   }
 
   /**
    * Checks if a message can be sent (by fingerprint)
    */
   checkLimit(fingerprint: string): { allowed: boolean; retryAfterMs?: number } {
-    const now = Date.now()
-    const state = this.states.get(fingerprint)
+    const now = Date.now();
+    const state = this.states.get(fingerprint);
 
     if (!state) {
-      return { allowed: true }
+      return { allowed: true };
     }
 
     // Filter out old timestamps
-    const validTimestamps = state.timestamps.filter((t) => now - t < this.windowMs)
+    const validTimestamps = state.timestamps.filter(
+      (t) => now - t < this.windowMs,
+    );
 
     if (validTimestamps.length >= this.maxMessages) {
       // Calculate when the oldest message will expire
-      const oldestTimestamp = Math.min(...validTimestamps)
-      const retryAfterMs = oldestTimestamp + this.windowMs - now
+      const oldestTimestamp = Math.min(...validTimestamps);
+      const retryAfterMs = oldestTimestamp + this.windowMs - now;
 
-      return { allowed: false, retryAfterMs }
+      return { allowed: false, retryAfterMs };
     }
 
-    return { allowed: true }
+    return { allowed: true };
   }
 
   /**
    * Records a message send
    */
   recordMessage(fingerprint: string): void {
-    const now = Date.now()
-    const state = this.states.get(fingerprint) ?? { timestamps: [], count: 0 }
+    const now = Date.now();
+    const state = this.states.get(fingerprint) ?? { timestamps: [], count: 0 };
 
     // Filter out old timestamps and add new one
-    const validTimestamps = state.timestamps.filter((t) => now - t < this.windowMs)
-    validTimestamps.push(now)
+    const validTimestamps = state.timestamps.filter(
+      (t) => now - t < this.windowMs,
+    );
+    validTimestamps.push(now);
 
     this.states.set(fingerprint, {
       timestamps: validTimestamps,
       count: validTimestamps.length,
-    })
+    });
   }
 
   /**
    * Cleans up old entries
    */
   cleanup(): void {
-    const now = Date.now()
+    const now = Date.now();
 
     for (const [fingerprint, state] of this.states.entries()) {
-      const validTimestamps = state.timestamps.filter((t) => now - t < this.windowMs)
+      const validTimestamps = state.timestamps.filter(
+        (t) => now - t < this.windowMs,
+      );
 
       if (validTimestamps.length === 0) {
-        this.states.delete(fingerprint)
+        this.states.delete(fingerprint);
       } else {
         this.states.set(fingerprint, {
           timestamps: validTimestamps,
           count: validTimestamps.length,
-        })
+        });
       }
     }
   }
@@ -359,7 +372,7 @@ export class UnidentifiedDeliveryRateLimiter {
    * Resets all rate limits
    */
   reset(): void {
-    this.states.clear()
+    this.states.clear();
   }
 }
 
@@ -371,13 +384,13 @@ export class UnidentifiedDeliveryRateLimiter {
  * Client for sending unidentified messages
  */
 export class UnidentifiedSender {
-  private context: UnidentifiedSenderContext
-  private rateLimiter: UnidentifiedDeliveryRateLimiter
-  private deliveryTokens: Map<string, UnidentifiedDeliveryToken> = new Map()
+  private context: UnidentifiedSenderContext;
+  private rateLimiter: UnidentifiedDeliveryRateLimiter;
+  private deliveryTokens: Map<string, UnidentifiedDeliveryToken> = new Map();
 
   constructor(context: UnidentifiedSenderContext) {
-    this.context = context
-    this.rateLimiter = new UnidentifiedDeliveryRateLimiter()
+    this.context = context;
+    this.rateLimiter = new UnidentifiedDeliveryRateLimiter();
   }
 
   /**
@@ -388,10 +401,11 @@ export class UnidentifiedSender {
     recipientDeviceId: string,
     recipientIdentityKey: Uint8Array,
     content: Uint8Array,
-    messageType: SealedSenderMessageType = SealedSenderMessageType.MESSAGE
+    messageType: SealedSenderMessageType = SealedSenderMessageType.MESSAGE,
   ): Promise<UnidentifiedMessage> {
     // Get or refresh sender certificate
-    const certificate = await this.context.certificateManager.getValidCertificate()
+    const certificate =
+      await this.context.certificateManager.getValidCertificate();
 
     // Seal the message
     const sealOptions: SealOptions = {
@@ -401,16 +415,16 @@ export class UnidentifiedSender {
       recipientIdentityKey,
       encryptedMessage: content,
       messageType,
-    }
+    };
 
-    const envelope = await sealMessageSimple(sealOptions)
-    const envelopeBase64 = envelopeToBase64(envelope)
+    const envelope = await sealMessageSimple(sealOptions);
+    const envelopeBase64 = envelopeToBase64(envelope);
 
     // Get or create delivery token for this recipient
-    let deliveryToken = this.deliveryTokens.get(recipientUserId)
+    let deliveryToken = this.deliveryTokens.get(recipientUserId);
     if (!deliveryToken || !validateDeliveryToken(deliveryToken).valid) {
-      deliveryToken = generateDeliveryToken(recipientUserId)
-      this.deliveryTokens.set(recipientUserId, deliveryToken)
+      deliveryToken = generateDeliveryToken(recipientUserId);
+      this.deliveryTokens.set(recipientUserId, deliveryToken);
     }
 
     return {
@@ -420,7 +434,7 @@ export class UnidentifiedSender {
       deliveryToken: deliveryToken.tokenId,
       timestamp: Date.now(),
       identifiedFallback: false,
-    }
+    };
   }
 
   /**
@@ -431,10 +445,11 @@ export class UnidentifiedSender {
     recipientDeviceId: string,
     recipientIdentityKey: Uint8Array,
     content: Uint8Array,
-    messageType: SealedSenderMessageType = SealedSenderMessageType.MESSAGE
+    messageType: SealedSenderMessageType = SealedSenderMessageType.MESSAGE,
   ): Promise<UnidentifiedMessage> {
     // Still use sealed sender for the envelope, but mark as identified
-    const certificate = await this.context.certificateManager.getValidCertificate()
+    const certificate =
+      await this.context.certificateManager.getValidCertificate();
 
     const sealOptions: SealOptions = {
       senderCertificate: certificate,
@@ -443,10 +458,10 @@ export class UnidentifiedSender {
       recipientIdentityKey,
       encryptedMessage: content,
       messageType,
-    }
+    };
 
-    const envelope = await sealMessageSimple(sealOptions)
-    const envelopeBase64 = envelopeToBase64(envelope)
+    const envelope = await sealMessageSimple(sealOptions);
+    const envelopeBase64 = envelopeToBase64(envelope);
 
     return {
       envelope: envelopeBase64,
@@ -454,35 +469,41 @@ export class UnidentifiedSender {
       recipientDeviceId,
       timestamp: Date.now(),
       identifiedFallback: true,
-    }
+    };
   }
 
   /**
    * Updates delivery token from server response
    */
-  updateDeliveryToken(recipientUserId: string, token: UnidentifiedDeliveryToken): void {
-    this.deliveryTokens.set(recipientUserId, token)
+  updateDeliveryToken(
+    recipientUserId: string,
+    token: UnidentifiedDeliveryToken,
+  ): void {
+    this.deliveryTokens.set(recipientUserId, token);
   }
 
   /**
    * Clears delivery token for a recipient
    */
   clearDeliveryToken(recipientUserId: string): void {
-    this.deliveryTokens.delete(recipientUserId)
+    this.deliveryTokens.delete(recipientUserId);
   }
 
   /**
    * Gets rate limit status
    */
-  getRateLimitStatus(fingerprint: string): { allowed: boolean; retryAfterMs?: number } {
-    return this.rateLimiter.checkLimit(fingerprint)
+  getRateLimitStatus(fingerprint: string): {
+    allowed: boolean;
+    retryAfterMs?: number;
+  } {
+    return this.rateLimiter.checkLimit(fingerprint);
   }
 
   /**
    * Records a sent message for rate limiting
    */
   recordSentMessage(fingerprint: string): void {
-    this.rateLimiter.recordMessage(fingerprint)
+    this.rateLimiter.recordMessage(fingerprint);
   }
 
   /**
@@ -490,23 +511,23 @@ export class UnidentifiedSender {
    */
   cleanup(): void {
     // Clean up expired tokens
-    const now = Date.now()
+    const now = Date.now();
     for (const [userId, token] of this.deliveryTokens.entries()) {
       if (now >= token.expiresAt) {
-        this.deliveryTokens.delete(userId)
+        this.deliveryTokens.delete(userId);
       }
     }
 
     // Clean up rate limiter
-    this.rateLimiter.cleanup()
+    this.rateLimiter.cleanup();
   }
 
   /**
    * Destroys the sender
    */
   destroy(): void {
-    this.deliveryTokens.clear()
-    this.rateLimiter.reset()
+    this.deliveryTokens.clear();
+    this.rateLimiter.reset();
   }
 }
 
@@ -518,11 +539,11 @@ export class UnidentifiedSender {
  * Handler for receiving unidentified messages
  */
 export class UnidentifiedRecipient {
-  private context: UnidentifiedRecipientContext
-  private processedTokens: Map<string, number> = new Map()
+  private context: UnidentifiedRecipientContext;
+  private processedTokens: Map<string, number> = new Map();
 
   constructor(context: UnidentifiedRecipientContext) {
-    this.context = context
+    this.context = context;
   }
 
   /**
@@ -530,16 +551,18 @@ export class UnidentifiedRecipient {
    */
   isUnidentifiedDeliveryAllowed(senderFingerprint?: string): boolean {
     if (!this.context.accessConfig.allowUnidentifiedDelivery) {
-      return false
+      return false;
     }
 
     if (senderFingerprint && this.context.accessConfig.blockedSenders) {
-      if (this.context.accessConfig.blockedSenders.includes(senderFingerprint)) {
-        return false
+      if (
+        this.context.accessConfig.blockedSenders.includes(senderFingerprint)
+      ) {
+        return false;
       }
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -548,28 +571,30 @@ export class UnidentifiedRecipient {
   validateAccessKey(providedKey: Uint8Array): boolean {
     if (!this.context.accessConfig.accessKey) {
       // No access key configured - allow if unidentified delivery is enabled
-      return this.context.accessConfig.allowUnidentifiedDelivery
+      return this.context.accessConfig.allowUnidentifiedDelivery;
     }
 
-    return validateAccessKey(providedKey, this.context.accessConfig.accessKey)
+    return validateAccessKey(providedKey, this.context.accessConfig.accessKey);
   }
 
   /**
    * Processes an unidentified message
    */
-  async processUnidentifiedMessage(message: UnidentifiedMessage): Promise<UnsealedMessage> {
+  async processUnidentifiedMessage(
+    message: UnidentifiedMessage,
+  ): Promise<UnsealedMessage> {
     // Validate envelope structure
-    const envelope = envelopeFromBase64(message.envelope)
-    const structureErrors = validateEnvelopeStructure(envelope)
+    const envelope = envelopeFromBase64(message.envelope);
+    const structureErrors = validateEnvelopeStructure(envelope);
 
     if (structureErrors.length > 0) {
-      throw new Error(`Invalid envelope: ${structureErrors.join(', ')}`)
+      throw new Error(`Invalid envelope: ${structureErrors.join(", ")}`);
     }
 
     // Track token usage
     if (message.deliveryToken) {
-      const tokenUsage = this.processedTokens.get(message.deliveryToken) ?? 0
-      this.processedTokens.set(message.deliveryToken, tokenUsage + 1)
+      const tokenUsage = this.processedTokens.get(message.deliveryToken) ?? 0;
+      this.processedTokens.set(message.deliveryToken, tokenUsage + 1);
     }
 
     // Unseal the message
@@ -578,20 +603,22 @@ export class UnidentifiedRecipient {
       recipientIdentityPrivateKey: this.context.identityPrivateKey,
       recipientIdentityPublicKey: this.context.identityPublicKey,
       verifyCertificate: this.context.verifyCertificate,
-    })
+    });
 
     // Check if sender is blocked
-    const senderFingerprint = this.getSenderFingerprint(unsealed.senderIdentityKey)
+    const senderFingerprint = this.getSenderFingerprint(
+      unsealed.senderIdentityKey,
+    );
     if (!this.isUnidentifiedDeliveryAllowed(senderFingerprint)) {
-      throw new Error('Sender is blocked')
+      throw new Error("Sender is blocked");
     }
 
-    logger.debug('Processed unidentified message', {
+    logger.debug("Processed unidentified message", {
       senderUserId: unsealed.senderUserId,
       messageType: unsealed.messageType,
-    })
+    });
 
-    return unsealed
+    return unsealed;
   }
 
   /**
@@ -600,8 +627,8 @@ export class UnidentifiedRecipient {
   private getSenderFingerprint(identityKey: Uint8Array): string {
     // Simple fingerprint: first 8 bytes as hex
     return Array.from(identityKey.slice(0, 8))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('')
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
   }
 
   /**
@@ -611,17 +638,17 @@ export class UnidentifiedRecipient {
     this.context.accessConfig = {
       ...this.context.accessConfig,
       ...config,
-    }
+    };
   }
 
   /**
    * Blocks a sender
    */
   blockSender(senderFingerprint: string): void {
-    const blockedSenders = this.context.accessConfig.blockedSenders ?? []
+    const blockedSenders = this.context.accessConfig.blockedSenders ?? [];
     if (!blockedSenders.includes(senderFingerprint)) {
-      blockedSenders.push(senderFingerprint)
-      this.context.accessConfig.blockedSenders = blockedSenders
+      blockedSenders.push(senderFingerprint);
+      this.context.accessConfig.blockedSenders = blockedSenders;
     }
   }
 
@@ -629,17 +656,17 @@ export class UnidentifiedRecipient {
    * Unblocks a sender
    */
   unblockSender(senderFingerprint: string): void {
-    const blockedSenders = this.context.accessConfig.blockedSenders ?? []
+    const blockedSenders = this.context.accessConfig.blockedSenders ?? [];
     this.context.accessConfig.blockedSenders = blockedSenders.filter(
-      (fp) => fp !== senderFingerprint
-    )
+      (fp) => fp !== senderFingerprint,
+    );
   }
 
   /**
    * Gets token usage statistics
    */
   getTokenUsageStats(): Map<string, number> {
-    return new Map(this.processedTokens)
+    return new Map(this.processedTokens);
   }
 
   /**
@@ -649,8 +676,8 @@ export class UnidentifiedRecipient {
     // Could implement cleanup based on timestamp tracking
     // For now, just limit the size
     if (this.processedTokens.size > 10000) {
-      const entries = Array.from(this.processedTokens.entries())
-      this.processedTokens = new Map(entries.slice(-5000))
+      const entries = Array.from(this.processedTokens.entries());
+      this.processedTokens = new Map(entries.slice(-5000));
     }
   }
 
@@ -658,7 +685,7 @@ export class UnidentifiedRecipient {
    * Destroys the recipient handler
    */
   destroy(): void {
-    this.processedTokens.clear()
+    this.processedTokens.clear();
   }
 }
 
@@ -674,7 +701,7 @@ export function createUnidentifiedSender(
   deviceId: string,
   identityPublicKey: Uint8Array,
   identityPrivateKey: Uint8Array,
-  certificateManager: SenderCertificateManager
+  certificateManager: SenderCertificateManager,
 ): UnidentifiedSender {
   return new UnidentifiedSender({
     userId,
@@ -682,7 +709,7 @@ export function createUnidentifiedSender(
     identityPublicKey,
     identityPrivateKey,
     certificateManager,
-  })
+  });
 }
 
 /**
@@ -694,7 +721,7 @@ export function createUnidentifiedRecipient(
   identityPublicKey: Uint8Array,
   identityPrivateKey: Uint8Array,
   accessConfig: UnidentifiedAccessConfig,
-  verifyCertificate: (cert: SenderCertificate) => Promise<boolean>
+  verifyCertificate: (cert: SenderCertificate) => Promise<boolean>,
 ): UnidentifiedRecipient {
   return new UnidentifiedRecipient({
     userId,
@@ -703,7 +730,7 @@ export function createUnidentifiedRecipient(
     identityPrivateKey,
     accessConfig,
     verifyCertificate,
-  })
+  });
 }
 
 /**
@@ -714,7 +741,7 @@ export function createDefaultAccessConfig(): UnidentifiedAccessConfig {
     allowUnidentifiedDelivery: true,
     requireCertificate: true,
     blockedSenders: [],
-  }
+  };
 }
 
 // ============================================================================
@@ -726,15 +753,15 @@ export function createDefaultAccessConfig(): UnidentifiedAccessConfig {
  */
 export interface ThreatModelVerification {
   /** Server cannot identify sender */
-  serverBlindness: boolean
+  serverBlindness: boolean;
   /** Recipient can verify sender identity */
-  recipientVerification: boolean
+  recipientVerification: boolean;
   /** Forward secrecy from ephemeral keys */
-  forwardSecrecy: boolean
+  forwardSecrecy: boolean;
   /** Abuse prevention via certificates */
-  abusePrevention: boolean
+  abusePrevention: boolean;
   /** Details for each property */
-  details: Record<string, string>
+  details: Record<string, string>;
 }
 
 /**
@@ -748,19 +775,19 @@ export function verifyThreatModel(): ThreatModelVerification {
     abusePrevention: true,
     details: {
       serverBlindness:
-        'Server receives only encrypted envelope with ephemeral key. ' +
-        'Sender identity is encrypted inside the envelope and not visible to server.',
+        "Server receives only encrypted envelope with ephemeral key. " +
+        "Sender identity is encrypted inside the envelope and not visible to server.",
       recipientVerification:
-        'Recipient decrypts envelope to reveal sender certificate. ' +
-        'Certificate binds sender identity to their identity key with server signature.',
+        "Recipient decrypts envelope to reveal sender certificate. " +
+        "Certificate binds sender identity to their identity key with server signature.",
       forwardSecrecy:
-        'Each message uses a fresh ephemeral key pair. ' +
-        'Compromise of long-term keys does not reveal past messages.',
+        "Each message uses a fresh ephemeral key pair. " +
+        "Compromise of long-term keys does not reveal past messages.",
       abusePrevention:
-        'Sender certificates have expiration and server signatures. ' +
-        'Rate limiting and delivery tokens prevent spam.',
+        "Sender certificates have expiration and server signatures. " +
+        "Rate limiting and delivery tokens prevent spam.",
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -796,6 +823,6 @@ export const unidentifiedSender = {
   MAX_MESSAGES_PER_TOKEN,
   RATE_LIMIT_WINDOW_MS,
   MAX_MESSAGES_PER_WINDOW,
-}
+};
 
-export default unidentifiedSender
+export default unidentifiedSender;

@@ -6,7 +6,7 @@
  * Each execution step is logged immutably for full auditability.
  */
 
-import { generateId } from '../app-lifecycle'
+import { generateId } from "../app-lifecycle";
 import type {
   WorkflowDefinition,
   WorkflowRun,
@@ -29,8 +29,12 @@ import type {
   HttpRequestAction,
   SetVariableAction,
   TransformDataAction,
-} from './types'
-import { evaluateConditions, interpolateTemplate, getNestedValue } from './workflow-builder'
+} from "./types";
+import {
+  evaluateConditions,
+  interpolateTemplate,
+  getNestedValue,
+} from "./workflow-builder";
 
 // ============================================================================
 // ACTION HANDLERS
@@ -43,30 +47,30 @@ import { evaluateConditions, interpolateTemplate, getNestedValue } from './workf
 export type ActionHandler = (
   action: WorkflowAction,
   context: WorkflowExecutionContext,
-  step: WorkflowStep
-) => Promise<unknown>
+  step: WorkflowStep,
+) => Promise<unknown>;
 
 /**
  * Default action handlers for built-in action types.
  */
 export interface ActionHandlerRegistry {
-  handlers: Map<string, ActionHandler>
-  register(actionType: string, handler: ActionHandler): void
-  get(actionType: string): ActionHandler | undefined
+  handlers: Map<string, ActionHandler>;
+  register(actionType: string, handler: ActionHandler): void;
+  get(actionType: string): ActionHandler | undefined;
 }
 
 export function createActionHandlerRegistry(): ActionHandlerRegistry {
-  const handlers = new Map<string, ActionHandler>()
+  const handlers = new Map<string, ActionHandler>();
 
   return {
     handlers,
     register(actionType: string, handler: ActionHandler) {
-      handlers.set(actionType, handler)
+      handlers.set(actionType, handler);
     },
     get(actionType: string): ActionHandler | undefined {
-      return handlers.get(actionType)
+      return handlers.get(actionType);
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -78,47 +82,47 @@ export function createActionHandlerRegistry(): ActionHandlerRegistry {
  */
 export interface ExecutionEngineConfig {
   /** Custom action handler registry */
-  actionHandlers?: ActionHandlerRegistry
+  actionHandlers?: ActionHandlerRegistry;
   /** Custom sleep function (for testing) */
-  sleepFn?: (ms: number) => Promise<void>
+  sleepFn?: (ms: number) => Promise<void>;
   /** Custom time function (for testing) */
-  nowFn?: () => Date
+  nowFn?: () => Date;
   /** Maximum run history to keep in memory */
-  maxRunHistory: number
+  maxRunHistory: number;
   /** Whether to enable audit logging */
-  enableAudit: boolean
+  enableAudit: boolean;
 }
 
 const DEFAULT_ENGINE_CONFIG: ExecutionEngineConfig = {
   maxRunHistory: 1000,
   enableAudit: true,
-}
+};
 
 /**
  * Workflow execution engine. Manages the lifecycle of workflow runs,
  * step-by-step execution, retries, and audit logging.
  */
 export class WorkflowExecutionEngine {
-  private runs: Map<string, WorkflowRun> = new Map()
-  private auditLog: WorkflowAuditEntry[] = []
-  private config: ExecutionEngineConfig
-  private actionHandlers: ActionHandlerRegistry
-  private activeRunsByWorkflow: Map<string, Set<string>> = new Map()
-  private processedIdempotencyKeys: Set<string> = new Set()
+  private runs: Map<string, WorkflowRun> = new Map();
+  private auditLog: WorkflowAuditEntry[] = [];
+  private config: ExecutionEngineConfig;
+  private actionHandlers: ActionHandlerRegistry;
+  private activeRunsByWorkflow: Map<string, Set<string>> = new Map();
+  private processedIdempotencyKeys: Set<string> = new Set();
 
   /** Callback for approval requests */
   onApprovalRequest?: (
     runId: string,
     stepId: string,
-    action: ApprovalAction
-  ) => void
+    action: ApprovalAction,
+  ) => void;
 
   /** Callback for completed runs */
-  onRunCompleted?: (run: WorkflowRun) => void
+  onRunCompleted?: (run: WorkflowRun) => void;
 
   constructor(config?: Partial<ExecutionEngineConfig>) {
-    this.config = { ...DEFAULT_ENGINE_CONFIG, ...config }
-    this.actionHandlers = this.config.actionHandlers ?? createDefaultHandlers()
+    this.config = { ...DEFAULT_ENGINE_CONFIG, ...config };
+    this.actionHandlers = this.config.actionHandlers ?? createDefaultHandlers();
   }
 
   // ==========================================================================
@@ -131,39 +135,42 @@ export class WorkflowExecutionEngine {
   async startRun(
     workflow: WorkflowDefinition,
     triggerInfo: RunTriggerInfo,
-    inputs: Record<string, unknown> = {}
+    inputs: Record<string, unknown> = {},
   ): Promise<WorkflowRun> {
     // Check concurrency limits
-    const activeRuns = this.activeRunsByWorkflow.get(workflow.id)
-    if (activeRuns && activeRuns.size >= workflow.settings.maxConcurrentExecutions) {
+    const activeRuns = this.activeRunsByWorkflow.get(workflow.id);
+    if (
+      activeRuns &&
+      activeRuns.size >= workflow.settings.maxConcurrentExecutions
+    ) {
       throw new ExecutionError(
         `Workflow "${workflow.name}" has reached its concurrency limit (${workflow.settings.maxConcurrentExecutions})`,
-        'CONCURRENCY_LIMIT_EXCEEDED',
-        false
-      )
+        "CONCURRENCY_LIMIT_EXCEEDED",
+        false,
+      );
     }
 
     // Validate required inputs
     for (const input of workflow.inputSchema) {
       if (input.required && inputs[input.name] === undefined) {
         if (input.defaultValue !== undefined) {
-          inputs[input.name] = input.defaultValue
+          inputs[input.name] = input.defaultValue;
         } else {
           throw new ExecutionError(
             `Required input "${input.name}" is missing`,
-            'MISSING_INPUT',
-            false
-          )
+            "MISSING_INPUT",
+            false,
+          );
         }
       }
     }
 
-    const now = this.now()
+    const now = this.now();
     const run: WorkflowRun = {
-      id: generateId('run'),
+      id: generateId("run"),
       workflowId: workflow.id,
       workflowVersion: workflow.version,
-      status: 'running',
+      status: "running",
       triggeredBy: triggerInfo,
       context: {
         inputs,
@@ -175,77 +182,118 @@ export class WorkflowExecutionEngine {
       startedAt: now.toISOString(),
       retryCount: 0,
       maxRetries: workflow.settings.maxRetryAttempts,
-    }
+    };
 
-    this.runs.set(run.id, run)
-    this.trackActiveRun(workflow.id, run.id)
+    this.runs.set(run.id, run);
+    this.trackActiveRun(workflow.id, run.id);
 
-    this.audit('workflow.run_started', workflow.id, run.id, undefined, 'system', {
-      triggerType: triggerInfo.type,
-      inputs,
-    })
+    this.audit(
+      "workflow.run_started",
+      workflow.id,
+      run.id,
+      undefined,
+      "system",
+      {
+        triggerType: triggerInfo.type,
+        inputs,
+      },
+    );
 
     // Execute steps
     try {
-      await this.executeSteps(workflow, run)
+      await this.executeSteps(workflow, run);
 
-      if (run.status === 'running') {
-        run.status = 'completed'
-        run.completedAt = this.now().toISOString()
-        this.audit('workflow.run_completed', workflow.id, run.id, undefined, 'system', {
-          durationMs: new Date(run.completedAt).getTime() - new Date(run.startedAt).getTime(),
-        })
+      if (run.status === "running") {
+        run.status = "completed";
+        run.completedAt = this.now().toISOString();
+        this.audit(
+          "workflow.run_completed",
+          workflow.id,
+          run.id,
+          undefined,
+          "system",
+          {
+            durationMs:
+              new Date(run.completedAt).getTime() -
+              new Date(run.startedAt).getTime(),
+          },
+        );
       }
     } catch (error) {
-      if (run.status !== 'waiting_approval' && run.status !== 'paused') {
-        run.status = 'failed'
-        run.completedAt = this.now().toISOString()
+      if (run.status !== "waiting_approval" && run.status !== "paused") {
+        run.status = "failed";
+        run.completedAt = this.now().toISOString();
         run.error = {
-          code: error instanceof ExecutionError ? error.code : 'EXECUTION_FAILED',
+          code:
+            error instanceof ExecutionError ? error.code : "EXECUTION_FAILED",
           message: error instanceof Error ? error.message : String(error),
           retryable: error instanceof ExecutionError ? error.retryable : false,
-        }
-        this.audit('workflow.run_failed', workflow.id, run.id, undefined, 'system', {
-          error: run.error,
-        })
+        };
+        this.audit(
+          "workflow.run_failed",
+          workflow.id,
+          run.id,
+          undefined,
+          "system",
+          {
+            error: run.error,
+          },
+        );
       }
     } finally {
-      if (run.status !== 'waiting_approval' && run.status !== 'paused') {
-        this.untrackActiveRun(workflow.id, run.id)
+      if (run.status !== "waiting_approval" && run.status !== "paused") {
+        this.untrackActiveRun(workflow.id, run.id);
       }
     }
 
-    if (this.onRunCompleted && (run.status === 'completed' || run.status === 'failed')) {
-      this.onRunCompleted(run)
+    if (
+      this.onRunCompleted &&
+      (run.status === "completed" || run.status === "failed")
+    ) {
+      this.onRunCompleted(run);
     }
 
-    return run
+    return run;
   }
 
   /**
    * Cancel a running workflow.
    */
   cancelRun(runId: string): WorkflowRun {
-    const run = this.runs.get(runId)
+    const run = this.runs.get(runId);
     if (!run) {
-      throw new ExecutionError(`Run not found: ${runId}`, 'RUN_NOT_FOUND', false)
+      throw new ExecutionError(
+        `Run not found: ${runId}`,
+        "RUN_NOT_FOUND",
+        false,
+      );
     }
 
-    if (run.status !== 'running' && run.status !== 'paused' && run.status !== 'waiting_approval') {
+    if (
+      run.status !== "running" &&
+      run.status !== "paused" &&
+      run.status !== "waiting_approval"
+    ) {
       throw new ExecutionError(
         `Cannot cancel run in "${run.status}" status`,
-        'INVALID_STATUS',
-        false
-      )
+        "INVALID_STATUS",
+        false,
+      );
     }
 
-    run.status = 'cancelled'
-    run.completedAt = this.now().toISOString()
-    this.untrackActiveRun(run.workflowId, run.id)
+    run.status = "cancelled";
+    run.completedAt = this.now().toISOString();
+    this.untrackActiveRun(run.workflowId, run.id);
 
-    this.audit('workflow.run_cancelled', run.workflowId, run.id, undefined, 'system')
+    this.audit(
+      "workflow.run_cancelled",
+      run.workflowId,
+      run.id,
+      undefined,
+      "system",
+    );
 
-    return run
+    return run;
   }
 
   /**
@@ -253,42 +301,53 @@ export class WorkflowExecutionEngine {
    */
   async retryRun(
     runId: string,
-    workflow: WorkflowDefinition
+    workflow: WorkflowDefinition,
   ): Promise<WorkflowRun> {
-    const originalRun = this.runs.get(runId)
+    const originalRun = this.runs.get(runId);
     if (!originalRun) {
-      throw new ExecutionError(`Run not found: ${runId}`, 'RUN_NOT_FOUND', false)
+      throw new ExecutionError(
+        `Run not found: ${runId}`,
+        "RUN_NOT_FOUND",
+        false,
+      );
     }
 
-    if (originalRun.status !== 'failed') {
+    if (originalRun.status !== "failed") {
       throw new ExecutionError(
         `Cannot retry run in "${originalRun.status}" status`,
-        'INVALID_STATUS',
-        false
-      )
+        "INVALID_STATUS",
+        false,
+      );
     }
 
     if (originalRun.retryCount >= originalRun.maxRetries) {
       throw new ExecutionError(
-        'Maximum retry attempts reached',
-        'MAX_RETRIES_EXCEEDED',
-        false
-      )
+        "Maximum retry attempts reached",
+        "MAX_RETRIES_EXCEEDED",
+        false,
+      );
     }
 
-    this.audit('workflow.run_retried', workflow.id, runId, undefined, 'system', {
-      retryCount: originalRun.retryCount + 1,
-    })
+    this.audit(
+      "workflow.run_retried",
+      workflow.id,
+      runId,
+      undefined,
+      "system",
+      {
+        retryCount: originalRun.retryCount + 1,
+      },
+    );
 
     // Create a new run based on the original
     const newRun = await this.startRun(
       workflow,
       originalRun.triggeredBy,
-      originalRun.context.inputs
-    )
-    newRun.retryCount = originalRun.retryCount + 1
+      originalRun.context.inputs,
+    );
+    newRun.retryCount = originalRun.retryCount + 1;
 
-    return newRun
+    return newRun;
   }
 
   // ==========================================================================
@@ -301,38 +360,40 @@ export class WorkflowExecutionEngine {
    */
   private async executeSteps(
     workflow: WorkflowDefinition,
-    run: WorkflowRun
+    run: WorkflowRun,
   ): Promise<void> {
-    const steps = workflow.steps
-    const executed = new Set<string>()
+    const steps = workflow.steps;
+    const executed = new Set<string>();
 
     // Build dependency graph for execution order
-    const executionOrder = this.resolveExecutionOrder(steps)
+    const executionOrder = this.resolveExecutionOrder(steps);
 
     for (const stepId of executionOrder) {
       // Check if run was cancelled
-      if (run.status === 'cancelled' || run.status === 'waiting_approval') {
-        break
+      if (run.status === "cancelled" || run.status === "waiting_approval") {
+        break;
       }
 
-      const step = steps.find(s => s.id === stepId)
-      if (!step) continue
+      const step = steps.find((s) => s.id === stepId);
+      if (!step) continue;
 
       // Check if dependencies are satisfied
       if (step.dependsOn) {
-        const allDepsCompleted = step.dependsOn.every(depId => executed.has(depId))
+        const allDepsCompleted = step.dependsOn.every((depId) =>
+          executed.has(depId),
+        );
         if (!allDepsCompleted) {
           const record: StepExecutionRecord = {
             stepId: step.id,
             stepName: step.name,
-            status: 'skipped',
+            status: "skipped",
             startedAt: this.now().toISOString(),
             retryCount: 0,
             skipped: true,
-            skipReason: 'Dependencies not satisfied',
-          }
-          run.stepResults.push(record)
-          continue
+            skipReason: "Dependencies not satisfied",
+          };
+          run.stepResults.push(record);
+          continue;
         }
       }
 
@@ -343,24 +404,31 @@ export class WorkflowExecutionEngine {
           ...run.context.variables,
           ...run.context.stepOutputs,
           inputs: run.context.inputs,
-        })
+        });
 
         if (!conditionsMet) {
           const record: StepExecutionRecord = {
             stepId: step.id,
             stepName: step.name,
-            status: 'skipped',
+            status: "skipped",
             startedAt: this.now().toISOString(),
             retryCount: 0,
             skipped: true,
-            skipReason: 'Conditions not met',
-          }
-          run.stepResults.push(record)
-          this.audit('workflow.step_skipped', workflow.id, run.id, step.id, 'system', {
-            reason: 'Conditions not met',
-          })
-          executed.add(stepId)
-          continue
+            skipReason: "Conditions not met",
+          };
+          run.stepResults.push(record);
+          this.audit(
+            "workflow.step_skipped",
+            workflow.id,
+            run.id,
+            step.id,
+            "system",
+            {
+              reason: "Conditions not met",
+            },
+          );
+          executed.add(stepId);
+          continue;
         }
       }
 
@@ -370,46 +438,46 @@ export class WorkflowExecutionEngine {
           ...run.context.triggerData,
           ...run.context.variables,
           runId: run.id,
-        })
+        });
         if (this.processedIdempotencyKeys.has(key)) {
           const record: StepExecutionRecord = {
             stepId: step.id,
             stepName: step.name,
-            status: 'skipped',
+            status: "skipped",
             startedAt: this.now().toISOString(),
             retryCount: 0,
             skipped: true,
             skipReason: `Idempotency key already processed: ${key}`,
-          }
-          run.stepResults.push(record)
-          executed.add(stepId)
-          continue
+          };
+          run.stepResults.push(record);
+          executed.add(stepId);
+          continue;
         }
-        this.processedIdempotencyKeys.add(key)
+        this.processedIdempotencyKeys.add(key);
       }
 
       // Execute the step
-      await this.executeStep(workflow, run, step)
-      executed.add(stepId)
+      await this.executeStep(workflow, run, step);
+      executed.add(stepId);
 
       // If the step paused the workflow (approval, etc.), stop
       // Status may be mutated by executeStep, so use string comparison
-      const currentStatus: string = run.status
-      if (currentStatus === 'waiting_approval' || currentStatus === 'paused') {
-        break
+      const currentStatus: string = run.status;
+      if (currentStatus === "waiting_approval" || currentStatus === "paused") {
+        break;
       }
 
       // Check execution time limit
-      const elapsed = this.now().getTime() - new Date(run.startedAt).getTime()
+      const elapsed = this.now().getTime() - new Date(run.startedAt).getTime();
       if (elapsed > workflow.settings.maxExecutionTimeMs) {
-        run.status = 'timed_out'
-        run.completedAt = this.now().toISOString()
+        run.status = "timed_out";
+        run.completedAt = this.now().toISOString();
         run.error = {
-          code: 'EXECUTION_TIMEOUT',
+          code: "EXECUTION_TIMEOUT",
           message: `Workflow exceeded maximum execution time of ${workflow.settings.maxExecutionTimeMs}ms`,
           retryable: true,
-        }
-        break
+        };
+        break;
       }
     }
   }
@@ -420,98 +488,116 @@ export class WorkflowExecutionEngine {
   private async executeStep(
     workflow: WorkflowDefinition,
     run: WorkflowRun,
-    step: WorkflowStep
+    step: WorkflowStep,
   ): Promise<void> {
     const record: StepExecutionRecord = {
       stepId: step.id,
       stepName: step.name,
-      status: 'running',
+      status: "running",
       startedAt: this.now().toISOString(),
       retryCount: 0,
       skipped: false,
-    }
+    };
 
     // Record input if audit enabled
     if (workflow.settings.auditInputsOutputs && step.inputMapping) {
-      record.input = this.resolveInputMapping(step.inputMapping, run.context)
+      record.input = this.resolveInputMapping(step.inputMapping, run.context);
     }
 
-    run.stepResults.push(record)
+    run.stepResults.push(record);
 
-    this.audit('workflow.step_started', workflow.id, run.id, step.id, 'system')
+    this.audit("workflow.step_started", workflow.id, run.id, step.id, "system");
 
     // Retry loop
-    let lastError: Error | undefined
+    let lastError: Error | undefined;
 
     for (let attempt = 0; attempt <= step.settings.retryAttempts; attempt++) {
       if (attempt > 0) {
-        record.retryCount = attempt
-        record.status = 'retrying'
+        record.retryCount = attempt;
+        record.status = "retrying";
 
-        const delay = this.calculateRetryDelay(step.settings, attempt)
-        this.audit('workflow.step_retried', workflow.id, run.id, step.id, 'system', {
-          attempt,
-          delayMs: delay,
-        })
-        await this.sleep(delay)
+        const delay = this.calculateRetryDelay(step.settings, attempt);
+        this.audit(
+          "workflow.step_retried",
+          workflow.id,
+          run.id,
+          step.id,
+          "system",
+          {
+            attempt,
+            delayMs: delay,
+          },
+        );
+        await this.sleep(delay);
       }
 
       try {
-        const result = await this.executeAction(step.action, run.context, step)
+        const result = await this.executeAction(step.action, run.context, step);
 
         // Store output
         if (step.outputKey) {
-          run.context.stepOutputs[step.outputKey] = result
+          run.context.stepOutputs[step.outputKey] = result;
         }
 
-        record.status = 'completed'
-        record.completedAt = this.now().toISOString()
-        record.durationMs = new Date(record.completedAt).getTime() - new Date(record.startedAt).getTime()
-        record.output = result as Record<string, unknown>
+        record.status = "completed";
+        record.completedAt = this.now().toISOString();
+        record.durationMs =
+          new Date(record.completedAt).getTime() -
+          new Date(record.startedAt).getTime();
+        record.output = result as Record<string, unknown>;
 
-        this.audit('workflow.step_completed', workflow.id, run.id, step.id, 'system', {
-          durationMs: record.durationMs,
-        })
+        this.audit(
+          "workflow.step_completed",
+          workflow.id,
+          run.id,
+          step.id,
+          "system",
+          {
+            durationMs: record.durationMs,
+          },
+        );
 
-        return
+        return;
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error))
+        lastError = error instanceof Error ? error : new Error(String(error));
 
         // Check if the step has been paused (approval)
         if (error instanceof ApprovalRequiredError) {
-          record.status = 'waiting_approval'
-          run.status = 'waiting_approval'
-          return
+          record.status = "waiting_approval";
+          run.status = "waiting_approval";
+          return;
         }
       }
     }
 
     // All retries exhausted
-    record.status = 'failed'
-    record.completedAt = this.now().toISOString()
-    record.durationMs = new Date(record.completedAt).getTime() - new Date(record.startedAt).getTime()
+    record.status = "failed";
+    record.completedAt = this.now().toISOString();
+    record.durationMs =
+      new Date(record.completedAt).getTime() -
+      new Date(record.startedAt).getTime();
     record.error = {
-      code: 'STEP_FAILED',
-      message: lastError?.message ?? 'Unknown error',
+      code: "STEP_FAILED",
+      message: lastError?.message ?? "Unknown error",
       stepId: step.id,
       retryable: false,
-    }
+    };
 
-    this.audit('workflow.step_failed', workflow.id, run.id, step.id, 'system', {
+    this.audit("workflow.step_failed", workflow.id, run.id, step.id, "system", {
       error: record.error,
       attempts: step.settings.retryAttempts + 1,
-    })
+    });
 
     if (step.settings.skipOnFailure || workflow.settings.continueOnFailure) {
-      record.status = 'skipped'
-      record.skipReason = `Step failed after ${step.settings.retryAttempts + 1} attempts, skipped due to skipOnFailure`
+      record.status = "skipped";
+      record.skipReason = `Step failed after ${step.settings.retryAttempts + 1} attempts, skipped due to skipOnFailure`;
     } else {
       throw new ExecutionError(
         `Step "${step.name}" failed after ${step.settings.retryAttempts + 1} attempts: ${lastError?.message}`,
-        'STEP_EXECUTION_FAILED',
+        "STEP_EXECUTION_FAILED",
         false,
-        step.id
-      )
+        step.id,
+      );
     }
   }
 
@@ -521,34 +607,37 @@ export class WorkflowExecutionEngine {
   private async executeAction(
     action: WorkflowAction,
     context: WorkflowExecutionContext,
-    step: WorkflowStep
+    step: WorkflowStep,
   ): Promise<unknown> {
     // Handle built-in action types first
     switch (action.type) {
-      case 'delay':
-        return this.executeDelay(action as DelayAction)
+      case "delay":
+        return this.executeDelay(action as DelayAction);
 
-      case 'set_variable':
-        return this.executeSetVariable(action as SetVariableAction, context)
+      case "set_variable":
+        return this.executeSetVariable(action as SetVariableAction, context);
 
-      case 'conditional_branch':
-        return this.executeConditionalBranch(action as ConditionalBranchAction, context)
+      case "conditional_branch":
+        return this.executeConditionalBranch(
+          action as ConditionalBranchAction,
+          context,
+        );
 
-      case 'approval':
-        return this.executeApproval(action as ApprovalAction, step)
+      case "approval":
+        return this.executeApproval(action as ApprovalAction, step);
 
       default: {
         // Check custom handler registry
-        const handler = this.actionHandlers.get(action.type)
+        const handler = this.actionHandlers.get(action.type);
         if (handler) {
-          return handler(action, context, step)
+          return handler(action, context, step);
         }
 
         throw new ExecutionError(
           `No handler registered for action type: ${action.type}`,
-          'UNKNOWN_ACTION_TYPE',
-          false
-        )
+          "UNKNOWN_ACTION_TYPE",
+          false,
+        );
       }
     }
   }
@@ -557,57 +646,56 @@ export class WorkflowExecutionEngine {
   // BUILT-IN ACTION EXECUTORS
   // ==========================================================================
 
-  private async executeDelay(action: DelayAction): Promise<{ delayed: number }> {
-    await this.sleep(action.durationMs)
-    return { delayed: action.durationMs }
+  private async executeDelay(
+    action: DelayAction,
+  ): Promise<{ delayed: number }> {
+    await this.sleep(action.durationMs);
+    return { delayed: action.durationMs };
   }
 
   private executeSetVariable(
     action: SetVariableAction,
-    context: WorkflowExecutionContext
+    context: WorkflowExecutionContext,
   ): { variableName: string; value: unknown } {
-    let resolvedValue = action.value
-    if (typeof action.value === 'string') {
+    let resolvedValue = action.value;
+    if (typeof action.value === "string") {
       resolvedValue = interpolateTemplate(action.value as string, {
         ...context.triggerData,
         ...context.variables,
         ...context.stepOutputs,
         inputs: context.inputs,
-      })
+      });
     }
-    context.variables[action.variableName] = resolvedValue
-    return { variableName: action.variableName, value: resolvedValue }
+    context.variables[action.variableName] = resolvedValue;
+    return { variableName: action.variableName, value: resolvedValue };
   }
 
   private executeConditionalBranch(
     action: ConditionalBranchAction,
-    context: WorkflowExecutionContext
+    context: WorkflowExecutionContext,
   ): { branch: string; matched: boolean } {
     const evalContext = {
       ...context.triggerData,
       ...context.variables,
       ...context.stepOutputs,
       inputs: context.inputs,
-    }
+    };
 
     for (const branch of action.branches) {
       if (evaluateConditions(branch.conditions, evalContext)) {
-        return { branch: branch.name, matched: true }
+        return { branch: branch.name, matched: true };
       }
     }
 
-    return { branch: 'default', matched: false }
+    return { branch: "default", matched: false };
   }
 
-  private executeApproval(
-    action: ApprovalAction,
-    step: WorkflowStep
-  ): never {
+  private executeApproval(action: ApprovalAction, step: WorkflowStep): never {
     // Trigger approval callback and pause execution
     if (this.onApprovalRequest) {
-      this.onApprovalRequest(step.id, step.id, action)
+      this.onApprovalRequest(step.id, step.id, action);
     }
-    throw new ApprovalRequiredError(step.id, action)
+    throw new ApprovalRequiredError(step.id, action);
   }
 
   // ==========================================================================
@@ -618,13 +706,13 @@ export class WorkflowExecutionEngine {
    * Resolve step execution order using topological sort.
    */
   resolveExecutionOrder(steps: WorkflowStep[]): string[] {
-    const graph = new Map<string, string[]>()
-    const inDegree = new Map<string, number>()
+    const graph = new Map<string, string[]>();
+    const inDegree = new Map<string, number>();
 
     // Initialize
     for (const step of steps) {
-      graph.set(step.id, [])
-      inDegree.set(step.id, 0)
+      graph.set(step.id, []);
+      inDegree.set(step.id, 0);
     }
 
     // Build adjacency
@@ -632,29 +720,29 @@ export class WorkflowExecutionEngine {
       if (step.dependsOn) {
         for (const depId of step.dependsOn) {
           if (graph.has(depId)) {
-            graph.get(depId)!.push(step.id)
-            inDegree.set(step.id, (inDegree.get(step.id) ?? 0) + 1)
+            graph.get(depId)!.push(step.id);
+            inDegree.set(step.id, (inDegree.get(step.id) ?? 0) + 1);
           }
         }
       }
     }
 
     // Kahn's algorithm
-    const queue: string[] = []
+    const queue: string[] = [];
     for (const [id, degree] of inDegree) {
-      if (degree === 0) queue.push(id)
+      if (degree === 0) queue.push(id);
     }
 
-    const order: string[] = []
+    const order: string[] = [];
     while (queue.length > 0) {
-      const current = queue.shift()!
-      order.push(current)
+      const current = queue.shift()!;
+      order.push(current);
 
       for (const neighbor of graph.get(current) ?? []) {
-        const newDegree = (inDegree.get(neighbor) ?? 1) - 1
-        inDegree.set(neighbor, newDegree)
+        const newDegree = (inDegree.get(neighbor) ?? 1) - 1;
+        inDegree.set(neighbor, newDegree);
         if (newDegree === 0) {
-          queue.push(neighbor)
+          queue.push(neighbor);
         }
       }
     }
@@ -664,12 +752,12 @@ export class WorkflowExecutionEngine {
     if (order.length < steps.length) {
       for (const step of steps) {
         if (!order.includes(step.id)) {
-          order.push(step.id)
+          order.push(step.id);
         }
       }
     }
 
-    return order
+    return order;
   }
 
   // ==========================================================================
@@ -679,24 +767,27 @@ export class WorkflowExecutionEngine {
   /**
    * Calculate the retry delay for a given attempt number.
    */
-  calculateRetryDelay(settings: WorkflowStep['settings'], attempt: number): number {
-    let delay: number
+  calculateRetryDelay(
+    settings: WorkflowStep["settings"],
+    attempt: number,
+  ): number {
+    let delay: number;
 
     switch (settings.retryBackoff) {
-      case 'fixed':
-        delay = settings.retryDelayMs
-        break
-      case 'linear':
-        delay = settings.retryDelayMs * attempt
-        break
-      case 'exponential':
-        delay = settings.retryDelayMs * Math.pow(2, attempt - 1)
-        break
+      case "fixed":
+        delay = settings.retryDelayMs;
+        break;
+      case "linear":
+        delay = settings.retryDelayMs * attempt;
+        break;
+      case "exponential":
+        delay = settings.retryDelayMs * Math.pow(2, attempt - 1);
+        break;
       default:
-        delay = settings.retryDelayMs
+        delay = settings.retryDelayMs;
     }
 
-    return Math.min(delay, settings.maxRetryDelayMs)
+    return Math.min(delay, settings.maxRetryDelayMs);
   }
 
   // ==========================================================================
@@ -707,52 +798,52 @@ export class WorkflowExecutionEngine {
    * Get a workflow run by ID.
    */
   getRun(runId: string): WorkflowRun | undefined {
-    return this.runs.get(runId)
+    return this.runs.get(runId);
   }
 
   /**
    * List runs, optionally filtered.
    */
   listRuns(filter?: {
-    workflowId?: string
-    status?: WorkflowRunStatus
+    workflowId?: string;
+    status?: WorkflowRunStatus;
   }): WorkflowRun[] {
-    let runs = Array.from(this.runs.values())
+    let runs = Array.from(this.runs.values());
     if (filter?.workflowId) {
-      runs = runs.filter(r => r.workflowId === filter.workflowId)
+      runs = runs.filter((r) => r.workflowId === filter.workflowId);
     }
     if (filter?.status) {
-      runs = runs.filter(r => r.status === filter.status)
+      runs = runs.filter((r) => r.status === filter.status);
     }
-    return runs
+    return runs;
   }
 
   /**
    * Get the audit log.
    */
   getAuditLog(filter?: {
-    workflowId?: string
-    runId?: string
-    eventType?: WorkflowAuditEventType
+    workflowId?: string;
+    runId?: string;
+    eventType?: WorkflowAuditEventType;
   }): WorkflowAuditEntry[] {
-    let entries = [...this.auditLog]
+    let entries = [...this.auditLog];
     if (filter?.workflowId) {
-      entries = entries.filter(e => e.workflowId === filter.workflowId)
+      entries = entries.filter((e) => e.workflowId === filter.workflowId);
     }
     if (filter?.runId) {
-      entries = entries.filter(e => e.runId === filter.runId)
+      entries = entries.filter((e) => e.runId === filter.runId);
     }
     if (filter?.eventType) {
-      entries = entries.filter(e => e.eventType === filter.eventType)
+      entries = entries.filter((e) => e.eventType === filter.eventType);
     }
-    return entries
+    return entries;
   }
 
   /**
    * Get active run count for a workflow.
    */
   getActiveRunCount(workflowId: string): number {
-    return this.activeRunsByWorkflow.get(workflowId)?.size ?? 0
+    return this.activeRunsByWorkflow.get(workflowId)?.size ?? 0;
   }
 
   // ==========================================================================
@@ -761,31 +852,31 @@ export class WorkflowExecutionEngine {
 
   private resolveInputMapping(
     mapping: Record<string, string>,
-    context: WorkflowExecutionContext
+    context: WorkflowExecutionContext,
   ): Record<string, unknown> {
-    const resolved: Record<string, unknown> = {}
+    const resolved: Record<string, unknown> = {};
     const fullContext = {
       ...context.triggerData,
       ...context.variables,
       ...context.stepOutputs,
       inputs: context.inputs,
-    }
+    };
 
     for (const [key, path] of Object.entries(mapping)) {
-      resolved[key] = getNestedValue(fullContext, path)
+      resolved[key] = getNestedValue(fullContext, path);
     }
-    return resolved
+    return resolved;
   }
 
   private trackActiveRun(workflowId: string, runId: string): void {
     if (!this.activeRunsByWorkflow.has(workflowId)) {
-      this.activeRunsByWorkflow.set(workflowId, new Set())
+      this.activeRunsByWorkflow.set(workflowId, new Set());
     }
-    this.activeRunsByWorkflow.get(workflowId)!.add(runId)
+    this.activeRunsByWorkflow.get(workflowId)!.add(runId);
   }
 
   private untrackActiveRun(workflowId: string, runId: string): void {
-    this.activeRunsByWorkflow.get(workflowId)?.delete(runId)
+    this.activeRunsByWorkflow.get(workflowId)?.delete(runId);
   }
 
   private audit(
@@ -793,48 +884,48 @@ export class WorkflowExecutionEngine {
     workflowId: string,
     runId?: string,
     stepId?: string,
-    actorId: string = 'system',
-    data?: Record<string, unknown>
+    actorId: string = "system",
+    data?: Record<string, unknown>,
   ): void {
-    if (!this.config.enableAudit) return
+    if (!this.config.enableAudit) return;
 
     const entry: WorkflowAuditEntry = {
-      id: generateId('audit'),
+      id: generateId("audit"),
       eventType,
       workflowId,
       runId,
       stepId,
       actorId,
       timestamp: this.now().toISOString(),
-      description: `${eventType}${stepId ? ` (step: ${stepId})` : ''}`,
+      description: `${eventType}${stepId ? ` (step: ${stepId})` : ""}`,
       data,
-    }
+    };
 
-    this.auditLog.push(entry)
+    this.auditLog.push(entry);
   }
 
   private sleep(ms: number): Promise<void> {
     if (this.config.sleepFn) {
-      return this.config.sleepFn(ms)
+      return this.config.sleepFn(ms);
     }
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private now(): Date {
     if (this.config.nowFn) {
-      return this.config.nowFn()
+      return this.config.nowFn();
     }
-    return new Date()
+    return new Date();
   }
 
   /**
    * Clear all state (for testing).
    */
   clear(): void {
-    this.runs.clear()
-    this.auditLog = []
-    this.activeRunsByWorkflow.clear()
-    this.processedIdempotencyKeys.clear()
+    this.runs.clear();
+    this.auditLog = [];
+    this.activeRunsByWorkflow.clear();
+    this.processedIdempotencyKeys.clear();
   }
 }
 
@@ -847,20 +938,20 @@ export class ExecutionError extends Error {
     message: string,
     public readonly code: string,
     public readonly retryable: boolean,
-    public readonly stepId?: string
+    public readonly stepId?: string,
   ) {
-    super(message)
-    this.name = 'ExecutionError'
+    super(message);
+    this.name = "ExecutionError";
   }
 }
 
 export class ApprovalRequiredError extends Error {
   constructor(
     public readonly stepId: string,
-    public readonly action: ApprovalAction
+    public readonly action: ApprovalAction,
   ) {
-    super(`Approval required for step: ${stepId}`)
-    this.name = 'ApprovalRequiredError'
+    super(`Approval required for step: ${stepId}`);
+    this.name = "ApprovalRequiredError";
   }
 }
 
@@ -874,39 +965,39 @@ export class ApprovalRequiredError extends Error {
  * Here they provide a simulation layer for testing and development.
  */
 export function createDefaultHandlers(): ActionHandlerRegistry {
-  const registry = createActionHandlerRegistry()
+  const registry = createActionHandlerRegistry();
 
   // Send message handler (simulation)
-  registry.register('send_message', async (action, context) => {
-    const msgAction = action as SendMessageAction
+  registry.register("send_message", async (action, context) => {
+    const msgAction = action as SendMessageAction;
     const channelId = interpolateTemplate(msgAction.channelId, {
       ...context.triggerData,
       ...context.variables,
       inputs: context.inputs,
-    })
+    });
     const content = interpolateTemplate(msgAction.content, {
       ...context.triggerData,
       ...context.variables,
       ...context.stepOutputs,
       inputs: context.inputs,
-    })
+    });
 
     return {
-      messageId: generateId('msg'),
+      messageId: generateId("msg"),
       channelId,
       content,
       sentAt: new Date().toISOString(),
-    }
-  })
+    };
+  });
 
   // HTTP request handler (simulation)
-  registry.register('http_request', async (action, context) => {
-    const httpAction = action as HttpRequestAction
+  registry.register("http_request", async (action, context) => {
+    const httpAction = action as HttpRequestAction;
     const url = interpolateTemplate(httpAction.url, {
       ...context.triggerData,
       ...context.variables,
       inputs: context.inputs,
-    })
+    });
 
     // In production this would make a real HTTP request
     return {
@@ -914,12 +1005,12 @@ export function createDefaultHandlers(): ActionHandlerRegistry {
       method: httpAction.method,
       status: 200,
       body: { success: true },
-    }
-  })
+    };
+  });
 
   // Transform data handler
-  registry.register('transform_data', async (action, context) => {
-    const transformAction = action as TransformDataAction
+  registry.register("transform_data", async (action, context) => {
+    const transformAction = action as TransformDataAction;
     const inputValue = getNestedValue(
       {
         ...context.triggerData,
@@ -927,27 +1018,27 @@ export function createDefaultHandlers(): ActionHandlerRegistry {
         ...context.stepOutputs,
         inputs: context.inputs,
       },
-      transformAction.input
-    )
+      transformAction.input,
+    );
 
     // Simple transform: just pass through the value
     // In production, this would use a safe expression evaluator
-    return { input: inputValue, transformed: inputValue }
-  })
+    return { input: inputValue, transformed: inputValue };
+  });
 
   // Channel action handler (simulation)
-  registry.register('channel_action', async (action) => {
-    return { action: action.type, success: true }
-  })
+  registry.register("channel_action", async (action) => {
+    return { action: action.type, success: true };
+  });
 
   // User action handler (simulation)
-  registry.register('user_action', async (action) => {
-    return { action: action.type, success: true }
-  })
+  registry.register("user_action", async (action) => {
+    return { action: action.type, success: true };
+  });
 
   // Loop handler (simulation)
-  registry.register('loop', async (action, context) => {
-    const loopAction = action as LoopAction
+  registry.register("loop", async (action, context) => {
+    const loopAction = action as LoopAction;
     const collection = getNestedValue(
       {
         ...context.triggerData,
@@ -955,33 +1046,33 @@ export function createDefaultHandlers(): ActionHandlerRegistry {
         ...context.stepOutputs,
         inputs: context.inputs,
       },
-      loopAction.collection
-    )
+      loopAction.collection,
+    );
 
     if (!Array.isArray(collection)) {
-      return { iterations: 0, results: [] }
+      return { iterations: 0, results: [] };
     }
 
-    const results: unknown[] = []
-    const max = Math.min(collection.length, loopAction.maxIterations)
+    const results: unknown[] = [];
+    const max = Math.min(collection.length, loopAction.maxIterations);
     for (let i = 0; i < max; i++) {
-      context.variables[loopAction.itemVariable] = collection[i]
-      context.variables[loopAction.indexVariable] = i
-      results.push(collection[i])
+      context.variables[loopAction.itemVariable] = collection[i];
+      context.variables[loopAction.indexVariable] = i;
+      results.push(collection[i]);
     }
 
-    return { iterations: max, results }
-  })
+    return { iterations: max, results };
+  });
 
   // Parallel handler (simulation)
-  registry.register('parallel', async (action) => {
-    const parallelAction = action as ParallelAction
+  registry.register("parallel", async (action) => {
+    const parallelAction = action as ParallelAction;
     return {
       branches: parallelAction.branches.length,
       waitForAll: parallelAction.waitForAll,
       completed: true,
-    }
-  })
+    };
+  });
 
-  return registry
+  return registry;
 }

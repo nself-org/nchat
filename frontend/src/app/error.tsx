@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { ErrorPage } from '@/components/error/error-page'
-import { errorReporter } from '@/lib/error/error-reporter'
+import { useEffect } from "react";
+import { ErrorPage } from "@/components/error/error-page";
+import { errorReporter } from "@/lib/error/error-reporter";
 
 interface ErrorProps {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }
 
 /**
@@ -17,12 +17,12 @@ export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
     // Report error to error tracking service
     errorReporter.reportError(error, {
-      tags: ['route-error'],
+      tags: ["route-error"],
       context: {
         digest: error.digest,
       },
-    })
-  }, [error])
+    });
+  }, [error]);
 
   return (
     <ErrorPage
@@ -35,5 +35,5 @@ export default function Error({ error, reset }: ErrorProps) {
       showBackButton={true}
       showRetryButton={true}
     />
-  )
+  );
 }

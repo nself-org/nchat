@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   Search,
   MoreVertical,
@@ -11,13 +11,19 @@ import {
   Loader2,
   AlertCircle,
   Filter,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -25,7 +31,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,14 +39,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,7 +56,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -58,129 +64,134 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
-import { useTeamStore } from '@/stores/team-store'
-import { teamManager } from '@/lib/team/team-manager'
-import type { TeamMember, TeamRole } from '@/lib/team/team-types'
+import { useTeamStore } from "@/stores/team-store";
+import { teamManager } from "@/lib/team/team-manager";
+import type { TeamMember, TeamRole } from "@/lib/team/team-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface TeamMembersProps {
-  teamId: string
+  teamId: string;
 }
 
 export function TeamMembers({ teamId }: TeamMembersProps) {
-  const { members, setMembers, setLoadingMembers, removeMember, updateMember } = useTeamStore()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [roleFilter, setRoleFilter] = useState<string>('all')
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
-  const [changeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false)
-  const [removeDialogOpen, setRemoveDialogOpen] = useState(false)
-  const [transferDialogOpen, setTransferDialogOpen] = useState(false)
-  const [newRole, setNewRole] = useState<TeamRole>('member')
-  const [isProcessing, setIsProcessing] = useState(false)
+  const { members, setMembers, setLoadingMembers, removeMember, updateMember } =
+    useTeamStore();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [changeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false);
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [newRole, setNewRole] = useState<TeamRole>("member");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const loadMembers = async () => {
-      setLoadingMembers(true)
+      setLoadingMembers(true);
       try {
-        const membersList = await teamManager.getTeamMembers(teamId)
-        setMembers(membersList, membersList.length)
+        const membersList = await teamManager.getTeamMembers(teamId);
+        setMembers(membersList, membersList.length);
       } catch (error) {
-        logger.error('Failed to load members:', error)
+        logger.error("Failed to load members:", error);
       } finally {
-        setLoadingMembers(false)
+        setLoadingMembers(false);
       }
-    }
+    };
 
-    loadMembers()
-  }, [teamId])
+    loadMembers();
+  }, [teamId]);
 
   const filteredMembers = members.filter((member) => {
     const matchesSearch =
-      member.user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.user.displayName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       member.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.user.username.toLowerCase().includes(searchQuery.toLowerCase())
+      member.user.username.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesRole = roleFilter === 'all' || member.role === roleFilter
+    const matchesRole = roleFilter === "all" || member.role === roleFilter;
 
-    return matchesSearch && matchesRole
-  })
+    return matchesSearch && matchesRole;
+  });
 
   const handleChangeRole = async () => {
-    if (!selectedMember) return
+    if (!selectedMember) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
     try {
       const result = await teamManager.changeMemberRole(teamId, {
         userId: selectedMember.userId,
         newRole,
-      })
+      });
 
       if (result.success) {
-        updateMember(selectedMember.userId, { role: newRole })
-        setChangeRoleDialogOpen(false)
-        setSelectedMember(null)
+        updateMember(selectedMember.userId, { role: newRole });
+        setChangeRoleDialogOpen(false);
+        setSelectedMember(null);
       }
     } catch (error) {
-      logger.error('Failed to change role:', error)
+      logger.error("Failed to change role:", error);
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   const handleRemoveMember = async () => {
-    if (!selectedMember) return
+    if (!selectedMember) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
     try {
       const result = await teamManager.removeMember(teamId, {
         userId: selectedMember.userId,
         notifyUser: true,
-      })
+      });
 
       if (result.success) {
-        removeMember(selectedMember.userId)
-        setRemoveDialogOpen(false)
-        setSelectedMember(null)
+        removeMember(selectedMember.userId);
+        setRemoveDialogOpen(false);
+        setSelectedMember(null);
       }
     } catch (error) {
-      logger.error('Failed to remove member:', error)
+      logger.error("Failed to remove member:", error);
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   const getRoleIcon = (role: TeamRole) => {
     switch (role) {
-      case 'owner':
-        return <Crown className="h-4 w-4" />
-      case 'admin':
-        return <Shield className="h-4 w-4" />
+      case "owner":
+        return <Crown className="h-4 w-4" />;
+      case "admin":
+        return <Shield className="h-4 w-4" />;
       default:
-        return <User className="h-4 w-4" />
+        return <User className="h-4 w-4" />;
     }
-  }
+  };
 
   const getRoleBadgeVariant = (role: TeamRole) => {
     switch (role) {
-      case 'owner':
-        return 'default'
-      case 'admin':
-        return 'secondary'
+      case "owner":
+        return "default";
+      case "admin":
+        return "secondary";
       default:
-        return 'outline'
+        return "outline";
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Team Members</h1>
-        <p className="text-muted-foreground">Manage your team members and their roles</p>
+        <p className="text-muted-foreground">
+          Manage your team members and their roles
+        </p>
       </div>
 
       {/* Stats */}
@@ -195,7 +206,7 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
           <CardHeader className="pb-2">
             <CardDescription>Owners</CardDescription>
             <CardTitle className="text-2xl">
-              {members.filter((m) => m.role === 'owner').length}
+              {members.filter((m) => m.role === "owner").length}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -203,7 +214,7 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
           <CardHeader className="pb-2">
             <CardDescription>Admins</CardDescription>
             <CardTitle className="text-2xl">
-              {members.filter((m) => m.role === 'admin').length}
+              {members.filter((m) => m.role === "admin").length}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -211,7 +222,7 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
           <CardHeader className="pb-2">
             <CardDescription>Members</CardDescription>
             <CardTitle className="text-2xl">
-              {members.filter((m) => m.role === 'member').length}
+              {members.filter((m) => m.role === "member").length}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -266,7 +277,10 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
               <TableBody>
                 {filteredMembers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-muted-foreground"
+                    >
                       No members found
                     </TableCell>
                   </TableRow>
@@ -278,17 +292,26 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
                           <Avatar>
                             <AvatarImage src={member.user.avatarUrl} />
                             <AvatarFallback>
-                              {member.user.displayName.substring(0, 2).toUpperCase()}
+                              {member.user.displayName
+                                .substring(0, 2)
+                                .toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{member.user.displayName}</div>
-                            <div className="text-sm text-muted-foreground">{member.user.email}</div>
+                            <div className="font-medium">
+                              {member.user.displayName}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {member.user.email}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getRoleBadgeVariant(member.role)} className="gap-1">
+                        <Badge
+                          variant={getRoleBadgeVariant(member.role)}
+                          className="gap-1"
+                        >
                           {getRoleIcon(member.role)}
                           {member.role}
                         </Badge>
@@ -308,11 +331,17 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
                       </TableCell>
                       <TableCell>
                         {member.isActive ? (
-                          <Badge variant="outline" className="bg-green-50 text-green-700">
+                          <Badge
+                            variant="outline"
+                            className="bg-green-50 text-green-700"
+                          >
                             Active
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="bg-gray-50 text-gray-700">
+                          <Badge
+                            variant="outline"
+                            className="bg-gray-50 text-gray-700"
+                          >
                             Inactive
                           </Badge>
                         )}
@@ -329,20 +358,20 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => {
-                                setSelectedMember(member)
-                                setNewRole(member.role)
-                                setChangeRoleDialogOpen(true)
+                                setSelectedMember(member);
+                                setNewRole(member.role);
+                                setChangeRoleDialogOpen(true);
                               }}
-                              disabled={member.role === 'owner'}
+                              disabled={member.role === "owner"}
                             >
                               <Shield className="mr-2 h-4 w-4" />
                               Change Role
                             </DropdownMenuItem>
-                            {member.role === 'member' && (
+                            {member.role === "member" && (
                               <DropdownMenuItem
                                 onClick={() => {
-                                  setSelectedMember(member)
-                                  setTransferDialogOpen(true)
+                                  setSelectedMember(member);
+                                  setTransferDialogOpen(true);
                                 }}
                               >
                                 <Crown className="mr-2 h-4 w-4" />
@@ -352,10 +381,10 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => {
-                                setSelectedMember(member)
-                                setRemoveDialogOpen(true)
+                                setSelectedMember(member);
+                                setRemoveDialogOpen(true);
                               }}
-                              disabled={member.role === 'owner'}
+                              disabled={member.role === "owner"}
                               className="text-destructive"
                             >
                               <UserX className="mr-2 h-4 w-4" />
@@ -374,7 +403,10 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
       </Card>
 
       {/* Change Role Dialog */}
-      <Dialog open={changeRoleDialogOpen} onOpenChange={setChangeRoleDialogOpen}>
+      <Dialog
+        open={changeRoleDialogOpen}
+        onOpenChange={setChangeRoleDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Change Member Role</DialogTitle>
@@ -385,7 +417,10 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>New Role</Label>
-              <Select value={newRole} onValueChange={(v) => setNewRole(v as TeamRole)}>
+              <Select
+                value={newRole}
+                onValueChange={(v) => setNewRole(v as TeamRole)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -397,11 +432,16 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setChangeRoleDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setChangeRoleDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleChangeRole} disabled={isProcessing}>
-              {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isProcessing && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Change Role
             </Button>
           </DialogFooter>
@@ -414,8 +454,8 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove {selectedMember?.user.displayName} from the team? This
-              action cannot be undone.
+              Are you sure you want to remove {selectedMember?.user.displayName}{" "}
+              from the team? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -425,14 +465,16 @@ export function TeamMembers({ teamId }: TeamMembersProps) {
               disabled={isProcessing}
               className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
             >
-              {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isProcessing && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Remove Member
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
 
-export default TeamMembers
+export default TeamMembers;

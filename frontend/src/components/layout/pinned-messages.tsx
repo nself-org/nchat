@@ -1,12 +1,17 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { format } from 'date-fns'
-import { cn } from '@/lib/utils'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import * as React from "react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,23 +22,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { UserAvatar } from '@/components/user/user-avatar'
-import type { Message } from '@/types/message'
-import { X, Pin, ExternalLink, Trash2 } from 'lucide-react'
+} from "@/components/ui/alert-dialog";
+import { UserAvatar } from "@/components/user/user-avatar";
+import type { Message } from "@/types/message";
+import { X, Pin, ExternalLink, Trash2 } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface PinnedMessagesProps {
-  messages: Message[]
-  loading?: boolean
-  onClose?: () => void
-  onJumpToMessage?: (messageId: string) => void
-  onUnpinMessage?: (messageId: string) => void
-  canUnpin?: boolean
-  className?: string
+  messages: Message[];
+  loading?: boolean;
+  onClose?: () => void;
+  onJumpToMessage?: (messageId: string) => void;
+  onUnpinMessage?: (messageId: string) => void;
+  canUnpin?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -41,10 +46,10 @@ interface PinnedMessagesProps {
 // ============================================================================
 
 interface PinnedMessageItemProps {
-  message: Message
-  onJumpTo?: () => void
-  onUnpin?: () => void
-  canUnpin?: boolean
+  message: Message;
+  onJumpTo?: () => void;
+  onUnpin?: () => void;
+  canUnpin?: boolean;
 }
 
 function PinnedMessageItem({
@@ -56,8 +61,8 @@ function PinnedMessageItem({
   return (
     <div
       className={cn(
-        'group relative rounded-lg border bg-card p-3',
-        'hover:bg-accent/50 transition-colors'
+        "group relative rounded-lg border bg-card p-3",
+        "hover:bg-accent/50 transition-colors",
       )}
     >
       {/* Header */}
@@ -65,9 +70,11 @@ function PinnedMessageItem({
         <UserAvatar user={message.user} size="sm" showPresence={false} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-medium">{message.user.displayName}</span>
+            <span className="truncate text-sm font-medium">
+              {message.user.displayName}
+            </span>
             <span className="text-xs text-muted-foreground">
-              {format(new Date(message.createdAt), 'MMM d, yyyy h:mm a')}
+              {format(new Date(message.createdAt), "MMM d, yyyy h:mm a")}
             </span>
           </div>
 
@@ -80,7 +87,7 @@ function PinnedMessageItem({
           {message.attachments && message.attachments.length > 0 && (
             <p className="mt-1 text-xs text-muted-foreground">
               {message.attachments.length} attachment
-              {message.attachments.length !== 1 && 's'}
+              {message.attachments.length !== 1 && "s"}
             </p>
           )}
         </div>
@@ -91,7 +98,12 @@ function PinnedMessageItem({
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onJumpTo}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={onJumpTo}
+              >
                 <ExternalLink className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -121,8 +133,8 @@ function PinnedMessageItem({
               <AlertDialogHeader>
                 <AlertDialogTitle>Unpin message?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will remove the message from the pinned messages list. The message itself
-                  will not be deleted.
+                  This will remove the message from the pinned messages list.
+                  The message itself will not be deleted.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -134,7 +146,7 @@ function PinnedMessageItem({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -160,7 +172,7 @@ function PinnedMessagesSkeleton() {
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -175,10 +187,11 @@ function PinnedMessagesEmpty() {
       </div>
       <h3 className="mb-1 text-sm font-medium">No pinned messages</h3>
       <p className="max-w-[200px] text-xs text-muted-foreground">
-        Pin important messages to keep them easily accessible for everyone in the channel.
+        Pin important messages to keep them easily accessible for everyone in
+        the channel.
       </p>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -195,21 +208,30 @@ export function PinnedMessages({
   className,
 }: PinnedMessagesProps) {
   return (
-    <div className={cn('flex h-full flex-col border-l bg-background', className)}>
+    <div
+      className={cn("flex h-full flex-col border-l bg-background", className)}
+    >
       {/* Header */}
       <div className="flex h-14 items-center justify-between border-b px-4">
         <div className="flex items-center gap-2">
           <Pin className="h-4 w-4 text-muted-foreground" />
           <h2 className="text-sm font-semibold">Pinned Messages</h2>
           {!loading && messages.length > 0 && (
-            <span className="text-xs text-muted-foreground">({messages.length})</span>
+            <span className="text-xs text-muted-foreground">
+              ({messages.length})
+            </span>
           )}
         </div>
         {onClose && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={onClose}
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -240,7 +262,7 @@ export function PinnedMessages({
         )}
       </ScrollArea>
     </div>
-  )
+  );
 }
 
-export { PinnedMessageItem, PinnedMessagesSkeleton, PinnedMessagesEmpty }
+export { PinnedMessageItem, PinnedMessagesSkeleton, PinnedMessagesEmpty };

@@ -1,34 +1,34 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useRef, useEffect } from 'react'
-import { Send, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { useTyping } from '@/hooks/use-typing'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useRef, useEffect } from "react";
+import { Send, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useTyping } from "@/hooks/use-typing";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 /**
  * Message input props
  */
 export interface MessageInputWithTypingProps {
   /** Channel ID to send message to */
-  channelId: string
+  channelId: string;
   /** Callback when message is sent */
-  onSendMessage: (content: string) => void | Promise<void>
+  onSendMessage: (content: string) => void | Promise<void>;
   /** Placeholder text */
-  placeholder?: string
+  placeholder?: string;
   /** Whether the input is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Maximum message length */
-  maxLength?: number
+  maxLength?: number;
   /** Whether to show character count */
-  showCharCount?: boolean
+  showCharCount?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Auto-focus on mount */
-  autoFocus?: boolean
+  autoFocus?: boolean;
 }
 
 /**
@@ -37,122 +37,123 @@ export interface MessageInputWithTypingProps {
 export function MessageInputWithTyping({
   channelId,
   onSendMessage,
-  placeholder = 'Type a message...',
+  placeholder = "Type a message...",
   disabled = false,
   maxLength = 2000,
   showCharCount = false,
   className,
   autoFocus = false,
 }: MessageInputWithTypingProps) {
-  const [message, setMessage] = useState('')
-  const [isSending, setIsSending] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { handleTyping, forceStopTyping } = useTyping(channelId)
+  const { handleTyping, forceStopTyping } = useTyping(channelId);
 
   /**
    * Handle input change
    */
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const value = e.target.value
+      const value = e.target.value;
 
       // Enforce max length
       if (maxLength && value.length > maxLength) {
-        return
+        return;
       }
 
-      setMessage(value)
+      setMessage(value);
 
       // Trigger typing indicator
       if (value.trim().length > 0) {
-        handleTyping()
+        handleTyping();
       } else {
-        forceStopTyping()
+        forceStopTyping();
       }
     },
-    [maxLength, handleTyping, forceStopTyping]
-  )
+    [maxLength, handleTyping, forceStopTyping],
+  );
 
   /**
    * Handle send message
    */
   const handleSend = useCallback(async () => {
-    const trimmed = message.trim()
+    const trimmed = message.trim();
 
     if (!trimmed || isSending || disabled) {
-      return
+      return;
     }
 
     try {
-      setIsSending(true)
+      setIsSending(true);
 
       // Stop typing indicator immediately
-      forceStopTyping()
+      forceStopTyping();
 
       // Send message
-      await onSendMessage(trimmed)
+      await onSendMessage(trimmed);
 
       // Clear input
-      setMessage('')
+      setMessage("");
 
       // Reset textarea height
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
+        textareaRef.current.style.height = "auto";
       }
 
       // Focus back on textarea
-      textareaRef.current?.focus()
+      textareaRef.current?.focus();
     } catch (error) {
-      logger.error('Failed to send message:', error)
+      logger.error("Failed to send message:", error);
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
-  }, [message, isSending, disabled, onSendMessage, forceStopTyping])
+  }, [message, isSending, disabled, onSendMessage, forceStopTyping]);
 
   /**
    * Handle key press (Enter to send, Shift+Enter for new line)
    */
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        handleSend()
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
       }
     },
-    [handleSend]
-  )
+    [handleSend],
+  );
 
   /**
    * Auto-resize textarea
    */
   const autoResize = useCallback(() => {
-    const textarea = textareaRef.current
-    if (!textarea) return
+    const textarea = textareaRef.current;
+    if (!textarea) return;
 
-    textarea.style.height = 'auto'
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`
-  }, [])
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+  }, []);
 
   useEffect(() => {
-    autoResize()
-  }, [message, autoResize])
+    autoResize();
+  }, [message, autoResize]);
 
   /**
    * Stop typing on unmount
    */
   useEffect(() => {
     return () => {
-      forceStopTyping()
-    }
-  }, [forceStopTyping])
+      forceStopTyping();
+    };
+  }, [forceStopTyping]);
 
-  const charCount = message.length
-  const isOverLimit = maxLength ? charCount > maxLength : false
-  const canSend = message.trim().length > 0 && !isSending && !disabled && !isOverLimit
+  const charCount = message.length;
+  const isOverLimit = maxLength ? charCount > maxLength : false;
+  const canSend =
+    message.trim().length > 0 && !isSending && !disabled && !isOverLimit;
 
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       <div className="relative flex items-end gap-2">
         {/* Textarea */}
         <div className="relative flex-1">
@@ -166,8 +167,9 @@ export function MessageInputWithTyping({
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={autoFocus}
             className={cn(
-              'max-h-[200px] min-h-[44px] resize-none pr-12',
-              isOverLimit && 'border-destructive focus-visible:ring-destructive'
+              "max-h-[200px] min-h-[44px] resize-none pr-12",
+              isOverLimit &&
+                "border-destructive focus-visible:ring-destructive",
             )}
             rows={1}
           />
@@ -176,8 +178,8 @@ export function MessageInputWithTyping({
           {showCharCount && (
             <div
               className={cn(
-                'absolute bottom-2 right-2 text-xs text-muted-foreground',
-                isOverLimit && 'text-destructive'
+                "absolute bottom-2 right-2 text-xs text-muted-foreground",
+                isOverLimit && "text-destructive",
               )}
             >
               {charCount}/{maxLength}
@@ -192,7 +194,11 @@ export function MessageInputWithTyping({
           size="icon"
           className="h-[44px] w-[44px] flex-shrink-0"
         >
-          {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {isSending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
           <span className="sr-only">Send message</span>
         </Button>
       </div>
@@ -204,70 +210,70 @@ export function MessageInputWithTyping({
         </p>
       )}
     </div>
-  )
+  );
 }
 
 /**
  * Minimal message input (just input, no extras)
  */
 export interface MinimalMessageInputProps {
-  channelId: string
-  onSendMessage: (content: string) => void | Promise<void>
-  placeholder?: string
-  disabled?: boolean
-  className?: string
+  channelId: string;
+  onSendMessage: (content: string) => void | Promise<void>;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function MinimalMessageInput({
   channelId,
   onSendMessage,
-  placeholder = 'Type a message...',
+  placeholder = "Type a message...",
   disabled = false,
   className,
 }: MinimalMessageInputProps) {
-  const [message, setMessage] = useState('')
-  const { handleTyping, forceStopTyping } = useTyping(channelId)
+  const [message, setMessage] = useState("");
+  const { handleTyping, forceStopTyping } = useTyping(channelId);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value
-      setMessage(value)
+      const value = e.target.value;
+      setMessage(value);
 
       if (value.trim().length > 0) {
-        handleTyping()
+        handleTyping();
       } else {
-        forceStopTyping()
+        forceStopTyping();
       }
     },
-    [handleTyping, forceStopTyping]
-  )
+    [handleTyping, forceStopTyping],
+  );
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
-      e.preventDefault()
+      e.preventDefault();
 
-      const trimmed = message.trim()
-      if (!trimmed || disabled) return
+      const trimmed = message.trim();
+      if (!trimmed || disabled) return;
 
       try {
-        forceStopTyping()
-        await onSendMessage(trimmed)
-        setMessage('')
+        forceStopTyping();
+        await onSendMessage(trimmed);
+        setMessage("");
       } catch (error) {
-        logger.error('Failed to send message:', error)
+        logger.error("Failed to send message:", error);
       }
     },
-    [message, disabled, onSendMessage, forceStopTyping]
-  )
+    [message, disabled, onSendMessage, forceStopTyping],
+  );
 
   useEffect(() => {
     return () => {
-      forceStopTyping()
-    }
-  }, [forceStopTyping])
+      forceStopTyping();
+    };
+  }, [forceStopTyping]);
 
   return (
-    <form onSubmit={handleSubmit} className={cn('flex gap-2', className)}>
+    <form onSubmit={handleSubmit} className={cn("flex gap-2", className)}>
       <input
         type="text"
         value={message}
@@ -281,5 +287,5 @@ export function MinimalMessageInput({
         <span className="sr-only">Send</span>
       </Button>
     </form>
-  )
+  );
 }

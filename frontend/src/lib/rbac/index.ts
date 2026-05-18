@@ -12,7 +12,7 @@ export {
   type Role,
   type Permission,
   type RolePermissions,
-} from '@/types/rbac'
+} from "@/types/rbac";
 
 // Permission utilities
 export {
@@ -25,7 +25,7 @@ export {
   getRolePermissions,
   getRoleDisplayName,
   getAllRolesSorted,
-} from './permissions'
+} from "./permissions";
 
 // Permission Builder
 export {
@@ -49,7 +49,7 @@ export {
   type PermissionRule,
   type ConditionType,
   type ResourceType,
-} from './permission-builder'
+} from "./permission-builder";
 
 // Channel Permissions
 export {
@@ -66,7 +66,7 @@ export {
   type ChannelInvite,
   type ChannelPermissionContext,
   type EffectiveChannelPermissions,
-} from './channel-permissions'
+} from "./channel-permissions";
 
 // Permission Cache
 export {
@@ -82,7 +82,7 @@ export {
   type CacheConfig,
   type BatchPermissionRequest,
   type BatchPermissionResult,
-} from './permission-cache'
+} from "./permission-cache";
 
 // Audit Logger
 export {
@@ -100,4 +100,4 @@ export {
   type AuditLogQueryResult,
   type AuditLoggerConfig,
   type AuditStats,
-} from './audit-logger'
+} from "./audit-logger";

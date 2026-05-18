@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CommandItem Component
@@ -18,9 +18,9 @@
  * ```
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import type { SlashCommand } from '@/lib/commands'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import type { SlashCommand } from "@/lib/commands";
 
 // ============================================================================
 // Types
@@ -28,28 +28,31 @@ import type { SlashCommand } from '@/lib/commands'
 
 export interface CommandItemProps {
   /** The command to display */
-  command: SlashCommand
+  command: SlashCommand;
   /** Whether this item is currently selected */
-  isSelected?: boolean
+  isSelected?: boolean;
   /** Whether this command is favorited */
-  isFavorite?: boolean
+  isFavorite?: boolean;
   /** Callback when item is clicked */
-  onClick?: () => void
+  onClick?: () => void;
   /** Callback when favorite button is clicked */
-  onFavoriteToggle?: () => void
+  onFavoriteToggle?: () => void;
   /** Whether to show the usage hint */
-  showUsage?: boolean
+  showUsage?: boolean;
   /** Whether to show category badge */
-  showCategory?: boolean
+  showCategory?: boolean;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
 // Icon Components
 // ============================================================================
 
-const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+const CommandIcons: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   // Media
   film: ({ className }) => (
     <svg
@@ -85,7 +88,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
     </svg>
   ),
-  'chart-bar': ({ className }) => (
+  "chart-bar": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -157,7 +160,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <circle cx="12" cy="12" r="10" />
     </svg>
   ),
-  'bell-off': ({ className }) => (
+  "bell-off": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -175,7 +178,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
     </svg>
   ),
   // Channel
-  'volume-x': ({ className }) => (
+  "volume-x": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -190,7 +193,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <line x1="17" y1="9" x2="23" y2="15" />
     </svg>
   ),
-  'volume-2': ({ className }) => (
+  "volume-2": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -204,7 +207,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
     </svg>
   ),
-  'user-plus': ({ className }) => (
+  "user-plus": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -265,7 +268,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <line x1="10" y1="12" x2="14" y2="12" />
     </svg>
   ),
-  'log-out': ({ className }) => (
+  "log-out": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -293,7 +296,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   ),
-  'star-off': ({ className }) => (
+  "star-off": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -308,7 +311,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
     </svg>
   ),
   // Moderation
-  'user-minus': ({ className }) => (
+  "user-minus": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -337,7 +340,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
     </svg>
   ),
-  'user-check': ({ className }) => (
+  "user-check": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -352,7 +355,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <polyline points="17 11 19 13 23 9" />
     </svg>
   ),
-  'alert-triangle': ({ className }) => (
+  "alert-triangle": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -412,7 +415,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h.001M12 12h.001M16 12h.001M7 16h10" />
     </svg>
   ),
-  'help-circle': ({ className }) => (
+  "help-circle": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -457,7 +460,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
   ),
-  'refresh-cw': ({ className }) => (
+  "refresh-cw": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -487,7 +490,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
     </svg>
   ),
   // Display
-  'minimize-2': ({ className }) => (
+  "minimize-2": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -503,7 +506,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <line x1="3" y1="21" x2="10" y2="14" />
     </svg>
   ),
-  'maximize-2': ({ className }) => (
+  "maximize-2": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -520,7 +523,7 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
     </svg>
   ),
   // Navigation
-  'message-circle': ({ className }) => (
+  "message-circle": ({ className }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -547,10 +550,12 @@ const CommandIcons: Record<string, React.ComponentType<{ className?: string }>> 
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   ),
-}
+};
 
 // Default icon
-const DefaultIcon: React.ComponentType<{ className?: string }> = ({ className }) => (
+const DefaultIcon: React.ComponentType<{ className?: string }> = ({
+  className,
+}) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -563,10 +568,12 @@ const DefaultIcon: React.ComponentType<{ className?: string }> = ({ className })
     <polyline points="4 17 10 11 4 5" />
     <line x1="12" y1="19" x2="20" y2="19" />
   </svg>
-)
+);
 
 // Favorite star icon (filled)
-const FilledStar: React.ComponentType<{ className?: string }> = ({ className }) => (
+const FilledStar: React.ComponentType<{ className?: string }> = ({
+  className,
+}) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -578,7 +585,7 @@ const FilledStar: React.ComponentType<{ className?: string }> = ({ className }) 
   >
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
-)
+);
 
 // ============================================================================
 // Component
@@ -594,12 +601,14 @@ export function CommandItem({
   showCategory = false,
   className,
 }: CommandItemProps) {
-  const IconComponent = command.icon ? CommandIcons[command.icon] || DefaultIcon : DefaultIcon
+  const IconComponent = command.icon
+    ? CommandIcons[command.icon] || DefaultIcon
+    : DefaultIcon;
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onFavoriteToggle?.()
-  }
+    e.stopPropagation();
+    onFavoriteToggle?.();
+  };
 
   return (
     <div
@@ -607,25 +616,25 @@ export function CommandItem({
       aria-selected={isSelected}
       tabIndex={0}
       className={cn(
-        'flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors',
-        'hover:text-accent-foreground hover:bg-accent',
-        isSelected && 'text-accent-foreground bg-accent',
-        className
+        "flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors",
+        "hover:text-accent-foreground hover:bg-accent",
+        isSelected && "text-accent-foreground bg-accent",
+        className,
       )}
       onClick={onClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
       {/* Command Icon */}
       <div
         className={cn(
-          'flex h-8 w-8 items-center justify-center rounded-md',
-          'bg-muted text-muted-foreground',
-          isSelected && 'bg-primary/10 text-primary'
+          "flex h-8 w-8 items-center justify-center rounded-md",
+          "bg-muted text-muted-foreground",
+          isSelected && "bg-primary/10 text-primary",
         )}
       >
         <IconComponent className="h-4 w-4" />
@@ -637,7 +646,7 @@ export function CommandItem({
           <span className="text-sm font-medium">/{command.name}</span>
           {command.aliases && command.aliases.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              ({command.aliases.map((a) => `/${a}`).join(', ')})
+              ({command.aliases.map((a) => `/${a}`).join(", ")})
             </span>
           )}
           {showCategory && (
@@ -646,9 +655,13 @@ export function CommandItem({
             </span>
           )}
         </div>
-        <p className="truncate text-xs text-muted-foreground">{command.description}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {command.description}
+        </p>
         {showUsage && (
-          <p className="text-muted-foreground/70 mt-0.5 font-mono text-xs">{command.usage}</p>
+          <p className="text-muted-foreground/70 mt-0.5 font-mono text-xs">
+            {command.usage}
+          </p>
         )}
       </div>
 
@@ -665,12 +678,12 @@ export function CommandItem({
           type="button"
           onClick={handleFavoriteClick}
           className={cn(
-            'hover:bg-muted/50 rounded p-1 transition-colors',
+            "hover:bg-muted/50 rounded p-1 transition-colors",
             isFavorite
-              ? 'text-yellow-500'
-              : 'text-muted-foreground opacity-0 group-hover:opacity-100'
+              ? "text-yellow-500"
+              : "text-muted-foreground opacity-0 group-hover:opacity-100",
           )}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
           {isFavorite ? (
             <FilledStar className="h-4 w-4" />
@@ -680,7 +693,7 @@ export function CommandItem({
         </button>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -688,23 +701,29 @@ export function CommandItem({
 // ============================================================================
 
 export interface CommandCategoryHeaderProps {
-  category: string
-  count?: number
-  className?: string
+  category: string;
+  count?: number;
+  className?: string;
 }
 
-export function CommandCategoryHeader({ category, count, className }: CommandCategoryHeaderProps) {
+export function CommandCategoryHeader({
+  category,
+  count,
+  className,
+}: CommandCategoryHeaderProps) {
   return (
     <div
       className={cn(
-        'px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground',
-        className
+        "px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+        className,
       )}
     >
       {category}
-      {count !== undefined && <span className="text-muted-foreground/60 ml-1">({count})</span>}
+      {count !== undefined && (
+        <span className="text-muted-foreground/60 ml-1">({count})</span>
+      )}
     </div>
-  )
+  );
 }
 
-export default CommandItem
+export default CommandItem;

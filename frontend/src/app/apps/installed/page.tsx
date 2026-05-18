@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import { InstalledApps } from '@/components/app-directory'
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { InstalledApps } from "@/components/app-directory";
 
 export default function InstalledAppsPage() {
   return (
@@ -18,11 +18,13 @@ export default function InstalledAppsPage() {
         </Link>
 
         <h1 className="text-3xl font-bold tracking-tight">Installed Apps</h1>
-        <p className="mt-2 text-muted-foreground">Manage the apps installed in your workspace</p>
+        <p className="mt-2 text-muted-foreground">
+          Manage the apps installed in your workspace
+        </p>
       </div>
 
       {/* Installed Apps List */}
       <InstalledApps />
     </div>
-  )
+  );
 }

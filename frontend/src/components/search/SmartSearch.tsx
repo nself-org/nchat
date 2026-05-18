@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
 /**
  * SmartSearch component
  * AI-powered semantic search with natural language queries
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Search,
   Sparkles,
@@ -17,182 +17,188 @@ import {
   Loader2,
   MessageSquare,
   ChevronRight,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   getSmartSearch,
   isSemanticSearchAvailable,
   type SearchableMessage,
   type SearchResult,
   type SearchOptions,
-} from '@/lib/ai/smart-search'
-import { cn } from '@/lib/utils'
+} from "@/lib/ai/smart-search";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export interface SmartSearchProps {
-  messages: SearchableMessage[]
-  onMessageClick?: (message: SearchableMessage) => void
-  placeholder?: string
-  className?: string
-  showFilters?: boolean
-  autoFocus?: boolean
+  messages: SearchableMessage[];
+  onMessageClick?: (message: SearchableMessage) => void;
+  placeholder?: string;
+  className?: string;
+  showFilters?: boolean;
+  autoFocus?: boolean;
 }
 
 export function SmartSearch({
   messages,
   onMessageClick,
-  placeholder = 'Search messages with AI...',
+  placeholder = "Search messages with AI...",
   className,
   showFilters = true,
   autoFocus = false,
 }: SmartSearchProps) {
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [loading, setLoading] = useState(false)
-  const [isSemanticAvailable, setIsSemanticAvailable] = useState(false)
-  const [selectedResult, setSelectedResult] = useState<number>(-1)
-  const [showResults, setShowResults] = useState(false)
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isSemanticAvailable, setIsSemanticAvailable] = useState(false);
+  const [selectedResult, setSelectedResult] = useState<number>(-1);
+  const [showResults, setShowResults] = useState(false);
 
   // Filters - use NonNullable to ensure filters is never undefined
-  type FilterType = NonNullable<SearchOptions['filters']>
-  const [filters, setFilters] = useState<FilterType>({})
-  const [rankBy, setRankBy] = useState<SearchOptions['rankBy']>('relevance')
-  const [limit, setLimit] = useState(20)
+  type FilterType = NonNullable<SearchOptions["filters"]>;
+  const [filters, setFilters] = useState<FilterType>({});
+  const [rankBy, setRankBy] = useState<SearchOptions["rankBy"]>("relevance");
+  const [limit, setLimit] = useState(20);
 
-  const inputRef = useRef<HTMLInputElement>(null)
-  const resultsRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setIsSemanticAvailable(isSemanticSearchAvailable())
-  }, [])
+    setIsSemanticAvailable(isSemanticSearchAvailable());
+  }, []);
 
   useEffect(() => {
     if (autoFocus && inputRef.current) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }, [autoFocus])
+  }, [autoFocus]);
 
   // Debounced search
   useEffect(() => {
     if (query.length < 2) {
-      setResults([])
-      setShowResults(false)
-      return
+      setResults([]);
+      setShowResults(false);
+      return;
     }
 
     const timer = setTimeout(() => {
-      handleSearch()
-    }, 300)
+      handleSearch();
+    }, 300);
 
-    return () => clearTimeout(timer)
-  }, [query, filters, rankBy, limit]) // eslint-disable-line react-hooks/exhaustive-deps
+    return () => clearTimeout(timer);
+  }, [query, filters, rankBy, limit]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = async () => {
-    if (query.length < 2) return
+    if (query.length < 2) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const search = getSmartSearch()
+      const search = getSmartSearch();
       const searchResults = await search.search(query, messages, {
         filters,
         rankBy,
         limit,
         includeContext: true,
         contextSize: 1,
-      })
+      });
 
-      setResults(searchResults)
-      setShowResults(true)
-      setSelectedResult(-1)
+      setResults(searchResults);
+      setShowResults(true);
+      setSelectedResult(-1);
     } catch (error) {
-      logger.error('Search error:', error)
-      setResults([])
+      logger.error("Search error:", error);
+      setResults([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleClear = () => {
-    setQuery('')
-    setResults([])
-    setShowResults(false)
-    setSelectedResult(-1)
+    setQuery("");
+    setResults([]);
+    setShowResults(false);
+    setSelectedResult(-1);
     if (inputRef.current) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }
+  };
 
   const handleResultClick = (message: SearchableMessage) => {
-    setShowResults(false)
+    setShowResults(false);
     if (onMessageClick) {
-      onMessageClick(message)
+      onMessageClick(message);
     }
-  }
+  };
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (!showResults || results.length === 0) return
+      if (!showResults || results.length === 0) return;
 
       switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault()
-          setSelectedResult((prev) => (prev < results.length - 1 ? prev + 1 : prev))
-          break
-        case 'ArrowUp':
-          e.preventDefault()
-          setSelectedResult((prev) => (prev > 0 ? prev - 1 : -1))
-          break
-        case 'Enter':
-          e.preventDefault()
+        case "ArrowDown":
+          e.preventDefault();
+          setSelectedResult((prev) =>
+            prev < results.length - 1 ? prev + 1 : prev,
+          );
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setSelectedResult((prev) => (prev > 0 ? prev - 1 : -1));
+          break;
+        case "Enter":
+          e.preventDefault();
           if (selectedResult >= 0 && selectedResult < results.length) {
-            handleResultClick(results[selectedResult].message)
+            handleResultClick(results[selectedResult].message);
           }
-          break
-        case 'Escape':
-          e.preventDefault()
-          setShowResults(false)
-          break
+          break;
+        case "Escape":
+          e.preventDefault();
+          setShowResults(false);
+          break;
       }
     },
-    [showResults, results, selectedResult] // eslint-disable-line react-hooks/exhaustive-deps
-  )
+    [showResults, results, selectedResult], // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Scroll selected result into view
   useEffect(() => {
     if (selectedResult >= 0 && resultsRef.current) {
       const selectedElement = resultsRef.current.querySelector(
-        `[data-result-index="${selectedResult}"]`
-      )
-      selectedElement?.scrollIntoView({ block: 'nearest' })
+        `[data-result-index="${selectedResult}"]`,
+      );
+      selectedElement?.scrollIntoView({ block: "nearest" });
     }
-  }, [selectedResult])
+  }, [selectedResult]);
 
   const clearFilter = (key: keyof FilterType) => {
     setFilters((prev) => {
-      const newFilters = { ...prev }
-      delete newFilters[key]
-      return newFilters
-    })
-  }
+      const newFilters = { ...prev };
+      delete newFilters[key];
+      return newFilters;
+    });
+  };
 
-  const activeFilterCount = Object.keys(filters).length
+  const activeFilterCount = Object.keys(filters).length;
 
   return (
-    <div className={cn('relative w-full', className)}>
+    <div className={cn("relative w-full", className)}>
       {/* Search Input */}
       <div className="relative">
         <div className="relative">
@@ -214,7 +220,12 @@ export function SmartSearch({
               </Badge>
             )}
             {query && (
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={handleClear}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0"
+                onClick={handleClear}
+              >
                 <X className="h-4 w-4" />
               </Button>
             )}
@@ -242,43 +253,65 @@ export function SmartSearch({
               <PopoverContent className="w-80" align="start">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label htmlFor="smart-search-channel" className="text-sm font-medium">
+                    <label
+                      htmlFor="smart-search-channel"
+                      className="text-sm font-medium"
+                    >
                       Channel
                     </label>
                     <Input
                       id="smart-search-channel"
                       placeholder="Channel ID"
-                      value={filters.channelId || ''}
+                      value={filters.channelId || ""}
                       onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, channelId: e.target.value }))
+                        setFilters((prev) => ({
+                          ...prev,
+                          channelId: e.target.value,
+                        }))
                       }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="smart-search-user" className="text-sm font-medium">
+                    <label
+                      htmlFor="smart-search-user"
+                      className="text-sm font-medium"
+                    >
                       User
                     </label>
                     <Input
                       id="smart-search-user"
                       placeholder="User ID"
-                      value={filters.userId || ''}
-                      onChange={(e) => setFilters((prev) => ({ ...prev, userId: e.target.value }))}
+                      value={filters.userId || ""}
+                      onChange={(e) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          userId: e.target.value,
+                        }))
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="smart-search-thread" className="text-sm font-medium">
+                    <label
+                      htmlFor="smart-search-thread"
+                      className="text-sm font-medium"
+                    >
                       Has Thread
                     </label>
                     <Select
                       value={
-                        filters.hasThread === undefined ? 'any' : filters.hasThread ? 'yes' : 'no'
+                        filters.hasThread === undefined
+                          ? "any"
+                          : filters.hasThread
+                            ? "yes"
+                            : "no"
                       }
                       onValueChange={(value) =>
                         setFilters((prev) => ({
                           ...prev,
-                          hasThread: value === 'any' ? undefined : value === 'yes',
+                          hasThread:
+                            value === "any" ? undefined : value === "yes",
                         }))
                       }
                     >
@@ -307,7 +340,10 @@ export function SmartSearch({
               </PopoverContent>
             </Popover>
 
-            <Select value={rankBy} onValueChange={(value: any) => setRankBy(value)}>
+            <Select
+              value={rankBy}
+              onValueChange={(value: any) => setRankBy(value)}
+            >
               <SelectTrigger className="h-8 w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -320,7 +356,9 @@ export function SmartSearch({
 
             <div className="flex-1" />
 
-            {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+            {loading && (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            )}
           </div>
         )}
 
@@ -332,7 +370,7 @@ export function SmartSearch({
                 <Hash className="h-3 w-3" />
                 {filters.channelId}
                 <button
-                  onClick={() => clearFilter('channelId')}
+                  onClick={() => clearFilter("channelId")}
                   className="ml-1 rounded-sm hover:bg-muted"
                 >
                   <X className="h-3 w-3" />
@@ -344,7 +382,7 @@ export function SmartSearch({
                 <User className="h-3 w-3" />
                 {filters.userId}
                 <button
-                  onClick={() => clearFilter('userId')}
+                  onClick={() => clearFilter("userId")}
                   className="ml-1 rounded-sm hover:bg-muted"
                 >
                   <X className="h-3 w-3" />
@@ -354,9 +392,9 @@ export function SmartSearch({
             {filters.hasThread !== undefined && (
               <Badge variant="secondary" className="gap-1">
                 <MessageSquare className="h-3 w-3" />
-                Has Thread: {filters.hasThread ? 'Yes' : 'No'}
+                Has Thread: {filters.hasThread ? "Yes" : "No"}
                 <button
-                  onClick={() => clearFilter('hasThread')}
+                  onClick={() => clearFilter("hasThread")}
                   className="ml-1 rounded-sm hover:bg-muted"
                 >
                   <X className="h-3 w-3" />
@@ -369,8 +407,8 @@ export function SmartSearch({
                 Date Filter
                 <button
                   onClick={() => {
-                    clearFilter('dateFrom')
-                    clearFilter('dateTo')
+                    clearFilter("dateFrom");
+                    clearFilter("dateTo");
                   }}
                   className="ml-1 rounded-sm hover:bg-muted"
                 >
@@ -398,7 +436,9 @@ export function SmartSearch({
                     <div className="flex flex-col items-center gap-2">
                       <Search className="h-8 w-8" />
                       <p>No results found</p>
-                      <p className="text-sm">Try different keywords or adjust filters</p>
+                      <p className="text-sm">
+                        Try different keywords or adjust filters
+                      </p>
                     </div>
                   )}
                 </div>
@@ -422,9 +462,11 @@ export function SmartSearch({
                 <Separator />
                 <div className="flex items-center justify-between p-2 text-xs text-muted-foreground">
                   <span>
-                    {results.length} result{results.length > 1 ? 's' : ''} found
+                    {results.length} result{results.length > 1 ? "s" : ""} found
                   </span>
-                  <span>{isSemanticAvailable ? 'Semantic search' : 'Keyword search'}</span>
+                  <span>
+                    {isSemanticAvailable ? "Semantic search" : "Keyword search"}
+                  </span>
                 </div>
               </>
             )}
@@ -432,29 +474,29 @@ export function SmartSearch({
         </Card>
       )}
     </div>
-  )
+  );
 }
 
 interface SearchResultItemProps {
-  result: SearchResult
-  selected: boolean
-  onClick: () => void
-  'data-result-index': number
+  result: SearchResult;
+  selected: boolean;
+  onClick: () => void;
+  "data-result-index": number;
 }
 
 function SearchResultItem({
   result,
   selected,
   onClick,
-  'data-result-index': dataResultIndex,
+  "data-result-index": dataResultIndex,
 }: SearchResultItemProps) {
-  const { message, score, matchType, highlights, context } = result
+  const { message, score, matchType, highlights, context } = result;
 
   return (
     <button
       className={cn(
-        'hover:bg-muted/50 w-full p-4 text-left transition-colors',
-        selected && 'bg-muted'
+        "hover:bg-muted/50 w-full p-4 text-left transition-colors",
+        selected && "bg-muted",
       )}
       onClick={onClick}
       data-result-index={dataResultIndex}
@@ -464,7 +506,7 @@ function SearchResultItem({
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
             <span className="truncate text-sm font-medium">
-              {message.userName || 'Unknown User'}
+              {message.userName || "Unknown User"}
             </span>
             {message.channelName && (
               <>
@@ -476,8 +518,13 @@ function SearchResultItem({
             )}
           </div>
           <div className="flex flex-shrink-0 items-center gap-2">
-            <Badge variant={matchType === 'semantic' ? 'default' : 'secondary'} className="text-xs">
-              {matchType === 'semantic' && <Sparkles className="mr-1 h-3 w-3" />}
+            <Badge
+              variant={matchType === "semantic" ? "default" : "secondary"}
+              className="text-xs"
+            >
+              {matchType === "semantic" && (
+                <Sparkles className="mr-1 h-3 w-3" />
+              )}
               {Math.round(score * 100)}%
             </Badge>
             <span className="text-xs text-muted-foreground">
@@ -490,7 +537,8 @@ function SearchResultItem({
         {context?.before && context.before.length > 0 && (
           <div className="text-muted-foreground/60 border-l-2 border-muted pl-2 text-xs italic">
             {context.before[context.before.length - 1].content.slice(0, 80)}
-            {context.before[context.before.length - 1].content.length > 80 && '...'}
+            {context.before[context.before.length - 1].content.length > 80 &&
+              "..."}
           </div>
         )}
 
@@ -513,7 +561,7 @@ function SearchResultItem({
         {context?.after && context.after.length > 0 && (
           <div className="text-muted-foreground/60 border-l-2 border-muted pl-2 text-xs italic">
             {context.after[0].content.slice(0, 80)}
-            {context.after[0].content.length > 80 && '...'}
+            {context.after[0].content.length > 80 && "..."}
           </div>
         )}
 
@@ -528,33 +576,33 @@ function SearchResultItem({
         </div>
       </div>
     </button>
-  )
+  );
 }
 
 /**
  * Format date for display
  */
 function formatDate(date: Date): string {
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
   if (days === 0) {
-    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60));
     if (hours === 0) {
-      const minutes = Math.floor(diff / (1000 * 60))
-      return `${minutes}m ago`
+      const minutes = Math.floor(diff / (1000 * 60));
+      return `${minutes}m ago`;
     }
-    return `${hours}h ago`
+    return `${hours}h ago`;
   }
 
   if (days === 1) {
-    return 'Yesterday'
+    return "Yesterday";
   }
 
   if (days < 7) {
-    return `${days}d ago`
+    return `${days}d ago`;
   }
 
-  return date.toLocaleDateString()
+  return date.toLocaleDateString();
 }

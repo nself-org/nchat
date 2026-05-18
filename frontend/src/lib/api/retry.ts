@@ -5,7 +5,7 @@
  * Useful for network requests that may temporarily fail.
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -13,33 +13,33 @@ import { logger } from '@/lib/logger'
 
 export interface RetryOptions {
   /** Maximum number of retry attempts (default: 3) */
-  maxRetries?: number
+  maxRetries?: number;
 
   /** Initial delay in ms (default: 1000) */
-  initialDelay?: number
+  initialDelay?: number;
 
   /** Maximum delay in ms (default: 30000) */
-  maxDelay?: number
+  maxDelay?: number;
 
   /** Backoff multiplier (default: 2) */
-  backoffMultiplier?: number
+  backoffMultiplier?: number;
 
   /** Add random jitter to delays (default: true) */
-  jitter?: boolean
+  jitter?: boolean;
 
   /** Function to determine if error is retryable (default: retry all) */
-  shouldRetry?: (error: unknown, attempt: number) => boolean
+  shouldRetry?: (error: unknown, attempt: number) => boolean;
 
   /** Called before each retry */
-  onRetry?: (error: unknown, attempt: number, delay: number) => void
+  onRetry?: (error: unknown, attempt: number, delay: number) => void;
 }
 
 export interface RetryResult<T> {
-  success: boolean
-  data?: T
-  error?: unknown
-  attempts: number
-  totalTime: number
+  success: boolean;
+  data?: T;
+  error?: unknown;
+  attempts: number;
+  totalTime: number;
 }
 
 // ============================================================================
@@ -54,7 +54,7 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
   jitter: true,
   shouldRetry: () => true,
   onRetry: () => {},
-}
+};
 
 // ============================================================================
 // Retry Logic
@@ -68,28 +68,28 @@ function calculateDelay(
   initialDelay: number,
   backoffMultiplier: number,
   maxDelay: number,
-  useJitter: boolean
+  useJitter: boolean,
 ): number {
   // Exponential backoff: delay * (multiplier ^ attempt)
-  let delay = initialDelay * Math.pow(backoffMultiplier, attempt - 1)
+  let delay = initialDelay * Math.pow(backoffMultiplier, attempt - 1);
 
   // Cap at max delay
-  delay = Math.min(delay, maxDelay)
+  delay = Math.min(delay, maxDelay);
 
   // Add jitter (random ±25%)
   if (useJitter) {
-    const jitter = delay * 0.25
-    delay = delay + (Math.random() - 0.5) * 2 * jitter
+    const jitter = delay * 0.25;
+    delay = delay + (Math.random() - 0.5) * 2 * jitter;
   }
 
-  return Math.floor(delay)
+  return Math.floor(delay);
 }
 
 /**
  * Sleep for specified milliseconds
  */
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -97,17 +97,17 @@ function sleep(ms: number): Promise<void> {
  */
 function isRetryableError(error: unknown): boolean {
   // Network errors
-  if (error instanceof TypeError && error.message.includes('fetch')) {
-    return true
+  if (error instanceof TypeError && error.message.includes("fetch")) {
+    return true;
   }
 
   // HTTP errors (5xx server errors, 429 rate limit, 408 timeout)
-  if (error && typeof error === 'object' && 'status' in error) {
-    const status = (error as { status: number }).status
-    return status >= 500 || status === 429 || status === 408
+  if (error && typeof error === "object" && "status" in error) {
+    const status = (error as { status: number }).status;
+    return status >= 500 || status === 429 || status === 408;
   }
 
-  return false
+  return false;
 }
 
 // ============================================================================
@@ -131,37 +131,40 @@ function isRetryableError(error: unknown): boolean {
  * )
  * ```
  */
-export async function retryAsync<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
-  const opts = { ...DEFAULT_OPTIONS, ...options }
-  const startTime = Date.now()
+export async function retryAsync<T>(
+  fn: () => Promise<T>,
+  options: RetryOptions = {},
+): Promise<T> {
+  const opts = { ...DEFAULT_OPTIONS, ...options };
+  const startTime = Date.now();
 
-  let lastError: unknown
-  let attempt = 0
+  let lastError: unknown;
+  let attempt = 0;
 
   while (attempt <= opts.maxRetries) {
-    attempt++
+    attempt++;
 
     try {
-      const result = await fn()
+      const result = await fn();
 
       // Success! Log if we had to retry
       if (attempt > 1) {
-        logger.debug('Retry succeeded', {
+        logger.debug("Retry succeeded", {
           attempts: attempt,
           totalTime: Date.now() - startTime,
-        })
+        });
       }
 
-      return result
+      return result;
     } catch (error) {
-      lastError = error
+      lastError = error;
 
       // Check if we should retry
-      const shouldRetry = opts.shouldRetry(error, attempt)
-      const hasRetriesLeft = attempt < opts.maxRetries
+      const shouldRetry = opts.shouldRetry(error, attempt);
+      const hasRetriesLeft = attempt < opts.maxRetries;
 
       if (!shouldRetry || !hasRetriesLeft) {
-        break
+        break;
       }
 
       // Calculate delay and wait
@@ -170,32 +173,32 @@ export async function retryAsync<T>(fn: () => Promise<T>, options: RetryOptions 
         opts.initialDelay,
         opts.backoffMultiplier,
         opts.maxDelay,
-        opts.jitter
-      )
+        opts.jitter,
+      );
 
-      logger.warn('Retry attempt', {
+      logger.warn("Retry attempt", {
         attempt,
         maxRetries: opts.maxRetries,
         delay,
         error: error instanceof Error ? error.message : String(error),
-      })
+      });
 
-      opts.onRetry(error, attempt, delay)
-      await sleep(delay)
+      opts.onRetry(error, attempt, delay);
+      await sleep(delay);
     }
   }
 
   // All retries exhausted
   logger.error(
-    'All retry attempts failed',
+    "All retry attempts failed",
     lastError instanceof Error ? lastError : new Error(String(lastError)),
     {
       attempts: attempt,
       totalTime: Date.now() - startTime,
-    }
-  )
+    },
+  );
 
-  throw lastError
+  throw lastError;
 }
 
 /**
@@ -203,30 +206,30 @@ export async function retryAsync<T>(fn: () => Promise<T>, options: RetryOptions 
  */
 export async function retryWithResult<T>(
   fn: () => Promise<T>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<RetryResult<T>> {
-  const startTime = Date.now()
-  let attempts = 0
+  const startTime = Date.now();
+  let attempts = 0;
 
   try {
     const data = await retryAsync(async () => {
-      attempts++
-      return await fn()
-    }, options)
+      attempts++;
+      return await fn();
+    }, options);
 
     return {
       success: true,
       data,
       attempts,
       totalTime: Date.now() - startTime,
-    }
+    };
   } catch (error) {
     return {
       success: false,
       error,
       attempts,
       totalTime: Date.now() - startTime,
-    }
+    };
   }
 }
 
@@ -245,11 +248,11 @@ export async function retryWithResult<T>(
  */
 export function createRetryWrapper<TArgs extends unknown[], TReturn>(
   fn: (...args: TArgs) => Promise<TReturn>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): (...args: TArgs) => Promise<TReturn> {
   return (...args: TArgs) => {
-    return retryAsync(() => fn(...args), options)
-  }
+    return retryAsync(() => fn(...args), options);
+  };
 }
 
 // ============================================================================
@@ -262,34 +265,37 @@ export function createRetryWrapper<TArgs extends unknown[], TReturn>(
 export async function retryFetch(
   input: RequestInfo | URL,
   init?: RequestInit,
-  options?: RetryOptions
+  options?: RetryOptions,
 ): Promise<Response> {
   return retryAsync(
     async () => {
-      const response = await fetch(input, init)
+      const response = await fetch(input, init);
 
       // Throw on non-OK responses to trigger retry
       if (!response.ok) {
-        throw Object.assign(new Error(`HTTP ${response.status}: ${response.statusText}`), {
-          status: response.status,
-          response,
-        })
+        throw Object.assign(
+          new Error(`HTTP ${response.status}: ${response.statusText}`),
+          {
+            status: response.status,
+            response,
+          },
+        );
       }
 
-      return response
+      return response;
     },
     {
       ...options,
       shouldRetry: (error, attempt) => {
         // Use custom shouldRetry if provided
         if (options?.shouldRetry) {
-          return options.shouldRetry(error, attempt)
+          return options.shouldRetry(error, attempt);
         }
         // Default: retry on network errors and 5xx/429/408
-        return isRetryableError(error)
+        return isRetryableError(error);
       },
-    }
-  )
+    },
+  );
 }
 
 /**
@@ -298,40 +304,40 @@ export async function retryFetch(
 export async function retryGraphQL<T>(
   query: string,
   variables?: Record<string, unknown>,
-  options?: RetryOptions
+  options?: RetryOptions,
 ): Promise<T> {
   return retryAsync(
     async () => {
-      const response = await fetch(process.env.NEXT_PUBLIC_GRAPHQL_URL || '', {
-        method: 'POST',
+      const response = await fetch(process.env.NEXT_PUBLIC_GRAPHQL_URL || "", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ query, variables }),
-      })
+      });
 
       if (!response.ok) {
         throw Object.assign(new Error(`HTTP ${response.status}`), {
           status: response.status,
-        })
+        });
       }
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (result.errors) {
-        throw new Error(result.errors[0]?.message || 'GraphQL Error')
+        throw new Error(result.errors[0]?.message || "GraphQL Error");
       }
 
-      return result.data as T
+      return result.data as T;
     },
     {
       ...options,
       shouldRetry: (error) => {
         // Retry on network errors and server errors
-        return isRetryableError(error)
+        return isRetryableError(error);
       },
-    }
-  )
+    },
+  );
 }
 
 /**
@@ -339,60 +345,60 @@ export async function retryGraphQL<T>(
  * Prevents cascading failures by failing fast after repeated errors
  */
 export class CircuitBreaker {
-  private failures = 0
-  private lastFailureTime = 0
-  private state: 'closed' | 'open' | 'half-open' = 'closed'
+  private failures = 0;
+  private lastFailureTime = 0;
+  private state: "closed" | "open" | "half-open" = "closed";
 
   constructor(
     private threshold: number = 5,
-    private timeout: number = 60000
+    private timeout: number = 60000,
   ) {}
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     // Check if circuit is open
-    if (this.state === 'open') {
-      const now = Date.now()
+    if (this.state === "open") {
+      const now = Date.now();
       if (now - this.lastFailureTime < this.timeout) {
-        throw new Error('Circuit breaker is OPEN')
+        throw new Error("Circuit breaker is OPEN");
       }
       // Try to close circuit
-      this.state = 'half-open'
+      this.state = "half-open";
     }
 
     try {
-      const result = await fn()
+      const result = await fn();
       // Success! Reset on half-open or maintain closed
-      if (this.state === 'half-open') {
-        this.state = 'closed'
-        this.failures = 0
+      if (this.state === "half-open") {
+        this.state = "closed";
+        this.failures = 0;
       }
-      return result
+      return result;
     } catch (error) {
-      this.failures++
-      this.lastFailureTime = Date.now()
+      this.failures++;
+      this.lastFailureTime = Date.now();
 
       if (this.failures >= this.threshold) {
-        this.state = 'open'
-        logger.warn('Circuit breaker opened', {
+        this.state = "open";
+        logger.warn("Circuit breaker opened", {
           failures: this.failures,
           threshold: this.threshold,
-        })
+        });
       }
 
-      throw error
+      throw error;
     }
   }
 
   reset(): void {
-    this.failures = 0
-    this.state = 'closed'
-    this.lastFailureTime = 0
+    this.failures = 0;
+    this.state = "closed";
+    this.lastFailureTime = 0;
   }
 
   getState(): { state: string; failures: number } {
     return {
       state: this.state,
       failures: this.failures,
-    }
+    };
   }
 }

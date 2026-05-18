@@ -15,27 +15,27 @@
  * - Email notification via emailService
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { z } from 'zod'
-import { apolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
-import { getAPIEventBroadcaster } from '@/services/realtime/api-event-broadcaster'
-import { getUserRoom, REALTIME_EVENTS } from '@/services/realtime/events.types'
-import { emailService } from '@/lib/email/email.service'
-import { v4 as uuidv4 } from 'uuid'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
+import { apolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
+import { getAPIEventBroadcaster } from "@/services/realtime/api-event-broadcaster";
+import { getUserRoom, REALTIME_EVENTS } from "@/services/realtime/events.types";
+import { emailService } from "@/lib/email/email.service";
+import { v4 as uuidv4 } from "uuid";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // ============================================================================
 // VALIDATION SCHEMA
 // ============================================================================
 
 const NotifyMentionsSchema = z.object({
-  messageId: z.string().uuid('Invalid message ID'),
-  channelId: z.string().uuid('Invalid channel ID'),
-  actorId: z.string().uuid('Invalid actor ID'),
+  messageId: z.string().uuid("Invalid message ID"),
+  channelId: z.string().uuid("Invalid channel ID"),
+  actorId: z.string().uuid("Invalid actor ID"),
   actorName: z.string().min(1),
   messagePreview: z.string().max(200),
   threadId: z.string().uuid().optional(),
@@ -44,14 +44,16 @@ const NotifyMentionsSchema = z.object({
   mentionsEveryone: z.boolean().default(false),
   mentionsHere: z.boolean().default(false),
   mentionedRoles: z.array(z.string()).optional(),
-})
+});
 
 // ============================================================================
 // GRAPHQL OPERATIONS
 // ============================================================================
 
 const CREATE_MENTION_NOTIFICATIONS = gql`
-  mutation CreateMentionNotifications($notifications: [nchat_notifications_insert_input!]!) {
+  mutation CreateMentionNotifications(
+    $notifications: [nchat_notifications_insert_input!]!
+  ) {
     insert_nchat_notifications(objects: $notifications) {
       affected_rows
       returning {
@@ -61,7 +63,7 @@ const CREATE_MENTION_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 const GET_ONLINE_USERS = gql`
   query GetOnlineUsers($channelId: uuid!) {
@@ -79,7 +81,7 @@ const GET_ONLINE_USERS = gql`
       }
     }
   }
-`
+`;
 
 const GET_CHANNEL_MEMBERS = gql`
   query GetChannelMembers($channelId: uuid!) {
@@ -94,7 +96,7 @@ const GET_CHANNEL_MEMBERS = gql`
       }
     }
   }
-`
+`;
 
 const GET_USER_NOTIFICATION_PREFERENCES = gql`
   query GetUserNotificationPreferences($userIds: [uuid!]!) {
@@ -105,7 +107,7 @@ const GET_USER_NOTIFICATION_PREFERENCES = gql`
       preferences
     }
   }
-`
+`;
 
 const GET_CHANNEL_INFO = gql`
   query GetChannelInfo($channelId: uuid!) {
@@ -116,7 +118,7 @@ const GET_CHANNEL_INFO = gql`
       type
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPERS
@@ -125,16 +127,16 @@ const GET_CHANNEL_INFO = gql`
 function shouldNotifyUser(
   userId: string,
   preferences: Record<string, unknown>,
-  mentionType: string
+  mentionType: string,
 ): boolean {
   // Check if mentions are enabled
-  const mentionsEnabled = preferences.mentions_enabled !== false
+  const mentionsEnabled = preferences.mentions_enabled !== false;
 
   // Check if specific mention type is enabled
-  const mentionTypeKey = `notify_${mentionType}`
-  const mentionTypeEnabled = preferences[mentionTypeKey] !== false
+  const mentionTypeKey = `notify_${mentionType}`;
+  const mentionTypeEnabled = preferences[mentionTypeKey] !== false;
 
-  return mentionsEnabled && mentionTypeEnabled
+  return mentionsEnabled && mentionTypeEnabled;
 }
 
 // ============================================================================
@@ -143,55 +145,64 @@ function shouldNotifyUser(
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('POST /api/mentions/notify')
+    logger.info("POST /api/mentions/notify");
 
     // Parse and validate request body
-    const body = await request.json()
-    const validation = NotifyMentionsSchema.safeParse(body)
+    const body = await request.json();
+    const validation = NotifyMentionsSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid request body',
+          error: "Invalid request body",
           details: validation.error.flatten().fieldErrors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const data = validation.data
+    const data = validation.data;
 
     // Get channel info
     const { data: channelData } = await apolloClient.query({
       query: GET_CHANNEL_INFO,
       variables: { channelId: data.channelId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const channel = channelData?.nchat_channels_by_pk
+    const channel = channelData?.nchat_channels_by_pk;
     if (!channel) {
-      return NextResponse.json({ success: false, error: 'Channel not found' }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: "Channel not found" },
+        { status: 404 },
+      );
     }
 
-    const notifications: Record<string, unknown>[] = []
-    const recipientIds = new Set<string>()
+    const notifications: Record<string, unknown>[] = [];
+    const recipientIds = new Set<string>();
 
     // Handle @everyone mentions
     if (data.mentionsEveryone) {
       const { data: membersData } = await apolloClient.query({
         query: GET_CHANNEL_MEMBERS,
         variables: { channelId: data.channelId },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
-      const members = membersData?.nchat_channel_members || []
+      const members = membersData?.nchat_channel_members || [];
       for (const member of members) {
-        if (member.user_id === data.actorId) continue // Don't notify the author
-        if (!member.notifications_enabled) continue
+        if (member.user_id === data.actorId) continue; // Don't notify the author
+        if (!member.notifications_enabled) continue;
 
-        if (shouldNotifyUser(member.user_id, member.user.preferences || {}, 'everyone')) {
-          recipientIds.add(member.user_id)
+        if (
+          shouldNotifyUser(
+            member.user_id,
+            member.user.preferences || {},
+            "everyone",
+          )
+        ) {
+          recipientIds.add(member.user_id);
         }
       }
     }
@@ -201,14 +212,14 @@ export async function POST(request: NextRequest) {
       const { data: onlineData } = await apolloClient.query({
         query: GET_ONLINE_USERS,
         variables: { channelId: data.channelId },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
-      const onlineUsers = onlineData?.nchat_channel_members || []
+      const onlineUsers = onlineData?.nchat_channel_members || [];
       for (const member of onlineUsers) {
-        if (member.user_id === data.actorId) continue
+        if (member.user_id === data.actorId) continue;
 
-        recipientIds.add(member.user_id)
+        recipientIds.add(member.user_id);
       }
     }
 
@@ -217,15 +228,15 @@ export async function POST(request: NextRequest) {
       const { data: prefsData } = await apolloClient.query({
         query: GET_USER_NOTIFICATION_PREFERENCES,
         variables: { userIds: data.mentionedUsers },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
-      const users = prefsData?.nchat_users || []
+      const users = prefsData?.nchat_users || [];
       for (const user of users) {
-        if (user.id === data.actorId) continue
+        if (user.id === data.actorId) continue;
 
-        if (shouldNotifyUser(user.id, user.preferences || {}, 'user')) {
-          recipientIds.add(user.id)
+        if (shouldNotifyUser(user.id, user.preferences || {}, "user")) {
+          recipientIds.add(user.id);
         }
       }
     }
@@ -234,26 +245,31 @@ export async function POST(request: NextRequest) {
     // Fetch user email + display_name for all recipients in one query.
     const userDetailsMap = new Map<
       string,
-      { id: string; email: string; display_name: string; preferences: Record<string, unknown> }
-    >()
+      {
+        id: string;
+        email: string;
+        display_name: string;
+        preferences: Record<string, unknown>;
+      }
+    >();
 
     if (recipientIds.size > 0) {
       const { data: usersData } = await apolloClient.query({
         query: GET_USER_NOTIFICATION_PREFERENCES,
         variables: { userIds: Array.from(recipientIds) },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
       for (const u of usersData?.nchat_users || []) {
-        userDetailsMap.set(u.id, u)
+        userDetailsMap.set(u.id, u);
       }
     }
 
     for (const userId of recipientIds) {
       const notificationType = data.mentionsEveryone
-        ? 'mention_everyone'
+        ? "mention_everyone"
         : data.mentionsHere
-          ? 'mention_here'
-          : 'mention_user'
+          ? "mention_here"
+          : "mention_user";
 
       notifications.push({
         user_id: userId,
@@ -270,45 +286,45 @@ export async function POST(request: NextRequest) {
           thread_id: data.threadId,
           mention_type: notificationType,
         },
-      })
+      });
     }
 
     // Batch insert notifications
-    let insertedIds: string[] = []
+    let insertedIds: string[] = [];
     if (notifications.length > 0) {
       const { data: insertData, errors } = await apolloClient.mutate({
         mutation: CREATE_MENTION_NOTIFICATIONS,
         variables: { notifications },
-      })
+      });
 
       if (errors) {
-        throw new Error(errors[0].message)
+        throw new Error(errors[0].message);
       }
 
       insertedIds =
         insertData?.insert_nchat_notifications?.returning?.map(
-          (n: { id: string }) => n.id
-        ) || []
+          (n: { id: string }) => n.id,
+        ) || [];
 
-      logger.info('Mention notifications created', {
+      logger.info("Mention notifications created", {
         messageId: data.messageId,
         recipientCount: notifications.length,
         affectedRows: insertData.insert_nchat_notifications.affected_rows,
-      })
+      });
     }
 
     // Deliver real-time in-app notifications via Socket.io.
     // APIEventBroadcaster POSTs to the realtime server's /api/broadcast
     // endpoint which fans out to each user's personal Socket.io room.
-    const broadcaster = getAPIEventBroadcaster()
+    const broadcaster = getAPIEventBroadcaster();
     if (!broadcaster.initialized) {
-      broadcaster.initialize()
+      broadcaster.initialize();
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
 
     for (const userId of recipientIds) {
-      const userDetails = userDetailsMap.get(userId)
+      const userDetails = userDetailsMap.get(userId);
 
       // 1. In-app Socket.io notification — sent to user:<userId> room
       await broadcaster.broadcast(
@@ -316,7 +332,7 @@ export async function POST(request: NextRequest) {
         [getUserRoom(userId)],
         {
           id: uuidv4(),
-          type: 'mention',
+          type: "mention",
           title: `${data.actorName} mentioned you in #${channel.name}`,
           body: data.messagePreview.substring(0, 100),
           data: {
@@ -327,17 +343,18 @@ export async function POST(request: NextRequest) {
             actorName: data.actorName,
           },
           createdAt: new Date().toISOString(),
-        }
-      )
+        },
+      );
 
       // 2. Email notification — sent when user has an email and has not
       //    explicitly disabled email mentions via preferences.
       if (userDetails?.email) {
         const emailMentionsDisabled =
-          (userDetails.preferences as Record<string, unknown>)?.email_mentions === false
+          (userDetails.preferences as Record<string, unknown>)
+            ?.email_mentions === false;
 
         if (!emailMentionsDisabled) {
-          const channelUrl = `${appUrl}/chat/${data.channelId}`
+          const channelUrl = `${appUrl}/chat/${data.channelId}`;
           await emailService
             .send({
               to: userDetails.email,
@@ -351,16 +368,16 @@ export async function POST(request: NextRequest) {
                 `  <a href="${channelUrl}" style="background:#5865F2;color:#fff;padding:10px 20px;`,
                 `     border-radius:4px;text-decoration:none;font-weight:600;">View message</a>`,
                 `</p>`,
-              ].join(''),
+              ].join(""),
             })
             .catch((err: Error) => {
               // Non-fatal: log and continue so a failed email doesn't block
               // the API response or in-app notification delivery.
-              logger.warn('Failed to send mention email notification', {
+              logger.warn("Failed to send mention email notification", {
                 userId,
                 error: err.message,
-              })
-            })
+              });
+            });
         }
       }
     }
@@ -373,16 +390,21 @@ export async function POST(request: NextRequest) {
         messageId: data.messageId,
         channelId: data.channelId,
       },
-    })
+    });
   } catch (error) {
-    logger.error('POST /api/mentions/notify - Error', error as Error)
+    logger.error("POST /api/mentions/notify - Error", error as Error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to send mention notifications',
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to send mention notifications",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

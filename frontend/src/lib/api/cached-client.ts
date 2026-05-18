@@ -5,21 +5,21 @@
  * Integrates with Apollo Client and Next.js fetch.
  */
 
-import { getApiCache, type CacheOptions, CACHE_TTL } from './cache-manager'
+import { getApiCache, type CacheOptions, CACHE_TTL } from "./cache-manager";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export interface FetchOptions extends Omit<RequestInit, 'cache'> {
-  cacheOptions?: CacheOptions
-  baseURL?: string
+export interface FetchOptions extends Omit<RequestInit, "cache"> {
+  cacheOptions?: CacheOptions;
+  baseURL?: string;
 }
 
 export interface CachedResponse<T = unknown> {
-  data: T
-  cached: boolean
-  cacheAge?: number
+  data: T;
+  cached: boolean;
+  cacheAge?: number;
 }
 
 // =============================================================================
@@ -31,51 +31,51 @@ export interface CachedResponse<T = unknown> {
  */
 export async function cachedFetch<T = unknown>(
   url: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<CachedResponse<T>> {
-  const cache = getApiCache()
-  const { cacheOptions, baseURL, ...fetchOptions } = options
+  const cache = getApiCache();
+  const { cacheOptions, baseURL, ...fetchOptions } = options;
 
   // Build full URL
-  const fullURL = baseURL ? `${baseURL}${url}` : url
+  const fullURL = baseURL ? `${baseURL}${url}` : url;
 
   // Generate cache key from URL and relevant options
-  const cacheKey = generateCacheKey(fullURL, fetchOptions)
+  const cacheKey = generateCacheKey(fullURL, fetchOptions);
 
   // Check if we should skip cache
-  const skipCache = cacheOptions?.skipCache || cacheOptions?.forceRefresh
-  const ttl = cacheOptions?.ttl ?? CACHE_TTL.STATIC
+  const skipCache = cacheOptions?.skipCache || cacheOptions?.forceRefresh;
+  const ttl = cacheOptions?.ttl ?? CACHE_TTL.STATIC;
 
   // Try to get from cache (unless skipping)
   if (!skipCache && ttl > 0) {
-    const cached = cache.get<T>(cacheKey)
+    const cached = cache.get<T>(cacheKey);
     if (cached !== null) {
       return {
         data: cached,
         cached: true,
         cacheAge: Date.now() - (cache.getStats().hits > 0 ? 0 : Date.now()),
-      }
+      };
     }
   }
 
   // Fetch from API
-  const response = await fetch(fullURL, fetchOptions)
+  const response = await fetch(fullURL, fetchOptions);
 
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
 
-  const data = (await response.json()) as T
+  const data = (await response.json()) as T;
 
   // Store in cache
   if (ttl > 0) {
-    cache.set(cacheKey, data, cacheOptions)
+    cache.set(cacheKey, data, cacheOptions);
   }
 
   return {
     data,
     cached: false,
-  }
+  };
 }
 
 /**
@@ -83,9 +83,9 @@ export async function cachedFetch<T = unknown>(
  */
 export async function cachedGet<T = unknown>(
   url: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<CachedResponse<T>> {
-  return cachedFetch<T>(url, { ...options, method: 'GET' })
+  return cachedFetch<T>(url, { ...options, method: "GET" });
 }
 
 /**
@@ -94,17 +94,17 @@ export async function cachedGet<T = unknown>(
 export async function cachedPost<T = unknown>(
   url: string,
   body?: unknown,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<CachedResponse<T>> {
   return cachedFetch<T>(url, {
     ...options,
-    method: 'POST',
+    method: "POST",
     body: body ? JSON.stringify(body) : undefined,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     },
-  })
+  });
 }
 
 // =============================================================================
@@ -118,11 +118,11 @@ export function cacheGraphQLQuery<T = unknown>(
   operationName: string,
   variables: Record<string, unknown>,
   data: T,
-  options?: CacheOptions
+  options?: CacheOptions,
 ): void {
-  const cache = getApiCache()
-  const cacheKey = `graphql:${operationName}:${JSON.stringify(variables)}`
-  cache.set(cacheKey, data, options)
+  const cache = getApiCache();
+  const cacheKey = `graphql:${operationName}:${JSON.stringify(variables)}`;
+  cache.set(cacheKey, data, options);
 }
 
 /**
@@ -130,11 +130,11 @@ export function cacheGraphQLQuery<T = unknown>(
  */
 export function getCachedGraphQLQuery<T = unknown>(
   operationName: string,
-  variables: Record<string, unknown>
+  variables: Record<string, unknown>,
 ): T | null {
-  const cache = getApiCache()
-  const cacheKey = `graphql:${operationName}:${JSON.stringify(variables)}`
-  return cache.get<T>(cacheKey)
+  const cache = getApiCache();
+  const cacheKey = `graphql:${operationName}:${JSON.stringify(variables)}`;
+  return cache.get<T>(cacheKey);
 }
 
 /**
@@ -142,18 +142,18 @@ export function getCachedGraphQLQuery<T = unknown>(
  */
 export function invalidateGraphQLQuery(
   operationName: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
 ): void {
-  const cache = getApiCache()
+  const cache = getApiCache();
   if (variables) {
-    const cacheKey = `graphql:${operationName}:${JSON.stringify(variables)}`
-    cache.delete(cacheKey)
+    const cacheKey = `graphql:${operationName}:${JSON.stringify(variables)}`;
+    cache.delete(cacheKey);
   } else {
     // Invalidate all queries for this operation
-    const prefix = `graphql:${operationName}:`
+    const prefix = `graphql:${operationName}:`;
     for (const key of cache.keys()) {
       if (key.startsWith(prefix)) {
-        cache.delete(key)
+        cache.delete(key);
       }
     }
   }
@@ -167,22 +167,22 @@ export function invalidateGraphQLQuery(
  * Generate cache key from URL and options
  */
 function generateCacheKey(url: string, options: RequestInit): string {
-  const method = options.method || 'GET'
-  const body = options.body ? `:${hashString(String(options.body))}` : ''
-  return `fetch:${method}:${url}${body}`
+  const method = options.method || "GET";
+  const body = options.body ? `:${hashString(String(options.body))}` : "";
+  return `fetch:${method}:${url}${body}`;
 }
 
 /**
  * Simple string hash function
  */
 function hashString(str: string): string {
-  let hash = 0
+  let hash = 0;
   for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32-bit integer
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
   }
-  return hash.toString(36)
+  return hash.toString(36);
 }
 
 // =============================================================================
@@ -193,20 +193,23 @@ function hashString(str: string): string {
  * Warm cache with common queries
  */
 export async function warmCache(options: {
-  userId?: string
-  channelIds?: string[]
+  userId?: string;
+  channelIds?: string[];
 }): Promise<void> {
-  const { userId, channelIds } = options
+  const { userId, channelIds } = options;
 
-  const promises: Promise<unknown>[] = []
+  const promises: Promise<unknown>[] = [];
 
   // Warm user data
   if (userId) {
     promises.push(
       cachedGet(`/api/users/${userId}`, {
-        cacheOptions: { ttl: CACHE_TTL.USER_PROFILE, tags: ['user', `user:${userId}`] },
-      })
-    )
+        cacheOptions: {
+          ttl: CACHE_TTL.USER_PROFILE,
+          tags: ["user", `user:${userId}`],
+        },
+      }),
+    );
   }
 
   // Warm channel data
@@ -214,26 +217,32 @@ export async function warmCache(options: {
     for (const channelId of channelIds) {
       promises.push(
         cachedGet(`/api/channels/${channelId}`, {
-          cacheOptions: { ttl: CACHE_TTL.CHANNEL_LIST, tags: ['channel', `channel:${channelId}`] },
-        })
-      )
+          cacheOptions: {
+            ttl: CACHE_TTL.CHANNEL_LIST,
+            tags: ["channel", `channel:${channelId}`],
+          },
+        }),
+      );
     }
   }
 
-  await Promise.allSettled(promises)
+  await Promise.allSettled(promises);
 }
 
 /**
  * Prefetch data for faster navigation
  */
-export async function prefetchData(urls: string[], ttl?: number): Promise<void> {
+export async function prefetchData(
+  urls: string[],
+  ttl?: number,
+): Promise<void> {
   const promises = urls.map((url) =>
     cachedGet(url, {
       cacheOptions: { ttl: ttl ?? CACHE_TTL.STATIC },
-    })
-  )
+    }),
+  );
 
-  await Promise.allSettled(promises)
+  await Promise.allSettled(promises);
 }
 
 // =============================================================================
@@ -244,27 +253,27 @@ export async function prefetchData(urls: string[], ttl?: number): Promise<void> 
  * Invalidate user-related cache
  */
 export function invalidateUserCache(userId: string): void {
-  const cache = getApiCache()
-  cache.invalidateByTag(`user:${userId}`)
+  const cache = getApiCache();
+  cache.invalidateByTag(`user:${userId}`);
 }
 
 /**
  * Invalidate channel-related cache
  */
 export function invalidateChannelCache(channelId: string): void {
-  const cache = getApiCache()
-  cache.invalidateByTag(`channel:${channelId}`)
+  const cache = getApiCache();
+  cache.invalidateByTag(`channel:${channelId}`);
 }
 
 /**
  * Invalidate message-related cache
  */
 export function invalidateMessageCache(channelId?: string): void {
-  const cache = getApiCache()
+  const cache = getApiCache();
   if (channelId) {
-    cache.invalidateByTag(`channel:${channelId}:messages`)
+    cache.invalidateByTag(`channel:${channelId}:messages`);
   } else {
-    cache.invalidateByTag('messages')
+    cache.invalidateByTag("messages");
   }
 }
 
@@ -272,6 +281,6 @@ export function invalidateMessageCache(channelId?: string): void {
  * Invalidate all cache
  */
 export function invalidateAllCache(): void {
-  const cache = getApiCache()
-  cache.clear()
+  const cache = getApiCache();
+  cache.clear();
 }

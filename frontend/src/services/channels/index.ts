@@ -15,7 +15,7 @@ export {
   type ChannelListOptions,
   type SearchChannelsOptions,
   type ChannelListResult,
-} from './channel.service'
+} from "./channel.service";
 
 // Membership Service
 export {
@@ -26,7 +26,7 @@ export {
   type MembershipDetails,
   type UserChannelInfo,
   type MemberListResult,
-} from './membership.service'
+} from "./membership.service";
 
 // Permissions Service
 export {
@@ -35,10 +35,10 @@ export {
   createPermissionsService,
   type ChannelPermission,
   type ChannelPermissionContext,
-} from './permissions.service'
+} from "./permissions.service";
 
 // Category Service
-export { CategoryService, categoryService } from './category.service'
+export { CategoryService, categoryService } from "./category.service";
 
 // Channel Hierarchy Service (Categories, Reordering, Permission Inheritance)
 export {
@@ -51,7 +51,7 @@ export {
   type MoveChannelResult,
   type CategoryPermissionInheritance,
   type HierarchySnapshot,
-} from './hierarchy.service'
+} from "./hierarchy.service";
 
 // Thread Service (Full lifecycle management)
 export {
@@ -70,7 +70,7 @@ export {
   type ThreadListResult,
   type ThreadArchiveOptions,
   type AutoArchiveDuration,
-} from './thread.service'
+} from "./thread.service";
 
 // Forum Service (Discord-style forum channels)
 export {
@@ -89,7 +89,7 @@ export {
   type ForumListOptions,
   type ForumListResult,
   type ForumSettings,
-} from './forum.service'
+} from "./forum.service";
 
 // Archive Service (Archive states with reasons)
 export {
@@ -104,7 +104,7 @@ export {
   type ArchivableEntity,
   type ArchivePermissionContext,
   type BulkArchiveResult,
-} from './archive.service'
+} from "./archive.service";
 
 // Guild Service (Discord-style servers)
 export {
@@ -120,13 +120,13 @@ export {
   type GuildTemplate,
   type GuildCreationOptions,
   type GuildStructure,
-} from './guild.service'
+} from "./guild.service";
 
 // Community Service (WhatsApp-style communities)
-export { CommunityService, communityService } from './community.service'
+export { CommunityService, communityService } from "./community.service";
 
 // Broadcast Service (WhatsApp-style broadcast lists)
-export { BroadcastService, broadcastService } from './broadcast.service'
+export { BroadcastService, broadcastService } from "./broadcast.service";
 
 // Governance Service (Naming policies, templates, lifecycle, archival)
 export {
@@ -150,4 +150,4 @@ export {
   type GovernanceChannelTemplate,
   type NamingValidationResult,
   type GovernanceConfig,
-} from './governance.service'
+} from "./governance.service";

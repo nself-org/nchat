@@ -12,198 +12,206 @@
  * @module lib/search/search-engine
  */
 
-import { parseSearchQuery, type ParseResult, type SearchFilters } from './search-parser'
+import {
+  parseSearchQuery,
+  type ParseResult,
+  type SearchFilters,
+} from "./search-parser";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type SearchScope = 'global' | 'channel' | 'dm' | 'thread' | 'user'
+export type SearchScope = "global" | "channel" | "dm" | "thread" | "user";
 
-export type ResultType = 'message' | 'file' | 'user' | 'channel'
+export type ResultType = "message" | "file" | "user" | "channel";
 
-export type SortField = 'relevance' | 'date' | 'author' | 'channel'
+export type SortField = "relevance" | "date" | "author" | "channel";
 
-export type SortOrder = 'asc' | 'desc'
+export type SortOrder = "asc" | "desc";
 
 export interface SearchOptions {
   /** The search query string */
-  query: string
+  query: string;
   /** Search scope */
-  scope: SearchScope
+  scope: SearchScope;
   /** Scope-specific ID (channel ID, thread ID, user ID) */
-  scopeId?: string
+  scopeId?: string;
   /** Result types to search for */
-  types?: ResultType[]
+  types?: ResultType[];
   /** Maximum number of results */
-  limit?: number
+  limit?: number;
   /** Offset for pagination */
-  offset?: number
+  offset?: number;
   /** Sort field */
-  sortBy?: SortField
+  sortBy?: SortField;
   /** Sort order */
-  sortOrder?: SortOrder
+  sortOrder?: SortOrder;
   /** Enable semantic search */
-  semantic?: boolean
+  semantic?: boolean;
   /** User ID for permission filtering */
-  userId?: string
+  userId?: string;
   /** Include archived content */
-  includeArchived?: boolean
+  includeArchived?: boolean;
 }
 
 export interface MessageResult {
-  id: string
-  type: 'message'
-  content: string
-  contentPlain: string
-  contentHighlighted?: string
-  channelId: string
-  channelName: string
-  channelType: 'public' | 'private' | 'dm' | 'thread'
-  authorId: string
-  authorName: string
-  authorAvatar?: string
-  threadId?: string
-  threadRoot?: string
-  timestamp: Date
-  editedAt?: Date
-  isPinned: boolean
-  isStarred: boolean
-  reactions: Array<{ emoji: string; count: number }>
+  id: string;
+  type: "message";
+  content: string;
+  contentPlain: string;
+  contentHighlighted?: string;
+  channelId: string;
+  channelName: string;
+  channelType: "public" | "private" | "dm" | "thread";
+  authorId: string;
+  authorName: string;
+  authorAvatar?: string;
+  threadId?: string;
+  threadRoot?: string;
+  timestamp: Date;
+  editedAt?: Date;
+  isPinned: boolean;
+  isStarred: boolean;
+  reactions: Array<{ emoji: string; count: number }>;
   attachments: Array<{
-    id: string
-    type: string
-    name: string
-    url: string
-  }>
-  mentions: string[]
-  hasLink: boolean
-  hasCode: boolean
-  score: number
-  matchPositions?: Array<{ start: number; length: number }>
+    id: string;
+    type: string;
+    name: string;
+    url: string;
+  }>;
+  mentions: string[];
+  hasLink: boolean;
+  hasCode: boolean;
+  score: number;
+  matchPositions?: Array<{ start: number; length: number }>;
 }
 
 export interface FileResult {
-  id: string
-  type: 'file'
-  name: string
-  originalName: string
-  nameHighlighted?: string
-  description?: string
-  mimeType: string
-  size: number
-  url: string
-  thumbnailUrl?: string
-  channelId: string
-  channelName: string
-  messageId: string
-  uploaderId: string
-  uploaderName: string
-  uploaderAvatar?: string
-  uploadedAt: Date
-  score: number
+  id: string;
+  type: "file";
+  name: string;
+  originalName: string;
+  nameHighlighted?: string;
+  description?: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  thumbnailUrl?: string;
+  channelId: string;
+  channelName: string;
+  messageId: string;
+  uploaderId: string;
+  uploaderName: string;
+  uploaderAvatar?: string;
+  uploadedAt: Date;
+  score: number;
 }
 
 export interface UserResult {
-  id: string
-  type: 'user'
-  username: string
-  displayName: string
-  displayNameHighlighted?: string
-  email: string
-  avatar?: string
-  bio?: string
-  role: string
-  status: 'online' | 'away' | 'busy' | 'offline'
-  lastSeen?: Date
-  score: number
+  id: string;
+  type: "user";
+  username: string;
+  displayName: string;
+  displayNameHighlighted?: string;
+  email: string;
+  avatar?: string;
+  bio?: string;
+  role: string;
+  status: "online" | "away" | "busy" | "offline";
+  lastSeen?: Date;
+  score: number;
 }
 
 export interface ChannelResult {
-  id: string
-  type: 'channel'
-  name: string
-  nameHighlighted?: string
-  description?: string
-  descriptionHighlighted?: string
-  topic?: string
-  channelType: 'public' | 'private' | 'dm' | 'guild'
-  isPrivate: boolean
-  isArchived: boolean
-  memberCount: number
-  isMember: boolean
-  createdAt: Date
-  lastActivityAt?: Date
-  score: number
+  id: string;
+  type: "channel";
+  name: string;
+  nameHighlighted?: string;
+  description?: string;
+  descriptionHighlighted?: string;
+  topic?: string;
+  channelType: "public" | "private" | "dm" | "guild";
+  isPrivate: boolean;
+  isArchived: boolean;
+  memberCount: number;
+  isMember: boolean;
+  createdAt: Date;
+  lastActivityAt?: Date;
+  score: number;
 }
 
-export type SearchResult = MessageResult | FileResult | UserResult | ChannelResult
+export type SearchResult =
+  | MessageResult
+  | FileResult
+  | UserResult
+  | ChannelResult;
 
 export interface SearchResponse {
-  results: SearchResult[]
-  totalHits: number
+  results: SearchResult[];
+  totalHits: number;
   facets: {
-    messages: number
-    files: number
-    users: number
-    channels: number
-  }
-  query: string
-  parsedQuery: ParseResult
-  processingTimeMs: number
-  hasMore: boolean
-  offset: number
-  limit: number
-  scope: SearchScope
-  scopeId?: string
-  semanticMode: boolean
+    messages: number;
+    files: number;
+    users: number;
+    channels: number;
+  };
+  query: string;
+  parsedQuery: ParseResult;
+  processingTimeMs: number;
+  hasMore: boolean;
+  offset: number;
+  limit: number;
+  scope: SearchScope;
+  scopeId?: string;
+  semanticMode: boolean;
 }
 
 export interface RecentQuery {
-  id: string
-  query: string
-  filters: Partial<SearchFilters>
-  scope: SearchScope
-  scopeId?: string
-  timestamp: Date
-  resultCount: number
+  id: string;
+  query: string;
+  filters: Partial<SearchFilters>;
+  scope: SearchScope;
+  scopeId?: string;
+  timestamp: Date;
+  resultCount: number;
 }
 
 export interface SavedQuery {
-  id: string
-  name: string
-  query: string
-  filters: SearchFilters
-  scope: SearchScope
-  scopeId?: string
-  createdAt: Date
-  lastUsedAt?: Date
-  useCount: number
-  isDefault: boolean
+  id: string;
+  name: string;
+  query: string;
+  filters: SearchFilters;
+  scope: SearchScope;
+  scopeId?: string;
+  createdAt: Date;
+  lastUsedAt?: Date;
+  useCount: number;
+  isDefault: boolean;
 }
 
 export interface SearchSuggestion {
-  type: 'query' | 'user' | 'channel' | 'file' | 'operator' | 'recent' | 'saved'
-  text: string
-  display?: string
-  description?: string
-  icon?: string
-  metadata?: Record<string, unknown>
+  type: "query" | "user" | "channel" | "file" | "operator" | "recent" | "saved";
+  text: string;
+  display?: string;
+  description?: string;
+  icon?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SearchStats {
-  totalSearches: number
-  averageResponseTimeMs: number
-  topQueries: Array<{ query: string; count: number }>
-  searchesByType: Record<ResultType, number>
-  searchesByScope: Record<SearchScope, number>
+  totalSearches: number;
+  averageResponseTimeMs: number;
+  topQueries: Array<{ query: string; count: number }>;
+  searchesByType: Record<ResultType, number>;
+  searchesByScope: Record<SearchScope, number>;
   indexStatus: {
-    messagesIndexed: number
-    filesIndexed: number
-    usersIndexed: number
-    channelsIndexed: number
-    lastIndexedAt: Date
-  }
+    messagesIndexed: number;
+    filesIndexed: number;
+    usersIndexed: number;
+    channelsIndexed: number;
+    lastIndexedAt: Date;
+  };
 }
 
 // ============================================================================
@@ -211,12 +219,13 @@ export interface SearchStats {
 // ============================================================================
 
 export class SearchEngine {
-  private cache: Map<string, { response: SearchResponse; timestamp: number }> = new Map()
-  private cacheTTL = 5 * 60 * 1000 // 5 minutes
-  private maxCacheSize = 100
-  private recentQueries: RecentQuery[] = []
-  private maxRecentQueries = 50
-  private savedQueries: Map<string, SavedQuery> = new Map()
+  private cache: Map<string, { response: SearchResponse; timestamp: number }> =
+    new Map();
+  private cacheTTL = 5 * 60 * 1000; // 5 minutes
+  private maxCacheSize = 100;
+  private recentQueries: RecentQuery[] = [];
+  private maxRecentQueries = 50;
+  private savedQueries: Map<string, SavedQuery> = new Map();
 
   // --------------------------------------------------------------------------
   // Main Search Methods
@@ -226,37 +235,37 @@ export class SearchEngine {
    * Perform a search with the given options
    */
   async search(options: SearchOptions): Promise<SearchResponse> {
-    const startTime = performance.now()
+    const startTime = performance.now();
 
     // Parse the query
-    const parsedQuery = parseSearchQuery(options.query)
+    const parsedQuery = parseSearchQuery(options.query);
 
     // Check cache
-    const cacheKey = this.getCacheKey(options)
-    const cached = this.getFromCache(cacheKey)
+    const cacheKey = this.getCacheKey(options);
+    const cached = this.getFromCache(cacheKey);
     if (cached) {
       return {
         ...cached,
         processingTimeMs: performance.now() - startTime,
-      }
+      };
     }
 
     // Build the search request
-    const searchRequest = this.buildSearchRequest(options, parsedQuery)
+    const searchRequest = this.buildSearchRequest(options, parsedQuery);
 
     // Execute search based on scope
-    const response = await this.executeSearch(searchRequest, options)
+    const response = await this.executeSearch(searchRequest, options);
 
     // Cache the results
-    this.addToCache(cacheKey, response)
+    this.addToCache(cacheKey, response);
 
     // Save to recent queries
-    this.addRecentQuery(options, response.totalHits)
+    this.addRecentQuery(options, response.totalHits);
 
     return {
       ...response,
       processingTimeMs: performance.now() - startTime,
-    }
+    };
   }
 
   /**
@@ -264,14 +273,14 @@ export class SearchEngine {
    */
   async searchMessages(
     query: string,
-    options?: Partial<SearchOptions>
+    options?: Partial<SearchOptions>,
   ): Promise<SearchResponse> {
     return this.search({
       query,
-      scope: 'global',
-      types: ['message'],
+      scope: "global",
+      types: ["message"],
       ...options,
-    })
+    });
   }
 
   /**
@@ -279,14 +288,14 @@ export class SearchEngine {
    */
   async searchFiles(
     query: string,
-    options?: Partial<SearchOptions>
+    options?: Partial<SearchOptions>,
   ): Promise<SearchResponse> {
     return this.search({
       query,
-      scope: 'global',
-      types: ['file'],
+      scope: "global",
+      types: ["file"],
       ...options,
-    })
+    });
   }
 
   /**
@@ -294,14 +303,14 @@ export class SearchEngine {
    */
   async searchUsers(
     query: string,
-    options?: Partial<SearchOptions>
+    options?: Partial<SearchOptions>,
   ): Promise<SearchResponse> {
     return this.search({
       query,
-      scope: 'global',
-      types: ['user'],
+      scope: "global",
+      types: ["user"],
       ...options,
-    })
+    });
   }
 
   /**
@@ -309,14 +318,14 @@ export class SearchEngine {
    */
   async searchChannels(
     query: string,
-    options?: Partial<SearchOptions>
+    options?: Partial<SearchOptions>,
   ): Promise<SearchResponse> {
     return this.search({
       query,
-      scope: 'global',
-      types: ['channel'],
+      scope: "global",
+      types: ["channel"],
       ...options,
-    })
+    });
   }
 
   /**
@@ -325,15 +334,15 @@ export class SearchEngine {
   async searchInChannel(
     channelId: string,
     query: string,
-    options?: Partial<SearchOptions>
+    options?: Partial<SearchOptions>,
   ): Promise<SearchResponse> {
     return this.search({
       query,
-      scope: 'channel',
+      scope: "channel",
       scopeId: channelId,
-      types: ['message', 'file'],
+      types: ["message", "file"],
       ...options,
-    })
+    });
   }
 
   /**
@@ -342,15 +351,15 @@ export class SearchEngine {
   async searchInDM(
     dmId: string,
     query: string,
-    options?: Partial<SearchOptions>
+    options?: Partial<SearchOptions>,
   ): Promise<SearchResponse> {
     return this.search({
       query,
-      scope: 'dm',
+      scope: "dm",
       scopeId: dmId,
-      types: ['message', 'file'],
+      types: ["message", "file"],
       ...options,
-    })
+    });
   }
 
   /**
@@ -359,15 +368,15 @@ export class SearchEngine {
   async searchInThread(
     threadId: string,
     query: string,
-    options?: Partial<SearchOptions>
+    options?: Partial<SearchOptions>,
   ): Promise<SearchResponse> {
     return this.search({
       query,
-      scope: 'thread',
+      scope: "thread",
       scopeId: threadId,
-      types: ['message'],
+      types: ["message"],
       ...options,
-    })
+    });
   }
 
   /**
@@ -376,15 +385,15 @@ export class SearchEngine {
   async searchFromUser(
     userId: string,
     query: string,
-    options?: Partial<SearchOptions>
+    options?: Partial<SearchOptions>,
   ): Promise<SearchResponse> {
     return this.search({
       query,
-      scope: 'user',
+      scope: "user",
       scopeId: userId,
-      types: ['message', 'file'],
+      types: ["message", "file"],
       ...options,
-    })
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -397,23 +406,24 @@ export class SearchEngine {
   async getSuggestions(
     partialQuery: string,
     options?: {
-      limit?: number
-      includeRecent?: boolean
-      includeSaved?: boolean
-      includeOperators?: boolean
-      scope?: SearchScope
-    }
+      limit?: number;
+      includeRecent?: boolean;
+      includeSaved?: boolean;
+      includeOperators?: boolean;
+      scope?: SearchScope;
+    },
   ): Promise<SearchSuggestion[]> {
-    const suggestions: SearchSuggestion[] = []
-    const limit = options?.limit ?? 10
+    const suggestions: SearchSuggestion[] = [];
+    const limit = options?.limit ?? 10;
 
     // Parse current query to understand context
-    const lastWord = partialQuery.split(/\s+/).pop() || ''
-    const isTypingOperator = lastWord.includes(':') || this.isOperatorPrefix(lastWord)
+    const lastWord = partialQuery.split(/\s+/).pop() || "";
+    const isTypingOperator =
+      lastWord.includes(":") || this.isOperatorPrefix(lastWord);
 
     // Add operator suggestions if typing an operator
     if (options?.includeOperators !== false && isTypingOperator) {
-      suggestions.push(...this.getOperatorSuggestions(lastWord))
+      suggestions.push(...this.getOperatorSuggestions(lastWord));
     }
 
     // Add recent queries
@@ -422,18 +432,18 @@ export class SearchEngine {
         .filter(
           (r) =>
             r.query.toLowerCase().includes(partialQuery.toLowerCase()) &&
-            (!options?.scope || r.scope === options.scope)
+            (!options?.scope || r.scope === options.scope),
         )
         .slice(0, 3)
         .map((r) => ({
-          type: 'recent' as const,
+          type: "recent" as const,
           text: r.query,
           description: `${r.resultCount} results`,
-          icon: 'clock',
+          icon: "clock",
           metadata: { id: r.id, timestamp: r.timestamp },
-        }))
+        }));
 
-      suggestions.push(...recentMatches)
+      suggestions.push(...recentMatches);
     }
 
     // Add saved queries
@@ -442,28 +452,31 @@ export class SearchEngine {
         .filter(
           (s) =>
             s.query.toLowerCase().includes(partialQuery.toLowerCase()) ||
-            s.name.toLowerCase().includes(partialQuery.toLowerCase())
+            s.name.toLowerCase().includes(partialQuery.toLowerCase()),
         )
         .slice(0, 3)
         .map((s) => ({
-          type: 'saved' as const,
+          type: "saved" as const,
           text: s.query,
           display: s.name,
           description: `${s.useCount} uses`,
-          icon: 'star',
+          icon: "star",
           metadata: { id: s.id, name: s.name },
-        }))
+        }));
 
-      suggestions.push(...savedMatches)
+      suggestions.push(...savedMatches);
     }
 
     // If query is long enough, search for entities
     if (partialQuery.length >= 2 && !isTypingOperator) {
-      const entitySuggestions = await this.getEntitySuggestions(partialQuery, limit - suggestions.length)
-      suggestions.push(...entitySuggestions)
+      const entitySuggestions = await this.getEntitySuggestions(
+        partialQuery,
+        limit - suggestions.length,
+      );
+      suggestions.push(...entitySuggestions);
     }
 
-    return suggestions.slice(0, limit)
+    return suggestions.slice(0, limit);
   }
 
   /**
@@ -471,34 +484,34 @@ export class SearchEngine {
    */
   private getOperatorSuggestions(partial: string): SearchSuggestion[] {
     const operators = [
-      { op: 'from:', desc: 'Filter by message author' },
-      { op: 'in:', desc: 'Filter by channel' },
-      { op: 'to:', desc: 'Filter by DM recipient' },
-      { op: 'mentions:', desc: 'Filter by mentioned user' },
-      { op: 'has:link', desc: 'Messages with links' },
-      { op: 'has:file', desc: 'Messages with files' },
-      { op: 'has:image', desc: 'Messages with images' },
-      { op: 'has:code', desc: 'Messages with code blocks' },
-      { op: 'has:mention', desc: 'Messages with mentions' },
-      { op: 'has:reaction', desc: 'Messages with reactions' },
-      { op: 'is:pinned', desc: 'Pinned messages' },
-      { op: 'is:starred', desc: 'Starred messages' },
-      { op: 'is:thread', desc: 'Thread messages' },
-      { op: 'is:unread', desc: 'Unread messages' },
-      { op: 'before:', desc: 'Messages before date (YYYY-MM-DD, today, 7d)' },
-      { op: 'after:', desc: 'Messages after date (YYYY-MM-DD, today, 7d)' },
-    ]
+      { op: "from:", desc: "Filter by message author" },
+      { op: "in:", desc: "Filter by channel" },
+      { op: "to:", desc: "Filter by DM recipient" },
+      { op: "mentions:", desc: "Filter by mentioned user" },
+      { op: "has:link", desc: "Messages with links" },
+      { op: "has:file", desc: "Messages with files" },
+      { op: "has:image", desc: "Messages with images" },
+      { op: "has:code", desc: "Messages with code blocks" },
+      { op: "has:mention", desc: "Messages with mentions" },
+      { op: "has:reaction", desc: "Messages with reactions" },
+      { op: "is:pinned", desc: "Pinned messages" },
+      { op: "is:starred", desc: "Starred messages" },
+      { op: "is:thread", desc: "Thread messages" },
+      { op: "is:unread", desc: "Unread messages" },
+      { op: "before:", desc: "Messages before date (YYYY-MM-DD, today, 7d)" },
+      { op: "after:", desc: "Messages after date (YYYY-MM-DD, today, 7d)" },
+    ];
 
-    const lowerPartial = partial.toLowerCase().replace('-', '')
+    const lowerPartial = partial.toLowerCase().replace("-", "");
 
     return operators
       .filter((o) => o.op.startsWith(lowerPartial))
       .map((o) => ({
-        type: 'operator' as const,
+        type: "operator" as const,
         text: o.op,
         description: o.desc,
-        icon: 'filter',
-      }))
+        icon: "filter",
+      }));
   }
 
   /**
@@ -506,20 +519,29 @@ export class SearchEngine {
    */
   private async getEntitySuggestions(
     query: string,
-    limit: number
+    limit: number,
   ): Promise<SearchSuggestion[]> {
     // This would typically call the actual search service
     // For now, return empty array - will be filled by API
-    return []
+    return [];
   }
 
   /**
    * Check if a string is the start of an operator
    */
   private isOperatorPrefix(str: string): boolean {
-    const prefixes = ['from', 'in', 'to', 'mentions', 'has', 'is', 'before', 'after']
-    const normalized = str.toLowerCase().replace('-', '')
-    return prefixes.some((p) => p.startsWith(normalized))
+    const prefixes = [
+      "from",
+      "in",
+      "to",
+      "mentions",
+      "has",
+      "is",
+      "before",
+      "after",
+    ];
+    const normalized = str.toLowerCase().replace("-", "");
+    return prefixes.some((p) => p.startsWith(normalized));
   }
 
   // --------------------------------------------------------------------------
@@ -529,49 +551,55 @@ export class SearchEngine {
   /**
    * Get recent queries
    */
-  getRecentQueries(options?: { limit?: number; scope?: SearchScope }): RecentQuery[] {
-    let queries = [...this.recentQueries]
+  getRecentQueries(options?: {
+    limit?: number;
+    scope?: SearchScope;
+  }): RecentQuery[] {
+    let queries = [...this.recentQueries];
 
     if (options?.scope) {
-      queries = queries.filter((q) => q.scope === options.scope)
+      queries = queries.filter((q) => q.scope === options.scope);
     }
 
-    return queries.slice(0, options?.limit ?? 10)
+    return queries.slice(0, options?.limit ?? 10);
   }
 
   /**
    * Clear recent queries
    */
   clearRecentQueries(): void {
-    this.recentQueries = []
-    this.persistRecentQueries()
+    this.recentQueries = [];
+    this.persistRecentQueries();
   }
 
   /**
    * Remove a specific recent query
    */
   removeRecentQuery(id: string): void {
-    this.recentQueries = this.recentQueries.filter((q) => q.id !== id)
-    this.persistRecentQueries()
+    this.recentQueries = this.recentQueries.filter((q) => q.id !== id);
+    this.persistRecentQueries();
   }
 
   /**
    * Get saved queries
    */
-  getSavedQueries(options?: { limit?: number; scope?: SearchScope }): SavedQuery[] {
-    let queries = Array.from(this.savedQueries.values())
+  getSavedQueries(options?: {
+    limit?: number;
+    scope?: SearchScope;
+  }): SavedQuery[] {
+    let queries = Array.from(this.savedQueries.values());
 
     if (options?.scope) {
-      queries = queries.filter((q) => q.scope === options.scope)
+      queries = queries.filter((q) => q.scope === options.scope);
     }
 
     // Sort by useCount descending, then by createdAt descending
     queries.sort((a, b) => {
-      if (b.useCount !== a.useCount) return b.useCount - a.useCount
-      return b.createdAt.getTime() - a.createdAt.getTime()
-    })
+      if (b.useCount !== a.useCount) return b.useCount - a.useCount;
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
 
-    return queries.slice(0, options?.limit ?? 20)
+    return queries.slice(0, options?.limit ?? 20);
   }
 
   /**
@@ -581,8 +609,8 @@ export class SearchEngine {
     name: string,
     query: string,
     filters: SearchFilters,
-    scope: SearchScope = 'global',
-    scopeId?: string
+    scope: SearchScope = "global",
+    scopeId?: string,
   ): SavedQuery {
     const saved: SavedQuery = {
       id: this.generateId(),
@@ -594,60 +622,63 @@ export class SearchEngine {
       createdAt: new Date(),
       useCount: 0,
       isDefault: false,
-    }
+    };
 
-    this.savedQueries.set(saved.id, saved)
-    this.persistSavedQueries()
+    this.savedQueries.set(saved.id, saved);
+    this.persistSavedQueries();
 
-    return saved
+    return saved;
   }
 
   /**
    * Update a saved query
    */
-  updateSavedQuery(id: string, updates: Partial<SavedQuery>): SavedQuery | null {
-    const saved = this.savedQueries.get(id)
-    if (!saved) return null
+  updateSavedQuery(
+    id: string,
+    updates: Partial<SavedQuery>,
+  ): SavedQuery | null {
+    const saved = this.savedQueries.get(id);
+    if (!saved) return null;
 
-    const updated = { ...saved, ...updates }
-    this.savedQueries.set(id, updated)
-    this.persistSavedQueries()
+    const updated = { ...saved, ...updates };
+    this.savedQueries.set(id, updated);
+    this.persistSavedQueries();
 
-    return updated
+    return updated;
   }
 
   /**
    * Delete a saved query
    */
   deleteSavedQuery(id: string): boolean {
-    const deleted = this.savedQueries.delete(id)
+    const deleted = this.savedQueries.delete(id);
     if (deleted) {
-      this.persistSavedQueries()
+      this.persistSavedQueries();
     }
-    return deleted
+    return deleted;
   }
 
   /**
    * Use a saved query
    */
   useSavedQuery(id: string): SavedQuery | null {
-    const saved = this.savedQueries.get(id)
-    if (!saved) return null
+    const saved = this.savedQueries.get(id);
+    if (!saved) return null;
 
-    saved.useCount++
-    saved.lastUsedAt = new Date()
-    this.savedQueries.set(id, saved)
-    this.persistSavedQueries()
+    saved.useCount++;
+    saved.lastUsedAt = new Date();
+    this.savedQueries.set(id, saved);
+    this.persistSavedQueries();
 
-    return saved
+    return saved;
   }
 
   /**
    * Export saved queries
    */
   exportSavedQueries(): string {
-    const queries = Array.from(this.savedQueries.values())
-    return JSON.stringify(queries, null, 2)
+    const queries = Array.from(this.savedQueries.values());
+    return JSON.stringify(queries, null, 2);
   }
 
   /**
@@ -655,29 +686,29 @@ export class SearchEngine {
    */
   importSavedQueries(json: string, merge = true): number {
     try {
-      const queries = JSON.parse(json) as SavedQuery[]
+      const queries = JSON.parse(json) as SavedQuery[];
 
       if (!merge) {
-        this.savedQueries.clear()
+        this.savedQueries.clear();
       }
 
-      let imported = 0
+      let imported = 0;
       for (const query of queries) {
         // Generate new ID if merging to avoid conflicts
-        const id = merge ? this.generateId() : query.id
+        const id = merge ? this.generateId() : query.id;
         this.savedQueries.set(id, {
           ...query,
           id,
           createdAt: new Date(query.createdAt),
           lastUsedAt: query.lastUsedAt ? new Date(query.lastUsedAt) : undefined,
-        })
-        imported++
+        });
+        imported++;
       }
 
-      this.persistSavedQueries()
-      return imported
+      this.persistSavedQueries();
+      return imported;
     } catch {
-      return 0
+      return 0;
     }
   }
 
@@ -689,7 +720,7 @@ export class SearchEngine {
    * Clear the search cache
    */
   clearCache(): void {
-    this.cache.clear()
+    this.cache.clear();
   }
 
   /**
@@ -700,7 +731,7 @@ export class SearchEngine {
       size: this.cache.size,
       maxSize: this.maxCacheSize,
       hitRate: 0, // Would need to track hits/misses
-    }
+    };
   }
 
   // --------------------------------------------------------------------------
@@ -719,44 +750,44 @@ export class SearchEngine {
       sortOrder: options.sortOrder,
       semantic: options.semantic,
       includeArchived: options.includeArchived,
-    })
+    });
   }
 
   private getFromCache(key: string): SearchResponse | null {
-    const cached = this.cache.get(key)
-    if (!cached) return null
+    const cached = this.cache.get(key);
+    if (!cached) return null;
 
     if (Date.now() - cached.timestamp > this.cacheTTL) {
-      this.cache.delete(key)
-      return null
+      this.cache.delete(key);
+      return null;
     }
 
-    return cached.response
+    return cached.response;
   }
 
   private addToCache(key: string, response: SearchResponse): void {
     // Evict oldest entries if cache is full
     if (this.cache.size >= this.maxCacheSize) {
-      const oldestKey = this.cache.keys().next().value
+      const oldestKey = this.cache.keys().next().value;
       if (oldestKey) {
-        this.cache.delete(oldestKey)
+        this.cache.delete(oldestKey);
       }
     }
 
-    this.cache.set(key, { response, timestamp: Date.now() })
+    this.cache.set(key, { response, timestamp: Date.now() });
   }
 
   private addRecentQuery(options: SearchOptions, resultCount: number): void {
     // Don't save empty or very short queries
-    if (!options.query || options.query.length < 2) return
+    if (!options.query || options.query.length < 2) return;
 
     // Remove existing entry with same query
     this.recentQueries = this.recentQueries.filter(
-      (q) => q.query !== options.query || q.scope !== options.scope
-    )
+      (q) => q.query !== options.query || q.scope !== options.scope,
+    );
 
     // Add new entry at the beginning
-    const parsedQuery = parseSearchQuery(options.query)
+    const parsedQuery = parseSearchQuery(options.query);
     this.recentQueries.unshift({
       id: this.generateId(),
       query: options.query,
@@ -765,14 +796,14 @@ export class SearchEngine {
       scopeId: options.scopeId,
       timestamp: new Date(),
       resultCount,
-    })
+    });
 
     // Trim to max size
     if (this.recentQueries.length > this.maxRecentQueries) {
-      this.recentQueries = this.recentQueries.slice(0, this.maxRecentQueries)
+      this.recentQueries = this.recentQueries.slice(0, this.maxRecentQueries);
     }
 
-    this.persistRecentQueries()
+    this.persistRecentQueries();
   }
 
   private buildSearchRequest(options: SearchOptions, parsedQuery: ParseResult) {
@@ -781,24 +812,24 @@ export class SearchEngine {
       filters: parsedQuery.filters,
       scope: options.scope,
       scopeId: options.scopeId,
-      types: options.types ?? ['message', 'file', 'user', 'channel'],
+      types: options.types ?? ["message", "file", "user", "channel"],
       limit: options.limit ?? 20,
       offset: options.offset ?? 0,
-      sortBy: options.sortBy ?? 'relevance',
-      sortOrder: options.sortOrder ?? 'desc',
+      sortBy: options.sortBy ?? "relevance",
+      sortOrder: options.sortOrder ?? "desc",
       semantic: options.semantic ?? false,
       userId: options.userId,
       includeArchived: options.includeArchived ?? false,
-    }
+    };
   }
 
   private async executeSearch(
     request: ReturnType<typeof this.buildSearchRequest>,
-    options: SearchOptions
+    options: SearchOptions,
   ): Promise<SearchResponse> {
     // This would typically call the actual search API
     // For now, return mock response structure
-    const parsedQuery = parseSearchQuery(options.query)
+    const parsedQuery = parseSearchQuery(options.query);
 
     return {
       results: [],
@@ -813,17 +844,20 @@ export class SearchEngine {
       scope: options.scope,
       scopeId: options.scopeId,
       semanticMode: request.semantic,
-    }
+    };
   }
 
   private generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private persistRecentQueries(): void {
-    if (typeof localStorage !== 'undefined') {
+    if (typeof localStorage !== "undefined") {
       try {
-        localStorage.setItem('nchat_recent_searches', JSON.stringify(this.recentQueries))
+        localStorage.setItem(
+          "nchat_recent_searches",
+          JSON.stringify(this.recentQueries),
+        );
       } catch {
         // Ignore storage errors
       }
@@ -831,12 +865,12 @@ export class SearchEngine {
   }
 
   private persistSavedQueries(): void {
-    if (typeof localStorage !== 'undefined') {
+    if (typeof localStorage !== "undefined") {
       try {
         localStorage.setItem(
-          'nchat_saved_searches',
-          JSON.stringify(Array.from(this.savedQueries.values()))
-        )
+          "nchat_saved_searches",
+          JSON.stringify(Array.from(this.savedQueries.values())),
+        );
       } catch {
         // Ignore storage errors
       }
@@ -847,26 +881,28 @@ export class SearchEngine {
    * Load persisted data from storage
    */
   loadFromStorage(): void {
-    if (typeof localStorage !== 'undefined') {
+    if (typeof localStorage !== "undefined") {
       try {
-        const recent = localStorage.getItem('nchat_recent_searches')
+        const recent = localStorage.getItem("nchat_recent_searches");
         if (recent) {
-          const parsed = JSON.parse(recent) as RecentQuery[]
+          const parsed = JSON.parse(recent) as RecentQuery[];
           this.recentQueries = parsed.map((q) => ({
             ...q,
             timestamp: new Date(q.timestamp),
-          }))
+          }));
         }
 
-        const saved = localStorage.getItem('nchat_saved_searches')
+        const saved = localStorage.getItem("nchat_saved_searches");
         if (saved) {
-          const parsed = JSON.parse(saved) as SavedQuery[]
+          const parsed = JSON.parse(saved) as SavedQuery[];
           for (const query of parsed) {
             this.savedQueries.set(query.id, {
               ...query,
               createdAt: new Date(query.createdAt),
-              lastUsedAt: query.lastUsedAt ? new Date(query.lastUsedAt) : undefined,
-            })
+              lastUsedAt: query.lastUsedAt
+                ? new Date(query.lastUsedAt)
+                : undefined,
+            });
           }
         }
       } catch {
@@ -880,24 +916,24 @@ export class SearchEngine {
 // Singleton Instance
 // ============================================================================
 
-let searchEngineInstance: SearchEngine | null = null
+let searchEngineInstance: SearchEngine | null = null;
 
 /**
  * Get the singleton SearchEngine instance
  */
 export function getSearchEngine(): SearchEngine {
   if (!searchEngineInstance) {
-    searchEngineInstance = new SearchEngine()
-    searchEngineInstance.loadFromStorage()
+    searchEngineInstance = new SearchEngine();
+    searchEngineInstance.loadFromStorage();
   }
-  return searchEngineInstance
+  return searchEngineInstance;
 }
 
 /**
  * Create a new SearchEngine instance (for testing)
  */
 export function createSearchEngine(): SearchEngine {
-  return new SearchEngine()
+  return new SearchEngine();
 }
 
-export default SearchEngine
+export default SearchEngine;

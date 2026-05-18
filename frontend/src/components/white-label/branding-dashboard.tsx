@@ -10,19 +10,25 @@
  * - Export/Import
  */
 
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Palette,
   Image as ImageIcon,
@@ -36,249 +42,276 @@ import {
   AlertCircle,
   Sparkles,
   Eye,
-} from 'lucide-react'
-import { TemplateSelector } from './template-selector'
-import { ThemeEditor } from './theme-editor'
-import type { TemplateId } from '@/templates/types'
-import { tenantBrandingService } from '@/lib/white-label/tenant-branding'
-import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/use-toast'
+} from "lucide-react";
+import { TemplateSelector } from "./template-selector";
+import { ThemeEditor } from "./theme-editor";
+import type { TemplateId } from "@/templates/types";
+import { tenantBrandingService } from "@/lib/white-label/tenant-branding";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface BrandingDashboardProps {
-  tenantId: string
-  userId: string
-  className?: string
+  tenantId: string;
+  userId: string;
+  className?: string;
 }
 
-export function BrandingDashboard({ tenantId, userId, className }: BrandingDashboardProps) {
-  const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState('template')
-  const [isSaving, setIsSaving] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
+export function BrandingDashboard({
+  tenantId,
+  userId,
+  className,
+}: BrandingDashboardProps) {
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("template");
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   // Logo state
-  const [primaryLogo, setPrimaryLogo] = useState<File | null>(null)
-  const [primaryLogoPreview, setPrimaryLogoPreview] = useState<string>('')
-  const [squareLogo, setSquareLogo] = useState<File | null>(null)
-  const [squareLogoPreview, setSquareLogoPreview] = useState<string>('')
-  const [favicon, setFavicon] = useState<File | null>(null)
-  const [faviconPreview, setFaviconPreview] = useState<string>('')
+  const [primaryLogo, setPrimaryLogo] = useState<File | null>(null);
+  const [primaryLogoPreview, setPrimaryLogoPreview] = useState<string>("");
+  const [squareLogo, setSquareLogo] = useState<File | null>(null);
+  const [squareLogoPreview, setSquareLogoPreview] = useState<string>("");
+  const [favicon, setFavicon] = useState<File | null>(null);
+  const [faviconPreview, setFaviconPreview] = useState<string>("");
 
   // Domain state
-  const [customDomain, setCustomDomain] = useState('')
-  const [domainStatus, setDomainStatus] = useState<'none' | 'pending' | 'verified'>('none')
+  const [customDomain, setCustomDomain] = useState("");
+  const [domainStatus, setDomainStatus] = useState<
+    "none" | "pending" | "verified"
+  >("none");
   const [dnsRecords, setDnsRecords] = useState<
     Array<{ type: string; name: string; value: string }>
-  >([])
+  >([]);
 
   // CSS state
-  const [customCSS, setCustomCSS] = useState('')
+  const [customCSS, setCustomCSS] = useState("");
 
   // Template state
-  const [currentTemplate, setCurrentTemplate] = useState<TemplateId>('default')
+  const [currentTemplate, setCurrentTemplate] = useState<TemplateId>("default");
 
   useEffect(() => {
-    loadBrandingData()
-  }, [tenantId])
+    loadBrandingData();
+  }, [tenantId]);
 
   const loadBrandingData = async () => {
     try {
-      const branding = await tenantBrandingService.getTenantBranding(tenantId)
+      const branding = await tenantBrandingService.getTenantBranding(tenantId);
       if (branding) {
-        setCurrentTemplate(branding.templateId)
-        setPrimaryLogoPreview(branding.logos.primary?.url || '')
-        setSquareLogoPreview(branding.logos.square?.url || '')
-        setFaviconPreview(branding.logos.favicon?.url || '')
-        setCustomDomain(branding.domains.primary || '')
-        setDomainStatus(branding.domains.customDomainVerified ? 'verified' : 'none')
-        setCustomCSS(branding.customCSS || '')
+        setCurrentTemplate(branding.templateId);
+        setPrimaryLogoPreview(branding.logos.primary?.url || "");
+        setSquareLogoPreview(branding.logos.square?.url || "");
+        setFaviconPreview(branding.logos.favicon?.url || "");
+        setCustomDomain(branding.domains.primary || "");
+        setDomainStatus(
+          branding.domains.customDomainVerified ? "verified" : "none",
+        );
+        setCustomCSS(branding.customCSS || "");
       }
     } catch (error) {
-      console.error('Failed to load branding:', error)
+      console.error("Failed to load branding:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load branding configuration',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to load branding configuration",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
-  const handleLogoUpload = async (file: File, type: 'primary' | 'square' | 'favicon') => {
+  const handleLogoUpload = async (
+    file: File,
+    type: "primary" | "square" | "favicon",
+  ) => {
     try {
       // Preview immediately
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        const preview = reader.result as string
-        if (type === 'primary') {
-          setPrimaryLogo(file)
-          setPrimaryLogoPreview(preview)
-        } else if (type === 'square') {
-          setSquareLogo(file)
-          setSquareLogoPreview(preview)
+        const preview = reader.result as string;
+        if (type === "primary") {
+          setPrimaryLogo(file);
+          setPrimaryLogoPreview(preview);
+        } else if (type === "square") {
+          setSquareLogo(file);
+          setSquareLogoPreview(preview);
         } else {
-          setFavicon(file)
-          setFaviconPreview(preview)
+          setFavicon(file);
+          setFaviconPreview(preview);
         }
-      }
-      reader.readAsDataURL(file)
+      };
+      reader.readAsDataURL(file);
 
       // Upload to server
-      const result = await tenantBrandingService.uploadLogo(tenantId, file, type)
+      const result = await tenantBrandingService.uploadLogo(
+        tenantId,
+        file,
+        type,
+      );
 
-      setHasChanges(true)
+      setHasChanges(true);
       toast({
-        title: 'Success',
+        title: "Success",
         description: `${type} logo uploaded successfully`,
-      })
+      });
     } catch (error) {
-      console.error('Upload failed:', error)
+      console.error("Upload failed:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to upload logo',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to upload logo",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleTemplateChange = async (templateId: TemplateId) => {
     try {
-      setIsSaving(true)
-      await tenantBrandingService.switchTemplate(tenantId, templateId, userId, true)
-      setCurrentTemplate(templateId)
-      setHasChanges(false)
+      setIsSaving(true);
+      await tenantBrandingService.switchTemplate(
+        tenantId,
+        templateId,
+        userId,
+        true,
+      );
+      setCurrentTemplate(templateId);
+      setHasChanges(false);
 
       toast({
-        title: 'Success',
+        title: "Success",
         description: `Switched to ${templateId} template`,
-      })
+      });
     } catch (error) {
-      console.error('Template switch failed:', error)
+      console.error("Template switch failed:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to switch template',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to switch template",
+        variant: "destructive",
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleDomainConfiguration = async () => {
     try {
-      const result = await tenantBrandingService.configureDomain(tenantId, customDomain, userId)
-      setDnsRecords(result.dnsRecords)
-      setDomainStatus('pending')
+      const result = await tenantBrandingService.configureDomain(
+        tenantId,
+        customDomain,
+        userId,
+      );
+      setDnsRecords(result.dnsRecords);
+      setDomainStatus("pending");
 
       toast({
-        title: 'Success',
-        description: 'Domain configured. Please add DNS records.',
-      })
+        title: "Success",
+        description: "Domain configured. Please add DNS records.",
+      });
     } catch (error) {
-      console.error('Domain configuration failed:', error)
+      console.error("Domain configuration failed:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to configure domain',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to configure domain",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleDomainVerification = async () => {
     try {
-      const result = await tenantBrandingService.verifyDomain(tenantId, customDomain)
+      const result = await tenantBrandingService.verifyDomain(
+        tenantId,
+        customDomain,
+      );
       if (result.verified) {
-        setDomainStatus('verified')
+        setDomainStatus("verified");
         toast({
-          title: 'Success',
-          description: 'Domain verified successfully!',
-        })
+          title: "Success",
+          description: "Domain verified successfully!",
+        });
       } else {
         toast({
-          title: 'Verification Failed',
-          description: result.errors?.join(', ') || 'DNS records not found',
-          variant: 'destructive',
-        })
+          title: "Verification Failed",
+          description: result.errors?.join(", ") || "DNS records not found",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error('Verification failed:', error)
+      console.error("Verification failed:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to verify domain',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to verify domain",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleCSSUpdate = async () => {
     try {
-      setIsSaving(true)
-      await tenantBrandingService.applyCustomCSS(tenantId, customCSS, userId)
-      setHasChanges(false)
+      setIsSaving(true);
+      await tenantBrandingService.applyCustomCSS(tenantId, customCSS, userId);
+      setHasChanges(false);
 
       toast({
-        title: 'Success',
-        description: 'Custom CSS applied successfully',
-      })
+        title: "Success",
+        description: "Custom CSS applied successfully",
+      });
     } catch (error) {
-      console.error('CSS update failed:', error)
+      console.error("CSS update failed:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to apply custom CSS',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to apply custom CSS",
+        variant: "destructive",
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleExport = async () => {
     try {
-      const blob = await tenantBrandingService.exportBranding(tenantId)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `branding-${tenantId}-${Date.now()}.json`
-      a.click()
-      URL.revokeObjectURL(url)
+      const blob = await tenantBrandingService.exportBranding(tenantId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `branding-${tenantId}-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
 
       toast({
-        title: 'Success',
-        description: 'Branding configuration exported',
-      })
+        title: "Success",
+        description: "Branding configuration exported",
+      });
     } catch (error) {
-      console.error('Export failed:', error)
+      console.error("Export failed:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to export branding',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to export branding",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     try {
-      await tenantBrandingService.importBranding(tenantId, file, userId)
-      await loadBrandingData()
+      await tenantBrandingService.importBranding(tenantId, file, userId);
+      await loadBrandingData();
 
       toast({
-        title: 'Success',
-        description: 'Branding configuration imported',
-      })
+        title: "Success",
+        description: "Branding configuration imported",
+      });
     } catch (error) {
-      console.error('Import failed:', error)
+      console.error("Import failed:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to import branding',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to import branding",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -296,7 +329,12 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
             <label>
               <Upload className="mr-2 h-4 w-4" />
               Import
-              <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+              />
             </label>
           </Button>
         </div>
@@ -338,7 +376,10 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
 
         {/* Template Tab */}
         <TabsContent value="template" className="space-y-6">
-          <TemplateSelector currentTemplateId={currentTemplate} onSelect={handleTemplateChange} />
+          <TemplateSelector
+            currentTemplateId={currentTemplate}
+            onSelect={handleTemplateChange}
+          />
         </TabsContent>
 
         {/* Theme Tab */}
@@ -347,8 +388,11 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
             tenantId={tenantId}
             onSave={async (theme) => {
               // Handle theme save
-              setHasChanges(false)
-              toast({ title: 'Success', description: 'Theme saved successfully' })
+              setHasChanges(false);
+              toast({
+                title: "Success",
+                description: "Theme saved successfully",
+              });
             }}
           />
         </TabsContent>
@@ -360,7 +404,9 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
             <Card>
               <CardHeader>
                 <CardTitle>Primary Logo</CardTitle>
-                <CardDescription>Main logo (recommended: 200x60px)</CardDescription>
+                <CardDescription>
+                  Main logo (recommended: 200x60px)
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {primaryLogoPreview && (
@@ -380,8 +426,8 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
                       type="file"
                       accept="image/*"
                       onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file) handleLogoUpload(file, 'primary')
+                        const file = e.target.files?.[0];
+                        if (file) handleLogoUpload(file, "primary");
                       }}
                       className="hidden"
                     />
@@ -394,7 +440,9 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
             <Card>
               <CardHeader>
                 <CardTitle>Square Logo</CardTitle>
-                <CardDescription>Icon version (recommended: 512x512px)</CardDescription>
+                <CardDescription>
+                  Icon version (recommended: 512x512px)
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {squareLogoPreview && (
@@ -414,8 +462,8 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
                       type="file"
                       accept="image/*"
                       onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file) handleLogoUpload(file, 'square')
+                        const file = e.target.files?.[0];
+                        if (file) handleLogoUpload(file, "square");
                       }}
                       className="hidden"
                     />
@@ -428,7 +476,9 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
             <Card>
               <CardHeader>
                 <CardTitle>Favicon</CardTitle>
-                <CardDescription>Browser tab icon (recommended: 32x32px)</CardDescription>
+                <CardDescription>
+                  Browser tab icon (recommended: 32x32px)
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {faviconPreview && (
@@ -448,8 +498,8 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
                       type="file"
                       accept="image/*"
                       onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file) handleLogoUpload(file, 'favicon')
+                        const file = e.target.files?.[0];
+                        if (file) handleLogoUpload(file, "favicon");
                       }}
                       className="hidden"
                     />
@@ -478,20 +528,27 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
                     value={customDomain}
                     onChange={(e) => setCustomDomain(e.target.value)}
                   />
-                  <Button onClick={handleDomainConfiguration} disabled={!customDomain}>
+                  <Button
+                    onClick={handleDomainConfiguration}
+                    disabled={!customDomain}
+                  >
                     Configure
                   </Button>
                 </div>
               </div>
 
-              {domainStatus !== 'none' && (
+              {domainStatus !== "none" && (
                 <>
                   <Separator />
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold">DNS Records</h4>
-                      <Badge variant={domainStatus === 'verified' ? 'default' : 'secondary'}>
-                        {domainStatus === 'verified' ? (
+                      <Badge
+                        variant={
+                          domainStatus === "verified" ? "default" : "secondary"
+                        }
+                      >
+                        {domainStatus === "verified" ? (
                           <>
                             <CheckCircle className="mr-1 h-3 w-3" />
                             Verified
@@ -518,14 +575,19 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
                             <tr key={index} className="border-b">
                               <td className="p-2 font-mono">{record.type}</td>
                               <td className="p-2 font-mono">{record.name}</td>
-                              <td className="p-2 font-mono text-xs">{record.value}</td>
+                              <td className="p-2 font-mono text-xs">
+                                {record.value}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </ScrollArea>
-                    {domainStatus !== 'verified' && (
-                      <Button onClick={handleDomainVerification} className="w-full">
+                    {domainStatus !== "verified" && (
+                      <Button
+                        onClick={handleDomainVerification}
+                        className="w-full"
+                      >
                         Verify Domain
                       </Button>
                     )}
@@ -553,19 +615,22 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
 }"
                 value={customCSS}
                 onChange={(e) => {
-                  setCustomCSS(e.target.value)
-                  setHasChanges(true)
+                  setCustomCSS(e.target.value);
+                  setHasChanges(true);
                 }}
                 className="min-h-[400px] font-mono text-sm"
               />
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setCustomCSS('')}>
+                <Button variant="outline" onClick={() => setCustomCSS("")}>
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Clear
                 </Button>
-                <Button onClick={handleCSSUpdate} disabled={!hasChanges || isSaving}>
+                <Button
+                  onClick={handleCSSUpdate}
+                  disabled={!hasChanges || isSaving}
+                >
                   <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? 'Saving...' : 'Save CSS'}
+                  {isSaving ? "Saving..." : "Save CSS"}
                 </Button>
               </div>
             </CardContent>
@@ -573,5 +638,5 @@ export function BrandingDashboard({ tenantId, userId, className }: BrandingDashb
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

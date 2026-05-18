@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { modalOverlay, modalContent } from '@/lib/animations'
+import * as React from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { modalOverlay, modalContent } from "@/lib/animations";
 
-const Dialog = DialogPrimitive.Root
+const Dialog = DialogPrimitive.Root;
 
-const DialogTrigger = DialogPrimitive.Trigger
+const DialogTrigger = DialogPrimitive.Trigger;
 
-const DialogPortal = DialogPrimitive.Portal
+const DialogPortal = DialogPrimitive.Portal;
 
-const DialogClose = DialogPrimitive.Close
+const DialogClose = DialogPrimitive.Close;
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
@@ -22,11 +22,11 @@ const DialogOverlay = React.forwardRef<
   // Extract only the props we want to pass to motion.div, excluding conflicting event handlers
   const { onDrag, onDragEnd, onDragStart, onAnimationStart, ...safeProps } =
     props as React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> & {
-      onDrag?: unknown
-      onDragEnd?: unknown
-      onDragStart?: unknown
-      onAnimationStart?: unknown
-    }
+      onDrag?: unknown;
+      onDragEnd?: unknown;
+      onDragStart?: unknown;
+      onAnimationStart?: unknown;
+    };
   return (
     <DialogPrimitive.Overlay asChild ref={ref}>
       <motion.div
@@ -34,13 +34,13 @@ const DialogOverlay = React.forwardRef<
         initial="initial"
         animate="animate"
         exit="exit"
-        className={cn('fixed inset-0 z-50 bg-black/80', className)}
+        className={cn("fixed inset-0 z-50 bg-black/80", className)}
         {...safeProps}
       />
     </DialogPrimitive.Overlay>
-  )
-})
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
+  );
+});
+DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
@@ -49,11 +49,11 @@ const DialogContent = React.forwardRef<
   // Extract only the props we want to pass to motion.div, excluding conflicting event handlers
   const { onDrag, onDragEnd, onDragStart, onAnimationStart, ...safeProps } =
     props as React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
-      onDrag?: unknown
-      onDragEnd?: unknown
-      onDragStart?: unknown
-      onAnimationStart?: unknown
-    }
+      onDrag?: unknown;
+      onDragEnd?: unknown;
+      onDragStart?: unknown;
+      onAnimationStart?: unknown;
+    };
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -64,8 +64,8 @@ const DialogContent = React.forwardRef<
           animate="animate"
           exit="exit"
           className={cn(
-            'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg',
-            className
+            "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
+            className,
           )}
           {...safeProps}
         >
@@ -75,7 +75,7 @@ const DialogContent = React.forwardRef<
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
@@ -84,9 +84,9 @@ const DialogContent = React.forwardRef<
         </motion.div>
       </DialogPrimitive.Content>
     </DialogPortal>
-  )
-})
-DialogContent.displayName = DialogPrimitive.Content.displayName
+  );
+});
+DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({
   className,
@@ -100,11 +100,14 @@ const DialogHeader = ({
     initial={{ opacity: 0, y: -10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.1 }}
-    className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)}
+    className={cn(
+      "flex flex-col space-y-1.5 text-center sm:text-left",
+      className,
+    )}
     {...props}
   />
-)
-DialogHeader.displayName = 'DialogHeader'
+);
+DialogHeader.displayName = "DialogHeader";
 
 const DialogFooter = ({
   className,
@@ -118,11 +121,14 @@ const DialogFooter = ({
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.15 }}
-    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)}
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className,
+    )}
     {...props}
   />
-)
-DialogFooter.displayName = 'DialogFooter'
+);
+DialogFooter.displayName = "DialogFooter";
 
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
@@ -130,11 +136,14 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold leading-none tracking-tight', className)}
+    className={cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      className,
+    )}
     {...props}
   />
-))
-DialogTitle.displayName = DialogPrimitive.Title.displayName
+));
+DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
 const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
@@ -142,11 +151,11 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-muted-foreground', className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
-))
-DialogDescription.displayName = DialogPrimitive.Description.displayName
+));
+DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
 export {
   Dialog,
@@ -159,4 +168,4 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-}
+};

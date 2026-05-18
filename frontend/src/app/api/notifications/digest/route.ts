@@ -6,11 +6,14 @@
  * PUT - Update digest settings
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { UserNotificationPreferences, defaultUserPreferences } from '@/types/notifications'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import {
+  UserNotificationPreferences,
+  defaultUserPreferences,
+} from "@/types/notifications";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types & Validation
@@ -18,19 +21,19 @@ import { logger } from '@/lib/logger'
 
 const DigestSettingsSchema = z.object({
   enabled: z.boolean(),
-  frequency: z.enum(['daily', 'weekly']),
+  frequency: z.enum(["daily", "weekly"]),
   time: z.string().regex(/^\d{2}:\d{2}$/),
   timezone: z.string().optional(),
   includeRead: z.boolean().optional().default(false),
   maxNotifications: z.number().min(1).max(100).optional().default(50),
-})
+});
 
 const SendDigestSchema = z.object({
   userId: z.string().uuid(),
   force: z.boolean().optional().default(false),
   periodStart: z.string().datetime().optional(),
   periodEnd: z.string().datetime().optional(),
-})
+});
 
 // ============================================================================
 // GraphQL Queries & Mutations
@@ -45,7 +48,7 @@ const GET_DIGEST_SETTINGS = `
       metadata
     }
   }
-`
+`;
 
 const GET_USER_EMAIL = `
   query GetUserEmail($userId: uuid!) {
@@ -55,7 +58,7 @@ const GET_USER_EMAIL = `
       display_name
     }
   }
-`
+`;
 
 const UPDATE_DIGEST_SETTINGS = `
   mutation UpdateDigestSettings($userId: uuid!, $settings: jsonb!) {
@@ -66,7 +69,7 @@ const UPDATE_DIGEST_SETTINGS = `
       affected_rows
     }
   }
-`
+`;
 
 const GET_NOTIFICATIONS_FOR_DIGEST = `
   query GetNotificationsForDigest(
@@ -104,7 +107,7 @@ const GET_NOTIFICATIONS_FOR_DIGEST = `
       action_url
     }
   }
-`
+`;
 
 // ============================================================================
 // Helper Functions
@@ -113,65 +116,74 @@ const GET_NOTIFICATIONS_FOR_DIGEST = `
 async function executeGraphQL<T = unknown>(
   query: string,
   variables: Record<string, unknown> = {},
-  authToken?: string
+  authToken?: string,
 ): Promise<{ data?: T; errors?: Array<{ message: string }> }> {
-  const hasuraUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
-  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET
+  const hasuraUrl =
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql";
+  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET;
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  }
+    "Content-Type": "application/json",
+  };
 
   if (hasuraAdminSecret) {
-    headers['x-hasura-admin-secret'] = hasuraAdminSecret
+    headers["x-hasura-admin-secret"] = hasuraAdminSecret;
   } else if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`
+    headers["Authorization"] = `Bearer ${authToken}`;
   }
 
   const response = await fetch(hasuraUrl, {
-    method: 'POST',
+    method: "POST",
     headers,
     body: JSON.stringify({ query, variables }),
-  })
+  });
 
   if (!response.ok) {
-    throw new Error(`GraphQL request failed: ${response.statusText}`)
+    throw new Error(`GraphQL request failed: ${response.statusText}`);
   }
 
-  return response.json()
+  return response.json();
 }
 
 function getAuthToken(request: NextRequest): string | undefined {
-  const authHeader = request.headers.get('Authorization')
-  if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.substring(7)
+  const authHeader = request.headers.get("Authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.substring(7);
   }
-  return undefined
+  return undefined;
 }
 
 /**
  * Calculate digest period based on frequency
  */
-function getDigestPeriod(frequency: 'daily' | 'weekly'): { start: Date; end: Date } {
-  const end = new Date()
-  const start = new Date()
+function getDigestPeriod(frequency: "daily" | "weekly"): {
+  start: Date;
+  end: Date;
+} {
+  const end = new Date();
+  const start = new Date();
 
-  if (frequency === 'daily') {
-    start.setDate(start.getDate() - 1)
-  } else if (frequency === 'weekly') {
-    start.setDate(start.getDate() - 7)
+  if (frequency === "daily") {
+    start.setDate(start.getDate() - 1);
+  } else if (frequency === "weekly") {
+    start.setDate(start.getDate() - 7);
   }
 
-  return { start, end }
+  return { start, end };
 }
 
 /**
  * Format digest as HTML email
  */
-function formatDigestEmail(notifications: any[], period: { start: Date; end: Date }): string {
-  const unreadCount = notifications.filter((n) => !n.is_read).length
-  const mentionCount = notifications.filter((n) => n.type === 'mention').length
-  const dmCount = notifications.filter((n) => n.type === 'direct_message').length
+function formatDigestEmail(
+  notifications: any[],
+  period: { start: Date; end: Date },
+): string {
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const mentionCount = notifications.filter((n) => n.type === "mention").length;
+  const dmCount = notifications.filter(
+    (n) => n.type === "direct_message",
+  ).length;
 
   return `
 <!DOCTYPE html>
@@ -235,7 +247,7 @@ function formatDigestEmail(notifications: any[], period: { start: Date; end: Dat
         .slice(0, 10)
         .map(
           (n) => `
-        <div class="notification ${!n.is_read ? 'unread' : ''} ${n.type === 'mention' ? 'mention' : ''}">
+        <div class="notification ${!n.is_read ? "unread" : ""} ${n.type === "mention" ? "mention" : ""}">
           <div class="notification-header">
             ${n.actor?.avatar_url ? `<img src="${n.actor.avatar_url}" alt="" class="notification-avatar">` : '<div class="notification-avatar"></div>'}
             <div class="notification-title">${n.title}</div>
@@ -243,13 +255,13 @@ function formatDigestEmail(notifications: any[], period: { start: Date; end: Dat
           <div class="notification-body">${n.body}</div>
           <div class="notification-meta">
             <span>${new Date(n.created_at).toLocaleString()}</span>
-            ${n.channel?.name ? `<span>#${n.channel.name}</span>` : ''}
+            ${n.channel?.name ? `<span>#${n.channel.name}</span>` : ""}
           </div>
-          ${n.action_url ? `<a href="${n.action_url}" class="notification-action">View</a>` : ''}
+          ${n.action_url ? `<a href="${n.action_url}" class="notification-action">View</a>` : ""}
         </div>
-      `
+      `,
         )
-        .join('')}
+        .join("")}
     </div>
 
     <div class="footer">
@@ -259,7 +271,7 @@ function formatDigestEmail(notifications: any[], period: { start: Date; end: Dat
   </div>
 </body>
 </html>
-  `.trim()
+  `.trim();
 }
 
 // ============================================================================
@@ -268,35 +280,46 @@ function formatDigestEmail(notifications: any[], period: { start: Date; end: Dat
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('user_id')
+    const authToken = getAuthToken(request);
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("user_id");
 
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'user_id is required' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "user_id is required" },
+        { status: 400 },
+      );
     }
 
     const result = await executeGraphQL<{
-      nchat_notification_preferences: Array<{ metadata: any }>
-    }>(GET_DIGEST_SETTINGS, { userId }, authToken)
+      nchat_notification_preferences: Array<{ metadata: any }>;
+    }>(GET_DIGEST_SETTINGS, { userId }, authToken);
 
     if (result.errors) {
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch digest settings', details: result.errors },
-        { status: 500 }
-      )
+        {
+          success: false,
+          error: "Failed to fetch digest settings",
+          details: result.errors,
+        },
+        { status: 500 },
+      );
     }
 
-    const prefs = result.data?.nchat_notification_preferences?.[0]
-    const digestSettings = prefs?.metadata?.digest || defaultUserPreferences.digest
+    const prefs = result.data?.nchat_notification_preferences?.[0];
+    const digestSettings =
+      prefs?.metadata?.digest || defaultUserPreferences.digest;
 
     return NextResponse.json({
       success: true,
       data: { settings: digestSettings },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/notifications/digest error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("GET /api/notifications/digest error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -306,43 +329,48 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const body = await request.json()
+    const authToken = getAuthToken(request);
+    const body = await request.json();
 
-    const parsed = SendDigestSchema.safeParse(body)
+    const parsed = SendDigestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request data', details: parsed.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request data",
+          details: parsed.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const { userId, force, periodStart, periodEnd } = parsed.data
+    const { userId, force, periodStart, periodEnd } = parsed.data;
 
     // Get digest settings
     const settingsResult = await executeGraphQL<{
-      nchat_notification_preferences: Array<{ metadata: any }>
-    }>(GET_DIGEST_SETTINGS, { userId }, authToken)
+      nchat_notification_preferences: Array<{ metadata: any }>;
+    }>(GET_DIGEST_SETTINGS, { userId }, authToken);
 
-    const prefs = settingsResult.data?.nchat_notification_preferences?.[0]
-    const digestSettings = prefs?.metadata?.digest || defaultUserPreferences.digest
+    const prefs = settingsResult.data?.nchat_notification_preferences?.[0];
+    const digestSettings =
+      prefs?.metadata?.digest || defaultUserPreferences.digest;
 
     if (!digestSettings.enabled && !force) {
       return NextResponse.json(
-        { success: false, error: 'Digest is not enabled for this user' },
-        { status: 400 }
-      )
+        { success: false, error: "Digest is not enabled for this user" },
+        { status: 400 },
+      );
     }
 
     // Calculate period
     const period =
       periodStart && periodEnd
         ? { start: new Date(periodStart), end: new Date(periodEnd) }
-        : getDigestPeriod(digestSettings.frequency)
+        : getDigestPeriod(digestSettings.frequency);
 
     // Fetch notifications for period
     const notificationsResult = await executeGraphQL<{
-      nchat_notifications: any[]
+      nchat_notifications: any[];
     }>(
       GET_NOTIFICATIONS_FOR_DIGEST,
       {
@@ -351,62 +379,62 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         endDate: period.end.toISOString(),
         includeRead: false,
       },
-      authToken
-    )
+      authToken,
+    );
 
     if (notificationsResult.errors) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to fetch notifications',
+          error: "Failed to fetch notifications",
           details: notificationsResult.errors,
         },
-        { status: 500 }
-      )
+        { status: 500 },
+      );
     }
 
-    const notifications = notificationsResult.data?.nchat_notifications || []
+    const notifications = notificationsResult.data?.nchat_notifications || [];
 
     if (notifications.length === 0) {
       return NextResponse.json({
         success: true,
         data: {
           sent: false,
-          message: 'No notifications to include in digest',
+          message: "No notifications to include in digest",
           period,
         },
-      })
+      });
     }
 
     // Get user email
     const userResult = await executeGraphQL<{
-      users_by_pk: { id: string; email: string; display_name: string } | null
-    }>(GET_USER_EMAIL, { userId }, authToken)
+      users_by_pk: { id: string; email: string; display_name: string } | null;
+    }>(GET_USER_EMAIL, { userId }, authToken);
 
-    const userEmail = userResult.data?.users_by_pk?.email
+    const userEmail = userResult.data?.users_by_pk?.email;
     if (!userEmail) {
       return NextResponse.json(
-        { success: false, error: 'User email not found' },
-        { status: 404 }
-      )
+        { success: false, error: "User email not found" },
+        { status: 404 },
+      );
     }
 
     // Format digest
-    const htmlContent = formatDigestEmail(notifications, period)
+    const htmlContent = formatDigestEmail(notifications, period);
 
     // Send via notifications API if configured
-    const notificationsApiUrl = process.env.NOTIFICATIONS_API_URL
-    let emailSent = false
+    const notificationsApiUrl = process.env.NOTIFICATIONS_API_URL;
+    let emailSent = false;
 
     if (notificationsApiUrl) {
       try {
         const sendResponse = await fetch(`${notificationsApiUrl}/api/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: userId,
-            channel: 'email',
-            category: 'system',
+            channel: "email",
+            category: "system",
             to: { email: userEmail },
             content: {
               subject: `Notification Digest - ${period.start.toLocaleDateString()}`,
@@ -418,32 +446,36 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               count: notifications.length,
             },
           }),
-        })
-        emailSent = sendResponse.ok
+        });
+        emailSent = sendResponse.ok;
       } catch (emailError) {
-        logger.warn('Failed to send digest email via notifications API:', { context: emailError })
+        logger.warn("Failed to send digest email via notifications API:", {
+          context: emailError,
+        });
       }
     }
 
     // Fallback: use Resend if configured and notifications API failed
     if (!emailSent && process.env.RESEND_API_KEY) {
       try {
-        const resendResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
+        const resendResponse = await fetch("https://api.resend.com/emails", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: process.env.RESEND_FROM_EMAIL || 'noreply@nchat.app',
+            from: process.env.RESEND_FROM_EMAIL || "noreply@nchat.app",
             to: userEmail,
             subject: `Notification Digest - ${period.start.toLocaleDateString()}`,
             html: htmlContent,
           }),
-        })
-        emailSent = resendResponse.ok
+        });
+        emailSent = resendResponse.ok;
       } catch (resendError) {
-        logger.warn('Failed to send digest email via Resend:', { context: resendError })
+        logger.warn("Failed to send digest email via Resend:", {
+          context: resendError,
+        });
       }
     }
 
@@ -456,10 +488,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         email: userEmail,
         preview: emailSent ? undefined : htmlContent,
       },
-    })
+    });
   } catch (error) {
-    logger.error('POST /api/notifications/digest error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("POST /api/notifications/digest error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -469,20 +504,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const body = await request.json()
-    const { userId, settings } = body
+    const authToken = getAuthToken(request);
+    const body = await request.json();
+    const { userId, settings } = body;
 
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'userId is required' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "userId is required" },
+        { status: 400 },
+      );
     }
 
-    const parsed = DigestSettingsSchema.safeParse(settings)
+    const parsed = DigestSettingsSchema.safeParse(settings);
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid settings data', details: parsed.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid settings data",
+          details: parsed.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
     const result = await executeGraphQL(
@@ -491,22 +533,29 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         userId,
         settings: { digest: parsed.data },
       },
-      authToken
-    )
+      authToken,
+    );
 
     if (result.errors) {
       return NextResponse.json(
-        { success: false, error: 'Failed to update settings', details: result.errors },
-        { status: 500 }
-      )
+        {
+          success: false,
+          error: "Failed to update settings",
+          details: result.errors,
+        },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({
       success: true,
       data: { settings: parsed.data },
-    })
+    });
   } catch (error) {
-    logger.error('PUT /api/notifications/digest error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("PUT /api/notifications/digest error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -6,23 +6,20 @@
  * GET /api/livechat/queue - Get queue entries and stats
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { getLivechatService, getRoutingService } from '@/services/livechat'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { getLivechatService, getRoutingService } from "@/services/livechat";
 import {
   withAuth,
   withErrorHandler,
   withRateLimit,
   compose,
   type AuthenticatedRequest,
-} from '@/lib/api/middleware'
-import {
-  successResponse,
-  badRequestResponse,
-} from '@/lib/api/response'
+} from "@/lib/api/middleware";
+import { successResponse, badRequestResponse } from "@/lib/api/response";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -30,53 +27,53 @@ export const dynamic = 'force-dynamic'
 
 const GetQueueSchema = z.object({
   department: z.string().optional(),
-})
+});
 
 // ============================================================================
 // HANDLERS
 // ============================================================================
 
-const livechatService = getLivechatService()
-const routingService = getRoutingService()
+const livechatService = getLivechatService();
+const routingService = getRoutingService();
 
 /**
  * GET /api/livechat/queue - Get queue entries and stats
  */
 async function getQueueHandler(request: AuthenticatedRequest) {
-  const searchParams = request.nextUrl.searchParams
+  const searchParams = request.nextUrl.searchParams;
   const queryParams = {
-    department: searchParams.get('department') || undefined,
-  }
+    department: searchParams.get("department") || undefined,
+  };
 
-  const validation = GetQueueSchema.safeParse(queryParams)
+  const validation = GetQueueSchema.safeParse(queryParams);
   if (!validation.success) {
-    return badRequestResponse('Invalid query parameters', 'VALIDATION_ERROR', {
+    return badRequestResponse("Invalid query parameters", "VALIDATION_ERROR", {
       errors: validation.error.flatten().fieldErrors,
-    })
+    });
   }
 
-  const { department } = validation.data
+  const { department } = validation.data;
 
   // Get queue entries
-  const queueResult = await livechatService.getQueue(department)
+  const queueResult = await livechatService.getQueue(department);
   if (!queueResult.success) {
     return NextResponse.json(
       { success: false, error: queueResult.error?.message },
-      { status: queueResult.error?.status || 500 }
-    )
+      { status: queueResult.error?.status || 500 },
+    );
   }
 
   // Get queue stats
-  const statsResult = await livechatService.getQueueStats(department)
+  const statsResult = await livechatService.getQueueStats(department);
   if (!statsResult.success) {
     return NextResponse.json(
       { success: false, error: statsResult.error?.message },
-      { status: statsResult.error?.status || 500 }
-    )
+      { status: statsResult.error?.status || 500 },
+    );
   }
 
   // Get routing config
-  const routingConfig = routingService.getConfig()
+  const routingConfig = routingService.getConfig();
 
   return successResponse({
     entries: queueResult.data,
@@ -86,7 +83,7 @@ async function getQueueHandler(request: AuthenticatedRequest) {
       showQueuePositionToVisitor: routingConfig.showQueuePositionToVisitor,
       maxQueueSize: routingConfig.maxQueueSize,
     },
-  })
+  });
 }
 
 // ============================================================================
@@ -96,5 +93,5 @@ async function getQueueHandler(request: AuthenticatedRequest) {
 export const GET = compose(
   withErrorHandler,
   withRateLimit({ limit: 100, window: 60 }),
-  withAuth
-)(getQueueHandler as any)
+  withAuth,
+)(getQueueHandler as any);

@@ -1,42 +1,53 @@
-'use client'
+"use client";
 
 /**
  * AuditLogFilters - Filter controls for audit log viewer
  */
 
-import { useState } from 'react'
-import { Filter, X, Calendar, User, Tag, AlertCircle, Activity } from 'lucide-react'
+import { useState } from "react";
+import {
+  Filter,
+  X,
+  Calendar,
+  User,
+  Tag,
+  AlertCircle,
+  Activity,
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 
 import type {
   AuditCategory,
   AuditSeverity,
   AuditLogFilters as AuditLogFiltersType,
   ActorType,
-} from '@/lib/audit/audit-types'
-import { categoryDisplayNames, severityDisplayNames } from '@/lib/audit/audit-types'
+} from "@/lib/audit/audit-types";
+import {
+  categoryDisplayNames,
+  severityDisplayNames,
+} from "@/lib/audit/audit-types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AuditLogFiltersProps {
-  filters: AuditLogFiltersType
-  onChange: (filters: Partial<AuditLogFiltersType>) => void
-  onClear: () => void
-  className?: string
+  filters: AuditLogFiltersType;
+  onChange: (filters: Partial<AuditLogFiltersType>) => void;
+  onClear: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -44,25 +55,36 @@ interface AuditLogFiltersProps {
 // ============================================================================
 
 const categories: AuditCategory[] = [
-  'user',
-  'message',
-  'channel',
-  'file',
-  'admin',
-  'security',
-  'integration',
-]
+  "user",
+  "message",
+  "channel",
+  "file",
+  "admin",
+  "security",
+  "integration",
+];
 
-const severities: AuditSeverity[] = ['info', 'warning', 'error', 'critical']
+const severities: AuditSeverity[] = ["info", "warning", "error", "critical"];
 
-const actorTypes: ActorType[] = ['user', 'system', 'bot', 'integration', 'anonymous']
+const actorTypes: ActorType[] = [
+  "user",
+  "system",
+  "bot",
+  "integration",
+  "anonymous",
+];
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function AuditLogFilters({ filters, onChange, onClear, className }: AuditLogFiltersProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+export function AuditLogFilters({
+  filters,
+  onChange,
+  onClear,
+  className,
+}: AuditLogFiltersProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const hasActiveFilters =
     (filters.category && filters.category.length > 0) ||
@@ -74,42 +96,42 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
     filters.startDate ||
     filters.endDate ||
     filters.success !== undefined ||
-    filters.ipAddress
+    filters.ipAddress;
 
   const toggleCategory = (category: AuditCategory) => {
-    const current = filters.category || []
+    const current = filters.category || [];
     if (current.includes(category)) {
-      onChange({ category: current.filter((c) => c !== category) })
+      onChange({ category: current.filter((c) => c !== category) });
     } else {
-      onChange({ category: [...current, category] })
+      onChange({ category: [...current, category] });
     }
-  }
+  };
 
   const toggleSeverity = (severity: AuditSeverity) => {
-    const current = filters.severity || []
+    const current = filters.severity || [];
     if (current.includes(severity)) {
-      onChange({ severity: current.filter((s) => s !== severity) })
+      onChange({ severity: current.filter((s) => s !== severity) });
     } else {
-      onChange({ severity: [...current, severity] })
+      onChange({ severity: [...current, severity] });
     }
-  }
+  };
 
   const formatDate = (date: Date | undefined): string => {
-    if (!date) return ''
-    return date.toISOString().split('T')[0]
-  }
+    if (!date) return "";
+    return date.toISOString().split("T")[0];
+  };
 
   const parseDate = (dateString: string): Date | undefined => {
-    if (!dateString) return undefined
-    return new Date(dateString)
-  }
+    if (!dateString) return undefined;
+    return new Date(dateString);
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Quick Filters Row */}
       <div className="flex flex-wrap items-center gap-2">
         <Button
-          variant={isExpanded ? 'secondary' : 'outline'}
+          variant={isExpanded ? "secondary" : "outline"}
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
           className="gap-2"
@@ -128,7 +150,9 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
           {categories.map((category) => (
             <Button
               key={category}
-              variant={filters.category?.includes(category) ? 'default' : 'outline'}
+              variant={
+                filters.category?.includes(category) ? "default" : "outline"
+              }
               size="sm"
               onClick={() => toggleCategory(category)}
               className="h-8 capitalize"
@@ -165,7 +189,11 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
                 {severities.map((severity) => (
                   <Button
                     key={severity}
-                    variant={filters.severity?.includes(severity) ? 'default' : 'outline'}
+                    variant={
+                      filters.severity?.includes(severity)
+                        ? "default"
+                        : "outline"
+                    }
                     size="sm"
                     onClick={() => toggleSeverity(severity)}
                     className="h-7 text-xs capitalize"
@@ -183,9 +211,11 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
                 Actor Type
               </Label>
               <Select
-                value={filters.actorType || ''}
+                value={filters.actorType || ""}
                 onValueChange={(value) =>
-                  onChange({ actorType: value ? (value as ActorType) : undefined })
+                  onChange({
+                    actorType: value ? (value as ActorType) : undefined,
+                  })
                 }
               >
                 <SelectTrigger>
@@ -209,10 +239,14 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
                 Status
               </Label>
               <Select
-                value={filters.success === undefined ? '' : filters.success.toString()}
+                value={
+                  filters.success === undefined
+                    ? ""
+                    : filters.success.toString()
+                }
                 onValueChange={(value) =>
                   onChange({
-                    success: value === '' ? undefined : value === 'true',
+                    success: value === "" ? undefined : value === "true",
                   })
                 }
               >
@@ -236,7 +270,9 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
               <Input
                 type="date"
                 value={formatDate(filters.startDate)}
-                onChange={(e) => onChange({ startDate: parseDate(e.target.value) })}
+                onChange={(e) =>
+                  onChange({ startDate: parseDate(e.target.value) })
+                }
               />
             </div>
 
@@ -249,7 +285,9 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
               <Input
                 type="date"
                 value={formatDate(filters.endDate)}
-                onChange={(e) => onChange({ endDate: parseDate(e.target.value) })}
+                onChange={(e) =>
+                  onChange({ endDate: parseDate(e.target.value) })
+                }
               />
             </div>
 
@@ -261,8 +299,10 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
               </Label>
               <Input
                 placeholder="Filter by IP..."
-                value={filters.ipAddress || ''}
-                onChange={(e) => onChange({ ipAddress: e.target.value || undefined })}
+                value={filters.ipAddress || ""}
+                onChange={(e) =>
+                  onChange({ ipAddress: e.target.value || undefined })
+                }
               />
             </div>
 
@@ -274,8 +314,10 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
               </Label>
               <Input
                 placeholder="Filter by actor ID..."
-                value={filters.actorId || ''}
-                onChange={(e) => onChange({ actorId: e.target.value || undefined })}
+                value={filters.actorId || ""}
+                onChange={(e) =>
+                  onChange({ actorId: e.target.value || undefined })
+                }
               />
             </div>
 
@@ -287,8 +329,10 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
               </Label>
               <Input
                 placeholder="Filter by resource ID..."
-                value={filters.resourceId || ''}
-                onChange={(e) => onChange({ resourceId: e.target.value || undefined })}
+                value={filters.resourceId || ""}
+                onChange={(e) =>
+                  onChange({ resourceId: e.target.value || undefined })
+                }
               />
             </div>
           </div>
@@ -297,7 +341,9 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
           {hasActiveFilters && (
             <div className="border-t pt-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm text-muted-foreground">Active filters:</span>
+                <span className="text-sm text-muted-foreground">
+                  Active filters:
+                </span>
                 {filters.category?.map((cat) => (
                   <Badge
                     key={cat}
@@ -336,7 +382,7 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
                     className="cursor-pointer gap-1"
                     onClick={() => onChange({ success: undefined })}
                   >
-                    Status: {filters.success ? 'Success' : 'Failed'}
+                    Status: {filters.success ? "Success" : "Failed"}
                     <X className="h-3 w-3" />
                   </Badge>
                 )}
@@ -366,5 +412,5 @@ export function AuditLogFilters({ filters, onChange, onClear, className }: Audit
         </div>
       )}
     </div>
-  )
+  );
 }

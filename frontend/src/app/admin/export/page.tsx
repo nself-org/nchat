@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import Link from 'next/link'
+import * as React from "react";
+import Link from "next/link";
 import {
   Download,
   Users,
@@ -15,23 +15,29 @@ import {
   AlertCircle,
   HardDrive,
   Clock,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Input } from '@/components/ui/input'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import type { ExportFormat, ExportConfig } from '@/lib/import-export/types'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import type { ExportFormat, ExportConfig } from "@/lib/import-export/types";
 import {
   createDefaultExportConfig,
   generateExportFilename,
   estimateExportSize,
-} from '@/lib/import-export/export-service'
+} from "@/lib/import-export/export-service";
 
 // ============================================================================
 // MOCK DATA (In production, this would come from GraphQL)
@@ -41,30 +47,34 @@ const MOCK_STATS = {
   userCount: 156,
   channelCount: 24,
   messageCount: 45892,
-}
+};
 
 const MOCK_CHANNELS = [
-  { id: '1', name: 'general', messageCount: 12500 },
-  { id: '2', name: 'random', messageCount: 8300 },
-  { id: '3', name: 'announcements', messageCount: 450 },
-  { id: '4', name: 'engineering', messageCount: 15200 },
-  { id: '5', name: 'design', messageCount: 4200 },
-  { id: '6', name: 'marketing', messageCount: 2800 },
-  { id: '7', name: 'support', messageCount: 2442 },
-]
+  { id: "1", name: "general", messageCount: 12500 },
+  { id: "2", name: "random", messageCount: 8300 },
+  { id: "3", name: "announcements", messageCount: 450 },
+  { id: "4", name: "engineering", messageCount: 15200 },
+  { id: "5", name: "design", messageCount: 4200 },
+  { id: "6", name: "marketing", messageCount: 2800 },
+  { id: "7", name: "support", messageCount: 2442 },
+];
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
 export default function ExportPage() {
-  const [config, setConfig] = React.useState<ExportConfig>(createDefaultExportConfig())
-  const [isExporting, setIsExporting] = React.useState(false)
-  const [exportProgress, setExportProgress] = React.useState(0)
-  const [exportComplete, setExportComplete] = React.useState(false)
-  const [exportError, setExportError] = React.useState<string | null>(null)
-  const [selectedChannels, setSelectedChannels] = React.useState<Set<string>>(new Set())
-  const [selectAllChannels, setSelectAllChannels] = React.useState(true)
+  const [config, setConfig] = React.useState<ExportConfig>(
+    createDefaultExportConfig(),
+  );
+  const [isExporting, setIsExporting] = React.useState(false);
+  const [exportProgress, setExportProgress] = React.useState(0);
+  const [exportComplete, setExportComplete] = React.useState(false);
+  const [exportError, setExportError] = React.useState<string | null>(null);
+  const [selectedChannels, setSelectedChannels] = React.useState<Set<string>>(
+    new Set(),
+  );
+  const [selectAllChannels, setSelectAllChannels] = React.useState(true);
 
   // Calculate estimated size
   const estimatedSize = React.useMemo(() => {
@@ -72,25 +82,28 @@ export default function ExportPage() {
       config.options.includeUsers ? MOCK_STATS.userCount : 0,
       config.options.includeChannels ? MOCK_STATS.channelCount : 0,
       config.options.includeMessages ? MOCK_STATS.messageCount : 0,
-      config.format
-    )
-  }, [config])
+      config.format,
+    );
+  }, [config]);
 
   // Handle format change
   const handleFormatChange = (format: ExportFormat) => {
-    setConfig((prev) => ({ ...prev, format }))
-  }
+    setConfig((prev) => ({ ...prev, format }));
+  };
 
   // Handle option change
-  const handleOptionChange = (key: keyof ExportConfig['options'], value: boolean) => {
+  const handleOptionChange = (
+    key: keyof ExportConfig["options"],
+    value: boolean,
+  ) => {
     setConfig((prev) => ({
       ...prev,
       options: { ...prev.options, [key]: value },
-    }))
-  }
+    }));
+  };
 
   // Handle date range change
-  const handleDateRangeChange = (field: 'start' | 'end', value: string) => {
+  const handleDateRangeChange = (field: "start" | "end", value: string) => {
     setConfig((prev) => ({
       ...prev,
       filters: {
@@ -100,37 +113,37 @@ export default function ExportPage() {
           [field]: value || undefined,
         },
       },
-    }))
-  }
+    }));
+  };
 
   // Handle channel selection
   const toggleChannel = (channelId: string) => {
     setSelectedChannels((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(channelId)) {
-        next.delete(channelId)
+        next.delete(channelId);
       } else {
-        next.add(channelId)
+        next.add(channelId);
       }
-      return next
-    })
-    setSelectAllChannels(false)
-  }
+      return next;
+    });
+    setSelectAllChannels(false);
+  };
 
   // Handle select all channels toggle
   const handleSelectAllChannels = (checked: boolean) => {
-    setSelectAllChannels(checked)
+    setSelectAllChannels(checked);
     if (checked) {
-      setSelectedChannels(new Set())
+      setSelectedChannels(new Set());
     }
-  }
+  };
 
   // Start export
   const handleExport = async () => {
-    setIsExporting(true)
-    setExportProgress(0)
-    setExportError(null)
-    setExportComplete(false)
+    setIsExporting(true);
+    setExportProgress(0);
+    setExportError(null);
+    setExportComplete(false);
 
     try {
       // Update config with selected channels
@@ -138,55 +151,60 @@ export default function ExportPage() {
         ...config,
         filters: {
           ...config.filters,
-          channelIds: selectAllChannels ? undefined : Array.from(selectedChannels),
+          channelIds: selectAllChannels
+            ? undefined
+            : Array.from(selectedChannels),
         },
-      }
+      };
 
       // Simulate progress
       for (let i = 0; i <= 90; i += 10) {
-        await new Promise((resolve) => setTimeout(resolve, 200))
-        setExportProgress(i)
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        setExportProgress(i);
       }
 
       // Make API call
-      const response = await fetch('/api/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(exportConfig),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Export failed')
+        throw new Error("Export failed");
       }
 
       // Download the file
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-      const filename = generateExportFilename(config.format)
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const filename = generateExportFilename(config.format);
 
-      const link = document.createElement('a')
-      link.href = url
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
-      setExportProgress(100)
-      setExportComplete(true)
+      setExportProgress(100);
+      setExportComplete(true);
     } catch (error) {
-      setExportError(error instanceof Error ? error.message : 'Export failed')
+      setExportError(error instanceof Error ? error.message : "Export failed");
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <div className="mb-4 flex items-center gap-2">
-          <Link href="/admin" className="text-muted-foreground hover:text-foreground">
+          <Link
+            href="/admin"
+            className="text-muted-foreground hover:text-foreground"
+          >
             Admin
           </Link>
           <span className="text-muted-foreground">/</span>
@@ -198,7 +216,9 @@ export default function ExportPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold">Export Data</h1>
-            <p className="text-muted-foreground">Export your nchat data for backup or migration</p>
+            <p className="text-muted-foreground">
+              Export your nchat data for backup or migration
+            </p>
           </div>
         </div>
       </div>
@@ -212,7 +232,9 @@ export default function ExportPage() {
                 <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{MOCK_STATS.userCount.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  {MOCK_STATS.userCount.toLocaleString()}
+                </p>
                 <p className="text-sm text-muted-foreground">Users</p>
               </div>
             </div>
@@ -225,7 +247,9 @@ export default function ExportPage() {
                 <Hash className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{MOCK_STATS.channelCount.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  {MOCK_STATS.channelCount.toLocaleString()}
+                </p>
                 <p className="text-sm text-muted-foreground">Channels</p>
               </div>
             </div>
@@ -238,7 +262,9 @@ export default function ExportPage() {
                 <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{MOCK_STATS.messageCount.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  {MOCK_STATS.messageCount.toLocaleString()}
+                </p>
                 <p className="text-sm text-muted-foreground">Messages</p>
               </div>
             </div>
@@ -258,57 +284,65 @@ export default function ExportPage() {
             <div className="grid grid-cols-2 gap-4">
               <div
                 className={`cursor-pointer rounded-lg border p-4 transition-all hover:border-primary ${
-                  config.format === 'json' ? 'bg-primary/5 border-primary' : ''
+                  config.format === "json" ? "bg-primary/5 border-primary" : ""
                 }`}
                 role="button"
                 tabIndex={0}
-                onClick={() => handleFormatChange('json')}
+                onClick={() => handleFormatChange("json")}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    handleFormatChange('json')
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleFormatChange("json");
                   }
                 }}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`rounded-full p-2 ${
-                      config.format === 'json' ? 'text-primary-foreground bg-primary' : 'bg-muted'
+                      config.format === "json"
+                        ? "text-primary-foreground bg-primary"
+                        : "bg-muted"
                     }`}
                   >
                     <FileJson className="h-6 w-6" />
                   </div>
                   <div>
                     <h3 className="font-medium">JSON</h3>
-                    <p className="text-sm text-muted-foreground">Full data with nested structure</p>
+                    <p className="text-sm text-muted-foreground">
+                      Full data with nested structure
+                    </p>
                   </div>
                 </div>
               </div>
               <div
                 className={`cursor-pointer rounded-lg border p-4 transition-all hover:border-primary ${
-                  config.format === 'csv' ? 'bg-primary/5 border-primary' : ''
+                  config.format === "csv" ? "bg-primary/5 border-primary" : ""
                 }`}
                 role="button"
                 tabIndex={0}
-                onClick={() => handleFormatChange('csv')}
+                onClick={() => handleFormatChange("csv")}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    handleFormatChange('csv')
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleFormatChange("csv");
                   }
                 }}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`rounded-full p-2 ${
-                      config.format === 'csv' ? 'text-primary-foreground bg-primary' : 'bg-muted'
+                      config.format === "csv"
+                        ? "text-primary-foreground bg-primary"
+                        : "bg-muted"
                     }`}
                   >
                     <FileSpreadsheet className="h-6 w-6" />
                   </div>
                   <div>
                     <h3 className="font-medium">CSV</h3>
-                    <p className="text-sm text-muted-foreground">Flat data for spreadsheets</p>
+                    <p className="text-sm text-muted-foreground">
+                      Flat data for spreadsheets
+                    </p>
                   </div>
                 </div>
               </div>
@@ -320,7 +354,9 @@ export default function ExportPage() {
         <Card>
           <CardHeader>
             <CardTitle>Data to Export</CardTitle>
-            <CardDescription>Select what data to include in the export</CardDescription>
+            <CardDescription>
+              Select what data to include in the export
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="content" className="space-y-4">
@@ -337,28 +373,36 @@ export default function ExportPage() {
                   label="Users"
                   description={`Export ${MOCK_STATS.userCount.toLocaleString()} user profiles`}
                   checked={config.options.includeUsers}
-                  onChange={(checked) => handleOptionChange('includeUsers', checked)}
+                  onChange={(checked) =>
+                    handleOptionChange("includeUsers", checked)
+                  }
                 />
                 <ExportToggle
                   icon={<Hash className="h-4 w-4" />}
                   label="Channels"
                   description={`Export ${MOCK_STATS.channelCount.toLocaleString()} channels`}
                   checked={config.options.includeChannels}
-                  onChange={(checked) => handleOptionChange('includeChannels', checked)}
+                  onChange={(checked) =>
+                    handleOptionChange("includeChannels", checked)
+                  }
                 />
                 <ExportToggle
                   icon={<MessageSquare className="h-4 w-4" />}
                   label="Messages"
                   description={`Export ${MOCK_STATS.messageCount.toLocaleString()} messages`}
                   checked={config.options.includeMessages}
-                  onChange={(checked) => handleOptionChange('includeMessages', checked)}
+                  onChange={(checked) =>
+                    handleOptionChange("includeMessages", checked)
+                  }
                 />
                 <ExportToggle
                   icon={<HardDrive className="h-4 w-4" />}
                   label="Attachments"
                   description="Include attachment metadata"
                   checked={config.options.includeAttachments}
-                  onChange={(checked) => handleOptionChange('includeAttachments', checked)}
+                  onChange={(checked) =>
+                    handleOptionChange("includeAttachments", checked)
+                  }
                   disabled={!config.options.includeMessages}
                 />
               </TabsContent>
@@ -371,7 +415,10 @@ export default function ExportPage() {
                       Include all channels in the export
                     </p>
                   </div>
-                  <Switch checked={selectAllChannels} onCheckedChange={handleSelectAllChannels} />
+                  <Switch
+                    checked={selectAllChannels}
+                    onCheckedChange={handleSelectAllChannels}
+                  />
                 </div>
 
                 {!selectAllChannels && (
@@ -382,16 +429,16 @@ export default function ExportPage() {
                           key={channel.id}
                           className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
                             selectedChannels.has(channel.id)
-                              ? 'bg-primary/5 border-primary'
-                              : 'hover:bg-muted'
+                              ? "bg-primary/5 border-primary"
+                              : "hover:bg-muted"
                           }`}
                           role="button"
                           tabIndex={0}
                           onClick={() => toggleChannel(channel.id)}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault()
-                              toggleChannel(channel.id)
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              toggleChannel(channel.id);
                             }
                           }}
                         >
@@ -399,8 +446,8 @@ export default function ExportPage() {
                             <div
                               className={`flex h-5 w-5 items-center justify-center rounded border ${
                                 selectedChannels.has(channel.id)
-                                  ? 'border-primary bg-primary'
-                                  : 'border-input'
+                                  ? "border-primary bg-primary"
+                                  : "border-input"
                               }`}
                             >
                               {selectedChannels.has(channel.id) && (
@@ -425,14 +472,18 @@ export default function ExportPage() {
                   label="Anonymize Users"
                   description="Replace names with anonymous identifiers"
                   checked={config.options.anonymizeUsers}
-                  onChange={(checked) => handleOptionChange('anonymizeUsers', checked)}
+                  onChange={(checked) =>
+                    handleOptionChange("anonymizeUsers", checked)
+                  }
                 />
                 <ExportToggle
                   icon={<MessageSquare className="h-4 w-4" />}
                   label="Include Threads"
                   description="Include threaded messages"
                   checked={config.options.includeThreads}
-                  onChange={(checked) => handleOptionChange('includeThreads', checked)}
+                  onChange={(checked) =>
+                    handleOptionChange("includeThreads", checked)
+                  }
                   disabled={!config.options.includeMessages}
                 />
                 <ExportToggle
@@ -440,7 +491,9 @@ export default function ExportPage() {
                   label="Include Metadata"
                   description="Include additional metadata fields"
                   checked={config.options.includeMetadata}
-                  onChange={(checked) => handleOptionChange('includeMetadata', checked)}
+                  onChange={(checked) =>
+                    handleOptionChange("includeMetadata", checked)
+                  }
                 />
               </TabsContent>
 
@@ -455,25 +508,35 @@ export default function ExportPage() {
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="start-date" className="text-xs text-muted-foreground">
+                      <Label
+                        htmlFor="start-date"
+                        className="text-xs text-muted-foreground"
+                      >
                         Start Date
                       </Label>
                       <Input
                         id="start-date"
                         type="date"
-                        value={config.filters.dateRange?.start || ''}
-                        onChange={(e) => handleDateRangeChange('start', e.target.value)}
+                        value={config.filters.dateRange?.start || ""}
+                        onChange={(e) =>
+                          handleDateRangeChange("start", e.target.value)
+                        }
                       />
                     </div>
                     <div>
-                      <Label htmlFor="end-date" className="text-xs text-muted-foreground">
+                      <Label
+                        htmlFor="end-date"
+                        className="text-xs text-muted-foreground"
+                      >
                         End Date
                       </Label>
                       <Input
                         id="end-date"
                         type="date"
-                        value={config.filters.dateRange?.end || ''}
-                        onChange={(e) => handleDateRangeChange('end', e.target.value)}
+                        value={config.filters.dateRange?.end || ""}
+                        onChange={(e) =>
+                          handleDateRangeChange("end", e.target.value)
+                        }
                       />
                     </div>
                   </div>
@@ -492,24 +555,31 @@ export default function ExportPage() {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span>Format</span>
-                <span className="font-medium">{config.format.toUpperCase()}</span>
+                <span className="font-medium">
+                  {config.format.toUpperCase()}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Estimated Size</span>
-                <span className="font-medium">{formatFileSize(estimatedSize)}</span>
+                <span className="font-medium">
+                  {formatFileSize(estimatedSize)}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Channels</span>
                 <span className="font-medium">
-                  {selectAllChannels ? 'All channels' : `${selectedChannels.size} selected`}
+                  {selectAllChannels
+                    ? "All channels"
+                    : `${selectedChannels.size} selected`}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Date Range</span>
                 <span className="font-medium">
-                  {config.filters.dateRange?.start || config.filters.dateRange?.end
-                    ? `${config.filters.dateRange?.start || 'Start'} - ${config.filters.dateRange?.end || 'Now'}`
-                    : 'All time'}
+                  {config.filters.dateRange?.start ||
+                  config.filters.dateRange?.end
+                    ? `${config.filters.dateRange?.start || "Start"} - ${config.filters.dateRange?.end || "Now"}`
+                    : "All time"}
                 </span>
               </div>
             </div>
@@ -518,7 +588,10 @@ export default function ExportPage() {
 
         {/* Export Progress / Status */}
         {(isExporting || exportComplete || exportError) && (
-          <Alert variant={exportError ? 'destructive' : 'default'} className="mt-4">
+          <Alert
+            variant={exportError ? "destructive" : "default"}
+            className="mt-4"
+          >
             {isExporting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -531,7 +604,9 @@ export default function ExportPage() {
               <>
                 <CheckCircle2 className="h-4 w-4" />
                 <AlertTitle>Export Complete</AlertTitle>
-                <AlertDescription>Your export has been downloaded successfully.</AlertDescription>
+                <AlertDescription>
+                  Your export has been downloaded successfully.
+                </AlertDescription>
               </>
             ) : (
               <>
@@ -544,7 +619,12 @@ export default function ExportPage() {
         )}
 
         {/* Export Button */}
-        <Button onClick={handleExport} disabled={isExporting} className="w-full" size="lg">
+        <Button
+          onClick={handleExport}
+          disabled={isExporting}
+          className="w-full"
+          size="lg"
+        >
           {isExporting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -559,7 +639,7 @@ export default function ExportPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -567,12 +647,12 @@ export default function ExportPage() {
 // ============================================================================
 
 interface ExportToggleProps {
-  icon: React.ReactNode
-  label: string
-  description: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-  disabled?: boolean
+  icon: React.ReactNode;
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
 }
 
 function ExportToggle({
@@ -586,7 +666,7 @@ function ExportToggle({
   return (
     <div
       className={`flex items-center justify-between rounded-lg border p-3 ${
-        disabled ? 'opacity-50' : ''
+        disabled ? "opacity-50" : ""
       }`}
     >
       <div className="flex items-center gap-3">
@@ -596,9 +676,13 @@ function ExportToggle({
           <p className="text-xs text-muted-foreground">{description}</p>
         </div>
       </div>
-      <Switch checked={checked} onCheckedChange={onChange} disabled={disabled} />
+      <Switch
+        checked={checked}
+        onCheckedChange={onChange}
+        disabled={disabled}
+      />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -606,9 +690,9 @@ function ExportToggle({
 // ============================================================================
 
 function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }

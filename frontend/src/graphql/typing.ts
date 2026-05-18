@@ -1,33 +1,33 @@
-import { gql } from '@apollo/client'
-import { TYPING_INDICATOR_FRAGMENT, USER_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import { TYPING_INDICATOR_FRAGMENT, USER_BASIC_FRAGMENT } from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface StartTypingVariables {
-  userId: string
-  channelId: string
-  threadId?: string
+  userId: string;
+  channelId: string;
+  threadId?: string;
 }
 
 export interface StopTypingVariables {
-  userId: string
-  channelId: string
-  threadId?: string
+  userId: string;
+  channelId: string;
+  threadId?: string;
 }
 
 export interface TypingSubscriptionVariables {
-  channelId: string
-  threadId?: string
+  channelId: string;
+  threadId?: string;
 }
 
 export interface TypingUser {
-  id: string
-  username: string
-  display_name: string
-  avatar_url: string
-  started_at: string
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string;
+  started_at: string;
 }
 
 // ============================================================================
@@ -51,7 +51,7 @@ export const GET_TYPING_USERS = gql`
     }
   }
   ${TYPING_INDICATOR_FRAGMENT}
-`
+`;
 
 /**
  * Get typing users count
@@ -70,7 +70,7 @@ export const GET_TYPING_USERS_COUNT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Check if specific user is typing
@@ -91,7 +91,7 @@ export const CHECK_USER_TYPING = gql`
       expires_at
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -121,7 +121,7 @@ export const START_TYPING = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Extend typing indicator (keep-alive)
@@ -143,7 +143,7 @@ export const EXTEND_TYPING = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Stop typing indicator (explicit stop)
@@ -154,13 +154,16 @@ export const STOP_TYPING = gql`
       where: {
         user_id: { _eq: $userId }
         channel_id: { _eq: $channelId }
-        _or: [{ thread_id: { _eq: $threadId } }, { thread_id: { _is_null: true } }]
+        _or: [
+          { thread_id: { _eq: $threadId } }
+          { thread_id: { _is_null: true } }
+        ]
       }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Stop all typing indicators for a user (on disconnect)
@@ -171,7 +174,7 @@ export const STOP_ALL_TYPING = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Clean up expired typing indicators (maintenance)
@@ -182,7 +185,7 @@ export const CLEANUP_EXPIRED_TYPING = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Set typing with custom expiration
@@ -211,7 +214,7 @@ export const SET_TYPING_WITH_EXPIRY = gql`
       expires_at
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -240,7 +243,7 @@ export const TYPING_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to typing in a thread
@@ -260,7 +263,7 @@ export const THREAD_TYPING_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to typing stream (real-time updates)
@@ -284,7 +287,7 @@ export const TYPING_STREAM_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to typing status changes for specific users
@@ -305,7 +308,7 @@ export const USERS_TYPING_SUBSCRIPTION = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Subscribe to all typing activity in channels user is member of
@@ -328,4 +331,4 @@ export const ALL_CHANNELS_TYPING_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;

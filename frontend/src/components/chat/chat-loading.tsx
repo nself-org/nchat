@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChatLoadingProps {
-  showHeader?: boolean
-  showInput?: boolean
-  messageCount?: number
-  className?: string
+  showHeader?: boolean;
+  showInput?: boolean;
+  messageCount?: number;
+  className?: string;
 }
 
 // ============================================================================
@@ -34,7 +34,7 @@ function HeaderSkeleton() {
         <Skeleton className="h-8 w-8 rounded-md" />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -42,9 +42,9 @@ function HeaderSkeleton() {
 // ============================================================================
 
 interface MessageSkeletonItemProps {
-  showAvatar?: boolean
-  lines?: number
-  compact?: boolean
+  showAvatar?: boolean;
+  lines?: number;
+  compact?: boolean;
 }
 
 function MessageSkeletonItem({
@@ -53,9 +53,14 @@ function MessageSkeletonItem({
   compact = false,
 }: MessageSkeletonItemProps) {
   return (
-    <div className={cn('flex gap-3', compact && 'gap-2')}>
+    <div className={cn("flex gap-3", compact && "gap-2")}>
       {showAvatar && (
-        <Skeleton className={cn('shrink-0 rounded-full', compact ? 'h-6 w-6' : 'h-9 w-9')} />
+        <Skeleton
+          className={cn(
+            "shrink-0 rounded-full",
+            compact ? "h-6 w-6" : "h-9 w-9",
+          )}
+        />
       )}
       <div className="flex-1 space-y-2">
         {showAvatar && (
@@ -69,17 +74,17 @@ function MessageSkeletonItem({
             <Skeleton
               key={i}
               className={cn(
-                'h-4',
-                i === 0 && 'w-full max-w-[300px]',
-                i === 1 && 'w-full max-w-[220px]',
-                i === 2 && 'w-full max-w-[180px]'
+                "h-4",
+                i === 0 && "w-full max-w-[300px]",
+                i === 1 && "w-full max-w-[220px]",
+                i === 2 && "w-full max-w-[180px]",
               )}
             />
           ))}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -98,7 +103,7 @@ function MessageGroupSkeleton({ messageCount = 3 }: { messageCount?: number }) {
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -112,7 +117,7 @@ function DateSeparatorSkeleton() {
       <Skeleton className="h-4 w-24" />
       <div className="flex-1 border-t" />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -127,7 +132,7 @@ function InputSkeleton() {
         <Skeleton className="h-10 w-20 rounded-md" />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -142,47 +147,50 @@ export function ChatLoading({
 }: ChatLoadingProps) {
   // Generate varied message skeletons
   const messageGroups = React.useMemo(() => {
-    const groups: Array<{ type: 'date' | 'messages'; count?: number }> = []
+    const groups: Array<{ type: "date" | "messages"; count?: number }> = [];
 
     // Start with a date separator
-    groups.push({ type: 'date' })
+    groups.push({ type: "date" });
 
     // Add message groups with some variation
-    let remaining = messageCount
+    let remaining = messageCount;
     while (remaining > 0) {
-      const groupSize = Math.min(remaining, Math.floor(Math.random() * 3) + 1)
-      groups.push({ type: 'messages', count: groupSize })
-      remaining -= groupSize
+      const groupSize = Math.min(remaining, Math.floor(Math.random() * 3) + 1);
+      groups.push({ type: "messages", count: groupSize });
+      remaining -= groupSize;
 
       // Occasionally add a date separator
       if (remaining > 2 && Math.random() > 0.7) {
-        groups.push({ type: 'date' })
+        groups.push({ type: "date" });
       }
     }
 
-    return groups
-  }, [messageCount])
+    return groups;
+  }, [messageCount]);
 
   return (
-    <div className={cn('flex h-full flex-col', className)}>
+    <div className={cn("flex h-full flex-col", className)}>
       {/* Header */}
       {showHeader && <HeaderSkeleton />}
 
       {/* Messages Area */}
       <div className="flex-1 space-y-4 overflow-hidden p-4">
         {messageGroups.map((group, index) =>
-          group.type === 'date' ? (
+          group.type === "date" ? (
             <DateSeparatorSkeleton key={`date-${index}`} />
           ) : (
-            <MessageGroupSkeleton key={`group-${index}`} messageCount={group.count} />
-          )
+            <MessageGroupSkeleton
+              key={`group-${index}`}
+              messageCount={group.count}
+            />
+          ),
         )}
       </div>
 
       {/* Input */}
       {showInput && <InputSkeleton />}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -191,7 +199,7 @@ export function ChatLoading({
 
 export function ChatLoadingSpinner({ className }: { className?: string }) {
   return (
-    <div className={cn('flex items-center justify-center py-8', className)}>
+    <div className={cn("flex items-center justify-center py-8", className)}>
       <div className="flex items-center gap-2 text-muted-foreground">
         <svg
           className="h-5 w-5 animate-spin"
@@ -216,7 +224,7 @@ export function ChatLoadingSpinner({ className }: { className?: string }) {
         <span className="text-sm">Loading messages...</span>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -225,26 +233,31 @@ export function ChatLoadingSpinner({ className }: { className?: string }) {
 
 export function LoadingMoreIndicator({ className }: { className?: string }) {
   return (
-    <div className={cn('flex items-center justify-center border-b py-4', className)}>
+    <div
+      className={cn(
+        "flex items-center justify-center border-b py-4",
+        className,
+      )}
+    >
       <div className="flex items-center gap-2 text-muted-foreground">
         <div className="flex gap-1">
           <span
             className="h-2 w-2 animate-bounce rounded-full bg-current"
-            style={{ animationDelay: '0ms' }}
+            style={{ animationDelay: "0ms" }}
           />
           <span
             className="h-2 w-2 animate-bounce rounded-full bg-current"
-            style={{ animationDelay: '150ms' }}
+            style={{ animationDelay: "150ms" }}
           />
           <span
             className="h-2 w-2 animate-bounce rounded-full bg-current"
-            style={{ animationDelay: '300ms' }}
+            style={{ animationDelay: "300ms" }}
           />
         </div>
         <span className="text-xs">Loading more messages</span>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -257,4 +270,4 @@ export {
   MessageGroupSkeleton,
   DateSeparatorSkeleton,
   InputSkeleton,
-}
+};

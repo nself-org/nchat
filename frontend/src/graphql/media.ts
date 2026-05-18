@@ -5,7 +5,7 @@
  * Connects to the Hasura GraphQL backend via nchat_media table.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // FRAGMENTS
@@ -28,7 +28,7 @@ export const MEDIA_BASIC_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 /**
  * Full media fields fragment with metadata
@@ -58,93 +58,93 @@ export const MEDIA_FULL_FRAGMENT = gql`
       slug
     }
   }
-`
+`;
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface MediaRecord {
-  id: string
-  user_id: string
-  channel_id?: string | null
-  name: string
-  original_name: string
-  mime_type: string
-  size: number
-  url: string
-  thumbnail_url?: string | null
-  metadata?: MediaMetadata | null
-  created_at: string
-  updated_at: string
+  id: string;
+  user_id: string;
+  channel_id?: string | null;
+  name: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  url: string;
+  thumbnail_url?: string | null;
+  metadata?: MediaMetadata | null;
+  created_at: string;
+  updated_at: string;
   user?: {
-    id: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    display_name: string;
+    avatar_url?: string;
+  };
   channel?: {
-    id: string
-    name: string
-    slug: string
-  } | null
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
 }
 
 export interface MediaMetadata {
-  width?: number
-  height?: number
-  duration?: number
-  description?: string
-  alt_text?: string
-  tags?: string[]
-  processing_status?: 'pending' | 'processing' | 'completed' | 'failed'
-  processing_job_id?: string
-  content_hash?: string
-  storage_path?: string
-  bucket?: string
-  [key: string]: unknown
+  width?: number;
+  height?: number;
+  duration?: number;
+  description?: string;
+  alt_text?: string;
+  tags?: string[];
+  processing_status?: "pending" | "processing" | "completed" | "failed";
+  processing_job_id?: string;
+  content_hash?: string;
+  storage_path?: string;
+  bucket?: string;
+  [key: string]: unknown;
 }
 
 export interface GetUserMediaVariables {
-  userId: string
-  limit?: number
-  offset?: number
-  mimeTypeFilter?: string
-  channelId?: string
-  orderBy?: 'created_at' | 'name' | 'size'
-  orderDirection?: 'asc' | 'desc'
+  userId: string;
+  limit?: number;
+  offset?: number;
+  mimeTypeFilter?: string;
+  channelId?: string;
+  orderBy?: "created_at" | "name" | "size";
+  orderDirection?: "asc" | "desc";
 }
 
 export interface GetMediaByIdVariables {
-  id: string
+  id: string;
 }
 
 export interface GetMediaByChannelVariables {
-  channelId: string
-  limit?: number
-  offset?: number
-  mimeTypeFilter?: string
+  channelId: string;
+  limit?: number;
+  offset?: number;
+  mimeTypeFilter?: string;
 }
 
 export interface InsertMediaVariables {
-  userId: string
-  channelId?: string | null
-  name: string
-  originalName: string
-  mimeType: string
-  size: number
-  url: string
-  thumbnailUrl?: string | null
-  metadata?: MediaMetadata | null
+  userId: string;
+  channelId?: string | null;
+  name: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  thumbnailUrl?: string | null;
+  metadata?: MediaMetadata | null;
 }
 
 export interface UpdateMediaVariables {
-  id: string
-  name?: string
-  metadata?: MediaMetadata | null
+  id: string;
+  name?: string;
+  metadata?: MediaMetadata | null;
 }
 
 export interface DeleteMediaVariables {
-  id: string
+  id: string;
 }
 
 // ============================================================================
@@ -165,7 +165,10 @@ export const GET_USER_MEDIA = gql`
     nchat_media(
       where: {
         user_id: { _eq: $userId }
-        _and: [{ mime_type: { _ilike: $mimeTypeFilter } }, { channel_id: { _eq: $channelId } }]
+        _and: [
+          { mime_type: { _ilike: $mimeTypeFilter } }
+          { channel_id: { _eq: $channelId } }
+        ]
       }
       order_by: { created_at: desc }
       limit: $limit
@@ -176,7 +179,10 @@ export const GET_USER_MEDIA = gql`
     nchat_media_aggregate(
       where: {
         user_id: { _eq: $userId }
-        _and: [{ mime_type: { _ilike: $mimeTypeFilter } }, { channel_id: { _eq: $channelId } }]
+        _and: [
+          { mime_type: { _ilike: $mimeTypeFilter } }
+          { channel_id: { _eq: $channelId } }
+        ]
       }
     ) {
       aggregate {
@@ -185,7 +191,7 @@ export const GET_USER_MEDIA = gql`
     }
   }
   ${MEDIA_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get a single media item by ID
@@ -197,7 +203,7 @@ export const GET_MEDIA_BY_ID = gql`
     }
   }
   ${MEDIA_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get media for a specific channel with pagination
@@ -210,7 +216,10 @@ export const GET_MEDIA_BY_CHANNEL = gql`
     $mimeTypeFilter: String
   ) {
     nchat_media(
-      where: { channel_id: { _eq: $channelId }, mime_type: { _ilike: $mimeTypeFilter } }
+      where: {
+        channel_id: { _eq: $channelId }
+        mime_type: { _ilike: $mimeTypeFilter }
+      }
       order_by: { created_at: desc }
       limit: $limit
       offset: $offset
@@ -218,7 +227,10 @@ export const GET_MEDIA_BY_CHANNEL = gql`
       ...MediaFull
     }
     nchat_media_aggregate(
-      where: { channel_id: { _eq: $channelId }, mime_type: { _ilike: $mimeTypeFilter } }
+      where: {
+        channel_id: { _eq: $channelId }
+        mime_type: { _ilike: $mimeTypeFilter }
+      }
     ) {
       aggregate {
         count
@@ -226,17 +238,25 @@ export const GET_MEDIA_BY_CHANNEL = gql`
     }
   }
   ${MEDIA_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Search media by name
  */
 export const SEARCH_MEDIA = gql`
-  query SearchMedia($userId: uuid!, $query: String!, $limit: Int = 20, $offset: Int = 0) {
+  query SearchMedia(
+    $userId: uuid!
+    $query: String!
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_media(
       where: {
         user_id: { _eq: $userId }
-        _or: [{ name: { _ilike: $query } }, { original_name: { _ilike: $query } }]
+        _or: [
+          { name: { _ilike: $query } }
+          { original_name: { _ilike: $query } }
+        ]
       }
       order_by: { created_at: desc }
       limit: $limit
@@ -247,7 +267,10 @@ export const SEARCH_MEDIA = gql`
     nchat_media_aggregate(
       where: {
         user_id: { _eq: $userId }
-        _or: [{ name: { _ilike: $query } }, { original_name: { _ilike: $query } }]
+        _or: [
+          { name: { _ilike: $query } }
+          { original_name: { _ilike: $query } }
+        ]
       }
     ) {
       aggregate {
@@ -256,7 +279,7 @@ export const SEARCH_MEDIA = gql`
     }
   }
   ${MEDIA_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get media stats for a user
@@ -309,7 +332,7 @@ export const GET_USER_MEDIA_STATS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -347,7 +370,7 @@ export const INSERT_MEDIA = gql`
     }
   }
   ${MEDIA_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update media metadata (name, description, etc.)
@@ -363,7 +386,7 @@ export const UPDATE_MEDIA = gql`
     }
   }
   ${MEDIA_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update media metadata only
@@ -378,7 +401,7 @@ export const UPDATE_MEDIA_METADATA = gql`
     }
   }
   ${MEDIA_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Delete a media record
@@ -392,7 +415,7 @@ export const DELETE_MEDIA = gql`
       metadata
     }
   }
-`
+`;
 
 /**
  * Bulk delete media records
@@ -408,7 +431,7 @@ export const BULK_DELETE_MEDIA = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Update processing status in metadata
@@ -423,13 +446,15 @@ export const UPDATE_PROCESSING_STATUS = gql`
     update_nchat_media_by_pk(
       pk_columns: { id: $id }
       _set: { thumbnail_url: $thumbnailUrl, updated_at: "now()" }
-      _append: { metadata: { processing_status: $status, processing_job_id: $jobId } }
+      _append: {
+        metadata: { processing_status: $status, processing_job_id: $jobId }
+      }
     ) {
       ...MediaBasic
     }
   }
   ${MEDIA_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -440,12 +465,16 @@ export const UPDATE_PROCESSING_STATUS = gql`
  */
 export const SUBSCRIBE_USER_MEDIA = gql`
   subscription SubscribeUserMedia($userId: uuid!) {
-    nchat_media(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }, limit: 10) {
+    nchat_media(
+      where: { user_id: { _eq: $userId } }
+      order_by: { created_at: desc }
+      limit: 10
+    ) {
       ...MediaBasic
     }
   }
   ${MEDIA_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to new media in a channel
@@ -461,4 +490,4 @@ export const SUBSCRIBE_CHANNEL_MEDIA = gql`
     }
   }
   ${MEDIA_BASIC_FRAGMENT}
-`
+`;

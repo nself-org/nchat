@@ -3,7 +3,7 @@
 // ============================================
 
 // Modal Provider - Renders all modals from store
-export { ModalProvider, useModalProviderMounted } from './modal-provider'
+export { ModalProvider, useModalProviderMounted } from "./modal-provider";
 
 // Base Modal - Foundation component for building modals
 export {
@@ -25,7 +25,7 @@ export {
   type ModalFooterProps,
   type CompleteModalProps,
   type ModalSize,
-} from './base-modal'
+} from "./base-modal";
 
 // ============================================
 // Modal System - Standard Modals
@@ -40,7 +40,7 @@ export {
   type ConfirmVariant,
   type DeleteConfirmModalProps,
   type UnsavedChangesModalProps,
-} from './confirm-modal'
+} from "./confirm-modal";
 
 // Alert Modal - Alert/notification dialogs
 export {
@@ -51,7 +51,7 @@ export {
   InfoAlert,
   type AlertModalProps,
   type AlertIcon,
-} from './alert-modal'
+} from "./alert-modal";
 
 // Prompt Modal - Input prompt dialogs
 export {
@@ -62,17 +62,21 @@ export {
   type InputType,
   type RenameModalProps,
   type CreateNameModalProps,
-} from './prompt-modal'
+} from "./prompt-modal";
 
 // ============================================
 // Modal System - Media Modals
 // ============================================
 
 // Image Lightbox - Full-screen image viewer
-export { ImageLightbox, type ImageLightboxProps, type LightboxImage } from './image-lightbox'
+export {
+  ImageLightbox,
+  type ImageLightboxProps,
+  type LightboxImage,
+} from "./image-lightbox";
 
 // Video Modal - Video player modal
-export { VideoModal, type VideoModalProps } from './video-modal'
+export { VideoModal, type VideoModalProps } from "./video-modal";
 
 // ============================================
 // Modal System - Feature Modals
@@ -84,7 +88,7 @@ export {
   type ProfileModalProps,
   type ProfileUser,
   type ProfileStatus,
-} from './profile-modal'
+} from "./profile-modal";
 
 // Settings Modal - Quick settings editor
 export {
@@ -96,50 +100,54 @@ export {
   type SettingsSection,
   type SettingType,
   type SettingOption,
-} from './settings-modal'
+} from "./settings-modal";
 
 // ============================================
 // Existing Application Modals
 // ============================================
 
 // Channel modals
-export { CreateChannelModal } from './create-channel-modal'
-export type { ChannelMember, ChannelCategory, CreateChannelData } from './create-channel-modal'
+export { CreateChannelModal } from "./create-channel-modal";
+export type {
+  ChannelMember,
+  ChannelCategory,
+  CreateChannelData,
+} from "./create-channel-modal";
 
-export { EditChannelModal } from './edit-channel-modal'
-export type { ChannelData, EditChannelData } from './edit-channel-modal'
+export { EditChannelModal } from "./edit-channel-modal";
+export type { ChannelData, EditChannelData } from "./edit-channel-modal";
 
-export { LeaveChannelModal } from './leave-channel-modal'
-export type { ChannelInfo } from './leave-channel-modal'
+export { LeaveChannelModal } from "./leave-channel-modal";
+export type { ChannelInfo } from "./leave-channel-modal";
 
 // User modals
-export { InviteMembersModal } from './invite-members-modal'
-export type { InvitableUser } from './invite-members-modal'
+export { InviteMembersModal } from "./invite-members-modal";
+export type { InvitableUser } from "./invite-members-modal";
 
-export { UserProfileModal } from './user-profile-modal'
-export type { UserProfile, UserStatus } from './user-profile-modal'
+export { UserProfileModal } from "./user-profile-modal";
+export type { UserProfile, UserStatus } from "./user-profile-modal";
 
 // Message modals
-export { DeleteMessageModal } from './delete-message-modal'
-export type { MessagePreview } from './delete-message-modal'
+export { DeleteMessageModal } from "./delete-message-modal";
+export type { MessagePreview } from "./delete-message-modal";
 
-export { PinMessageModal, UnpinMessageModal } from './pin-message-modal'
-export type { PinnableMessage } from './pin-message-modal'
+export { PinMessageModal, UnpinMessageModal } from "./pin-message-modal";
+export type { PinnableMessage } from "./pin-message-modal";
 
 // Utility modals (legacy - prefer new ConfirmModal)
 export {
   ConfirmationModal,
   DeleteConfirmationModal,
   UnsavedChangesModal as LegacyUnsavedChangesModal,
-} from './confirmation-modal'
-export type { ConfirmationVariant } from './confirmation-modal'
+} from "./confirmation-modal";
+export type { ConfirmationVariant } from "./confirmation-modal";
 
 // Image preview (legacy - prefer new ImageLightbox)
-export { ImagePreviewModal } from './image-preview-modal'
-export type { ImageItem } from './image-preview-modal'
+export { ImagePreviewModal } from "./image-preview-modal";
+export type { ImageItem } from "./image-preview-modal";
 
 // Keyboard shortcuts
-export { KeyboardShortcutsModal } from './keyboard-shortcuts-modal'
+export { KeyboardShortcutsModal } from "./keyboard-shortcuts-modal";
 
 // ============================================
 // Re-export hooks from lib/modals
@@ -157,4 +165,4 @@ export {
   useCreatePrompt,
   usePasswordPrompt,
   useModalStore,
-} from '@/lib/modals'
+} from "@/lib/modals";

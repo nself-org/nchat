@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import { logger } from '@/lib/logger'
+import { useState, useEffect, useCallback } from "react";
+import { logger } from "@/lib/logger";
 import {
   isTauri,
   getPlatform,
   getAppVersion,
   getEnvironment,
   type TauriEnvironment,
-} from '@/lib/tauri'
+} from "@/lib/tauri";
 
 /**
  * Hook for accessing Tauri environment information
@@ -16,41 +16,41 @@ import {
 export function useTauri() {
   const [environment, setEnvironment] = useState<TauriEnvironment>({
     isTauri: false,
-    platform: 'web',
-    version: '0.0.0',
-  })
-  const [isLoading, setIsLoading] = useState(true)
+    platform: "web",
+    version: "0.0.0",
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
 
     async function loadEnvironment() {
       try {
-        const env = await getEnvironment()
+        const env = await getEnvironment();
         if (mounted) {
-          setEnvironment(env)
+          setEnvironment(env);
         }
       } catch (error) {
-        logger.error('Failed to load Tauri environment:', error)
+        logger.error("Failed to load Tauri environment:", error);
       } finally {
         if (mounted) {
-          setIsLoading(false)
+          setIsLoading(false);
         }
       }
     }
 
-    loadEnvironment()
+    loadEnvironment();
 
     return () => {
-      mounted = false
-    }
-  }, [])
+      mounted = false;
+    };
+  }, []);
 
-  const isDesktop = environment.isTauri
-  const isWeb = !environment.isTauri
-  const isMacOS = environment.platform === 'macos'
-  const isWindows = environment.platform === 'windows'
-  const isLinux = environment.platform === 'linux'
+  const isDesktop = environment.isTauri;
+  const isWeb = !environment.isTauri;
+  const isMacOS = environment.platform === "macos";
+  const isWindows = environment.platform === "windows";
+  const isLinux = environment.platform === "linux";
 
   return {
     ...environment,
@@ -60,84 +60,86 @@ export function useTauri() {
     isMacOS,
     isWindows,
     isLinux,
-  }
+  };
 }
 
 /**
  * Hook for checking if running in Tauri (synchronous)
  */
 export function useTauriCheck(): boolean {
-  return isTauri()
+  return isTauri();
 }
 
 /**
  * Hook for getting the platform
  */
 export function usePlatform() {
-  const [platform, setPlatform] = useState<'macos' | 'windows' | 'linux' | 'web'>('web')
-  const [isLoading, setIsLoading] = useState(true)
+  const [platform, setPlatform] = useState<
+    "macos" | "windows" | "linux" | "web"
+  >("web");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
 
     async function loadPlatform() {
       try {
-        const p = await getPlatform()
+        const p = await getPlatform();
         if (mounted) {
-          setPlatform(p)
+          setPlatform(p);
         }
       } catch (error) {
-        logger.error('Failed to get platform:', error)
+        logger.error("Failed to get platform:", error);
       } finally {
         if (mounted) {
-          setIsLoading(false)
+          setIsLoading(false);
         }
       }
     }
 
-    loadPlatform()
+    loadPlatform();
 
     return () => {
-      mounted = false
-    }
-  }, [])
+      mounted = false;
+    };
+  }, []);
 
-  return { platform, isLoading }
+  return { platform, isLoading };
 }
 
 /**
  * Hook for getting the app version
  */
 export function useAppVersion() {
-  const [version, setVersion] = useState<string>('0.0.0')
-  const [isLoading, setIsLoading] = useState(true)
+  const [version, setVersion] = useState<string>("0.0.0");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
 
     async function loadVersion() {
       try {
-        const v = await getAppVersion()
+        const v = await getAppVersion();
         if (mounted) {
-          setVersion(v)
+          setVersion(v);
         }
       } catch (error) {
-        logger.error('Failed to get app version:', error)
+        logger.error("Failed to get app version:", error);
       } finally {
         if (mounted) {
-          setIsLoading(false)
+          setIsLoading(false);
         }
       }
     }
 
-    loadVersion()
+    loadVersion();
 
     return () => {
-      mounted = false
-    }
-  }, [])
+      mounted = false;
+    };
+  }, []);
 
-  return { version, isLoading }
+  return { version, isLoading };
 }
 
-export default useTauri
+export default useTauri;

@@ -3,46 +3,46 @@
  * Handles outgoing webhook delivery with retry logic
  */
 
-import { gql } from '@apollo/client'
-import { getApolloClient } from '@/lib/apollo-client'
-import { signWebhookPayload } from './tokens'
+import { gql } from "@apollo/client";
+import { getApolloClient } from "@/lib/apollo-client";
+import { signWebhookPayload } from "./tokens";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 /**
  * Webhook event types
  */
 export enum WebhookEvent {
-  MESSAGE_CREATED = 'message.created',
-  MESSAGE_UPDATED = 'message.updated',
-  MESSAGE_DELETED = 'message.deleted',
-  CHANNEL_CREATED = 'channel.created',
-  CHANNEL_UPDATED = 'channel.updated',
-  CHANNEL_DELETED = 'channel.deleted',
-  USER_JOINED = 'user.joined',
-  USER_LEFT = 'user.left',
-  REACTION_ADDED = 'reaction.added',
-  REACTION_REMOVED = 'reaction.removed',
+  MESSAGE_CREATED = "message.created",
+  MESSAGE_UPDATED = "message.updated",
+  MESSAGE_DELETED = "message.deleted",
+  CHANNEL_CREATED = "channel.created",
+  CHANNEL_UPDATED = "channel.updated",
+  CHANNEL_DELETED = "channel.deleted",
+  USER_JOINED = "user.joined",
+  USER_LEFT = "user.left",
+  REACTION_ADDED = "reaction.added",
+  REACTION_REMOVED = "reaction.removed",
 }
 
 /**
  * Webhook payload structure
  */
 export interface WebhookPayload {
-  event: WebhookEvent
-  timestamp: string
-  data: Record<string, any>
+  event: WebhookEvent;
+  timestamp: string;
+  data: Record<string, any>;
 }
 
 /**
  * Webhook delivery result
  */
 export interface WebhookDeliveryResult {
-  success: boolean
-  statusCode?: number
-  responseBody?: string
-  error?: string
-  attemptNumber: number
+  success: boolean;
+  statusCode?: number;
+  responseBody?: string;
+  error?: string;
+  attemptNumber: number;
 }
 
 /**
@@ -50,7 +50,9 @@ export interface WebhookDeliveryResult {
  */
 const GET_WEBHOOKS_FOR_EVENT = gql`
   query GetWebhooksForEvent($event: String!) {
-    nchat_bot_webhooks(where: { is_active: { _eq: true }, events: { _contains: [$event] } }) {
+    nchat_bot_webhooks(
+      where: { is_active: { _eq: true }, events: { _contains: [$event] } }
+    ) {
       id
       bot_id
       url
@@ -61,7 +63,7 @@ const GET_WEBHOOKS_FOR_EVENT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * GraphQL mutation to log webhook delivery
@@ -90,7 +92,7 @@ const LOG_WEBHOOK_DELIVERY = gql`
       id
     }
   }
-`
+`;
 
 /**
  * GraphQL mutation to update webhook stats
@@ -105,7 +107,7 @@ const UPDATE_WEBHOOK_STATS = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Deliver webhook with retry logic
@@ -123,42 +125,42 @@ async function deliverWebhookWithRetry(
   url: string,
   secret: string,
   payload: WebhookPayload,
-  attemptNumber: number = 1
+  attemptNumber: number = 1,
 ): Promise<WebhookDeliveryResult> {
-  const maxAttempts = 5
+  const maxAttempts = 5;
 
   try {
     // Prepare payload
-    const payloadString = JSON.stringify(payload)
-    const signature = signWebhookPayload(payloadString, secret)
+    const payloadString = JSON.stringify(payload);
+    const signature = signWebhookPayload(payloadString, secret);
 
     // Send HTTP request
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'X-Webhook-Event': payload.event,
-        'X-Webhook-Signature': `sha256=${signature}`,
-        'X-Webhook-Delivery': webhookId,
-        'X-Webhook-Attempt': attemptNumber.toString(),
-        'User-Agent': 'nself-chat-bot-webhook/1.0',
+        "Content-Type": "application/json",
+        "X-Webhook-Event": payload.event,
+        "X-Webhook-Signature": `sha256=${signature}`,
+        "X-Webhook-Delivery": webhookId,
+        "X-Webhook-Attempt": attemptNumber.toString(),
+        "User-Agent": "nself-chat-bot-webhook/1.0",
       },
       body: payloadString,
       signal: AbortSignal.timeout(30000), // 30 second timeout
-    })
+    });
 
-    const responseBody = await response.text()
-    const success = response.ok
+    const responseBody = await response.text();
+    const success = response.ok;
 
     const result: WebhookDeliveryResult = {
       success,
       statusCode: response.status,
       responseBody: responseBody.slice(0, 1000), // Limit to 1000 chars
       attemptNumber,
-    }
+    };
 
     // Log delivery
-    const client = getApolloClient()
+    const client = getApolloClient();
     await client.mutate({
       mutation: LOG_WEBHOOK_DELIVERY,
       variables: {
@@ -170,29 +172,38 @@ async function deliverWebhookWithRetry(
         success,
         attemptNumber,
       },
-    })
+    });
 
     // If failed and we have attempts left, retry with backoff
     if (!success && attemptNumber < maxAttempts) {
-      const backoffMs = Math.min(1000 * Math.pow(2, attemptNumber), 60000) // Max 60s
+      const backoffMs = Math.min(1000 * Math.pow(2, attemptNumber), 60000); // Max 60s
 
-      await new Promise((resolve) => setTimeout(resolve, backoffMs))
-      return deliverWebhookWithRetry(webhookId, url, secret, payload, attemptNumber + 1)
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      return deliverWebhookWithRetry(
+        webhookId,
+        url,
+        secret,
+        payload,
+        attemptNumber + 1,
+      );
     }
 
-    return result
+    return result;
   } catch (error: any) {
-    logger.error(`Webhook delivery error (attempt ${attemptNumber}/${maxAttempts}):`, error)
+    logger.error(
+      `Webhook delivery error (attempt ${attemptNumber}/${maxAttempts}):`,
+      error,
+    );
 
     const result: WebhookDeliveryResult = {
       success: false,
       error: error.message,
       attemptNumber,
-    }
+    };
 
     // Log delivery failure
     try {
-      const client = getApolloClient()
+      const client = getApolloClient();
       await client.mutate({
         mutation: LOG_WEBHOOK_DELIVERY,
         variables: {
@@ -204,19 +215,25 @@ async function deliverWebhookWithRetry(
           success: false,
           attemptNumber,
         },
-      })
+      });
     } catch (logError) {
-      logger.error('Failed to log webhook error:', logError)
+      logger.error("Failed to log webhook error:", logError);
     }
 
     // Retry if we have attempts left
     if (attemptNumber < maxAttempts) {
-      const backoffMs = Math.min(1000 * Math.pow(2, attemptNumber), 60000)
-      await new Promise((resolve) => setTimeout(resolve, backoffMs))
-      return deliverWebhookWithRetry(webhookId, url, secret, payload, attemptNumber + 1)
+      const backoffMs = Math.min(1000 * Math.pow(2, attemptNumber), 60000);
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      return deliverWebhookWithRetry(
+        webhookId,
+        url,
+        secret,
+        payload,
+        attemptNumber + 1,
+      );
     }
 
-    return result
+    return result;
   }
 }
 
@@ -238,21 +255,21 @@ async function deliverWebhookWithRetry(
  */
 export async function triggerWebhooks(
   event: WebhookEvent,
-  data: Record<string, any>
+  data: Record<string, any>,
 ): Promise<void> {
   try {
     // Fetch webhooks subscribed to this event
-    const client = getApolloClient()
+    const client = getApolloClient();
     const { data: webhooksData } = await client.query({
       query: GET_WEBHOOKS_FOR_EVENT,
       variables: { event },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const webhooks = webhooksData?.nchat_bot_webhooks || []
+    const webhooks = webhooksData?.nchat_bot_webhooks || [];
 
     if (webhooks.length === 0) {
-      return // No webhooks to trigger
+      return; // No webhooks to trigger
     }
 
     // Prepare payload
@@ -260,13 +277,13 @@ export async function triggerWebhooks(
       event,
       timestamp: new Date().toISOString(),
       data,
-    }
+    };
 
     // Deliver to all webhooks (in parallel for better performance)
     const deliveries = webhooks.map(async (webhook: any) => {
       // Skip inactive bots
       if (!webhook.bot?.is_active) {
-        return
+        return;
       }
 
       try {
@@ -274,8 +291,8 @@ export async function triggerWebhooks(
           webhook.id,
           webhook.url,
           webhook.secret,
-          payload
-        )
+          payload,
+        );
 
         // Update webhook stats
         await client.mutate({
@@ -284,23 +301,26 @@ export async function triggerWebhooks(
             webhookId: webhook.id,
             failureIncrement: result.success ? 0 : 1,
           },
-        })
+        });
 
         if (!result.success) {
-          console.error(`Webhook delivery failed after ${result.attemptNumber} attempts:`, {
-            webhookId: webhook.id,
-            event,
-            error: result.error || `HTTP ${result.statusCode}`,
-          })
+          console.error(
+            `Webhook delivery failed after ${result.attemptNumber} attempts:`,
+            {
+              webhookId: webhook.id,
+              event,
+              error: result.error || `HTTP ${result.statusCode}`,
+            },
+          );
         }
       } catch (error) {
-        logger.error('Error in webhook delivery process:', error)
+        logger.error("Error in webhook delivery process:", error);
       }
-    })
+    });
 
-    await Promise.allSettled(deliveries)
+    await Promise.allSettled(deliveries);
   } catch (error) {
-    logger.error('Error triggering webhooks:', error)
+    logger.error("Error triggering webhooks:", error);
     // Don't throw - webhook delivery failures shouldn't break the main flow
   }
 }
@@ -317,18 +337,18 @@ export async function triggerWebhooks(
 export async function testWebhook(
   webhookId: string,
   url: string,
-  secret: string
+  secret: string,
 ): Promise<WebhookDeliveryResult> {
   const payload: WebhookPayload = {
-    event: 'test' as WebhookEvent,
+    event: "test" as WebhookEvent,
     timestamp: new Date().toISOString(),
     data: {
       test: true,
-      message: 'This is a test webhook delivery',
+      message: "This is a test webhook delivery",
     },
-  }
+  };
 
-  return deliverWebhookWithRetry(webhookId, url, secret, payload, 1)
+  return deliverWebhookWithRetry(webhookId, url, secret, payload, 1);
 }
 
 /**
@@ -336,11 +356,11 @@ export async function testWebhook(
  */
 
 export async function triggerMessageCreated(message: {
-  id: string
-  channelId: string
-  userId: string
-  content: string
-  createdAt: string
+  id: string;
+  channelId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
 }) {
   await triggerWebhooks(WebhookEvent.MESSAGE_CREATED, {
     messageId: message.id,
@@ -348,29 +368,29 @@ export async function triggerMessageCreated(message: {
     authorId: message.userId,
     content: message.content,
     createdAt: message.createdAt,
-  })
+  });
 }
 
 export async function triggerMessageDeleted(message: {
-  id: string
-  channelId: string
-  userId: string
+  id: string;
+  channelId: string;
+  userId: string;
 }) {
   await triggerWebhooks(WebhookEvent.MESSAGE_DELETED, {
     messageId: message.id,
     channelId: message.channelId,
     authorId: message.userId,
     deletedAt: new Date().toISOString(),
-  })
+  });
 }
 
 export async function triggerChannelCreated(channel: {
-  id: string
-  name: string
-  description?: string
-  isPrivate: boolean
-  createdBy: string
-  createdAt: string
+  id: string;
+  name: string;
+  description?: string;
+  isPrivate: boolean;
+  createdBy: string;
+  createdAt: string;
 }) {
   await triggerWebhooks(WebhookEvent.CHANNEL_CREATED, {
     channelId: channel.id,
@@ -379,23 +399,23 @@ export async function triggerChannelCreated(channel: {
     isPrivate: channel.isPrivate,
     createdBy: channel.createdBy,
     createdAt: channel.createdAt,
-  })
+  });
 }
 
 export async function triggerUserJoined(data: {
-  userId: string
-  channelId: string
-  joinedAt: string
+  userId: string;
+  channelId: string;
+  joinedAt: string;
 }) {
-  await triggerWebhooks(WebhookEvent.USER_JOINED, data)
+  await triggerWebhooks(WebhookEvent.USER_JOINED, data);
 }
 
 export async function triggerReactionAdded(reaction: {
-  id: string
-  messageId: string
-  userId: string
-  emoji: string
-  createdAt: string
+  id: string;
+  messageId: string;
+  userId: string;
+  emoji: string;
+  createdAt: string;
 }) {
   await triggerWebhooks(WebhookEvent.REACTION_ADDED, {
     reactionId: reaction.id,
@@ -403,5 +423,5 @@ export async function triggerReactionAdded(reaction: {
     userId: reaction.userId,
     emoji: reaction.emoji,
     createdAt: reaction.createdAt,
-  })
+  });
 }

@@ -1,11 +1,17 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import { Archive, ArchiveRestore, AlertTriangle, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import * as React from "react";
+import { useState } from "react";
+import { Archive, ArchiveRestore, AlertTriangle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,20 +22,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import type { Channel } from '@/stores/channel-store'
-import { formatTimeAgo } from '@/lib/channels/channel-stats'
+} from "@/components/ui/alert-dialog";
+import type { Channel } from "@/stores/channel-store";
+import { formatTimeAgo } from "@/lib/channels/channel-stats";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelArchiveProps {
-  channel: Channel
-  isAdmin?: boolean
-  onArchive?: () => Promise<void>
-  onUnarchive?: () => Promise<void>
-  className?: string
+  channel: Channel;
+  isAdmin?: boolean;
+  onArchive?: () => Promise<void>;
+  onUnarchive?: () => Promise<void>;
+  className?: string;
 }
 
 // ============================================================================
@@ -43,35 +49,37 @@ export function ChannelArchive({
   onUnarchive,
   className,
 }: ChannelArchiveProps) {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleArchive = async () => {
     try {
-      setIsLoading(true)
-      await onArchive?.()
+      setIsLoading(true);
+      await onArchive?.();
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleUnarchive = async () => {
     try {
-      setIsLoading(true)
-      await onUnarchive?.()
+      setIsLoading(true);
+      await onUnarchive?.();
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (channel.isArchived) {
     return (
-      <Card className={cn('border-yellow-500/50', className)}>
+      <Card className={cn("border-yellow-500/50", className)}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-yellow-600">
             <Archive className="h-5 w-5" />
             Channel Archived
           </CardTitle>
-          <CardDescription>This channel was archived and is now read-only</CardDescription>
+          <CardDescription>
+            This channel was archived and is now read-only
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2 rounded-lg bg-yellow-500/10 p-4">
@@ -98,14 +106,19 @@ export function ChannelArchive({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Unarchive channel?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will restore #{channel.name} to an active channel. Members will be able to
-                    send messages again.
+                    This will restore #{channel.name} to an active channel.
+                    Members will be able to send messages again.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleUnarchive} disabled={isLoading}>
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <AlertDialogAction
+                    onClick={handleUnarchive}
+                    disabled={isLoading}
+                  >
+                    {isLoading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
                     Unarchive
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -114,11 +127,11 @@ export function ChannelArchive({
           )}
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!isAdmin) {
-    return null
+    return null;
   }
 
   return (
@@ -157,8 +170,9 @@ export function ChannelArchive({
             <AlertDialogHeader>
               <AlertDialogTitle>Archive #{channel.name}?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will archive the channel. No one will be able to send new messages, but the
-                history will be preserved and the channel can be unarchived later.
+                This will archive the channel. No one will be able to send new
+                messages, but the history will be preserved and the channel can
+                be unarchived later.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -172,7 +186,7 @@ export function ChannelArchive({
         </AlertDialog>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-ChannelArchive.displayName = 'ChannelArchive'
+ChannelArchive.displayName = "ChannelArchive";

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * WorkflowCanvas - Drag-drop canvas for workflow steps
@@ -6,21 +6,21 @@
  * Handles rendering of workflow nodes and edges, pan/zoom, and interactions
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { useWorkflowBuilderStore } from '@/stores/workflow-builder-store'
-import { WorkflowNode } from './WorkflowNode'
-import { WorkflowEdge } from './WorkflowEdge'
-import type { Position, StepType } from '@/lib/workflows/workflow-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { useWorkflowBuilderStore } from "@/stores/workflow-builder-store";
+import { WorkflowNode } from "./WorkflowNode";
+import { WorkflowEdge } from "./WorkflowEdge";
+import type { Position, StepType } from "@/lib/workflows/workflow-types";
 
 interface WorkflowCanvasProps {
-  className?: string
+  className?: string;
 }
 
 export function WorkflowCanvas({ className }: WorkflowCanvasProps) {
-  const canvasRef = React.useRef<HTMLDivElement>(null)
-  const [isPanning, setIsPanning] = React.useState(false)
-  const [panStart, setPanStart] = React.useState<Position>({ x: 0, y: 0 })
+  const canvasRef = React.useRef<HTMLDivElement>(null);
+  const [isPanning, setIsPanning] = React.useState(false);
+  const [panStart, setPanStart] = React.useState<Position>({ x: 0, y: 0 });
 
   const {
     workflow,
@@ -33,41 +33,41 @@ export function WorkflowCanvas({ className }: WorkflowCanvasProps) {
     endDrag,
     clearSelection,
     cancelConnection,
-  } = useWorkflowBuilderStore()
+  } = useWorkflowBuilderStore();
 
   // Handle mouse wheel for zoom
   React.useEffect(() => {
-    const canvasEl = canvasRef.current
-    if (!canvasEl) return
+    const canvasEl = canvasRef.current;
+    if (!canvasEl) return;
 
     const handleWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) {
-        e.preventDefault()
-        const delta = e.deltaY > 0 ? -0.1 : 0.1
-        const store = useWorkflowBuilderStore.getState()
-        store.setZoom(store.canvas.zoom + delta)
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        const store = useWorkflowBuilderStore.getState();
+        store.setZoom(store.canvas.zoom + delta);
       }
-    }
+    };
 
-    canvasEl.addEventListener('wheel', handleWheel, { passive: false })
-    return () => canvasEl.removeEventListener('wheel', handleWheel)
-  }, [])
+    canvasEl.addEventListener("wheel", handleWheel, { passive: false });
+    return () => canvasEl.removeEventListener("wheel", handleWheel);
+  }, []);
 
   // Handle pan start
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 1 || (e.button === 0 && e.altKey)) {
       // Middle mouse or Alt+Left click
-      e.preventDefault()
-      setIsPanning(true)
-      setPanStart({ x: e.clientX - canvas.pan.x, y: e.clientY - canvas.pan.y })
+      e.preventDefault();
+      setIsPanning(true);
+      setPanStart({ x: e.clientX - canvas.pan.x, y: e.clientY - canvas.pan.y });
     } else if (e.button === 0 && e.target === canvasRef.current) {
       // Left click on canvas background
-      clearSelection()
+      clearSelection();
       if (isConnecting) {
-        cancelConnection()
+        cancelConnection();
       }
     }
-  }
+  };
 
   // Handle pan move
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -75,47 +75,47 @@ export function WorkflowCanvas({ className }: WorkflowCanvasProps) {
       setPan({
         x: e.clientX - panStart.x,
         y: e.clientY - panStart.y,
-      })
+      });
     }
-  }
+  };
 
   // Handle pan end
   const handleMouseUp = () => {
-    setIsPanning(false)
-  }
+    setIsPanning(false);
+  };
 
   // Handle drop
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!draggedStepType || !canvasRef.current) return
+    if (!draggedStepType || !canvasRef.current) return;
 
-    const rect = canvasRef.current.getBoundingClientRect()
+    const rect = canvasRef.current.getBoundingClientRect();
     const position: Position = {
       x: (e.clientX - rect.left - canvas.pan.x) / canvas.zoom,
       y: (e.clientY - rect.top - canvas.pan.y) / canvas.zoom,
-    }
+    };
 
-    addStep(draggedStepType, position)
-    endDrag()
-  }
+    addStep(draggedStepType, position);
+    endDrag();
+  };
 
   // Handle drag over
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'copy'
-  }
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
 
-  if (!workflow) return null
+  if (!workflow) return null;
 
   return (
     /* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
     <div
       ref={canvasRef}
       className={cn(
-        'bg-muted/20 relative overflow-hidden',
-        isPanning && 'cursor-grabbing',
-        className
+        "bg-muted/20 relative overflow-hidden",
+        isPanning && "cursor-grabbing",
+        className,
       )}
       role="application"
       aria-label="Workflow canvas"
@@ -139,12 +139,18 @@ export function WorkflowCanvas({ className }: WorkflowCanvasProps) {
         }}
       >
         {/* Edges */}
-        <g transform={`translate(${canvas.pan.x}, ${canvas.pan.y}) scale(${canvas.zoom})`}>
+        <g
+          transform={`translate(${canvas.pan.x}, ${canvas.pan.y}) scale(${canvas.zoom})`}
+        >
           {workflow.edges.map((edge) => {
-            const sourceStep = workflow.steps.find((s) => s.id === edge.sourceId)
-            const targetStep = workflow.steps.find((s) => s.id === edge.targetId)
+            const sourceStep = workflow.steps.find(
+              (s) => s.id === edge.sourceId,
+            );
+            const targetStep = workflow.steps.find(
+              (s) => s.id === edge.targetId,
+            );
 
-            if (!sourceStep || !targetStep) return null
+            if (!sourceStep || !targetStep) return null;
 
             return (
               <WorkflowEdge
@@ -160,13 +166,15 @@ export function WorkflowCanvas({ className }: WorkflowCanvasProps) {
                 }}
                 isSelected={canvas.selectedEdgeId === edge.id}
               />
-            )
+            );
           })}
 
           {/* Connection line being drawn */}
           {isConnecting && connectionStart && (
             <ConnectionLine
-              startStep={workflow.steps.find((s) => s.id === connectionStart.stepId)}
+              startStep={workflow.steps.find(
+                (s) => s.id === connectionStart.stepId,
+              )}
               canvasRef={canvasRef}
               zoom={canvas.zoom}
               pan={canvas.pan}
@@ -180,7 +188,7 @@ export function WorkflowCanvas({ className }: WorkflowCanvasProps) {
         className="absolute inset-0"
         style={{
           transform: `translate(${canvas.pan.x}px, ${canvas.pan.y}px) scale(${canvas.zoom})`,
-          transformOrigin: '0 0',
+          transformOrigin: "0 0",
         }}
       >
         {workflow.steps.map((step) => (
@@ -197,7 +205,7 @@ export function WorkflowCanvas({ className }: WorkflowCanvasProps) {
         {Math.round(canvas.zoom * 100)}%
       </div>
     </div>
-  )
+  );
 }
 
 // Connection line component for drawing connections
@@ -207,31 +215,31 @@ function ConnectionLine({
   zoom,
   pan,
 }: {
-  startStep?: { position: Position } | null
-  canvasRef: React.RefObject<HTMLDivElement | null>
-  zoom: number
-  pan: Position
+  startStep?: { position: Position } | null;
+  canvasRef: React.RefObject<HTMLDivElement | null>;
+  zoom: number;
+  pan: Position;
 }) {
-  const [mousePos, setMousePos] = React.useState<Position>({ x: 0, y: 0 })
+  const [mousePos, setMousePos] = React.useState<Position>({ x: 0, y: 0 });
 
   React.useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!canvasRef.current) return
-      const rect = canvasRef.current.getBoundingClientRect()
+      if (!canvasRef.current) return;
+      const rect = canvasRef.current.getBoundingClientRect();
       setMousePos({
         x: (e.clientX - rect.left - pan.x) / zoom,
         y: (e.clientY - rect.top - pan.y) / zoom,
-      })
-    }
+      });
+    };
 
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [canvasRef, zoom, pan])
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [canvasRef, zoom, pan]);
 
-  if (!startStep) return null
+  if (!startStep) return null;
 
-  const startX = startStep.position.x + 120
-  const startY = startStep.position.y + 40
+  const startX = startStep.position.x + 120;
+  const startY = startStep.position.y + 40;
 
   return (
     <path
@@ -242,7 +250,7 @@ function ConnectionLine({
       strokeDasharray="5,5"
       className="pointer-events-none"
     />
-  )
+  );
 }
 
-export default WorkflowCanvas
+export default WorkflowCanvas;

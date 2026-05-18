@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Desktop Deployment Helper Component
@@ -11,7 +11,7 @@
  * - Monitoring deployment status
  */
 
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   Download,
   Upload,
@@ -29,171 +29,179 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronRight,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 
 interface BuildStatus {
-  platform: 'electron' | 'tauri'
-  target: 'mac' | 'win' | 'linux' | 'all'
-  status: 'idle' | 'building' | 'success' | 'failed'
-  progress: number
-  logs: string[]
-  artifacts: string[]
-  error?: string
+  platform: "electron" | "tauri";
+  target: "mac" | "win" | "linux" | "all";
+  status: "idle" | "building" | "success" | "failed";
+  progress: number;
+  logs: string[];
+  artifacts: string[];
+  error?: string;
 }
 
 interface CodeSigningConfig {
   macos: {
-    appleId: string
-    applePassword: string
-    teamId: string
-    signingIdentity: string
-  }
+    appleId: string;
+    applePassword: string;
+    teamId: string;
+    signingIdentity: string;
+  };
   windows: {
-    certificatePath: string
-    certificatePassword: string
-  }
+    certificatePath: string;
+    certificatePassword: string;
+  };
   linux: {
-    gpgKeyId: string
-    gpgPassphrase: string
-  }
+    gpgKeyId: string;
+    gpgPassphrase: string;
+  };
 }
 
 export default function DesktopDeployHelper() {
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState("overview");
   const [buildStatus, setBuildStatus] = useState<BuildStatus>({
-    platform: 'electron',
-    target: 'all',
-    status: 'idle',
+    platform: "electron",
+    target: "all",
+    status: "idle",
     progress: 0,
     logs: [],
     artifacts: [],
-  })
+  });
 
   const [signingConfig, setSigningConfig] = useState<CodeSigningConfig>({
     macos: {
-      appleId: '',
-      applePassword: '',
-      teamId: '',
-      signingIdentity: '',
+      appleId: "",
+      applePassword: "",
+      teamId: "",
+      signingIdentity: "",
     },
     windows: {
-      certificatePath: '',
-      certificatePassword: '',
+      certificatePath: "",
+      certificatePassword: "",
     },
     linux: {
-      gpgKeyId: '',
-      gpgPassphrase: '',
+      gpgKeyId: "",
+      gpgPassphrase: "",
     },
-  })
+  });
 
   const [buildOptions, setBuildOptions] = useState({
-    platform: 'electron' as 'electron' | 'tauri',
-    target: 'all' as 'mac' | 'win' | 'linux' | 'all',
-    environment: 'production' as 'development' | 'staging' | 'production',
-    version: '',
+    platform: "electron" as "electron" | "tauri",
+    target: "all" as "mac" | "win" | "linux" | "all",
+    environment: "production" as "development" | "staging" | "production",
+    version: "",
     sign: true,
     publish: false,
     clean: false,
-  })
+  });
 
-  const [showLogs, setShowLogs] = useState(false)
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['overview']))
+  const [showLogs, setShowLogs] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(["overview"]),
+  );
 
   const toggleSection = (section: string) => {
-    const newExpanded = new Set(expandedSections)
+    const newExpanded = new Set(expandedSections);
     if (newExpanded.has(section)) {
-      newExpanded.delete(section)
+      newExpanded.delete(section);
     } else {
-      newExpanded.add(section)
+      newExpanded.add(section);
     }
-    setExpandedSections(newExpanded)
-  }
+    setExpandedSections(newExpanded);
+  };
 
   const handleBuild = () => {
     setBuildStatus({
       ...buildStatus,
-      status: 'building',
+      status: "building",
       progress: 0,
-      logs: ['Starting build process...'],
-    })
+      logs: ["Starting build process..."],
+    });
 
     // Simulate build process
     const logMessages = [
-      'Checking dependencies...',
-      'Building Next.js frontend...',
-      'Compiling TypeScript...',
-      'Bundling application...',
-      'Signing application...',
-      'Creating installers...',
-      'Build complete!',
-    ]
+      "Checking dependencies...",
+      "Building Next.js frontend...",
+      "Compiling TypeScript...",
+      "Bundling application...",
+      "Signing application...",
+      "Creating installers...",
+      "Build complete!",
+    ];
 
-    let progress = 0
+    let progress = 0;
     logMessages.forEach((msg, index) => {
       setTimeout(
         () => {
-          progress = ((index + 1) / logMessages.length) * 100
+          progress = ((index + 1) / logMessages.length) * 100;
           setBuildStatus((prev) => ({
             ...prev,
             progress,
             logs: [...prev.logs, msg],
-            status: index === logMessages.length - 1 ? 'success' : 'building',
+            status: index === logMessages.length - 1 ? "success" : "building",
             artifacts:
               index === logMessages.length - 1
                 ? [
-                    'nchat-1.0.0-mac-x64.dmg',
-                    'nchat-1.0.0-mac-arm64.dmg',
-                    'nchat-1.0.0-win-x64.exe',
-                    'nchat-1.0.0-linux-x64.AppImage',
+                    "nchat-1.0.0-mac-x64.dmg",
+                    "nchat-1.0.0-mac-arm64.dmg",
+                    "nchat-1.0.0-win-x64.exe",
+                    "nchat-1.0.0-linux-x64.AppImage",
                   ]
                 : prev.artifacts,
-          }))
+          }));
         },
-        (index + 1) * 1000
-      )
-    })
-  }
+        (index + 1) * 1000,
+      );
+    });
+  };
 
   const handleCopyCommand = (command: string) => {
-    navigator.clipboard.writeText(command)
-  }
+    navigator.clipboard.writeText(command);
+  };
 
   const getBuildCommand = () => {
     const script =
-      buildOptions.platform === 'electron'
-        ? './scripts/deploy-desktop-electron.sh'
-        : './scripts/deploy-desktop-tauri.sh'
+      buildOptions.platform === "electron"
+        ? "./scripts/deploy-desktop-electron.sh"
+        : "./scripts/deploy-desktop-tauri.sh";
 
     const args = [
       `--platform ${buildOptions.target}`,
       `--env ${buildOptions.environment}`,
-      buildOptions.version ? `--version ${buildOptions.version}` : '',
-      buildOptions.sign ? '' : '--no-sign',
-      buildOptions.publish ? '' : '--no-publish',
-      buildOptions.clean ? '--clean' : '',
+      buildOptions.version ? `--version ${buildOptions.version}` : "",
+      buildOptions.sign ? "" : "--no-sign",
+      buildOptions.publish ? "" : "--no-publish",
+      buildOptions.clean ? "--clean" : "",
     ]
       .filter(Boolean)
-      .join(' ')
+      .join(" ");
 
-    return `${script} ${args}`
-  }
+    return `${script} ${args}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -201,7 +209,8 @@ export default function DesktopDeployHelper() {
       <div>
         <h1 className="text-3xl font-bold">Desktop Deployment</h1>
         <p className="mt-2 text-muted-foreground">
-          Build, sign, and deploy nchat desktop applications for macOS, Windows, and Linux
+          Build, sign, and deploy nchat desktop applications for macOS, Windows,
+          and Linux
         </p>
       </div>
 
@@ -214,7 +223,10 @@ export default function DesktopDeployHelper() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
-          <Button onClick={handleBuild} disabled={buildStatus.status === 'building'}>
+          <Button
+            onClick={handleBuild}
+            disabled={buildStatus.status === "building"}
+          >
             <Play className="mr-2 h-4 w-4" />
             Build Application
           </Button>
@@ -234,20 +246,25 @@ export default function DesktopDeployHelper() {
       </Card>
 
       {/* Build Status */}
-      {buildStatus.status !== 'idle' && (
+      {buildStatus.status !== "idle" && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {buildStatus.status === 'building' && <Play className="h-5 w-5 animate-pulse" />}
-              {buildStatus.status === 'success' && (
+              {buildStatus.status === "building" && (
+                <Play className="h-5 w-5 animate-pulse" />
+              )}
+              {buildStatus.status === "success" && (
                 <CheckCircle className="h-5 w-5 text-green-500" />
               )}
-              {buildStatus.status === 'failed' && <XCircle className="h-5 w-5 text-red-500" />}
+              {buildStatus.status === "failed" && (
+                <XCircle className="h-5 w-5 text-red-500" />
+              )}
               Build Status
             </CardTitle>
             <CardDescription>
-              {buildOptions.platform.charAt(0).toUpperCase() + buildOptions.platform.slice(1)} build
-              for {buildOptions.target}
+              {buildOptions.platform.charAt(0).toUpperCase() +
+                buildOptions.platform.slice(1)}{" "}
+              build for {buildOptions.target}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -330,7 +347,9 @@ export default function DesktopDeployHelper() {
           <Card>
             <CardHeader>
               <CardTitle>Platform Support</CardTitle>
-              <CardDescription>Desktop application frameworks and targets</CardDescription>
+              <CardDescription>
+                Desktop application frameworks and targets
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -341,7 +360,8 @@ export default function DesktopDeployHelper() {
                     <Badge>Chromium + Node.js</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Mature ecosystem with rich features. Bundle size ~150-200 MB.
+                    Mature ecosystem with rich features. Bundle size ~150-200
+                    MB.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">macOS (x64 + arm64)</Badge>
@@ -357,7 +377,8 @@ export default function DesktopDeployHelper() {
                     <Badge>WebView + Rust</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Small bundle size and fast performance. Bundle size ~10-20 MB.
+                    Small bundle size and fast performance. Bundle size ~10-20
+                    MB.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">macOS (universal)</Badge>
@@ -410,7 +431,9 @@ export default function DesktopDeployHelper() {
           <Card>
             <CardHeader>
               <CardTitle>Build Configuration</CardTitle>
-              <CardDescription>Configure build options and parameters</CardDescription>
+              <CardDescription>
+                Configure build options and parameters
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -418,7 +441,7 @@ export default function DesktopDeployHelper() {
                   <Label>Platform</Label>
                   <Select
                     value={buildOptions.platform}
-                    onValueChange={(value: 'electron' | 'tauri') =>
+                    onValueChange={(value: "electron" | "tauri") =>
                       setBuildOptions({ ...buildOptions, platform: value })
                     }
                   >
@@ -436,7 +459,7 @@ export default function DesktopDeployHelper() {
                   <Label>Target</Label>
                   <Select
                     value={buildOptions.target}
-                    onValueChange={(value: 'mac' | 'win' | 'linux' | 'all') =>
+                    onValueChange={(value: "mac" | "win" | "linux" | "all") =>
                       setBuildOptions({ ...buildOptions, target: value })
                     }
                   >
@@ -456,7 +479,9 @@ export default function DesktopDeployHelper() {
                   <Label>Environment</Label>
                   <Select
                     value={buildOptions.environment}
-                    onValueChange={(value: 'development' | 'staging' | 'production') =>
+                    onValueChange={(
+                      value: "development" | "staging" | "production",
+                    ) =>
                       setBuildOptions({ ...buildOptions, environment: value })
                     }
                   >
@@ -476,7 +501,12 @@ export default function DesktopDeployHelper() {
                   <Input
                     placeholder="1.0.0"
                     value={buildOptions.version}
-                    onChange={(e) => setBuildOptions({ ...buildOptions, version: e.target.value })}
+                    onChange={(e) =>
+                      setBuildOptions({
+                        ...buildOptions,
+                        version: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -502,7 +532,9 @@ export default function DesktopDeployHelper() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Publish Release</Label>
-                    <p className="text-sm text-muted-foreground">Upload to GitHub Releases</p>
+                    <p className="text-sm text-muted-foreground">
+                      Upload to GitHub Releases
+                    </p>
                   </div>
                   <Switch
                     checked={buildOptions.publish}
@@ -515,7 +547,9 @@ export default function DesktopDeployHelper() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Clean Build</Label>
-                    <p className="text-sm text-muted-foreground">Remove previous build artifacts</p>
+                    <p className="text-sm text-muted-foreground">
+                      Remove previous build artifacts
+                    </p>
                   </div>
                   <Switch
                     checked={buildOptions.clean}
@@ -548,8 +582,8 @@ export default function DesktopDeployHelper() {
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Important</AlertTitle>
                 <AlertDescription>
-                  Ensure all required dependencies are installed and code signing certificates are
-                  configured before building.
+                  Ensure all required dependencies are installed and code
+                  signing certificates are configured before building.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -585,7 +619,10 @@ export default function DesktopDeployHelper() {
                       onChange={(e) =>
                         setSigningConfig({
                           ...signingConfig,
-                          macos: { ...signingConfig.macos, appleId: e.target.value },
+                          macos: {
+                            ...signingConfig.macos,
+                            appleId: e.target.value,
+                          },
                         })
                       }
                     />
@@ -599,7 +636,10 @@ export default function DesktopDeployHelper() {
                       onChange={(e) =>
                         setSigningConfig({
                           ...signingConfig,
-                          macos: { ...signingConfig.macos, applePassword: e.target.value },
+                          macos: {
+                            ...signingConfig.macos,
+                            applePassword: e.target.value,
+                          },
                         })
                       }
                     />
@@ -612,7 +652,10 @@ export default function DesktopDeployHelper() {
                       onChange={(e) =>
                         setSigningConfig({
                           ...signingConfig,
-                          macos: { ...signingConfig.macos, teamId: e.target.value },
+                          macos: {
+                            ...signingConfig.macos,
+                            teamId: e.target.value,
+                          },
                         })
                       }
                     />
@@ -625,7 +668,10 @@ export default function DesktopDeployHelper() {
                       onChange={(e) =>
                         setSigningConfig({
                           ...signingConfig,
-                          macos: { ...signingConfig.macos, signingIdentity: e.target.value },
+                          macos: {
+                            ...signingConfig.macos,
+                            signingIdentity: e.target.value,
+                          },
                         })
                       }
                     />
@@ -650,7 +696,10 @@ export default function DesktopDeployHelper() {
                       onChange={(e) =>
                         setSigningConfig({
                           ...signingConfig,
-                          windows: { ...signingConfig.windows, certificatePath: e.target.value },
+                          windows: {
+                            ...signingConfig.windows,
+                            certificatePath: e.target.value,
+                          },
                         })
                       }
                     />
@@ -692,7 +741,10 @@ export default function DesktopDeployHelper() {
                       onChange={(e) =>
                         setSigningConfig({
                           ...signingConfig,
-                          linux: { ...signingConfig.linux, gpgKeyId: e.target.value },
+                          linux: {
+                            ...signingConfig.linux,
+                            gpgKeyId: e.target.value,
+                          },
                         })
                       }
                     />
@@ -706,7 +758,10 @@ export default function DesktopDeployHelper() {
                       onChange={(e) =>
                         setSigningConfig({
                           ...signingConfig,
-                          linux: { ...signingConfig.linux, gpgPassphrase: e.target.value },
+                          linux: {
+                            ...signingConfig.linux,
+                            gpgPassphrase: e.target.value,
+                          },
                         })
                       }
                     />
@@ -727,8 +782,8 @@ export default function DesktopDeployHelper() {
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Security Notice</AlertTitle>
                 <AlertDescription>
-                  Never commit certificates or passwords to version control. Use environment
-                  variables or secure secrets management.
+                  Never commit certificates or passwords to version control. Use
+                  environment variables or secure secrets management.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -740,15 +795,17 @@ export default function DesktopDeployHelper() {
           <Card>
             <CardHeader>
               <CardTitle>Release Management</CardTitle>
-              <CardDescription>View and manage desktop application releases</CardDescription>
+              <CardDescription>
+                View and manage desktop application releases
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Coming Soon</AlertTitle>
                 <AlertDescription>
-                  Release management features will be available in a future update. For now, manage
-                  releases through GitHub Releases.
+                  Release management features will be available in a future
+                  update. For now, manage releases through GitHub Releases.
                 </AlertDescription>
               </Alert>
 
@@ -786,5 +843,5 @@ export default function DesktopDeployHelper() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

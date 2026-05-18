@@ -9,8 +9,8 @@
  * @version 1.0.0
  */
 
-import { v4 as uuidv4 } from 'uuid'
-import { createLogger } from '@/lib/logger'
+import { v4 as uuidv4 } from "uuid";
+import { createLogger } from "@/lib/logger";
 import type {
   DataDeletionJob,
   DeletionJobStatus,
@@ -18,16 +18,16 @@ import type {
   DataDeletionServiceConfig,
   OperationResult,
   VerificationMethod,
-} from './compliance.types'
+} from "./compliance.types";
 import type {
   DataDeletionRequest,
   DeletionScope,
   DataCategory,
   LegalHold,
   DeletionConfirmation,
-} from '@/lib/compliance/compliance-types'
+} from "@/lib/compliance/compliance-types";
 
-const log = createLogger('DataDeletionService')
+const log = createLogger("DataDeletionService");
 
 // ============================================================================
 // TYPES
@@ -37,12 +37,12 @@ const log = createLogger('DataDeletionService')
  * Create deletion job input
  */
 export interface CreateDeletionJobInput {
-  dsarId: string
-  userId: string
-  userEmail: string
-  scope: DeletionScope
-  categories?: DataCategory[]
-  reason?: string
+  dsarId: string;
+  userId: string;
+  userEmail: string;
+  scope: DeletionScope;
+  categories?: DataCategory[];
+  reason?: string;
 }
 
 /**
@@ -50,26 +50,26 @@ export interface CreateDeletionJobInput {
  */
 export type DataDeleter<T> = (
   userId: string,
-  options: { batchSize: number; dryRun?: boolean }
-) => Promise<{ deleted: number; failed: number; details: T[] }>
+  options: { batchSize: number; dryRun?: boolean },
+) => Promise<{ deleted: number; failed: number; details: T[] }>;
 
 /**
  * Registered data deleters
  */
 export interface DataDeleters {
-  messages: DataDeleter<{ id: string }>
-  files: DataDeleter<{ id: string; filename: string }>
-  reactions: DataDeleter<{ id: string }>
-  activity: DataDeleter<{ id: string }>
-  profile: (userId: string) => Promise<boolean>
-  settings: (userId: string) => Promise<boolean>
-  consents: DataDeleter<{ id: string }>
+  messages: DataDeleter<{ id: string }>;
+  files: DataDeleter<{ id: string; filename: string }>;
+  reactions: DataDeleter<{ id: string }>;
+  activity: DataDeleter<{ id: string }>;
+  profile: (userId: string) => Promise<boolean>;
+  settings: (userId: string) => Promise<boolean>;
+  consents: DataDeleter<{ id: string }>;
 }
 
 /**
  * Deletion progress callback
  */
-export type DeletionProgressCallback = (job: DataDeletionJob) => void
+export type DeletionProgressCallback = (job: DataDeletionJob) => void;
 
 // ============================================================================
 // DEFAULT CONFIGURATION
@@ -80,12 +80,12 @@ const DEFAULT_CONFIG: DataDeletionServiceConfig = {
   coolingOffPeriodDays: 14,
   allowCancellation: true,
   requireVerification: true,
-  verificationMethods: ['email_confirmation'],
+  verificationMethods: ["email_confirmation"],
   batchSize: 500,
   maxConcurrentJobs: 3,
   jobTimeoutMinutes: 120,
   anonymizeReferences: true,
-  anonymizationPrefix: 'deleted_user_',
+  anonymizationPrefix: "deleted_user_",
   retainAuditLogs: true,
   retainBillingRecords: true,
   retainLegalHoldData: true,
@@ -93,36 +93,43 @@ const DEFAULT_CONFIG: DataDeletionServiceConfig = {
   certificateRetentionDays: 730,
   purgeFromBackups: false,
   backupPurgeDays: 90,
-}
+};
 
 // ============================================================================
 // SCOPE CATEGORIES
 // ============================================================================
 
 const SCOPE_CATEGORIES: Record<DeletionScope, DataCategory[]> = {
-  full_account: ['messages', 'files', 'reactions', 'threads', 'user_profiles', 'activity_logs'],
-  messages_only: ['messages', 'threads'],
-  files_only: ['files'],
-  activity_only: ['activity_logs', 'analytics'],
+  full_account: [
+    "messages",
+    "files",
+    "reactions",
+    "threads",
+    "user_profiles",
+    "activity_logs",
+  ],
+  messages_only: ["messages", "threads"],
+  files_only: ["files"],
+  activity_only: ["activity_logs", "analytics"],
   partial: [],
-}
+};
 
 // ============================================================================
 // DATA DELETION SERVICE
 // ============================================================================
 
 export class DataDeletionService {
-  private config: DataDeletionServiceConfig
-  private jobs = new Map<string, DataDeletionJob>()
-  private requests = new Map<string, DataDeletionRequest>()
-  private certificates = new Map<string, DeletionCertificate>()
-  private legalHolds: LegalHold[] = []
-  private dataDeleters: Partial<DataDeleters> = {}
-  private progressCallbacks = new Map<string, DeletionProgressCallback[]>()
-  private isInitialized = false
+  private config: DataDeletionServiceConfig;
+  private jobs = new Map<string, DataDeletionJob>();
+  private requests = new Map<string, DataDeletionRequest>();
+  private certificates = new Map<string, DeletionCertificate>();
+  private legalHolds: LegalHold[] = [];
+  private dataDeleters: Partial<DataDeleters> = {};
+  private progressCallbacks = new Map<string, DeletionProgressCallback[]>();
+  private isInitialized = false;
 
   constructor(config: Partial<DataDeletionServiceConfig> = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config }
+    this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
   // ============================================================================
@@ -134,20 +141,20 @@ export class DataDeletionService {
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      log.debug('Service already initialized')
-      return
+      log.debug("Service already initialized");
+      return;
     }
 
-    log.info('Initializing data deletion service')
+    log.info("Initializing data deletion service");
 
     // Register default deleters
-    this.registerDefaultDeleters()
+    this.registerDefaultDeleters();
 
     // Load legal holds
-    await this.loadLegalHolds()
+    await this.loadLegalHolds();
 
-    this.isInitialized = true
-    log.info('Data deletion service initialized')
+    this.isInitialized = true;
+    log.info("Data deletion service initialized");
   }
 
   /**
@@ -182,7 +189,7 @@ export class DataDeletionService {
         failed: 0,
         details: [],
       }),
-    }
+    };
   }
 
   /**
@@ -190,17 +197,17 @@ export class DataDeletionService {
    */
   registerDeleter<K extends keyof DataDeleters>(
     category: K,
-    deleter: DataDeleters[K]
+    deleter: DataDeleters[K],
   ): void {
-    this.dataDeleters[category] = deleter as DataDeleters[K]
-    log.info('Data deleter registered', { category })
+    this.dataDeleters[category] = deleter as DataDeleters[K];
+    log.info("Data deleter registered", { category });
   }
 
   /**
    * Load legal holds
    */
   private async loadLegalHolds(): Promise<void> {
-    log.debug('Loading legal holds')
+    log.debug("Loading legal holds");
     // Loads from nchat_legal_holds table when Hasura is connected
   }
 
@@ -208,19 +215,19 @@ export class DataDeletionService {
    * Set legal holds (for testing or external updates)
    */
   setLegalHolds(holds: LegalHold[]): void {
-    this.legalHolds = holds
+    this.legalHolds = holds;
   }
 
   /**
    * Close the service
    */
   async close(): Promise<void> {
-    log.info('Closing data deletion service')
-    this.jobs.clear()
-    this.requests.clear()
-    this.certificates.clear()
-    this.progressCallbacks.clear()
-    this.isInitialized = false
+    log.info("Closing data deletion service");
+    this.jobs.clear();
+    this.requests.clear();
+    this.certificates.clear();
+    this.progressCallbacks.clear();
+    this.isInitialized = false;
   }
 
   // ============================================================================
@@ -235,51 +242,63 @@ export class DataDeletionService {
     userEmail: string,
     scope: DeletionScope,
     options: {
-      specificCategories?: DataCategory[]
-      reason?: string
-      ipAddress?: string
-    } = {}
+      specificCategories?: DataCategory[];
+      reason?: string;
+      ipAddress?: string;
+    } = {},
   ): Promise<OperationResult<DataDeletionRequest>> {
-    this.ensureInitialized()
+    this.ensureInitialized();
 
     if (!this.config.enabled) {
-      return { success: false, error: 'Data deletion service is disabled' }
+      return { success: false, error: "Data deletion service is disabled" };
     }
 
-    log.info('Creating deletion request', { userId, scope })
+    log.info("Creating deletion request", { userId, scope });
 
     // Validate scope
-    const categories = this.getCategoriesForScope(scope, options.specificCategories)
+    const categories = this.getCategoriesForScope(
+      scope,
+      options.specificCategories,
+    );
     if (categories.length === 0) {
-      return { success: false, error: 'No valid data categories specified' }
+      return { success: false, error: "No valid data categories specified" };
     }
 
     // Check for existing pending request
     const existingRequest = Array.from(this.requests.values()).find(
       (r) =>
         r.userId === userId &&
-        ['pending', 'pending_verification', 'approved', 'processing'].includes(r.status)
-    )
+        ["pending", "pending_verification", "approved", "processing"].includes(
+          r.status,
+        ),
+    );
 
     if (existingRequest) {
-      return { success: false, error: 'A pending deletion request already exists' }
+      return {
+        success: false,
+        error: "A pending deletion request already exists",
+      };
     }
 
     // Check legal holds
-    const activeHolds = this.getActiveHoldsForUser(userId)
-    const isBlocked = activeHolds.length > 0
+    const activeHolds = this.getActiveHoldsForUser(userId);
+    const isBlocked = activeHolds.length > 0;
 
     // Calculate cooling-off period end
-    const now = new Date()
-    const coolingOffEnds = new Date(now)
-    coolingOffEnds.setDate(coolingOffEnds.getDate() + this.config.coolingOffPeriodDays)
+    const now = new Date();
+    const coolingOffEnds = new Date(now);
+    coolingOffEnds.setDate(
+      coolingOffEnds.getDate() + this.config.coolingOffPeriodDays,
+    );
 
     // Create request
     const request: DataDeletionRequest = {
       id: uuidv4(),
       userId,
       userEmail,
-      status: this.config.requireVerification ? 'pending_verification' : 'pending',
+      status: this.config.requireVerification
+        ? "pending_verification"
+        : "pending",
       scope,
       specificCategories: options.specificCategories,
       reason: options.reason,
@@ -290,26 +309,31 @@ export class DataDeletionService {
       ipAddress: options.ipAddress,
       confirmationSent: false,
       confirmationAcknowledged: false,
-    }
+    };
 
-    this.requests.set(request.id, request)
-    log.info('Deletion request created', { requestId: request.id, blocked: isBlocked })
+    this.requests.set(request.id, request);
+    log.info("Deletion request created", {
+      requestId: request.id,
+      blocked: isBlocked,
+    });
 
-    return { success: true, data: request }
+    return { success: true, data: request };
   }
 
   /**
    * Get a request by ID
    */
   getRequest(requestId: string): DataDeletionRequest | null {
-    return this.requests.get(requestId) || null
+    return this.requests.get(requestId) || null;
   }
 
   /**
    * Get requests for a user
    */
   getRequestsByUser(userId: string): DataDeletionRequest[] {
-    return Array.from(this.requests.values()).filter((r) => r.userId === userId)
+    return Array.from(this.requests.values()).filter(
+      (r) => r.userId === userId,
+    );
   }
 
   /**
@@ -317,30 +341,30 @@ export class DataDeletionService {
    */
   async verifyRequest(
     requestId: string,
-    verificationToken: string
+    verificationToken: string,
   ): Promise<OperationResult<DataDeletionRequest>> {
-    const request = this.requests.get(requestId)
+    const request = this.requests.get(requestId);
     if (!request) {
-      return { success: false, error: 'Request not found' }
+      return { success: false, error: "Request not found" };
     }
 
-    if (request.status !== 'pending_verification') {
-      return { success: false, error: 'Request is not pending verification' }
+    if (request.status !== "pending_verification") {
+      return { success: false, error: "Request is not pending verification" };
     }
 
     // In production, validate the token
     // For now, accept any non-empty token
     if (!verificationToken) {
-      return { success: false, error: 'Invalid verification token' }
+      return { success: false, error: "Invalid verification token" };
     }
 
-    request.status = 'approved'
-    request.verifiedAt = new Date()
-    request.approvedAt = new Date()
+    request.status = "approved";
+    request.verifiedAt = new Date();
+    request.approvedAt = new Date();
 
-    log.info('Deletion request verified', { requestId })
+    log.info("Deletion request verified", { requestId });
 
-    return { success: true, data: request }
+    return { success: true, data: request };
   }
 
   /**
@@ -348,28 +372,31 @@ export class DataDeletionService {
    */
   async approveRequest(
     requestId: string,
-    approvedBy: string
+    approvedBy: string,
   ): Promise<OperationResult<DataDeletionRequest>> {
-    const request = this.requests.get(requestId)
+    const request = this.requests.get(requestId);
     if (!request) {
-      return { success: false, error: 'Request not found' }
+      return { success: false, error: "Request not found" };
     }
 
-    if (!['pending', 'pending_verification'].includes(request.status)) {
-      return { success: false, error: `Cannot approve request with status: ${request.status}` }
+    if (!["pending", "pending_verification"].includes(request.status)) {
+      return {
+        success: false,
+        error: `Cannot approve request with status: ${request.status}`,
+      };
     }
 
     if (request.legalHoldBlocked) {
-      return { success: false, error: 'Request is blocked by legal hold' }
+      return { success: false, error: "Request is blocked by legal hold" };
     }
 
-    request.status = 'approved'
-    request.approvedAt = new Date()
-    request.approvedBy = approvedBy
+    request.status = "approved";
+    request.approvedAt = new Date();
+    request.approvedBy = approvedBy;
 
-    log.info('Deletion request approved', { requestId, approvedBy })
+    log.info("Deletion request approved", { requestId, approvedBy });
 
-    return { success: true, data: request }
+    return { success: true, data: request };
   }
 
   /**
@@ -378,25 +405,28 @@ export class DataDeletionService {
   async rejectRequest(
     requestId: string,
     reason: string,
-    rejectedBy: string
+    rejectedBy: string,
   ): Promise<OperationResult<DataDeletionRequest>> {
-    const request = this.requests.get(requestId)
+    const request = this.requests.get(requestId);
     if (!request) {
-      return { success: false, error: 'Request not found' }
+      return { success: false, error: "Request not found" };
     }
 
-    if (['completed', 'rejected', 'cancelled'].includes(request.status)) {
-      return { success: false, error: `Cannot reject request with status: ${request.status}` }
+    if (["completed", "rejected", "cancelled"].includes(request.status)) {
+      return {
+        success: false,
+        error: `Cannot reject request with status: ${request.status}`,
+      };
     }
 
-    request.status = 'rejected'
-    request.rejectedAt = new Date()
-    request.rejectedBy = rejectedBy
-    request.rejectionReason = reason
+    request.status = "rejected";
+    request.rejectedAt = new Date();
+    request.rejectedBy = rejectedBy;
+    request.rejectionReason = reason;
 
-    log.info('Deletion request rejected', { requestId, reason })
+    log.info("Deletion request rejected", { requestId, reason });
 
-    return { success: true, data: request }
+    return { success: true, data: request };
   }
 
   /**
@@ -404,67 +434,80 @@ export class DataDeletionService {
    */
   async cancelRequest(requestId: string): Promise<OperationResult<void>> {
     if (!this.config.allowCancellation) {
-      return { success: false, error: 'Cancellation is not allowed' }
+      return { success: false, error: "Cancellation is not allowed" };
     }
 
-    const request = this.requests.get(requestId)
+    const request = this.requests.get(requestId);
     if (!request) {
-      return { success: false, error: 'Request not found' }
+      return { success: false, error: "Request not found" };
     }
 
-    const cancellableStatuses = ['pending', 'pending_verification', 'approved']
+    const cancellableStatuses = ["pending", "pending_verification", "approved"];
     if (!cancellableStatuses.includes(request.status)) {
-      return { success: false, error: `Cannot cancel request with status: ${request.status}` }
+      return {
+        success: false,
+        error: `Cannot cancel request with status: ${request.status}`,
+      };
     }
 
     // Check if still in cooling-off period
-    if (request.retentionPeriodEnds && new Date() > request.retentionPeriodEnds) {
-      return { success: false, error: 'Cooling-off period has ended' }
+    if (
+      request.retentionPeriodEnds &&
+      new Date() > request.retentionPeriodEnds
+    ) {
+      return { success: false, error: "Cooling-off period has ended" };
     }
 
-    request.status = 'cancelled'
+    request.status = "cancelled";
 
-    log.info('Deletion request cancelled', { requestId })
+    log.info("Deletion request cancelled", { requestId });
 
-    return { success: true }
+    return { success: true };
   }
 
   /**
    * Check if request can be cancelled
    */
   canCancelRequest(requestId: string): { canCancel: boolean; reason?: string } {
-    const request = this.requests.get(requestId)
+    const request = this.requests.get(requestId);
     if (!request) {
-      return { canCancel: false, reason: 'Request not found' }
+      return { canCancel: false, reason: "Request not found" };
     }
 
     if (!this.config.allowCancellation) {
-      return { canCancel: false, reason: 'Cancellation is disabled' }
+      return { canCancel: false, reason: "Cancellation is disabled" };
     }
 
-    const cancellableStatuses = ['pending', 'pending_verification', 'approved']
+    const cancellableStatuses = ["pending", "pending_verification", "approved"];
     if (!cancellableStatuses.includes(request.status)) {
-      return { canCancel: false, reason: `Cannot cancel request with status: ${request.status}` }
+      return {
+        canCancel: false,
+        reason: `Cannot cancel request with status: ${request.status}`,
+      };
     }
 
-    if (request.retentionPeriodEnds && new Date() > request.retentionPeriodEnds) {
-      return { canCancel: false, reason: 'Cooling-off period has ended' }
+    if (
+      request.retentionPeriodEnds &&
+      new Date() > request.retentionPeriodEnds
+    ) {
+      return { canCancel: false, reason: "Cooling-off period has ended" };
     }
 
-    return { canCancel: true }
+    return { canCancel: true };
   }
 
   /**
    * Get remaining cooling-off days
    */
   getRemainingCoolingOffDays(requestId: string): number | null {
-    const request = this.requests.get(requestId)
-    if (!request || !request.retentionPeriodEnds) return null
+    const request = this.requests.get(requestId);
+    if (!request || !request.retentionPeriodEnds) return null;
 
     const remaining = Math.ceil(
-      (request.retentionPeriodEnds.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-    )
-    return Math.max(0, remaining)
+      (request.retentionPeriodEnds.getTime() - Date.now()) /
+        (1000 * 60 * 60 * 24),
+    );
+    return Math.max(0, remaining);
   }
 
   // ============================================================================
@@ -474,50 +517,61 @@ export class DataDeletionService {
   /**
    * Create a deletion job
    */
-  async createJob(input: CreateDeletionJobInput): Promise<OperationResult<DataDeletionJob>> {
-    this.ensureInitialized()
+  async createJob(
+    input: CreateDeletionJobInput,
+  ): Promise<OperationResult<DataDeletionJob>> {
+    this.ensureInitialized();
 
     if (!this.config.enabled) {
-      return { success: false, error: 'Data deletion service is disabled' }
+      return { success: false, error: "Data deletion service is disabled" };
     }
 
-    log.info('Creating deletion job', { dsarId: input.dsarId, userId: input.userId })
+    log.info("Creating deletion job", {
+      dsarId: input.dsarId,
+      userId: input.userId,
+    });
 
     // Validate input
     if (!input.userId) {
-      return { success: false, error: 'User ID is required' }
+      return { success: false, error: "User ID is required" };
     }
 
     if (!input.dsarId) {
-      return { success: false, error: 'DSAR ID is required' }
+      return { success: false, error: "DSAR ID is required" };
     }
 
     // Get categories
-    const categories = this.getCategoriesForScope(input.scope, input.categories)
+    const categories = this.getCategoriesForScope(
+      input.scope,
+      input.categories,
+    );
     if (categories.length === 0) {
-      return { success: false, error: 'No valid data categories specified' }
+      return { success: false, error: "No valid data categories specified" };
     }
 
     // Check concurrent jobs
     const activeJobs = Array.from(this.jobs.values()).filter(
-      (j) => !['completed', 'failed', 'partially_completed'].includes(j.status)
-    )
+      (j) => !["completed", "failed", "partially_completed"].includes(j.status),
+    );
     if (activeJobs.length >= this.config.maxConcurrentJobs) {
-      return { success: false, error: 'Maximum concurrent deletion jobs reached' }
+      return {
+        success: false,
+        error: "Maximum concurrent deletion jobs reached",
+      };
     }
 
     // Check legal holds
-    const activeHolds = this.getActiveHoldsForUser(input.userId)
-    const isBlocked = activeHolds.length > 0
+    const activeHolds = this.getActiveHoldsForUser(input.userId);
+    const isBlocked = activeHolds.length > 0;
 
     // Create job
     const job: DataDeletionJob = {
       id: uuidv4(),
       dsarId: input.dsarId,
       userId: input.userId,
-      status: 'queued',
+      status: "queued",
       progress: 0,
-      currentPhase: 'Queued for processing',
+      currentPhase: "Queued for processing",
 
       scope: input.scope,
       categories,
@@ -538,33 +592,33 @@ export class DataDeletionService {
 
       retryCount: 0,
       maxRetries: 3,
-    }
+    };
 
-    this.jobs.set(job.id, job)
-    log.info('Deletion job created', { jobId: job.id, blocked: isBlocked })
+    this.jobs.set(job.id, job);
+    log.info("Deletion job created", { jobId: job.id, blocked: isBlocked });
 
-    return { success: true, data: job }
+    return { success: true, data: job };
   }
 
   /**
    * Get a job by ID
    */
   getJob(jobId: string): DataDeletionJob | null {
-    return this.jobs.get(jobId) || null
+    return this.jobs.get(jobId) || null;
   }
 
   /**
    * Get jobs for a DSAR
    */
   getJobsByDSAR(dsarId: string): DataDeletionJob[] {
-    return Array.from(this.jobs.values()).filter((j) => j.dsarId === dsarId)
+    return Array.from(this.jobs.values()).filter((j) => j.dsarId === dsarId);
   }
 
   /**
    * Get jobs for a user
    */
   getJobsByUser(userId: string): DataDeletionJob[] {
-    return Array.from(this.jobs.values()).filter((j) => j.userId === userId)
+    return Array.from(this.jobs.values()).filter((j) => j.userId === userId);
   }
 
   // ============================================================================
@@ -576,129 +630,188 @@ export class DataDeletionService {
    */
   async executeJob(
     jobId: string,
-    options: { dryRun?: boolean } = {}
+    options: { dryRun?: boolean } = {},
   ): Promise<OperationResult<DeletionCertificate>> {
-    const job = this.jobs.get(jobId)
+    const job = this.jobs.get(jobId);
     if (!job) {
-      return { success: false, error: 'Job not found' }
+      return { success: false, error: "Job not found" };
     }
 
-    if (job.status !== 'queued') {
-      return { success: false, error: `Job is not in queued state: ${job.status}` }
+    if (job.status !== "queued") {
+      return {
+        success: false,
+        error: `Job is not in queued state: ${job.status}`,
+      };
     }
 
     if (job.legalHoldBlocked) {
-      return { success: false, error: 'Job is blocked by legal hold' }
+      return { success: false, error: "Job is blocked by legal hold" };
     }
 
-    log.info('Executing deletion job', { jobId, userId: job.userId, dryRun: options.dryRun })
-    const startTime = Date.now()
-    job.startedAt = new Date()
+    log.info("Executing deletion job", {
+      jobId,
+      userId: job.userId,
+      dryRun: options.dryRun,
+    });
+    const startTime = Date.now();
+    job.startedAt = new Date();
 
     try {
       // Phase 1: Verify eligibility
-      await this.updateJobStatus(job, 'verifying_eligibility', 5, 'Verifying deletion eligibility')
+      await this.updateJobStatus(
+        job,
+        "verifying_eligibility",
+        5,
+        "Verifying deletion eligibility",
+      );
 
       // Phase 2: Check legal holds
-      await this.updateJobStatus(job, 'checking_legal_holds', 10, 'Checking legal holds')
-      const activeHolds = this.getActiveHoldsForUser(job.userId)
+      await this.updateJobStatus(
+        job,
+        "checking_legal_holds",
+        10,
+        "Checking legal holds",
+      );
+      const activeHolds = this.getActiveHoldsForUser(job.userId);
       if (activeHolds.length > 0) {
-        job.legalHoldBlocked = true
-        job.legalHoldIds = activeHolds.map((h) => h.id)
-        job.status = 'failed'
-        job.errorMessage = 'Legal hold detected'
-        job.completedAt = new Date()
-        this.notifyProgress(job)
-        return { success: false, error: 'Legal hold detected during execution' }
+        job.legalHoldBlocked = true;
+        job.legalHoldIds = activeHolds.map((h) => h.id);
+        job.status = "failed";
+        job.errorMessage = "Legal hold detected";
+        job.completedAt = new Date();
+        this.notifyProgress(job);
+        return {
+          success: false,
+          error: "Legal hold detected during execution",
+        };
       }
 
       // Phase 3: Delete messages
-      if (job.categories.includes('messages')) {
-        await this.updateJobStatus(job, 'deleting_messages', 20, 'Deleting messages')
+      if (job.categories.includes("messages")) {
+        await this.updateJobStatus(
+          job,
+          "deleting_messages",
+          20,
+          "Deleting messages",
+        );
         if (this.dataDeleters.messages) {
           const result = await this.dataDeleters.messages(job.userId, {
             batchSize: this.config.batchSize,
             dryRun: options.dryRun,
-          })
-          job.messagesDeleted = result.deleted
+          });
+          job.messagesDeleted = result.deleted;
         }
       }
 
       // Phase 4: Delete files
-      if (job.categories.includes('files')) {
-        await this.updateJobStatus(job, 'deleting_files', 35, 'Deleting files')
+      if (job.categories.includes("files")) {
+        await this.updateJobStatus(job, "deleting_files", 35, "Deleting files");
         if (this.dataDeleters.files) {
           const result = await this.dataDeleters.files(job.userId, {
             batchSize: this.config.batchSize,
             dryRun: options.dryRun,
-          })
-          job.filesDeleted = result.deleted
+          });
+          job.filesDeleted = result.deleted;
         }
       }
 
       // Phase 5: Delete reactions
-      if (job.categories.includes('reactions')) {
-        await this.updateJobStatus(job, 'deleting_reactions', 50, 'Deleting reactions')
+      if (job.categories.includes("reactions")) {
+        await this.updateJobStatus(
+          job,
+          "deleting_reactions",
+          50,
+          "Deleting reactions",
+        );
         if (this.dataDeleters.reactions) {
           const result = await this.dataDeleters.reactions(job.userId, {
             batchSize: this.config.batchSize,
             dryRun: options.dryRun,
-          })
-          job.reactionsDeleted = result.deleted
+          });
+          job.reactionsDeleted = result.deleted;
         }
       }
 
       // Phase 6: Delete activity
-      if (job.categories.includes('activity_logs') && !this.config.retainAuditLogs) {
-        await this.updateJobStatus(job, 'deleting_activity', 60, 'Deleting activity logs')
+      if (
+        job.categories.includes("activity_logs") &&
+        !this.config.retainAuditLogs
+      ) {
+        await this.updateJobStatus(
+          job,
+          "deleting_activity",
+          60,
+          "Deleting activity logs",
+        );
         if (this.dataDeleters.activity) {
           const result = await this.dataDeleters.activity(job.userId, {
             batchSize: this.config.batchSize,
             dryRun: options.dryRun,
-          })
-          job.activitiesDeleted = result.deleted
+          });
+          job.activitiesDeleted = result.deleted;
         }
       }
 
       // Phase 7: Anonymize references
       if (this.config.anonymizeReferences) {
-        await this.updateJobStatus(job, 'anonymizing_references', 75, 'Anonymizing references')
-        job.referencesAnonymized = await this.anonymizeUserReferences(job.userId, options.dryRun)
+        await this.updateJobStatus(
+          job,
+          "anonymizing_references",
+          75,
+          "Anonymizing references",
+        );
+        job.referencesAnonymized = await this.anonymizeUserReferences(
+          job.userId,
+          options.dryRun,
+        );
       }
 
       // Phase 8: Delete profile (for full account deletion)
-      if (job.scope === 'full_account' && job.categories.includes('user_profiles')) {
-        await this.updateJobStatus(job, 'anonymizing_references', 85, 'Deleting profile')
+      if (
+        job.scope === "full_account" &&
+        job.categories.includes("user_profiles")
+      ) {
+        await this.updateJobStatus(
+          job,
+          "anonymizing_references",
+          85,
+          "Deleting profile",
+        );
         if (this.dataDeleters.profile) {
-          await this.dataDeleters.profile(job.userId)
+          await this.dataDeleters.profile(job.userId);
         }
       }
 
       // Phase 9: Generate certificate
-      let certificate: DeletionCertificate | undefined
+      let certificate: DeletionCertificate | undefined;
       if (this.config.generateCertificate) {
-        await this.updateJobStatus(job, 'generating_certificate', 95, 'Generating certificate')
-        certificate = await this.generateCertificate(job)
-        job.certificateGenerated = true
-        job.certificateUrl = `/api/compliance/certificates/${certificate.id}`
-        job.certificateChecksum = certificate.checksum
+        await this.updateJobStatus(
+          job,
+          "generating_certificate",
+          95,
+          "Generating certificate",
+        );
+        certificate = await this.generateCertificate(job);
+        job.certificateGenerated = true;
+        job.certificateUrl = `/api/compliance/certificates/${certificate.id}`;
+        job.certificateChecksum = certificate.checksum;
       }
 
       // Complete
-      await this.updateJobStatus(job, 'completed', 100, 'Deletion completed')
-      job.completedAt = new Date()
+      await this.updateJobStatus(job, "completed", 100, "Deletion completed");
+      job.completedAt = new Date();
 
-      const duration = Date.now() - startTime
-      log.info('Deletion job completed', {
+      const duration = Date.now() - startTime;
+      log.info("Deletion job completed", {
         jobId,
         duration,
         messagesDeleted: job.messagesDeleted,
         filesDeleted: job.filesDeleted,
         reactionsDeleted: job.reactionsDeleted,
-      })
+      });
 
       if (certificate) {
-        return { success: true, data: certificate }
+        return { success: true, data: certificate };
       }
 
       // Return a basic certificate if generation is disabled
@@ -707,7 +820,7 @@ export class DataDeletionService {
         data: {
           id: uuidv4(),
           userId: job.userId,
-          userEmail: '',
+          userEmail: "",
           dsarId: job.dsarId,
           jobId: job.id,
           requestedAt: job.startedAt || new Date(),
@@ -719,7 +832,7 @@ export class DataDeletionService {
             files: job.filesDeleted,
             reactions: job.reactionsDeleted,
             threads: 0,
-            user_profiles: job.scope === 'full_account' ? 1 : 0,
+            user_profiles: job.scope === "full_account" ? 1 : 0,
             activity_logs: job.activitiesDeleted,
             audit_logs: 0,
             analytics: 0,
@@ -747,23 +860,24 @@ export class DataDeletionService {
           checksum: this.generateChecksum(job),
           auditTrailIncluded: false,
           generatedAt: new Date(),
-          generatedBy: 'system',
+          generatedBy: "system",
         },
-      }
+      };
     } catch (error) {
-      job.status = 'failed'
-      job.errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      job.errorDetails = { error: String(error) }
-      job.completedAt = new Date()
+      job.status = "failed";
+      job.errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      job.errorDetails = { error: String(error) };
+      job.completedAt = new Date();
 
-      this.notifyProgress(job)
-      log.error('Deletion job failed', error, { jobId })
+      this.notifyProgress(job);
+      log.error("Deletion job failed", error, { jobId });
 
       return {
         success: false,
         error: job.errorMessage,
         details: job.errorDetails,
-      }
+      };
     }
   }
 
@@ -774,12 +888,12 @@ export class DataDeletionService {
     job: DataDeletionJob,
     status: DeletionJobStatus,
     progress: number,
-    phase: string
+    phase: string,
   ): Promise<void> {
-    job.status = status
-    job.progress = progress
-    job.currentPhase = phase
-    this.notifyProgress(job)
+    job.status = status;
+    job.progress = progress;
+    job.currentPhase = phase;
+    this.notifyProgress(job);
   }
 
   /**
@@ -787,22 +901,24 @@ export class DataDeletionService {
    */
   private async anonymizeUserReferences(
     userId: string,
-    dryRun?: boolean
+    dryRun?: boolean,
   ): Promise<number> {
-    log.debug('Anonymizing user references', { userId, dryRun })
+    log.debug("Anonymizing user references", { userId, dryRun });
     // In production, this would update all references to the user
     // with an anonymized identifier
-    return 0
+    return 0;
   }
 
   /**
    * Generate deletion certificate
    */
-  private async generateCertificate(job: DataDeletionJob): Promise<DeletionCertificate> {
+  private async generateCertificate(
+    job: DataDeletionJob,
+  ): Promise<DeletionCertificate> {
     const certificate: DeletionCertificate = {
       id: uuidv4(),
       userId: job.userId,
-      userEmail: '',
+      userEmail: "",
       dsarId: job.dsarId,
       jobId: job.id,
       requestedAt: job.startedAt || new Date(),
@@ -814,7 +930,7 @@ export class DataDeletionService {
         files: job.filesDeleted,
         reactions: job.reactionsDeleted,
         threads: 0,
-        user_profiles: job.scope === 'full_account' ? 1 : 0,
+        user_profiles: job.scope === "full_account" ? 1 : 0,
         activity_logs: job.activitiesDeleted,
         audit_logs: 0,
         analytics: 0,
@@ -838,17 +954,22 @@ export class DataDeletionService {
         system_logs: 0,
         backups: 0,
       },
-      retentionReasons: this.config.retainAuditLogs ? ['Audit log retention policy'] : [],
+      retentionReasons: this.config.retainAuditLogs
+        ? ["Audit log retention policy"]
+        : [],
       checksum: this.generateChecksum(job),
       auditTrailIncluded: true,
       generatedAt: new Date(),
-      generatedBy: 'system',
-    }
+      generatedBy: "system",
+    };
 
-    this.certificates.set(certificate.id, certificate)
-    log.info('Certificate generated', { certificateId: certificate.id, jobId: job.id })
+    this.certificates.set(certificate.id, certificate);
+    log.info("Certificate generated", {
+      certificateId: certificate.id,
+      jobId: job.id,
+    });
 
-    return certificate
+    return certificate;
   }
 
   /**
@@ -863,16 +984,16 @@ export class DataDeletionService {
       messagesDeleted: job.messagesDeleted,
       filesDeleted: job.filesDeleted,
       completedAt: job.completedAt?.toISOString(),
-    })
+    });
 
     // Simple hash for demo - in production use crypto
-    let hash = 0
+    let hash = 0;
     for (let i = 0; i < data.length; i++) {
-      const char = data.charCodeAt(i)
-      hash = (hash << 5) - hash + char
-      hash = hash & hash
+      const char = data.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
     }
-    return Math.abs(hash).toString(16).padStart(16, '0')
+    return Math.abs(hash).toString(16).padStart(16, "0");
   }
 
   // ============================================================================
@@ -883,31 +1004,36 @@ export class DataDeletionService {
    * Get a certificate by ID
    */
   getCertificate(certificateId: string): DeletionCertificate | null {
-    return this.certificates.get(certificateId) || null
+    return this.certificates.get(certificateId) || null;
   }
 
   /**
    * Get certificates for a user
    */
   getCertificatesByUser(userId: string): DeletionCertificate[] {
-    return Array.from(this.certificates.values()).filter((c) => c.userId === userId)
+    return Array.from(this.certificates.values()).filter(
+      (c) => c.userId === userId,
+    );
   }
 
   /**
    * Verify certificate checksum
    */
-  verifyCertificate(certificateId: string): { valid: boolean; reason?: string } {
-    const certificate = this.certificates.get(certificateId)
+  verifyCertificate(certificateId: string): {
+    valid: boolean;
+    reason?: string;
+  } {
+    const certificate = this.certificates.get(certificateId);
     if (!certificate) {
-      return { valid: false, reason: 'Certificate not found' }
+      return { valid: false, reason: "Certificate not found" };
     }
 
     // In production, recalculate and compare checksum
     if (!certificate.checksum) {
-      return { valid: false, reason: 'Certificate has no checksum' }
+      return { valid: false, reason: "Certificate has no checksum" };
     }
 
-    return { valid: true }
+    return { valid: true };
   }
 
   // ============================================================================
@@ -918,31 +1044,31 @@ export class DataDeletionService {
    * Subscribe to job progress updates
    */
   onProgress(jobId: string, callback: DeletionProgressCallback): () => void {
-    const callbacks = this.progressCallbacks.get(jobId) || []
-    callbacks.push(callback)
-    this.progressCallbacks.set(jobId, callbacks)
+    const callbacks = this.progressCallbacks.get(jobId) || [];
+    callbacks.push(callback);
+    this.progressCallbacks.set(jobId, callbacks);
 
     return () => {
-      const current = this.progressCallbacks.get(jobId) || []
+      const current = this.progressCallbacks.get(jobId) || [];
       this.progressCallbacks.set(
         jobId,
-        current.filter((cb) => cb !== callback)
-      )
-    }
+        current.filter((cb) => cb !== callback),
+      );
+    };
   }
 
   /**
    * Notify progress callbacks
    */
   private notifyProgress(job: DataDeletionJob): void {
-    const callbacks = this.progressCallbacks.get(job.id) || []
+    const callbacks = this.progressCallbacks.get(job.id) || [];
     callbacks.forEach((cb) => {
       try {
-        cb(job)
+        cb(job);
       } catch (error) {
-        log.error('Progress callback error', error, { jobId: job.id })
+        log.error("Progress callback error", error, { jobId: job.id });
       }
-    })
+    });
   }
 
   // ============================================================================
@@ -953,27 +1079,31 @@ export class DataDeletionService {
    * Get service statistics
    */
   getStatistics(): {
-    totalJobs: number
-    activeJobs: number
-    completedJobs: number
-    failedJobs: number
-    totalItemsDeleted: number
-    certificatesGenerated: number
-    blockedByLegalHold: number
+    totalJobs: number;
+    activeJobs: number;
+    completedJobs: number;
+    failedJobs: number;
+    totalItemsDeleted: number;
+    certificatesGenerated: number;
+    blockedByLegalHold: number;
   } {
-    const jobs = Array.from(this.jobs.values())
-    const completed = jobs.filter((j) => j.status === 'completed')
-    const failed = jobs.filter((j) => j.status === 'failed')
+    const jobs = Array.from(this.jobs.values());
+    const completed = jobs.filter((j) => j.status === "completed");
+    const failed = jobs.filter((j) => j.status === "failed");
     const active = jobs.filter(
-      (j) => !['completed', 'failed', 'partially_completed'].includes(j.status)
-    )
-    const blocked = jobs.filter((j) => j.legalHoldBlocked)
+      (j) => !["completed", "failed", "partially_completed"].includes(j.status),
+    );
+    const blocked = jobs.filter((j) => j.legalHoldBlocked);
 
     const totalItemsDeleted = completed.reduce(
       (sum, j) =>
-        sum + j.messagesDeleted + j.filesDeleted + j.reactionsDeleted + j.activitiesDeleted,
-      0
-    )
+        sum +
+        j.messagesDeleted +
+        j.filesDeleted +
+        j.reactionsDeleted +
+        j.activitiesDeleted,
+      0,
+    );
 
     return {
       totalJobs: jobs.length,
@@ -983,7 +1113,7 @@ export class DataDeletionService {
       totalItemsDeleted,
       certificatesGenerated: this.certificates.size,
       blockedByLegalHold: blocked.length,
-    }
+    };
   }
 
   // ============================================================================
@@ -995,12 +1125,12 @@ export class DataDeletionService {
    */
   private getCategoriesForScope(
     scope: DeletionScope,
-    specificCategories?: DataCategory[]
+    specificCategories?: DataCategory[],
   ): DataCategory[] {
-    if (scope === 'partial' && specificCategories) {
-      return specificCategories
+    if (scope === "partial" && specificCategories) {
+      return specificCategories;
     }
-    return SCOPE_CATEGORIES[scope] || []
+    return SCOPE_CATEGORIES[scope] || [];
   }
 
   /**
@@ -1008,8 +1138,8 @@ export class DataDeletionService {
    */
   private getActiveHoldsForUser(userId: string): LegalHold[] {
     return this.legalHolds.filter(
-      (h) => h.status === 'active' && h.custodians.includes(userId)
-    )
+      (h) => h.status === "active" && h.custodians.includes(userId),
+    );
   }
 
   /**
@@ -1017,7 +1147,9 @@ export class DataDeletionService {
    */
   private ensureInitialized(): void {
     if (!this.isInitialized) {
-      throw new Error('DataDeletionService not initialized. Call initialize() first.')
+      throw new Error(
+        "DataDeletionService not initialized. Call initialize() first.",
+      );
     }
   }
 
@@ -1026,33 +1158,35 @@ export class DataDeletionService {
   // ============================================================================
 
   get initialized(): boolean {
-    return this.isInitialized
+    return this.isInitialized;
   }
 
   get enabled(): boolean {
-    return this.config.enabled
+    return this.config.enabled;
   }
 
   get jobCount(): number {
-    return this.jobs.size
+    return this.jobs.size;
   }
 
   get requestCount(): number {
-    return this.requests.size
+    return this.requests.size;
   }
 
   get certificateCount(): number {
-    return this.certificates.size
+    return this.certificates.size;
   }
 
   getConfig(): DataDeletionServiceConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 
-  updateConfig(updates: Partial<DataDeletionServiceConfig>): DataDeletionServiceConfig {
-    this.config = { ...this.config, ...updates }
-    log.info('Configuration updated')
-    return this.config
+  updateConfig(
+    updates: Partial<DataDeletionServiceConfig>,
+  ): DataDeletionServiceConfig {
+    this.config = { ...this.config, ...updates };
+    log.info("Configuration updated");
+    return this.config;
   }
 }
 
@@ -1060,32 +1194,32 @@ export class DataDeletionService {
 // SINGLETON
 // ============================================================================
 
-let dataDeletionService: DataDeletionService | null = null
+let dataDeletionService: DataDeletionService | null = null;
 
 export function getDataDeletionService(): DataDeletionService {
   if (!dataDeletionService) {
-    dataDeletionService = new DataDeletionService()
+    dataDeletionService = new DataDeletionService();
   }
-  return dataDeletionService
+  return dataDeletionService;
 }
 
 export function createDataDeletionService(
-  config?: Partial<DataDeletionServiceConfig>
+  config?: Partial<DataDeletionServiceConfig>,
 ): DataDeletionService {
-  return new DataDeletionService(config)
+  return new DataDeletionService(config);
 }
 
 export async function initializeDataDeletionService(): Promise<DataDeletionService> {
-  const service = getDataDeletionService()
-  await service.initialize()
-  return service
+  const service = getDataDeletionService();
+  await service.initialize();
+  return service;
 }
 
 export function resetDataDeletionService(): void {
   if (dataDeletionService) {
-    dataDeletionService.close()
-    dataDeletionService = null
+    dataDeletionService.close();
+    dataDeletionService = null;
   }
 }
 
-export default DataDeletionService
+export default DataDeletionService;

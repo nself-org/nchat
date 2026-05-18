@@ -5,7 +5,7 @@
  */
 
 // Types
-export * from './command-types'
+export * from "./command-types";
 
 // Built-in commands
 export {
@@ -13,7 +13,7 @@ export {
   builtInCommandsMap,
   builtInTriggerMap,
   commandCategories,
-} from './built-in-commands'
+} from "./built-in-commands";
 
 // Parser
 export {
@@ -22,7 +22,7 @@ export {
   extractTrigger,
   extractArgs,
   argsToObject,
-} from './command-parser'
+} from "./command-parser";
 
 // Registry
 export {
@@ -43,10 +43,10 @@ export {
   getCommandSuggestions,
   canUserUseCommand,
   canUseCommandInChannel,
-} from './command-registry'
+} from "./command-registry";
 
 // Executor
-export { executeCommand } from './command-executor'
+export { executeCommand } from "./command-executor";
 
 // Builder
 export {
@@ -55,7 +55,7 @@ export {
   createMessageCommand,
   createWebhookCommand,
   createNavigationCommand,
-} from './command-builder'
+} from "./command-builder";
 
 // Validator
 export {
@@ -63,4 +63,4 @@ export {
   isValidCommand,
   getValidationErrors,
   sanitizeTrigger,
-} from './command-validator'
+} from "./command-validator";

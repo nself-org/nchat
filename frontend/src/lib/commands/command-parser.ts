@@ -16,8 +16,8 @@
  * ```
  */
 
-import { getCommandByName } from './commands'
-import type { SlashCommand, CommandArg, CommandArgType } from './commands'
+import { getCommandByName } from "./commands";
+import type { SlashCommand, CommandArg, CommandArgType } from "./commands";
 
 // ============================================================================
 // Types
@@ -28,25 +28,25 @@ import type { SlashCommand, CommandArg, CommandArgType } from './commands'
  */
 export interface ParsedCommand {
   /** Whether the input is a valid command */
-  valid: boolean
+  valid: boolean;
   /** The command name (without slash) */
-  commandName: string
+  commandName: string;
   /** The full command string including slash */
-  commandString: string
+  commandString: string;
   /** The matched command definition */
-  command?: SlashCommand
+  command?: SlashCommand;
   /** Raw arguments string (everything after command name) */
-  rawArgs: string
+  rawArgs: string;
   /** Parsed arguments as an array */
-  args: ParsedArg[]
+  args: ParsedArg[];
   /** Named arguments map */
-  namedArgs: Record<string, ParsedArg>
+  namedArgs: Record<string, ParsedArg>;
   /** Validation errors */
-  errors: ParseError[]
+  errors: ParseError[];
   /** Whether the command is complete and ready to execute */
-  isComplete: boolean
+  isComplete: boolean;
   /** Suggestions for next input */
-  suggestions: ArgSuggestion[]
+  suggestions: ArgSuggestion[];
 }
 
 /**
@@ -54,19 +54,19 @@ export interface ParsedCommand {
  */
 export interface ParsedArg {
   /** Argument name from command definition */
-  name: string
+  name: string;
   /** The raw value as entered */
-  rawValue: string
+  rawValue: string;
   /** The parsed/normalized value */
-  value: string | string[]
+  value: string | string[];
   /** Type of the argument */
-  type: CommandArgType
+  type: CommandArgType;
   /** Position in the arguments list */
-  position: number
+  position: number;
   /** Whether this argument is valid */
-  valid: boolean
+  valid: boolean;
   /** Error message if invalid */
-  error?: string
+  error?: string;
 }
 
 /**
@@ -74,13 +74,18 @@ export interface ParsedArg {
  */
 export interface ParseError {
   /** Type of error */
-  type: 'unknown_command' | 'missing_required' | 'invalid_type' | 'invalid_format' | 'too_many_args'
+  type:
+    | "unknown_command"
+    | "missing_required"
+    | "invalid_type"
+    | "invalid_format"
+    | "too_many_args";
   /** Error message */
-  message: string
+  message: string;
   /** Position in input where error occurred */
-  position?: number
+  position?: number;
   /** Related argument name */
-  argName?: string
+  argName?: string;
 }
 
 /**
@@ -88,13 +93,13 @@ export interface ParseError {
  */
 export interface ArgSuggestion {
   /** Suggested value */
-  value: string
+  value: string;
   /** Display label */
-  label: string
+  label: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Type of suggestion */
-  type: 'user' | 'channel' | 'duration' | 'emoji' | 'text'
+  type: "user" | "channel" | "duration" | "emoji" | "text";
 }
 
 // ============================================================================
@@ -102,27 +107,28 @@ export interface ArgSuggestion {
 // ============================================================================
 
 /** Pattern to detect if input starts with a slash command */
-export const COMMAND_PREFIX = '/'
+export const COMMAND_PREFIX = "/";
 
 /** Pattern to match command name */
-export const COMMAND_NAME_PATTERN = /^\/([a-zA-Z][a-zA-Z0-9_-]*)(?:\s|$)/
+export const COMMAND_NAME_PATTERN = /^\/([a-zA-Z][a-zA-Z0-9_-]*)(?:\s|$)/;
 
 /** Pattern to match quoted strings */
-export const QUOTED_STRING_PATTERN = /"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)'/g
+export const QUOTED_STRING_PATTERN =
+  /"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)'/g;
 
 /** Pattern to match user mentions */
-export const USER_MENTION_PATTERN = /@([a-zA-Z][a-zA-Z0-9_.-]*)/g
+export const USER_MENTION_PATTERN = /@([a-zA-Z][a-zA-Z0-9_.-]*)/g;
 
 /** Pattern to match channel references */
-export const CHANNEL_PATTERN = /#([a-zA-Z][a-zA-Z0-9_-]*)/g
+export const CHANNEL_PATTERN = /#([a-zA-Z][a-zA-Z0-9_-]*)/g;
 
 /** Pattern to match duration strings */
 export const DURATION_PATTERN =
-  /^(\d+)\s*(s|sec|second|seconds|m|min|minute|minutes|h|hr|hour|hours|d|day|days|w|week|weeks)$/i
+  /^(\d+)\s*(s|sec|second|seconds|m|min|minute|minutes|h|hr|hour|hours|d|day|days|w|week|weeks)$/i;
 
 /** Pattern to match emoji (colon format or common emoji characters) */
 export const EMOJI_PATTERN =
-  /^:([a-zA-Z0-9_+-]+):$|^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]$/u
+  /^:([a-zA-Z0-9_+-]+):$|^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]$/u;
 
 // ============================================================================
 // Core Parsing Functions
@@ -132,39 +138,39 @@ export const EMOJI_PATTERN =
  * Check if input is a command (starts with /)
  */
 export function isCommandInput(input: string): boolean {
-  return input.trimStart().startsWith(COMMAND_PREFIX)
+  return input.trimStart().startsWith(COMMAND_PREFIX);
 }
 
 /**
  * Check if input is starting to type a command
  */
 export function isTypingCommand(input: string): boolean {
-  const trimmed = input.trimStart()
-  if (!trimmed.startsWith(COMMAND_PREFIX)) return false
+  const trimmed = input.trimStart();
+  if (!trimmed.startsWith(COMMAND_PREFIX)) return false;
 
   // If just "/" or "/partial", it's typing a command
   // If "/command " with space, they've entered the command
-  const match = trimmed.match(/^\/([a-zA-Z]*)$/)
-  return match !== null
+  const match = trimmed.match(/^\/([a-zA-Z]*)$/);
+  return match !== null;
 }
 
 /**
  * Extract command name from input
  */
 export function extractCommandName(input: string): string | null {
-  const match = input.trimStart().match(COMMAND_NAME_PATTERN)
-  return match ? match[1].toLowerCase() : null
+  const match = input.trimStart().match(COMMAND_NAME_PATTERN);
+  return match ? match[1].toLowerCase() : null;
 }
 
 /**
  * Extract the partial command being typed (for autocomplete)
  */
 export function extractPartialCommand(input: string): string {
-  const trimmed = input.trimStart()
-  if (!trimmed.startsWith(COMMAND_PREFIX)) return ''
+  const trimmed = input.trimStart();
+  if (!trimmed.startsWith(COMMAND_PREFIX)) return "";
 
-  const match = trimmed.match(/^\/([a-zA-Z0-9_-]*)$/)
-  return match ? match[1].toLowerCase() : ''
+  const match = trimmed.match(/^\/([a-zA-Z0-9_-]*)$/);
+  return match ? match[1].toLowerCase() : "";
 }
 
 /**
@@ -173,77 +179,77 @@ export function extractPartialCommand(input: string): string {
 export function parseCommand(input: string): ParsedCommand {
   const result: ParsedCommand = {
     valid: false,
-    commandName: '',
-    commandString: '',
-    rawArgs: '',
+    commandName: "",
+    commandString: "",
+    rawArgs: "",
     args: [],
     namedArgs: {},
     errors: [],
     isComplete: false,
     suggestions: [],
-  }
+  };
 
-  const trimmed = input.trimStart()
+  const trimmed = input.trimStart();
 
   if (!trimmed.startsWith(COMMAND_PREFIX)) {
-    return result
+    return result;
   }
 
   // Extract command name
-  const commandName = extractCommandName(trimmed)
+  const commandName = extractCommandName(trimmed);
   if (!commandName) {
-    return result
+    return result;
   }
 
-  result.commandName = commandName
-  result.commandString = `/${commandName}`
+  result.commandName = commandName;
+  result.commandString = `/${commandName}`;
 
   // Find the command definition
-  const command = getCommandByName(commandName)
+  const command = getCommandByName(commandName);
   if (!command) {
     result.errors.push({
-      type: 'unknown_command',
+      type: "unknown_command",
       message: `Unknown command: /${commandName}`,
-    })
-    return result
+    });
+    return result;
   }
 
-  result.command = command
+  result.command = command;
 
   // Extract raw arguments (everything after command name)
-  const argsStartIndex = trimmed.indexOf(commandName) + commandName.length
-  result.rawArgs = trimmed.slice(argsStartIndex + 1).trim()
+  const argsStartIndex = trimmed.indexOf(commandName) + commandName.length;
+  result.rawArgs = trimmed.slice(argsStartIndex + 1).trim();
 
   // Parse arguments based on command definition
-  const parsedArgs = parseArguments(result.rawArgs, command.args)
-  result.args = parsedArgs.args
-  result.errors.push(...parsedArgs.errors)
+  const parsedArgs = parseArguments(result.rawArgs, command.args);
+  result.args = parsedArgs.args;
+  result.errors.push(...parsedArgs.errors);
 
   // Build named args map
   for (const arg of result.args) {
-    result.namedArgs[arg.name] = arg
+    result.namedArgs[arg.name] = arg;
   }
 
   // Validate required arguments
   for (const argDef of command.args) {
     if (argDef.required && !result.namedArgs[argDef.name]?.value) {
       result.errors.push({
-        type: 'missing_required',
+        type: "missing_required",
         message: `Missing required argument: ${argDef.name}`,
         argName: argDef.name,
-      })
+      });
     }
   }
 
-  result.valid = result.errors.length === 0
-  result.isComplete = result.valid && result.args.every((a) => a.valid)
+  result.valid = result.errors.length === 0;
+  result.isComplete = result.valid && result.args.every((a) => a.valid);
 
   // Generate suggestions for incomplete commands
   if (!result.isComplete) {
-    result.suggestions = generateSuggestions(result)
+    result.suggestions = generateSuggestions(result);
   }
 
-  return result
+  return result;
 }
 
 // ============================================================================
@@ -255,80 +261,84 @@ export function parseCommand(input: string): ParsedCommand {
  */
 function parseArguments(
   argsString: string,
-  argDefs: CommandArg[]
+  argDefs: CommandArg[],
 ): { args: ParsedArg[]; errors: ParseError[] } {
-  const args: ParsedArg[] = []
-  const errors: ParseError[] = []
+  const args: ParsedArg[] = [];
+  const errors: ParseError[] = [];
 
   if (!argsString || argDefs.length === 0) {
-    return { args, errors }
+    return { args, errors };
   }
 
   // Extract tokens from args string
-  const tokens = tokenizeArguments(argsString)
+  const tokens = tokenizeArguments(argsString);
 
   // Match tokens to argument definitions
-  let tokenIndex = 0
+  let tokenIndex = 0;
   for (let i = 0; i < argDefs.length && tokenIndex < tokens.length; i++) {
-    const argDef = argDefs[i]
-    const token = tokens[tokenIndex]
+    const argDef = argDefs[i];
+    const token = tokens[tokenIndex];
 
     // Handle options type (consumes remaining tokens)
-    if (argDef.type === 'options') {
-      const optionValues: string[] = []
+    if (argDef.type === "options") {
+      const optionValues: string[] = [];
       while (tokenIndex < tokens.length) {
-        optionValues.push(tokens[tokenIndex])
-        tokenIndex++
+        optionValues.push(tokens[tokenIndex]);
+        tokenIndex++;
       }
 
       args.push({
         name: argDef.name,
-        rawValue: optionValues.join(' '),
+        rawValue: optionValues.join(" "),
         value: optionValues,
         type: argDef.type,
         position: i,
         valid: optionValues.length >= 2, // Polls need at least 2 options
-        error: optionValues.length < 2 ? 'Need at least 2 options' : undefined,
-      })
-      break
+        error: optionValues.length < 2 ? "Need at least 2 options" : undefined,
+      });
+      break;
     }
 
     // Parse single argument
-    const parsedArg = parseSingleArgument(token, argDef, i)
-    args.push(parsedArg)
+    const parsedArg = parseSingleArgument(token, argDef, i);
+    args.push(parsedArg);
 
     if (!parsedArg.valid && parsedArg.error) {
       errors.push({
-        type: 'invalid_type',
+        type: "invalid_type",
         message: parsedArg.error,
         argName: argDef.name,
-      })
+      });
     }
 
-    tokenIndex++
+    tokenIndex++;
   }
 
   // Check for extra arguments
   if (tokenIndex < tokens.length && argDefs.length > 0) {
-    const lastArg = argDefs[argDefs.length - 1]
-    if (lastArg.type === 'text') {
+    const lastArg = argDefs[argDefs.length - 1];
+    if (lastArg.type === "text") {
       // Allow text type to consume remaining tokens
-      const existingArg = args.find((a) => a.name === lastArg.name)
+      const existingArg = args.find((a) => a.name === lastArg.name);
       if (existingArg) {
-        const remaining = tokens.slice(tokenIndex).join(' ')
-        existingArg.rawValue += ' ' + remaining
-        existingArg.value = (existingArg.value as string) + ' ' + remaining
+        const remaining = tokens.slice(tokenIndex).join(" ");
+        existingArg.rawValue += " " + remaining;
+        existingArg.value = (existingArg.value as string) + " " + remaining;
       }
     }
   }
 
-  return { args, errors }
+  return { args, errors };
 }
 
 /**
  * Parse a single argument token
  */
-function parseSingleArgument(token: string, argDef: CommandArg, position: number): ParsedArg {
+function parseSingleArgument(
+  token: string,
+  argDef: CommandArg,
+  position: number,
+): ParsedArg {
   const result: ParsedArg = {
     name: argDef.name,
     rawValue: token,
@@ -336,98 +346,98 @@ function parseSingleArgument(token: string, argDef: CommandArg, position: number
     type: argDef.type,
     position,
     valid: true,
-  }
+  };
 
   switch (argDef.type) {
-    case 'user':
-      result.value = parseUserMention(token)
-      result.valid = result.value !== ''
+    case "user":
+      result.value = parseUserMention(token);
+      result.valid = result.value !== "";
       if (!result.valid) {
-        result.error = 'Invalid user mention. Use @username format.'
+        result.error = "Invalid user mention. Use @username format.";
       }
-      break
+      break;
 
-    case 'channel':
-      result.value = parseChannelReference(token)
-      result.valid = result.value !== ''
+    case "channel":
+      result.value = parseChannelReference(token);
+      result.valid = result.value !== "";
       if (!result.valid) {
-        result.error = 'Invalid channel reference. Use #channel format.'
+        result.error = "Invalid channel reference. Use #channel format.";
       }
-      break
+      break;
 
-    case 'duration':
-      const duration = parseDuration(token)
-      result.value = duration.formatted
-      result.valid = duration.valid
+    case "duration":
+      const duration = parseDuration(token);
+      result.value = duration.formatted;
+      result.valid = duration.valid;
       if (!result.valid) {
-        result.error = 'Invalid duration. Use format like "30m", "1h", "2d".'
+        result.error = 'Invalid duration. Use format like "30m", "1h", "2d".';
       }
-      break
+      break;
 
-    case 'emoji':
-      result.valid = EMOJI_PATTERN.test(token)
+    case "emoji":
+      result.valid = EMOJI_PATTERN.test(token);
       if (!result.valid) {
-        result.error = 'Invalid emoji format.'
+        result.error = "Invalid emoji format.";
       }
-      break
+      break;
 
-    case 'text':
+    case "text":
       // Text is always valid
-      result.value = unquoteString(token)
-      break
+      result.value = unquoteString(token);
+      break;
 
-    case 'none':
-      result.valid = true
-      break
+    case "none":
+      result.valid = true;
+      break;
   }
 
-  return result
+  return result;
 }
 
 /**
  * Tokenize arguments string, respecting quoted strings
  */
 function tokenizeArguments(argsString: string): string[] {
-  const tokens: string[] = []
-  let current = ''
-  let inQuote = false
-  let quoteChar = ''
+  const tokens: string[] = [];
+  let current = "";
+  let inQuote = false;
+  let quoteChar = "";
 
   for (let i = 0; i < argsString.length; i++) {
-    const char = argsString[i]
+    const char = argsString[i];
 
     if ((char === '"' || char === "'") && !inQuote) {
-      inQuote = true
-      quoteChar = char
-      continue
+      inQuote = true;
+      quoteChar = char;
+      continue;
     }
 
     if (char === quoteChar && inQuote) {
       if (current) {
-        tokens.push(current)
-        current = ''
+        tokens.push(current);
+        current = "";
       }
-      inQuote = false
-      quoteChar = ''
-      continue
+      inQuote = false;
+      quoteChar = "";
+      continue;
     }
 
-    if (char === ' ' && !inQuote) {
+    if (char === " " && !inQuote) {
       if (current) {
-        tokens.push(current)
-        current = ''
+        tokens.push(current);
+        current = "";
       }
-      continue
+      continue;
     }
 
-    current += char
+    current += char;
   }
 
   if (current) {
-    tokens.push(current)
+    tokens.push(current);
   }
 
-  return tokens
+  return tokens;
 }
 
 // ============================================================================
@@ -439,12 +449,12 @@ function tokenizeArguments(argsString: string): string[] {
  */
 export function parseUserMention(input: string): string {
   // Remove @ prefix if present
-  const username = input.startsWith('@') ? input.slice(1) : input
+  const username = input.startsWith("@") ? input.slice(1) : input;
   // Validate username format
   if (/^[a-zA-Z][a-zA-Z0-9_.-]*$/.test(username)) {
-    return username
+    return username;
   }
-  return ''
+  return "";
 }
 
 /**
@@ -452,22 +462,22 @@ export function parseUserMention(input: string): string {
  */
 export function parseChannelReference(input: string): string {
   // Remove # prefix if present
-  const channel = input.startsWith('#') ? input.slice(1) : input
+  const channel = input.startsWith("#") ? input.slice(1) : input;
   // Validate channel name format
   if (/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(channel)) {
-    return channel
+    return channel;
   }
-  return ''
+  return "";
 }
 
 /**
  * Duration parsing result
  */
 export interface ParsedDuration {
-  valid: boolean
-  milliseconds: number
-  formatted: string
-  original: string
+  valid: boolean;
+  milliseconds: number;
+  formatted: string;
+  original: string;
 }
 
 /**
@@ -479,16 +489,16 @@ export function parseDuration(input: string): ParsedDuration {
     milliseconds: 0,
     formatted: input,
     original: input,
-  }
+  };
 
-  const match = input.match(DURATION_PATTERN)
+  const match = input.match(DURATION_PATTERN);
   if (!match) {
     // Try parsing natural language
-    return parseNaturalDuration(input)
+    return parseNaturalDuration(input);
   }
 
-  const value = parseInt(match[1], 10)
-  const unit = match[2].toLowerCase()
+  const value = parseInt(match[1], 10);
+  const unit = match[2].toLowerCase();
 
   const multipliers: Record<string, number> = {
     s: 1000,
@@ -509,16 +519,16 @@ export function parseDuration(input: string): ParsedDuration {
     w: 7 * 24 * 60 * 60 * 1000,
     week: 7 * 24 * 60 * 60 * 1000,
     weeks: 7 * 24 * 60 * 60 * 1000,
-  }
+  };
 
-  const multiplier = multipliers[unit]
+  const multiplier = multipliers[unit];
   if (multiplier) {
-    result.valid = true
-    result.milliseconds = value * multiplier
-    result.formatted = formatDuration(result.milliseconds)
+    result.valid = true;
+    result.milliseconds = value * multiplier;
+    result.formatted = formatDuration(result.milliseconds);
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -530,41 +540,41 @@ function parseNaturalDuration(input: string): ParsedDuration {
     milliseconds: 0,
     formatted: input,
     original: input,
-  }
+  };
 
   // Handle "in X minutes/hours/etc"
-  const inMatch = input.match(/^in\s+(\d+)\s+(minutes?|hours?|days?|weeks?)$/i)
+  const inMatch = input.match(/^in\s+(\d+)\s+(minutes?|hours?|days?|weeks?)$/i);
   if (inMatch) {
-    const durationStr = `${inMatch[1]}${inMatch[2][0]}`
-    return parseDuration(durationStr)
+    const durationStr = `${inMatch[1]}${inMatch[2][0]}`;
+    return parseDuration(durationStr);
   }
 
   // Handle "tomorrow"
-  if (input.toLowerCase() === 'tomorrow') {
-    result.valid = true
-    result.milliseconds = 24 * 60 * 60 * 1000
-    result.formatted = '1 day'
-    return result
+  if (input.toLowerCase() === "tomorrow") {
+    result.valid = true;
+    result.milliseconds = 24 * 60 * 60 * 1000;
+    result.formatted = "1 day";
+    return result;
   }
 
-  return result
+  return result;
 }
 
 /**
  * Format milliseconds as human-readable duration
  */
 export function formatDuration(ms: number): string {
-  const seconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
-  const weeks = Math.floor(days / 7)
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
 
-  if (weeks > 0) return `${weeks} week${weeks > 1 ? 's' : ''}`
-  if (days > 0) return `${days} day${days > 1 ? 's' : ''}`
-  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''}`
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''}`
-  return `${seconds} second${seconds !== 1 ? 's' : ''}`
+  if (weeks > 0) return `${weeks} week${weeks > 1 ? "s" : ""}`;
+  if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
+  if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
+  if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""}`;
+  return `${seconds} second${seconds !== 1 ? "s" : ""}`;
 }
 
 /**
@@ -575,9 +585,9 @@ function unquoteString(input: string): string {
     (input.startsWith('"') && input.endsWith('"')) ||
     (input.startsWith("'") && input.endsWith("'"))
   ) {
-    return input.slice(1, -1)
+    return input.slice(1, -1);
   }
-  return input
+  return input;
 }
 
 // ============================================================================
@@ -588,48 +598,48 @@ function unquoteString(input: string): string {
  * Generate suggestions for incomplete command
  */
 function generateSuggestions(parsed: ParsedCommand): ArgSuggestion[] {
-  const suggestions: ArgSuggestion[] = []
+  const suggestions: ArgSuggestion[] = [];
 
-  if (!parsed.command) return suggestions
+  if (!parsed.command) return suggestions;
 
   // Find the first incomplete/missing argument
-  const nextArgIndex = parsed.args.length
-  const nextArgDef = parsed.command.args[nextArgIndex]
+  const nextArgIndex = parsed.args.length;
+  const nextArgDef = parsed.command.args[nextArgIndex];
 
-  if (!nextArgDef) return suggestions
+  if (!nextArgDef) return suggestions;
 
   switch (nextArgDef.type) {
-    case 'duration':
+    case "duration":
       suggestions.push(
-        { value: '15m', label: '15 minutes', type: 'duration' },
-        { value: '30m', label: '30 minutes', type: 'duration' },
-        { value: '1h', label: '1 hour', type: 'duration' },
-        { value: '2h', label: '2 hours', type: 'duration' },
-        { value: '1d', label: '1 day', type: 'duration' }
-      )
-      break
+        { value: "15m", label: "15 minutes", type: "duration" },
+        { value: "30m", label: "30 minutes", type: "duration" },
+        { value: "1h", label: "1 hour", type: "duration" },
+        { value: "2h", label: "2 hours", type: "duration" },
+        { value: "1d", label: "1 day", type: "duration" },
+      );
+      break;
 
-    case 'emoji':
+    case "emoji":
       suggestions.push(
-        { value: ':coffee:', label: 'Coffee', type: 'emoji' },
-        { value: ':palm_tree:', label: 'Vacation', type: 'emoji' },
-        { value: ':house:', label: 'Working from home', type: 'emoji' },
-        { value: ':calendar:', label: 'In a meeting', type: 'emoji' }
-      )
-      break
+        { value: ":coffee:", label: "Coffee", type: "emoji" },
+        { value: ":palm_tree:", label: "Vacation", type: "emoji" },
+        { value: ":house:", label: "Working from home", type: "emoji" },
+        { value: ":calendar:", label: "In a meeting", type: "emoji" },
+      );
+      break;
 
     default:
       if (nextArgDef.placeholder) {
         suggestions.push({
-          value: '',
+          value: "",
           label: nextArgDef.placeholder,
           description: nextArgDef.description,
-          type: 'text',
-        })
+          type: "text",
+        });
       }
   }
 
-  return suggestions
+  return suggestions;
 }
 
 // ============================================================================
@@ -640,47 +650,49 @@ function generateSuggestions(parsed: ParsedCommand): ArgSuggestion[] {
  * Validate a command can be executed in the current context
  */
 export interface ValidationContext {
-  channelId?: string
-  userRole?: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
-  enabledFeatures?: string[]
+  channelId?: string;
+  userRole?: "owner" | "admin" | "moderator" | "member" | "guest";
+  enabledFeatures?: string[];
 }
 
 export interface ValidationResult {
-  valid: boolean
-  errors: string[]
+  valid: boolean;
+  errors: string[];
 }
 
 export function validateCommandContext(
   command: SlashCommand,
-  context: ValidationContext
+  context: ValidationContext,
 ): ValidationResult {
-  const errors: string[] = []
+  const errors: string[] = [];
 
   // Check channel requirement
   if (command.requiresChannel && !context.channelId) {
-    errors.push('This command requires a channel context.')
+    errors.push("This command requires a channel context.");
   }
 
   // Check permission requirement
   if (command.requiresPermission) {
-    const roleHierarchy = ['guest', 'member', 'moderator', 'admin', 'owner']
-    const requiredLevel = roleHierarchy.indexOf(command.requiresPermission)
-    const userLevel = roleHierarchy.indexOf(context.userRole || 'guest')
+    const roleHierarchy = ["guest", "member", "moderator", "admin", "owner"];
+    const requiredLevel = roleHierarchy.indexOf(command.requiresPermission);
+    const userLevel = roleHierarchy.indexOf(context.userRole || "guest");
 
     if (userLevel < requiredLevel) {
-      errors.push(`This command requires ${command.requiresPermission} permissions.`)
+      errors.push(
+        `This command requires ${command.requiresPermission} permissions.`,
+      );
     }
   }
 
   // Check feature requirement
   if (command.requiredFeature && context.enabledFeatures) {
     if (!context.enabledFeatures.includes(command.requiredFeature)) {
-      errors.push('This command requires a feature that is not enabled.')
+      errors.push("This command requires a feature that is not enabled.");
     }
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  }
+  };
 }

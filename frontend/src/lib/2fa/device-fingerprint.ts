@@ -5,21 +5,21 @@
  * Uses browser and system information to create a unique device identifier.
  */
 
-import { createHash } from 'crypto'
+import { createHash } from "crypto";
 
 /**
  * Device information interface
  */
 export interface DeviceInfo {
-  userAgent: string
-  platform: string
-  language: string
-  screenResolution: string
-  timezone: string
-  colorDepth: number
-  deviceMemory?: number
-  hardwareConcurrency?: number
-  vendor?: string
+  userAgent: string;
+  platform: string;
+  language: string;
+  screenResolution: string;
+  timezone: string;
+  colorDepth: number;
+  deviceMemory?: number;
+  hardwareConcurrency?: number;
+  vendor?: string;
 }
 
 /**
@@ -27,22 +27,22 @@ export interface DeviceInfo {
  * @returns Device information object
  */
 export function getDeviceInfo(): DeviceInfo {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     // Server-side: return minimal info
     return {
-      userAgent: 'server',
-      platform: 'server',
-      language: 'en-US',
-      screenResolution: '0x0',
-      timezone: 'UTC',
+      userAgent: "server",
+      platform: "server",
+      language: "en-US",
+      screenResolution: "0x0",
+      timezone: "UTC",
       colorDepth: 0,
-    }
+    };
   }
 
   const nav = window.navigator as Navigator & {
-    deviceMemory?: number
-    hardwareConcurrency?: number
-  }
+    deviceMemory?: number;
+    hardwareConcurrency?: number;
+  };
 
   return {
     userAgent: nav.userAgent,
@@ -54,7 +54,7 @@ export function getDeviceInfo(): DeviceInfo {
     deviceMemory: nav.deviceMemory,
     hardwareConcurrency: nav.hardwareConcurrency,
     vendor: nav.vendor,
-  }
+  };
 }
 
 /**
@@ -76,12 +76,12 @@ export function generateDeviceFingerprint(deviceInfo: DeviceInfo): string {
     deviceInfo.vendor,
   ]
     .filter(Boolean)
-    .join('|')
+    .join("|");
 
   // Hash the fingerprint string
-  const hash = createHash('sha256')
-  hash.update(fingerprintString)
-  return hash.digest('hex')
+  const hash = createHash("sha256");
+  hash.update(fingerprintString);
+  return hash.digest("hex");
 }
 
 /**
@@ -89,8 +89,8 @@ export function generateDeviceFingerprint(deviceInfo: DeviceInfo): string {
  * @returns Device fingerprint hash
  */
 export function getCurrentDeviceFingerprint(): string {
-  const deviceInfo = getDeviceInfo()
-  return generateDeviceFingerprint(deviceInfo)
+  const deviceInfo = getDeviceInfo();
+  return generateDeviceFingerprint(deviceInfo);
 }
 
 /**
@@ -99,39 +99,45 @@ export function getCurrentDeviceFingerprint(): string {
  * @returns Human-readable device name
  */
 export function getDeviceName(userAgent?: string): string {
-  const ua = userAgent || (typeof window !== 'undefined' ? window.navigator.userAgent : '')
+  const ua =
+    userAgent ||
+    (typeof window !== "undefined" ? window.navigator.userAgent : "");
 
   // Detect browser
-  let browser = 'Unknown Browser'
-  if (ua.includes('Firefox')) browser = 'Firefox'
-  else if (ua.includes('Edg')) browser = 'Edge'
-  else if (ua.includes('Chrome')) browser = 'Chrome'
-  else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari'
-  else if (ua.includes('Opera') || ua.includes('OPR')) browser = 'Opera'
+  let browser = "Unknown Browser";
+  if (ua.includes("Firefox")) browser = "Firefox";
+  else if (ua.includes("Edg")) browser = "Edge";
+  else if (ua.includes("Chrome")) browser = "Chrome";
+  else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+  else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
 
   // Detect OS
-  let os = 'Unknown OS'
-  if (ua.includes('Windows NT 10.0')) os = 'Windows 10/11'
-  else if (ua.includes('Windows NT 6.3')) os = 'Windows 8.1'
-  else if (ua.includes('Windows NT 6.2')) os = 'Windows 8'
-  else if (ua.includes('Windows NT 6.1')) os = 'Windows 7'
-  else if (ua.includes('Mac OS X')) {
-    const version = ua.match(/Mac OS X (\d+)[._](\d+)/)
+  let os = "Unknown OS";
+  if (ua.includes("Windows NT 10.0")) os = "Windows 10/11";
+  else if (ua.includes("Windows NT 6.3")) os = "Windows 8.1";
+  else if (ua.includes("Windows NT 6.2")) os = "Windows 8";
+  else if (ua.includes("Windows NT 6.1")) os = "Windows 7";
+  else if (ua.includes("Mac OS X")) {
+    const version = ua.match(/Mac OS X (\d+)[._](\d+)/);
     if (version) {
-      os = `macOS ${version[1]}.${version[2]}`
+      os = `macOS ${version[1]}.${version[2]}`;
     } else {
-      os = 'macOS'
+      os = "macOS";
     }
-  } else if (ua.includes('Linux')) os = 'Linux'
-  else if (ua.includes('Android')) {
-    const version = ua.match(/Android (\d+)/)
-    os = version ? `Android ${version[1]}` : 'Android'
-  } else if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) {
-    const version = ua.match(/OS (\d+)_(\d+)/)
-    os = version ? `iOS ${version[1]}.${version[2]}` : 'iOS'
+  } else if (ua.includes("Linux")) os = "Linux";
+  else if (ua.includes("Android")) {
+    const version = ua.match(/Android (\d+)/);
+    os = version ? `Android ${version[1]}` : "Android";
+  } else if (
+    ua.includes("iOS") ||
+    ua.includes("iPhone") ||
+    ua.includes("iPad")
+  ) {
+    const version = ua.match(/OS (\d+)_(\d+)/);
+    os = version ? `iOS ${version[1]}.${version[2]}` : "iOS";
   }
 
-  return `${browser} on ${os}`
+  return `${browser} on ${os}`;
 }
 
 /**
@@ -139,20 +145,24 @@ export function getDeviceName(userAgent?: string): string {
  * @param userAgent - User agent string
  * @returns Device type
  */
-export function getDeviceType(userAgent?: string): 'desktop' | 'mobile' | 'tablet' {
-  const ua = userAgent || (typeof window !== 'undefined' ? window.navigator.userAgent : '')
+export function getDeviceType(
+  userAgent?: string,
+): "desktop" | "mobile" | "tablet" {
+  const ua =
+    userAgent ||
+    (typeof window !== "undefined" ? window.navigator.userAgent : "");
 
   if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
-    return 'tablet'
+    return "tablet";
   }
   if (
     /Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(
-      ua
+      ua,
     )
   ) {
-    return 'mobile'
+    return "mobile";
   }
-  return 'desktop'
+  return "desktop";
 }
 
 /**
@@ -160,22 +170,22 @@ export function getDeviceType(userAgent?: string): 'desktop' | 'mobile' | 'table
  * @returns Complete device info with fingerprint and metadata
  */
 export function createDeviceRecord(): {
-  deviceId: string
-  deviceName: string
-  deviceType: string
-  deviceInfo: DeviceInfo
+  deviceId: string;
+  deviceName: string;
+  deviceType: string;
+  deviceInfo: DeviceInfo;
 } {
-  const deviceInfo = getDeviceInfo()
-  const deviceId = generateDeviceFingerprint(deviceInfo)
-  const deviceName = getDeviceName(deviceInfo.userAgent)
-  const deviceType = getDeviceType(deviceInfo.userAgent)
+  const deviceInfo = getDeviceInfo();
+  const deviceId = generateDeviceFingerprint(deviceInfo);
+  const deviceName = getDeviceName(deviceInfo.userAgent);
+  const deviceType = getDeviceType(deviceInfo.userAgent);
 
   return {
     deviceId,
     deviceName,
     deviceType,
     deviceInfo,
-  }
+  };
 }
 
 /**
@@ -184,9 +194,9 @@ export function createDeviceRecord(): {
  * @returns ISO timestamp of expiry
  */
 export function getDeviceTrustExpiry(days: number = 30): string {
-  const expiryDate = new Date()
-  expiryDate.setDate(expiryDate.getDate() + days)
-  return expiryDate.toISOString()
+  const expiryDate = new Date();
+  expiryDate.setDate(expiryDate.getDate() + days);
+  return expiryDate.toISOString();
 }
 
 /**
@@ -195,7 +205,7 @@ export function getDeviceTrustExpiry(days: number = 30): string {
  * @returns true if expired
  */
 export function isDeviceTrustExpired(trustedUntil: string): boolean {
-  return new Date(trustedUntil) < new Date()
+  return new Date(trustedUntil) < new Date();
 }
 
 /**
@@ -204,11 +214,11 @@ export function isDeviceTrustExpired(trustedUntil: string): boolean {
  * @returns Number of days remaining
  */
 export function getDaysUntilExpiry(trustedUntil: string): number {
-  const now = new Date()
-  const expiry = new Date(trustedUntil)
-  const diffMs = expiry.getTime() - now.getTime()
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
-  return Math.max(0, diffDays)
+  const now = new Date();
+  const expiry = new Date(trustedUntil);
+  const diffMs = expiry.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
 }
 
 /**
@@ -217,7 +227,7 @@ export function getDaysUntilExpiry(trustedUntil: string): number {
  * @returns true if valid SHA-256 hex string
  */
 export function isValidDeviceFingerprint(fingerprint: string): boolean {
-  return /^[a-f0-9]{64}$/i.test(fingerprint)
+  return /^[a-f0-9]{64}$/i.test(fingerprint);
 }
 
 /**
@@ -225,28 +235,28 @@ export function isValidDeviceFingerprint(fingerprint: string): boolean {
  * @returns Short device ID for client-side storage
  */
 export function getLocalDeviceId(): string {
-  if (typeof window === 'undefined') return 'server'
+  if (typeof window === "undefined") return "server";
 
   // Check if we have a stored device ID
-  let deviceId = localStorage.getItem('device_id')
+  let deviceId = localStorage.getItem("device_id");
 
   if (!deviceId) {
     // Generate new device ID
-    const fingerprint = getCurrentDeviceFingerprint()
-    deviceId = fingerprint.substring(0, 16) // Use first 16 chars
-    localStorage.setItem('device_id', deviceId)
+    const fingerprint = getCurrentDeviceFingerprint();
+    deviceId = fingerprint.substring(0, 16); // Use first 16 chars
+    localStorage.setItem("device_id", deviceId);
   }
 
-  return deviceId
+  return deviceId;
 }
 
 /**
  * Clear device trust from localStorage
  */
 export function clearDeviceTrust(): void {
-  if (typeof window === 'undefined') return
-  localStorage.removeItem('device_id')
-  localStorage.removeItem('device_trusted')
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("device_id");
+  localStorage.removeItem("device_trusted");
 }
 
 /**
@@ -254,15 +264,15 @@ export function clearDeviceTrust(): void {
  * @returns true if device is marked as trusted
  */
 export function isDeviceTrustedLocally(): boolean {
-  if (typeof window === 'undefined') return false
-  const trusted = localStorage.getItem('device_trusted')
-  return trusted === 'true'
+  if (typeof window === "undefined") return false;
+  const trusted = localStorage.getItem("device_trusted");
+  return trusted === "true";
 }
 
 /**
  * Mark device as trusted in localStorage
  */
 export function markDeviceAsTrusted(): void {
-  if (typeof window === 'undefined') return
-  localStorage.setItem('device_trusted', 'true')
+  if (typeof window === "undefined") return;
+  localStorage.setItem("device_trusted", "true");
 }

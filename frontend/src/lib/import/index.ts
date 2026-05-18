@@ -5,9 +5,9 @@
  */
 
 // Importers
-export { SlackImporter } from './slack-importer'
-export { DiscordImporter } from './discord-importer'
-export { GenericImporter } from './generic-importer'
+export { SlackImporter } from "./slack-importer";
+export { DiscordImporter } from "./discord-importer";
+export { GenericImporter } from "./generic-importer";
 
 // Types
 export type {
@@ -41,4 +41,4 @@ export type {
   GenericReaction,
   FieldMapping,
   ImportMapping,
-} from './types'
+} from "./types";

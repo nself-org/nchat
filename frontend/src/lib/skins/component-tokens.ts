@@ -22,71 +22,73 @@
  * @version 1.0.0
  */
 
-import type { VisualSkin, SkinColorPalette } from './types'
-import { nchatSkin } from './visual-skins'
-import { getDesignTokens, type DesignTokens } from './design-tokens'
-import { buildFocusRingTokens, type FocusRingTokens } from './accessibility'
+import type { VisualSkin, SkinColorPalette } from "./types";
+import { nchatSkin } from "./visual-skins";
+import { getDesignTokens, type DesignTokens } from "./design-tokens";
+import { buildFocusRingTokens, type FocusRingTokens } from "./accessibility";
 
 // ============================================================================
 // MESSAGE BUBBLE
 // ============================================================================
 
 export interface MessageBubbleTokens {
-  layout: 'default' | 'compact' | 'cozy' | 'bubbles'
-  padding: string
-  gap: string
-  borderRadius: string
+  layout: "default" | "compact" | "cozy" | "bubbles";
+  padding: string;
+  gap: string;
+  borderRadius: string;
   /** Own message bubble background */
-  ownBg: string
+  ownBg: string;
   /** Own message text color */
-  ownText: string
+  ownText: string;
   /** Other user message bubble background */
-  otherBg: string
+  otherBg: string;
   /** Other user text color */
-  otherText: string
+  otherText: string;
   /** System message styling */
-  systemBg: string
-  systemText: string
-  systemFontSize: string
+  systemBg: string;
+  systemText: string;
+  systemFontSize: string;
   /** Timestamp */
-  timestampColor: string
-  timestampFontSize: string
+  timestampColor: string;
+  timestampFontSize: string;
   /** Hover highlight */
-  hoverBg: string
+  hoverBg: string;
   /** Selection highlight */
-  selectedBg: string
+  selectedBg: string;
   /** Link color within messages */
-  linkColor: string
+  linkColor: string;
   /** Code block styling */
-  codeBg: string
-  codeBorderRadius: string
-  codeFontFamily: string
-  codeFontSize: string
+  codeBg: string;
+  codeBorderRadius: string;
+  codeFontFamily: string;
+  codeFontSize: string;
 }
 
 function hexWithAlpha(hex: string, alpha: number): string {
-  const a = Math.round(alpha * 255).toString(16).padStart(2, '0')
-  const base = hex.length === 9 ? hex.slice(0, 7) : hex.slice(0, 7)
-  return `${base}${a}`
+  const a = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, "0");
+  const base = hex.length === 9 ? hex.slice(0, 7) : hex.slice(0, 7);
+  return `${base}${a}`;
 }
 
 function buildMessageBubbleTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): MessageBubbleTokens {
-  const isBubbles = skin.components.messageLayout === 'bubbles'
+  const isBubbles = skin.components.messageLayout === "bubbles";
 
   return {
     layout: skin.components.messageLayout,
     padding: skin.spacing.messagePadding,
     gap: skin.spacing.messageGap,
     borderRadius: isBubbles ? skin.borderRadius.lg : skin.borderRadius.md,
-    ownBg: isBubbles ? hexWithAlpha(colors.primary, 0.12) : 'transparent',
+    ownBg: isBubbles ? hexWithAlpha(colors.primary, 0.12) : "transparent",
     ownText: colors.text,
-    otherBg: isBubbles ? colors.surface : 'transparent',
+    otherBg: isBubbles ? colors.surface : "transparent",
     otherText: colors.text,
-    systemBg: 'transparent',
+    systemBg: "transparent",
     systemText: colors.muted,
     systemFontSize: tokens.typeScale.sm.fontSize,
     timestampColor: colors.muted,
@@ -98,7 +100,7 @@ function buildMessageBubbleTokens(
     codeBorderRadius: skin.borderRadius.sm,
     codeFontFamily: skin.typography.fontFamilyMono,
     codeFontSize: tokens.typeScale.sm.fontSize,
-  }
+  };
 }
 
 // ============================================================================
@@ -106,43 +108,43 @@ function buildMessageBubbleTokens(
 // ============================================================================
 
 export interface SidebarTokens {
-  style: 'default' | 'compact' | 'wide' | 'icons-only'
-  width: string
-  compactWidth: string
-  background: string
-  text: string
-  textMuted: string
-  borderColor: string
+  style: "default" | "compact" | "wide" | "icons-only";
+  width: string;
+  compactWidth: string;
+  background: string;
+  text: string;
+  textMuted: string;
+  borderColor: string;
   /** Active channel background */
-  activeItemBg: string
+  activeItemBg: string;
   /** Active channel text color */
-  activeItemText: string
+  activeItemText: string;
   /** Hover item background */
-  hoverItemBg: string
+  hoverItemBg: string;
   /** Item padding */
-  itemPadding: string
+  itemPadding: string;
   /** Item border radius */
-  itemBorderRadius: string
+  itemBorderRadius: string;
   /** Section header styles */
-  sectionHeaderColor: string
-  sectionHeaderFontSize: string
-  sectionHeaderFontWeight: number
+  sectionHeaderColor: string;
+  sectionHeaderFontSize: string;
+  sectionHeaderFontWeight: number;
   /** Unread indicator */
-  unreadIndicatorBg: string
-  unreadIndicatorText: string
+  unreadIndicatorBg: string;
+  unreadIndicatorText: string;
   /** Separator color */
-  separatorColor: string
+  separatorColor: string;
 }
 
 function buildSidebarTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): SidebarTokens {
   return {
     style: skin.components.sidebarStyle,
     width: skin.spacing.sidebarWidth,
-    compactWidth: '72px',
+    compactWidth: "72px",
     background: colors.surface,
     text: colors.text,
     textMuted: colors.muted,
@@ -150,7 +152,7 @@ function buildSidebarTokens(
     activeItemBg: hexWithAlpha(colors.primary, 0.1),
     activeItemText: colors.primary,
     hoverItemBg: hexWithAlpha(colors.text, 0.04),
-    itemPadding: `${tokens.spacing['1.5']} ${tokens.spacing['2']}`,
+    itemPadding: `${tokens.spacing["1.5"]} ${tokens.spacing["2"]}`,
     itemBorderRadius: skin.borderRadius.md,
     sectionHeaderColor: colors.muted,
     sectionHeaderFontSize: tokens.typeScale.xs.fontSize,
@@ -158,7 +160,7 @@ function buildSidebarTokens(
     unreadIndicatorBg: colors.primary,
     unreadIndicatorText: colors.background,
     separatorColor: colors.border,
-  }
+  };
 }
 
 // ============================================================================
@@ -166,28 +168,28 @@ function buildSidebarTokens(
 // ============================================================================
 
 export interface HeaderTokens {
-  style: 'default' | 'minimal' | 'prominent'
-  height: string
-  background: string
-  text: string
-  borderColor: string
-  iconColor: string
+  style: "default" | "minimal" | "prominent";
+  height: string;
+  background: string;
+  text: string;
+  borderColor: string;
+  iconColor: string;
   /** Title styling */
-  titleFontSize: string
-  titleFontWeight: number
+  titleFontSize: string;
+  titleFontWeight: number;
   /** Subtitle / status line */
-  subtitleColor: string
-  subtitleFontSize: string
+  subtitleColor: string;
+  subtitleFontSize: string;
   /** Action button spacing */
-  actionGap: string
+  actionGap: string;
   /** Shadow beneath header */
-  shadow: string
+  shadow: string;
 }
 
 function buildHeaderTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): HeaderTokens {
   return {
     style: skin.components.headerStyle,
@@ -200,9 +202,9 @@ function buildHeaderTokens(
     titleFontWeight: tokens.typography.fontWeightBold,
     subtitleColor: colors.muted,
     subtitleFontSize: tokens.typeScale.sm.fontSize,
-    actionGap: tokens.spacing['1'],
+    actionGap: tokens.spacing["1"],
     shadow: tokens.shadows.xs,
-  }
+  };
 }
 
 // ============================================================================
@@ -211,55 +213,55 @@ function buildHeaderTokens(
 
 export interface ComposerTokens {
   /** Input height */
-  minHeight: string
+  minHeight: string;
   /** Maximum input height before scroll */
-  maxHeight: string
+  maxHeight: string;
   /** Background */
-  background: string
+  background: string;
   /** Border color */
-  borderColor: string
+  borderColor: string;
   /** Border color when focused */
-  borderColorFocus: string
+  borderColorFocus: string;
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Text color */
-  text: string
+  text: string;
   /** Placeholder color */
-  placeholder: string
+  placeholder: string;
   /** Padding */
-  padding: string
+  padding: string;
   /** Font size */
-  fontSize: string
+  fontSize: string;
   /** Toolbar background */
-  toolbarBg: string
+  toolbarBg: string;
   /** Toolbar icon color */
-  toolbarIconColor: string
+  toolbarIconColor: string;
   /** Toolbar icon hover color */
-  toolbarIconHover: string
+  toolbarIconHover: string;
   /** Send button styles */
-  sendButtonBg: string
-  sendButtonText: string
-  sendButtonDisabledBg: string
+  sendButtonBg: string;
+  sendButtonText: string;
+  sendButtonDisabledBg: string;
   /** Attachment preview */
-  attachmentBg: string
-  attachmentBorderRadius: string
+  attachmentBg: string;
+  attachmentBorderRadius: string;
 }
 
 function buildComposerTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): ComposerTokens {
   return {
     minHeight: skin.spacing.inputHeight,
-    maxHeight: '200px',
+    maxHeight: "200px",
     background: colors.background,
     borderColor: colors.border,
     borderColorFocus: colors.primary,
     borderRadius: skin.borderRadius.lg,
     text: colors.text,
     placeholder: colors.muted,
-    padding: `${tokens.spacing['2']} ${tokens.spacing['3']}`,
+    padding: `${tokens.spacing["2"]} ${tokens.spacing["3"]}`,
     fontSize: tokens.typeScale.base.fontSize,
     toolbarBg: colors.surface,
     toolbarIconColor: colors.muted,
@@ -269,7 +271,7 @@ function buildComposerTokens(
     sendButtonDisabledBg: hexWithAlpha(colors.muted, 0.3),
     attachmentBg: colors.surface,
     attachmentBorderRadius: skin.borderRadius.md,
-  }
+  };
 }
 
 // ============================================================================
@@ -278,47 +280,47 @@ function buildComposerTokens(
 
 export interface ModalTokens {
   /** Overlay background */
-  overlayBg: string
+  overlayBg: string;
   /** Modal background */
-  background: string
+  background: string;
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Shadow */
-  shadow: string
+  shadow: string;
   /** Border color */
-  borderColor: string
+  borderColor: string;
   /** Padding */
-  padding: string
+  padding: string;
   /** Title font size */
-  titleFontSize: string
+  titleFontSize: string;
   /** Title font weight */
-  titleFontWeight: number
+  titleFontWeight: number;
   /** Max width */
-  maxWidth: string
+  maxWidth: string;
   /** Close button color */
-  closeButtonColor: string
+  closeButtonColor: string;
   /** Close button hover color */
-  closeButtonHover: string
+  closeButtonHover: string;
 }
 
 function buildModalTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): ModalTokens {
   return {
-    overlayBg: hexWithAlpha('#000000', 0.5),
+    overlayBg: hexWithAlpha("#000000", 0.5),
     background: colors.background,
     borderRadius: skin.borderRadius.xl,
     shadow: tokens.shadows.xl,
     borderColor: colors.border,
-    padding: tokens.spacing['6'],
+    padding: tokens.spacing["6"],
     titleFontSize: tokens.typeScale.xl.fontSize,
     titleFontWeight: tokens.typography.fontWeightBold,
-    maxWidth: '480px',
+    maxWidth: "480px",
     closeButtonColor: colors.muted,
     closeButtonHover: colors.text,
-  }
+  };
 }
 
 // ============================================================================
@@ -327,38 +329,38 @@ function buildModalTokens(
 
 export interface TooltipTokens {
   /** Background color */
-  background: string
+  background: string;
   /** Text color */
-  text: string
+  text: string;
   /** Font size */
-  fontSize: string
+  fontSize: string;
   /** Padding */
-  padding: string
+  padding: string;
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Shadow */
-  shadow: string
+  shadow: string;
   /** Maximum width */
-  maxWidth: string
+  maxWidth: string;
   /** Arrow size */
-  arrowSize: string
+  arrowSize: string;
 }
 
 function buildTooltipTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): TooltipTokens {
   return {
     background: colors.text,
     text: colors.background,
     fontSize: tokens.typeScale.sm.fontSize,
-    padding: `${tokens.spacing['1']} ${tokens.spacing['2']}`,
+    padding: `${tokens.spacing["1"]} ${tokens.spacing["2"]}`,
     borderRadius: skin.borderRadius.sm,
     shadow: tokens.shadows.md,
-    maxWidth: '240px',
-    arrowSize: '6px',
-  }
+    maxWidth: "240px",
+    arrowSize: "6px",
+  };
 }
 
 // ============================================================================
@@ -367,49 +369,49 @@ function buildTooltipTokens(
 
 export interface DropdownTokens {
   /** Menu background */
-  background: string
+  background: string;
   /** Border color */
-  borderColor: string
+  borderColor: string;
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Shadow */
-  shadow: string
+  shadow: string;
   /** Padding (menu container) */
-  padding: string
+  padding: string;
   /** Item padding */
-  itemPadding: string
+  itemPadding: string;
   /** Item border radius */
-  itemBorderRadius: string
+  itemBorderRadius: string;
   /** Item text color */
-  itemText: string
+  itemText: string;
   /** Item hover background */
-  itemHoverBg: string
+  itemHoverBg: string;
   /** Item active background */
-  itemActiveBg: string
+  itemActiveBg: string;
   /** Disabled item text */
-  itemDisabledText: string
+  itemDisabledText: string;
   /** Separator color */
-  separatorColor: string
+  separatorColor: string;
   /** Icon color */
-  iconColor: string
+  iconColor: string;
   /** Shortcut text color */
-  shortcutColor: string
+  shortcutColor: string;
   /** Min width */
-  minWidth: string
+  minWidth: string;
 }
 
 function buildDropdownTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): DropdownTokens {
   return {
     background: colors.background,
     borderColor: colors.border,
     borderRadius: skin.borderRadius.lg,
     shadow: tokens.shadows.lg,
-    padding: tokens.spacing['1'],
-    itemPadding: `${tokens.spacing['1.5']} ${tokens.spacing['2']}`,
+    padding: tokens.spacing["1"],
+    itemPadding: `${tokens.spacing["1.5"]} ${tokens.spacing["2"]}`,
     itemBorderRadius: skin.borderRadius.sm,
     itemText: colors.text,
     itemHoverBg: hexWithAlpha(colors.text, 0.04),
@@ -418,8 +420,8 @@ function buildDropdownTokens(
     separatorColor: colors.border,
     iconColor: colors.muted,
     shortcutColor: colors.muted,
-    minWidth: '180px',
-  }
+    minWidth: "180px",
+  };
 }
 
 // ============================================================================
@@ -427,55 +429,55 @@ function buildDropdownTokens(
 // ============================================================================
 
 export interface AvatarTokens {
-  shape: 'circle' | 'rounded' | 'square'
+  shape: "circle" | "rounded" | "square";
   /** Default size */
-  size: string
+  size: string;
   /** Small size */
-  sizeSm: string
+  sizeSm: string;
   /** Large size */
-  sizeLg: string
+  sizeLg: string;
   /** Border radius based on shape */
-  borderRadius: string
+  borderRadius: string;
   /** Fallback background (initials) */
-  fallbackBg: string
+  fallbackBg: string;
   /** Fallback text color */
-  fallbackText: string
+  fallbackText: string;
   /** Fallback font size */
-  fallbackFontSize: string
+  fallbackFontSize: string;
   /** Online indicator color */
-  statusOnline: string
+  statusOnline: string;
   /** Away indicator color */
-  statusAway: string
+  statusAway: string;
   /** DND indicator color */
-  statusDnd: string
+  statusDnd: string;
   /** Offline indicator color */
-  statusOffline: string
+  statusOffline: string;
   /** Status indicator size */
-  statusSize: string
+  statusSize: string;
   /** Border for group avatar stacking */
-  stackBorderColor: string
-  stackBorderWidth: string
+  stackBorderColor: string;
+  stackBorderWidth: string;
 }
 
 function buildAvatarTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): AvatarTokens {
-  const shape = skin.components.avatarShape
-  let borderRadius: string
+  const shape = skin.components.avatarShape;
+  let borderRadius: string;
   switch (shape) {
-    case 'circle':
-      borderRadius = skin.borderRadius.full
-      break
-    case 'rounded':
-      borderRadius = skin.borderRadius.md
-      break
-    case 'square':
-      borderRadius = skin.borderRadius.sm
-      break
+    case "circle":
+      borderRadius = skin.borderRadius.full;
+      break;
+    case "rounded":
+      borderRadius = skin.borderRadius.md;
+      break;
+    case "square":
+      borderRadius = skin.borderRadius.sm;
+      break;
     default:
-      borderRadius = skin.borderRadius.full
+      borderRadius = skin.borderRadius.full;
   }
 
   return {
@@ -491,10 +493,10 @@ function buildAvatarTokens(
     statusAway: colors.warning,
     statusDnd: colors.error,
     statusOffline: colors.muted,
-    statusSize: '12px',
+    statusSize: "12px",
     stackBorderColor: colors.background,
-    stackBorderWidth: '2px',
-  }
+    stackBorderWidth: "2px",
+  };
 }
 
 // ============================================================================
@@ -503,40 +505,40 @@ function buildAvatarTokens(
 
 export interface BadgeTokens {
   /** Default badge background */
-  defaultBg: string
+  defaultBg: string;
   /** Default badge text */
-  defaultText: string
+  defaultText: string;
   /** Primary variant */
-  primaryBg: string
-  primaryText: string
+  primaryBg: string;
+  primaryText: string;
   /** Success variant */
-  successBg: string
-  successText: string
+  successBg: string;
+  successText: string;
   /** Warning variant */
-  warningBg: string
-  warningText: string
+  warningBg: string;
+  warningText: string;
   /** Error / destructive variant */
-  errorBg: string
-  errorText: string
+  errorBg: string;
+  errorText: string;
   /** Muted / secondary variant */
-  mutedBg: string
-  mutedText: string
+  mutedBg: string;
+  mutedText: string;
   /** Font size */
-  fontSize: string
+  fontSize: string;
   /** Font weight */
-  fontWeight: number
+  fontWeight: number;
   /** Padding */
-  padding: string
+  padding: string;
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Dot size (notification dot) */
-  dotSize: string
+  dotSize: string;
 }
 
 function buildBadgeTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): BadgeTokens {
   return {
     defaultBg: colors.surface,
@@ -544,19 +546,19 @@ function buildBadgeTokens(
     primaryBg: colors.primary,
     primaryText: colors.background,
     successBg: colors.success,
-    successText: '#FFFFFF',
+    successText: "#FFFFFF",
     warningBg: colors.warning,
-    warningText: '#000000',
+    warningText: "#000000",
     errorBg: colors.error,
-    errorText: '#FFFFFF',
+    errorText: "#FFFFFF",
     mutedBg: hexWithAlpha(colors.muted, 0.15),
     mutedText: colors.muted,
     fontSize: tokens.typeScale.xs.fontSize,
     fontWeight: tokens.typography.fontWeightMedium,
-    padding: `${tokens.spacing['0.5']} ${tokens.spacing['1.5']}`,
+    padding: `${tokens.spacing["0.5"]} ${tokens.spacing["1.5"]}`,
     borderRadius: skin.borderRadius.full,
-    dotSize: '8px',
-  }
+    dotSize: "8px",
+  };
 }
 
 // ============================================================================
@@ -564,64 +566,64 @@ function buildBadgeTokens(
 // ============================================================================
 
 export interface ButtonTokens {
-  style: 'default' | 'pill' | 'square' | 'ghost'
+  style: "default" | "pill" | "square" | "ghost";
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Font weight */
-  fontWeight: number
+  fontWeight: number;
   /** Font size */
-  fontSize: string
+  fontSize: string;
   /** Height */
-  height: string
+  height: string;
   /** Horizontal padding */
-  paddingX: string
+  paddingX: string;
   /** Small size height */
-  heightSm: string
+  heightSm: string;
   /** Large size height */
-  heightLg: string
+  heightLg: string;
   /** Primary variant */
-  primaryBg: string
-  primaryText: string
-  primaryHoverBg: string
+  primaryBg: string;
+  primaryText: string;
+  primaryHoverBg: string;
   /** Secondary variant */
-  secondaryBg: string
-  secondaryText: string
-  secondaryHoverBg: string
+  secondaryBg: string;
+  secondaryText: string;
+  secondaryHoverBg: string;
   /** Ghost variant */
-  ghostText: string
-  ghostHoverBg: string
+  ghostText: string;
+  ghostHoverBg: string;
   /** Destructive variant */
-  destructiveBg: string
-  destructiveText: string
-  destructiveHoverBg: string
+  destructiveBg: string;
+  destructiveText: string;
+  destructiveHoverBg: string;
   /** Disabled */
-  disabledBg: string
-  disabledText: string
+  disabledBg: string;
+  disabledText: string;
   /** Focus ring */
-  focusRing: string
+  focusRing: string;
   /** Transition */
-  transition: string
+  transition: string;
 }
 
 function buildButtonTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
-  tokens: DesignTokens
+  tokens: DesignTokens,
 ): ButtonTokens {
-  const style = skin.components.buttonStyle
-  let borderRadius: string
+  const style = skin.components.buttonStyle;
+  let borderRadius: string;
   switch (style) {
-    case 'pill':
-      borderRadius = skin.borderRadius.full
-      break
-    case 'square':
-      borderRadius = skin.borderRadius.sm
-      break
-    case 'ghost':
-      borderRadius = skin.borderRadius.md
-      break
+    case "pill":
+      borderRadius = skin.borderRadius.full;
+      break;
+    case "square":
+      borderRadius = skin.borderRadius.sm;
+      break;
+    case "ghost":
+      borderRadius = skin.borderRadius.md;
+      break;
     default:
-      borderRadius = skin.borderRadius.md
+      borderRadius = skin.borderRadius.md;
   }
 
   return {
@@ -629,10 +631,10 @@ function buildButtonTokens(
     borderRadius,
     fontWeight: tokens.typography.fontWeightMedium,
     fontSize: tokens.typeScale.sm.fontSize,
-    height: '36px',
-    paddingX: tokens.spacing['4'],
-    heightSm: '28px',
-    heightLg: '44px',
+    height: "36px",
+    paddingX: tokens.spacing["4"],
+    heightSm: "28px",
+    heightLg: "44px",
     primaryBg: colors.buttonPrimaryBg,
     primaryText: colors.buttonPrimaryText,
     primaryHoverBg: hexWithAlpha(colors.buttonPrimaryBg, 0.9),
@@ -642,13 +644,13 @@ function buildButtonTokens(
     ghostText: colors.text,
     ghostHoverBg: hexWithAlpha(colors.text, 0.06),
     destructiveBg: colors.error,
-    destructiveText: '#FFFFFF',
+    destructiveText: "#FFFFFF",
     destructiveHoverBg: hexWithAlpha(colors.error, 0.9),
     disabledBg: hexWithAlpha(colors.muted, 0.2),
     disabledText: colors.muted,
     focusRing: `0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary}`,
     transition: `background-color ${tokens.transitions.durations.fast} ${tokens.transitions.easings.default}, color ${tokens.transitions.durations.fast} ${tokens.transitions.easings.default}`,
-  }
+  };
 }
 
 // ============================================================================
@@ -656,57 +658,60 @@ function buildButtonTokens(
 // ============================================================================
 
 export interface InputTokens {
-  style: 'default' | 'underline' | 'filled' | 'outline'
+  style: "default" | "underline" | "filled" | "outline";
   /** Height */
-  height: string
+  height: string;
   /** Background */
-  background: string
+  background: string;
   /** Background when filled variant */
-  filledBg: string
+  filledBg: string;
   /** Border color */
-  borderColor: string
+  borderColor: string;
   /** Border color on hover */
-  borderColorHover: string
+  borderColorHover: string;
   /** Border color on focus */
-  borderColorFocus: string
+  borderColorFocus: string;
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Text color */
-  text: string
+  text: string;
   /** Placeholder color */
-  placeholder: string
+  placeholder: string;
   /** Padding */
-  padding: string
+  padding: string;
   /** Font size */
-  fontSize: string
+  fontSize: string;
   /** Error border */
-  errorBorderColor: string
+  errorBorderColor: string;
   /** Error text */
-  errorText: string
+  errorText: string;
   /** Label color */
-  labelColor: string
+  labelColor: string;
   /** Label font size */
-  labelFontSize: string
+  labelFontSize: string;
   /** Label font weight */
-  labelFontWeight: number
+  labelFontWeight: number;
   /** Helper text color */
-  helperColor: string
+  helperColor: string;
   /** Disabled opacity */
-  disabledOpacity: string
+  disabledOpacity: string;
   /** Focus ring */
-  focusRing: string
+  focusRing: string;
 }
 
 function buildInputTokens(
   skin: VisualSkin,
   colors: SkinColorPalette,
   tokens: DesignTokens,
-  focusRings: FocusRingTokens
+  focusRings: FocusRingTokens,
 ): InputTokens {
   return {
     style: skin.components.inputStyle,
     height: skin.spacing.inputHeight,
-    background: skin.components.inputStyle === 'filled' ? colors.surface : colors.background,
+    background:
+      skin.components.inputStyle === "filled"
+        ? colors.surface
+        : colors.background,
     filledBg: colors.surface,
     borderColor: colors.border,
     borderColorHover: colors.textSecondary,
@@ -714,7 +719,7 @@ function buildInputTokens(
     borderRadius: skin.borderRadius.md,
     text: colors.text,
     placeholder: colors.muted,
-    padding: `${tokens.spacing['2']} ${tokens.spacing['3']}`,
+    padding: `${tokens.spacing["2"]} ${tokens.spacing["3"]}`,
     fontSize: tokens.typeScale.base.fontSize,
     errorBorderColor: colors.error,
     errorText: colors.error,
@@ -722,9 +727,9 @@ function buildInputTokens(
     labelFontSize: tokens.typeScale.sm.fontSize,
     labelFontWeight: tokens.typography.fontWeightMedium,
     helperColor: colors.muted,
-    disabledOpacity: '0.5',
+    disabledOpacity: "0.5",
     focusRing: focusRings.default.boxShadow,
-  }
+  };
 }
 
 // ============================================================================
@@ -732,35 +737,35 @@ function buildInputTokens(
 // ============================================================================
 
 export interface ComponentTokens {
-  messageBubble: MessageBubbleTokens
-  sidebar: SidebarTokens
-  header: HeaderTokens
-  composer: ComposerTokens
-  modal: ModalTokens
-  tooltip: TooltipTokens
-  dropdown: DropdownTokens
-  avatar: AvatarTokens
-  badge: BadgeTokens
-  button: ButtonTokens
-  input: InputTokens
+  messageBubble: MessageBubbleTokens;
+  sidebar: SidebarTokens;
+  header: HeaderTokens;
+  composer: ComposerTokens;
+  modal: ModalTokens;
+  tooltip: TooltipTokens;
+  dropdown: DropdownTokens;
+  avatar: AvatarTokens;
+  badge: BadgeTokens;
+  button: ButtonTokens;
+  input: InputTokens;
 }
 
 /** List of all component token keys for validation */
 export const COMPONENT_NAMES = [
-  'messageBubble',
-  'sidebar',
-  'header',
-  'composer',
-  'modal',
-  'tooltip',
-  'dropdown',
-  'avatar',
-  'badge',
-  'button',
-  'input',
-] as const
+  "messageBubble",
+  "sidebar",
+  "header",
+  "composer",
+  "modal",
+  "tooltip",
+  "dropdown",
+  "avatar",
+  "badge",
+  "button",
+  "input",
+] as const;
 
-export type ComponentName = (typeof COMPONENT_NAMES)[number]
+export type ComponentName = (typeof COMPONENT_NAMES)[number];
 
 /**
  * Build the complete component token set from a visual skin.
@@ -771,11 +776,11 @@ export type ComponentName = (typeof COMPONENT_NAMES)[number]
  */
 export function getComponentTokens(
   skin: VisualSkin = nchatSkin,
-  isDarkMode: boolean = false
+  isDarkMode: boolean = false,
 ): ComponentTokens {
-  const colors = isDarkMode ? skin.darkMode.colors : skin.colors
-  const tokens = getDesignTokens(skin, isDarkMode)
-  const focusRings = buildFocusRingTokens(colors)
+  const colors = isDarkMode ? skin.darkMode.colors : skin.colors;
+  const tokens = getDesignTokens(skin, isDarkMode);
+  const focusRings = buildFocusRingTokens(colors);
 
   return {
     messageBubble: buildMessageBubbleTokens(skin, colors, tokens),
@@ -789,7 +794,7 @@ export function getComponentTokens(
     badge: buildBadgeTokens(skin, colors, tokens),
     button: buildButtonTokens(skin, colors, tokens),
     input: buildInputTokens(skin, colors, tokens, focusRings),
-  }
+  };
 }
 
 /**
@@ -797,21 +802,25 @@ export function getComponentTokens(
  */
 export function componentTokensToCSSVariables(
   componentTokens: ComponentTokens,
-  prefix: string = '--ct'
+  prefix: string = "--ct",
 ): Record<string, string> {
-  const vars: Record<string, string> = {}
+  const vars: Record<string, string> = {};
 
-  for (const [componentKey, componentValue] of Object.entries(componentTokens)) {
-    const kebabComponent = componentKey.replace(/([A-Z])/g, '-$1').toLowerCase()
+  for (const [componentKey, componentValue] of Object.entries(
+    componentTokens,
+  )) {
+    const kebabComponent = componentKey
+      .replace(/([A-Z])/g, "-$1")
+      .toLowerCase();
     for (const [tokenKey, tokenValue] of Object.entries(
-      componentValue as Record<string, unknown>
+      componentValue as Record<string, unknown>,
     )) {
-      if (typeof tokenValue === 'string' || typeof tokenValue === 'number') {
-        const kebabToken = tokenKey.replace(/([A-Z])/g, '-$1').toLowerCase()
-        vars[`${prefix}-${kebabComponent}-${kebabToken}`] = String(tokenValue)
+      if (typeof tokenValue === "string" || typeof tokenValue === "number") {
+        const kebabToken = tokenKey.replace(/([A-Z])/g, "-$1").toLowerCase();
+        vars[`${prefix}-${kebabComponent}-${kebabToken}`] = String(tokenValue);
       }
     }
   }
 
-  return vars
+  return vars;
 }

@@ -1,47 +1,49 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Skeleton, CircleSkeleton, LineSkeleton } from './skeleton'
+import { cn } from "@/lib/utils";
+import { Skeleton, CircleSkeleton, LineSkeleton } from "./skeleton";
 
 interface UserSkeletonProps {
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Show status indicator */
-  showStatus?: boolean
+  showStatus?: boolean;
   /** Show role badge */
-  showRole?: boolean
+  showRole?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 const sizeConfig = {
   sm: { avatar: 24, name: 12, role: 10 },
   md: { avatar: 32, name: 14, role: 12 },
   lg: { avatar: 40, name: 16, role: 14 },
-}
+};
 
 /**
  * Loading skeleton for user display
  * Matches user avatar and name layout
  */
 export function UserSkeleton({
-  size = 'md',
+  size = "md",
   showStatus = true,
   showRole = false,
   className,
 }: UserSkeletonProps) {
-  const config = sizeConfig[size]
+  const config = sizeConfig[size];
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       {/* Avatar with optional status */}
       <div className="relative shrink-0">
         <CircleSkeleton size={config.avatar} />
         {showStatus && (
           <Skeleton
             className={cn(
-              'absolute rounded-full border-2 border-background',
-              size === 'sm' ? '-bottom-0.5 -right-0.5 h-2 w-2' : '-bottom-0.5 -right-0.5 h-3 w-3'
+              "absolute rounded-full border-2 border-background",
+              size === "sm"
+                ? "-bottom-0.5 -right-0.5 h-2 w-2"
+                : "-bottom-0.5 -right-0.5 h-3 w-3",
             )}
           />
         )}
@@ -53,22 +55,22 @@ export function UserSkeleton({
         {showRole && <LineSkeleton width={50} height={config.role} />}
       </div>
     </div>
-  )
+  );
 }
 
 interface UserListSkeletonProps {
   /** Number of users to render */
-  count?: number
+  count?: number;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Show status indicators */
-  showStatus?: boolean
+  showStatus?: boolean;
   /** Show role badges */
-  showRole?: boolean
+  showRole?: boolean;
   /** Gap between items */
-  gap?: number
+  gap?: number;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -76,19 +78,24 @@ interface UserListSkeletonProps {
  */
 export function UserListSkeleton({
   count = 5,
-  size = 'md',
+  size = "md",
   showStatus = true,
   showRole = false,
   gap = 12,
   className,
 }: UserListSkeletonProps) {
   return (
-    <div className={cn('flex flex-col', className)} style={{ gap: `${gap}px` }}>
+    <div className={cn("flex flex-col", className)} style={{ gap: `${gap}px` }}>
       {Array.from({ length: count }).map((_, i) => (
-        <UserSkeleton key={i} size={size} showStatus={showStatus} showRole={showRole} />
+        <UserSkeleton
+          key={i}
+          size={size}
+          showStatus={showStatus}
+          showRole={showRole}
+        />
       ))}
     </div>
-  )
+  );
 }
 
 /**
@@ -99,15 +106,15 @@ export function UserRowSkeleton({
   showActions = false,
   className,
 }: {
-  showEmail?: boolean
-  showActions?: boolean
-  className?: string
+  showEmail?: boolean;
+  showActions?: boolean;
+  className?: string;
 }) {
   return (
     <div
       className={cn(
-        'flex items-center gap-3 border-b border-border px-4 py-3 last:border-0',
-        className
+        "flex items-center gap-3 border-b border-border px-4 py-3 last:border-0",
+        className,
       )}
     >
       {/* Avatar */}
@@ -130,7 +137,7 @@ export function UserRowSkeleton({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
@@ -141,12 +148,12 @@ export function MemberListSkeleton({
   showHeader = true,
   className,
 }: {
-  count?: number
-  showHeader?: boolean
-  className?: string
+  count?: number;
+  showHeader?: boolean;
+  className?: string;
 }) {
   return (
-    <div className={cn('flex flex-col', className)}>
+    <div className={cn("flex flex-col", className)}>
       {/* Section header */}
       {showHeader && (
         <div className="flex items-center justify-between border-b px-4 py-2">
@@ -160,7 +167,7 @@ export function MemberListSkeleton({
         <UserRowSkeleton key={i} showEmail={i % 2 === 0} />
       ))}
     </div>
-  )
+  );
 }
 
 /**
@@ -168,11 +175,11 @@ export function MemberListSkeleton({
  */
 export function UserMentionSkeleton({ className }: { className?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-1', className)}>
+    <span className={cn("inline-flex items-center gap-1", className)}>
       <CircleSkeleton size={16} />
       <LineSkeleton width={60} height={12} />
     </span>
-  )
+  );
 }
 
 /**
@@ -183,12 +190,12 @@ export function UserPresenceListSkeleton({
   offlineCount = 5,
   className,
 }: {
-  onlineCount?: number
-  offlineCount?: number
-  className?: string
+  onlineCount?: number;
+  offlineCount?: number;
+  className?: string;
 }) {
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
+    <div className={cn("flex flex-col gap-4", className)}>
       {/* Online section */}
       <div>
         <div className="mb-2 flex items-center gap-2 px-2 py-1">
@@ -207,5 +214,5 @@ export function UserPresenceListSkeleton({
         <UserListSkeleton count={offlineCount} size="sm" showStatus={false} />
       </div>
     </div>
-  )
+  );
 }

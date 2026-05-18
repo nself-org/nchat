@@ -4,60 +4,60 @@
  * Provides i18next context to the application and handles initialization.
  */
 
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { I18nextProvider } from 'react-i18next'
-import { initializeI18n } from '@/lib/i18n/config'
-import { getLocaleConfig } from '@/lib/i18n/locales'
+import React, { useEffect, useState } from "react";
+import { I18nextProvider } from "react-i18next";
+import { initializeI18n } from "@/lib/i18n/config";
+import { getLocaleConfig } from "@/lib/i18n/locales";
 
 interface I18nProviderProps {
-  children: React.ReactNode
-  locale?: string
+  children: React.ReactNode;
+  locale?: string;
 }
 
 /**
  * I18n Provider
  */
 export function I18nProvider({ children, locale }: I18nProviderProps) {
-  const [i18nInstance, setI18nInstance] = useState<any>(null)
-  const [isInitialized, setIsInitialized] = useState(false)
+  const [i18nInstance, setI18nInstance] = useState<any>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // Initialize i18next
-    const i18n = initializeI18n()
+    const i18n = initializeI18n();
 
     // Set initial locale if provided
     if (locale && locale !== i18n.language) {
-      i18n.changeLanguage(locale).catch(console.error)
+      i18n.changeLanguage(locale).catch(console.error);
     }
 
     // Update HTML attributes
     const updateHtmlAttributes = () => {
-      if (typeof document !== 'undefined') {
-        const currentLang = i18n.language
-        const localeConfig = getLocaleConfig(currentLang)
+      if (typeof document !== "undefined") {
+        const currentLang = i18n.language;
+        const localeConfig = getLocaleConfig(currentLang);
 
         if (localeConfig) {
-          document.documentElement.lang = currentLang
-          document.documentElement.dir = localeConfig.direction
+          document.documentElement.lang = currentLang;
+          document.documentElement.dir = localeConfig.direction;
         }
       }
-    }
+    };
 
     // Listen for language changes
-    i18n.on('languageChanged', updateHtmlAttributes)
+    i18n.on("languageChanged", updateHtmlAttributes);
 
     // Initial update
-    updateHtmlAttributes()
+    updateHtmlAttributes();
 
-    setI18nInstance(i18n)
-    setIsInitialized(true)
+    setI18nInstance(i18n);
+    setIsInitialized(true);
 
     return () => {
-      i18n.off('languageChanged', updateHtmlAttributes)
-    }
-  }, [locale])
+      i18n.off("languageChanged", updateHtmlAttributes);
+    };
+  }, [locale]);
 
   // Show loading state
   if (!isInitialized || !i18nInstance) {
@@ -65,16 +65,18 @@ export function I18nProvider({ children, locale }: I18nProviderProps) {
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="mt-2 text-sm text-muted-foreground">Loading translations...</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Loading translations...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
-  return <I18nextProvider i18n={i18nInstance}>{children}</I18nextProvider>
+  return <I18nextProvider i18n={i18nInstance}>{children}</I18nextProvider>;
 }
 
 /**
  * Hook to use i18n translation
  */
-export { useTranslation } from 'react-i18next'
+export { useTranslation } from "react-i18next";

@@ -1,26 +1,34 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Mail, Link as LinkIcon, Users, Plus } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { InviteEmail } from './InviteEmail'
-import { InviteLink } from './InviteLink'
-import { BulkInvite } from './BulkInvite'
-import { PendingInvites } from './PendingInvites'
-import { useUserManagementStore } from '@/stores/user-management-store'
+import { useState } from "react";
+import { Mail, Link as LinkIcon, Users, Plus } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InviteEmail } from "./InviteEmail";
+import { InviteLink } from "./InviteLink";
+import { BulkInvite } from "./BulkInvite";
+import { PendingInvites } from "./PendingInvites";
+import { useUserManagementStore } from "@/stores/user-management-store";
 
 interface InviteUsersProps {
-  defaultTab?: 'email' | 'link' | 'bulk'
+  defaultTab?: "email" | "link" | "bulk";
 }
 
-export function InviteUsers({ defaultTab = 'email' }: InviteUsersProps) {
-  const [activeTab, setActiveTab] = useState(defaultTab)
+export function InviteUsers({ defaultTab = "email" }: InviteUsersProps) {
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
-  const { invites, invitesTotal, inviteLinks } = useUserManagementStore()
+  const { invites, invitesTotal, inviteLinks } = useUserManagementStore();
 
-  const pendingInvitesCount = invites.filter((i) => i.status === 'pending').length
-  const activeLinksCount = inviteLinks.filter((l) => l.isActive).length
+  const pendingInvitesCount = invites.filter(
+    (i) => i.status === "pending",
+  ).length;
+  const activeLinksCount = inviteLinks.filter((l) => l.isActive).length;
 
   return (
     <div className="space-y-6">
@@ -28,7 +36,9 @@ export function InviteUsers({ defaultTab = 'email' }: InviteUsersProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Invite Users</h1>
-          <p className="text-muted-foreground">Invite new users to join your workspace</p>
+          <p className="text-muted-foreground">
+            Invite new users to join your workspace
+          </p>
         </div>
       </div>
 
@@ -40,7 +50,9 @@ export function InviteUsers({ defaultTab = 'email' }: InviteUsersProps) {
             <CardTitle className="text-2xl">{pendingInvitesCount}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xs text-muted-foreground">Awaiting acceptance</div>
+            <div className="text-xs text-muted-foreground">
+              Awaiting acceptance
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -49,7 +61,9 @@ export function InviteUsers({ defaultTab = 'email' }: InviteUsersProps) {
             <CardTitle className="text-2xl">{activeLinksCount}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xs text-muted-foreground">Invite links active</div>
+            <div className="text-xs text-muted-foreground">
+              Invite links active
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -64,7 +78,10 @@ export function InviteUsers({ defaultTab = 'email' }: InviteUsersProps) {
       </div>
 
       {/* Invite Methods */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+      >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="email" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
@@ -96,7 +113,7 @@ export function InviteUsers({ defaultTab = 'email' }: InviteUsersProps) {
       {/* Pending Invites */}
       <PendingInvites />
     </div>
-  )
+  );
 }
 
-export default InviteUsers
+export default InviteUsers;

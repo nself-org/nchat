@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * DocumentViewer - Document preview component
@@ -7,11 +7,11 @@
  * For PDFs, can embed iframe viewer when supported.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { MediaItem } from '@/lib/media/media-types'
-import { formatFileSize } from '@/lib/media/media-manager'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { MediaItem } from "@/lib/media/media-types";
+import { formatFileSize } from "@/lib/media/media-manager";
+import { Button } from "@/components/ui/button";
 import {
   FileText,
   Download,
@@ -20,18 +20,18 @@ import {
   FileCode,
   File,
   Presentation,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface DocumentViewerProps {
-  item: MediaItem
-  embedPdf?: boolean
-  onDownload?: () => void
-  onOpenExternal?: () => void
-  className?: string
+  item: MediaItem;
+  embedPdf?: boolean;
+  onDownload?: () => void;
+  onOpenExternal?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -39,71 +39,79 @@ export interface DocumentViewerProps {
 // ============================================================================
 
 const getDocumentIcon = (mimeType: string, extension: string) => {
-  if (mimeType.includes('pdf')) return FileText
-  if (mimeType.includes('word') || extension === 'doc' || extension === 'docx') {
-    return FileText
+  if (mimeType.includes("pdf")) return FileText;
+  if (
+    mimeType.includes("word") ||
+    extension === "doc" ||
+    extension === "docx"
+  ) {
+    return FileText;
   }
   if (
-    mimeType.includes('excel') ||
-    mimeType.includes('spreadsheet') ||
-    extension === 'xls' ||
-    extension === 'xlsx' ||
-    extension === 'csv'
+    mimeType.includes("excel") ||
+    mimeType.includes("spreadsheet") ||
+    extension === "xls" ||
+    extension === "xlsx" ||
+    extension === "csv"
   ) {
-    return FileSpreadsheet
+    return FileSpreadsheet;
   }
   if (
-    mimeType.includes('powerpoint') ||
-    mimeType.includes('presentation') ||
-    extension === 'ppt' ||
-    extension === 'pptx'
+    mimeType.includes("powerpoint") ||
+    mimeType.includes("presentation") ||
+    extension === "ppt" ||
+    extension === "pptx"
   ) {
-    return Presentation
+    return Presentation;
   }
   if (
-    extension === 'json' ||
-    extension === 'xml' ||
-    extension === 'html' ||
-    extension === 'css' ||
-    extension === 'js' ||
-    extension === 'ts' ||
-    extension === 'md'
+    extension === "json" ||
+    extension === "xml" ||
+    extension === "html" ||
+    extension === "css" ||
+    extension === "js" ||
+    extension === "ts" ||
+    extension === "md"
   ) {
-    return FileCode
+    return FileCode;
   }
-  return File
-}
+  return File;
+};
 
 // ============================================================================
 // Document Type Colors
 // ============================================================================
 
 const getDocumentColor = (mimeType: string, extension: string): string => {
-  if (mimeType.includes('pdf') || extension === 'pdf') return 'text-red-500'
-  if (mimeType.includes('word') || extension === 'doc' || extension === 'docx') {
-    return 'text-blue-500'
+  if (mimeType.includes("pdf") || extension === "pdf") return "text-red-500";
+  if (
+    mimeType.includes("word") ||
+    extension === "doc" ||
+    extension === "docx"
+  ) {
+    return "text-blue-500";
   }
   if (
-    mimeType.includes('excel') ||
-    mimeType.includes('spreadsheet') ||
-    extension === 'xls' ||
-    extension === 'xlsx'
+    mimeType.includes("excel") ||
+    mimeType.includes("spreadsheet") ||
+    extension === "xls" ||
+    extension === "xlsx"
   ) {
-    return 'text-green-500'
+    return "text-green-500";
   }
   if (
-    mimeType.includes('powerpoint') ||
-    mimeType.includes('presentation') ||
-    extension === 'ppt' ||
-    extension === 'pptx'
+    mimeType.includes("powerpoint") ||
+    mimeType.includes("presentation") ||
+    extension === "ppt" ||
+    extension === "pptx"
   ) {
-    return 'text-orange-500'
+    return "text-orange-500";
   }
-  if (extension === 'csv') return 'text-green-600'
-  if (extension === 'json' || extension === 'xml') return 'text-yellow-500'
-  if (extension === 'md' || extension === 'txt') return 'text-gray-500'
-  return 'text-muted-foreground'
-}
+  if (extension === "csv") return "text-green-600";
+  if (extension === "json" || extension === "xml") return "text-yellow-500";
+  if (extension === "md" || extension === "txt") return "text-gray-500";
+  return "text-muted-foreground";
+};
 
 // ============================================================================
 // Component
@@ -116,23 +124,25 @@ export function DocumentViewer({
   onOpenExternal,
   className,
 }: DocumentViewerProps) {
-  const isPdf = item.mimeType === 'application/pdf'
-  const canEmbed = embedPdf && isPdf
+  const isPdf = item.mimeType === "application/pdf";
+  const canEmbed = embedPdf && isPdf;
 
-  const Icon = getDocumentIcon(item.mimeType, item.fileExtension)
-  const iconColor = getDocumentColor(item.mimeType, item.fileExtension)
+  const Icon = getDocumentIcon(item.mimeType, item.fileExtension);
+  const iconColor = getDocumentColor(item.mimeType, item.fileExtension);
 
   // Embedded PDF viewer
   if (canEmbed) {
     return (
-      <div className={cn('flex h-full w-full flex-col', className)}>
+      <div className={cn("flex h-full w-full flex-col", className)}>
         {/* Header */}
         <div className="flex items-center justify-between border-b bg-card p-3">
           <div className="flex items-center gap-3">
-            <Icon className={cn('h-6 w-6', iconColor)} />
+            <Icon className={cn("h-6 w-6", iconColor)} />
             <div>
               <h3 className="font-medium">{item.fileName}</h3>
-              <p className="text-sm text-muted-foreground">{formatFileSize(item.fileSize)}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatFileSize(item.fileSize)}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -160,16 +170,21 @@ export function DocumentViewer({
           />
         </div>
       </div>
-    )
+    );
   }
 
   // Document info card
   return (
-    <div className={cn('flex h-full w-full flex-col items-center justify-center p-8', className)}>
+    <div
+      className={cn(
+        "flex h-full w-full flex-col items-center justify-center p-8",
+        className,
+      )}
+    >
       <div className="flex max-w-md flex-col items-center rounded-xl border bg-card p-8 text-center shadow-sm">
         {/* Icon */}
         <div className="mb-4 rounded-full bg-muted p-6">
-          <Icon className={cn('h-16 w-16', iconColor)} />
+          <Icon className={cn("h-16 w-16", iconColor)} />
         </div>
 
         {/* File name */}
@@ -207,7 +222,7 @@ export function DocumentViewer({
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default DocumentViewer
+export default DocumentViewer;

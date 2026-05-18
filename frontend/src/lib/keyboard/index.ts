@@ -41,7 +41,7 @@ export {
   type KeyboardProviderProps,
   type KeyboardContextValue,
   type KeyboardScope,
-} from './keyboard-provider'
+} from "./keyboard-provider";
 
 // Shortcut definitions
 export {
@@ -54,7 +54,7 @@ export {
   type ShortcutKey,
   type ShortcutDefinition,
   type ShortcutCategory,
-} from './shortcuts'
+} from "./shortcuts";
 
 // Hooks for registering shortcuts
 export {
@@ -64,7 +64,7 @@ export {
   useShortcutInfo,
   type UseShortcutOptions,
   type ShortcutHandler as ShortcutHandlerFn,
-} from './use-shortcuts'
+} from "./use-shortcuts";
 
 // Advanced keyboard shortcuts hooks
 export {
@@ -78,7 +78,7 @@ export {
   type UseKeyboardShortcutsOptions,
   type UseKeyboardShortcutsReturn,
   type ShortcutWithState,
-} from './use-keyboard-shortcuts'
+} from "./use-keyboard-shortcuts";
 
 // Shortcut utilities
 export {
@@ -102,7 +102,7 @@ export {
   type ParsedShortcut,
   type ModifierKey,
   type KeyDisplayOptions,
-} from './shortcut-utils'
+} from "./shortcut-utils";
 
 // Shortcut store
 export {
@@ -123,7 +123,7 @@ export {
   type ShortcutStoreState,
   type ShortcutStoreActions,
   type ShortcutStore,
-} from './shortcut-store'
+} from "./shortcut-store";
 
 // Shortcut handler
 export {
@@ -136,4 +136,4 @@ export {
   type ShortcutHandlerOptions,
   type RegisteredHandler,
   type ShortcutAction,
-} from './shortcut-handler'
+} from "./shortcut-handler";

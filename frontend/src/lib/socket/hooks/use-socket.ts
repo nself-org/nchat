@@ -5,9 +5,9 @@
  * connection state, and provides emit functionality.
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   connect,
   disconnect,
@@ -20,69 +20,69 @@ import {
   updateAuthToken,
   type ConnectionState,
   type TypedSocket,
-} from '../client'
-import type { ClientToServerEvents, ServerToClientEvents } from '../events'
+} from "../client";
+import type { ClientToServerEvents, ServerToClientEvents } from "../events";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export interface UseSocketOptions {
   /**
    * Authentication token for socket connection
    */
-  token?: string | null
+  token?: string | null;
 
   /**
    * Whether to auto-connect on mount
    * @default true
    */
-  autoConnect?: boolean
+  autoConnect?: boolean;
 
   /**
    * Callback when connected
    */
-  onConnect?: () => void
+  onConnect?: () => void;
 
   /**
    * Callback when disconnected
    */
-  onDisconnect?: (reason: string) => void
+  onDisconnect?: (reason: string) => void;
 
   /**
    * Callback on connection error
    */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 
   /**
    * Callback on reconnecting
    */
-  onReconnecting?: (attempt: number) => void
+  onReconnecting?: (attempt: number) => void;
 }
 
 export interface UseSocketReturn {
   /**
    * Current connection state
    */
-  connectionState: ConnectionState
+  connectionState: ConnectionState;
 
   /**
    * Whether socket is connected
    */
-  isConnected: boolean
+  isConnected: boolean;
 
   /**
    * Socket instance (if available)
    */
-  socket: TypedSocket | null
+  socket: TypedSocket | null;
 
   /**
    * Connect to socket server
    */
-  connect: (token?: string) => void
+  connect: (token?: string) => void;
 
   /**
    * Disconnect from socket server
    */
-  disconnect: () => void
+  disconnect: () => void;
 
   /**
    * Emit an event
@@ -90,121 +90,135 @@ export interface UseSocketReturn {
   emit: <K extends keyof ClientToServerEvents>(
     event: K,
     ...args: Parameters<ClientToServerEvents[K]>
-  ) => void
+  ) => void;
 
   /**
    * Subscribe to an event
    */
-  on: <K extends keyof ServerToClientEvents>(event: K, handler: ServerToClientEvents[K]) => void
+  on: <K extends keyof ServerToClientEvents>(
+    event: K,
+    handler: ServerToClientEvents[K],
+  ) => void;
 
   /**
    * Unsubscribe from an event
    */
-  off: <K extends keyof ServerToClientEvents>(event: K, handler?: ServerToClientEvents[K]) => void
+  off: <K extends keyof ServerToClientEvents>(
+    event: K,
+    handler?: ServerToClientEvents[K],
+  ) => void;
 
   /**
    * Update authentication token
    */
-  updateToken: (token: string | null) => void
+  updateToken: (token: string | null) => void;
 }
 
 /**
  * Hook for managing Socket.io connection
  */
 export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
-  const { token, autoConnect = true, onConnect, onDisconnect, onError, onReconnecting } = options
+  const {
+    token,
+    autoConnect = true,
+    onConnect,
+    onDisconnect,
+    onError,
+    onReconnecting,
+  } = options;
 
-  const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected')
-  const [connected, setConnected] = useState(false)
-  const [socket, setSocket] = useState<TypedSocket | null>(null)
+  const [connectionState, setConnectionState] =
+    useState<ConnectionState>("disconnected");
+  const [connected, setConnected] = useState(false);
+  const [socket, setSocket] = useState<TypedSocket | null>(null);
 
   // Refs for callbacks to avoid effect dependencies
-  const onConnectRef = useRef(onConnect)
-  const onDisconnectRef = useRef(onDisconnect)
-  const onErrorRef = useRef(onError)
-  const onReconnectingRef = useRef(onReconnecting)
+  const onConnectRef = useRef(onConnect);
+  const onDisconnectRef = useRef(onDisconnect);
+  const onErrorRef = useRef(onError);
+  const onReconnectingRef = useRef(onReconnecting);
 
   // Update refs when callbacks change
   useEffect(() => {
-    onConnectRef.current = onConnect
-    onDisconnectRef.current = onDisconnect
-    onErrorRef.current = onError
-    onReconnectingRef.current = onReconnecting
-  }, [onConnect, onDisconnect, onError, onReconnecting])
+    onConnectRef.current = onConnect;
+    onDisconnectRef.current = onDisconnect;
+    onErrorRef.current = onError;
+    onReconnectingRef.current = onReconnecting;
+  }, [onConnect, onDisconnect, onError, onReconnecting]);
 
   // Subscribe to connection state changes
   useEffect(() => {
     const unsubscribe = subscribeToConnectionState((state) => {
-      setConnectionState(state)
-      setConnected(state === 'connected')
+      setConnectionState(state);
+      setConnected(state === "connected");
 
       // Trigger callbacks based on state
       switch (state) {
-        case 'connected':
-          onConnectRef.current?.()
-          break
-        case 'error':
-          onErrorRef.current?.(new Error('Socket connection error'))
-          break
-        case 'reconnecting':
-          onReconnectingRef.current?.(1)
-          break
+        case "connected":
+          onConnectRef.current?.();
+          break;
+        case "error":
+          onErrorRef.current?.(new Error("Socket connection error"));
+          break;
+        case "reconnecting":
+          onReconnectingRef.current?.(1);
+          break;
       }
-    })
+    });
 
-    return unsubscribe
-  }, [])
+    return unsubscribe;
+  }, []);
 
   // Update socket reference
   useEffect(() => {
-    setSocket(getSocket())
-  }, [connectionState])
+    setSocket(getSocket());
+  }, [connectionState]);
 
   // Handle initial connection
   useEffect(() => {
     if (autoConnect && token) {
-      connect(token)
+      connect(token);
     }
 
     return () => {
       // Don't disconnect on unmount - let the provider handle that
-    }
-  }, [autoConnect, token])
+    };
+  }, [autoConnect, token]);
 
   // Handle token changes
   useEffect(() => {
     if (token) {
-      updateAuthToken(token)
+      updateAuthToken(token);
     }
-  }, [token])
+  }, [token]);
 
   // Set up disconnect reason handler
   useEffect(() => {
-    const currentSocket = getSocket()
-    if (!currentSocket) return
+    const currentSocket = getSocket();
+    if (!currentSocket) return;
 
     const handleDisconnect = (reason: string) => {
-      onDisconnectRef.current?.(reason)
-    }
+      onDisconnectRef.current?.(reason);
+    };
 
-    currentSocket.on('disconnect', handleDisconnect)
+    currentSocket.on("disconnect", handleDisconnect);
 
     return () => {
-      currentSocket.off('disconnect', handleDisconnect)
-    }
-  }, [socket])
+      currentSocket.off("disconnect", handleDisconnect);
+    };
+  }, [socket]);
 
   // Memoized connect function
   const connectFn = useCallback((connectToken?: string) => {
-    connect(connectToken)
-    setSocket(getSocket())
-  }, [])
+    connect(connectToken);
+    setSocket(getSocket());
+  }, []);
 
   // Memoized disconnect function
   const disconnectFn = useCallback(() => {
-    disconnect()
-    setSocket(null)
-  }, [])
+    disconnect();
+    setSocket(null);
+  }, []);
 
   // Memoized emit function
   const emit = useCallback(
@@ -212,31 +226,37 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
       event: K,
       ...args: Parameters<ClientToServerEvents[K]>
     ) => {
-      socketEmit(event, ...args)
+      socketEmit(event, ...args);
     },
-    []
-  )
+    [],
+  );
 
   // Memoized on function
   const on = useCallback(
-    <K extends keyof ServerToClientEvents>(event: K, handler: ServerToClientEvents[K]) => {
-      socketOn(event, handler)
+    <K extends keyof ServerToClientEvents>(
+      event: K,
+      handler: ServerToClientEvents[K],
+    ) => {
+      socketOn(event, handler);
     },
-    []
-  )
+    [],
+  );
 
   // Memoized off function
   const off = useCallback(
-    <K extends keyof ServerToClientEvents>(event: K, handler?: ServerToClientEvents[K]) => {
-      socketOff(event, handler)
+    <K extends keyof ServerToClientEvents>(
+      event: K,
+      handler?: ServerToClientEvents[K],
+    ) => {
+      socketOff(event, handler);
     },
-    []
-  )
+    [],
+  );
 
   // Memoized update token function
   const updateToken = useCallback((newToken: string | null) => {
-    updateAuthToken(newToken)
-  }, [])
+    updateAuthToken(newToken);
+  }, []);
 
   return {
     connectionState,
@@ -248,7 +268,7 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
     on,
     off,
     updateToken,
-  }
+  };
 }
 
 /**
@@ -257,46 +277,46 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
 export function useSocketEvent<K extends keyof ServerToClientEvents>(
   event: K,
   handler: ServerToClientEvents[K],
-  enabled = true
+  enabled = true,
 ): void {
-  const handlerRef = useRef(handler)
+  const handlerRef = useRef(handler);
 
   useEffect(() => {
-    handlerRef.current = handler
-  }, [handler])
+    handlerRef.current = handler;
+  }, [handler]);
 
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) return;
 
     const wrappedHandler = ((...args: unknown[]) => {
-      ;(handlerRef.current as (...args: unknown[]) => void)(...args)
-    }) as ServerToClientEvents[K]
+      (handlerRef.current as (...args: unknown[]) => void)(...args);
+    }) as ServerToClientEvents[K];
 
-    socketOn(event, wrappedHandler)
+    socketOn(event, wrappedHandler);
 
     return () => {
-      socketOff(event, wrappedHandler)
-    }
-  }, [event, enabled])
+      socketOff(event, wrappedHandler);
+    };
+  }, [event, enabled]);
 }
 
 /**
  * Hook for emitting socket events with automatic connection check
  */
 export function useSocketEmit<K extends keyof ClientToServerEvents>(
-  event: K
+  event: K,
 ): (...args: Parameters<ClientToServerEvents[K]>) => boolean {
   return useCallback(
     (...args: Parameters<ClientToServerEvents[K]>) => {
       if (isConnected()) {
-        socketEmit(event, ...args)
-        return true
+        socketEmit(event, ...args);
+        return true;
       }
-      logger.warn(`[useSocketEmit] Cannot emit ${event}, not connected`)
-      return false
+      logger.warn(`[useSocketEmit] Cannot emit ${event}, not connected`);
+      return false;
     },
-    [event]
-  )
+    [event],
+  );
 }
 
-export default useSocket
+export default useSocket;

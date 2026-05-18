@@ -3,19 +3,19 @@
  */
 
 // Schema and types
-export * from './branding-schema'
+export * from "./branding-schema";
 
 // Logo processing
-export * from './logo-processor'
+export * from "./logo-processor";
 
 // Favicon generation
-export * from './favicon-generator'
+export * from "./favicon-generator";
 
 // Color utilities
-export * from './color-generator'
+export * from "./color-generator";
 
 // Font loading
-export * from './font-loader'
+export * from "./font-loader";
 
 // Export/Import
-export * from './branding-export'
+export * from "./branding-export";

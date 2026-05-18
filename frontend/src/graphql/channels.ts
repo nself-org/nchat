@@ -1,74 +1,74 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   CHANNEL_BASIC_FRAGMENT,
   CHANNEL_FULL_FRAGMENT,
   CHANNEL_MEMBER_FRAGMENT,
   USER_BASIC_FRAGMENT,
-} from './fragments'
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type ChannelType = 'public' | 'private' | 'direct' | 'group'
+export type ChannelType = "public" | "private" | "direct" | "group";
 
 export interface GetChannelsVariables {
-  workspaceId?: string
-  type?: ChannelType
-  includeArchived?: boolean
+  workspaceId?: string;
+  type?: ChannelType;
+  includeArchived?: boolean;
 }
 
 export interface GetChannelVariables {
-  id?: string
-  slug?: string
+  id?: string;
+  slug?: string;
 }
 
 export interface GetChannelMembersVariables {
-  channelId: string
-  limit?: number
-  offset?: number
+  channelId: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface CreateChannelVariables {
-  name: string
-  slug: string
-  description?: string
-  type: ChannelType
-  isPrivate?: boolean
-  creatorId: string
-  categoryId?: string
-  icon?: string
+  name: string;
+  slug: string;
+  description?: string;
+  type: ChannelType;
+  isPrivate?: boolean;
+  creatorId: string;
+  categoryId?: string;
+  icon?: string;
 }
 
 export interface UpdateChannelVariables {
-  id: string
-  name?: string
-  description?: string
-  topic?: string
-  icon?: string
-  isPrivate?: boolean
+  id: string;
+  name?: string;
+  description?: string;
+  topic?: string;
+  icon?: string;
+  isPrivate?: boolean;
 }
 
 export interface UpdateChannelSettingsVariables {
-  id: string
+  id: string;
   settings: {
-    allowThreads?: boolean
-    allowReactions?: boolean
-    allowAttachments?: boolean
-    slowMode?: number
-    memberLimit?: number
-  }
+    allowThreads?: boolean;
+    allowReactions?: boolean;
+    allowAttachments?: boolean;
+    slowMode?: number;
+    memberLimit?: number;
+  };
 }
 
 export interface ChannelMemberVariables {
-  channelId: string
-  userId: string
+  channelId: string;
+  userId: string;
 }
 
 export interface InviteToChannelVariables {
-  channelId: string
-  userIds: string[]
-  inviterId: string
+  channelId: string;
+  userIds: string[];
+  inviterId: string;
 }
 
 // ============================================================================
@@ -83,17 +83,26 @@ export const GET_CHANNELS = gql`
     nchat_channels(
       where: {
         _and: [
-          { _or: [{ is_archived: { _eq: false } }, { is_archived: { _eq: $includeArchived } }] }
+          {
+            _or: [
+              { is_archived: { _eq: false } }
+              { is_archived: { _eq: $includeArchived } }
+            ]
+          }
           { _or: [{ type: { _eq: $type } }, { type: { _is_null: false } }] }
         ]
       }
-      order_by: [{ category_id: asc_nulls_last }, { position: asc }, { name: asc }]
+      order_by: [
+        { category_id: asc_nulls_last }
+        { position: asc }
+        { name: asc }
+      ]
     ) {
       ...ChannelFull
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get channels grouped by category
@@ -105,7 +114,10 @@ export const GET_CHANNELS_BY_CATEGORY = gql`
       name
       position
       is_collapsed
-      channels(where: { is_archived: { _eq: false } }, order_by: { position: asc }) {
+      channels(
+        where: { is_archived: { _eq: false } }
+        order_by: { position: asc }
+      ) {
         ...ChannelFull
       }
     }
@@ -117,14 +129,17 @@ export const GET_CHANNELS_BY_CATEGORY = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get a single channel by ID or slug
  */
 export const GET_CHANNEL = gql`
   query GetChannel($id: uuid, $slug: String) {
-    nchat_channels(where: { _or: [{ id: { _eq: $id } }, { slug: { _eq: $slug } }] }, limit: 1) {
+    nchat_channels(
+      where: { _or: [{ id: { _eq: $id } }, { slug: { _eq: $slug } }] }
+      limit: 1
+    ) {
       ...ChannelFull
       settings
       members(limit: 20, order_by: { joined_at: asc }) {
@@ -146,13 +161,17 @@ export const GET_CHANNEL = gql`
   ${CHANNEL_FULL_FRAGMENT}
   ${CHANNEL_MEMBER_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get channel members with pagination
  */
 export const GET_CHANNEL_MEMBERS = gql`
-  query GetChannelMembers($channelId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetChannelMembers(
+    $channelId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_channel_members(
       where: { channel_id: { _eq: $channelId } }
       order_by: [{ role: asc }, { joined_at: asc }]
@@ -161,14 +180,16 @@ export const GET_CHANNEL_MEMBERS = gql`
     ) {
       ...ChannelMember
     }
-    nchat_channel_members_aggregate(where: { channel_id: { _eq: $channelId } }) {
+    nchat_channel_members_aggregate(
+      where: { channel_id: { _eq: $channelId } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Get channels that a user is a member of
@@ -190,7 +211,10 @@ export const GET_USER_CHANNELS = gql`
       muted_until
       unread_count: channel {
         messages_aggregate(
-          where: { created_at: { _gt: "last_read_at" }, is_deleted: { _eq: false } }
+          where: {
+            created_at: { _gt: "last_read_at" }
+            is_deleted: { _eq: false }
+          }
         ) {
           aggregate {
             count
@@ -200,7 +224,7 @@ export const GET_USER_CHANNELS = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get direct message channels for a user
@@ -208,7 +232,10 @@ export const GET_USER_CHANNELS = gql`
 export const GET_DM_CHANNELS = gql`
   query GetDMChannels($userId: uuid!) {
     nchat_channel_members(
-      where: { user_id: { _eq: $userId }, channel: { type: { _in: ["direct", "group"] } } }
+      where: {
+        user_id: { _eq: $userId }
+        channel: { type: { _in: ["direct", "group"] } }
+      }
       order_by: { channel: { updated_at: desc } }
     ) {
       channel {
@@ -239,7 +266,7 @@ export const GET_DM_CHANNELS = gql`
   }
   ${CHANNEL_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Check if user is member of channel
@@ -255,7 +282,7 @@ export const CHECK_CHANNEL_MEMBERSHIP = gql`
       joined_at
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -292,7 +319,7 @@ export const CREATE_CHANNEL = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update channel details
@@ -321,19 +348,22 @@ export const UPDATE_CHANNEL = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update channel settings (JSON field)
  */
 export const UPDATE_CHANNEL_SETTINGS = gql`
   mutation UpdateChannelSettings($id: uuid!, $settings: jsonb!) {
-    update_nchat_channels_by_pk(pk_columns: { id: $id }, _append: { settings: $settings }) {
+    update_nchat_channels_by_pk(
+      pk_columns: { id: $id }
+      _append: { settings: $settings }
+    ) {
       id
       settings
     }
   }
-`
+`;
 
 /**
  * Delete a channel (hard delete)
@@ -345,7 +375,7 @@ export const DELETE_CHANNEL = gql`
       name
     }
   }
-`
+`;
 
 /**
  * Archive a channel (soft delete)
@@ -361,7 +391,7 @@ export const ARCHIVE_CHANNEL = gql`
       archived_at
     }
   }
-`
+`;
 
 /**
  * Unarchive a channel
@@ -376,7 +406,7 @@ export const UNARCHIVE_CHANNEL = gql`
       is_archived
     }
   }
-`
+`;
 
 /**
  * Join a channel
@@ -385,7 +415,10 @@ export const JOIN_CHANNEL = gql`
   mutation JoinChannel($channelId: uuid!, $userId: uuid!) {
     insert_nchat_channel_members_one(
       object: { channel_id: $channelId, user_id: $userId, role: "member" }
-      on_conflict: { constraint: nchat_channel_members_channel_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_channel_members_channel_id_user_id_key
+        update_columns: []
+      }
     ) {
       id
       role
@@ -396,7 +429,7 @@ export const JOIN_CHANNEL = gql`
     }
   }
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Leave a channel
@@ -409,7 +442,7 @@ export const LEAVE_CHANNEL = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Invite users to a channel
@@ -447,16 +480,21 @@ export const INVITE_TO_CHANNEL = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Bulk invite users to channel (alternative approach)
  */
 export const BULK_INVITE_TO_CHANNEL = gql`
-  mutation BulkInviteToChannel($objects: [nchat_channel_members_insert_input!]!) {
+  mutation BulkInviteToChannel(
+    $objects: [nchat_channel_members_insert_input!]!
+  ) {
     insert_nchat_channel_members(
       objects: $objects
-      on_conflict: { constraint: nchat_channel_members_channel_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_channel_members_channel_id_user_id_key
+        update_columns: []
+      }
     ) {
       affected_rows
       returning {
@@ -471,7 +509,7 @@ export const BULK_INVITE_TO_CHANNEL = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Remove a user from a channel (kick)
@@ -484,7 +522,7 @@ export const REMOVE_FROM_CHANNEL = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Update member role in channel
@@ -506,7 +544,7 @@ export const UPDATE_MEMBER_ROLE = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Update member notification settings
@@ -530,7 +568,7 @@ export const UPDATE_CHANNEL_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Create or get direct message channel between users
@@ -544,7 +582,10 @@ export const GET_OR_CREATE_DM_CHANNEL = gql`
         type: "direct"
         is_private: true
         members: {
-          data: [{ user_id: $userId1, role: "member" }, { user_id: $userId2, role: "member" }]
+          data: [
+            { user_id: $userId1, role: "member" }
+            { user_id: $userId2, role: "member" }
+          ]
         }
       }
       on_conflict: { constraint: nchat_channels_dm_unique, update_columns: [] }
@@ -559,7 +600,7 @@ export const GET_OR_CREATE_DM_CHANNEL = gql`
   }
   ${CHANNEL_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Reorder channels within a category
@@ -574,7 +615,7 @@ export const REORDER_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -590,7 +631,7 @@ export const CHANNEL_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to all channels (for sidebar updates)
@@ -610,7 +651,7 @@ export const CHANNELS_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to channel member changes
@@ -625,7 +666,7 @@ export const CHANNEL_MEMBERS_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to user's channel membership changes
@@ -641,4 +682,4 @@ export const USER_CHANNELS_SUBSCRIPTION = gql`
     }
   }
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;

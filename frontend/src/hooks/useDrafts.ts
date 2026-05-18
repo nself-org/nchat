@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useDrafts Hook - Manage all drafts
@@ -6,16 +6,16 @@
  * Provides access to all drafts, filtering, sorting, and bulk operations
  */
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useDraftsStore } from '@/stores/drafts-store'
+import { useCallback, useEffect, useMemo } from "react";
+import { useDraftsStore } from "@/stores/drafts-store";
 import type {
   Draft,
   DraftMetadata,
   DraftContextType,
   DraftFilterOptions,
   DraftSortOptions,
-} from '@/lib/drafts/draft-types'
-import { hasDraftContent } from '@/lib/drafts'
+} from "@/lib/drafts/draft-types";
+import { hasDraftContent } from "@/lib/drafts";
 
 // ============================================================================
 // Types
@@ -23,55 +23,55 @@ import { hasDraftContent } from '@/lib/drafts'
 
 export interface UseDraftsOptions {
   /** Filter drafts by context type */
-  contextType?: DraftContextType
+  contextType?: DraftContextType;
   /** Sort options */
-  sortBy?: DraftSortOptions
+  sortBy?: DraftSortOptions;
   /** Auto-initialize store */
-  autoInitialize?: boolean
+  autoInitialize?: boolean;
 }
 
 export interface UseDraftsReturn {
   /** All drafts (with content) */
-  drafts: Draft[]
+  drafts: Draft[];
   /** Draft metadata for listing */
-  metadata: DraftMetadata[]
+  metadata: DraftMetadata[];
   /** Total draft count */
-  count: number
+  count: number;
   /** Whether there are any drafts */
-  hasDrafts: boolean
+  hasDrafts: boolean;
 
   /** Channel drafts */
-  channelDrafts: Draft[]
+  channelDrafts: Draft[];
   /** Thread drafts */
-  threadDrafts: Draft[]
+  threadDrafts: Draft[];
   /** DM drafts */
-  dmDrafts: Draft[]
+  dmDrafts: Draft[];
 
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
   /** Initialization state */
-  isInitialized: boolean
+  isInitialized: boolean;
   /** Error state */
-  error: string | null
+  error: string | null;
 
   /** Filter drafts */
-  filter: (options: DraftFilterOptions) => Draft[]
+  filter: (options: DraftFilterOptions) => Draft[];
   /** Sort drafts */
-  sort: (options: DraftSortOptions) => Draft[]
+  sort: (options: DraftSortOptions) => Draft[];
   /** Search drafts by content */
-  search: (term: string) => Draft[]
+  search: (term: string) => Draft[];
 
   /** Delete a draft */
-  deleteDraft: (contextKey: string) => Promise<boolean>
+  deleteDraft: (contextKey: string) => Promise<boolean>;
   /** Delete multiple drafts */
-  deleteMultiple: (contextKeys: string[]) => Promise<number>
+  deleteMultiple: (contextKeys: string[]) => Promise<number>;
   /** Clear all drafts */
-  clearAll: () => Promise<void>
+  clearAll: () => Promise<void>;
 
   /** Refresh drafts from storage */
-  refresh: () => Promise<void>
+  refresh: () => Promise<void>;
   /** Initialize store */
-  initialize: () => Promise<void>
+  initialize: () => Promise<void>;
 }
 
 // ============================================================================
@@ -80,126 +80,135 @@ export interface UseDraftsReturn {
 
 export function useDrafts({
   contextType,
-  sortBy = { field: 'lastModified', direction: 'desc' },
+  sortBy = { field: "lastModified", direction: "desc" },
   autoInitialize = true,
 }: UseDraftsOptions = {}): UseDraftsReturn {
   // Store state
-  const draftsMap = useDraftsStore((state) => state.drafts)
-  const metadata = useDraftsStore((state) => state.draftMetadata)
-  const isLoading = useDraftsStore((state) => state.isLoading)
-  const isInitialized = useDraftsStore((state) => state.isInitialized)
-  const error = useDraftsStore((state) => state.error)
+  const draftsMap = useDraftsStore((state) => state.drafts);
+  const metadata = useDraftsStore((state) => state.draftMetadata);
+  const isLoading = useDraftsStore((state) => state.isLoading);
+  const isInitialized = useDraftsStore((state) => state.isInitialized);
+  const error = useDraftsStore((state) => state.error);
 
   // Store actions
-  const initialize = useDraftsStore((state) => state.initialize)
-  const deleteDraftFromStore = useDraftsStore((state) => state.deleteDraft)
-  const clearAllFromStore = useDraftsStore((state) => state.clearAllDrafts)
-  const refreshFromStore = useDraftsStore((state) => state.refreshDrafts)
-  const getFilteredDrafts = useDraftsStore((state) => state.getFilteredDrafts)
-  const getSortedDrafts = useDraftsStore((state) => state.getSortedDrafts)
+  const initialize = useDraftsStore((state) => state.initialize);
+  const deleteDraftFromStore = useDraftsStore((state) => state.deleteDraft);
+  const clearAllFromStore = useDraftsStore((state) => state.clearAllDrafts);
+  const refreshFromStore = useDraftsStore((state) => state.refreshDrafts);
+  const getFilteredDrafts = useDraftsStore((state) => state.getFilteredDrafts);
+  const getSortedDrafts = useDraftsStore((state) => state.getSortedDrafts);
 
   // Auto-initialize
   useEffect(() => {
     if (autoInitialize && !isInitialized) {
-      initialize()
+      initialize();
     }
-  }, [autoInitialize, isInitialized, initialize])
+  }, [autoInitialize, isInitialized, initialize]);
 
   // Compute filtered and sorted drafts
   const drafts = useMemo(() => {
-    let result = Array.from(draftsMap.values()).filter(hasDraftContent)
+    let result = Array.from(draftsMap.values()).filter(hasDraftContent);
 
     // Filter by context type if specified
     if (contextType) {
-      result = result.filter((d) => d.contextType === contextType)
+      result = result.filter((d) => d.contextType === contextType);
     }
 
     // Sort
     return result.sort((a, b) => {
-      let comparison = 0
+      let comparison = 0;
 
       switch (sortBy.field) {
-        case 'lastModified':
-          comparison = a.lastModified - b.lastModified
-          break
-        case 'createdAt':
-          comparison = a.createdAt - b.createdAt
-          break
-        case 'contextName':
-          comparison = a.contextKey.localeCompare(b.contextKey)
-          break
+        case "lastModified":
+          comparison = a.lastModified - b.lastModified;
+          break;
+        case "createdAt":
+          comparison = a.createdAt - b.createdAt;
+          break;
+        case "contextName":
+          comparison = a.contextKey.localeCompare(b.contextKey);
+          break;
       }
 
-      return sortBy.direction === 'desc' ? -comparison : comparison
-    })
-  }, [draftsMap, contextType, sortBy])
+      return sortBy.direction === "desc" ? -comparison : comparison;
+    });
+  }, [draftsMap, contextType, sortBy]);
 
   // Compute drafts by type
-  const channelDrafts = useMemo(() => drafts.filter((d) => d.contextType === 'channel'), [drafts])
+  const channelDrafts = useMemo(
+    () => drafts.filter((d) => d.contextType === "channel"),
+    [drafts],
+  );
 
-  const threadDrafts = useMemo(() => drafts.filter((d) => d.contextType === 'thread'), [drafts])
+  const threadDrafts = useMemo(
+    () => drafts.filter((d) => d.contextType === "thread"),
+    [drafts],
+  );
 
-  const dmDrafts = useMemo(() => drafts.filter((d) => d.contextType === 'dm'), [drafts])
+  const dmDrafts = useMemo(
+    () => drafts.filter((d) => d.contextType === "dm"),
+    [drafts],
+  );
 
   // Filter function
   const filter = useCallback(
     (options: DraftFilterOptions) => {
-      return getFilteredDrafts(options)
+      return getFilteredDrafts(options);
     },
-    [getFilteredDrafts]
-  )
+    [getFilteredDrafts],
+  );
 
   // Sort function
   const sort = useCallback(
     (options: DraftSortOptions) => {
-      return getSortedDrafts(options)
+      return getSortedDrafts(options);
     },
-    [getSortedDrafts]
-  )
+    [getSortedDrafts],
+  );
 
   // Search function
   const search = useCallback(
     (term: string) => {
-      if (!term.trim()) return drafts
+      if (!term.trim()) return drafts;
 
-      const lowerTerm = term.toLowerCase()
-      return drafts.filter((d) => d.content.toLowerCase().includes(lowerTerm))
+      const lowerTerm = term.toLowerCase();
+      return drafts.filter((d) => d.content.toLowerCase().includes(lowerTerm));
     },
-    [drafts]
-  )
+    [drafts],
+  );
 
   // Delete draft
   const deleteDraft = useCallback(
     async (contextKey: string) => {
-      return await deleteDraftFromStore(contextKey)
+      return await deleteDraftFromStore(contextKey);
     },
-    [deleteDraftFromStore]
-  )
+    [deleteDraftFromStore],
+  );
 
   // Delete multiple drafts
   const deleteMultiple = useCallback(
     async (contextKeys: string[]) => {
-      let deletedCount = 0
+      let deletedCount = 0;
 
       for (const key of contextKeys) {
-        const success = await deleteDraftFromStore(key)
-        if (success) deletedCount++
+        const success = await deleteDraftFromStore(key);
+        if (success) deletedCount++;
       }
 
-      return deletedCount
+      return deletedCount;
     },
-    [deleteDraftFromStore]
-  )
+    [deleteDraftFromStore],
+  );
 
   // Clear all
   const clearAll = useCallback(async () => {
-    await clearAllFromStore()
-  }, [clearAllFromStore])
+    await clearAllFromStore();
+  }, [clearAllFromStore]);
 
   // Refresh
   const refresh = useCallback(async () => {
-    await refreshFromStore()
-  }, [refreshFromStore])
+    await refreshFromStore();
+  }, [refreshFromStore]);
 
   return {
     drafts,
@@ -220,7 +229,7 @@ export function useDrafts({
     clearAll,
     refresh,
     initialize,
-  }
+  };
 }
 
 // ============================================================================
@@ -230,44 +239,48 @@ export function useDrafts({
 /**
  * Hook for channel drafts only
  */
-export function useChannelDrafts(options?: Omit<UseDraftsOptions, 'contextType'>) {
-  return useDrafts({ ...options, contextType: 'channel' })
+export function useChannelDrafts(
+  options?: Omit<UseDraftsOptions, "contextType">,
+) {
+  return useDrafts({ ...options, contextType: "channel" });
 }
 
 /**
  * Hook for thread drafts only
  */
-export function useThreadDrafts(options?: Omit<UseDraftsOptions, 'contextType'>) {
-  return useDrafts({ ...options, contextType: 'thread' })
+export function useThreadDrafts(
+  options?: Omit<UseDraftsOptions, "contextType">,
+) {
+  return useDrafts({ ...options, contextType: "thread" });
 }
 
 /**
  * Hook for DM drafts only
  */
-export function useDMDrafts(options?: Omit<UseDraftsOptions, 'contextType'>) {
-  return useDrafts({ ...options, contextType: 'dm' })
+export function useDMDrafts(options?: Omit<UseDraftsOptions, "contextType">) {
+  return useDrafts({ ...options, contextType: "dm" });
 }
 
 /**
  * Hook for draft count only
  */
 export function useDraftCount(): number {
-  const count = useDraftsStore((state) => state.getDraftCount())
-  return count
+  const count = useDraftsStore((state) => state.getDraftCount());
+  return count;
 }
 
 /**
  * Hook for checking if a context has a draft
  */
 export function useHasDraft(contextKey: string): boolean {
-  const hasDraft = useDraftsStore((state) => state.hasDraft(contextKey))
-  return hasDraft
+  const hasDraft = useDraftsStore((state) => state.hasDraft(contextKey));
+  return hasDraft;
 }
 
 /**
  * Hook for checking if any drafts exist
  */
 export function useHasAnyDrafts(): boolean {
-  const hasDrafts = useDraftsStore((state) => state.getDraftCount() > 0)
-  return hasDrafts
+  const hasDrafts = useDraftsStore((state) => state.getDraftCount() > 0);
+  return hasDrafts;
 }

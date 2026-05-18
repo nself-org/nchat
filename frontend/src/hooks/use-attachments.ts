@@ -5,21 +5,25 @@
  * file selection, upload, preview, and removal.
  */
 
-'use client'
+"use client";
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
-import { useFileUpload, type QueuedFile } from './use-file-upload'
-import { getDownloadService, formatFileSize, getFileIcon } from '@/services/files'
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useFileUpload, type QueuedFile } from "./use-file-upload";
+import {
+  getDownloadService,
+  formatFileSize,
+  getFileIcon,
+} from "@/services/files";
 import type {
   FileRecord,
   ThumbnailSet,
   ProcessingStatus,
   FileTypeConfig,
-} from '@/services/files/types'
+} from "@/services/files/types";
 
-import type { Attachment, AttachmentType } from '@/types/attachment'
+import type { Attachment, AttachmentType } from "@/types/attachment";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -27,99 +31,101 @@ import { logger } from '@/lib/logger'
 
 export interface AttachmentItem {
   /** Unique ID */
-  id: string
+  id: string;
   /** Type of attachment */
-  type: AttachmentType
+  type: AttachmentType;
   /** File name */
-  name: string
+  name: string;
   /** File size in bytes */
-  size: number
+  size: number;
   /** MIME type */
-  mimeType: string
+  mimeType: string;
   /** Preview URL (local blob or remote) */
-  previewUrl?: string
+  previewUrl?: string;
   /** Thumbnail URL (single, for compatibility) */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** Thumbnail URLs */
-  thumbnails?: ThumbnailSet
+  thumbnails?: ThumbnailSet;
   /** Full URL (after upload) */
-  url?: string
+  url?: string;
   /** Upload status */
-  status: 'pending' | 'uploading' | 'processing' | 'ready' | 'failed'
+  status: "pending" | "uploading" | "processing" | "ready" | "failed";
   /** Upload progress (0-100) */
-  progress: number
+  progress: number;
   /** Error message */
-  error?: string
+  error?: string;
   /** Original file (before upload) */
-  file?: File
+  file?: File;
   /** File record (after upload) */
-  fileRecord?: FileRecord
+  fileRecord?: FileRecord;
   /** Width (for images/videos) */
-  width?: number
+  width?: number;
   /** Height (for images/videos) */
-  height?: number
+  height?: number;
   /** Duration (for audio/video) */
-  duration?: number
+  duration?: number;
 }
 
 export interface UseAttachmentsOptions {
   /** Channel ID */
-  channelId?: string
+  channelId?: string;
   /** Message ID (for editing) */
-  messageId?: string
+  messageId?: string;
   /** Maximum number of attachments */
-  maxAttachments?: number
+  maxAttachments?: number;
   /** Maximum total size in bytes */
-  maxTotalSize?: number
+  maxTotalSize?: number;
   /** Custom file config */
-  fileConfig?: FileTypeConfig
+  fileConfig?: FileTypeConfig;
   /** Auto-upload when files are added */
-  autoUpload?: boolean
+  autoUpload?: boolean;
   /** Callback when attachments change */
-  onChange?: (attachments: AttachmentItem[]) => void
+  onChange?: (attachments: AttachmentItem[]) => void;
   /** Callback when all uploads complete */
-  onAllComplete?: (attachments: AttachmentItem[]) => void
+  onAllComplete?: (attachments: AttachmentItem[]) => void;
 }
 
 export interface UseAttachmentsReturn {
   /** Current attachments */
-  attachments: AttachmentItem[]
+  attachments: AttachmentItem[];
   /** Whether any upload is in progress */
-  isUploading: boolean
+  isUploading: boolean;
   /** Total size of all attachments */
-  totalSize: number
+  totalSize: number;
   /** Remaining size capacity */
-  remainingSize: number
+  remainingSize: number;
   /** Add files as attachments */
-  addFiles: (files: File[]) => void
+  addFiles: (files: File[]) => void;
   /** Add an existing file record as attachment */
-  addFileRecord: (record: FileRecord) => void
+  addFileRecord: (record: FileRecord) => void;
   /** Remove an attachment */
-  removeAttachment: (id: string) => void
+  removeAttachment: (id: string) => void;
   /** Clear all attachments */
-  clearAttachments: () => void
+  clearAttachments: () => void;
   /** Retry a failed upload */
-  retryUpload: (id: string) => void
+  retryUpload: (id: string) => void;
   /** Start uploading all pending attachments */
-  startUploads: () => Promise<void>
+  startUploads: () => Promise<void>;
   /** Get ready attachments as message attachments */
-  getMessageAttachments: () => Attachment[]
+  getMessageAttachments: () => Attachment[];
   /** Validate if a file can be added */
-  canAddFile: (file: File) => { allowed: boolean; reason?: string }
+  canAddFile: (file: File) => { allowed: boolean; reason?: string };
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const DEFAULT_MAX_ATTACHMENTS = 10
-const DEFAULT_MAX_TOTAL_SIZE = 25 * 1024 * 1024 // 25MB
+const DEFAULT_MAX_ATTACHMENTS = 10;
+const DEFAULT_MAX_TOTAL_SIZE = 25 * 1024 * 1024; // 25MB
 
 // ============================================================================
 // Hook Implementation
 // ============================================================================
 
-export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachmentsReturn {
+export function useAttachments(
+  options: UseAttachmentsOptions = {},
+): UseAttachmentsReturn {
   const {
     channelId,
     messageId,
@@ -129,10 +135,10 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
     autoUpload = false,
     onChange,
     onAllComplete,
-  } = options
+  } = options;
 
   // State
-  const [attachments, setAttachments] = useState<AttachmentItem[]>([])
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
 
   // File upload hook
   const {
@@ -152,18 +158,21 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
     onComplete: handleUploadComplete,
     onError: handleUploadError,
     onAllComplete: handleAllUploadsComplete,
-  })
+  });
 
   // Download service for thumbnails
-  const downloadService = useMemo(() => getDownloadService(), [])
+  const downloadService = useMemo(() => getDownloadService(), []);
 
   // ============================================================================
   // Computed Values
   // ============================================================================
 
-  const totalSize = useMemo(() => attachments.reduce((sum, a) => sum + a.size, 0), [attachments])
+  const totalSize = useMemo(
+    () => attachments.reduce((sum, a) => sum + a.size, 0),
+    [attachments],
+  );
 
-  const remainingSize = maxTotalSize - totalSize
+  const remainingSize = maxTotalSize - totalSize;
 
   // ============================================================================
   // File Validation
@@ -176,7 +185,7 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
         return {
           allowed: false,
           reason: `Maximum ${maxAttachments} attachments allowed`,
-        }
+        };
       }
 
       // Check total size
@@ -184,18 +193,18 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
         return {
           allowed: false,
           reason: `Would exceed maximum total size of ${formatFileSize(maxTotalSize)}`,
-        }
+        };
       }
 
       // Validate file type and size - convert to expected return type
-      const validation = validateFile(file)
+      const validation = validateFile(file);
       return {
         allowed: validation.valid,
         reason: validation.error,
-      }
+      };
     },
-    [attachments.length, maxAttachments, totalSize, maxTotalSize, validateFile]
-  )
+    [attachments.length, maxAttachments, totalSize, maxTotalSize, validateFile],
+  );
 
   // ============================================================================
   // Add Files
@@ -203,23 +212,25 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
 
   const addFiles = useCallback(
     (files: File[]) => {
-      const validFiles: File[] = []
-      const newAttachments: AttachmentItem[] = []
+      const validFiles: File[] = [];
+      const newAttachments: AttachmentItem[] = [];
 
       for (const file of files) {
-        const validation = canAddFile(file)
+        const validation = canAddFile(file);
         if (!validation.allowed) {
-          logger.warn(`File rejected: ${file.name} - ${validation.reason}`)
-          continue
+          logger.warn(`File rejected: ${file.name} - ${validation.reason}`);
+          continue;
         }
 
-        validFiles.push(file)
+        validFiles.push(file);
 
         // Create preview URL
-        const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
+        const previewUrl = file.type.startsWith("image/")
+          ? URL.createObjectURL(file)
+          : undefined;
 
         // Determine attachment type
-        const type = getAttachmentType(file.type)
+        const type = getAttachmentType(file.type);
 
         newAttachments.push({
           id: crypto.randomUUID(),
@@ -228,28 +239,28 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
           size: file.size,
           mimeType: file.type,
           previewUrl,
-          status: 'pending',
+          status: "pending",
           progress: 0,
           file,
-        })
+        });
       }
 
       if (validFiles.length > 0) {
         // Add to upload queue
-        const uploadIds = addUploadFiles(validFiles)
+        const uploadIds = addUploadFiles(validFiles);
 
         // Map upload IDs to attachments
         newAttachments.forEach((attachment, index) => {
           if (uploadIds[index]) {
-            attachment.id = uploadIds[index]
+            attachment.id = uploadIds[index];
           }
-        })
+        });
 
-        setAttachments((prev) => [...prev, ...newAttachments])
+        setAttachments((prev) => [...prev, ...newAttachments]);
       }
     },
-    [canAddFile, addUploadFiles]
-  )
+    [canAddFile, addUploadFiles],
+  );
 
   // ============================================================================
   // Add Existing File Record
@@ -257,13 +268,13 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
 
   const addFileRecord = useCallback(
     async (record: FileRecord) => {
-      const type = getAttachmentType(record.mimeType)
+      const type = getAttachmentType(record.mimeType);
 
       // Fetch thumbnails if available
-      let thumbnails: ThumbnailSet | undefined
-      if (type === 'image' || type === 'video') {
+      let thumbnails: ThumbnailSet | undefined;
+      if (type === "image" || type === "video") {
         try {
-          thumbnails = await downloadService.getThumbnails(record.id)
+          thumbnails = await downloadService.getThumbnails(record.id);
         } catch {
           // Thumbnails not available
         }
@@ -277,15 +288,15 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
         mimeType: record.mimeType,
         url: record.url,
         thumbnails,
-        status: 'ready',
+        status: "ready",
         progress: 100,
         fileRecord: record,
-      }
+      };
 
-      setAttachments((prev) => [...prev, attachment])
+      setAttachments((prev) => [...prev, attachment]);
     },
-    [downloadService]
-  )
+    [downloadService],
+  );
 
   // ============================================================================
   // Remove Attachment
@@ -294,21 +305,21 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
   const removeAttachment = useCallback(
     (id: string) => {
       setAttachments((prev) => {
-        const attachment = prev.find((a) => a.id === id)
+        const attachment = prev.find((a) => a.id === id);
 
         // Revoke preview URL if exists
-        if (attachment?.previewUrl?.startsWith('blob:')) {
-          URL.revokeObjectURL(attachment.previewUrl)
+        if (attachment?.previewUrl?.startsWith("blob:")) {
+          URL.revokeObjectURL(attachment.previewUrl);
         }
 
-        return prev.filter((a) => a.id !== id)
-      })
+        return prev.filter((a) => a.id !== id);
+      });
 
       // Also remove from upload queue
-      removeUploadFile(id)
+      removeUploadFile(id);
     },
-    [removeUploadFile]
-  )
+    [removeUploadFile],
+  );
 
   // ============================================================================
   // Clear Attachments
@@ -317,14 +328,14 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
   const clearAttachments = useCallback(() => {
     // Revoke all preview URLs
     attachments.forEach((a) => {
-      if (a.previewUrl?.startsWith('blob:')) {
-        URL.revokeObjectURL(a.previewUrl)
+      if (a.previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(a.previewUrl);
       }
-    })
+    });
 
-    setAttachments([])
-    clearUploadFiles()
-  }, [attachments, clearUploadFiles])
+    setAttachments([]);
+    clearUploadFiles();
+  }, [attachments, clearUploadFiles]);
 
   // ============================================================================
   // Retry Upload
@@ -334,22 +345,24 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
     (id: string) => {
       setAttachments((prev) =>
         prev.map((a) =>
-          a.id === id ? { ...a, status: 'pending', progress: 0, error: undefined } : a
-        )
-      )
+          a.id === id
+            ? { ...a, status: "pending", progress: 0, error: undefined }
+            : a,
+        ),
+      );
 
-      retryFileUpload(id)
+      retryFileUpload(id);
     },
-    [retryFileUpload]
-  )
+    [retryFileUpload],
+  );
 
   // ============================================================================
   // Start Uploads
   // ============================================================================
 
   const startUploads = useCallback(async () => {
-    await startUpload()
-  }, [startUpload])
+    await startUpload();
+  }, [startUpload]);
 
   // ============================================================================
   // Upload Handlers
@@ -363,44 +376,48 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
             ...a,
             id: fileRecord.id,
             url: fileRecord.url,
-            status: 'ready' as const,
+            status: "ready" as const,
             progress: 100,
             fileRecord,
-          }
+          };
         }
-        return a
-      })
-    )
+        return a;
+      }),
+    );
   }
 
   function handleUploadError(fileId: string, error: Error) {
     setAttachments((prev) =>
       prev.map((a) =>
-        a.id === fileId ? { ...a, status: 'failed' as const, error: error.message } : a
-      )
-    )
+        a.id === fileId
+          ? { ...a, status: "failed" as const, error: error.message }
+          : a,
+      ),
+    );
   }
 
   function handleAllUploadsComplete(fileRecords: FileRecord[]) {
     const updatedAttachments = attachments.map((a) => {
-      if (a.status === 'ready') return a
+      if (a.status === "ready") return a;
 
-      const record = fileRecords.find((r) => r.id === a.id || r.name === a.name)
+      const record = fileRecords.find(
+        (r) => r.id === a.id || r.name === a.name,
+      );
       if (record) {
         return {
           ...a,
           id: record.id,
           url: record.url,
-          status: 'ready' as const,
+          status: "ready" as const,
           progress: 100,
           fileRecord: record,
-        }
+        };
       }
-      return a
-    })
+      return a;
+    });
 
-    setAttachments(updatedAttachments)
-    onAllComplete?.(updatedAttachments)
+    setAttachments(updatedAttachments);
+    onAllComplete?.(updatedAttachments);
   }
 
   // ============================================================================
@@ -411,28 +428,28 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
     // Update attachment progress from upload files
     setAttachments((prev) =>
       prev.map((attachment) => {
-        const uploadFile = uploadFiles.find((f) => f.id === attachment.id)
-        if (!uploadFile) return attachment
+        const uploadFile = uploadFiles.find((f) => f.id === attachment.id);
+        if (!uploadFile) return attachment;
 
-        const status = mapUploadStatus(uploadFile.progress.status)
+        const status = mapUploadStatus(uploadFile.progress.status);
 
         return {
           ...attachment,
           status,
           progress: uploadFile.progress.progress,
           error: uploadFile.error,
-        }
-      })
-    )
-  }, [uploadFiles])
+        };
+      }),
+    );
+  }, [uploadFiles]);
 
   // ============================================================================
   // Change Callback
   // ============================================================================
 
   useEffect(() => {
-    onChange?.(attachments)
-  }, [attachments, onChange])
+    onChange?.(attachments);
+  }, [attachments, onChange]);
 
   // ============================================================================
   // Cleanup
@@ -441,12 +458,12 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
   useEffect(() => {
     return () => {
       attachments.forEach((a) => {
-        if (a.previewUrl?.startsWith('blob:')) {
-          URL.revokeObjectURL(a.previewUrl)
+        if (a.previewUrl?.startsWith("blob:")) {
+          URL.revokeObjectURL(a.previewUrl);
         }
-      })
-    }
-  }, []) // Only on unmount
+      });
+    };
+  }, []); // Only on unmount
 
   // ============================================================================
   // Get Message Attachments
@@ -454,7 +471,7 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
 
   const getMessageAttachments = useCallback((): Attachment[] => {
     return attachments
-      .filter((a) => a.status === 'ready' && a.url)
+      .filter((a) => a.status === "ready" && a.url)
       .map((a) => ({
         id: a.id,
         type: a.type,
@@ -467,10 +484,10 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
         duration: a.duration,
         thumbnailUrl: a.thumbnails?.medium?.url || a.thumbnails?.small?.url,
         previewUrl: a.thumbnails?.large?.url || a.previewUrl,
-        uploadedBy: a.fileRecord?.uploadedBy || '',
+        uploadedBy: a.fileRecord?.uploadedBy || "",
         uploadedAt: a.fileRecord?.uploadedAt || new Date(),
-      }))
-  }, [attachments])
+      }));
+  }, [attachments]);
 
   return {
     attachments,
@@ -485,7 +502,7 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
     startUploads,
     getMessageAttachments,
     canAddFile,
-  }
+  };
 }
 
 // ============================================================================
@@ -493,29 +510,29 @@ export function useAttachments(options: UseAttachmentsOptions = {}): UseAttachme
 // ============================================================================
 
 function getAttachmentType(mimeType: string): AttachmentType {
-  if (mimeType.startsWith('image/')) return 'image'
-  if (mimeType.startsWith('video/')) return 'video'
-  if (mimeType.startsWith('audio/')) return 'audio'
-  return 'file'
+  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType.startsWith("video/")) return "video";
+  if (mimeType.startsWith("audio/")) return "audio";
+  return "file";
 }
 
 function mapUploadStatus(
-  status: ProcessingStatus
-): 'pending' | 'uploading' | 'processing' | 'ready' | 'failed' {
+  status: ProcessingStatus,
+): "pending" | "uploading" | "processing" | "ready" | "failed" {
   switch (status) {
-    case 'pending':
-      return 'pending'
-    case 'uploading':
-      return 'uploading'
-    case 'processing':
-      return 'processing'
-    case 'completed':
-      return 'ready'
-    case 'failed':
-    case 'cancelled':
-      return 'failed'
+    case "pending":
+      return "pending";
+    case "uploading":
+      return "uploading";
+    case "processing":
+      return "processing";
+    case "completed":
+      return "ready";
+    case "failed":
+    case "cancelled":
+      return "failed";
     default:
-      return 'pending'
+      return "pending";
   }
 }
 
@@ -528,33 +545,34 @@ function mapUploadStatus(
  */
 export function useAttachmentPreview(attachment: AttachmentItem | null) {
   const [imageSize, setImageSize] = useState<{
-    width: number
-    height: number
-  } | null>(null)
+    width: number;
+    height: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!attachment) {
-      setImageSize(null)
-      return
+      setImageSize(null);
+      return;
     }
 
-    if (attachment.type === 'image' && attachment.previewUrl) {
-      const img = new Image()
+    if (attachment.type === "image" && attachment.previewUrl) {
+      const img = new Image();
       img.onload = () => {
-        setImageSize({ width: img.width, height: img.height })
-      }
-      img.src = attachment.previewUrl
+        setImageSize({ width: img.width, height: img.height });
+      };
+      img.src = attachment.previewUrl;
     }
-  }, [attachment])
+  }, [attachment]);
 
   return {
     previewUrl: attachment?.previewUrl || attachment?.thumbnails?.large?.url,
-    thumbnailUrl: attachment?.thumbnails?.medium?.url || attachment?.thumbnails?.small?.url,
-    isImage: attachment?.type === 'image',
-    isVideo: attachment?.type === 'video',
-    isAudio: attachment?.type === 'audio',
+    thumbnailUrl:
+      attachment?.thumbnails?.medium?.url || attachment?.thumbnails?.small?.url,
+    isImage: attachment?.type === "image",
+    isVideo: attachment?.type === "video",
+    isAudio: attachment?.type === "audio",
     imageSize,
-    icon: attachment ? getFileIcon(attachment.mimeType) : 'file',
-    sizeFormatted: attachment ? formatFileSize(attachment.size) : '',
-  }
+    icon: attachment ? getFileIcon(attachment.mimeType) : "file",
+    sizeFormatted: attachment ? formatFileSize(attachment.size) : "",
+  };
 }

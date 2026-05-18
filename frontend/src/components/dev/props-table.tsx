@@ -1,23 +1,23 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface PropDefinition {
-  name: string
-  type: string
-  required?: boolean
-  default?: string
-  description: string
+  name: string;
+  type: string;
+  required?: boolean;
+  default?: string;
+  description: string;
 }
 
 export interface PropsTableProps {
-  props: PropDefinition[]
-  className?: string
+  props: PropDefinition[];
+  className?: string;
 }
 
 // ============================================================================
@@ -26,7 +26,7 @@ export interface PropsTableProps {
 
 export function PropsTable({ props, className }: PropsTableProps) {
   return (
-    <div className={cn('overflow-hidden rounded-lg border', className)}>
+    <div className={cn("overflow-hidden rounded-lg border", className)}>
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-muted/50 border-b">
@@ -41,8 +41,8 @@ export function PropsTable({ props, className }: PropsTableProps) {
             <tr
               key={prop.name}
               className={cn(
-                'border-b last:border-0',
-                index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
+                "border-b last:border-0",
+                index % 2 === 0 ? "bg-background" : "bg-muted/20",
               )}
             >
               <td className="px-4 py-3">
@@ -51,7 +51,10 @@ export function PropsTable({ props, className }: PropsTableProps) {
                     {prop.name}
                   </code>
                   {prop.required && (
-                    <Badge variant="destructive" className="h-4 px-1 text-[10px]">
+                    <Badge
+                      variant="destructive"
+                      className="h-4 px-1 text-[10px]"
+                    >
                       required
                     </Badge>
                   )}
@@ -71,13 +74,15 @@ export function PropsTable({ props, className }: PropsTableProps) {
                   <span className="text-muted-foreground">-</span>
                 )}
               </td>
-              <td className="px-4 py-3 text-muted-foreground">{prop.description}</td>
+              <td className="px-4 py-3 text-muted-foreground">
+                {prop.description}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -86,7 +91,7 @@ export function PropsTable({ props, className }: PropsTableProps) {
 
 export function PropsList({ props, className }: PropsTableProps) {
   return (
-    <dl className={cn('space-y-3', className)}>
+    <dl className={cn("space-y-3", className)}>
       {props.map((prop) => (
         <div key={prop.name} className="flex flex-col gap-1">
           <dt className="flex items-center gap-2">
@@ -104,12 +109,13 @@ export function PropsList({ props, className }: PropsTableProps) {
             {prop.description}
             {prop.default && (
               <span className="ml-2 text-xs">
-                (default: <code className="rounded bg-muted px-1">{prop.default}</code>)
+                (default:{" "}
+                <code className="rounded bg-muted px-1">{prop.default}</code>)
               </span>
             )}
           </dd>
         </div>
       ))}
     </dl>
-  )
+  );
 }

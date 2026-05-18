@@ -1,32 +1,42 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { SettingsLayout, SettingsSection } from '@/components/settings'
-import { ChangePasswordForm } from '@/components/settings/change-password-form'
-import { TwoFactorSetup } from '@/components/settings/two-factor-setup'
-import { ActiveSessions } from '@/components/settings/active-sessions'
-import { LoginHistory } from '@/components/settings/login-history'
-import { SecurityAlerts } from '@/components/settings/security-alerts'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { useAuth } from '@/contexts/auth-context'
-import { useSecurity } from '@/lib/security/use-security'
-import { Shield, Key, Smartphone, History, Bell, AlertTriangle } from 'lucide-react'
+import { useState } from "react";
+import { SettingsLayout, SettingsSection } from "@/components/settings";
+import { ChangePasswordForm } from "@/components/settings/change-password-form";
+import { TwoFactorSetup } from "@/components/settings/two-factor-setup";
+import { ActiveSessions } from "@/components/settings/active-sessions";
+import { LoginHistory } from "@/components/settings/login-history";
+import { SecurityAlerts } from "@/components/settings/security-alerts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/contexts/auth-context";
+import { useSecurity } from "@/lib/security/use-security";
+import {
+  Shield,
+  Key,
+  Smartphone,
+  History,
+  Bell,
+  AlertTriangle,
+} from "lucide-react";
 
 export default function SecuritySettingsPage() {
-  const { user, isDevMode } = useAuth()
-  const { securitySettings, twoFactorEnabled, backupCodesRemaining } = useSecurity()
+  const { user, isDevMode } = useAuth();
+  const { securitySettings, twoFactorEnabled, backupCodesRemaining } =
+    useSecurity();
 
-  const [activeTab, setActiveTab] = useState('password')
+  const [activeTab, setActiveTab] = useState("password");
 
   if (!user) {
     return (
       <SettingsLayout>
         <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Please sign in to access security settings.</p>
+          <p className="text-muted-foreground">
+            Please sign in to access security settings.
+          </p>
         </div>
       </SettingsLayout>
-    )
+    );
   }
 
   return (
@@ -48,8 +58,9 @@ export default function SecuritySettingsPage() {
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              You are in development mode. Security features are simulated and do not affect actual
-              authentication. Password changes and 2FA setup will not persist.
+              You are in development mode. Security features are simulated and
+              do not affect actual authentication. Password changes and 2FA
+              setup will not persist.
             </AlertDescription>
           </Alert>
         )}
@@ -61,15 +72,15 @@ export default function SecuritySettingsPage() {
             description={
               securitySettings?.passwordLastChanged
                 ? `Last changed ${formatRelativeDate(securitySettings.passwordLastChanged)}`
-                : 'Never changed'
+                : "Never changed"
             }
-            status={securitySettings?.passwordLastChanged ? 'good' : 'warning'}
+            status={securitySettings?.passwordLastChanged ? "good" : "warning"}
             icon={Key}
           />
           <SecurityStatusCard
             title="Two-Factor Auth"
-            description={twoFactorEnabled ? 'Enabled' : 'Not enabled'}
-            status={twoFactorEnabled ? 'good' : 'warning'}
+            description={twoFactorEnabled ? "Enabled" : "Not enabled"}
+            status={twoFactorEnabled ? "good" : "warning"}
             icon={Smartphone}
             extra={
               twoFactorEnabled && backupCodesRemaining > 0
@@ -86,7 +97,11 @@ export default function SecuritySettingsPage() {
         </div>
 
         {/* Tabbed Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-5 lg:inline-grid lg:w-auto">
             <TabsTrigger value="password" className="flex items-center gap-2">
               <Key className="h-4 w-4" />
@@ -157,7 +172,7 @@ export default function SecuritySettingsPage() {
         </Tabs>
       </div>
     </SettingsLayout>
-  )
+  );
 }
 
 // ============================================================================
@@ -165,11 +180,11 @@ export default function SecuritySettingsPage() {
 // ============================================================================
 
 interface SecurityStatusCardProps {
-  title: string
-  description: string
-  status: 'good' | 'warning' | 'danger' | 'neutral'
-  icon: React.ElementType
-  extra?: string
+  title: string;
+  description: string;
+  status: "good" | "warning" | "danger" | "neutral";
+  icon: React.ElementType;
+  extra?: string;
 }
 
 function SecurityStatusCard({
@@ -180,18 +195,18 @@ function SecurityStatusCard({
   extra,
 }: SecurityStatusCardProps) {
   const statusColors = {
-    good: 'bg-green-500/10 text-green-600 border-green-500/20',
-    warning: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
-    danger: 'bg-red-500/10 text-red-600 border-red-500/20',
-    neutral: 'bg-muted text-muted-foreground border-border',
-  }
+    good: "bg-green-500/10 text-green-600 border-green-500/20",
+    warning: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+    danger: "bg-red-500/10 text-red-600 border-red-500/20",
+    neutral: "bg-muted text-muted-foreground border-border",
+  };
 
   const iconColors = {
-    good: 'text-green-600',
-    warning: 'text-yellow-600',
-    danger: 'text-red-600',
-    neutral: 'text-muted-foreground',
-  }
+    good: "text-green-600",
+    warning: "text-yellow-600",
+    danger: "text-red-600",
+    neutral: "text-muted-foreground",
+  };
 
   return (
     <div className={`rounded-lg border p-4 ${statusColors[status]}`}>
@@ -206,7 +221,7 @@ function SecurityStatusCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -214,16 +229,16 @@ function SecurityStatusCard({
 // ============================================================================
 
 function formatRelativeDate(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffDays = Math.floor(diffMs / 86400000)
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffDays === 0) return 'today'
-  if (diffDays === 1) return 'yesterday'
-  if (diffDays < 7) return `${diffDays} days ago`
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
 
-  return date.toLocaleDateString()
+  return date.toLocaleDateString();
 }

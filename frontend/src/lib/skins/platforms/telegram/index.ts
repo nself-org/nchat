@@ -37,13 +37,13 @@ export {
   telegramDarkShadows,
   telegramDetailedSkin,
   telegramVisualConfig,
-} from './visual'
+} from "./visual";
 
 export type {
   TelegramExtendedColors,
   TelegramShadows,
   TelegramVisualConfig,
-} from './visual'
+} from "./visual";
 
 // -- Behavior ----------------------------------------------------------------
 export {
@@ -60,7 +60,7 @@ export {
   telegramDetailedBehavior,
   telegramExtendedBehavior,
   telegramBehaviorConfig,
-} from './behavior'
+} from "./behavior";
 
 export type {
   TelegramChatFoldersConfig,
@@ -75,7 +75,7 @@ export type {
   TelegramAdditionalFeaturesConfig,
   TelegramExtendedBehavior,
   TelegramBehaviorConfig,
-} from './behavior'
+} from "./behavior";
 
 // -- Navigation --------------------------------------------------------------
 export {
@@ -90,7 +90,7 @@ export {
   getTelegramDrawerItemCount,
   getTelegramDrawerItemById,
   getTelegramDrawerDividers,
-} from './navigation'
+} from "./navigation";
 
 export type {
   TelegramNavigationTab,
@@ -99,7 +99,7 @@ export type {
   TelegramHeaderBarConfig,
   TelegramChatListNavConfig,
   TelegramNavigationConfig,
-} from './navigation'
+} from "./navigation";
 
 // -- Composer ----------------------------------------------------------------
 export {
@@ -122,7 +122,7 @@ export {
   getTelegramAttachmentMenu,
   getTelegramAttachmentById,
   getTelegramAttachmentCount,
-} from './composer'
+} from "./composer";
 
 export type {
   TelegramAttachmentMenuItem,
@@ -134,7 +134,7 @@ export type {
   TelegramSendButtonConfig,
   TelegramFormattingToolbarConfig,
   TelegramComposerConfig,
-} from './composer'
+} from "./composer";
 
 // -- Parity Checklist --------------------------------------------------------
 export {
@@ -145,7 +145,7 @@ export {
   getTelegramParityItemById,
   verifyTelegramCriticalParity,
   getTelegramCategoryParityPercentage,
-} from './parity-checklist'
+} from "./parity-checklist";
 
 export type {
   TelegramParityPriority,
@@ -153,4 +153,4 @@ export type {
   TelegramParityStatus,
   TelegramParityChecklistItem,
   TelegramParityChecklist,
-} from './parity-checklist'
+} from "./parity-checklist";

@@ -19,4 +19,4 @@ export {
   type BroadcastListsResult,
   type BroadcastHistoryResult,
   type SendBroadcastResult,
-} from './broadcast.service'
+} from "./broadcast.service";

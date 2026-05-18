@@ -6,27 +6,27 @@
  * different roles across different applications.
  */
 
-import { useCallback, useMemo } from 'react'
-import { useQuery } from '@apollo/client'
-import { useAuth } from '@/contexts/auth-context'
+import { useCallback, useMemo } from "react";
+import { useQuery } from "@apollo/client";
+import { useAuth } from "@/contexts/auth-context";
 import {
   GET_USER_APP_ROLES,
   GET_USER_APP_PERMISSIONS,
-} from '@/graphql/app-rbac'
+} from "@/graphql/app-rbac";
 import type {
   AppRole,
   AppPermission,
   UseAppPermissionsResult,
   AppUserRole,
   AppRolePermission,
-} from '@/types/app-rbac'
+} from "@/types/app-rbac";
 
 /**
  * Get the current app ID from environment or config
  */
 function getCurrentAppId(): string {
   // Default to 'nchat' but could be loaded from config
-  return process.env.NEXT_PUBLIC_APP_ID || 'nchat'
+  return process.env.NEXT_PUBLIC_APP_ID || "nchat";
 }
 
 /**
@@ -54,8 +54,8 @@ function getCurrentAppId(): string {
  * ```
  */
 export function useAppPermissions(appId?: string): UseAppPermissionsResult {
-  const { user } = useAuth()
-  const currentAppId = appId || getCurrentAppId()
+  const { user } = useAuth();
+  const currentAppId = appId || getCurrentAppId();
 
   // Fetch user's roles for this app
   const {
@@ -68,46 +68,51 @@ export function useAppPermissions(appId?: string): UseAppPermissionsResult {
       appId: currentAppId,
     },
     skip: !user?.id,
-  })
+  });
 
   // Fetch user's permissions for this app
   const {
     data: permissionsData,
     loading: permissionsLoading,
     error: permissionsError,
-  } = useQuery<{ app_role_permissions: AppRolePermission[] }>(GET_USER_APP_PERMISSIONS, {
-    variables: {
-      userId: user?.id,
-      appId: currentAppId,
+  } = useQuery<{ app_role_permissions: AppRolePermission[] }>(
+    GET_USER_APP_PERMISSIONS,
+    {
+      variables: {
+        userId: user?.id,
+        appId: currentAppId,
+      },
+      skip: !user?.id,
     },
-    skip: !user?.id,
-  })
+  );
 
   // Extract roles and permissions
   const userRoles = useMemo<AppRole[]>(() => {
-    if (!rolesData?.app_user_roles) return []
-    return rolesData.app_user_roles.map((r) => r.role)
-  }, [rolesData])
+    if (!rolesData?.app_user_roles) return [];
+    return rolesData.app_user_roles.map((r) => r.role);
+  }, [rolesData]);
 
   const userPermissions = useMemo<AppPermission[]>(() => {
-    if (!permissionsData?.app_role_permissions) return []
-    return permissionsData.app_role_permissions.map((p) => p.permission) as AppPermission[]
-  }, [permissionsData])
+    if (!permissionsData?.app_role_permissions) return [];
+    return permissionsData.app_role_permissions.map(
+      (p) => p.permission,
+    ) as AppPermission[];
+  }, [permissionsData]);
 
   // Computed flags
-  const isOwner = userRoles.includes('owner')
-  const isAdmin = userRoles.includes('admin') || isOwner
-  const isModerator = userRoles.includes('moderator') || isAdmin
+  const isOwner = userRoles.includes("owner");
+  const isAdmin = userRoles.includes("admin") || isOwner;
+  const isModerator = userRoles.includes("moderator") || isAdmin;
 
   /**
    * Check if user has a specific role
    */
   const hasRole = useCallback(
     (role: AppRole): boolean => {
-      return userRoles.includes(role)
+      return userRoles.includes(role);
     },
-    [userRoles]
-  )
+    [userRoles],
+  );
 
   /**
    * Check if user has a specific permission
@@ -118,45 +123,48 @@ export function useAppPermissions(appId?: string): UseAppPermissionsResult {
   const hasPermission = useCallback(
     (permission: AppPermission, resource?: string): boolean => {
       // Owner has all permissions
-      if (isOwner) return true
+      if (isOwner) return true;
 
       // Check if user has the permission
-      if (userPermissions.includes(permission)) return true
+      if (userPermissions.includes(permission)) return true;
 
       // Check for wildcard permissions
       // e.g., "messages.delete.any" includes "messages.delete.own"
-      if (permission.endsWith('.own')) {
-        const anyPermission = permission.replace('.own', '.any') as AppPermission
-        if (userPermissions.includes(anyPermission)) return true
+      if (permission.endsWith(".own")) {
+        const anyPermission = permission.replace(
+          ".own",
+          ".any",
+        ) as AppPermission;
+        if (userPermissions.includes(anyPermission)) return true;
       }
 
-      return false
+      return false;
     },
-    [userPermissions, isOwner]
-  )
+    [userPermissions, isOwner],
+  );
 
   /**
    * Check if user has any of the specified roles
    */
   const hasAnyRole = useCallback(
     (roles: AppRole[]): boolean => {
-      return roles.some((role) => userRoles.includes(role))
+      return roles.some((role) => userRoles.includes(role));
     },
-    [userRoles]
-  )
+    [userRoles],
+  );
 
   /**
    * Check if user has all of the specified permissions
    */
   const hasAllPermissions = useCallback(
     (permissions: AppPermission[]): boolean => {
-      return permissions.every((permission) => hasPermission(permission))
+      return permissions.every((permission) => hasPermission(permission));
     },
-    [hasPermission]
-  )
+    [hasPermission],
+  );
 
-  const loading = rolesLoading || permissionsLoading
-  const error = rolesError || permissionsError
+  const loading = rolesLoading || permissionsLoading;
+  const error = rolesError || permissionsError;
 
   return {
     hasRole,
@@ -170,7 +178,7 @@ export function useAppPermissions(appId?: string): UseAppPermissionsResult {
     isModerator,
     loading,
     error: error ? new Error(error.message) : undefined,
-  }
+  };
 }
 
 /**
@@ -195,17 +203,17 @@ export function useAppPermissions(appId?: string): UseAppPermissionsResult {
  * ```
  */
 export function useMultiAppPermissions(
-  appIds: string[]
+  appIds: string[],
 ): Record<string, UseAppPermissionsResult> {
-  const results: Record<string, UseAppPermissionsResult> = {}
+  const results: Record<string, UseAppPermissionsResult> = {};
 
   // This is a simplified version - in production you'd want to batch these queries
   for (const appId of appIds) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    results[appId] = useAppPermissions(appId)
+    results[appId] = useAppPermissions(appId);
   }
 
-  return results
+  return results;
 }
 
 /**

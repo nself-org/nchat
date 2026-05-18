@@ -4,141 +4,150 @@
  * Allows users to enter their 2FA code during login.
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Label } from '@/components/ui/label'
-import { Loader2, Shield, AlertCircle } from 'lucide-react'
-import { useAuth } from '@/contexts/auth-context'
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
+import { Loader2, Shield, AlertCircle } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function TwoFactorVerifyPage() {
-  const router = useRouter()
-  const { verifyTOTP } = useAuth()
+  const router = useRouter();
+  const { verifyTOTP } = useAuth();
 
-  const [code, setCode] = useState(['', '', '', '', '', ''])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Auto-focus first input
   useEffect(() => {
-    inputRefs.current[0]?.focus()
-  }, [])
+    inputRefs.current[0]?.focus();
+  }, []);
 
   // Get MFA ticket from session storage
   const getMfaTicket = () => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('nchat-mfa-ticket')
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("nchat-mfa-ticket");
     }
-    return null
-  }
+    return null;
+  };
 
   const handleCodeChange = (index: number, value: string) => {
     // Only allow digits
-    const digit = value.replace(/[^0-9]/g, '')
-    if (digit.length > 1) return
+    const digit = value.replace(/[^0-9]/g, "");
+    if (digit.length > 1) return;
 
-    const newCode = [...code]
-    newCode[index] = digit
-    setCode(newCode)
+    const newCode = [...code];
+    newCode[index] = digit;
+    setCode(newCode);
 
     // Auto-focus next input
     if (digit && index < 5) {
-      inputRefs.current[index + 1]?.focus()
+      inputRefs.current[index + 1]?.focus();
     }
 
     // Auto-submit when all digits are entered
     if (digit && index === 5 && newCode.every((d) => d)) {
-      handleSubmit(newCode.join(''))
+      handleSubmit(newCode.join(""));
     }
-  }
+  };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace') {
-      e.preventDefault()
-      const newCode = [...code]
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      const newCode = [...code];
 
       if (code[index]) {
-        newCode[index] = ''
-        setCode(newCode)
+        newCode[index] = "";
+        setCode(newCode);
       } else if (index > 0) {
-        newCode[index - 1] = ''
-        setCode(newCode)
-        inputRefs.current[index - 1]?.focus()
+        newCode[index - 1] = "";
+        setCode(newCode);
+        inputRefs.current[index - 1]?.focus();
       }
-    } else if (e.key === 'ArrowLeft' && index > 0) {
-      inputRefs.current[index - 1]?.focus()
-    } else if (e.key === 'ArrowRight' && index < 5) {
-      inputRefs.current[index + 1]?.focus()
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      inputRefs.current[index + 1]?.focus();
     }
-  }
+  };
 
   const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault()
-    const pastedData = e.clipboardData.getData('text')
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
     const digits = pastedData
-      .replace(/[^0-9]/g, '')
+      .replace(/[^0-9]/g, "")
       .slice(0, 6)
-      .split('')
+      .split("");
 
-    const newCode = [...code]
+    const newCode = [...code];
     digits.forEach((digit, index) => {
       if (index < 6) {
-        newCode[index] = digit
+        newCode[index] = digit;
       }
-    })
-    setCode(newCode)
+    });
+    setCode(newCode);
 
     // Focus the next empty input or the last one
-    const nextEmptyIndex = newCode.findIndex((d) => !d)
-    const focusIndex = nextEmptyIndex === -1 ? 5 : nextEmptyIndex
-    inputRefs.current[focusIndex]?.focus()
+    const nextEmptyIndex = newCode.findIndex((d) => !d);
+    const focusIndex = nextEmptyIndex === -1 ? 5 : nextEmptyIndex;
+    inputRefs.current[focusIndex]?.focus();
 
     // Auto-submit if all digits are filled
     if (newCode.every((d) => d)) {
-      handleSubmit(newCode.join(''))
+      handleSubmit(newCode.join(""));
     }
-  }
+  };
 
   const handleSubmit = async (codeValue?: string) => {
-    const verificationCode = codeValue || code.join('')
+    const verificationCode = codeValue || code.join("");
 
     if (verificationCode.length !== 6) {
-      setError('Please enter all 6 digits')
-      return
+      setError("Please enter all 6 digits");
+      return;
     }
 
-    const ticket = getMfaTicket()
+    const ticket = getMfaTicket();
     if (!ticket) {
-      setError('Session expired. Please sign in again.')
-      router.push('/login')
-      return
+      setError("Session expired. Please sign in again.");
+      router.push("/login");
+      return;
     }
 
-    setIsLoading(true)
-    setError('')
+    setIsLoading(true);
+    setError("");
 
     try {
-      await verifyTOTP(ticket, verificationCode)
+      await verifyTOTP(ticket, verificationCode);
       // Redirect is handled by the auth context
     } catch (error) {
-      setError('Invalid verification code. Please try again.')
-      setCode(['', '', '', '', '', ''])
-      inputRefs.current[0]?.focus()
+      setError("Invalid verification code. Please try again.");
+      setCode(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    handleSubmit()
-  }
+    e.preventDefault();
+    handleSubmit();
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
@@ -148,7 +157,9 @@ export default function TwoFactorVerifyPage() {
             <Shield className="h-12 w-12 text-indigo-600" />
           </div>
           <CardTitle>Two-Factor Authentication</CardTitle>
-          <CardDescription>Enter the 6-digit code from your authenticator app</CardDescription>
+          <CardDescription>
+            Enter the 6-digit code from your authenticator app
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -167,7 +178,7 @@ export default function TwoFactorVerifyPage() {
                   <Input
                     key={index}
                     ref={(el) => {
-                      inputRefs.current[index] = el
+                      inputRefs.current[index] = el;
                     }}
                     type="text"
                     inputMode="numeric"
@@ -184,7 +195,11 @@ export default function TwoFactorVerifyPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading || code.some((d) => !d)}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || code.some((d) => !d)}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -199,8 +214,14 @@ export default function TwoFactorVerifyPage() {
             </Button>
 
             <div className="space-y-2 text-center">
-              <p className="text-xs text-muted-foreground">Can't access your authenticator app?</p>
-              <Button variant="link" type="button" onClick={() => router.push('/auth/2fa-backup')}>
+              <p className="text-xs text-muted-foreground">
+                Can't access your authenticator app?
+              </p>
+              <Button
+                variant="link"
+                type="button"
+                onClick={() => router.push("/auth/2fa-backup")}
+              >
                 Use backup code instead
               </Button>
             </div>
@@ -209,8 +230,8 @@ export default function TwoFactorVerifyPage() {
               <Button
                 variant="link"
                 onClick={() => {
-                  sessionStorage.removeItem('nchat-mfa-ticket')
-                  router.push('/login')
+                  sessionStorage.removeItem("nchat-mfa-ticket");
+                  router.push("/login");
                 }}
                 type="button"
               >
@@ -221,5 +242,5 @@ export default function TwoFactorVerifyPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

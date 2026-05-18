@@ -23,7 +23,7 @@ export {
   MentionsPanelInline,
   type MentionsPanelProps,
   type MentionsPanelInlineProps,
-} from './mentions-panel'
+} from "./mentions-panel";
 
 // Button components
 export {
@@ -35,7 +35,7 @@ export {
   type MentionsButtonSimpleProps,
   type MentionsNavItemProps,
   type MentionsIndicatorProps,
-} from './mentions-button'
+} from "./mentions-button";
 
 // Item components
 export {
@@ -43,14 +43,14 @@ export {
   MentionItemCompact,
   type MentionItemProps,
   type MentionItemCompactProps,
-} from './mention-item'
+} from "./mention-item";
 
 // Autocomplete components
 export {
   MentionAutocomplete,
   type MentionAutocompleteProps,
   type MentionSuggestion,
-} from './mention-autocomplete'
+} from "./mention-autocomplete";
 
 // Highlight components
 export {
@@ -66,7 +66,7 @@ export {
   type MentionHighlightedTextProps,
   type MentionBadgeProps,
   type InlineMentionProps,
-} from './mention-highlight'
+} from "./mention-highlight";
 
 // Group mention components
 export {
@@ -84,4 +84,4 @@ export {
   type GroupMentionInfo,
   type UseGroupMentionDetectionOptions,
   type UseGroupMentionDetectionReturn,
-} from './group-mentions'
+} from "./group-mentions";

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Telegram Folders Component
@@ -9,33 +9,33 @@
 //
 // ===============================================================================
 
-import { cn } from '@/lib/utils'
-import { TELEGRAM_COLORS } from '../config'
-import { Settings } from 'lucide-react'
+import { cn } from "@/lib/utils";
+import { TELEGRAM_COLORS } from "../config";
+import { Settings } from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface TelegramFoldersProps {
-  folders?: TelegramFolder[]
-  activeFolderId?: string
-  onFolderSelect?: (folderId: string) => void
-  onSettingsClick?: () => void
-  className?: string
+  folders?: TelegramFolder[];
+  activeFolderId?: string;
+  onFolderSelect?: (folderId: string) => void;
+  onSettingsClick?: () => void;
+  className?: string;
 }
 
 export interface TelegramFolder {
-  id: string
-  name: string
-  icon?: string
-  unreadCount?: number
-  includedChats?: string[]
-  excludedChats?: string[]
-  includeChannels?: boolean
-  includeGroups?: boolean
-  includeBots?: boolean
-  includePrivate?: boolean
+  id: string;
+  name: string;
+  icon?: string;
+  unreadCount?: number;
+  includedChats?: string[];
+  excludedChats?: string[];
+  includeChannels?: boolean;
+  includeGroups?: boolean;
+  includeBots?: boolean;
+  includePrivate?: boolean;
 }
 
 // -------------------------------------------------------------------------------
@@ -50,22 +50,22 @@ export function TelegramFolders({
   className,
 }: TelegramFoldersProps) {
   // Always include "All Chats" as first folder
-  const allFolders = [{ id: 'all', name: 'All Chats' }, ...folders]
+  const allFolders = [{ id: "all", name: "All Chats" }, ...folders];
 
   return (
     <div
       className={cn(
-        'flex items-center gap-1 overflow-x-auto px-2 py-1.5',
-        'bg-white dark:bg-[#17212B]',
-        'border-b border-gray-200 dark:border-[#232E3C]',
-        className
+        "flex items-center gap-1 overflow-x-auto px-2 py-1.5",
+        "bg-white dark:bg-[#17212B]",
+        "border-b border-gray-200 dark:border-[#232E3C]",
+        className,
       )}
     >
       {allFolders.map((folder) => (
         <FolderTab
           key={folder.id}
           folder={folder}
-          isActive={folder.id === (activeFolderId || 'all')}
+          isActive={folder.id === (activeFolderId || "all")}
           onClick={() => onFolderSelect?.(folder.id)}
         />
       ))}
@@ -78,7 +78,7 @@ export function TelegramFolders({
         <Settings className="h-4 w-4" />
       </button>
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -90,18 +90,18 @@ function FolderTab({
   isActive,
   onClick,
 }: {
-  folder: TelegramFolder
-  isActive: boolean
-  onClick: () => void
+  folder: TelegramFolder;
+  isActive: boolean;
+  onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'relative flex-shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+        "relative flex-shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
         isActive
-          ? 'text-[#2AABEE]'
-          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-[#232E3C] dark:hover:text-gray-200'
+          ? "text-[#2AABEE]"
+          : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-[#232E3C] dark:hover:text-gray-200",
       )}
     >
       <span className="flex items-center gap-1.5">
@@ -110,8 +110,8 @@ function FolderTab({
         {(folder.unreadCount ?? 0) > 0 && (
           <span
             className={cn(
-              'flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-xs font-bold',
-              isActive ? 'bg-[#2AABEE] text-white' : 'bg-gray-400 text-white'
+              "flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-xs font-bold",
+              isActive ? "bg-[#2AABEE] text-white" : "bg-gray-400 text-white",
             )}
           >
             {folder.unreadCount}
@@ -127,7 +127,7 @@ function FolderTab({
         />
       )}
     </button>
-  )
+  );
 }
 
-export default TelegramFolders
+export default TelegramFolders;

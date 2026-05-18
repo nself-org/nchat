@@ -6,63 +6,63 @@
  * and nchat_workspace_invites tables.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   WORKSPACE_FULL_FRAGMENT,
   WORKSPACE_MEMBER_FRAGMENT,
   WORKSPACE_INVITE_FRAGMENT,
-} from './fragments'
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface CreateWorkspaceInput {
-  name: string
-  slug?: string
-  description?: string | null
-  iconUrl?: string | null
-  bannerUrl?: string | null
-  settings?: WorkspaceSettings
+  name: string;
+  slug?: string;
+  description?: string | null;
+  iconUrl?: string | null;
+  bannerUrl?: string | null;
+  settings?: WorkspaceSettings;
 }
 
 export interface UpdateWorkspaceInput {
-  name?: string
-  description?: string | null
-  iconUrl?: string | null
-  bannerUrl?: string | null
-  defaultChannelId?: string | null
-  settings?: WorkspaceSettings
+  name?: string;
+  description?: string | null;
+  iconUrl?: string | null;
+  bannerUrl?: string | null;
+  defaultChannelId?: string | null;
+  settings?: WorkspaceSettings;
 }
 
 export interface WorkspaceSettings {
-  verificationLevel?: 'none' | 'email' | 'phone'
-  defaultNotifications?: 'all' | 'mentions' | 'none'
-  explicitContentFilter?: 'disabled' | 'members_without_roles' | 'all_members'
-  require2FA?: boolean
-  discoverable?: boolean
-  allowInvites?: boolean
+  verificationLevel?: "none" | "email" | "phone";
+  defaultNotifications?: "all" | "mentions" | "none";
+  explicitContentFilter?: "disabled" | "members_without_roles" | "all_members";
+  require2FA?: boolean;
+  discoverable?: boolean;
+  allowInvites?: boolean;
 }
 
 export interface CreateInviteInput {
-  workspaceId: string
-  maxUses?: number | null
-  expiresAt?: string | null
-  createdBy: string
+  workspaceId: string;
+  maxUses?: number | null;
+  expiresAt?: string | null;
+  createdBy: string;
 }
 
 export interface AddMemberInput {
-  workspaceId: string
-  userId: string
-  role?: 'admin' | 'moderator' | 'member' | 'guest'
-  nickname?: string | null
+  workspaceId: string;
+  userId: string;
+  role?: "admin" | "moderator" | "member" | "guest";
+  nickname?: string | null;
 }
 
 export interface UpdateMemberInput {
-  workspaceId: string
-  userId: string
-  role?: string
-  nickname?: string | null
+  workspaceId: string;
+  userId: string;
+  role?: string;
+  nickname?: string | null;
 }
 
 // ============================================================================
@@ -119,7 +119,7 @@ export const INSERT_WORKSPACE = gql`
     }
   }
   ${WORKSPACE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update workspace details
@@ -150,7 +150,7 @@ export const UPDATE_WORKSPACE = gql`
     }
   }
   ${WORKSPACE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update workspace settings only
@@ -166,7 +166,7 @@ export const UPDATE_WORKSPACE_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Delete a workspace (hard delete)
@@ -174,11 +174,15 @@ export const UPDATE_WORKSPACE_SETTINGS = gql`
 export const DELETE_WORKSPACE = gql`
   mutation DeleteWorkspace($workspaceId: uuid!) {
     # Delete all workspace invites
-    delete_nchat_workspace_invites(where: { workspace_id: { _eq: $workspaceId } }) {
+    delete_nchat_workspace_invites(
+      where: { workspace_id: { _eq: $workspaceId } }
+    ) {
       affected_rows
     }
     # Delete all workspace members
-    delete_nchat_workspace_members(where: { workspace_id: { _eq: $workspaceId } }) {
+    delete_nchat_workspace_members(
+      where: { workspace_id: { _eq: $workspaceId } }
+    ) {
       affected_rows
     }
     # Delete all channels in workspace
@@ -192,7 +196,7 @@ export const DELETE_WORKSPACE = gql`
       slug
     }
   }
-`
+`;
 
 /**
  * Transfer workspace ownership
@@ -205,14 +209,20 @@ export const TRANSFER_WORKSPACE_OWNERSHIP = gql`
   ) {
     # Demote current owner to admin
     update_current_owner: update_nchat_workspace_members(
-      where: { workspace_id: { _eq: $workspaceId }, user_id: { _eq: $currentOwnerId } }
+      where: {
+        workspace_id: { _eq: $workspaceId }
+        user_id: { _eq: $currentOwnerId }
+      }
       _set: { role: "admin" }
     ) {
       affected_rows
     }
     # Promote new owner
     update_new_owner: update_nchat_workspace_members(
-      where: { workspace_id: { _eq: $workspaceId }, user_id: { _eq: $newOwnerId } }
+      where: {
+        workspace_id: { _eq: $workspaceId }
+        user_id: { _eq: $newOwnerId }
+      }
       _set: { role: "owner" }
     ) {
       affected_rows
@@ -230,7 +240,7 @@ export const TRANSFER_WORKSPACE_OWNERSHIP = gql`
     }
   }
   ${WORKSPACE_MEMBER_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MEMBERSHIP MUTATIONS
@@ -240,7 +250,11 @@ export const TRANSFER_WORKSPACE_OWNERSHIP = gql`
  * Join a workspace (public or via invite)
  */
 export const JOIN_WORKSPACE = gql`
-  mutation JoinWorkspace($workspaceId: uuid!, $userId: uuid!, $role: String = "member") {
+  mutation JoinWorkspace(
+    $workspaceId: uuid!
+    $userId: uuid!
+    $role: String = "member"
+  ) {
     insert_nchat_workspace_members_one(
       object: { workspace_id: $workspaceId, user_id: $userId, role: $role }
       on_conflict: {
@@ -253,14 +267,17 @@ export const JOIN_WORKSPACE = gql`
         ...WorkspaceFull
       }
     }
-    update_nchat_workspaces_by_pk(pk_columns: { id: $workspaceId }, _inc: { member_count: 1 }) {
+    update_nchat_workspaces_by_pk(
+      pk_columns: { id: $workspaceId }
+      _inc: { member_count: 1 }
+    ) {
       id
       member_count
     }
   }
   ${WORKSPACE_MEMBER_FRAGMENT}
   ${WORKSPACE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Leave a workspace
@@ -274,16 +291,22 @@ export const LEAVE_WORKSPACE = gql`
     }
     # Also remove from all channels in workspace
     delete_nchat_channel_members(
-      where: { user_id: { _eq: $userId }, channel: { workspace_id: { _eq: $workspaceId } } }
+      where: {
+        user_id: { _eq: $userId }
+        channel: { workspace_id: { _eq: $workspaceId } }
+      }
     ) {
       affected_rows
     }
-    update_nchat_workspaces_by_pk(pk_columns: { id: $workspaceId }, _inc: { member_count: -1 }) {
+    update_nchat_workspaces_by_pk(
+      pk_columns: { id: $workspaceId }
+      _inc: { member_count: -1 }
+    ) {
       id
       member_count
     }
   }
-`
+`;
 
 /**
  * Add a member to workspace (admin action)
@@ -296,7 +319,12 @@ export const ADD_WORKSPACE_MEMBER = gql`
     $nickname: String
   ) {
     insert_nchat_workspace_members_one(
-      object: { workspace_id: $workspaceId, user_id: $userId, role: $role, nickname: $nickname }
+      object: {
+        workspace_id: $workspaceId
+        user_id: $userId
+        role: $role
+        nickname: $nickname
+      }
       on_conflict: {
         constraint: nchat_workspace_members_workspace_id_user_id_key
         update_columns: [role, nickname]
@@ -304,13 +332,16 @@ export const ADD_WORKSPACE_MEMBER = gql`
     ) {
       ...WorkspaceMember
     }
-    update_nchat_workspaces_by_pk(pk_columns: { id: $workspaceId }, _inc: { member_count: 1 }) {
+    update_nchat_workspaces_by_pk(
+      pk_columns: { id: $workspaceId }
+      _inc: { member_count: 1 }
+    ) {
       id
       member_count
     }
   }
   ${WORKSPACE_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Remove a member from workspace
@@ -329,22 +360,32 @@ export const REMOVE_WORKSPACE_MEMBER = gql`
     }
     # Also remove from all channels in workspace
     delete_nchat_channel_members(
-      where: { user_id: { _eq: $userId }, channel: { workspace_id: { _eq: $workspaceId } } }
+      where: {
+        user_id: { _eq: $userId }
+        channel: { workspace_id: { _eq: $workspaceId } }
+      }
     ) {
       affected_rows
     }
-    update_nchat_workspaces_by_pk(pk_columns: { id: $workspaceId }, _inc: { member_count: -1 }) {
+    update_nchat_workspaces_by_pk(
+      pk_columns: { id: $workspaceId }
+      _inc: { member_count: -1 }
+    ) {
       id
       member_count
     }
   }
-`
+`;
 
 /**
  * Update member role
  */
 export const UPDATE_WORKSPACE_MEMBER_ROLE = gql`
-  mutation UpdateWorkspaceMemberRole($workspaceId: uuid!, $userId: uuid!, $role: String!) {
+  mutation UpdateWorkspaceMemberRole(
+    $workspaceId: uuid!
+    $userId: uuid!
+    $role: String!
+  ) {
     update_nchat_workspace_members(
       where: { workspace_id: { _eq: $workspaceId }, user_id: { _eq: $userId } }
       _set: { role: $role }
@@ -356,13 +397,17 @@ export const UPDATE_WORKSPACE_MEMBER_ROLE = gql`
     }
   }
   ${WORKSPACE_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Update member nickname
  */
 export const UPDATE_WORKSPACE_MEMBER_NICKNAME = gql`
-  mutation UpdateWorkspaceMemberNickname($workspaceId: uuid!, $userId: uuid!, $nickname: String) {
+  mutation UpdateWorkspaceMemberNickname(
+    $workspaceId: uuid!
+    $userId: uuid!
+    $nickname: String
+  ) {
     update_nchat_workspace_members(
       where: { workspace_id: { _eq: $workspaceId }, user_id: { _eq: $userId } }
       _set: { nickname: $nickname }
@@ -375,7 +420,7 @@ export const UPDATE_WORKSPACE_MEMBER_NICKNAME = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Add multiple members to workspace (bulk)
@@ -410,7 +455,7 @@ export const ADD_WORKSPACE_MEMBERS_BULK = gql`
       member_count
     }
   }
-`
+`;
 
 // ============================================================================
 // INVITE MUTATIONS
@@ -441,20 +486,23 @@ export const CREATE_INVITE = gql`
     }
   }
   ${WORKSPACE_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Use an invite (increment uses count)
  */
 export const USE_INVITE = gql`
   mutation UseWorkspaceInvite($inviteId: uuid!) {
-    update_nchat_workspace_invites_by_pk(pk_columns: { id: $inviteId }, _inc: { uses: 1 }) {
+    update_nchat_workspace_invites_by_pk(
+      pk_columns: { id: $inviteId }
+      _inc: { uses: 1 }
+    ) {
       id
       uses
       max_uses
     }
   }
-`
+`;
 
 /**
  * Delete an invite
@@ -467,7 +515,7 @@ export const DELETE_INVITE = gql`
       workspace_id
     }
   }
-`
+`;
 
 /**
  * Delete all expired invites for a workspace
@@ -475,20 +523,25 @@ export const DELETE_INVITE = gql`
 export const DELETE_EXPIRED_INVITES = gql`
   mutation DeleteExpiredWorkspaceInvites($workspaceId: uuid!) {
     delete_nchat_workspace_invites(
-      where: { workspace_id: { _eq: $workspaceId }, expires_at: { _lt: "now()" } }
+      where: {
+        workspace_id: { _eq: $workspaceId }
+        expires_at: { _lt: "now()" }
+      }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Revoke all invites for a workspace
  */
 export const REVOKE_ALL_INVITES = gql`
   mutation RevokeAllWorkspaceInvites($workspaceId: uuid!) {
-    delete_nchat_workspace_invites(where: { workspace_id: { _eq: $workspaceId } }) {
+    delete_nchat_workspace_invites(
+      where: { workspace_id: { _eq: $workspaceId } }
+    ) {
       affected_rows
     }
   }
-`
+`;

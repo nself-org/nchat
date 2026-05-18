@@ -7,7 +7,13 @@
   "icon": "hand-wave",
   "homepage": "https://github.com/nself/nchat",
   "repository": "https://github.com/nself/nchat",
-  "permissions": ["read_messages", "send_messages", "read_channels", "read_users", "mention_users"],
+  "permissions": [
+    "read_messages",
+    "send_messages",
+    "read_channels",
+    "read_users",
+    "mention_users"
+  ],
   "commands": [
     {
       "name": "setwelcome",

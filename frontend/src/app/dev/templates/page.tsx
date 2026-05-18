@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Palette,
   LogIn,
@@ -13,16 +13,26 @@ import {
   Monitor,
   Smartphone,
   Tablet,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ComponentPreview, PreviewCard, PreviewGrid } from '@/components/dev/component-preview'
-import { CodeBlock } from '@/components/dev/code-block'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  ComponentPreview,
+  PreviewCard,
+  PreviewGrid,
+} from "@/components/dev/component-preview";
+import { CodeBlock } from "@/components/dev/code-block";
 
 // ============================================================================
 // Template Definitions
@@ -30,89 +40,104 @@ import { CodeBlock } from '@/components/dev/code-block'
 
 const templates = [
   {
-    id: 'login-only',
-    name: 'Login Only',
+    id: "login-only",
+    name: "Login Only",
     description:
-      'Direct to login page, no landing page. Best for internal tools and private teams.',
+      "Direct to login page, no landing page. Best for internal tools and private teams.",
     icon: LogIn,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
-    features: ['Simple', 'Fast', 'Secure'],
-    bestFor: ['Internal tools', 'Private teams', 'Enterprise apps'],
-    homepage: { mode: 'redirect', redirectTo: '/auth/signin' },
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+    features: ["Simple", "Fast", "Secure"],
+    bestFor: ["Internal tools", "Private teams", "Enterprise apps"],
+    homepage: { mode: "redirect", redirectTo: "/auth/signin" },
     preview: {
-      sections: ['Login Form'],
+      sections: ["Login Form"],
     },
   },
   {
-    id: 'simple-landing',
-    name: 'Simple Landing',
-    description: 'Basic landing page with hero section and CTA buttons. Quick to set up.',
+    id: "simple-landing",
+    name: "Simple Landing",
+    description:
+      "Basic landing page with hero section and CTA buttons. Quick to set up.",
     icon: Layout,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
-    features: ['Hero Section', 'Feature List', 'Contact Info'],
-    bestFor: ['Startups', 'Small teams', 'Quick launches'],
+    color: "text-green-500",
+    bgColor: "bg-green-500/10",
+    features: ["Hero Section", "Feature List", "Contact Info"],
+    bestFor: ["Startups", "Small teams", "Quick launches"],
     homepage: {
-      mode: 'landing',
+      mode: "landing",
       landingPages: { hero: true, features: true, contact: true },
     },
     preview: {
-      sections: ['Hero', 'Features', 'CTA'],
+      sections: ["Hero", "Features", "CTA"],
     },
   },
   {
-    id: 'full-homepage',
-    name: 'Full Homepage',
-    description: 'Complete website with navigation, pricing, about, and contact pages.',
+    id: "full-homepage",
+    name: "Full Homepage",
+    description:
+      "Complete website with navigation, pricing, about, and contact pages.",
     icon: Globe,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
-    features: ['Full Navigation', 'Pricing Plans', 'About Page', 'Contact Form'],
-    bestFor: ['SaaS products', 'Public communities', 'Marketing sites'],
+    color: "text-purple-500",
+    bgColor: "bg-purple-500/10",
+    features: [
+      "Full Navigation",
+      "Pricing Plans",
+      "About Page",
+      "Contact Form",
+    ],
+    bestFor: ["SaaS products", "Public communities", "Marketing sites"],
     homepage: {
-      mode: 'landing',
-      landingPages: { hero: true, features: true, pricing: true, about: true, contact: true },
+      mode: "landing",
+      landingPages: {
+        hero: true,
+        features: true,
+        pricing: true,
+        about: true,
+        contact: true,
+      },
     },
     preview: {
-      sections: ['Hero', 'Features', 'Pricing', 'About', 'Contact'],
+      sections: ["Hero", "Features", "Pricing", "About", "Contact"],
     },
   },
   {
-    id: 'corporate',
-    name: 'Corporate',
-    description: 'Professional layout for business teams. Security-focused messaging.',
+    id: "corporate",
+    name: "Corporate",
+    description:
+      "Professional layout for business teams. Security-focused messaging.",
     icon: Building2,
-    color: 'text-amber-500',
-    bgColor: 'bg-amber-500/10',
-    features: ['Professional Design', 'Team Features', 'Security Focus'],
-    bestFor: ['Enterprises', 'Consulting firms', 'Legal teams'],
+    color: "text-amber-500",
+    bgColor: "bg-amber-500/10",
+    features: ["Professional Design", "Team Features", "Security Focus"],
+    bestFor: ["Enterprises", "Consulting firms", "Legal teams"],
     homepage: {
-      mode: 'landing',
+      mode: "landing",
       landingPages: { hero: true, features: true, about: true },
     },
     preview: {
-      sections: ['Hero', 'Features', 'Testimonials'],
+      sections: ["Hero", "Features", "Testimonials"],
     },
   },
   {
-    id: 'community',
-    name: 'Community',
-    description: 'Open community platform with documentation and blog integration.',
+    id: "community",
+    name: "Community",
+    description:
+      "Open community platform with documentation and blog integration.",
     icon: Users2,
-    color: 'text-pink-500',
-    bgColor: 'bg-pink-500/10',
-    features: ['Open Source Feel', 'Documentation', 'Blog Integration'],
-    bestFor: ['Open source projects', 'Gaming communities', 'Fan groups'],
+    color: "text-pink-500",
+    bgColor: "bg-pink-500/10",
+    features: ["Open Source Feel", "Documentation", "Blog Integration"],
+    bestFor: ["Open source projects", "Gaming communities", "Fan groups"],
     homepage: {
-      mode: 'landing',
+      mode: "landing",
       landingPages: { hero: true, features: true, docs: true, blog: true },
     },
     preview: {
-      sections: ['Hero', 'Features', 'Docs', 'Blog'],
+      sections: ["Hero", "Features", "Docs", "Blog"],
     },
   },
-]
+];
 
 // ============================================================================
 // Code Examples
@@ -138,7 +163,7 @@ export interface AppConfig {
     }
     redirectTo?: '/login' | '/chat' | '/signup'
   }
-}`
+}`;
 
 const templateUsageCode = `// Using in setup wizard or admin panel
 import { landingThemeTemplates } from '@/config/app-config'
@@ -172,17 +197,19 @@ function TemplateSelector() {
       ))}
     </RadioGroup>
   )
-}`
+}`;
 
 // ============================================================================
 // Page Component
 // ============================================================================
 
 export default function TemplatesPage() {
-  const [selectedTemplate, setSelectedTemplate] = useState('simple-landing')
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
+  const [selectedTemplate, setSelectedTemplate] = useState("simple-landing");
+  const [previewDevice, setPreviewDevice] = useState<
+    "desktop" | "tablet" | "mobile"
+  >("desktop");
 
-  const currentTemplate = templates.find((t) => t.id === selectedTemplate)
+  const currentTemplate = templates.find((t) => t.id === selectedTemplate);
 
   return (
     <div className="space-y-8">
@@ -192,11 +219,14 @@ export default function TemplatesPage() {
           <div className="rounded-lg bg-pink-500/10 p-2">
             <Palette className="h-5 w-5 text-pink-500" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Landing Page Templates</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Landing Page Templates
+          </h1>
         </div>
         <p className="text-muted-foreground">
-          Choose from 5 pre-built landing page templates to customize your nself-chat deployment.
-          Each template is fully customizable through the setup wizard.
+          Choose from 5 pre-built landing page templates to customize your
+          nself-chat deployment. Each template is fully customizable through the
+          setup wizard.
         </p>
       </div>
 
@@ -220,21 +250,21 @@ export default function TemplatesPage() {
         <h2 className="mb-4 text-xl font-semibold">Choose a Template</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => {
-            const Icon = template.icon
-            const isSelected = selectedTemplate === template.id
+            const Icon = template.icon;
+            const isSelected = selectedTemplate === template.id;
             return (
               <Card
                 key={template.id}
                 className={cn(
-                  'hover:border-primary/50 cursor-pointer transition-all',
-                  isSelected && 'ring-primary/20 border-primary ring-2'
+                  "hover:border-primary/50 cursor-pointer transition-all",
+                  isSelected && "ring-primary/20 border-primary ring-2",
                 )}
                 onClick={() => setSelectedTemplate(template.id)}
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
-                    <div className={cn('rounded-lg p-2', template.bgColor)}>
-                      <Icon className={cn('h-5 w-5', template.color)} />
+                    <div className={cn("rounded-lg p-2", template.bgColor)}>
+                      <Icon className={cn("h-5 w-5", template.color)} />
                     </div>
                     {isSelected && (
                       <div className="rounded-full bg-primary p-1">
@@ -248,14 +278,18 @@ export default function TemplatesPage() {
                 <CardContent>
                   <div className="flex flex-wrap gap-1">
                     {template.features.map((feature) => (
-                      <Badge key={feature} variant="outline" className="text-xs">
+                      <Badge
+                        key={feature}
+                        variant="outline"
+                        className="text-xs"
+                      >
                         {feature}
                       </Badge>
                     ))}
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
       </section>
@@ -264,26 +298,28 @@ export default function TemplatesPage() {
       {currentTemplate && (
         <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Template Preview: {currentTemplate.name}</h2>
+            <h2 className="text-xl font-semibold">
+              Template Preview: {currentTemplate.name}
+            </h2>
             <div className="bg-muted/30 flex items-center rounded-md border p-0.5">
               <Button
-                variant={previewDevice === 'desktop' ? 'secondary' : 'ghost'}
+                variant={previewDevice === "desktop" ? "secondary" : "ghost"}
                 size="sm"
-                onClick={() => setPreviewDevice('desktop')}
+                onClick={() => setPreviewDevice("desktop")}
               >
                 <Monitor className="h-4 w-4" />
               </Button>
               <Button
-                variant={previewDevice === 'tablet' ? 'secondary' : 'ghost'}
+                variant={previewDevice === "tablet" ? "secondary" : "ghost"}
                 size="sm"
-                onClick={() => setPreviewDevice('tablet')}
+                onClick={() => setPreviewDevice("tablet")}
               >
                 <Tablet className="h-4 w-4" />
               </Button>
               <Button
-                variant={previewDevice === 'mobile' ? 'secondary' : 'ghost'}
+                variant={previewDevice === "mobile" ? "secondary" : "ghost"}
                 size="sm"
-                onClick={() => setPreviewDevice('mobile')}
+                onClick={() => setPreviewDevice("mobile")}
               >
                 <Smartphone className="h-4 w-4" />
               </Button>
@@ -294,10 +330,10 @@ export default function TemplatesPage() {
           <div className="bg-muted/30 rounded-lg border p-4">
             <div
               className={cn(
-                'mx-auto overflow-hidden rounded-lg border bg-background transition-all',
-                previewDevice === 'desktop' && 'w-full',
-                previewDevice === 'tablet' && 'w-[768px]',
-                previewDevice === 'mobile' && 'w-[375px]'
+                "mx-auto overflow-hidden rounded-lg border bg-background transition-all",
+                previewDevice === "desktop" && "w-full",
+                previewDevice === "tablet" && "w-[768px]",
+                previewDevice === "mobile" && "w-[375px]",
               )}
             >
               {/* Mock Browser Chrome */}
@@ -316,7 +352,7 @@ export default function TemplatesPage() {
 
               {/* Preview Content */}
               <div className="h-96 overflow-y-auto">
-                {currentTemplate.id === 'login-only' ? (
+                {currentTemplate.id === "login-only" ? (
                   <div className="flex h-full items-center justify-center p-8">
                     <div className="w-full max-w-sm space-y-6 text-center">
                       <div className="bg-primary/10 mx-auto flex h-12 w-12 items-center justify-center rounded-lg">
@@ -324,7 +360,9 @@ export default function TemplatesPage() {
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold">Welcome back</h2>
-                        <p className="text-muted-foreground">Sign in to continue</p>
+                        <p className="text-muted-foreground">
+                          Sign in to continue
+                        </p>
                       </div>
                       <div className="space-y-3">
                         <div className="bg-muted/30 h-10 rounded-md border" />
@@ -339,7 +377,8 @@ export default function TemplatesPage() {
                     <div className="space-y-4 text-center">
                       <h1 className="text-3xl font-bold">Your App Name</h1>
                       <p className="mx-auto max-w-md text-muted-foreground">
-                        Team communication made simple. Connect, collaborate, and build together.
+                        Team communication made simple. Connect, collaborate,
+                        and build together.
                       </p>
                       <div className="flex items-center justify-center gap-3">
                         <Button>Get Started</Button>
@@ -351,7 +390,10 @@ export default function TemplatesPage() {
                     {currentTemplate.homepage.landingPages?.features && (
                       <div className="grid grid-cols-3 gap-4">
                         {[1, 2, 3].map((i) => (
-                          <div key={i} className="rounded-lg border p-4 text-center">
+                          <div
+                            key={i}
+                            className="rounded-lg border p-4 text-center"
+                          >
                             <div className="mx-auto mb-2 h-10 w-10 rounded-lg bg-muted" />
                             <div className="mx-auto mb-1 h-4 w-20 rounded bg-muted" />
                             <div className="bg-muted/50 h-3 w-full rounded" />
@@ -363,13 +405,19 @@ export default function TemplatesPage() {
                     {/* Pricing */}
                     {currentTemplate.homepage.landingPages?.pricing && (
                       <div className="grid grid-cols-3 gap-4">
-                        {['Free', 'Pro', 'Enterprise'].map((plan) => (
-                          <div key={plan} className="rounded-lg border p-4 text-center">
+                        {["Free", "Pro", "Enterprise"].map((plan) => (
+                          <div
+                            key={plan}
+                            className="rounded-lg border p-4 text-center"
+                          >
                             <h3 className="mb-2 font-semibold">{plan}</h3>
                             <div className="mx-auto mb-4 h-8 w-16 rounded bg-muted" />
                             <div className="space-y-2">
                               {[1, 2, 3].map((i) => (
-                                <div key={i} className="bg-muted/50 h-3 w-full rounded" />
+                                <div
+                                  key={i}
+                                  className="bg-muted/50 h-3 w-full rounded"
+                                />
                               ))}
                             </div>
                           </div>
@@ -442,11 +490,16 @@ export default function TemplatesPage() {
           <CardHeader>
             <CardTitle>AppConfig Interface</CardTitle>
             <CardDescription>
-              Templates are configured through the AppConfig interface in your application.
+              Templates are configured through the AppConfig interface in your
+              application.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <CodeBlock code={templateConfigCode} language="typescript" filename="app-config.ts" />
+            <CodeBlock
+              code={templateConfigCode}
+              language="typescript"
+              filename="app-config.ts"
+            />
           </CardContent>
         </Card>
 
@@ -458,7 +511,11 @@ export default function TemplatesPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <CodeBlock code={templateUsageCode} language="tsx" filename="template-selector.tsx" />
+            <CodeBlock
+              code={templateUsageCode}
+              language="tsx"
+              filename="template-selector.tsx"
+            />
           </CardContent>
         </Card>
       </section>
@@ -469,24 +526,24 @@ export default function TemplatesPage() {
         <PreviewGrid cols={3}>
           <PreviewCard title="Branding">
             <p className="text-sm text-muted-foreground">
-              Customize logo, app name, tagline, and colors through the setup wizard or
-              programmatically via AppConfig.
+              Customize logo, app name, tagline, and colors through the setup
+              wizard or programmatically via AppConfig.
             </p>
           </PreviewCard>
           <PreviewCard title="Theme Colors">
             <p className="text-sm text-muted-foreground">
-              Choose from 25+ color presets or define custom colors. Templates automatically adapt
-              to your theme.
+              Choose from 25+ color presets or define custom colors. Templates
+              automatically adapt to your theme.
             </p>
           </PreviewCard>
           <PreviewCard title="Content">
             <p className="text-sm text-muted-foreground">
-              Update hero text, feature descriptions, and pricing through the admin panel or
-              directly in code.
+              Update hero text, feature descriptions, and pricing through the
+              admin panel or directly in code.
             </p>
           </PreviewCard>
         </PreviewGrid>
       </section>
     </div>
-  )
+  );
 }

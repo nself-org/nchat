@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ThumbnailStrip - Horizontal scrolling thumbnail navigation
@@ -13,28 +13,28 @@
  * - Keyboard navigation support
  */
 
-import * as React from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { MediaItem } from '@/lib/media/media-types'
-import { Play, FileText, Music, Archive, File } from 'lucide-react'
+import * as React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { MediaItem } from "@/lib/media/media-types";
+import { Play, FileText, Music, Archive, File } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ThumbnailStripProps {
-  items: MediaItem[]
-  currentIndex: number
-  onSelect: (index: number) => void
-  className?: string
+  items: MediaItem[];
+  currentIndex: number;
+  onSelect: (index: number) => void;
+  className?: string;
 
   // UI options
-  thumbnailSize?: 'sm' | 'md' | 'lg'
-  showCounter?: boolean
-  showFileType?: boolean
-  autoScroll?: boolean
-  lazyLoad?: boolean
+  thumbnailSize?: "sm" | "md" | "lg";
+  showCounter?: boolean;
+  showFileType?: boolean;
+  autoScroll?: boolean;
+  lazyLoad?: boolean;
 }
 
 // ============================================================================
@@ -45,7 +45,7 @@ const THUMBNAIL_SIZES = {
   sm: { width: 48, height: 48 },
   md: { width: 64, height: 64 },
   lg: { width: 80, height: 80 },
-}
+};
 
 const FILE_TYPE_ICONS: Record<string, React.FC<{ className?: string }>> = {
   video: Play,
@@ -53,7 +53,7 @@ const FILE_TYPE_ICONS: Record<string, React.FC<{ className?: string }>> = {
   document: FileText,
   archive: Archive,
   other: File,
-}
+};
 
 // ============================================================================
 // Component
@@ -64,50 +64,50 @@ export function ThumbnailStrip({
   currentIndex,
   onSelect,
   className,
-  thumbnailSize = 'md',
+  thumbnailSize = "md",
   showCounter = true,
   showFileType = true,
   autoScroll = true,
   lazyLoad = true,
 }: ThumbnailStripProps) {
   // Refs
-  const containerRef = useRef<HTMLDivElement>(null)
-  const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const containerRef = useRef<HTMLDivElement>(null);
+  const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // State
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set())
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
 
   // Dimensions
-  const { width, height } = THUMBNAIL_SIZES[thumbnailSize]
+  const { width, height } = THUMBNAIL_SIZES[thumbnailSize];
 
   // ========================================================================
   // Auto-scroll to active thumbnail
   // ========================================================================
 
   useEffect(() => {
-    if (!autoScroll) return
+    if (!autoScroll) return;
 
-    const container = containerRef.current
-    const activeThumbnail = thumbnailRefs.current[currentIndex]
+    const container = containerRef.current;
+    const activeThumbnail = thumbnailRefs.current[currentIndex];
 
     if (container && activeThumbnail) {
-      const containerRect = container.getBoundingClientRect()
-      const thumbnailRect = activeThumbnail.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect();
+      const thumbnailRect = activeThumbnail.getBoundingClientRect();
 
       // Check if thumbnail is out of view
       const isOutOfView =
         thumbnailRect.left < containerRect.left ||
-        thumbnailRect.right > containerRect.right
+        thumbnailRect.right > containerRect.right;
 
       if (isOutOfView) {
         activeThumbnail.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'center',
-        })
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
       }
     }
-  }, [currentIndex, autoScroll])
+  }, [currentIndex, autoScroll]);
 
   // ========================================================================
   // Lazy loading
@@ -116,34 +116,37 @@ export function ThumbnailStrip({
   useEffect(() => {
     if (!lazyLoad) {
       // Load all images immediately
-      setLoadedImages(new Set(items.map((_, i) => i)))
-      return
+      setLoadedImages(new Set(items.map((_, i) => i)));
+      return;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const index = parseInt(entry.target.getAttribute('data-index') || '0', 10)
-            setLoadedImages((prev) => new Set([...prev, index]))
+            const index = parseInt(
+              entry.target.getAttribute("data-index") || "0",
+              10,
+            );
+            setLoadedImages((prev) => new Set([...prev, index]));
           }
-        })
+        });
       },
       {
         root: containerRef.current,
-        rootMargin: '50px',
+        rootMargin: "50px",
         threshold: 0,
-      }
-    )
+      },
+    );
 
     thumbnailRefs.current.forEach((ref) => {
       if (ref) {
-        observer.observe(ref)
+        observer.observe(ref);
       }
-    })
+    });
 
-    return () => observer.disconnect()
-  }, [items, lazyLoad])
+    return () => observer.disconnect();
+  }, [items, lazyLoad]);
 
   // ========================================================================
   // Keyboard Navigation
@@ -152,39 +155,39 @@ export function ThumbnailStrip({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, index: number) => {
       switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault()
+        case "ArrowLeft":
+          e.preventDefault();
           if (index > 0) {
-            onSelect(index - 1)
-            thumbnailRefs.current[index - 1]?.focus()
+            onSelect(index - 1);
+            thumbnailRefs.current[index - 1]?.focus();
           }
-          break
-        case 'ArrowRight':
-          e.preventDefault()
+          break;
+        case "ArrowRight":
+          e.preventDefault();
           if (index < items.length - 1) {
-            onSelect(index + 1)
-            thumbnailRefs.current[index + 1]?.focus()
+            onSelect(index + 1);
+            thumbnailRefs.current[index + 1]?.focus();
           }
-          break
-        case 'Home':
-          e.preventDefault()
-          onSelect(0)
-          thumbnailRefs.current[0]?.focus()
-          break
-        case 'End':
-          e.preventDefault()
-          onSelect(items.length - 1)
-          thumbnailRefs.current[items.length - 1]?.focus()
-          break
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          onSelect(index)
-          break
+          break;
+        case "Home":
+          e.preventDefault();
+          onSelect(0);
+          thumbnailRefs.current[0]?.focus();
+          break;
+        case "End":
+          e.preventDefault();
+          onSelect(items.length - 1);
+          thumbnailRefs.current[items.length - 1]?.focus();
+          break;
+        case "Enter":
+        case " ":
+          e.preventDefault();
+          onSelect(index);
+          break;
       }
     },
-    [items.length, onSelect]
-  )
+    [items.length, onSelect],
+  );
 
   // ========================================================================
   // Render thumbnail
@@ -192,33 +195,34 @@ export function ThumbnailStrip({
 
   const renderThumbnail = useCallback(
     (item: MediaItem, index: number) => {
-      const isActive = index === currentIndex
-      const isLoaded = loadedImages.has(index)
-      const FileTypeIcon = FILE_TYPE_ICONS[item.fileType] || FILE_TYPE_ICONS.other
+      const isActive = index === currentIndex;
+      const isLoaded = loadedImages.has(index);
+      const FileTypeIcon =
+        FILE_TYPE_ICONS[item.fileType] || FILE_TYPE_ICONS.other;
 
       return (
         <button
           key={item.id}
           ref={(el) => {
-            thumbnailRefs.current[index] = el
+            thumbnailRefs.current[index] = el;
           }}
           data-index={index}
           onClick={() => onSelect(index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
           className={cn(
-            'relative flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all',
-            'focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black',
+            "relative flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all",
+            "focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black",
             isActive
-              ? 'border-white opacity-100'
-              : 'border-transparent opacity-60 hover:opacity-80'
+              ? "border-white opacity-100"
+              : "border-transparent opacity-60 hover:opacity-80",
           )}
           style={{ width, height }}
           aria-label={`Go to ${item.fileName} (${index + 1} of ${items.length})`}
-          aria-current={isActive ? 'true' : undefined}
+          aria-current={isActive ? "true" : undefined}
           data-testid={`thumbnail-${index}`}
         >
           {/* Thumbnail image or placeholder */}
-          {item.fileType === 'image' || item.thumbnailUrl ? (
+          {item.fileType === "image" || item.thumbnailUrl ? (
             <>
               {isLoaded ? (
                 <img
@@ -239,7 +243,7 @@ export function ThumbnailStrip({
           )}
 
           {/* File type indicator */}
-          {showFileType && item.fileType !== 'image' && (
+          {showFileType && item.fileType !== "image" && (
             <div className="absolute bottom-1 right-1 rounded bg-black/60 p-0.5">
               <FileTypeIcon className="h-3 w-3 text-white" />
             </div>
@@ -250,19 +254,28 @@ export function ThumbnailStrip({
             <div className="absolute inset-0 rounded-lg ring-2 ring-white ring-offset-1 ring-offset-black" />
           )}
         </button>
-      )
+      );
     },
-    [currentIndex, items.length, loadedImages, onSelect, handleKeyDown, showFileType, width, height]
-  )
+    [
+      currentIndex,
+      items.length,
+      loadedImages,
+      onSelect,
+      handleKeyDown,
+      showFileType,
+      width,
+      height,
+    ],
+  );
 
   // ========================================================================
   // Render
   // ========================================================================
 
-  if (items.length === 0) return null
+  if (items.length === 0) return null;
 
   return (
-    <div className={cn('relative', className)} data-testid="thumbnail-strip">
+    <div className={cn("relative", className)} data-testid="thumbnail-strip">
       {/* Counter */}
       {showCounter && (
         <div
@@ -285,7 +298,7 @@ export function ThumbnailStrip({
         {items.map(renderThumbnail)}
       </div>
     </div>
-  )
+  );
 }
 
-export default ThumbnailStrip
+export default ThumbnailStrip;

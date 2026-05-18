@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ReactionActivity Component
@@ -6,36 +6,40 @@
  * Displays a reaction activity
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ActivityAvatar } from '../ActivityAvatar'
-import { ActivityDate } from '../ActivityDate'
-import type { ReactionActivity as ReactionActivityType } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ActivityAvatar } from "../ActivityAvatar";
+import { ActivityDate } from "../ActivityDate";
+import type { ReactionActivity as ReactionActivityType } from "@/lib/activity/activity-types";
 
 interface ReactionActivityProps {
-  activity: ReactionActivityType
-  onClick?: () => void
-  className?: string
+  activity: ReactionActivityType;
+  onClick?: () => void;
+  className?: string;
 }
 
-export function ReactionActivity({ activity, onClick, className }: ReactionActivityProps) {
-  const { actor, emoji, message, channel, isRead, createdAt } = activity
+export function ReactionActivity({
+  activity,
+  onClick,
+  className,
+}: ReactionActivityProps) {
+  const { actor, emoji, message, channel, isRead, createdAt } = activity;
 
   return (
     <div
       className={cn(
-        'group flex cursor-pointer gap-3 rounded-lg p-3 transition-colors',
-        'hover:bg-muted/50',
-        !isRead && 'bg-primary/5',
-        className
+        "group flex cursor-pointer gap-3 rounded-lg p-3 transition-colors",
+        "hover:bg-muted/50",
+        !isRead && "bg-primary/5",
+        className,
       )}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
@@ -52,11 +56,11 @@ export function ReactionActivity({ activity, onClick, className }: ReactionActiv
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             {/* Header */}
-            <p className={cn('text-sm', !isRead && 'font-medium')}>
+            <p className={cn("text-sm", !isRead && "font-medium")}>
               <span className="font-medium">{actor.displayName}</span>
-              {' reacted '}
+              {" reacted "}
               <span className="mx-1 text-lg">{emoji}</span>
-              {' to your message'}
+              {" to your message"}
             </p>
 
             {/* Message preview */}
@@ -77,7 +81,7 @@ export function ReactionActivity({ activity, onClick, className }: ReactionActiv
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ReactionActivity
+export default ReactionActivity;

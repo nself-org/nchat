@@ -9,9 +9,9 @@
  * - dm -> group (add participants)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { logger } from "@/lib/logger";
 import {
   upgradeGroupToSupergroup,
   downgradeSupergrouplToGroup,
@@ -19,18 +19,23 @@ import {
   canConvertTo,
   getConversionTargets,
   getConversionRecommendation,
-} from '@/lib/entities'
-import type { ChatEntityType, GroupEntity, SupergroupEntity, DirectMessageEntity } from '@/types/entities'
+} from "@/lib/entities";
+import type {
+  ChatEntityType,
+  GroupEntity,
+  SupergroupEntity,
+  DirectMessageEntity,
+} from "@/types/entities";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // =============================================================================
 // SCHEMAS
 // =============================================================================
 
 const convertEntitySchema = z.object({
-  targetType: z.enum(['dm', 'group', 'supergroup', 'community', 'channel']),
+  targetType: z.enum(["dm", "group", "supergroup", "community", "channel"]),
   reason: z.string().max(500).optional(),
   // For DM -> Group
   groupName: z.string().min(1).max(100).optional(),
@@ -38,18 +43,18 @@ const convertEntitySchema = z.object({
   // Options
   preserveOriginal: z.boolean().default(false),
   notifyMembers: z.boolean().default(true),
-})
+});
 
 // =============================================================================
 // HELPERS
 // =============================================================================
 
 function getUserIdFromRequest(request: NextRequest): string | null {
-  return request.headers.get('x-user-id') || null
+  return request.headers.get("x-user-id") || null;
 }
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 // =============================================================================
@@ -59,31 +64,37 @@ interface RouteContext {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { id: entityId } = await context.params
-    logger.info('GET /api/entities/[id]/convert - Get conversion options', { entityId })
+    const { id: entityId } = await context.params;
+    logger.info("GET /api/entities/[id]/convert - Get conversion options", {
+      entityId,
+    });
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     // In a real implementation, fetch the entity from database
     // For now, return a mock response based on entity ID pattern
-    const entityType = entityId.split('-')[0] as ChatEntityType
+    const entityType = entityId.split("-")[0] as ChatEntityType;
 
     // Mock entity for demonstration
     const mockEntity = {
       id: entityId,
       type: entityType,
       memberCount: 150,
-      status: 'active',
-    }
+      status: "active",
+    };
 
-    const availableTargets = getConversionTargets(mockEntity as unknown as GroupEntity)
-    const recommendation = getConversionRecommendation(mockEntity as unknown as GroupEntity)
+    const availableTargets = getConversionTargets(
+      mockEntity as unknown as GroupEntity,
+    );
+    const recommendation = getConversionRecommendation(
+      mockEntity as unknown as GroupEntity,
+    );
 
     return NextResponse.json({
       success: true,
@@ -92,13 +103,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
       availableConversions: availableTargets,
       recommendation,
       requirements: getConversionRequirements(entityType, availableTargets),
-    })
+    });
   } catch (error) {
-    logger.error('Error getting conversion options:', error as Error)
+    logger.error("Error getting conversion options:", error as Error);
     return NextResponse.json(
-      { success: false, error: 'Failed to get conversion options' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to get conversion options" },
+      { status: 500 },
+    );
   }
 }
 
@@ -109,33 +120,45 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const { id: entityId } = await context.params
-    logger.info('POST /api/entities/[id]/convert - Convert entity', { entityId })
+    const { id: entityId } = await context.params;
+    logger.info("POST /api/entities/[id]/convert - Convert entity", {
+      entityId,
+    });
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const body = await request.json()
-    const parseResult = convertEntitySchema.safeParse(body)
+    const body = await request.json();
+    const parseResult = convertEntitySchema.safeParse(body);
 
     if (!parseResult.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request body', details: parseResult.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request body",
+          details: parseResult.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const { targetType, reason, groupName, additionalParticipantIds, preserveOriginal, notifyMembers } =
-      parseResult.data
+    const {
+      targetType,
+      reason,
+      groupName,
+      additionalParticipantIds,
+      preserveOriginal,
+      notifyMembers,
+    } = parseResult.data;
 
     // In a real implementation, fetch the entity from database
     // For now, determine type from ID pattern and create mock entity
-    const entityType = entityId.split('-')[0] as ChatEntityType
+    const entityType = entityId.split("-")[0] as ChatEntityType;
 
     // Validate conversion is allowed
     const mockEntity = {
@@ -143,48 +166,61 @@ export async function POST(request: NextRequest, context: RouteContext) {
       type: entityType,
       ownerId: userId,
       memberCount: 150,
-      status: 'active',
-    }
+      status: "active",
+    };
 
-    const canConvert = canConvertTo(mockEntity as unknown as GroupEntity, targetType)
+    const canConvert = canConvertTo(
+      mockEntity as unknown as GroupEntity,
+      targetType,
+    );
     if (!canConvert.valid) {
       return NextResponse.json(
-        { success: false, error: 'Conversion not allowed', details: canConvert.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Conversion not allowed",
+          details: canConvert.errors,
+        },
+        { status: 400 },
+      );
     }
 
     // Perform conversion based on source and target type
-    let result
+    let result;
 
-    if (entityType === 'group' && targetType === 'supergroup') {
+    if (entityType === "group" && targetType === "supergroup") {
       // Group -> Supergroup upgrade
-      const mockGroup: GroupEntity = createMockGroup(entityId, userId)
+      const mockGroup: GroupEntity = createMockGroup(entityId, userId);
       result = upgradeGroupToSupergroup(mockGroup, {
         preserveOriginal,
         notifyMembers,
         reason,
         performedBy: userId,
-      })
-    } else if (entityType === 'supergroup' && targetType === 'group') {
+      });
+    } else if (entityType === "supergroup" && targetType === "group") {
       // Supergroup -> Group downgrade
-      const mockSupergroup: SupergroupEntity = createMockSupergroup(entityId, userId)
+      const mockSupergroup: SupergroupEntity = createMockSupergroup(
+        entityId,
+        userId,
+      );
       result = downgradeSupergrouplToGroup(mockSupergroup, {
         preserveOriginal,
         notifyMembers,
         reason,
         performedBy: userId,
-      })
-    } else if (entityType === 'dm' && targetType === 'group') {
+      });
+    } else if (entityType === "dm" && targetType === "group") {
       // DM -> Group conversion
       if (!groupName) {
         return NextResponse.json(
-          { success: false, error: 'groupName is required for DM to Group conversion' },
-          { status: 400 }
-        )
+          {
+            success: false,
+            error: "groupName is required for DM to Group conversion",
+          },
+          { status: 400 },
+        );
       }
 
-      const mockDM: DirectMessageEntity = createMockDM(entityId, userId)
+      const mockDM: DirectMessageEntity = createMockDM(entityId, userId);
       result = convertDMToGroup(
         {
           dm: mockDM,
@@ -196,33 +232,36 @@ export async function POST(request: NextRequest, context: RouteContext) {
           notifyMembers,
           reason,
           performedBy: userId,
-        }
-      )
+        },
+      );
     } else {
       return NextResponse.json(
-        { success: false, error: `Conversion from ${entityType} to ${targetType} is not supported` },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: `Conversion from ${entityType} to ${targetType} is not supported`,
+        },
+        { status: 400 },
+      );
     }
 
     if (!result.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Conversion failed',
+          error: "Conversion failed",
           details: result.errors,
           migrationLog: result.migrationLog,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    logger.info('POST /api/entities/[id]/convert - Conversion successful', {
+    logger.info("POST /api/entities/[id]/convert - Conversion successful", {
       entityId,
       fromType: entityType,
       toType: targetType,
       newEntityId: result.entity?.id,
-    })
+    });
 
     return NextResponse.json({
       success: true,
@@ -230,19 +269,23 @@ export async function POST(request: NextRequest, context: RouteContext) {
       warnings: result.warnings,
       migrationLog: result.migrationLog,
       message: `Successfully converted from ${entityType} to ${targetType}`,
-    })
+    });
   } catch (error) {
-    logger.error('Error converting entity:', error as Error)
+    logger.error("Error converting entity:", error as Error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request body', details: error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request body",
+          details: error.errors,
+        },
+        { status: 400 },
+      );
     }
     return NextResponse.json(
-      { success: false, error: 'Failed to convert entity' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to convert entity" },
+      { status: 500 },
+    );
   }
 }
 
@@ -252,51 +295,51 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
 function getConversionRequirements(
   currentType: ChatEntityType,
-  targets: ChatEntityType[]
+  targets: ChatEntityType[],
 ): Record<string, string[]> {
-  const requirements: Record<string, string[]> = {}
+  const requirements: Record<string, string[]> = {};
 
   for (const target of targets) {
-    if (currentType === 'dm' && target === 'group') {
+    if (currentType === "dm" && target === "group") {
       requirements.group = [
-        'At least 3 total participants (including you)',
-        'A name for the new group',
-      ]
+        "At least 3 total participants (including you)",
+        "A name for the new group",
+      ];
     }
 
-    if (currentType === 'group' && target === 'supergroup') {
+    if (currentType === "group" && target === "supergroup") {
       requirements.supergroup = [
-        'You must be the group owner',
-        'Group must be active (not archived)',
-      ]
+        "You must be the group owner",
+        "Group must be active (not archived)",
+      ];
     }
 
-    if (currentType === 'supergroup' && target === 'group') {
+    if (currentType === "supergroup" && target === "group") {
       requirements.group = [
-        'Member count must be 256 or fewer',
-        'Forum mode must be disabled',
-        'You must be the supergroup owner',
-      ]
+        "Member count must be 256 or fewer",
+        "Forum mode must be disabled",
+        "You must be the supergroup owner",
+      ];
     }
   }
 
-  return requirements
+  return requirements;
 }
 
 function createMockGroup(id: string, ownerId: string): GroupEntity {
-  const now = new Date().toISOString()
+  const now = new Date().toISOString();
   return {
     id,
-    type: 'group',
-    name: 'Mock Group',
-    slug: 'mock-group',
+    type: "group",
+    name: "Mock Group",
+    slug: "mock-group",
     description: null,
     avatarUrl: null,
     bannerUrl: null,
-    visibility: 'private',
-    status: 'active',
+    visibility: "private",
+    status: "active",
     ownerId,
-    workspaceId: 'mock-workspace',
+    workspaceId: "mock-workspace",
     memberCount: 150,
     createdAt: now,
     updatedAt: now,
@@ -305,20 +348,20 @@ function createMockGroup(id: string, ownerId: string): GroupEntity {
       muteNewMembers: false,
       minAccountAgeDays: 0,
       isNsfw: false,
-      defaultNotificationLevel: 'all',
-      whoCanSendMessages: 'everyone',
-      whoCanAddMembers: 'admins',
-      whoCanEditInfo: 'admins',
+      defaultNotificationLevel: "all",
+      whoCanSendMessages: "everyone",
+      whoCanAddMembers: "admins",
+      whoCanEditInfo: "admins",
       messageRetentionDays: 0,
       showMemberList: true,
     },
     features: {},
     metadata: {},
     groupSettings: {
-      sendMessagesPermission: 'everyone',
-      addMembersPermission: 'admins',
-      changeInfoPermission: 'admins',
-      pinMessagesPermission: 'admins',
+      sendMessagesPermission: "everyone",
+      addMembersPermission: "admins",
+      changeInfoPermission: "admins",
+      pinMessagesPermission: "admins",
       membersCanShareLink: true,
       approvalRequired: false,
     },
@@ -328,23 +371,23 @@ function createMockGroup(id: string, ownerId: string): GroupEntity {
     adminIds: [ownerId],
     pinnedMessageIds: [],
     canUpgradeToSupergroup: true,
-  }
+  };
 }
 
 function createMockSupergroup(id: string, ownerId: string): SupergroupEntity {
-  const now = new Date().toISOString()
+  const now = new Date().toISOString();
   return {
     id,
-    type: 'supergroup',
-    name: 'Mock Supergroup',
-    slug: 'mock-supergroup',
+    type: "supergroup",
+    name: "Mock Supergroup",
+    slug: "mock-supergroup",
     description: null,
     avatarUrl: null,
     bannerUrl: null,
-    visibility: 'private',
-    status: 'active',
+    visibility: "private",
+    status: "active",
     ownerId,
-    workspaceId: 'mock-workspace',
+    workspaceId: "mock-workspace",
     memberCount: 100,
     createdAt: now,
     updatedAt: now,
@@ -353,10 +396,10 @@ function createMockSupergroup(id: string, ownerId: string): SupergroupEntity {
       muteNewMembers: false,
       minAccountAgeDays: 0,
       isNsfw: false,
-      defaultNotificationLevel: 'all',
-      whoCanSendMessages: 'everyone',
-      whoCanAddMembers: 'admins',
-      whoCanEditInfo: 'admins',
+      defaultNotificationLevel: "all",
+      whoCanSendMessages: "everyone",
+      whoCanAddMembers: "admins",
+      whoCanEditInfo: "admins",
       messageRetentionDays: 0,
       showMemberList: true,
     },
@@ -368,7 +411,7 @@ function createMockSupergroup(id: string, ownerId: string): SupergroupEntity {
       hideMemberList: false,
       approvalRequired: false,
       forumMode: false,
-      invitePermission: 'admins',
+      invitePermission: "admins",
       antiSpam: {
         enabled: true,
         deleteSpam: true,
@@ -388,7 +431,7 @@ function createMockSupergroup(id: string, ownerId: string): SupergroupEntity {
     admins: [
       {
         userId: ownerId,
-        title: 'Owner',
+        title: "Owner",
         addedBy: ownerId,
         addedAt: now,
         permissions: {
@@ -409,25 +452,25 @@ function createMockSupergroup(id: string, ownerId: string): SupergroupEntity {
     lastMessage: null,
     upgradedFromGroupId: null,
     upgradedAt: null,
-  }
+  };
 }
 
 function createMockDM(id: string, ownerId: string): DirectMessageEntity {
-  const now = new Date().toISOString()
-  const otherUserId = 'other-user-id'
+  const now = new Date().toISOString();
+  const otherUserId = "other-user-id";
 
   return {
     id,
-    type: 'dm',
-    name: 'Direct Message',
+    type: "dm",
+    name: "Direct Message",
     slug: `dm-${ownerId}-${otherUserId}`,
     description: null,
     avatarUrl: null,
     bannerUrl: null,
-    visibility: 'private',
-    status: 'active',
+    visibility: "private",
+    status: "active",
     ownerId,
-    workspaceId: 'mock-workspace',
+    workspaceId: "mock-workspace",
     memberCount: 2,
     createdAt: now,
     updatedAt: now,
@@ -436,24 +479,24 @@ function createMockDM(id: string, ownerId: string): DirectMessageEntity {
       muteNewMembers: false,
       minAccountAgeDays: 0,
       isNsfw: false,
-      defaultNotificationLevel: 'all',
-      whoCanSendMessages: 'everyone',
-      whoCanAddMembers: 'no_one',
-      whoCanEditInfo: 'owner',
+      defaultNotificationLevel: "all",
+      whoCanSendMessages: "everyone",
+      whoCanAddMembers: "no_one",
+      whoCanEditInfo: "owner",
       messageRetentionDays: 0,
       showMemberList: true,
     },
     features: {},
     metadata: {},
     otherParticipant: {
-      id: 'member-1',
+      id: "member-1",
       entityId: id,
       userId: otherUserId,
-      role: 'member',
+      role: "member",
       joinedAt: now,
       lastReadAt: null,
       lastReadMessageId: null,
-      notificationLevel: 'all',
+      notificationLevel: "all",
       isMuted: false,
       mutedUntil: null,
       isBanned: false,
@@ -462,10 +505,10 @@ function createMockDM(id: string, ownerId: string): DirectMessageEntity {
       banReason: null,
       user: {
         id: otherUserId,
-        username: 'otheruser',
-        displayName: 'Other User',
+        username: "otheruser",
+        displayName: "Other User",
         avatarUrl: null,
-        status: 'offline',
+        status: "offline",
         lastSeenAt: null,
       },
     },
@@ -474,5 +517,5 @@ function createMockDM(id: string, ownerId: string): DirectMessageEntity {
     archivedByUserId: null,
     isPinned: false,
     isEncrypted: true,
-  }
+  };
 }

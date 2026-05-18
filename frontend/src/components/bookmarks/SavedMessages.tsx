@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SavedMessages Component
@@ -7,8 +7,8 @@
  * Users can save messages from any chat and access them from the sidebar.
  */
 
-import { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Save,
   Search,
@@ -25,17 +25,17 @@ import {
   SortDesc,
   Calendar,
   Download,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -44,160 +44,170 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
-import { useSavedMessages, useSavedMessageMutations } from '@/hooks/use-bookmarks'
-import { useJumpToMessage } from '@/hooks/use-messages'
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import {
+  useSavedMessages,
+  useSavedMessageMutations,
+} from "@/hooks/use-bookmarks";
+import { useJumpToMessage } from "@/hooks/use-messages";
 
 interface SavedMessageItem {
-  id: string
-  content: string
-  note?: string
-  tags?: string[]
-  saved_at: string
-  source_channel_id?: string
+  id: string;
+  content: string;
+  note?: string;
+  tags?: string[];
+  saved_at: string;
+  source_channel_id?: string;
   source_channel?: {
-    id: string
-    name: string
-  }
-  original_message_id?: string
+    id: string;
+    name: string;
+  };
+  original_message_id?: string;
   original_message?: {
     user?: {
-      display_name: string
-    }
-  }
+      display_name: string;
+    };
+  };
 }
 
 interface SavedMessagesProps {
-  className?: string
+  className?: string;
 }
 
 export function SavedMessages({ className }: SavedMessagesProps) {
   // State
-  const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'saved_at_desc' | 'saved_at_asc'>('saved_at_desc')
-  const [selectedChannel, setSelectedChannel] = useState<string | null>(null)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"saved_at_desc" | "saved_at_asc">(
+    "saved_at_desc",
+  );
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   // Form state for new saved message
-  const [newMessageContent, setNewMessageContent] = useState('')
-  const [newMessageNote, setNewMessageNote] = useState('')
-  const [newMessageTags, setNewMessageTags] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState('')
+  const [newMessageContent, setNewMessageContent] = useState("");
+  const [newMessageNote, setNewMessageNote] = useState("");
+  const [newMessageTags, setNewMessageTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
 
   // Hooks
-  const { savedMessages, loading, loadMore } = useSavedMessages()
-  const { saveMessage, updateSavedMessage, deleteSavedMessage, saving } = useSavedMessageMutations()
-  const { jumpToMessage } = useJumpToMessage()
+  const { savedMessages, loading, loadMore } = useSavedMessages();
+  const { saveMessage, updateSavedMessage, deleteSavedMessage, saving } =
+    useSavedMessageMutations();
+  const { jumpToMessage } = useJumpToMessage();
 
   // Computed
   const filteredMessages = useMemo(() => {
-    let filtered = [...savedMessages]
+    let filtered = [...savedMessages];
 
     // Search filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (msg: SavedMessageItem) =>
           msg.content.toLowerCase().includes(query) ||
           msg.note?.toLowerCase().includes(query) ||
-          msg.tags?.some((tag: string) => tag.toLowerCase().includes(query))
-      )
+          msg.tags?.some((tag: string) => tag.toLowerCase().includes(query)),
+      );
     }
 
     // Channel filter
     if (selectedChannel) {
-      filtered = filtered.filter((msg) => msg.source_channel_id === selectedChannel)
+      filtered = filtered.filter(
+        (msg) => msg.source_channel_id === selectedChannel,
+      );
     }
 
     // Sort
     filtered.sort((a, b) => {
-      const dateA = new Date(a.saved_at).getTime()
-      const dateB = new Date(b.saved_at).getTime()
-      return sortBy === 'saved_at_desc' ? dateB - dateA : dateA - dateB
-    })
+      const dateA = new Date(a.saved_at).getTime();
+      const dateB = new Date(b.saved_at).getTime();
+      return sortBy === "saved_at_desc" ? dateB - dateA : dateA - dateB;
+    });
 
-    return filtered
-  }, [savedMessages, searchQuery, selectedChannel, sortBy])
+    return filtered;
+  }, [savedMessages, searchQuery, selectedChannel, sortBy]);
 
   const channels = useMemo(() => {
-    const channelMap = new Map()
+    const channelMap = new Map();
     savedMessages.forEach((msg: SavedMessageItem) => {
       if (msg.source_channel) {
         channelMap.set(msg.source_channel.id, {
           id: msg.source_channel.id,
           name: msg.source_channel.name,
-        })
+        });
       }
-    })
-    return Array.from(channelMap.values())
-  }, [savedMessages])
+    });
+    return Array.from(channelMap.values());
+  }, [savedMessages]);
 
   // Handlers
   const handleCreateSavedMessage = async () => {
-    if (!newMessageContent.trim()) return
+    if (!newMessageContent.trim()) return;
 
     try {
       await saveMessage({
         content: newMessageContent,
         note: newMessageNote || undefined,
         tags: newMessageTags.length > 0 ? newMessageTags : undefined,
-      })
+      });
 
       // Reset form
-      setNewMessageContent('')
-      setNewMessageNote('')
-      setNewMessageTags([])
-      setTagInput('')
-      setIsCreateDialogOpen(false)
+      setNewMessageContent("");
+      setNewMessageNote("");
+      setNewMessageTags([]);
+      setTagInput("");
+      setIsCreateDialogOpen(false);
     } catch (_error) {
       // Error handled by hook
     }
-  }
+  };
 
   const handleDeleteMessage = async (savedMessageId: string) => {
-    await deleteSavedMessage(savedMessageId)
-  }
+    await deleteSavedMessage(savedMessageId);
+  };
 
   const handleJumpToOriginal = (messageId: string, channelId: string) => {
-    jumpToMessage(messageId, channelId)
-  }
+    jumpToMessage(messageId, channelId);
+  };
 
   const handleAddTag = () => {
     if (tagInput.trim() && !newMessageTags.includes(tagInput.trim())) {
-      setNewMessageTags([...newMessageTags, tagInput.trim()])
-      setTagInput('')
+      setNewMessageTags([...newMessageTags, tagInput.trim()]);
+      setTagInput("");
     }
-  }
+  };
 
   const handleRemoveTag = (tag: string) => {
-    setNewMessageTags(newMessageTags.filter((t) => t !== tag))
-  }
+    setNewMessageTags(newMessageTags.filter((t) => t !== tag));
+  };
 
   if (loading && savedMessages.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading saved messages...</p>
+          <p className="text-sm text-muted-foreground">
+            Loading saved messages...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex h-full flex-col', className)}>
+    <div className={cn("flex h-full flex-col", className)}>
       {/* Header */}
       <div className="border-b px-6 py-4">
         <div className="flex items-center justify-between">
@@ -212,7 +222,10 @@ export function SavedMessages({ className }: SavedMessagesProps) {
           </div>
 
           {/* Create new saved message */}
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
@@ -259,13 +272,17 @@ export function SavedMessages({ className }: SavedMessagesProps) {
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          handleAddTag()
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddTag();
                         }
                       }}
                     />
-                    <Button type="button" variant="secondary" onClick={handleAddTag}>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleAddTag}
+                    >
                       Add
                     </Button>
                   </div>
@@ -291,14 +308,17 @@ export function SavedMessages({ className }: SavedMessagesProps) {
               </div>
 
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleCreateSavedMessage}
                   disabled={saving || !newMessageContent.trim()}
                 >
-                  {saving ? 'Saving...' : 'Save Message'}
+                  {saving ? "Saving..." : "Save Message"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -321,7 +341,7 @@ export function SavedMessages({ className }: SavedMessagesProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
               className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
             >
               <X className="h-4 w-4" />
@@ -334,8 +354,10 @@ export function SavedMessages({ className }: SavedMessagesProps) {
           {/* Channel filter */}
           {channels.length > 0 && (
             <Select
-              value={selectedChannel || 'all'}
-              onValueChange={(value) => setSelectedChannel(value === 'all' ? null : value)}
+              value={selectedChannel || "all"}
+              onValueChange={(value) =>
+                setSelectedChannel(value === "all" ? null : value)
+              }
             >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="All sources" />
@@ -352,7 +374,10 @@ export function SavedMessages({ className }: SavedMessagesProps) {
           )}
 
           {/* Sort */}
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as typeof sortBy)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
             </SelectTrigger>
@@ -378,8 +403,8 @@ export function SavedMessages({ className }: SavedMessagesProps) {
               variant="ghost"
               size="sm"
               onClick={() => {
-                setSearchQuery('')
-                setSelectedChannel(null)
+                setSearchQuery("");
+                setSelectedChannel(null);
               }}
             >
               <X className="mr-2 h-4 w-4" />
@@ -398,8 +423,8 @@ export function SavedMessages({ className }: SavedMessagesProps) {
               <h3 className="mb-2 text-lg font-medium">No saved messages</h3>
               <p className="mb-4 text-sm text-muted-foreground">
                 {searchQuery || selectedChannel
-                  ? 'Try adjusting your filters'
-                  : 'Start saving messages to access them here anytime'}
+                  ? "Try adjusting your filters"
+                  : "Start saving messages to access them here anytime"}
               </p>
               <Button onClick={() => setIsCreateDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -434,28 +459,35 @@ export function SavedMessages({ className }: SavedMessagesProps) {
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 {message.source_channel && (
                                   <>
-                                    <span>from #{message.source_channel.name}</span>
+                                    <span>
+                                      from #{message.source_channel.name}
+                                    </span>
                                     <span>•</span>
                                   </>
                                 )}
-                                <span>{formatRelativeTime(new Date(message.saved_at))}</span>
+                                <span>
+                                  {formatRelativeTime(
+                                    new Date(message.saved_at),
+                                  )}
+                                </span>
                               </div>
-                              {message.original_message_id && message.source_channel_id && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() =>
-                                    handleJumpToOriginal(
-                                      message.original_message_id!,
-                                      message.source_channel_id!
-                                    )
-                                  }
-                                  className="h-7 text-xs opacity-0 transition-opacity group-hover:opacity-100"
-                                >
-                                  <MessageSquare className="mr-1 h-3 w-3" />
-                                  View original
-                                </Button>
-                              )}
+                              {message.original_message_id &&
+                                message.source_channel_id && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleJumpToOriginal(
+                                        message.original_message_id!,
+                                        message.source_channel_id!,
+                                      )
+                                    }
+                                    className="h-7 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+                                  >
+                                    <MessageSquare className="mr-1 h-3 w-3" />
+                                    View original
+                                  </Button>
+                                )}
                             </div>
 
                             {/* Message content */}
@@ -486,7 +518,11 @@ export function SavedMessages({ className }: SavedMessagesProps) {
                             {message.tags && message.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1">
                                 {message.tags.map((tag: string) => (
-                                  <Badge key={tag} variant="secondary" className="text-xs">
+                                  <Badge
+                                    key={tag}
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     <Hash className="mr-1 h-3 w-3" />
                                     {tag}
                                   </Badge>
@@ -511,19 +547,20 @@ export function SavedMessages({ className }: SavedMessagesProps) {
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit message
                               </DropdownMenuItem>
-                              {message.original_message_id && message.source_channel_id && (
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleJumpToOriginal(
-                                      message.original_message_id!,
-                                      message.source_channel_id!
-                                    )
-                                  }
-                                >
-                                  <MessageSquare className="mr-2 h-4 w-4" />
-                                  Jump to original
-                                </DropdownMenuItem>
-                              )}
+                              {message.original_message_id &&
+                                message.source_channel_id && (
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleJumpToOriginal(
+                                        message.original_message_id!,
+                                        message.source_channel_id!,
+                                      )
+                                    }
+                                  >
+                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                    Jump to original
+                                  </DropdownMenuItem>
+                                )}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => handleDeleteMessage(message.id)}
@@ -552,27 +589,27 @@ export function SavedMessages({ className }: SavedMessagesProps) {
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
 // Helper function for relative time formatting
 function formatRelativeTime(date: Date): string {
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
   if (days > 7) {
-    return date.toLocaleDateString()
+    return date.toLocaleDateString();
   } else if (days > 0) {
-    return `${days}d ago`
+    return `${days}d ago`;
   } else if (hours > 0) {
-    return `${hours}h ago`
+    return `${hours}h ago`;
   } else if (minutes > 0) {
-    return `${minutes}m ago`
+    return `${minutes}m ago`;
   } else {
-    return 'Just now'
+    return "Just now";
   }
 }

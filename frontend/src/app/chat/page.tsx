@@ -1,15 +1,21 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAuth } from '@/contexts/auth-context'
-import { useAppConfig } from '@/contexts/app-config-context'
-import { CreateChannelModal } from '@/components/channel/create-channel-modal'
-import { CreateDmModal } from '@/components/channel/create-dm-modal'
-import { SearchModal } from '@/components/search/search-modal'
+import * as React from "react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useAuth } from "@/contexts/auth-context";
+import { useAppConfig } from "@/contexts/app-config-context";
+import { CreateChannelModal } from "@/components/channel/create-channel-modal";
+import { CreateDmModal } from "@/components/channel/create-dm-modal";
+import { SearchModal } from "@/components/search/search-modal";
 import {
   Hash,
   Plus,
@@ -20,37 +26,43 @@ import {
   Sparkles,
   ArrowRight,
   Compass,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface QuickActionProps {
-  icon: React.ReactNode
-  title: string
-  description: string
-  href?: string
-  onClick?: () => void
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  href?: string;
+  onClick?: () => void;
 }
 
 interface RecentChannelProps {
-  name: string
-  slug: string
-  lastMessage?: string
-  lastMessageTime?: string
+  name: string;
+  slug: string;
+  lastMessage?: string;
+  lastMessageTime?: string;
 }
 
 // ============================================================================
 // Quick Action Card Component
 // ============================================================================
 
-function QuickAction({ icon, title, description, href, onClick }: QuickActionProps) {
+function QuickAction({
+  icon,
+  title,
+  description,
+  href,
+  onClick,
+}: QuickActionProps) {
   const content = (
     <Card
       className={cn(
-        'hover:border-primary/50 group cursor-pointer transition-all hover:shadow-md',
-        'hover:bg-accent/50 bg-card'
+        "hover:border-primary/50 group cursor-pointer transition-all hover:shadow-md",
+        "hover:bg-accent/50 bg-card",
       )}
     >
       <CardContent className="flex items-start gap-4 p-4">
@@ -66,30 +78,35 @@ function QuickAction({ icon, title, description, href, onClick }: QuickActionPro
         </div>
       </CardContent>
     </Card>
-  )
+  );
 
   if (href) {
-    return <Link href={href}>{content}</Link>
+    return <Link href={href}>{content}</Link>;
   }
 
   return (
     <button onClick={onClick} className="w-full text-left">
       {content}
     </button>
-  )
+  );
 }
 
 // ============================================================================
 // Recent Channel Item Component
 // ============================================================================
 
-function RecentChannelItem({ name, slug, lastMessage, lastMessageTime }: RecentChannelProps) {
+function RecentChannelItem({
+  name,
+  slug,
+  lastMessage,
+  lastMessageTime,
+}: RecentChannelProps) {
   return (
     <Link
       href={`/chat/channel/${slug}`}
       className={cn(
-        'flex items-center gap-3 rounded-lg px-3 py-2',
-        'transition-colors hover:bg-accent'
+        "flex items-center gap-3 rounded-lg px-3 py-2",
+        "transition-colors hover:bg-accent",
       )}
     >
       <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
@@ -99,13 +116,19 @@ function RecentChannelItem({ name, slug, lastMessage, lastMessageTime }: RecentC
         <div className="flex items-center justify-between gap-2">
           <span className="truncate font-medium">{name}</span>
           {lastMessageTime && (
-            <span className="shrink-0 text-xs text-muted-foreground">{lastMessageTime}</span>
+            <span className="shrink-0 text-xs text-muted-foreground">
+              {lastMessageTime}
+            </span>
           )}
         </div>
-        {lastMessage && <p className="truncate text-sm text-muted-foreground">{lastMessage}</p>}
+        {lastMessage && (
+          <p className="truncate text-sm text-muted-foreground">
+            {lastMessage}
+          </p>
+        )}
       </div>
     </Link>
-  )
+  );
 }
 
 // ============================================================================
@@ -113,42 +136,42 @@ function RecentChannelItem({ name, slug, lastMessage, lastMessageTime }: RecentC
 // ============================================================================
 
 export default function ChatPage() {
-  const { user } = useAuth()
-  const { config } = useAppConfig()
+  const { user } = useAuth();
+  const { config } = useAppConfig();
 
   // Modal state
-  const [showCreateChannel, setShowCreateChannel] = React.useState(false)
-  const [showCreateDm, setShowCreateDm] = React.useState(false)
-  const [showSearch, setShowSearch] = React.useState(false)
+  const [showCreateChannel, setShowCreateChannel] = React.useState(false);
+  const [showCreateDm, setShowCreateDm] = React.useState(false);
+  const [showSearch, setShowSearch] = React.useState(false);
 
   // Mock recent activity data
   const recentChannels: RecentChannelProps[] = [
     {
-      name: 'general',
-      slug: 'general',
-      lastMessage: 'Welcome to the team! Feel free to introduce yourself.',
-      lastMessageTime: '2m ago',
+      name: "general",
+      slug: "general",
+      lastMessage: "Welcome to the team! Feel free to introduce yourself.",
+      lastMessageTime: "2m ago",
     },
     {
-      name: 'announcements',
-      slug: 'announcements',
-      lastMessage: 'New features have been deployed to production.',
-      lastMessageTime: '1h ago',
+      name: "announcements",
+      slug: "announcements",
+      lastMessage: "New features have been deployed to production.",
+      lastMessageTime: "1h ago",
     },
     {
-      name: 'random',
-      slug: 'random',
-      lastMessage: 'Anyone up for lunch?',
-      lastMessageTime: '3h ago',
+      name: "random",
+      slug: "random",
+      lastMessage: "Anyone up for lunch?",
+      lastMessageTime: "3h ago",
     },
-  ]
+  ];
 
   const greeting = React.useMemo(() => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 17) return 'Good afternoon'
-    return 'Good evening'
-  }, [])
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  }, []);
 
   return (
     <div className="flex h-full flex-col overflow-auto">
@@ -156,10 +179,11 @@ export default function ChatPage() {
         {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">
-            {greeting}, {user?.displayName?.split(' ')[0] || 'there'}!
+            {greeting}, {user?.displayName?.split(" ")[0] || "there"}!
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Welcome to {config?.branding?.appName || 'nchat'}. What would you like to do today?
+            Welcome to {config?.branding?.appName || "nchat"}. What would you
+            like to do today?
           </p>
         </div>
 
@@ -252,17 +276,19 @@ export default function ChatPage() {
         </div>
 
         {/* Getting Started Guide (for new users) */}
-        {user?.role === 'owner' && !config?.setup?.isCompleted && (
+        {user?.role === "owner" && !config?.setup?.isCompleted && (
           <div className="border-primary/30 bg-primary/5 mt-8 rounded-lg border-2 border-dashed p-6">
             <div className="flex items-start gap-4">
               <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="mb-1 text-lg font-semibold">Complete Your Setup</h3>
+                <h3 className="mb-1 text-lg font-semibold">
+                  Complete Your Setup
+                </h3>
                 <p className="mb-4 text-muted-foreground">
-                  You haven&apos;t finished setting up your workspace. Complete the setup wizard to
-                  customize your chat experience.
+                  You haven&apos;t finished setting up your workspace. Complete
+                  the setup wizard to customize your chat experience.
                 </p>
                 <Button asChild>
                   <Link href="/setup">Continue Setup</Link>
@@ -274,9 +300,12 @@ export default function ChatPage() {
       </div>
 
       {/* Modals */}
-      <CreateChannelModal open={showCreateChannel} onOpenChange={setShowCreateChannel} />
+      <CreateChannelModal
+        open={showCreateChannel}
+        onOpenChange={setShowCreateChannel}
+      />
       <CreateDmModal open={showCreateDm} onOpenChange={setShowCreateDm} />
       <SearchModal open={showSearch} onOpenChange={setShowSearch} />
     </div>
-  )
+  );
 }

@@ -1,35 +1,44 @@
-'use client'
+"use client";
 
 /**
  * CommandCard - Command preview card
  */
 
-import { Hash, MoreVertical, Edit, Trash2, Copy, Power, PowerOff, Tag } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import {
+  Hash,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Copy,
+  Power,
+  PowerOff,
+  Tag,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { commandCategories } from '@/lib/slash-commands/built-in-commands'
-import type { SlashCommand } from '@/lib/slash-commands/command-types'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { commandCategories } from "@/lib/slash-commands/built-in-commands";
+import type { SlashCommand } from "@/lib/slash-commands/command-types";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandCardProps {
-  command: SlashCommand
-  onEdit?: () => void
-  onDelete?: () => void
-  onDuplicate?: () => void
-  onToggleEnabled?: () => void
-  compact?: boolean
+  command: SlashCommand;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onDuplicate?: () => void;
+  onToggleEnabled?: () => void;
+  compact?: boolean;
 }
 
 // ============================================================================
@@ -44,32 +53,37 @@ export function CommandCard({
   onToggleEnabled,
   compact = false,
 }: CommandCardProps) {
-  const category = commandCategories[command.category as keyof typeof commandCategories]
+  const category =
+    commandCategories[command.category as keyof typeof commandCategories];
 
   if (compact) {
     return (
       <div
         className={cn(
-          'hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 transition-colors',
-          !command.isEnabled && 'opacity-60'
+          "hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 transition-colors",
+          !command.isEnabled && "opacity-60",
         )}
       >
         <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded text-primary">
           <Hash className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <code className="font-mono text-sm text-primary">/{command.trigger}</code>
-          <p className="truncate text-xs text-muted-foreground">{command.description}</p>
+          <code className="font-mono text-sm text-primary">
+            /{command.trigger}
+          </code>
+          <p className="truncate text-xs text-muted-foreground">
+            {command.description}
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <Card
       className={cn(
-        'group relative transition-all hover:shadow-md',
-        !command.isEnabled && 'opacity-60'
+        "group relative transition-all hover:shadow-md",
+        !command.isEnabled && "opacity-60",
       )}
     >
       <CardContent className="p-4">
@@ -135,7 +149,10 @@ export function CommandCard({
               {!command.isBuiltIn && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive" onClick={onDelete}>
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={onDelete}
+                  >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
@@ -146,7 +163,9 @@ export function CommandCard({
         </div>
 
         {/* Description */}
-        <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{command.description}</p>
+        <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+          {command.description}
+        </p>
 
         {/* Footer */}
         <div className="mt-4 flex items-center gap-2">
@@ -165,7 +184,8 @@ export function CommandCard({
           {/* Arguments count */}
           {command.arguments && command.arguments.length > 0 && (
             <Badge variant="secondary" className="text-xs">
-              {command.arguments.length} arg{command.arguments.length !== 1 ? 's' : ''}
+              {command.arguments.length} arg
+              {command.arguments.length !== 1 ? "s" : ""}
             </Badge>
           )}
 
@@ -186,7 +206,7 @@ export function CommandCard({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default CommandCard
+export default CommandCard;

@@ -8,13 +8,13 @@
  */
 export interface TruncateOptions {
   /** Maximum length (default: 50) */
-  length?: number
+  length?: number;
   /** String to append when truncated (default: '...') */
-  ellipsis?: string
+  ellipsis?: string;
   /** Truncate at word boundary (default: true) */
-  wordBoundary?: boolean
+  wordBoundary?: boolean;
   /** Position: 'end', 'middle', or 'start' (default: 'end') */
-  position?: 'end' | 'middle' | 'start'
+  position?: "end" | "middle" | "start";
 }
 
 /**
@@ -27,43 +27,48 @@ export interface TruncateOptions {
  * truncate('Hello, World!', { length: 8, position: 'middle' }) // "Hel...d!"
  */
 export function truncate(str: string, options: TruncateOptions = {}): string {
-  const { length = 50, ellipsis = '...', wordBoundary = true, position = 'end' } = options
+  const {
+    length = 50,
+    ellipsis = "...",
+    wordBoundary = true,
+    position = "end",
+  } = options;
 
   if (!str || str.length <= length) {
-    return str || ''
+    return str || "";
   }
 
-  const availableLength = length - ellipsis.length
+  const availableLength = length - ellipsis.length;
 
   if (availableLength <= 0) {
-    return ellipsis.slice(0, length)
+    return ellipsis.slice(0, length);
   }
 
   switch (position) {
-    case 'start': {
-      const result = str.slice(-availableLength)
-      return ellipsis + result
+    case "start": {
+      const result = str.slice(-availableLength);
+      return ellipsis + result;
     }
 
-    case 'middle': {
-      const halfLength = Math.floor(availableLength / 2)
-      const start = str.slice(0, halfLength)
-      const end = str.slice(-(availableLength - halfLength))
-      return start + ellipsis + end
+    case "middle": {
+      const halfLength = Math.floor(availableLength / 2);
+      const start = str.slice(0, halfLength);
+      const end = str.slice(-(availableLength - halfLength));
+      return start + ellipsis + end;
     }
 
-    case 'end':
+    case "end":
     default: {
-      let result = str.slice(0, availableLength)
+      let result = str.slice(0, availableLength);
 
       if (wordBoundary) {
-        const lastSpace = result.lastIndexOf(' ')
+        const lastSpace = result.lastIndexOf(" ");
         if (lastSpace > availableLength * 0.5) {
-          result = result.slice(0, lastSpace)
+          result = result.slice(0, lastSpace);
         }
       }
 
-      return result.trimEnd() + ellipsis
+      return result.trimEnd() + ellipsis;
     }
   }
 }
@@ -73,13 +78,13 @@ export function truncate(str: string, options: TruncateOptions = {}): string {
  */
 export interface SlugifyOptions {
   /** Separator character (default: '-') */
-  separator?: string
+  separator?: string;
   /** Convert to lowercase (default: true) */
-  lowercase?: boolean
+  lowercase?: boolean;
   /** Remove leading/trailing separators (default: true) */
-  trim?: boolean
+  trim?: boolean;
   /** Maximum length */
-  maxLength?: number
+  maxLength?: number;
 }
 
 /**
@@ -93,48 +98,51 @@ export interface SlugifyOptions {
  * slugify('CamelCase', { separator: '_' }) // "camel_case"
  */
 export function slugify(str: string, options: SlugifyOptions = {}): string {
-  const { separator = '-', lowercase = true, trim = true, maxLength } = options
+  const { separator = "-", lowercase = true, trim = true, maxLength } = options;
 
-  if (!str) return ''
+  if (!str) return "";
 
-  let result = str
+  let result = str;
 
   // Convert to lowercase if needed
   if (lowercase) {
-    result = result.toLowerCase()
+    result = result.toLowerCase();
   }
 
   // Replace accented characters
-  result = result.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  result = result.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   // Handle camelCase and PascalCase by adding separator before capitals
-  result = result.replace(/([a-z])([A-Z])/g, `$1${separator}$2`)
+  result = result.replace(/([a-z])([A-Z])/g, `$1${separator}$2`);
 
   // Replace non-alphanumeric characters with separator
-  result = result.replace(/[^a-zA-Z0-9]+/g, separator)
+  result = result.replace(/[^a-zA-Z0-9]+/g, separator);
 
   // Convert to lowercase again (for camelCase handling)
   if (lowercase) {
-    result = result.toLowerCase()
+    result = result.toLowerCase();
   }
 
   // Remove multiple consecutive separators
-  const escapedSeparator = separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  result = result.replace(new RegExp(`${escapedSeparator}+`, 'g'), separator)
+  const escapedSeparator = separator.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  result = result.replace(new RegExp(`${escapedSeparator}+`, "g"), separator);
 
   // Trim separators from start and end
   if (trim) {
-    result = result.replace(new RegExp(`^${escapedSeparator}|${escapedSeparator}$`, 'g'), '')
+    result = result.replace(
+      new RegExp(`^${escapedSeparator}|${escapedSeparator}$`, "g"),
+      "",
+    );
   }
 
   // Enforce max length
   if (maxLength && result.length > maxLength) {
-    result = result.slice(0, maxLength)
+    result = result.slice(0, maxLength);
     // Remove trailing separator if we cut in the middle
-    result = result.replace(new RegExp(`${escapedSeparator}$`), '')
+    result = result.replace(new RegExp(`${escapedSeparator}$`), "");
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -150,39 +158,39 @@ export function highlight(
   text: string,
   query: string,
   options: {
-    tag?: string
-    className?: string
-    caseSensitive?: boolean
-  } = {}
+    tag?: string;
+    className?: string;
+    caseSensitive?: boolean;
+  } = {},
 ): string {
-  const { tag = 'mark', className, caseSensitive = false } = options
+  const { tag = "mark", className, caseSensitive = false } = options;
 
   if (!text || !query) {
-    return text || ''
+    return text || "";
   }
 
   // Escape special regex characters in query
-  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const flags = caseSensitive ? 'g' : 'gi'
-  const regex = new RegExp(`(${escapedQuery})`, flags)
+  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const flags = caseSensitive ? "g" : "gi";
+  const regex = new RegExp(`(${escapedQuery})`, flags);
 
-  const classAttr = className ? ` class="${className}"` : ''
-  return text.replace(regex, `<${tag}${classAttr}>$1</${tag}>`)
+  const classAttr = className ? ` class="${className}"` : "";
+  return text.replace(regex, `<${tag}${classAttr}>$1</${tag}>`);
 }
 
 /**
  * HTML entities map
  */
 const HTML_ENTITIES: Record<string, string> = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-  '/': '&#x2F;',
-  '`': '&#x60;',
-  '=': '&#x3D;',
-}
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+  "/": "&#x2F;",
+  "`": "&#x60;",
+  "=": "&#x3D;",
+};
 
 /**
  * Escape HTML special characters to prevent XSS
@@ -193,8 +201,8 @@ const HTML_ENTITIES: Record<string, string> = {
  * // "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;"
  */
 export function escapeHtml(str: string): string {
-  if (!str) return ''
-  return str.replace(/[&<>"'`=/]/g, (char) => HTML_ENTITIES[char] || char)
+  if (!str) return "";
+  return str.replace(/[&<>"'`=/]/g, (char) => HTML_ENTITIES[char] || char);
 }
 
 /**
@@ -203,23 +211,23 @@ export function escapeHtml(str: string): string {
  * @returns Unescaped string
  */
 export function unescapeHtml(str: string): string {
-  if (!str) return ''
+  if (!str) return "";
 
   const reverseEntities: Record<string, string> = {
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#39;': "'",
-    '&#x2F;': '/',
-    '&#x60;': '`',
-    '&#x3D;': '=',
-  }
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#39;": "'",
+    "&#x2F;": "/",
+    "&#x60;": "`",
+    "&#x3D;": "=",
+  };
 
   return str.replace(
     /&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;|&#x60;|&#x3D;/g,
-    (entity) => reverseEntities[entity] || entity
-  )
+    (entity) => reverseEntities[entity] || entity,
+  );
 }
 
 /**
@@ -233,67 +241,70 @@ export function unescapeHtml(str: string): string {
 export function parseMarkdown(
   text: string,
   options: {
-    escapeHtml?: boolean
-    allowLinks?: boolean
-    allowImages?: boolean
-    allowCode?: boolean
-  } = {}
+    escapeHtml?: boolean;
+    allowLinks?: boolean;
+    allowImages?: boolean;
+    allowCode?: boolean;
+  } = {},
 ): string {
   const {
     escapeHtml: shouldEscape = true,
     allowLinks = true,
     allowImages = false,
     allowCode = true,
-  } = options
+  } = options;
 
-  if (!text) return ''
+  if (!text) return "";
 
-  let result = shouldEscape ? escapeHtml(text) : text
+  let result = shouldEscape ? escapeHtml(text) : text;
 
   // Code blocks (```code```)
   if (allowCode) {
-    result = result.replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>')
+    result = result.replace(/```([^`]+)```/g, "<pre><code>$1</code></pre>");
   }
 
   // Inline code (`code`)
   if (allowCode) {
-    result = result.replace(/`([^`]+)`/g, '<code>$1</code>')
+    result = result.replace(/`([^`]+)`/g, "<code>$1</code>");
   }
 
   // Bold (**text** or __text__)
-  result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-  result = result.replace(/__([^_]+)__/g, '<strong>$1</strong>')
+  result = result.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  result = result.replace(/__([^_]+)__/g, "<strong>$1</strong>");
 
   // Italic (*text* or _text_)
-  result = result.replace(/\*([^*]+)\*/g, '<em>$1</em>')
-  result = result.replace(/_([^_]+)_/g, '<em>$1</em>')
+  result = result.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  result = result.replace(/_([^_]+)_/g, "<em>$1</em>");
 
   // Strikethrough (~~text~~)
-  result = result.replace(/~~([^~]+)~~/g, '<del>$1</del>')
+  result = result.replace(/~~([^~]+)~~/g, "<del>$1</del>");
 
   // Images (![alt](url))
   if (allowImages) {
-    result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
+    result = result.replace(
+      /!\[([^\]]*)\]\(([^)]+)\)/g,
+      '<img src="$2" alt="$1" />',
+    );
   }
 
   // Links ([text](url))
   if (allowLinks) {
     result = result.replace(
       /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-    )
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+    );
   }
 
   // Line breaks
-  result = result.replace(/\n/g, '<br />')
+  result = result.replace(/\n/g, "<br />");
 
-  return result
+  return result;
 }
 
 /**
  * Mention pattern for @username
  */
-const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g
+const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g;
 
 /**
  * Extract @mentions from text
@@ -303,28 +314,28 @@ const MENTION_REGEX = /@([a-zA-Z][a-zA-Z0-9_]{0,29})/g
  * extractMentions('Hello @john and @jane!') // ['john', 'jane']
  */
 export function extractMentions(text: string): string[] {
-  if (!text) return []
+  if (!text) return [];
 
-  const mentions: string[] = []
-  let match: RegExpExecArray | null
+  const mentions: string[] = [];
+  let match: RegExpExecArray | null;
 
   // Reset regex state
-  MENTION_REGEX.lastIndex = 0
+  MENTION_REGEX.lastIndex = 0;
 
   while ((match = MENTION_REGEX.exec(text)) !== null) {
-    const username = match[1]
+    const username = match[1];
     if (!mentions.includes(username)) {
-      mentions.push(username)
+      mentions.push(username);
     }
   }
 
-  return mentions
+  return mentions;
 }
 
 /**
  * Channel pattern for #channel-name
  */
-const CHANNEL_REGEX = /#([a-z][a-z0-9_-]{0,79})/gi
+const CHANNEL_REGEX = /#([a-z][a-z0-9_-]{0,79})/gi;
 
 /**
  * Extract #channel references from text
@@ -334,29 +345,29 @@ const CHANNEL_REGEX = /#([a-z][a-z0-9_-]{0,79})/gi
  * extractChannels('Check #general and #random') // ['general', 'random']
  */
 export function extractChannels(text: string): string[] {
-  if (!text) return []
+  if (!text) return [];
 
-  const channels: string[] = []
-  let match: RegExpExecArray | null
+  const channels: string[] = [];
+  let match: RegExpExecArray | null;
 
   // Reset regex state
-  CHANNEL_REGEX.lastIndex = 0
+  CHANNEL_REGEX.lastIndex = 0;
 
   while ((match = CHANNEL_REGEX.exec(text)) !== null) {
-    const channel = match[1].toLowerCase()
+    const channel = match[1].toLowerCase();
     if (!channels.includes(channel)) {
-      channels.push(channel)
+      channels.push(channel);
     }
   }
 
-  return channels
+  return channels;
 }
 
 /**
  * URL pattern (simplified)
  */
 const URL_REGEX =
-  /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)/gi
+  /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)/gi;
 
 /**
  * Extract URLs from text
@@ -367,24 +378,24 @@ const URL_REGEX =
  * // ['https://example.com', 'http://test.org']
  */
 export function extractUrls(text: string): string[] {
-  if (!text) return []
+  if (!text) return [];
 
-  const urls: string[] = []
-  let match: RegExpExecArray | null
+  const urls: string[] = [];
+  let match: RegExpExecArray | null;
 
   // Reset regex state
-  URL_REGEX.lastIndex = 0
+  URL_REGEX.lastIndex = 0;
 
   while ((match = URL_REGEX.exec(text)) !== null) {
-    const url = match[0]
+    const url = match[0];
     // Remove trailing punctuation that might have been captured
-    const cleanUrl = url.replace(/[.,;:!?)\]]+$/, '')
+    const cleanUrl = url.replace(/[.,;:!?)\]]+$/, "");
     if (!urls.includes(cleanUrl)) {
-      urls.push(cleanUrl)
+      urls.push(cleanUrl);
     }
   }
 
-  return urls
+  return urls;
 }
 
 /**
@@ -396,22 +407,22 @@ export function extractUrls(text: string): string[] {
 export function linkifyUrls(
   text: string,
   options: {
-    target?: string
-    rel?: string
-    className?: string
-  } = {}
+    target?: string;
+    rel?: string;
+    className?: string;
+  } = {},
 ): string {
-  const { target = '_blank', rel = 'noopener noreferrer', className } = options
+  const { target = "_blank", rel = "noopener noreferrer", className } = options;
 
-  if (!text) return ''
+  if (!text) return "";
 
-  const classAttr = className ? ` class="${className}"` : ''
+  const classAttr = className ? ` class="${className}"` : "";
 
   return text.replace(URL_REGEX, (url) => {
-    const cleanUrl = url.replace(/[.,;:!?)\]]+$/, '')
-    const trailing = url.slice(cleanUrl.length)
-    return `<a href="${escapeHtml(cleanUrl)}" target="${target}" rel="${rel}"${classAttr}>${escapeHtml(cleanUrl)}</a>${escapeHtml(trailing)}`
-  })
+    const cleanUrl = url.replace(/[.,;:!?)\]]+$/, "");
+    const trailing = url.slice(cleanUrl.length);
+    return `<a href="${escapeHtml(cleanUrl)}" target="${target}" rel="${rel}"${classAttr}>${escapeHtml(cleanUrl)}</a>${escapeHtml(trailing)}`;
+  });
 }
 
 /**
@@ -422,8 +433,8 @@ export function linkifyUrls(
  * capitalize('hello') // "Hello"
  */
 export function capitalize(str: string): string {
-  if (!str) return ''
-  return str.charAt(0).toUpperCase() + str.slice(1)
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -434,12 +445,12 @@ export function capitalize(str: string): string {
  * titleCase('hello world') // "Hello World"
  */
 export function titleCase(str: string): string {
-  if (!str) return ''
+  if (!str) return "";
   return str
     .toLowerCase()
-    .split(' ')
+    .split(" ")
     .map((word) => capitalize(word))
-    .join(' ')
+    .join(" ");
 }
 
 /**
@@ -451,8 +462,10 @@ export function titleCase(str: string): string {
  * camelCase('hello-world') // "helloWorld"
  */
 export function camelCase(str: string): string {
-  if (!str) return ''
-  return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase());
 }
 
 /**
@@ -464,7 +477,7 @@ export function camelCase(str: string): string {
  * kebabCase('Hello World') // "hello-world"
  */
 export function kebabCase(str: string): string {
-  return slugify(str, { separator: '-', lowercase: true })
+  return slugify(str, { separator: "-", lowercase: true });
 }
 
 /**
@@ -475,7 +488,7 @@ export function kebabCase(str: string): string {
  * snakeCase('helloWorld') // "hello_world"
  */
 export function snakeCase(str: string): string {
-  return slugify(str, { separator: '_', lowercase: true })
+  return slugify(str, { separator: "_", lowercase: true });
 }
 
 /**
@@ -484,8 +497,8 @@ export function snakeCase(str: string): string {
  * @returns Word count
  */
 export function wordCount(str: string): number {
-  if (!str) return 0
-  return str.trim().split(/\s+/).filter(Boolean).length
+  if (!str) return 0;
+  return str.trim().split(/\s+/).filter(Boolean).length;
 }
 
 /**
@@ -494,8 +507,8 @@ export function wordCount(str: string): number {
  * @returns Plain text without HTML tags
  */
 export function stripHtml(html: string): string {
-  if (!html) return ''
-  return html.replace(/<[^>]*>/g, '')
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "");
 }
 
 /**
@@ -504,8 +517,8 @@ export function stripHtml(html: string): string {
  * @returns String with normalized whitespace
  */
 export function normalizeWhitespace(str: string): string {
-  if (!str) return ''
-  return str.replace(/\s+/g, ' ').trim()
+  if (!str) return "";
+  return str.replace(/\s+/g, " ").trim();
 }
 
 /**
@@ -519,26 +532,26 @@ export function normalizeWhitespace(str: string): string {
 export function pad(
   str: string,
   length: number,
-  char: string = ' ',
-  position: 'start' | 'end' | 'both' = 'end'
+  char: string = " ",
+  position: "start" | "end" | "both" = "end",
 ): string {
-  const s = str || ''
-  if (s.length >= length) return s
+  const s = str || "";
+  if (s.length >= length) return s;
 
-  const padLength = length - s.length
-  const padChar = char[0] || ' '
+  const padLength = length - s.length;
+  const padChar = char[0] || " ";
 
   switch (position) {
-    case 'start':
-      return padChar.repeat(padLength) + s
-    case 'both': {
-      const leftPad = Math.floor(padLength / 2)
-      const rightPad = padLength - leftPad
-      return padChar.repeat(leftPad) + s + padChar.repeat(rightPad)
+    case "start":
+      return padChar.repeat(padLength) + s;
+    case "both": {
+      const leftPad = Math.floor(padLength / 2);
+      const rightPad = padLength - leftPad;
+      return padChar.repeat(leftPad) + s + padChar.repeat(rightPad);
     }
-    case 'end':
+    case "end":
     default:
-      return s + padChar.repeat(padLength)
+      return s + padChar.repeat(padLength);
   }
 }
 
@@ -549,12 +562,16 @@ export function pad(
  * @param caseSensitive - Whether to be case-sensitive
  * @returns Whether the string contains the search term
  */
-export function contains(str: string, search: string, caseSensitive: boolean = false): boolean {
-  if (!str || !search) return false
+export function contains(
+  str: string,
+  search: string,
+  caseSensitive: boolean = false,
+): boolean {
+  if (!str || !search) return false;
   if (caseSensitive) {
-    return str.includes(search)
+    return str.includes(search);
   }
-  return str.toLowerCase().includes(search.toLowerCase())
+  return str.toLowerCase().includes(search.toLowerCase());
 }
 
 /**
@@ -565,8 +582,8 @@ export function contains(str: string, search: string, caseSensitive: boolean = f
  * removeDiacritics('café') // "cafe"
  */
 export function removeDiacritics(str: string): string {
-  if (!str) return ''
-  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  if (!str) return "";
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 /**
@@ -579,14 +596,14 @@ export function removeDiacritics(str: string): string {
  * initials('John Michael Doe', 3) // "JMD"
  */
 export function initials(name: string, maxLength: number = 2): string {
-  if (!name) return ''
+  if (!name) return "";
 
   return name
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, maxLength)
-    .map((word) => word[0]?.toUpperCase() || '')
-    .join('')
+    .map((word) => word[0]?.toUpperCase() || "")
+    .join("");
 }
 
 /**
@@ -595,8 +612,8 @@ export function initials(name: string, maxLength: number = 2): string {
  * @returns Reversed string
  */
 export function reverse(str: string): string {
-  if (!str) return ''
-  return [...str].reverse().join('')
+  if (!str) return "";
+  return [...str].reverse().join("");
 }
 
 /**
@@ -605,12 +622,12 @@ export function reverse(str: string): string {
  * @returns Whether the string is valid JSON
  */
 export function isValidJson(str: string): boolean {
-  if (!str) return false
+  if (!str) return false;
   try {
-    JSON.parse(str)
-    return true
+    JSON.parse(str);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -620,6 +637,6 @@ export function isValidJson(str: string): boolean {
  * @returns Size in bytes
  */
 export function byteSize(str: string): number {
-  if (!str) return 0
-  return new Blob([str]).size
+  if (!str) return 0;
+  return new Blob([str]).size;
 }

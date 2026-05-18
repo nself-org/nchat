@@ -52,7 +52,7 @@ export type {
   CreateUserInput,
   UpdateUserInput,
   UserFilter,
-} from './user'
+} from "./user";
 
 export {
   UserRoleLevel,
@@ -61,7 +61,7 @@ export {
   UserPresenceLabels,
   DefaultStatusPresets,
   DefaultRolePermissions,
-} from './user'
+} from "./user";
 
 // ============================================================================
 // Channel Types
@@ -107,7 +107,7 @@ export type {
   // Event types
   ChannelUpdateType,
   ChannelUpdateEvent,
-} from './channel'
+} from "./channel";
 
 export {
   ChannelTypeLabels,
@@ -116,7 +116,7 @@ export {
   isDirectMessage,
   isRegularChannel,
   getChannelDisplayName,
-} from './channel'
+} from "./channel";
 
 // ============================================================================
 // Message Types
@@ -171,14 +171,14 @@ export type {
   // Read state types
   ChannelReadState,
   ReadStateUpdate,
-} from './message'
+} from "./message";
 
 export {
   isSystemMessage,
   formatSystemMessage,
   formatTypingIndicator,
   getMessagePermissions,
-} from './message'
+} from "./message";
 
 // ============================================================================
 // Attachment Types
@@ -209,7 +209,7 @@ export type {
   UploadFileInput,
   UploadFilesInput,
   PresignedUploadUrl,
-} from './attachment'
+} from "./attachment";
 
 export {
   MimeTypeCategories,
@@ -219,7 +219,7 @@ export {
   formatFileSize,
   isFileTypeAllowed,
   getFileIcon,
-} from './attachment'
+} from "./attachment";
 
 // ============================================================================
 // Notification Types
@@ -263,9 +263,9 @@ export type {
   NotificationReceivedEvent,
   NotificationReadEvent,
   NotificationCountUpdatedEvent,
-} from './notification'
+} from "./notification";
 
-export { DefaultNotificationPreferences } from './notification'
+export { DefaultNotificationPreferences } from "./notification";
 
 // ============================================================================
 // Poll Types
@@ -299,7 +299,7 @@ export type {
   // Query types
   PollFilter,
   PollSortOptions,
-} from './poll'
+} from "./poll";
 
 export {
   DefaultPollSettings,
@@ -308,7 +308,7 @@ export {
   calculatePollPercentages,
   getWinningOptions,
   formatPollClosingTime,
-} from './poll'
+} from "./poll";
 
 // ============================================================================
 // Emoji Types
@@ -345,7 +345,7 @@ export type {
   ReactionAddedEvent,
   ReactionRemovedEvent,
   ReactionsClearedEvent,
-} from './emoji'
+} from "./emoji";
 
 export {
   EmojiCategories,
@@ -356,7 +356,7 @@ export {
   isValidEmojiName,
   applyEmojiSkinTone,
   getEmojiLabel,
-} from './emoji'
+} from "./emoji";
 
 // ============================================================================
 // Search Types
@@ -405,9 +405,14 @@ export type {
   // Config types
   SearchConfig,
   SearchFilterPreset,
-} from './search'
+} from "./search";
 
-export { DefaultSearchConfig, CommonSearchPresets, buildSearchUrl, parseSearchUrl } from './search'
+export {
+  DefaultSearchConfig,
+  CommonSearchPresets,
+  buildSearchUrl,
+  parseSearchUrl,
+} from "./search";
 
 // ============================================================================
 // Webhook Types
@@ -450,7 +455,7 @@ export type {
   // Event types
   WebhookCreatedEvent,
   WebhookDeliveryEvent,
-} from './webhook'
+} from "./webhook";
 
 export {
   DefaultWebhookRetryConfig,
@@ -460,7 +465,7 @@ export {
   verifyWebhookSignatureSync,
   getEventCategory,
   formatWebhookUrl,
-} from './webhook'
+} from "./webhook";
 
 // ============================================================================
 // Bot Types
@@ -516,9 +521,9 @@ export type {
   BotStatusChangeEvent,
   BotInstalledEvent,
   BotUninstalledEvent,
-} from './bot'
+} from "./bot";
 
-export { BotPermissionScopeDescriptions } from './bot'
+export { BotPermissionScopeDescriptions } from "./bot";
 
 // ============================================================================
 // Sticker Types
@@ -560,7 +565,7 @@ export type {
   StickerPackUpdatedEvent,
   StickerPackInstalledEvent,
   StickerUsedEvent,
-} from './sticker'
+} from "./sticker";
 
 export {
   DefaultStickerUploadConstraints,
@@ -571,7 +576,7 @@ export {
   isValidPackName,
   getStickerPackUrl,
   formatStickerSize,
-} from './sticker'
+} from "./sticker";
 
 // ============================================================================
 // API Types
@@ -620,7 +625,7 @@ export type {
   DeepPartial,
   ExtractAPIData,
   ExtractPaginatedItem,
-} from './api'
+} from "./api";
 
 export {
   HTTPStatusToErrorCode,
@@ -630,7 +635,7 @@ export {
   isAPIError,
   createAPIError,
   buildPaginationParams,
-} from './api'
+} from "./api";
 
 // ============================================================================
 // Socket Types
@@ -689,9 +694,9 @@ export type {
   SocketEventHandler,
   SocketEventCleanup,
   ExtractEventPayload,
-} from './socket'
+} from "./socket";
 
-export { DefaultSocketConnectionOptions } from './socket'
+export { DefaultSocketConnectionOptions } from "./socket";
 
 // ============================================================================
 // Config Types
@@ -744,7 +749,7 @@ export type {
   ConfigChangeEvent,
   // Environment types
   EnvironmentConfig,
-} from './config'
+} from "./config";
 
 export {
   SetupSteps,
@@ -752,7 +757,7 @@ export {
   DefaultFeatureFlags,
   DefaultAppConfig,
   getEnvironmentConfig,
-} from './config'
+} from "./config";
 
 // ============================================================================
 // GIF Types (existing)
@@ -788,7 +793,7 @@ export type {
   GifSearchProps,
   GifCategoriesProps,
   GifPickerTriggerProps,
-} from './gif'
+} from "./gif";
 
 // ============================================================================
 // Database Types
@@ -848,7 +853,7 @@ export type {
   DbBot,
   DbAppConfiguration,
   DbSession,
-} from './database'
+} from "./database";
 
 export {
   // Enum arrays
@@ -879,7 +884,7 @@ export {
   isAttachmentType as isDbAttachmentType,
   isSubscriptionStatus,
   isAuditAction,
-} from './database'
+} from "./database";
 
 // ============================================================================
 // Subscription Types
@@ -908,7 +913,7 @@ export type {
   AddPaymentMethodInput,
   SubscriptionEventType,
   SubscriptionEvent,
-} from './subscription.types'
+} from "./subscription.types";
 
 export {
   FREE_PLAN_FEATURES,
@@ -917,7 +922,7 @@ export {
   calculateYearlySavings,
   isSubscriptionActive,
   getDaysUntil,
-} from './subscription.types'
+} from "./subscription.types";
 
 // ============================================================================
 // Audit Types
@@ -950,7 +955,7 @@ export type {
   AuditExportStatus,
   SecurityEvent,
   SecurityIndicator,
-} from './audit.types'
+} from "./audit.types";
 
 export {
   getActionCategory,
@@ -958,25 +963,25 @@ export {
   getSeverityColor,
   formatAuditDescription,
   isSecuritySensitive,
-} from './audit.types'
+} from "./audit.types";
 
 // ============================================================================
 // API Types (Extended)
 // ============================================================================
 
-export * from './api'
+export * from "./api";
 
 // ============================================================================
 // GraphQL Types
 // ============================================================================
 
-export * from './graphql'
+export * from "./graphql";
 
 // ============================================================================
 // Type Utilities
 // ============================================================================
 
-export * from './utils'
+export * from "./utils";
 
 // ============================================================================
 // Presence Privacy Settings Types
@@ -987,6 +992,6 @@ export type {
   PresenceSettingsInput,
   PresenceVisibility,
   PresenceVisibilityResult,
-} from '@/graphql/presence-settings'
+} from "@/graphql/presence-settings";
 
-export { DEFAULT_PRESENCE_SETTINGS } from '@/graphql/presence-settings'
+export { DEFAULT_PRESENCE_SETTINGS } from "@/graphql/presence-settings";

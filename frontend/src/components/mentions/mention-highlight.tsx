@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MentionHighlight - Highlighted @mention display in messages
@@ -26,10 +26,14 @@
  * ```
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { parseMentions, getMentionType, isSpecialMention } from '@/lib/mentions/use-mentions'
-import type { MentionType } from '@/lib/mentions/mention-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import {
+  parseMentions,
+  getMentionType,
+  isSpecialMention,
+} from "@/lib/mentions/use-mentions";
+import type { MentionType } from "@/lib/mentions/mention-store";
 
 // ============================================================================
 // Types
@@ -37,67 +41,77 @@ import type { MentionType } from '@/lib/mentions/mention-store'
 
 export interface MentionHighlightProps {
   /** Username or special mention text (without @) */
-  username: string
+  username: string;
   /** User ID if this is a user mention */
-  userId?: string
+  userId?: string;
   /** Current user's ID to determine self-mention styling */
-  currentUserId?: string
+  currentUserId?: string;
   /** The type of mention */
-  type?: MentionType
+  type?: MentionType;
   /** Called when the mention is clicked */
-  onClick?: (userId: string | null, type: MentionType) => void
+  onClick?: (userId: string | null, type: MentionType) => void;
   /** Whether the mention is clickable */
-  clickable?: boolean
+  clickable?: boolean;
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
 export interface MentionHighlightedTextProps {
   /** The message content containing @mentions */
-  content: string
+  content: string;
   /** Current user's ID */
-  currentUserId?: string
+  currentUserId?: string;
   /** Current user's username (for self-mention detection) */
-  currentUsername?: string
+  currentUsername?: string;
   /** Mapping of usernames to user IDs */
-  userMap?: Map<string, string>
+  userMap?: Map<string, string>;
   /** Called when a mention is clicked */
-  onMentionClick?: (userId: string | null, type: MentionType, username: string) => void
+  onMentionClick?: (
+    userId: string | null,
+    type: MentionType,
+    username: string,
+  ) => void;
   /** Additional className for the container */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-function getMentionStyles(type: MentionType, isSelfMention: boolean, clickable: boolean): string {
-  const baseStyles = 'inline-flex items-center rounded px-1 font-medium text-sm'
+function getMentionStyles(
+  type: MentionType,
+  isSelfMention: boolean,
+  clickable: boolean,
+): string {
+  const baseStyles =
+    "inline-flex items-center rounded px-1 font-medium text-sm";
 
   // Self mention - more prominent styling
   if (isSelfMention) {
     return cn(
       baseStyles,
-      'bg-primary/20 text-primary',
-      clickable && 'cursor-pointer hover:bg-primary/30'
-    )
+      "bg-primary/20 text-primary",
+      clickable && "cursor-pointer hover:bg-primary/30",
+    );
   }
 
   // Special mentions (@here, @channel, @everyone)
-  if (type === 'here' || type === 'channel' || type === 'everyone') {
+  if (type === "here" || type === "channel" || type === "everyone") {
     return cn(
       baseStyles,
-      'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-      clickable && 'cursor-pointer hover:bg-amber-200 dark:hover:bg-amber-900/50'
-    )
+      "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+      clickable &&
+        "cursor-pointer hover:bg-amber-200 dark:hover:bg-amber-900/50",
+    );
   }
 
   // Regular user mention
   return cn(
     baseStyles,
-    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    clickable && 'cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50'
-  )
+    "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    clickable && "cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50",
+  );
 }
 
 // ============================================================================
@@ -108,56 +122,56 @@ export function MentionHighlight({
   username,
   userId,
   currentUserId,
-  type = 'user',
+  type = "user",
   onClick,
   clickable = true,
   className,
 }: MentionHighlightProps) {
   // Determine if this is a self-mention
   const isSelfMention = React.useMemo(() => {
-    if (!currentUserId || !userId) return false
-    return userId === currentUserId
-  }, [currentUserId, userId])
+    if (!currentUserId || !userId) return false;
+    return userId === currentUserId;
+  }, [currentUserId, userId]);
 
   // Determine the actual mention type
   const mentionType = React.useMemo((): MentionType => {
-    if (type !== 'user') return type
-    return getMentionType(username)
-  }, [type, username])
+    if (type !== "user") return type;
+    return getMentionType(username);
+  }, [type, username]);
 
   const handleClick = React.useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation()
+      e.stopPropagation();
       if (clickable && onClick) {
-        onClick(userId || null, mentionType)
+        onClick(userId || null, mentionType);
       }
     },
-    [clickable, onClick, userId, mentionType]
-  )
+    [clickable, onClick, userId, mentionType],
+  );
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent) => {
-      if ((e.key === 'Enter' || e.key === ' ') && clickable && onClick) {
-        e.preventDefault()
-        e.stopPropagation()
-        onClick(userId || null, mentionType)
+      if ((e.key === "Enter" || e.key === " ") && clickable && onClick) {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick(userId || null, mentionType);
       }
     },
-    [clickable, onClick, userId, mentionType]
-  )
+    [clickable, onClick, userId, mentionType],
+  );
 
-  const styles = getMentionStyles(mentionType, isSelfMention, clickable)
+  const styles = getMentionStyles(mentionType, isSelfMention, clickable);
 
   // Get icon for special mentions
   const icon = React.useMemo(() => {
-    if (mentionType === 'here') {
+    if (mentionType === "here") {
       return (
         <svg className="mr-0.5 h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="12" cy="12" r="4" />
         </svg>
-      )
+      );
     }
-    if (mentionType === 'channel') {
+    if (mentionType === "channel") {
       return (
         <svg
           className="mr-0.5 h-3 w-3"
@@ -168,9 +182,9 @@ export function MentionHighlight({
         >
           <path d="M4 9h16M4 15h16M10 3l-1 18M15 3l-1 18" />
         </svg>
-      )
+      );
     }
-    if (mentionType === 'everyone') {
+    if (mentionType === "everyone") {
       return (
         <svg
           className="mr-0.5 h-3 w-3"
@@ -183,12 +197,12 @@ export function MentionHighlight({
           <circle cx="9" cy="7" r="4" />
           <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
-      )
+      );
     }
-    return null
-  }, [mentionType])
+    return null;
+  }, [mentionType]);
 
-  const displayText = `@${username}`
+  const displayText = `@${username}`;
 
   if (!clickable) {
     return (
@@ -196,7 +210,7 @@ export function MentionHighlight({
         {icon}
         {displayText}
       </span>
-    )
+    );
   }
 
   return (
@@ -208,8 +222,8 @@ export function MentionHighlight({
       className={cn(styles, className)}
       aria-label={
         isSelfMention
-          ? 'Mention of you'
-          : mentionType !== 'user'
+          ? "Mention of you"
+          : mentionType !== "user"
             ? `${mentionType} mention`
             : `Mention of ${username}`
       }
@@ -217,7 +231,7 @@ export function MentionHighlight({
       {icon}
       {displayText}
     </span>
-  )
+  );
 }
 
 // ============================================================================
@@ -234,33 +248,35 @@ export function MentionHighlightedText({
 }: MentionHighlightedTextProps) {
   // Parse content and render with highlights
   const renderedContent = React.useMemo(() => {
-    const mentions = parseMentions(content)
+    const mentions = parseMentions(content);
 
     if (mentions.length === 0) {
-      return content
+      return content;
     }
 
-    const result: React.ReactNode[] = []
-    let lastIndex = 0
+    const result: React.ReactNode[] = [];
+    let lastIndex = 0;
 
     for (let i = 0; i < mentions.length; i++) {
-      const mention = mentions[i]
+      const mention = mentions[i];
 
       // Add text before this mention
       if (mention.start > lastIndex) {
-        result.push(content.slice(lastIndex, mention.start))
+        result.push(content.slice(lastIndex, mention.start));
       }
 
       // Determine mention details
-      const username = mention.text
-      const mentionType = getMentionType(username)
-      const isSpecial = isSpecialMention(username)
-      const userId = isSpecial ? undefined : userMap.get(username.toLowerCase())
+      const username = mention.text;
+      const mentionType = getMentionType(username);
+      const isSpecial = isSpecialMention(username);
+      const userId = isSpecial
+        ? undefined
+        : userMap.get(username.toLowerCase());
 
       // Check if this is a self-mention
       const isSelfMention =
         currentUsername?.toLowerCase() === username.toLowerCase() ||
-        (userId && userId === currentUserId)
+        (userId && userId === currentUserId);
 
       // Add the mention highlight
       result.push(
@@ -270,23 +286,27 @@ export function MentionHighlightedText({
           userId={userId}
           currentUserId={currentUserId}
           type={mentionType}
-          onClick={onMentionClick ? (id, type) => onMentionClick(id, type, username) : undefined}
+          onClick={
+            onMentionClick
+              ? (id, type) => onMentionClick(id, type, username)
+              : undefined
+          }
           clickable={!!onMentionClick}
-        />
-      )
+        />,
+      );
 
-      lastIndex = mention.end
+      lastIndex = mention.end;
     }
 
     // Add remaining text after last mention
     if (lastIndex < content.length) {
-      result.push(content.slice(lastIndex))
+      result.push(content.slice(lastIndex));
     }
 
-    return result
-  }, [content, currentUserId, currentUsername, userMap, onMentionClick])
+    return result;
+  }, [content, currentUserId, currentUsername, userMap, onMentionClick]);
 
-  return <span className={className}>{renderedContent}</span>
+  return <span className={className}>{renderedContent}</span>;
 }
 
 // ============================================================================
@@ -295,24 +315,28 @@ export function MentionHighlightedText({
 
 export interface MentionBadgeProps {
   /** Number of mentions */
-  count: number
+  count: number;
   /** Whether mentions include self-mentions */
-  hasSelfMention?: boolean
+  hasSelfMention?: boolean;
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
-export function MentionBadge({ count, hasSelfMention = false, className }: MentionBadgeProps) {
-  if (count === 0) return null
+export function MentionBadge({
+  count,
+  hasSelfMention = false,
+  className,
+}: MentionBadgeProps) {
+  if (count === 0) return null;
 
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium',
+        "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium",
         hasSelfMention
-          ? 'bg-primary/20 text-primary'
-          : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-        className
+          ? "bg-primary/20 text-primary"
+          : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+        className,
       )}
     >
       <svg
@@ -327,7 +351,7 @@ export function MentionBadge({ count, hasSelfMention = false, className }: Menti
       </svg>
       {count}
     </span>
-  )
+  );
 }
 
 // ============================================================================
@@ -335,31 +359,31 @@ export function MentionBadge({ count, hasSelfMention = false, className }: Menti
 // ============================================================================
 
 export interface InlineMentionProps {
-  username: string
-  displayName?: string
-  type?: MentionType
-  className?: string
+  username: string;
+  displayName?: string;
+  type?: MentionType;
+  className?: string;
 }
 
 export function InlineMention({
   username,
   displayName,
-  type = 'user',
+  type = "user",
   className,
 }: InlineMentionProps) {
-  const isSpecial = type !== 'user'
+  const isSpecial = type !== "user";
 
   return (
     <span
       className={cn(
-        'font-medium',
-        isSpecial ? 'text-amber-600 dark:text-amber-400' : 'text-primary',
-        className
+        "font-medium",
+        isSpecial ? "text-amber-600 dark:text-amber-400" : "text-primary",
+        className,
       )}
     >
       @{displayName || username}
     </span>
-  )
+  );
 }
 
 // ============================================================================
@@ -370,32 +394,37 @@ export function InlineMention({
  * Check if content contains any mentions
  */
 export function hasMentions(content: string): boolean {
-  return parseMentions(content).length > 0
+  return parseMentions(content).length > 0;
 }
 
 /**
  * Check if content contains a mention of a specific user
  */
-export function containsUserMention(content: string, username: string): boolean {
-  const mentions = parseMentions(content)
-  const lowerUsername = username.toLowerCase()
-  return mentions.some((m) => m.text.toLowerCase() === lowerUsername)
+export function containsUserMention(
+  content: string,
+  username: string,
+): boolean {
+  const mentions = parseMentions(content);
+  const lowerUsername = username.toLowerCase();
+  return mentions.some((m) => m.text.toLowerCase() === lowerUsername);
 }
 
 /**
  * Check if content contains any special mentions
  */
 export function containsSpecialMention(content: string): boolean {
-  const mentions = parseMentions(content)
-  return mentions.some((m) => isSpecialMention(m.text))
+  const mentions = parseMentions(content);
+  return mentions.some((m) => isSpecialMention(m.text));
 }
 
 /**
  * Extract all usernames mentioned in content
  */
 export function extractMentionedUsernames(content: string): string[] {
-  const mentions = parseMentions(content)
-  return mentions.filter((m) => !isSpecialMention(m.text)).map((m) => m.text.toLowerCase())
+  const mentions = parseMentions(content);
+  return mentions
+    .filter((m) => !isSpecialMention(m.text))
+    .map((m) => m.text.toLowerCase());
 }
 
-export default MentionHighlight
+export default MentionHighlight;

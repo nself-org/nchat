@@ -16,7 +16,7 @@ export {
   type IndexOperationResult,
   type BatchOperationResult,
   type IndexStats,
-} from './index.service'
+} from "./index.service";
 
 // Search Service
 export {
@@ -35,7 +35,7 @@ export {
   type SearchResults,
   type TypedSearchResults,
   type SearchSuggestion,
-} from './search.service'
+} from "./search.service";
 
 // Sync Service
 export {
@@ -52,7 +52,7 @@ export {
   type FileInput,
   type UserInput,
   type ChannelInput,
-} from './sync.service'
+} from "./sync.service";
 
 // Message Indexer (existing)
 export {
@@ -67,7 +67,7 @@ export {
   type MessageWithContext,
   type MessageEventType,
   type MessageEvent,
-} from './message-indexer'
+} from "./message-indexer";
 
 // Real-time Sync Service
 export {
@@ -81,4 +81,4 @@ export {
   type FileEvent as RealtimeFileEvent,
   type SyncEvent as RealtimeSyncEvent,
   type SyncEventHandler as RealtimeSyncEventHandler,
-} from './realtime-sync'
+} from "./realtime-sync";

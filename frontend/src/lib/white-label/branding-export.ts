@@ -2,26 +2,29 @@
  * Branding Export - Export and import branding configurations
  */
 
-import type { BrandingConfig } from './branding-schema'
+import type { BrandingConfig } from "./branding-schema";
 import {
   generateFaviconHtml,
   generateWebManifest,
   generateBrowserConfig,
-} from './favicon-generator'
-import { paletteToCSS, generateGradient } from './color-generator'
-import { generateFontCSS, generateGoogleFontsUrl } from './font-loader'
+} from "./favicon-generator";
+import { paletteToCSS, generateGradient } from "./color-generator";
+import { generateFontCSS, generateGoogleFontsUrl } from "./font-loader";
 
 export interface ExportOptions {
-  format: 'json' | 'css' | 'tailwind' | 'scss' | 'zip'
-  includeAssets?: boolean
-  minify?: boolean
+  format: "json" | "css" | "tailwind" | "scss" | "zip";
+  includeAssets?: boolean;
+  minify?: boolean;
 }
 
 /**
  * Export branding config as JSON
  */
-export function exportAsJSON(config: BrandingConfig, minify: boolean = false): string {
-  return JSON.stringify(config, null, minify ? 0 : 2)
+export function exportAsJSON(
+  config: BrandingConfig,
+  minify: boolean = false,
+): string {
+  return JSON.stringify(config, null, minify ? 0 : 2);
 }
 
 /**
@@ -29,19 +32,21 @@ export function exportAsJSON(config: BrandingConfig, minify: boolean = false): s
  */
 export function importFromJSON(jsonString: string): BrandingConfig {
   try {
-    const config = JSON.parse(jsonString) as BrandingConfig
+    const config = JSON.parse(jsonString) as BrandingConfig;
     // Validate basic structure
     if (!config.appInfo || !config.colors) {
-      throw new Error('Invalid branding configuration: missing required fields')
+      throw new Error(
+        "Invalid branding configuration: missing required fields",
+      );
     }
     // Update metadata
     config.metadata = {
       ...config.metadata,
       updatedAt: new Date().toISOString(),
-    }
-    return config
+    };
+    return config;
   } catch (error) {
-    throw new Error(`Failed to parse branding configuration: ${error}`)
+    throw new Error(`Failed to parse branding configuration: ${error}`);
   }
 }
 
@@ -49,67 +54,77 @@ export function importFromJSON(jsonString: string): BrandingConfig {
  * Export branding config as CSS custom properties
  */
 export function exportAsCSS(config: BrandingConfig): string {
-  const lines: string[] = []
+  const lines: string[] = [];
 
   // Font imports
-  lines.push('/* Font Imports */')
+  lines.push("/* Font Imports */");
   const fontUrl = generateGoogleFontsUrl([
     { family: config.typography.headingFont },
     { family: config.typography.bodyFont },
     { family: config.typography.monoFont },
-  ])
-  lines.push(`@import url('${fontUrl}');`)
-  lines.push('')
+  ]);
+  lines.push(`@import url('${fontUrl}');`);
+  lines.push("");
 
   // CSS Variables
-  lines.push(':root {')
-  lines.push('  /* Brand Identity */')
-  lines.push(`  --brand-name: "${config.appInfo.appName}";`)
-  lines.push(`  --brand-tagline: "${config.appInfo.tagline}";`)
-  lines.push('')
+  lines.push(":root {");
+  lines.push("  /* Brand Identity */");
+  lines.push(`  --brand-name: "${config.appInfo.appName}";`);
+  lines.push(`  --brand-tagline: "${config.appInfo.tagline}";`);
+  lines.push("");
 
-  lines.push('  /* Colors */')
-  lines.push(paletteToCSS(config.colors, ''))
-  lines.push('')
+  lines.push("  /* Colors */");
+  lines.push(paletteToCSS(config.colors, ""));
+  lines.push("");
 
-  lines.push('  /* Typography */')
-  lines.push(`  --font-heading: "${config.typography.headingFont}", system-ui, sans-serif;`)
-  lines.push(`  --font-body: "${config.typography.bodyFont}", system-ui, sans-serif;`)
-  lines.push(`  --font-mono: "${config.typography.monoFont}", monospace;`)
-  lines.push(`  --font-size-base: ${config.typography.baseFontSize}px;`)
-  lines.push(`  --line-height: ${config.typography.lineHeight};`)
-  lines.push('')
+  lines.push("  /* Typography */");
+  lines.push(
+    `  --font-heading: "${config.typography.headingFont}", system-ui, sans-serif;`,
+  );
+  lines.push(
+    `  --font-body: "${config.typography.bodyFont}", system-ui, sans-serif;`,
+  );
+  lines.push(`  --font-mono: "${config.typography.monoFont}", monospace;`);
+  lines.push(`  --font-size-base: ${config.typography.baseFontSize}px;`);
+  lines.push(`  --line-height: ${config.typography.lineHeight};`);
+  lines.push("");
 
-  lines.push('  /* Font Weights */')
-  lines.push(`  --font-weight-normal: ${config.typography.fontWeights.normal};`)
-  lines.push(`  --font-weight-medium: ${config.typography.fontWeights.medium};`)
-  lines.push(`  --font-weight-semibold: ${config.typography.fontWeights.semibold};`)
-  lines.push(`  --font-weight-bold: ${config.typography.fontWeights.bold};`)
-  lines.push('}')
-  lines.push('')
+  lines.push("  /* Font Weights */");
+  lines.push(
+    `  --font-weight-normal: ${config.typography.fontWeights.normal};`,
+  );
+  lines.push(
+    `  --font-weight-medium: ${config.typography.fontWeights.medium};`,
+  );
+  lines.push(
+    `  --font-weight-semibold: ${config.typography.fontWeights.semibold};`,
+  );
+  lines.push(`  --font-weight-bold: ${config.typography.fontWeights.bold};`);
+  lines.push("}");
+  lines.push("");
 
   // Base styles
-  lines.push('/* Base Styles */')
-  lines.push('body {')
-  lines.push('  font-family: var(--font-body);')
-  lines.push('  font-size: var(--font-size-base);')
-  lines.push('  line-height: var(--line-height);')
-  lines.push('  background-color: var(--background);')
-  lines.push('  color: var(--foreground);')
-  lines.push('}')
-  lines.push('')
+  lines.push("/* Base Styles */");
+  lines.push("body {");
+  lines.push("  font-family: var(--font-body);");
+  lines.push("  font-size: var(--font-size-base);");
+  lines.push("  line-height: var(--line-height);");
+  lines.push("  background-color: var(--background);");
+  lines.push("  color: var(--foreground);");
+  lines.push("}");
+  lines.push("");
 
-  lines.push('h1, h2, h3, h4, h5, h6 {')
-  lines.push('  font-family: var(--font-heading);')
-  lines.push('  font-weight: var(--font-weight-bold);')
-  lines.push('}')
-  lines.push('')
+  lines.push("h1, h2, h3, h4, h5, h6 {");
+  lines.push("  font-family: var(--font-heading);");
+  lines.push("  font-weight: var(--font-weight-bold);");
+  lines.push("}");
+  lines.push("");
 
-  lines.push('code, pre, kbd {')
-  lines.push('  font-family: var(--font-mono);')
-  lines.push('}')
+  lines.push("code, pre, kbd {");
+  lines.push("  font-family: var(--font-mono);");
+  lines.push("}");
 
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 /**
@@ -163,9 +178,13 @@ export function exportAsTailwindConfig(config: BrandingConfig): string {
           },
         },
         fontFamily: {
-          heading: [`"${config.typography.headingFont}"`, 'system-ui', 'sans-serif'],
-          body: [`"${config.typography.bodyFont}"`, 'system-ui', 'sans-serif'],
-          mono: [`"${config.typography.monoFont}"`, 'monospace'],
+          heading: [
+            `"${config.typography.headingFont}"`,
+            "system-ui",
+            "sans-serif",
+          ],
+          body: [`"${config.typography.bodyFont}"`, "system-ui", "sans-serif"],
+          mono: [`"${config.typography.monoFont}"`, "monospace"],
         },
         fontSize: {
           base: [
@@ -181,48 +200,54 @@ export function exportAsTailwindConfig(config: BrandingConfig): string {
         },
       },
     },
-  }
+  };
 
   return `// tailwind.config.js
 // Generated from ${config.appInfo.appName} branding
 
 module.exports = ${JSON.stringify(tailwindConfig, null, 2)}
-`
+`;
 }
 
 /**
  * Export branding config as SCSS variables
  */
 export function exportAsSCSS(config: BrandingConfig): string {
-  const lines: string[] = []
+  const lines: string[] = [];
 
-  lines.push('// Brand Identity')
-  lines.push(`$brand-name: "${config.appInfo.appName}";`)
-  lines.push(`$brand-tagline: "${config.appInfo.tagline}";`)
-  lines.push('')
+  lines.push("// Brand Identity");
+  lines.push(`$brand-name: "${config.appInfo.appName}";`);
+  lines.push(`$brand-tagline: "${config.appInfo.tagline}";`);
+  lines.push("");
 
-  lines.push('// Colors')
+  lines.push("// Colors");
   for (const [key, value] of Object.entries(config.colors)) {
-    const scssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase()
-    lines.push(`$color-${scssKey}: ${value};`)
+    const scssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+    lines.push(`$color-${scssKey}: ${value};`);
   }
-  lines.push('')
+  lines.push("");
 
-  lines.push('// Typography')
-  lines.push(`$font-heading: "${config.typography.headingFont}", system-ui, sans-serif;`)
-  lines.push(`$font-body: "${config.typography.bodyFont}", system-ui, sans-serif;`)
-  lines.push(`$font-mono: "${config.typography.monoFont}", monospace;`)
-  lines.push(`$font-size-base: ${config.typography.baseFontSize}px;`)
-  lines.push(`$line-height: ${config.typography.lineHeight};`)
-  lines.push('')
+  lines.push("// Typography");
+  lines.push(
+    `$font-heading: "${config.typography.headingFont}", system-ui, sans-serif;`,
+  );
+  lines.push(
+    `$font-body: "${config.typography.bodyFont}", system-ui, sans-serif;`,
+  );
+  lines.push(`$font-mono: "${config.typography.monoFont}", monospace;`);
+  lines.push(`$font-size-base: ${config.typography.baseFontSize}px;`);
+  lines.push(`$line-height: ${config.typography.lineHeight};`);
+  lines.push("");
 
-  lines.push('// Font Weights')
-  lines.push(`$font-weight-normal: ${config.typography.fontWeights.normal};`)
-  lines.push(`$font-weight-medium: ${config.typography.fontWeights.medium};`)
-  lines.push(`$font-weight-semibold: ${config.typography.fontWeights.semibold};`)
-  lines.push(`$font-weight-bold: ${config.typography.fontWeights.bold};`)
+  lines.push("// Font Weights");
+  lines.push(`$font-weight-normal: ${config.typography.fontWeights.normal};`);
+  lines.push(`$font-weight-medium: ${config.typography.fontWeights.medium};`);
+  lines.push(
+    `$font-weight-semibold: ${config.typography.fontWeights.semibold};`,
+  );
+  lines.push(`$font-weight-bold: ${config.typography.fontWeights.bold};`);
 
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 /**
@@ -230,11 +255,16 @@ export function exportAsSCSS(config: BrandingConfig): string {
  */
 export function generateEmailTemplate(
   config: BrandingConfig,
-  template: 'welcome' | 'passwordReset' | 'emailVerification' | 'invitation' | 'notification'
+  template:
+    | "welcome"
+    | "passwordReset"
+    | "emailVerification"
+    | "invitation"
+    | "notification",
 ): string {
-  const email = config.emailTemplates
-  const colors = config.colors
-  const brand = config.appInfo
+  const email = config.emailTemplates;
+  const colors = config.colors;
+  const brand = config.appInfo;
 
   const templates: Record<
     string,
@@ -244,36 +274,36 @@ export function generateEmailTemplate(
       subject: `Welcome to ${brand.appName}!`,
       heading: `Welcome to ${brand.appName}`,
       body: `Thank you for joining ${brand.appName}. We're excited to have you on board!`,
-      cta: 'Get Started',
+      cta: "Get Started",
     },
     passwordReset: {
       subject: `Reset your ${brand.appName} password`,
-      heading: 'Reset Your Password',
+      heading: "Reset Your Password",
       body: `We received a request to reset your password. Click the button below to create a new password.`,
-      cta: 'Reset Password',
+      cta: "Reset Password",
     },
     emailVerification: {
       subject: `Verify your email for ${brand.appName}`,
-      heading: 'Verify Your Email',
+      heading: "Verify Your Email",
       body: `Please verify your email address to complete your ${brand.appName} registration.`,
-      cta: 'Verify Email',
+      cta: "Verify Email",
     },
     invitation: {
       subject: `You've been invited to ${brand.appName}`,
       heading: `Join ${brand.appName}`,
       body: `You've been invited to join ${brand.appName}. Click below to accept the invitation.`,
-      cta: 'Accept Invitation',
+      cta: "Accept Invitation",
     },
     notification: {
       subject: `New notification from ${brand.appName}`,
-      heading: 'New Notification',
+      heading: "New Notification",
       body: `You have a new notification from ${brand.appName}.`,
     },
-  }
+  };
 
-  const t = templates[template]
-  const buttonColor = email.primaryButtonColor || colors.primary
-  const bgColor = email.backgroundColor || colors.muted
+  const t = templates[template];
+  const buttonColor = email.primaryButtonColor || colors.primary;
+  const bgColor = email.backgroundColor || colors.muted;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -299,7 +329,7 @@ export function generateEmailTemplate(
             <td style="padding: 40px;">
               <h2 style="margin: 0 0 16px; color: ${colors.cardForeground}; font-size: 24px; font-weight: 600;">${t.heading}</h2>
               <p style="margin: 0 0 24px; color: ${colors.mutedForeground}; font-size: 16px; line-height: 1.5;">${t.body}</p>
-              ${t.cta ? `<a href="{{action_url}}" style="display: inline-block; padding: 12px 24px; background-color: ${buttonColor}; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">${t.cta}</a>` : ''}
+              ${t.cta ? `<a href="{{action_url}}" style="display: inline-block; padding: 12px 24px; background-color: ${buttonColor}; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">${t.cta}</a>` : ""}
             </td>
           </tr>
 
@@ -314,7 +344,7 @@ export function generateEmailTemplate(
     </tr>
   </table>
 </body>
-</html>`
+</html>`;
 }
 
 /**
@@ -322,78 +352,93 @@ export function generateEmailTemplate(
  */
 export async function exportAsZip(
   config: BrandingConfig,
-  favicons: Array<{ name: string; blob: Blob }>
+  favicons: Array<{ name: string; blob: Blob }>,
 ): Promise<Blob> {
-  const JSZip = (await import('jszip')).default
-  const zip = new JSZip()
+  const JSZip = (await import("jszip")).default;
+  const zip = new JSZip();
 
   // Add branding config
-  zip.file('branding.json', exportAsJSON(config))
+  zip.file("branding.json", exportAsJSON(config));
 
   // Add CSS
-  zip.file('css/variables.css', exportAsCSS(config))
+  zip.file("css/variables.css", exportAsCSS(config));
   zip.file(
-    'css/typography.css',
+    "css/typography.css",
     generateFontCSS([
       { family: config.typography.headingFont },
       { family: config.typography.bodyFont },
       { family: config.typography.monoFont },
-    ])
-  )
+    ]),
+  );
 
   // Add SCSS
-  zip.file('scss/_variables.scss', exportAsSCSS(config))
+  zip.file("scss/_variables.scss", exportAsSCSS(config));
 
   // Add Tailwind config
-  zip.file('tailwind.config.js', exportAsTailwindConfig(config))
+  zip.file("tailwind.config.js", exportAsTailwindConfig(config));
 
   // Add favicons
-  const faviconFolder = zip.folder('favicons')!
+  const faviconFolder = zip.folder("favicons")!;
   for (const favicon of favicons) {
-    faviconFolder.file(favicon.name, favicon.blob)
+    faviconFolder.file(favicon.name, favicon.blob);
   }
 
   // Add manifest files
   faviconFolder.file(
-    'site.webmanifest',
+    "site.webmanifest",
     generateWebManifest(
       config.appInfo.appName,
       config.appInfo.appName,
       config.colors.primary,
-      config.colors.background
-    )
-  )
-  faviconFolder.file('browserconfig.xml', generateBrowserConfig(config.colors.primary))
-  faviconFolder.file('favicon-html.txt', generateFaviconHtml())
+      config.colors.background,
+    ),
+  );
+  faviconFolder.file(
+    "browserconfig.xml",
+    generateBrowserConfig(config.colors.primary),
+  );
+  faviconFolder.file("favicon-html.txt", generateFaviconHtml());
 
   // Add logo if exists
   if (config.logo.original) {
-    const logoFolder = zip.folder('logo')!
-    const logoBlob = await fetch(config.logo.original).then((r) => r.blob())
-    logoFolder.file('logo.png', logoBlob)
+    const logoFolder = zip.folder("logo")!;
+    const logoBlob = await fetch(config.logo.original).then((r) => r.blob());
+    logoFolder.file("logo.png", logoBlob);
 
     if (config.logo.light) {
-      const lightBlob = await fetch(config.logo.light).then((r) => r.blob())
-      logoFolder.file('logo-light.png', lightBlob)
+      const lightBlob = await fetch(config.logo.light).then((r) => r.blob());
+      logoFolder.file("logo-light.png", lightBlob);
     }
     if (config.logo.dark) {
-      const darkBlob = await fetch(config.logo.dark).then((r) => r.blob())
-      logoFolder.file('logo-dark.png', darkBlob)
+      const darkBlob = await fetch(config.logo.dark).then((r) => r.blob());
+      logoFolder.file("logo-dark.png", darkBlob);
     }
   }
 
   // Add email templates
-  const emailFolder = zip.folder('emails')!
-  emailFolder.file('welcome.html', generateEmailTemplate(config, 'welcome'))
-  emailFolder.file('password-reset.html', generateEmailTemplate(config, 'passwordReset'))
-  emailFolder.file('email-verification.html', generateEmailTemplate(config, 'emailVerification'))
-  emailFolder.file('invitation.html', generateEmailTemplate(config, 'invitation'))
-  emailFolder.file('notification.html', generateEmailTemplate(config, 'notification'))
+  const emailFolder = zip.folder("emails")!;
+  emailFolder.file("welcome.html", generateEmailTemplate(config, "welcome"));
+  emailFolder.file(
+    "password-reset.html",
+    generateEmailTemplate(config, "passwordReset"),
+  );
+  emailFolder.file(
+    "email-verification.html",
+    generateEmailTemplate(config, "emailVerification"),
+  );
+  emailFolder.file(
+    "invitation.html",
+    generateEmailTemplate(config, "invitation"),
+  );
+  emailFolder.file(
+    "notification.html",
+    generateEmailTemplate(config, "notification"),
+  );
 
   // Add README
-  zip.file('README.md', generateReadme(config))
+  zip.file("README.md", generateReadme(config));
 
-  return zip.generateAsync({ type: 'blob' })
+  return zip.generateAsync({ type: "blob" });
 }
 
 /**
@@ -459,25 +504,28 @@ Copy the favicon files to your public directory and add the HTML snippet from \`
 ---
 
 Generated on ${new Date().toISOString()}
-`
+`;
 }
 
 /**
  * Download exported file
  */
 export function downloadFile(content: string | Blob, filename: string): void {
-  const blob = typeof content === 'string' ? new Blob([content], { type: 'text/plain' }) : content
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  link.click()
-  URL.revokeObjectURL(url)
+  const blob =
+    typeof content === "string"
+      ? new Blob([content], { type: "text/plain" })
+      : content;
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 /**
  * Copy text to clipboard
  */
 export async function copyToClipboard(text: string): Promise<void> {
-  await navigator.clipboard.writeText(text)
+  await navigator.clipboard.writeText(text);
 }

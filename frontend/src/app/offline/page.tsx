@@ -1,79 +1,81 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { WifiOff, RefreshCw, Home, MessageSquare, Clock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { useEffect, useState } from "react";
+import { WifiOff, RefreshCw, Home, MessageSquare, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface CachedConversation {
-  id: string
-  name: string
-  type: 'channel' | 'dm'
-  lastMessage?: string
-  timestamp?: number
+  id: string;
+  name: string;
+  type: "channel" | "dm";
+  lastMessage?: string;
+  timestamp?: number;
 }
 
 export default function OfflinePage() {
-  const [isOnline, setIsOnline] = useState(false)
-  const [isRetrying, setIsRetrying] = useState(false)
-  const [cachedConversations, setCachedConversations] = useState<CachedConversation[]>([])
-  const [retryCount, setRetryCount] = useState(0)
+  const [isOnline, setIsOnline] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [cachedConversations, setCachedConversations] = useState<
+    CachedConversation[]
+  >([]);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Check online status
   useEffect(() => {
-    setIsOnline(navigator.onLine)
+    setIsOnline(navigator.onLine);
 
     const handleOnline = () => {
-      setIsOnline(true)
+      setIsOnline(true);
       // Redirect to home when back online
-      window.location.href = '/'
-    }
+      window.location.href = "/";
+    };
 
     const handleOffline = () => {
-      setIsOnline(false)
-    }
+      setIsOnline(false);
+    };
 
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   // Load cached conversations from localStorage/cache
   useEffect(() => {
     const loadCachedData = async () => {
       try {
         // Try to get cached conversations from localStorage
-        const cachedData = localStorage.getItem('nchat-cached-conversations')
+        const cachedData = localStorage.getItem("nchat-cached-conversations");
         if (cachedData) {
-          const conversations = JSON.parse(cachedData) as CachedConversation[]
-          setCachedConversations(conversations.slice(0, 5)) // Show up to 5
+          const conversations = JSON.parse(cachedData) as CachedConversation[];
+          setCachedConversations(conversations.slice(0, 5)); // Show up to 5
         }
       } catch {
         // Ignore errors
       }
-    }
+    };
 
-    loadCachedData()
-  }, [])
+    loadCachedData();
+  }, []);
 
   const handleRetry = async () => {
-    setIsRetrying(true)
-    setRetryCount((prev) => prev + 1)
+    setIsRetrying(true);
+    setRetryCount((prev) => prev + 1);
 
     try {
       // Try to fetch a small resource to check connectivity
-      const response = await fetch('/api/health', {
-        method: 'HEAD',
-        cache: 'no-store',
-      })
+      const response = await fetch("/api/health", {
+        method: "HEAD",
+        cache: "no-store",
+      });
 
       if (response.ok) {
-        window.location.href = '/'
-        return
+        window.location.href = "/";
+        return;
       }
     } catch {
       // Still offline
@@ -81,12 +83,12 @@ export default function OfflinePage() {
 
     // Also check navigator.onLine
     if (navigator.onLine) {
-      window.location.href = '/'
-      return
+      window.location.href = "/";
+      return;
     }
 
-    setIsRetrying(false)
-  }
+    setIsRetrying(false);
+  };
 
   // If online, redirect
   if (isOnline) {
@@ -94,10 +96,12 @@ export default function OfflinePage() {
       <div className="flex min-h-screen items-center justify-center bg-white dark:bg-zinc-900">
         <div className="text-center">
           <RefreshCw className="mx-auto h-8 w-8 animate-spin text-indigo-600" />
-          <p className="mt-4 text-zinc-600 dark:text-zinc-400">Reconnecting...</p>
+          <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+            Reconnecting...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -109,7 +113,9 @@ export default function OfflinePage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
               <MessageSquare className="h-5 w-5 text-white" />
             </div>
-            <span className="font-semibold text-zinc-900 dark:text-white">nChat</span>
+            <span className="font-semibold text-zinc-900 dark:text-white">
+              nChat
+            </span>
           </div>
 
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
@@ -139,8 +145,9 @@ export default function OfflinePage() {
             </h1>
 
             <p className="mb-6 text-zinc-600 dark:text-zinc-400">
-              It looks like you&apos;ve lost your internet connection. Don&apos;t worry - your
-              messages will be synced when you&apos;re back online.
+              It looks like you&apos;ve lost your internet connection.
+              Don&apos;t worry - your messages will be synced when you&apos;re
+              back online.
             </p>
 
             <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -149,8 +156,10 @@ export default function OfflinePage() {
                 disabled={isRetrying}
                 className="w-full bg-indigo-600 text-white hover:bg-indigo-700 sm:w-auto"
               >
-                <RefreshCw className={`mr-2 h-4 w-4 ${isRetrying ? 'animate-spin' : ''}`} />
-                {isRetrying ? 'Checking...' : 'Try again'}
+                <RefreshCw
+                  className={`mr-2 h-4 w-4 ${isRetrying ? "animate-spin" : ""}`}
+                />
+                {isRetrying ? "Checking..." : "Try again"}
               </Button>
 
               <Link href="/" className="w-full sm:w-auto">
@@ -163,7 +172,8 @@ export default function OfflinePage() {
 
             {retryCount >= 3 && (
               <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-                Still having trouble? Try checking your Wi-Fi or mobile data connection.
+                Still having trouble? Try checking your Wi-Fi or mobile data
+                connection.
               </p>
             )}
           </div>
@@ -186,7 +196,7 @@ export default function OfflinePage() {
                   <li key={conversation.id}>
                     <Link
                       href={
-                        conversation.type === 'channel'
+                        conversation.type === "channel"
                           ? `/chat/channels/${conversation.id}`
                           : `/chat/dm/${conversation.id}`
                       }
@@ -194,19 +204,19 @@ export default function OfflinePage() {
                     >
                       <div
                         className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                          conversation.type === 'channel'
-                            ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'
-                            : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                          conversation.type === "channel"
+                            ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+                            : "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
                         }`}
                       >
-                        {conversation.type === 'channel'
-                          ? '#'
+                        {conversation.type === "channel"
+                          ? "#"
                           : conversation.name.charAt(0).toUpperCase()}
                       </div>
 
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium text-zinc-900 dark:text-white">
-                          {conversation.type === 'channel'
+                          {conversation.type === "channel"
                             ? `#${conversation.name}`
                             : conversation.name}
                         </p>
@@ -250,22 +260,22 @@ export default function OfflinePage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
 function formatTimestamp(timestamp: number): string {
-  const now = Date.now()
-  const diff = now - timestamp
+  const now = Date.now();
+  const diff = now - timestamp;
 
-  const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes}m ago`
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
 
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
 
-  const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
 
-  return new Date(timestamp).toLocaleDateString()
+  return new Date(timestamp).toLocaleDateString();
 }

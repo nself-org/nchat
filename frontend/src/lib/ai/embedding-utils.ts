@@ -21,25 +21,25 @@
  */
 export function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) {
-    throw new Error(`Vector dimension mismatch: ${a.length} vs ${b.length}`)
+    throw new Error(`Vector dimension mismatch: ${a.length} vs ${b.length}`);
   }
 
-  let dotProduct = 0
-  let normA = 0
-  let normB = 0
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
 
   for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i]
-    normA += a[i] * a[i]
-    normB += b[i] * b[i]
+    dotProduct += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
   }
 
-  const magnitude = Math.sqrt(normA) * Math.sqrt(normB)
+  const magnitude = Math.sqrt(normA) * Math.sqrt(normB);
   if (magnitude === 0) {
-    return 0
+    return 0;
   }
 
-  return dotProduct / magnitude
+  return dotProduct / magnitude;
 }
 
 /**
@@ -48,16 +48,16 @@ export function cosineSimilarity(a: number[], b: number[]): number {
  */
 export function euclideanDistance(a: number[], b: number[]): number {
   if (a.length !== b.length) {
-    throw new Error(`Vector dimension mismatch: ${a.length} vs ${b.length}`)
+    throw new Error(`Vector dimension mismatch: ${a.length} vs ${b.length}`);
   }
 
-  let sum = 0
+  let sum = 0;
   for (let i = 0; i < a.length; i++) {
-    const diff = a[i] - b[i]
-    sum += diff * diff
+    const diff = a[i] - b[i];
+    sum += diff * diff;
   }
 
-  return Math.sqrt(sum)
+  return Math.sqrt(sum);
 }
 
 /**
@@ -66,15 +66,15 @@ export function euclideanDistance(a: number[], b: number[]): number {
  */
 export function manhattanDistance(a: number[], b: number[]): number {
   if (a.length !== b.length) {
-    throw new Error(`Vector dimension mismatch: ${a.length} vs ${b.length}`)
+    throw new Error(`Vector dimension mismatch: ${a.length} vs ${b.length}`);
   }
 
-  let sum = 0
+  let sum = 0;
   for (let i = 0; i < a.length; i++) {
-    sum += Math.abs(a[i] - b[i])
+    sum += Math.abs(a[i] - b[i]);
   }
 
-  return sum
+  return sum;
 }
 
 /**
@@ -82,35 +82,35 @@ export function manhattanDistance(a: number[], b: number[]): number {
  */
 export function dotProduct(a: number[], b: number[]): number {
   if (a.length !== b.length) {
-    throw new Error(`Vector dimension mismatch: ${a.length} vs ${b.length}`)
+    throw new Error(`Vector dimension mismatch: ${a.length} vs ${b.length}`);
   }
 
-  let sum = 0
+  let sum = 0;
   for (let i = 0; i < a.length; i++) {
-    sum += a[i] * b[i]
+    sum += a[i] * b[i];
   }
 
-  return sum
+  return sum;
 }
 
 /**
  * Normalize a vector to unit length (L2 normalization)
  */
 export function normalize(vector: number[]): number[] {
-  const norm = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0))
+  const norm = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
 
   if (norm === 0) {
-    return vector
+    return vector;
   }
 
-  return vector.map((val) => val / norm)
+  return vector.map((val) => val / norm);
 }
 
 /**
  * Calculate the magnitude (L2 norm) of a vector
  */
 export function magnitude(vector: number[]): number {
-  return Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0))
+  return Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
 }
 
 /**
@@ -118,58 +118,61 @@ export function magnitude(vector: number[]): number {
  */
 export function averageVectors(vectors: number[][]): number[] {
   if (vectors.length === 0) {
-    throw new Error('Cannot average empty vector list')
+    throw new Error("Cannot average empty vector list");
   }
 
-  const dimension = vectors[0].length
-  const result = new Array(dimension).fill(0)
+  const dimension = vectors[0].length;
+  const result = new Array(dimension).fill(0);
 
   for (const vector of vectors) {
     if (vector.length !== dimension) {
-      throw new Error('All vectors must have the same dimension')
+      throw new Error("All vectors must have the same dimension");
     }
     for (let i = 0; i < dimension; i++) {
-      result[i] += vector[i]
+      result[i] += vector[i];
     }
   }
 
-  return result.map((val) => val / vectors.length)
+  return result.map((val) => val / vectors.length);
 }
 
 /**
  * Calculate weighted average of multiple vectors
  */
-export function weightedAverageVectors(vectors: number[][], weights: number[]): number[] {
+export function weightedAverageVectors(
+  vectors: number[][],
+  weights: number[],
+): number[] {
   if (vectors.length === 0) {
-    throw new Error('Cannot average empty vector list')
+    throw new Error("Cannot average empty vector list");
   }
 
   if (vectors.length !== weights.length) {
-    throw new Error('Number of vectors must match number of weights')
+    throw new Error("Number of vectors must match number of weights");
   }
 
-  const dimension = vectors[0].length
-  const result = new Array(dimension).fill(0)
-  const totalWeight = weights.reduce((sum, w) => sum + w, 0)
+  const dimension = vectors[0].length;
+  const result = new Array(dimension).fill(0);
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
 
   if (totalWeight === 0) {
-    throw new Error('Total weight cannot be zero')
+    throw new Error("Total weight cannot be zero");
   }
 
   for (let i = 0; i < vectors.length; i++) {
-    const vector = vectors[i]
-    const weight = weights[i]
+    const vector = vectors[i];
+    const weight = weights[i];
 
     if (vector.length !== dimension) {
-      throw new Error('All vectors must have the same dimension')
+      throw new Error("All vectors must have the same dimension");
     }
 
     for (let j = 0; j < dimension; j++) {
-      result[j] += vector[j] * weight
+      result[j] += vector[j] * weight;
     }
   }
 
-  return result.map((val) => val / totalWeight)
+  return result.map((val) => val / totalWeight);
 }
 
 // ========================================
@@ -181,83 +184,87 @@ export function weightedAverageVectors(vectors: number[][], weights: number[]): 
  * Returns a score between 0 and 100
  */
 export function calculateQualityScore(embedding: number[]): number {
-  let score = 100
+  let score = 100;
 
   // Check for NaN or Infinity
-  const hasInvalidValues = embedding.some((val) => !isFinite(val))
+  const hasInvalidValues = embedding.some((val) => !isFinite(val));
   if (hasInvalidValues) {
-    return 0
+    return 0;
   }
 
   // Check magnitude (should be close to 1 for normalized embeddings)
-  const mag = magnitude(embedding)
-  const magnitudeDiff = Math.abs(mag - 1)
-  score -= magnitudeDiff * 20 // Penalty for non-normalized embeddings
+  const mag = magnitude(embedding);
+  const magnitudeDiff = Math.abs(mag - 1);
+  score -= magnitudeDiff * 20; // Penalty for non-normalized embeddings
 
   // Check for zero or near-zero vectors
   if (mag < 0.1) {
-    score -= 30
+    score -= 30;
   }
 
   // Check variance (embeddings should have some variance)
-  const mean = embedding.reduce((sum, val) => sum + val, 0) / embedding.length
+  const mean = embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
   const variance =
-    embedding.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / embedding.length
+    embedding.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+    embedding.length;
 
   if (variance < 0.001) {
-    score -= 20 // Low variance indicates low information content
+    score -= 20; // Low variance indicates low information content
   }
 
   // Check for outliers (values too far from mean)
-  const stdDev = Math.sqrt(variance)
-  const outliers = embedding.filter((val) => Math.abs(val - mean) > 3 * stdDev)
-  score -= outliers.length * 2
+  const stdDev = Math.sqrt(variance);
+  const outliers = embedding.filter((val) => Math.abs(val - mean) > 3 * stdDev);
+  score -= outliers.length * 2;
 
-  return Math.max(0, Math.min(100, score))
+  return Math.max(0, Math.min(100, score));
 }
 
 /**
  * Detect potential embedding anomalies
  */
 export function detectAnomalies(embedding: number[]): string[] {
-  const anomalies: string[] = []
+  const anomalies: string[] = [];
 
   // Check for invalid values
-  const invalidValues = embedding.filter((val) => !isFinite(val))
+  const invalidValues = embedding.filter((val) => !isFinite(val));
   if (invalidValues.length > 0) {
-    anomalies.push(`Contains ${invalidValues.length} invalid values (NaN/Infinity)`)
+    anomalies.push(
+      `Contains ${invalidValues.length} invalid values (NaN/Infinity)`,
+    );
   }
 
   // Check for zero vector
-  const mag = magnitude(embedding)
+  const mag = magnitude(embedding);
   if (mag < 0.001) {
-    anomalies.push('Near-zero magnitude (embedding may be invalid)')
+    anomalies.push("Near-zero magnitude (embedding may be invalid)");
   }
 
   // Check normalization
-  const magnitudeDiff = Math.abs(mag - 1)
+  const magnitudeDiff = Math.abs(mag - 1);
   if (magnitudeDiff > 0.1) {
-    anomalies.push(`Not normalized (magnitude: ${mag.toFixed(3)})`)
+    anomalies.push(`Not normalized (magnitude: ${mag.toFixed(3)})`);
   }
 
   // Check for low variance
-  const mean = embedding.reduce((sum, val) => sum + val, 0) / embedding.length
+  const mean = embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
   const variance =
-    embedding.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / embedding.length
+    embedding.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+    embedding.length;
 
   if (variance < 0.001) {
-    anomalies.push('Very low variance (may lack information)')
+    anomalies.push("Very low variance (may lack information)");
   }
 
   // Check for extreme values
-  const min = Math.min(...embedding)
-  const max = Math.max(...embedding)
+  const min = Math.min(...embedding);
+  const max = Math.max(...embedding);
 
   if (Math.abs(min) > 10 || Math.abs(max) > 10) {
-    anomalies.push(`Extreme values detected (min: ${min}, max: ${max})`)
+    anomalies.push(`Extreme values detected (min: ${min}, max: ${max})`);
   }
 
-  return anomalies
+  return anomalies;
 }
 
 // ========================================
@@ -268,23 +275,26 @@ export function detectAnomalies(embedding: number[]): string[] {
  * Reduce vector dimensions using simple averaging
  * Useful for visualization or reducing storage requirements
  */
-export function reduceDimensions(embedding: number[], targetDimension: number): number[] {
+export function reduceDimensions(
+  embedding: number[],
+  targetDimension: number,
+): number[] {
   if (targetDimension >= embedding.length) {
-    return embedding
+    return embedding;
   }
 
-  const chunkSize = Math.ceil(embedding.length / targetDimension)
-  const reduced: number[] = []
+  const chunkSize = Math.ceil(embedding.length / targetDimension);
+  const reduced: number[] = [];
 
   for (let i = 0; i < targetDimension; i++) {
-    const start = i * chunkSize
-    const end = Math.min(start + chunkSize, embedding.length)
-    const chunk = embedding.slice(start, end)
-    const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length
-    reduced.push(avg)
+    const start = i * chunkSize;
+    const end = Math.min(start + chunkSize, embedding.length);
+    const chunk = embedding.slice(start, end);
+    const avg = chunk.reduce((sum, val) => sum + val, 0) / chunk.length;
+    reduced.push(avg);
   }
 
-  return reduced
+  return reduced;
 }
 
 // ========================================
@@ -295,13 +305,14 @@ export function reduceDimensions(embedding: number[], targetDimension: number): 
  * Get detailed statistics about an embedding
  */
 export function getEmbeddingStats(embedding: number[]) {
-  const mean = embedding.reduce((sum, val) => sum + val, 0) / embedding.length
+  const mean = embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
   const variance =
-    embedding.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / embedding.length
-  const stdDev = Math.sqrt(variance)
-  const min = Math.min(...embedding)
-  const max = Math.max(...embedding)
-  const mag = magnitude(embedding)
+    embedding.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+    embedding.length;
+  const stdDev = Math.sqrt(variance);
+  const min = Math.min(...embedding);
+  const max = Math.max(...embedding);
+  const mag = magnitude(embedding);
 
   return {
     dimension: embedding.length,
@@ -314,7 +325,7 @@ export function getEmbeddingStats(embedding: number[]) {
     isNormalized: Math.abs(mag - 1) < 0.01,
     qualityScore: calculateQualityScore(embedding),
     anomalies: detectAnomalies(embedding),
-  }
+  };
 }
 
 /**
@@ -322,15 +333,15 @@ export function getEmbeddingStats(embedding: number[]) {
  */
 export function formatEmbedding(embedding: number[], maxLength = 10): string {
   if (embedding.length <= maxLength) {
-    return `[${embedding.map((v) => v.toFixed(4)).join(', ')}]`
+    return `[${embedding.map((v) => v.toFixed(4)).join(", ")}]`;
   }
 
-  const start = embedding.slice(0, maxLength / 2)
-  const end = embedding.slice(-maxLength / 2)
+  const start = embedding.slice(0, maxLength / 2);
+  const end = embedding.slice(-maxLength / 2);
 
-  return `[${start.map((v) => v.toFixed(4)).join(', ')}, ..., ${end
+  return `[${start.map((v) => v.toFixed(4)).join(", ")}, ..., ${end
     .map((v) => v.toFixed(4))
-    .join(', ')}]`
+    .join(", ")}]`;
 }
 
 /**
@@ -342,7 +353,7 @@ export function compareEmbeddings(a: number[], b: number[]) {
     euclideanDistance: Number(euclideanDistance(a, b).toFixed(6)),
     manhattanDistance: Number(manhattanDistance(a, b).toFixed(6)),
     dotProduct: Number(dotProduct(a, b).toFixed(6)),
-  }
+  };
 }
 
 // ========================================
@@ -355,90 +366,96 @@ export function compareEmbeddings(a: number[], b: number[]) {
 export function findMostSimilar(
   query: number[],
   candidates: number[][],
-  metric: 'cosine' | 'euclidean' | 'manhattan' = 'cosine'
+  metric: "cosine" | "euclidean" | "manhattan" = "cosine",
 ): { index: number; similarity: number } {
-  let bestIndex = -1
-  let bestScore = metric === 'cosine' ? -Infinity : Infinity
+  let bestIndex = -1;
+  let bestScore = metric === "cosine" ? -Infinity : Infinity;
 
   for (let i = 0; i < candidates.length; i++) {
-    const candidate = candidates[i]
-    let score: number
+    const candidate = candidates[i];
+    let score: number;
 
     switch (metric) {
-      case 'cosine':
-        score = cosineSimilarity(query, candidate)
+      case "cosine":
+        score = cosineSimilarity(query, candidate);
         if (score > bestScore) {
-          bestScore = score
-          bestIndex = i
+          bestScore = score;
+          bestIndex = i;
         }
-        break
-      case 'euclidean':
-        score = euclideanDistance(query, candidate)
+        break;
+      case "euclidean":
+        score = euclideanDistance(query, candidate);
         if (score < bestScore) {
-          bestScore = score
-          bestIndex = i
+          bestScore = score;
+          bestIndex = i;
         }
-        break
-      case 'manhattan':
-        score = manhattanDistance(query, candidate)
+        break;
+      case "manhattan":
+        score = manhattanDistance(query, candidate);
         if (score < bestScore) {
-          bestScore = score
-          bestIndex = i
+          bestScore = score;
+          bestIndex = i;
         }
-        break
+        break;
     }
   }
 
   return {
     index: bestIndex,
     similarity: bestScore,
-  }
+  };
 }
 
 /**
  * Cluster embeddings using simple k-means
  * (Simplified version - for production use a proper ML library)
  */
-export function simpleCluster(embeddings: number[][], k: number, maxIterations = 100): number[] {
+export function simpleCluster(
+  embeddings: number[][],
+  k: number,
+  maxIterations = 100,
+): number[] {
   if (embeddings.length < k) {
-    throw new Error('Number of embeddings must be >= k')
+    throw new Error("Number of embeddings must be >= k");
   }
 
   // Initialize centroids randomly
-  const centroids: number[][] = []
-  const used = new Set<number>()
+  const centroids: number[][] = [];
+  const used = new Set<number>();
 
   while (centroids.length < k) {
-    const idx = Math.floor(Math.random() * embeddings.length)
+    const idx = Math.floor(Math.random() * embeddings.length);
     if (!used.has(idx)) {
-      centroids.push([...embeddings[idx]])
-      used.add(idx)
+      centroids.push([...embeddings[idx]]);
+      used.add(idx);
     }
   }
 
-  let assignments = new Array(embeddings.length).fill(0)
+  let assignments = new Array(embeddings.length).fill(0);
 
   for (let iter = 0; iter < maxIterations; iter++) {
     // Assign to nearest centroid
-    const newAssignments = embeddings.map((emb) => findMostSimilar(emb, centroids, 'cosine').index)
+    const newAssignments = embeddings.map(
+      (emb) => findMostSimilar(emb, centroids, "cosine").index,
+    );
 
     // Check convergence
     if (newAssignments.every((a, i) => a === assignments[i])) {
-      break
+      break;
     }
 
-    assignments = newAssignments
+    assignments = newAssignments;
 
     // Update centroids
     for (let i = 0; i < k; i++) {
-      const cluster = embeddings.filter((_, idx) => assignments[idx] === i)
+      const cluster = embeddings.filter((_, idx) => assignments[idx] === i);
       if (cluster.length > 0) {
-        centroids[i] = averageVectors(cluster)
+        centroids[i] = averageVectors(cluster);
       }
     }
   }
 
-  return assignments
+  return assignments;
 }
 
 // ========================================
@@ -471,4 +488,4 @@ export const EmbeddingUtils = {
   // Batch operations
   findMostSimilar,
   simpleCluster,
-}
+};

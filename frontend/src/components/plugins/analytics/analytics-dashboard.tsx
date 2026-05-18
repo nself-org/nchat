@@ -3,17 +3,23 @@
  * Displays key metrics from Analytics plugin
  */
 
-'use client'
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAnalyticsDashboard } from '@/hooks/use-analytics-plugin'
-import { Users, MessageSquare, Hash, TrendingUp } from 'lucide-react'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useAnalyticsDashboard } from "@/hooks/use-analytics-plugin";
+import { Users, MessageSquare, Hash, TrendingUp } from "lucide-react";
 
 interface MetricCardProps {
-  title: string
-  value: number | string
-  icon: React.ReactNode
-  description?: string
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  description?: string;
 }
 
 function MetricCard({ title, value, icon, description }: MetricCardProps) {
@@ -25,18 +31,22 @@ function MetricCard({ title, value, icon, description }: MetricCardProps) {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        {description && (
+          <p className="text-xs text-muted-foreground">{description}</p>
+        )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 interface AnalyticsDashboardProps {
-  period?: string
+  period?: string;
 }
 
-export function AnalyticsDashboard({ period = '30d' }: AnalyticsDashboardProps) {
-  const { dashboard, isLoading, error } = useAnalyticsDashboard({ period })
+export function AnalyticsDashboard({
+  period = "30d",
+}: AnalyticsDashboardProps) {
+  const { dashboard, isLoading, error } = useAnalyticsDashboard({ period });
 
   if (isLoading) {
     return (
@@ -52,7 +62,7 @@ export function AnalyticsDashboard({ period = '30d' }: AnalyticsDashboardProps) 
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -60,14 +70,16 @@ export function AnalyticsDashboard({ period = '30d' }: AnalyticsDashboardProps) 
       <Card className="border-destructive">
         <CardHeader>
           <CardTitle>Error Loading Analytics</CardTitle>
-          <CardDescription>Failed to load analytics data. Please try again later.</CardDescription>
+          <CardDescription>
+            Failed to load analytics data. Please try again later.
+          </CardDescription>
         </CardHeader>
       </Card>
-    )
+    );
   }
 
   if (!dashboard) {
-    return null
+    return null;
   }
 
   return (
@@ -99,5 +111,5 @@ export function AnalyticsDashboard({ period = '30d' }: AnalyticsDashboardProps) 
         />
       </div>
     </div>
-  )
+  );
 }

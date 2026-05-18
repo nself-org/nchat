@@ -1,37 +1,38 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
-import { type UserProfile, useUserStore } from '@/stores/user-store'
-import { UserProfileCardTrigger } from './user-profile-card'
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+import { type UserProfile, useUserStore } from "@/stores/user-store";
+import { UserProfileCardTrigger } from "./user-profile-card";
 
 // ============================================================================
 // Variants
 // ============================================================================
 
 const userMentionVariants = cva(
-  'inline-flex items-center rounded px-1 py-0.5 font-medium cursor-pointer transition-colors',
+  "inline-flex items-center rounded px-1 py-0.5 font-medium cursor-pointer transition-colors",
   {
     variants: {
       variant: {
-        default: 'bg-primary/10 text-primary hover:bg-primary/20',
-        highlight: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-500/30',
-        subtle: 'text-primary hover:bg-primary/10 hover:underline',
-        muted: 'text-muted-foreground hover:text-foreground hover:underline',
+        default: "bg-primary/10 text-primary hover:bg-primary/20",
+        highlight:
+          "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-500/30",
+        subtle: "text-primary hover:bg-primary/10 hover:underline",
+        muted: "text-muted-foreground hover:text-foreground hover:underline",
       },
       size: {
-        sm: 'text-xs',
-        md: 'text-sm',
-        lg: 'text-base',
+        sm: "text-xs",
+        md: "text-sm",
+        lg: "text-base",
       },
     },
     defaultVariants: {
-      variant: 'default',
-      size: 'md',
+      variant: "default",
+      size: "md",
     },
-  }
-)
+  },
+);
 
 // ============================================================================
 // Types
@@ -39,16 +40,16 @@ const userMentionVariants = cva(
 
 export interface UserMentionProps
   extends
-    Omit<React.HTMLAttributes<HTMLSpanElement>, 'onClick'>,
+    Omit<React.HTMLAttributes<HTMLSpanElement>, "onClick">,
     VariantProps<typeof userMentionVariants> {
-  userId?: string
-  user?: UserProfile
-  username?: string
-  showProfileCard?: boolean
-  isCurrentUser?: boolean
-  onClick?: (user: UserProfile) => void
-  onMessage?: (user: UserProfile) => void
-  onViewProfile?: (user: UserProfile) => void
+  userId?: string;
+  user?: UserProfile;
+  username?: string;
+  showProfileCard?: boolean;
+  isCurrentUser?: boolean;
+  onClick?: (user: UserProfile) => void;
+  onMessage?: (user: UserProfile) => void;
+  onViewProfile?: (user: UserProfile) => void;
 }
 
 // ============================================================================
@@ -71,41 +72,45 @@ const UserMention = React.forwardRef<HTMLSpanElement, UserMentionProps>(
       onViewProfile,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const getUser = useUserStore((state) => state.getUser)
-    const currentUser = useUserStore((state) => state.currentUser)
+    const getUser = useUserStore((state) => state.getUser);
+    const currentUser = useUserStore((state) => state.currentUser);
 
     // Resolve user from props or store
     const user = React.useMemo(() => {
-      if (userProp) return userProp
-      if (userId) return getUser(userId)
-      return undefined
-    }, [userProp, userId, getUser])
+      if (userProp) return userProp;
+      if (userId) return getUser(userId);
+      return undefined;
+    }, [userProp, userId, getUser]);
 
     // Check if this is the current user
-    const isSelf = isCurrentUser ?? (user && currentUser && user.id === currentUser.id)
+    const isSelf =
+      isCurrentUser ?? (user && currentUser && user.id === currentUser.id);
 
     // Use highlight variant for self-mentions
-    const effectiveVariant = isSelf ? 'highlight' : variant
+    const effectiveVariant = isSelf ? "highlight" : variant;
 
     // Display name or username fallback
-    const displayName = user?.displayName ?? username ?? 'Unknown User'
+    const displayName = user?.displayName ?? username ?? "Unknown User";
 
     const mentionContent = (
       <span
         ref={ref}
-        className={cn(userMentionVariants({ variant: effectiveVariant, size }), className)}
+        className={cn(
+          userMentionVariants({ variant: effectiveVariant, size }),
+          className,
+        )}
         onClick={user && onClick ? () => onClick(user) : undefined}
-        role={onClick || onViewProfile ? 'button' : undefined}
+        role={onClick || onViewProfile ? "button" : undefined}
         tabIndex={onClick || onViewProfile ? 0 : undefined}
         onKeyDown={
           onClick || onViewProfile
             ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  if (onClick && user) onClick(user)
-                  else if (onViewProfile && user) onViewProfile(user)
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  if (onClick && user) onClick(user);
+                  else if (onViewProfile && user) onViewProfile(user);
                 }
               }
             : undefined
@@ -114,7 +119,7 @@ const UserMention = React.forwardRef<HTMLSpanElement, UserMentionProps>(
       >
         @{displayName}
       </span>
-    )
+    );
 
     // Wrap with profile card if we have user data and showProfileCard is enabled
     if (showProfileCard && user) {
@@ -127,13 +132,13 @@ const UserMention = React.forwardRef<HTMLSpanElement, UserMentionProps>(
         >
           {mentionContent}
         </UserProfileCardTrigger>
-      )
+      );
     }
 
-    return mentionContent
-  }
-)
-UserMention.displayName = 'UserMention'
+    return mentionContent;
+  },
+);
+UserMention.displayName = "UserMention";
 
 // ============================================================================
 // EveryoneMention - Special @everyone mention
@@ -141,25 +146,25 @@ UserMention.displayName = 'UserMention'
 
 export interface EveryoneMentionProps
   extends
-    Omit<React.HTMLAttributes<HTMLSpanElement>, 'onClick'>,
+    Omit<React.HTMLAttributes<HTMLSpanElement>, "onClick">,
     VariantProps<typeof userMentionVariants> {
-  onClick?: () => void
+  onClick?: () => void;
 }
 
 const EveryoneMention = React.forwardRef<HTMLSpanElement, EveryoneMentionProps>(
-  ({ className, variant = 'highlight', size, onClick, ...props }, ref) => (
+  ({ className, variant = "highlight", size, onClick, ...props }, ref) => (
     <span
       ref={ref}
       className={cn(userMentionVariants({ variant, size }), className)}
       onClick={onClick}
-      role={onClick ? 'button' : undefined}
+      role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={
         onClick
           ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onClick()
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
               }
             }
           : undefined
@@ -168,9 +173,9 @@ const EveryoneMention = React.forwardRef<HTMLSpanElement, EveryoneMentionProps>(
     >
       @everyone
     </span>
-  )
-)
-EveryoneMention.displayName = 'EveryoneMention'
+  ),
+);
+EveryoneMention.displayName = "EveryoneMention";
 
 // ============================================================================
 // HereMention - Special @here mention
@@ -178,25 +183,25 @@ EveryoneMention.displayName = 'EveryoneMention'
 
 export interface HereMentionProps
   extends
-    Omit<React.HTMLAttributes<HTMLSpanElement>, 'onClick'>,
+    Omit<React.HTMLAttributes<HTMLSpanElement>, "onClick">,
     VariantProps<typeof userMentionVariants> {
-  onClick?: () => void
+  onClick?: () => void;
 }
 
 const HereMention = React.forwardRef<HTMLSpanElement, HereMentionProps>(
-  ({ className, variant = 'highlight', size, onClick, ...props }, ref) => (
+  ({ className, variant = "highlight", size, onClick, ...props }, ref) => (
     <span
       ref={ref}
       className={cn(userMentionVariants({ variant, size }), className)}
       onClick={onClick}
-      role={onClick ? 'button' : undefined}
+      role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={
         onClick
           ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onClick()
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
               }
             }
           : undefined
@@ -205,9 +210,9 @@ const HereMention = React.forwardRef<HTMLSpanElement, HereMentionProps>(
     >
       @here
     </span>
-  )
-)
-HereMention.displayName = 'HereMention'
+  ),
+);
+HereMention.displayName = "HereMention";
 
 // ============================================================================
 // ChannelMention - Channel mention display
@@ -215,28 +220,28 @@ HereMention.displayName = 'HereMention'
 
 export interface ChannelMentionProps extends Omit<
   React.HTMLAttributes<HTMLSpanElement>,
-  'onClick'
+  "onClick"
 > {
-  channelName: string
-  channelId?: string
-  onClick?: (channelId?: string) => void
+  channelName: string;
+  channelId?: string;
+  onClick?: (channelId?: string) => void;
 }
 
 const channelMentionVariants = cva(
-  'inline-flex items-center rounded px-1 py-0.5 font-medium cursor-pointer transition-colors bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground',
+  "inline-flex items-center rounded px-1 py-0.5 font-medium cursor-pointer transition-colors bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
   {
     variants: {
       size: {
-        sm: 'text-xs',
-        md: 'text-sm',
-        lg: 'text-base',
+        sm: "text-xs",
+        md: "text-sm",
+        lg: "text-base",
       },
     },
     defaultVariants: {
-      size: 'md',
+      size: "md",
     },
-  }
-)
+  },
+);
 
 const ChannelMention = React.forwardRef<
   HTMLSpanElement,
@@ -246,14 +251,14 @@ const ChannelMention = React.forwardRef<
     ref={ref}
     className={cn(channelMentionVariants({ size }), className)}
     onClick={() => onClick?.(channelId)}
-    role={onClick ? 'button' : undefined}
+    role={onClick ? "button" : undefined}
     tabIndex={onClick ? 0 : undefined}
     onKeyDown={
       onClick
         ? (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              onClick(channelId)
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onClick(channelId);
             }
           }
         : undefined
@@ -262,19 +267,19 @@ const ChannelMention = React.forwardRef<
   >
     #{channelName}
   </span>
-))
-ChannelMention.displayName = 'ChannelMention'
+));
+ChannelMention.displayName = "ChannelMention";
 
 // ============================================================================
 // Utility: Parse mentions in text
 // ============================================================================
 
 export interface ParsedMention {
-  type: 'user' | 'everyone' | 'here' | 'channel'
-  id?: string
-  name: string
-  start: number
-  end: number
+  type: "user" | "everyone" | "here" | "channel";
+  id?: string;
+  name: string;
+  start: number;
+  end: number;
 }
 
 /**
@@ -282,52 +287,58 @@ export interface ParsedMention {
  * Patterns: @username, @everyone, @here, #channel
  */
 export function parseMentions(text: string): ParsedMention[] {
-  const mentions: ParsedMention[] = []
+  const mentions: ParsedMention[] = [];
 
   // User mentions: @username or @<userId>
-  const userMentionRegex = /@(\w+)/g
-  let match
+  const userMentionRegex = /@(\w+)/g;
+  let match;
 
   while ((match = userMentionRegex.exec(text)) !== null) {
-    const name = match[1]
+    const name = match[1];
 
-    if (name === 'everyone') {
+    if (name === "everyone") {
       mentions.push({
-        type: 'everyone',
-        name: 'everyone',
+        type: "everyone",
+        name: "everyone",
         start: match.index,
         end: match.index + match[0].length,
-      })
-    } else if (name === 'here') {
+      });
+    } else if (name === "here") {
       mentions.push({
-        type: 'here',
-        name: 'here',
+        type: "here",
+        name: "here",
         start: match.index,
         end: match.index + match[0].length,
-      })
+      });
     } else {
       mentions.push({
-        type: 'user',
+        type: "user",
         name,
         start: match.index,
         end: match.index + match[0].length,
-      })
+      });
     }
   }
 
   // Channel mentions: #channel
-  const channelMentionRegex = /#(\w+)/g
+  const channelMentionRegex = /#(\w+)/g;
   while ((match = channelMentionRegex.exec(text)) !== null) {
     mentions.push({
-      type: 'channel',
+      type: "channel",
       name: match[1],
       start: match.index,
       end: match.index + match[0].length,
-    })
+    });
   }
 
   // Sort by position
-  return mentions.sort((a, b) => a.start - b.start)
+  return mentions.sort((a, b) => a.start - b.start);
 }
 
-export { UserMention, EveryoneMention, HereMention, ChannelMention, userMentionVariants }
+export {
+  UserMention,
+  EveryoneMention,
+  HereMention,
+  ChannelMention,
+  userMentionVariants,
+};

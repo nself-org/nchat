@@ -13,52 +13,52 @@
  */
 export interface CommandContext {
   /** ID of the user executing the command */
-  userId: string
+  userId: string;
   /** Username of the user */
-  username: string
+  username: string;
   /** Display name of the user */
-  displayName: string
+  displayName: string;
   /** User's role */
-  userRole: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+  userRole: "owner" | "admin" | "moderator" | "member" | "guest";
   /** ID of the channel where command was executed */
-  channelId: string
+  channelId: string;
   /** Name of the channel */
-  channelName: string
+  channelName: string;
   /** Type of channel */
-  channelType: 'public' | 'private' | 'direct' | 'group'
+  channelType: "public" | "private" | "direct" | "group";
   /** Raw input string (everything after command trigger) */
-  rawInput: string
+  rawInput: string;
   /** Parsed arguments */
-  args: CommandArgValue[]
+  args: CommandArgValue[];
   /** Named arguments (flags) */
-  flags: Record<string, CommandArgValue>
+  flags: Record<string, CommandArgValue>;
   /** Original message ID if applicable */
-  messageId?: string
+  messageId?: string;
   /** Thread ID if in a thread */
-  threadId?: string
+  threadId?: string;
   /** Timestamp of command execution */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
  * Possible argument value types
  */
-export type CommandArgValue = string | number | boolean | string[] | undefined
+export type CommandArgValue = string | number | boolean | string[] | undefined;
 
 /**
  * Result of command execution
  */
 export interface CommandResult {
   /** Whether command executed successfully */
-  success: boolean
+  success: boolean;
   /** Response to show to user */
-  response?: CommandResponse
+  response?: CommandResponse;
   /** Error message if failed */
-  error?: string
+  error?: string;
   /** Additional data from command execution */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
   /** Side effects to trigger */
-  sideEffects?: CommandSideEffect[]
+  sideEffects?: CommandSideEffect[];
 }
 
 /**
@@ -66,39 +66,39 @@ export interface CommandResult {
  */
 export interface CommandResponse {
   /** Response type determines visibility */
-  type: CommandResponseType
+  type: CommandResponseType;
   /** Message content (supports markdown) */
-  content: string
+  content: string;
   /** Optional attachments */
-  attachments?: CommandAttachment[]
+  attachments?: CommandAttachment[];
   /** Whether to show as a system message */
-  isSystem?: boolean
+  isSystem?: boolean;
   /** Custom emoji to show */
-  emoji?: string
+  emoji?: string;
   /** Show as ephemeral (only visible to user) */
-  ephemeral?: boolean
+  ephemeral?: boolean;
 }
 
 /**
  * Response visibility types
  */
 export type CommandResponseType =
-  | 'message' // Send as regular message
-  | 'ephemeral' // Only visible to command user
-  | 'notification' // Show as notification toast
-  | 'modal' // Open a modal dialog
-  | 'redirect' // Redirect to another page
-  | 'none' // No visible response
+  | "message" // Send as regular message
+  | "ephemeral" // Only visible to command user
+  | "notification" // Show as notification toast
+  | "modal" // Open a modal dialog
+  | "redirect" // Redirect to another page
+  | "none"; // No visible response
 
 /**
  * Attachment in command response
  */
 export interface CommandAttachment {
-  type: 'image' | 'file' | 'link' | 'embed'
-  url: string
-  title?: string
-  description?: string
-  thumbnail?: string
+  type: "image" | "file" | "link" | "embed";
+  url: string;
+  title?: string;
+  description?: string;
+  thumbnail?: string;
 }
 
 /**
@@ -106,14 +106,14 @@ export interface CommandAttachment {
  */
 export interface CommandSideEffect {
   type:
-    | 'webhook' // Call external webhook
-    | 'workflow' // Trigger internal workflow
-    | 'notification' // Send notification
-    | 'update_status' // Update user status
-    | 'navigate' // Navigate to URL/page
-    | 'open_modal' // Open a modal
-    | 'refresh' // Refresh data
-  payload: Record<string, unknown>
+    | "webhook" // Call external webhook
+    | "workflow" // Trigger internal workflow
+    | "notification" // Send notification
+    | "update_status" // Update user status
+    | "navigate" // Navigate to URL/page
+    | "open_modal" // Open a modal
+    | "refresh"; // Refresh data
+  payload: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -124,55 +124,55 @@ export interface CommandSideEffect {
  * Argument type definitions
  */
 export type CommandArgType =
-  | 'string' // Plain text
-  | 'number' // Numeric value
-  | 'boolean' // True/false
-  | 'user' // @username mention
-  | 'channel' // #channel mention
-  | 'date' // Date value
-  | 'time' // Time value
-  | 'datetime' // Date and time
-  | 'duration' // Time duration (1h, 30m, etc.)
-  | 'choice' // Predefined choices
-  | 'rest' // Captures remaining text
+  | "string" // Plain text
+  | "number" // Numeric value
+  | "boolean" // True/false
+  | "user" // @username mention
+  | "channel" // #channel mention
+  | "date" // Date value
+  | "time" // Time value
+  | "datetime" // Date and time
+  | "duration" // Time duration (1h, 30m, etc.)
+  | "choice" // Predefined choices
+  | "rest"; // Captures remaining text
 
 /**
  * Definition of a command argument
  */
 export interface CommandArgument {
   /** Unique identifier for the argument */
-  id: string
+  id: string;
   /** Display name */
-  name: string
+  name: string;
   /** Argument type */
-  type: CommandArgType
+  type: CommandArgType;
   /** Description shown in help */
-  description: string
+  description: string;
   /** Whether this argument is required */
-  required: boolean
+  required: boolean;
   /** Default value if not provided */
-  defaultValue?: CommandArgValue
+  defaultValue?: CommandArgValue;
   /** Position in argument list (for positional args) */
-  position?: number
+  position?: number;
   /** Flag name (for named args like --flag) */
-  flag?: string
+  flag?: string;
   /** Short flag (-f) */
-  shortFlag?: string
+  shortFlag?: string;
   /** Choices for 'choice' type */
-  choices?: CommandChoice[]
+  choices?: CommandChoice[];
   /** Validation rules */
-  validation?: ArgumentValidation
+  validation?: ArgumentValidation;
   /** Autocomplete configuration */
-  autocomplete?: AutocompleteConfig
+  autocomplete?: AutocompleteConfig;
 }
 
 /**
  * Choice option for choice-type arguments
  */
 export interface CommandChoice {
-  value: string
-  label: string
-  description?: string
+  value: string;
+  label: string;
+  description?: string;
 }
 
 /**
@@ -180,17 +180,17 @@ export interface CommandChoice {
  */
 export interface ArgumentValidation {
   /** Minimum length for strings */
-  minLength?: number
+  minLength?: number;
   /** Maximum length for strings */
-  maxLength?: number
+  maxLength?: number;
   /** Minimum value for numbers */
-  min?: number
+  min?: number;
   /** Maximum value for numbers */
-  max?: number
+  max?: number;
   /** Regex pattern to match */
-  pattern?: string
+  pattern?: string;
   /** Custom validation function name */
-  custom?: string
+  custom?: string;
 }
 
 /**
@@ -198,13 +198,13 @@ export interface ArgumentValidation {
  */
 export interface AutocompleteConfig {
   /** Source of autocomplete data */
-  source: 'users' | 'channels' | 'static' | 'api'
+  source: "users" | "channels" | "static" | "api";
   /** Static options */
-  options?: string[]
+  options?: string[];
   /** API endpoint for dynamic options */
-  endpoint?: string
+  endpoint?: string;
   /** Minimum characters before showing suggestions */
-  minChars?: number
+  minChars?: number;
 }
 
 // ============================================================================
@@ -216,83 +216,83 @@ export interface AutocompleteConfig {
  */
 export interface SlashCommand {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Trigger word (without slash) */
-  trigger: string
+  trigger: string;
   /** Alternative triggers (aliases) */
-  aliases?: string[]
+  aliases?: string[];
   /** Display name */
-  name: string
+  name: string;
   /** Short description for command list */
-  description: string
+  description: string;
   /** Detailed help text */
-  helpText?: string
+  helpText?: string;
   /** Usage example */
-  usage?: string
+  usage?: string;
   /** Command category for grouping */
-  category: CommandCategory
+  category: CommandCategory;
   /** Command arguments */
-  arguments: CommandArgument[]
+  arguments: CommandArgument[];
   /** Permission requirements */
-  permissions: CommandPermissions
+  permissions: CommandPermissions;
   /** Channel restrictions */
-  channels: CommandChannelConfig
+  channels: CommandChannelConfig;
   /** Response configuration */
-  responseConfig: CommandResponseConfig
+  responseConfig: CommandResponseConfig;
   /** Webhook configuration (if applicable) */
-  webhook?: CommandWebhook
+  webhook?: CommandWebhook;
   /** Workflow trigger (if applicable) */
-  workflow?: CommandWorkflow
+  workflow?: CommandWorkflow;
   /** Action type */
-  actionType: CommandActionType
+  actionType: CommandActionType;
   /** Action configuration */
-  action: CommandAction
+  action: CommandAction;
   /** Whether command is enabled */
-  isEnabled: boolean
+  isEnabled: boolean;
   /** Whether this is a built-in command */
-  isBuiltIn: boolean
+  isBuiltIn: boolean;
   /** Icon for the command */
-  icon?: string
+  icon?: string;
   /** Order in command list */
-  order?: number
+  order?: number;
   /** Cooldown in seconds */
-  cooldown?: number
+  cooldown?: number;
   /** Creation timestamp */
-  createdAt: string
+  createdAt: string;
   /** Last update timestamp */
-  updatedAt: string
+  updatedAt: string;
   /** Creator user ID */
-  createdBy: string
+  createdBy: string;
 }
 
 /**
  * Command categories for grouping
  */
 export type CommandCategory =
-  | 'general' // General utility commands
-  | 'channel' // Channel management
-  | 'user' // User-related commands
-  | 'message' // Message operations
-  | 'moderation' // Moderation tools
-  | 'fun' // Fun/entertainment
-  | 'utility' // Utilities
-  | 'integration' // External integrations
-  | 'custom' // Custom user commands
+  | "general" // General utility commands
+  | "channel" // Channel management
+  | "user" // User-related commands
+  | "message" // Message operations
+  | "moderation" // Moderation tools
+  | "fun" // Fun/entertainment
+  | "utility" // Utilities
+  | "integration" // External integrations
+  | "custom"; // Custom user commands
 
 /**
  * Permission configuration for commands
  */
 export interface CommandPermissions {
   /** Minimum role required */
-  minRole: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+  minRole: "owner" | "admin" | "moderator" | "member" | "guest";
   /** Specific roles allowed (overrides minRole) */
-  allowedRoles?: string[]
+  allowedRoles?: string[];
   /** Specific users allowed */
-  allowedUsers?: string[]
+  allowedUsers?: string[];
   /** Users explicitly denied */
-  deniedUsers?: string[]
+  deniedUsers?: string[];
   /** Whether guests can use */
-  allowGuests: boolean
+  allowGuests: boolean;
 }
 
 /**
@@ -300,13 +300,13 @@ export interface CommandPermissions {
  */
 export interface CommandChannelConfig {
   /** Channel types where command works */
-  allowedTypes: ('public' | 'private' | 'direct' | 'group')[]
+  allowedTypes: ("public" | "private" | "direct" | "group")[];
   /** Specific channels where command is allowed */
-  allowedChannels?: string[]
+  allowedChannels?: string[];
   /** Channels where command is blocked */
-  blockedChannels?: string[]
+  blockedChannels?: string[];
   /** Whether to allow in threads */
-  allowInThreads: boolean
+  allowInThreads: boolean;
 }
 
 /**
@@ -314,15 +314,15 @@ export interface CommandChannelConfig {
  */
 export interface CommandResponseConfig {
   /** Default response type */
-  type: CommandResponseType
+  type: CommandResponseType;
   /** Response template (supports variables) */
-  template?: string
+  template?: string;
   /** Whether response is ephemeral by default */
-  ephemeral: boolean
+  ephemeral: boolean;
   /** Show typing indicator while processing */
-  showTyping: boolean
+  showTyping: boolean;
   /** Delay before response (ms) */
-  delay?: number
+  delay?: number;
 }
 
 /**
@@ -330,26 +330,26 @@ export interface CommandResponseConfig {
  */
 export interface CommandWebhook {
   /** Webhook URL */
-  url: string
+  url: string;
   /** HTTP method */
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   /** Request headers */
-  headers?: Record<string, string>
+  headers?: Record<string, string>;
   /** Request body template */
-  bodyTemplate?: string
+  bodyTemplate?: string;
   /** Response mapping */
   responseMapping?: {
-    successPath?: string
-    errorPath?: string
-    messagePath?: string
-  }
+    successPath?: string;
+    errorPath?: string;
+    messagePath?: string;
+  };
   /** Timeout in ms */
-  timeout?: number
+  timeout?: number;
   /** Retry configuration */
   retry?: {
-    attempts: number
-    delay: number
-  }
+    attempts: number;
+    delay: number;
+  };
 }
 
 /**
@@ -357,61 +357,61 @@ export interface CommandWebhook {
  */
 export interface CommandWorkflow {
   /** Workflow ID to trigger */
-  workflowId: string
+  workflowId: string;
   /** Input mapping from command args */
-  inputMapping?: Record<string, string>
+  inputMapping?: Record<string, string>;
   /** Whether to wait for workflow completion */
-  waitForCompletion: boolean
+  waitForCompletion: boolean;
   /** Maximum wait time */
-  timeout?: number
+  timeout?: number;
 }
 
 /**
  * Action types
  */
 export type CommandActionType =
-  | 'message' // Send a message
-  | 'status' // Update user status
-  | 'navigate' // Navigate to page
-  | 'modal' // Open modal
-  | 'api' // Call internal API
-  | 'webhook' // Call external webhook
-  | 'workflow' // Trigger workflow
-  | 'builtin' // Built-in action handler
-  | 'custom' // Custom JavaScript
+  | "message" // Send a message
+  | "status" // Update user status
+  | "navigate" // Navigate to page
+  | "modal" // Open modal
+  | "api" // Call internal API
+  | "webhook" // Call external webhook
+  | "workflow" // Trigger workflow
+  | "builtin" // Built-in action handler
+  | "custom"; // Custom JavaScript
 
 /**
  * Action configuration
  */
 export interface CommandAction {
   /** Action type */
-  type: CommandActionType
+  type: CommandActionType;
   /** Built-in handler name */
-  handler?: string
+  handler?: string;
   /** Message template */
-  message?: string
+  message?: string;
   /** Status to set */
   status?: {
-    text: string
-    emoji?: string
-    expiry?: string
-  }
+    text: string;
+    emoji?: string;
+    expiry?: string;
+  };
   /** Navigation target */
   navigate?: {
-    url: string
-    newTab?: boolean
-  }
+    url: string;
+    newTab?: boolean;
+  };
   /** Modal configuration */
   modal?: {
-    component: string
-    props?: Record<string, unknown>
-  }
+    component: string;
+    props?: Record<string, unknown>;
+  };
   /** API call configuration */
   api?: {
-    endpoint: string
-    method: string
-    body?: Record<string, unknown>
-  }
+    endpoint: string;
+    method: string;
+    body?: Record<string, unknown>;
+  };
 }
 
 // ============================================================================
@@ -423,17 +423,17 @@ export interface CommandAction {
  */
 export interface ParsedCommand {
   /** The command definition */
-  command: SlashCommand
+  command: SlashCommand;
   /** Parsed positional arguments */
-  args: ParsedArgument[]
+  args: ParsedArgument[];
   /** Parsed flags */
-  flags: Record<string, ParsedArgument>
+  flags: Record<string, ParsedArgument>;
   /** Remaining unparsed text */
-  remainder: string
+  remainder: string;
   /** Parsing errors */
-  errors: ParseError[]
+  errors: ParseError[];
   /** Whether parsing was successful */
-  isValid: boolean
+  isValid: boolean;
 }
 
 /**
@@ -441,15 +441,15 @@ export interface ParsedCommand {
  */
 export interface ParsedArgument {
   /** Argument definition */
-  definition: CommandArgument
+  definition: CommandArgument;
   /** Raw input value */
-  rawValue: string
+  rawValue: string;
   /** Parsed/converted value */
-  value: CommandArgValue
+  value: CommandArgValue;
   /** Whether parsing was successful */
-  isValid: boolean
+  isValid: boolean;
   /** Error message if invalid */
-  error?: string
+  error?: string;
 }
 
 /**
@@ -457,11 +457,15 @@ export interface ParsedArgument {
  */
 export interface ParseError {
   /** Type of error */
-  type: 'missing_required' | 'invalid_type' | 'validation_failed' | 'unknown_flag'
+  type:
+    | "missing_required"
+    | "invalid_type"
+    | "validation_failed"
+    | "unknown_flag";
   /** Argument that caused error */
-  argument?: string
+  argument?: string;
   /** Error message */
-  message: string
+  message: string;
 }
 
 // ============================================================================
@@ -473,11 +477,11 @@ export interface ParseError {
  */
 export interface CommandSuggestion {
   /** Command definition */
-  command: SlashCommand
+  command: SlashCommand;
   /** Relevance score */
-  score: number
+  score: number;
   /** Highlighted match positions */
-  matchPositions?: number[]
+  matchPositions?: number[];
 }
 
 /**
@@ -485,15 +489,15 @@ export interface CommandSuggestion {
  */
 export interface ArgumentSuggestion {
   /** Suggestion value */
-  value: string
+  value: string;
   /** Display label */
-  label: string
+  label: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Icon */
-  icon?: string
+  icon?: string;
   /** Relevance score */
-  score: number
+  score: number;
 }
 
 // ============================================================================
@@ -504,34 +508,34 @@ export interface ArgumentSuggestion {
  * Partial command for builder (work in progress)
  */
 export type CommandDraft = Partial<SlashCommand> & {
-  trigger: string
-}
+  trigger: string;
+};
 
 /**
  * Validation result for command draft
  */
 export interface CommandValidation {
-  isValid: boolean
-  errors: CommandValidationError[]
-  warnings: CommandValidationWarning[]
+  isValid: boolean;
+  errors: CommandValidationError[];
+  warnings: CommandValidationWarning[];
 }
 
 /**
  * Validation error
  */
 export interface CommandValidationError {
-  field: string
-  message: string
-  code: string
+  field: string;
+  message: string;
+  code: string;
 }
 
 /**
  * Validation warning
  */
 export interface CommandValidationWarning {
-  field: string
-  message: string
-  code: string
+  field: string;
+  message: string;
+  code: string;
 }
 
 // ============================================================================
@@ -543,38 +547,38 @@ export interface CommandValidationWarning {
  */
 export interface SlashCommandsState {
   /** All registered commands */
-  commands: Map<string, SlashCommand>
+  commands: Map<string, SlashCommand>;
   /** Commands indexed by trigger */
-  commandsByTrigger: Map<string, SlashCommand>
+  commandsByTrigger: Map<string, SlashCommand>;
   /** Built-in commands */
-  builtInCommands: SlashCommand[]
+  builtInCommands: SlashCommand[];
   /** Custom commands */
-  customCommands: SlashCommand[]
+  customCommands: SlashCommand[];
   /** Currently editing command */
-  editingCommand: CommandDraft | null
+  editingCommand: CommandDraft | null;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error state */
-  error: string | null
+  error: string | null;
   /** Command execution history */
-  executionHistory: CommandExecution[]
+  executionHistory: CommandExecution[];
   /** Search query */
-  searchQuery: string
+  searchQuery: string;
   /** Selected category filter */
-  selectedCategory: CommandCategory | 'all'
+  selectedCategory: CommandCategory | "all";
 }
 
 /**
  * Record of command execution
  */
 export interface CommandExecution {
-  id: string
-  commandId: string
-  trigger: string
-  userId: string
-  channelId: string
-  input: string
-  result: CommandResult
-  executedAt: string
-  duration: number
+  id: string;
+  commandId: string;
+  trigger: string;
+  userId: string;
+  channelId: string;
+  input: string;
+  result: CommandResult;
+  executedAt: string;
+  duration: number;
 }

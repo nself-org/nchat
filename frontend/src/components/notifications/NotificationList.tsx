@@ -4,10 +4,10 @@
  * Displays a scrollable list of notifications with filtering and actions.
  */
 
-'use client'
+"use client";
 
-import React, { useCallback, useMemo, useState } from 'react'
-import { formatDistanceToNow } from 'date-fns'
+import React, { useCallback, useMemo, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 import {
   Bell,
   BellOff,
@@ -24,25 +24,25 @@ import {
   Trash2,
   Archive,
   MoreHorizontal,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useNotifications } from '@/hooks/use-notifications'
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNotifications } from "@/hooks/use-notifications";
 import {
   useNotificationStore,
   type Notification,
   type NotificationType,
-} from '@/stores/notification-store'
+} from "@/stores/notification-store";
 
 // =============================================================================
 // Types
@@ -52,37 +52,37 @@ export interface NotificationListProps {
   /**
    * Additional class name
    */
-  className?: string
+  className?: string;
 
   /**
    * Maximum height of the list
    */
-  maxHeight?: string
+  maxHeight?: string;
 
   /**
    * Whether to show header with filter tabs
    */
-  showHeader?: boolean
+  showHeader?: boolean;
 
   /**
    * Whether to show empty state
    */
-  showEmptyState?: boolean
+  showEmptyState?: boolean;
 
   /**
    * Whether to show action menu on each item
    */
-  showActions?: boolean
+  showActions?: boolean;
 
   /**
    * Callback when a notification is clicked
    */
-  onNotificationClick?: (notification: Notification) => void
+  onNotificationClick?: (notification: Notification) => void;
 
   /**
    * Maximum number of notifications to show
    */
-  limit?: number
+  limit?: number;
 }
 
 // =============================================================================
@@ -98,16 +98,16 @@ const notificationIcons: Record<NotificationType, React.ElementType> = {
   channel_update: Settings,
   system: Bell,
   announcement: Megaphone,
-}
+};
 
 // =============================================================================
 // Notification Item Component
 // =============================================================================
 
 interface NotificationItemProps {
-  notification: Notification
-  showActions?: boolean
-  onNotificationClick?: (notification: Notification) => void
+  notification: Notification;
+  showActions?: boolean;
+  onNotificationClick?: (notification: Notification) => void;
 }
 
 function NotificationItem({
@@ -115,68 +115,75 @@ function NotificationItem({
   showActions = true,
   onNotificationClick,
 }: NotificationItemProps) {
-  const { markAsRead, dismissNotification } = useNotifications()
-  const archiveNotification = useNotificationStore((state) => state.archiveNotification)
+  const { markAsRead, dismissNotification } = useNotifications();
+  const archiveNotification = useNotificationStore(
+    (state) => state.archiveNotification,
+  );
 
-  const Icon = notificationIcons[notification.type] || Bell
+  const Icon = notificationIcons[notification.type] || Bell;
 
   const handleClick = useCallback(() => {
     if (!notification.isRead) {
-      markAsRead(notification.id)
+      markAsRead(notification.id);
     }
-    onNotificationClick?.(notification)
+    onNotificationClick?.(notification);
 
     // Navigate if action URL exists
     if (notification.actionUrl) {
-      window.location.href = notification.actionUrl
+      window.location.href = notification.actionUrl;
     }
-  }, [notification, markAsRead, onNotificationClick])
+  }, [notification, markAsRead, onNotificationClick]);
 
   const handleMarkAsRead = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation()
-      markAsRead(notification.id)
+      e.stopPropagation();
+      markAsRead(notification.id);
     },
-    [notification.id, markAsRead]
-  )
+    [notification.id, markAsRead],
+  );
 
   const handleArchive = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation()
-      archiveNotification(notification.id)
+      e.stopPropagation();
+      archiveNotification(notification.id);
     },
-    [notification.id, archiveNotification]
-  )
+    [notification.id, archiveNotification],
+  );
 
   const handleDelete = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation()
-      dismissNotification(notification.id)
+      e.stopPropagation();
+      dismissNotification(notification.id);
     },
-    [notification.id, dismissNotification]
-  )
+    [notification.id, dismissNotification],
+  );
 
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true,
-  })
+  });
 
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={handleClick}
-      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+      onKeyDown={(e) => e.key === "Enter" && handleClick()}
       className={cn(
-        'hover:bg-muted/50 flex cursor-pointer items-start gap-3 p-3 transition-colors',
-        'border-b border-border last:border-b-0',
-        !notification.isRead && 'bg-muted/30'
+        "hover:bg-muted/50 flex cursor-pointer items-start gap-3 p-3 transition-colors",
+        "border-b border-border last:border-b-0",
+        !notification.isRead && "bg-muted/30",
       )}
     >
       {/* Avatar or Icon */}
       {notification.actor ? (
         <Avatar className="h-9 w-9 flex-shrink-0">
-          <AvatarImage src={notification.actor.avatarUrl} alt={notification.actor.name} />
-          <AvatarFallback>{notification.actor.name.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarImage
+            src={notification.actor.avatarUrl}
+            alt={notification.actor.name}
+          />
+          <AvatarFallback>
+            {notification.actor.name.charAt(0).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
       ) : (
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted">
@@ -187,14 +194,21 @@ function NotificationItem({
       {/* Content */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className={cn('line-clamp-1 text-sm', !notification.isRead && 'font-medium')}>
+          <p
+            className={cn(
+              "line-clamp-1 text-sm",
+              !notification.isRead && "font-medium",
+            )}
+          >
             {notification.title}
           </p>
           {!notification.isRead && (
             <span className="h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
           )}
         </div>
-        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{notification.body}</p>
+        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+          {notification.body}
+        </p>
         <div className="mt-1 flex items-center gap-2">
           <span className="text-xs text-muted-foreground">{timeAgo}</span>
           {notification.channelName && (
@@ -234,7 +248,10 @@ function NotificationItem({
               Archive
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-destructive"
+            >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
@@ -242,7 +259,7 @@ function NotificationItem({
         </DropdownMenu>
       )}
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -250,15 +267,16 @@ function NotificationItem({
 // =============================================================================
 
 function EmptyState({ filter }: { filter: string }) {
-  const messages: Record<string, { icon: React.ElementType; message: string }> = {
-    all: { icon: Bell, message: 'No notifications yet' },
-    mentions: { icon: AtSign, message: 'No mentions' },
-    threads: { icon: Reply, message: 'No thread replies' },
-    reactions: { icon: Heart, message: 'No reactions' },
-    unread: { icon: CheckCheck, message: 'All caught up!' },
-  }
+  const messages: Record<string, { icon: React.ElementType; message: string }> =
+    {
+      all: { icon: Bell, message: "No notifications yet" },
+      mentions: { icon: AtSign, message: "No mentions" },
+      threads: { icon: Reply, message: "No thread replies" },
+      reactions: { icon: Heart, message: "No reactions" },
+      unread: { icon: CheckCheck, message: "All caught up!" },
+    };
 
-  const { icon: Icon, message } = messages[filter] || messages.all
+  const { icon: Icon, message } = messages[filter] || messages.all;
 
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -267,7 +285,7 @@ function EmptyState({ filter }: { filter: string }) {
       </div>
       <p className="text-sm text-muted-foreground">{message}</p>
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -276,43 +294,47 @@ function EmptyState({ filter }: { filter: string }) {
 
 export function NotificationList({
   className,
-  maxHeight = '400px',
+  maxHeight = "400px",
   showHeader = true,
   showEmptyState = true,
   showActions = true,
   onNotificationClick,
   limit,
 }: NotificationListProps) {
-  const [filter, setFilter] = useState<'all' | 'mentions' | 'threads' | 'reactions' | 'unread'>(
-    'all'
-  )
+  const [filter, setFilter] = useState<
+    "all" | "mentions" | "threads" | "reactions" | "unread"
+  >("all");
 
-  const { notifications, markAllAsRead, clearAll } = useNotifications()
-  const setActiveFilter = useNotificationStore((state) => state.setActiveFilter)
-  const getFilteredNotifications = useNotificationStore((state) => state.getFilteredNotifications)
+  const { notifications, markAllAsRead, clearAll } = useNotifications();
+  const setActiveFilter = useNotificationStore(
+    (state) => state.setActiveFilter,
+  );
+  const getFilteredNotifications = useNotificationStore(
+    (state) => state.getFilteredNotifications,
+  );
 
   // Apply filter
   const handleFilterChange = useCallback(
     (newFilter: typeof filter) => {
-      setFilter(newFilter)
-      setActiveFilter(newFilter)
+      setFilter(newFilter);
+      setActiveFilter(newFilter);
     },
-    [setActiveFilter]
-  )
+    [setActiveFilter],
+  );
 
   // Get filtered notifications
   const filteredNotifications = useMemo(() => {
-    let result = getFilteredNotifications()
+    let result = getFilteredNotifications();
     if (limit && limit > 0) {
-      result = result.slice(0, limit)
+      result = result.slice(0, limit);
     }
-    return result
-  }, [getFilteredNotifications, limit])
+    return result;
+  }, [getFilteredNotifications, limit]);
 
-  const hasUnread = notifications.some((n) => !n.isRead)
+  const hasUnread = notifications.some((n) => !n.isRead);
 
   return (
-    <div className={cn('flex flex-col', className)}>
+    <div className={cn("flex flex-col", className)}>
       {/* Header */}
       {showHeader && (
         <div className="flex flex-col border-b border-border">
@@ -320,7 +342,12 @@ export function NotificationList({
             <h3 className="font-semibold">Notifications</h3>
             <div className="flex items-center gap-1">
               {hasUnread && (
-                <Button variant="ghost" size="sm" onClick={markAllAsRead} className="h-8 text-xs">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={markAllAsRead}
+                  className="h-8 text-xs"
+                >
                   <CheckCheck className="mr-1 h-3 w-3" />
                   Mark all read
                 </Button>
@@ -332,7 +359,10 @@ export function NotificationList({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={markAllAsRead} disabled={!hasUnread}>
+                  <DropdownMenuItem
+                    onClick={markAllAsRead}
+                    disabled={!hasUnread}
+                  >
                     <CheckCheck className="mr-2 h-4 w-4" />
                     Mark all as read
                   </DropdownMenuItem>
@@ -400,7 +430,7 @@ export function NotificationList({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default NotificationList
+export default NotificationList;

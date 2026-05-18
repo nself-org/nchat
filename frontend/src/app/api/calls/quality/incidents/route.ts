@@ -7,9 +7,9 @@
  * and historical comparison for call quality issues.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { getAuthenticatedUser, getClientIp } from '@/lib/api/middleware'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { getAuthenticatedUser, getClientIp } from "@/lib/api/middleware";
 import {
   successResponse,
   createdResponse,
@@ -17,13 +17,13 @@ import {
   unauthorizedResponse,
   notFoundResponse,
   internalErrorResponse,
-} from '@/lib/api/response'
-import { logAuditEvent } from '@/lib/audit/audit-logger'
-import { logger } from '@/lib/logger'
-import { getIncidentAnalysisService } from '@/services/calls/incident-analysis.service'
+} from "@/lib/api/response";
+import { logAuditEvent } from "@/lib/audit/audit-logger";
+import { logger } from "@/lib/logger";
+import { getIncidentAnalysisService } from "@/services/calls/incident-analysis.service";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // =============================================================================
 // Schemas
@@ -33,14 +33,14 @@ const GetIncidentQuerySchema = z.object({
   callId: z.string().uuid(),
   includeTimeline: z.coerce.boolean().default(true),
   includeComparison: z.coerce.boolean().default(false),
-  comparisonPeriod: z.enum(['7d', '30d', '90d']).default('30d'),
-})
+  comparisonPeriod: z.enum(["7d", "30d", "90d"]).default("30d"),
+});
 
 const AnalyzeIncidentSchema = z.object({
   callId: z.string().uuid(),
   storeIncident: z.boolean().default(true),
   notifyAdmins: z.boolean().default(false),
-})
+});
 
 // =============================================================================
 // GET /api/calls/quality/incidents
@@ -48,38 +48,42 @@ const AnalyzeIncidentSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    logger.info('GET /api/calls/quality/incidents - Get incident analysis')
+    logger.info("GET /api/calls/quality/incidents - Get incident analysis");
 
     // Authenticate user
-    const user = await getAuthenticatedUser(request)
+    const user = await getAuthenticatedUser(request);
     if (!user) {
-      return unauthorizedResponse('Authentication required')
+      return unauthorizedResponse("Authentication required");
     }
 
     // Parse query parameters
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url);
     const queryParams = {
-      callId: searchParams.get('callId') || '',
-      includeTimeline: searchParams.get('includeTimeline') || 'true',
-      includeComparison: searchParams.get('includeComparison') || 'false',
-      comparisonPeriod: searchParams.get('comparisonPeriod') || '30d',
-    }
+      callId: searchParams.get("callId") || "",
+      includeTimeline: searchParams.get("includeTimeline") || "true",
+      includeComparison: searchParams.get("includeComparison") || "false",
+      comparisonPeriod: searchParams.get("comparisonPeriod") || "30d",
+    };
 
-    const validation = GetIncidentQuerySchema.safeParse(queryParams)
+    const validation = GetIncidentQuerySchema.safeParse(queryParams);
     if (!validation.success) {
-      return badRequestResponse('Invalid query parameters', 'VALIDATION_ERROR', {
-        errors: validation.error.flatten().fieldErrors,
-      })
+      return badRequestResponse(
+        "Invalid query parameters",
+        "VALIDATION_ERROR",
+        {
+          errors: validation.error.flatten().fieldErrors,
+        },
+      );
     }
 
-    const params = validation.data
-    const incidentService = getIncidentAnalysisService()
+    const params = validation.data;
+    const incidentService = getIncidentAnalysisService();
 
     // Get call replay data with incidents
-    const replayData = await incidentService.getCallReplayData(params.callId)
+    const replayData = await incidentService.getCallReplayData(params.callId);
 
     if (!replayData) {
-      return notFoundResponse('Call not found or no quality data available')
+      return notFoundResponse("Call not found or no quality data available");
     }
 
     // Build response
@@ -108,13 +112,18 @@ export async function GET(request: NextRequest) {
       // Quality summary
       qualitySummary: replayData.qualitySummary
         ? {
-            overallScore: Math.round(replayData.qualitySummary.overallScore * 10) / 10,
+            overallScore:
+              Math.round(replayData.qualitySummary.overallScore * 10) / 10,
             qualityLevel: replayData.qualitySummary.qualityLevel,
             audio: {
-              avgMos: Math.round(replayData.qualitySummary.audio.avgMos * 100) / 100,
-              avgJitter: Math.round(replayData.qualitySummary.audio.avgJitter * 10) / 10,
+              avgMos:
+                Math.round(replayData.qualitySummary.audio.avgMos * 100) / 100,
+              avgJitter:
+                Math.round(replayData.qualitySummary.audio.avgJitter * 10) / 10,
               avgPacketLoss:
-                Math.round(replayData.qualitySummary.audio.avgPacketLoss * 100) / 100,
+                Math.round(
+                  replayData.qualitySummary.audio.avgPacketLoss * 100,
+                ) / 100,
             },
             network: {
               avgRtt: Math.round(replayData.qualitySummary.network.avgRtt),
@@ -153,7 +162,7 @@ export async function GET(request: NextRequest) {
         message: a.message,
         createdAt: a.createdAt.toISOString(),
       })),
-    }
+    };
 
     // Include timeline if requested
     if (params.includeTimeline) {
@@ -166,25 +175,25 @@ export async function GET(request: NextRequest) {
         severity: event.severity,
         description: event.description,
         data: event.data,
-      }))
+      }));
     }
 
     // Include historical comparison if requested
     if (params.includeComparison && replayData.incidents.length > 0) {
       const comparisonPeriodMs =
-        params.comparisonPeriod === '7d'
+        params.comparisonPeriod === "7d"
           ? 7 * 24 * 60 * 60 * 1000
-          : params.comparisonPeriod === '30d'
+          : params.comparisonPeriod === "30d"
             ? 30 * 24 * 60 * 60 * 1000
-            : 90 * 24 * 60 * 60 * 1000
+            : 90 * 24 * 60 * 60 * 1000;
 
       const comparison = await incidentService.compareWithHistory(
         replayData.incidents[0],
         {
           roomId: replayData.roomId,
           since: new Date(Date.now() - comparisonPeriodMs),
-        }
-      )
+        },
+      );
 
       response.comparison = {
         similarIncidents: comparison.similarIncidents.map((s) => ({
@@ -203,26 +212,26 @@ export async function GET(request: NextRequest) {
           commonRootCause: p.commonRootCause,
         })),
         recommendations: comparison.recommendations,
-      }
+      };
     }
 
     // Log audit event
-    const ipAddress = getClientIp(request)
+    const ipAddress = getClientIp(request);
     await logAuditEvent({
-      action: 'access',
+      action: "access",
       actor: {
         id: user.id,
-        type: 'user',
+        type: "user",
         email: user.email,
         displayName: user.displayName,
       },
-      category: 'channel',
+      category: "channel",
       resource: {
-        type: 'channel',
+        type: "channel",
         id: params.callId,
         name: `Call ${params.callId.substring(0, 8)}`,
       },
-      description: 'Viewed call incident analysis',
+      description: "Viewed call incident analysis",
       metadata: {
         callId: params.callId,
         incidentCount: replayData.incidents.length,
@@ -231,18 +240,18 @@ export async function GET(request: NextRequest) {
       },
       ipAddress,
       success: true,
-    })
+    });
 
-    logger.info('GET /api/calls/quality/incidents - Success', {
+    logger.info("GET /api/calls/quality/incidents - Success", {
       callId: params.callId,
       incidentCount: replayData.incidents.length,
       timelineEvents: replayData.timeline.length,
-    })
+    });
 
-    return successResponse(response)
+    return successResponse(response);
   } catch (error) {
-    logger.error('Error fetching incident analysis', error as Error)
-    return internalErrorResponse('Failed to fetch incident analysis')
+    logger.error("Error fetching incident analysis", error as Error);
+    return internalErrorResponse("Failed to fetch incident analysis");
   }
 }
 
@@ -252,71 +261,73 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('POST /api/calls/quality/incidents - Analyze and store incident')
+    logger.info(
+      "POST /api/calls/quality/incidents - Analyze and store incident",
+    );
 
     // Authenticate user
-    const user = await getAuthenticatedUser(request)
+    const user = await getAuthenticatedUser(request);
     if (!user) {
-      return unauthorizedResponse('Authentication required')
+      return unauthorizedResponse("Authentication required");
     }
 
     // Check admin permission
-    if (!['admin', 'owner'].includes(user.role)) {
-      return unauthorizedResponse('Admin access required')
+    if (!["admin", "owner"].includes(user.role)) {
+      return unauthorizedResponse("Admin access required");
     }
 
-    const body = await request.json()
-    const validation = AnalyzeIncidentSchema.safeParse(body)
+    const body = await request.json();
+    const validation = AnalyzeIncidentSchema.safeParse(body);
 
     if (!validation.success) {
-      return badRequestResponse('Invalid request body', 'VALIDATION_ERROR', {
+      return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
         errors: validation.error.flatten().fieldErrors,
-      })
+      });
     }
 
-    const params = validation.data
-    const incidentService = getIncidentAnalysisService()
+    const params = validation.data;
+    const incidentService = getIncidentAnalysisService();
 
     // Get call replay data to analyze incidents
-    const replayData = await incidentService.getCallReplayData(params.callId)
+    const replayData = await incidentService.getCallReplayData(params.callId);
 
     if (!replayData) {
-      return notFoundResponse('Call not found or no quality data available')
+      return notFoundResponse("Call not found or no quality data available");
     }
 
     if (replayData.incidents.length === 0) {
       return successResponse({
-        message: 'No incidents detected in this call',
+        message: "No incidents detected in this call",
         callId: params.callId,
         analyzed: true,
         incidentsFound: 0,
-      })
+      });
     }
 
     // Store incidents if requested
-    const storedIncidentIds: string[] = []
+    const storedIncidentIds: string[] = [];
     if (params.storeIncident) {
       for (const incident of replayData.incidents) {
-        const incidentId = await incidentService.storeIncident(incident)
+        const incidentId = await incidentService.storeIncident(incident);
         if (incidentId) {
-          storedIncidentIds.push(incidentId)
+          storedIncidentIds.push(incidentId);
         }
       }
     }
 
     // Log audit event
-    const ipAddress = getClientIp(request)
+    const ipAddress = getClientIp(request);
     await logAuditEvent({
-      action: 'create',
+      action: "create",
       actor: {
         id: user.id,
-        type: 'user',
+        type: "user",
         email: user.email,
         displayName: user.displayName,
       },
-      category: 'admin',
+      category: "admin",
       resource: {
-        type: 'setting',
+        type: "setting",
         id: params.callId,
         name: `Call Incident Analysis ${params.callId.substring(0, 8)}`,
       },
@@ -329,16 +340,16 @@ export async function POST(request: NextRequest) {
       },
       ipAddress,
       success: true,
-    })
+    });
 
-    logger.info('POST /api/calls/quality/incidents - Success', {
+    logger.info("POST /api/calls/quality/incidents - Success", {
       callId: params.callId,
       incidentsAnalyzed: replayData.incidents.length,
       incidentsStored: storedIncidentIds.length,
-    })
+    });
 
     return createdResponse({
-      message: 'Incidents analyzed successfully',
+      message: "Incidents analyzed successfully",
       callId: params.callId,
       analyzed: true,
       incidentsFound: replayData.incidents.length,
@@ -352,9 +363,9 @@ export async function POST(request: NextRequest) {
         affectedParticipants: inc.affectedParticipants.length,
         topRootCause: inc.rootCauses[0]?.type,
       })),
-    })
+    });
   } catch (error) {
-    logger.error('Error analyzing incidents', error as Error)
-    return internalErrorResponse('Failed to analyze incidents')
+    logger.error("Error analyzing incidents", error as Error);
+    return internalErrorResponse("Failed to analyze incidents");
   }
 }

@@ -15,7 +15,7 @@ export {
   useSearchModal,
   type SearchModalProps,
   type SearchTriggerProps,
-} from './search-modal'
+} from "./search-modal";
 
 // ============================================================================
 // Search Input
@@ -26,7 +26,7 @@ export {
   CompactSearchInput,
   type SearchInputProps,
   type CompactSearchInputProps,
-} from './search-input'
+} from "./search-input";
 
 // ============================================================================
 // Search Filters
@@ -37,7 +37,7 @@ export {
   InlineFilters,
   type SearchFiltersProps,
   type InlineFiltersProps,
-} from './search-filters'
+} from "./search-filters";
 
 // ============================================================================
 // Search Results
@@ -48,7 +48,7 @@ export {
   GroupedSearchResults,
   type SearchResultsProps,
   type GroupedSearchResultsProps,
-} from './search-results'
+} from "./search-results";
 
 // ============================================================================
 // Result Components - Messages
@@ -61,7 +61,7 @@ export {
   MessageResultSkeleton,
   type SearchResultMessageProps,
   type CompactMessageResultProps,
-} from './search-result-message'
+} from "./search-result-message";
 
 // ============================================================================
 // Result Components - Files
@@ -75,7 +75,7 @@ export {
   type SearchResultFileProps,
   type CompactFileResultProps,
   type FileGridItemProps,
-} from './search-result-file'
+} from "./search-result-file";
 
 // ============================================================================
 // Result Components - Users
@@ -92,7 +92,7 @@ export {
   type UserCardProps,
   type PresenceIndicatorProps,
   type UserStatus,
-} from './search-result-user'
+} from "./search-result-user";
 
 // ============================================================================
 // Result Components - Channels
@@ -108,7 +108,7 @@ export {
   type CompactChannelResultProps,
   type ChannelListItemProps,
   type ChannelCardProps,
-} from './search-result-channel'
+} from "./search-result-channel";
 
 // ============================================================================
 // Search Suggestions
@@ -120,13 +120,17 @@ export {
   type SearchSuggestionsProps,
   type CompactSuggestionsProps,
   type QuickAction,
-} from './search-suggestions'
+} from "./search-suggestions";
 
 // ============================================================================
 // Quick Switcher
 // ============================================================================
 
-export { QuickSwitcher, useQuickSwitcher, type QuickSwitcherProps } from './quick-switcher'
+export {
+  QuickSwitcher,
+  useQuickSwitcher,
+  type QuickSwitcherProps,
+} from "./quick-switcher";
 
 // ============================================================================
 // Search in Channel
@@ -140,7 +144,7 @@ export {
   type SearchInChannelProps,
   type SearchInChannelTriggerProps,
   type HighlightMatchesProps,
-} from './search-in-channel'
+} from "./search-in-channel";
 
 // ============================================================================
 // Advanced Search
@@ -153,7 +157,7 @@ export {
   type AdvancedSearchProps,
   type SavedSearchesListProps,
   type CompactAdvancedSearchProps,
-} from './advanced-search'
+} from "./advanced-search";
 
 // ============================================================================
 // Advanced Search Builder (v0.7.0)
@@ -165,7 +169,7 @@ export {
   type QueryPart,
   type BooleanOperator,
   type QueryField,
-} from './AdvancedSearchBuilder'
+} from "./AdvancedSearchBuilder";
 
 // ============================================================================
 // Search Result Card (v0.7.0)
@@ -176,7 +180,7 @@ export {
   CompactSearchResultCard,
   type SearchResultCardProps,
   type CompactSearchResultCardProps,
-} from './SearchResultCard'
+} from "./SearchResultCard";
 
 // ============================================================================
 // Search History (v0.7.0)
@@ -187,19 +191,19 @@ export {
   CompactSearchHistory,
   type SearchHistoryProps,
   type CompactSearchHistoryProps,
-} from './SearchHistory'
+} from "./SearchHistory";
 
 // ============================================================================
 // Saved Searches (v0.7.0)
 // ============================================================================
 
-export { SavedSearches, type SavedSearchesProps } from './SavedSearches'
+export { SavedSearches, type SavedSearchesProps } from "./SavedSearches";
 
 // ============================================================================
 // Smart Search (AI-powered)
 // ============================================================================
 
-export { SmartSearch, type SmartSearchProps } from './SmartSearch'
+export { SmartSearch, type SmartSearchProps } from "./SmartSearch";
 
 // ============================================================================
 // Global Search (v0.9.1) - Command Palette Style
@@ -210,4 +214,4 @@ export {
   useGlobalSearch,
   type GlobalSearchProps,
   type SearchResultItem,
-} from './global-search'
+} from "./global-search";

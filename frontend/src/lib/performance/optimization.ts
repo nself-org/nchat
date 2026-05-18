@@ -4,8 +4,15 @@
  * Collection of utilities for optimizing React application performance
  */
 
-import * as React from 'react'
-import { useEffect, useRef, useCallback, useMemo, DependencyList, useState } from 'react'
+import * as React from "react";
+import {
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  DependencyList,
+  useState,
+} from "react";
 
 // ============================================================================
 // Debounce & Throttle
@@ -16,22 +23,22 @@ import { useEffect, useRef, useCallback, useMemo, DependencyList, useState } fro
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null
+  let timeout: NodeJS.Timeout | null = null;
 
   return function executedFunction(...args: Parameters<T>) {
     const later = () => {
-      timeout = null
-      func(...args)
-    }
+      timeout = null;
+      func(...args);
+    };
 
     if (timeout) {
-      clearTimeout(timeout)
+      clearTimeout(timeout);
     }
 
-    timeout = setTimeout(later, wait)
-  }
+    timeout = setTimeout(later, wait);
+  };
 }
 
 /**
@@ -39,64 +46,64 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
-  let inThrottle: boolean = false
+  let inThrottle: boolean = false;
 
   return function executedFunction(...args: Parameters<T>) {
     if (!inThrottle) {
-      func(...args)
-      inThrottle = true
+      func(...args);
+      inThrottle = true;
       setTimeout(() => {
-        inThrottle = false
-      }, wait)
+        inThrottle = false;
+      }, wait);
     }
-  }
+  };
 }
 
 /**
  * React hook for debounced values
  */
 export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
+      setDebouncedValue(value);
+    }, delay);
 
     return () => {
-      clearTimeout(handler)
-    }
-  }, [value, delay])
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
 
-  return debouncedValue
+  return debouncedValue;
 }
 
 /**
  * React hook for throttled values
  */
 export function useThrottle<T>(value: T, delay: number): T {
-  const [throttledValue, setThrottledValue] = useState<T>(value)
-  const lastRun = useRef(Date.now())
+  const [throttledValue, setThrottledValue] = useState<T>(value);
+  const lastRun = useRef(Date.now());
 
   useEffect(() => {
     const handler = setTimeout(
       () => {
         if (Date.now() - lastRun.current >= delay) {
-          setThrottledValue(value)
-          lastRun.current = Date.now()
+          setThrottledValue(value);
+          lastRun.current = Date.now();
         }
       },
-      delay - (Date.now() - lastRun.current)
-    )
+      delay - (Date.now() - lastRun.current),
+    );
 
     return () => {
-      clearTimeout(handler)
-    }
-  }, [value, delay])
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
 
-  return throttledValue
+  return throttledValue;
 }
 
 // ============================================================================
@@ -107,40 +114,40 @@ export function useThrottle<T>(value: T, delay: number): T {
  * Deep comparison for useMemo/useCallback dependencies
  */
 export function useDeepMemo<T>(factory: () => T, deps: DependencyList): T {
-  const ref = useRef<{ deps: DependencyList; value: T } | undefined>(undefined)
+  const ref = useRef<{ deps: DependencyList; value: T } | undefined>(undefined);
 
   if (!ref.current || !deepEqual(ref.current.deps, deps)) {
     ref.current = {
       deps,
       value: factory(),
-    }
+    };
   }
 
-  return ref.current.value
+  return ref.current.value;
 }
 
 /**
  * Deep equality check
  */
 function deepEqual(a: any, b: any): boolean {
-  if (a === b) return true
+  if (a === b) return true;
 
-  if (a == null || b == null) return false
+  if (a == null || b == null) return false;
 
-  if (typeof a !== 'object' || typeof b !== 'object') return false
+  if (typeof a !== "object" || typeof b !== "object") return false;
 
-  const keysA = Object.keys(a)
-  const keysB = Object.keys(b)
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
 
-  if (keysA.length !== keysB.length) return false
+  if (keysA.length !== keysB.length) return false;
 
   for (const key of keysA) {
     if (!keysB.includes(key) || !deepEqual(a[key], b[key])) {
-      return false
+      return false;
     }
   }
 
-  return true
+  return true;
 }
 
 // ============================================================================
@@ -151,28 +158,28 @@ function deepEqual(a: any, b: any): boolean {
  * Memoize expensive computations with cache
  */
 export function memoize<T extends (...args: any[]) => any>(fn: T): T {
-  const cache = new Map<string, ReturnType<T>>()
+  const cache = new Map<string, ReturnType<T>>();
 
   return ((...args: Parameters<T>) => {
-    const key = JSON.stringify(args)
+    const key = JSON.stringify(args);
 
     if (cache.has(key)) {
-      return cache.get(key)!
+      return cache.get(key)!;
     }
 
-    const result = fn(...args)
-    cache.set(key, result)
+    const result = fn(...args);
+    cache.set(key, result);
 
     // Limit cache size to prevent memory leaks
     if (cache.size > 100) {
-      const firstKey = cache.keys().next().value
+      const firstKey = cache.keys().next().value;
       if (firstKey !== undefined) {
-        cache.delete(firstKey)
+        cache.delete(firstKey);
       }
     }
 
-    return result
-  }) as T
+    return result;
+  }) as T;
 }
 
 /**
@@ -181,24 +188,24 @@ export function memoize<T extends (...args: any[]) => any>(fn: T): T {
 export async function processInChunks<T, R>(
   items: T[],
   processItem: (item: T) => R,
-  chunkSize: number = 10
+  chunkSize: number = 10,
 ): Promise<R[]> {
-  const results: R[] = []
+  const results: R[] = [];
 
   for (let i = 0; i < items.length; i += chunkSize) {
-    const chunk = items.slice(i, i + chunkSize)
+    const chunk = items.slice(i, i + chunkSize);
 
     // Process chunk
-    const chunkResults = chunk.map(processItem)
-    results.push(...chunkResults)
+    const chunkResults = chunk.map(processItem);
+    results.push(...chunkResults);
 
     // Yield to browser
     if (i + chunkSize < items.length) {
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0));
     }
   }
 
-  return results
+  return results;
 }
 
 // ============================================================================
@@ -210,58 +217,58 @@ export async function processInChunks<T, R>(
  * Useful for preventing state updates on unmounted components
  */
 export function useIsMounted(): () => boolean {
-  const isMounted = useRef(false)
+  const isMounted = useRef(false);
 
   useEffect(() => {
-    isMounted.current = true
+    isMounted.current = true;
     return () => {
-      isMounted.current = false
-    }
-  }, [])
+      isMounted.current = false;
+    };
+  }, []);
 
-  return useCallback(() => isMounted.current, [])
+  return useCallback(() => isMounted.current, []);
 }
 
 /**
  * Hook to track previous value
  */
 export function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T | undefined>(undefined)
+  const ref = useRef<T | undefined>(undefined);
 
   useEffect(() => {
-    ref.current = value
-  }, [value])
+    ref.current = value;
+  }, [value]);
 
-  return ref.current
+  return ref.current;
 }
 
 /**
  * Hook to detect value changes
  */
 export function useWhyDidYouUpdate(name: string, props: Record<string, any>) {
-  const previousProps = useRef<Record<string, any> | undefined>(undefined)
+  const previousProps = useRef<Record<string, any> | undefined>(undefined);
 
   useEffect(() => {
     if (previousProps.current) {
-      const allKeys = Object.keys({ ...previousProps.current, ...props })
-      const changedProps: Record<string, { from: any; to: any }> = {}
+      const allKeys = Object.keys({ ...previousProps.current, ...props });
+      const changedProps: Record<string, { from: any; to: any }> = {};
 
       allKeys.forEach((key) => {
         if (previousProps.current![key] !== props[key]) {
           changedProps[key] = {
             from: previousProps.current![key],
             to: props[key],
-          }
+          };
         }
-      })
+      });
 
       if (Object.keys(changedProps).length > 0) {
         // REMOVED: console.log('[why-did-you-update]', name, changedProps)
       }
     }
 
-    previousProps.current = props
-  })
+    previousProps.current = props;
+  });
 }
 
 // ============================================================================
@@ -272,38 +279,38 @@ export function useWhyDidYouUpdate(name: string, props: Record<string, any>) {
  * Lazy load images with Intersection Observer
  */
 export function useLazyImage(src: string): {
-  imageSrc: string | null
-  isLoading: boolean
-  error: Error | null
+  imageSrc: string | null;
+  isLoading: boolean;
+  error: Error | null;
 } {
-  const [imageSrc, setImageSrc] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-  const imgRef = useRef<HTMLImageElement | undefined>(undefined)
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const imgRef = useRef<HTMLImageElement | undefined>(undefined);
 
   useEffect(() => {
-    const img = new Image()
-    imgRef.current = img
+    const img = new Image();
+    imgRef.current = img;
 
     img.onload = () => {
-      setImageSrc(src)
-      setIsLoading(false)
-    }
+      setImageSrc(src);
+      setIsLoading(false);
+    };
 
     img.onerror = () => {
-      setError(new Error('Failed to load image'))
-      setIsLoading(false)
-    }
+      setError(new Error("Failed to load image"));
+      setIsLoading(false);
+    };
 
-    img.src = src
+    img.src = src;
 
     return () => {
-      img.onload = null
-      img.onerror = null
-    }
-  }, [src])
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [src]);
 
-  return { imageSrc, isLoading, error }
+  return { imageSrc, isLoading, error };
 }
 
 /**
@@ -311,9 +318,9 @@ export function useLazyImage(src: string): {
  */
 export function generateSrcSet(
   baseUrl: string,
-  widths: number[] = [320, 640, 960, 1280, 1920]
+  widths: number[] = [320, 640, 960, 1280, 1920],
 ): string {
-  return widths.map((width) => `${baseUrl}?w=${width} ${width}w`).join(', ')
+  return widths.map((width) => `${baseUrl}?w=${width} ${width}w`).join(", ");
 }
 
 // ============================================================================
@@ -324,30 +331,30 @@ export function generateSrcSet(
  * Hook for using requestAnimationFrame
  */
 export function useAnimationFrame(callback: (deltaTime: number) => void) {
-  const requestRef = useRef<number | undefined>(undefined)
-  const previousTimeRef = useRef<number | undefined>(undefined)
+  const requestRef = useRef<number | undefined>(undefined);
+  const previousTimeRef = useRef<number | undefined>(undefined);
 
   const animate = useCallback(
     (time: number) => {
       if (previousTimeRef.current !== undefined) {
-        const deltaTime = time - previousTimeRef.current
-        callback(deltaTime)
+        const deltaTime = time - previousTimeRef.current;
+        callback(deltaTime);
       }
 
-      previousTimeRef.current = time
-      requestRef.current = requestAnimationFrame(animate)
+      previousTimeRef.current = time;
+      requestRef.current = requestAnimationFrame(animate);
     },
-    [callback]
-  )
+    [callback],
+  );
 
   useEffect(() => {
-    requestRef.current = requestAnimationFrame(animate)
+    requestRef.current = requestAnimationFrame(animate);
     return () => {
       if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current)
+        cancelAnimationFrame(requestRef.current);
       }
-    }
-  }, [animate])
+    };
+  }, [animate]);
 }
 
 // ============================================================================
@@ -358,56 +365,60 @@ export function useAnimationFrame(callback: (deltaTime: number) => void) {
  * Check if device is on battery power
  */
 export async function isOnBattery(): Promise<boolean> {
-  if ('getBattery' in navigator) {
-    const battery = await (navigator as any).getBattery()
-    return !battery.charging
+  if ("getBattery" in navigator) {
+    const battery = await (navigator as any).getBattery();
+    return !battery.charging;
   }
-  return false
+  return false;
 }
 
 /**
  * Get network information
  */
 export function getNetworkInfo(): {
-  effectiveType: string
-  saveData: boolean
-  downlink: number
+  effectiveType: string;
+  saveData: boolean;
+  downlink: number;
 } | null {
-  if ('connection' in navigator) {
-    const connection = (navigator as any).connection
+  if ("connection" in navigator) {
+    const connection = (navigator as any).connection;
     return {
-      effectiveType: connection.effectiveType || 'unknown',
+      effectiveType: connection.effectiveType || "unknown",
       saveData: connection.saveData || false,
       downlink: connection.downlink || 0,
-    }
+    };
   }
-  return null
+  return null;
 }
 
 /**
  * Hook to adapt quality based on network
  */
-export function useAdaptiveQuality(): 'low' | 'medium' | 'high' {
-  const [quality, setQuality] = useState<'low' | 'medium' | 'high'>('high')
+export function useAdaptiveQuality(): "low" | "medium" | "high" {
+  const [quality, setQuality] = useState<"low" | "medium" | "high">("high");
 
   useEffect(() => {
-    const network = getNetworkInfo()
+    const network = getNetworkInfo();
 
     if (!network) {
-      setQuality('high')
-      return
+      setQuality("high");
+      return;
     }
 
-    if (network.saveData || network.effectiveType === 'slow-2g' || network.effectiveType === '2g') {
-      setQuality('low')
-    } else if (network.effectiveType === '3g') {
-      setQuality('medium')
+    if (
+      network.saveData ||
+      network.effectiveType === "slow-2g" ||
+      network.effectiveType === "2g"
+    ) {
+      setQuality("low");
+    } else if (network.effectiveType === "3g") {
+      setQuality("medium");
     } else {
-      setQuality('high')
+      setQuality("high");
     }
-  }, [])
+  }, []);
 
-  return quality
+  return quality;
 }
 
 export default {
@@ -415,4 +426,4 @@ export default {
   throttle,
   memoize,
   processInChunks,
-}
+};

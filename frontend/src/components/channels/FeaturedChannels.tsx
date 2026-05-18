@@ -1,27 +1,27 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Star, ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { ChannelCard } from './ChannelCard'
-import type { Channel } from '@/stores/channel-store'
-import { getFeaturedChannels } from '@/lib/channels/channel-discovery'
+import * as React from "react";
+import { Star, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ChannelCard } from "./ChannelCard";
+import type { Channel } from "@/stores/channel-store";
+import { getFeaturedChannels } from "@/lib/channels/channel-discovery";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface FeaturedChannelsProps {
-  channels: Channel[]
-  joinedChannelIds?: Set<string>
-  limit?: number
-  showViewAll?: boolean
-  onViewAll?: () => void
-  onJoin?: (channelId: string) => void
-  onLeave?: (channelId: string) => void
-  className?: string
+  channels: Channel[];
+  joinedChannelIds?: Set<string>;
+  limit?: number;
+  showViewAll?: boolean;
+  onViewAll?: () => void;
+  onJoin?: (channelId: string) => void;
+  onLeave?: (channelId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -40,15 +40,15 @@ export function FeaturedChannels({
 }: FeaturedChannelsProps) {
   const featuredChannels = React.useMemo(
     () => getFeaturedChannels(channels).slice(0, limit),
-    [channels, limit]
-  )
+    [channels, limit],
+  );
 
   if (featuredChannels.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <section className={cn('space-y-4', className)}>
+    <section className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
@@ -80,7 +80,7 @@ export function FeaturedChannels({
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </section>
-  )
+  );
 }
 
-FeaturedChannels.displayName = 'FeaturedChannels'
+FeaturedChannels.displayName = "FeaturedChannels";

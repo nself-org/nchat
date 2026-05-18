@@ -1,35 +1,35 @@
-'use client'
+"use client";
 
 /**
  * Bot Triggers Component
  * Define when your bot should respond
  */
 
-import * as React from 'react'
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import type { BotBuilderTrigger, TriggerEvent } from '@/lib/bots'
-import { EVENT_TYPES } from '@/lib/bots'
+import * as React from "react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import type { BotBuilderTrigger, TriggerEvent } from "@/lib/bots";
+import { EVENT_TYPES } from "@/lib/bots";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 interface BotTriggersProps {
-  triggers: BotBuilderTrigger[]
-  onAdd: (trigger: BotBuilderTrigger) => void
-  onRemove: (triggerId: string) => void
-  error?: string
-  className?: string
+  triggers: BotBuilderTrigger[];
+  onAdd: (trigger: BotBuilderTrigger) => void;
+  onRemove: (triggerId: string) => void;
+  error?: string;
+  className?: string;
 }
 
 interface TriggerDraft {
-  type: TriggerEvent
-  keywords?: string
-  patterns?: string
-  schedule?: string
+  type: TriggerEvent;
+  keywords?: string;
+  patterns?: string;
+  schedule?: string;
 }
 
 // ============================================================================
@@ -37,140 +37,148 @@ interface TriggerDraft {
 // ============================================================================
 
 const TRIGGER_OPTIONS: Array<{
-  value: TriggerEvent
-  label: string
-  description: string
-  hasConfig: boolean
+  value: TriggerEvent;
+  label: string;
+  description: string;
+  hasConfig: boolean;
 }> = [
   {
-    value: 'message_created',
-    label: 'Any Message',
-    description: 'Triggers on every message',
+    value: "message_created",
+    label: "Any Message",
+    description: "Triggers on every message",
     hasConfig: false,
   },
   {
-    value: 'keyword',
-    label: 'Keyword',
-    description: 'Triggers when specific words are mentioned',
+    value: "keyword",
+    label: "Keyword",
+    description: "Triggers when specific words are mentioned",
     hasConfig: true,
   },
   {
-    value: 'mention',
-    label: 'Bot Mention',
-    description: 'Triggers when the bot is mentioned',
+    value: "mention",
+    label: "Bot Mention",
+    description: "Triggers when the bot is mentioned",
     hasConfig: false,
   },
   {
-    value: 'user_joined',
-    label: 'User Joins',
-    description: 'Triggers when a user joins a channel',
+    value: "user_joined",
+    label: "User Joins",
+    description: "Triggers when a user joins a channel",
     hasConfig: false,
   },
   {
-    value: 'user_left',
-    label: 'User Leaves',
-    description: 'Triggers when a user leaves a channel',
+    value: "user_left",
+    label: "User Leaves",
+    description: "Triggers when a user leaves a channel",
     hasConfig: false,
   },
   {
-    value: 'reaction_added',
-    label: 'Reaction Added',
-    description: 'Triggers when a reaction is added to a message',
+    value: "reaction_added",
+    label: "Reaction Added",
+    description: "Triggers when a reaction is added to a message",
     hasConfig: false,
   },
   {
-    value: 'scheduled',
-    label: 'Scheduled',
-    description: 'Triggers on a schedule (cron expression)',
+    value: "scheduled",
+    label: "Scheduled",
+    description: "Triggers on a schedule (cron expression)",
     hasConfig: true,
   },
-]
+];
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-export function BotTriggers({ triggers, onAdd, onRemove, error, className }: BotTriggersProps) {
-  const [isAdding, setIsAdding] = useState(false)
+export function BotTriggers({
+  triggers,
+  onAdd,
+  onRemove,
+  error,
+  className,
+}: BotTriggersProps) {
+  const [isAdding, setIsAdding] = useState(false);
   const [draft, setDraft] = useState<TriggerDraft>({
-    type: 'message_created',
-  })
-  const [validationError, setValidationError] = useState<string>()
+    type: "message_created",
+  });
+  const [validationError, setValidationError] = useState<string>();
 
   // Get trigger config
   const getSelectedTriggerConfig = () => {
-    return TRIGGER_OPTIONS.find((t) => t.value === draft.type)
-  }
+    return TRIGGER_OPTIONS.find((t) => t.value === draft.type);
+  };
 
   // Validate draft
   const validateDraft = (): boolean => {
-    const config = getSelectedTriggerConfig()
+    const config = getSelectedTriggerConfig();
 
-    if (draft.type === 'keyword' && !draft.keywords?.trim()) {
-      setValidationError('At least one keyword is required')
-      return false
+    if (draft.type === "keyword" && !draft.keywords?.trim()) {
+      setValidationError("At least one keyword is required");
+      return false;
     }
 
-    if (draft.type === 'scheduled' && !draft.schedule?.trim()) {
-      setValidationError('Schedule expression is required')
-      return false
+    if (draft.type === "scheduled" && !draft.schedule?.trim()) {
+      setValidationError("Schedule expression is required");
+      return false;
     }
 
-    setValidationError(undefined)
-    return true
-  }
+    setValidationError(undefined);
+    return true;
+  };
 
   // Add a trigger
   const handleAdd = () => {
-    if (!validateDraft()) return
+    if (!validateDraft()) return;
 
     const trigger: BotBuilderTrigger = {
       id: `trigger_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
       type: draft.type,
       config: {},
-    }
+    };
 
     // Add type-specific config
-    if (draft.type === 'keyword' && draft.keywords) {
+    if (draft.type === "keyword" && draft.keywords) {
       trigger.config.keywords = draft.keywords
-        .split(',')
+        .split(",")
         .map((k) => k.trim())
-        .filter((k) => k.length > 0)
+        .filter((k) => k.length > 0);
     }
 
-    if (draft.type === 'scheduled' && draft.schedule) {
-      trigger.config.schedule = draft.schedule
+    if (draft.type === "scheduled" && draft.schedule) {
+      trigger.config.schedule = draft.schedule;
     }
 
-    onAdd(trigger)
+    onAdd(trigger);
 
     // Reset
-    setDraft({ type: 'message_created' })
-    setIsAdding(false)
-  }
+    setDraft({ type: "message_created" });
+    setIsAdding(false);
+  };
 
   // Format trigger for display
   const formatTrigger = (trigger: BotBuilderTrigger): string => {
-    const config = TRIGGER_OPTIONS.find((t) => t.value === trigger.type)
-    let label = config?.label || trigger.type
+    const config = TRIGGER_OPTIONS.find((t) => t.value === trigger.type);
+    let label = config?.label || trigger.type;
 
-    if (trigger.type === 'keyword' && trigger.config.keywords) {
-      const keywords = trigger.config.keywords as string[]
-      label += `: ${keywords.slice(0, 3).join(', ')}${keywords.length > 3 ? '...' : ''}`
+    if (trigger.type === "keyword" && trigger.config.keywords) {
+      const keywords = trigger.config.keywords as string[];
+      label += `: ${keywords.slice(0, 3).join(", ")}${keywords.length > 3 ? "..." : ""}`;
     }
 
-    if (trigger.type === 'scheduled' && trigger.config.schedule) {
-      label += `: ${trigger.config.schedule}`
+    if (trigger.type === "scheduled" && trigger.config.schedule) {
+      label += `: ${trigger.config.schedule}`;
     }
 
-    return label
-  }
+    return label;
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Error message */}
       {error && (
-        <div className="bg-destructive/10 rounded-md p-3 text-sm text-destructive">{error}</div>
+        <div className="bg-destructive/10 rounded-md p-3 text-sm text-destructive">
+          {error}
+        </div>
       )}
 
       {/* Existing Triggers */}
@@ -178,11 +186,17 @@ export function BotTriggers({ triggers, onAdd, onRemove, error, className }: Bot
         <div className="space-y-2">
           <h4 className="text-sm font-medium">Active Triggers</h4>
           {triggers.map((trigger) => (
-            <Card key={trigger.id} className="flex items-center justify-between p-3">
+            <Card
+              key={trigger.id}
+              className="flex items-center justify-between p-3"
+            >
               <div>
                 <span className="font-medium">{formatTrigger(trigger)}</span>
                 <p className="text-xs text-muted-foreground">
-                  {TRIGGER_OPTIONS.find((t) => t.value === trigger.type)?.description}
+                  {
+                    TRIGGER_OPTIONS.find((t) => t.value === trigger.type)
+                      ?.description
+                  }
                 </p>
               </div>
               <Button
@@ -206,17 +220,21 @@ export function BotTriggers({ triggers, onAdd, onRemove, error, className }: Bot
           {/* Trigger Type */}
           <div>
             <span className="mb-2 block text-sm font-medium">Trigger Type</span>
-            <div className="grid gap-2" role="radiogroup" aria-label="Trigger Type">
+            <div
+              className="grid gap-2"
+              role="radiogroup"
+              aria-label="Trigger Type"
+            >
               {TRIGGER_OPTIONS.map((option) => (
                 // eslint-disable-next-line jsx-a11y/label-has-associated-control -- label has htmlFor pointing to input id
                 <label
                   key={option.value}
                   htmlFor={`trigger-type-${option.value}`}
                   className={cn(
-                    'flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors',
+                    "flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors",
                     draft.type === option.value
-                      ? 'bg-primary/5 border-primary'
-                      : 'hover:bg-muted/50 border-input'
+                      ? "bg-primary/5 border-primary"
+                      : "hover:bg-muted/50 border-input",
                   )}
                 >
                   <input
@@ -234,7 +252,9 @@ export function BotTriggers({ triggers, onAdd, onRemove, error, className }: Bot
                   />
                   <div>
                     <span className="font-medium">{option.label}</span>
-                    <p className="text-sm text-muted-foreground">{option.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {option.description}
+                    </p>
                   </div>
                 </label>
               ))}
@@ -242,16 +262,21 @@ export function BotTriggers({ triggers, onAdd, onRemove, error, className }: Bot
           </div>
 
           {/* Keyword Config */}
-          {draft.type === 'keyword' && (
+          {draft.type === "keyword" && (
             <div>
-              <label htmlFor="trigger-keywords" className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="trigger-keywords"
+                className="mb-1 block text-sm font-medium"
+              >
                 Keywords
               </label>
               <input
                 id="trigger-keywords"
                 type="text"
-                value={draft.keywords || ''}
-                onChange={(e) => setDraft((prev) => ({ ...prev, keywords: e.target.value }))}
+                value={draft.keywords || ""}
+                onChange={(e) =>
+                  setDraft((prev) => ({ ...prev, keywords: e.target.value }))
+                }
                 placeholder="hello, hi, hey"
                 className="w-full rounded-md border border-input bg-background px-3 py-2"
               />
@@ -262,16 +287,21 @@ export function BotTriggers({ triggers, onAdd, onRemove, error, className }: Bot
           )}
 
           {/* Schedule Config */}
-          {draft.type === 'scheduled' && (
+          {draft.type === "scheduled" && (
             <div>
-              <label htmlFor="trigger-schedule" className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="trigger-schedule"
+                className="mb-1 block text-sm font-medium"
+              >
                 Schedule (Cron Expression)
               </label>
               <input
                 id="trigger-schedule"
                 type="text"
-                value={draft.schedule || ''}
-                onChange={(e) => setDraft((prev) => ({ ...prev, schedule: e.target.value }))}
+                value={draft.schedule || ""}
+                onChange={(e) =>
+                  setDraft((prev) => ({ ...prev, schedule: e.target.value }))
+                }
                 placeholder="0 9 * * 1-5"
                 className="w-full rounded-md border border-input bg-background px-3 py-2"
               />
@@ -282,15 +312,17 @@ export function BotTriggers({ triggers, onAdd, onRemove, error, className }: Bot
           )}
 
           {/* Validation Error */}
-          {validationError && <p className="text-sm text-destructive">{validationError}</p>}
+          {validationError && (
+            <p className="text-sm text-destructive">{validationError}</p>
+          )}
 
           {/* Actions */}
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={() => {
-                setIsAdding(false)
-                setValidationError(undefined)
+                setIsAdding(false);
+                setValidationError(undefined);
               }}
             >
               Cancel
@@ -299,7 +331,11 @@ export function BotTriggers({ triggers, onAdd, onRemove, error, className }: Bot
           </div>
         </Card>
       ) : (
-        <Button variant="outline" onClick={() => setIsAdding(true)} className="w-full">
+        <Button
+          variant="outline"
+          onClick={() => setIsAdding(true)}
+          className="w-full"
+        >
           + Add Trigger
         </Button>
       )}
@@ -307,12 +343,12 @@ export function BotTriggers({ triggers, onAdd, onRemove, error, className }: Bot
       {/* Help */}
       <div className="text-sm text-muted-foreground">
         <p>
-          Triggers define when your bot responds. You can add multiple triggers to respond to
-          different events.
+          Triggers define when your bot responds. You can add multiple triggers
+          to respond to different events.
         </p>
       </div>
     </div>
-  )
+  );
 }
 
-export default BotTriggers
+export default BotTriggers;

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // useDemo Hook
@@ -9,8 +9,8 @@
 //
 // ===============================================================================
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import type { TemplateId } from '@/templates/types'
+import { useState, useEffect, useCallback, useMemo } from "react";
+import type { TemplateId } from "@/templates/types";
 import {
   isDemoModeEnabled,
   getDemoState,
@@ -30,7 +30,7 @@ import {
   getDemoReactions,
   type DemoState,
   type DemoSession,
-} from '@/lib/demo/demo-mode'
+} from "@/lib/demo/demo-mode";
 import {
   getDemoUser as getUserById,
   getDemoChannel,
@@ -46,7 +46,7 @@ import {
   type DemoChannel,
   type DemoMessage,
   type DemoFile,
-} from '@/lib/demo/sample-data'
+} from "@/lib/demo/sample-data";
 
 // -------------------------------------------------------------------------------
 // Types
@@ -54,49 +54,49 @@ import {
 
 export interface UseDemoReturn {
   // Demo State
-  isDemo: boolean
-  isLoading: boolean
-  demoState: DemoState | null
-  session: DemoSession | null
+  isDemo: boolean;
+  isLoading: boolean;
+  demoState: DemoState | null;
+  session: DemoSession | null;
 
   // Template
-  currentTemplate: TemplateId
-  switchTemplate: (templateId: TemplateId) => void
+  currentTemplate: TemplateId;
+  switchTemplate: (templateId: TemplateId) => void;
 
   // User
-  currentUser: DemoUser | null
-  switchUser: (userId: string) => void
-  allUsers: DemoUser[]
+  currentUser: DemoUser | null;
+  switchUser: (userId: string) => void;
+  allUsers: DemoUser[];
 
   // Channels
-  channels: DemoChannel[]
-  directMessages: DemoChannel[]
-  groupChannels: DemoChannel[]
-  getChannel: (channelId: string) => DemoChannel | undefined
-  totalUnread: number
-  totalMentions: number
+  channels: DemoChannel[];
+  directMessages: DemoChannel[];
+  groupChannels: DemoChannel[];
+  getChannel: (channelId: string) => DemoChannel | undefined;
+  totalUnread: number;
+  totalMentions: number;
 
   // Messages
-  messages: DemoMessage[]
-  getMessagesForChannel: (channelId: string) => DemoMessage[]
-  getThreadMessages: (messageId: string) => DemoMessage[]
+  messages: DemoMessage[];
+  getMessagesForChannel: (channelId: string) => DemoMessage[];
+  getThreadMessages: (messageId: string) => DemoMessage[];
   sendMessage: (
     channelId: string,
     content: string,
-    options?: SendMessageOptions
-  ) => DemoMessage | null
-  toggleReaction: (messageId: string, emoji: string) => boolean
+    options?: SendMessageOptions,
+  ) => DemoMessage | null;
+  toggleReaction: (messageId: string, emoji: string) => boolean;
 
   // Demo Control
-  enableDemo: (templateId?: TemplateId) => void
-  disableDemo: () => void
-  resetData: () => void
+  enableDemo: (templateId?: TemplateId) => void;
+  disableDemo: () => void;
+  resetData: () => void;
 }
 
 export interface SendMessageOptions {
-  attachments?: DemoFile[]
-  replyTo?: string
-  threadId?: string
+  attachments?: DemoFile[];
+  replyTo?: string;
+  threadId?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -104,128 +104,134 @@ export interface SendMessageOptions {
 // -------------------------------------------------------------------------------
 
 export function useDemo(): UseDemoReturn {
-  const [isLoading, setIsLoading] = useState(true)
-  const [demoState, setDemoState] = useState<DemoState | null>(null)
-  const [session, setSession] = useState<DemoSession | null>(null)
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [isLoading, setIsLoading] = useState(true);
+  const [demoState, setDemoState] = useState<DemoState | null>(null);
+  const [session, setSession] = useState<DemoSession | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Load demo state on mount
   useEffect(() => {
     const loadState = () => {
-      setDemoState(getDemoState())
-      setSession(getDemoSession())
-      setIsLoading(false)
-    }
+      setDemoState(getDemoState());
+      setSession(getDemoSession());
+      setIsLoading(false);
+    };
 
-    loadState()
+    loadState();
 
     // Listen for storage changes (for multi-tab support)
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key?.startsWith('nchat-demo')) {
-        loadState()
-        setRefreshKey((k) => k + 1)
+      if (e.key?.startsWith("nchat-demo")) {
+        loadState();
+        setRefreshKey((k) => k + 1);
       }
-    }
+    };
 
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   // Check if demo mode is active
   const isDemo = useMemo(() => {
-    return demoState?.isEnabled === true
-  }, [demoState])
+    return demoState?.isEnabled === true;
+  }, [demoState]);
 
   // Get current template
   const currentTemplate = useMemo(() => {
-    return demoState?.currentTemplate ?? 'default'
-  }, [demoState])
+    return demoState?.currentTemplate ?? "default";
+  }, [demoState]);
 
   // Switch template
   const switchTemplate = useCallback((templateId: TemplateId) => {
-    const newState = switchDemoTemplate(templateId)
-    setDemoState(newState)
-  }, [])
+    const newState = switchDemoTemplate(templateId);
+    setDemoState(newState);
+  }, []);
 
   // Get current user
   const currentUser = useMemo(() => {
-    return demoState?.currentUser ?? null
-  }, [demoState])
+    return demoState?.currentUser ?? null;
+  }, [demoState]);
 
   // Switch user
   const switchUser = useCallback((userId: string) => {
-    const newUser = switchDemoUser(userId)
+    const newUser = switchDemoUser(userId);
     if (newUser) {
-      setDemoState(getDemoState())
+      setDemoState(getDemoState());
     }
-  }, [])
+  }, []);
 
   // Get all users
   const allUsers = useMemo(() => {
-    return getDemoUsers()
-  }, [refreshKey])
+    return getDemoUsers();
+  }, [refreshKey]);
 
   // Get channels
   const channels = useMemo(() => {
-    if (!isDemo) return []
-    return getCurrentUserChannels()
-  }, [isDemo, refreshKey])
+    if (!isDemo) return [];
+    return getCurrentUserChannels();
+  }, [isDemo, refreshKey]);
 
   // Get DMs
   const directMessages = useMemo(() => {
-    if (!isDemo) return []
-    return getCurrentUserDMs()
-  }, [isDemo, refreshKey])
+    if (!isDemo) return [];
+    return getCurrentUserDMs();
+  }, [isDemo, refreshKey]);
 
   // Get group channels
   const groupChannels = useMemo(() => {
-    if (!isDemo) return []
-    return getCurrentUserGroups()
-  }, [isDemo, refreshKey])
+    if (!isDemo) return [];
+    return getCurrentUserGroups();
+  }, [isDemo, refreshKey]);
 
   // Get channel by ID
   const getChannel = useCallback((channelId: string) => {
-    return getDemoChannel(channelId)
-  }, [])
+    return getDemoChannel(channelId);
+  }, []);
 
   // Get unread counts
   const totalUnread = useMemo(() => {
-    if (!isDemo) return 0
-    return getTotalUnreadCount()
-  }, [isDemo, refreshKey])
+    if (!isDemo) return 0;
+    return getTotalUnreadCount();
+  }, [isDemo, refreshKey]);
 
   const totalMentions = useMemo(() => {
-    if (!isDemo) return 0
-    return getTotalMentionCount()
-  }, [isDemo, refreshKey])
+    if (!isDemo) return 0;
+    return getTotalMentionCount();
+  }, [isDemo, refreshKey]);
 
   // Get all messages
   const messages = useMemo(() => {
-    if (!isDemo) return []
-    return getDemoMessages()
-  }, [isDemo, refreshKey])
+    if (!isDemo) return [];
+    return getDemoMessages();
+  }, [isDemo, refreshKey]);
 
   // Get messages for a channel
   const getMessagesForChannel = useCallback(
     (channelId: string): DemoMessage[] => {
-      const allMessages = getDemoMessages()
-      return allMessages.filter((msg) => msg.channelId === channelId && !msg.threadId)
+      const allMessages = getDemoMessages();
+      return allMessages.filter(
+        (msg) => msg.channelId === channelId && !msg.threadId,
+      );
     },
-    [refreshKey]
-  )
+    [refreshKey],
+  );
 
   // Get thread messages
   const getThreadMessages = useCallback(
     (messageId: string): DemoMessage[] => {
-      return getThreadReplies(messageId)
+      return getThreadReplies(messageId);
     },
-    [refreshKey]
-  )
+    [refreshKey],
+  );
 
   // Send a message
   const sendMessage = useCallback(
-    (channelId: string, content: string, options?: SendMessageOptions): DemoMessage | null => {
-      if (!isDemo || !currentUser) return null
+    (
+      channelId: string,
+      content: string,
+      options?: SendMessageOptions,
+    ): DemoMessage | null => {
+      if (!isDemo || !currentUser) return null;
 
       const message = addDemoMessage({
         channelId,
@@ -235,51 +241,51 @@ export function useDemo(): UseDemoReturn {
         attachments: options?.attachments,
         threadId: options?.threadId,
         replyTo: options?.replyTo,
-      })
+      });
 
       if (message) {
-        setRefreshKey((k) => k + 1)
+        setRefreshKey((k) => k + 1);
       }
 
-      return message
+      return message;
     },
-    [isDemo, currentUser]
-  )
+    [isDemo, currentUser],
+  );
 
   // Toggle reaction
   const toggleReaction = useCallback(
     (messageId: string, emoji: string): boolean => {
-      if (!isDemo) return false
+      if (!isDemo) return false;
 
-      const success = addDemoReaction(messageId, emoji)
+      const success = addDemoReaction(messageId, emoji);
       if (success) {
-        setRefreshKey((k) => k + 1)
+        setRefreshKey((k) => k + 1);
       }
 
-      return success
+      return success;
     },
-    [isDemo]
-  )
+    [isDemo],
+  );
 
   // Enable demo mode
-  const enableDemo = useCallback((templateId: TemplateId = 'default') => {
-    const newState = enableDemoMode(templateId)
-    setDemoState(newState)
-    setSession(getDemoSession())
-  }, [])
+  const enableDemo = useCallback((templateId: TemplateId = "default") => {
+    const newState = enableDemoMode(templateId);
+    setDemoState(newState);
+    setSession(getDemoSession());
+  }, []);
 
   // Disable demo mode
   const disableDemo = useCallback(() => {
-    disableDemoMode()
-    setDemoState(null)
-    setSession(null)
-  }, [])
+    disableDemoMode();
+    setDemoState(null);
+    setSession(null);
+  }, []);
 
   // Reset demo data
   const resetData = useCallback(() => {
-    resetDemoData()
-    setRefreshKey((k) => k + 1)
-  }, [])
+    resetDemoData();
+    setRefreshKey((k) => k + 1);
+  }, []);
 
   return {
     // Demo State
@@ -316,7 +322,7 @@ export function useDemo(): UseDemoReturn {
     enableDemo,
     disableDemo,
     resetData,
-  }
+  };
 }
 
 // -------------------------------------------------------------------------------
@@ -327,40 +333,40 @@ export function useDemo(): UseDemoReturn {
  * Check if currently in demo mode
  */
 export function useDemoCheck(): boolean {
-  const { isDemo } = useDemo()
-  return isDemo
+  const { isDemo } = useDemo();
+  return isDemo;
 }
 
 /**
  * Get the current demo template
  */
 export function useDemoTemplate(): TemplateId {
-  const { currentTemplate } = useDemo()
-  return currentTemplate
+  const { currentTemplate } = useDemo();
+  return currentTemplate;
 }
 
 /**
  * Get the current demo user
  */
 export function useDemoUser(): DemoUser | null {
-  const { currentUser } = useDemo()
-  return currentUser
+  const { currentUser } = useDemo();
+  return currentUser;
 }
 
 /**
  * Get demo channels
  */
 export function useDemoChannels(): DemoChannel[] {
-  const { channels } = useDemo()
-  return channels
+  const { channels } = useDemo();
+  return channels;
 }
 
 /**
  * Get messages for a specific channel
  */
 export function useDemoMessages(channelId: string): DemoMessage[] {
-  const { getMessagesForChannel } = useDemo()
-  return getMessagesForChannel(channelId)
+  const { getMessagesForChannel } = useDemo();
+  return getMessagesForChannel(channelId);
 }
 
-export default useDemo
+export default useDemo;

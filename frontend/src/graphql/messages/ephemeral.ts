@@ -8,55 +8,55 @@
  * @version 1.0.0
  */
 
-import { gql } from '@apollo/client'
-import { MESSAGE_FULL_FRAGMENT, CHANNEL_BASIC_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import { MESSAGE_FULL_FRAGMENT, CHANNEL_BASIC_FRAGMENT } from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface GetEphemeralMessagesVariables {
-  channelId: string
-  limit?: number
-  offset?: number
+  channelId: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetExpiredMessagesVariables {
-  limit?: number
-  now?: string
+  limit?: number;
+  now?: string;
 }
 
 export interface SetMessageTTLVariables {
-  messageId: string
-  ttlSeconds: number
-  expiresAt: string
+  messageId: string;
+  ttlSeconds: number;
+  expiresAt: string;
 }
 
 export interface UpdateChannelDefaultTTLVariables {
-  channelId: string
-  ttlSeconds: number | null
+  channelId: string;
+  ttlSeconds: number | null;
 }
 
 export interface DeleteExpiredMessagesVariables {
-  now: string
-  limit?: number
+  now: string;
+  limit?: number;
 }
 
 export interface ClearMessageTTLVariables {
-  messageId: string
+  messageId: string;
 }
 
 export interface ExtendMessageTTLVariables {
-  messageId: string
-  expiresAt: string
+  messageId: string;
+  expiresAt: string;
 }
 
 export interface GetMessageTTLVariables {
-  messageId: string
+  messageId: string;
 }
 
 export interface GetChannelTTLVariables {
-  channelId: string
+  channelId: string;
 }
 
 // ============================================================================
@@ -64,110 +64,110 @@ export interface GetChannelTTLVariables {
 // ============================================================================
 
 export interface MessageWithTTL {
-  id: string
-  channel_id: string
-  user_id: string
-  content: string
-  ttl_seconds: number | null
-  expires_at: string | null
-  created_at: string
+  id: string;
+  channel_id: string;
+  user_id: string;
+  content: string;
+  ttl_seconds: number | null;
+  expires_at: string | null;
+  created_at: string;
   user: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url: string | null
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+  };
 }
 
 export interface ChannelWithTTL {
-  id: string
-  name: string
-  slug: string
-  default_message_ttl_seconds: number | null
+  id: string;
+  name: string;
+  slug: string;
+  default_message_ttl_seconds: number | null;
 }
 
 export interface EphemeralMessagesResult {
-  nchat_messages: MessageWithTTL[]
+  nchat_messages: MessageWithTTL[];
   nchat_messages_aggregate: {
     aggregate: {
-      count: number
-    }
-  }
+      count: number;
+    };
+  };
 }
 
 export interface ExpiredMessagesResult {
   nchat_messages: Array<{
-    id: string
-    channel_id: string
-    user_id: string
-    expires_at: string
-    created_at: string
-  }>
+    id: string;
+    channel_id: string;
+    user_id: string;
+    expires_at: string;
+    created_at: string;
+  }>;
   nchat_messages_aggregate: {
     aggregate: {
-      count: number
-    }
-  }
+      count: number;
+    };
+  };
 }
 
 export interface SetMessageTTLResult {
   update_nchat_messages_by_pk: {
-    id: string
-    ttl_seconds: number | null
-    expires_at: string | null
-  } | null
+    id: string;
+    ttl_seconds: number | null;
+    expires_at: string | null;
+  } | null;
 }
 
 export interface UpdateChannelTTLResult {
   update_nchat_channels_by_pk: {
-    id: string
-    name: string
-    default_message_ttl_seconds: number | null
-  } | null
+    id: string;
+    name: string;
+    default_message_ttl_seconds: number | null;
+  } | null;
 }
 
 export interface DeleteExpiredMessagesResult {
   delete_nchat_messages: {
-    affected_rows: number
+    affected_rows: number;
     returning: Array<{
-      id: string
-      channel_id: string
-    }>
-  }
+      id: string;
+      channel_id: string;
+    }>;
+  };
 }
 
 export interface ClearMessageTTLResult {
   update_nchat_messages_by_pk: {
-    id: string
-    ttl_seconds: number | null
-    expires_at: string | null
-  } | null
+    id: string;
+    ttl_seconds: number | null;
+    expires_at: string | null;
+  } | null;
 }
 
 export interface GetMessageTTLResult {
   nchat_messages_by_pk: {
-    id: string
-    ttl_seconds: number | null
-    expires_at: string | null
-    created_at: string
-    user_id: string
-    channel_id: string
+    id: string;
+    ttl_seconds: number | null;
+    expires_at: string | null;
+    created_at: string;
+    user_id: string;
+    channel_id: string;
     channel: {
-      id: string
-      name: string
-      default_message_ttl_seconds: number | null
-      created_by: string
-    }
-  } | null
+      id: string;
+      name: string;
+      default_message_ttl_seconds: number | null;
+      created_by: string;
+    };
+  } | null;
 }
 
 export interface GetChannelTTLResult {
   nchat_channels_by_pk: {
-    id: string
-    name: string
-    default_message_ttl_seconds: number | null
-    created_by: string
-  } | null
+    id: string;
+    name: string;
+    default_message_ttl_seconds: number | null;
+    created_by: string;
+  } | null;
 }
 
 // ============================================================================
@@ -195,7 +195,7 @@ export const EPHEMERAL_MESSAGE_FRAGMENT = gql`
       avatar_url
     }
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -205,7 +205,11 @@ export const EPHEMERAL_MESSAGE_FRAGMENT = gql`
  * Get ephemeral messages (messages with TTL set) for a channel
  */
 export const GET_EPHEMERAL_MESSAGES = gql`
-  query GetEphemeralMessages($channelId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetEphemeralMessages(
+    $channelId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_messages(
       where: {
         channel_id: { _eq: $channelId }
@@ -231,7 +235,7 @@ export const GET_EPHEMERAL_MESSAGES = gql`
     }
   }
   ${EPHEMERAL_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get messages that have expired (expires_at < now)
@@ -250,13 +254,15 @@ export const GET_EXPIRED_MESSAGES = gql`
       expires_at
       created_at
     }
-    nchat_messages_aggregate(where: { expires_at: { _lte: $now }, is_deleted: { _eq: false } }) {
+    nchat_messages_aggregate(
+      where: { expires_at: { _lte: $now }, is_deleted: { _eq: false } }
+    ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 /**
  * Get TTL information for a specific message
@@ -278,7 +284,7 @@ export const GET_MESSAGE_TTL = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get default TTL for a channel
@@ -292,7 +298,7 @@ export const GET_CHANNEL_TTL = gql`
       created_by
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -303,7 +309,11 @@ export const GET_CHANNEL_TTL = gql`
  * Calculates expires_at based on ttl_seconds from current time
  */
 export const SET_MESSAGE_TTL = gql`
-  mutation SetMessageTTL($messageId: uuid!, $ttlSeconds: Int!, $expiresAt: timestamptz!) {
+  mutation SetMessageTTL(
+    $messageId: uuid!
+    $ttlSeconds: Int!
+    $expiresAt: timestamptz!
+  ) {
     update_nchat_messages_by_pk(
       pk_columns: { id: $messageId }
       _set: { ttl_seconds: $ttlSeconds, expires_at: $expiresAt }
@@ -313,7 +323,7 @@ export const SET_MESSAGE_TTL = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Update default TTL for a channel
@@ -330,7 +340,7 @@ export const UPDATE_CHANNEL_DEFAULT_TTL = gql`
       default_message_ttl_seconds
     }
   }
-`
+`;
 
 /**
  * Delete expired messages in bulk
@@ -349,7 +359,7 @@ export const DELETE_EXPIRED_MESSAGES = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Clear TTL from a message (make it permanent)
@@ -365,20 +375,23 @@ export const CLEAR_MESSAGE_TTL = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Extend message TTL by recalculating expires_at
  */
 export const EXTEND_MESSAGE_TTL = gql`
   mutation ExtendMessageTTL($messageId: uuid!, $expiresAt: timestamptz!) {
-    update_nchat_messages_by_pk(pk_columns: { id: $messageId }, _set: { expires_at: $expiresAt }) {
+    update_nchat_messages_by_pk(
+      pk_columns: { id: $messageId }
+      _set: { expires_at: $expiresAt }
+    ) {
       id
       ttl_seconds
       expires_at
     }
   }
-`
+`;
 
 /**
  * Send a new message with TTL support
@@ -437,45 +450,45 @@ export const SEND_MESSAGE_WITH_TTL = gql`
       }
     }
   }
-`
+`;
 
 export interface SendMessageWithTTLVariables {
-  channelId: string
-  userId: string
-  content: string
-  contentHtml?: string
-  type?: string
-  threadId?: string
-  parentMessageId?: string
-  mentions?: string[]
-  mentionedRoles?: string[]
-  mentionedChannels?: string[]
-  metadata?: Record<string, unknown>
-  ttlSeconds?: number
-  expiresAt?: string
+  channelId: string;
+  userId: string;
+  content: string;
+  contentHtml?: string;
+  type?: string;
+  threadId?: string;
+  parentMessageId?: string;
+  mentions?: string[];
+  mentionedRoles?: string[];
+  mentionedChannels?: string[];
+  metadata?: Record<string, unknown>;
+  ttlSeconds?: number;
+  expiresAt?: string;
 }
 
 export interface SendMessageWithTTLResult {
   insert_nchat_messages_one: {
-    id: string
-    channel_id: string
-    user_id: string
-    content: string
-    content_html: string | null
-    type: string
-    ttl_seconds: number | null
-    expires_at: string | null
-    created_at: string
-    updated_at: string | null
-    is_edited: boolean
-    is_deleted: boolean
+    id: string;
+    channel_id: string;
+    user_id: string;
+    content: string;
+    content_html: string | null;
+    type: string;
+    ttl_seconds: number | null;
+    expires_at: string | null;
+    created_at: string;
+    updated_at: string | null;
+    is_edited: boolean;
+    is_deleted: boolean;
     user: {
-      id: string
-      username: string
-      display_name: string
-      avatar_url: string | null
-    }
-  }
+      id: string;
+      username: string;
+      display_name: string;
+      avatar_url: string | null;
+    };
+  };
 }
 
 // ============================================================================
@@ -486,27 +499,29 @@ export interface SendMessageWithTTLResult {
  * Calculate expires_at timestamp from TTL seconds
  */
 export function calculateExpiresAt(ttlSeconds: number, fromDate?: Date): Date {
-  const baseDate = fromDate || new Date()
-  return new Date(baseDate.getTime() + ttlSeconds * 1000)
+  const baseDate = fromDate || new Date();
+  return new Date(baseDate.getTime() + ttlSeconds * 1000);
 }
 
 /**
  * Calculate remaining time in seconds until message expires
  */
 export function calculateRemainingSeconds(expiresAt: Date | string): number {
-  const expiry = typeof expiresAt === 'string' ? new Date(expiresAt) : expiresAt
-  const now = new Date()
-  const remaining = Math.floor((expiry.getTime() - now.getTime()) / 1000)
-  return Math.max(0, remaining)
+  const expiry =
+    typeof expiresAt === "string" ? new Date(expiresAt) : expiresAt;
+  const now = new Date();
+  const remaining = Math.floor((expiry.getTime() - now.getTime()) / 1000);
+  return Math.max(0, remaining);
 }
 
 /**
  * Check if a message has expired
  */
 export function isMessageExpired(expiresAt: Date | string | null): boolean {
-  if (!expiresAt) return false
-  const expiry = typeof expiresAt === 'string' ? new Date(expiresAt) : expiresAt
-  return expiry.getTime() <= Date.now()
+  if (!expiresAt) return false;
+  const expiry =
+    typeof expiresAt === "string" ? new Date(expiresAt) : expiresAt;
+  return expiry.getTime() <= Date.now();
 }
 
 /**
@@ -515,50 +530,53 @@ export function isMessageExpired(expiresAt: Date | string | null): boolean {
  * Maximum: 7 days (604800 seconds)
  */
 export function validateTTL(ttlSeconds: number): {
-  valid: boolean
-  error?: string
-  clampedValue?: number
+  valid: boolean;
+  error?: string;
+  clampedValue?: number;
 } {
-  const MIN_TTL = 30
-  const MAX_TTL = 604800 // 7 days
+  const MIN_TTL = 30;
+  const MAX_TTL = 604800; // 7 days
 
-  if (typeof ttlSeconds !== 'number' || isNaN(ttlSeconds)) {
-    return { valid: false, error: 'TTL must be a valid number' }
+  if (typeof ttlSeconds !== "number" || isNaN(ttlSeconds)) {
+    return { valid: false, error: "TTL must be a valid number" };
   }
 
   if (ttlSeconds < MIN_TTL) {
-    return { valid: false, error: `TTL must be at least ${MIN_TTL} seconds` }
+    return { valid: false, error: `TTL must be at least ${MIN_TTL} seconds` };
   }
 
   if (ttlSeconds > MAX_TTL) {
-    return { valid: false, error: `TTL must not exceed ${MAX_TTL} seconds (7 days)` }
+    return {
+      valid: false,
+      error: `TTL must not exceed ${MAX_TTL} seconds (7 days)`,
+    };
   }
 
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
  * Format TTL for display
  */
 export function formatTTL(ttlSeconds: number | null): string {
-  if (ttlSeconds === null) return 'Permanent'
+  if (ttlSeconds === null) return "Permanent";
 
   if (ttlSeconds < 60) {
-    return `${ttlSeconds} second${ttlSeconds !== 1 ? 's' : ''}`
+    return `${ttlSeconds} second${ttlSeconds !== 1 ? "s" : ""}`;
   }
 
   if (ttlSeconds < 3600) {
-    const minutes = Math.floor(ttlSeconds / 60)
-    return `${minutes} minute${minutes !== 1 ? 's' : ''}`
+    const minutes = Math.floor(ttlSeconds / 60);
+    return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
   }
 
   if (ttlSeconds < 86400) {
-    const hours = Math.floor(ttlSeconds / 3600)
-    return `${hours} hour${hours !== 1 ? 's' : ''}`
+    const hours = Math.floor(ttlSeconds / 3600);
+    return `${hours} hour${hours !== 1 ? "s" : ""}`;
   }
 
-  const days = Math.floor(ttlSeconds / 86400)
-  return `${days} day${days !== 1 ? 's' : ''}`
+  const days = Math.floor(ttlSeconds / 86400);
+  return `${days} day${days !== 1 ? "s" : ""}`;
 }
 
 /**
@@ -580,6 +598,8 @@ export function transformEphemeralMessage(data: MessageWithTTL) {
       avatarUrl: data.user.avatar_url,
     },
     isExpired: data.expires_at ? isMessageExpired(data.expires_at) : false,
-    remainingSeconds: data.expires_at ? calculateRemainingSeconds(data.expires_at) : null,
-  }
+    remainingSeconds: data.expires_at
+      ? calculateRemainingSeconds(data.expires_at)
+      : null,
+  };
 }

@@ -1,32 +1,42 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Coffee, Heart, Image as ImageIcon, Smile, Music } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import * as React from "react";
+import { Coffee, Heart, Image as ImageIcon, Smile, Music } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SocialChannelProps {
-  isSelected?: boolean
-  onClick?: () => void
-  className?: string
+  isSelected?: boolean;
+  onClick?: () => void;
+  className?: string;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function SocialChannel({ isSelected = false, onClick, className }: SocialChannelProps) {
+export function SocialChannel({
+  isSelected = false,
+  onClick,
+  className,
+}: SocialChannelProps) {
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all hover:shadow-md',
-        isSelected && 'border-primary ring-1 ring-primary',
-        className
+        "cursor-pointer transition-all hover:shadow-md",
+        isSelected && "border-primary ring-1 ring-primary",
+        className,
       )}
       onClick={onClick}
     >
@@ -39,8 +49,8 @@ export function SocialChannel({ isSelected = false, onClick, className }: Social
         </div>
         <CardTitle className="text-lg">Social / Random</CardTitle>
         <CardDescription>
-          A casual space for off-topic conversations, fun, and team bonding. The digital water
-          cooler.
+          A casual space for off-topic conversations, fun, and team bonding. The
+          digital water cooler.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -75,13 +85,14 @@ export function SocialChannel({ isSelected = false, onClick, className }: Social
         </div>
         <div className="text-xs text-muted-foreground">
           <p>
-            <strong>Best for:</strong> Team bonding, sharing memes, celebrating wins, casual
-            conversations, or anything that does not fit in other channels.
+            <strong>Best for:</strong> Team bonding, sharing memes, celebrating
+            wins, casual conversations, or anything that does not fit in other
+            channels.
           </p>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-SocialChannel.displayName = 'SocialChannel'
+SocialChannel.displayName = "SocialChannel";

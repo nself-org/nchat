@@ -3,28 +3,28 @@
  * Main billing and subscription management page
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PricingTable } from '@/components/billing/PricingTable'
-import { UsageTracker } from '@/components/billing/UsageTracker'
-import { CryptoPayment } from '@/components/billing/CryptoPayment'
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PricingTable } from "@/components/billing/PricingTable";
+import { UsageTracker } from "@/components/billing/UsageTracker";
+import { CryptoPayment } from "@/components/billing/CryptoPayment";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import type { PlanTier, BillingInterval, UsageLimits } from '@/types/billing'
+} from "@/components/ui/dialog";
+import type { PlanTier, BillingInterval, UsageLimits } from "@/types/billing";
 
 // Mock data
 const mockUsage: UsageLimits = {
-  plan: 'free',
+  plan: "free",
   current: {
-    userId: 'user-1',
-    period: '2026-02',
+    userId: "user-1",
+    period: "2026-02",
     users: 8,
     channels: 4,
     messages: 8234,
@@ -71,45 +71,46 @@ const mockUsage: UsageLimits = {
   },
   warnings: [
     {
-      feature: 'Users',
+      feature: "Users",
       current: 8,
       limit: 10,
       percentage: 80,
-      severity: 'info',
+      severity: "info",
     },
     {
-      feature: 'Messages',
+      feature: "Messages",
       current: 8234,
       limit: 10000,
       percentage: 82.34,
-      severity: 'info',
+      severity: "info",
     },
   ],
   exceeded: false,
-}
+};
 
 export default function BillingPage() {
-  const [selectedPlan, setSelectedPlan] = useState<PlanTier | null>(null)
-  const [selectedInterval, setSelectedInterval] = useState<BillingInterval>('month')
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'crypto'>('card')
-  const [showCheckout, setShowCheckout] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<PlanTier | null>(null);
+  const [selectedInterval, setSelectedInterval] =
+    useState<BillingInterval>("month");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "crypto">("card");
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const handleSelectPlan = (planId: PlanTier, interval: BillingInterval) => {
-    setSelectedPlan(planId)
-    setSelectedInterval(interval)
-    setShowCheckout(true)
-  }
+    setSelectedPlan(planId);
+    setSelectedInterval(interval);
+    setShowCheckout(true);
+  };
 
   const handleUpgrade = () => {
     // Scroll to pricing table
-    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
-  }
+    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handlePaymentComplete = (txHash: string) => {
-    console.log('Payment completed:', txHash)
-    setShowCheckout(false)
+    console.log("Payment completed:", txHash);
+    setShowCheckout(false);
     // In production, poll for subscription status update
-  }
+  };
 
   return (
     <div className="container max-w-7xl space-y-8 py-8">
@@ -134,7 +135,10 @@ export default function BillingPage() {
         </TabsContent>
 
         <TabsContent value="plans">
-          <PricingTable currentPlan={mockUsage.plan} onSelectPlan={handleSelectPlan} />
+          <PricingTable
+            currentPlan={mockUsage.plan}
+            onSelectPlan={handleSelectPlan}
+          />
         </TabsContent>
 
         <TabsContent value="history">
@@ -149,11 +153,16 @@ export default function BillingPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Complete Your Subscription</DialogTitle>
-            <DialogDescription>Choose your payment method to subscribe</DialogDescription>
+            <DialogDescription>
+              Choose your payment method to subscribe
+            </DialogDescription>
           </DialogHeader>
 
           {selectedPlan && (
-            <Tabs value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as any)}>
+            <Tabs
+              value={paymentMethod}
+              onValueChange={(v) => setPaymentMethod(v as any)}
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="card">Credit Card (Stripe)</TabsTrigger>
                 <TabsTrigger value="crypto">Cryptocurrency</TabsTrigger>
@@ -162,12 +171,13 @@ export default function BillingPage() {
               <TabsContent value="card" className="mt-6">
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    You'll be redirected to Stripe to complete your payment securely.
+                    You'll be redirected to Stripe to complete your payment
+                    securely.
                   </p>
                   <button
                     onClick={() => {
                       // In production, call /api/billing/checkout
-                      alert('Stripe checkout would open here')
+                      alert("Stripe checkout would open here");
                     }}
                     className="text-primary-foreground hover:bg-primary/90 w-full rounded-md bg-primary px-4 py-2"
                   >
@@ -188,5 +198,5 @@ export default function BillingPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

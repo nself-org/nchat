@@ -5,73 +5,73 @@
  * Connects to the Hasura GraphQL backend with nchat_channels and nchat_channel_members tables.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   CHANNEL_BASIC_FRAGMENT,
   CHANNEL_FULL_FRAGMENT,
   CHANNEL_MEMBER_FRAGMENT,
   USER_BASIC_FRAGMENT,
-} from '../fragments'
+} from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface CreateChannelInput {
-  name: string
-  slug?: string
-  description?: string | null
-  topic?: string | null
-  type: 'public' | 'private' | 'direct' | 'group' | 'announcement'
-  workspaceId?: string | null
-  categoryId?: string | null
-  icon?: string | null
-  color?: string | null
-  isDefault?: boolean
-  isReadonly?: boolean
-  maxMembers?: number | null
-  slowmodeSeconds?: number
-  createdBy: string
-  memberIds?: string[]
+  name: string;
+  slug?: string;
+  description?: string | null;
+  topic?: string | null;
+  type: "public" | "private" | "direct" | "group" | "announcement";
+  workspaceId?: string | null;
+  categoryId?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  isDefault?: boolean;
+  isReadonly?: boolean;
+  maxMembers?: number | null;
+  slowmodeSeconds?: number;
+  createdBy: string;
+  memberIds?: string[];
 }
 
 export interface UpdateChannelInput {
-  name?: string
-  description?: string | null
-  topic?: string | null
-  icon?: string | null
-  color?: string | null
-  categoryId?: string | null
-  position?: number
-  isReadonly?: boolean
-  isDefault?: boolean
-  maxMembers?: number | null
-  slowmodeSeconds?: number
+  name?: string;
+  description?: string | null;
+  topic?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  categoryId?: string | null;
+  position?: number;
+  isReadonly?: boolean;
+  isDefault?: boolean;
+  maxMembers?: number | null;
+  slowmodeSeconds?: number;
 }
 
 export interface AddMemberInput {
-  channelId: string
-  userId: string
-  role?: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
-  invitedBy?: string
+  channelId: string;
+  userId: string;
+  role?: "owner" | "admin" | "moderator" | "member" | "guest";
+  invitedBy?: string;
 }
 
 export interface UpdateMemberInput {
-  channelId: string
-  userId: string
-  role?: string
-  nickname?: string
-  canRead?: boolean | null
-  canWrite?: boolean | null
-  canManage?: boolean | null
-  canInvite?: boolean | null
-  canPin?: boolean | null
-  canDeleteMessages?: boolean | null
-  canMentionEveryone?: boolean | null
-  notificationLevel?: 'all' | 'mentions' | 'none'
-  isMuted?: boolean
-  mutedUntil?: string | null
-  isPinned?: boolean
+  channelId: string;
+  userId: string;
+  role?: string;
+  nickname?: string;
+  canRead?: boolean | null;
+  canWrite?: boolean | null;
+  canManage?: boolean | null;
+  canInvite?: boolean | null;
+  canPin?: boolean | null;
+  canDeleteMessages?: boolean | null;
+  canMentionEveryone?: boolean | null;
+  notificationLevel?: "all" | "mentions" | "none";
+  isMuted?: boolean;
+  mutedUntil?: string | null;
+  isPinned?: boolean;
 }
 
 // ============================================================================
@@ -122,7 +122,7 @@ export const CREATE_CHANNEL = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Create a channel with initial members
@@ -154,7 +154,7 @@ export const CREATE_CHANNEL_WITH_MEMBERS = gql`
   }
   ${CHANNEL_FULL_FRAGMENT}
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Update channel details
@@ -195,7 +195,7 @@ export const UPDATE_CHANNEL = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Delete a channel (hard delete)
@@ -211,7 +211,7 @@ export const DELETE_CHANNEL = gql`
       slug
     }
   }
-`
+`;
 
 /**
  * Archive a channel (soft delete)
@@ -229,7 +229,7 @@ export const ARCHIVE_CHANNEL = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Unarchive a channel
@@ -247,7 +247,7 @@ export const UNARCHIVE_CHANNEL = gql`
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // MEMBERSHIP MUTATIONS
@@ -260,7 +260,10 @@ export const JOIN_CHANNEL = gql`
   mutation JoinChannel($channelId: uuid!, $userId: uuid!) {
     insert_nchat_channel_members_one(
       object: { channel_id: $channelId, user_id: $userId, role: "member" }
-      on_conflict: { constraint: nchat_channel_members_channel_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_channel_members_channel_id_user_id_key
+        update_columns: []
+      }
     ) {
       id
       channel_id
@@ -272,13 +275,16 @@ export const JOIN_CHANNEL = gql`
         member_count
       }
     }
-    update_nchat_channels_by_pk(pk_columns: { id: $channelId }, _inc: { member_count: 1 }) {
+    update_nchat_channels_by_pk(
+      pk_columns: { id: $channelId }
+      _inc: { member_count: 1 }
+    ) {
       id
       member_count
     }
   }
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Leave a channel
@@ -290,12 +296,15 @@ export const LEAVE_CHANNEL = gql`
     ) {
       affected_rows
     }
-    update_nchat_channels_by_pk(pk_columns: { id: $channelId }, _inc: { member_count: -1 }) {
+    update_nchat_channels_by_pk(
+      pk_columns: { id: $channelId }
+      _inc: { member_count: -1 }
+    ) {
       id
       member_count
     }
   }
-`
+`;
 
 /**
  * Add a member to a channel (invite)
@@ -308,7 +317,12 @@ export const ADD_CHANNEL_MEMBER = gql`
     $invitedBy: uuid
   ) {
     insert_nchat_channel_members_one(
-      object: { channel_id: $channelId, user_id: $userId, role: $role, invited_by: $invitedBy }
+      object: {
+        channel_id: $channelId
+        user_id: $userId
+        role: $role
+        invited_by: $invitedBy
+      }
       on_conflict: {
         constraint: nchat_channel_members_channel_id_user_id_key
         update_columns: [role, invited_by]
@@ -316,13 +330,16 @@ export const ADD_CHANNEL_MEMBER = gql`
     ) {
       ...ChannelMember
     }
-    update_nchat_channels_by_pk(pk_columns: { id: $channelId }, _inc: { member_count: 1 }) {
+    update_nchat_channels_by_pk(
+      pk_columns: { id: $channelId }
+      _inc: { member_count: 1 }
+    ) {
       id
       member_count
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Remove a member from a channel
@@ -339,12 +356,15 @@ export const REMOVE_CHANNEL_MEMBER = gql`
         channel_id
       }
     }
-    update_nchat_channels_by_pk(pk_columns: { id: $channelId }, _inc: { member_count: -1 }) {
+    update_nchat_channels_by_pk(
+      pk_columns: { id: $channelId }
+      _inc: { member_count: -1 }
+    ) {
       id
       member_count
     }
   }
-`
+`;
 
 /**
  * Add multiple members to a channel (bulk invite)
@@ -357,7 +377,10 @@ export const ADD_CHANNEL_MEMBERS_BULK = gql`
   ) {
     insert_nchat_channel_members(
       objects: $members
-      on_conflict: { constraint: nchat_channel_members_channel_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_channel_members_channel_id_user_id_key
+        update_columns: []
+      }
     ) {
       affected_rows
       returning {
@@ -380,13 +403,17 @@ export const ADD_CHANNEL_MEMBERS_BULK = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Remove multiple members from a channel
  */
 export const REMOVE_CHANNEL_MEMBERS_BULK = gql`
-  mutation RemoveChannelMembersBulk($channelId: uuid!, $userIds: [uuid!]!, $memberCount: Int!) {
+  mutation RemoveChannelMembersBulk(
+    $channelId: uuid!
+    $userIds: [uuid!]!
+    $memberCount: Int!
+  ) {
     delete_nchat_channel_members(
       where: { channel_id: { _eq: $channelId }, user_id: { _in: $userIds } }
     ) {
@@ -400,7 +427,7 @@ export const REMOVE_CHANNEL_MEMBERS_BULK = gql`
       member_count
     }
   }
-`
+`;
 
 /**
  * Update member role
@@ -418,7 +445,7 @@ export const UPDATE_MEMBER_ROLE = gql`
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Update member permissions
@@ -464,13 +491,17 @@ export const UPDATE_MEMBER_PERMISSIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Update member nickname
  */
 export const UPDATE_MEMBER_NICKNAME = gql`
-  mutation UpdateMemberNickname($channelId: uuid!, $userId: uuid!, $nickname: String) {
+  mutation UpdateMemberNickname(
+    $channelId: uuid!
+    $userId: uuid!
+    $nickname: String
+  ) {
     update_nchat_channel_members(
       where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }
       _set: { nickname: $nickname, updated_at: "now()" }
@@ -483,15 +514,22 @@ export const UPDATE_MEMBER_NICKNAME = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Transfer channel ownership
  */
 export const TRANSFER_CHANNEL_OWNERSHIP = gql`
-  mutation TransferChannelOwnership($channelId: uuid!, $currentOwnerId: uuid!, $newOwnerId: uuid!) {
+  mutation TransferChannelOwnership(
+    $channelId: uuid!
+    $currentOwnerId: uuid!
+    $newOwnerId: uuid!
+  ) {
     update_current_owner: update_nchat_channel_members(
-      where: { channel_id: { _eq: $channelId }, user_id: { _eq: $currentOwnerId } }
+      where: {
+        channel_id: { _eq: $channelId }
+        user_id: { _eq: $currentOwnerId }
+      }
       _set: { role: "admin", updated_at: "now()" }
     ) {
       affected_rows
@@ -514,7 +552,7 @@ export const TRANSFER_CHANNEL_OWNERSHIP = gql`
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MEMBER SETTINGS MUTATIONS
@@ -524,7 +562,11 @@ export const TRANSFER_CHANNEL_OWNERSHIP = gql`
  * Mute a channel for a user
  */
 export const MUTE_CHANNEL = gql`
-  mutation MuteChannel($channelId: uuid!, $userId: uuid!, $mutedUntil: timestamptz) {
+  mutation MuteChannel(
+    $channelId: uuid!
+    $userId: uuid!
+    $mutedUntil: timestamptz
+  ) {
     update_nchat_channel_members(
       where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }
       _set: { is_muted: true, muted_until: $mutedUntil, updated_at: "now()" }
@@ -538,7 +580,7 @@ export const MUTE_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Unmute a channel for a user
@@ -558,7 +600,7 @@ export const UNMUTE_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Pin a channel for a user
@@ -577,7 +619,7 @@ export const PIN_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Unpin a channel for a user
@@ -596,7 +638,7 @@ export const UNPIN_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Update notification settings for a channel member
@@ -619,13 +661,17 @@ export const UPDATE_CHANNEL_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Mark channel as read
  */
 export const MARK_CHANNEL_READ = gql`
-  mutation MarkChannelRead($channelId: uuid!, $userId: uuid!, $messageId: uuid) {
+  mutation MarkChannelRead(
+    $channelId: uuid!
+    $userId: uuid!
+    $messageId: uuid
+  ) {
     update_nchat_channel_members(
       where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }
       _set: {
@@ -647,7 +693,7 @@ export const MARK_CHANNEL_READ = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // DIRECT MESSAGE MUTATIONS
@@ -666,10 +712,16 @@ export const GET_OR_CREATE_DM = gql`
         created_by: $userId1
         member_count: 2
         members: {
-          data: [{ user_id: $userId1, role: "member" }, { user_id: $userId2, role: "member" }]
+          data: [
+            { user_id: $userId1, role: "member" }
+            { user_id: $userId2, role: "member" }
+          ]
         }
       }
-      on_conflict: { constraint: nchat_channels_dm_unique, update_columns: [updated_at] }
+      on_conflict: {
+        constraint: nchat_channels_dm_unique
+        update_columns: [updated_at]
+      }
     ) {
       ...ChannelFull
       members {
@@ -682,7 +734,7 @@ export const GET_OR_CREATE_DM = gql`
   }
   ${CHANNEL_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Create a group DM
@@ -715,7 +767,7 @@ export const CREATE_GROUP_DM = gql`
   }
   ${CHANNEL_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // CHANNEL REORDERING
@@ -725,17 +777,25 @@ export const CREATE_GROUP_DM = gql`
  * Update channel position within a category
  */
 export const UPDATE_CHANNEL_POSITION = gql`
-  mutation UpdateChannelPosition($channelId: uuid!, $position: Int!, $categoryId: uuid) {
+  mutation UpdateChannelPosition(
+    $channelId: uuid!
+    $position: Int!
+    $categoryId: uuid
+  ) {
     update_nchat_channels_by_pk(
       pk_columns: { id: $channelId }
-      _set: { position: $position, category_id: $categoryId, updated_at: "now()" }
+      _set: {
+        position: $position
+        category_id: $categoryId
+        updated_at: "now()"
+      }
     ) {
       id
       position
       category_id
     }
   }
-`
+`;
 
 /**
  * Bulk update channel positions (for drag-and-drop reordering)
@@ -751,7 +811,7 @@ export const REORDER_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // CHANNEL TYPE MUTATIONS
@@ -771,7 +831,7 @@ export const UPDATE_CHANNEL_TYPE = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Update channel to announcement type (read-only for most members)
@@ -788,4 +848,4 @@ export const MAKE_ANNOUNCEMENT_CHANNEL = gql`
       updated_at
     }
   }
-`
+`;

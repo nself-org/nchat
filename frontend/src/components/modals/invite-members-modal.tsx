@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,36 +8,45 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { UserPlus, X, Search, Loader2, Link2, Copy, Check, Mail } from 'lucide-react'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import {
+  UserPlus,
+  X,
+  Search,
+  Loader2,
+  Link2,
+  Copy,
+  Check,
+  Mail,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export interface InvitableUser {
-  id: string
-  name: string
-  email: string
-  avatarUrl?: string
-  role?: string
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl?: string;
+  role?: string;
 }
 
 interface InviteMembersModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onInvite: (userIds: string[]) => Promise<void>
-  availableUsers: InvitableUser[]
-  targetName?: string // Channel or workspace name
-  targetType?: 'channel' | 'workspace'
-  inviteLink?: string
-  isLoading?: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onInvite: (userIds: string[]) => Promise<void>;
+  availableUsers: InvitableUser[];
+  targetName?: string; // Channel or workspace name
+  targetType?: "channel" | "workspace";
+  inviteLink?: string;
+  isLoading?: boolean;
 }
 
 export function InviteMembersModal({
@@ -45,71 +54,75 @@ export function InviteMembersModal({
   onOpenChange,
   onInvite,
   availableUsers,
-  targetName = 'this channel',
-  targetType = 'channel',
+  targetName = "this channel",
+  targetType = "channel",
   inviteLink,
   isLoading = false,
 }: InviteMembersModalProps) {
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [linkCopied, setLinkCopied] = useState(false)
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Reset form when modal closes
   useEffect(() => {
     if (!open) {
-      setSelectedUsers([])
-      setSearchQuery('')
-      setLinkCopied(false)
+      setSelectedUsers([]);
+      setSearchQuery("");
+      setLinkCopied(false);
     }
-  }, [open])
+  }, [open]);
 
   const filteredUsers = useMemo(() => {
-    if (!searchQuery) return availableUsers
-    const query = searchQuery.toLowerCase()
+    if (!searchQuery) return availableUsers;
+    const query = searchQuery.toLowerCase();
     return availableUsers.filter(
-      (user) => user.name.toLowerCase().includes(query) || user.email.toLowerCase().includes(query)
-    )
-  }, [availableUsers, searchQuery])
+      (user) =>
+        user.name.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query),
+    );
+  }, [availableUsers, searchQuery]);
 
   const selectedUserObjects = useMemo(() => {
-    return availableUsers.filter((user) => selectedUsers.includes(user.id))
-  }, [availableUsers, selectedUsers])
+    return availableUsers.filter((user) => selectedUsers.includes(user.id));
+  }, [availableUsers, selectedUsers]);
 
   const handleUserToggle = (userId: string) => {
     setSelectedUsers((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
-    )
-  }
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId],
+    );
+  };
 
   const handleRemoveUser = (userId: string) => {
-    setSelectedUsers((prev) => prev.filter((id) => id !== userId))
-  }
+    setSelectedUsers((prev) => prev.filter((id) => id !== userId));
+  };
 
   const handleSubmit = async () => {
-    if (selectedUsers.length === 0) return
+    if (selectedUsers.length === 0) return;
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
-      await onInvite(selectedUsers)
-      onOpenChange(false)
+      await onInvite(selectedUsers);
+      onOpenChange(false);
     } catch (error) {
-      logger.error('Failed to invite members:', error)
+      logger.error("Failed to invite members:", error);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   const handleCopyLink = async () => {
-    if (!inviteLink) return
+    if (!inviteLink) return;
     try {
-      await navigator.clipboard.writeText(inviteLink)
-      setLinkCopied(true)
-      setTimeout(() => setLinkCopied(false), 2000)
+      await navigator.clipboard.writeText(inviteLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
     } catch (error) {
-      logger.error('Failed to copy link:', error)
+      logger.error("Failed to copy link:", error);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -120,7 +133,8 @@ export function InviteMembersModal({
             Invite members
           </DialogTitle>
           <DialogDescription>
-            Add people to {targetName}. They will be able to see all messages and files.
+            Add people to {targetName}. They will be able to see all messages
+            and files.
           </DialogDescription>
         </DialogHeader>
 
@@ -133,7 +147,11 @@ export function InviteMembersModal({
               </Label>
               <div className="bg-muted/30 flex flex-wrap gap-1.5 rounded-xl border p-2">
                 {selectedUserObjects.map((user) => (
-                  <Badge key={user.id} variant="secondary" className="gap-1 pr-1">
+                  <Badge
+                    key={user.id}
+                    variant="secondary"
+                    className="gap-1 pr-1"
+                  >
                     <Avatar className="h-4 w-4">
                       <AvatarImage src={user.avatarUrl} />
                       <AvatarFallback className="text-[10px]">
@@ -177,8 +195,8 @@ export function InviteMembersModal({
                 <Mail className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
                   {searchQuery
-                    ? 'No users found matching your search'
-                    : 'No users available to invite'}
+                    ? "No users found matching your search"
+                    : "No users available to invite"}
                 </p>
               </div>
             ) : (
@@ -189,18 +207,24 @@ export function InviteMembersModal({
                     type="button"
                     onClick={() => handleUserToggle(user.id)}
                     className={cn(
-                      'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent',
-                      selectedUsers.includes(user.id) && 'bg-accent'
+                      "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent",
+                      selectedUsers.includes(user.id) && "bg-accent",
                     )}
                     disabled={isLoading || submitting}
                   >
                     <Avatar className="h-9 w-9">
                       <AvatarImage src={user.avatarUrl} />
-                      <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>
+                        {user.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{user.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                      <p className="truncate text-sm font-medium">
+                        {user.name}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                     {user.role && (
                       <Badge variant="outline" className="text-xs">
@@ -231,7 +255,11 @@ export function InviteMembersModal({
                   Anyone with this link can join {targetName}
                 </p>
                 <div className="flex gap-2">
-                  <Input value={inviteLink} readOnly className="flex-1 bg-muted text-xs" />
+                  <Input
+                    value={inviteLink}
+                    readOnly
+                    className="flex-1 bg-muted text-xs"
+                  />
                   <Button
                     variant="outline"
                     size="icon"
@@ -251,7 +279,11 @@ export function InviteMembersModal({
         </div>
 
         <DialogFooter className="mt-4 gap-2 sm:gap-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={submitting}
+          >
             Cancel
           </Button>
           <Button
@@ -260,11 +292,11 @@ export function InviteMembersModal({
           >
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {selectedUsers.length === 0
-              ? 'Select members'
-              : `Invite ${selectedUsers.length} member${selectedUsers.length > 1 ? 's' : ''}`}
+              ? "Select members"
+              : `Invite ${selectedUsers.length} member${selectedUsers.length > 1 ? "s" : ""}`}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

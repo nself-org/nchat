@@ -5,10 +5,10 @@
  * and coordinates data synchronization when connectivity changes.
  */
 
-import { CacheManager, getCacheManager } from './cache-manager'
-import { SyncQueue, getSyncQueue } from './sync-queue'
+import { CacheManager, getCacheManager } from "./cache-manager";
+import { SyncQueue, getSyncQueue } from "./sync-queue";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
@@ -17,26 +17,30 @@ import { logger } from '@/lib/logger'
 /**
  * Connection state
  */
-export type ConnectionState = 'online' | 'offline' | 'connecting' | 'reconnecting'
+export type ConnectionState =
+  | "online"
+  | "offline"
+  | "connecting"
+  | "reconnecting";
 
 /**
  * Network quality
  */
-export type NetworkQuality = 'excellent' | 'good' | 'fair' | 'poor' | 'unknown'
+export type NetworkQuality = "excellent" | "good" | "fair" | "poor" | "unknown";
 
 /**
  * Connection information
  */
 export interface ConnectionInfo {
-  state: ConnectionState
-  quality: NetworkQuality
-  isOnline: boolean
-  lastOnlineAt: number | null
-  lastOfflineAt: number | null
-  offlineDuration: number | null
-  downlink: number | null
-  rtt: number | null
-  effectiveType: string | null
+  state: ConnectionState;
+  quality: NetworkQuality;
+  isOnline: boolean;
+  lastOnlineAt: number | null;
+  lastOfflineAt: number | null;
+  offlineDuration: number | null;
+  downlink: number | null;
+  rtt: number | null;
+  effectiveType: string | null;
 }
 
 /**
@@ -44,41 +48,41 @@ export interface ConnectionInfo {
  */
 export interface OfflineManagerConfig {
   /** Enable automatic sync on reconnect */
-  syncOnReconnect: boolean
+  syncOnReconnect: boolean;
   /** Sync delay after reconnect (ms) */
-  syncDelay: number
+  syncDelay: number;
   /** Enable network quality monitoring */
-  monitorQuality: boolean
+  monitorQuality: boolean;
   /** Quality check interval (ms) */
-  qualityCheckInterval: number
+  qualityCheckInterval: number;
   /** Enable debug logging */
-  debug: boolean
+  debug: boolean;
 }
 
 /**
  * Offline event types
  */
 export type OfflineEventType =
-  | 'online'
-  | 'offline'
-  | 'quality_change'
-  | 'sync_start'
-  | 'sync_complete'
-  | 'sync_error'
+  | "online"
+  | "offline"
+  | "quality_change"
+  | "sync_start"
+  | "sync_complete"
+  | "sync_error";
 
 /**
  * Offline event
  */
 export interface OfflineEvent {
-  type: OfflineEventType
-  data?: unknown
-  timestamp: number
+  type: OfflineEventType;
+  data?: unknown;
+  timestamp: number;
 }
 
 /**
  * Offline event listener
  */
-export type OfflineEventListener = (event: OfflineEvent) => void
+export type OfflineEventListener = (event: OfflineEvent) => void;
 
 // =============================================================================
 // Default Configuration
@@ -90,7 +94,7 @@ const DEFAULT_CONFIG: OfflineManagerConfig = {
   monitorQuality: true,
   qualityCheckInterval: 30000,
   debug: false,
-}
+};
 
 // =============================================================================
 // Offline Manager Class
@@ -100,33 +104,33 @@ const DEFAULT_CONFIG: OfflineManagerConfig = {
  * OfflineManager - Coordinates offline functionality
  */
 export class OfflineManager {
-  private config: OfflineManagerConfig
-  private cacheManager: CacheManager
-  private syncQueue: SyncQueue
-  private listeners: Set<OfflineEventListener>
-  private connectionInfo: ConnectionInfo
-  private qualityTimer: ReturnType<typeof setInterval> | null = null
-  private syncTimeout: ReturnType<typeof setTimeout> | null = null
-  private initialized: boolean = false
+  private config: OfflineManagerConfig;
+  private cacheManager: CacheManager;
+  private syncQueue: SyncQueue;
+  private listeners: Set<OfflineEventListener>;
+  private connectionInfo: ConnectionInfo;
+  private qualityTimer: ReturnType<typeof setInterval> | null = null;
+  private syncTimeout: ReturnType<typeof setTimeout> | null = null;
+  private initialized: boolean = false;
   private boundHandlers: {
-    online: () => void
-    offline: () => void
-  }
+    online: () => void;
+    offline: () => void;
+  };
 
   constructor(
     config: Partial<OfflineManagerConfig> = {},
     cacheManager?: CacheManager,
-    syncQueue?: SyncQueue
+    syncQueue?: SyncQueue,
   ) {
-    this.config = { ...DEFAULT_CONFIG, ...config }
-    this.cacheManager = cacheManager || getCacheManager()
-    this.syncQueue = syncQueue || getSyncQueue()
-    this.listeners = new Set()
-    this.connectionInfo = this.getInitialConnectionInfo()
+    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.cacheManager = cacheManager || getCacheManager();
+    this.syncQueue = syncQueue || getSyncQueue();
+    this.listeners = new Set();
+    this.connectionInfo = this.getInitialConnectionInfo();
     this.boundHandlers = {
       online: this.handleOnline.bind(this),
       offline: this.handleOffline.bind(this),
-    }
+    };
   }
 
   /**
@@ -134,26 +138,26 @@ export class OfflineManager {
    */
   public async initialize(): Promise<void> {
     if (this.initialized) {
-      return
+      return;
     }
 
     // Initialize dependencies
-    await this.cacheManager.initialize()
-    await this.syncQueue.initialize()
+    await this.cacheManager.initialize();
+    await this.syncQueue.initialize();
 
     // Set up event listeners
-    if (typeof window !== 'undefined') {
-      window.addEventListener('online', this.boundHandlers.online)
-      window.addEventListener('offline', this.boundHandlers.offline)
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", this.boundHandlers.online);
+      window.addEventListener("offline", this.boundHandlers.offline);
     }
 
     // Start quality monitoring
     if (this.config.monitorQuality) {
-      this.startQualityMonitoring()
+      this.startQualityMonitoring();
     }
 
-    this.initialized = true
-    this.log('Offline manager initialized')
+    this.initialized = true;
+    this.log("Offline manager initialized");
   }
 
   /**
@@ -161,35 +165,35 @@ export class OfflineManager {
    */
   public destroy(): void {
     // Remove event listeners
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('online', this.boundHandlers.online)
-      window.removeEventListener('offline', this.boundHandlers.offline)
+    if (typeof window !== "undefined") {
+      window.removeEventListener("online", this.boundHandlers.online);
+      window.removeEventListener("offline", this.boundHandlers.offline);
     }
 
     // Stop quality monitoring
-    this.stopQualityMonitoring()
+    this.stopQualityMonitoring();
 
     // Clear pending sync
     if (this.syncTimeout) {
-      clearTimeout(this.syncTimeout)
-      this.syncTimeout = null
+      clearTimeout(this.syncTimeout);
+      this.syncTimeout = null;
     }
 
     // Clean up dependencies
-    this.cacheManager.destroy()
-    this.syncQueue.destroy()
+    this.cacheManager.destroy();
+    this.syncQueue.destroy();
 
-    this.listeners.clear()
-    this.initialized = false
+    this.listeners.clear();
+    this.initialized = false;
 
-    this.log('Offline manager destroyed')
+    this.log("Offline manager destroyed");
   }
 
   /**
    * Check if initialized
    */
   public isInitialized(): boolean {
-    return this.initialized
+    return this.initialized;
   }
 
   // ===========================================================================
@@ -200,35 +204,35 @@ export class OfflineManager {
    * Get current connection info
    */
   public getConnectionInfo(): ConnectionInfo {
-    return { ...this.connectionInfo }
+    return { ...this.connectionInfo };
   }
 
   /**
    * Check if currently online
    */
   public isOnline(): boolean {
-    return this.connectionInfo.isOnline
+    return this.connectionInfo.isOnline;
   }
 
   /**
    * Check if currently offline
    */
   public isOffline(): boolean {
-    return !this.connectionInfo.isOnline
+    return !this.connectionInfo.isOnline;
   }
 
   /**
    * Get current connection state
    */
   public getConnectionState(): ConnectionState {
-    return this.connectionInfo.state
+    return this.connectionInfo.state;
   }
 
   /**
    * Get network quality
    */
   public getNetworkQuality(): NetworkQuality {
-    return this.connectionInfo.quality
+    return this.connectionInfo.quality;
   }
 
   /**
@@ -236,14 +240,14 @@ export class OfflineManager {
    */
   public getOfflineDuration(): number | null {
     if (this.connectionInfo.isOnline) {
-      return this.connectionInfo.offlineDuration
+      return this.connectionInfo.offlineDuration;
     }
 
     if (this.connectionInfo.lastOfflineAt) {
-      return Date.now() - this.connectionInfo.lastOfflineAt
+      return Date.now() - this.connectionInfo.lastOfflineAt;
     }
 
-    return null
+    return null;
   }
 
   // ===========================================================================
@@ -254,33 +258,33 @@ export class OfflineManager {
    * Queue an operation for sync
    */
   public async queueOperation(
-    type: 'message' | 'reaction' | 'read_receipt',
-    operation: 'create' | 'update' | 'delete',
+    type: "message" | "reaction" | "read_receipt",
+    operation: "create" | "update" | "delete",
     data: unknown,
-    options?: { channelId?: string; priority?: number }
+    options?: { channelId?: string; priority?: number },
   ): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    await this.syncQueue.add(type, operation, data, options)
+    await this.syncQueue.add(type, operation, data, options);
 
-    this.log(`Queued ${type} ${operation} operation`)
+    this.log(`Queued ${type} ${operation} operation`);
   }
 
   /**
    * Get pending operation count
    */
   public async getPendingCount(): Promise<number> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    return this.syncQueue.countPending()
+    return this.syncQueue.countPending();
   }
 
   /**
    * Check if there are pending operations
    */
   public async hasPendingOperations(): Promise<boolean> {
-    const count = await this.getPendingCount()
-    return count > 0
+    const count = await this.getPendingCount();
+    return count > 0;
   }
 
   // ===========================================================================
@@ -291,40 +295,43 @@ export class OfflineManager {
    * Sync all pending operations
    */
   public async sync(): Promise<{ processed: number; failed: number }> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     if (!this.connectionInfo.isOnline) {
-      this.log('Cannot sync while offline')
-      return { processed: 0, failed: 0 }
+      this.log("Cannot sync while offline");
+      return { processed: 0, failed: 0 };
     }
 
-    this.emit({ type: 'sync_start', timestamp: Date.now() })
-    this.log('Starting sync')
+    this.emit({ type: "sync_start", timestamp: Date.now() });
+    this.log("Starting sync");
 
     try {
-      const result = await this.syncQueue.process()
+      const result = await this.syncQueue.process();
 
       this.emit({
-        type: 'sync_complete',
+        type: "sync_complete",
         data: result,
         timestamp: Date.now(),
-      })
+      });
 
-      this.log(`Sync complete: ${result.processed} processed, ${result.failed} failed`)
+      this.log(
+        `Sync complete: ${result.processed} processed, ${result.failed} failed`,
+      );
 
-      return { processed: result.processed, failed: result.failed }
+      return { processed: result.processed, failed: result.failed };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
 
       this.emit({
-        type: 'sync_error',
+        type: "sync_error",
         data: { error: errorMessage },
         timestamp: Date.now(),
-      })
+      });
 
-      this.log(`Sync error: ${errorMessage}`)
+      this.log(`Sync error: ${errorMessage}`);
 
-      throw error
+      throw error;
     }
   }
 
@@ -332,7 +339,7 @@ export class OfflineManager {
    * Force a sync attempt
    */
   public async forceSync(): Promise<{ processed: number; failed: number }> {
-    return this.sync()
+    return this.sync();
   }
 
   // ===========================================================================
@@ -343,25 +350,25 @@ export class OfflineManager {
    * Get the cache manager
    */
   public getCacheManager(): CacheManager {
-    return this.cacheManager
+    return this.cacheManager;
   }
 
   /**
    * Get the sync queue
    */
   public getSyncQueue(): SyncQueue {
-    return this.syncQueue
+    return this.syncQueue;
   }
 
   /**
    * Clear all offline data
    */
   public async clearAll(): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    await Promise.all([this.cacheManager.clearAll(), this.syncQueue.clear()])
+    await Promise.all([this.cacheManager.clearAll(), this.syncQueue.clear()]);
 
-    this.log('All offline data cleared')
+    this.log("All offline data cleared");
   }
 
   // ===========================================================================
@@ -372,8 +379,8 @@ export class OfflineManager {
    * Subscribe to offline events
    */
   public subscribe(listener: OfflineEventListener): () => void {
-    this.listeners.add(listener)
-    return () => this.listeners.delete(listener)
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
   }
 
   /**
@@ -382,11 +389,11 @@ export class OfflineManager {
   private emit(event: OfflineEvent): void {
     this.listeners.forEach((listener) => {
       try {
-        listener(event)
+        listener(event);
       } catch (error) {
-        logger.error('[OfflineManager] Event listener error:', error)
+        logger.error("[OfflineManager] Event listener error:", error);
       }
-    })
+    });
   }
 
   // ===========================================================================
@@ -397,12 +404,12 @@ export class OfflineManager {
    * Update configuration
    */
   public setConfig(config: Partial<OfflineManagerConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
 
     // Update quality monitoring
-    this.stopQualityMonitoring()
+    this.stopQualityMonitoring();
     if (this.config.monitorQuality) {
-      this.startQualityMonitoring()
+      this.startQualityMonitoring();
     }
   }
 
@@ -410,7 +417,7 @@ export class OfflineManager {
    * Get current configuration
    */
   public getConfig(): OfflineManagerConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 
   // ===========================================================================
@@ -421,26 +428,26 @@ export class OfflineManager {
    * Handle online event
    */
   private handleOnline(): void {
-    const now = Date.now()
+    const now = Date.now();
     const offlineDuration = this.connectionInfo.lastOfflineAt
       ? now - this.connectionInfo.lastOfflineAt
-      : null
+      : null;
 
     this.connectionInfo = {
       ...this.connectionInfo,
-      state: 'online',
+      state: "online",
       isOnline: true,
       lastOnlineAt: now,
       offlineDuration,
-    }
+    };
 
-    this.updateQuality()
-    this.emit({ type: 'online', timestamp: now })
-    this.log(`Came online after ${offlineDuration}ms`)
+    this.updateQuality();
+    this.emit({ type: "online", timestamp: now });
+    this.log(`Came online after ${offlineDuration}ms`);
 
     // Schedule sync if enabled
     if (this.config.syncOnReconnect) {
-      this.scheduleSync()
+      this.scheduleSync();
     }
   }
 
@@ -448,23 +455,23 @@ export class OfflineManager {
    * Handle offline event
    */
   private handleOffline(): void {
-    const now = Date.now()
+    const now = Date.now();
 
     this.connectionInfo = {
       ...this.connectionInfo,
-      state: 'offline',
+      state: "offline",
       isOnline: false,
       lastOfflineAt: now,
-      quality: 'unknown',
-    }
+      quality: "unknown",
+    };
 
-    this.emit({ type: 'offline', timestamp: now })
-    this.log('Went offline')
+    this.emit({ type: "offline", timestamp: now });
+    this.log("Went offline");
 
     // Cancel pending sync
     if (this.syncTimeout) {
-      clearTimeout(this.syncTimeout)
-      this.syncTimeout = null
+      clearTimeout(this.syncTimeout);
+      this.syncTimeout = null;
     }
   }
 
@@ -473,16 +480,16 @@ export class OfflineManager {
    */
   private scheduleSync(): void {
     if (this.syncTimeout) {
-      clearTimeout(this.syncTimeout)
+      clearTimeout(this.syncTimeout);
     }
 
     this.syncTimeout = setTimeout(async () => {
       try {
-        await this.sync()
+        await this.sync();
       } catch (error) {
-        this.log(`Scheduled sync failed: ${error}`)
+        this.log(`Scheduled sync failed: ${error}`);
       }
-    }, this.config.syncDelay)
+    }, this.config.syncDelay);
   }
 
   /**
@@ -490,14 +497,14 @@ export class OfflineManager {
    */
   private startQualityMonitoring(): void {
     if (this.qualityTimer) {
-      return
+      return;
     }
 
-    this.updateQuality()
+    this.updateQuality();
 
     this.qualityTimer = setInterval(() => {
-      this.updateQuality()
-    }, this.config.qualityCheckInterval)
+      this.updateQuality();
+    }, this.config.qualityCheckInterval);
   }
 
   /**
@@ -505,8 +512,8 @@ export class OfflineManager {
    */
   private stopQualityMonitoring(): void {
     if (this.qualityTimer) {
-      clearInterval(this.qualityTimer)
-      this.qualityTimer = null
+      clearInterval(this.qualityTimer);
+      this.qualityTimer = null;
     }
   }
 
@@ -514,16 +521,16 @@ export class OfflineManager {
    * Update network quality
    */
   private updateQuality(): void {
-    const quality = this.measureQuality()
-    const prevQuality = this.connectionInfo.quality
+    const quality = this.measureQuality();
+    const prevQuality = this.connectionInfo.quality;
 
     if (quality !== prevQuality) {
-      this.connectionInfo.quality = quality
+      this.connectionInfo.quality = quality;
       this.emit({
-        type: 'quality_change',
+        type: "quality_change",
         data: { quality, previous: prevQuality },
         timestamp: Date.now(),
-      })
+      });
     }
   }
 
@@ -531,43 +538,48 @@ export class OfflineManager {
    * Measure network quality
    */
   private measureQuality(): NetworkQuality {
-    if (typeof navigator === 'undefined') {
-      return 'unknown'
+    if (typeof navigator === "undefined") {
+      return "unknown";
     }
 
     // Use Network Information API if available
-    const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection
+    const connection = (
+      navigator as Navigator & { connection?: NetworkInformation }
+    ).connection;
 
     if (connection) {
-      this.connectionInfo.downlink = connection.downlink ?? null
-      this.connectionInfo.rtt = connection.rtt ?? null
-      this.connectionInfo.effectiveType = connection.effectiveType ?? null
+      this.connectionInfo.downlink = connection.downlink ?? null;
+      this.connectionInfo.rtt = connection.rtt ?? null;
+      this.connectionInfo.effectiveType = connection.effectiveType ?? null;
 
       // Determine quality based on effective type and downlink
-      if (connection.effectiveType === '4g' && (connection.downlink ?? 0) > 5) {
-        return 'excellent'
-      } else if (connection.effectiveType === '4g') {
-        return 'good'
-      } else if (connection.effectiveType === '3g') {
-        return 'fair'
-      } else if (connection.effectiveType === '2g' || connection.effectiveType === 'slow-2g') {
-        return 'poor'
+      if (connection.effectiveType === "4g" && (connection.downlink ?? 0) > 5) {
+        return "excellent";
+      } else if (connection.effectiveType === "4g") {
+        return "good";
+      } else if (connection.effectiveType === "3g") {
+        return "fair";
+      } else if (
+        connection.effectiveType === "2g" ||
+        connection.effectiveType === "slow-2g"
+      ) {
+        return "poor";
       }
     }
 
     // Fallback: assume good if online
-    return this.connectionInfo.isOnline ? 'good' : 'unknown'
+    return this.connectionInfo.isOnline ? "good" : "unknown";
   }
 
   /**
    * Get initial connection info
    */
   private getInitialConnectionInfo(): ConnectionInfo {
-    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true
+    const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
     return {
-      state: isOnline ? 'online' : 'offline',
-      quality: 'unknown',
+      state: isOnline ? "online" : "offline",
+      quality: "unknown",
       isOnline,
       lastOnlineAt: isOnline ? Date.now() : null,
       lastOfflineAt: isOnline ? null : Date.now(),
@@ -575,7 +587,7 @@ export class OfflineManager {
       downlink: null,
       rtt: null,
       effectiveType: null,
-    }
+    };
   }
 
   /**
@@ -583,7 +595,7 @@ export class OfflineManager {
    */
   private async ensureInitialized(): Promise<void> {
     if (!this.initialized) {
-      await this.initialize()
+      await this.initialize();
     }
   }
 
@@ -601,27 +613,29 @@ export class OfflineManager {
 // =============================================================================
 
 interface NetworkInformation {
-  downlink?: number
-  effectiveType?: 'slow-2g' | '2g' | '3g' | '4g'
-  rtt?: number
-  saveData?: boolean
-  onchange?: ((this: NetworkInformation, ev: Event) => void) | null
+  downlink?: number;
+  effectiveType?: "slow-2g" | "2g" | "3g" | "4g";
+  rtt?: number;
+  saveData?: boolean;
+  onchange?: ((this: NetworkInformation, ev: Event) => void) | null;
 }
 
 // =============================================================================
 // Singleton Instance
 // =============================================================================
 
-let offlineManagerInstance: OfflineManager | null = null
+let offlineManagerInstance: OfflineManager | null = null;
 
 /**
  * Get the default offline manager instance
  */
-export function getOfflineManager(config?: Partial<OfflineManagerConfig>): OfflineManager {
+export function getOfflineManager(
+  config?: Partial<OfflineManagerConfig>,
+): OfflineManager {
   if (!offlineManagerInstance) {
-    offlineManagerInstance = new OfflineManager(config)
+    offlineManagerInstance = new OfflineManager(config);
   }
-  return offlineManagerInstance
+  return offlineManagerInstance;
 }
 
 /**
@@ -629,9 +643,9 @@ export function getOfflineManager(config?: Partial<OfflineManagerConfig>): Offli
  */
 export function resetOfflineManager(): void {
   if (offlineManagerInstance) {
-    offlineManagerInstance.destroy()
-    offlineManagerInstance = null
+    offlineManagerInstance.destroy();
+    offlineManagerInstance = null;
   }
 }
 
-export default OfflineManager
+export default OfflineManager;

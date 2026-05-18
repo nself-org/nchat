@@ -14,10 +14,10 @@
  * @module services/rate-limit/redis-store
  */
 
-import Redis from 'ioredis'
-import type { RateLimitStore, RateLimitConfig, RateLimitResult } from './types'
+import Redis from "ioredis";
+import type { RateLimitStore, RateLimitConfig, RateLimitResult } from "./types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Configuration
@@ -25,23 +25,23 @@ import { logger } from '@/lib/logger'
 
 interface RedisStoreOptions {
   /** Redis connection URL or config */
-  url?: string
-  host?: string
-  port?: number
-  password?: string
-  db?: number
+  url?: string;
+  host?: string;
+  port?: number;
+  password?: string;
+  db?: number;
   /** Key prefix for all rate limit keys */
-  keyPrefix?: string
+  keyPrefix?: string;
   /** Connection timeout in ms */
-  connectTimeout?: number
+  connectTimeout?: number;
   /** Max retries on connection failure */
-  maxRetries?: number
+  maxRetries?: number;
   /** Enable TLS */
-  tls?: boolean
+  tls?: boolean;
   /** Cluster mode */
-  cluster?: boolean
+  cluster?: boolean;
   /** Cluster nodes for cluster mode */
-  clusterNodes?: Array<{ host: string; port: number }>
+  clusterNodes?: Array<{ host: string; port: number }>;
 }
 
 // ============================================================================
@@ -94,7 +94,7 @@ end
 
 -- Return results
 return {allowed, remaining, reset_at, current_count + (allowed == 1 and cost or 0)}
-`
+`;
 
 /**
  * Lua script for getting status without incrementing
@@ -127,7 +127,7 @@ if current_count >= max_requests then
 end
 
 return {allowed, remaining, reset_at, current_count}
-`
+`;
 
 /**
  * Lua script for decrementing the counter
@@ -143,33 +143,33 @@ for _, entry in ipairs(entries) do
 end
 
 return redis.call('ZCARD', key)
-`
+`;
 
 // ============================================================================
 // Redis Rate Limit Store
 // ============================================================================
 
 export class RedisRateLimitStore implements RateLimitStore {
-  private client: Redis | null = null
-  private readonly options: Required<RedisStoreOptions>
-  private readonly scriptsLoaded = new Map<string, string>()
-  private connected = false
-  private connectionPromise: Promise<void> | null = null
+  private client: Redis | null = null;
+  private readonly options: Required<RedisStoreOptions>;
+  private readonly scriptsLoaded = new Map<string, string>();
+  private connected = false;
+  private connectionPromise: Promise<void> | null = null;
 
   constructor(options: RedisStoreOptions = {}) {
     this.options = {
-      url: options.url || process.env.REDIS_URL || '',
-      host: options.host || process.env.REDIS_HOST || 'localhost',
-      port: options.port || parseInt(process.env.REDIS_PORT || '6379', 10),
-      password: options.password || process.env.REDIS_PASSWORD || '',
-      db: options.db ?? parseInt(process.env.REDIS_DB || '0', 10),
-      keyPrefix: options.keyPrefix || 'nchat:ratelimit:',
+      url: options.url || process.env.REDIS_URL || "",
+      host: options.host || process.env.REDIS_HOST || "localhost",
+      port: options.port || parseInt(process.env.REDIS_PORT || "6379", 10),
+      password: options.password || process.env.REDIS_PASSWORD || "",
+      db: options.db ?? parseInt(process.env.REDIS_DB || "0", 10),
+      keyPrefix: options.keyPrefix || "nchat:ratelimit:",
       connectTimeout: options.connectTimeout || 5000,
       maxRetries: options.maxRetries || 3,
-      tls: options.tls ?? process.env.REDIS_TLS === 'true',
-      cluster: options.cluster ?? process.env.REDIS_CLUSTER === 'true',
+      tls: options.tls ?? process.env.REDIS_TLS === "true",
+      cluster: options.cluster ?? process.env.REDIS_CLUSTER === "true",
       clusterNodes: options.clusterNodes || [],
-    }
+    };
   }
 
   /**
@@ -177,26 +177,26 @@ export class RedisRateLimitStore implements RateLimitStore {
    */
   private async getClient(): Promise<Redis> {
     if (this.client && this.connected) {
-      return this.client
+      return this.client;
     }
 
     // Prevent multiple concurrent connection attempts
     if (this.connectionPromise) {
-      await this.connectionPromise
+      await this.connectionPromise;
       if (this.client && this.connected) {
-        return this.client
+        return this.client;
       }
     }
 
-    this.connectionPromise = this.connect()
-    await this.connectionPromise
-    this.connectionPromise = null
+    this.connectionPromise = this.connect();
+    await this.connectionPromise;
+    this.connectionPromise = null;
 
     if (!this.client) {
-      throw new Error('Failed to connect to Redis')
+      throw new Error("Failed to connect to Redis");
     }
 
-    return this.client
+    return this.client;
   }
 
   /**
@@ -212,11 +212,11 @@ export class RedisRateLimitStore implements RateLimitStore {
           enableReadyCheck: true,
           retryStrategy: (times) => {
             if (times > this.options.maxRetries) {
-              return null // Stop retrying
+              return null; // Stop retrying
             }
-            return Math.min(times * 100, 3000)
+            return Math.min(times * 100, 3000);
           },
-        })
+        });
       } else {
         this.client = new Redis({
           host: this.options.host,
@@ -230,42 +230,42 @@ export class RedisRateLimitStore implements RateLimitStore {
           tls: this.options.tls ? {} : undefined,
           retryStrategy: (times) => {
             if (times > this.options.maxRetries) {
-              return null
+              return null;
             }
-            return Math.min(times * 100, 3000)
+            return Math.min(times * 100, 3000);
           },
-        })
+        });
       }
 
       // Set up event handlers
-      this.client.on('connect', () => {
-        this.connected = true
+      this.client.on("connect", () => {
+        this.connected = true;
         // REMOVED: console.log('[RedisRateLimitStore] Connected to Redis')
-      })
+      });
 
-      this.client.on('error', (error) => {
-        logger.error('[RedisRateLimitStore] Redis error:', error.message)
-        this.connected = false
-      })
+      this.client.on("error", (error) => {
+        logger.error("[RedisRateLimitStore] Redis error:", error.message);
+        this.connected = false;
+      });
 
-      this.client.on('close', () => {
-        this.connected = false
+      this.client.on("close", () => {
+        this.connected = false;
         // REMOVED: console.log('[RedisRateLimitStore] Redis connection closed')
-      })
+      });
 
-      this.client.on('reconnecting', () => {
+      this.client.on("reconnecting", () => {
         // REMOVED: console.log('[RedisRateLimitStore] Reconnecting to Redis...')
-      })
+      });
 
       // Explicitly connect
-      await this.client.connect()
+      await this.client.connect();
 
       // Load Lua scripts
-      await this.loadScripts()
+      await this.loadScripts();
     } catch (error) {
-      logger.error('[RedisRateLimitStore] Failed to connect to Redis:', error)
-      this.connected = false
-      throw error
+      logger.error("[RedisRateLimitStore] Failed to connect to Redis:", error);
+      this.connected = false;
+      throw error;
     }
   }
 
@@ -273,21 +273,24 @@ export class RedisRateLimitStore implements RateLimitStore {
    * Load Lua scripts into Redis
    */
   private async loadScripts(): Promise<void> {
-    if (!this.client) return
+    if (!this.client) return;
 
     try {
-      const slidingWindowSha = await this.client.script('LOAD', SLIDING_WINDOW_SCRIPT)
-      this.scriptsLoaded.set('slidingWindow', slidingWindowSha as string)
+      const slidingWindowSha = await this.client.script(
+        "LOAD",
+        SLIDING_WINDOW_SCRIPT,
+      );
+      this.scriptsLoaded.set("slidingWindow", slidingWindowSha as string);
 
-      const statusSha = await this.client.script('LOAD', STATUS_SCRIPT)
-      this.scriptsLoaded.set('status', statusSha as string)
+      const statusSha = await this.client.script("LOAD", STATUS_SCRIPT);
+      this.scriptsLoaded.set("status", statusSha as string);
 
-      const decrementSha = await this.client.script('LOAD', DECREMENT_SCRIPT)
-      this.scriptsLoaded.set('decrement', decrementSha as string)
+      const decrementSha = await this.client.script("LOAD", DECREMENT_SCRIPT);
+      this.scriptsLoaded.set("decrement", decrementSha as string);
 
       // REMOVED: console.log('[RedisRateLimitStore] Lua scripts loaded')
     } catch (error) {
-      logger.error('[RedisRateLimitStore] Failed to load Lua scripts:', error)
+      logger.error("[RedisRateLimitStore] Failed to load Lua scripts:", error);
       // Scripts will be evaluated inline as fallback
     }
   }
@@ -296,26 +299,28 @@ export class RedisRateLimitStore implements RateLimitStore {
    * Build the full Redis key
    */
   private buildKey(key: string): string {
-    return `${this.options.keyPrefix}${key}`
+    return `${this.options.keyPrefix}${key}`;
   }
 
   /**
    * Check rate limit and increment counter
    */
   async check(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
-    const fullKey = this.buildKey(config.keyPrefix ? `${config.keyPrefix}:${key}` : key)
-    const now = Date.now()
-    const windowMs = config.windowSeconds * 1000
-    const maxRequests = config.maxRequests + (config.burst || 0)
-    const cost = config.cost || 1
+    const fullKey = this.buildKey(
+      config.keyPrefix ? `${config.keyPrefix}:${key}` : key,
+    );
+    const now = Date.now();
+    const windowMs = config.windowSeconds * 1000;
+    const maxRequests = config.maxRequests + (config.burst || 0);
+    const cost = config.cost || 1;
 
     try {
-      const client = await this.getClient()
+      const client = await this.getClient();
 
-      let result: [number, number, number, number]
+      let result: [number, number, number, number];
 
       // Try to use cached script SHA
-      const scriptSha = this.scriptsLoaded.get('slidingWindow')
+      const scriptSha = this.scriptsLoaded.get("slidingWindow");
       if (scriptSha) {
         try {
           result = (await client.evalsha(
@@ -325,11 +330,12 @@ export class RedisRateLimitStore implements RateLimitStore {
             now.toString(),
             windowMs.toString(),
             maxRequests.toString(),
-            cost.toString()
-          )) as [number, number, number, number]
+            cost.toString(),
+          )) as [number, number, number, number];
         } catch (error: any) {
           // Script might not be loaded (NOSCRIPT error), fallback to EVAL
-          if (error.message?.includes('NOSCRIPT')) {
+          if (error.message?.includes("NOSCRIPT")) {
+            // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
             result = (await client.eval(
               SLIDING_WINDOW_SCRIPT,
               1,
@@ -337,13 +343,14 @@ export class RedisRateLimitStore implements RateLimitStore {
               now.toString(),
               windowMs.toString(),
               maxRequests.toString(),
-              cost.toString()
-            )) as [number, number, number, number]
+              cost.toString(),
+            )) as [number, number, number, number];
           } else {
-            throw error
+            throw error;
           }
         }
       } else {
+        // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
         result = (await client.eval(
           SLIDING_WINDOW_SCRIPT,
           1,
@@ -351,11 +358,11 @@ export class RedisRateLimitStore implements RateLimitStore {
           now.toString(),
           windowMs.toString(),
           maxRequests.toString(),
-          cost.toString()
-        )) as [number, number, number, number]
+          cost.toString(),
+        )) as [number, number, number, number];
       }
 
-      const [allowed, remaining, resetAt, current] = result
+      const [allowed, remaining, resetAt, current] = result;
 
       const rateLimitResult: RateLimitResult = {
         allowed: allowed === 1,
@@ -363,16 +370,16 @@ export class RedisRateLimitStore implements RateLimitStore {
         reset: Math.ceil(resetAt / 1000),
         limit: maxRequests,
         current,
-      }
+      };
 
       // Calculate retry-after if rate limited
       if (!rateLimitResult.allowed) {
-        rateLimitResult.retryAfter = Math.ceil((resetAt - now) / 1000)
+        rateLimitResult.retryAfter = Math.ceil((resetAt - now) / 1000);
       }
 
-      return rateLimitResult
+      return rateLimitResult;
     } catch (error) {
-      logger.error('[RedisRateLimitStore] Check error:', error)
+      logger.error("[RedisRateLimitStore] Check error:", error);
       // On Redis error, allow the request (fail open)
       return {
         allowed: true,
@@ -380,7 +387,7 @@ export class RedisRateLimitStore implements RateLimitStore {
         reset: Math.ceil((now + windowMs) / 1000),
         limit: maxRequests,
         current: 1,
-      }
+      };
     }
   }
 
@@ -388,17 +395,19 @@ export class RedisRateLimitStore implements RateLimitStore {
    * Get current status without incrementing
    */
   async status(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
-    const fullKey = this.buildKey(config.keyPrefix ? `${config.keyPrefix}:${key}` : key)
-    const now = Date.now()
-    const windowMs = config.windowSeconds * 1000
-    const maxRequests = config.maxRequests + (config.burst || 0)
+    const fullKey = this.buildKey(
+      config.keyPrefix ? `${config.keyPrefix}:${key}` : key,
+    );
+    const now = Date.now();
+    const windowMs = config.windowSeconds * 1000;
+    const maxRequests = config.maxRequests + (config.burst || 0);
 
     try {
-      const client = await this.getClient()
+      const client = await this.getClient();
 
-      let result: [number, number, number, number]
+      let result: [number, number, number, number];
 
-      const scriptSha = this.scriptsLoaded.get('status')
+      const scriptSha = this.scriptsLoaded.get("status");
       if (scriptSha) {
         try {
           result = (await client.evalsha(
@@ -407,34 +416,36 @@ export class RedisRateLimitStore implements RateLimitStore {
             fullKey,
             now.toString(),
             windowMs.toString(),
-            maxRequests.toString()
-          )) as [number, number, number, number]
+            maxRequests.toString(),
+          )) as [number, number, number, number];
         } catch (error: any) {
-          if (error.message?.includes('NOSCRIPT')) {
+          if (error.message?.includes("NOSCRIPT")) {
+            // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
             result = (await client.eval(
               STATUS_SCRIPT,
               1,
               fullKey,
               now.toString(),
               windowMs.toString(),
-              maxRequests.toString()
-            )) as [number, number, number, number]
+              maxRequests.toString(),
+            )) as [number, number, number, number];
           } else {
-            throw error
+            throw error;
           }
         }
       } else {
+        // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
         result = (await client.eval(
           STATUS_SCRIPT,
           1,
           fullKey,
           now.toString(),
           windowMs.toString(),
-          maxRequests.toString()
-        )) as [number, number, number, number]
+          maxRequests.toString(),
+        )) as [number, number, number, number];
       }
 
-      const [allowed, remaining, resetAt, current] = result
+      const [allowed, remaining, resetAt, current] = result;
 
       return {
         allowed: allowed === 1,
@@ -442,17 +453,18 @@ export class RedisRateLimitStore implements RateLimitStore {
         reset: Math.ceil(resetAt / 1000),
         limit: maxRequests,
         current,
-        retryAfter: allowed === 0 ? Math.ceil((resetAt - now) / 1000) : undefined,
-      }
+        retryAfter:
+          allowed === 0 ? Math.ceil((resetAt - now) / 1000) : undefined,
+      };
     } catch (error) {
-      logger.error('[RedisRateLimitStore] Status error:', error)
+      logger.error("[RedisRateLimitStore] Status error:", error);
       return {
         allowed: true,
         remaining: maxRequests,
         reset: Math.ceil((now + windowMs) / 1000),
         limit: maxRequests,
         current: 0,
-      }
+      };
     }
   }
 
@@ -461,12 +473,12 @@ export class RedisRateLimitStore implements RateLimitStore {
    */
   async reset(key: string): Promise<void> {
     try {
-      const client = await this.getClient()
+      const client = await this.getClient();
       // Delete all keys matching the pattern
-      const pattern = this.buildKey(key)
-      await client.del(pattern)
+      const pattern = this.buildKey(key);
+      await client.del(pattern);
     } catch (error) {
-      logger.error('[RedisRateLimitStore] Reset error:', error)
+      logger.error("[RedisRateLimitStore] Reset error:", error);
     }
   }
 
@@ -475,25 +487,27 @@ export class RedisRateLimitStore implements RateLimitStore {
    */
   async decrement(key: string, amount: number = 1): Promise<void> {
     try {
-      const client = await this.getClient()
-      const fullKey = this.buildKey(key)
+      const client = await this.getClient();
+      const fullKey = this.buildKey(key);
 
-      const scriptSha = this.scriptsLoaded.get('decrement')
+      const scriptSha = this.scriptsLoaded.get("decrement");
       if (scriptSha) {
         try {
-          await client.evalsha(scriptSha, 1, fullKey, amount.toString())
+          await client.evalsha(scriptSha, 1, fullKey, amount.toString());
         } catch (error: any) {
-          if (error.message?.includes('NOSCRIPT')) {
-            await client.eval(DECREMENT_SCRIPT, 1, fullKey, amount.toString())
+          if (error.message?.includes("NOSCRIPT")) {
+            // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
+            await client.eval(DECREMENT_SCRIPT, 1, fullKey, amount.toString());
           } else {
-            throw error
+            throw error;
           }
         }
       } else {
-        await client.eval(DECREMENT_SCRIPT, 1, fullKey, amount.toString())
+        // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
+        await client.eval(DECREMENT_SCRIPT, 1, fullKey, amount.toString());
       }
     } catch (error) {
-      logger.error('[RedisRateLimitStore] Decrement error:', error)
+      logger.error("[RedisRateLimitStore] Decrement error:", error);
     }
   }
 
@@ -502,21 +516,27 @@ export class RedisRateLimitStore implements RateLimitStore {
    */
   async clear(): Promise<void> {
     try {
-      const client = await this.getClient()
+      const client = await this.getClient();
       // Use SCAN to find and delete all rate limit keys
-      const pattern = this.buildKey('*')
-      let cursor = '0'
+      const pattern = this.buildKey("*");
+      let cursor = "0";
 
       do {
-        const [newCursor, keys] = await client.scan(cursor, 'MATCH', pattern, 'COUNT', 100)
-        cursor = newCursor
+        const [newCursor, keys] = await client.scan(
+          cursor,
+          "MATCH",
+          pattern,
+          "COUNT",
+          100,
+        );
+        cursor = newCursor;
 
         if (keys.length > 0) {
-          await client.del(...keys)
+          await client.del(...keys);
         }
-      } while (cursor !== '0')
+      } while (cursor !== "0");
     } catch (error) {
-      logger.error('[RedisRateLimitStore] Clear error:', error)
+      logger.error("[RedisRateLimitStore] Clear error:", error);
     }
   }
 
@@ -525,11 +545,11 @@ export class RedisRateLimitStore implements RateLimitStore {
    */
   async isHealthy(): Promise<boolean> {
     try {
-      const client = await this.getClient()
-      const result = await client.ping()
-      return result === 'PONG'
+      const client = await this.getClient();
+      const result = await client.ping();
+      return result === "PONG";
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -537,7 +557,7 @@ export class RedisRateLimitStore implements RateLimitStore {
    * Get store name
    */
   getName(): string {
-    return 'redis'
+    return "redis";
   }
 
   /**
@@ -545,9 +565,9 @@ export class RedisRateLimitStore implements RateLimitStore {
    */
   async close(): Promise<void> {
     if (this.client) {
-      await this.client.quit()
-      this.client = null
-      this.connected = false
+      await this.client.quit();
+      this.client = null;
+      this.connected = false;
     }
   }
 }
@@ -556,21 +576,25 @@ export class RedisRateLimitStore implements RateLimitStore {
 // Factory Function
 // ============================================================================
 
-let redisStoreInstance: RedisRateLimitStore | null = null
+let redisStoreInstance: RedisRateLimitStore | null = null;
 
 /**
  * Get or create the Redis rate limit store singleton
  */
-export function getRedisStore(options?: RedisStoreOptions): RedisRateLimitStore {
+export function getRedisStore(
+  options?: RedisStoreOptions,
+): RedisRateLimitStore {
   if (!redisStoreInstance) {
-    redisStoreInstance = new RedisRateLimitStore(options)
+    redisStoreInstance = new RedisRateLimitStore(options);
   }
-  return redisStoreInstance
+  return redisStoreInstance;
 }
 
 /**
  * Create a new Redis rate limit store instance
  */
-export function createRedisStore(options?: RedisStoreOptions): RedisRateLimitStore {
-  return new RedisRateLimitStore(options)
+export function createRedisStore(
+  options?: RedisStoreOptions,
+): RedisRateLimitStore {
+  return new RedisRateLimitStore(options);
 }

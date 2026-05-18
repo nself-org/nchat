@@ -3,11 +3,17 @@
  * Displays and manages workflows
  */
 
-'use client'
+"use client";
 
-import { Play, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Play, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -15,36 +21,39 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { useWorkflows, useWorkflowExecution } from '@/hooks/use-workflows-plugin'
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  useWorkflows,
+  useWorkflowExecution,
+} from "@/hooks/use-workflows-plugin";
+import { useToast } from "@/hooks/use-toast";
 
 interface WorkflowListProps {
-  onCreateClick?: () => void
+  onCreateClick?: () => void;
 }
 
 export function WorkflowList({ onCreateClick }: WorkflowListProps) {
-  const { workflows, isLoading, error } = useWorkflows()
-  const { executeWorkflow, isExecuting } = useWorkflowExecution()
-  const { toast } = useToast()
+  const { workflows, isLoading, error } = useWorkflows();
+  const { executeWorkflow, isExecuting } = useWorkflowExecution();
+  const { toast } = useToast();
 
   const handleExecute = async (id: string, name: string) => {
-    const result = await executeWorkflow(id)
+    const result = await executeWorkflow(id);
 
     if (result) {
       toast({
-        title: 'Workflow Executed',
+        title: "Workflow Executed",
         description: `${name} is now running`,
-      })
+      });
     } else {
       toast({
-        title: 'Execution Failed',
+        title: "Execution Failed",
         description: `Failed to execute ${name}`,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -57,7 +66,7 @@ export function WorkflowList({ onCreateClick }: WorkflowListProps) {
           <div className="h-64 animate-pulse rounded bg-muted" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error) {
@@ -65,10 +74,12 @@ export function WorkflowList({ onCreateClick }: WorkflowListProps) {
       <Card className="border-destructive">
         <CardHeader>
           <CardTitle>Error Loading Workflows</CardTitle>
-          <CardDescription>Failed to load workflows. Please try again later.</CardDescription>
+          <CardDescription>
+            Failed to load workflows. Please try again later.
+          </CardDescription>
         </CardHeader>
       </Card>
-    )
+    );
   }
 
   return (
@@ -76,7 +87,9 @@ export function WorkflowList({ onCreateClick }: WorkflowListProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Workflows</CardTitle>
-          <CardDescription>Automated workflows for your workspace</CardDescription>
+          <CardDescription>
+            Automated workflows for your workspace
+          </CardDescription>
         </div>
         {onCreateClick && (
           <Button onClick={onCreateClick}>
@@ -90,7 +103,11 @@ export function WorkflowList({ onCreateClick }: WorkflowListProps) {
           <div className="py-12 text-center text-muted-foreground">
             <p>No workflows yet</p>
             {onCreateClick && (
-              <Button variant="outline" className="mt-4" onClick={onCreateClick}>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={onCreateClick}
+              >
                 Create your first workflow
               </Button>
             )}
@@ -112,7 +129,9 @@ export function WorkflowList({ onCreateClick }: WorkflowListProps) {
                   <TableCell>
                     <div>
                       <div className="font-medium">{workflow.name}</div>
-                      <div className="text-sm text-muted-foreground">{workflow.description}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {workflow.description}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -120,8 +139,8 @@ export function WorkflowList({ onCreateClick }: WorkflowListProps) {
                   </TableCell>
                   <TableCell>{workflow.actions.length} actions</TableCell>
                   <TableCell>
-                    <Badge variant={workflow.enabled ? 'default' : 'secondary'}>
-                      {workflow.enabled ? 'Enabled' : 'Disabled'}
+                    <Badge variant={workflow.enabled ? "default" : "secondary"}>
+                      {workflow.enabled ? "Enabled" : "Disabled"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -142,5 +161,5 @@ export function WorkflowList({ onCreateClick }: WorkflowListProps) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

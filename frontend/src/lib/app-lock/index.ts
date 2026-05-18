@@ -68,7 +68,7 @@ export type {
   LockEvent,
   LockEventListener,
   PlatformCapabilities,
-} from './types'
+} from "./types";
 
 // Default values and constants
 export {
@@ -80,15 +80,10 @@ export {
   DEFAULT_BIOMETRIC_INFO,
   STORAGE_KEYS,
   SECURE_STORAGE_SERVICE,
-} from './types'
+} from "./types";
 
 // PIN Authentication
-export {
-  PinAuth,
-  getPinAuth,
-  resetPinAuth,
-  createPinAuth,
-} from './pin-auth'
+export { PinAuth, getPinAuth, resetPinAuth, createPinAuth } from "./pin-auth";
 
 // Biometric Authentication
 export {
@@ -97,7 +92,7 @@ export {
   resetBiometricAuth,
   createBiometricAuth,
   detectPlatform,
-} from './biometric-auth'
+} from "./biometric-auth";
 
 // App Lock Manager
 export {
@@ -106,4 +101,4 @@ export {
   resetAppLockManager,
   initializeAppLockManager,
   createAppLockManager,
-} from './app-lock-manager'
+} from "./app-lock-manager";

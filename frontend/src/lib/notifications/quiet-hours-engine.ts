@@ -9,7 +9,7 @@
  * - Comprehensive isInQuietHours() integration
  */
 
-import type { DayOfWeek } from './notification-types'
+import type { DayOfWeek } from "./notification-types";
 
 // ============================================================================
 // Types
@@ -20,15 +20,15 @@ import type { DayOfWeek } from './notification-types'
  */
 export interface DNDMode {
   /** Whether DND is currently active */
-  isActive: boolean
+  isActive: boolean;
   /** When DND was activated */
-  activatedAt: string | null
+  activatedAt: string | null;
   /** When DND should automatically expire (null = manual dismiss only) */
-  expiresAt: string | null
+  expiresAt: string | null;
   /** Custom status message during DND */
-  statusMessage?: string
+  statusMessage?: string;
   /** Whether to show a visual indicator in the UI */
-  showIndicator: boolean
+  showIndicator: boolean;
 }
 
 /**
@@ -36,15 +36,15 @@ export interface DNDMode {
  */
 export interface DNDException {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Type of exception */
-  type: 'user' | 'channel' | 'priority' | 'type'
+  type: "user" | "channel" | "priority" | "type";
   /** The value to match (user ID, channel ID, priority level, or notification type) */
-  value: string
+  value: string;
   /** Human-readable label */
-  label: string
+  label: string;
   /** Whether this exception is currently active */
-  enabled: boolean
+  enabled: boolean;
 }
 
 /**
@@ -52,11 +52,11 @@ export interface DNDException {
  */
 export interface DaySchedule {
   /** Whether quiet hours are active on this day */
-  enabled: boolean
+  enabled: boolean;
   /** Start time in HH:mm format */
-  startTime: string
+  startTime: string;
   /** End time in HH:mm format */
-  endTime: string
+  endTime: string;
 }
 
 /**
@@ -64,21 +64,21 @@ export interface DaySchedule {
  */
 export interface EnhancedQuietHoursSchedule {
   /** Whether the schedule system is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Timezone for all time calculations */
-  timezone: string
+  timezone: string;
   /** Weekday schedule (Monday-Friday) */
-  weekdaySchedule: DaySchedule
+  weekdaySchedule: DaySchedule;
   /** Weekend schedule (Saturday-Sunday) */
-  weekendSchedule: DaySchedule
+  weekendSchedule: DaySchedule;
   /** Per-day overrides (optional, takes precedence over weekday/weekend) */
-  dayOverrides: Partial<Record<DayOfWeek, DaySchedule>>
+  dayOverrides: Partial<Record<DayOfWeek, DaySchedule>>;
   /** Whether mentions can break through quiet hours */
-  allowMentionsBreakthrough: boolean
+  allowMentionsBreakthrough: boolean;
   /** Whether urgent notifications can break through */
-  allowUrgentBreakthrough: boolean
+  allowUrgentBreakthrough: boolean;
   /** Automatically set user status to DND during quiet hours */
-  autoSetDNDStatus: boolean
+  autoSetDNDStatus: boolean;
 }
 
 /**
@@ -86,11 +86,11 @@ export interface EnhancedQuietHoursSchedule {
  */
 export interface QuietHoursState {
   /** The recurring schedule */
-  schedule: EnhancedQuietHoursSchedule
+  schedule: EnhancedQuietHoursSchedule;
   /** Manual DND mode (overrides schedule when active) */
-  dnd: DNDMode
+  dnd: DNDMode;
   /** Exception rules that allow notifications through */
-  exceptions: DNDException[]
+  exceptions: DNDException[];
 }
 
 /**
@@ -98,15 +98,15 @@ export interface QuietHoursState {
  */
 export interface QuietHoursCheckResult {
   /** Whether the user is currently in quiet hours or DND */
-  isQuiet: boolean
+  isQuiet: boolean;
   /** The source of the quiet state */
-  source: 'schedule' | 'dnd' | 'none'
+  source: "schedule" | "dnd" | "none";
   /** Whether this notification can break through */
-  canBreakThrough: boolean
+  canBreakThrough: boolean;
   /** Reason for the decision */
-  reason: string
+  reason: string;
   /** When quiet hours will end (if applicable) */
-  endsAt: string | null
+  endsAt: string | null;
 }
 
 /**
@@ -114,13 +114,13 @@ export interface QuietHoursCheckResult {
  */
 export interface QuietHoursTransition {
   /** Type of transition */
-  type: 'start' | 'end'
+  type: "start" | "end";
   /** When the transition occurs */
-  at: Date
+  at: Date;
   /** Source of the transition */
-  source: 'schedule' | 'dnd'
+  source: "schedule" | "dnd";
   /** Human-readable description */
-  description: string
+  description: string;
 }
 
 // ============================================================================
@@ -132,39 +132,43 @@ export const DEFAULT_DND_MODE: DNDMode = {
   activatedAt: null,
   expiresAt: null,
   showIndicator: true,
-}
+};
 
 export const DEFAULT_DAY_SCHEDULE: DaySchedule = {
   enabled: true,
-  startTime: '22:00',
-  endTime: '08:00',
-}
+  startTime: "22:00",
+  endTime: "08:00",
+};
 
 export const DEFAULT_WEEKEND_SCHEDULE: DaySchedule = {
   enabled: true,
-  startTime: '23:00',
-  endTime: '10:00',
-}
+  startTime: "23:00",
+  endTime: "10:00",
+};
 
-export function createDefaultQuietHoursSchedule(timezone?: string): EnhancedQuietHoursSchedule {
+export function createDefaultQuietHoursSchedule(
+  timezone?: string,
+): EnhancedQuietHoursSchedule {
   return {
     enabled: false,
-    timezone: timezone ?? 'UTC',
+    timezone: timezone ?? "UTC",
     weekdaySchedule: { ...DEFAULT_DAY_SCHEDULE },
     weekendSchedule: { ...DEFAULT_WEEKEND_SCHEDULE },
     dayOverrides: {},
     allowMentionsBreakthrough: true,
     allowUrgentBreakthrough: true,
     autoSetDNDStatus: false,
-  }
+  };
 }
 
-export function createDefaultQuietHoursState(timezone?: string): QuietHoursState {
+export function createDefaultQuietHoursState(
+  timezone?: string,
+): QuietHoursState {
   return {
     schedule: createDefaultQuietHoursSchedule(timezone),
     dnd: { ...DEFAULT_DND_MODE },
     exceptions: [],
-  }
+  };
 }
 
 // ============================================================================
@@ -177,15 +181,15 @@ export function createDefaultQuietHoursState(timezone?: string): QuietHoursState
 export function activateDND(
   state: QuietHoursState,
   options?: {
-    duration?: number // duration in milliseconds
-    statusMessage?: string
-    showIndicator?: boolean
-  }
+    duration?: number; // duration in milliseconds
+    statusMessage?: string;
+    showIndicator?: boolean;
+  },
 ): QuietHoursState {
-  const now = new Date()
+  const now = new Date();
   const expiresAt = options?.duration
     ? new Date(now.getTime() + options.duration).toISOString()
-    : null
+    : null;
 
   return {
     ...state,
@@ -196,7 +200,7 @@ export function activateDND(
       statusMessage: options?.statusMessage,
       showIndicator: options?.showIndicator ?? true,
     },
-  }
+  };
 }
 
 /**
@@ -206,37 +210,41 @@ export function deactivateDND(state: QuietHoursState): QuietHoursState {
   return {
     ...state,
     dnd: { ...DEFAULT_DND_MODE },
-  }
+  };
 }
 
 /**
  * Check if DND is currently active (respects expiration)
  */
 export function isDNDActive(state: QuietHoursState, now?: Date): boolean {
-  if (!state.dnd.isActive) return false
+  if (!state.dnd.isActive) return false;
 
   // Check expiration
   if (state.dnd.expiresAt) {
-    const currentTime = now ?? new Date()
+    const currentTime = now ?? new Date();
     if (new Date(state.dnd.expiresAt) <= currentTime) {
-      return false
+      return false;
     }
   }
 
-  return true
+  return true;
 }
 
 /**
  * Get remaining DND time in milliseconds
  */
-export function getDNDTimeRemaining(state: QuietHoursState, now?: Date): number | null {
-  if (!isDNDActive(state, now)) return null
+export function getDNDTimeRemaining(
+  state: QuietHoursState,
+  now?: Date,
+): number | null {
+  if (!isDNDActive(state, now)) return null;
 
-  if (!state.dnd.expiresAt) return null // Indefinite DND
+  if (!state.dnd.expiresAt) return null; // Indefinite DND
 
-  const currentTime = now ?? new Date()
-  const remaining = new Date(state.dnd.expiresAt).getTime() - currentTime.getTime()
-  return Math.max(0, remaining)
+  const currentTime = now ?? new Date();
+  const remaining =
+    new Date(state.dnd.expiresAt).getTime() - currentTime.getTime();
+  return Math.max(0, remaining);
 }
 
 // ============================================================================
@@ -247,10 +255,10 @@ export function getDNDTimeRemaining(state: QuietHoursState, now?: Date): number 
  * Create a DND exception rule
  */
 export function createException(
-  type: DNDException['type'],
+  type: DNDException["type"],
   value: string,
   label: string,
-  enabled?: boolean
+  enabled?: boolean,
 ): DNDException {
   return {
     id: `exc_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
@@ -258,7 +266,7 @@ export function createException(
     value,
     label,
     enabled: enabled ?? true,
-  }
+  };
 }
 
 /**
@@ -266,12 +274,12 @@ export function createException(
  */
 export function addException(
   state: QuietHoursState,
-  exception: DNDException
+  exception: DNDException,
 ): QuietHoursState {
   return {
     ...state,
     exceptions: [...state.exceptions, exception],
-  }
+  };
 }
 
 /**
@@ -279,12 +287,12 @@ export function addException(
  */
 export function removeException(
   state: QuietHoursState,
-  exceptionId: string
+  exceptionId: string,
 ): QuietHoursState {
   return {
     ...state,
     exceptions: state.exceptions.filter((e) => e.id !== exceptionId),
-  }
+  };
 }
 
 /**
@@ -292,14 +300,14 @@ export function removeException(
  */
 export function toggleException(
   state: QuietHoursState,
-  exceptionId: string
+  exceptionId: string,
 ): QuietHoursState {
   return {
     ...state,
     exceptions: state.exceptions.map((e) =>
-      e.id === exceptionId ? { ...e, enabled: !e.enabled } : e
+      e.id === exceptionId ? { ...e, enabled: !e.enabled } : e,
     ),
-  }
+  };
 }
 
 /**
@@ -308,40 +316,40 @@ export function toggleException(
 export function matchesException(
   state: QuietHoursState,
   notification: {
-    senderId?: string
-    channelId?: string
-    priority?: string
-    type?: string
-  }
+    senderId?: string;
+    channelId?: string;
+    priority?: string;
+    type?: string;
+  },
 ): { matches: boolean; matchedException?: DNDException } {
   for (const exception of state.exceptions) {
-    if (!exception.enabled) continue
+    if (!exception.enabled) continue;
 
     switch (exception.type) {
-      case 'user':
+      case "user":
         if (notification.senderId === exception.value) {
-          return { matches: true, matchedException: exception }
+          return { matches: true, matchedException: exception };
         }
-        break
-      case 'channel':
+        break;
+      case "channel":
         if (notification.channelId === exception.value) {
-          return { matches: true, matchedException: exception }
+          return { matches: true, matchedException: exception };
         }
-        break
-      case 'priority':
+        break;
+      case "priority":
         if (notification.priority === exception.value) {
-          return { matches: true, matchedException: exception }
+          return { matches: true, matchedException: exception };
         }
-        break
-      case 'type':
+        break;
+      case "type":
         if (notification.type === exception.value) {
-          return { matches: true, matchedException: exception }
+          return { matches: true, matchedException: exception };
         }
-        break
+        break;
     }
   }
 
-  return { matches: false }
+  return { matches: false };
 }
 
 // ============================================================================
@@ -352,8 +360,8 @@ export function matchesException(
  * Parse HH:mm time string to minutes since midnight
  */
 export function parseTimeToMinutes(time: string): number {
-  const [hours, minutes] = time.split(':').map(Number)
-  return hours * 60 + minutes
+  const [hours, minutes] = time.split(":").map(Number);
+  return hours * 60 + minutes;
 }
 
 /**
@@ -361,20 +369,20 @@ export function parseTimeToMinutes(time: string): number {
  */
 export function getDaySchedule(
   schedule: EnhancedQuietHoursSchedule,
-  day: DayOfWeek
+  day: DayOfWeek,
 ): DaySchedule {
   // Check for day-specific override first
   if (schedule.dayOverrides[day]) {
-    return schedule.dayOverrides[day]!
+    return schedule.dayOverrides[day]!;
   }
 
   // Check if it's a weekend
   if (day === 0 || day === 6) {
-    return schedule.weekendSchedule
+    return schedule.weekendSchedule;
   }
 
   // Weekday
-  return schedule.weekdaySchedule
+  return schedule.weekdaySchedule;
 }
 
 /**
@@ -382,59 +390,74 @@ export function getDaySchedule(
  */
 export function isTimeInSchedule(
   currentMinutes: number,
-  daySchedule: DaySchedule
+  daySchedule: DaySchedule,
 ): boolean {
-  if (!daySchedule.enabled) return false
+  if (!daySchedule.enabled) return false;
 
-  const startMinutes = parseTimeToMinutes(daySchedule.startTime)
-  const endMinutes = parseTimeToMinutes(daySchedule.endTime)
+  const startMinutes = parseTimeToMinutes(daySchedule.startTime);
+  const endMinutes = parseTimeToMinutes(daySchedule.endTime);
 
   // Handle overnight schedules (e.g., 22:00 to 08:00)
   if (startMinutes > endMinutes) {
-    return currentMinutes >= startMinutes || currentMinutes < endMinutes
+    return currentMinutes >= startMinutes || currentMinutes < endMinutes;
   }
 
   // Regular schedule (e.g., 09:00 to 17:00)
-  return currentMinutes >= startMinutes && currentMinutes < endMinutes
+  return currentMinutes >= startMinutes && currentMinutes < endMinutes;
 }
 
 /**
  * Get the current time in minutes since midnight for a given timezone
  */
-export function getCurrentTimeInTimezone(timezone: string, now?: Date): {
-  minutes: number
-  dayOfWeek: DayOfWeek
+export function getCurrentTimeInTimezone(
+  timezone: string,
+  now?: Date,
+): {
+  minutes: number;
+  dayOfWeek: DayOfWeek;
 } {
-  const currentTime = now ?? new Date()
+  const currentTime = now ?? new Date();
 
   try {
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: 'numeric',
-      weekday: 'short',
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      weekday: "short",
       hour12: false,
       timeZone: timezone,
-    })
+    });
 
-    const parts = formatter.formatToParts(currentTime)
-    const hour = parseInt(parts.find((p) => p.type === 'hour')?.value ?? '0', 10)
-    const minute = parseInt(parts.find((p) => p.type === 'minute')?.value ?? '0', 10)
-    const dayName = parts.find((p) => p.type === 'weekday')?.value ?? 'Mon'
+    const parts = formatter.formatToParts(currentTime);
+    const hour = parseInt(
+      parts.find((p) => p.type === "hour")?.value ?? "0",
+      10,
+    );
+    const minute = parseInt(
+      parts.find((p) => p.type === "minute")?.value ?? "0",
+      10,
+    );
+    const dayName = parts.find((p) => p.type === "weekday")?.value ?? "Mon";
 
     const dayMap: Record<string, DayOfWeek> = {
-      Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
-    }
+      Sun: 0,
+      Mon: 1,
+      Tue: 2,
+      Wed: 3,
+      Thu: 4,
+      Fri: 5,
+      Sat: 6,
+    };
 
     return {
       minutes: hour * 60 + minute,
       dayOfWeek: dayMap[dayName] ?? 1,
-    }
+    };
   } catch {
     // Fallback for invalid timezone
     return {
       minutes: currentTime.getHours() * 60 + currentTime.getMinutes(),
       dayOfWeek: currentTime.getDay() as DayOfWeek,
-    }
+    };
   }
 }
 
@@ -443,33 +466,36 @@ export function getCurrentTimeInTimezone(timezone: string, now?: Date): {
  */
 export function isScheduleActive(
   schedule: EnhancedQuietHoursSchedule,
-  now?: Date
+  now?: Date,
 ): boolean {
-  if (!schedule.enabled) return false
+  if (!schedule.enabled) return false;
 
-  const { minutes, dayOfWeek } = getCurrentTimeInTimezone(schedule.timezone, now)
-  const daySchedule = getDaySchedule(schedule, dayOfWeek)
+  const { minutes, dayOfWeek } = getCurrentTimeInTimezone(
+    schedule.timezone,
+    now,
+  );
+  const daySchedule = getDaySchedule(schedule, dayOfWeek);
 
   // Also check if we're in an overnight period from the previous day
-  const prevDay = ((dayOfWeek + 6) % 7) as DayOfWeek
-  const prevDaySchedule = getDaySchedule(schedule, prevDay)
+  const prevDay = ((dayOfWeek + 6) % 7) as DayOfWeek;
+  const prevDaySchedule = getDaySchedule(schedule, prevDay);
 
   // Check current day's schedule
   if (isTimeInSchedule(minutes, daySchedule)) {
-    return true
+    return true;
   }
 
   // Check if we're in the overnight portion of the previous day's schedule
   if (prevDaySchedule.enabled) {
-    const prevStartMinutes = parseTimeToMinutes(prevDaySchedule.startTime)
-    const prevEndMinutes = parseTimeToMinutes(prevDaySchedule.endTime)
+    const prevStartMinutes = parseTimeToMinutes(prevDaySchedule.startTime);
+    const prevEndMinutes = parseTimeToMinutes(prevDaySchedule.endTime);
 
     if (prevStartMinutes > prevEndMinutes && minutes < prevEndMinutes) {
-      return true
+      return true;
     }
   }
 
-  return false
+  return false;
 }
 
 // ============================================================================
@@ -485,104 +511,113 @@ export function isScheduleActive(
 export function checkQuietHours(
   state: QuietHoursState,
   notification?: {
-    type?: string
-    priority?: string
-    senderId?: string
-    channelId?: string
+    type?: string;
+    priority?: string;
+    senderId?: string;
+    channelId?: string;
   },
-  now?: Date
+  now?: Date,
 ): QuietHoursCheckResult {
   // 1. Check DND mode first (manual override takes priority)
   if (isDNDActive(state, now)) {
     // Check exceptions
     if (notification) {
-      const exceptionResult = matchesException(state, notification)
+      const exceptionResult = matchesException(state, notification);
       if (exceptionResult.matches) {
         return {
           isQuiet: true,
-          source: 'dnd',
+          source: "dnd",
           canBreakThrough: true,
           reason: `Exception: ${exceptionResult.matchedException!.label}`,
           endsAt: state.dnd.expiresAt,
-        }
+        };
       }
     }
 
     // Check if urgent can break through
-    if (notification?.priority === 'urgent' && state.schedule.allowUrgentBreakthrough) {
+    if (
+      notification?.priority === "urgent" &&
+      state.schedule.allowUrgentBreakthrough
+    ) {
       return {
         isQuiet: true,
-        source: 'dnd',
+        source: "dnd",
         canBreakThrough: true,
-        reason: 'Urgent notification breaks through DND',
+        reason: "Urgent notification breaks through DND",
         endsAt: state.dnd.expiresAt,
-      }
+      };
     }
 
     return {
       isQuiet: true,
-      source: 'dnd',
+      source: "dnd",
       canBreakThrough: false,
-      reason: 'Do Not Disturb is active',
+      reason: "Do Not Disturb is active",
       endsAt: state.dnd.expiresAt,
-    }
+    };
   }
 
   // 2. Check schedule
   if (isScheduleActive(state.schedule, now)) {
     // Check exceptions
     if (notification) {
-      const exceptionResult = matchesException(state, notification)
+      const exceptionResult = matchesException(state, notification);
       if (exceptionResult.matches) {
         return {
           isQuiet: true,
-          source: 'schedule',
+          source: "schedule",
           canBreakThrough: true,
           reason: `Exception: ${exceptionResult.matchedException!.label}`,
           endsAt: null,
-        }
+        };
       }
     }
 
     // Check mention breakthrough
-    if (notification?.type === 'mention' && state.schedule.allowMentionsBreakthrough) {
+    if (
+      notification?.type === "mention" &&
+      state.schedule.allowMentionsBreakthrough
+    ) {
       return {
         isQuiet: true,
-        source: 'schedule',
+        source: "schedule",
         canBreakThrough: true,
-        reason: 'Mention breaks through quiet hours',
+        reason: "Mention breaks through quiet hours",
         endsAt: null,
-      }
+      };
     }
 
     // Check urgent breakthrough
-    if (notification?.priority === 'urgent' && state.schedule.allowUrgentBreakthrough) {
+    if (
+      notification?.priority === "urgent" &&
+      state.schedule.allowUrgentBreakthrough
+    ) {
       return {
         isQuiet: true,
-        source: 'schedule',
+        source: "schedule",
         canBreakThrough: true,
-        reason: 'Urgent notification breaks through quiet hours',
+        reason: "Urgent notification breaks through quiet hours",
         endsAt: null,
-      }
+      };
     }
 
     return {
       isQuiet: true,
-      source: 'schedule',
+      source: "schedule",
       canBreakThrough: false,
-      reason: 'In quiet hours',
+      reason: "In quiet hours",
       endsAt: null,
-    }
+    };
   }
 
   // 3. Not in quiet hours
   return {
     isQuiet: false,
-    source: 'none',
+    source: "none",
     canBreakThrough: false,
-    reason: 'Not in quiet hours',
+    reason: "Not in quiet hours",
     endsAt: null,
-  }
+  };
 }
 
 // ============================================================================
@@ -594,52 +629,65 @@ export function checkQuietHours(
  */
 export function getNextQuietHoursTransition(
   state: QuietHoursState,
-  now?: Date
+  now?: Date,
 ): QuietHoursTransition | null {
-  const currentTime = now ?? new Date()
+  const currentTime = now ?? new Date();
 
   // If DND is active with an expiry, that's the next transition
   if (isDNDActive(state, currentTime) && state.dnd.expiresAt) {
-    const expiresAt = new Date(state.dnd.expiresAt)
+    const expiresAt = new Date(state.dnd.expiresAt);
     return {
-      type: 'end',
+      type: "end",
       at: expiresAt,
-      source: 'dnd',
+      source: "dnd",
       description: `DND ends at ${formatTime(expiresAt)}`,
-    }
+    };
   }
 
   // Check schedule transitions
-  if (!state.schedule.enabled) return null
+  if (!state.schedule.enabled) return null;
 
-  const { minutes, dayOfWeek } = getCurrentTimeInTimezone(state.schedule.timezone, currentTime)
-  const isCurrentlyQuiet = isScheduleActive(state.schedule, currentTime)
+  const { minutes, dayOfWeek } = getCurrentTimeInTimezone(
+    state.schedule.timezone,
+    currentTime,
+  );
+  const isCurrentlyQuiet = isScheduleActive(state.schedule, currentTime);
 
   if (isCurrentlyQuiet) {
     // Find when quiet hours end
-    const endTime = findNextScheduleEnd(state.schedule, dayOfWeek, minutes, currentTime)
+    const endTime = findNextScheduleEnd(
+      state.schedule,
+      dayOfWeek,
+      minutes,
+      currentTime,
+    );
     if (endTime) {
       return {
-        type: 'end',
+        type: "end",
         at: endTime,
-        source: 'schedule',
+        source: "schedule",
         description: `Quiet hours end at ${formatTime(endTime)}`,
-      }
+      };
     }
   } else {
     // Find when quiet hours start next
-    const startTime = findNextScheduleStart(state.schedule, dayOfWeek, minutes, currentTime)
+    const startTime = findNextScheduleStart(
+      state.schedule,
+      dayOfWeek,
+      minutes,
+      currentTime,
+    );
     if (startTime) {
       return {
-        type: 'start',
+        type: "start",
         at: startTime,
-        source: 'schedule',
+        source: "schedule",
         description: `Quiet hours start at ${formatTime(startTime)}`,
-      }
+      };
     }
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -649,36 +697,36 @@ function findNextScheduleEnd(
   schedule: EnhancedQuietHoursSchedule,
   currentDay: DayOfWeek,
   currentMinutes: number,
-  baseDate: Date
+  baseDate: Date,
 ): Date | null {
-  const daySchedule = getDaySchedule(schedule, currentDay)
-  const endMinutes = parseTimeToMinutes(daySchedule.endTime)
-  const startMinutes = parseTimeToMinutes(daySchedule.startTime)
+  const daySchedule = getDaySchedule(schedule, currentDay);
+  const endMinutes = parseTimeToMinutes(daySchedule.endTime);
+  const startMinutes = parseTimeToMinutes(daySchedule.startTime);
 
   // Overnight schedule: end is on the next day
   if (startMinutes > endMinutes) {
     if (currentMinutes >= startMinutes) {
       // We're after start, end is tomorrow
-      const endDate = new Date(baseDate)
-      endDate.setDate(endDate.getDate() + 1)
-      endDate.setHours(Math.floor(endMinutes / 60), endMinutes % 60, 0, 0)
-      return endDate
+      const endDate = new Date(baseDate);
+      endDate.setDate(endDate.getDate() + 1);
+      endDate.setHours(Math.floor(endMinutes / 60), endMinutes % 60, 0, 0);
+      return endDate;
     } else if (currentMinutes < endMinutes) {
       // We're before end (early morning)
-      const endDate = new Date(baseDate)
-      endDate.setHours(Math.floor(endMinutes / 60), endMinutes % 60, 0, 0)
-      return endDate
+      const endDate = new Date(baseDate);
+      endDate.setHours(Math.floor(endMinutes / 60), endMinutes % 60, 0, 0);
+      return endDate;
     }
   } else {
     // Regular schedule
     if (currentMinutes < endMinutes) {
-      const endDate = new Date(baseDate)
-      endDate.setHours(Math.floor(endMinutes / 60), endMinutes % 60, 0, 0)
-      return endDate
+      const endDate = new Date(baseDate);
+      endDate.setHours(Math.floor(endMinutes / 60), endMinutes % 60, 0, 0);
+      return endDate;
     }
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -688,34 +736,44 @@ function findNextScheduleStart(
   schedule: EnhancedQuietHoursSchedule,
   currentDay: DayOfWeek,
   currentMinutes: number,
-  baseDate: Date
+  baseDate: Date,
 ): Date | null {
   // Check remaining days of the week (up to 7 days out)
   for (let i = 0; i < 7; i++) {
-    const checkDay = ((currentDay + i) % 7) as DayOfWeek
-    const daySchedule = getDaySchedule(schedule, checkDay)
+    const checkDay = ((currentDay + i) % 7) as DayOfWeek;
+    const daySchedule = getDaySchedule(schedule, checkDay);
 
-    if (!daySchedule.enabled) continue
+    if (!daySchedule.enabled) continue;
 
-    const startMinutes = parseTimeToMinutes(daySchedule.startTime)
+    const startMinutes = parseTimeToMinutes(daySchedule.startTime);
 
     if (i === 0 && startMinutes > currentMinutes) {
       // Today, and start time is still ahead
-      const startDate = new Date(baseDate)
-      startDate.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0)
-      return startDate
+      const startDate = new Date(baseDate);
+      startDate.setHours(
+        Math.floor(startMinutes / 60),
+        startMinutes % 60,
+        0,
+        0,
+      );
+      return startDate;
     }
 
     if (i > 0) {
       // Future day
-      const startDate = new Date(baseDate)
-      startDate.setDate(startDate.getDate() + i)
-      startDate.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0)
-      return startDate
+      const startDate = new Date(baseDate);
+      startDate.setDate(startDate.getDate() + i);
+      startDate.setHours(
+        Math.floor(startMinutes / 60),
+        startMinutes % 60,
+        0,
+        0,
+      );
+      return startDate;
     }
   }
 
-  return null
+  return null;
 }
 
 // ============================================================================
@@ -726,91 +784,93 @@ function findNextScheduleStart(
  * Format a Date to a short time string
  */
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true,
-  })
+  });
 }
 
 /**
  * Format remaining time as human-readable string
  */
 export function formatDNDTimeRemaining(ms: number): string {
-  if (ms <= 0) return 'expired'
+  if (ms <= 0) return "expired";
 
-  const minutes = Math.ceil(ms / (60 * 1000))
+  const minutes = Math.ceil(ms / (60 * 1000));
 
   if (minutes < 60) {
-    return `${minutes} minute${minutes !== 1 ? 's' : ''}`
+    return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
   }
 
-  const hours = Math.floor(minutes / 60)
-  const remainingMins = minutes % 60
+  const hours = Math.floor(minutes / 60);
+  const remainingMins = minutes % 60;
 
   if (hours < 24) {
     if (remainingMins === 0) {
-      return `${hours} hour${hours !== 1 ? 's' : ''}`
+      return `${hours} hour${hours !== 1 ? "s" : ""}`;
     }
-    return `${hours}h ${remainingMins}m`
+    return `${hours}h ${remainingMins}m`;
   }
 
-  const days = Math.floor(hours / 24)
-  const remainingHours = hours % 24
+  const days = Math.floor(hours / 24);
+  const remainingHours = hours % 24;
 
   if (remainingHours === 0) {
-    return `${days} day${days !== 1 ? 's' : ''}`
+    return `${days} day${days !== 1 ? "s" : ""}`;
   }
-  return `${days}d ${remainingHours}h`
+  return `${days}d ${remainingHours}h`;
 }
 
 /**
  * Validate a quiet hours schedule
  */
-export function validateEnhancedSchedule(schedule: EnhancedQuietHoursSchedule): {
-  valid: boolean
-  errors: string[]
+export function validateEnhancedSchedule(
+  schedule: EnhancedQuietHoursSchedule,
+): {
+  valid: boolean;
+  errors: string[];
 } {
-  const errors: string[] = []
-  const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/
+  const errors: string[] = [];
+  const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
   // Validate weekday schedule
   if (!timeRegex.test(schedule.weekdaySchedule.startTime)) {
-    errors.push('Invalid weekday start time format')
+    errors.push("Invalid weekday start time format");
   }
   if (!timeRegex.test(schedule.weekdaySchedule.endTime)) {
-    errors.push('Invalid weekday end time format')
+    errors.push("Invalid weekday end time format");
   }
 
   // Validate weekend schedule
   if (!timeRegex.test(schedule.weekendSchedule.startTime)) {
-    errors.push('Invalid weekend start time format')
+    errors.push("Invalid weekend start time format");
   }
   if (!timeRegex.test(schedule.weekendSchedule.endTime)) {
-    errors.push('Invalid weekend end time format')
+    errors.push("Invalid weekend end time format");
   }
 
   // Validate day overrides
   for (const [day, sched] of Object.entries(schedule.dayOverrides)) {
     if (sched) {
       if (!timeRegex.test(sched.startTime)) {
-        errors.push(`Invalid start time for day ${day}`)
+        errors.push(`Invalid start time for day ${day}`);
       }
       if (!timeRegex.test(sched.endTime)) {
-        errors.push(`Invalid end time for day ${day}`)
+        errors.push(`Invalid end time for day ${day}`);
       }
     }
   }
 
   // Validate timezone
   try {
-    Intl.DateTimeFormat('en-US', { timeZone: schedule.timezone })
+    Intl.DateTimeFormat("en-US", { timeZone: schedule.timezone });
   } catch {
-    errors.push(`Invalid timezone: ${schedule.timezone}`)
+    errors.push(`Invalid timezone: ${schedule.timezone}`);
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  }
+  };
 }

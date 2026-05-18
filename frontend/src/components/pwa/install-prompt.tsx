@@ -1,180 +1,188 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import { X, Download, Smartphone, Monitor } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect, useCallback } from "react";
+import { X, Download, Smartphone, Monitor } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface BeforeInstallPromptEvent extends Event {
-  readonly platforms: string[]
+  readonly platforms: string[];
   readonly userChoice: Promise<{
-    outcome: 'accepted' | 'dismissed'
-    platform: string
-  }>
-  prompt(): Promise<void>
+    outcome: "accepted" | "dismissed";
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
 }
 
 declare global {
   interface WindowEventMap {
-    beforeinstallprompt: BeforeInstallPromptEvent
-    appinstalled: Event
+    beforeinstallprompt: BeforeInstallPromptEvent;
+    appinstalled: Event;
   }
 }
 
 export interface InstallPromptProps {
   /** Custom title for the prompt */
-  title?: string
+  title?: string;
   /** Custom description for the prompt */
-  description?: string
+  description?: string;
   /** Custom install button text */
-  installText?: string
+  installText?: string;
   /** Custom dismiss button text */
-  dismissText?: string
+  dismissText?: string;
   /** Delay before showing the prompt (ms) */
-  showDelay?: number
+  showDelay?: number;
   /** Duration to hide after dismiss (ms) */
-  dismissDuration?: number
+  dismissDuration?: number;
   /** Storage key for dismissed state */
-  storageKey?: string
+  storageKey?: string;
   /** Callback when install succeeds */
-  onInstall?: () => void
+  onInstall?: () => void;
   /** Callback when prompt is dismissed */
-  onDismiss?: () => void
+  onDismiss?: () => void;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 export function InstallPrompt({
-  title = 'Install nChat',
-  description = 'Install nChat for quick access and offline support. Get notifications and a native app experience.',
-  installText = 'Install',
-  dismissText = 'Not now',
+  title = "Install nChat",
+  description = "Install nChat for quick access and offline support. Get notifications and a native app experience.",
+  installText = "Install",
+  dismissText = "Not now",
   showDelay = 3000,
   dismissDuration = 7 * 24 * 60 * 60 * 1000, // 7 days
-  storageKey = 'nchat-install-prompt-dismissed',
+  storageKey = "nchat-install-prompt-dismissed",
   onInstall,
   onDismiss,
-  className = '',
+  className = "",
 }: InstallPromptProps) {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [showPrompt, setShowPrompt] = useState(false)
-  const [isInstalled, setIsInstalled] = useState(false)
-  const [isInstalling, setIsInstalling] = useState(false)
-  const [platform, setPlatform] = useState<'mobile' | 'desktop'>('desktop')
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [platform, setPlatform] = useState<"mobile" | "desktop">("desktop");
 
   // Check if already installed
   useEffect(() => {
     // Check display mode
     const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone ===
+        true;
 
     if (isStandalone) {
-      setIsInstalled(true)
-      return
+      setIsInstalled(true);
+      return;
     }
 
     // Check if dismissed recently
-    const dismissed = localStorage.getItem(storageKey)
+    const dismissed = localStorage.getItem(storageKey);
     if (dismissed) {
-      const dismissedTime = parseInt(dismissed, 10)
+      const dismissedTime = parseInt(dismissed, 10);
       if (Date.now() - dismissedTime < dismissDuration) {
-        return
+        return;
       }
     }
 
     // Detect platform
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    setPlatform(isMobile ? 'mobile' : 'desktop')
-  }, [dismissDuration, storageKey])
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    setPlatform(isMobile ? "mobile" : "desktop");
+  }, [dismissDuration, storageKey]);
 
   // Listen for beforeinstallprompt event
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       // Prevent the mini-infobar from appearing on mobile
-      e.preventDefault()
+      e.preventDefault();
 
       // Store the event for later use
-      setDeferredPrompt(e)
+      setDeferredPrompt(e);
 
       // Show the prompt after delay
       setTimeout(() => {
         if (!isInstalled) {
-          setShowPrompt(true)
+          setShowPrompt(true);
         }
-      }, showDelay)
-    }
+      }, showDelay);
+    };
 
     const handleAppInstalled = () => {
-      setIsInstalled(true)
-      setShowPrompt(false)
-      setDeferredPrompt(null)
-      localStorage.removeItem(storageKey)
-      onInstall?.()
-    }
+      setIsInstalled(true);
+      setShowPrompt(false);
+      setDeferredPrompt(null);
+      localStorage.removeItem(storageKey);
+      onInstall?.();
+    };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    window.addEventListener('appinstalled', handleAppInstalled)
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-      window.removeEventListener('appinstalled', handleAppInstalled)
-    }
-  }, [isInstalled, showDelay, storageKey, onInstall])
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, [isInstalled, showDelay, storageKey, onInstall]);
 
   const handleInstall = useCallback(async () => {
     if (!deferredPrompt) {
       // Show manual install instructions for iOS
-      if (platform === 'mobile' && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      if (
+        platform === "mobile" &&
+        /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      ) {
         alert(
-          'To install nChat:\n\n' +
-            '1. Tap the Share button in Safari\n' +
+          "To install nChat:\n\n" +
+            "1. Tap the Share button in Safari\n" +
             '2. Scroll down and tap "Add to Home Screen"\n' +
-            '3. Tap "Add" to confirm'
-        )
-        return
+            '3. Tap "Add" to confirm',
+        );
+        return;
       }
-      return
+      return;
     }
 
-    setIsInstalling(true)
+    setIsInstalling(true);
 
     try {
       // Show the install prompt
-      await deferredPrompt.prompt()
+      await deferredPrompt.prompt();
 
       // Wait for the user's choice
-      const { outcome } = await deferredPrompt.userChoice
+      const { outcome } = await deferredPrompt.userChoice;
 
-      if (outcome === 'accepted') {
-        setIsInstalled(true)
-        onInstall?.()
+      if (outcome === "accepted") {
+        setIsInstalled(true);
+        onInstall?.();
       } else {
       }
 
       // Clear the deferred prompt
-      setDeferredPrompt(null)
-      setShowPrompt(false)
+      setDeferredPrompt(null);
+      setShowPrompt(false);
     } catch (error) {
-      logger.error('[PWA] Error during install:', error)
+      logger.error("[PWA] Error during install:", error);
     } finally {
-      setIsInstalling(false)
+      setIsInstalling(false);
     }
-  }, [deferredPrompt, platform, onInstall])
+  }, [deferredPrompt, platform, onInstall]);
 
   const handleDismiss = useCallback(() => {
-    setShowPrompt(false)
-    localStorage.setItem(storageKey, Date.now().toString())
-    onDismiss?.()
-  }, [storageKey, onDismiss])
+    setShowPrompt(false);
+    localStorage.setItem(storageKey, Date.now().toString());
+    onDismiss?.();
+  }, [storageKey, onDismiss]);
 
   // Don't render if installed, no prompt, or should be hidden
   if (isInstalled || !showPrompt) {
-    return null
+    return null;
   }
 
-  const PlatformIcon = platform === 'mobile' ? Smartphone : Monitor
+  const PlatformIcon = platform === "mobile" ? Smartphone : Monitor;
 
   return (
     <div
@@ -222,7 +230,7 @@ export function InstallPrompt({
                 className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700"
               >
                 <Download className="mr-2 h-4 w-4" />
-                {isInstalling ? 'Installing...' : installText}
+                {isInstalling ? "Installing..." : installText}
               </Button>
               <Button
                 onClick={handleDismiss}
@@ -275,75 +283,85 @@ export function InstallPrompt({
         }
       `}</style>
     </div>
-  )
+  );
 }
 
 /**
  * Compact install button for use in navigation or settings
  */
 export function InstallButton({
-  className = '',
+  className = "",
   showLabel = true,
 }: {
-  className?: string
-  showLabel?: boolean
+  className?: string;
+  showLabel?: boolean;
 }) {
-  const [canInstall, setCanInstall] = useState(false)
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [canInstall, setCanInstall] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
-      e.preventDefault()
-      setDeferredPrompt(e)
-      setCanInstall(true)
-    }
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setCanInstall(true);
+    };
 
     const handleAppInstalled = () => {
-      setCanInstall(false)
-      setDeferredPrompt(null)
-    }
+      setCanInstall(false);
+      setDeferredPrompt(null);
+    };
 
     // Check if already in standalone mode
     const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone ===
+        true;
 
     if (isStandalone) {
-      return
+      return;
     }
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    window.addEventListener('appinstalled', handleAppInstalled)
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-      window.removeEventListener('appinstalled', handleAppInstalled)
-    }
-  }, [])
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
 
   const handleClick = async () => {
-    if (!deferredPrompt) return
+    if (!deferredPrompt) return;
 
-    await deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
+    await deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === 'accepted') {
-      setCanInstall(false)
+    if (outcome === "accepted") {
+      setCanInstall(false);
     }
 
-    setDeferredPrompt(null)
-  }
+    setDeferredPrompt(null);
+  };
 
   if (!canInstall) {
-    return null
+    return null;
   }
 
   return (
-    <Button onClick={handleClick} variant="ghost" size="sm" className={className}>
+    <Button
+      onClick={handleClick}
+      variant="ghost"
+      size="sm"
+      className={className}
+    >
       <Download className="h-4 w-4" />
       {showLabel && <span className="ml-2">Install App</span>}
     </Button>
-  )
+  );
 }
 
-export default InstallPrompt
+export default InstallPrompt;

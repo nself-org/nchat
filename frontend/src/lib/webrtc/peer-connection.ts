@@ -5,51 +5,51 @@
  * Handles ICE candidates, media tracks, and connection state.
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export type ConnectionState =
-  | 'new'
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'failed'
-  | 'closed'
+  | "new"
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "failed"
+  | "closed";
 
 export type IceConnectionState =
-  | 'new'
-  | 'checking'
-  | 'connected'
-  | 'completed'
-  | 'failed'
-  | 'disconnected'
-  | 'closed'
+  | "new"
+  | "checking"
+  | "connected"
+  | "completed"
+  | "failed"
+  | "disconnected"
+  | "closed";
 
 export interface PeerConnectionConfig {
-  iceServers?: RTCIceServer[]
-  iceTransportPolicy?: RTCIceTransportPolicy
-  bundlePolicy?: RTCBundlePolicy
-  rtcpMuxPolicy?: RTCRtcpMuxPolicy
+  iceServers?: RTCIceServer[];
+  iceTransportPolicy?: RTCIceTransportPolicy;
+  bundlePolicy?: RTCBundlePolicy;
+  rtcpMuxPolicy?: RTCRtcpMuxPolicy;
 }
 
 export interface PeerConnectionCallbacks {
-  onIceCandidate?: (candidate: RTCIceCandidate) => void
-  onIceCandidateError?: (event: RTCPeerConnectionIceErrorEvent) => void
-  onIceConnectionStateChange?: (state: IceConnectionState) => void
-  onConnectionStateChange?: (state: ConnectionState) => void
-  onTrack?: (event: RTCTrackEvent) => void
-  onNegotiationNeeded?: () => void
-  onDataChannel?: (event: RTCDataChannelEvent) => void
-  onSignalingStateChange?: (state: RTCSignalingState) => void
+  onIceCandidate?: (candidate: RTCIceCandidate) => void;
+  onIceCandidateError?: (event: RTCPeerConnectionIceErrorEvent) => void;
+  onIceConnectionStateChange?: (state: IceConnectionState) => void;
+  onConnectionStateChange?: (state: ConnectionState) => void;
+  onTrack?: (event: RTCTrackEvent) => void;
+  onNegotiationNeeded?: () => void;
+  onDataChannel?: (event: RTCDataChannelEvent) => void;
+  onSignalingStateChange?: (state: RTCSignalingState) => void;
 }
 
 export interface TrackInfo {
-  track: MediaStreamTrack
-  stream: MediaStream
-  sender?: RTCRtpSender
+  track: MediaStreamTrack;
+  stream: MediaStream;
+  sender?: RTCRtpSender;
 }
 
 // =============================================================================
@@ -57,39 +57,39 @@ export interface TrackInfo {
 // =============================================================================
 
 export const DEFAULT_ICE_SERVERS: RTCIceServer[] = [
-  { urls: 'stun:stun.l.google.com:19302' },
-  { urls: 'stun:stun1.l.google.com:19302' },
-  { urls: 'stun:stun2.l.google.com:19302' },
-]
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "stun:stun1.l.google.com:19302" },
+  { urls: "stun:stun2.l.google.com:19302" },
+];
 
 export const DEFAULT_CONFIG: PeerConnectionConfig = {
   iceServers: DEFAULT_ICE_SERVERS,
-  iceTransportPolicy: 'all',
-  bundlePolicy: 'max-bundle',
-  rtcpMuxPolicy: 'require',
-}
+  iceTransportPolicy: "all",
+  bundlePolicy: "max-bundle",
+  rtcpMuxPolicy: "require",
+};
 
 // =============================================================================
 // Peer Connection Manager Class
 // =============================================================================
 
 export class PeerConnectionManager {
-  private pc: RTCPeerConnection | null = null
-  private config: RTCConfiguration
-  private callbacks: PeerConnectionCallbacks
-  private localTracks: Map<string, TrackInfo> = new Map()
-  private remoteTracks: Map<string, TrackInfo> = new Map()
-  private pendingIceCandidates: RTCIceCandidate[] = []
-  private _connectionState: ConnectionState = 'new'
-  private _iceConnectionState: IceConnectionState = 'new'
-  private _signalingState: RTCSignalingState = 'stable'
+  private pc: RTCPeerConnection | null = null;
+  private config: RTCConfiguration;
+  private callbacks: PeerConnectionCallbacks;
+  private localTracks: Map<string, TrackInfo> = new Map();
+  private remoteTracks: Map<string, TrackInfo> = new Map();
+  private pendingIceCandidates: RTCIceCandidate[] = [];
+  private _connectionState: ConnectionState = "new";
+  private _iceConnectionState: IceConnectionState = "new";
+  private _signalingState: RTCSignalingState = "stable";
 
   constructor(
     config: PeerConnectionConfig = DEFAULT_CONFIG,
-    callbacks: PeerConnectionCallbacks = {}
+    callbacks: PeerConnectionCallbacks = {},
   ) {
-    this.config = this.buildRTCConfiguration(config)
-    this.callbacks = callbacks
+    this.config = this.buildRTCConfiguration(config);
+    this.callbacks = callbacks;
   }
 
   // ===========================================================================
@@ -97,48 +97,50 @@ export class PeerConnectionManager {
   // ===========================================================================
 
   get connectionState(): ConnectionState {
-    return this._connectionState
+    return this._connectionState;
   }
 
   get iceConnectionState(): IceConnectionState {
-    return this._iceConnectionState
+    return this._iceConnectionState;
   }
 
   get signalingState(): RTCSignalingState {
-    return this._signalingState
+    return this._signalingState;
   }
 
   get isConnected(): boolean {
-    return this._connectionState === 'connected'
+    return this._connectionState === "connected";
   }
 
   get isClosed(): boolean {
-    return this._connectionState === 'closed' || this.pc === null
+    return this._connectionState === "closed" || this.pc === null;
   }
 
   get peerConnection(): RTCPeerConnection | null {
-    return this.pc
+    return this.pc;
   }
 
   get localTrackList(): TrackInfo[] {
-    return Array.from(this.localTracks.values())
+    return Array.from(this.localTracks.values());
   }
 
   get remoteTrackList(): TrackInfo[] {
-    return Array.from(this.remoteTracks.values())
+    return Array.from(this.remoteTracks.values());
   }
 
   // ===========================================================================
   // Configuration
   // ===========================================================================
 
-  private buildRTCConfiguration(config: PeerConnectionConfig): RTCConfiguration {
+  private buildRTCConfiguration(
+    config: PeerConnectionConfig,
+  ): RTCConfiguration {
     return {
       iceServers: config.iceServers ?? DEFAULT_ICE_SERVERS,
-      iceTransportPolicy: config.iceTransportPolicy ?? 'all',
-      bundlePolicy: config.bundlePolicy ?? 'max-bundle',
-      rtcpMuxPolicy: config.rtcpMuxPolicy ?? 'require',
-    }
+      iceTransportPolicy: config.iceTransportPolicy ?? "all",
+      bundlePolicy: config.bundlePolicy ?? "max-bundle",
+      rtcpMuxPolicy: config.rtcpMuxPolicy ?? "require",
+    };
   }
 
   // ===========================================================================
@@ -147,132 +149,141 @@ export class PeerConnectionManager {
 
   create(): RTCPeerConnection {
     if (this.pc) {
-      this.close()
+      this.close();
     }
 
-    this.pc = new RTCPeerConnection(this.config)
-    this.setupEventHandlers()
-    this._connectionState = 'new'
-    this._iceConnectionState = 'new'
-    this._signalingState = 'stable'
+    this.pc = new RTCPeerConnection(this.config);
+    this.setupEventHandlers();
+    this._connectionState = "new";
+    this._iceConnectionState = "new";
+    this._signalingState = "stable";
 
-    return this.pc
+    return this.pc;
   }
 
   private setupEventHandlers(): void {
-    if (!this.pc) return
+    if (!this.pc) return;
 
     this.pc.onicecandidate = (event) => {
       if (event.candidate) {
-        this.callbacks.onIceCandidate?.(event.candidate)
+        this.callbacks.onIceCandidate?.(event.candidate);
       }
-    }
+    };
 
     this.pc.onicecandidateerror = (event) => {
-      this.callbacks.onIceCandidateError?.(event as RTCPeerConnectionIceErrorEvent)
-    }
+      this.callbacks.onIceCandidateError?.(
+        event as RTCPeerConnectionIceErrorEvent,
+      );
+    };
 
     this.pc.oniceconnectionstatechange = () => {
-      if (!this.pc) return
-      this._iceConnectionState = this.pc.iceConnectionState as IceConnectionState
-      this.callbacks.onIceConnectionStateChange?.(this._iceConnectionState)
-    }
+      if (!this.pc) return;
+      this._iceConnectionState = this.pc
+        .iceConnectionState as IceConnectionState;
+      this.callbacks.onIceConnectionStateChange?.(this._iceConnectionState);
+    };
 
     this.pc.onconnectionstatechange = () => {
-      if (!this.pc) return
-      this._connectionState = this.pc.connectionState as ConnectionState
-      this.callbacks.onConnectionStateChange?.(this._connectionState)
-    }
+      if (!this.pc) return;
+      this._connectionState = this.pc.connectionState as ConnectionState;
+      this.callbacks.onConnectionStateChange?.(this._connectionState);
+    };
 
     this.pc.ontrack = (event) => {
-      const track = event.track
-      const stream = event.streams[0] || new MediaStream([track])
+      const track = event.track;
+      const stream = event.streams[0] || new MediaStream([track]);
 
-      this.remoteTracks.set(track.id, { track, stream })
+      this.remoteTracks.set(track.id, { track, stream });
 
       track.onended = () => {
-        this.remoteTracks.delete(track.id)
-      }
+        this.remoteTracks.delete(track.id);
+      };
 
-      this.callbacks.onTrack?.(event)
-    }
+      this.callbacks.onTrack?.(event);
+    };
 
     this.pc.onnegotiationneeded = () => {
-      this.callbacks.onNegotiationNeeded?.()
-    }
+      this.callbacks.onNegotiationNeeded?.();
+    };
 
     this.pc.ondatachannel = (event) => {
-      this.callbacks.onDataChannel?.(event)
-    }
+      this.callbacks.onDataChannel?.(event);
+    };
 
     this.pc.onsignalingstatechange = () => {
-      if (!this.pc) return
-      this._signalingState = this.pc.signalingState
-      this.callbacks.onSignalingStateChange?.(this._signalingState)
-    }
+      if (!this.pc) return;
+      this._signalingState = this.pc.signalingState;
+      this.callbacks.onSignalingStateChange?.(this._signalingState);
+    };
   }
 
   close(): void {
-    if (!this.pc) return
+    if (!this.pc) return;
 
     // Remove all tracks
     this.localTracks.forEach((trackInfo) => {
       if (trackInfo.sender) {
         try {
-          this.pc?.removeTrack(trackInfo.sender)
+          this.pc?.removeTrack(trackInfo.sender);
         } catch {
           // Track may already be removed
         }
       }
-      trackInfo.track.stop()
-    })
+      trackInfo.track.stop();
+    });
 
-    this.localTracks.clear()
-    this.remoteTracks.clear()
-    this.pendingIceCandidates = []
+    this.localTracks.clear();
+    this.remoteTracks.clear();
+    this.pendingIceCandidates = [];
 
-    this.pc.close()
-    this.pc = null
+    this.pc.close();
+    this.pc = null;
 
-    this._connectionState = 'closed'
-    this._iceConnectionState = 'closed'
+    this._connectionState = "closed";
+    this._iceConnectionState = "closed";
   }
 
   // ===========================================================================
   // Offer/Answer
   // ===========================================================================
 
-  async createOffer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> {
+  async createOffer(
+    options?: RTCOfferOptions,
+  ): Promise<RTCSessionDescriptionInit> {
     if (!this.pc) {
-      throw new Error('PeerConnection not created. Call create() first.')
+      throw new Error("PeerConnection not created. Call create() first.");
     }
 
-    const offer = await this.pc.createOffer(options)
-    await this.pc.setLocalDescription(offer)
+    const offer = await this.pc.createOffer(options);
+    await this.pc.setLocalDescription(offer);
 
-    return offer
+    return offer;
   }
 
-  async createAnswer(options?: RTCAnswerOptions): Promise<RTCSessionDescriptionInit> {
+  async createAnswer(
+    options?: RTCAnswerOptions,
+  ): Promise<RTCSessionDescriptionInit> {
     if (!this.pc) {
-      throw new Error('PeerConnection not created. Call create() first.')
+      throw new Error("PeerConnection not created. Call create() first.");
     }
 
-    const answer = await this.pc.createAnswer(options)
-    await this.pc.setLocalDescription(answer)
+    const answer = await this.pc.createAnswer(options);
+    await this.pc.setLocalDescription(answer);
 
-    return answer
+    return answer;
   }
 
-  async setRemoteDescription(description: RTCSessionDescriptionInit): Promise<void> {
+  async setRemoteDescription(
+    description: RTCSessionDescriptionInit,
+  ): Promise<void> {
     if (!this.pc) {
-      throw new Error('PeerConnection not created. Call create() first.')
+      throw new Error("PeerConnection not created. Call create() first.");
     }
 
-    await this.pc.setRemoteDescription(new RTCSessionDescription(description))
+    await this.pc.setRemoteDescription(new RTCSessionDescription(description));
 
     // Process any pending ICE candidates
-    await this.processPendingIceCandidates()
+    await this.processPendingIceCandidates();
   }
 
   // ===========================================================================
@@ -281,29 +292,29 @@ export class PeerConnectionManager {
 
   async addIceCandidate(candidate: RTCIceCandidateInit): Promise<void> {
     if (!this.pc) {
-      throw new Error('PeerConnection not created. Call create() first.')
+      throw new Error("PeerConnection not created. Call create() first.");
     }
 
     // If remote description is not set yet, queue the candidate
     if (!this.pc.remoteDescription) {
-      this.pendingIceCandidates.push(new RTCIceCandidate(candidate))
-      return
+      this.pendingIceCandidates.push(new RTCIceCandidate(candidate));
+      return;
     }
 
-    await this.pc.addIceCandidate(new RTCIceCandidate(candidate))
+    await this.pc.addIceCandidate(new RTCIceCandidate(candidate));
   }
 
   private async processPendingIceCandidates(): Promise<void> {
-    if (!this.pc) return
+    if (!this.pc) return;
 
-    const candidates = [...this.pendingIceCandidates]
-    this.pendingIceCandidates = []
+    const candidates = [...this.pendingIceCandidates];
+    this.pendingIceCandidates = [];
 
     for (const candidate of candidates) {
       try {
-        await this.pc.addIceCandidate(candidate)
+        await this.pc.addIceCandidate(candidate);
       } catch (error) {
-        logger.error('Failed to add pending ICE candidate:', error)
+        logger.error("Failed to add pending ICE candidate:", error);
       }
     }
   }
@@ -314,84 +325,92 @@ export class PeerConnectionManager {
 
   addTrack(track: MediaStreamTrack, stream: MediaStream): RTCRtpSender | null {
     if (!this.pc) {
-      throw new Error('PeerConnection not created. Call create() first.')
+      throw new Error("PeerConnection not created. Call create() first.");
     }
 
-    const sender = this.pc.addTrack(track, stream)
+    const sender = this.pc.addTrack(track, stream);
 
-    this.localTracks.set(track.id, { track, stream, sender })
+    this.localTracks.set(track.id, { track, stream, sender });
 
     track.onended = () => {
-      this.removeTrack(track.id)
-    }
+      this.removeTrack(track.id);
+    };
 
-    return sender
+    return sender;
   }
 
   removeTrack(trackId: string): boolean {
-    if (!this.pc) return false
+    if (!this.pc) return false;
 
-    const trackInfo = this.localTracks.get(trackId)
-    if (!trackInfo) return false
+    const trackInfo = this.localTracks.get(trackId);
+    if (!trackInfo) return false;
 
     if (trackInfo.sender) {
       try {
-        this.pc.removeTrack(trackInfo.sender)
+        this.pc.removeTrack(trackInfo.sender);
       } catch {
         // Track may already be removed
       }
     }
 
-    trackInfo.track.stop()
-    this.localTracks.delete(trackId)
+    trackInfo.track.stop();
+    this.localTracks.delete(trackId);
 
-    return true
+    return true;
   }
 
   replaceTrack(oldTrackId: string, newTrack: MediaStreamTrack): boolean {
-    if (!this.pc) return false
+    if (!this.pc) return false;
 
-    const trackInfo = this.localTracks.get(oldTrackId)
-    if (!trackInfo?.sender) return false
+    const trackInfo = this.localTracks.get(oldTrackId);
+    if (!trackInfo?.sender) return false;
 
-    trackInfo.sender.replaceTrack(newTrack)
+    trackInfo.sender.replaceTrack(newTrack);
 
     // Update the stored track info
-    this.localTracks.delete(oldTrackId)
+    this.localTracks.delete(oldTrackId);
     this.localTracks.set(newTrack.id, {
       track: newTrack,
       stream: trackInfo.stream,
       sender: trackInfo.sender,
-    })
+    });
 
     // Stop the old track
-    trackInfo.track.stop()
+    trackInfo.track.stop();
 
-    return true
+    return true;
   }
 
   getLocalTrack(trackId: string): TrackInfo | undefined {
-    return this.localTracks.get(trackId)
+    return this.localTracks.get(trackId);
   }
 
   getRemoteTrack(trackId: string): TrackInfo | undefined {
-    return this.remoteTracks.get(trackId)
+    return this.remoteTracks.get(trackId);
   }
 
   getLocalAudioTracks(): TrackInfo[] {
-    return Array.from(this.localTracks.values()).filter((info) => info.track.kind === 'audio')
+    return Array.from(this.localTracks.values()).filter(
+      (info) => info.track.kind === "audio",
+    );
   }
 
   getLocalVideoTracks(): TrackInfo[] {
-    return Array.from(this.localTracks.values()).filter((info) => info.track.kind === 'video')
+    return Array.from(this.localTracks.values()).filter(
+      (info) => info.track.kind === "video",
+    );
   }
 
   getRemoteAudioTracks(): TrackInfo[] {
-    return Array.from(this.remoteTracks.values()).filter((info) => info.track.kind === 'audio')
+    return Array.from(this.remoteTracks.values()).filter(
+      (info) => info.track.kind === "audio",
+    );
   }
 
   getRemoteVideoTracks(): TrackInfo[] {
-    return Array.from(this.remoteTracks.values()).filter((info) => info.track.kind === 'video')
+    return Array.from(this.remoteTracks.values()).filter(
+      (info) => info.track.kind === "video",
+    );
   }
 
   // ===========================================================================
@@ -400,14 +419,14 @@ export class PeerConnectionManager {
 
   enableLocalAudio(enabled: boolean): void {
     this.getLocalAudioTracks().forEach((info) => {
-      info.track.enabled = enabled
-    })
+      info.track.enabled = enabled;
+    });
   }
 
   enableLocalVideo(enabled: boolean): void {
     this.getLocalVideoTracks().forEach((info) => {
-      info.track.enabled = enabled
-    })
+      info.track.enabled = enabled;
+    });
   }
 
   // ===========================================================================
@@ -415,50 +434,53 @@ export class PeerConnectionManager {
   // ===========================================================================
 
   async getStats(): Promise<RTCStatsReport | null> {
-    if (!this.pc) return null
-    return this.pc.getStats()
+    if (!this.pc) return null;
+    return this.pc.getStats();
   }
 
   async getConnectionStats(): Promise<{
-    bytesReceived: number
-    bytesSent: number
-    packetsLost: number
-    roundTripTime: number | null
+    bytesReceived: number;
+    bytesSent: number;
+    packetsLost: number;
+    roundTripTime: number | null;
   } | null> {
-    const stats = await this.getStats()
-    if (!stats) return null
+    const stats = await this.getStats();
+    if (!stats) return null;
 
-    let bytesReceived = 0
-    let bytesSent = 0
-    let packetsLost = 0
-    let roundTripTime: number | null = null
+    let bytesReceived = 0;
+    let bytesSent = 0;
+    let packetsLost = 0;
+    let roundTripTime: number | null = null;
 
     stats.forEach((report) => {
-      if (report.type === 'inbound-rtp') {
-        bytesReceived += report.bytesReceived || 0
-        packetsLost += report.packetsLost || 0
+      if (report.type === "inbound-rtp") {
+        bytesReceived += report.bytesReceived || 0;
+        packetsLost += report.packetsLost || 0;
       }
-      if (report.type === 'outbound-rtp') {
-        bytesSent += report.bytesSent || 0
+      if (report.type === "outbound-rtp") {
+        bytesSent += report.bytesSent || 0;
       }
-      if (report.type === 'candidate-pair' && report.state === 'succeeded') {
-        roundTripTime = report.currentRoundTripTime || null
+      if (report.type === "candidate-pair" && report.state === "succeeded") {
+        roundTripTime = report.currentRoundTripTime || null;
       }
-    })
+    });
 
-    return { bytesReceived, bytesSent, packetsLost, roundTripTime }
+    return { bytesReceived, bytesSent, packetsLost, roundTripTime };
   }
 
   // ===========================================================================
   // Data Channel
   // ===========================================================================
 
-  createDataChannel(label: string, options?: RTCDataChannelInit): RTCDataChannel | null {
+  createDataChannel(
+    label: string,
+    options?: RTCDataChannelInit,
+  ): RTCDataChannel | null {
     if (!this.pc) {
-      throw new Error('PeerConnection not created. Call create() first.')
+      throw new Error("PeerConnection not created. Call create() first.");
     }
 
-    return this.pc.createDataChannel(label, options)
+    return this.pc.createDataChannel(label, options);
   }
 
   // ===========================================================================
@@ -466,7 +488,7 @@ export class PeerConnectionManager {
   // ===========================================================================
 
   updateCallbacks(callbacks: Partial<PeerConnectionCallbacks>): void {
-    this.callbacks = { ...this.callbacks, ...callbacks }
+    this.callbacks = { ...this.callbacks, ...callbacks };
   }
 
   // ===========================================================================
@@ -474,10 +496,10 @@ export class PeerConnectionManager {
   // ===========================================================================
 
   async restartIce(): Promise<RTCSessionDescriptionInit | null> {
-    if (!this.pc) return null
+    if (!this.pc) return null;
 
-    this.pc.restartIce()
-    return this.createOffer({ iceRestart: true })
+    this.pc.restartIce();
+    return this.createOffer({ iceRestart: true });
   }
 }
 
@@ -487,7 +509,7 @@ export class PeerConnectionManager {
 
 export function createPeerConnection(
   config?: PeerConnectionConfig,
-  callbacks?: PeerConnectionCallbacks
+  callbacks?: PeerConnectionCallbacks,
 ): PeerConnectionManager {
-  return new PeerConnectionManager(config, callbacks)
+  return new PeerConnectionManager(config, callbacks);
 }

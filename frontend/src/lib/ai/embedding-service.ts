@@ -7,62 +7,62 @@
  * @module lib/ai/embedding-service
  */
 
-import { gql } from '@apollo/client'
-import { apolloClient } from '@/lib/apollo-client'
-import crypto from 'crypto'
+import { gql } from "@apollo/client";
+import { apolloClient } from "@/lib/apollo-client";
+import crypto from "crypto";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ========================================
 // Types
 // ========================================
 
 export interface EmbeddingRequest {
-  text: string
-  messageId?: string
+  text: string;
+  messageId?: string;
 }
 
 export interface EmbeddingResponse {
-  embedding: number[]
-  model: string
-  version: string
-  tokenCount: number
-  cached: boolean
+  embedding: number[];
+  model: string;
+  version: string;
+  tokenCount: number;
+  cached: boolean;
 }
 
 export interface BatchEmbeddingResponse {
   embeddings: Array<{
-    messageId: string
-    embedding: number[]
-    tokenCount: number
-    cached: boolean
-  }>
-  totalTokens: number
-  estimatedCost: number
-  cacheHits: number
-  cacheMisses: number
+    messageId: string;
+    embedding: number[];
+    tokenCount: number;
+    cached: boolean;
+  }>;
+  totalTokens: number;
+  estimatedCost: number;
+  cacheHits: number;
+  cacheMisses: number;
 }
 
 export type EmbeddingModel =
-  | 'text-embedding-3-small'
-  | 'text-embedding-3-large'
-  | 'text-embedding-ada-002'
+  | "text-embedding-3-small"
+  | "text-embedding-3-large"
+  | "text-embedding-ada-002";
 
 // ========================================
 // Constants
 // ========================================
 
-const DEFAULT_MODEL: EmbeddingModel = 'text-embedding-3-small'
-const DEFAULT_VERSION = '1.0.0'
-const MAX_BATCH_SIZE = 2048 // OpenAI limit
-const MAX_TEXT_LENGTH = 8191 // OpenAI token limit (approximate)
+const DEFAULT_MODEL: EmbeddingModel = "text-embedding-3-small";
+const DEFAULT_VERSION = "1.0.0";
+const MAX_BATCH_SIZE = 2048; // OpenAI limit
+const MAX_TEXT_LENGTH = 8191; // OpenAI token limit (approximate)
 
 // Pricing per 1M tokens (as of 2024)
 const PRICING: Record<EmbeddingModel, number> = {
-  'text-embedding-3-small': 0.02,
-  'text-embedding-3-large': 0.13,
-  'text-embedding-ada-002': 0.1,
-}
+  "text-embedding-3-small": 0.02,
+  "text-embedding-3-large": 0.13,
+  "text-embedding-ada-002": 0.1,
+};
 
 // ========================================
 // GraphQL Queries
@@ -70,7 +70,10 @@ const PRICING: Record<EmbeddingModel, number> = {
 
 const GET_CACHED_EMBEDDING = gql`
   query GetCachedEmbedding($contentHash: String!) {
-    nchat_embedding_cache(where: { content_hash: { _eq: $contentHash } }, limit: 1) {
+    nchat_embedding_cache(
+      where: { content_hash: { _eq: $contentHash } }
+      limit: 1
+    ) {
       id
       embedding
       model
@@ -78,7 +81,7 @@ const GET_CACHED_EMBEDDING = gql`
       usage_count
     }
   }
-`
+`;
 
 const INSERT_CACHED_EMBEDDING = gql`
   mutation InsertCachedEmbedding(
@@ -105,7 +108,7 @@ const INSERT_CACHED_EMBEDDING = gql`
       embedding
     }
   }
-`
+`;
 
 const UPDATE_CACHE_USAGE = gql`
   mutation UpdateCacheUsage($cacheId: uuid!) {
@@ -117,7 +120,7 @@ const UPDATE_CACHE_USAGE = gql`
       id
     }
   }
-`
+`;
 
 const RECORD_EMBEDDING_STATS = gql`
   mutation RecordEmbeddingStats(
@@ -160,87 +163,92 @@ const RECORD_EMBEDDING_STATS = gql`
       id
     }
   }
-`
+`;
 
 // ========================================
 // Embedding Service Class
 // ========================================
 
 export class EmbeddingService {
-  private client = apolloClient
-  private apiKey: string
-  private model: EmbeddingModel
-  private version: string
-  private baseUrl: string
+  private client = apolloClient;
+  private apiKey: string;
+  private model: EmbeddingModel;
+  private version: string;
+  private baseUrl: string;
 
   constructor(
     apiKey?: string,
     model: EmbeddingModel = DEFAULT_MODEL,
-    version: string = DEFAULT_VERSION
+    version: string = DEFAULT_VERSION,
   ) {
-    this.apiKey = apiKey || process.env.OPENAI_API_KEY || ''
-    this.model = model
-    this.version = version
-    this.baseUrl = 'https://api.openai.com/v1/embeddings'
+    this.apiKey = apiKey || process.env.OPENAI_API_KEY || "";
+    this.model = model;
+    this.version = version;
+    this.baseUrl = "https://api.openai.com/v1/embeddings";
 
     if (!this.apiKey) {
-      logger.warn('OpenAI API key not configured. Embeddings will fail.')
+      logger.warn("OpenAI API key not configured. Embeddings will fail.");
     }
   }
 
   /**
    * Generate embedding for a single text
    */
-  async generateEmbedding(text: string, useCache = true): Promise<EmbeddingResponse> {
-    const startTime = Date.now()
-    const truncatedText = this.truncateText(text)
-    const contentHash = this.hashContent(truncatedText)
+  async generateEmbedding(
+    text: string,
+    useCache = true,
+  ): Promise<EmbeddingResponse> {
+    const startTime = Date.now();
+    const truncatedText = this.truncateText(text);
+    const contentHash = this.hashContent(truncatedText);
 
     try {
       // Check cache first
       if (useCache) {
-        const cached = await this.getCachedEmbedding(contentHash)
+        const cached = await this.getCachedEmbedding(contentHash);
         if (cached) {
-          await this.updateCacheUsage(cached.id)
+          await this.updateCacheUsage(cached.id);
           return {
             embedding: cached.embedding,
             model: cached.model,
             version: cached.version,
             tokenCount: this.estimateTokens(truncatedText),
             cached: true,
-          }
+          };
         }
       }
 
       // Generate new embedding
       const response = await fetch(this.baseUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
           input: truncatedText,
           model: this.model,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(`OpenAI API error: ${error.error?.message || response.statusText}`)
+        const error = await response.json();
+        throw new Error(
+          `OpenAI API error: ${error.error?.message || response.statusText}`,
+        );
       }
 
-      const data = await response.json()
-      const embedding = data.data[0].embedding
-      const tokenCount = data.usage.total_tokens
+      const data = await response.json();
+      const embedding = data.data[0].embedding;
+      const tokenCount = data.usage.total_tokens;
 
       // Cache the result
       if (useCache) {
-        await this.cacheEmbedding(contentHash, truncatedText, embedding)
+        await this.cacheEmbedding(contentHash, truncatedText, embedding);
       }
 
       // Record stats
-      const processingTime = Date.now() - startTime
+      const processingTime = Date.now() - startTime;
       await this.recordStats({
         totalEmbeddings: 1,
         totalTokens: tokenCount,
@@ -248,7 +256,7 @@ export class EmbeddingService {
         cacheHits: 0,
         cacheMisses: 1,
         errors: 0,
-      })
+      });
 
       return {
         embedding,
@@ -256,9 +264,9 @@ export class EmbeddingService {
         version: this.version,
         tokenCount,
         cached: false,
-      }
+      };
     } catch (error) {
-      logger.error('Generate embedding error:', error)
+      logger.error("Generate embedding error:", error);
 
       // Record error stats
       await this.recordStats({
@@ -268,9 +276,9 @@ export class EmbeddingService {
         cacheHits: 0,
         cacheMisses: 0,
         errors: 1,
-      })
+      });
 
-      throw error
+      throw error;
     }
   }
 
@@ -280,27 +288,27 @@ export class EmbeddingService {
    */
   async batchGenerateEmbeddings(
     requests: EmbeddingRequest[],
-    useCache = true
+    useCache = true,
   ): Promise<BatchEmbeddingResponse> {
-    const startTime = Date.now()
-    const results: BatchEmbeddingResponse['embeddings'] = []
-    let totalTokens = 0
-    let cacheHits = 0
-    let cacheMisses = 0
+    const startTime = Date.now();
+    const results: BatchEmbeddingResponse["embeddings"] = [];
+    let totalTokens = 0;
+    let cacheHits = 0;
+    let cacheMisses = 0;
 
     // Process in chunks of MAX_BATCH_SIZE
     for (let i = 0; i < requests.length; i += MAX_BATCH_SIZE) {
-      const chunk = requests.slice(i, i + MAX_BATCH_SIZE)
-      const chunkResults = await this.processBatch(chunk, useCache)
+      const chunk = requests.slice(i, i + MAX_BATCH_SIZE);
+      const chunkResults = await this.processBatch(chunk, useCache);
 
-      results.push(...chunkResults.embeddings)
-      totalTokens += chunkResults.totalTokens
-      cacheHits += chunkResults.cacheHits
-      cacheMisses += chunkResults.cacheMisses
+      results.push(...chunkResults.embeddings);
+      totalTokens += chunkResults.totalTokens;
+      cacheHits += chunkResults.cacheHits;
+      cacheMisses += chunkResults.cacheMisses;
     }
 
-    const estimatedCost = this.calculateCost(totalTokens)
-    const processingTime = Date.now() - startTime
+    const estimatedCost = this.calculateCost(totalTokens);
+    const processingTime = Date.now() - startTime;
 
     // Record stats
     await this.recordStats({
@@ -310,7 +318,7 @@ export class EmbeddingService {
       cacheHits,
       cacheMisses,
       errors: 0,
-    })
+    });
 
     return {
       embeddings: results,
@@ -318,7 +326,7 @@ export class EmbeddingService {
       estimatedCost,
       cacheHits,
       cacheMisses,
-    }
+    };
   }
 
   /**
@@ -326,33 +334,41 @@ export class EmbeddingService {
    */
   private async processBatch(
     requests: EmbeddingRequest[],
-    useCache: boolean
-  ): Promise<Omit<BatchEmbeddingResponse, 'estimatedCost'>> {
-    const embeddings: BatchEmbeddingResponse['embeddings'] = []
-    const uncachedRequests: Array<{ index: number; text: string; messageId?: string }> = []
-    let totalTokens = 0
-    let cacheHits = 0
-    let cacheMisses = 0
+    useCache: boolean,
+  ): Promise<Omit<BatchEmbeddingResponse, "estimatedCost">> {
+    const embeddings: BatchEmbeddingResponse["embeddings"] = [];
+    const uncachedRequests: Array<{
+      index: number;
+      text: string;
+      messageId?: string;
+    }> = [];
+    let totalTokens = 0;
+    let cacheHits = 0;
+    let cacheMisses = 0;
 
     // Check cache for all requests
     if (useCache) {
       for (let i = 0; i < requests.length; i++) {
-        const req = requests[i]
-        const truncatedText = this.truncateText(req.text)
-        const contentHash = this.hashContent(truncatedText)
-        const cached = await this.getCachedEmbedding(contentHash)
+        const req = requests[i];
+        const truncatedText = this.truncateText(req.text);
+        const contentHash = this.hashContent(truncatedText);
+        const cached = await this.getCachedEmbedding(contentHash);
 
         if (cached) {
-          await this.updateCacheUsage(cached.id)
+          await this.updateCacheUsage(cached.id);
           embeddings.push({
-            messageId: req.messageId || '',
+            messageId: req.messageId || "",
             embedding: cached.embedding,
             tokenCount: this.estimateTokens(truncatedText),
             cached: true,
-          })
-          cacheHits++
+          });
+          cacheHits++;
         } else {
-          uncachedRequests.push({ index: i, text: truncatedText, messageId: req.messageId })
+          uncachedRequests.push({
+            index: i,
+            text: truncatedText,
+            messageId: req.messageId,
+          });
         }
       }
     } else {
@@ -361,50 +377,52 @@ export class EmbeddingService {
           index: i,
           text: this.truncateText(req.text),
           messageId: req.messageId,
-        }))
-      )
+        })),
+      );
     }
 
     // Generate embeddings for uncached requests
     if (uncachedRequests.length > 0) {
       const response = await fetch(this.baseUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
           input: uncachedRequests.map((r) => r.text),
           model: this.model,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(`OpenAI API error: ${error.error?.message || response.statusText}`)
+        const error = await response.json();
+        throw new Error(
+          `OpenAI API error: ${error.error?.message || response.statusText}`,
+        );
       }
 
-      const data = await response.json()
-      totalTokens = data.usage.total_tokens
+      const data = await response.json();
+      totalTokens = data.usage.total_tokens;
 
       // Process results
       for (let i = 0; i < uncachedRequests.length; i++) {
-        const req = uncachedRequests[i]
-        const embedding = data.data[i].embedding
+        const req = uncachedRequests[i];
+        const embedding = data.data[i].embedding;
 
         // Cache the result
         if (useCache) {
-          const contentHash = this.hashContent(req.text)
-          await this.cacheEmbedding(contentHash, req.text, embedding)
+          const contentHash = this.hashContent(req.text);
+          await this.cacheEmbedding(contentHash, req.text, embedding);
         }
 
         embeddings.push({
-          messageId: req.messageId || '',
+          messageId: req.messageId || "",
           embedding,
           tokenCount: Math.floor(totalTokens / uncachedRequests.length),
           cached: false,
-        })
-        cacheMisses++
+        });
+        cacheMisses++;
       }
     }
 
@@ -413,36 +431,39 @@ export class EmbeddingService {
       totalTokens,
       cacheHits,
       cacheMisses,
-    }
+    };
   }
 
   /**
    * Get cached embedding by content hash
    */
-  private async getCachedEmbedding(
-    contentHash: string
-  ): Promise<{ id: string; embedding: number[]; model: string; version: string } | null> {
+  private async getCachedEmbedding(contentHash: string): Promise<{
+    id: string;
+    embedding: number[];
+    model: string;
+    version: string;
+  } | null> {
     try {
       const { data } = await this.client.query({
         query: GET_CACHED_EMBEDDING,
         variables: { contentHash },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (data.nchat_embedding_cache.length > 0) {
-        const cache = data.nchat_embedding_cache[0]
+        const cache = data.nchat_embedding_cache[0];
         return {
           id: cache.id,
           embedding: JSON.parse(cache.embedding),
           model: cache.model,
           version: cache.version,
-        }
+        };
       }
 
-      return null
+      return null;
     } catch (error) {
-      logger.error('Get cached embedding error:', error)
-      return null
+      logger.error("Get cached embedding error:", error);
+      return null;
     }
   }
 
@@ -452,7 +473,7 @@ export class EmbeddingService {
   private async cacheEmbedding(
     contentHash: string,
     content: string,
-    embedding: number[]
+    embedding: number[],
   ): Promise<void> {
     try {
       await this.client.mutate({
@@ -464,9 +485,9 @@ export class EmbeddingService {
           model: this.model,
           version: this.version,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Cache embedding error:', error)
+      logger.error("Cache embedding error:", error);
     }
   }
 
@@ -478,9 +499,9 @@ export class EmbeddingService {
       await this.client.mutate({
         mutation: UPDATE_CACHE_USAGE,
         variables: { cacheId },
-      })
+      });
     } catch (error) {
-      logger.error('Update cache usage error:', error)
+      logger.error("Update cache usage error:", error);
     }
   }
 
@@ -488,16 +509,16 @@ export class EmbeddingService {
    * Record embedding statistics
    */
   private async recordStats(stats: {
-    totalEmbeddings: number
-    totalTokens: number
-    avgProcessingTime: number
-    cacheHits: number
-    cacheMisses: number
-    errors: number
+    totalEmbeddings: number;
+    totalTokens: number;
+    avgProcessingTime: number;
+    cacheHits: number;
+    cacheMisses: number;
+    errors: number;
   }): Promise<void> {
     try {
-      const date = new Date().toISOString().split('T')[0]
-      const estimatedCost = this.calculateCost(stats.totalTokens)
+      const date = new Date().toISOString().split("T")[0];
+      const estimatedCost = this.calculateCost(stats.totalTokens);
 
       await this.client.mutate({
         mutation: RECORD_EMBEDDING_STATS,
@@ -512,9 +533,9 @@ export class EmbeddingService {
           cacheMisses: stats.cacheMisses,
           errors: stats.errors,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Record embedding stats error:', error)
+      logger.error("Record embedding stats error:", error);
     }
   }
 
@@ -522,8 +543,8 @@ export class EmbeddingService {
    * Calculate cost in USD
    */
   private calculateCost(tokens: number): number {
-    const pricePerMillion = PRICING[this.model] || 0
-    return (tokens / 1_000_000) * pricePerMillion
+    const pricePerMillion = PRICING[this.model] || 0;
+    return (tokens / 1_000_000) * pricePerMillion;
   }
 
   /**
@@ -531,9 +552,9 @@ export class EmbeddingService {
    */
   private truncateText(text: string): string {
     if (text.length <= MAX_TEXT_LENGTH) {
-      return text
+      return text;
     }
-    return text.substring(0, MAX_TEXT_LENGTH)
+    return text.substring(0, MAX_TEXT_LENGTH);
   }
 
   /**
@@ -541,14 +562,14 @@ export class EmbeddingService {
    */
   private estimateTokens(text: string): number {
     // Rough estimate: ~4 characters per token
-    return Math.ceil(text.length / 4)
+    return Math.ceil(text.length / 4);
   }
 
   /**
    * Hash content for cache key
    */
   private hashContent(text: string): string {
-    return crypto.createHash('sha256').update(text).digest('hex')
+    return crypto.createHash("sha256").update(text).digest("hex");
   }
 
   /**
@@ -556,14 +577,14 @@ export class EmbeddingService {
    */
   getDimension(): number {
     switch (this.model) {
-      case 'text-embedding-3-small':
-        return 1536
-      case 'text-embedding-3-large':
-        return 3072
-      case 'text-embedding-ada-002':
-        return 1536
+      case "text-embedding-3-small":
+        return 1536;
+      case "text-embedding-3-large":
+        return 3072;
+      case "text-embedding-ada-002":
+        return 1536;
       default:
-        return 1536
+        return 1536;
     }
   }
 
@@ -571,16 +592,16 @@ export class EmbeddingService {
    * Get current model
    */
   getModel(): string {
-    return this.model
+    return this.model;
   }
 
   /**
    * Get current version
    */
   getVersion(): string {
-    return this.version
+    return this.version;
   }
 }
 
 // Export singleton instance
-export const embeddingService = new EmbeddingService()
+export const embeddingService = new EmbeddingService();

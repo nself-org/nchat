@@ -5,73 +5,79 @@
  * This is an example implementation showing how to integrate drafts and scheduling.
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { Send, Clock, FileText, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import { useDrafts } from '@/hooks/use-drafts'
-import { useMessageMutations } from '@/hooks/use-messages'
-import { ScheduleMessageModal } from './ScheduleMessageModal'
-import { logger } from '@/lib/logger'
+import { useState, useEffect, useRef } from "react";
+import { Send, Clock, FileText, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { useDrafts } from "@/hooks/use-drafts";
+import { useMessageMutations } from "@/hooks/use-messages";
+import { ScheduleMessageModal } from "./ScheduleMessageModal";
+import { logger } from "@/lib/logger";
 
 interface MessageInputWithDraftsProps {
-  channelId: string
-  replyToId?: string
-  threadId?: string
-  placeholder?: string
-  onMessageSent?: () => void
-  className?: string
+  channelId: string;
+  replyToId?: string;
+  threadId?: string;
+  placeholder?: string;
+  onMessageSent?: () => void;
+  className?: string;
 }
 
 export function MessageInputWithDrafts({
   channelId,
   replyToId,
   threadId,
-  placeholder = 'Type a message...',
+  placeholder = "Type a message...",
   onMessageSent,
   className,
 }: MessageInputWithDraftsProps) {
-  const { draftContent, hasDraft, draftUpdatedAt, updateDraft, clearDraft, restoreDraft } =
-    useDrafts({
-      channelId,
-      replyToId,
-      threadId,
-      onDraftRestored: (draft) => {
-        logger.debug('Draft restored in MessageInput', { draftId: draft.id })
-      },
-    })
+  const {
+    draftContent,
+    hasDraft,
+    draftUpdatedAt,
+    updateDraft,
+    clearDraft,
+    restoreDraft,
+  } = useDrafts({
+    channelId,
+    replyToId,
+    threadId,
+    onDraftRestored: (draft) => {
+      logger.debug("Draft restored in MessageInput", { draftId: draft.id });
+    },
+  });
 
-  const { sendMessage, sendingMessage } = useMessageMutations()
+  const { sendMessage, sendingMessage } = useMessageMutations();
 
-  const [content, setContent] = useState('')
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false)
-  const [showDraftIndicator, setShowDraftIndicator] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [content, setContent] = useState("");
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [showDraftIndicator, setShowDraftIndicator] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Restore draft on mount
   useEffect(() => {
     if (hasDraft && draftContent) {
-      setContent(draftContent)
-      setShowDraftIndicator(true)
+      setContent(draftContent);
+      setShowDraftIndicator(true);
     }
-  }, [hasDraft, draftContent])
+  }, [hasDraft, draftContent]);
 
   // Auto-save draft as user types
   useEffect(() => {
     if (content !== draftContent) {
-      updateDraft(content)
+      updateDraft(content);
     }
-  }, [content, draftContent, updateDraft])
+  }, [content, draftContent, updateDraft]);
 
   /**
    * Handle send message
    */
   const handleSend = async () => {
-    if (!content.trim() || sendingMessage) return
+    if (!content.trim() || sendingMessage) return;
 
     try {
       await sendMessage({
@@ -79,84 +85,91 @@ export function MessageInputWithDrafts({
         content: content.trim(),
         replyToId,
         threadId,
-      })
+      });
 
       // Clear input and draft
-      setContent('')
-      clearDraft()
-      setShowDraftIndicator(false)
+      setContent("");
+      clearDraft();
+      setShowDraftIndicator(false);
 
       // Callback
-      onMessageSent?.()
+      onMessageSent?.();
 
-      logger.info('Message sent successfully', { channelId })
+      logger.info("Message sent successfully", { channelId });
     } catch (error) {
-      logger.error('Failed to send message', error as Error, { channelId })
+      logger.error("Failed to send message", error as Error, { channelId });
     }
-  }
+  };
 
   /**
    * Handle schedule message
    */
   const handleSchedule = () => {
-    setIsScheduleModalOpen(true)
-  }
+    setIsScheduleModalOpen(true);
+  };
 
   /**
    * Handle scheduled message created
    */
   const handleMessageScheduled = () => {
     // Clear input and draft after scheduling
-    setContent('')
-    clearDraft()
-    setShowDraftIndicator(false)
-  }
+    setContent("");
+    clearDraft();
+    setShowDraftIndicator(false);
+  };
 
   /**
    * Handle clear draft
    */
   const handleClearDraft = () => {
-    setContent('')
-    clearDraft()
-    setShowDraftIndicator(false)
-  }
+    setContent("");
+    clearDraft();
+    setShowDraftIndicator(false);
+  };
 
   /**
    * Handle key press
    */
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
-  }
+  };
 
   /**
    * Auto-resize textarea
    */
   useEffect(() => {
-    const textarea = textareaRef.current
-    if (!textarea) return
+    const textarea = textareaRef.current;
+    if (!textarea) return;
 
-    textarea.style.height = 'auto'
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`
-  }, [content])
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+  }, [content]);
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn("relative", className)}>
       {/* Draft Indicator */}
       {showDraftIndicator && hasDraft && (
         <div className="bg-muted/50 absolute -top-8 left-0 right-0 flex items-center justify-between rounded-t-lg px-2 py-1 text-xs">
           <div className="flex items-center gap-2">
             <FileText className="h-3 w-3 text-muted-foreground" />
             <span className="text-muted-foreground">
-              Draft saved{' '}
+              Draft saved{" "}
               {draftUpdatedAt && (
-                <span className="text-xs">{new Date(draftUpdatedAt).toLocaleTimeString()}</span>
+                <span className="text-xs">
+                  {new Date(draftUpdatedAt).toLocaleTimeString()}
+                </span>
               )}
             </span>
           </div>
-          <Button size="sm" variant="ghost" onClick={handleClearDraft} className="h-5 px-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleClearDraft}
+            className="h-5 px-2"
+          >
             <X className="h-3 w-3" />
           </Button>
         </div>
@@ -214,7 +227,7 @@ export function MessageInputWithDrafts({
             </Badge>
           )}
         </div>
-        <span className={cn(content.length > 3800 && 'text-orange-600')}>
+        <span className={cn(content.length > 3800 && "text-orange-600")}>
           {content.length}/4000
         </span>
       </div>
@@ -230,5 +243,5 @@ export function MessageInputWithDrafts({
         onMessageScheduled={handleMessageScheduled}
       />
     </div>
-  )
+  );
 }

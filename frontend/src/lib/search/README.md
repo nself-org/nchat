@@ -148,11 +148,11 @@ function MyApp() {
 ### Save a Search
 
 ```typescript
-const { saveSearch } = useSearch()
+const { saveSearch } = useSearch();
 
-await saveSearch('Weekly Updates', 'update from:john', {
-  dateFrom: '2024-01-01',
-})
+await saveSearch("Weekly Updates", "update from:john", {
+  dateFrom: "2024-01-01",
+});
 ```
 
 ## Indexing
@@ -162,7 +162,7 @@ await saveSearch('Weekly Updates', 'update from:john', {
 Content is automatically indexed when created or updated:
 
 ```typescript
-import { indexMessage } from '@/lib/search/indexer'
+import { indexMessage } from "@/lib/search/indexer";
 
 // After creating a message
 await indexMessage({
@@ -175,10 +175,10 @@ await indexMessage({
   created_at: message.created_at,
   has_link: hasLinks(message.content),
   has_file: message.attachments.length > 0,
-  has_image: message.attachments.some((a) => a.type === 'image'),
+  has_image: message.attachments.some((a) => a.type === "image"),
   is_pinned: false,
   is_starred: false,
-})
+});
 ```
 
 ### Bulk Reindexing
@@ -186,17 +186,17 @@ await indexMessage({
 Reindex all content from database:
 
 ```typescript
-import { reindexAllMessages, reindexAllFiles } from '@/lib/search/indexer'
+import { reindexAllMessages, reindexAllFiles } from "@/lib/search/indexer";
 
 // Fetch from database
 const fetchMessages = async () => {
-  const { data } = await client.query({ query: GET_ALL_MESSAGES })
-  return data.messages
-}
+  const { data } = await client.query({ query: GET_ALL_MESSAGES });
+  return data.messages;
+};
 
 // Reindex
-await reindexAllMessages(fetchMessages)
-await reindexAllFiles(fetchFiles)
+await reindexAllMessages(fetchMessages);
+await reindexAllFiles(fetchFiles);
 ```
 
 ### Delete from Index
@@ -204,9 +204,9 @@ await reindexAllFiles(fetchFiles)
 Remove content from search index:
 
 ```typescript
-import { deleteFromIndex, INDEX_NAMES } from '@/lib/search/indexer'
+import { deleteFromIndex, INDEX_NAMES } from "@/lib/search/indexer";
 
-await deleteFromIndex(INDEX_NAMES.MESSAGES, messageId)
+await deleteFromIndex(INDEX_NAMES.MESSAGES, messageId);
 ```
 
 ## Configuration
@@ -226,9 +226,9 @@ MEILISEARCH_MASTER_KEY=your-master-key-here
 Run once to create indexes with proper configuration:
 
 ```typescript
-import { initializeIndexes } from '@/lib/search/meilisearch-client'
+import { initializeIndexes } from "@/lib/search/meilisearch-client";
 
-await initializeIndexes()
+await initializeIndexes();
 ```
 
 This creates:
@@ -382,7 +382,7 @@ curl http://search.localhost:7700/indexes/messages/stats
 2. Reindex content:
 
 ```typescript
-await reindexAllMessages(fetchMessages)
+await reindexAllMessages(fetchMessages);
 ```
 
 3. Check MeiliSearch logs:
@@ -409,35 +409,35 @@ curl http://search.localhost:7700/indexes/messages/stats
 ### Search Messages in Channel
 
 ```typescript
-const { search } = useSearch()
+const { search } = useSearch();
 
-await search('bug report in:dev', {
-  type: 'messages',
-})
+await search("bug report in:dev", {
+  type: "messages",
+});
 ```
 
 ### Search Files by User
 
 ```typescript
-await search('from:alice', {
-  type: 'files',
-})
+await search("from:alice", {
+  type: "files",
+});
 ```
 
 ### Search with Date Range
 
 ```typescript
-await search('update after:2024-01-01 before:2024-02-01', {
-  type: 'messages',
-})
+await search("update after:2024-01-01 before:2024-02-01", {
+  type: "messages",
+});
 ```
 
 ### Search Pinned Messages
 
 ```typescript
-await search('is:pinned', {
-  type: 'messages',
-})
+await search("is:pinned", {
+  type: "messages",
+});
 ```
 
 ## Future Enhancements

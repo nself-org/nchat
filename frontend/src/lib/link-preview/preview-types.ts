@@ -9,65 +9,71 @@
 // ============================================================================
 
 export type PreviewType =
-  | 'generic'
-  | 'article'
-  | 'video'
-  | 'audio'
-  | 'image'
-  | 'twitter'
-  | 'youtube'
-  | 'github'
-  | 'spotify'
-  | 'code'
-  | 'oembed'
+  | "generic"
+  | "article"
+  | "video"
+  | "audio"
+  | "image"
+  | "twitter"
+  | "youtube"
+  | "github"
+  | "spotify"
+  | "code"
+  | "oembed";
 
-export type PreviewStatus = 'pending' | 'loading' | 'success' | 'error' | 'blocked' | 'removed'
+export type PreviewStatus =
+  | "pending"
+  | "loading"
+  | "success"
+  | "error"
+  | "blocked"
+  | "removed";
 
-export type OEmbedType = 'photo' | 'video' | 'link' | 'rich'
+export type OEmbedType = "photo" | "video" | "link" | "rich";
 
 // ============================================================================
 // Base Preview Data
 // ============================================================================
 
 export interface BasePreviewData {
-  url: string
-  type: PreviewType
-  status: PreviewStatus
+  url: string;
+  type: PreviewType;
+  status: PreviewStatus;
 
   // Basic metadata
-  title?: string
-  description?: string
-  siteName?: string
-  favicon?: string
+  title?: string;
+  description?: string;
+  siteName?: string;
+  favicon?: string;
 
   // Image
-  image?: string
-  imageWidth?: number
-  imageHeight?: number
-  imageAlt?: string
+  image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageAlt?: string;
 
   // Additional metadata
-  author?: string
-  publishedTime?: string
-  modifiedTime?: string
-  locale?: string
+  author?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  locale?: string;
 
   // Domain info
-  domain: string
-  isSecure: boolean
+  domain: string;
+  isSecure: boolean;
 
   // Cache info
-  fetchedAt: number
-  expiresAt: number
+  fetchedAt: number;
+  expiresAt: number;
 
   // Error info
-  error?: PreviewError
+  error?: PreviewError;
 }
 
 export interface PreviewError {
-  code: string
-  message: string
-  retryable: boolean
+  code: string;
+  message: string;
+  retryable: boolean;
 }
 
 // ============================================================================
@@ -76,76 +82,80 @@ export interface PreviewError {
 
 export interface OpenGraphData {
   // Required
-  title?: string
-  type?: string
-  image?: string
-  url?: string
+  title?: string;
+  type?: string;
+  image?: string;
+  url?: string;
 
   // Optional
-  audio?: string
-  description?: string
-  determiner?: string
-  locale?: string
-  localeAlternate?: string[]
-  siteName?: string
-  video?: string
+  audio?: string;
+  description?: string;
+  determiner?: string;
+  locale?: string;
+  localeAlternate?: string[];
+  siteName?: string;
+  video?: string;
 
   // Image properties
-  imageSecureUrl?: string
-  imageType?: string
-  imageWidth?: number
-  imageHeight?: number
-  imageAlt?: string
+  imageSecureUrl?: string;
+  imageType?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageAlt?: string;
 
   // Video properties
-  videoSecureUrl?: string
-  videoType?: string
-  videoWidth?: number
-  videoHeight?: number
+  videoSecureUrl?: string;
+  videoType?: string;
+  videoWidth?: number;
+  videoHeight?: number;
 
   // Audio properties
-  audioSecureUrl?: string
-  audioType?: string
+  audioSecureUrl?: string;
+  audioType?: string;
 
   // Article properties
-  articlePublishedTime?: string
-  articleModifiedTime?: string
-  articleExpirationTime?: string
-  articleAuthor?: string[]
-  articleSection?: string
-  articleTag?: string[]
+  articlePublishedTime?: string;
+  articleModifiedTime?: string;
+  articleExpirationTime?: string;
+  articleAuthor?: string[];
+  articleSection?: string;
+  articleTag?: string[];
 }
 
 // ============================================================================
 // Twitter Card Data
 // ============================================================================
 
-export type TwitterCardType = 'summary' | 'summary_large_image' | 'app' | 'player'
+export type TwitterCardType =
+  | "summary"
+  | "summary_large_image"
+  | "app"
+  | "player";
 
 export interface TwitterCardData {
-  card?: TwitterCardType
-  site?: string
-  siteId?: string
-  creator?: string
-  creatorId?: string
-  title?: string
-  description?: string
-  image?: string
-  imageAlt?: string
+  card?: TwitterCardType;
+  site?: string;
+  siteId?: string;
+  creator?: string;
+  creatorId?: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
 
   // Player card
-  player?: string
-  playerWidth?: number
-  playerHeight?: number
-  playerStream?: string
+  player?: string;
+  playerWidth?: number;
+  playerHeight?: number;
+  playerStream?: string;
 
   // App card
-  appIdIphone?: string
-  appIdIpad?: string
-  appIdGoogleplay?: string
-  appUrlIphone?: string
-  appUrlIpad?: string
-  appUrlGoogleplay?: string
+  appIdIphone?: string;
+  appIdIpad?: string;
+  appIdGoogleplay?: string;
+  appUrlIphone?: string;
+  appUrlIpad?: string;
+  appUrlGoogleplay?: string;
 }
 
 // ============================================================================
@@ -153,27 +163,27 @@ export interface TwitterCardData {
 // ============================================================================
 
 export interface OEmbedData {
-  type: OEmbedType
-  version: string
+  type: OEmbedType;
+  version: string;
 
   // Required for all
-  title?: string
-  authorName?: string
-  authorUrl?: string
-  providerName?: string
-  providerUrl?: string
+  title?: string;
+  authorName?: string;
+  authorUrl?: string;
+  providerName?: string;
+  providerUrl?: string;
 
   // Photo/Video/Rich specific
-  html?: string
-  width?: number
-  height?: number
-  url?: string
+  html?: string;
+  width?: number;
+  height?: number;
+  url?: string;
 
   // Optional
-  cacheAge?: number
-  thumbnailUrl?: string
-  thumbnailWidth?: number
-  thumbnailHeight?: number
+  cacheAge?: number;
+  thumbnailUrl?: string;
+  thumbnailWidth?: number;
+  thumbnailHeight?: number;
 }
 
 // ============================================================================
@@ -182,131 +192,131 @@ export interface OEmbedData {
 
 // Twitter/X Post Preview
 export interface TwitterPostData extends BasePreviewData {
-  type: 'twitter'
-  tweetId: string
-  authorUsername: string
-  authorDisplayName: string
-  authorAvatar?: string
-  authorVerified?: boolean
-  content: string
-  mediaUrls?: string[]
-  likeCount?: number
-  retweetCount?: number
-  replyCount?: number
-  postedAt?: string
-  quotedTweet?: TwitterPostData
+  type: "twitter";
+  tweetId: string;
+  authorUsername: string;
+  authorDisplayName: string;
+  authorAvatar?: string;
+  authorVerified?: boolean;
+  content: string;
+  mediaUrls?: string[];
+  likeCount?: number;
+  retweetCount?: number;
+  replyCount?: number;
+  postedAt?: string;
+  quotedTweet?: TwitterPostData;
 }
 
 // YouTube Video Preview
 export interface YouTubeVideoData extends BasePreviewData {
-  type: 'youtube'
-  videoId: string
-  channelName?: string
-  channelId?: string
-  channelAvatar?: string
-  duration?: string
-  viewCount?: number
-  likeCount?: number
-  publishedAt?: string
-  embedHtml?: string
-  isLive?: boolean
-  category?: string
+  type: "youtube";
+  videoId: string;
+  channelName?: string;
+  channelId?: string;
+  channelAvatar?: string;
+  duration?: string;
+  viewCount?: number;
+  likeCount?: number;
+  publishedAt?: string;
+  embedHtml?: string;
+  isLive?: boolean;
+  category?: string;
 }
 
 // GitHub Repository Preview
 export interface GitHubRepoData extends BasePreviewData {
-  type: 'github'
-  owner: string
-  repo: string
-  fullName: string
-  isPrivate: boolean
-  isFork: boolean
-  isArchived: boolean
-  language?: string
-  languageColor?: string
-  starCount: number
-  forkCount: number
-  watcherCount: number
-  openIssueCount: number
-  topics?: string[]
-  license?: string
-  defaultBranch: string
-  createdAt: string
-  updatedAt: string
-  pushedAt: string
+  type: "github";
+  owner: string;
+  repo: string;
+  fullName: string;
+  isPrivate: boolean;
+  isFork: boolean;
+  isArchived: boolean;
+  language?: string;
+  languageColor?: string;
+  starCount: number;
+  forkCount: number;
+  watcherCount: number;
+  openIssueCount: number;
+  topics?: string[];
+  license?: string;
+  defaultBranch: string;
+  createdAt: string;
+  updatedAt: string;
+  pushedAt: string;
 }
 
 // GitHub Issue/PR Preview
 export interface GitHubIssueData extends BasePreviewData {
-  type: 'github'
-  owner: string
-  repo: string
-  number: number
-  isPullRequest: boolean
-  state: 'open' | 'closed' | 'merged'
-  author: string
-  authorAvatar?: string
-  labels?: Array<{ name: string; color: string }>
-  assignees?: string[]
-  commentCount: number
-  createdAt: string
-  updatedAt: string
-  closedAt?: string
-  mergedAt?: string
+  type: "github";
+  owner: string;
+  repo: string;
+  number: number;
+  isPullRequest: boolean;
+  state: "open" | "closed" | "merged";
+  author: string;
+  authorAvatar?: string;
+  labels?: Array<{ name: string; color: string }>;
+  assignees?: string[];
+  commentCount: number;
+  createdAt: string;
+  updatedAt: string;
+  closedAt?: string;
+  mergedAt?: string;
 }
 
 // Spotify Track/Album/Playlist Preview
 export interface SpotifyData extends BasePreviewData {
-  type: 'spotify'
-  spotifyType: 'track' | 'album' | 'playlist' | 'artist' | 'episode' | 'show'
-  spotifyId: string
-  embedUrl?: string
-  artistName?: string
-  albumName?: string
-  releaseDate?: string
-  duration?: number
-  trackCount?: number
-  previewUrl?: string
+  type: "spotify";
+  spotifyType: "track" | "album" | "playlist" | "artist" | "episode" | "show";
+  spotifyId: string;
+  embedUrl?: string;
+  artistName?: string;
+  albumName?: string;
+  releaseDate?: string;
+  duration?: number;
+  trackCount?: number;
+  previewUrl?: string;
 }
 
 // Code Snippet Preview (GitHub Gist, CodePen, etc.)
 export interface CodePreviewData extends BasePreviewData {
-  type: 'code'
-  platform: 'gist' | 'codepen' | 'codesandbox' | 'jsfiddle' | 'replit'
-  embedUrl?: string
-  embedHtml?: string
-  language?: string
-  fileName?: string
-  code?: string
+  type: "code";
+  platform: "gist" | "codepen" | "codesandbox" | "jsfiddle" | "replit";
+  embedUrl?: string;
+  embedHtml?: string;
+  language?: string;
+  fileName?: string;
+  code?: string;
 }
 
 // Direct Image Preview
 export interface ImagePreviewData extends BasePreviewData {
-  type: 'image'
-  width: number
-  height: number
-  format: string
-  fileSize?: number
+  type: "image";
+  width: number;
+  height: number;
+  format: string;
+  fileSize?: number;
 }
 
 // Direct Video Preview
 export interface VideoPreviewData extends BasePreviewData {
-  type: 'video'
-  width?: number
-  height?: number
-  duration?: number
-  format?: string
-  posterUrl?: string
-  fileSize?: number
+  type: "video";
+  width?: number;
+  height?: number;
+  duration?: number;
+  format?: string;
+  posterUrl?: string;
+  fileSize?: number;
 }
 
 // Generic Article Preview
 export interface ArticlePreviewData extends BasePreviewData {
-  type: 'article'
-  readingTime?: number
-  wordCount?: number
-  tags?: string[]
-  category?: string
+  type: "article";
+  readingTime?: number;
+  wordCount?: number;
+  tags?: string[];
+  category?: string;
 }
 
 // ============================================================================
@@ -323,43 +333,57 @@ export type LinkPreviewData =
   | CodePreviewData
   | ImagePreviewData
   | VideoPreviewData
-  | ArticlePreviewData
+  | ArticlePreviewData;
 
 // Type guards
-export function isTwitterPreview(data: LinkPreviewData): data is TwitterPostData {
-  return data.type === 'twitter'
+export function isTwitterPreview(
+  data: LinkPreviewData,
+): data is TwitterPostData {
+  return data.type === "twitter";
 }
 
-export function isYouTubePreview(data: LinkPreviewData): data is YouTubeVideoData {
-  return data.type === 'youtube'
+export function isYouTubePreview(
+  data: LinkPreviewData,
+): data is YouTubeVideoData {
+  return data.type === "youtube";
 }
 
-export function isGitHubRepoPreview(data: LinkPreviewData): data is GitHubRepoData {
-  return data.type === 'github' && 'repo' in data && !('number' in data)
+export function isGitHubRepoPreview(
+  data: LinkPreviewData,
+): data is GitHubRepoData {
+  return data.type === "github" && "repo" in data && !("number" in data);
 }
 
-export function isGitHubIssuePreview(data: LinkPreviewData): data is GitHubIssueData {
-  return data.type === 'github' && 'number' in data
+export function isGitHubIssuePreview(
+  data: LinkPreviewData,
+): data is GitHubIssueData {
+  return data.type === "github" && "number" in data;
 }
 
 export function isSpotifyPreview(data: LinkPreviewData): data is SpotifyData {
-  return data.type === 'spotify'
+  return data.type === "spotify";
 }
 
 export function isCodePreview(data: LinkPreviewData): data is CodePreviewData {
-  return data.type === 'code'
+  return data.type === "code";
 }
 
-export function isImagePreview(data: LinkPreviewData): data is ImagePreviewData {
-  return data.type === 'image'
+export function isImagePreview(
+  data: LinkPreviewData,
+): data is ImagePreviewData {
+  return data.type === "image";
 }
 
-export function isVideoPreview(data: LinkPreviewData): data is VideoPreviewData {
-  return data.type === 'video'
+export function isVideoPreview(
+  data: LinkPreviewData,
+): data is VideoPreviewData {
+  return data.type === "video";
 }
 
-export function isArticlePreview(data: LinkPreviewData): data is ArticlePreviewData {
-  return data.type === 'article'
+export function isArticlePreview(
+  data: LinkPreviewData,
+): data is ArticlePreviewData {
+  return data.type === "article";
 }
 
 // ============================================================================
@@ -367,26 +391,26 @@ export function isArticlePreview(data: LinkPreviewData): data is ArticlePreviewD
 // ============================================================================
 
 export interface UnfurlRequest {
-  url: string
-  forceRefresh?: boolean
-  timeout?: number
+  url: string;
+  forceRefresh?: boolean;
+  timeout?: number;
 }
 
 export interface UnfurlResponse {
-  success: boolean
-  data?: LinkPreviewData
-  error?: PreviewError
-  cached: boolean
+  success: boolean;
+  data?: LinkPreviewData;
+  error?: PreviewError;
+  cached: boolean;
 }
 
 export interface BatchUnfurlRequest {
-  urls: string[]
-  forceRefresh?: boolean
-  timeout?: number
+  urls: string[];
+  forceRefresh?: boolean;
+  timeout?: number;
 }
 
 export interface BatchUnfurlResponse {
-  results: Record<string, UnfurlResponse>
+  results: Record<string, UnfurlResponse>;
 }
 
 // ============================================================================
@@ -395,44 +419,44 @@ export interface BatchUnfurlResponse {
 
 export interface LinkPreviewSettings {
   // Global enable/disable
-  enabled: boolean
-  autoUnfurl: boolean
+  enabled: boolean;
+  autoUnfurl: boolean;
 
   // Display options
-  showImages: boolean
-  showDescriptions: boolean
-  showFavicons: boolean
-  maxImageHeight: number
-  compactMode: boolean
+  showImages: boolean;
+  showDescriptions: boolean;
+  showFavicons: boolean;
+  maxImageHeight: number;
+  compactMode: boolean;
 
   // Domain controls
-  blockedDomains: string[]
-  allowedDomains: string[] // Only used in whitelist mode
-  whitelistMode: boolean
+  blockedDomains: string[];
+  allowedDomains: string[]; // Only used in whitelist mode
+  whitelistMode: boolean;
 
   // Performance
-  preloadImages: boolean
-  lazyLoadPreviews: boolean
+  preloadImages: boolean;
+  lazyLoadPreviews: boolean;
 
   // Privacy
-  hideReferrer: boolean
+  hideReferrer: boolean;
 }
 
 export interface AdminLinkPreviewSettings extends LinkPreviewSettings {
   // Admin-only settings
-  globalEnabled: boolean
-  fetchTimeout: number
-  cacheDuration: number
-  maxCacheSize: number
-  rateLimitPerMinute: number
-  rateLimitPerHour: number
+  globalEnabled: boolean;
+  fetchTimeout: number;
+  cacheDuration: number;
+  maxCacheSize: number;
+  rateLimitPerMinute: number;
+  rateLimitPerHour: number;
 
   // Blocklist
-  globalBlockedDomains: string[]
+  globalBlockedDomains: string[];
 
   // Logging
-  logUnfurlRequests: boolean
-  logErrors: boolean
+  logUnfurlRequests: boolean;
+  logErrors: boolean;
 }
 
 // ============================================================================
@@ -440,20 +464,20 @@ export interface AdminLinkPreviewSettings extends LinkPreviewSettings {
 // ============================================================================
 
 export interface CachedPreview {
-  data: LinkPreviewData
-  fetchedAt: number
-  expiresAt: number
-  hitCount: number
+  data: LinkPreviewData;
+  fetchedAt: number;
+  expiresAt: number;
+  hitCount: number;
 }
 
 export interface PreviewCacheStats {
-  totalEntries: number
-  hitCount: number
-  missCount: number
-  hitRate: number
-  oldestEntry: number
-  newestEntry: number
-  totalSize: number
+  totalEntries: number;
+  hitCount: number;
+  missCount: number;
+  hitRate: number;
+  oldestEntry: number;
+  newestEntry: number;
+  totalSize: number;
 }
 
 // ============================================================================
@@ -461,17 +485,17 @@ export interface PreviewCacheStats {
 // ============================================================================
 
 export interface PreviewLoadEvent {
-  url: string
-  status: PreviewStatus
-  data?: LinkPreviewData
-  error?: PreviewError
-  duration: number
+  url: string;
+  status: PreviewStatus;
+  data?: LinkPreviewData;
+  error?: PreviewError;
+  duration: number;
 }
 
 export interface PreviewRemovedEvent {
-  url: string
-  messageId: string
-  removedBy: string
+  url: string;
+  messageId: string;
+  removedBy: string;
 }
 
 // ============================================================================
@@ -492,7 +516,7 @@ export const DEFAULT_PREVIEW_SETTINGS: LinkPreviewSettings = {
   preloadImages: false,
   lazyLoadPreviews: true,
   hideReferrer: true,
-}
+};
 
 export const DEFAULT_ADMIN_SETTINGS: AdminLinkPreviewSettings = {
   ...DEFAULT_PREVIEW_SETTINGS,
@@ -505,23 +529,24 @@ export const DEFAULT_ADMIN_SETTINGS: AdminLinkPreviewSettings = {
   globalBlockedDomains: [],
   logUnfurlRequests: false,
   logErrors: true,
-}
+};
 
 export const PREVIEW_ERROR_CODES = {
-  FETCH_FAILED: 'FETCH_FAILED',
-  TIMEOUT: 'TIMEOUT',
-  INVALID_URL: 'INVALID_URL',
-  BLOCKED_DOMAIN: 'BLOCKED_DOMAIN',
-  RATE_LIMITED: 'RATE_LIMITED',
-  NO_METADATA: 'NO_METADATA',
-  PARSE_ERROR: 'PARSE_ERROR',
-  NETWORK_ERROR: 'NETWORK_ERROR',
-  SERVER_ERROR: 'SERVER_ERROR',
-  NOT_FOUND: 'NOT_FOUND',
-  FORBIDDEN: 'FORBIDDEN',
-} as const
+  FETCH_FAILED: "FETCH_FAILED",
+  TIMEOUT: "TIMEOUT",
+  INVALID_URL: "INVALID_URL",
+  BLOCKED_DOMAIN: "BLOCKED_DOMAIN",
+  RATE_LIMITED: "RATE_LIMITED",
+  NO_METADATA: "NO_METADATA",
+  PARSE_ERROR: "PARSE_ERROR",
+  NETWORK_ERROR: "NETWORK_ERROR",
+  SERVER_ERROR: "SERVER_ERROR",
+  NOT_FOUND: "NOT_FOUND",
+  FORBIDDEN: "FORBIDDEN",
+} as const;
 
-export type PreviewErrorCode = (typeof PREVIEW_ERROR_CODES)[keyof typeof PREVIEW_ERROR_CODES]
+export type PreviewErrorCode =
+  (typeof PREVIEW_ERROR_CODES)[keyof typeof PREVIEW_ERROR_CODES];
 
 // ============================================================================
 // URL Pattern Matchers
@@ -540,17 +565,20 @@ export const URL_PATTERNS = {
   codesandbox: /^https?:\/\/codesandbox\.io\/(?:s|embed)\/([^/?]+)/i,
   image: /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?.*)?$/i,
   video: /\.(mp4|webm|ogg|mov|avi|mkv)(\?.*)?$/i,
-} as const
+} as const;
 
 // ============================================================================
 // Domain Handlers Registry
 // ============================================================================
 
-export type DomainHandler = (url: string, html?: string) => Promise<Partial<LinkPreviewData> | null>
+export type DomainHandler = (
+  url: string,
+  html?: string,
+) => Promise<Partial<LinkPreviewData> | null>;
 
 export interface DomainHandlerConfig {
-  pattern: RegExp
-  handler: string // Handler function name
-  requiresHtml: boolean
-  priority: number
+  pattern: RegExp;
+  handler: string; // Handler function name
+  requiresHtml: boolean;
+  priority: number;
 }

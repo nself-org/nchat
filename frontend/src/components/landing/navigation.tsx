@@ -1,24 +1,30 @@
-import Link from 'next/link'
-import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { useAppConfig } from '@/contexts/app-config-context'
-import { ThemeToggle } from '@/components/theme-toggle'
+import Link from "next/link";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAppConfig } from "@/contexts/app-config-context";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navigation() {
-  const { config } = useAppConfig()
-  const [isOpen, setIsOpen] = useState(false)
-  const { branding, homepage, authPermissions } = config
+  const { config } = useAppConfig();
+  const [isOpen, setIsOpen] = useState(false);
+  const { branding, homepage, authPermissions } = config;
 
-  const navLinks = []
+  const navLinks = [];
 
   // Add navigation links based on enabled landing pages
-  if (homepage.landingPages?.features) navLinks.push({ href: '#features', label: 'Features' })
-  if (homepage.landingPages?.pricing) navLinks.push({ href: '#pricing', label: 'Pricing' })
-  if (homepage.landingPages?.about) navLinks.push({ href: '#about', label: 'About' })
-  if (homepage.landingPages?.contact) navLinks.push({ href: '#contact', label: 'Contact' })
-  if (homepage.landingPages?.blog) navLinks.push({ href: '/blog', label: 'Blog' })
-  if (homepage.landingPages?.docs) navLinks.push({ href: '/docs', label: 'Docs' })
+  if (homepage.landingPages?.features)
+    navLinks.push({ href: "#features", label: "Features" });
+  if (homepage.landingPages?.pricing)
+    navLinks.push({ href: "#pricing", label: "Pricing" });
+  if (homepage.landingPages?.about)
+    navLinks.push({ href: "#about", label: "About" });
+  if (homepage.landingPages?.contact)
+    navLinks.push({ href: "#contact", label: "Contact" });
+  if (homepage.landingPages?.blog)
+    navLinks.push({ href: "/blog", label: "Blog" });
+  if (homepage.landingPages?.docs)
+    navLinks.push({ href: "/docs", label: "Docs" });
 
   return (
     <nav className="bg-background/80 sticky top-0 z-50 border-b backdrop-blur-md">
@@ -27,7 +33,11 @@ export function Navigation() {
           {/* Logo & Brand */}
           <div className="flex items-center space-x-3">
             {branding.logo && (
-              <img src={branding.logo} alt={branding.appName} className="h-8 w-auto" />
+              <img
+                src={branding.logo}
+                alt={branding.appName}
+                className="h-8 w-auto"
+              />
             )}
             <Link href="/" className="text-xl font-bold text-foreground">
               {branding.appName}
@@ -55,7 +65,7 @@ export function Navigation() {
               <Link href="/auth/signin">Sign In</Link>
             </Button>
 
-            {authPermissions.mode !== 'admin-only' && (
+            {authPermissions.mode !== "admin-only" && (
               <Button asChild>
                 <Link href="/auth/signup">Get Started</Link>
               </Button>
@@ -69,7 +79,11 @@ export function Navigation() {
               onClick={() => setIsOpen(!isOpen)}
               className="rounded-md p-2 text-foreground hover:bg-accent"
             >
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
@@ -94,7 +108,7 @@ export function Navigation() {
                   <Link href="/auth/signin">Sign In</Link>
                 </Button>
 
-                {authPermissions.mode !== 'admin-only' && (
+                {authPermissions.mode !== "admin-only" && (
                   <Button asChild className="justify-start">
                     <Link href="/auth/signup">Get Started</Link>
                   </Button>
@@ -105,5 +119,5 @@ export function Navigation() {
         )}
       </div>
     </nav>
-  )
+  );
 }

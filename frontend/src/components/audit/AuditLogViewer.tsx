@@ -1,51 +1,68 @@
-'use client'
+"use client";
 
 /**
  * AuditLogViewer - Main audit log viewer component
  */
 
-import { useState, useCallback, useEffect } from 'react'
-import { Activity, Download, RefreshCw, Settings, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useCallback, useEffect } from "react";
+import {
+  Activity,
+  Download,
+  RefreshCw,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 
-import { useAuditStore } from '@/stores/audit-store'
-import type { AuditLogEntry, AuditLogFilters, AuditLogSortOptions } from '@/lib/audit/audit-types'
-import { formatTimestamp } from '@/lib/audit/audit-formatter'
+import { useAuditStore } from "@/stores/audit-store";
+import type {
+  AuditLogEntry,
+  AuditLogFilters,
+  AuditLogSortOptions,
+} from "@/lib/audit/audit-types";
+import { formatTimestamp } from "@/lib/audit/audit-formatter";
 
-import { AuditLogTable } from './AuditLogTable'
-import { AuditLogFilters as AuditLogFiltersComponent } from './AuditLogFilters'
-import { AuditLogSearch } from './AuditLogSearch'
-import { AuditLogDetail } from './AuditLogDetail'
-import { AuditLogExport } from './AuditLogExport'
+import { AuditLogTable } from "./AuditLogTable";
+import { AuditLogFilters as AuditLogFiltersComponent } from "./AuditLogFilters";
+import { AuditLogSearch } from "./AuditLogSearch";
+import { AuditLogDetail } from "./AuditLogDetail";
+import { AuditLogExport } from "./AuditLogExport";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AuditLogViewerProps {
-  entries?: AuditLogEntry[]
-  title?: string
-  description?: string
-  onRefresh?: () => Promise<void>
-  onExport?: () => void
-  onSettingsClick?: () => void
-  showSearch?: boolean
-  showFilters?: boolean
-  showExport?: boolean
-  showSettings?: boolean
-  selectable?: boolean
-  className?: string
+  entries?: AuditLogEntry[];
+  title?: string;
+  description?: string;
+  onRefresh?: () => Promise<void>;
+  onExport?: () => void;
+  onSettingsClick?: () => void;
+  showSearch?: boolean;
+  showFilters?: boolean;
+  showExport?: boolean;
+  showSettings?: boolean;
+  selectable?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -54,8 +71,8 @@ interface AuditLogViewerProps {
 
 export function AuditLogViewer({
   entries: externalEntries,
-  title = 'Audit Logs',
-  description = 'View and search audit log events',
+  title = "Audit Logs",
+  description = "View and search audit log events",
   onRefresh,
   onExport,
   onSettingsClick,
@@ -91,20 +108,20 @@ export function AuditLogViewer({
     applyFiltersAndSort,
     setLoading,
     setLastRefresh,
-  } = useAuditStore()
+  } = useAuditStore();
 
   // Use external entries if provided, otherwise use store entries
-  const entries = externalEntries ?? storeEntries
+  const entries = externalEntries ?? storeEntries;
 
   // Local state
-  const [isExportOpen, setIsExportOpen] = useState(false)
-  const [isDetailOpen, setIsDetailOpen] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Apply filters when entries or filters change
   useEffect(() => {
     if (!externalEntries) {
-      applyFiltersAndSort()
+      applyFiltersAndSort();
     }
   }, [
     entries,
@@ -114,52 +131,55 @@ export function AuditLogViewer({
     pagination.pageSize,
     applyFiltersAndSort,
     externalEntries,
-  ])
+  ]);
 
   // Handlers
   const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true)
+    setIsRefreshing(true);
     if (onRefresh) {
-      await onRefresh()
+      await onRefresh();
     }
-    setLastRefresh(new Date())
-    setIsRefreshing(false)
-  }, [onRefresh, setLastRefresh])
+    setLastRefresh(new Date());
+    setIsRefreshing(false);
+  }, [onRefresh, setLastRefresh]);
 
   const handleFiltersChange = useCallback(
     (newFilters: Partial<AuditLogFilters>) => {
-      setFilters(newFilters)
+      setFilters(newFilters);
     },
-    [setFilters]
-  )
+    [setFilters],
+  );
 
   const handleSortChange = useCallback(
     (newSort: AuditLogSortOptions) => {
-      setSort(newSort)
+      setSort(newSort);
     },
-    [setSort]
-  )
+    [setSort],
+  );
 
   const handleRowClick = useCallback(
     (entry: AuditLogEntry) => {
-      selectEntry(entry)
-      setIsDetailOpen(true)
+      selectEntry(entry);
+      setIsDetailOpen(true);
     },
-    [selectEntry]
-  )
+    [selectEntry],
+  );
 
   const handleDetailClose = useCallback(() => {
-    setIsDetailOpen(false)
-    selectEntry(null)
-  }, [selectEntry])
+    setIsDetailOpen(false);
+    selectEntry(null);
+  }, [selectEntry]);
 
-  const handleExportComplete = useCallback((filename: string, recordCount: number) => {}, [])
+  const handleExportComplete = useCallback(
+    (filename: string, recordCount: number) => {},
+    [],
+  );
 
   // Displayed entries (with local filtering if using external entries)
-  const displayedEntries = externalEntries ?? filteredEntries
+  const displayedEntries = externalEntries ?? filteredEntries;
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Header */}
       <Card>
         <CardHeader className="pb-3">
@@ -174,7 +194,7 @@ export function AuditLogViewer({
             <div className="flex items-center gap-2">
               {lastRefresh && (
                 <span className="text-xs text-muted-foreground">
-                  Updated {formatTimestamp(lastRefresh, 'relative')}
+                  Updated {formatTimestamp(lastRefresh, "relative")}
                 </span>
               )}
               <Button
@@ -183,11 +203,17 @@ export function AuditLogViewer({
                 onClick={handleRefresh}
                 disabled={isRefreshing || isLoading}
               >
-                <RefreshCw className={cn('mr-1 h-4 w-4', isRefreshing && 'animate-spin')} />
+                <RefreshCw
+                  className={cn("mr-1 h-4 w-4", isRefreshing && "animate-spin")}
+                />
                 Refresh
               </Button>
               {showExport && (
-                <Button variant="outline" size="sm" onClick={() => setIsExportOpen(true)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsExportOpen(true)}
+                >
                   <Download className="mr-1 h-4 w-4" />
                   Export
                 </Button>
@@ -224,15 +250,20 @@ export function AuditLogViewer({
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-4">
               <span className="text-muted-foreground">
-                Showing{' '}
-                <span className="font-medium text-foreground">{displayedEntries.length}</span> of{' '}
+                Showing{" "}
+                <span className="font-medium text-foreground">
+                  {displayedEntries.length}
+                </span>{" "}
+                of{" "}
                 <span className="font-medium text-foreground">
                   {externalEntries?.length ?? pagination.totalCount}
-                </span>{' '}
+                </span>{" "}
                 entries
               </span>
               {selectedEntryIds.length > 0 && (
-                <Badge variant="secondary">{selectedEntryIds.length} selected</Badge>
+                <Badge variant="secondary">
+                  {selectedEntryIds.length} selected
+                </Badge>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -300,7 +331,11 @@ export function AuditLogViewer({
       )}
 
       {/* Detail Modal */}
-      <AuditLogDetail entry={selectedEntry} open={isDetailOpen} onClose={handleDetailClose} />
+      <AuditLogDetail
+        entry={selectedEntry}
+        open={isDetailOpen}
+        onClose={handleDetailClose}
+      />
 
       {/* Export Modal */}
       <AuditLogExport
@@ -311,5 +346,5 @@ export function AuditLogViewer({
         onExportComplete={handleExportComplete}
       />
     </div>
-  )
+  );
 }

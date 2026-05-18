@@ -4,52 +4,64 @@
  * Allows users to request a password reset email.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Label } from '@/components/ui/label'
-import { Loader2, Mail, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react'
-import { useAuth } from '@/contexts/auth-context'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
+import {
+  Loader2,
+  Mail,
+  CheckCircle2,
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function ForgotPasswordPage() {
-  const router = useRouter()
-  const { requestPasswordReset } = useAuth()
+  const router = useRouter();
+  const { requestPasswordReset } = useAuth();
 
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [message, setMessage] = useState('')
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setStatus('idle')
-    setMessage('')
+    e.preventDefault();
+    setIsLoading(true);
+    setStatus("idle");
+    setMessage("");
 
     try {
-      const result = await requestPasswordReset(email)
+      const result = await requestPasswordReset(email);
 
       if (result.success) {
-        setStatus('success')
+        setStatus("success");
         setMessage(
-          'If an account with this email exists, you will receive a password reset link shortly.'
-        )
+          "If an account with this email exists, you will receive a password reset link shortly.",
+        );
       } else {
-        setStatus('error')
-        setMessage('Failed to send password reset email. Please try again.')
+        setStatus("error");
+        setMessage("Failed to send password reset email. Please try again.");
       }
     } catch (error) {
-      setStatus('error')
-      setMessage('An error occurred. Please try again later.')
+      setStatus("error");
+      setMessage("An error occurred. Please try again later.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
@@ -60,26 +72,34 @@ export default function ForgotPasswordPage() {
           </div>
           <CardTitle>Forgot Password</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a link to reset your password
+            Enter your email address and we'll send you a link to reset your
+            password
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          {status === 'success' ? (
+          {status === "success" ? (
             <div className="space-y-4">
               <Alert className="border-green-200 bg-green-50">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">{message}</AlertDescription>
+                <AlertDescription className="text-green-800">
+                  {message}
+                </AlertDescription>
               </Alert>
 
               <div className="space-y-3">
                 <p className="text-center text-sm text-muted-foreground">
-                  Check your email for a password reset link. It may take a few minutes to arrive.
+                  Check your email for a password reset link. It may take a few
+                  minutes to arrive.
                 </p>
                 <p className="text-center text-xs text-muted-foreground">
                   Didn't receive an email? Check your spam folder or try again.
                 </p>
-                <Button onClick={() => router.push('/login')} variant="outline" className="w-full">
+                <Button
+                  onClick={() => router.push("/login")}
+                  variant="outline"
+                  className="w-full"
+                >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Login
                 </Button>
@@ -87,7 +107,7 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {status === 'error' && (
+              {status === "error" && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{message}</AlertDescription>
@@ -127,7 +147,11 @@ export default function ForgotPasswordPage() {
               </Button>
 
               <div className="text-center">
-                <Button variant="link" onClick={() => router.push('/login')} type="button">
+                <Button
+                  variant="link"
+                  onClick={() => router.push("/login")}
+                  type="button"
+                >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Login
                 </Button>
@@ -137,5 +161,5 @@ export default function ForgotPasswordPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

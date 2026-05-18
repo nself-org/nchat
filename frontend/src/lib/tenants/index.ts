@@ -26,12 +26,12 @@ export type {
   CreateTenantRequest,
   UpdateTenantRequest,
   SubscriptionPlan,
-} from './types'
+} from "./types";
 
-export { DEFAULT_PLANS } from './types'
+export { DEFAULT_PLANS } from "./types";
 
 // Tenant Service
-export { TenantService, getTenantService } from './tenant-service'
+export { TenantService, getTenantService } from "./tenant-service";
 
 // Middleware
 export {
@@ -44,6 +44,6 @@ export {
   getTenantId,
   getTenantSchema,
   getDefaultTenantConfig,
-} from './tenant-middleware'
+} from "./tenant-middleware";
 
-export type { TenantMiddlewareConfig } from './tenant-middleware'
+export type { TenantMiddlewareConfig } from "./tenant-middleware";

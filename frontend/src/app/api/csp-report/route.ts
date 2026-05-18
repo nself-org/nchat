@@ -6,24 +6,24 @@
  * and potential attacks.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface CSPViolation {
-  'document-uri': string
-  'violated-directive': string
-  'effective-directive': string
-  'original-policy': string
-  'blocked-uri': string
-  'status-code': number
-  'source-file'?: string
-  'line-number'?: number
-  'column-number'?: number
+  "document-uri": string;
+  "violated-directive": string;
+  "effective-directive": string;
+  "original-policy": string;
+  "blocked-uri": string;
+  "status-code": number;
+  "source-file"?: string;
+  "line-number"?: number;
+  "column-number"?: number;
 }
 
 interface CSPReport {
-  'csp-report': CSPViolation
+  "csp-report": CSPViolation;
 }
 
 /**
@@ -33,21 +33,27 @@ interface CSPReport {
  */
 export async function POST(request: NextRequest) {
   try {
-    const contentType = request.headers.get('content-type')
+    const contentType = request.headers.get("content-type");
 
     // CSP reports are sent as application/csp-report or application/json
     if (
-      !contentType?.includes('application/csp-report') &&
-      !contentType?.includes('application/json')
+      !contentType?.includes("application/csp-report") &&
+      !contentType?.includes("application/json")
     ) {
-      return NextResponse.json({ error: 'Invalid content type' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Invalid content type" },
+        { status: 400 },
+      );
     }
 
-    const report: CSPReport = await request.json()
-    const violation = report['csp-report']
+    const report: CSPReport = await request.json();
+    const violation = report["csp-report"];
 
     if (!violation) {
-      return NextResponse.json({ error: 'Invalid CSP report format' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Invalid CSP report format" },
+        { status: 400 },
+      );
     }
 
     // Log the violation
@@ -55,21 +61,23 @@ export async function POST(request: NextRequest) {
     // like Sentry, DataDog, or CloudWatch
     const logEntry = {
       timestamp: new Date().toISOString(),
-      type: 'csp-violation',
-      documentUri: violation['document-uri'],
-      violatedDirective: violation['violated-directive'],
-      effectiveDirective: violation['effective-directive'],
-      blockedUri: violation['blocked-uri'],
-      sourceFile: violation['source-file'],
-      lineNumber: violation['line-number'],
-      columnNumber: violation['column-number'],
-      statusCode: violation['status-code'],
-    }
+      type: "csp-violation",
+      documentUri: violation["document-uri"],
+      violatedDirective: violation["violated-directive"],
+      effectiveDirective: violation["effective-directive"],
+      blockedUri: violation["blocked-uri"],
+      sourceFile: violation["source-file"],
+      lineNumber: violation["line-number"],
+      columnNumber: violation["column-number"],
+      statusCode: violation["status-code"],
+    };
 
     // Log to console (in production, send to monitoring service)
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       // Only log in production to avoid noise during development
-      logger.warn('[CSP VIOLATION]', { context: JSON.stringify(logEntry, null, 2) })
+      logger.warn("[CSP VIOLATION]", {
+        context: JSON.stringify(logEntry, null, 2),
+      });
 
       // await sendToMonitoring(logEntry)
     } else {
@@ -77,11 +85,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Return 204 No Content (standard for CSP reporting)
-    return new NextResponse(null, { status: 204 })
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     // Log error but still return 204 to avoid browser retries
-    logger.error('[CSP Report Error]', error)
-    return new NextResponse(null, { status: 204 })
+    logger.error("[CSP Report Error]", error);
+    return new NextResponse(null, { status: 204 });
   }
 }
 
@@ -92,12 +100,12 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Max-Age": "86400",
     },
-  })
+  });
 }
 
 /**

@@ -22,7 +22,7 @@ export {
   type MemberListResult,
   type InviteListResult,
   type WorkspaceStats,
-} from './workspace.service'
+} from "./workspace.service";
 
 // Extended Workspace Service
 export {
@@ -39,4 +39,4 @@ export {
   type WorkspaceOnboardingStep,
   type OnboardingConfig,
   type DeactivatedMember,
-} from './workspace-extended.service'
+} from "./workspace-extended.service";

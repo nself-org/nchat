@@ -6,22 +6,22 @@
  */
 
 interface RateLimitConfig {
-  interval: number // Time window in milliseconds
-  maxRequests: number // Max requests per interval
+  interval: number; // Time window in milliseconds
+  maxRequests: number; // Max requests per interval
 }
 
 interface RateLimitEntry {
-  count: number
-  resetTime: number
+  count: number;
+  resetTime: number;
 }
 
 class RateLimiter {
-  private store = new Map<string, RateLimitEntry>()
-  private cleanupInterval?: NodeJS.Timeout
+  private store = new Map<string, RateLimitEntry>();
+  private cleanupInterval?: NodeJS.Timeout;
 
   constructor() {
     // Clean up expired entries every minute
-    this.cleanupInterval = setInterval(() => this.cleanup(), 60000)
+    this.cleanupInterval = setInterval(() => this.cleanup(), 60000);
   }
 
   /**
@@ -29,39 +29,39 @@ class RateLimiter {
    */
   async check(
     identifier: string,
-    config: RateLimitConfig = { interval: 60000, maxRequests: 100 }
+    config: RateLimitConfig = { interval: 60000, maxRequests: 100 },
   ): Promise<{
-    allowed: boolean
-    remaining: number
-    reset: number
+    allowed: boolean;
+    remaining: number;
+    reset: number;
   }> {
-    const now = Date.now()
-    const entry = this.store.get(identifier)
+    const now = Date.now();
+    const entry = this.store.get(identifier);
 
     // No entry or entry expired
     if (!entry || now > entry.resetTime) {
       this.store.set(identifier, {
         count: 1,
         resetTime: now + config.interval,
-      })
+      });
 
       return {
         allowed: true,
         remaining: config.maxRequests - 1,
         reset: now + config.interval,
-      }
+      };
     }
 
     // Entry exists and not expired
     if (entry.count < config.maxRequests) {
-      entry.count++
-      this.store.set(identifier, entry)
+      entry.count++;
+      this.store.set(identifier, entry);
 
       return {
         allowed: true,
         remaining: config.maxRequests - entry.count,
         reset: entry.resetTime,
-      }
+      };
     }
 
     // Rate limit exceeded
@@ -69,24 +69,24 @@ class RateLimiter {
       allowed: false,
       remaining: 0,
       reset: entry.resetTime,
-    }
+    };
   }
 
   /**
    * Reset rate limit for identifier
    */
   reset(identifier: string): void {
-    this.store.delete(identifier)
+    this.store.delete(identifier);
   }
 
   /**
    * Clean up expired entries
    */
   private cleanup(): void {
-    const now = Date.now()
+    const now = Date.now();
     for (const [key, entry] of this.store.entries()) {
       if (now > entry.resetTime) {
-        this.store.delete(key)
+        this.store.delete(key);
       }
     }
   }
@@ -96,14 +96,14 @@ class RateLimiter {
    */
   destroy(): void {
     if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval)
+      clearInterval(this.cleanupInterval);
     }
-    this.store.clear()
+    this.store.clear();
   }
 }
 
 // Singleton instance
-export const rateLimiter = new RateLimiter()
+export const rateLimiter = new RateLimiter();
 
 // =============================================================================
 // Rate Limit Configurations
@@ -145,7 +145,7 @@ export const RATE_LIMITS = {
     interval: 60 * 1000, // 1 minute
     maxRequests: 10, // 10 connections per minute
   },
-}
+};
 
 // =============================================================================
 // Helper Functions
@@ -154,17 +154,19 @@ export const RATE_LIMITS = {
 /**
  * Get identifier from request (IP or user ID)
  */
-export function getIdentifier(req: Request | { ip?: string; userId?: string }): string {
-  if ('userId' in req && req.userId) {
-    return `user:${req.userId}`
+export function getIdentifier(
+  req: Request | { ip?: string; userId?: string },
+): string {
+  if ("userId" in req && req.userId) {
+    return `user:${req.userId}`;
   }
 
-  if ('ip' in req && req.ip) {
-    return `ip:${req.ip}`
+  if ("ip" in req && req.ip) {
+    return `ip:${req.ip}`;
   }
 
   // Fallback to 'unknown' (not ideal, but prevents crashes)
-  return 'unknown'
+  return "unknown";
 }
 
 /**
@@ -172,18 +174,18 @@ export function getIdentifier(req: Request | { ip?: string; userId?: string }): 
  */
 export async function applyRateLimit(
   identifier: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): Promise<{ allowed: boolean; headers: Record<string, string> }> {
-  const result = await rateLimiter.check(identifier, config)
+  const result = await rateLimiter.check(identifier, config);
 
   return {
     allowed: result.allowed,
     headers: {
-      'X-RateLimit-Limit': String(config.maxRequests),
-      'X-RateLimit-Remaining': String(result.remaining),
-      'X-RateLimit-Reset': String(result.reset),
+      "X-RateLimit-Limit": String(config.maxRequests),
+      "X-RateLimit-Remaining": String(result.remaining),
+      "X-RateLimit-Reset": String(result.reset),
     },
-  }
+  };
 }
 
 /**
@@ -191,20 +193,20 @@ export async function applyRateLimit(
  */
 export function createRateLimitMiddleware(config: RateLimitConfig) {
   return async (req: Request & { ip?: string; userId?: string }) => {
-    const identifier = getIdentifier(req)
-    const result = await applyRateLimit(identifier, config)
+    const identifier = getIdentifier(req);
+    const result = await applyRateLimit(identifier, config);
 
     if (!result.allowed) {
       return {
-        error: 'Too many requests',
+        error: "Too many requests",
         status: 429,
         headers: result.headers,
-      }
+      };
     }
 
     return {
       allowed: true,
       headers: result.headers,
-    }
-  }
+    };
+  };
 }

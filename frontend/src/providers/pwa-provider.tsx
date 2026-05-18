@@ -1,49 +1,55 @@
-'use client'
+"use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { usePWA, type PWAState, type PWAActions } from '@/hooks/use-pwa'
-import { InstallPrompt } from '@/components/pwa/install-prompt'
-import { UpdatePrompt } from '@/components/pwa/update-prompt'
-import { OfflineIndicator } from '@/components/pwa/offline-indicator'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { usePWA, type PWAState, type PWAActions } from "@/hooks/use-pwa";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { UpdatePrompt } from "@/components/pwa/update-prompt";
+import { OfflineIndicator } from "@/components/pwa/offline-indicator";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface PWAContextValue {
-  state: PWAState
-  actions: PWAActions
+  state: PWAState;
+  actions: PWAActions;
 }
 
 export interface PWAProviderProps {
-  children: ReactNode
+  children: ReactNode;
   /** Show install prompt automatically */
-  showInstallPrompt?: boolean
+  showInstallPrompt?: boolean;
   /** Show update prompt automatically */
-  showUpdatePrompt?: boolean
+  showUpdatePrompt?: boolean;
   /** Show offline indicator */
-  showOfflineIndicator?: boolean
+  showOfflineIndicator?: boolean;
   /** Delay before showing install prompt (ms) */
-  installPromptDelay?: number
+  installPromptDelay?: number;
   /** Auto-register service worker */
-  autoRegister?: boolean
+  autoRegister?: boolean;
 }
 
 // =============================================================================
 // Context
 // =============================================================================
 
-const PWAContext = createContext<PWAContextValue | null>(null)
+const PWAContext = createContext<PWAContextValue | null>(null);
 
 /**
  * Hook to access PWA state and actions
  */
 export function usePWAContext(): PWAContextValue {
-  const context = useContext(PWAContext)
+  const context = useContext(PWAContext);
   if (!context) {
-    throw new Error('usePWAContext must be used within a PWAProvider')
+    throw new Error("usePWAContext must be used within a PWAProvider");
   }
-  return context
+  return context;
 }
 
 // =============================================================================
@@ -67,49 +73,53 @@ export function PWAProvider({
   installPromptDelay = 5000,
   autoRegister = true,
 }: PWAProviderProps) {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   // Use the PWA hook
   const [state, actions] = usePWA({
     autoRegister,
     onOnlineChange: (isOnline) => {
       // Dispatch custom event for other components to listen to
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         window.dispatchEvent(
-          new CustomEvent('nchat:online-change', {
+          new CustomEvent("nchat:online-change", {
             detail: { isOnline },
-          })
-        )
+          }),
+        );
       }
     },
     onUpdateAvailable: () => {
       // Dispatch custom event for update available
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('nchat:update-available'))
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("nchat:update-available"));
       }
     },
     pushHandlers: {
       onNotificationClick: (data) => {
         // Handle notification click
-        window.dispatchEvent(new CustomEvent('nchat:notification-click', { detail: data }))
+        window.dispatchEvent(
+          new CustomEvent("nchat:notification-click", { detail: data }),
+        );
       },
       onNotificationDismissed: (data) => {},
       onSyncComplete: (data) => {
-        window.dispatchEvent(new CustomEvent('nchat:sync-complete', { detail: data }))
+        window.dispatchEvent(
+          new CustomEvent("nchat:sync-complete", { detail: data }),
+        );
       },
     },
-  })
+  });
 
   // Handle client-side mounting
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   // Context value
   const contextValue: PWAContextValue = {
     state,
     actions,
-  }
+  };
 
   return (
     <PWAContext.Provider value={contextValue}>
@@ -123,7 +133,7 @@ export function PWAProvider({
             <InstallPrompt
               showDelay={installPromptDelay}
               onInstall={() => {
-                window.dispatchEvent(new CustomEvent('nchat:installed'))
+                window.dispatchEvent(new CustomEvent("nchat:installed"));
               }}
               onDismiss={() => {}}
             />
@@ -131,17 +141,25 @@ export function PWAProvider({
 
           {/* Update prompt */}
           {showUpdatePrompt && (
-            <UpdatePrompt autoReload={true} onUpdate={() => {}} onDismiss={() => {}} />
+            <UpdatePrompt
+              autoReload={true}
+              onUpdate={() => {}}
+              onDismiss={() => {}}
+            />
           )}
 
           {/* Offline indicator */}
           {showOfflineIndicator && (
-            <OfflineIndicator position="top" showOnlineToast={true} onlineToastDuration={3000} />
+            <OfflineIndicator
+              position="top"
+              showOnlineToast={true}
+              onlineToastDuration={3000}
+            />
           )}
         </>
       )}
     </PWAContext.Provider>
-  )
+  );
 }
 
 // =============================================================================
@@ -152,36 +170,36 @@ export function PWAProvider({
  * Component that only renders when online
  */
 export function OnlineOnly({ children }: { children: ReactNode }) {
-  const { state } = usePWAContext()
-  return state.isOnline ? <>{children}</> : null
+  const { state } = usePWAContext();
+  return state.isOnline ? <>{children}</> : null;
 }
 
 /**
  * Component that only renders when offline
  */
 export function OfflineOnly({ children }: { children: ReactNode }) {
-  const { state } = usePWAContext()
-  return !state.isOnline ? <>{children}</> : null
+  const { state } = usePWAContext();
+  return !state.isOnline ? <>{children}</> : null;
 }
 
 /**
  * Component that only renders when installed (standalone mode)
  */
 export function InstalledOnly({ children }: { children: ReactNode }) {
-  const { state } = usePWAContext()
-  return state.isInstalled ? <>{children}</> : null
+  const { state } = usePWAContext();
+  return state.isInstalled ? <>{children}</> : null;
 }
 
 /**
  * Component that only renders when NOT installed (browser mode)
  */
 export function BrowserOnly({ children }: { children: ReactNode }) {
-  const { state } = usePWAContext()
-  return !state.isInstalled ? <>{children}</> : null
+  const { state } = usePWAContext();
+  return !state.isInstalled ? <>{children}</> : null;
 }
 
 // =============================================================================
 // Exports
 // =============================================================================
 
-export default PWAProvider
+export default PWAProvider;

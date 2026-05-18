@@ -29,8 +29,8 @@ import {
   isValidEthAddress,
   isValidBtcAddress,
   isValidTxHash,
-} from '@/lib/billing/payment-security'
-import { logger } from '@/lib/logger'
+} from "@/lib/billing/payment-security";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -40,25 +40,25 @@ import { logger } from '@/lib/logger'
  * Full security assessment result for a payment.
  */
 export interface PaymentSecurityAssessment {
-  allowed: boolean
-  riskScore: number // 0-100, higher = more risky
-  riskLevel: 'low' | 'medium' | 'high' | 'critical'
-  checks: SecurityCheckResult[]
-  failedChecks: SecurityCheckResult[]
-  timestamp: number
-  assessmentId: string
+  allowed: boolean;
+  riskScore: number; // 0-100, higher = more risky
+  riskLevel: "low" | "medium" | "high" | "critical";
+  checks: SecurityCheckResult[];
+  failedChecks: SecurityCheckResult[];
+  timestamp: number;
+  assessmentId: string;
 }
 
 /**
  * Service configuration.
  */
 export interface PaymentSecurityServiceConfig {
-  fraudConfig?: Partial<FraudDetectionConfig>
-  confirmationRequirements?: ConfirmationRequirements
-  blacklistedAddresses?: string[]
-  sanctionedAddresses?: string[]
-  replayTTLMs?: number
-  enableLogging?: boolean
+  fraudConfig?: Partial<FraudDetectionConfig>;
+  confirmationRequirements?: ConfirmationRequirements;
+  blacklistedAddresses?: string[];
+  sanctionedAddresses?: string[];
+  replayTTLMs?: number;
+  enableLogging?: boolean;
 }
 
 // ============================================================================
@@ -66,26 +66,26 @@ export interface PaymentSecurityServiceConfig {
 // ============================================================================
 
 export class PaymentSecurityService {
-  private replayStore: ReplayProtectionStore
-  private doubleSpendDetector: DoubleSpendDetector
-  private fraudDetector: FraudDetector
-  private webhookValidator: WebhookSignatureValidator
-  private reconciler: PaymentReconciler
-  private enableLogging: boolean
+  private replayStore: ReplayProtectionStore;
+  private doubleSpendDetector: DoubleSpendDetector;
+  private fraudDetector: FraudDetector;
+  private webhookValidator: WebhookSignatureValidator;
+  private reconciler: PaymentReconciler;
+  private enableLogging: boolean;
 
   constructor(config?: PaymentSecurityServiceConfig) {
-    this.replayStore = new ReplayProtectionStore(config?.replayTTLMs)
+    this.replayStore = new ReplayProtectionStore(config?.replayTTLMs);
     this.doubleSpendDetector = new DoubleSpendDetector(
-      config?.confirmationRequirements
-    )
+      config?.confirmationRequirements,
+    );
     this.fraudDetector = new FraudDetector(
       config?.fraudConfig,
       config?.blacklistedAddresses,
-      config?.sanctionedAddresses
-    )
-    this.webhookValidator = new WebhookSignatureValidator(this.replayStore)
-    this.reconciler = new PaymentReconciler()
-    this.enableLogging = config?.enableLogging ?? true
+      config?.sanctionedAddresses,
+    );
+    this.webhookValidator = new WebhookSignatureValidator(this.replayStore);
+    this.reconciler = new PaymentReconciler();
+    this.enableLogging = config?.enableLogging ?? true;
   }
 
   // ==========================================================================
@@ -99,16 +99,16 @@ export class PaymentSecurityService {
    * - Replay protection
    */
   verifyWebhook(input: WebhookVerificationInput): SecurityCheckResult {
-    const result = this.webhookValidator.verify(input)
+    const result = this.webhookValidator.verify(input);
 
     if (!result.passed && this.enableLogging) {
-      logger.security('Webhook verification failed', {
+      logger.security("Webhook verification failed", {
         code: result.code,
         message: result.message,
-      })
+      });
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -118,16 +118,16 @@ export class PaymentSecurityService {
     payload: string,
     signatureHeader: string,
     secret: string,
-    maxAgeSeconds?: number
+    maxAgeSeconds?: number,
   ): SecurityCheckResult {
-    const parsed = this.webhookValidator.parseSignatureHeader(signatureHeader)
+    const parsed = this.webhookValidator.parseSignatureHeader(signatureHeader);
     if (!parsed) {
       return {
         passed: false,
         code: SecurityCheckCode.SIGNATURE_INVALID,
-        message: 'Invalid webhook signature header format',
-        severity: 'critical',
-      }
+        message: "Invalid webhook signature header format",
+        severity: "critical",
+      };
     }
 
     // Try each signature in the header
@@ -138,19 +138,19 @@ export class PaymentSecurityService {
         secret,
         timestamp: parsed.timestamp,
         maxAgeSeconds,
-      })
+      });
 
       if (result.passed) {
-        return result
+        return result;
       }
     }
 
     return {
       passed: false,
       code: SecurityCheckCode.SIGNATURE_INVALID,
-      message: 'No valid signature found in webhook header',
-      severity: 'critical',
-    }
+      message: "No valid signature found in webhook header",
+      severity: "critical",
+    };
   }
 
   // ==========================================================================
@@ -161,42 +161,42 @@ export class PaymentSecurityService {
    * Full security assessment for a Stripe payment attempt.
    */
   assessStripePayment(attempt: PaymentAttempt): PaymentSecurityAssessment {
-    const checks: SecurityCheckResult[] = []
-    const startTime = Date.now()
+    const checks: SecurityCheckResult[] = [];
+    const startTime = Date.now();
 
     // 1. Replay protection (idempotency key check)
-    const isReplay = this.replayStore.isDuplicate(attempt.id)
+    const isReplay = this.replayStore.isDuplicate(attempt.id);
     if (isReplay) {
       checks.push({
         passed: false,
         code: SecurityCheckCode.REPLAY_DETECTED,
         message: `Payment attempt ${attempt.id} is a replay`,
-        severity: 'critical',
-      })
+        severity: "critical",
+      });
     } else {
-      this.replayStore.record(attempt.id)
+      this.replayStore.record(attempt.id);
       checks.push({
         passed: true,
         code: SecurityCheckCode.CHECK_PASSED,
-        message: 'Replay check passed',
-        severity: 'info',
-      })
+        message: "Replay check passed",
+        severity: "info",
+      });
     }
 
     // 2. Fraud detection checks
-    const fraudChecks = this.fraudDetector.checkPaymentAttempt(attempt)
-    checks.push(...fraudChecks)
+    const fraudChecks = this.fraudDetector.checkPaymentAttempt(attempt);
+    checks.push(...fraudChecks);
 
     // 3. Suspicious pattern detection
     const patternCheck = this.fraudDetector.detectSuspiciousPatterns(
-      attempt.userId
-    )
-    checks.push(patternCheck)
+      attempt.userId,
+    );
+    checks.push(patternCheck);
 
     // 4. Record the attempt for future velocity checks
-    this.fraudDetector.recordAttempt(attempt)
+    this.fraudDetector.recordAttempt(attempt);
 
-    return this.buildAssessment(checks, startTime)
+    return this.buildAssessment(checks, startTime);
   }
 
   // ==========================================================================
@@ -208,10 +208,10 @@ export class PaymentSecurityService {
    */
   assessCryptoPayment(
     tx: CryptoTransactionInput,
-    attempt: PaymentAttempt
+    attempt: PaymentAttempt,
   ): PaymentSecurityAssessment {
-    const checks: SecurityCheckResult[] = []
-    const startTime = Date.now()
+    const checks: SecurityCheckResult[] = [];
+    const startTime = Date.now();
 
     // 1. Validate transaction hash format
     if (!isValidTxHash(tx.txHash, tx.network)) {
@@ -219,59 +219,59 @@ export class PaymentSecurityService {
         passed: false,
         code: SecurityCheckCode.SUSPICIOUS_PATTERN,
         message: `Invalid transaction hash format for ${tx.network}`,
-        severity: 'critical',
-      })
+        severity: "critical",
+      });
     }
 
     // 2. Validate addresses
-    if (tx.network !== 'bitcoin') {
+    if (tx.network !== "bitcoin") {
       if (!isValidEthAddress(tx.fromAddress)) {
         checks.push({
           passed: false,
           code: SecurityCheckCode.SUSPICIOUS_PATTERN,
-          message: 'Invalid sender address format',
-          severity: 'critical',
-        })
+          message: "Invalid sender address format",
+          severity: "critical",
+        });
       }
       if (!isValidEthAddress(tx.toAddress)) {
         checks.push({
           passed: false,
           code: SecurityCheckCode.SUSPICIOUS_PATTERN,
-          message: 'Invalid recipient address format',
-          severity: 'critical',
-        })
+          message: "Invalid recipient address format",
+          severity: "critical",
+        });
       }
     }
 
     // 3. Address blacklist/sanctions check
-    const fromCheck = this.fraudDetector.checkAddress(tx.fromAddress)
-    checks.push(fromCheck)
+    const fromCheck = this.fraudDetector.checkAddress(tx.fromAddress);
+    checks.push(fromCheck);
 
-    const toCheck = this.fraudDetector.checkAddress(tx.toAddress)
-    checks.push(toCheck)
+    const toCheck = this.fraudDetector.checkAddress(tx.toAddress);
+    checks.push(toCheck);
 
     // 4. Double-spend detection
-    const doubleSpendCheck = this.doubleSpendDetector.checkTransaction(tx)
-    checks.push(doubleSpendCheck)
+    const doubleSpendCheck = this.doubleSpendDetector.checkTransaction(tx);
+    checks.push(doubleSpendCheck);
 
     // 5. Fraud detection (velocity, amount)
-    const fraudChecks = this.fraudDetector.checkPaymentAttempt(attempt)
-    checks.push(...fraudChecks)
+    const fraudChecks = this.fraudDetector.checkPaymentAttempt(attempt);
+    checks.push(...fraudChecks);
 
     // 6. Record the transaction
-    if (!checks.some((c) => !c.passed && c.severity === 'critical')) {
-      this.doubleSpendDetector.recordTransaction(tx)
-      this.fraudDetector.recordAttempt(attempt)
+    if (!checks.some((c) => !c.passed && c.severity === "critical")) {
+      this.doubleSpendDetector.recordTransaction(tx);
+      this.fraudDetector.recordAttempt(attempt);
     }
 
-    return this.buildAssessment(checks, startTime)
+    return this.buildAssessment(checks, startTime);
   }
 
   /**
    * Check a crypto address against blacklists and sanctions.
    */
   checkCryptoAddress(address: string): SecurityCheckResult {
-    return this.fraudDetector.checkAddress(address)
+    return this.fraudDetector.checkAddress(address);
   }
 
   /**
@@ -280,30 +280,30 @@ export class PaymentSecurityService {
   updateTransactionConfirmations(
     txHash: string,
     confirmations: number,
-    blockNumber?: number
+    blockNumber?: number,
   ): SecurityCheckResult | null {
     const result = this.doubleSpendDetector.updateConfirmations(
       txHash,
       confirmations,
-      blockNumber
-    )
+      blockNumber,
+    );
 
     if (result && !result.passed && this.enableLogging) {
-      logger.security('Block reorganization detected', {
+      logger.security("Block reorganization detected", {
         txHash,
         confirmations,
         code: result.code,
-      })
+      });
     }
 
-    return result
+    return result;
   }
 
   /**
    * Check if a transaction is sufficiently confirmed.
    */
   isTransactionConfirmed(txHash: string): boolean {
-    return this.doubleSpendDetector.isConfirmed(txHash)
+    return this.doubleSpendDetector.isConfirmed(txHash);
   }
 
   // ==========================================================================
@@ -315,27 +315,27 @@ export class PaymentSecurityService {
    */
   reconcilePayments(
     internalEntries: LedgerEntry[],
-    externalEntries: LedgerEntry[]
+    externalEntries: LedgerEntry[],
   ): ReconciliationCheckResult {
-    const result = this.reconciler.reconcile(internalEntries, externalEntries)
+    const result = this.reconciler.reconcile(internalEntries, externalEntries);
 
     if (!result.isConsistent && this.enableLogging) {
-      logger.security('Payment reconciliation inconsistencies found', {
+      logger.security("Payment reconciliation inconsistencies found", {
         discrepancy: result.discrepancy,
         orphanCount: result.orphanPayments.length,
         duplicateCount: result.duplicateCharges.length,
         refundIssues: result.refundInconsistencies.length,
-      })
+      });
     }
 
-    return result
+    return result;
   }
 
   /**
    * Detect orphan payments.
    */
   detectOrphanPayments(entries: LedgerEntry[]): LedgerEntry[] {
-    return this.reconciler.detectOrphanPayments(entries)
+    return this.reconciler.detectOrphanPayments(entries);
   }
 
   /**
@@ -343,9 +343,9 @@ export class PaymentSecurityService {
    */
   validateNetAmount(
     entries: LedgerEntry[],
-    expectedNet: number
+    expectedNet: number,
   ): SecurityCheckResult {
-    return this.reconciler.validateNetAmount(entries, expectedNet)
+    return this.reconciler.validateNetAmount(entries, expectedNet);
   }
 
   // ==========================================================================
@@ -356,9 +356,9 @@ export class PaymentSecurityService {
    * Add an address to the blacklist.
    */
   blacklistAddress(address: string): void {
-    this.fraudDetector.addToBlacklist(address)
+    this.fraudDetector.addToBlacklist(address);
     if (this.enableLogging) {
-      logger.security('Address added to blacklist', { address })
+      logger.security("Address added to blacklist", { address });
     }
   }
 
@@ -366,9 +366,9 @@ export class PaymentSecurityService {
    * Remove an address from the blacklist.
    */
   unblacklistAddress(address: string): void {
-    this.fraudDetector.removeFromBlacklist(address)
+    this.fraudDetector.removeFromBlacklist(address);
     if (this.enableLogging) {
-      logger.security('Address removed from blacklist', { address })
+      logger.security("Address removed from blacklist", { address });
     }
   }
 
@@ -376,9 +376,9 @@ export class PaymentSecurityService {
    * Add an address to the sanctions list.
    */
   addSanctionedAddress(address: string): void {
-    this.fraudDetector.addToSanctionsList(address)
+    this.fraudDetector.addToSanctionsList(address);
     if (this.enableLogging) {
-      logger.security('Address added to sanctions list', { address })
+      logger.security("Address added to sanctions list", { address });
     }
   }
 
@@ -386,42 +386,42 @@ export class PaymentSecurityService {
    * Record a payment failure for cooldown enforcement.
    */
   recordPaymentFailure(userId: string): void {
-    this.fraudDetector.recordFailure(userId)
+    this.fraudDetector.recordFailure(userId);
   }
 
   /**
    * Generate a secure nonce for idempotency.
    */
   generateIdempotencyKey(): string {
-    return generateNonce()
+    return generateNonce();
   }
 
   /**
    * Generate a checksum for payload integrity.
    */
   generatePayloadChecksum(payload: string): string {
-    return generateChecksum(payload)
+    return generateChecksum(payload);
   }
 
   /**
    * Clean up expired replay protection entries.
    */
   cleanupExpiredEntries(): number {
-    return this.replayStore.cleanup()
+    return this.replayStore.cleanup();
   }
 
   /**
    * Check if an event ID has been processed (for idempotency).
    */
   isEventProcessed(eventId: string): boolean {
-    return this.replayStore.isDuplicate(eventId)
+    return this.replayStore.isDuplicate(eventId);
   }
 
   /**
    * Record an event as processed.
    */
   recordProcessedEvent(eventId: string): void {
-    this.replayStore.record(eventId)
+    this.replayStore.record(eventId);
   }
 
   // ==========================================================================
@@ -433,37 +433,37 @@ export class PaymentSecurityService {
    */
   private buildAssessment(
     checks: SecurityCheckResult[],
-    startTime: number
+    startTime: number,
   ): PaymentSecurityAssessment {
-    const failedChecks = checks.filter((c) => !c.passed)
+    const failedChecks = checks.filter((c) => !c.passed);
     const criticalFailures = failedChecks.filter(
-      (c) => c.severity === 'critical'
-    )
+      (c) => c.severity === "critical",
+    );
     const warningFailures = failedChecks.filter(
-      (c) => c.severity === 'warning'
-    )
+      (c) => c.severity === "warning",
+    );
 
     // Calculate risk score
-    let riskScore = 0
-    riskScore += criticalFailures.length * 40
-    riskScore += warningFailures.length * 15
-    riskScore = Math.min(100, riskScore)
+    let riskScore = 0;
+    riskScore += criticalFailures.length * 40;
+    riskScore += warningFailures.length * 15;
+    riskScore = Math.min(100, riskScore);
 
     // Determine risk level
-    let riskLevel: 'low' | 'medium' | 'high' | 'critical'
+    let riskLevel: "low" | "medium" | "high" | "critical";
     if (criticalFailures.length > 0) {
-      riskLevel = 'critical'
+      riskLevel = "critical";
     } else if (riskScore >= 50) {
-      riskLevel = 'high'
+      riskLevel = "high";
     } else if (riskScore >= 25) {
-      riskLevel = 'medium'
+      riskLevel = "medium";
     } else {
-      riskLevel = 'low'
+      riskLevel = "low";
     }
 
     // Block if any critical failure OR if risk score is high enough
     // (accumulated warnings like velocity limits should also block)
-    const isBlocked = criticalFailures.length > 0 || riskScore >= 50
+    const isBlocked = criticalFailures.length > 0 || riskScore >= 50;
 
     const assessment: PaymentSecurityAssessment = {
       allowed: !isBlocked,
@@ -473,28 +473,28 @@ export class PaymentSecurityService {
       failedChecks,
       timestamp: startTime,
       assessmentId: generateNonce().substring(0, 16),
-    }
+    };
 
     if (this.enableLogging && !assessment.allowed) {
-      logger.security('Payment blocked by security assessment', {
+      logger.security("Payment blocked by security assessment", {
         assessmentId: assessment.assessmentId,
         riskScore,
         riskLevel,
         failedCheckCodes: failedChecks.map((c) => c.code),
-      })
+      });
     }
 
-    return assessment
+    return assessment;
   }
 
   /**
    * Reset all internal state (for testing).
    */
   reset(): void {
-    this.replayStore.clear()
-    this.doubleSpendDetector.clear()
-    this.fraudDetector.clear()
-    this.webhookValidator.clearReplayStore()
+    this.replayStore.clear();
+    this.doubleSpendDetector.clear();
+    this.fraudDetector.clear();
+    this.webhookValidator.clearReplayStore();
   }
 }
 
@@ -502,30 +502,30 @@ export class PaymentSecurityService {
 // Singleton Instance
 // ============================================================================
 
-let paymentSecurityService: PaymentSecurityService | null = null
+let paymentSecurityService: PaymentSecurityService | null = null;
 
 /**
  * Get the payment security service singleton.
  */
 export function getPaymentSecurityService(): PaymentSecurityService {
   if (!paymentSecurityService) {
-    paymentSecurityService = new PaymentSecurityService()
+    paymentSecurityService = new PaymentSecurityService();
   }
-  return paymentSecurityService
+  return paymentSecurityService;
 }
 
 /**
  * Create a new payment security service with custom config.
  */
 export function createPaymentSecurityService(
-  config?: PaymentSecurityServiceConfig
+  config?: PaymentSecurityServiceConfig,
 ): PaymentSecurityService {
-  return new PaymentSecurityService(config)
+  return new PaymentSecurityService(config);
 }
 
 /**
  * Reset the payment security service singleton (for testing).
  */
 export function resetPaymentSecurityService(): void {
-  paymentSecurityService = null
+  paymentSecurityService = null;
 }

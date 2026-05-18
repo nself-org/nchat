@@ -5,9 +5,9 @@
  * channel scope, permissions, rate limiting, and environment variables.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Settings,
   Zap,
@@ -23,141 +23,147 @@ import {
   EyeOff,
   AlertCircle,
   CheckCircle,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Checkbox } from '@/components/ui/checkbox'
-import type { Bot, BotPermissionScope } from '@/types/bot'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { Bot, BotPermissionScope } from "@/types/bot";
 
 interface BotConfigProps {
-  bot: Bot
-  channels?: Array<{ id: string; name: string }>
-  onSave?: (config: BotConfiguration) => Promise<void>
+  bot: Bot;
+  channels?: Array<{ id: string; name: string }>;
+  onSave?: (config: BotConfiguration) => Promise<void>;
 }
 
 interface BotConfiguration {
-  triggers: TriggerConfig[]
-  channelScope: ChannelScope
-  permissions: BotPermissionScope[]
-  rateLimits: RateLimitConfig
-  environmentVars: EnvironmentVariable[]
+  triggers: TriggerConfig[];
+  channelScope: ChannelScope;
+  permissions: BotPermissionScope[];
+  rateLimits: RateLimitConfig;
+  environmentVars: EnvironmentVariable[];
 }
 
 interface TriggerConfig {
-  id: string
-  type: 'keyword' | 'pattern' | 'schedule' | 'event'
-  value: string
-  enabled: boolean
+  id: string;
+  type: "keyword" | "pattern" | "schedule" | "event";
+  value: string;
+  enabled: boolean;
 }
 
 interface ChannelScope {
-  mode: 'all' | 'specific' | 'exclude'
-  channelIds: string[]
+  mode: "all" | "specific" | "exclude";
+  channelIds: string[];
 }
 
 interface RateLimitConfig {
-  messagesPerMinute: number
-  commandsPerMinute: number
-  enabled: boolean
+  messagesPerMinute: number;
+  commandsPerMinute: number;
+  enabled: boolean;
 }
 
 interface EnvironmentVariable {
-  key: string
-  value: string
-  isSecret: boolean
+  key: string;
+  value: string;
+  isSecret: boolean;
 }
 
 // Available permissions
 const AVAILABLE_PERMISSIONS: Array<{
-  id: BotPermissionScope
-  name: string
-  description: string
-  category: string
-  dangerous?: boolean
+  id: BotPermissionScope;
+  name: string;
+  description: string;
+  category: string;
+  dangerous?: boolean;
 }> = [
   {
-    id: 'messages.read',
-    name: 'Read Messages',
-    description: 'Read messages in channels',
-    category: 'Messages',
+    id: "messages.read",
+    name: "Read Messages",
+    description: "Read messages in channels",
+    category: "Messages",
   },
   {
-    id: 'messages.write',
-    name: 'Send Messages',
-    description: 'Send messages to channels',
-    category: 'Messages',
+    id: "messages.write",
+    name: "Send Messages",
+    description: "Send messages to channels",
+    category: "Messages",
   },
   {
-    id: 'messages.delete',
-    name: 'Delete Messages',
-    description: 'Delete bot messages',
-    category: 'Messages',
+    id: "messages.delete",
+    name: "Delete Messages",
+    description: "Delete bot messages",
+    category: "Messages",
     dangerous: true,
   },
   {
-    id: 'channels.read',
-    name: 'View Channels',
-    description: 'View channel information',
-    category: 'Channels',
+    id: "channels.read",
+    name: "View Channels",
+    description: "View channel information",
+    category: "Channels",
   },
   {
-    id: 'channels.manage',
-    name: 'Manage Channels',
-    description: 'Create and update channels',
-    category: 'Channels',
+    id: "channels.manage",
+    name: "Manage Channels",
+    description: "Create and update channels",
+    category: "Channels",
     dangerous: true,
   },
   {
-    id: 'users.read',
-    name: 'View Users',
-    description: 'View user information',
-    category: 'Users',
+    id: "users.read",
+    name: "View Users",
+    description: "View user information",
+    category: "Users",
   },
   {
-    id: 'reactions.read',
-    name: 'View Reactions',
-    description: 'View reactions on messages',
-    category: 'Reactions',
+    id: "reactions.read",
+    name: "View Reactions",
+    description: "View reactions on messages",
+    category: "Reactions",
   },
   {
-    id: 'reactions.write',
-    name: 'Add Reactions',
-    description: 'Add reactions to messages',
-    category: 'Reactions',
+    id: "reactions.write",
+    name: "Add Reactions",
+    description: "Add reactions to messages",
+    category: "Reactions",
   },
   {
-    id: 'files.read',
-    name: 'View Files',
-    description: 'View file attachments',
-    category: 'Files',
+    id: "files.read",
+    name: "View Files",
+    description: "View file attachments",
+    category: "Files",
   },
   {
-    id: 'files.write',
-    name: 'Upload Files',
-    description: 'Upload file attachments',
-    category: 'Files',
+    id: "files.write",
+    name: "Upload Files",
+    description: "Upload file attachments",
+    category: "Files",
   },
-]
+];
 
 export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
   const [config, setConfig] = useState<BotConfiguration>({
     triggers: [],
     channelScope: {
-      mode: 'all',
+      mode: "all",
       channelIds: [],
     },
     permissions: bot.permissions.scopes || [],
@@ -167,10 +173,10 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
       enabled: true,
     },
     environmentVars: [],
-  })
+  });
 
-  const [saving, setSaving] = useState(false)
-  const [showSecrets, setShowSecrets] = useState(false)
+  const [saving, setSaving] = useState(false);
+  const [showSecrets, setShowSecrets] = useState(false);
 
   // Add trigger
   const addTrigger = () => {
@@ -180,53 +186,63 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
         ...prev.triggers,
         {
           id: `trigger-${Date.now()}`,
-          type: 'keyword',
-          value: '',
+          type: "keyword",
+          value: "",
           enabled: true,
         },
       ],
-    }))
-  }
+    }));
+  };
 
   // Remove trigger
   const removeTrigger = (id: string) => {
     setConfig((prev) => ({
       ...prev,
       triggers: prev.triggers.filter((t) => t.id !== id),
-    }))
-  }
+    }));
+  };
 
   // Update trigger
   const updateTrigger = (id: string, updates: Partial<TriggerConfig>) => {
     setConfig((prev) => ({
       ...prev,
-      triggers: prev.triggers.map((t) => (t.id === id ? { ...t, ...updates } : t)),
-    }))
-  }
+      triggers: prev.triggers.map((t) =>
+        t.id === id ? { ...t, ...updates } : t,
+      ),
+    }));
+  };
 
   // Add environment variable
   const addEnvVar = () => {
     setConfig((prev) => ({
       ...prev,
-      environmentVars: [...prev.environmentVars, { key: '', value: '', isSecret: false }],
-    }))
-  }
+      environmentVars: [
+        ...prev.environmentVars,
+        { key: "", value: "", isSecret: false },
+      ],
+    }));
+  };
 
   // Remove environment variable
   const removeEnvVar = (index: number) => {
     setConfig((prev) => ({
       ...prev,
       environmentVars: prev.environmentVars.filter((_, i) => i !== index),
-    }))
-  }
+    }));
+  };
 
   // Update environment variable
-  const updateEnvVar = (index: number, updates: Partial<EnvironmentVariable>) => {
+  const updateEnvVar = (
+    index: number,
+    updates: Partial<EnvironmentVariable>,
+  ) => {
     setConfig((prev) => ({
       ...prev,
-      environmentVars: prev.environmentVars.map((v, i) => (i === index ? { ...v, ...updates } : v)),
-    }))
-  }
+      environmentVars: prev.environmentVars.map((v, i) =>
+        i === index ? { ...v, ...updates } : v,
+      ),
+    }));
+  };
 
   // Toggle permission
   const togglePermission = (permission: BotPermissionScope) => {
@@ -235,8 +251,8 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
       permissions: prev.permissions.includes(permission)
         ? prev.permissions.filter((p) => p !== permission)
         : [...prev.permissions, permission],
-    }))
-  }
+    }));
+  };
 
   // Toggle channel
   const toggleChannel = (channelId: string) => {
@@ -248,30 +264,30 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
           ? prev.channelScope.channelIds.filter((id) => id !== channelId)
           : [...prev.channelScope.channelIds, channelId],
       },
-    }))
-  }
+    }));
+  };
 
   // Save configuration
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
-      await onSave?.(config)
+      await onSave?.(config);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   // Group permissions by category
   const permissionsByCategory = AVAILABLE_PERMISSIONS.reduce(
     (acc, permission) => {
       if (!acc[permission.category]) {
-        acc[permission.category] = []
+        acc[permission.category] = [];
       }
-      acc[permission.category].push(permission)
-      return acc
+      acc[permission.category].push(permission);
+      return acc;
     },
-    {} as Record<string, typeof AVAILABLE_PERMISSIONS>
-  )
+    {} as Record<string, typeof AVAILABLE_PERMISSIONS>,
+  );
 
   return (
     <div className="space-y-6">
@@ -282,7 +298,9 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
             <Settings className="h-6 w-6" />
             Bot Configuration
           </h2>
-          <p className="text-muted-foreground">Configure triggers, permissions, and bot behavior</p>
+          <p className="text-muted-foreground">
+            Configure triggers, permissions, and bot behavior
+          </p>
         </div>
         <Button onClick={handleSave} disabled={saving}>
           {saving ? (
@@ -330,7 +348,9 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Bot Triggers</CardTitle>
-                  <CardDescription>Configure when your bot should activate</CardDescription>
+                  <CardDescription>
+                    Configure when your bot should activate
+                  </CardDescription>
                 </div>
                 <Button onClick={addTrigger}>
                   <Plus className="mr-2 h-4 w-4" />
@@ -346,7 +366,10 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
                 </div>
               ) : (
                 config.triggers.map((trigger) => (
-                  <div key={trigger.id} className="space-y-3 rounded-lg border p-4">
+                  <div
+                    key={trigger.id}
+                    className="space-y-3 rounded-lg border p-4"
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-3">
                         <div className="flex items-center gap-4">
@@ -361,31 +384,43 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="keyword">Keyword</SelectItem>
-                              <SelectItem value="pattern">Regex Pattern</SelectItem>
-                              <SelectItem value="schedule">Schedule (Cron)</SelectItem>
+                              <SelectItem value="pattern">
+                                Regex Pattern
+                              </SelectItem>
+                              <SelectItem value="schedule">
+                                Schedule (Cron)
+                              </SelectItem>
                               <SelectItem value="event">Event</SelectItem>
                             </SelectContent>
                           </Select>
                           <Switch
                             checked={trigger.enabled}
-                            onCheckedChange={(enabled) => updateTrigger(trigger.id, { enabled })}
+                            onCheckedChange={(enabled) =>
+                              updateTrigger(trigger.id, { enabled })
+                            }
                           />
                         </div>
                         <Input
                           value={trigger.value}
-                          onChange={(e) => updateTrigger(trigger.id, { value: e.target.value })}
+                          onChange={(e) =>
+                            updateTrigger(trigger.id, { value: e.target.value })
+                          }
                           placeholder={
-                            trigger.type === 'keyword'
-                              ? 'Enter keyword...'
-                              : trigger.type === 'pattern'
-                                ? 'Enter regex pattern...'
-                                : trigger.type === 'schedule'
-                                  ? '0 0 * * *'
-                                  : 'Enter event name...'
+                            trigger.type === "keyword"
+                              ? "Enter keyword..."
+                              : trigger.type === "pattern"
+                                ? "Enter regex pattern..."
+                                : trigger.type === "schedule"
+                                  ? "0 0 * * *"
+                                  : "Enter event name..."
                           }
                         />
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => removeTrigger(trigger.id)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeTrigger(trigger.id)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -401,7 +436,9 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
           <Card>
             <CardHeader>
               <CardTitle>Channel Scope</CardTitle>
-              <CardDescription>Select which channels the bot can operate in</CardDescription>
+              <CardDescription>
+                Select which channels the bot can operate in
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -426,12 +463,12 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
                 </Select>
               </div>
 
-              {config.channelScope.mode !== 'all' && (
+              {config.channelScope.mode !== "all" && (
                 <div className="space-y-2">
                   <Label>
-                    {config.channelScope.mode === 'specific'
-                      ? 'Allowed Channels'
-                      : 'Excluded Channels'}
+                    {config.channelScope.mode === "specific"
+                      ? "Allowed Channels"
+                      : "Excluded Channels"}
                   </Label>
                   <div className="space-y-2">
                     {channels.map((channel) => (
@@ -440,7 +477,9 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
                         className="flex items-center gap-2 rounded-lg border p-3"
                       >
                         <Checkbox
-                          checked={config.channelScope.channelIds.includes(channel.id)}
+                          checked={config.channelScope.channelIds.includes(
+                            channel.id,
+                          )}
                           onCheckedChange={() => toggleChannel(channel.id)}
                         />
                         <Hash className="h-4 w-4 text-muted-foreground" />
@@ -459,38 +498,49 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
           <Card>
             <CardHeader>
               <CardTitle>Bot Permissions</CardTitle>
-              <CardDescription>Grant permissions required for bot functionality</CardDescription>
+              <CardDescription>
+                Grant permissions required for bot functionality
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {Object.entries(permissionsByCategory).map(([category, perms]) => (
-                <div key={category} className="space-y-3">
-                  <h4 className="font-semibold">{category}</h4>
-                  <div className="space-y-2">
-                    {perms.map((permission) => (
-                      <div
-                        key={permission.id}
-                        className="flex items-start gap-3 rounded-lg border p-3"
-                      >
-                        <Checkbox
-                          checked={config.permissions.includes(permission.id)}
-                          onCheckedChange={() => togglePermission(permission.id)}
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{permission.name}</p>
-                            {permission.dangerous && (
-                              <Badge variant="destructive" className="text-xs">
-                                Dangerous
-                              </Badge>
-                            )}
+              {Object.entries(permissionsByCategory).map(
+                ([category, perms]) => (
+                  <div key={category} className="space-y-3">
+                    <h4 className="font-semibold">{category}</h4>
+                    <div className="space-y-2">
+                      {perms.map((permission) => (
+                        <div
+                          key={permission.id}
+                          className="flex items-start gap-3 rounded-lg border p-3"
+                        >
+                          <Checkbox
+                            checked={config.permissions.includes(permission.id)}
+                            onCheckedChange={() =>
+                              togglePermission(permission.id)
+                            }
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{permission.name}</p>
+                              {permission.dangerous && (
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
+                                  Dangerous
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {permission.description}
+                            </p>
                           </div>
-                          <p className="text-sm text-muted-foreground">{permission.description}</p>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -500,13 +550,17 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
           <Card>
             <CardHeader>
               <CardTitle>Rate Limiting</CardTitle>
-              <CardDescription>Configure rate limits to prevent abuse</CardDescription>
+              <CardDescription>
+                Configure rate limits to prevent abuse
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Enable Rate Limiting</Label>
-                  <p className="text-sm text-muted-foreground">Limit bot actions per minute</p>
+                  <p className="text-sm text-muted-foreground">
+                    Limit bot actions per minute
+                  </p>
                 </div>
                 <Switch
                   checked={config.rateLimits.enabled}
@@ -576,13 +630,17 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setShowSecrets(!showSecrets)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSecrets(!showSecrets)}
+                  >
                     {showSecrets ? (
                       <EyeOff className="mr-2 h-4 w-4" />
                     ) : (
                       <Eye className="mr-2 h-4 w-4" />
                     )}
-                    {showSecrets ? 'Hide' : 'Show'} Secrets
+                    {showSecrets ? "Hide" : "Show"} Secrets
                   </Button>
                   <Button onClick={addEnvVar}>
                     <Plus className="mr-2 h-4 w-4" />
@@ -605,28 +663,45 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
                         <Input
                           placeholder="VARIABLE_NAME"
                           value={envVar.key}
-                          onChange={(e) => updateEnvVar(index, { key: e.target.value })}
+                          onChange={(e) =>
+                            updateEnvVar(index, { key: e.target.value })
+                          }
                         />
                         <Input
-                          type={envVar.isSecret && !showSecrets ? 'password' : 'text'}
+                          type={
+                            envVar.isSecret && !showSecrets
+                              ? "password"
+                              : "text"
+                          }
                           placeholder="value"
                           value={envVar.value}
-                          onChange={(e) => updateEnvVar(index, { value: e.target.value })}
+                          onChange={(e) =>
+                            updateEnvVar(index, { value: e.target.value })
+                          }
                         />
                         <div className="flex items-center space-x-2">
                           <Checkbox
                             id={`secret-${index}`}
                             checked={envVar.isSecret}
                             onCheckedChange={(checked) =>
-                              updateEnvVar(index, { isSecret: checked as boolean })
+                              updateEnvVar(index, {
+                                isSecret: checked as boolean,
+                              })
                             }
                           />
-                          <Label htmlFor={`secret-${index}`} className="text-sm">
+                          <Label
+                            htmlFor={`secret-${index}`}
+                            className="text-sm"
+                          >
                             Mark as secret
                           </Label>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => removeEnvVar(index)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeEnvVar(index)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -638,5 +713,5 @@ export function BotConfig({ bot, channels = [], onSave }: BotConfigProps) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

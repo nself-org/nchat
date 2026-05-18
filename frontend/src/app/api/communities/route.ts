@@ -5,14 +5,14 @@
  * POST /api/communities - Create community (with announcement channel)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { z } from 'zod'
-import { apolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
+import { apolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // =============================================================================
 // VALIDATION SCHEMAS
@@ -23,20 +23,20 @@ const CreateCommunitySchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
   iconUrl: z.string().url().optional(),
-  addGroupsPermission: z.enum(['admin', 'member']).default('admin'),
+  addGroupsPermission: z.enum(["admin", "member"]).default("admin"),
   membersCanInvite: z.boolean().default(true),
   approvalRequired: z.boolean().default(false),
   eventsEnabled: z.boolean().default(true),
   maxGroups: z.number().int().min(1).max(100).default(100),
   maxMembers: z.number().int().min(1).max(5000).default(2000),
-})
+});
 
 const ListCommunitiesSchema = z.object({
   workspaceId: z.string().uuid(),
   includeGroups: z.coerce.boolean().default(false),
   limit: z.coerce.number().int().min(1).max(100).default(50),
   offset: z.coerce.number().int().min(0).default(0),
-})
+});
 
 // =============================================================================
 // GRAPHQL
@@ -74,10 +74,14 @@ const LIST_COMMUNITIES = gql`
       }
     }
   }
-`
+`;
 
 const LIST_COMMUNITIES_WITH_GROUPS = gql`
-  query ListCommunitiesWithGroups($workspaceId: uuid!, $limit: Int!, $offset: Int!) {
+  query ListCommunitiesWithGroups(
+    $workspaceId: uuid!
+    $limit: Int!
+    $offset: Int!
+  ) {
     communities(
       where: { workspace_id: { _eq: $workspaceId } }
       limit: $limit
@@ -130,7 +134,7 @@ const LIST_COMMUNITIES_WITH_GROUPS = gql`
       }
     }
   }
-`
+`;
 
 const CREATE_COMMUNITY = gql`
   mutation CreateCommunity(
@@ -182,7 +186,7 @@ const CREATE_COMMUNITY = gql`
       updated_at
     }
   }
-`
+`;
 
 const CREATE_ANNOUNCEMENT_CHANNEL = gql`
   mutation CreateAnnouncementChannel(
@@ -214,21 +218,21 @@ const CREATE_ANNOUNCEMENT_CHANNEL = gql`
       subtype
     }
   }
-`
+`;
 
 // =============================================================================
 // HELPER FUNCTIONS
 // =============================================================================
 
 function getUserIdFromRequest(request: NextRequest): string | null {
-  return request.headers.get('x-user-id') || null
+  return request.headers.get("x-user-id") || null;
 }
 
 function slugify(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 // =============================================================================
@@ -237,46 +241,48 @@ function slugify(text: string): string {
 
 export async function GET(request: NextRequest) {
   try {
-    logger.info('GET /api/communities - List communities')
+    logger.info("GET /api/communities - List communities");
 
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = request.nextUrl.searchParams;
     const queryParams = {
-      workspaceId: searchParams.get('workspaceId') || '',
-      includeGroups: searchParams.get('includeGroups') || 'false',
-      limit: searchParams.get('limit') || '50',
-      offset: searchParams.get('offset') || '0',
-    }
+      workspaceId: searchParams.get("workspaceId") || "",
+      includeGroups: searchParams.get("includeGroups") || "false",
+      limit: searchParams.get("limit") || "50",
+      offset: searchParams.get("offset") || "0",
+    };
 
-    const validation = ListCommunitiesSchema.safeParse(queryParams)
+    const validation = ListCommunitiesSchema.safeParse(queryParams);
     if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid query parameters',
+          error: "Invalid query parameters",
           details: validation.error.flatten().fieldErrors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const { workspaceId, includeGroups, limit, offset } = validation.data
+    const { workspaceId, includeGroups, limit, offset } = validation.data;
 
-    const query = includeGroups ? LIST_COMMUNITIES_WITH_GROUPS : LIST_COMMUNITIES
+    const query = includeGroups
+      ? LIST_COMMUNITIES_WITH_GROUPS
+      : LIST_COMMUNITIES;
 
     const { data } = await apolloClient.query({
       query,
       variables: { workspaceId, limit, offset },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const communities = data.communities || []
-    const total = data.communities_aggregate?.aggregate?.count || 0
+    const communities = data.communities || [];
+    const total = data.communities_aggregate?.aggregate?.count || 0;
 
-    logger.info('GET /api/communities - Success', {
+    logger.info("GET /api/communities - Success", {
       count: communities.length,
       total,
       workspaceId,
-    })
+    });
 
     return NextResponse.json({
       success: true,
@@ -287,17 +293,22 @@ export async function GET(request: NextRequest) {
         limit,
         hasMore: offset + limit < total,
       },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/communities - Error', error as Error)
+    logger.error("GET /api/communities - Error", error as Error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch communities',
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to fetch communities",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -307,35 +318,35 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('POST /api/communities - Create community')
+    logger.info("POST /api/communities - Create community");
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const body = await request.json()
+    const body = await request.json();
 
-    const validation = CreateCommunitySchema.safeParse(body)
+    const validation = CreateCommunitySchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid request body',
+          error: "Invalid request body",
           details: validation.error.flatten().fieldErrors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const data = validation.data
+    const data = validation.data;
 
     // Step 1: Create announcement channel
-    const channelName = `${data.name} Announcements`
-    const channelSlug = slugify(channelName)
+    const channelName = `${data.name} Announcements`;
+    const channelSlug = slugify(channelName);
 
     const { data: channelResult } = await apolloClient.mutate({
       mutation: CREATE_ANNOUNCEMENT_CHANNEL,
@@ -346,9 +357,9 @@ export async function POST(request: NextRequest) {
         description: `Announcement channel for ${data.name} community`,
         creatorId: userId,
       },
-    })
+    });
 
-    const announcementChannel = channelResult.insert_channels_one
+    const announcementChannel = channelResult.insert_channels_one;
 
     // Step 2: Create community with announcement channel
     const { data: communityResult } = await apolloClient.mutate({
@@ -367,49 +378,58 @@ export async function POST(request: NextRequest) {
         maxMembers: data.maxMembers,
         createdBy: userId,
       },
-    })
+    });
 
-    const community = communityResult.insert_communities_one
+    const community = communityResult.insert_communities_one;
 
-    logger.info('POST /api/communities - Community created', {
+    logger.info("POST /api/communities - Community created", {
       communityId: community.id,
       name: community.name,
       announcementChannelId: announcementChannel.id,
       createdBy: userId,
-    })
+    });
 
     return NextResponse.json(
       {
         success: true,
         community,
         announcementChannel,
-        message: 'Community created successfully',
+        message: "Community created successfully",
       },
-      { status: 201 }
-    )
+      { status: 201 },
+    );
   } catch (error) {
-    logger.error('POST /api/communities - Error', error as Error)
+    logger.error("POST /api/communities - Error", error as Error);
 
     if (error instanceof Error) {
-      if ((error instanceof Error ? error.message : String(error)).includes('unique constraint')) {
+      if (
+        (error instanceof Error ? error.message : String(error)).includes(
+          "unique constraint",
+        )
+      ) {
         return NextResponse.json(
           {
             success: false,
-            error: 'Community with this name already exists',
-            message: 'Please choose a different name',
+            error: "Community with this name already exists",
+            message: "Please choose a different name",
           },
-          { status: 409 }
-        )
+          { status: 409 },
+        );
       }
     }
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to create community',
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to create community",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

@@ -5,11 +5,11 @@
  * to improve bundle splitting and reduce initial load time.
  */
 
-import dynamic from 'next/dynamic'
-import React, { ComponentType, ReactNode } from 'react'
+import dynamic from "next/dynamic";
+import React, { ComponentType, ReactNode } from "react";
 
 // Loading components
-import { ChartSkeleton } from '@/components/ui/loading-skeletons'
+import { ChartSkeleton } from "@/components/ui/loading-skeletons";
 
 // =============================================================================
 // Admin Components (Heavy - Recharts, Complex Tables)
@@ -20,19 +20,25 @@ import { ChartSkeleton } from '@/components/ui/loading-skeletons'
  * Only load when admin dashboard is accessed
  */
 export const DynamicActivityChart = dynamic(
-  () => import('@/components/admin/activity-chart').then((mod) => ({ default: mod.ActivityChart })),
+  () =>
+    import("@/components/admin/activity-chart").then((mod) => ({
+      default: mod.ActivityChart,
+    })),
   {
     loading: () => React.createElement(ChartSkeleton),
     ssr: false, // Charts often rely on window measurements
-  }
-)
+  },
+);
 
 /**
  * Analytics Dashboard Components
  */
-export const DynamicAnalyticsDashboard = dynamic(() => import('@/app/admin/analytics/page'), {
-  ssr: false,
-})
+export const DynamicAnalyticsDashboard = dynamic(
+  () => import("@/app/admin/analytics/page"),
+  {
+    ssr: false,
+  },
+);
 
 // =============================================================================
 // Chat Components (Large - Message rendering, Editor)
@@ -42,32 +48,40 @@ export const DynamicAnalyticsDashboard = dynamic(() => import('@/app/admin/analy
  * Thread Panel - Complex message threading UI
  */
 export const DynamicThreadPanel = dynamic(
-  () => import('@/components/thread/thread-panel').then((mod) => ({ default: mod.ThreadPanel })),
+  () =>
+    import("@/components/thread/thread-panel").then((mod) => ({
+      default: mod.ThreadPanel,
+    })),
   {
     ssr: true, // Can SSR for better initial paint
-  }
-)
+  },
+);
 
 /**
  * Member List - User presence and list rendering
  */
 export const DynamicMemberList = dynamic(
-  () => import('@/components/layout/member-list').then((mod) => ({ default: mod.MemberList })),
+  () =>
+    import("@/components/layout/member-list").then((mod) => ({
+      default: mod.MemberList,
+    })),
   {
     ssr: true,
-  }
-)
+  },
+);
 
 /**
  * Pinned Messages - Secondary panel
  */
 export const DynamicPinnedMessages = dynamic(
   () =>
-    import('@/components/layout/pinned-messages').then((mod) => ({ default: mod.PinnedMessages })),
+    import("@/components/layout/pinned-messages").then((mod) => ({
+      default: mod.PinnedMessages,
+    })),
   {
     ssr: true,
-  }
-)
+  },
+);
 
 // =============================================================================
 // Rich Text Editor (Heavy - TipTap)
@@ -79,11 +93,13 @@ export const DynamicPinnedMessages = dynamic(
  */
 export const DynamicRichTextEditor = dynamic(
   () =>
-    import('@/components/editor/rich-text-editor').then((mod) => ({ default: mod.RichTextEditor })),
+    import("@/components/editor/rich-text-editor").then((mod) => ({
+      default: mod.RichTextEditor,
+    })),
   {
     ssr: false, // Editor requires browser APIs
-  }
-)
+  },
+);
 
 // =============================================================================
 // File Upload Components
@@ -92,9 +108,12 @@ export const DynamicRichTextEditor = dynamic(
 /**
  * File Uploader - Dropzone + preview
  */
-export const DynamicFileUploader = dynamic(() => import('@/components/upload/file-uploader'), {
-  ssr: false,
-})
+export const DynamicFileUploader = dynamic(
+  () => import("@/components/upload/file-uploader"),
+  {
+    ssr: false,
+  },
+);
 
 // =============================================================================
 // Emoji Picker
@@ -103,9 +122,9 @@ export const DynamicFileUploader = dynamic(() => import('@/components/upload/fil
 /**
  * Emoji Picker - Large data set
  */
-export const DynamicEmojiPicker = dynamic(() => import('emoji-picker-react'), {
+export const DynamicEmojiPicker = dynamic(() => import("emoji-picker-react"), {
   ssr: false,
-})
+});
 
 // =============================================================================
 // Meeting/Call Components (Very Heavy - WebRTC, MediaSoup)
@@ -114,16 +133,22 @@ export const DynamicEmojiPicker = dynamic(() => import('emoji-picker-react'), {
 /**
  * Video Call Interface - WebRTC stack
  */
-export const DynamicVideoCall = dynamic(() => import('@/components/calls/video-call'), {
-  ssr: false, // Requires browser APIs
-})
+export const DynamicVideoCall = dynamic(
+  () => import("@/components/calls/video-call"),
+  {
+    ssr: false, // Requires browser APIs
+  },
+);
 
 /**
  * Audio Call Interface
  */
-export const DynamicAudioCall = dynamic(() => import('@/components/calls/audio-call'), {
-  ssr: false,
-})
+export const DynamicAudioCall = dynamic(
+  () => import("@/components/calls/audio-call"),
+  {
+    ssr: false,
+  },
+);
 
 // =============================================================================
 // Settings Pages (Medium - Forms, Validation)
@@ -132,17 +157,26 @@ export const DynamicAudioCall = dynamic(() => import('@/components/calls/audio-c
 /**
  * Settings sections - Load on navigation
  */
-export const DynamicSettingsAccount = dynamic(() => import('@/app/settings/account/page'), {
-  ssr: true,
-})
+export const DynamicSettingsAccount = dynamic(
+  () => import("@/app/settings/account/page"),
+  {
+    ssr: true,
+  },
+);
 
-export const DynamicSettingsAppearance = dynamic(() => import('@/app/settings/appearance/page'), {
-  ssr: true,
-})
+export const DynamicSettingsAppearance = dynamic(
+  () => import("@/app/settings/appearance/page"),
+  {
+    ssr: true,
+  },
+);
 
-export const DynamicSettingsSecurity = dynamic(() => import('@/app/settings/security/page'), {
-  ssr: true,
-})
+export const DynamicSettingsSecurity = dynamic(
+  () => import("@/app/settings/security/page"),
+  {
+    ssr: true,
+  },
+);
 
 // =============================================================================
 // Modals (Load on-demand)
@@ -153,26 +187,26 @@ export const DynamicSettingsSecurity = dynamic(() => import('@/app/settings/secu
  */
 export const DynamicCreateChannelModal = dynamic(
   () =>
-    import('@/components/modals/create-channel-modal').then((mod) => ({
+    import("@/components/modals/create-channel-modal").then((mod) => ({
       default: mod.CreateChannelModal,
     })),
   {
     ssr: false,
-  }
-)
+  },
+);
 
 /**
  * User Profile Modal
  */
 export const DynamicUserProfileModal = dynamic(
   () =>
-    import('@/components/modals/user-profile-modal').then((mod) => ({
+    import("@/components/modals/user-profile-modal").then((mod) => ({
       default: mod.UserProfileModal,
     })),
   {
     ssr: false,
-  }
-)
+  },
+);
 
 // =============================================================================
 // API Documentation (Swagger UI - Very Heavy)
@@ -181,9 +215,9 @@ export const DynamicUserProfileModal = dynamic(
 /**
  * Swagger UI - ~200KB
  */
-export const DynamicSwaggerUI = dynamic(() => import('swagger-ui-react'), {
+export const DynamicSwaggerUI = dynamic(() => import("swagger-ui-react"), {
   ssr: false,
-})
+});
 
 // =============================================================================
 // Helper: Create Dynamic Component with Custom Config
@@ -191,11 +225,11 @@ export const DynamicSwaggerUI = dynamic(() => import('swagger-ui-react'), {
 
 export interface DynamicComponentConfig {
   /** Custom loading component */
-  loading?: ComponentType
+  loading?: ComponentType;
   /** Enable SSR (default: true) */
-  ssr?: boolean
+  ssr?: boolean;
   /** Delay before showing loading (ms) */
-  suspense?: boolean
+  suspense?: boolean;
 }
 
 /**
@@ -203,12 +237,14 @@ export interface DynamicComponentConfig {
  */
 export function createDynamicComponent<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
-  config: DynamicComponentConfig = {}
+  config: DynamicComponentConfig = {},
 ): T {
   return dynamic(importFn, {
-    loading: config.loading ? () => React.createElement(config.loading!) : undefined,
+    loading: config.loading
+      ? () => React.createElement(config.loading!)
+      : undefined,
     ssr: config.ssr ?? true,
-  }) as unknown as T
+  }) as unknown as T;
 }
 
 // =============================================================================
@@ -221,13 +257,13 @@ export function createDynamicComponent<T extends ComponentType<any>>(
  */
 export function preloadCriticalComponents() {
   // Preload components likely to be used soon
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Preload chat components after initial render
     setTimeout(() => {
       // @ts-ignore - Dynamic import for preloading
-      import('@/components/thread/thread-panel')
-      import('@/components/layout/member-list')
-    }, 2000)
+      import("@/components/thread/thread-panel");
+      import("@/components/layout/member-list");
+    }, 2000);
   }
 }
 
@@ -235,10 +271,10 @@ export function preloadCriticalComponents() {
  * Preload admin components when admin navigates
  */
 export function preloadAdminComponents() {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // @ts-ignore - Dynamic import for preloading
-    import('@/components/admin/activity-chart')
-    import('recharts')
+    import("@/components/admin/activity-chart");
+    import("recharts");
   }
 }
 
@@ -246,9 +282,9 @@ export function preloadAdminComponents() {
  * Preload editor when user hovers over input
  */
 export function preloadEditor() {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // @ts-ignore - Dynamic import for preloading
-    import('@/components/editor/rich-text-editor')
-    import('@tiptap/react')
+    import("@/components/editor/rich-text-editor");
+    import("@tiptap/react");
   }
 }

@@ -1,49 +1,54 @@
-'use client'
+"use client";
 
 /**
  * MeetingCalendar - Calendar view for meetings
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus } from 'lucide-react'
-import { Meeting, CalendarMonth } from '@/lib/meetings/meeting-types'
-import { generateCalendarMonth, formatTime } from '@/lib/meetings'
-import { useMeetingStore } from '@/stores/meeting-store'
-import { MeetingCard } from './MeetingCard'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  Plus,
+} from "lucide-react";
+import { Meeting, CalendarMonth } from "@/lib/meetings/meeting-types";
+import { generateCalendarMonth, formatTime } from "@/lib/meetings";
+import { useMeetingStore } from "@/stores/meeting-store";
+import { MeetingCard } from "./MeetingCard";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface MeetingCalendarProps {
-  meetings: Meeting[]
-  onDateSelect?: (date: Date) => void
-  onMeetingClick?: (meeting: Meeting) => void
-  onScheduleClick?: (date: Date) => void
+  meetings: Meeting[];
+  onDateSelect?: (date: Date) => void;
+  onMeetingClick?: (meeting: Meeting) => void;
+  onScheduleClick?: (date: Date) => void;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-]
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 // ============================================================================
 // Component
@@ -62,32 +67,38 @@ export function MeetingCalendar({
     setCalendarViewMode,
     navigateCalendar,
     goToToday,
-  } = useMeetingStore()
+  } = useMeetingStore();
 
-  const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
+  const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
 
   // Generate calendar data
   const calendarMonth = React.useMemo(
     () =>
-      generateCalendarMonth(calendarViewDate.getFullYear(), calendarViewDate.getMonth(), meetings),
-    [calendarViewDate, meetings]
-  )
+      generateCalendarMonth(
+        calendarViewDate.getFullYear(),
+        calendarViewDate.getMonth(),
+        meetings,
+      ),
+    [calendarViewDate, meetings],
+  );
 
   // Handle date click
   const handleDateClick = (date: string) => {
-    setSelectedDate(date)
+    setSelectedDate(date);
     if (onDateSelect) {
-      onDateSelect(new Date(date))
+      onDateSelect(new Date(date));
     }
-  }
+  };
 
   // Get meetings for selected date
   const selectedDateMeetings = selectedDate
     ? meetings.filter((m) => {
-        const meetingDate = new Date(m.scheduledStartAt).toISOString().split('T')[0]
-        return meetingDate === selectedDate
+        const meetingDate = new Date(m.scheduledStartAt)
+          .toISOString()
+          .split("T")[0];
+        return meetingDate === selectedDate;
       })
-    : []
+    : [];
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
@@ -105,10 +116,18 @@ export function MeetingCalendar({
             <Button variant="outline" size="sm" onClick={goToToday}>
               Today
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigateCalendar('prev')}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigateCalendar("prev")}
+            >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigateCalendar('next')}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigateCalendar("next")}
+            >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -130,27 +149,30 @@ export function MeetingCalendar({
         <div className="grid grid-cols-7 gap-1">
           {calendarMonth.weeks.flatMap((week) =>
             week.days.map((day) => {
-              const hasMeetings = day.meetings.length > 0
-              const isSelected = selectedDate === day.date
+              const hasMeetings = day.meetings.length > 0;
+              const isSelected = selectedDate === day.date;
 
               return (
                 <button
                   key={day.date}
                   onClick={() => handleDateClick(day.date)}
                   className={cn(
-                    'min-h-24 rounded-lg border p-1 text-left transition-colors',
-                    day.isCurrentMonth ? 'bg-card' : 'bg-muted/30 text-muted-foreground',
-                    day.isWeekend && 'bg-muted/50',
-                    day.isToday && 'ring-2 ring-primary',
-                    isSelected && 'bg-primary/5 ring-2 ring-primary',
-                    'hover:bg-accent/50'
+                    "min-h-24 rounded-lg border p-1 text-left transition-colors",
+                    day.isCurrentMonth
+                      ? "bg-card"
+                      : "bg-muted/30 text-muted-foreground",
+                    day.isWeekend && "bg-muted/50",
+                    day.isToday && "ring-2 ring-primary",
+                    isSelected && "bg-primary/5 ring-2 ring-primary",
+                    "hover:bg-accent/50",
                   )}
                 >
                   <div className="flex items-start justify-between">
                     <span
                       className={cn(
-                        'inline-flex h-6 w-6 items-center justify-center rounded-full text-sm',
-                        day.isToday && 'text-primary-foreground bg-primary font-medium'
+                        "inline-flex h-6 w-6 items-center justify-center rounded-full text-sm",
+                        day.isToday &&
+                          "text-primary-foreground bg-primary font-medium",
                       )}
                     >
                       {new Date(day.date).getDate()}
@@ -168,20 +190,20 @@ export function MeetingCalendar({
                       <div
                         key={meeting.id}
                         className={cn(
-                          'truncate rounded px-1 py-0.5 text-xs',
-                          meeting.status === 'live'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-primary/10 text-primary'
+                          "truncate rounded px-1 py-0.5 text-xs",
+                          meeting.status === "live"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                            : "bg-primary/10 text-primary",
                         )}
                         onClick={(e) => {
-                          e.stopPropagation()
-                          onMeetingClick?.(meeting)
+                          e.stopPropagation();
+                          onMeetingClick?.(meeting);
                         }}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            onMeetingClick?.(meeting)
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onMeetingClick?.(meeting);
                           }
                         }}
                         role="button"
@@ -197,8 +219,8 @@ export function MeetingCalendar({
                     )}
                   </div>
                 </button>
-              )
-            })
+              );
+            }),
           )}
         </div>
       </div>
@@ -208,13 +230,16 @@ export function MeetingCalendar({
         <div className="w-full rounded-lg border p-4 lg:w-80">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-semibold">
-              {new Date(selectedDate).toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'short',
-                day: 'numeric',
+              {new Date(selectedDate).toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "short",
+                day: "numeric",
               })}
             </h3>
-            <Button size="sm" onClick={() => onScheduleClick?.(new Date(selectedDate))}>
+            <Button
+              size="sm"
+              onClick={() => onScheduleClick?.(new Date(selectedDate))}
+            >
               <Plus className="mr-1 h-4 w-4" />
               Schedule
             </Button>
@@ -225,7 +250,8 @@ export function MeetingCalendar({
               {selectedDateMeetings
                 .sort(
                   (a, b) =>
-                    new Date(a.scheduledStartAt).getTime() - new Date(b.scheduledStartAt).getTime()
+                    new Date(a.scheduledStartAt).getTime() -
+                    new Date(b.scheduledStartAt).getTime(),
                 )
                 .map((meeting) => (
                   <MeetingCard
@@ -253,5 +279,5 @@ export function MeetingCalendar({
         </div>
       )}
     </div>
-  )
+  );
 }

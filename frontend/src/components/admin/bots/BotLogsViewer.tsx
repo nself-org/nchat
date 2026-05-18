@@ -4,9 +4,9 @@
  * Real-time log streaming with filtering, search, and download capabilities.
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from "react";
 import {
   Terminal,
   Download,
@@ -21,61 +21,61 @@ import {
   Bug,
   CheckCircle,
   RefreshCw,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 interface LogEntry {
-  id: string
-  timestamp: Date
-  level: LogLevel
-  message: string
-  metadata?: Record<string, any>
-  botId: string
+  id: string;
+  timestamp: Date;
+  level: LogLevel;
+  message: string;
+  metadata?: Record<string, any>;
+  botId: string;
 }
 
 interface BotLogsViewerProps {
-  botId: string
-  botName: string
-  logs?: LogEntry[]
-  streaming?: boolean
-  onToggleStreaming?: () => void
-  onClearLogs?: () => void
-  onDownloadLogs?: () => void
-  onRefresh?: () => void
+  botId: string;
+  botName: string;
+  logs?: LogEntry[];
+  streaming?: boolean;
+  onToggleStreaming?: () => void;
+  onClearLogs?: () => void;
+  onDownloadLogs?: () => void;
+  onRefresh?: () => void;
 }
 
 // Mock log generator for demo
 const generateMockLog = (botId: string, id: number): LogEntry => {
-  const levels: LogLevel[] = ['debug', 'info', 'warn', 'error']
+  const levels: LogLevel[] = ["debug", "info", "warn", "error"];
   const messages = [
-    'Bot initialized successfully',
-    'Received message event from channel #general',
-    'Executing command: /help',
-    'Permission check passed for user @john',
-    'Sending response to channel #random',
-    'Rate limit warning: approaching threshold',
-    'Error: Failed to connect to external API',
-    'Debug: Processing message queue',
-    'Message sent successfully',
-    'Command execution completed in 145ms',
-  ]
+    "Bot initialized successfully",
+    "Received message event from channel #general",
+    "Executing command: /help",
+    "Permission check passed for user @john",
+    "Sending response to channel #random",
+    "Rate limit warning: approaching threshold",
+    "Error: Failed to connect to external API",
+    "Debug: Processing message queue",
+    "Message sent successfully",
+    "Command execution completed in 145ms",
+  ];
 
-  const level = levels[Math.floor(Math.random() * levels.length)]
-  const message = messages[Math.floor(Math.random() * messages.length)]
+  const level = levels[Math.floor(Math.random() * levels.length)];
+  const message = messages[Math.floor(Math.random() * messages.length)];
 
   return {
     id: `log-${id}`,
@@ -83,13 +83,13 @@ const generateMockLog = (botId: string, id: number): LogEntry => {
     level,
     message,
     metadata: {
-      channelId: 'ch-123',
-      userId: 'user-456',
+      channelId: "ch-123",
+      userId: "user-456",
       duration: Math.floor(Math.random() * 500),
     },
     botId,
-  }
-}
+  };
+};
 
 export function BotLogsViewer({
   botId,
@@ -101,106 +101,108 @@ export function BotLogsViewer({
   onDownloadLogs,
   onRefresh,
 }: BotLogsViewerProps) {
-  const [logs, setLogs] = useState<LogEntry[]>(initialLogs)
-  const [filteredLogs, setFilteredLogs] = useState<LogEntry[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
+  const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
+  const [filteredLogs, setFilteredLogs] = useState<LogEntry[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedLevels, setSelectedLevels] = useState<Set<LogLevel>>(
-    new Set(['debug', 'info', 'warn', 'error'])
-  )
-  const [autoScroll, setAutoScroll] = useState(true)
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const logCounter = useRef(logs.length)
+    new Set(["debug", "info", "warn", "error"]),
+  );
+  const [autoScroll, setAutoScroll] = useState(true);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const logCounter = useRef(logs.length);
 
   // Generate mock logs for demo
   useEffect(() => {
     if (streaming) {
       const interval = setInterval(() => {
-        const newLog = generateMockLog(botId, logCounter.current++)
-        setLogs((prev) => [...prev, newLog].slice(-1000)) // Keep last 1000 logs
-      }, 2000)
+        const newLog = generateMockLog(botId, logCounter.current++);
+        setLogs((prev) => [...prev, newLog].slice(-1000)); // Keep last 1000 logs
+      }, 2000);
 
-      return () => clearInterval(interval)
+      return () => clearInterval(interval);
     }
-  }, [streaming, botId])
+  }, [streaming, botId]);
 
   // Filter logs
   useEffect(() => {
-    let result = logs
+    let result = logs;
 
     // Filter by level
-    result = result.filter((log) => selectedLevels.has(log.level))
+    result = result.filter((log) => selectedLevels.has(log.level));
 
     // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       result = result.filter(
         (log) =>
           log.message.toLowerCase().includes(query) ||
-          JSON.stringify(log.metadata).toLowerCase().includes(query)
-      )
+          JSON.stringify(log.metadata).toLowerCase().includes(query),
+      );
     }
 
-    setFilteredLogs(result)
-  }, [logs, selectedLevels, searchQuery])
+    setFilteredLogs(result);
+  }, [logs, selectedLevels, searchQuery]);
 
   // Auto-scroll to bottom
   useEffect(() => {
     if (autoScroll && scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      const scrollElement = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
       if (scrollElement) {
-        scrollElement.scrollTop = scrollElement.scrollHeight
+        scrollElement.scrollTop = scrollElement.scrollHeight;
       }
     }
-  }, [filteredLogs, autoScroll])
+  }, [filteredLogs, autoScroll]);
 
   // Toggle log level filter
   const toggleLevel = (level: LogLevel) => {
-    const newLevels = new Set(selectedLevels)
+    const newLevels = new Set(selectedLevels);
     if (newLevels.has(level)) {
-      newLevels.delete(level)
+      newLevels.delete(level);
     } else {
-      newLevels.add(level)
+      newLevels.add(level);
     }
-    setSelectedLevels(newLevels)
-  }
+    setSelectedLevels(newLevels);
+  };
 
   // Get log level icon and color
   const getLogLevelConfig = (level: LogLevel) => {
     const configs = {
       debug: {
         icon: Bug,
-        color: 'text-muted-foreground',
-        bg: 'bg-muted',
+        color: "text-muted-foreground",
+        bg: "bg-muted",
       },
       info: {
         icon: Info,
-        color: 'text-blue-500',
-        bg: 'bg-blue-500/10',
+        color: "text-blue-500",
+        bg: "bg-blue-500/10",
       },
       warn: {
         icon: AlertTriangle,
-        color: 'text-yellow-500',
-        bg: 'bg-yellow-500/10',
+        color: "text-yellow-500",
+        bg: "bg-yellow-500/10",
       },
       error: {
         icon: AlertCircle,
-        color: 'text-red-500',
-        bg: 'bg-red-500/10',
+        color: "text-red-500",
+        bg: "bg-red-500/10",
       },
-    }
-    return configs[level]
-  }
+    };
+    return configs[level];
+  };
 
   // Format timestamp
   const formatTimestamp = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
+    return date.toLocaleTimeString("en-US", {
       hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
       fractionalSecondDigits: 3,
-    })
-  }
+    });
+  };
 
   // Download logs
   const handleDownload = () => {
@@ -208,28 +210,28 @@ export function BotLogsViewer({
       .map(
         (log) =>
           `[${formatTimestamp(log.timestamp)}] [${log.level.toUpperCase()}] ${log.message}${
-            log.metadata ? '\n  ' + JSON.stringify(log.metadata, null, 2) : ''
-          }`
+            log.metadata ? "\n  " + JSON.stringify(log.metadata, null, 2) : ""
+          }`,
       )
-      .join('\n\n')
+      .join("\n\n");
 
-    const blob = new Blob([logText], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${botName.replace(/\s+/g, '-').toLowerCase()}-logs-${Date.now()}.txt`
-    a.click()
-    URL.revokeObjectURL(url)
+    const blob = new Blob([logText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${botName.replace(/\s+/g, "-").toLowerCase()}-logs-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
 
-    onDownloadLogs?.()
-  }
+    onDownloadLogs?.();
+  };
 
   // Clear logs
   const handleClear = () => {
-    setLogs([])
-    logCounter.current = 0
-    onClearLogs?.()
-  }
+    setLogs([]);
+    logCounter.current = 0;
+    onClearLogs?.();
+  };
 
   return (
     <div className="space-y-4">
@@ -270,7 +272,12 @@ export function BotLogsViewer({
             <Download className="mr-2 h-4 w-4" />
             Download
           </Button>
-          <Button variant="outline" size="sm" onClick={handleClear} disabled={logs.length === 0}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClear}
+            disabled={logs.length === 0}
+          >
             <Trash2 className="mr-2 h-4 w-4" />
             Clear
           </Button>
@@ -307,18 +314,18 @@ export function BotLogsViewer({
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">Levels:</span>
-          {(['debug', 'info', 'warn', 'error'] as LogLevel[]).map((level) => {
-            const config = getLogLevelConfig(level)
+          {(["debug", "info", "warn", "error"] as LogLevel[]).map((level) => {
+            const config = getLogLevelConfig(level);
             return (
               <Badge
                 key={level}
-                variant={selectedLevels.has(level) ? 'default' : 'outline'}
+                variant={selectedLevels.has(level) ? "default" : "outline"}
                 className="cursor-pointer"
                 onClick={() => toggleLevel(level)}
               >
                 {level.toUpperCase()}
               </Badge>
-            )
+            );
           })}
         </div>
 
@@ -347,17 +354,24 @@ export function BotLogsViewer({
             ) : (
               <div className="space-y-1">
                 {filteredLogs.map((log) => {
-                  const config = getLogLevelConfig(log.level)
-                  const Icon = config.icon
+                  const config = getLogLevelConfig(log.level);
+                  const Icon = config.icon;
                   return (
-                    <div key={log.id} className="group rounded px-2 py-1 hover:bg-white/5">
+                    <div
+                      key={log.id}
+                      className="group rounded px-2 py-1 hover:bg-white/5"
+                    >
                       <div className="flex items-start gap-2">
                         <span className="text-muted-foreground">
                           {formatTimestamp(log.timestamp)}
                         </span>
-                        <div className={`flex items-center gap-1 ${config.color}`}>
+                        <div
+                          className={`flex items-center gap-1 ${config.color}`}
+                        >
                           <Icon className="h-3 w-3" />
-                          <span className="w-12 text-xs font-bold">{log.level.toUpperCase()}</span>
+                          <span className="w-12 text-xs font-bold">
+                            {log.level.toUpperCase()}
+                          </span>
                         </div>
                         <span className="flex-1 text-white">{log.message}</span>
                       </div>
@@ -371,7 +385,7 @@ export function BotLogsViewer({
                         </div>
                       )}
                     </div>
-                  )
+                  );
                 })}
               </div>
             )}
@@ -379,5 +393,5 @@ export function BotLogsViewer({
         </ScrollArea>
       </div>
     </div>
-  )
+  );
 }

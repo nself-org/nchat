@@ -4,11 +4,11 @@
  * Gets the current 2FA status for a user.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getApolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
+import { NextRequest, NextResponse } from "next/server";
+import { getApolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 const GET_2FA_STATUS = gql`
   query Get2FAStatus($userId: uuid!) {
@@ -18,7 +18,9 @@ const GET_2FA_STATUS = gql`
       enabled_at
       last_used_at
     }
-    backup_codes_total: nchat_user_backup_codes_aggregate(where: { user_id: { _eq: $userId } }) {
+    backup_codes_total: nchat_user_backup_codes_aggregate(
+      where: { user_id: { _eq: $userId } }
+    ) {
       aggregate {
         count
       }
@@ -42,31 +44,37 @@ const GET_2FA_STATUS = gql`
       created_at
     }
   }
-`
+`;
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
-    const client = getApolloClient()
+    const client = getApolloClient();
     const { data, errors } = await client.query({
       query: GET_2FA_STATUS,
       variables: { userId },
-    })
+    });
 
     if (errors) {
-      logger.error('GraphQL errors:', errors)
-      return NextResponse.json({ error: 'Failed to fetch 2FA status' }, { status: 500 })
+      logger.error("GraphQL errors:", errors);
+      return NextResponse.json(
+        { error: "Failed to fetch 2FA status" },
+        { status: 500 },
+      );
     }
 
-    const settings = data.nchat_user_2fa_settings?.[0]
-    const totalBackupCodes = data.backup_codes_total.aggregate.count
-    const unusedBackupCodes = data.backup_codes_unused.aggregate.count
+    const settings = data.nchat_user_2fa_settings?.[0];
+    const totalBackupCodes = data.backup_codes_total.aggregate.count;
+    const unusedBackupCodes = data.backup_codes_unused.aggregate.count;
 
     return NextResponse.json({
       success: true,
@@ -81,9 +89,12 @@ export async function GET(request: NextRequest) {
         },
         trustedDevices: data.trusted_devices,
       },
-    })
+    });
   } catch (error) {
-    logger.error('2FA status error:', error)
-    return NextResponse.json({ error: 'Failed to get 2FA status' }, { status: 500 })
+    logger.error("2FA status error:", error);
+    return NextResponse.json(
+      { error: "Failed to get 2FA status" },
+      { status: 500 },
+    );
   }
 }

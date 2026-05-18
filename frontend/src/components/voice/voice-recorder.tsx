@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Voice Recorder Component
@@ -7,15 +7,24 @@
  * recording controls, and preview functionality.
  */
 
-import { useCallback, useRef, memo, useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Square, Pause, Play, Send, Trash2, X, AlertCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useVoiceRecorder, type UseVoiceRecorderOptions } from '@/lib/voice'
-import { WaveformVisualizer } from './waveform-visualizer'
-import { CompactRecordingIndicator } from './recording-indicator'
-import { VoiceMessagePreview } from './voice-message-preview'
+import { useCallback, useRef, memo, useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Mic,
+  Square,
+  Pause,
+  Play,
+  Send,
+  Trash2,
+  X,
+  AlertCircle,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useVoiceRecorder, type UseVoiceRecorderOptions } from "@/lib/voice";
+import { WaveformVisualizer } from "./waveform-visualizer";
+import { CompactRecordingIndicator } from "./recording-indicator";
+import { VoiceMessagePreview } from "./voice-message-preview";
 
 // ============================================================================
 // TYPES
@@ -23,29 +32,33 @@ import { VoiceMessagePreview } from './voice-message-preview'
 
 export interface VoiceRecorderProps {
   /** Callback when recording is complete and ready to send */
-  onSend?: (audioBlob: Blob, audioFile: File, duration: number) => void | Promise<void>
+  onSend?: (
+    audioBlob: Blob,
+    audioFile: File,
+    duration: number,
+  ) => void | Promise<void>;
   /** Callback when recording is cancelled */
-  onCancel?: () => void
+  onCancel?: () => void;
   /** Maximum recording duration in seconds (0 for unlimited) */
-  maxDuration?: number
+  maxDuration?: number;
   /** Whether to show preview before sending */
-  showPreview?: boolean
+  showPreview?: boolean;
   /** Whether to auto-start recording on mount */
-  autoStart?: boolean
+  autoStart?: boolean;
   /** Whether to show the cancel button */
-  showCancel?: boolean
+  showCancel?: boolean;
   /** Recorder options */
-  recorderOptions?: UseVoiceRecorderOptions['recorderOptions']
+  recorderOptions?: UseVoiceRecorderOptions["recorderOptions"];
   /** Custom placeholder/idle content */
-  idleContent?: React.ReactNode
+  idleContent?: React.ReactNode;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Callback when an error occurs */
-  onError?: (error: string) => void
+  onError?: (error: string) => void;
   /** Whether the recorder is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Layout variant */
-  variant?: 'default' | 'compact' | 'inline'
+  variant?: "default" | "compact" | "inline";
 }
 
 // ============================================================================
@@ -64,11 +77,11 @@ export const VoiceRecorder = memo(function VoiceRecorder({
   className,
   onError,
   disabled = false,
-  variant = 'default',
+  variant = "default",
 }: VoiceRecorderProps) {
-  const [showPreviewPanel, setShowPreviewPanel] = useState(false)
-  const [isSending, setIsSending] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [showPreviewPanel, setShowPreviewPanel] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const {
     isRecording,
@@ -96,74 +109,76 @@ export const VoiceRecorder = memo(function VoiceRecorder({
     onMaxDurationReached: () => {
       // Auto-stop and show preview when max duration is reached
       if (showPreview) {
-        setShowPreviewPanel(true)
+        setShowPreviewPanel(true);
       }
     },
     onError: (err) => {
-      onError?.(err.message)
+      onError?.(err.message);
     },
-  })
+  });
 
   // Auto-start on mount if requested
   useEffect(() => {
     if (autoStart && !disabled) {
-      startRecording()
+      startRecording();
     }
-  }, [autoStart, disabled]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [autoStart, disabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle recording stop
   const handleStop = useCallback(async () => {
-    await stopRecording()
+    await stopRecording();
     if (showPreview) {
-      setShowPreviewPanel(true)
+      setShowPreviewPanel(true);
     }
-  }, [stopRecording, showPreview])
+  }, [stopRecording, showPreview]);
 
   // Handle send
   const handleSend = useCallback(async () => {
-    if (!audioBlob || !audioFile || !onSend) return
+    if (!audioBlob || !audioFile || !onSend) return;
 
-    setIsSending(true)
+    setIsSending(true);
     try {
-      await onSend(audioBlob, audioFile, duration)
-      clearRecording()
-      setShowPreviewPanel(false)
+      await onSend(audioBlob, audioFile, duration);
+      clearRecording();
+      setShowPreviewPanel(false);
     } catch (error) {
-      onError?.(error instanceof Error ? error.message : 'Failed to send voice message')
+      onError?.(
+        error instanceof Error ? error.message : "Failed to send voice message",
+      );
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
-  }, [audioBlob, audioFile, duration, onSend, clearRecording, onError])
+  }, [audioBlob, audioFile, duration, onSend, clearRecording, onError]);
 
   // Handle cancel
   const handleCancel = useCallback(() => {
-    cancelRecording()
-    setShowPreviewPanel(false)
-    onCancel?.()
-  }, [cancelRecording, onCancel])
+    cancelRecording();
+    setShowPreviewPanel(false);
+    onCancel?.();
+  }, [cancelRecording, onCancel]);
 
   // Handle re-record from preview
   const handleReRecord = useCallback(() => {
-    clearRecording()
-    setShowPreviewPanel(false)
-    startRecording()
-  }, [clearRecording, startRecording])
+    clearRecording();
+    setShowPreviewPanel(false);
+    startRecording();
+  }, [clearRecording, startRecording]);
 
   // Handle permission request
   const handleRequestPermission = useCallback(async () => {
-    const granted = await requestPermission()
+    const granted = await requestPermission();
     if (!granted) {
-      onError?.('Microphone permission was denied')
+      onError?.("Microphone permission was denied");
     }
-  }, [requestPermission, onError])
+  }, [requestPermission, onError]);
 
   // Check if browser supports recording
   if (!isSupported) {
     return (
       <div
         className={cn(
-          'border-destructive/50 bg-destructive/10 flex items-center justify-center gap-2 rounded-lg border p-4',
-          className
+          "border-destructive/50 bg-destructive/10 flex items-center justify-center gap-2 rounded-lg border p-4",
+          className,
         )}
       >
         <AlertCircle className="h-5 w-5 text-destructive" />
@@ -171,24 +186,25 @@ export const VoiceRecorder = memo(function VoiceRecorder({
           Voice recording is not supported in this browser
         </span>
       </div>
-    )
+    );
   }
 
   // Permission denied state
-  if (permission === 'denied') {
+  if (permission === "denied") {
     return (
       <div
         className={cn(
-          'border-destructive/50 bg-destructive/10 flex flex-col items-center justify-center gap-3 rounded-lg border p-4',
-          className
+          "border-destructive/50 bg-destructive/10 flex flex-col items-center justify-center gap-3 rounded-lg border p-4",
+          className,
         )}
       >
         <AlertCircle className="h-6 w-6 text-destructive" />
         <p className="text-center text-sm text-destructive">
-          Microphone access was denied. Please enable it in your browser settings.
+          Microphone access was denied. Please enable it in your browser
+          settings.
         </p>
       </div>
-    )
+    );
   }
 
   // Show preview panel
@@ -204,11 +220,11 @@ export const VoiceRecorder = memo(function VoiceRecorder({
         isSending={isSending}
         className={className}
       />
-    )
+    );
   }
 
   // Render based on variant
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <CompactVoiceRecorder
         isRecording={isRecording}
@@ -226,10 +242,10 @@ export const VoiceRecorder = memo(function VoiceRecorder({
         showCancel={showCancel}
         className={className}
       />
-    )
+    );
   }
 
-  if (variant === 'inline') {
+  if (variant === "inline") {
     return (
       <InlineVoiceRecorder
         isRecording={isRecording}
@@ -244,27 +260,31 @@ export const VoiceRecorder = memo(function VoiceRecorder({
         onCancel={handleCancel}
         className={className}
       />
-    )
+    );
   }
 
   // Default variant
   return (
     <div
       ref={containerRef}
-      className={cn('flex flex-col rounded-lg border bg-card p-4', className)}
+      className={cn("flex flex-col rounded-lg border bg-card p-4", className)}
     >
       {/* Error display */}
       <AnimatePresence>
         {error && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="bg-destructive/10 mb-3 flex items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive"
           >
             <AlertCircle className="h-4 w-4 flex-shrink-0" />
             <span>{error.message}</span>
-            <button type="button" onClick={clearError} className="ml-auto hover:opacity-70">
+            <button
+              type="button"
+              onClick={clearError}
+              className="ml-auto hover:opacity-70"
+            >
               <X className="h-4 w-4" />
             </button>
           </motion.div>
@@ -294,7 +314,7 @@ export const VoiceRecorder = memo(function VoiceRecorder({
           />
         ) : (
           <span className="text-sm text-muted-foreground">
-            {idleContent || 'Press record to start'}
+            {idleContent || "Press record to start"}
           </span>
         )}
       </div>
@@ -321,19 +341,27 @@ export const VoiceRecorder = memo(function VoiceRecorder({
             onClick={isPaused ? resumeRecording : pauseRecording}
             className="h-10 w-10 rounded-full"
           >
-            {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+            {isPaused ? (
+              <Play className="h-4 w-4" />
+            ) : (
+              <Pause className="h-4 w-4" />
+            )}
           </Button>
         )}
 
         {/* Main record/stop button */}
         <Button
-          variant={isRecording ? 'destructive' : 'default'}
+          variant={isRecording ? "destructive" : "default"}
           size="icon"
           onClick={isRecording || isPaused ? handleStop : startRecording}
-          disabled={disabled || permission === 'prompt'}
+          disabled={disabled || permission === "prompt"}
           className="h-14 w-14 rounded-full"
         >
-          {isRecording || isPaused ? <Square className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+          {isRecording || isPaused ? (
+            <Square className="h-6 w-6" />
+          ) : (
+            <Mic className="h-6 w-6" />
+          )}
         </Button>
 
         {/* Quick send (without preview) */}
@@ -342,9 +370,9 @@ export const VoiceRecorder = memo(function VoiceRecorder({
             variant="default"
             size="icon"
             onClick={async () => {
-              const blob = await stopRecording()
+              const blob = await stopRecording();
               if (blob && audioFile) {
-                handleSend()
+                handleSend();
               }
             }}
             className="h-10 w-10 rounded-full"
@@ -355,9 +383,14 @@ export const VoiceRecorder = memo(function VoiceRecorder({
       </div>
 
       {/* Permission prompt */}
-      {permission === 'prompt' && !isRecording && (
+      {permission === "prompt" && !isRecording && (
         <div className="mt-4 text-center">
-          <Button variant="link" size="sm" onClick={handleRequestPermission} className="text-xs">
+          <Button
+            variant="link"
+            size="sm"
+            onClick={handleRequestPermission}
+            className="text-xs"
+          >
             Click here to enable microphone
           </Button>
         </div>
@@ -372,28 +405,28 @@ export const VoiceRecorder = memo(function VoiceRecorder({
         </div>
       )}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // COMPACT VARIANT
 // ============================================================================
 
 interface CompactVoiceRecorderProps {
-  isRecording: boolean
-  isPaused: boolean
-  duration: number
-  formattedDuration: string
-  waveformData: ReturnType<typeof useVoiceRecorder>['waveformData']
-  error: ReturnType<typeof useVoiceRecorder>['error']
-  disabled: boolean
-  onStart: () => void
-  onStop: () => void
-  onPause: () => void
-  onResume: () => void
-  onCancel: () => void
-  showCancel: boolean
-  className?: string
+  isRecording: boolean;
+  isPaused: boolean;
+  duration: number;
+  formattedDuration: string;
+  waveformData: ReturnType<typeof useVoiceRecorder>["waveformData"];
+  error: ReturnType<typeof useVoiceRecorder>["error"];
+  disabled: boolean;
+  onStart: () => void;
+  onStop: () => void;
+  onPause: () => void;
+  onResume: () => void;
+  onCancel: () => void;
+  showCancel: boolean;
+  className?: string;
 }
 
 const CompactVoiceRecorder = memo(function CompactVoiceRecorder({
@@ -413,12 +446,22 @@ const CompactVoiceRecorder = memo(function CompactVoiceRecorder({
   className,
 }: CompactVoiceRecorderProps) {
   return (
-    <div className={cn('flex items-center gap-3 rounded-full border bg-card px-4 py-2', className)}>
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-full border bg-card px-4 py-2",
+        className,
+      )}
+    >
       {isRecording || isPaused ? (
         <>
           {/* Cancel */}
           {showCancel && (
-            <Button variant="ghost" size="icon" onClick={onCancel} className="h-8 w-8 rounded-full">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onCancel}
+              className="h-8 w-8 rounded-full"
+            >
               <X className="h-4 w-4" />
             </Button>
           )}
@@ -445,7 +488,11 @@ const CompactVoiceRecorder = memo(function CompactVoiceRecorder({
             onClick={isPaused ? onResume : onPause}
             className="h-8 w-8 rounded-full"
           >
-            {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+            {isPaused ? (
+              <Play className="h-4 w-4" />
+            ) : (
+              <Pause className="h-4 w-4" />
+            )}
           </Button>
 
           {/* Stop */}
@@ -461,7 +508,7 @@ const CompactVoiceRecorder = memo(function CompactVoiceRecorder({
       ) : (
         <>
           <span className="flex-1 text-sm text-muted-foreground">
-            {error ? error.message : 'Record a voice message'}
+            {error ? error.message : "Record a voice message"}
           </span>
           <Button
             variant="default"
@@ -475,25 +522,25 @@ const CompactVoiceRecorder = memo(function CompactVoiceRecorder({
         </>
       )}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // INLINE VARIANT
 // ============================================================================
 
 interface InlineVoiceRecorderProps {
-  isRecording: boolean
-  isPaused: boolean
-  duration: number
-  formattedDuration: string
-  waveformData: ReturnType<typeof useVoiceRecorder>['waveformData']
-  error: ReturnType<typeof useVoiceRecorder>['error']
-  disabled: boolean
-  onStart: () => void
-  onStop: () => void
-  onCancel: () => void
-  className?: string
+  isRecording: boolean;
+  isPaused: boolean;
+  duration: number;
+  formattedDuration: string;
+  waveformData: ReturnType<typeof useVoiceRecorder>["waveformData"];
+  error: ReturnType<typeof useVoiceRecorder>["error"];
+  disabled: boolean;
+  onStart: () => void;
+  onStop: () => void;
+  onCancel: () => void;
+  className?: string;
 }
 
 const InlineVoiceRecorder = memo(function InlineVoiceRecorder({
@@ -508,10 +555,15 @@ const InlineVoiceRecorder = memo(function InlineVoiceRecorder({
   className,
 }: InlineVoiceRecorderProps) {
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       {isRecording || isPaused ? (
         <>
-          <Button variant="ghost" size="icon" onClick={onCancel} className="h-8 w-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onCancel}
+            className="h-8 w-8"
+          >
             <X className="h-4 w-4" />
           </Button>
 
@@ -524,11 +576,21 @@ const InlineVoiceRecorder = memo(function InlineVoiceRecorder({
               {formattedDuration}
             </span>
             <div className="flex-1">
-              <WaveformVisualizer realtimeData={waveformData} height={16} animated barCount={15} />
+              <WaveformVisualizer
+                realtimeData={waveformData}
+                height={16}
+                animated
+                barCount={15}
+              />
             </div>
           </div>
 
-          <Button variant="destructive" size="icon" onClick={onStop} className="h-8 w-8">
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={onStop}
+            className="h-8 w-8"
+          >
             <Square className="h-3 w-3" />
           </Button>
         </>
@@ -544,18 +606,18 @@ const InlineVoiceRecorder = memo(function InlineVoiceRecorder({
         </Button>
       )}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // UTILITIES
 // ============================================================================
 
 function formatMaxDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`
+  if (seconds < 60) return `${seconds}s`;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
 }
 
-export default VoiceRecorder
+export default VoiceRecorder;

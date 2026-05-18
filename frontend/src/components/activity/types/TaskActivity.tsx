@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * TaskActivity Component
@@ -6,69 +6,80 @@
  * Displays task-related activities (completed, assigned)
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ActivityAvatar } from '../ActivityAvatar'
-import { ActivityDate } from '../ActivityDate'
-import { ActivityIcon } from '../ActivityIcon'
-import type { TaskCompletedActivity, TaskAssignedActivity } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ActivityAvatar } from "../ActivityAvatar";
+import { ActivityDate } from "../ActivityDate";
+import { ActivityIcon } from "../ActivityIcon";
+import type {
+  TaskCompletedActivity,
+  TaskAssignedActivity,
+} from "@/lib/activity/activity-types";
 
-type TaskActivityType = TaskCompletedActivity | TaskAssignedActivity
+type TaskActivityType = TaskCompletedActivity | TaskAssignedActivity;
 
 interface TaskActivityProps {
-  activity: TaskActivityType
-  onClick?: () => void
-  className?: string
+  activity: TaskActivityType;
+  onClick?: () => void;
+  className?: string;
 }
 
 // Status badge component
 function TaskStatusBadge({ status }: { status: string }) {
   const statusStyles: Record<string, string> = {
-    pending: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-    in_progress: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-    completed: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-    cancelled: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
-  }
+    pending: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+    in_progress:
+      "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+    completed:
+      "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
+    cancelled: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
+  };
 
   const statusLabels: Record<string, string> = {
-    pending: 'Pending',
-    in_progress: 'In Progress',
-    completed: 'Completed',
-    cancelled: 'Cancelled',
-  }
+    pending: "Pending",
+    in_progress: "In Progress",
+    completed: "Completed",
+    cancelled: "Cancelled",
+  };
 
   return (
     <span
       className={cn(
-        'rounded px-1.5 py-0.5 text-xs font-medium',
-        statusStyles[status] || statusStyles.pending
+        "rounded px-1.5 py-0.5 text-xs font-medium",
+        statusStyles[status] || statusStyles.pending,
       )}
     >
       {statusLabels[status] || status}
     </span>
-  )
+  );
 }
 
-export function TaskActivity({ activity, onClick, className }: TaskActivityProps) {
-  const { actor, task, type, isRead, createdAt } = activity
-  const isCompleted = type === 'task_completed'
+export function TaskActivity({
+  activity,
+  onClick,
+  className,
+}: TaskActivityProps) {
+  const { actor, task, type, isRead, createdAt } = activity;
+  const isCompleted = type === "task_completed";
 
   return (
     <div
       className={cn(
-        'group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors',
-        'hover:bg-muted/50',
+        "group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors",
+        "hover:bg-muted/50",
         !isRead &&
-          (isCompleted ? 'bg-green-50 dark:bg-green-950/30' : 'bg-blue-50 dark:bg-blue-950/30'),
-        className
+          (isCompleted
+            ? "bg-green-50 dark:bg-green-950/30"
+            : "bg-blue-50 dark:bg-blue-950/30"),
+        className,
       )}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
@@ -76,8 +87,8 @@ export function TaskActivity({ activity, onClick, className }: TaskActivityProps
       {!isRead && (
         <div
           className={cn(
-            'absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full',
-            isCompleted ? 'bg-green-500' : 'bg-blue-500'
+            "absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full",
+            isCompleted ? "bg-green-500" : "bg-blue-500",
           )}
         />
       )}
@@ -90,18 +101,18 @@ export function TaskActivity({ activity, onClick, className }: TaskActivityProps
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             {/* Header */}
-            <p className={cn('text-sm', !isRead && 'font-medium')}>
+            <p className={cn("text-sm", !isRead && "font-medium")}>
               {isCompleted ? (
                 <>
                   <span className="font-medium">{actor.displayName}</span>
-                  {' completed a task'}
+                  {" completed a task"}
                 </>
               ) : (
                 <>
                   <span className="font-medium">
                     {(activity as TaskAssignedActivity).assignedBy.displayName}
                   </span>
-                  {' assigned a task to '}
+                  {" assigned a task to "}
                   <span className="font-medium">{actor.displayName}</span>
                 </>
               )}
@@ -131,8 +142,8 @@ export function TaskActivity({ activity, onClick, className }: TaskActivityProps
                   )}
                   <span
                     className={cn(
-                      'text-sm font-medium',
-                      isCompleted && 'text-muted-foreground line-through'
+                      "text-sm font-medium",
+                      isCompleted && "text-muted-foreground line-through",
                     )}
                   >
                     {task.title}
@@ -173,7 +184,9 @@ export function TaskActivity({ activity, onClick, className }: TaskActivityProps
               {task.assignee && (
                 <div className="ml-7 mt-2 flex items-center gap-2">
                   <ActivityAvatar actor={task.assignee} size="sm" />
-                  <span className="text-xs text-muted-foreground">{task.assignee.displayName}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {task.assignee.displayName}
+                  </span>
                 </div>
               )}
             </div>
@@ -184,7 +197,7 @@ export function TaskActivity({ activity, onClick, className }: TaskActivityProps
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default TaskActivity
+export default TaskActivity;

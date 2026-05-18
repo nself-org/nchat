@@ -5,9 +5,9 @@
  * Supports 1-on-1 and group calls with screen sharing.
  */
 
-'use client'
+"use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   X,
   Mic,
@@ -24,51 +24,51 @@ import {
   MoreVertical,
   Minimize2,
   Maximize2,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface CallParticipant {
-  id: string
-  name: string
-  avatarUrl?: string
-  isMuted: boolean
-  isVideoOff: boolean
-  isSpeaking: boolean
-  isScreenSharing: boolean
-  stream?: MediaStream
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  isMuted: boolean;
+  isVideoOff: boolean;
+  isSpeaking: boolean;
+  isScreenSharing: boolean;
+  stream?: MediaStream;
 }
 
 export interface CallWindowProps {
-  callId: string
-  channelId?: string
-  channelName?: string
-  participants: CallParticipant[]
-  currentUserId: string
-  isAudioCall?: boolean // If true, starts as audio-only
-  onEndCall: () => void
-  onToggleMute: () => void
-  onToggleVideo: () => void
-  onToggleScreenShare: () => void
-  onInviteParticipants?: () => void
-  onOpenSettings?: () => void
-  onOpenChat?: () => void
-  className?: string
+  callId: string;
+  channelId?: string;
+  channelName?: string;
+  participants: CallParticipant[];
+  currentUserId: string;
+  isAudioCall?: boolean; // If true, starts as audio-only
+  onEndCall: () => void;
+  onToggleMute: () => void;
+  onToggleVideo: () => void;
+  onToggleScreenShare: () => void;
+  onInviteParticipants?: () => void;
+  onOpenSettings?: () => void;
+  onOpenChat?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -95,17 +95,17 @@ export function CallWindow({
   // State
   // ==========================================================================
 
-  const [isMuted, setIsMuted] = useState(false)
-  const [isVideoOff, setIsVideoOff] = useState(isAudioCall)
-  const [isScreenSharing, setIsScreenSharing] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(false)
-  const [layout, setLayout] = useState<'grid' | 'speaker' | 'sidebar'>('grid')
-  const [activeSpeakerId, setActiveSpeakerId] = useState<string | null>(null)
-  const [callDuration, setCallDuration] = useState(0)
-  const [showControls, setShowControls] = useState(true)
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(isAudioCall);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [layout, setLayout] = useState<"grid" | "speaker" | "sidebar">("grid");
+  const [activeSpeakerId, setActiveSpeakerId] = useState<string | null>(null);
+  const [callDuration, setCallDuration] = useState(0);
+  const [showControls, setShowControls] = useState(true);
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // ==========================================================================
   // Call Duration Timer
@@ -113,81 +113,81 @@ export function CallWindow({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCallDuration((prev) => prev + 1)
-    }, 1000)
+      setCallDuration((prev) => prev + 1);
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   // ==========================================================================
   // Auto-hide Controls
   // ==========================================================================
 
   const handleMouseMove = useCallback(() => {
-    setShowControls(true)
+    setShowControls(true);
 
     if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current)
+      clearTimeout(controlsTimeoutRef.current);
     }
 
     controlsTimeoutRef.current = setTimeout(() => {
-      setShowControls(false)
-    }, 3000)
-  }, [])
+      setShowControls(false);
+    }, 3000);
+  }, []);
 
   useEffect(() => {
     return () => {
       if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
+        clearTimeout(controlsTimeoutRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // ==========================================================================
   // Handlers
   // ==========================================================================
 
   const handleToggleMute = () => {
-    setIsMuted(!isMuted)
-    onToggleMute()
-    toast.success(isMuted ? 'Microphone on' : 'Microphone muted')
-  }
+    setIsMuted(!isMuted);
+    onToggleMute();
+    toast.success(isMuted ? "Microphone on" : "Microphone muted");
+  };
 
   const handleToggleVideo = () => {
-    setIsVideoOff(!isVideoOff)
-    onToggleVideo()
-    toast.success(isVideoOff ? 'Camera on' : 'Camera off')
-  }
+    setIsVideoOff(!isVideoOff);
+    onToggleVideo();
+    toast.success(isVideoOff ? "Camera on" : "Camera off");
+  };
 
   const handleToggleScreenShare = () => {
-    setIsScreenSharing(!isScreenSharing)
-    onToggleScreenShare()
-    toast.success(isScreenSharing ? 'Stopped sharing' : 'Sharing screen')
-  }
+    setIsScreenSharing(!isScreenSharing);
+    onToggleScreenShare();
+    toast.success(isScreenSharing ? "Stopped sharing" : "Sharing screen");
+  };
 
   const handleEndCall = () => {
-    if (window.confirm('Are you sure you want to end the call?')) {
-      onEndCall()
+    if (window.confirm("Are you sure you want to end the call?")) {
+      onEndCall();
     }
-  }
+  };
 
   const formatDuration = (seconds: number): string => {
-    const hrs = Math.floor(seconds / 3600)
-    const mins = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
 
     if (hrs > 0) {
-      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // ==========================================================================
   // Get Current User
   // ==========================================================================
 
-  const currentUser = participants.find((p) => p.id === currentUserId)
-  const otherParticipants = participants.filter((p) => p.id !== currentUserId)
+  const currentUser = participants.find((p) => p.id === currentUserId);
+  const otherParticipants = participants.filter((p) => p.id !== currentUserId);
 
   // ==========================================================================
   // Render Participant Video
@@ -195,19 +195,19 @@ export function CallWindow({
 
   const renderParticipant = (participant: CallParticipant, isSelf = false) => {
     const initials = participant.name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
+      .slice(0, 2);
 
     return (
       <div
         key={participant.id}
         className={cn(
-          'relative overflow-hidden rounded-lg bg-gray-900',
-          participant.isSpeaking && 'ring-2 ring-green-500',
-          isSelf && 'border-2 border-blue-500'
+          "relative overflow-hidden rounded-lg bg-gray-900",
+          participant.isSpeaking && "ring-2 ring-green-500",
+          isSelf && "border-2 border-blue-500",
         )}
       >
         {/* Video or Avatar */}
@@ -215,7 +215,9 @@ export function CallWindow({
           <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
             <Avatar className="h-24 w-24">
               <AvatarImage src={participant.avatarUrl} alt={participant.name} />
-              <AvatarFallback className="bg-gray-700 text-2xl">{initials}</AvatarFallback>
+              <AvatarFallback className="bg-gray-700 text-2xl">
+                {initials}
+              </AvatarFallback>
             </Avatar>
           </div>
         ) : (
@@ -227,7 +229,7 @@ export function CallWindow({
             muted={isSelf}
             ref={(video) => {
               if (video && participant.stream) {
-                video.srcObject = participant.stream
+                video.srcObject = participant.stream;
               }
             }}
           />
@@ -238,9 +240,11 @@ export function CallWindow({
           <div className="flex items-center gap-2">
             <span className="rounded bg-black/60 px-2 py-1 text-sm font-medium text-white backdrop-blur">
               {participant.name}
-              {isSelf && ' (You)'}
+              {isSelf && " (You)"}
             </span>
-            {participant.isSpeaking && <Badge className="bg-green-500 text-white">Speaking</Badge>}
+            {participant.isSpeaking && (
+              <Badge className="bg-green-500 text-white">Speaking</Badge>
+            )}
           </div>
           <div className="flex gap-1">
             {participant.isMuted && (
@@ -256,15 +260,15 @@ export function CallWindow({
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   // ==========================================================================
   // Render Layout
   // ==========================================================================
 
   const renderGridLayout = () => {
-    const allParticipants = [currentUser!, ...otherParticipants]
+    const allParticipants = [currentUser!, ...otherParticipants];
     const gridCols =
       allParticipants.length === 1
         ? 1
@@ -272,27 +276,29 @@ export function CallWindow({
           ? 2
           : allParticipants.length <= 4
             ? 2
-            : 3
+            : 3;
 
     return (
       <div
         className={cn(
-          'grid gap-2 p-4',
-          gridCols === 1 && 'grid-cols-1',
-          gridCols === 2 && 'grid-cols-2',
-          gridCols === 3 && 'grid-cols-3'
+          "grid gap-2 p-4",
+          gridCols === 1 && "grid-cols-1",
+          gridCols === 2 && "grid-cols-2",
+          gridCols === 3 && "grid-cols-3",
         )}
-        style={{ height: 'calc(100% - 100px)' }}
+        style={{ height: "calc(100% - 100px)" }}
       >
-        {allParticipants.map((p) => renderParticipant(p, p.id === currentUserId))}
+        {allParticipants.map((p) =>
+          renderParticipant(p, p.id === currentUserId),
+        )}
       </div>
-    )
-  }
+    );
+  };
 
   const renderSpeakerLayout = () => {
     const speaker = activeSpeakerId
       ? participants.find((p) => p.id === activeSpeakerId)
-      : otherParticipants[0] || currentUser
+      : otherParticipants[0] || currentUser;
 
     return (
       <div className="flex h-full flex-col gap-2 p-4">
@@ -302,7 +308,7 @@ export function CallWindow({
         </div>
 
         {/* Thumbnails */}
-        <div className="flex gap-2" style={{ height: '120px' }}>
+        <div className="flex gap-2" style={{ height: "120px" }}>
           {participants
             .filter((p) => p.id !== speaker?.id)
             .map((p) => (
@@ -311,9 +317,9 @@ export function CallWindow({
                 className="w-32 cursor-pointer"
                 onClick={() => setActiveSpeakerId(p.id)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    setActiveSpeakerId(p.id)
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setActiveSpeakerId(p.id);
                   }
                 }}
                 role="button"
@@ -324,8 +330,8 @@ export function CallWindow({
             ))}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   // ==========================================================================
   // Render
@@ -335,8 +341,8 @@ export function CallWindow({
     return (
       <Card
         className={cn(
-          'fixed bottom-4 right-4 z-50 w-80 border-2 border-gray-700 bg-gray-900 shadow-2xl',
-          className
+          "fixed bottom-4 right-4 z-50 w-80 border-2 border-gray-700 bg-gray-900 shadow-2xl",
+          className,
         )}
       >
         <div className="flex items-center justify-between p-4">
@@ -351,7 +357,9 @@ export function CallWindow({
               <p className="font-semibold text-white">
                 {channelName || `Call with ${otherParticipants[0]?.name}`}
               </p>
-              <p className="text-sm text-gray-400">{formatDuration(callDuration)}</p>
+              <p className="text-sm text-gray-400">
+                {formatDuration(callDuration)}
+              </p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -374,32 +382,33 @@ export function CallWindow({
           </div>
         </div>
       </Card>
-    )
+    );
   }
 
   return (
     <Card
       ref={containerRef}
       className={cn(
-        'fixed inset-4 z-50 flex flex-col border-2 border-gray-700 bg-gray-900 shadow-2xl',
-        className
+        "fixed inset-4 z-50 flex flex-col border-2 border-gray-700 bg-gray-900 shadow-2xl",
+        className,
       )}
       onMouseMove={handleMouseMove}
     >
       {/* Header */}
       <div
         className={cn(
-          'flex items-center justify-between border-b border-gray-700 bg-gray-800 p-4 transition-opacity duration-300',
-          !showControls && 'opacity-0'
+          "flex items-center justify-between border-b border-gray-700 bg-gray-800 p-4 transition-opacity duration-300",
+          !showControls && "opacity-0",
         )}
       >
         <div>
           <h2 className="font-semibold text-white">
-            {channelName || `Call with ${otherParticipants.map((p) => p.name).join(', ')}`}
+            {channelName ||
+              `Call with ${otherParticipants.map((p) => p.name).join(", ")}`}
           </h2>
           <p className="text-sm text-gray-400">
-            {formatDuration(callDuration)} • {participants.length}{' '}
-            {participants.length === 1 ? 'participant' : 'participants'}
+            {formatDuration(callDuration)} • {participants.length}{" "}
+            {participants.length === 1 ? "participant" : "participants"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -432,15 +441,15 @@ export function CallWindow({
 
       {/* Video Grid */}
       <div className="flex-1 overflow-hidden">
-        {layout === 'grid' && renderGridLayout()}
-        {layout === 'speaker' && renderSpeakerLayout()}
+        {layout === "grid" && renderGridLayout()}
+        {layout === "speaker" && renderSpeakerLayout()}
       </div>
 
       {/* Controls */}
       <div
         className={cn(
-          'border-t border-gray-700 bg-gray-800 p-4 transition-opacity duration-300',
-          !showControls && 'opacity-0'
+          "border-t border-gray-700 bg-gray-800 p-4 transition-opacity duration-300",
+          !showControls && "opacity-0",
         )}
       >
         <div className="flex items-center justify-between">
@@ -458,7 +467,10 @@ export function CallWindow({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-64">
                 {participants.map((p) => (
-                  <DropdownMenuItem key={p.id} className="flex items-center gap-2">
+                  <DropdownMenuItem
+                    key={p.id}
+                    className="flex items-center gap-2"
+                  >
                     <Avatar className="h-6 w-6">
                       <AvatarImage src={p.avatarUrl} />
                       <AvatarFallback>{p.name[0]}</AvatarFallback>
@@ -493,23 +505,31 @@ export function CallWindow({
           <div className="flex gap-3">
             <Button
               size="lg"
-              variant={isMuted ? 'destructive' : 'secondary'}
+              variant={isMuted ? "destructive" : "secondary"}
               onClick={handleToggleMute}
               className="rounded-full"
             >
-              {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              {isMuted ? (
+                <MicOff className="h-5 w-5" />
+              ) : (
+                <Mic className="h-5 w-5" />
+              )}
             </Button>
             <Button
               size="lg"
-              variant={isVideoOff ? 'destructive' : 'secondary'}
+              variant={isVideoOff ? "destructive" : "secondary"}
               onClick={handleToggleVideo}
               className="rounded-full"
             >
-              {isVideoOff ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+              {isVideoOff ? (
+                <VideoOff className="h-5 w-5" />
+              ) : (
+                <Video className="h-5 w-5" />
+              )}
             </Button>
             <Button
               size="lg"
-              variant={isScreenSharing ? 'default' : 'secondary'}
+              variant={isScreenSharing ? "default" : "secondary"}
               onClick={handleToggleScreenShare}
               className="rounded-full"
             >
@@ -541,19 +561,23 @@ export function CallWindow({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setLayout('grid')}>Grid View</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLayout('speaker')}>
+                <DropdownMenuItem onClick={() => setLayout("grid")}>
+                  Grid View
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLayout("speaker")}>
                   Speaker View
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onOpenSettings}>Audio/Video Settings</DropdownMenuItem>
+                <DropdownMenuItem onClick={onOpenSettings}>
+                  Audio/Video Settings
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
       </div>
     </Card>
-  )
+  );
 }
 
-export default CallWindow
+export default CallWindow;

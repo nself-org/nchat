@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * GalleryEmpty - Empty state component for media galleries
@@ -6,25 +6,25 @@
  * Displays a friendly message when no media items are available.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ImageOff, Upload, Search, Filter, FolderOpen } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ImageOff, Upload, Search, Filter, FolderOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type EmptyStateType = 'no-media' | 'no-results' | 'filtered' | 'error'
+export type EmptyStateType = "no-media" | "no-results" | "filtered" | "error";
 
 export interface GalleryEmptyProps {
-  type?: EmptyStateType
-  message?: string
-  description?: string
-  showUploadAction?: boolean
-  onUpload?: () => void
-  onClearFilters?: () => void
-  className?: string
+  type?: EmptyStateType;
+  message?: string;
+  description?: string;
+  showUploadAction?: boolean;
+  onUpload?: () => void;
+  onClearFilters?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -35,34 +35,35 @@ const emptyStateContent: Record<
   EmptyStateType,
   { icon: React.ElementType; message: string; description: string }
 > = {
-  'no-media': {
+  "no-media": {
     icon: ImageOff,
-    message: 'No media yet',
-    description: 'Files shared in conversations will appear here.',
+    message: "No media yet",
+    description: "Files shared in conversations will appear here.",
   },
-  'no-results': {
+  "no-results": {
     icon: Search,
-    message: 'No results found',
-    description: 'Try adjusting your search query or filters.',
+    message: "No results found",
+    description: "Try adjusting your search query or filters.",
   },
   filtered: {
     icon: Filter,
-    message: 'No matching media',
-    description: 'No media matches the current filters. Try clearing some filters.',
+    message: "No matching media",
+    description:
+      "No media matches the current filters. Try clearing some filters.",
   },
   error: {
     icon: FolderOpen,
-    message: 'Could not load media',
-    description: 'There was a problem loading the media. Please try again.',
+    message: "Could not load media",
+    description: "There was a problem loading the media. Please try again.",
   },
-}
+};
 
 // ============================================================================
 // Component
 // ============================================================================
 
 export function GalleryEmpty({
-  type = 'no-media',
+  type = "no-media",
   message,
   description,
   showUploadAction = false,
@@ -70,18 +71,25 @@ export function GalleryEmpty({
   onClearFilters,
   className,
 }: GalleryEmptyProps) {
-  const content = emptyStateContent[type]
-  const Icon = content.icon
+  const content = emptyStateContent[type];
+  const Icon = content.icon;
 
   return (
-    <div className={cn('flex flex-col items-center justify-center py-16 text-center', className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-16 text-center",
+        className,
+      )}
+    >
       {/* Icon */}
       <div className="mb-4 rounded-full bg-muted p-4">
         <Icon className="h-10 w-10 text-muted-foreground" />
       </div>
 
       {/* Message */}
-      <h3 className="mb-2 text-lg font-semibold">{message || content.message}</h3>
+      <h3 className="mb-2 text-lg font-semibold">
+        {message || content.message}
+      </h3>
 
       {/* Description */}
       <p className="mb-6 max-w-md text-sm text-muted-foreground">
@@ -97,20 +105,20 @@ export function GalleryEmpty({
           </Button>
         )}
 
-        {type === 'filtered' && onClearFilters && (
+        {type === "filtered" && onClearFilters && (
           <Button variant="outline" onClick={onClearFilters}>
             Clear Filters
           </Button>
         )}
 
-        {type === 'no-results' && onClearFilters && (
+        {type === "no-results" && onClearFilters && (
           <Button variant="outline" onClick={onClearFilters}>
             Clear Search
           </Button>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default GalleryEmpty
+export default GalleryEmpty;

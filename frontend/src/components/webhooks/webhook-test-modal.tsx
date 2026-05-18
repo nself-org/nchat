@@ -1,7 +1,15 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { Loader2, Send, CheckCircle2, XCircle, AlertCircle, Hash, FileJson } from 'lucide-react'
+import { useState, useCallback } from "react";
+import {
+  Loader2,
+  Send,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Hash,
+  FileJson,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,34 +17,34 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import {
   Webhook,
   WebhookDelivery,
   TestWebhookFormData,
   getDeliveryStatusColor,
-} from '@/lib/webhooks'
+} from "@/lib/webhooks";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface WebhookTestModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  webhook: Webhook | null
-  onTest: (data: TestWebhookFormData) => Promise<WebhookDelivery | null>
-  isLoading?: boolean
-  error?: string | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  webhook: Webhook | null;
+  onTest: (data: TestWebhookFormData) => Promise<WebhookDelivery | null>;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 // ============================================================================
@@ -45,65 +53,66 @@ export interface WebhookTestModalProps {
 
 const SAMPLE_PAYLOADS = {
   simple: {
-    name: 'Simple Message',
-    content: 'Hello from webhook!',
+    name: "Simple Message",
+    content: "Hello from webhook!",
   },
   github: {
-    name: 'GitHub Push',
+    name: "GitHub Push",
     content: JSON.stringify(
       {
-        content: '**[repo/main]** 2 new commits pushed by @user',
+        content: "**[repo/main]** 2 new commits pushed by @user",
         embeds: [
           {
-            title: 'Fix bug in authentication',
-            description: 'Updated login flow to handle edge cases',
+            title: "Fix bug in authentication",
+            description: "Updated login flow to handle edge cases",
             color: 0x2ea44f,
           },
         ],
       },
       null,
-      2
+      2,
     ),
   },
   alert: {
-    name: 'Alert Notification',
+    name: "Alert Notification",
     content: JSON.stringify(
       {
-        content: '[ALERT] Server CPU usage above 90%',
+        content: "[ALERT] Server CPU usage above 90%",
         embeds: [
           {
-            title: 'High CPU Alert',
-            description: 'Server: prod-web-01\nCPU: 93%\nTime: 2024-01-15 10:30:00 UTC',
+            title: "High CPU Alert",
+            description:
+              "Server: prod-web-01\nCPU: 93%\nTime: 2024-01-15 10:30:00 UTC",
             color: 0xef4444,
           },
         ],
       },
       null,
-      2
+      2,
     ),
   },
   deployment: {
-    name: 'Deployment',
+    name: "Deployment",
     content: JSON.stringify(
       {
-        content: 'Deployment completed successfully',
+        content: "Deployment completed successfully",
         embeds: [
           {
-            title: 'v2.1.0 deployed to production',
-            description: 'All health checks passed',
+            title: "v2.1.0 deployed to production",
+            description: "All health checks passed",
             color: 0x22c55e,
             fields: [
-              { name: 'Environment', value: 'production', inline: true },
-              { name: 'Duration', value: '45s', inline: true },
+              { name: "Environment", value: "production", inline: true },
+              { name: "Duration", value: "45s", inline: true },
             ],
           },
         ],
       },
       null,
-      2
+      2,
     ),
   },
-}
+};
 
 // ============================================================================
 // COMPONENT
@@ -117,93 +126,95 @@ export function WebhookTestModal({
   isLoading = false,
   error = null,
 }: WebhookTestModalProps) {
-  const [mode, setMode] = useState<'simple' | 'advanced'>('simple')
-  const [content, setContent] = useState('Hello from webhook test!')
+  const [mode, setMode] = useState<"simple" | "advanced">("simple");
+  const [content, setContent] = useState("Hello from webhook test!");
   const [jsonPayload, setJsonPayload] = useState(
-    JSON.stringify({ content: 'Hello from webhook test!' }, null, 2)
-  )
-  const [username, setUsername] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
-  const [testResult, setTestResult] = useState<WebhookDelivery | null>(null)
-  const [validationError, setValidationError] = useState<string | null>(null)
+    JSON.stringify({ content: "Hello from webhook test!" }, null, 2),
+  );
+  const [username, setUsername] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [testResult, setTestResult] = useState<WebhookDelivery | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const resetForm = useCallback(() => {
-    setContent('Hello from webhook test!')
-    setJsonPayload(JSON.stringify({ content: 'Hello from webhook test!' }, null, 2))
-    setUsername('')
-    setAvatarUrl('')
-    setTestResult(null)
-    setValidationError(null)
-  }, [])
+    setContent("Hello from webhook test!");
+    setJsonPayload(
+      JSON.stringify({ content: "Hello from webhook test!" }, null, 2),
+    );
+    setUsername("");
+    setAvatarUrl("");
+    setTestResult(null);
+    setValidationError(null);
+  }, []);
 
   const handleClose = useCallback(() => {
     if (!isLoading) {
-      onOpenChange(false)
-      setTimeout(resetForm, 300)
+      onOpenChange(false);
+      setTimeout(resetForm, 300);
     }
-  }, [isLoading, onOpenChange, resetForm])
+  }, [isLoading, onOpenChange, resetForm]);
 
   const handleSendTest = async () => {
-    if (!webhook) return
+    if (!webhook) return;
 
     // Validate based on mode
-    if (mode === 'simple') {
+    if (mode === "simple") {
       if (!content.trim()) {
-        setValidationError('Please enter a message')
-        return
+        setValidationError("Please enter a message");
+        return;
       }
     } else {
       try {
-        JSON.parse(jsonPayload)
+        JSON.parse(jsonPayload);
       } catch {
-        setValidationError('Invalid JSON payload')
-        return
+        setValidationError("Invalid JSON payload");
+        return;
       }
     }
 
-    setValidationError(null)
-    setTestResult(null)
+    setValidationError(null);
+    setTestResult(null);
 
     const payload: TestWebhookFormData = {
       webhookId: webhook.id,
-      content: mode === 'simple' ? content.trim() : jsonPayload,
+      content: mode === "simple" ? content.trim() : jsonPayload,
       username: username.trim() || undefined,
       avatarUrl: avatarUrl.trim() || undefined,
-    }
+    };
 
-    const result = await onTest(payload)
+    const result = await onTest(payload);
     if (result) {
-      setTestResult(result)
+      setTestResult(result);
     }
-  }
+  };
 
   const handleSelectSample = (sampleKey: keyof typeof SAMPLE_PAYLOADS) => {
-    const sample = SAMPLE_PAYLOADS[sampleKey]
-    if (mode === 'simple') {
+    const sample = SAMPLE_PAYLOADS[sampleKey];
+    if (mode === "simple") {
       setContent(
-        typeof sample.content === 'string'
+        typeof sample.content === "string"
           ? sample.content
-          : JSON.parse(sample.content).content || sample.content
-      )
+          : JSON.parse(sample.content).content || sample.content,
+      );
     } else {
       setJsonPayload(
-        typeof sample.content === 'string'
+        typeof sample.content === "string"
           ? JSON.stringify({ content: sample.content }, null, 2)
-          : sample.content
-      )
+          : sample.content,
+      );
     }
-  }
+  };
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
-  if (!webhook) return null
+  if (!webhook) return null;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -226,10 +237,12 @@ export function WebhookTestModal({
               <p className="truncate font-medium">{webhook.name}</p>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Hash className="h-3.5 w-3.5" />
-                <span>{webhook.channel?.name || 'Unknown channel'}</span>
+                <span>{webhook.channel?.name || "Unknown channel"}</span>
               </div>
             </div>
-            <Badge variant={webhook.status === 'active' ? 'default' : 'secondary'}>
+            <Badge
+              variant={webhook.status === "active" ? "default" : "secondary"}
+            >
               {webhook.status}
             </Badge>
           </div>
@@ -245,27 +258,32 @@ export function WebhookTestModal({
           {/* Test Result */}
           {testResult && (
             <Alert
-              variant={testResult.status === 'success' ? 'default' : 'destructive'}
+              variant={
+                testResult.status === "success" ? "default" : "destructive"
+              }
               className={cn(
-                testResult.status === 'success' &&
-                  'border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300'
+                testResult.status === "success" &&
+                  "border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
               )}
             >
-              {testResult.status === 'success' ? (
+              {testResult.status === "success" ? (
                 <CheckCircle2 className="h-4 w-4" />
               ) : (
                 <XCircle className="h-4 w-4" />
               )}
               <AlertDescription>
-                {testResult.status === 'success'
-                  ? 'Test message sent successfully!'
-                  : testResult.error_message || 'Failed to send test message'}
+                {testResult.status === "success"
+                  ? "Test message sent successfully!"
+                  : testResult.error_message || "Failed to send test message"}
               </AlertDescription>
             </Alert>
           )}
 
           {/* Mode Tabs */}
-          <Tabs value={mode} onValueChange={(v) => setMode(v as 'simple' | 'advanced')}>
+          <Tabs
+            value={mode}
+            onValueChange={(v) => setMode(v as "simple" | "advanced")}
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="simple">Simple</TabsTrigger>
               <TabsTrigger value="advanced">Advanced (JSON)</TabsTrigger>
@@ -308,7 +326,9 @@ export function WebhookTestModal({
 
           {/* Sample Payloads */}
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Sample payloads</Label>
+            <Label className="text-xs text-muted-foreground">
+              Sample payloads
+            </Label>
             <div className="flex flex-wrap gap-2">
               {Object.entries(SAMPLE_PAYLOADS).map(([key, sample]) => (
                 <Button
@@ -316,7 +336,9 @@ export function WebhookTestModal({
                   variant="outline"
                   size="sm"
                   className="text-xs"
-                  onClick={() => handleSelectSample(key as keyof typeof SAMPLE_PAYLOADS)}
+                  onClick={() =>
+                    handleSelectSample(key as keyof typeof SAMPLE_PAYLOADS)
+                  }
                   disabled={isLoading}
                 >
                   {sample.name}
@@ -366,7 +388,9 @@ export function WebhookTestModal({
           <Button
             onClick={handleSendTest}
             disabled={
-              isLoading || webhook.status !== 'active' || (mode === 'simple' && !content.trim())
+              isLoading ||
+              webhook.status !== "active" ||
+              (mode === "simple" && !content.trim())
             }
           >
             {isLoading ? (
@@ -384,7 +408,7 @@ export function WebhookTestModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default WebhookTestModal
+export default WebhookTestModal;

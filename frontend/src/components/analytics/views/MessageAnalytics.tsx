@@ -1,29 +1,42 @@
-'use client'
+"use client";
 
 /**
  * MessageAnalytics - Detailed message analytics view
  */
 
-import * as React from 'react'
-import { MessageSquare, Edit, Trash2, Paperclip, Heart, MessagesSquare } from 'lucide-react'
+import * as React from "react";
+import {
+  MessageSquare,
+  Edit,
+  Trash2,
+  Paperclip,
+  Heart,
+  MessagesSquare,
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { useAnalyticsStore } from '@/stores/analytics-store'
+import { useAnalyticsStore } from "@/stores/analytics-store";
 
-import { MessageVolumeChart } from '../charts/MessageVolumeChart'
-import { PeakHoursChart } from '../charts/PeakHoursChart'
-import { ResponseTimeChart } from '../charts/ResponseTimeChart'
-import { TopMessagesTable } from '../tables/TopMessagesTable'
+import { MessageVolumeChart } from "../charts/MessageVolumeChart";
+import { PeakHoursChart } from "../charts/PeakHoursChart";
+import { ResponseTimeChart } from "../charts/ResponseTimeChart";
+import { TopMessagesTable } from "../tables/TopMessagesTable";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface MessageAnalyticsProps {
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -31,15 +44,22 @@ interface MessageAnalyticsProps {
 // ============================================================================
 
 interface StatCardProps {
-  title: string
-  value: number | string
-  description?: string
-  icon: React.ReactNode
-  trend?: 'up' | 'down' | 'stable'
-  trendValue?: string
+  title: string;
+  value: number | string;
+  description?: string;
+  icon: React.ReactNode;
+  trend?: "up" | "down" | "stable";
+  trendValue?: string;
 }
 
-function StatCard({ title, value, description, icon, trend, trendValue }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  description,
+  icon,
+  trend,
+  trendValue,
+}: StatCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -53,8 +73,12 @@ function StatCard({ title, value, description, icon, trend, trendValue }: StatCa
             {trendValue && (
               <span
                 className={cn(
-                  'mr-1 font-medium',
-                  trend === 'up' ? 'text-green-600' : trend === 'down' ? 'text-red-600' : ''
+                  "mr-1 font-medium",
+                  trend === "up"
+                    ? "text-green-600"
+                    : trend === "down"
+                      ? "text-red-600"
+                      : "",
                 )}
               >
                 {trendValue}
@@ -65,7 +89,7 @@ function StatCard({ title, value, description, icon, trend, trendValue }: StatCa
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -73,33 +97,34 @@ function StatCard({ title, value, description, icon, trend, trendValue }: StatCa
 // ============================================================================
 
 export function MessageAnalytics({ className }: MessageAnalyticsProps) {
-  const { summary, messageVolume, isLoading, fetchSectionData } = useAnalyticsStore()
+  const { summary, messageVolume, isLoading, fetchSectionData } =
+    useAnalyticsStore();
 
   // Fetch message data on mount
   React.useEffect(() => {
-    fetchSectionData('messages')
-  }, [fetchSectionData])
+    fetchSectionData("messages");
+  }, [fetchSectionData]);
 
   // Calculate message stats
   const messageStats = React.useMemo(() => {
-    if (!messageVolume || messageVolume.length === 0) return null
+    if (!messageVolume || messageVolume.length === 0) return null;
 
-    const totalMessages = messageVolume.reduce((sum, d) => sum + d.count, 0)
-    const avgPerDay = totalMessages / messageVolume.length
+    const totalMessages = messageVolume.reduce((sum, d) => sum + d.count, 0);
+    const avgPerDay = totalMessages / messageVolume.length;
     const maxDay = messageVolume.reduce(
       (max, d) => (d.count > max.count ? d : max),
-      messageVolume[0]
-    )
+      messageVolume[0],
+    );
     const minDay = messageVolume.reduce(
       (min, d) => (d.count < min.count ? d : min),
-      messageVolume[0]
-    )
+      messageVolume[0],
+    );
 
-    return { totalMessages, avgPerDay, maxDay, minDay }
-  }, [messageVolume])
+    return { totalMessages, avgPerDay, maxDay, minDay };
+  }, [messageVolume]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -110,7 +135,7 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
           trend={summary?.messages.total.trend}
           trendValue={
             summary?.messages.total.changePercent
-              ? `${summary.messages.total.changePercent >= 0 ? '+' : ''}${summary.messages.total.changePercent.toFixed(1)}%`
+              ? `${summary.messages.total.changePercent >= 0 ? "+" : ""}${summary.messages.total.changePercent.toFixed(1)}%`
               : undefined
           }
         />
@@ -139,7 +164,9 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Daily Average</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Daily Average
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
@@ -153,9 +180,12 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
               <CardTitle className="text-sm font-medium">Peak Day</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{messageStats.maxDay.count.toLocaleString()}</div>
+              <div className="text-3xl font-bold">
+                {messageStats.maxDay.count.toLocaleString()}
+              </div>
               <p className="text-xs text-muted-foreground">
-                on {new Date(messageStats.maxDay.timestamp).toLocaleDateString()}
+                on{" "}
+                {new Date(messageStats.maxDay.timestamp).toLocaleDateString()}
               </p>
             </CardContent>
           </Card>
@@ -164,9 +194,12 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
               <CardTitle className="text-sm font-medium">Quiet Day</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{messageStats.minDay.count.toLocaleString()}</div>
+              <div className="text-3xl font-bold">
+                {messageStats.minDay.count.toLocaleString()}
+              </div>
               <p className="text-xs text-muted-foreground">
-                on {new Date(messageStats.minDay.timestamp).toLocaleDateString()}
+                on{" "}
+                {new Date(messageStats.minDay.timestamp).toLocaleDateString()}
               </p>
             </CardContent>
           </Card>
@@ -196,7 +229,9 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
           <Card>
             <CardHeader>
               <CardTitle>Volume by Channel</CardTitle>
-              <CardDescription>Stacked view of channel contributions</CardDescription>
+              <CardDescription>
+                Stacked view of channel contributions
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <MessageVolumeChart height={300} stacked />
@@ -218,7 +253,9 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
           <Card>
             <CardHeader>
               <CardTitle>Hourly Activity Heatmap</CardTitle>
-              <CardDescription>Visual representation of activity patterns</CardDescription>
+              <CardDescription>
+                Visual representation of activity patterns
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <PeakHoursChart height={200} variant="heatmap" />
@@ -231,7 +268,9 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Response Time Trend</CardTitle>
-                <CardDescription>Average and median response times</CardDescription>
+                <CardDescription>
+                  Average and median response times
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponseTimeChart height={300} variant="timeline" />
@@ -240,7 +279,9 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Response Time Distribution</CardTitle>
-                <CardDescription>How quickly are messages responded to?</CardDescription>
+                <CardDescription>
+                  How quickly are messages responded to?
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponseTimeChart height={300} variant="distribution" />
@@ -264,7 +305,9 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Most Reacted Messages</CardTitle>
-                <CardDescription>Messages with highest reaction count</CardDescription>
+                <CardDescription>
+                  Messages with highest reaction count
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <TopMessagesTable limit={10} sortBy="reactions" />
@@ -283,7 +326,7 @@ export function MessageAnalytics({ className }: MessageAnalyticsProps) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
-export default MessageAnalytics
+export default MessageAnalytics;

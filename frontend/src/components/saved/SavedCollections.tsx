@@ -1,37 +1,50 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Folder, Plus, Pencil, Trash2, Share2, MoreHorizontal } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import * as React from "react";
+import {
+  Folder,
+  Plus,
+  Pencil,
+  Trash2,
+  Share2,
+  MoreHorizontal,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { SavedCollection } from '@/lib/saved'
+} from "@/components/ui/dropdown-menu";
+import type { SavedCollection } from "@/lib/saved";
 
 export interface SavedCollectionsProps {
   /** List of collections */
-  collections: SavedCollection[]
+  collections: SavedCollection[];
   /** Callback when collection is clicked */
-  onSelect: (collection: SavedCollection) => void
+  onSelect: (collection: SavedCollection) => void;
   /** Callback to create new collection */
-  onCreate?: () => void
+  onCreate?: () => void;
   /** Callback to edit collection */
-  onEdit?: (collection: SavedCollection) => void
+  onEdit?: (collection: SavedCollection) => void;
   /** Callback to delete collection */
-  onDelete?: (collection: SavedCollection) => void
+  onDelete?: (collection: SavedCollection) => void;
   /** Callback to share collection */
-  onShare?: (collection: SavedCollection) => void
+  onShare?: (collection: SavedCollection) => void;
   /** Loading state */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -48,12 +61,14 @@ export function SavedCollections({
   className,
 }: SavedCollectionsProps) {
   const sortedCollections = React.useMemo(() => {
-    return [...collections].sort((a, b) => a.position - b.position)
-  }, [collections])
+    return [...collections].sort((a, b) => a.position - b.position);
+  }, [collections]);
 
   if (isLoading) {
     return (
-      <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-3', className)}>
+      <div
+        className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-3", className)}
+      >
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader className="pb-2">
@@ -71,17 +86,17 @@ export function SavedCollections({
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Collections</h2>
           <p className="text-sm text-muted-foreground">
-            {collections.length} collection{collections.length !== 1 ? 's' : ''}
+            {collections.length} collection{collections.length !== 1 ? "s" : ""}
           </p>
         </div>
         {onCreate && (
@@ -124,7 +139,7 @@ export function SavedCollections({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -132,15 +147,21 @@ export function SavedCollections({
 // ============================================================================
 
 interface CollectionCardProps {
-  collection: SavedCollection
-  onSelect: () => void
-  onEdit?: () => void
-  onDelete?: () => void
-  onShare?: () => void
+  collection: SavedCollection;
+  onSelect: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onShare?: () => void;
 }
 
-function CollectionCard({ collection, onSelect, onEdit, onDelete, onShare }: CollectionCardProps) {
-  const hasMenu = onEdit || onDelete || onShare
+function CollectionCard({
+  collection,
+  onSelect,
+  onEdit,
+  onDelete,
+  onShare,
+}: CollectionCardProps) {
+  const hasMenu = onEdit || onDelete || onShare;
 
   return (
     <Card
@@ -149,9 +170,9 @@ function CollectionCard({ collection, onSelect, onEdit, onDelete, onShare }: Col
       tabIndex={0}
       onClick={onSelect}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onSelect()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
         }
       }}
     >
@@ -163,7 +184,7 @@ function CollectionCard({ collection, onSelect, onEdit, onDelete, onShare }: Col
               style={
                 collection.color
                   ? {
-                      backgroundColor: collection.color + '20',
+                      backgroundColor: collection.color + "20",
                       color: collection.color,
                     }
                   : undefined
@@ -174,10 +195,13 @@ function CollectionCard({ collection, onSelect, onEdit, onDelete, onShare }: Col
             <div>
               <CardTitle className="flex items-center gap-2 text-base">
                 {collection.name}
-                {collection.isShared && <Share2 className="h-3 w-3 text-muted-foreground" />}
+                {collection.isShared && (
+                  <Share2 className="h-3 w-3 text-muted-foreground" />
+                )}
               </CardTitle>
               <CardDescription className="text-xs">
-                {collection.itemCount} item{collection.itemCount !== 1 ? 's' : ''}
+                {collection.itemCount} item
+                {collection.itemCount !== 1 ? "s" : ""}
               </CardDescription>
             </div>
           </div>
@@ -199,8 +223,8 @@ function CollectionCard({ collection, onSelect, onEdit, onDelete, onShare }: Col
                 {onEdit && (
                   <DropdownMenuItem
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onEdit()
+                      e.stopPropagation();
+                      onEdit();
                     }}
                   >
                     <Pencil className="mr-2 h-4 w-4" />
@@ -210,8 +234,8 @@ function CollectionCard({ collection, onSelect, onEdit, onDelete, onShare }: Col
                 {onShare && (
                   <DropdownMenuItem
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onShare()
+                      e.stopPropagation();
+                      onShare();
                     }}
                   >
                     <Share2 className="mr-2 h-4 w-4" />
@@ -223,8 +247,8 @@ function CollectionCard({ collection, onSelect, onEdit, onDelete, onShare }: Col
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={(e) => {
-                        e.stopPropagation()
-                        onDelete()
+                        e.stopPropagation();
+                        onDelete();
                       }}
                       className="text-destructive focus:text-destructive"
                     >
@@ -240,9 +264,11 @@ function CollectionCard({ collection, onSelect, onEdit, onDelete, onShare }: Col
       </CardHeader>
       {collection.description && (
         <CardContent>
-          <p className="line-clamp-2 text-sm text-muted-foreground">{collection.description}</p>
+          <p className="line-clamp-2 text-sm text-muted-foreground">
+            {collection.description}
+          </p>
         </CardContent>
       )}
     </Card>
-  )
+  );
 }

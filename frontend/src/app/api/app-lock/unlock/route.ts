@@ -12,10 +12,10 @@
  * - POST /api/app-lock/unlock - Log an unlock event
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { apolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { apolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
 import {
   withAuth,
   withRateLimit,
@@ -23,14 +23,14 @@ import {
   compose,
   type AuthenticatedRequest,
   getClientIp,
-} from '@/lib/api/middleware'
+} from "@/lib/api/middleware";
 import {
   successResponse,
   errorResponse,
   badRequestResponse,
   validationErrorResponse,
-} from '@/lib/api/response'
-import { logger } from '@/lib/logger'
+} from "@/lib/api/response";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // GraphQL Mutations
@@ -62,7 +62,7 @@ const INSERT_UNLOCK_EVENT = gql`
       created_at
     }
   }
-`
+`;
 
 const INSERT_LOCK_EVENT = gql`
   mutation InsertLockEvent(
@@ -87,7 +87,7 @@ const INSERT_LOCK_EVENT = gql`
       created_at
     }
   }
-`
+`;
 
 const GET_RECENT_EVENTS = gql`
   query GetRecentLockEvents($userId: uuid!, $limit: Int!) {
@@ -104,24 +104,24 @@ const GET_RECENT_EVENTS = gql`
       created_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface UnlockEvent {
-  id: string
-  created_at: string
+  id: string;
+  created_at: string;
 }
 
 interface LockEvent {
-  id: string
-  event_type: string
-  method: string
-  success: boolean
-  platform: string | null
-  created_at: string
+  id: string;
+  event_type: string;
+  method: string;
+  success: boolean;
+  platform: string | null;
+  created_at: string;
 }
 
 // ============================================================================
@@ -129,105 +129,116 @@ interface LockEvent {
 // ============================================================================
 
 const unlockEventSchema = z.object({
-  method: z.enum(['pin', 'biometric']),
+  method: z.enum(["pin", "biometric"]),
   success: z.boolean(),
   failureReason: z.string().optional(),
   platform: z.string().optional(),
-})
+});
 
 const lockEventSchema = z.object({
-  trigger: z.enum(['manual', 'idle', 'background', 'launch']),
+  trigger: z.enum(["manual", "idle", "background", "launch"]),
   platform: z.string().optional(),
-})
+});
 
 // ============================================================================
 // POST Handler - Log Unlock Event
 // ============================================================================
 
-async function handlePost(request: AuthenticatedRequest): Promise<NextResponse> {
-  const userId = request.user.id
+async function handlePost(
+  request: AuthenticatedRequest,
+): Promise<NextResponse> {
+  const userId = request.user.id;
 
-  let body: unknown
+  let body: unknown;
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    return badRequestResponse('Invalid JSON body')
+    return badRequestResponse("Invalid JSON body");
   }
 
   // Determine if this is an unlock or lock event
-  const bodyObj = body as Record<string, unknown>
-  const isLockEvent = 'trigger' in bodyObj
+  const bodyObj = body as Record<string, unknown>;
+  const isLockEvent = "trigger" in bodyObj;
 
   if (isLockEvent) {
     // Handle lock event
-    const validation = lockEventSchema.safeParse(body)
+    const validation = lockEventSchema.safeParse(body);
     if (!validation.success) {
-      const errors: Record<string, string[]> = {}
+      const errors: Record<string, string[]> = {};
       for (const error of validation.error.errors) {
-        const path = error.path.join('.')
+        const path = error.path.join(".");
         if (!errors[path]) {
-          errors[path] = []
+          errors[path] = [];
         }
-        errors[path].push((error instanceof Error ? error.message : String(error)))
+        errors[path].push(
+          error instanceof Error ? error.message : String(error),
+        );
       }
-      return validationErrorResponse(errors)
+      return validationErrorResponse(errors);
     }
 
-    const { trigger, platform } = validation.data
+    const { trigger, platform } = validation.data;
 
     try {
       const { data } = await apolloClient.mutate<{
-        insert_nchat_app_lock_events_one: UnlockEvent
+        insert_nchat_app_lock_events_one: UnlockEvent;
       }>({
         mutation: INSERT_LOCK_EVENT,
         variables: {
           userId,
           trigger,
           ipAddress: getClientIp(request),
-          userAgent: request.headers.get('user-agent'),
-          platform: platform || detectPlatformFromUA(request.headers.get('user-agent') || ''),
+          userAgent: request.headers.get("user-agent"),
+          platform:
+            platform ||
+            detectPlatformFromUA(request.headers.get("user-agent") || ""),
         },
-      })
+      });
 
-      logger.info('[AppLockUnlock] Lock event logged', {
+      logger.info("[AppLockUnlock] Lock event logged", {
         userId,
         trigger,
         eventId: data?.insert_nchat_app_lock_events_one?.id,
-      })
+      });
 
       return successResponse({
         logged: true,
         eventId: data?.insert_nchat_app_lock_events_one?.id,
         timestamp: data?.insert_nchat_app_lock_events_one?.created_at,
-      })
+      });
     } catch (error) {
       // Log events are non-critical, don't fail the request
-      logger.error('[AppLockUnlock] Failed to log lock event', error instanceof Error ? error : new Error(String(error)))
+      logger.error(
+        "[AppLockUnlock] Failed to log lock event",
+        error instanceof Error ? error : new Error(String(error)),
+      );
       return successResponse({
         logged: false,
-        message: 'Lock event acknowledged but not logged',
-      })
+        message: "Lock event acknowledged but not logged",
+      });
     }
   } else {
     // Handle unlock event
-    const validation = unlockEventSchema.safeParse(body)
+    const validation = unlockEventSchema.safeParse(body);
     if (!validation.success) {
-      const errors: Record<string, string[]> = {}
+      const errors: Record<string, string[]> = {};
       for (const error of validation.error.errors) {
-        const path = error.path.join('.')
+        const path = error.path.join(".");
         if (!errors[path]) {
-          errors[path] = []
+          errors[path] = [];
         }
-        errors[path].push((error instanceof Error ? error.message : String(error)))
+        errors[path].push(
+          error instanceof Error ? error.message : String(error),
+        );
       }
-      return validationErrorResponse(errors)
+      return validationErrorResponse(errors);
     }
 
-    const { method, success, failureReason, platform } = validation.data
+    const { method, success, failureReason, platform } = validation.data;
 
     try {
       const { data } = await apolloClient.mutate<{
-        insert_nchat_app_lock_events_one: UnlockEvent
+        insert_nchat_app_lock_events_one: UnlockEvent;
       }>({
         mutation: INSERT_UNLOCK_EVENT,
         variables: {
@@ -235,31 +246,36 @@ async function handlePost(request: AuthenticatedRequest): Promise<NextResponse> 
           method,
           success,
           ipAddress: getClientIp(request),
-          userAgent: request.headers.get('user-agent'),
-          platform: platform || detectPlatformFromUA(request.headers.get('user-agent') || ''),
+          userAgent: request.headers.get("user-agent"),
+          platform:
+            platform ||
+            detectPlatformFromUA(request.headers.get("user-agent") || ""),
           failureReason: success ? null : failureReason,
         },
-      })
+      });
 
-      logger.info('[AppLockUnlock] Unlock event logged', {
+      logger.info("[AppLockUnlock] Unlock event logged", {
         userId,
         method,
         success,
         eventId: data?.insert_nchat_app_lock_events_one?.id,
-      })
+      });
 
       return successResponse({
         logged: true,
         eventId: data?.insert_nchat_app_lock_events_one?.id,
         timestamp: data?.insert_nchat_app_lock_events_one?.created_at,
-      })
+      });
     } catch (error) {
       // Log events are non-critical, don't fail the request
-      logger.error('[AppLockUnlock] Failed to log unlock event', error instanceof Error ? error : new Error(String(error)))
+      logger.error(
+        "[AppLockUnlock] Failed to log unlock event",
+        error instanceof Error ? error : new Error(String(error)),
+      );
       return successResponse({
         logged: false,
-        message: 'Unlock event acknowledged but not logged',
-      })
+        message: "Unlock event acknowledged but not logged",
+      });
     }
   }
 }
@@ -269,18 +285,21 @@ async function handlePost(request: AuthenticatedRequest): Promise<NextResponse> 
 // ============================================================================
 
 async function handleGet(request: AuthenticatedRequest): Promise<NextResponse> {
-  const userId = request.user.id
-  const url = new URL(request.url)
-  const limit = Math.min(parseInt(url.searchParams.get('limit') || '10', 10), 100)
+  const userId = request.user.id;
+  const url = new URL(request.url);
+  const limit = Math.min(
+    parseInt(url.searchParams.get("limit") || "10", 10),
+    100,
+  );
 
   try {
     const { data } = await apolloClient.query<{
-      nchat_app_lock_events: LockEvent[]
+      nchat_app_lock_events: LockEvent[];
     }>({
       query: GET_RECENT_EVENTS,
       variables: { userId, limit },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     return successResponse({
       events: data.nchat_app_lock_events.map((event) => ({
@@ -291,10 +310,17 @@ async function handleGet(request: AuthenticatedRequest): Promise<NextResponse> {
         platform: event.platform,
         timestamp: event.created_at,
       })),
-    })
+    });
   } catch (error) {
-    logger.error('[AppLockUnlock] Failed to get events', error instanceof Error ? error : new Error(String(error)))
-    return errorResponse('Failed to get lock events', 'EVENTS_FETCH_FAILED', 500)
+    logger.error(
+      "[AppLockUnlock] Failed to get events",
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    return errorResponse(
+      "Failed to get lock events",
+      "EVENTS_FETCH_FAILED",
+      500,
+    );
   }
 }
 
@@ -303,12 +329,12 @@ async function handleGet(request: AuthenticatedRequest): Promise<NextResponse> {
 // ============================================================================
 
 function detectPlatformFromUA(userAgent: string): string {
-  if (/iPhone|iPad|iPod/.test(userAgent)) return 'ios'
-  if (/Android/.test(userAgent)) return 'android'
-  if (/Macintosh|Mac OS X/.test(userAgent)) return 'macos'
-  if (/Windows/.test(userAgent)) return 'windows'
-  if (/Linux/.test(userAgent)) return 'linux'
-  return 'web'
+  if (/iPhone|iPad|iPod/.test(userAgent)) return "ios";
+  if (/Android/.test(userAgent)) return "android";
+  if (/Macintosh|Mac OS X/.test(userAgent)) return "macos";
+  if (/Windows/.test(userAgent)) return "windows";
+  if (/Linux/.test(userAgent)) return "linux";
+  return "web";
 }
 
 // ============================================================================
@@ -318,11 +344,11 @@ function detectPlatformFromUA(userAgent: string): string {
 export const POST = compose(
   withErrorHandler,
   withRateLimit({ limit: 60, window: 60 }),
-  withAuth
-)(handlePost)
+  withAuth,
+)(handlePost);
 
 export const GET = compose(
   withErrorHandler,
   withRateLimit({ limit: 30, window: 60 }),
-  withAuth
-)(handleGet)
+  withAuth,
+)(handleGet);

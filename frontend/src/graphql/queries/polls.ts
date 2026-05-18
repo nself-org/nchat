@@ -4,7 +4,7 @@
  * Queries and subscriptions for fetching poll data and real-time updates.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Poll Queries
@@ -48,7 +48,7 @@ export const GET_POLL = gql`
       }
     }
   }
-`
+`;
 
 export const GET_POLL_RESULTS = gql`
   query GetPollResults($pollId: uuid!) {
@@ -90,7 +90,7 @@ export const GET_POLL_RESULTS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_CHANNEL_POLLS = gql`
   query GetChannelPolls($channelId: uuid!, $limit: Int = 20, $offset: Int = 0) {
@@ -129,17 +129,19 @@ export const GET_CHANNEL_POLLS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_USER_POLL_VOTES = gql`
   query GetUserPollVotes($pollId: uuid!, $userId: uuid!) {
-    nchat_poll_votes(where: { poll_id: { _eq: $pollId }, user_id: { _eq: $userId } }) {
+    nchat_poll_votes(
+      where: { poll_id: { _eq: $pollId }, user_id: { _eq: $userId } }
+    ) {
       id
       option_id
       voted_at
     }
   }
-`
+`;
 
 export const GET_POLL_STATS = gql`
   query GetPollStats($pollId: uuid!) {
@@ -173,7 +175,7 @@ export const GET_POLL_STATS = gql`
       }
     }
   }
-`
+`;
 
 export const HAS_USER_VOTED = gql`
   query HasUserVoted($pollId: uuid!) {
@@ -182,7 +184,7 @@ export const HAS_USER_VOTED = gql`
       option_id
     }
   }
-`
+`;
 
 // ============================================================================
 // Poll Subscriptions (Real-time updates)
@@ -214,11 +216,14 @@ export const SUBSCRIBE_POLL_UPDATES = gql`
       }
     }
   }
-`
+`;
 
 export const SUBSCRIBE_POLL_VOTES = gql`
   subscription SubscribePollVotes($pollId: uuid!) {
-    nchat_poll_votes(where: { poll_id: { _eq: $pollId } }, order_by: { voted_at: desc }) {
+    nchat_poll_votes(
+      where: { poll_id: { _eq: $pollId } }
+      order_by: { voted_at: desc }
+    ) {
       id
       option_id
       user_id
@@ -234,7 +239,7 @@ export const SUBSCRIBE_POLL_VOTES = gql`
       }
     }
   }
-`
+`;
 
 export const SUBSCRIBE_CHANNEL_POLLS = gql`
   subscription SubscribeChannelPolls($channelId: uuid!) {
@@ -265,89 +270,89 @@ export const SUBSCRIBE_CHANNEL_POLLS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // TypeScript Interfaces
 // ============================================================================
 
 export interface PollData {
-  id: string
-  created_by: string
-  channel_id: string
-  question: string
-  poll_type: 'single' | 'multiple'
-  is_anonymous: boolean
-  allow_add_options: boolean
-  expires_at?: string
-  created_at: string
-  closed_at?: string
-  closed_by?: string
+  id: string;
+  created_by: string;
+  channel_id: string;
+  question: string;
+  poll_type: "single" | "multiple";
+  is_anonymous: boolean;
+  allow_add_options: boolean;
+  expires_at?: string;
+  created_at: string;
+  closed_at?: string;
+  closed_by?: string;
   creator?: {
-    id: string
-    display_name: string
-    avatar_url?: string
-  }
-  poll_options: PollOptionData[]
+    id: string;
+    display_name: string;
+    avatar_url?: string;
+  };
+  poll_options: PollOptionData[];
   votes_aggregate?: {
     aggregate: {
-      count: number
-    }
-  }
+      count: number;
+    };
+  };
   total_votes?: {
     aggregate: {
-      count: number
-    }
-  }
+      count: number;
+    };
+  };
 }
 
 export interface PollOptionData {
-  id: string
-  option_text: string
-  option_order: number
-  added_by?: string
-  created_at?: string
+  id: string;
+  option_text: string;
+  option_order: number;
+  added_by?: string;
+  created_at?: string;
   votes_aggregate?: {
     aggregate: {
-      count: number
-    }
-  }
-  votes?: PollVoteData[]
+      count: number;
+    };
+  };
+  votes?: PollVoteData[];
   vote_count?: {
     aggregate: {
-      count: number
-    }
-  }
+      count: number;
+    };
+  };
 }
 
 export interface PollVoteData {
-  id: string
-  option_id: string
-  user_id: string
-  voted_at: string
+  id: string;
+  option_id: string;
+  user_id: string;
+  voted_at: string;
   user?: {
-    id: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    display_name: string;
+    avatar_url?: string;
+  };
   option?: {
-    id: string
-    option_text: string
-  }
+    id: string;
+    option_text: string;
+  };
 }
 
 export interface PollResultsData {
-  nchat_polls_by_pk: PollData
+  nchat_polls_by_pk: PollData;
 }
 
 export interface ChannelPollsData {
-  nchat_polls: PollData[]
+  nchat_polls: PollData[];
 }
 
 export interface UserPollVotesData {
   nchat_poll_votes: {
-    id: string
-    option_id: string
-    voted_at: string
-  }[]
+    id: string;
+    option_id: string;
+    voted_at: string;
+  }[];
 }

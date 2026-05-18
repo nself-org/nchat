@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect } from 'react'
-import { useMutation, useQuery, useSubscription } from '@apollo/client'
-import { useWebhookStore } from './webhook-store'
+import { useCallback, useEffect } from "react";
+import { useMutation, useQuery, useSubscription } from "@apollo/client";
+import { useWebhookStore } from "./webhook-store";
 import {
   Webhook,
   WebhookDelivery,
@@ -19,7 +19,7 @@ import {
   DeleteWebhookResponse,
   WebhookStatus,
   DeliveryStatus,
-} from './types'
+} from "./types";
 import {
   GET_ALL_WEBHOOKS,
   GET_WEBHOOK,
@@ -34,8 +34,8 @@ import {
   RETRY_WEBHOOK_DELIVERY,
   WEBHOOKS_SUBSCRIPTION,
   WEBHOOK_DELIVERIES_SUBSCRIPTION,
-} from '@/graphql/webhooks'
-import { useAppConfig } from '@/contexts/app-config-context'
+} from "@/graphql/webhooks";
+import { useAppConfig } from "@/contexts/app-config-context";
 
 // ============================================================================
 // MAIN HOOK
@@ -45,30 +45,36 @@ export interface UseWebhooksOptions {
   /**
    * Auto-fetch webhooks on mount
    */
-  autoFetch?: boolean
+  autoFetch?: boolean;
   /**
    * Enable real-time updates via subscriptions
    */
-  realtime?: boolean
+  realtime?: boolean;
   /**
    * Filter by channel ID
    */
-  channelId?: string
+  channelId?: string;
   /**
    * Filter by status
    */
-  status?: WebhookStatus
+  status?: WebhookStatus;
   /**
    * Number of items per page
    */
-  limit?: number
+  limit?: number;
 }
 
 export function useWebhooks(options: UseWebhooksOptions = {}) {
-  const { autoFetch = true, realtime = false, channelId, status, limit = 50 } = options
+  const {
+    autoFetch = true,
+    realtime = false,
+    channelId,
+    status,
+    limit = 50,
+  } = options;
 
-  const { config } = useAppConfig()
-  const webhooksEnabled = config?.integrations?.webhooks?.enabled ?? false
+  const { config } = useAppConfig();
+  const webhooksEnabled = config?.integrations?.webhooks?.enabled ?? false;
 
   const {
     webhooks,
@@ -90,7 +96,7 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
     setStats,
     setLoading,
     setError,
-  } = useWebhookStore()
+  } = useWebhookStore();
 
   // ==========================================================================
   // QUERIES
@@ -105,13 +111,13 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
     skip: !autoFetch || !webhooksEnabled,
     onCompleted: (data) => {
       if (data?.nchat_webhooks) {
-        setWebhooks(data.nchat_webhooks)
+        setWebhooks(data.nchat_webhooks);
       }
     },
     onError: (err) => {
-      setError(err.message)
+      setError(err.message);
     },
-  })
+  });
 
   // ==========================================================================
   // SUBSCRIPTIONS (Optional real-time updates)
@@ -121,83 +127,92 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
     skip: !realtime || !webhooksEnabled,
     onData: ({ data }) => {
       if (data?.data?.nchat_webhooks) {
-        setWebhooks(data.data.nchat_webhooks)
+        setWebhooks(data.data.nchat_webhooks);
       }
     },
-  })
+  });
 
   // ==========================================================================
   // MUTATIONS
   // ==========================================================================
 
-  const [createWebhookMutation] = useMutation<CreateWebhookResponse>(CREATE_WEBHOOK, {
-    onCompleted: (data) => {
-      if (data?.insert_nchat_webhooks_one) {
-        addWebhook(data.insert_nchat_webhooks_one)
-      }
+  const [createWebhookMutation] = useMutation<CreateWebhookResponse>(
+    CREATE_WEBHOOK,
+    {
+      onCompleted: (data) => {
+        if (data?.insert_nchat_webhooks_one) {
+          addWebhook(data.insert_nchat_webhooks_one);
+        }
+      },
+      onError: (err) => {
+        setError(err.message);
+      },
     },
-    onError: (err) => {
-      setError(err.message)
-    },
-  })
+  );
 
-  const [updateWebhookMutation] = useMutation<UpdateWebhookResponse>(UPDATE_WEBHOOK, {
-    onCompleted: (data) => {
-      if (data?.update_nchat_webhooks_by_pk) {
-        const updated = data.update_nchat_webhooks_by_pk
-        updateWebhookInStore(updated.id, updated)
-      }
+  const [updateWebhookMutation] = useMutation<UpdateWebhookResponse>(
+    UPDATE_WEBHOOK,
+    {
+      onCompleted: (data) => {
+        if (data?.update_nchat_webhooks_by_pk) {
+          const updated = data.update_nchat_webhooks_by_pk;
+          updateWebhookInStore(updated.id, updated);
+        }
+      },
+      onError: (err) => {
+        setError(err.message);
+      },
     },
-    onError: (err) => {
-      setError(err.message)
-    },
-  })
+  );
 
-  const [deleteWebhookMutation] = useMutation<DeleteWebhookResponse>(DELETE_WEBHOOK, {
-    onCompleted: (data) => {
-      if (data?.delete_nchat_webhooks_by_pk) {
-        removeWebhook(data.delete_nchat_webhooks_by_pk.id)
-      }
+  const [deleteWebhookMutation] = useMutation<DeleteWebhookResponse>(
+    DELETE_WEBHOOK,
+    {
+      onCompleted: (data) => {
+        if (data?.delete_nchat_webhooks_by_pk) {
+          removeWebhook(data.delete_nchat_webhooks_by_pk.id);
+        }
+      },
+      onError: (err) => {
+        setError(err.message);
+      },
     },
-    onError: (err) => {
-      setError(err.message)
-    },
-  })
+  );
 
   const [regenerateUrlMutation] = useMutation(REGENERATE_WEBHOOK_URL, {
     onCompleted: (data) => {
       if (data?.update_nchat_webhooks_by_pk) {
-        const updated = data.update_nchat_webhooks_by_pk
-        updateWebhookInStore(updated.id, updated)
+        const updated = data.update_nchat_webhooks_by_pk;
+        updateWebhookInStore(updated.id, updated);
       }
     },
     onError: (err) => {
-      setError(err.message)
+      setError(err.message);
     },
-  })
+  });
 
   const [testWebhookMutation] = useMutation(TEST_WEBHOOK, {
     onCompleted: (data) => {
       if (data?.insert_nchat_webhook_deliveries_one) {
-        addDelivery(data.insert_nchat_webhook_deliveries_one)
+        addDelivery(data.insert_nchat_webhook_deliveries_one);
       }
     },
     onError: (err) => {
-      setError(err.message)
+      setError(err.message);
     },
-  })
+  });
 
   const [retryDeliveryMutation] = useMutation(RETRY_WEBHOOK_DELIVERY, {
     onCompleted: (data) => {
       if (data?.update_nchat_webhook_deliveries_by_pk) {
-        const updated = data.update_nchat_webhook_deliveries_by_pk
-        updateDelivery(updated.id, updated)
+        const updated = data.update_nchat_webhook_deliveries_by_pk;
+        updateDelivery(updated.id, updated);
       }
     },
     onError: (err) => {
-      setError(err.message)
+      setError(err.message);
     },
-  })
+  });
 
   // ==========================================================================
   // ACTIONS
@@ -209,12 +224,12 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
   const createWebhook = useCallback(
     async (data: CreateWebhookFormData): Promise<Webhook | null> => {
       if (!webhooksEnabled) {
-        setError('Webhooks feature is not enabled')
-        return null
+        setError("Webhooks feature is not enabled");
+        return null;
       }
 
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       try {
         const result = await createWebhookMutation({
@@ -222,19 +237,19 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
             name: data.name,
             channelId: data.channelId,
             avatarUrl: data.avatarUrl,
-            createdBy: 'current-user-id', // This should come from auth context
+            createdBy: "current-user-id", // This should come from auth context
           },
-        })
+        });
 
-        setLoading(false)
-        return result.data?.insert_nchat_webhooks_one || null
+        setLoading(false);
+        return result.data?.insert_nchat_webhooks_one || null;
       } catch (err) {
-        setLoading(false)
-        return null
+        setLoading(false);
+        return null;
       }
     },
-    [webhooksEnabled, createWebhookMutation, setLoading, setError]
-  )
+    [webhooksEnabled, createWebhookMutation, setLoading, setError],
+  );
 
   /**
    * Update an existing webhook
@@ -242,12 +257,12 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
   const updateWebhook = useCallback(
     async (data: UpdateWebhookFormData): Promise<Webhook | null> => {
       if (!webhooksEnabled) {
-        setError('Webhooks feature is not enabled')
-        return null
+        setError("Webhooks feature is not enabled");
+        return null;
       }
 
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       try {
         const result = await updateWebhookMutation({
@@ -258,17 +273,17 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
             avatarUrl: data.avatarUrl,
             status: data.status,
           },
-        })
+        });
 
-        setLoading(false)
-        return result.data?.update_nchat_webhooks_by_pk || null
+        setLoading(false);
+        return result.data?.update_nchat_webhooks_by_pk || null;
       } catch (err) {
-        setLoading(false)
-        return null
+        setLoading(false);
+        return null;
       }
     },
-    [webhooksEnabled, updateWebhookMutation, setLoading, setError]
-  )
+    [webhooksEnabled, updateWebhookMutation, setLoading, setError],
+  );
 
   /**
    * Delete a webhook
@@ -276,24 +291,24 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
   const deleteWebhook = useCallback(
     async (id: string): Promise<boolean> => {
       if (!webhooksEnabled) {
-        setError('Webhooks feature is not enabled')
-        return false
+        setError("Webhooks feature is not enabled");
+        return false;
       }
 
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       try {
-        await deleteWebhookMutation({ variables: { id } })
-        setLoading(false)
-        return true
+        await deleteWebhookMutation({ variables: { id } });
+        setLoading(false);
+        return true;
       } catch (err) {
-        setLoading(false)
-        return false
+        setLoading(false);
+        return false;
       }
     },
-    [webhooksEnabled, deleteWebhookMutation, setLoading, setError]
-  )
+    [webhooksEnabled, deleteWebhookMutation, setLoading, setError],
+  );
 
   /**
    * Regenerate webhook URL/token
@@ -301,24 +316,24 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
   const regenerateUrl = useCallback(
     async (id: string): Promise<Webhook | null> => {
       if (!webhooksEnabled) {
-        setError('Webhooks feature is not enabled')
-        return null
+        setError("Webhooks feature is not enabled");
+        return null;
       }
 
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       try {
-        const result = await regenerateUrlMutation({ variables: { id } })
-        setLoading(false)
-        return result.data?.update_nchat_webhooks_by_pk || null
+        const result = await regenerateUrlMutation({ variables: { id } });
+        setLoading(false);
+        return result.data?.update_nchat_webhooks_by_pk || null;
       } catch (err) {
-        setLoading(false)
-        return null
+        setLoading(false);
+        return null;
       }
     },
-    [webhooksEnabled, regenerateUrlMutation, setLoading, setError]
-  )
+    [webhooksEnabled, regenerateUrlMutation, setLoading, setError],
+  );
 
   /**
    * Test a webhook by sending a sample message
@@ -326,12 +341,12 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
   const testWebhook = useCallback(
     async (data: TestWebhookFormData): Promise<WebhookDelivery | null> => {
       if (!webhooksEnabled) {
-        setError('Webhooks feature is not enabled')
-        return null
+        setError("Webhooks feature is not enabled");
+        return null;
       }
 
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       try {
         const result = await testWebhookMutation({
@@ -341,17 +356,17 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
             username: data.username,
             avatarUrl: data.avatarUrl,
           },
-        })
+        });
 
-        setLoading(false)
-        return result.data?.insert_nchat_webhook_deliveries_one || null
+        setLoading(false);
+        return result.data?.insert_nchat_webhook_deliveries_one || null;
       } catch (err) {
-        setLoading(false)
-        return null
+        setLoading(false);
+        return null;
       }
     },
-    [webhooksEnabled, testWebhookMutation, setLoading, setError]
-  )
+    [webhooksEnabled, testWebhookMutation, setLoading, setError],
+  );
 
   /**
    * Retry a failed delivery
@@ -359,68 +374,69 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
   const retryDelivery = useCallback(
     async (deliveryId: string): Promise<WebhookDelivery | null> => {
       if (!webhooksEnabled) {
-        setError('Webhooks feature is not enabled')
-        return null
+        setError("Webhooks feature is not enabled");
+        return null;
       }
 
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       try {
         const result = await retryDeliveryMutation({
           variables: { id: deliveryId },
-        })
+        });
 
-        setLoading(false)
-        return result.data?.update_nchat_webhook_deliveries_by_pk || null
+        setLoading(false);
+        return result.data?.update_nchat_webhook_deliveries_by_pk || null;
       } catch (err) {
-        setLoading(false)
-        return null
+        setLoading(false);
+        return null;
       }
     },
-    [webhooksEnabled, retryDeliveryMutation, setLoading, setError]
-  )
+    [webhooksEnabled, retryDeliveryMutation, setLoading, setError],
+  );
 
   /**
    * Toggle webhook status (active/paused)
    */
   const toggleWebhookStatus = useCallback(
     async (id: string): Promise<Webhook | null> => {
-      const webhook = webhooks.find((w) => w.id === id)
-      if (!webhook) return null
+      const webhook = webhooks.find((w) => w.id === id);
+      if (!webhook) return null;
 
-      const newStatus: WebhookStatus = webhook.status === 'active' ? 'paused' : 'active'
+      const newStatus: WebhookStatus =
+        webhook.status === "active" ? "paused" : "active";
 
-      return updateWebhook({ id, status: newStatus })
+      return updateWebhook({ id, status: newStatus });
     },
-    [webhooks, updateWebhook]
-  )
+    [webhooks, updateWebhook],
+  );
 
   /**
    * Select a webhook for viewing/editing
    */
   const selectWebhook = useCallback(
     (webhook: Webhook | null) => {
-      setSelectedWebhook(webhook)
+      setSelectedWebhook(webhook);
     },
-    [setSelectedWebhook]
-  )
+    [setSelectedWebhook],
+  );
 
   /**
    * Refresh webhooks list
    */
   const refresh = useCallback(async () => {
-    if (!webhooksEnabled) return
-    await refetchWebhooks()
-  }, [webhooksEnabled, refetchWebhooks])
+    if (!webhooksEnabled) return;
+    await refetchWebhooks();
+  }, [webhooksEnabled, refetchWebhooks]);
 
   // ==========================================================================
   // COMPUTED VALUES
   // ==========================================================================
 
-  const activeWebhooks = webhooks.filter((w) => w.status === 'active')
-  const pausedWebhooks = webhooks.filter((w) => w.status === 'paused')
-  const totalWebhooks = webhooks.length
+  const activeWebhooks = webhooks.filter((w) => w.status === "active");
+  const pausedWebhooks = webhooks.filter((w) => w.status === "paused");
+  const totalWebhooks = webhooks.length;
 
   // ==========================================================================
   // RETURN
@@ -459,7 +475,7 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
     setRecentDeliveries,
     setStats,
     setError,
-  }
+  };
 }
 
 // ============================================================================
@@ -467,17 +483,22 @@ export function useWebhooks(options: UseWebhooksOptions = {}) {
 // ============================================================================
 
 export interface UseWebhookOptions {
-  webhookId: string
-  fetchDeliveries?: boolean
-  fetchStats?: boolean
-  realtime?: boolean
+  webhookId: string;
+  fetchDeliveries?: boolean;
+  fetchStats?: boolean;
+  realtime?: boolean;
 }
 
 export function useWebhook(options: UseWebhookOptions) {
-  const { webhookId, fetchDeliveries = true, fetchStats = true, realtime = false } = options
+  const {
+    webhookId,
+    fetchDeliveries = true,
+    fetchStats = true,
+    realtime = false,
+  } = options;
 
-  const { config } = useAppConfig()
-  const webhooksEnabled = config?.integrations?.webhooks?.enabled ?? false
+  const { config } = useAppConfig();
+  const webhooksEnabled = config?.integrations?.webhooks?.enabled ?? false;
 
   const {
     selectedWebhook,
@@ -488,7 +509,7 @@ export function useWebhook(options: UseWebhookOptions) {
     setStats,
     updateDelivery,
     setError,
-  } = useWebhookStore()
+  } = useWebhookStore();
 
   // Fetch webhook details
   const {
@@ -500,13 +521,13 @@ export function useWebhook(options: UseWebhookOptions) {
     skip: !webhookId || !webhooksEnabled,
     onCompleted: (data) => {
       if (data?.nchat_webhooks_by_pk) {
-        setSelectedWebhook(data.nchat_webhooks_by_pk)
+        setSelectedWebhook(data.nchat_webhooks_by_pk);
       }
     },
     onError: (err) => {
-      setError(err.message)
+      setError(err.message);
     },
-  })
+  });
 
   // Fetch deliveries
   const {
@@ -518,26 +539,25 @@ export function useWebhook(options: UseWebhookOptions) {
     skip: !webhookId || !fetchDeliveries || !webhooksEnabled,
     onCompleted: (data) => {
       if (data?.nchat_webhook_deliveries) {
-        setDeliveries(data.nchat_webhook_deliveries)
+        setDeliveries(data.nchat_webhook_deliveries);
       }
     },
     onError: (err) => {
-      setError(err.message)
+      setError(err.message);
     },
-  })
+  });
 
   // Fetch stats
-  const { loading: statsLoading, error: statsError } = useQuery<GetWebhookStatsResponse>(
-    GET_WEBHOOK_STATS,
-    {
+  const { loading: statsLoading, error: statsError } =
+    useQuery<GetWebhookStatsResponse>(GET_WEBHOOK_STATS, {
       variables: { webhookId },
       skip: !webhookId || !fetchStats || !webhooksEnabled,
       onCompleted: (data) => {
         if (data) {
-          const total = data.total?.aggregate?.count ?? 0
-          const success = data.success?.aggregate?.count ?? 0
-          const failed = data.failed?.aggregate?.count ?? 0
-          const pending = data.pending?.aggregate?.count ?? 0
+          const total = data.total?.aggregate?.count ?? 0;
+          const success = data.success?.aggregate?.count ?? 0;
+          const failed = data.failed?.aggregate?.count ?? 0;
+          const pending = data.pending?.aggregate?.count ?? 0;
 
           setStats({
             total,
@@ -545,14 +565,13 @@ export function useWebhook(options: UseWebhookOptions) {
             failed,
             pending,
             successRate: total > 0 ? (success / total) * 100 : 0,
-          })
+          });
         }
       },
       onError: (err) => {
-        setError(err.message)
+        setError(err.message);
       },
-    }
-  )
+    });
 
   // Real-time deliveries subscription
   useSubscription(WEBHOOK_DELIVERIES_SUBSCRIPTION, {
@@ -560,24 +579,31 @@ export function useWebhook(options: UseWebhookOptions) {
     skip: !webhookId || !realtime || !webhooksEnabled,
     onData: ({ data }) => {
       if (data?.data?.nchat_webhook_deliveries) {
-        setDeliveries(data.data.nchat_webhook_deliveries)
+        setDeliveries(data.data.nchat_webhook_deliveries);
       }
     },
-  })
+  });
 
   const refresh = useCallback(async () => {
-    await Promise.all([refetchWebhook(), fetchDeliveries && refetchDeliveries()])
-  }, [refetchWebhook, refetchDeliveries, fetchDeliveries])
+    await Promise.all([
+      refetchWebhook(),
+      fetchDeliveries && refetchDeliveries(),
+    ]);
+  }, [refetchWebhook, refetchDeliveries, fetchDeliveries]);
 
   return {
     webhook: selectedWebhook,
     deliveries,
     stats,
     isLoading: webhookLoading || deliveriesLoading || statsLoading,
-    error: webhookError?.message || deliveriesError?.message || statsError?.message || null,
+    error:
+      webhookError?.message ||
+      deliveriesError?.message ||
+      statsError?.message ||
+      null,
     webhooksEnabled,
     refresh,
-  }
+  };
 }
 
 // ============================================================================
@@ -585,35 +611,34 @@ export function useWebhook(options: UseWebhookOptions) {
 // ============================================================================
 
 export interface UseWebhookDeliveriesOptions {
-  webhookId: string
-  status?: DeliveryStatus
-  limit?: number
-  realtime?: boolean
+  webhookId: string;
+  status?: DeliveryStatus;
+  limit?: number;
+  realtime?: boolean;
 }
 
 export function useWebhookDeliveries(options: UseWebhookDeliveriesOptions) {
-  const { webhookId, status, limit = 20, realtime = false } = options
+  const { webhookId, status, limit = 20, realtime = false } = options;
 
-  const { config } = useAppConfig()
-  const webhooksEnabled = config?.integrations?.webhooks?.enabled ?? false
+  const { config } = useAppConfig();
+  const webhooksEnabled = config?.integrations?.webhooks?.enabled ?? false;
 
-  const { deliveries, setDeliveries, updateDelivery, setError } = useWebhookStore()
+  const { deliveries, setDeliveries, updateDelivery, setError } =
+    useWebhookStore();
 
-  const { loading, error, refetch, fetchMore } = useQuery<GetWebhookDeliveriesResponse>(
-    GET_WEBHOOK_DELIVERIES,
-    {
+  const { loading, error, refetch, fetchMore } =
+    useQuery<GetWebhookDeliveriesResponse>(GET_WEBHOOK_DELIVERIES, {
       variables: { webhookId, status, limit },
       skip: !webhookId || !webhooksEnabled,
       onCompleted: (data) => {
         if (data?.nchat_webhook_deliveries) {
-          setDeliveries(data.nchat_webhook_deliveries)
+          setDeliveries(data.nchat_webhook_deliveries);
         }
       },
       onError: (err) => {
-        setError(err.message)
+        setError(err.message);
       },
-    }
-  )
+    });
 
   // Real-time updates
   useSubscription(WEBHOOK_DELIVERIES_SUBSCRIPTION, {
@@ -621,10 +646,10 @@ export function useWebhookDeliveries(options: UseWebhookDeliveriesOptions) {
     skip: !webhookId || !realtime || !webhooksEnabled,
     onData: ({ data }) => {
       if (data?.data?.nchat_webhook_deliveries) {
-        setDeliveries(data.data.nchat_webhook_deliveries)
+        setDeliveries(data.data.nchat_webhook_deliveries);
       }
     },
-  })
+  });
 
   const loadMore = useCallback(async () => {
     await fetchMore({
@@ -632,17 +657,17 @@ export function useWebhookDeliveries(options: UseWebhookDeliveriesOptions) {
         offset: deliveries.length,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev
+        if (!fetchMoreResult) return prev;
         return {
           ...prev,
           nchat_webhook_deliveries: [
             ...prev.nchat_webhook_deliveries,
             ...fetchMoreResult.nchat_webhook_deliveries,
           ],
-        }
+        };
       },
-    })
-  }, [fetchMore, deliveries.length])
+    });
+  }, [fetchMore, deliveries.length]);
 
   return {
     deliveries,
@@ -651,7 +676,7 @@ export function useWebhookDeliveries(options: UseWebhookDeliveriesOptions) {
     webhooksEnabled,
     refetch,
     loadMore,
-  }
+  };
 }
 
 // ============================================================================
@@ -661,8 +686,12 @@ export function useWebhookDeliveries(options: UseWebhookDeliveriesOptions) {
 /**
  * Generate webhook URL from parts
  */
-export function generateWebhookUrl(baseUrl: string, webhookId: string, token: string): string {
-  return `${baseUrl}/api/webhooks/${webhookId}/${token}`
+export function generateWebhookUrl(
+  baseUrl: string,
+  webhookId: string,
+  token: string,
+): string {
+  return `${baseUrl}/api/webhooks/${webhookId}/${token}`;
 }
 
 /**
@@ -670,10 +699,10 @@ export function generateWebhookUrl(baseUrl: string, webhookId: string, token: st
  */
 export async function copyWebhookUrl(url: string): Promise<boolean> {
   try {
-    await navigator.clipboard.writeText(url)
-    return true
+    await navigator.clipboard.writeText(url);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -681,37 +710,37 @@ export async function copyWebhookUrl(url: string): Promise<boolean> {
  * Format delivery timestamp
  */
 export function formatDeliveryTime(timestamp: string): string {
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
 
-  return date.toLocaleDateString()
+  return date.toLocaleDateString();
 }
 
 /**
  * Get delivery status color
  */
 export function getDeliveryStatusColor(
-  status: DeliveryStatus
-): 'default' | 'secondary' | 'destructive' | 'outline' {
+  status: DeliveryStatus,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
-    case 'success':
-      return 'default'
-    case 'pending':
-    case 'retrying':
-      return 'secondary'
-    case 'failed':
-      return 'destructive'
+    case "success":
+      return "default";
+    case "pending":
+    case "retrying":
+      return "secondary";
+    case "failed":
+      return "destructive";
     default:
-      return 'outline'
+      return "outline";
   }
 }
 
@@ -719,18 +748,18 @@ export function getDeliveryStatusColor(
  * Get webhook status color
  */
 export function getWebhookStatusColor(
-  status: WebhookStatus
-): 'default' | 'secondary' | 'destructive' | 'outline' {
+  status: WebhookStatus,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
-    case 'active':
-      return 'default'
-    case 'paused':
-      return 'secondary'
-    case 'disabled':
-      return 'destructive'
+    case "active":
+      return "default";
+    case "paused":
+      return "secondary";
+    case "disabled":
+      return "destructive";
     default:
-      return 'outline'
+      return "outline";
   }
 }
 
-export default useWebhooks
+export default useWebhooks;

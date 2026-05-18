@@ -1,36 +1,40 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Filter, X, ArrowUpDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import * as React from "react";
+import { Filter, X, ArrowUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Badge } from '@/components/ui/badge'
-import type { PinFilters, PinSortBy, PinSortOrder } from '@/lib/pinned'
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
+import type { PinFilters, PinSortBy, PinSortOrder } from "@/lib/pinned";
 
 export interface PinnedFiltersProps {
   /** Current filters */
-  filters: PinFilters
+  filters: PinFilters;
   /** Current sort field */
-  sortBy: PinSortBy
+  sortBy: PinSortBy;
   /** Current sort order */
-  sortOrder: PinSortOrder
+  sortOrder: PinSortOrder;
   /** Callback when filters change */
-  onFiltersChange: (filters: Partial<PinFilters>) => void
+  onFiltersChange: (filters: Partial<PinFilters>) => void;
   /** Callback when sort changes */
-  onSortChange: (sortBy: PinSortBy, sortOrder: PinSortOrder) => void
+  onSortChange: (sortBy: PinSortBy, sortOrder: PinSortOrder) => void;
   /** Callback to clear filters */
-  onClearFilters: () => void
+  onClearFilters: () => void;
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -49,23 +53,25 @@ export function PinnedFilters({
     filters.searchQuery ||
     filters.pinnedByUserId ||
     filters.messageType ||
-    filters.hasAttachments !== undefined
+    filters.hasAttachments !== undefined;
 
   const activeFilterCount = [
     filters.searchQuery,
     filters.pinnedByUserId,
     filters.messageType,
     filters.hasAttachments !== undefined,
-  ].filter(Boolean).length
+  ].filter(Boolean).length;
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       {/* Search */}
       <div className="relative flex-1">
         <Input
           placeholder="Search pinned messages..."
-          value={filters.searchQuery ?? ''}
-          onChange={(e) => onFiltersChange({ searchQuery: e.target.value || undefined })}
+          value={filters.searchQuery ?? ""}
+          onChange={(e) =>
+            onFiltersChange({ searchQuery: e.target.value || undefined })
+          }
           className="h-8 text-sm"
         />
         {filters.searchQuery && (
@@ -84,8 +90,11 @@ export function PinnedFilters({
       <Select
         value={`${sortBy}-${sortOrder}`}
         onValueChange={(value) => {
-          const [newSortBy, newSortOrder] = value.split('-') as [PinSortBy, PinSortOrder]
-          onSortChange(newSortBy, newSortOrder)
+          const [newSortBy, newSortOrder] = value.split("-") as [
+            PinSortBy,
+            PinSortOrder,
+          ];
+          onSortChange(newSortBy, newSortOrder);
         }}
       >
         <SelectTrigger className="h-8 w-[160px] text-sm">
@@ -120,14 +129,17 @@ export function PinnedFilters({
         <PopoverContent className="w-72" align="end">
           <div className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="message-type-select" className="text-sm font-medium">
+              <label
+                htmlFor="message-type-select"
+                className="text-sm font-medium"
+              >
                 Message Type
               </label>
               <Select
-                value={filters.messageType ?? 'all'}
+                value={filters.messageType ?? "all"}
                 onValueChange={(value) =>
                   onFiltersChange({
-                    messageType: value === 'all' ? undefined : value,
+                    messageType: value === "all" ? undefined : value,
                   })
                 }
               >
@@ -144,20 +156,24 @@ export function PinnedFilters({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="attachments-select" className="text-sm font-medium">
+              <label
+                htmlFor="attachments-select"
+                className="text-sm font-medium"
+              >
                 Attachments
               </label>
               <Select
                 value={
                   filters.hasAttachments === undefined
-                    ? 'all'
+                    ? "all"
                     : filters.hasAttachments
-                      ? 'with'
-                      : 'without'
+                      ? "with"
+                      : "without"
                 }
                 onValueChange={(value) =>
                   onFiltersChange({
-                    hasAttachments: value === 'all' ? undefined : value === 'with',
+                    hasAttachments:
+                      value === "all" ? undefined : value === "with",
                   })
                 }
               >
@@ -173,7 +189,12 @@ export function PinnedFilters({
             </div>
 
             {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={onClearFilters} className="w-full">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClearFilters}
+                className="w-full"
+              >
                 <X className="mr-1 h-3 w-3" />
                 Clear filters
               </Button>
@@ -182,5 +203,5 @@ export function PinnedFilters({
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }

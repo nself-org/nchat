@@ -11,75 +11,75 @@
  * Phase 6: Task 35 - Complete channel/category/thread/forum behavior
  */
 
-import type { UserRole } from '@/types/user'
+import type { UserRole } from "@/types/user";
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-export type ArchiveEntityType = 'channel' | 'thread' | 'post'
+export type ArchiveEntityType = "channel" | "thread" | "post";
 
 export interface ArchiveState {
-  isArchived: boolean
-  archivedAt: string | null
-  archivedBy: string | null
-  archiveReason: string | null
-  autoArchived: boolean
-  expiresAt: string | null
+  isArchived: boolean;
+  archivedAt: string | null;
+  archivedBy: string | null;
+  archiveReason: string | null;
+  autoArchived: boolean;
+  expiresAt: string | null;
 }
 
 export interface ArchiveOptions {
-  reason?: string
-  expiresAt?: string
-  autoArchive?: boolean
+  reason?: string;
+  expiresAt?: string;
+  autoArchive?: boolean;
 }
 
 export interface ArchiveHistoryEntry {
-  id: string
-  entityId: string
-  entityType: ArchiveEntityType
-  action: 'archive' | 'unarchive'
-  userId: string
-  reason: string | null
-  autoArchived: boolean
-  createdAt: string
+  id: string;
+  entityId: string;
+  entityType: ArchiveEntityType;
+  action: "archive" | "unarchive";
+  userId: string;
+  reason: string | null;
+  autoArchived: boolean;
+  createdAt: string;
   user?: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
 }
 
 export interface ArchiveSettings {
-  showArchivedChannels: boolean
-  showArchivedThreads: boolean
-  archiveNotificationEnabled: boolean
-  defaultAutoArchiveDays: number
+  showArchivedChannels: boolean;
+  showArchivedThreads: boolean;
+  archiveNotificationEnabled: boolean;
+  defaultAutoArchiveDays: number;
 }
 
 export interface ArchivableEntity {
-  id: string
-  type: ArchiveEntityType
-  name: string
-  isArchived: boolean
-  archivedAt: string | null
-  archiveReason: string | null
+  id: string;
+  type: ArchiveEntityType;
+  name: string;
+  isArchived: boolean;
+  archivedAt: string | null;
+  archiveReason: string | null;
 }
 
 export interface ArchivePermissionContext {
-  userId: string
-  userRole: UserRole
-  entityType: ArchiveEntityType
-  entityId: string
-  isOwner: boolean
-  isModerator: boolean
+  userId: string;
+  userRole: UserRole;
+  entityType: ArchiveEntityType;
+  entityId: string;
+  isOwner: boolean;
+  isModerator: boolean;
 }
 
 export interface BulkArchiveResult {
-  success: boolean
-  archived: string[]
-  failed: Array<{ id: string; error: string }>
+  success: boolean;
+  archived: string[];
+  failed: Array<{ id: string; error: string }>;
 }
 
 // =============================================================================
@@ -87,14 +87,14 @@ export interface BulkArchiveResult {
 // =============================================================================
 
 export class ArchiveService {
-  private userId: string
-  private userRole: UserRole
-  private settings: ArchiveSettings
+  private userId: string;
+  private userRole: UserRole;
+  private settings: ArchiveSettings;
 
   constructor(userId: string, userRole: UserRole) {
-    this.userId = userId
-    this.userRole = userRole
-    this.settings = this.loadSettings()
+    this.userId = userId;
+    this.userRole = userRole;
+    this.settings = this.loadSettings();
   }
 
   // ===========================================================================
@@ -106,49 +106,49 @@ export class ArchiveService {
    */
   async archiveChannel(
     channelId: string,
-    options: ArchiveOptions = {}
+    options: ArchiveOptions = {},
   ): Promise<ArchiveState> {
-    await this.checkArchivePermission('channel', channelId)
+    await this.checkArchivePermission("channel", channelId);
 
     const response = await fetch(`/api/channels/${channelId}/archive`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: this.userId,
         reason: options.reason,
         expiresAt: options.expiresAt,
         autoArchive: options.autoArchive || false,
       }),
-    })
+    });
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to archive channel')
+      const error = await response.json();
+      throw new Error(error.error || "Failed to archive channel");
     }
 
-    const data = await response.json()
-    return this.extractArchiveState(data.channel)
+    const data = await response.json();
+    return this.extractArchiveState(data.channel);
   }
 
   /**
    * Unarchive a channel
    */
   async unarchiveChannel(channelId: string): Promise<ArchiveState> {
-    await this.checkArchivePermission('channel', channelId)
+    await this.checkArchivePermission("channel", channelId);
 
     const response = await fetch(`/api/channels/${channelId}/archive`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: this.userId }),
-    })
+    });
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to unarchive channel')
+      const error = await response.json();
+      throw new Error(error.error || "Failed to unarchive channel");
     }
 
-    const data = await response.json()
-    return this.extractArchiveState(data.channel)
+    const data = await response.json();
+    return this.extractArchiveState(data.channel);
   }
 
   /**
@@ -156,48 +156,48 @@ export class ArchiveService {
    */
   async archiveThread(
     threadId: string,
-    options: ArchiveOptions = {}
+    options: ArchiveOptions = {},
   ): Promise<ArchiveState> {
-    await this.checkArchivePermission('thread', threadId)
+    await this.checkArchivePermission("thread", threadId);
 
     const response = await fetch(`/api/threads/${threadId}/archive`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: this.userId,
         reason: options.reason,
         autoArchive: options.autoArchive || false,
       }),
-    })
+    });
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to archive thread')
+      const error = await response.json();
+      throw new Error(error.error || "Failed to archive thread");
     }
 
-    const data = await response.json()
-    return this.extractArchiveState(data.thread)
+    const data = await response.json();
+    return this.extractArchiveState(data.thread);
   }
 
   /**
    * Unarchive a thread
    */
   async unarchiveThread(threadId: string): Promise<ArchiveState> {
-    await this.checkArchivePermission('thread', threadId)
+    await this.checkArchivePermission("thread", threadId);
 
     const response = await fetch(`/api/threads/${threadId}/archive`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: this.userId }),
-    })
+    });
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to unarchive thread')
+      const error = await response.json();
+      throw new Error(error.error || "Failed to unarchive thread");
     }
 
-    const data = await response.json()
-    return this.extractArchiveState(data.thread)
+    const data = await response.json();
+    return this.extractArchiveState(data.thread);
   }
 
   /**
@@ -205,47 +205,53 @@ export class ArchiveService {
    */
   async archivePost(
     postId: string,
-    options: ArchiveOptions = {}
+    options: ArchiveOptions = {},
   ): Promise<ArchiveState> {
-    await this.checkArchivePermission('post', postId)
+    await this.checkArchivePermission("post", postId);
 
-    const response = await fetch(`/api/channels/forums/posts/${postId}/archive`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: this.userId,
-        reason: options.reason,
-      }),
-    })
+    const response = await fetch(
+      `/api/channels/forums/posts/${postId}/archive`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: this.userId,
+          reason: options.reason,
+        }),
+      },
+    );
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to archive post')
+      const error = await response.json();
+      throw new Error(error.error || "Failed to archive post");
     }
 
-    const data = await response.json()
-    return this.extractArchiveState(data.post)
+    const data = await response.json();
+    return this.extractArchiveState(data.post);
   }
 
   /**
    * Unarchive a forum post
    */
   async unarchivePost(postId: string): Promise<ArchiveState> {
-    await this.checkArchivePermission('post', postId)
+    await this.checkArchivePermission("post", postId);
 
-    const response = await fetch(`/api/channels/forums/posts/${postId}/archive`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: this.userId }),
-    })
+    const response = await fetch(
+      `/api/channels/forums/posts/${postId}/archive`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: this.userId }),
+      },
+    );
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to unarchive post')
+      const error = await response.json();
+      throw new Error(error.error || "Failed to unarchive post");
     }
 
-    const data = await response.json()
-    return this.extractArchiveState(data.post)
+    const data = await response.json();
+    return this.extractArchiveState(data.post);
   }
 
   // ===========================================================================
@@ -257,20 +263,20 @@ export class ArchiveService {
    */
   async bulkArchiveChannels(
     channelIds: string[],
-    options: ArchiveOptions = {}
+    options: ArchiveOptions = {},
   ): Promise<BulkArchiveResult> {
-    const archived: string[] = []
-    const failed: Array<{ id: string; error: string }> = []
+    const archived: string[] = [];
+    const failed: Array<{ id: string; error: string }> = [];
 
     for (const channelId of channelIds) {
       try {
-        await this.archiveChannel(channelId, options)
-        archived.push(channelId)
+        await this.archiveChannel(channelId, options);
+        archived.push(channelId);
       } catch (error) {
         failed.push({
           id: channelId,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        })
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     }
 
@@ -278,25 +284,27 @@ export class ArchiveService {
       success: failed.length === 0,
       archived,
       failed,
-    }
+    };
   }
 
   /**
    * Unarchive multiple channels at once
    */
-  async bulkUnarchiveChannels(channelIds: string[]): Promise<BulkArchiveResult> {
-    const archived: string[] = []
-    const failed: Array<{ id: string; error: string }> = []
+  async bulkUnarchiveChannels(
+    channelIds: string[],
+  ): Promise<BulkArchiveResult> {
+    const archived: string[] = [];
+    const failed: Array<{ id: string; error: string }> = [];
 
     for (const channelId of channelIds) {
       try {
-        await this.unarchiveChannel(channelId)
-        archived.push(channelId)
+        await this.unarchiveChannel(channelId);
+        archived.push(channelId);
       } catch (error) {
         failed.push({
           id: channelId,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        })
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     }
 
@@ -304,7 +312,7 @@ export class ArchiveService {
       success: failed.length === 0,
       archived,
       failed,
-    }
+    };
   }
 
   // ===========================================================================
@@ -316,18 +324,18 @@ export class ArchiveService {
    */
   async getArchiveHistory(
     entityType: ArchiveEntityType,
-    entityId: string
+    entityId: string,
   ): Promise<ArchiveHistoryEntry[]> {
     const response = await fetch(
-      `/api/archive/history?entityType=${entityType}&entityId=${entityId}`
-    )
+      `/api/archive/history?entityType=${entityType}&entityId=${entityId}`,
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch archive history')
+      throw new Error("Failed to fetch archive history");
     }
 
-    const data = await response.json()
-    return data.history || []
+    const data = await response.json();
+    return data.history || [];
   }
 
   /**
@@ -335,18 +343,18 @@ export class ArchiveService {
    */
   async getRecentArchiveActivity(
     workspaceId: string,
-    limit = 50
+    limit = 50,
   ): Promise<ArchiveHistoryEntry[]> {
     const response = await fetch(
-      `/api/archive/activity?workspaceId=${workspaceId}&limit=${limit}`
-    )
+      `/api/archive/activity?workspaceId=${workspaceId}&limit=${limit}`,
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch archive activity')
+      throw new Error("Failed to fetch archive activity");
     }
 
-    const data = await response.json()
-    return data.activity || []
+    const data = await response.json();
+    return data.activity || [];
   }
 
   // ===========================================================================
@@ -358,33 +366,33 @@ export class ArchiveService {
    */
   async getArchivedChannels(
     workspaceId: string,
-    options: { limit?: number; offset?: number } = {}
+    options: { limit?: number; offset?: number } = {},
   ): Promise<{ channels: ArchivableEntity[]; total: number }> {
     const params = new URLSearchParams({
       workspaceId,
-      isArchived: 'true',
-    })
-    if (options.limit) params.set('limit', options.limit.toString())
-    if (options.offset) params.set('offset', options.offset.toString())
+      isArchived: "true",
+    });
+    if (options.limit) params.set("limit", options.limit.toString());
+    if (options.offset) params.set("offset", options.offset.toString());
 
-    const response = await fetch(`/api/channels?${params}`)
+    const response = await fetch(`/api/channels?${params}`);
 
     if (!response.ok) {
-      throw new Error('Failed to fetch archived channels')
+      throw new Error("Failed to fetch archived channels");
     }
 
-    const data = await response.json()
+    const data = await response.json();
     return {
       channels: (data.channels || []).map((ch: Record<string, unknown>) => ({
         id: ch.id as string,
-        type: 'channel' as const,
+        type: "channel" as const,
         name: ch.name as string,
         isArchived: true,
         archivedAt: ch.archivedAt as string | null,
         archiveReason: ch.archiveReason as string | null,
       })),
       total: data.total || 0,
-    }
+    };
   }
 
   /**
@@ -392,34 +400,36 @@ export class ArchiveService {
    */
   async getArchivedThreads(
     channelId: string,
-    options: { limit?: number; offset?: number } = {}
+    options: { limit?: number; offset?: number } = {},
   ): Promise<{ threads: ArchivableEntity[]; total: number }> {
     const params = new URLSearchParams({
       channelId,
-      includeArchived: 'true',
-      archivedOnly: 'true',
-    })
-    if (options.limit) params.set('limit', options.limit.toString())
-    if (options.offset) params.set('offset', options.offset.toString())
+      includeArchived: "true",
+      archivedOnly: "true",
+    });
+    if (options.limit) params.set("limit", options.limit.toString());
+    if (options.offset) params.set("offset", options.offset.toString());
 
-    const response = await fetch(`/api/threads?${params}`)
+    const response = await fetch(`/api/threads?${params}`);
 
     if (!response.ok) {
-      throw new Error('Failed to fetch archived threads')
+      throw new Error("Failed to fetch archived threads");
     }
 
-    const data = await response.json()
+    const data = await response.json();
     return {
       threads: (data.threads || []).map((t: Record<string, unknown>) => ({
         id: t.id as string,
-        type: 'thread' as const,
-        name: (t.parentMessage as Record<string, unknown>)?.content as string || 'Thread',
+        type: "thread" as const,
+        name:
+          ((t.parentMessage as Record<string, unknown>)?.content as string) ||
+          "Thread",
         isArchived: true,
         archivedAt: t.archivedAt as string | null,
         archiveReason: t.archiveReason as string | null,
       })),
       total: data.total || 0,
-    }
+    };
   }
 
   // ===========================================================================
@@ -430,33 +440,33 @@ export class ArchiveService {
    * Get current archive settings
    */
   getSettings(): ArchiveSettings {
-    return { ...this.settings }
+    return { ...this.settings };
   }
 
   /**
    * Update archive settings
    */
   updateSettings(updates: Partial<ArchiveSettings>): void {
-    this.settings = { ...this.settings, ...updates }
-    this.saveSettings()
+    this.settings = { ...this.settings, ...updates };
+    this.saveSettings();
   }
 
   /**
    * Toggle showing archived channels
    */
   toggleShowArchivedChannels(): boolean {
-    this.settings.showArchivedChannels = !this.settings.showArchivedChannels
-    this.saveSettings()
-    return this.settings.showArchivedChannels
+    this.settings.showArchivedChannels = !this.settings.showArchivedChannels;
+    this.saveSettings();
+    return this.settings.showArchivedChannels;
   }
 
   /**
    * Toggle showing archived threads
    */
   toggleShowArchivedThreads(): boolean {
-    this.settings.showArchivedThreads = !this.settings.showArchivedThreads
-    this.saveSettings()
-    return this.settings.showArchivedThreads
+    this.settings.showArchivedThreads = !this.settings.showArchivedThreads;
+    this.saveSettings();
+    return this.settings.showArchivedThreads;
   }
 
   // ===========================================================================
@@ -468,13 +478,13 @@ export class ArchiveService {
    */
   async canArchive(
     entityType: ArchiveEntityType,
-    entityId: string
+    entityId: string,
   ): Promise<boolean> {
     try {
-      await this.checkArchivePermission(entityType, entityId)
-      return true
+      await this.checkArchivePermission(entityType, entityId);
+      return true;
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -483,9 +493,9 @@ export class ArchiveService {
    */
   async canUnarchive(
     entityType: ArchiveEntityType,
-    entityId: string
+    entityId: string,
   ): Promise<boolean> {
-    return this.canArchive(entityType, entityId)
+    return this.canArchive(entityType, entityId);
   }
 
   // ===========================================================================
@@ -497,18 +507,18 @@ export class ArchiveService {
    */
   async setAutoArchive(
     threadId: string,
-    durationMinutes: number
+    durationMinutes: number,
   ): Promise<void> {
     const response = await fetch(`/api/threads/${threadId}/settings`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         autoArchiveMinutes: durationMinutes,
       }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error('Failed to set auto-archive')
+      throw new Error("Failed to set auto-archive");
     }
   }
 
@@ -516,7 +526,7 @@ export class ArchiveService {
    * Disable auto-archive for a thread
    */
   async disableAutoArchive(threadId: string): Promise<void> {
-    return this.setAutoArchive(threadId, 0)
+    return this.setAutoArchive(threadId, 0);
   }
 
   /**
@@ -524,12 +534,12 @@ export class ArchiveService {
    */
   getAutoArchiveOptions(): Array<{ label: string; value: number }> {
     return [
-      { label: 'Never', value: 0 },
-      { label: '1 hour', value: 60 },
-      { label: '24 hours', value: 1440 },
-      { label: '3 days', value: 4320 },
-      { label: '1 week', value: 10080 },
-    ]
+      { label: "Never", value: 0 },
+      { label: "1 hour", value: 60 },
+      { label: "24 hours", value: 1440 },
+      { label: "3 days", value: 4320 },
+      { label: "1 week", value: 10080 },
+    ];
   }
 
   // ===========================================================================
@@ -538,72 +548,92 @@ export class ArchiveService {
 
   private async checkArchivePermission(
     entityType: ArchiveEntityType,
-    entityId: string
+    entityId: string,
   ): Promise<void> {
     // Owners and admins can always archive
-    if (this.userRole === 'owner' || this.userRole === 'admin') {
-      return
+    if (this.userRole === "owner" || this.userRole === "admin") {
+      return;
     }
 
     // Moderators can archive threads and posts
-    if (this.userRole === 'moderator') {
-      if (entityType === 'thread' || entityType === 'post') {
-        return
+    if (this.userRole === "moderator") {
+      if (entityType === "thread" || entityType === "post") {
+        return;
       }
-      throw new Error('Moderators cannot archive channels')
+      throw new Error("Moderators cannot archive channels");
     }
 
     // Regular members need specific permissions
     const response = await fetch(
-      `/api/${entityType === 'channel' ? 'channels' : entityType === 'thread' ? 'threads' : 'channels/forums/posts'}/${entityId}/permissions?userId=${this.userId}`
-    )
+      `/api/${entityType === "channel" ? "channels" : entityType === "thread" ? "threads" : "channels/forums/posts"}/${entityId}/permissions?userId=${this.userId}`,
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to check archive permission')
+      throw new Error("Failed to check archive permission");
     }
 
-    const data = await response.json()
+    const data = await response.json();
     if (!data.canArchive) {
-      throw new Error('Insufficient permissions to archive')
+      throw new Error("Insufficient permissions to archive");
     }
   }
 
   private extractArchiveState(entity: Record<string, unknown>): ArchiveState {
     return {
-      isArchived: entity.isArchived as boolean || entity.is_archived as boolean || false,
-      archivedAt: entity.archivedAt as string | null || entity.archived_at as string | null || null,
-      archivedBy: entity.archivedBy as string | null || entity.archived_by as string | null || null,
-      archiveReason: entity.archiveReason as string | null || entity.archive_reason as string | null || null,
-      autoArchived: entity.autoArchived as boolean || entity.auto_archived as boolean || false,
-      expiresAt: entity.archiveExpiresAt as string | null || entity.archive_expires_at as string | null || null,
-    }
+      isArchived:
+        (entity.isArchived as boolean) ||
+        (entity.is_archived as boolean) ||
+        false,
+      archivedAt:
+        (entity.archivedAt as string | null) ||
+        (entity.archived_at as string | null) ||
+        null,
+      archivedBy:
+        (entity.archivedBy as string | null) ||
+        (entity.archived_by as string | null) ||
+        null,
+      archiveReason:
+        (entity.archiveReason as string | null) ||
+        (entity.archive_reason as string | null) ||
+        null,
+      autoArchived:
+        (entity.autoArchived as boolean) ||
+        (entity.auto_archived as boolean) ||
+        false,
+      expiresAt:
+        (entity.archiveExpiresAt as string | null) ||
+        (entity.archive_expires_at as string | null) ||
+        null,
+    };
   }
 
   private loadSettings(): ArchiveSettings {
-    if (typeof window === 'undefined') {
-      return this.getDefaultSettings()
+    if (typeof window === "undefined") {
+      return this.getDefaultSettings();
     }
 
     try {
-      const stored = localStorage.getItem(`nchat_archive_settings_${this.userId}`)
+      const stored = localStorage.getItem(
+        `nchat_archive_settings_${this.userId}`,
+      );
       if (stored) {
-        return { ...this.getDefaultSettings(), ...JSON.parse(stored) }
+        return { ...this.getDefaultSettings(), ...JSON.parse(stored) };
       }
     } catch {
       // Ignore parse errors
     }
 
-    return this.getDefaultSettings()
+    return this.getDefaultSettings();
   }
 
   private saveSettings(): void {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
     try {
       localStorage.setItem(
         `nchat_archive_settings_${this.userId}`,
-        JSON.stringify(this.settings)
-      )
+        JSON.stringify(this.settings),
+      );
     } catch {
       // Ignore storage errors
     }
@@ -615,7 +645,7 @@ export class ArchiveService {
       showArchivedThreads: false,
       archiveNotificationEnabled: true,
       defaultAutoArchiveDays: 7,
-    }
+    };
   }
 }
 
@@ -623,16 +653,22 @@ export class ArchiveService {
 // SINGLETON FACTORY
 // =============================================================================
 
-const archiveServices = new Map<string, ArchiveService>()
+const archiveServices = new Map<string, ArchiveService>();
 
-export function getArchiveService(userId: string, userRole: UserRole): ArchiveService {
-  const key = `${userId}_${userRole}`
+export function getArchiveService(
+  userId: string,
+  userRole: UserRole,
+): ArchiveService {
+  const key = `${userId}_${userRole}`;
   if (!archiveServices.has(key)) {
-    archiveServices.set(key, new ArchiveService(userId, userRole))
+    archiveServices.set(key, new ArchiveService(userId, userRole));
   }
-  return archiveServices.get(key)!
+  return archiveServices.get(key)!;
 }
 
-export function createArchiveService(userId: string, userRole: UserRole): ArchiveService {
-  return new ArchiveService(userId, userRole)
+export function createArchiveService(
+  userId: string,
+  userRole: UserRole,
+): ArchiveService {
+  return new ArchiveService(userId, userRole);
 }

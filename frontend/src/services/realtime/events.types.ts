@@ -18,30 +18,30 @@
  */
 export interface EventMetadata {
   /** Unique event ID for deduplication */
-  eventId: string
+  eventId: string;
   /** Timestamp when event was generated */
-  timestamp: string
+  timestamp: string;
   /** Server version that generated the event */
-  serverVersion?: string
+  serverVersion?: string;
 }
 
 /**
  * User reference in events
  */
 export interface EventUser {
-  id: string
-  username: string
-  displayName?: string
-  avatarUrl?: string
+  id: string;
+  username: string;
+  displayName?: string;
+  avatarUrl?: string;
 }
 
 /**
  * Channel reference in events
  */
 export interface EventChannel {
-  id: string
-  name: string
-  type: 'public' | 'private' | 'direct' | 'group-dm'
+  id: string;
+  name: string;
+  type: "public" | "private" | "direct" | "group-dm";
 }
 
 // ============================================================================
@@ -52,35 +52,35 @@ export interface EventChannel {
  * Attachment in a message event
  */
 export interface MessageEventAttachment {
-  id: string
-  type: 'image' | 'video' | 'audio' | 'file' | 'code'
-  url: string
-  filename: string
-  size?: number
-  mimeType?: string
-  width?: number
-  height?: number
-  duration?: number
-  thumbnailUrl?: string
+  id: string;
+  type: "image" | "video" | "audio" | "file" | "code";
+  url: string;
+  filename: string;
+  size?: number;
+  mimeType?: string;
+  width?: number;
+  height?: number;
+  duration?: number;
+  thumbnailUrl?: string;
 }
 
 /**
  * Reaction summary in a message event
  */
 export interface MessageEventReaction {
-  emoji: string
-  count: number
-  userIds: string[]
+  emoji: string;
+  count: number;
+  userIds: string[];
 }
 
 /**
  * Thread info in a message event
  */
 export interface MessageEventThread {
-  threadId: string
-  replyCount: number
-  lastReplyAt: string
-  participantIds: string[]
+  threadId: string;
+  replyCount: number;
+  lastReplyAt: string;
+  participantIds: string[];
 }
 
 /**
@@ -88,39 +88,39 @@ export interface MessageEventThread {
  */
 export interface MessageNewEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Message ID */
-  id: string
+  id: string;
   /** Channel where message was sent */
-  channelId: string
+  channelId: string;
   /** Author of the message */
-  user: EventUser
+  user: EventUser;
   /** Message content (plain text) */
-  content: string
+  content: string;
   /** Message content (HTML rendered) */
-  contentHtml?: string
+  contentHtml?: string;
   /** Message type */
-  type: 'text' | 'system' | 'image' | 'file' | 'code' | 'embed'
+  type: "text" | "system" | "image" | "file" | "code" | "embed";
   /** Thread ID if this is a thread reply */
-  threadId?: string
+  threadId?: string;
   /** Parent message ID if this is a reply */
-  parentMessageId?: string
+  parentMessageId?: string;
   /** User IDs mentioned in the message */
-  mentionedUserIds?: string[]
+  mentionedUserIds?: string[];
   /** Role names mentioned in the message */
-  mentionedRoles?: string[]
+  mentionedRoles?: string[];
   /** Channel IDs mentioned in the message */
-  mentionedChannelIds?: string[]
+  mentionedChannelIds?: string[];
   /** Message attachments */
-  attachments?: MessageEventAttachment[]
+  attachments?: MessageEventAttachment[];
   /** Message metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
   /** When the message was created */
-  createdAt: string
+  createdAt: string;
   /** Time-to-live in seconds (for ephemeral messages) */
-  ttlSeconds?: number
+  ttlSeconds?: number;
   /** When the message expires */
-  expiresAt?: string
+  expiresAt?: string;
 }
 
 /**
@@ -128,25 +128,25 @@ export interface MessageNewEvent {
  */
 export interface MessageUpdateEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Message ID */
-  id: string
+  id: string;
   /** Channel where message exists */
-  channelId: string
+  channelId: string;
   /** Updated content */
-  content: string
+  content: string;
   /** Updated HTML content */
-  contentHtml?: string
+  contentHtml?: string;
   /** Who edited the message */
-  editedBy: EventUser
+  editedBy: EventUser;
   /** When it was edited */
-  editedAt: string
+  editedAt: string;
   /** Edit version number */
-  editVersion?: number
+  editVersion?: number;
   /** Updated mentions */
-  mentionedUserIds?: string[]
+  mentionedUserIds?: string[];
   /** Updated metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -154,19 +154,19 @@ export interface MessageUpdateEvent {
  */
 export interface MessageDeleteEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Message ID */
-  id: string
+  id: string;
   /** Channel where message was */
-  channelId: string
+  channelId: string;
   /** Thread ID if message was in a thread */
-  threadId?: string
+  threadId?: string;
   /** Who deleted the message */
-  deletedBy?: EventUser
+  deletedBy?: EventUser;
   /** When it was deleted */
-  deletedAt: string
+  deletedAt: string;
   /** Whether this was a hard delete (permanent) */
-  hardDelete: boolean
+  hardDelete: boolean;
 }
 
 /**
@@ -174,17 +174,17 @@ export interface MessageDeleteEvent {
  */
 export interface MessagePinEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel where message is pinned */
-  channelId: string
+  channelId: string;
   /** Who pinned it */
-  pinnedBy: EventUser
+  pinnedBy: EventUser;
   /** When it was pinned */
-  pinnedAt: string
+  pinnedAt: string;
   /** Whether the message was pinned or unpinned */
-  action: 'pin' | 'unpin'
+  action: "pin" | "unpin";
 }
 
 // ============================================================================
@@ -196,19 +196,19 @@ export interface MessagePinEvent {
  */
 export interface ReactionAddEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** The emoji used */
-  emoji: string
+  emoji: string;
   /** User who added the reaction */
-  user: EventUser
+  user: EventUser;
   /** Total count for this emoji on this message */
-  totalCount: number
+  totalCount: number;
   /** When the reaction was added */
-  createdAt: string
+  createdAt: string;
 }
 
 /**
@@ -216,17 +216,17 @@ export interface ReactionAddEvent {
  */
 export interface ReactionRemoveEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** The emoji removed */
-  emoji: string
+  emoji: string;
   /** User who removed the reaction */
-  userId: string
+  userId: string;
   /** Remaining count for this emoji on this message */
-  remainingCount: number
+  remainingCount: number;
 }
 
 /**
@@ -234,13 +234,13 @@ export interface ReactionRemoveEvent {
  */
 export interface ReactionUpdateEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** All current reactions on the message */
-  reactions: MessageEventReaction[]
+  reactions: MessageEventReaction[];
 }
 
 // ============================================================================
@@ -252,25 +252,25 @@ export interface ReactionUpdateEvent {
  */
 export interface ChannelUpdateEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Updated channel data */
   updates: {
-    name?: string
-    description?: string
-    topic?: string
-    icon?: string
-    color?: string
-    isReadonly?: boolean
-    isArchived?: boolean
-    slowmodeSeconds?: number
-    metadata?: Record<string, unknown>
-  }
+    name?: string;
+    description?: string;
+    topic?: string;
+    icon?: string;
+    color?: string;
+    isReadonly?: boolean;
+    isArchived?: boolean;
+    slowmodeSeconds?: number;
+    metadata?: Record<string, unknown>;
+  };
   /** Who made the update */
-  updatedBy: EventUser
+  updatedBy: EventUser;
   /** When the update was made */
-  updatedAt: string
+  updatedAt: string;
 }
 
 /**
@@ -278,21 +278,21 @@ export interface ChannelUpdateEvent {
  */
 export interface ChannelMemberJoinEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Channel name */
-  channelName: string
+  channelName: string;
   /** User who joined */
-  user: EventUser
+  user: EventUser;
   /** Their role in the channel */
-  role: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+  role: "owner" | "admin" | "moderator" | "member" | "guest";
   /** Who added them (if invited) */
-  addedBy?: EventUser
+  addedBy?: EventUser;
   /** When they joined */
-  joinedAt: string
+  joinedAt: string;
   /** Updated member count */
-  memberCount: number
+  memberCount: number;
 }
 
 /**
@@ -300,23 +300,23 @@ export interface ChannelMemberJoinEvent {
  */
 export interface ChannelMemberLeaveEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Channel name */
-  channelName: string
+  channelName: string;
   /** User who left */
-  userId: string
+  userId: string;
   /** Username for display */
-  username?: string
+  username?: string;
   /** Whether they were removed by someone else */
-  removedBy?: EventUser
+  removedBy?: EventUser;
   /** Reason for leaving/removal */
-  reason?: 'left' | 'kicked' | 'banned'
+  reason?: "left" | "kicked" | "banned";
   /** When they left */
-  leftAt: string
+  leftAt: string;
   /** Updated member count */
-  memberCount: number
+  memberCount: number;
 }
 
 /**
@@ -324,21 +324,21 @@ export interface ChannelMemberLeaveEvent {
  */
 export interface ChannelMemberRoleUpdateEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** User whose role changed */
-  userId: string
+  userId: string;
   /** Username for display */
-  username?: string
+  username?: string;
   /** Previous role */
-  previousRole: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+  previousRole: "owner" | "admin" | "moderator" | "member" | "guest";
   /** New role */
-  newRole: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+  newRole: "owner" | "admin" | "moderator" | "member" | "guest";
   /** Who changed the role */
-  changedBy: EventUser
+  changedBy: EventUser;
   /** When the role was changed */
-  changedAt: string
+  changedAt: string;
 }
 
 /**
@@ -346,17 +346,17 @@ export interface ChannelMemberRoleUpdateEvent {
  */
 export interface ChannelArchiveEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Channel name */
-  channelName: string
+  channelName: string;
   /** Whether archived or unarchived */
-  action: 'archive' | 'unarchive'
+  action: "archive" | "unarchive";
   /** Who performed the action */
-  actionBy: EventUser
+  actionBy: EventUser;
   /** When the action was performed */
-  actionAt: string
+  actionAt: string;
 }
 
 /**
@@ -364,15 +364,15 @@ export interface ChannelArchiveEvent {
  */
 export interface ChannelDeleteEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Channel name */
-  channelName: string
+  channelName: string;
   /** Who deleted it */
-  deletedBy: EventUser
+  deletedBy: EventUser;
   /** When it was deleted */
-  deletedAt: string
+  deletedAt: string;
 }
 
 // ============================================================================
@@ -384,19 +384,19 @@ export interface ChannelDeleteEvent {
  */
 export interface ThreadCreatedEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Thread ID */
-  threadId: string
+  threadId: string;
   /** Parent channel ID */
-  channelId: string
+  channelId: string;
   /** Parent message ID */
-  parentMessageId: string
+  parentMessageId: string;
   /** Who started the thread */
-  startedBy: EventUser
+  startedBy: EventUser;
   /** Thread title (if any) */
-  title?: string
+  title?: string;
   /** When the thread was created */
-  createdAt: string
+  createdAt: string;
 }
 
 /**
@@ -404,21 +404,21 @@ export interface ThreadCreatedEvent {
  */
 export interface ThreadUpdateEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Thread ID */
-  threadId: string
+  threadId: string;
   /** Parent channel ID */
-  channelId: string
+  channelId: string;
   /** Updates to the thread */
   updates: {
-    isLocked?: boolean
-    isArchived?: boolean
-    title?: string
-  }
+    isLocked?: boolean;
+    isArchived?: boolean;
+    title?: string;
+  };
   /** Who made the update */
-  updatedBy: EventUser
+  updatedBy: EventUser;
   /** When updated */
-  updatedAt: string
+  updatedAt: string;
 }
 
 /**
@@ -426,19 +426,19 @@ export interface ThreadUpdateEvent {
  */
 export interface ThreadStatsUpdateEvent {
   /** Event metadata */
-  meta: EventMetadata
+  meta: EventMetadata;
   /** Thread ID */
-  threadId: string
+  threadId: string;
   /** Parent channel ID */
-  channelId: string
+  channelId: string;
   /** Current message count */
-  messageCount: number
+  messageCount: number;
   /** Current participant count */
-  participantCount: number
+  participantCount: number;
   /** Last message timestamp */
-  lastMessageAt: string
+  lastMessageAt: string;
   /** Participant user IDs (limited to recent) */
-  recentParticipantIds: string[]
+  recentParticipantIds: string[];
 }
 
 // ============================================================================
@@ -450,15 +450,15 @@ export interface ThreadStatsUpdateEvent {
  */
 export interface TypingEvent {
   /** Channel or thread room name */
-  roomName: string
+  roomName: string;
   /** Thread ID if typing in a thread */
-  threadId?: string
+  threadId?: string;
   /** Users currently typing */
   typingUsers: Array<{
-    userId: string
-    userName?: string
-    startedAt: string
-  }>
+    userId: string;
+    userName?: string;
+    startedAt: string;
+  }>;
 }
 
 // ============================================================================
@@ -470,19 +470,19 @@ export interface TypingEvent {
  */
 export interface PresenceUpdateEvent {
   /** User ID */
-  userId: string
+  userId: string;
   /** Current status */
-  status: 'online' | 'away' | 'busy' | 'offline'
+  status: "online" | "away" | "busy" | "offline";
   /** Custom status */
   customStatus?: {
-    text?: string
-    emoji?: string
-    expiresAt?: string
-  }
+    text?: string;
+    emoji?: string;
+    expiresAt?: string;
+  };
   /** Last seen timestamp */
-  lastSeenAt?: string
+  lastSeenAt?: string;
   /** Device type */
-  device?: 'web' | 'ios' | 'android' | 'desktop'
+  device?: "web" | "ios" | "android" | "desktop";
 }
 
 /**
@@ -490,7 +490,7 @@ export interface PresenceUpdateEvent {
  */
 export interface BulkPresenceUpdateEvent {
   /** Array of presence updates */
-  presences: PresenceUpdateEvent[]
+  presences: PresenceUpdateEvent[];
 }
 
 // ============================================================================
@@ -502,15 +502,15 @@ export interface BulkPresenceUpdateEvent {
  */
 export interface ReadReceiptEvent {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** User who read */
-  userId: string
+  userId: string;
   /** Last message ID they've read up to */
-  lastReadMessageId: string
+  lastReadMessageId: string;
   /** When they read it */
-  readAt: string
+  readAt: string;
   /** Updated unread count for this user in this channel */
-  unreadCount: number
+  unreadCount: number;
 }
 
 // ============================================================================
@@ -522,11 +522,11 @@ export interface ReadReceiptEvent {
  */
 export interface MessageSentAckEvent {
   /** Client-side temporary message ID */
-  clientMessageId: string
+  clientMessageId: string;
   /** Server-assigned message ID */
-  serverMessageId: string
+  serverMessageId: string;
   /** When the server received it */
-  sentAt: string
+  sentAt: string;
 }
 
 /**
@@ -534,13 +534,13 @@ export interface MessageSentAckEvent {
  */
 export interface MessageDeliveredEvent {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Number of recipients who received it */
-  deliveredCount: number
+  deliveredCount: number;
   /** Total recipients */
-  totalRecipients: number
+  totalRecipients: number;
   /** When it was delivered */
-  deliveredAt: string
+  deliveredAt: string;
 }
 
 /**
@@ -548,15 +548,15 @@ export interface MessageDeliveredEvent {
  */
 export interface MessageReadByEvent {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** User who read it */
-  userId: string
+  userId: string;
   /** Total read count */
-  readCount: number
+  readCount: number;
   /** Total recipients */
-  totalRecipients: number
+  totalRecipients: number;
   /** When they read it */
-  readAt: string
+  readAt: string;
 }
 
 /**
@@ -564,13 +564,13 @@ export interface MessageReadByEvent {
  */
 export interface MessageFailedEvent {
   /** Client message ID */
-  clientMessageId: string
+  clientMessageId: string;
   /** Error code */
-  errorCode: string
+  errorCode: string;
   /** Error message */
-  errorMessage: string
+  errorMessage: string;
   /** Whether retry is possible */
-  retryable: boolean
+  retryable: boolean;
 }
 
 // ============================================================================
@@ -582,24 +582,24 @@ export interface MessageFailedEvent {
  */
 export interface NotificationEvent {
   /** Notification ID */
-  id: string
+  id: string;
   /** Notification type */
-  type: 'mention' | 'reply' | 'reaction' | 'channel_invite' | 'dm' | 'system'
+  type: "mention" | "reply" | "reaction" | "channel_invite" | "dm" | "system";
   /** Title */
-  title: string
+  title: string;
   /** Body */
-  body: string
+  body: string;
   /** Action URL */
-  actionUrl?: string
+  actionUrl?: string;
   /** Related data */
   data?: {
-    channelId?: string
-    messageId?: string
-    threadId?: string
-    userId?: string
-  }
+    channelId?: string;
+    messageId?: string;
+    threadId?: string;
+    userId?: string;
+  };
   /** When created */
-  createdAt: string
+  createdAt: string;
 }
 
 // ============================================================================
@@ -610,36 +610,39 @@ export interface NotificationEvent {
  * All server-to-client event types
  */
 export type ServerToClientEvent =
-  | { type: 'message:new'; payload: MessageNewEvent }
-  | { type: 'message:update'; payload: MessageUpdateEvent }
-  | { type: 'message:delete'; payload: MessageDeleteEvent }
-  | { type: 'message:pin'; payload: MessagePinEvent }
-  | { type: 'reaction:add'; payload: ReactionAddEvent }
-  | { type: 'reaction:remove'; payload: ReactionRemoveEvent }
-  | { type: 'reaction:update'; payload: ReactionUpdateEvent }
-  | { type: 'channel:update'; payload: ChannelUpdateEvent }
-  | { type: 'channel:member_join'; payload: ChannelMemberJoinEvent }
-  | { type: 'channel:member_leave'; payload: ChannelMemberLeaveEvent }
-  | { type: 'channel:member_role_update'; payload: ChannelMemberRoleUpdateEvent }
-  | { type: 'channel:archive'; payload: ChannelArchiveEvent }
-  | { type: 'channel:delete'; payload: ChannelDeleteEvent }
-  | { type: 'thread:created'; payload: ThreadCreatedEvent }
-  | { type: 'thread:update'; payload: ThreadUpdateEvent }
-  | { type: 'thread:stats_update'; payload: ThreadStatsUpdateEvent }
-  | { type: 'typing:update'; payload: TypingEvent }
-  | { type: 'presence:update'; payload: PresenceUpdateEvent }
-  | { type: 'presence:bulk_update'; payload: BulkPresenceUpdateEvent }
-  | { type: 'read_receipt:update'; payload: ReadReceiptEvent }
-  | { type: 'message:sent_ack'; payload: MessageSentAckEvent }
-  | { type: 'message:delivered'; payload: MessageDeliveredEvent }
-  | { type: 'message:read_by'; payload: MessageReadByEvent }
-  | { type: 'message:failed'; payload: MessageFailedEvent }
-  | { type: 'notification'; payload: NotificationEvent }
+  | { type: "message:new"; payload: MessageNewEvent }
+  | { type: "message:update"; payload: MessageUpdateEvent }
+  | { type: "message:delete"; payload: MessageDeleteEvent }
+  | { type: "message:pin"; payload: MessagePinEvent }
+  | { type: "reaction:add"; payload: ReactionAddEvent }
+  | { type: "reaction:remove"; payload: ReactionRemoveEvent }
+  | { type: "reaction:update"; payload: ReactionUpdateEvent }
+  | { type: "channel:update"; payload: ChannelUpdateEvent }
+  | { type: "channel:member_join"; payload: ChannelMemberJoinEvent }
+  | { type: "channel:member_leave"; payload: ChannelMemberLeaveEvent }
+  | {
+      type: "channel:member_role_update";
+      payload: ChannelMemberRoleUpdateEvent;
+    }
+  | { type: "channel:archive"; payload: ChannelArchiveEvent }
+  | { type: "channel:delete"; payload: ChannelDeleteEvent }
+  | { type: "thread:created"; payload: ThreadCreatedEvent }
+  | { type: "thread:update"; payload: ThreadUpdateEvent }
+  | { type: "thread:stats_update"; payload: ThreadStatsUpdateEvent }
+  | { type: "typing:update"; payload: TypingEvent }
+  | { type: "presence:update"; payload: PresenceUpdateEvent }
+  | { type: "presence:bulk_update"; payload: BulkPresenceUpdateEvent }
+  | { type: "read_receipt:update"; payload: ReadReceiptEvent }
+  | { type: "message:sent_ack"; payload: MessageSentAckEvent }
+  | { type: "message:delivered"; payload: MessageDeliveredEvent }
+  | { type: "message:read_by"; payload: MessageReadByEvent }
+  | { type: "message:failed"; payload: MessageFailedEvent }
+  | { type: "notification"; payload: NotificationEvent };
 
 /**
  * Event type names
  */
-export type EventTypeName = ServerToClientEvent['type']
+export type EventTypeName = ServerToClientEvent["type"];
 
 /**
  * Get payload type for a specific event
@@ -647,7 +650,7 @@ export type EventTypeName = ServerToClientEvent['type']
 export type EventPayload<T extends EventTypeName> = Extract<
   ServerToClientEvent,
   { type: T }
->['payload']
+>["payload"];
 
 // ============================================================================
 // Socket Event Names
@@ -658,62 +661,63 @@ export type EventPayload<T extends EventTypeName> = Extract<
  */
 export const REALTIME_EVENTS = {
   // Messages
-  MESSAGE_NEW: 'message:new',
-  MESSAGE_UPDATE: 'message:update',
-  MESSAGE_DELETE: 'message:delete',
-  MESSAGE_PIN: 'message:pin',
-  MESSAGE_SENT_ACK: 'message:sent_ack',
-  MESSAGE_DELIVERED: 'message:delivered',
-  MESSAGE_READ_BY: 'message:read_by',
-  MESSAGE_FAILED: 'message:failed',
+  MESSAGE_NEW: "message:new",
+  MESSAGE_UPDATE: "message:update",
+  MESSAGE_DELETE: "message:delete",
+  MESSAGE_PIN: "message:pin",
+  MESSAGE_SENT_ACK: "message:sent_ack",
+  MESSAGE_DELIVERED: "message:delivered",
+  MESSAGE_READ_BY: "message:read_by",
+  MESSAGE_FAILED: "message:failed",
 
   // Reactions
-  REACTION_ADD: 'reaction:add',
-  REACTION_REMOVE: 'reaction:remove',
-  REACTION_UPDATE: 'reaction:update',
+  REACTION_ADD: "reaction:add",
+  REACTION_REMOVE: "reaction:remove",
+  REACTION_UPDATE: "reaction:update",
 
   // Channels
-  CHANNEL_UPDATE: 'channel:update',
-  CHANNEL_MEMBER_JOIN: 'channel:member_join',
-  CHANNEL_MEMBER_LEAVE: 'channel:member_leave',
-  CHANNEL_MEMBER_ROLE_UPDATE: 'channel:member_role_update',
-  CHANNEL_ARCHIVE: 'channel:archive',
-  CHANNEL_DELETE: 'channel:delete',
+  CHANNEL_UPDATE: "channel:update",
+  CHANNEL_MEMBER_JOIN: "channel:member_join",
+  CHANNEL_MEMBER_LEAVE: "channel:member_leave",
+  CHANNEL_MEMBER_ROLE_UPDATE: "channel:member_role_update",
+  CHANNEL_ARCHIVE: "channel:archive",
+  CHANNEL_DELETE: "channel:delete",
 
   // Threads
-  THREAD_CREATED: 'thread:created',
-  THREAD_UPDATE: 'thread:update',
-  THREAD_STATS_UPDATE: 'thread:stats_update',
+  THREAD_CREATED: "thread:created",
+  THREAD_UPDATE: "thread:update",
+  THREAD_STATS_UPDATE: "thread:stats_update",
 
   // Typing
-  TYPING_UPDATE: 'typing:update',
+  TYPING_UPDATE: "typing:update",
 
   // Presence
-  PRESENCE_UPDATE: 'presence:update',
-  PRESENCE_BULK_UPDATE: 'presence:bulk_update',
+  PRESENCE_UPDATE: "presence:update",
+  PRESENCE_BULK_UPDATE: "presence:bulk_update",
 
   // Read Receipts
-  READ_RECEIPT_UPDATE: 'read_receipt:update',
+  READ_RECEIPT_UPDATE: "read_receipt:update",
 
   // Notifications
-  NOTIFICATION: 'notification',
+  NOTIFICATION: "notification",
 
   // Room Management
-  ROOM_JOIN: 'room:join',
-  ROOM_LEAVE: 'room:leave',
-  ROOM_JOINED: 'room:joined',
+  ROOM_JOIN: "room:join",
+  ROOM_LEAVE: "room:leave",
+  ROOM_JOINED: "room:joined",
 
   // Connection
-  CONNECT: 'connect',
-  DISCONNECT: 'disconnect',
-  RECONNECT: 'reconnect',
-  ERROR: 'error',
-  AUTH: 'auth',
-  AUTH_SUCCESS: 'auth:success',
-  AUTH_ERROR: 'auth:error',
-} as const
+  CONNECT: "connect",
+  DISCONNECT: "disconnect",
+  RECONNECT: "reconnect",
+  ERROR: "error",
+  AUTH: "auth",
+  AUTH_SUCCESS: "auth:success",
+  AUTH_ERROR: "auth:error",
+} as const;
 
-export type RealtimeEventName = (typeof REALTIME_EVENTS)[keyof typeof REALTIME_EVENTS]
+export type RealtimeEventName =
+  (typeof REALTIME_EVENTS)[keyof typeof REALTIME_EVENTS];
 
 // ============================================================================
 // Room Types
@@ -726,45 +730,47 @@ export type RealtimeEventName = (typeof REALTIME_EVENTS)[keyof typeof REALTIME_E
  * - user:{userId} - User's personal room (for notifications)
  * - dm:{dmId} - Direct message room
  */
-export type RealtimeRoomType = 'channel' | 'thread' | 'user' | 'dm'
+export type RealtimeRoomType = "channel" | "thread" | "user" | "dm";
 
 /**
  * Get room name for a channel
  */
 export function getChannelRoom(channelId: string): string {
-  return `channel:${channelId}`
+  return `channel:${channelId}`;
 }
 
 /**
  * Get room name for a thread
  */
 export function getThreadRoom(threadId: string): string {
-  return `thread:${threadId}`
+  return `thread:${threadId}`;
 }
 
 /**
  * Get room name for a user's personal room
  */
 export function getUserRoom(userId: string): string {
-  return `user:${userId}`
+  return `user:${userId}`;
 }
 
 /**
  * Get room name for a DM
  */
 export function getDMRoom(dmId: string): string {
-  return `dm:${dmId}`
+  return `dm:${dmId}`;
 }
 
 /**
  * Parse a room name to get its type and ID
  */
-export function parseRoomName(roomName: string): { type: RealtimeRoomType; id: string } | null {
-  const parts = roomName.split(':')
-  if (parts.length !== 2) return null
+export function parseRoomName(
+  roomName: string,
+): { type: RealtimeRoomType; id: string } | null {
+  const parts = roomName.split(":");
+  if (parts.length !== 2) return null;
 
-  const [type, id] = parts
-  if (!['channel', 'thread', 'user', 'dm'].includes(type)) return null
+  const [type, id] = parts;
+  if (!["channel", "thread", "user", "dm"].includes(type)) return null;
 
-  return { type: type as RealtimeRoomType, id }
+  return { type: type as RealtimeRoomType, id };
 }

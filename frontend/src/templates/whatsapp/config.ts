@@ -24,154 +24,154 @@
 //
 // ===============================================================================
 
-import type { PlatformTemplate } from '../types'
+import type { PlatformTemplate } from "../types";
 
 // WhatsApp Brand Colors
 export const WHATSAPP_COLORS = {
   // Primary greens
-  primaryGreen: '#25D366', // WhatsApp green (lighter)
-  secondaryGreen: '#128C7E', // Teal green
-  darkGreen: '#075E54', // Dark teal (header)
+  primaryGreen: "#25D366", // WhatsApp green (lighter)
+  secondaryGreen: "#128C7E", // Teal green
+  darkGreen: "#075E54", // Dark teal (header)
 
   // Message bubbles
-  bubbleOutgoing: '#DCF8C6', // Light green (own messages, light mode)
-  bubbleIncoming: '#FFFFFF', // White (other messages, light mode)
-  bubbleOutgoingDark: '#005C4B', // Dark green (own messages, dark mode)
-  bubbleIncomingDark: '#1F2C33', // Dark gray (other messages, dark mode)
+  bubbleOutgoing: "#DCF8C6", // Light green (own messages, light mode)
+  bubbleIncoming: "#FFFFFF", // White (other messages, light mode)
+  bubbleOutgoingDark: "#005C4B", // Dark green (own messages, dark mode)
+  bubbleIncomingDark: "#1F2C33", // Dark gray (other messages, dark mode)
 
   // Background
-  chatBgLight: '#ECE5DD', // Doodle pattern background (light)
-  chatBgDark: '#0B141A', // Dark background
+  chatBgLight: "#ECE5DD", // Doodle pattern background (light)
+  chatBgDark: "#0B141A", // Dark background
 
   // Text
-  textPrimary: '#111B21',
-  textSecondary: '#667781',
-  textPrimaryDark: '#E9EDEF',
-  textSecondaryDark: '#8696A0',
+  textPrimary: "#111B21",
+  textSecondary: "#667781",
+  textPrimaryDark: "#E9EDEF",
+  textSecondaryDark: "#8696A0",
 
   // Checkmarks
-  checkGray: '#667781', // Sent/Delivered
-  checkBlue: '#53BDEB', // Read
+  checkGray: "#667781", // Sent/Delivered
+  checkBlue: "#53BDEB", // Read
 
   // Status
-  online: '#25D366',
-  typing: '#25D366',
+  online: "#25D366",
+  typing: "#25D366",
 
   // Unread badge
-  unreadBadge: '#25D366',
+  unreadBadge: "#25D366",
 
   // Borders
-  borderLight: '#D1D7DB',
-  borderDark: '#2A3942',
-}
+  borderLight: "#D1D7DB",
+  borderDark: "#2A3942",
+};
 
 export const whatsappTemplate: PlatformTemplate = {
   // ---------------------------------------------------------------------------
   // Identity
   // ---------------------------------------------------------------------------
 
-  id: 'whatsapp',
-  name: 'WhatsApp',
+  id: "whatsapp",
+  name: "WhatsApp",
   description:
-    'Complete WhatsApp clone with 100% feature parity - teal accents, bubble messages with tails, double checkmark receipts, status stories, voice notes, and more',
-  version: '2.0.0',
-  author: 'nself',
+    "Complete WhatsApp clone with 100% feature parity - teal accents, bubble messages with tails, double checkmark receipts, status stories, voice notes, and more",
+  version: "2.0.0",
+  author: "nself",
 
   // ---------------------------------------------------------------------------
   // Theme Configuration (WhatsApp Teal/Green)
   // ---------------------------------------------------------------------------
 
   theme: {
-    defaultMode: 'light',
+    defaultMode: "light",
 
     light: {
       // Primary colors (WhatsApp Green)
-      primaryColor: '#25D366',
-      secondaryColor: '#128C7E',
-      accentColor: '#075E54',
+      primaryColor: "#25D366",
+      secondaryColor: "#128C7E",
+      accentColor: "#075E54",
 
       // Background colors
-      backgroundColor: '#ECE5DD', // Chat wallpaper background
-      surfaceColor: '#FFFFFF',
-      cardColor: '#FFFFFF',
-      popoverColor: '#FFFFFF',
+      backgroundColor: "#ECE5DD", // Chat wallpaper background
+      surfaceColor: "#FFFFFF",
+      cardColor: "#FFFFFF",
+      popoverColor: "#FFFFFF",
 
       // Text colors
-      textColor: '#111B21',
-      textMutedColor: '#667781',
-      textInverseColor: '#FFFFFF',
+      textColor: "#111B21",
+      textMutedColor: "#667781",
+      textInverseColor: "#FFFFFF",
 
       // Border colors
-      borderColor: '#D1D7DB',
-      borderMutedColor: '#E9EDEF',
+      borderColor: "#D1D7DB",
+      borderMutedColor: "#E9EDEF",
 
       // Button colors
-      buttonPrimaryBg: '#25D366',
-      buttonPrimaryText: '#FFFFFF',
-      buttonSecondaryBg: '#F0F2F5',
-      buttonSecondaryText: '#075E54',
-      buttonGhostHover: '#F0F2F5',
+      buttonPrimaryBg: "#25D366",
+      buttonPrimaryText: "#FFFFFF",
+      buttonSecondaryBg: "#F0F2F5",
+      buttonSecondaryText: "#075E54",
+      buttonGhostHover: "#F0F2F5",
 
       // Status colors
-      successColor: '#25D366',
-      warningColor: '#FFB800',
-      errorColor: '#EA0038',
-      infoColor: '#34B7F1',
+      successColor: "#25D366",
+      warningColor: "#FFB800",
+      errorColor: "#EA0038",
+      infoColor: "#34B7F1",
 
       // Special colors
-      linkColor: '#027EB5',
-      focusRingColor: '#25D366',
-      selectionBg: '#25D36633',
-      highlightBg: '#FFB80033',
+      linkColor: "#027EB5",
+      focusRingColor: "#25D366",
+      selectionBg: "#25D36633",
+      highlightBg: "#FFB80033",
 
       // WhatsApp-specific: Message bubbles
-      messageBubbleOwn: '#DCF8C6', // Light green for own messages
-      messageBubbleOther: '#FFFFFF', // White for others' messages
+      messageBubbleOwn: "#DCF8C6", // Light green for own messages
+      messageBubbleOther: "#FFFFFF", // White for others' messages
     },
 
     dark: {
       // Primary colors
-      primaryColor: '#25D366',
-      secondaryColor: '#00A884',
-      accentColor: '#00A884',
+      primaryColor: "#25D366",
+      secondaryColor: "#00A884",
+      accentColor: "#00A884",
 
       // Background colors (WhatsApp dark mode)
-      backgroundColor: '#0B141A',
-      surfaceColor: '#111B21',
-      cardColor: '#1F2C33',
-      popoverColor: '#233138',
+      backgroundColor: "#0B141A",
+      surfaceColor: "#111B21",
+      cardColor: "#1F2C33",
+      popoverColor: "#233138",
 
       // Text colors
-      textColor: '#E9EDEF',
-      textMutedColor: '#8696A0',
-      textInverseColor: '#111B21',
+      textColor: "#E9EDEF",
+      textMutedColor: "#8696A0",
+      textInverseColor: "#111B21",
 
       // Border colors
-      borderColor: '#2A3942',
-      borderMutedColor: '#1F2C33',
+      borderColor: "#2A3942",
+      borderMutedColor: "#1F2C33",
 
       // Button colors
-      buttonPrimaryBg: '#00A884',
-      buttonPrimaryText: '#111B21',
-      buttonSecondaryBg: '#2A3942',
-      buttonSecondaryText: '#00A884',
-      buttonGhostHover: '#182229',
+      buttonPrimaryBg: "#00A884",
+      buttonPrimaryText: "#111B21",
+      buttonSecondaryBg: "#2A3942",
+      buttonSecondaryText: "#00A884",
+      buttonGhostHover: "#182229",
 
       // Status colors
-      successColor: '#00A884',
-      warningColor: '#FFB800',
-      errorColor: '#F15C6D',
-      infoColor: '#53BDEB',
+      successColor: "#00A884",
+      warningColor: "#FFB800",
+      errorColor: "#F15C6D",
+      infoColor: "#53BDEB",
 
       // Special colors
-      linkColor: '#53BDEB',
-      focusRingColor: '#00A884',
-      selectionBg: '#00A88444',
-      highlightBg: '#FFB80022',
+      linkColor: "#53BDEB",
+      focusRingColor: "#00A884",
+      selectionBg: "#00A88444",
+      highlightBg: "#FFB80022",
 
       // WhatsApp-specific: Message bubbles
-      messageBubbleOwn: '#005C4B', // Dark green for own messages
-      messageBubbleOther: '#1F2C33', // Dark gray for others' messages
+      messageBubbleOwn: "#005C4B", // Dark green for own messages
+      messageBubbleOther: "#1F2C33", // Dark gray for others' messages
     },
   },
 
@@ -181,7 +181,7 @@ export const whatsappTemplate: PlatformTemplate = {
 
   layout: {
     // Sidebar (WhatsApp chat list)
-    sidebarPosition: 'left',
+    sidebarPosition: "left",
     sidebarWidth: 360,
     sidebarCollapsible: true,
     sidebarCollapsedWidth: 0, // Full screen mode on mobile
@@ -191,25 +191,25 @@ export const whatsappTemplate: PlatformTemplate = {
     showHeaderBorder: false, // WhatsApp uses subtle shadow
 
     // Messages (WhatsApp bubble style)
-    messageDensity: 'comfortable',
+    messageDensity: "comfortable",
     messageGrouping: true,
     messageGroupingTimeout: 1, // 1 minute
 
     // Avatars
-    avatarStyle: 'circle',
-    avatarSize: 'lg',
-    showAvatarInGroup: 'none', // WhatsApp hides avatars in 1-on-1
+    avatarStyle: "circle",
+    avatarSize: "lg",
+    showAvatarInGroup: "none", // WhatsApp hides avatars in 1-on-1
 
     // Chats
     showChannelIcons: false,
     showChannelDescription: true, // Last message preview
     showMemberCount: false,
-    channelListDensity: 'comfortable',
+    channelListDensity: "comfortable",
 
     // Users
     showUserStatus: true,
     showPresenceDots: false, // WhatsApp shows "online" text
-    presenceDotPosition: 'bottom-right',
+    presenceDotPosition: "bottom-right",
   },
 
   // ---------------------------------------------------------------------------
@@ -219,13 +219,13 @@ export const whatsappTemplate: PlatformTemplate = {
   features: {
     // Threads (WhatsApp uses inline reply-to only)
     threads: false,
-    threadStyle: 'inline',
+    threadStyle: "inline",
     threadPanelWidth: 0,
 
     // Reactions
     reactions: true,
-    reactionStyle: 'floating',
-    quickReactions: ['👍', '❤️', '😂', '😮', '😢', '🙏'],
+    reactionStyle: "floating",
+    quickReactions: ["👍", "❤️", "😂", "😮", "😢", "🙏"],
     maxReactionsDisplay: 5,
 
     // Rich content
@@ -234,19 +234,19 @@ export const whatsappTemplate: PlatformTemplate = {
     codeBlocks: false, // WhatsApp doesn't have code blocks
     markdown: false, // WhatsApp has limited formatting (*bold*, _italic_, ~strikethrough~, ```monospace```)
     linkPreviews: true,
-    emojiPicker: 'native',
+    emojiPicker: "native",
     gifPicker: true,
 
     // Message actions (long-press menu)
-    messageActions: ['reply', 'react', 'forward', 'star', 'copy', 'delete'],
+    messageActions: ["reply", "react", "forward", "star", "copy", "delete"],
     showActionsOnHover: false, // Long-press/right-click menu
 
     // Real-time (WhatsApp's signature features)
     typing: true,
-    typingIndicatorStyle: 'text',
+    typingIndicatorStyle: "text",
     presence: true,
     readReceipts: true,
-    readReceiptStyle: 'checkmarks', // Double blue checkmarks
+    readReceiptStyle: "checkmarks", // Double blue checkmarks
   },
 
   // ---------------------------------------------------------------------------
@@ -255,35 +255,35 @@ export const whatsappTemplate: PlatformTemplate = {
 
   terminology: {
     // Core concepts
-    workspace: 'WhatsApp',
-    workspacePlural: 'Accounts',
-    channel: 'Chat',
-    channelPlural: 'Chats',
-    directMessage: 'Chat',
-    directMessagePlural: 'Chats',
-    directMessageShort: 'Chat',
-    thread: 'Reply',
-    threadPlural: 'Replies',
-    member: 'Participant',
-    memberPlural: 'Participants',
-    message: 'Message',
-    messagePlural: 'Messages',
-    reaction: 'Reaction',
-    reactionPlural: 'Reactions',
+    workspace: "WhatsApp",
+    workspacePlural: "Accounts",
+    channel: "Chat",
+    channelPlural: "Chats",
+    directMessage: "Chat",
+    directMessagePlural: "Chats",
+    directMessageShort: "Chat",
+    thread: "Reply",
+    threadPlural: "Replies",
+    member: "Participant",
+    memberPlural: "Participants",
+    message: "Message",
+    messagePlural: "Messages",
+    reaction: "Reaction",
+    reactionPlural: "Reactions",
 
     // Actions
-    sendMessage: 'Send',
-    editMessage: 'Edit',
-    deleteMessage: 'Delete for Me',
-    replyToThread: 'Reply',
-    createChannel: 'New Chat',
-    joinChannel: 'Join Group',
-    leaveChannel: 'Exit Group',
+    sendMessage: "Send",
+    editMessage: "Edit",
+    deleteMessage: "Delete for Me",
+    replyToThread: "Reply",
+    createChannel: "New Chat",
+    joinChannel: "Join Group",
+    leaveChannel: "Exit Group",
 
     // Placeholders
-    messageInputPlaceholder: 'Type a message',
-    searchPlaceholder: 'Search or start new chat',
-    newChannelPlaceholder: 'Group subject',
+    messageInputPlaceholder: "Type a message",
+    searchPlaceholder: "Search or start new chat",
+    newChannelPlaceholder: "Group subject",
   },
 
   // ---------------------------------------------------------------------------
@@ -293,10 +293,10 @@ export const whatsappTemplate: PlatformTemplate = {
   animations: {
     enableAnimations: true,
     reducedMotion: false,
-    transitionDuration: 'fast',
-    messageAppear: 'fade',
-    sidebarTransition: 'slide',
-    modalTransition: 'slide',
+    transitionDuration: "fast",
+    messageAppear: "fade",
+    sidebarTransition: "slide",
+    modalTransition: "slide",
   },
 
   // ---------------------------------------------------------------------------
@@ -333,6 +333,6 @@ export const whatsappTemplate: PlatformTemplate = {
       background: rgba(255, 255, 255, 0.2);
     }
   `,
-}
+};
 
-export default whatsappTemplate
+export default whatsappTemplate;

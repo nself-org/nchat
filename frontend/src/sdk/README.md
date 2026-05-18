@@ -15,28 +15,28 @@ pnpm add @nchat/sdk
 ## Quick Start
 
 ```typescript
-import { NChatClient } from '@nchat/sdk'
+import { NChatClient } from "@nchat/sdk";
 
 // Initialize the client
 const client = new NChatClient({
-  apiUrl: 'https://api.nchat.example.com',
-  apiKey: 'your-api-key',
-})
+  apiUrl: "https://api.nchat.example.com",
+  apiKey: "your-api-key",
+});
 
 // Authenticate
 const { user, token } = await client.auth.signIn({
-  email: 'user@example.com',
-  password: 'password123',
-})
+  email: "user@example.com",
+  password: "password123",
+});
 
 // Update client with user token
-client.setToken(token)
+client.setToken(token);
 
 // Send a message
 const message = await client.messages.send({
-  channelId: 'channel-123',
-  content: 'Hello, world!',
-})
+  channelId: "channel-123",
+  content: "Hello, world!",
+});
 ```
 
 ## Features
@@ -55,30 +55,30 @@ const message = await client.messages.send({
 
 ```typescript
 const client = new NChatClient({
-  apiUrl: 'https://api.nchat.example.com',
-  apiKey: 'your-api-key',
-})
+  apiUrl: "https://api.nchat.example.com",
+  apiKey: "your-api-key",
+});
 ```
 
 ### Advanced Configuration
 
 ```typescript
 const client = new NChatClient({
-  apiUrl: 'https://api.nchat.example.com',
-  graphqlUrl: 'https://api.nchat.example.com/graphql', // Optional
-  apiKey: 'your-api-key',
-  token: 'user-jwt-token', // Optional
+  apiUrl: "https://api.nchat.example.com",
+  graphqlUrl: "https://api.nchat.example.com/graphql", // Optional
+  apiKey: "your-api-key",
+  token: "user-jwt-token", // Optional
   debug: true, // Enable debug logging
   timeout: 30000, // Request timeout (ms)
   headers: {
-    'X-Custom-Header': 'value',
+    "X-Custom-Header": "value",
   },
   retry: {
     enabled: true,
     maxRetries: 3,
     retryDelay: 1000,
   },
-})
+});
 ```
 
 ## API Resources
@@ -100,21 +100,21 @@ The SDK is organized into resource classes:
 ```typescript
 // Sign in
 const { user, token } = await client.auth.signIn({
-  email: 'user@example.com',
-  password: 'password123',
-})
+  email: "user@example.com",
+  password: "password123",
+});
 
-client.setToken(token)
+client.setToken(token);
 
 // Sign up
 const { user, token } = await client.auth.signUp({
-  email: 'newuser@example.com',
-  password: 'password123',
-  displayName: 'New User',
-})
+  email: "newuser@example.com",
+  password: "password123",
+  displayName: "New User",
+});
 
 // Sign out
-await client.auth.signOut()
+await client.auth.signOut();
 ```
 
 ### Channels
@@ -122,21 +122,21 @@ await client.auth.signOut()
 ```typescript
 // Create a channel
 const channel = await client.channels.create({
-  name: 'general',
-  description: 'General discussion',
-  type: 'public',
-})
+  name: "general",
+  description: "General discussion",
+  type: "public",
+});
 
 // List channels
 const { data: channels } = await client.channels.list({
   limit: 50,
-})
+});
 
 // Join a channel
-await client.channels.join(channel.id)
+await client.channels.join(channel.id);
 
 // Get members
-const { data: members } = await client.channels.getMembers(channel.id)
+const { data: members } = await client.channels.getMembers(channel.id);
 ```
 
 ### Messages
@@ -144,50 +144,50 @@ const { data: members } = await client.channels.getMembers(channel.id)
 ```typescript
 // Send a message
 const message = await client.messages.send({
-  channelId: 'channel-123',
-  content: 'Hello, world!',
-})
+  channelId: "channel-123",
+  content: "Hello, world!",
+});
 
 // Send with mentions
 await client.messages.send({
-  channelId: 'channel-123',
-  content: 'Hey @john!',
-  mentions: ['user-456'],
-})
+  channelId: "channel-123",
+  content: "Hey @john!",
+  mentions: ["user-456"],
+});
 
 // List messages
-const { data: messages } = await client.messages.list('channel-123', {
+const { data: messages } = await client.messages.list("channel-123", {
   limit: 50,
-  orderBy: 'created_at',
-  orderDirection: 'desc',
-})
+  orderBy: "created_at",
+  orderDirection: "desc",
+});
 
 // React to message
-await client.messages.react(message.id, '👍')
+await client.messages.react(message.id, "👍");
 
 // Update message
 await client.messages.update(message.id, {
-  content: 'Updated content',
-})
+  content: "Updated content",
+});
 ```
 
 ### Users
 
 ```typescript
 // Get current user
-const user = await client.users.me()
+const user = await client.users.me();
 
 // Search users
-const { data: users } = await client.users.search('john')
+const { data: users } = await client.users.search("john");
 
 // Update profile
 await client.users.update({
-  displayName: 'John Doe',
-  avatarUrl: 'https://example.com/avatar.jpg',
-})
+  displayName: "John Doe",
+  avatarUrl: "https://example.com/avatar.jpg",
+});
 
 // Update presence
-await client.users.updatePresence('online')
+await client.users.updatePresence("online");
 ```
 
 ### Webhooks
@@ -195,16 +195,16 @@ await client.users.updatePresence('online')
 ```typescript
 // Create webhook
 const webhook = await client.webhooks.create({
-  name: 'My Webhook',
-  url: 'https://example.com/webhook',
-  events: ['message.created', 'channel.created'],
-})
+  name: "My Webhook",
+  url: "https://example.com/webhook",
+  events: ["message.created", "channel.created"],
+});
 
 // Test webhook
-const { success } = await client.webhooks.test(webhook.id)
+const { success } = await client.webhooks.test(webhook.id);
 
 // Regenerate secret
-const { secret } = await client.webhooks.regenerateSecret(webhook.id)
+const { secret } = await client.webhooks.regenerateSecret(webhook.id);
 ```
 
 ### Bots
@@ -212,34 +212,34 @@ const { secret } = await client.webhooks.regenerateSecret(webhook.id)
 ```typescript
 // Create bot
 const bot = await client.bots.create({
-  name: 'Helper Bot',
-  username: 'helperbot',
-  description: 'A helpful bot',
-})
+  name: "Helper Bot",
+  username: "helperbot",
+  description: "A helpful bot",
+});
 
 // Send message as bot
 await client.bots.sendMessage(bot.id, {
-  channelId: 'channel-123',
-  content: 'Hello from bot!',
-})
+  channelId: "channel-123",
+  content: "Hello from bot!",
+});
 ```
 
 ### Admin Operations
 
 ```typescript
 // Get stats (requires admin role)
-const stats = await client.admin.getStats()
+const stats = await client.admin.getStats();
 
 // Update user role
-await client.admin.updateUserRole('user-123', {
-  role: 'moderator',
-})
+await client.admin.updateUserRole("user-123", {
+  role: "moderator",
+});
 
 // Suspend user
-await client.admin.suspendUser('user-456', 'Violated ToS')
+await client.admin.suspendUser("user-456", "Violated ToS");
 
 // Export data
-const { downloadUrl } = await client.admin.exportData('json')
+const { downloadUrl } = await client.admin.exportData("json");
 ```
 
 ## Error Handling
@@ -271,24 +271,24 @@ try {
 
 ```typescript
 // First page
-const { data, pagination } = await client.messages.list('channel-123', {
+const { data, pagination } = await client.messages.list("channel-123", {
   limit: 50,
-})
+});
 
 // Next page
 if (pagination.hasMore) {
-  const { data: nextPage } = await client.messages.list('channel-123', {
+  const { data: nextPage } = await client.messages.list("channel-123", {
     limit: 50,
     offset: pagination.offset + pagination.limit,
-  })
+  });
 }
 
 // Or use cursor-based pagination
 if (pagination.nextCursor) {
-  const { data: nextPage } = await client.messages.list('channel-123', {
+  const { data: nextPage } = await client.messages.list("channel-123", {
     limit: 50,
     cursor: pagination.nextCursor,
-  })
+  });
 }
 ```
 

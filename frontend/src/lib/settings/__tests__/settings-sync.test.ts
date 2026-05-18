@@ -17,114 +17,114 @@ import {
   startAutoSync,
   stopAutoSync,
   subscribeToSyncStatus,
-} from '../settings-sync'
+} from "../settings-sync";
 
 // Mock fetch
-const mockFetch = jest.fn()
-global.fetch = mockFetch
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 // Mock localStorage
 const localStorageMock = (() => {
-  let store: Record<string, string> = {}
+  let store: Record<string, string> = {};
   return {
     getItem: jest.fn((key: string) => store[key] || null),
     setItem: jest.fn((key: string, value: string) => {
-      store[key] = value
+      store[key] = value;
     }),
     removeItem: jest.fn((key: string) => {
-      delete store[key]
+      delete store[key];
     }),
     clear: jest.fn(() => {
-      store = {}
+      store = {};
     }),
-  }
-})()
+  };
+})();
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
-})
+});
 
 // Mock crypto.randomUUID
-Object.defineProperty(window, 'crypto', {
+Object.defineProperty(window, "crypto", {
   value: {
-    randomUUID: jest.fn(() => 'test-device-uuid'),
+    randomUUID: jest.fn(() => "test-device-uuid"),
   },
-})
+});
 
 // Mock settings manager
-jest.mock('../settings-manager', () => ({
+jest.mock("../settings-manager", () => ({
   settingsManager: {
     getSettings: jest.fn(() => ({
-      account: { email: 'test@test.com' },
-      appearance: { theme: 'dark' },
+      account: { email: "test@test.com" },
+      appearance: { theme: "dark" },
       notifications: { enabled: true },
-      privacy: { onlineStatus: 'everyone' },
+      privacy: { onlineStatus: "everyone" },
       accessibility: { reducedMotion: false },
-      language: { language: 'en' },
+      language: { language: "en" },
       advanced: { developerMode: false },
     })),
     updateSettings: jest.fn(),
     subscribe: jest.fn(() => jest.fn()), // Returns unsubscribe function
   },
-}))
+}));
 
 // Mock logger
-jest.mock('@/lib/logger', () => ({
+jest.mock("@/lib/logger", () => ({
   logger: {
     error: jest.fn(),
     warn: jest.fn(),
     info: jest.fn(),
     debug: jest.fn(),
   },
-}))
+}));
 
 // Mock environment
-jest.mock('@/lib/environment', () => ({
+jest.mock("@/lib/environment", () => ({
   isProduction: jest.fn(() => false),
-}))
+}));
 
-describe('Settings Sync', () => {
+describe("Settings Sync", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    localStorageMock.clear()
-    mockFetch.mockReset()
-  })
+    jest.clearAllMocks();
+    localStorageMock.clear();
+    mockFetch.mockReset();
+  });
 
-  describe('getDeviceId', () => {
-    it('should generate and persist a device ID', () => {
+  describe("getDeviceId", () => {
+    it("should generate and persist a device ID", () => {
       // Device ID is generated lazily when needed
-      initializeSync()
+      initializeSync();
       // The device ID should be created on first sync
-    })
-  })
+    });
+  });
 
-  describe('initializeSync', () => {
-    it('should initialize the sync service', () => {
-      initializeSync()
-      const status = getSyncStatus()
+  describe("initializeSync", () => {
+    it("should initialize the sync service", () => {
+      initializeSync();
+      const status = getSyncStatus();
 
-      expect(status).toHaveProperty('lastSyncedAt')
-      expect(status).toHaveProperty('isSyncing')
-      expect(status).toHaveProperty('hasLocalChanges')
-      expect(status).toHaveProperty('error')
-    })
-  })
+      expect(status).toHaveProperty("lastSyncedAt");
+      expect(status).toHaveProperty("isSyncing");
+      expect(status).toHaveProperty("hasLocalChanges");
+      expect(status).toHaveProperty("error");
+    });
+  });
 
-  describe('getSyncStatus', () => {
-    it('should return the current sync status', () => {
-      const status = getSyncStatus()
+  describe("getSyncStatus", () => {
+    it("should return the current sync status", () => {
+      const status = getSyncStatus();
 
       expect(status).toEqual({
         lastSyncedAt: null,
         isSyncing: false,
         hasLocalChanges: false,
         error: null,
-      })
-    })
-  })
+      });
+    });
+  });
 
-  describe('syncSettings', () => {
-    it('should sync settings with the server', async () => {
+  describe("syncSettings", () => {
+    it("should sync settings with the server", async () => {
       // Mock GET /api/settings response
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -133,13 +133,13 @@ describe('Settings Sync', () => {
           success: true,
           data: {
             settings: {
-              appearance: { theme: 'light' },
+              appearance: { theme: "light" },
             },
             version: 1,
             isDefault: false,
           },
         }),
-      })
+      });
 
       // Mock POST /api/settings/sync response
       mockFetch.mockResolvedValueOnce({
@@ -148,61 +148,67 @@ describe('Settings Sync', () => {
         json: async () => ({
           success: true,
           data: {
-            settings: { appearance: { theme: 'dark' } },
+            settings: { appearance: { theme: "dark" } },
             version: 2,
-            syncStatus: 'synced',
+            syncStatus: "synced",
             conflictResolutions: [],
           },
         }),
-      })
+      });
 
-      const result = await syncSettings()
+      const result = await syncSettings();
 
-      expect(result.success).toBe(true)
-      expect(mockFetch).toHaveBeenCalledWith('/api/settings', expect.any(Object))
-      expect(mockFetch).toHaveBeenCalledWith('/api/settings/sync', expect.any(Object))
-    })
+      expect(result.success).toBe(true);
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/api/settings",
+        expect.any(Object),
+      );
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/api/settings/sync",
+        expect.any(Object),
+      );
+    });
 
-    it('should handle unauthorized responses gracefully', async () => {
+    it("should handle unauthorized responses gracefully", async () => {
       // First call - GET /api/settings returns 401
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
-        statusText: 'Unauthorized',
-      })
+        statusText: "Unauthorized",
+      });
 
       // When unauthorized, fetchRemoteSettings returns null
       // Then pushSettings is called
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
-        statusText: 'Unauthorized',
-      })
+        statusText: "Unauthorized",
+      });
 
-      const result = await syncSettings()
+      const result = await syncSettings();
 
       // Should succeed because unauthorized is handled gracefully
       // (settings are saved locally, will sync when auth is available)
-      expect(result.success).toBe(true)
-    })
+      expect(result.success).toBe(true);
+    });
 
-    it('should handle server errors', async () => {
+    it("should handle server errors", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
-        statusText: 'Internal Server Error',
-      })
+        statusText: "Internal Server Error",
+      });
 
-      const result = await syncSettings()
+      const result = await syncSettings();
 
-      expect(result.success).toBe(false)
-      expect(result.error).toBeDefined()
-    })
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
 
-    it('should handle network errors on fetch', async () => {
+    it("should handle network errors on fetch", async () => {
       // First call - GET /api/settings fails with network error
       // fetchRemoteSettings catches this and returns null
-      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+      mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
       // Second call - POST /api/settings/sync succeeds
       mockFetch.mockResolvedValueOnce({
@@ -212,19 +218,19 @@ describe('Settings Sync', () => {
           success: true,
           data: {
             version: 1,
-            syncStatus: 'synced',
+            syncStatus: "synced",
             conflictResolutions: [],
           },
         }),
-      })
+      });
 
-      const result = await syncSettings()
+      const result = await syncSettings();
 
       // Should succeed - fetch error is handled gracefully, local settings are pushed
-      expect(result.success).toBe(true)
-    })
+      expect(result.success).toBe(true);
+    });
 
-    it('should handle network errors on push', async () => {
+    it("should handle network errors on push", async () => {
       // First call - GET /api/settings succeeds with no data
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -233,63 +239,66 @@ describe('Settings Sync', () => {
           success: true,
           data: { isDefault: true },
         }),
-      })
+      });
 
       // Second call - POST /api/settings/sync fails
-      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+      mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
-      const result = await syncSettings()
+      const result = await syncSettings();
 
       // Should fail - push error is propagated
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('Network error')
-    })
-  })
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Network error");
+    });
+  });
 
-  describe('forcePushSettings', () => {
-    it('should force push local settings to server', async () => {
+  describe("forcePushSettings", () => {
+    it("should force push local settings to server", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: async () => ({
           success: true,
           data: {
-            settings: { appearance: { theme: 'dark' } },
+            settings: { appearance: { theme: "dark" } },
             version: 3,
-            syncStatus: 'synced',
+            syncStatus: "synced",
             conflictResolutions: [],
           },
         }),
-      })
+      });
 
-      const result = await forcePushSettings()
+      const result = await forcePushSettings();
 
-      expect(result.success).toBe(true)
-      expect(mockFetch).toHaveBeenCalledWith('/api/settings/sync', expect.any(Object))
-    })
-  })
+      expect(result.success).toBe(true);
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/api/settings/sync",
+        expect.any(Object),
+      );
+    });
+  });
 
-  describe('forcePullSettings', () => {
-    it('should force pull settings from server', async () => {
+  describe("forcePullSettings", () => {
+    it("should force pull settings from server", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: async () => ({
           success: true,
           data: {
-            settings: { appearance: { theme: 'light' } },
+            settings: { appearance: { theme: "light" } },
             version: 5,
             isDefault: false,
           },
         }),
-      })
+      });
 
-      const result = await forcePullSettings()
+      const result = await forcePullSettings();
 
-      expect(result.success).toBe(true)
-    })
+      expect(result.success).toBe(true);
+    });
 
-    it('should handle no remote settings', async () => {
+    it("should handle no remote settings", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -301,19 +310,19 @@ describe('Settings Sync', () => {
             isDefault: true,
           },
         }),
-      })
+      });
 
-      const result = await forcePullSettings()
+      const result = await forcePullSettings();
 
-      expect(result.success).toBe(false)
-      expect(result.error).toBe('No remote settings found')
-    })
-  })
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("No remote settings found");
+    });
+  });
 
-  describe('subscribeToSyncStatus', () => {
-    it('should notify listeners of status changes', async () => {
-      const listener = jest.fn()
-      const unsubscribe = subscribeToSyncStatus(listener)
+  describe("subscribeToSyncStatus", () => {
+    it("should notify listeners of status changes", async () => {
+      const listener = jest.fn();
+      const unsubscribe = subscribeToSyncStatus(listener);
 
       // Mock successful sync
       mockFetch.mockResolvedValueOnce({
@@ -323,60 +332,60 @@ describe('Settings Sync', () => {
           success: true,
           data: { isDefault: true },
         }),
-      })
+      });
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: async () => ({
           success: true,
-          data: { version: 1, syncStatus: 'synced', conflictResolutions: [] },
+          data: { version: 1, syncStatus: "synced", conflictResolutions: [] },
         }),
-      })
+      });
 
-      await syncSettings()
+      await syncSettings();
 
       // Listener should be called with status updates
-      expect(listener).toHaveBeenCalled()
+      expect(listener).toHaveBeenCalled();
 
-      unsubscribe()
-    })
-  })
+      unsubscribe();
+    });
+  });
 
-  describe('startAutoSync and stopAutoSync', () => {
+  describe("startAutoSync and stopAutoSync", () => {
     beforeEach(() => {
-      jest.useFakeTimers()
-    })
+      jest.useFakeTimers();
+    });
 
     afterEach(() => {
-      jest.useRealTimers()
-      stopAutoSync()
-    })
+      jest.useRealTimers();
+      stopAutoSync();
+    });
 
-    it('should start and stop auto sync', () => {
-      startAutoSync(5000)
+    it("should start and stop auto sync", () => {
+      startAutoSync(5000);
 
       // Verify interval is running by checking if sync would be called
       // (We'd need to trigger hasLocalChanges to actually sync)
 
-      stopAutoSync()
+      stopAutoSync();
       // After stopping, no more syncs should occur
-    })
-  })
+    });
+  });
 
-  describe('conflict resolution', () => {
-    it('should handle conflicts returned by the server', async () => {
+  describe("conflict resolution", () => {
+    it("should handle conflicts returned by the server", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: async () => ({
           success: true,
           data: {
-            settings: { appearance: { theme: 'light' } },
+            settings: { appearance: { theme: "light" } },
             version: 1,
             isDefault: false,
           },
         }),
-      })
+      });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -384,33 +393,33 @@ describe('Settings Sync', () => {
         json: async () => ({
           success: true,
           data: {
-            settings: { appearance: { theme: 'dark' } },
+            settings: { appearance: { theme: "dark" } },
             version: 2,
-            syncStatus: 'conflict_resolved',
+            syncStatus: "conflict_resolved",
             conflictResolutions: [
               {
-                category: 'appearance',
-                field: 'theme',
-                clientValue: 'dark',
-                serverValue: 'light',
-                resolvedValue: 'dark',
-                winner: 'client',
-                reason: 'User preferences prefer client values',
+                category: "appearance",
+                field: "theme",
+                clientValue: "dark",
+                serverValue: "light",
+                resolvedValue: "dark",
+                winner: "client",
+                reason: "User preferences prefer client values",
               },
             ],
           },
         }),
-      })
+      });
 
-      const result = await syncSettings()
+      const result = await syncSettings();
 
-      expect(result.success).toBe(true)
-      expect(result.merged).toBe(true)
-    })
-  })
+      expect(result.success).toBe(true);
+      expect(result.merged).toBe(true);
+    });
+  });
 
-  describe('API request headers', () => {
-    it('should include credentials in requests', async () => {
+  describe("API request headers", () => {
+    it("should include credentials in requests", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -418,19 +427,19 @@ describe('Settings Sync', () => {
           success: true,
           data: { isDefault: true },
         }),
-      })
+      });
 
-      await syncSettings()
+      await syncSettings();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        '/api/settings',
+        "/api/settings",
         expect.objectContaining({
-          credentials: 'include',
-        })
-      )
-    })
+          credentials: "include",
+        }),
+      );
+    });
 
-    it('should include deviceId in sync requests', async () => {
+    it("should include deviceId in sync requests", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -438,28 +447,30 @@ describe('Settings Sync', () => {
           success: true,
           data: { isDefault: true },
         }),
-      })
+      });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: async () => ({
           success: true,
-          data: { version: 1, syncStatus: 'synced', conflictResolutions: [] },
+          data: { version: 1, syncStatus: "synced", conflictResolutions: [] },
         }),
-      })
+      });
 
-      await syncSettings()
+      await syncSettings();
 
       // Check the sync call includes deviceId
-      const syncCall = mockFetch.mock.calls.find((call) => call[0] === '/api/settings/sync')
-      expect(syncCall).toBeDefined()
+      const syncCall = mockFetch.mock.calls.find(
+        (call) => call[0] === "/api/settings/sync",
+      );
+      expect(syncCall).toBeDefined();
 
       if (syncCall) {
-        const body = JSON.parse(syncCall[1].body)
-        expect(body).toHaveProperty('deviceId')
-        expect(body.deviceId).toBe('test-device-uuid')
+        const body = JSON.parse(syncCall[1].body);
+        expect(body).toHaveProperty("deviceId");
+        expect(body.deviceId).toBe("test-device-uuid");
       }
-    })
-  })
-})
+    });
+  });
+});

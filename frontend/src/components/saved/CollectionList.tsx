@@ -1,43 +1,50 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Folder, MoreHorizontal, Plus, Pencil, Trash2, Share2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
+import * as React from "react";
+import {
+  Folder,
+  MoreHorizontal,
+  Plus,
+  Pencil,
+  Trash2,
+  Share2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { SavedCollection } from '@/lib/saved'
+} from "@/components/ui/dropdown-menu";
+import type { SavedCollection } from "@/lib/saved";
 
 export interface CollectionListProps {
   /** List of collections */
-  collections: SavedCollection[]
+  collections: SavedCollection[];
   /** Currently selected collection ID */
-  selectedId?: string | null
+  selectedId?: string | null;
   /** Callback when collection is selected */
-  onSelect: (collectionId: string | null) => void
+  onSelect: (collectionId: string | null) => void;
   /** Callback to create new collection */
-  onCreate?: () => void
+  onCreate?: () => void;
   /** Callback to edit collection */
-  onEdit?: (collection: SavedCollection) => void
+  onEdit?: (collection: SavedCollection) => void;
   /** Callback to delete collection */
-  onDelete?: (collection: SavedCollection) => void
+  onDelete?: (collection: SavedCollection) => void;
   /** Callback to share collection */
-  onShare?: (collection: SavedCollection) => void
+  onShare?: (collection: SavedCollection) => void;
   /** Show uncategorized option */
-  showUncategorized?: boolean
+  showUncategorized?: boolean;
   /** Uncategorized count */
-  uncategorizedCount?: number
+  uncategorizedCount?: number;
   /** Compact mode */
-  compact?: boolean
+  compact?: boolean;
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -57,16 +64,21 @@ export function CollectionList({
   className,
 }: CollectionListProps) {
   const sortedCollections = React.useMemo(() => {
-    return [...collections].sort((a, b) => a.position - b.position)
-  }, [collections])
+    return [...collections].sort((a, b) => a.position - b.position);
+  }, [collections]);
 
   return (
-    <div className={cn('flex flex-col', className)}>
+    <div className={cn("flex flex-col", className)}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2">
         <span className="text-sm font-medium">Collections</span>
         {onCreate && (
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onCreate}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onCreate}
+          >
             <Plus className="h-4 w-4" />
             <span className="sr-only">Create collection</span>
           </Button>
@@ -74,12 +86,15 @@ export function CollectionList({
       </div>
 
       <ScrollArea className="flex-1">
-        <div className={cn('space-y-1', compact ? 'p-1' : 'p-2')}>
+        <div className={cn("space-y-1", compact ? "p-1" : "p-2")}>
           {/* All saved */}
           <CollectionItem
             name="All Saved"
             icon="bookmark"
-            count={collections.reduce((sum, c) => sum + c.itemCount, 0) + uncategorizedCount}
+            count={
+              collections.reduce((sum, c) => sum + c.itemCount, 0) +
+              uncategorizedCount
+            }
             isSelected={selectedId === undefined}
             onClick={() => onSelect(null)}
             compact={compact}
@@ -118,9 +133,16 @@ export function CollectionList({
           {/* Empty state */}
           {collections.length === 0 && (
             <div className="py-4 text-center">
-              <p className="text-sm text-muted-foreground">No collections yet</p>
+              <p className="text-sm text-muted-foreground">
+                No collections yet
+              </p>
               {onCreate && (
-                <Button variant="link" size="sm" className="text-xs" onClick={onCreate}>
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="text-xs"
+                  onClick={onCreate}
+                >
                   Create your first collection
                 </Button>
               )}
@@ -129,7 +151,7 @@ export function CollectionList({
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -137,17 +159,17 @@ export function CollectionList({
 // ============================================================================
 
 interface CollectionItemProps {
-  name: string
-  icon?: string
-  color?: string
-  count: number
-  isSelected: boolean
-  isShared?: boolean
-  onClick: () => void
-  onEdit?: () => void
-  onDelete?: () => void
-  onShare?: () => void
-  compact?: boolean
+  name: string;
+  icon?: string;
+  color?: string;
+  count: number;
+  isSelected: boolean;
+  isShared?: boolean;
+  onClick: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onShare?: () => void;
+  compact?: boolean;
 }
 
 function CollectionItem({
@@ -163,41 +185,46 @@ function CollectionItem({
   onShare,
   compact = false,
 }: CollectionItemProps) {
-  const hasMenu = onEdit || onDelete || onShare
+  const hasMenu = onEdit || onDelete || onShare;
 
   return (
     <div
       className={cn(
-        'group flex cursor-pointer items-center gap-2 rounded-md transition-colors',
-        compact ? 'px-2 py-1' : 'px-3 py-2',
-        isSelected ? 'text-accent-foreground bg-accent' : 'hover:bg-muted/50'
+        "group flex cursor-pointer items-center gap-2 rounded-md transition-colors",
+        compact ? "px-2 py-1" : "px-3 py-2",
+        isSelected ? "text-accent-foreground bg-accent" : "hover:bg-muted/50",
       )}
       role="button"
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
         }
       }}
     >
       <div
-        className={cn('flex items-center justify-center rounded', compact ? 'h-5 w-5' : 'h-6 w-6')}
-        style={color ? { backgroundColor: color + '20', color } : undefined}
+        className={cn(
+          "flex items-center justify-center rounded",
+          compact ? "h-5 w-5" : "h-6 w-6",
+        )}
+        style={color ? { backgroundColor: color + "20", color } : undefined}
       >
-        <Folder className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
+        <Folder className={compact ? "h-3 w-3" : "h-4 w-4"} />
       </div>
 
-      <span className={cn('flex-1 truncate', compact ? 'text-xs' : 'text-sm')}>{name}</span>
+      <span className={cn("flex-1 truncate", compact ? "text-xs" : "text-sm")}>
+        {name}
+      </span>
 
       <div className="flex items-center gap-1">
         {isShared && <Share2 className="h-3 w-3 text-muted-foreground" />}
         <Badge
           variant="secondary"
           className={cn(
-            'text-xs',
-            compact ? 'h-4 min-w-[1rem] px-1' : 'h-5 min-w-[1.25rem] px-1.5'
+            "text-xs",
+            compact ? "h-4 min-w-[1rem] px-1" : "h-5 min-w-[1.25rem] px-1.5",
           )}
         >
           {count}
@@ -210,12 +237,12 @@ function CollectionItem({
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  'opacity-0 transition-opacity group-hover:opacity-100',
-                  compact ? 'h-5 w-5' : 'h-6 w-6'
+                  "opacity-0 transition-opacity group-hover:opacity-100",
+                  compact ? "h-5 w-5" : "h-6 w-6",
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
-                <MoreHorizontal className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
+                <MoreHorizontal className={compact ? "h-3 w-3" : "h-4 w-4"} />
                 <span className="sr-only">Collection options</span>
               </Button>
             </DropdownMenuTrigger>
@@ -249,5 +276,5 @@ function CollectionItem({
         )}
       </div>
     </div>
-  )
+  );
 }

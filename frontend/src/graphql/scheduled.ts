@@ -1,74 +1,74 @@
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, CHANNEL_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT, CHANNEL_BASIC_FRAGMENT } from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface ScheduledMessage {
-  id: string
-  user_id: string
-  channel_id: string
-  content: string
-  scheduled_at: string
-  timezone: string
-  status: 'pending' | 'sent' | 'cancelled' | 'failed'
-  type: 'text' | 'image' | 'file' | 'video' | 'audio' | 'code'
-  metadata?: Record<string, unknown>
-  created_at: string
-  updated_at: string
-  sent_at?: string
-  error_message?: string
+  id: string;
+  user_id: string;
+  channel_id: string;
+  content: string;
+  scheduled_at: string;
+  timezone: string;
+  status: "pending" | "sent" | "cancelled" | "failed";
+  type: "text" | "image" | "file" | "video" | "audio" | "code";
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  sent_at?: string;
+  error_message?: string;
   user: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
   channel: {
-    id: string
-    name: string
-    slug: string
-    description?: string
-    type: string
-    is_private: boolean
-    is_archived: boolean
-    is_default: boolean
-  }
+    id: string;
+    name: string;
+    slug: string;
+    description?: string;
+    type: string;
+    is_private: boolean;
+    is_archived: boolean;
+    is_default: boolean;
+  };
 }
 
 export interface CreateScheduledMessageVariables {
-  userId: string
-  channelId: string
-  content: string
-  scheduledAt: string
-  timezone: string
-  type?: string
-  metadata?: Record<string, unknown>
+  userId: string;
+  channelId: string;
+  content: string;
+  scheduledAt: string;
+  timezone: string;
+  type?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UpdateScheduledMessageVariables {
-  id: string
-  content?: string
-  scheduledAt?: string
-  timezone?: string
-  metadata?: Record<string, unknown>
+  id: string;
+  content?: string;
+  scheduledAt?: string;
+  timezone?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DeleteScheduledMessageVariables {
-  id: string
+  id: string;
 }
 
 export interface GetScheduledMessagesVariables {
-  userId: string
-  channelId?: string
-  status?: string
-  limit?: number
-  offset?: number
+  userId: string;
+  channelId?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface SendScheduledNowVariables {
-  id: string
+  id: string;
 }
 
 // ============================================================================
@@ -99,7 +99,7 @@ export const SCHEDULED_MESSAGE_FRAGMENT = gql`
   }
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -142,7 +142,7 @@ export const GET_SCHEDULED_MESSAGES = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get a single scheduled message by ID
@@ -154,7 +154,7 @@ export const GET_SCHEDULED_MESSAGE = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get all pending scheduled messages for a specific channel
@@ -173,7 +173,7 @@ export const GET_CHANNEL_SCHEDULED_MESSAGES = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get count of pending scheduled messages
@@ -188,7 +188,7 @@ export const GET_SCHEDULED_MESSAGES_COUNT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -223,7 +223,7 @@ export const CREATE_SCHEDULED_MESSAGE = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Update a scheduled message
@@ -251,7 +251,7 @@ export const UPDATE_SCHEDULED_MESSAGE = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Delete (cancel) a scheduled message
@@ -268,7 +268,7 @@ export const DELETE_SCHEDULED_MESSAGE = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Hard delete a scheduled message (admin only)
@@ -279,7 +279,7 @@ export const HARD_DELETE_SCHEDULED_MESSAGE = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Send a scheduled message immediately
@@ -295,7 +295,7 @@ export const SEND_SCHEDULED_NOW = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Bulk cancel scheduled messages
@@ -313,7 +313,7 @@ export const BULK_CANCEL_SCHEDULED_MESSAGES = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -332,7 +332,7 @@ export const SCHEDULED_MESSAGES_SUBSCRIPTION = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to a single scheduled message status
@@ -347,4 +347,4 @@ export const SCHEDULED_MESSAGE_STATUS_SUBSCRIPTION = gql`
       updated_at
     }
   }
-`
+`;

@@ -5,16 +5,16 @@
  * POST /api/entities - Create a new entity
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { logger } from "@/lib/logger";
 import {
   validateCreateGroupInput,
   validateCreateSupergroupInput,
   validateCreateCommunityInput,
   validateCreateChannelInput,
   generateSlug,
-} from '@/lib/entities'
+} from "@/lib/entities";
 import type {
   ChatEntityType,
   EntityVisibility,
@@ -22,10 +22,10 @@ import type {
   CreateSupergroupInput,
   CreateCommunityInput,
   CreateChannelInput,
-} from '@/types/entities'
+} from "@/types/entities";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // =============================================================================
 // SCHEMAS
@@ -35,18 +35,18 @@ const entityFilterSchema = z.object({
   types: z
     .string()
     .optional()
-    .transform((v) => v?.split(',') as ChatEntityType[] | undefined),
-  status: z.enum(['active', 'archived', 'deleted', 'suspended']).optional(),
-  visibility: z.enum(['private', 'public', 'discoverable']).optional(),
+    .transform((v) => v?.split(",") as ChatEntityType[] | undefined),
+  status: z.enum(["active", "archived", "deleted", "suspended"]).optional(),
+  visibility: z.enum(["private", "public", "discoverable"]).optional(),
   search: z.string().max(100).optional(),
   hasUnread: z
     .string()
     .optional()
-    .transform((v) => v === 'true'),
+    .transform((v) => v === "true"),
   isPinned: z
     .string()
     .optional()
-    .transform((v) => v === 'true'),
+    .transform((v) => v === "true"),
   limit: z
     .string()
     .optional()
@@ -57,17 +57,17 @@ const entityFilterSchema = z.object({
     .optional()
     .transform((v) => (v ? parseInt(v, 10) : 0))
     .pipe(z.number().min(0)),
-})
+});
 
-const createEntitySchema = z.discriminatedUnion('type', [
+const createEntitySchema = z.discriminatedUnion("type", [
   // DM creation
   z.object({
-    type: z.literal('dm'),
+    type: z.literal("dm"),
     participantId: z.string().uuid(),
   }),
   // Group creation
   z.object({
-    type: z.literal('group'),
+    type: z.literal("group"),
     name: z.string().min(1).max(100),
     description: z.string().max(2000).optional(),
     avatarUrl: z.string().url().optional(),
@@ -76,49 +76,58 @@ const createEntitySchema = z.discriminatedUnion('type', [
   }),
   // Supergroup creation
   z.object({
-    type: z.literal('supergroup'),
+    type: z.literal("supergroup"),
     name: z.string().min(1).max(100),
     description: z.string().max(2000).optional(),
     avatarUrl: z.string().url().optional(),
     bannerUrl: z.string().url().optional(),
     username: z.string().min(5).max(32).optional(),
-    visibility: z.enum(['private', 'public', 'discoverable']).default('private'),
+    visibility: z
+      .enum(["private", "public", "discoverable"])
+      .default("private"),
     settings: z.record(z.unknown()).optional(),
   }),
   // Community creation
   z.object({
-    type: z.literal('community'),
+    type: z.literal("community"),
     name: z.string().min(1).max(100),
     description: z.string().max(2000).optional(),
     avatarUrl: z.string().url().optional(),
     bannerUrl: z.string().url().optional(),
     vanityUrl: z.string().min(2).max(50).optional(),
-    template: z.enum(['blank', 'default', 'community', 'gaming', 'study']).default('default'),
-    visibility: z.enum(['private', 'public', 'discoverable']).default('private'),
+    template: z
+      .enum(["blank", "default", "community", "gaming", "study"])
+      .default("default"),
+    visibility: z
+      .enum(["private", "public", "discoverable"])
+      .default("private"),
     settings: z.record(z.unknown()).optional(),
   }),
   // Channel creation
   z.object({
-    type: z.literal('channel'),
+    type: z.literal("channel"),
     name: z.string().min(1).max(100),
     description: z.string().max(2000).optional(),
     avatarUrl: z.string().url().optional(),
     username: z.string().min(5).max(32).optional(),
-    visibility: z.enum(['private', 'public', 'discoverable']).default('public'),
+    visibility: z.enum(["private", "public", "discoverable"]).default("public"),
     settings: z.record(z.unknown()).optional(),
   }),
-])
+]);
 
 // =============================================================================
 // HELPERS
 // =============================================================================
 
 function getUserIdFromRequest(request: NextRequest): string | null {
-  return request.headers.get('x-user-id') || null
+  return request.headers.get("x-user-id") || null;
 }
 
 function getWorkspaceIdFromRequest(request: NextRequest): string {
-  return request.headers.get('x-workspace-id') || 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+  return (
+    request.headers.get("x-workspace-id") ||
+    "ffffffff-ffff-ffff-ffff-ffffffffffff"
+  );
 }
 
 // =============================================================================
@@ -127,31 +136,31 @@ function getWorkspaceIdFromRequest(request: NextRequest): string {
 
 export async function GET(request: NextRequest) {
   try {
-    logger.info('GET /api/entities - List entities')
+    logger.info("GET /api/entities - List entities");
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const { searchParams } = new URL(request.url)
-    const filters = entityFilterSchema.parse(Object.fromEntries(searchParams))
+    const { searchParams } = new URL(request.url);
+    const filters = entityFilterSchema.parse(Object.fromEntries(searchParams));
 
-    const workspaceId = getWorkspaceIdFromRequest(request)
+    const workspaceId = getWorkspaceIdFromRequest(request);
 
     // In a real implementation, this would query the database
     // For now, return mock structure
-    const entities: unknown[] = []
-    const total = 0
+    const entities: unknown[] = [];
+    const total = 0;
 
-    logger.info('GET /api/entities - Success', {
+    logger.info("GET /api/entities - Success", {
       userId,
       filters,
       returned: entities.length,
-    })
+    });
 
     return NextResponse.json({
       success: true,
@@ -162,19 +171,23 @@ export async function GET(request: NextRequest) {
         total,
         hasMore: filters.offset + filters.limit < total,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error fetching entities:', error as Error)
+    logger.error("Error fetching entities:", error as Error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid query parameters', details: error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid query parameters",
+          details: error.errors,
+        },
+        { status: 400 },
+      );
     }
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch entities' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to fetch entities" },
+      { status: 500 },
+    );
   }
 }
 
@@ -184,48 +197,52 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('POST /api/entities - Create entity')
+    logger.info("POST /api/entities - Create entity");
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const workspaceId = getWorkspaceIdFromRequest(request)
-    const body = await request.json()
+    const workspaceId = getWorkspaceIdFromRequest(request);
+    const body = await request.json();
 
     // Parse and validate the request body
-    const parseResult = createEntitySchema.safeParse(body)
+    const parseResult = createEntitySchema.safeParse(body);
     if (!parseResult.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request body', details: parseResult.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request body",
+          details: parseResult.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const data = parseResult.data
-    const now = new Date().toISOString()
+    const data = parseResult.data;
+    const now = new Date().toISOString();
 
     // Create entity based on type
-    let entity: Record<string, unknown>
-    let validationErrors: string[] = []
+    let entity: Record<string, unknown>;
+    let validationErrors: string[] = [];
 
     switch (data.type) {
-      case 'dm': {
+      case "dm": {
         // Create DM - find or create
         entity = {
           id: `dm-${Date.now()}`,
-          type: 'dm',
-          name: '',
+          type: "dm",
+          name: "",
           slug: `dm-${userId}-${data.participantId}`,
           description: null,
           avatarUrl: null,
           bannerUrl: null,
-          visibility: 'private',
-          status: 'active',
+          visibility: "private",
+          status: "active",
           ownerId: userId,
           workspaceId,
           memberCount: 2,
@@ -233,33 +250,33 @@ export async function POST(request: NextRequest) {
           updatedAt: now,
           participantIds: [userId, data.participantId],
           isEncrypted: true,
-        }
-        break
+        };
+        break;
       }
 
-      case 'group': {
+      case "group": {
         const validation = validateCreateGroupInput({
           name: data.name,
           description: data.description,
           avatarUrl: data.avatarUrl,
           participantIds: data.participantIds,
-        })
+        });
 
         if (!validation.valid) {
-          validationErrors = validation.errors.map((e) => e.message)
-          break
+          validationErrors = validation.errors.map((e) => e.message);
+          break;
         }
 
         entity = {
           id: `group-${Date.now()}`,
-          type: 'group',
+          type: "group",
           name: data.name,
           slug: generateSlug(data.name),
           description: data.description || null,
           avatarUrl: data.avatarUrl || null,
           bannerUrl: null,
-          visibility: 'private',
-          status: 'active',
+          visibility: "private",
+          status: "active",
           ownerId: userId,
           workspaceId,
           memberCount: data.participantIds.length + 1,
@@ -269,18 +286,18 @@ export async function POST(request: NextRequest) {
           pinnedMessageIds: [],
           canUpgradeToSupergroup: true,
           groupSettings: {
-            sendMessagesPermission: 'everyone',
-            addMembersPermission: 'admins',
-            changeInfoPermission: 'admins',
-            pinMessagesPermission: 'admins',
+            sendMessagesPermission: "everyone",
+            addMembersPermission: "admins",
+            changeInfoPermission: "admins",
+            pinMessagesPermission: "admins",
             membersCanShareLink: true,
             approvalRequired: false,
           },
-        }
-        break
+        };
+        break;
       }
 
-      case 'supergroup': {
+      case "supergroup": {
         const validation = validateCreateSupergroupInput({
           name: data.name,
           description: data.description,
@@ -288,23 +305,23 @@ export async function POST(request: NextRequest) {
           bannerUrl: data.bannerUrl,
           username: data.username,
           visibility: data.visibility as EntityVisibility,
-        })
+        });
 
         if (!validation.valid) {
-          validationErrors = validation.errors.map((e) => e.message)
-          break
+          validationErrors = validation.errors.map((e) => e.message);
+          break;
         }
 
         entity = {
           id: `supergroup-${Date.now()}`,
-          type: 'supergroup',
+          type: "supergroup",
           name: data.name,
           slug: generateSlug(data.name),
           description: data.description || null,
           avatarUrl: data.avatarUrl || null,
           bannerUrl: data.bannerUrl || null,
           visibility: data.visibility,
-          status: 'active',
+          status: "active",
           ownerId: userId,
           workspaceId,
           memberCount: 1,
@@ -314,7 +331,7 @@ export async function POST(request: NextRequest) {
           admins: [
             {
               userId,
-              title: 'Owner',
+              title: "Owner",
               addedBy: userId,
               addedAt: now,
               permissions: {
@@ -337,7 +354,7 @@ export async function POST(request: NextRequest) {
             hideMemberList: false,
             approvalRequired: false,
             forumMode: false,
-            invitePermission: 'admins',
+            invitePermission: "admins",
             antiSpam: {
               enabled: true,
               deleteSpam: true,
@@ -352,11 +369,11 @@ export async function POST(request: NextRequest) {
               linksDisabled: false,
             },
           },
-        }
-        break
+        };
+        break;
       }
 
-      case 'community': {
+      case "community": {
         const validation = validateCreateCommunityInput({
           name: data.name,
           description: data.description,
@@ -365,23 +382,23 @@ export async function POST(request: NextRequest) {
           vanityUrl: data.vanityUrl,
           template: data.template,
           visibility: data.visibility as EntityVisibility,
-        })
+        });
 
         if (!validation.valid) {
-          validationErrors = validation.errors.map((e) => e.message)
-          break
+          validationErrors = validation.errors.map((e) => e.message);
+          break;
         }
 
         entity = {
           id: `community-${Date.now()}`,
-          type: 'community',
+          type: "community",
           name: data.name,
           slug: generateSlug(data.name),
           description: data.description || null,
           avatarUrl: data.avatarUrl || null,
           bannerUrl: data.bannerUrl || null,
           visibility: data.visibility,
-          status: 'active',
+          status: "active",
           ownerId: userId,
           workspaceId,
           memberCount: 1,
@@ -393,7 +410,7 @@ export async function POST(request: NextRequest) {
             {
               id: `role-${Date.now()}-default`,
               communityId: `community-${Date.now()}`,
-              name: '@everyone',
+              name: "@everyone",
               color: null,
               icon: null,
               position: 0,
@@ -404,15 +421,15 @@ export async function POST(request: NextRequest) {
               memberCount: 1,
             },
           ],
-          verificationLevel: 'none',
-          contentFilterLevel: 'disabled',
+          verificationLevel: "none",
+          contentFilterLevel: "disabled",
           boostTier: 0,
           boostCount: 0,
           channelCount: 0,
           communitySettings: {
-            createChannelsPermission: 'admins',
-            createCategoriesPermission: 'admins',
-            createEventsPermission: 'moderators',
+            createChannelsPermission: "admins",
+            createCategoriesPermission: "admins",
+            createEventsPermission: "moderators",
             discoverable: false,
             communityEnabled: true,
             welcomeScreen: {
@@ -420,38 +437,38 @@ export async function POST(request: NextRequest) {
               description: null,
               channels: [],
             },
-            defaultNotifications: 'mentions',
+            defaultNotifications: "mentions",
             everyoneRestricted: true,
             maxFileSizeMb: 25,
           },
-        }
-        break
+        };
+        break;
       }
 
-      case 'channel': {
+      case "channel": {
         const validation = validateCreateChannelInput({
           name: data.name,
           description: data.description,
           avatarUrl: data.avatarUrl,
           username: data.username,
           visibility: data.visibility as EntityVisibility,
-        })
+        });
 
         if (!validation.valid) {
-          validationErrors = validation.errors.map((e) => e.message)
-          break
+          validationErrors = validation.errors.map((e) => e.message);
+          break;
         }
 
         entity = {
           id: `channel-${Date.now()}`,
-          type: 'channel',
+          type: "channel",
           name: data.name,
           slug: generateSlug(data.name),
           description: data.description || null,
           avatarUrl: data.avatarUrl || null,
           bannerUrl: null,
           visibility: data.visibility,
-          status: 'active',
+          status: "active",
           ownerId: userId,
           workspaceId,
           memberCount: 1,
@@ -462,7 +479,7 @@ export async function POST(request: NextRequest) {
           admins: [
             {
               userId,
-              title: 'Owner',
+              title: "Owner",
               addedBy: userId,
               addedAt: now,
               permissions: {
@@ -477,33 +494,37 @@ export async function POST(request: NextRequest) {
           ],
           isVerified: false,
           signatureEnabled: true,
-          contentRestriction: 'none',
+          contentRestriction: "none",
           channelSettings: {
             allowReactions: true,
             showSignature: true,
             discussionEnabled: false,
             discussionSlowMode: 0,
-            subscriberListVisibility: 'public',
+            subscriberListVisibility: "public",
             schedulingEnabled: true,
             silentBroadcast: false,
           },
-        }
-        break
+        };
+        break;
       }
     }
 
     if (validationErrors.length > 0) {
       return NextResponse.json(
-        { success: false, error: 'Validation failed', details: validationErrors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Validation failed",
+          details: validationErrors,
+        },
+        { status: 400 },
+      );
     }
 
-    logger.info('POST /api/entities - Entity created', {
+    logger.info("POST /api/entities - Entity created", {
       entityId: entity!.id,
       type: data.type,
       createdBy: userId,
-    })
+    });
 
     return NextResponse.json(
       {
@@ -511,19 +532,23 @@ export async function POST(request: NextRequest) {
         entity: entity!,
         message: `${data.type} created successfully`,
       },
-      { status: 201 }
-    )
+      { status: 201 },
+    );
   } catch (error) {
-    logger.error('Error creating entity:', error as Error)
+    logger.error("Error creating entity:", error as Error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request body', details: error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request body",
+          details: error.errors,
+        },
+        { status: 400 },
+      );
     }
     return NextResponse.json(
-      { success: false, error: 'Failed to create entity' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to create entity" },
+      { status: 500 },
+    );
   }
 }

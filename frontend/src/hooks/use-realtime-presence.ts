@@ -8,10 +8,10 @@
  * @version 1.0.0
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
-import { useAuth } from '@/contexts/auth-context'
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import {
   getPresenceService,
   PresenceStatus,
@@ -22,8 +22,8 @@ import {
   PresenceSettingsInput,
   PresenceVisibility,
   DEFAULT_PRESENCE_SETTINGS,
-} from '@/services/realtime/presence.service'
-import { realtimeClient } from '@/services/realtime/realtime-client'
+} from "@/services/realtime/presence.service";
+import { realtimeClient } from "@/services/realtime/realtime-client";
 
 // ============================================================================
 // Types
@@ -34,15 +34,15 @@ import { realtimeClient } from '@/services/realtime/realtime-client'
  */
 export interface UseRealtimePresenceOptions {
   /** User IDs to subscribe to */
-  userIds?: string[]
+  userIds?: string[];
   /** Enable idle detection (default: true) */
-  enableIdleDetection?: boolean
+  enableIdleDetection?: boolean;
   /** Idle timeout in milliseconds (default: 5 minutes) */
-  idleTimeout?: number
+  idleTimeout?: number;
   /** Initial status */
-  initialStatus?: PresenceStatus
+  initialStatus?: PresenceStatus;
   /** Enable privacy filtering (default: true) */
-  enablePrivacyFiltering?: boolean
+  enablePrivacyFiltering?: boolean;
 }
 
 /**
@@ -50,43 +50,45 @@ export interface UseRealtimePresenceOptions {
  */
 export interface UseRealtimePresenceReturn {
   /** Current status */
-  status: PresenceStatus
+  status: PresenceStatus;
   /** Custom status */
-  customStatus: CustomStatus | null
+  customStatus: CustomStatus | null;
   /** Whether idle detection triggered away status */
-  isIdle: boolean
+  isIdle: boolean;
   /** Map of user presences */
-  presences: Map<string, UserPresence>
+  presences: Map<string, UserPresence>;
   /** Map of filtered presences (privacy-aware) */
-  filteredPresences: Map<string, FilteredUserPresence>
+  filteredPresences: Map<string, FilteredUserPresence>;
   /** Set own presence status */
-  setStatus: (status: PresenceStatus) => void
+  setStatus: (status: PresenceStatus) => void;
   /** Set custom status */
-  setCustomStatus: (status: CustomStatus | null) => void
+  setCustomStatus: (status: CustomStatus | null) => void;
   /** Clear custom status */
-  clearCustomStatus: () => void
+  clearCustomStatus: () => void;
   /** Subscribe to user presence */
-  subscribeToUsers: (userIds: string[]) => void
+  subscribeToUsers: (userIds: string[]) => void;
   /** Unsubscribe from user presence */
-  unsubscribeFromUsers: (userIds: string[]) => void
+  unsubscribeFromUsers: (userIds: string[]) => void;
   /** Get presence for a specific user */
-  getPresence: (userId: string) => UserPresence | undefined
+  getPresence: (userId: string) => UserPresence | undefined;
   /** Get filtered presence for a specific user (privacy-aware) */
-  getFilteredPresence: (userId: string) => FilteredUserPresence | undefined
+  getFilteredPresence: (userId: string) => FilteredUserPresence | undefined;
   /** Fetch presence for users from server */
-  fetchPresence: (userIds: string[]) => Promise<Map<string, UserPresence>>
+  fetchPresence: (userIds: string[]) => Promise<Map<string, UserPresence>>;
   /** Fetch filtered presence for users (privacy-aware) */
-  fetchFilteredPresence: (userIds: string[]) => Promise<Map<string, FilteredUserPresence>>
+  fetchFilteredPresence: (
+    userIds: string[],
+  ) => Promise<Map<string, FilteredUserPresence>>;
   /** Own presence settings */
-  presenceSettings: PresenceSettings | null
+  presenceSettings: PresenceSettings | null;
   /** Update own presence settings */
-  updatePresenceSettings: (settings: PresenceSettingsInput) => Promise<boolean>
+  updatePresenceSettings: (settings: PresenceSettingsInput) => Promise<boolean>;
   /** Whether invisible mode is enabled */
-  isInvisible: boolean
+  isInvisible: boolean;
   /** Set invisible mode */
-  setInvisibleMode: (enabled: boolean) => Promise<boolean>
+  setInvisibleMode: (enabled: boolean) => Promise<boolean>;
   /** Refresh presence settings */
-  refreshPresenceSettings: () => Promise<void>
+  refreshPresenceSettings: () => Promise<void>;
 }
 
 // ============================================================================
@@ -129,28 +131,33 @@ export interface UseRealtimePresenceReturn {
  * ```
  */
 export function useRealtimePresence(
-  options: UseRealtimePresenceOptions = {}
+  options: UseRealtimePresenceOptions = {},
 ): UseRealtimePresenceReturn {
   const {
     userIds = [],
     enableIdleDetection = true,
     idleTimeout = 5 * 60 * 1000,
-    initialStatus = 'online',
+    initialStatus = "online",
     enablePrivacyFiltering = true,
-  } = options
+  } = options;
 
-  const { user, getAccessToken } = useAuth()
+  const { user, getAccessToken } = useAuth();
 
   // State
-  const [status, setStatusState] = useState<PresenceStatus>(initialStatus)
-  const [customStatus, setCustomStatusState] = useState<CustomStatus | null>(null)
-  const [presences, setPresences] = useState<Map<string, UserPresence>>(new Map())
-  const [filteredPresences, setFilteredPresences] = useState<Map<string, FilteredUserPresence>>(
-    new Map()
-  )
-  const [isIdle, setIsIdle] = useState(false)
-  const [presenceSettings, setPresenceSettings] = useState<PresenceSettings | null>(null)
-  const [isInvisible, setIsInvisible] = useState(false)
+  const [status, setStatusState] = useState<PresenceStatus>(initialStatus);
+  const [customStatus, setCustomStatusState] = useState<CustomStatus | null>(
+    null,
+  );
+  const [presences, setPresences] = useState<Map<string, UserPresence>>(
+    new Map(),
+  );
+  const [filteredPresences, setFilteredPresences] = useState<
+    Map<string, FilteredUserPresence>
+  >(new Map());
+  const [isIdle, setIsIdle] = useState(false);
+  const [presenceSettings, setPresenceSettings] =
+    useState<PresenceSettings | null>(null);
+  const [isInvisible, setIsInvisible] = useState(false);
 
   // Get service instance
   const presenceService = useMemo(() => {
@@ -159,15 +166,20 @@ export function useRealtimePresence(
       idleTimeout,
       enablePrivacyFiltering,
       getAuthToken: () => getAccessToken(),
-    })
-  }, [enableIdleDetection, idleTimeout, enablePrivacyFiltering, getAccessToken])
+    });
+  }, [
+    enableIdleDetection,
+    idleTimeout,
+    enablePrivacyFiltering,
+    getAccessToken,
+  ]);
 
   // Set current user ID for privacy filtering
   useEffect(() => {
     if (user?.id) {
-      presenceService.setCurrentUserId(user.id)
+      presenceService.setCurrentUserId(user.id);
     }
-  }, [user?.id, presenceService])
+  }, [user?.id, presenceService]);
 
   // ============================================================================
   // Status Management
@@ -178,29 +190,29 @@ export function useRealtimePresence(
    */
   const setStatus = useCallback(
     (newStatus: PresenceStatus) => {
-      setStatusState(newStatus)
-      presenceService.setStatus(newStatus)
+      setStatusState(newStatus);
+      presenceService.setStatus(newStatus);
     },
-    [presenceService]
-  )
+    [presenceService],
+  );
 
   /**
    * Set custom status
    */
   const setCustomStatus = useCallback(
     (status: CustomStatus | null) => {
-      setCustomStatusState(status)
-      presenceService.setCustomStatus(status)
+      setCustomStatusState(status);
+      presenceService.setCustomStatus(status);
     },
-    [presenceService]
-  )
+    [presenceService],
+  );
 
   /**
    * Clear custom status
    */
   const clearCustomStatus = useCallback(() => {
-    setCustomStatus(null)
-  }, [setCustomStatus])
+    setCustomStatus(null);
+  }, [setCustomStatus]);
 
   // ============================================================================
   // Subscription Management
@@ -211,52 +223,52 @@ export function useRealtimePresence(
    */
   const subscribeToUsers = useCallback(
     (userIds: string[]) => {
-      presenceService.subscribeToUsers(userIds)
+      presenceService.subscribeToUsers(userIds);
     },
-    [presenceService]
-  )
+    [presenceService],
+  );
 
   /**
    * Unsubscribe from user presence updates
    */
   const unsubscribeFromUsers = useCallback(
     (userIds: string[]) => {
-      presenceService.unsubscribeFromUsers(userIds)
+      presenceService.unsubscribeFromUsers(userIds);
     },
-    [presenceService]
-  )
+    [presenceService],
+  );
 
   /**
    * Get presence for a specific user
    */
   const getPresence = useCallback(
     (userId: string): UserPresence | undefined => {
-      return presences.get(userId) || presenceService.getPresence(userId)
+      return presences.get(userId) || presenceService.getPresence(userId);
     },
-    [presences, presenceService]
-  )
+    [presences, presenceService],
+  );
 
   /**
    * Fetch presence for users from server
    */
   const fetchPresence = useCallback(
     async (userIds: string[]): Promise<Map<string, UserPresence>> => {
-      const result = await presenceService.fetchPresence(userIds)
-      setPresences(new Map(result))
-      return result
+      const result = await presenceService.fetchPresence(userIds);
+      setPresences(new Map(result));
+      return result;
     },
-    [presenceService]
-  )
+    [presenceService],
+  );
 
   /**
    * Get filtered presence for a specific user (privacy-aware)
    */
   const getFilteredPresence = useCallback(
     (userId: string): FilteredUserPresence | undefined => {
-      return filteredPresences.get(userId)
+      return filteredPresences.get(userId);
     },
-    [filteredPresences]
-  )
+    [filteredPresences],
+  );
 
   /**
    * Fetch filtered presence for users (privacy-aware)
@@ -264,15 +276,15 @@ export function useRealtimePresence(
   const fetchFilteredPresence = useCallback(
     async (userIds: string[]): Promise<Map<string, FilteredUserPresence>> => {
       if (!user?.id) {
-        return new Map()
+        return new Map();
       }
 
-      const result = await presenceService.getVisiblePresence(user.id, userIds)
-      setFilteredPresences(result)
-      return result
+      const result = await presenceService.getVisiblePresence(user.id, userIds);
+      setFilteredPresences(result);
+      return result;
     },
-    [presenceService, user?.id]
-  )
+    [presenceService, user?.id],
+  );
 
   /**
    * Update own presence settings
@@ -280,52 +292,55 @@ export function useRealtimePresence(
   const updatePresenceSettings = useCallback(
     async (settings: PresenceSettingsInput): Promise<boolean> => {
       if (!user?.id) {
-        return false
+        return false;
       }
 
-      const updated = await presenceService.updatePresenceSettings(user.id, settings)
+      const updated = await presenceService.updatePresenceSettings(
+        user.id,
+        settings,
+      );
       if (updated) {
-        setPresenceSettings(updated)
-        setIsInvisible(updated.invisibleMode)
-        return true
+        setPresenceSettings(updated);
+        setIsInvisible(updated.invisibleMode);
+        return true;
       }
-      return false
+      return false;
     },
-    [presenceService, user?.id]
-  )
+    [presenceService, user?.id],
+  );
 
   /**
    * Set invisible mode
    */
   const setInvisibleMode = useCallback(
     async (enabled: boolean): Promise<boolean> => {
-      const success = await presenceService.setInvisibleMode(enabled)
+      const success = await presenceService.setInvisibleMode(enabled);
       if (success) {
-        setIsInvisible(enabled)
+        setIsInvisible(enabled);
       }
-      return success
+      return success;
     },
-    [presenceService]
-  )
+    [presenceService],
+  );
 
   /**
    * Refresh presence settings from server
    */
   const refreshPresenceSettings = useCallback(async (): Promise<void> => {
-    if (!user?.id) return
+    if (!user?.id) return;
 
-    const settings = await presenceService.getPresenceSettings(user.id)
+    const settings = await presenceService.getPresenceSettings(user.id);
     if (settings) {
-      setPresenceSettings(settings)
-      setIsInvisible(settings.invisibleMode)
+      setPresenceSettings(settings);
+      setIsInvisible(settings.invisibleMode);
     } else {
       // Use defaults
       setPresenceSettings({
         userId: user.id,
         ...DEFAULT_PRESENCE_SETTINGS,
-      })
+      });
     }
-  }, [presenceService, user?.id])
+  }, [presenceService, user?.id]);
 
   // ============================================================================
   // Effects
@@ -337,129 +352,131 @@ export function useRealtimePresence(
   useEffect(() => {
     const unsub = presenceService.onPresenceChange((presence) => {
       setPresences((prev) => {
-        const next = new Map(prev)
-        next.set(presence.userId, presence)
-        return next
-      })
+        const next = new Map(prev);
+        next.set(presence.userId, presence);
+        return next;
+      });
 
       // Also update filtered presences if we have the viewer's ID
       if (user?.id && enablePrivacyFiltering) {
-        presenceService.getVisiblePresence(user.id, [presence.userId]).then((filtered) => {
-          setFilteredPresences((prev) => {
-            const next = new Map(prev)
-            const filteredPresence = filtered.get(presence.userId)
-            if (filteredPresence) {
-              next.set(presence.userId, filteredPresence)
-            }
-            return next
-          })
-        })
+        presenceService
+          .getVisiblePresence(user.id, [presence.userId])
+          .then((filtered) => {
+            setFilteredPresences((prev) => {
+              const next = new Map(prev);
+              const filteredPresence = filtered.get(presence.userId);
+              if (filteredPresence) {
+                next.set(presence.userId, filteredPresence);
+              }
+              return next;
+            });
+          });
       }
-    })
+    });
 
-    return unsub
-  }, [presenceService, user?.id, enablePrivacyFiltering])
+    return unsub;
+  }, [presenceService, user?.id, enablePrivacyFiltering]);
 
   /**
    * Subscribe to initial user IDs
    */
   useEffect(() => {
     if (userIds.length > 0 && realtimeClient.isConnected) {
-      subscribeToUsers(userIds)
+      subscribeToUsers(userIds);
     }
 
     return () => {
       if (userIds.length > 0) {
-        unsubscribeFromUsers(userIds)
+        unsubscribeFromUsers(userIds);
       }
-    }
-  }, [userIds, subscribeToUsers, unsubscribeFromUsers])
+    };
+  }, [userIds, subscribeToUsers, unsubscribeFromUsers]);
 
   /**
    * Set initial status when connected
    */
   useEffect(() => {
     if (user && realtimeClient.isConnected) {
-      presenceService.setStatus(initialStatus)
+      presenceService.setStatus(initialStatus);
     }
-  }, [user, initialStatus, presenceService])
+  }, [user, initialStatus, presenceService]);
 
   /**
    * Sync state from service
    */
   useEffect(() => {
     const syncState = () => {
-      setStatusState(presenceService.getStatus())
-      setCustomStatusState(presenceService.getCustomStatus())
-      setPresences(presenceService.getAllPresences())
+      setStatusState(presenceService.getStatus());
+      setCustomStatusState(presenceService.getCustomStatus());
+      setPresences(presenceService.getAllPresences());
 
       // Sync presence settings
-      const ownSettings = presenceService.getOwnPresenceSettings()
+      const ownSettings = presenceService.getOwnPresenceSettings();
       if (ownSettings) {
-        setPresenceSettings(ownSettings)
-        setIsInvisible(ownSettings.invisibleMode)
+        setPresenceSettings(ownSettings);
+        setIsInvisible(ownSettings.invisibleMode);
       }
-    }
+    };
 
     // Initial sync
-    syncState()
+    syncState();
 
     // Subscribe to connection state changes
     const unsub = realtimeClient.onConnectionStateChange((state) => {
-      if (state === 'connected' || state === 'authenticated') {
-        syncState()
+      if (state === "connected" || state === "authenticated") {
+        syncState();
       }
-    })
+    });
 
-    return unsub
-  }, [presenceService])
+    return unsub;
+  }, [presenceService]);
 
   /**
    * Load presence settings on mount
    */
   useEffect(() => {
     if (user?.id) {
-      refreshPresenceSettings()
+      refreshPresenceSettings();
     }
-  }, [user?.id, refreshPresenceSettings])
+  }, [user?.id, refreshPresenceSettings]);
 
   /**
    * Track idle state (for UI purposes)
    */
   useEffect(() => {
-    if (!enableIdleDetection || typeof window === 'undefined') return
+    if (!enableIdleDetection || typeof window === "undefined") return;
 
-    let idleTimer: ReturnType<typeof setTimeout> | null = null
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
     const handleActivity = () => {
       if (isIdle) {
-        setIsIdle(false)
+        setIsIdle(false);
       }
       if (idleTimer) {
-        clearTimeout(idleTimer)
+        clearTimeout(idleTimer);
       }
       idleTimer = setTimeout(() => {
-        setIsIdle(true)
-      }, idleTimeout)
-    }
+        setIsIdle(true);
+      }, idleTimeout);
+    };
 
-    const events = ['mousemove', 'keydown', 'click', 'scroll']
+    const events = ["mousemove", "keydown", "click", "scroll"];
     events.forEach((event) => {
-      window.addEventListener(event, handleActivity)
-    })
+      window.addEventListener(event, handleActivity);
+    });
 
     // Start initial timer
-    handleActivity()
+    handleActivity();
 
     return () => {
       events.forEach((event) => {
-        window.removeEventListener(event, handleActivity)
-      })
+        window.removeEventListener(event, handleActivity);
+      });
       if (idleTimer) {
-        clearTimeout(idleTimer)
+        clearTimeout(idleTimer);
       }
-    }
-  }, [enableIdleDetection, idleTimeout, isIdle])
+    };
+  }, [enableIdleDetection, idleTimeout, isIdle]);
 
   // ============================================================================
   // Return
@@ -485,7 +502,7 @@ export function useRealtimePresence(
     isInvisible,
     setInvisibleMode,
     refreshPresenceSettings,
-  }
+  };
 }
 
 // ============================================================================
@@ -496,187 +513,196 @@ export function useRealtimePresence(
  * Hook to get presence for a single user
  */
 export function useUserPresence(userId: string): UserPresence | undefined {
-  const { presences, subscribeToUsers, unsubscribeFromUsers } = useRealtimePresence()
+  const { presences, subscribeToUsers, unsubscribeFromUsers } =
+    useRealtimePresence();
 
   useEffect(() => {
-    subscribeToUsers([userId])
-    return () => unsubscribeFromUsers([userId])
-  }, [userId, subscribeToUsers, unsubscribeFromUsers])
+    subscribeToUsers([userId]);
+    return () => unsubscribeFromUsers([userId]);
+  }, [userId, subscribeToUsers, unsubscribeFromUsers]);
 
-  return presences.get(userId)
+  return presences.get(userId);
 }
 
 /**
  * Hook to get online status for a user
  */
 export function useUserOnlineStatus(userId: string): boolean {
-  const presence = useUserPresence(userId)
-  return presence?.status === 'online' || presence?.status === 'away' || presence?.status === 'busy'
+  const presence = useUserPresence(userId);
+  return (
+    presence?.status === "online" ||
+    presence?.status === "away" ||
+    presence?.status === "busy"
+  );
 }
 
 /**
  * Hook for managing presence settings via API
  */
 export function usePresenceSettings() {
-  const { user, getAccessToken } = useAuth()
-  const [settings, setSettings] = useState<PresenceSettings | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { user, getAccessToken } = useAuth();
+  const [settings, setSettings] = useState<PresenceSettings | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch settings on mount
   useEffect(() => {
-    const token = getAccessToken()
+    const token = getAccessToken();
     if (!user?.id || !token) {
-      setIsLoading(false)
-      return
+      setIsLoading(false);
+      return;
     }
 
     const fetchSettings = async () => {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
-        const response = await fetch('/api/users/me/presence-settings', {
+        const response = await fetch("/api/users/me/presence-settings", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch presence settings')
+          throw new Error("Failed to fetch presence settings");
         }
 
-        const json = await response.json()
+        const json = await response.json();
         if (json.success) {
-          setSettings(json.data)
+          setSettings(json.data);
         } else {
-          throw new Error(json.error || 'Unknown error')
+          throw new Error(json.error || "Unknown error");
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch settings')
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch settings",
+        );
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchSettings()
-  }, [user?.id, getAccessToken])
+    fetchSettings();
+  }, [user?.id, getAccessToken]);
 
   /**
    * Update presence settings
    */
   const updateSettings = useCallback(
     async (updates: PresenceSettingsInput): Promise<boolean> => {
-      const token = getAccessToken()
+      const token = getAccessToken();
       if (!token) {
-        setError('Not authenticated')
-        return false
+        setError("Not authenticated");
+        return false;
       }
 
       try {
-        const response = await fetch('/api/users/me/presence-settings', {
-          method: 'PATCH',
+        const response = await fetch("/api/users/me/presence-settings", {
+          method: "PATCH",
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(updates),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to update presence settings')
+          throw new Error("Failed to update presence settings");
         }
 
-        const json = await response.json()
+        const json = await response.json();
         if (json.success) {
-          setSettings(json.data)
-          return true
+          setSettings(json.data);
+          return true;
         } else {
-          throw new Error(json.error || 'Unknown error')
+          throw new Error(json.error || "Unknown error");
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to update settings')
-        return false
+        setError(
+          err instanceof Error ? err.message : "Failed to update settings",
+        );
+        return false;
       }
     },
-    [getAccessToken]
-  )
+    [getAccessToken],
+  );
 
   /**
    * Set visibility level
    */
   const setVisibility = useCallback(
     (visibility: PresenceVisibility) => {
-      return updateSettings({ visibility })
+      return updateSettings({ visibility });
     },
-    [updateSettings]
-  )
+    [updateSettings],
+  );
 
   /**
    * Toggle show last seen
    */
   const setShowLastSeen = useCallback(
     (enabled: boolean) => {
-      return updateSettings({ showLastSeen: enabled })
+      return updateSettings({ showLastSeen: enabled });
     },
-    [updateSettings]
-  )
+    [updateSettings],
+  );
 
   /**
    * Toggle show online status
    */
   const setShowOnlineStatus = useCallback(
     (enabled: boolean) => {
-      return updateSettings({ showOnlineStatus: enabled })
+      return updateSettings({ showOnlineStatus: enabled });
     },
-    [updateSettings]
-  )
+    [updateSettings],
+  );
 
   /**
    * Toggle allow read receipts
    */
   const setAllowReadReceipts = useCallback(
     (enabled: boolean) => {
-      return updateSettings({ allowReadReceipts: enabled })
+      return updateSettings({ allowReadReceipts: enabled });
     },
-    [updateSettings]
-  )
+    [updateSettings],
+  );
 
   /**
    * Toggle invisible mode
    */
   const setInvisibleMode = useCallback(
     (enabled: boolean) => {
-      return updateSettings({ invisibleMode: enabled })
+      return updateSettings({ invisibleMode: enabled });
     },
-    [updateSettings]
-  )
+    [updateSettings],
+  );
 
   /**
    * Refresh settings
    */
   const refresh = useCallback(async () => {
-    const token = getAccessToken()
-    if (!token) return
+    const token = getAccessToken();
+    if (!token) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await fetch('/api/users/me/presence-settings', {
+      const response = await fetch("/api/users/me/presence-settings", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
       if (response.ok) {
-        const json = await response.json()
+        const json = await response.json();
         if (json.success) {
-          setSettings(json.data)
+          setSettings(json.data);
         }
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [getAccessToken])
+  }, [getAccessToken]);
 
   return {
     settings,
@@ -689,11 +715,16 @@ export function usePresenceSettings() {
     setAllowReadReceipts,
     setInvisibleMode,
     refresh,
-  }
+  };
 }
 
-export default useRealtimePresence
+export default useRealtimePresence;
 
 // Re-export types for convenience
-export type { PresenceSettings, PresenceSettingsInput, PresenceVisibility, FilteredUserPresence }
-export { DEFAULT_PRESENCE_SETTINGS }
+export type {
+  PresenceSettings,
+  PresenceSettingsInput,
+  PresenceVisibility,
+  FilteredUserPresence,
+};
+export { DEFAULT_PRESENCE_SETTINGS };

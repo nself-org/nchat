@@ -11,113 +11,116 @@
  * @version 1.0.0
  */
 
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState } from 'react'
-import { useAuth } from '@/contexts/auth-context'
-import { logger } from '@/lib/logger'
+import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type ReminderStatus = 'pending' | 'completed' | 'dismissed' | 'snoozed'
-export type ReminderType = 'message' | 'custom' | 'followup'
+export type ReminderStatus = "pending" | "completed" | "dismissed" | "snoozed";
+export type ReminderType = "message" | "custom" | "followup";
 
 export interface RecurrenceRule {
-  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
-  interval: number
-  daysOfWeek?: number[]
-  dayOfMonth?: number
-  endDate?: string
-  count?: number
+  frequency: "daily" | "weekly" | "monthly" | "yearly";
+  interval: number;
+  daysOfWeek?: number[];
+  dayOfMonth?: number;
+  endDate?: string;
+  count?: number;
 }
 
 export interface Reminder {
-  id: string
-  user_id: string
-  message_id: string | null
-  channel_id: string | null
+  id: string;
+  user_id: string;
+  message_id: string | null;
+  channel_id: string | null;
   channel?: {
-    id: string
-    name: string
-  } | null
-  content: string
-  note: string | null
-  remind_at: string
-  timezone: string
-  status: ReminderStatus
-  type: ReminderType
-  is_recurring: boolean
-  recurrence_rule: RecurrenceRule | null
-  snooze_count: number
-  snoozed_until: string | null
-  completed_at: string | null
-  created_at: string
-  updated_at: string
+    id: string;
+    name: string;
+  } | null;
+  content: string;
+  note: string | null;
+  remind_at: string;
+  timezone: string;
+  status: ReminderStatus;
+  type: ReminderType;
+  is_recurring: boolean;
+  recurrence_rule: RecurrenceRule | null;
+  snooze_count: number;
+  snoozed_until: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateReminderInput {
-  messageId?: string
-  channelId?: string
-  content: string
-  note?: string
-  remindAt: string
-  timezone: string
-  type?: ReminderType
-  isRecurring?: boolean
-  recurrenceRule?: RecurrenceRule
+  messageId?: string;
+  channelId?: string;
+  content: string;
+  note?: string;
+  remindAt: string;
+  timezone: string;
+  type?: ReminderType;
+  isRecurring?: boolean;
+  recurrenceRule?: RecurrenceRule;
 }
 
 export interface UpdateReminderInput {
-  content?: string
-  note?: string
-  remindAt?: string
-  timezone?: string
-  isRecurring?: boolean
-  recurrenceRule?: RecurrenceRule
+  content?: string;
+  note?: string;
+  remindAt?: string;
+  timezone?: string;
+  isRecurring?: boolean;
+  recurrenceRule?: RecurrenceRule;
 }
 
 export interface ReminderFilters {
-  status?: ReminderStatus
-  channelId?: string
-  type?: ReminderType
-  limit?: number
-  offset?: number
+  status?: ReminderStatus;
+  channelId?: string;
+  type?: ReminderType;
+  limit?: number;
+  offset?: number;
 }
 
 export interface UseRemindersOptions {
   /** Auto-fetch reminders on mount */
-  autoFetch?: boolean
+  autoFetch?: boolean;
   /** Initial filters */
-  initialFilters?: ReminderFilters
+  initialFilters?: ReminderFilters;
   /** Callback when reminders change */
-  onChange?: (reminders: Reminder[]) => void
+  onChange?: (reminders: Reminder[]) => void;
 }
 
 export interface UseRemindersReturn {
-  reminders: Reminder[]
-  total: number
-  isLoading: boolean
-  error: string | null
-  filters: ReminderFilters
+  reminders: Reminder[];
+  total: number;
+  isLoading: boolean;
+  error: string | null;
+  filters: ReminderFilters;
 
   // Actions
-  fetchReminders: (filters?: ReminderFilters) => Promise<void>
-  createReminder: (input: CreateReminderInput) => Promise<Reminder | null>
-  updateReminder: (id: string, input: UpdateReminderInput) => Promise<Reminder | null>
-  deleteReminder: (id: string) => Promise<boolean>
+  fetchReminders: (filters?: ReminderFilters) => Promise<void>;
+  createReminder: (input: CreateReminderInput) => Promise<Reminder | null>;
+  updateReminder: (
+    id: string,
+    input: UpdateReminderInput,
+  ) => Promise<Reminder | null>;
+  deleteReminder: (id: string) => Promise<boolean>;
 
   // Quick actions
-  completeReminder: (id: string) => Promise<boolean>
-  dismissReminder: (id: string) => Promise<boolean>
-  snoozeReminder: (id: string, duration: number) => Promise<boolean>
-  unsnoozeReminder: (id: string) => Promise<boolean>
+  completeReminder: (id: string) => Promise<boolean>;
+  dismissReminder: (id: string) => Promise<boolean>;
+  snoozeReminder: (id: string, duration: number) => Promise<boolean>;
+  unsnoozeReminder: (id: string) => Promise<boolean>;
 
   // Pagination
-  loadMore: () => Promise<void>
-  hasMore: boolean
-  setFilters: (filters: ReminderFilters) => void
+  loadMore: () => Promise<void>;
+  hasMore: boolean;
+  setFilters: (filters: ReminderFilters) => void;
 }
 
 // ============================================================================
@@ -125,43 +128,47 @@ export interface UseRemindersReturn {
 // ============================================================================
 
 export const SNOOZE_DURATIONS = {
-  '15_minutes': 15 * 60 * 1000,
-  '30_minutes': 30 * 60 * 1000,
-  '1_hour': 60 * 60 * 1000,
-  '2_hours': 2 * 60 * 60 * 1000,
-  '4_hours': 4 * 60 * 60 * 1000,
-  'tomorrow_9am': 0, // Calculated dynamically
-  'next_week': 7 * 24 * 60 * 60 * 1000,
-} as const
+  "15_minutes": 15 * 60 * 1000,
+  "30_minutes": 30 * 60 * 1000,
+  "1_hour": 60 * 60 * 1000,
+  "2_hours": 2 * 60 * 60 * 1000,
+  "4_hours": 4 * 60 * 60 * 1000,
+  tomorrow_9am: 0, // Calculated dynamically
+  next_week: 7 * 24 * 60 * 60 * 1000,
+} as const;
 
-export function calculateSnoozeDuration(type: keyof typeof SNOOZE_DURATIONS): number {
-  if (type === 'tomorrow_9am') {
-    const now = new Date()
-    const tomorrow = new Date(now)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    tomorrow.setHours(9, 0, 0, 0)
-    return tomorrow.getTime() - now.getTime()
+export function calculateSnoozeDuration(
+  type: keyof typeof SNOOZE_DURATIONS,
+): number {
+  if (type === "tomorrow_9am") {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(9, 0, 0, 0);
+    return tomorrow.getTime() - now.getTime();
   }
-  return SNOOZE_DURATIONS[type]
+  return SNOOZE_DURATIONS[type];
 }
 
 // ============================================================================
 // Hook Implementation
 // ============================================================================
 
-export function useReminders(options: UseRemindersOptions = {}): UseRemindersReturn {
-  const { autoFetch = true, initialFilters = {}, onChange } = options
-  const { user, isAuthenticated } = useAuth()
+export function useReminders(
+  options: UseRemindersOptions = {},
+): UseRemindersReturn {
+  const { autoFetch = true, initialFilters = {}, onChange } = options;
+  const { user, isAuthenticated } = useAuth();
 
-  const [reminders, setReminders] = useState<Reminder[]>([])
-  const [total, setTotal] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ReminderFilters>({
     limit: 50,
     offset: 0,
     ...initialFilters,
-  })
+  });
 
   // ============================================================================
   // Fetch Reminders
@@ -170,54 +177,59 @@ export function useReminders(options: UseRemindersOptions = {}): UseRemindersRet
   const fetchReminders = useCallback(
     async (newFilters?: ReminderFilters) => {
       if (!isAuthenticated || !user?.id) {
-        return
+        return;
       }
 
-      const currentFilters = newFilters || filters
-      setIsLoading(true)
-      setError(null)
+      const currentFilters = newFilters || filters;
+      setIsLoading(true);
+      setError(null);
 
       try {
-        const params = new URLSearchParams()
-        if (currentFilters.status) params.set('status', currentFilters.status)
-        if (currentFilters.channelId) params.set('channelId', currentFilters.channelId)
-        if (currentFilters.type) params.set('type', currentFilters.type)
-        if (currentFilters.limit) params.set('limit', String(currentFilters.limit))
-        if (currentFilters.offset) params.set('offset', String(currentFilters.offset))
+        const params = new URLSearchParams();
+        if (currentFilters.status) params.set("status", currentFilters.status);
+        if (currentFilters.channelId)
+          params.set("channelId", currentFilters.channelId);
+        if (currentFilters.type) params.set("type", currentFilters.type);
+        if (currentFilters.limit)
+          params.set("limit", String(currentFilters.limit));
+        if (currentFilters.offset)
+          params.set("offset", String(currentFilters.offset));
 
-        const response = await fetch(`/api/reminders?${params.toString()}`)
+        const remindersUrl = `/api/reminders?${params.toString()}`;
+        const response = await fetch(remindersUrl);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch reminders')
+          throw new Error("Failed to fetch reminders");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success) {
-          const fetchedReminders = data.data?.reminders || []
-          const fetchedTotal = data.data?.total || 0
+          const fetchedReminders = data.data?.reminders || [];
+          const fetchedTotal = data.data?.total || 0;
 
           if (currentFilters.offset && currentFilters.offset > 0) {
             // Append for pagination
-            setReminders((prev) => [...prev, ...fetchedReminders])
+            setReminders((prev) => [...prev, ...fetchedReminders]);
           } else {
-            setReminders(fetchedReminders)
+            setReminders(fetchedReminders);
           }
-          setTotal(fetchedTotal)
-          onChange?.(fetchedReminders)
+          setTotal(fetchedTotal);
+          onChange?.(fetchedReminders);
         } else {
-          throw new Error(data.error || 'Failed to fetch reminders')
+          throw new Error(data.error || "Failed to fetch reminders");
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch reminders'
-        setError(errorMessage)
-        logger.error('Failed to fetch reminders:', err)
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to fetch reminders";
+        setError(errorMessage);
+        logger.error("Failed to fetch reminders:", err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [isAuthenticated, user?.id, filters, onChange]
-  )
+    [isAuthenticated, user?.id, filters, onChange],
+  );
 
   // ============================================================================
   // Create Reminder
@@ -226,93 +238,98 @@ export function useReminders(options: UseRemindersOptions = {}): UseRemindersRet
   const createReminder = useCallback(
     async (input: CreateReminderInput): Promise<Reminder | null> => {
       if (!isAuthenticated || !user?.id) {
-        setError('Not authenticated')
-        return null
+        setError("Not authenticated");
+        return null;
       }
 
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
-        const response = await fetch('/api/reminders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/reminders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to create reminder')
+          throw new Error("Failed to create reminder");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success && data.data?.reminder) {
-          const newReminder = data.data.reminder
-          setReminders((prev) => [newReminder, ...prev])
-          setTotal((prev) => prev + 1)
-          return newReminder
+          const newReminder = data.data.reminder;
+          setReminders((prev) => [newReminder, ...prev]);
+          setTotal((prev) => prev + 1);
+          return newReminder;
         }
 
-        throw new Error(data.error || 'Failed to create reminder')
+        throw new Error(data.error || "Failed to create reminder");
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to create reminder'
-        setError(errorMessage)
-        logger.error('Failed to create reminder:', err)
-        return null
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to create reminder";
+        setError(errorMessage);
+        logger.error("Failed to create reminder:", err);
+        return null;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [isAuthenticated, user?.id]
-  )
+    [isAuthenticated, user?.id],
+  );
 
   // ============================================================================
   // Update Reminder
   // ============================================================================
 
   const updateReminder = useCallback(
-    async (id: string, input: UpdateReminderInput): Promise<Reminder | null> => {
+    async (
+      id: string,
+      input: UpdateReminderInput,
+    ): Promise<Reminder | null> => {
       if (!isAuthenticated || !user?.id) {
-        setError('Not authenticated')
-        return null
+        setError("Not authenticated");
+        return null;
       }
 
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
-        const response = await fetch('/api/reminders', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/reminders", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id, ...input }),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to update reminder')
+          throw new Error("Failed to update reminder");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success && data.data?.reminder) {
-          const updatedReminder = data.data.reminder
+          const updatedReminder = data.data.reminder;
           setReminders((prev) =>
-            prev.map((r) => (r.id === id ? updatedReminder : r))
-          )
-          return updatedReminder
+            prev.map((r) => (r.id === id ? updatedReminder : r)),
+          );
+          return updatedReminder;
         }
 
-        throw new Error(data.error || 'Failed to update reminder')
+        throw new Error(data.error || "Failed to update reminder");
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to update reminder'
-        setError(errorMessage)
-        logger.error('Failed to update reminder:', err)
-        return null
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to update reminder";
+        setError(errorMessage);
+        logger.error("Failed to update reminder:", err);
+        return null;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [isAuthenticated, user?.id]
-  )
+    [isAuthenticated, user?.id],
+  );
 
   // ============================================================================
   // Delete Reminder
@@ -321,42 +338,43 @@ export function useReminders(options: UseRemindersOptions = {}): UseRemindersRet
   const deleteReminder = useCallback(
     async (id: string): Promise<boolean> => {
       if (!isAuthenticated || !user?.id) {
-        setError('Not authenticated')
-        return false
+        setError("Not authenticated");
+        return false;
       }
 
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
         const response = await fetch(`/api/reminders?id=${id}`, {
-          method: 'DELETE',
-        })
+          method: "DELETE",
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to delete reminder')
+          throw new Error("Failed to delete reminder");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success) {
-          setReminders((prev) => prev.filter((r) => r.id !== id))
-          setTotal((prev) => Math.max(0, prev - 1))
-          return true
+          setReminders((prev) => prev.filter((r) => r.id !== id));
+          setTotal((prev) => Math.max(0, prev - 1));
+          return true;
         }
 
-        throw new Error(data.error || 'Failed to delete reminder')
+        throw new Error(data.error || "Failed to delete reminder");
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to delete reminder'
-        setError(errorMessage)
-        logger.error('Failed to delete reminder:', err)
-        return false
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to delete reminder";
+        setError(errorMessage);
+        logger.error("Failed to delete reminder:", err);
+        return false;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [isAuthenticated, user?.id]
-  )
+    [isAuthenticated, user?.id],
+  );
 
   // ============================================================================
   // Quick Actions
@@ -364,101 +382,100 @@ export function useReminders(options: UseRemindersOptions = {}): UseRemindersRet
 
   const performAction = useCallback(
     async (
-      action: 'complete' | 'dismiss' | 'snooze' | 'unsnooze',
+      action: "complete" | "dismiss" | "snooze" | "unsnooze",
       id: string,
-      snoozeDuration?: number
+      snoozeDuration?: number,
     ): Promise<boolean> => {
       if (!isAuthenticated || !user?.id) {
-        setError('Not authenticated')
-        return false
+        setError("Not authenticated");
+        return false;
       }
 
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
-        const response = await fetch('/api/reminders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/reminders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action,
             id,
             snoozeDuration,
           }),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error(`Failed to ${action} reminder`)
+          throw new Error(`Failed to ${action} reminder`);
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success && data.data?.reminder) {
-          const updatedReminder = data.data.reminder
+          const updatedReminder = data.data.reminder;
           setReminders((prev) =>
-            prev.map((r) =>
-              r.id === id ? { ...r, ...updatedReminder } : r
-            )
-          )
-          return true
+            prev.map((r) => (r.id === id ? { ...r, ...updatedReminder } : r)),
+          );
+          return true;
         }
 
-        throw new Error(data.error || `Failed to ${action} reminder`)
+        throw new Error(data.error || `Failed to ${action} reminder`);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : `Failed to ${action} reminder`
-        setError(errorMessage)
-        logger.error(`Failed to ${action} reminder:`, err)
-        return false
+        const errorMessage =
+          err instanceof Error ? err.message : `Failed to ${action} reminder`;
+        setError(errorMessage);
+        logger.error(`Failed to ${action} reminder:`, err);
+        return false;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [isAuthenticated, user?.id]
-  )
+    [isAuthenticated, user?.id],
+  );
 
   const completeReminder = useCallback(
-    (id: string) => performAction('complete', id),
-    [performAction]
-  )
+    (id: string) => performAction("complete", id),
+    [performAction],
+  );
 
   const dismissReminder = useCallback(
-    (id: string) => performAction('dismiss', id),
-    [performAction]
-  )
+    (id: string) => performAction("dismiss", id),
+    [performAction],
+  );
 
   const snoozeReminder = useCallback(
-    (id: string, duration: number) => performAction('snooze', id, duration),
-    [performAction]
-  )
+    (id: string, duration: number) => performAction("snooze", id, duration),
+    [performAction],
+  );
 
   const unsnoozeReminder = useCallback(
-    (id: string) => performAction('unsnooze', id),
-    [performAction]
-  )
+    (id: string) => performAction("unsnooze", id),
+    [performAction],
+  );
 
   // ============================================================================
   // Pagination
   // ============================================================================
 
-  const hasMore = reminders.length < total
+  const hasMore = reminders.length < total;
 
   const loadMore = useCallback(async () => {
-    if (isLoading || !hasMore) return
+    if (isLoading || !hasMore) return;
 
-    const newOffset = (filters.offset || 0) + (filters.limit || 50)
-    const newFilters = { ...filters, offset: newOffset }
-    setFilters(newFilters)
-    await fetchReminders(newFilters)
-  }, [isLoading, hasMore, filters, fetchReminders])
+    const newOffset = (filters.offset || 0) + (filters.limit || 50);
+    const newFilters = { ...filters, offset: newOffset };
+    setFilters(newFilters);
+    await fetchReminders(newFilters);
+  }, [isLoading, hasMore, filters, fetchReminders]);
 
   const updateFilters = useCallback(
     (newFilters: ReminderFilters) => {
-      const updatedFilters = { ...filters, ...newFilters, offset: 0 }
-      setFilters(updatedFilters)
-      fetchReminders(updatedFilters)
+      const updatedFilters = { ...filters, ...newFilters, offset: 0 };
+      setFilters(updatedFilters);
+      fetchReminders(updatedFilters);
     },
-    [filters, fetchReminders]
-  )
+    [filters, fetchReminders],
+  );
 
   // ============================================================================
   // Auto-fetch on mount
@@ -466,9 +483,9 @@ export function useReminders(options: UseRemindersOptions = {}): UseRemindersRet
 
   useEffect(() => {
     if (autoFetch && isAuthenticated && user?.id) {
-      fetchReminders()
+      fetchReminders();
     }
-  }, [autoFetch, isAuthenticated, user?.id]) // Intentionally not including fetchReminders to avoid infinite loop
+  }, [autoFetch, isAuthenticated, user?.id]); // Intentionally not including fetchReminders to avoid infinite loop
 
   return {
     reminders,
@@ -487,7 +504,7 @@ export function useReminders(options: UseRemindersOptions = {}): UseRemindersRet
     loadMore,
     hasMore,
     setFilters: updateFilters,
-  }
+  };
 }
 
-export default useReminders
+export default useReminders;

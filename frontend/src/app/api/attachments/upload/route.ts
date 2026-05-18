@@ -12,42 +12,42 @@
  * - Progress tracking
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { z } from 'zod'
-import { apolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
-import { getUploadService } from '@/services/files/upload.service'
-import { getValidationService } from '@/services/files/validation.service'
-import crypto from 'crypto'
-import ffmpeg from 'fluent-ffmpeg'
-import ffmpegStatic from 'ffmpeg-static'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
+import { apolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
+import { getUploadService } from "@/services/files/upload.service";
+import { getValidationService } from "@/services/files/validation.service";
+import crypto from "crypto";
+import ffmpeg from "fluent-ffmpeg";
+import ffmpegStatic from "ffmpeg-static";
 // @ts-expect-error - No types available
-import ffprobeStatic from 'ffprobe-static'
-import { writeFile, unlink } from 'fs/promises'
-import path from 'path'
-import os from 'os'
-import sharp from 'sharp'
-import { encode } from 'blurhash'
+import ffprobeStatic from "ffprobe-static";
+import { writeFile, unlink } from "fs/promises";
+import path from "path";
+import os from "os";
+import sharp from "sharp";
+import { encode } from "blurhash";
 
 if (ffmpegStatic) {
-  ffmpeg.setFfmpegPath(ffmpegStatic)
+  ffmpeg.setFfmpegPath(ffmpegStatic);
 }
 if (ffprobeStatic && ffprobeStatic.path) {
-  ffmpeg.setFfprobePath(ffprobeStatic.path)
+  ffmpeg.setFfprobePath(ffprobeStatic.path);
 }
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // Increase body size limit for file uploads (50MB)
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '50mb',
+      sizeLimit: "50mb",
     },
   },
-}
+};
 
 // ============================================================================
 // VALIDATION SCHEMA
@@ -55,8 +55,8 @@ export const config = {
 
 const UploadMetadataSchema = z.object({
   messageId: z.string().uuid().optional(), // Optional: can upload before message is sent
-  userId: z.string().uuid('Invalid user ID'),
-  channelId: z.string().uuid('Invalid channel ID'),
+  userId: z.string().uuid("Invalid user ID"),
+  channelId: z.string().uuid("Invalid channel ID"),
   fileName: z.string().min(1).max(255),
   fileType: z.string().min(1).max(100),
   fileSize: z
@@ -65,7 +65,7 @@ const UploadMetadataSchema = z.object({
     .positive()
     .max(50 * 1024 * 1024), // 50MB max
   isPublic: z.boolean().default(false),
-})
+});
 
 // ============================================================================
 // GRAPHQL OPERATIONS
@@ -118,94 +118,109 @@ const CREATE_ATTACHMENT = gql`
       created_at
     }
   }
-`
+`;
 
 const CHECK_CHANNEL_MEMBERSHIP = gql`
   query CheckChannelMembership($channelId: uuid!, $userId: uuid!) {
-    nchat_channel_members(where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }) {
+    nchat_channel_members(
+      where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }
+    ) {
       user_id
       role
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPERS
 // ============================================================================
 
 function generateStorageKey(fileName: string, userId: string): string {
-  const timestamp = Date.now()
-  const random = crypto.randomBytes(8).toString('hex')
-  const ext = fileName.split('.').pop()
-  return `attachments/${userId}/${timestamp}-${random}.${ext}`
+  const timestamp = Date.now();
+  const random = crypto.randomBytes(8).toString("hex");
+  const ext = fileName.split(".").pop();
+  return `attachments/${userId}/${timestamp}-${random}.${ext}`;
 }
 
 async function extractImageMetadata(
-  buffer: Buffer
+  buffer: Buffer,
 ): Promise<{ width?: number; height?: number; blurhash?: string }> {
   try {
-    const image = sharp(buffer)
-    const metadata = await image.metadata()
-    
-    let hash: string | undefined
+    const image = sharp(buffer);
+    const metadata = await image.metadata();
+
+    let hash: string | undefined;
     if (metadata.width && metadata.height) {
       const { data, info } = await image
         .raw()
         .ensureAlpha()
-        .resize(32, 32, { fit: 'inside' })
-        .toBuffer({ resolveWithObject: true })
-        
-      hash = encode(new Uint8ClampedArray(data), info.width, info.height, 4, 4)
+        .resize(32, 32, { fit: "inside" })
+        .toBuffer({ resolveWithObject: true });
+
+      hash = encode(new Uint8ClampedArray(data), info.width, info.height, 4, 4);
     }
 
     return {
       width: metadata.width,
       height: metadata.height,
-      blurhash: hash
-    }
+      blurhash: hash,
+    };
   } catch (err) {
-    logger.warn('Image metadata extraction failed', { error: err instanceof Error ? err.message : String(err) })
-    return {}
+    logger.warn("Image metadata extraction failed", {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return {};
   }
 }
 
-async function extractVideoMetadata(
-  buffer: Buffer
-): Promise<{ width?: number; height?: number; duration?: number; needsTranscoding: boolean }> {
-  const tempId = crypto.randomBytes(8).toString('hex')
-  const tempPath = path.join(os.tmpdir(), `video-${tempId}.tmp`)
-  
+async function extractVideoMetadata(buffer: Buffer): Promise<{
+  width?: number;
+  height?: number;
+  duration?: number;
+  needsTranscoding: boolean;
+}> {
+  const tempId = crypto.randomBytes(8).toString("hex");
+  const tempPath = path.join(os.tmpdir(), `video-${tempId}.tmp`);
+
   try {
-    await writeFile(tempPath, buffer)
-    
+    await writeFile(tempPath, buffer);
+
     return await new Promise((resolve) => {
       ffmpeg.ffprobe(tempPath, (err, metadata) => {
         if (err) {
-          logger.warn('Video metadata extraction failed', { error: err.message })
-          resolve({ needsTranscoding: true })
-          return
+          logger.warn("Video metadata extraction failed", {
+            error: err.message,
+          });
+          resolve({ needsTranscoding: true });
+          return;
         }
-        
-        const videoStream = metadata.streams.find(s => s.codec_type === 'video')
+
+        const videoStream = metadata.streams.find(
+          (s) => s.codec_type === "video",
+        );
         if (!videoStream) {
-          resolve({ needsTranscoding: true })
-          return
+          resolve({ needsTranscoding: true });
+          return;
         }
-        
+
         resolve({
           width: videoStream.width,
           height: videoStream.height,
-          duration: metadata.format.duration ? Math.round(metadata.format.duration) : undefined,
-          needsTranscoding: true 
-        })
-      })
-    })
+          duration: metadata.format.duration
+            ? Math.round(metadata.format.duration)
+            : undefined,
+          needsTranscoding: true,
+        });
+      });
+    });
   } catch (err) {
-    logger.warn('Video temp file failed', { error: err instanceof Error ? err.message : String(err) })
-    return { needsTranscoding: true }
+    logger.warn("Video temp file failed", {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return { needsTranscoding: true };
   } finally {
     try {
-      await unlink(tempPath)
+      await unlink(tempPath);
     } catch {
       // ignore
     }
@@ -218,27 +233,36 @@ async function extractVideoMetadata(
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('POST /api/attachments/upload')
+    logger.info("POST /api/attachments/upload");
 
     // Parse multipart form data
-    const formData = await request.formData()
-    const file = formData.get('file') as File | null
-    const metadataJson = formData.get('metadata') as string | null
+    const formData = await request.formData();
+    const file = formData.get("file") as File | null;
+    const metadataJson = formData.get("metadata") as string | null;
 
     if (!file) {
-      return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "No file provided" },
+        { status: 400 },
+      );
     }
 
     if (!metadataJson) {
-      return NextResponse.json({ success: false, error: 'No metadata provided' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "No metadata provided" },
+        { status: 400 },
+      );
     }
 
     // Parse and validate metadata
-    let metadata
+    let metadata;
     try {
-      metadata = JSON.parse(metadataJson)
+      metadata = JSON.parse(metadataJson);
     } catch {
-      return NextResponse.json({ success: false, error: 'Invalid metadata JSON' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "Invalid metadata JSON" },
+        { status: 400 },
+      );
     }
 
     const validation = UploadMetadataSchema.safeParse({
@@ -246,20 +270,20 @@ export async function POST(request: NextRequest) {
       fileName: file.name,
       fileType: file.type,
       fileSize: file.size,
-    })
+    });
 
     if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid upload metadata',
+          error: "Invalid upload metadata",
           details: validation.error.flatten().fieldErrors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const validatedMetadata = validation.data
+    const validatedMetadata = validation.data;
 
     // Check channel membership
     const { data: membershipData } = await apolloClient.query({
@@ -268,89 +292,92 @@ export async function POST(request: NextRequest) {
         channelId: validatedMetadata.channelId,
         userId: validatedMetadata.userId,
       },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!membershipData?.nchat_channel_members?.length) {
-      return NextResponse.json({ success: false, error: 'Not a channel member' }, { status: 403 })
+      return NextResponse.json(
+        { success: false, error: "Not a channel member" },
+        { status: 403 },
+      );
     }
 
     // Validate file
-    const validationService = getValidationService()
+    const validationService = getValidationService();
     const fileValidation = validationService.validateFile({
       name: file.name,
       type: file.type,
       size: file.size,
-    })
+    });
 
     if (!fileValidation.valid) {
       return NextResponse.json(
         {
           success: false,
-          error: 'File validation failed',
+          error: "File validation failed",
           reason: fileValidation.error,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     // Convert file to buffer
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     // Extract metadata based on file type
-    let width: number | undefined
-    let height: number | undefined
-    let duration: number | undefined
-    let blurhash: string | undefined
-    let videoNeedsTranscoding = false
+    let width: number | undefined;
+    let height: number | undefined;
+    let duration: number | undefined;
+    let blurhash: string | undefined;
+    let videoNeedsTranscoding = false;
 
-    if (file.type.startsWith('image/')) {
-      const imageMetadata = await extractImageMetadata(buffer)
-      width = imageMetadata.width
-      height = imageMetadata.height
-      blurhash = imageMetadata.blurhash
-    } else if (file.type.startsWith('video/')) {
-      const videoMetadata = await extractVideoMetadata(buffer)
-      width = videoMetadata.width
-      height = videoMetadata.height
-      duration = videoMetadata.duration
-      videoNeedsTranscoding = videoMetadata.needsTranscoding
+    if (file.type.startsWith("image/")) {
+      const imageMetadata = await extractImageMetadata(buffer);
+      width = imageMetadata.width;
+      height = imageMetadata.height;
+      blurhash = imageMetadata.blurhash;
+    } else if (file.type.startsWith("video/")) {
+      const videoMetadata = await extractVideoMetadata(buffer);
+      width = videoMetadata.width;
+      height = videoMetadata.height;
+      duration = videoMetadata.duration;
+      videoNeedsTranscoding = videoMetadata.needsTranscoding;
     }
 
     // Generate storage key
-    const storageKey = generateStorageKey(file.name, validatedMetadata.userId)
+    const storageKey = generateStorageKey(file.name, validatedMetadata.userId);
 
     // Upload to storage
-    const uploadService = getUploadService()
+    const uploadService = getUploadService();
     const uploadResult = await uploadService.uploadFile({
       buffer,
       fileName: file.name,
       fileType: file.type,
       storageKey,
       isPublic: validatedMetadata.isPublic,
-    })
+    });
 
     if (!uploadResult.success) {
-      logger.error('File upload failed', { error: uploadResult.error })
+      logger.error("File upload failed", { error: uploadResult.error });
       return NextResponse.json(
         {
           success: false,
-          error: 'File upload failed',
+          error: "File upload failed",
           message: uploadResult.error?.message,
         },
-        { status: 500 }
-      )
+        { status: 500 },
+      );
     }
 
-    const fileUrl = uploadResult.data!.url
+    const fileUrl = uploadResult.data!.url;
 
     // Generate thumbnail for images
     // Thumbnail generation requires sharp library for image processing
     // For production, implement resizing to create optimized thumbnails
-    let thumbnailUrl: string | undefined
-    if (file.type.startsWith('image/')) {
-      thumbnailUrl = fileUrl // Use original until thumbnail generation is implemented
+    let thumbnailUrl: string | undefined;
+    if (file.type.startsWith("image/")) {
+      thumbnailUrl = fileUrl; // Use original until thumbnail generation is implemented
     }
 
     // Create attachment record
@@ -372,48 +399,48 @@ export async function POST(request: NextRequest) {
         duration,
         blurhash,
         isPublic: validatedMetadata.isPublic,
-        virusScanStatus: 'pending', // Will be scanned asynchronously
+        virusScanStatus: "pending", // Will be scanned asynchronously
         metadata: {
           originalName: file.name,
           uploadedBy: validatedMetadata.userId,
           uploadedAt: new Date().toISOString(),
           ...(videoNeedsTranscoding && {
             processing: true,
-            processingJob: 'transcode',
+            processingJob: "transcode",
             processingQueuedAt: new Date().toISOString(),
           }),
         },
       },
-    })
+    });
 
     if (errors) {
-      logger.error('Failed to create attachment record', { errors })
+      logger.error("Failed to create attachment record", { errors });
       // Clean up uploaded file
       await uploadService.deleteFile(storageKey).catch(() => {
         // Ignore cleanup errors
-      })
+      });
       return NextResponse.json(
-        { success: false, error: 'Failed to create attachment record' },
-        { status: 500 }
-      )
+        { success: false, error: "Failed to create attachment record" },
+        { status: 500 },
+      );
     }
 
-    const attachment = attachmentData.insert_nchat_attachments_one
+    const attachment = attachmentData.insert_nchat_attachments_one;
 
     // Queue virus scan (async, don't wait)
     // Virus scanning requires integration with ClamAV or cloud service (e.g., VirusTotal)
     // For production, implement async scanning via job queue
-    logger.debug('Would queue virus scan for attachment', {
+    logger.debug("Would queue virus scan for attachment", {
       attachmentId: attachment.id,
       storageKey,
-    })
+    });
 
-    logger.info('Attachment uploaded successfully', {
+    logger.info("Attachment uploaded successfully", {
       attachmentId: attachment.id,
       fileName: file.name,
       fileSize: file.size,
       fileType: file.type,
-    })
+    });
 
     return NextResponse.json(
       {
@@ -424,17 +451,22 @@ export async function POST(request: NextRequest) {
           processing: videoNeedsTranscoding,
         },
       },
-      { status: 201 }
-    )
+      { status: 201 },
+    );
   } catch (error) {
-    logger.error('POST /api/attachments/upload - Error', error as Error)
+    logger.error("POST /api/attachments/upload - Error", error as Error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to upload attachment',
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to upload attachment",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

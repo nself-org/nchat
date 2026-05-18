@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
 /**
  * MessageSummary component
  * Displays AI-powered summaries of messages, threads, and channel digests
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   Sparkles,
   Clock,
@@ -15,12 +15,18 @@ import {
   ChevronUp,
   Loader2,
   AlertCircle,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   getMessageSummarizer,
   isAISummarizationAvailable,
@@ -28,122 +34,131 @@ import {
   type ChannelDigest,
   type ThreadSummary,
   type SummaryOptions,
-} from '@/lib/ai/message-summarizer'
-import { cn } from '@/lib/utils'
+} from "@/lib/ai/message-summarizer";
+import { cn } from "@/lib/utils";
 
 export interface MessageSummaryProps {
-  messages: Message[]
-  type?: 'brief' | 'digest' | 'thread' | 'catchup'
-  className?: string
-  autoGenerate?: boolean
-  onSummaryGenerated?: (summary: string) => void
+  messages: Message[];
+  type?: "brief" | "digest" | "thread" | "catchup";
+  className?: string;
+  autoGenerate?: boolean;
+  onSummaryGenerated?: (summary: string) => void;
 }
 
 export function MessageSummary({
   messages,
-  type = 'brief',
+  type = "brief",
   className,
   autoGenerate = false,
   onSummaryGenerated,
 }: MessageSummaryProps) {
-  const [summary, setSummary] = useState<string | null>(null)
-  const [digest, setDigest] = useState<ChannelDigest | null>(null)
-  const [threadSummary, setThreadSummary] = useState<ThreadSummary | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [expanded, setExpanded] = useState(false)
-  const [isAIAvailable, setIsAIAvailable] = useState(false)
+  const [summary, setSummary] = useState<string | null>(null);
+  const [digest, setDigest] = useState<ChannelDigest | null>(null);
+  const [threadSummary, setThreadSummary] = useState<ThreadSummary | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [isAIAvailable, setIsAIAvailable] = useState(false);
 
   useEffect(() => {
-    setIsAIAvailable(isAISummarizationAvailable())
-  }, [])
+    setIsAIAvailable(isAISummarizationAvailable());
+  }, []);
 
   useEffect(() => {
     if (autoGenerate && messages.length > 0 && !summary && !loading) {
-      handleGenerate()
+      handleGenerate();
     }
-  }, [autoGenerate, messages]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [autoGenerate, messages]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGenerate = async () => {
     if (messages.length === 0) {
-      setError('No messages to summarize')
-      return
+      setError("No messages to summarize");
+      return;
     }
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const summarizer = getMessageSummarizer()
+      const summarizer = getMessageSummarizer();
 
       switch (type) {
-        case 'digest': {
-          const channelDigest = await summarizer.generateChannelDigest(messages)
-          setDigest(channelDigest)
+        case "digest": {
+          const channelDigest =
+            await summarizer.generateChannelDigest(messages);
+          setDigest(channelDigest);
           if (onSummaryGenerated) {
-            onSummaryGenerated(channelDigest.summary)
+            onSummaryGenerated(channelDigest.summary);
           }
-          break
+          break;
         }
 
-        case 'thread': {
-          const threadSum = await summarizer.summarizeThread(messages)
-          setThreadSummary(threadSum)
+        case "thread": {
+          const threadSum = await summarizer.summarizeThread(messages);
+          setThreadSummary(threadSum);
           if (onSummaryGenerated) {
-            onSummaryGenerated(threadSum.summary)
+            onSummaryGenerated(threadSum.summary);
           }
-          break
+          break;
         }
 
-        case 'catchup': {
-          const catchupSummary = await summarizer.generateCatchUpSummary(messages)
-          setSummary(catchupSummary)
+        case "catchup": {
+          const catchupSummary =
+            await summarizer.generateCatchUpSummary(messages);
+          setSummary(catchupSummary);
           if (onSummaryGenerated) {
-            onSummaryGenerated(catchupSummary)
+            onSummaryGenerated(catchupSummary);
           }
-          break
+          break;
         }
 
-        case 'brief':
+        case "brief":
         default: {
           const options: SummaryOptions = {
-            style: 'brief',
+            style: "brief",
             includeKeyPoints: false,
-          }
-          const briefSummary = await summarizer.summarizeMessages(messages, options)
-          setSummary(briefSummary)
+          };
+          const briefSummary = await summarizer.summarizeMessages(
+            messages,
+            options,
+          );
+          setSummary(briefSummary);
           if (onSummaryGenerated) {
-            onSummaryGenerated(briefSummary)
+            onSummaryGenerated(briefSummary);
           }
-          break
+          break;
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate summary')
+      setError(
+        err instanceof Error ? err.message : "Failed to generate summary",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleClear = () => {
-    setSummary(null)
-    setDigest(null)
-    setThreadSummary(null)
-    setError(null)
-  }
+    setSummary(null);
+    setDigest(null);
+    setThreadSummary(null);
+    setError(null);
+  };
 
   const renderBriefSummary = () => {
-    if (!summary) return null
+    if (!summary) return null;
 
     return (
       <div className="space-y-2">
         <p className="text-sm text-muted-foreground">{summary}</p>
       </div>
-    )
-  }
+    );
+  };
 
   const renderDigest = () => {
-    if (!digest) return null
+    if (!digest) return null;
 
     return (
       <div className="space-y-4">
@@ -171,7 +186,10 @@ export function MessageSummary({
             <h4 className="text-sm font-medium">Key Points</h4>
             <ul className="space-y-1">
               {digest.keyPoints.map((point, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <li
+                  key={index}
+                  className="flex items-start gap-2 text-sm text-muted-foreground"
+                >
                   <span className="mt-1 text-primary">•</span>
                   <span>{point}</span>
                 </li>
@@ -193,16 +211,18 @@ export function MessageSummary({
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   const renderThreadSummary = () => {
-    if (!threadSummary) return null
+    if (!threadSummary) return null;
 
     return (
       <div className="space-y-4">
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">{threadSummary.summary}</p>
+          <p className="text-sm text-muted-foreground">
+            {threadSummary.summary}
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -216,22 +236,26 @@ export function MessageSummary({
           </Badge>
         </div>
 
-        {threadSummary.keyDecisions && threadSummary.keyDecisions.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Key Decisions</h4>
-            <ul className="space-y-1">
-              {threadSummary.keyDecisions.map((decision, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <span className="mt-1 text-primary">•</span>
-                  <span>{decision}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {threadSummary.keyDecisions &&
+          threadSummary.keyDecisions.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Key Decisions</h4>
+              <ul className="space-y-1">
+                {threadSummary.keyDecisions.map((decision, index) => (
+                  <li
+                    key={index}
+                    className="flex items-start gap-2 text-sm text-muted-foreground"
+                  >
+                    <span className="mt-1 text-primary">•</span>
+                    <span>{decision}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
       </div>
-    )
-  }
+    );
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -241,7 +265,7 @@ export function MessageSummary({
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-5/6" />
         </div>
-      )
+      );
     }
 
     if (error) {
@@ -250,36 +274,36 @@ export function MessageSummary({
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      )
+      );
     }
 
     if (!summary && !digest && !threadSummary) {
-      return null
+      return null;
     }
 
     return (
-      <div className={cn('space-y-4', !expanded && 'max-h-32 overflow-hidden')}>
-        {type === 'digest' && renderDigest()}
-        {type === 'thread' && renderThreadSummary()}
-        {(type === 'brief' || type === 'catchup') && renderBriefSummary()}
+      <div className={cn("space-y-4", !expanded && "max-h-32 overflow-hidden")}>
+        {type === "digest" && renderDigest()}
+        {type === "thread" && renderThreadSummary()}
+        {(type === "brief" || type === "catchup") && renderBriefSummary()}
       </div>
-    )
-  }
+    );
+  };
 
-  const hasSummary = summary || digest || threadSummary
-  const canExpand = type === 'digest' || type === 'thread'
+  const hasSummary = summary || digest || threadSummary;
+  const canExpand = type === "digest" || type === "thread";
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn("", className)}>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2 text-base">
               <Sparkles className="h-4 w-4 text-primary" />
-              {type === 'digest' && 'Channel Digest'}
-              {type === 'thread' && 'Thread Summary'}
-              {type === 'catchup' && 'Catch Up'}
-              {type === 'brief' && 'Summary'}
+              {type === "digest" && "Channel Digest"}
+              {type === "thread" && "Thread Summary"}
+              {type === "catchup" && "Catch Up"}
+              {type === "brief" && "Summary"}
               {!isAIAvailable && (
                 <Badge variant="outline" className="text-xs">
                   Basic
@@ -287,10 +311,10 @@ export function MessageSummary({
               )}
             </CardTitle>
             <CardDescription>
-              {type === 'digest' && 'AI-powered overview of channel activity'}
-              {type === 'thread' && 'AI-powered thread summary'}
-              {type === 'catchup' && 'Summary of messages you missed'}
-              {type === 'brief' && 'Quick summary of the conversation'}
+              {type === "digest" && "AI-powered overview of channel activity"}
+              {type === "thread" && "AI-powered thread summary"}
+              {type === "catchup" && "Summary of messages you missed"}
+              {type === "brief" && "Quick summary of the conversation"}
             </CardDescription>
           </div>
 
@@ -351,24 +375,24 @@ export function MessageSummary({
         </CardContent>
       )}
     </Card>
-  )
+  );
 }
 
 /**
  * Format time range for display
  */
 function formatTimeRange(start: Date, end: Date): string {
-  const duration = Math.floor((end.getTime() - start.getTime()) / 1000 / 60) // minutes
+  const duration = Math.floor((end.getTime() - start.getTime()) / 1000 / 60); // minutes
 
   if (duration < 60) {
-    return `${duration} min${duration > 1 ? 's' : ''}`
+    return `${duration} min${duration > 1 ? "s" : ""}`;
   }
 
-  const hours = Math.floor(duration / 60)
+  const hours = Math.floor(duration / 60);
   if (hours < 24) {
-    return `${hours} hour${hours > 1 ? 's' : ''}`
+    return `${hours} hour${hours > 1 ? "s" : ""}`;
   }
 
-  const days = Math.floor(hours / 24)
-  return `${days} day${days > 1 ? 's' : ''}`
+  const days = Math.floor(hours / 24);
+  return `${days} day${days > 1 ? "s" : ""}`;
 }

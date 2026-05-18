@@ -1,12 +1,25 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Download, ExternalLink, Play, Pause, Volume2, VolumeX, Maximize2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { FileIcon } from './file-icon'
-import { formatFileSize, getFileCategory } from '@/lib/storage/upload'
+import * as React from "react";
+import {
+  Download,
+  ExternalLink,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { FileIcon } from "./file-icon";
+import { formatFileSize, getFileCategory } from "@/lib/storage/upload";
 
 // ============================================================================
 // TYPES
@@ -14,44 +27,44 @@ import { formatFileSize, getFileCategory } from '@/lib/storage/upload'
 
 export interface FileAttachmentData {
   /** File ID */
-  id: string
+  id: string;
   /** File name */
-  name: string
+  name: string;
   /** File size in bytes */
-  size: number
+  size: number;
   /** MIME type */
-  mimeType: string
+  mimeType: string;
   /** URL to access the file */
-  url: string
+  url: string;
   /** Thumbnail URL (for images) */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** Width (for images/videos) */
-  width?: number
+  width?: number;
   /** Height (for images/videos) */
-  height?: number
+  height?: number;
   /** Duration in seconds (for audio/video) */
-  duration?: number
+  duration?: number;
 }
 
 export interface FileAttachmentProps {
   /** File data */
-  file: FileAttachmentData
+  file: FileAttachmentData;
   /** Maximum width for images */
-  maxImageWidth?: number
+  maxImageWidth?: number;
   /** Maximum height for images */
-  maxImageHeight?: number
+  maxImageHeight?: number;
   /** Show file name */
-  showFileName?: boolean
+  showFileName?: boolean;
   /** Show file size */
-  showFileSize?: boolean
+  showFileSize?: boolean;
   /** Show download button */
-  showDownload?: boolean
+  showDownload?: boolean;
   /** Compact mode (inline style) */
-  compact?: boolean
+  compact?: boolean;
   /** Click to open lightbox (for images) */
-  onImageClick?: () => void
+  onImageClick?: () => void;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -86,11 +99,11 @@ export function FileAttachment({
   onImageClick,
   className,
 }: FileAttachmentProps) {
-  const category = getFileCategory(file.mimeType)
+  const category = getFileCategory(file.mimeType);
 
   // Render based on file type
   switch (category) {
-    case 'image':
+    case "image":
       return (
         <ImageAttachment
           file={file}
@@ -103,9 +116,9 @@ export function FileAttachment({
           onClick={onImageClick}
           className={className}
         />
-      )
+      );
 
-    case 'video':
+    case "video":
       return (
         <VideoAttachment
           file={file}
@@ -117,9 +130,9 @@ export function FileAttachment({
           compact={compact}
           className={className}
         />
-      )
+      );
 
-    case 'audio':
+    case "audio":
       return (
         <AudioAttachment
           file={file}
@@ -129,7 +142,7 @@ export function FileAttachment({
           compact={compact}
           className={className}
         />
-      )
+      );
 
     default:
       return (
@@ -141,7 +154,7 @@ export function FileAttachment({
           compact={compact}
           className={className}
         />
-      )
+      );
   }
 }
 
@@ -150,15 +163,15 @@ export function FileAttachment({
 // ============================================================================
 
 interface ImageAttachmentProps {
-  file: FileAttachmentData
-  maxWidth?: number
-  maxHeight?: number
-  showFileName?: boolean
-  showFileSize?: boolean
-  showDownload?: boolean
-  compact?: boolean
-  onClick?: () => void
-  className?: string
+  file: FileAttachmentData;
+  maxWidth?: number;
+  maxHeight?: number;
+  showFileName?: boolean;
+  showFileSize?: boolean;
+  showDownload?: boolean;
+  compact?: boolean;
+  onClick?: () => void;
+  className?: string;
 }
 
 function ImageAttachment({
@@ -172,25 +185,25 @@ function ImageAttachment({
   onClick,
   className,
 }: ImageAttachmentProps) {
-  const [loaded, setLoaded] = React.useState(false)
-  const [error, setError] = React.useState(false)
+  const [loaded, setLoaded] = React.useState(false);
+  const [error, setError] = React.useState(false);
 
   // Calculate display size while maintaining aspect ratio
   const displayStyle = React.useMemo(() => {
     if (file.width && file.height) {
-      const aspectRatio = file.width / file.height
-      let width = Math.min(file.width, maxWidth)
-      let height = width / aspectRatio
+      const aspectRatio = file.width / file.height;
+      let width = Math.min(file.width, maxWidth);
+      let height = width / aspectRatio;
 
       if (height > maxHeight) {
-        height = maxHeight
-        width = height * aspectRatio
+        height = maxHeight;
+        width = height * aspectRatio;
       }
 
-      return { width, height }
+      return { width, height };
     }
-    return { maxWidth, maxHeight }
-  }, [file.width, file.height, maxWidth, maxHeight])
+    return { maxWidth, maxHeight };
+  }, [file.width, file.height, maxWidth, maxHeight]);
 
   if (error) {
     return (
@@ -202,15 +215,15 @@ function ImageAttachment({
         compact={compact}
         className={className}
       />
-    )
+    );
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      onClick?.()
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick?.();
     }
-  }
+  };
 
   const imageContent = (
     <>
@@ -221,8 +234,8 @@ function ImageAttachment({
         src={file.thumbnailUrl || file.url}
         alt={file.name}
         className={cn(
-          'h-full w-full object-cover transition-opacity',
-          loaded ? 'opacity-100' : 'opacity-0'
+          "h-full w-full object-cover transition-opacity",
+          loaded ? "opacity-100" : "opacity-0",
         )}
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
@@ -235,27 +248,35 @@ function ImageAttachment({
         </div>
       )}
     </>
-  )
+  );
 
-  const fileInfo = (showFileName || showFileSize || showDownload) && !compact && (
-    <div className="mt-1 flex items-center justify-between gap-2">
-      <div className="min-w-0 flex-1">
-        {showFileName && (
-          <p className="truncate text-xs text-muted-foreground" title={file.name}>
-            {file.name}
-          </p>
-        )}
-        {showFileSize && (
-          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+  const fileInfo = (showFileName || showFileSize || showDownload) &&
+    !compact && (
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          {showFileName && (
+            <p
+              className="truncate text-xs text-muted-foreground"
+              title={file.name}
+            >
+              {file.name}
+            </p>
+          )}
+          {showFileSize && (
+            <p className="text-xs text-muted-foreground">
+              {formatFileSize(file.size)}
+            </p>
+          )}
+        </div>
+        {showDownload && (
+          <DownloadButton url={file.url} name={file.name} size="sm" />
         )}
       </div>
-      {showDownload && <DownloadButton url={file.url} name={file.name} size="sm" />}
-    </div>
-  )
+    );
 
   if (onClick) {
     return (
-      <div className={cn('group relative inline-block', className)}>
+      <div className={cn("group relative inline-block", className)}>
         <div
           className="relative cursor-pointer overflow-hidden rounded-lg bg-muted"
           style={displayStyle}
@@ -268,17 +289,20 @@ function ImageAttachment({
         </div>
         {fileInfo}
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('group relative inline-block', className)}>
-      <div className="relative overflow-hidden rounded-lg bg-muted" style={displayStyle}>
+    <div className={cn("group relative inline-block", className)}>
+      <div
+        className="relative overflow-hidden rounded-lg bg-muted"
+        style={displayStyle}
+      >
         {imageContent}
       </div>
       {fileInfo}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -286,14 +310,14 @@ function ImageAttachment({
 // ============================================================================
 
 interface VideoAttachmentProps {
-  file: FileAttachmentData
-  maxWidth?: number
-  maxHeight?: number
-  showFileName?: boolean
-  showFileSize?: boolean
-  showDownload?: boolean
-  compact?: boolean
-  className?: string
+  file: FileAttachmentData;
+  maxWidth?: number;
+  maxHeight?: number;
+  showFileName?: boolean;
+  showFileSize?: boolean;
+  showDownload?: boolean;
+  compact?: boolean;
+  className?: string;
 }
 
 function VideoAttachment({
@@ -306,31 +330,34 @@ function VideoAttachment({
   compact,
   className,
 }: VideoAttachmentProps) {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const [isPlaying, setIsPlaying] = React.useState(false)
-  const [isMuted, setIsMuted] = React.useState(true)
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [isMuted, setIsMuted] = React.useState(true);
 
   const togglePlay = () => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
     if (isPlaying) {
-      videoRef.current.pause()
+      videoRef.current.pause();
     } else {
-      videoRef.current.play()
+      videoRef.current.play();
     }
-    setIsPlaying(!isPlaying)
-  }
+    setIsPlaying(!isPlaying);
+  };
 
   const toggleMute = () => {
-    if (!videoRef.current) return
-    videoRef.current.muted = !isMuted
-    setIsMuted(!isMuted)
-  }
+    if (!videoRef.current) return;
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
 
   return (
-    <div className={cn('group relative inline-block', className)}>
+    <div className={cn("group relative inline-block", className)}>
       {/* Video player */}
-      <div className="relative overflow-hidden rounded-lg bg-black" style={{ maxWidth, maxHeight }}>
+      <div
+        className="relative overflow-hidden rounded-lg bg-black"
+        style={{ maxWidth, maxHeight }}
+      >
         <video
           ref={videoRef}
           src={file.url}
@@ -350,7 +377,11 @@ function VideoAttachment({
             onClick={togglePlay}
             className="rounded-full bg-white/90 p-3 opacity-0 transition-opacity hover:bg-white group-hover:opacity-100"
           >
-            {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 pl-0.5" />}
+            {isPlaying ? (
+              <Pause className="h-6 w-6" />
+            ) : (
+              <Play className="h-6 w-6 pl-0.5" />
+            )}
           </button>
         </div>
 
@@ -360,7 +391,11 @@ function VideoAttachment({
             onClick={toggleMute}
             className="rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
           >
-            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            {isMuted ? (
+              <VolumeX className="h-4 w-4" />
+            ) : (
+              <Volume2 className="h-4 w-4" />
+            )}
           </button>
         </div>
 
@@ -377,19 +412,26 @@ function VideoAttachment({
         <div className="mt-1 flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
             {showFileName && (
-              <p className="truncate text-xs text-muted-foreground" title={file.name}>
+              <p
+                className="truncate text-xs text-muted-foreground"
+                title={file.name}
+              >
                 {file.name}
               </p>
             )}
             {showFileSize && (
-              <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatFileSize(file.size)}
+              </p>
             )}
           </div>
-          {showDownload && <DownloadButton url={file.url} name={file.name} size="sm" />}
+          {showDownload && (
+            <DownloadButton url={file.url} name={file.name} size="sm" />
+          )}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -397,12 +439,12 @@ function VideoAttachment({
 // ============================================================================
 
 interface AudioAttachmentProps {
-  file: FileAttachmentData
-  showFileName?: boolean
-  showFileSize?: boolean
-  showDownload?: boolean
-  compact?: boolean
-  className?: string
+  file: FileAttachmentData;
+  showFileName?: boolean;
+  showFileSize?: boolean;
+  showDownload?: boolean;
+  compact?: boolean;
+  className?: string;
 }
 
 function AudioAttachment({
@@ -413,41 +455,41 @@ function AudioAttachment({
   compact,
   className,
 }: AudioAttachmentProps) {
-  const audioRef = React.useRef<HTMLAudioElement>(null)
-  const [isPlaying, setIsPlaying] = React.useState(false)
-  const [currentTime, setCurrentTime] = React.useState(0)
-  const [duration, setDuration] = React.useState(file.duration || 0)
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [currentTime, setCurrentTime] = React.useState(0);
+  const [duration, setDuration] = React.useState(file.duration || 0);
 
   const togglePlay = () => {
-    if (!audioRef.current) return
+    if (!audioRef.current) return;
 
     if (isPlaying) {
-      audioRef.current.pause()
+      audioRef.current.pause();
     } else {
-      audioRef.current.play()
+      audioRef.current.play();
     }
-  }
+  };
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime)
+      setCurrentTime(audioRef.current.currentTime);
     }
-  }
+  };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
-      audioRef.current.currentTime = Number(e.target.value)
+      audioRef.current.currentTime = Number(e.target.value);
     }
-  }
+  };
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-lg border bg-card p-3',
-        compact && 'p-2',
-        className
+        "flex items-center gap-3 rounded-lg border bg-card p-3",
+        compact && "p-2",
+        className,
       )}
     >
       <audio
@@ -457,7 +499,9 @@ function AudioAttachment({
         onPause={() => setIsPlaying(false)}
         onEnded={() => setIsPlaying(false)}
         onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={(e) => setDuration((e.target as HTMLAudioElement).duration)}
+        onLoadedMetadata={(e) =>
+          setDuration((e.target as HTMLAudioElement).duration)
+        }
       >
         <track kind="captions" />
       </audio>
@@ -467,7 +511,11 @@ function AudioAttachment({
         onClick={togglePlay}
         className="text-primary-foreground hover:bg-primary/90 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary"
       >
-        {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 pl-0.5" />}
+        {isPlaying ? (
+          <Pause className="h-5 w-5" />
+        ) : (
+          <Play className="h-5 w-5 pl-0.5" />
+        )}
       </button>
 
       {/* Progress and info */}
@@ -475,7 +523,10 @@ function AudioAttachment({
         {/* Progress bar */}
         <div className="relative">
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+            <div
+              className="h-full bg-primary transition-all"
+              style={{ width: `${progress}%` }}
+            />
           </div>
           <input
             type="range"
@@ -504,9 +555,11 @@ function AudioAttachment({
       </div>
 
       {/* Download button */}
-      {showDownload && <DownloadButton url={file.url} name={file.name} size="sm" />}
+      {showDownload && (
+        <DownloadButton url={file.url} name={file.name} size="sm" />
+      )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -514,12 +567,12 @@ function AudioAttachment({
 // ============================================================================
 
 interface GenericAttachmentProps {
-  file: FileAttachmentData
-  showFileName?: boolean
-  showFileSize?: boolean
-  showDownload?: boolean
-  compact?: boolean
-  className?: string
+  file: FileAttachmentData;
+  showFileName?: boolean;
+  showFileSize?: boolean;
+  showDownload?: boolean;
+  compact?: boolean;
+  className?: string;
 }
 
 function GenericAttachment({
@@ -533,33 +586,42 @@ function GenericAttachment({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-lg border bg-card',
-        compact ? 'p-2' : 'p-3',
-        className
+        "flex items-center gap-3 rounded-lg border bg-card",
+        compact ? "p-2" : "p-3",
+        className,
       )}
     >
       {/* File icon */}
-      <FileIcon file={file.name} size={compact ? 'md' : 'lg'} showBackground />
+      <FileIcon file={file.name} size={compact ? "md" : "lg"} showBackground />
 
       {/* File info */}
       <div className="min-w-0 flex-1">
         {showFileName && (
           <p
-            className={cn('truncate font-medium', compact ? 'text-sm' : 'text-base')}
+            className={cn(
+              "truncate font-medium",
+              compact ? "text-sm" : "text-base",
+            )}
             title={file.name}
           >
             {file.name}
           </p>
         )}
         {showFileSize && (
-          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+          <p className="text-xs text-muted-foreground">
+            {formatFileSize(file.size)}
+          </p>
         )}
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-1">
         {showDownload && (
-          <DownloadButton url={file.url} name={file.name} size={compact ? 'sm' : 'default'} />
+          <DownloadButton
+            url={file.url}
+            name={file.name}
+            size={compact ? "sm" : "default"}
+          />
         )}
         <TooltipProvider>
           <Tooltip>
@@ -567,7 +629,7 @@ function GenericAttachment({
               <Button
                 variant="ghost"
                 size="icon"
-                className={compact ? 'h-8 w-8' : 'h-9 w-9'}
+                className={compact ? "h-8 w-8" : "h-9 w-9"}
                 asChild
               >
                 <a href={file.url} target="_blank" rel="noopener noreferrer">
@@ -583,7 +645,7 @@ function GenericAttachment({
         </TooltipProvider>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -591,21 +653,21 @@ function GenericAttachment({
 // ============================================================================
 
 interface DownloadButtonProps {
-  url: string
-  name: string
-  size?: 'sm' | 'default'
+  url: string;
+  name: string;
+  size?: "sm" | "default";
 }
 
-function DownloadButton({ url, name, size = 'default' }: DownloadButtonProps) {
+function DownloadButton({ url, name, size = "default" }: DownloadButtonProps) {
   const handleDownload = () => {
-    const link = document.createElement('a')
-    link.href = url
-    link.download = name
-    link.target = '_blank'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <TooltipProvider>
@@ -614,7 +676,7 @@ function DownloadButton({ url, name, size = 'default' }: DownloadButtonProps) {
           <Button
             variant="ghost"
             size="icon"
-            className={size === 'sm' ? 'h-8 w-8' : 'h-9 w-9'}
+            className={size === "sm" ? "h-8 w-8" : "h-9 w-9"}
             onClick={handleDownload}
           >
             <Download className="h-4 w-4" />
@@ -626,14 +688,14 @@ function DownloadButton({ url, name, size = 'default' }: DownloadButtonProps) {
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
 /**
  * Format duration in seconds to mm:ss
  */
 function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins}:${secs.toString().padStart(2, '0')}`
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }

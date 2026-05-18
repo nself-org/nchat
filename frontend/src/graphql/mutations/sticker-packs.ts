@@ -2,7 +2,7 @@
  * GraphQL mutations for sticker packs and stickers
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const CREATE_STICKER_PACK = gql`
   mutation CreateStickerPack(
@@ -33,7 +33,7 @@ export const CREATE_STICKER_PACK = gql`
       updated_at
     }
   }
-`
+`;
 
 export const UPDATE_STICKER_PACK = gql`
   mutation UpdateStickerPack(
@@ -65,7 +65,7 @@ export const UPDATE_STICKER_PACK = gql`
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_STICKER_PACK = gql`
   mutation DeleteStickerPack($id: uuid!) {
@@ -74,7 +74,7 @@ export const DELETE_STICKER_PACK = gql`
       name
     }
   }
-`
+`;
 
 export const ADD_STICKER_TO_PACK = gql`
   mutation AddStickerToPack(
@@ -109,7 +109,7 @@ export const ADD_STICKER_TO_PACK = gql`
       updated_at
     }
   }
-`
+`;
 
 export const UPDATE_STICKER = gql`
   mutation UpdateSticker(
@@ -121,7 +121,12 @@ export const UPDATE_STICKER = gql`
   ) {
     update_nchat_stickers_by_pk(
       pk_columns: { id: $id }
-      _set: { name: $name, slug: $slug, keywords: $keywords, sort_order: $sort_order }
+      _set: {
+        name: $name
+        slug: $slug
+        keywords: $keywords
+        sort_order: $sort_order
+      }
     ) {
       id
       name
@@ -131,7 +136,7 @@ export const UPDATE_STICKER = gql`
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_STICKER = gql`
   mutation DeleteSticker($id: uuid!) {
@@ -140,7 +145,7 @@ export const DELETE_STICKER = gql`
       name
     }
   }
-`
+`;
 
 export const SEND_GIF_MESSAGE = gql`
   mutation SendGifMessage(
@@ -176,10 +181,14 @@ export const SEND_GIF_MESSAGE = gql`
       }
     }
   }
-`
+`;
 
 export const SEND_STICKER_MESSAGE = gql`
-  mutation SendStickerMessage($channel_id: uuid!, $user_id: uuid!, $sticker_id: uuid!) {
+  mutation SendStickerMessage(
+    $channel_id: uuid!
+    $user_id: uuid!
+    $sticker_id: uuid!
+  ) {
     insert_nchat_messages_one(
       object: {
         channel_id: $channel_id
@@ -212,4 +221,4 @@ export const SEND_STICKER_MESSAGE = gql`
       }
     }
   }
-`
+`;

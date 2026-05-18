@@ -4,9 +4,9 @@
  * Hook for managing starred messages with color/priority support.
  */
 
-import { useCallback, useMemo } from 'react'
-import { useStarStore } from '@/stores/star-store'
-import { useAuth } from '@/contexts/auth-context'
+import { useCallback, useMemo } from "react";
+import { useStarStore } from "@/stores/star-store";
+import { useAuth } from "@/contexts/auth-context";
 import type {
   StarredMessage,
   StarMessageInput,
@@ -17,110 +17,120 @@ import type {
   StarColor,
   StarPriority,
   StarStats,
-} from '@/lib/stars'
-import { starManager, STAR_COLORS, PRIORITY_ORDER } from '@/lib/stars'
+} from "@/lib/stars";
+import { starManager, STAR_COLORS, PRIORITY_ORDER } from "@/lib/stars";
 
 interface UseStarredMessagesOptions {
-  channelId?: string
+  channelId?: string;
 }
 
 interface UseStarredMessagesReturn {
   // Data
-  starredMessages: StarredMessage[]
-  filteredStarredMessages: StarredMessage[]
-  quickAccessStars: StarredMessage[]
-  highPriorityStars: StarredMessage[]
-  starredCount: number
-  stats: StarStats
+  starredMessages: StarredMessage[];
+  filteredStarredMessages: StarredMessage[];
+  quickAccessStars: StarredMessage[];
+  highPriorityStars: StarredMessage[];
+  starredCount: number;
+  stats: StarStats;
 
   // Loading/Error
-  isLoading: boolean
-  isStarring: boolean
-  isUnstarring: boolean
-  error: string | null
+  isLoading: boolean;
+  isStarring: boolean;
+  isUnstarring: boolean;
+  error: string | null;
 
   // Actions
-  starMessage: (input: StarMessageInput) => Promise<{ success: boolean; error?: string }>
-  unstarMessage: (messageId: string) => Promise<{ success: boolean; error?: string }>
-  updateStar: (input: UpdateStarInput) => void
-  toggleStar: (messageId: string, channelId: string) => Promise<{ success: boolean; error?: string }>
-  changeColor: (starId: string, color: StarColor) => void
-  toggleQuickAccess: (starId: string) => void
-  setCategory: (starId: string, category: string | undefined) => void
+  starMessage: (
+    input: StarMessageInput,
+  ) => Promise<{ success: boolean; error?: string }>;
+  unstarMessage: (
+    messageId: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  updateStar: (input: UpdateStarInput) => void;
+  toggleStar: (
+    messageId: string,
+    channelId: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  changeColor: (starId: string, color: StarColor) => void;
+  toggleQuickAccess: (starId: string) => void;
+  setCategory: (starId: string, category: string | undefined) => void;
 
   // Panel
-  isPanelOpen: boolean
-  openPanel: () => void
-  closePanel: () => void
-  togglePanel: () => void
+  isPanelOpen: boolean;
+  openPanel: () => void;
+  closePanel: () => void;
+  togglePanel: () => void;
 
   // Filtering & Sorting
-  setFilters: (filters: Partial<StarFilters>) => void
-  clearFilters: () => void
-  setSortBy: (sortBy: StarSortBy) => void
-  setSortOrder: (sortOrder: StarSortOrder) => void
-  setSearchQuery: (query: string) => void
-  setColorFilter: (color: StarColor | null) => void
+  setFilters: (filters: Partial<StarFilters>) => void;
+  clearFilters: () => void;
+  setSortBy: (sortBy: StarSortBy) => void;
+  setSortOrder: (sortOrder: StarSortOrder) => void;
+  setSearchQuery: (query: string) => void;
+  setColorFilter: (color: StarColor | null) => void;
 
   // Query
-  isMessageStarred: (messageId: string) => boolean
-  getStarForMessage: (messageId: string) => StarredMessage | undefined
-  getAllCategories: () => string[]
+  isMessageStarred: (messageId: string) => boolean;
+  getStarForMessage: (messageId: string) => StarredMessage | undefined;
+  getAllCategories: () => string[];
 }
 
 /**
  * Hook for managing starred messages.
  */
 export function useStarredMessages(
-  options: UseStarredMessagesOptions = {}
+  options: UseStarredMessagesOptions = {},
 ): UseStarredMessagesReturn {
-  const { channelId } = options
-  const { user } = useAuth()
-  const store = useStarStore()
+  const { channelId } = options;
+  const { user } = useAuth();
+  const store = useStarStore();
 
   // Get starred messages
   const starredMessages = useMemo(() => {
-    const all = Array.from(store.starredMessages.values())
+    const all = Array.from(store.starredMessages.values());
     if (channelId) {
-      return all.filter((s) => s.channelId === channelId)
+      return all.filter((s) => s.channelId === channelId);
     }
-    return all
-  }, [store.starredMessages, channelId])
+    return all;
+  }, [store.starredMessages, channelId]);
 
   const filteredStarredMessages = useMemo(() => {
-    return store.getFilteredStarredMessages()
-  }, [store])
+    return store.getFilteredStarredMessages();
+  }, [store]);
 
   const quickAccessStars = useMemo(() => {
-    return store.getQuickAccessStars(5)
-  }, [store])
+    return store.getQuickAccessStars(5);
+  }, [store]);
 
   const highPriorityStars = useMemo(() => {
-    return store.getHighPriorityStars()
-  }, [store])
+    return store.getHighPriorityStars();
+  }, [store]);
 
   const stats = useMemo(() => {
-    return store.getStarStats()
-  }, [store])
+    return store.getStarStats();
+  }, [store]);
 
   // Star message
   const starMessage = useCallback(
-    async (input: StarMessageInput): Promise<{ success: boolean; error?: string }> => {
-      const validation = starManager.validateStarInput(input)
+    async (
+      input: StarMessageInput,
+    ): Promise<{ success: boolean; error?: string }> => {
+      const validation = starManager.validateStarInput(input);
       if (!validation.isValid) {
-        return { success: false, error: validation.errors[0] }
+        return { success: false, error: validation.errors[0] };
       }
 
-      store.setStarring(true)
-      store.setError(null)
+      store.setStarring(true);
+      store.setError(null);
 
       try {
-        const color = input.color ?? 'yellow'
-        const priority = input.priority ?? starManager.getPriorityForColor(color)
+        const color = input.color ?? "yellow";
+        const priority =
+          input.priority ?? starManager.getPriorityForColor(color);
 
         const starredMessage: StarredMessage = {
           id: `star-${Date.now()}`,
-          userId: user?.id ?? '',
+          userId: user?.id ?? "",
           messageId: input.messageId,
           channelId: input.channelId,
           starredAt: new Date(),
@@ -130,164 +140,168 @@ export function useStarredMessages(
           note: input.note,
           quickAccess: input.quickAccess ?? false,
           category: input.category,
-        }
+        };
 
-        store.addStarredMessage(starredMessage)
-        store.setStarring(false)
+        store.addStarredMessage(starredMessage);
+        store.setStarring(false);
 
-        return { success: true }
+        return { success: true };
       } catch (err) {
-        const error = err instanceof Error ? err.message : 'Failed to star message'
-        store.setError(error)
-        store.setStarring(false)
-        return { success: false, error }
+        const error =
+          err instanceof Error ? err.message : "Failed to star message";
+        store.setError(error);
+        store.setStarring(false);
+        return { success: false, error };
       }
     },
-    [store, user?.id]
-  )
+    [store, user?.id],
+  );
 
   // Unstar message
   const unstarMessage = useCallback(
-    async (messageId: string): Promise<{ success: boolean; error?: string }> => {
-      store.setUnstarring(true)
-      store.setError(null)
+    async (
+      messageId: string,
+    ): Promise<{ success: boolean; error?: string }> => {
+      store.setUnstarring(true);
+      store.setError(null);
 
       try {
-        store.removeStarByMessageId(messageId)
-        store.setUnstarring(false)
-        return { success: true }
+        store.removeStarByMessageId(messageId);
+        store.setUnstarring(false);
+        return { success: true };
       } catch (err) {
-        const error = err instanceof Error ? err.message : 'Failed to unstar message'
-        store.setError(error)
-        store.setUnstarring(false)
-        return { success: false, error }
+        const error =
+          err instanceof Error ? err.message : "Failed to unstar message";
+        store.setError(error);
+        store.setUnstarring(false);
+        return { success: false, error };
       }
     },
-    [store]
-  )
+    [store],
+  );
 
   // Toggle star
   const toggleStar = useCallback(
     async (
       messageId: string,
-      msgChannelId: string
+      msgChannelId: string,
     ): Promise<{ success: boolean; error?: string }> => {
       if (store.isMessageStarred(messageId)) {
-        return unstarMessage(messageId)
+        return unstarMessage(messageId);
       } else {
-        return starMessage({ messageId, channelId: msgChannelId })
+        return starMessage({ messageId, channelId: msgChannelId });
       }
     },
-    [store, starMessage, unstarMessage]
-  )
+    [store, starMessage, unstarMessage],
+  );
 
   // Update star
   const updateStar = useCallback(
     (input: UpdateStarInput) => {
-      const { starId, ...updates } = input
-      store.updateStarredMessage(starId, updates)
+      const { starId, ...updates } = input;
+      store.updateStarredMessage(starId, updates);
     },
-    [store]
-  )
+    [store],
+  );
 
   // Change color
   const changeColor = useCallback(
     (starId: string, color: StarColor) => {
-      store.changeStarColor(starId, color)
+      store.changeStarColor(starId, color);
       // Also update priority based on color
-      const priority = starManager.getPriorityForColor(color)
-      store.updateStarredMessage(starId, { priority })
+      const priority = starManager.getPriorityForColor(color);
+      store.updateStarredMessage(starId, { priority });
     },
-    [store]
-  )
+    [store],
+  );
 
   // Toggle quick access
   const toggleQuickAccess = useCallback(
     (starId: string) => {
-      store.toggleQuickAccess(starId)
+      store.toggleQuickAccess(starId);
     },
-    [store]
-  )
+    [store],
+  );
 
   // Set category
   const setCategory = useCallback(
     (starId: string, category: string | undefined) => {
-      store.setStarCategory(starId, category)
+      store.setStarCategory(starId, category);
     },
-    [store]
-  )
+    [store],
+  );
 
   // Panel actions
   const openPanel = useCallback(() => {
-    store.openPanel()
-  }, [store])
+    store.openPanel();
+  }, [store]);
 
   const closePanel = useCallback(() => {
-    store.closePanel()
-  }, [store])
+    store.closePanel();
+  }, [store]);
 
   const togglePanel = useCallback(() => {
-    store.togglePanel()
-  }, [store])
+    store.togglePanel();
+  }, [store]);
 
   // Filter actions
   const setFilters = useCallback(
     (filters: Partial<StarFilters>) => {
-      store.setFilters(filters)
+      store.setFilters(filters);
     },
-    [store]
-  )
+    [store],
+  );
 
   const clearFilters = useCallback(() => {
-    store.clearFilters()
-  }, [store])
+    store.clearFilters();
+  }, [store]);
 
   const setSortBy = useCallback(
     (sortBy: StarSortBy) => {
-      store.setSortBy(sortBy)
+      store.setSortBy(sortBy);
     },
-    [store]
-  )
+    [store],
+  );
 
   const setSortOrder = useCallback(
     (sortOrder: StarSortOrder) => {
-      store.setSortOrder(sortOrder)
+      store.setSortOrder(sortOrder);
     },
-    [store]
-  )
+    [store],
+  );
 
   const setSearchQuery = useCallback(
     (query: string) => {
-      store.setSearchQuery(query)
+      store.setSearchQuery(query);
     },
-    [store]
-  )
+    [store],
+  );
 
   const setColorFilter = useCallback(
     (color: StarColor | null) => {
-      store.setSelectedColorFilter(color)
+      store.setSelectedColorFilter(color);
     },
-    [store]
-  )
+    [store],
+  );
 
   // Query functions
   const isMessageStarred = useCallback(
     (messageId: string) => {
-      return store.isMessageStarred(messageId)
+      return store.isMessageStarred(messageId);
     },
-    [store]
-  )
+    [store],
+  );
 
   const getStarForMessage = useCallback(
     (messageId: string) => {
-      return store.getStarByMessageId(messageId)
+      return store.getStarByMessageId(messageId);
     },
-    [store]
-  )
+    [store],
+  );
 
   const getAllCategories = useCallback(() => {
-    return store.getAllCategories()
-  }, [store])
+    return store.getAllCategories();
+  }, [store]);
 
   return {
     starredMessages,
@@ -320,5 +334,5 @@ export function useStarredMessages(
     isMessageStarred,
     getStarForMessage,
     getAllCategories,
-  }
+  };
 }

@@ -1,39 +1,47 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { X } from 'lucide-react'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import type { UserFilterOptions, UserRole, UserStatus } from '@/lib/admin/users/user-types'
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { X } from "lucide-react";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import type {
+  UserFilterOptions,
+  UserRole,
+  UserStatus,
+} from "@/lib/admin/users/user-types";
 
 interface UserFiltersProps {
-  filters: UserFilterOptions
-  onFiltersChange: (filters: UserFilterOptions) => void
-  onClear: () => void
+  filters: UserFilterOptions;
+  onFiltersChange: (filters: UserFilterOptions) => void;
+  onClear: () => void;
 }
 
-export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersProps) {
-  const { roles, isLoadingRoles } = useUserManagementStore()
+export function UserFilters({
+  filters,
+  onFiltersChange,
+  onClear,
+}: UserFiltersProps) {
+  const { roles, isLoadingRoles } = useUserManagementStore();
 
   const handleChange = (key: keyof UserFilterOptions, value: unknown) => {
     onFiltersChange({
       ...filters,
-      [key]: value === '' || value === 'all' ? undefined : value,
-    })
-  }
+      [key]: value === "" || value === "all" ? undefined : value,
+    });
+  };
 
   const hasActiveFilters = Object.values(filters).some(
-    (v) => v !== undefined && v !== null && v !== ''
-  )
+    (v) => v !== undefined && v !== null && v !== "",
+  );
 
   return (
     <div className="space-y-4">
@@ -42,8 +50,8 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
         <div className="space-y-2">
           <Label htmlFor="role-filter">Role</Label>
           <Select
-            value={filters.role || 'all'}
-            onValueChange={(value) => handleChange('role', value)}
+            value={filters.role || "all"}
+            onValueChange={(value) => handleChange("role", value)}
           >
             <SelectTrigger id="role-filter">
               <SelectValue placeholder="All roles" />
@@ -77,8 +85,10 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
         <div className="space-y-2">
           <Label htmlFor="status-filter">Status</Label>
           <Select
-            value={filters.status || 'all'}
-            onValueChange={(value) => handleChange('status', value as UserStatus)}
+            value={filters.status || "all"}
+            onValueChange={(value) =>
+              handleChange("status", value as UserStatus)
+            }
           >
             <SelectTrigger id="status-filter">
               <SelectValue placeholder="All status" />
@@ -100,11 +110,13 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
           <Input
             id="created-after"
             type="date"
-            value={filters.createdAfter?.split('T')[0] || ''}
+            value={filters.createdAfter?.split("T")[0] || ""}
             onChange={(e) =>
               handleChange(
-                'createdAfter',
-                e.target.value ? new Date(e.target.value).toISOString() : undefined
+                "createdAfter",
+                e.target.value
+                  ? new Date(e.target.value).toISOString()
+                  : undefined,
               )
             }
           />
@@ -116,11 +128,13 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
           <Input
             id="created-before"
             type="date"
-            value={filters.createdBefore?.split('T')[0] || ''}
+            value={filters.createdBefore?.split("T")[0] || ""}
             onChange={(e) =>
               handleChange(
-                'createdBefore',
-                e.target.value ? new Date(e.target.value).toISOString() : undefined
+                "createdBefore",
+                e.target.value
+                  ? new Date(e.target.value).toISOString()
+                  : undefined,
               )
             }
           />
@@ -132,11 +146,13 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
           <Input
             id="last-seen-after"
             type="date"
-            value={filters.lastSeenAfter?.split('T')[0] || ''}
+            value={filters.lastSeenAfter?.split("T")[0] || ""}
             onChange={(e) =>
               handleChange(
-                'lastSeenAfter',
-                e.target.value ? new Date(e.target.value).toISOString() : undefined
+                "lastSeenAfter",
+                e.target.value
+                  ? new Date(e.target.value).toISOString()
+                  : undefined,
               )
             }
           />
@@ -148,11 +164,13 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
           <Input
             id="last-seen-before"
             type="date"
-            value={filters.lastSeenBefore?.split('T')[0] || ''}
+            value={filters.lastSeenBefore?.split("T")[0] || ""}
             onChange={(e) =>
               handleChange(
-                'lastSeenBefore',
-                e.target.value ? new Date(e.target.value).toISOString() : undefined
+                "lastSeenBefore",
+                e.target.value
+                  ? new Date(e.target.value).toISOString()
+                  : undefined,
               )
             }
           />
@@ -165,7 +183,9 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
           <Switch
             id="is-verified"
             checked={filters.isVerified === true}
-            onCheckedChange={(checked) => handleChange('isVerified', checked ? true : undefined)}
+            onCheckedChange={(checked) =>
+              handleChange("isVerified", checked ? true : undefined)
+            }
           />
           <Label htmlFor="is-verified">Verified only</Label>
         </div>
@@ -174,7 +194,9 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
           <Switch
             id="is-banned"
             checked={filters.isBanned === true}
-            onCheckedChange={(checked) => handleChange('isBanned', checked ? true : undefined)}
+            onCheckedChange={(checked) =>
+              handleChange("isBanned", checked ? true : undefined)
+            }
           />
           <Label htmlFor="is-banned">Banned only</Label>
         </div>
@@ -183,7 +205,9 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
           <Switch
             id="is-inactive"
             checked={filters.isActive === false}
-            onCheckedChange={(checked) => handleChange('isActive', checked ? false : undefined)}
+            onCheckedChange={(checked) =>
+              handleChange("isActive", checked ? false : undefined)
+            }
           />
           <Label htmlFor="is-inactive">Inactive only</Label>
         </div>
@@ -199,7 +223,7 @@ export function UserFilters({ filters, onFiltersChange, onClear }: UserFiltersPr
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default UserFilters
+export default UserFilters;

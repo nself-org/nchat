@@ -55,29 +55,29 @@ Complete markdown parsing and rendering for the nself-chat application.
 ### Parsing
 
 ```typescript
-import { jsonToMarkdown, markdownToJson, jsonToHtml } from '@/lib/markdown'
+import { jsonToMarkdown, markdownToJson, jsonToHtml } from "@/lib/markdown";
 
 // TipTap JSON to Markdown
-const markdown = jsonToMarkdown(editorJson)
+const markdown = jsonToMarkdown(editorJson);
 
 // Markdown to TipTap JSON
-const json = markdownToJson('**Hello** _world_!')
+const json = markdownToJson("**Hello** _world_!");
 
 // TipTap JSON to HTML
-const html = jsonToHtml(editorJson, { sanitize: true })
+const html = jsonToHtml(editorJson, { sanitize: true });
 
 // Get plain text (strip all formatting)
-const text = jsonToPlainText(editorJson)
+const text = jsonToPlainText(editorJson);
 
 // Get excerpt (first N characters)
-const excerpt = getExcerpt(editorJson, 100)
+const excerpt = getExcerpt(editorJson, 100);
 
 // Word count
-const words = countWords(editorJson)
+const words = countWords(editorJson);
 
 // Check if empty
 if (isEmpty(editorJson)) {
-  console.log('No content')
+  console.log("No content");
 }
 ```
 
@@ -297,29 +297,29 @@ The renderer uses Tailwind's `prose` class for typography. Customize via:
 ## Testing
 
 ```typescript
-import { jsonToMarkdown, markdownToJson, isEmpty } from '@/lib/markdown'
+import { jsonToMarkdown, markdownToJson, isEmpty } from "@/lib/markdown";
 
-describe('Markdown Parser', () => {
-  it('converts bold text', () => {
+describe("Markdown Parser", () => {
+  it("converts bold text", () => {
     const json = {
-      type: 'doc',
+      type: "doc",
       content: [
         {
-          type: 'paragraph',
-          content: [{ type: 'text', text: 'bold', marks: [{ type: 'bold' }] }],
+          type: "paragraph",
+          content: [{ type: "text", text: "bold", marks: [{ type: "bold" }] }],
         },
       ],
-    }
-    expect(jsonToMarkdown(json)).toBe('**bold**')
-  })
+    };
+    expect(jsonToMarkdown(json)).toBe("**bold**");
+  });
 
-  it('round-trips content', () => {
-    const original = '**Hello** _world_!'
-    const json = markdownToJson(original)
-    const result = jsonToMarkdown(json)
-    expect(result).toMatch(/Hello.*world/)
-  })
-})
+  it("round-trips content", () => {
+    const original = "**Hello** _world_!";
+    const json = markdownToJson(original);
+    const result = jsonToMarkdown(json);
+    expect(result).toMatch(/Hello.*world/);
+  });
+});
 ```
 
 ## Future Enhancements

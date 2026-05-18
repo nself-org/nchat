@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Mail, Link as LinkIcon, Users, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState } from "react";
+import { Mail, Link as LinkIcon, Users, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -13,147 +13,156 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Switch } from '@/components/ui/switch'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import { validateEmail } from '@/lib/admin/users/user-manager'
-import { parseCSVEmails, validateBulkEmails } from '@/lib/admin/users/user-invite'
-import type { UserRole } from '@/lib/admin/users/user-types'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import { validateEmail } from "@/lib/admin/users/user-manager";
+import {
+  parseCSVEmails,
+  validateBulkEmails,
+} from "@/lib/admin/users/user-invite";
+import type { UserRole } from "@/lib/admin/users/user-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface InviteModalProps {
-  open: boolean
-  onClose: () => void
-  mode: 'single' | 'bulk' | 'link'
+  open: boolean;
+  onClose: () => void;
+  mode: "single" | "bulk" | "link";
 }
 
-export function InviteModal({ open, onClose, mode: initialMode }: InviteModalProps) {
-  const [mode, setMode] = useState(initialMode)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function InviteModal({
+  open,
+  onClose,
+  mode: initialMode,
+}: InviteModalProps) {
+  const [mode, setMode] = useState(initialMode);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Single invite state
-  const [email, setEmail] = useState('')
-  const [role, setRole] = useState<UserRole>('member')
-  const [message, setMessage] = useState('')
-  const [sendEmail, setSendEmail] = useState(true)
-  const [emailError, setEmailError] = useState('')
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<UserRole>("member");
+  const [message, setMessage] = useState("");
+  const [sendEmail, setSendEmail] = useState(true);
+  const [emailError, setEmailError] = useState("");
 
   // Bulk invite state
-  const [bulkEmails, setBulkEmails] = useState('')
-  const [bulkRole, setBulkRole] = useState<UserRole>('member')
+  const [bulkEmails, setBulkEmails] = useState("");
+  const [bulkRole, setBulkRole] = useState<UserRole>("member");
   const [bulkValidation, setBulkValidation] = useState<{
-    valid: string[]
-    invalid: string[]
-  } | null>(null)
+    valid: string[];
+    invalid: string[];
+  } | null>(null);
 
   // Link invite state
-  const [linkRole, setLinkRole] = useState<UserRole>('member')
-  const [maxUses, setMaxUses] = useState('')
-  const [expiresInDays, setExpiresInDays] = useState('7')
-  const [generatedLink, setGeneratedLink] = useState('')
+  const [linkRole, setLinkRole] = useState<UserRole>("member");
+  const [maxUses, setMaxUses] = useState("");
+  const [expiresInDays, setExpiresInDays] = useState("7");
+  const [generatedLink, setGeneratedLink] = useState("");
 
-  const { roles } = useUserManagementStore()
+  const { roles } = useUserManagementStore();
 
   const handleSingleInvite = async () => {
     if (!validateEmail(email)) {
-      setEmailError('Please enter a valid email address')
-      return
+      setEmailError("Please enter a valid email address");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // In production, call the API
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
-      handleClose()
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+      handleClose();
     } catch (error) {
-      logger.error('Failed to send invite:', error)
+      logger.error("Failed to send invite:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleBulkValidate = () => {
-    const emails = parseCSVEmails(bulkEmails)
-    const result = validateBulkEmails(emails)
-    setBulkValidation(result)
-  }
+    const emails = parseCSVEmails(bulkEmails);
+    const result = validateBulkEmails(emails);
+    setBulkValidation(result);
+  };
 
   const handleBulkInvite = async () => {
     if (!bulkValidation || bulkValidation.valid.length === 0) {
-      return
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // In production, call the API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      handleClose()
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      handleClose();
     } catch (error) {
-      logger.error('Failed to send bulk invites:', error)
+      logger.error("Failed to send bulk invites:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleGenerateLink = async () => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // In production, call the API
-      const code = Math.random().toString(36).substring(2, 10)
-      const link = `${window.location.origin}/invite/${code}`
-      setGeneratedLink(link)
+      const code = Math.random().toString(36).substring(2, 10);
+      const link = `${window.location.origin}/invite/${code}`;
+      setGeneratedLink(link);
     } catch (error) {
-      logger.error('Failed to generate link:', error)
+      logger.error("Failed to generate link:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(generatedLink)
-  }
+    navigator.clipboard.writeText(generatedLink);
+  };
 
   const handleClose = () => {
-    setEmail('')
-    setRole('member')
-    setMessage('')
-    setSendEmail(true)
-    setEmailError('')
-    setBulkEmails('')
-    setBulkRole('member')
-    setBulkValidation(null)
-    setLinkRole('member')
-    setMaxUses('')
-    setExpiresInDays('7')
-    setGeneratedLink('')
-    onClose()
-  }
+    setEmail("");
+    setRole("member");
+    setMessage("");
+    setSendEmail(true);
+    setEmailError("");
+    setBulkEmails("");
+    setBulkRole("member");
+    setBulkValidation(null);
+    setLinkRole("member");
+    setMaxUses("");
+    setExpiresInDays("7");
+    setGeneratedLink("");
+    onClose();
+  };
 
   const roleOptions =
     roles.length > 0
       ? roles
       : [
-          { id: 'admin', name: 'Admin' },
-          { id: 'moderator', name: 'Moderator' },
-          { id: 'member', name: 'Member' },
-          { id: 'guest', name: 'Guest' },
-        ]
+          { id: "admin", name: "Admin" },
+          { id: "moderator", name: "Moderator" },
+          { id: "member", name: "Member" },
+          { id: "guest", name: "Guest" },
+        ];
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Invite Users</DialogTitle>
-          <DialogDescription>Invite new users to join your workspace</DialogDescription>
+          <DialogDescription>
+            Invite new users to join your workspace
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
@@ -182,17 +191,22 @@ export function InviteModal({ open, onClose, mode: initialMode }: InviteModalPro
                 placeholder="user@example.com"
                 value={email}
                 onChange={(e) => {
-                  setEmail(e.target.value)
-                  setEmailError('')
+                  setEmail(e.target.value);
+                  setEmailError("");
                 }}
-                className={emailError ? 'border-red-500' : ''}
+                className={emailError ? "border-red-500" : ""}
               />
-              {emailError && <p className="text-sm text-red-500">{emailError}</p>}
+              {emailError && (
+                <p className="text-sm text-red-500">{emailError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
+              <Select
+                value={role}
+                onValueChange={(v) => setRole(v as UserRole)}
+              >
                 <SelectTrigger id="role">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -218,7 +232,11 @@ export function InviteModal({ open, onClose, mode: initialMode }: InviteModalPro
             </div>
 
             <div className="flex items-center space-x-2">
-              <Switch id="send-email" checked={sendEmail} onCheckedChange={setSendEmail} />
+              <Switch
+                id="send-email"
+                checked={sendEmail}
+                onCheckedChange={setSendEmail}
+              />
               <Label htmlFor="send-email">Send invitation email</Label>
             </div>
           </TabsContent>
@@ -232,8 +250,8 @@ export function InviteModal({ open, onClose, mode: initialMode }: InviteModalPro
                 placeholder="Enter emails, one per line or comma-separated..."
                 value={bulkEmails}
                 onChange={(e) => {
-                  setBulkEmails(e.target.value)
-                  setBulkValidation(null)
+                  setBulkEmails(e.target.value);
+                  setBulkValidation(null);
                 }}
                 rows={5}
               />
@@ -244,16 +262,23 @@ export function InviteModal({ open, onClose, mode: initialMode }: InviteModalPro
 
             {bulkValidation && (
               <div className="space-y-2 text-sm">
-                <p className="text-green-600">Valid: {bulkValidation.valid.length} email(s)</p>
+                <p className="text-green-600">
+                  Valid: {bulkValidation.valid.length} email(s)
+                </p>
                 {bulkValidation.invalid.length > 0 && (
-                  <p className="text-red-500">Invalid: {bulkValidation.invalid.join(', ')}</p>
+                  <p className="text-red-500">
+                    Invalid: {bulkValidation.invalid.join(", ")}
+                  </p>
                 )}
               </div>
             )}
 
             <div className="space-y-2">
               <Label htmlFor="bulk-role">Role for all invites</Label>
-              <Select value={bulkRole} onValueChange={(v) => setBulkRole(v as UserRole)}>
+              <Select
+                value={bulkRole}
+                onValueChange={(v) => setBulkRole(v as UserRole)}
+              >
                 <SelectTrigger id="bulk-role">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -268,7 +293,11 @@ export function InviteModal({ open, onClose, mode: initialMode }: InviteModalPro
             </div>
 
             {!bulkValidation && (
-              <Button variant="outline" onClick={handleBulkValidate} disabled={!bulkEmails.trim()}>
+              <Button
+                variant="outline"
+                onClick={handleBulkValidate}
+                disabled={!bulkEmails.trim()}
+              >
                 Validate Emails
               </Button>
             )}
@@ -278,7 +307,10 @@ export function InviteModal({ open, onClose, mode: initialMode }: InviteModalPro
           <TabsContent value="link" className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label htmlFor="link-role">Default Role</Label>
-              <Select value={linkRole} onValueChange={(v) => setLinkRole(v as UserRole)}>
+              <Select
+                value={linkRole}
+                onValueChange={(v) => setLinkRole(v as UserRole)}
+              >
                 <SelectTrigger id="link-role">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -339,31 +371,44 @@ export function InviteModal({ open, onClose, mode: initialMode }: InviteModalPro
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          {mode === 'single' && (
-            <Button onClick={handleSingleInvite} disabled={isSubmitting || !email}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {mode === "single" && (
+            <Button
+              onClick={handleSingleInvite}
+              disabled={isSubmitting || !email}
+            >
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Send Invite
             </Button>
           )}
-          {mode === 'bulk' && (
+          {mode === "bulk" && (
             <Button
               onClick={handleBulkInvite}
-              disabled={isSubmitting || !bulkValidation || bulkValidation.valid.length === 0}
+              disabled={
+                isSubmitting ||
+                !bulkValidation ||
+                bulkValidation.valid.length === 0
+              }
             >
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Send {bulkValidation?.valid.length || 0} Invite(s)
             </Button>
           )}
-          {mode === 'link' && (
+          {mode === "link" && (
             <Button onClick={handleGenerateLink} disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {generatedLink ? 'Generate New Link' : 'Generate Link'}
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {generatedLink ? "Generate New Link" : "Generate Link"}
             </Button>
           )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default InviteModal
+export default InviteModal;

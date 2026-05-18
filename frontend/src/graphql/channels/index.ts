@@ -5,16 +5,16 @@
  */
 
 // Queries
-export * from './queries'
+export * from "./queries";
 
 // Mutations
-export * from './mutations'
+export * from "./mutations";
 
 // Subscriptions
-export * from './subscriptions'
+export * from "./subscriptions";
 
 // Categories
-export * from './categories'
+export * from "./categories";
 
 // Re-export common types
 export type {
@@ -25,14 +25,14 @@ export type {
   GetUserChannelsVariables,
   CheckMembershipVariables,
   SearchChannelsVariables,
-} from './queries'
+} from "./queries";
 
 export type {
   CreateChannelInput,
   UpdateChannelInput,
   AddMemberInput,
   UpdateMemberInput,
-} from './mutations'
+} from "./mutations";
 
 export type {
   Category,
@@ -42,4 +42,4 @@ export type {
   UpdateCategoryInput,
   CategoryPositionUpdate,
   MoveChannelInput,
-} from './categories'
+} from "./categories";

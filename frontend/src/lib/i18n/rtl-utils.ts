@@ -6,7 +6,7 @@
  * Complements the base rtl.ts module with deeper text analysis capabilities.
  */
 
-import { SUPPORTED_LOCALES, RTL_LOCALES, type LocaleCode } from './locales'
+import { SUPPORTED_LOCALES, RTL_LOCALES, type LocaleCode } from "./locales";
 
 /**
  * Unicode ranges for RTL scripts
@@ -31,7 +31,7 @@ const RTL_RANGES: Array<[number, number]> = [
   [0x0800, 0x083f],
   // Mandaic
   [0x0840, 0x085f],
-]
+];
 
 /**
  * Unicode ranges for LTR scripts (Latin, CJK, Cyrillic, etc.)
@@ -56,66 +56,66 @@ const LTR_RANGES: Array<[number, number]> = [
   [0x30a0, 0x30ff],
   // Devanagari
   [0x0900, 0x097f],
-]
+];
 
 /**
  * Unicode bidirectional control characters
  */
 export const BIDI_CHARS = {
   /** Left-to-Right Mark */
-  LRM: '\u200E',
+  LRM: "\u200E",
   /** Right-to-Left Mark */
-  RLM: '\u200F',
+  RLM: "\u200F",
   /** Left-to-Right Embedding */
-  LRE: '\u202A',
+  LRE: "\u202A",
   /** Right-to-Left Embedding */
-  RLE: '\u202B',
+  RLE: "\u202B",
   /** Pop Directional Formatting */
-  PDF: '\u202C',
+  PDF: "\u202C",
   /** Left-to-Right Override */
-  LRO: '\u202D',
+  LRO: "\u202D",
   /** Right-to-Left Override */
-  RLO: '\u202E',
+  RLO: "\u202E",
   /** Left-to-Right Isolate */
-  LRI: '\u2066',
+  LRI: "\u2066",
   /** Right-to-Left Isolate */
-  RLI: '\u2067',
+  RLI: "\u2067",
   /** First Strong Isolate */
-  FSI: '\u2068',
+  FSI: "\u2068",
   /** Pop Directional Isolate */
-  PDI: '\u2069',
-} as const
+  PDI: "\u2069",
+} as const;
 
 /**
  * Text direction detection result
  */
 export interface DirectionAnalysis {
   /** Detected primary direction */
-  direction: 'ltr' | 'rtl' | 'neutral'
+  direction: "ltr" | "rtl" | "neutral";
   /** Whether the text contains mixed directions */
-  isMixed: boolean
+  isMixed: boolean;
   /** Count of RTL characters */
-  rtlCount: number
+  rtlCount: number;
   /** Count of LTR characters */
-  ltrCount: number
+  ltrCount: number;
   /** Count of neutral characters (numbers, punctuation, whitespace) */
-  neutralCount: number
+  neutralCount: number;
   /** Confidence level 0.0-1.0 */
-  confidence: number
+  confidence: number;
 }
 
 /**
  * Check if a character code falls in an RTL range.
  */
 function isRTLCharCode(code: number): boolean {
-  return RTL_RANGES.some(([start, end]) => code >= start && code <= end)
+  return RTL_RANGES.some(([start, end]) => code >= start && code <= end);
 }
 
 /**
  * Check if a character code falls in an LTR range.
  */
 function isLTRCharCode(code: number): boolean {
-  return LTR_RANGES.some(([start, end]) => code >= start && code <= end)
+  return LTR_RANGES.some(([start, end]) => code >= start && code <= end);
 }
 
 /**
@@ -125,52 +125,52 @@ function isLTRCharCode(code: number): boolean {
 export function detectTextDirection(text: string): DirectionAnalysis {
   if (!text || text.trim().length === 0) {
     return {
-      direction: 'neutral',
+      direction: "neutral",
       isMixed: false,
       rtlCount: 0,
       ltrCount: 0,
       neutralCount: 0,
       confidence: 0,
-    }
+    };
   }
 
-  let rtlCount = 0
-  let ltrCount = 0
-  let neutralCount = 0
-  let firstStrongDir: 'ltr' | 'rtl' | null = null
+  let rtlCount = 0;
+  let ltrCount = 0;
+  let neutralCount = 0;
+  let firstStrongDir: "ltr" | "rtl" | null = null;
 
   for (let i = 0; i < text.length; i++) {
-    const code = text.charCodeAt(i)
+    const code = text.charCodeAt(i);
 
     if (isRTLCharCode(code)) {
-      rtlCount++
-      if (firstStrongDir === null) firstStrongDir = 'rtl'
+      rtlCount++;
+      if (firstStrongDir === null) firstStrongDir = "rtl";
     } else if (isLTRCharCode(code)) {
-      ltrCount++
-      if (firstStrongDir === null) firstStrongDir = 'ltr'
+      ltrCount++;
+      if (firstStrongDir === null) firstStrongDir = "ltr";
     } else {
-      neutralCount++
+      neutralCount++;
     }
   }
 
-  const totalStrong = rtlCount + ltrCount
-  const isMixed = rtlCount > 0 && ltrCount > 0
+  const totalStrong = rtlCount + ltrCount;
+  const isMixed = rtlCount > 0 && ltrCount > 0;
 
   if (totalStrong === 0) {
     return {
-      direction: 'neutral',
+      direction: "neutral",
       isMixed: false,
       rtlCount,
       ltrCount,
       neutralCount,
       confidence: 0,
-    }
+    };
   }
 
   // Use first strong character as primary heuristic
-  const direction = firstStrongDir || 'ltr'
-  const majorityDir = rtlCount > ltrCount ? 'rtl' : 'ltr'
-  const confidence = Math.max(rtlCount, ltrCount) / totalStrong
+  const direction = firstStrongDir || "ltr";
+  const majorityDir = rtlCount > ltrCount ? "rtl" : "ltr";
+  const confidence = Math.max(rtlCount, ltrCount) / totalStrong;
 
   return {
     direction,
@@ -178,32 +178,33 @@ export function detectTextDirection(text: string): DirectionAnalysis {
     rtlCount,
     ltrCount,
     neutralCount,
-    confidence: isMixed && direction !== majorityDir ? confidence * 0.8 : confidence,
-  }
+    confidence:
+      isMixed && direction !== majorityDir ? confidence * 0.8 : confidence,
+  };
 }
 
 /**
  * Detect text direction based on locale code.
  * More reliable than text analysis when the locale is known.
  */
-export function detectDirectionByLocale(locale: string): 'ltr' | 'rtl' {
+export function detectDirectionByLocale(locale: string): "ltr" | "rtl" {
   // Check exact match first
   if (locale in SUPPORTED_LOCALES) {
-    return SUPPORTED_LOCALES[locale].direction
+    return SUPPORTED_LOCALES[locale].direction;
   }
 
   // Try base language code
-  const baseLocale = locale.split('-')[0].toLowerCase()
+  const baseLocale = locale.split("-")[0].toLowerCase();
   if (baseLocale in SUPPORTED_LOCALES) {
-    return SUPPORTED_LOCALES[baseLocale].direction
+    return SUPPORTED_LOCALES[baseLocale].direction;
   }
 
   // Check RTL locales list
   if (RTL_LOCALES.includes(locale) || RTL_LOCALES.includes(baseLocale)) {
-    return 'rtl'
+    return "rtl";
   }
 
-  return 'ltr'
+  return "ltr";
 }
 
 /**
@@ -212,19 +213,19 @@ export function detectDirectionByLocale(locale: string): 'ltr' | 'rtl' {
  */
 export function wrapBidi(
   text: string,
-  direction?: 'ltr' | 'rtl' | 'auto'
+  direction?: "ltr" | "rtl" | "auto",
 ): string {
-  if (!text) return text
+  if (!text) return text;
 
-  if (direction === 'ltr') {
-    return `${BIDI_CHARS.LRI}${text}${BIDI_CHARS.PDI}`
+  if (direction === "ltr") {
+    return `${BIDI_CHARS.LRI}${text}${BIDI_CHARS.PDI}`;
   }
-  if (direction === 'rtl') {
-    return `${BIDI_CHARS.RLI}${text}${BIDI_CHARS.PDI}`
+  if (direction === "rtl") {
+    return `${BIDI_CHARS.RLI}${text}${BIDI_CHARS.PDI}`;
   }
 
   // Auto-detect using First Strong Isolate
-  return `${BIDI_CHARS.FSI}${text}${BIDI_CHARS.PDI}`
+  return `${BIDI_CHARS.FSI}${text}${BIDI_CHARS.PDI}`;
 }
 
 /**
@@ -232,7 +233,7 @@ export function wrapBidi(
  */
 export function stripBidiChars(text: string): string {
   // eslint-disable-next-line no-control-regex
-  return text.replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, '')
+  return text.replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, "");
 }
 
 /**
@@ -240,7 +241,7 @@ export function stripBidiChars(text: string): string {
  */
 export function hasBidiChars(text: string): boolean {
   // eslint-disable-next-line no-control-regex
-  return /[\u200E\u200F\u202A-\u202E\u2066-\u2069]/.test(text)
+  return /[\u200E\u200F\u202A-\u202E\u2066-\u2069]/.test(text);
 }
 
 /**
@@ -251,23 +252,23 @@ export function hasBidiChars(text: string): boolean {
 export function formatNumberRTL(
   value: number,
   locale: string,
-  options: Intl.NumberFormatOptions = {}
+  options: Intl.NumberFormatOptions = {},
 ): string {
-  const config = SUPPORTED_LOCALES[locale]
-  const bcp47 = config?.bcp47 || 'en-US'
-  const isRtl = config?.direction === 'rtl'
+  const config = SUPPORTED_LOCALES[locale];
+  const bcp47 = config?.bcp47 || "en-US";
+  const isRtl = config?.direction === "rtl";
 
   try {
-    const formatted = new Intl.NumberFormat(bcp47, options).format(value)
+    const formatted = new Intl.NumberFormat(bcp47, options).format(value);
 
     // In RTL context, wrap number with LRM marks to ensure proper display
     if (isRtl) {
-      return `${BIDI_CHARS.LRM}${formatted}${BIDI_CHARS.LRM}`
+      return `${BIDI_CHARS.LRM}${formatted}${BIDI_CHARS.LRM}`;
     }
 
-    return formatted
+    return formatted;
   } catch {
-    return String(value)
+    return String(value);
   }
 }
 
@@ -279,15 +280,15 @@ export function formatNumberRTL(
 export function formatDateRTL(
   date: Date,
   locale: string,
-  options: Intl.DateTimeFormatOptions = { dateStyle: 'medium' }
+  options: Intl.DateTimeFormatOptions = { dateStyle: "medium" },
 ): string {
-  const config = SUPPORTED_LOCALES[locale]
-  const bcp47 = config?.bcp47 || 'en-US'
+  const config = SUPPORTED_LOCALES[locale];
+  const bcp47 = config?.bcp47 || "en-US";
 
   try {
-    return new Intl.DateTimeFormat(bcp47, options).format(date)
+    return new Intl.DateTimeFormat(bcp47, options).format(date);
   } catch {
-    return date.toLocaleDateString()
+    return date.toLocaleDateString();
   }
 }
 
@@ -297,24 +298,24 @@ export function formatDateRTL(
  */
 export function getLogicalProperty(
   physicalProperty: string,
-  isRtl: boolean
+  isRtl: boolean,
 ): string {
   const mappings: Record<string, string> = {
-    'margin-left': 'margin-inline-start',
-    'margin-right': 'margin-inline-end',
-    'padding-left': 'padding-inline-start',
-    'padding-right': 'padding-inline-end',
-    'border-left': 'border-inline-start',
-    'border-right': 'border-inline-end',
-    left: 'inset-inline-start',
-    right: 'inset-inline-end',
-    'text-align: left': isRtl ? 'text-align: right' : 'text-align: left',
-    'text-align: right': isRtl ? 'text-align: left' : 'text-align: right',
-    'float: left': isRtl ? 'float: right' : 'float: left',
-    'float: right': isRtl ? 'float: left' : 'float: right',
-  }
+    "margin-left": "margin-inline-start",
+    "margin-right": "margin-inline-end",
+    "padding-left": "padding-inline-start",
+    "padding-right": "padding-inline-end",
+    "border-left": "border-inline-start",
+    "border-right": "border-inline-end",
+    left: "inset-inline-start",
+    right: "inset-inline-end",
+    "text-align: left": isRtl ? "text-align: right" : "text-align: left",
+    "text-align: right": isRtl ? "text-align: left" : "text-align: right",
+    "float: left": isRtl ? "float: right" : "float: left",
+    "float: right": isRtl ? "float: left" : "float: right",
+  };
 
-  return mappings[physicalProperty] || physicalProperty
+  return mappings[physicalProperty] || physicalProperty;
 }
 
 /**
@@ -323,26 +324,26 @@ export function getLogicalProperty(
  */
 export function createRTLTransform(
   transforms: { translateX?: number; scaleX?: number; rotate?: number },
-  isRtl: boolean
+  isRtl: boolean,
 ): string {
-  const parts: string[] = []
+  const parts: string[] = [];
 
   if (transforms.translateX !== undefined) {
-    const value = isRtl ? -transforms.translateX : transforms.translateX
-    parts.push(`translateX(${value}px)`)
+    const value = isRtl ? -transforms.translateX : transforms.translateX;
+    parts.push(`translateX(${value}px)`);
   }
 
   if (transforms.scaleX !== undefined) {
-    const value = isRtl ? -transforms.scaleX : transforms.scaleX
-    parts.push(`scaleX(${value})`)
+    const value = isRtl ? -transforms.scaleX : transforms.scaleX;
+    parts.push(`scaleX(${value})`);
   }
 
   if (transforms.rotate !== undefined) {
-    const value = isRtl ? -transforms.rotate : transforms.rotate
-    parts.push(`rotate(${value}deg)`)
+    const value = isRtl ? -transforms.rotate : transforms.rotate;
+    parts.push(`rotate(${value}deg)`);
   }
 
-  return parts.join(' ') || 'none'
+  return parts.join(" ") || "none";
 }
 
 /**
@@ -350,33 +351,33 @@ export function createRTLTransform(
  * Converts 'start'/'end' to physical 'left'/'right' based on direction.
  */
 export function resolveLogicalPosition(
-  position: 'start' | 'end' | 'left' | 'right',
-  isRtl: boolean
-): 'left' | 'right' {
-  if (position === 'start') return isRtl ? 'right' : 'left'
-  if (position === 'end') return isRtl ? 'left' : 'right'
-  return position
+  position: "start" | "end" | "left" | "right",
+  isRtl: boolean,
+): "left" | "right" {
+  if (position === "start") return isRtl ? "right" : "left";
+  if (position === "end") return isRtl ? "left" : "right";
+  return position;
 }
 
 /**
  * Check if a locale code represents an RTL language.
  */
 export function isRTLLocale(locale: string): boolean {
-  const config = SUPPORTED_LOCALES[locale]
-  if (config) return config.direction === 'rtl'
+  const config = SUPPORTED_LOCALES[locale];
+  if (config) return config.direction === "rtl";
 
-  const base = locale.split('-')[0].toLowerCase()
-  const baseConfig = SUPPORTED_LOCALES[base]
-  if (baseConfig) return baseConfig.direction === 'rtl'
+  const base = locale.split("-")[0].toLowerCase();
+  const baseConfig = SUPPORTED_LOCALES[base];
+  if (baseConfig) return baseConfig.direction === "rtl";
 
-  return RTL_LOCALES.includes(locale) || RTL_LOCALES.includes(base)
+  return RTL_LOCALES.includes(locale) || RTL_LOCALES.includes(base);
 }
 
 /**
  * Get list of all supported RTL locale codes.
  */
 export function getRTLLocales(): string[] {
-  return [...RTL_LOCALES]
+  return [...RTL_LOCALES];
 }
 
 /**
@@ -385,17 +386,17 @@ export function getRTLLocales(): string[] {
  */
 export function getMixedContentDirection(
   text: string,
-  fallbackLocale?: string
-): 'ltr' | 'rtl' {
-  const analysis = detectTextDirection(text)
+  fallbackLocale?: string,
+): "ltr" | "rtl" {
+  const analysis = detectTextDirection(text);
 
-  if (analysis.direction === 'neutral' && fallbackLocale) {
-    return detectDirectionByLocale(fallbackLocale)
+  if (analysis.direction === "neutral" && fallbackLocale) {
+    return detectDirectionByLocale(fallbackLocale);
   }
 
-  if (analysis.direction === 'neutral') {
-    return 'ltr'
+  if (analysis.direction === "neutral") {
+    return "ltr";
   }
 
-  return analysis.direction
+  return analysis.direction;
 }

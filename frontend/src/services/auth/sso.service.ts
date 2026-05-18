@@ -12,12 +12,18 @@
  * @module services/auth/sso.service
  */
 
-import { getSAMLService, type SSOConnection, type SSOProvider, type SAMLConfiguration, type SSOLoginResult } from '@/lib/auth/saml'
-import { apolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
-import { logger } from '@/lib/logger'
-import { captureError, addSentryBreadcrumb } from '@/lib/sentry-utils'
-import type { UserRole } from '@/lib/auth/roles'
+import {
+  getSAMLService,
+  type SSOConnection,
+  type SSOProvider,
+  type SAMLConfiguration,
+  type SSOLoginResult,
+} from "@/lib/auth/saml";
+import { apolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
+import { logger } from "@/lib/logger";
+import { captureError, addSentryBreadcrumb } from "@/lib/sentry-utils";
+import type { UserRole } from "@/lib/auth/roles";
 
 // ============================================================================
 // GraphQL Operations for SSO Service
@@ -54,7 +60,7 @@ const LOG_SSO_EVENT = gql`
       created_at
     }
   }
-`
+`;
 
 const CREATE_SSO_SESSION = gql`
   mutation CreateSSOSession(
@@ -78,7 +84,7 @@ const CREATE_SSO_SESSION = gql`
       authenticated_at
     }
   }
-`
+`;
 
 const INVALIDATE_SSO_SESSION = gql`
   mutation InvalidateSSOSession($userId: uuid!, $connectionId: uuid!) {
@@ -88,23 +94,17 @@ const INVALIDATE_SSO_SESSION = gql`
         connection_id: { _eq: $connectionId }
         is_active: { _eq: true }
       }
-      _set: {
-        is_active: false
-        logged_out_at: "now()"
-      }
+      _set: { is_active: false, logged_out_at: "now()" }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 const GET_SSO_CONNECTION_BY_DOMAIN_MAPPING = gql`
   query GetSSOConnectionByDomainMapping($domain: String!) {
     nchat_sso_domain_mappings(
-      where: {
-        domain: { _eq: $domain }
-        is_active: { _eq: true }
-      }
+      where: { domain: { _eq: $domain }, is_active: { _eq: true } }
       order_by: { priority: desc }
       limit: 1
     ) {
@@ -123,15 +123,12 @@ const GET_SSO_CONNECTION_BY_DOMAIN_MAPPING = gql`
       }
     }
   }
-`
+`;
 
 const GET_USER_SSO_SESSIONS = gql`
   query GetUserSSOSessions($userId: uuid!) {
     nchat_sso_sessions(
-      where: {
-        user_id: { _eq: $userId }
-        is_active: { _eq: true }
-      }
+      where: { user_id: { _eq: $userId }, is_active: { _eq: true } }
       order_by: { authenticated_at: desc }
     ) {
       id
@@ -149,7 +146,7 @@ const GET_USER_SSO_SESSIONS = gql`
       }
     }
   }
-`
+`;
 
 const GET_SSO_SESSION_FOR_LOGOUT = gql`
   query GetSSOSessionForLogout($userId: uuid!, $connectionId: uuid!) {
@@ -172,7 +169,7 @@ const GET_SSO_SESSION_FOR_LOGOUT = gql`
       }
     }
   }
-`
+`;
 
 const GET_SSO_AUDIT_LOGS = gql`
   query GetSSOAuditLogs(
@@ -205,74 +202,74 @@ const GET_SSO_AUDIT_LOGS = gql`
       created_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SSOEventType {
-  LOGIN_INITIATED: 'login_initiated'
-  LOGIN_SUCCESS: 'login_success'
-  LOGIN_FAILED: 'login_failed'
-  LOGOUT: 'logout'
-  USER_PROVISIONED: 'user_provisioned'
-  CONNECTION_CREATED: 'connection_created'
-  CONNECTION_UPDATED: 'connection_updated'
-  CONNECTION_DELETED: 'connection_deleted'
+  LOGIN_INITIATED: "login_initiated";
+  LOGIN_SUCCESS: "login_success";
+  LOGIN_FAILED: "login_failed";
+  LOGOUT: "logout";
+  USER_PROVISIONED: "user_provisioned";
+  CONNECTION_CREATED: "connection_created";
+  CONNECTION_UPDATED: "connection_updated";
+  CONNECTION_DELETED: "connection_deleted";
 }
 
 export const SSO_EVENTS: SSOEventType = {
-  LOGIN_INITIATED: 'login_initiated',
-  LOGIN_SUCCESS: 'login_success',
-  LOGIN_FAILED: 'login_failed',
-  LOGOUT: 'logout',
-  USER_PROVISIONED: 'user_provisioned',
-  CONNECTION_CREATED: 'connection_created',
-  CONNECTION_UPDATED: 'connection_updated',
-  CONNECTION_DELETED: 'connection_deleted',
-}
+  LOGIN_INITIATED: "login_initiated",
+  LOGIN_SUCCESS: "login_success",
+  LOGIN_FAILED: "login_failed",
+  LOGOUT: "logout",
+  USER_PROVISIONED: "user_provisioned",
+  CONNECTION_CREATED: "connection_created",
+  CONNECTION_UPDATED: "connection_updated",
+  CONNECTION_DELETED: "connection_deleted",
+};
 
 export interface SSOSession {
-  id: string
-  connectionId: string
-  connectionName: string
-  provider: SSOProvider
-  nameId?: string
-  sessionIndex?: string
-  authenticatedAt: Date
-  lastActivityAt: Date
-  expiresAt?: Date
+  id: string;
+  connectionId: string;
+  connectionName: string;
+  provider: SSOProvider;
+  nameId?: string;
+  sessionIndex?: string;
+  authenticatedAt: Date;
+  lastActivityAt: Date;
+  expiresAt?: Date;
 }
 
 export interface SSOAuditLogEntry {
-  id: string
-  connectionId?: string
-  userId?: string
-  eventType: string
-  email?: string
-  ipAddress?: string
-  success: boolean
-  errorCode?: string
-  errorMessage?: string
-  metadata?: Record<string, unknown>
-  createdAt: Date
+  id: string;
+  connectionId?: string;
+  userId?: string;
+  eventType: string;
+  email?: string;
+  ipAddress?: string;
+  success: boolean;
+  errorCode?: string;
+  errorMessage?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
 }
 
 export interface SSOLoginOptions {
-  email?: string
-  connectionId?: string
-  returnUrl?: string
-  ipAddress?: string
-  userAgent?: string
+  email?: string;
+  connectionId?: string;
+  returnUrl?: string;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface SSOCallbackOptions {
-  samlResponse: string
-  relayState?: string
-  connectionId?: string
-  ipAddress?: string
-  userAgent?: string
+  samlResponse: string;
+  relayState?: string;
+  connectionId?: string;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 // ============================================================================
@@ -280,7 +277,7 @@ export interface SSOCallbackOptions {
 // ============================================================================
 
 export class SSOService {
-  private samlService = getSAMLService()
+  private samlService = getSAMLService();
 
   // --------------------------------------------------------------------------
   // Connection Management
@@ -290,34 +287,36 @@ export class SSOService {
    * Get all SSO connections
    */
   async getConnections(): Promise<SSOConnection[]> {
-    return this.samlService.getAllConnections()
+    return this.samlService.getAllConnections();
   }
 
   /**
    * Get SSO connection by ID
    */
   async getConnection(id: string): Promise<SSOConnection | undefined> {
-    return this.samlService.getConnection(id)
+    return this.samlService.getConnection(id);
   }
 
   /**
    * Get SSO connection by email domain
    * First checks domain mappings table, then falls back to connection domains array
    */
-  async getConnectionByEmail(email: string): Promise<SSOConnection | undefined> {
-    const domain = email.split('@')[1]?.toLowerCase()
-    if (!domain) return undefined
+  async getConnectionByEmail(
+    email: string,
+  ): Promise<SSOConnection | undefined> {
+    const domain = email.split("@")[1]?.toLowerCase();
+    if (!domain) return undefined;
 
     try {
       // First, try domain mappings table for explicit mappings
       const { data } = await apolloClient.query({
         query: GET_SSO_CONNECTION_BY_DOMAIN_MAPPING,
         variables: { domain },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (data?.nchat_sso_domain_mappings?.[0]?.connection) {
-        const conn = data.nchat_sso_domain_mappings[0].connection
+        const conn = data.nchat_sso_domain_mappings[0].connection;
         if (conn.enabled) {
           return {
             id: conn.id,
@@ -329,15 +328,18 @@ export class SSOService {
             createdAt: new Date(conn.created_at),
             updatedAt: new Date(conn.updated_at),
             metadata: conn.metadata,
-          }
+          };
         }
       }
     } catch (error) {
-      logger.debug('Domain mapping lookup failed, falling back to connection domains', { error })
+      logger.debug(
+        "Domain mapping lookup failed, falling back to connection domains",
+        { error },
+      );
     }
 
     // Fall back to searching connection domains
-    return this.samlService.getConnectionByDomain(email)
+    return this.samlService.getConnectionByDomain(email);
   }
 
   /**
@@ -348,10 +350,10 @@ export class SSOService {
     provider: SSOProvider,
     config: SAMLConfiguration,
     options?: {
-      enabled?: boolean
-      domains?: string[]
-      metadata?: Record<string, unknown>
-    }
+      enabled?: boolean;
+      domains?: string[];
+      metadata?: Record<string, unknown>;
+    },
   ): Promise<SSOConnection> {
     const connection: SSOConnection = {
       id: crypto.randomUUID(),
@@ -363,51 +365,54 @@ export class SSOService {
       createdAt: new Date(),
       updatedAt: new Date(),
       metadata: options?.metadata,
-    }
+    };
 
-    await this.samlService.addConnection(connection)
+    await this.samlService.addConnection(connection);
 
     await this.logEvent({
       connectionId: connection.id,
       eventType: SSO_EVENTS.CONNECTION_CREATED,
       success: true,
       metadata: { provider, name },
-    })
+    });
 
-    return connection
+    return connection;
   }
 
   /**
    * Update an SSO connection
    */
-  async updateConnection(id: string, updates: Partial<SSOConnection>): Promise<void> {
-    await this.samlService.updateConnection(id, updates)
+  async updateConnection(
+    id: string,
+    updates: Partial<SSOConnection>,
+  ): Promise<void> {
+    await this.samlService.updateConnection(id, updates);
 
     await this.logEvent({
       connectionId: id,
       eventType: SSO_EVENTS.CONNECTION_UPDATED,
       success: true,
       metadata: { updatedFields: Object.keys(updates) },
-    })
+    });
   }
 
   /**
    * Delete an SSO connection
    */
   async deleteConnection(id: string): Promise<void> {
-    const connection = await this.getConnection(id)
+    const connection = await this.getConnection(id);
     if (!connection) {
-      throw new Error('Connection not found')
+      throw new Error("Connection not found");
     }
 
-    await this.samlService.removeConnection(id)
+    await this.samlService.removeConnection(id);
 
     await this.logEvent({
       connectionId: id,
       eventType: SSO_EVENTS.CONNECTION_DELETED,
       success: true,
       metadata: { provider: connection.provider, name: connection.name },
-    })
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -419,37 +424,40 @@ export class SSOService {
    * Returns the IdP redirect URL
    */
   async initiateLogin(options: SSOLoginOptions): Promise<{
-    loginUrl: string
-    connectionId: string
-    connectionName: string
-    provider: SSOProvider
+    loginUrl: string;
+    connectionId: string;
+    connectionName: string;
+    provider: SSOProvider;
   }> {
-    let connection: SSOConnection | undefined
+    let connection: SSOConnection | undefined;
 
     if (options.connectionId) {
-      connection = await this.getConnection(options.connectionId)
+      connection = await this.getConnection(options.connectionId);
     } else if (options.email) {
-      connection = await this.getConnectionByEmail(options.email)
+      connection = await this.getConnectionByEmail(options.email);
     }
 
     if (!connection) {
-      throw new Error('No SSO connection found')
+      throw new Error("No SSO connection found");
     }
 
     if (!connection.enabled) {
-      throw new Error('SSO connection is disabled')
+      throw new Error("SSO connection is disabled");
     }
 
     // Build relay state with return URL and connection ID
     const relayState = Buffer.from(
       JSON.stringify({
         connectionId: connection.id,
-        returnUrl: options.returnUrl || '/chat',
+        returnUrl: options.returnUrl || "/chat",
         timestamp: Date.now(),
-      })
-    ).toString('base64')
+      }),
+    ).toString("base64");
 
-    const loginUrl = await this.samlService.initiateLogin(connection.id, relayState)
+    const loginUrl = await this.samlService.initiateLogin(
+      connection.id,
+      relayState,
+    );
 
     await this.logEvent({
       connectionId: connection.id,
@@ -458,32 +466,36 @@ export class SSOService {
       ipAddress: options.ipAddress,
       userAgent: options.userAgent,
       success: true,
-    })
+    });
 
-    addSentryBreadcrumb('sso', 'SSO login initiated', {
+    addSentryBreadcrumb("sso", "SSO login initiated", {
       connectionId: connection.id,
       provider: connection.provider,
-    })
+    });
 
     return {
       loginUrl,
       connectionId: connection.id,
       connectionName: connection.name,
       provider: connection.provider,
-    }
+    };
   }
 
   /**
    * Process SSO callback (SAML assertion)
    */
-  async processCallback(options: SSOCallbackOptions): Promise<SSOLoginResult & { session?: SSOSession }> {
-    let connectionId = options.connectionId
+  async processCallback(
+    options: SSOCallbackOptions,
+  ): Promise<SSOLoginResult & { session?: SSOSession }> {
+    let connectionId = options.connectionId;
 
     // Extract connection ID from relay state if not provided
     if (!connectionId && options.relayState) {
       try {
-        const relayData = JSON.parse(Buffer.from(options.relayState, 'base64').toString())
-        connectionId = relayData.connectionId
+        const relayData = JSON.parse(
+          Buffer.from(options.relayState, "base64").toString(),
+        );
+        connectionId = relayData.connectionId;
       } catch {
         // Relay state parsing failed
       }
@@ -492,24 +504,27 @@ export class SSOService {
     if (!connectionId) {
       const result: SSOLoginResult = {
         success: false,
-        error: 'Missing connection ID',
-        errorCode: 'CONFIGURATION_ERROR',
-      }
+        error: "Missing connection ID",
+        errorCode: "CONFIGURATION_ERROR",
+      };
 
       await this.logEvent({
         eventType: SSO_EVENTS.LOGIN_FAILED,
         ipAddress: options.ipAddress,
         userAgent: options.userAgent,
         success: false,
-        errorCode: 'CONFIGURATION_ERROR',
-        errorMessage: 'Missing connection ID',
-      })
+        errorCode: "CONFIGURATION_ERROR",
+        errorMessage: "Missing connection ID",
+      });
 
-      return result
+      return result;
     }
 
     // Process the SAML assertion
-    const result = await this.samlService.processAssertion(connectionId, options.samlResponse)
+    const result = await this.samlService.processAssertion(
+      connectionId,
+      options.samlResponse,
+    );
 
     if (!result.success) {
       await this.logEvent({
@@ -520,13 +535,13 @@ export class SSOService {
         success: false,
         errorCode: result.errorCode,
         errorMessage: result.error,
-      })
+      });
 
-      return result
+      return result;
     }
 
     // Create SSO session
-    let session: SSOSession | undefined
+    let session: SSOSession | undefined;
 
     if (result.user) {
       try {
@@ -539,24 +554,26 @@ export class SSOService {
             sessionIndex: result.assertion?.sessionIndex,
             expiresAt: result.assertion?.notOnOrAfter?.toISOString(),
           },
-        })
+        });
 
-        const connection = await this.getConnection(connectionId)
+        const connection = await this.getConnection(connectionId);
 
         if (data?.insert_nchat_sso_sessions_one) {
           session = {
             id: data.insert_nchat_sso_sessions_one.id,
             connectionId,
-            connectionName: connection?.name || 'Unknown',
-            provider: connection?.provider || 'generic-saml',
+            connectionName: connection?.name || "Unknown",
+            provider: connection?.provider || "generic-saml",
             nameId: result.assertion?.nameId,
-            authenticatedAt: new Date(data.insert_nchat_sso_sessions_one.authenticated_at),
+            authenticatedAt: new Date(
+              data.insert_nchat_sso_sessions_one.authenticated_at,
+            ),
             lastActivityAt: new Date(),
             expiresAt: result.assertion?.notOnOrAfter,
-          }
+          };
         }
       } catch (error) {
-        logger.error('Failed to create SSO session', error)
+        logger.error("Failed to create SSO session", error);
       }
 
       // Log success and potential provisioning
@@ -569,7 +586,7 @@ export class SSOService {
         userAgent: options.userAgent,
         success: true,
         metadata: { isNewUser: result.user.isNewUser },
-      })
+      });
 
       if (result.user.isNewUser) {
         await this.logEvent({
@@ -579,11 +596,11 @@ export class SSOService {
           email: result.user.email,
           success: true,
           metadata: { role: result.user.role },
-        })
+        });
       }
     }
 
-    return { ...result, session }
+    return { ...result, session };
   }
 
   // --------------------------------------------------------------------------
@@ -597,34 +614,34 @@ export class SSOService {
   async logout(
     userId: string,
     connectionId: string,
-    options?: { ipAddress?: string; userAgent?: string; returnUrl?: string }
+    options?: { ipAddress?: string; userAgent?: string; returnUrl?: string },
   ): Promise<{ sloUrl?: string; sloSupported: boolean }> {
     // Fetch session details needed for SLO (nameId and sessionIndex)
     let sessionData: {
-      nameId?: string
-      sessionIndex?: string
+      nameId?: string;
+      sessionIndex?: string;
       connection?: {
-        config?: SAMLConfiguration
-      }
-    } | null = null
+        config?: SAMLConfiguration;
+      };
+    } | null = null;
 
     try {
       const { data } = await apolloClient.query({
         query: GET_SSO_SESSION_FOR_LOGOUT,
         variables: { userId, connectionId },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (data?.nchat_sso_sessions?.[0]) {
-        const session = data.nchat_sso_sessions[0]
+        const session = data.nchat_sso_sessions[0];
         sessionData = {
           nameId: session.name_id,
           sessionIndex: session.session_index,
           connection: session.connection,
-        }
+        };
       }
     } catch (error) {
-      logger.error('Failed to fetch SSO session for logout', error)
+      logger.error("Failed to fetch SSO session for logout", error);
     }
 
     // Invalidate the SSO session locally
@@ -632,9 +649,9 @@ export class SSOService {
       await apolloClient.mutate({
         mutation: INVALIDATE_SSO_SESSION,
         variables: { userId, connectionId },
-      })
+      });
     } catch (error) {
-      logger.error('Failed to invalidate SSO session', error)
+      logger.error("Failed to invalidate SSO session", error);
     }
 
     await this.logEvent({
@@ -644,23 +661,27 @@ export class SSOService {
       ipAddress: options?.ipAddress,
       userAgent: options?.userAgent,
       success: true,
-    })
+    });
 
     // Generate SAML Single Logout (SLO) URL if IdP supports it
-    const connection = await this.getConnection(connectionId)
+    const connection = await this.getConnection(connectionId);
     if (!connection) {
-      return { sloSupported: false }
+      return { sloSupported: false };
     }
 
-    const { config } = connection
+    const { config } = connection;
 
     // Check if SLO is supported by the IdP
     if (!config.idpSloUrl) {
-      addSentryBreadcrumb('sso', 'SLO not supported by IdP - no idpSloUrl configured', {
-        connectionId,
-        provider: connection.provider,
-      })
-      return { sloSupported: false }
+      addSentryBreadcrumb(
+        "sso",
+        "SLO not supported by IdP - no idpSloUrl configured",
+        {
+          connectionId,
+          provider: connection.provider,
+        },
+      );
+      return { sloSupported: false };
     }
 
     // Build the SAML LogoutRequest
@@ -669,24 +690,24 @@ export class SSOService {
         connection,
         sessionData?.nameId,
         sessionData?.sessionIndex,
-        options?.returnUrl
-      )
+        options?.returnUrl,
+      );
 
-      addSentryBreadcrumb('sso', 'SAML SLO URL generated', {
+      addSentryBreadcrumb("sso", "SAML SLO URL generated", {
         connectionId,
         provider: connection.provider,
         hasNameId: !!sessionData?.nameId,
         hasSessionIndex: !!sessionData?.sessionIndex,
-      })
+      });
 
-      return { sloUrl, sloSupported: true }
+      return { sloUrl, sloSupported: true };
     } catch (error) {
-      logger.error('Failed to generate SAML SLO URL', error)
+      logger.error("Failed to generate SAML SLO URL", error);
       captureError(error as Error, {
-        tags: { context: 'sso-logout-slo' },
+        tags: { context: "sso-logout-slo" },
         extra: { connectionId, userId },
-      })
-      return { sloSupported: true } // SLO is supported but request generation failed
+      });
+      return { sloSupported: true }; // SLO is supported but request generation failed
     }
   }
 
@@ -701,24 +722,29 @@ export class SSOService {
     const { data } = await apolloClient.query({
       query: GET_USER_SSO_SESSIONS,
       variables: { userId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!data?.nchat_sso_sessions) {
-      return []
+      return [];
     }
 
     return data.nchat_sso_sessions.map((session: Record<string, unknown>) => ({
       id: session.id as string,
       connectionId: session.connection_id as string,
-      connectionName: (session.connection as Record<string, unknown>)?.name as string || 'Unknown',
-      provider: ((session.connection as Record<string, unknown>)?.provider || 'generic-saml') as SSOProvider,
+      connectionName:
+        ((session.connection as Record<string, unknown>)?.name as string) ||
+        "Unknown",
+      provider: ((session.connection as Record<string, unknown>)?.provider ||
+        "generic-saml") as SSOProvider,
       nameId: session.name_id as string | undefined,
       sessionIndex: session.session_index as string | undefined,
       authenticatedAt: new Date(session.authenticated_at as string),
       lastActivityAt: new Date(session.last_activity_at as string),
-      expiresAt: session.expires_at ? new Date(session.expires_at as string) : undefined,
-    }))
+      expiresAt: session.expires_at
+        ? new Date(session.expires_at as string)
+        : undefined,
+    }));
   }
 
   // --------------------------------------------------------------------------
@@ -729,11 +755,11 @@ export class SSOService {
    * Get SSO audit logs
    */
   async getAuditLogs(options?: {
-    connectionId?: string
-    userId?: string
-    eventType?: string
-    limit?: number
-    offset?: number
+    connectionId?: string;
+    userId?: string;
+    eventType?: string;
+    limit?: number;
+    offset?: number;
   }): Promise<SSOAuditLogEntry[]> {
     const { data } = await apolloClient.query({
       query: GET_SSO_AUDIT_LOGS,
@@ -744,11 +770,11 @@ export class SSOService {
         limit: options?.limit ?? 100,
         offset: options?.offset ?? 0,
       },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!data?.nchat_sso_audit_log) {
-      return []
+      return [];
     }
 
     return data.nchat_sso_audit_log.map((entry: Record<string, unknown>) => ({
@@ -763,23 +789,23 @@ export class SSOService {
       errorMessage: entry.error_message as string | undefined,
       metadata: entry.metadata as Record<string, unknown> | undefined,
       createdAt: new Date(entry.created_at as string),
-    }))
+    }));
   }
 
   /**
    * Log an SSO event to the audit log
    */
   private async logEvent(event: {
-    connectionId?: string
-    userId?: string
-    eventType: string
-    email?: string
-    ipAddress?: string
-    userAgent?: string
-    success: boolean
-    errorCode?: string
-    errorMessage?: string
-    metadata?: Record<string, unknown>
+    connectionId?: string;
+    userId?: string;
+    eventType: string;
+    email?: string;
+    ipAddress?: string;
+    userAgent?: string;
+    success: boolean;
+    errorCode?: string;
+    errorMessage?: string;
+    metadata?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await apolloClient.mutate({
@@ -796,14 +822,14 @@ export class SSOService {
           errorMessage: event.errorMessage,
           metadata: event.metadata || {},
         },
-      })
+      });
     } catch (error) {
       // Don't throw on audit log failures
-      logger.error('Failed to log SSO event', error)
+      logger.error("Failed to log SSO event", error);
       captureError(error as Error, {
-        tags: { context: 'sso-audit-log' },
+        tags: { context: "sso-audit-log" },
         extra: { event },
-      })
+      });
     }
   }
 
@@ -815,71 +841,82 @@ export class SSOService {
    * Generate SP metadata XML for a connection
    */
   async getSPMetadata(connectionId: string): Promise<string> {
-    const connection = await this.getConnection(connectionId)
+    const connection = await this.getConnection(connectionId);
     if (!connection) {
-      throw new Error('Connection not found')
+      throw new Error("Connection not found");
     }
 
-    return this.samlService.generateSPMetadata(connection)
+    return this.samlService.generateSPMetadata(connection);
   }
 
   /**
    * Test an SSO connection configuration
    */
   async testConnection(connectionId: string): Promise<{
-    success: boolean
-    error?: string
-    details?: Record<string, unknown>
+    success: boolean;
+    error?: string;
+    details?: Record<string, unknown>;
   }> {
-    const { testSSOConnection } = await import('@/lib/auth/saml')
-    return testSSOConnection(connectionId)
+    const { testSSOConnection } = await import("@/lib/auth/saml");
+    return testSSOConnection(connectionId);
   }
 
   /**
    * Validate SAML configuration
    */
-  validateConfiguration(config: SAMLConfiguration): { valid: boolean; errors: string[] } {
-    const errors: string[] = []
+  validateConfiguration(config: SAMLConfiguration): {
+    valid: boolean;
+    errors: string[];
+  } {
+    const errors: string[] = [];
 
-    if (!config.idpEntityId) errors.push('IdP Entity ID is required')
-    if (!config.idpSsoUrl) errors.push('IdP SSO URL is required')
-    if (!config.idpCertificate) errors.push('IdP Certificate is required')
-    if (!config.spEntityId) errors.push('SP Entity ID is required')
-    if (!config.spAssertionConsumerUrl) errors.push('SP ACS URL is required')
-    if (!config.attributeMapping?.email) errors.push('Email attribute mapping is required')
+    if (!config.idpEntityId) errors.push("IdP Entity ID is required");
+    if (!config.idpSsoUrl) errors.push("IdP SSO URL is required");
+    if (!config.idpCertificate) errors.push("IdP Certificate is required");
+    if (!config.spEntityId) errors.push("SP Entity ID is required");
+    if (!config.spAssertionConsumerUrl) errors.push("SP ACS URL is required");
+    if (!config.attributeMapping?.email)
+      errors.push("Email attribute mapping is required");
 
     // Validate URL formats
     if (config.idpSsoUrl && !this.isValidUrl(config.idpSsoUrl)) {
-      errors.push('IdP SSO URL is not a valid URL')
+      errors.push("IdP SSO URL is not a valid URL");
     }
-    if (config.spAssertionConsumerUrl && !this.isValidUrl(config.spAssertionConsumerUrl)) {
-      errors.push('SP ACS URL is not a valid URL')
+    if (
+      config.spAssertionConsumerUrl &&
+      !this.isValidUrl(config.spAssertionConsumerUrl)
+    ) {
+      errors.push("SP ACS URL is not a valid URL");
     }
 
     // Validate certificate format
-    if (config.idpCertificate && !this.isValidCertificate(config.idpCertificate)) {
-      errors.push('IdP Certificate is not in valid PEM format')
+    if (
+      config.idpCertificate &&
+      !this.isValidCertificate(config.idpCertificate)
+    ) {
+      errors.push("IdP Certificate is not in valid PEM format");
     }
 
     return {
       valid: errors.length === 0,
       errors,
-    }
+    };
   }
 
   private isValidUrl(url: string): boolean {
     try {
-      new URL(url)
-      return true
+      new URL(url);
+      return true;
     } catch {
-      return false
+      return false;
     }
   }
 
   private isValidCertificate(cert: string): boolean {
     // Check for PEM format (base64 between BEGIN/END markers)
-    const pemRegex = /-----BEGIN CERTIFICATE-----[\s\S]+-----END CERTIFICATE-----/
-    return pemRegex.test(cert) || cert.match(/^[A-Za-z0-9+/=\s]+$/) !== null
+    const pemRegex =
+      /-----BEGIN CERTIFICATE-----[\s\S]+-----END CERTIFICATE-----/;
+    return pemRegex.test(cert) || cert.match(/^[A-Za-z0-9+/=\s]+$/) !== null;
   }
 }
 
@@ -887,13 +924,13 @@ export class SSOService {
 // Singleton Instance
 // ============================================================================
 
-let ssoServiceInstance: SSOService | null = null
+let ssoServiceInstance: SSOService | null = null;
 
 export function getSSOService(): SSOService {
   if (!ssoServiceInstance) {
-    ssoServiceInstance = new SSOService()
+    ssoServiceInstance = new SSOService();
   }
-  return ssoServiceInstance
+  return ssoServiceInstance;
 }
 
 // ============================================================================
@@ -904,29 +941,29 @@ export function getSSOService(): SSOService {
  * Check if SSO is available for an email domain
  */
 export async function isSSOAvailable(email: string): Promise<boolean> {
-  const service = getSSOService()
-  const connection = await service.getConnectionByEmail(email)
-  return !!connection?.enabled
+  const service = getSSOService();
+  const connection = await service.getConnectionByEmail(email);
+  return !!connection?.enabled;
 }
 
 /**
  * Get SSO connection info for display
  */
 export async function getSSOConnectionInfo(email: string): Promise<{
-  available: boolean
-  connectionName?: string
-  provider?: SSOProvider
+  available: boolean;
+  connectionName?: string;
+  provider?: SSOProvider;
 } | null> {
-  const service = getSSOService()
-  const connection = await service.getConnectionByEmail(email)
+  const service = getSSOService();
+  const connection = await service.getConnectionByEmail(email);
 
   if (!connection?.enabled) {
-    return { available: false }
+    return { available: false };
   }
 
   return {
     available: true,
     connectionName: connection.name,
     provider: connection.provider,
-  }
+  };
 }

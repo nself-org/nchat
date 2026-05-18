@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, RefObject } from 'react'
+import { useEffect, useRef, RefObject } from "react";
 
-type Handler = (event: MouseEvent | TouchEvent) => void
+type Handler = (event: MouseEvent | TouchEvent) => void;
 
 /**
  * Hook for detecting clicks outside a referenced element
@@ -13,29 +13,29 @@ type Handler = (event: MouseEvent | TouchEvent) => void
 export function useClickOutside<T extends HTMLElement = HTMLElement>(
   ref: RefObject<T | null>,
   handler: Handler,
-  enabled: boolean = true
+  enabled: boolean = true,
 ): void {
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) return;
 
     const listener = (event: MouseEvent | TouchEvent) => {
-      const el = ref?.current
+      const el = ref?.current;
       // Do nothing if clicking ref's element or descendent elements
       if (!el || el.contains(event.target as Node)) {
-        return
+        return;
       }
 
-      handler(event)
-    }
+      handler(event);
+    };
 
-    document.addEventListener('mousedown', listener)
-    document.addEventListener('touchstart', listener)
+    document.addEventListener("mousedown", listener);
+    document.addEventListener("touchstart", listener);
 
     return () => {
-      document.removeEventListener('mousedown', listener)
-      document.removeEventListener('touchstart', listener)
-    }
-  }, [ref, handler, enabled])
+      document.removeEventListener("mousedown", listener);
+      document.removeEventListener("touchstart", listener);
+    };
+  }, [ref, handler, enabled]);
 }
 
 /**
@@ -47,9 +47,9 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
  */
 export function useClickOutsideRef<T extends HTMLElement = HTMLElement>(
   handler: Handler,
-  enabled: boolean = true
+  enabled: boolean = true,
 ): RefObject<T | null> {
-  const ref = useRef<T>(null)
-  useClickOutside(ref, handler, enabled)
-  return ref
+  const ref = useRef<T>(null);
+  useClickOutside(ref, handler, enabled);
+  return ref;
 }

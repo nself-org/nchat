@@ -1,57 +1,57 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useEffect } from 'react'
-import { Search, X, Loader2 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useEffect } from "react";
+import { Search, X, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface UserSearchProps {
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-  debounceMs?: number
-  isLoading?: boolean
-  className?: string
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  debounceMs?: number;
+  isLoading?: boolean;
+  className?: string;
 }
 
 export function UserSearch({
   value,
   onChange,
-  placeholder = 'Search users by name, username, or email...',
+  placeholder = "Search users by name, username, or email...",
   debounceMs = 300,
   isLoading = false,
   className,
 }: UserSearchProps) {
-  const [localValue, setLocalValue] = useState(value)
+  const [localValue, setLocalValue] = useState(value);
 
   // Sync with external value
   useEffect(() => {
-    setLocalValue(value)
-  }, [value])
+    setLocalValue(value);
+  }, [value]);
 
   // Debounced onChange
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localValue !== value) {
-        onChange(localValue)
+        onChange(localValue);
       }
-    }, debounceMs)
+    }, debounceMs);
 
-    return () => clearTimeout(timer)
-  }, [localValue, value, onChange, debounceMs])
+    return () => clearTimeout(timer);
+  }, [localValue, value, onChange, debounceMs]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalValue(e.target.value)
-  }, [])
+    setLocalValue(e.target.value);
+  }, []);
 
   const handleClear = useCallback(() => {
-    setLocalValue('')
-    onChange('')
-  }, [onChange])
+    setLocalValue("");
+    onChange("");
+  }, [onChange]);
 
   return (
-    <div className={cn('relative max-w-sm flex-1', className)}>
+    <div className={cn("relative max-w-sm flex-1", className)}>
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         type="search"
@@ -75,7 +75,7 @@ export function UserSearch({
         </Button>
       ) : null}
     </div>
-  )
+  );
 }
 
-export default UserSearch
+export default UserSearch;

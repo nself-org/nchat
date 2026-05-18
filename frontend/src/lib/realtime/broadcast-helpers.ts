@@ -9,9 +9,9 @@
  * @version 1.0.0
  */
 
-import { getAPIEventBroadcaster } from '@/services/realtime/api-event-broadcaster'
-import type { EventUser } from '@/services/realtime/events.types'
-import type { Message } from '@/types/message'
+import { getAPIEventBroadcaster } from "@/services/realtime/api-event-broadcaster";
+import type { EventUser } from "@/services/realtime/events.types";
+import type { Message } from "@/types/message";
 
 // ============================================================================
 // Types
@@ -21,22 +21,22 @@ import type { Message } from '@/types/message'
  * User data from database for conversion to EventUser
  */
 export interface DBUser {
-  id: string
-  username: string
-  display_name?: string
-  displayName?: string
-  avatar_url?: string
-  avatarUrl?: string
+  id: string;
+  username: string;
+  display_name?: string;
+  displayName?: string;
+  avatar_url?: string;
+  avatarUrl?: string;
 }
 
 /**
  * Channel data for broadcasts
  */
 export interface DBChannel {
-  id: string
-  name: string
-  member_count?: number
-  memberCount?: number
+  id: string;
+  name: string;
+  member_count?: number;
+  memberCount?: number;
 }
 
 // ============================================================================
@@ -52,7 +52,7 @@ export function toEventUser(user: DBUser): EventUser {
     username: user.username,
     displayName: user.display_name || user.displayName,
     avatarUrl: user.avatar_url || user.avatarUrl,
-  }
+  };
 }
 
 /**
@@ -85,7 +85,7 @@ export function messageToEventData(message: Message) {
       displayName: message.user.displayName,
       avatarUrl: message.user.avatarUrl,
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -96,13 +96,13 @@ export function messageToEventData(message: Message) {
  * Broadcast a new message to all channel subscribers
  */
 export async function broadcastNewMessage(message: Message): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
-  await broadcaster.broadcastMessageNew(messageToEventData(message))
+  await broadcaster.broadcastMessageNew(messageToEventData(message));
 }
 
 /**
@@ -114,12 +114,12 @@ export async function broadcastMessageEdit(
   newContent: string,
   newContentHtml: string | undefined,
   editedBy: EventUser,
-  threadId?: string
+  threadId?: string,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
   await broadcaster.broadcastMessageUpdate({
@@ -129,7 +129,7 @@ export async function broadcastMessageEdit(
     contentHtml: newContentHtml,
     editedBy,
     threadId,
-  })
+  });
 }
 
 /**
@@ -140,12 +140,12 @@ export async function broadcastMessageDelete(
   channelId: string,
   deletedBy?: EventUser,
   threadId?: string,
-  hardDelete = false
+  hardDelete = false,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
   await broadcaster.broadcastMessageDelete({
@@ -154,7 +154,7 @@ export async function broadcastMessageDelete(
     deletedBy,
     threadId,
     hardDelete,
-  })
+  });
 }
 
 // ============================================================================
@@ -169,12 +169,12 @@ export async function broadcastReactionAdded(
   channelId: string,
   emoji: string,
   user: EventUser,
-  totalCount: number
+  totalCount: number,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
   await broadcaster.broadcastReactionAdd({
@@ -183,7 +183,7 @@ export async function broadcastReactionAdded(
     emoji,
     user,
     totalCount,
-  })
+  });
 }
 
 /**
@@ -194,12 +194,12 @@ export async function broadcastReactionRemoved(
   channelId: string,
   emoji: string,
   userId: string,
-  remainingCount: number
+  remainingCount: number,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
   await broadcaster.broadcastReactionRemove({
@@ -208,7 +208,7 @@ export async function broadcastReactionRemoved(
     emoji,
     userId,
     remainingCount,
-  })
+  });
 }
 
 // ============================================================================
@@ -221,19 +221,19 @@ export async function broadcastReactionRemoved(
 export async function broadcastChannelUpdated(
   channelId: string,
   updates: Record<string, unknown>,
-  updatedBy: EventUser
+  updatedBy: EventUser,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
   await broadcaster.broadcastChannelUpdate({
     channelId,
     updates,
     updatedBy,
-  })
+  });
 }
 
 /**
@@ -242,13 +242,13 @@ export async function broadcastChannelUpdated(
 export async function broadcastMemberJoined(
   channel: DBChannel,
   user: DBUser,
-  role: 'owner' | 'admin' | 'moderator' | 'member' | 'guest',
-  addedBy?: DBUser
+  role: "owner" | "admin" | "moderator" | "member" | "guest",
+  addedBy?: DBUser,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
   await broadcaster.broadcastMemberJoin({
@@ -258,7 +258,7 @@ export async function broadcastMemberJoined(
     role,
     addedBy: addedBy ? toEventUser(addedBy) : undefined,
     memberCount: (channel.member_count || channel.memberCount || 0) + 1,
-  })
+  });
 }
 
 /**
@@ -269,12 +269,12 @@ export async function broadcastMemberLeft(
   userId: string,
   username?: string,
   removedBy?: DBUser,
-  reason?: 'left' | 'kicked' | 'banned'
+  reason?: "left" | "kicked" | "banned",
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
   await broadcaster.broadcastMemberLeave({
@@ -284,8 +284,11 @@ export async function broadcastMemberLeft(
     username,
     removedBy: removedBy ? toEventUser(removedBy) : undefined,
     reason,
-    memberCount: Math.max(0, (channel.member_count || channel.memberCount || 1) - 1),
-  })
+    memberCount: Math.max(
+      0,
+      (channel.member_count || channel.memberCount || 1) - 1,
+    ),
+  });
 }
 
 // ============================================================================
@@ -298,22 +301,22 @@ export async function broadcastMemberLeft(
 export async function broadcastMessagePinned(
   messageId: string,
   channelId: string,
-  pinnedBy: EventUser
+  pinnedBy: EventUser,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
-  await broadcaster.broadcast('message:pin', [`channel:${channelId}`], {
+  await broadcaster.broadcast("message:pin", [`channel:${channelId}`], {
     meta: { eventId: crypto.randomUUID(), timestamp: new Date().toISOString() },
     messageId,
     channelId,
     pinnedBy,
     pinnedAt: new Date().toISOString(),
-    action: 'pin',
-  })
+    action: "pin",
+  });
 }
 
 /**
@@ -322,22 +325,22 @@ export async function broadcastMessagePinned(
 export async function broadcastMessageUnpinned(
   messageId: string,
   channelId: string,
-  unpinnedBy: EventUser
+  unpinnedBy: EventUser,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
-  await broadcaster.broadcast('message:pin', [`channel:${channelId}`], {
+  await broadcaster.broadcast("message:pin", [`channel:${channelId}`], {
     meta: { eventId: crypto.randomUUID(), timestamp: new Date().toISOString() },
     messageId,
     channelId,
     pinnedBy: unpinnedBy,
     pinnedAt: new Date().toISOString(),
-    action: 'unpin',
-  })
+    action: "unpin",
+  });
 }
 
 // ============================================================================
@@ -353,27 +356,30 @@ export async function broadcastThreadStatsUpdated(
   messageCount: number,
   participantCount: number,
   lastMessageAt: Date,
-  recentParticipantIds: string[]
+  recentParticipantIds: string[],
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
   await broadcaster.broadcast(
-    'thread:stats_update',
+    "thread:stats_update",
     [`channel:${channelId}`, `thread:${threadId}`],
     {
-      meta: { eventId: crypto.randomUUID(), timestamp: new Date().toISOString() },
+      meta: {
+        eventId: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
       threadId,
       channelId,
       messageCount,
       participantCount,
       lastMessageAt: lastMessageAt.toISOString(),
       recentParticipantIds,
-    }
-  )
+    },
+  );
 }
 
 // ============================================================================
@@ -387,19 +393,19 @@ export async function broadcastReadReceipt(
   channelId: string,
   userId: string,
   lastReadMessageId: string,
-  unreadCount: number
+  unreadCount: number,
 ): Promise<void> {
-  const broadcaster = getAPIEventBroadcaster()
+  const broadcaster = getAPIEventBroadcaster();
 
   if (!broadcaster.initialized) {
-    broadcaster.initialize()
+    broadcaster.initialize();
   }
 
-  await broadcaster.broadcast('read_receipt:update', [`channel:${channelId}`], {
+  await broadcaster.broadcast("read_receipt:update", [`channel:${channelId}`], {
     channelId,
     userId,
     lastReadMessageId,
     readAt: new Date().toISOString(),
     unreadCount,
-  })
+  });
 }

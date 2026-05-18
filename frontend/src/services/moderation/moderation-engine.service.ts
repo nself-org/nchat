@@ -10,110 +10,115 @@
  * - Bulk moderation operations
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export type ModerationActionType =
-  | 'warn'
-  | 'mute'
-  | 'unmute'
-  | 'kick'
-  | 'ban'
-  | 'unban'
-  | 'timeout'
-  | 'remove_timeout'
-  | 'slowmode'
-  | 'remove_slowmode'
-  | 'delete_message'
-  | 'hide_message'
-  | 'restore_message'
-  | 'flag'
-  | 'purge'
+  | "warn"
+  | "mute"
+  | "unmute"
+  | "kick"
+  | "ban"
+  | "unban"
+  | "timeout"
+  | "remove_timeout"
+  | "slowmode"
+  | "remove_slowmode"
+  | "delete_message"
+  | "hide_message"
+  | "restore_message"
+  | "flag"
+  | "purge";
 
 export type TimeoutDuration =
-  | '5m'
-  | '10m'
-  | '30m'
-  | '1h'
-  | '4h'
-  | '8h'
-  | '24h'
-  | '3d'
-  | '7d'
-  | '14d'
-  | '30d'
+  | "5m"
+  | "10m"
+  | "30m"
+  | "1h"
+  | "4h"
+  | "8h"
+  | "24h"
+  | "3d"
+  | "7d"
+  | "14d"
+  | "30d";
 
 export type ReportCategory =
-  | 'spam'
-  | 'harassment'
-  | 'hate_speech'
-  | 'violence'
-  | 'nudity'
-  | 'misinformation'
-  | 'impersonation'
-  | 'copyright'
-  | 'scam'
-  | 'underage'
-  | 'self_harm'
-  | 'other'
+  | "spam"
+  | "harassment"
+  | "hate_speech"
+  | "violence"
+  | "nudity"
+  | "misinformation"
+  | "impersonation"
+  | "copyright"
+  | "scam"
+  | "underage"
+  | "self_harm"
+  | "other";
 
-export type ReportStatus = 'pending' | 'under_review' | 'resolved' | 'dismissed' | 'escalated'
-export type ReportPriority = 'low' | 'medium' | 'high' | 'critical'
+export type ReportStatus =
+  | "pending"
+  | "under_review"
+  | "resolved"
+  | "dismissed"
+  | "escalated";
+export type ReportPriority = "low" | "medium" | "high" | "critical";
 export type AppealStatus =
-  | 'pending'
-  | 'under_review'
-  | 'approved'
-  | 'rejected'
-  | 'partially_approved'
-  | 'withdrawn'
+  | "pending"
+  | "under_review"
+  | "approved"
+  | "rejected"
+  | "partially_approved"
+  | "withdrawn";
 
 // ============================================================================
 // Report Types
 // ============================================================================
 
 export interface ReportEvidence {
-  id: string
-  type: 'screenshot' | 'link' | 'text' | 'file' | 'message_id'
-  content: string
-  description?: string
-  addedAt: Date
+  id: string;
+  type: "screenshot" | "link" | "text" | "file" | "message_id";
+  content: string;
+  description?: string;
+  addedAt: Date;
 }
 
 export interface Report {
-  id: string
-  reporterId: string
-  reporterName?: string
-  targetType: 'user' | 'message' | 'channel'
-  targetId: string
-  targetName?: string
-  category: ReportCategory
-  description: string
-  evidence: ReportEvidence[]
-  status: ReportStatus
-  priority: ReportPriority
-  assignedTo?: string
-  assignedToName?: string
-  notes: ReportNote[]
-  resolution?: string
-  resolvedBy?: string
-  resolvedAt?: Date
-  createdAt: Date
-  updatedAt: Date
-  channelId?: string
-  workspaceId?: string
-  metadata?: Record<string, unknown>
+  id: string;
+  reporterId: string;
+  reporterName?: string;
+  targetType: "user" | "message" | "channel";
+  targetId: string;
+  targetName?: string;
+  category: ReportCategory;
+  description: string;
+  evidence: ReportEvidence[];
+  status: ReportStatus;
+  priority: ReportPriority;
+  assignedTo?: string;
+  assignedToName?: string;
+  notes: ReportNote[];
+  resolution?: string;
+  resolvedBy?: string;
+  resolvedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  channelId?: string;
+  workspaceId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ReportNote {
-  id: string
-  authorId: string
-  authorName?: string
-  content: string
-  isInternal: boolean
-  createdAt: Date
+  id: string;
+  authorId: string;
+  authorName?: string;
+  content: string;
+  isInternal: boolean;
+  createdAt: Date;
 }
 
 // ============================================================================
@@ -121,42 +126,42 @@ export interface ReportNote {
 // ============================================================================
 
 export interface ModerationAction {
-  id: string
-  actionType: ModerationActionType
-  targetUserId: string
-  targetUserName?: string
-  moderatorId: string
-  moderatorName?: string
-  reason: string
-  channelId?: string
-  workspaceId?: string
-  duration?: number // in milliseconds
-  expiresAt?: Date
-  isAutomated: boolean
-  automationRuleId?: string
-  relatedReportId?: string
-  affectedMessageIds?: string[]
-  metadata?: Record<string, unknown>
-  reversible: boolean
-  reversedBy?: string
-  reversedAt?: Date
-  createdAt: Date
+  id: string;
+  actionType: ModerationActionType;
+  targetUserId: string;
+  targetUserName?: string;
+  moderatorId: string;
+  moderatorName?: string;
+  reason: string;
+  channelId?: string;
+  workspaceId?: string;
+  duration?: number; // in milliseconds
+  expiresAt?: Date;
+  isAutomated: boolean;
+  automationRuleId?: string;
+  relatedReportId?: string;
+  affectedMessageIds?: string[];
+  metadata?: Record<string, unknown>;
+  reversible: boolean;
+  reversedBy?: string;
+  reversedAt?: Date;
+  createdAt: Date;
 }
 
 export interface UserPenalty {
-  id: string
-  userId: string
-  penaltyType: 'mute' | 'ban' | 'timeout' | 'warning'
-  channelId?: string // null = workspace-wide
-  workspaceId: string
-  reason: string
-  issuedBy: string
-  issuedAt: Date
-  expiresAt?: Date // null = permanent
-  isActive: boolean
-  liftedBy?: string
-  liftedAt?: Date
-  liftReason?: string
+  id: string;
+  userId: string;
+  penaltyType: "mute" | "ban" | "timeout" | "warning";
+  channelId?: string; // null = workspace-wide
+  workspaceId: string;
+  reason: string;
+  issuedBy: string;
+  issuedAt: Date;
+  expiresAt?: Date; // null = permanent
+  isActive: boolean;
+  liftedBy?: string;
+  liftedAt?: Date;
+  liftReason?: string;
 }
 
 // ============================================================================
@@ -164,25 +169,25 @@ export interface UserPenalty {
 // ============================================================================
 
 export interface TimeoutConfig {
-  userId: string
-  duration: TimeoutDuration
-  reason: string
-  moderatorId: string
-  channelId?: string // null = workspace-wide
-  workspaceId: string
+  userId: string;
+  duration: TimeoutDuration;
+  reason: string;
+  moderatorId: string;
+  channelId?: string; // null = workspace-wide
+  workspaceId: string;
 }
 
 export interface TimeoutInfo {
-  id: string
-  userId: string
-  channelId?: string
-  workspaceId: string
-  reason: string
-  moderatorId: string
-  startedAt: Date
-  expiresAt: Date
-  isActive: boolean
-  remainingMs: number
+  id: string;
+  userId: string;
+  channelId?: string;
+  workspaceId: string;
+  reason: string;
+  moderatorId: string;
+  startedAt: Date;
+  expiresAt: Date;
+  isActive: boolean;
+  remainingMs: number;
 }
 
 // ============================================================================
@@ -190,14 +195,14 @@ export interface TimeoutInfo {
 // ============================================================================
 
 export interface SlowmodeConfig {
-  channelId: string
-  intervalMs: number // Time between messages
-  enabled: boolean
-  bypassRoles: string[]
-  bypassUsers: string[]
-  createdBy: string
-  createdAt: Date
-  updatedAt: Date
+  channelId: string;
+  intervalMs: number; // Time between messages
+  enabled: boolean;
+  bypassRoles: string[];
+  bypassUsers: string[];
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ============================================================================
@@ -205,42 +210,42 @@ export interface SlowmodeConfig {
 // ============================================================================
 
 export interface Appeal {
-  id: string
-  userId: string
-  userName?: string
-  actionId: string
-  penaltyId?: string
-  reason: string
-  evidence: ReportEvidence[]
-  status: AppealStatus
-  priority: ReportPriority
-  assignedTo?: string
-  assignedToName?: string
-  reviewNotes: AppealNote[]
-  resolution?: string
-  outcome?: AppealOutcome
-  createdAt: Date
-  updatedAt: Date
-  reviewedAt?: Date
-  reviewedBy?: string
-  resolvedAt?: Date
-  resolvedBy?: string
+  id: string;
+  userId: string;
+  userName?: string;
+  actionId: string;
+  penaltyId?: string;
+  reason: string;
+  evidence: ReportEvidence[];
+  status: AppealStatus;
+  priority: ReportPriority;
+  assignedTo?: string;
+  assignedToName?: string;
+  reviewNotes: AppealNote[];
+  resolution?: string;
+  outcome?: AppealOutcome;
+  createdAt: Date;
+  updatedAt: Date;
+  reviewedAt?: Date;
+  reviewedBy?: string;
+  resolvedAt?: Date;
+  resolvedBy?: string;
 }
 
 export interface AppealNote {
-  id: string
-  authorId: string
-  authorName?: string
-  content: string
-  isInternal: boolean
-  createdAt: Date
+  id: string;
+  authorId: string;
+  authorName?: string;
+  content: string;
+  isInternal: boolean;
+  createdAt: Date;
 }
 
 export interface AppealOutcome {
-  decision: 'overturn' | 'uphold' | 'modify'
-  explanation: string
-  newPenalty?: Partial<UserPenalty>
-  compensationOffered?: string
+  decision: "overturn" | "uphold" | "modify";
+  explanation: string;
+  newPenalty?: Partial<UserPenalty>;
+  compensationOffered?: string;
 }
 
 // ============================================================================
@@ -248,47 +253,53 @@ export interface AppealOutcome {
 // ============================================================================
 
 export interface AutoModRule {
-  id: string
-  name: string
-  description?: string
-  enabled: boolean
-  trigger: AutoModTrigger
-  conditions: AutoModCondition[]
-  actions: AutoModActionConfig[]
-  priority: number
-  cooldownMs: number
-  maxTriggersPerHour: number
-  exemptRoles: string[]
-  exemptUsers: string[]
-  channelIds?: string[] // null = all channels
-  workspaceId: string
-  createdBy: string
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  name: string;
+  description?: string;
+  enabled: boolean;
+  trigger: AutoModTrigger;
+  conditions: AutoModCondition[];
+  actions: AutoModActionConfig[];
+  priority: number;
+  cooldownMs: number;
+  maxTriggersPerHour: number;
+  exemptRoles: string[];
+  exemptUsers: string[];
+  channelIds?: string[]; // null = all channels
+  workspaceId: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type AutoModTrigger =
-  | 'message_content'
-  | 'spam_detection'
-  | 'mention_spam'
-  | 'link_detection'
-  | 'file_upload'
-  | 'join_event'
-  | 'raid_detection'
+  | "message_content"
+  | "spam_detection"
+  | "mention_spam"
+  | "link_detection"
+  | "file_upload"
+  | "join_event"
+  | "raid_detection";
 
 export interface AutoModCondition {
-  type: 'keyword' | 'regex' | 'mention_count' | 'link_count' | 'caps_percentage' | 'message_rate'
-  value: string | number
-  operator: 'equals' | 'contains' | 'matches' | 'greater_than' | 'less_than'
+  type:
+    | "keyword"
+    | "regex"
+    | "mention_count"
+    | "link_count"
+    | "caps_percentage"
+    | "message_rate";
+  value: string | number;
+  operator: "equals" | "contains" | "matches" | "greater_than" | "less_than";
 }
 
 export interface AutoModActionConfig {
-  action: ModerationActionType
-  duration?: number
-  reason?: string
-  notifyUser: boolean
-  notifyModerators: boolean
-  logToChannel?: string
+  action: ModerationActionType;
+  duration?: number;
+  reason?: string;
+  notifyUser: boolean;
+  notifyModerators: boolean;
+  logToChannel?: string;
 }
 
 // ============================================================================
@@ -296,23 +307,23 @@ export interface AutoModActionConfig {
 // ============================================================================
 
 export interface ModerationLogEntry {
-  id: string
-  action: ModerationAction
+  id: string;
+  action: ModerationAction;
   actor: {
-    id: string
-    name?: string
-    role: string
-  }
+    id: string;
+    name?: string;
+    role: string;
+  };
   target: {
-    id: string
-    name?: string
-    type: 'user' | 'message' | 'channel'
-  }
-  reason: string
-  evidence?: string[]
-  outcome: 'success' | 'failure' | 'partial'
-  timestamp: Date
-  metadata?: Record<string, unknown>
+    id: string;
+    name?: string;
+    type: "user" | "message" | "channel";
+  };
+  reason: string;
+  evidence?: string[];
+  outcome: "success" | "failure" | "partial";
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -321,32 +332,32 @@ export interface ModerationLogEntry {
 
 export interface ModerationEngineConfig {
   // Thresholds
-  autoModerationEnabled: boolean
-  spamThreshold: number
-  toxicityThreshold: number
-  nsfwThreshold: number
+  autoModerationEnabled: boolean;
+  spamThreshold: number;
+  toxicityThreshold: number;
+  nsfwThreshold: number;
 
   // Timeouts
-  defaultTimeoutDuration: TimeoutDuration
-  maxTimeoutDuration: TimeoutDuration
+  defaultTimeoutDuration: TimeoutDuration;
+  maxTimeoutDuration: TimeoutDuration;
 
   // Rate Limiting
-  defaultSlowmodeInterval: number
-  maxSlowmodeInterval: number
+  defaultSlowmodeInterval: number;
+  maxSlowmodeInterval: number;
 
   // Escalation
-  warningsBeforeMute: number
-  mutesBeforeBan: number
-  autoEscalationEnabled: boolean
+  warningsBeforeMute: number;
+  mutesBeforeBan: number;
+  autoEscalationEnabled: boolean;
 
   // Appeals
-  appealsEnabled: boolean
-  appealWindowDays: number
-  maxAppealsPerAction: number
+  appealsEnabled: boolean;
+  appealWindowDays: number;
+  maxAppealsPerAction: number;
 
   // Logging
-  retainLogsForDays: number
-  anonymizeAfterDays: number
+  retainLogsForDays: number;
+  anonymizeAfterDays: number;
 }
 
 export const DEFAULT_ENGINE_CONFIG: ModerationEngineConfig = {
@@ -355,8 +366,8 @@ export const DEFAULT_ENGINE_CONFIG: ModerationEngineConfig = {
   toxicityThreshold: 0.8,
   nsfwThreshold: 0.9,
 
-  defaultTimeoutDuration: '10m',
-  maxTimeoutDuration: '30d',
+  defaultTimeoutDuration: "10m",
+  maxTimeoutDuration: "30d",
 
   defaultSlowmodeInterval: 5000,
   maxSlowmodeInterval: 21600000, // 6 hours
@@ -371,40 +382,40 @@ export const DEFAULT_ENGINE_CONFIG: ModerationEngineConfig = {
 
   retainLogsForDays: 365,
   anonymizeAfterDays: 730,
-}
+};
 
 // ============================================================================
 // Duration Conversion
 // ============================================================================
 
 export const TIMEOUT_DURATIONS: Record<TimeoutDuration, number> = {
-  '5m': 5 * 60 * 1000,
-  '10m': 10 * 60 * 1000,
-  '30m': 30 * 60 * 1000,
-  '1h': 60 * 60 * 1000,
-  '4h': 4 * 60 * 60 * 1000,
-  '8h': 8 * 60 * 60 * 1000,
-  '24h': 24 * 60 * 60 * 1000,
-  '3d': 3 * 24 * 60 * 60 * 1000,
-  '7d': 7 * 24 * 60 * 60 * 1000,
-  '14d': 14 * 24 * 60 * 60 * 1000,
-  '30d': 30 * 24 * 60 * 60 * 1000,
-}
+  "5m": 5 * 60 * 1000,
+  "10m": 10 * 60 * 1000,
+  "30m": 30 * 60 * 1000,
+  "1h": 60 * 60 * 1000,
+  "4h": 4 * 60 * 60 * 1000,
+  "8h": 8 * 60 * 60 * 1000,
+  "24h": 24 * 60 * 60 * 1000,
+  "3d": 3 * 24 * 60 * 60 * 1000,
+  "7d": 7 * 24 * 60 * 60 * 1000,
+  "14d": 14 * 24 * 60 * 60 * 1000,
+  "30d": 30 * 24 * 60 * 60 * 1000,
+};
 
 export function parseDuration(duration: TimeoutDuration): number {
-  return TIMEOUT_DURATIONS[duration] || TIMEOUT_DURATIONS['10m']
+  return TIMEOUT_DURATIONS[duration] || TIMEOUT_DURATIONS["10m"];
 }
 
 export function formatDurationMs(ms: number): string {
-  const seconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days} day${days !== 1 ? 's' : ''}`
-  if (hours > 0) return `${hours} hour${hours !== 1 ? 's' : ''}`
-  if (minutes > 0) return `${minutes} minute${minutes !== 1 ? 's' : ''}`
-  return `${seconds} second${seconds !== 1 ? 's' : ''}`
+  if (days > 0) return `${days} day${days !== 1 ? "s" : ""}`;
+  if (hours > 0) return `${hours} hour${hours !== 1 ? "s" : ""}`;
+  if (minutes > 0) return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
+  return `${seconds} second${seconds !== 1 ? "s" : ""}`;
 }
 
 // ============================================================================
@@ -412,16 +423,27 @@ export function formatDurationMs(ms: number): string {
 // ============================================================================
 
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-function calculateReportPriority(category: ReportCategory, hasEvidence: boolean): ReportPriority {
-  const urgentCategories: ReportCategory[] = ['violence', 'self_harm', 'underage']
-  const highCategories: ReportCategory[] = ['harassment', 'hate_speech', 'scam']
+function calculateReportPriority(
+  category: ReportCategory,
+  hasEvidence: boolean,
+): ReportPriority {
+  const urgentCategories: ReportCategory[] = [
+    "violence",
+    "self_harm",
+    "underage",
+  ];
+  const highCategories: ReportCategory[] = [
+    "harassment",
+    "hate_speech",
+    "scam",
+  ];
 
-  if (urgentCategories.includes(category)) return 'critical'
-  if (highCategories.includes(category)) return hasEvidence ? 'high' : 'medium'
-  return hasEvidence ? 'medium' : 'low'
+  if (urgentCategories.includes(category)) return "critical";
+  if (highCategories.includes(category)) return hasEvidence ? "high" : "medium";
+  return hasEvidence ? "medium" : "low";
 }
 
 // ============================================================================
@@ -429,20 +451,20 @@ function calculateReportPriority(category: ReportCategory, hasEvidence: boolean)
 // ============================================================================
 
 export class ModerationEngine {
-  private config: ModerationEngineConfig
-  private reports: Map<string, Report> = new Map()
-  private actions: Map<string, ModerationAction> = new Map()
-  private penalties: Map<string, UserPenalty> = new Map()
-  private appeals: Map<string, Appeal> = new Map()
-  private autoModRules: Map<string, AutoModRule> = new Map()
-  private slowmodeConfigs: Map<string, SlowmodeConfig> = new Map()
-  private timeouts: Map<string, TimeoutInfo> = new Map()
-  private moderationLogs: ModerationLogEntry[] = []
-  private userWarningCounts: Map<string, number> = new Map()
-  private userMuteCounts: Map<string, number> = new Map()
+  private config: ModerationEngineConfig;
+  private reports: Map<string, Report> = new Map();
+  private actions: Map<string, ModerationAction> = new Map();
+  private penalties: Map<string, UserPenalty> = new Map();
+  private appeals: Map<string, Appeal> = new Map();
+  private autoModRules: Map<string, AutoModRule> = new Map();
+  private slowmodeConfigs: Map<string, SlowmodeConfig> = new Map();
+  private timeouts: Map<string, TimeoutInfo> = new Map();
+  private moderationLogs: ModerationLogEntry[] = [];
+  private userWarningCounts: Map<string, number> = new Map();
+  private userMuteCounts: Map<string, number> = new Map();
 
   constructor(config: Partial<ModerationEngineConfig> = {}) {
-    this.config = { ...DEFAULT_ENGINE_CONFIG, ...config }
+    this.config = { ...DEFAULT_ENGINE_CONFIG, ...config };
   }
 
   // ==========================================================================
@@ -450,11 +472,11 @@ export class ModerationEngine {
   // ==========================================================================
 
   updateConfig(config: Partial<ModerationEngineConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
   }
 
   getConfig(): ModerationEngineConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 
   // ==========================================================================
@@ -465,29 +487,32 @@ export class ModerationEngine {
    * Creates a new report
    */
   createReport(params: {
-    reporterId: string
-    reporterName?: string
-    targetType: 'user' | 'message' | 'channel'
-    targetId: string
-    targetName?: string
-    category: ReportCategory
-    description: string
-    evidence?: Omit<ReportEvidence, 'id' | 'addedAt'>[]
-    channelId?: string
-    workspaceId?: string
+    reporterId: string;
+    reporterName?: string;
+    targetType: "user" | "message" | "channel";
+    targetId: string;
+    targetName?: string;
+    category: ReportCategory;
+    description: string;
+    evidence?: Omit<ReportEvidence, "id" | "addedAt">[];
+    channelId?: string;
+    workspaceId?: string;
   }): { success: boolean; report?: Report; error?: string } {
     if (!params.description?.trim()) {
-      return { success: false, error: 'Description is required' }
+      return { success: false, error: "Description is required" };
     }
 
-    const now = new Date()
+    const now = new Date();
     const evidence: ReportEvidence[] = (params.evidence || []).map((e) => ({
       ...e,
       id: generateId(),
       addedAt: now,
-    }))
+    }));
 
-    const priority = calculateReportPriority(params.category, evidence.length > 0)
+    const priority = calculateReportPriority(
+      params.category,
+      evidence.length > 0,
+    );
 
     const report: Report = {
       id: generateId(),
@@ -499,70 +524,77 @@ export class ModerationEngine {
       category: params.category,
       description: params.description.trim(),
       evidence,
-      status: 'pending',
+      status: "pending",
       priority,
       notes: [],
       channelId: params.channelId,
       workspaceId: params.workspaceId,
       createdAt: now,
       updatedAt: now,
-    }
+    };
 
-    this.reports.set(report.id, report)
+    this.reports.set(report.id, report);
 
     this.logAction({
-      actionType: 'flag',
+      actionType: "flag",
       targetUserId: params.targetId,
       moderatorId: params.reporterId,
       reason: `Report filed: ${params.category}`,
       isAutomated: false,
       relatedReportId: report.id,
-    })
+    });
 
-    logger.info(`Report created: ${report.id}`, { category: params.category, priority })
+    logger.info(`Report created: ${report.id}`, {
+      category: params.category,
+      priority,
+    });
 
-    return { success: true, report }
+    return { success: true, report };
   }
 
   /**
    * Gets report by ID
    */
   getReport(reportId: string): Report | undefined {
-    return this.reports.get(reportId)
+    return this.reports.get(reportId);
   }
 
   /**
    * Gets all reports with optional filters
    */
   getReports(filters?: {
-    status?: ReportStatus | ReportStatus[]
-    priority?: ReportPriority | ReportPriority[]
-    category?: ReportCategory
-    targetId?: string
-    assignedTo?: string
+    status?: ReportStatus | ReportStatus[];
+    priority?: ReportPriority | ReportPriority[];
+    category?: ReportCategory;
+    targetId?: string;
+    assignedTo?: string;
   }): Report[] {
-    let reports = Array.from(this.reports.values())
+    let reports = Array.from(this.reports.values());
 
     if (filters?.status) {
-      const statuses = Array.isArray(filters.status) ? filters.status : [filters.status]
-      reports = reports.filter((r) => statuses.includes(r.status))
+      const statuses = Array.isArray(filters.status)
+        ? filters.status
+        : [filters.status];
+      reports = reports.filter((r) => statuses.includes(r.status));
     }
 
     if (filters?.priority) {
-      const priorities = Array.isArray(filters.priority) ? filters.priority : [filters.priority]
-      reports = reports.filter((r) => priorities.includes(r.priority))
+      const priorities = Array.isArray(filters.priority)
+        ? filters.priority
+        : [filters.priority];
+      reports = reports.filter((r) => priorities.includes(r.priority));
     }
 
     if (filters?.category) {
-      reports = reports.filter((r) => r.category === filters.category)
+      reports = reports.filter((r) => r.category === filters.category);
     }
 
     if (filters?.targetId) {
-      reports = reports.filter((r) => r.targetId === filters.targetId)
+      reports = reports.filter((r) => r.targetId === filters.targetId);
     }
 
     if (filters?.assignedTo) {
-      reports = reports.filter((r) => r.assignedTo === filters.assignedTo)
+      reports = reports.filter((r) => r.assignedTo === filters.assignedTo);
     }
 
     // Sort by priority (critical first) then by date
@@ -571,20 +603,23 @@ export class ModerationEngine {
       high: 3,
       medium: 2,
       low: 1,
-    }
+    };
 
     return reports.sort((a, b) => {
-      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority]
-      if (priorityDiff !== 0) return priorityDiff
-      return b.createdAt.getTime() - a.createdAt.getTime()
-    })
+      const priorityDiff =
+        priorityOrder[b.priority] - priorityOrder[a.priority];
+      if (priorityDiff !== 0) return priorityDiff;
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
   }
 
   /**
    * Gets pending reports (queue)
    */
   getReportQueue(): Report[] {
-    return this.getReports({ status: ['pending', 'under_review', 'escalated'] })
+    return this.getReports({
+      status: ["pending", "under_review", "escalated"],
+    });
   }
 
   /**
@@ -593,34 +628,34 @@ export class ModerationEngine {
   updateReport(
     reportId: string,
     updates: {
-      status?: ReportStatus
-      priority?: ReportPriority
-      assignedTo?: string
-      assignedToName?: string
-      resolution?: string
+      status?: ReportStatus;
+      priority?: ReportPriority;
+      assignedTo?: string;
+      assignedToName?: string;
+      resolution?: string;
     },
-    moderatorId: string
+    moderatorId: string,
   ): { success: boolean; report?: Report; error?: string } {
-    const report = this.reports.get(reportId)
+    const report = this.reports.get(reportId);
     if (!report) {
-      return { success: false, error: 'Report not found' }
+      return { success: false, error: "Report not found" };
     }
 
-    if (updates.status) report.status = updates.status
-    if (updates.priority) report.priority = updates.priority
+    if (updates.status) report.status = updates.status;
+    if (updates.priority) report.priority = updates.priority;
     if (updates.assignedTo !== undefined) {
-      report.assignedTo = updates.assignedTo
-      report.assignedToName = updates.assignedToName
+      report.assignedTo = updates.assignedTo;
+      report.assignedToName = updates.assignedToName;
     }
     if (updates.resolution) {
-      report.resolution = updates.resolution
-      report.resolvedBy = moderatorId
-      report.resolvedAt = new Date()
+      report.resolution = updates.resolution;
+      report.resolvedBy = moderatorId;
+      report.resolvedAt = new Date();
     }
 
-    report.updatedAt = new Date()
+    report.updatedAt = new Date();
 
-    return { success: true, report }
+    return { success: true, report };
   }
 
   /**
@@ -631,11 +666,11 @@ export class ModerationEngine {
     authorId: string,
     content: string,
     isInternal: boolean = false,
-    authorName?: string
+    authorName?: string,
   ): { success: boolean; note?: ReportNote; error?: string } {
-    const report = this.reports.get(reportId)
+    const report = this.reports.get(reportId);
     if (!report) {
-      return { success: false, error: 'Report not found' }
+      return { success: false, error: "Report not found" };
     }
 
     const note: ReportNote = {
@@ -645,12 +680,12 @@ export class ModerationEngine {
       content: content.trim(),
       isInternal,
       createdAt: new Date(),
-    }
+    };
 
-    report.notes.push(note)
-    report.updatedAt = new Date()
+    report.notes.push(note);
+    report.updatedAt = new Date();
 
-    return { success: true, note }
+    return { success: true, note };
   }
 
   // ==========================================================================
@@ -661,15 +696,15 @@ export class ModerationEngine {
    * Issues a warning to a user
    */
   warnUser(params: {
-    targetUserId: string
-    moderatorId: string
-    reason: string
-    moderatorName?: string
-    channelId?: string
-    workspaceId?: string
+    targetUserId: string;
+    moderatorId: string;
+    reason: string;
+    moderatorName?: string;
+    channelId?: string;
+    workspaceId?: string;
   }): { success: boolean; action?: ModerationAction; escalated?: boolean } {
     const action = this.createAction({
-      actionType: 'warn',
+      actionType: "warn",
       targetUserId: params.targetUserId,
       moderatorId: params.moderatorId,
       moderatorName: params.moderatorName,
@@ -677,48 +712,58 @@ export class ModerationEngine {
       channelId: params.channelId,
       workspaceId: params.workspaceId,
       isAutomated: false,
-    })
+    });
 
     // Track warning count for escalation
-    const warningKey = `${params.workspaceId || 'global'}:${params.targetUserId}`
-    const currentWarnings = (this.userWarningCounts.get(warningKey) || 0) + 1
-    this.userWarningCounts.set(warningKey, currentWarnings)
+    const warningKey = `${params.workspaceId || "global"}:${params.targetUserId}`;
+    const currentWarnings = (this.userWarningCounts.get(warningKey) || 0) + 1;
+    this.userWarningCounts.set(warningKey, currentWarnings);
 
-    let escalated = false
-    if (this.config.autoEscalationEnabled && currentWarnings >= this.config.warningsBeforeMute) {
+    let escalated = false;
+    if (
+      this.config.autoEscalationEnabled &&
+      currentWarnings >= this.config.warningsBeforeMute
+    ) {
       this.muteUser({
         targetUserId: params.targetUserId,
-        moderatorId: 'system',
-        moderatorName: 'Auto-Moderation',
+        moderatorId: "system",
+        moderatorName: "Auto-Moderation",
         reason: `Auto-muted after ${currentWarnings} warnings`,
-        workspaceId: params.workspaceId || 'global',
+        workspaceId: params.workspaceId || "global",
         duration: 30 * 60 * 1000, // 30 minutes
-      })
-      escalated = true
+      });
+      escalated = true;
     }
 
-    return { success: true, action, escalated }
+    return { success: true, action, escalated };
   }
 
   /**
    * Mutes a user
    */
   muteUser(params: {
-    targetUserId: string
-    moderatorId: string
-    reason: string
-    workspaceId: string
-    moderatorName?: string
-    channelId?: string
-    duration?: number // in milliseconds, undefined = permanent
-  }): { success: boolean; action?: ModerationAction; penalty?: UserPenalty; escalated?: boolean } {
-    const now = new Date()
-    const expiresAt = params.duration ? new Date(now.getTime() + params.duration) : undefined
+    targetUserId: string;
+    moderatorId: string;
+    reason: string;
+    workspaceId: string;
+    moderatorName?: string;
+    channelId?: string;
+    duration?: number; // in milliseconds, undefined = permanent
+  }): {
+    success: boolean;
+    action?: ModerationAction;
+    penalty?: UserPenalty;
+    escalated?: boolean;
+  } {
+    const now = new Date();
+    const expiresAt = params.duration
+      ? new Date(now.getTime() + params.duration)
+      : undefined;
 
     const penalty: UserPenalty = {
       id: generateId(),
       userId: params.targetUserId,
-      penaltyType: 'mute',
+      penaltyType: "mute",
       channelId: params.channelId,
       workspaceId: params.workspaceId,
       reason: params.reason,
@@ -726,12 +771,12 @@ export class ModerationEngine {
       issuedAt: now,
       expiresAt,
       isActive: true,
-    }
+    };
 
-    this.penalties.set(penalty.id, penalty)
+    this.penalties.set(penalty.id, penalty);
 
     const action = this.createAction({
-      actionType: 'mute',
+      actionType: "mute",
       targetUserId: params.targetUserId,
       moderatorId: params.moderatorId,
       moderatorName: params.moderatorName,
@@ -740,114 +785,119 @@ export class ModerationEngine {
       workspaceId: params.workspaceId,
       duration: params.duration,
       expiresAt,
-      isAutomated: params.moderatorId === 'system',
-    })
+      isAutomated: params.moderatorId === "system",
+    });
 
     // Track mute count for escalation
-    const muteKey = `${params.workspaceId}:${params.targetUserId}`
-    const currentMutes = (this.userMuteCounts.get(muteKey) || 0) + 1
-    this.userMuteCounts.set(muteKey, currentMutes)
+    const muteKey = `${params.workspaceId}:${params.targetUserId}`;
+    const currentMutes = (this.userMuteCounts.get(muteKey) || 0) + 1;
+    this.userMuteCounts.set(muteKey, currentMutes);
 
-    let escalated = false
-    if (this.config.autoEscalationEnabled && currentMutes >= this.config.mutesBeforeBan) {
+    let escalated = false;
+    if (
+      this.config.autoEscalationEnabled &&
+      currentMutes >= this.config.mutesBeforeBan
+    ) {
       this.banUser({
         targetUserId: params.targetUserId,
-        moderatorId: 'system',
-        moderatorName: 'Auto-Moderation',
+        moderatorId: "system",
+        moderatorName: "Auto-Moderation",
         reason: `Auto-banned after ${currentMutes} mutes`,
         workspaceId: params.workspaceId,
         duration: 24 * 60 * 60 * 1000, // 24 hours
-      })
-      escalated = true
+      });
+      escalated = true;
     }
 
-    return { success: true, action, penalty, escalated }
+    return { success: true, action, penalty, escalated };
   }
 
   /**
    * Unmutes a user
    */
   unmuteUser(params: {
-    targetUserId: string
-    moderatorId: string
-    reason?: string
-    workspaceId: string
-    channelId?: string
+    targetUserId: string;
+    moderatorId: string;
+    reason?: string;
+    workspaceId: string;
+    channelId?: string;
   }): { success: boolean; action?: ModerationAction; error?: string } {
     // Find active mute
     const activeMute = Array.from(this.penalties.values()).find(
       (p) =>
         p.userId === params.targetUserId &&
-        p.penaltyType === 'mute' &&
+        p.penaltyType === "mute" &&
         p.isActive &&
         p.workspaceId === params.workspaceId &&
-        (params.channelId === undefined || p.channelId === params.channelId)
-    )
+        (params.channelId === undefined || p.channelId === params.channelId),
+    );
 
     if (!activeMute) {
-      return { success: false, error: 'No active mute found for user' }
+      return { success: false, error: "No active mute found for user" };
     }
 
-    activeMute.isActive = false
-    activeMute.liftedBy = params.moderatorId
-    activeMute.liftedAt = new Date()
-    activeMute.liftReason = params.reason
+    activeMute.isActive = false;
+    activeMute.liftedBy = params.moderatorId;
+    activeMute.liftedAt = new Date();
+    activeMute.liftReason = params.reason;
 
     const action = this.createAction({
-      actionType: 'unmute',
+      actionType: "unmute",
       targetUserId: params.targetUserId,
       moderatorId: params.moderatorId,
-      reason: params.reason || 'Mute removed',
+      reason: params.reason || "Mute removed",
       workspaceId: params.workspaceId,
       channelId: params.channelId,
       isAutomated: false,
-    })
+    });
 
-    return { success: true, action }
+    return { success: true, action };
   }
 
   /**
    * Kicks a user from a channel
    */
   kickUser(params: {
-    targetUserId: string
-    moderatorId: string
-    reason: string
-    channelId: string
-    moderatorName?: string
+    targetUserId: string;
+    moderatorId: string;
+    reason: string;
+    channelId: string;
+    moderatorName?: string;
   }): { success: boolean; action?: ModerationAction } {
     const action = this.createAction({
-      actionType: 'kick',
+      actionType: "kick",
       targetUserId: params.targetUserId,
       moderatorId: params.moderatorId,
       moderatorName: params.moderatorName,
       reason: params.reason,
       channelId: params.channelId,
       isAutomated: false,
-    })
+    });
 
-    return { success: true, action }
+    return { success: true, action };
   }
 
   /**
    * Bans a user
    */
   banUser(params: {
-    targetUserId: string
-    moderatorId: string
-    reason: string
-    workspaceId: string
-    moderatorName?: string
-    channelId?: string
-    duration?: number // in milliseconds, undefined = permanent
+    targetUserId: string;
+    moderatorId: string;
+    reason: string;
+    workspaceId: string;
+    moderatorName?: string;
+    channelId?: string;
+    duration?: number; // in milliseconds, undefined = permanent
   }): { success: boolean; action?: ModerationAction; penalty?: UserPenalty } {
-    const now = new Date()
-    const expiresAt = params.duration ? new Date(now.getTime() + params.duration) : undefined
+    const now = new Date();
+    const expiresAt = params.duration
+      ? new Date(now.getTime() + params.duration)
+      : undefined;
 
     const penalty: UserPenalty = {
       id: generateId(),
       userId: params.targetUserId,
-      penaltyType: 'ban',
+      penaltyType: "ban",
       channelId: params.channelId,
       workspaceId: params.workspaceId,
       reason: params.reason,
@@ -855,12 +905,12 @@ export class ModerationEngine {
       issuedAt: now,
       expiresAt,
       isActive: true,
-    }
+    };
 
-    this.penalties.set(penalty.id, penalty)
+    this.penalties.set(penalty.id, penalty);
 
     const action = this.createAction({
-      actionType: 'ban',
+      actionType: "ban",
       targetUserId: params.targetUserId,
       moderatorId: params.moderatorId,
       moderatorName: params.moderatorName,
@@ -869,60 +919,64 @@ export class ModerationEngine {
       workspaceId: params.workspaceId,
       duration: params.duration,
       expiresAt,
-      isAutomated: params.moderatorId === 'system',
-    })
+      isAutomated: params.moderatorId === "system",
+    });
 
-    return { success: true, action, penalty }
+    return { success: true, action, penalty };
   }
 
   /**
    * Unbans a user
    */
   unbanUser(params: {
-    targetUserId: string
-    moderatorId: string
-    reason?: string
-    workspaceId: string
-    channelId?: string
+    targetUserId: string;
+    moderatorId: string;
+    reason?: string;
+    workspaceId: string;
+    channelId?: string;
   }): { success: boolean; action?: ModerationAction; error?: string } {
     const activeBan = Array.from(this.penalties.values()).find(
       (p) =>
         p.userId === params.targetUserId &&
-        p.penaltyType === 'ban' &&
+        p.penaltyType === "ban" &&
         p.isActive &&
         p.workspaceId === params.workspaceId &&
-        (params.channelId === undefined || p.channelId === params.channelId)
-    )
+        (params.channelId === undefined || p.channelId === params.channelId),
+    );
 
     if (!activeBan) {
-      return { success: false, error: 'No active ban found for user' }
+      return { success: false, error: "No active ban found for user" };
     }
 
-    activeBan.isActive = false
-    activeBan.liftedBy = params.moderatorId
-    activeBan.liftedAt = new Date()
-    activeBan.liftReason = params.reason
+    activeBan.isActive = false;
+    activeBan.liftedBy = params.moderatorId;
+    activeBan.liftedAt = new Date();
+    activeBan.liftReason = params.reason;
 
     const action = this.createAction({
-      actionType: 'unban',
+      actionType: "unban",
       targetUserId: params.targetUserId,
       moderatorId: params.moderatorId,
-      reason: params.reason || 'Ban removed',
+      reason: params.reason || "Ban removed",
       workspaceId: params.workspaceId,
       channelId: params.channelId,
       isAutomated: false,
-    })
+    });
 
-    return { success: true, action }
+    return { success: true, action };
   }
 
   /**
    * Times out a user (temporary restriction)
    */
-  timeoutUser(config: TimeoutConfig): { success: boolean; timeout?: TimeoutInfo; action?: ModerationAction } {
-    const durationMs = parseDuration(config.duration)
-    const now = new Date()
-    const expiresAt = new Date(now.getTime() + durationMs)
+  timeoutUser(config: TimeoutConfig): {
+    success: boolean;
+    timeout?: TimeoutInfo;
+    action?: ModerationAction;
+  } {
+    const durationMs = parseDuration(config.duration);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + durationMs);
 
     const timeout: TimeoutInfo = {
       id: generateId(),
@@ -935,14 +989,14 @@ export class ModerationEngine {
       expiresAt,
       isActive: true,
       remainingMs: durationMs,
-    }
+    };
 
-    this.timeouts.set(timeout.id, timeout)
+    this.timeouts.set(timeout.id, timeout);
 
     const penalty: UserPenalty = {
       id: generateId(),
       userId: config.userId,
-      penaltyType: 'timeout',
+      penaltyType: "timeout",
       channelId: config.channelId,
       workspaceId: config.workspaceId,
       reason: config.reason,
@@ -950,12 +1004,12 @@ export class ModerationEngine {
       issuedAt: now,
       expiresAt,
       isActive: true,
-    }
+    };
 
-    this.penalties.set(penalty.id, penalty)
+    this.penalties.set(penalty.id, penalty);
 
     const action = this.createAction({
-      actionType: 'timeout',
+      actionType: "timeout",
       targetUserId: config.userId,
       moderatorId: config.moderatorId,
       reason: config.reason,
@@ -964,84 +1018,94 @@ export class ModerationEngine {
       duration: durationMs,
       expiresAt,
       isAutomated: false,
-    })
+    });
 
-    return { success: true, timeout, action }
+    return { success: true, timeout, action };
   }
 
   /**
    * Removes a timeout from a user
    */
   removeTimeout(params: {
-    userId: string
-    moderatorId: string
-    reason?: string
-    workspaceId: string
-    channelId?: string
+    userId: string;
+    moderatorId: string;
+    reason?: string;
+    workspaceId: string;
+    channelId?: string;
   }): { success: boolean; action?: ModerationAction; error?: string } {
     const activeTimeout = Array.from(this.timeouts.values()).find(
       (t) =>
         t.userId === params.userId &&
         t.isActive &&
         t.workspaceId === params.workspaceId &&
-        (params.channelId === undefined || t.channelId === params.channelId)
-    )
+        (params.channelId === undefined || t.channelId === params.channelId),
+    );
 
     if (!activeTimeout) {
-      return { success: false, error: 'No active timeout found for user' }
+      return { success: false, error: "No active timeout found for user" };
     }
 
-    activeTimeout.isActive = false
+    activeTimeout.isActive = false;
 
     // Also update the penalty record
     const activePenalty = Array.from(this.penalties.values()).find(
       (p) =>
         p.userId === params.userId &&
-        p.penaltyType === 'timeout' &&
+        p.penaltyType === "timeout" &&
         p.isActive &&
-        p.workspaceId === params.workspaceId
-    )
+        p.workspaceId === params.workspaceId,
+    );
 
     if (activePenalty) {
-      activePenalty.isActive = false
-      activePenalty.liftedBy = params.moderatorId
-      activePenalty.liftedAt = new Date()
-      activePenalty.liftReason = params.reason
+      activePenalty.isActive = false;
+      activePenalty.liftedBy = params.moderatorId;
+      activePenalty.liftedAt = new Date();
+      activePenalty.liftReason = params.reason;
     }
 
     const action = this.createAction({
-      actionType: 'remove_timeout',
+      actionType: "remove_timeout",
       targetUserId: params.userId,
       moderatorId: params.moderatorId,
-      reason: params.reason || 'Timeout removed',
+      reason: params.reason || "Timeout removed",
       workspaceId: params.workspaceId,
       channelId: params.channelId,
       isAutomated: false,
-    })
+    });
 
-    return { success: true, action }
+    return { success: true, action };
   }
 
   /**
    * Gets active timeout for a user
    */
-  getActiveTimeout(userId: string, workspaceId: string, channelId?: string): TimeoutInfo | undefined {
-    const now = Date.now()
+  getActiveTimeout(
+    userId: string,
+    workspaceId: string,
+    channelId?: string,
+  ): TimeoutInfo | undefined {
+    const now = Date.now();
     return Array.from(this.timeouts.values()).find(
       (t) =>
         t.userId === userId &&
         t.isActive &&
         t.workspaceId === workspaceId &&
         t.expiresAt.getTime() > now &&
-        (channelId === undefined || t.channelId === channelId || t.channelId === undefined)
-    )
+        (channelId === undefined ||
+          t.channelId === channelId ||
+          t.channelId === undefined),
+    );
   }
 
   /**
    * Checks if user is timed out
    */
-  isUserTimedOut(userId: string, workspaceId: string, channelId?: string): boolean {
-    return this.getActiveTimeout(userId, workspaceId, channelId) !== undefined
+  isUserTimedOut(
+    userId: string,
+    workspaceId: string,
+    channelId?: string,
+  ): boolean {
+    return this.getActiveTimeout(userId, workspaceId, channelId) !== undefined;
   }
 
   // ==========================================================================
@@ -1052,87 +1116,88 @@ export class ModerationEngine {
    * Sets slow mode for a channel
    */
   setSlowmode(params: {
-    channelId: string
-    intervalMs: number
-    moderatorId: string
-    bypassRoles?: string[]
-    bypassUsers?: string[]
+    channelId: string;
+    intervalMs: number;
+    moderatorId: string;
+    bypassRoles?: string[];
+    bypassUsers?: string[];
   }): { success: boolean; config?: SlowmodeConfig; error?: string } {
     if (params.intervalMs < 0) {
-      return { success: false, error: 'Interval must be positive' }
+      return { success: false, error: "Interval must be positive" };
     }
 
     if (params.intervalMs > this.config.maxSlowmodeInterval) {
       return {
         success: false,
         error: `Maximum slowmode interval is ${formatDurationMs(this.config.maxSlowmodeInterval)}`,
-      }
+      };
     }
 
-    const now = new Date()
+    const now = new Date();
     const config: SlowmodeConfig = {
       channelId: params.channelId,
       intervalMs: params.intervalMs,
       enabled: params.intervalMs > 0,
-      bypassRoles: params.bypassRoles || ['owner', 'admin', 'moderator'],
+      bypassRoles: params.bypassRoles || ["owner", "admin", "moderator"],
       bypassUsers: params.bypassUsers || [],
       createdBy: params.moderatorId,
       createdAt: now,
       updatedAt: now,
-    }
+    };
 
-    this.slowmodeConfigs.set(params.channelId, config)
+    this.slowmodeConfigs.set(params.channelId, config);
 
     this.createAction({
-      actionType: params.intervalMs > 0 ? 'slowmode' : 'remove_slowmode',
+      actionType: params.intervalMs > 0 ? "slowmode" : "remove_slowmode",
       targetUserId: params.channelId,
       moderatorId: params.moderatorId,
-      reason: params.intervalMs > 0
-        ? `Slowmode set to ${formatDurationMs(params.intervalMs)}`
-        : 'Slowmode disabled',
+      reason:
+        params.intervalMs > 0
+          ? `Slowmode set to ${formatDurationMs(params.intervalMs)}`
+          : "Slowmode disabled",
       channelId: params.channelId,
       isAutomated: false,
-    })
+    });
 
-    return { success: true, config }
+    return { success: true, config };
   }
 
   /**
    * Removes slow mode from a channel
    */
   removeSlowmode(channelId: string, moderatorId: string): { success: boolean } {
-    const config = this.slowmodeConfigs.get(channelId)
+    const config = this.slowmodeConfigs.get(channelId);
     if (config) {
-      config.enabled = false
-      config.intervalMs = 0
-      config.updatedAt = new Date()
+      config.enabled = false;
+      config.intervalMs = 0;
+      config.updatedAt = new Date();
     }
 
     this.createAction({
-      actionType: 'remove_slowmode',
+      actionType: "remove_slowmode",
       targetUserId: channelId,
       moderatorId,
-      reason: 'Slowmode disabled',
+      reason: "Slowmode disabled",
       channelId,
       isAutomated: false,
-    })
+    });
 
-    return { success: true }
+    return { success: true };
   }
 
   /**
    * Gets slow mode config for a channel
    */
   getSlowmodeConfig(channelId: string): SlowmodeConfig | undefined {
-    return this.slowmodeConfigs.get(channelId)
+    return this.slowmodeConfigs.get(channelId);
   }
 
   /**
    * Checks if slow mode is enabled for a channel
    */
   isSlowmodeEnabled(channelId: string): boolean {
-    const config = this.slowmodeConfigs.get(channelId)
-    return config?.enabled === true && config.intervalMs > 0
+    const config = this.slowmodeConfigs.get(channelId);
+    return config?.enabled === true && config.intervalMs > 0;
   }
 
   // ==========================================================================
@@ -1143,13 +1208,13 @@ export class ModerationEngine {
    * Bulk delete messages
    */
   bulkDeleteMessages(params: {
-    messageIds: string[]
-    moderatorId: string
-    reason: string
-    channelId: string
+    messageIds: string[];
+    moderatorId: string;
+    reason: string;
+    channelId: string;
   }): { success: boolean; deletedCount: number; action?: ModerationAction } {
     const action = this.createAction({
-      actionType: 'purge',
+      actionType: "purge",
       targetUserId: params.channelId,
       moderatorId: params.moderatorId,
       reason: params.reason,
@@ -1157,27 +1222,27 @@ export class ModerationEngine {
       affectedMessageIds: params.messageIds,
       isAutomated: false,
       metadata: { messageCount: params.messageIds.length },
-    })
+    });
 
     return {
       success: true,
       deletedCount: params.messageIds.length,
       action,
-    }
+    };
   }
 
   /**
    * Bulk ban users
    */
   bulkBanUsers(params: {
-    userIds: string[]
-    moderatorId: string
-    reason: string
-    workspaceId: string
-    duration?: number
+    userIds: string[];
+    moderatorId: string;
+    reason: string;
+    workspaceId: string;
+    duration?: number;
   }): { success: boolean; bannedCount: number; errors: string[] } {
-    const errors: string[] = []
-    let bannedCount = 0
+    const errors: string[] = [];
+    let bannedCount = 0;
 
     for (const userId of params.userIds) {
       const result = this.banUser({
@@ -1186,30 +1251,30 @@ export class ModerationEngine {
         reason: params.reason,
         workspaceId: params.workspaceId,
         duration: params.duration,
-      })
+      });
 
       if (result.success) {
-        bannedCount++
+        bannedCount++;
       } else {
-        errors.push(`Failed to ban user ${userId}`)
+        errors.push(`Failed to ban user ${userId}`);
       }
     }
 
-    return { success: errors.length === 0, bannedCount, errors }
+    return { success: errors.length === 0, bannedCount, errors };
   }
 
   /**
    * Bulk mute users
    */
   bulkMuteUsers(params: {
-    userIds: string[]
-    moderatorId: string
-    reason: string
-    workspaceId: string
-    duration?: number
+    userIds: string[];
+    moderatorId: string;
+    reason: string;
+    workspaceId: string;
+    duration?: number;
   }): { success: boolean; mutedCount: number; errors: string[] } {
-    const errors: string[] = []
-    let mutedCount = 0
+    const errors: string[] = [];
+    let mutedCount = 0;
 
     for (const userId of params.userIds) {
       const result = this.muteUser({
@@ -1218,31 +1283,31 @@ export class ModerationEngine {
         reason: params.reason,
         workspaceId: params.workspaceId,
         duration: params.duration,
-      })
+      });
 
       if (result.success) {
-        mutedCount++
+        mutedCount++;
       } else {
-        errors.push(`Failed to mute user ${userId}`)
+        errors.push(`Failed to mute user ${userId}`);
       }
     }
 
-    return { success: errors.length === 0, mutedCount, errors }
+    return { success: errors.length === 0, mutedCount, errors };
   }
 
   /**
    * Purge channel history
    */
   purgeChannelHistory(params: {
-    channelId: string
-    moderatorId: string
-    reason: string
-    messageCount?: number
-    beforeDate?: Date
-    fromUserId?: string
+    channelId: string;
+    moderatorId: string;
+    reason: string;
+    messageCount?: number;
+    beforeDate?: Date;
+    fromUserId?: string;
   }): { success: boolean; action?: ModerationAction } {
     const action = this.createAction({
-      actionType: 'purge',
+      actionType: "purge",
       targetUserId: params.channelId,
       moderatorId: params.moderatorId,
       reason: params.reason,
@@ -1253,9 +1318,9 @@ export class ModerationEngine {
         beforeDate: params.beforeDate?.toISOString(),
         fromUserId: params.fromUserId,
       },
-    })
+    });
 
-    return { success: true, action }
+    return { success: true, action };
   }
 
   // ==========================================================================
@@ -1266,56 +1331,65 @@ export class ModerationEngine {
    * Submits an appeal
    */
   submitAppeal(params: {
-    userId: string
-    userName?: string
-    actionId: string
-    penaltyId?: string
-    reason: string
-    evidence?: Omit<ReportEvidence, 'id' | 'addedAt'>[]
+    userId: string;
+    userName?: string;
+    actionId: string;
+    penaltyId?: string;
+    reason: string;
+    evidence?: Omit<ReportEvidence, "id" | "addedAt">[];
   }): { success: boolean; appeal?: Appeal; error?: string } {
     if (!this.config.appealsEnabled) {
-      return { success: false, error: 'Appeals are disabled' }
+      return { success: false, error: "Appeals are disabled" };
     }
 
     if (!params.reason || !params.reason.trim()) {
-      return { success: false, error: 'Appeal reason is required' }
+      return { success: false, error: "Appeal reason is required" };
     }
 
-    const action = this.actions.get(params.actionId)
+    const action = this.actions.get(params.actionId);
     if (!action) {
-      return { success: false, error: 'Moderation action not found' }
+      return { success: false, error: "Moderation action not found" };
     }
 
     // Check if action is within appeal window
-    const appealWindowMs = this.config.appealWindowDays * 24 * 60 * 60 * 1000
+    const appealWindowMs = this.config.appealWindowDays * 24 * 60 * 60 * 1000;
     if (Date.now() - action.createdAt.getTime() > appealWindowMs) {
-      return { success: false, error: 'Appeal window has expired' }
+      return { success: false, error: "Appeal window has expired" };
     }
 
     // Check for existing pending appeals
     const existingAppeals = Array.from(this.appeals.values()).filter(
-      (a) => a.actionId === params.actionId && a.userId === params.userId && a.status === 'pending'
-    )
+      (a) =>
+        a.actionId === params.actionId &&
+        a.userId === params.userId &&
+        a.status === "pending",
+    );
 
     if (existingAppeals.length > 0) {
-      return { success: false, error: 'An appeal is already pending for this action' }
+      return {
+        success: false,
+        error: "An appeal is already pending for this action",
+      };
     }
 
     // Check max appeals
     const totalAppeals = Array.from(this.appeals.values()).filter(
-      (a) => a.actionId === params.actionId && a.userId === params.userId
-    ).length
+      (a) => a.actionId === params.actionId && a.userId === params.userId,
+    ).length;
 
     if (totalAppeals >= this.config.maxAppealsPerAction) {
-      return { success: false, error: 'Maximum appeals reached for this action' }
+      return {
+        success: false,
+        error: "Maximum appeals reached for this action",
+      };
     }
 
-    const now = new Date()
+    const now = new Date();
     const evidence: ReportEvidence[] = (params.evidence || []).map((e) => ({
       ...e,
       id: generateId(),
       addedAt: now,
-    }))
+    }));
 
     const appeal: Appeal = {
       id: generateId(),
@@ -1325,58 +1399,64 @@ export class ModerationEngine {
       penaltyId: params.penaltyId,
       reason: params.reason.trim(),
       evidence,
-      status: 'pending',
-      priority: 'medium',
+      status: "pending",
+      priority: "medium",
       reviewNotes: [],
       createdAt: now,
       updatedAt: now,
-    }
+    };
 
-    this.appeals.set(appeal.id, appeal)
+    this.appeals.set(appeal.id, appeal);
 
-    logger.info(`Appeal submitted: ${appeal.id}`, { actionId: params.actionId })
+    logger.info(`Appeal submitted: ${appeal.id}`, {
+      actionId: params.actionId,
+    });
 
-    return { success: true, appeal }
+    return { success: true, appeal };
   }
 
   /**
    * Gets appeal by ID
    */
   getAppeal(appealId: string): Appeal | undefined {
-    return this.appeals.get(appealId)
+    return this.appeals.get(appealId);
   }
 
   /**
    * Gets appeals with optional filters
    */
   getAppeals(filters?: {
-    status?: AppealStatus | AppealStatus[]
-    userId?: string
-    assignedTo?: string
+    status?: AppealStatus | AppealStatus[];
+    userId?: string;
+    assignedTo?: string;
   }): Appeal[] {
-    let appeals = Array.from(this.appeals.values())
+    let appeals = Array.from(this.appeals.values());
 
     if (filters?.status) {
-      const statuses = Array.isArray(filters.status) ? filters.status : [filters.status]
-      appeals = appeals.filter((a) => statuses.includes(a.status))
+      const statuses = Array.isArray(filters.status)
+        ? filters.status
+        : [filters.status];
+      appeals = appeals.filter((a) => statuses.includes(a.status));
     }
 
     if (filters?.userId) {
-      appeals = appeals.filter((a) => a.userId === filters.userId)
+      appeals = appeals.filter((a) => a.userId === filters.userId);
     }
 
     if (filters?.assignedTo) {
-      appeals = appeals.filter((a) => a.assignedTo === filters.assignedTo)
+      appeals = appeals.filter((a) => a.assignedTo === filters.assignedTo);
     }
 
-    return appeals.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    return appeals.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    );
   }
 
   /**
    * Gets pending appeals queue
    */
   getAppealQueue(): Appeal[] {
-    return this.getAppeals({ status: ['pending', 'under_review'] })
+    return this.getAppeals({ status: ["pending", "under_review"] });
   }
 
   /**
@@ -1385,19 +1465,19 @@ export class ModerationEngine {
   assignAppeal(
     appealId: string,
     moderatorId: string,
-    moderatorName?: string
+    moderatorName?: string,
   ): { success: boolean; appeal?: Appeal; error?: string } {
-    const appeal = this.appeals.get(appealId)
+    const appeal = this.appeals.get(appealId);
     if (!appeal) {
-      return { success: false, error: 'Appeal not found' }
+      return { success: false, error: "Appeal not found" };
     }
 
-    appeal.assignedTo = moderatorId
-    appeal.assignedToName = moderatorName
-    appeal.status = 'under_review'
-    appeal.updatedAt = new Date()
+    appeal.assignedTo = moderatorId;
+    appeal.assignedToName = moderatorName;
+    appeal.status = "under_review";
+    appeal.updatedAt = new Date();
 
-    return { success: true, appeal }
+    return { success: true, appeal };
   }
 
   /**
@@ -1406,72 +1486,84 @@ export class ModerationEngine {
   resolveAppeal(
     appealId: string,
     resolvedBy: string,
-    decision: 'approve' | 'reject' | 'partially_approve',
+    decision: "approve" | "reject" | "partially_approve",
     resolution: string,
-    outcome?: AppealOutcome
+    outcome?: AppealOutcome,
   ): { success: boolean; appeal?: Appeal; error?: string } {
-    const appeal = this.appeals.get(appealId)
+    const appeal = this.appeals.get(appealId);
     if (!appeal) {
-      return { success: false, error: 'Appeal not found' }
+      return { success: false, error: "Appeal not found" };
     }
 
-    if (appeal.status !== 'under_review') {
-      return { success: false, error: 'Appeal must be under review to be resolved' }
+    if (appeal.status !== "under_review") {
+      return {
+        success: false,
+        error: "Appeal must be under review to be resolved",
+      };
     }
 
     const statusMap: Record<typeof decision, AppealStatus> = {
-      approve: 'approved',
-      reject: 'rejected',
-      partially_approve: 'partially_approved',
-    }
+      approve: "approved",
+      reject: "rejected",
+      partially_approve: "partially_approved",
+    };
 
-    const now = new Date()
-    appeal.status = statusMap[decision]
-    appeal.resolution = resolution
-    appeal.outcome = outcome
-    appeal.resolvedAt = now
-    appeal.resolvedBy = resolvedBy
-    appeal.reviewedAt = now
-    appeal.reviewedBy = resolvedBy
-    appeal.updatedAt = now
+    const now = new Date();
+    appeal.status = statusMap[decision];
+    appeal.resolution = resolution;
+    appeal.outcome = outcome;
+    appeal.resolvedAt = now;
+    appeal.resolvedBy = resolvedBy;
+    appeal.reviewedAt = now;
+    appeal.reviewedBy = resolvedBy;
+    appeal.updatedAt = now;
 
     // If approved, handle reinstatement
-    if (decision === 'approve' && appeal.penaltyId) {
-      const penalty = this.penalties.get(appeal.penaltyId)
+    if (decision === "approve" && appeal.penaltyId) {
+      const penalty = this.penalties.get(appeal.penaltyId);
       if (penalty && penalty.isActive) {
-        penalty.isActive = false
-        penalty.liftedBy = resolvedBy
-        penalty.liftedAt = now
-        penalty.liftReason = `Appeal approved: ${resolution}`
+        penalty.isActive = false;
+        penalty.liftedBy = resolvedBy;
+        penalty.liftedAt = now;
+        penalty.liftReason = `Appeal approved: ${resolution}`;
       }
     }
 
-    logger.info(`Appeal resolved: ${appealId}`, { decision, resolvedBy })
+    logger.info(`Appeal resolved: ${appealId}`, { decision, resolvedBy });
 
-    return { success: true, appeal }
+    return { success: true, appeal };
   }
 
   /**
    * Withdraws an appeal
    */
-  withdrawAppeal(appealId: string, userId: string): { success: boolean; error?: string } {
-    const appeal = this.appeals.get(appealId)
+  withdrawAppeal(
+    appealId: string,
+    userId: string,
+  ): { success: boolean; error?: string } {
+    const appeal = this.appeals.get(appealId);
     if (!appeal) {
-      return { success: false, error: 'Appeal not found' }
+      return { success: false, error: "Appeal not found" };
     }
 
     if (appeal.userId !== userId) {
-      return { success: false, error: 'Only the appeal submitter can withdraw it' }
+      return {
+        success: false,
+        error: "Only the appeal submitter can withdraw it",
+      };
     }
 
-    if (!['pending', 'under_review'].includes(appeal.status)) {
-      return { success: false, error: 'Appeal cannot be withdrawn in current status' }
+    if (!["pending", "under_review"].includes(appeal.status)) {
+      return {
+        success: false,
+        error: "Appeal cannot be withdrawn in current status",
+      };
     }
 
-    appeal.status = 'withdrawn'
-    appeal.updatedAt = new Date()
+    appeal.status = "withdrawn";
+    appeal.updatedAt = new Date();
 
-    return { success: true }
+    return { success: true };
   }
 
   // ==========================================================================
@@ -1482,38 +1574,38 @@ export class ModerationEngine {
    * Adds an auto-mod rule
    */
   addAutoModRule(rule: AutoModRule): void {
-    this.autoModRules.set(rule.id, rule)
+    this.autoModRules.set(rule.id, rule);
   }
 
   /**
    * Removes an auto-mod rule
    */
   removeAutoModRule(ruleId: string): boolean {
-    return this.autoModRules.delete(ruleId)
+    return this.autoModRules.delete(ruleId);
   }
 
   /**
    * Gets all auto-mod rules
    */
   getAutoModRules(workspaceId?: string): AutoModRule[] {
-    let rules = Array.from(this.autoModRules.values())
+    let rules = Array.from(this.autoModRules.values());
     if (workspaceId) {
-      rules = rules.filter((r) => r.workspaceId === workspaceId)
+      rules = rules.filter((r) => r.workspaceId === workspaceId);
     }
-    return rules.sort((a, b) => b.priority - a.priority)
+    return rules.sort((a, b) => b.priority - a.priority);
   }
 
   /**
    * Enables/disables an auto-mod rule
    */
   setAutoModRuleEnabled(ruleId: string, enabled: boolean): boolean {
-    const rule = this.autoModRules.get(ruleId)
+    const rule = this.autoModRules.get(ruleId);
     if (rule) {
-      rule.enabled = enabled
-      rule.updatedAt = new Date()
-      return true
+      rule.enabled = enabled;
+      rule.updatedAt = new Date();
+      return true;
     }
-    return false
+    return false;
   }
 
   // ==========================================================================
@@ -1524,43 +1616,43 @@ export class ModerationEngine {
    * Gets moderation log entries
    */
   getModerationLogs(filters?: {
-    actionType?: ModerationActionType
-    moderatorId?: string
-    targetId?: string
-    startDate?: Date
-    endDate?: Date
-    limit?: number
+    actionType?: ModerationActionType;
+    moderatorId?: string;
+    targetId?: string;
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
   }): ModerationLogEntry[] {
-    let logs = [...this.moderationLogs]
+    let logs = [...this.moderationLogs];
 
     if (filters?.actionType) {
-      logs = logs.filter((l) => l.action.actionType === filters.actionType)
+      logs = logs.filter((l) => l.action.actionType === filters.actionType);
     }
 
     if (filters?.moderatorId) {
-      logs = logs.filter((l) => l.actor.id === filters.moderatorId)
+      logs = logs.filter((l) => l.actor.id === filters.moderatorId);
     }
 
     if (filters?.targetId) {
-      logs = logs.filter((l) => l.target.id === filters.targetId)
+      logs = logs.filter((l) => l.target.id === filters.targetId);
     }
 
     if (filters?.startDate) {
-      logs = logs.filter((l) => l.timestamp >= filters.startDate!)
+      logs = logs.filter((l) => l.timestamp >= filters.startDate!);
     }
 
     if (filters?.endDate) {
-      logs = logs.filter((l) => l.timestamp <= filters.endDate!)
+      logs = logs.filter((l) => l.timestamp <= filters.endDate!);
     }
 
     // Sort by timestamp descending
-    logs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    logs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
     if (filters?.limit) {
-      logs = logs.slice(0, filters.limit)
+      logs = logs.slice(0, filters.limit);
     }
 
-    return logs
+    return logs;
   }
 
   /**
@@ -1569,7 +1661,7 @@ export class ModerationEngine {
   getUserActionHistory(userId: string): ModerationAction[] {
     return Array.from(this.actions.values())
       .filter((a) => a.targetUserId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   /**
@@ -1581,32 +1673,44 @@ export class ModerationEngine {
         p.userId === userId &&
         p.isActive &&
         (p.expiresAt === undefined || p.expiresAt.getTime() > Date.now()) &&
-        (workspaceId === undefined || p.workspaceId === workspaceId)
-    )
+        (workspaceId === undefined || p.workspaceId === workspaceId),
+    );
   }
 
   /**
    * Checks if user is muted
    */
-  isUserMuted(userId: string, workspaceId: string, channelId?: string): boolean {
-    const activePenalties = this.getUserActivePenalties(userId, workspaceId)
+  isUserMuted(
+    userId: string,
+    workspaceId: string,
+    channelId?: string,
+  ): boolean {
+    const activePenalties = this.getUserActivePenalties(userId, workspaceId);
     return activePenalties.some(
       (p) =>
-        p.penaltyType === 'mute' &&
-        (channelId === undefined || p.channelId === channelId || p.channelId === undefined)
-    )
+        p.penaltyType === "mute" &&
+        (channelId === undefined ||
+          p.channelId === channelId ||
+          p.channelId === undefined),
+    );
   }
 
   /**
    * Checks if user is banned
    */
-  isUserBanned(userId: string, workspaceId: string, channelId?: string): boolean {
-    const activePenalties = this.getUserActivePenalties(userId, workspaceId)
+  isUserBanned(
+    userId: string,
+    workspaceId: string,
+    channelId?: string,
+  ): boolean {
+    const activePenalties = this.getUserActivePenalties(userId, workspaceId);
     return activePenalties.some(
       (p) =>
-        p.penaltyType === 'ban' &&
-        (channelId === undefined || p.channelId === channelId || p.channelId === undefined)
-    )
+        p.penaltyType === "ban" &&
+        (channelId === undefined ||
+          p.channelId === channelId ||
+          p.channelId === undefined),
+    );
   }
 
   // ==========================================================================
@@ -1617,38 +1721,46 @@ export class ModerationEngine {
    * Gets moderation statistics
    */
   getStats(): {
-    reports: { total: number; pending: number; byCategory: Record<string, number> }
-    actions: { total: number; byType: Record<string, number> }
-    appeals: { total: number; pending: number; approvalRate: number }
-    penalties: { active: number; total: number }
+    reports: {
+      total: number;
+      pending: number;
+      byCategory: Record<string, number>;
+    };
+    actions: { total: number; byType: Record<string, number> };
+    appeals: { total: number; pending: number; approvalRate: number };
+    penalties: { active: number; total: number };
   } {
-    const reports = Array.from(this.reports.values())
-    const actions = Array.from(this.actions.values())
-    const appeals = Array.from(this.appeals.values())
-    const penalties = Array.from(this.penalties.values())
+    const reports = Array.from(this.reports.values());
+    const actions = Array.from(this.actions.values());
+    const appeals = Array.from(this.appeals.values());
+    const penalties = Array.from(this.penalties.values());
 
-    const reportsByCategory: Record<string, number> = {}
+    const reportsByCategory: Record<string, number> = {};
     reports.forEach((r) => {
-      reportsByCategory[r.category] = (reportsByCategory[r.category] || 0) + 1
-    })
+      reportsByCategory[r.category] = (reportsByCategory[r.category] || 0) + 1;
+    });
 
-    const actionsByType: Record<string, number> = {}
+    const actionsByType: Record<string, number> = {};
     actions.forEach((a) => {
-      actionsByType[a.actionType] = (actionsByType[a.actionType] || 0) + 1
-    })
+      actionsByType[a.actionType] = (actionsByType[a.actionType] || 0) + 1;
+    });
 
     const approvedAppeals = appeals.filter(
-      (a) => a.status === 'approved' || a.status === 'partially_approved'
-    ).length
+      (a) => a.status === "approved" || a.status === "partially_approved",
+    ).length;
     const resolvedAppeals = appeals.filter(
-      (a) => a.status !== 'pending' && a.status !== 'under_review' && a.status !== 'withdrawn'
-    ).length
+      (a) =>
+        a.status !== "pending" &&
+        a.status !== "under_review" &&
+        a.status !== "withdrawn",
+    ).length;
 
     return {
       reports: {
         total: reports.length,
-        pending: reports.filter((r) => ['pending', 'under_review', 'escalated'].includes(r.status))
-          .length,
+        pending: reports.filter((r) =>
+          ["pending", "under_review", "escalated"].includes(r.status),
+        ).length,
         byCategory: reportsByCategory,
       },
       actions: {
@@ -1657,14 +1769,17 @@ export class ModerationEngine {
       },
       appeals: {
         total: appeals.length,
-        pending: appeals.filter((a) => ['pending', 'under_review'].includes(a.status)).length,
-        approvalRate: resolvedAppeals > 0 ? approvedAppeals / resolvedAppeals : 0,
+        pending: appeals.filter((a) =>
+          ["pending", "under_review"].includes(a.status),
+        ).length,
+        approvalRate:
+          resolvedAppeals > 0 ? approvedAppeals / resolvedAppeals : 0,
       },
       penalties: {
         active: penalties.filter((p) => p.isActive).length,
         total: penalties.length,
       },
-    }
+    };
   }
 
   // ==========================================================================
@@ -1672,20 +1787,20 @@ export class ModerationEngine {
   // ==========================================================================
 
   private createAction(params: {
-    actionType: ModerationActionType
-    targetUserId: string
-    moderatorId: string
-    reason: string
-    moderatorName?: string
-    channelId?: string
-    workspaceId?: string
-    duration?: number
-    expiresAt?: Date
-    isAutomated: boolean
-    automationRuleId?: string
-    relatedReportId?: string
-    affectedMessageIds?: string[]
-    metadata?: Record<string, unknown>
+    actionType: ModerationActionType;
+    targetUserId: string;
+    moderatorId: string;
+    reason: string;
+    moderatorName?: string;
+    channelId?: string;
+    workspaceId?: string;
+    duration?: number;
+    expiresAt?: Date;
+    isAutomated: boolean;
+    automationRuleId?: string;
+    relatedReportId?: string;
+    affectedMessageIds?: string[];
+    metadata?: Record<string, unknown>;
   }): ModerationAction {
     const action: ModerationAction = {
       id: generateId(),
@@ -1703,28 +1818,30 @@ export class ModerationEngine {
       relatedReportId: params.relatedReportId,
       affectedMessageIds: params.affectedMessageIds,
       metadata: params.metadata,
-      reversible: !['delete_message', 'purge', 'kick'].includes(params.actionType),
+      reversible: !["delete_message", "purge", "kick"].includes(
+        params.actionType,
+      ),
       createdAt: new Date(),
-    }
+    };
 
-    this.actions.set(action.id, action)
-    this.logAction(params)
+    this.actions.set(action.id, action);
+    this.logAction(params);
 
-    return action
+    return action;
   }
 
   private logAction(params: {
-    actionType: ModerationActionType
-    targetUserId: string
-    moderatorId: string
-    reason: string
-    moderatorName?: string
-    channelId?: string
-    workspaceId?: string
-    isAutomated: boolean
-    relatedReportId?: string
-    affectedMessageIds?: string[]
-    metadata?: Record<string, unknown>
+    actionType: ModerationActionType;
+    targetUserId: string;
+    moderatorId: string;
+    reason: string;
+    moderatorName?: string;
+    channelId?: string;
+    workspaceId?: string;
+    isAutomated: boolean;
+    relatedReportId?: string;
+    affectedMessageIds?: string[];
+    metadata?: Record<string, unknown>;
   }): void {
     const logEntry: ModerationLogEntry = {
       id: generateId(),
@@ -1747,19 +1864,19 @@ export class ModerationEngine {
       actor: {
         id: params.moderatorId,
         name: params.moderatorName,
-        role: params.isAutomated ? 'system' : 'moderator',
+        role: params.isAutomated ? "system" : "moderator",
       },
       target: {
         id: params.targetUserId,
-        type: 'user',
+        type: "user",
       },
       reason: params.reason,
-      outcome: 'success',
+      outcome: "success",
       timestamp: new Date(),
       metadata: params.metadata,
-    }
+    };
 
-    this.moderationLogs.push(logEntry)
+    this.moderationLogs.push(logEntry);
   }
 
   // ==========================================================================
@@ -1770,42 +1887,46 @@ export class ModerationEngine {
    * Expires old penalties and timeouts
    */
   cleanupExpired(): number {
-    const now = Date.now()
-    let cleanedCount = 0
+    const now = Date.now();
+    let cleanedCount = 0;
 
     // Clean up timeouts
     for (const [id, timeout] of this.timeouts) {
       if (timeout.isActive && timeout.expiresAt.getTime() < now) {
-        timeout.isActive = false
-        cleanedCount++
+        timeout.isActive = false;
+        cleanedCount++;
       }
     }
 
     // Clean up penalties
     for (const [id, penalty] of this.penalties) {
-      if (penalty.isActive && penalty.expiresAt && penalty.expiresAt.getTime() < now) {
-        penalty.isActive = false
-        cleanedCount++
+      if (
+        penalty.isActive &&
+        penalty.expiresAt &&
+        penalty.expiresAt.getTime() < now
+      ) {
+        penalty.isActive = false;
+        cleanedCount++;
       }
     }
 
-    return cleanedCount
+    return cleanedCount;
   }
 
   /**
    * Clears all data
    */
   clearAll(): void {
-    this.reports.clear()
-    this.actions.clear()
-    this.penalties.clear()
-    this.appeals.clear()
-    this.autoModRules.clear()
-    this.slowmodeConfigs.clear()
-    this.timeouts.clear()
-    this.moderationLogs = []
-    this.userWarningCounts.clear()
-    this.userMuteCounts.clear()
+    this.reports.clear();
+    this.actions.clear();
+    this.penalties.clear();
+    this.appeals.clear();
+    this.autoModRules.clear();
+    this.slowmodeConfigs.clear();
+    this.timeouts.clear();
+    this.moderationLogs = [];
+    this.userWarningCounts.clear();
+    this.userMuteCounts.clear();
   }
 }
 
@@ -1813,15 +1934,19 @@ export class ModerationEngine {
 // Factory and Singleton
 // ============================================================================
 
-let engineInstance: ModerationEngine | null = null
+let engineInstance: ModerationEngine | null = null;
 
-export function getModerationEngine(config?: Partial<ModerationEngineConfig>): ModerationEngine {
+export function getModerationEngine(
+  config?: Partial<ModerationEngineConfig>,
+): ModerationEngine {
   if (!engineInstance || config) {
-    engineInstance = new ModerationEngine(config)
+    engineInstance = new ModerationEngine(config);
   }
-  return engineInstance
+  return engineInstance;
 }
 
-export function createModerationEngine(config?: Partial<ModerationEngineConfig>): ModerationEngine {
-  return new ModerationEngine(config)
+export function createModerationEngine(
+  config?: Partial<ModerationEngineConfig>,
+): ModerationEngine {
+  return new ModerationEngine(config);
 }

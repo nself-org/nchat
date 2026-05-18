@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Voice Player Hook
@@ -7,105 +7,111 @@
  * seeking, playback speed control, and progress tracking.
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect } from "react";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export type PlaybackState = 'idle' | 'loading' | 'playing' | 'paused' | 'ended' | 'error'
+export type PlaybackState =
+  | "idle"
+  | "loading"
+  | "playing"
+  | "paused"
+  | "ended"
+  | "error";
 
-export type PlaybackSpeed = 0.5 | 0.75 | 1 | 1.25 | 1.5 | 1.75 | 2
+export type PlaybackSpeed = 0.5 | 0.75 | 1 | 1.25 | 1.5 | 1.75 | 2;
 
 export interface VoicePlayerState {
   /** Current playback state */
-  playbackState: PlaybackState
+  playbackState: PlaybackState;
   /** Whether audio is currently playing */
-  isPlaying: boolean
+  isPlaying: boolean;
   /** Whether audio is loading */
-  isLoading: boolean
+  isLoading: boolean;
   /** Current playback position in seconds */
-  currentTime: number
+  currentTime: number;
   /** Total duration in seconds */
-  duration: number
+  duration: number;
   /** Progress percentage (0-100) */
-  progress: number
+  progress: number;
   /** Formatted current time (MM:SS) */
-  formattedCurrentTime: string
+  formattedCurrentTime: string;
   /** Formatted duration (MM:SS) */
-  formattedDuration: string
+  formattedDuration: string;
   /** Formatted remaining time (MM:SS) */
-  formattedRemainingTime: string
+  formattedRemainingTime: string;
   /** Current playback speed */
-  playbackSpeed: PlaybackSpeed
+  playbackSpeed: PlaybackSpeed;
   /** Current volume (0-1) */
-  volume: number
+  volume: number;
   /** Whether audio is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Error message (if any) */
-  error: string | null
+  error: string | null;
   /** Whether the audio is ready to play */
-  isReady: boolean
+  isReady: boolean;
 }
 
 export interface VoicePlayerActions {
   /** Play the audio */
-  play: () => Promise<void>
+  play: () => Promise<void>;
   /** Pause the audio */
-  pause: () => void
+  pause: () => void;
   /** Toggle play/pause */
-  togglePlay: () => Promise<void>
+  togglePlay: () => Promise<void>;
   /** Seek to a specific time in seconds */
-  seek: (time: number) => void
+  seek: (time: number) => void;
   /** Seek by percentage (0-100) */
-  seekByPercentage: (percentage: number) => void
+  seekByPercentage: (percentage: number) => void;
   /** Set playback speed */
-  setSpeed: (speed: PlaybackSpeed) => void
+  setSpeed: (speed: PlaybackSpeed) => void;
   /** Cycle through playback speeds */
-  cycleSpeed: () => void
+  cycleSpeed: () => void;
   /** Set volume (0-1) */
-  setVolume: (volume: number) => void
+  setVolume: (volume: number) => void;
   /** Toggle mute */
-  toggleMute: () => void
+  toggleMute: () => void;
   /** Stop and reset to beginning */
-  stop: () => void
+  stop: () => void;
   /** Skip forward by seconds */
-  skipForward: (seconds?: number) => void
+  skipForward: (seconds?: number) => void;
   /** Skip backward by seconds */
-  skipBackward: (seconds?: number) => void
+  skipBackward: (seconds?: number) => void;
   /** Load a new audio source */
-  load: (src: string | Blob) => void
+  load: (src: string | Blob) => void;
   /** Unload the audio */
-  unload: () => void
+  unload: () => void;
 }
 
-export type UseVoicePlayerReturn = VoicePlayerState & VoicePlayerActions
+export type UseVoicePlayerReturn = VoicePlayerState & VoicePlayerActions;
 
 export interface UseVoicePlayerOptions {
   /** Initial audio source URL or Blob */
-  src?: string | Blob
+  src?: string | Blob;
   /** Auto-play when loaded */
-  autoPlay?: boolean
+  autoPlay?: boolean;
   /** Initial playback speed */
-  initialSpeed?: PlaybackSpeed
+  initialSpeed?: PlaybackSpeed;
   /** Initial volume */
-  initialVolume?: number
+  initialVolume?: number;
   /** Loop playback */
-  loop?: boolean
+  loop?: boolean;
   /** Callback when playback starts */
-  onPlay?: () => void
+  onPlay?: () => void;
   /** Callback when playback pauses */
-  onPause?: () => void
+  onPause?: () => void;
   /** Callback when playback ends */
-  onEnd?: () => void
+  onEnd?: () => void;
   /** Callback when time updates */
-  onTimeUpdate?: (currentTime: number, duration: number) => void
+  onTimeUpdate?: (currentTime: number, duration: number) => void;
   /** Callback when an error occurs */
-  onError?: (error: string) => void
+  onError?: (error: string) => void;
   /** Callback when loading starts */
-  onLoadStart?: () => void
+  onLoadStart?: () => void;
   /** Callback when audio is ready */
-  onReady?: (duration: number) => void
+  onReady?: (duration: number) => void;
 }
 
 // ============================================================================
@@ -113,10 +119,12 @@ export interface UseVoicePlayerOptions {
 // ============================================================================
 
 /** Available playback speeds */
-export const PLAYBACK_SPEEDS: PlaybackSpeed[] = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
+export const PLAYBACK_SPEEDS: PlaybackSpeed[] = [
+  0.5, 0.75, 1, 1.25, 1.5, 1.75, 2,
+];
 
 /** Default skip duration in seconds */
-const DEFAULT_SKIP_DURATION = 5
+const DEFAULT_SKIP_DURATION = 5;
 
 // ============================================================================
 // HELPERS
@@ -127,12 +135,12 @@ const DEFAULT_SKIP_DURATION = 5
  */
 export function formatTime(seconds: number): string {
   if (!isFinite(seconds) || isNaN(seconds)) {
-    return '00:00'
+    return "00:00";
   }
 
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }
 
 /**
@@ -140,18 +148,18 @@ export function formatTime(seconds: number): string {
  */
 export function formatTimeWithHours(seconds: number): string {
   if (!isFinite(seconds) || isNaN(seconds)) {
-    return '00:00'
+    return "00:00";
   }
 
-  const hours = Math.floor(seconds / 3600)
-  const mins = Math.floor((seconds % 3600) / 60)
-  const secs = Math.floor(seconds % 60)
+  const hours = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
 
   if (hours > 0) {
-    return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    return `${hours}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
 
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }
 
 // ============================================================================
@@ -193,7 +201,9 @@ export function formatTimeWithHours(seconds: number): string {
  * }
  * ```
  */
-export function useVoicePlayer(options: UseVoicePlayerOptions = {}): UseVoicePlayerReturn {
+export function useVoicePlayer(
+  options: UseVoicePlayerOptions = {},
+): UseVoicePlayerReturn {
   const {
     src: initialSrc,
     autoPlay = false,
@@ -207,339 +217,350 @@ export function useVoicePlayer(options: UseVoicePlayerOptions = {}): UseVoicePla
     onError,
     onLoadStart,
     onReady,
-  } = options
+  } = options;
 
   // State
-  const [playbackState, setPlaybackState] = useState<PlaybackState>('idle')
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [playbackSpeed, setPlaybackSpeed] = useState<PlaybackSpeed>(initialSpeed)
-  const [volume, setVolumeState] = useState(initialVolume)
-  const [isMuted, setIsMuted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isReady, setIsReady] = useState(false)
+  const [playbackState, setPlaybackState] = useState<PlaybackState>("idle");
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] =
+    useState<PlaybackSpeed>(initialSpeed);
+  const [volume, setVolumeState] = useState(initialVolume);
+  const [isMuted, setIsMuted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   // Refs
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const srcUrlRef = useRef<string | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const srcUrlRef = useRef<string | null>(null);
 
   // Initialize audio element
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
-    const audio = new Audio()
-    audio.preload = 'metadata'
-    audioRef.current = audio
+    const audio = new Audio();
+    audio.preload = "metadata";
+    audioRef.current = audio;
 
     return () => {
       // Cleanup
-      audio.pause()
-      audio.src = ''
-      audio.load()
+      audio.pause();
+      audio.src = "";
+      audio.load();
 
-      if (srcUrlRef.current?.startsWith('blob:')) {
-        URL.revokeObjectURL(srcUrlRef.current)
+      if (srcUrlRef.current?.startsWith("blob:")) {
+        URL.revokeObjectURL(srcUrlRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Set up event listeners
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
+    const audio = audioRef.current;
+    if (!audio) return;
 
     const handleLoadStart = () => {
-      setPlaybackState('loading')
-      setError(null)
-      onLoadStart?.()
-    }
+      setPlaybackState("loading");
+      setError(null);
+      onLoadStart?.();
+    };
 
     const handleLoadedMetadata = () => {
-      setDuration(audio.duration)
-      setIsReady(true)
-      setPlaybackState('idle')
-      onReady?.(audio.duration)
-    }
+      setDuration(audio.duration);
+      setIsReady(true);
+      setPlaybackState("idle");
+      onReady?.(audio.duration);
+    };
 
     const handleCanPlay = () => {
-      setIsReady(true)
-      if (playbackState === 'loading') {
-        setPlaybackState('idle')
+      setIsReady(true);
+      if (playbackState === "loading") {
+        setPlaybackState("idle");
       }
-    }
+    };
 
     const handlePlay = () => {
-      setPlaybackState('playing')
-      onPlay?.()
-    }
+      setPlaybackState("playing");
+      onPlay?.();
+    };
 
     const handlePause = () => {
-      if (playbackState !== 'ended') {
-        setPlaybackState('paused')
-        onPause?.()
+      if (playbackState !== "ended") {
+        setPlaybackState("paused");
+        onPause?.();
       }
-    }
+    };
 
     const handleEnded = () => {
-      setPlaybackState('ended')
-      setCurrentTime(audio.duration)
-      onEnd?.()
-    }
+      setPlaybackState("ended");
+      setCurrentTime(audio.duration);
+      onEnd?.();
+    };
 
     const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime)
-      onTimeUpdate?.(audio.currentTime, audio.duration)
-    }
+      setCurrentTime(audio.currentTime);
+      onTimeUpdate?.(audio.currentTime, audio.duration);
+    };
 
     const handleError = () => {
-      const errorMessage = getAudioErrorMessage(audio.error)
-      setError(errorMessage)
-      setPlaybackState('error')
-      setIsReady(false)
-      onError?.(errorMessage)
-    }
+      const errorMessage = getAudioErrorMessage(audio.error);
+      setError(errorMessage);
+      setPlaybackState("error");
+      setIsReady(false);
+      onError?.(errorMessage);
+    };
 
     // Add listeners
-    audio.addEventListener('loadstart', handleLoadStart)
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
-    audio.addEventListener('canplay', handleCanPlay)
-    audio.addEventListener('play', handlePlay)
-    audio.addEventListener('pause', handlePause)
-    audio.addEventListener('ended', handleEnded)
-    audio.addEventListener('timeupdate', handleTimeUpdate)
-    audio.addEventListener('error', handleError)
+    audio.addEventListener("loadstart", handleLoadStart);
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("canplay", handleCanPlay);
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("pause", handlePause);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("error", handleError);
 
     return () => {
-      audio.removeEventListener('loadstart', handleLoadStart)
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
-      audio.removeEventListener('canplay', handleCanPlay)
-      audio.removeEventListener('play', handlePlay)
-      audio.removeEventListener('pause', handlePause)
-      audio.removeEventListener('ended', handleEnded)
-      audio.removeEventListener('timeupdate', handleTimeUpdate)
-      audio.removeEventListener('error', handleError)
-    }
-  }, [playbackState, onPlay, onPause, onEnd, onTimeUpdate, onError, onLoadStart, onReady])
+      audio.removeEventListener("loadstart", handleLoadStart);
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("canplay", handleCanPlay);
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("error", handleError);
+    };
+  }, [
+    playbackState,
+    onPlay,
+    onPause,
+    onEnd,
+    onTimeUpdate,
+    onError,
+    onLoadStart,
+    onReady,
+  ]);
 
   // Load initial source
   useEffect(() => {
     if (initialSrc) {
-      loadAudio(initialSrc)
+      loadAudio(initialSrc);
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update playback speed on audio element
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.playbackRate = playbackSpeed
+      audioRef.current.playbackRate = playbackSpeed;
     }
-  }, [playbackSpeed])
+  }, [playbackSpeed]);
 
   // Update volume on audio element
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume
+      audioRef.current.volume = isMuted ? 0 : volume;
     }
-  }, [volume, isMuted])
+  }, [volume, isMuted]);
 
   // Update loop setting
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.loop = loop
+      audioRef.current.loop = loop;
     }
-  }, [loop])
+  }, [loop]);
 
   // ============================================================================
   // Internal functions
   // ============================================================================
 
   const loadAudio = useCallback((source: string | Blob) => {
-    const audio = audioRef.current
-    if (!audio) return
+    const audio = audioRef.current;
+    if (!audio) return;
 
     // Revoke previous blob URL
-    if (srcUrlRef.current?.startsWith('blob:')) {
-      URL.revokeObjectURL(srcUrlRef.current)
+    if (srcUrlRef.current?.startsWith("blob:")) {
+      URL.revokeObjectURL(srcUrlRef.current);
     }
 
     // Create URL from Blob if needed
-    let srcUrl: string
+    let srcUrl: string;
     if (source instanceof Blob) {
-      srcUrl = URL.createObjectURL(source)
+      srcUrl = URL.createObjectURL(source);
     } else {
-      srcUrl = source
+      srcUrl = source;
     }
 
-    srcUrlRef.current = srcUrl
-    audio.src = srcUrl
-    audio.load()
+    srcUrlRef.current = srcUrl;
+    audio.src = srcUrl;
+    audio.load();
 
     // Reset state
-    setCurrentTime(0)
-    setPlaybackState('loading')
-    setError(null)
-    setIsReady(false)
-  }, [])
+    setCurrentTime(0);
+    setPlaybackState("loading");
+    setError(null);
+    setIsReady(false);
+  }, []);
 
   // ============================================================================
   // Actions
   // ============================================================================
 
   const play = useCallback(async () => {
-    const audio = audioRef.current
-    if (!audio || !isReady) return
+    const audio = audioRef.current;
+    if (!audio || !isReady) return;
 
     try {
       // If ended, restart from beginning
-      if (playbackState === 'ended') {
-        audio.currentTime = 0
+      if (playbackState === "ended") {
+        audio.currentTime = 0;
       }
 
-      await audio.play()
+      await audio.play();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to play audio'
-      setError(errorMessage)
-      setPlaybackState('error')
-      onError?.(errorMessage)
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to play audio";
+      setError(errorMessage);
+      setPlaybackState("error");
+      onError?.(errorMessage);
     }
-  }, [isReady, playbackState, onError])
+  }, [isReady, playbackState, onError]);
 
   const pause = useCallback(() => {
-    audioRef.current?.pause()
-  }, [])
+    audioRef.current?.pause();
+  }, []);
 
   const togglePlay = useCallback(async () => {
-    if (playbackState === 'playing') {
-      pause()
+    if (playbackState === "playing") {
+      pause();
     } else {
-      await play()
+      await play();
     }
-  }, [playbackState, play, pause])
+  }, [playbackState, play, pause]);
 
   const seek = useCallback(
     (time: number) => {
-      const audio = audioRef.current
-      if (!audio) return
+      const audio = audioRef.current;
+      if (!audio) return;
 
-      const clampedTime = Math.max(0, Math.min(time, audio.duration || 0))
-      audio.currentTime = clampedTime
-      setCurrentTime(clampedTime)
+      const clampedTime = Math.max(0, Math.min(time, audio.duration || 0));
+      audio.currentTime = clampedTime;
+      setCurrentTime(clampedTime);
 
       // If ended, reset state to paused
-      if (playbackState === 'ended') {
-        setPlaybackState('paused')
+      if (playbackState === "ended") {
+        setPlaybackState("paused");
       }
     },
-    [playbackState]
-  )
+    [playbackState],
+  );
 
   const seekByPercentage = useCallback(
     (percentage: number) => {
-      const audio = audioRef.current
-      if (!audio || !audio.duration) return
+      const audio = audioRef.current;
+      if (!audio || !audio.duration) return;
 
-      const time = (percentage / 100) * audio.duration
-      seek(time)
+      const time = (percentage / 100) * audio.duration;
+      seek(time);
     },
-    [seek]
-  )
+    [seek],
+  );
 
   const setSpeed = useCallback((speed: PlaybackSpeed) => {
-    setPlaybackSpeed(speed)
-  }, [])
+    setPlaybackSpeed(speed);
+  }, []);
 
   const cycleSpeed = useCallback(() => {
-    const currentIndex = PLAYBACK_SPEEDS.indexOf(playbackSpeed)
-    const nextIndex = (currentIndex + 1) % PLAYBACK_SPEEDS.length
-    setPlaybackSpeed(PLAYBACK_SPEEDS[nextIndex])
-  }, [playbackSpeed])
+    const currentIndex = PLAYBACK_SPEEDS.indexOf(playbackSpeed);
+    const nextIndex = (currentIndex + 1) % PLAYBACK_SPEEDS.length;
+    setPlaybackSpeed(PLAYBACK_SPEEDS[nextIndex]);
+  }, [playbackSpeed]);
 
   const setVolume = useCallback((vol: number) => {
-    const clampedVolume = Math.max(0, Math.min(1, vol))
-    setVolumeState(clampedVolume)
+    const clampedVolume = Math.max(0, Math.min(1, vol));
+    setVolumeState(clampedVolume);
     if (clampedVolume > 0) {
-      setIsMuted(false)
+      setIsMuted(false);
     }
-  }, [])
+  }, []);
 
   const toggleMute = useCallback(() => {
-    setIsMuted((prev) => !prev)
-  }, [])
+    setIsMuted((prev) => !prev);
+  }, []);
 
   const stop = useCallback(() => {
-    const audio = audioRef.current
-    if (!audio) return
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    audio.pause()
-    audio.currentTime = 0
-    setCurrentTime(0)
-    setPlaybackState('idle')
-  }, [])
+    audio.pause();
+    audio.currentTime = 0;
+    setCurrentTime(0);
+    setPlaybackState("idle");
+  }, []);
 
   const skipForward = useCallback(
     (seconds: number = DEFAULT_SKIP_DURATION) => {
-      const audio = audioRef.current
-      if (!audio) return
+      const audio = audioRef.current;
+      if (!audio) return;
 
-      seek(audio.currentTime + seconds)
+      seek(audio.currentTime + seconds);
     },
-    [seek]
-  )
+    [seek],
+  );
 
   const skipBackward = useCallback(
     (seconds: number = DEFAULT_SKIP_DURATION) => {
-      const audio = audioRef.current
-      if (!audio) return
+      const audio = audioRef.current;
+      if (!audio) return;
 
-      seek(audio.currentTime - seconds)
+      seek(audio.currentTime - seconds);
     },
-    [seek]
-  )
+    [seek],
+  );
 
   const load = useCallback(
     (src: string | Blob) => {
-      loadAudio(src)
+      loadAudio(src);
       if (autoPlay) {
         // Wait for loading before playing
-        const audio = audioRef.current
+        const audio = audioRef.current;
         if (audio) {
           const handleCanPlay = () => {
-            audio.removeEventListener('canplay', handleCanPlay)
-            play()
-          }
-          audio.addEventListener('canplay', handleCanPlay)
+            audio.removeEventListener("canplay", handleCanPlay);
+            play();
+          };
+          audio.addEventListener("canplay", handleCanPlay);
         }
       }
     },
-    [loadAudio, autoPlay, play]
-  )
+    [loadAudio, autoPlay, play],
+  );
 
   const unload = useCallback(() => {
-    const audio = audioRef.current
-    if (!audio) return
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    audio.pause()
-    audio.src = ''
-    audio.load()
+    audio.pause();
+    audio.src = "";
+    audio.load();
 
-    if (srcUrlRef.current?.startsWith('blob:')) {
-      URL.revokeObjectURL(srcUrlRef.current)
+    if (srcUrlRef.current?.startsWith("blob:")) {
+      URL.revokeObjectURL(srcUrlRef.current);
     }
-    srcUrlRef.current = null
+    srcUrlRef.current = null;
 
-    setCurrentTime(0)
-    setDuration(0)
-    setPlaybackState('idle')
-    setError(null)
-    setIsReady(false)
-  }, [])
+    setCurrentTime(0);
+    setDuration(0);
+    setPlaybackState("idle");
+    setError(null);
+    setIsReady(false);
+  }, []);
 
   // ============================================================================
   // Computed values
   // ============================================================================
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0
-  const remainingTime = Math.max(0, duration - currentTime)
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const remainingTime = Math.max(0, duration - currentTime);
 
   // ============================================================================
   // Return
@@ -548,8 +569,8 @@ export function useVoicePlayer(options: UseVoicePlayerOptions = {}): UseVoicePla
   return {
     // State
     playbackState,
-    isPlaying: playbackState === 'playing',
-    isLoading: playbackState === 'loading',
+    isPlaying: playbackState === "playing",
+    isLoading: playbackState === "loading",
     currentTime,
     duration,
     progress,
@@ -577,7 +598,7 @@ export function useVoicePlayer(options: UseVoicePlayerOptions = {}): UseVoicePla
     skipBackward,
     load,
     unload,
-  }
+  };
 }
 
 // ============================================================================
@@ -585,20 +606,20 @@ export function useVoicePlayer(options: UseVoicePlayerOptions = {}): UseVoicePla
 // ============================================================================
 
 function getAudioErrorMessage(error: MediaError | null): string {
-  if (!error) return 'Unknown audio error'
+  if (!error) return "Unknown audio error";
 
   switch (error.code) {
     case MediaError.MEDIA_ERR_ABORTED:
-      return 'Audio loading was aborted'
+      return "Audio loading was aborted";
     case MediaError.MEDIA_ERR_NETWORK:
-      return 'Network error while loading audio'
+      return "Network error while loading audio";
     case MediaError.MEDIA_ERR_DECODE:
-      return 'Audio decoding failed'
+      return "Audio decoding failed";
     case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-      return 'Audio format not supported'
+      return "Audio format not supported";
     default:
-      return error.message || 'Unknown audio error'
+      return error.message || "Unknown audio error";
   }
 }
 
-export default useVoicePlayer
+export default useVoicePlayer;

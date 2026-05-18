@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
   Download,
@@ -17,15 +17,15 @@ import {
   FileVideo,
   FileAudio,
   ExternalLink,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import type { Attachment, LinkPreview, AttachmentType } from '@/types/message'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { Attachment, LinkPreview, AttachmentType } from "@/types/message";
 
 interface MessageAttachmentsProps {
-  attachments: Attachment[]
-  linkPreviews?: LinkPreview[]
-  className?: string
+  attachments: Attachment[];
+  linkPreviews?: LinkPreview[];
+  className?: string;
 }
 
 /**
@@ -37,18 +37,20 @@ export function MessageAttachments({
   linkPreviews,
   className,
 }: MessageAttachmentsProps) {
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null)
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // Group attachments by type
-  const images = attachments.filter((a) => a.type === 'image')
-  const videos = attachments.filter((a) => a.type === 'video')
-  const audios = attachments.filter((a) => a.type === 'audio')
-  const files = attachments.filter((a) => a.type === 'file')
+  const images = attachments.filter((a) => a.type === "image");
+  const videos = attachments.filter((a) => a.type === "video");
+  const audios = attachments.filter((a) => a.type === "audio");
+  const files = attachments.filter((a) => a.type === "file");
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {/* Image gallery */}
-      {images.length > 0 && <ImageGallery images={images} onImageClick={setLightboxImage} />}
+      {images.length > 0 && (
+        <ImageGallery images={images} onImageClick={setLightboxImage} />
+      )}
 
       {/* Videos */}
       {videos.map((video) => (
@@ -79,50 +81,56 @@ export function MessageAttachments({
       )}
 
       {/* Lightbox */}
-      <ImageLightbox imageUrl={lightboxImage} onClose={() => setLightboxImage(null)} />
+      <ImageLightbox
+        imageUrl={lightboxImage}
+        onClose={() => setLightboxImage(null)}
+      />
     </div>
-  )
+  );
 }
 
 /**
  * Image gallery component
  */
 interface ImageGalleryProps {
-  images: Attachment[]
-  onImageClick: (url: string) => void
+  images: Attachment[];
+  onImageClick: (url: string) => void;
 }
 
 function ImageGallery({ images, onImageClick }: ImageGalleryProps) {
-  const displayImages = images.slice(0, 4)
-  const remainingCount = images.length - 4
+  const displayImages = images.slice(0, 4);
+  const remainingCount = images.length - 4;
 
   const getGridClass = () => {
     switch (displayImages.length) {
       case 1:
-        return 'grid-cols-1'
+        return "grid-cols-1";
       case 2:
-        return 'grid-cols-2'
+        return "grid-cols-2";
       case 3:
-        return 'grid-cols-2'
+        return "grid-cols-2";
       default:
-        return 'grid-cols-2'
+        return "grid-cols-2";
     }
-  }
+  };
 
   return (
-    <div className={cn('grid gap-1', getGridClass())}>
+    <div className={cn("grid gap-1", getGridClass())}>
       {displayImages.map((image, index) => (
         <button
           key={image.id}
           onClick={() => onImageClick(image.url)}
           className={cn(
-            'group relative overflow-hidden rounded-lg bg-muted',
-            displayImages.length === 3 && index === 0 && 'row-span-2',
-            'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+            "group relative overflow-hidden rounded-lg bg-muted",
+            displayImages.length === 3 && index === 0 && "row-span-2",
+            "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
           )}
         >
           <div
-            className={cn('relative aspect-video w-full', displayImages.length === 1 && 'max-h-80')}
+            className={cn(
+              "relative aspect-video w-full",
+              displayImages.length === 1 && "max-h-80",
+            )}
           >
             <Image
               src={image.thumbnailUrl || image.url}
@@ -141,21 +149,23 @@ function ImageGallery({ images, onImageClick }: ImageGalleryProps) {
           {/* Remaining count overlay */}
           {index === 3 && remainingCount > 0 && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-              <span className="text-2xl font-bold text-white">+{remainingCount}</span>
+              <span className="text-2xl font-bold text-white">
+                +{remainingCount}
+              </span>
             </div>
           )}
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 /**
  * Video player component
  */
 function VideoPlayer({ attachment }: { attachment: Attachment }) {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   return (
     <div className="relative max-w-md overflow-hidden rounded-lg bg-black">
@@ -192,15 +202,15 @@ function VideoPlayer({ attachment }: { attachment: Attachment }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
  * Audio player component
  */
 function AudioPlayer({ attachment }: { attachment: Attachment }) {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   return (
     <div className="bg-muted/50 flex max-w-md items-center gap-3 rounded-lg border p-3">
@@ -211,7 +221,11 @@ function AudioPlayer({ attachment }: { attachment: Attachment }) {
         onClick={() => setIsPlaying(!isPlaying)}
         className="h-10 w-10 shrink-0 rounded-full"
       >
-        {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
+        {isPlaying ? (
+          <Pause className="h-5 w-5" />
+        ) : (
+          <Play className="ml-0.5 h-5 w-5" />
+        )}
       </Button>
 
       {/* Waveform / progress */}
@@ -219,11 +233,16 @@ function AudioPlayer({ attachment }: { attachment: Attachment }) {
         <div className="mb-1 flex items-center justify-between text-xs">
           <span className="font-medium">{attachment.name}</span>
           <span className="text-muted-foreground">
-            {attachment.duration ? formatDuration(attachment.duration) : '--:--'}
+            {attachment.duration
+              ? formatDuration(attachment.duration)
+              : "--:--"}
           </span>
         </div>
         <div className="h-1 w-full overflow-hidden rounded-full bg-border">
-          <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+          <div
+            className="h-full bg-primary transition-all"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
@@ -234,14 +253,14 @@ function AudioPlayer({ attachment }: { attachment: Attachment }) {
         </a>
       </Button>
     </div>
-  )
+  );
 }
 
 /**
  * File card component
  */
 function FileCard({ attachment }: { attachment: Attachment }) {
-  const Icon = getFileIcon(attachment.mimeType)
+  const Icon = getFileIcon(attachment.mimeType);
 
   return (
     <div className="bg-muted/30 hover:bg-muted/50 flex max-w-sm items-center gap-3 rounded-lg border p-3 transition-colors">
@@ -254,7 +273,7 @@ function FileCard({ attachment }: { attachment: Attachment }) {
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{attachment.name}</p>
         <p className="text-xs text-muted-foreground">
-          {attachment.size ? formatFileSize(attachment.size) : 'Unknown size'}
+          {attachment.size ? formatFileSize(attachment.size) : "Unknown size"}
         </p>
       </div>
 
@@ -265,7 +284,7 @@ function FileCard({ attachment }: { attachment: Attachment }) {
         </a>
       </Button>
     </div>
-  )
+  );
 }
 
 /**
@@ -284,7 +303,7 @@ function LinkPreviewCard({ preview }: { preview: LinkPreview }) {
         <div className="relative aspect-video w-full bg-muted">
           <Image
             src={preview.imageUrl}
-            alt={preview.title || 'Link preview'}
+            alt={preview.title || "Link preview"}
             fill
             className="object-cover"
             sizes="400px"
@@ -297,7 +316,13 @@ function LinkPreviewCard({ preview }: { preview: LinkPreview }) {
         {/* Site info */}
         <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
           {preview.favicon && (
-            <Image src={preview.favicon} alt="" width={14} height={14} className="rounded-sm" />
+            <Image
+              src={preview.favicon}
+              alt=""
+              width={14}
+              height={14}
+              className="rounded-sm"
+            />
           )}
           <span>{preview.siteName || new URL(preview.url).hostname}</span>
           <ExternalLink className="ml-auto h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -312,17 +337,25 @@ function LinkPreviewCard({ preview }: { preview: LinkPreview }) {
 
         {/* Description */}
         {preview.description && (
-          <p className="line-clamp-2 text-xs text-muted-foreground">{preview.description}</p>
+          <p className="line-clamp-2 text-xs text-muted-foreground">
+            {preview.description}
+          </p>
         )}
       </div>
     </a>
-  )
+  );
 }
 
 /**
  * Image lightbox component
  */
-function ImageLightbox({ imageUrl, onClose }: { imageUrl: string | null; onClose: () => void }) {
+function ImageLightbox({
+  imageUrl,
+  onClose,
+}: {
+  imageUrl: string | null;
+  onClose: () => void;
+}) {
   return (
     <AnimatePresence>
       {imageUrl && (
@@ -373,7 +406,7 @@ function ImageLightbox({ imageUrl, onClose }: { imageUrl: string | null; onClose
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 // ============================================================================
@@ -381,28 +414,28 @@ function ImageLightbox({ imageUrl, onClose }: { imageUrl: string | null; onClose
 // ============================================================================
 
 function getFileIcon(mimeType?: string) {
-  if (!mimeType) return File
+  if (!mimeType) return File;
 
-  if (mimeType.startsWith('image/')) return FileImage
-  if (mimeType.startsWith('video/')) return FileVideo
-  if (mimeType.startsWith('audio/')) return FileAudio
-  if (mimeType.includes('pdf')) return FileText
+  if (mimeType.startsWith("image/")) return FileImage;
+  if (mimeType.startsWith("video/")) return FileVideo;
+  if (mimeType.startsWith("audio/")) return FileAudio;
+  if (mimeType.includes("pdf")) return FileText;
 
-  return File
+  return File;
 }
 
 function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
+  if (bytes === 0) return "0 B";
 
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
 function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins}:${secs.toString().padStart(2, '0')}`
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }

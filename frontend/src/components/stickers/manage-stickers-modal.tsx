@@ -1,47 +1,60 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useMemo } from 'react'
-import { GripVertical, Trash2, Search, Plus, Clock, Heart, Loader2, Package } from 'lucide-react'
-import Image from 'next/image'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useMemo } from "react";
+import {
+  GripVertical,
+  Trash2,
+  Search,
+  Plus,
+  Clock,
+  Heart,
+  Loader2,
+  Package,
+} from "lucide-react";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { useStickers } from '@/lib/stickers/use-stickers'
-import type { StickerPack, UserStickerPack, FavoriteSticker } from '@/graphql/stickers'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useStickers } from "@/lib/stickers/use-stickers";
+import type {
+  StickerPack,
+  UserStickerPack,
+  FavoriteSticker,
+} from "@/graphql/stickers";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface ManageStickersModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onAddPackClick?: () => void
-  className?: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAddPackClick?: () => void;
+  className?: string;
 }
 
-type ManageTab = 'packs' | 'favorites' | 'recent'
+type ManageTab = "packs" | "favorites" | "recent";
 
 // ============================================================================
 // DRAGGABLE PACK ITEM
 // ============================================================================
 
 interface DraggablePackItemProps {
-  pack: UserStickerPack
-  onRemove: (packId: string) => Promise<void>
-  onDragStart: (packId: string) => void
-  onDragOver: (packId: string) => void
-  onDragEnd: () => void
-  isDragging: boolean
-  isDragOver: boolean
+  pack: UserStickerPack;
+  onRemove: (packId: string) => Promise<void>;
+  onDragStart: (packId: string) => void;
+  onDragOver: (packId: string) => void;
+  onDragEnd: () => void;
+  isDragging: boolean;
+  isDragOver: boolean;
 }
 
 function DraggablePackItem({
@@ -53,30 +66,30 @@ function DraggablePackItem({
   isDragging,
   isDragOver,
 }: DraggablePackItemProps) {
-  const [isRemoving, setIsRemoving] = useState(false)
-  const [imageError, setImageError] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleRemove = useCallback(async () => {
-    setIsRemoving(true)
+    setIsRemoving(true);
     try {
-      await onRemove(pack.pack_id)
+      await onRemove(pack.pack_id);
     } finally {
-      setIsRemoving(false)
+      setIsRemoving(false);
     }
-  }, [onRemove, pack.pack_id])
+  }, [onRemove, pack.pack_id]);
 
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-lg border bg-card p-3 transition-all',
-        isDragging && 'scale-95 opacity-50',
-        isDragOver && 'bg-primary/5 border-primary'
+        "flex items-center gap-3 rounded-lg border bg-card p-3 transition-all",
+        isDragging && "scale-95 opacity-50",
+        isDragOver && "bg-primary/5 border-primary",
       )}
       draggable
       onDragStart={() => onDragStart(pack.pack_id)}
       onDragOver={(e) => {
-        e.preventDefault()
-        onDragOver(pack.pack_id)
+        e.preventDefault();
+        onDragOver(pack.pack_id);
       }}
       onDragEnd={onDragEnd}
     >
@@ -111,7 +124,7 @@ function DraggablePackItem({
         <h4 className="truncate text-sm font-medium">{pack.pack.name}</h4>
         <p className="text-xs text-muted-foreground">
           {pack.pack.sticker_count} stickers
-          {pack.pack.is_animated && ' - Animated'}
+          {pack.pack.is_animated && " - Animated"}
         </p>
       </div>
 
@@ -123,10 +136,14 @@ function DraggablePackItem({
         disabled={isRemoving}
         className="text-muted-foreground hover:text-destructive"
       >
-        {isRemoving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+        {isRemoving ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Trash2 className="h-4 w-4" />
+        )}
       </Button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -134,22 +151,22 @@ function DraggablePackItem({
 // ============================================================================
 
 interface FavoriteStickerItemProps {
-  favorite: FavoriteSticker
-  onRemove: (stickerId: string) => Promise<void>
+  favorite: FavoriteSticker;
+  onRemove: (stickerId: string) => Promise<void>;
 }
 
 function FavoriteStickerItem({ favorite, onRemove }: FavoriteStickerItemProps) {
-  const [isRemoving, setIsRemoving] = useState(false)
-  const [imageError, setImageError] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleRemove = useCallback(async () => {
-    setIsRemoving(true)
+    setIsRemoving(true);
     try {
-      await onRemove(favorite.sticker_id)
+      await onRemove(favorite.sticker_id);
     } finally {
-      setIsRemoving(false)
+      setIsRemoving(false);
     }
-  }, [onRemove, favorite.sticker_id])
+  }, [onRemove, favorite.sticker_id]);
 
   return (
     <div className="group relative">
@@ -161,7 +178,7 @@ function FavoriteStickerItem({ favorite, onRemove }: FavoriteStickerItemProps) {
         ) : (
           <Image
             src={favorite.sticker.thumbnail_url || favorite.sticker.url}
-            alt={favorite.sticker.name || 'Sticker'}
+            alt={favorite.sticker.name || "Sticker"}
             fill
             className="object-contain p-1"
             onError={() => setImageError(true)}
@@ -173,16 +190,20 @@ function FavoriteStickerItem({ favorite, onRemove }: FavoriteStickerItemProps) {
         onClick={handleRemove}
         disabled={isRemoving}
         className={cn(
-          'absolute -right-1 -top-1 rounded-full p-1',
-          'bg-destructive text-destructive-foreground',
-          'opacity-0 transition-opacity group-hover:opacity-100',
-          'disabled:opacity-50'
+          "absolute -right-1 -top-1 rounded-full p-1",
+          "bg-destructive text-destructive-foreground",
+          "opacity-0 transition-opacity group-hover:opacity-100",
+          "disabled:opacity-50",
         )}
       >
-        {isRemoving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+        {isRemoving ? (
+          <Loader2 className="h-3 w-3 animate-spin" />
+        ) : (
+          <Trash2 className="h-3 w-3" />
+        )}
       </button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -204,70 +225,70 @@ export function ManageStickersModal({
     removeFromFavorites,
     clearRecentStickers,
     isLoadingPacks,
-  } = useStickers()
+  } = useStickers();
 
-  const [activeTab, setActiveTab] = useState<ManageTab>('packs')
-  const [draggedPackId, setDraggedPackId] = useState<string | null>(null)
-  const [dragOverPackId, setDragOverPackId] = useState<string | null>(null)
-  const [isClearingRecent, setIsClearingRecent] = useState(false)
+  const [activeTab, setActiveTab] = useState<ManageTab>("packs");
+  const [draggedPackId, setDraggedPackId] = useState<string | null>(null);
+  const [dragOverPackId, setDragOverPackId] = useState<string | null>(null);
+  const [isClearingRecent, setIsClearingRecent] = useState(false);
 
   // Handle pack removal
   const handleRemovePack = useCallback(
     async (packId: string) => {
-      await removePack(packId)
+      await removePack(packId);
     },
-    [removePack]
-  )
+    [removePack],
+  );
 
   // Handle drag and drop reordering
   const handleDragStart = useCallback((packId: string) => {
-    setDraggedPackId(packId)
-  }, [])
+    setDraggedPackId(packId);
+  }, []);
 
   const handleDragOver = useCallback(
     (packId: string) => {
       if (packId !== draggedPackId) {
-        setDragOverPackId(packId)
+        setDragOverPackId(packId);
       }
     },
-    [draggedPackId]
-  )
+    [draggedPackId],
+  );
 
   const handleDragEnd = useCallback(() => {
     if (draggedPackId && dragOverPackId && draggedPackId !== dragOverPackId) {
-      const packIds = installedPacks.map((p) => p.pack_id)
-      const draggedIndex = packIds.indexOf(draggedPackId)
-      const dropIndex = packIds.indexOf(dragOverPackId)
+      const packIds = installedPacks.map((p) => p.pack_id);
+      const draggedIndex = packIds.indexOf(draggedPackId);
+      const dropIndex = packIds.indexOf(dragOverPackId);
 
       if (draggedIndex !== -1 && dropIndex !== -1) {
         // Reorder the array
-        packIds.splice(draggedIndex, 1)
-        packIds.splice(dropIndex, 0, draggedPackId)
-        reorderPacks(packIds)
+        packIds.splice(draggedIndex, 1);
+        packIds.splice(dropIndex, 0, draggedPackId);
+        reorderPacks(packIds);
       }
     }
 
-    setDraggedPackId(null)
-    setDragOverPackId(null)
-  }, [draggedPackId, dragOverPackId, installedPacks, reorderPacks])
+    setDraggedPackId(null);
+    setDragOverPackId(null);
+  }, [draggedPackId, dragOverPackId, installedPacks, reorderPacks]);
 
   // Handle favorite removal
   const handleRemoveFavorite = useCallback(
     async (stickerId: string) => {
-      await removeFromFavorites(stickerId)
+      await removeFromFavorites(stickerId);
     },
-    [removeFromFavorites]
-  )
+    [removeFromFavorites],
+  );
 
   // Handle clear recent
   const handleClearRecent = useCallback(async () => {
-    setIsClearingRecent(true)
+    setIsClearingRecent(true);
     try {
-      await clearRecentStickers()
+      await clearRecentStickers();
     } finally {
-      setIsClearingRecent(false)
+      setIsClearingRecent(false);
     }
-  }, [clearRecentStickers])
+  }, [clearRecentStickers]);
 
   // Stats
   const stats = useMemo(
@@ -276,12 +297,12 @@ export function ManageStickersModal({
       favorites: favoriteStickers.length,
       recent: recentStickers.length,
     }),
-    [installedPacks.length, favoriteStickers.length, recentStickers.length]
-  )
+    [installedPacks.length, favoriteStickers.length, recentStickers.length],
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('sm:max-w-[500px]', className)}>
+      <DialogContent className={cn("sm:max-w-[500px]", className)}>
         <DialogHeader>
           <DialogTitle>Manage Stickers</DialogTitle>
           <DialogDescription>
@@ -289,7 +310,10 @@ export function ManageStickersModal({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ManageTab)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as ManageTab)}
+        >
           <TabsList className="w-full">
             <TabsTrigger value="packs" className="flex-1">
               <Package className="mr-2 h-4 w-4" />
@@ -332,7 +356,11 @@ export function ManageStickersModal({
                     Drag to reorder your sticker packs
                   </p>
                   {onAddPackClick && (
-                    <Button variant="outline" size="sm" onClick={onAddPackClick}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={onAddPackClick}
+                    >
                       <Plus className="mr-2 h-4 w-4" />
                       Add Pack
                     </Button>
@@ -389,7 +417,9 @@ export function ManageStickersModal({
               <div className="py-12 text-center">
                 <Clock className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
                 <h3 className="mb-1 font-medium">No recent stickers</h3>
-                <p className="text-sm text-muted-foreground">Stickers you send will appear here</p>
+                <p className="text-sm text-muted-foreground">
+                  Stickers you send will appear here
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -419,8 +449,10 @@ export function ManageStickersModal({
                         className="relative h-16 w-16 overflow-hidden rounded-lg bg-muted"
                       >
                         <Image
-                          src={recent.sticker.thumbnail_url || recent.sticker.url}
-                          alt={recent.sticker.name || 'Sticker'}
+                          src={
+                            recent.sticker.thumbnail_url || recent.sticker.url
+                          }
+                          alt={recent.sticker.name || "Sticker"}
                           fill
                           className="object-contain p-1"
                         />
@@ -439,7 +471,7 @@ export function ManageStickersModal({
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default ManageStickersModal
+export default ManageStickersModal;

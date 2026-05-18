@@ -1,31 +1,31 @@
-'use client'
+"use client";
 
 /**
  * Bot Deployment Component
  * Deploy and configure bot for production
  */
 
-import * as React from 'react'
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import type { BotBuilderDefinition } from '@/lib/bots'
+import * as React from "react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import type { BotBuilderDefinition } from "@/lib/bots";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 interface BotDeploymentProps {
-  bot: BotBuilderDefinition
-  onDeploy?: (config: DeployConfig) => void
-  className?: string
+  bot: BotBuilderDefinition;
+  onDeploy?: (config: DeployConfig) => void;
+  className?: string;
 }
 
 interface DeployConfig {
-  channels: string[]
-  enabled: boolean
-  permissions: string[]
+  channels: string[];
+  enabled: boolean;
+  permissions: string[];
 }
 
 // ============================================================================
@@ -33,38 +33,66 @@ interface DeployConfig {
 // ============================================================================
 
 const PERMISSIONS = [
-  { id: 'read_messages', label: 'Read Messages', description: 'View messages in channels' },
-  { id: 'send_messages', label: 'Send Messages', description: 'Send messages to channels' },
-  { id: 'manage_messages', label: 'Manage Messages', description: 'Edit and delete messages' },
-  { id: 'add_reactions', label: 'Add Reactions', description: 'Add emoji reactions' },
-  { id: 'mention_users', label: 'Mention Users', description: 'Mention users in messages' },
-  { id: 'upload_files', label: 'Upload Files', description: 'Upload files and attachments' },
-]
+  {
+    id: "read_messages",
+    label: "Read Messages",
+    description: "View messages in channels",
+  },
+  {
+    id: "send_messages",
+    label: "Send Messages",
+    description: "Send messages to channels",
+  },
+  {
+    id: "manage_messages",
+    label: "Manage Messages",
+    description: "Edit and delete messages",
+  },
+  {
+    id: "add_reactions",
+    label: "Add Reactions",
+    description: "Add emoji reactions",
+  },
+  {
+    id: "mention_users",
+    label: "Mention Users",
+    description: "Mention users in messages",
+  },
+  {
+    id: "upload_files",
+    label: "Upload Files",
+    description: "Upload files and attachments",
+  },
+];
 
 // ============================================================================
 // MOCK CHANNELS
 // ============================================================================
 
 const MOCK_CHANNELS = [
-  { id: 'general', name: 'general' },
-  { id: 'random', name: 'random' },
-  { id: 'announcements', name: 'announcements' },
-  { id: 'help', name: 'help' },
-  { id: 'dev', name: 'dev' },
-]
+  { id: "general", name: "general" },
+  { id: "random", name: "random" },
+  { id: "announcements", name: "announcements" },
+  { id: "help", name: "help" },
+  { id: "dev", name: "dev" },
+];
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) {
+export function BotDeployment({
+  bot,
+  onDeploy,
+  className,
+}: BotDeploymentProps) {
   const [deployConfig, setDeployConfig] = useState<DeployConfig>({
     channels: [],
     enabled: true,
-    permissions: ['read_messages', 'send_messages'],
-  })
-  const [isDeploying, setIsDeploying] = useState(false)
-  const [isDeployed, setIsDeployed] = useState(false)
+    permissions: ["read_messages", "send_messages"],
+  });
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [isDeployed, setIsDeployed] = useState(false);
 
   // Toggle channel
   const toggleChannel = (channelId: string) => {
@@ -73,16 +101,19 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
       channels: prev.channels.includes(channelId)
         ? prev.channels.filter((c) => c !== channelId)
         : [...prev.channels, channelId],
-    }))
-  }
+    }));
+  };
 
   // Toggle all channels
   const toggleAllChannels = () => {
     setDeployConfig((prev) => ({
       ...prev,
-      channels: prev.channels.length === MOCK_CHANNELS.length ? [] : MOCK_CHANNELS.map((c) => c.id),
-    }))
-  }
+      channels:
+        prev.channels.length === MOCK_CHANNELS.length
+          ? []
+          : MOCK_CHANNELS.map((c) => c.id),
+    }));
+  };
 
   // Toggle permission
   const togglePermission = (permissionId: string) => {
@@ -91,27 +122,27 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
       permissions: prev.permissions.includes(permissionId)
         ? prev.permissions.filter((p) => p !== permissionId)
         : [...prev.permissions, permissionId],
-    }))
-  }
+    }));
+  };
 
   // Deploy bot
   const handleDeploy = async () => {
-    setIsDeploying(true)
+    setIsDeploying(true);
 
     // Simulate deployment
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    setIsDeploying(false)
-    setIsDeployed(true)
+    setIsDeploying(false);
+    setIsDeployed(true);
 
     if (onDeploy) {
-      onDeploy(deployConfig)
+      onDeploy(deployConfig);
     }
-  }
+  };
 
   if (isDeployed) {
     return (
-      <div className={cn('py-12 text-center', className)}>
+      <div className={cn("py-12 text-center", className)}>
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
           <svg
             className="h-8 w-8 text-green-600"
@@ -119,7 +150,12 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
         <h3 className="mb-2 text-xl font-semibold">Bot Deployed!</h3>
@@ -128,10 +164,10 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
         </p>
         <div className="space-y-2 text-sm text-muted-foreground">
           <p>
-            Active in:{' '}
+            Active in:{" "}
             {deployConfig.channels.length === 0
-              ? 'All channels'
-              : deployConfig.channels.length + ' channel(s)'}
+              ? "All channels"
+              : deployConfig.channels.length + " channel(s)"}
           </p>
           <p>Triggers: {bot.triggers.length}</p>
           <p>Actions: {bot.actions.length}</p>
@@ -140,11 +176,11 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
           Edit Deployment
         </Button>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Summary */}
       <Card className="p-4">
         <h4 className="mb-3 font-medium">Bot Summary</h4>
@@ -175,7 +211,9 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
         <div className="mb-3 flex items-center justify-between">
           <h4 className="font-medium">Active Channels</h4>
           <Button variant="ghost" size="sm" onClick={toggleAllChannels}>
-            {deployConfig.channels.length === MOCK_CHANNELS.length ? 'Deselect All' : 'Select All'}
+            {deployConfig.channels.length === MOCK_CHANNELS.length
+              ? "Deselect All"
+              : "Select All"}
           </Button>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -184,10 +222,10 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
               key={channel.id}
               htmlFor={`channel-${channel.id}`}
               className={cn(
-                'flex cursor-pointer items-center gap-2 rounded-md border p-3 transition-colors',
+                "flex cursor-pointer items-center gap-2 rounded-md border p-3 transition-colors",
                 deployConfig.channels.includes(channel.id)
-                  ? 'bg-primary/5 border-primary'
-                  : 'hover:bg-muted/50 border-input'
+                  ? "bg-primary/5 border-primary"
+                  : "hover:bg-muted/50 border-input",
               )}
             >
               <input
@@ -215,10 +253,10 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
               key={permission.id}
               htmlFor={`permission-${permission.id}`}
               className={cn(
-                'flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors',
+                "flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors",
                 deployConfig.permissions.includes(permission.id)
-                  ? 'bg-primary/5 border-primary'
-                  : 'hover:bg-muted/50 border-input'
+                  ? "bg-primary/5 border-primary"
+                  : "hover:bg-muted/50 border-input",
               )}
             >
               <input
@@ -230,7 +268,9 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
               />
               <div>
                 <span className="font-medium">{permission.label}</span>
-                <p className="text-sm text-muted-foreground">{permission.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {permission.description}
+                </p>
               </div>
             </label>
           ))}
@@ -240,7 +280,10 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
       {/* Enable Toggle */}
       <Card className="p-4">
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- label has htmlFor pointing to input id */}
-        <label htmlFor="bot-enabled" className="flex cursor-pointer items-center justify-between">
+        <label
+          htmlFor="bot-enabled"
+          className="flex cursor-pointer items-center justify-between"
+        >
           <div>
             <span className="font-medium">Enable Bot</span>
             <p className="text-sm text-muted-foreground">
@@ -251,14 +294,24 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
             id="bot-enabled"
             type="checkbox"
             checked={deployConfig.enabled}
-            onChange={(e) => setDeployConfig((prev) => ({ ...prev, enabled: e.target.checked }))}
+            onChange={(e) =>
+              setDeployConfig((prev) => ({
+                ...prev,
+                enabled: e.target.checked,
+              }))
+            }
             className="h-5 w-5"
           />
         </label>
       </Card>
 
       {/* Deploy Button */}
-      <Button onClick={handleDeploy} disabled={isDeploying} className="w-full" size="lg">
+      <Button
+        onClick={handleDeploy}
+        disabled={isDeploying}
+        className="w-full"
+        size="lg"
+      >
         {isDeploying ? (
           <>
             <svg
@@ -284,16 +337,19 @@ export function BotDeployment({ bot, onDeploy, className }: BotDeploymentProps) 
             Deploying...
           </>
         ) : (
-          'Deploy Bot'
+          "Deploy Bot"
         )}
       </Button>
 
       {/* Help */}
       <div className="text-center text-sm text-muted-foreground">
-        <p>After deployment, you can manage this bot from the Bots section in Settings.</p>
+        <p>
+          After deployment, you can manage this bot from the Bots section in
+          Settings.
+        </p>
       </div>
     </div>
-  )
+  );
 }
 
-export default BotDeployment
+export default BotDeployment;

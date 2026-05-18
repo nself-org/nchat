@@ -1,33 +1,36 @@
-'use client'
+"use client";
 
-import { memo, useCallback, useEffect, useRef } from 'react'
-import { motion, AnimatePresence, PanInfo, useAnimation } from 'framer-motion'
-import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useMobileStore, type ActionSheetOption } from '@/lib/mobile/mobile-store'
-import { useSafeArea } from '@/lib/mobile/use-viewport'
+import { memo, useCallback, useEffect, useRef } from "react";
+import { motion, AnimatePresence, PanInfo, useAnimation } from "framer-motion";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  useMobileStore,
+  type ActionSheetOption,
+} from "@/lib/mobile/mobile-store";
+import { useSafeArea } from "@/lib/mobile/use-viewport";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface MobileActionSheetProps {
-  title?: string
-  message?: string
-  options?: ActionSheetOption[]
-  cancelLabel?: string
-  showCancel?: boolean
-  onSelect?: (index: number) => void
-  onCancel?: () => void
-  className?: string
+  title?: string;
+  message?: string;
+  options?: ActionSheetOption[];
+  cancelLabel?: string;
+  showCancel?: boolean;
+  onSelect?: (index: number) => void;
+  onCancel?: () => void;
+  className?: string;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const SWIPE_THRESHOLD = 100
+const SWIPE_THRESHOLD = 100;
 
 // ============================================================================
 // Component
@@ -41,89 +44,90 @@ export const MobileActionSheet = memo(function MobileActionSheet({
   title,
   message,
   options,
-  cancelLabel = 'Cancel',
+  cancelLabel = "Cancel",
   showCancel = true,
   onSelect,
   onCancel,
   className,
 }: MobileActionSheetProps) {
-  const { actionSheet, hideActionSheet } = useMobileStore()
-  const safeArea = useSafeArea()
-  const controls = useAnimation()
-  const sheetRef = useRef<HTMLDivElement>(null)
+  const { actionSheet, hideActionSheet } = useMobileStore();
+  const safeArea = useSafeArea();
+  const controls = useAnimation();
+  const sheetRef = useRef<HTMLDivElement>(null);
 
   // Use provided options or store options
-  const sheetOptions = options || actionSheet.options
-  const handleSelect = onSelect || actionSheet.onSelect
+  const sheetOptions = options || actionSheet.options;
+  const handleSelect = onSelect || actionSheet.onSelect;
 
-  const isOpen = options !== undefined ? options.length > 0 : actionSheet.isOpen
+  const isOpen =
+    options !== undefined ? options.length > 0 : actionSheet.isOpen;
 
   // Handle selection
   const handleOptionSelect = useCallback(
     (index: number) => {
-      handleSelect?.(index)
+      handleSelect?.(index);
       if (!options) {
-        hideActionSheet()
+        hideActionSheet();
       }
-      onCancel?.()
+      onCancel?.();
     },
-    [handleSelect, options, hideActionSheet, onCancel]
-  )
+    [handleSelect, options, hideActionSheet, onCancel],
+  );
 
   // Handle cancel
   const handleCancel = useCallback(() => {
     if (!options) {
-      hideActionSheet()
+      hideActionSheet();
     }
-    onCancel?.()
-  }, [options, hideActionSheet, onCancel])
+    onCancel?.();
+  }, [options, hideActionSheet, onCancel]);
 
   // Handle drag
   const handleDrag = useCallback(
     (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       if (info.offset.y > 0) {
-        controls.set({ y: info.offset.y })
+        controls.set({ y: info.offset.y });
       }
     },
-    [controls]
-  )
+    [controls],
+  );
 
   // Handle drag end
   const handleDragEnd = useCallback(
     (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       if (info.offset.y > SWIPE_THRESHOLD || info.velocity.y > 500) {
-        handleCancel()
+        handleCancel();
       } else {
-        controls.start({ y: 0 })
+        controls.start({ y: 0 });
       }
     },
-    [controls, handleCancel]
-  )
+    [controls, handleCancel],
+  );
 
   // Close on escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        handleCancel()
+      if (e.key === "Escape" && isOpen) {
+        handleCancel();
       }
-    }
+    };
 
-    document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [isOpen, handleCancel])
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen, handleCancel]);
 
   // Prevent body scroll when open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = ''
+      document.body.style.overflow = "";
     }
 
     return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -141,20 +145,20 @@ export const MobileActionSheet = memo(function MobileActionSheet({
           {/* Action sheet */}
           <motion.div
             ref={sheetRef}
-            initial={{ y: '100%' }}
+            initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={0.2}
             onDrag={handleDrag}
             onDragEnd={handleDragEnd}
             className={cn(
-              'fixed bottom-0 left-0 right-0 z-50',
-              'rounded-t-2xl bg-background',
-              'shadow-2xl',
-              className
+              "fixed bottom-0 left-0 right-0 z-50",
+              "rounded-t-2xl bg-background",
+              "shadow-2xl",
+              className,
             )}
             style={{
               paddingBottom: safeArea.bottom || 8,
@@ -169,7 +173,11 @@ export const MobileActionSheet = memo(function MobileActionSheet({
             {(title || message) && (
               <div className="border-b px-6 pb-4 text-center">
                 {title && <h3 className="text-base font-semibold">{title}</h3>}
-                {message && <p className="mt-1 text-sm text-muted-foreground">{message}</p>}
+                {message && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {message}
+                  </p>
+                )}
               </div>
             )}
 
@@ -192,7 +200,12 @@ export const MobileActionSheet = memo(function MobileActionSheet({
                 <Button
                   variant="outline"
                   onClick={handleCancel}
-                  className={cn('h-12 w-full', 'rounded-xl', 'font-semibold', 'touch-manipulation')}
+                  className={cn(
+                    "h-12 w-full",
+                    "rounded-xl",
+                    "font-semibold",
+                    "touch-manipulation",
+                  )}
                 >
                   {cancelLabel}
                 </Button>
@@ -202,18 +215,18 @@ export const MobileActionSheet = memo(function MobileActionSheet({
         </>
       )}
     </AnimatePresence>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Sub-components
 // ============================================================================
 
 interface ActionSheetButtonProps {
-  option: ActionSheetOption
-  onClick: () => void
-  isFirst?: boolean
-  isLast?: boolean
+  option: ActionSheetOption;
+  onClick: () => void;
+  isFirst?: boolean;
+  isLast?: boolean;
 }
 
 const ActionSheetButton = memo(function ActionSheetButton({
@@ -227,36 +240,36 @@ const ActionSheetButton = memo(function ActionSheetButton({
       onClick={onClick}
       disabled={option.disabled}
       className={cn(
-        'flex w-full items-center justify-center gap-3',
-        'h-14 px-4',
-        'bg-muted/30 hover:bg-muted/50',
-        'transition-colors duration-150',
-        'touch-manipulation',
-        'disabled:cursor-not-allowed disabled:opacity-50',
-        option.destructive && 'text-destructive',
-        isFirst && 'rounded-t-xl',
-        isLast && 'rounded-b-xl',
-        !isLast && 'border-border/50 border-b'
+        "flex w-full items-center justify-center gap-3",
+        "h-14 px-4",
+        "bg-muted/30 hover:bg-muted/50",
+        "transition-colors duration-150",
+        "touch-manipulation",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        option.destructive && "text-destructive",
+        isFirst && "rounded-t-xl",
+        isLast && "rounded-b-xl",
+        !isLast && "border-border/50 border-b",
       )}
     >
       {option.icon && <span className="shrink-0">{option.icon}</span>}
       <span className="font-medium">{option.label}</span>
     </button>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Standalone Action Sheet
 // ============================================================================
 
 export interface StandaloneActionSheetProps {
-  isOpen: boolean
-  onClose: () => void
-  title?: string
-  message?: string
-  options: ActionSheetOption[]
-  cancelLabel?: string
-  onSelect: (index: number) => void
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  message?: string;
+  options: ActionSheetOption[];
+  cancelLabel?: string;
+  onSelect: (index: number) => void;
 }
 
 /**
@@ -269,51 +282,51 @@ export const StandaloneActionSheet = memo(function StandaloneActionSheet({
   title,
   message,
   options,
-  cancelLabel = 'Cancel',
+  cancelLabel = "Cancel",
   onSelect,
 }: StandaloneActionSheetProps) {
-  const safeArea = useSafeArea()
-  const controls = useAnimation()
+  const safeArea = useSafeArea();
+  const controls = useAnimation();
 
   const handleOptionSelect = useCallback(
     (index: number) => {
-      onSelect(index)
-      onClose()
+      onSelect(index);
+      onClose();
     },
-    [onSelect, onClose]
-  )
+    [onSelect, onClose],
+  );
 
   const handleDrag = useCallback(
     (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       if (info.offset.y > 0) {
-        controls.set({ y: info.offset.y })
+        controls.set({ y: info.offset.y });
       }
     },
-    [controls]
-  )
+    [controls],
+  );
 
   const handleDragEnd = useCallback(
     (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       if (info.offset.y > SWIPE_THRESHOLD || info.velocity.y > 500) {
-        onClose()
+        onClose();
       } else {
-        controls.start({ y: 0 })
+        controls.start({ y: 0 });
       }
     },
-    [controls, onClose]
-  )
+    [controls, onClose],
+  );
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = ''
+      document.body.style.overflow = "";
     }
 
     return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -328,10 +341,10 @@ export const StandaloneActionSheet = memo(function StandaloneActionSheet({
           />
 
           <motion.div
-            initial={{ y: '100%' }}
+            initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={0.2}
@@ -347,7 +360,11 @@ export const StandaloneActionSheet = memo(function StandaloneActionSheet({
             {(title || message) && (
               <div className="border-b px-6 pb-4 text-center">
                 {title && <h3 className="text-base font-semibold">{title}</h3>}
-                {message && <p className="mt-1 text-sm text-muted-foreground">{message}</p>}
+                {message && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {message}
+                  </p>
+                )}
               </div>
             )}
 
@@ -376,7 +393,7 @@ export const StandaloneActionSheet = memo(function StandaloneActionSheet({
         </>
       )}
     </AnimatePresence>
-  )
-})
+  );
+});
 
-export default MobileActionSheet
+export default MobileActionSheet;

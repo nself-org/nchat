@@ -4,7 +4,7 @@
  * Handles getting and updating user notification preferences via the plugin API.
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   NotificationChannel,
   NotificationCategory,
@@ -15,28 +15,28 @@ import {
   NotificationPluginConfig,
   defaultNotificationConfig,
   FrequencyType,
-} from '@/types/notifications'
+} from "@/types/notifications";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface PreferenceServiceOptions {
-  config?: Partial<NotificationPluginConfig>
-  getAuthToken?: () => Promise<string | null>
+  config?: Partial<NotificationPluginConfig>;
+  getAuthToken?: () => Promise<string | null>;
 }
 
 export interface UpdateChannelPreferenceOptions {
-  userId: string
-  channel: NotificationChannel
-  enabled?: boolean
-  frequency?: FrequencyType
-  categories?: Partial<Record<NotificationCategory, boolean>>
+  userId: string;
+  channel: NotificationChannel;
+  enabled?: boolean;
+  frequency?: FrequencyType;
+  categories?: Partial<Record<NotificationCategory, boolean>>;
 }
 
 export interface UpdateQuietHoursOptions {
-  userId: string
-  quietHours: QuietHours | null
+  userId: string;
+  quietHours: QuietHours | null;
 }
 
 // =============================================================================
@@ -44,15 +44,17 @@ export interface UpdateQuietHoursOptions {
 // =============================================================================
 
 export class PreferenceService {
-  private config: NotificationPluginConfig
-  private getAuthToken?: () => Promise<string | null>
-  private cache: Map<string, { preferences: UserNotificationPreferences; expiresAt: number }> =
-    new Map()
-  private cacheTimeout = 5 * 60 * 1000 // 5 minutes
+  private config: NotificationPluginConfig;
+  private getAuthToken?: () => Promise<string | null>;
+  private cache: Map<
+    string,
+    { preferences: UserNotificationPreferences; expiresAt: number }
+  > = new Map();
+  private cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
   constructor(options: PreferenceServiceOptions = {}) {
-    this.config = { ...defaultNotificationConfig, ...options.config }
-    this.getAuthToken = options.getAuthToken
+    this.config = { ...defaultNotificationConfig, ...options.config };
+    this.getAuthToken = options.getAuthToken;
   }
 
   /**
@@ -60,74 +62,80 @@ export class PreferenceService {
    */
   private async getHeaders(): Promise<HeadersInit> {
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    }
+      "Content-Type": "application/json",
+    };
 
     if (this.getAuthToken) {
-      const token = await this.getAuthToken()
+      const token = await this.getAuthToken();
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`
+        headers["Authorization"] = `Bearer ${token}`;
       }
     }
 
-    return headers
+    return headers;
   }
 
   /**
    * Make API request
    */
-  private async request<T>(method: string, endpoint: string, body?: unknown): Promise<T> {
-    const url = `${this.config.apiUrl}${endpoint}`
-    const headers = await this.getHeaders()
+  private async request<T>(
+    method: string,
+    endpoint: string,
+    body?: unknown,
+  ): Promise<T> {
+    const url = `${this.config.apiUrl}${endpoint}`;
+    const headers = await this.getHeaders();
 
     const response = await fetch(url, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
-    })
+    });
 
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`HTTP ${response.status}: ${errorText}`)
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
 
-    return response.json()
+    return response.json();
   }
 
   /**
    * Get user notification preferences
    */
-  async getPreferences(userId: string, forceRefresh = false): Promise<UserNotificationPreferences> {
+  async getPreferences(
+    userId: string,
+    forceRefresh = false,
+  ): Promise<UserNotificationPreferences> {
     // Check cache first
     if (!forceRefresh) {
-      const cached = this.cache.get(userId)
+      const cached = this.cache.get(userId);
       if (cached && cached.expiresAt > Date.now()) {
-        return cached.preferences
+        return cached.preferences;
       }
     }
 
     try {
-      const response = await this.request<{ preferences: NotificationPreference[] }>(
-        'GET',
-        `/api/preferences/${userId}`
-      )
+      const response = await this.request<{
+        preferences: NotificationPreference[];
+      }>("GET", `/api/preferences/${userId}`);
 
       // Convert array of preferences to UserNotificationPreferences object
-      const preferences = this.convertToUserPreferences(response.preferences)
+      const preferences = this.convertToUserPreferences(response.preferences);
 
       // Cache the result
       this.cache.set(userId, {
         preferences,
         expiresAt: Date.now() + this.cacheTimeout,
-      })
+      });
 
-      return preferences
+      return preferences;
     } catch (error) {
       // Return default preferences on error
-      logger.warn('Failed to fetch preferences, using defaults:', {
+      logger.warn("Failed to fetch preferences, using defaults:", {
         error: error instanceof Error ? error.message : String(error),
-      })
-      return { ...defaultUserPreferences }
+      });
+      return { ...defaultUserPreferences };
     }
   }
 
@@ -136,32 +144,34 @@ export class PreferenceService {
    */
   async updatePreferences(
     userId: string,
-    updates: Partial<UserNotificationPreferences>
+    updates: Partial<UserNotificationPreferences>,
   ): Promise<UserNotificationPreferences> {
     // Convert to individual preference updates
     const preferenceUpdates: Array<{
-      channel: NotificationChannel
-      category: NotificationCategory
-      enabled: boolean
-      frequency: FrequencyType
-    }> = []
+      channel: NotificationChannel;
+      category: NotificationCategory;
+      enabled: boolean;
+      frequency: FrequencyType;
+    }> = [];
 
     // Process channel updates
-    for (const channel of ['email', 'push', 'sms'] as NotificationChannel[]) {
-      const channelUpdate = updates[channel]
-      if (!channelUpdate) continue
+    for (const channel of ["email", "push", "sms"] as NotificationChannel[]) {
+      const channelUpdate = updates[channel];
+      if (!channelUpdate) continue;
 
       // Process category updates for this channel
       if (channelUpdate.categories) {
-        for (const category of Object.keys(channelUpdate.categories) as NotificationCategory[]) {
-          const categoryEnabled = channelUpdate.categories[category]
+        for (const category of Object.keys(
+          channelUpdate.categories,
+        ) as NotificationCategory[]) {
+          const categoryEnabled = channelUpdate.categories[category];
           if (categoryEnabled !== undefined) {
             preferenceUpdates.push({
               channel,
               category,
               enabled: categoryEnabled && (channelUpdate.enabled ?? true),
-              frequency: channelUpdate.frequency ?? 'immediate',
-            })
+              frequency: channelUpdate.frequency ?? "immediate",
+            });
           }
         }
       }
@@ -169,34 +179,34 @@ export class PreferenceService {
 
     // Send updates to API
     if (preferenceUpdates.length > 0) {
-      await this.request('POST', `/api/preferences`, {
+      await this.request("POST", `/api/preferences`, {
         user_id: userId,
         preferences: preferenceUpdates,
         quiet_hours: updates.quietHours,
-      })
+      });
     }
 
     // Invalidate cache
-    this.cache.delete(userId)
+    this.cache.delete(userId);
 
     // Return updated preferences
-    return this.getPreferences(userId, true)
+    return this.getPreferences(userId, true);
   }
 
   /**
    * Update channel-specific preferences
    */
   async updateChannelPreference(
-    options: UpdateChannelPreferenceOptions
+    options: UpdateChannelPreferenceOptions,
   ): Promise<UserNotificationPreferences> {
-    const { userId, channel, enabled, frequency, categories } = options
+    const { userId, channel, enabled, frequency, categories } = options;
 
-    const updates: Partial<UserNotificationPreferences> = {}
+    const updates: Partial<UserNotificationPreferences> = {};
 
-    if (channel === 'email') {
+    if (channel === "email") {
       updates.email = {
         enabled: enabled ?? true,
-        frequency: frequency ?? 'immediate',
+        frequency: frequency ?? "immediate",
         categories: categories
           ? {
               transactional: categories.transactional ?? true,
@@ -205,11 +215,11 @@ export class PreferenceService {
               alert: categories.alert ?? true,
             }
           : defaultUserPreferences.email.categories,
-      }
-    } else if (channel === 'push') {
+      };
+    } else if (channel === "push") {
       updates.push = {
         enabled: enabled ?? true,
-        frequency: frequency ?? 'immediate',
+        frequency: frequency ?? "immediate",
         categories: categories
           ? {
               transactional: categories.transactional ?? true,
@@ -218,11 +228,11 @@ export class PreferenceService {
               alert: categories.alert ?? true,
             }
           : defaultUserPreferences.push.categories,
-      }
-    } else if (channel === 'sms') {
+      };
+    } else if (channel === "sms") {
       updates.sms = {
         enabled: enabled ?? false,
-        frequency: frequency ?? 'immediate',
+        frequency: frequency ?? "immediate",
         categories: categories
           ? {
               transactional: categories.transactional ?? true,
@@ -231,43 +241,51 @@ export class PreferenceService {
               alert: categories.alert ?? true,
             }
           : defaultUserPreferences.sms.categories,
-      }
+      };
     }
 
-    return this.updatePreferences(userId, updates)
+    return this.updatePreferences(userId, updates);
   }
 
   /**
    * Update quiet hours
    */
-  async updateQuietHours(options: UpdateQuietHoursOptions): Promise<UserNotificationPreferences> {
-    const { userId, quietHours } = options
+  async updateQuietHours(
+    options: UpdateQuietHoursOptions,
+  ): Promise<UserNotificationPreferences> {
+    const { userId, quietHours } = options;
 
     return this.updatePreferences(userId, {
       quietHours: quietHours || undefined,
-    })
+    });
   }
 
   /**
    * Enable all notifications for a channel
    */
-  async enableChannel(userId: string, channel: NotificationChannel): Promise<void> {
+  async enableChannel(
+    userId: string,
+    channel: NotificationChannel,
+  ): Promise<void> {
     await this.updateChannelPreference({
       userId,
       channel,
       enabled: true,
-    })
+    });
   }
 
   /**
    * Disable all notifications for a channel
    */
-  async disableChannel(userId: string, channel: NotificationChannel): Promise<void> {
+  async disableChannel(
+    userId: string,
+    channel: NotificationChannel,
+  ): Promise<void> {
     await this.updateChannelPreference({
       userId,
       channel,
       enabled: false,
-    })
+    });
   }
 
   /**
@@ -276,62 +294,66 @@ export class PreferenceService {
   async canReceive(
     userId: string,
     channel: NotificationChannel,
-    category: NotificationCategory
+    category: NotificationCategory,
   ): Promise<boolean> {
-    const preferences = await this.getPreferences(userId)
-    const channelPrefs = preferences[channel]
+    const preferences = await this.getPreferences(userId);
+    const channelPrefs = preferences[channel];
 
     if (!channelPrefs.enabled) {
-      return false
+      return false;
     }
 
     if (!channelPrefs.categories[category]) {
-      return false
+      return false;
     }
 
     // Check quiet hours
     if (preferences.quietHours) {
-      const now = new Date()
-      const { start, end, timezone } = preferences.quietHours
+      const now = new Date();
+      const { start, end, timezone } = preferences.quietHours;
 
       // Convert to user's timezone and check if in quiet hours
-      const formatter = new Intl.DateTimeFormat('en-US', {
+      const formatter = new Intl.DateTimeFormat("en-US", {
         timeZone: timezone,
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: "2-digit",
+        minute: "2-digit",
         hour12: false,
-      })
+      });
 
-      const currentTime = formatter.format(now)
+      const currentTime = formatter.format(now);
 
       // Handle overnight quiet hours
       if (start > end) {
         if (currentTime >= start || currentTime < end) {
-          return false
+          return false;
         }
       } else {
         if (currentTime >= start && currentTime < end) {
-          return false
+          return false;
         }
       }
     }
 
-    return true
+    return true;
   }
 
   /**
    * Convert array of preferences to UserNotificationPreferences object
    */
   private convertToUserPreferences(
-    preferences: NotificationPreference[]
+    preferences: NotificationPreference[],
   ): UserNotificationPreferences {
-    const result: UserNotificationPreferences = { ...defaultUserPreferences }
+    const result: UserNotificationPreferences = { ...defaultUserPreferences };
 
     // Group preferences by channel
     for (const pref of preferences) {
-      const channelKey = pref.channel as keyof UserNotificationPreferences
+      const channelKey = pref.channel as keyof UserNotificationPreferences;
 
-      if (channelKey === 'email' || channelKey === 'push' || channelKey === 'sms') {
+      if (
+        channelKey === "email" ||
+        channelKey === "push" ||
+        channelKey === "sms"
+      ) {
         result[channelKey] = {
           ...result[channelKey],
           enabled: result[channelKey].enabled || pref.enabled,
@@ -340,16 +362,16 @@ export class PreferenceService {
             ...result[channelKey].categories,
             [pref.category]: pref.enabled,
           },
-        }
+        };
 
         // Handle quiet hours (take the first one found)
         if (pref.quiet_hours && !result.quietHours) {
-          result.quietHours = pref.quiet_hours
+          result.quietHours = pref.quiet_hours;
         }
       }
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -357,9 +379,9 @@ export class PreferenceService {
    */
   clearCache(userId?: string): void {
     if (userId) {
-      this.cache.delete(userId)
+      this.cache.delete(userId);
     } else {
-      this.cache.clear()
+      this.cache.clear();
     }
   }
 }
@@ -368,15 +390,17 @@ export class PreferenceService {
 // Singleton Instance
 // =============================================================================
 
-let preferenceServiceInstance: PreferenceService | null = null
+let preferenceServiceInstance: PreferenceService | null = null;
 
-export function getPreferenceService(options?: PreferenceServiceOptions): PreferenceService {
+export function getPreferenceService(
+  options?: PreferenceServiceOptions,
+): PreferenceService {
   if (!preferenceServiceInstance) {
-    preferenceServiceInstance = new PreferenceService(options)
+    preferenceServiceInstance = new PreferenceService(options);
   }
-  return preferenceServiceInstance
+  return preferenceServiceInstance;
 }
 
 export function resetPreferenceService(): void {
-  preferenceServiceInstance = null
+  preferenceServiceInstance = null;
 }

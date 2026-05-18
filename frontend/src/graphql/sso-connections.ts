@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // SSO Connection GraphQL Operations
@@ -23,7 +23,7 @@ export const SSO_CONNECTION_BASIC_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 /**
  * Full SSO connection fields fragment including config
@@ -40,7 +40,7 @@ export const SSO_CONNECTION_FULL_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -50,9 +50,15 @@ export const SSO_CONNECTION_FULL_FRAGMENT = gql`
  * Get all SSO connections
  */
 export const GET_SSO_CONNECTIONS = gql`
-  query GetSSOConnections($limit: Int = 100, $offset: Int = 0, $enabledOnly: Boolean = false) {
+  query GetSSOConnections(
+    $limit: Int = 100
+    $offset: Int = 0
+    $enabledOnly: Boolean = false
+  ) {
     nchat_sso_connections(
-      where: { _or: [{ enabled: { _eq: $enabledOnly } }, { enabled: { _eq: true } }] }
+      where: {
+        _or: [{ enabled: { _eq: $enabledOnly } }, { enabled: { _eq: true } }]
+      }
       order_by: { name: asc }
       limit: $limit
       offset: $offset
@@ -66,7 +72,7 @@ export const GET_SSO_CONNECTIONS = gql`
     }
   }
   ${SSO_CONNECTION_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get SSO connection by ID
@@ -78,7 +84,7 @@ export const GET_SSO_CONNECTION = gql`
     }
   }
   ${SSO_CONNECTION_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get SSO connection by email domain
@@ -94,20 +100,22 @@ export const GET_SSO_CONNECTION_BY_DOMAIN = gql`
     }
   }
   ${SSO_CONNECTION_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Check if any SSO connection exists for given domains
  */
 export const CHECK_SSO_DOMAINS = gql`
   query CheckSSODomains($domains: [String!]!) {
-    nchat_sso_connections(where: { enabled: { _eq: true }, domains: { _has_keys_any: $domains } }) {
+    nchat_sso_connections(
+      where: { enabled: { _eq: true }, domains: { _has_keys_any: $domains } }
+    ) {
       id
       name
       domains
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -141,7 +149,7 @@ export const INSERT_SSO_CONNECTION = gql`
     }
   }
   ${SSO_CONNECTION_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update an existing SSO connection
@@ -172,19 +180,25 @@ export const UPDATE_SSO_CONNECTION = gql`
     }
   }
   ${SSO_CONNECTION_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Partial update - update only provided fields
  */
 export const PATCH_SSO_CONNECTION = gql`
-  mutation PatchSSOConnection($id: uuid!, $changes: nchat_sso_connections_set_input!) {
-    update_nchat_sso_connections_by_pk(pk_columns: { id: $id }, _set: $changes) {
+  mutation PatchSSOConnection(
+    $id: uuid!
+    $changes: nchat_sso_connections_set_input!
+  ) {
+    update_nchat_sso_connections_by_pk(
+      pk_columns: { id: $id }
+      _set: $changes
+    ) {
       ...SSOConnectionFull
     }
   }
   ${SSO_CONNECTION_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Update only the enabled status
@@ -200,7 +214,7 @@ export const TOGGLE_SSO_CONNECTION = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Delete an SSO connection
@@ -212,7 +226,7 @@ export const DELETE_SSO_CONNECTION = gql`
       name
     }
   }
-`
+`;
 
 // ============================================================================
 // USER QUERIES FOR SSO PROVISIONING
@@ -240,7 +254,7 @@ export const GET_USER_BY_EMAIL_FOR_SSO = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get role by name (for SSO role mapping)
@@ -253,7 +267,7 @@ export const GET_ROLE_BY_NAME = gql`
       permissions
     }
   }
-`
+`;
 
 // ============================================================================
 // USER MUTATIONS FOR SSO PROVISIONING
@@ -297,16 +311,25 @@ export const INSERT_SSO_USER = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Update existing user attributes from SSO assertion
  */
 export const UPDATE_SSO_USER = gql`
-  mutation UpdateSSOUser($id: uuid!, $displayName: String, $roleId: uuid, $metadata: jsonb) {
+  mutation UpdateSSOUser(
+    $id: uuid!
+    $displayName: String
+    $roleId: uuid
+    $metadata: jsonb
+  ) {
     update_nchat_users_by_pk(
       pk_columns: { id: $id }
-      _set: { display_name: $displayName, role_id: $roleId, updated_at: "now()" }
+      _set: {
+        display_name: $displayName
+        role_id: $roleId
+        updated_at: "now()"
+      }
       _append: { metadata: $metadata }
     ) {
       id
@@ -323,89 +346,89 @@ export const UPDATE_SSO_USER = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface SSOConnectionRow {
-  id: string
-  name: string
-  provider: string
-  enabled: boolean
-  domains: string[]
-  config: Record<string, unknown>
-  metadata?: Record<string, unknown>
-  created_at: string
-  updated_at: string
+  id: string;
+  name: string;
+  provider: string;
+  enabled: boolean;
+  domains: string[];
+  config: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface GetSSOConnectionsResult {
-  nchat_sso_connections: SSOConnectionRow[]
+  nchat_sso_connections: SSOConnectionRow[];
   nchat_sso_connections_aggregate: {
     aggregate: {
-      count: number
-    }
-  }
+      count: number;
+    };
+  };
 }
 
 export interface GetSSOConnectionResult {
-  nchat_sso_connections_by_pk: SSOConnectionRow | null
+  nchat_sso_connections_by_pk: SSOConnectionRow | null;
 }
 
 export interface GetSSOConnectionByDomainResult {
-  nchat_sso_connections: SSOConnectionRow[]
+  nchat_sso_connections: SSOConnectionRow[];
 }
 
 export interface InsertSSOConnectionResult {
-  insert_nchat_sso_connections_one: SSOConnectionRow
+  insert_nchat_sso_connections_one: SSOConnectionRow;
 }
 
 export interface UpdateSSOConnectionResult {
-  update_nchat_sso_connections_by_pk: SSOConnectionRow | null
+  update_nchat_sso_connections_by_pk: SSOConnectionRow | null;
 }
 
 export interface DeleteSSOConnectionResult {
   delete_nchat_sso_connections_by_pk: {
-    id: string
-    name: string
-  } | null
+    id: string;
+    name: string;
+  } | null;
 }
 
 export interface SSOUserRow {
-  id: string
-  email: string
-  username: string
-  display_name: string
-  avatar_url: string | null
-  role_id: string | null
-  is_active: boolean
-  metadata: Record<string, unknown>
-  created_at: string
-  updated_at: string
+  id: string;
+  email: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  role_id: string | null;
+  is_active: boolean;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
   role?: {
-    id: string
-    name: string
-  }
+    id: string;
+    name: string;
+  };
 }
 
 export interface GetUserByEmailResult {
-  nchat_users: SSOUserRow[]
+  nchat_users: SSOUserRow[];
 }
 
 export interface GetRoleByNameResult {
   nchat_roles: Array<{
-    id: string
-    name: string
-    permissions: number
-  }>
+    id: string;
+    name: string;
+    permissions: number;
+  }>;
 }
 
 export interface InsertSSOUserResult {
-  insert_nchat_users_one: SSOUserRow
+  insert_nchat_users_one: SSOUserRow;
 }
 
 export interface UpdateSSOUserResult {
-  update_nchat_users_by_pk: SSOUserRow | null
+  update_nchat_users_by_pk: SSOUserRow | null;
 }

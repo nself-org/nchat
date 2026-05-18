@@ -3,33 +3,33 @@
  * Main entry point for End-to-End Encryption using Signal Protocol
  */
 
-import type { ApolloClient } from '@apollo/client'
-import { crypto } from './crypto'
-import KeyManager from './key-manager'
-import SessionManager from './session-manager'
-import type { EncryptedMessage } from './signal-client'
+import type { ApolloClient } from "@apollo/client";
+import { crypto } from "./crypto";
+import KeyManager from "./key-manager";
+import SessionManager from "./session-manager";
+import type { EncryptedMessage } from "./signal-client";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface E2EEConfig {
-  enabled: boolean
-  deviceId?: string
-  autoInitialize?: boolean
+  enabled: boolean;
+  deviceId?: string;
+  autoInitialize?: boolean;
 }
 
 export interface E2EEStatus {
-  initialized: boolean
-  masterKeyInitialized: boolean
-  deviceKeysGenerated: boolean
-  deviceId?: string
+  initialized: boolean;
+  masterKeyInitialized: boolean;
+  deviceKeysGenerated: boolean;
+  deviceId?: string;
 }
 
 export interface MessageEncryptionResult {
-  encryptedPayload: Uint8Array
-  type: 'PreKey' | 'Normal'
-  deviceId: string
+  encryptedPayload: Uint8Array;
+  type: "PreKey" | "Normal";
+  deviceId: string;
 }
 
 // ============================================================================
@@ -37,17 +37,17 @@ export interface MessageEncryptionResult {
 // ============================================================================
 
 export class E2EEManager {
-  private apolloClient: ApolloClient<any>
-  private keyManager: KeyManager
-  private sessionManager: SessionManager | null = null
-  private userId: string
-  private deviceId: string | null = null
-  private initialized: boolean = false
+  private apolloClient: ApolloClient<any>;
+  private keyManager: KeyManager;
+  private sessionManager: SessionManager | null = null;
+  private userId: string;
+  private deviceId: string | null = null;
+  private initialized: boolean = false;
 
   constructor(apolloClient: ApolloClient<any>, userId: string) {
-    this.apolloClient = apolloClient
-    this.userId = userId
-    this.keyManager = new KeyManager(apolloClient)
+    this.apolloClient = apolloClient;
+    this.userId = userId;
+    this.keyManager = new KeyManager(apolloClient);
   }
 
   // ==========================================================================
@@ -59,17 +59,17 @@ export class E2EEManager {
    */
   async initialize(password: string, deviceId?: string): Promise<void> {
     // Initialize master key
-    await this.keyManager.initializeMasterKey(password)
+    await this.keyManager.initializeMasterKey(password);
 
     // Generate or load device keys
-    this.deviceId = deviceId || crypto.generateDeviceId()
+    this.deviceId = deviceId || crypto.generateDeviceId();
 
-    let deviceKeys = await this.keyManager.loadDeviceKeys(this.deviceId)
+    let deviceKeys = await this.keyManager.loadDeviceKeys(this.deviceId);
 
     if (!deviceKeys) {
       // Generate new device keys
-      deviceKeys = await this.keyManager.generateDeviceKeys(this.deviceId)
-      await this.keyManager.uploadDeviceKeys(deviceKeys)
+      deviceKeys = await this.keyManager.generateDeviceKeys(this.deviceId);
+      await this.keyManager.uploadDeviceKeys(deviceKeys);
     }
 
     // Initialize session manager
@@ -77,14 +77,14 @@ export class E2EEManager {
       this.apolloClient,
       this.keyManager,
       this.userId,
-      this.deviceId
-    )
+      this.deviceId,
+    );
 
-    this.initialized = true
+    this.initialized = true;
 
     // Store device ID in local storage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('e2ee_device_id', this.deviceId)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("e2ee_device_id", this.deviceId);
     }
   }
 
@@ -92,23 +92,23 @@ export class E2EEManager {
    * Recover E2EE using recovery code
    */
   async recover(recoveryCode: string, deviceId?: string): Promise<void> {
-    await this.keyManager.recoverMasterKey(recoveryCode)
+    await this.keyManager.recoverMasterKey(recoveryCode);
 
-    this.deviceId = deviceId || crypto.generateDeviceId()
+    this.deviceId = deviceId || crypto.generateDeviceId();
 
     // Generate new device keys
-    const deviceKeys = await this.keyManager.generateDeviceKeys(this.deviceId)
-    await this.keyManager.uploadDeviceKeys(deviceKeys)
+    const deviceKeys = await this.keyManager.generateDeviceKeys(this.deviceId);
+    await this.keyManager.uploadDeviceKeys(deviceKeys);
 
     // Initialize session manager
     this.sessionManager = new SessionManager(
       this.apolloClient,
       this.keyManager,
       this.userId,
-      this.deviceId
-    )
+      this.deviceId,
+    );
 
-    this.initialized = true
+    this.initialized = true;
   }
 
   /**
@@ -120,21 +120,21 @@ export class E2EEManager {
       masterKeyInitialized: this.keyManager.getMasterKey() !== null,
       deviceKeysGenerated: this.deviceId !== null,
       deviceId: this.deviceId || undefined,
-    }
+    };
   }
 
   /**
    * Check if E2EE is initialized
    */
   isInitialized(): boolean {
-    return this.initialized
+    return this.initialized;
   }
 
   /**
    * Get device ID
    */
   getDeviceId(): string | null {
-    return this.deviceId
+    return this.deviceId;
   }
 
   // ==========================================================================
@@ -147,23 +147,23 @@ export class E2EEManager {
   async encryptMessage(
     plaintext: string,
     recipientUserId: string,
-    recipientDeviceId: string
+    recipientDeviceId: string,
   ): Promise<MessageEncryptionResult> {
     if (!this.initialized || !this.sessionManager || !this.deviceId) {
-      throw new Error('E2EE not initialized')
+      throw new Error("E2EE not initialized");
     }
 
     const encryptedMessage = await this.sessionManager.encryptMessage(
       plaintext,
       recipientUserId,
-      recipientDeviceId
-    )
+      recipientDeviceId,
+    );
 
     return {
       encryptedPayload: encryptedMessage.body,
       type: encryptedMessage.type,
       deviceId: this.deviceId,
-    }
+    };
   }
 
   /**
@@ -171,27 +171,27 @@ export class E2EEManager {
    */
   async decryptMessage(
     encryptedPayload: Uint8Array,
-    messageType: 'PreKey' | 'Normal',
+    messageType: "PreKey" | "Normal",
     senderUserId: string,
-    senderDeviceId: string
+    senderDeviceId: string,
   ): Promise<string> {
     if (!this.initialized || !this.sessionManager) {
-      throw new Error('E2EE not initialized')
+      throw new Error("E2EE not initialized");
     }
 
     const encryptedMessage: EncryptedMessage = {
       type: messageType,
       body: encryptedPayload,
       registrationId: 0,
-    }
+    };
 
     const plaintextBytes = await this.sessionManager.decryptMessage(
       encryptedMessage,
       senderUserId,
-      senderDeviceId
-    )
+      senderDeviceId,
+    );
 
-    return crypto.bytesToString(plaintextBytes)
+    return crypto.bytesToString(plaintextBytes);
   }
 
   /**
@@ -199,10 +199,10 @@ export class E2EEManager {
    */
   async hasSession(peerUserId: string, peerDeviceId: string): Promise<boolean> {
     if (!this.initialized || !this.sessionManager) {
-      return false
+      return false;
     }
 
-    return this.sessionManager.hasSession(peerUserId, peerDeviceId)
+    return this.sessionManager.hasSession(peerUserId, peerDeviceId);
   }
 
   // ==========================================================================
@@ -215,30 +215,30 @@ export class E2EEManager {
   async generateSafetyNumber(
     localUserId: string,
     peerUserId: string,
-    peerIdentityKey: Uint8Array
+    peerIdentityKey: Uint8Array,
   ): Promise<string> {
     if (!this.initialized || !this.deviceId) {
-      throw new Error('E2EE not initialized')
+      throw new Error("E2EE not initialized");
     }
 
-    const deviceKeys = await this.keyManager.loadDeviceKeys(this.deviceId)
+    const deviceKeys = await this.keyManager.loadDeviceKeys(this.deviceId);
     if (!deviceKeys) {
-      throw new Error('Device keys not found')
+      throw new Error("Device keys not found");
     }
 
     return crypto.generateSafetyNumber(
       deviceKeys.identityKeyPair.publicKey,
       localUserId,
       peerIdentityKey,
-      peerUserId
-    )
+      peerUserId,
+    );
   }
 
   /**
    * Format safety number for display
    */
   formatSafetyNumber(safetyNumber: string): string {
-    return crypto.formatSafetyNumber(safetyNumber)
+    return crypto.formatSafetyNumber(safetyNumber);
   }
 
   /**
@@ -247,23 +247,23 @@ export class E2EEManager {
   async generateSafetyNumberQR(
     localUserId: string,
     peerUserId: string,
-    peerIdentityKey: Uint8Array
+    peerIdentityKey: Uint8Array,
   ): Promise<string> {
     if (!this.initialized || !this.deviceId) {
-      throw new Error('E2EE not initialized')
+      throw new Error("E2EE not initialized");
     }
 
-    const deviceKeys = await this.keyManager.loadDeviceKeys(this.deviceId)
+    const deviceKeys = await this.keyManager.loadDeviceKeys(this.deviceId);
     if (!deviceKeys) {
-      throw new Error('Device keys not found')
+      throw new Error("Device keys not found");
     }
 
     return crypto.generateSafetyNumberQR(
       deviceKeys.identityKeyPair.publicKey,
       localUserId,
       peerIdentityKey,
-      peerUserId
-    )
+      peerUserId,
+    );
   }
 
   /**
@@ -271,10 +271,10 @@ export class E2EEManager {
    */
   async rotateSignedPreKey(): Promise<void> {
     if (!this.initialized || !this.deviceId) {
-      throw new Error('E2EE not initialized')
+      throw new Error("E2EE not initialized");
     }
 
-    await this.keyManager.rotateSignedPreKey(this.deviceId)
+    await this.keyManager.rotateSignedPreKey(this.deviceId);
   }
 
   /**
@@ -282,30 +282,30 @@ export class E2EEManager {
    */
   async replenishOneTimePreKeys(count: number = 50): Promise<void> {
     if (!this.initialized || !this.deviceId) {
-      throw new Error('E2EE not initialized')
+      throw new Error("E2EE not initialized");
     }
 
-    await this.keyManager.replenishOneTimePreKeys(this.deviceId, count)
+    await this.keyManager.replenishOneTimePreKeys(this.deviceId, count);
   }
 
   /**
    * Get recovery code (only available in session storage during setup)
    */
   getRecoveryCode(): string | null {
-    if (typeof window === 'undefined') {
-      return null
+    if (typeof window === "undefined") {
+      return null;
     }
 
-    const recoveryCode = sessionStorage.getItem('e2ee_recovery_code')
-    return recoveryCode
+    const recoveryCode = sessionStorage.getItem("e2ee_recovery_code");
+    return recoveryCode;
   }
 
   /**
    * Clear recovery code from session storage
    */
   clearRecoveryCode(): void {
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('e2ee_recovery_code')
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("e2ee_recovery_code");
     }
   }
 
@@ -317,14 +317,14 @@ export class E2EEManager {
    * Clear E2EE state (logout)
    */
   destroy(): void {
-    this.keyManager.clearMasterKey()
-    this.sessionManager = null
-    this.deviceId = null
-    this.initialized = false
+    this.keyManager.clearMasterKey();
+    this.sessionManager = null;
+    this.deviceId = null;
+    this.initialized = false;
 
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('e2ee_device_id')
-      sessionStorage.removeItem('e2ee_recovery_code')
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("e2ee_device_id");
+      sessionStorage.removeItem("e2ee_recovery_code");
     }
   }
 }
@@ -333,16 +333,19 @@ export class E2EEManager {
 // SINGLETON INSTANCE
 // ============================================================================
 
-let e2eeManagerInstance: E2EEManager | null = null
+let e2eeManagerInstance: E2EEManager | null = null;
 
 /**
  * Get or create E2EE manager instance
  */
-export function getE2EEManager(apolloClient: ApolloClient<any>, userId: string): E2EEManager {
+export function getE2EEManager(
+  apolloClient: ApolloClient<any>,
+  userId: string,
+): E2EEManager {
   if (!e2eeManagerInstance) {
-    e2eeManagerInstance = new E2EEManager(apolloClient, userId)
+    e2eeManagerInstance = new E2EEManager(apolloClient, userId);
   }
-  return e2eeManagerInstance
+  return e2eeManagerInstance;
 }
 
 /**
@@ -350,19 +353,19 @@ export function getE2EEManager(apolloClient: ApolloClient<any>, userId: string):
  */
 export function resetE2EEManager(): void {
   if (e2eeManagerInstance) {
-    e2eeManagerInstance.destroy()
+    e2eeManagerInstance.destroy();
   }
-  e2eeManagerInstance = null
+  e2eeManagerInstance = null;
 }
 
 // ============================================================================
 // EXPORTS
 // ============================================================================
 
-export { crypto } from './crypto'
-export { KeyManager } from './key-manager'
-export { SessionManager } from './session-manager'
-export { signalClient } from './signal-client'
+export { crypto } from "./crypto";
+export { KeyManager } from "./key-manager";
+export { SessionManager } from "./session-manager";
+export { signalClient } from "./signal-client";
 
 // Attachment E2EE exports
 export {
@@ -377,7 +380,7 @@ export {
   type AttachmentKey,
   type EncryptedAttachment,
   type DecryptedAttachment,
-} from './attachment-encryption'
+} from "./attachment-encryption";
 
 export {
   attachmentKeyManager,
@@ -389,7 +392,7 @@ export {
   decryptAttachmentKey,
   type KeyDerivationContext,
   type EncryptedAttachmentKey,
-} from './attachment-key-manager'
+} from "./attachment-key-manager";
 
 export {
   secureMetadata,
@@ -401,7 +404,7 @@ export {
   type AttachmentMetadata,
   type EncryptedMetadata,
   type ThumbnailData,
-} from './secure-metadata'
+} from "./secure-metadata";
 
 export {
   streamingCrypto,
@@ -414,7 +417,7 @@ export {
   type StreamProgress,
   type StreamingEncryptionResult,
   type StreamingDecryptionResult,
-} from './streaming-crypto'
+} from "./streaming-crypto";
 
 // Sealed Sender exports (Task 86)
 export {
@@ -437,7 +440,7 @@ export {
   type UnsealedMessage,
   type SealOptions,
   type UnsealOptions,
-} from './sealed-sender'
+} from "./sealed-sender";
 
 export {
   senderCertificate,
@@ -461,7 +464,7 @@ export {
   type CertificateResponse,
   type CertificateValidationResult,
   type CertificateStore,
-} from './sender-certificate'
+} from "./sender-certificate";
 
 export {
   unidentifiedSender,
@@ -489,7 +492,7 @@ export {
   type UnidentifiedSenderContext,
   type UnidentifiedRecipientContext,
   type ThreatModelVerification,
-} from './unidentified-sender'
+} from "./unidentified-sender";
 
 // Backup and Recovery exports (Task 78)
 export {
@@ -508,7 +511,7 @@ export {
   type DerivedKeyResult,
   type DerivedKeyParams,
   type PassphraseStrength,
-} from './backup-key-derivation'
+} from "./backup-key-derivation";
 
 export {
   backupEncryption,
@@ -535,7 +538,7 @@ export {
   type RestoreResult,
   type BackupValidation,
   type BackupHeader,
-} from './backup-encryption'
+} from "./backup-encryption";
 
 export {
   recoveryKey,
@@ -563,7 +566,7 @@ export {
   type EncryptedMasterKey,
   type VerificationAttempt,
   type RateLimitResult,
-} from './recovery-key'
+} from "./recovery-key";
 
 // Safety Number Verification exports (Task 79)
 export {
@@ -606,7 +609,7 @@ export {
   type TrustLevel,
   type VerificationState,
   type MismatchResult,
-} from './safety-number'
+} from "./safety-number";
 
 export {
   verificationQR,
@@ -634,6 +637,6 @@ export {
   type ScannableFingerprintData,
   type QRGenerationOptions,
   type QRErrorCorrectionLevel,
-} from './verification-qr'
+} from "./verification-qr";
 
-export default E2EEManager
+export default E2EEManager;

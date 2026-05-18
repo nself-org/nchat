@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Lock,
   Unlock,
@@ -13,14 +13,20 @@ import {
   Bell,
   Edit2,
   Trash2,
-} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +34,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,65 +44,67 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useComplianceStore } from '@/stores/compliance-store'
-import type { LegalHold as LegalHoldType } from '@/lib/compliance/compliance-types'
+} from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useComplianceStore } from "@/stores/compliance-store";
+import type { LegalHold as LegalHoldType } from "@/lib/compliance/compliance-types";
 import {
   createLegalHold,
   validateLegalHold,
   getHoldStatusInfo,
   calculateLegalHoldStatistics,
-} from '@/lib/compliance/legal-hold'
+} from "@/lib/compliance/legal-hold";
 
 interface HoldFormData {
-  name: string
-  matterName: string
-  matterNumber: string
-  description: string
-  custodians: string
-  channels: string
-  preserveMessages: boolean
-  preserveFiles: boolean
-  preserveAuditLogs: boolean
-  notifyCustodians: boolean
-  notes: string
+  name: string;
+  matterName: string;
+  matterNumber: string;
+  description: string;
+  custodians: string;
+  channels: string;
+  preserveMessages: boolean;
+  preserveFiles: boolean;
+  preserveAuditLogs: boolean;
+  notifyCustodians: boolean;
+  notes: string;
 }
 
 const initialFormData: HoldFormData = {
-  name: '',
-  matterName: '',
-  matterNumber: '',
-  description: '',
-  custodians: '',
-  channels: '',
+  name: "",
+  matterName: "",
+  matterNumber: "",
+  description: "",
+  custodians: "",
+  channels: "",
   preserveMessages: true,
   preserveFiles: true,
   preserveAuditLogs: true,
   notifyCustodians: true,
-  notes: '',
-}
+  notes: "",
+};
 
 interface HoldCardProps {
-  hold: LegalHoldType
-  onRelease: (id: string) => void
-  onEdit: (hold: LegalHoldType) => void
+  hold: LegalHoldType;
+  onRelease: (id: string) => void;
+  onEdit: (hold: LegalHoldType) => void;
 }
 
 function HoldCard({ hold, onRelease, onEdit }: HoldCardProps) {
-  const statusInfo = getHoldStatusInfo(hold.status)
+  const statusInfo = getHoldStatusInfo(hold.status);
 
   return (
-    <Card className={hold.status !== 'active' ? 'opacity-60' : ''}>
+    <Card className={hold.status !== "active" ? "opacity-60" : ""}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
               className={`rounded-lg p-2 ${
-                hold.status === 'active' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
+                hold.status === "active"
+                  ? "bg-blue-100 text-blue-600"
+                  : "bg-gray-100 text-gray-400"
               }`}
             >
-              {hold.status === 'active' ? (
+              {hold.status === "active" ? (
                 <Lock className="h-4 w-4" />
               ) : (
                 <Unlock className="h-4 w-4" />
@@ -107,13 +115,15 @@ function HoldCard({ hold, onRelease, onEdit }: HoldCardProps) {
               <CardDescription>{hold.matterName}</CardDescription>
             </div>
           </div>
-          <Badge variant={hold.status === 'active' ? 'default' : 'secondary'}>
+          <Badge variant={hold.status === "active" ? "default" : "secondary"}>
             {statusInfo.label}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {hold.description && <p className="text-sm text-muted-foreground">{hold.description}</p>}
+        {hold.description && (
+          <p className="text-sm text-muted-foreground">{hold.description}</p>
+        )}
 
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center gap-2">
@@ -156,7 +166,7 @@ function HoldCard({ hold, onRelease, onEdit }: HoldCardProps) {
           )}
         </div>
 
-        {hold.status === 'active' && (
+        {hold.status === "active" && (
           <div className="flex gap-2 border-t pt-2">
             <Button variant="outline" size="sm" onClick={() => onEdit(hold)}>
               <Edit2 className="mr-1 h-4 w-4" />
@@ -174,7 +184,7 @@ function HoldCard({ hold, onRelease, onEdit }: HoldCardProps) {
           </div>
         )}
 
-        {hold.status === 'released' && hold.releasedAt && (
+        {hold.status === "released" && hold.releasedAt && (
           <p className="border-t pt-2 text-xs text-muted-foreground">
             Released on {new Date(hold.releasedAt).toLocaleString()}
             {hold.releasedBy && ` by ${hold.releasedBy}`}
@@ -182,64 +192,65 @@ function HoldCard({ hold, onRelease, onEdit }: HoldCardProps) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function LegalHold() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false)
-  const [selectedHoldId, setSelectedHoldId] = useState<string | null>(null)
-  const [editingHold, setEditingHold] = useState<LegalHoldType | null>(null)
-  const [formData, setFormData] = useState<HoldFormData>(initialFormData)
-  const [validationErrors, setValidationErrors] = useState<string[]>([])
-  const [activeTab, setActiveTab] = useState('active')
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
+  const [selectedHoldId, setSelectedHoldId] = useState<string | null>(null);
+  const [editingHold, setEditingHold] = useState<LegalHoldType | null>(null);
+  const [formData, setFormData] = useState<HoldFormData>(initialFormData);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState("active");
 
-  const { legalHolds, addLegalHold, updateLegalHold, releaseLegalHold } = useComplianceStore()
+  const { legalHolds, addLegalHold, updateLegalHold, releaseLegalHold } =
+    useComplianceStore();
 
-  const stats = calculateLegalHoldStatistics(legalHolds)
-  const activeHolds = legalHolds.filter((h) => h.status === 'active')
-  const releasedHolds = legalHolds.filter((h) => h.status === 'released')
+  const stats = calculateLegalHoldStatistics(legalHolds);
+  const activeHolds = legalHolds.filter((h) => h.status === "active");
+  const releasedHolds = legalHolds.filter((h) => h.status === "released");
 
   const handleOpenDialog = (hold?: LegalHoldType) => {
     if (hold) {
-      setEditingHold(hold)
+      setEditingHold(hold);
       setFormData({
         name: hold.name,
         matterName: hold.matterName,
-        matterNumber: hold.matterNumber || '',
-        description: hold.description || '',
-        custodians: hold.custodians.join(', '),
-        channels: hold.channels?.join(', ') || '',
+        matterNumber: hold.matterNumber || "",
+        description: hold.description || "",
+        custodians: hold.custodians.join(", "),
+        channels: hold.channels?.join(", ") || "",
         preserveMessages: hold.preserveMessages,
         preserveFiles: hold.preserveFiles,
         preserveAuditLogs: hold.preserveAuditLogs,
         notifyCustodians: hold.notifyCustodians,
-        notes: hold.notes || '',
-      })
+        notes: hold.notes || "",
+      });
     } else {
-      setEditingHold(null)
-      setFormData(initialFormData)
+      setEditingHold(null);
+      setFormData(initialFormData);
     }
-    setValidationErrors([])
-    setIsDialogOpen(true)
-  }
+    setValidationErrors([]);
+    setIsDialogOpen(true);
+  };
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false)
-    setEditingHold(null)
-    setFormData(initialFormData)
-    setValidationErrors([])
-  }
+    setIsDialogOpen(false);
+    setEditingHold(null);
+    setFormData(initialFormData);
+    setValidationErrors([]);
+  };
 
   const handleSave = () => {
     const custodians = formData.custodians
-      .split(',')
+      .split(",")
       .map((c) => c.trim())
-      .filter(Boolean)
+      .filter(Boolean);
     const channels = formData.channels
-      .split(',')
+      .split(",")
       .map((c) => c.trim())
-      .filter(Boolean)
+      .filter(Boolean);
 
     const holdData = {
       name: formData.name,
@@ -253,36 +264,36 @@ export function LegalHold() {
       preserveAuditLogs: formData.preserveAuditLogs,
       notifyCustodians: formData.notifyCustodians,
       notes: formData.notes || undefined,
-    }
+    };
 
-    const validation = validateLegalHold(holdData)
+    const validation = validateLegalHold(holdData);
     if (!validation.valid) {
-      setValidationErrors(validation.errors)
-      return
+      setValidationErrors(validation.errors);
+      return;
     }
 
     if (editingHold) {
-      updateLegalHold(editingHold.id, holdData)
+      updateLegalHold(editingHold.id, holdData);
     } else {
-      const newHold = createLegalHold('admin-user', holdData)
-      addLegalHold(newHold)
+      const newHold = createLegalHold("admin-user", holdData);
+      addLegalHold(newHold);
     }
 
-    handleCloseDialog()
-  }
+    handleCloseDialog();
+  };
 
   const handleReleaseClick = (id: string) => {
-    setSelectedHoldId(id)
-    setIsReleaseDialogOpen(true)
-  }
+    setSelectedHoldId(id);
+    setIsReleaseDialogOpen(true);
+  };
 
   const handleReleaseConfirm = () => {
     if (selectedHoldId) {
-      releaseLegalHold(selectedHoldId, 'admin-user')
+      releaseLegalHold(selectedHoldId, "admin-user");
     }
-    setIsReleaseDialogOpen(false)
-    setSelectedHoldId(null)
-  }
+    setIsReleaseDialogOpen(false);
+    setSelectedHoldId(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -334,8 +345,12 @@ export function LegalHold() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="active">Active ({activeHolds.length})</TabsTrigger>
-          <TabsTrigger value="released">Released ({releasedHolds.length})</TabsTrigger>
+          <TabsTrigger value="active">
+            Active ({activeHolds.length})
+          </TabsTrigger>
+          <TabsTrigger value="released">
+            Released ({releasedHolds.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
@@ -373,7 +388,9 @@ export function LegalHold() {
               <CardContent className="py-12 text-center">
                 <Unlock className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                 <h3 className="text-lg font-medium">No Released Holds</h3>
-                <p className="mt-1 text-muted-foreground">Released legal holds will appear here</p>
+                <p className="mt-1 text-muted-foreground">
+                  Released legal holds will appear here
+                </p>
               </CardContent>
             </Card>
           ) : (
@@ -395,7 +412,9 @@ export function LegalHold() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>{editingHold ? 'Edit Legal Hold' : 'Create Legal Hold'}</DialogTitle>
+            <DialogTitle>
+              {editingHold ? "Edit Legal Hold" : "Create Legal Hold"}
+            </DialogTitle>
             <DialogDescription>
               Configure data preservation for litigation or investigation
             </DialogDescription>
@@ -422,7 +441,9 @@ export function LegalHold() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="e.g., Q4 2024 Investigation"
                 />
               </div>
@@ -431,7 +452,9 @@ export function LegalHold() {
                 <Input
                   id="matterNumber"
                   value={formData.matterNumber}
-                  onChange={(e) => setFormData({ ...formData, matterNumber: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, matterNumber: e.target.value })
+                  }
                   placeholder="e.g., 2024-001"
                 />
               </div>
@@ -442,7 +465,9 @@ export function LegalHold() {
               <Input
                 id="matterName"
                 value={formData.matterName}
-                onChange={(e) => setFormData({ ...formData, matterName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, matterName: e.target.value })
+                }
                 placeholder="e.g., Smith v. Company"
               />
             </div>
@@ -452,7 +477,9 @@ export function LegalHold() {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Describe the legal matter..."
                 rows={2}
               />
@@ -463,10 +490,14 @@ export function LegalHold() {
               <Input
                 id="custodians"
                 value={formData.custodians}
-                onChange={(e) => setFormData({ ...formData, custodians: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, custodians: e.target.value })
+                }
                 placeholder="user-1, user-2, user-3"
               />
-              <p className="text-xs text-muted-foreground">Comma-separated list of user IDs</p>
+              <p className="text-xs text-muted-foreground">
+                Comma-separated list of user IDs
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -474,10 +505,14 @@ export function LegalHold() {
               <Input
                 id="channels"
                 value={formData.channels}
-                onChange={(e) => setFormData({ ...formData, channels: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, channels: e.target.value })
+                }
                 placeholder="channel-1, channel-2"
               />
-              <p className="text-xs text-muted-foreground">Leave empty to apply to all channels</p>
+              <p className="text-xs text-muted-foreground">
+                Leave empty to apply to all channels
+              </p>
             </div>
 
             <div className="space-y-3 border-t pt-2">
@@ -541,7 +576,9 @@ export function LegalHold() {
               <Textarea
                 id="notes"
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
                 placeholder="Internal notes about this hold..."
                 rows={2}
               />
@@ -552,13 +589,18 @@ export function LegalHold() {
             <Button variant="outline" onClick={handleCloseDialog}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>{editingHold ? 'Update Hold' : 'Create Hold'}</Button>
+            <Button onClick={handleSave}>
+              {editingHold ? "Update Hold" : "Create Hold"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Release Confirmation Dialog */}
-      <AlertDialog open={isReleaseDialogOpen} onOpenChange={setIsReleaseDialogOpen}>
+      <AlertDialog
+        open={isReleaseDialogOpen}
+        onOpenChange={setIsReleaseDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
@@ -566,16 +608,18 @@ export function LegalHold() {
               Release Legal Hold
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to release this legal hold? Data will no longer be protected
-              from deletion by retention policies.
+              Are you sure you want to release this legal hold? Data will no
+              longer be protected from deletion by retention policies.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleReleaseConfirm}>Release Hold</AlertDialogAction>
+            <AlertDialogAction onClick={handleReleaseConfirm}>
+              Release Hold
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

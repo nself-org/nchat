@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Keyboard Provider
@@ -15,133 +15,135 @@ import {
   useEffect,
   useMemo,
   ReactNode,
-} from 'react'
+} from "react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export type KeyboardScope =
-  | 'global'
-  | 'chat'
-  | 'editor'
-  | 'modal'
-  | 'message-selected'
-  | 'message-input-empty'
-  | 'command-palette'
-  | 'search'
+  | "global"
+  | "chat"
+  | "editor"
+  | "modal"
+  | "message-selected"
+  | "message-input-empty"
+  | "command-palette"
+  | "search";
 
 export interface KeyboardContextValue {
   /** Whether the keyboard shortcut system is enabled */
-  isEnabled: boolean
+  isEnabled: boolean;
   /** Enable or disable the entire keyboard shortcut system */
-  setEnabled: (enabled: boolean) => void
+  setEnabled: (enabled: boolean) => void;
   /** Currently active scope for scoped shortcuts */
-  activeScope: KeyboardScope
+  activeScope: KeyboardScope;
   /** Set the active scope */
-  setActiveScope: (scope: KeyboardScope) => void
+  setActiveScope: (scope: KeyboardScope) => void;
   /** Push a new scope onto the stack (for modals, etc.) */
-  pushScope: (scope: KeyboardScope) => void
+  pushScope: (scope: KeyboardScope) => void;
   /** Pop the current scope from the stack */
-  popScope: () => void
+  popScope: () => void;
   /** Whether an input element is currently focused */
-  isInputFocused: boolean
+  isInputFocused: boolean;
   /** Manually set input focus state (usually handled automatically) */
-  setInputFocused: (focused: boolean) => void
+  setInputFocused: (focused: boolean) => void;
   /** Stack of active scopes */
-  scopeStack: KeyboardScope[]
+  scopeStack: KeyboardScope[];
 }
 
 // ============================================================================
 // Context
 // ============================================================================
 
-const KeyboardContext = createContext<KeyboardContextValue | undefined>(undefined)
+const KeyboardContext = createContext<KeyboardContextValue | undefined>(
+  undefined,
+);
 
 // ============================================================================
 // Provider
 // ============================================================================
 
 export interface KeyboardProviderProps {
-  children: ReactNode
+  children: ReactNode;
   /** Initial enabled state (default: true) */
-  initialEnabled?: boolean
+  initialEnabled?: boolean;
   /** Initial scope (default: 'global') */
-  initialScope?: KeyboardScope
+  initialScope?: KeyboardScope;
 }
 
 export function KeyboardProvider({
   children,
   initialEnabled = true,
-  initialScope = 'global',
+  initialScope = "global",
 }: KeyboardProviderProps) {
-  const [isEnabled, setEnabled] = useState(initialEnabled)
-  const [scopeStack, setScopeStack] = useState<KeyboardScope[]>([initialScope])
-  const [isInputFocused, setInputFocused] = useState(false)
+  const [isEnabled, setEnabled] = useState(initialEnabled);
+  const [scopeStack, setScopeStack] = useState<KeyboardScope[]>([initialScope]);
+  const [isInputFocused, setInputFocused] = useState(false);
 
   // Current scope is the top of the stack
-  const activeScope = scopeStack[scopeStack.length - 1] || 'global'
+  const activeScope = scopeStack[scopeStack.length - 1] || "global";
 
   // Set active scope (replaces entire stack with single scope)
   const setActiveScope = useCallback((scope: KeyboardScope) => {
-    setScopeStack([scope])
-  }, [])
+    setScopeStack([scope]);
+  }, []);
 
   // Push a new scope onto the stack
   const pushScope = useCallback((scope: KeyboardScope) => {
-    setScopeStack((prev) => [...prev, scope])
-  }, [])
+    setScopeStack((prev) => [...prev, scope]);
+  }, []);
 
   // Pop the current scope from the stack
   const popScope = useCallback(() => {
     setScopeStack((prev) => {
-      if (prev.length <= 1) return prev // Keep at least one scope
-      return prev.slice(0, -1)
-    })
-  }, [])
+      if (prev.length <= 1) return prev; // Keep at least one scope
+      return prev.slice(0, -1);
+    });
+  }, []);
 
   // Automatically detect input focus
   useEffect(() => {
     const handleFocusIn = (event: FocusEvent) => {
-      const target = event.target as HTMLElement
+      const target = event.target as HTMLElement;
       const isInput =
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.tagName === 'SELECT' ||
-        target.isContentEditable
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT" ||
+        target.isContentEditable;
 
       if (isInput) {
-        setInputFocused(true)
+        setInputFocused(true);
       }
-    }
+    };
 
     const handleFocusOut = (event: FocusEvent) => {
-      const relatedTarget = event.relatedTarget as HTMLElement | null
+      const relatedTarget = event.relatedTarget as HTMLElement | null;
 
       // Only set to false if we're not focusing another input
       if (relatedTarget) {
         const isInput =
-          relatedTarget.tagName === 'INPUT' ||
-          relatedTarget.tagName === 'TEXTAREA' ||
-          relatedTarget.tagName === 'SELECT' ||
-          relatedTarget.isContentEditable
+          relatedTarget.tagName === "INPUT" ||
+          relatedTarget.tagName === "TEXTAREA" ||
+          relatedTarget.tagName === "SELECT" ||
+          relatedTarget.isContentEditable;
 
         if (!isInput) {
-          setInputFocused(false)
+          setInputFocused(false);
         }
       } else {
-        setInputFocused(false)
+        setInputFocused(false);
       }
-    }
+    };
 
-    document.addEventListener('focusin', handleFocusIn)
-    document.addEventListener('focusout', handleFocusOut)
+    document.addEventListener("focusin", handleFocusIn);
+    document.addEventListener("focusout", handleFocusOut);
 
     return () => {
-      document.removeEventListener('focusin', handleFocusIn)
-      document.removeEventListener('focusout', handleFocusOut)
-    }
-  }, [])
+      document.removeEventListener("focusin", handleFocusIn);
+      document.removeEventListener("focusout", handleFocusOut);
+    };
+  }, []);
 
   // Memoize context value
   const value = useMemo<KeyboardContextValue>(
@@ -156,10 +158,22 @@ export function KeyboardProvider({
       setInputFocused,
       scopeStack,
     }),
-    [isEnabled, activeScope, setActiveScope, pushScope, popScope, isInputFocused, scopeStack]
-  )
+    [
+      isEnabled,
+      activeScope,
+      setActiveScope,
+      pushScope,
+      popScope,
+      isInputFocused,
+      scopeStack,
+    ],
+  );
 
-  return <KeyboardContext.Provider value={value}>{children}</KeyboardContext.Provider>
+  return (
+    <KeyboardContext.Provider value={value}>
+      {children}
+    </KeyboardContext.Provider>
+  );
 }
 
 // ============================================================================
@@ -177,13 +191,13 @@ export function KeyboardProvider({
  * ```
  */
 export function useKeyboard(): KeyboardContextValue {
-  const context = useContext(KeyboardContext)
+  const context = useContext(KeyboardContext);
 
   if (context === undefined) {
-    throw new Error('useKeyboard must be used within a KeyboardProvider')
+    throw new Error("useKeyboard must be used within a KeyboardProvider");
   }
 
-  return context
+  return context;
 }
 
 // ============================================================================
@@ -203,14 +217,14 @@ export function useKeyboard(): KeyboardContextValue {
  * ```
  */
 export function useModalScope(isOpen: boolean): void {
-  const { pushScope, popScope } = useKeyboard()
+  const { pushScope, popScope } = useKeyboard();
 
   useEffect(() => {
     if (isOpen) {
-      pushScope('modal')
-      return () => popScope()
+      pushScope("modal");
+      return () => popScope();
     }
-  }, [isOpen, pushScope, popScope])
+  }, [isOpen, pushScope, popScope]);
 }
 
 /**
@@ -223,16 +237,16 @@ export function useModalScope(isOpen: boolean): void {
  * ```
  */
 export function useKeyboardDisable() {
-  const { isEnabled, setEnabled } = useKeyboard()
+  const { isEnabled, setEnabled } = useKeyboard();
 
-  const disable = useCallback(() => setEnabled(false), [setEnabled])
-  const enable = useCallback(() => setEnabled(true), [setEnabled])
+  const disable = useCallback(() => setEnabled(false), [setEnabled]);
+  const enable = useCallback(() => setEnabled(true), [setEnabled]);
 
   return {
     disable,
     enable,
     isDisabled: !isEnabled,
-  }
+  };
 }
 
 /**
@@ -247,13 +261,16 @@ export function useKeyboardDisable() {
  * useScopedKeyboard('editor', isFocused);
  * ```
  */
-export function useScopedKeyboard(scope: KeyboardScope, active: boolean = true): void {
-  const { pushScope, popScope } = useKeyboard()
+export function useScopedKeyboard(
+  scope: KeyboardScope,
+  active: boolean = true,
+): void {
+  const { pushScope, popScope } = useKeyboard();
 
   useEffect(() => {
     if (active) {
-      pushScope(scope)
-      return () => popScope()
+      pushScope(scope);
+      return () => popScope();
     }
-  }, [active, scope, pushScope, popScope])
+  }, [active, scope, pushScope, popScope]);
 }

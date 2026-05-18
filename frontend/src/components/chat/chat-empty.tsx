@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { format } from 'date-fns'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import type { Channel } from '@/stores/channel-store'
+import * as React from "react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import type { Channel } from "@/stores/channel-store";
 import {
   Hash,
   Lock,
@@ -14,31 +14,31 @@ import {
   Users,
   Bookmark,
   Info,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChatEmptyProps {
-  channel: Channel
-  className?: string
+  channel: Channel;
+  className?: string;
 }
 
 // ============================================================================
 // Helper: Get channel icon
 // ============================================================================
 
-function ChannelIcon({ type, name }: { type: Channel['type']; name: string }) {
-  const iconClass = 'h-8 w-8'
+function ChannelIcon({ type, name }: { type: Channel["type"]; name: string }) {
+  const iconClass = "h-8 w-8";
 
-  if (name === 'announcements') {
-    return <Megaphone className={iconClass} />
+  if (name === "announcements") {
+    return <Megaphone className={iconClass} />;
   }
-  if (type === 'private') {
-    return <Lock className={iconClass} />
+  if (type === "private") {
+    return <Lock className={iconClass} />;
   }
-  return <Hash className={iconClass} />
+  return <Hash className={iconClass} />;
 }
 
 // ============================================================================
@@ -48,30 +48,37 @@ function ChannelIcon({ type, name }: { type: Channel['type']; name: string }) {
 const tips = [
   {
     icon: MessageSquarePlus,
-    title: 'Start a conversation',
-    description: 'Type a message below to begin chatting with your team.',
+    title: "Start a conversation",
+    description: "Type a message below to begin chatting with your team.",
   },
   {
     icon: Users,
-    title: 'Mention teammates',
+    title: "Mention teammates",
     description: "Use @username to get someone's attention.",
   },
   {
     icon: Bookmark,
-    title: 'Pin important messages',
-    description: 'Right-click a message to pin it for easy access.',
+    title: "Pin important messages",
+    description: "Right-click a message to pin it for easy access.",
   },
-]
+];
 
 // ============================================================================
 // Chat Empty Component
 // ============================================================================
 
 export function ChatEmpty({ channel, className }: ChatEmptyProps) {
-  const createdDate = channel.createdAt ? format(new Date(channel.createdAt), 'MMMM d, yyyy') : null
+  const createdDate = channel.createdAt
+    ? format(new Date(channel.createdAt), "MMMM d, yyyy")
+    : null;
 
   return (
-    <div className={cn('flex flex-1 flex-col items-center justify-center p-8', className)}>
+    <div
+      className={cn(
+        "flex flex-1 flex-col items-center justify-center p-8",
+        className,
+      )}
+    >
       <div className="max-w-md text-center">
         {/* Channel Icon */}
         <div className="bg-primary/10 mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl">
@@ -94,7 +101,9 @@ export function ChatEmpty({ channel, className }: ChatEmptyProps) {
 
         {/* Created Date */}
         {createdDate && (
-          <p className="mb-6 text-sm text-muted-foreground">Channel created on {createdDate}</p>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Channel created on {createdDate}
+          </p>
         )}
 
         {/* Getting Started Section */}
@@ -115,7 +124,9 @@ export function ChatEmpty({ channel, className }: ChatEmptyProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium">{tip.title}</p>
-                  <p className="text-xs text-muted-foreground">{tip.description}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tip.description}
+                  </p>
                 </div>
               </div>
             ))}
@@ -129,7 +140,7 @@ export function ChatEmpty({ channel, className }: ChatEmptyProps) {
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -137,14 +148,19 @@ export function ChatEmpty({ channel, className }: ChatEmptyProps) {
 // ============================================================================
 
 interface DMEmptyProps {
-  userName: string
-  userAvatar?: string
-  className?: string
+  userName: string;
+  userAvatar?: string;
+  className?: string;
 }
 
 export function DMEmpty({ userName, userAvatar, className }: DMEmptyProps) {
   return (
-    <div className={cn('flex flex-1 flex-col items-center justify-center p-8', className)}>
+    <div
+      className={cn(
+        "flex flex-1 flex-col items-center justify-center p-8",
+        className,
+      )}
+    >
       <div className="max-w-md text-center">
         {/* User Avatar */}
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted text-2xl font-semibold">
@@ -164,19 +180,20 @@ export function DMEmpty({ userName, userAvatar, className }: DMEmptyProps) {
 
         {/* Description */}
         <p className="mb-6 text-muted-foreground">
-          This is the very beginning of your direct message history with{' '}
+          This is the very beginning of your direct message history with{" "}
           <span className="font-medium text-foreground">{userName}</span>.
         </p>
 
         {/* Suggestions */}
         <div className="bg-muted/50 mt-8 rounded-lg p-4">
           <p className="text-sm text-muted-foreground">
-            Say hi and start a conversation! Messages here are private between you and {userName}.
+            Say hi and start a conversation! Messages here are private between
+            you and {userName}.
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -184,25 +201,30 @@ export function DMEmpty({ userName, userAvatar, className }: DMEmptyProps) {
 // ============================================================================
 
 interface GenericEmptyProps {
-  title?: string
-  description?: string
-  icon?: React.ReactNode
+  title?: string;
+  description?: string;
+  icon?: React.ReactNode;
   action?: {
-    label: string
-    onClick: () => void
-  }
-  className?: string
+    label: string;
+    onClick: () => void;
+  };
+  className?: string;
 }
 
 export function GenericEmpty({
-  title = 'No messages yet',
-  description = 'Start the conversation by sending a message.',
+  title = "No messages yet",
+  description = "Start the conversation by sending a message.",
   icon,
   action,
   className,
 }: GenericEmptyProps) {
   return (
-    <div className={cn('flex flex-1 flex-col items-center justify-center p-8', className)}>
+    <div
+      className={cn(
+        "flex flex-1 flex-col items-center justify-center p-8",
+        className,
+      )}
+    >
       <div className="max-w-md text-center">
         {icon && (
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
@@ -214,5 +236,5 @@ export function GenericEmpty({
         {action && <Button onClick={action.onClick}>{action.label}</Button>}
       </div>
     </div>
-  )
+  );
 }

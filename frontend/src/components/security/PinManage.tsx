@@ -4,21 +4,27 @@
  * Manage PIN settings, view attempts, and configure lock options
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -26,9 +32,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import {
   loadPinSettings,
   changePin,
@@ -37,8 +43,11 @@ import {
   getRecentFailedAttempts,
   clearAttemptHistory,
   hasPinConfigured,
-} from '@/lib/security/pin'
-import { lockSession, getFormattedTimeSinceActivity } from '@/lib/security/session'
+} from "@/lib/security/pin";
+import {
+  lockSession,
+  getFormattedTimeSinceActivity,
+} from "@/lib/security/session";
 import {
   getStoredCredentials,
   removeCredential,
@@ -48,7 +57,7 @@ import {
   formatLastUsed,
   registerBiometric,
   type BiometricCredential,
-} from '@/lib/security/biometric'
+} from "@/lib/security/biometric";
 import {
   Shield,
   Lock,
@@ -60,16 +69,16 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
-} from 'lucide-react'
-import { PinSetup } from './PinSetup'
+} from "lucide-react";
+import { PinSetup } from "./PinSetup";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface PinManageProps {
-  userId: string
-  userName: string
+  userId: string;
+  userName: string;
 }
 
 // ============================================================================
@@ -78,54 +87,56 @@ interface PinManageProps {
 
 export function PinManage({ userId, userName }: PinManageProps) {
   // PIN state
-  const [hasPinSetup, setHasPinSetup] = useState(false)
-  const [pinSettings, setPinSettings] = useState(loadPinSettings())
+  const [hasPinSetup, setHasPinSetup] = useState(false);
+  const [pinSettings, setPinSettings] = useState(loadPinSettings());
 
   // Biometric credentials
-  const [credentials, setCredentials] = useState<BiometricCredential[]>([])
+  const [credentials, setCredentials] = useState<BiometricCredential[]>([]);
 
   // UI state
-  const [showChangePinDialog, setShowChangePinDialog] = useState(false)
-  const [showDisablePinDialog, setShowDisablePinDialog] = useState(false)
-  const [showSetupDialog, setShowSetupDialog] = useState(false)
-  const [showAttemptsDialog, setShowAttemptsDialog] = useState(false)
+  const [showChangePinDialog, setShowChangePinDialog] = useState(false);
+  const [showDisablePinDialog, setShowDisablePinDialog] = useState(false);
+  const [showSetupDialog, setShowSetupDialog] = useState(false);
+  const [showAttemptsDialog, setShowAttemptsDialog] = useState(false);
 
   // Load PIN status
   useEffect(() => {
-    const hasPin = hasPinConfigured()
-    setHasPinSetup(hasPin)
+    const hasPin = hasPinConfigured();
+    setHasPinSetup(hasPin);
 
     if (hasPin) {
-      const settings = loadPinSettings()
-      setPinSettings(settings)
+      const settings = loadPinSettings();
+      setPinSettings(settings);
     }
-  }, [])
+  }, []);
 
   // Load credentials
   useEffect(() => {
-    setCredentials(getStoredCredentials())
-  }, [])
+    setCredentials(getStoredCredentials());
+  }, []);
 
   // Refresh credentials
   const refreshCredentials = () => {
-    setCredentials(getStoredCredentials())
-  }
+    setCredentials(getStoredCredentials());
+  };
 
   // Handle settings change
-  const handleSettingsChange = (updates: Partial<Exclude<typeof pinSettings, null>>) => {
-    if (!updates) return
-    const success = updatePinSettings(updates)
+  const handleSettingsChange = (
+    updates: Partial<Exclude<typeof pinSettings, null>>,
+  ) => {
+    if (!updates) return;
+    const success = updatePinSettings(updates);
     if (success) {
-      const updated = loadPinSettings()
-      setPinSettings(updated)
+      const updated = loadPinSettings();
+      setPinSettings(updated);
     }
-  }
+  };
 
   // Handle lock now
   const handleLockNow = () => {
-    lockSession('manual')
-    window.location.reload() // Force reload to trigger lock screen
-  }
+    lockSession("manual");
+    window.location.reload(); // Force reload to trigger lock screen
+  };
 
   // Render PIN setup
   if (!hasPinSetup) {
@@ -149,17 +160,17 @@ export function PinManage({ userId, userName }: PinManageProps) {
               userId={userId}
               userName={userName}
               onComplete={() => {
-                setShowSetupDialog(false)
-                setHasPinSetup(true)
-                setPinSettings(loadPinSettings())
-                refreshCredentials()
+                setShowSetupDialog(false);
+                setHasPinSetup(true);
+                setPinSettings(loadPinSettings());
+                refreshCredentials();
               }}
               onCancel={() => setShowSetupDialog(false)}
             />
           </DialogContent>
         </Dialog>
       </div>
-    )
+    );
   }
 
   return (
@@ -177,7 +188,9 @@ export function PinManage({ userId, userName }: PinManageProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium">Last activity</p>
-              <p className="text-sm text-muted-foreground">{getFormattedTimeSinceActivity()}</p>
+              <p className="text-sm text-muted-foreground">
+                {getFormattedTimeSinceActivity()}
+              </p>
             </div>
             <Badge variant="default">
               <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -190,10 +203,18 @@ export function PinManage({ userId, userName }: PinManageProps) {
               <Lock className="mr-2 h-4 w-4" />
               Lock Now
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowChangePinDialog(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowChangePinDialog(true)}
+            >
               Change PIN
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowDisablePinDialog(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDisablePinDialog(true)}
+            >
               Disable PIN
             </Button>
           </div>
@@ -222,7 +243,9 @@ export function PinManage({ userId, userName }: PinManageProps) {
               <Switch
                 id="lock-close"
                 checked={pinSettings.lockOnClose}
-                onCheckedChange={(checked) => handleSettingsChange({ lockOnClose: checked })}
+                onCheckedChange={(checked) =>
+                  handleSettingsChange({ lockOnClose: checked })
+                }
               />
             </div>
 
@@ -237,7 +260,9 @@ export function PinManage({ userId, userName }: PinManageProps) {
               <Switch
                 id="lock-background"
                 checked={pinSettings.lockOnBackground}
-                onCheckedChange={(checked) => handleSettingsChange({ lockOnBackground: checked })}
+                onCheckedChange={(checked) =>
+                  handleSettingsChange({ lockOnBackground: checked })
+                }
               />
             </div>
 
@@ -279,7 +304,9 @@ export function PinManage({ userId, userName }: PinManageProps) {
               <Fingerprint className="h-5 w-5" />
               Biometric Authentication
             </CardTitle>
-            <CardDescription>Manage biometric credentials for quick unlock</CardDescription>
+            <CardDescription>
+              Manage biometric credentials for quick unlock
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {credentials.length === 0 ? (
@@ -291,10 +318,10 @@ export function PinManage({ userId, userName }: PinManageProps) {
                   variant="outline"
                   size="sm"
                   onClick={async () => {
-                    const result = await registerBiometric(userId, userName)
+                    const result = await registerBiometric(userId, userName);
                     if (result.success) {
-                      refreshCredentials()
-                      handleSettingsChange({ biometricEnabled: true })
+                      refreshCredentials();
+                      handleSettingsChange({ biometricEnabled: true });
                     }
                   }}
                 >
@@ -313,10 +340,12 @@ export function PinManage({ userId, userName }: PinManageProps) {
                       <div className="flex items-center gap-3">
                         <Fingerprint className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium">{cred.deviceName}</p>
+                          <p className="text-sm font-medium">
+                            {cred.deviceName}
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {getCredentialTypeDescription(cred.credentialType)} •{' '}
-                            {formatLastUsed(cred.lastUsedAt)}
+                            {getCredentialTypeDescription(cred.credentialType)}{" "}
+                            • {formatLastUsed(cred.lastUsedAt)}
                           </p>
                         </div>
                       </div>
@@ -324,12 +353,12 @@ export function PinManage({ userId, userName }: PinManageProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          removeCredential(cred.credentialId)
-                          refreshCredentials()
+                          removeCredential(cred.credentialId);
+                          refreshCredentials();
 
                           // Disable biometric if no credentials left
                           if (credentials.length === 1) {
-                            handleSettingsChange({ biometricEnabled: false })
+                            handleSettingsChange({ biometricEnabled: false });
                           }
                         }}
                       >
@@ -343,9 +372,9 @@ export function PinManage({ userId, userName }: PinManageProps) {
                   variant="outline"
                   size="sm"
                   onClick={async () => {
-                    const result = await registerBiometric(userId, userName)
+                    const result = await registerBiometric(userId, userName);
                     if (result.success) {
-                      refreshCredentials()
+                      refreshCredentials();
                     }
                   }}
                 >
@@ -368,7 +397,11 @@ export function PinManage({ userId, userName }: PinManageProps) {
           <CardDescription>Recent PIN unlock attempts</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button variant="outline" size="sm" onClick={() => setShowAttemptsDialog(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowAttemptsDialog(true)}
+          >
             View Recent Attempts
           </Button>
         </CardContent>
@@ -379,8 +412,8 @@ export function PinManage({ userId, userName }: PinManageProps) {
         open={showChangePinDialog}
         onOpenChange={setShowChangePinDialog}
         onComplete={() => {
-          setShowChangePinDialog(false)
-          setPinSettings(loadPinSettings())
+          setShowChangePinDialog(false);
+          setPinSettings(loadPinSettings());
         }}
       />
 
@@ -389,17 +422,20 @@ export function PinManage({ userId, userName }: PinManageProps) {
         open={showDisablePinDialog}
         onOpenChange={setShowDisablePinDialog}
         onComplete={() => {
-          setShowDisablePinDialog(false)
-          setHasPinSetup(false)
-          setPinSettings(null)
-          setCredentials([])
+          setShowDisablePinDialog(false);
+          setHasPinSetup(false);
+          setPinSettings(null);
+          setCredentials([]);
         }}
       />
 
       {/* Attempts Dialog */}
-      <AttemptsDialog open={showAttemptsDialog} onOpenChange={setShowAttemptsDialog} />
+      <AttemptsDialog
+        open={showAttemptsDialog}
+        onOpenChange={setShowAttemptsDialog}
+      />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -411,43 +447,45 @@ function ChangePinDialog({
   onOpenChange,
   onComplete,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onComplete: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onComplete: () => void;
 }) {
-  const [currentPin, setCurrentPin] = useState('')
-  const [newPin, setNewPin] = useState('')
-  const [confirmPin, setConfirmPin] = useState('')
-  const [showPins, setShowPins] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [showPins, setShowPins] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      const result = await changePin(currentPin, newPin, confirmPin)
+      const result = await changePin(currentPin, newPin, confirmPin);
 
       if (!result.success) {
-        setError(result.error || 'Failed to change PIN')
-        return
+        setError(result.error || "Failed to change PIN");
+        return;
       }
 
-      onComplete()
+      onComplete();
     } catch {
-      setError('An error occurred')
+      setError("An error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Change PIN</DialogTitle>
-          <DialogDescription>Enter your current PIN and choose a new one</DialogDescription>
+          <DialogDescription>
+            Enter your current PIN and choose a new one
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -462,11 +500,11 @@ function ChangePinDialog({
             <Label htmlFor="current-pin">Current PIN</Label>
             <Input
               id="current-pin"
-              type={showPins ? 'text' : 'password'}
+              type={showPins ? "text" : "password"}
               inputMode="numeric"
               maxLength={6}
               value={currentPin}
-              onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ""))}
             />
           </div>
 
@@ -474,11 +512,11 @@ function ChangePinDialog({
             <Label htmlFor="new-pin">New PIN</Label>
             <Input
               id="new-pin"
-              type={showPins ? 'text' : 'password'}
+              type={showPins ? "text" : "password"}
               inputMode="numeric"
               maxLength={6}
               value={newPin}
-              onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
             />
           </div>
 
@@ -486,17 +524,25 @@ function ChangePinDialog({
             <Label htmlFor="confirm-new-pin">Confirm New PIN</Label>
             <Input
               id="confirm-new-pin"
-              type={showPins ? 'text' : 'password'}
+              type={showPins ? "text" : "password"}
               inputMode="numeric"
               maxLength={6}
               value={confirmPin}
-              onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
             />
           </div>
 
-          <Button variant="ghost" size="sm" onClick={() => setShowPins(!showPins)}>
-            {showPins ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
-            {showPins ? 'Hide' : 'Show'} PINs
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPins(!showPins)}
+          >
+            {showPins ? (
+              <EyeOff className="mr-2 h-4 w-4" />
+            ) : (
+              <Eye className="mr-2 h-4 w-4" />
+            )}
+            {showPins ? "Hide" : "Show"} PINs
           </Button>
         </div>
 
@@ -510,7 +556,7 @@ function ChangePinDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -522,39 +568,39 @@ function DisablePinDialog({
   onOpenChange,
   onComplete,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onComplete: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onComplete: () => void;
 }) {
-  const [pin, setPin] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDisable = async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      const success = await disablePin(pin)
+      const success = await disablePin(pin);
 
       if (!success) {
-        setError('Incorrect PIN')
-        return
+        setError("Incorrect PIN");
+        return;
       }
 
       // Clear all credentials
-      clearAllCredentials()
+      clearAllCredentials();
 
       // Clear attempt history
-      clearAttemptHistory()
+      clearAttemptHistory();
 
-      onComplete()
+      onComplete();
     } catch {
-      setError('An error occurred')
+      setError("An error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -562,7 +608,8 @@ function DisablePinDialog({
         <DialogHeader>
           <DialogTitle>Disable PIN Lock</DialogTitle>
           <DialogDescription>
-            Enter your PIN to disable PIN lock. This will remove all security settings.
+            Enter your PIN to disable PIN lock. This will remove all security
+            settings.
           </DialogDescription>
         </DialogHeader>
 
@@ -577,7 +624,8 @@ function DisablePinDialog({
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Warning: This will disable PIN lock and remove all biometric credentials.
+              Warning: This will disable PIN lock and remove all biometric
+              credentials.
             </AlertDescription>
           </Alert>
 
@@ -589,7 +637,7 @@ function DisablePinDialog({
               inputMode="numeric"
               maxLength={6}
               value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
             />
           </div>
         </div>
@@ -598,13 +646,17 @@ function DisablePinDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={handleDisable} disabled={isLoading}>
+          <Button
+            variant="destructive"
+            onClick={handleDisable}
+            disabled={isLoading}
+          >
             Disable PIN Lock
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -615,17 +667,19 @@ function AttemptsDialog({
   open,
   onOpenChange,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
-  const attempts = getRecentFailedAttempts(60)
+  const attempts = getRecentFailedAttempts(60);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Recent Failed Attempts</DialogTitle>
-          <DialogDescription>Failed PIN unlock attempts in the last hour</DialogDescription>
+          <DialogDescription>
+            Failed PIN unlock attempts in the last hour
+          </DialogDescription>
         </DialogHeader>
 
         <div className="max-h-96 space-y-2 overflow-y-auto">
@@ -640,7 +694,9 @@ function AttemptsDialog({
                   {new Date(attempt.timestamp).toLocaleString()}
                 </p>
                 {attempt.failureReason && (
-                  <p className="text-xs text-muted-foreground">Reason: {attempt.failureReason}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Reason: {attempt.failureReason}
+                  </p>
                 )}
               </div>
             ))
@@ -654,5 +710,5 @@ function AttemptsDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

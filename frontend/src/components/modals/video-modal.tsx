@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { Button } from '@/components/ui/button'
+import { useState, useRef, useEffect, useCallback } from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
 import {
   X,
   Play,
@@ -16,35 +16,35 @@ import {
   SkipForward,
   Settings,
   Download,
-} from 'lucide-react'
-import { Slider } from '@/components/ui/slider'
+} from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
-import * as VisuallyHidden from '@radix-ui/react-visually-hidden'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export interface VideoModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  src: string
-  title?: string
-  poster?: string
-  autoPlay?: boolean
-  muted?: boolean
-  loop?: boolean
-  onEnded?: () => void
-  onDownload?: () => void
-  startTime?: number
-  playbackRates?: number[]
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  src: string;
+  title?: string;
+  poster?: string;
+  autoPlay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  onEnded?: () => void;
+  onDownload?: () => void;
+  startTime?: number;
+  playbackRates?: number[];
 }
 
-const DEFAULT_PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2]
+const DEFAULT_PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 export function VideoModal({
   open,
@@ -60,289 +60,293 @@ export function VideoModal({
   startTime = 0,
   playbackRates = DEFAULT_PLAYBACK_RATES,
 }: VideoModalProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [isPlaying, setIsPlaying] = useState(autoPlay)
-  const [isMuted, setIsMuted] = useState(initialMuted)
-  const [volume, setVolume] = useState(1)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isPiP, setIsPiP] = useState(false)
-  const [playbackRate, setPlaybackRate] = useState(1)
-  const [showControls, setShowControls] = useState(true)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [isMuted, setIsMuted] = useState(initialMuted);
+  const [volume, setVolume] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPiP, setIsPiP] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [showControls, setShowControls] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Reset state when modal opens
   useEffect(() => {
     if (open && videoRef.current) {
-      videoRef.current.currentTime = startTime
-      setCurrentTime(startTime)
-      setError(null)
-      setIsLoading(true)
+      videoRef.current.currentTime = startTime;
+      setCurrentTime(startTime);
+      setError(null);
+      setIsLoading(true);
       if (autoPlay) {
-        videoRef.current.play().catch(() => setIsPlaying(false))
+        videoRef.current.play().catch(() => setIsPlaying(false));
       }
     }
-  }, [open, startTime, autoPlay])
+  }, [open, startTime, autoPlay]);
 
   // Keyboard shortcuts
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
-        document.activeElement?.tagName === 'INPUT' ||
-        document.activeElement?.tagName === 'TEXTAREA'
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
       ) {
-        return
+        return;
       }
 
-      const video = videoRef.current
-      if (!video) return
+      const video = videoRef.current;
+      if (!video) return;
 
       switch (e.key) {
-        case ' ':
-        case 'k':
-          e.preventDefault()
-          togglePlay()
-          break
-        case 'ArrowLeft':
-          e.preventDefault()
-          skip(-10)
-          break
-        case 'ArrowRight':
-          e.preventDefault()
-          skip(10)
-          break
-        case 'ArrowUp':
-          e.preventDefault()
-          adjustVolume(0.1)
-          break
-        case 'ArrowDown':
-          e.preventDefault()
-          adjustVolume(-0.1)
-          break
-        case 'm':
-          e.preventDefault()
-          toggleMute()
-          break
-        case 'f':
-          e.preventDefault()
-          toggleFullscreen()
-          break
-        case 'p':
-          e.preventDefault()
-          togglePiP()
-          break
-        case 'Escape':
-          e.preventDefault()
+        case " ":
+        case "k":
+          e.preventDefault();
+          togglePlay();
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          skip(-10);
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          skip(10);
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          adjustVolume(0.1);
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          adjustVolume(-0.1);
+          break;
+        case "m":
+          e.preventDefault();
+          toggleMute();
+          break;
+        case "f":
+          e.preventDefault();
+          toggleFullscreen();
+          break;
+        case "p":
+          e.preventDefault();
+          togglePiP();
+          break;
+        case "Escape":
+          e.preventDefault();
           if (isFullscreen) {
-            exitFullscreen()
+            exitFullscreen();
           } else {
-            onOpenChange(false)
+            onOpenChange(false);
           }
-          break
+          break;
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [open, isFullscreen])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, isFullscreen]);
 
   // Auto-hide controls
   useEffect(() => {
     const resetControlsTimeout = () => {
       if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
+        clearTimeout(controlsTimeoutRef.current);
       }
-      setShowControls(true)
+      setShowControls(true);
       if (isPlaying) {
         controlsTimeoutRef.current = setTimeout(() => {
-          setShowControls(false)
-        }, 3000)
+          setShowControls(false);
+        }, 3000);
       }
-    }
+    };
 
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
-    container.addEventListener('mousemove', resetControlsTimeout)
-    container.addEventListener('mouseenter', resetControlsTimeout)
+    container.addEventListener("mousemove", resetControlsTimeout);
+    container.addEventListener("mouseenter", resetControlsTimeout);
 
     return () => {
-      container.removeEventListener('mousemove', resetControlsTimeout)
-      container.removeEventListener('mouseenter', resetControlsTimeout)
+      container.removeEventListener("mousemove", resetControlsTimeout);
+      container.removeEventListener("mouseenter", resetControlsTimeout);
       if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
+        clearTimeout(controlsTimeoutRef.current);
       }
-    }
-  }, [isPlaying])
+    };
+  }, [isPlaying]);
 
   // Fullscreen change listener
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+      setIsFullscreen(!!document.fullscreenElement);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // PiP change listener
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
     const handlePiPChange = () => {
-      setIsPiP(document.pictureInPictureElement === video)
-    }
+      setIsPiP(document.pictureInPictureElement === video);
+    };
 
-    video.addEventListener('enterpictureinpicture', handlePiPChange)
-    video.addEventListener('leavepictureinpicture', handlePiPChange)
+    video.addEventListener("enterpictureinpicture", handlePiPChange);
+    video.addEventListener("leavepictureinpicture", handlePiPChange);
     return () => {
-      video.removeEventListener('enterpictureinpicture', handlePiPChange)
-      video.removeEventListener('leavepictureinpicture', handlePiPChange)
-    }
-  }, [])
+      video.removeEventListener("enterpictureinpicture", handlePiPChange);
+      video.removeEventListener("leavepictureinpicture", handlePiPChange);
+    };
+  }, []);
 
   const togglePlay = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
     if (video.paused) {
-      video.play().catch(() => setIsPlaying(false))
+      video.play().catch(() => setIsPlaying(false));
     } else {
-      video.pause()
+      video.pause();
     }
-  }, [])
+  }, []);
 
   const toggleMute = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    video.muted = !video.muted
-    setIsMuted(video.muted)
-  }, [])
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+  }, []);
 
   const adjustVolume = useCallback((delta: number) => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    const newVolume = Math.max(0, Math.min(1, video.volume + delta))
-    video.volume = newVolume
-    setVolume(newVolume)
+    const newVolume = Math.max(0, Math.min(1, video.volume + delta));
+    video.volume = newVolume;
+    setVolume(newVolume);
     if (newVolume > 0 && video.muted) {
-      video.muted = false
-      setIsMuted(false)
+      video.muted = false;
+      setIsMuted(false);
     }
-  }, [])
+  }, []);
 
   const skip = useCallback((seconds: number) => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds))
-  }, [])
+    video.currentTime = Math.max(
+      0,
+      Math.min(video.duration, video.currentTime + seconds),
+    );
+  }, []);
 
   const toggleFullscreen = useCallback(() => {
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
     if (document.fullscreenElement) {
-      document.exitFullscreen()
+      document.exitFullscreen();
     } else {
-      container.requestFullscreen()
+      container.requestFullscreen();
     }
-  }, [])
+  }, []);
 
   const exitFullscreen = useCallback(() => {
     if (document.fullscreenElement) {
-      document.exitFullscreen()
+      document.exitFullscreen();
     }
-  }, [])
+  }, []);
 
   const togglePiP = useCallback(async () => {
-    const video = videoRef.current
-    if (!video || !document.pictureInPictureEnabled) return
+    const video = videoRef.current;
+    if (!video || !document.pictureInPictureEnabled) return;
 
     try {
       if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture()
+        await document.exitPictureInPicture();
       } else {
-        await video.requestPictureInPicture()
+        await video.requestPictureInPicture();
       }
     } catch (err) {
-      logger.error('PiP error:', err)
+      logger.error("PiP error:", err);
     }
-  }, [])
+  }, []);
 
   const handleTimeUpdate = () => {
-    const video = videoRef.current
+    const video = videoRef.current;
     if (video) {
-      setCurrentTime(video.currentTime)
+      setCurrentTime(video.currentTime);
     }
-  }
+  };
 
   const handleLoadedMetadata = () => {
-    const video = videoRef.current
+    const video = videoRef.current;
     if (video) {
-      setDuration(video.duration)
-      setIsLoading(false)
+      setDuration(video.duration);
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSeek = (value: number[]) => {
-    const video = videoRef.current
+    const video = videoRef.current;
     if (video) {
-      video.currentTime = value[0]
-      setCurrentTime(value[0])
+      video.currentTime = value[0];
+      setCurrentTime(value[0]);
     }
-  }
+  };
 
   const handleVolumeChange = (value: number[]) => {
-    const video = videoRef.current
+    const video = videoRef.current;
     if (video) {
-      video.volume = value[0]
-      setVolume(value[0])
+      video.volume = value[0];
+      setVolume(value[0]);
       if (value[0] > 0 && video.muted) {
-        video.muted = false
-        setIsMuted(false)
+        video.muted = false;
+        setIsMuted(false);
       }
     }
-  }
+  };
 
   const handlePlaybackRateChange = (rate: number) => {
-    const video = videoRef.current
+    const video = videoRef.current;
     if (video) {
-      video.playbackRate = rate
-      setPlaybackRate(rate)
+      video.playbackRate = rate;
+      setPlaybackRate(rate);
     }
-  }
+  };
 
   const handleDownload = () => {
     if (onDownload) {
-      onDownload()
+      onDownload();
     } else {
-      const link = document.createElement('a')
-      link.href = src
-      link.download = title || 'video'
-      link.target = '_blank'
-      link.rel = 'noopener noreferrer'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const link = document.createElement("a");
+      link.href = src;
+      link.download = title || "video";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  }
+  };
 
   const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
-  }
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -353,13 +357,18 @@ export function VideoModal({
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <VisuallyHidden.Root>
-            <DialogPrimitive.Title>{title || 'Video'}</DialogPrimitive.Title>
-            <DialogPrimitive.Description>Video player</DialogPrimitive.Description>
+            <DialogPrimitive.Title>{title || "Video"}</DialogPrimitive.Title>
+            <DialogPrimitive.Description>
+              Video player
+            </DialogPrimitive.Description>
           </VisuallyHidden.Root>
 
           <div
             ref={containerRef}
-            className={cn('relative mx-auto w-full max-w-5xl', isFullscreen && 'h-full max-w-none')}
+            className={cn(
+              "relative mx-auto w-full max-w-5xl",
+              isFullscreen && "h-full max-w-none",
+            )}
           >
             {/* Video element */}
             {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
@@ -376,7 +385,7 @@ export function VideoModal({
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onEnded={onEnded}
-              onError={() => setError('Failed to load video')}
+              onError={() => setError("Failed to load video")}
               onWaiting={() => setIsLoading(true)}
               onCanPlay={() => setIsLoading(false)}
             />
@@ -410,8 +419,8 @@ export function VideoModal({
             {/* Controls overlay */}
             <div
               className={cn(
-                'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300',
-                showControls ? 'opacity-100' : 'opacity-0'
+                "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300",
+                showControls ? "opacity-100" : "opacity-0",
               )}
             >
               {/* Progress bar */}
@@ -435,7 +444,11 @@ export function VideoModal({
                     onClick={togglePlay}
                     className="text-white hover:bg-white/20"
                   >
-                    {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                    {isPlaying ? (
+                      <Pause className="h-5 w-5" />
+                    ) : (
+                      <Play className="h-5 w-5" />
+                    )}
                   </Button>
 
                   {/* Skip buttons */}
@@ -506,7 +519,7 @@ export function VideoModal({
                         <DropdownMenuItem
                           key={rate}
                           onClick={() => handlePlaybackRateChange(rate)}
-                          className={cn(rate === playbackRate && 'bg-accent')}
+                          className={cn(rate === playbackRate && "bg-accent")}
                         >
                           {rate}x
                         </DropdownMenuItem>
@@ -577,5 +590,5 @@ export function VideoModal({
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
-  )
+  );
 }

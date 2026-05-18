@@ -1,51 +1,56 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { TourOverlay } from '@/components/onboarding'
-import { useOnboardingStore } from '@/stores/onboarding-store'
-import { useAuth } from '@/contexts/auth-context'
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { TourOverlay } from "@/components/onboarding";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function TourPage() {
-  const router = useRouter()
-  const { user, loading, isAuthenticated } = useAuth()
-  const { tour, tourActive, initialize, startTour, setTourActive } = useOnboardingStore()
+  const router = useRouter();
+  const { user, loading, isAuthenticated } = useAuth();
+  const { tour, tourActive, initialize, startTour, setTourActive } =
+    useOnboardingStore();
 
   // Redirect unauthenticated visitors to login before tour can begin.
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.replace('/login?redirect=/onboarding/tour')
+      router.replace("/login?redirect=/onboarding/tour");
     }
-  }, [loading, isAuthenticated, router])
+  }, [loading, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!user?.id) return
-    initialize(user.id)
-  }, [user?.id, initialize])
+    if (!user?.id) return;
+    initialize(user.id);
+  }, [user?.id, initialize]);
 
   useEffect(() => {
     // Auto-start tour if not already in progress
-    if (tour && tour.status === 'not_started') {
-      startTour()
-    } else if (tour && tour.status !== 'completed' && tour.status !== 'dismissed') {
-      setTourActive(true)
+    if (tour && tour.status === "not_started") {
+      startTour();
+    } else if (
+      tour &&
+      tour.status !== "completed" &&
+      tour.status !== "dismissed"
+    ) {
+      setTourActive(true);
     }
-  }, [tour?.status, startTour, setTourActive])
+  }, [tour?.status, startTour, setTourActive]);
 
   const handleComplete = () => {
-    router.push('/chat')
-  }
+    router.push("/chat");
+  };
 
   const handleDismiss = () => {
-    router.push('/chat')
-  }
+    router.push("/chat");
+  };
 
   // If tour is already completed, redirect
   useEffect(() => {
-    if (tour?.status === 'completed' || tour?.status === 'dismissed') {
-      router.push('/chat')
+    if (tour?.status === "completed" || tour?.status === "dismissed") {
+      router.push("/chat");
     }
-  }, [tour?.status, router])
+  }, [tour?.status, router]);
 
   // Guard render during auth resolution to avoid flashing the tour backdrop
   // to unauthenticated visitors mid-redirect.
@@ -54,7 +59,7 @@ export default function TourPage() {
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-sm text-zinc-400">
         Loading…
       </div>
-    )
+    );
   }
 
   return (
@@ -73,7 +78,9 @@ export default function TourPage() {
 
           {/* Channel list */}
           <div data-tour="channel-list" className="flex-1 space-y-1 p-2">
-            <div className="px-3 py-1 text-xs font-semibold uppercase text-zinc-500">Channels</div>
+            <div className="px-3 py-1 text-xs font-semibold uppercase text-zinc-500">
+              Channels
+            </div>
             <button className="bg-primary/20 flex w-full items-center gap-2 rounded px-3 py-1.5 text-left text-white">
               <span>#</span>
               <span>general</span>
@@ -95,7 +102,9 @@ export default function TourPage() {
           <header className="flex h-14 items-center justify-between border-b border-zinc-200 bg-white px-4 dark:border-zinc-700 dark:bg-zinc-800">
             <div className="flex items-center gap-2">
               <span className="text-zinc-500">#</span>
-              <span className="font-semibold text-zinc-900 dark:text-white">general</span>
+              <span className="font-semibold text-zinc-900 dark:text-white">
+                general
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -172,13 +181,19 @@ export default function TourPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-zinc-900 dark:text-white">John Doe</span>
+                    <span className="font-semibold text-zinc-900 dark:text-white">
+                      John Doe
+                    </span>
                     <span className="text-xs text-zinc-500">10:30 AM</span>
                   </div>
                   <p className="text-zinc-700 dark:text-zinc-300">
-                    Welcome to nchat! This is your new team communication platform.
+                    Welcome to nchat! This is your new team communication
+                    platform.
                   </p>
-                  <div data-tour="message-actions" className="mt-1 flex items-center gap-1">
+                  <div
+                    data-tour="message-actions"
+                    className="mt-1 flex items-center gap-1"
+                  >
                     <button className="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700">
                       <span className="text-sm">+</span>
                     </button>
@@ -195,11 +210,14 @@ export default function TourPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-zinc-900 dark:text-white">Alice Smith</span>
+                    <span className="font-semibold text-zinc-900 dark:text-white">
+                      Alice Smith
+                    </span>
                     <span className="text-xs text-zinc-500">10:32 AM</span>
                   </div>
                   <p className="text-zinc-700 dark:text-zinc-300">
-                    Great to have you here! Feel free to explore and ask questions.
+                    Great to have you here! Feel free to explore and ask
+                    questions.
                   </p>
                 </div>
               </div>
@@ -213,7 +231,12 @@ export default function TourPage() {
           >
             <div className="flex items-center gap-2 rounded-lg bg-zinc-100 px-4 py-2 dark:bg-zinc-700">
               <button className="p-1 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -228,7 +251,12 @@ export default function TourPage() {
                 className="flex-1 border-none bg-transparent text-zinc-900 placeholder-zinc-500 outline-none dark:text-white"
               />
               <button className="p-1 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -246,7 +274,11 @@ export default function TourPage() {
       <div data-tour="keyboard-shortcuts" className="hidden" />
 
       {/* Tour Overlay */}
-      <TourOverlay isActive={tourActive} onComplete={handleComplete} onDismiss={handleDismiss} />
+      <TourOverlay
+        isActive={tourActive}
+        onComplete={handleComplete}
+        onDismiss={handleDismiss}
+      />
     </div>
-  )
+  );
 }

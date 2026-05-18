@@ -20,72 +20,72 @@ import {
   supportsSystemAudio,
   getOptimalQuality,
   getBitrateForQuality,
-} from '@/lib/webrtc/screen-capture'
+} from "@/lib/webrtc/screen-capture";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export type ScreenShareState =
-  | 'idle'
-  | 'requesting'
-  | 'active'
-  | 'paused'
-  | 'switching'
-  | 'error'
+  | "idle"
+  | "requesting"
+  | "active"
+  | "paused"
+  | "switching"
+  | "error";
 
 export interface ScreenShareServiceOptions {
   /** Default quality preset */
-  defaultQuality?: ScreenCaptureQuality
+  defaultQuality?: ScreenCaptureQuality;
   /** Default frame rate */
-  defaultFrameRate?: number
+  defaultFrameRate?: number;
   /** Enable system audio by default */
-  defaultCaptureAudio?: boolean
+  defaultCaptureAudio?: boolean;
   /** Auto-optimize quality based on network */
-  autoOptimizeQuality?: boolean
+  autoOptimizeQuality?: boolean;
   /** Max shares allowed (1 for most use cases) */
-  maxShares?: number
+  maxShares?: number;
 }
 
 export interface ScreenShareServiceCallbacks {
   /** Called when share starts */
-  onShareStarted?: (share: ScreenShare) => void
+  onShareStarted?: (share: ScreenShare) => void;
   /** Called when share stops */
-  onShareStopped?: (shareId: string) => void
+  onShareStopped?: (shareId: string) => void;
   /** Called when share is paused */
-  onSharePaused?: (shareId: string) => void
+  onSharePaused?: (shareId: string) => void;
   /** Called when share is resumed */
-  onShareResumed?: (shareId: string) => void
+  onShareResumed?: (shareId: string) => void;
   /** Called when source is switched */
-  onSourceSwitched?: (shareId: string, newType: ScreenCaptureType) => void
+  onSourceSwitched?: (shareId: string, newType: ScreenCaptureType) => void;
   /** Called when quality changes */
-  onQualityChanged?: (shareId: string, quality: ScreenCaptureQuality) => void
+  onQualityChanged?: (shareId: string, quality: ScreenCaptureQuality) => void;
   /** Called when state changes */
-  onStateChanged?: (state: ScreenShareState) => void
+  onStateChanged?: (state: ScreenShareState) => void;
   /** Called on error */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
   /** Called when track ends (user stopped sharing via browser) */
-  onTrackEnded?: () => void
+  onTrackEnded?: () => void;
 }
 
 export interface RegionSelection {
-  x: number
-  y: number
-  width: number
-  height: number
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export interface ShareInfo {
-  id: string
-  state: ScreenShareState
-  type: ScreenCaptureType
-  quality: ScreenCaptureQuality
-  frameRate: number
-  hasAudio: boolean
-  isPaused: boolean
-  startedAt: Date
-  resolution?: { width: number; height: number }
-  bitrate?: number
+  id: string;
+  state: ScreenShareState;
+  type: ScreenCaptureType;
+  quality: ScreenCaptureQuality;
+  frameRate: number;
+  hasAudio: boolean;
+  isPaused: boolean;
+  startedAt: Date;
+  resolution?: { width: number; height: number };
+  bitrate?: number;
 }
 
 // =============================================================================
@@ -93,55 +93,55 @@ export interface ShareInfo {
 // =============================================================================
 
 const DEFAULT_OPTIONS: Required<ScreenShareServiceOptions> = {
-  defaultQuality: 'auto',
+  defaultQuality: "auto",
   defaultFrameRate: 30,
   defaultCaptureAudio: false,
   autoOptimizeQuality: true,
   maxShares: 1,
-}
+};
 
 // =============================================================================
 // Screen Share Service
 // =============================================================================
 
 export class ScreenShareService {
-  private options: Required<ScreenShareServiceOptions>
-  private callbacks: ScreenShareServiceCallbacks
-  private captureManager: ScreenCaptureManager
-  private state: ScreenShareState = 'idle'
-  private activeShare: ScreenShare | null = null
-  private isPaused: boolean = false
-  private pausedTracks: Map<string, boolean> = new Map()
-  private currentQuality: ScreenCaptureQuality = 'auto'
-  private currentFrameRate: number = 30
+  private options: Required<ScreenShareServiceOptions>;
+  private callbacks: ScreenShareServiceCallbacks;
+  private captureManager: ScreenCaptureManager;
+  private state: ScreenShareState = "idle";
+  private activeShare: ScreenShare | null = null;
+  private isPaused: boolean = false;
+  private pausedTracks: Map<string, boolean> = new Map();
+  private currentQuality: ScreenCaptureQuality = "auto";
+  private currentFrameRate: number = 30;
 
   constructor(
     options: ScreenShareServiceOptions = {},
-    callbacks: ScreenShareServiceCallbacks = {}
+    callbacks: ScreenShareServiceCallbacks = {},
   ) {
-    this.options = { ...DEFAULT_OPTIONS, ...options }
-    this.callbacks = callbacks
-    this.currentQuality = this.options.defaultQuality
-    this.currentFrameRate = this.options.defaultFrameRate
+    this.options = { ...DEFAULT_OPTIONS, ...options };
+    this.callbacks = callbacks;
+    this.currentQuality = this.options.defaultQuality;
+    this.currentFrameRate = this.options.defaultFrameRate;
 
     this.captureManager = createScreenCaptureManager({
       onStreamStarted: (stream) => {
         // Stream started - handled in startShare
       },
       onStreamEnded: (shareId) => {
-        this.handleStreamEnded(shareId)
+        this.handleStreamEnded(shareId);
       },
       onError: (error) => {
-        this.setState('error')
-        this.callbacks.onError?.(error)
+        this.setState("error");
+        this.callbacks.onError?.(error);
       },
       onTrackEnded: (kind) => {
-        if (kind === 'video') {
-          this.callbacks.onTrackEnded?.()
-          this.stopShare()
+        if (kind === "video") {
+          this.callbacks.onTrackEnded?.();
+          this.stopShare();
         }
       },
-    })
+    });
   }
 
   // ===========================================================================
@@ -150,8 +150,8 @@ export class ScreenShareService {
 
   private setState(newState: ScreenShareState): void {
     if (this.state !== newState) {
-      this.state = newState
-      this.callbacks.onStateChanged?.(newState)
+      this.state = newState;
+      this.callbacks.onStateChanged?.(newState);
     }
   }
 
@@ -159,35 +159,35 @@ export class ScreenShareService {
    * Get current state
    */
   getState(): ScreenShareState {
-    return this.state
+    return this.state;
   }
 
   /**
    * Check if sharing is active
    */
   isSharing(): boolean {
-    return this.state === 'active' || this.state === 'paused'
+    return this.state === "active" || this.state === "paused";
   }
 
   /**
    * Check if sharing is paused
    */
   isSharePaused(): boolean {
-    return this.isPaused
+    return this.isPaused;
   }
 
   /**
    * Check if screen share is supported
    */
   static isSupported(): boolean {
-    return ScreenCaptureManager.isSupported()
+    return ScreenCaptureManager.isSupported();
   }
 
   /**
    * Check if system audio capture is supported
    */
   static supportsSystemAudio(): boolean {
-    return supportsSystemAudio()
+    return supportsSystemAudio();
   }
 
   // ===========================================================================
@@ -200,53 +200,61 @@ export class ScreenShareService {
   async startShare(
     userId: string,
     userName: string,
-    options: Partial<ScreenCaptureOptions> = {}
+    options: Partial<ScreenCaptureOptions> = {},
   ): Promise<ScreenShare | null> {
     if (this.isSharing()) {
-      this.callbacks.onError?.(new Error('Already sharing screen'))
-      return null
+      this.callbacks.onError?.(new Error("Already sharing screen"));
+      return null;
     }
 
-    this.setState('requesting')
+    this.setState("requesting");
 
     try {
       // Determine quality
-      let quality = options.quality ?? this.currentQuality
-      if (this.options.autoOptimizeQuality && quality === 'auto') {
+      let quality = options.quality ?? this.currentQuality;
+      if (this.options.autoOptimizeQuality && quality === "auto") {
         // Try to get network info for optimal quality
-        const connection = (navigator as any).connection
+        const connection = (navigator as any).connection;
         if (connection?.downlink) {
-          quality = getOptimalQuality(connection.downlink)
+          quality = getOptimalQuality(connection.downlink);
         }
       }
 
       const captureOptions: ScreenCaptureOptions = {
         quality,
         frameRate: options.frameRate ?? this.currentFrameRate,
-        captureSystemAudio: options.captureSystemAudio ?? this.options.defaultCaptureAudio,
+        captureSystemAudio:
+          options.captureSystemAudio ?? this.options.defaultCaptureAudio,
         captureCursor: options.captureCursor ?? true,
         allowSurfaceSwitching: options.allowSurfaceSwitching ?? true,
         type: options.type,
         preferCurrentTab: options.preferCurrentTab,
-      }
+      };
 
-      const share = await this.captureManager.startCapture(userId, userName, captureOptions)
+      const share = await this.captureManager.startCapture(
+        userId,
+        userName,
+        captureOptions,
+      );
 
-      this.activeShare = share
-      this.currentQuality = quality
-      this.currentFrameRate = captureOptions.frameRate ?? 30
-      this.isPaused = false
-      this.pausedTracks.clear()
+      this.activeShare = share;
+      this.currentQuality = quality;
+      this.currentFrameRate = captureOptions.frameRate ?? 30;
+      this.isPaused = false;
+      this.pausedTracks.clear();
 
-      this.setState('active')
-      this.callbacks.onShareStarted?.(share)
+      this.setState("active");
+      this.callbacks.onShareStarted?.(share);
 
-      return share
+      return share;
     } catch (error) {
-      this.setState('idle')
-      const err = error instanceof Error ? error : new Error('Failed to start screen share')
-      this.callbacks.onError?.(err)
-      return null
+      this.setState("idle");
+      const err =
+        error instanceof Error
+          ? error
+          : new Error("Failed to start screen share");
+      this.callbacks.onError?.(err);
+      return null;
     }
   }
 
@@ -259,27 +267,27 @@ export class ScreenShareService {
     userId: string,
     userName: string,
     region: RegionSelection,
-    options: Partial<ScreenCaptureOptions> = {}
+    options: Partial<ScreenCaptureOptions> = {},
   ): Promise<ScreenShare | null> {
     // First start a normal screen share
     const share = await this.startShare(userId, userName, {
       ...options,
-      type: 'screen',
-    })
+      type: "screen",
+    });
 
-    if (!share) return null
+    if (!share) return null;
 
     // Note: True region selection requires custom canvas rendering
     // This is a simplified version that captures full screen
     // Real implementation would use a canvas to crop the region
 
     console.info(
-      'Region selection requested:',
+      "Region selection requested:",
       region,
-      '- Note: Native browser APIs capture full screen. Custom canvas cropping required for true region selection.'
-    )
+      "- Note: Native browser APIs capture full screen. Custom canvas cropping required for true region selection.",
+    );
 
-    return share
+    return share;
   }
 
   // ===========================================================================
@@ -290,16 +298,16 @@ export class ScreenShareService {
    * Stop screen sharing
    */
   stopShare(): void {
-    if (!this.activeShare) return
+    if (!this.activeShare) return;
 
-    const shareId = this.activeShare.id
-    this.captureManager.stopCapture(shareId)
-    this.activeShare = null
-    this.isPaused = false
-    this.pausedTracks.clear()
+    const shareId = this.activeShare.id;
+    this.captureManager.stopCapture(shareId);
+    this.activeShare = null;
+    this.isPaused = false;
+    this.pausedTracks.clear();
 
-    this.setState('idle')
-    this.callbacks.onShareStopped?.(shareId)
+    this.setState("idle");
+    this.callbacks.onShareStopped?.(shareId);
   }
 
   /**
@@ -307,11 +315,11 @@ export class ScreenShareService {
    */
   private handleStreamEnded(shareId: string): void {
     if (this.activeShare?.id === shareId) {
-      this.activeShare = null
-      this.isPaused = false
-      this.pausedTracks.clear()
-      this.setState('idle')
-      this.callbacks.onShareStopped?.(shareId)
+      this.activeShare = null;
+      this.isPaused = false;
+      this.pausedTracks.clear();
+      this.setState("idle");
+      this.callbacks.onShareStopped?.(shareId);
     }
   }
 
@@ -323,39 +331,39 @@ export class ScreenShareService {
    * Pause screen sharing (disables tracks but keeps stream)
    */
   pause(): boolean {
-    if (!this.activeShare || this.isPaused) return false
+    if (!this.activeShare || this.isPaused) return false;
 
-    const tracks = this.activeShare.stream.getTracks()
+    const tracks = this.activeShare.stream.getTracks();
     tracks.forEach((track) => {
-      this.pausedTracks.set(track.id, track.enabled)
-      track.enabled = false
-    })
+      this.pausedTracks.set(track.id, track.enabled);
+      track.enabled = false;
+    });
 
-    this.isPaused = true
-    this.setState('paused')
-    this.callbacks.onSharePaused?.(this.activeShare.id)
+    this.isPaused = true;
+    this.setState("paused");
+    this.callbacks.onSharePaused?.(this.activeShare.id);
 
-    return true
+    return true;
   }
 
   /**
    * Resume screen sharing
    */
   resume(): boolean {
-    if (!this.activeShare || !this.isPaused) return false
+    if (!this.activeShare || !this.isPaused) return false;
 
-    const tracks = this.activeShare.stream.getTracks()
+    const tracks = this.activeShare.stream.getTracks();
     tracks.forEach((track) => {
-      const wasEnabled = this.pausedTracks.get(track.id)
-      track.enabled = wasEnabled ?? true
-    })
+      const wasEnabled = this.pausedTracks.get(track.id);
+      track.enabled = wasEnabled ?? true;
+    });
 
-    this.pausedTracks.clear()
-    this.isPaused = false
-    this.setState('active')
-    this.callbacks.onShareResumed?.(this.activeShare.id)
+    this.pausedTracks.clear();
+    this.isPaused = false;
+    this.setState("active");
+    this.callbacks.onShareResumed?.(this.activeShare.id);
 
-    return true
+    return true;
   }
 
   /**
@@ -363,9 +371,9 @@ export class ScreenShareService {
    */
   togglePause(): boolean {
     if (this.isPaused) {
-      return this.resume()
+      return this.resume();
     } else {
-      return this.pause()
+      return this.pause();
     }
   }
 
@@ -378,15 +386,15 @@ export class ScreenShareService {
    */
   async switchSource(
     newType?: ScreenCaptureType,
-    options: Partial<ScreenCaptureOptions> = {}
+    options: Partial<ScreenCaptureOptions> = {},
   ): Promise<boolean> {
-    if (!this.activeShare) return false
+    if (!this.activeShare) return false;
 
-    const currentShare = this.activeShare
-    const userId = currentShare.userId
-    const userName = currentShare.userName
+    const currentShare = this.activeShare;
+    const userId = currentShare.userId;
+    const userName = currentShare.userName;
 
-    this.setState('switching')
+    this.setState("switching");
 
     try {
       // Request new display media
@@ -397,28 +405,33 @@ export class ScreenShareService {
         captureCursor: options.captureCursor ?? true,
         allowSurfaceSwitching: true,
         type: newType,
-      }
+      };
 
-      const newShare = await this.captureManager.startCapture(userId, userName, captureOptions)
+      const newShare = await this.captureManager.startCapture(
+        userId,
+        userName,
+        captureOptions,
+      );
 
       // Stop old share
-      this.captureManager.stopCapture(currentShare.id)
+      this.captureManager.stopCapture(currentShare.id);
 
       // Update reference
-      this.activeShare = newShare
-      this.isPaused = false
-      this.pausedTracks.clear()
+      this.activeShare = newShare;
+      this.isPaused = false;
+      this.pausedTracks.clear();
 
-      this.setState('active')
-      this.callbacks.onSourceSwitched?.(newShare.id, newShare.type)
+      this.setState("active");
+      this.callbacks.onSourceSwitched?.(newShare.id, newShare.type);
 
-      return true
+      return true;
     } catch (error) {
       // Restore previous state
-      this.setState(this.isPaused ? 'paused' : 'active')
-      const err = error instanceof Error ? error : new Error('Failed to switch source')
-      this.callbacks.onError?.(err)
-      return false
+      this.setState(this.isPaused ? "paused" : "active");
+      const err =
+        error instanceof Error ? error : new Error("Failed to switch source");
+      this.callbacks.onError?.(err);
+      return false;
     }
   }
 
@@ -431,20 +444,20 @@ export class ScreenShareService {
    */
   async setQuality(quality: ScreenCaptureQuality): Promise<boolean> {
     if (!this.activeShare) {
-      this.currentQuality = quality
-      return true
+      this.currentQuality = quality;
+      return true;
     }
 
     try {
-      await this.captureManager.updateQuality(this.activeShare.id, quality)
-      this.currentQuality = quality
-      this.callbacks.onQualityChanged?.(this.activeShare.id, quality)
-      return true
+      await this.captureManager.updateQuality(this.activeShare.id, quality);
+      this.currentQuality = quality;
+      this.callbacks.onQualityChanged?.(this.activeShare.id, quality);
+      return true;
     } catch (error) {
       this.callbacks.onError?.(
-        error instanceof Error ? error : new Error('Failed to update quality')
-      )
-      return false
+        error instanceof Error ? error : new Error("Failed to update quality"),
+      );
+      return false;
     }
   }
 
@@ -453,19 +466,21 @@ export class ScreenShareService {
    */
   async setFrameRate(frameRate: number): Promise<boolean> {
     if (!this.activeShare) {
-      this.currentFrameRate = frameRate
-      return true
+      this.currentFrameRate = frameRate;
+      return true;
     }
 
     try {
-      await this.captureManager.updateFrameRate(this.activeShare.id, frameRate)
-      this.currentFrameRate = frameRate
-      return true
+      await this.captureManager.updateFrameRate(this.activeShare.id, frameRate);
+      this.currentFrameRate = frameRate;
+      return true;
     } catch (error) {
       this.callbacks.onError?.(
-        error instanceof Error ? error : new Error('Failed to update frame rate')
-      )
-      return false
+        error instanceof Error
+          ? error
+          : new Error("Failed to update frame rate"),
+      );
+      return false;
     }
   }
 
@@ -473,18 +488,18 @@ export class ScreenShareService {
    * Get optimal quality based on network
    */
   getOptimalQuality(): ScreenCaptureQuality {
-    const connection = (navigator as any).connection
+    const connection = (navigator as any).connection;
     if (connection?.downlink) {
-      return getOptimalQuality(connection.downlink)
+      return getOptimalQuality(connection.downlink);
     }
-    return 'auto'
+    return "auto";
   }
 
   /**
    * Get bitrate for current quality
    */
   getCurrentBitrate(): number {
-    return getBitrateForQuality(this.currentQuality)
+    return getBitrateForQuality(this.currentQuality);
   }
 
   // ===========================================================================
@@ -495,9 +510,9 @@ export class ScreenShareService {
    * Get current share info
    */
   getShareInfo(): ShareInfo | null {
-    if (!this.activeShare) return null
+    if (!this.activeShare) return null;
 
-    const settings = this.captureManager.getVideoSettings(this.activeShare.id)
+    const settings = this.captureManager.getVideoSettings(this.activeShare.id);
 
     return {
       id: this.activeShare.id,
@@ -512,36 +527,36 @@ export class ScreenShareService {
         ? { width: settings.width ?? 0, height: settings.height ?? 0 }
         : undefined,
       bitrate: this.getCurrentBitrate(),
-    }
+    };
   }
 
   /**
    * Get active share stream
    */
   getStream(): MediaStream | null {
-    return this.activeShare?.stream ?? null
+    return this.activeShare?.stream ?? null;
   }
 
   /**
    * Get video track
    */
   getVideoTrack(): MediaStreamTrack | null {
-    return this.activeShare?.videoTrack ?? null
+    return this.activeShare?.videoTrack ?? null;
   }
 
   /**
    * Get audio track (if capturing system audio)
    */
   getAudioTrack(): MediaStreamTrack | null {
-    return this.activeShare?.audioTrack ?? null
+    return this.activeShare?.audioTrack ?? null;
   }
 
   /**
    * Get video settings
    */
   getVideoSettings(): MediaTrackSettings | null {
-    if (!this.activeShare) return null
-    return this.captureManager.getVideoSettings(this.activeShare.id)
+    if (!this.activeShare) return null;
+    return this.captureManager.getVideoSettings(this.activeShare.id);
   }
 
   // ===========================================================================
@@ -552,9 +567,9 @@ export class ScreenShareService {
    * Clean up resources
    */
   cleanup(): void {
-    this.stopShare()
-    this.captureManager.cleanup()
-    this.setState('idle')
+    this.stopShare();
+    this.captureManager.cleanup();
+    this.setState("idle");
   }
 }
 
@@ -564,9 +579,9 @@ export class ScreenShareService {
 
 export function createScreenShareService(
   options?: ScreenShareServiceOptions,
-  callbacks?: ScreenShareServiceCallbacks
+  callbacks?: ScreenShareServiceCallbacks,
 ): ScreenShareService {
-  return new ScreenShareService(options, callbacks)
+  return new ScreenShareService(options, callbacks);
 }
 
 // =============================================================================
@@ -581,4 +596,4 @@ export {
   supportsSystemAudio,
   getOptimalQuality,
   getBitrateForQuality,
-}
+};

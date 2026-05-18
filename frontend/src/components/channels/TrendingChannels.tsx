@@ -1,29 +1,32 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Flame, ChevronRight, TrendingUp } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { ChannelCard } from './ChannelCard'
-import type { Channel } from '@/stores/channel-store'
-import { isChannelActive, isChannelNew } from '@/lib/channels/channel-discovery'
+import * as React from "react";
+import { Flame, ChevronRight, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ChannelCard } from "./ChannelCard";
+import type { Channel } from "@/stores/channel-store";
+import {
+  isChannelActive,
+  isChannelNew,
+} from "@/lib/channels/channel-discovery";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface TrendingChannelsProps {
-  channels: Channel[]
-  joinedChannelIds?: Set<string>
-  limit?: number
-  showViewAll?: boolean
-  layout?: 'scroll' | 'grid' | 'list'
-  onViewAll?: () => void
-  onJoin?: (channelId: string) => void
-  onLeave?: (channelId: string) => void
-  className?: string
+  channels: Channel[];
+  joinedChannelIds?: Set<string>;
+  limit?: number;
+  showViewAll?: boolean;
+  layout?: "scroll" | "grid" | "list";
+  onViewAll?: () => void;
+  onJoin?: (channelId: string) => void;
+  onLeave?: (channelId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -31,36 +34,38 @@ export interface TrendingChannelsProps {
 // ============================================================================
 
 function getTrendingScore(channel: Channel): number {
-  let score = 0
+  let score = 0;
 
   // Activity score
   if (isChannelActive(channel, 24)) {
-    score += 10
+    score += 10;
   } else if (isChannelActive(channel, 72)) {
-    score += 5
+    score += 5;
   }
 
   // Member count score
-  score += Math.min(channel.memberCount, 50) / 5
+  score += Math.min(channel.memberCount, 50) / 5;
 
   // New channel bonus
   if (isChannelNew(channel)) {
-    score += 5
+    score += 5;
   }
 
-  return score
+  return score;
 }
 
 function getTrendingChannels(channels: Channel[], limit: number): Channel[] {
   return [...channels]
-    .filter((c) => c.type === 'public' && !c.isArchived && isChannelActive(c, 72))
+    .filter(
+      (c) => c.type === "public" && !c.isArchived && isChannelActive(c, 72),
+    )
     .map((channel) => ({
       channel,
       score: getTrendingScore(channel),
     }))
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
-    .map((item) => item.channel)
+    .map((item) => item.channel);
 }
 
 // ============================================================================
@@ -72,7 +77,7 @@ export function TrendingChannels({
   joinedChannelIds = new Set(),
   limit = 10,
   showViewAll = true,
-  layout = 'scroll',
+  layout = "scroll",
   onViewAll,
   onJoin,
   onLeave,
@@ -80,15 +85,15 @@ export function TrendingChannels({
 }: TrendingChannelsProps) {
   const trendingChannels = React.useMemo(
     () => getTrendingChannels(channels, limit),
-    [channels, limit]
-  )
+    [channels, limit],
+  );
 
   if (trendingChannels.length === 0) {
-    return null
+    return null;
   }
 
   const renderChannels = () => {
-    if (layout === 'list') {
+    if (layout === "list") {
       return (
         <div className="space-y-2">
           {trendingChannels.map((channel, index) => (
@@ -100,14 +105,16 @@ export function TrendingChannels({
                 {index < 3 ? (
                   <Flame
                     className={cn(
-                      'h-5 w-5',
-                      index === 0 && 'text-red-500',
-                      index === 1 && 'text-orange-500',
-                      index === 2 && 'text-yellow-500'
+                      "h-5 w-5",
+                      index === 0 && "text-red-500",
+                      index === 1 && "text-orange-500",
+                      index === 2 && "text-yellow-500",
                     )}
                   />
                 ) : (
-                  <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    #{index + 1}
+                  </span>
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -128,10 +135,10 @@ export function TrendingChannels({
             </div>
           ))}
         </div>
-      )
+      );
     }
 
-    if (layout === 'grid') {
+    if (layout === "grid") {
       return (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {trendingChannels.map((channel, index) => (
@@ -139,10 +146,10 @@ export function TrendingChannels({
               {index < 3 && (
                 <Badge
                   className={cn(
-                    'absolute -right-2 -top-2 z-10',
-                    index === 0 && 'bg-red-500',
-                    index === 1 && 'bg-orange-500',
-                    index === 2 && 'bg-yellow-500'
+                    "absolute -right-2 -top-2 z-10",
+                    index === 0 && "bg-red-500",
+                    index === 1 && "bg-orange-500",
+                    index === 2 && "bg-yellow-500",
                   )}
                 >
                   #{index + 1}
@@ -160,7 +167,7 @@ export function TrendingChannels({
             </div>
           ))}
         </div>
-      )
+      );
     }
 
     // Default: scroll layout
@@ -172,10 +179,10 @@ export function TrendingChannels({
               {index < 3 && (
                 <Badge
                   className={cn(
-                    'absolute -right-2 -top-2 z-10',
-                    index === 0 && 'bg-red-500',
-                    index === 1 && 'bg-orange-500',
-                    index === 2 && 'bg-yellow-500'
+                    "absolute -right-2 -top-2 z-10",
+                    index === 0 && "bg-red-500",
+                    index === 1 && "bg-orange-500",
+                    index === 2 && "bg-yellow-500",
                   )}
                 >
                   <Flame className="mr-1 h-3 w-3" />#{index + 1}
@@ -195,11 +202,11 @@ export function TrendingChannels({
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-    )
-  }
+    );
+  };
 
   return (
-    <section className={cn('space-y-4', className)}>
+    <section className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Flame className="h-5 w-5 text-red-500" />
@@ -219,7 +226,7 @@ export function TrendingChannels({
 
       {renderChannels()}
     </section>
-  )
+  );
 }
 
-TrendingChannels.displayName = 'TrendingChannels'
+TrendingChannels.displayName = "TrendingChannels";

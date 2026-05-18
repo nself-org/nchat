@@ -1,8 +1,13 @@
-'use client'
+"use client";
 
-import { useCallback, useMemo } from 'react'
-import { useQuery, useMutation, useSubscription, type ApolloError } from '@apollo/client'
-import { useAuth } from '@/contexts/auth-context'
+import { useCallback, useMemo } from "react";
+import {
+  useQuery,
+  useMutation,
+  useSubscription,
+  type ApolloError,
+} from "@apollo/client";
+import { useAuth } from "@/contexts/auth-context";
 import {
   GET_CHANNELS,
   GET_CHANNELS_BY_CATEGORY,
@@ -31,176 +36,184 @@ import {
   type CreateChannelVariables,
   type UpdateChannelVariables,
   type UpdateChannelSettingsVariables,
-} from '@/graphql/channels'
-import { CHANNEL_FULL_FRAGMENT } from '@/graphql/fragments'
+} from "@/graphql/channels";
+import { CHANNEL_FULL_FRAGMENT } from "@/graphql/fragments";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface ChannelUser {
-  id: string
-  username: string
-  display_name: string
-  avatar_url?: string
-  status?: string
-  status_emoji?: string
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_url?: string;
+  status?: string;
+  status_emoji?: string;
 }
 
 export interface ChannelMember {
-  id: string
-  user_id: string
-  channel_id: string
-  role: 'admin' | 'moderator' | 'member'
-  joined_at: string
-  last_read_at?: string
-  last_read_message_id?: string
-  notifications_enabled: boolean
-  muted_until?: string
-  user: ChannelUser
+  id: string;
+  user_id: string;
+  channel_id: string;
+  role: "admin" | "moderator" | "member";
+  joined_at: string;
+  last_read_at?: string;
+  last_read_message_id?: string;
+  notifications_enabled: boolean;
+  muted_until?: string;
+  user: ChannelUser;
 }
 
 export interface ChannelCategory {
-  id: string
-  name: string
-  position: number
-  is_collapsed: boolean
-  channels: Channel[]
+  id: string;
+  name: string;
+  position: number;
+  is_collapsed: boolean;
+  channels: Channel[];
 }
 
 export interface ChannelSettings {
-  allowThreads?: boolean
-  allowReactions?: boolean
-  allowAttachments?: boolean
-  slowMode?: number
-  memberLimit?: number
+  allowThreads?: boolean;
+  allowReactions?: boolean;
+  allowAttachments?: boolean;
+  slowMode?: number;
+  memberLimit?: number;
 }
 
 export interface Channel {
-  id: string
-  name: string
-  slug: string
-  description?: string
-  type: ChannelType
-  topic?: string
-  icon?: string
-  is_private: boolean
-  is_archived: boolean
-  is_default: boolean
-  position?: number
-  category_id?: string
-  settings?: ChannelSettings
-  created_at: string
-  updated_at: string
-  creator?: ChannelUser
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  type: ChannelType;
+  topic?: string;
+  icon?: string;
+  is_private: boolean;
+  is_archived: boolean;
+  is_default: boolean;
+  position?: number;
+  category_id?: string;
+  settings?: ChannelSettings;
+  created_at: string;
+  updated_at: string;
+  creator?: ChannelUser;
   members_aggregate?: {
     aggregate: {
-      count: number
-    }
-  }
-  members?: ChannelMember[]
+      count: number;
+    };
+  };
+  members?: ChannelMember[];
   pinned_messages?: Array<{
-    id: string
-    content: string
-    created_at: string
-    user: ChannelUser
-  }>
+    id: string;
+    content: string;
+    created_at: string;
+    user: ChannelUser;
+  }>;
 }
 
 export interface UserChannelMembership {
-  channel: Channel
-  role: string
-  joined_at: string
-  last_read_at?: string
-  last_read_message_id?: string
-  notifications_enabled: boolean
-  muted_until?: string
-  unread_count?: number
+  channel: Channel;
+  role: string;
+  joined_at: string;
+  last_read_at?: string;
+  last_read_message_id?: string;
+  notifications_enabled: boolean;
+  muted_until?: string;
+  unread_count?: number;
 }
 
 // Hook return types
 export interface UseChannelsReturn {
-  channels: Channel[]
-  loading: boolean
-  error: ApolloError | undefined
-  refetch: () => Promise<void>
+  channels: Channel[];
+  loading: boolean;
+  error: ApolloError | undefined;
+  refetch: () => Promise<void>;
 }
 
 export interface UseChannelsByCategoryReturn {
-  categories: ChannelCategory[]
-  uncategorized: Channel[]
-  loading: boolean
-  error: ApolloError | undefined
-  refetch: () => Promise<void>
+  categories: ChannelCategory[];
+  uncategorized: Channel[];
+  loading: boolean;
+  error: ApolloError | undefined;
+  refetch: () => Promise<void>;
 }
 
 export interface UseChannelReturn {
-  channel: Channel | null
-  loading: boolean
-  error: ApolloError | undefined
-  refetch: () => Promise<void>
+  channel: Channel | null;
+  loading: boolean;
+  error: ApolloError | undefined;
+  refetch: () => Promise<void>;
 }
 
 export interface UseChannelMembersReturn {
-  members: ChannelMember[]
-  totalCount: number
-  hasMore: boolean
-  loading: boolean
-  error: ApolloError | undefined
-  loadMore: () => Promise<void>
-  refetch: () => Promise<void>
+  members: ChannelMember[];
+  totalCount: number;
+  hasMore: boolean;
+  loading: boolean;
+  error: ApolloError | undefined;
+  loadMore: () => Promise<void>;
+  refetch: () => Promise<void>;
 }
 
 export interface UseUserChannelsReturn {
-  memberships: UserChannelMembership[]
-  loading: boolean
-  error: ApolloError | undefined
-  refetch: () => Promise<void>
+  memberships: UserChannelMembership[];
+  loading: boolean;
+  error: ApolloError | undefined;
+  refetch: () => Promise<void>;
 }
 
 export interface UseCreateChannelReturn {
-  createChannel: (variables: Omit<CreateChannelVariables, 'creatorId'>) => Promise<Channel | null>
-  loading: boolean
-  error: ApolloError | undefined
+  createChannel: (
+    variables: Omit<CreateChannelVariables, "creatorId">,
+  ) => Promise<Channel | null>;
+  loading: boolean;
+  error: ApolloError | undefined;
 }
 
 export interface UseUpdateChannelReturn {
-  updateChannel: (variables: UpdateChannelVariables) => Promise<Channel | null>
-  updateSettings: (variables: UpdateChannelSettingsVariables) => Promise<boolean>
-  loading: boolean
-  error: ApolloError | undefined
+  updateChannel: (variables: UpdateChannelVariables) => Promise<Channel | null>;
+  updateSettings: (
+    variables: UpdateChannelSettingsVariables,
+  ) => Promise<boolean>;
+  loading: boolean;
+  error: ApolloError | undefined;
 }
 
 export interface UseDeleteChannelReturn {
-  deleteChannel: (channelId: string) => Promise<boolean>
-  archiveChannel: (channelId: string) => Promise<boolean>
-  unarchiveChannel: (channelId: string) => Promise<boolean>
-  loading: boolean
-  error: ApolloError | undefined
+  deleteChannel: (channelId: string) => Promise<boolean>;
+  archiveChannel: (channelId: string) => Promise<boolean>;
+  unarchiveChannel: (channelId: string) => Promise<boolean>;
+  loading: boolean;
+  error: ApolloError | undefined;
 }
 
 export interface UseChannelMembershipReturn {
-  joinChannel: (channelId: string) => Promise<boolean>
-  leaveChannel: (channelId: string) => Promise<boolean>
-  inviteUsers: (channelId: string, userIds: string[]) => Promise<number>
-  removeUser: (channelId: string, userId: string) => Promise<boolean>
-  updateRole: (channelId: string, userId: string, role: string) => Promise<boolean>
+  joinChannel: (channelId: string) => Promise<boolean>;
+  leaveChannel: (channelId: string) => Promise<boolean>;
+  inviteUsers: (channelId: string, userIds: string[]) => Promise<number>;
+  removeUser: (channelId: string, userId: string) => Promise<boolean>;
+  updateRole: (
+    channelId: string,
+    userId: string,
+    role: string,
+  ) => Promise<boolean>;
   updateNotifications: (
     channelId: string,
     enabled: boolean,
-    mutedUntil?: string
-  ) => Promise<boolean>
-  isMember: (channelId: string) => Promise<boolean>
-  loading: boolean
-  error: ApolloError | undefined
+    mutedUntil?: string,
+  ) => Promise<boolean>;
+  isMember: (channelId: string) => Promise<boolean>;
+  loading: boolean;
+  error: ApolloError | undefined;
 }
 
 export interface UseDirectMessageReturn {
-  dmChannels: Channel[]
-  loading: boolean
-  error: ApolloError | undefined
-  createOrGetDM: (userId: string) => Promise<Channel | null>
-  refetch: () => Promise<void>
+  dmChannels: Channel[];
+  loading: boolean;
+  error: ApolloError | undefined;
+  createOrGetDM: (userId: string) => Promise<Channel | null>;
+  refetch: () => Promise<void>;
 }
 
 // ============================================================================
@@ -211,34 +224,34 @@ export interface UseDirectMessageReturn {
  * Fetch all channels
  */
 export function useChannels(options?: {
-  type?: ChannelType
-  includeArchived?: boolean
-  autoSubscribe?: boolean
+  type?: ChannelType;
+  includeArchived?: boolean;
+  autoSubscribe?: boolean;
 }): UseChannelsReturn {
-  const { type, includeArchived = false, autoSubscribe = true } = options ?? {}
+  const { type, includeArchived = false, autoSubscribe = true } = options ?? {};
 
   const { data, loading, error, refetch } = useQuery(GET_CHANNELS, {
     variables: { type, includeArchived },
-    fetchPolicy: 'cache-and-network',
-  })
+    fetchPolicy: "cache-and-network",
+  });
 
   // Subscribe to channel updates
   useSubscription(CHANNELS_SUBSCRIPTION, {
     skip: !autoSubscribe,
-  })
+  });
 
   const channels = useMemo(() => {
-    return data?.nchat_channels ?? []
-  }, [data])
+    return data?.nchat_channels ?? [];
+  }, [data]);
 
   return {
     channels,
     loading,
     error,
     refetch: async () => {
-      await refetch()
+      await refetch();
     },
-  }
+  };
 }
 
 /**
@@ -246,16 +259,16 @@ export function useChannels(options?: {
  */
 export function useChannelsByCategory(): UseChannelsByCategoryReturn {
   const { data, loading, error, refetch } = useQuery(GET_CHANNELS_BY_CATEGORY, {
-    fetchPolicy: 'cache-and-network',
-  })
+    fetchPolicy: "cache-and-network",
+  });
 
   const categories = useMemo(() => {
-    return data?.nchat_channel_categories ?? []
-  }, [data])
+    return data?.nchat_channel_categories ?? [];
+  }, [data]);
 
   const uncategorized = useMemo(() => {
-    return data?.uncategorized ?? []
-  }, [data])
+    return data?.uncategorized ?? [];
+  }, [data]);
 
   return {
     categories,
@@ -263,9 +276,9 @@ export function useChannelsByCategory(): UseChannelsByCategoryReturn {
     loading,
     error,
     refetch: async () => {
-      await refetch()
+      await refetch();
     },
-  }
+  };
 }
 
 /**
@@ -273,34 +286,37 @@ export function useChannelsByCategory(): UseChannelsByCategoryReturn {
  */
 export function useChannel(
   idOrSlug: string,
-  options?: { autoSubscribe?: boolean }
+  options?: { autoSubscribe?: boolean },
 ): UseChannelReturn {
-  const { autoSubscribe = true } = options ?? {}
+  const { autoSubscribe = true } = options ?? {};
 
   // Determine if it's a UUID or slug
-  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug)
-  const variables = isUUID ? { id: idOrSlug } : { slug: idOrSlug }
+  const isUUID =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      idOrSlug,
+    );
+  const variables = isUUID ? { id: idOrSlug } : { slug: idOrSlug };
 
   const { data, loading, error, refetch } = useQuery(GET_CHANNEL, {
     variables,
     skip: !idOrSlug,
-  })
+  });
 
   // Subscribe to channel updates
-  const channelId = data?.nchat_channels?.[0]?.id
+  const channelId = data?.nchat_channels?.[0]?.id;
   useSubscription(CHANNEL_SUBSCRIPTION, {
     variables: { channelId },
     skip: !channelId || !autoSubscribe,
-  })
+  });
 
   return {
     channel: data?.nchat_channels?.[0] ?? null,
     loading,
     error,
     refetch: async () => {
-      await refetch()
+      await refetch();
     },
-  }
+  };
 }
 
 /**
@@ -308,30 +324,34 @@ export function useChannel(
  */
 export function useChannelMembers(
   channelId: string,
-  options?: { limit?: number; autoSubscribe?: boolean }
+  options?: { limit?: number; autoSubscribe?: boolean },
 ): UseChannelMembersReturn {
-  const { limit = 50, autoSubscribe = true } = options ?? {}
+  const { limit = 50, autoSubscribe = true } = options ?? {};
 
-  const { data, loading, error, fetchMore, refetch } = useQuery(GET_CHANNEL_MEMBERS, {
-    variables: { channelId, limit, offset: 0 },
-    skip: !channelId,
-  })
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    GET_CHANNEL_MEMBERS,
+    {
+      variables: { channelId, limit, offset: 0 },
+      skip: !channelId,
+    },
+  );
 
   // Subscribe to member changes
   useSubscription(CHANNEL_MEMBERS_SUBSCRIPTION, {
     variables: { channelId },
     skip: !channelId || !autoSubscribe,
-  })
+  });
 
   const members = useMemo(() => {
-    return data?.nchat_channel_members ?? []
-  }, [data])
+    return data?.nchat_channel_members ?? [];
+  }, [data]);
 
-  const totalCount = data?.nchat_channel_members_aggregate?.aggregate?.count ?? 0
-  const hasMore = members.length < totalCount
+  const totalCount =
+    data?.nchat_channel_members_aggregate?.aggregate?.count ?? 0;
+  const hasMore = members.length < totalCount;
 
   const loadMore = useCallback(async () => {
-    if (!hasMore || loading) return
+    if (!hasMore || loading) return;
 
     await fetchMore({
       variables: {
@@ -340,7 +360,7 @@ export function useChannelMembers(
         offset: members.length,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev
+        if (!fetchMoreResult) return prev;
 
         return {
           ...fetchMoreResult,
@@ -348,10 +368,10 @@ export function useChannelMembers(
             ...prev.nchat_channel_members,
             ...fetchMoreResult.nchat_channel_members,
           ],
-        }
+        };
       },
-    })
-  }, [channelId, limit, members.length, hasMore, loading, fetchMore])
+    });
+  }, [channelId, limit, members.length, hasMore, loading, fetchMore]);
 
   return {
     members,
@@ -361,49 +381,54 @@ export function useChannelMembers(
     error,
     loadMore,
     refetch: async () => {
-      await refetch()
+      await refetch();
     },
-  }
+  };
 }
 
 /**
  * Fetch channels the current user is a member of
  */
 export function useUserChannels(): UseUserChannelsReturn {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   const { data, loading, error, refetch } = useQuery(GET_USER_CHANNELS, {
     variables: { userId: user?.id },
     skip: !user?.id,
-  })
+  });
 
   const memberships = useMemo(() => {
-    return data?.nchat_channel_members ?? []
-  }, [data])
+    return data?.nchat_channel_members ?? [];
+  }, [data]);
 
   return {
     memberships,
     loading,
     error,
     refetch: async () => {
-      await refetch()
+      await refetch();
     },
-  }
+  };
 }
 
 /**
  * Create a new channel
  */
 export function useCreateChannel(): UseCreateChannelReturn {
-  const { user } = useAuth()
-  const [createChannelMutation, { loading, error }] = useMutation(CREATE_CHANNEL, {
-    refetchQueries: [{ query: GET_CHANNELS }],
-  })
+  const { user } = useAuth();
+  const [createChannelMutation, { loading, error }] = useMutation(
+    CREATE_CHANNEL,
+    {
+      refetchQueries: [{ query: GET_CHANNELS }],
+    },
+  );
 
   const createChannel = useCallback(
-    async (variables: Omit<CreateChannelVariables, 'creatorId'>): Promise<Channel | null> => {
+    async (
+      variables: Omit<CreateChannelVariables, "creatorId">,
+    ): Promise<Channel | null> => {
       if (!user) {
-        throw new Error('Must be logged in to create a channel')
+        throw new Error("Must be logged in to create a channel");
       }
 
       const result = await createChannelMutation({
@@ -413,7 +438,7 @@ export function useCreateChannel(): UseCreateChannelReturn {
         },
         optimisticResponse: {
           insert_nchat_channels_one: {
-            __typename: 'nchat_channels',
+            __typename: "nchat_channels",
             id: `temp-${Date.now()}`,
             name: variables.name,
             slug: variables.slug,
@@ -430,43 +455,47 @@ export function useCreateChannel(): UseCreateChannelReturn {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             creator: {
-              __typename: 'nchat_users',
+              __typename: "nchat_users",
               id: user.id,
               username: user.username,
               display_name: user.displayName,
               avatar_url: user.avatarUrl,
             },
             members_aggregate: {
-              __typename: 'nchat_channel_members_aggregate',
+              __typename: "nchat_channel_members_aggregate",
               aggregate: {
-                __typename: 'nchat_channel_members_aggregate_fields',
+                __typename: "nchat_channel_members_aggregate_fields",
                 count: 1,
               },
             },
           },
         },
-      })
+      });
 
-      return result.data?.insert_nchat_channels_one ?? null
+      return result.data?.insert_nchat_channels_one ?? null;
     },
-    [user, createChannelMutation]
-  )
+    [user, createChannelMutation],
+  );
 
   return {
     createChannel,
     loading,
     error,
-  }
+  };
 }
 
 /**
  * Update a channel
  */
 export function useUpdateChannel(): UseUpdateChannelReturn {
-  const [updateChannelMutation, { loading: updateLoading, error: updateError }] =
-    useMutation(UPDATE_CHANNEL)
-  const [updateSettingsMutation, { loading: settingsLoading, error: settingsError }] =
-    useMutation(UPDATE_CHANNEL_SETTINGS)
+  const [
+    updateChannelMutation,
+    { loading: updateLoading, error: updateError },
+  ] = useMutation(UPDATE_CHANNEL);
+  const [
+    updateSettingsMutation,
+    { loading: settingsLoading, error: settingsError },
+  ] = useMutation(UPDATE_CHANNEL_SETTINGS);
 
   const updateChannel = useCallback(
     async (variables: UpdateChannelVariables): Promise<Channel | null> => {
@@ -474,7 +503,7 @@ export function useUpdateChannel(): UseUpdateChannelReturn {
         variables,
         optimisticResponse: {
           update_nchat_channels_by_pk: {
-            __typename: 'nchat_channels',
+            __typename: "nchat_channels",
             id: variables.id,
             name: variables.name,
             description: variables.description,
@@ -484,12 +513,12 @@ export function useUpdateChannel(): UseUpdateChannelReturn {
             updated_at: new Date().toISOString(),
           },
         },
-      })
+      });
 
-      return result.data?.update_nchat_channels_by_pk ?? null
+      return result.data?.update_nchat_channels_by_pk ?? null;
     },
-    [updateChannelMutation]
-  )
+    [updateChannelMutation],
+  );
 
   const updateSettings = useCallback(
     async (variables: UpdateChannelSettingsVariables): Promise<boolean> => {
@@ -498,35 +527,35 @@ export function useUpdateChannel(): UseUpdateChannelReturn {
           id: variables.id,
           settings: variables.settings,
         },
-      })
+      });
 
-      return !!result.data?.update_nchat_channels_by_pk
+      return !!result.data?.update_nchat_channels_by_pk;
     },
-    [updateSettingsMutation]
-  )
+    [updateSettingsMutation],
+  );
 
   return {
     updateChannel,
     updateSettings,
     loading: updateLoading || settingsLoading,
     error: updateError ?? settingsError,
-  }
+  };
 }
 
 /**
  * Delete/archive channels
  */
 export function useDeleteChannel(): UseDeleteChannelReturn {
-  const [deleteMutation, { loading: deleteLoading, error: deleteError }] = useMutation(
-    DELETE_CHANNEL,
-    {
+  const [deleteMutation, { loading: deleteLoading, error: deleteError }] =
+    useMutation(DELETE_CHANNEL, {
       refetchQueries: [{ query: GET_CHANNELS }],
-    }
-  )
+    });
   const [archiveMutation, { loading: archiveLoading, error: archiveError }] =
-    useMutation(ARCHIVE_CHANNEL)
-  const [unarchiveMutation, { loading: unarchiveLoading, error: unarchiveError }] =
-    useMutation(UNARCHIVE_CHANNEL)
+    useMutation(ARCHIVE_CHANNEL);
+  const [
+    unarchiveMutation,
+    { loading: unarchiveLoading, error: unarchiveError },
+  ] = useMutation(UNARCHIVE_CHANNEL);
 
   const deleteChannel = useCallback(
     async (channelId: string): Promise<boolean> => {
@@ -537,18 +566,19 @@ export function useDeleteChannel(): UseDeleteChannelReturn {
             fields: {
               nchat_channels(existingChannels = [], { readField }) {
                 return existingChannels.filter(
-                  (channelRef: { __ref: string }) => readField('id', channelRef) !== channelId
-                )
+                  (channelRef: { __ref: string }) =>
+                    readField("id", channelRef) !== channelId,
+                );
               },
             },
-          })
+          });
         },
-      })
+      });
 
-      return !!result.data?.delete_nchat_channels_by_pk
+      return !!result.data?.delete_nchat_channels_by_pk;
     },
-    [deleteMutation]
-  )
+    [deleteMutation],
+  );
 
   const archiveChannel = useCallback(
     async (channelId: string): Promise<boolean> => {
@@ -556,18 +586,18 @@ export function useDeleteChannel(): UseDeleteChannelReturn {
         variables: { id: channelId },
         optimisticResponse: {
           update_nchat_channels_by_pk: {
-            __typename: 'nchat_channels',
+            __typename: "nchat_channels",
             id: channelId,
             is_archived: true,
             archived_at: new Date().toISOString(),
           },
         },
-      })
+      });
 
-      return result.data?.update_nchat_channels_by_pk?.is_archived ?? false
+      return result.data?.update_nchat_channels_by_pk?.is_archived ?? false;
     },
-    [archiveMutation]
-  )
+    [archiveMutation],
+  );
 
   const unarchiveChannel = useCallback(
     async (channelId: string): Promise<boolean> => {
@@ -575,17 +605,17 @@ export function useDeleteChannel(): UseDeleteChannelReturn {
         variables: { id: channelId },
         optimisticResponse: {
           update_nchat_channels_by_pk: {
-            __typename: 'nchat_channels',
+            __typename: "nchat_channels",
             id: channelId,
             is_archived: false,
           },
         },
-      })
+      });
 
-      return !(result.data?.update_nchat_channels_by_pk?.is_archived ?? true)
+      return !(result.data?.update_nchat_channels_by_pk?.is_archived ?? true);
     },
-    [unarchiveMutation]
-  )
+    [unarchiveMutation],
+  );
 
   return {
     deleteChannel,
@@ -593,31 +623,34 @@ export function useDeleteChannel(): UseDeleteChannelReturn {
     unarchiveChannel,
     loading: deleteLoading || archiveLoading || unarchiveLoading,
     error: deleteError ?? archiveError ?? unarchiveError,
-  }
+  };
 }
 
 /**
  * Channel membership operations
  */
 export function useChannelMembership(): UseChannelMembershipReturn {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
-  const [joinMutation, { loading: joinLoading, error: joinError }] = useMutation(JOIN_CHANNEL)
-  const [leaveMutation, { loading: leaveLoading, error: leaveError }] = useMutation(LEAVE_CHANNEL)
+  const [joinMutation, { loading: joinLoading, error: joinError }] =
+    useMutation(JOIN_CHANNEL);
+  const [leaveMutation, { loading: leaveLoading, error: leaveError }] =
+    useMutation(LEAVE_CHANNEL);
   const [inviteMutation, { loading: inviteLoading, error: inviteError }] =
-    useMutation(BULK_INVITE_TO_CHANNEL)
+    useMutation(BULK_INVITE_TO_CHANNEL);
   const [removeMutation, { loading: removeLoading, error: removeError }] =
-    useMutation(REMOVE_FROM_CHANNEL)
+    useMutation(REMOVE_FROM_CHANNEL);
   const [updateRoleMutation, { loading: roleLoading, error: roleError }] =
-    useMutation(UPDATE_MEMBER_ROLE)
-  const [updateNotificationsMutation, { loading: notifLoading, error: notifError }] = useMutation(
-    UPDATE_CHANNEL_NOTIFICATIONS
-  )
+    useMutation(UPDATE_MEMBER_ROLE);
+  const [
+    updateNotificationsMutation,
+    { loading: notifLoading, error: notifError },
+  ] = useMutation(UPDATE_CHANNEL_NOTIFICATIONS);
 
   const joinChannel = useCallback(
     async (channelId: string): Promise<boolean> => {
       if (!user) {
-        throw new Error('Must be logged in to join a channel')
+        throw new Error("Must be logged in to join a channel");
       }
 
       const result = await joinMutation({
@@ -625,18 +658,20 @@ export function useChannelMembership(): UseChannelMembershipReturn {
           channelId,
           userId: user.id,
         },
-        refetchQueries: [{ query: GET_USER_CHANNELS, variables: { userId: user.id } }],
-      })
+        refetchQueries: [
+          { query: GET_USER_CHANNELS, variables: { userId: user.id } },
+        ],
+      });
 
-      return !!result.data?.insert_nchat_channel_members_one
+      return !!result.data?.insert_nchat_channel_members_one;
     },
-    [user, joinMutation]
-  )
+    [user, joinMutation],
+  );
 
   const leaveChannel = useCallback(
     async (channelId: string): Promise<boolean> => {
       if (!user) {
-        throw new Error('Must be logged in to leave a channel')
+        throw new Error("Must be logged in to leave a channel");
       }
 
       const result = await leaveMutation({
@@ -644,59 +679,79 @@ export function useChannelMembership(): UseChannelMembershipReturn {
           channelId,
           userId: user.id,
         },
-        refetchQueries: [{ query: GET_USER_CHANNELS, variables: { userId: user.id } }],
-      })
+        refetchQueries: [
+          { query: GET_USER_CHANNELS, variables: { userId: user.id } },
+        ],
+      });
 
-      return (result.data?.delete_nchat_channel_members?.affected_rows ?? 0) > 0
+      return (
+        (result.data?.delete_nchat_channel_members?.affected_rows ?? 0) > 0
+      );
     },
-    [user, leaveMutation]
-  )
+    [user, leaveMutation],
+  );
 
   const inviteUsers = useCallback(
     async (channelId: string, userIds: string[]): Promise<number> => {
       const objects = userIds.map((userId) => ({
         channel_id: channelId,
         user_id: userId,
-        role: 'member',
-      }))
+        role: "member",
+      }));
 
       const result = await inviteMutation({
         variables: { objects },
-        refetchQueries: [{ query: GET_CHANNEL_MEMBERS, variables: { channelId } }],
-      })
+        refetchQueries: [
+          { query: GET_CHANNEL_MEMBERS, variables: { channelId } },
+        ],
+      });
 
-      return result.data?.insert_nchat_channel_members?.affected_rows ?? 0
+      return result.data?.insert_nchat_channel_members?.affected_rows ?? 0;
     },
-    [inviteMutation]
-  )
+    [inviteMutation],
+  );
 
   const removeUser = useCallback(
     async (channelId: string, userId: string): Promise<boolean> => {
       const result = await removeMutation({
         variables: { channelId, userId },
-        refetchQueries: [{ query: GET_CHANNEL_MEMBERS, variables: { channelId } }],
-      })
+        refetchQueries: [
+          { query: GET_CHANNEL_MEMBERS, variables: { channelId } },
+        ],
+      });
 
-      return (result.data?.delete_nchat_channel_members?.affected_rows ?? 0) > 0
+      return (
+        (result.data?.delete_nchat_channel_members?.affected_rows ?? 0) > 0
+      );
     },
-    [removeMutation]
-  )
+    [removeMutation],
+  );
 
   const updateRole = useCallback(
-    async (channelId: string, userId: string, role: string): Promise<boolean> => {
+    async (
+      channelId: string,
+      userId: string,
+      role: string,
+    ): Promise<boolean> => {
       const result = await updateRoleMutation({
         variables: { channelId, userId, role },
-      })
+      });
 
-      return (result.data?.update_nchat_channel_members?.affected_rows ?? 0) > 0
+      return (
+        (result.data?.update_nchat_channel_members?.affected_rows ?? 0) > 0
+      );
     },
-    [updateRoleMutation]
-  )
+    [updateRoleMutation],
+  );
 
   const updateNotifications = useCallback(
-    async (channelId: string, enabled: boolean, mutedUntil?: string): Promise<boolean> => {
+    async (
+      channelId: string,
+      enabled: boolean,
+      mutedUntil?: string,
+    ): Promise<boolean> => {
       if (!user) {
-        throw new Error('Must be logged in to update notifications')
+        throw new Error("Must be logged in to update notifications");
       }
 
       const result = await updateNotificationsMutation({
@@ -706,22 +761,24 @@ export function useChannelMembership(): UseChannelMembershipReturn {
           enabled,
           mutedUntil,
         },
-      })
+      });
 
-      return (result.data?.update_nchat_channel_members?.affected_rows ?? 0) > 0
+      return (
+        (result.data?.update_nchat_channel_members?.affected_rows ?? 0) > 0
+      );
     },
-    [user, updateNotificationsMutation]
-  )
+    [user, updateNotificationsMutation],
+  );
 
   const isMember = useCallback(
     async (channelId: string): Promise<boolean> => {
-      if (!user) return false
+      if (!user) return false;
 
       // Checks cache for membership. A dedicated query could be used for stricter validation.
-      return true
+      return true;
     },
-    [user]
-  )
+    [user],
+  );
 
   return {
     joinChannel,
@@ -732,33 +789,48 @@ export function useChannelMembership(): UseChannelMembershipReturn {
     updateNotifications,
     isMember,
     loading:
-      joinLoading || leaveLoading || inviteLoading || removeLoading || roleLoading || notifLoading,
-    error: joinError ?? leaveError ?? inviteError ?? removeError ?? roleError ?? notifError,
-  }
+      joinLoading ||
+      leaveLoading ||
+      inviteLoading ||
+      removeLoading ||
+      roleLoading ||
+      notifLoading,
+    error:
+      joinError ??
+      leaveError ??
+      inviteError ??
+      removeError ??
+      roleError ??
+      notifError,
+  };
 }
 
 /**
  * Direct message channels
  */
 export function useDirectMessages(): UseDirectMessageReturn {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   const { data, loading, error, refetch } = useQuery(GET_DM_CHANNELS, {
     variables: { userId: user?.id },
     skip: !user?.id,
-  })
+  });
 
   const [createDMMutation, { loading: createLoading, error: createError }] =
-    useMutation(GET_OR_CREATE_DM_CHANNEL)
+    useMutation(GET_OR_CREATE_DM_CHANNEL);
 
   const dmChannels = useMemo(() => {
-    return data?.nchat_channel_members?.map((m: UserChannelMembership) => m.channel) ?? []
-  }, [data])
+    return (
+      data?.nchat_channel_members?.map(
+        (m: UserChannelMembership) => m.channel,
+      ) ?? []
+    );
+  }, [data]);
 
   const createOrGetDM = useCallback(
     async (targetUserId: string): Promise<Channel | null> => {
       if (!user) {
-        throw new Error('Must be logged in to create a DM')
+        throw new Error("Must be logged in to create a DM");
       }
 
       const result = await createDMMutation({
@@ -766,13 +838,15 @@ export function useDirectMessages(): UseDirectMessageReturn {
           userId1: user.id,
           userId2: targetUserId,
         },
-        refetchQueries: [{ query: GET_DM_CHANNELS, variables: { userId: user.id } }],
-      })
+        refetchQueries: [
+          { query: GET_DM_CHANNELS, variables: { userId: user.id } },
+        ],
+      });
 
-      return result.data?.insert_nchat_channels_one ?? null
+      return result.data?.insert_nchat_channels_one ?? null;
     },
-    [user, createDMMutation]
-  )
+    [user, createDMMutation],
+  );
 
   return {
     dmChannels,
@@ -780,9 +854,9 @@ export function useDirectMessages(): UseDirectMessageReturn {
     error: error ?? createError,
     createOrGetDM,
     refetch: async () => {
-      await refetch()
+      await refetch();
     },
-  }
+  };
 }
 
 /**
@@ -791,10 +865,10 @@ export function useDirectMessages(): UseDirectMessageReturn {
 export function useChannelSubscription(
   channelId: string,
   options?: {
-    onChannelUpdate?: (channel: Channel) => void
-    onMemberJoined?: (member: ChannelMember) => void
-    onMemberLeft?: (userId: string) => void
-  }
+    onChannelUpdate?: (channel: Channel) => void;
+    onMemberJoined?: (member: ChannelMember) => void;
+    onMemberLeft?: (userId: string) => void;
+  },
 ) {
   // Channel updates
   useSubscription(CHANNEL_SUBSCRIPTION, {
@@ -802,10 +876,10 @@ export function useChannelSubscription(
     skip: !channelId,
     onData: ({ data }) => {
       if (data.data?.nchat_channels_by_pk && options?.onChannelUpdate) {
-        options.onChannelUpdate(data.data.nchat_channels_by_pk)
+        options.onChannelUpdate(data.data.nchat_channels_by_pk);
       }
     },
-  })
+  });
 
   // Member changes
   useSubscription(CHANNEL_MEMBERS_SUBSCRIPTION, {
@@ -815,7 +889,7 @@ export function useChannelSubscription(
       // Handle member changes
       // Note: Subscription returns full member list, you'd need to diff to detect joins/leaves
     },
-  })
+  });
 }
 
-export default useChannels
+export default useChannels;

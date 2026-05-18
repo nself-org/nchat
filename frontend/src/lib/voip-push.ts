@@ -6,28 +6,32 @@
  */
 
 // @ts-ignore - Capacitor plugin (optional dependency)
-import { PushNotifications, PushNotificationSchema, Token } from '@capacitor/push-notifications'
+import {
+  PushNotifications,
+  PushNotificationSchema,
+  Token,
+} from "@capacitor/push-notifications";
 // @ts-ignore - Capacitor integration (optional dependency)
-import { callKitManager } from '@/platforms/capacitor/src/native/call-kit'
-import { useCallStore } from '@/stores/call-store'
+import { callKitManager } from "@/platforms/capacitor/src/native/call-kit";
+import { useCallStore } from "@/stores/call-store";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface VoIPPushPayload {
-  type: 'incoming_call' | 'call_ended' | 'call_updated'
-  callId: string
-  callerId: string
-  callerName: string
-  callerAvatarUrl?: string
-  callType: 'audio' | 'video'
-  channelId?: string
+  type: "incoming_call" | "call_ended" | "call_updated";
+  callId: string;
+  callerId: string;
+  callerName: string;
+  callerAvatarUrl?: string;
+  callType: "audio" | "video";
+  channelId?: string;
 }
 
 export interface VoIPPushToken {
-  token: string
-  platform: 'ios' | 'android' | 'web'
+  token: string;
+  platform: "ios" | "android" | "web";
 }
 
 // =============================================================================
@@ -35,35 +39,35 @@ export interface VoIPPushToken {
 // =============================================================================
 
 export class VoIPPushManager {
-  private token: string | null = null
-  private isInitialized = false
+  private token: string | null = null;
+  private isInitialized = false;
 
   /**
    * Initialize VoIP push notifications
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      return
+      return;
     }
 
     try {
       // Request permissions
-      const result = await PushNotifications.requestPermissions()
+      const result = await PushNotifications.requestPermissions();
 
-      if (result.receive === 'granted') {
+      if (result.receive === "granted") {
         // Register for push notifications
-        await PushNotifications.register()
+        await PushNotifications.register();
 
         // Set up listeners
-        this.setupListeners()
+        this.setupListeners();
 
-        this.isInitialized = true
+        this.isInitialized = true;
       } else {
-        throw new Error('Push notification permission denied')
+        throw new Error("Push notification permission denied");
       }
     } catch (error) {
-      logger.error('Failed to initialize VoIP push:', error)
-      throw error
+      logger.error("Failed to initialize VoIP push:", error);
+      throw error;
     }
   }
 
@@ -72,40 +76,43 @@ export class VoIPPushManager {
    */
   private setupListeners(): void {
     // Registration success
-    PushNotifications.addListener('registration', (token: Token) => {
-      this.token = token.value
+    PushNotifications.addListener("registration", (token: Token) => {
+      this.token = token.value;
 
       // Send token to server
-      this.sendTokenToServer(token.value)
-    })
+      this.sendTokenToServer(token.value);
+    });
 
     // Registration error
-    PushNotifications.addListener('registrationError', (error: any) => {
-      logger.error('Push registration error:', error)
-    })
+    PushNotifications.addListener("registrationError", (error: any) => {
+      logger.error("Push registration error:", error);
+    });
 
     // Push notification received
     PushNotifications.addListener(
-      'pushNotificationReceived',
+      "pushNotificationReceived",
       async (notification: PushNotificationSchema) => {
         // Parse VoIP payload
-        const payload = this.parseVoIPPayload(notification.data)
+        const payload = this.parseVoIPPayload(notification.data);
 
         if (payload) {
-          await this.handleVoIPPush(payload)
+          await this.handleVoIPPush(payload);
         }
-      }
-    )
+      },
+    );
 
     // Push notification tapped
-    PushNotifications.addListener('pushNotificationActionPerformed', async (notification: any) => {
-      const payload = this.parseVoIPPayload(notification.notification.data)
+    PushNotifications.addListener(
+      "pushNotificationActionPerformed",
+      async (notification: any) => {
+        const payload = this.parseVoIPPayload(notification.notification.data);
 
-      if (payload) {
-        // User tapped notification - open app to call screen
-        await this.handleVoIPPush(payload, true)
-      }
-    })
+        if (payload) {
+          // User tapped notification - open app to call screen
+          await this.handleVoIPPush(payload, true);
+        }
+      },
+    );
   }
 
   /**
@@ -114,10 +121,10 @@ export class VoIPPushManager {
   private parseVoIPPayload(data: any): VoIPPushPayload | null {
     try {
       // Handle both direct object and stringified JSON
-      const payload = typeof data === 'string' ? JSON.parse(data) : data
+      const payload = typeof data === "string" ? JSON.parse(data) : data;
 
       if (!payload.type || !payload.callId) {
-        return null
+        return null;
       }
 
       return {
@@ -126,73 +133,79 @@ export class VoIPPushManager {
         callerId: payload.callerId,
         callerName: payload.callerName,
         callerAvatarUrl: payload.callerAvatarUrl,
-        callType: payload.callType || 'audio',
+        callType: payload.callType || "audio",
         channelId: payload.channelId,
-      }
+      };
     } catch (error) {
-      logger.error('Failed to parse VoIP payload:', error)
-      return null
+      logger.error("Failed to parse VoIP payload:", error);
+      return null;
     }
   }
 
   /**
    * Handle VoIP push notification
    */
-  private async handleVoIPPush(payload: VoIPPushPayload, fromTap: boolean = false): Promise<void> {
+  private async handleVoIPPush(
+    payload: VoIPPushPayload,
+    fromTap: boolean = false,
+  ): Promise<void> {
     try {
       switch (payload.type) {
-        case 'incoming_call':
-          await this.handleIncomingCall(payload, fromTap)
-          break
+        case "incoming_call":
+          await this.handleIncomingCall(payload, fromTap);
+          break;
 
-        case 'call_ended':
-          await this.handleCallEnded(payload)
-          break
+        case "call_ended":
+          await this.handleCallEnded(payload);
+          break;
 
-        case 'call_updated':
-          await this.handleCallUpdated(payload)
-          break
+        case "call_updated":
+          await this.handleCallUpdated(payload);
+          break;
 
         default:
-          logger.warn('Unknown VoIP push type:', { context: payload.type })
+          logger.warn("Unknown VoIP push type:", { context: payload.type });
       }
     } catch (error) {
-      logger.error('Failed to handle VoIP push:', error)
+      logger.error("Failed to handle VoIP push:", error);
     }
   }
 
   /**
    * Handle incoming call push
    */
-  private async handleIncomingCall(payload: VoIPPushPayload, fromTap: boolean): Promise<void> {
+  private async handleIncomingCall(
+    payload: VoIPPushPayload,
+    fromTap: boolean,
+  ): Promise<void> {
     // Report to CallKit/Telecom
     await callKitManager.reportIncomingCall({
       uuid: payload.callId,
       handle: payload.callerId,
-      handleType: 'generic',
-      hasVideo: payload.callType === 'video',
+      handleType: "generic",
+      hasVideo: payload.callType === "video",
       callerDisplayName: payload.callerName,
       callerImageUrl: payload.callerAvatarUrl,
-    })
+    });
 
     // Update call store
-    const callStore = useCallStore.getState()
+    const callStore = useCallStore.getState();
     callStore.receiveIncomingCall({
       id: payload.callId,
       callerId: payload.callerId,
       callerName: payload.callerName,
       callerAvatarUrl: payload.callerAvatarUrl,
-      type: payload.callType === 'video' ? 'video' : 'voice',
+      type: payload.callType === "video" ? "video" : "voice",
       channelId: payload.channelId,
       receivedAt: new Date().toISOString(),
-    })
+    });
 
     // If from tap, auto-accept (user tapped notification)
     if (fromTap) {
       // Small delay to ensure UI is ready
       setTimeout(() => {
-        callStore.acceptCall(payload.callId)
-      }, 500)
+        callStore.acceptCall(payload.callId);
+      }, 500);
     }
   }
 
@@ -201,11 +214,11 @@ export class VoIPPushManager {
    */
   private async handleCallEnded(payload: VoIPPushPayload): Promise<void> {
     // Report to CallKit/Telecom
-    await callKitManager.endCall('remoteEnded', payload.callId)
+    await callKitManager.endCall("remoteEnded", payload.callId);
 
     // Update call store
-    const callStore = useCallStore.getState()
-    callStore.endCall('completed')
+    const callStore = useCallStore.getState();
+    callStore.endCall("completed");
   }
 
   /**
@@ -213,8 +226,8 @@ export class VoIPPushManager {
    */
   private async handleCallUpdated(payload: VoIPPushPayload): Promise<void> {
     // Update call store
-    const callStore = useCallStore.getState()
-    const activeCall = callStore.activeCall
+    const callStore = useCallStore.getState();
+    const activeCall = callStore.activeCall;
 
     if (activeCall && activeCall.id === payload.callId) {
       // Update call metadata
@@ -227,53 +240,53 @@ export class VoIPPushManager {
    */
   private async sendTokenToServer(token: string): Promise<void> {
     try {
-      const platform = this.getPlatform()
+      const platform = this.getPlatform();
 
       // Send to your backend API
-      const response = await fetch('/api/push-token', {
-        method: 'POST',
+      const response = await fetch("/api/push-token", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           token,
           platform,
-          type: 'voip',
+          type: "voip",
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to register push token')
+        throw new Error("Failed to register push token");
       }
     } catch (error) {
-      logger.error('Failed to send push token to server:', error)
+      logger.error("Failed to send push token to server:", error);
     }
   }
 
   /**
    * Get current platform
    */
-  private getPlatform(): 'ios' | 'android' | 'web' {
-    if (typeof window === 'undefined') return 'web'
+  private getPlatform(): "ios" | "android" | "web" {
+    if (typeof window === "undefined") return "web";
 
-    const userAgent = window.navigator.userAgent.toLowerCase()
+    const userAgent = window.navigator.userAgent.toLowerCase();
 
     if (/iphone|ipad|ipod/.test(userAgent)) {
-      return 'ios'
+      return "ios";
     }
 
     if (/android/.test(userAgent)) {
-      return 'android'
+      return "android";
     }
 
-    return 'web'
+    return "web";
   }
 
   /**
    * Get current push token
    */
   getToken(): string | null {
-    return this.token
+    return this.token;
   }
 
   /**
@@ -281,11 +294,11 @@ export class VoIPPushManager {
    */
   async unregister(): Promise<void> {
     try {
-      await PushNotifications.removeAllListeners()
-      this.isInitialized = false
-      this.token = null
+      await PushNotifications.removeAllListeners();
+      this.isInitialized = false;
+      this.token = null;
     } catch (error) {
-      logger.error('Failed to unregister VoIP push:', error)
+      logger.error("Failed to unregister VoIP push:", error);
     }
   }
 }
@@ -294,50 +307,51 @@ export class VoIPPushManager {
 // Singleton Instance
 // =============================================================================
 
-export const voipPushManager = new VoIPPushManager()
+export const voipPushManager = new VoIPPushManager();
 
 // =============================================================================
 // React Hook
 // =============================================================================
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export function useVoIPPush() {
-  const [isInitialized, setIsInitialized] = useState(false)
-  const [pushToken, setPushToken] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [pushToken, setPushToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function init() {
       try {
-        await voipPushManager.initialize()
-        setIsInitialized(true)
+        await voipPushManager.initialize();
+        setIsInitialized(true);
 
-        const token = voipPushManager.getToken()
+        const token = voipPushManager.getToken();
         if (token) {
-          setPushToken(token)
+          setPushToken(token);
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to initialize VoIP push'
-        setError(message)
-        logger.error('VoIP push initialization error:', err)
+        const message =
+          err instanceof Error ? err.message : "Failed to initialize VoIP push";
+        setError(message);
+        logger.error("VoIP push initialization error:", err);
       }
     }
 
-    init()
+    init();
 
     return () => {
-      voipPushManager.unregister()
-    }
-  }, [])
+      voipPushManager.unregister();
+    };
+  }, []);
 
   return {
     isInitialized,
     pushToken,
     error,
-  }
+  };
 }
 
 // =============================================================================
@@ -351,22 +365,25 @@ export function useVoIPPush() {
  */
 export async function sendVoIPPush(
   userToken: string,
-  platform: 'ios' | 'android',
-  payload: VoIPPushPayload
+  platform: "ios" | "android",
+  payload: VoIPPushPayload,
 ): Promise<void> {
-  if (platform === 'ios') {
+  if (platform === "ios") {
     // Send via APNs (Apple Push Notification service)
-    await sendAPNsPush(userToken, payload)
+    await sendAPNsPush(userToken, payload);
   } else {
     // Send via FCM (Firebase Cloud Messaging)
-    await sendFCMPush(userToken, payload)
+    await sendFCMPush(userToken, payload);
   }
 }
 
 /**
  * Send APNs VoIP push (iOS)
  */
-async function sendAPNsPush(deviceToken: string, payload: VoIPPushPayload): Promise<void> {
+async function sendAPNsPush(
+  deviceToken: string,
+  payload: VoIPPushPayload,
+): Promise<void> {
   // This should be called from your Node.js backend using the apn package
   // or directly via the APNs HTTP/2 API
 
@@ -376,12 +393,12 @@ async function sendAPNsPush(deviceToken: string, payload: VoIPPushPayload): Prom
         title: payload.callerName,
         body: `Incoming ${payload.callType} call`,
       },
-      sound: 'default',
+      sound: "default",
       badge: 1,
-      'content-available': 1,
+      "content-available": 1,
     },
     data: payload,
-  }
+  };
 
   // Send to APNs
 }
@@ -389,7 +406,10 @@ async function sendAPNsPush(deviceToken: string, payload: VoIPPushPayload): Prom
 /**
  * Send FCM high-priority push (Android)
  */
-async function sendFCMPush(deviceToken: string, payload: VoIPPushPayload): Promise<void> {
+async function sendFCMPush(
+  deviceToken: string,
+  payload: VoIPPushPayload,
+): Promise<void> {
   // This should be called from your Node.js backend using the firebase-admin package
 
   const fcmPayload = {
@@ -400,15 +420,15 @@ async function sendFCMPush(deviceToken: string, payload: VoIPPushPayload): Promi
     },
     data: payload as any,
     android: {
-      priority: 'high' as const,
+      priority: "high" as const,
       ttl: 3600000, // 1 hour
       notification: {
-        channelId: 'voip_calls',
-        priority: 'high' as const,
-        sound: 'default',
+        channelId: "voip_calls",
+        priority: "high" as const,
+        sound: "default",
       },
     },
-  }
+  };
 
   // Send to FCM
 }

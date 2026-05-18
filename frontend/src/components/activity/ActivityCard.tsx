@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ActivityCard Component
@@ -6,24 +6,29 @@
  * Expanded view of an activity with full details
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { ActivityIcon } from './ActivityIcon'
-import { ActivityAvatar } from './ActivityAvatar'
-import { ActivityDate } from './ActivityDate'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { ActivityIcon } from "./ActivityIcon";
+import { ActivityAvatar } from "./ActivityAvatar";
+import { ActivityDate } from "./ActivityDate";
 import {
   formatActivityText,
   formatAggregatedActivityText,
   formatActivityDescription,
   getActivityActionUrl,
-} from '@/lib/activity/activity-formatter'
+} from "@/lib/activity/activity-formatter";
 import {
   isAggregatedActivity,
   flattenAggregatedActivities,
-} from '@/lib/activity/activity-aggregator'
-import type { ActivityCardProps } from '@/lib/activity/activity-types'
+} from "@/lib/activity/activity-aggregator";
+import type { ActivityCardProps } from "@/lib/activity/activity-types";
 
 // Icon components
 function XIcon({ className }: { className?: string }) {
@@ -40,7 +45,7 @@ function XIcon({ className }: { className?: string }) {
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
-  )
+  );
 }
 
 function ExternalLinkIcon({ className }: { className?: string }) {
@@ -58,7 +63,7 @@ function ExternalLinkIcon({ className }: { className?: string }) {
       <polyline points="15 3 21 3 21 9" />
       <line x1="10" y1="14" x2="21" y2="3" />
     </svg>
-  )
+  );
 }
 
 function CheckIcon({ className }: { className?: string }) {
@@ -74,7 +79,7 @@ function CheckIcon({ className }: { className?: string }) {
     >
       <polyline points="20 6 9 17 4 12" />
     </svg>
-  )
+  );
 }
 
 export function ActivityCard({
@@ -85,30 +90,32 @@ export function ActivityCard({
   onJumpToContext,
   onMarkAsRead,
 }: ActivityCardProps) {
-  const isAggregated = isAggregatedActivity(activity)
-  const isRead = activity.isRead
-  const createdAt = isAggregated ? activity.latestAt : activity.createdAt
+  const isAggregated = isAggregatedActivity(activity);
+  const isRead = activity.isRead;
+  const createdAt = isAggregated ? activity.latestAt : activity.createdAt;
   const activityText = isAggregated
     ? formatAggregatedActivityText(activity)
-    : formatActivityText(activity)
+    : formatActivityText(activity);
 
   // Get action URL
-  const actionUrl = !isAggregated ? getActivityActionUrl(activity) : null
+  const actionUrl = !isAggregated ? getActivityActionUrl(activity) : null;
 
   // Get description/preview
-  const description = !isAggregated ? formatActivityDescription(activity) : null
+  const description = !isAggregated
+    ? formatActivityDescription(activity)
+    : null;
 
   // Get channel info
-  const channel = 'channel' in activity ? activity.channel : null
+  const channel = "channel" in activity ? activity.channel : null;
 
   // Get message info
-  const message = 'message' in activity ? activity.message : null
+  const message = "message" in activity ? activity.message : null;
 
   // Get actors for aggregated
-  const actors = isAggregated ? activity.actors : null
+  const actors = isAggregated ? activity.actors : null;
 
   return (
-    <Card className={cn('relative', !isRead && 'ring-primary/20 ring-2')}>
+    <Card className={cn("relative", !isRead && "ring-primary/20 ring-2")}>
       {/* Close button */}
       {onClose && (
         <button
@@ -127,7 +134,9 @@ export function ActivityCard({
 
           {/* Content */}
           <div className="min-w-0 flex-1 pt-1">
-            <p className={cn('text-sm leading-snug', !isRead && 'font-medium')}>{activityText}</p>
+            <p className={cn("text-sm leading-snug", !isRead && "font-medium")}>
+              {activityText}
+            </p>
             <ActivityDate date={createdAt} className="mt-1" format="absolute" />
           </div>
         </div>
@@ -138,7 +147,8 @@ export function ActivityCard({
         {actors && actors.actors.length > 1 && (
           <div>
             <p className="mb-2 text-xs font-medium text-muted-foreground">
-              From {actors.totalCount} {actors.totalCount === 1 ? 'person' : 'people'}
+              From {actors.totalCount}{" "}
+              {actors.totalCount === 1 ? "person" : "people"}
             </p>
             <div className="flex flex-wrap gap-2">
               {actors.actors.slice(0, 10).map((actor) => (
@@ -164,9 +174,13 @@ export function ActivityCard({
           <div className="flex items-center gap-2">
             <ActivityAvatar actor={activity.actor} size="md" />
             <div>
-              <p className="text-sm font-medium">{activity.actor.displayName}</p>
+              <p className="text-sm font-medium">
+                {activity.actor.displayName}
+              </p>
               {activity.actor.username && (
-                <p className="text-xs text-muted-foreground">@{activity.actor.username}</p>
+                <p className="text-xs text-muted-foreground">
+                  @{activity.actor.username}
+                </p>
               )}
             </div>
           </div>
@@ -196,7 +210,9 @@ export function ActivityCard({
         {/* Aggregated activities breakdown */}
         {isAggregated && expanded && (
           <div className="border-t pt-4">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Activity breakdown</p>
+            <p className="mb-2 text-xs font-medium text-muted-foreground">
+              Activity breakdown
+            </p>
             <div className="max-h-40 space-y-2 overflow-y-auto">
               {activity.activities.slice(0, 10).map((subActivity) => (
                 <div
@@ -204,8 +220,14 @@ export function ActivityCard({
                   className="hover:bg-muted/50 flex items-center gap-2 rounded-md p-2 text-sm"
                 >
                   <ActivityAvatar actor={subActivity.actor} size="sm" />
-                  <span className="flex-1 truncate">{formatActivityText(subActivity)}</span>
-                  <ActivityDate date={subActivity.createdAt} format="smart" className="shrink-0" />
+                  <span className="flex-1 truncate">
+                    {formatActivityText(subActivity)}
+                  </span>
+                  <ActivityDate
+                    date={subActivity.createdAt}
+                    format="smart"
+                    className="shrink-0"
+                  />
                 </div>
               ))}
               {activity.activities.length > 10 && (
@@ -233,9 +255,9 @@ export function ActivityCard({
               size="sm"
               onClick={() => {
                 if (onJumpToContext) {
-                  onJumpToContext()
+                  onJumpToContext();
                 } else if (actionUrl) {
-                  window.location.href = actionUrl
+                  window.location.href = actionUrl;
                 }
               }}
             >
@@ -246,7 +268,7 @@ export function ActivityCard({
         </CardFooter>
       )}
     </Card>
-  )
+  );
 }
 
-export default ActivityCard
+export default ActivityCard;

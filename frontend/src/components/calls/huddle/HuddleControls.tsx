@@ -4,10 +4,10 @@
  * Compact control panel for huddle audio/video controls.
  */
 
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { cn } from '@/lib/utils'
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   Mic,
   MicOff,
@@ -21,37 +21,42 @@ import {
   UserPlus,
   MessageSquare,
   Hand,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface HuddleControlsProps {
-  isMuted: boolean
-  isVideoEnabled: boolean
-  isScreenSharing: boolean
-  isInitiator: boolean
-  canScreenShare?: boolean
-  className?: string
-  compact?: boolean
-  onToggleMute: () => void
-  onToggleVideo: () => void
-  onToggleScreenShare: () => void
-  onLeave: () => void
-  onEndForAll?: () => void
-  onInvite?: () => void
-  onOpenSettings?: () => void
-  onOpenThread?: () => void
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  isScreenSharing: boolean;
+  isInitiator: boolean;
+  canScreenShare?: boolean;
+  className?: string;
+  compact?: boolean;
+  onToggleMute: () => void;
+  onToggleVideo: () => void;
+  onToggleScreenShare: () => void;
+  onLeave: () => void;
+  onEndForAll?: () => void;
+  onInvite?: () => void;
+  onOpenSettings?: () => void;
+  onOpenThread?: () => void;
 }
 
 // =============================================================================
@@ -75,24 +80,19 @@ export function HuddleControls({
   onOpenSettings,
   onOpenThread,
 }: HuddleControlsProps) {
-  const buttonSize = compact ? 'h-8 w-8' : 'h-10 w-10'
-  const iconSize = compact ? 'h-4 w-4' : 'h-5 w-5'
+  const buttonSize = compact ? "h-8 w-8" : "h-10 w-10";
+  const iconSize = compact ? "h-4 w-4" : "h-5 w-5";
 
   return (
     <TooltipProvider>
-      <div
-        className={cn(
-          'flex items-center gap-2',
-          className
-        )}
-      >
+      <div className={cn("flex items-center gap-2", className)}>
         {/* Mute */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isMuted ? 'destructive' : 'secondary'}
+              variant={isMuted ? "destructive" : "secondary"}
               size="icon"
-              className={cn(buttonSize, 'rounded-full')}
+              className={cn(buttonSize, "rounded-full")}
               onClick={onToggleMute}
             >
               {isMuted ? (
@@ -102,18 +102,16 @@ export function HuddleControls({
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            {isMuted ? 'Unmute (M)' : 'Mute (M)'}
-          </TooltipContent>
+          <TooltipContent>{isMuted ? "Unmute (M)" : "Mute (M)"}</TooltipContent>
         </Tooltip>
 
         {/* Video */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isVideoEnabled ? 'secondary' : 'outline'}
+              variant={isVideoEnabled ? "secondary" : "outline"}
               size="icon"
-              className={cn(buttonSize, 'rounded-full')}
+              className={cn(buttonSize, "rounded-full")}
               onClick={onToggleVideo}
             >
               {isVideoEnabled ? (
@@ -124,7 +122,7 @@ export function HuddleControls({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {isVideoEnabled ? 'Turn off camera (V)' : 'Turn on camera (V)'}
+            {isVideoEnabled ? "Turn off camera (V)" : "Turn on camera (V)"}
           </TooltipContent>
         </Tooltip>
 
@@ -133,9 +131,9 @@ export function HuddleControls({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant={isScreenSharing ? 'default' : 'outline'}
+                variant={isScreenSharing ? "default" : "outline"}
                 size="icon"
-                className={cn(buttonSize, 'rounded-full')}
+                className={cn(buttonSize, "rounded-full")}
                 onClick={onToggleScreenShare}
               >
                 {isScreenSharing ? (
@@ -146,7 +144,7 @@ export function HuddleControls({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {isScreenSharing ? 'Stop sharing (S)' : 'Share screen (S)'}
+              {isScreenSharing ? "Stop sharing (S)" : "Share screen (S)"}
             </TooltipContent>
           </Tooltip>
         )}
@@ -158,7 +156,7 @@ export function HuddleControls({
               <Button
                 variant="outline"
                 size="icon"
-                className={cn(buttonSize, 'rounded-full')}
+                className={cn(buttonSize, "rounded-full")}
                 onClick={onOpenThread}
               >
                 <MessageSquare className={iconSize} />
@@ -176,7 +174,7 @@ export function HuddleControls({
                 <Button
                   variant="outline"
                   size="icon"
-                  className={cn(buttonSize, 'rounded-full')}
+                  className={cn(buttonSize, "rounded-full")}
                 >
                   <MoreVertical className={iconSize} />
                 </Button>
@@ -223,7 +221,7 @@ export function HuddleControls({
             <Button
               variant="destructive"
               size="icon"
-              className={cn(buttonSize, 'rounded-full')}
+              className={cn(buttonSize, "rounded-full")}
               onClick={onLeave}
             >
               <PhoneOff className={iconSize} />
@@ -233,7 +231,7 @@ export function HuddleControls({
         </Tooltip>
       </div>
     </TooltipProvider>
-  )
+  );
 }
 
-export default HuddleControls
+export default HuddleControls;

@@ -1,12 +1,20 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { Search, X, Hash, Lock, Clock, Sparkles, ArrowRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import * as React from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import {
+  Search,
+  X,
+  Hash,
+  Lock,
+  Clock,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Command,
   CommandEmpty,
@@ -15,8 +23,12 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   searchChannels,
   getSearchSuggestions,
@@ -26,24 +38,24 @@ import {
   QUICK_FILTERS,
   type SearchResult,
   type SearchSuggestion,
-} from '@/lib/channels/channel-search'
-import type { Channel } from '@/stores/channel-store'
+} from "@/lib/channels/channel-search";
+import type { Channel } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelSearchProps {
-  channels: Channel[]
-  placeholder?: string
-  showSuggestions?: boolean
-  showHistory?: boolean
-  showQuickFilters?: boolean
-  autoFocus?: boolean
-  onSearch?: (query: string) => void
-  onResultSelect?: (channel: Channel) => void
-  onFilterChange?: (filterId: string | null) => void
-  className?: string
+  channels: Channel[];
+  placeholder?: string;
+  showSuggestions?: boolean;
+  showHistory?: boolean;
+  showQuickFilters?: boolean;
+  autoFocus?: boolean;
+  onSearch?: (query: string) => void;
+  onResultSelect?: (channel: Channel) => void;
+  onFilterChange?: (filterId: string | null) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -52,7 +64,7 @@ export interface ChannelSearchProps {
 
 export function ChannelSearch({
   channels,
-  placeholder = 'Search channels...',
+  placeholder = "Search channels...",
   showSuggestions = true,
   showHistory = true,
   showQuickFilters = true,
@@ -62,113 +74,113 @@ export function ChannelSearch({
   onFilterChange,
   className,
 }: ChannelSearchProps) {
-  const [query, setQuery] = useState('')
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeFilter, setActiveFilter] = useState<string | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Get search results
   const searchResults = useMemo(() => {
-    if (!query.trim()) return []
+    if (!query.trim()) return [];
     return searchChannels(channels, {
       query: query.trim(),
       limit: 10,
-    })
-  }, [channels, query])
+    });
+  }, [channels, query]);
 
   // Get suggestions
   const suggestions = useMemo(() => {
-    if (!showSuggestions) return []
-    const history = showHistory ? getSearchHistory() : []
-    return getSearchSuggestions(channels, query, history)
-  }, [channels, query, showSuggestions, showHistory])
+    if (!showSuggestions) return [];
+    const history = showHistory ? getSearchHistory() : [];
+    return getSearchSuggestions(channels, query, history);
+  }, [channels, query, showSuggestions, showHistory]);
 
   // Handle input change
   const handleInputChange = useCallback(
     (value: string) => {
-      setQuery(value)
+      setQuery(value);
       if (!isOpen && value) {
-        setIsOpen(true)
+        setIsOpen(true);
       }
     },
-    [isOpen]
-  )
+    [isOpen],
+  );
 
   // Handle search submit
   const handleSearch = useCallback(() => {
     if (query.trim()) {
-      addToSearchHistory(query.trim())
-      onSearch?.(query.trim())
+      addToSearchHistory(query.trim());
+      onSearch?.(query.trim());
     }
-    setIsOpen(false)
-  }, [query, onSearch])
+    setIsOpen(false);
+  }, [query, onSearch]);
 
   // Handle result selection
   const handleResultSelect = useCallback(
     (channel: Channel) => {
-      addToSearchHistory(query.trim())
-      onResultSelect?.(channel)
-      setQuery('')
-      setIsOpen(false)
+      addToSearchHistory(query.trim());
+      onResultSelect?.(channel);
+      setQuery("");
+      setIsOpen(false);
     },
-    [query, onResultSelect]
-  )
+    [query, onResultSelect],
+  );
 
   // Handle suggestion selection
   const handleSuggestionSelect = useCallback(
     (suggestion: SearchSuggestion) => {
-      if (suggestion.type === 'channel' && suggestion.channelId) {
-        const channel = channels.find((c) => c.id === suggestion.channelId)
+      if (suggestion.type === "channel" && suggestion.channelId) {
+        const channel = channels.find((c) => c.id === suggestion.channelId);
         if (channel) {
-          handleResultSelect(channel)
+          handleResultSelect(channel);
         }
       } else {
-        setQuery(suggestion.value)
-        onSearch?.(suggestion.value)
+        setQuery(suggestion.value);
+        onSearch?.(suggestion.value);
       }
     },
-    [channels, handleResultSelect, onSearch]
-  )
+    [channels, handleResultSelect, onSearch],
+  );
 
   // Handle quick filter
   const handleFilterClick = useCallback(
     (filterId: string) => {
-      const newFilter = activeFilter === filterId ? null : filterId
-      setActiveFilter(newFilter)
-      onFilterChange?.(newFilter)
+      const newFilter = activeFilter === filterId ? null : filterId;
+      setActiveFilter(newFilter);
+      onFilterChange?.(newFilter);
     },
-    [activeFilter, onFilterChange]
-  )
+    [activeFilter, onFilterChange],
+  );
 
   // Handle clear
   const handleClear = useCallback(() => {
-    setQuery('')
-    setActiveFilter(null)
-    onFilterChange?.(null)
-    inputRef.current?.focus()
-  }, [onFilterChange])
+    setQuery("");
+    setActiveFilter(null);
+    onFilterChange?.(null);
+    inputRef.current?.focus();
+  }, [onFilterChange]);
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleSearch()
-      } else if (e.key === 'Escape') {
-        setIsOpen(false)
+      if (e.key === "Enter") {
+        handleSearch();
+      } else if (e.key === "Escape") {
+        setIsOpen(false);
       }
     },
-    [handleSearch]
-  )
+    [handleSearch],
+  );
 
   // Auto focus
   useEffect(() => {
     if (autoFocus && inputRef.current) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }, [autoFocus])
+  }, [autoFocus]);
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn("w-full", className)}>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <div className="relative">
@@ -212,7 +224,9 @@ export function ChannelSearch({
                       {QUICK_FILTERS.map((filter) => (
                         <Badge
                           key={filter.id}
-                          variant={activeFilter === filter.id ? 'default' : 'outline'}
+                          variant={
+                            activeFilter === filter.id ? "default" : "outline"
+                          }
                           className="cursor-pointer hover:bg-accent"
                           onClick={() => handleFilterClick(filter.id)}
                         >
@@ -234,7 +248,7 @@ export function ChannelSearch({
                       onSelect={() => handleResultSelect(result.channel)}
                       className="flex cursor-pointer items-center gap-2"
                     >
-                      {result.channel.type === 'private' ? (
+                      {result.channel.type === "private" ? (
                         <Lock className="h-4 w-4 text-muted-foreground" />
                       ) : (
                         <Hash className="h-4 w-4 text-muted-foreground" />
@@ -243,15 +257,17 @@ export function ChannelSearch({
                         <div className="font-medium">
                           {renderHighlightedText(
                             result.channel.name,
-                            result.highlights.find((h) => h.field === 'name')?.matches || []
+                            result.highlights.find((h) => h.field === "name")
+                              ?.matches || [],
                           )}
                         </div>
                         {result.channel.description && (
                           <div className="truncate text-sm text-muted-foreground">
                             {renderHighlightedText(
                               result.channel.description,
-                              result.highlights.find((h) => h.field === 'description')?.matches ||
-                                []
+                              result.highlights.find(
+                                (h) => h.field === "description",
+                              )?.matches || [],
                             )}
                           </div>
                         )}
@@ -271,7 +287,7 @@ export function ChannelSearch({
                       onSelect={() => handleSuggestionSelect(suggestion)}
                       className="flex cursor-pointer items-center gap-2"
                     >
-                      {suggestion.type === 'channel' ? (
+                      {suggestion.type === "channel" ? (
                         <Hash className="h-4 w-4 text-muted-foreground" />
                       ) : (
                         <Clock className="h-4 w-4 text-muted-foreground" />
@@ -284,7 +300,9 @@ export function ChannelSearch({
 
               {/* Empty state */}
               {query && searchResults.length === 0 && (
-                <CommandEmpty>No channels found for &quot;{query}&quot;</CommandEmpty>
+                <CommandEmpty>
+                  No channels found for &quot;{query}&quot;
+                </CommandEmpty>
               )}
 
               {/* Search action */}
@@ -308,33 +326,36 @@ export function ChannelSearch({
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }
 
 // Helper function to render highlighted text
 function renderHighlightedText(
   text: string,
-  matches: Array<{ start: number; end: number; text: string }>
+  matches: Array<{ start: number; end: number; text: string }>,
 ) {
   if (matches.length === 0) {
-    return <span>{text}</span>
+    return <span>{text}</span>;
   }
 
-  const segments = highlightText(text, matches)
+  const segments = highlightText(text, matches);
 
   return (
     <span>
       {segments.map((segment, index) =>
         segment.highlighted ? (
-          <mark key={index} className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-800">
+          <mark
+            key={index}
+            className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-800"
+          >
             {segment.text}
           </mark>
         ) : (
           <span key={index}>{segment.text}</span>
-        )
+        ),
       )}
     </span>
-  )
+  );
 }
 
-ChannelSearch.displayName = 'ChannelSearch'
+ChannelSearch.displayName = "ChannelSearch";

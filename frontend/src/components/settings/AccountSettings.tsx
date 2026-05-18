@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { SettingsSection } from './settings-section'
-import { SettingsRow } from './settings-row'
-import { EmailSettings } from './EmailSettings'
-import { PasswordSettings } from './PasswordSettings'
-import { TwoFactorSettings } from './TwoFactorSettings'
-import { SessionsSettings } from './SessionsSettings'
-import { DevicesSettings } from './DevicesSettings'
-import { DeleteAccount } from './DeleteAccount'
-import { User } from 'lucide-react'
+import { SettingsSection } from "./settings-section";
+import { SettingsRow } from "./settings-row";
+import { EmailSettings } from "./EmailSettings";
+import { PasswordSettings } from "./PasswordSettings";
+import { TwoFactorSettings } from "./TwoFactorSettings";
+import { SessionsSettings } from "./SessionsSettings";
+import { DevicesSettings } from "./DevicesSettings";
+import { DeleteAccount } from "./DeleteAccount";
+import { User } from "lucide-react";
 
 interface AccountSettingsProps {
-  className?: string
+  className?: string;
 }
 
 /**
@@ -27,7 +27,9 @@ export function AccountSettings({ className }: AccountSettingsProps) {
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Account</h1>
-          <p className="text-sm text-muted-foreground">Manage your account settings and security</p>
+          <p className="text-sm text-muted-foreground">
+            Manage your account settings and security
+          </p>
         </div>
       </div>
 
@@ -40,5 +42,5 @@ export function AccountSettings({ className }: AccountSettingsProps) {
         <DeleteAccount />
       </div>
     </div>
-  )
+  );
 }

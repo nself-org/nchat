@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import {
   MessageSquare,
   UserPlus,
@@ -20,79 +20,88 @@ import {
   Link as LinkIcon,
   Copy,
   Check,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
-import { BaseModal, ModalHeader, ModalTitle, ModalBody, type ModalSize } from './base-modal'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import {
+  BaseModal,
+  ModalHeader,
+  ModalTitle,
+  ModalBody,
+  type ModalSize,
+} from "./base-modal";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-export type ProfileStatus = 'online' | 'away' | 'busy' | 'offline'
+export type ProfileStatus = "online" | "away" | "busy" | "offline";
 
 export interface ProfileUser {
-  id: string
-  name: string
-  username: string
-  email: string
-  avatarUrl?: string
-  role: string
-  bio?: string
-  status: ProfileStatus
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  avatarUrl?: string;
+  role: string;
+  bio?: string;
+  status: ProfileStatus;
   customStatus?: {
-    emoji?: string
-    text: string
-    expiresAt?: Date
-  }
-  createdAt?: Date
-  timezone?: string
-  phone?: string
-  location?: string
-  website?: string
+    emoji?: string;
+    text: string;
+    expiresAt?: Date;
+  };
+  createdAt?: Date;
+  timezone?: string;
+  phone?: string;
+  location?: string;
+  website?: string;
 }
 
 export interface ProfileModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  user: ProfileUser | null
-  currentUserId?: string
-  onSendMessage?: (userId: string) => void
-  onAddToChannel?: (userId: string) => void
-  onBlockUser?: (userId: string) => void
-  onViewFullProfile?: (userId: string) => void
-  onCopyUserId?: (userId: string) => void
-  size?: ModalSize
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  user: ProfileUser | null;
+  currentUserId?: string;
+  onSendMessage?: (userId: string) => void;
+  onAddToChannel?: (userId: string) => void;
+  onBlockUser?: (userId: string) => void;
+  onViewFullProfile?: (userId: string) => void;
+  onCopyUserId?: (userId: string) => void;
+  size?: ModalSize;
 }
 
 const STATUS_COLORS: Record<ProfileStatus, string> = {
-  online: 'bg-green-500',
-  away: 'bg-yellow-500',
-  busy: 'bg-red-500',
-  offline: 'bg-gray-400',
-}
+  online: "bg-green-500",
+  away: "bg-yellow-500",
+  busy: "bg-red-500",
+  offline: "bg-gray-400",
+};
 
 const STATUS_LABELS: Record<ProfileStatus, string> = {
-  online: 'Active',
-  away: 'Away',
-  busy: 'Do not disturb',
-  offline: 'Offline',
-}
+  online: "Active",
+  away: "Away",
+  busy: "Do not disturb",
+  offline: "Offline",
+};
 
 const ROLE_BADGES: Record<
   string,
-  { variant: 'default' | 'secondary' | 'destructive' | 'outline'; hasIcon?: boolean }
+  {
+    variant: "default" | "secondary" | "destructive" | "outline";
+    hasIcon?: boolean;
+  }
 > = {
-  owner: { variant: 'default', hasIcon: true },
-  admin: { variant: 'default', hasIcon: true },
-  moderator: { variant: 'secondary' },
-  member: { variant: 'outline' },
-  guest: { variant: 'outline' },
-}
+  owner: { variant: "default", hasIcon: true },
+  admin: { variant: "default", hasIcon: true },
+  moderator: { variant: "secondary" },
+  member: { variant: "outline" },
+  guest: { variant: "outline" },
+};
 
 export function ProfileModal({
   open,
@@ -104,69 +113,69 @@ export function ProfileModal({
   onBlockUser,
   onViewFullProfile,
   onCopyUserId,
-  size = 'sm',
+  size = "sm",
 }: ProfileModalProps) {
-  const [blockConfirm, setBlockConfirm] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [blockConfirm, setBlockConfirm] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  if (!user) return null
+  if (!user) return null;
 
-  const isSelf = currentUserId === user.id
-  const roleConfig = ROLE_BADGES[user.role.toLowerCase()] || ROLE_BADGES.member
+  const isSelf = currentUserId === user.id;
+  const roleConfig = ROLE_BADGES[user.role.toLowerCase()] || ROLE_BADGES.member;
 
   const formatDate = (date?: Date) => {
-    if (!date) return 'Unknown'
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      year: 'numeric',
-    }).format(date)
-  }
+    if (!date) return "Unknown";
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  };
 
   const formatLocalTime = (timezone?: string) => {
-    if (!timezone) return null
+    if (!timezone) return null;
     try {
-      return new Intl.DateTimeFormat('en-US', {
+      return new Intl.DateTimeFormat("en-US", {
         timeZone: timezone,
-        hour: 'numeric',
-        minute: 'numeric',
+        hour: "numeric",
+        minute: "numeric",
         hour12: true,
-      }).format(new Date())
+      }).format(new Date());
     } catch {
-      return null
+      return null;
     }
-  }
+  };
 
   const handleBlock = () => {
     if (blockConfirm && onBlockUser) {
-      onBlockUser(user.id)
-      setBlockConfirm(false)
-      onOpenChange(false)
+      onBlockUser(user.id);
+      setBlockConfirm(false);
+      onOpenChange(false);
     } else {
-      setBlockConfirm(true)
+      setBlockConfirm(true);
     }
-  }
+  };
 
   const handleCopyId = async () => {
     try {
-      await navigator.clipboard.writeText(user.id)
-      setCopied(true)
-      onCopyUserId?.(user.id)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(user.id);
+      setCopied(true);
+      onCopyUserId?.(user.id);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      logger.error('Failed to copy:', err)
+      logger.error("Failed to copy:", err);
     }
-  }
+  };
 
-  const localTime = formatLocalTime(user.timezone)
+  const localTime = formatLocalTime(user.timezone);
 
   return (
     <BaseModal
       open={open}
       onOpenChange={(newOpen) => {
         if (!newOpen) {
-          setBlockConfirm(false)
+          setBlockConfirm(false);
         }
-        onOpenChange(newOpen)
+        onOpenChange(newOpen);
       }}
       size={size}
       showCloseButton={false}
@@ -185,8 +194,8 @@ export function ProfileModal({
             </Avatar>
             <div
               className={cn(
-                'absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-background',
-                STATUS_COLORS[user.status]
+                "absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-background",
+                STATUS_COLORS[user.status],
               )}
             />
           </div>
@@ -196,7 +205,11 @@ export function ProfileModal({
         <div className="absolute right-2 top-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="bg-background/50 h-8 w-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-background/50 h-8 w-8"
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -227,7 +240,7 @@ export function ProfileModal({
                     onClick={handleBlock}
                   >
                     <Ban className="mr-2 h-4 w-4" />
-                    {blockConfirm ? 'Click again to confirm' : 'Block user'}
+                    {blockConfirm ? "Click again to confirm" : "Block user"}
                   </DropdownMenuItem>
                 </>
               )}
@@ -254,14 +267,20 @@ export function ProfileModal({
 
         {/* Status */}
         <div className="mt-4 flex items-center gap-2">
-          <div className={cn('h-2 w-2 rounded-full', STATUS_COLORS[user.status])} />
-          <span className="text-sm text-muted-foreground">{STATUS_LABELS[user.status]}</span>
+          <div
+            className={cn("h-2 w-2 rounded-full", STATUS_COLORS[user.status])}
+          />
+          <span className="text-sm text-muted-foreground">
+            {STATUS_LABELS[user.status]}
+          </span>
         </div>
 
         {/* Custom status */}
         {user.customStatus && (
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
-            {user.customStatus.emoji && <span className="text-lg">{user.customStatus.emoji}</span>}
+            {user.customStatus.emoji && (
+              <span className="text-lg">{user.customStatus.emoji}</span>
+            )}
             <span className="flex-1 text-sm">{user.customStatus.text}</span>
             {user.customStatus.expiresAt && (
               <span className="text-xs text-muted-foreground">
@@ -273,7 +292,11 @@ export function ProfileModal({
         )}
 
         {/* Bio */}
-        {user.bio && <p className="mt-4 text-sm leading-relaxed text-foreground">{user.bio}</p>}
+        {user.bio && (
+          <p className="mt-4 text-sm leading-relaxed text-foreground">
+            {user.bio}
+          </p>
+        )}
 
         <Separator className="my-4" />
 
@@ -311,7 +334,7 @@ export function ProfileModal({
                 rel="noopener noreferrer"
                 className="ml-auto truncate text-primary hover:underline"
               >
-                {user.website.replace(/^https?:\/\//, '')}
+                {user.website.replace(/^https?:\/\//, "")}
               </a>
             </div>
           )}
@@ -339,8 +362,8 @@ export function ProfileModal({
             {onSendMessage && (
               <Button
                 onClick={() => {
-                  onSendMessage(user.id)
-                  onOpenChange(false)
+                  onSendMessage(user.id);
+                  onOpenChange(false);
                 }}
                 className="flex-1"
               >
@@ -352,8 +375,8 @@ export function ProfileModal({
               <Button
                 variant="outline"
                 onClick={() => {
-                  onAddToChannel(user.id)
-                  onOpenChange(false)
+                  onAddToChannel(user.id);
+                  onOpenChange(false);
                 }}
                 className="flex-1"
               >
@@ -365,5 +388,5 @@ export function ProfileModal({
         )}
       </ModalBody>
     </BaseModal>
-  )
+  );
 }

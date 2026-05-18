@@ -14,8 +14,8 @@
  * @version 1.0.0
  */
 
-import { createHmac } from 'crypto'
-import { logger } from '@/lib/logger'
+import { createHmac } from "crypto";
+import { logger } from "@/lib/logger";
 import {
   type PayoutPolicy,
   type PayoutPolicyRule,
@@ -37,7 +37,7 @@ import {
   PayoutError,
   VALID_PAYOUT_TRANSITIONS,
   DEFAULT_PAYOUT_POLICY,
-} from './payout-types'
+} from "./payout-types";
 
 // ============================================================================
 // Policy Engine
@@ -51,7 +51,7 @@ import {
  * All evaluation is deterministic given the same inputs.
  */
 export class PayoutPolicyEngine {
-  private log = logger.scope('PayoutPolicy')
+  private log = logger.scope("PayoutPolicy");
 
   /**
    * Evaluate a payout request against a policy.
@@ -60,54 +60,106 @@ export class PayoutPolicyEngine {
   evaluate(
     input: CreatePayoutInput,
     policy: PayoutPolicy,
-    context: PolicyEvaluationContext
+    context: PolicyEvaluationContext,
   ): PolicyEvaluationResult {
-    const violations: PolicyViolation[] = []
-    const warnings: PolicyViolation[] = []
-    const appliedRules: string[] = []
+    const violations: PolicyViolation[] = [];
+    const warnings: PolicyViolation[] = [];
+    const appliedRules: string[] = [];
 
     if (!policy.enabled) {
       return {
         allowed: true,
         violations: [],
         warnings: [],
-        appliedRules: ['policy_disabled'],
+        appliedRules: ["policy_disabled"],
         evaluatedAt: context.now,
-      }
+      };
     }
 
     // 1. Amount limits
-    this.checkAmountLimits(input, policy, violations, warnings, appliedRules)
+    this.checkAmountLimits(input, policy, violations, warnings, appliedRules);
 
     // 2. Frequency limits
-    this.checkFrequencyLimits(input, policy, context, violations, warnings, appliedRules)
+    this.checkFrequencyLimits(
+      input,
+      policy,
+      context,
+      violations,
+      warnings,
+      appliedRules,
+    );
 
     // 3. Aggregate amount limits
-    this.checkAggregateLimits(input, policy, context, violations, warnings, appliedRules)
+    this.checkAggregateLimits(
+      input,
+      policy,
+      context,
+      violations,
+      warnings,
+      appliedRules,
+    );
 
     // 4. Cooldown period
-    this.checkCooldownPeriod(policy, context, violations, warnings, appliedRules)
+    this.checkCooldownPeriod(
+      policy,
+      context,
+      violations,
+      warnings,
+      appliedRules,
+    );
 
     // 5. Method restrictions
-    this.checkMethodRestrictions(input, policy, violations, warnings, appliedRules)
+    this.checkMethodRestrictions(
+      input,
+      policy,
+      violations,
+      warnings,
+      appliedRules,
+    );
 
     // 6. Currency restrictions
-    this.checkCurrencyRestrictions(input, policy, violations, warnings, appliedRules)
+    this.checkCurrencyRestrictions(
+      input,
+      policy,
+      violations,
+      warnings,
+      appliedRules,
+    );
 
     // 7. Time window restrictions
-    this.checkTimeWindowRestrictions(policy, context, violations, warnings, appliedRules)
+    this.checkTimeWindowRestrictions(
+      policy,
+      context,
+      violations,
+      warnings,
+      appliedRules,
+    );
 
     // 8. Reserve minimum
-    this.checkReserveMinimum(input, policy, context, violations, warnings, appliedRules)
+    this.checkReserveMinimum(
+      input,
+      policy,
+      context,
+      violations,
+      warnings,
+      appliedRules,
+    );
 
     // 9. Custom rules
     for (const rule of policy.rules) {
-      if (!rule.enabled) continue
-      this.evaluateCustomRule(rule, input, context, violations, warnings, appliedRules)
+      if (!rule.enabled) continue;
+      this.evaluateCustomRule(
+        rule,
+        input,
+        context,
+        violations,
+        warnings,
+        appliedRules,
+      );
     }
 
-    const blockingViolations = violations.filter((v) => v.severity === 'block')
-    const allowed = blockingViolations.length === 0
+    const blockingViolations = violations.filter((v) => v.severity === "block");
+    const allowed = blockingViolations.length === 0;
 
     return {
       allowed,
@@ -115,28 +167,33 @@ export class PayoutPolicyEngine {
       warnings,
       appliedRules,
       evaluatedAt: context.now,
-    }
+    };
   }
 
   /**
    * Determine the approval threshold for a payout amount.
    */
-  getApprovalThreshold(amount: number, policy: PayoutPolicy): ApprovalThreshold | null {
+  getApprovalThreshold(
+    amount: number,
+    policy: PayoutPolicy,
+  ): ApprovalThreshold | null {
     // Sort thresholds by minAmount descending to find the most specific match
-    const sorted = [...policy.approvalThresholds].sort((a, b) => b.minAmount - a.minAmount)
+    const sorted = [...policy.approvalThresholds].sort(
+      (a, b) => b.minAmount - a.minAmount,
+    );
 
     for (const threshold of sorted) {
       if (amount >= threshold.minAmount && amount < threshold.maxAmount) {
-        return threshold
+        return threshold;
       }
     }
 
     // If no threshold matches, use the highest one
     if (sorted.length > 0 && amount >= sorted[0].minAmount) {
-      return sorted[0]
+      return sorted[0];
     }
 
-    return null
+    return null;
   }
 
   // --------------------------------------------------------------------------
@@ -148,34 +205,34 @@ export class PayoutPolicyEngine {
     policy: PayoutPolicy,
     violations: PolicyViolation[],
     _warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    appliedRules.push('min_amount', 'max_amount')
+    appliedRules.push("min_amount", "max_amount");
 
     if (input.amount < policy.minPayoutAmount) {
       violations.push({
-        ruleId: 'min_amount',
-        ruleName: 'Minimum Payout Amount',
-        severity: 'block',
+        ruleId: "min_amount",
+        ruleName: "Minimum Payout Amount",
+        severity: "block",
         message: `Payout amount ${input.amount} is below minimum ${policy.minPayoutAmount}`,
         details: {
           amount: input.amount,
           minimum: policy.minPayoutAmount,
         },
-      })
+      });
     }
 
     if (input.amount > policy.maxPayoutAmount) {
       violations.push({
-        ruleId: 'max_amount',
-        ruleName: 'Maximum Payout Amount',
-        severity: 'block',
+        ruleId: "max_amount",
+        ruleName: "Maximum Payout Amount",
+        severity: "block",
         message: `Payout amount ${input.amount} exceeds maximum ${policy.maxPayoutAmount}`,
         details: {
           amount: input.amount,
           maximum: policy.maxPayoutAmount,
         },
-      })
+      });
     }
   }
 
@@ -185,62 +242,68 @@ export class PayoutPolicyEngine {
     context: PolicyEvaluationContext,
     violations: PolicyViolation[],
     _warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    appliedRules.push('frequency_limit')
+    appliedRules.push("frequency_limit");
 
-    const dayMs = 24 * 60 * 60 * 1000
-    const weekMs = 7 * dayMs
-    const monthMs = 30 * dayMs
+    const dayMs = 24 * 60 * 60 * 1000;
+    const weekMs = 7 * dayMs;
+    const monthMs = 30 * dayMs;
 
-    const dayStart = context.now - dayMs
-    const weekStart = context.now - weekMs
-    const monthStart = context.now - monthMs
+    const dayStart = context.now - dayMs;
+    const weekStart = context.now - weekMs;
+    const monthStart = context.now - monthMs;
 
-    const dailyCount = context.recentPayouts.filter((p) => p.createdAt >= dayStart).length
-    const weeklyCount = context.recentPayouts.filter((p) => p.createdAt >= weekStart).length
-    const monthlyCount = context.recentPayouts.filter((p) => p.createdAt >= monthStart).length
+    const dailyCount = context.recentPayouts.filter(
+      (p) => p.createdAt >= dayStart,
+    ).length;
+    const weeklyCount = context.recentPayouts.filter(
+      (p) => p.createdAt >= weekStart,
+    ).length;
+    const monthlyCount = context.recentPayouts.filter(
+      (p) => p.createdAt >= monthStart,
+    ).length;
 
     if (dailyCount >= policy.maxPayoutsPerDay) {
       violations.push({
-        ruleId: 'daily_frequency',
-        ruleName: 'Daily Frequency Limit',
-        severity: 'block',
+        ruleId: "daily_frequency",
+        ruleName: "Daily Frequency Limit",
+        severity: "block",
         message: `Daily payout limit exceeded: ${dailyCount}/${policy.maxPayoutsPerDay}`,
         details: {
           current: dailyCount,
           limit: policy.maxPayoutsPerDay,
-          period: 'daily',
+          period: "daily",
         },
-      })
+      });
     }
 
     if (weeklyCount >= policy.maxPayoutsPerWeek) {
       violations.push({
-        ruleId: 'weekly_frequency',
-        ruleName: 'Weekly Frequency Limit',
-        severity: 'block',
+        ruleId: "weekly_frequency",
+        ruleName: "Weekly Frequency Limit",
+        severity: "block",
         message: `Weekly payout limit exceeded: ${weeklyCount}/${policy.maxPayoutsPerWeek}`,
         details: {
           current: weeklyCount,
           limit: policy.maxPayoutsPerWeek,
-          period: 'weekly',
+          period: "weekly",
         },
-      })
+      });
     }
 
     if (monthlyCount >= policy.maxPayoutsPerMonth) {
       violations.push({
-        ruleId: 'monthly_frequency',
-        ruleName: 'Monthly Frequency Limit',
-        severity: 'block',
+        ruleId: "monthly_frequency",
+        ruleName: "Monthly Frequency Limit",
+        severity: "block",
         message: `Monthly payout limit exceeded: ${monthlyCount}/${policy.maxPayoutsPerMonth}`,
         details: {
           current: monthlyCount,
           limit: policy.maxPayoutsPerMonth,
-          period: 'monthly',
+          period: "monthly",
         },
-      })
+      });
     }
   }
 
@@ -250,73 +313,73 @@ export class PayoutPolicyEngine {
     context: PolicyEvaluationContext,
     violations: PolicyViolation[],
     _warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    appliedRules.push('aggregate_limits')
+    appliedRules.push("aggregate_limits");
 
-    const dayMs = 24 * 60 * 60 * 1000
-    const weekMs = 7 * dayMs
-    const monthMs = 30 * dayMs
+    const dayMs = 24 * 60 * 60 * 1000;
+    const weekMs = 7 * dayMs;
+    const monthMs = 30 * dayMs;
 
-    const dayStart = context.now - dayMs
-    const weekStart = context.now - weekMs
-    const monthStart = context.now - monthMs
+    const dayStart = context.now - dayMs;
+    const weekStart = context.now - weekMs;
+    const monthStart = context.now - monthMs;
 
     const dailyTotal = context.recentPayouts
       .filter((p) => p.createdAt >= dayStart)
-      .reduce((sum, p) => sum + p.amount, 0)
+      .reduce((sum, p) => sum + p.amount, 0);
 
     const weeklyTotal = context.recentPayouts
       .filter((p) => p.createdAt >= weekStart)
-      .reduce((sum, p) => sum + p.amount, 0)
+      .reduce((sum, p) => sum + p.amount, 0);
 
     const monthlyTotal = context.recentPayouts
       .filter((p) => p.createdAt >= monthStart)
-      .reduce((sum, p) => sum + p.amount, 0)
+      .reduce((sum, p) => sum + p.amount, 0);
 
     if (dailyTotal + input.amount > policy.dailyAmountLimit) {
       violations.push({
-        ruleId: 'daily_amount_limit',
-        ruleName: 'Daily Amount Limit',
-        severity: 'block',
+        ruleId: "daily_amount_limit",
+        ruleName: "Daily Amount Limit",
+        severity: "block",
         message: `Daily amount limit exceeded: ${dailyTotal + input.amount}/${policy.dailyAmountLimit}`,
         details: {
           currentTotal: dailyTotal,
           requestedAmount: input.amount,
           limit: policy.dailyAmountLimit,
-          period: 'daily',
+          period: "daily",
         },
-      })
+      });
     }
 
     if (weeklyTotal + input.amount > policy.weeklyAmountLimit) {
       violations.push({
-        ruleId: 'weekly_amount_limit',
-        ruleName: 'Weekly Amount Limit',
-        severity: 'block',
+        ruleId: "weekly_amount_limit",
+        ruleName: "Weekly Amount Limit",
+        severity: "block",
         message: `Weekly amount limit exceeded: ${weeklyTotal + input.amount}/${policy.weeklyAmountLimit}`,
         details: {
           currentTotal: weeklyTotal,
           requestedAmount: input.amount,
           limit: policy.weeklyAmountLimit,
-          period: 'weekly',
+          period: "weekly",
         },
-      })
+      });
     }
 
     if (monthlyTotal + input.amount > policy.monthlyAmountLimit) {
       violations.push({
-        ruleId: 'monthly_amount_limit',
-        ruleName: 'Monthly Amount Limit',
-        severity: 'block',
+        ruleId: "monthly_amount_limit",
+        ruleName: "Monthly Amount Limit",
+        severity: "block",
         message: `Monthly amount limit exceeded: ${monthlyTotal + input.amount}/${policy.monthlyAmountLimit}`,
         details: {
           currentTotal: monthlyTotal,
           requestedAmount: input.amount,
           limit: policy.monthlyAmountLimit,
-          period: 'monthly',
+          period: "monthly",
         },
-      })
+      });
     }
   }
 
@@ -325,22 +388,23 @@ export class PayoutPolicyEngine {
     context: PolicyEvaluationContext,
     violations: PolicyViolation[],
     _warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    if (policy.cooldownPeriodMs <= 0) return
+    if (policy.cooldownPeriodMs <= 0) return;
 
-    appliedRules.push('cooldown_period')
+    appliedRules.push("cooldown_period");
 
     if (context.recentPayouts.length > 0) {
-      const lastPayout = context.recentPayouts[context.recentPayouts.length - 1]
-      const timeSinceLast = context.now - lastPayout.createdAt
+      const lastPayout =
+        context.recentPayouts[context.recentPayouts.length - 1];
+      const timeSinceLast = context.now - lastPayout.createdAt;
 
       if (timeSinceLast < policy.cooldownPeriodMs) {
-        const remainingMs = policy.cooldownPeriodMs - timeSinceLast
+        const remainingMs = policy.cooldownPeriodMs - timeSinceLast;
         violations.push({
-          ruleId: 'cooldown_period',
-          ruleName: 'Cooldown Period',
-          severity: 'block',
+          ruleId: "cooldown_period",
+          ruleName: "Cooldown Period",
+          severity: "block",
           message: `Cooldown period active. Wait ${Math.ceil(remainingMs / 1000)} seconds.`,
           details: {
             cooldownMs: policy.cooldownPeriodMs,
@@ -348,7 +412,7 @@ export class PayoutPolicyEngine {
             remainingMs,
             lastPayoutAt: lastPayout.createdAt,
           },
-        })
+        });
       }
     }
   }
@@ -358,21 +422,24 @@ export class PayoutPolicyEngine {
     policy: PayoutPolicy,
     violations: PolicyViolation[],
     _warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    appliedRules.push('method_restriction')
+    appliedRules.push("method_restriction");
 
-    if (policy.allowedMethods.length > 0 && !policy.allowedMethods.includes(input.method)) {
+    if (
+      policy.allowedMethods.length > 0 &&
+      !policy.allowedMethods.includes(input.method)
+    ) {
       violations.push({
-        ruleId: 'method_restriction',
-        ruleName: 'Method Restriction',
-        severity: 'block',
-        message: `Payout method '${input.method}' is not allowed. Allowed: ${policy.allowedMethods.join(', ')}`,
+        ruleId: "method_restriction",
+        ruleName: "Method Restriction",
+        severity: "block",
+        message: `Payout method '${input.method}' is not allowed. Allowed: ${policy.allowedMethods.join(", ")}`,
         details: {
           method: input.method,
           allowedMethods: policy.allowedMethods,
         },
-      })
+      });
     }
   }
 
@@ -381,21 +448,24 @@ export class PayoutPolicyEngine {
     policy: PayoutPolicy,
     violations: PolicyViolation[],
     _warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    appliedRules.push('currency_restriction')
+    appliedRules.push("currency_restriction");
 
-    if (policy.allowedCurrencies.length > 0 && !policy.allowedCurrencies.includes(input.currency)) {
+    if (
+      policy.allowedCurrencies.length > 0 &&
+      !policy.allowedCurrencies.includes(input.currency)
+    ) {
       violations.push({
-        ruleId: 'currency_restriction',
-        ruleName: 'Currency Restriction',
-        severity: 'block',
-        message: `Currency '${input.currency}' is not allowed. Allowed: ${policy.allowedCurrencies.join(', ')}`,
+        ruleId: "currency_restriction",
+        ruleName: "Currency Restriction",
+        severity: "block",
+        message: `Currency '${input.currency}' is not allowed. Allowed: ${policy.allowedCurrencies.join(", ")}`,
         details: {
           currency: input.currency,
           allowedCurrencies: policy.allowedCurrencies,
         },
-      })
+      });
     }
   }
 
@@ -404,19 +474,22 @@ export class PayoutPolicyEngine {
     context: PolicyEvaluationContext,
     violations: PolicyViolation[],
     warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    if (policy.timeWindowRestrictions.length === 0) return
+    if (policy.timeWindowRestrictions.length === 0) return;
 
-    appliedRules.push('time_window')
+    appliedRules.push("time_window");
 
     for (const restriction of policy.timeWindowRestrictions) {
-      const date = new Date(context.now)
-      const dayOfWeek = date.getUTCDay()
-      const hour = date.getUTCHours()
+      const date = new Date(context.now);
+      const dayOfWeek = date.getUTCDay();
+      const hour = date.getUTCHours();
 
-      const dayAllowed = restriction.allowedDays.includes(dayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6)
-      const hourAllowed = hour >= restriction.startHourUTC && hour < restriction.endHourUTC
+      const dayAllowed = restriction.allowedDays.includes(
+        dayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+      );
+      const hourAllowed =
+        hour >= restriction.startHourUTC && hour < restriction.endHourUTC;
 
       if (!dayAllowed || !hourAllowed) {
         const violation: PolicyViolation = {
@@ -431,12 +504,12 @@ export class PayoutPolicyEngine {
             startHour: restriction.startHourUTC,
             endHour: restriction.endHourUTC,
           },
-        }
+        };
 
-        if (restriction.severity === 'block') {
-          violations.push(violation)
+        if (restriction.severity === "block") {
+          violations.push(violation);
         } else {
-          warnings.push(violation)
+          warnings.push(violation);
         }
       }
     }
@@ -448,21 +521,22 @@ export class PayoutPolicyEngine {
     context: PolicyEvaluationContext,
     violations: PolicyViolation[],
     _warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    if (!context.treasuryAccount || policy.minimumReserveFraction <= 0) return
+    if (!context.treasuryAccount || policy.minimumReserveFraction <= 0) return;
 
-    appliedRules.push('reserve_minimum')
+    appliedRules.push("reserve_minimum");
 
-    const totalBalance = context.treasuryAccount.totalBalance
-    const minimumReserve = totalBalance * policy.minimumReserveFraction
-    const availableAfterPayout = context.treasuryAccount.availableBalance - input.amount
+    const totalBalance = context.treasuryAccount.totalBalance;
+    const minimumReserve = totalBalance * policy.minimumReserveFraction;
+    const availableAfterPayout =
+      context.treasuryAccount.availableBalance - input.amount;
 
     if (availableAfterPayout < minimumReserve) {
       violations.push({
-        ruleId: 'reserve_minimum',
-        ruleName: 'Minimum Reserve',
-        severity: 'block',
+        ruleId: "reserve_minimum",
+        ruleName: "Minimum Reserve",
+        severity: "block",
         message: `Payout would breach minimum reserve requirement. Available after: ${availableAfterPayout}, required reserve: ${minimumReserve}`,
         details: {
           totalBalance,
@@ -472,7 +546,7 @@ export class PayoutPolicyEngine {
           minimumReserveFraction: policy.minimumReserveFraction,
           minimumReserve,
         },
-      })
+      });
     }
   }
 
@@ -482,60 +556,68 @@ export class PayoutPolicyEngine {
     _context: PolicyEvaluationContext,
     violations: PolicyViolation[],
     warnings: PolicyViolation[],
-    appliedRules: string[]
+    appliedRules: string[],
   ): void {
-    appliedRules.push(`custom:${rule.id}`)
+    appliedRules.push(`custom:${rule.id}`);
 
     // Evaluate based on rule type
     switch (rule.type) {
-      case 'max_amount': {
-        const maxAmount = rule.params.maxAmount as number
+      case "max_amount": {
+        const maxAmount = rule.params.maxAmount as number;
         if (maxAmount && input.amount > maxAmount) {
           const violation: PolicyViolation = {
             ruleId: rule.id,
             ruleName: rule.name,
             severity: rule.severity,
-            message: rule.description || `Custom max amount exceeded: ${input.amount} > ${maxAmount}`,
+            message:
+              rule.description ||
+              `Custom max amount exceeded: ${input.amount} > ${maxAmount}`,
             details: { amount: input.amount, maxAmount },
-          }
-          if (rule.severity === 'block') violations.push(violation)
-          else warnings.push(violation)
+          };
+          if (rule.severity === "block") violations.push(violation);
+          else warnings.push(violation);
         }
-        break
+        break;
       }
-      case 'min_amount': {
-        const minAmount = rule.params.minAmount as number
+      case "min_amount": {
+        const minAmount = rule.params.minAmount as number;
         if (minAmount && input.amount < minAmount) {
           const violation: PolicyViolation = {
             ruleId: rule.id,
             ruleName: rule.name,
             severity: rule.severity,
-            message: rule.description || `Custom min amount not met: ${input.amount} < ${minAmount}`,
+            message:
+              rule.description ||
+              `Custom min amount not met: ${input.amount} < ${minAmount}`,
             details: { amount: input.amount, minAmount },
-          }
-          if (rule.severity === 'block') violations.push(violation)
-          else warnings.push(violation)
+          };
+          if (rule.severity === "block") violations.push(violation);
+          else warnings.push(violation);
         }
-        break
+        break;
       }
-      case 'recipient_whitelist': {
-        const whitelist = rule.params.whitelist as string[] | undefined
-        if (whitelist && input.recipientId && !whitelist.includes(input.recipientId)) {
+      case "recipient_whitelist": {
+        const whitelist = rule.params.whitelist as string[] | undefined;
+        if (
+          whitelist &&
+          input.recipientId &&
+          !whitelist.includes(input.recipientId)
+        ) {
           const violation: PolicyViolation = {
             ruleId: rule.id,
             ruleName: rule.name,
             severity: rule.severity,
             message: `Recipient not on whitelist`,
             details: { recipientId: input.recipientId },
-          }
-          if (rule.severity === 'block') violations.push(violation)
-          else warnings.push(violation)
+          };
+          if (rule.severity === "block") violations.push(violation);
+          else warnings.push(violation);
         }
-        break
+        break;
       }
       default:
         // Unknown rule type - skip
-        break
+        break;
     }
   }
 }
@@ -555,7 +637,7 @@ export class PayoutPolicyEngine {
  * - Approval expiry
  */
 export class ApprovalManager {
-  private log = logger.scope('ApprovalManager')
+  private log = logger.scope("ApprovalManager");
 
   /**
    * Create an approval status for a payout based on its threshold.
@@ -564,22 +646,22 @@ export class ApprovalManager {
     payoutId: string,
     amount: number,
     policy: PayoutPolicy,
-    now: number
+    now: number,
   ): ApprovalStatus {
-    const engine = new PayoutPolicyEngine()
-    const threshold = engine.getApprovalThreshold(amount, policy)
+    const engine = new PayoutPolicyEngine();
+    const threshold = engine.getApprovalThreshold(amount, policy);
 
     if (!threshold) {
       // No threshold found - require at least 1 approval from owner
       const defaultThreshold: ApprovalThreshold = {
-        id: 'default',
-        name: 'Default',
+        id: "default",
+        name: "Default",
         minAmount: 0,
         maxAmount: Infinity,
         requiredApprovals: 1,
-        requiredRoles: ['owner'],
+        requiredRoles: ["owner"],
         expiresAfterMs: 24 * 60 * 60 * 1000,
-      }
+      };
 
       return {
         payoutId,
@@ -592,7 +674,7 @@ export class ApprovalManager {
         isRejected: false,
         isExpired: false,
         expiresAt: now + defaultThreshold.expiresAfterMs,
-      }
+      };
     }
 
     return {
@@ -606,7 +688,7 @@ export class ApprovalManager {
       isRejected: false,
       isExpired: false,
       expiresAt: now + threshold.expiresAfterMs,
-    }
+    };
   }
 
   /**
@@ -622,50 +704,49 @@ export class ApprovalManager {
     status: ApprovalStatus,
     approval: ApprovalRecord,
     requestedBy: string,
-    now: number
+    now: number,
   ): ApprovalStatus {
     // Check expiry
     if (now >= status.expiresAt) {
       return {
         ...status,
         isExpired: true,
-      }
+      };
     }
 
     // Already fully decided
     if (status.isFullyApproved) {
       throw new PayoutError(
         PayoutErrorCode.ALREADY_DECIDED,
-        'Payout has already been fully approved'
-      )
+        "Payout has already been fully approved",
+      );
     }
     if (status.isRejected) {
       throw new PayoutError(
         PayoutErrorCode.ALREADY_DECIDED,
-        'Payout has already been rejected'
-      )
+        "Payout has already been rejected",
+      );
     }
 
     // Self-approval prevention
     if (approval.approverId === requestedBy) {
       throw new PayoutError(
         PayoutErrorCode.SELF_APPROVAL_DENIED,
-        'Cannot approve your own payout request',
-        status.payoutId
-      )
+        "Cannot approve your own payout request",
+        status.payoutId,
+      );
     }
 
     // Duplicate approval prevention
-    const alreadyDecided = [
-      ...status.approvals,
-      ...status.rejections,
-    ].find((a) => a.approverId === approval.approverId)
+    const alreadyDecided = [...status.approvals, ...status.rejections].find(
+      (a) => a.approverId === approval.approverId,
+    );
     if (alreadyDecided) {
       throw new PayoutError(
         PayoutErrorCode.DUPLICATE_APPROVAL,
-        'You have already made a decision on this payout',
-        status.payoutId
-      )
+        "You have already made a decision on this payout",
+        status.payoutId,
+      );
     }
 
     // Role check
@@ -675,26 +756,26 @@ export class ApprovalManager {
     ) {
       throw new PayoutError(
         PayoutErrorCode.INSUFFICIENT_ROLE,
-        `Role '${approval.approverRole}' cannot approve at this threshold. Required: ${status.threshold.requiredRoles.join(', ')}`,
-        status.payoutId
-      )
+        `Role '${approval.approverRole}' cannot approve at this threshold. Required: ${status.threshold.requiredRoles.join(", ")}`,
+        status.payoutId,
+      );
     }
 
-    const updated = { ...status }
+    const updated = { ...status };
 
-    if (approval.decision === 'approved') {
-      updated.approvals = [...status.approvals, approval]
-      updated.currentApprovals = updated.approvals.length
+    if (approval.decision === "approved") {
+      updated.approvals = [...status.approvals, approval];
+      updated.currentApprovals = updated.approvals.length;
 
       if (updated.currentApprovals >= updated.requiredApprovals) {
-        updated.isFullyApproved = true
+        updated.isFullyApproved = true;
       }
     } else {
-      updated.rejections = [...status.rejections, approval]
-      updated.isRejected = true
+      updated.rejections = [...status.rejections, approval];
+      updated.isRejected = true;
     }
 
-    return updated
+    return updated;
   }
 
   /**
@@ -702,17 +783,17 @@ export class ApprovalManager {
    */
   checkExpiry(status: ApprovalStatus, now: number): ApprovalStatus {
     if (status.isFullyApproved || status.isRejected || status.isExpired) {
-      return status
+      return status;
     }
 
     if (now >= status.expiresAt) {
       return {
         ...status,
         isExpired: true,
-      }
+      };
     }
 
-    return status
+    return status;
   }
 }
 
@@ -727,44 +808,45 @@ export class ApprovalManager {
  * and the previous entry's checksum, creating a tamper-evident chain.
  */
 export class TreasuryAuditLogger {
-  private entries: TreasuryAuditEntry[] = []
-  private checksumSecret: string
-  private log = logger.scope('TreasuryAudit')
+  private entries: TreasuryAuditEntry[] = [];
+  private checksumSecret: string;
+  private log = logger.scope("TreasuryAudit");
 
   constructor(checksumSecret?: string) {
-    this.checksumSecret = checksumSecret || 'treasury-audit-integrity-key'
+    this.checksumSecret = checksumSecret || "treasury-audit-integrity-key";
   }
 
   /**
    * Record an audit entry. The entry is immutable once recorded.
    */
   record(params: {
-    eventType: TreasuryAuditEventType
-    actorId: string
-    actorRole: string
-    workspaceId: string
-    description: string
-    payoutId?: string
-    accountId?: string
-    approvalId?: string
-    transactionId?: string
-    amount?: number
-    currency?: string
-    previousState?: string
-    newState?: string
-    ipAddress?: string
-    userAgent?: string
-    requestId?: string
-    metadata?: Record<string, unknown>
-    now?: number
+    eventType: TreasuryAuditEventType;
+    actorId: string;
+    actorRole: string;
+    workspaceId: string;
+    description: string;
+    payoutId?: string;
+    accountId?: string;
+    approvalId?: string;
+    transactionId?: string;
+    amount?: number;
+    currency?: string;
+    previousState?: string;
+    newState?: string;
+    ipAddress?: string;
+    userAgent?: string;
+    requestId?: string;
+    metadata?: Record<string, unknown>;
+    now?: number;
   }): TreasuryAuditEntry {
-    const timestamp = params.now ?? Date.now()
-    const previousChecksum = this.entries.length > 0
-      ? this.entries[this.entries.length - 1].checksum
-      : undefined
+    const timestamp = params.now ?? Date.now();
+    const previousChecksum =
+      this.entries.length > 0
+        ? this.entries[this.entries.length - 1].checksum
+        : undefined;
 
     // Generate a unique ID
-    const id = `audit_${timestamp}_${this.entries.length}_${Math.random().toString(36).slice(2, 10)}`
+    const id = `audit_${timestamp}_${this.entries.length}_${Math.random().toString(36).slice(2, 10)}`;
 
     // Compute checksum for tamper detection
     const checksumPayload = JSON.stringify({
@@ -776,11 +858,11 @@ export class TreasuryAuditLogger {
       description: params.description,
       amount: params.amount,
       previousChecksum,
-    })
+    });
 
-    const checksum = createHmac('sha256', this.checksumSecret)
+    const checksum = createHmac("sha256", this.checksumSecret)
       .update(checksumPayload)
-      .digest('hex')
+      .digest("hex");
 
     const entry: TreasuryAuditEntry = {
       id,
@@ -804,52 +886,54 @@ export class TreasuryAuditLogger {
       checksum,
       previousChecksum,
       metadata: params.metadata,
-    }
+    };
 
     // Append (never modify existing entries)
-    this.entries.push(Object.freeze(entry) as TreasuryAuditEntry)
+    this.entries.push(Object.freeze(entry) as TreasuryAuditEntry);
 
     this.log.audit(`Treasury: ${params.eventType}`, params.actorId, {
       payoutId: params.payoutId,
       amount: params.amount,
-    })
+    });
 
-    return entry
+    return entry;
   }
 
   /**
    * Query audit entries with filters.
    */
   query(filters: TreasuryAuditFilters): TreasuryAuditEntry[] {
-    let results = [...this.entries]
+    let results = [...this.entries];
 
     if (filters.eventTypes && filters.eventTypes.length > 0) {
-      results = results.filter((e) => filters.eventTypes!.includes(e.eventType))
+      results = results.filter((e) =>
+        filters.eventTypes!.includes(e.eventType),
+      );
     }
     if (filters.actorId) {
-      results = results.filter((e) => e.actorId === filters.actorId)
+      results = results.filter((e) => e.actorId === filters.actorId);
     }
     if (filters.workspaceId) {
-      results = results.filter((e) => e.workspaceId === filters.workspaceId)
+      results = results.filter((e) => e.workspaceId === filters.workspaceId);
     }
     if (filters.payoutId) {
-      results = results.filter((e) => e.payoutId === filters.payoutId)
+      results = results.filter((e) => e.payoutId === filters.payoutId);
     }
     if (filters.accountId) {
-      results = results.filter((e) => e.accountId === filters.accountId)
+      results = results.filter((e) => e.accountId === filters.accountId);
     }
     if (filters.startTime !== undefined) {
-      results = results.filter((e) => e.timestamp >= filters.startTime!)
+      results = results.filter((e) => e.timestamp >= filters.startTime!);
     }
     if (filters.endTime !== undefined) {
-      results = results.filter((e) => e.timestamp <= filters.endTime!)
+      results = results.filter((e) => e.timestamp <= filters.endTime!);
     }
 
     // Apply pagination
-    const offset = filters.offset || 0
-    const limit = filters.limit || results.length
+    const offset = filters.offset || 0;
+    const limit = filters.limit || results.length;
 
-    return results.slice(offset, offset + limit)
+    return results.slice(offset, offset + limit);
   }
 
   /**
@@ -858,25 +942,25 @@ export class TreasuryAuditLogger {
    */
   verifyIntegrity(): { valid: boolean; brokenAt?: number; details?: string } {
     for (let i = 0; i < this.entries.length; i++) {
-      const entry = this.entries[i]
+      const entry = this.entries[i];
 
       // Verify chain linkage
       if (i > 0) {
-        const previousEntry = this.entries[i - 1]
+        const previousEntry = this.entries[i - 1];
         if (entry.previousChecksum !== previousEntry.checksum) {
           return {
             valid: false,
             brokenAt: i,
             details: `Chain broken at entry ${i}: previousChecksum mismatch`,
-          }
+          };
         }
       } else {
         if (entry.previousChecksum !== undefined) {
           return {
             valid: false,
             brokenAt: 0,
-            details: 'First entry should not have a previousChecksum',
-          }
+            details: "First entry should not have a previousChecksum",
+          };
         }
       }
 
@@ -890,50 +974,50 @@ export class TreasuryAuditLogger {
         description: entry.description,
         amount: entry.amount,
         previousChecksum: entry.previousChecksum,
-      })
+      });
 
-      const expectedChecksum = createHmac('sha256', this.checksumSecret)
+      const expectedChecksum = createHmac("sha256", this.checksumSecret)
         .update(checksumPayload)
-        .digest('hex')
+        .digest("hex");
 
       if (entry.checksum !== expectedChecksum) {
         return {
           valid: false,
           brokenAt: i,
           details: `Checksum mismatch at entry ${i}: expected ${expectedChecksum}, got ${entry.checksum}`,
-        }
+        };
       }
     }
 
-    return { valid: true }
+    return { valid: true };
   }
 
   /**
    * Get all entries for a specific payout (complete audit trail).
    */
   getPayoutAuditTrail(payoutId: string): TreasuryAuditEntry[] {
-    return this.entries.filter((e) => e.payoutId === payoutId)
+    return this.entries.filter((e) => e.payoutId === payoutId);
   }
 
   /**
    * Get total count of entries.
    */
   get size(): number {
-    return this.entries.length
+    return this.entries.length;
   }
 
   /**
    * Get all entries (read-only copies).
    */
   getAll(): TreasuryAuditEntry[] {
-    return [...this.entries]
+    return [...this.entries];
   }
 
   /**
    * Clear all entries (for testing only).
    */
   clear(): void {
-    this.entries = []
+    this.entries = [];
   }
 }
 
@@ -946,11 +1030,11 @@ export class TreasuryAuditLogger {
  */
 export interface PolicyEvaluationContext {
   /** Current timestamp (for deterministic evaluation) */
-  now: number
+  now: number;
   /** Recent payouts for frequency/aggregate checks */
-  recentPayouts: PayoutRequest[]
+  recentPayouts: PayoutRequest[];
   /** Treasury account for balance/reserve checks */
-  treasuryAccount?: TreasuryAccount
+  treasuryAccount?: TreasuryAccount;
 }
 
 // ============================================================================
@@ -960,16 +1044,19 @@ export interface PolicyEvaluationContext {
 /**
  * Validate a payout state transition.
  */
-export function isValidPayoutTransition(from: PayoutStatus, to: PayoutStatus): boolean {
-  const allowed = VALID_PAYOUT_TRANSITIONS[from]
-  return allowed ? allowed.includes(to) : false
+export function isValidPayoutTransition(
+  from: PayoutStatus,
+  to: PayoutStatus,
+): boolean {
+  const allowed = VALID_PAYOUT_TRANSITIONS[from];
+  return allowed ? allowed.includes(to) : false;
 }
 
 /**
  * Get all valid transitions from a state.
  */
 export function getValidPayoutTransitions(from: PayoutStatus): PayoutStatus[] {
-  return VALID_PAYOUT_TRANSITIONS[from] || []
+  return VALID_PAYOUT_TRANSITIONS[from] || [];
 }
 
 // ============================================================================
@@ -982,9 +1069,9 @@ export function getValidPayoutTransitions(from: PayoutStatus): PayoutStatus[] {
 export function createDefaultPolicy(
   workspaceId: string,
   createdBy: string,
-  now?: number
+  now?: number,
 ): PayoutPolicy {
-  const timestamp = now ?? Date.now()
+  const timestamp = now ?? Date.now();
   return {
     ...DEFAULT_PAYOUT_POLICY,
     id: `policy_${workspaceId}`,
@@ -992,43 +1079,43 @@ export function createDefaultPolicy(
     createdBy,
     createdAt: timestamp,
     updatedAt: timestamp,
-  }
+  };
 }
 
-let policyEngineInstance: PayoutPolicyEngine | null = null
+let policyEngineInstance: PayoutPolicyEngine | null = null;
 
 /**
  * Get the singleton policy engine.
  */
 export function getPayoutPolicyEngine(): PayoutPolicyEngine {
   if (!policyEngineInstance) {
-    policyEngineInstance = new PayoutPolicyEngine()
+    policyEngineInstance = new PayoutPolicyEngine();
   }
-  return policyEngineInstance
+  return policyEngineInstance;
 }
 
 /**
  * Reset the singleton (for testing).
  */
 export function resetPayoutPolicyEngine(): void {
-  policyEngineInstance = null
+  policyEngineInstance = null;
 }
 
-let approvalManagerInstance: ApprovalManager | null = null
+let approvalManagerInstance: ApprovalManager | null = null;
 
 /**
  * Get the singleton approval manager.
  */
 export function getApprovalManager(): ApprovalManager {
   if (!approvalManagerInstance) {
-    approvalManagerInstance = new ApprovalManager()
+    approvalManagerInstance = new ApprovalManager();
   }
-  return approvalManagerInstance
+  return approvalManagerInstance;
 }
 
 /**
  * Reset the singleton (for testing).
  */
 export function resetApprovalManager(): void {
-  approvalManagerInstance = null
+  approvalManagerInstance = null;
 }

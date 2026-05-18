@@ -4,28 +4,28 @@
  * Sent when a new user signs up for the platform.
  */
 
-import { Text } from '@react-email/components'
-import * as React from 'react'
-import EmailButton from '../components/EmailButton'
-import EmailHeading from '../components/EmailHeading'
-import EmailLayout from '../components/EmailLayout'
+import { Text } from "@react-email/components";
+import * as React from "react";
+import EmailButton from "../components/EmailButton";
+import EmailHeading from "../components/EmailHeading";
+import EmailLayout from "../components/EmailLayout";
 
 interface WelcomeEmailProps {
-  userName: string
-  appName?: string
-  loginUrl?: string
-  logoUrl?: string
-  supportEmail?: string
+  userName: string;
+  appName?: string;
+  loginUrl?: string;
+  logoUrl?: string;
+  supportEmail?: string;
 }
 
 export default function WelcomeEmail({
-  userName = 'there',
-  appName = 'nChat',
-  loginUrl = 'http://localhost:3000/login',
+  userName = "there",
+  appName = "nChat",
+  loginUrl = "http://localhost:3000/login",
   logoUrl,
-  supportEmail = 'support@example.com',
+  supportEmail = "support@example.com",
 }: WelcomeEmailProps) {
-  const previewText = `Welcome to ${appName}!`
+  const previewText = `Welcome to ${appName}!`;
 
   return (
     <EmailLayout
@@ -40,8 +40,8 @@ export default function WelcomeEmail({
 
       <Text style={paragraph}>
         Thanks for joining {appName}! We're excited to have you on board.
-        {appName} is your team communication platform designed to keep everyone connected and
-        productive.
+        {appName} is your team communication platform designed to keep everyone
+        connected and productive.
       </Text>
 
       <Text style={paragraph}>Here's what you can do to get started:</Text>
@@ -56,8 +56,8 @@ export default function WelcomeEmail({
       <EmailButton href={loginUrl}>Get Started</EmailButton>
 
       <Text style={paragraph}>
-        If you have any questions or need help getting started, feel free to reach out to our
-        support team at{' '}
+        If you have any questions or need help getting started, feel free to
+        reach out to our support team at{" "}
         <a href={`mailto:${supportEmail}`} style={link}>
           {supportEmail}
         </a>
@@ -70,7 +70,7 @@ export default function WelcomeEmail({
         The {appName} Team
       </Text>
     </EmailLayout>
-  )
+  );
 }
 
 // ============================================================================
@@ -78,25 +78,25 @@ export default function WelcomeEmail({
 // ============================================================================
 
 const paragraph = {
-  fontSize: '16px',
-  lineHeight: '1.6',
-  color: '#334155',
-  margin: '0 0 16px',
-}
+  fontSize: "16px",
+  lineHeight: "1.6",
+  color: "#334155",
+  margin: "0 0 16px",
+};
 
 const list = {
-  fontSize: '16px',
-  lineHeight: '1.6',
-  color: '#334155',
-  margin: '0 0 16px',
-  paddingLeft: '20px',
-}
+  fontSize: "16px",
+  lineHeight: "1.6",
+  color: "#334155",
+  margin: "0 0 16px",
+  paddingLeft: "20px",
+};
 
 const listItem = {
-  marginBottom: '8px',
-}
+  marginBottom: "8px",
+};
 
 const link = {
-  color: '#38bdf8',
-  textDecoration: 'underline',
-}
+  color: "#38bdf8",
+  textDecoration: "underline",
+};

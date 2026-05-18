@@ -4,7 +4,7 @@
  * Mutations for direct messages, calls, user interactions, and social features.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Direct Messages
@@ -20,7 +20,10 @@ export const CREATE_DM_CHANNEL = gql`
         is_private: true
         created_by: $userId
         members: {
-          data: [{ user_id: $userId, role: "member" }, { user_id: $otherUserId, role: "member" }]
+          data: [
+            { user_id: $userId, role: "member" }
+            { user_id: $otherUserId, role: "member" }
+          ]
         }
       }
     ) {
@@ -38,7 +41,7 @@ export const CREATE_DM_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 export const GET_OR_CREATE_DM = gql`
   mutation GetOrCreateDM($userId: uuid!, $otherUserId: uuid!) {
@@ -47,10 +50,15 @@ export const GET_OR_CREATE_DM = gql`
       created
     }
   }
-`
+`;
 
 export const SEND_DM = gql`
-  mutation SendDM($channelId: uuid!, $userId: uuid!, $content: String!, $attachments: jsonb) {
+  mutation SendDM(
+    $channelId: uuid!
+    $userId: uuid!
+    $content: String!
+    $attachments: jsonb
+  ) {
     insert_nchat_messages_one(
       object: {
         channel_id: $channelId
@@ -70,14 +78,19 @@ export const SEND_DM = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Voice/Video Calls
 // ============================================================================
 
 export const INITIATE_CALL = gql`
-  mutation InitiateCall($callerId: uuid!, $calleeId: uuid!, $type: String!, $channelId: uuid) {
+  mutation InitiateCall(
+    $callerId: uuid!
+    $calleeId: uuid!
+    $type: String!
+    $channelId: uuid
+  ) {
     insert_nchat_calls_one(
       object: {
         caller_id: $callerId
@@ -104,7 +117,7 @@ export const INITIATE_CALL = gql`
       }
     }
   }
-`
+`;
 
 export const ACCEPT_CALL = gql`
   mutation AcceptCall($callId: uuid!) {
@@ -117,7 +130,7 @@ export const ACCEPT_CALL = gql`
       accepted_at
     }
   }
-`
+`;
 
 export const REJECT_CALL = gql`
   mutation RejectCall($callId: uuid!, $reason: String) {
@@ -130,7 +143,7 @@ export const REJECT_CALL = gql`
       ended_at
     }
   }
-`
+`;
 
 export const END_CALL = gql`
   mutation EndCall($callId: uuid!) {
@@ -145,7 +158,7 @@ export const END_CALL = gql`
       accepted_at
     }
   }
-`
+`;
 
 // ============================================================================
 // User Relationships
@@ -171,7 +184,7 @@ export const SEND_FRIEND_REQUEST = gql`
       }
     }
   }
-`
+`;
 
 export const ACCEPT_FRIEND_REQUEST = gql`
   mutation AcceptFriendRequest($requestId: uuid!) {
@@ -189,7 +202,7 @@ export const ACCEPT_FRIEND_REQUEST = gql`
       }
     }
   }
-`
+`;
 
 export const REJECT_FRIEND_REQUEST = gql`
   mutation RejectFriendRequest($requestId: uuid!) {
@@ -201,7 +214,7 @@ export const REJECT_FRIEND_REQUEST = gql`
       status
     }
   }
-`
+`;
 
 export const REMOVE_FRIEND = gql`
   mutation RemoveFriend($userId: uuid!, $friendId: uuid!) {
@@ -216,7 +229,7 @@ export const REMOVE_FRIEND = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Blocking Users
@@ -240,17 +253,20 @@ export const BLOCK_USER = gql`
       }
     }
   }
-`
+`;
 
 export const UNBLOCK_USER = gql`
   mutation UnblockUser($userId: uuid!, $blockedUserId: uuid!) {
     delete_nchat_blocked_users(
-      where: { user_id: { _eq: $userId }, blocked_user_id: { _eq: $blockedUserId } }
+      where: {
+        user_id: { _eq: $userId }
+        blocked_user_id: { _eq: $blockedUserId }
+      }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // User Reporting
@@ -278,7 +294,7 @@ export const REPORT_USER = gql`
       reported_at
     }
   }
-`
+`;
 
 export const REPORT_MESSAGE = gql`
   mutation ReportMessage(
@@ -302,7 +318,7 @@ export const REPORT_MESSAGE = gql`
       reported_at
     }
   }
-`
+`;
 
 // ============================================================================
 // User Invitations
@@ -334,7 +350,7 @@ export const INVITE_USER_TO_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 export const ACCEPT_CHANNEL_INVITE = gql`
   mutation AcceptChannelInvite($inviteId: uuid!, $userId: uuid!) {
@@ -351,7 +367,7 @@ export const ACCEPT_CHANNEL_INVITE = gql`
       }
     }
   }
-`
+`;
 
 export const DECLINE_CHANNEL_INVITE = gql`
   mutation DeclineChannelInvite($inviteId: uuid!) {
@@ -362,14 +378,18 @@ export const DECLINE_CHANNEL_INVITE = gql`
       id
     }
   }
-`
+`;
 
 // ============================================================================
 // Presence & Status
 // ============================================================================
 
 export const UPDATE_USER_STATUS = gql`
-  mutation UpdateUserStatus($userId: uuid!, $status: String!, $statusText: String) {
+  mutation UpdateUserStatus(
+    $userId: uuid!
+    $status: String!
+    $statusText: String
+  ) {
     update_nchat_users_by_pk(
       pk_columns: { id: $userId }
       _set: { status: $status, status_text: $statusText, last_seen_at: "now()" }
@@ -380,7 +400,7 @@ export const UPDATE_USER_STATUS = gql`
       last_seen_at
     }
   }
-`
+`;
 
 export const UPDATE_PRESENCE = gql`
   mutation UpdatePresence($userId: uuid!, $isOnline: Boolean!) {
@@ -393,7 +413,7 @@ export const UPDATE_PRESENCE = gql`
       last_seen_at
     }
   }
-`
+`;
 
 // ============================================================================
 // File Sharing
@@ -431,7 +451,7 @@ export const SHARE_FILE = gql`
       }
     }
   }
-`
+`;
 
 export const DELETE_SHARED_FILE = gql`
   mutation DeleteSharedFile($fileId: uuid!) {
@@ -439,43 +459,43 @@ export const DELETE_SHARED_FILE = gql`
       id
     }
   }
-`
+`;
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
 export interface CreateDMInput {
-  userId: string
-  otherUserId: string
+  userId: string;
+  otherUserId: string;
 }
 
 export interface InitiateCallInput {
-  callerId: string
-  calleeId: string
-  type: 'voice' | 'video'
-  channelId?: string
+  callerId: string;
+  calleeId: string;
+  type: "voice" | "video";
+  channelId?: string;
 }
 
 export interface ReportUserInput {
-  reporterId: string
-  reportedUserId: string
-  reason: string
-  details?: string
+  reporterId: string;
+  reportedUserId: string;
+  reason: string;
+  details?: string;
 }
 
 export interface InviteToChannelInput {
-  channelId: string
-  inviterId: string
-  inviteeEmail: string
-  message?: string
+  channelId: string;
+  inviterId: string;
+  inviteeEmail: string;
+  message?: string;
 }
 
 export interface ShareFileInput {
-  channelId: string
-  userId: string
-  fileName: string
-  fileUrl: string
-  fileType: string
-  fileSize: number
+  channelId: string;
+  userId: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
 }

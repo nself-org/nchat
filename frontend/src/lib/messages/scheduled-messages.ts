@@ -5,9 +5,9 @@
  * Includes message creation, editing, cancellation, and listing.
  */
 
-import { create } from 'zustand'
-import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 // ============================================================================
 // Types
@@ -17,46 +17,46 @@ import { immer } from 'zustand/middleware/immer'
  * Status of a scheduled message
  */
 export type ScheduledMessageStatus =
-  | 'pending' // Waiting to be sent
-  | 'sending' // Currently being sent
-  | 'sent' // Successfully sent
-  | 'failed' // Failed to send
-  | 'cancelled' // Cancelled by user
+  | "pending" // Waiting to be sent
+  | "sending" // Currently being sent
+  | "sent" // Successfully sent
+  | "failed" // Failed to send
+  | "cancelled"; // Cancelled by user
 
 /**
  * Scheduled message data
  */
 export interface ScheduledMessage {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Channel or DM to send to */
-  channelId: string
+  channelId: string;
   /** Message content */
-  content: string
+  content: string;
   /** When to send the message */
-  scheduledAt: number
+  scheduledAt: number;
   /** When the message was created */
-  createdAt: number
+  createdAt: number;
   /** When the message was last updated */
-  updatedAt: number
+  updatedAt: number;
   /** User who scheduled the message */
-  userId: string
+  userId: string;
   /** Current status */
-  status: ScheduledMessageStatus
+  status: ScheduledMessageStatus;
   /** Attachments to include */
-  attachments?: ScheduledAttachment[]
+  attachments?: ScheduledAttachment[];
   /** Message to reply to */
-  replyToId?: string
+  replyToId?: string;
   /** Thread parent message */
-  threadId?: string
+  threadId?: string;
   /** Error message if failed */
-  error?: string
+  error?: string;
   /** Number of retry attempts */
-  retryCount?: number
+  retryCount?: number;
   /** Timezone used when scheduling */
-  timezone?: string
+  timezone?: string;
   /** Recurrence pattern (for recurring messages) */
-  recurrence?: RecurrencePattern
+  recurrence?: RecurrencePattern;
 }
 
 /**
@@ -64,17 +64,17 @@ export interface ScheduledMessage {
  */
 export interface ScheduledAttachment {
   /** Attachment ID */
-  id: string
+  id: string;
   /** File name */
-  name: string
+  name: string;
   /** File type */
-  type: string
+  type: string;
   /** File size in bytes */
-  size: number
+  size: number;
   /** File URL or blob URL */
-  url: string
+  url: string;
   /** Preview URL for images */
-  previewUrl?: string
+  previewUrl?: string;
 }
 
 /**
@@ -82,58 +82,58 @@ export interface ScheduledAttachment {
  */
 export interface RecurrencePattern {
   /** Frequency type */
-  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  frequency: "daily" | "weekly" | "monthly" | "yearly";
   /** Interval between occurrences */
-  interval: number
+  interval: number;
   /** Days of week (0-6, Sunday=0) for weekly recurrence */
-  daysOfWeek?: number[]
+  daysOfWeek?: number[];
   /** Day of month for monthly recurrence */
-  dayOfMonth?: number
+  dayOfMonth?: number;
   /** End date for recurrence (optional) */
-  endDate?: number
+  endDate?: number;
   /** Maximum occurrences (optional) */
-  maxOccurrences?: number
+  maxOccurrences?: number;
   /** Count of sent occurrences */
-  sentCount?: number
+  sentCount?: number;
 }
 
 /**
  * Options for creating a scheduled message
  */
 export interface CreateScheduledMessageOptions {
-  channelId: string
-  content: string
-  scheduledAt: Date | number
-  userId: string
-  attachments?: ScheduledAttachment[]
-  replyToId?: string
-  threadId?: string
-  timezone?: string
-  recurrence?: RecurrencePattern
+  channelId: string;
+  content: string;
+  scheduledAt: Date | number;
+  userId: string;
+  attachments?: ScheduledAttachment[];
+  replyToId?: string;
+  threadId?: string;
+  timezone?: string;
+  recurrence?: RecurrencePattern;
 }
 
 /**
  * Options for updating a scheduled message
  */
 export interface UpdateScheduledMessageOptions {
-  content?: string
-  scheduledAt?: Date | number
-  attachments?: ScheduledAttachment[]
-  replyToId?: string
-  threadId?: string
-  timezone?: string
-  recurrence?: RecurrencePattern
+  content?: string;
+  scheduledAt?: Date | number;
+  attachments?: ScheduledAttachment[];
+  replyToId?: string;
+  threadId?: string;
+  timezone?: string;
+  recurrence?: RecurrencePattern;
 }
 
 /**
  * Filter options for listing scheduled messages
  */
 export interface ScheduledMessageFilter {
-  channelId?: string
-  userId?: string
-  status?: ScheduledMessageStatus | ScheduledMessageStatus[]
-  fromDate?: Date | number
-  toDate?: Date | number
+  channelId?: string;
+  userId?: string;
+  status?: ScheduledMessageStatus | ScheduledMessageStatus[];
+  fromDate?: Date | number;
+  toDate?: Date | number;
 }
 
 // ============================================================================
@@ -142,69 +142,73 @@ export interface ScheduledMessageFilter {
 
 export interface ScheduledMessagesState {
   /** All scheduled messages by ID */
-  messages: Map<string, ScheduledMessage>
+  messages: Map<string, ScheduledMessage>;
   /** Messages grouped by channel */
-  messagesByChannel: Map<string, Set<string>>
+  messagesByChannel: Map<string, Set<string>>;
   /** Messages grouped by user */
-  messagesByUser: Map<string, Set<string>>
+  messagesByUser: Map<string, Set<string>>;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error state */
-  error: string | null
+  error: string | null;
 }
 
 export interface ScheduledMessagesActions {
   // CRUD operations
-  addMessage: (options: CreateScheduledMessageOptions) => ScheduledMessage
-  updateMessage: (id: string, options: UpdateScheduledMessageOptions) => ScheduledMessage | null
-  cancelMessage: (id: string) => boolean
-  deleteMessage: (id: string) => boolean
+  addMessage: (options: CreateScheduledMessageOptions) => ScheduledMessage;
+  updateMessage: (
+    id: string,
+    options: UpdateScheduledMessageOptions,
+  ) => ScheduledMessage | null;
+  cancelMessage: (id: string) => boolean;
+  deleteMessage: (id: string) => boolean;
 
   // Status updates
-  markSending: (id: string) => void
-  markSent: (id: string) => void
-  markFailed: (id: string, error: string) => void
-  retry: (id: string) => void
+  markSending: (id: string) => void;
+  markSent: (id: string) => void;
+  markFailed: (id: string, error: string) => void;
+  retry: (id: string) => void;
 
   // Queries
-  getMessage: (id: string) => ScheduledMessage | undefined
-  getMessages: (filter?: ScheduledMessageFilter) => ScheduledMessage[]
-  getMessagesByChannel: (channelId: string) => ScheduledMessage[]
-  getMessagesByUser: (userId: string) => ScheduledMessage[]
-  getPendingMessages: () => ScheduledMessage[]
-  getUpcomingMessages: (minutes?: number) => ScheduledMessage[]
-  getOverdueMessages: () => ScheduledMessage[]
+  getMessage: (id: string) => ScheduledMessage | undefined;
+  getMessages: (filter?: ScheduledMessageFilter) => ScheduledMessage[];
+  getMessagesByChannel: (channelId: string) => ScheduledMessage[];
+  getMessagesByUser: (userId: string) => ScheduledMessage[];
+  getPendingMessages: () => ScheduledMessage[];
+  getUpcomingMessages: (minutes?: number) => ScheduledMessage[];
+  getOverdueMessages: () => ScheduledMessage[];
 
   // Bulk operations
-  cancelAllForChannel: (channelId: string) => number
-  cancelAllForUser: (userId: string) => number
+  cancelAllForChannel: (channelId: string) => number;
+  cancelAllForUser: (userId: string) => number;
 
   // State management
-  setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
-  reset: () => void
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  reset: () => void;
 }
 
-export type ScheduledMessagesStore = ScheduledMessagesState & ScheduledMessagesActions
+export type ScheduledMessagesStore = ScheduledMessagesState &
+  ScheduledMessagesActions;
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** Minimum time in the future for scheduling (5 minutes) */
-export const MIN_SCHEDULE_DELAY_MS = 5 * 60 * 1000
+export const MIN_SCHEDULE_DELAY_MS = 5 * 60 * 1000;
 
 /** Maximum time in the future for scheduling (1 year) */
-export const MAX_SCHEDULE_DELAY_MS = 365 * 24 * 60 * 60 * 1000
+export const MAX_SCHEDULE_DELAY_MS = 365 * 24 * 60 * 60 * 1000;
 
 /** Maximum number of scheduled messages per user */
-export const MAX_SCHEDULED_MESSAGES_PER_USER = 100
+export const MAX_SCHEDULED_MESSAGES_PER_USER = 100;
 
 /** Maximum retry attempts */
-export const MAX_RETRY_ATTEMPTS = 3
+export const MAX_RETRY_ATTEMPTS = 3;
 
 /** Default polling interval for checking due messages (1 minute) */
-export const DEFAULT_POLL_INTERVAL_MS = 60 * 1000
+export const DEFAULT_POLL_INTERVAL_MS = 60 * 1000;
 
 // ============================================================================
 // Utilities
@@ -214,7 +218,7 @@ export const DEFAULT_POLL_INTERVAL_MS = 60 * 1000
  * Generate a unique ID for a scheduled message
  */
 export function generateMessageId(): string {
-  return `sched_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  return `sched_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 /**
@@ -222,119 +226,133 @@ export function generateMessageId(): string {
  */
 export function validateScheduledTime(
   scheduledAt: Date | number,
-  options?: { minDelay?: number; maxDelay?: number }
+  options?: { minDelay?: number; maxDelay?: number },
 ): { valid: boolean; error?: string } {
-  const { minDelay = MIN_SCHEDULE_DELAY_MS, maxDelay = MAX_SCHEDULE_DELAY_MS } = options || {}
+  const { minDelay = MIN_SCHEDULE_DELAY_MS, maxDelay = MAX_SCHEDULE_DELAY_MS } =
+    options || {};
 
-  const scheduledTime = typeof scheduledAt === 'number' ? scheduledAt : scheduledAt.getTime()
-  const now = Date.now()
-  const delay = scheduledTime - now
+  const scheduledTime =
+    typeof scheduledAt === "number" ? scheduledAt : scheduledAt.getTime();
+  const now = Date.now();
+  const delay = scheduledTime - now;
 
   if (delay < minDelay) {
-    const minMinutes = Math.ceil(minDelay / 60000)
+    const minMinutes = Math.ceil(minDelay / 60000);
     return {
       valid: false,
       error: `Message must be scheduled at least ${minMinutes} minutes in the future`,
-    }
+    };
   }
 
   if (delay > maxDelay) {
-    const maxDays = Math.floor(maxDelay / (24 * 60 * 60 * 1000))
+    const maxDays = Math.floor(maxDelay / (24 * 60 * 60 * 1000));
     return {
       valid: false,
       error: `Message cannot be scheduled more than ${maxDays} days in the future`,
-    }
+    };
   }
 
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
  * Validate message content
  */
-export function validateMessageContent(content: string): { valid: boolean; error?: string } {
+export function validateMessageContent(content: string): {
+  valid: boolean;
+  error?: string;
+} {
   if (!content || content.trim().length === 0) {
-    return { valid: false, error: 'Message content cannot be empty' }
+    return { valid: false, error: "Message content cannot be empty" };
   }
 
   if (content.length > 4000) {
-    return { valid: false, error: 'Message content exceeds maximum length of 4000 characters' }
+    return {
+      valid: false,
+      error: "Message content exceeds maximum length of 4000 characters",
+    };
   }
 
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
  * Format scheduled time for display
  */
-export function formatScheduledTime(scheduledAt: number, timezone?: string): string {
-  const date = new Date(scheduledAt)
+export function formatScheduledTime(
+  scheduledAt: number,
+  timezone?: string,
+): string {
+  const date = new Date(scheduledAt);
   const options: Intl.DateTimeFormatOptions = {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
     hour12: true,
-  }
+  };
 
   if (timezone) {
-    options.timeZone = timezone
+    options.timeZone = timezone;
   }
 
   // Add year if not current year
-  const now = new Date()
+  const now = new Date();
   if (date.getFullYear() !== now.getFullYear()) {
-    options.year = 'numeric'
+    options.year = "numeric";
   }
 
-  return date.toLocaleString('en-US', options)
+  return date.toLocaleString("en-US", options);
 }
 
 /**
  * Get relative time string
  */
 export function getRelativeTime(scheduledAt: number): string {
-  const now = Date.now()
-  const diff = scheduledAt - now
+  const now = Date.now();
+  const diff = scheduledAt - now;
 
-  if (diff < 0) return 'overdue'
+  if (diff < 0) return "overdue";
 
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return 'less than a minute'
-  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'}`
-  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'}`
-  return `${days} day${days === 1 ? '' : 's'}`
+  if (minutes < 1) return "less than a minute";
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"}`;
+  return `${days} day${days === 1 ? "" : "s"}`;
 }
 
 /**
  * Check if a message is due for sending
  */
 export function isMessageDue(message: ScheduledMessage): boolean {
-  return message.status === 'pending' && message.scheduledAt <= Date.now()
+  return message.status === "pending" && message.scheduledAt <= Date.now();
 }
 
 /**
  * Check if a message can be edited
  */
 export function canEditMessage(message: ScheduledMessage): boolean {
-  return message.status === 'pending' || message.status === 'failed'
+  return message.status === "pending" || message.status === "failed";
 }
 
 /**
  * Check if a message can be cancelled
  */
 export function canCancelMessage(message: ScheduledMessage): boolean {
-  return message.status === 'pending' || message.status === 'failed'
+  return message.status === "pending" || message.status === "failed";
 }
 
 /**
  * Check if a message can be retried
  */
 export function canRetryMessage(message: ScheduledMessage): boolean {
-  return message.status === 'failed' && (message.retryCount || 0) < MAX_RETRY_ATTEMPTS
+  return (
+    message.status === "failed" &&
+    (message.retryCount || 0) < MAX_RETRY_ATTEMPTS
+  );
 }
 
 /**
@@ -342,9 +360,9 @@ export function canRetryMessage(message: ScheduledMessage): boolean {
  */
 export function calculateNextOccurrence(
   message: ScheduledMessage,
-  fromDate?: number
+  fromDate?: number,
 ): number | null {
-  if (!message.recurrence) return null
+  if (!message.recurrence) return null;
 
   const {
     frequency,
@@ -354,56 +372,60 @@ export function calculateNextOccurrence(
     endDate,
     maxOccurrences,
     sentCount = 0,
-  } = message.recurrence
+  } = message.recurrence;
 
   // Check if max occurrences reached
-  if (maxOccurrences && sentCount >= maxOccurrences) return null
+  if (maxOccurrences && sentCount >= maxOccurrences) return null;
 
-  const from = fromDate || message.scheduledAt
-  const date = new Date(from)
+  const from = fromDate || message.scheduledAt;
+  const date = new Date(from);
 
   switch (frequency) {
-    case 'daily':
-      date.setDate(date.getDate() + interval)
-      break
+    case "daily":
+      date.setDate(date.getDate() + interval);
+      break;
 
-    case 'weekly':
+    case "weekly":
       if (daysOfWeek && daysOfWeek.length > 0) {
         // Find next matching day of week
-        let found = false
+        let found = false;
         for (let i = 1; i <= 7 * interval && !found; i++) {
-          const testDate = new Date(from)
-          testDate.setDate(testDate.getDate() + i)
+          const testDate = new Date(from);
+          testDate.setDate(testDate.getDate() + i);
           if (daysOfWeek.includes(testDate.getDay())) {
-            date.setTime(testDate.getTime())
-            found = true
+            date.setTime(testDate.getTime());
+            found = true;
           }
         }
-        if (!found) return null
+        if (!found) return null;
       } else {
-        date.setDate(date.getDate() + 7 * interval)
+        date.setDate(date.getDate() + 7 * interval);
       }
-      break
+      break;
 
-    case 'monthly':
-      date.setMonth(date.getMonth() + interval)
+    case "monthly":
+      date.setMonth(date.getMonth() + interval);
       if (dayOfMonth) {
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
-        date.setDate(Math.min(dayOfMonth, lastDay))
+        const lastDay = new Date(
+          date.getFullYear(),
+          date.getMonth() + 1,
+          0,
+        ).getDate();
+        date.setDate(Math.min(dayOfMonth, lastDay));
       }
-      break
+      break;
 
-    case 'yearly':
-      date.setFullYear(date.getFullYear() + interval)
-      break
+    case "yearly":
+      date.setFullYear(date.getFullYear() + interval);
+      break;
   }
 
-  const nextTime = date.getTime()
+  const nextTime = date.getTime();
 
   // Check if past end date
-  if (endDate && nextTime > endDate) return null
+  if (endDate && nextTime > endDate) return null;
 
-  return nextTime
+  return nextTime;
 }
 
 /**
@@ -411,30 +433,32 @@ export function calculateNextOccurrence(
  */
 export function sortByScheduledTime(
   messages: ScheduledMessage[],
-  ascending = true
+  ascending = true,
 ): ScheduledMessage[] {
   return [...messages].sort((a, b) => {
-    const diff = a.scheduledAt - b.scheduledAt
-    return ascending ? diff : -diff
-  })
+    const diff = a.scheduledAt - b.scheduledAt;
+    return ascending ? diff : -diff;
+  });
 }
 
 /**
  * Group scheduled messages by date
  */
-export function groupByDate(messages: ScheduledMessage[]): Map<string, ScheduledMessage[]> {
-  const groups = new Map<string, ScheduledMessage[]>()
+export function groupByDate(
+  messages: ScheduledMessage[],
+): Map<string, ScheduledMessage[]> {
+  const groups = new Map<string, ScheduledMessage[]>();
 
   for (const message of messages) {
-    const date = new Date(message.scheduledAt)
-    const key = date.toISOString().split('T')[0] // YYYY-MM-DD
+    const date = new Date(message.scheduledAt);
+    const key = date.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    const existing = groups.get(key) || []
-    existing.push(message)
-    groups.set(key, existing)
+    const existing = groups.get(key) || [];
+    existing.push(message);
+    groups.set(key, existing);
   }
 
-  return groups
+  return groups;
 }
 
 // ============================================================================
@@ -447,7 +471,7 @@ const initialState: ScheduledMessagesState = {
   messagesByUser: new Map(),
   isLoading: false,
   error: null,
-}
+};
 
 // ============================================================================
 // Store
@@ -465,11 +489,11 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
           // ================================================================
 
           addMessage: (options) => {
-            const now = Date.now()
+            const now = Date.now();
             const scheduledAt =
-              typeof options.scheduledAt === 'number'
+              typeof options.scheduledAt === "number"
                 ? options.scheduledAt
-                : options.scheduledAt.getTime()
+                : options.scheduledAt.getTime();
 
             const message: ScheduledMessage = {
               id: generateMessageId(),
@@ -479,48 +503,50 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
               createdAt: now,
               updatedAt: now,
               userId: options.userId,
-              status: 'pending',
+              status: "pending",
               attachments: options.attachments,
               replyToId: options.replyToId,
               threadId: options.threadId,
               timezone: options.timezone,
               recurrence: options.recurrence,
-            }
+            };
 
             set(
               (state) => {
-                state.messages.set(message.id, message)
+                state.messages.set(message.id, message);
 
                 // Add to channel index
-                const channelMessages = state.messagesByChannel.get(message.channelId) || new Set()
-                channelMessages.add(message.id)
-                state.messagesByChannel.set(message.channelId, channelMessages)
+                const channelMessages =
+                  state.messagesByChannel.get(message.channelId) || new Set();
+                channelMessages.add(message.id);
+                state.messagesByChannel.set(message.channelId, channelMessages);
 
                 // Add to user index
-                const userMessages = state.messagesByUser.get(message.userId) || new Set()
-                userMessages.add(message.id)
-                state.messagesByUser.set(message.userId, userMessages)
+                const userMessages =
+                  state.messagesByUser.get(message.userId) || new Set();
+                userMessages.add(message.id);
+                state.messagesByUser.set(message.userId, userMessages);
               },
               false,
-              'scheduled/addMessage'
-            )
+              "scheduled/addMessage",
+            );
 
-            return message
+            return message;
           },
 
           updateMessage: (id, options) => {
-            const state = get()
-            const message = state.messages.get(id)
+            const state = get();
+            const message = state.messages.get(id);
 
             if (!message || !canEditMessage(message)) {
-              return null
+              return null;
             }
 
             const updated: ScheduledMessage = {
               ...message,
               content: options.content ?? message.content,
               scheduledAt: options.scheduledAt
-                ? typeof options.scheduledAt === 'number'
+                ? typeof options.scheduledAt === "number"
                   ? options.scheduledAt
                   : options.scheduledAt.getTime()
                 : message.scheduledAt,
@@ -531,73 +557,75 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
               recurrence: options.recurrence ?? message.recurrence,
               updatedAt: Date.now(),
               // Reset status to pending if was failed
-              status: message.status === 'failed' ? 'pending' : message.status,
+              status: message.status === "failed" ? "pending" : message.status,
               error: undefined,
-            }
+            };
 
             set(
               (state) => {
-                state.messages.set(id, updated)
+                state.messages.set(id, updated);
               },
               false,
-              'scheduled/updateMessage'
-            )
+              "scheduled/updateMessage",
+            );
 
-            return updated
+            return updated;
           },
 
           cancelMessage: (id) => {
-            const state = get()
-            const message = state.messages.get(id)
+            const state = get();
+            const message = state.messages.get(id);
 
             if (!message || !canCancelMessage(message)) {
-              return false
+              return false;
             }
 
             set(
               (state) => {
-                const msg = state.messages.get(id)
+                const msg = state.messages.get(id);
                 if (msg) {
-                  msg.status = 'cancelled'
-                  msg.updatedAt = Date.now()
+                  msg.status = "cancelled";
+                  msg.updatedAt = Date.now();
                 }
               },
               false,
-              'scheduled/cancelMessage'
-            )
+              "scheduled/cancelMessage",
+            );
 
-            return true
+            return true;
           },
 
           deleteMessage: (id) => {
-            const state = get()
-            const message = state.messages.get(id)
+            const state = get();
+            const message = state.messages.get(id);
 
             if (!message) {
-              return false
+              return false;
             }
 
             set(
               (state) => {
-                state.messages.delete(id)
+                state.messages.delete(id);
 
                 // Remove from channel index
-                const channelMessages = state.messagesByChannel.get(message.channelId)
+                const channelMessages = state.messagesByChannel.get(
+                  message.channelId,
+                );
                 if (channelMessages) {
-                  channelMessages.delete(id)
+                  channelMessages.delete(id);
                 }
 
                 // Remove from user index
-                const userMessages = state.messagesByUser.get(message.userId)
+                const userMessages = state.messagesByUser.get(message.userId);
                 if (userMessages) {
-                  userMessages.delete(id)
+                  userMessages.delete(id);
                 }
               },
               false,
-              'scheduled/deleteMessage'
-            )
+              "scheduled/deleteMessage",
+            );
 
-            return true
+            return true;
           },
 
           // ================================================================
@@ -607,28 +635,29 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
           markSending: (id) =>
             set(
               (state) => {
-                const message = state.messages.get(id)
-                if (message && message.status === 'pending') {
-                  message.status = 'sending'
-                  message.updatedAt = Date.now()
+                const message = state.messages.get(id);
+                if (message && message.status === "pending") {
+                  message.status = "sending";
+                  message.updatedAt = Date.now();
                 }
               },
               false,
-              'scheduled/markSending'
+              "scheduled/markSending",
             ),
 
           markSent: (id) =>
             set(
               (state) => {
-                const message = state.messages.get(id)
+                const message = state.messages.get(id);
                 if (message) {
-                  message.status = 'sent'
-                  message.updatedAt = Date.now()
+                  message.status = "sent";
+                  message.updatedAt = Date.now();
 
                   // Handle recurring messages
                   if (message.recurrence) {
-                    message.recurrence.sentCount = (message.recurrence.sentCount || 0) + 1
-                    const nextOccurrence = calculateNextOccurrence(message)
+                    message.recurrence.sentCount =
+                      (message.recurrence.sentCount || 0) + 1;
+                    const nextOccurrence = calculateNextOccurrence(message);
                     if (nextOccurrence) {
                       // Create next occurrence
                       get().addMessage({
@@ -644,43 +673,43 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
                           ...message.recurrence,
                           sentCount: message.recurrence.sentCount,
                         },
-                      })
+                      });
                     }
                   }
                 }
               },
               false,
-              'scheduled/markSent'
+              "scheduled/markSent",
             ),
 
           markFailed: (id, error) =>
             set(
               (state) => {
-                const message = state.messages.get(id)
+                const message = state.messages.get(id);
                 if (message) {
-                  message.status = 'failed'
-                  message.error = error
-                  message.retryCount = (message.retryCount || 0) + 1
-                  message.updatedAt = Date.now()
+                  message.status = "failed";
+                  message.error = error;
+                  message.retryCount = (message.retryCount || 0) + 1;
+                  message.updatedAt = Date.now();
                 }
               },
               false,
-              'scheduled/markFailed'
+              "scheduled/markFailed",
             ),
 
           retry: (id) =>
             set(
               (state) => {
-                const message = state.messages.get(id)
+                const message = state.messages.get(id);
                 if (message && canRetryMessage(message)) {
-                  message.status = 'pending'
-                  message.error = undefined
-                  message.scheduledAt = Date.now() + MIN_SCHEDULE_DELAY_MS
-                  message.updatedAt = Date.now()
+                  message.status = "pending";
+                  message.error = undefined;
+                  message.scheduledAt = Date.now() + MIN_SCHEDULE_DELAY_MS;
+                  message.updatedAt = Date.now();
                 }
               },
               false,
-              'scheduled/retry'
+              "scheduled/retry",
             ),
 
           // ================================================================
@@ -688,65 +717,73 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
           // ================================================================
 
           getMessage: (id) => {
-            return get().messages.get(id)
+            return get().messages.get(id);
           },
 
           getMessages: (filter) => {
-            const state = get()
-            let messages = Array.from(state.messages.values())
+            const state = get();
+            let messages = Array.from(state.messages.values());
 
             if (filter) {
               if (filter.channelId) {
-                messages = messages.filter((m) => m.channelId === filter.channelId)
+                messages = messages.filter(
+                  (m) => m.channelId === filter.channelId,
+                );
               }
               if (filter.userId) {
-                messages = messages.filter((m) => m.userId === filter.userId)
+                messages = messages.filter((m) => m.userId === filter.userId);
               }
               if (filter.status) {
-                const statuses = Array.isArray(filter.status) ? filter.status : [filter.status]
-                messages = messages.filter((m) => statuses.includes(m.status))
+                const statuses = Array.isArray(filter.status)
+                  ? filter.status
+                  : [filter.status];
+                messages = messages.filter((m) => statuses.includes(m.status));
               }
               if (filter.fromDate) {
                 const fromTime =
-                  typeof filter.fromDate === 'number' ? filter.fromDate : filter.fromDate.getTime()
-                messages = messages.filter((m) => m.scheduledAt >= fromTime)
+                  typeof filter.fromDate === "number"
+                    ? filter.fromDate
+                    : filter.fromDate.getTime();
+                messages = messages.filter((m) => m.scheduledAt >= fromTime);
               }
               if (filter.toDate) {
                 const toTime =
-                  typeof filter.toDate === 'number' ? filter.toDate : filter.toDate.getTime()
-                messages = messages.filter((m) => m.scheduledAt <= toTime)
+                  typeof filter.toDate === "number"
+                    ? filter.toDate
+                    : filter.toDate.getTime();
+                messages = messages.filter((m) => m.scheduledAt <= toTime);
               }
             }
 
-            return sortByScheduledTime(messages)
+            return sortByScheduledTime(messages);
           },
 
           getMessagesByChannel: (channelId) => {
-            return get().getMessages({ channelId })
+            return get().getMessages({ channelId });
           },
 
           getMessagesByUser: (userId) => {
-            return get().getMessages({ userId })
+            return get().getMessages({ userId });
           },
 
           getPendingMessages: () => {
-            return get().getMessages({ status: 'pending' })
+            return get().getMessages({ status: "pending" });
           },
 
           getUpcomingMessages: (minutes = 60) => {
-            const now = Date.now()
+            const now = Date.now();
             return get().getMessages({
-              status: 'pending',
+              status: "pending",
               fromDate: now,
               toDate: now + minutes * 60 * 1000,
-            })
+            });
           },
 
           getOverdueMessages: () => {
-            const state = get()
+            const state = get();
             return Array.from(state.messages.values()).filter(
-              (m) => m.status === 'pending' && m.scheduledAt < Date.now()
-            )
+              (m) => m.status === "pending" && m.scheduledAt < Date.now(),
+            );
           },
 
           // ================================================================
@@ -754,47 +791,51 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
           // ================================================================
 
           cancelAllForChannel: (channelId) => {
-            const messages = get().getMessagesByChannel(channelId).filter(canCancelMessage)
-            let count = 0
+            const messages = get()
+              .getMessagesByChannel(channelId)
+              .filter(canCancelMessage);
+            let count = 0;
 
             set(
               (state) => {
                 for (const msg of messages) {
-                  const message = state.messages.get(msg.id)
+                  const message = state.messages.get(msg.id);
                   if (message && canCancelMessage(message)) {
-                    message.status = 'cancelled'
-                    message.updatedAt = Date.now()
-                    count++
+                    message.status = "cancelled";
+                    message.updatedAt = Date.now();
+                    count++;
                   }
                 }
               },
               false,
-              'scheduled/cancelAllForChannel'
-            )
+              "scheduled/cancelAllForChannel",
+            );
 
-            return count
+            return count;
           },
 
           cancelAllForUser: (userId) => {
-            const messages = get().getMessagesByUser(userId).filter(canCancelMessage)
-            let count = 0
+            const messages = get()
+              .getMessagesByUser(userId)
+              .filter(canCancelMessage);
+            let count = 0;
 
             set(
               (state) => {
                 for (const msg of messages) {
-                  const message = state.messages.get(msg.id)
+                  const message = state.messages.get(msg.id);
                   if (message && canCancelMessage(message)) {
-                    message.status = 'cancelled'
-                    message.updatedAt = Date.now()
-                    count++
+                    message.status = "cancelled";
+                    message.updatedAt = Date.now();
+                    count++;
                   }
                 }
               },
               false,
-              'scheduled/cancelAllForUser'
-            )
+              "scheduled/cancelAllForUser",
+            );
 
-            return count
+            return count;
           },
 
           // ================================================================
@@ -804,19 +845,19 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
           setLoading: (loading) =>
             set(
               (state) => {
-                state.isLoading = loading
+                state.isLoading = loading;
               },
               false,
-              'scheduled/setLoading'
+              "scheduled/setLoading",
             ),
 
           setError: (error) =>
             set(
               (state) => {
-                state.error = error
+                state.error = error;
               },
               false,
-              'scheduled/setError'
+              "scheduled/setError",
             ),
 
           reset: () =>
@@ -828,94 +869,95 @@ export const useScheduledMessagesStore = create<ScheduledMessagesStore>()(
                 messagesByUser: new Map(),
               }),
               false,
-              'scheduled/reset'
+              "scheduled/reset",
             ),
-        }))
+        })),
       ),
       {
-        name: 'nchat-scheduled-messages',
+        name: "nchat-scheduled-messages",
         storage: {
           getItem: (name) => {
-            const str = localStorage.getItem(name)
-            if (!str) return null
+            const str = localStorage.getItem(name);
+            if (!str) return null;
             try {
-              const data = JSON.parse(str)
+              const data = JSON.parse(str);
               return {
                 ...data,
                 state: {
                   ...data.state,
                   messages: new Map(data.state.messages || []),
                   messagesByChannel: new Map(
-                    (data.state.messagesByChannel || []).map(([k, v]: [string, string[]]) => [
-                      k,
-                      new Set(v),
-                    ])
+                    (data.state.messagesByChannel || []).map(
+                      ([k, v]: [string, string[]]) => [k, new Set(v)],
+                    ),
                   ),
                   messagesByUser: new Map(
-                    (data.state.messagesByUser || []).map(([k, v]: [string, string[]]) => [
-                      k,
-                      new Set(v),
-                    ])
+                    (data.state.messagesByUser || []).map(
+                      ([k, v]: [string, string[]]) => [k, new Set(v)],
+                    ),
                   ),
                 },
-              }
+              };
             } catch {
-              return null
+              return null;
             }
           },
           setItem: (name, value) => {
-            const state = value.state as ScheduledMessagesState
+            const state = value.state as ScheduledMessagesState;
             const data = {
               ...value,
               state: {
                 ...state,
                 messages: Array.from(state.messages.entries()),
-                messagesByChannel: Array.from(state.messagesByChannel.entries()).map(([k, v]) => [
-                  k,
-                  Array.from(v),
-                ]),
-                messagesByUser: Array.from(state.messagesByUser.entries()).map(([k, v]) => [
-                  k,
-                  Array.from(v),
-                ]),
+                messagesByChannel: Array.from(
+                  state.messagesByChannel.entries(),
+                ).map(([k, v]) => [k, Array.from(v)]),
+                messagesByUser: Array.from(state.messagesByUser.entries()).map(
+                  ([k, v]) => [k, Array.from(v)],
+                ),
               },
-            }
-            localStorage.setItem(name, JSON.stringify(data))
+            };
+            localStorage.setItem(name, JSON.stringify(data));
           },
           removeItem: (name) => localStorage.removeItem(name),
         },
         partialize: (state) => state as ScheduledMessagesStore,
-      }
+      },
     ),
-    { name: 'scheduled-messages-store' }
-  )
-)
+    { name: "scheduled-messages-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectScheduledMessage = (id: string) => (state: ScheduledMessagesStore) =>
-  state.messages.get(id)
+export const selectScheduledMessage =
+  (id: string) => (state: ScheduledMessagesStore) =>
+    state.messages.get(id);
 
 export const selectAllScheduledMessages = (state: ScheduledMessagesStore) =>
-  Array.from(state.messages.values())
+  Array.from(state.messages.values());
 
 export const selectPendingMessages = (state: ScheduledMessagesStore) =>
-  Array.from(state.messages.values()).filter((m) => m.status === 'pending')
+  Array.from(state.messages.values()).filter((m) => m.status === "pending");
 
 export const selectScheduledMessagesForChannel =
   (channelId: string) => (state: ScheduledMessagesStore) =>
-    state.getMessagesByChannel(channelId)
+    state.getMessagesByChannel(channelId);
 
-export const selectScheduledMessagesForUser = (userId: string) => (state: ScheduledMessagesStore) =>
-  state.getMessagesByUser(userId)
+export const selectScheduledMessagesForUser =
+  (userId: string) => (state: ScheduledMessagesStore) =>
+    state.getMessagesByUser(userId);
 
-export const selectScheduledMessagesCount = (state: ScheduledMessagesStore) => state.messages.size
+export const selectScheduledMessagesCount = (state: ScheduledMessagesStore) =>
+  state.messages.size;
 
 export const selectPendingMessagesCount = (state: ScheduledMessagesStore) =>
-  Array.from(state.messages.values()).filter((m) => m.status === 'pending').length
+  Array.from(state.messages.values()).filter((m) => m.status === "pending")
+    .length;
 
-export const selectIsLoading = (state: ScheduledMessagesStore) => state.isLoading
+export const selectIsLoading = (state: ScheduledMessagesStore) =>
+  state.isLoading;
 
-export const selectError = (state: ScheduledMessagesStore) => state.error
+export const selectError = (state: ScheduledMessagesStore) => state.error;

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Reply,
   MessageSquare,
@@ -15,7 +15,7 @@ import {
   BookmarkCheck,
   Forward,
   Flag,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -25,42 +25,42 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
-} from './context-menu-base'
-import { useAuth } from '@/contexts/auth-context'
-import type { Message, MessageActionPermissions } from '@/types/message'
+} from "./context-menu-base";
+import { useAuth } from "@/contexts/auth-context";
+import type { Message, MessageActionPermissions } from "@/types/message";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface MessageContextMenuProps {
-  children: React.ReactNode
-  message: Message
-  onReply?: (message: Message) => void
-  onReplyInThread?: (message: Message) => void
-  onReact?: (message: Message, emoji?: string) => void
-  onEdit?: (message: Message) => void
-  onDelete?: (message: Message) => void
-  onCopyText?: (message: Message) => void
-  onCopyLink?: (message: Message) => void
-  onPin?: (message: Message) => void
-  onUnpin?: (message: Message) => void
-  onBookmark?: (message: Message) => void
-  onUnbookmark?: (message: Message) => void
-  onForward?: (message: Message) => void
-  onReport?: (message: Message) => void
-  disabled?: boolean
+  children: React.ReactNode;
+  message: Message;
+  onReply?: (message: Message) => void;
+  onReplyInThread?: (message: Message) => void;
+  onReact?: (message: Message, emoji?: string) => void;
+  onEdit?: (message: Message) => void;
+  onDelete?: (message: Message) => void;
+  onCopyText?: (message: Message) => void;
+  onCopyLink?: (message: Message) => void;
+  onPin?: (message: Message) => void;
+  onUnpin?: (message: Message) => void;
+  onBookmark?: (message: Message) => void;
+  onUnbookmark?: (message: Message) => void;
+  onForward?: (message: Message) => void;
+  onReport?: (message: Message) => void;
+  disabled?: boolean;
 }
 
 // Quick reactions for the submenu
 const QUICK_REACTIONS = [
-  { emoji: '\u{1F44D}', label: 'Thumbs up' },
-  { emoji: '\u{2764}\u{FE0F}', label: 'Heart' },
-  { emoji: '\u{1F604}', label: 'Smile' },
-  { emoji: '\u{1F389}', label: 'Party' },
-  { emoji: '\u{1F914}', label: 'Thinking' },
-  { emoji: '\u{1F440}', label: 'Eyes' },
-]
+  { emoji: "\u{1F44D}", label: "Thumbs up" },
+  { emoji: "\u{2764}\u{FE0F}", label: "Heart" },
+  { emoji: "\u{1F604}", label: "Smile" },
+  { emoji: "\u{1F389}", label: "Party" },
+  { emoji: "\u{1F914}", label: "Thinking" },
+  { emoji: "\u{1F440}", label: "Eyes" },
+];
 
 // ============================================================================
 // Helper Functions
@@ -69,13 +69,13 @@ const QUICK_REACTIONS = [
 function getMessagePermissions(
   message: Message,
   currentUserId: string | undefined,
-  userRole: string | undefined
+  userRole: string | undefined,
 ): MessageActionPermissions {
-  const isOwner = message.userId === currentUserId
-  const isAdmin = userRole === 'owner' || userRole === 'admin'
-  const isModerator = userRole === 'moderator'
-  const canModerate = isAdmin || isModerator
-  const isSystemMessage = message.type !== 'text'
+  const isOwner = message.userId === currentUserId;
+  const isAdmin = userRole === "owner" || userRole === "admin";
+  const isModerator = userRole === "moderator";
+  const canModerate = isAdmin || isModerator;
+  const isSystemMessage = message.type !== "text";
 
   return {
     canEdit: isOwner && !isSystemMessage && !message.isDeleted,
@@ -89,7 +89,7 @@ function getMessagePermissions(
     canReport: !isOwner && !isSystemMessage && !message.isDeleted,
     canCopy: !message.isDeleted,
     canMarkUnread: !message.isDeleted,
-  }
+  };
 }
 
 // ============================================================================
@@ -114,29 +114,29 @@ export function MessageContextMenu({
   onReport,
   disabled = false,
 }: MessageContextMenuProps) {
-  const { user } = useAuth()
-  const permissions = getMessagePermissions(message, user?.id, user?.role)
+  const { user } = useAuth();
+  const permissions = getMessagePermissions(message, user?.id, user?.role);
 
   const handleCopyText = React.useCallback(() => {
     if (onCopyText) {
-      onCopyText(message)
+      onCopyText(message);
     } else {
-      navigator.clipboard.writeText(message.content)
+      navigator.clipboard.writeText(message.content);
     }
-  }, [message, onCopyText])
+  }, [message, onCopyText]);
 
   const handleCopyLink = React.useCallback(() => {
     if (onCopyLink) {
-      onCopyLink(message)
+      onCopyLink(message);
     } else {
       // Generate message link
-      const url = `${window.location.origin}/chat/channel/${message.channelId}?message=${message.id}`
-      navigator.clipboard.writeText(url)
+      const url = `${window.location.origin}/chat/channel/${message.channelId}?message=${message.id}`;
+      navigator.clipboard.writeText(url);
     }
-  }, [message, onCopyLink])
+  }, [message, onCopyLink]);
 
   if (disabled) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
   return (
@@ -196,7 +196,9 @@ export function MessageContextMenu({
           </ContextMenuSub>
         )}
 
-        {(permissions.canReply || permissions.canReact) && <ContextMenuSeparator />}
+        {(permissions.canReply || permissions.canReact) && (
+          <ContextMenuSeparator />
+        )}
 
         {/* Edit & Delete */}
         {permissions.canEdit && (
@@ -219,7 +221,9 @@ export function MessageContextMenu({
           </ContextMenuItemWithIcon>
         )}
 
-        {(permissions.canEdit || permissions.canDelete) && <ContextMenuSeparator />}
+        {(permissions.canEdit || permissions.canDelete) && (
+          <ContextMenuSeparator />
+        )}
 
         {/* Copy Actions */}
         <ContextMenuItemWithIcon
@@ -230,7 +234,10 @@ export function MessageContextMenu({
           Copy text
         </ContextMenuItemWithIcon>
 
-        <ContextMenuItemWithIcon icon={<Link2 className="h-4 w-4" />} onClick={handleCopyLink}>
+        <ContextMenuItemWithIcon
+          icon={<Link2 className="h-4 w-4" />}
+          onClick={handleCopyLink}
+        >
           Copy link to message
         </ContextMenuItemWithIcon>
 
@@ -302,7 +309,7 @@ export function MessageContextMenu({
         )}
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }
 
-MessageContextMenu.displayName = 'MessageContextMenu'
+MessageContextMenu.displayName = "MessageContextMenu";

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Clock,
   Plus,
@@ -11,20 +11,26 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -32,62 +38,64 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { useComplianceStore } from '@/stores/compliance-store'
+} from "@/components/ui/dialog";
+import { useComplianceStore } from "@/stores/compliance-store";
 import type {
   RetentionPolicy,
   RetentionPeriod,
   DataCategory,
-} from '@/lib/compliance/compliance-types'
-import { formatRetentionPeriod } from '@/lib/compliance/compliance-types'
+} from "@/lib/compliance/compliance-types";
+import { formatRetentionPeriod } from "@/lib/compliance/compliance-types";
 import {
   DEFAULT_RETENTION_PERIODS,
   DATA_CATEGORIES,
   MESSAGE_TYPES,
   createDefaultPolicy,
   validateRetentionPolicy,
-} from '@/lib/compliance/retention-policy'
+} from "@/lib/compliance/retention-policy";
 
 interface PolicyFormData {
-  name: string
-  description: string
-  enabled: boolean
-  period: RetentionPeriod
-  customDays: number
-  dataCategory: DataCategory
-  excludePinnedMessages: boolean
-  excludeStarredMessages: boolean
+  name: string;
+  description: string;
+  enabled: boolean;
+  period: RetentionPeriod;
+  customDays: number;
+  dataCategory: DataCategory;
+  excludePinnedMessages: boolean;
+  excludeStarredMessages: boolean;
 }
 
 const initialFormData: PolicyFormData = {
-  name: '',
-  description: '',
+  name: "",
+  description: "",
   enabled: true,
-  period: '1_year',
+  period: "1_year",
   customDays: 365,
-  dataCategory: 'messages',
+  dataCategory: "messages",
   excludePinnedMessages: true,
   excludeStarredMessages: true,
-}
+};
 
 interface PolicyCardProps {
-  policy: RetentionPolicy
-  onEdit: (policy: RetentionPolicy) => void
-  onDelete: (id: string) => void
-  onToggle: (id: string, enabled: boolean) => void
+  policy: RetentionPolicy;
+  onEdit: (policy: RetentionPolicy) => void;
+  onDelete: (id: string) => void;
+  onToggle: (id: string, enabled: boolean) => void;
 }
 
 function PolicyCard({ policy, onEdit, onDelete, onToggle }: PolicyCardProps) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <Card className={!policy.enabled ? 'opacity-60' : ''}>
+    <Card className={!policy.enabled ? "opacity-60" : ""}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
               className={`rounded-lg p-2 ${
-                policy.enabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
+                policy.enabled
+                  ? "bg-blue-100 text-blue-600"
+                  : "bg-gray-100 text-gray-400"
               }`}
             >
               <Clock className="h-4 w-4" />
@@ -95,13 +103,13 @@ function PolicyCard({ policy, onEdit, onDelete, onToggle }: PolicyCardProps) {
             <div>
               <CardTitle className="text-base">{policy.name}</CardTitle>
               <CardDescription className="text-sm">
-                {DATA_CATEGORIES.find((c) => c.category === policy.dataCategory)?.label ||
-                  policy.dataCategory}
+                {DATA_CATEGORIES.find((c) => c.category === policy.dataCategory)
+                  ?.label || policy.dataCategory}
               </CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={policy.enabled ? 'default' : 'secondary'}>
+            <Badge variant={policy.enabled ? "default" : "secondary"}>
               {formatRetentionPeriod(policy.period, policy.customDays)}
             </Badge>
             <Switch
@@ -114,7 +122,9 @@ function PolicyCard({ policy, onEdit, onDelete, onToggle }: PolicyCardProps) {
       <CardContent>
         <div className="space-y-3">
           {policy.description && (
-            <p className="text-sm text-muted-foreground">{policy.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {policy.description}
+            </p>
           )}
 
           <div className="flex items-center gap-4 text-sm">
@@ -164,7 +174,11 @@ function PolicyCard({ policy, onEdit, onDelete, onToggle }: PolicyCardProps) {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => onEdit(policy)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onEdit(policy)}
+                >
                   <Edit2 className="mr-2 h-4 w-4" />
                   Edit
                 </Button>
@@ -183,55 +197,62 @@ function PolicyCard({ policy, onEdit, onDelete, onToggle }: PolicyCardProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function DataRetentionSettings() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingPolicy, setEditingPolicy] = useState<RetentionPolicy | null>(null)
-  const [formData, setFormData] = useState<PolicyFormData>(initialFormData)
-  const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingPolicy, setEditingPolicy] = useState<RetentionPolicy | null>(
+    null,
+  );
+  const [formData, setFormData] = useState<PolicyFormData>(initialFormData);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  const { retentionPolicies, addRetentionPolicy, updateRetentionPolicy, deleteRetentionPolicy } =
-    useComplianceStore()
+  const {
+    retentionPolicies,
+    addRetentionPolicy,
+    updateRetentionPolicy,
+    deleteRetentionPolicy,
+  } = useComplianceStore();
 
   const handleOpenDialog = (policy?: RetentionPolicy) => {
     if (policy) {
-      setEditingPolicy(policy)
+      setEditingPolicy(policy);
       setFormData({
         name: policy.name,
-        description: policy.description || '',
+        description: policy.description || "",
         enabled: policy.enabled,
         period: policy.period,
         customDays: policy.customDays || 365,
         dataCategory: policy.dataCategory,
         excludePinnedMessages: policy.excludePinnedMessages,
         excludeStarredMessages: policy.excludeStarredMessages,
-      })
+      });
     } else {
-      setEditingPolicy(null)
-      setFormData(initialFormData)
+      setEditingPolicy(null);
+      setFormData(initialFormData);
     }
-    setValidationErrors([])
-    setIsDialogOpen(true)
-  }
+    setValidationErrors([]);
+    setIsDialogOpen(true);
+  };
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false)
-    setEditingPolicy(null)
-    setFormData(initialFormData)
-    setValidationErrors([])
-  }
+    setIsDialogOpen(false);
+    setEditingPolicy(null);
+    setFormData(initialFormData);
+    setValidationErrors([]);
+  };
 
   const handleSave = () => {
     const validation = validateRetentionPolicy({
       ...formData,
-      customDays: formData.period === 'custom' ? formData.customDays : undefined,
-    })
+      customDays:
+        formData.period === "custom" ? formData.customDays : undefined,
+    });
 
     if (!validation.valid) {
-      setValidationErrors(validation.errors)
-      return
+      setValidationErrors(validation.errors);
+      return;
     }
 
     if (editingPolicy) {
@@ -240,46 +261,50 @@ export function DataRetentionSettings() {
         description: formData.description || undefined,
         enabled: formData.enabled,
         period: formData.period,
-        customDays: formData.period === 'custom' ? formData.customDays : undefined,
+        customDays:
+          formData.period === "custom" ? formData.customDays : undefined,
         dataCategory: formData.dataCategory,
         excludePinnedMessages: formData.excludePinnedMessages,
         excludeStarredMessages: formData.excludeStarredMessages,
-      })
+      });
     } else {
       const newPolicy = createDefaultPolicy(formData.dataCategory, {
         name: formData.name,
         description: formData.description || undefined,
         enabled: formData.enabled,
         period: formData.period,
-        customDays: formData.period === 'custom' ? formData.customDays : undefined,
+        customDays:
+          formData.period === "custom" ? formData.customDays : undefined,
         excludePinnedMessages: formData.excludePinnedMessages,
         excludeStarredMessages: formData.excludeStarredMessages,
         isDefault: false,
-      })
-      addRetentionPolicy(newPolicy)
+      });
+      addRetentionPolicy(newPolicy);
     }
 
-    handleCloseDialog()
-  }
+    handleCloseDialog();
+  };
 
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this retention policy?')) {
-      deleteRetentionPolicy(id)
+    if (confirm("Are you sure you want to delete this retention policy?")) {
+      deleteRetentionPolicy(id);
     }
-  }
+  };
 
   const handleToggle = (id: string, enabled: boolean) => {
-    updateRetentionPolicy(id, { enabled })
-  }
+    updateRetentionPolicy(id, { enabled });
+  };
 
   // Group policies by category
   const policiesByCategory = DATA_CATEGORIES.reduce(
     (acc, cat) => {
-      acc[cat.category] = retentionPolicies.filter((p) => p.dataCategory === cat.category)
-      return acc
+      acc[cat.category] = retentionPolicies.filter(
+        (p) => p.dataCategory === cat.category,
+      );
+      return acc;
     },
-    {} as Record<DataCategory, RetentionPolicy[]>
-  )
+    {} as Record<DataCategory, RetentionPolicy[]>,
+  );
 
   return (
     <div className="space-y-6">
@@ -318,8 +343,8 @@ export function DataRetentionSettings() {
       ) : (
         <div className="space-y-6">
           {DATA_CATEGORIES.map((cat) => {
-            const policies = policiesByCategory[cat.category] || []
-            if (policies.length === 0) return null
+            const policies = policiesByCategory[cat.category] || [];
+            if (policies.length === 0) return null;
 
             return (
               <div key={cat.category}>
@@ -336,7 +361,7 @@ export function DataRetentionSettings() {
                   ))}
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       )}
@@ -346,9 +371,13 @@ export function DataRetentionSettings() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              {editingPolicy ? 'Edit Retention Policy' : 'Create Retention Policy'}
+              {editingPolicy
+                ? "Edit Retention Policy"
+                : "Create Retention Policy"}
             </DialogTitle>
-            <DialogDescription>Configure data retention settings for this policy</DialogDescription>
+            <DialogDescription>
+              Configure data retention settings for this policy
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -371,7 +400,9 @@ export function DataRetentionSettings() {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="e.g., Messages - 1 Year Retention"
               />
             </div>
@@ -381,7 +412,9 @@ export function DataRetentionSettings() {
               <Input
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Describe the purpose of this policy"
               />
             </div>
@@ -428,7 +461,7 @@ export function DataRetentionSettings() {
               </Select>
             </div>
 
-            {formData.period === 'custom' && (
+            {formData.period === "custom" && (
               <div className="space-y-2">
                 <Label htmlFor="customDays">Custom Days</Label>
                 <Input
@@ -438,7 +471,10 @@ export function DataRetentionSettings() {
                   max={36500}
                   value={formData.customDays}
                   onChange={(e) =>
-                    setFormData({ ...formData, customDays: parseInt(e.target.value) || 1 })
+                    setFormData({
+                      ...formData,
+                      customDays: parseInt(e.target.value) || 1,
+                    })
                   }
                 />
               </div>
@@ -463,7 +499,9 @@ export function DataRetentionSettings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="excludeStarred">Exclude Starred Messages</Label>
+                  <Label htmlFor="excludeStarred">
+                    Exclude Starred Messages
+                  </Label>
                   <p className="text-xs text-muted-foreground">
                     Starred messages will not be deleted
                   </p>
@@ -472,7 +510,10 @@ export function DataRetentionSettings() {
                   id="excludeStarred"
                   checked={formData.excludeStarredMessages}
                   onCheckedChange={(checked) =>
-                    setFormData({ ...formData, excludeStarredMessages: checked })
+                    setFormData({
+                      ...formData,
+                      excludeStarredMessages: checked,
+                    })
                   }
                 />
               </div>
@@ -487,7 +528,9 @@ export function DataRetentionSettings() {
                 <Switch
                   id="enabled"
                   checked={formData.enabled}
-                  onCheckedChange={(checked) => setFormData({ ...formData, enabled: checked })}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, enabled: checked })
+                  }
                 />
               </div>
             </div>
@@ -500,11 +543,11 @@ export function DataRetentionSettings() {
             </Button>
             <Button onClick={handleSave}>
               <Save className="mr-2 h-4 w-4" />
-              {editingPolicy ? 'Update Policy' : 'Create Policy'}
+              {editingPolicy ? "Update Policy" : "Create Policy"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

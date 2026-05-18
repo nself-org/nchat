@@ -5,9 +5,9 @@
  * for the admin interface.
  */
 
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 import {
   Role,
@@ -19,24 +19,24 @@ import {
   EffectivePermissions,
   BulkAssignmentState,
   PermissionCategory,
-} from '@/lib/admin/roles/role-types'
+} from "@/lib/admin/roles/role-types";
 import {
   DEFAULT_ROLES,
   ROLE_COLOR_PRESETS,
   ROLE_ICON_OPTIONS,
-} from '@/lib/admin/roles/role-defaults'
+} from "@/lib/admin/roles/role-defaults";
 import {
   sortRolesByPosition,
   getHighestRole,
   canManageRole,
   rebalancePositions,
-} from '@/lib/admin/roles/role-hierarchy'
+} from "@/lib/admin/roles/role-hierarchy";
 import {
   computeEffectivePermissions,
   hasPermission,
   detectPermissionConflicts,
   PermissionConflict,
-} from '@/lib/admin/roles/role-inheritance'
+} from "@/lib/admin/roles/role-inheritance";
 import {
   createRole,
   updateRole,
@@ -46,9 +46,9 @@ import {
   removeRoleFromUser,
   createHistoryEntry,
   validateRole,
-} from '@/lib/admin/roles/role-manager'
-import { PERMISSION_GROUPS } from '@/lib/admin/roles/permission-types'
-import type { PermissionGroup } from '@/lib/admin/roles/role-types'
+} from "@/lib/admin/roles/role-manager";
+import { PERMISSION_GROUPS } from "@/lib/admin/roles/permission-types";
+import type { PermissionGroup } from "@/lib/admin/roles/role-types";
 
 // ============================================================================
 // Types
@@ -56,124 +56,124 @@ import type { PermissionGroup } from '@/lib/admin/roles/role-types'
 
 interface RolesState {
   // Role data
-  roles: Role[]
-  rolesById: Record<string, Role>
-  isLoading: boolean
-  error: string | null
+  roles: Role[];
+  rolesById: Record<string, Role>;
+  isLoading: boolean;
+  error: string | null;
 
   // Selected/editing state
-  selectedRoleId: string | null
-  editingRole: Partial<Role> | null
-  isDirty: boolean
-  validationErrors: string[]
+  selectedRoleId: string | null;
+  editingRole: Partial<Role> | null;
+  isDirty: boolean;
+  validationErrors: string[];
 
   // User roles
-  userRoles: Record<string, Role[]> // userId -> roles
-  roleMembers: Record<string, string[]> // roleId -> userIds
+  userRoles: Record<string, Role[]>; // userId -> roles
+  roleMembers: Record<string, string[]>; // roleId -> userIds
 
   // Role history
-  history: RoleHistoryEntry[]
-  historyLoading: boolean
+  history: RoleHistoryEntry[];
+  historyLoading: boolean;
 
   // Bulk operations
-  bulkAssignment: BulkAssignmentState
+  bulkAssignment: BulkAssignmentState;
 
   // Permission matrix state
-  matrixExpandedCategories: PermissionCategory[]
+  matrixExpandedCategories: PermissionCategory[];
 
   // UI state
-  searchQuery: string
-  filterBuiltIn: boolean | null // null = all, true = built-in only, false = custom only
-  sortBy: 'position' | 'name' | 'memberCount'
-  sortOrder: 'asc' | 'desc'
+  searchQuery: string;
+  filterBuiltIn: boolean | null; // null = all, true = built-in only, false = custom only
+  sortBy: "position" | "name" | "memberCount";
+  sortOrder: "asc" | "desc";
 }
 
 interface RolesActions {
   // Data loading
-  setRoles: (roles: Role[]) => void
-  setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
+  setRoles: (roles: Role[]) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
 
   // Role selection
-  selectRole: (roleId: string | null) => void
-  startEditingRole: (role: Role) => void
-  cancelEditing: () => void
+  selectRole: (roleId: string | null) => void;
+  startEditingRole: (role: Role) => void;
+  cancelEditing: () => void;
 
   // Role CRUD
   createNewRole: (
     input: CreateRoleInput,
-    creatorPermissions: EffectivePermissions
-  ) => { role: Role | null; errors: string[] }
+    creatorPermissions: EffectivePermissions,
+  ) => { role: Role | null; errors: string[] };
   updateSelectedRole: (
     input: UpdateRoleInput,
-    editorPermissions: EffectivePermissions
-  ) => { success: boolean; errors: string[] }
+    editorPermissions: EffectivePermissions,
+  ) => { success: boolean; errors: string[] };
   deleteSelectedRole: (deleterPermissions: EffectivePermissions) => {
-    success: boolean
-    errors: string[]
-  }
+    success: boolean;
+    errors: string[];
+  };
   duplicateSelectedRole: (
     newName: string,
-    creatorPermissions: EffectivePermissions
-  ) => { role: Role | null; errors: string[] }
+    creatorPermissions: EffectivePermissions,
+  ) => { role: Role | null; errors: string[] };
 
   // Editing
-  setEditingField: <K extends keyof Role>(field: K, value: Role[K]) => void
-  togglePermission: (permission: Permission) => void
-  setEditingPermissions: (permissions: Permission[]) => void
-  validateEditing: () => string[]
+  setEditingField: <K extends keyof Role>(field: K, value: Role[K]) => void;
+  togglePermission: (permission: Permission) => void;
+  setEditingPermissions: (permissions: Permission[]) => void;
+  validateEditing: () => string[];
 
   // User role management
-  setUserRoles: (userId: string, roles: Role[]) => void
+  setUserRoles: (userId: string, roles: Role[]) => void;
   assignRole: (
     userId: string,
     roleId: string,
-    assignerPermissions: EffectivePermissions
-  ) => { success: boolean; errors: string[] }
+    assignerPermissions: EffectivePermissions,
+  ) => { success: boolean; errors: string[] };
   removeRole: (
     userId: string,
     roleId: string,
-    removerPermissions: EffectivePermissions
-  ) => { success: boolean; errors: string[] }
+    removerPermissions: EffectivePermissions,
+  ) => { success: boolean; errors: string[] };
 
   // Role members
-  setRoleMembers: (roleId: string, userIds: string[]) => void
-  addRoleMember: (roleId: string, userId: string) => void
-  removeRoleMember: (roleId: string, userId: string) => void
+  setRoleMembers: (roleId: string, userIds: string[]) => void;
+  addRoleMember: (roleId: string, userId: string) => void;
+  removeRoleMember: (roleId: string, userId: string) => void;
 
   // Bulk operations
   startBulkAssignment: (
     userIds: string[],
     roleIds: string[],
-    action: 'add' | 'remove' | 'set'
-  ) => void
-  cancelBulkAssignment: () => void
-  setBulkProgress: (progress: number) => void
-  completeBulkAssignment: () => void
-  addBulkError: (userId: string, error: string) => void
+    action: "add" | "remove" | "set",
+  ) => void;
+  cancelBulkAssignment: () => void;
+  setBulkProgress: (progress: number) => void;
+  completeBulkAssignment: () => void;
+  addBulkError: (userId: string, error: string) => void;
 
   // History
-  setHistory: (history: RoleHistoryEntry[]) => void
-  addHistoryEntry: (entry: RoleHistoryEntry) => void
-  setHistoryLoading: (loading: boolean) => void
+  setHistory: (history: RoleHistoryEntry[]) => void;
+  addHistoryEntry: (entry: RoleHistoryEntry) => void;
+  setHistoryLoading: (loading: boolean) => void;
 
   // UI state
-  setSearchQuery: (query: string) => void
-  setFilterBuiltIn: (filter: boolean | null) => void
-  setSortBy: (sortBy: 'position' | 'name' | 'memberCount') => void
-  setSortOrder: (order: 'asc' | 'desc') => void
-  toggleMatrixCategory: (category: PermissionCategory) => void
+  setSearchQuery: (query: string) => void;
+  setFilterBuiltIn: (filter: boolean | null) => void;
+  setSortBy: (sortBy: "position" | "name" | "memberCount") => void;
+  setSortOrder: (order: "asc" | "desc") => void;
+  toggleMatrixCategory: (category: PermissionCategory) => void;
 
   // Utility
-  getRole: (roleId: string) => Role | undefined
-  getRolesByUser: (userId: string) => Role[]
-  getMembersByRole: (roleId: string) => string[]
-  getFilteredRoles: () => Role[]
-  getSortedRoles: () => Role[]
-  reset: () => void
+  getRole: (roleId: string) => Role | undefined;
+  getRolesByUser: (userId: string) => Role[];
+  getMembersByRole: (roleId: string) => string[];
+  getFilteredRoles: () => Role[];
+  getSortedRoles: () => Role[];
+  reset: () => void;
 }
 
-export type RolesStore = RolesState & RolesActions
+export type RolesStore = RolesState & RolesActions;
 
 // ============================================================================
 // Initial State
@@ -182,11 +182,11 @@ export type RolesStore = RolesState & RolesActions
 const initialBulkAssignment: BulkAssignmentState = {
   userIds: [],
   roleIds: [],
-  action: 'add',
+  action: "add",
   isProcessing: false,
   progress: 0,
   errors: [],
-}
+};
 
 const initialState: RolesState = {
   roles: [],
@@ -202,12 +202,12 @@ const initialState: RolesState = {
   history: [],
   historyLoading: false,
   bulkAssignment: initialBulkAssignment,
-  matrixExpandedCategories: ['general', 'messages'],
-  searchQuery: '',
+  matrixExpandedCategories: ["general", "messages"],
+  searchQuery: "",
   filterBuiltIn: null,
-  sortBy: 'position',
-  sortOrder: 'desc',
-}
+  sortBy: "position",
+  sortOrder: "desc",
+};
 
 // ============================================================================
 // Store
@@ -222,164 +222,176 @@ export const useRolesStore = create<RolesStore>()(
       setRoles: (roles) =>
         set(
           (state) => {
-            state.roles = sortRolesByPosition(roles)
+            state.roles = sortRolesByPosition(roles);
             state.rolesById = roles.reduce(
               (acc, role) => {
-                acc[role.id] = role
-                return acc
+                acc[role.id] = role;
+                return acc;
               },
-              {} as Record<string, Role>
-            )
+              {} as Record<string, Role>,
+            );
           },
           false,
-          'roles/setRoles'
+          "roles/setRoles",
         ),
 
       setLoading: (loading) =>
         set(
           (state) => {
-            state.isLoading = loading
+            state.isLoading = loading;
           },
           false,
-          'roles/setLoading'
+          "roles/setLoading",
         ),
 
       setError: (error) =>
         set(
           (state) => {
-            state.error = error
+            state.error = error;
           },
           false,
-          'roles/setError'
+          "roles/setError",
         ),
 
       // Role selection
       selectRole: (roleId) =>
         set(
           (state) => {
-            state.selectedRoleId = roleId
-            state.editingRole = null
-            state.isDirty = false
-            state.validationErrors = []
+            state.selectedRoleId = roleId;
+            state.editingRole = null;
+            state.isDirty = false;
+            state.validationErrors = [];
           },
           false,
-          'roles/selectRole'
+          "roles/selectRole",
         ),
 
       startEditingRole: (role) =>
         set(
           (state) => {
-            state.editingRole = { ...role }
-            state.isDirty = false
-            state.validationErrors = []
+            state.editingRole = { ...role };
+            state.isDirty = false;
+            state.validationErrors = [];
           },
           false,
-          'roles/startEditingRole'
+          "roles/startEditingRole",
         ),
 
       cancelEditing: () =>
         set(
           (state) => {
-            state.editingRole = null
-            state.isDirty = false
-            state.validationErrors = []
+            state.editingRole = null;
+            state.isDirty = false;
+            state.validationErrors = [];
           },
           false,
-          'roles/cancelEditing'
+          "roles/cancelEditing",
         ),
 
       // Role CRUD
       createNewRole: (input, creatorPermissions) => {
-        const result = createRole(input, get().roles, creatorPermissions)
+        const result = createRole(input, get().roles, creatorPermissions);
 
         if (result.errors.length === 0 && result.role.id) {
           set(
             (state) => {
-              state.roles = sortRolesByPosition([...state.roles, result.role])
-              state.rolesById[result.role.id] = result.role
+              state.roles = sortRolesByPosition([...state.roles, result.role]);
+              state.rolesById[result.role.id] = result.role;
             },
             false,
-            'roles/createNewRole'
-          )
-          return { role: result.role, errors: [] }
+            "roles/createNewRole",
+          );
+          return { role: result.role, errors: [] };
         }
 
-        return { role: null, errors: result.errors }
+        return { role: null, errors: result.errors };
       },
 
       updateSelectedRole: (input, editorPermissions) => {
-        const { selectedRoleId, roles } = get()
+        const { selectedRoleId, roles } = get();
         if (!selectedRoleId) {
-          return { success: false, errors: ['No role selected'] }
+          return { success: false, errors: ["No role selected"] };
         }
 
-        const result = updateRole(selectedRoleId, input, roles, editorPermissions)
+        const result = updateRole(
+          selectedRoleId,
+          input,
+          roles,
+          editorPermissions,
+        );
 
         if (result.errors.length === 0) {
           set(
             (state) => {
-              const index = state.roles.findIndex((r) => r.id === selectedRoleId)
+              const index = state.roles.findIndex(
+                (r) => r.id === selectedRoleId,
+              );
               if (index !== -1) {
-                state.roles[index] = result.role
+                state.roles[index] = result.role;
               }
-              state.rolesById[selectedRoleId] = result.role
-              state.editingRole = null
-              state.isDirty = false
+              state.rolesById[selectedRoleId] = result.role;
+              state.editingRole = null;
+              state.isDirty = false;
             },
             false,
-            'roles/updateSelectedRole'
-          )
-          return { success: true, errors: [] }
+            "roles/updateSelectedRole",
+          );
+          return { success: true, errors: [] };
         }
 
-        return { success: false, errors: result.errors }
+        return { success: false, errors: result.errors };
       },
 
       deleteSelectedRole: (deleterPermissions) => {
-        const { selectedRoleId, roles } = get()
+        const { selectedRoleId, roles } = get();
         if (!selectedRoleId) {
-          return { success: false, errors: ['No role selected'] }
+          return { success: false, errors: ["No role selected"] };
         }
 
-        const result = deleteRole(selectedRoleId, roles, deleterPermissions)
+        const result = deleteRole(selectedRoleId, roles, deleterPermissions);
 
         if (result.success) {
           set(
             (state) => {
-              state.roles = state.roles.filter((r) => r.id !== selectedRoleId)
-              delete state.rolesById[selectedRoleId]
-              state.selectedRoleId = null
-              state.editingRole = null
+              state.roles = state.roles.filter((r) => r.id !== selectedRoleId);
+              delete state.rolesById[selectedRoleId];
+              state.selectedRoleId = null;
+              state.editingRole = null;
             },
             false,
-            'roles/deleteSelectedRole'
-          )
+            "roles/deleteSelectedRole",
+          );
         }
 
-        return result
+        return result;
       },
 
       duplicateSelectedRole: (newName, creatorPermissions) => {
-        const { selectedRoleId, roles } = get()
+        const { selectedRoleId, roles } = get();
         if (!selectedRoleId) {
-          return { role: null, errors: ['No role selected'] }
+          return { role: null, errors: ["No role selected"] };
         }
 
-        const result = duplicateRole(selectedRoleId, newName, roles, creatorPermissions)
+        const result = duplicateRole(
+          selectedRoleId,
+          newName,
+          roles,
+          creatorPermissions,
+        );
 
         if (result.errors.length === 0 && result.role.id) {
           set(
             (state) => {
-              state.roles = sortRolesByPosition([...state.roles, result.role])
-              state.rolesById[result.role.id] = result.role
+              state.roles = sortRolesByPosition([...state.roles, result.role]);
+              state.rolesById[result.role.id] = result.role;
             },
             false,
-            'roles/duplicateSelectedRole'
-          )
-          return { role: result.role, errors: [] }
+            "roles/duplicateSelectedRole",
+          );
+          return { role: result.role, errors: [] };
         }
 
-        return { role: null, errors: result.errors }
+        return { role: null, errors: result.errors };
       },
 
       // Editing
@@ -387,154 +399,170 @@ export const useRolesStore = create<RolesStore>()(
         set(
           (state) => {
             if (state.editingRole) {
-              ;(state.editingRole as Record<string, unknown>)[field] = value
-              state.isDirty = true
+              (state.editingRole as Record<string, unknown>)[field] = value;
+              state.isDirty = true;
             }
           },
           false,
-          `roles/setEditingField/${String(field)}`
+          `roles/setEditingField/${String(field)}`,
         ),
 
       togglePermission: (permission) =>
         set(
           (state) => {
             if (state.editingRole && state.editingRole.permissions) {
-              const index = state.editingRole.permissions.indexOf(permission)
+              const index = state.editingRole.permissions.indexOf(permission);
               if (index === -1) {
-                state.editingRole.permissions.push(permission)
+                state.editingRole.permissions.push(permission);
               } else {
-                state.editingRole.permissions.splice(index, 1)
+                state.editingRole.permissions.splice(index, 1);
               }
-              state.isDirty = true
+              state.isDirty = true;
             }
           },
           false,
-          'roles/togglePermission'
+          "roles/togglePermission",
         ),
 
       setEditingPermissions: (permissions) =>
         set(
           (state) => {
             if (state.editingRole) {
-              state.editingRole.permissions = permissions
-              state.isDirty = true
+              state.editingRole.permissions = permissions;
+              state.isDirty = true;
             }
           },
           false,
-          'roles/setEditingPermissions'
+          "roles/setEditingPermissions",
         ),
 
       validateEditing: () => {
-        const { editingRole } = get()
-        if (!editingRole) return []
+        const { editingRole } = get();
+        if (!editingRole) return [];
 
-        const errors = validateRole(editingRole)
+        const errors = validateRole(editingRole);
         set(
           (state) => {
-            state.validationErrors = errors
+            state.validationErrors = errors;
           },
           false,
-          'roles/validateEditing'
-        )
-        return errors
+          "roles/validateEditing",
+        );
+        return errors;
       },
 
       // User role management
       setUserRoles: (userId, roles) =>
         set(
           (state) => {
-            state.userRoles[userId] = sortRolesByPosition(roles)
+            state.userRoles[userId] = sortRolesByPosition(roles);
           },
           false,
-          'roles/setUserRoles'
+          "roles/setUserRoles",
         ),
 
       assignRole: (userId, roleId, assignerPermissions) => {
-        const { roles, userRoles } = get()
-        const currentRoles = userRoles[userId] || []
-        const result = assignRoleToUser(userId, roleId, roles, currentRoles, assignerPermissions)
+        const { roles, userRoles } = get();
+        const currentRoles = userRoles[userId] || [];
+        const result = assignRoleToUser(
+          userId,
+          roleId,
+          roles,
+          currentRoles,
+          assignerPermissions,
+        );
 
         if (result.success) {
-          const role = get().rolesById[roleId]
+          const role = get().rolesById[roleId];
           if (role) {
             set(
               (state) => {
                 state.userRoles[userId] = sortRolesByPosition([
                   ...(state.userRoles[userId] || []),
                   role,
-                ])
+                ]);
                 if (!state.roleMembers[roleId]) {
-                  state.roleMembers[roleId] = []
+                  state.roleMembers[roleId] = [];
                 }
                 if (!state.roleMembers[roleId].includes(userId)) {
-                  state.roleMembers[roleId].push(userId)
+                  state.roleMembers[roleId].push(userId);
                 }
               },
               false,
-              'roles/assignRole'
-            )
+              "roles/assignRole",
+            );
           }
         }
 
-        return result
+        return result;
       },
 
       removeRole: (userId, roleId, removerPermissions) => {
-        const { roles, userRoles } = get()
-        const currentRoles = userRoles[userId] || []
-        const result = removeRoleFromUser(userId, roleId, roles, currentRoles, removerPermissions)
+        const { roles, userRoles } = get();
+        const currentRoles = userRoles[userId] || [];
+        const result = removeRoleFromUser(
+          userId,
+          roleId,
+          roles,
+          currentRoles,
+          removerPermissions,
+        );
 
         if (result.success) {
           set(
             (state) => {
               state.userRoles[userId] = (state.userRoles[userId] || []).filter(
-                (r) => r.id !== roleId
-              )
+                (r) => r.id !== roleId,
+              );
               if (state.roleMembers[roleId]) {
-                state.roleMembers[roleId] = state.roleMembers[roleId].filter((id) => id !== userId)
+                state.roleMembers[roleId] = state.roleMembers[roleId].filter(
+                  (id) => id !== userId,
+                );
               }
             },
             false,
-            'roles/removeRole'
-          )
+            "roles/removeRole",
+          );
         }
 
-        return result
+        return result;
       },
 
       // Role members
       setRoleMembers: (roleId, userIds) =>
         set(
           (state) => {
-            state.roleMembers[roleId] = userIds
+            state.roleMembers[roleId] = userIds;
           },
           false,
-          'roles/setRoleMembers'
+          "roles/setRoleMembers",
         ),
 
       addRoleMember: (roleId, userId) =>
         set(
           (state) => {
             if (!state.roleMembers[roleId]) {
-              state.roleMembers[roleId] = []
+              state.roleMembers[roleId] = [];
             }
             if (!state.roleMembers[roleId].includes(userId)) {
-              state.roleMembers[roleId].push(userId)
+              state.roleMembers[roleId].push(userId);
             }
           },
           false,
-          'roles/addRoleMember'
+          "roles/addRoleMember",
         ),
 
       removeRoleMember: (roleId, userId) =>
         set(
           (state) => {
             if (state.roleMembers[roleId]) {
-              state.roleMembers[roleId] = state.roleMembers[roleId].filter((id) => id !== userId)
+              state.roleMembers[roleId] = state.roleMembers[roleId].filter(
+                (id) => id !== userId,
+              );
             }
           },
           false,
-          'roles/removeRoleMember'
+          "roles/removeRoleMember",
         ),
 
       // Bulk operations
@@ -548,126 +576,126 @@ export const useRolesStore = create<RolesStore>()(
               isProcessing: true,
               progress: 0,
               errors: [],
-            }
+            };
           },
           false,
-          'roles/startBulkAssignment'
+          "roles/startBulkAssignment",
         ),
 
       cancelBulkAssignment: () =>
         set(
           (state) => {
-            state.bulkAssignment = initialBulkAssignment
+            state.bulkAssignment = initialBulkAssignment;
           },
           false,
-          'roles/cancelBulkAssignment'
+          "roles/cancelBulkAssignment",
         ),
 
       setBulkProgress: (progress) =>
         set(
           (state) => {
-            state.bulkAssignment.progress = progress
+            state.bulkAssignment.progress = progress;
           },
           false,
-          'roles/setBulkProgress'
+          "roles/setBulkProgress",
         ),
 
       completeBulkAssignment: () =>
         set(
           (state) => {
-            state.bulkAssignment.isProcessing = false
-            state.bulkAssignment.progress = 100
+            state.bulkAssignment.isProcessing = false;
+            state.bulkAssignment.progress = 100;
           },
           false,
-          'roles/completeBulkAssignment'
+          "roles/completeBulkAssignment",
         ),
 
       addBulkError: (userId, error) =>
         set(
           (state) => {
-            state.bulkAssignment.errors.push({ userId, error })
+            state.bulkAssignment.errors.push({ userId, error });
           },
           false,
-          'roles/addBulkError'
+          "roles/addBulkError",
         ),
 
       // History
       setHistory: (history) =>
         set(
           (state) => {
-            state.history = history
+            state.history = history;
           },
           false,
-          'roles/setHistory'
+          "roles/setHistory",
         ),
 
       addHistoryEntry: (entry) =>
         set(
           (state) => {
-            state.history.unshift(entry)
+            state.history.unshift(entry);
           },
           false,
-          'roles/addHistoryEntry'
+          "roles/addHistoryEntry",
         ),
 
       setHistoryLoading: (loading) =>
         set(
           (state) => {
-            state.historyLoading = loading
+            state.historyLoading = loading;
           },
           false,
-          'roles/setHistoryLoading'
+          "roles/setHistoryLoading",
         ),
 
       // UI state
       setSearchQuery: (query) =>
         set(
           (state) => {
-            state.searchQuery = query
+            state.searchQuery = query;
           },
           false,
-          'roles/setSearchQuery'
+          "roles/setSearchQuery",
         ),
 
       setFilterBuiltIn: (filter) =>
         set(
           (state) => {
-            state.filterBuiltIn = filter
+            state.filterBuiltIn = filter;
           },
           false,
-          'roles/setFilterBuiltIn'
+          "roles/setFilterBuiltIn",
         ),
 
       setSortBy: (sortBy) =>
         set(
           (state) => {
-            state.sortBy = sortBy
+            state.sortBy = sortBy;
           },
           false,
-          'roles/setSortBy'
+          "roles/setSortBy",
         ),
 
       setSortOrder: (order) =>
         set(
           (state) => {
-            state.sortOrder = order
+            state.sortOrder = order;
           },
           false,
-          'roles/setSortOrder'
+          "roles/setSortOrder",
         ),
 
       toggleMatrixCategory: (category) =>
         set(
           (state) => {
-            const index = state.matrixExpandedCategories.indexOf(category)
+            const index = state.matrixExpandedCategories.indexOf(category);
             if (index === -1) {
-              state.matrixExpandedCategories.push(category)
+              state.matrixExpandedCategories.push(category);
             } else {
-              state.matrixExpandedCategories.splice(index, 1)
+              state.matrixExpandedCategories.splice(index, 1);
             }
           },
           false,
-          'roles/toggleMatrixCategory'
+          "roles/toggleMatrixCategory",
         ),
 
       // Utility
@@ -678,71 +706,74 @@ export const useRolesStore = create<RolesStore>()(
       getMembersByRole: (roleId) => get().roleMembers[roleId] || [],
 
       getFilteredRoles: () => {
-        const { roles, searchQuery, filterBuiltIn } = get()
-        let filtered = roles
+        const { roles, searchQuery, filterBuiltIn } = get();
+        let filtered = roles;
 
         // Search filter
         if (searchQuery) {
-          const query = searchQuery.toLowerCase()
+          const query = searchQuery.toLowerCase();
           filtered = filtered.filter(
             (role) =>
               role.name.toLowerCase().includes(query) ||
-              role.description?.toLowerCase().includes(query)
-          )
+              role.description?.toLowerCase().includes(query),
+          );
         }
 
         // Built-in filter
         if (filterBuiltIn !== null) {
-          filtered = filtered.filter((role) => role.isBuiltIn === filterBuiltIn)
+          filtered = filtered.filter(
+            (role) => role.isBuiltIn === filterBuiltIn,
+          );
         }
 
-        return filtered
+        return filtered;
       },
 
       getSortedRoles: () => {
-        const { sortBy, sortOrder } = get()
-        const filtered = get().getFilteredRoles()
+        const { sortBy, sortOrder } = get();
+        const filtered = get().getFilteredRoles();
 
         return [...filtered].sort((a, b) => {
-          let comparison = 0
+          let comparison = 0;
 
           switch (sortBy) {
-            case 'position':
-              comparison = a.position - b.position
-              break
-            case 'name':
-              comparison = a.name.localeCompare(b.name)
-              break
-            case 'memberCount':
-              comparison = (a.memberCount || 0) - (b.memberCount || 0)
-              break
+            case "position":
+              comparison = a.position - b.position;
+              break;
+            case "name":
+              comparison = a.name.localeCompare(b.name);
+              break;
+            case "memberCount":
+              comparison = (a.memberCount || 0) - (b.memberCount || 0);
+              break;
           }
 
-          return sortOrder === 'desc' ? -comparison : comparison
-        })
+          return sortOrder === "desc" ? -comparison : comparison;
+        });
       },
 
-      reset: () => set(() => initialState, false, 'roles/reset'),
+      reset: () => set(() => initialState, false, "roles/reset"),
     })),
-    { name: 'roles-store' }
-  )
-)
+    { name: "roles-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectRoles = (state: RolesStore) => state.roles
-export const selectRolesById = (state: RolesStore) => state.rolesById
+export const selectRoles = (state: RolesStore) => state.roles;
+export const selectRolesById = (state: RolesStore) => state.rolesById;
 export const selectSelectedRole = (state: RolesStore) =>
-  state.selectedRoleId ? state.rolesById[state.selectedRoleId] : null
-export const selectEditingRole = (state: RolesStore) => state.editingRole
-export const selectIsLoading = (state: RolesStore) => state.isLoading
-export const selectError = (state: RolesStore) => state.error
-export const selectIsDirty = (state: RolesStore) => state.isDirty
-export const selectValidationErrors = (state: RolesStore) => state.validationErrors
-export const selectBulkAssignment = (state: RolesStore) => state.bulkAssignment
-export const selectHistory = (state: RolesStore) => state.history
+  state.selectedRoleId ? state.rolesById[state.selectedRoleId] : null;
+export const selectEditingRole = (state: RolesStore) => state.editingRole;
+export const selectIsLoading = (state: RolesStore) => state.isLoading;
+export const selectError = (state: RolesStore) => state.error;
+export const selectIsDirty = (state: RolesStore) => state.isDirty;
+export const selectValidationErrors = (state: RolesStore) =>
+  state.validationErrors;
+export const selectBulkAssignment = (state: RolesStore) => state.bulkAssignment;
+export const selectHistory = (state: RolesStore) => state.history;
 
 // ============================================================================
 // Hooks
@@ -751,14 +782,16 @@ export const selectHistory = (state: RolesStore) => state.history
 /**
  * Hook to get effective permissions for a user
  */
-export function useEffectivePermissions(userId: string): EffectivePermissions | null {
-  const userRoles = useRolesStore((state) => state.userRoles[userId])
+export function useEffectivePermissions(
+  userId: string,
+): EffectivePermissions | null {
+  const userRoles = useRolesStore((state) => state.userRoles[userId]);
 
   if (!userRoles || userRoles.length === 0) {
-    return null
+    return null;
   }
 
-  return computeEffectivePermissions(userId, userRoles)
+  return computeEffectivePermissions(userId, userRoles);
 }
 
 /**
@@ -766,34 +799,34 @@ export function useEffectivePermissions(userId: string): EffectivePermissions | 
  */
 export function useCanManageRole(
   roleId: string,
-  currentUserPermissions: EffectivePermissions | null
+  currentUserPermissions: EffectivePermissions | null,
 ): boolean {
-  const role = useRolesStore((state) => state.rolesById[roleId])
+  const role = useRolesStore((state) => state.rolesById[roleId]);
 
   if (!role || !currentUserPermissions) {
-    return false
+    return false;
   }
 
-  return canManageRole(currentUserPermissions.highestRole, role)
+  return canManageRole(currentUserPermissions.highestRole, role);
 }
 
 /**
  * Hook to get permission groups
  */
 export function usePermissionGroups(): PermissionGroup[] {
-  return PERMISSION_GROUPS
+  return PERMISSION_GROUPS;
 }
 
 /**
  * Hook to get color presets
  */
 export function useColorPresets() {
-  return ROLE_COLOR_PRESETS
+  return ROLE_COLOR_PRESETS;
 }
 
 /**
  * Hook to get icon options
  */
 export function useIconOptions() {
-  return ROLE_ICON_OPTIONS
+  return ROLE_ICON_OPTIONS;
 }

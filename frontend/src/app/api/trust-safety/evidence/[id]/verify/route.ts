@@ -4,13 +4,13 @@
  * POST /api/trust-safety/evidence/[id]/verify - Verify evidence integrity
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getEvidenceCollector } from '@/services/trust-safety/evidence-collector.service'
+import { NextRequest, NextResponse } from "next/server";
+import { getEvidenceCollector } from "@/services/trust-safety/evidence-collector.service";
 
-const collector = getEvidenceCollector()
+const collector = getEvidenceCollector();
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -18,12 +18,12 @@ interface RouteContext {
  */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params
+    const { id } = await context.params;
 
-    const verifierId = request.headers.get('x-user-id') || 'system'
-    const verifierRole = request.headers.get('x-user-role') || 'system'
+    const verifierId = request.headers.get("x-user-id") || "system";
+    const verifierRole = request.headers.get("x-user-role") || "system";
 
-    const result = await collector.verify(id, verifierId, verifierRole)
+    const result = await collector.verify(id, verifierId, verifierRole);
 
     return NextResponse.json({
       success: true,
@@ -35,12 +35,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
         message: result.message,
         checks: result.checks,
       },
-    })
+    });
   } catch (error) {
-    console.error('Evidence verification error:', error)
+    console.error("Evidence verification error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to verify evidence' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to verify evidence" },
+      { status: 500 },
+    );
   }
 }

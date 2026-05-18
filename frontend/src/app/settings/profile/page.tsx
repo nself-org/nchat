@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useAuth } from '@/contexts/auth-context'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   SettingsLayout,
   SettingsSection,
@@ -12,76 +12,78 @@ import {
   AvatarUpload,
   LanguageSelector,
   TimezoneSelector,
-} from '@/components/settings'
-import { User } from 'lucide-react'
+} from "@/components/settings";
+import { User } from "lucide-react";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface ProfileFormData {
-  displayName: string
-  username: string
-  email: string
-  bio: string
-  timezone: string
-  language: string
+  displayName: string;
+  username: string;
+  email: string;
+  bio: string;
+  timezone: string;
+  language: string;
 }
 
 export default function ProfileSettingsPage() {
-  const { user, updateProfile } = useAuth()
-  const [loading, setLoading] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const { user, updateProfile } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [formData, setFormData] = useState<ProfileFormData>({
-    displayName: '',
-    username: '',
-    email: '',
-    bio: '',
-    timezone: 'America/New_York',
-    language: 'en',
-  })
+    displayName: "",
+    username: "",
+    email: "",
+    bio: "",
+    timezone: "America/New_York",
+    language: "en",
+  });
 
   // Load user data when available
   useEffect(() => {
     if (user) {
       setFormData({
-        displayName: user.displayName || '',
-        username: user.username || '',
-        email: user.email || '',
-        bio: '',
-        timezone: 'America/New_York',
-        language: 'en',
-      })
+        displayName: user.displayName || "",
+        username: user.username || "",
+        email: user.email || "",
+        bio: "",
+        timezone: "America/New_York",
+        language: "en",
+      });
     }
-  }, [user])
+  }, [user]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    setSaved(false)
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setSaved(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       await updateProfile({
         displayName: formData.displayName,
         username: formData.username,
-      })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch (error) {
-      logger.error('Failed to update profile:', error)
+      logger.error("Failed to update profile:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleAvatarUpload = async (file: File) => {
     // In a real implementation, you would upload to storage and update the user's avatarUrl
-  }
+  };
 
-  const handleAvatarRemove = async () => {}
+  const handleAvatarRemove = async () => {};
 
   if (!user) {
     return (
@@ -90,7 +92,7 @@ export default function ProfileSettingsPage() {
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </SettingsLayout>
-    )
+    );
   }
 
   return (
@@ -117,7 +119,7 @@ export default function ProfileSettingsPage() {
           >
             <AvatarUpload
               currentAvatarUrl={user.avatarUrl}
-              fallback={user.displayName || user.username || '?'}
+              fallback={user.displayName || user.username || "?"}
               onUpload={handleAvatarUpload}
               onRemove={handleAvatarRemove}
               size="lg"
@@ -200,7 +202,9 @@ export default function ProfileSettingsPage() {
                 maxLength={160}
                 rows={3}
               />
-              <p className="text-xs text-muted-foreground">{formData.bio.length}/160 characters</p>
+              <p className="text-xs text-muted-foreground">
+                {formData.bio.length}/160 characters
+              </p>
             </SettingsRow>
           </SettingsSection>
 
@@ -215,7 +219,9 @@ export default function ProfileSettingsPage() {
                   <p className="font-medium">
                     {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                   </p>
-                  <p className="text-sm text-muted-foreground">{getRoleDescription(user.role)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {getRoleDescription(user.role)}
+                  </p>
                 </div>
                 <div className="bg-primary/10 rounded-full px-3 py-1 text-sm font-medium text-primary">
                   {user.role}
@@ -237,7 +243,9 @@ export default function ProfileSettingsPage() {
             >
               <TimezoneSelector
                 value={formData.timezone}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, timezone: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, timezone: value }))
+                }
                 disabled={loading}
               />
             </SettingsRow>
@@ -250,7 +258,9 @@ export default function ProfileSettingsPage() {
             >
               <LanguageSelector
                 value={formData.language}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, language: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, language: value }))
+                }
                 disabled={loading}
               />
             </SettingsRow>
@@ -259,7 +269,7 @@ export default function ProfileSettingsPage() {
           {/* Save Button */}
           <div className="flex items-center gap-4">
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
             {saved && (
               <p className="text-sm text-green-600 dark:text-green-400">
@@ -270,16 +280,16 @@ export default function ProfileSettingsPage() {
         </form>
       </div>
     </SettingsLayout>
-  )
+  );
 }
 
 function getRoleDescription(role: string): string {
   const descriptions: Record<string, string> = {
-    owner: 'Full access to all settings and user management',
-    admin: 'Can manage users and channels, moderate content',
-    moderator: 'Can moderate content and manage channels',
-    member: 'Standard member with full chat access',
-    guest: 'Limited access to specific channels',
-  }
-  return descriptions[role] || 'Standard member'
+    owner: "Full access to all settings and user management",
+    admin: "Can manage users and channels, moderate content",
+    moderator: "Can moderate content and manage channels",
+    member: "Standard member with full chat access",
+    guest: "Limited access to specific channels",
+  };
+  return descriptions[role] || "Standard member";
 }

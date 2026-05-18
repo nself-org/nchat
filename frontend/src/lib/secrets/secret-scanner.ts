@@ -704,6 +704,7 @@ function isAllowlisted(
 /**
  * Get remediation advice for a finding
  */
+// sast-ignore: HARDCODED_CREDENTIAL -- remediation advice strings containing token/key/secret type names; not actual credential values
 function getRemediation(type: SecretType): string {
   const remediations: Record<SecretType, string> = {
     aws_key:
@@ -746,6 +747,7 @@ function getRemediation(type: SecretType): string {
     pypi_token: "Revoke the PyPI token and use secure credential storage",
     sentry_dsn:
       "Sentry DSN is semi-public, but consider using environment variables",
+    // sast-ignore: HARDCODED_CREDENTIAL -- remediation guidance string in the scanner itself, not a real token
     oauth_token: "OAuth tokens should be obtained dynamically, not hardcoded",
     bearer_token: "Bearer tokens should be obtained at runtime, not hardcoded",
     basic_auth: "Basic auth credentials should use environment variables",

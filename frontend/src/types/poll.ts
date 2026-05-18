@@ -5,7 +5,7 @@
  * Supports single-choice, multiple-choice, and anonymous polls.
  */
 
-import type { UserBasicInfo } from './user'
+import type { UserBasicInfo } from "./user";
 
 // ============================================================================
 // Poll Type Definitions
@@ -14,17 +14,17 @@ import type { UserBasicInfo } from './user'
 /**
  * Types of polls.
  */
-export type PollType = 'single' | 'multiple' | 'ranked'
+export type PollType = "single" | "multiple" | "ranked";
 
 /**
  * Poll status values.
  */
-export type PollStatus = 'draft' | 'active' | 'closed' | 'cancelled'
+export type PollStatus = "draft" | "active" | "closed" | "cancelled";
 
 /**
  * Poll visibility for results.
  */
-export type PollResultsVisibility = 'always' | 'after_vote' | 'after_close'
+export type PollResultsVisibility = "always" | "after_vote" | "after_close";
 
 // ============================================================================
 // Poll Option Types
@@ -35,32 +35,32 @@ export type PollResultsVisibility = 'always' | 'after_vote' | 'after_close'
  */
 export interface PollOption {
   /** Unique option ID */
-  id: string
+  id: string;
   /** Option text */
-  text: string
+  text: string;
   /** Option emoji/icon (optional) */
-  emoji?: string
+  emoji?: string;
   /** Option image URL (optional) */
-  imageUrl?: string
+  imageUrl?: string;
   /** Vote count */
-  voteCount: number
+  voteCount: number;
   /** Percentage of total votes */
-  percentage: number
+  percentage: number;
   /** Display order */
-  position: number
+  position: number;
   /** User IDs who voted for this option (if not anonymous) */
-  voterIds?: string[]
+  voterIds?: string[];
   /** Voters (if not anonymous and loaded) */
-  voters?: UserBasicInfo[]
+  voters?: UserBasicInfo[];
 }
 
 /**
  * Input for creating a poll option.
  */
 export interface PollOptionInput {
-  text: string
-  emoji?: string
-  imageUrl?: string
+  text: string;
+  emoji?: string;
+  imageUrl?: string;
 }
 
 // ============================================================================
@@ -72,30 +72,30 @@ export interface PollOptionInput {
  */
 export interface PollVote {
   /** Vote ID */
-  id: string
+  id: string;
   /** Poll ID */
-  pollId: string
+  pollId: string;
   /** User ID (null for anonymous) */
-  userId?: string
+  userId?: string;
   /** User info (if not anonymous) */
-  user?: UserBasicInfo
+  user?: UserBasicInfo;
   /** Selected option ID(s) */
-  optionIds: string[]
+  optionIds: string[];
   /** Ranking (for ranked choice) */
-  ranking?: { optionId: string; rank: number }[]
+  ranking?: { optionId: string; rank: number }[];
   /** When the vote was cast */
-  votedAt: Date
+  votedAt: Date;
   /** When the vote was last changed */
-  updatedAt?: Date
+  updatedAt?: Date;
 }
 
 /**
  * Input for casting a vote.
  */
 export interface CastVoteInput {
-  pollId: string
-  optionIds: string[]
-  ranking?: { optionId: string; rank: number }[]
+  pollId: string;
+  optionIds: string[];
+  ranking?: { optionId: string; rank: number }[];
 }
 
 // ============================================================================
@@ -107,57 +107,57 @@ export interface CastVoteInput {
  */
 export interface PollSettings {
   /** Poll type */
-  type: PollType
+  type: PollType;
   /** Allow multiple selections (for multiple choice) */
-  allowMultiple: boolean
+  allowMultiple: boolean;
   /** Maximum selections (for multiple choice) */
-  maxSelections?: number
+  maxSelections?: number;
   /** Minimum selections (for multiple choice) */
-  minSelections?: number
+  minSelections?: number;
   /** Anonymous voting */
-  isAnonymous: boolean
+  isAnonymous: boolean;
   /** When results are visible */
-  resultsVisibility: PollResultsVisibility
+  resultsVisibility: PollResultsVisibility;
   /** Allow vote changes */
-  allowVoteChange: boolean
+  allowVoteChange: boolean;
   /** Allow adding new options */
-  allowAddOptions: boolean
+  allowAddOptions: boolean;
   /** Who can add options */
-  addOptionsPermission: 'creator' | 'anyone'
+  addOptionsPermission: "creator" | "anyone";
   /** Auto-close after time (minutes, null = no auto-close) */
-  autoCloseAfter?: number | null
+  autoCloseAfter?: number | null;
   /** Close after reaching vote count */
-  closeAtVoteCount?: number | null
+  closeAtVoteCount?: number | null;
   /** Require comment with vote */
-  requireComment: boolean
+  requireComment: boolean;
   /** Show voter names */
-  showVoterNames: boolean
+  showVoterNames: boolean;
   /** Show real-time results */
-  showRealTimeResults: boolean
+  showRealTimeResults: boolean;
   /** Quiz mode (has correct answer) */
-  isQuiz: boolean
+  isQuiz: boolean;
   /** Correct option ID (for quiz mode) */
-  correctOptionId?: string
+  correctOptionId?: string;
   /** Explanation shown after voting (for quiz mode) */
-  explanation?: string
+  explanation?: string;
 }
 
 /**
  * Default poll settings.
  */
 export const DefaultPollSettings: PollSettings = {
-  type: 'single',
+  type: "single",
   allowMultiple: false,
   isAnonymous: false,
-  resultsVisibility: 'after_vote',
+  resultsVisibility: "after_vote",
   allowVoteChange: true,
   allowAddOptions: false,
-  addOptionsPermission: 'creator',
+  addOptionsPermission: "creator",
   requireComment: false,
   showVoterNames: true,
   showRealTimeResults: true,
   isQuiz: false,
-}
+};
 
 // ============================================================================
 // Main Poll Interface
@@ -168,45 +168,45 @@ export const DefaultPollSettings: PollSettings = {
  */
 export interface Poll {
   /** Unique poll ID */
-  id: string
+  id: string;
   /** Poll question/title */
-  question: string
+  question: string;
   /** Poll description (optional) */
-  description?: string
+  description?: string;
   /** Poll options */
-  options: PollOption[]
+  options: PollOption[];
   /** Poll settings */
-  settings: PollSettings
+  settings: PollSettings;
   /** Poll status */
-  status: PollStatus
+  status: PollStatus;
   /** Creator user ID */
-  createdBy: string
+  createdBy: string;
   /** Creator info */
-  creator?: UserBasicInfo
+  creator?: UserBasicInfo;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Message ID (if attached to message) */
-  messageId?: string
+  messageId?: string;
   /** Total vote count */
-  totalVotes: number
+  totalVotes: number;
   /** Unique voter count */
-  totalVoters: number
+  totalVoters: number;
   /** When poll was created */
-  createdAt: Date
+  createdAt: Date;
   /** When poll was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** When poll opens */
-  opensAt?: Date
+  opensAt?: Date;
   /** When poll closes */
-  closesAt?: Date
+  closesAt?: Date;
   /** When poll was actually closed */
-  closedAt?: Date
+  closedAt?: Date;
   /** Who closed the poll */
-  closedBy?: string
+  closedBy?: string;
   /** Current user's vote (if any) */
-  currentUserVote?: PollVote
+  currentUserVote?: PollVote;
   /** Whether current user has voted */
-  hasVoted: boolean
+  hasVoted: boolean;
 }
 
 /**
@@ -214,9 +214,9 @@ export interface Poll {
  */
 export interface PollWithResults extends Poll {
   /** Detailed results by option */
-  results: PollOptionResult[]
+  results: PollOptionResult[];
   /** Vote distribution over time */
-  voteDistribution?: PollVoteDistribution[]
+  voteDistribution?: PollVoteDistribution[];
 }
 
 /**
@@ -224,9 +224,9 @@ export interface PollWithResults extends Poll {
  */
 export interface PollOptionResult extends PollOption {
   /** Voters for this option (if visible) */
-  voters: UserBasicInfo[]
+  voters: UserBasicInfo[];
   /** Vote timestamps */
-  voteTimestamps?: Date[]
+  voteTimestamps?: Date[];
 }
 
 /**
@@ -234,11 +234,11 @@ export interface PollOptionResult extends PollOption {
  */
 export interface PollVoteDistribution {
   /** Time bucket */
-  timestamp: Date
+  timestamp: Date;
   /** Votes by option at this time */
-  optionVotes: { optionId: string; count: number }[]
+  optionVotes: { optionId: string; count: number }[];
   /** Total votes at this time */
-  totalVotes: number
+  totalVotes: number;
 }
 
 // ============================================================================
@@ -249,31 +249,31 @@ export interface PollVoteDistribution {
  * Input for creating a new poll.
  */
 export interface CreatePollInput {
-  question: string
-  description?: string
-  options: PollOptionInput[]
-  settings?: Partial<PollSettings>
-  channelId: string
-  opensAt?: Date
-  closesAt?: Date
+  question: string;
+  description?: string;
+  options: PollOptionInput[];
+  settings?: Partial<PollSettings>;
+  channelId: string;
+  opensAt?: Date;
+  closesAt?: Date;
 }
 
 /**
  * Input for updating a poll.
  */
 export interface UpdatePollInput {
-  question?: string
-  description?: string
-  settings?: Partial<PollSettings>
-  closesAt?: Date
+  question?: string;
+  description?: string;
+  settings?: Partial<PollSettings>;
+  closesAt?: Date;
 }
 
 /**
  * Input for adding an option to a poll.
  */
 export interface AddPollOptionInput {
-  pollId: string
-  option: PollOptionInput
+  pollId: string;
+  option: PollOptionInput;
 }
 
 // ============================================================================
@@ -284,40 +284,40 @@ export interface AddPollOptionInput {
  * Poll event types.
  */
 export type PollEventType =
-  | 'poll_created'
-  | 'poll_updated'
-  | 'poll_closed'
-  | 'poll_cancelled'
-  | 'vote_cast'
-  | 'vote_changed'
-  | 'vote_removed'
-  | 'option_added'
+  | "poll_created"
+  | "poll_updated"
+  | "poll_closed"
+  | "poll_cancelled"
+  | "vote_cast"
+  | "vote_changed"
+  | "vote_removed"
+  | "option_added";
 
 /**
  * Poll event payload.
  */
 export interface PollEvent {
-  type: PollEventType
-  pollId: string
-  poll?: Poll
-  userId?: string
-  user?: UserBasicInfo
-  vote?: PollVote
-  option?: PollOption
-  timestamp: Date
+  type: PollEventType;
+  pollId: string;
+  poll?: Poll;
+  userId?: string;
+  user?: UserBasicInfo;
+  vote?: PollVote;
+  option?: PollOption;
+  timestamp: Date;
 }
 
 /**
  * Poll vote event (for real-time updates).
  */
 export interface PollVoteEvent {
-  pollId: string
-  optionId: string
-  voteCount: number
-  totalVotes: number
-  userId?: string
-  user?: UserBasicInfo
-  timestamp: Date
+  pollId: string;
+  optionId: string;
+  voteCount: number;
+  totalVotes: number;
+  userId?: string;
+  user?: UserBasicInfo;
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -329,28 +329,28 @@ export interface PollVoteEvent {
  */
 export interface PollFilter {
   /** Filter by status */
-  status?: PollStatus[]
+  status?: PollStatus[];
   /** Filter by creator */
-  createdBy?: string
+  createdBy?: string;
   /** Filter by channel */
-  channelId?: string
+  channelId?: string;
   /** Filter by date range */
-  createdAfter?: Date
-  createdBefore?: Date
+  createdAfter?: Date;
+  createdBefore?: Date;
   /** Only polls user has voted in */
-  hasVoted?: boolean
+  hasVoted?: boolean;
   /** Only polls user created */
-  isCreator?: boolean
+  isCreator?: boolean;
   /** Include closed polls */
-  includeClosed?: boolean
+  includeClosed?: boolean;
 }
 
 /**
  * Poll sort options.
  */
 export interface PollSortOptions {
-  sortBy: 'createdAt' | 'closesAt' | 'totalVotes' | 'question'
-  sortOrder: 'asc' | 'desc'
+  sortBy: "createdAt" | "closesAt" | "totalVotes" | "question";
+  sortOrder: "asc" | "desc";
 }
 
 // ============================================================================
@@ -361,56 +361,60 @@ export interface PollSortOptions {
  * Check if poll is open for voting.
  */
 export function isPollOpen(poll: Poll): boolean {
-  if (poll.status !== 'active') return false
-  const now = new Date()
-  if (poll.opensAt && poll.opensAt > now) return false
-  if (poll.closesAt && poll.closesAt < now) return false
-  return true
+  if (poll.status !== "active") return false;
+  const now = new Date();
+  if (poll.opensAt && poll.opensAt > now) return false;
+  if (poll.closesAt && poll.closesAt < now) return false;
+  return true;
 }
 
 /**
  * Check if user can vote in poll.
  */
 export function canVoteInPoll(poll: Poll, hasVoted: boolean): boolean {
-  if (!isPollOpen(poll)) return false
-  if (hasVoted && !poll.settings.allowVoteChange) return false
-  return true
+  if (!isPollOpen(poll)) return false;
+  if (hasVoted && !poll.settings.allowVoteChange) return false;
+  return true;
 }
 
 /**
  * Calculate option percentages.
  */
-export function calculatePollPercentages(options: PollOption[], totalVotes: number): PollOption[] {
+export function calculatePollPercentages(
+  options: PollOption[],
+  totalVotes: number,
+): PollOption[] {
   return options.map((option) => ({
     ...option,
-    percentage: totalVotes > 0 ? Math.round((option.voteCount / totalVotes) * 100) : 0,
-  }))
+    percentage:
+      totalVotes > 0 ? Math.round((option.voteCount / totalVotes) * 100) : 0,
+  }));
 }
 
 /**
  * Get winning options (highest vote count).
  */
 export function getWinningOptions(poll: Poll): PollOption[] {
-  const maxVotes = Math.max(...poll.options.map((o) => o.voteCount))
-  if (maxVotes === 0) return []
-  return poll.options.filter((o) => o.voteCount === maxVotes)
+  const maxVotes = Math.max(...poll.options.map((o) => o.voteCount));
+  if (maxVotes === 0) return [];
+  return poll.options.filter((o) => o.voteCount === maxVotes);
 }
 
 /**
  * Format poll closing time.
  */
 export function formatPollClosingTime(closesAt: Date): string {
-  const now = new Date()
-  const diff = closesAt.getTime() - now.getTime()
+  const now = new Date();
+  const diff = closesAt.getTime() - now.getTime();
 
-  if (diff <= 0) return 'Closed'
+  if (diff <= 0) return "Closed";
 
-  const minutes = Math.floor(diff / (1000 * 60))
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days} day${days > 1 ? 's' : ''} left`
-  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} left`
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} left`
-  return 'Closing soon'
+  if (days > 0) return `${days} day${days > 1 ? "s" : ""} left`;
+  if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} left`;
+  if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} left`;
+  return "Closing soon";
 }

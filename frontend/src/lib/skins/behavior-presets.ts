@@ -9,26 +9,26 @@
  * @version 1.0.0
  */
 
-import type { BehaviorPreset } from './types'
+import type { BehaviorPreset } from "./types";
 
 // ============================================================================
 // NCHAT BEHAVIOR (Default)
 // ============================================================================
 
 export const nchatBehavior: BehaviorPreset = {
-  id: 'nchat',
-  name: 'nChat',
-  description: 'Balanced defaults combining the best of all platforms',
-  version: '0.9.1',
+  id: "nchat",
+  name: "nChat",
+  description: "Balanced defaults combining the best of all platforms",
+  version: "0.9.1",
   messaging: {
     editWindow: 0, // unlimited
     deleteWindow: 0, // unlimited
     deleteForEveryone: true,
     deleteForEveryoneWindow: 24 * 60 * 60 * 1000, // 24 hours
     showEditedIndicator: true,
-    reactionStyle: 'full-picker',
+    reactionStyle: "full-picker",
     maxReactionsPerMessage: 20,
-    threadingModel: 'side-panel',
+    threadingModel: "side-panel",
     maxMessageLength: 10000,
     forwarding: true,
     forwardLimit: 10,
@@ -38,7 +38,15 @@ export const nchatBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['public', 'private', 'dm', 'group-dm', 'broadcast', 'forum', 'voice'],
+    types: [
+      "public",
+      "private",
+      "dm",
+      "group-dm",
+      "broadcast",
+      "forum",
+      "voice",
+    ],
     hierarchy: true,
     categories: true,
     forums: true,
@@ -48,7 +56,7 @@ export const nchatBehavior: BehaviorPreset = {
     slowMode: true,
   },
   presence: {
-    states: ['online', 'away', 'busy', 'dnd', 'invisible', 'offline'],
+    states: ["online", "away", "busy", "dnd", "invisible", "offline"],
     showLastSeen: true,
     lastSeenPrivacy: true,
     customStatus: true,
@@ -70,8 +78,8 @@ export const nchatBehavior: BehaviorPreset = {
     huddles: false,
   },
   notifications: {
-    defaultLevel: 'mentions',
-    mentionRules: ['user', 'role', 'channel', 'here', 'everyone'],
+    defaultLevel: "mentions",
+    mentionRules: ["user", "role", "channel", "here", "everyone"],
     quietHours: true,
     threadNotifications: true,
     soundEnabled: true,
@@ -93,11 +101,11 @@ export const nchatBehavior: BehaviorPreset = {
     readReceiptsOptional: true,
     lastSeen: true,
     lastSeenPrivacy: true,
-    profileVisibility: 'everyone',
+    profileVisibility: "everyone",
     onlineStatusVisible: true,
     e2eeDefault: false,
     disappearingMessages: true,
-    disappearingOptions: ['off', '24h', '7d', '30d'],
+    disappearingOptions: ["off", "24h", "7d", "30d"],
   },
   features: {
     richText: true,
@@ -116,26 +124,26 @@ export const nchatBehavior: BehaviorPreset = {
     contactSharing: false,
     stories: false,
   },
-}
+};
 
 // ============================================================================
 // WHATSAPP BEHAVIOR
 // ============================================================================
 
 export const whatsappBehavior: BehaviorPreset = {
-  id: 'whatsapp',
-  name: 'WhatsApp',
-  description: 'WhatsApp-style E2EE messaging with strict privacy defaults',
-  version: '0.9.1',
+  id: "whatsapp",
+  name: "WhatsApp",
+  description: "WhatsApp-style E2EE messaging with strict privacy defaults",
+  version: "0.9.1",
   messaging: {
     editWindow: 15 * 60 * 1000, // 15 minutes
     deleteWindow: 0, // unlimited delete for self
     deleteForEveryone: true,
     deleteForEveryoneWindow: 48 * 60 * 60 * 1000 + 8 * 60 * 1000, // ~2 days
     showEditedIndicator: true,
-    reactionStyle: 'quick-reactions',
+    reactionStyle: "quick-reactions",
     maxReactionsPerMessage: 1, // WhatsApp allows 1 reaction per user
-    threadingModel: 'reply-chain',
+    threadingModel: "reply-chain",
     maxMessageLength: 4096,
     forwarding: true,
     forwardLimit: 5,
@@ -145,7 +153,7 @@ export const whatsappBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['dm', 'group-dm', 'broadcast'],
+    types: ["dm", "group-dm", "broadcast"],
     hierarchy: false,
     categories: false,
     forums: false,
@@ -155,7 +163,7 @@ export const whatsappBehavior: BehaviorPreset = {
     slowMode: false,
   },
   presence: {
-    states: ['online', 'offline'],
+    states: ["online", "offline"],
     showLastSeen: true,
     lastSeenPrivacy: true,
     customStatus: true,
@@ -177,8 +185,8 @@ export const whatsappBehavior: BehaviorPreset = {
     huddles: false,
   },
   notifications: {
-    defaultLevel: 'all',
-    mentionRules: ['user'],
+    defaultLevel: "all",
+    mentionRules: ["user"],
     quietHours: true,
     threadNotifications: false,
     soundEnabled: true,
@@ -200,11 +208,11 @@ export const whatsappBehavior: BehaviorPreset = {
     readReceiptsOptional: true,
     lastSeen: true,
     lastSeenPrivacy: true,
-    profileVisibility: 'contacts',
+    profileVisibility: "contacts",
     onlineStatusVisible: true,
     e2eeDefault: true,
     disappearingMessages: true,
-    disappearingOptions: ['off', '24h', '7d', '90d'],
+    disappearingOptions: ["off", "24h", "7d", "90d"],
   },
   features: {
     richText: false,
@@ -223,26 +231,27 @@ export const whatsappBehavior: BehaviorPreset = {
     contactSharing: true,
     stories: true,
   },
-}
+};
 
 // ============================================================================
 // TELEGRAM BEHAVIOR
 // ============================================================================
 
 export const telegramBehavior: BehaviorPreset = {
-  id: 'telegram',
-  name: 'Telegram',
-  description: 'Telegram-style fast messaging with bots, channels, and supergroups',
-  version: '0.9.1',
+  id: "telegram",
+  name: "Telegram",
+  description:
+    "Telegram-style fast messaging with bots, channels, and supergroups",
+  version: "0.9.1",
   messaging: {
     editWindow: 48 * 60 * 60 * 1000, // 48 hours
     deleteWindow: 0, // unlimited
     deleteForEveryone: true,
     deleteForEveryoneWindow: 48 * 60 * 60 * 1000, // 48 hours
     showEditedIndicator: true,
-    reactionStyle: 'quick-reactions',
+    reactionStyle: "quick-reactions",
     maxReactionsPerMessage: 3,
-    threadingModel: 'reply-chain',
+    threadingModel: "reply-chain",
     maxMessageLength: 4096,
     forwarding: true,
     forwardLimit: 0, // unlimited
@@ -252,7 +261,7 @@ export const telegramBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['dm', 'group-dm', 'broadcast'],
+    types: ["dm", "group-dm", "broadcast"],
     hierarchy: false,
     categories: false,
     forums: false,
@@ -262,7 +271,7 @@ export const telegramBehavior: BehaviorPreset = {
     slowMode: true,
   },
   presence: {
-    states: ['online', 'offline'],
+    states: ["online", "offline"],
     showLastSeen: true,
     lastSeenPrivacy: true,
     customStatus: true,
@@ -284,8 +293,8 @@ export const telegramBehavior: BehaviorPreset = {
     huddles: false,
   },
   notifications: {
-    defaultLevel: 'all',
-    mentionRules: ['user'],
+    defaultLevel: "all",
+    mentionRules: ["user"],
     quietHours: true,
     threadNotifications: false,
     soundEnabled: true,
@@ -307,11 +316,11 @@ export const telegramBehavior: BehaviorPreset = {
     readReceiptsOptional: false,
     lastSeen: true,
     lastSeenPrivacy: true,
-    profileVisibility: 'everyone',
+    profileVisibility: "everyone",
     onlineStatusVisible: true,
     e2eeDefault: false,
     disappearingMessages: true,
-    disappearingOptions: ['off', '24h', '7d', '1m'],
+    disappearingOptions: ["off", "24h", "7d", "1m"],
   },
   features: {
     richText: true,
@@ -330,26 +339,27 @@ export const telegramBehavior: BehaviorPreset = {
     contactSharing: true,
     stories: false,
   },
-}
+};
 
 // ============================================================================
 // DISCORD BEHAVIOR
 // ============================================================================
 
 export const discordBehavior: BehaviorPreset = {
-  id: 'discord',
-  name: 'Discord',
-  description: 'Discord-style server hierarchy with roles, voice channels, and rich presence',
-  version: '0.9.1',
+  id: "discord",
+  name: "Discord",
+  description:
+    "Discord-style server hierarchy with roles, voice channels, and rich presence",
+  version: "0.9.1",
   messaging: {
     editWindow: 0, // unlimited
     deleteWindow: 0, // unlimited
     deleteForEveryone: false, // only mods manage messages
     deleteForEveryoneWindow: 0,
     showEditedIndicator: true,
-    reactionStyle: 'full-picker',
+    reactionStyle: "full-picker",
     maxReactionsPerMessage: 20,
-    threadingModel: 'inline',
+    threadingModel: "inline",
     maxMessageLength: 2000,
     forwarding: false,
     forwardLimit: 0,
@@ -359,7 +369,16 @@ export const discordBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['public', 'private', 'dm', 'group-dm', 'forum', 'voice', 'stage', 'announcement'],
+    types: [
+      "public",
+      "private",
+      "dm",
+      "group-dm",
+      "forum",
+      "voice",
+      "stage",
+      "announcement",
+    ],
     hierarchy: true,
     categories: true,
     forums: true,
@@ -369,7 +388,7 @@ export const discordBehavior: BehaviorPreset = {
     slowMode: true,
   },
   presence: {
-    states: ['online', 'idle', 'dnd', 'invisible', 'offline'],
+    states: ["online", "idle", "dnd", "invisible", "offline"],
     showLastSeen: false,
     lastSeenPrivacy: false,
     customStatus: true,
@@ -391,8 +410,8 @@ export const discordBehavior: BehaviorPreset = {
     huddles: false,
   },
   notifications: {
-    defaultLevel: 'mentions',
-    mentionRules: ['user', 'role', 'here', 'everyone'],
+    defaultLevel: "mentions",
+    mentionRules: ["user", "role", "here", "everyone"],
     quietHours: false,
     threadNotifications: true,
     soundEnabled: true,
@@ -414,7 +433,7 @@ export const discordBehavior: BehaviorPreset = {
     readReceiptsOptional: false,
     lastSeen: false,
     lastSeenPrivacy: false,
-    profileVisibility: 'everyone',
+    profileVisibility: "everyone",
     onlineStatusVisible: true,
     e2eeDefault: false,
     disappearingMessages: false,
@@ -437,26 +456,27 @@ export const discordBehavior: BehaviorPreset = {
     contactSharing: false,
     stories: false,
   },
-}
+};
 
 // ============================================================================
 // SLACK BEHAVIOR
 // ============================================================================
 
 export const slackBehavior: BehaviorPreset = {
-  id: 'slack',
-  name: 'Slack',
-  description: 'Slack-style workspace messaging with threads, huddles, and rich integrations',
-  version: '0.9.1',
+  id: "slack",
+  name: "Slack",
+  description:
+    "Slack-style workspace messaging with threads, huddles, and rich integrations",
+  version: "0.9.1",
   messaging: {
     editWindow: 0, // unlimited
     deleteWindow: 0, // unlimited
     deleteForEveryone: false, // admins only
     deleteForEveryoneWindow: 0,
     showEditedIndicator: true,
-    reactionStyle: 'full-picker',
+    reactionStyle: "full-picker",
     maxReactionsPerMessage: 23,
-    threadingModel: 'side-panel',
+    threadingModel: "side-panel",
     maxMessageLength: 40000,
     forwarding: true,
     forwardLimit: 0, // unlimited
@@ -466,7 +486,7 @@ export const slackBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['public', 'private', 'dm', 'group-dm'],
+    types: ["public", "private", "dm", "group-dm"],
     hierarchy: false,
     categories: false, // uses "sections" instead
     forums: false,
@@ -476,7 +496,7 @@ export const slackBehavior: BehaviorPreset = {
     slowMode: false,
   },
   presence: {
-    states: ['online', 'away', 'dnd', 'offline'],
+    states: ["online", "away", "dnd", "offline"],
     showLastSeen: false,
     lastSeenPrivacy: false,
     customStatus: true,
@@ -498,8 +518,8 @@ export const slackBehavior: BehaviorPreset = {
     huddles: true,
   },
   notifications: {
-    defaultLevel: 'mentions',
-    mentionRules: ['user', 'channel', 'here', 'everyone'],
+    defaultLevel: "mentions",
+    mentionRules: ["user", "channel", "here", "everyone"],
     quietHours: true,
     threadNotifications: true,
     soundEnabled: true,
@@ -521,7 +541,7 @@ export const slackBehavior: BehaviorPreset = {
     readReceiptsOptional: false,
     lastSeen: false,
     lastSeenPrivacy: false,
-    profileVisibility: 'everyone',
+    profileVisibility: "everyone",
     onlineStatusVisible: true,
     e2eeDefault: false,
     disappearingMessages: false,
@@ -544,26 +564,27 @@ export const slackBehavior: BehaviorPreset = {
     contactSharing: false,
     stories: false,
   },
-}
+};
 
 // ============================================================================
 // SIGNAL BEHAVIOR
 // ============================================================================
 
 export const signalBehavior: BehaviorPreset = {
-  id: 'signal',
-  name: 'Signal',
-  description: 'Signal-style privacy-first encrypted messaging with minimal metadata',
-  version: '0.9.1',
+  id: "signal",
+  name: "Signal",
+  description:
+    "Signal-style privacy-first encrypted messaging with minimal metadata",
+  version: "0.9.1",
   messaging: {
     editWindow: 0, // unlimited (recent addition)
     deleteWindow: 0, // unlimited for self
     deleteForEveryone: true,
     deleteForEveryoneWindow: 3 * 60 * 60 * 1000, // 3 hours
     showEditedIndicator: true,
-    reactionStyle: 'limited-set',
+    reactionStyle: "limited-set",
     maxReactionsPerMessage: 1,
-    threadingModel: 'reply-chain',
+    threadingModel: "reply-chain",
     maxMessageLength: 8000,
     forwarding: true,
     forwardLimit: 1,
@@ -573,7 +594,7 @@ export const signalBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['dm', 'group-dm'],
+    types: ["dm", "group-dm"],
     hierarchy: false,
     categories: false,
     forums: false,
@@ -583,7 +604,7 @@ export const signalBehavior: BehaviorPreset = {
     slowMode: false,
   },
   presence: {
-    states: ['online', 'offline'],
+    states: ["online", "offline"],
     showLastSeen: false,
     lastSeenPrivacy: false,
     customStatus: false,
@@ -605,8 +626,8 @@ export const signalBehavior: BehaviorPreset = {
     huddles: false,
   },
   notifications: {
-    defaultLevel: 'all',
-    mentionRules: ['user'],
+    defaultLevel: "all",
+    mentionRules: ["user"],
     quietHours: false,
     threadNotifications: false,
     soundEnabled: true,
@@ -628,11 +649,11 @@ export const signalBehavior: BehaviorPreset = {
     readReceiptsOptional: true,
     lastSeen: false,
     lastSeenPrivacy: false,
-    profileVisibility: 'contacts',
+    profileVisibility: "contacts",
     onlineStatusVisible: false,
     e2eeDefault: true,
     disappearingMessages: true,
-    disappearingOptions: ['off', '30s', '5m', '1h', '8h', '24h', '7d', '4w'],
+    disappearingOptions: ["off", "30s", "5m", "1h", "8h", "24h", "7d", "4w"],
   },
   features: {
     richText: false,
@@ -651,7 +672,7 @@ export const signalBehavior: BehaviorPreset = {
     contactSharing: true,
     stories: true,
   },
-}
+};
 
 // ============================================================================
 // BEHAVIOR REGISTRY
@@ -667,16 +688,16 @@ export const behaviorPresets: Record<string, BehaviorPreset> = {
   discord: discordBehavior,
   slack: slackBehavior,
   signal: signalBehavior,
-}
+};
 
 /**
  * List of all built-in behavior preset IDs.
  */
-export const behaviorPresetIds = Object.keys(behaviorPresets)
+export const behaviorPresetIds = Object.keys(behaviorPresets);
 
 /**
  * Retrieve a behavior preset by ID, or undefined if not found.
  */
 export function getBehaviorPreset(id: string): BehaviorPreset | undefined {
-  return behaviorPresets[id]
+  return behaviorPresets[id];
 }

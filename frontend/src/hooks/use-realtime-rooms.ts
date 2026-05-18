@@ -8,14 +8,19 @@
  * @version 1.0.0
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
-import { useAuth } from '@/contexts/auth-context'
-import { getRoomsService, Room, RoomMember, MessageEvent } from '@/services/realtime/rooms.service'
-import { realtimeClient } from '@/services/realtime/realtime-client'
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  getRoomsService,
+  Room,
+  RoomMember,
+  MessageEvent,
+} from "@/services/realtime/rooms.service";
+import { realtimeClient } from "@/services/realtime/realtime-client";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -26,11 +31,11 @@ import { logger } from '@/lib/logger'
  */
 export interface UseRealtimeRoomsOptions {
   /** Initial rooms to join */
-  initialRooms?: string[]
+  initialRooms?: string[];
   /** Auto-join rooms on mount */
-  autoJoin?: boolean
+  autoJoin?: boolean;
   /** Auto-rejoin rooms on reconnection */
-  autoRejoinOnReconnect?: boolean
+  autoRejoinOnReconnect?: boolean;
 }
 
 /**
@@ -38,50 +43,57 @@ export interface UseRealtimeRoomsOptions {
  */
 export interface UseRealtimeRoomsReturn {
   /** Currently joined rooms */
-  rooms: Room[]
+  rooms: Room[];
   /** Currently joined room names */
-  roomNames: string[]
+  roomNames: string[];
   /** Room count */
-  roomCount: number
+  roomCount: number;
   /** Join a room */
-  joinRoom: (roomName: string) => Promise<Room>
+  joinRoom: (roomName: string) => Promise<Room>;
   /** Join multiple rooms */
-  joinRooms: (roomNames: string[]) => Promise<Map<string, Room>>
+  joinRooms: (roomNames: string[]) => Promise<Map<string, Room>>;
   /** Leave a room */
-  leaveRoom: (roomName: string) => void
+  leaveRoom: (roomName: string) => void;
   /** Leave multiple rooms */
-  leaveRooms: (roomNames: string[]) => void
+  leaveRooms: (roomNames: string[]) => void;
   /** Leave all rooms */
-  leaveAllRooms: () => void
+  leaveAllRooms: () => void;
   /** Check if in a room */
-  isInRoom: (roomName: string) => boolean
+  isInRoom: (roomName: string) => boolean;
   /** Get room by name */
-  getRoom: (roomName: string) => Room | undefined
+  getRoom: (roomName: string) => Room | undefined;
   /** Get room members */
-  getRoomMembers: (roomName: string) => RoomMember[]
+  getRoomMembers: (roomName: string) => RoomMember[];
   /** Send a message to a room */
   sendMessage: (
     roomName: string,
     content: string,
-    options?: SendMessageOptions
-  ) => Promise<{ messageId: string }>
+    options?: SendMessageOptions,
+  ) => Promise<{ messageId: string }>;
   /** Subscribe to messages in a room */
-  onRoomMessage: (roomName: string, callback: (message: MessageEvent) => void) => () => void
+  onRoomMessage: (
+    roomName: string,
+    callback: (message: MessageEvent) => void,
+  ) => () => void;
   /** Subscribe to all messages */
-  onMessage: (callback: (message: MessageEvent) => void) => () => void
+  onMessage: (callback: (message: MessageEvent) => void) => () => void;
   /** Subscribe to user joins */
-  onUserJoin: (callback: (roomName: string, member: RoomMember) => void) => () => void
+  onUserJoin: (
+    callback: (roomName: string, member: RoomMember) => void,
+  ) => () => void;
   /** Subscribe to user leaves */
-  onUserLeave: (callback: (roomName: string, userId: string) => void) => () => void
+  onUserLeave: (
+    callback: (roomName: string, userId: string) => void,
+  ) => () => void;
 }
 
 /**
  * Send message options
  */
 export interface SendMessageOptions {
-  threadId?: string
-  replyTo?: string
-  metadata?: Record<string, unknown>
+  threadId?: string;
+  replyTo?: string;
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -129,21 +141,27 @@ export interface SendMessageOptions {
  * }
  * ```
  */
-export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseRealtimeRoomsReturn {
-  const { initialRooms = [], autoJoin = true, autoRejoinOnReconnect = true } = options
+export function useRealtimeRooms(
+  options: UseRealtimeRoomsOptions = {},
+): UseRealtimeRoomsReturn {
+  const {
+    initialRooms = [],
+    autoJoin = true,
+    autoRejoinOnReconnect = true,
+  } = options;
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   // State
-  const [rooms, setRooms] = useState<Room[]>([])
+  const [rooms, setRooms] = useState<Room[]>([]);
 
   // Refs
-  const initialJoinedRef = useRef(false)
+  const initialJoinedRef = useRef(false);
 
   // Get service instance
   const roomsService = useMemo(() => {
-    return getRoomsService({ autoRejoinOnReconnect })
-  }, [autoRejoinOnReconnect])
+    return getRoomsService({ autoRejoinOnReconnect });
+  }, [autoRejoinOnReconnect]);
 
   // ============================================================================
   // Room Management
@@ -154,84 +172,84 @@ export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseReal
    */
   const joinRoom = useCallback(
     async (roomName: string): Promise<Room> => {
-      const room = await roomsService.joinRoom(roomName)
-      setRooms(roomsService.getJoinedRooms())
-      return room
+      const room = await roomsService.joinRoom(roomName);
+      setRooms(roomsService.getJoinedRooms());
+      return room;
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Join multiple rooms
    */
   const joinRooms = useCallback(
     async (roomNames: string[]): Promise<Map<string, Room>> => {
-      const result = await roomsService.joinRooms(roomNames)
-      setRooms(roomsService.getJoinedRooms())
-      return result
+      const result = await roomsService.joinRooms(roomNames);
+      setRooms(roomsService.getJoinedRooms());
+      return result;
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Leave a room
    */
   const leaveRoom = useCallback(
     (roomName: string): void => {
-      roomsService.leaveRoom(roomName)
-      setRooms(roomsService.getJoinedRooms())
+      roomsService.leaveRoom(roomName);
+      setRooms(roomsService.getJoinedRooms());
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Leave multiple rooms
    */
   const leaveRooms = useCallback(
     (roomNames: string[]): void => {
-      roomsService.leaveRooms(roomNames)
-      setRooms(roomsService.getJoinedRooms())
+      roomsService.leaveRooms(roomNames);
+      setRooms(roomsService.getJoinedRooms());
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Leave all rooms
    */
   const leaveAllRooms = useCallback((): void => {
-    roomsService.leaveAllRooms()
-    setRooms([])
-  }, [roomsService])
+    roomsService.leaveAllRooms();
+    setRooms([]);
+  }, [roomsService]);
 
   /**
    * Check if in a room
    */
   const isInRoom = useCallback(
     (roomName: string): boolean => {
-      return roomsService.isInRoom(roomName)
+      return roomsService.isInRoom(roomName);
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Get room by name
    */
   const getRoom = useCallback(
     (roomName: string): Room | undefined => {
-      return roomsService.getRoom(roomName)
+      return roomsService.getRoom(roomName);
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Get room members
    */
   const getRoomMembers = useCallback(
     (roomName: string): RoomMember[] => {
-      return roomsService.getRoomMembers(roomName)
+      return roomsService.getRoomMembers(roomName);
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   // ============================================================================
   // Messaging
@@ -244,12 +262,12 @@ export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseReal
     async (
       roomName: string,
       content: string,
-      options?: SendMessageOptions
+      options?: SendMessageOptions,
     ): Promise<{ messageId: string }> => {
-      return roomsService.sendMessage(roomName, content, options)
+      return roomsService.sendMessage(roomName, content, options);
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   // ============================================================================
   // Event Subscriptions
@@ -259,48 +277,53 @@ export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseReal
    * Subscribe to messages in a specific room
    */
   const onRoomMessage = useCallback(
-    (roomName: string, callback: (message: MessageEvent) => void): (() => void) => {
-      return roomsService.onRoomMessage(roomName, callback)
+    (
+      roomName: string,
+      callback: (message: MessageEvent) => void,
+    ): (() => void) => {
+      return roomsService.onRoomMessage(roomName, callback);
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Subscribe to all messages
    */
   const onMessage = useCallback(
     (callback: (message: MessageEvent) => void): (() => void) => {
-      return roomsService.onMessage(callback)
+      return roomsService.onMessage(callback);
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Subscribe to user joins
    */
   const onUserJoin = useCallback(
-    (callback: (roomName: string, member: RoomMember) => void): (() => void) => {
-      return roomsService.onUserJoin(callback)
+    (
+      callback: (roomName: string, member: RoomMember) => void,
+    ): (() => void) => {
+      return roomsService.onUserJoin(callback);
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   /**
    * Subscribe to user leaves
    */
   const onUserLeave = useCallback(
     (callback: (roomName: string, userId: string) => void): (() => void) => {
-      return roomsService.onUserLeave(callback)
+      return roomsService.onUserLeave(callback);
     },
-    [roomsService]
-  )
+    [roomsService],
+  );
 
   // ============================================================================
   // Computed Values
   // ============================================================================
 
-  const roomNames = useMemo(() => rooms.map((r) => r.name), [rooms])
-  const roomCount = rooms.length
+  const roomNames = useMemo(() => rooms.map((r) => r.name), [rooms]);
+  const roomCount = rooms.length;
 
   // ============================================================================
   // Effects
@@ -311,11 +334,11 @@ export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseReal
    */
   useEffect(() => {
     const unsub = roomsService.onRoomStateChange(() => {
-      setRooms(roomsService.getJoinedRooms())
-    })
+      setRooms(roomsService.getJoinedRooms());
+    });
 
-    return unsub
-  }, [roomsService])
+    return unsub;
+  }, [roomsService]);
 
   /**
    * Auto-join initial rooms
@@ -328,25 +351,25 @@ export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseReal
       user &&
       !initialJoinedRef.current
     ) {
-      initialJoinedRef.current = true
+      initialJoinedRef.current = true;
       joinRooms(initialRooms).catch((err) => {
-        logger.error('[useRealtimeRooms] Failed to join initial rooms:', err)
-      })
+        logger.error("[useRealtimeRooms] Failed to join initial rooms:", err);
+      });
     }
-  }, [autoJoin, initialRooms, user, joinRooms])
+  }, [autoJoin, initialRooms, user, joinRooms]);
 
   /**
    * Sync state from service on connection
    */
   useEffect(() => {
     const unsub = realtimeClient.onConnectionStateChange((state) => {
-      if (state === 'connected' || state === 'authenticated') {
-        setRooms(roomsService.getJoinedRooms())
+      if (state === "connected" || state === "authenticated") {
+        setRooms(roomsService.getJoinedRooms());
       }
-    })
+    });
 
-    return unsub
-  }, [roomsService])
+    return unsub;
+  }, [roomsService]);
 
   /**
    * Leave all rooms on unmount
@@ -356,8 +379,8 @@ export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseReal
       // Note: We don't leave rooms on unmount by default
       // as the user may navigate between pages
       // Use leaveAllRooms() explicitly when needed
-    }
-  }, [])
+    };
+  }, []);
 
   // ============================================================================
   // Return
@@ -380,7 +403,7 @@ export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseReal
     onMessage,
     onUserJoin,
     onUserLeave,
-  }
+  };
 }
 
 // ============================================================================
@@ -391,40 +414,47 @@ export function useRealtimeRooms(options: UseRealtimeRoomsOptions = {}): UseReal
  * Hook for a single room
  */
 export function useRealtimeRoom(roomName: string) {
-  const { joinRoom, leaveRoom, isInRoom, getRoom, getRoomMembers, sendMessage, onRoomMessage } =
-    useRealtimeRooms({ initialRooms: [roomName] })
+  const {
+    joinRoom,
+    leaveRoom,
+    isInRoom,
+    getRoom,
+    getRoomMembers,
+    sendMessage,
+    onRoomMessage,
+  } = useRealtimeRooms({ initialRooms: [roomName] });
 
-  const [messages, setMessages] = useState<MessageEvent[]>([])
-  const [members, setMembers] = useState<RoomMember[]>([])
+  const [messages, setMessages] = useState<MessageEvent[]>([]);
+  const [members, setMembers] = useState<RoomMember[]>([]);
 
   // Subscribe to messages
   useEffect(() => {
     const unsub = onRoomMessage(roomName, (message) => {
-      setMessages((prev) => [...prev, message])
-    })
+      setMessages((prev) => [...prev, message]);
+    });
 
-    return unsub
-  }, [roomName, onRoomMessage])
+    return unsub;
+  }, [roomName, onRoomMessage]);
 
   // Get initial members
   useEffect(() => {
     if (isInRoom(roomName)) {
-      setMembers(getRoomMembers(roomName))
+      setMembers(getRoomMembers(roomName));
     }
-  }, [roomName, isInRoom, getRoomMembers])
+  }, [roomName, isInRoom, getRoomMembers]);
 
   // Send message helper
   const send = useCallback(
     async (content: string, options?: SendMessageOptions) => {
-      return sendMessage(roomName, content, options)
+      return sendMessage(roomName, content, options);
     },
-    [roomName, sendMessage]
-  )
+    [roomName, sendMessage],
+  );
 
   // Leave room helper
   const leave = useCallback(() => {
-    leaveRoom(roomName)
-  }, [roomName, leaveRoom])
+    leaveRoom(roomName);
+  }, [roomName, leaveRoom]);
 
   return {
     room: getRoom(roomName),
@@ -434,7 +464,7 @@ export function useRealtimeRoom(roomName: string) {
     send,
     leave,
     clearMessages: () => setMessages([]),
-  }
+  };
 }
 
-export default useRealtimeRooms
+export default useRealtimeRooms;

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SearchModal Component
@@ -7,99 +7,115 @@
  * Provides unified search interface for messages, files, users, and channels
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { X, Search, Loader2 } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { SearchFilters } from './SearchFilters'
-import { SearchResults } from './SearchResults'
-import { SavedSearches } from './SavedSearches'
-import { useSearch } from '@/hooks/use-search'
-import { cn } from '@/lib/utils'
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { X, Search, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { SearchFilters } from "./SearchFilters";
+import { SearchResults } from "./SearchResults";
+import { SavedSearches } from "./SavedSearches";
+import { useSearch } from "@/hooks/use-search";
+import { cn } from "@/lib/utils";
 
 export interface SearchModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function SearchModal({ open, onOpenChange }: SearchModalProps) {
-  const [query, setQuery] = useState('')
-  const [activeTab, setActiveTab] = useState<'all' | 'messages' | 'files' | 'users' | 'channels'>(
-    'all'
-  )
-  const [showFilters, setShowFilters] = useState(false)
-  const [showSaved, setShowSaved] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [query, setQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<
+    "all" | "messages" | "files" | "users" | "channels"
+  >("all");
+  const [showFilters, setShowFilters] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const { search, results, isLoading, error, filters, setFilters, saveSearch, loadSavedSearch } =
-    useSearch()
+  const {
+    search,
+    results,
+    isLoading,
+    error,
+    filters,
+    setFilters,
+    saveSearch,
+    loadSavedSearch,
+  } = useSearch();
 
   // Focus input when modal opens
   useEffect(() => {
     if (open) {
       setTimeout(() => {
-        inputRef.current?.focus()
-      }, 100)
+        inputRef.current?.focus();
+      }, 100);
     } else {
       // Reset on close
-      setQuery('')
-      setShowFilters(false)
-      setShowSaved(false)
+      setQuery("");
+      setShowFilters(false);
+      setShowSaved(false);
     }
-  }, [open])
+  }, [open]);
 
   // Debounced search
   useEffect(() => {
-    if (!query.trim()) return
+    if (!query.trim()) return;
 
     const timer = setTimeout(() => {
-      handleSearch()
-    }, 300)
+      handleSearch();
+    }, 300);
 
-    return () => clearTimeout(timer)
-  }, [query, activeTab, filters])
+    return () => clearTimeout(timer);
+  }, [query, activeTab, filters]);
 
   const handleSearch = useCallback(async () => {
-    if (!query.trim()) return
+    if (!query.trim()) return;
 
     await search(query, {
-      type: activeTab === 'all' ? undefined : activeTab,
+      type: activeTab === "all" ? undefined : activeTab,
       ...filters,
-    })
-  }, [query, activeTab, filters, search])
+    });
+  }, [query, activeTab, filters, search]);
 
   const handleSaveSearch = async () => {
-    const name = prompt('Enter a name for this search:')
-    if (!name) return
+    const name = prompt("Enter a name for this search:");
+    if (!name) return;
 
-    await saveSearch(name, query, filters)
-  }
+    await saveSearch(name, query, filters);
+  };
 
-  const handleLoadSavedSearch = (savedQuery: string, savedFilters: Record<string, unknown>) => {
-    setQuery(savedQuery)
-    setFilters(savedFilters)
-    setShowSaved(false)
-  }
+  const handleLoadSavedSearch = (
+    savedQuery: string,
+    savedFilters: Record<string, unknown>,
+  ) => {
+    setQuery(savedQuery);
+    setFilters(savedFilters);
+    setShowSaved(false);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Cmd+S / Ctrl+S to save search
-    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-      e.preventDefault()
-      handleSaveSearch()
+    if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+      e.preventDefault();
+      handleSaveSearch();
     }
 
     // Cmd+F / Ctrl+F to toggle filters
-    if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
-      e.preventDefault()
-      setShowFilters(!showFilters)
+    if ((e.metaKey || e.ctrlKey) && e.key === "f") {
+      e.preventDefault();
+      setShowFilters(!showFilters);
     }
 
     // Escape to close modal
-    if (e.key === 'Escape') {
-      onOpenChange(false)
+    if (e.key === "Escape") {
+      onOpenChange(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,10 +127,10 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
               <button
                 onClick={() => setShowSaved(!showSaved)}
                 className={cn(
-                  'rounded-md px-3 py-1.5 text-sm transition-colors',
+                  "rounded-md px-3 py-1.5 text-sm transition-colors",
                   showSaved
-                    ? 'text-primary-foreground bg-primary'
-                    : 'text-muted-foreground hover:bg-secondary'
+                    ? "text-primary-foreground bg-primary"
+                    : "text-muted-foreground hover:bg-secondary",
                 )}
               >
                 Saved
@@ -122,10 +138,10 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={cn(
-                  'rounded-md px-3 py-1.5 text-sm transition-colors',
+                  "rounded-md px-3 py-1.5 text-sm transition-colors",
                   showFilters
-                    ? 'text-primary-foreground bg-primary'
-                    : 'text-muted-foreground hover:bg-secondary'
+                    ? "text-primary-foreground bg-primary"
+                    : "text-muted-foreground hover:bg-secondary",
                 )}
               >
                 Filters
@@ -154,13 +170,22 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
           {/* Tips */}
           <div className="mt-2 text-xs text-muted-foreground">
-            <span className="font-medium">Tips:</span> Use{' '}
-            <code className="rounded bg-secondary px-1 py-0.5">from:username</code>{' '}
-            <code className="rounded bg-secondary px-1 py-0.5">in:channel</code>{' '}
-            <code className="rounded bg-secondary px-1 py-0.5">has:file</code>{' '}
-            <code className="rounded bg-secondary px-1 py-0.5">is:pinned</code> |{' '}
-            <kbd className="rounded bg-secondary px-1 py-0.5 text-xs">Cmd+S</kbd> to save |{' '}
-            <kbd className="rounded bg-secondary px-1 py-0.5 text-xs">Cmd+F</kbd> for filters
+            <span className="font-medium">Tips:</span> Use{" "}
+            <code className="rounded bg-secondary px-1 py-0.5">
+              from:username
+            </code>{" "}
+            <code className="rounded bg-secondary px-1 py-0.5">in:channel</code>{" "}
+            <code className="rounded bg-secondary px-1 py-0.5">has:file</code>{" "}
+            <code className="rounded bg-secondary px-1 py-0.5">is:pinned</code>{" "}
+            |{" "}
+            <kbd className="rounded bg-secondary px-1 py-0.5 text-xs">
+              Cmd+S
+            </kbd>{" "}
+            to save |{" "}
+            <kbd className="rounded bg-secondary px-1 py-0.5 text-xs">
+              Cmd+F
+            </kbd>{" "}
+            for filters
           </div>
         </div>
 
@@ -185,7 +210,9 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
             onValueChange={(v: string) => setActiveTab(v as typeof activeTab)}
           >
             <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="all">All {results && `(${results.totals.total})`}</TabsTrigger>
+              <TabsTrigger value="all">
+                All {results && `(${results.totals.total})`}
+              </TabsTrigger>
               <TabsTrigger value="messages">
                 Messages {results && `(${results.totals.messages})`}
               </TabsTrigger>
@@ -214,7 +241,9 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
             <div className="mt-8 text-center text-muted-foreground">
               <Search className="mx-auto mb-4 h-12 w-12 opacity-50" />
               <p className="text-lg font-medium">Search across everything</p>
-              <p className="mt-2 text-sm">Find messages, files, users, and channels instantly</p>
+              <p className="mt-2 text-sm">
+                Find messages, files, users, and channels instantly
+              </p>
             </div>
           )}
 
@@ -236,7 +265,7 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default SearchModal
+export default SearchModal;

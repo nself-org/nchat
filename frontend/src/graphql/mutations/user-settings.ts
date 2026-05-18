@@ -4,7 +4,7 @@
  * Complete mutations for profile, account, notifications, and privacy settings.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Profile Settings Mutations
@@ -36,7 +36,7 @@ export const UPDATE_USER_PROFILE = gql`
       updated_at
     }
   }
-`
+`;
 
 export const UPDATE_USER_AVATAR = gql`
   mutation UpdateUserAvatar($userId: uuid!, $avatarUrl: String!) {
@@ -49,7 +49,7 @@ export const UPDATE_USER_AVATAR = gql`
       updated_at
     }
   }
-`
+`;
 
 export const REMOVE_USER_AVATAR = gql`
   mutation RemoveUserAvatar($userId: uuid!) {
@@ -62,7 +62,7 @@ export const REMOVE_USER_AVATAR = gql`
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Account Settings Mutations
@@ -80,16 +80,24 @@ export const UPDATE_USER_EMAIL = gql`
       updated_at
     }
   }
-`
+`;
 
 export const UPDATE_USER_PASSWORD = gql`
-  mutation UpdateUserPassword($userId: uuid!, $currentPassword: String!, $newPassword: String!) {
-    updatePassword(userId: $userId, currentPassword: $currentPassword, newPassword: $newPassword) {
+  mutation UpdateUserPassword(
+    $userId: uuid!
+    $currentPassword: String!
+    $newPassword: String!
+  ) {
+    updatePassword(
+      userId: $userId
+      currentPassword: $currentPassword
+      newPassword: $newPassword
+    ) {
       success
       message
     }
   }
-`
+`;
 
 export const CONNECT_OAUTH_ACCOUNT = gql`
   mutation ConnectOAuthAccount(
@@ -117,7 +125,7 @@ export const CONNECT_OAUTH_ACCOUNT = gql`
       connected_at
     }
   }
-`
+`;
 
 export const DISCONNECT_OAUTH_ACCOUNT = gql`
   mutation DisconnectOAuthAccount($userId: uuid!, $accountId: uuid!) {
@@ -126,10 +134,14 @@ export const DISCONNECT_OAUTH_ACCOUNT = gql`
       provider
     }
   }
-`
+`;
 
 export const ENABLE_TWO_FACTOR_AUTH = gql`
-  mutation EnableTwoFactorAuth($userId: uuid!, $secret: String!, $backupCodes: jsonb!) {
+  mutation EnableTwoFactorAuth(
+    $userId: uuid!
+    $secret: String!
+    $backupCodes: jsonb!
+  ) {
     update_nchat_users_by_pk(
       pk_columns: { id: $userId }
       _set: {
@@ -144,7 +156,7 @@ export const ENABLE_TWO_FACTOR_AUTH = gql`
       updated_at
     }
   }
-`
+`;
 
 export const DISABLE_TWO_FACTOR_AUTH = gql`
   mutation DisableTwoFactorAuth($userId: uuid!) {
@@ -162,7 +174,7 @@ export const DISABLE_TWO_FACTOR_AUTH = gql`
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_USER_ACCOUNT = gql`
   mutation DeleteUserAccount($userId: uuid!) {
@@ -171,7 +183,7 @@ export const DELETE_USER_ACCOUNT = gql`
       email
     }
   }
-`
+`;
 
 // ============================================================================
 // Notification Settings Mutations
@@ -188,7 +200,7 @@ export const UPDATE_NOTIFICATION_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Privacy Settings Mutations
@@ -205,7 +217,7 @@ export const UPDATE_PRIVACY_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 export const CLEAR_LOCATION_HISTORY = gql`
   mutation ClearLocationHistory($userId: uuid!) {
@@ -213,42 +225,42 @@ export const CLEAR_LOCATION_HISTORY = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // TypeScript Interfaces
 // ============================================================================
 
 export interface UpdateProfileInput {
-  displayName?: string
-  bio?: string
-  timezone?: string
-  language?: string
+  displayName?: string;
+  bio?: string;
+  timezone?: string;
+  language?: string;
 }
 
 export interface NotificationSettings {
-  desktopEnabled: boolean
-  desktopSound: boolean
-  desktopPreview: boolean
-  emailEnabled: boolean
-  emailFrequency: 'instant' | 'daily' | 'weekly' | 'never'
-  emailDigest: boolean
-  dndEnabled: boolean
-  dndStart: string
-  dndEnd: string
-  dndWeekends: boolean
-  directMessages: boolean
-  mentions: boolean
-  channelMessages: boolean
-  threadReplies: boolean
-  reactions: boolean
+  desktopEnabled: boolean;
+  desktopSound: boolean;
+  desktopPreview: boolean;
+  emailEnabled: boolean;
+  emailFrequency: "instant" | "daily" | "weekly" | "never";
+  emailDigest: boolean;
+  dndEnabled: boolean;
+  dndStart: string;
+  dndEnd: string;
+  dndWeekends: boolean;
+  directMessages: boolean;
+  mentions: boolean;
+  channelMessages: boolean;
+  threadReplies: boolean;
+  reactions: boolean;
 }
 
 export interface LocationPrivacySettings {
-  locationVisibility: 'everyone' | 'contacts' | 'nobody'
-  useApproximateLocation: boolean
-  defaultSharingDuration: number
-  showNearbyPlaces: boolean
-  saveLocationHistory: boolean
-  locationHistoryRetentionDays: number
+  locationVisibility: "everyone" | "contacts" | "nobody";
+  useApproximateLocation: boolean;
+  defaultSharingDuration: number;
+  showNearbyPlaces: boolean;
+  saveLocationHistory: boolean;
+  locationHistoryRetentionDays: number;
 }

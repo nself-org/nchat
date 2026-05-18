@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * BlockedUsersList - Display and manage blocked users
@@ -7,14 +7,27 @@
  * Includes empty state when no users are blocked.
  */
 
-import * as React from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useBlock } from '@/lib/moderation/use-block'
-import { cn } from '@/lib/utils'
-import { Ban, Loader2, UserCheck, ShieldOff, RefreshCw, Clock } from 'lucide-react'
+import * as React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useBlock } from "@/lib/moderation/use-block";
+import { cn } from "@/lib/utils";
+import {
+  Ban,
+  Loader2,
+  UserCheck,
+  ShieldOff,
+  RefreshCw,
+  Clock,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +38,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 
 // ============================================================================
 // Types
@@ -33,13 +46,13 @@ import {
 
 export interface BlockedUsersListProps {
   /** Maximum height for the list (scrollable) */
-  maxHeight?: string | number
+  maxHeight?: string | number;
   /** Show refresh button */
-  showRefresh?: boolean
+  showRefresh?: boolean;
   /** Custom empty state message */
-  emptyMessage?: string
+  emptyMessage?: string;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -47,36 +60,36 @@ export interface BlockedUsersListProps {
 // ============================================================================
 
 function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffTime = Math.abs(now.getTime() - date.getTime())
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) {
-    return 'Today'
+    return "Today";
   } else if (diffDays === 1) {
-    return 'Yesterday'
+    return "Yesterday";
   } else if (diffDays < 7) {
-    return `${diffDays} days ago`
+    return `${diffDays} days ago`;
   } else if (diffDays < 30) {
-    const weeks = Math.floor(diffDays / 7)
-    return `${weeks} week${weeks > 1 ? 's' : ''} ago`
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
   } else {
     return date.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
-    })
+      month: "short",
+      day: "numeric",
+      year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+    });
   }
 }
 
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 // ============================================================================
@@ -92,7 +105,7 @@ function EmptyState({ message }: { message: string }) {
       <h3 className="mb-2 text-lg font-semibold">No blocked users</h3>
       <p className="max-w-xs text-sm text-muted-foreground">{message}</p>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -101,44 +114,57 @@ function EmptyState({ message }: { message: string }) {
 
 interface BlockedUserItemProps {
   user: {
-    id: string
-    blockedUserId: string
+    id: string;
+    blockedUserId: string;
     blockedUser: {
-      id: string
-      username: string
-      displayName: string
-      avatarUrl?: string
-    }
-    createdAt: string
-  }
-  onUnblock: (blockedUserId: string) => Promise<void>
-  isUnblocking: boolean
+      id: string;
+      username: string;
+      displayName: string;
+      avatarUrl?: string;
+    };
+    createdAt: string;
+  };
+  onUnblock: (blockedUserId: string) => Promise<void>;
+  isUnblocking: boolean;
 }
 
-function BlockedUserItem({ user, onUnblock, isUnblocking }: BlockedUserItemProps) {
-  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false)
-  const [isUnblockingThis, setIsUnblockingThis] = React.useState(false)
+function BlockedUserItem({
+  user,
+  onUnblock,
+  isUnblocking,
+}: BlockedUserItemProps) {
+  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+  const [isUnblockingThis, setIsUnblockingThis] = React.useState(false);
 
   const handleUnblock = async () => {
-    setIsUnblockingThis(true)
+    setIsUnblockingThis(true);
     try {
-      await onUnblock(user.blockedUserId)
-      setIsConfirmOpen(false)
+      await onUnblock(user.blockedUserId);
+      setIsConfirmOpen(false);
     } finally {
-      setIsUnblockingThis(false)
+      setIsUnblockingThis(false);
     }
-  }
+  };
 
   return (
     <div className="hover:bg-muted/30 flex items-center justify-between gap-4 border-b p-4 transition-colors last:border-b-0">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Avatar className="h-10 w-10 flex-shrink-0">
-          <AvatarImage src={user.blockedUser.avatarUrl} alt={user.blockedUser.displayName} />
-          <AvatarFallback>{getInitials(user.blockedUser.displayName)}</AvatarFallback>
+          <AvatarImage
+            src={user.blockedUser.avatarUrl}
+            alt={user.blockedUser.displayName}
+          />
+          <AvatarFallback>
+            {getInitials(user.blockedUser.displayName)}
+          </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{user.blockedUser.displayName}</p>
-          <p className="truncate text-xs text-muted-foreground">@{user.blockedUser.username}</p>
+          <p className="truncate text-sm font-medium">
+            {user.blockedUser.displayName}
+          </p>
+          <p className="truncate text-xs text-muted-foreground">
+            @{user.blockedUser.username}
+          </p>
         </div>
         <div className="hidden flex-shrink-0 items-center gap-1 text-xs text-muted-foreground sm:flex">
           <Clock className="h-3 w-3" />
@@ -148,7 +174,12 @@ function BlockedUserItem({ user, onUnblock, isUnblocking }: BlockedUserItemProps
 
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <AlertDialogTrigger asChild>
-          <Button variant="outline" size="sm" disabled={isUnblocking} className="flex-shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isUnblocking}
+            className="flex-shrink-0"
+          >
             {isUnblockingThis ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -159,29 +190,36 @@ function BlockedUserItem({ user, onUnblock, isUnblocking }: BlockedUserItemProps
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unblock {user.blockedUser.displayName}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Unblock {user.blockedUser.displayName}?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This user will be able to send you direct messages and you will see their messages in
-              channels again.
+              This user will be able to send you direct messages and you will
+              see their messages in channels again.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isUnblockingThis}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUnblock} disabled={isUnblockingThis}>
+            <AlertDialogCancel disabled={isUnblockingThis}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleUnblock}
+              disabled={isUnblockingThis}
+            >
               {isUnblockingThis ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Unblocking...
                 </>
               ) : (
-                'Unblock'
+                "Unblock"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -194,22 +232,28 @@ export function BlockedUsersList({
   emptyMessage = "You haven't blocked anyone. When you block a user, they'll appear here.",
   className,
 }: BlockedUsersListProps) {
-  const { blockedUsers, isLoading, isUnblocking, error, unblockUser, refreshBlockedUsers } =
-    useBlock()
+  const {
+    blockedUsers,
+    isLoading,
+    isUnblocking,
+    error,
+    unblockUser,
+    refreshBlockedUsers,
+  } = useBlock();
 
-  const [isRefreshing, setIsRefreshing] = React.useState(false)
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const handleRefresh = async () => {
-    setIsRefreshing(true)
+    setIsRefreshing(true);
     try {
-      await refreshBlockedUsers()
+      await refreshBlockedUsers();
     } finally {
-      setIsRefreshing(false)
+      setIsRefreshing(false);
     }
-  }
+  };
 
   return (
-    <Card className={cn('w-full', className)}>
+    <Card className={cn("w-full", className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
@@ -219,8 +263,8 @@ export function BlockedUsersList({
             </CardTitle>
             <CardDescription>
               {blockedUsers.length > 0
-                ? `${blockedUsers.length} user${blockedUsers.length !== 1 ? 's' : ''} blocked`
-                : 'Manage users you have blocked'}
+                ? `${blockedUsers.length} user${blockedUsers.length !== 1 ? "s" : ""} blocked`
+                : "Manage users you have blocked"}
             </CardDescription>
           </div>
           {showRefresh && (
@@ -230,7 +274,12 @@ export function BlockedUsersList({
               onClick={handleRefresh}
               disabled={isLoading || isRefreshing}
             >
-              <RefreshCw className={cn('h-4 w-4', (isLoading || isRefreshing) && 'animate-spin')} />
+              <RefreshCw
+                className={cn(
+                  "h-4 w-4",
+                  (isLoading || isRefreshing) && "animate-spin",
+                )}
+              />
               <span className="sr-only">Refresh</span>
             </Button>
           )}
@@ -252,7 +301,8 @@ export function BlockedUsersList({
         ) : (
           <ScrollArea
             style={{
-              maxHeight: typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+              maxHeight:
+                typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight,
             }}
           >
             <div className="divide-y">
@@ -269,7 +319,7 @@ export function BlockedUsersList({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default BlockedUsersList
+export default BlockedUsersList;

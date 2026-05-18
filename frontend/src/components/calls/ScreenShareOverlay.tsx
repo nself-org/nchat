@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Screen Share Overlay Component
@@ -7,10 +7,10 @@
  * Includes drawing tools, color picker, and control buttons.
  */
 
-import * as React from 'react'
-import { useRef, useEffect, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { useRef, useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Pen,
   ArrowRight,
@@ -26,11 +26,16 @@ import {
   ChevronDown,
   ChevronUp,
   X,
-} from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Slider } from '@/components/ui/slider'
-import { useAnnotations } from '@/hooks/use-annotations'
-import type { AnnotationTool } from '@/lib/webrtc/screen-annotator'
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Slider } from "@/components/ui/slider";
+import { useAnnotations } from "@/hooks/use-annotations";
+import type { AnnotationTool } from "@/lib/webrtc/screen-annotator";
 
 // =============================================================================
 // Types
@@ -38,19 +43,19 @@ import type { AnnotationTool } from '@/lib/webrtc/screen-annotator'
 
 export interface ScreenShareOverlayProps {
   /** Video element displaying the screen share */
-  videoElement: HTMLVideoElement | null
+  videoElement: HTMLVideoElement | null;
   /** User ID for annotations */
-  userId: string
+  userId: string;
   /** User name for annotations */
-  userName: string
+  userName: string;
   /** Whether overlay is enabled */
-  enabled?: boolean
+  enabled?: boolean;
   /** Callback when annotation is added */
-  onAnnotationAdded?: (annotation: any) => void
+  onAnnotationAdded?: (annotation: any) => void;
   /** Callback when overlay is closed */
-  onClose?: () => void
+  onClose?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // =============================================================================
@@ -58,11 +63,11 @@ export interface ScreenShareOverlayProps {
 // =============================================================================
 
 interface ToolButtonProps {
-  tool: AnnotationTool
-  icon: React.ReactNode
-  label: string
-  active: boolean
-  onClick: () => void
+  tool: AnnotationTool;
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+  onClick: () => void;
 }
 
 function ToolButton({ tool, icon, label, active, onClick }: ToolButtonProps) {
@@ -71,10 +76,13 @@ function ToolButton({ tool, icon, label, active, onClick }: ToolButtonProps) {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            variant={active ? 'default' : 'ghost'}
+            variant={active ? "default" : "ghost"}
             size="icon"
             onClick={onClick}
-            className={cn('h-8 w-8', active && 'text-primary-foreground bg-primary')}
+            className={cn(
+              "h-8 w-8",
+              active && "text-primary-foreground bg-primary",
+            )}
           >
             {icon}
           </Button>
@@ -84,7 +92,7 @@ function ToolButton({ tool, icon, label, active, onClick }: ToolButtonProps) {
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
 // =============================================================================
@@ -100,10 +108,10 @@ export function ScreenShareOverlay({
   onClose,
   className,
 }: ScreenShareOverlayProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [isMinimized, setIsMinimized] = useState(false)
-  const [showColorPicker, setShowColorPicker] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const annotations = useAnnotations({
     canvas: canvasRef.current,
@@ -111,75 +119,86 @@ export function ScreenShareOverlay({
     userName,
     onAnnotationAdded,
     enabled,
-  })
+  });
 
   // ==========================================================================
   // Resize Canvas to Match Video
   // ==========================================================================
 
   useEffect(() => {
-    if (!canvasRef.current || !videoElement || !containerRef.current) return
+    if (!canvasRef.current || !videoElement || !containerRef.current) return;
 
     const resizeCanvas = () => {
-      const canvas = canvasRef.current!
-      const container = containerRef.current!
-      const video = videoElement
+      const canvas = canvasRef.current!;
+      const container = containerRef.current!;
+      const video = videoElement;
 
       // Match video dimensions
-      canvas.width = video.videoWidth || container.clientWidth
-      canvas.height = video.videoHeight || container.clientHeight
-    }
+      canvas.width = video.videoWidth || container.clientWidth;
+      canvas.height = video.videoHeight || container.clientHeight;
+    };
 
     // Initial resize
-    resizeCanvas()
+    resizeCanvas();
 
     // Resize on video metadata loaded
-    videoElement.addEventListener('loadedmetadata', resizeCanvas)
+    videoElement.addEventListener("loadedmetadata", resizeCanvas);
 
     // Resize on window resize
-    window.addEventListener('resize', resizeCanvas)
+    window.addEventListener("resize", resizeCanvas);
 
     return () => {
-      videoElement.removeEventListener('loadedmetadata', resizeCanvas)
-      window.removeEventListener('resize', resizeCanvas)
-    }
-  }, [videoElement])
+      videoElement.removeEventListener("loadedmetadata", resizeCanvas);
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, [videoElement]);
 
   // ==========================================================================
   // Tools Configuration
   // ==========================================================================
 
-  const tools: Array<{ tool: AnnotationTool; icon: React.ReactNode; label: string }> = [
-    { tool: 'pen', icon: <Pen className="h-4 w-4" />, label: 'Pen' },
-    { tool: 'arrow', icon: <ArrowRight className="h-4 w-4" />, label: 'Arrow' },
-    { tool: 'line', icon: <Minus className="h-4 w-4" />, label: 'Line' },
-    { tool: 'rectangle', icon: <Square className="h-4 w-4" />, label: 'Rectangle' },
-    { tool: 'circle', icon: <Circle className="h-4 w-4" />, label: 'Circle' },
-    { tool: 'text', icon: <Type className="h-4 w-4" />, label: 'Text' },
-    { tool: 'eraser', icon: <Eraser className="h-4 w-4" />, label: 'Eraser' },
-  ]
+  const tools: Array<{
+    tool: AnnotationTool;
+    icon: React.ReactNode;
+    label: string;
+  }> = [
+    { tool: "pen", icon: <Pen className="h-4 w-4" />, label: "Pen" },
+    { tool: "arrow", icon: <ArrowRight className="h-4 w-4" />, label: "Arrow" },
+    { tool: "line", icon: <Minus className="h-4 w-4" />, label: "Line" },
+    {
+      tool: "rectangle",
+      icon: <Square className="h-4 w-4" />,
+      label: "Rectangle",
+    },
+    { tool: "circle", icon: <Circle className="h-4 w-4" />, label: "Circle" },
+    { tool: "text", icon: <Type className="h-4 w-4" />, label: "Text" },
+    { tool: "eraser", icon: <Eraser className="h-4 w-4" />, label: "Eraser" },
+  ];
 
   // ==========================================================================
   // Render
   // ==========================================================================
 
-  if (!enabled) return null
+  if (!enabled) return null;
 
   return (
-    <div ref={containerRef} className={cn('pointer-events-none absolute inset-0', className)}>
+    <div
+      ref={containerRef}
+      className={cn("pointer-events-none absolute inset-0", className)}
+    >
       {/* Canvas Overlay */}
       <canvas
         ref={canvasRef}
         className="pointer-events-auto absolute inset-0 h-full w-full cursor-crosshair"
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: "none" }}
       />
 
       {/* Toolbar */}
       <div className="pointer-events-auto absolute left-1/2 top-4 -translate-x-1/2">
         <div
           className={cn(
-            'bg-background/95 rounded-lg border shadow-lg backdrop-blur-sm transition-all',
-            isMinimized ? 'p-2' : 'p-3'
+            "bg-background/95 rounded-lg border shadow-lg backdrop-blur-sm transition-all",
+            isMinimized ? "p-2" : "p-3",
           )}
         >
           {/* Header */}
@@ -199,7 +218,12 @@ export function ScreenShareOverlay({
                 )}
               </Button>
               {onClose && (
-                <Button variant="ghost" size="icon" onClick={onClose} className="h-6 w-6">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="h-6 w-6"
+                >
                   <X className="h-3 w-3" />
                 </Button>
               )}
@@ -236,7 +260,7 @@ export function ScreenShareOverlay({
                         className="h-8 w-8"
                         style={{
                           backgroundColor: annotations.currentColor,
-                          border: '2px solid #ccc',
+                          border: "2px solid #ccc",
                         }}
                       >
                         <Palette className="h-4 w-4" style={{ opacity: 0.5 }} />
@@ -253,7 +277,9 @@ export function ScreenShareOverlay({
                   <span className="text-xs text-muted-foreground">Size:</span>
                   <Slider
                     value={[annotations.currentStrokeWidth]}
-                    onValueChange={(value) => annotations.setStrokeWidth(value[0])}
+                    onValueChange={(value) =>
+                      annotations.setStrokeWidth(value[0])
+                    }
                     min={2}
                     max={16}
                     step={2}
@@ -272,14 +298,14 @@ export function ScreenShareOverlay({
                     <button
                       key={color}
                       onClick={() => {
-                        annotations.setColor(color)
-                        setShowColorPicker(false)
+                        annotations.setColor(color);
+                        setShowColorPicker(false);
                       }}
                       className={cn(
-                        'h-8 w-8 rounded border-2 transition-transform hover:scale-110',
+                        "h-8 w-8 rounded border-2 transition-transform hover:scale-110",
                         annotations.currentColor === color
-                          ? 'border-primary ring-2 ring-primary'
-                          : 'border-gray-300'
+                          ? "border-primary ring-2 ring-primary"
+                          : "border-gray-300",
                       )}
                       style={{ backgroundColor: color }}
                       title={color}
@@ -360,12 +386,12 @@ export function ScreenShareOverlay({
               {/* Info */}
               <div className="mt-2 text-center text-xs text-muted-foreground">
                 {annotations.annotations.length} annotation
-                {annotations.annotations.length !== 1 ? 's' : ''}
+                {annotations.annotations.length !== 1 ? "s" : ""}
               </div>
             </>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

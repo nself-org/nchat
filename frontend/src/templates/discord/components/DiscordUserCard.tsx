@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Discord User Card Component
@@ -9,57 +9,64 @@
 //
 // ===============================================================================
 
-import { cn } from '@/lib/utils'
-import { discordColors } from '../config'
-import { MessageSquare, MoreHorizontal, UserPlus, UserMinus, Volume2, VolumeX } from 'lucide-react'
+import { cn } from "@/lib/utils";
+import { discordColors } from "../config";
+import {
+  MessageSquare,
+  MoreHorizontal,
+  UserPlus,
+  UserMinus,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface DiscordUserCardProps {
-  user: DiscordUserData
-  roles?: DiscordRole[]
-  mutualServers?: DiscordMutualServer[]
-  note?: string
-  onMessageClick?: () => void
-  onAddFriendClick?: () => void
-  onRemoveFriendClick?: () => void
-  onMuteClick?: () => void
-  onBlockClick?: () => void
-  onNoteChange?: (note: string) => void
-  isFriend?: boolean
-  isMuted?: boolean
-  className?: string
+  user: DiscordUserData;
+  roles?: DiscordRole[];
+  mutualServers?: DiscordMutualServer[];
+  note?: string;
+  onMessageClick?: () => void;
+  onAddFriendClick?: () => void;
+  onRemoveFriendClick?: () => void;
+  onMuteClick?: () => void;
+  onBlockClick?: () => void;
+  onNoteChange?: (note: string) => void;
+  isFriend?: boolean;
+  isMuted?: boolean;
+  className?: string;
 }
 
 export interface DiscordUserData {
-  id: string
-  username: string
-  displayName?: string
-  discriminator?: string
-  avatar?: string
-  banner?: string
-  bannerColor?: string
-  bio?: string
-  status: 'online' | 'idle' | 'dnd' | 'offline'
-  customStatus?: string
-  createdAt?: Date
-  memberSince?: Date
-  isBot?: boolean
-  isPremium?: boolean
+  id: string;
+  username: string;
+  displayName?: string;
+  discriminator?: string;
+  avatar?: string;
+  banner?: string;
+  bannerColor?: string;
+  bio?: string;
+  status: "online" | "idle" | "dnd" | "offline";
+  customStatus?: string;
+  createdAt?: Date;
+  memberSince?: Date;
+  isBot?: boolean;
+  isPremium?: boolean;
 }
 
 export interface DiscordRole {
-  id: string
-  name: string
-  color: string
+  id: string;
+  name: string;
+  color: string;
 }
 
 export interface DiscordMutualServer {
-  id: string
-  name: string
-  icon?: string
+  id: string;
+  name: string;
+  icon?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -86,11 +93,14 @@ export function DiscordUserCard({
     idle: discordColors.statusIdle,
     dnd: discordColors.statusDnd,
     offline: discordColors.statusOffline,
-  }
+  };
 
   return (
     <div
-      className={cn('w-[340px] overflow-hidden rounded-lg shadow-xl', className)}
+      className={cn(
+        "w-[340px] overflow-hidden rounded-lg shadow-xl",
+        className,
+      )}
       style={{ backgroundColor: discordColors.gray900 }}
     >
       {/* Banner */}
@@ -99,8 +109,8 @@ export function DiscordUserCard({
         style={{
           backgroundColor: user.bannerColor || discordColors.blurple,
           backgroundImage: user.banner ? `url(${user.banner})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       />
 
@@ -113,7 +123,11 @@ export function DiscordUserCard({
             style={{ borderColor: discordColors.gray900 }}
           >
             {user.avatar ? (
-              <img src={user.avatar} alt={user.username} className="h-full w-full object-cover" />
+              <img
+                src={user.avatar}
+                alt={user.username}
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div
                 className="flex h-full w-full items-center justify-center text-2xl font-bold text-white"
@@ -139,7 +153,7 @@ export function DiscordUserCard({
           {user.isBot && (
             <span
               className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase"
-              style={{ backgroundColor: discordColors.blurple, color: 'white' }}
+              style={{ backgroundColor: discordColors.blurple, color: "white" }}
             >
               BOT
             </span>
@@ -156,7 +170,9 @@ export function DiscordUserCard({
             {user.discriminator && `#${user.discriminator}`}
           </div>
           {user.customStatus && (
-            <div className="mt-1 text-sm text-gray-300">{user.customStatus}</div>
+            <div className="mt-1 text-sm text-gray-300">
+              {user.customStatus}
+            </div>
           )}
         </div>
 
@@ -166,7 +182,9 @@ export function DiscordUserCard({
         {/* About Me */}
         {user.bio && (
           <Section title="ABOUT ME">
-            <p className="whitespace-pre-wrap text-sm text-gray-300">{user.bio}</p>
+            <p className="whitespace-pre-wrap text-sm text-gray-300">
+              {user.bio}
+            </p>
           </Section>
         )}
 
@@ -174,10 +192,10 @@ export function DiscordUserCard({
         {user.memberSince && (
           <Section title="MEMBER SINCE">
             <p className="text-sm text-gray-300">
-              {user.memberSince.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
+              {user.memberSince.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
               })}
             </p>
           </Section>
@@ -193,7 +211,10 @@ export function DiscordUserCard({
                   className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs"
                   style={{ backgroundColor: discordColors.gray800 }}
                 >
-                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: role.color }} />
+                  <span
+                    className="h-3 w-3 rounded-full"
+                    style={{ backgroundColor: role.color }}
+                  />
                   <span className="text-gray-300">{role.name}</span>
                 </span>
               ))}
@@ -206,7 +227,7 @@ export function DiscordUserCard({
           <input
             type="text"
             placeholder="Click to add a note"
-            value={note || ''}
+            value={note || ""}
             onChange={(e) => onNoteChange?.(e.target.value)}
             className="w-full bg-transparent text-sm text-gray-300 placeholder-gray-500 focus:outline-none"
           />
@@ -221,20 +242,28 @@ export function DiscordUserCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
 // Sub-components
 // -------------------------------------------------------------------------------
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="mb-3">
-      <h4 className="mb-1 text-xs font-semibold uppercase text-gray-400">{title}</h4>
+      <h4 className="mb-1 text-xs font-semibold uppercase text-gray-400">
+        {title}
+      </h4>
       {children}
     </div>
-  )
+  );
 }
 
 function NitroBadge() {
@@ -242,13 +271,13 @@ function NitroBadge() {
     <div
       className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase"
       style={{
-        background: 'linear-gradient(90deg, #ff73fa 0%, #ffc0cb 100%)',
-        color: 'white',
+        background: "linear-gradient(90deg, #ff73fa 0%, #ffc0cb 100%)",
+        color: "white",
       }}
     >
       NITRO
     </div>
-  )
+  );
 }
 
-export default DiscordUserCard
+export default DiscordUserCard;

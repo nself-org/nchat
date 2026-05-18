@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Link Preview Card Component
@@ -6,20 +6,28 @@
  * Rich preview cards for URLs with OpenGraph/Twitter Card metadata.
  */
 
-import { useState } from 'react'
-import { ExternalLink, Image as ImageIcon, Video, Music, FileText, Globe, X } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
-import type { LinkPreview, LinkPreviewType } from '@/lib/messages/link-preview'
+import { useState } from "react";
+import {
+  ExternalLink,
+  Image as ImageIcon,
+  Video,
+  Music,
+  FileText,
+  Globe,
+  X,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import type { LinkPreview, LinkPreviewType } from "@/lib/messages/link-preview";
 
 interface LinkPreviewCardProps {
-  preview: LinkPreview
-  isLoading?: boolean
-  onDismiss?: () => void
-  className?: string
+  preview: LinkPreview;
+  isLoading?: boolean;
+  onDismiss?: () => void;
+  className?: string;
 }
 
 export function LinkPreviewCard({
@@ -28,42 +36,44 @@ export function LinkPreviewCard({
   onDismiss,
   className,
 }: LinkPreviewCardProps) {
-  const [imageError, setImageError] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const getTypeIcon = (type: LinkPreviewType) => {
     switch (type) {
-      case 'video':
-        return <Video className="h-4 w-4" />
-      case 'audio':
-        return <Music className="h-4 w-4" />
-      case 'image':
-        return <ImageIcon className="h-4 w-4" />
-      case 'article':
-        return <FileText className="h-4 w-4" />
+      case "video":
+        return <Video className="h-4 w-4" />;
+      case "audio":
+        return <Music className="h-4 w-4" />;
+      case "image":
+        return <ImageIcon className="h-4 w-4" />;
+      case "article":
+        return <FileText className="h-4 w-4" />;
       default:
-        return <Globe className="h-4 w-4" />
+        return <Globe className="h-4 w-4" />;
     }
-  }
+  };
 
   const getTypeLabel = (type: LinkPreviewType) => {
     switch (type) {
-      case 'video':
-        return 'Video'
-      case 'audio':
-        return 'Audio'
-      case 'image':
-        return 'Image'
-      case 'article':
-        return 'Article'
+      case "video":
+        return "Video";
+      case "audio":
+        return "Audio";
+      case "image":
+        return "Image";
+      case "article":
+        return "Article";
       default:
-        return 'Website'
+        return "Website";
     }
-  }
+  };
 
   if (isLoading) {
     return (
-      <div className={cn('overflow-hidden rounded-lg border bg-card', className)}>
+      <div
+        className={cn("overflow-hidden rounded-lg border bg-card", className)}
+      >
         <Skeleton className="h-48 w-full" />
         <div className="space-y-2 p-3">
           <Skeleton className="h-4 w-3/4" />
@@ -71,12 +81,12 @@ export function LinkPreviewCard({
           <Skeleton className="h-3 w-2/3" />
         </div>
       </div>
-    )
+    );
   }
 
-  const hasImage = preview.image && !imageError
-  const hasVideo = preview.video
-  const themeColor = preview.themeColor
+  const hasImage = preview.image && !imageError;
+  const hasVideo = preview.video;
+  const themeColor = preview.themeColor;
 
   return (
     <AnimatePresence>
@@ -88,12 +98,12 @@ export function LinkPreviewCard({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         className={cn(
-          'hover:border-primary/50 group relative block overflow-hidden rounded-lg border bg-card transition-colors',
-          className
+          "hover:border-primary/50 group relative block overflow-hidden rounded-lg border bg-card transition-colors",
+          className,
         )}
         style={{
           borderLeftColor: themeColor,
-          borderLeftWidth: themeColor ? '3px' : undefined,
+          borderLeftWidth: themeColor ? "3px" : undefined,
         }}
       >
         {/* Dismiss Button */}
@@ -103,9 +113,9 @@ export function LinkPreviewCard({
             variant="ghost"
             size="icon"
             onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onDismiss()
+              e.preventDefault();
+              e.stopPropagation();
+              onDismiss();
             }}
             className="bg-background/80 absolute right-2 top-2 z-10 h-6 w-6 opacity-0 transition-opacity hover:bg-background group-hover:opacity-100"
           >
@@ -117,7 +127,10 @@ export function LinkPreviewCard({
         {(hasImage || hasVideo) && (
           <div className="relative w-full bg-muted">
             {hasImage && (
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <div
+                className="relative w-full"
+                style={{ paddingBottom: "56.25%" }}
+              >
                 {!imageLoaded && <Skeleton className="absolute inset-0" />}
                 <img
                   src={preview.image}
@@ -125,11 +138,11 @@ export function LinkPreviewCard({
                   onLoad={() => setImageLoaded(true)}
                   onError={() => setImageError(true)}
                   className={cn(
-                    'absolute inset-0 h-full w-full object-cover transition-opacity',
-                    imageLoaded ? 'opacity-100' : 'opacity-0'
+                    "absolute inset-0 h-full w-full object-cover transition-opacity",
+                    imageLoaded ? "opacity-100" : "opacity-0",
                   )}
                 />
-                {preview.type === 'video' && (
+                {preview.type === "video" && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/60">
                       <Video className="h-8 w-8 text-white" />
@@ -151,11 +164,13 @@ export function LinkPreviewCard({
                 alt=""
                 className="h-4 w-4 rounded"
                 onError={(e) => {
-                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.style.display = "none";
                 }}
               />
             )}
-            <span className="truncate">{preview.siteName || preview.domain}</span>
+            <span className="truncate">
+              {preview.siteName || preview.domain}
+            </span>
             <Badge variant="secondary" className="ml-auto shrink-0">
               <span className="mr-1">{getTypeIcon(preview.type)}</span>
               {getTypeLabel(preview.type)}
@@ -195,10 +210,10 @@ export function LinkPreviewCard({
               {preview.author && preview.publishedDate && <span>•</span>}
               {preview.publishedDate && (
                 <span>
-                  {new Date(preview.publishedDate).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
+                  {new Date(preview.publishedDate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
                   })}
                 </span>
               )}
@@ -213,7 +228,7 @@ export function LinkPreviewCard({
         </div>
       </motion.a>
     </AnimatePresence>
-  )
+  );
 }
 
 /**
@@ -222,7 +237,7 @@ export function LinkPreviewCard({
  */
 export function LinkPreviewSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('overflow-hidden rounded-lg border bg-card', className)}>
+    <div className={cn("overflow-hidden rounded-lg border bg-card", className)}>
       <Skeleton className="h-48 w-full" />
       <div className="space-y-2 p-3">
         <div className="flex items-center gap-2">
@@ -235,7 +250,7 @@ export function LinkPreviewSkeleton({ className }: { className?: string }) {
         <Skeleton className="h-3 w-1/2" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -247,14 +262,16 @@ export function LinkPreviewError({
   onDismiss,
   className,
 }: {
-  url: string
-  onDismiss?: () => void
-  className?: string
+  url: string;
+  onDismiss?: () => void;
+  className?: string;
 }) {
-  const domain = url.replace(/^https?:\/\//, '').split('/')[0]
+  const domain = url.replace(/^https?:\/\//, "").split("/")[0];
 
   return (
-    <div className={cn('group relative rounded-lg border bg-card p-3', className)}>
+    <div
+      className={cn("group relative rounded-lg border bg-card p-3", className)}
+    >
       {onDismiss && (
         <Button
           type="button"
@@ -279,9 +296,11 @@ export function LinkPreviewError({
           >
             {domain}
           </a>
-          <p className="mt-1 text-xs text-muted-foreground">Preview unavailable</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Preview unavailable
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }

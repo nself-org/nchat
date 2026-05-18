@@ -19,61 +19,61 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type DiscordChannelType =
-  | 'text' // Regular text channel
-  | 'voice' // Voice channel
-  | 'stage' // Stage channel (like concert/presentation)
-  | 'forum' // Forum channel for organized discussions
-  | 'announcement' // Announcement channel (can be followed)
-  | 'dm' // Direct message
-  | 'group_dm' // Group DM (up to 10 people)
-  | 'thread' // Thread (attached to a message)
-  | 'private_thread' // Private thread
-  | 'public_thread' // Public thread
+  | "text" // Regular text channel
+  | "voice" // Voice channel
+  | "stage" // Stage channel (like concert/presentation)
+  | "forum" // Forum channel for organized discussions
+  | "announcement" // Announcement channel (can be followed)
+  | "dm" // Direct message
+  | "group_dm" // Group DM (up to 10 people)
+  | "thread" // Thread (attached to a message)
+  | "private_thread" // Private thread
+  | "public_thread"; // Public thread
 
 export interface DiscordChannel {
-  id: string
-  name: string
-  type: DiscordChannelType
-  categoryId?: string
-  position: number
-  topic?: string
-  nsfw?: boolean
-  slowMode?: number // Seconds between messages
-  lastMessageId?: string
-  lastMessageAt?: Date
-  permissions?: DiscordPermissionOverwrite[]
+  id: string;
+  name: string;
+  type: DiscordChannelType;
+  categoryId?: string;
+  position: number;
+  topic?: string;
+  nsfw?: boolean;
+  slowMode?: number; // Seconds between messages
+  lastMessageId?: string;
+  lastMessageAt?: Date;
+  permissions?: DiscordPermissionOverwrite[];
   // Voice/Stage specific
-  bitrate?: number
-  userLimit?: number
-  rtcRegion?: string
+  bitrate?: number;
+  userLimit?: number;
+  rtcRegion?: string;
   // Forum specific
-  defaultReactionEmoji?: string
-  defaultSortOrder?: 'latest_activity' | 'creation_date'
-  defaultForumLayout?: 'not_set' | 'list' | 'gallery'
-  availableTags?: DiscordForumTag[]
+  defaultReactionEmoji?: string;
+  defaultSortOrder?: "latest_activity" | "creation_date";
+  defaultForumLayout?: "not_set" | "list" | "gallery";
+  availableTags?: DiscordForumTag[];
   // Thread specific
-  parentId?: string
-  ownerId?: string
-  messageCount?: number
-  memberCount?: number
-  archived?: boolean
-  autoArchiveDuration?: 60 | 1440 | 4320 | 10080 // Minutes
-  locked?: boolean
+  parentId?: string;
+  ownerId?: string;
+  messageCount?: number;
+  memberCount?: number;
+  archived?: boolean;
+  autoArchiveDuration?: 60 | 1440 | 4320 | 10080; // Minutes
+  locked?: boolean;
 }
 
 export interface DiscordCategory {
-  id: string
-  name: string
-  position: number
-  collapsed?: boolean
-  permissions?: DiscordPermissionOverwrite[]
+  id: string;
+  name: string;
+  position: number;
+  collapsed?: boolean;
+  permissions?: DiscordPermissionOverwrite[];
 }
 
 export interface DiscordForumTag {
-  id: string
-  name: string
-  emoji?: string
-  moderated?: boolean // Can only be applied by moderators
+  id: string;
+  name: string;
+  emoji?: string;
+  moderated?: boolean; // Can only be applied by moderators
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -81,118 +81,118 @@ export interface DiscordForumTag {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const discordChannelIcons = {
-  text: 'Hash', // #
-  voice: 'Volume2', // Speaker
-  stage: 'Radio', // Stage/broadcast
-  forum: 'MessagesSquare', // Forum
-  announcement: 'Megaphone', // Announcement
-  dm: 'AtSign', // @
-  thread: 'MessageSquare', // Thread
-  private: 'Lock', // Private
-  nsfw: 'AlertTriangle', // NSFW
-  rules: 'BookOpen', // Rules channel
-} as const
+  text: "Hash", // #
+  voice: "Volume2", // Speaker
+  stage: "Radio", // Stage/broadcast
+  forum: "MessagesSquare", // Forum
+  announcement: "Megaphone", // Announcement
+  dm: "AtSign", // @
+  thread: "MessageSquare", // Thread
+  private: "Lock", // Private
+  nsfw: "AlertTriangle", // NSFW
+  rules: "BookOpen", // Rules channel
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Server (Guild) Types
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordServer {
-  id: string
-  name: string
-  icon?: string
-  banner?: string
-  splash?: string // Invite splash image
-  description?: string
-  ownerId: string
-  region?: string
-  afkChannelId?: string
-  afkTimeout?: number
-  verificationLevel: DiscordVerificationLevel
-  defaultNotifications: 'all_messages' | 'only_mentions'
-  explicitContentFilter: 'disabled' | 'members_without_roles' | 'all_members'
-  features: DiscordServerFeature[]
-  mfaLevel: 0 | 1 // 0 = none, 1 = elevated (admin requires 2FA)
-  systemChannelId?: string
-  rulesChannelId?: string
-  publicUpdatesChannelId?: string
-  preferredLocale?: string
-  premiumTier: 0 | 1 | 2 | 3 // Boost level
-  premiumSubscriptionCount?: number // Number of boosts
-  vanityUrlCode?: string
-  maxMembers?: number
-  maxVideoChannelUsers?: number
-  approximateMemberCount?: number
-  approximatePresenceCount?: number
-  nsfwLevel: 'default' | 'explicit' | 'safe' | 'age_restricted'
-  createdAt: Date
+  id: string;
+  name: string;
+  icon?: string;
+  banner?: string;
+  splash?: string; // Invite splash image
+  description?: string;
+  ownerId: string;
+  region?: string;
+  afkChannelId?: string;
+  afkTimeout?: number;
+  verificationLevel: DiscordVerificationLevel;
+  defaultNotifications: "all_messages" | "only_mentions";
+  explicitContentFilter: "disabled" | "members_without_roles" | "all_members";
+  features: DiscordServerFeature[];
+  mfaLevel: 0 | 1; // 0 = none, 1 = elevated (admin requires 2FA)
+  systemChannelId?: string;
+  rulesChannelId?: string;
+  publicUpdatesChannelId?: string;
+  preferredLocale?: string;
+  premiumTier: 0 | 1 | 2 | 3; // Boost level
+  premiumSubscriptionCount?: number; // Number of boosts
+  vanityUrlCode?: string;
+  maxMembers?: number;
+  maxVideoChannelUsers?: number;
+  approximateMemberCount?: number;
+  approximatePresenceCount?: number;
+  nsfwLevel: "default" | "explicit" | "safe" | "age_restricted";
+  createdAt: Date;
 }
 
 export type DiscordVerificationLevel =
-  | 'none' // Unrestricted
-  | 'low' // Must have verified email
-  | 'medium' // Must be registered for 5+ minutes
-  | 'high' // Must be member for 10+ minutes
-  | 'very_high' // Must have verified phone
+  | "none" // Unrestricted
+  | "low" // Must have verified email
+  | "medium" // Must be registered for 5+ minutes
+  | "high" // Must be member for 10+ minutes
+  | "very_high"; // Must have verified phone
 
 export type DiscordServerFeature =
-  | 'ANIMATED_BANNER'
-  | 'ANIMATED_ICON'
-  | 'APPLICATION_COMMAND_PERMISSIONS_V2'
-  | 'AUTO_MODERATION'
-  | 'BANNER'
-  | 'COMMUNITY'
-  | 'CREATOR_MONETIZABLE_PROVISIONAL'
-  | 'CREATOR_STORE_PAGE'
-  | 'DEVELOPER_SUPPORT_SERVER'
-  | 'DISCOVERABLE'
-  | 'FEATURABLE'
-  | 'INVITES_DISABLED'
-  | 'INVITE_SPLASH'
-  | 'MEMBER_VERIFICATION_GATE_ENABLED'
-  | 'MORE_STICKERS'
-  | 'NEWS'
-  | 'PARTNERED'
-  | 'PREVIEW_ENABLED'
-  | 'ROLE_ICONS'
-  | 'ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE'
-  | 'ROLE_SUBSCRIPTIONS_ENABLED'
-  | 'TICKETED_EVENTS_ENABLED'
-  | 'VANITY_URL'
-  | 'VERIFIED'
-  | 'VIP_REGIONS'
-  | 'WELCOME_SCREEN_ENABLED'
+  | "ANIMATED_BANNER"
+  | "ANIMATED_ICON"
+  | "APPLICATION_COMMAND_PERMISSIONS_V2"
+  | "AUTO_MODERATION"
+  | "BANNER"
+  | "COMMUNITY"
+  | "CREATOR_MONETIZABLE_PROVISIONAL"
+  | "CREATOR_STORE_PAGE"
+  | "DEVELOPER_SUPPORT_SERVER"
+  | "DISCOVERABLE"
+  | "FEATURABLE"
+  | "INVITES_DISABLED"
+  | "INVITE_SPLASH"
+  | "MEMBER_VERIFICATION_GATE_ENABLED"
+  | "MORE_STICKERS"
+  | "NEWS"
+  | "PARTNERED"
+  | "PREVIEW_ENABLED"
+  | "ROLE_ICONS"
+  | "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE"
+  | "ROLE_SUBSCRIPTIONS_ENABLED"
+  | "TICKETED_EVENTS_ENABLED"
+  | "VANITY_URL"
+  | "VERIFIED"
+  | "VIP_REGIONS"
+  | "WELCOME_SCREEN_ENABLED";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Roles & Permissions
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordRole {
-  id: string
-  name: string
-  color: number // Integer color code
-  hoist: boolean // Display separately in member list
-  icon?: string
-  unicodeEmoji?: string
-  position: number
-  permissions: bigint | string // Permission bitfield
-  managed: boolean // Managed by integration
-  mentionable: boolean
+  id: string;
+  name: string;
+  color: number; // Integer color code
+  hoist: boolean; // Display separately in member list
+  icon?: string;
+  unicodeEmoji?: string;
+  position: number;
+  permissions: bigint | string; // Permission bitfield
+  managed: boolean; // Managed by integration
+  mentionable: boolean;
   tags?: {
-    botId?: string
-    integrationId?: string
-    premiumSubscriber?: boolean
-    subscriptionListingId?: string
-    availableForPurchase?: boolean
-    guildConnections?: boolean
-  }
+    botId?: string;
+    integrationId?: string;
+    premiumSubscriber?: boolean;
+    subscriptionListingId?: string;
+    availableForPurchase?: boolean;
+    guildConnections?: boolean;
+  };
 }
 
 export interface DiscordPermissionOverwrite {
-  id: string // Role or user ID
-  type: 'role' | 'member'
-  allow: bigint | string
-  deny: bigint | string
+  id: string; // Role or user ID
+  type: "role" | "member";
+  allow: bigint | string;
+  deny: bigint | string;
 }
 
 // Discord permission flags
@@ -242,19 +242,19 @@ export const DiscordPermissions = {
   USE_SOUNDBOARD: 1n << 42n,
   USE_EXTERNAL_SOUNDS: 1n << 45n,
   SEND_VOICE_MESSAGES: 1n << 46n,
-} as const
+} as const;
 
 // Default role presets
 export const discordRolePresets = {
   admin: {
-    name: 'Admin',
+    name: "Admin",
     color: 0xe74c3c, // Red
     permissions: DiscordPermissions.ADMINISTRATOR,
     hoist: true,
     mentionable: true,
   },
   moderator: {
-    name: 'Moderator',
+    name: "Moderator",
     color: 0x3498db, // Blue
     permissions:
       DiscordPermissions.KICK_MEMBERS |
@@ -268,7 +268,7 @@ export const discordRolePresets = {
     mentionable: true,
   },
   member: {
-    name: 'Member',
+    name: "Member",
     color: 0x2ecc71, // Green
     permissions:
       DiscordPermissions.VIEW_CHANNEL |
@@ -281,80 +281,80 @@ export const discordRolePresets = {
     hoist: false,
     mentionable: false,
   },
-} as const
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Member Types
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordMember {
-  id: string
-  username: string
-  displayName?: string
-  discriminator?: string // Legacy (pre-2023 #0000)
-  globalName?: string
-  avatar?: string
-  banner?: string
-  bannerColor?: string
-  accentColor?: number
-  bio?: string
-  pronouns?: string
-  status: DiscordUserStatus
+  id: string;
+  username: string;
+  displayName?: string;
+  discriminator?: string; // Legacy (pre-2023 #0000)
+  globalName?: string;
+  avatar?: string;
+  banner?: string;
+  bannerColor?: string;
+  accentColor?: number;
+  bio?: string;
+  pronouns?: string;
+  status: DiscordUserStatus;
   customStatus?: {
-    emoji?: string
-    text?: string
-    expiresAt?: Date
-  }
-  activities?: DiscordActivity[]
-  roles: string[] // Role IDs
-  joinedAt: Date
-  premiumSince?: Date // Nitro boosting since
-  pending?: boolean // Hasn't passed membership screening
-  communicationDisabledUntil?: Date // Timeout
-  flags?: number
-  nick?: string // Server nickname
-  deaf?: boolean
-  mute?: boolean
-  isOwner?: boolean
-  isBot?: boolean
-  isSystem?: boolean
+    emoji?: string;
+    text?: string;
+    expiresAt?: Date;
+  };
+  activities?: DiscordActivity[];
+  roles: string[]; // Role IDs
+  joinedAt: Date;
+  premiumSince?: Date; // Nitro boosting since
+  pending?: boolean; // Hasn't passed membership screening
+  communicationDisabledUntil?: Date; // Timeout
+  flags?: number;
+  nick?: string; // Server nickname
+  deaf?: boolean;
+  mute?: boolean;
+  isOwner?: boolean;
+  isBot?: boolean;
+  isSystem?: boolean;
 }
 
 export type DiscordUserStatus =
-  | 'online'
-  | 'idle'
-  | 'dnd' // Do Not Disturb
-  | 'offline'
-  | 'invisible'
+  | "online"
+  | "idle"
+  | "dnd" // Do Not Disturb
+  | "offline"
+  | "invisible";
 
 export interface DiscordActivity {
-  name: string
-  type: DiscordActivityType
-  url?: string // For streaming
-  createdAt: Date
+  name: string;
+  type: DiscordActivityType;
+  url?: string; // For streaming
+  createdAt: Date;
   timestamps?: {
-    start?: Date
-    end?: Date
-  }
-  applicationId?: string
-  details?: string
-  state?: string
+    start?: Date;
+    end?: Date;
+  };
+  applicationId?: string;
+  details?: string;
+  state?: string;
   emoji?: {
-    name: string
-    id?: string
-    animated?: boolean
-  }
+    name: string;
+    id?: string;
+    animated?: boolean;
+  };
   party?: {
-    id?: string
-    size?: [number, number] // [current, max]
-  }
+    id?: string;
+    size?: [number, number]; // [current, max]
+  };
   assets?: {
-    largeImage?: string
-    largeText?: string
-    smallImage?: string
-    smallText?: string
-  }
-  buttons?: string[]
+    largeImage?: string;
+    largeText?: string;
+    smallImage?: string;
+    smallText?: string;
+  };
+  buttons?: string[];
 }
 
 export type DiscordActivityType =
@@ -363,57 +363,57 @@ export type DiscordActivityType =
   | 2 // Listening
   | 3 // Watching
   | 4 // Custom
-  | 5 // Competing
+  | 5; // Competing
 
 export const discordActivityTypeLabels = {
-  0: 'Playing',
-  1: 'Streaming',
-  2: 'Listening to',
-  3: 'Watching',
-  4: '', // Custom status - no label
-  5: 'Competing in',
-} as const
+  0: "Playing",
+  1: "Streaming",
+  2: "Listening to",
+  3: "Watching",
+  4: "", // Custom status - no label
+  5: "Competing in",
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Messages
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordMessage {
-  id: string
-  channelId: string
-  author: DiscordMember
-  content: string
-  timestamp: Date
-  editedTimestamp?: Date
-  tts: boolean
-  mentionEveryone: boolean
-  mentions: DiscordMember[]
-  mentionRoles: string[]
-  mentionChannels?: DiscordChannel[]
-  attachments: DiscordAttachment[]
-  embeds: DiscordEmbed[]
-  reactions?: DiscordReaction[]
-  pinned: boolean
-  type: DiscordMessageType
+  id: string;
+  channelId: string;
+  author: DiscordMember;
+  content: string;
+  timestamp: Date;
+  editedTimestamp?: Date;
+  tts: boolean;
+  mentionEveryone: boolean;
+  mentions: DiscordMember[];
+  mentionRoles: string[];
+  mentionChannels?: DiscordChannel[];
+  attachments: DiscordAttachment[];
+  embeds: DiscordEmbed[];
+  reactions?: DiscordReaction[];
+  pinned: boolean;
+  type: DiscordMessageType;
   activity?: {
-    type: 1 | 2 | 3 | 5 // JOIN, SPECTATE, LISTEN, JOIN_REQUEST
-    partyId?: string
-  }
+    type: 1 | 2 | 3 | 5; // JOIN, SPECTATE, LISTEN, JOIN_REQUEST
+    partyId?: string;
+  };
   application?: {
-    id: string
-    name: string
-    icon?: string
-  }
+    id: string;
+    name: string;
+    icon?: string;
+  };
   messageReference?: {
-    messageId?: string
-    channelId?: string
-    guildId?: string
-  }
-  flags?: number
-  referencedMessage?: DiscordMessage
-  thread?: DiscordChannel
-  components?: DiscordComponent[]
-  stickerItems?: DiscordSticker[]
+    messageId?: string;
+    channelId?: string;
+    guildId?: string;
+  };
+  flags?: number;
+  referencedMessage?: DiscordMessage;
+  thread?: DiscordChannel;
+  components?: DiscordComponent[];
+  stickerItems?: DiscordSticker[];
 }
 
 export type DiscordMessageType =
@@ -447,117 +447,117 @@ export type DiscordMessageType =
   | 28 // Stage End
   | 29 // Stage Speaker
   | 31 // Stage Topic
-  | 32 // Guild Application Premium Subscription
+  | 32; // Guild Application Premium Subscription
 
 export interface DiscordAttachment {
-  id: string
-  filename: string
-  description?: string
-  contentType?: string
-  size: number
-  url: string
-  proxyUrl: string
-  height?: number
-  width?: number
-  ephemeral?: boolean
-  durationSecs?: number // For voice messages
-  waveform?: string // Base64 encoded waveform for voice messages
+  id: string;
+  filename: string;
+  description?: string;
+  contentType?: string;
+  size: number;
+  url: string;
+  proxyUrl: string;
+  height?: number;
+  width?: number;
+  ephemeral?: boolean;
+  durationSecs?: number; // For voice messages
+  waveform?: string; // Base64 encoded waveform for voice messages
 }
 
 export interface DiscordEmbed {
-  title?: string
-  type?: 'rich' | 'image' | 'video' | 'gifv' | 'article' | 'link'
-  description?: string
-  url?: string
-  timestamp?: Date
-  color?: number
+  title?: string;
+  type?: "rich" | "image" | "video" | "gifv" | "article" | "link";
+  description?: string;
+  url?: string;
+  timestamp?: Date;
+  color?: number;
   footer?: {
-    text: string
-    iconUrl?: string
-    proxyIconUrl?: string
-  }
+    text: string;
+    iconUrl?: string;
+    proxyIconUrl?: string;
+  };
   image?: {
-    url: string
-    proxyUrl?: string
-    height?: number
-    width?: number
-  }
+    url: string;
+    proxyUrl?: string;
+    height?: number;
+    width?: number;
+  };
   thumbnail?: {
-    url: string
-    proxyUrl?: string
-    height?: number
-    width?: number
-  }
+    url: string;
+    proxyUrl?: string;
+    height?: number;
+    width?: number;
+  };
   video?: {
-    url?: string
-    proxyUrl?: string
-    height?: number
-    width?: number
-  }
+    url?: string;
+    proxyUrl?: string;
+    height?: number;
+    width?: number;
+  };
   provider?: {
-    name?: string
-    url?: string
-  }
+    name?: string;
+    url?: string;
+  };
   author?: {
-    name: string
-    url?: string
-    iconUrl?: string
-    proxyIconUrl?: string
-  }
+    name: string;
+    url?: string;
+    iconUrl?: string;
+    proxyIconUrl?: string;
+  };
   fields?: {
-    name: string
-    value: string
-    inline?: boolean
-  }[]
+    name: string;
+    value: string;
+    inline?: boolean;
+  }[];
 }
 
 export interface DiscordReaction {
-  count: number
-  me: boolean // Current user reacted
+  count: number;
+  me: boolean; // Current user reacted
   emoji: {
-    id?: string
-    name: string
-    animated?: boolean
-  }
+    id?: string;
+    name: string;
+    animated?: boolean;
+  };
 }
 
 export interface DiscordSticker {
-  id: string
-  name: string
-  formatType: 1 | 2 | 3 | 4 // PNG, APNG, LOTTIE, GIF
+  id: string;
+  name: string;
+  formatType: 1 | 2 | 3 | 4; // PNG, APNG, LOTTIE, GIF
 }
 
 export interface DiscordComponent {
-  type: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 // ActionRow, Button, SelectMenu, TextInput, UserSelect, RoleSelect, MentionableSelect, ChannelSelect
-  components?: DiscordComponent[]
-  style?: 1 | 2 | 3 | 4 | 5 // Primary, Secondary, Success, Danger, Link
-  label?: string
+  type: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; // ActionRow, Button, SelectMenu, TextInput, UserSelect, RoleSelect, MentionableSelect, ChannelSelect
+  components?: DiscordComponent[];
+  style?: 1 | 2 | 3 | 4 | 5; // Primary, Secondary, Success, Danger, Link
+  label?: string;
   emoji?: {
-    id?: string
-    name?: string
-    animated?: boolean
-  }
-  customId?: string
-  url?: string
-  disabled?: boolean
-  placeholder?: string
-  minValues?: number
-  maxValues?: number
+    id?: string;
+    name?: string;
+    animated?: boolean;
+  };
+  customId?: string;
+  url?: string;
+  disabled?: boolean;
+  placeholder?: string;
+  minValues?: number;
+  maxValues?: number;
   options?: {
-    label: string
-    value: string
-    description?: string
+    label: string;
+    value: string;
+    description?: string;
     emoji?: {
-      id?: string
-      name?: string
-      animated?: boolean
-    }
-    default?: boolean
-  }[]
-  minLength?: number
-  maxLength?: number
-  required?: boolean
-  value?: string
+      id?: string;
+      name?: string;
+      animated?: boolean;
+    };
+    default?: boolean;
+  }[];
+  minLength?: number;
+  maxLength?: number;
+  required?: boolean;
+  value?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -565,20 +565,20 @@ export interface DiscordComponent {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const discordMentionTypes = {
-  user: '@',
-  role: '@&',
-  channel: '#',
-  everyone: '@everyone',
-  here: '@here',
-} as const
+  user: "@",
+  role: "@&",
+  channel: "#",
+  everyone: "@everyone",
+  here: "@here",
+} as const;
 
 export interface DiscordMentionConfig {
-  allowEveryone: boolean
-  allowHere: boolean
-  allowRoleMentions: boolean
-  allowUserMentions: boolean
-  suppressEveryone?: boolean
-  suppressRoles?: boolean
+  allowEveryone: boolean;
+  allowHere: boolean;
+  allowRoleMentions: boolean;
+  allowUserMentions: boolean;
+  suppressEveryone?: boolean;
+  suppressRoles?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -586,9 +586,9 @@ export interface DiscordMentionConfig {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordBoostTier {
-  level: 0 | 1 | 2 | 3
-  boostsRequired: number
-  perks: string[]
+  level: 0 | 1 | 2 | 3;
+  boostsRequired: number;
+  perks: string[];
 }
 
 export const discordBoostTiers: DiscordBoostTier[] = [
@@ -601,69 +601,72 @@ export const discordBoostTiers: DiscordBoostTier[] = [
     level: 1,
     boostsRequired: 2,
     perks: [
-      '50 additional emoji slots (100 total)',
-      '15 additional sticker slots (20 total)',
-      '128 Kbps audio quality',
-      'Animated server icon',
-      'Custom server invite background',
-      '+100MB max upload size (25MB total)',
+      "50 additional emoji slots (100 total)",
+      "15 additional sticker slots (20 total)",
+      "128 Kbps audio quality",
+      "Animated server icon",
+      "Custom server invite background",
+      "+100MB max upload size (25MB total)",
     ],
   },
   {
     level: 2,
     boostsRequired: 7,
     perks: [
-      '100 additional emoji slots (150 total)',
-      '15 additional sticker slots (30 total)',
-      '256 Kbps audio quality',
-      'Server banner',
-      '50MB max upload size',
-      'Custom role icons',
+      "100 additional emoji slots (150 total)",
+      "15 additional sticker slots (30 total)",
+      "256 Kbps audio quality",
+      "Server banner",
+      "50MB max upload size",
+      "Custom role icons",
     ],
   },
   {
     level: 3,
     boostsRequired: 14,
     perks: [
-      '150 additional emoji slots (250 total)',
-      '30 additional sticker slots (60 total)',
-      '384 Kbps audio quality',
-      'Vanity URL',
-      '100MB max upload size',
-      'Animated server banner',
+      "150 additional emoji slots (250 total)",
+      "30 additional sticker slots (60 total)",
+      "384 Kbps audio quality",
+      "Vanity URL",
+      "100MB max upload size",
+      "Animated server banner",
     ],
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Nitro Features (Placeholder)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordNitroFeatures {
-  tier: 'none' | 'basic' | 'full'
-  customEmoji: boolean
-  animatedAvatar: boolean
-  animatedEmoji: boolean
-  customStickers: boolean
-  uploadSize: number // In MB
-  streamQuality: '720p' | '1080p' | '4k'
-  serverBoostDiscount: boolean
-  boostsIncluded: number
-  profileBadge: boolean
-  profileBanner: boolean
-  profileColors: boolean
-  customTag: boolean
+  tier: "none" | "basic" | "full";
+  customEmoji: boolean;
+  animatedAvatar: boolean;
+  animatedEmoji: boolean;
+  customStickers: boolean;
+  uploadSize: number; // In MB
+  streamQuality: "720p" | "1080p" | "4k";
+  serverBoostDiscount: boolean;
+  boostsIncluded: number;
+  profileBadge: boolean;
+  profileBanner: boolean;
+  profileColors: boolean;
+  customTag: boolean;
 }
 
-export const discordNitroTiers: Record<'none' | 'basic' | 'full', DiscordNitroFeatures> = {
+export const discordNitroTiers: Record<
+  "none" | "basic" | "full",
+  DiscordNitroFeatures
+> = {
   none: {
-    tier: 'none',
+    tier: "none",
     customEmoji: false,
     animatedAvatar: false,
     animatedEmoji: false,
     customStickers: false,
     uploadSize: 25,
-    streamQuality: '720p',
+    streamQuality: "720p",
     serverBoostDiscount: false,
     boostsIncluded: 0,
     profileBadge: false,
@@ -672,13 +675,13 @@ export const discordNitroTiers: Record<'none' | 'basic' | 'full', DiscordNitroFe
     customTag: false,
   },
   basic: {
-    tier: 'basic',
+    tier: "basic",
     customEmoji: true,
     animatedAvatar: true,
     animatedEmoji: true,
     customStickers: false,
     uploadSize: 50,
-    streamQuality: '1080p',
+    streamQuality: "1080p",
     serverBoostDiscount: false,
     boostsIncluded: 0,
     profileBadge: true,
@@ -687,13 +690,13 @@ export const discordNitroTiers: Record<'none' | 'basic' | 'full', DiscordNitroFe
     customTag: false,
   },
   full: {
-    tier: 'full',
+    tier: "full",
     customEmoji: true,
     animatedAvatar: true,
     animatedEmoji: true,
     customStickers: true,
     uploadSize: 500,
-    streamQuality: '4k',
+    streamQuality: "4k",
     serverBoostDiscount: true,
     boostsIncluded: 2,
     profileBadge: true,
@@ -701,94 +704,101 @@ export const discordNitroTiers: Record<'none' | 'basic' | 'full', DiscordNitroFe
     profileColors: true,
     customTag: true,
   },
-}
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Activities (Placeholder)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordEmbeddedActivity {
-  id: string
-  name: string
-  description: string
-  icon: string
-  maxParticipants?: number
-  premium?: boolean
-  guildTier?: number // Required boost level
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  maxParticipants?: number;
+  premium?: boolean;
+  guildTier?: number; // Required boost level
 }
 
 export const discordActivities: DiscordEmbeddedActivity[] = [
   {
-    id: 'poker',
-    name: 'Poker Night',
-    description: 'Play poker with friends',
-    icon: 'cards',
+    id: "poker",
+    name: "Poker Night",
+    description: "Play poker with friends",
+    icon: "cards",
     maxParticipants: 7,
     premium: true,
   },
   {
-    id: 'chess',
-    name: 'Chess in the Park',
-    description: 'Play chess with a friend',
-    icon: 'chess',
+    id: "chess",
+    name: "Chess in the Park",
+    description: "Play chess with a friend",
+    icon: "chess",
     maxParticipants: 2,
     premium: false,
   },
   {
-    id: 'youtube',
-    name: 'Watch Together',
-    description: 'Watch YouTube together',
-    icon: 'youtube',
+    id: "youtube",
+    name: "Watch Together",
+    description: "Watch YouTube together",
+    icon: "youtube",
     premium: false,
   },
   {
-    id: 'sketch',
-    name: 'Sketch Heads',
-    description: 'Drawing game like Pictionary',
-    icon: 'pencil',
+    id: "sketch",
+    name: "Sketch Heads",
+    description: "Drawing game like Pictionary",
+    icon: "pencil",
     maxParticipants: 8,
     premium: false,
   },
   {
-    id: 'letter',
-    name: 'Letter League',
-    description: 'Word game',
-    icon: 'text',
+    id: "letter",
+    name: "Letter League",
+    description: "Word game",
+    icon: "text",
     maxParticipants: 8,
     premium: false,
   },
   {
-    id: 'spellcast',
-    name: 'SpellCast',
-    description: 'Word spelling game',
-    icon: 'wand',
+    id: "spellcast",
+    name: "SpellCast",
+    description: "Word spelling game",
+    icon: "wand",
     maxParticipants: 6,
     premium: true,
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Voice & Streaming (Placeholder)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordVoiceState {
-  userId: string
-  channelId?: string
-  guildId?: string
-  deaf: boolean
-  mute: boolean
-  selfDeaf: boolean
-  selfMute: boolean
-  selfVideo: boolean
-  selfStream: boolean
-  suppress: boolean
-  requestToSpeakTimestamp?: Date
+  userId: string;
+  channelId?: string;
+  guildId?: string;
+  deaf: boolean;
+  mute: boolean;
+  selfDeaf: boolean;
+  selfMute: boolean;
+  selfVideo: boolean;
+  selfStream: boolean;
+  suppress: boolean;
+  requestToSpeakTimestamp?: Date;
 }
 
 export interface DiscordStreamSettings {
-  quality: 'auto' | '720p30' | '720p60' | '1080p30' | '1080p60' | '1440p60' | '4k60'
-  soundEnabled: boolean
-  frameRate: 15 | 30 | 60
+  quality:
+    | "auto"
+    | "720p30"
+    | "720p60"
+    | "1080p30"
+    | "1080p60"
+    | "1440p60"
+    | "4k60";
+  soundEnabled: boolean;
+  frameRate: 15 | 30 | 60;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -796,64 +806,64 @@ export interface DiscordStreamSettings {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface DiscordAutoModRule {
-  id: string
-  guildId: string
-  name: string
-  creatorId: string
-  eventType: 1 // Message Send
-  triggerType: 1 | 3 | 4 | 5 // Keyword, Spam, KeywordPreset, MentionSpam
+  id: string;
+  guildId: string;
+  name: string;
+  creatorId: string;
+  eventType: 1; // Message Send
+  triggerType: 1 | 3 | 4 | 5; // Keyword, Spam, KeywordPreset, MentionSpam
   triggerMetadata?: {
-    keywordFilter?: string[]
-    regexPatterns?: string[]
-    presets?: (1 | 2 | 3)[] // Profanity, SexualContent, Slurs
-    allowList?: string[]
-    mentionTotalLimit?: number
-    mentionRaidProtectionEnabled?: boolean
-  }
-  actions: DiscordAutoModAction[]
-  enabled: boolean
-  exemptRoles?: string[]
-  exemptChannels?: string[]
+    keywordFilter?: string[];
+    regexPatterns?: string[];
+    presets?: (1 | 2 | 3)[]; // Profanity, SexualContent, Slurs
+    allowList?: string[];
+    mentionTotalLimit?: number;
+    mentionRaidProtectionEnabled?: boolean;
+  };
+  actions: DiscordAutoModAction[];
+  enabled: boolean;
+  exemptRoles?: string[];
+  exemptChannels?: string[];
 }
 
 export interface DiscordAutoModAction {
-  type: 1 | 2 | 3 | 4 // BlockMessage, SendAlertMessage, Timeout, BlockMemberInteraction
+  type: 1 | 2 | 3 | 4; // BlockMessage, SendAlertMessage, Timeout, BlockMemberInteraction
   metadata?: {
-    channelId?: string
-    durationSeconds?: number
-    customMessage?: string
-  }
+    channelId?: string;
+    durationSeconds?: number;
+    customMessage?: string;
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feature Status Types (matching Telegram narrowed type)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type FeatureStatus = 'enabled' | 'disabled'
+export type FeatureStatus = "enabled" | "disabled";
 
 export interface DiscordFeature {
-  id: string
-  name: string
-  description: string
-  status: FeatureStatus
-  category: DiscordFeatureCategory
-  icon: string
-  dependencies?: string[]
-  settings?: Record<string, unknown>
+  id: string;
+  name: string;
+  description: string;
+  status: FeatureStatus;
+  category: DiscordFeatureCategory;
+  icon: string;
+  dependencies?: string[];
+  settings?: Record<string, unknown>;
   /** Reason why the feature is disabled (only present when status is 'disabled') */
-  disabledReason?: string
+  disabledReason?: string;
 }
 
 export type DiscordFeatureCategory =
-  | 'core'
-  | 'channels'
-  | 'voice'
-  | 'roles'
-  | 'moderation'
-  | 'server'
-  | 'nitro'
-  | 'activities'
-  | 'integrations'
+  | "core"
+  | "channels"
+  | "voice"
+  | "roles"
+  | "moderation"
+  | "server"
+  | "nitro"
+  | "activities"
+  | "integrations";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Core Features
@@ -861,49 +871,49 @@ export type DiscordFeatureCategory =
 
 export const CORE_FEATURES: DiscordFeature[] = [
   {
-    id: 'servers',
-    name: 'Servers (Guilds)',
-    description: 'Server/guild system with create, join, and manage',
-    status: 'enabled',
-    category: 'core',
-    icon: 'Server',
+    id: "servers",
+    name: "Servers (Guilds)",
+    description: "Server/guild system with create, join, and manage",
+    status: "enabled",
+    category: "core",
+    icon: "Server",
     settings: {
       maxServersPerUser: 100,
       maxMembersPerServer: 500000,
     },
   },
   {
-    id: 'text_channels',
-    name: 'Text Channels',
-    description: 'Text-based channels with # prefix for messaging',
-    status: 'enabled',
-    category: 'core',
-    icon: 'Hash',
+    id: "text_channels",
+    name: "Text Channels",
+    description: "Text-based channels with # prefix for messaging",
+    status: "enabled",
+    category: "core",
+    icon: "Hash",
   },
   {
-    id: 'direct_messages',
-    name: 'Direct Messages',
-    description: 'Private one-on-one conversations between users',
-    status: 'enabled',
-    category: 'core',
-    icon: 'AtSign',
+    id: "direct_messages",
+    name: "Direct Messages",
+    description: "Private one-on-one conversations between users",
+    status: "enabled",
+    category: "core",
+    icon: "AtSign",
   },
   {
-    id: 'group_dms',
-    name: 'Group DMs',
-    description: 'Group direct messages with up to 10 people',
-    status: 'enabled',
-    category: 'core',
-    icon: 'Users',
+    id: "group_dms",
+    name: "Group DMs",
+    description: "Group direct messages with up to 10 people",
+    status: "enabled",
+    category: "core",
+    icon: "Users",
     settings: { maxMembers: 10 },
   },
   {
-    id: 'threads',
-    name: 'Threads',
-    description: 'Inline threaded conversations within channels',
-    status: 'enabled',
-    category: 'core',
-    icon: 'MessageSquare',
+    id: "threads",
+    name: "Threads",
+    description: "Inline threaded conversations within channels",
+    status: "enabled",
+    category: "core",
+    icon: "MessageSquare",
     settings: {
       publicThreads: true,
       privateThreads: true,
@@ -911,40 +921,40 @@ export const CORE_FEATURES: DiscordFeature[] = [
     },
   },
   {
-    id: 'reactions',
-    name: 'Message Reactions',
-    description: 'Full emoji picker with up to 20 reactions per message',
-    status: 'enabled',
-    category: 'core',
-    icon: 'Smile',
+    id: "reactions",
+    name: "Message Reactions",
+    description: "Full emoji picker with up to 20 reactions per message",
+    status: "enabled",
+    category: "core",
+    icon: "Smile",
     settings: { maxReactionsPerMessage: 20 },
   },
   {
-    id: 'embeds',
-    name: 'Rich Embeds',
-    description: 'Rich embed messages with colored borders, fields, and media',
-    status: 'enabled',
-    category: 'core',
-    icon: 'LayoutList',
+    id: "embeds",
+    name: "Rich Embeds",
+    description: "Rich embed messages with colored borders, fields, and media",
+    status: "enabled",
+    category: "core",
+    icon: "LayoutList",
   },
   {
-    id: 'attachments',
-    name: 'File Attachments',
-    description: 'Upload files up to 25MB (500MB with Nitro)',
-    status: 'enabled',
-    category: 'core',
-    icon: 'Paperclip',
+    id: "attachments",
+    name: "File Attachments",
+    description: "Upload files up to 25MB (500MB with Nitro)",
+    status: "enabled",
+    category: "core",
+    icon: "Paperclip",
     settings: { maxFileSizeMB: 25, maxFileSizeNitroMB: 500 },
   },
   {
-    id: 'mentions',
-    name: 'Mentions',
-    description: 'Mention users, roles, channels, @everyone, and @here',
-    status: 'enabled',
-    category: 'core',
-    icon: 'AtSign',
+    id: "mentions",
+    name: "Mentions",
+    description: "Mention users, roles, channels, @everyone, and @here",
+    status: "enabled",
+    category: "core",
+    icon: "AtSign",
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Channel Features
@@ -952,32 +962,32 @@ export const CORE_FEATURES: DiscordFeature[] = [
 
 export const CHANNEL_FEATURES: DiscordFeature[] = [
   {
-    id: 'forum_channels',
-    name: 'Forum Channels',
-    description: 'Post-based channels with tags, sorting, and guidelines',
-    status: 'enabled',
-    category: 'channels',
-    icon: 'MessagesSquare',
-    settings: { maxTags: 20, sortOrders: ['latest_activity', 'creation_date'] },
+    id: "forum_channels",
+    name: "Forum Channels",
+    description: "Post-based channels with tags, sorting, and guidelines",
+    status: "enabled",
+    category: "channels",
+    icon: "MessagesSquare",
+    settings: { maxTags: 20, sortOrders: ["latest_activity", "creation_date"] },
   },
   {
-    id: 'announcement_channels',
-    name: 'Announcement Channels',
-    description: 'Broadcast channels that can be followed cross-server',
-    status: 'enabled',
-    category: 'channels',
-    icon: 'Megaphone',
+    id: "announcement_channels",
+    name: "Announcement Channels",
+    description: "Broadcast channels that can be followed cross-server",
+    status: "enabled",
+    category: "channels",
+    icon: "Megaphone",
   },
   {
-    id: 'categories',
-    name: 'Channel Categories',
-    description: 'Collapsible category containers for organizing channels',
-    status: 'enabled',
-    category: 'channels',
-    icon: 'FolderOpen',
+    id: "categories",
+    name: "Channel Categories",
+    description: "Collapsible category containers for organizing channels",
+    status: "enabled",
+    category: "channels",
+    icon: "FolderOpen",
     settings: { maxCategoriesPerServer: 50, maxChannelsPerCategory: 50 },
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Voice Features
@@ -985,12 +995,13 @@ export const CHANNEL_FEATURES: DiscordFeature[] = [
 
 export const VOICE_FEATURES: DiscordFeature[] = [
   {
-    id: 'voice_channels',
-    name: 'Voice Channels',
-    description: 'Always-on voice channels with push-to-talk and voice activity detection',
-    status: 'enabled',
-    category: 'voice',
-    icon: 'Volume2',
+    id: "voice_channels",
+    name: "Voice Channels",
+    description:
+      "Always-on voice channels with push-to-talk and voice activity detection",
+    status: "enabled",
+    category: "voice",
+    icon: "Volume2",
     settings: {
       alwaysOn: true,
       pushToTalk: true,
@@ -1000,12 +1011,12 @@ export const VOICE_FEATURES: DiscordFeature[] = [
     },
   },
   {
-    id: 'stage_channels',
-    name: 'Stage Channels',
-    description: 'Speaker/audience model channels for presentations and events',
-    status: 'enabled',
-    category: 'voice',
-    icon: 'Radio',
+    id: "stage_channels",
+    name: "Stage Channels",
+    description: "Speaker/audience model channels for presentations and events",
+    status: "enabled",
+    category: "voice",
+    icon: "Radio",
     settings: {
       speakerAudienceModel: true,
       requestToSpeak: true,
@@ -1014,52 +1025,53 @@ export const VOICE_FEATURES: DiscordFeature[] = [
     },
   },
   {
-    id: 'streaming',
-    name: 'Streaming',
-    description: 'Go Live streaming to voice channels with configurable quality',
-    status: 'enabled',
-    category: 'voice',
-    icon: 'Cast',
+    id: "streaming",
+    name: "Streaming",
+    description:
+      "Go Live streaming to voice channels with configurable quality",
+    status: "enabled",
+    category: "voice",
+    icon: "Cast",
     settings: {
-      qualities: ['720p30', '720p60', '1080p30', '1080p60'],
+      qualities: ["720p30", "720p60", "1080p30", "1080p60"],
       soundEnabled: true,
     },
   },
   {
-    id: 'video_chat',
-    name: 'Video Chat',
-    description: 'Video calls in voice channels and DMs',
-    status: 'enabled',
-    category: 'voice',
-    icon: 'Video',
-    settings: { maxVideoQuality: '1080p' },
+    id: "video_chat",
+    name: "Video Chat",
+    description: "Video calls in voice channels and DMs",
+    status: "enabled",
+    category: "voice",
+    icon: "Video",
+    settings: { maxVideoQuality: "1080p" },
   },
   {
-    id: 'screen_share',
-    name: 'Screen Share',
-    description: 'Share your screen in voice channels and calls',
-    status: 'enabled',
-    category: 'voice',
-    icon: 'Monitor',
+    id: "screen_share",
+    name: "Screen Share",
+    description: "Share your screen in voice channels and calls",
+    status: "enabled",
+    category: "voice",
+    icon: "Monitor",
   },
   {
-    id: 'go_live',
-    name: 'Go Live',
-    description: 'Stream games or applications to voice channel participants',
-    status: 'enabled',
-    category: 'voice',
-    icon: 'Tv',
+    id: "go_live",
+    name: "Go Live",
+    description: "Stream games or applications to voice channel participants",
+    status: "enabled",
+    category: "voice",
+    icon: "Tv",
     settings: { maxViewers: 50 },
   },
   {
-    id: 'soundboard',
-    name: 'Soundboard',
-    description: 'Play sound effects in voice channels',
-    status: 'enabled',
-    category: 'voice',
-    icon: 'Music',
+    id: "soundboard",
+    name: "Soundboard",
+    description: "Play sound effects in voice channels",
+    status: "enabled",
+    category: "voice",
+    icon: "Music",
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Role Features
@@ -1067,58 +1079,61 @@ export const VOICE_FEATURES: DiscordFeature[] = [
 
 export const ROLE_FEATURES: DiscordFeature[] = [
   {
-    id: 'roles',
-    name: 'Roles',
-    description: 'Hierarchical role-based permission system',
-    status: 'enabled',
-    category: 'roles',
-    icon: 'Shield',
+    id: "roles",
+    name: "Roles",
+    description: "Hierarchical role-based permission system",
+    status: "enabled",
+    category: "roles",
+    icon: "Shield",
     settings: { maxRolesPerServer: 250 },
   },
   {
-    id: 'role_colors',
-    name: 'Role Colors',
-    description: 'Colored role names displayed in member list and messages',
-    status: 'enabled',
-    category: 'roles',
-    icon: 'Palette',
+    id: "role_colors",
+    name: "Role Colors",
+    description: "Colored role names displayed in member list and messages",
+    status: "enabled",
+    category: "roles",
+    icon: "Palette",
   },
   {
-    id: 'role_hierarchy',
-    name: 'Role Hierarchy',
-    description: 'Hierarchical permission calculation with position-based overrides',
-    status: 'enabled',
-    category: 'roles',
-    icon: 'ArrowUpDown',
+    id: "role_hierarchy",
+    name: "Role Hierarchy",
+    description:
+      "Hierarchical permission calculation with position-based overrides",
+    status: "enabled",
+    category: "roles",
+    icon: "ArrowUpDown",
   },
   {
-    id: 'role_icons',
-    name: 'Role Icons',
-    description: 'Custom icons and emoji for roles, available at Boost Level 2+',
-    status: 'enabled',
-    category: 'roles',
-    icon: 'Image',
-    dependencies: ['server_boosts'],
+    id: "role_icons",
+    name: "Role Icons",
+    description:
+      "Custom icons and emoji for roles, available at Boost Level 2+",
+    status: "enabled",
+    category: "roles",
+    icon: "Image",
+    dependencies: ["server_boosts"],
     settings: { requiredBoostLevel: 2 },
   },
   {
-    id: 'custom_permissions',
-    name: 'Custom Permissions',
-    description: 'Granular channel and category permission overrides per role',
-    status: 'enabled',
-    category: 'roles',
-    icon: 'Lock',
+    id: "custom_permissions",
+    name: "Custom Permissions",
+    description: "Granular channel and category permission overrides per role",
+    status: "enabled",
+    category: "roles",
+    icon: "Lock",
     settings: { permissionCount: 38 },
   },
   {
-    id: 'linked_roles',
-    name: 'Linked Roles',
-    description: 'Roles automatically assigned via connected accounts and external verification',
-    status: 'enabled',
-    category: 'roles',
-    icon: 'Link',
+    id: "linked_roles",
+    name: "Linked Roles",
+    description:
+      "Roles automatically assigned via connected accounts and external verification",
+    status: "enabled",
+    category: "roles",
+    icon: "Link",
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Moderation Features
@@ -1126,59 +1141,61 @@ export const ROLE_FEATURES: DiscordFeature[] = [
 
 export const MODERATION_FEATURES: DiscordFeature[] = [
   {
-    id: 'auto_moderation',
-    name: 'AutoMod',
-    description: 'Automated moderation with keyword filters, regex, and mention spam detection',
-    status: 'enabled',
-    category: 'moderation',
-    icon: 'ShieldAlert',
+    id: "auto_moderation",
+    name: "AutoMod",
+    description:
+      "Automated moderation with keyword filters, regex, and mention spam detection",
+    status: "enabled",
+    category: "moderation",
+    icon: "ShieldAlert",
     settings: {
       maxKeywordRules: 6,
       maxRegexRules: 1,
-      actions: ['block_message', 'send_alert', 'timeout'],
+      actions: ["block_message", "send_alert", "timeout"],
     },
   },
   {
-    id: 'timeouts',
-    name: 'User Timeouts',
-    description: 'Temporarily prevent members from interacting for a set duration',
-    status: 'enabled',
-    category: 'moderation',
-    icon: 'Clock',
+    id: "timeouts",
+    name: "User Timeouts",
+    description:
+      "Temporarily prevent members from interacting for a set duration",
+    status: "enabled",
+    category: "moderation",
+    icon: "Clock",
   },
   {
-    id: 'bans',
-    name: 'User Bans',
-    description: 'Ban members with optional message history purge',
-    status: 'enabled',
-    category: 'moderation',
-    icon: 'Ban',
+    id: "bans",
+    name: "User Bans",
+    description: "Ban members with optional message history purge",
+    status: "enabled",
+    category: "moderation",
+    icon: "Ban",
   },
   {
-    id: 'kicks',
-    name: 'User Kicks',
-    description: 'Remove members from the server',
-    status: 'enabled',
-    category: 'moderation',
-    icon: 'UserMinus',
+    id: "kicks",
+    name: "User Kicks",
+    description: "Remove members from the server",
+    status: "enabled",
+    category: "moderation",
+    icon: "UserMinus",
   },
   {
-    id: 'message_management',
-    name: 'Message Management',
-    description: 'Delete and manage messages by moderators',
-    status: 'enabled',
-    category: 'moderation',
-    icon: 'Trash2',
+    id: "message_management",
+    name: "Message Management",
+    description: "Delete and manage messages by moderators",
+    status: "enabled",
+    category: "moderation",
+    icon: "Trash2",
   },
   {
-    id: 'audit_log',
-    name: 'Audit Log',
-    description: 'Full audit log of all moderation and administrative actions',
-    status: 'enabled',
-    category: 'moderation',
-    icon: 'FileText',
+    id: "audit_log",
+    name: "Audit Log",
+    description: "Full audit log of all moderation and administrative actions",
+    status: "enabled",
+    category: "moderation",
+    icon: "FileText",
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Server Features
@@ -1186,12 +1203,13 @@ export const MODERATION_FEATURES: DiscordFeature[] = [
 
 export const SERVER_FEATURES: DiscordFeature[] = [
   {
-    id: 'server_boosts',
-    name: 'Server Boosts',
-    description: 'Boost system with 3 tiers unlocking perks (emoji, audio quality, uploads)',
-    status: 'enabled',
-    category: 'server',
-    icon: 'Zap',
+    id: "server_boosts",
+    name: "Server Boosts",
+    description:
+      "Boost system with 3 tiers unlocking perks (emoji, audio quality, uploads)",
+    status: "enabled",
+    category: "server",
+    icon: "Zap",
     settings: {
       tiers: [1, 2, 3],
       tier1Threshold: 2,
@@ -1200,75 +1218,78 @@ export const SERVER_FEATURES: DiscordFeature[] = [
     },
   },
   {
-    id: 'vanity_url',
-    name: 'Vanity URL',
-    description: 'Custom discord.gg invite URL, available at Boost Level 3',
-    status: 'enabled',
-    category: 'server',
-    icon: 'Link2',
-    dependencies: ['server_boosts'],
+    id: "vanity_url",
+    name: "Vanity URL",
+    description: "Custom discord.gg invite URL, available at Boost Level 3",
+    status: "enabled",
+    category: "server",
+    icon: "Link2",
+    dependencies: ["server_boosts"],
     settings: { requiredBoostLevel: 3 },
   },
   {
-    id: 'server_banner',
-    name: 'Server Banner',
-    description: 'Custom server banner image, available at Boost Level 2',
-    status: 'enabled',
-    category: 'server',
-    icon: 'ImagePlus',
-    dependencies: ['server_boosts'],
+    id: "server_banner",
+    name: "Server Banner",
+    description: "Custom server banner image, available at Boost Level 2",
+    status: "enabled",
+    category: "server",
+    icon: "ImagePlus",
+    dependencies: ["server_boosts"],
     settings: { requiredBoostLevel: 2 },
   },
   {
-    id: 'animated_icon',
-    name: 'Animated Server Icon',
-    description: 'Animated GIF server icon, available at Boost Level 1',
-    status: 'enabled',
-    category: 'server',
-    icon: 'Sparkles',
-    dependencies: ['server_boosts'],
+    id: "animated_icon",
+    name: "Animated Server Icon",
+    description: "Animated GIF server icon, available at Boost Level 1",
+    status: "enabled",
+    category: "server",
+    icon: "Sparkles",
+    dependencies: ["server_boosts"],
     settings: { requiredBoostLevel: 1 },
   },
   {
-    id: 'invite_splash',
-    name: 'Invite Splash',
-    description: 'Custom background image for server invite page, available at Boost Level 1',
-    status: 'enabled',
-    category: 'server',
-    icon: 'Image',
-    dependencies: ['server_boosts'],
+    id: "invite_splash",
+    name: "Invite Splash",
+    description:
+      "Custom background image for server invite page, available at Boost Level 1",
+    status: "enabled",
+    category: "server",
+    icon: "Image",
+    dependencies: ["server_boosts"],
     settings: { requiredBoostLevel: 1 },
   },
   {
-    id: 'welcome_screen',
-    name: 'Welcome Screen',
-    description: 'Welcome screen for new members with channel recommendations',
-    status: 'enabled',
-    category: 'server',
-    icon: 'HandMetal',
+    id: "welcome_screen",
+    name: "Welcome Screen",
+    description: "Welcome screen for new members with channel recommendations",
+    status: "enabled",
+    category: "server",
+    icon: "HandMetal",
   },
   {
-    id: 'membership_screening',
-    name: 'Membership Screening',
-    description: 'Verification gate requiring members to accept rules before joining',
-    status: 'enabled',
-    category: 'server',
-    icon: 'CheckCircle',
+    id: "membership_screening",
+    name: "Membership Screening",
+    description:
+      "Verification gate requiring members to accept rules before joining",
+    status: "enabled",
+    category: "server",
+    icon: "CheckCircle",
   },
   {
-    id: 'scheduled_events',
-    name: 'Scheduled Events',
-    description: 'Create and schedule events with RSVP, reminders, and cover images',
-    status: 'enabled',
-    category: 'server',
-    icon: 'Calendar',
+    id: "scheduled_events",
+    name: "Scheduled Events",
+    description:
+      "Create and schedule events with RSVP, reminders, and cover images",
+    status: "enabled",
+    category: "server",
+    icon: "Calendar",
     settings: {
-      eventTypes: ['voice', 'stage', 'external'],
+      eventTypes: ["voice", "stage", "external"],
       recurring: true,
       maxEvents: 100,
     },
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Nitro Features
@@ -1276,73 +1297,83 @@ export const SERVER_FEATURES: DiscordFeature[] = [
 
 export const NITRO_FEATURES: DiscordFeature[] = [
   {
-    id: 'nitro',
-    name: 'Nitro Subscription',
-    description: 'Premium subscription with enhanced features across tiers (Basic and Full)',
-    status: 'enabled',
-    category: 'nitro',
-    icon: 'Crown',
+    id: "nitro",
+    name: "Nitro Subscription",
+    description:
+      "Premium subscription with enhanced features across tiers (Basic and Full)",
+    status: "enabled",
+    category: "nitro",
+    icon: "Crown",
     settings: {
-      tiers: ['none', 'nitro-basic', 'nitro'],
+      tiers: ["none", "nitro-basic", "nitro"],
     },
   },
   {
-    id: 'custom_emoji',
-    name: 'Custom Emoji',
-    description: 'Custom server emoji; cross-server usage requires Nitro',
-    status: 'enabled',
-    category: 'nitro',
-    icon: 'Smile',
-    settings: { maxPerServer: 50, maxBoosted: 250, crossServerRequiresNitro: true },
+    id: "custom_emoji",
+    name: "Custom Emoji",
+    description: "Custom server emoji; cross-server usage requires Nitro",
+    status: "enabled",
+    category: "nitro",
+    icon: "Smile",
+    settings: {
+      maxPerServer: 50,
+      maxBoosted: 250,
+      crossServerRequiresNitro: true,
+    },
   },
   {
-    id: 'animated_emoji',
-    name: 'Animated Emoji',
-    description: 'Animated emoji in messages, requires Nitro subscription',
-    status: 'enabled',
-    category: 'nitro',
-    icon: 'Sparkles',
-    dependencies: ['nitro'],
+    id: "animated_emoji",
+    name: "Animated Emoji",
+    description: "Animated emoji in messages, requires Nitro subscription",
+    status: "enabled",
+    category: "nitro",
+    icon: "Sparkles",
+    dependencies: ["nitro"],
     settings: { requiresNitro: true },
   },
   {
-    id: 'custom_stickers',
-    name: 'Custom Stickers',
-    description: 'Use custom stickers from any server with Nitro',
-    status: 'enabled',
-    category: 'nitro',
-    icon: 'Sticker',
-    dependencies: ['nitro'],
-    settings: { maxPerServer: 5, maxBoosted: 60, requiresNitroForCrossServer: true },
+    id: "custom_stickers",
+    name: "Custom Stickers",
+    description: "Use custom stickers from any server with Nitro",
+    status: "enabled",
+    category: "nitro",
+    icon: "Sticker",
+    dependencies: ["nitro"],
+    settings: {
+      maxPerServer: 5,
+      maxBoosted: 60,
+      requiresNitroForCrossServer: true,
+    },
   },
   {
-    id: 'large_file_uploads',
-    name: 'Large File Uploads',
-    description: 'Upload files up to 500MB with Nitro (50MB with Nitro Basic)',
-    status: 'enabled',
-    category: 'nitro',
-    icon: 'Upload',
-    dependencies: ['nitro'],
+    id: "large_file_uploads",
+    name: "Large File Uploads",
+    description: "Upload files up to 500MB with Nitro (50MB with Nitro Basic)",
+    status: "enabled",
+    category: "nitro",
+    icon: "Upload",
+    dependencies: ["nitro"],
     settings: { baseLimitMB: 25, nitroBasicLimitMB: 50, nitroLimitMB: 500 },
   },
   {
-    id: 'hd_streaming',
-    name: 'HD Streaming',
-    description: 'Stream at 1080p 60fps or higher quality with Nitro',
-    status: 'enabled',
-    category: 'nitro',
-    icon: 'Tv',
-    dependencies: ['nitro'],
-    settings: { baseQuality: '720p30', nitroQuality: '1080p60' },
+    id: "hd_streaming",
+    name: "HD Streaming",
+    description: "Stream at 1080p 60fps or higher quality with Nitro",
+    status: "enabled",
+    category: "nitro",
+    icon: "Tv",
+    dependencies: ["nitro"],
+    settings: { baseQuality: "720p30", nitroQuality: "1080p60" },
   },
   {
-    id: 'profile_customization',
-    name: 'Profile Customization',
-    description: 'Custom profile banner, theme, badge, and animated avatar with Nitro',
-    status: 'enabled',
-    category: 'nitro',
-    icon: 'User',
-    dependencies: ['nitro'],
+    id: "profile_customization",
+    name: "Profile Customization",
+    description:
+      "Custom profile banner, theme, badge, and animated avatar with Nitro",
+    status: "enabled",
+    category: "nitro",
+    icon: "User",
+    dependencies: ["nitro"],
     settings: {
       animatedAvatar: true,
       animatedBanner: true,
@@ -1351,18 +1382,18 @@ export const NITRO_FEATURES: DiscordFeature[] = [
     },
   },
   {
-    id: 'super_reactions',
-    name: 'Super Reactions',
-    description: 'Animated super reactions on messages, Nitro exclusive',
-    status: 'disabled',
-    category: 'nitro',
-    icon: 'Sparkle',
-    dependencies: ['nitro'],
+    id: "super_reactions",
+    name: "Super Reactions",
+    description: "Animated super reactions on messages, Nitro exclusive",
+    status: "disabled",
+    category: "nitro",
+    icon: "Sparkle",
+    dependencies: ["nitro"],
     disabledReason:
-      'Super reactions require animated overlay rendering that is not yet implemented in the client. ' +
-      'Standard reactions are fully supported. This may be enabled in a future release.',
+      "Super reactions require animated overlay rendering that is not yet implemented in the client. " +
+      "Standard reactions are fully supported. This may be enabled in a future release.",
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Activity Features
@@ -1370,29 +1401,44 @@ export const NITRO_FEATURES: DiscordFeature[] = [
 
 export const ACTIVITY_FEATURES: DiscordFeature[] = [
   {
-    id: 'activities',
-    name: 'Embedded Activities',
-    description: 'In-voice-channel games and social activities (Watch Together, etc.)',
-    status: 'enabled',
-    category: 'activities',
-    icon: 'Gamepad2',
-    dependencies: ['voice_channels'],
+    id: "activities",
+    name: "Embedded Activities",
+    description:
+      "In-voice-channel games and social activities (Watch Together, etc.)",
+    status: "enabled",
+    category: "activities",
+    icon: "Gamepad2",
+    dependencies: ["voice_channels"],
     settings: {
-      builtInActivities: ['poker', 'chess', 'youtube', 'sketch', 'letter', 'spellcast'],
+      builtInActivities: [
+        "poker",
+        "chess",
+        "youtube",
+        "sketch",
+        "letter",
+        "spellcast",
+      ],
     },
   },
   {
-    id: 'rich_presence',
-    name: 'Rich Presence',
-    description: 'Display current game or application activity status',
-    status: 'enabled',
-    category: 'activities',
-    icon: 'Activity',
+    id: "rich_presence",
+    name: "Rich Presence",
+    description: "Display current game or application activity status",
+    status: "enabled",
+    category: "activities",
+    icon: "Activity",
     settings: {
-      activityTypes: ['Playing', 'Streaming', 'Listening', 'Watching', 'Custom', 'Competing'],
+      activityTypes: [
+        "Playing",
+        "Streaming",
+        "Listening",
+        "Watching",
+        "Custom",
+        "Competing",
+      ],
     },
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Integration Features
@@ -1400,46 +1446,47 @@ export const ACTIVITY_FEATURES: DiscordFeature[] = [
 
 export const INTEGRATION_FEATURES: DiscordFeature[] = [
   {
-    id: 'webhooks',
-    name: 'Webhooks',
-    description: 'Create webhooks for external service integrations',
-    status: 'enabled',
-    category: 'integrations',
-    icon: 'Webhook',
+    id: "webhooks",
+    name: "Webhooks",
+    description: "Create webhooks for external service integrations",
+    status: "enabled",
+    category: "integrations",
+    icon: "Webhook",
   },
   {
-    id: 'bots',
-    name: 'Bot Integration',
-    description: 'Add and manage bot applications in servers',
-    status: 'enabled',
-    category: 'integrations',
-    icon: 'Bot',
+    id: "bots",
+    name: "Bot Integration",
+    description: "Add and manage bot applications in servers",
+    status: "enabled",
+    category: "integrations",
+    icon: "Bot",
   },
   {
-    id: 'apps',
-    name: 'App Directory',
-    description: 'Discover and install applications from the app directory',
-    status: 'enabled',
-    category: 'integrations',
-    icon: 'LayoutGrid',
+    id: "apps",
+    name: "App Directory",
+    description: "Discover and install applications from the app directory",
+    status: "enabled",
+    category: "integrations",
+    icon: "LayoutGrid",
   },
   {
-    id: 'slash_commands',
-    name: 'Slash Commands',
-    description: 'Application commands with autocomplete and type-safe parameters',
-    status: 'enabled',
-    category: 'integrations',
-    icon: 'Terminal',
+    id: "slash_commands",
+    name: "Slash Commands",
+    description:
+      "Application commands with autocomplete and type-safe parameters",
+    status: "enabled",
+    category: "integrations",
+    icon: "Terminal",
   },
   {
-    id: 'message_components',
-    name: 'Message Components',
-    description: 'Interactive buttons, select menus, and modals in messages',
-    status: 'enabled',
-    category: 'integrations',
-    icon: 'ToggleLeft',
+    id: "message_components",
+    name: "Message Components",
+    description: "Interactive buttons, select menus, and modals in messages",
+    status: "enabled",
+    category: "integrations",
+    icon: "ToggleLeft",
   },
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feature Collections
@@ -1455,7 +1502,7 @@ export const ALL_DISCORD_FEATURES: DiscordFeature[] = [
   ...NITRO_FEATURES,
   ...ACTIVITY_FEATURES,
   ...INTEGRATION_FEATURES,
-]
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Legacy Feature Flags (backwards compatible - derived from DiscordFeature[])
@@ -1525,28 +1572,30 @@ export const discordFeatureFlags = {
   bots: true,
   apps: true,
   linkedRoles: true,
-} as const
+} as const;
 
-export type DiscordFeatureFlag = keyof typeof discordFeatureFlags
+export type DiscordFeatureFlag = keyof typeof discordFeatureFlags;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feature Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function getDiscordFeatureById(id: string): DiscordFeature | undefined {
-  return ALL_DISCORD_FEATURES.find((f) => f.id === id)
+  return ALL_DISCORD_FEATURES.find((f) => f.id === id);
 }
 
-export function getDiscordFeaturesByCategory(category: DiscordFeatureCategory): DiscordFeature[] {
-  return ALL_DISCORD_FEATURES.filter((f) => f.category === category)
+export function getDiscordFeaturesByCategory(
+  category: DiscordFeatureCategory,
+): DiscordFeature[] {
+  return ALL_DISCORD_FEATURES.filter((f) => f.category === category);
 }
 
 export function getDiscordEnabledFeatures(): DiscordFeature[] {
-  return ALL_DISCORD_FEATURES.filter((f) => f.status === 'enabled')
+  return ALL_DISCORD_FEATURES.filter((f) => f.status === "enabled");
 }
 
 export function getDiscordDisabledFeatures(): DiscordFeature[] {
-  return ALL_DISCORD_FEATURES.filter((f) => f.status === 'disabled')
+  return ALL_DISCORD_FEATURES.filter((f) => f.status === "disabled");
 }
 
 /**
@@ -1554,20 +1603,20 @@ export function getDiscordDisabledFeatures(): DiscordFeature[] {
  * Returns an empty array - all features are now either 'enabled' or 'disabled'.
  */
 export function getDiscordPlaceholderFeatures(): DiscordFeature[] {
-  return []
+  return [];
 }
 
 export function isDiscordFeatureEnabled(id: string): boolean {
-  const feature = getDiscordFeatureById(id)
-  return feature?.status === 'enabled'
+  const feature = getDiscordFeatureById(id);
+  return feature?.status === "enabled";
 }
 
 export function getDiscordFeatureDependencies(id: string): DiscordFeature[] {
-  const feature = getDiscordFeatureById(id)
-  if (!feature?.dependencies) return []
+  const feature = getDiscordFeatureById(id);
+  if (!feature?.dependencies) return [];
   return feature.dependencies
     .map((depId) => getDiscordFeatureById(depId))
-    .filter((f): f is DiscordFeature => f !== undefined)
+    .filter((f): f is DiscordFeature => f !== undefined);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1595,9 +1644,9 @@ export const discordFeatureConfig = {
     isDiscordFeatureEnabled,
     getDiscordFeatureDependencies,
   },
-}
+};
 
-export default discordFeatureConfig
+export default discordFeatureConfig;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Export All Types
@@ -1613,4 +1662,4 @@ export type {
   DiscordReaction as Reaction,
   DiscordEmbed as Embed,
   DiscordAttachment as Attachment,
-}
+};

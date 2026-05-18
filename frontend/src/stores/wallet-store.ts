@@ -4,10 +4,14 @@
  * Manages wallet connection state, balances, tokens, and NFTs
  */
 
-import { create } from 'zustand'
-import type { WalletState, WalletProvider, ChainId } from '@/lib/wallet/wallet-connector'
-import type { TokenBalance, NFTInfo } from '@/lib/wallet/token-manager'
-import type { PendingTransaction } from '@/lib/wallet/transaction-manager'
+import { create } from "zustand";
+import type {
+  WalletState,
+  WalletProvider,
+  ChainId,
+} from "@/lib/wallet/wallet-connector";
+import type { TokenBalance, NFTInfo } from "@/lib/wallet/token-manager";
+import type { PendingTransaction } from "@/lib/wallet/transaction-manager";
 
 // ============================================================================
 // Types
@@ -15,45 +19,48 @@ import type { PendingTransaction } from '@/lib/wallet/transaction-manager'
 
 export interface WalletStoreState {
   // Connection state
-  isConnected: boolean
-  address: string | null
-  chainId: ChainId | null
-  provider: WalletProvider | null
-  balance: string | null
-  isConnecting: boolean
-  error: string | null
+  isConnected: boolean;
+  address: string | null;
+  chainId: ChainId | null;
+  provider: WalletProvider | null;
+  balance: string | null;
+  isConnecting: boolean;
+  error: string | null;
 
   // Tokens and NFTs
-  tokens: TokenBalance[]
-  nfts: NFTInfo[]
-  isLoadingTokens: boolean
-  isLoadingNFTs: boolean
+  tokens: TokenBalance[];
+  nfts: NFTInfo[];
+  isLoadingTokens: boolean;
+  isLoadingNFTs: boolean;
 
   // Transactions
-  pendingTransactions: PendingTransaction[]
+  pendingTransactions: PendingTransaction[];
 
   // UI state
-  isWalletModalOpen: boolean
-  isTransactionModalOpen: boolean
-  selectedToken: TokenBalance | null
+  isWalletModalOpen: boolean;
+  isTransactionModalOpen: boolean;
+  selectedToken: TokenBalance | null;
 
   // Actions
-  setConnected: (state: WalletState) => void
-  setDisconnected: () => void
-  setConnecting: (isConnecting: boolean) => void
-  setError: (error: string | null) => void
-  updateBalance: (balance: string) => void
-  setTokens: (tokens: TokenBalance[]) => void
-  setNFTs: (nfts: NFTInfo[]) => void
-  setLoadingTokens: (loading: boolean) => void
-  setLoadingNFTs: (loading: boolean) => void
-  addPendingTransaction: (tx: PendingTransaction) => void
-  updatePendingTransaction: (hash: string, updates: Partial<PendingTransaction>) => void
-  removePendingTransaction: (hash: string) => void
-  setWalletModalOpen: (open: boolean) => void
-  setTransactionModalOpen: (open: boolean) => void
-  setSelectedToken: (token: TokenBalance | null) => void
-  reset: () => void
+  setConnected: (state: WalletState) => void;
+  setDisconnected: () => void;
+  setConnecting: (isConnecting: boolean) => void;
+  setError: (error: string | null) => void;
+  updateBalance: (balance: string) => void;
+  setTokens: (tokens: TokenBalance[]) => void;
+  setNFTs: (nfts: NFTInfo[]) => void;
+  setLoadingTokens: (loading: boolean) => void;
+  setLoadingNFTs: (loading: boolean) => void;
+  addPendingTransaction: (tx: PendingTransaction) => void;
+  updatePendingTransaction: (
+    hash: string,
+    updates: Partial<PendingTransaction>,
+  ) => void;
+  removePendingTransaction: (hash: string) => void;
+  setWalletModalOpen: (open: boolean) => void;
+  setTransactionModalOpen: (open: boolean) => void;
+  setSelectedToken: (token: TokenBalance | null) => void;
+  reset: () => void;
 }
 
 // ============================================================================
@@ -76,7 +83,7 @@ const initialState = {
   isWalletModalOpen: false,
   isTransactionModalOpen: false,
   selectedToken: null,
-}
+};
 
 // ============================================================================
 // Store
@@ -107,7 +114,8 @@ export const useWalletStore = create<WalletStoreState>((set) => ({
 
   updateBalance: (balance: string) => set({ balance }),
 
-  setTokens: (tokens: TokenBalance[]) => set({ tokens, isLoadingTokens: false }),
+  setTokens: (tokens: TokenBalance[]) =>
+    set({ tokens, isLoadingTokens: false }),
 
   setNFTs: (nfts: NFTInfo[]) => set({ nfts, isLoadingNFTs: false }),
 
@@ -120,23 +128,30 @@ export const useWalletStore = create<WalletStoreState>((set) => ({
       pendingTransactions: [...state.pendingTransactions, tx],
     })),
 
-  updatePendingTransaction: (hash: string, updates: Partial<PendingTransaction>) =>
+  updatePendingTransaction: (
+    hash: string,
+    updates: Partial<PendingTransaction>,
+  ) =>
     set((state) => ({
       pendingTransactions: state.pendingTransactions.map((tx) =>
-        tx.hash === hash ? { ...tx, ...updates } : tx
+        tx.hash === hash ? { ...tx, ...updates } : tx,
       ),
     })),
 
   removePendingTransaction: (hash: string) =>
     set((state) => ({
-      pendingTransactions: state.pendingTransactions.filter((tx) => tx.hash !== hash),
+      pendingTransactions: state.pendingTransactions.filter(
+        (tx) => tx.hash !== hash,
+      ),
     })),
 
   setWalletModalOpen: (open: boolean) => set({ isWalletModalOpen: open }),
 
-  setTransactionModalOpen: (open: boolean) => set({ isTransactionModalOpen: open }),
+  setTransactionModalOpen: (open: boolean) =>
+    set({ isTransactionModalOpen: open }),
 
-  setSelectedToken: (token: TokenBalance | null) => set({ selectedToken: token }),
+  setSelectedToken: (token: TokenBalance | null) =>
+    set({ selectedToken: token }),
 
   reset: () => set({ ...initialState }),
-}))
+}));

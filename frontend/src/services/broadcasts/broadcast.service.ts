@@ -11,7 +11,7 @@
  * - Recipients don't see each other (privacy)
  */
 
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import {
   GET_BROADCAST_LISTS,
   GET_BROADCAST_LIST,
@@ -28,98 +28,98 @@ import {
   INCREMENT_BROADCAST_READ_COUNT,
   type BroadcastList as GraphQLBroadcastList,
   type Broadcast as GraphQLBroadcast,
-} from '@/graphql/broadcasts'
-import { GET_OR_CREATE_DM_CHANNEL } from '@/graphql/channels'
-import { SEND_MESSAGE } from '@/graphql/messages/mutations'
+} from "@/graphql/broadcasts";
+import { GET_OR_CREATE_DM_CHANNEL } from "@/graphql/channels";
+import { SEND_MESSAGE } from "@/graphql/messages/mutations";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 /** Maximum number of recipients per broadcast list */
-export const MAX_RECIPIENTS_PER_LIST = 256
+export const MAX_RECIPIENTS_PER_LIST = 256;
 
 /** Rate limit: broadcasts per minute */
-export const BROADCASTS_PER_MINUTE = 5
+export const BROADCASTS_PER_MINUTE = 5;
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface BroadcastList {
-  id: string
-  ownerId: string
-  name: string
-  recipientIds: string[]
-  recipientCount: number
-  createdAt: string
-  updatedAt: string
+  id: string;
+  ownerId: string;
+  name: string;
+  recipientIds: string[];
+  recipientCount: number;
+  createdAt: string;
+  updatedAt: string;
   owner?: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
 }
 
 export interface Broadcast {
-  id: string
-  listId: string
-  senderId: string
-  content: string
-  contentHtml?: string
-  sentAt: string
-  deliveryCount: number
-  readCount: number
+  id: string;
+  listId: string;
+  senderId: string;
+  content: string;
+  contentHtml?: string;
+  sentAt: string;
+  deliveryCount: number;
+  readCount: number;
   sender?: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
-  list?: BroadcastList
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+  list?: BroadcastList;
 }
 
 export interface Recipient {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl?: string
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
 }
 
 export interface CreateBroadcastListInput {
-  name: string
-  recipientIds: string[]
+  name: string;
+  recipientIds: string[];
 }
 
 export interface UpdateBroadcastListInput {
-  name?: string
-  recipientIds?: string[]
+  name?: string;
+  recipientIds?: string[];
 }
 
 export interface SendBroadcastInput {
-  content: string
-  contentHtml?: string
+  content: string;
+  contentHtml?: string;
 }
 
 export interface BroadcastListsResult {
-  lists: BroadcastList[]
-  total: number
-  hasMore: boolean
+  lists: BroadcastList[];
+  total: number;
+  hasMore: boolean;
 }
 
 export interface BroadcastHistoryResult {
-  broadcasts: Broadcast[]
-  total: number
-  hasMore: boolean
+  broadcasts: Broadcast[];
+  total: number;
+  hasMore: boolean;
 }
 
 export interface SendBroadcastResult {
-  broadcast: Broadcast
-  deliveryCount: number
-  failedRecipients: string[]
+  broadcast: Broadcast;
+  deliveryCount: number;
+  failedRecipients: string[];
 }
 
 // ============================================================================
@@ -127,11 +127,11 @@ export interface SendBroadcastResult {
 // ============================================================================
 
 export class BroadcastService {
-  private client: ApolloClient<NormalizedCacheObject>
-  private broadcastTimestamps: Map<string, number[]> = new Map()
+  private client: ApolloClient<NormalizedCacheObject>;
+  private broadcastTimestamps: Map<string, number[]> = new Map();
 
   constructor(client: ApolloClient<NormalizedCacheObject>) {
-    this.client = client
+    this.client = client;
   }
 
   // ==========================================================================
@@ -143,15 +143,19 @@ export class BroadcastService {
    */
   async createBroadcastList(
     input: CreateBroadcastListInput,
-    ownerId: string
+    ownerId: string,
   ): Promise<BroadcastList> {
     // Validate recipient count
     if (input.recipientIds.length > MAX_RECIPIENTS_PER_LIST) {
-      throw new Error(`Maximum ${MAX_RECIPIENTS_PER_LIST} recipients allowed per broadcast list`)
+      throw new Error(
+        `Maximum ${MAX_RECIPIENTS_PER_LIST} recipients allowed per broadcast list`,
+      );
     }
 
     // Remove duplicates and filter out owner
-    const uniqueRecipients = [...new Set(input.recipientIds)].filter((id) => id !== ownerId)
+    const uniqueRecipients = [...new Set(input.recipientIds)].filter(
+      (id) => id !== ownerId,
+    );
 
     const { data } = await this.client.mutate({
       mutation: CREATE_BROADCAST_LIST,
@@ -160,31 +164,36 @@ export class BroadcastService {
         ownerId,
         recipientIds: uniqueRecipients,
       },
-    })
+    });
 
-    return this.transformBroadcastList(data.insert_nchat_broadcast_lists_one)
+    return this.transformBroadcastList(data.insert_nchat_broadcast_lists_one);
   }
 
   /**
    * Get all broadcast lists for a user
    */
-  async getBroadcastLists(userId: string, limit = 50, offset = 0): Promise<BroadcastListsResult> {
+  async getBroadcastLists(
+    userId: string,
+    limit = 50,
+    offset = 0,
+  ): Promise<BroadcastListsResult> {
     const { data } = await this.client.query({
       query: GET_BROADCAST_LISTS,
       variables: { ownerId: userId, limit, offset },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const lists = (data.nchat_broadcast_lists || []).map((list: Record<string, unknown>) =>
-      this.transformBroadcastList(list)
-    )
-    const total = data.nchat_broadcast_lists_aggregate?.aggregate?.count || lists.length
+    const lists = (data.nchat_broadcast_lists || []).map(
+      (list: Record<string, unknown>) => this.transformBroadcastList(list),
+    );
+    const total =
+      data.nchat_broadcast_lists_aggregate?.aggregate?.count || lists.length;
 
     return {
       lists,
       total,
       hasMore: offset + limit < total,
-    }
+    };
   }
 
   /**
@@ -194,76 +203,86 @@ export class BroadcastService {
     const { data } = await this.client.query({
       query: GET_BROADCAST_LIST,
       variables: { id },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!data.nchat_broadcast_lists_by_pk) {
-      return null
+      return null;
     }
 
-    return this.transformBroadcastList(data.nchat_broadcast_lists_by_pk)
+    return this.transformBroadcastList(data.nchat_broadcast_lists_by_pk);
   }
 
   /**
    * Get broadcast list with full recipient details
    */
   async getBroadcastListWithRecipients(
-    id: string
+    id: string,
   ): Promise<{ list: BroadcastList; recipients: Recipient[] } | null> {
     // First get the list to get recipient IDs
-    const list = await this.getBroadcastList(id)
+    const list = await this.getBroadcastList(id);
     if (!list) {
-      return null
+      return null;
     }
 
     // If no recipients, return empty array
     if (list.recipientIds.length === 0) {
-      return { list, recipients: [] }
+      return { list, recipients: [] };
     }
 
     // Fetch recipient details
     const { data } = await this.client.query({
       query: GET_BROADCAST_LIST_WITH_RECIPIENTS,
       variables: { id, recipientIds: list.recipientIds },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const recipients = (data.recipients || []).map((user: Record<string, unknown>) => ({
-      id: user.id as string,
-      username: user.username as string,
-      displayName: (user.display_name as string) || (user.username as string),
-      avatarUrl: user.avatar_url as string | undefined,
-    }))
+    const recipients = (data.recipients || []).map(
+      (user: Record<string, unknown>) => ({
+        id: user.id as string,
+        username: user.username as string,
+        displayName: (user.display_name as string) || (user.username as string),
+        avatarUrl: user.avatar_url as string | undefined,
+      }),
+    );
 
-    return { list, recipients }
+    return { list, recipients };
   }
 
   /**
    * Update a broadcast list
    */
-  async updateBroadcastList(id: string, updates: UpdateBroadcastListInput): Promise<BroadcastList> {
+  async updateBroadcastList(
+    id: string,
+    updates: UpdateBroadcastListInput,
+  ): Promise<BroadcastList> {
     // Validate recipient count if updating recipients
-    if (updates.recipientIds && updates.recipientIds.length > MAX_RECIPIENTS_PER_LIST) {
-      throw new Error(`Maximum ${MAX_RECIPIENTS_PER_LIST} recipients allowed per broadcast list`)
+    if (
+      updates.recipientIds &&
+      updates.recipientIds.length > MAX_RECIPIENTS_PER_LIST
+    ) {
+      throw new Error(
+        `Maximum ${MAX_RECIPIENTS_PER_LIST} recipients allowed per broadcast list`,
+      );
     }
 
-    const variables: Record<string, unknown> = { id }
+    const variables: Record<string, unknown> = { id };
 
     if (updates.name !== undefined) {
-      variables.name = updates.name.trim()
+      variables.name = updates.name.trim();
     }
 
     if (updates.recipientIds !== undefined) {
       // Remove duplicates
-      variables.recipientIds = [...new Set(updates.recipientIds)]
+      variables.recipientIds = [...new Set(updates.recipientIds)];
     }
 
     const { data } = await this.client.mutate({
       mutation: UPDATE_BROADCAST_LIST,
       variables,
-    })
+    });
 
-    return this.transformBroadcastList(data.update_nchat_broadcast_lists_by_pk)
+    return this.transformBroadcastList(data.update_nchat_broadcast_lists_by_pk);
   }
 
   /**
@@ -273,61 +292,69 @@ export class BroadcastService {
     const { data } = await this.client.mutate({
       mutation: DELETE_BROADCAST_LIST,
       variables: { id },
-    })
+    });
 
     return {
       id: data.delete_nchat_broadcast_lists_by_pk.id,
       name: data.delete_nchat_broadcast_lists_by_pk.name,
-    }
+    };
   }
 
   /**
    * Add recipients to a broadcast list
    */
-  async addRecipients(listId: string, userIds: string[]): Promise<BroadcastList> {
-    const list = await this.getBroadcastList(listId)
+  async addRecipients(
+    listId: string,
+    userIds: string[],
+  ): Promise<BroadcastList> {
+    const list = await this.getBroadcastList(listId);
     if (!list) {
-      throw new Error('Broadcast list not found')
+      throw new Error("Broadcast list not found");
     }
 
     // Merge existing and new recipients
-    const allRecipients = [...new Set([...list.recipientIds, ...userIds])]
+    const allRecipients = [...new Set([...list.recipientIds, ...userIds])];
 
     // Validate recipient count
     if (allRecipients.length > MAX_RECIPIENTS_PER_LIST) {
       throw new Error(
         `Maximum ${MAX_RECIPIENTS_PER_LIST} recipients allowed. ` +
           `Current: ${list.recipientIds.length}, Adding: ${userIds.length}, ` +
-          `Max allowed to add: ${MAX_RECIPIENTS_PER_LIST - list.recipientIds.length}`
-      )
+          `Max allowed to add: ${MAX_RECIPIENTS_PER_LIST - list.recipientIds.length}`,
+      );
     }
 
     const { data } = await this.client.mutate({
       mutation: UPDATE_BROADCAST_LIST_RECIPIENTS,
       variables: { id: listId, recipientIds: allRecipients },
-    })
+    });
 
-    return this.transformBroadcastList(data.update_nchat_broadcast_lists_by_pk)
+    return this.transformBroadcastList(data.update_nchat_broadcast_lists_by_pk);
   }
 
   /**
    * Remove recipients from a broadcast list
    */
-  async removeRecipients(listId: string, userIds: string[]): Promise<BroadcastList> {
-    const list = await this.getBroadcastList(listId)
+  async removeRecipients(
+    listId: string,
+    userIds: string[],
+  ): Promise<BroadcastList> {
+    const list = await this.getBroadcastList(listId);
     if (!list) {
-      throw new Error('Broadcast list not found')
+      throw new Error("Broadcast list not found");
     }
 
     // Filter out recipients to remove
-    const remainingRecipients = list.recipientIds.filter((id) => !userIds.includes(id))
+    const remainingRecipients = list.recipientIds.filter(
+      (id) => !userIds.includes(id),
+    );
 
     const { data } = await this.client.mutate({
       mutation: UPDATE_BROADCAST_LIST_RECIPIENTS,
       variables: { id: listId, recipientIds: remainingRecipients },
-    })
+    });
 
-    return this.transformBroadcastList(data.update_nchat_broadcast_lists_by_pk)
+    return this.transformBroadcastList(data.update_nchat_broadcast_lists_by_pk);
   }
 
   // ==========================================================================
@@ -341,43 +368,43 @@ export class BroadcastService {
   async sendBroadcast(
     listId: string,
     input: SendBroadcastInput,
-    senderId: string
+    senderId: string,
   ): Promise<SendBroadcastResult> {
     // Check rate limit
     if (!this.checkRateLimit(senderId)) {
       throw new Error(
-        `Rate limit exceeded. Maximum ${BROADCASTS_PER_MINUTE} broadcasts per minute.`
-      )
+        `Rate limit exceeded. Maximum ${BROADCASTS_PER_MINUTE} broadcasts per minute.`,
+      );
     }
 
     // Get the broadcast list
-    const list = await this.getBroadcastList(listId)
+    const list = await this.getBroadcastList(listId);
     if (!list) {
-      throw new Error('Broadcast list not found')
+      throw new Error("Broadcast list not found");
     }
 
     // Verify ownership
     if (list.ownerId !== senderId) {
-      throw new Error('Only the list owner can send broadcasts')
+      throw new Error("Only the list owner can send broadcasts");
     }
 
     // Check for empty recipients
     if (list.recipientIds.length === 0) {
-      throw new Error('Broadcast list has no recipients')
+      throw new Error("Broadcast list has no recipients");
     }
 
     // Track delivery results
-    let deliveryCount = 0
-    const failedRecipients: string[] = []
+    let deliveryCount = 0;
+    const failedRecipients: string[] = [];
 
     // Send DM to each recipient
     for (const recipientId of list.recipientIds) {
       try {
-        await this.sendDMToRecipient(senderId, recipientId, input)
-        deliveryCount++
+        await this.sendDMToRecipient(senderId, recipientId, input);
+        deliveryCount++;
       } catch (error) {
-        logger.error(`Failed to send broadcast to ${recipientId}:`, error)
-        failedRecipients.push(recipientId)
+        logger.error(`Failed to send broadcast to ${recipientId}:`, error);
+        failedRecipients.push(recipientId);
       }
     }
 
@@ -391,18 +418,18 @@ export class BroadcastService {
         contentHtml: input.contentHtml,
         deliveryCount,
       },
-    })
+    });
 
-    const broadcast = this.transformBroadcast(data.insert_nchat_broadcasts_one)
+    const broadcast = this.transformBroadcast(data.insert_nchat_broadcasts_one);
 
     // Record rate limit timestamp
-    this.recordBroadcast(senderId)
+    this.recordBroadcast(senderId);
 
     return {
       broadcast,
       deliveryCount,
       failedRecipients,
-    }
+    };
   }
 
   /**
@@ -411,7 +438,7 @@ export class BroadcastService {
   private async sendDMToRecipient(
     senderId: string,
     recipientId: string,
-    input: SendBroadcastInput
+    input: SendBroadcastInput,
   ): Promise<void> {
     // Get or create DM channel
     const { data: channelData } = await this.client.mutate({
@@ -420,11 +447,11 @@ export class BroadcastService {
         userId1: senderId,
         userId2: recipientId,
       },
-    })
+    });
 
-    const channelId = channelData.insert_nchat_channels_one?.id
+    const channelId = channelData.insert_nchat_channels_one?.id;
     if (!channelId) {
-      throw new Error('Failed to create DM channel')
+      throw new Error("Failed to create DM channel");
     }
 
     // Send message
@@ -435,9 +462,9 @@ export class BroadcastService {
         userId: senderId,
         content: input.content,
         contentHtml: input.contentHtml,
-        type: 'broadcast',
+        type: "broadcast",
       },
-    })
+    });
   }
 
   // ==========================================================================
@@ -450,24 +477,26 @@ export class BroadcastService {
   async getBroadcastHistory(
     listId: string,
     limit = 50,
-    offset = 0
+    offset = 0,
   ): Promise<BroadcastHistoryResult> {
     const { data } = await this.client.query({
       query: GET_BROADCAST_HISTORY,
       variables: { listId, limit, offset },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const broadcasts = (data.nchat_broadcasts || []).map((broadcast: Record<string, unknown>) =>
-      this.transformBroadcast(broadcast)
-    )
-    const total = data.nchat_broadcasts_aggregate?.aggregate?.count || broadcasts.length
+    const broadcasts = (data.nchat_broadcasts || []).map(
+      (broadcast: Record<string, unknown>) =>
+        this.transformBroadcast(broadcast),
+    );
+    const total =
+      data.nchat_broadcasts_aggregate?.aggregate?.count || broadcasts.length;
 
     return {
       broadcasts,
       total,
       hasMore: offset + limit < total,
-    }
+    };
   }
 
   /**
@@ -477,14 +506,14 @@ export class BroadcastService {
     const { data } = await this.client.query({
       query: GET_BROADCAST,
       variables: { id },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (!data.nchat_broadcasts_by_pk) {
-      return null
+      return null;
     }
 
-    return this.transformBroadcast(data.nchat_broadcasts_by_pk)
+    return this.transformBroadcast(data.nchat_broadcasts_by_pk);
   }
 
   /**
@@ -493,33 +522,35 @@ export class BroadcastService {
   async updateBroadcastCounts(
     id: string,
     deliveryCount?: number,
-    readCount?: number
+    readCount?: number,
   ): Promise<{ id: string; deliveryCount: number; readCount: number }> {
     const { data } = await this.client.mutate({
       mutation: UPDATE_BROADCAST_COUNTS,
       variables: { id, deliveryCount, readCount },
-    })
+    });
 
     return {
       id: data.update_nchat_broadcasts_by_pk.id,
       deliveryCount: data.update_nchat_broadcasts_by_pk.delivery_count,
       readCount: data.update_nchat_broadcasts_by_pk.read_count,
-    }
+    };
   }
 
   /**
    * Increment read count for a broadcast
    */
-  async incrementReadCount(id: string): Promise<{ id: string; readCount: number }> {
+  async incrementReadCount(
+    id: string,
+  ): Promise<{ id: string; readCount: number }> {
     const { data } = await this.client.mutate({
       mutation: INCREMENT_BROADCAST_READ_COUNT,
       variables: { id },
-    })
+    });
 
     return {
       id: data.update_nchat_broadcasts_by_pk.id,
       readCount: data.update_nchat_broadcasts_by_pk.read_count,
-    }
+    };
   }
 
   // ==========================================================================
@@ -530,40 +561,43 @@ export class BroadcastService {
    * Check if user is within rate limit
    */
   private checkRateLimit(userId: string): boolean {
-    const now = Date.now()
-    const windowMs = 60 * 1000 // 1 minute
-    const timestamps = this.broadcastTimestamps.get(userId) || []
+    const now = Date.now();
+    const windowMs = 60 * 1000; // 1 minute
+    const timestamps = this.broadcastTimestamps.get(userId) || [];
 
     // Filter timestamps within the window
-    const recentTimestamps = timestamps.filter((ts) => now - ts < windowMs)
+    const recentTimestamps = timestamps.filter((ts) => now - ts < windowMs);
 
-    return recentTimestamps.length < BROADCASTS_PER_MINUTE
+    return recentTimestamps.length < BROADCASTS_PER_MINUTE;
   }
 
   /**
    * Record a broadcast for rate limiting
    */
   private recordBroadcast(userId: string): void {
-    const now = Date.now()
-    const timestamps = this.broadcastTimestamps.get(userId) || []
+    const now = Date.now();
+    const timestamps = this.broadcastTimestamps.get(userId) || [];
 
     // Add current timestamp and keep only recent ones
-    const windowMs = 60 * 1000
-    const recentTimestamps = [...timestamps.filter((ts) => now - ts < windowMs), now]
+    const windowMs = 60 * 1000;
+    const recentTimestamps = [
+      ...timestamps.filter((ts) => now - ts < windowMs),
+      now,
+    ];
 
-    this.broadcastTimestamps.set(userId, recentTimestamps)
+    this.broadcastTimestamps.set(userId, recentTimestamps);
   }
 
   /**
    * Get remaining broadcasts allowed in current window
    */
   getRemainingBroadcasts(userId: string): number {
-    const now = Date.now()
-    const windowMs = 60 * 1000
-    const timestamps = this.broadcastTimestamps.get(userId) || []
-    const recentCount = timestamps.filter((ts) => now - ts < windowMs).length
+    const now = Date.now();
+    const windowMs = 60 * 1000;
+    const timestamps = this.broadcastTimestamps.get(userId) || [];
+    const recentCount = timestamps.filter((ts) => now - ts < windowMs).length;
 
-    return Math.max(0, BROADCASTS_PER_MINUTE - recentCount)
+    return Math.max(0, BROADCASTS_PER_MINUTE - recentCount);
   }
 
   // ==========================================================================
@@ -574,7 +608,7 @@ export class BroadcastService {
    * Transform raw broadcast list from GraphQL to typed interface
    */
   private transformBroadcastList(raw: Record<string, unknown>): BroadcastList {
-    const recipientIds = (raw.recipient_ids as string[]) || []
+    const recipientIds = (raw.recipient_ids as string[]) || [];
 
     return {
       id: raw.id as string,
@@ -591,10 +625,12 @@ export class BroadcastService {
             displayName:
               ((raw.owner as Record<string, unknown>).display_name as string) ||
               ((raw.owner as Record<string, unknown>).username as string),
-            avatarUrl: (raw.owner as Record<string, unknown>).avatar_url as string | undefined,
+            avatarUrl: (raw.owner as Record<string, unknown>).avatar_url as
+              | string
+              | undefined,
           }
         : undefined,
-    }
+    };
   }
 
   /**
@@ -613,15 +649,21 @@ export class BroadcastService {
       sender: raw.sender
         ? {
             id: (raw.sender as Record<string, unknown>).id as string,
-            username: (raw.sender as Record<string, unknown>).username as string,
+            username: (raw.sender as Record<string, unknown>)
+              .username as string,
             displayName:
-              ((raw.sender as Record<string, unknown>).display_name as string) ||
+              ((raw.sender as Record<string, unknown>)
+                .display_name as string) ||
               ((raw.sender as Record<string, unknown>).username as string),
-            avatarUrl: (raw.sender as Record<string, unknown>).avatar_url as string | undefined,
+            avatarUrl: (raw.sender as Record<string, unknown>).avatar_url as
+              | string
+              | undefined,
           }
         : undefined,
-      list: raw.list ? this.transformBroadcastList(raw.list as Record<string, unknown>) : undefined,
-    }
+      list: raw.list
+        ? this.transformBroadcastList(raw.list as Record<string, unknown>)
+        : undefined,
+    };
   }
 }
 
@@ -629,17 +671,19 @@ export class BroadcastService {
 // SINGLETON FACTORY
 // ============================================================================
 
-let broadcastServiceInstance: BroadcastService | null = null
+let broadcastServiceInstance: BroadcastService | null = null;
 
-export function getBroadcastService(client: ApolloClient<NormalizedCacheObject>): BroadcastService {
+export function getBroadcastService(
+  client: ApolloClient<NormalizedCacheObject>,
+): BroadcastService {
   if (!broadcastServiceInstance) {
-    broadcastServiceInstance = new BroadcastService(client)
+    broadcastServiceInstance = new BroadcastService(client);
   }
-  return broadcastServiceInstance
+  return broadcastServiceInstance;
 }
 
 export function createBroadcastService(
-  client: ApolloClient<NormalizedCacheObject>
+  client: ApolloClient<NormalizedCacheObject>,
 ): BroadcastService {
-  return new BroadcastService(client)
+  return new BroadcastService(client);
 }

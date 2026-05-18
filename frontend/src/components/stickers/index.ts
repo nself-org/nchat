@@ -9,7 +9,7 @@ export {
   StickerPreviewLarge,
   type StickerPreviewProps,
   type StickerPreviewLargeProps,
-} from './sticker-preview'
+} from "./sticker-preview";
 
 export {
   StickerGrid,
@@ -21,7 +21,7 @@ export {
   type VirtualizedStickerGridProps,
   type CategorizedStickerGridProps,
   type CategoryGroup,
-} from './sticker-grid'
+} from "./sticker-grid";
 
 export {
   StickerPackItem,
@@ -31,14 +31,14 @@ export {
   type StickerPackProps,
   type StickerPackPreviewProps,
   type StickerPackTabProps,
-} from './sticker-pack'
+} from "./sticker-pack";
 
 export {
   StickerPicker,
   CompactStickerPicker,
   type StickerPickerProps,
   type CompactStickerPickerProps,
-} from './sticker-picker'
+} from "./sticker-picker";
 
 export {
   StickerPickerTrigger,
@@ -49,7 +49,7 @@ export {
   type CompactStickerButtonProps,
   type MessageInputStickerButtonProps,
   type StickerQuickAccessProps,
-} from './sticker-picker-trigger'
+} from "./sticker-picker-trigger";
 
 export {
   StickerMessage,
@@ -59,8 +59,14 @@ export {
   type StickerMessageProps,
   type StickerMessageBubbleProps,
   type StickerMessagePreviewProps,
-} from './sticker-message'
+} from "./sticker-message";
 
-export { ManageStickersModal, type ManageStickersModalProps } from './manage-stickers-modal'
+export {
+  ManageStickersModal,
+  type ManageStickersModalProps,
+} from "./manage-stickers-modal";
 
-export { AddStickerPackModal, type AddStickerPackModalProps } from './add-sticker-pack-modal'
+export {
+  AddStickerPackModal,
+  type AddStickerPackModalProps,
+} from "./add-sticker-pack-modal";

@@ -4,112 +4,120 @@
  * Hook for tracking unread activity counts and new activity notifications
  */
 
-'use client'
+"use client";
 
-import { useEffect, useCallback, useMemo } from 'react'
-import { useActivityStore } from '@/stores/activity-store'
-import type { ActivityCategory } from '@/lib/activity/activity-types'
+import { useEffect, useCallback, useMemo } from "react";
+import { useActivityStore } from "@/stores/activity-store";
+import type { ActivityCategory } from "@/lib/activity/activity-types";
 
 export interface UseUnreadActivityOptions {
   /**
    * Categories to track (default: all)
    */
-  categories?: ActivityCategory[]
+  categories?: ActivityCategory[];
 
   /**
    * Enable polling for unread count updates
    */
-  pollInterval?: number
+  pollInterval?: number;
 
   /**
    * Callback when unread count changes
    */
-  onUnreadChange?: (count: number) => void
+  onUnreadChange?: (count: number) => void;
 }
 
 export interface UseUnreadActivityReturn {
   // Counts
-  totalUnread: number
-  unreadByCategory: Partial<Record<ActivityCategory, number>>
+  totalUnread: number;
+  unreadByCategory: Partial<Record<ActivityCategory, number>>;
 
   // State
-  hasNewActivity: boolean
-  lastSeenAt: string | null
+  hasNewActivity: boolean;
+  lastSeenAt: string | null;
 
   // Actions
-  markAllAsRead: () => void
-  markCategoryAsRead: (category: ActivityCategory) => void
-  clearNewActivityFlag: () => void
+  markAllAsRead: () => void;
+  markCategoryAsRead: (category: ActivityCategory) => void;
+  clearNewActivityFlag: () => void;
 
   // Computed
-  hasUnread: boolean
-  hasUnreadInCategory: (category: ActivityCategory) => boolean
+  hasUnread: boolean;
+  hasUnreadInCategory: (category: ActivityCategory) => boolean;
 }
 
-export function useUnreadActivity(options: UseUnreadActivityOptions = {}): UseUnreadActivityReturn {
-  const { categories, pollInterval, onUnreadChange } = options
+export function useUnreadActivity(
+  options: UseUnreadActivityOptions = {},
+): UseUnreadActivityReturn {
+  const { categories, pollInterval, onUnreadChange } = options;
 
   // Store state
-  const unreadCounts = useActivityStore((state) => state.unreadCounts)
-  const hasNewActivity = useActivityStore((state) => state.hasNewActivity)
-  const lastSeenAt = useActivityStore((state) => state.lastSeenAt)
+  const unreadCounts = useActivityStore((state) => state.unreadCounts);
+  const hasNewActivity = useActivityStore((state) => state.hasNewActivity);
+  const lastSeenAt = useActivityStore((state) => state.lastSeenAt);
 
   // Store actions
-  const markAllAsRead = useActivityStore((state) => state.markAllAsRead)
-  const markCategoryAsRead = useActivityStore((state) => state.markCategoryAsRead)
-  const setHasNewActivity = useActivityStore((state) => state.setHasNewActivity)
-  const updateUnreadCounts = useActivityStore((state) => state.updateUnreadCounts)
+  const markAllAsRead = useActivityStore((state) => state.markAllAsRead);
+  const markCategoryAsRead = useActivityStore(
+    (state) => state.markCategoryAsRead,
+  );
+  const setHasNewActivity = useActivityStore(
+    (state) => state.setHasNewActivity,
+  );
+  const updateUnreadCounts = useActivityStore(
+    (state) => state.updateUnreadCounts,
+  );
 
   // Calculate total unread based on tracked categories
   const totalUnread = useMemo(() => {
     if (!categories || categories.length === 0) {
-      return unreadCounts.total
+      return unreadCounts.total;
     }
 
     return categories.reduce((sum, category) => {
-      return sum + (unreadCounts.byCategory[category] || 0)
-    }, 0)
-  }, [unreadCounts, categories])
+      return sum + (unreadCounts.byCategory[category] || 0);
+    }, 0);
+  }, [unreadCounts, categories]);
 
   // Filtered unread by category
   const unreadByCategory = useMemo(() => {
     if (!categories || categories.length === 0) {
-      return unreadCounts.byCategory
+      return unreadCounts.byCategory;
     }
 
     return Object.fromEntries(
-      categories.map((cat) => [cat, unreadCounts.byCategory[cat] || 0])
-    ) as Partial<Record<ActivityCategory, number>>
-  }, [unreadCounts.byCategory, categories])
+      categories.map((cat) => [cat, unreadCounts.byCategory[cat] || 0]),
+    ) as Partial<Record<ActivityCategory, number>>;
+  }, [unreadCounts.byCategory, categories]);
 
   // Watch for unread count changes
   useEffect(() => {
-    onUnreadChange?.(totalUnread)
-  }, [totalUnread, onUnreadChange])
+    onUnreadChange?.(totalUnread);
+  }, [totalUnread, onUnreadChange]);
 
   // Poll for unread count updates
   useEffect(() => {
     if (pollInterval && pollInterval > 0) {
       const interval = setInterval(() => {
-        updateUnreadCounts()
-      }, pollInterval)
+        updateUnreadCounts();
+      }, pollInterval);
 
-      return () => clearInterval(interval)
+      return () => clearInterval(interval);
     }
-  }, [pollInterval, updateUnreadCounts])
+  }, [pollInterval, updateUnreadCounts]);
 
   // Clear new activity flag
   const clearNewActivityFlag = useCallback(() => {
-    setHasNewActivity(false)
-  }, [setHasNewActivity])
+    setHasNewActivity(false);
+  }, [setHasNewActivity]);
 
   // Check if has unread in specific category
   const hasUnreadInCategory = useCallback(
     (category: ActivityCategory) => {
-      return (unreadCounts.byCategory[category] || 0) > 0
+      return (unreadCounts.byCategory[category] || 0) > 0;
     },
-    [unreadCounts.byCategory]
-  )
+    [unreadCounts.byCategory],
+  );
 
   return {
     // Counts
@@ -128,28 +136,30 @@ export function useUnreadActivity(options: UseUnreadActivityOptions = {}): UseUn
     // Computed
     hasUnread: totalUnread > 0,
     hasUnreadInCategory,
-  }
+  };
 }
 
 /**
  * Simple hook for just getting the unread count
  */
 export function useUnreadCount(): number {
-  return useActivityStore((state) => state.unreadCounts.total)
+  return useActivityStore((state) => state.unreadCounts.total);
 }
 
 /**
  * Hook for unread count in a specific category
  */
 export function useUnreadCountByCategory(category: ActivityCategory): number {
-  return useActivityStore((state) => state.unreadCounts.byCategory[category] || 0)
+  return useActivityStore(
+    (state) => state.unreadCounts.byCategory[category] || 0,
+  );
 }
 
 /**
  * Hook for checking if there's new activity
  */
 export function useHasNewActivity(): boolean {
-  return useActivityStore((state) => state.hasNewActivity)
+  return useActivityStore((state) => state.hasNewActivity);
 }
 
-export default useUnreadActivity
+export default useUnreadActivity;

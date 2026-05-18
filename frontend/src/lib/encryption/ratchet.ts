@@ -13,8 +13,16 @@
  * Based on the Signal Protocol specification.
  */
 
-import type { SessionState, MessageHeader, EncryptedMessage } from '@/types/encryption'
-import { EncryptionError, EncryptionErrorType, PROTOCOL_CONSTANTS } from '@/types/encryption'
+import type {
+  SessionState,
+  MessageHeader,
+  EncryptedMessage,
+} from "@/types/encryption";
+import {
+  EncryptionError,
+  EncryptionErrorType,
+  PROTOCOL_CONSTANTS,
+} from "@/types/encryption";
 import {
   generateKeyPair,
   calculateSharedSecret,
@@ -28,21 +36,21 @@ import {
   uint8ArrayToBase64,
   base64ToUint8Array,
   KeyPair,
-} from './crypto-primitives'
+} from "./crypto-primitives";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** Maximum number of message keys to skip (for out-of-order delivery) */
-const MAX_SKIP = 1000
+const MAX_SKIP = 1000;
 
 /** Info strings for key derivation */
 const KDF_INFO = {
   ROOT_KEY: PROTOCOL_CONSTANTS.HKDF_INFO.ROOT_KEY,
   CHAIN_KEY: PROTOCOL_CONSTANTS.HKDF_INFO.CHAIN_KEY,
   MESSAGE_KEY: PROTOCOL_CONSTANTS.HKDF_INFO.MESSAGE_KEY,
-}
+};
 
 // ============================================================================
 // Types
@@ -52,32 +60,32 @@ const KDF_INFO = {
  * Ratchet state for internal use
  */
 interface RatchetState {
-  rootKey: Uint8Array
-  sendingChainKey: Uint8Array | null
-  receivingChainKey: Uint8Array | null
-  sendingRatchetKeyPair: KeyPair | null
-  receivingRatchetKey: Uint8Array | null
-  sendingMessageNumber: number
-  receivingMessageNumber: number
-  previousChainLength: number
-  skippedKeys: Map<string, Uint8Array>
+  rootKey: Uint8Array;
+  sendingChainKey: Uint8Array | null;
+  receivingChainKey: Uint8Array | null;
+  sendingRatchetKeyPair: KeyPair | null;
+  receivingRatchetKey: Uint8Array | null;
+  sendingMessageNumber: number;
+  receivingMessageNumber: number;
+  previousChainLength: number;
+  skippedKeys: Map<string, Uint8Array>;
 }
 
 /**
  * Message encryption result
  */
 export interface EncryptedPayload {
-  header: MessageHeader
-  ciphertext: Uint8Array
-  iv: Uint8Array
+  header: MessageHeader;
+  ciphertext: Uint8Array;
+  iv: Uint8Array;
 }
 
 /**
  * Decrypted message result
  */
 export interface DecryptedPayload {
-  plaintext: Uint8Array
-  messageNumber: number
+  plaintext: Uint8Array;
+  messageNumber: number;
 }
 
 // ============================================================================
@@ -91,13 +99,13 @@ export interface DecryptedPayload {
  * encrypting and decrypting messages within an established session.
  */
 export class DoubleRatchet {
-  private state: RatchetState
+  private state: RatchetState;
 
   /**
    * Private constructor - use static factory methods
    */
   private constructor(state: RatchetState) {
-    this.state = state
+    this.state = state;
   }
 
   /**
@@ -113,28 +121,31 @@ export class DoubleRatchet {
    */
   static async initializeAsSender(
     sharedSecret: Uint8Array,
-    remoteRatchetKey: Uint8Array
+    remoteRatchetKey: Uint8Array,
   ): Promise<DoubleRatchet> {
     // Generate initial sending ratchet key pair
-    const sendingRatchetKeyPair = await generateKeyPair()
+    const sendingRatchetKeyPair = await generateKeyPair();
 
     // Derive initial root key from shared secret
     const initialRootKey = await hkdfWithInfo(
       sharedSecret,
       new Uint8Array(32),
       KDF_INFO.ROOT_KEY,
-      32
-    )
+      32,
+    );
 
     // Perform first DH ratchet step
     const dhOutput = await calculateSharedSecret(
       sendingRatchetKeyPair.privateKey,
       sendingRatchetKeyPair.publicKey,
-      remoteRatchetKey
-    )
+      remoteRatchetKey,
+    );
 
     // Derive new root key and sending chain key
-    const { rootKey, chainKey } = await deriveRootAndChainKey(initialRootKey, dhOutput)
+    const { rootKey, chainKey } = await deriveRootAndChainKey(
+      initialRootKey,
+      dhOutput,
+    );
 
     const state: RatchetState = {
       rootKey,
@@ -146,9 +157,9 @@ export class DoubleRatchet {
       receivingMessageNumber: 0,
       previousChainLength: 0,
       skippedKeys: new Map(),
-    }
+    };
 
-    return new DoubleRatchet(state)
+    return new DoubleRatchet(state);
   }
 
   /**
@@ -164,10 +175,15 @@ export class DoubleRatchet {
    */
   static async initializeAsReceiver(
     sharedSecret: Uint8Array,
-    localRatchetKeyPair: KeyPair
+    localRatchetKeyPair: KeyPair,
   ): Promise<DoubleRatchet> {
     // Derive initial root key from shared secret
-    const rootKey = await hkdfWithInfo(sharedSecret, new Uint8Array(32), KDF_INFO.ROOT_KEY, 32)
+    const rootKey = await hkdfWithInfo(
+      sharedSecret,
+      new Uint8Array(32),
+      KDF_INFO.ROOT_KEY,
+      32,
+    );
 
     const state: RatchetState = {
       rootKey,
@@ -179,9 +195,9 @@ export class DoubleRatchet {
       receivingMessageNumber: 0,
       previousChainLength: 0,
       skippedKeys: new Map(),
-    }
+    };
 
-    return new DoubleRatchet(state)
+    return new DoubleRatchet(state);
   }
 
   /**
@@ -190,17 +206,19 @@ export class DoubleRatchet {
    * @param sessionState - The stored session state
    * @returns Restored DoubleRatchet instance
    */
-  static async fromSessionState(sessionState: SessionState): Promise<DoubleRatchet> {
+  static async fromSessionState(
+    sessionState: SessionState,
+  ): Promise<DoubleRatchet> {
     // Reconstruct sending key pair from private key
-    let sendingRatchetKeyPair: KeyPair | null = null
+    let sendingRatchetKeyPair: KeyPair | null = null;
     if (sessionState.sendingRatchetKey) {
       // We need to regenerate the public key from the private key
       // For now, we'll store both in the session state
-      const keyPair = await generateKeyPair()
+      const keyPair = await generateKeyPair();
       sendingRatchetKeyPair = {
         privateKey: sessionState.sendingRatchetKey,
         publicKey: keyPair.publicKey, // This is a simplification
-      }
+      };
     }
 
     const state: RatchetState = {
@@ -216,11 +234,11 @@ export class DoubleRatchet {
         sessionState.skippedMessageKeys.map((k) => [
           `${k.ratchetKey}:${k.messageNumber}`,
           k.messageKey,
-        ])
+        ]),
       ),
-    }
+    };
 
-    return new DoubleRatchet(state)
+    return new DoubleRatchet(state);
   }
 
   /**
@@ -230,51 +248,56 @@ export class DoubleRatchet {
    * @param associatedData - Additional authenticated data (optional)
    * @returns Encrypted payload with header and ciphertext
    */
-  async encrypt(plaintext: Uint8Array, associatedData?: Uint8Array): Promise<EncryptedPayload> {
+  async encrypt(
+    plaintext: Uint8Array,
+    associatedData?: Uint8Array,
+  ): Promise<EncryptedPayload> {
     // Ensure we have a sending chain
     if (!this.state.sendingChainKey) {
       throw new EncryptionError(
         EncryptionErrorType.INVALID_SESSION,
-        'No sending chain key available'
-      )
+        "No sending chain key available",
+      );
     }
 
     if (!this.state.sendingRatchetKeyPair) {
       throw new EncryptionError(
         EncryptionErrorType.INVALID_SESSION,
-        'No sending ratchet key available'
-      )
+        "No sending ratchet key available",
+      );
     }
 
     // Derive message key from chain key
-    const { messageKey, nextChainKey } = await deriveMessageKey(this.state.sendingChainKey)
+    const { messageKey, nextChainKey } = await deriveMessageKey(
+      this.state.sendingChainKey,
+    );
 
     // Update chain key
-    this.state.sendingChainKey = nextChainKey
+    this.state.sendingChainKey = nextChainKey;
 
     // Create message header
     const header: MessageHeader = {
       ratchetKey: this.state.sendingRatchetKeyPair.publicKey,
       messageNumber: this.state.sendingMessageNumber,
       previousChainLength: this.state.previousChainLength,
-    }
+    };
 
     // Increment message number
-    this.state.sendingMessageNumber++
+    this.state.sendingMessageNumber++;
 
     // Construct associated data for AEAD
     const ad = associatedData
       ? concatUint8Arrays(this.serializeHeader(header), associatedData)
-      : this.serializeHeader(header)
+      : this.serializeHeader(header);
 
     // Encrypt plaintext with message key
-    const { ciphertext, iv } = await aesEncrypt(messageKey, plaintext, ad)
+    const { ciphertext, iv } = await aesEncrypt(messageKey, plaintext, ad);
 
     return {
       header,
       ciphertext,
       iv,
-    }
+    };
   }
 
   /**
@@ -290,69 +313,73 @@ export class DoubleRatchet {
     header: MessageHeader,
     ciphertext: Uint8Array,
     iv: Uint8Array,
-    associatedData?: Uint8Array
+    associatedData?: Uint8Array,
   ): Promise<DecryptedPayload> {
     // Try to find a skipped message key first
-    const ratchetKeyHex = uint8ArrayToHex(header.ratchetKey)
-    const skippedKey = this.state.skippedKeys.get(`${ratchetKeyHex}:${header.messageNumber}`)
+    const ratchetKeyHex = uint8ArrayToHex(header.ratchetKey);
+    const skippedKey = this.state.skippedKeys.get(
+      `${ratchetKeyHex}:${header.messageNumber}`,
+    );
 
     if (skippedKey) {
       // Use the skipped key and remove it
-      this.state.skippedKeys.delete(`${ratchetKeyHex}:${header.messageNumber}`)
+      this.state.skippedKeys.delete(`${ratchetKeyHex}:${header.messageNumber}`);
 
       const ad = associatedData
         ? concatUint8Arrays(this.serializeHeader(header), associatedData)
-        : this.serializeHeader(header)
+        : this.serializeHeader(header);
 
-      const plaintext = await aesDecrypt(skippedKey, ciphertext, iv, ad)
-      return { plaintext, messageNumber: header.messageNumber }
+      const plaintext = await aesDecrypt(skippedKey, ciphertext, iv, ad);
+      return { plaintext, messageNumber: header.messageNumber };
     }
 
     // Check if we need to perform a DH ratchet step
-    const headerKeyHex = uint8ArrayToHex(header.ratchetKey)
+    const headerKeyHex = uint8ArrayToHex(header.ratchetKey);
     const currentReceivingKeyHex = this.state.receivingRatchetKey
       ? uint8ArrayToHex(this.state.receivingRatchetKey)
-      : null
+      : null;
 
     if (headerKeyHex !== currentReceivingKeyHex) {
       // Skip any remaining messages in the current receiving chain
       if (this.state.receivingChainKey && this.state.receivingRatchetKey) {
-        await this.skipMessageKeys(header.previousChainLength)
+        await this.skipMessageKeys(header.previousChainLength);
       }
 
       // Perform DH ratchet step
-      await this.dhRatchet(header.ratchetKey)
+      await this.dhRatchet(header.ratchetKey);
     }
 
     // Skip to the correct message in the chain
-    await this.skipMessageKeys(header.messageNumber)
+    await this.skipMessageKeys(header.messageNumber);
 
     // Derive message key
     if (!this.state.receivingChainKey) {
       throw new EncryptionError(
         EncryptionErrorType.INVALID_SESSION,
-        'No receiving chain key available'
-      )
+        "No receiving chain key available",
+      );
     }
 
-    const { messageKey, nextChainKey } = await deriveMessageKey(this.state.receivingChainKey)
-    this.state.receivingChainKey = nextChainKey
-    this.state.receivingMessageNumber++
+    const { messageKey, nextChainKey } = await deriveMessageKey(
+      this.state.receivingChainKey,
+    );
+    this.state.receivingChainKey = nextChainKey;
+    this.state.receivingMessageNumber++;
 
     // Decrypt
     const ad = associatedData
       ? concatUint8Arrays(this.serializeHeader(header), associatedData)
-      : this.serializeHeader(header)
+      : this.serializeHeader(header);
 
     try {
-      const plaintext = await aesDecrypt(messageKey, ciphertext, iv, ad)
-      return { plaintext, messageNumber: header.messageNumber }
+      const plaintext = await aesDecrypt(messageKey, ciphertext, iv, ad);
+      return { plaintext, messageNumber: header.messageNumber };
     } catch (error) {
       throw new EncryptionError(
         EncryptionErrorType.DECRYPTION_FAILED,
-        'Failed to decrypt message',
-        error
-      )
+        "Failed to decrypt message",
+        error,
+      );
     }
   }
 
@@ -365,43 +392,49 @@ export class DoubleRatchet {
    */
   private async dhRatchet(remoteRatchetKey: Uint8Array): Promise<void> {
     // Store the previous chain length
-    this.state.previousChainLength = this.state.sendingMessageNumber
+    this.state.previousChainLength = this.state.sendingMessageNumber;
 
     // Reset message numbers
-    this.state.sendingMessageNumber = 0
-    this.state.receivingMessageNumber = 0
+    this.state.sendingMessageNumber = 0;
+    this.state.receivingMessageNumber = 0;
 
     // Update receiving ratchet key
-    this.state.receivingRatchetKey = remoteRatchetKey
+    this.state.receivingRatchetKey = remoteRatchetKey;
 
     // Calculate DH output with current sending key
     if (this.state.sendingRatchetKeyPair) {
       const dhOutput = await calculateSharedSecret(
         this.state.sendingRatchetKeyPair.privateKey,
         this.state.sendingRatchetKeyPair.publicKey,
-        remoteRatchetKey
-      )
+        remoteRatchetKey,
+      );
 
       // Derive new root key and receiving chain key
-      const { rootKey, chainKey } = await deriveRootAndChainKey(this.state.rootKey, dhOutput)
-      this.state.rootKey = rootKey
-      this.state.receivingChainKey = chainKey
+      const { rootKey, chainKey } = await deriveRootAndChainKey(
+        this.state.rootKey,
+        dhOutput,
+      );
+      this.state.rootKey = rootKey;
+      this.state.receivingChainKey = chainKey;
     }
 
     // Generate new sending ratchet key pair
-    this.state.sendingRatchetKeyPair = await generateKeyPair()
+    this.state.sendingRatchetKeyPair = await generateKeyPair();
 
     // Calculate DH output with new sending key
     const dhOutput = await calculateSharedSecret(
       this.state.sendingRatchetKeyPair.privateKey,
       this.state.sendingRatchetKeyPair.publicKey,
-      remoteRatchetKey
-    )
+      remoteRatchetKey,
+    );
 
     // Derive new root key and sending chain key
-    const { rootKey, chainKey } = await deriveRootAndChainKey(this.state.rootKey, dhOutput)
-    this.state.rootKey = rootKey
-    this.state.sendingChainKey = chainKey
+    const { rootKey, chainKey } = await deriveRootAndChainKey(
+      this.state.rootKey,
+      dhOutput,
+    );
+    this.state.rootKey = rootKey;
+    this.state.sendingChainKey = chainKey;
   }
 
   /**
@@ -410,37 +443,39 @@ export class DoubleRatchet {
    * @param until - The message number to skip to
    */
   private async skipMessageKeys(until: number): Promise<void> {
-    if (!this.state.receivingChainKey) return
+    if (!this.state.receivingChainKey) return;
 
     if (until - this.state.receivingMessageNumber > MAX_SKIP) {
       throw new EncryptionError(
         EncryptionErrorType.OUTDATED_MESSAGE,
-        `Too many skipped messages: ${until - this.state.receivingMessageNumber}`
-      )
+        `Too many skipped messages: ${until - this.state.receivingMessageNumber}`,
+      );
     }
 
     const ratchetKeyHex = this.state.receivingRatchetKey
       ? uint8ArrayToHex(this.state.receivingRatchetKey)
-      : ''
+      : "";
 
     while (this.state.receivingMessageNumber < until) {
-      const { messageKey, nextChainKey } = await deriveMessageKey(this.state.receivingChainKey)
+      const { messageKey, nextChainKey } = await deriveMessageKey(
+        this.state.receivingChainKey,
+      );
 
       // Store the skipped key
-      const key = `${ratchetKeyHex}:${this.state.receivingMessageNumber}`
-      this.state.skippedKeys.set(key, messageKey)
+      const key = `${ratchetKeyHex}:${this.state.receivingMessageNumber}`;
+      this.state.skippedKeys.set(key, messageKey);
 
       // Limit the number of stored skipped keys
       if (this.state.skippedKeys.size > MAX_SKIP) {
         // Remove oldest key (first in iteration order)
-        const firstKey = this.state.skippedKeys.keys().next().value
+        const firstKey = this.state.skippedKeys.keys().next().value;
         if (firstKey) {
-          this.state.skippedKeys.delete(firstKey)
+          this.state.skippedKeys.delete(firstKey);
         }
       }
 
-      this.state.receivingChainKey = nextChainKey
-      this.state.receivingMessageNumber++
+      this.state.receivingChainKey = nextChainKey;
+      this.state.receivingMessageNumber++;
     }
   }
 
@@ -448,28 +483,28 @@ export class DoubleRatchet {
    * Serializes message header for AEAD
    */
   private serializeHeader(header: MessageHeader): Uint8Array {
-    const encoder = new TextEncoder()
-    const numberBytes = new Uint8Array(8)
-    const view = new DataView(numberBytes.buffer)
-    view.setUint32(0, header.messageNumber, false)
-    view.setUint32(4, header.previousChainLength, false)
+    const encoder = new TextEncoder();
+    const numberBytes = new Uint8Array(8);
+    const view = new DataView(numberBytes.buffer);
+    view.setUint32(0, header.messageNumber, false);
+    view.setUint32(4, header.previousChainLength, false);
 
-    return concatUint8Arrays(header.ratchetKey, numberBytes)
+    return concatUint8Arrays(header.ratchetKey, numberBytes);
   }
 
   /**
    * Exports the current session state
    */
   exportSessionState(): SessionState {
-    const skippedMessageKeys: SessionState['skippedMessageKeys'] = []
+    const skippedMessageKeys: SessionState["skippedMessageKeys"] = [];
 
     for (const [key, messageKey] of this.state.skippedKeys) {
-      const [ratchetKey, messageNumber] = key.split(':')
+      const [ratchetKey, messageNumber] = key.split(":");
       skippedMessageKeys.push({
         ratchetKey,
         messageNumber: parseInt(messageNumber, 10),
         messageKey,
-      })
+      });
     }
 
     return {
@@ -485,21 +520,21 @@ export class DoubleRatchet {
       skippedMessageKeys,
       createdAt: Date.now(),
       lastActivityAt: Date.now(),
-    }
+    };
   }
 
   /**
    * Gets the current sending ratchet public key
    */
   getSendingRatchetPublicKey(): Uint8Array | null {
-    return this.state.sendingRatchetKeyPair?.publicKey || null
+    return this.state.sendingRatchetKeyPair?.publicKey || null;
   }
 
   /**
    * Gets the number of skipped keys stored
    */
   getSkippedKeyCount(): number {
-    return this.state.skippedKeys.size
+    return this.state.skippedKeys.size;
   }
 }
 
@@ -516,15 +551,20 @@ export class DoubleRatchet {
  */
 async function deriveRootAndChainKey(
   rootKey: Uint8Array,
-  dhOutput: Uint8Array
+  dhOutput: Uint8Array,
 ): Promise<{ rootKey: Uint8Array; chainKey: Uint8Array }> {
-  const input = concatUint8Arrays(rootKey, dhOutput)
-  const derived = await hkdfWithInfo(input, new Uint8Array(32), KDF_INFO.ROOT_KEY, 64)
+  const input = concatUint8Arrays(rootKey, dhOutput);
+  const derived = await hkdfWithInfo(
+    input,
+    new Uint8Array(32),
+    KDF_INFO.ROOT_KEY,
+    64,
+  );
 
   return {
     rootKey: derived.slice(0, 32),
     chainKey: derived.slice(32, 64),
-  }
+  };
 }
 
 /**
@@ -534,15 +574,15 @@ async function deriveRootAndChainKey(
  * @returns Message key and next chain key
  */
 async function deriveMessageKey(
-  chainKey: Uint8Array
+  chainKey: Uint8Array,
 ): Promise<{ messageKey: Uint8Array; nextChainKey: Uint8Array }> {
   // Derive message key: HMAC(chain_key, 0x01)
-  const messageKey = await hmacSha256(chainKey, new Uint8Array([0x01]))
+  const messageKey = await hmacSha256(chainKey, new Uint8Array([0x01]));
 
   // Derive next chain key: HMAC(chain_key, 0x02)
-  const nextChainKey = await hmacSha256(chainKey, new Uint8Array([0x02]))
+  const nextChainKey = await hmacSha256(chainKey, new Uint8Array([0x02]));
 
-  return { messageKey, nextChainKey }
+  return { messageKey, nextChainKey };
 }
 
 // ============================================================================
@@ -554,9 +594,9 @@ async function deriveMessageKey(
  */
 export async function createSenderRatchet(
   sharedSecret: Uint8Array,
-  remoteRatchetKey: Uint8Array
+  remoteRatchetKey: Uint8Array,
 ): Promise<DoubleRatchet> {
-  return DoubleRatchet.initializeAsSender(sharedSecret, remoteRatchetKey)
+  return DoubleRatchet.initializeAsSender(sharedSecret, remoteRatchetKey);
 }
 
 /**
@@ -564,16 +604,18 @@ export async function createSenderRatchet(
  */
 export async function createReceiverRatchet(
   sharedSecret: Uint8Array,
-  localRatchetKeyPair: KeyPair
+  localRatchetKeyPair: KeyPair,
 ): Promise<DoubleRatchet> {
-  return DoubleRatchet.initializeAsReceiver(sharedSecret, localRatchetKeyPair)
+  return DoubleRatchet.initializeAsReceiver(sharedSecret, localRatchetKeyPair);
 }
 
 /**
  * Restores a Double Ratchet from session state
  */
-export async function restoreRatchet(sessionState: SessionState): Promise<DoubleRatchet> {
-  return DoubleRatchet.fromSessionState(sessionState)
+export async function restoreRatchet(
+  sessionState: SessionState,
+): Promise<DoubleRatchet> {
+  return DoubleRatchet.fromSessionState(sessionState);
 }
 
 /**
@@ -582,9 +624,9 @@ export async function restoreRatchet(sessionState: SessionState): Promise<Double
 export async function encryptWithRatchet(
   ratchet: DoubleRatchet,
   plaintext: Uint8Array,
-  associatedData?: Uint8Array
+  associatedData?: Uint8Array,
 ): Promise<EncryptedPayload> {
-  return ratchet.encrypt(plaintext, associatedData)
+  return ratchet.encrypt(plaintext, associatedData);
 }
 
 /**
@@ -595,7 +637,7 @@ export async function decryptWithRatchet(
   header: MessageHeader,
   ciphertext: Uint8Array,
   iv: Uint8Array,
-  associatedData?: Uint8Array
+  associatedData?: Uint8Array,
 ): Promise<DecryptedPayload> {
-  return ratchet.decrypt(header, ciphertext, iv, associatedData)
+  return ratchet.decrypt(header, ciphertext, iv, associatedData);
 }

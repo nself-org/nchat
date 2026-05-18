@@ -4,75 +4,82 @@
  * Provides high contrast theme support for improved accessibility.
  */
 
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { Moon, Sun, Contrast } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import React, { useEffect, useState } from "react";
+import { Moon, Sun, Contrast } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 
-type ContrastMode = 'normal' | 'high' | 'higher'
+type ContrastMode = "normal" | "high" | "higher";
 
 interface HighContrastModeProps {
-  defaultMode?: ContrastMode
-  onChange?: (mode: ContrastMode) => void
+  defaultMode?: ContrastMode;
+  onChange?: (mode: ContrastMode) => void;
 }
 
 /**
  * High Contrast Mode Toggle
  */
-export function HighContrastMode({ defaultMode = 'normal', onChange }: HighContrastModeProps) {
-  const [mode, setMode] = useState<ContrastMode>(defaultMode)
+export function HighContrastMode({
+  defaultMode = "normal",
+  onChange,
+}: HighContrastModeProps) {
+  const [mode, setMode] = useState<ContrastMode>(defaultMode);
 
   useEffect(() => {
     // Load saved preference
-    const saved = localStorage.getItem('contrast-mode') as ContrastMode
-    if (saved && ['normal', 'high', 'higher'].includes(saved)) {
-      setMode(saved)
-      applyContrastMode(saved)
+    const saved = localStorage.getItem("contrast-mode") as ContrastMode;
+    if (saved && ["normal", "high", "higher"].includes(saved)) {
+      setMode(saved);
+      applyContrastMode(saved);
     }
-  }, [])
+  }, []);
 
   const applyContrastMode = (newMode: ContrastMode) => {
     // Remove previous contrast classes
-    document.documentElement.classList.remove('contrast-normal', 'contrast-high', 'contrast-higher')
+    document.documentElement.classList.remove(
+      "contrast-normal",
+      "contrast-high",
+      "contrast-higher",
+    );
 
     // Add new contrast class
-    document.documentElement.classList.add(`contrast-${newMode}`)
+    document.documentElement.classList.add(`contrast-${newMode}`);
 
     // Update CSS variables for high contrast
-    const root = document.documentElement
+    const root = document.documentElement;
 
-    if (newMode === 'high') {
-      root.style.setProperty('--contrast-multiplier', '1.5')
-      root.style.setProperty('--text-shadow', '0 0 1px currentColor')
-      root.style.setProperty('--border-width', '2px')
-    } else if (newMode === 'higher') {
-      root.style.setProperty('--contrast-multiplier', '2')
-      root.style.setProperty('--text-shadow', '0 0 2px currentColor')
-      root.style.setProperty('--border-width', '3px')
+    if (newMode === "high") {
+      root.style.setProperty("--contrast-multiplier", "1.5");
+      root.style.setProperty("--text-shadow", "0 0 1px currentColor");
+      root.style.setProperty("--border-width", "2px");
+    } else if (newMode === "higher") {
+      root.style.setProperty("--contrast-multiplier", "2");
+      root.style.setProperty("--text-shadow", "0 0 2px currentColor");
+      root.style.setProperty("--border-width", "3px");
     } else {
-      root.style.setProperty('--contrast-multiplier', '1')
-      root.style.setProperty('--text-shadow', 'none')
-      root.style.setProperty('--border-width', '1px')
+      root.style.setProperty("--contrast-multiplier", "1");
+      root.style.setProperty("--text-shadow", "none");
+      root.style.setProperty("--border-width", "1px");
     }
 
     // Save preference
-    localStorage.setItem('contrast-mode', newMode)
+    localStorage.setItem("contrast-mode", newMode);
 
     // Notify parent
-    onChange?.(newMode)
-  }
+    onChange?.(newMode);
+  };
 
   const handleModeChange = (newMode: ContrastMode) => {
-    setMode(newMode)
-    applyContrastMode(newMode)
-  }
+    setMode(newMode);
+    applyContrastMode(newMode);
+  };
 
   return (
     <DropdownMenu>
@@ -88,64 +95,72 @@ export function HighContrastMode({ defaultMode = 'normal', onChange }: HighContr
           <span className="sr-only">Toggle contrast mode</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" role="menu" aria-label="Contrast mode options">
+      <DropdownMenuContent
+        align="end"
+        role="menu"
+        aria-label="Contrast mode options"
+      >
         <DropdownMenuItem
-          onClick={() => handleModeChange('normal')}
+          onClick={() => handleModeChange("normal")}
           role="menuitem"
-          aria-current={mode === 'normal' ? 'true' : 'false'}
+          aria-current={mode === "normal" ? "true" : "false"}
         >
           <Sun className="mr-2 h-4 w-4" aria-hidden="true" />
           <span>Normal Contrast</span>
-          {mode === 'normal' && <span className="ml-auto">✓</span>}
+          {mode === "normal" && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => handleModeChange('high')}
+          onClick={() => handleModeChange("high")}
           role="menuitem"
-          aria-current={mode === 'high' ? 'true' : 'false'}
+          aria-current={mode === "high" ? "true" : "false"}
         >
           <Contrast className="mr-2 h-4 w-4" aria-hidden="true" />
           <span>High Contrast</span>
-          {mode === 'high' && <span className="ml-auto">✓</span>}
+          {mode === "high" && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => handleModeChange('higher')}
+          onClick={() => handleModeChange("higher")}
           role="menuitem"
-          aria-current={mode === 'higher' ? 'true' : 'false'}
+          aria-current={mode === "higher" ? "true" : "false"}
         >
           <Moon className="mr-2 h-4 w-4" aria-hidden="true" />
           <span>Higher Contrast</span>
-          {mode === 'higher' && <span className="ml-auto">✓</span>}
+          {mode === "higher" && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 /**
  * Hook for using high contrast mode
  */
 export function useHighContrast() {
-  const [mode, setMode] = useState<ContrastMode>('normal')
+  const [mode, setMode] = useState<ContrastMode>("normal");
 
   useEffect(() => {
-    const saved = localStorage.getItem('contrast-mode') as ContrastMode
+    const saved = localStorage.getItem("contrast-mode") as ContrastMode;
     if (saved) {
-      setMode(saved)
+      setMode(saved);
     }
-  }, [])
+  }, []);
 
   const setContrastMode = (newMode: ContrastMode) => {
-    setMode(newMode)
-    localStorage.setItem('contrast-mode', newMode)
+    setMode(newMode);
+    localStorage.setItem("contrast-mode", newMode);
 
     // Apply to document
-    document.documentElement.classList.remove('contrast-normal', 'contrast-high', 'contrast-higher')
-    document.documentElement.classList.add(`contrast-${newMode}`)
-  }
+    document.documentElement.classList.remove(
+      "contrast-normal",
+      "contrast-high",
+      "contrast-higher",
+    );
+    document.documentElement.classList.add(`contrast-${newMode}`);
+  };
 
   return {
     mode,
     setContrastMode,
-    isHighContrast: mode === 'high' || mode === 'higher',
-  }
+    isHighContrast: mode === "high" || mode === "higher",
+  };
 }

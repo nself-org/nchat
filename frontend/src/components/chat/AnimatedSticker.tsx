@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Animated Sticker Component
@@ -7,10 +7,10 @@
  * Supports Lottie JSON, APNG, GIF, and WebM formats.
  */
 
-import { useState, useEffect, useRef, useCallback, memo } from 'react'
-import { Loader2, AlertCircle, Play, Pause } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { Sticker, StickerFormat, StickerType } from '@/types/sticker'
+import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { Loader2, AlertCircle, Play, Pause } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Sticker, StickerFormat, StickerType } from "@/types/sticker";
 
 // ============================================================================
 // Types
@@ -18,44 +18,44 @@ import type { Sticker, StickerFormat, StickerType } from '@/types/sticker'
 
 interface AnimatedStickerProps {
   /** Sticker data */
-  sticker: Sticker
+  sticker: Sticker;
   /** Sticker URL (overrides sticker.url) */
-  src?: string
+  src?: string;
   /** Width in pixels or CSS value */
-  width?: number | string
+  width?: number | string;
   /** Height in pixels or CSS value */
-  height?: number | string
+  height?: number | string;
   /** Whether to autoplay */
-  autoplay?: boolean
+  autoplay?: boolean;
   /** Whether to loop */
-  loop?: boolean
+  loop?: boolean;
   /** Playback speed (1 = normal, 2 = 2x speed) */
-  speed?: number
+  speed?: number;
   /** Whether to show play/pause controls */
-  showControls?: boolean
+  showControls?: boolean;
   /** Callback when sticker loads */
-  onLoad?: () => void
+  onLoad?: () => void;
   /** Callback when sticker fails to load */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
   /** Callback when sticker is clicked */
-  onClick?: () => void
+  onClick?: () => void;
   /** Whether the sticker is visible (for lazy loading) */
-  isVisible?: boolean
+  isVisible?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Alt text for accessibility */
-  alt?: string
+  alt?: string;
 }
 
 interface LottiePlayerRef {
-  play: () => void
-  pause: () => void
-  stop: () => void
-  setSpeed: (speed: number) => void
-  setDirection: (direction: 1 | -1) => void
-  goToAndPlay: (value: number, isFrame?: boolean) => void
-  goToAndStop: (value: number, isFrame?: boolean) => void
-  destroy: () => void
+  play: () => void;
+  pause: () => void;
+  stop: () => void;
+  setSpeed: (speed: number) => void;
+  setDirection: (direction: 1 | -1) => void;
+  goToAndPlay: (value: number, isFrame?: boolean) => void;
+  goToAndStop: (value: number, isFrame?: boolean) => void;
+  destroy: () => void;
 }
 
 // ============================================================================
@@ -63,15 +63,15 @@ interface LottiePlayerRef {
 // ============================================================================
 
 interface LottieAnimationProps {
-  src: string
-  autoplay: boolean
-  loop: boolean
-  speed: number
-  width: number | string
-  height: number | string
-  onLoad?: () => void
-  onError?: (error: Error) => void
-  className?: string
+  src: string;
+  autoplay: boolean;
+  loop: boolean;
+  speed: number;
+  width: number | string;
+  height: number | string;
+  onLoad?: () => void;
+  onError?: (error: Error) => void;
+  className?: string;
 }
 
 const LottieAnimation = memo(function LottieAnimation({
@@ -85,50 +85,50 @@ const LottieAnimation = memo(function LottieAnimation({
   onError,
   className,
 }: LottieAnimationProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const playerRef = useRef<LottiePlayerRef | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<LottiePlayerRef | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
     const loadLottie = async () => {
       try {
         // Dynamically import lottie-web
-        const lottie = await import('lottie-web')
+        const lottie = await import("lottie-web");
 
-        if (!isMounted || !containerRef.current) return
+        if (!isMounted || !containerRef.current) return;
 
         // Destroy existing animation
         if (playerRef.current) {
-          playerRef.current.destroy()
+          playerRef.current.destroy();
         }
 
         // Load animation data
-        const response = await fetch(src)
+        const response = await fetch(src);
         if (!response.ok) {
-          throw new Error(`Failed to fetch Lottie: ${response.statusText}`)
+          throw new Error(`Failed to fetch Lottie: ${response.statusText}`);
         }
-        const animationData = await response.json()
+        const animationData = await response.json();
 
-        if (!isMounted || !containerRef.current) return
+        if (!isMounted || !containerRef.current) return;
 
         // Create animation
         const animation = lottie.default.loadAnimation({
           container: containerRef.current,
-          renderer: 'svg',
+          renderer: "svg",
           loop,
           autoplay,
           animationData,
           rendererSettings: {
-            preserveAspectRatio: 'xMidYMid slice',
+            preserveAspectRatio: "xMidYMid slice",
             progressiveLoad: true,
           },
-        })
+        });
 
         // Set speed
-        animation.setSpeed(speed)
+        animation.setSpeed(speed);
 
         // Store reference
         playerRef.current = {
@@ -140,84 +140,91 @@ const LottieAnimation = memo(function LottieAnimation({
           goToAndPlay: (v, isFrame) => animation.goToAndPlay(v, isFrame),
           goToAndStop: (v, isFrame) => animation.goToAndStop(v, isFrame),
           destroy: () => animation.destroy(),
-        }
+        };
 
         // Handle events
-        animation.addEventListener('DOMLoaded', () => {
+        animation.addEventListener("DOMLoaded", () => {
           if (isMounted) {
-            setIsLoading(false)
-            onLoad?.()
+            setIsLoading(false);
+            onLoad?.();
           }
-        })
+        });
 
-        animation.addEventListener('error', () => {
+        animation.addEventListener("error", () => {
           if (isMounted) {
-            const err = new Error('Lottie animation error')
-            setError(err)
-            setIsLoading(false)
-            onError?.(err)
+            const err = new Error("Lottie animation error");
+            setError(err);
+            setIsLoading(false);
+            onError?.(err);
           }
-        })
+        });
       } catch (err) {
         if (isMounted) {
-          const error = err instanceof Error ? err : new Error('Failed to load Lottie')
-          setError(error)
-          setIsLoading(false)
-          onError?.(error)
+          const error =
+            err instanceof Error ? err : new Error("Failed to load Lottie");
+          setError(error);
+          setIsLoading(false);
+          onError?.(error);
         }
       }
-    }
+    };
 
-    loadLottie()
+    loadLottie();
 
     return () => {
-      isMounted = false
+      isMounted = false;
       if (playerRef.current) {
-        playerRef.current.destroy()
-        playerRef.current = null
+        playerRef.current.destroy();
+        playerRef.current = null;
       }
-    }
-  }, [src, autoplay, loop, speed, onLoad, onError])
+    };
+  }, [src, autoplay, loop, speed, onLoad, onError]);
 
   if (error) {
     return (
       <div
-        className={cn('bg-muted/30 flex items-center justify-center rounded', className)}
+        className={cn(
+          "bg-muted/30 flex items-center justify-center rounded",
+          className,
+        )}
         style={{ width, height }}
       >
         <AlertCircle className="h-6 w-6 text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('relative', className)} style={{ width, height }}>
+    <div className={cn("relative", className)} style={{ width, height }}>
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       )}
-      <div ref={containerRef} className={cn('h-full w-full', isLoading && 'opacity-0')} />
+      <div
+        ref={containerRef}
+        className={cn("h-full w-full", isLoading && "opacity-0")}
+      />
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Image Animation Component (APNG, GIF, WebM)
 // ============================================================================
 
 interface ImageAnimationProps {
-  src: string
-  format: StickerFormat
-  width: number | string
-  height: number | string
-  autoplay: boolean
-  loop: boolean
-  onLoad?: () => void
-  onError?: (error: Error) => void
-  onClick?: () => void
-  className?: string
-  alt?: string
+  src: string;
+  format: StickerFormat;
+  width: number | string;
+  height: number | string;
+  autoplay: boolean;
+  loop: boolean;
+  onLoad?: () => void;
+  onError?: (error: Error) => void;
+  onClick?: () => void;
+  className?: string;
+  alt?: string;
 }
 
 const ImageAnimation = memo(function ImageAnimation({
@@ -233,68 +240,71 @@ const ImageAnimation = memo(function ImageAnimation({
   className,
   alt,
 }: ImageAnimationProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const imgRef = useRef<HTMLImageElement>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-  const [isPlaying, setIsPlaying] = useState(autoplay)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [isPlaying, setIsPlaying] = useState(autoplay);
 
-  const isVideo = format === 'webm'
+  const isVideo = format === "webm";
 
   // Handle video playback
   useEffect(() => {
-    if (!isVideo || !videoRef.current) return
+    if (!isVideo || !videoRef.current) return;
 
     if (isPlaying) {
       videoRef.current.play().catch(() => {
         // Autoplay might be blocked
-        setIsPlaying(false)
-      })
+        setIsPlaying(false);
+      });
     } else {
-      videoRef.current.pause()
+      videoRef.current.pause();
     }
-  }, [isPlaying, isVideo])
+  }, [isPlaying, isVideo]);
 
   const handleLoad = useCallback(() => {
-    setIsLoading(false)
-    onLoad?.()
-  }, [onLoad])
+    setIsLoading(false);
+    onLoad?.();
+  }, [onLoad]);
 
   const handleError = useCallback(() => {
-    const err = new Error(`Failed to load ${format} sticker`)
-    setError(err)
-    setIsLoading(false)
-    onError?.(err)
-  }, [format, onError])
+    const err = new Error(`Failed to load ${format} sticker`);
+    setError(err);
+    setIsLoading(false);
+    onError?.(err);
+  }, [format, onError]);
 
   const togglePlayback = useCallback(() => {
-    setIsPlaying((p) => !p)
-  }, [])
+    setIsPlaying((p) => !p);
+  }, []);
 
   if (error) {
     return (
       <div
-        className={cn('bg-muted/30 flex items-center justify-center rounded', className)}
+        className={cn(
+          "bg-muted/30 flex items-center justify-center rounded",
+          className,
+        )}
         style={{ width, height }}
       >
         <AlertCircle className="h-6 w-6 text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   if (isVideo) {
-    const handleVideoClick = onClick || togglePlayback
+    const handleVideoClick = onClick || togglePlayback;
     return (
       <div
-        className={cn('relative', className)}
+        className={cn("relative", className)}
         style={{ width, height }}
         role="button"
         tabIndex={0}
         onClick={handleVideoClick}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleVideoClick?.()
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleVideoClick?.();
           }
         }}
       >
@@ -306,29 +316,32 @@ const ImageAnimation = memo(function ImageAnimation({
         <video
           ref={videoRef}
           src={src}
-          width={typeof width === 'number' ? width : undefined}
-          height={typeof height === 'number' ? height : undefined}
+          width={typeof width === "number" ? width : undefined}
+          height={typeof height === "number" ? height : undefined}
           autoPlay={autoplay}
           loop={loop}
           muted
           playsInline
           onLoadedData={handleLoad}
           onError={handleError}
-          className={cn('h-full w-full object-contain', isLoading && 'opacity-0')}
+          className={cn(
+            "h-full w-full object-contain",
+            isLoading && "opacity-0",
+          )}
         />
       </div>
-    )
+    );
   }
 
   // GIF or APNG (use img tag)
   const handleKeyDown = onClick
     ? (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
         }
       }
-    : undefined
+    : undefined;
 
   const imgElement = (
     <>
@@ -340,21 +353,21 @@ const ImageAnimation = memo(function ImageAnimation({
       <img
         ref={imgRef}
         src={src}
-        alt={alt || 'Animated sticker'}
-        width={typeof width === 'number' ? width : undefined}
-        height={typeof height === 'number' ? height : undefined}
+        alt={alt || "Animated sticker"}
+        width={typeof width === "number" ? width : undefined}
+        height={typeof height === "number" ? height : undefined}
         onLoad={handleLoad}
         onError={handleError}
-        className={cn('h-full w-full object-contain', isLoading && 'opacity-0')}
+        className={cn("h-full w-full object-contain", isLoading && "opacity-0")}
         loading="lazy"
       />
     </>
-  )
+  );
 
   if (onClick) {
     return (
       <div
-        className={cn('relative', className)}
+        className={cn("relative", className)}
         style={{ width, height }}
         role="button"
         tabIndex={0}
@@ -363,15 +376,15 @@ const ImageAnimation = memo(function ImageAnimation({
       >
         {imgElement}
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('relative', className)} style={{ width, height }}>
+    <div className={cn("relative", className)} style={{ width, height }}>
       {imgElement}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Main Component
@@ -393,45 +406,45 @@ export const AnimatedSticker = memo(function AnimatedSticker({
   className,
   alt,
 }: AnimatedStickerProps) {
-  const [isPlaying, setIsPlaying] = useState(autoplay)
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(autoplay);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const stickerUrl = src || sticker.url
-  const format = sticker.format
+  const stickerUrl = src || sticker.url;
+  const format = sticker.format;
 
   // Define callbacks before any conditional returns
   const handleLoad = useCallback(() => {
-    setIsLoaded(true)
-    onLoad?.()
-  }, [onLoad])
+    setIsLoaded(true);
+    onLoad?.();
+  }, [onLoad]);
 
   const handleError = useCallback(
     (error: Error) => {
-      onError?.(error)
+      onError?.(error);
     },
-    [onError]
-  )
+    [onError],
+  );
 
   const togglePlayback = useCallback(() => {
-    setIsPlaying((p) => !p)
-  }, [])
+    setIsPlaying((p) => !p);
+  }, []);
 
   // Don't render if not visible (lazy loading)
   if (!isVisible) {
     return (
       <div
-        className={cn('bg-muted/30 rounded', className)}
+        className={cn("bg-muted/30 rounded", className)}
         style={{
-          width: typeof width === 'number' ? `${width}px` : width,
-          height: typeof height === 'number' ? `${height}px` : height,
+          width: typeof width === "number" ? `${width}px` : width,
+          height: typeof height === "number" ? `${height}px` : height,
         }}
       />
-    )
+    );
   }
 
   // Render based on format
   const renderSticker = () => {
-    if (format === 'lottie') {
+    if (format === "lottie") {
       return (
         <LottieAnimation
           src={stickerUrl}
@@ -444,7 +457,7 @@ export const AnimatedSticker = memo(function AnimatedSticker({
           onError={handleError}
           className="h-full w-full"
         />
-      )
+      );
     }
 
     // For GIF, APNG, WebM, WebP
@@ -462,24 +475,24 @@ export const AnimatedSticker = memo(function AnimatedSticker({
         alt={alt || sticker.name}
         className="h-full w-full"
       />
-    )
-  }
+    );
+  };
 
   const containerStyle = {
-    width: typeof width === 'number' ? `${width}px` : width,
-    height: typeof height === 'number' ? `${height}px` : height,
-  }
+    width: typeof width === "number" ? `${width}px` : width,
+    height: typeof height === "number" ? `${height}px` : height,
+  };
 
   const playPauseControls = showControls && isLoaded && (
     <button
       onClick={togglePlayback}
       className={cn(
-        'absolute inset-0 flex items-center justify-center',
-        'bg-black/0 transition-colors hover:bg-black/20',
-        'opacity-0 hover:opacity-100 focus:opacity-100',
-        'rounded'
+        "absolute inset-0 flex items-center justify-center",
+        "bg-black/0 transition-colors hover:bg-black/20",
+        "opacity-0 hover:opacity-100 focus:opacity-100",
+        "rounded",
       )}
-      aria-label={isPlaying ? 'Pause' : 'Play'}
+      aria-label={isPlaying ? "Pause" : "Play"}
     >
       {isPlaying ? (
         <Pause className="h-8 w-8 text-white drop-shadow-lg" />
@@ -487,41 +500,47 @@ export const AnimatedSticker = memo(function AnimatedSticker({
         <Play className="h-8 w-8 text-white drop-shadow-lg" />
       )}
     </button>
-  )
+  );
 
   // Interactive clickable version
   if (!showControls && onClick) {
     return (
       <div
-        className={cn('relative inline-flex cursor-pointer items-center justify-center', className)}
+        className={cn(
+          "relative inline-flex cursor-pointer items-center justify-center",
+          className,
+        )}
         style={containerStyle}
         role="button"
         tabIndex={0}
         onClick={onClick}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onClick()
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
           }
         }}
       >
         {renderSticker()}
         {playPauseControls}
       </div>
-    )
+    );
   }
 
   // Non-interactive version
   return (
     <div
-      className={cn('relative inline-flex items-center justify-center', className)}
+      className={cn(
+        "relative inline-flex items-center justify-center",
+        className,
+      )}
       style={containerStyle}
     >
       {renderSticker()}
       {playPauseControls}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Utility Functions
@@ -531,17 +550,19 @@ export const AnimatedSticker = memo(function AnimatedSticker({
  * Check if a sticker format is animated
  */
 export function isAnimatedFormat(format: StickerFormat): boolean {
-  return ['lottie', 'gif', 'apng', 'webm'].includes(format)
+  return ["lottie", "gif", "apng", "webm"].includes(format);
 }
 
 /**
  * Get the appropriate component for a sticker type
  */
-export function getStickerComponent(sticker: Sticker): typeof AnimatedSticker | 'img' {
-  if (sticker.type === 'animated' || sticker.type === 'video') {
-    return AnimatedSticker
+export function getStickerComponent(
+  sticker: Sticker,
+): typeof AnimatedSticker | "img" {
+  if (sticker.type === "animated" || sticker.type === "video") {
+    return AnimatedSticker;
   }
-  return 'img'
+  return "img";
 }
 
-export default AnimatedSticker
+export default AnimatedSticker;

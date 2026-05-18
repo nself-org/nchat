@@ -3,10 +3,10 @@
  * Hook for safety number generation and verification
  */
 
-import { useState, useCallback } from 'react'
-import { useApolloClient } from '@apollo/client'
-import { gql } from '@apollo/client'
-import { useToast } from './use-toast'
+import { useState, useCallback } from "react";
+import { useApolloClient } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useToast } from "./use-toast";
 
 const SAVE_SAFETY_NUMBER = gql`
   mutation SaveSafetyNumber(
@@ -37,7 +37,7 @@ const SAVE_SAFETY_NUMBER = gql`
       safety_number
     }
   }
-`
+`;
 
 const VERIFY_SAFETY_NUMBER = gql`
   mutation VerifySafetyNumber($peerUserId: uuid!) {
@@ -53,7 +53,7 @@ const VERIFY_SAFETY_NUMBER = gql`
       }
     }
   }
-`
+`;
 
 const GET_SAFETY_NUMBER = gql`
   query GetSafetyNumber($peerUserId: uuid!) {
@@ -68,70 +68,73 @@ const GET_SAFETY_NUMBER = gql`
       updated_at
     }
   }
-`
+`;
 
 export interface SafetyNumber {
-  id: string
-  safetyNumber: string
-  formattedSafetyNumber: string
-  qrCodeData: string
-  isVerified: boolean
-  verifiedAt?: Date
-  userFingerprint: string
-  peerFingerprint: string
+  id: string;
+  safetyNumber: string;
+  formattedSafetyNumber: string;
+  qrCodeData: string;
+  isVerified: boolean;
+  verifiedAt?: Date;
+  userFingerprint: string;
+  peerFingerprint: string;
 }
 
 export interface UseSafetyNumbersReturn {
   // State
-  safetyNumber: SafetyNumber | null
-  isLoading: boolean
-  error: string | null
+  safetyNumber: SafetyNumber | null;
+  isLoading: boolean;
+  error: string | null;
 
   // Actions
   generateSafetyNumber: (
     localUserId: string,
     peerUserId: string,
-    peerDeviceId: string
-  ) => Promise<SafetyNumber>
-  verifySafetyNumber: (peerUserId: string) => Promise<void>
-  loadSafetyNumber: (peerUserId: string) => Promise<SafetyNumber | null>
-  compareSafetyNumbers: (displayedNumber: string, scannedNumber: string) => boolean
+    peerDeviceId: string,
+  ) => Promise<SafetyNumber>;
+  verifySafetyNumber: (peerUserId: string) => Promise<void>;
+  loadSafetyNumber: (peerUserId: string) => Promise<SafetyNumber | null>;
+  compareSafetyNumbers: (
+    displayedNumber: string,
+    scannedNumber: string,
+  ) => boolean;
 }
 
 export function useSafetyNumbers(): UseSafetyNumbersReturn {
-  const apolloClient = useApolloClient()
-  const { toast } = useToast()
-  const [safetyNumber, setSafetyNumber] = useState<SafetyNumber | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const apolloClient = useApolloClient();
+  const { toast } = useToast();
+  const [safetyNumber, setSafetyNumber] = useState<SafetyNumber | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Generate safety number
   const generateSafetyNumber = useCallback(
     async (
       localUserId: string,
       peerUserId: string,
-      peerDeviceId: string
+      peerDeviceId: string,
     ): Promise<SafetyNumber> => {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
-        const response = await fetch('/api/e2ee/safety-number', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/e2ee/safety-number", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: 'generate',
+            action: "generate",
             localUserId,
             peerUserId,
             peerDeviceId,
           }),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to generate safety number')
+          throw new Error("Failed to generate safety number");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         // Save to database
         // Note: Identity fingerprints are placeholder values until E2EE key export is implemented
@@ -140,133 +143,134 @@ export function useSafetyNumbers(): UseSafetyNumbersReturn {
           variables: {
             peerUserId,
             safetyNumber: data.safetyNumber,
-            userIdentityFingerprint: 'user_fingerprint',
-            peerIdentityFingerprint: 'peer_fingerprint',
+            userIdentityFingerprint: "user_fingerprint",
+            peerIdentityFingerprint: "peer_fingerprint",
           },
-        })
+        });
 
         const result: SafetyNumber = {
-          id: '',
+          id: "",
           safetyNumber: data.safetyNumber,
           formattedSafetyNumber: data.formattedSafetyNumber,
           qrCodeData: data.qrCodeData,
           isVerified: false,
-          userFingerprint: 'user_fingerprint',
-          peerFingerprint: 'peer_fingerprint',
-        }
+          userFingerprint: "user_fingerprint",
+          peerFingerprint: "peer_fingerprint",
+        };
 
-        setSafetyNumber(result)
-        return result
+        setSafetyNumber(result);
+        return result;
       } catch (err: any) {
-        const errorMessage = err.message || 'Failed to generate safety number'
-        setError(errorMessage)
+        const errorMessage = err.message || "Failed to generate safety number";
+        setError(errorMessage);
 
         toast({
-          title: 'Safety Number Error',
+          title: "Safety Number Error",
           description: errorMessage,
-          variant: 'destructive',
-        })
+          variant: "destructive",
+        });
 
-        throw err
+        throw err;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [apolloClient, toast]
-  )
+    [apolloClient, toast],
+  );
 
   // Verify safety number
   const verifySafetyNumber = useCallback(
     async (peerUserId: string) => {
-      setIsLoading(true)
+      setIsLoading(true);
 
       try {
         await apolloClient.mutate({
           mutation: VERIFY_SAFETY_NUMBER,
           variables: { peerUserId },
-        })
+        });
 
         if (safetyNumber) {
           setSafetyNumber({
             ...safetyNumber,
             isVerified: true,
             verifiedAt: new Date(),
-          })
+          });
         }
 
         toast({
-          title: 'Safety Number Verified',
-          description: 'The identity has been verified successfully',
-        })
+          title: "Safety Number Verified",
+          description: "The identity has been verified successfully",
+        });
       } catch (err: any) {
         toast({
-          title: 'Verification Failed',
+          title: "Verification Failed",
           description: err.message,
-          variant: 'destructive',
-        })
+          variant: "destructive",
+        });
 
-        throw err
+        throw err;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [apolloClient, safetyNumber, toast]
-  )
+    [apolloClient, safetyNumber, toast],
+  );
 
   // Load safety number from database
   const loadSafetyNumber = useCallback(
     async (peerUserId: string): Promise<SafetyNumber | null> => {
-      setIsLoading(true)
+      setIsLoading(true);
 
       try {
         const { data } = await apolloClient.query({
           query: GET_SAFETY_NUMBER,
           variables: { peerUserId },
-          fetchPolicy: 'network-only',
-        })
+          fetchPolicy: "network-only",
+        });
 
         if (data.nchat_safety_numbers.length === 0) {
-          return null
+          return null;
         }
 
-        const sn = data.nchat_safety_numbers[0]
+        const sn = data.nchat_safety_numbers[0];
 
         // Format safety number
-        const formatted = sn.safety_number.match(/.{1,5}/g)?.join(' ') || sn.safety_number
+        const formatted =
+          sn.safety_number.match(/.{1,5}/g)?.join(" ") || sn.safety_number;
 
         const result: SafetyNumber = {
           id: sn.id,
           safetyNumber: sn.safety_number,
           formattedSafetyNumber: formatted,
-          qrCodeData: '', // QR code is generated on-demand via generateSafetyNumber
+          qrCodeData: "", // QR code is generated on-demand via generateSafetyNumber
           isVerified: sn.is_verified,
           verifiedAt: sn.verified_at ? new Date(sn.verified_at) : undefined,
           userFingerprint: sn.user_identity_fingerprint,
           peerFingerprint: sn.peer_identity_fingerprint,
-        }
+        };
 
-        setSafetyNumber(result)
-        return result
+        setSafetyNumber(result);
+        return result;
       } catch (err: any) {
-        setError(err.message)
-        return null
+        setError(err.message);
+        return null;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [apolloClient]
-  )
+    [apolloClient],
+  );
 
   // Compare two safety numbers
   const compareSafetyNumbers = useCallback(
     (displayedNumber: string, scannedNumber: string): boolean => {
       // Remove spaces and compare
-      const clean1 = displayedNumber.replace(/\s/g, '')
-      const clean2 = scannedNumber.replace(/\s/g, '')
-      return clean1 === clean2
+      const clean1 = displayedNumber.replace(/\s/g, "");
+      const clean2 = scannedNumber.replace(/\s/g, "");
+      return clean1 === clean2;
     },
-    []
-  )
+    [],
+  );
 
   return {
     safetyNumber,
@@ -276,7 +280,7 @@ export function useSafetyNumbers(): UseSafetyNumbersReturn {
     verifySafetyNumber,
     loadSafetyNumber,
     compareSafetyNumbers,
-  }
+  };
 }
 
-export default useSafetyNumbers
+export default useSafetyNumbers;

@@ -9,10 +9,10 @@
  * - Filter and search
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
+import * as React from "react";
+import { useState } from "react";
 import {
   Radio,
   Users,
@@ -26,36 +26,42 @@ import {
   Eye,
   MoreVertical,
   Calendar,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { BroadcastList } from '@/types/advanced-channels'
+} from "@/components/ui/dropdown-menu";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import type { BroadcastList } from "@/types/advanced-channels";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface BroadcastListManagerProps {
-  workspaceId: string
-  broadcastLists: BroadcastList[]
-  onCreateList?: () => void
-  onSendBroadcast?: (listId: string) => void
-  onEditList?: (list: BroadcastList) => void
-  onDeleteList?: (listId: string) => void
-  onManageSubscribers?: (listId: string) => void
-  className?: string
+  workspaceId: string;
+  broadcastLists: BroadcastList[];
+  onCreateList?: () => void;
+  onSendBroadcast?: (listId: string) => void;
+  onEditList?: (list: BroadcastList) => void;
+  onDeleteList?: (listId: string) => void;
+  onManageSubscribers?: (listId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -69,20 +75,20 @@ function BroadcastListItem({
   onDelete,
   onManageSubscribers,
 }: {
-  list: BroadcastList
-  onSend?: () => void
-  onEdit?: () => void
-  onDelete?: () => void
-  onManageSubscribers?: () => void
+  list: BroadcastList;
+  onSend?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onManageSubscribers?: () => void;
 }) {
   const formatDate = (date?: string) => {
-    if (!date) return 'Never'
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    })
-  }
+    if (!date) return "Never";
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
 
   return (
     <Card>
@@ -90,11 +96,15 @@ function BroadcastListItem({
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12">
-              <AvatarFallback className="text-xl">{list.icon || '📢'}</AvatarFallback>
+              <AvatarFallback className="text-xl">
+                {list.icon || "📢"}
+              </AvatarFallback>
             </Avatar>
             <div>
               <CardTitle className="text-lg">{list.name}</CardTitle>
-              {list.description && <CardDescription>{list.description}</CardDescription>}
+              {list.description && (
+                <CardDescription>{list.description}</CardDescription>
+              )}
             </div>
           </div>
 
@@ -129,7 +139,10 @@ function BroadcastListItem({
               {onDelete && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                  <DropdownMenuItem
+                    onClick={onDelete}
+                    className="text-destructive"
+                  >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete List
                   </DropdownMenuItem>
@@ -149,8 +162,12 @@ function BroadcastListItem({
                 <Users className="h-3 w-3" />
                 <span>Subscribers</span>
               </div>
-              <p className="text-2xl font-bold">{list.subscriberCount.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Max: {list.maxSubscribers}</p>
+              <p className="text-2xl font-bold">
+                {list.subscriberCount.toLocaleString()}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Max: {list.maxSubscribers}
+              </p>
             </div>
 
             <div className="space-y-1">
@@ -158,7 +175,9 @@ function BroadcastListItem({
                 <MessageSquare className="h-3 w-3" />
                 <span>Messages</span>
               </div>
-              <p className="text-2xl font-bold">{list.totalMessagesSent.toLocaleString()}</p>
+              <p className="text-2xl font-bold">
+                {list.totalMessagesSent.toLocaleString()}
+              </p>
               <p className="text-xs text-muted-foreground">Total sent</p>
             </div>
 
@@ -167,7 +186,9 @@ function BroadcastListItem({
                 <Calendar className="h-3 w-3" />
                 <span>Last Broadcast</span>
               </div>
-              <p className="text-sm font-medium">{formatDate(list.lastBroadcastAt)}</p>
+              <p className="text-sm font-medium">
+                {formatDate(list.lastBroadcastAt)}
+              </p>
             </div>
           </div>
 
@@ -175,11 +196,11 @@ function BroadcastListItem({
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="gap-1">
               <Eye className="h-3 w-3" />
-              {list.subscriptionMode === 'open'
-                ? 'Open'
-                : list.subscriptionMode === 'invite'
-                  ? 'Invite'
-                  : 'Admin-only'}
+              {list.subscriptionMode === "open"
+                ? "Open"
+                : list.subscriptionMode === "invite"
+                  ? "Invite"
+                  : "Admin-only"}
             </Badge>
             {list.allowReplies && (
               <Badge variant="outline" className="gap-1">
@@ -219,7 +240,7 @@ function BroadcastListItem({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -236,19 +257,25 @@ export function BroadcastListManager({
   onManageSubscribers,
   className,
 }: BroadcastListManagerProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredLists = broadcastLists.filter(
     (list) =>
       list.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      list.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+      list.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
-  const totalSubscribers = broadcastLists.reduce((sum, list) => sum + list.subscriberCount, 0)
-  const totalMessages = broadcastLists.reduce((sum, list) => sum + list.totalMessagesSent, 0)
+  const totalSubscribers = broadcastLists.reduce(
+    (sum, list) => sum + list.subscriberCount,
+    0,
+  );
+  const totalMessages = broadcastLists.reduce(
+    (sum, list) => sum + list.totalMessagesSent,
+    0,
+  );
 
   return (
-    <div className={cn('flex h-full flex-col bg-background', className)}>
+    <div className={cn("flex h-full flex-col bg-background", className)}>
       {/* Header */}
       <div className="space-y-4 border-b p-6">
         <div className="flex items-center justify-between">
@@ -285,7 +312,9 @@ export function BroadcastListManager({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{totalSubscribers.toLocaleString()}</p>
+              <p className="text-2xl font-bold">
+                {totalSubscribers.toLocaleString()}
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -295,7 +324,9 @@ export function BroadcastListManager({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{totalMessages.toLocaleString()}</p>
+              <p className="text-2xl font-bold">
+                {totalMessages.toLocaleString()}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -320,11 +351,17 @@ export function BroadcastListManager({
               <BroadcastListItem
                 key={list.id}
                 list={list}
-                onSend={onSendBroadcast ? () => onSendBroadcast(list.id) : undefined}
+                onSend={
+                  onSendBroadcast ? () => onSendBroadcast(list.id) : undefined
+                }
                 onEdit={onEditList ? () => onEditList(list) : undefined}
-                onDelete={onDeleteList ? () => onDeleteList(list.id) : undefined}
+                onDelete={
+                  onDeleteList ? () => onDeleteList(list.id) : undefined
+                }
                 onManageSubscribers={
-                  onManageSubscribers ? () => onManageSubscribers(list.id) : undefined
+                  onManageSubscribers
+                    ? () => onManageSubscribers(list.id)
+                    : undefined
                 }
               />
             ))
@@ -332,14 +369,19 @@ export function BroadcastListManager({
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Search className="h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-semibold">No lists found</h3>
-              <p className="text-sm text-muted-foreground">Try a different search query</p>
+              <p className="text-sm text-muted-foreground">
+                Try a different search query
+              </p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Radio className="h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold">No broadcast lists yet</h3>
+              <h3 className="mt-4 text-lg font-semibold">
+                No broadcast lists yet
+              </h3>
               <p className="text-sm text-muted-foreground">
-                Create your first broadcast list to send messages to multiple subscribers
+                Create your first broadcast list to send messages to multiple
+                subscribers
               </p>
               {onCreateList && (
                 <Button className="mt-4" onClick={onCreateList}>
@@ -352,7 +394,7 @@ export function BroadcastListManager({
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
-export default BroadcastListManager
+export default BroadcastListManager;

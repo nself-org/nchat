@@ -13,8 +13,17 @@
  * 5. Bob performs the same DH calculations to derive the same shared secret
  */
 
-import type { IdentityKeyPair, PreKeyBundle, SignedPreKey, OneTimePreKey } from '@/types/encryption'
-import { EncryptionError, EncryptionErrorType, PROTOCOL_CONSTANTS } from '@/types/encryption'
+import type {
+  IdentityKeyPair,
+  PreKeyBundle,
+  SignedPreKey,
+  OneTimePreKey,
+} from "@/types/encryption";
+import {
+  EncryptionError,
+  EncryptionErrorType,
+  PROTOCOL_CONSTANTS,
+} from "@/types/encryption";
 import {
   generateKeyPair,
   calculateSharedSecret,
@@ -23,7 +32,7 @@ import {
   concatUint8Arrays,
   uint8ArrayToHex,
   KeyPair,
-} from './crypto-primitives'
+} from "./crypto-primitives";
 
 // ============================================================================
 // Types
@@ -34,13 +43,13 @@ import {
  */
 export interface X3DHInitiatorResult {
   /** Shared secret derived from X3DH */
-  sharedSecret: Uint8Array
+  sharedSecret: Uint8Array;
   /** Associated data for AEAD binding */
-  associatedData: Uint8Array
+  associatedData: Uint8Array;
   /** Ephemeral key pair generated for this exchange */
-  ephemeralKeyPair: KeyPair
+  ephemeralKeyPair: KeyPair;
   /** Whether a one-time prekey was used */
-  usedOneTimePreKey: boolean
+  usedOneTimePreKey: boolean;
 }
 
 /**
@@ -48,9 +57,9 @@ export interface X3DHInitiatorResult {
  */
 export interface X3DHResponderResult {
   /** Shared secret derived from X3DH */
-  sharedSecret: Uint8Array
+  sharedSecret: Uint8Array;
   /** Associated data for AEAD binding */
-  associatedData: Uint8Array
+  associatedData: Uint8Array;
 }
 
 /**
@@ -58,13 +67,13 @@ export interface X3DHResponderResult {
  */
 export interface X3DHInitialMessage {
   /** Sender's identity public key */
-  identityKey: Uint8Array
+  identityKey: Uint8Array;
   /** Ephemeral public key generated for this exchange */
-  ephemeralKey: Uint8Array
+  ephemeralKey: Uint8Array;
   /** ID of the signed prekey used */
-  signedPreKeyId: number
+  signedPreKeyId: number;
   /** ID of the one-time prekey used (if any) */
-  oneTimePreKeyId?: number
+  oneTimePreKeyId?: number;
 }
 
 // ============================================================================
@@ -72,10 +81,10 @@ export interface X3DHInitialMessage {
 // ============================================================================
 
 /** F value for X3DH (32 bytes of 0xFF) - used when no one-time prekey is available */
-const X3DH_F = new Uint8Array(32).fill(0xff)
+const X3DH_F = new Uint8Array(32).fill(0xff);
 
 /** Info string for X3DH key derivation */
-const X3DH_INFO = 'nchat_X3DH_v1'
+const X3DH_INFO = "nchat_X3DH_v1";
 
 // ============================================================================
 // X3DH Implementation
@@ -103,55 +112,55 @@ export class X3DH {
    */
   static async initiatorCalculateSecret(
     aliceIdentity: IdentityKeyPair,
-    bobPreKeyBundle: PreKeyBundle
+    bobPreKeyBundle: PreKeyBundle,
   ): Promise<X3DHInitiatorResult> {
     // Step 1: Verify Bob's signed prekey signature
     const signatureValid = await this.verifySignedPreKey(
       bobPreKeyBundle.identityKey,
       bobPreKeyBundle.signedPreKey.publicKey,
-      bobPreKeyBundle.signedPreKey.signature
-    )
+      bobPreKeyBundle.signedPreKey.signature,
+    );
 
     if (!signatureValid) {
       throw new EncryptionError(
         EncryptionErrorType.INVALID_SIGNATURE,
-        'Signed prekey signature verification failed'
-      )
+        "Signed prekey signature verification failed",
+      );
     }
 
     // Step 2: Generate ephemeral key pair
-    const ephemeralKeyPair = await generateKeyPair()
+    const ephemeralKeyPair = await generateKeyPair();
 
     // Step 3: Compute DH values
     // DH1 = DH(IKa, SPKb) - Alice's identity with Bob's signed prekey
     const dh1 = await calculateSharedSecret(
       aliceIdentity.privateKey,
       aliceIdentity.publicKey,
-      bobPreKeyBundle.signedPreKey.publicKey
-    )
+      bobPreKeyBundle.signedPreKey.publicKey,
+    );
 
     // DH2 = DH(EKa, IKb) - Alice's ephemeral with Bob's identity
     const dh2 = await calculateSharedSecret(
       ephemeralKeyPair.privateKey,
       ephemeralKeyPair.publicKey,
-      bobPreKeyBundle.identityKey
-    )
+      bobPreKeyBundle.identityKey,
+    );
 
     // DH3 = DH(EKa, SPKb) - Alice's ephemeral with Bob's signed prekey
     const dh3 = await calculateSharedSecret(
       ephemeralKeyPair.privateKey,
       ephemeralKeyPair.publicKey,
-      bobPreKeyBundle.signedPreKey.publicKey
-    )
+      bobPreKeyBundle.signedPreKey.publicKey,
+    );
 
     // DH4 = DH(EKa, OPKb) - Alice's ephemeral with Bob's one-time prekey (if available)
-    let dh4: Uint8Array | null = null
+    let dh4: Uint8Array | null = null;
     if (bobPreKeyBundle.oneTimePreKey) {
       dh4 = await calculateSharedSecret(
         ephemeralKeyPair.privateKey,
         ephemeralKeyPair.publicKey,
-        bobPreKeyBundle.oneTimePreKey.publicKey
-      )
+        bobPreKeyBundle.oneTimePreKey.publicKey,
+      );
     }
 
     // Step 4: Concatenate DH outputs and derive shared secret
@@ -159,25 +168,28 @@ export class X3DH {
     // With one-time prekey:  SK = KDF(F || DH1 || DH2 || DH3 || DH4)
     const dhConcat = dh4
       ? concatUint8Arrays(X3DH_F, dh1, dh2, dh3, dh4)
-      : concatUint8Arrays(X3DH_F, dh1, dh2, dh3)
+      : concatUint8Arrays(X3DH_F, dh1, dh2, dh3);
 
     const sharedSecret = await hkdfWithInfo(
       dhConcat,
       new Uint8Array(PROTOCOL_CONSTANTS.HKDF_OUTPUT_LENGTH), // Zero salt
       X3DH_INFO,
-      PROTOCOL_CONSTANTS.HKDF_OUTPUT_LENGTH
-    )
+      PROTOCOL_CONSTANTS.HKDF_OUTPUT_LENGTH,
+    );
 
     // Step 5: Calculate associated data (AD)
     // AD = Encode(IKa) || Encode(IKb)
-    const associatedData = concatUint8Arrays(aliceIdentity.publicKey, bobPreKeyBundle.identityKey)
+    const associatedData = concatUint8Arrays(
+      aliceIdentity.publicKey,
+      bobPreKeyBundle.identityKey,
+    );
 
     return {
       sharedSecret,
       associatedData,
       ephemeralKeyPair,
       usedOneTimePreKey: !!bobPreKeyBundle.oneTimePreKey,
-    }
+    };
   }
 
   /**
@@ -199,60 +211,63 @@ export class X3DH {
     bobSignedPreKey: SignedPreKey,
     bobOneTimePreKey: OneTimePreKey | null,
     aliceIdentityKey: Uint8Array,
-    aliceEphemeralKey: Uint8Array
+    aliceEphemeralKey: Uint8Array,
   ): Promise<X3DHResponderResult> {
     // Compute DH values (mirror of initiator)
     // DH1 = DH(SPKb, IKa) - Bob's signed prekey with Alice's identity
     const dh1 = await calculateSharedSecret(
       bobSignedPreKey.privateKey,
       bobSignedPreKey.publicKey,
-      aliceIdentityKey
-    )
+      aliceIdentityKey,
+    );
 
     // DH2 = DH(IKb, EKa) - Bob's identity with Alice's ephemeral
     const dh2 = await calculateSharedSecret(
       bobIdentity.privateKey,
       bobIdentity.publicKey,
-      aliceEphemeralKey
-    )
+      aliceEphemeralKey,
+    );
 
     // DH3 = DH(SPKb, EKa) - Bob's signed prekey with Alice's ephemeral
     const dh3 = await calculateSharedSecret(
       bobSignedPreKey.privateKey,
       bobSignedPreKey.publicKey,
-      aliceEphemeralKey
-    )
+      aliceEphemeralKey,
+    );
 
     // DH4 = DH(OPKb, EKa) - Bob's one-time prekey with Alice's ephemeral (if used)
-    let dh4: Uint8Array | null = null
+    let dh4: Uint8Array | null = null;
     if (bobOneTimePreKey) {
       dh4 = await calculateSharedSecret(
         bobOneTimePreKey.privateKey,
         bobOneTimePreKey.publicKey,
-        aliceEphemeralKey
-      )
+        aliceEphemeralKey,
+      );
     }
 
     // Concatenate DH outputs and derive shared secret
     const dhConcat = dh4
       ? concatUint8Arrays(X3DH_F, dh1, dh2, dh3, dh4)
-      : concatUint8Arrays(X3DH_F, dh1, dh2, dh3)
+      : concatUint8Arrays(X3DH_F, dh1, dh2, dh3);
 
     const sharedSecret = await hkdfWithInfo(
       dhConcat,
       new Uint8Array(PROTOCOL_CONSTANTS.HKDF_OUTPUT_LENGTH), // Zero salt
       X3DH_INFO,
-      PROTOCOL_CONSTANTS.HKDF_OUTPUT_LENGTH
-    )
+      PROTOCOL_CONSTANTS.HKDF_OUTPUT_LENGTH,
+    );
 
     // Calculate associated data (AD)
     // AD = Encode(IKa) || Encode(IKb)
-    const associatedData = concatUint8Arrays(aliceIdentityKey, bobIdentity.publicKey)
+    const associatedData = concatUint8Arrays(
+      aliceIdentityKey,
+      bobIdentity.publicKey,
+    );
 
     return {
       sharedSecret,
       associatedData,
-    }
+    };
   }
 
   /**
@@ -266,9 +281,9 @@ export class X3DH {
   static async verifySignedPreKey(
     identityKey: Uint8Array,
     signedPreKeyPublic: Uint8Array,
-    signature: Uint8Array
+    signature: Uint8Array,
   ): Promise<boolean> {
-    return verify(identityKey, signature, signedPreKeyPublic)
+    return verify(identityKey, signature, signedPreKeyPublic);
   }
 
   /**
@@ -278,21 +293,21 @@ export class X3DH {
    * @returns Root key and chain key for Double Ratchet initialization
    */
   static async deriveInitialKeys(sharedSecret: Uint8Array): Promise<{
-    rootKey: Uint8Array
-    chainKey: Uint8Array
+    rootKey: Uint8Array;
+    chainKey: Uint8Array;
   }> {
     // Derive 64 bytes: first 32 for root key, second 32 for chain key
     const derived = await hkdfWithInfo(
       sharedSecret,
       new Uint8Array(32), // Zero salt
       PROTOCOL_CONSTANTS.HKDF_INFO.ROOT_KEY,
-      64
-    )
+      64,
+    );
 
     return {
       rootKey: derived.slice(0, 32),
       chainKey: derived.slice(32, 64),
-    }
+    };
   }
 
   /**
@@ -308,14 +323,14 @@ export class X3DH {
     identityKey: Uint8Array,
     ephemeralKey: Uint8Array,
     signedPreKeyId: number,
-    oneTimePreKeyId?: number
+    oneTimePreKeyId?: number,
   ): X3DHInitialMessage {
     return {
       identityKey,
       ephemeralKey,
       signedPreKeyId,
       ...(oneTimePreKeyId !== undefined && { oneTimePreKeyId }),
-    }
+    };
   }
 
   /**
@@ -326,7 +341,7 @@ export class X3DH {
    * @returns Hex string fingerprint
    */
   static getKeyFingerprint(identityKey: Uint8Array): string {
-    return uint8ArrayToHex(identityKey).toUpperCase()
+    return uint8ArrayToHex(identityKey).toUpperCase();
   }
 }
 
@@ -339,9 +354,9 @@ export class X3DH {
  */
 export async function performX3DHInitiator(
   identityKeyPair: IdentityKeyPair,
-  preKeyBundle: PreKeyBundle
+  preKeyBundle: PreKeyBundle,
 ): Promise<X3DHInitiatorResult> {
-  return X3DH.initiatorCalculateSecret(identityKeyPair, preKeyBundle)
+  return X3DH.initiatorCalculateSecret(identityKeyPair, preKeyBundle);
 }
 
 /**
@@ -352,15 +367,15 @@ export async function performX3DHResponder(
   signedPreKey: SignedPreKey,
   oneTimePreKey: OneTimePreKey | null,
   remoteIdentityKey: Uint8Array,
-  remoteEphemeralKey: Uint8Array
+  remoteEphemeralKey: Uint8Array,
 ): Promise<X3DHResponderResult> {
   return X3DH.responderCalculateSecret(
     identityKeyPair,
     signedPreKey,
     oneTimePreKey,
     remoteIdentityKey,
-    remoteEphemeralKey
-  )
+    remoteEphemeralKey,
+  );
 }
 
 /**
@@ -369,17 +384,19 @@ export async function performX3DHResponder(
 export async function verifySignedPreKeySignature(
   identityKey: Uint8Array,
   signedPreKeyPublic: Uint8Array,
-  signature: Uint8Array
+  signature: Uint8Array,
 ): Promise<boolean> {
-  return X3DH.verifySignedPreKey(identityKey, signedPreKeyPublic, signature)
+  return X3DH.verifySignedPreKey(identityKey, signedPreKeyPublic, signature);
 }
 
 /**
  * Derives initial keys from X3DH shared secret
  */
-export async function deriveInitialKeysFromX3DH(sharedSecret: Uint8Array): Promise<{
-  rootKey: Uint8Array
-  chainKey: Uint8Array
+export async function deriveInitialKeysFromX3DH(
+  sharedSecret: Uint8Array,
+): Promise<{
+  rootKey: Uint8Array;
+  chainKey: Uint8Array;
 }> {
-  return X3DH.deriveInitialKeys(sharedSecret)
+  return X3DH.deriveInitialKeys(sharedSecret);
 }

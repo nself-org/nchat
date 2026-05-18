@@ -1,55 +1,60 @@
-'use client'
+"use client";
 
-import { use } from 'react'
-import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
-import { useAppConfig } from '@/contexts/app-config-context'
-import { setupSteps } from '@/config/app-config'
-import { SetupWizard } from '@/components/setup/setup-wizard'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { ProgressStepper } from '@/components/setup/progress-stepper'
+import { use } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useAppConfig } from "@/contexts/app-config-context";
+import { setupSteps } from "@/config/app-config";
+import { SetupWizard } from "@/components/setup/setup-wizard";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { ProgressStepper } from "@/components/setup/progress-stepper";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-export default function SetupStepPage({ params }: { params: Promise<{ step: string }> }) {
-  const { step } = use(params)
-  const router = useRouter()
-  const { config, updateConfig } = useAppConfig()
-  const [isLoading, setIsLoading] = useState(true)
+export default function SetupStepPage({
+  params,
+}: {
+  params: Promise<{ step: string }>;
+}) {
+  const { step } = use(params);
+  const router = useRouter();
+  const { config, updateConfig } = useAppConfig();
+  const [isLoading, setIsLoading] = useState(true);
 
   // Initialize visited steps from config, ensuring current step is included
   const initVisitedSteps = () => {
-    const steps = config.setup.visitedSteps || [0]
-    return new Set(steps)
-  }
-  const [visitedSteps, setVisitedSteps] = useState<Set<number>>(initVisitedSteps())
+    const steps = config.setup.visitedSteps || [0];
+    return new Set(steps);
+  };
+  const [visitedSteps, setVisitedSteps] =
+    useState<Set<number>>(initVisitedSteps());
 
   // Parse step number from URL
-  const stepNumber = step ? parseInt(step) - 1 : 0
+  const stepNumber = step ? parseInt(step) - 1 : 0;
 
   // Sync visited steps from config
   useEffect(() => {
     if (config.setup.visitedSteps) {
-      setVisitedSteps(new Set(config.setup.visitedSteps))
+      setVisitedSteps(new Set(config.setup.visitedSteps));
     }
-  }, [config.setup.visitedSteps])
+  }, [config.setup.visitedSteps]);
 
   useEffect(() => {
     // If setup is already completed, redirect to home
     if (config.setup.isCompleted) {
-      router.push('/')
-      return
+      router.push("/");
+      return;
     }
 
     // Validate step number and redirect if invalid
     if (stepNumber < 0 || stepNumber >= setupSteps.length) {
-      router.push('/setup/1')
-      return
+      router.push("/setup/1");
+      return;
     }
 
     // Add current step to visited steps
-    const newVisitedSteps = new Set([...visitedSteps, stepNumber])
-    setVisitedSteps(newVisitedSteps)
+    const newVisitedSteps = new Set([...visitedSteps, stepNumber]);
+    setVisitedSteps(newVisitedSteps);
 
     // Update global config with visited steps
     updateConfig({
@@ -58,10 +63,10 @@ export default function SetupStepPage({ params }: { params: Promise<{ step: stri
         currentStep: stepNumber,
         visitedSteps: Array.from(newVisitedSteps),
       },
-    })
+    });
 
-    setIsLoading(false)
-  }, [config.setup.isCompleted, router, stepNumber])
+    setIsLoading(false);
+  }, [config.setup.isCompleted, router, stepNumber]);
 
   const handleSetupComplete = async (finalConfig: any) => {
     try {
@@ -76,22 +81,22 @@ export default function SetupStepPage({ params }: { params: Promise<{ step: stri
             Array.from({ length: setupSteps.length }, (_, i) => i),
           completedAt: new Date(),
         },
-      }
+      };
 
-      await updateConfig(completedConfig)
+      await updateConfig(completedConfig);
 
       // Redirect based on homepage mode
-      if (completedConfig.homepage.mode === 'redirect') {
-        router.push(completedConfig.homepage.redirectTo || '/auth/signin')
-      } else if (completedConfig.homepage.mode === 'chat') {
-        router.push('/chat')
+      if (completedConfig.homepage.mode === "redirect") {
+        router.push(completedConfig.homepage.redirectTo || "/auth/signin");
+      } else if (completedConfig.homepage.mode === "chat") {
+        router.push("/chat");
       } else {
-        router.push('/')
+        router.push("/");
       }
     } catch (error) {
-      logger.error('Setup completion failed:', error)
+      logger.error("Setup completion failed:", error);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -101,7 +106,7 @@ export default function SetupStepPage({ params }: { params: Promise<{ step: stri
           <p className="text-zinc-600 dark:text-zinc-400">Loading setup...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -118,8 +123,8 @@ export default function SetupStepPage({ params }: { params: Promise<{ step: stri
           className="backdrop-blur-xs bg-white/(--bg-opacity-light) dark:bg-zinc-900/(--bg-opacity-dark) fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between gap-12 px-4 transition sm:px-6 lg:px-8 lg:backdrop-blur-sm"
           style={
             {
-              '--bg-opacity-light': '90%',
-              '--bg-opacity-dark': '80%',
+              "--bg-opacity-light": "90%",
+              "--bg-opacity-dark": "80%",
             } as React.CSSProperties
           }
         >
@@ -132,7 +137,9 @@ export default function SetupStepPage({ params }: { params: Promise<{ step: stri
                     src={config.branding.logo}
                     alt={config.branding.appName}
                     className="w-auto object-contain"
-                    style={{ height: `${32 * (config.branding.logoScale || 1.0)}px` }}
+                    style={{
+                      height: `${32 * (config.branding.logoScale || 1.0)}px`,
+                    }}
                   />
                 ) : (
                   // If no logo, show icon + text
@@ -145,11 +152,13 @@ export default function SetupStepPage({ params }: { params: Promise<{ step: stri
                       />
                     ) : (
                       <div className="shadow-glow flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#00D4FF] to-[#0EA5E9]">
-                        <span className="text-sm font-bold text-zinc-900">ɳ</span>
+                        <span className="text-sm font-bold text-zinc-900">
+                          ɳ
+                        </span>
                       </div>
                     )}
                     <h1 className="text-xl font-semibold text-zinc-900 dark:text-white">
-                      {config.branding.appName || 'nChat'}
+                      {config.branding.appName || "nChat"}
                     </h1>
                   </>
                 )}
@@ -177,7 +186,7 @@ export default function SetupStepPage({ params }: { params: Promise<{ step: stri
             onStepClick={(step) => {
               // Allow clicking on any visited step or earlier steps
               if (visitedSteps.has(step) || step <= stepNumber) {
-                router.push(`/setup/${step + 1}`)
+                router.push(`/setup/${step + 1}`);
               }
             }}
             visitedSteps={visitedSteps}
@@ -201,5 +210,5 @@ export default function SetupStepPage({ params }: { params: Promise<{ step: stri
         </div>
       </div>
     </div>
-  )
+  );
 }

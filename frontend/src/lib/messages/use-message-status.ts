@@ -5,8 +5,8 @@
  * Provides real-time status tracking for individual messages.
  */
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useShallow } from 'zustand/react/shallow'
+import { useCallback, useEffect, useMemo } from "react";
+import { useShallow } from "zustand/react/shallow";
 import {
   useDeliveryStatusStore,
   type DeliveryStatus,
@@ -14,11 +14,14 @@ import {
   type ReadReceipt,
   handleRetryAttempt,
   shouldShowDeliveryStatus,
-} from './delivery-status'
-import { useMessageHistoryStore, loadMessageHistory } from './message-history-store'
-import type { MessageEditRecord } from '@/types/message'
+} from "./delivery-status";
+import {
+  useMessageHistoryStore,
+  loadMessageHistory,
+} from "./message-history-store";
+import type { MessageEditRecord } from "@/types/message";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -26,73 +29,73 @@ import { logger } from '@/lib/logger'
 
 export interface UseMessageStatusOptions {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Whether to subscribe to real-time updates */
-  subscribe?: boolean
+  subscribe?: boolean;
 }
 
 export interface UseMessageStatusResult {
   /** Current delivery status */
-  status: DeliveryStatus | null
+  status: DeliveryStatus | null;
   /** Full status entry with metadata */
-  statusEntry: MessageStatusEntry | null
+  statusEntry: MessageStatusEntry | null;
   /** Whether the message is currently being sent */
-  isSending: boolean
+  isSending: boolean;
   /** Whether the message was sent successfully */
-  isSent: boolean
+  isSent: boolean;
   /** Whether the message was delivered */
-  isDelivered: boolean
+  isDelivered: boolean;
   /** Whether the message was read */
-  isRead: boolean
+  isRead: boolean;
   /** Whether the message failed to send */
-  isFailed: boolean
+  isFailed: boolean;
   /** Error message if failed */
-  error: string | null
+  error: string | null;
   /** Number of retry attempts */
-  retryCount: number
+  retryCount: number;
   /** Read receipts for the message */
-  readReceipts: ReadReceipt[]
+  readReceipts: ReadReceipt[];
   /** Read count (for group chats) */
-  readCount: number
+  readCount: number;
   /** Total recipients (for group chats) */
-  totalRecipients: number | null
+  totalRecipients: number | null;
   /** Retry sending the message */
-  retry: () => void
+  retry: () => void;
   /** Clear the status */
-  clear: () => void
+  clear: () => void;
 }
 
 export interface UseEditHistoryOptions {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Function to fetch history from GraphQL */
-  fetchFn?: () => Promise<MessageEditRecord[]>
+  fetchFn?: () => Promise<MessageEditRecord[]>;
   /** Whether to auto-load on mount */
-  autoLoad?: boolean
+  autoLoad?: boolean;
 }
 
 export interface UseEditHistoryResult {
   /** Edit history records */
-  history: MessageEditRecord[] | null
+  history: MessageEditRecord[] | null;
   /** Whether history is loading */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error message if loading failed */
-  error: string | null
+  error: string | null;
   /** Reload the history */
-  reload: () => Promise<void>
+  reload: () => Promise<void>;
   /** Clear cached history */
-  clear: () => void
+  clear: () => void;
 }
 
 export interface UseMessageDeliveryOptions {
   /** User ID of the message author */
-  messageUserId: string
+  messageUserId: string;
   /** Current user ID */
-  currentUserId: string
+  currentUserId: string;
   /** Message created at timestamp */
-  messageCreatedAt: Date
+  messageCreatedAt: Date;
   /** Max age to show delivery status (default: 24 hours) */
-  maxAgeMs?: number
+  maxAgeMs?: number;
 }
 
 // ============================================================================
@@ -107,39 +110,40 @@ export function useMessageStatus({
   subscribe = true,
 }: UseMessageStatusOptions): UseMessageStatusResult {
   const statusEntry = useDeliveryStatusStore(
-    useShallow((state) => state.statuses[messageId] ?? null)
-  )
+    useShallow((state) => state.statuses[messageId] ?? null),
+  );
 
   const readReceipts = useDeliveryStatusStore(
-    useShallow((state) => state.readReceipts[messageId] ?? [])
-  )
+    useShallow((state) => state.readReceipts[messageId] ?? []),
+  );
 
-  const { markSending, clearStatus, incrementRetryCount } = useDeliveryStatusStore(
-    useShallow((state) => ({
-      markSending: state.markSending,
-      clearStatus: state.clearStatus,
-      incrementRetryCount: state.incrementRetryCount,
-    }))
-  )
+  const { markSending, clearStatus, incrementRetryCount } =
+    useDeliveryStatusStore(
+      useShallow((state) => ({
+        markSending: state.markSending,
+        clearStatus: state.clearStatus,
+        incrementRetryCount: state.incrementRetryCount,
+      })),
+    );
 
-  const status = statusEntry?.status ?? null
+  const status = statusEntry?.status ?? null;
 
   const retry = useCallback(() => {
-    handleRetryAttempt(messageId)
-  }, [messageId])
+    handleRetryAttempt(messageId);
+  }, [messageId]);
 
   const clear = useCallback(() => {
-    clearStatus(messageId)
-  }, [messageId, clearStatus])
+    clearStatus(messageId);
+  }, [messageId, clearStatus]);
 
   return {
     status,
     statusEntry,
-    isSending: status === 'sending',
-    isSent: status === 'sent',
-    isDelivered: status === 'delivered',
-    isRead: status === 'read',
-    isFailed: status === 'failed',
+    isSending: status === "sending",
+    isSent: status === "sent",
+    isDelivered: status === "delivered",
+    isRead: status === "read",
+    isFailed: status === "failed",
     error: statusEntry?.error ?? null,
     retryCount: statusEntry?.retryCount ?? 0,
     readReceipts,
@@ -147,7 +151,7 @@ export function useMessageStatus({
     totalRecipients: statusEntry?.totalRecipients ?? null,
     retry,
     clear,
-  }
+  };
 }
 
 /**
@@ -163,35 +167,35 @@ export function useEditHistory({
       history: state.histories[messageId]?.history ?? null,
       isLoading: state.histories[messageId]?.isLoading ?? false,
       error: state.histories[messageId]?.error ?? null,
-    }))
-  )
+    })),
+  );
 
   const { clearHistory, isStale } = useMessageHistoryStore(
     useShallow((state) => ({
       clearHistory: state.clearHistory,
       isStale: state.isStale,
-    }))
-  )
+    })),
+  );
 
   const reload = useCallback(async () => {
     if (!fetchFn) {
-      logger.warn('useEditHistory: fetchFn is required to reload history')
-      return
+      logger.warn("useEditHistory: fetchFn is required to reload history");
+      return;
     }
 
-    await loadMessageHistory(messageId, fetchFn)
-  }, [messageId, fetchFn])
+    await loadMessageHistory(messageId, fetchFn);
+  }, [messageId, fetchFn]);
 
   const clear = useCallback(() => {
-    clearHistory(messageId)
-  }, [messageId, clearHistory])
+    clearHistory(messageId);
+  }, [messageId, clearHistory]);
 
   // Auto-load on mount if enabled and history is stale
   useEffect(() => {
     if (autoLoad && fetchFn && isStale(messageId)) {
-      loadMessageHistory(messageId, fetchFn).catch(console.error)
+      loadMessageHistory(messageId, fetchFn).catch(console.error);
     }
-  }, [autoLoad, fetchFn, messageId, isStale])
+  }, [autoLoad, fetchFn, messageId, isStale]);
 
   return {
     history,
@@ -199,7 +203,7 @@ export function useEditHistory({
     error,
     reload,
     clear,
-  }
+  };
 }
 
 /**
@@ -212,9 +216,15 @@ export function useShowDeliveryStatus({
   maxAgeMs,
 }: UseMessageDeliveryOptions): boolean {
   return useMemo(
-    () => shouldShowDeliveryStatus(messageUserId, currentUserId, messageCreatedAt, maxAgeMs),
-    [messageUserId, currentUserId, messageCreatedAt, maxAgeMs]
-  )
+    () =>
+      shouldShowDeliveryStatus(
+        messageUserId,
+        currentUserId,
+        messageCreatedAt,
+        maxAgeMs,
+      ),
+    [messageUserId, currentUserId, messageCreatedAt, maxAgeMs],
+  );
 }
 
 /**
@@ -223,80 +233,83 @@ export function useShowDeliveryStatus({
 export function useFailedMessages(): MessageStatusEntry[] {
   return useDeliveryStatusStore(
     useShallow((state) =>
-      Object.values(state.statuses).filter((entry) => entry.status === 'failed')
-    )
-  )
+      Object.values(state.statuses).filter(
+        (entry) => entry.status === "failed",
+      ),
+    ),
+  );
 }
 
 /**
  * Hook to manage bulk retry operations
  */
 export function useBulkMessageRetry() {
-  const failedMessages = useFailedMessages()
+  const failedMessages = useFailedMessages();
 
   const retryAll = useCallback(() => {
     failedMessages.forEach((msg) => {
-      handleRetryAttempt(msg.messageId)
-    })
-  }, [failedMessages])
+      handleRetryAttempt(msg.messageId);
+    });
+  }, [failedMessages]);
 
   const clearAll = useCallback(() => {
-    const store = useDeliveryStatusStore.getState()
+    const store = useDeliveryStatusStore.getState();
     failedMessages.forEach((msg) => {
-      store.clearStatus(msg.messageId)
-    })
-  }, [failedMessages])
+      store.clearStatus(msg.messageId);
+    });
+  }, [failedMessages]);
 
   return {
     failedMessages,
     failedCount: failedMessages.length,
     retryAll,
     clearAll,
-  }
+  };
 }
 
 /**
  * Hook to track sending state for optimistic updates
  */
 export function useSendingState(messageId: string) {
-  const { markSending, markSent, markFailed, markDelivered, markRead } = useDeliveryStatusStore(
-    useShallow((state) => ({
-      markSending: state.markSending,
-      markSent: state.markSent,
-      markFailed: state.markFailed,
-      markDelivered: state.markDelivered,
-      markRead: state.markRead,
-    }))
-  )
+  const { markSending, markSent, markFailed, markDelivered, markRead } =
+    useDeliveryStatusStore(
+      useShallow((state) => ({
+        markSending: state.markSending,
+        markSent: state.markSent,
+        markFailed: state.markFailed,
+        markDelivered: state.markDelivered,
+        markRead: state.markRead,
+      })),
+    );
 
   const startSending = useCallback(() => {
-    markSending(messageId)
-  }, [messageId, markSending])
+    markSending(messageId);
+  }, [messageId, markSending]);
 
   const completeSend = useCallback(() => {
-    markSent(messageId)
-  }, [messageId, markSent])
+    markSent(messageId);
+  }, [messageId, markSent]);
 
   const failSend = useCallback(
     (error: string) => {
-      markFailed(messageId, error)
+      markFailed(messageId, error);
     },
-    [messageId, markFailed]
-  )
+    [messageId, markFailed],
+  );
 
   const confirmDelivery = useCallback(
     (deliveredCount?: number, totalRecipients?: number) => {
-      markDelivered(messageId, deliveredCount, totalRecipients)
+      markDelivered(messageId, deliveredCount, totalRecipients);
     },
-    [messageId, markDelivered]
-  )
+    [messageId, markDelivered],
+  );
 
   const confirmRead = useCallback(
     (readCount?: number, totalRecipients?: number) => {
-      markRead(messageId, readCount, totalRecipients)
+      markRead(messageId, readCount, totalRecipients);
     },
-    [messageId, markRead]
-  )
+    [messageId, markRead],
+  );
 
   return {
     startSending,
@@ -304,7 +317,7 @@ export function useSendingState(messageId: string) {
     failSend,
     confirmDelivery,
     confirmRead,
-  }
+  };
 }
 
 // ============================================================================
@@ -317,16 +330,16 @@ export function useSendingState(messageId: string) {
 export function useFullMessageStatus(
   messageId: string,
   options?: {
-    fetchHistoryFn?: () => Promise<MessageEditRecord[]>
-    autoLoadHistory?: boolean
-  }
+    fetchHistoryFn?: () => Promise<MessageEditRecord[]>;
+    autoLoadHistory?: boolean;
+  },
 ) {
-  const deliveryStatus = useMessageStatus({ messageId })
+  const deliveryStatus = useMessageStatus({ messageId });
   const editHistory = useEditHistory({
     messageId,
     fetchFn: options?.fetchHistoryFn,
     autoLoad: options?.autoLoadHistory,
-  })
+  });
 
   return {
     // Delivery status
@@ -338,7 +351,7 @@ export function useFullMessageStatus(
     historyError: editHistory.error,
     reloadHistory: editHistory.reload,
     clearHistory: editHistory.clear,
-  }
+  };
 }
 
-export default useMessageStatus
+export default useMessageStatus;

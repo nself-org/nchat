@@ -5,7 +5,7 @@
  * Inspired by Telegram's location sharing functionality.
  */
 
-import type { MessageUser } from '@/types/message'
+import type { MessageUser } from "@/types/message";
 
 // ============================================================================
 // Coordinates & Basic Types
@@ -16,19 +16,19 @@ import type { MessageUser } from '@/types/message'
  */
 export interface Coordinates {
   /** Latitude in decimal degrees */
-  latitude: number
+  latitude: number;
   /** Longitude in decimal degrees */
-  longitude: number
+  longitude: number;
   /** Altitude in meters (optional) */
-  altitude?: number
+  altitude?: number;
   /** Accuracy of position in meters */
-  accuracy?: number
+  accuracy?: number;
   /** Accuracy of altitude in meters */
-  altitudeAccuracy?: number
+  altitudeAccuracy?: number;
   /** Heading/bearing in degrees (0-360, clockwise from north) */
-  heading?: number
+  heading?: number;
   /** Speed in meters per second */
-  speed?: number
+  speed?: number;
 }
 
 /**
@@ -36,23 +36,23 @@ export interface Coordinates {
  */
 export interface GeocodedAddress {
   /** Full formatted address */
-  formattedAddress: string
+  formattedAddress: string;
   /** Street number */
-  streetNumber?: string
+  streetNumber?: string;
   /** Street name */
-  street?: string
+  street?: string;
   /** Neighborhood/district */
-  neighborhood?: string
+  neighborhood?: string;
   /** City/locality */
-  city?: string
+  city?: string;
   /** State/region */
-  state?: string
+  state?: string;
   /** Postal/ZIP code */
-  postalCode?: string
+  postalCode?: string;
   /** Country */
-  country?: string
+  country?: string;
   /** ISO country code (2-letter) */
-  countryCode?: string
+  countryCode?: string;
 }
 
 /**
@@ -60,50 +60,50 @@ export interface GeocodedAddress {
  */
 export interface Place {
   /** Place ID (from maps provider) */
-  id: string
+  id: string;
   /** Place name */
-  name: string
+  name: string;
   /** Place address */
-  address: string
+  address: string;
   /** Place coordinates */
-  coordinates: Coordinates
+  coordinates: Coordinates;
   /** Place category/type */
-  category?: PlaceCategory
+  category?: PlaceCategory;
   /** Distance from current location in meters */
-  distance?: number
+  distance?: number;
   /** Place icon URL */
-  iconUrl?: string
+  iconUrl?: string;
   /** Rating (0-5) */
-  rating?: number
+  rating?: number;
   /** Whether place is currently open */
-  isOpen?: boolean
+  isOpen?: boolean;
   /** Place photo URL */
-  photoUrl?: string
+  photoUrl?: string;
 }
 
 /**
  * Categories for places.
  */
 export type PlaceCategory =
-  | 'restaurant'
-  | 'cafe'
-  | 'bar'
-  | 'store'
-  | 'hotel'
-  | 'hospital'
-  | 'pharmacy'
-  | 'gas_station'
-  | 'parking'
-  | 'transit'
-  | 'airport'
-  | 'school'
-  | 'gym'
-  | 'park'
-  | 'museum'
-  | 'church'
-  | 'bank'
-  | 'atm'
-  | 'other'
+  | "restaurant"
+  | "cafe"
+  | "bar"
+  | "store"
+  | "hotel"
+  | "hospital"
+  | "pharmacy"
+  | "gas_station"
+  | "parking"
+  | "transit"
+  | "airport"
+  | "school"
+  | "gym"
+  | "park"
+  | "museum"
+  | "church"
+  | "bank"
+  | "atm"
+  | "other";
 
 // ============================================================================
 // Location Sharing Types
@@ -115,54 +115,54 @@ export type PlaceCategory =
 export type LocationSharingDuration =
   | 15 // 15 minutes
   | 60 // 1 hour
-  | 480 // 8 hours
+  | 480; // 8 hours
 
 /**
  * Duration option with label.
  */
 export interface DurationOption {
   /** Duration in minutes */
-  duration: LocationSharingDuration
+  duration: LocationSharingDuration;
   /** Display label */
-  label: string
+  label: string;
   /** Short label */
-  shortLabel: string
+  shortLabel: string;
 }
 
 /**
  * Available duration options.
  */
 export const SHARING_DURATION_OPTIONS: DurationOption[] = [
-  { duration: 15, label: '15 minutes', shortLabel: '15m' },
-  { duration: 60, label: '1 hour', shortLabel: '1h' },
-  { duration: 480, label: '8 hours', shortLabel: '8h' },
-]
+  { duration: 15, label: "15 minutes", shortLabel: "15m" },
+  { duration: 60, label: "1 hour", shortLabel: "1h" },
+  { duration: 480, label: "8 hours", shortLabel: "8h" },
+];
 
 /**
  * Type of location share.
  */
-export type LocationShareType = 'static' | 'live'
+export type LocationShareType = "static" | "live";
 
 /**
  * Static location share (one-time pin drop).
  */
 export interface StaticLocation {
   /** Share type */
-  type: 'static'
+  type: "static";
   /** Location ID */
-  id: string
+  id: string;
   /** Coordinates */
-  coordinates: Coordinates
+  coordinates: Coordinates;
   /** Address (if reverse geocoded) */
-  address?: GeocodedAddress
+  address?: GeocodedAddress;
   /** Custom label for this location */
-  label?: string
+  label?: string;
   /** Thumbnail image URL (map preview) */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** User who shared */
-  sharedBy: MessageUser
+  sharedBy: MessageUser;
   /** When location was shared */
-  sharedAt: Date
+  sharedAt: Date;
 }
 
 /**
@@ -170,48 +170,52 @@ export interface StaticLocation {
  */
 export interface LiveLocation {
   /** Share type */
-  type: 'live'
+  type: "live";
   /** Location ID */
-  id: string
+  id: string;
   /** Current coordinates */
-  coordinates: Coordinates
+  coordinates: Coordinates;
   /** Address (if reverse geocoded) */
-  address?: GeocodedAddress
+  address?: GeocodedAddress;
   /** User sharing location */
-  user: MessageUser
+  user: MessageUser;
   /** When sharing started */
-  startedAt: Date
+  startedAt: Date;
   /** When sharing will end */
-  expiresAt: Date
+  expiresAt: Date;
   /** Duration in minutes */
-  duration: LocationSharingDuration
+  duration: LocationSharingDuration;
   /** When coordinates were last updated */
-  lastUpdatedAt: Date
+  lastUpdatedAt: Date;
   /** Whether sharing is still active */
-  isActive: boolean
+  isActive: boolean;
   /** Heading/direction user is facing */
-  heading?: number
+  heading?: number;
   /** Speed in meters/second */
-  speed?: number
+  speed?: number;
 }
 
 /**
  * Union type for any location share.
  */
-export type LocationShare = StaticLocation | LiveLocation
+export type LocationShare = StaticLocation | LiveLocation;
 
 /**
  * Check if a location is live.
  */
-export function isLiveLocation(location: LocationShare): location is LiveLocation {
-  return location.type === 'live'
+export function isLiveLocation(
+  location: LocationShare,
+): location is LiveLocation {
+  return location.type === "live";
 }
 
 /**
  * Check if a location is static.
  */
-export function isStaticLocation(location: LocationShare): location is StaticLocation {
-  return location.type === 'static'
+export function isStaticLocation(
+  location: LocationShare,
+): location is StaticLocation {
+  return location.type === "static";
 }
 
 // ============================================================================
@@ -221,18 +225,22 @@ export function isStaticLocation(location: LocationShare): location is StaticLoc
 /**
  * Browser geolocation permission state.
  */
-export type LocationPermissionState = 'prompt' | 'granted' | 'denied' | 'unavailable'
+export type LocationPermissionState =
+  | "prompt"
+  | "granted"
+  | "denied"
+  | "unavailable";
 
 /**
  * Location permission result.
  */
 export interface LocationPermissionResult {
   /** Current permission state */
-  state: LocationPermissionState
+  state: LocationPermissionState;
   /** Whether permission is granted */
-  isGranted: boolean
+  isGranted: boolean;
   /** Error message if denied/unavailable */
-  error?: string
+  error?: string;
 }
 
 /**
@@ -240,11 +248,11 @@ export interface LocationPermissionResult {
  */
 export interface PositionOptions {
   /** Enable high accuracy (GPS) */
-  enableHighAccuracy?: boolean
+  enableHighAccuracy?: boolean;
   /** Timeout in milliseconds */
-  timeout?: number
+  timeout?: number;
   /** Maximum age of cached position in milliseconds */
-  maximumAge?: number
+  maximumAge?: number;
 }
 
 /**
@@ -254,7 +262,7 @@ export const DEFAULT_POSITION_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,
   timeout: 10000,
   maximumAge: 5000,
-}
+};
 
 // ============================================================================
 // Location Privacy Settings
@@ -263,37 +271,37 @@ export const DEFAULT_POSITION_OPTIONS: PositionOptions = {
 /**
  * Who can see user's location.
  */
-export type LocationVisibility = 'everyone' | 'contacts' | 'nobody'
+export type LocationVisibility = "everyone" | "contacts" | "nobody";
 
 /**
  * Location privacy settings.
  */
 export interface LocationPrivacySettings {
   /** Who can see when you share location */
-  locationVisibility: LocationVisibility
+  locationVisibility: LocationVisibility;
   /** Whether to save location history */
-  saveLocationHistory: boolean
+  saveLocationHistory: boolean;
   /** Auto-delete location history after days (0 = never) */
-  locationHistoryRetentionDays: number
+  locationHistoryRetentionDays: number;
   /** Whether to show approximate location instead of exact */
-  useApproximateLocation: boolean
+  useApproximateLocation: boolean;
   /** Whether to show nearby places */
-  showNearbyPlaces: boolean
+  showNearbyPlaces: boolean;
   /** Default sharing duration */
-  defaultSharingDuration: LocationSharingDuration
+  defaultSharingDuration: LocationSharingDuration;
 }
 
 /**
  * Default location privacy settings.
  */
 export const DEFAULT_LOCATION_PRIVACY: LocationPrivacySettings = {
-  locationVisibility: 'everyone',
+  locationVisibility: "everyone",
   saveLocationHistory: false,
   locationHistoryRetentionDays: 0,
   useApproximateLocation: false,
   showNearbyPlaces: true,
   defaultSharingDuration: 15,
-}
+};
 
 // ============================================================================
 // Location History
@@ -304,21 +312,21 @@ export const DEFAULT_LOCATION_PRIVACY: LocationPrivacySettings = {
  */
 export interface LocationHistoryEntry {
   /** Entry ID */
-  id: string
+  id: string;
   /** Coordinates */
-  coordinates: Coordinates
+  coordinates: Coordinates;
   /** Address */
-  address?: GeocodedAddress
+  address?: GeocodedAddress;
   /** When this location was recorded */
-  timestamp: Date
+  timestamp: Date;
   /** Context (channel, dm, etc.) */
   context?: {
-    type: 'channel' | 'dm' | 'group'
-    id: string
-    name: string
-  }
+    type: "channel" | "dm" | "group";
+    id: string;
+    name: string;
+  };
   /** Type of share (static/live) */
-  shareType: LocationShareType
+  shareType: LocationShareType;
 }
 
 // ============================================================================
@@ -330,11 +338,11 @@ export interface LocationHistoryEntry {
  */
 export interface LocationMessageData {
   /** Location share data */
-  location: LocationShare
+  location: LocationShare;
   /** Map preview image URL */
-  previewImageUrl?: string
+  previewImageUrl?: string;
   /** Whether user can get directions */
-  canGetDirections: boolean
+  canGetDirections: boolean;
 }
 
 // ============================================================================
@@ -346,19 +354,19 @@ export interface LocationMessageData {
  */
 export interface LocationUpdateEvent {
   /** Location ID */
-  locationId: string
+  locationId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** New coordinates */
-  coordinates: Coordinates
+  coordinates: Coordinates;
   /** Updated address */
-  address?: GeocodedAddress
+  address?: GeocodedAddress;
   /** Heading */
-  heading?: number
+  heading?: number;
   /** Speed */
-  speed?: number
+  speed?: number;
   /** Update timestamp */
-  timestamp: string
+  timestamp: string;
 }
 
 /**
@@ -366,13 +374,13 @@ export interface LocationUpdateEvent {
  */
 export interface LocationStartedEvent {
   /** Location share data */
-  location: LiveLocation
+  location: LiveLocation;
   /** Channel or DM ID */
-  contextId: string
+  contextId: string;
   /** Context type */
-  contextType: 'channel' | 'dm'
+  contextType: "channel" | "dm";
   /** Message ID containing the location */
-  messageId: string
+  messageId: string;
 }
 
 /**
@@ -380,13 +388,13 @@ export interface LocationStartedEvent {
  */
 export interface LocationStoppedEvent {
   /** Location ID */
-  locationId: string
+  locationId: string;
   /** User ID who stopped sharing */
-  userId: string
+  userId: string;
   /** Why sharing stopped */
-  reason: 'user_stopped' | 'expired' | 'error'
+  reason: "user_stopped" | "expired" | "error";
   /** When sharing stopped */
-  stoppedAt: string
+  stoppedAt: string;
 }
 
 // ============================================================================
@@ -398,9 +406,9 @@ export interface LocationStoppedEvent {
  */
 export interface MapBounds {
   /** Northeast corner */
-  northeast: Coordinates
+  northeast: Coordinates;
   /** Southwest corner */
-  southwest: Coordinates
+  southwest: Coordinates;
 }
 
 /**
@@ -408,15 +416,15 @@ export interface MapBounds {
  */
 export interface MapConfig {
   /** Center coordinates */
-  center: Coordinates
+  center: Coordinates;
   /** Zoom level (1-20) */
-  zoom: number
+  zoom: number;
   /** Map style (light, dark, satellite, etc.) */
-  style?: 'light' | 'dark' | 'satellite' | 'terrain'
+  style?: "light" | "dark" | "satellite" | "terrain";
   /** Whether to show traffic */
-  showTraffic?: boolean
+  showTraffic?: boolean;
   /** Whether to show user's location */
-  showMyLocation?: boolean
+  showMyLocation?: boolean;
 }
 
 /**
@@ -425,10 +433,10 @@ export interface MapConfig {
 export const DEFAULT_MAP_CONFIG: MapConfig = {
   center: { latitude: 0, longitude: 0 },
   zoom: 15,
-  style: 'light',
+  style: "light",
   showTraffic: false,
   showMyLocation: true,
-}
+};
 
 // ============================================================================
 // Marker Types
@@ -439,21 +447,21 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
  */
 export interface LocationMarker {
   /** Marker ID */
-  id: string
+  id: string;
   /** Coordinates */
-  coordinates: Coordinates
+  coordinates: Coordinates;
   /** Marker type */
-  type: 'user' | 'place' | 'pin'
+  type: "user" | "place" | "pin";
   /** Label text */
-  label?: string
+  label?: string;
   /** Marker color */
-  color?: string
+  color?: string;
   /** User info (if user marker) */
-  user?: MessageUser
+  user?: MessageUser;
   /** Whether marker is animated (for live location) */
-  isAnimated?: boolean
+  isAnimated?: boolean;
   /** Heading for direction indicator */
-  heading?: number
+  heading?: number;
 }
 
 // ============================================================================
@@ -464,66 +472,66 @@ export interface LocationMarker {
  * Location error codes.
  */
 export type LocationErrorCode =
-  | 'PERMISSION_DENIED'
-  | 'POSITION_UNAVAILABLE'
-  | 'TIMEOUT'
-  | 'NOT_SUPPORTED'
-  | 'GEOCODING_FAILED'
-  | 'NETWORK_ERROR'
-  | 'UNKNOWN'
+  | "PERMISSION_DENIED"
+  | "POSITION_UNAVAILABLE"
+  | "TIMEOUT"
+  | "NOT_SUPPORTED"
+  | "GEOCODING_FAILED"
+  | "NETWORK_ERROR"
+  | "UNKNOWN";
 
 /**
  * Location error.
  */
 export interface LocationError {
   /** Error code */
-  code: LocationErrorCode
+  code: LocationErrorCode;
   /** Error message */
-  message: string
+  message: string;
   /** Original error */
-  originalError?: Error | GeolocationPositionError
+  originalError?: Error | GeolocationPositionError;
 }
 
 /**
  * Create a location error from GeolocationPositionError.
  */
 export function createLocationError(
-  error: GeolocationPositionError | Error | unknown
+  error: GeolocationPositionError | Error | unknown,
 ): LocationError {
   if (error instanceof GeolocationPositionError) {
     switch (error.code) {
       case GeolocationPositionError.PERMISSION_DENIED:
         return {
-          code: 'PERMISSION_DENIED',
+          code: "PERMISSION_DENIED",
           message:
-            'Location permission was denied. Please enable location access in your browser settings.',
+            "Location permission was denied. Please enable location access in your browser settings.",
           originalError: error,
-        }
+        };
       case GeolocationPositionError.POSITION_UNAVAILABLE:
         return {
-          code: 'POSITION_UNAVAILABLE',
-          message: 'Unable to determine your location. Please try again.',
+          code: "POSITION_UNAVAILABLE",
+          message: "Unable to determine your location. Please try again.",
           originalError: error,
-        }
+        };
       case GeolocationPositionError.TIMEOUT:
         return {
-          code: 'TIMEOUT',
-          message: 'Location request timed out. Please try again.',
+          code: "TIMEOUT",
+          message: "Location request timed out. Please try again.",
           originalError: error,
-        }
+        };
     }
   }
 
   if (error instanceof Error) {
     return {
-      code: 'UNKNOWN',
-      message: error.message || 'An unknown error occurred',
+      code: "UNKNOWN",
+      message: error.message || "An unknown error occurred",
       originalError: error,
-    }
+    };
   }
 
   return {
-    code: 'UNKNOWN',
-    message: 'An unknown error occurred while getting location',
-  }
+    code: "UNKNOWN",
+    message: "An unknown error occurred while getting location",
+  };
 }

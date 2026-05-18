@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useInvite Hook - Invite functionality for nself-chat
@@ -31,10 +31,14 @@
  * ```
  */
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useMutation, useQuery, useLazyQuery } from '@apollo/client'
-import { useAuth } from '@/contexts/auth-context'
-import { useInviteStore, type CreateInviteOptions, type CreatedInvite } from './invite-store'
+import { useCallback, useEffect, useMemo } from "react";
+import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  useInviteStore,
+  type CreateInviteOptions,
+  type CreatedInvite,
+} from "./invite-store";
 import {
   generateChannelInviteCode,
   generateWorkspaceInviteCode,
@@ -49,8 +53,8 @@ import {
   normalizeInviteCode,
   type InviteInfo,
   type InviteValidationError,
-} from './invite-service'
-import { logger } from '@/lib/logger'
+} from "./invite-service";
+import { logger } from "@/lib/logger";
 import {
   CREATE_INVITE,
   GET_INVITE,
@@ -60,7 +64,7 @@ import {
   REVOKE_INVITE,
   DELETE_INVITE,
   type CreateInviteVariables,
-} from '@/graphql/invites'
+} from "@/graphql/invites";
 
 // ============================================================================
 // Types
@@ -68,69 +72,69 @@ import {
 
 export interface UseInviteOptions {
   /** Called after successful invite creation */
-  onCreateSuccess?: (invite: CreatedInvite) => void
+  onCreateSuccess?: (invite: CreatedInvite) => void;
   /** Called after invite creation failure */
-  onCreateError?: (error: Error) => void
+  onCreateError?: (error: Error) => void;
   /** Called after successful invite acceptance */
-  onAcceptSuccess?: (channelId: string) => void
+  onAcceptSuccess?: (channelId: string) => void;
   /** Called after invite acceptance failure */
-  onAcceptError?: (error: Error) => void
+  onAcceptError?: (error: Error) => void;
   /** Called after invite revocation */
-  onRevokeSuccess?: (inviteId: string) => void
+  onRevokeSuccess?: (inviteId: string) => void;
 }
 
 export interface UseInviteReturn {
   // Modal state
-  isCreateModalOpen: boolean
-  openCreateModal: (options?: CreateInviteOptions) => void
-  closeCreateModal: () => void
-  createModalOptions: CreateInviteOptions | null
-  setCreateModalOptions: (options: Partial<CreateInviteOptions>) => void
+  isCreateModalOpen: boolean;
+  openCreateModal: (options?: CreateInviteOptions) => void;
+  closeCreateModal: () => void;
+  createModalOptions: CreateInviteOptions | null;
+  setCreateModalOptions: (options: Partial<CreateInviteOptions>) => void;
 
   // Create invite
-  createInvite: (options: CreateInviteOptions) => Promise<CreatedInvite | null>
-  isCreating: boolean
-  createdInvite: CreatedInvite | null
-  createError: string | null
-  clearCreatedInvite: () => void
+  createInvite: (options: CreateInviteOptions) => Promise<CreatedInvite | null>;
+  isCreating: boolean;
+  createdInvite: CreatedInvite | null;
+  createError: string | null;
+  clearCreatedInvite: () => void;
 
   // Fetch invite (for preview)
-  fetchInvite: (code: string) => Promise<InviteInfo | null>
+  fetchInvite: (code: string) => Promise<InviteInfo | null>;
   invitePreview: {
-    code: string
-    invite: InviteInfo | null
-    isLoading: boolean
-    error: InviteValidationError | null
-  } | null
+    code: string;
+    invite: InviteInfo | null;
+    isLoading: boolean;
+    error: InviteValidationError | null;
+  } | null;
 
   // Accept invite
-  acceptInvite: (code: string) => Promise<boolean>
-  isAccepting: boolean
-  acceptError: string | null
-  acceptSuccess: boolean
+  acceptInvite: (code: string) => Promise<boolean>;
+  isAccepting: boolean;
+  acceptError: string | null;
+  acceptSuccess: boolean;
 
   // Revoke invite
-  revokeInvite: (inviteId: string) => Promise<boolean>
-  deleteInvite: (inviteId: string) => Promise<boolean>
+  revokeInvite: (inviteId: string) => Promise<boolean>;
+  deleteInvite: (inviteId: string) => Promise<boolean>;
 
   // List invites
-  loadChannelInvites: (channelId: string) => void
-  loadWorkspaceInvites: () => void
-  activeInvites: InviteInfo[]
-  isLoadingInvites: boolean
-  invitesError: string | null
+  loadChannelInvites: (channelId: string) => void;
+  loadWorkspaceInvites: () => void;
+  activeInvites: InviteInfo[];
+  isLoadingInvites: boolean;
+  invitesError: string | null;
 
   // Recent invites
-  recentInvites: CreatedInvite[]
+  recentInvites: CreatedInvite[];
 
   // Share utilities
-  copyInviteLink: (code: string) => Promise<boolean>
-  shareInvite: (code: string, title?: string) => Promise<boolean>
-  getMailtoLink: (code: string) => string
+  copyInviteLink: (code: string) => Promise<boolean>;
+  shareInvite: (code: string, title?: string) => Promise<boolean>;
+  getMailtoLink: (code: string) => string;
 
   // Utility
-  buildLink: (code: string) => string
-  reset: () => void
+  buildLink: (code: string) => string;
+  reset: () => void;
 }
 
 // ============================================================================
@@ -138,79 +142,88 @@ export interface UseInviteReturn {
 // ============================================================================
 
 export function useInvite(options: UseInviteOptions = {}): UseInviteReturn {
-  const { onCreateSuccess, onCreateError, onAcceptSuccess, onAcceptError, onRevokeSuccess } =
-    options
+  const {
+    onCreateSuccess,
+    onCreateError,
+    onAcceptSuccess,
+    onAcceptError,
+    onRevokeSuccess,
+  } = options;
 
   // Auth context
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   // Store state and actions
-  const store = useInviteStore()
+  const store = useInviteStore();
 
   // GraphQL mutations
-  const [createInviteMutation] = useMutation(CREATE_INVITE)
-  const [acceptInviteMutation] = useMutation(ACCEPT_CHANNEL_INVITE)
-  const [revokeInviteMutation] = useMutation(REVOKE_INVITE)
-  const [deleteInviteMutation] = useMutation(DELETE_INVITE)
+  const [createInviteMutation] = useMutation(CREATE_INVITE);
+  const [acceptInviteMutation] = useMutation(ACCEPT_CHANNEL_INVITE);
+  const [revokeInviteMutation] = useMutation(REVOKE_INVITE);
+  const [deleteInviteMutation] = useMutation(DELETE_INVITE);
 
   // GraphQL queries
   const [fetchInviteQuery] = useLazyQuery(GET_INVITE, {
-    fetchPolicy: 'network-only',
-  })
-  const [fetchChannelInvitesQuery, { data: channelInvitesData, loading: loadingChannelInvites }] =
-    useLazyQuery(GET_CHANNEL_INVITES, {
-      fetchPolicy: 'network-only',
-    })
+    fetchPolicy: "network-only",
+  });
+  const [
+    fetchChannelInvitesQuery,
+    { data: channelInvitesData, loading: loadingChannelInvites },
+  ] = useLazyQuery(GET_CHANNEL_INVITES, {
+    fetchPolicy: "network-only",
+  });
   const [
     fetchWorkspaceInvitesQuery,
     { data: workspaceInvitesData, loading: loadingWorkspaceInvites },
   ] = useLazyQuery(GET_WORKSPACE_INVITES, {
-    fetchPolicy: 'network-only',
-  })
+    fetchPolicy: "network-only",
+  });
 
   // Update active invites when data changes
   useEffect(() => {
     if (channelInvitesData?.nchat_invites) {
       const invites = channelInvitesData.nchat_invites
         .map(transformInviteData)
-        .filter(Boolean) as InviteInfo[]
-      store.setActiveInvites(invites)
+        .filter(Boolean) as InviteInfo[];
+      store.setActiveInvites(invites);
     }
-  }, [channelInvitesData])
+  }, [channelInvitesData]);
 
   useEffect(() => {
     if (workspaceInvitesData?.nchat_invites) {
       const invites = workspaceInvitesData.nchat_invites
         .map(transformInviteData)
-        .filter(Boolean) as InviteInfo[]
-      store.setActiveInvites(invites)
+        .filter(Boolean) as InviteInfo[];
+      store.setActiveInvites(invites);
     }
-  }, [workspaceInvitesData])
+  }, [workspaceInvitesData]);
 
   // Create invite
   const createInvite = useCallback(
-    async (createOptions: CreateInviteOptions): Promise<CreatedInvite | null> => {
+    async (
+      createOptions: CreateInviteOptions,
+    ): Promise<CreatedInvite | null> => {
       if (!user?.id) {
-        store.setCreateError('You must be logged in to create invites')
-        return null
+        store.setCreateError("You must be logged in to create invites");
+        return null;
       }
 
-      store.setIsCreating(true)
-      store.setCreateError(null)
+      store.setIsCreating(true);
+      store.setCreateError(null);
 
       try {
         // Generate code based on type
         const code =
-          createOptions.type === 'workspace'
+          createOptions.type === "workspace"
             ? generateWorkspaceInviteCode()
-            : generateChannelInviteCode()
+            : generateChannelInviteCode();
 
         // Calculate expiration
         const expiresAt = createOptions.expiresAt
           ? createOptions.expiresAt
           : createOptions.expirationOption
             ? calculateExpirationDate(createOptions.expirationOption)
-            : null
+            : null;
 
         const variables: CreateInviteVariables = {
           code,
@@ -219,57 +232,61 @@ export function useInvite(options: UseInviteOptions = {}): UseInviteReturn {
           creatorId: user.id,
           maxUses: createOptions.maxUses || null,
           expiresAt: expiresAt?.toISOString() || null,
-        }
+        };
 
-        const result = await createInviteMutation({ variables })
+        const result = await createInviteMutation({ variables });
 
         if (result.data?.insert_nchat_invites_one) {
-          const inviteData = result.data.insert_nchat_invites_one
+          const inviteData = result.data.insert_nchat_invites_one;
           const createdInvite: CreatedInvite = {
             id: inviteData.id,
             code: inviteData.code,
             type: inviteData.type,
             channelId: inviteData.channel_id,
-            channelName: inviteData.channel?.name || createOptions.channelName || null,
+            channelName:
+              inviteData.channel?.name || createOptions.channelName || null,
             link: buildInviteLink(inviteData.code),
             maxUses: inviteData.max_uses,
-            expiresAt: inviteData.expires_at ? new Date(inviteData.expires_at) : null,
+            expiresAt: inviteData.expires_at
+              ? new Date(inviteData.expires_at)
+              : null,
             createdAt: new Date(inviteData.created_at),
-          }
+          };
 
-          store.setCreatedInvite(createdInvite)
-          store.addRecentInvite(createdInvite)
-          onCreateSuccess?.(createdInvite)
+          store.setCreatedInvite(createdInvite);
+          store.addRecentInvite(createdInvite);
+          onCreateSuccess?.(createdInvite);
 
-          return createdInvite
+          return createdInvite;
         }
 
-        throw new Error('Failed to create invite')
+        throw new Error("Failed to create invite");
       } catch (error) {
-        const err = error instanceof Error ? error : new Error('Failed to create invite')
-        store.setCreateError(err.message)
-        onCreateError?.(err)
-        return null
+        const err =
+          error instanceof Error ? error : new Error("Failed to create invite");
+        store.setCreateError(err.message);
+        onCreateError?.(err);
+        return null;
       } finally {
-        store.setIsCreating(false)
+        store.setIsCreating(false);
       }
     },
-    [user?.id, createInviteMutation, store, onCreateSuccess, onCreateError]
-  )
+    [user?.id, createInviteMutation, store, onCreateSuccess, onCreateError],
+  );
 
   // Fetch invite for preview
   const fetchInvite = useCallback(
     async (code: string): Promise<InviteInfo | null> => {
-      const normalizedCode = normalizeInviteCode(code)
+      const normalizedCode = normalizeInviteCode(code);
 
       if (!isValidInviteCodeFormat(normalizedCode)) {
         store.setInvitePreview({
           code: normalizedCode,
           invite: null,
           isLoading: false,
-          error: 'invalid_code',
-        })
-        return null
+          error: "invalid_code",
+        });
+        return null;
       }
 
       store.setInvitePreview({
@@ -277,132 +294,140 @@ export function useInvite(options: UseInviteOptions = {}): UseInviteReturn {
         invite: null,
         isLoading: true,
         error: null,
-      })
+      });
 
       try {
         const result = await fetchInviteQuery({
           variables: { code: normalizedCode },
-        })
+        });
 
         if (result.data?.nchat_invites?.[0]) {
-          const inviteData = result.data.nchat_invites[0]
-          const invite = transformInviteData(inviteData)
+          const inviteData = result.data.nchat_invites[0];
+          const invite = transformInviteData(inviteData);
 
           if (!invite) {
             store.updateInvitePreview({
               isLoading: false,
-              error: 'not_found',
-            })
-            return null
+              error: "not_found",
+            });
+            return null;
           }
 
           // Validate the invite
-          const validation = validateInvite(invite)
+          const validation = validateInvite(invite);
 
           store.setInvitePreview({
             code: normalizedCode,
             invite,
             isLoading: false,
             error: validation.error || null,
-          })
+          });
 
-          return invite
+          return invite;
         }
 
         store.updateInvitePreview({
           isLoading: false,
-          error: 'not_found',
-        })
-        return null
+          error: "not_found",
+        });
+        return null;
       } catch (error) {
         store.updateInvitePreview({
           isLoading: false,
-          error: 'not_found',
-        })
-        return null
+          error: "not_found",
+        });
+        return null;
       }
     },
-    [fetchInviteQuery, store]
-  )
+    [fetchInviteQuery, store],
+  );
 
   // Accept invite
   const acceptInvite = useCallback(
     async (code: string): Promise<boolean> => {
       if (!user?.id) {
-        store.setAcceptError('You must be logged in to accept invites')
-        return false
+        store.setAcceptError("You must be logged in to accept invites");
+        return false;
       }
 
-      const normalizedCode = normalizeInviteCode(code)
+      const normalizedCode = normalizeInviteCode(code);
 
-      store.setIsAccepting(true)
-      store.setAcceptError(null)
+      store.setIsAccepting(true);
+      store.setAcceptError(null);
 
       try {
         // First fetch the invite to get its details
         const result = await fetchInviteQuery({
           variables: { code: normalizedCode },
-        })
+        });
 
         if (!result.data?.nchat_invites?.[0]) {
-          store.setAcceptError('Invite not found')
-          return false
+          store.setAcceptError("Invite not found");
+          return false;
         }
 
-        const inviteData = result.data.nchat_invites[0]
-        const invite = transformInviteData(inviteData)
+        const inviteData = result.data.nchat_invites[0];
+        const invite = transformInviteData(inviteData);
 
         if (!invite) {
-          store.setAcceptError('Invalid invite')
-          return false
+          store.setAcceptError("Invalid invite");
+          return false;
         }
 
         // Validate
-        const validation = validateInvite(invite)
+        const validation = validateInvite(invite);
         if (!validation.isValid) {
           const errorMessages: Record<InviteValidationError, string> = {
-            invalid_code: 'Invalid invite code',
-            not_found: 'Invite not found',
-            expired: 'This invite has expired',
-            max_uses_reached: 'This invite has reached its maximum uses',
-            revoked: 'This invite has been revoked',
-            already_member: 'You are already a member',
-            channel_archived: 'This channel has been archived',
-            permission_denied: 'You do not have permission to join',
-          }
-          store.setAcceptError(errorMessages[validation.error!])
-          return false
+            invalid_code: "Invalid invite code",
+            not_found: "Invite not found",
+            expired: "This invite has expired",
+            max_uses_reached: "This invite has reached its maximum uses",
+            revoked: "This invite has been revoked",
+            already_member: "You are already a member",
+            channel_archived: "This channel has been archived",
+            permission_denied: "You do not have permission to join",
+          };
+          store.setAcceptError(errorMessages[validation.error!]);
+          return false;
         }
 
         // Accept the invite
-        if (invite.type === 'channel' && invite.channelId) {
+        if (invite.type === "channel" && invite.channelId) {
           await acceptInviteMutation({
             variables: {
               inviteId: invite.id,
               userId: user.id,
               channelId: invite.channelId,
             },
-          })
+          });
 
-          store.setAcceptSuccess(true)
-          onAcceptSuccess?.(invite.channelId)
-          return true
+          store.setAcceptSuccess(true);
+          onAcceptSuccess?.(invite.channelId);
+          return true;
         }
 
         // For workspace invites, handle differently
-        store.setAcceptError('Workspace invites are not yet supported')
-        return false
+        store.setAcceptError("Workspace invites are not yet supported");
+        return false;
       } catch (error) {
-        const err = error instanceof Error ? error : new Error('Failed to accept invite')
-        store.setAcceptError(err.message)
-        onAcceptError?.(err)
-        return false
+        const err =
+          error instanceof Error ? error : new Error("Failed to accept invite");
+        store.setAcceptError(err.message);
+        onAcceptError?.(err);
+        return false;
       } finally {
-        store.setIsAccepting(false)
+        store.setIsAccepting(false);
       }
     },
-    [user?.id, fetchInviteQuery, acceptInviteMutation, store, onAcceptSuccess, onAcceptError]
-  )
+    [
+      user?.id,
+      fetchInviteQuery,
+      acceptInviteMutation,
+      store,
+      onAcceptSuccess,
+      onAcceptError,
+    ],
+  );
 
   // Revoke invite
   const revokeInvite = useCallback(
@@ -410,18 +435,18 @@ export function useInvite(options: UseInviteOptions = {}): UseInviteReturn {
       try {
         await revokeInviteMutation({
           variables: { id: inviteId },
-        })
+        });
 
-        store.updateActiveInvite(inviteId, { isActive: false })
-        onRevokeSuccess?.(inviteId)
-        return true
+        store.updateActiveInvite(inviteId, { isActive: false });
+        onRevokeSuccess?.(inviteId);
+        return true;
       } catch (error) {
-        logger.error('Failed to revoke invite:', error)
-        return false
+        logger.error("Failed to revoke invite:", error);
+        return false;
       }
     },
-    [revokeInviteMutation, store, onRevokeSuccess]
-  )
+    [revokeInviteMutation, store, onRevokeSuccess],
+  );
 
   // Delete invite
   const deleteInvite = useCallback(
@@ -429,51 +454,54 @@ export function useInvite(options: UseInviteOptions = {}): UseInviteReturn {
       try {
         await deleteInviteMutation({
           variables: { id: inviteId },
-        })
+        });
 
-        store.removeActiveInvite(inviteId)
-        return true
+        store.removeActiveInvite(inviteId);
+        return true;
       } catch (error) {
-        logger.error('Failed to delete invite:', error)
-        return false
+        logger.error("Failed to delete invite:", error);
+        return false;
       }
     },
-    [deleteInviteMutation, store]
-  )
+    [deleteInviteMutation, store],
+  );
 
   // Load channel invites
   const loadChannelInvites = useCallback(
     (channelId: string) => {
-      store.setIsLoadingInvites(true)
+      store.setIsLoadingInvites(true);
       fetchChannelInvitesQuery({
         variables: { channelId },
-      })
+      });
     },
-    [fetchChannelInvitesQuery, store]
-  )
+    [fetchChannelInvitesQuery, store],
+  );
 
   // Load workspace invites
   const loadWorkspaceInvites = useCallback(() => {
-    store.setIsLoadingInvites(true)
-    fetchWorkspaceInvitesQuery()
-  }, [fetchWorkspaceInvitesQuery, store])
+    store.setIsLoadingInvites(true);
+    fetchWorkspaceInvitesQuery();
+  }, [fetchWorkspaceInvitesQuery, store]);
 
   // Share utilities
   const copyInviteLink = useCallback(async (code: string): Promise<boolean> => {
-    return copyInviteLinkToClipboard(code)
-  }, [])
+    return copyInviteLinkToClipboard(code);
+  }, []);
 
-  const shareInvite = useCallback(async (code: string, title?: string): Promise<boolean> => {
-    return shareInviteLink(code, title)
-  }, [])
+  const shareInvite = useCallback(
+    async (code: string, title?: string): Promise<boolean> => {
+      return shareInviteLink(code, title);
+    },
+    [],
+  );
 
   const getMailtoLink = useCallback((code: string): string => {
-    return generateMailtoLink(code)
-  }, [])
+    return generateMailtoLink(code);
+  }, []);
 
   const buildLink = useCallback((code: string): string => {
-    return buildInviteLink(code)
-  }, [])
+    return buildInviteLink(code);
+  }, []);
 
   return {
     // Modal state
@@ -508,7 +536,10 @@ export function useInvite(options: UseInviteOptions = {}): UseInviteReturn {
     loadChannelInvites,
     loadWorkspaceInvites,
     activeInvites: store.activeInvites,
-    isLoadingInvites: loadingChannelInvites || loadingWorkspaceInvites || store.isLoadingInvites,
+    isLoadingInvites:
+      loadingChannelInvites ||
+      loadingWorkspaceInvites ||
+      store.isLoadingInvites,
     invitesError: store.invitesError,
 
     // Recent invites
@@ -522,7 +553,7 @@ export function useInvite(options: UseInviteOptions = {}): UseInviteReturn {
     // Utility
     buildLink,
     reset: store.reset,
-  }
+  };
 }
 
-export default useInvite
+export default useInvite;

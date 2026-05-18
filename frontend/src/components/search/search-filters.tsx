@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   X,
   User,
@@ -17,11 +17,11 @@ import {
   Filter,
   ChevronDown,
   Smile,
-} from 'lucide-react'
-import { format } from 'date-fns'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   useSearchStore,
   type HasFilter,
@@ -29,45 +29,53 @@ import {
   type DateRange,
   selectHasActiveFilters,
   selectActiveFilterCount,
-} from '@/stores/search-store'
+} from "@/stores/search-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SearchFiltersProps {
-  className?: string
+  className?: string;
   /** Callback when a user filter is clicked (for user picker) */
-  onSelectUser?: () => void
+  onSelectUser?: () => void;
   /** Callback when a channel filter is clicked (for channel picker) */
-  onSelectChannel?: () => void
+  onSelectChannel?: () => void;
   /** Callback when date range is clicked (for date picker) */
-  onSelectDateRange?: () => void
+  onSelectDateRange?: () => void;
   /** User lookup function to get user names by ID */
-  getUserName?: (userId: string) => string
+  getUserName?: (userId: string) => string;
   /** Channel lookup function to get channel names by ID */
-  getChannelName?: (channelId: string) => string
+  getChannelName?: (channelId: string) => string;
 }
 
 // ============================================================================
 // Filter Configuration
 // ============================================================================
 
-const hasFilterConfig: { value: HasFilter; label: string; icon: React.ElementType }[] = [
-  { value: 'link', label: 'Links', icon: Link },
-  { value: 'file', label: 'Files', icon: FileIcon },
-  { value: 'image', label: 'Images', icon: Image },
-  { value: 'code', label: 'Code', icon: Code },
-  { value: 'mention', label: 'Mentions', icon: AtSign },
-  { value: 'reaction', label: 'Reactions', icon: Smile },
-]
+const hasFilterConfig: {
+  value: HasFilter;
+  label: string;
+  icon: React.ElementType;
+}[] = [
+  { value: "link", label: "Links", icon: Link },
+  { value: "file", label: "Files", icon: FileIcon },
+  { value: "image", label: "Images", icon: Image },
+  { value: "code", label: "Code", icon: Code },
+  { value: "mention", label: "Mentions", icon: AtSign },
+  { value: "reaction", label: "Reactions", icon: Smile },
+];
 
-const isFilterConfig: { value: IsFilter; label: string; icon: React.ElementType }[] = [
-  { value: 'pinned', label: 'Pinned', icon: Pin },
-  { value: 'starred', label: 'Starred', icon: Star },
-  { value: 'thread', label: 'In thread', icon: MessageSquare },
-  { value: 'unread', label: 'Unread', icon: MessageSquare },
-]
+const isFilterConfig: {
+  value: IsFilter;
+  label: string;
+  icon: React.ElementType;
+}[] = [
+  { value: "pinned", label: "Pinned", icon: Pin },
+  { value: "starred", label: "Starred", icon: Star },
+  { value: "thread", label: "In thread", icon: MessageSquare },
+  { value: "unread", label: "Unread", icon: MessageSquare },
+];
 
 // ============================================================================
 // Main Component
@@ -81,18 +89,18 @@ export function SearchFilters({
   getUserName = (id) => id,
   getChannelName = (id) => id,
 }: SearchFiltersProps) {
-  const filters = useSearchStore((state) => state.filters)
-  const hasActiveFilters = useSearchStore(selectHasActiveFilters)
-  const activeFilterCount = useSearchStore(selectActiveFilterCount)
-  const clearFilters = useSearchStore((state) => state.clearFilters)
-  const removeFromUser = useSearchStore((state) => state.removeFromUser)
-  const removeInChannel = useSearchStore((state) => state.removeInChannel)
-  const setDateRange = useSearchStore((state) => state.setDateRange)
-  const toggleHasFilter = useSearchStore((state) => state.toggleHasFilter)
-  const toggleIsFilter = useSearchStore((state) => state.toggleIsFilter)
+  const filters = useSearchStore((state) => state.filters);
+  const hasActiveFilters = useSearchStore(selectHasActiveFilters);
+  const activeFilterCount = useSearchStore(selectActiveFilterCount);
+  const clearFilters = useSearchStore((state) => state.clearFilters);
+  const removeFromUser = useSearchStore((state) => state.removeFromUser);
+  const removeInChannel = useSearchStore((state) => state.removeInChannel);
+  const setDateRange = useSearchStore((state) => state.setDateRange);
+  const toggleHasFilter = useSearchStore((state) => state.toggleHasFilter);
+  const toggleIsFilter = useSearchStore((state) => state.toggleIsFilter);
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn("space-y-3", className)}>
       {/* Quick filter buttons */}
       <div className="flex flex-wrap gap-2">
         {/* From user */}
@@ -117,15 +125,23 @@ export function SearchFilters({
         <FilterButton
           icon={Calendar}
           label="Date"
-          active={filters.dateRange.from !== null || filters.dateRange.to !== null}
+          active={
+            filters.dateRange.from !== null || filters.dateRange.to !== null
+          }
           onClick={onSelectDateRange}
         />
 
         {/* Has dropdown */}
-        <HasFilterDropdown selectedFilters={filters.has} onToggle={toggleHasFilter} />
+        <HasFilterDropdown
+          selectedFilters={filters.has}
+          onToggle={toggleHasFilter}
+        />
 
         {/* Is dropdown */}
-        <IsFilterDropdown selectedFilters={filters.is} onToggle={toggleIsFilter} />
+        <IsFilterDropdown
+          selectedFilters={filters.is}
+          onToggle={toggleIsFilter}
+        />
 
         {/* Clear all */}
         {hasActiveFilters && (
@@ -172,31 +188,31 @@ export function SearchFilters({
 
           {/* Has filter chips */}
           {filters.has.map((filter) => {
-            const config = hasFilterConfig.find((c) => c.value === filter)
+            const config = hasFilterConfig.find((c) => c.value === filter);
             return (
               <FilterChip
                 key={filter}
                 label={`Has: ${config?.label ?? filter}`}
                 onRemove={() => toggleHasFilter(filter)}
               />
-            )
+            );
           })}
 
           {/* Is filter chips */}
           {filters.is.map((filter) => {
-            const config = isFilterConfig.find((c) => c.value === filter)
+            const config = isFilterConfig.find((c) => c.value === filter);
             return (
               <FilterChip
                 key={filter}
                 label={`Is: ${config?.label ?? filter}`}
                 onRemove={() => toggleIsFilter(filter)}
               />
-            )
+            );
           })}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -204,20 +220,26 @@ export function SearchFilters({
 // ============================================================================
 
 interface FilterButtonProps {
-  icon: React.ElementType
-  label: string
-  active?: boolean
-  count?: number
-  onClick?: () => void
+  icon: React.ElementType;
+  label: string;
+  active?: boolean;
+  count?: number;
+  onClick?: () => void;
 }
 
-function FilterButton({ icon: Icon, label, active = false, count, onClick }: FilterButtonProps) {
+function FilterButton({
+  icon: Icon,
+  label,
+  active = false,
+  count,
+  onClick,
+}: FilterButtonProps) {
   return (
     <Button
-      variant={active ? 'secondary' : 'outline'}
+      variant={active ? "secondary" : "outline"}
       size="sm"
       onClick={onClick}
-      className={cn('h-8 gap-1.5', active && 'border-primary/50')}
+      className={cn("h-8 gap-1.5", active && "border-primary/50")}
     >
       <Icon className="h-3.5 w-3.5" />
       {label}
@@ -228,7 +250,7 @@ function FilterButton({ icon: Icon, label, active = false, count, onClick }: Fil
       )}
       <ChevronDown className="h-3 w-3 opacity-50" />
     </Button>
-  )
+  );
 }
 
 // ============================================================================
@@ -236,13 +258,16 @@ function FilterButton({ icon: Icon, label, active = false, count, onClick }: Fil
 // ============================================================================
 
 interface FilterChipProps {
-  label: string
-  onRemove: () => void
+  label: string;
+  onRemove: () => void;
 }
 
 function FilterChip({ label, onRemove }: FilterChipProps) {
   return (
-    <Badge variant="secondary" className="h-7 gap-1 px-2 pr-1 text-xs font-normal">
+    <Badge
+      variant="secondary"
+      className="h-7 gap-1 px-2 pr-1 text-xs font-normal"
+    >
       {label}
       <button
         type="button"
@@ -253,7 +278,7 @@ function FilterChip({ label, onRemove }: FilterChipProps) {
         <X className="h-3 w-3" />
       </button>
     </Badge>
-  )
+  );
 }
 
 // ============================================================================
@@ -261,32 +286,41 @@ function FilterChip({ label, onRemove }: FilterChipProps) {
 // ============================================================================
 
 interface HasFilterDropdownProps {
-  selectedFilters: HasFilter[]
-  onToggle: (filter: HasFilter) => void
+  selectedFilters: HasFilter[];
+  onToggle: (filter: HasFilter) => void;
 }
 
-function HasFilterDropdown({ selectedFilters, onToggle }: HasFilterDropdownProps) {
-  const [open, setOpen] = React.useState(false)
-  const dropdownRef = React.useRef<HTMLDivElement>(null)
+function HasFilterDropdown({
+  selectedFilters,
+  onToggle,
+}: HasFilterDropdownProps) {
+  const [open, setOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   // Close on click outside
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false)
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="relative" ref={dropdownRef}>
       <Button
-        variant={selectedFilters.length > 0 ? 'secondary' : 'outline'}
+        variant={selectedFilters.length > 0 ? "secondary" : "outline"}
         size="sm"
         onClick={() => setOpen(!open)}
-        className={cn('h-8 gap-1.5', selectedFilters.length > 0 && 'border-primary/50')}
+        className={cn(
+          "h-8 gap-1.5",
+          selectedFilters.length > 0 && "border-primary/50",
+        )}
       >
         <Filter className="h-3.5 w-3.5" />
         Has
@@ -306,9 +340,9 @@ function HasFilterDropdown({ selectedFilters, onToggle }: HasFilterDropdownProps
               type="button"
               onClick={() => onToggle(value)}
               className={cn(
-                'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm',
-                'hover:text-accent-foreground hover:bg-accent',
-                selectedFilters.includes(value) && 'bg-accent'
+                "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm",
+                "hover:text-accent-foreground hover:bg-accent",
+                selectedFilters.includes(value) && "bg-accent",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -321,7 +355,7 @@ function HasFilterDropdown({ selectedFilters, onToggle }: HasFilterDropdownProps
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -329,32 +363,41 @@ function HasFilterDropdown({ selectedFilters, onToggle }: HasFilterDropdownProps
 // ============================================================================
 
 interface IsFilterDropdownProps {
-  selectedFilters: IsFilter[]
-  onToggle: (filter: IsFilter) => void
+  selectedFilters: IsFilter[];
+  onToggle: (filter: IsFilter) => void;
 }
 
-function IsFilterDropdown({ selectedFilters, onToggle }: IsFilterDropdownProps) {
-  const [open, setOpen] = React.useState(false)
-  const dropdownRef = React.useRef<HTMLDivElement>(null)
+function IsFilterDropdown({
+  selectedFilters,
+  onToggle,
+}: IsFilterDropdownProps) {
+  const [open, setOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   // Close on click outside
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false)
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="relative" ref={dropdownRef}>
       <Button
-        variant={selectedFilters.length > 0 ? 'secondary' : 'outline'}
+        variant={selectedFilters.length > 0 ? "secondary" : "outline"}
         size="sm"
         onClick={() => setOpen(!open)}
-        className={cn('h-8 gap-1.5', selectedFilters.length > 0 && 'border-primary/50')}
+        className={cn(
+          "h-8 gap-1.5",
+          selectedFilters.length > 0 && "border-primary/50",
+        )}
       >
         <Pin className="h-3.5 w-3.5" />
         Is
@@ -374,9 +417,9 @@ function IsFilterDropdown({ selectedFilters, onToggle }: IsFilterDropdownProps) 
               type="button"
               onClick={() => onToggle(value)}
               className={cn(
-                'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm',
-                'hover:text-accent-foreground hover:bg-accent',
-                selectedFilters.includes(value) && 'bg-accent'
+                "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm",
+                "hover:text-accent-foreground hover:bg-accent",
+                selectedFilters.includes(value) && "bg-accent",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -389,7 +432,7 @@ function IsFilterDropdown({ selectedFilters, onToggle }: IsFilterDropdownProps) 
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -397,25 +440,25 @@ function IsFilterDropdown({ selectedFilters, onToggle }: IsFilterDropdownProps) 
 // ============================================================================
 
 export interface InlineFiltersProps {
-  className?: string
+  className?: string;
 }
 
 export function InlineFilters({ className }: InlineFiltersProps) {
-  const filters = useSearchStore((state) => state.filters)
-  const toggleHasFilter = useSearchStore((state) => state.toggleHasFilter)
-  const toggleIsFilter = useSearchStore((state) => state.toggleIsFilter)
+  const filters = useSearchStore((state) => state.filters);
+  const toggleHasFilter = useSearchStore((state) => state.toggleHasFilter);
+  const toggleIsFilter = useSearchStore((state) => state.toggleIsFilter);
 
   return (
-    <div className={cn('flex flex-wrap gap-1', className)}>
+    <div className={cn("flex flex-wrap gap-1", className)}>
       {hasFilterConfig.map(({ value, label, icon: Icon }) => (
         <Button
           key={value}
-          variant={filters.has.includes(value) ? 'secondary' : 'ghost'}
+          variant={filters.has.includes(value) ? "secondary" : "ghost"}
           size="sm"
           onClick={() => toggleHasFilter(value)}
           className={cn(
-            'h-7 gap-1 px-2 text-xs',
-            filters.has.includes(value) && 'border-primary/30 border'
+            "h-7 gap-1 px-2 text-xs",
+            filters.has.includes(value) && "border-primary/30 border",
           )}
         >
           <Icon className="h-3 w-3" />
@@ -423,7 +466,7 @@ export function InlineFilters({ className }: InlineFiltersProps) {
         </Button>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -432,15 +475,15 @@ export function InlineFilters({ className }: InlineFiltersProps) {
 
 function formatDateRange(range: DateRange): string {
   if (range.from && range.to) {
-    return `${format(range.from, 'MMM d')} - ${format(range.to, 'MMM d, yyyy')}`
+    return `${format(range.from, "MMM d")} - ${format(range.to, "MMM d, yyyy")}`;
   }
   if (range.from) {
-    return `After ${format(range.from, 'MMM d, yyyy')}`
+    return `After ${format(range.from, "MMM d, yyyy")}`;
   }
   if (range.to) {
-    return `Before ${format(range.to, 'MMM d, yyyy')}`
+    return `Before ${format(range.to, "MMM d, yyyy")}`;
   }
-  return 'Date range'
+  return "Date range";
 }
 
-export default SearchFilters
+export default SearchFilters;

@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ComplianceReports } from '@/components/compliance'
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ComplianceReports } from "@/components/compliance";
 
 export default function ReportsPage() {
   return (
@@ -18,5 +18,5 @@ export default function ReportsPage() {
       </div>
       <ComplianceReports />
     </div>
-  )
+  );
 }

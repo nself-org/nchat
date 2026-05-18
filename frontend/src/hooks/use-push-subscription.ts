@@ -8,9 +8,9 @@
  * - Handle permission requests
  */
 
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
   isPushSupported,
   getPermission,
@@ -20,10 +20,10 @@ import {
   getSubscriptionState,
   PushSubscriptionData,
   PushSubscriptionState,
-} from '@/lib/notifications/push-subscription'
-import { useAuth } from '@/contexts/auth-context'
+} from "@/lib/notifications/push-subscription";
+import { useAuth } from "@/contexts/auth-context";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
@@ -33,97 +33,97 @@ export interface UsePushSubscriptionOptions {
   /**
    * VAPID public key for web push
    */
-  vapidPublicKey?: string
+  vapidPublicKey?: string;
 
   /**
    * Auto-subscribe when permission is granted
    */
-  autoSubscribe?: boolean
+  autoSubscribe?: boolean;
 
   /**
    * Device ID for this device
    */
-  deviceId?: string
+  deviceId?: string;
 
   /**
    * Callback when subscription state changes
    */
-  onStateChange?: (state: PushSubscriptionState) => void
+  onStateChange?: (state: PushSubscriptionState) => void;
 
   /**
    * Callback when error occurs
    */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 export interface UsePushSubscriptionReturn {
   /**
    * Whether push is supported
    */
-  isSupported: boolean
+  isSupported: boolean;
 
   /**
    * Current permission state
    */
-  permission: NotificationPermission | 'default'
+  permission: NotificationPermission | "default";
 
   /**
    * Whether currently subscribed
    */
-  isSubscribed: boolean
+  isSubscribed: boolean;
 
   /**
    * Current subscription data
    */
-  subscription: PushSubscriptionData | null
+  subscription: PushSubscriptionData | null;
 
   /**
    * Loading state
    */
-  isLoading: boolean
+  isLoading: boolean;
 
   /**
    * Error message
    */
-  error: string | null
+  error: string | null;
 
   /**
    * Request notification permission
    */
-  requestPermission: () => Promise<NotificationPermission>
+  requestPermission: () => Promise<NotificationPermission>;
 
   /**
    * Subscribe to push notifications
    */
-  subscribe: () => Promise<boolean>
+  subscribe: () => Promise<boolean>;
 
   /**
    * Unsubscribe from push notifications
    */
-  unsubscribe: () => Promise<boolean>
+  unsubscribe: () => Promise<boolean>;
 
   /**
    * Refresh subscription (unsubscribe and resubscribe)
    */
-  refresh: () => Promise<boolean>
+  refresh: () => Promise<boolean>;
 
   /**
    * Check current subscription state
    */
-  checkState: () => Promise<PushSubscriptionState>
+  checkState: () => Promise<PushSubscriptionState>;
 
   /**
    * List all subscriptions for the current user
    */
   listSubscriptions: () => Promise<
     Array<{
-      id: string
-      endpoint: string
-      deviceId: string | null
-      platform: string
-      createdAt: string
+      id: string;
+      endpoint: string;
+      deviceId: string | null;
+      platform: string;
+      createdAt: string;
     }>
-  >
+  >;
 }
 
 // =============================================================================
@@ -131,252 +131,279 @@ export interface UsePushSubscriptionReturn {
 // =============================================================================
 
 export function usePushSubscription(
-  options: UsePushSubscriptionOptions = {}
+  options: UsePushSubscriptionOptions = {},
 ): UsePushSubscriptionReturn {
   const {
-    vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
+    vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "",
     autoSubscribe = false,
     deviceId,
     onStateChange,
     onError,
-  } = options
+  } = options;
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   // State
-  const [isSupported, setIsSupported] = useState(false)
-  const [permission, setPermission] = useState<NotificationPermission | 'default'>('default')
-  const [isSubscribed, setIsSubscribed] = useState(false)
-  const [subscription, setSubscription] = useState<PushSubscriptionData | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isSupported, setIsSupported] = useState(false);
+  const [permission, setPermission] = useState<
+    NotificationPermission | "default"
+  >("default");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscription, setSubscription] = useState<PushSubscriptionData | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Refs for callbacks
-  const onStateChangeRef = useRef(onStateChange)
-  const onErrorRef = useRef(onError)
+  const onStateChangeRef = useRef(onStateChange);
+  const onErrorRef = useRef(onError);
 
   useEffect(() => {
-    onStateChangeRef.current = onStateChange
-    onErrorRef.current = onError
-  }, [onStateChange, onError])
+    onStateChangeRef.current = onStateChange;
+    onErrorRef.current = onError;
+  }, [onStateChange, onError]);
 
   // Handle errors
   const handleError = useCallback((err: Error | string) => {
-    const message = typeof err === 'string' ? err : err.message
-    setError(message)
-    onErrorRef.current?.(typeof err === 'string' ? new Error(err) : err)
-  }, [])
+    const message = typeof err === "string" ? err : err.message;
+    setError(message);
+    onErrorRef.current?.(typeof err === "string" ? new Error(err) : err);
+  }, []);
 
   // Update state and notify
   const updateState = useCallback((state: PushSubscriptionState) => {
-    setIsSupported(state.isSupported)
-    setPermission(state.permission)
-    setIsSubscribed(state.isSubscribed)
-    setSubscription(state.subscription)
-    setError(state.error)
-    onStateChangeRef.current?.(state)
-  }, [])
+    setIsSupported(state.isSupported);
+    setPermission(state.permission);
+    setIsSubscribed(state.isSubscribed);
+    setSubscription(state.subscription);
+    setError(state.error);
+    onStateChangeRef.current?.(state);
+  }, []);
 
   // Sync subscription with server
   const syncWithServer = useCallback(
-    async (sub: PushSubscriptionData, action: 'subscribe' | 'unsubscribe') => {
-      if (!user?.id) return
+    async (sub: PushSubscriptionData, action: "subscribe" | "unsubscribe") => {
+      if (!user?.id) return;
 
       try {
-        if (action === 'subscribe') {
-          await fetch('/api/notifications/subscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        if (action === "subscribe") {
+          await fetch("/api/notifications/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               userId: user.id,
               subscription: sub,
               deviceId,
-              platform: 'web',
-              userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+              platform: "web",
+              userAgent:
+                typeof navigator !== "undefined"
+                  ? navigator.userAgent
+                  : undefined,
             }),
-          })
+          });
         } else {
-          await fetch('/api/notifications/subscribe', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
+          await fetch("/api/notifications/subscribe", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ endpoint: sub.endpoint }),
-          })
+          });
         }
       } catch (err) {
-        logger.warn('Failed to sync subscription with server:', { context: err })
+        logger.warn("Failed to sync subscription with server:", {
+          context: err,
+        });
       }
     },
-    [user?.id, deviceId]
-  )
+    [user?.id, deviceId],
+  );
 
   // Request permission
-  const handleRequestPermission = useCallback(async (): Promise<NotificationPermission> => {
-    try {
-      setIsLoading(true)
-      setError(null)
+  const handleRequestPermission =
+    useCallback(async (): Promise<NotificationPermission> => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      const result = await requestPermission()
-      setPermission(result)
+        const result = await requestPermission();
+        setPermission(result);
 
-      return result
-    } catch (err) {
-      handleError(err instanceof Error ? err : new Error('Failed to request permission'))
-      return 'denied'
-    } finally {
-      setIsLoading(false)
-    }
-  }, [handleError])
+        return result;
+      } catch (err) {
+        handleError(
+          err instanceof Error
+            ? err
+            : new Error("Failed to request permission"),
+        );
+        return "denied";
+      } finally {
+        setIsLoading(false);
+      }
+    }, [handleError]);
 
   // Subscribe to push
   const handleSubscribe = useCallback(async (): Promise<boolean> => {
     if (!vapidPublicKey) {
-      handleError('VAPID public key not configured')
-      return false
+      handleError("VAPID public key not configured");
+      return false;
     }
 
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      const result = await subscribeToWebPush({ applicationServerKey: vapidPublicKey })
+      const result = await subscribeToWebPush({
+        applicationServerKey: vapidPublicKey,
+      });
 
       if (!result.success) {
-        handleError(result.error || 'Failed to subscribe')
-        return false
+        handleError(result.error || "Failed to subscribe");
+        return false;
       }
 
       if (result.subscription) {
-        setSubscription(result.subscription)
-        setIsSubscribed(true)
+        setSubscription(result.subscription);
+        setIsSubscribed(true);
 
         // Sync with server
-        await syncWithServer(result.subscription, 'subscribe')
+        await syncWithServer(result.subscription, "subscribe");
       }
 
-      return true
+      return true;
     } catch (err) {
-      handleError(err instanceof Error ? err : new Error('Failed to subscribe'))
-      return false
+      handleError(
+        err instanceof Error ? err : new Error("Failed to subscribe"),
+      );
+      return false;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [vapidPublicKey, handleError, syncWithServer])
+  }, [vapidPublicKey, handleError, syncWithServer]);
 
   // Unsubscribe from push
   const handleUnsubscribe = useCallback(async (): Promise<boolean> => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      const currentSubscription = subscription
+      const currentSubscription = subscription;
 
-      const result = await unsubscribeFromWebPush()
+      const result = await unsubscribeFromWebPush();
 
       if (!result.success) {
-        handleError(result.error || 'Failed to unsubscribe')
-        return false
+        handleError(result.error || "Failed to unsubscribe");
+        return false;
       }
 
       // Sync with server
       if (currentSubscription) {
-        await syncWithServer(currentSubscription, 'unsubscribe')
+        await syncWithServer(currentSubscription, "unsubscribe");
       }
 
-      setSubscription(null)
-      setIsSubscribed(false)
+      setSubscription(null);
+      setIsSubscribed(false);
 
-      return true
+      return true;
     } catch (err) {
-      handleError(err instanceof Error ? err : new Error('Failed to unsubscribe'))
-      return false
+      handleError(
+        err instanceof Error ? err : new Error("Failed to unsubscribe"),
+      );
+      return false;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [subscription, handleError, syncWithServer])
+  }, [subscription, handleError, syncWithServer]);
 
   // Refresh subscription
   const handleRefresh = useCallback(async (): Promise<boolean> => {
-    await handleUnsubscribe()
-    return handleSubscribe()
-  }, [handleUnsubscribe, handleSubscribe])
+    await handleUnsubscribe();
+    return handleSubscribe();
+  }, [handleUnsubscribe, handleSubscribe]);
 
   // Check current state
   const checkState = useCallback(async (): Promise<PushSubscriptionState> => {
     try {
-      setIsLoading(true)
-      const state = await getSubscriptionState()
-      updateState(state)
-      return state
+      setIsLoading(true);
+      const state = await getSubscriptionState();
+      updateState(state);
+      return state;
     } catch (err) {
       const errorState: PushSubscriptionState = {
         isSupported: false,
-        permission: 'default',
+        permission: "default",
         isSubscribed: false,
         subscription: null,
-        error: err instanceof Error ? err.message : 'Failed to check state',
-      }
-      updateState(errorState)
-      return errorState
+        error: err instanceof Error ? err.message : "Failed to check state",
+      };
+      updateState(errorState);
+      return errorState;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [updateState])
+  }, [updateState]);
 
   // List subscriptions from server
   const listSubscriptions = useCallback(async () => {
-    if (!user?.id) return []
+    if (!user?.id) return [];
 
     try {
-      const response = await fetch(`/api/notifications/subscribe?user_id=${user.id}`)
-      const data = await response.json()
+      const response = await fetch(
+        `/api/notifications/subscribe?user_id=${user.id}`,
+      );
+      const data = await response.json();
 
       if (data.success && data.data?.subscriptions) {
         return data.data.subscriptions.map(
           (s: {
-            id: string
-            endpoint: string
-            device_id: string | null
-            platform: string
-            created_at: string
+            id: string;
+            endpoint: string;
+            device_id: string | null;
+            platform: string;
+            created_at: string;
           }) => ({
             id: s.id,
             endpoint: s.endpoint,
             deviceId: s.device_id,
             platform: s.platform,
             createdAt: s.created_at,
-          })
-        )
+          }),
+        );
       }
 
-      return []
+      return [];
     } catch {
-      return []
+      return [];
     }
-  }, [user?.id])
+  }, [user?.id]);
 
   // Initialize on mount
   useEffect(() => {
     const init = async () => {
-      const supported = isPushSupported()
-      setIsSupported(supported)
+      const supported = isPushSupported();
+      setIsSupported(supported);
 
-      if (!supported) return
+      if (!supported) return;
 
-      const currentPermission = getPermission()
-      setPermission(currentPermission)
+      const currentPermission = getPermission();
+      setPermission(currentPermission);
 
       // Check subscription state
-      const state = await getSubscriptionState()
-      updateState(state)
+      const state = await getSubscriptionState();
+      updateState(state);
 
       // Auto-subscribe if enabled and permitted
-      if (autoSubscribe && currentPermission === 'granted' && !state.isSubscribed && user?.id) {
-        await handleSubscribe()
+      if (
+        autoSubscribe &&
+        currentPermission === "granted" &&
+        !state.isSubscribed &&
+        user?.id
+      ) {
+        await handleSubscribe();
       }
-    }
+    };
 
-    init()
-  }, [autoSubscribe, user?.id, handleSubscribe, updateState])
+    init();
+  }, [autoSubscribe, user?.id, handleSubscribe, updateState]);
 
   return {
     isSupported,
@@ -391,7 +418,7 @@ export function usePushSubscription(
     refresh: handleRefresh,
     checkState,
     listSubscriptions,
-  }
+  };
 }
 
-export default usePushSubscription
+export default usePushSubscription;

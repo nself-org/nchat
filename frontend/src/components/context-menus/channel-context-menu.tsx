@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Check,
   Bell,
@@ -14,7 +14,7 @@ import {
   Trash2,
   Volume2,
   VolumeX,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -27,31 +27,35 @@ import {
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
   ContextMenuLabel,
-} from './context-menu-base'
-import { useAuth } from '@/contexts/auth-context'
-import { useChannelStore, type Channel, type ChannelCategory } from '@/stores/channel-store'
+} from "./context-menu-base";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  useChannelStore,
+  type Channel,
+  type ChannelCategory,
+} from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelContextMenuProps {
-  children: React.ReactNode
-  channel: Channel
-  categories?: ChannelCategory[]
-  onMarkAsRead?: (channel: Channel) => void
-  onMuteToggle?: (channel: Channel, muted: boolean) => void
-  onStarToggle?: (channel: Channel, starred: boolean) => void
-  onNotificationSettings?: (channel: Channel) => void
-  onEditChannel?: (channel: Channel) => void
-  onLeaveChannel?: (channel: Channel) => void
-  onCopyLink?: (channel: Channel) => void
-  onMoveToCategory?: (channel: Channel, categoryId: string | null) => void
-  onDeleteChannel?: (channel: Channel) => void
-  disabled?: boolean
+  children: React.ReactNode;
+  channel: Channel;
+  categories?: ChannelCategory[];
+  onMarkAsRead?: (channel: Channel) => void;
+  onMuteToggle?: (channel: Channel, muted: boolean) => void;
+  onStarToggle?: (channel: Channel, starred: boolean) => void;
+  onNotificationSettings?: (channel: Channel) => void;
+  onEditChannel?: (channel: Channel) => void;
+  onLeaveChannel?: (channel: Channel) => void;
+  onCopyLink?: (channel: Channel) => void;
+  onMoveToCategory?: (channel: Channel, categoryId: string | null) => void;
+  onDeleteChannel?: (channel: Channel) => void;
+  disabled?: boolean;
 }
 
-type NotificationSetting = 'all' | 'mentions' | 'nothing'
+type NotificationSetting = "all" | "mentions" | "nothing";
 
 // ============================================================================
 // Component
@@ -72,44 +76,45 @@ export function ChannelContextMenu({
   onDeleteChannel,
   disabled = false,
 }: ChannelContextMenuProps) {
-  const { user } = useAuth()
-  const { mutedChannels, starredChannels } = useChannelStore()
+  const { user } = useAuth();
+  const { mutedChannels, starredChannels } = useChannelStore();
 
-  const isAdmin = user?.role === 'owner' || user?.role === 'admin'
-  const isMuted = mutedChannels.has(channel.id)
-  const isStarred = starredChannels.has(channel.id)
-  const isDM = channel.type === 'direct' || channel.type === 'group'
+  const isAdmin = user?.role === "owner" || user?.role === "admin";
+  const isMuted = mutedChannels.has(channel.id);
+  const isStarred = starredChannels.has(channel.id);
+  const isDM = channel.type === "direct" || channel.type === "group";
 
   // Local state for notification preference (would normally come from a store)
-  const [notificationSetting, setNotificationSetting] = React.useState<NotificationSetting>('all')
+  const [notificationSetting, setNotificationSetting] =
+    React.useState<NotificationSetting>("all");
 
   const handleCopyLink = React.useCallback(() => {
     if (onCopyLink) {
-      onCopyLink(channel)
+      onCopyLink(channel);
     } else {
-      const url = `${window.location.origin}/chat/channel/${channel.slug}`
-      navigator.clipboard.writeText(url)
+      const url = `${window.location.origin}/chat/channel/${channel.slug}`;
+      navigator.clipboard.writeText(url);
     }
-  }, [channel, onCopyLink])
+  }, [channel, onCopyLink]);
 
   const handleMuteToggle = React.useCallback(() => {
-    onMuteToggle?.(channel, !isMuted)
-  }, [channel, isMuted, onMuteToggle])
+    onMuteToggle?.(channel, !isMuted);
+  }, [channel, isMuted, onMuteToggle]);
 
   const handleStarToggle = React.useCallback(() => {
-    onStarToggle?.(channel, !isStarred)
-  }, [channel, isStarred, onStarToggle])
+    onStarToggle?.(channel, !isStarred);
+  }, [channel, isStarred, onStarToggle]);
 
   const handleNotificationChange = React.useCallback(
     (value: string) => {
-      setNotificationSetting(value as NotificationSetting)
-      onNotificationSettings?.(channel)
+      setNotificationSetting(value as NotificationSetting);
+      onNotificationSettings?.(channel);
     },
-    [channel, onNotificationSettings]
-  )
+    [channel, onNotificationSettings],
+  );
 
   if (disabled) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
   return (
@@ -152,7 +157,10 @@ export function ChannelContextMenu({
             Unstar channel
           </ContextMenuItemWithIcon>
         ) : (
-          <ContextMenuItemWithIcon icon={<Star className="h-4 w-4" />} onClick={handleStarToggle}>
+          <ContextMenuItemWithIcon
+            icon={<Star className="h-4 w-4" />}
+            onClick={handleStarToggle}
+          >
             Star channel
           </ContextMenuItemWithIcon>
         )}
@@ -168,9 +176,15 @@ export function ChannelContextMenu({
               value={notificationSetting}
               onValueChange={handleNotificationChange}
             >
-              <ContextMenuRadioItem value="all">All messages</ContextMenuRadioItem>
-              <ContextMenuRadioItem value="mentions">Mentions only</ContextMenuRadioItem>
-              <ContextMenuRadioItem value="nothing">Nothing</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="all">
+                All messages
+              </ContextMenuRadioItem>
+              <ContextMenuRadioItem value="mentions">
+                Mentions only
+              </ContextMenuRadioItem>
+              <ContextMenuRadioItem value="nothing">
+                Nothing
+              </ContextMenuRadioItem>
             </ContextMenuRadioGroup>
           </ContextMenuSubContent>
         </ContextMenuSub>
@@ -198,7 +212,10 @@ export function ChannelContextMenu({
         )}
 
         {/* Copy link */}
-        <ContextMenuItemWithIcon icon={<Link2 className="h-4 w-4" />} onClick={handleCopyLink}>
+        <ContextMenuItemWithIcon
+          icon={<Link2 className="h-4 w-4" />}
+          onClick={handleCopyLink}
+        >
           Copy link
         </ContextMenuItemWithIcon>
 
@@ -211,7 +228,9 @@ export function ChannelContextMenu({
                 Move to category
               </ContextMenuSubTrigger>
               <ContextMenuSubContent className="w-48">
-                <ContextMenuItemWithIcon onClick={() => onMoveToCategory?.(channel, null)}>
+                <ContextMenuItemWithIcon
+                  onClick={() => onMoveToCategory?.(channel, null)}
+                >
                   No category
                 </ContextMenuItemWithIcon>
                 <ContextMenuSeparator />
@@ -221,7 +240,9 @@ export function ChannelContextMenu({
                     onClick={() => onMoveToCategory?.(channel, category.id)}
                   >
                     {category.name}
-                    {channel.categoryId === category.id && <Check className="ml-auto h-4 w-4" />}
+                    {channel.categoryId === category.id && (
+                      <Check className="ml-auto h-4 w-4" />
+                    )}
                   </ContextMenuItemWithIcon>
                 ))}
               </ContextMenuSubContent>
@@ -244,7 +265,7 @@ export function ChannelContextMenu({
         )}
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }
 
-ChannelContextMenu.displayName = 'ChannelContextMenu'
+ChannelContextMenu.displayName = "ChannelContextMenu";

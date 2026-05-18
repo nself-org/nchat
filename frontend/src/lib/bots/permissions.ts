@@ -3,64 +3,64 @@
  * Handles permission checking and management for bot API access
  */
 
-import { gql } from '@apollo/client'
-import { getApolloClient } from '@/lib/apollo-client'
+import { gql } from "@apollo/client";
+import { getApolloClient } from "@/lib/apollo-client";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 /**
  * Available bot permissions
  */
 export enum BotPermission {
   // Messages
-  MESSAGES_SEND = 'messages.send',
-  MESSAGES_READ = 'messages.read',
-  MESSAGES_DELETE = 'messages.delete',
-  MESSAGES_EDIT = 'messages.edit',
+  MESSAGES_SEND = "messages.send",
+  MESSAGES_READ = "messages.read",
+  MESSAGES_DELETE = "messages.delete",
+  MESSAGES_EDIT = "messages.edit",
 
   // Channels
-  CHANNELS_CREATE = 'channels.create',
-  CHANNELS_READ = 'channels.read',
-  CHANNELS_UPDATE = 'channels.update',
-  CHANNELS_DELETE = 'channels.delete',
+  CHANNELS_CREATE = "channels.create",
+  CHANNELS_READ = "channels.read",
+  CHANNELS_UPDATE = "channels.update",
+  CHANNELS_DELETE = "channels.delete",
 
   // Reactions
-  REACTIONS_ADD = 'reactions.add',
-  REACTIONS_REMOVE = 'reactions.remove',
+  REACTIONS_ADD = "reactions.add",
+  REACTIONS_REMOVE = "reactions.remove",
 
   // Users
-  USERS_READ = 'users.read',
-  USERS_UPDATE = 'users.update',
+  USERS_READ = "users.read",
+  USERS_UPDATE = "users.update",
 
   // Files
-  FILES_UPLOAD = 'files.upload',
-  FILES_READ = 'files.read',
+  FILES_UPLOAD = "files.upload",
+  FILES_READ = "files.read",
 
   // Threads
-  THREADS_CREATE = 'threads.create',
-  THREADS_READ = 'threads.read',
+  THREADS_CREATE = "threads.create",
+  THREADS_READ = "threads.read",
 }
 
 /**
  * Permission categories
  */
 export enum PermissionCategory {
-  MESSAGES = 'messages',
-  CHANNELS = 'channels',
-  REACTIONS = 'reactions',
-  USERS = 'users',
-  FILES = 'files',
-  THREADS = 'threads',
+  MESSAGES = "messages",
+  CHANNELS = "channels",
+  REACTIONS = "reactions",
+  USERS = "users",
+  FILES = "files",
+  THREADS = "threads",
 }
 
 /**
  * Permission metadata
  */
 export interface PermissionDefinition {
-  permission: BotPermission
-  description: string
-  category: PermissionCategory
-  isDangerous: boolean
+  permission: BotPermission;
+  description: string;
+  category: PermissionCategory;
+  isDangerous: boolean;
 }
 
 /**
@@ -69,123 +69,128 @@ export interface PermissionDefinition {
 export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
   {
     permission: BotPermission.MESSAGES_SEND,
-    description: 'Send messages to channels',
+    description: "Send messages to channels",
     category: PermissionCategory.MESSAGES,
     isDangerous: false,
   },
   {
     permission: BotPermission.MESSAGES_READ,
-    description: 'Read message history',
+    description: "Read message history",
     category: PermissionCategory.MESSAGES,
     isDangerous: false,
   },
   {
     permission: BotPermission.MESSAGES_DELETE,
-    description: 'Delete messages (own messages only)',
+    description: "Delete messages (own messages only)",
     category: PermissionCategory.MESSAGES,
     isDangerous: true,
   },
   {
     permission: BotPermission.MESSAGES_EDIT,
-    description: 'Edit messages (own messages only)',
+    description: "Edit messages (own messages only)",
     category: PermissionCategory.MESSAGES,
     isDangerous: false,
   },
   {
     permission: BotPermission.CHANNELS_CREATE,
-    description: 'Create new channels',
+    description: "Create new channels",
     category: PermissionCategory.CHANNELS,
     isDangerous: false,
   },
   {
     permission: BotPermission.CHANNELS_READ,
-    description: 'Read channel information',
+    description: "Read channel information",
     category: PermissionCategory.CHANNELS,
     isDangerous: false,
   },
   {
     permission: BotPermission.CHANNELS_UPDATE,
-    description: 'Update channel settings',
+    description: "Update channel settings",
     category: PermissionCategory.CHANNELS,
     isDangerous: true,
   },
   {
     permission: BotPermission.CHANNELS_DELETE,
-    description: 'Delete channels',
+    description: "Delete channels",
     category: PermissionCategory.CHANNELS,
     isDangerous: true,
   },
   {
     permission: BotPermission.REACTIONS_ADD,
-    description: 'Add reactions to messages',
+    description: "Add reactions to messages",
     category: PermissionCategory.REACTIONS,
     isDangerous: false,
   },
   {
     permission: BotPermission.REACTIONS_REMOVE,
-    description: 'Remove reactions from messages',
+    description: "Remove reactions from messages",
     category: PermissionCategory.REACTIONS,
     isDangerous: false,
   },
   {
     permission: BotPermission.USERS_READ,
-    description: 'Read user information',
+    description: "Read user information",
     category: PermissionCategory.USERS,
     isDangerous: false,
   },
   {
     permission: BotPermission.USERS_UPDATE,
-    description: 'Update user profiles (bot profile only)',
+    description: "Update user profiles (bot profile only)",
     category: PermissionCategory.USERS,
     isDangerous: true,
   },
   {
     permission: BotPermission.FILES_UPLOAD,
-    description: 'Upload files and attachments',
+    description: "Upload files and attachments",
     category: PermissionCategory.FILES,
     isDangerous: false,
   },
   {
     permission: BotPermission.FILES_READ,
-    description: 'Read file information',
+    description: "Read file information",
     category: PermissionCategory.FILES,
     isDangerous: false,
   },
   {
     permission: BotPermission.THREADS_CREATE,
-    description: 'Create message threads',
+    description: "Create message threads",
     category: PermissionCategory.THREADS,
     isDangerous: false,
   },
   {
     permission: BotPermission.THREADS_READ,
-    description: 'Read thread messages',
+    description: "Read thread messages",
     category: PermissionCategory.THREADS,
     isDangerous: false,
   },
-]
+];
 
 /**
  * Get permissions by category
  */
-export function getPermissionsByCategory(category: PermissionCategory): PermissionDefinition[] {
-  return PERMISSION_DEFINITIONS.filter((p) => p.category === category)
+export function getPermissionsByCategory(
+  category: PermissionCategory,
+): PermissionDefinition[] {
+  return PERMISSION_DEFINITIONS.filter((p) => p.category === category);
 }
 
 /**
  * Get permission definition
  */
 export function getPermissionDefinition(
-  permission: BotPermission
+  permission: BotPermission,
 ): PermissionDefinition | undefined {
-  return PERMISSION_DEFINITIONS.find((p) => p.permission === permission)
+  return PERMISSION_DEFINITIONS.find((p) => p.permission === permission);
 }
 
 /**
  * Check if a permission is dangerous
  */
 export function isDangerousPermission(permission: BotPermission): boolean {
-  return PERMISSION_DEFINITIONS.find((p) => p.permission === permission)?.isDangerous || false
+  return (
+    PERMISSION_DEFINITIONS.find((p) => p.permission === permission)
+      ?.isDangerous || false
+  );
 }
 
 /**
@@ -193,12 +198,14 @@ export function isDangerousPermission(permission: BotPermission): boolean {
  */
 const CHECK_BOT_PERMISSION = gql`
   query CheckBotPermission($botId: uuid!, $permission: String!) {
-    nchat_bot_permissions(where: { bot_id: { _eq: $botId }, permission: { _eq: $permission } }) {
+    nchat_bot_permissions(
+      where: { bot_id: { _eq: $botId }, permission: { _eq: $permission } }
+    ) {
       id
       permission
     }
   }
-`
+`;
 
 /**
  * GraphQL query to get all bot permissions
@@ -212,22 +219,30 @@ const GET_BOT_PERMISSIONS = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * GraphQL mutation to grant permission
  */
 const GRANT_BOT_PERMISSION = gql`
-  mutation GrantBotPermission($botId: uuid!, $permission: String!, $grantedBy: uuid!) {
+  mutation GrantBotPermission(
+    $botId: uuid!
+    $permission: String!
+    $grantedBy: uuid!
+  ) {
     insert_nchat_bot_permissions_one(
-      object: { bot_id: $botId, permission: $permission, granted_by: $grantedBy }
+      object: {
+        bot_id: $botId
+        permission: $permission
+        granted_by: $grantedBy
+      }
       on_conflict: { constraint: bot_permission_unique, update_columns: [] }
     ) {
       id
       permission
     }
   }
-`
+`;
 
 /**
  * GraphQL mutation to revoke permission
@@ -240,7 +255,7 @@ const REVOKE_BOT_PERMISSION = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Check if a bot has a specific permission
@@ -257,20 +272,20 @@ const REVOKE_BOT_PERMISSION = gql`
  */
 export async function checkBotPermission(
   botId: string,
-  permission: BotPermission
+  permission: BotPermission,
 ): Promise<boolean> {
   try {
-    const client = getApolloClient()
+    const client = getApolloClient();
     const { data } = await client.query({
       query: CHECK_BOT_PERMISSION,
       variables: { botId, permission },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    return data?.nchat_bot_permissions?.length > 0
+    return data?.nchat_bot_permissions?.length > 0;
   } catch (error) {
-    logger.error('Error checking bot permission:', error)
-    return false
+    logger.error("Error checking bot permission:", error);
+    return false;
   }
 }
 
@@ -283,11 +298,13 @@ export async function checkBotPermission(
  */
 export async function checkBotPermissions(
   botId: string,
-  permissions: BotPermission[]
+  permissions: BotPermission[],
 ): Promise<boolean> {
-  const results = await Promise.all(permissions.map((p) => checkBotPermission(botId, p)))
+  const results = await Promise.all(
+    permissions.map((p) => checkBotPermission(botId, p)),
+  );
 
-  return results.every((result) => result === true)
+  return results.every((result) => result === true);
 }
 
 /**
@@ -298,17 +315,17 @@ export async function checkBotPermissions(
  */
 export async function getBotPermissions(botId: string): Promise<string[]> {
   try {
-    const client = getApolloClient()
+    const client = getApolloClient();
     const { data } = await client.query({
       query: GET_BOT_PERMISSIONS,
       variables: { botId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    return data?.nchat_bot_permissions?.map((p: any) => p.permission) || []
+    return data?.nchat_bot_permissions?.map((p: any) => p.permission) || [];
   } catch (error) {
-    logger.error('Error getting bot permissions:', error)
-    return []
+    logger.error("Error getting bot permissions:", error);
+    return [];
   }
 }
 
@@ -322,17 +339,17 @@ export async function getBotPermissions(botId: string): Promise<string[]> {
 export async function grantBotPermission(
   botId: string,
   permission: BotPermission,
-  grantedBy: string
+  grantedBy: string,
 ): Promise<void> {
   try {
-    const client = getApolloClient()
+    const client = getApolloClient();
     await client.mutate({
       mutation: GRANT_BOT_PERMISSION,
       variables: { botId, permission, grantedBy },
-    })
+    });
   } catch (error) {
-    logger.error('Error granting bot permission:', error)
-    throw error
+    logger.error("Error granting bot permission:", error);
+    throw error;
   }
 }
 
@@ -342,16 +359,19 @@ export async function grantBotPermission(
  * @param botId - The bot ID
  * @param permission - The permission to revoke
  */
-export async function revokeBotPermission(botId: string, permission: BotPermission): Promise<void> {
+export async function revokeBotPermission(
+  botId: string,
+  permission: BotPermission,
+): Promise<void> {
   try {
-    const client = getApolloClient()
+    const client = getApolloClient();
     await client.mutate({
       mutation: REVOKE_BOT_PERMISSION,
       variables: { botId, permission },
-    })
+    });
   } catch (error) {
-    logger.error('Error revoking bot permission:', error)
-    throw error
+    logger.error("Error revoking bot permission:", error);
+    throw error;
   }
 }
 
@@ -365,9 +385,11 @@ export async function revokeBotPermission(botId: string, permission: BotPermissi
 export async function grantBotPermissions(
   botId: string,
   permissions: BotPermission[],
-  grantedBy: string
+  grantedBy: string,
 ): Promise<void> {
-  await Promise.all(permissions.map((p) => grantBotPermission(botId, p, grantedBy)))
+  await Promise.all(
+    permissions.map((p) => grantBotPermission(botId, p, grantedBy)),
+  );
 }
 
 /**
@@ -378,9 +400,9 @@ export async function grantBotPermissions(
  */
 export async function revokeBotPermissions(
   botId: string,
-  permissions: BotPermission[]
+  permissions: BotPermission[],
 ): Promise<void> {
-  await Promise.all(permissions.map((p) => revokeBotPermission(botId, p)))
+  await Promise.all(permissions.map((p) => revokeBotPermission(botId, p)));
 }
 
 /**
@@ -390,7 +412,7 @@ export async function revokeBotPermissions(
  * @returns True if permission format is valid
  */
 export function isValidPermissionFormat(permission: string): boolean {
-  return /^[a-z]+\.[a-z]+$/.test(permission)
+  return /^[a-z]+\.[a-z]+$/.test(permission);
 }
 
 /**
@@ -403,23 +425,23 @@ export function isValidPermissionFormat(permission: string): boolean {
  */
 export function tokenHasPermission(
   tokenScopes: string[],
-  requiredPermission: BotPermission
+  requiredPermission: BotPermission,
 ): boolean {
   // Check for exact match
   if (tokenScopes.includes(requiredPermission)) {
-    return true
+    return true;
   }
 
   // Check for wildcard scopes (e.g., "messages.*" includes "messages.send")
-  const [category] = requiredPermission.split('.')
+  const [category] = requiredPermission.split(".");
   if (tokenScopes.includes(`${category}.*`)) {
-    return true
+    return true;
   }
 
   // Check for admin scope (all permissions)
-  if (tokenScopes.includes('*')) {
-    return true
+  if (tokenScopes.includes("*")) {
+    return true;
   }
 
-  return false
+  return false;
 }

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Global Keyboard Shortcuts Hook
@@ -7,12 +7,12 @@
  * and common actions. This hook should be used at the app root level.
  */
 
-import { useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import { useShortcut, useKeyboard } from '@/lib/keyboard'
-import { useUIStore } from '@/stores/ui-store'
-import { useChannelStore, selectChannelList } from '@/stores/channel-store'
-import { useUnreadCounts } from '@/hooks/use-unread-counts'
+import { useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useShortcut, useKeyboard } from "@/lib/keyboard";
+import { useUIStore } from "@/stores/ui-store";
+import { useChannelStore, selectChannelList } from "@/stores/channel-store";
+import { useUnreadCounts } from "@/hooks/use-unread-counts";
 
 // ============================================================================
 // Types
@@ -20,17 +20,17 @@ import { useUnreadCounts } from '@/hooks/use-unread-counts'
 
 export interface UseGlobalShortcutsOptions {
   /** Callback when quick switcher should open */
-  onQuickSwitcher?: () => void
+  onQuickSwitcher?: () => void;
   /** Callback when search should open */
-  onSearch?: () => void
+  onSearch?: () => void;
   /** Callback when new channel modal should open */
-  onNewChannel?: () => void
+  onNewChannel?: () => void;
   /** Callback when new DM modal should open */
-  onNewDM?: () => void
+  onNewDM?: () => void;
   /** Callback when settings should open */
-  onSettings?: () => void
+  onSettings?: () => void;
   /** Callback when shortcuts modal should open */
-  onShowShortcuts?: () => void
+  onShowShortcuts?: () => void;
 }
 
 // ============================================================================
@@ -55,8 +55,8 @@ export interface UseGlobalShortcutsOptions {
  * ```
  */
 export function useGlobalShortcuts(options: UseGlobalShortcutsOptions = {}) {
-  const router = useRouter()
-  const { isInputFocused } = useKeyboard()
+  const router = useRouter();
+  const { isInputFocused } = useKeyboard();
 
   // UI Store actions
   const {
@@ -74,20 +74,22 @@ export function useGlobalShortcuts(options: UseGlobalShortcutsOptions = {}) {
     quickSwitcherOpen,
     searchOpen,
     activeModal,
-  } = useUIStore()
+  } = useUIStore();
 
   // Channel Store for navigation
-  const activeChannelId = useChannelStore((state) => state.activeChannelId)
-  const setActiveChannel = useChannelStore((state) => state.setActiveChannel)
-  const channels = useChannelStore(selectChannelList)
+  const activeChannelId = useChannelStore((state) => state.activeChannelId);
+  const setActiveChannel = useChannelStore((state) => state.setActiveChannel);
+  const channels = useChannelStore(selectChannelList);
 
   // Unread counts for unread navigation
-  const { allChannelUnreads } = useUnreadCounts()
+  const { allChannelUnreads } = useUnreadCounts();
 
   // Get channels with unread messages
   const unreadChannels = useMemo(() => {
-    return channels.filter((channel) => allChannelUnreads[channel.id]?.hasUnread)
-  }, [channels, allChannelUnreads])
+    return channels.filter(
+      (channel) => allChannelUnreads[channel.id]?.hasUnread,
+    );
+  }, [channels, allChannelUnreads]);
 
   // ============================================================================
   // Navigation Shortcuts
@@ -96,155 +98,173 @@ export function useGlobalShortcuts(options: UseGlobalShortcutsOptions = {}) {
   // Quick Switcher (Cmd+K)
   const handleQuickSwitcher = useCallback(() => {
     if (options.onQuickSwitcher) {
-      options.onQuickSwitcher()
+      options.onQuickSwitcher();
     } else {
-      toggleQuickSwitcher()
+      toggleQuickSwitcher();
     }
-  }, [options, toggleQuickSwitcher])
+  }, [options, toggleQuickSwitcher]);
 
-  useShortcut('QUICK_SWITCHER', handleQuickSwitcher)
+  useShortcut("QUICK_SWITCHER", handleQuickSwitcher);
 
   // Search (Cmd+F)
   const handleSearch = useCallback(() => {
     if (options.onSearch) {
-      options.onSearch()
+      options.onSearch();
     } else {
-      toggleSearch()
+      toggleSearch();
     }
-  }, [options, toggleSearch])
+  }, [options, toggleSearch]);
 
-  useShortcut('SEARCH', handleSearch)
+  useShortcut("SEARCH", handleSearch);
 
   // Next Channel (Alt+Down)
   const handleNextChannel = useCallback(() => {
-    if (!channels || channels.length === 0) return
+    if (!channels || channels.length === 0) return;
 
-    const currentIndex = channels.findIndex((c) => c.id === activeChannelId)
-    const nextIndex = currentIndex < channels.length - 1 ? currentIndex + 1 : 0
-    const nextChannel = channels[nextIndex]
+    const currentIndex = channels.findIndex((c) => c.id === activeChannelId);
+    const nextIndex = currentIndex < channels.length - 1 ? currentIndex + 1 : 0;
+    const nextChannel = channels[nextIndex];
 
     if (nextChannel) {
-      setActiveChannel(nextChannel.id)
-      router.push(`/chat/${nextChannel.slug}`)
+      setActiveChannel(nextChannel.id);
+      router.push(`/chat/${nextChannel.slug}`);
     }
-  }, [channels, activeChannelId, setActiveChannel, router])
+  }, [channels, activeChannelId, setActiveChannel, router]);
 
-  useShortcut('NEXT_CHANNEL', handleNextChannel)
+  useShortcut("NEXT_CHANNEL", handleNextChannel);
 
   // Previous Channel (Alt+Up)
   const handlePrevChannel = useCallback(() => {
-    if (!channels || channels.length === 0) return
+    if (!channels || channels.length === 0) return;
 
-    const currentIndex = channels.findIndex((c) => c.id === activeChannelId)
-    const prevIndex = currentIndex > 0 ? currentIndex - 1 : channels.length - 1
-    const prevChannel = channels[prevIndex]
+    const currentIndex = channels.findIndex((c) => c.id === activeChannelId);
+    const prevIndex = currentIndex > 0 ? currentIndex - 1 : channels.length - 1;
+    const prevChannel = channels[prevIndex];
 
     if (prevChannel) {
-      setActiveChannel(prevChannel.id)
-      router.push(`/chat/${prevChannel.slug}`)
+      setActiveChannel(prevChannel.id);
+      router.push(`/chat/${prevChannel.slug}`);
     }
-  }, [channels, activeChannelId, setActiveChannel, router])
+  }, [channels, activeChannelId, setActiveChannel, router]);
 
-  useShortcut('PREV_CHANNEL', handlePrevChannel)
+  useShortcut("PREV_CHANNEL", handlePrevChannel);
 
   // Next Unread Channel (Alt+Shift+Down)
   const handleNextUnread = useCallback(() => {
-    if (unreadChannels.length === 0) return
+    if (unreadChannels.length === 0) return;
 
     // Find current position in unread list
-    const currentUnreadIndex = unreadChannels.findIndex((c) => c.id === activeChannelId)
-    const nextIndex = currentUnreadIndex < unreadChannels.length - 1 ? currentUnreadIndex + 1 : 0
-    const nextUnread = unreadChannels[nextIndex]
+    const currentUnreadIndex = unreadChannels.findIndex(
+      (c) => c.id === activeChannelId,
+    );
+    const nextIndex =
+      currentUnreadIndex < unreadChannels.length - 1
+        ? currentUnreadIndex + 1
+        : 0;
+    const nextUnread = unreadChannels[nextIndex];
 
     if (nextUnread) {
-      setActiveChannel(nextUnread.id)
-      router.push(`/chat/${nextUnread.slug}`)
+      setActiveChannel(nextUnread.id);
+      router.push(`/chat/${nextUnread.slug}`);
     }
-  }, [unreadChannels, activeChannelId, setActiveChannel, router])
+  }, [unreadChannels, activeChannelId, setActiveChannel, router]);
 
-  useShortcut('NEXT_UNREAD', handleNextUnread)
+  useShortcut("NEXT_UNREAD", handleNextUnread);
 
   // Previous Unread Channel (Alt+Shift+Up)
   const handlePrevUnread = useCallback(() => {
-    if (unreadChannels.length === 0) return
+    if (unreadChannels.length === 0) return;
 
-    const currentUnreadIndex = unreadChannels.findIndex((c) => c.id === activeChannelId)
-    const prevIndex = currentUnreadIndex > 0 ? currentUnreadIndex - 1 : unreadChannels.length - 1
-    const prevUnread = unreadChannels[prevIndex]
+    const currentUnreadIndex = unreadChannels.findIndex(
+      (c) => c.id === activeChannelId,
+    );
+    const prevIndex =
+      currentUnreadIndex > 0
+        ? currentUnreadIndex - 1
+        : unreadChannels.length - 1;
+    const prevUnread = unreadChannels[prevIndex];
 
     if (prevUnread) {
-      setActiveChannel(prevUnread.id)
-      router.push(`/chat/${prevUnread.slug}`)
+      setActiveChannel(prevUnread.id);
+      router.push(`/chat/${prevUnread.slug}`);
     }
-  }, [unreadChannels, activeChannelId, setActiveChannel, router])
+  }, [unreadChannels, activeChannelId, setActiveChannel, router]);
 
-  useShortcut('PREV_UNREAD', handlePrevUnread)
+  useShortcut("PREV_UNREAD", handlePrevUnread);
 
   // Go to DMs (Cmd+Shift+K)
   const handleGoToDMs = useCallback(() => {
-    router.push('/chat/dms')
-  }, [router])
+    router.push("/chat/dms");
+  }, [router]);
 
-  useShortcut('GOTO_DMS', handleGoToDMs)
+  useShortcut("GOTO_DMS", handleGoToDMs);
 
   // Focus Message Input (Cmd+/)
   const handleFocusMessageInput = useCallback(() => {
     // Find and focus the message input
-    const input = document.querySelector('[data-message-input]') as HTMLTextAreaElement | null
+    const input = document.querySelector(
+      "[data-message-input]",
+    ) as HTMLTextAreaElement | null;
     if (input) {
-      input.focus()
+      input.focus();
     }
-  }, [])
+  }, []);
 
-  useShortcut('FOCUS_MESSAGE_INPUT', handleFocusMessageInput)
+  useShortcut("FOCUS_MESSAGE_INPUT", handleFocusMessageInput);
 
   // ============================================================================
   // UI Shortcuts
   // ============================================================================
 
   // Toggle Sidebar (Cmd+Shift+D)
-  useShortcut('TOGGLE_SIDEBAR', toggleSidebar)
+  useShortcut("TOGGLE_SIDEBAR", toggleSidebar);
 
   // Toggle Thread Panel (Cmd+Shift+T)
-  useShortcut('TOGGLE_THREAD', toggleThreadPanel)
+  useShortcut("TOGGLE_THREAD", toggleThreadPanel);
 
   // Toggle Members Panel (Cmd+Shift+M)
-  useShortcut('TOGGLE_MEMBERS', toggleMembersPanel)
+  useShortcut("TOGGLE_MEMBERS", toggleMembersPanel);
 
   // Toggle Fullscreen (Cmd+Shift+F)
-  useShortcut('TOGGLE_FULLSCREEN', toggleFullscreen)
+  useShortcut("TOGGLE_FULLSCREEN", toggleFullscreen);
 
   // Toggle Compact Mode (Cmd+Shift+J)
-  useShortcut('TOGGLE_COMPACT_MODE', toggleCompactMode)
+  useShortcut("TOGGLE_COMPACT_MODE", toggleCompactMode);
 
   // Open Emoji Picker (Cmd+Shift+E)
-  useShortcut('EMOJI_PICKER', () => toggleEmojiPicker())
+  useShortcut("EMOJI_PICKER", () => toggleEmojiPicker());
 
   // Show Keyboard Shortcuts (?)
   const handleShowShortcuts = useCallback(() => {
     // Only show if not typing in an input
-    if (isInputFocused) return
+    if (isInputFocused) return;
 
     if (options.onShowShortcuts) {
-      options.onShowShortcuts()
+      options.onShowShortcuts();
     } else {
-      openModal('keyboard-shortcuts')
+      openModal("keyboard-shortcuts");
     }
-  }, [isInputFocused, options, openModal])
+  }, [isInputFocused, options, openModal]);
 
-  useShortcut('SHOW_SHORTCUTS', handleShowShortcuts)
+  useShortcut("SHOW_SHORTCUTS", handleShowShortcuts);
 
   // Close Modal/Overlay (Escape)
   const handleEscape = useCallback(() => {
     // Close in priority order: overlays first, then modals
     if (quickSwitcherOpen || searchOpen) {
-      closeAllOverlays()
+      closeAllOverlays();
     } else if (activeModal) {
-      closeModal()
+      closeModal();
     }
-  }, [quickSwitcherOpen, searchOpen, activeModal, closeAllOverlays, closeModal])
+  }, [
+    quickSwitcherOpen,
+    searchOpen,
+    activeModal,
+    closeAllOverlays,
+    closeModal,
+  ]);
 
-  useShortcut('CLOSE_MODAL', handleEscape)
+  useShortcut("CLOSE_MODAL", handleEscape);
 
   // ============================================================================
   // Action Shortcuts
@@ -253,57 +273,57 @@ export function useGlobalShortcuts(options: UseGlobalShortcutsOptions = {}) {
   // New Channel (Cmd+Shift+N)
   const handleNewChannel = useCallback(() => {
     if (options.onNewChannel) {
-      options.onNewChannel()
+      options.onNewChannel();
     } else {
-      openModal('create-channel')
+      openModal("create-channel");
     }
-  }, [options, openModal])
+  }, [options, openModal]);
 
-  useShortcut('NEW_CHANNEL', handleNewChannel)
+  useShortcut("NEW_CHANNEL", handleNewChannel);
 
   // New DM (Cmd+N)
   const handleNewDM = useCallback(() => {
     if (options.onNewDM) {
-      options.onNewDM()
+      options.onNewDM();
     } else {
       // Navigate to DM selection or open modal
-      router.push('/chat/dms/new')
+      router.push("/chat/dms/new");
     }
-  }, [options, router])
+  }, [options, router]);
 
-  useShortcut('NEW_DM', handleNewDM)
+  useShortcut("NEW_DM", handleNewDM);
 
   // Invite Members (Cmd+Shift+I)
   const handleInviteMembers = useCallback(() => {
-    openModal('invite-members')
-  }, [openModal])
+    openModal("invite-members");
+  }, [openModal]);
 
-  useShortcut('INVITE_MEMBERS', handleInviteMembers)
+  useShortcut("INVITE_MEMBERS", handleInviteMembers);
 
   // Open Settings (Cmd+,)
   const handleSettings = useCallback(() => {
     if (options.onSettings) {
-      options.onSettings()
+      options.onSettings();
     } else {
-      openModal('app-settings')
+      openModal("app-settings");
     }
-  }, [options, openModal])
+  }, [options, openModal]);
 
-  useShortcut('OPEN_SETTINGS', handleSettings)
+  useShortcut("OPEN_SETTINGS", handleSettings);
 
   // Open Profile (Cmd+Shift+P)
   const handleProfile = useCallback(() => {
-    openModal('edit-profile')
-  }, [openModal])
+    openModal("edit-profile");
+  }, [openModal]);
 
-  useShortcut('OPEN_PROFILE', handleProfile)
+  useShortcut("OPEN_PROFILE", handleProfile);
 
   // Return current UI state for convenience
   return {
     quickSwitcherOpen,
     searchOpen,
     activeModal,
-  }
+  };
 }
 
 // ============================================================================
@@ -314,34 +334,35 @@ export function useGlobalShortcuts(options: UseGlobalShortcutsOptions = {}) {
  * Just the navigation shortcuts
  */
 export function useNavigationShortcuts() {
-  const router = useRouter()
-  const { toggleQuickSwitcher, toggleSearch } = useUIStore()
-  const activeChannelId = useChannelStore((state) => state.activeChannelId)
-  const setActiveChannel = useChannelStore((state) => state.setActiveChannel)
-  const channels = useChannelStore(selectChannelList)
+  const router = useRouter();
+  const { toggleQuickSwitcher, toggleSearch } = useUIStore();
+  const activeChannelId = useChannelStore((state) => state.activeChannelId);
+  const setActiveChannel = useChannelStore((state) => state.setActiveChannel);
+  const channels = useChannelStore(selectChannelList);
 
-  useShortcut('QUICK_SWITCHER', toggleQuickSwitcher)
-  useShortcut('SEARCH', toggleSearch)
+  useShortcut("QUICK_SWITCHER", toggleQuickSwitcher);
+  useShortcut("SEARCH", toggleSearch);
 
-  useShortcut('NEXT_CHANNEL', () => {
-    if (!channels || channels.length === 0) return
-    const currentIndex = channels.findIndex((c) => c.id === activeChannelId)
-    const nextChannel = channels[(currentIndex + 1) % channels.length]
+  useShortcut("NEXT_CHANNEL", () => {
+    if (!channels || channels.length === 0) return;
+    const currentIndex = channels.findIndex((c) => c.id === activeChannelId);
+    const nextChannel = channels[(currentIndex + 1) % channels.length];
     if (nextChannel) {
-      setActiveChannel(nextChannel.id)
-      router.push(`/chat/${nextChannel.slug}`)
+      setActiveChannel(nextChannel.id);
+      router.push(`/chat/${nextChannel.slug}`);
     }
-  })
+  });
 
-  useShortcut('PREV_CHANNEL', () => {
-    if (!channels || channels.length === 0) return
-    const currentIndex = channels.findIndex((c) => c.id === activeChannelId)
-    const prevChannel = channels[currentIndex > 0 ? currentIndex - 1 : channels.length - 1]
+  useShortcut("PREV_CHANNEL", () => {
+    if (!channels || channels.length === 0) return;
+    const currentIndex = channels.findIndex((c) => c.id === activeChannelId);
+    const prevChannel =
+      channels[currentIndex > 0 ? currentIndex - 1 : channels.length - 1];
     if (prevChannel) {
-      setActiveChannel(prevChannel.id)
-      router.push(`/chat/${prevChannel.slug}`)
+      setActiveChannel(prevChannel.id);
+      router.push(`/chat/${prevChannel.slug}`);
     }
-  })
+  });
 }
 
 /**
@@ -357,17 +378,17 @@ export function useUIToggleShortcuts() {
     openModal,
     closeModal,
     closeAllOverlays,
-  } = useUIStore()
+  } = useUIStore();
 
-  useShortcut('TOGGLE_SIDEBAR', toggleSidebar)
-  useShortcut('TOGGLE_THREAD', toggleThreadPanel)
-  useShortcut('TOGGLE_MEMBERS', toggleMembersPanel)
-  useShortcut('TOGGLE_FULLSCREEN', toggleFullscreen)
-  useShortcut('TOGGLE_COMPACT_MODE', toggleCompactMode)
+  useShortcut("TOGGLE_SIDEBAR", toggleSidebar);
+  useShortcut("TOGGLE_THREAD", toggleThreadPanel);
+  useShortcut("TOGGLE_MEMBERS", toggleMembersPanel);
+  useShortcut("TOGGLE_FULLSCREEN", toggleFullscreen);
+  useShortcut("TOGGLE_COMPACT_MODE", toggleCompactMode);
 
-  useShortcut('SHOW_SHORTCUTS', () => openModal('keyboard-shortcuts'))
-  useShortcut('CLOSE_MODAL', () => {
-    closeAllOverlays()
-    closeModal()
-  })
+  useShortcut("SHOW_SHORTCUTS", () => openModal("keyboard-shortcuts"));
+  useShortcut("CLOSE_MODAL", () => {
+    closeAllOverlays();
+    closeModal();
+  });
 }

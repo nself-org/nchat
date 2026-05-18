@@ -3,9 +3,9 @@
  * Overview of billing, subscriptions, and revenue
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   DollarSign,
   Users,
@@ -16,19 +16,25 @@ import {
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
-} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import type { BillingStats, PlanTier, PaymentStatus } from '@/types/billing'
-import { PLANS, formatPrice } from '@/config/billing-plans'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import type { BillingStats, PlanTier, PaymentStatus } from "@/types/billing";
+import { PLANS, formatPrice } from "@/config/billing-plans";
+import { cn } from "@/lib/utils";
 
 interface BillingDashboardProps {
-  stats?: BillingStats
-  className?: string
+  stats?: BillingStats;
+  className?: string;
 }
 
 // Mock data for demo
@@ -53,10 +59,15 @@ const mockStats: BillingStats = {
   recentPayments: [],
   failedPayments: [],
   upcomingRenewals: [],
-}
+};
 
-export function BillingDashboard({ stats = mockStats, className }: BillingDashboardProps) {
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d')
+export function BillingDashboard({
+  stats = mockStats,
+  className,
+}: BillingDashboardProps) {
+  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "1y">(
+    "30d",
+  );
 
   const StatCard = ({
     title,
@@ -65,11 +76,11 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
     icon: Icon,
     trend,
   }: {
-    title: string
-    value: string
-    change: string
-    icon: any
-    trend: 'up' | 'down'
+    title: string;
+    value: string;
+    change: string;
+    icon: any;
+    trend: "up" | "down";
   }) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -79,17 +90,19 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          {trend === 'up' ? (
+          {trend === "up" ? (
             <ArrowUpRight className="h-3 w-3 text-green-600" />
           ) : (
             <ArrowDownRight className="h-3 w-3 text-red-600" />
           )}
-          <span className={trend === 'up' ? 'text-green-600' : 'text-red-600'}>{change}</span>
+          <span className={trend === "up" ? "text-green-600" : "text-red-600"}>
+            {change}
+          </span>
           <span className="ml-1">from last period</span>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 
   const PlanDistributionCard = () => (
     <Card>
@@ -99,9 +112,12 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
       </CardHeader>
       <CardContent className="space-y-4">
         {Object.entries(stats.planDistribution).map(([planId, count]) => {
-          const plan = PLANS[planId as PlanTier]
-          const total = Object.values(stats.planDistribution).reduce((a, b) => a + b, 0)
-          const percentage = (count / total) * 100
+          const plan = PLANS[planId as PlanTier];
+          const total = Object.values(stats.planDistribution).reduce(
+            (a, b) => a + b,
+            0,
+          );
+          const percentage = (count / total) * 100;
 
           return (
             <div key={planId} className="space-y-2">
@@ -110,29 +126,32 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
                   <Badge
                     variant="outline"
                     className={cn(
-                      'min-w-[80px] justify-center',
-                      plan.color && `border-${plan.color}-500`
+                      "min-w-[80px] justify-center",
+                      plan.color && `border-${plan.color}-500`,
                     )}
                   >
                     {plan.name}
                   </Badge>
-                  <span className="text-muted-foreground">{count.toLocaleString()}</span>
+                  <span className="text-muted-foreground">
+                    {count.toLocaleString()}
+                  </span>
                 </div>
                 <span className="font-medium">{percentage.toFixed(1)}%</span>
               </div>
               <Progress value={percentage} className="h-2" />
             </div>
-          )
+          );
         })}
       </CardContent>
     </Card>
-  )
+  );
 
   const RevenueBreakdownCard = () => {
     const cardRevenue =
       (stats.totalRevenue * stats.paymentMethodDistribution.card) /
-      (stats.paymentMethodDistribution.card + stats.paymentMethodDistribution.crypto)
-    const cryptoRevenue = stats.totalRevenue - cardRevenue
+      (stats.paymentMethodDistribution.card +
+        stats.paymentMethodDistribution.crypto);
+    const cryptoRevenue = stats.totalRevenue - cardRevenue;
 
     return (
       <Card>
@@ -149,7 +168,10 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
               </div>
               <span className="font-medium">{formatPrice(cardRevenue)}</span>
             </div>
-            <Progress value={(cardRevenue / stats.totalRevenue) * 100} className="h-2" />
+            <Progress
+              value={(cardRevenue / stats.totalRevenue) * 100}
+              className="h-2"
+            />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
@@ -166,8 +188,8 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
           </div>
         </CardContent>
       </Card>
-    )
-  }
+    );
+  };
 
   const FailedPaymentsCard = () => (
     <Card>
@@ -176,7 +198,9 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
           <AlertCircle className="h-5 w-5 text-red-600" />
           Failed Payments
         </CardTitle>
-        <CardDescription>{stats.failedPayments.length} payments need attention</CardDescription>
+        <CardDescription>
+          {stats.failedPayments.length} payments need attention
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {stats.failedPayments.length === 0 ? (
@@ -189,7 +213,9 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
                 className="flex items-center justify-between rounded-lg border p-3"
               >
                 <div>
-                  <p className="text-sm font-medium">{formatPrice(payment.amount)}</p>
+                  <p className="text-sm font-medium">
+                    {formatPrice(payment.amount)}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(payment.createdAt).toLocaleDateString()}
                   </p>
@@ -203,7 +229,7 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
         )}
       </CardContent>
     </Card>
-  )
+  );
 
   const UpcomingRenewalsCard = () => (
     <Card>
@@ -225,9 +251,14 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
                 className="flex items-center justify-between rounded-lg border p-3"
               >
                 <div>
-                  <p className="text-sm font-medium">{PLANS[subscription.planId].name}</p>
+                  <p className="text-sm font-medium">
+                    {PLANS[subscription.planId].name}
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                    Renews{" "}
+                    {new Date(
+                      subscription.currentPeriodEnd,
+                    ).toLocaleDateString()}
                   </p>
                 </div>
                 <Badge variant="secondary">{subscription.interval}</Badge>
@@ -237,10 +268,10 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
         )}
       </CardContent>
     </Card>
-  )
+  );
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Time Range Selector */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Billing Dashboard</h2>
@@ -318,5 +349,5 @@ export function BillingDashboard({ stats = mockStats, className }: BillingDashbo
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

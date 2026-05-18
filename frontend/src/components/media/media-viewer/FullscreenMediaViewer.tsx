@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * FullscreenMediaViewer - Complete media viewing experience
@@ -17,17 +17,17 @@
  * - Reduced motion support
  */
 
-import * as React from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { MediaItem } from '@/lib/media/media-types'
-import { useGestures, type SwipeDirection } from '@/hooks/use-gestures'
-import { ZoomableImage } from './ZoomableImage'
-import { EnhancedVideoPlayer } from './EnhancedVideoPlayer'
-import { ThumbnailStrip } from './ThumbnailStrip'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import * as Dialog from '@radix-ui/react-dialog'
+import * as React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { MediaItem } from "@/lib/media/media-types";
+import { useGestures, type SwipeDirection } from "@/hooks/use-gestures";
+import { ZoomableImage } from "./ZoomableImage";
+import { EnhancedVideoPlayer } from "./EnhancedVideoPlayer";
+import { ThumbnailStrip } from "./ThumbnailStrip";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import * as Dialog from "@radix-ui/react-dialog";
 import {
   X,
   ChevronLeft,
@@ -39,31 +39,31 @@ import {
   Maximize2,
   Minimize2,
   Loader2,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface FullscreenMediaViewerProps {
-  items: MediaItem[]
-  initialIndex?: number
-  isOpen: boolean
-  onClose: () => void
+  items: MediaItem[];
+  initialIndex?: number;
+  isOpen: boolean;
+  onClose: () => void;
 
   // Callbacks
-  onDownload?: (item: MediaItem) => void
-  onShare?: (item: MediaItem) => void
-  onDelete?: (item: MediaItem) => void
-  onIndexChange?: (index: number) => void
+  onDownload?: (item: MediaItem) => void;
+  onShare?: (item: MediaItem) => void;
+  onDelete?: (item: MediaItem) => void;
+  onIndexChange?: (index: number) => void;
 
   // Options
-  showThumbnails?: boolean
-  showInfo?: boolean
-  showActions?: boolean
-  loop?: boolean
-  autoPlay?: boolean
-  reducedMotion?: boolean
+  showThumbnails?: boolean;
+  showInfo?: boolean;
+  showActions?: boolean;
+  loop?: boolean;
+  autoPlay?: boolean;
+  reducedMotion?: boolean;
 }
 
 // ============================================================================
@@ -71,32 +71,32 @@ export interface FullscreenMediaViewerProps {
 // ============================================================================
 
 function getRelativeTime(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffSeconds = Math.floor(diffMs / 1000)
-  const diffMinutes = Math.floor(diffSeconds / 60)
-  const diffHours = Math.floor(diffMinutes / 60)
-  const diffDays = Math.floor(diffHours / 24)
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
 
   if (diffDays > 0) {
-    return diffDays === 1 ? 'Yesterday' : `${diffDays} days ago`
+    return diffDays === 1 ? "Yesterday" : `${diffDays} days ago`;
   }
   if (diffHours > 0) {
-    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`
+    return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
   }
   if (diffMinutes > 0) {
-    return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`
+    return `${diffMinutes} minute${diffMinutes === 1 ? "" : "s"} ago`;
   }
-  return 'Just now'
+  return "Just now";
 }
 
 function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
 
 // ============================================================================
@@ -120,20 +120,20 @@ export function FullscreenMediaViewer({
   reducedMotion = false,
 }: FullscreenMediaViewerProps) {
   // State
-  const [currentIndex, setCurrentIndex] = useState(initialIndex)
-  const [showInfo, setShowInfo] = useState(initialShowInfo)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [showInfo, setShowInfo] = useState(initialShowInfo);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Refs
-  const containerRef = useRef<HTMLDivElement>(null)
-  const swipeContainerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const swipeContainerRef = useRef<HTMLDivElement>(null);
 
   // Computed
-  const currentItem = items[currentIndex] || null
-  const hasNext = loop || currentIndex < items.length - 1
-  const hasPrevious = loop || currentIndex > 0
-  const totalItems = items.length
+  const currentItem = items[currentIndex] || null;
+  const hasNext = loop || currentIndex < items.length - 1;
+  const hasPrevious = loop || currentIndex > 0;
+  const totalItems = items.length;
 
   // ========================================================================
   // Navigation
@@ -141,36 +141,36 @@ export function FullscreenMediaViewer({
 
   const goToIndex = useCallback(
     (index: number) => {
-      let newIndex = index
+      let newIndex = index;
 
       if (loop) {
         if (index < 0) {
-          newIndex = items.length - 1
+          newIndex = items.length - 1;
         } else if (index >= items.length) {
-          newIndex = 0
+          newIndex = 0;
         }
       } else {
-        newIndex = Math.max(0, Math.min(index, items.length - 1))
+        newIndex = Math.max(0, Math.min(index, items.length - 1));
       }
 
-      setCurrentIndex(newIndex)
-      setIsLoading(true)
-      onIndexChange?.(newIndex)
+      setCurrentIndex(newIndex);
+      setIsLoading(true);
+      onIndexChange?.(newIndex);
     },
-    [items.length, loop, onIndexChange]
-  )
+    [items.length, loop, onIndexChange],
+  );
 
   const goNext = useCallback(() => {
     if (hasNext) {
-      goToIndex(currentIndex + 1)
+      goToIndex(currentIndex + 1);
     }
-  }, [currentIndex, hasNext, goToIndex])
+  }, [currentIndex, hasNext, goToIndex]);
 
   const goPrevious = useCallback(() => {
     if (hasPrevious) {
-      goToIndex(currentIndex - 1)
+      goToIndex(currentIndex - 1);
     }
-  }, [currentIndex, hasPrevious, goToIndex])
+  }, [currentIndex, hasPrevious, goToIndex]);
 
   // ========================================================================
   // Swipe Gesture Handler
@@ -178,14 +178,14 @@ export function FullscreenMediaViewer({
 
   const handleSwipe = useCallback(
     (swipe: SwipeDirection) => {
-      if (swipe.direction === 'left' && hasNext) {
-        goNext()
-      } else if (swipe.direction === 'right' && hasPrevious) {
-        goPrevious()
+      if (swipe.direction === "left" && hasNext) {
+        goNext();
+      } else if (swipe.direction === "right" && hasPrevious) {
+        goPrevious();
       }
     },
-    [hasNext, hasPrevious, goNext, goPrevious]
-  )
+    [hasNext, hasPrevious, goNext, goPrevious],
+  );
 
   // Use gestures for swipe navigation (only for non-zoomed state)
   useGestures(
@@ -199,86 +199,95 @@ export function FullscreenMediaViewer({
       enablePan: false,
       swipeThreshold: 50,
       swipeVelocityThreshold: 0.3,
-    }
-  )
+    },
+  );
 
   // ========================================================================
   // Keyboard Navigation
   // ========================================================================
 
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'Escape':
-          e.preventDefault()
+        case "Escape":
+          e.preventDefault();
           if (isFullscreen) {
-            document.exitFullscreen?.()
+            document.exitFullscreen?.();
           } else {
-            onClose()
+            onClose();
           }
-          break
-        case 'ArrowLeft':
-          e.preventDefault()
-          goPrevious()
-          break
-        case 'ArrowRight':
-          e.preventDefault()
-          goNext()
-          break
-        case 'Home':
-          e.preventDefault()
-          goToIndex(0)
-          break
-        case 'End':
-          e.preventDefault()
-          goToIndex(items.length - 1)
-          break
-        case 'i':
-          e.preventDefault()
-          setShowInfo((prev) => !prev)
-          break
-        case 'f':
-          e.preventDefault()
-          toggleFullscreen()
-          break
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          goPrevious();
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          goNext();
+          break;
+        case "Home":
+          e.preventDefault();
+          goToIndex(0);
+          break;
+        case "End":
+          e.preventDefault();
+          goToIndex(items.length - 1);
+          break;
+        case "i":
+          e.preventDefault();
+          setShowInfo((prev) => !prev);
+          break;
+        case "f":
+          e.preventDefault();
+          toggleFullscreen();
+          break;
       }
-    }
+    };
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, isFullscreen, goPrevious, goNext, goToIndex, items.length, onClose])
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [
+    isOpen,
+    isFullscreen,
+    goPrevious,
+    goNext,
+    goToIndex,
+    items.length,
+    onClose,
+  ]);
 
   // ========================================================================
   // Fullscreen
   // ========================================================================
 
   const toggleFullscreen = useCallback(async () => {
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
     try {
       if (!document.fullscreenElement) {
-        await container.requestFullscreen()
-        setIsFullscreen(true)
+        await container.requestFullscreen();
+        setIsFullscreen(true);
       } else {
-        await document.exitFullscreen()
-        setIsFullscreen(false)
+        await document.exitFullscreen();
+        setIsFullscreen(false);
       }
     } catch (error) {
-      console.error('Fullscreen error:', error)
+      console.error("Fullscreen error:", error);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+      setIsFullscreen(!!document.fullscreenElement);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // ========================================================================
   // Actions
@@ -286,21 +295,21 @@ export function FullscreenMediaViewer({
 
   const handleDownload = useCallback(() => {
     if (currentItem) {
-      onDownload?.(currentItem)
+      onDownload?.(currentItem);
     }
-  }, [currentItem, onDownload])
+  }, [currentItem, onDownload]);
 
   const handleShare = useCallback(() => {
     if (currentItem) {
-      onShare?.(currentItem)
+      onShare?.(currentItem);
     }
-  }, [currentItem, onShare])
+  }, [currentItem, onShare]);
 
   const handleDelete = useCallback(() => {
     if (currentItem) {
-      onDelete?.(currentItem)
+      onDelete?.(currentItem);
     }
-  }, [currentItem, onDelete])
+  }, [currentItem, onDelete]);
 
   // ========================================================================
   // Reset on open/close
@@ -308,20 +317,20 @@ export function FullscreenMediaViewer({
 
   useEffect(() => {
     if (isOpen) {
-      setCurrentIndex(initialIndex)
-      setIsLoading(true)
+      setCurrentIndex(initialIndex);
+      setIsLoading(true);
     }
-  }, [isOpen, initialIndex])
+  }, [isOpen, initialIndex]);
 
   // ========================================================================
   // Render Media
   // ========================================================================
 
   const renderMedia = () => {
-    if (!currentItem) return null
+    if (!currentItem) return null;
 
     switch (currentItem.fileType) {
-      case 'image':
+      case "image":
         return (
           <ZoomableImage
             src={currentItem.url}
@@ -333,9 +342,9 @@ export function FullscreenMediaViewer({
             enableMomentum={!reducedMotion}
             reducedMotion={reducedMotion}
           />
-        )
+        );
 
-      case 'video':
+      case "video":
         return (
           <EnhancedVideoPlayer
             src={currentItem.url}
@@ -347,9 +356,9 @@ export function FullscreenMediaViewer({
             showControls={true}
             showPictureInPicture={true}
           />
-        )
+        );
 
-      case 'audio':
+      case "audio":
         return (
           <div className="flex h-full w-full items-center justify-center p-8">
             <EnhancedVideoPlayer
@@ -362,7 +371,7 @@ export function FullscreenMediaViewer({
               className="max-w-md"
             />
           </div>
-        )
+        );
 
       default:
         return (
@@ -397,15 +406,15 @@ export function FullscreenMediaViewer({
               </Button>
             )}
           </div>
-        )
+        );
     }
-  }
+  };
 
   // ========================================================================
   // Render
   // ========================================================================
 
-  if (!isOpen || !currentItem) return null
+  if (!isOpen || !currentItem) return null;
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -461,11 +470,11 @@ export function FullscreenMediaViewer({
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  'h-9 w-9 text-white hover:bg-white/20',
-                  showInfo && 'bg-white/20'
+                  "h-9 w-9 text-white hover:bg-white/20",
+                  showInfo && "bg-white/20",
                 )}
                 onClick={() => setShowInfo(!showInfo)}
-                aria-label={showInfo ? 'Hide info' : 'Show info'}
+                aria-label={showInfo ? "Hide info" : "Show info"}
                 data-testid="info-button"
               >
                 <Info className="h-5 w-5" />
@@ -521,7 +530,9 @@ export function FullscreenMediaViewer({
                 size="icon"
                 className="h-9 w-9 text-white hover:bg-white/20"
                 onClick={toggleFullscreen}
-                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                aria-label={
+                  isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+                }
                 data-testid="fullscreen-button"
               >
                 {isFullscreen ? (
@@ -551,7 +562,7 @@ export function FullscreenMediaViewer({
             {/* Media viewer */}
             <div
               ref={swipeContainerRef}
-              className={cn('flex-1', showInfo && 'mr-80')}
+              className={cn("flex-1", showInfo && "mr-80")}
               data-testid="media-container"
             >
               {/* Loading indicator */}
@@ -593,7 +604,9 @@ export function FullscreenMediaViewer({
                 className="absolute right-0 top-0 h-full w-80 border-l border-white/10 bg-black/80 p-4 backdrop-blur-sm"
                 data-testid="info-panel"
               >
-                <h3 className="mb-4 text-lg font-semibold text-white">Details</h3>
+                <h3 className="mb-4 text-lg font-semibold text-white">
+                  Details
+                </h3>
 
                 <div className="space-y-3 text-sm">
                   <div>
@@ -603,19 +616,23 @@ export function FullscreenMediaViewer({
 
                   <div>
                     <dt className="text-white/60">Type</dt>
-                    <dd className="text-white capitalize">{currentItem.fileType}</dd>
+                    <dd className="text-white capitalize">
+                      {currentItem.fileType}
+                    </dd>
                   </div>
 
                   <div>
                     <dt className="text-white/60">Size</dt>
-                    <dd className="text-white">{formatFileSize(currentItem.fileSize)}</dd>
+                    <dd className="text-white">
+                      {formatFileSize(currentItem.fileSize)}
+                    </dd>
                   </div>
 
                   {currentItem.metadata.dimensions && (
                     <div>
                       <dt className="text-white/60">Dimensions</dt>
                       <dd className="text-white">
-                        {currentItem.metadata.dimensions.width} x{' '}
+                        {currentItem.metadata.dimensions.width} x{" "}
                         {currentItem.metadata.dimensions.height}
                       </dd>
                     </div>
@@ -665,7 +682,7 @@ export function FullscreenMediaViewer({
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  )
+  );
 }
 
-export default FullscreenMediaViewer
+export default FullscreenMediaViewer;

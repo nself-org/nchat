@@ -12,14 +12,14 @@
  * - Sanitized HTML output
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useMemo } from 'react'
-import type { JSONContent } from '@tiptap/core'
-import { cn } from '@/lib/utils'
-import { jsonToHtml, jsonToMarkdown, markdownToJson } from './parser'
-import { lowlight } from '@/components/editor/editor-extensions'
+import * as React from "react";
+import { useMemo } from "react";
+import type { JSONContent } from "@tiptap/core";
+import { cn } from "@/lib/utils";
+import { jsonToHtml, jsonToMarkdown, markdownToJson } from "./parser";
+import { lowlight } from "@/components/editor/editor-extensions";
 
 // ============================================================================
 // Types
@@ -27,21 +27,21 @@ import { lowlight } from '@/components/editor/editor-extensions'
 
 export interface MarkdownRendererProps {
   /** Content to render (JSON or markdown string) */
-  content: JSONContent | string
+  content: JSONContent | string;
   /** Additional CSS class */
-  className?: string
+  className?: string;
   /** Whether to sanitize HTML */
-  sanitize?: boolean
+  sanitize?: boolean;
   /** Callback when a mention is clicked */
-  onMentionClick?: (userId: string, username: string) => void
+  onMentionClick?: (userId: string, username: string) => void;
   /** Callback when a channel is clicked */
-  onChannelClick?: (channelId: string, channelName: string) => void
+  onChannelClick?: (channelId: string, channelName: string) => void;
   /** Callback when a link is clicked */
-  onLinkClick?: (url: string) => void
+  onLinkClick?: (url: string) => void;
   /** Whether to show syntax highlighting in code blocks */
-  syntaxHighlighting?: boolean
+  syntaxHighlighting?: boolean;
   /** Whether to render in compact mode (smaller text) */
-  compact?: boolean
+  compact?: boolean;
 }
 
 // ============================================================================
@@ -60,19 +60,19 @@ export function MarkdownRenderer({
 }: MarkdownRendererProps) {
   // Convert content to JSON if it's a string
   const jsonContent = useMemo(() => {
-    if (typeof content === 'string') {
-      return markdownToJson(content)
+    if (typeof content === "string") {
+      return markdownToJson(content);
     }
-    return content
-  }, [content])
+    return content;
+  }, [content]);
 
   // Render the JSON content
   return (
     <div
       className={cn(
-        'markdown-renderer prose prose-sm dark:prose-invert max-w-none',
-        compact && 'prose-xs',
-        className
+        "markdown-renderer prose prose-sm dark:prose-invert max-w-none",
+        compact && "prose-xs",
+        className,
       )}
     >
       {jsonContent.content?.map((node, index) => (
@@ -86,7 +86,7 @@ export function MarkdownRenderer({
         />
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -94,11 +94,11 @@ export function MarkdownRenderer({
 // ============================================================================
 
 interface MarkdownNodeProps {
-  node: JSONContent
-  onMentionClick?: (userId: string, username: string) => void
-  onChannelClick?: (channelId: string, channelName: string) => void
-  onLinkClick?: (url: string) => void
-  syntaxHighlighting?: boolean
+  node: JSONContent;
+  onMentionClick?: (userId: string, username: string) => void;
+  onChannelClick?: (channelId: string, channelName: string) => void;
+  onLinkClick?: (url: string) => void;
+  syntaxHighlighting?: boolean;
 }
 
 function MarkdownNode({
@@ -109,7 +109,7 @@ function MarkdownNode({
   syntaxHighlighting,
 }: MarkdownNodeProps) {
   switch (node.type) {
-    case 'paragraph':
+    case "paragraph":
       return (
         <p className="my-2 first:mt-0 last:mb-0">
           {node.content?.map((child, index) => (
@@ -123,9 +123,9 @@ function MarkdownNode({
             />
           ))}
         </p>
-      )
+      );
 
-    case 'heading':
+    case "heading":
       return (
         <Heading level={node.attrs?.level || 1}>
           {node.content?.map((child, index) => (
@@ -139,18 +139,18 @@ function MarkdownNode({
             />
           ))}
         </Heading>
-      )
+      );
 
-    case 'codeBlock':
+    case "codeBlock":
       return (
         <CodeBlock
-          language={node.attrs?.language || 'plaintext'}
-          code={node.content?.[0]?.text || ''}
+          language={node.attrs?.language || "plaintext"}
+          code={node.content?.[0]?.text || ""}
           syntaxHighlighting={syntaxHighlighting}
         />
-      )
+      );
 
-    case 'blockquote':
+    case "blockquote":
       return (
         <blockquote className="border-muted-foreground/20 my-4 border-l-4 pl-4 italic">
           {node.content?.map((child, index) => (
@@ -164,9 +164,9 @@ function MarkdownNode({
             />
           ))}
         </blockquote>
-      )
+      );
 
-    case 'bulletList':
+    case "bulletList":
       return (
         <ul className="my-4 list-disc space-y-1 pl-6">
           {node.content?.map((child, index) => (
@@ -180,9 +180,9 @@ function MarkdownNode({
             />
           ))}
         </ul>
-      )
+      );
 
-    case 'orderedList':
+    case "orderedList":
       return (
         <ol className="my-4 list-decimal space-y-1 pl-6">
           {node.content?.map((child, index) => (
@@ -196,9 +196,9 @@ function MarkdownNode({
             />
           ))}
         </ol>
-      )
+      );
 
-    case 'listItem':
+    case "listItem":
       return (
         <li>
           {node.content?.map((child, index) => (
@@ -212,50 +212,52 @@ function MarkdownNode({
             />
           ))}
         </li>
-      )
+      );
 
-    case 'horizontalRule':
-      return <hr className="my-6 border-border" />
+    case "horizontalRule":
+      return <hr className="my-6 border-border" />;
 
-    case 'hardBreak':
-      return <br />
+    case "hardBreak":
+      return <br />;
 
-    case 'image':
+    case "image":
       return (
         <img
-          src={node.attrs?.src || ''}
-          alt={node.attrs?.alt || ''}
+          src={node.attrs?.src || ""}
+          alt={node.attrs?.alt || ""}
           title={node.attrs?.title}
           className="my-4 h-auto max-w-full rounded-lg"
         />
-      )
+      );
 
-    case 'text':
-      return <TextNode node={node} onLinkClick={onLinkClick} />
+    case "text":
+      return <TextNode node={node} onLinkClick={onLinkClick} />;
 
-    case 'mention':
+    case "mention":
       return (
         <Mention
-          userId={node.attrs?.id || ''}
-          username={node.attrs?.label || 'unknown'}
+          userId={node.attrs?.id || ""}
+          username={node.attrs?.label || "unknown"}
           onClick={onMentionClick}
         />
-      )
+      );
 
-    case 'channelMention':
+    case "channelMention":
       return (
         <ChannelMention
-          channelId={node.attrs?.id || ''}
-          channelName={node.attrs?.label || 'unknown'}
+          channelId={node.attrs?.id || ""}
+          channelName={node.attrs?.label || "unknown"}
           onClick={onChannelClick}
         />
-      )
+      );
 
-    case 'emojiMention':
-      return <span className="emoji">{node.attrs?.id || node.attrs?.label}</span>
+    case "emojiMention":
+      return (
+        <span className="emoji">{node.attrs?.id || node.attrs?.label}</span>
+      );
 
     default:
-      return null
+      return null;
   }
 }
 
@@ -264,41 +266,43 @@ function MarkdownNode({
 // ============================================================================
 
 interface TextNodeProps {
-  node: JSONContent
-  onLinkClick?: (url: string) => void
+  node: JSONContent;
+  onLinkClick?: (url: string) => void;
 }
 
 function TextNode({ node, onLinkClick }: TextNodeProps) {
-  let content: React.ReactNode = node.text || ''
+  let content: React.ReactNode = node.text || "";
 
   if (node.marks && node.marks.length > 0) {
     // Apply marks in reverse order to nest them correctly
     for (const mark of [...node.marks].reverse()) {
       switch (mark.type) {
-        case 'bold':
-          content = <strong className="font-bold">{content}</strong>
-          break
+        case "bold":
+          content = <strong className="font-bold">{content}</strong>;
+          break;
 
-        case 'italic':
-          content = <em className="italic">{content}</em>
-          break
+        case "italic":
+          content = <em className="italic">{content}</em>;
+          break;
 
-        case 'underline':
-          content = <u className="underline">{content}</u>
-          break
+        case "underline":
+          content = <u className="underline">{content}</u>;
+          break;
 
-        case 'strike':
-          content = <s className="line-through">{content}</s>
-          break
+        case "strike":
+          content = <s className="line-through">{content}</s>;
+          break;
 
-        case 'code':
+        case "code":
           content = (
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm">{content}</code>
-          )
-          break
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm">
+              {content}
+            </code>
+          );
+          break;
 
-        case 'link':
-          const href = mark.attrs?.href || ''
+        case "link":
+          const href = mark.attrs?.href || "";
           content = (
             <a
               href={href}
@@ -307,20 +311,20 @@ function TextNode({ node, onLinkClick }: TextNodeProps) {
               rel="noopener noreferrer"
               onClick={(e) => {
                 if (onLinkClick) {
-                  e.preventDefault()
-                  onLinkClick(href)
+                  e.preventDefault();
+                  onLinkClick(href);
                 }
               }}
             >
               {content}
             </a>
-          )
-          break
+          );
+          break;
       }
     }
   }
 
-  return <>{content}</>
+  return <>{content}</>;
 }
 
 // ============================================================================
@@ -328,24 +332,24 @@ function TextNode({ node, onLinkClick }: TextNodeProps) {
 // ============================================================================
 
 interface HeadingProps {
-  level: number
-  children: React.ReactNode
+  level: number;
+  children: React.ReactNode;
 }
 
 function Heading({ level, children }: HeadingProps) {
-  const Tag = `h${Math.min(level, 6)}` as keyof React.JSX.IntrinsicElements
+  const Tag = `h${Math.min(level, 6)}` as keyof React.JSX.IntrinsicElements;
 
   const className = cn(
-    'font-bold my-4 first:mt-0 last:mb-0',
-    level === 1 && 'text-3xl',
-    level === 2 && 'text-2xl',
-    level === 3 && 'text-xl',
-    level === 4 && 'text-lg',
-    level === 5 && 'text-base',
-    level === 6 && 'text-sm'
-  )
+    "font-bold my-4 first:mt-0 last:mb-0",
+    level === 1 && "text-3xl",
+    level === 2 && "text-2xl",
+    level === 3 && "text-xl",
+    level === 4 && "text-lg",
+    level === 5 && "text-base",
+    level === 6 && "text-sm",
+  );
 
-  return React.createElement(Tag, { className }, children)
+  return React.createElement(Tag, { className }, children);
 }
 
 // ============================================================================
@@ -353,67 +357,79 @@ function Heading({ level, children }: HeadingProps) {
 // ============================================================================
 
 interface CodeBlockProps {
-  language: string
-  code: string
-  syntaxHighlighting?: boolean
+  language: string;
+  code: string;
+  syntaxHighlighting?: boolean;
 }
 
-function CodeBlock({ language, code, syntaxHighlighting = true }: CodeBlockProps) {
+function CodeBlock({
+  language,
+  code,
+  syntaxHighlighting = true,
+}: CodeBlockProps) {
   const highlighted = useMemo(() => {
-    if (!syntaxHighlighting) return null
+    if (!syntaxHighlighting) return null;
 
     try {
-      const result = lowlight.highlight(language, code)
-      return result
+      const result = lowlight.highlight(language, code);
+      return result;
     } catch {
-      return null
+      return null;
     }
-  }, [language, code, syntaxHighlighting])
+  }, [language, code, syntaxHighlighting]);
 
   if (highlighted && syntaxHighlighting) {
     return (
       <pre className="my-4 overflow-x-auto rounded-lg bg-muted p-4">
         <code className={`language-${language}`}>
           {renderHighlightedCode(
-            highlighted.children as Array<{ type: string; value?: string; children?: unknown[] }>
+            highlighted.children as Array<{
+              type: string;
+              value?: string;
+              children?: unknown[];
+            }>,
           )}
         </code>
       </pre>
-    )
+    );
   }
 
   return (
     <pre className="my-4 overflow-x-auto rounded-lg bg-muted p-4">
       <code className={`language-${language}`}>{code}</code>
     </pre>
-  )
+  );
 }
 
 /**
  * Render highlighted code from lowlight
  */
 function renderHighlightedCode(
-  nodes: Array<{ type: string; value?: string; children?: unknown[] }>
+  nodes: Array<{ type: string; value?: string; children?: unknown[] }>,
 ): React.ReactNode {
   return nodes.map((node, index) => {
-    if (node.type === 'text') {
-      return node.value
+    if (node.type === "text") {
+      return node.value;
     }
 
-    if (node.type === 'element' && node.children) {
-      const className = (node as { properties?: { className?: string[] } }).properties
-        ?.className?.[0]
+    if (node.type === "element" && node.children) {
+      const className = (node as { properties?: { className?: string[] } })
+        .properties?.className?.[0];
       return (
         <span key={index} className={className}>
           {renderHighlightedCode(
-            node.children as Array<{ type: string; value?: string; children?: unknown[] }>
+            node.children as Array<{
+              type: string;
+              value?: string;
+              children?: unknown[];
+            }>,
           )}
         </span>
-      )
+      );
     }
 
-    return null
-  })
+    return null;
+  });
 }
 
 // ============================================================================
@@ -421,23 +437,23 @@ function renderHighlightedCode(
 // ============================================================================
 
 interface MentionProps {
-  userId: string
-  username: string
-  onClick?: (userId: string, username: string) => void
+  userId: string;
+  username: string;
+  onClick?: (userId: string, username: string) => void;
 }
 
 function Mention({ userId, username, onClick }: MentionProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      onClick?.(userId, username)
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick?.(userId, username);
     }
-  }
+  };
 
   const className = cn(
-    'mention mention-user bg-primary/10 inline-flex items-center rounded px-1.5 py-0.5 font-medium text-primary transition-colors',
-    onClick && 'hover:bg-primary/20 cursor-pointer'
-  )
+    "mention mention-user bg-primary/10 inline-flex items-center rounded px-1.5 py-0.5 font-medium text-primary transition-colors",
+    onClick && "hover:bg-primary/20 cursor-pointer",
+  );
 
   if (onClick) {
     return (
@@ -451,14 +467,14 @@ function Mention({ userId, username, onClick }: MentionProps) {
       >
         @{username}
       </span>
-    )
+    );
   }
 
   return (
     <span className={className} data-id={userId}>
       @{username}
     </span>
-  )
+  );
 }
 
 // ============================================================================
@@ -466,23 +482,27 @@ function Mention({ userId, username, onClick }: MentionProps) {
 // ============================================================================
 
 interface ChannelMentionProps {
-  channelId: string
-  channelName: string
-  onClick?: (channelId: string, channelName: string) => void
+  channelId: string;
+  channelName: string;
+  onClick?: (channelId: string, channelName: string) => void;
 }
 
-function ChannelMention({ channelId, channelName, onClick }: ChannelMentionProps) {
+function ChannelMention({
+  channelId,
+  channelName,
+  onClick,
+}: ChannelMentionProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      onClick?.(channelId, channelName)
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick?.(channelId, channelName);
     }
-  }
+  };
 
   const className = cn(
-    'mention mention-channel text-accent-foreground inline-flex items-center rounded bg-accent px-1.5 py-0.5 font-medium transition-colors',
-    onClick && 'hover:bg-accent/80 cursor-pointer'
-  )
+    "mention mention-channel text-accent-foreground inline-flex items-center rounded bg-accent px-1.5 py-0.5 font-medium transition-colors",
+    onClick && "hover:bg-accent/80 cursor-pointer",
+  );
 
   if (onClick) {
     return (
@@ -496,14 +516,14 @@ function ChannelMention({ channelId, channelName, onClick }: ChannelMentionProps
       >
         #{channelName}
       </span>
-    )
+    );
   }
 
   return (
     <span className={className} data-id={channelId}>
       #{channelName}
     </span>
-  )
+  );
 }
 
 // ============================================================================
@@ -512,32 +532,32 @@ function ChannelMention({ channelId, channelName, onClick }: ChannelMentionProps
 
 export interface MarkdownPreviewProps extends MarkdownRendererProps {
   /** Show a toggle button to switch between preview and raw mode */
-  showToggle?: boolean
+  showToggle?: boolean;
   /** Initial mode */
-  initialMode?: 'preview' | 'raw'
+  initialMode?: "preview" | "raw";
 }
 
 export function MarkdownPreview({
   content,
   showToggle = true,
-  initialMode = 'preview',
+  initialMode = "preview",
   ...props
 }: MarkdownPreviewProps) {
-  const [mode, setMode] = React.useState<'preview' | 'raw'>(initialMode)
+  const [mode, setMode] = React.useState<"preview" | "raw">(initialMode);
 
   const rawContent = useMemo(() => {
-    if (typeof content === 'string') {
-      return content
+    if (typeof content === "string") {
+      return content;
     }
-    return jsonToMarkdown(content)
-  }, [content])
+    return jsonToMarkdown(content);
+  }, [content]);
 
-  if (mode === 'raw') {
+  if (mode === "raw") {
     return (
       <div className="relative">
         {showToggle && (
           <button
-            onClick={() => setMode('preview')}
+            onClick={() => setMode("preview")}
             className="hover:bg-muted/80 absolute right-2 top-2 rounded bg-muted px-3 py-1 text-xs"
           >
             Preview
@@ -547,14 +567,14 @@ export function MarkdownPreview({
           {rawContent}
         </pre>
       </div>
-    )
+    );
   }
 
   return (
     <div className="relative">
       {showToggle && (
         <button
-          onClick={() => setMode('raw')}
+          onClick={() => setMode("raw")}
           className="hover:bg-muted/80 absolute right-2 top-2 z-10 rounded bg-muted px-3 py-1 text-xs"
         >
           Raw
@@ -562,7 +582,7 @@ export function MarkdownPreview({
       )}
       <MarkdownRenderer content={content} {...props} />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -570,9 +590,9 @@ export function MarkdownPreview({
 // ============================================================================
 
 export interface CompactMarkdownRendererProps {
-  content: JSONContent | string
-  maxLength?: number
-  className?: string
+  content: JSONContent | string;
+  maxLength?: number;
+  className?: string;
 }
 
 export function CompactMarkdownRenderer({
@@ -581,34 +601,40 @@ export function CompactMarkdownRenderer({
   className,
 }: CompactMarkdownRendererProps) {
   const jsonContent = useMemo(() => {
-    if (typeof content === 'string') {
-      return markdownToJson(content)
+    if (typeof content === "string") {
+      return markdownToJson(content);
     }
-    return content
-  }, [content])
+    return content;
+  }, [content]);
 
   // Get plain text for truncation
   const plainText = useMemo(() => {
     const getText = (node: JSONContent): string => {
-      if (node.type === 'text') return node.text || ''
+      if (node.type === "text") return node.text || "";
       if (node.content) {
-        return node.content.map(getText).join(' ')
+        return node.content.map(getText).join(" ");
       }
-      return ''
-    }
-    return getText(jsonContent)
-  }, [jsonContent])
+      return "";
+    };
+    return getText(jsonContent);
+  }, [jsonContent]);
 
-  const truncated = plainText.length > maxLength
-  const displayText = truncated ? plainText.substring(0, maxLength).trim() + '...' : plainText
+  const truncated = plainText.length > maxLength;
+  const displayText = truncated
+    ? plainText.substring(0, maxLength).trim() + "..."
+    : plainText;
 
   return (
-    <div className={cn('line-clamp-2 text-sm text-muted-foreground', className)}>{displayText}</div>
-  )
+    <div
+      className={cn("line-clamp-2 text-sm text-muted-foreground", className)}
+    >
+      {displayText}
+    </div>
+  );
 }
 
 // ============================================================================
 // Export
 // ============================================================================
 
-export default MarkdownRenderer
+export default MarkdownRenderer;

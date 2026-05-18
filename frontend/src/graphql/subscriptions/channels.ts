@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const CHANNEL_FIELDS = gql`
   fragment ChannelFields on nchat_channels {
@@ -19,7 +19,7 @@ export const CHANNEL_FIELDS = gql`
       }
     }
   }
-`
+`;
 
 export const USER_CHANNELS_SUBSCRIPTION = gql`
   ${CHANNEL_FIELDS}
@@ -37,7 +37,7 @@ export const USER_CHANNELS_SUBSCRIPTION = gql`
       last_read_at
     }
   }
-`
+`;
 
 export const CHANNEL_DETAILS_SUBSCRIPTION = gql`
   ${CHANNEL_FIELDS}
@@ -55,7 +55,7 @@ export const CHANNEL_DETAILS_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 export const CHANNEL_MEMBERS_SUBSCRIPTION = gql`
   subscription ChannelMembers($channelId: uuid!) {
@@ -71,4 +71,4 @@ export const CHANNEL_MEMBERS_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;

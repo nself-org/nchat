@@ -1,2 +1,2 @@
-export { BackendStatus } from './BackendStatus'
-export { DatabaseManager } from './DatabaseManager'
+export { BackendStatus } from "./BackendStatus";
+export { DatabaseManager } from "./DatabaseManager";

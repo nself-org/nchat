@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
 /**
  * AuditLogTable - Table component for displaying audit log entries
  */
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   User,
   MessageSquare,
@@ -22,25 +22,25 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 import type {
   AuditLogEntry,
   AuditCategory,
   AuditSeverity,
   AuditLogSortOptions,
-} from '@/lib/audit/audit-types'
+} from "@/lib/audit/audit-types";
 import {
   formatTimestamp,
   getCategoryBadgeClass,
   getSeverityBadgeClass,
-} from '@/lib/audit/audit-formatter'
-import { getActionDisplayName } from '@/lib/audit/audit-events'
+} from "@/lib/audit/audit-formatter";
+import { getActionDisplayName } from "@/lib/audit/audit-events";
 
 // ============================================================================
 // Icons
@@ -56,30 +56,30 @@ const categoryIcons: Record<AuditCategory, React.ReactNode> = {
   admin: <Shield className="h-4 w-4" />,
   security: <Lock className="h-4 w-4" />,
   integration: <Puzzle className="h-4 w-4" />,
-}
+};
 
 const severityIcons: Record<AuditSeverity, React.ReactNode> = {
   info: <Info className="h-4 w-4" />,
   warning: <AlertTriangle className="h-4 w-4" />,
   error: <XCircle className="h-4 w-4" />,
   critical: <AlertOctagon className="h-4 w-4" />,
-}
+};
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AuditLogTableProps {
-  entries: AuditLogEntry[]
-  selectedIds?: string[]
-  sort?: AuditLogSortOptions
-  onSort?: (sort: AuditLogSortOptions) => void
-  onSelect?: (id: string) => void
-  onSelectAll?: () => void
-  onClearSelection?: () => void
-  onRowClick?: (entry: AuditLogEntry) => void
-  selectable?: boolean
-  loading?: boolean
+  entries: AuditLogEntry[];
+  selectedIds?: string[];
+  sort?: AuditLogSortOptions;
+  onSort?: (sort: AuditLogSortOptions) => void;
+  onSelect?: (id: string) => void;
+  onSelectAll?: () => void;
+  onClearSelection?: () => void;
+  onRowClick?: (entry: AuditLogEntry) => void;
+  selectable?: boolean;
+  loading?: boolean;
 }
 
 // ============================================================================
@@ -98,37 +98,38 @@ export function AuditLogTable({
   selectable = false,
   loading = false,
 }: AuditLogTableProps) {
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const toggleRowExpansion = (id: string) => {
-    const newExpanded = new Set(expandedRows)
+    const newExpanded = new Set(expandedRows);
     if (newExpanded.has(id)) {
-      newExpanded.delete(id)
+      newExpanded.delete(id);
     } else {
-      newExpanded.add(id)
+      newExpanded.add(id);
     }
-    setExpandedRows(newExpanded)
-  }
+    setExpandedRows(newExpanded);
+  };
 
-  const handleSort = (field: AuditLogSortOptions['field']) => {
-    if (!onSort) return
+  const handleSort = (field: AuditLogSortOptions["field"]) => {
+    if (!onSort) return;
     if (sort?.field === field) {
-      onSort({ field, direction: sort.direction === 'asc' ? 'desc' : 'asc' })
+      onSort({ field, direction: sort.direction === "asc" ? "desc" : "asc" });
     } else {
-      onSort({ field, direction: 'desc' })
+      onSort({ field, direction: "desc" });
     }
-  }
+  };
 
-  const SortIcon = ({ field }: { field: AuditLogSortOptions['field'] }) => {
-    if (sort?.field !== field) return null
-    return sort.direction === 'asc' ? (
+  const SortIcon = ({ field }: { field: AuditLogSortOptions["field"] }) => {
+    if (sort?.field !== field) return null;
+    return sort.direction === "asc" ? (
       <ChevronUp className="ml-1 inline h-4 w-4" />
     ) : (
       <ChevronDown className="ml-1 inline h-4 w-4" />
-    )
-  }
+    );
+  };
 
-  const allSelected = entries.length > 0 && selectedIds.length === entries.length
+  const allSelected =
+    entries.length > 0 && selectedIds.length === entries.length;
 
   return (
     <div className="overflow-hidden rounded-md border">
@@ -143,9 +144,9 @@ export function AuditLogTable({
                     checked={allSelected}
                     onChange={() => {
                       if (allSelected) {
-                        onClearSelection?.()
+                        onClearSelection?.();
                       } else {
-                        onSelectAll?.()
+                        onSelectAll?.();
                       }
                     }}
                     className="rounded border-gray-300"
@@ -154,31 +155,31 @@ export function AuditLogTable({
               )}
               <th
                 className="cursor-pointer px-4 py-3 text-left font-medium hover:bg-muted"
-                onClick={() => handleSort('timestamp')}
+                onClick={() => handleSort("timestamp")}
               >
                 Timestamp <SortIcon field="timestamp" />
               </th>
               <th
                 className="cursor-pointer px-4 py-3 text-left font-medium hover:bg-muted"
-                onClick={() => handleSort('category')}
+                onClick={() => handleSort("category")}
               >
                 Category <SortIcon field="category" />
               </th>
               <th
                 className="cursor-pointer px-4 py-3 text-left font-medium hover:bg-muted"
-                onClick={() => handleSort('action')}
+                onClick={() => handleSort("action")}
               >
                 Action <SortIcon field="action" />
               </th>
               <th
                 className="cursor-pointer px-4 py-3 text-left font-medium hover:bg-muted"
-                onClick={() => handleSort('actor')}
+                onClick={() => handleSort("actor")}
               >
                 Actor <SortIcon field="actor" />
               </th>
               <th
                 className="cursor-pointer px-4 py-3 text-left font-medium hover:bg-muted"
-                onClick={() => handleSort('severity')}
+                onClick={() => handleSort("severity")}
               >
                 Severity <SortIcon field="severity" />
               </th>
@@ -212,13 +213,16 @@ export function AuditLogTable({
                   <tr
                     key={entry.id}
                     className={cn(
-                      'hover:bg-muted/30 cursor-pointer transition-colors',
-                      selectedIds.includes(entry.id) && 'bg-primary/5'
+                      "hover:bg-muted/30 cursor-pointer transition-colors",
+                      selectedIds.includes(entry.id) && "bg-primary/5",
                     )}
                     onClick={() => onRowClick?.(entry)}
                   >
                     {selectable && (
-                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="px-4 py-3"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(entry.id)}
@@ -228,23 +232,32 @@ export function AuditLogTable({
                       </td>
                     )}
                     <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                      {formatTimestamp(entry.timestamp, 'short')}
+                      {formatTimestamp(entry.timestamp, "short")}
                     </td>
                     <td className="px-4 py-3">
                       <Badge
                         variant="outline"
-                        className={cn('gap-1', getCategoryBadgeClass(entry.category))}
+                        className={cn(
+                          "gap-1",
+                          getCategoryBadgeClass(entry.category),
+                        )}
                       >
                         {categoryIcons[entry.category]}
                         {entry.category}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 font-medium">{getActionDisplayName(entry.action)}</td>
+                    <td className="px-4 py-3 font-medium">
+                      {getActionDisplayName(entry.action)}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Avatar className="h-6 w-6">
                           <AvatarFallback className="text-xs">
-                            {(entry.actor.displayName || entry.actor.username || entry.actor.id)
+                            {(
+                              entry.actor.displayName ||
+                              entry.actor.username ||
+                              entry.actor.id
+                            )
                               .charAt(0)
                               .toUpperCase()}
                           </AvatarFallback>
@@ -260,7 +273,10 @@ export function AuditLogTable({
                     <td className="px-4 py-3">
                       <Badge
                         variant="outline"
-                        className={cn('gap-1', getSeverityBadgeClass(entry.severity))}
+                        className={cn(
+                          "gap-1",
+                          getSeverityBadgeClass(entry.severity),
+                        )}
                       >
                         {severityIcons[entry.severity]}
                         {entry.severity}
@@ -279,7 +295,10 @@ export function AuditLogTable({
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <td
+                      className="px-4 py-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Button
                         variant="ghost"
                         size="icon"
@@ -298,33 +317,48 @@ export function AuditLogTable({
                       <td colSpan={selectable ? 8 : 7} className="px-4 py-4">
                         <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-3">
                           <div>
-                            <span className="text-muted-foreground">Description:</span>
+                            <span className="text-muted-foreground">
+                              Description:
+                            </span>
                             <p className="mt-1">{entry.description}</p>
                           </div>
                           {entry.resource && (
                             <div>
-                              <span className="text-muted-foreground">Resource:</span>
+                              <span className="text-muted-foreground">
+                                Resource:
+                              </span>
                               <p className="mt-1">
-                                {entry.resource.type}: {entry.resource.name || entry.resource.id}
+                                {entry.resource.type}:{" "}
+                                {entry.resource.name || entry.resource.id}
                               </p>
                             </div>
                           )}
                           {entry.ipAddress && (
                             <div>
-                              <span className="text-muted-foreground">IP Address:</span>
+                              <span className="text-muted-foreground">
+                                IP Address:
+                              </span>
                               <p className="mt-1">{entry.ipAddress}</p>
                             </div>
                           )}
                           {entry.errorMessage && (
                             <div className="col-span-full">
-                              <span className="text-muted-foreground">Error:</span>
-                              <p className="mt-1 text-red-600">{entry.errorMessage}</p>
+                              <span className="text-muted-foreground">
+                                Error:
+                              </span>
+                              <p className="mt-1 text-red-600">
+                                {entry.errorMessage}
+                              </p>
                             </div>
                           )}
                           {entry.requestId && (
                             <div>
-                              <span className="text-muted-foreground">Request ID:</span>
-                              <p className="mt-1 font-mono text-xs">{entry.requestId}</p>
+                              <span className="text-muted-foreground">
+                                Request ID:
+                              </span>
+                              <p className="mt-1 font-mono text-xs">
+                                {entry.requestId}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -338,5 +372,5 @@ export function AuditLogTable({
         </table>
       </div>
     </div>
-  )
+  );
 }

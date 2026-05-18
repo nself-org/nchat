@@ -4,9 +4,9 @@
  * Zustand store for managing saved/starred messages state.
  */
 
-import { create } from 'zustand'
-import { devtools, subscribeWithSelector, persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, subscribeWithSelector, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 import type {
   SavedMessage,
   SavedCollection,
@@ -14,13 +14,13 @@ import type {
   SavedSortBy,
   SavedSortOrder,
   SavedStats,
-} from '@/lib/saved'
+} from "@/lib/saved";
 import {
   filterSavedMessages,
   sortSavedMessages,
   calculateSavedStats,
   getAllTags,
-} from '@/lib/saved'
+} from "@/lib/saved";
 
 // ============================================================================
 // Types
@@ -28,123 +28,126 @@ import {
 
 export interface SavedState {
   // Saved messages
-  savedMessages: Map<string, SavedMessage>
-  savedByMessageId: Map<string, string> // messageId -> savedId mapping
+  savedMessages: Map<string, SavedMessage>;
+  savedByMessageId: Map<string, string>; // messageId -> savedId mapping
 
   // Collections
-  collections: Map<string, SavedCollection>
+  collections: Map<string, SavedCollection>;
 
   // Current view state
-  selectedCollectionId: string | null
-  selectedChannelFilter: string | null
-  selectedTagFilter: string[]
+  selectedCollectionId: string | null;
+  selectedChannelFilter: string | null;
+  selectedTagFilter: string[];
 
   // Panel state
-  isPanelOpen: boolean
-  isAddToCollectionOpen: boolean
-  selectedSavedId: string | null
+  isPanelOpen: boolean;
+  isAddToCollectionOpen: boolean;
+  selectedSavedId: string | null;
 
   // Create collection modal
-  isCreateCollectionOpen: boolean
+  isCreateCollectionOpen: boolean;
 
   // Filters & sorting
-  filters: SavedFilters
-  sortBy: SavedSortBy
-  sortOrder: SavedSortOrder
-  searchQuery: string
+  filters: SavedFilters;
+  sortBy: SavedSortBy;
+  sortOrder: SavedSortOrder;
+  searchQuery: string;
 
   // Loading states
-  isLoading: boolean
-  isLoadingCollections: boolean
-  isSaving: boolean
-  isExporting: boolean
-  error: string | null
+  isLoading: boolean;
+  isLoadingCollections: boolean;
+  isSaving: boolean;
+  isExporting: boolean;
+  error: string | null;
 
   // Pagination
-  hasMore: boolean
-  cursor: number
-  totalCount: number
+  hasMore: boolean;
+  cursor: number;
+  totalCount: number;
 }
 
 export interface SavedActions {
   // Saved message operations
-  setSavedMessages: (messages: SavedMessage[]) => void
-  addSavedMessage: (message: SavedMessage) => void
-  updateSavedMessage: (savedId: string, updates: Partial<SavedMessage>) => void
-  removeSavedMessage: (savedId: string) => void
-  removeSavedByMessageId: (messageId: string) => void
-  clearAllSaved: () => void
+  setSavedMessages: (messages: SavedMessage[]) => void;
+  addSavedMessage: (message: SavedMessage) => void;
+  updateSavedMessage: (savedId: string, updates: Partial<SavedMessage>) => void;
+  removeSavedMessage: (savedId: string) => void;
+  removeSavedByMessageId: (messageId: string) => void;
+  clearAllSaved: () => void;
 
   // Get operations
-  getSavedMessage: (savedId: string) => SavedMessage | undefined
-  getSavedByMessageId: (messageId: string) => SavedMessage | undefined
-  isMessageSaved: (messageId: string) => boolean
-  getFilteredSavedMessages: () => SavedMessage[]
-  getSavedStats: () => SavedStats
-  getAllTags: () => string[]
+  getSavedMessage: (savedId: string) => SavedMessage | undefined;
+  getSavedByMessageId: (messageId: string) => SavedMessage | undefined;
+  isMessageSaved: (messageId: string) => boolean;
+  getFilteredSavedMessages: () => SavedMessage[];
+  getSavedStats: () => SavedStats;
+  getAllTags: () => string[];
 
   // Starred operations
-  toggleStar: (savedId: string) => void
-  getStarredMessages: () => SavedMessage[]
+  toggleStar: (savedId: string) => void;
+  getStarredMessages: () => SavedMessage[];
 
   // Collection operations
-  setCollections: (collections: SavedCollection[]) => void
-  addCollection: (collection: SavedCollection) => void
-  updateCollection: (collectionId: string, updates: Partial<SavedCollection>) => void
-  removeCollection: (collectionId: string) => void
-  getCollection: (collectionId: string) => SavedCollection | undefined
-  getCollectionMessages: (collectionId: string) => SavedMessage[]
-  addToCollection: (savedId: string, collectionId: string) => void
-  removeFromCollection: (savedId: string, collectionId: string) => void
-  reorderCollections: (collectionIds: string[]) => void
+  setCollections: (collections: SavedCollection[]) => void;
+  addCollection: (collection: SavedCollection) => void;
+  updateCollection: (
+    collectionId: string,
+    updates: Partial<SavedCollection>,
+  ) => void;
+  removeCollection: (collectionId: string) => void;
+  getCollection: (collectionId: string) => SavedCollection | undefined;
+  getCollectionMessages: (collectionId: string) => SavedMessage[];
+  addToCollection: (savedId: string, collectionId: string) => void;
+  removeFromCollection: (savedId: string, collectionId: string) => void;
+  reorderCollections: (collectionIds: string[]) => void;
 
   // Tag operations
-  addTag: (savedId: string, tag: string) => void
-  removeTag: (savedId: string, tag: string) => void
+  addTag: (savedId: string, tag: string) => void;
+  removeTag: (savedId: string, tag: string) => void;
 
   // Reminder operations
-  setReminder: (savedId: string, reminderAt: Date | null) => void
-  triggerReminder: (savedId: string) => void
-  getPendingReminders: () => SavedMessage[]
+  setReminder: (savedId: string, reminderAt: Date | null) => void;
+  triggerReminder: (savedId: string) => void;
+  getPendingReminders: () => SavedMessage[];
 
   // View state
-  setSelectedCollection: (collectionId: string | null) => void
-  setSelectedChannelFilter: (channelId: string | null) => void
-  setSelectedTagFilter: (tags: string[]) => void
+  setSelectedCollection: (collectionId: string | null) => void;
+  setSelectedChannelFilter: (channelId: string | null) => void;
+  setSelectedTagFilter: (tags: string[]) => void;
 
   // Panel state
-  openPanel: () => void
-  closePanel: () => void
-  togglePanel: () => void
-  openAddToCollection: (savedId: string) => void
-  closeAddToCollection: () => void
-  openCreateCollection: () => void
-  closeCreateCollection: () => void
+  openPanel: () => void;
+  closePanel: () => void;
+  togglePanel: () => void;
+  openAddToCollection: (savedId: string) => void;
+  closeAddToCollection: () => void;
+  openCreateCollection: () => void;
+  closeCreateCollection: () => void;
 
   // Filters & sorting
-  setFilters: (filters: Partial<SavedFilters>) => void
-  clearFilters: () => void
-  setSortBy: (sortBy: SavedSortBy) => void
-  setSortOrder: (sortOrder: SavedSortOrder) => void
-  setSearchQuery: (query: string) => void
+  setFilters: (filters: Partial<SavedFilters>) => void;
+  clearFilters: () => void;
+  setSortBy: (sortBy: SavedSortBy) => void;
+  setSortOrder: (sortOrder: SavedSortOrder) => void;
+  setSearchQuery: (query: string) => void;
 
   // Loading/error
-  setLoading: (loading: boolean) => void
-  setLoadingCollections: (loading: boolean) => void
-  setSaving: (saving: boolean) => void
-  setExporting: (exporting: boolean) => void
-  setError: (error: string | null) => void
+  setLoading: (loading: boolean) => void;
+  setLoadingCollections: (loading: boolean) => void;
+  setSaving: (saving: boolean) => void;
+  setExporting: (exporting: boolean) => void;
+  setError: (error: string | null) => void;
 
   // Pagination
-  setHasMore: (hasMore: boolean) => void
-  setCursor: (cursor: number) => void
-  setTotalCount: (count: number) => void
+  setHasMore: (hasMore: boolean) => void;
+  setCursor: (cursor: number) => void;
+  setTotalCount: (count: number) => void;
 
   // Utility
-  resetStore: () => void
+  resetStore: () => void;
 }
 
-export type SavedStore = SavedState & SavedActions
+export type SavedStore = SavedState & SavedActions;
 
 // ============================================================================
 // Initial State
@@ -162,9 +165,9 @@ const initialState: SavedState = {
   selectedSavedId: null,
   isCreateCollectionOpen: false,
   filters: {},
-  sortBy: 'savedAt',
-  sortOrder: 'desc',
-  searchQuery: '',
+  sortBy: "savedAt",
+  sortOrder: "desc",
+  searchQuery: "",
   isLoading: false,
   isLoadingCollections: false,
   isSaving: false,
@@ -173,7 +176,7 @@ const initialState: SavedState = {
   hasMore: false,
   cursor: 0,
   totalCount: 0,
-}
+};
 
 // ============================================================================
 // Store
@@ -190,543 +193,568 @@ export const useSavedStore = create<SavedStore>()(
           setSavedMessages: (messages) =>
             set(
               (state) => {
-                state.savedMessages = new Map(messages.map((m) => [m.id, m]))
-                state.savedByMessageId = new Map(messages.map((m) => [m.messageId, m.id]))
-                state.totalCount = messages.length
+                state.savedMessages = new Map(messages.map((m) => [m.id, m]));
+                state.savedByMessageId = new Map(
+                  messages.map((m) => [m.messageId, m.id]),
+                );
+                state.totalCount = messages.length;
               },
               false,
-              'saved/setSavedMessages'
+              "saved/setSavedMessages",
             ),
 
           addSavedMessage: (message) =>
             set(
               (state) => {
-                state.savedMessages.set(message.id, message)
-                state.savedByMessageId.set(message.messageId, message.id)
-                state.totalCount += 1
+                state.savedMessages.set(message.id, message);
+                state.savedByMessageId.set(message.messageId, message.id);
+                state.totalCount += 1;
 
                 // Update collection counts
                 message.collectionIds.forEach((cid) => {
-                  const collection = state.collections.get(cid)
+                  const collection = state.collections.get(cid);
                   if (collection) {
-                    collection.itemCount += 1
+                    collection.itemCount += 1;
                   }
-                })
+                });
               },
               false,
-              'saved/addSavedMessage'
+              "saved/addSavedMessage",
             ),
 
           updateSavedMessage: (savedId, updates) =>
             set(
               (state) => {
-                const existing = state.savedMessages.get(savedId)
+                const existing = state.savedMessages.get(savedId);
                 if (existing) {
-                  state.savedMessages.set(savedId, { ...existing, ...updates })
+                  state.savedMessages.set(savedId, { ...existing, ...updates });
                 }
               },
               false,
-              'saved/updateSavedMessage'
+              "saved/updateSavedMessage",
             ),
 
           removeSavedMessage: (savedId) =>
             set(
               (state) => {
-                const saved = state.savedMessages.get(savedId)
+                const saved = state.savedMessages.get(savedId);
                 if (saved) {
                   // Update collection counts
                   saved.collectionIds.forEach((cid) => {
-                    const collection = state.collections.get(cid)
+                    const collection = state.collections.get(cid);
                     if (collection) {
-                      collection.itemCount = Math.max(0, collection.itemCount - 1)
+                      collection.itemCount = Math.max(
+                        0,
+                        collection.itemCount - 1,
+                      );
                     }
-                  })
+                  });
 
-                  state.savedMessages.delete(savedId)
-                  state.savedByMessageId.delete(saved.messageId)
-                  state.totalCount = Math.max(0, state.totalCount - 1)
+                  state.savedMessages.delete(savedId);
+                  state.savedByMessageId.delete(saved.messageId);
+                  state.totalCount = Math.max(0, state.totalCount - 1);
                 }
               },
               false,
-              'saved/removeSavedMessage'
+              "saved/removeSavedMessage",
             ),
 
           removeSavedByMessageId: (messageId) =>
             set(
               (state) => {
-                const savedId = state.savedByMessageId.get(messageId)
+                const savedId = state.savedByMessageId.get(messageId);
                 if (savedId) {
-                  const saved = state.savedMessages.get(savedId)
+                  const saved = state.savedMessages.get(savedId);
                   if (saved) {
                     saved.collectionIds.forEach((cid) => {
-                      const collection = state.collections.get(cid)
+                      const collection = state.collections.get(cid);
                       if (collection) {
-                        collection.itemCount = Math.max(0, collection.itemCount - 1)
+                        collection.itemCount = Math.max(
+                          0,
+                          collection.itemCount - 1,
+                        );
                       }
-                    })
+                    });
                   }
-                  state.savedMessages.delete(savedId)
-                  state.savedByMessageId.delete(messageId)
-                  state.totalCount = Math.max(0, state.totalCount - 1)
+                  state.savedMessages.delete(savedId);
+                  state.savedByMessageId.delete(messageId);
+                  state.totalCount = Math.max(0, state.totalCount - 1);
                 }
               },
               false,
-              'saved/removeSavedByMessageId'
+              "saved/removeSavedByMessageId",
             ),
 
           clearAllSaved: () =>
             set(
               (state) => {
-                state.savedMessages = new Map()
-                state.savedByMessageId = new Map()
-                state.totalCount = 0
+                state.savedMessages = new Map();
+                state.savedByMessageId = new Map();
+                state.totalCount = 0;
                 state.collections.forEach((c) => {
-                  c.itemCount = 0
-                })
+                  c.itemCount = 0;
+                });
               },
               false,
-              'saved/clearAllSaved'
+              "saved/clearAllSaved",
             ),
 
           // Get operations
           getSavedMessage: (savedId) => get().savedMessages.get(savedId),
 
           getSavedByMessageId: (messageId) => {
-            const savedId = get().savedByMessageId.get(messageId)
-            return savedId ? get().savedMessages.get(savedId) : undefined
+            const savedId = get().savedByMessageId.get(messageId);
+            return savedId ? get().savedMessages.get(savedId) : undefined;
           },
 
           isMessageSaved: (messageId) => get().savedByMessageId.has(messageId),
 
           getFilteredSavedMessages: () => {
-            const state = get()
-            let messages = Array.from(state.savedMessages.values())
+            const state = get();
+            let messages = Array.from(state.savedMessages.values());
 
             // Build filters
             const filters: SavedFilters = {
               ...state.filters,
               collectionId: state.selectedCollectionId,
               channelId: state.selectedChannelFilter ?? undefined,
-              tags: state.selectedTagFilter.length > 0 ? state.selectedTagFilter : undefined,
+              tags:
+                state.selectedTagFilter.length > 0
+                  ? state.selectedTagFilter
+                  : undefined,
               searchQuery: state.searchQuery || undefined,
-            }
+            };
 
             // Apply filters
-            messages = filterSavedMessages(messages, filters)
+            messages = filterSavedMessages(messages, filters);
 
             // Apply sorting
-            messages = sortSavedMessages(messages, state.sortBy, state.sortOrder)
+            messages = sortSavedMessages(
+              messages,
+              state.sortBy,
+              state.sortOrder,
+            );
 
-            return messages
+            return messages;
           },
 
           getSavedStats: () => {
-            const messages = Array.from(get().savedMessages.values())
-            return calculateSavedStats(messages)
+            const messages = Array.from(get().savedMessages.values());
+            return calculateSavedStats(messages);
           },
 
           getAllTags: () => {
-            const messages = Array.from(get().savedMessages.values())
-            return getAllTags(messages)
+            const messages = Array.from(get().savedMessages.values());
+            return getAllTags(messages);
           },
 
           // Starred operations
           toggleStar: (savedId) =>
             set(
               (state) => {
-                const saved = state.savedMessages.get(savedId)
+                const saved = state.savedMessages.get(savedId);
                 if (saved) {
-                  saved.isStarred = !saved.isStarred
+                  saved.isStarred = !saved.isStarred;
                 }
               },
               false,
-              'saved/toggleStar'
+              "saved/toggleStar",
             ),
 
           getStarredMessages: () => {
-            return Array.from(get().savedMessages.values()).filter((m) => m.isStarred)
+            return Array.from(get().savedMessages.values()).filter(
+              (m) => m.isStarred,
+            );
           },
 
           // Collection operations
           setCollections: (collections) =>
             set(
               (state) => {
-                state.collections = new Map(collections.map((c) => [c.id, c]))
+                state.collections = new Map(collections.map((c) => [c.id, c]));
               },
               false,
-              'saved/setCollections'
+              "saved/setCollections",
             ),
 
           addCollection: (collection) =>
             set(
               (state) => {
-                state.collections.set(collection.id, collection)
+                state.collections.set(collection.id, collection);
               },
               false,
-              'saved/addCollection'
+              "saved/addCollection",
             ),
 
           updateCollection: (collectionId, updates) =>
             set(
               (state) => {
-                const existing = state.collections.get(collectionId)
+                const existing = state.collections.get(collectionId);
                 if (existing) {
                   state.collections.set(collectionId, {
                     ...existing,
                     ...updates,
                     updatedAt: new Date(),
-                  })
+                  });
                 }
               },
               false,
-              'saved/updateCollection'
+              "saved/updateCollection",
             ),
 
           removeCollection: (collectionId) =>
             set(
               (state) => {
-                state.collections.delete(collectionId)
+                state.collections.delete(collectionId);
 
                 // Remove collection from all saved messages
                 state.savedMessages.forEach((saved) => {
-                  saved.collectionIds = saved.collectionIds.filter((cid) => cid !== collectionId)
-                })
+                  saved.collectionIds = saved.collectionIds.filter(
+                    (cid) => cid !== collectionId,
+                  );
+                });
 
                 // Reset selection if needed
                 if (state.selectedCollectionId === collectionId) {
-                  state.selectedCollectionId = null
+                  state.selectedCollectionId = null;
                 }
               },
               false,
-              'saved/removeCollection'
+              "saved/removeCollection",
             ),
 
           getCollection: (collectionId) => get().collections.get(collectionId),
 
           getCollectionMessages: (collectionId) => {
             return Array.from(get().savedMessages.values()).filter((m) =>
-              m.collectionIds.includes(collectionId)
-            )
+              m.collectionIds.includes(collectionId),
+            );
           },
 
           addToCollection: (savedId, collectionId) =>
             set(
               (state) => {
-                const saved = state.savedMessages.get(savedId)
-                const collection = state.collections.get(collectionId)
+                const saved = state.savedMessages.get(savedId);
+                const collection = state.collections.get(collectionId);
 
-                if (saved && collection && !saved.collectionIds.includes(collectionId)) {
-                  saved.collectionIds.push(collectionId)
-                  collection.itemCount += 1
+                if (
+                  saved &&
+                  collection &&
+                  !saved.collectionIds.includes(collectionId)
+                ) {
+                  saved.collectionIds.push(collectionId);
+                  collection.itemCount += 1;
                 }
               },
               false,
-              'saved/addToCollection'
+              "saved/addToCollection",
             ),
 
           removeFromCollection: (savedId, collectionId) =>
             set(
               (state) => {
-                const saved = state.savedMessages.get(savedId)
-                const collection = state.collections.get(collectionId)
+                const saved = state.savedMessages.get(savedId);
+                const collection = state.collections.get(collectionId);
 
                 if (saved && collection) {
-                  saved.collectionIds = saved.collectionIds.filter((cid) => cid !== collectionId)
-                  collection.itemCount = Math.max(0, collection.itemCount - 1)
+                  saved.collectionIds = saved.collectionIds.filter(
+                    (cid) => cid !== collectionId,
+                  );
+                  collection.itemCount = Math.max(0, collection.itemCount - 1);
                 }
               },
               false,
-              'saved/removeFromCollection'
+              "saved/removeFromCollection",
             ),
 
           reorderCollections: (collectionIds) =>
             set(
               (state) => {
                 collectionIds.forEach((id, index) => {
-                  const collection = state.collections.get(id)
+                  const collection = state.collections.get(id);
                   if (collection) {
-                    collection.position = index
+                    collection.position = index;
                   }
-                })
+                });
               },
               false,
-              'saved/reorderCollections'
+              "saved/reorderCollections",
             ),
 
           // Tag operations
           addTag: (savedId, tag) =>
             set(
               (state) => {
-                const saved = state.savedMessages.get(savedId)
+                const saved = state.savedMessages.get(savedId);
                 if (saved && !saved.tags.includes(tag)) {
-                  saved.tags.push(tag)
+                  saved.tags.push(tag);
                 }
               },
               false,
-              'saved/addTag'
+              "saved/addTag",
             ),
 
           removeTag: (savedId, tag) =>
             set(
               (state) => {
-                const saved = state.savedMessages.get(savedId)
+                const saved = state.savedMessages.get(savedId);
                 if (saved) {
-                  saved.tags = saved.tags.filter((t) => t !== tag)
+                  saved.tags = saved.tags.filter((t) => t !== tag);
                 }
               },
               false,
-              'saved/removeTag'
+              "saved/removeTag",
             ),
 
           // Reminder operations
           setReminder: (savedId, reminderAt) =>
             set(
               (state) => {
-                const saved = state.savedMessages.get(savedId)
+                const saved = state.savedMessages.get(savedId);
                 if (saved) {
-                  saved.reminderAt = reminderAt ?? undefined
-                  saved.reminderTriggered = false
+                  saved.reminderAt = reminderAt ?? undefined;
+                  saved.reminderTriggered = false;
                 }
               },
               false,
-              'saved/setReminder'
+              "saved/setReminder",
             ),
 
           triggerReminder: (savedId) =>
             set(
               (state) => {
-                const saved = state.savedMessages.get(savedId)
+                const saved = state.savedMessages.get(savedId);
                 if (saved) {
-                  saved.reminderTriggered = true
+                  saved.reminderTriggered = true;
                 }
               },
               false,
-              'saved/triggerReminder'
+              "saved/triggerReminder",
             ),
 
           getPendingReminders: () => {
-            const now = new Date()
+            const now = new Date();
             return Array.from(get().savedMessages.values()).filter(
-              (m) => m.reminderAt && !m.reminderTriggered && m.reminderAt > now
-            )
+              (m) => m.reminderAt && !m.reminderTriggered && m.reminderAt > now,
+            );
           },
 
           // View state
           setSelectedCollection: (collectionId) =>
             set(
               (state) => {
-                state.selectedCollectionId = collectionId
+                state.selectedCollectionId = collectionId;
               },
               false,
-              'saved/setSelectedCollection'
+              "saved/setSelectedCollection",
             ),
 
           setSelectedChannelFilter: (channelId) =>
             set(
               (state) => {
-                state.selectedChannelFilter = channelId
+                state.selectedChannelFilter = channelId;
               },
               false,
-              'saved/setSelectedChannelFilter'
+              "saved/setSelectedChannelFilter",
             ),
 
           setSelectedTagFilter: (tags) =>
             set(
               (state) => {
-                state.selectedTagFilter = tags
+                state.selectedTagFilter = tags;
               },
               false,
-              'saved/setSelectedTagFilter'
+              "saved/setSelectedTagFilter",
             ),
 
           // Panel state
           openPanel: () =>
             set(
               (state) => {
-                state.isPanelOpen = true
+                state.isPanelOpen = true;
               },
               false,
-              'saved/openPanel'
+              "saved/openPanel",
             ),
 
           closePanel: () =>
             set(
               (state) => {
-                state.isPanelOpen = false
+                state.isPanelOpen = false;
               },
               false,
-              'saved/closePanel'
+              "saved/closePanel",
             ),
 
           togglePanel: () =>
             set(
               (state) => {
-                state.isPanelOpen = !state.isPanelOpen
+                state.isPanelOpen = !state.isPanelOpen;
               },
               false,
-              'saved/togglePanel'
+              "saved/togglePanel",
             ),
 
           openAddToCollection: (savedId) =>
             set(
               (state) => {
-                state.isAddToCollectionOpen = true
-                state.selectedSavedId = savedId
+                state.isAddToCollectionOpen = true;
+                state.selectedSavedId = savedId;
               },
               false,
-              'saved/openAddToCollection'
+              "saved/openAddToCollection",
             ),
 
           closeAddToCollection: () =>
             set(
               (state) => {
-                state.isAddToCollectionOpen = false
-                state.selectedSavedId = null
+                state.isAddToCollectionOpen = false;
+                state.selectedSavedId = null;
               },
               false,
-              'saved/closeAddToCollection'
+              "saved/closeAddToCollection",
             ),
 
           openCreateCollection: () =>
             set(
               (state) => {
-                state.isCreateCollectionOpen = true
+                state.isCreateCollectionOpen = true;
               },
               false,
-              'saved/openCreateCollection'
+              "saved/openCreateCollection",
             ),
 
           closeCreateCollection: () =>
             set(
               (state) => {
-                state.isCreateCollectionOpen = false
+                state.isCreateCollectionOpen = false;
               },
               false,
-              'saved/closeCreateCollection'
+              "saved/closeCreateCollection",
             ),
 
           // Filters & sorting
           setFilters: (filters) =>
             set(
               (state) => {
-                state.filters = { ...state.filters, ...filters }
+                state.filters = { ...state.filters, ...filters };
               },
               false,
-              'saved/setFilters'
+              "saved/setFilters",
             ),
 
           clearFilters: () =>
             set(
               (state) => {
-                state.filters = {}
-                state.selectedCollectionId = null
-                state.selectedChannelFilter = null
-                state.selectedTagFilter = []
-                state.searchQuery = ''
+                state.filters = {};
+                state.selectedCollectionId = null;
+                state.selectedChannelFilter = null;
+                state.selectedTagFilter = [];
+                state.searchQuery = "";
               },
               false,
-              'saved/clearFilters'
+              "saved/clearFilters",
             ),
 
           setSortBy: (sortBy) =>
             set(
               (state) => {
-                state.sortBy = sortBy
+                state.sortBy = sortBy;
               },
               false,
-              'saved/setSortBy'
+              "saved/setSortBy",
             ),
 
           setSortOrder: (sortOrder) =>
             set(
               (state) => {
-                state.sortOrder = sortOrder
+                state.sortOrder = sortOrder;
               },
               false,
-              'saved/setSortOrder'
+              "saved/setSortOrder",
             ),
 
           setSearchQuery: (query) =>
             set(
               (state) => {
-                state.searchQuery = query
+                state.searchQuery = query;
               },
               false,
-              'saved/setSearchQuery'
+              "saved/setSearchQuery",
             ),
 
           // Loading/error
           setLoading: (loading) =>
             set(
               (state) => {
-                state.isLoading = loading
+                state.isLoading = loading;
               },
               false,
-              'saved/setLoading'
+              "saved/setLoading",
             ),
 
           setLoadingCollections: (loading) =>
             set(
               (state) => {
-                state.isLoadingCollections = loading
+                state.isLoadingCollections = loading;
               },
               false,
-              'saved/setLoadingCollections'
+              "saved/setLoadingCollections",
             ),
 
           setSaving: (saving) =>
             set(
               (state) => {
-                state.isSaving = saving
+                state.isSaving = saving;
               },
               false,
-              'saved/setSaving'
+              "saved/setSaving",
             ),
 
           setExporting: (exporting) =>
             set(
               (state) => {
-                state.isExporting = exporting
+                state.isExporting = exporting;
               },
               false,
-              'saved/setExporting'
+              "saved/setExporting",
             ),
 
           setError: (error) =>
             set(
               (state) => {
-                state.error = error
+                state.error = error;
               },
               false,
-              'saved/setError'
+              "saved/setError",
             ),
 
           // Pagination
           setHasMore: (hasMore) =>
             set(
               (state) => {
-                state.hasMore = hasMore
+                state.hasMore = hasMore;
               },
               false,
-              'saved/setHasMore'
+              "saved/setHasMore",
             ),
 
           setCursor: (cursor) =>
             set(
               (state) => {
-                state.cursor = cursor
+                state.cursor = cursor;
               },
               false,
-              'saved/setCursor'
+              "saved/setCursor",
             ),
 
           setTotalCount: (count) =>
             set(
               (state) => {
-                state.totalCount = count
+                state.totalCount = count;
               },
               false,
-              'saved/setTotalCount'
+              "saved/setTotalCount",
             ),
 
           // Utility
@@ -739,39 +767,42 @@ export const useSavedStore = create<SavedStore>()(
                 collections: new Map(),
               }),
               false,
-              'saved/resetStore'
+              "saved/resetStore",
             ),
         })),
         {
-          name: 'nchat-saved',
+          name: "nchat-saved",
           partialize: (state) => ({
             // Only persist UI preferences
             sortBy: state.sortBy,
             sortOrder: state.sortOrder,
           }),
-        }
-      )
+        },
+      ),
     ),
-    { name: 'saved-store' }
-  )
-)
+    { name: "saved-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectSavedCount = (state: SavedStore) => state.totalCount
+export const selectSavedCount = (state: SavedStore) => state.totalCount;
 
 export const selectStarredCount = (state: SavedStore) =>
-  Array.from(state.savedMessages.values()).filter((m) => m.isStarred).length
+  Array.from(state.savedMessages.values()).filter((m) => m.isStarred).length;
 
-export const selectCollectionCount = (state: SavedStore) => state.collections.size
+export const selectCollectionCount = (state: SavedStore) =>
+  state.collections.size;
 
 export const selectAllCollections = (state: SavedStore) =>
-  Array.from(state.collections.values()).sort((a, b) => a.position - b.position)
+  Array.from(state.collections.values()).sort(
+    (a, b) => a.position - b.position,
+  );
 
-export const selectIsPanelOpen = (state: SavedStore) => state.isPanelOpen
+export const selectIsPanelOpen = (state: SavedStore) => state.isPanelOpen;
 
-export const selectIsLoading = (state: SavedStore) => state.isLoading
+export const selectIsLoading = (state: SavedStore) => state.isLoading;
 
-export const selectError = (state: SavedStore) => state.error
+export const selectError = (state: SavedStore) => state.error;

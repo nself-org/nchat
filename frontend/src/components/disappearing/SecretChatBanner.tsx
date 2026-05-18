@@ -1,9 +1,14 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Shield, Lock, Clock, X, ChevronRight, Info } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useState } from "react";
+import { Shield, Lock, Clock, X, ChevronRight, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -11,25 +16,29 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { cn } from '@/lib/utils'
-import { SecretChatSettings, DisappearingSettings, formatDuration } from '@/lib/disappearing'
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import {
+  SecretChatSettings,
+  DisappearingSettings,
+  formatDuration,
+} from "@/lib/disappearing";
 
 interface SecretChatBannerProps {
   /** Whether this is a secret chat */
-  isSecretChat: boolean
+  isSecretChat: boolean;
   /** Secret chat settings (if secret chat) */
-  secretSettings?: SecretChatSettings | null
+  secretSettings?: SecretChatSettings | null;
   /** Regular disappearing settings (if not secret chat) */
-  disappearingSettings?: DisappearingSettings | null
+  disappearingSettings?: DisappearingSettings | null;
   /** Whether the banner can be dismissed */
-  dismissable?: boolean
+  dismissable?: boolean;
   /** Callback when banner is dismissed */
-  onDismiss?: () => void
+  onDismiss?: () => void;
   /** Show as compact or full banner */
-  variant?: 'full' | 'compact' | 'inline'
+  variant?: "full" | "compact" | "inline";
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -41,35 +50,36 @@ export function SecretChatBanner({
   disappearingSettings,
   dismissable = false,
   onDismiss,
-  variant = 'full',
+  variant = "full",
   className,
 }: SecretChatBannerProps) {
-  const [isDismissed, setIsDismissed] = useState(false)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Don't show if dismissed or no settings
-  if (isDismissed) return null
-  if (!isSecretChat && !disappearingSettings?.enabled) return null
-  if (!isSecretChat && disappearingSettings && !disappearingSettings.showBanner) return null
+  if (isDismissed) return null;
+  if (!isSecretChat && !disappearingSettings?.enabled) return null;
+  if (!isSecretChat && disappearingSettings && !disappearingSettings.showBanner)
+    return null;
 
   const handleDismiss = () => {
-    setIsDismissed(true)
-    onDismiss?.()
-  }
+    setIsDismissed(true);
+    onDismiss?.();
+  };
 
   const duration = isSecretChat
     ? secretSettings?.defaultDuration
-    : disappearingSettings?.defaultDuration
+    : disappearingSettings?.defaultDuration;
 
-  if (variant === 'inline') {
+  if (variant === "inline") {
     return (
       <div
         className={cn(
-          'inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs',
+          "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs",
           isSecretChat
-            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-            : 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-          className
+            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+            : "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+          className,
         )}
       >
         {isSecretChat ? (
@@ -84,10 +94,10 @@ export function SecretChatBanner({
           </>
         )}
       </div>
-    )
+    );
   }
 
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <TooltipProvider>
         <Tooltip>
@@ -95,12 +105,12 @@ export function SecretChatBanner({
             <button
               type="button"
               className={cn(
-                'flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm',
-                'transition-colors hover:opacity-80',
+                "flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm",
+                "transition-colors hover:opacity-80",
                 isSecretChat
-                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                  : 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-                className
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  : "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+                className,
               )}
               onClick={() => setIsDialogOpen(true)}
             >
@@ -113,7 +123,9 @@ export function SecretChatBanner({
               ) : (
                 <>
                   <Clock size={14} />
-                  <span className="font-medium">Disappearing: {formatDuration(duration || 0)}</span>
+                  <span className="font-medium">
+                    Disappearing: {formatDuration(duration || 0)}
+                  </span>
                 </>
               )}
             </button>
@@ -131,30 +143,33 @@ export function SecretChatBanner({
           disappearingSettings={disappearingSettings}
         />
       </TooltipProvider>
-    )
+    );
   }
 
   // Full variant
   return (
     <div
       className={cn(
-        'relative flex items-center gap-3 px-4 py-3',
-        'border-b',
+        "relative flex items-center gap-3 px-4 py-3",
+        "border-b",
         isSecretChat
-          ? 'border-emerald-500/20 bg-emerald-500/5'
-          : 'border-blue-500/20 bg-blue-500/5',
-        className
+          ? "border-emerald-500/20 bg-emerald-500/5"
+          : "border-blue-500/20 bg-blue-500/5",
+        className,
       )}
     >
       {/* Icon */}
       <div
         className={cn(
-          'flex-shrink-0 rounded-full p-2',
-          isSecretChat ? 'bg-emerald-500/10' : 'bg-blue-500/10'
+          "flex-shrink-0 rounded-full p-2",
+          isSecretChat ? "bg-emerald-500/10" : "bg-blue-500/10",
         )}
       >
         {isSecretChat ? (
-          <Shield size={18} className="text-emerald-600 dark:text-emerald-400" />
+          <Shield
+            size={18}
+            className="text-emerald-600 dark:text-emerald-400"
+          />
         ) : (
           <Clock size={18} className="text-blue-600 dark:text-blue-400" />
         )}
@@ -165,19 +180,19 @@ export function SecretChatBanner({
         <div className="flex items-center gap-2">
           <h4
             className={cn(
-              'text-sm font-semibold',
+              "text-sm font-semibold",
               isSecretChat
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-blue-600 dark:text-blue-400'
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-blue-600 dark:text-blue-400",
             )}
           >
-            {isSecretChat ? 'Secret Chat' : 'Disappearing Messages'}
+            {isSecretChat ? "Secret Chat" : "Disappearing Messages"}
           </h4>
           {isSecretChat && <Lock size={12} className="text-emerald-500" />}
         </div>
         <p className="text-xs text-muted-foreground">
           {isSecretChat
-            ? 'End-to-end encrypted. Messages disappear and cannot be forwarded.'
+            ? "End-to-end encrypted. Messages disappear and cannot be forwarded."
             : `Messages will disappear after ${formatDuration(duration || 0)}`}
         </p>
       </div>
@@ -199,13 +214,18 @@ export function SecretChatBanner({
         </Dialog>
 
         {dismissable && (
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDismiss}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleDismiss}
+          >
             <X size={14} />
           </Button>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -218,11 +238,11 @@ function SecretChatInfoDialog({
   secretSettings,
   disappearingSettings,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  isSecretChat: boolean
-  secretSettings?: SecretChatSettings | null
-  disappearingSettings?: DisappearingSettings | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  isSecretChat: boolean;
+  secretSettings?: SecretChatSettings | null;
+  disappearingSettings?: DisappearingSettings | null;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -232,7 +252,7 @@ function SecretChatInfoDialog({
         disappearingSettings={disappearingSettings}
       />
     </Dialog>
-  )
+  );
 }
 
 /**
@@ -243,13 +263,13 @@ function SecretChatInfoDialogContent({
   secretSettings,
   disappearingSettings,
 }: {
-  isSecretChat: boolean
-  secretSettings?: SecretChatSettings | null
-  disappearingSettings?: DisappearingSettings | null
+  isSecretChat: boolean;
+  secretSettings?: SecretChatSettings | null;
+  disappearingSettings?: DisappearingSettings | null;
 }) {
   const duration = isSecretChat
     ? secretSettings?.defaultDuration
-    : disappearingSettings?.defaultDuration
+    : disappearingSettings?.defaultDuration;
 
   return (
     <DialogContent className="sm:max-w-md">
@@ -257,20 +277,27 @@ function SecretChatInfoDialogContent({
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              'rounded-full p-2',
-              isSecretChat ? 'bg-emerald-500/10' : 'bg-blue-500/10'
+              "rounded-full p-2",
+              isSecretChat ? "bg-emerald-500/10" : "bg-blue-500/10",
             )}
           >
             {isSecretChat ? (
-              <Shield size={24} className="text-emerald-600 dark:text-emerald-400" />
+              <Shield
+                size={24}
+                className="text-emerald-600 dark:text-emerald-400"
+              />
             ) : (
               <Clock size={24} className="text-blue-600 dark:text-blue-400" />
             )}
           </div>
           <div>
-            <DialogTitle>{isSecretChat ? 'Secret Chat' : 'Disappearing Messages'}</DialogTitle>
+            <DialogTitle>
+              {isSecretChat ? "Secret Chat" : "Disappearing Messages"}
+            </DialogTitle>
             <DialogDescription>
-              {isSecretChat ? 'Enhanced privacy and security' : 'Automatic message cleanup'}
+              {isSecretChat
+                ? "Enhanced privacy and security"
+                : "Automatic message cleanup"}
             </DialogDescription>
           </div>
         </div>
@@ -284,47 +311,56 @@ function SecretChatInfoDialogContent({
         )}
       </div>
     </DialogContent>
-  )
+  );
 }
 
 /**
  * Secret chat features list.
  */
-function SecretChatFeatures({ settings }: { settings?: SecretChatSettings | null }) {
+function SecretChatFeatures({
+  settings,
+}: {
+  settings?: SecretChatSettings | null;
+}) {
   const features = [
     {
       icon: <Lock size={16} />,
-      title: 'End-to-end encryption',
-      description: 'Only you and the recipient can read messages',
+      title: "End-to-end encryption",
+      description: "Only you and the recipient can read messages",
       enabled: settings?.isEncrypted ?? true,
     },
     {
       icon: <Clock size={16} />,
-      title: 'Auto-delete',
+      title: "Auto-delete",
       description: `Messages disappear after ${formatDuration(settings?.defaultDuration || 0)}`,
       enabled: true,
     },
     {
       icon: <Shield size={16} />,
-      title: 'Screenshot warning',
-      description: 'Notifies when screenshots are detected',
+      title: "Screenshot warning",
+      description: "Notifies when screenshots are detected",
       enabled: settings?.screenshotWarning ?? true,
     },
-  ]
+  ];
 
   return (
     <div className="space-y-3">
       {features.map((feature, index) => (
-        <div key={index} className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
+        <div
+          key={index}
+          className="bg-muted/50 flex items-start gap-3 rounded-lg p-3"
+        >
           <div className="mt-0.5 text-emerald-500">{feature.icon}</div>
           <div>
             <p className="text-sm font-medium">{feature.title}</p>
-            <p className="text-xs text-muted-foreground">{feature.description}</p>
+            <p className="text-xs text-muted-foreground">
+              {feature.description}
+            </p>
           </div>
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 /**
@@ -340,7 +376,8 @@ function DisappearingFeatures({ duration }: { duration?: number }) {
         <div>
           <p className="text-sm font-medium">Automatic cleanup</p>
           <p className="text-xs text-muted-foreground">
-            Messages will disappear {formatDuration(duration || 0)} after being sent
+            Messages will disappear {formatDuration(duration || 0)} after being
+            sent
           </p>
         </div>
       </div>
@@ -352,13 +389,13 @@ function DisappearingFeatures({ duration }: { duration?: number }) {
         <div>
           <p className="text-sm font-medium">Note</p>
           <p className="text-xs text-muted-foreground">
-            Recipients may still screenshot or copy messages before they disappear. For enhanced
-            privacy, use Secret Chat.
+            Recipients may still screenshot or copy messages before they
+            disappear. For enhanced privacy, use Secret Chat.
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default SecretChatBanner
+export default SecretChatBanner;

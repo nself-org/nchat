@@ -23,70 +23,70 @@ This system provides comprehensive AI-driven features for analyzing chat convers
 ### Thread Summarization
 
 ```typescript
-import { getThreadSummarizer } from '@/lib/ai/thread-summarizer'
+import { getThreadSummarizer } from "@/lib/ai/thread-summarizer";
 
-const summarizer = getThreadSummarizer()
+const summarizer = getThreadSummarizer();
 const result = await summarizer.summarizeThread(messages, {
   includeActionItems: true,
   includeParticipants: true,
-})
+});
 
-console.log(result.tldr)
-console.log(result.actionItems)
-console.log(`Quality: ${result.qualityScore}%`)
+console.log(result.tldr);
+console.log(result.actionItems);
+console.log(`Quality: ${result.qualityScore}%`);
 ```
 
 ### Channel Digest
 
 ```typescript
-import { getChannelDigestGenerator } from '@/lib/ai/channel-digest'
+import { getChannelDigestGenerator } from "@/lib/ai/channel-digest";
 
-const generator = getChannelDigestGenerator()
-const digest = await generator.generateDigest('channel-123', messages, {
-  period: 'daily',
+const generator = getChannelDigestGenerator();
+const digest = await generator.generateDigest("channel-123", messages, {
+  period: "daily",
   maxTopMessages: 5,
-})
+});
 
-console.log(digest.digest)
-console.log(digest.topMessages)
-console.log(digest.statistics)
+console.log(digest.digest);
+console.log(digest.topMessages);
+console.log(digest.statistics);
 ```
 
 ### Sentiment Analysis
 
 ```typescript
-import { getSentimentAnalyzer } from '@/lib/ai/sentiment-analyzer'
+import { getSentimentAnalyzer } from "@/lib/ai/sentiment-analyzer";
 
-const analyzer = getSentimentAnalyzer()
+const analyzer = getSentimentAnalyzer();
 
 // Single message
-const result = await analyzer.analyzeMessage(message)
-console.log(result.sentiment) // 'positive'
-console.log(result.emotion) // 'joy'
+const result = await analyzer.analyzeMessage(message);
+console.log(result.sentiment); // 'positive'
+console.log(result.emotion); // 'joy'
 
 // Trend analysis
-const trend = await analyzer.analyzeTrends(messages)
-console.log(trend.trend) // 'improving'
+const trend = await analyzer.analyzeTrends(messages);
+console.log(trend.trend); // 'improving'
 
 // Team morale
-const morale = await analyzer.generateMoraleReport(messages, period)
-console.log(morale.recommendations)
+const morale = await analyzer.generateMoraleReport(messages, period);
+console.log(morale.recommendations);
 ```
 
 ### Meeting Notes
 
 ```typescript
-import { getMeetingNotesGenerator } from '@/lib/ai/meeting-notes'
+import { getMeetingNotesGenerator } from "@/lib/ai/meeting-notes";
 
-const generator = getMeetingNotesGenerator()
+const generator = getMeetingNotesGenerator();
 const notes = await generator.generateNotes(messages, {
   extractAgenda: true,
-  templateStyle: 'detailed',
-})
+  templateStyle: "detailed",
+});
 
-console.log(notes.formattedNotes) // Markdown
-console.log(notes.decisions)
-console.log(notes.actionItems)
+console.log(notes.formattedNotes); // Markdown
+console.log(notes.decisions);
+console.log(notes.actionItems);
 ```
 
 ## Configuration
@@ -267,13 +267,13 @@ Generate channel digests.
 Comprehensive thread summary display with interactive action items.
 
 ```tsx
-import { ThreadSummaryPanel } from '@/components/chat/ThreadSummaryPanel'
-;<ThreadSummaryPanel
+import { ThreadSummaryPanel } from "@/components/chat/ThreadSummaryPanel";
+<ThreadSummaryPanel
   messages={messages}
   threadId="thread-123"
   autoGenerate={true}
   onActionItemClick={(id) => handleAction(id)}
-/>
+/>;
 ```
 
 **Features:**
@@ -289,14 +289,14 @@ import { ThreadSummaryPanel } from '@/components/chat/ThreadSummaryPanel'
 Multi-tab channel digest viewer.
 
 ```tsx
-import { ChannelDigestView } from '@/components/chat/ChannelDigestView'
-;<ChannelDigestView
+import { ChannelDigestView } from "@/components/chat/ChannelDigestView";
+<ChannelDigestView
   channelId="channel-123"
   channelName="#general"
   messages={messages}
   period="daily"
   onMessageClick={(id) => navigateToMessage(id)}
-/>
+/>;
 ```
 
 **Features:**
@@ -313,11 +313,11 @@ import { ChannelDigestView } from '@/components/chat/ChannelDigestView'
 Monitor AI API costs:
 
 ```typescript
-const summarizer = getMessageSummarizer()
-const costs = summarizer.getCostStats()
+const summarizer = getMessageSummarizer();
+const costs = summarizer.getCostStats();
 
-console.log(`Total cost: $${costs.totalCost.toFixed(4)}`)
-console.log(`Requests: ${costs.requestCount}`)
+console.log(`Total cost: $${costs.totalCost.toFixed(4)}`);
+console.log(`Requests: ${costs.requestCount}`);
 ```
 
 **Cost Estimates:**
@@ -336,8 +336,8 @@ Built-in rate limits:
 - **Sentiment Analyzer:** Unlimited (cached)
 
 ```typescript
-if (!summarizer.checkRateLimit('user-123')) {
-  console.log('Rate limit exceeded')
+if (!summarizer.checkRateLimit("user-123")) {
+  console.log("Rate limit exceeded");
 }
 ```
 
@@ -347,7 +347,7 @@ Automatic fallback chain: OpenAI → Anthropic → Local
 
 ```typescript
 try {
-  const result = await summarizer.summarizeThread(messages)
+  const result = await summarizer.summarizeThread(messages);
 } catch (error) {
   // Automatically falls back to local analysis
   // Error logged to Sentry
@@ -429,17 +429,17 @@ pnpm test:e2e e2e/ai-features.spec.ts
 
 ```typescript
 // Old
-const summarizer = getMessageSummarizer({ model: 'gpt-4o-mini' })
+const summarizer = getMessageSummarizer({ model: "gpt-4o-mini" });
 
 // New (uses GPT-4 Turbo automatically)
-const summarizer = getMessageSummarizer()
+const summarizer = getMessageSummarizer();
 
 // New thread summarizer
-import { getThreadSummarizer } from '@/lib/ai/thread-summarizer'
-const result = await getThreadSummarizer().summarizeThread(messages)
+import { getThreadSummarizer } from "@/lib/ai/thread-summarizer";
+const result = await getThreadSummarizer().summarizeThread(messages);
 
 // Cost tracking
-const costs = summarizer.getCostStats()
+const costs = summarizer.getCostStats();
 ```
 
 ## Roadmap

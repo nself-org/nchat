@@ -1,28 +1,35 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, Folder, Share2, Pencil, Trash2, MoreHorizontal } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { useRouter, useParams } from "next/navigation";
+import {
+  ArrowLeft,
+  Folder,
+  Share2,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useSavedStore } from '@/stores/saved-store'
-import { SavedMessageList } from '@/components/saved/SavedMessageList'
-import { SavedEmpty } from '@/components/saved/SavedEmpty'
-import type { SavedMessage } from '@/lib/saved'
+} from "@/components/ui/dropdown-menu";
+import { useSavedStore } from "@/stores/saved-store";
+import { SavedMessageList } from "@/components/saved/SavedMessageList";
+import { SavedEmpty } from "@/components/saved/SavedEmpty";
+import type { SavedMessage } from "@/lib/saved";
 
 /**
  * Single collection page - shows messages in a specific collection.
  */
 export default function CollectionPage() {
-  const router = useRouter()
-  const params = useParams()
-  const collectionId = params.id as string
+  const router = useRouter();
+  const params = useParams();
+  const collectionId = params.id as string;
 
   const {
     getCollection,
@@ -31,38 +38,38 @@ export default function CollectionPage() {
     removeSavedMessage,
     toggleStar,
     removeFromCollection,
-  } = useSavedStore()
+  } = useSavedStore();
 
-  const collection = getCollection(collectionId)
-  const messages = getCollectionMessages(collectionId)
+  const collection = getCollection(collectionId);
+  const messages = getCollectionMessages(collectionId);
 
   const handleJumpToMessage = (messageId: string, channelId: string) => {
-    router.push(`/chat/channel/${channelId}?message=${messageId}`)
-  }
+    router.push(`/chat/channel/${channelId}?message=${messageId}`);
+  };
 
   const handleUnsave = (saved: SavedMessage) => {
-    removeSavedMessage(saved.id)
-  }
+    removeSavedMessage(saved.id);
+  };
 
   const handleToggleStar = (saved: SavedMessage) => {
-    toggleStar(saved.id)
-  }
+    toggleStar(saved.id);
+  };
 
   const handleRemoveFromCollection = (saved: SavedMessage) => {
-    removeFromCollection(saved.id, collectionId)
-  }
+    removeFromCollection(saved.id, collectionId);
+  };
 
   const handleEditCollection = () => {
     // Would open edit modal
-  }
+  };
 
   const handleShareCollection = () => {
     // Would open share modal
-  }
+  };
 
   const handleDeleteCollection = () => {
     // Would delete and redirect
-  }
+  };
 
   if (!collection) {
     return (
@@ -72,10 +79,12 @@ export default function CollectionPage() {
           <p className="mb-4 text-muted-foreground">
             This collection may have been deleted or does not exist.
           </p>
-          <Button onClick={() => router.push('/saved/collections')}>View all collections</Button>
+          <Button onClick={() => router.push("/saved/collections")}>
+            View all collections
+          </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -87,7 +96,7 @@ export default function CollectionPage() {
             variant="ghost"
             size="sm"
             className="mb-4"
-            onClick={() => router.push('/saved/collections')}
+            onClick={() => router.push("/saved/collections")}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Collections
@@ -100,7 +109,7 @@ export default function CollectionPage() {
                 style={
                   collection.color
                     ? {
-                        backgroundColor: collection.color + '20',
+                        backgroundColor: collection.color + "20",
                         color: collection.color,
                       }
                     : undefined
@@ -111,13 +120,17 @@ export default function CollectionPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-semibold">{collection.name}</h1>
-                  {collection.isShared && <Share2 className="h-4 w-4 text-muted-foreground" />}
+                  {collection.isShared && (
+                    <Share2 className="h-4 w-4 text-muted-foreground" />
+                  )}
                 </div>
                 {collection.description && (
-                  <p className="text-muted-foreground">{collection.description}</p>
+                  <p className="text-muted-foreground">
+                    {collection.description}
+                  </p>
                 )}
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {messages.length} message{messages.length !== 1 ? 's' : ''}
+                  {messages.length} message{messages.length !== 1 ? "s" : ""}
                 </p>
               </div>
             </div>
@@ -168,5 +181,5 @@ export default function CollectionPage() {
         )}
       </main>
     </div>
-  )
+  );
 }

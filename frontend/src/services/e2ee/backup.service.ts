@@ -19,7 +19,7 @@
  * - Secure memory handling
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   deriveBackupKey,
   verifyAndDeriveKey,
@@ -30,7 +30,7 @@ import {
   generateSuggestedPassphrase,
   type DerivedKeyParams,
   type PassphraseStrength,
-} from '@/lib/e2ee/backup-key-derivation'
+} from "@/lib/e2ee/backup-key-derivation";
 import {
   createEncryptedBackup,
   restoreBackup,
@@ -50,7 +50,7 @@ import {
   type BackupDeviceInfo,
   type RestoreResult,
   type BackupValidation,
-} from '@/lib/e2ee/backup-encryption'
+} from "@/lib/e2ee/backup-encryption";
 import {
   generateRecoveryKey,
   validateRecoveryKey,
@@ -64,8 +64,15 @@ import {
   type EncryptedMasterKey,
   type VerificationAttempt,
   type RateLimitResult,
-} from '@/lib/e2ee/recovery-key'
-import { secureWipe, bytesToBase64, base64ToBytes, hash256, bytesToHex, hexToBytes } from '@/lib/e2ee/crypto'
+} from "@/lib/e2ee/recovery-key";
+import {
+  secureWipe,
+  bytesToBase64,
+  base64ToBytes,
+  hash256,
+  bytesToHex,
+  hexToBytes,
+} from "@/lib/e2ee/crypto";
 
 // ============================================================================
 // Types
@@ -76,25 +83,25 @@ import { secureWipe, bytesToBase64, base64ToBytes, hash256, bytesToHex, hexToByt
  */
 export interface BackupServiceConfig {
   /** User ID */
-  userId: string
+  userId: string;
   /** Current device ID */
-  deviceId: string
+  deviceId: string;
   /** Device registration ID */
-  registrationId: number
+  registrationId: number;
   /** Platform identifier */
-  platform: 'web' | 'ios' | 'android' | 'desktop'
+  platform: "web" | "ios" | "android" | "desktop";
   /** App version */
-  appVersion: string
+  appVersion: string;
   /** Optional device name */
-  deviceName?: string
+  deviceName?: string;
   /** Storage provider */
-  storage?: Storage
+  storage?: Storage;
   /** Auto-backup interval in hours (0 to disable) */
-  autoBackupIntervalHours?: number
+  autoBackupIntervalHours?: number;
   /** Maximum backups to keep */
-  maxBackupsToKeep?: number
+  maxBackupsToKeep?: number;
   /** Callback when backup is needed */
-  onBackupNeeded?: () => Promise<void>
+  onBackupNeeded?: () => Promise<void>;
 }
 
 /**
@@ -102,17 +109,17 @@ export interface BackupServiceConfig {
  */
 export interface CreateBackupOptions {
   /** Passphrase for encryption */
-  passphrase: string
+  passphrase: string;
   /** Security level for key derivation */
-  securityLevel?: SecurityLevel
+  securityLevel?: SecurityLevel;
   /** Whether to generate a recovery key */
-  generateRecoveryKey?: boolean
+  generateRecoveryKey?: boolean;
   /** Include session states */
-  includeSessions?: boolean
+  includeSessions?: boolean;
   /** Include group keys */
-  includeGroupKeys?: boolean
+  includeGroupKeys?: boolean;
   /** Custom backup name/description */
-  description?: string
+  description?: string;
 }
 
 /**
@@ -120,19 +127,19 @@ export interface CreateBackupOptions {
  */
 export interface CreateBackupResult {
   /** Serialized encrypted backup */
-  backup: string
+  backup: string;
   /** Recovery key (if generated) */
-  recoveryKey?: RecoveryKeyResult
+  recoveryKey?: RecoveryKeyResult;
   /** Encrypted master key for recovery */
-  encryptedMasterKey?: EncryptedMasterKey
+  encryptedMasterKey?: EncryptedMasterKey;
   /** Backup metadata */
   metadata: {
-    backupId: string
-    createdAt: Date
-    keyCount: number
-    sessionCount: number
-    size: number
-  }
+    backupId: string;
+    createdAt: Date;
+    keyCount: number;
+    sessionCount: number;
+    size: number;
+  };
 }
 
 /**
@@ -140,15 +147,15 @@ export interface CreateBackupResult {
  */
 export interface RestoreOptions {
   /** Passphrase for decryption */
-  passphrase?: string
+  passphrase?: string;
   /** Recovery key for decryption */
-  recoveryKey?: string
+  recoveryKey?: string;
   /** Encrypted master key (required with recovery key) */
-  encryptedMasterKey?: EncryptedMasterKey
+  encryptedMasterKey?: EncryptedMasterKey;
   /** Whether to verify device binding */
-  verifyDevice?: boolean
+  verifyDevice?: boolean;
   /** Whether to merge with existing keys */
-  mergeExisting?: boolean
+  mergeExisting?: boolean;
 }
 
 /**
@@ -156,19 +163,19 @@ export interface RestoreOptions {
  */
 export interface RestoreServiceResult {
   /** Whether restore was successful */
-  success: boolean
+  success: boolean;
   /** Restore details */
-  details: RestoreResult
+  details: RestoreResult;
   /** Keys restored */
   keysRestored: {
-    identityKeys: number
-    signedPreKeys: number
-    oneTimePreKeys: number
-    sessions: number
-    senderKeys: number
-  }
+    identityKeys: number;
+    signedPreKeys: number;
+    oneTimePreKeys: number;
+    sessions: number;
+    senderKeys: number;
+  };
   /** Warnings from restore process */
-  warnings: string[]
+  warnings: string[];
 }
 
 /**
@@ -176,23 +183,23 @@ export interface RestoreServiceResult {
  */
 export interface BackupMetadata {
   /** Unique backup ID */
-  backupId: string
+  backupId: string;
   /** Creation timestamp */
-  createdAt: number
+  createdAt: number;
   /** Device that created backup */
-  deviceId: string
+  deviceId: string;
   /** Device name */
-  deviceName?: string
+  deviceName?: string;
   /** Number of keys */
-  keyCount: number
+  keyCount: number;
   /** Number of sessions */
-  sessionCount: number
+  sessionCount: number;
   /** Backup size in bytes */
-  size: number
+  size: number;
   /** Description */
-  description?: string
+  description?: string;
   /** Has recovery key */
-  hasRecoveryKey: boolean
+  hasRecoveryKey: boolean;
 }
 
 /**
@@ -200,50 +207,53 @@ export interface BackupMetadata {
  */
 export interface KeyDataProvider {
   /** Get identity key pair */
-  getIdentityKeyPair(): Promise<{ publicKey: Uint8Array; privateKey: Uint8Array } | null>
+  getIdentityKeyPair(): Promise<{
+    publicKey: Uint8Array;
+    privateKey: Uint8Array;
+  } | null>;
   /** Get all signed pre-keys */
   getSignedPreKeys(): Promise<
     Array<{
-      keyId: number
-      publicKey: Uint8Array
-      privateKey: Uint8Array
-      signature: Uint8Array
-      createdAt: number
-      expiresAt?: number
+      keyId: number;
+      publicKey: Uint8Array;
+      privateKey: Uint8Array;
+      signature: Uint8Array;
+      createdAt: number;
+      expiresAt?: number;
     }>
-  >
+  >;
   /** Get all one-time pre-keys */
   getOneTimePreKeys(): Promise<
     Array<{
-      keyId: number
-      publicKey: Uint8Array
-      privateKey: Uint8Array
+      keyId: number;
+      publicKey: Uint8Array;
+      privateKey: Uint8Array;
     }>
-  >
+  >;
   /** Get all session states */
   getSessions(): Promise<
     Array<{
-      peerUserId: string
-      peerDeviceId: string
-      state: Uint8Array
-      rootKey: Uint8Array
-      sendingCounter: number
-      receivingCounter: number
-      createdAt: number
-      lastActivity: number
+      peerUserId: string;
+      peerDeviceId: string;
+      state: Uint8Array;
+      rootKey: Uint8Array;
+      sendingCounter: number;
+      receivingCounter: number;
+      createdAt: number;
+      lastActivity: number;
     }>
-  >
+  >;
   /** Get all sender keys */
   getSenderKeys(): Promise<
     Array<{
-      groupId: string
-      keyId: number
-      publicKey: Uint8Array
-      privateKey: Uint8Array
+      groupId: string;
+      keyId: number;
+      publicKey: Uint8Array;
+      privateKey: Uint8Array;
     }>
-  >
+  >;
   /** Get message count */
-  getMessageCount(): Promise<number>
+  getMessageCount(): Promise<number>;
 }
 
 /**
@@ -251,43 +261,50 @@ export interface KeyDataProvider {
  */
 export interface KeyDataConsumer {
   /** Import identity key pair */
-  importIdentityKeyPair(publicKey: Uint8Array, privateKey: Uint8Array): Promise<void>
+  importIdentityKeyPair(
+    publicKey: Uint8Array,
+    privateKey: Uint8Array,
+  ): Promise<void>;
   /** Import signed pre-key */
   importSignedPreKey(
     keyId: number,
     publicKey: Uint8Array,
     privateKey: Uint8Array,
     signature: Uint8Array,
-    expiresAt?: number
-  ): Promise<void>
+    expiresAt?: number,
+  ): Promise<void>;
   /** Import one-time pre-key */
-  importOneTimePreKey(keyId: number, publicKey: Uint8Array, privateKey: Uint8Array): Promise<void>
+  importOneTimePreKey(
+    keyId: number,
+    publicKey: Uint8Array,
+    privateKey: Uint8Array,
+  ): Promise<void>;
   /** Import session state */
   importSession(
     peerUserId: string,
     peerDeviceId: string,
     state: Uint8Array,
-    counters: { sending: number; receiving: number }
-  ): Promise<void>
+    counters: { sending: number; receiving: number },
+  ): Promise<void>;
   /** Import sender key */
   importSenderKey(
     groupId: string,
     keyId: number,
     publicKey: Uint8Array,
-    privateKey: Uint8Array
-  ): Promise<void>
+    privateKey: Uint8Array,
+  ): Promise<void>;
 }
 
 // ============================================================================
 // Storage Keys
 // ============================================================================
 
-const STORAGE_PREFIX = 'nchat_backup_'
-const STORAGE_HISTORY_KEY = `${STORAGE_PREFIX}history`
-const STORAGE_KDF_PARAMS_KEY = `${STORAGE_PREFIX}kdf_params`
-const STORAGE_RECOVERY_HASH_KEY = `${STORAGE_PREFIX}recovery_hash`
-const STORAGE_LAST_BACKUP_KEY = `${STORAGE_PREFIX}last_backup`
-const STORAGE_ATTEMPTS_KEY = `${STORAGE_PREFIX}verification_attempts`
+const STORAGE_PREFIX = "nchat_backup_";
+const STORAGE_HISTORY_KEY = `${STORAGE_PREFIX}history`;
+const STORAGE_KDF_PARAMS_KEY = `${STORAGE_PREFIX}kdf_params`;
+const STORAGE_RECOVERY_HASH_KEY = `${STORAGE_PREFIX}recovery_hash`;
+const STORAGE_LAST_BACKUP_KEY = `${STORAGE_PREFIX}last_backup`;
+const STORAGE_ATTEMPTS_KEY = `${STORAGE_PREFIX}verification_attempts`;
 
 // ============================================================================
 // Backup Service Class
@@ -299,18 +316,18 @@ const STORAGE_ATTEMPTS_KEY = `${STORAGE_PREFIX}verification_attempts`
  * Manages backup creation, restoration, and history.
  */
 export class E2EEBackupService {
-  private config: BackupServiceConfig
-  private keyProvider: KeyDataProvider | null = null
-  private keyConsumer: KeyDataConsumer | null = null
-  private autoBackupTimer: NodeJS.Timeout | null = null
-  private initialized = false
+  private config: BackupServiceConfig;
+  private keyProvider: KeyDataProvider | null = null;
+  private keyConsumer: KeyDataConsumer | null = null;
+  private autoBackupTimer: NodeJS.Timeout | null = null;
+  private initialized = false;
 
   constructor(config: BackupServiceConfig) {
     this.config = {
       ...config,
       autoBackupIntervalHours: config.autoBackupIntervalHours ?? 24,
       maxBackupsToKeep: config.maxBackupsToKeep ?? 5,
-    }
+    };
   }
 
   // ==========================================================================
@@ -323,27 +340,33 @@ export class E2EEBackupService {
    * @param keyProvider - Provider for reading key data
    * @param keyConsumer - Consumer for importing key data
    */
-  async initialize(keyProvider: KeyDataProvider, keyConsumer: KeyDataConsumer): Promise<void> {
-    this.keyProvider = keyProvider
-    this.keyConsumer = keyConsumer
-    this.initialized = true
+  async initialize(
+    keyProvider: KeyDataProvider,
+    keyConsumer: KeyDataConsumer,
+  ): Promise<void> {
+    this.keyProvider = keyProvider;
+    this.keyConsumer = keyConsumer;
+    this.initialized = true;
 
     // Start auto-backup if configured
-    if (this.config.autoBackupIntervalHours && this.config.autoBackupIntervalHours > 0) {
-      this.startAutoBackup()
+    if (
+      this.config.autoBackupIntervalHours &&
+      this.config.autoBackupIntervalHours > 0
+    ) {
+      this.startAutoBackup();
     }
 
-    logger.info('E2EE Backup service initialized', {
+    logger.info("E2EE Backup service initialized", {
       userId: this.config.userId,
       deviceId: this.config.deviceId,
-    })
+    });
   }
 
   /**
    * Checks if service is initialized
    */
   isInitialized(): boolean {
-    return this.initialized
+    return this.initialized;
   }
 
   // ==========================================================================
@@ -356,53 +379,65 @@ export class E2EEBackupService {
    * @param options - Backup creation options
    * @returns Backup result
    */
-  async createBackup(options: CreateBackupOptions): Promise<CreateBackupResult> {
-    this.ensureInitialized()
+  async createBackup(
+    options: CreateBackupOptions,
+  ): Promise<CreateBackupResult> {
+    this.ensureInitialized();
 
     // Validate passphrase
     if (!isValidPassphrase(options.passphrase)) {
-      throw new Error('Passphrase does not meet minimum requirements')
+      throw new Error("Passphrase does not meet minimum requirements");
     }
 
-    const securityLevel = options.securityLevel ?? SecurityLevel.HIGH
+    const securityLevel = options.securityLevel ?? SecurityLevel.HIGH;
 
     // Derive backup key
-    const derivedKey = await deriveBackupKey(options.passphrase, undefined, securityLevel)
+    const derivedKey = await deriveBackupKey(
+      options.passphrase,
+      undefined,
+      securityLevel,
+    );
 
     // Build backup payload
-    const payload = await this.buildBackupPayload(options)
+    const payload = await this.buildBackupPayload(options);
 
     // Create encrypted backup
-    const kdfParams = toStorableParams(derivedKey)
-    const encryptedBackup = await createEncryptedBackup(payload, derivedKey.encryptionKey, {
-      algorithm: kdfParams.algorithm,
-      iterations: kdfParams.iterations,
-      salt: kdfParams.salt,
-    })
+    const kdfParams = toStorableParams(derivedKey);
+    const encryptedBackup = await createEncryptedBackup(
+      payload,
+      derivedKey.encryptionKey,
+      {
+        algorithm: kdfParams.algorithm,
+        iterations: kdfParams.iterations,
+        salt: kdfParams.salt,
+      },
+    );
 
     // Store KDF params for future verification
-    this.storeKdfParams(kdfParams)
+    this.storeKdfParams(kdfParams);
 
     // Generate recovery key if requested
-    let recoveryKeyResult: RecoveryKeyResult | undefined
-    let encryptedMasterKey: EncryptedMasterKey | undefined
+    let recoveryKeyResult: RecoveryKeyResult | undefined;
+    let encryptedMasterKey: EncryptedMasterKey | undefined;
 
     if (options.generateRecoveryKey !== false) {
-      recoveryKeyResult = generateRecoveryKey()
+      recoveryKeyResult = generateRecoveryKey();
       encryptedMasterKey = await encryptMasterKeyWithRecovery(
         derivedKey.encryptionKey,
-        recoveryKeyResult.keyBytes
-      )
+        recoveryKeyResult.keyBytes,
+      );
 
       // Store recovery key hash
-      this.storeRecoveryKeyHash(createRecoveryKeyHash(recoveryKeyResult.keyBytes))
+      this.storeRecoveryKeyHash(
+        createRecoveryKeyHash(recoveryKeyResult.keyBytes),
+      );
     }
 
     // Serialize backup
-    const serialized = serializeBackup(encryptedBackup)
+    const serialized = serializeBackup(encryptedBackup);
 
     // Create metadata
-    const backupId = this.generateBackupId()
+    const backupId = this.generateBackupId();
     const metadata: BackupMetadata = {
       backupId,
       createdAt: Date.now(),
@@ -417,20 +452,20 @@ export class E2EEBackupService {
       size: serialized.length,
       description: options.description,
       hasRecoveryKey: !!recoveryKeyResult,
-    }
+    };
 
     // Add to history
-    await this.addToHistory(metadata)
+    await this.addToHistory(metadata);
 
     // Wipe sensitive data
-    secureWipe(derivedKey.encryptionKey)
+    secureWipe(derivedKey.encryptionKey);
 
-    logger.info('Backup created', {
+    logger.info("Backup created", {
       backupId,
       keyCount: metadata.keyCount,
       sessionCount: metadata.sessionCount,
       size: metadata.size,
-    })
+    });
 
     return {
       backup: serialized,
@@ -443,56 +478,70 @@ export class E2EEBackupService {
         sessionCount: metadata.sessionCount,
         size: metadata.size,
       },
-    }
+    };
   }
 
   /**
    * Builds the backup payload from current keys
    */
-  private async buildBackupPayload(options: CreateBackupOptions): Promise<BackupPayload> {
+  private async buildBackupPayload(
+    options: CreateBackupOptions,
+  ): Promise<BackupPayload> {
     const deviceInfo = createDeviceInfo(
       this.config.deviceId,
       this.config.registrationId,
       this.config.platform,
       this.config.appVersion,
-      this.config.deviceName
-    )
+      this.config.deviceName,
+    );
 
     // Get identity key
-    const identityKeyPair = await this.keyProvider!.getIdentityKeyPair()
+    const identityKeyPair = await this.keyProvider!.getIdentityKeyPair();
     const identityKeys: BackupKeyEntry[] = identityKeyPair
       ? [
           createKeyEntry(
             BackupKeyType.IDENTITY_KEY,
             this.config.deviceId,
             identityKeyPair.publicKey,
-            identityKeyPair.privateKey
+            identityKeyPair.privateKey,
           ),
         ]
-      : []
+      : [];
 
     // Get signed pre-keys
-    const signedPreKeyData = await this.keyProvider!.getSignedPreKeys()
+    const signedPreKeyData = await this.keyProvider!.getSignedPreKeys();
     const signedPreKeys: BackupKeyEntry[] = signedPreKeyData.map((spk) =>
-      createKeyEntry(BackupKeyType.SIGNED_PREKEY, `spk-${spk.keyId}`, spk.publicKey, spk.privateKey, {
-        keyId: spk.keyId,
-        signature: spk.signature,
-        expiresAt: spk.expiresAt,
-      })
-    )
+      createKeyEntry(
+        BackupKeyType.SIGNED_PREKEY,
+        `spk-${spk.keyId}`,
+        spk.publicKey,
+        spk.privateKey,
+        {
+          keyId: spk.keyId,
+          signature: spk.signature,
+          expiresAt: spk.expiresAt,
+        },
+      ),
+    );
 
     // Get one-time pre-keys
-    const oneTimePreKeyData = await this.keyProvider!.getOneTimePreKeys()
+    const oneTimePreKeyData = await this.keyProvider!.getOneTimePreKeys();
     const oneTimePreKeys: BackupKeyEntry[] = oneTimePreKeyData.map((opk) =>
-      createKeyEntry(BackupKeyType.ONE_TIME_PREKEY, `opk-${opk.keyId}`, opk.publicKey, opk.privateKey, {
-        keyId: opk.keyId,
-      })
-    )
+      createKeyEntry(
+        BackupKeyType.ONE_TIME_PREKEY,
+        `opk-${opk.keyId}`,
+        opk.publicKey,
+        opk.privateKey,
+        {
+          keyId: opk.keyId,
+        },
+      ),
+    );
 
     // Get sessions
-    const sessions: BackupSessionEntry[] = []
+    const sessions: BackupSessionEntry[] = [];
     if (options.includeSessions !== false) {
-      const sessionData = await this.keyProvider!.getSessions()
+      const sessionData = await this.keyProvider!.getSessions();
       for (const session of sessionData) {
         sessions.push(
           createSessionEntry(
@@ -500,28 +549,37 @@ export class E2EEBackupService {
             session.peerDeviceId,
             session.state,
             session.rootKey,
-            { sending: session.sendingCounter, receiving: session.receivingCounter },
-            { created: session.createdAt, lastActivity: session.lastActivity }
-          )
-        )
+            {
+              sending: session.sendingCounter,
+              receiving: session.receivingCounter,
+            },
+            { created: session.createdAt, lastActivity: session.lastActivity },
+          ),
+        );
       }
     }
 
     // Get sender keys
-    const senderKeys: BackupKeyEntry[] = []
+    const senderKeys: BackupKeyEntry[] = [];
     if (options.includeGroupKeys !== false) {
-      const senderKeyData = await this.keyProvider!.getSenderKeys()
+      const senderKeyData = await this.keyProvider!.getSenderKeys();
       for (const sk of senderKeyData) {
         senderKeys.push(
-          createKeyEntry(BackupKeyType.SENDER_KEY, sk.groupId, sk.publicKey, sk.privateKey, {
-            keyId: sk.keyId,
-          })
-        )
+          createKeyEntry(
+            BackupKeyType.SENDER_KEY,
+            sk.groupId,
+            sk.publicKey,
+            sk.privateKey,
+            {
+              keyId: sk.keyId,
+            },
+          ),
+        );
       }
     }
 
     // Get message count
-    const messageCount = await this.keyProvider!.getMessageCount()
+    const messageCount = await this.keyProvider!.getMessageCount();
 
     return {
       userId: this.config.userId,
@@ -533,7 +591,7 @@ export class E2EEBackupService {
       senderKeys,
       createdAt: Date.now(),
       messageCount,
-    }
+    };
   }
 
   // ==========================================================================
@@ -547,27 +605,32 @@ export class E2EEBackupService {
    * @param options - Restore options
    * @returns Restore result
    */
-  async restore(backupData: string, options: RestoreOptions): Promise<RestoreServiceResult> {
-    this.ensureInitialized()
+  async restore(
+    backupData: string,
+    options: RestoreOptions,
+  ): Promise<RestoreServiceResult> {
+    this.ensureInitialized();
 
     // Check rate limiting
-    const attempts = this.getVerificationAttempts()
-    const rateLimit = checkRateLimit(attempts)
+    const attempts = this.getVerificationAttempts();
+    const rateLimit = checkRateLimit(attempts);
     if (!rateLimit.allowed) {
-      throw new Error(`Too many failed attempts. Please wait ${rateLimit.waitSeconds} seconds.`)
+      throw new Error(
+        `Too many failed attempts. Please wait ${rateLimit.waitSeconds} seconds.`,
+      );
     }
 
     // Parse backup
-    const backup = parseBackup(backupData)
+    const backup = parseBackup(backupData);
 
     // Validate backup structure
-    const validation = validateBackup(backup)
+    const validation = validateBackup(backup);
     if (!validation.valid) {
-      throw new Error(`Invalid backup: ${validation.errors.join(', ')}`)
+      throw new Error(`Invalid backup: ${validation.errors.join(", ")}`);
     }
 
     // Derive decryption key
-    let encryptionKey: Uint8Array
+    let encryptionKey: Uint8Array;
 
     try {
       if (options.passphrase) {
@@ -575,56 +638,63 @@ export class E2EEBackupService {
         const derivedResult = await deriveBackupKey(
           options.passphrase,
           hexToBytes(backup.header.kdf.salt),
-          backup.header.kdf.iterations >= 600000 ? SecurityLevel.HIGH : SecurityLevel.STANDARD
-        )
-        encryptionKey = derivedResult.encryptionKey
+          backup.header.kdf.iterations >= 600000
+            ? SecurityLevel.HIGH
+            : SecurityLevel.STANDARD,
+        );
+        encryptionKey = derivedResult.encryptionKey;
       } else if (options.recoveryKey && options.encryptedMasterKey) {
-        const recoveryValidation = validateRecoveryKey(options.recoveryKey)
+        const recoveryValidation = validateRecoveryKey(options.recoveryKey);
         if (!recoveryValidation.valid) {
-          throw new Error(`Invalid recovery key: ${recoveryValidation.error}`)
+          throw new Error(`Invalid recovery key: ${recoveryValidation.error}`);
         }
 
         encryptionKey = await decryptMasterKeyWithRecovery(
           options.encryptedMasterKey,
-          recoveryValidation.keyBytes!
-        )
+          recoveryValidation.keyBytes!,
+        );
       } else {
-        throw new Error('Either passphrase or recovery key with encrypted master key is required')
+        throw new Error(
+          "Either passphrase or recovery key with encrypted master key is required",
+        );
       }
 
       // Record successful attempt
-      this.recordAttempt(true)
+      this.recordAttempt(true);
     } catch (error) {
       // Record failed attempt
-      this.recordAttempt(false)
-      throw error
+      this.recordAttempt(false);
+      throw error;
     }
 
     // Restore backup
     const result = await restoreBackup(
       backup,
       encryptionKey,
-      options.verifyDevice ? this.config.deviceId : undefined
-    )
+      options.verifyDevice ? this.config.deviceId : undefined,
+    );
 
     // Import keys
-    const keysRestored = await this.importKeys(result.payload, options.mergeExisting ?? false)
+    const keysRestored = await this.importKeys(
+      result.payload,
+      options.mergeExisting ?? false,
+    );
 
     // Wipe encryption key
-    secureWipe(encryptionKey)
+    secureWipe(encryptionKey);
 
-    logger.info('Backup restored', {
+    logger.info("Backup restored", {
       deviceVerified: result.deviceVerified,
       keysRestored,
       warnings: result.warnings.length,
-    })
+    });
 
     return {
       success: true,
       details: result,
       keysRestored,
       warnings: result.warnings,
-    }
+    };
   }
 
   /**
@@ -632,69 +702,83 @@ export class E2EEBackupService {
    */
   private async importKeys(
     payload: BackupPayload,
-    mergeExisting: boolean
-  ): Promise<RestoreServiceResult['keysRestored']> {
+    mergeExisting: boolean,
+  ): Promise<RestoreServiceResult["keysRestored"]> {
     const result = {
       identityKeys: 0,
       signedPreKeys: 0,
       oneTimePreKeys: 0,
       sessions: 0,
       senderKeys: 0,
-    }
+    };
 
     // Import identity key
     for (const entry of payload.identityKeys) {
-      const { publicKey, privateKey } = extractKeyFromEntry(entry)
+      const { publicKey, privateKey } = extractKeyFromEntry(entry);
       if (publicKey && privateKey) {
-        await this.keyConsumer!.importIdentityKeyPair(publicKey, privateKey)
-        result.identityKeys++
+        await this.keyConsumer!.importIdentityKeyPair(publicKey, privateKey);
+        result.identityKeys++;
       }
     }
 
     // Import signed pre-keys
     for (const entry of payload.signedPreKeys) {
-      const { publicKey, privateKey, signature } = extractKeyFromEntry(entry)
+      const { publicKey, privateKey, signature } = extractKeyFromEntry(entry);
       if (publicKey && privateKey && signature && entry.keyId !== undefined) {
         await this.keyConsumer!.importSignedPreKey(
           entry.keyId,
           publicKey,
           privateKey,
           signature,
-          entry.expiresAt
-        )
-        result.signedPreKeys++
+          entry.expiresAt,
+        );
+        result.signedPreKeys++;
       }
     }
 
     // Import one-time pre-keys
     for (const entry of payload.oneTimePreKeys) {
-      const { publicKey, privateKey } = extractKeyFromEntry(entry)
+      const { publicKey, privateKey } = extractKeyFromEntry(entry);
       if (publicKey && privateKey && entry.keyId !== undefined) {
-        await this.keyConsumer!.importOneTimePreKey(entry.keyId, publicKey, privateKey)
-        result.oneTimePreKeys++
+        await this.keyConsumer!.importOneTimePreKey(
+          entry.keyId,
+          publicKey,
+          privateKey,
+        );
+        result.oneTimePreKeys++;
       }
     }
 
     // Import sessions
     for (const session of payload.sessions) {
-      const state = extractSessionState(session)
-      await this.keyConsumer!.importSession(session.peerUserId, session.peerDeviceId, state, {
-        sending: session.sendingCounter,
-        receiving: session.receivingCounter,
-      })
-      result.sessions++
+      const state = extractSessionState(session);
+      await this.keyConsumer!.importSession(
+        session.peerUserId,
+        session.peerDeviceId,
+        state,
+        {
+          sending: session.sendingCounter,
+          receiving: session.receivingCounter,
+        },
+      );
+      result.sessions++;
     }
 
     // Import sender keys
     for (const entry of payload.senderKeys) {
-      const { publicKey, privateKey } = extractKeyFromEntry(entry)
+      const { publicKey, privateKey } = extractKeyFromEntry(entry);
       if (publicKey && privateKey && entry.keyId !== undefined) {
-        await this.keyConsumer!.importSenderKey(entry.id, entry.keyId, publicKey, privateKey)
-        result.senderKeys++
+        await this.keyConsumer!.importSenderKey(
+          entry.id,
+          entry.keyId,
+          publicKey,
+          privateKey,
+        );
+        result.senderKeys++;
       }
     }
 
-    return result
+    return result;
   }
 
   // ==========================================================================
@@ -705,21 +789,21 @@ export class E2EEBackupService {
    * Assesses passphrase strength
    */
   assessPassphrase(passphrase: string): PassphraseStrength {
-    return assessPassphraseStrength(passphrase)
+    return assessPassphraseStrength(passphrase);
   }
 
   /**
    * Generates a suggested passphrase
    */
   suggestPassphrase(): string {
-    return generateSuggestedPassphrase()
+    return generateSuggestedPassphrase();
   }
 
   /**
    * Validates passphrase meets requirements
    */
   validatePassphrase(passphrase: string): boolean {
-    return isValidPassphrase(passphrase)
+    return isValidPassphrase(passphrase);
   }
 
   // ==========================================================================
@@ -733,44 +817,46 @@ export class E2EEBackupService {
    * @returns New recovery key and encrypted master key
    */
   async regenerateRecoveryKey(passphrase: string): Promise<{
-    recoveryKey: RecoveryKeyResult
-    encryptedMasterKey: EncryptedMasterKey
+    recoveryKey: RecoveryKeyResult;
+    encryptedMasterKey: EncryptedMasterKey;
   }> {
     // Get stored KDF params
-    const kdfParams = this.getStoredKdfParams()
+    const kdfParams = this.getStoredKdfParams();
     if (!kdfParams) {
-      throw new Error('No backup found. Create a backup first.')
+      throw new Error("No backup found. Create a backup first.");
     }
 
     // Derive master key from passphrase
-    const masterKey = await verifyAndDeriveKey(passphrase, kdfParams)
+    const masterKey = await verifyAndDeriveKey(passphrase, kdfParams);
 
     // Generate new recovery key
-    const recoveryKeyResult = generateRecoveryKey()
+    const recoveryKeyResult = generateRecoveryKey();
     const encryptedMasterKey = await encryptMasterKeyWithRecovery(
       masterKey,
-      recoveryKeyResult.keyBytes
-    )
+      recoveryKeyResult.keyBytes,
+    );
 
     // Store new recovery key hash
-    this.storeRecoveryKeyHash(createRecoveryKeyHash(recoveryKeyResult.keyBytes))
+    this.storeRecoveryKeyHash(
+      createRecoveryKeyHash(recoveryKeyResult.keyBytes),
+    );
 
     // Wipe master key
-    secureWipe(masterKey)
+    secureWipe(masterKey);
 
-    logger.info('Recovery key regenerated')
+    logger.info("Recovery key regenerated");
 
     return {
       recoveryKey: recoveryKeyResult,
       encryptedMasterKey,
-    }
+    };
   }
 
   /**
    * Masks a recovery key for display
    */
   maskRecoveryKey(displayKey: string): string {
-    return maskRecoveryKey(displayKey)
+    return maskRecoveryKey(displayKey);
   }
 
   // ==========================================================================
@@ -782,18 +868,18 @@ export class E2EEBackupService {
    */
   getBackupHistory(): BackupMetadata[] {
     if (!this.config.storage) {
-      return []
+      return [];
     }
 
-    const historyJson = this.config.storage.getItem(STORAGE_HISTORY_KEY)
+    const historyJson = this.config.storage.getItem(STORAGE_HISTORY_KEY);
     if (!historyJson) {
-      return []
+      return [];
     }
 
     try {
-      return JSON.parse(historyJson) as BackupMetadata[]
+      return JSON.parse(historyJson) as BackupMetadata[];
     } catch {
-      return []
+      return [];
     }
   }
 
@@ -801,8 +887,8 @@ export class E2EEBackupService {
    * Gets the most recent backup metadata
    */
   getLastBackupMetadata(): BackupMetadata | null {
-    const history = this.getBackupHistory()
-    return history.length > 0 ? history[0] : null
+    const history = this.getBackupHistory();
+    return history.length > 0 ? history[0] : null;
   }
 
   /**
@@ -810,8 +896,8 @@ export class E2EEBackupService {
    */
   clearBackupHistory(): void {
     if (this.config.storage) {
-      this.config.storage.removeItem(STORAGE_HISTORY_KEY)
-      logger.info('Backup history cleared')
+      this.config.storage.removeItem(STORAGE_HISTORY_KEY);
+      logger.info("Backup history cleared");
     }
   }
 
@@ -820,17 +906,23 @@ export class E2EEBackupService {
    */
   private async addToHistory(metadata: BackupMetadata): Promise<void> {
     if (!this.config.storage) {
-      return
+      return;
     }
 
-    const history = this.getBackupHistory()
-    history.unshift(metadata)
+    const history = this.getBackupHistory();
+    history.unshift(metadata);
 
     // Trim to max backups
-    const trimmedHistory = history.slice(0, this.config.maxBackupsToKeep)
+    const trimmedHistory = history.slice(0, this.config.maxBackupsToKeep);
 
-    this.config.storage.setItem(STORAGE_HISTORY_KEY, JSON.stringify(trimmedHistory))
-    this.config.storage.setItem(STORAGE_LAST_BACKUP_KEY, metadata.createdAt.toString())
+    this.config.storage.setItem(
+      STORAGE_HISTORY_KEY,
+      JSON.stringify(trimmedHistory),
+    );
+    this.config.storage.setItem(
+      STORAGE_LAST_BACKUP_KEY,
+      metadata.createdAt.toString(),
+    );
   }
 
   // ==========================================================================
@@ -842,14 +934,15 @@ export class E2EEBackupService {
    */
   private startAutoBackup(): void {
     if (this.autoBackupTimer) {
-      clearInterval(this.autoBackupTimer)
+      clearInterval(this.autoBackupTimer);
     }
 
-    const intervalMs = (this.config.autoBackupIntervalHours ?? 24) * 60 * 60 * 1000
+    const intervalMs =
+      (this.config.autoBackupIntervalHours ?? 24) * 60 * 60 * 1000;
 
     this.autoBackupTimer = setInterval(() => {
-      this.checkAutoBackup()
-    }, intervalMs)
+      this.checkAutoBackup();
+    }, intervalMs);
   }
 
   /**
@@ -857,8 +950,8 @@ export class E2EEBackupService {
    */
   stopAutoBackup(): void {
     if (this.autoBackupTimer) {
-      clearInterval(this.autoBackupTimer)
-      this.autoBackupTimer = null
+      clearInterval(this.autoBackupTimer);
+      this.autoBackupTimer = null;
     }
   }
 
@@ -866,15 +959,16 @@ export class E2EEBackupService {
    * Checks if auto-backup is needed
    */
   private checkAutoBackup(): void {
-    const lastBackup = this.getLastBackupTimestamp()
-    const now = Date.now()
-    const intervalMs = (this.config.autoBackupIntervalHours ?? 24) * 60 * 60 * 1000
+    const lastBackup = this.getLastBackupTimestamp();
+    const now = Date.now();
+    const intervalMs =
+      (this.config.autoBackupIntervalHours ?? 24) * 60 * 60 * 1000;
 
     if (!lastBackup || now - lastBackup > intervalMs) {
       if (this.config.onBackupNeeded) {
         this.config.onBackupNeeded().catch((error) => {
-          logger.error('Auto-backup failed', { error })
-        })
+          logger.error("Auto-backup failed", { error });
+        });
       }
     }
   }
@@ -884,11 +978,11 @@ export class E2EEBackupService {
    */
   private getLastBackupTimestamp(): number | null {
     if (!this.config.storage) {
-      return null
+      return null;
     }
 
-    const timestamp = this.config.storage.getItem(STORAGE_LAST_BACKUP_KEY)
-    return timestamp ? parseInt(timestamp, 10) : null
+    const timestamp = this.config.storage.getItem(STORAGE_LAST_BACKUP_KEY);
+    return timestamp ? parseInt(timestamp, 10) : null;
   }
 
   // ==========================================================================
@@ -900,7 +994,10 @@ export class E2EEBackupService {
    */
   private storeKdfParams(params: DerivedKeyParams): void {
     if (this.config.storage) {
-      this.config.storage.setItem(STORAGE_KDF_PARAMS_KEY, JSON.stringify(params))
+      this.config.storage.setItem(
+        STORAGE_KDF_PARAMS_KEY,
+        JSON.stringify(params),
+      );
     }
   }
 
@@ -909,18 +1006,18 @@ export class E2EEBackupService {
    */
   private getStoredKdfParams(): DerivedKeyParams | null {
     if (!this.config.storage) {
-      return null
+      return null;
     }
 
-    const json = this.config.storage.getItem(STORAGE_KDF_PARAMS_KEY)
+    const json = this.config.storage.getItem(STORAGE_KDF_PARAMS_KEY);
     if (!json) {
-      return null
+      return null;
     }
 
     try {
-      return JSON.parse(json) as DerivedKeyParams
+      return JSON.parse(json) as DerivedKeyParams;
     } catch {
-      return null
+      return null;
     }
   }
 
@@ -929,7 +1026,7 @@ export class E2EEBackupService {
    */
   private storeRecoveryKeyHash(hash: string): void {
     if (this.config.storage) {
-      this.config.storage.setItem(STORAGE_RECOVERY_HASH_KEY, hash)
+      this.config.storage.setItem(STORAGE_RECOVERY_HASH_KEY, hash);
     }
   }
 
@@ -938,18 +1035,18 @@ export class E2EEBackupService {
    */
   private getVerificationAttempts(): VerificationAttempt[] {
     if (!this.config.storage) {
-      return []
+      return [];
     }
 
-    const json = this.config.storage.getItem(STORAGE_ATTEMPTS_KEY)
+    const json = this.config.storage.getItem(STORAGE_ATTEMPTS_KEY);
     if (!json) {
-      return []
+      return [];
     }
 
     try {
-      return JSON.parse(json) as VerificationAttempt[]
+      return JSON.parse(json) as VerificationAttempt[];
     } catch {
-      return []
+      return [];
     }
   }
 
@@ -958,21 +1055,25 @@ export class E2EEBackupService {
    */
   private recordAttempt(success: boolean): void {
     if (!this.config.storage) {
-      return
+      return;
     }
 
-    const attempts = this.getVerificationAttempts()
-    const updated = recordVerificationAttempt(attempts, success, this.config.deviceId)
-    this.config.storage.setItem(STORAGE_ATTEMPTS_KEY, JSON.stringify(updated))
+    const attempts = this.getVerificationAttempts();
+    const updated = recordVerificationAttempt(
+      attempts,
+      success,
+      this.config.deviceId,
+    );
+    this.config.storage.setItem(STORAGE_ATTEMPTS_KEY, JSON.stringify(updated));
   }
 
   /**
    * Generates a unique backup ID
    */
   private generateBackupId(): string {
-    const timestamp = Date.now().toString(36)
-    const random = Math.random().toString(36).substring(2, 8)
-    return `${timestamp}-${random}`
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 8);
+    return `${timestamp}-${random}`;
   }
 
   // ==========================================================================
@@ -987,13 +1088,15 @@ export class E2EEBackupService {
    */
   validateBackup(backupData: string): BackupValidation {
     try {
-      const backup = parseBackup(backupData)
-      return validateBackup(backup)
+      const backup = parseBackup(backupData);
+      return validateBackup(backup);
     } catch (error) {
       return {
         valid: false,
-        errors: [`Failed to parse backup: ${error instanceof Error ? error.message : 'Unknown error'}`],
-      }
+        errors: [
+          `Failed to parse backup: ${error instanceof Error ? error.message : "Unknown error"}`,
+        ],
+      };
     }
   }
 
@@ -1005,11 +1108,11 @@ export class E2EEBackupService {
    * Destroys the service
    */
   destroy(): void {
-    this.stopAutoBackup()
-    this.keyProvider = null
-    this.keyConsumer = null
-    this.initialized = false
-    logger.info('E2EE Backup service destroyed')
+    this.stopAutoBackup();
+    this.keyProvider = null;
+    this.keyConsumer = null;
+    this.initialized = false;
+    logger.info("E2EE Backup service destroyed");
   }
 
   /**
@@ -1023,14 +1126,14 @@ export class E2EEBackupService {
         STORAGE_RECOVERY_HASH_KEY,
         STORAGE_LAST_BACKUP_KEY,
         STORAGE_ATTEMPTS_KEY,
-      ]
+      ];
 
       for (const key of keysToRemove) {
-        this.config.storage.removeItem(key)
+        this.config.storage.removeItem(key);
       }
     }
 
-    logger.info('All backup data cleared')
+    logger.info("All backup data cleared");
   }
 
   // ==========================================================================
@@ -1042,7 +1145,9 @@ export class E2EEBackupService {
    */
   private ensureInitialized(): void {
     if (!this.initialized || !this.keyProvider || !this.keyConsumer) {
-      throw new Error('Backup service not initialized. Call initialize() first.')
+      throw new Error(
+        "Backup service not initialized. Call initialize() first.",
+      );
     }
   }
 }
@@ -1054,29 +1159,35 @@ export class E2EEBackupService {
 /**
  * Creates and returns a backup service instance
  */
-export function createBackupService(config: BackupServiceConfig): E2EEBackupService {
-  return new E2EEBackupService(config)
+export function createBackupService(
+  config: BackupServiceConfig,
+): E2EEBackupService {
+  return new E2EEBackupService(config);
 }
 
 // ============================================================================
 // Singleton Management
 // ============================================================================
 
-let backupServiceInstance: E2EEBackupService | null = null
+let backupServiceInstance: E2EEBackupService | null = null;
 
 /**
  * Gets or creates the backup service singleton
  */
-export function getBackupService(config?: BackupServiceConfig): E2EEBackupService {
+export function getBackupService(
+  config?: BackupServiceConfig,
+): E2EEBackupService {
   if (!backupServiceInstance && config) {
-    backupServiceInstance = createBackupService(config)
+    backupServiceInstance = createBackupService(config);
   }
 
   if (!backupServiceInstance) {
-    throw new Error('Backup service not configured. Provide config on first call.')
+    throw new Error(
+      "Backup service not configured. Provide config on first call.",
+    );
   }
 
-  return backupServiceInstance
+  return backupServiceInstance;
 }
 
 /**
@@ -1084,8 +1195,8 @@ export function getBackupService(config?: BackupServiceConfig): E2EEBackupServic
  */
 export function resetBackupService(): void {
   if (backupServiceInstance) {
-    backupServiceInstance.destroy()
-    backupServiceInstance = null
+    backupServiceInstance.destroy();
+    backupServiceInstance = null;
   }
 }
 
@@ -1093,4 +1204,4 @@ export function resetBackupService(): void {
 // Exports
 // ============================================================================
 
-export default E2EEBackupService
+export default E2EEBackupService;

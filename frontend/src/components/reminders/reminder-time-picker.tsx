@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Reminder Time Picker Component
@@ -16,40 +16,44 @@
  * ```
  */
 
-import * as React from 'react'
-import { Calendar, Clock, Globe } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+import * as React from "react";
+import { Calendar, Clock, Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   getCommonTimezones,
   formatTimezoneOffset,
   formatFutureTime,
-} from '@/lib/reminders/reminder-store'
+} from "@/lib/reminders/reminder-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ReminderTimePickerProps {
-  value: Date
-  onChange: (date: Date) => void
-  timezone: string
-  onTimezoneChange?: (timezone: string) => void
-  minDate?: Date
-  maxDate?: Date
-  showTimezone?: boolean
-  showRelativeTime?: boolean
-  disabled?: boolean
-  className?: string
+  value: Date;
+  onChange: (date: Date) => void;
+  timezone: string;
+  onTimezoneChange?: (timezone: string) => void;
+  minDate?: Date;
+  maxDate?: Date;
+  showTimezone?: boolean;
+  showRelativeTime?: boolean;
+  disabled?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -57,48 +61,48 @@ export interface ReminderTimePickerProps {
 // ============================================================================
 
 function formatDateForInput(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function formatTimeForInput(date: Date): string {
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  return `${hours}:${minutes}`
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
 }
 
 function getRelativeTimeDescription(date: Date): string {
-  const now = new Date()
-  const diffMs = date.getTime() - now.getTime()
+  const now = new Date();
+  const diffMs = date.getTime() - now.getTime();
 
   if (diffMs < 0) {
-    return 'Time is in the past'
+    return "Time is in the past";
   }
 
-  const diffMinutes = Math.floor(diffMs / (1000 * 60))
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffMinutes < 60) {
-    return `In ${diffMinutes} minute${diffMinutes === 1 ? '' : 's'}`
+    return `In ${diffMinutes} minute${diffMinutes === 1 ? "" : "s"}`;
   }
 
   if (diffHours < 24) {
-    const remainingMinutes = diffMinutes % 60
+    const remainingMinutes = diffMinutes % 60;
     if (remainingMinutes === 0) {
-      return `In ${diffHours} hour${diffHours === 1 ? '' : 's'}`
+      return `In ${diffHours} hour${diffHours === 1 ? "" : "s"}`;
     }
-    return `In ${diffHours} hour${diffHours === 1 ? '' : 's'} ${remainingMinutes} min`
+    return `In ${diffHours} hour${diffHours === 1 ? "" : "s"} ${remainingMinutes} min`;
   }
 
   if (diffDays < 7) {
-    return `In ${diffDays} day${diffDays === 1 ? '' : 's'}`
+    return `In ${diffDays} day${diffDays === 1 ? "" : "s"}`;
   }
 
-  const diffWeeks = Math.floor(diffDays / 7)
-  return `In ${diffWeeks} week${diffWeeks === 1 ? '' : 's'}`
+  const diffWeeks = Math.floor(diffDays / 7);
+  return `In ${diffWeeks} week${diffWeeks === 1 ? "" : "s"}`;
 }
 
 // ============================================================================
@@ -116,54 +120,56 @@ export function ReminderTimePicker({
   disabled = false,
   className,
 }: ReminderTimePickerProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const timezones = React.useMemo(() => getCommonTimezones(), [])
+  const [isOpen, setIsOpen] = React.useState(false);
+  const timezones = React.useMemo(() => getCommonTimezones(), []);
 
   // Handle date change
   const handleDateChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const dateStr = e.target.value
-      if (!dateStr) return
+      const dateStr = e.target.value;
+      if (!dateStr) return;
 
-      const [year, month, day] = dateStr.split('-').map(Number)
-      const newDate = new Date(value)
-      newDate.setFullYear(year, month - 1, day)
-      onChange(newDate)
+      const [year, month, day] = dateStr.split("-").map(Number);
+      const newDate = new Date(value);
+      newDate.setFullYear(year, month - 1, day);
+      onChange(newDate);
     },
-    [value, onChange]
-  )
+    [value, onChange],
+  );
 
   // Handle time change
   const handleTimeChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const timeStr = e.target.value
-      if (!timeStr) return
+      const timeStr = e.target.value;
+      if (!timeStr) return;
 
-      const [hours, minutes] = timeStr.split(':').map(Number)
-      const newDate = new Date(value)
-      newDate.setHours(hours, minutes, 0, 0)
-      onChange(newDate)
+      const [hours, minutes] = timeStr.split(":").map(Number);
+      const newDate = new Date(value);
+      newDate.setHours(hours, minutes, 0, 0);
+      onChange(newDate);
     },
-    [value, onChange]
-  )
+    [value, onChange],
+  );
 
   // Quick time adjustments
   const adjustTime = React.useCallback(
     (minutes: number) => {
-      const newDate = new Date(value.getTime() + minutes * 60 * 1000)
-      onChange(newDate)
+      const newDate = new Date(value.getTime() + minutes * 60 * 1000);
+      onChange(newDate);
     },
-    [value, onChange]
-  )
+    [value, onChange],
+  );
 
   // Check if selected time is in the past
-  const isInPast = value.getTime() < Date.now()
+  const isInPast = value.getTime() < Date.now();
 
   // Get min date for input
-  const minDateStr = minDate ? formatDateForInput(minDate) : formatDateForInput(new Date())
+  const minDateStr = minDate
+    ? formatDateForInput(minDate)
+    : formatDateForInput(new Date());
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Date and Time Inputs */}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
@@ -180,10 +186,10 @@ export function ReminderTimePicker({
               min={minDateStr}
               disabled={disabled}
               className={cn(
-                'flex h-10 w-full rounded-xl border border-input bg-background py-2 pl-10 pr-3 text-sm ring-offset-background',
-                'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-50',
-                isInPast && 'border-destructive'
+                "flex h-10 w-full rounded-xl border border-input bg-background py-2 pl-10 pr-3 text-sm ring-offset-background",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+                isInPast && "border-destructive",
               )}
             />
           </div>
@@ -202,10 +208,10 @@ export function ReminderTimePicker({
               onChange={handleTimeChange}
               disabled={disabled}
               className={cn(
-                'flex h-10 w-full rounded-xl border border-input bg-background py-2 pl-10 pr-3 text-sm ring-offset-background',
-                'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-50',
-                isInPast && 'border-destructive'
+                "flex h-10 w-full rounded-xl border border-input bg-background py-2 pl-10 pr-3 text-sm ring-offset-background",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+                isInPast && "border-destructive",
               )}
             />
           </div>
@@ -260,7 +266,11 @@ export function ReminderTimePicker({
       {showTimezone && onTimezoneChange && (
         <div className="space-y-2">
           <Label className="text-sm font-medium">Timezone</Label>
-          <Select value={timezone} onValueChange={onTimezoneChange} disabled={disabled}>
+          <Select
+            value={timezone}
+            onValueChange={onTimezoneChange}
+            disabled={disabled}
+          >
             <SelectTrigger className="w-full">
               <Globe className="mr-2 h-4 w-4 text-muted-foreground" />
               <SelectValue placeholder="Select timezone" />
@@ -283,18 +293,22 @@ export function ReminderTimePicker({
       {showRelativeTime && (
         <div
           className={cn(
-            'rounded-lg p-3 text-sm',
-            isInPast ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground'
+            "rounded-lg p-3 text-sm",
+            isInPast
+              ? "bg-destructive/10 text-destructive"
+              : "bg-muted text-muted-foreground",
           )}
         >
           <div className="font-medium">{formatFutureTime(value)}</div>
           <div className="mt-1 text-xs">
-            {isInPast ? 'Please select a future time' : getRelativeTimeDescription(value)}
+            {isInPast
+              ? "Please select a future time"
+              : getRelativeTimeDescription(value)}
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -302,10 +316,10 @@ export function ReminderTimePicker({
 // ============================================================================
 
 export interface CompactTimePickerProps {
-  value: Date
-  onChange: (date: Date) => void
-  disabled?: boolean
-  className?: string
+  value: Date;
+  onChange: (date: Date) => void;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function CompactTimePicker({
@@ -314,7 +328,7 @@ export function CompactTimePicker({
   disabled = false,
   className,
 }: CompactTimePickerProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -323,9 +337,9 @@ export function CompactTimePicker({
           variant="outline"
           disabled={disabled}
           className={cn(
-            'justify-start text-left font-normal',
-            !value && 'text-muted-foreground',
-            className
+            "justify-start text-left font-normal",
+            !value && "text-muted-foreground",
+            className,
           )}
         >
           <Calendar className="mr-2 h-4 w-4" />
@@ -336,8 +350,8 @@ export function CompactTimePicker({
         <ReminderTimePicker
           value={value}
           onChange={(date) => {
-            onChange(date)
-            setIsOpen(false)
+            onChange(date);
+            setIsOpen(false);
           }}
           timezone={Intl.DateTimeFormat().resolvedOptions().timeZone}
           showTimezone={false}
@@ -346,7 +360,7 @@ export function CompactTimePicker({
         />
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
-export default ReminderTimePicker
+export default ReminderTimePicker;

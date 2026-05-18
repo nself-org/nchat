@@ -3,24 +3,24 @@
  * Manages reminder scheduling and execution
  */
 
-import { randomBytes } from 'crypto'
-import type { BotApi, BotResponse, ChannelId, UserId } from '@/lib/bots'
-import { response, embed, mentionUser, formatDuration } from '@/lib/bots'
+import { randomBytes } from "crypto";
+import type { BotApi, BotResponse, ChannelId, UserId } from "@/lib/bots";
+import { response, embed, mentionUser, formatDuration } from "@/lib/bots";
 
 // ============================================================================
 // REMINDER TYPES
 // ============================================================================
 
 export interface Reminder {
-  id: string
-  userId: UserId
-  channelId: ChannelId
-  message: string
-  createdAt: Date
-  remindAt: Date
-  isChannel: boolean // Remind entire channel vs just user
-  snoozedCount: number
-  status: 'pending' | 'triggered' | 'cancelled' | 'snoozed'
+  id: string;
+  userId: UserId;
+  channelId: ChannelId;
+  message: string;
+  createdAt: Date;
+  remindAt: Date;
+  isChannel: boolean; // Remind entire channel vs just user
+  snoozedCount: number;
+  status: "pending" | "triggered" | "cancelled" | "snoozed";
 }
 
 // ============================================================================
@@ -28,14 +28,14 @@ export interface Reminder {
 // ============================================================================
 
 // In-memory storage (in production, use persistent storage via api.setStorage)
-const reminders = new Map<string, Reminder>()
-const timers = new Map<string, NodeJS.Timeout>()
+const reminders = new Map<string, Reminder>();
+const timers = new Map<string, NodeJS.Timeout>();
 
 /**
  * Generate a unique reminder ID
  */
 export function generateReminderId(): string {
-  return `rem_${Date.now()}_${randomBytes(4).toString('hex')}`
+  return `rem_${Date.now()}_${randomBytes(4).toString("hex")}`;
 }
 
 /**
@@ -46,7 +46,7 @@ export function createReminder(
   channelId: ChannelId,
   message: string,
   delay: number,
-  isChannel = false
+  isChannel = false,
 ): Reminder {
   const reminder: Reminder = {
     id: generateReminderId(),
@@ -57,18 +57,18 @@ export function createReminder(
     remindAt: new Date(Date.now() + delay),
     isChannel,
     snoozedCount: 0,
-    status: 'pending',
-  }
+    status: "pending",
+  };
 
-  reminders.set(reminder.id, reminder)
-  return reminder
+  reminders.set(reminder.id, reminder);
+  return reminder;
 }
 
 /**
  * Get a reminder by ID
  */
 export function getReminder(reminderId: string): Reminder | undefined {
-  return reminders.get(reminderId)
+  return reminders.get(reminderId);
 }
 
 /**
@@ -76,8 +76,8 @@ export function getReminder(reminderId: string): Reminder | undefined {
  */
 export function getUserReminders(userId: UserId): Reminder[] {
   return Array.from(reminders.values())
-    .filter((r) => r.userId === userId && r.status === 'pending')
-    .sort((a, b) => a.remindAt.getTime() - b.remindAt.getTime())
+    .filter((r) => r.userId === userId && r.status === "pending")
+    .sort((a, b) => a.remindAt.getTime() - b.remindAt.getTime());
 }
 
 /**
@@ -85,32 +85,35 @@ export function getUserReminders(userId: UserId): Reminder[] {
  */
 export function cancelReminder(
   reminderId: string,
-  userId: UserId
+  userId: UserId,
 ): { success: boolean; message: string } {
-  const reminder = reminders.get(reminderId)
+  const reminder = reminders.get(reminderId);
 
   if (!reminder) {
-    return { success: false, message: 'Reminder not found' }
+    return { success: false, message: "Reminder not found" };
   }
 
   if (reminder.userId !== userId) {
-    return { success: false, message: 'You can only cancel your own reminders' }
+    return {
+      success: false,
+      message: "You can only cancel your own reminders",
+    };
   }
 
-  if (reminder.status !== 'pending') {
-    return { success: false, message: 'This reminder is no longer active' }
+  if (reminder.status !== "pending") {
+    return { success: false, message: "This reminder is no longer active" };
   }
 
-  reminder.status = 'cancelled'
+  reminder.status = "cancelled";
 
   // Cancel the timer
-  const timer = timers.get(reminderId)
+  const timer = timers.get(reminderId);
   if (timer) {
-    clearTimeout(timer)
-    timers.delete(reminderId)
+    clearTimeout(timer);
+    timers.delete(reminderId);
   }
 
-  return { success: true, message: 'Reminder cancelled' }
+  return { success: true, message: "Reminder cancelled" };
 }
 
 /**
@@ -119,31 +122,34 @@ export function cancelReminder(
 export function snoozeReminder(
   reminderId: string,
   userId: UserId,
-  duration: number
+  duration: number,
 ): { success: boolean; message: string; reminder?: Reminder } {
-  const reminder = reminders.get(reminderId)
+  const reminder = reminders.get(reminderId);
 
   if (!reminder) {
-    return { success: false, message: 'Reminder not found' }
+    return { success: false, message: "Reminder not found" };
   }
 
   if (reminder.userId !== userId) {
-    return { success: false, message: 'You can only snooze your own reminders' }
+    return {
+      success: false,
+      message: "You can only snooze your own reminders",
+    };
   }
 
   // Cancel existing timer
-  const existingTimer = timers.get(reminderId)
+  const existingTimer = timers.get(reminderId);
   if (existingTimer) {
-    clearTimeout(existingTimer)
-    timers.delete(reminderId)
+    clearTimeout(existingTimer);
+    timers.delete(reminderId);
   }
 
   // Update reminder
-  reminder.remindAt = new Date(Date.now() + duration)
-  reminder.snoozedCount++
-  reminder.status = 'pending'
+  reminder.remindAt = new Date(Date.now() + duration);
+  reminder.snoozedCount++;
+  reminder.status = "pending";
 
-  return { success: true, message: 'Reminder snoozed', reminder }
+  return { success: true, message: "Reminder snoozed", reminder };
 }
 
 // ============================================================================
@@ -155,71 +161,72 @@ export function snoozeReminder(
  */
 export function scheduleReminder(
   reminder: Reminder,
-  onTrigger: (reminder: Reminder) => void
+  onTrigger: (reminder: Reminder) => void,
 ): void {
-  const delay = reminder.remindAt.getTime() - Date.now()
+  const delay = reminder.remindAt.getTime() - Date.now();
 
   if (delay <= 0) {
     // Trigger immediately if already past
-    onTrigger(reminder)
-    return
+    onTrigger(reminder);
+    return;
   }
 
   const timer = setTimeout(() => {
-    timers.delete(reminder.id)
-    reminder.status = 'triggered'
-    onTrigger(reminder)
-  }, delay)
+    timers.delete(reminder.id);
+    reminder.status = "triggered";
+    onTrigger(reminder);
+  }, delay);
 
-  timers.set(reminder.id, timer)
+  timers.set(reminder.id, timer);
 }
 
 /**
  * Build reminder trigger message
  */
 export function buildReminderMessage(reminder: Reminder): BotResponse {
-  const userMention = mentionUser(reminder.userId)
+  const userMention = mentionUser(reminder.userId);
   const snoozeInfo =
     reminder.snoozedCount > 0
-      ? ` (snoozed ${reminder.snoozedCount} time${reminder.snoozedCount > 1 ? 's' : ''})`
-      : ''
+      ? ` (snoozed ${reminder.snoozedCount} time${reminder.snoozedCount > 1 ? "s" : ""})`
+      : "";
 
   if (reminder.isChannel) {
     return response()
       .embed(
         embed()
-          .title(':bell: Channel Reminder')
+          .title(":bell: Channel Reminder")
           .description(reminder.message)
-          .color('#F59E0B')
+          .color("#F59E0B")
           .footer(`Set by ${userMention}${snoozeInfo}`)
-          .timestamp()
+          .timestamp(),
       )
-      .build()
+      .build();
   }
 
   return response()
     .embed(
       embed()
-        .title(':bell: Reminder')
+        .title(":bell: Reminder")
         .description(reminder.message)
-        .color('#6366F1')
+        .color("#6366F1")
         .footer(`Reminder ID: ${reminder.id}${snoozeInfo}`)
-        .field('Snooze', `/snooze ${reminder.id}`, true)
-        .timestamp()
+        .field("Snooze", `/snooze ${reminder.id}`, true)
+        .timestamp(),
     )
     .text(`${userMention}, here's your reminder!`)
-    .build()
+    .build();
 }
 
 /**
  * Format reminder for list display
  */
 export function formatReminder(reminder: Reminder): string {
-  const timeUntil = reminder.remindAt.getTime() - Date.now()
-  const timeStr = timeUntil > 0 ? `in ${formatDuration(timeUntil)}` : 'now'
-  const snoozeStr = reminder.snoozedCount > 0 ? ` (snoozed ${reminder.snoozedCount}x)` : ''
+  const timeUntil = reminder.remindAt.getTime() - Date.now();
+  const timeStr = timeUntil > 0 ? `in ${formatDuration(timeUntil)}` : "now";
+  const snoozeStr =
+    reminder.snoozedCount > 0 ? ` (snoozed ${reminder.snoozedCount}x)` : "";
 
-  return `**${reminder.id}** - ${timeStr}${snoozeStr}\n  "${reminder.message}"`
+  return `**${reminder.id}** - ${timeStr}${snoozeStr}\n  "${reminder.message}"`;
 }
 
 /**
@@ -227,16 +234,16 @@ export function formatReminder(reminder: Reminder): string {
  */
 export function formatReminderList(reminderList: Reminder[]): string {
   if (reminderList.length === 0) {
-    return 'You have no active reminders.'
+    return "You have no active reminders.";
   }
 
-  let result = `**Your Reminders (${reminderList.length}):**\n\n`
+  let result = `**Your Reminders (${reminderList.length}):**\n\n`;
   for (const reminder of reminderList) {
-    result += formatReminder(reminder) + '\n\n'
+    result += formatReminder(reminder) + "\n\n";
   }
 
-  result += '\n*Use `/cancelreminder <id>` to cancel a reminder*'
-  return result
+  result += "\n*Use `/cancelreminder <id>` to cancel a reminder*";
+  return result;
 }
 
 // ============================================================================
@@ -247,20 +254,20 @@ export function formatReminderList(reminderList: Reminder[]): string {
  * Clean up old triggered/cancelled reminders
  */
 export function cleanupOldReminders(maxAge = 24 * 60 * 60 * 1000): number {
-  const cutoff = new Date(Date.now() - maxAge)
-  let deleted = 0
+  const cutoff = new Date(Date.now() - maxAge);
+  let deleted = 0;
 
   for (const [id, reminder] of reminders.entries()) {
     if (
-      (reminder.status === 'triggered' || reminder.status === 'cancelled') &&
+      (reminder.status === "triggered" || reminder.status === "cancelled") &&
       reminder.remindAt < cutoff
     ) {
-      reminders.delete(id)
-      deleted++
+      reminders.delete(id);
+      deleted++;
     }
   }
 
-  return deleted
+  return deleted;
 }
 
 /**
@@ -268,28 +275,28 @@ export function cleanupOldReminders(maxAge = 24 * 60 * 60 * 1000): number {
  */
 export function stopAllTimers(): void {
   for (const timer of timers.values()) {
-    clearTimeout(timer)
+    clearTimeout(timer);
   }
-  timers.clear()
+  timers.clear();
 }
 
 /**
  * Clear all reminders and stop all timers
  */
 export function clearAllReminders(): void {
-  stopAllTimers()
-  reminders.clear()
+  stopAllTimers();
+  reminders.clear();
 }
 
 /**
  * Get statistics
  */
 export function getStats(): {
-  total: number
-  pending: number
-  triggered: number
-  cancelled: number
-  snoozed: number
+  total: number;
+  pending: number;
+  triggered: number;
+  cancelled: number;
+  snoozed: number;
 } {
   const stats = {
     total: reminders.size,
@@ -297,26 +304,26 @@ export function getStats(): {
     triggered: 0,
     cancelled: 0,
     snoozed: 0,
-  }
+  };
 
   for (const reminder of reminders.values()) {
     switch (reminder.status) {
-      case 'pending':
-        stats.pending++
-        break
-      case 'triggered':
-        stats.triggered++
-        break
-      case 'cancelled':
-        stats.cancelled++
-        break
-      case 'snoozed':
-        stats.snoozed++
-        break
+      case "pending":
+        stats.pending++;
+        break;
+      case "triggered":
+        stats.triggered++;
+        break;
+      case "cancelled":
+        stats.cancelled++;
+        break;
+      case "snoozed":
+        stats.snoozed++;
+        break;
     }
   }
 
-  return stats
+  return stats;
 }
 
 // ============================================================================
@@ -327,7 +334,7 @@ export function getStats(): {
  * Export all reminders for persistence
  */
 export function exportReminders(): Reminder[] {
-  return Array.from(reminders.values())
+  return Array.from(reminders.values());
 }
 
 /**
@@ -335,18 +342,18 @@ export function exportReminders(): Reminder[] {
  */
 export function importReminders(
   savedReminders: Reminder[],
-  onTrigger: (reminder: Reminder) => void
+  onTrigger: (reminder: Reminder) => void,
 ): void {
   for (const reminder of savedReminders) {
     // Rehydrate dates
-    reminder.createdAt = new Date(reminder.createdAt)
-    reminder.remindAt = new Date(reminder.remindAt)
+    reminder.createdAt = new Date(reminder.createdAt);
+    reminder.remindAt = new Date(reminder.remindAt);
 
-    reminders.set(reminder.id, reminder)
+    reminders.set(reminder.id, reminder);
 
     // Reschedule if still pending
-    if (reminder.status === 'pending') {
-      scheduleReminder(reminder, onTrigger)
+    if (reminder.status === "pending") {
+      scheduleReminder(reminder, onTrigger);
     }
   }
 }

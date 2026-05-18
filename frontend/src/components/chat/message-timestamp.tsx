@@ -1,12 +1,28 @@
-'use client'
+"use client";
 
-import { useState, memo, useCallback } from 'react'
-import { format, formatDistanceToNow, isToday, isYesterday, isThisWeek, isThisYear } from 'date-fns'
-import { Clock, Calendar, Copy, Check } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { useState, memo, useCallback } from "react";
+import {
+  format,
+  formatDistanceToNow,
+  isToday,
+  isYesterday,
+  isThisWeek,
+  isThisYear,
+} from "date-fns";
+import { Clock, Calendar, Copy, Check } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -14,24 +30,24 @@ import { cn } from '@/lib/utils'
 
 export interface MessageTimestampProps {
   /** The timestamp to display */
-  timestamp: Date | string | number
+  timestamp: Date | string | number;
   /** Display format variant */
-  variant?: 'relative' | 'time' | 'full' | 'smart'
+  variant?: "relative" | "time" | "full" | "smart";
   /** Whether to show full datetime on click */
-  expandable?: boolean
+  expandable?: boolean;
   /** Whether to show tooltip on hover */
-  showTooltip?: boolean
+  showTooltip?: boolean;
   /** Size variant */
-  size?: 'xs' | 'sm' | 'default'
+  size?: "xs" | "sm" | "default";
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 export interface TimestampDisplayProps {
   /** The timestamp to display */
-  timestamp: Date
+  timestamp: Date;
   /** Display format */
-  format: 'relative' | 'time' | 'date' | 'datetime' | 'full'
+  format: "relative" | "time" | "date" | "datetime" | "full";
 }
 
 // ============================================================================
@@ -43,51 +59,53 @@ export interface TimestampDisplayProps {
  */
 function formatSmartTime(date: Date): string {
   if (isToday(date)) {
-    return format(date, 'h:mm a')
+    return format(date, "h:mm a");
   }
 
   if (isYesterday(date)) {
-    return `Yesterday at ${format(date, 'h:mm a')}`
+    return `Yesterday at ${format(date, "h:mm a")}`;
   }
 
   if (isThisWeek(date)) {
-    return `${format(date, 'EEEE')} at ${format(date, 'h:mm a')}`
+    return `${format(date, "EEEE")} at ${format(date, "h:mm a")}`;
   }
 
   if (isThisYear(date)) {
-    return `${format(date, 'MMM d')} at ${format(date, 'h:mm a')}`
+    return `${format(date, "MMM d")} at ${format(date, "h:mm a")}`;
   }
 
-  return `${format(date, 'MMM d, yyyy')} at ${format(date, 'h:mm a')}`
+  return `${format(date, "MMM d, yyyy")} at ${format(date, "h:mm a")}`;
 }
 
 /**
  * Format timestamp as relative time
  */
 function formatRelative(date: Date): string {
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMinutes = Math.floor(diffMs / 60000)
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / 60000);
 
   if (diffMinutes < 1) {
-    return 'just now'
+    return "just now";
   }
 
-  return formatDistanceToNow(date, { addSuffix: true })
+  return formatDistanceToNow(date, { addSuffix: true });
 }
 
 /**
  * Format full datetime for display
  */
 function formatFullDatetime(date: Date): string {
-  return format(date, 'EEEE, MMMM d, yyyy') + ' at ' + format(date, 'h:mm:ss a')
+  return (
+    format(date, "EEEE, MMMM d, yyyy") + " at " + format(date, "h:mm:ss a")
+  );
 }
 
 /**
  * Format for copying
  */
 function formatForCopy(date: Date): string {
-  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
 }
 
 // ============================================================================
@@ -101,16 +119,16 @@ const TimestampPopover = memo(function TimestampPopover({
   timestamp,
   children,
 }: {
-  timestamp: Date
-  children: React.ReactNode
+  timestamp: Date;
+  children: React.ReactNode;
 }) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(formatForCopy(timestamp))
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }, [timestamp])
+    await navigator.clipboard.writeText(formatForCopy(timestamp));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [timestamp]);
 
   return (
     <Popover>
@@ -121,8 +139,12 @@ const TimestampPopover = memo(function TimestampPopover({
           <div className="flex items-start gap-2">
             <Calendar className="mt-0.5 h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="font-medium">{format(timestamp, 'EEEE, MMMM d, yyyy')}</p>
-              <p className="text-sm text-muted-foreground">{format(timestamp, 'h:mm:ss a')}</p>
+              <p className="font-medium">
+                {format(timestamp, "EEEE, MMMM d, yyyy")}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {format(timestamp, "h:mm:ss a")}
+              </p>
             </div>
           </div>
 
@@ -133,7 +155,12 @@ const TimestampPopover = memo(function TimestampPopover({
           </div>
 
           {/* Copy button */}
-          <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleCopy}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full gap-2"
+            onClick={handleCopy}
+          >
             {copied ? (
               <>
                 <Check className="h-4 w-4" />
@@ -149,8 +176,8 @@ const TimestampPopover = memo(function TimestampPopover({
         </div>
       </PopoverContent>
     </Popover>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Main Component
@@ -172,51 +199,51 @@ const TimestampPopover = memo(function TimestampPopover({
  */
 export const MessageTimestamp = memo(function MessageTimestamp({
   timestamp,
-  variant = 'smart',
+  variant = "smart",
   expandable = true,
   showTooltip = true,
-  size = 'default',
+  size = "default",
   className,
 }: MessageTimestampProps) {
-  const date = new Date(timestamp)
+  const date = new Date(timestamp);
 
   // Get the display text based on variant
   const getDisplayText = () => {
     switch (variant) {
-      case 'relative':
-        return formatRelative(date)
-      case 'time':
-        return format(date, 'h:mm a')
-      case 'full':
-        return formatFullDatetime(date)
-      case 'smart':
+      case "relative":
+        return formatRelative(date);
+      case "time":
+        return format(date, "h:mm a");
+      case "full":
+        return formatFullDatetime(date);
+      case "smart":
       default:
-        return formatSmartTime(date)
+        return formatSmartTime(date);
     }
-  }
+  };
 
-  const displayText = getDisplayText()
-  const fullDatetime = formatFullDatetime(date)
+  const displayText = getDisplayText();
+  const fullDatetime = formatFullDatetime(date);
 
   const sizeClasses = {
-    xs: 'text-[10px]',
-    sm: 'text-xs',
-    default: 'text-sm',
-  }
+    xs: "text-[10px]",
+    sm: "text-xs",
+    default: "text-sm",
+  };
 
   const timestampElement = (
     <time
       dateTime={date.toISOString()}
       className={cn(
-        'text-muted-foreground',
-        expandable && 'cursor-pointer hover:text-foreground hover:underline',
+        "text-muted-foreground",
+        expandable && "cursor-pointer hover:text-foreground hover:underline",
         sizeClasses[size],
-        className
+        className,
       )}
     >
       {displayText}
     </time>
-  )
+  );
 
   // If expandable, wrap in popover
   if (expandable) {
@@ -235,7 +262,7 @@ export const MessageTimestamp = memo(function MessageTimestamp({
           timestampElement
         )}
       </TimestampPopover>
-    )
+    );
   }
 
   // Just tooltip
@@ -249,11 +276,11 @@ export const MessageTimestamp = memo(function MessageTimestamp({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
+    );
   }
 
-  return timestampElement
-})
+  return timestampElement;
+});
 
 // ============================================================================
 // Variants
@@ -266,10 +293,10 @@ export const CompactTimestamp = memo(function CompactTimestamp({
   timestamp,
   className,
 }: {
-  timestamp: Date | string | number
-  className?: string
+  timestamp: Date | string | number;
+  className?: string;
 }) {
-  const date = new Date(timestamp)
+  const date = new Date(timestamp);
 
   return (
     <MessageTimestamp
@@ -280,8 +307,8 @@ export const CompactTimestamp = memo(function CompactTimestamp({
       size="xs"
       className={className}
     />
-  )
-})
+  );
+});
 
 /**
  * Relative timestamp with auto-update
@@ -290,8 +317,8 @@ export const RelativeTimestamp = memo(function RelativeTimestamp({
   timestamp,
   className,
 }: {
-  timestamp: Date | string | number
-  className?: string
+  timestamp: Date | string | number;
+  className?: string;
 }) {
   return (
     <MessageTimestamp
@@ -301,8 +328,8 @@ export const RelativeTimestamp = memo(function RelativeTimestamp({
       size="sm"
       className={className}
     />
-  )
-})
+  );
+});
 
 /**
  * Date separator timestamp
@@ -311,20 +338,20 @@ export const DateSeparatorTimestamp = memo(function DateSeparatorTimestamp({
   timestamp,
   className,
 }: {
-  timestamp: Date | string | number
-  className?: string
+  timestamp: Date | string | number;
+  className?: string;
 }) {
-  const date = new Date(timestamp)
+  const date = new Date(timestamp);
 
-  let displayText: string
+  let displayText: string;
   if (isToday(date)) {
-    displayText = 'Today'
+    displayText = "Today";
   } else if (isYesterday(date)) {
-    displayText = 'Yesterday'
+    displayText = "Yesterday";
   } else if (isThisYear(date)) {
-    displayText = format(date, 'EEEE, MMMM d')
+    displayText = format(date, "EEEE, MMMM d");
   } else {
-    displayText = format(date, 'EEEE, MMMM d, yyyy')
+    displayText = format(date, "EEEE, MMMM d, yyyy");
   }
 
   return (
@@ -333,7 +360,10 @@ export const DateSeparatorTimestamp = memo(function DateSeparatorTimestamp({
         <TooltipTrigger asChild>
           <time
             dateTime={date.toISOString()}
-            className={cn('text-xs font-medium text-muted-foreground', className)}
+            className={cn(
+              "text-xs font-medium text-muted-foreground",
+              className,
+            )}
           >
             {displayText}
           </time>
@@ -343,7 +373,7 @@ export const DateSeparatorTimestamp = memo(function DateSeparatorTimestamp({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
-})
+  );
+});
 
-export default MessageTimestamp
+export default MessageTimestamp;

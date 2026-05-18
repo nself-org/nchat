@@ -3,12 +3,19 @@
  */
 
 // Core indicators
-export { PresenceIndicator, presenceIndicatorVariants } from './PresenceIndicator'
-export type { PresenceIndicatorProps } from './PresenceIndicator'
+export {
+  PresenceIndicator,
+  presenceIndicatorVariants,
+} from "./PresenceIndicator";
+export type { PresenceIndicatorProps } from "./PresenceIndicator";
 
 // Status display
-export { PresenceStatus, presenceStatusVariants, StatusBadge } from './PresenceStatus'
-export type { PresenceStatusProps, StatusBadgeProps } from './PresenceStatus'
+export {
+  PresenceStatus,
+  presenceStatusVariants,
+  StatusBadge,
+} from "./PresenceStatus";
+export type { PresenceStatusProps, StatusBadgeProps } from "./PresenceStatus";
 
 // Status picker
 export {
@@ -16,8 +23,12 @@ export {
   CompactStatusPicker,
   StatusButton,
   default as StatusPickerDefault,
-} from './StatusPicker'
-export type { StatusPickerProps, CompactStatusPickerProps, StatusButtonProps } from './StatusPicker'
+} from "./StatusPicker";
+export type {
+  StatusPickerProps,
+  CompactStatusPickerProps,
+  StatusButtonProps,
+} from "./StatusPicker";
 
 // Custom status
 export {
@@ -25,20 +36,23 @@ export {
   CustomStatusBadge,
   CustomStatusPreview,
   default as CustomStatusDefault,
-} from './CustomStatus'
+} from "./CustomStatus";
 export type {
   CustomStatusProps,
   CustomStatusBadgeProps,
   CustomStatusPreviewProps,
-} from './CustomStatus'
+} from "./CustomStatus";
 
 // Custom status picker
 export {
   CustomStatusPicker,
   QuickStatusPicker,
   default as CustomStatusPickerDefault,
-} from './CustomStatusPicker'
-export type { CustomStatusPickerProps, QuickStatusPickerProps } from './CustomStatusPicker'
+} from "./CustomStatusPicker";
+export type {
+  CustomStatusPickerProps,
+  QuickStatusPickerProps,
+} from "./CustomStatusPicker";
 
 // Duration
 export {
@@ -46,12 +60,12 @@ export {
   DurationBadge,
   DurationDisplay,
   default as StatusDurationDefault,
-} from './StatusDuration'
+} from "./StatusDuration";
 export type {
   StatusDurationPickerProps,
   DurationBadgeProps,
   DurationDisplayProps,
-} from './StatusDuration'
+} from "./StatusDuration";
 
 // Activity
 export {
@@ -61,14 +75,14 @@ export {
   ActivityBadge,
   AllActivities,
   default as ActivityStatusDefault,
-} from './ActivityStatus'
+} from "./ActivityStatus";
 export type {
   ActivityStatusProps,
   ActivityListItemProps,
   ActivityGridProps,
   ActivityBadgeProps,
   AllActivitiesProps,
-} from './ActivityStatus'
+} from "./ActivityStatus";
 
 // Typing indicator
 export {
@@ -77,13 +91,13 @@ export {
   InlineTypingIndicator,
   CompactTypingIndicator,
   default as TypingIndicatorDefault,
-} from './TypingIndicator'
+} from "./TypingIndicator";
 export type {
   TypingIndicatorProps,
   TypingDotsProps,
   InlineTypingIndicatorProps,
   CompactTypingIndicatorProps,
-} from './TypingIndicator'
+} from "./TypingIndicator";
 
 // Last seen
 export {
@@ -92,13 +106,13 @@ export {
   LastActive,
   RelativeTime,
   default as LastSeenDefault,
-} from './LastSeen'
+} from "./LastSeen";
 export type {
   LastSeenProps,
   LastSeenBadgeProps,
   LastActiveProps,
   RelativeTimeProps,
-} from './LastSeen'
+} from "./LastSeen";
 
 // Online users
 export {
@@ -107,15 +121,24 @@ export {
   OnlineUsersAvatars,
   CompactOnlineUsers,
   default as OnlineUsersDefault,
-} from './OnlineUsers'
+} from "./OnlineUsers";
 export type {
   OnlineUsersProps,
   OnlineUserItem,
   OnlineUsersCountProps,
   OnlineUsersAvatarsProps,
   CompactOnlineUsersProps,
-} from './OnlineUsers'
+} from "./OnlineUsers";
 
 // Presence badge
-export { PresenceBadge, presenceBadgeVariants, StatusPill, MiniBadge } from './PresenceBadge'
-export type { PresenceBadgeProps, StatusPillProps, MiniBadgeProps } from './PresenceBadge'
+export {
+  PresenceBadge,
+  presenceBadgeVariants,
+  StatusPill,
+  MiniBadge,
+} from "./PresenceBadge";
+export type {
+  PresenceBadgeProps,
+  StatusPillProps,
+  MiniBadgeProps,
+} from "./PresenceBadge";

@@ -9,7 +9,7 @@ Production-ready performance monitoring system with Web Vitals tracking, custom 
 The performance monitor automatically initializes when imported in the browser.
 
 ```typescript
-import { performanceMonitor } from '@/lib/performance/monitor'
+import { performanceMonitor } from "@/lib/performance/monitor";
 
 // Already initialized! Start recording metrics immediately.
 ```
@@ -63,57 +63,59 @@ function MyComponent() {
 ### Recording Metrics
 
 ```typescript
-import { performanceMonitor } from '@/lib/performance/monitor'
+import { performanceMonitor } from "@/lib/performance/monitor";
 
 // Record custom metric
 performanceMonitor.recordCustomMetric({
-  name: 'data-processing-time',
+  name: "data-processing-time",
   value: 250,
-  unit: 'ms',
-  tags: { operation: 'parse-json' },
-})
+  unit: "ms",
+  tags: { operation: "parse-json" },
+});
 
 // Record error
 performanceMonitor.recordError(error, {
-  context: 'user-action',
-})
+  context: "user-action",
+});
 ```
 
 ### Performance Utilities
 
 ```typescript
-import { measurePerformanceAsync } from '@/lib/performance/monitor'
+import { measurePerformanceAsync } from "@/lib/performance/monitor";
 
 // Measure async function
 const result = await measurePerformanceAsync(
-  'fetch-data',
+  "fetch-data",
   async () => {
-    return await fetchData()
+    return await fetchData();
   },
-  { endpoint: '/api/data' }
-)
+  { endpoint: "/api/data" },
+);
 ```
 
 ### React Hooks
 
 ```typescript
 // Main hook
-const { snapshot, score, stats, trends, warnings, refresh, reset } = usePerformance()
+const { snapshot, score, stats, trends, warnings, refresh, reset } =
+  usePerformance();
 
 // Component render tracking
-const { renderCount } = useRenderPerformance('MyComponent')
+const { renderCount } = useRenderPerformance("MyComponent");
 
 // API tracking
-const { recordApiCall } = useApiPerformance()
+const { recordApiCall } = useApiPerformance();
 
 // WebSocket tracking
-const { recordLatency, recordMessage } = useWebSocketPerformance()
+const { recordLatency, recordMessage } = useWebSocketPerformance();
 
 // Warnings
-const { warnings, criticalWarnings, activeWarnings, clearWarning } = usePerformanceWarnings()
+const { warnings, criticalWarnings, activeWarnings, clearWarning } =
+  usePerformanceWarnings();
 
 // Time-series data
-const timeSeries = usePerformanceTimeSeries('api-response-time', 3600000)
+const timeSeries = usePerformanceTimeSeries("api-response-time", 3600000);
 ```
 
 ## File Structure
@@ -138,17 +140,17 @@ src/components/
 
 ```typescript
 // src/app/api/example/route.ts
-import { measurePerformanceAsync } from '@/lib/performance/monitor'
+import { measurePerformanceAsync } from "@/lib/performance/monitor";
 
 export async function GET() {
   return measurePerformanceAsync(
-    'api-get-example',
+    "api-get-example",
     async () => {
-      const data = await fetchData()
-      return NextResponse.json(data)
+      const data = await fetchData();
+      return NextResponse.json(data);
     },
-    { endpoint: '/api/example', method: 'GET' }
-  )
+    { endpoint: "/api/example", method: "GET" },
+  );
 }
 ```
 
@@ -156,22 +158,22 @@ export async function GET() {
 
 ```typescript
 // src/lib/apollo-client.ts
-import { ApolloLink } from '@apollo/client'
-import { performanceMonitor } from '@/lib/performance/monitor'
+import { ApolloLink } from "@apollo/client";
+import { performanceMonitor } from "@/lib/performance/monitor";
 
 const performanceLink = new ApolloLink((operation, forward) => {
-  const start = performance.now()
+  const start = performance.now();
 
   return forward(operation).map((response) => {
     performanceMonitor.recordCustomMetric({
-      name: 'graphql-query-time',
+      name: "graphql-query-time",
       value: performance.now() - start,
-      unit: 'ms',
+      unit: "ms",
       tags: { operation: operation.operationName },
-    })
-    return response
-  })
-})
+    });
+    return response;
+  });
+});
 ```
 
 ### Component Performance
@@ -252,31 +254,31 @@ import type {
   PerformanceScore,
   MetricStats,
   MetricTrend,
-} from '@/lib/performance/monitor'
+} from "@/lib/performance/monitor";
 ```
 
 ## Testing
 
 ```typescript
-import { performanceMonitor } from '@/lib/performance/monitor'
+import { performanceMonitor } from "@/lib/performance/monitor";
 
-describe('Performance', () => {
+describe("Performance", () => {
   beforeEach(() => {
-    performanceMonitor.reset()
-  })
+    performanceMonitor.reset();
+  });
 
-  it('should track custom metrics', () => {
+  it("should track custom metrics", () => {
     performanceMonitor.recordCustomMetric({
-      name: 'test-metric',
+      name: "test-metric",
       value: 100,
-      unit: 'ms',
-    })
+      unit: "ms",
+    });
 
-    const metrics = performanceMonitor.getCustomMetrics()
-    expect(metrics).toHaveLength(1)
-    expect(metrics[0].value).toBe(100)
-  })
-})
+    const metrics = performanceMonitor.getCustomMetrics();
+    expect(metrics).toHaveLength(1);
+    expect(metrics[0].value).toBe(100);
+  });
+});
 ```
 
 ## Resources

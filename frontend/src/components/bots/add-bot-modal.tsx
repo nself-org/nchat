@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback } from "react";
 import {
   Bot,
   Key,
@@ -10,7 +10,7 @@ import {
   Loader2,
   ArrowRight,
   ArrowLeft,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,36 +18,46 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Checkbox as UICheckbox } from '@/components/ui/checkbox'
-import { BotPermissions } from './bot-permissions'
-import { BotCard, BotCardSkeleton } from './bot-card'
-import { cn } from '@/lib/utils'
-import type { Bot as BotType, BotPermission } from '@/graphql/bots'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox as UICheckbox } from "@/components/ui/checkbox";
+import { BotPermissions } from "./bot-permissions";
+import { BotCard, BotCardSkeleton } from "./bot-card";
+import { cn } from "@/lib/utils";
+import type { Bot as BotType, BotPermission } from "@/graphql/bots";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface AddBotModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  channels: { id: string; name: string }[]
-  marketplaceBots?: BotType[]
-  marketplaceLoading?: boolean
-  onAddByToken: (token: string, channelIds: string[]) => Promise<void>
-  onInstallBot: (botId: string, channelIds: string[], permissions: BotPermission[]) => Promise<void>
-  onOpenMarketplace?: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channels: { id: string; name: string }[];
+  marketplaceBots?: BotType[];
+  marketplaceLoading?: boolean;
+  onAddByToken: (token: string, channelIds: string[]) => Promise<void>;
+  onInstallBot: (
+    botId: string,
+    channelIds: string[],
+    permissions: BotPermission[],
+  ) => Promise<void>;
+  onOpenMarketplace?: () => void;
 }
 
-type Step = 'method' | 'token' | 'browse' | 'permissions' | 'channels' | 'confirm'
+type Step =
+  | "method"
+  | "token"
+  | "browse"
+  | "permissions"
+  | "channels"
+  | "confirm";
 
 // ============================================================================
 // COMPONENT
@@ -63,108 +73,116 @@ export function AddBotModal({
   onInstallBot,
   onOpenMarketplace,
 }: AddBotModalProps) {
-  const [step, setStep] = useState<Step>('method')
-  const [activeTab, setActiveTab] = useState<'token' | 'browse'>('token')
-  const [token, setToken] = useState('')
-  const [tokenError, setTokenError] = useState<string | null>(null)
-  const [tokenValidating, setTokenValidating] = useState(false)
-  const [selectedBot, setSelectedBot] = useState<BotType | null>(null)
-  const [selectedChannels, setSelectedChannels] = useState<string[]>([])
-  const [selectedPermissions, setSelectedPermissions] = useState<BotPermission[]>([])
-  const [installing, setInstalling] = useState(false)
+  const [step, setStep] = useState<Step>("method");
+  const [activeTab, setActiveTab] = useState<"token" | "browse">("token");
+  const [token, setToken] = useState("");
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [tokenValidating, setTokenValidating] = useState(false);
+  const [selectedBot, setSelectedBot] = useState<BotType | null>(null);
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
+  const [selectedPermissions, setSelectedPermissions] = useState<
+    BotPermission[]
+  >([]);
+  const [installing, setInstalling] = useState(false);
 
   const resetState = useCallback(() => {
-    setStep('method')
-    setActiveTab('token')
-    setToken('')
-    setTokenError(null)
-    setSelectedBot(null)
-    setSelectedChannels([])
-    setSelectedPermissions([])
-    setInstalling(false)
-  }, [])
+    setStep("method");
+    setActiveTab("token");
+    setToken("");
+    setTokenError(null);
+    setSelectedBot(null);
+    setSelectedChannels([]);
+    setSelectedPermissions([]);
+    setInstalling(false);
+  }, []);
 
   const handleClose = useCallback(() => {
-    onOpenChange(false)
-    setTimeout(resetState, 200)
-  }, [onOpenChange, resetState])
+    onOpenChange(false);
+    setTimeout(resetState, 200);
+  }, [onOpenChange, resetState]);
 
   const handleTokenSubmit = async () => {
     if (!token.trim()) {
-      setTokenError('Please enter a bot token')
-      return
+      setTokenError("Please enter a bot token");
+      return;
     }
 
-    setTokenValidating(true)
-    setTokenError(null)
+    setTokenValidating(true);
+    setTokenError(null);
 
     try {
       // Simulate token validation - in production this would verify the token
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // For demo, create a mock bot from the token
       const mockBot: BotType = {
         id: `token-bot-${Date.now()}`,
-        name: 'Custom Bot',
-        description: 'A custom bot added via token',
-        status: 'active',
-        permissions: ['read_messages', 'send_messages', 'use_slash_commands'],
+        name: "Custom Bot",
+        description: "A custom bot added via token",
+        status: "active",
+        permissions: ["read_messages", "send_messages", "use_slash_commands"],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        ownerId: 'unknown',
-      }
+        ownerId: "unknown",
+      };
 
-      setSelectedBot(mockBot)
-      setSelectedPermissions(mockBot.permissions)
-      setStep('channels')
+      setSelectedBot(mockBot);
+      setSelectedPermissions(mockBot.permissions);
+      setStep("channels");
     } catch {
-      setTokenError('Invalid bot token. Please check and try again.')
+      setTokenError("Invalid bot token. Please check and try again.");
     } finally {
-      setTokenValidating(false)
+      setTokenValidating(false);
     }
-  }
+  };
 
   const handleBotSelect = (bot: BotType) => {
-    setSelectedBot(bot)
-    setSelectedPermissions(bot.permissions)
-    setStep('permissions')
-  }
+    setSelectedBot(bot);
+    setSelectedPermissions(bot.permissions);
+    setStep("permissions");
+  };
 
   const handleChannelToggle = (channelId: string) => {
     setSelectedChannels((prev) =>
-      prev.includes(channelId) ? prev.filter((id) => id !== channelId) : [...prev, channelId]
-    )
-  }
+      prev.includes(channelId)
+        ? prev.filter((id) => id !== channelId)
+        : [...prev, channelId],
+    );
+  };
 
   const handleSelectAllChannels = () => {
     if (selectedChannels.length === channels.length) {
-      setSelectedChannels([])
+      setSelectedChannels([]);
     } else {
-      setSelectedChannels(channels.map((c) => c.id))
+      setSelectedChannels(channels.map((c) => c.id));
     }
-  }
+  };
 
   const handleInstall = async () => {
-    if (!selectedBot || selectedChannels.length === 0) return
+    if (!selectedBot || selectedChannels.length === 0) return;
 
-    setInstalling(true)
+    setInstalling(true);
 
     try {
-      if (activeTab === 'token') {
-        await onAddByToken(token, selectedChannels)
+      if (activeTab === "token") {
+        await onAddByToken(token, selectedChannels);
       } else {
-        await onInstallBot(selectedBot.id, selectedChannels, selectedPermissions)
+        await onInstallBot(
+          selectedBot.id,
+          selectedChannels,
+          selectedPermissions,
+        );
       }
-      handleClose()
+      handleClose();
     } catch {
       // Error handling is done in the parent
     } finally {
-      setInstalling(false)
+      setInstalling(false);
     }
-  }
+  };
 
-  const canProceedFromPermissions = selectedPermissions.length > 0
-  const canProceedFromChannels = selectedChannels.length > 0
+  const canProceedFromPermissions = selectedPermissions.length > 0;
+  const canProceedFromChannels = selectedChannels.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -172,19 +190,19 @@ export function AddBotModal({
         <DialogHeader>
           <DialogTitle>Add Bot</DialogTitle>
           <DialogDescription>
-            {step === 'method' && 'Choose how you want to add a bot'}
-            {step === 'token' && 'Enter your bot token'}
-            {step === 'browse' && 'Browse available bots'}
-            {step === 'permissions' && 'Review bot permissions'}
-            {step === 'channels' && 'Select channels to install'}
-            {step === 'confirm' && 'Confirm installation'}
+            {step === "method" && "Choose how you want to add a bot"}
+            {step === "token" && "Enter your bot token"}
+            {step === "browse" && "Browse available bots"}
+            {step === "permissions" && "Review bot permissions"}
+            {step === "channels" && "Select channels to install"}
+            {step === "confirm" && "Confirm installation"}
           </DialogDescription>
         </DialogHeader>
 
-        {step === 'method' && (
+        {step === "method" && (
           <Tabs
             value={activeTab}
-            onValueChange={(v) => setActiveTab(v as 'token' | 'browse')}
+            onValueChange={(v) => setActiveTab(v as "token" | "browse")}
             className="mt-2"
           >
             <TabsList className="grid w-full grid-cols-2">
@@ -206,10 +224,10 @@ export function AddBotModal({
                   placeholder="Enter bot token (e.g., xoxb-...)"
                   value={token}
                   onChange={(e) => {
-                    setToken(e.target.value)
-                    setTokenError(null)
+                    setToken(e.target.value);
+                    setTokenError(null);
                   }}
-                  className={cn(tokenError && 'border-destructive')}
+                  className={cn(tokenError && "border-destructive")}
                 />
                 {tokenError && (
                   <p className="flex items-center gap-1 text-sm text-destructive">
@@ -226,8 +244,13 @@ export function AddBotModal({
                 <Button variant="outline" onClick={handleClose}>
                   Cancel
                 </Button>
-                <Button onClick={handleTokenSubmit} disabled={!token.trim() || tokenValidating}>
-                  {tokenValidating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <Button
+                  onClick={handleTokenSubmit}
+                  disabled={!token.trim() || tokenValidating}
+                >
+                  {tokenValidating && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   Validate Token
                 </Button>
               </DialogFooter>
@@ -246,10 +269,17 @@ export function AddBotModal({
                     marketplaceBots
                       .slice(0, 5)
                       .map((bot) => (
-                        <BotCard key={bot.id} bot={bot} compact onInstall={handleBotSelect} />
+                        <BotCard
+                          key={bot.id}
+                          bot={bot}
+                          compact
+                          onInstall={handleBotSelect}
+                        />
                       ))
                   ) : (
-                    <div className="py-8 text-center text-muted-foreground">No bots available</div>
+                    <div className="py-8 text-center text-muted-foreground">
+                      No bots available
+                    </div>
                   )}
                 </div>
               </ScrollArea>
@@ -259,8 +289,8 @@ export function AddBotModal({
                   <Button
                     variant="link"
                     onClick={() => {
-                      handleClose()
-                      onOpenMarketplace()
+                      handleClose();
+                      onOpenMarketplace();
                     }}
                   >
                     Browse full marketplace
@@ -272,7 +302,7 @@ export function AddBotModal({
           </Tabs>
         )}
 
-        {step === 'permissions' && selectedBot && (
+        {step === "permissions" && selectedBot && (
           <div className="space-y-4">
             <div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3">
               <Avatar className="h-12 w-12">
@@ -284,9 +314,13 @@ export function AddBotModal({
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-medium">{selectedBot.name}</span>
-                  {selectedBot.verified && <CheckCircle className="h-4 w-4 text-primary" />}
+                  {selectedBot.verified && (
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                  )}
                 </div>
-                <p className="text-sm text-muted-foreground">{selectedBot.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedBot.description}
+                </p>
               </div>
             </div>
 
@@ -302,11 +336,14 @@ export function AddBotModal({
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setStep('method')}>
+              <Button variant="outline" onClick={() => setStep("method")}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
-              <Button onClick={() => setStep('channels')} disabled={!canProceedFromPermissions}>
+              <Button
+                onClick={() => setStep("channels")}
+                disabled={!canProceedFromPermissions}
+              >
                 Continue
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -314,7 +351,7 @@ export function AddBotModal({
           </div>
         )}
 
-        {step === 'channels' && selectedBot && (
+        {step === "channels" && selectedBot && (
           <div className="space-y-4">
             <div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3">
               <Avatar className="h-10 w-10">
@@ -334,8 +371,14 @@ export function AddBotModal({
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <Label>Install in channels</Label>
-                <Button variant="ghost" size="sm" onClick={handleSelectAllChannels}>
-                  {selectedChannels.length === channels.length ? 'Deselect all' : 'Select all'}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSelectAllChannels}
+                >
+                  {selectedChannels.length === channels.length
+                    ? "Deselect all"
+                    : "Select all"}
                 </Button>
               </div>
               <ScrollArea className="h-[200px] rounded-lg border p-2">
@@ -344,8 +387,10 @@ export function AddBotModal({
                     <label
                       key={channel.id}
                       className={cn(
-                        'flex cursor-pointer items-center gap-3 rounded-md p-2 transition-colors',
-                        selectedChannels.includes(channel.id) ? 'bg-primary/10' : 'hover:bg-muted'
+                        "flex cursor-pointer items-center gap-3 rounded-md p-2 transition-colors",
+                        selectedChannels.includes(channel.id)
+                          ? "bg-primary/10"
+                          : "hover:bg-muted",
                       )}
                     >
                       <Checkbox
@@ -362,20 +407,27 @@ export function AddBotModal({
               </ScrollArea>
               <p className="mt-2 text-sm text-muted-foreground">
                 {selectedChannels.length} channel
-                {selectedChannels.length !== 1 ? 's' : ''} selected
+                {selectedChannels.length !== 1 ? "s" : ""} selected
               </p>
             </div>
 
             <DialogFooter>
               <Button
                 variant="outline"
-                onClick={() => setStep(activeTab === 'token' ? 'method' : 'permissions')}
+                onClick={() =>
+                  setStep(activeTab === "token" ? "method" : "permissions")
+                }
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
-              <Button onClick={handleInstall} disabled={!canProceedFromChannels || installing}>
-                {installing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button
+                onClick={handleInstall}
+                disabled={!canProceedFromChannels || installing}
+              >
+                {installing && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Install Bot
               </Button>
             </DialogFooter>
@@ -383,7 +435,7 @@ export function AddBotModal({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -391,9 +443,9 @@ export function AddBotModal({
 // ============================================================================
 
 interface CheckboxProps {
-  checked?: boolean
-  onCheckedChange?: (checked: boolean) => void
-  className?: string
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  className?: string;
 }
 
 function Checkbox({ checked, onCheckedChange, className }: CheckboxProps) {
@@ -404,9 +456,9 @@ function Checkbox({ checked, onCheckedChange, className }: CheckboxProps) {
       aria-checked={checked}
       onClick={() => onCheckedChange?.(!checked)}
       className={cn(
-        'h-4 w-4 rounded border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        checked && 'text-primary-foreground bg-primary',
-        className
+        "h-4 w-4 rounded border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        checked && "text-primary-foreground bg-primary",
+        className,
       )}
     >
       {checked && (
@@ -417,9 +469,13 @@ function Checkbox({ checked, onCheckedChange, className }: CheckboxProps) {
           stroke="currentColor"
           strokeWidth={3}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
         </svg>
       )}
     </button>
-  )
+  );
 }

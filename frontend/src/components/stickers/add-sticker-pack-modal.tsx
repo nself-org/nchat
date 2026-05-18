@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo } from "react";
 import {
   Search,
   X,
@@ -11,58 +11,62 @@ import {
   Loader2,
   ChevronLeft,
   ArrowLeft,
-} from 'lucide-react'
-import Image from 'next/image'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import { StickerPackItem, StickerPackPreview } from './sticker-pack'
-import { useStickers, usePackStickers, useTrendingPacks } from '@/lib/stickers/use-stickers'
-import type { StickerPack, Sticker } from '@/graphql/stickers'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { StickerPackItem, StickerPackPreview } from "./sticker-pack";
+import {
+  useStickers,
+  usePackStickers,
+  useTrendingPacks,
+} from "@/lib/stickers/use-stickers";
+import type { StickerPack, Sticker } from "@/graphql/stickers";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface AddStickerPackModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  previewPackId?: string | null
-  onPreviewPackChange?: (packId: string | null) => void
-  className?: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  previewPackId?: string | null;
+  onPreviewPackChange?: (packId: string | null) => void;
+  className?: string;
 }
 
-type ModalView = 'browse' | 'preview' | 'search'
+type ModalView = "browse" | "preview" | "search";
 
 // ============================================================================
 // SEARCH INPUT
 // ============================================================================
 
 interface PackSearchInputProps {
-  value: string
-  onChange: (value: string) => void
-  onClear: () => void
-  placeholder?: string
-  className?: string
+  value: string;
+  onChange: (value: string) => void;
+  onClear: () => void;
+  placeholder?: string;
+  className?: string;
 }
 
 function PackSearchInput({
   value,
   onChange,
   onClear,
-  placeholder = 'Search sticker packs...',
+  placeholder = "Search sticker packs...",
   className,
 }: PackSearchInputProps) {
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn("relative", className)}>
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <input
         type="text"
@@ -70,9 +74,9 @@ function PackSearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className={cn(
-          'h-10 w-full rounded-lg border border-input bg-background pl-10 pr-10',
-          'text-sm placeholder:text-muted-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+          "h-10 w-full rounded-lg border border-input bg-background pl-10 pr-10",
+          "text-sm placeholder:text-muted-foreground",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         )}
       />
       {value && (
@@ -85,7 +89,7 @@ function PackSearchInput({
         </button>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -93,49 +97,55 @@ function PackSearchInput({
 // ============================================================================
 
 interface PackCardProps {
-  pack: StickerPack
-  isInstalled: boolean
-  onPreview: (pack: StickerPack) => void
-  onAdd: (pack: StickerPack) => Promise<void>
-  onRemove: (pack: StickerPack) => Promise<void>
+  pack: StickerPack;
+  isInstalled: boolean;
+  onPreview: (pack: StickerPack) => void;
+  onAdd: (pack: StickerPack) => Promise<void>;
+  onRemove: (pack: StickerPack) => Promise<void>;
 }
 
-function PackCard({ pack, isInstalled, onPreview, onAdd, onRemove }: PackCardProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [imageError, setImageError] = useState(false)
+function PackCard({
+  pack,
+  isInstalled,
+  onPreview,
+  onAdd,
+  onRemove,
+}: PackCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleAction = useCallback(
     async (e: React.MouseEvent) => {
-      e.stopPropagation()
-      if (isLoading) return
+      e.stopPropagation();
+      if (isLoading) return;
 
-      setIsLoading(true)
+      setIsLoading(true);
       try {
         if (isInstalled) {
-          await onRemove(pack)
+          await onRemove(pack);
         } else {
-          await onAdd(pack)
+          await onAdd(pack);
         }
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [isInstalled, isLoading, onAdd, onRemove, pack]
-  )
+    [isInstalled, isLoading, onAdd, onRemove, pack],
+  );
 
   return (
     <div
       className={cn(
-        'relative cursor-pointer overflow-hidden rounded-xl border bg-card',
-        'group transition-shadow hover:shadow-md'
+        "relative cursor-pointer overflow-hidden rounded-xl border bg-card",
+        "group transition-shadow hover:shadow-md",
       )}
       onClick={() => onPreview(pack)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onPreview(pack)
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onPreview(pack);
         }
       }}
     >
@@ -158,7 +168,10 @@ function PackCard({ pack, isInstalled, onPreview, onAdd, onRemove }: PackCardPro
         {/* Badges */}
         <div className="absolute left-2 top-2 flex gap-1">
           {pack.is_official && (
-            <Badge variant="secondary" className="bg-background/80 text-xs backdrop-blur-sm">
+            <Badge
+              variant="secondary"
+              className="bg-background/80 text-xs backdrop-blur-sm"
+            >
               <Sparkles className="mr-1 h-3 w-3" />
               Official
             </Badge>
@@ -181,14 +194,14 @@ function PackCard({ pack, isInstalled, onPreview, onAdd, onRemove }: PackCardPro
         <h4 className="truncate text-sm font-medium">{pack.name}</h4>
         <p className="text-xs text-muted-foreground">
           {pack.sticker_count} stickers
-          {pack.is_animated && ' - Animated'}
+          {pack.is_animated && " - Animated"}
         </p>
       </div>
 
       {/* Quick Add Button */}
       <div className="px-3 pb-3">
         <Button
-          variant={isInstalled ? 'outline' : 'default'}
+          variant={isInstalled ? "outline" : "default"}
           size="sm"
           onClick={handleAction}
           disabled={isLoading}
@@ -210,7 +223,7 @@ function PackCard({ pack, isInstalled, onPreview, onAdd, onRemove }: PackCardPro
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -218,12 +231,12 @@ function PackCard({ pack, isInstalled, onPreview, onAdd, onRemove }: PackCardPro
 // ============================================================================
 
 interface PackPreviewViewProps {
-  packId: string
-  onBack: () => void
-  onAdd: (pack: StickerPack) => Promise<void>
-  onRemove: (pack: StickerPack) => Promise<void>
-  isInstalled: (packId: string) => boolean
-  onStickerClick?: (sticker: Sticker) => void
+  packId: string;
+  onBack: () => void;
+  onAdd: (pack: StickerPack) => Promise<void>;
+  onRemove: (pack: StickerPack) => Promise<void>;
+  isInstalled: (packId: string) => boolean;
+  onStickerClick?: (sticker: Sticker) => void;
 }
 
 function PackPreviewView({
@@ -234,25 +247,25 @@ function PackPreviewView({
   isInstalled,
   onStickerClick,
 }: PackPreviewViewProps) {
-  const { pack, stickers, loading, error } = usePackStickers(packId)
-  const [isActionLoading, setIsActionLoading] = useState(false)
+  const { pack, stickers, loading, error } = usePackStickers(packId);
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
-  const installed = pack ? isInstalled(pack.id) : false
+  const installed = pack ? isInstalled(pack.id) : false;
 
   const handleAction = useCallback(async () => {
-    if (!pack || isActionLoading) return
+    if (!pack || isActionLoading) return;
 
-    setIsActionLoading(true)
+    setIsActionLoading(true);
     try {
       if (installed) {
-        await onRemove(pack)
+        await onRemove(pack);
       } else {
-        await onAdd(pack)
+        await onAdd(pack);
       }
     } finally {
-      setIsActionLoading(false)
+      setIsActionLoading(false);
     }
-  }, [pack, installed, isActionLoading, onAdd, onRemove])
+  }, [pack, installed, isActionLoading, onAdd, onRemove]);
 
   if (loading) {
     return (
@@ -260,7 +273,7 @@ function PackPreviewView({
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         <p className="mt-2 text-sm text-muted-foreground">Loading pack...</p>
       </div>
-    )
+    );
   }
 
   if (error || !pack) {
@@ -272,7 +285,7 @@ function PackPreviewView({
           Go Back
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -290,15 +303,24 @@ function PackPreviewView({
       {/* Pack Header */}
       <div className="flex items-start gap-4 rounded-xl border bg-card p-4">
         <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
-          <Image src={pack.thumbnail_url} alt={pack.name} fill className="object-cover" />
+          <Image
+            src={pack.thumbnail_url}
+            alt={pack.name}
+            fill
+            className="object-cover"
+          />
         </div>
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center gap-2">
             <h3 className="truncate text-lg font-semibold">{pack.name}</h3>
-            {pack.is_official && <Sparkles className="h-4 w-4 flex-shrink-0 text-primary" />}
+            {pack.is_official && (
+              <Sparkles className="h-4 w-4 flex-shrink-0 text-primary" />
+            )}
           </div>
           {pack.description && (
-            <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">{pack.description}</p>
+            <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">
+              {pack.description}
+            </p>
           )}
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             {pack.author && <span>by {pack.author}</span>}
@@ -311,7 +333,7 @@ function PackPreviewView({
           </div>
         </div>
         <Button
-          variant={installed ? 'outline' : 'default'}
+          variant={installed ? "outline" : "default"}
           onClick={handleAction}
           disabled={isActionLoading}
           className="flex-shrink-0"
@@ -345,7 +367,7 @@ function PackPreviewView({
             >
               <Image
                 src={sticker.thumbnail_url || sticker.url}
-                alt={sticker.name || 'Sticker'}
+                alt={sticker.name || "Sticker"}
                 fill
                 className="object-contain p-1"
               />
@@ -354,7 +376,7 @@ function PackPreviewView({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -375,113 +397,120 @@ export function AddStickerPackModal({
     removePack,
     isPackInstalled,
     isLoadingPacks,
-  } = useStickers()
+  } = useStickers();
 
-  const { packs: trendingPacks, loading: loadingTrending } = useTrendingPacks()
+  const { packs: trendingPacks, loading: loadingTrending } = useTrendingPacks();
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [internalPreviewPackId, setInternalPreviewPackId] = useState<string | null>(null)
-  const [view, setView] = useState<ModalView>('browse')
+  const [searchQuery, setSearchQuery] = useState("");
+  const [internalPreviewPackId, setInternalPreviewPackId] = useState<
+    string | null
+  >(null);
+  const [view, setView] = useState<ModalView>("browse");
 
   // Support both controlled and uncontrolled preview
-  const isControlled = controlledPreviewPackId !== undefined
-  const previewPackId = isControlled ? controlledPreviewPackId : internalPreviewPackId
+  const isControlled = controlledPreviewPackId !== undefined;
+  const previewPackId = isControlled
+    ? controlledPreviewPackId
+    : internalPreviewPackId;
   const setPreviewPackId = isControlled
     ? (id: string | null) => onPreviewPackChange?.(id)
-    : setInternalPreviewPackId
+    : setInternalPreviewPackId;
 
   // Load available packs when modal opens
   useEffect(() => {
     if (open) {
-      loadAvailablePacks()
+      loadAvailablePacks();
     }
-  }, [open, loadAvailablePacks])
+  }, [open, loadAvailablePacks]);
 
   // Filter packs based on search
   const filteredPacks = useMemo(() => {
-    if (!searchQuery) return availablePacks
-    const query = searchQuery.toLowerCase()
+    if (!searchQuery) return availablePacks;
+    const query = searchQuery.toLowerCase();
     return availablePacks.filter(
       (pack) =>
-        pack.name.toLowerCase().includes(query) || pack.description?.toLowerCase().includes(query)
-    )
-  }, [availablePacks, searchQuery])
+        pack.name.toLowerCase().includes(query) ||
+        pack.description?.toLowerCase().includes(query),
+    );
+  }, [availablePacks, searchQuery]);
 
   // Split into official and community packs
   const { officialPacks, communityPacks } = useMemo(() => {
-    const official = filteredPacks.filter((p) => p.is_official)
-    const community = filteredPacks.filter((p) => !p.is_official)
-    return { officialPacks: official, communityPacks: community }
-  }, [filteredPacks])
+    const official = filteredPacks.filter((p) => p.is_official);
+    const community = filteredPacks.filter((p) => !p.is_official);
+    return { officialPacks: official, communityPacks: community };
+  }, [filteredPacks]);
 
   // Handle pack preview
   const handlePreview = useCallback(
     (pack: StickerPack) => {
-      setPreviewPackId(pack.id)
-      setView('preview')
+      setPreviewPackId(pack.id);
+      setView("preview");
     },
-    [setPreviewPackId]
-  )
+    [setPreviewPackId],
+  );
 
   // Handle back from preview
   const handleBack = useCallback(() => {
-    setPreviewPackId(null)
-    setView(searchQuery ? 'search' : 'browse')
-  }, [searchQuery, setPreviewPackId])
+    setPreviewPackId(null);
+    setView(searchQuery ? "search" : "browse");
+  }, [searchQuery, setPreviewPackId]);
 
   // Handle add pack
   const handleAddPack = useCallback(
     async (pack: StickerPack) => {
-      await addPack(pack.id)
+      await addPack(pack.id);
     },
-    [addPack]
-  )
+    [addPack],
+  );
 
   // Handle remove pack
   const handleRemovePack = useCallback(
     async (pack: StickerPack) => {
-      await removePack(pack.id)
+      await removePack(pack.id);
     },
-    [removePack]
-  )
+    [removePack],
+  );
 
   // Handle search change
   const handleSearchChange = useCallback((value: string) => {
-    setSearchQuery(value)
+    setSearchQuery(value);
     if (value) {
-      setView('search')
+      setView("search");
     } else {
-      setView('browse')
+      setView("browse");
     }
-  }, [])
+  }, []);
 
   // Handle search clear
   const handleSearchClear = useCallback(() => {
-    setSearchQuery('')
-    setView('browse')
-  }, [])
+    setSearchQuery("");
+    setView("browse");
+  }, []);
 
   // Reset state when modal closes
   useEffect(() => {
     if (!open) {
-      setSearchQuery('')
-      setView('browse')
+      setSearchQuery("");
+      setView("browse");
       if (!isControlled) {
-        setInternalPreviewPackId(null)
+        setInternalPreviewPackId(null);
       }
     }
-  }, [open, isControlled])
+  }, [open, isControlled]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-h-[80vh] sm:max-w-[600px]', className)}>
+      <DialogContent className={cn("max-h-[80vh] sm:max-w-[600px]", className)}>
         <DialogHeader>
           <DialogTitle>Add Sticker Packs</DialogTitle>
-          <DialogDescription>Browse and add sticker packs to your collection.</DialogDescription>
+          <DialogDescription>
+            Browse and add sticker packs to your collection.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Search */}
-        {view !== 'preview' && (
+        {view !== "preview" && (
           <PackSearchInput
             value={searchQuery}
             onChange={handleSearchChange}
@@ -491,7 +520,7 @@ export function AddStickerPackModal({
 
         <ScrollArea className="h-[400px] pr-4">
           {/* Preview View */}
-          {view === 'preview' && previewPackId && (
+          {view === "preview" && previewPackId && (
             <PackPreviewView
               packId={previewPackId}
               onBack={handleBack}
@@ -502,7 +531,7 @@ export function AddStickerPackModal({
           )}
 
           {/* Browse View */}
-          {view === 'browse' && (
+          {view === "browse" && (
             <div className="space-y-6">
               {/* Trending Section */}
               {!loadingTrending && trendingPacks.length > 0 && (
@@ -578,14 +607,16 @@ export function AddStickerPackModal({
               {!isLoadingPacks && availablePacks.length === 0 && (
                 <div className="py-12 text-center">
                   <div className="mb-3 text-4xl">:-/</div>
-                  <p className="text-sm text-muted-foreground">No sticker packs available</p>
+                  <p className="text-sm text-muted-foreground">
+                    No sticker packs available
+                  </p>
                 </div>
               )}
             </div>
           )}
 
           {/* Search View */}
-          {view === 'search' && (
+          {view === "search" && (
             <div className="space-y-4">
               {filteredPacks.length === 0 ? (
                 <div className="py-12 text-center">
@@ -613,7 +644,7 @@ export function AddStickerPackModal({
         </ScrollArea>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default AddStickerPackModal
+export default AddStickerPackModal;

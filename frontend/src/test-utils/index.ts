@@ -26,9 +26,9 @@
  */
 
 // Import functions needed by setupTestEnvironment
-import { resetAllStores } from './mocks'
-import { resetAllFactories } from './factories'
-import { resetMockRouter } from './mocks'
+import { resetAllStores } from "./mocks";
+import { resetAllFactories } from "./factories";
+import { resetMockRouter } from "./mocks";
 
 // ============================================================================
 // Render Utilities
@@ -51,7 +51,7 @@ export {
   useTestAuth,
   useTestAppConfig,
   useTestTheme,
-} from './render'
+} from "./render";
 
 export type {
   TestUser,
@@ -59,7 +59,7 @@ export type {
   TestMessage,
   RenderWithProvidersOptions,
   CustomRenderResult,
-} from './render'
+} from "./render";
 
 // ============================================================================
 // Mocks
@@ -133,7 +133,7 @@ export {
   createMockFile,
   mockImageLoad,
   setupAllMocks,
-} from './mocks'
+} from "./mocks";
 
 // ============================================================================
 // Factories
@@ -191,7 +191,7 @@ export {
 
   // Reset all
   resetAllFactories,
-} from './factories'
+} from "./factories";
 
 // ============================================================================
 // Fixtures
@@ -207,7 +207,7 @@ export {
   formFixtures,
   errorFixtures,
   configFixtures,
-} from './fixtures'
+} from "./fixtures";
 
 // ============================================================================
 // Test Helpers
@@ -216,42 +216,45 @@ export {
 /**
  * Wait for a specified duration
  */
-export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+export const wait = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Wait for the next tick of the event loop
  */
-export const waitForNextTick = () => new Promise((resolve) => process.nextTick(resolve))
+export const waitForNextTick = () =>
+  new Promise((resolve) => process.nextTick(resolve));
 
 /**
  * Flush all pending promises
  */
-export const flushPromises = () => new Promise((resolve) => setImmediate(resolve))
+export const flushPromises = () =>
+  new Promise((resolve) => setImmediate(resolve));
 
 /**
  * Generate a unique ID for testing
  */
-export function generateTestId(prefix: string = 'test'): string {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+export function generateTestId(prefix: string = "test"): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
 /**
  * Generate a unique email for testing
  */
-export function generateTestEmail(prefix: string = 'user'): string {
-  return `${prefix}-${Date.now()}@test.example.com`
+export function generateTestEmail(prefix: string = "user"): string {
+  return `${prefix}-${Date.now()}@test.example.com`;
 }
 
 /**
  * Suppress console errors during a test
  */
 export function suppressConsoleError<T>(callback: () => T): T {
-  const originalError = console.error
-  console.error = jest.fn()
+  const originalError = console.error;
+  console.error = jest.fn();
   try {
-    return callback()
+    return callback();
   } finally {
-    console.error = originalError
+    console.error = originalError;
   }
 }
 
@@ -259,12 +262,12 @@ export function suppressConsoleError<T>(callback: () => T): T {
  * Suppress console warnings during a test
  */
 export function suppressConsoleWarn<T>(callback: () => T): T {
-  const originalWarn = console.warn
-  console.warn = jest.fn()
+  const originalWarn = console.warn;
+  console.warn = jest.fn();
   try {
-    return callback()
+    return callback();
   } finally {
-    console.warn = originalWarn
+    console.warn = originalWarn;
   }
 }
 
@@ -272,27 +275,27 @@ export function suppressConsoleWarn<T>(callback: () => T): T {
  * Advance Jest timers and flush promises
  */
 export async function advanceTimersAndFlush(ms: number) {
-  jest.advanceTimersByTime(ms)
-  await flushPromises()
+  jest.advanceTimersByTime(ms);
+  await flushPromises();
 }
 
 /**
  * Create a deferred promise for testing async behavior
  */
 export function createDeferred<T>() {
-  let resolve: (value: T) => void
-  let reject: (reason?: any) => void
+  let resolve: (value: T) => void;
+  let reject: (reason?: any) => void;
 
   const promise = new Promise<T>((res, rej) => {
-    resolve = res
-    reject = rej
-  })
+    resolve = res;
+    reject = rej;
+  });
 
   return {
     promise,
     resolve: resolve!,
     reject: reject!,
-  }
+  };
 }
 
 // ============================================================================
@@ -304,26 +307,26 @@ export function createDeferred<T>() {
  */
 export function setupTestEnvironment() {
   try {
-    resetAllStores()
+    resetAllStores();
   } catch (e) {
     // Stores may not be initialized
   }
   try {
-    resetAllFactories()
+    resetAllFactories();
   } catch (e) {
     // Factories may not be initialized
   }
   try {
-    resetMockRouter()
+    resetMockRouter();
   } catch (e) {
     // Router may not be mocked
   }
-  jest.clearAllMocks()
+  jest.clearAllMocks();
 }
 
 /**
  * Standard afterEach cleanup for tests
  */
 export function cleanupTestEnvironment() {
-  jest.restoreAllMocks()
+  jest.restoreAllMocks();
 }

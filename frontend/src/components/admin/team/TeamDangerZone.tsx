@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   AlertTriangle,
   Download,
@@ -12,14 +12,20 @@ import {
   Users as UsersIcon,
   Settings,
   CheckCircle,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -39,28 +45,28 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
-import { useTeamStore } from '@/stores/team-store'
-import { teamManager } from '@/lib/team/team-manager'
-import type { TeamMember } from '@/lib/team/team-types'
+import { useTeamStore } from "@/stores/team-store";
+import { teamManager } from "@/lib/team/team-manager";
+import type { TeamMember } from "@/lib/team/team-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface TeamDangerZoneProps {
-  teamId: string
+  teamId: string;
 }
 
 export function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
-  const { team, members } = useTeamStore()
+  const { team, members } = useTeamStore();
 
   return (
     <div className="space-y-6">
@@ -76,40 +82,53 @@ export function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Warning</AlertTitle>
         <AlertDescription>
-          Actions in this section are permanent and cannot be undone. Please proceed with caution.
+          Actions in this section are permanent and cannot be undone. Please
+          proceed with caution.
         </AlertDescription>
       </Alert>
 
       {/* Export Data */}
-      <ExportDataSection teamId={teamId} teamName={team?.name || 'Team'} />
+      <ExportDataSection teamId={teamId} teamName={team?.name || "Team"} />
 
       <Separator />
 
       {/* Transfer Ownership */}
-      <TransferOwnershipSection teamId={teamId} members={members} currentOwner={team?.owner} />
+      <TransferOwnershipSection
+        teamId={teamId}
+        members={members}
+        currentOwner={team?.owner}
+      />
 
       <Separator />
 
       {/* Delete Team */}
-      <DeleteTeamSection teamId={teamId} teamName={team?.name || 'Team'} />
+      <DeleteTeamSection teamId={teamId} teamName={team?.name || "Team"} />
     </div>
-  )
+  );
 }
 
 // Export Data Section
-function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: string }) {
-  const [exportDialogOpen, setExportDialogOpen] = useState(false)
-  const [exportFormat, setExportFormat] = useState<'json' | 'csv' | 'zip'>('json')
-  const [includeMessages, setIncludeMessages] = useState(true)
-  const [includeFiles, setIncludeFiles] = useState(true)
-  const [includeUsers, setIncludeUsers] = useState(true)
-  const [includeSettings, setIncludeSettings] = useState(true)
-  const [isExporting, setIsExporting] = useState(false)
-  const [exportSuccess, setExportSuccess] = useState(false)
+function ExportDataSection({
+  teamId,
+  teamName,
+}: {
+  teamId: string;
+  teamName: string;
+}) {
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<"json" | "csv" | "zip">(
+    "json",
+  );
+  const [includeMessages, setIncludeMessages] = useState(true);
+  const [includeFiles, setIncludeFiles] = useState(true);
+  const [includeUsers, setIncludeUsers] = useState(true);
+  const [includeSettings, setIncludeSettings] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState(false);
 
   const handleExport = async () => {
-    setIsExporting(true)
-    setExportSuccess(false)
+    setIsExporting(true);
+    setExportSuccess(false);
 
     try {
       const result = await teamManager.requestDataExport(teamId, {
@@ -119,21 +138,21 @@ function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: str
         includeUsers,
         includeSettings,
         format: exportFormat,
-      })
+      });
 
       if (result.success) {
-        setExportSuccess(true)
+        setExportSuccess(true);
         setTimeout(() => {
-          setExportDialogOpen(false)
-          setExportSuccess(false)
-        }, 2000)
+          setExportDialogOpen(false);
+          setExportSuccess(false);
+        }, 2000);
       }
     } catch (error) {
-      logger.error('Export failed:', error)
+      logger.error("Export failed:", error);
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   return (
     <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950">
@@ -167,14 +186,18 @@ function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: str
                 <Alert className="border-green-200 bg-green-50 text-green-800">
                   <CheckCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Export started! You'll receive a download link via email when complete.
+                    Export started! You'll receive a download link via email
+                    when complete.
                   </AlertDescription>
                 </Alert>
               )}
 
               <div className="space-y-2">
                 <Label>Export Format</Label>
-                <Select value={exportFormat} onValueChange={(v: any) => setExportFormat(v)}>
+                <Select
+                  value={exportFormat}
+                  onValueChange={(v: any) => setExportFormat(v)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -193,9 +216,14 @@ function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: str
                     <Checkbox
                       id="messages"
                       checked={includeMessages}
-                      onCheckedChange={(checked) => setIncludeMessages(checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        setIncludeMessages(checked as boolean)
+                      }
                     />
-                    <Label htmlFor="messages" className="flex items-center gap-2 font-normal">
+                    <Label
+                      htmlFor="messages"
+                      className="flex items-center gap-2 font-normal"
+                    >
                       <Database className="h-4 w-4" />
                       Messages and Channels
                     </Label>
@@ -204,9 +232,14 @@ function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: str
                     <Checkbox
                       id="files"
                       checked={includeFiles}
-                      onCheckedChange={(checked) => setIncludeFiles(checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        setIncludeFiles(checked as boolean)
+                      }
                     />
-                    <Label htmlFor="files" className="flex items-center gap-2 font-normal">
+                    <Label
+                      htmlFor="files"
+                      className="flex items-center gap-2 font-normal"
+                    >
                       <Files className="h-4 w-4" />
                       Uploaded Files
                     </Label>
@@ -215,9 +248,14 @@ function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: str
                     <Checkbox
                       id="users"
                       checked={includeUsers}
-                      onCheckedChange={(checked) => setIncludeUsers(checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        setIncludeUsers(checked as boolean)
+                      }
                     />
-                    <Label htmlFor="users" className="flex items-center gap-2 font-normal">
+                    <Label
+                      htmlFor="users"
+                      className="flex items-center gap-2 font-normal"
+                    >
                       <UsersIcon className="h-4 w-4" />
                       Team Members
                     </Label>
@@ -226,9 +264,14 @@ function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: str
                     <Checkbox
                       id="settings"
                       checked={includeSettings}
-                      onCheckedChange={(checked) => setIncludeSettings(checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        setIncludeSettings(checked as boolean)
+                      }
                     />
-                    <Label htmlFor="settings" className="flex items-center gap-2 font-normal">
+                    <Label
+                      htmlFor="settings"
+                      className="flex items-center gap-2 font-normal"
+                    >
                       <Settings className="h-4 w-4" />
                       Team Settings
                     </Label>
@@ -238,7 +281,10 @@ function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: str
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setExportDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setExportDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button onClick={handleExport} disabled={isExporting}>
@@ -259,7 +305,7 @@ function ExportDataSection({ teamId, teamName }: { teamId: string; teamName: str
         </Dialog>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // Transfer Ownership Section
@@ -268,38 +314,40 @@ function TransferOwnershipSection({
   members,
   currentOwner,
 }: {
-  teamId: string
-  members: TeamMember[]
-  currentOwner?: { displayName: string; email: string }
+  teamId: string;
+  members: TeamMember[];
+  currentOwner?: { displayName: string; email: string };
 }) {
-  const [transferDialogOpen, setTransferDialogOpen] = useState(false)
-  const [selectedMember, setSelectedMember] = useState<string>('')
-  const [confirmationCode, setConfirmationCode] = useState('')
-  const [isTransferring, setIsTransferring] = useState(false)
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<string>("");
+  const [confirmationCode, setConfirmationCode] = useState("");
+  const [isTransferring, setIsTransferring] = useState(false);
 
-  const eligibleMembers = members.filter((m) => m.role === 'admin' || m.role === 'member')
+  const eligibleMembers = members.filter(
+    (m) => m.role === "admin" || m.role === "member",
+  );
 
   const handleTransfer = async () => {
-    if (!selectedMember || confirmationCode !== 'TRANSFER') return
+    if (!selectedMember || confirmationCode !== "TRANSFER") return;
 
-    setIsTransferring(true)
+    setIsTransferring(true);
     try {
       const result = await teamManager.transferOwnership(teamId, {
         newOwnerId: selectedMember,
         confirmationCode,
         notifyTeam: true,
-      })
+      });
 
       if (result.success) {
-        setTransferDialogOpen(false)
+        setTransferDialogOpen(false);
         // Redirect or show success message
       }
     } catch (error) {
-      logger.error('Transfer failed:', error)
+      logger.error("Transfer failed:", error);
     } finally {
-      setIsTransferring(false)
+      setIsTransferring(false);
     }
-  }
+  };
 
   return (
     <Card className="border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-950">
@@ -317,7 +365,9 @@ function TransferOwnershipSection({
           <div className="rounded-lg border border-orange-200 bg-white p-3 dark:bg-orange-950">
             <p className="text-sm text-muted-foreground">Current Owner</p>
             <p className="font-medium">{currentOwner.displayName}</p>
-            <p className="text-sm text-muted-foreground">{currentOwner.email}</p>
+            <p className="text-sm text-muted-foreground">
+              {currentOwner.email}
+            </p>
           </div>
         )}
 
@@ -332,8 +382,8 @@ function TransferOwnershipSection({
             <DialogHeader>
               <DialogTitle>Transfer Team Ownership</DialogTitle>
               <DialogDescription>
-                Transfer ownership to another team member. You will become an admin after the
-                transfer.
+                Transfer ownership to another team member. You will become an
+                admin after the transfer.
               </DialogDescription>
             </DialogHeader>
 
@@ -341,13 +391,17 @@ function TransferOwnershipSection({
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  This action is irreversible. The new owner will have full control of the team.
+                  This action is irreversible. The new owner will have full
+                  control of the team.
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
                 <Label>Select New Owner</Label>
-                <Select value={selectedMember} onValueChange={setSelectedMember}>
+                <Select
+                  value={selectedMember}
+                  onValueChange={setSelectedMember}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a team member" />
                   </SelectTrigger>
@@ -372,12 +426,19 @@ function TransferOwnershipSection({
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setTransferDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setTransferDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
                 onClick={handleTransfer}
-                disabled={!selectedMember || confirmationCode !== 'TRANSFER' || isTransferring}
+                disabled={
+                  !selectedMember ||
+                  confirmationCode !== "TRANSFER" ||
+                  isTransferring
+                }
                 className="bg-orange-600 hover:bg-orange-700"
               >
                 {isTransferring ? (
@@ -386,7 +447,7 @@ function TransferOwnershipSection({
                     Transferring...
                   </>
                 ) : (
-                  'Transfer Ownership'
+                  "Transfer Ownership"
                 )}
               </Button>
             </DialogFooter>
@@ -394,38 +455,44 @@ function TransferOwnershipSection({
         </Dialog>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // Delete Team Section
-function DeleteTeamSection({ teamId, teamName }: { teamId: string; teamName: string }) {
-  const [confirmationText, setConfirmationText] = useState('')
-  const [exportBeforeDelete, setExportBeforeDelete] = useState(true)
-  const [isDeleting, setIsDeleting] = useState(false)
+function DeleteTeamSection({
+  teamId,
+  teamName,
+}: {
+  teamId: string;
+  teamName: string;
+}) {
+  const [confirmationText, setConfirmationText] = useState("");
+  const [exportBeforeDelete, setExportBeforeDelete] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (confirmationText !== teamName) return
+    if (confirmationText !== teamName) return;
 
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
       const result = await teamManager.deleteTeam(teamId, {
         teamId,
-        reason: 'User requested deletion',
+        reason: "User requested deletion",
         confirmationCode: teamName,
         exportData: exportBeforeDelete,
         deleteImmediately: true,
-      })
+      });
 
       if (result.success) {
         // Redirect to a goodbye page or home
-        window.location.href = '/'
+        window.location.href = "/";
       }
     } catch (error) {
-      logger.error('Deletion failed:', error)
+      logger.error("Deletion failed:", error);
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
   return (
     <Card className="bg-destructive/5 border-destructive">
@@ -434,7 +501,9 @@ function DeleteTeamSection({ teamId, teamName }: { teamId: string; teamName: str
           <Trash2 className="h-5 w-5" />
           Delete Team
         </CardTitle>
-        <CardDescription>Permanently delete this team and all associated data</CardDescription>
+        <CardDescription>
+          Permanently delete this team and all associated data
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <AlertDialog>
@@ -448,8 +517,8 @@ function DeleteTeamSection({ teamId, teamName }: { teamId: string; teamName: str
             <AlertDialogHeader>
               <AlertDialogTitle>Delete {teamName}?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your team and remove all
-                data including:
+                This action cannot be undone. This will permanently delete your
+                team and remove all data including:
               </AlertDialogDescription>
             </AlertDialogHeader>
 
@@ -471,7 +540,9 @@ function DeleteTeamSection({ teamId, teamName }: { teamId: string; teamName: str
                 <Checkbox
                   id="export"
                   checked={exportBeforeDelete}
-                  onCheckedChange={(checked) => setExportBeforeDelete(checked as boolean)}
+                  onCheckedChange={(checked) =>
+                    setExportBeforeDelete(checked as boolean)
+                  }
                 />
                 <Label htmlFor="export" className="font-normal">
                   Export data before deletion (recommended)
@@ -489,7 +560,9 @@ function DeleteTeamSection({ teamId, teamName }: { teamId: string; teamName: str
             </div>
 
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setConfirmationText('')}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel onClick={() => setConfirmationText("")}>
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
                 disabled={confirmationText !== teamName || isDeleting}
@@ -501,7 +574,7 @@ function DeleteTeamSection({ teamId, teamName }: { teamId: string; teamName: str
                     Deleting...
                   </>
                 ) : (
-                  'Delete Team Permanently'
+                  "Delete Team Permanently"
                 )}
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -509,7 +582,7 @@ function DeleteTeamSection({ teamId, teamName }: { teamId: string; teamName: str
         </AlertDialog>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default TeamDangerZone
+export default TeamDangerZone;

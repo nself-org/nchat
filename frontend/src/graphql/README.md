@@ -198,20 +198,20 @@ All files include comprehensive TypeScript type definitions for variables and re
 ```typescript
 // Query Variables
 export interface GetXVariables {
-  id?: string
-  limit?: number
-  offset?: number
+  id?: string;
+  limit?: number;
+  offset?: number;
 }
 
 // Mutation Variables
 export interface UpdateXVariables {
-  id: string
+  id: string;
   // ... fields to update
 }
 
 // Subscription Variables
 export interface XSubscriptionVariables {
-  id: string
+  id: string;
 }
 ```
 
@@ -220,23 +220,23 @@ export interface XSubscriptionVariables {
 ### Using Individual Exports
 
 ```typescript
-import { GET_USER_BY_ID, UPDATE_PROFILE } from '@/graphql'
+import { GET_USER_BY_ID, UPDATE_PROFILE } from "@/graphql";
 
 // Use in Apollo Client
 const { data } = useQuery(GET_USER_BY_ID, {
   variables: { id: userId },
-})
+});
 ```
 
 ### Using Namespace Exports
 
 ```typescript
-import { users, dms, files } from '@/graphql'
+import { users, dms, files } from "@/graphql";
 
 // Organized by domain
 const { data } = useQuery(users.GET_USER_BY_ID, {
   variables: { id: userId },
-})
+});
 ```
 
 ## Fragments

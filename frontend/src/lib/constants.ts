@@ -8,30 +8,33 @@
  */
 export const API_URLS = {
   /** GraphQL endpoint */
-  GRAPHQL: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://api.localhost/v1/graphql',
+  GRAPHQL:
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://api.localhost/v1/graphql",
   /** Authentication endpoint */
-  AUTH: process.env.NEXT_PUBLIC_AUTH_URL || 'http://auth.localhost/v1/auth',
+  AUTH: process.env.NEXT_PUBLIC_AUTH_URL || "http://auth.localhost/v1/auth",
   /** Storage endpoint */
-  STORAGE: process.env.NEXT_PUBLIC_STORAGE_URL || 'http://storage.localhost/v1/storage',
+  STORAGE:
+    process.env.NEXT_PUBLIC_STORAGE_URL ||
+    "http://storage.localhost/v1/storage",
   /** WebSocket endpoint for subscriptions */
-  WS: process.env.NEXT_PUBLIC_WS_URL || 'ws://api.localhost/v1/graphql',
-} as const
+  WS: process.env.NEXT_PUBLIC_WS_URL || "ws://api.localhost/v1/graphql",
+} as const;
 
 /**
  * Application metadata
  */
 export const APP_CONFIG = {
   /** Application name */
-  NAME: process.env.NEXT_PUBLIC_APP_NAME || 'nchat',
+  NAME: process.env.NEXT_PUBLIC_APP_NAME || "nchat",
   /** Application description */
-  DESCRIPTION: 'Team communication platform',
+  DESCRIPTION: "Team communication platform",
   /** Application version */
-  VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '0.9.1',
+  VERSION: process.env.NEXT_PUBLIC_APP_VERSION || "0.9.1",
   /** Default locale */
-  DEFAULT_LOCALE: 'en-US',
+  DEFAULT_LOCALE: "en-US",
   /** Support email */
-  SUPPORT_EMAIL: 'support@nself.org',
-} as const
+  SUPPORT_EMAIL: "support@nself.org",
+} as const;
 
 /**
  * Default values for the application
@@ -39,22 +42,22 @@ export const APP_CONFIG = {
 export const DEFAULTS = {
   /** Default avatar background colors */
   AVATAR_COLORS: [
-    '#6366f1', // Indigo
-    '#8b5cf6', // Violet
-    '#ec4899', // Pink
-    '#f43f5e', // Rose
-    '#ef4444', // Red
-    '#f97316', // Orange
-    '#eab308', // Yellow
-    '#22c55e', // Green
-    '#14b8a6', // Teal
-    '#06b6d4', // Cyan
-    '#3b82f6', // Blue
+    "#6366f1", // Indigo
+    "#8b5cf6", // Violet
+    "#ec4899", // Pink
+    "#f43f5e", // Rose
+    "#ef4444", // Red
+    "#f97316", // Orange
+    "#eab308", // Yellow
+    "#22c55e", // Green
+    "#14b8a6", // Teal
+    "#06b6d4", // Cyan
+    "#3b82f6", // Blue
   ],
   /** Default primary color */
-  PRIMARY_COLOR: '#6366f1',
+  PRIMARY_COLOR: "#6366f1",
   /** Default theme mode */
-  THEME_MODE: 'system' as const,
+  THEME_MODE: "system" as const,
   /** Default page size for pagination */
   PAGE_SIZE: 50,
   /** Default avatar size */
@@ -69,7 +72,7 @@ export const DEFAULTS = {
   RECONNECT_INTERVAL: 5000,
   /** Maximum reconnect attempts */
   MAX_RECONNECT_ATTEMPTS: 10,
-} as const
+} as const;
 
 /**
  * Size limits
@@ -109,7 +112,7 @@ export const LIMITS = {
   MAX_REACTIONS_PER_MESSAGE: 50,
   /** Maximum members in a direct message group */
   MAX_DM_GROUP_MEMBERS: 8,
-} as const
+} as const;
 
 /**
  * Timing constants (all in milliseconds)
@@ -141,7 +144,7 @@ export const TIMING = {
   USER_CACHE_TTL: 5 * 60 * 1000,
   /** Cache TTL for channel data */
   CHANNEL_CACHE_TTL: 60 * 1000,
-} as const
+} as const;
 
 /**
  * Regular expression patterns
@@ -172,27 +175,27 @@ export const PATTERNS = {
   SLUG: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
   /** Password pattern (at least 8 chars, 1 upper, 1 lower, 1 number) */
   PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-} as const
+} as const;
 
 /**
  * Key codes for keyboard shortcuts
  */
 export const KEYS = {
-  ENTER: 'Enter',
-  ESCAPE: 'Escape',
-  TAB: 'Tab',
-  SPACE: ' ',
-  BACKSPACE: 'Backspace',
-  DELETE: 'Delete',
-  ARROW_UP: 'ArrowUp',
-  ARROW_DOWN: 'ArrowDown',
-  ARROW_LEFT: 'ArrowLeft',
-  ARROW_RIGHT: 'ArrowRight',
-  HOME: 'Home',
-  END: 'End',
-  PAGE_UP: 'PageUp',
-  PAGE_DOWN: 'PageDown',
-} as const
+  ENTER: "Enter",
+  ESCAPE: "Escape",
+  TAB: "Tab",
+  SPACE: " ",
+  BACKSPACE: "Backspace",
+  DELETE: "Delete",
+  ARROW_UP: "ArrowUp",
+  ARROW_DOWN: "ArrowDown",
+  ARROW_LEFT: "ArrowLeft",
+  ARROW_RIGHT: "ArrowRight",
+  HOME: "Home",
+  END: "End",
+  PAGE_UP: "PageUp",
+  PAGE_DOWN: "PageDown",
+} as const;
 
 /**
  * HTTP status codes
@@ -211,18 +214,18 @@ export const HTTP_STATUS = {
   INTERNAL_SERVER_ERROR: 500,
   BAD_GATEWAY: 502,
   SERVICE_UNAVAILABLE: 503,
-} as const
+} as const;
 
 /**
  * User roles
  */
 export const ROLES = {
-  OWNER: 'owner',
-  ADMIN: 'admin',
-  MODERATOR: 'moderator',
-  MEMBER: 'member',
-  GUEST: 'guest',
-} as const
+  OWNER: "owner",
+  ADMIN: "admin",
+  MODERATOR: "moderator",
+  MEMBER: "member",
+  GUEST: "guest",
+} as const;
 
 /**
  * Role hierarchy (higher number = more permissions)
@@ -233,173 +236,185 @@ export const ROLE_HIERARCHY: Record<string, number> = {
   [ROLES.MODERATOR]: 60,
   [ROLES.MEMBER]: 40,
   [ROLES.GUEST]: 20,
-} as const
+} as const;
 
 /**
  * Channel types
  */
 export const CHANNEL_TYPES = {
-  PUBLIC: 'public',
-  PRIVATE: 'private',
-  DIRECT: 'direct',
-  GROUP_DM: 'group_dm',
-} as const
+  PUBLIC: "public",
+  PRIVATE: "private",
+  DIRECT: "direct",
+  GROUP_DM: "group_dm",
+} as const;
 
 /**
  * Message types
  */
 export const MESSAGE_TYPES = {
-  TEXT: 'text',
-  IMAGE: 'image',
-  FILE: 'file',
-  VIDEO: 'video',
-  AUDIO: 'audio',
-  SYSTEM: 'system',
-  REPLY: 'reply',
-  THREAD: 'thread',
-} as const
+  TEXT: "text",
+  IMAGE: "image",
+  FILE: "file",
+  VIDEO: "video",
+  AUDIO: "audio",
+  SYSTEM: "system",
+  REPLY: "reply",
+  THREAD: "thread",
+} as const;
 
 /**
  * Presence status types
  */
 export const PRESENCE_STATUS = {
-  ONLINE: 'online',
-  AWAY: 'away',
-  DND: 'dnd',
-  OFFLINE: 'offline',
-} as const
+  ONLINE: "online",
+  AWAY: "away",
+  DND: "dnd",
+  OFFLINE: "offline",
+} as const;
 
 /**
  * Notification types
  */
 export const NOTIFICATION_TYPES = {
-  MESSAGE: 'message',
-  MENTION: 'mention',
-  REACTION: 'reaction',
-  REPLY: 'reply',
-  CHANNEL_INVITE: 'channel_invite',
-  DM: 'dm',
-  SYSTEM: 'system',
-} as const
+  MESSAGE: "message",
+  MENTION: "mention",
+  REACTION: "reaction",
+  REPLY: "reply",
+  CHANNEL_INVITE: "channel_invite",
+  DM: "dm",
+  SYSTEM: "system",
+} as const;
 
 /**
  * File type categories
  */
 export const FILE_CATEGORIES = {
   IMAGE: {
-    mimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
-    extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'],
+    mimeTypes: [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/svg+xml",
+    ],
+    extensions: [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"],
   },
   VIDEO: {
-    mimeTypes: ['video/mp4', 'video/webm', 'video/quicktime'],
-    extensions: ['.mp4', '.webm', '.mov'],
+    mimeTypes: ["video/mp4", "video/webm", "video/quicktime"],
+    extensions: [".mp4", ".webm", ".mov"],
   },
   AUDIO: {
-    mimeTypes: ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm'],
-    extensions: ['.mp3', '.wav', '.ogg', '.m4a'],
+    mimeTypes: ["audio/mpeg", "audio/wav", "audio/ogg", "audio/webm"],
+    extensions: [".mp3", ".wav", ".ogg", ".m4a"],
   },
   DOCUMENT: {
     mimeTypes: [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'text/plain',
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text/plain",
     ],
-    extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt'],
+    extensions: [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt"],
   },
   ARCHIVE: {
-    mimeTypes: ['application/zip', 'application/x-rar-compressed', 'application/gzip'],
-    extensions: ['.zip', '.rar', '.gz', '.tar'],
+    mimeTypes: [
+      "application/zip",
+      "application/x-rar-compressed",
+      "application/gzip",
+    ],
+    extensions: [".zip", ".rar", ".gz", ".tar"],
   },
-} as const
+} as const;
 
 /**
  * Error codes
  */
 export const ERROR_CODES = {
   // Authentication errors
-  AUTH_INVALID_CREDENTIALS: 'AUTH_INVALID_CREDENTIALS',
-  AUTH_TOKEN_EXPIRED: 'AUTH_TOKEN_EXPIRED',
-  AUTH_UNAUTHORIZED: 'AUTH_UNAUTHORIZED',
-  AUTH_EMAIL_NOT_VERIFIED: 'AUTH_EMAIL_NOT_VERIFIED',
+  AUTH_INVALID_CREDENTIALS: "AUTH_INVALID_CREDENTIALS",
+  AUTH_TOKEN_EXPIRED: "AUTH_TOKEN_EXPIRED",
+  AUTH_UNAUTHORIZED: "AUTH_UNAUTHORIZED",
+  AUTH_EMAIL_NOT_VERIFIED: "AUTH_EMAIL_NOT_VERIFIED",
 
   // Validation errors
-  VALIDATION_REQUIRED: 'VALIDATION_REQUIRED',
-  VALIDATION_INVALID_FORMAT: 'VALIDATION_INVALID_FORMAT',
-  VALIDATION_TOO_SHORT: 'VALIDATION_TOO_SHORT',
-  VALIDATION_TOO_LONG: 'VALIDATION_TOO_LONG',
-  VALIDATION_ALREADY_EXISTS: 'VALIDATION_ALREADY_EXISTS',
+  VALIDATION_REQUIRED: "VALIDATION_REQUIRED",
+  VALIDATION_INVALID_FORMAT: "VALIDATION_INVALID_FORMAT",
+  VALIDATION_TOO_SHORT: "VALIDATION_TOO_SHORT",
+  VALIDATION_TOO_LONG: "VALIDATION_TOO_LONG",
+  VALIDATION_ALREADY_EXISTS: "VALIDATION_ALREADY_EXISTS",
 
   // Resource errors
-  RESOURCE_NOT_FOUND: 'RESOURCE_NOT_FOUND',
-  RESOURCE_FORBIDDEN: 'RESOURCE_FORBIDDEN',
-  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
+  RESOURCE_NOT_FOUND: "RESOURCE_NOT_FOUND",
+  RESOURCE_FORBIDDEN: "RESOURCE_FORBIDDEN",
+  RESOURCE_CONFLICT: "RESOURCE_CONFLICT",
 
   // Network errors
-  NETWORK_ERROR: 'NETWORK_ERROR',
-  NETWORK_TIMEOUT: 'NETWORK_TIMEOUT',
-  NETWORK_OFFLINE: 'NETWORK_OFFLINE',
+  NETWORK_ERROR: "NETWORK_ERROR",
+  NETWORK_TIMEOUT: "NETWORK_TIMEOUT",
+  NETWORK_OFFLINE: "NETWORK_OFFLINE",
 
   // Server errors
-  SERVER_ERROR: 'SERVER_ERROR',
-  SERVER_UNAVAILABLE: 'SERVER_UNAVAILABLE',
+  SERVER_ERROR: "SERVER_ERROR",
+  SERVER_UNAVAILABLE: "SERVER_UNAVAILABLE",
 
   // Rate limiting
-  RATE_LIMITED: 'RATE_LIMITED',
+  RATE_LIMITED: "RATE_LIMITED",
 
   // File errors
-  FILE_TOO_LARGE: 'FILE_TOO_LARGE',
-  FILE_TYPE_NOT_ALLOWED: 'FILE_TYPE_NOT_ALLOWED',
-  FILE_UPLOAD_FAILED: 'FILE_UPLOAD_FAILED',
-} as const
+  FILE_TOO_LARGE: "FILE_TOO_LARGE",
+  FILE_TYPE_NOT_ALLOWED: "FILE_TYPE_NOT_ALLOWED",
+  FILE_UPLOAD_FAILED: "FILE_UPLOAD_FAILED",
+} as const;
 
 /**
  * Local storage keys
  */
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: 'nchat-auth-token',
-  REFRESH_TOKEN: 'nchat-refresh-token',
-  USER: 'nchat-user',
-  THEME: 'nchat-theme',
-  CONFIG: 'nchat-config',
-  DRAFT_PREFIX: 'nchat-draft-',
-  SIDEBAR_STATE: 'nchat-sidebar',
-  RECENT_EMOJI: 'nchat-recent-emoji',
-  NOTIFICATION_PERMISSION: 'nchat-notification-permission',
-} as const
+  // sast-ignore: HARDCODED_CREDENTIAL -- these are localStorage key names (identifiers), not credential values
+  AUTH_TOKEN: "nchat-auth-token",
+  // sast-ignore: HARDCODED_CREDENTIAL -- localStorage key name, not a stored token value
+  REFRESH_TOKEN: "nchat-refresh-token",
+  USER: "nchat-user",
+  THEME: "nchat-theme",
+  CONFIG: "nchat-config",
+  DRAFT_PREFIX: "nchat-draft-",
+  SIDEBAR_STATE: "nchat-sidebar",
+  RECENT_EMOJI: "nchat-recent-emoji",
+  NOTIFICATION_PERMISSION: "nchat-notification-permission",
+} as const;
 
 /**
  * Event names for custom events
  */
 export const EVENTS = {
   // Auth events
-  AUTH_LOGIN: 'nchat:auth:login',
-  AUTH_LOGOUT: 'nchat:auth:logout',
-  AUTH_TOKEN_REFRESH: 'nchat:auth:token-refresh',
+  AUTH_LOGIN: "nchat:auth:login",
+  AUTH_LOGOUT: "nchat:auth:logout",
+  AUTH_TOKEN_REFRESH: "nchat:auth:token-refresh",
 
   // Message events
-  MESSAGE_SEND: 'nchat:message:send',
-  MESSAGE_RECEIVE: 'nchat:message:receive',
-  MESSAGE_UPDATE: 'nchat:message:update',
-  MESSAGE_DELETE: 'nchat:message:delete',
+  MESSAGE_SEND: "nchat:message:send",
+  MESSAGE_RECEIVE: "nchat:message:receive",
+  MESSAGE_UPDATE: "nchat:message:update",
+  MESSAGE_DELETE: "nchat:message:delete",
 
   // Channel events
-  CHANNEL_JOIN: 'nchat:channel:join',
-  CHANNEL_LEAVE: 'nchat:channel:leave',
-  CHANNEL_UPDATE: 'nchat:channel:update',
+  CHANNEL_JOIN: "nchat:channel:join",
+  CHANNEL_LEAVE: "nchat:channel:leave",
+  CHANNEL_UPDATE: "nchat:channel:update",
 
   // User events
-  USER_TYPING: 'nchat:user:typing',
-  USER_PRESENCE: 'nchat:user:presence',
+  USER_TYPING: "nchat:user:typing",
+  USER_PRESENCE: "nchat:user:presence",
 
   // UI events
-  THEME_CHANGE: 'nchat:ui:theme-change',
-  SIDEBAR_TOGGLE: 'nchat:ui:sidebar-toggle',
-  MODAL_OPEN: 'nchat:ui:modal-open',
-  MODAL_CLOSE: 'nchat:ui:modal-close',
-} as const
+  THEME_CHANGE: "nchat:ui:theme-change",
+  SIDEBAR_TOGGLE: "nchat:ui:sidebar-toggle",
+  MODAL_OPEN: "nchat:ui:modal-open",
+  MODAL_CLOSE: "nchat:ui:modal-close",
+} as const;
 
 /**
  * Breakpoints for responsive design
@@ -409,8 +424,8 @@ export const BREAKPOINTS = {
   MD: 768,
   LG: 1024,
   XL: 1280,
-  '2XL': 1536,
-} as const
+  "2XL": 1536,
+} as const;
 
 /**
  * Z-index layers
@@ -425,4 +440,4 @@ export const Z_INDEX = {
   TOOLTIP: 600,
   TOAST: 700,
   MAX: 9999,
-} as const
+} as const;

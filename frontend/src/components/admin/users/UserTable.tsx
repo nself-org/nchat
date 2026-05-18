@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useState } from "react";
+import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -10,66 +10,94 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import { getUserInitials, formatLastSeen } from '@/lib/admin/users/user-manager'
-import type { AdminUser, UserSortOptions } from '@/lib/admin/users/user-types'
+} from "@/components/ui/select";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import {
+  getUserInitials,
+  formatLastSeen,
+} from "@/lib/admin/users/user-manager";
+import type { AdminUser, UserSortOptions } from "@/lib/admin/users/user-types";
 
 interface UserTableProps {
-  users: AdminUser[]
-  total: number
-  page: number
-  perPage: number
-  sort: UserSortOptions
-  isLoading?: boolean
-  onPageChange: (page: number) => void
-  onPerPageChange: (perPage: number) => void
-  onSortChange: (sort: UserSortOptions) => void
-  onUserClick?: (user: AdminUser) => void
+  users: AdminUser[];
+  total: number;
+  page: number;
+  perPage: number;
+  sort: UserSortOptions;
+  isLoading?: boolean;
+  onPageChange: (page: number) => void;
+  onPerPageChange: (perPage: number) => void;
+  onSortChange: (sort: UserSortOptions) => void;
+  onUserClick?: (user: AdminUser) => void;
 }
 
 const roleColors: Record<string, string> = {
-  owner: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
-  admin: 'bg-red-500/10 text-red-600 border-red-500/20',
-  moderator: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  member: 'bg-green-500/10 text-green-600 border-green-500/20',
-  guest: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
-}
+  owner: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+  admin: "bg-red-500/10 text-red-600 border-red-500/20",
+  moderator: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  member: "bg-green-500/10 text-green-600 border-green-500/20",
+  guest: "bg-gray-500/10 text-gray-600 border-gray-500/20",
+};
 
 const statusColors: Record<string, string> = {
-  active: 'bg-green-500',
-  inactive: 'bg-gray-400',
-  banned: 'bg-red-500',
-}
+  active: "bg-green-500",
+  inactive: "bg-gray-400",
+  banned: "bg-red-500",
+};
 
 type SortableColumn =
-  | 'username'
-  | 'displayName'
-  | 'email'
-  | 'createdAt'
-  | 'lastSeenAt'
-  | 'messagesCount'
+  | "username"
+  | "displayName"
+  | "email"
+  | "createdAt"
+  | "lastSeenAt"
+  | "messagesCount";
 
-const columns: { key: SortableColumn; label: string; sortable: boolean; className?: string }[] = [
-  { key: 'displayName', label: 'User', sortable: true },
-  { key: 'username', label: 'Role', sortable: false },
-  { key: 'createdAt', label: 'Status', sortable: false, className: 'hidden md:table-cell' },
-  { key: 'createdAt', label: 'Joined', sortable: true, className: 'hidden lg:table-cell' },
-  { key: 'lastSeenAt', label: 'Last Seen', sortable: true, className: 'hidden lg:table-cell' },
-  { key: 'messagesCount', label: 'Messages', sortable: true, className: 'hidden xl:table-cell' },
-]
+const columns: {
+  key: SortableColumn;
+  label: string;
+  sortable: boolean;
+  className?: string;
+}[] = [
+  { key: "displayName", label: "User", sortable: true },
+  { key: "username", label: "Role", sortable: false },
+  {
+    key: "createdAt",
+    label: "Status",
+    sortable: false,
+    className: "hidden md:table-cell",
+  },
+  {
+    key: "createdAt",
+    label: "Joined",
+    sortable: true,
+    className: "hidden lg:table-cell",
+  },
+  {
+    key: "lastSeenAt",
+    label: "Last Seen",
+    sortable: true,
+    className: "hidden lg:table-cell",
+  },
+  {
+    key: "messagesCount",
+    label: "Messages",
+    sortable: true,
+    className: "hidden xl:table-cell",
+  },
+];
 
 export function UserTable({
   users,
@@ -83,51 +111,57 @@ export function UserTable({
   onSortChange,
   onUserClick,
 }: UserTableProps) {
-  const { selectedUserIds, toggleUserSelection, selectAllUsers, clearUserSelection } =
-    useUserManagementStore()
+  const {
+    selectedUserIds,
+    toggleUserSelection,
+    selectAllUsers,
+    clearUserSelection,
+  } = useUserManagementStore();
 
-  const totalPages = Math.ceil(total / perPage)
-  const startItem = (page - 1) * perPage + 1
-  const endItem = Math.min(page * perPage, total)
+  const totalPages = Math.ceil(total / perPage);
+  const startItem = (page - 1) * perPage + 1;
+  const endItem = Math.min(page * perPage, total);
 
-  const isAllSelected = users.length > 0 && users.every((u) => selectedUserIds.includes(u.id))
-  const isSomeSelected = users.some((u) => selectedUserIds.includes(u.id)) && !isAllSelected
+  const isAllSelected =
+    users.length > 0 && users.every((u) => selectedUserIds.includes(u.id));
+  const isSomeSelected =
+    users.some((u) => selectedUserIds.includes(u.id)) && !isAllSelected;
 
   const handleSelectAll = () => {
     if (isAllSelected) {
-      clearUserSelection()
+      clearUserSelection();
     } else {
-      selectAllUsers()
+      selectAllUsers();
     }
-  }
+  };
 
   const handleSort = (column: SortableColumn) => {
     if (sort.field === column) {
       onSortChange({
         field: column,
-        direction: sort.direction === 'asc' ? 'desc' : 'asc',
-      })
+        direction: sort.direction === "asc" ? "desc" : "asc",
+      });
     } else {
-      onSortChange({ field: column, direction: 'asc' })
+      onSortChange({ field: column, direction: "asc" });
     }
-  }
+  };
 
   const getSortIcon = (column: SortableColumn) => {
     if (sort.field !== column) {
-      return <ArrowUpDown className="ml-2 h-4 w-4" />
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
     }
-    return sort.direction === 'asc' ? (
+    return sort.direction === "asc" ? (
       <ArrowUp className="ml-2 h-4 w-4" />
     ) : (
       <ArrowDown className="ml-2 h-4 w-4" />
-    )
-  }
+    );
+  };
 
-  const getUserStatus = (user: AdminUser): 'active' | 'inactive' | 'banned' => {
-    if (user.isBanned) return 'banned'
-    if (!user.isActive) return 'inactive'
-    return 'active'
-  }
+  const getUserStatus = (user: AdminUser): "active" | "inactive" | "banned" => {
+    if (user.isBanned) return "banned";
+    if (!user.isActive) return "inactive";
+    return "active";
+  };
 
   return (
     <div className="space-y-4">
@@ -142,7 +176,7 @@ export function UserTable({
                     ref={(ref) => {
                       if (ref) {
                         // @ts-expect-error indeterminate is valid
-                        ref.indeterminate = isSomeSelected
+                        ref.indeterminate = isSomeSelected;
                       }
                     }}
                     onCheckedChange={handleSelectAll}
@@ -154,10 +188,10 @@ export function UserTable({
                     variant="ghost"
                     size="sm"
                     className="-ml-3 h-8"
-                    onClick={() => handleSort('displayName')}
+                    onClick={() => handleSort("displayName")}
                   >
                     User
-                    {getSortIcon('displayName')}
+                    {getSortIcon("displayName")}
                   </Button>
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
@@ -171,10 +205,10 @@ export function UserTable({
                     variant="ghost"
                     size="sm"
                     className="-ml-3 h-8"
-                    onClick={() => handleSort('createdAt')}
+                    onClick={() => handleSort("createdAt")}
                   >
                     Joined
-                    {getSortIcon('createdAt')}
+                    {getSortIcon("createdAt")}
                   </Button>
                 </th>
                 <th className="hidden px-4 py-3 text-left lg:table-cell">
@@ -182,10 +216,10 @@ export function UserTable({
                     variant="ghost"
                     size="sm"
                     className="-ml-3 h-8"
-                    onClick={() => handleSort('lastSeenAt')}
+                    onClick={() => handleSort("lastSeenAt")}
                   >
                     Last Seen
-                    {getSortIcon('lastSeenAt')}
+                    {getSortIcon("lastSeenAt")}
                   </Button>
                 </th>
                 <th className="hidden px-4 py-3 text-left xl:table-cell">
@@ -193,10 +227,10 @@ export function UserTable({
                     variant="ghost"
                     size="sm"
                     className="-ml-3 h-8"
-                    onClick={() => handleSort('messagesCount')}
+                    onClick={() => handleSort("messagesCount")}
                   >
                     Messages
-                    {getSortIcon('messagesCount')}
+                    {getSortIcon("messagesCount")}
                   </Button>
                 </th>
               </tr>
@@ -236,25 +270,31 @@ export function UserTable({
                 ))
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-muted-foreground"
+                  >
                     No users found
                   </td>
                 </tr>
               ) : (
                 users.map((user) => {
-                  const status = getUserStatus(user)
-                  const isSelected = selectedUserIds.includes(user.id)
+                  const status = getUserStatus(user);
+                  const isSelected = selectedUserIds.includes(user.id);
 
                   return (
                     <tr
                       key={user.id}
                       className={cn(
-                        'hover:bg-muted/50 cursor-pointer border-b last:border-b-0',
-                        isSelected && 'bg-muted/30'
+                        "hover:bg-muted/50 cursor-pointer border-b last:border-b-0",
+                        isSelected && "bg-muted/30",
                       )}
                       onClick={() => onUserClick?.(user)}
                     >
-                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="px-4 py-3"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleUserSelection(user.id)}
@@ -264,8 +304,13 @@ export function UserTable({
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-                            <AvatarFallback>{getUserInitials(user.displayName)}</AvatarFallback>
+                            <AvatarImage
+                              src={user.avatarUrl}
+                              alt={user.displayName}
+                            />
+                            <AvatarFallback>
+                              {getUserInitials(user.displayName)}
+                            </AvatarFallback>
                           </Avatar>
                           <div>
                             <Link
@@ -275,21 +320,31 @@ export function UserTable({
                             >
                               {user.displayName}
                             </Link>
-                            <div className="text-sm text-muted-foreground">@{user.username}</div>
+                            <div className="text-sm text-muted-foreground">
+                              @{user.username}
+                            </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <Badge
                           variant="outline"
-                          className={cn('capitalize', roleColors[user.role.name.toLowerCase()])}
+                          className={cn(
+                            "capitalize",
+                            roleColors[user.role.name.toLowerCase()],
+                          )}
                         >
                           {user.role.name}
                         </Badge>
                       </td>
                       <td className="hidden px-4 py-3 md:table-cell">
                         <div className="flex items-center space-x-2">
-                          <div className={cn('h-2 w-2 rounded-full', statusColors[status])} />
+                          <div
+                            className={cn(
+                              "h-2 w-2 rounded-full",
+                              statusColors[status],
+                            )}
+                          />
                           <span className="text-sm capitalize">{status}</span>
                         </div>
                       </td>
@@ -303,7 +358,7 @@ export function UserTable({
                         {user.messagesCount.toLocaleString()}
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
@@ -381,7 +436,7 @@ export function UserTable({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default UserTable
+export default UserTable;

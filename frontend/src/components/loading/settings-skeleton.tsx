@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Skeleton, CircleSkeleton, LineSkeleton } from './skeleton'
+import { cn } from "@/lib/utils";
+import { Skeleton, CircleSkeleton, LineSkeleton } from "./skeleton";
 
 interface SettingsSkeletonProps {
   /** Show navigation sidebar */
-  showNav?: boolean
+  showNav?: boolean;
   /** Number of sections */
-  sectionCount?: number
+  sectionCount?: number;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -22,7 +22,7 @@ export function SettingsSkeleton({
   className,
 }: SettingsSkeletonProps) {
   return (
-    <div className={cn('flex h-full', className)}>
+    <div className={cn("flex h-full", className)}>
       {/* Navigation */}
       {showNav && <SettingsNavSkeleton />}
 
@@ -44,7 +44,7 @@ export function SettingsSkeleton({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -52,7 +52,12 @@ export function SettingsSkeleton({
  */
 export function SettingsNavSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('w-56 border-r bg-zinc-50 p-4 dark:bg-zinc-900/50', className)}>
+    <div
+      className={cn(
+        "w-56 border-r bg-zinc-50 p-4 dark:bg-zinc-900/50",
+        className,
+      )}
+    >
       {/* Header */}
       <LineSkeleton width={80} height={18} className="mb-4" />
 
@@ -83,7 +88,7 @@ export function SettingsNavSkeleton({ className }: { className?: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -91,11 +96,16 @@ export function SettingsNavSkeleton({ className }: { className?: string }) {
  */
 function SettingsNavItemSkeleton({ active = false }: { active?: boolean }) {
   return (
-    <div className={cn('flex items-center gap-2 rounded-md px-3 py-2', active && 'bg-muted')}>
+    <div
+      className={cn(
+        "flex items-center gap-2 rounded-md px-3 py-2",
+        active && "bg-muted",
+      )}
+    >
       <Skeleton className="h-4 w-4 rounded" />
       <LineSkeleton width={80} height={14} />
     </div>
-  )
+  );
 }
 
 /**
@@ -105,11 +115,11 @@ export function SettingsSectionSkeleton({
   rowCount = 4,
   className,
 }: {
-  rowCount?: number
-  className?: string
+  rowCount?: number;
+  className?: string;
 }) {
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Section header */}
       <div className="border-b pb-2">
         <LineSkeleton width={120} height={18} className="mb-1" />
@@ -119,26 +129,32 @@ export function SettingsSectionSkeleton({
       {/* Settings rows */}
       <div className="space-y-4">
         {Array.from({ length: rowCount }).map((_, i) => (
-          <SettingsRowSkeleton key={i} type={i % 3 === 0 ? 'toggle' : 'input'} />
+          <SettingsRowSkeleton
+            key={i}
+            type={i % 3 === 0 ? "toggle" : "input"}
+          />
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 interface SettingsRowSkeletonProps {
   /** Row type */
-  type?: 'toggle' | 'input' | 'select' | 'button'
+  type?: "toggle" | "input" | "select" | "button";
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
  * Settings row skeleton
  */
-export function SettingsRowSkeleton({ type = 'toggle', className }: SettingsRowSkeletonProps) {
+export function SettingsRowSkeleton({
+  type = "toggle",
+  className,
+}: SettingsRowSkeletonProps) {
   return (
-    <div className={cn('flex items-center justify-between py-2', className)}>
+    <div className={cn("flex items-center justify-between py-2", className)}>
       {/* Label and description */}
       <div className="mr-4 flex-1">
         <LineSkeleton width={120} height={14} className="mb-1" />
@@ -146,12 +162,20 @@ export function SettingsRowSkeleton({ type = 'toggle', className }: SettingsRowS
       </div>
 
       {/* Control */}
-      {type === 'toggle' && <Skeleton className="h-6 w-10 shrink-0 rounded-full" />}
-      {type === 'input' && <Skeleton className="h-9 w-48 shrink-0 rounded-md" />}
-      {type === 'select' && <Skeleton className="h-9 w-40 shrink-0 rounded-md" />}
-      {type === 'button' && <Skeleton className="h-9 w-24 shrink-0 rounded-md" />}
+      {type === "toggle" && (
+        <Skeleton className="h-6 w-10 shrink-0 rounded-full" />
+      )}
+      {type === "input" && (
+        <Skeleton className="h-9 w-48 shrink-0 rounded-md" />
+      )}
+      {type === "select" && (
+        <Skeleton className="h-9 w-40 shrink-0 rounded-md" />
+      )}
+      {type === "button" && (
+        <Skeleton className="h-9 w-24 shrink-0 rounded-md" />
+      )}
     </div>
-  )
+  );
 }
 
 /**
@@ -159,7 +183,7 @@ export function SettingsRowSkeleton({ type = 'toggle', className }: SettingsRowS
  */
 export function ProfileSettingsSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Avatar section */}
       <div className="flex items-start gap-4 border-b pb-6">
         <CircleSkeleton size={80} />
@@ -184,7 +208,7 @@ export function ProfileSettingsSkeleton({ className }: { className?: string }) {
         <Skeleton className="h-10 w-28 rounded-md" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -196,7 +220,7 @@ function SettingsInputSkeleton({ label }: { label: string }) {
       <LineSkeleton width={80} height={14} />
       <Skeleton className="h-10 w-full rounded-md" />
     </div>
-  )
+  );
 }
 
 /**
@@ -208,15 +232,19 @@ function SettingsTextareaSkeleton({ label }: { label: string }) {
       <LineSkeleton width={60} height={14} />
       <Skeleton className="h-24 w-full rounded-md" />
     </div>
-  )
+  );
 }
 
 /**
  * Notification settings skeleton
  */
-export function NotificationSettingsSkeleton({ className }: { className?: string }) {
+export function NotificationSettingsSkeleton({
+  className,
+}: {
+  className?: string;
+}) {
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Email notifications */}
       <SettingsSectionSkeleton rowCount={4} />
 
@@ -232,15 +260,19 @@ export function NotificationSettingsSkeleton({ className }: { className?: string
         <SettingsRowSkeleton type="toggle" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
  * Appearance settings skeleton
  */
-export function AppearanceSettingsSkeleton({ className }: { className?: string }) {
+export function AppearanceSettingsSkeleton({
+  className,
+}: {
+  className?: string;
+}) {
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Theme */}
       <div className="space-y-4">
         <div className="border-b pb-2">
@@ -268,15 +300,19 @@ export function AppearanceSettingsSkeleton({ className }: { className?: string }
       {/* Display settings */}
       <SettingsSectionSkeleton rowCount={3} />
     </div>
-  )
+  );
 }
 
 /**
  * Security settings skeleton
  */
-export function SecuritySettingsSkeleton({ className }: { className?: string }) {
+export function SecuritySettingsSkeleton({
+  className,
+}: {
+  className?: string;
+}) {
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Password section */}
       <div className="space-y-4">
         <div className="border-b pb-2">
@@ -311,7 +347,10 @@ export function SecuritySettingsSkeleton({ className }: { className?: string }) 
           <LineSkeleton width={100} height={18} />
         </div>
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="flex items-center justify-between rounded-lg border p-3">
+          <div
+            key={i}
+            className="flex items-center justify-between rounded-lg border p-3"
+          >
             <div className="flex items-center gap-3">
               <Skeleton className="h-10 w-10 rounded" />
               <div>
@@ -324,5 +363,5 @@ export function SecuritySettingsSkeleton({ className }: { className?: string }) 
         ))}
       </div>
     </div>
-  )
+  );
 }

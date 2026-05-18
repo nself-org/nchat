@@ -12,7 +12,7 @@ export {
   type AppLockServiceOptions,
   type SetupLockResult,
   type LockScreenMode,
-} from './app-lock.service'
+} from "./app-lock.service";
 
 // Re-export types from the core module for convenience
 export type {
@@ -31,4 +31,4 @@ export type {
   LockEvent,
   LockEventListener,
   PlatformCapabilities,
-} from '@/lib/app-lock'
+} from "@/lib/app-lock";

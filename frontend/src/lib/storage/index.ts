@@ -49,6 +49,11 @@ export {
   MAX_FILE_SIZE,
   ALLOWED_MIME_TYPES,
   ALL_ALLOWED_MIME_TYPES,
-} from './upload'
+} from "./upload";
 
-export type { UploadOptions, UploadProgress, UploadResult, UploadError } from './upload'
+export type {
+  UploadOptions,
+  UploadProgress,
+  UploadResult,
+  UploadError,
+} from "./upload";

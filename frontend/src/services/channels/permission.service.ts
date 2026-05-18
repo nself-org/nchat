@@ -8,30 +8,34 @@ import type {
   CreatePermissionOverrideInput,
   PermissionContext,
   ChannelPermission,
-} from '@/types/advanced-channels'
-import { CHANNEL_PERMISSIONS } from '@/types/advanced-channels'
+} from "@/types/advanced-channels";
+import { CHANNEL_PERMISSIONS } from "@/types/advanced-channels";
 
 export class PermissionService {
   /**
    * Create or update a permission override
    */
-  async createOverride(input: CreatePermissionOverrideInput): Promise<ChannelPermissionOverride> {
-    const response = await fetch('/api/channels/permissions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+  async createOverride(
+    input: CreatePermissionOverrideInput,
+  ): Promise<ChannelPermissionOverride> {
+    const response = await fetch("/api/channels/permissions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
-    })
-    if (!response.ok) throw new Error('Failed to create permission override')
-    return response.json()
+    });
+    if (!response.ok) throw new Error("Failed to create permission override");
+    return response.json();
   }
 
   /**
    * Get all permission overrides for a channel
    */
-  async getChannelOverrides(channelId: string): Promise<ChannelPermissionOverride[]> {
-    const response = await fetch(`/api/channels/${channelId}/permissions`)
-    if (!response.ok) throw new Error('Failed to fetch permissions')
-    return response.json()
+  async getChannelOverrides(
+    channelId: string,
+  ): Promise<ChannelPermissionOverride[]> {
+    const response = await fetch(`/api/channels/${channelId}/permissions`);
+    if (!response.ok) throw new Error("Failed to fetch permissions");
+    return response.json();
   }
 
   /**
@@ -39,9 +43,9 @@ export class PermissionService {
    */
   async deleteOverride(overrideId: string): Promise<void> {
     const response = await fetch(`/api/channels/permissions/${overrideId}`, {
-      method: 'DELETE',
-    })
-    if (!response.ok) throw new Error('Failed to delete permission override')
+      method: "DELETE",
+    });
+    if (!response.ok) throw new Error("Failed to delete permission override");
   }
 
   /**
@@ -49,13 +53,13 @@ export class PermissionService {
    */
   async calculatePermissions(
     channelId: string,
-    userId: string
+    userId: string,
   ): Promise<Record<ChannelPermission, boolean>> {
     const response = await fetch(
-      `/api/channels/${channelId}/permissions/calculate?userId=${userId}`
-    )
-    if (!response.ok) throw new Error('Failed to calculate permissions')
-    return response.json()
+      `/api/channels/${channelId}/permissions/calculate?userId=${userId}`,
+    );
+    if (!response.ok) throw new Error("Failed to calculate permissions");
+    return response.json();
   }
 
   /**
@@ -64,38 +68,47 @@ export class PermissionService {
   async hasPermission(
     channelId: string,
     userId: string,
-    permission: ChannelPermission
+    permission: ChannelPermission,
   ): Promise<boolean> {
-    const permissions = await this.calculatePermissions(channelId, userId)
-    return permissions[permission] || false
+    const permissions = await this.calculatePermissions(channelId, userId);
+    return permissions[permission] || false;
   }
 
   /**
    * Create permission bitfield from permission names
    */
   createBitfield(permissions: ChannelPermission[]): bigint {
-    return permissions.reduce((acc, perm) => acc | CHANNEL_PERMISSIONS[perm], 0n)
+    return permissions.reduce(
+      (acc, perm) => acc | CHANNEL_PERMISSIONS[perm],
+      0n,
+    );
   }
 
   /**
    * Parse bitfield into permission names
    */
   parseBitfield(bitfield: bigint): ChannelPermission[] {
-    const permissions: ChannelPermission[] = []
+    const permissions: ChannelPermission[] = [];
     for (const [name, value] of Object.entries(CHANNEL_PERMISSIONS)) {
       if ((bitfield & value) === value) {
-        permissions.push(name as ChannelPermission)
+        permissions.push(name as ChannelPermission);
       }
     }
-    return permissions
+    return permissions;
   }
 
   /**
    * Check if bitfield has specific permission
    */
-  hasPermissionInBitfield(bitfield: bigint, permission: ChannelPermission): boolean {
-    return (bitfield & CHANNEL_PERMISSIONS[permission]) === CHANNEL_PERMISSIONS[permission]
+  hasPermissionInBitfield(
+    bitfield: bigint,
+    permission: ChannelPermission,
+  ): boolean {
+    return (
+      (bitfield & CHANNEL_PERMISSIONS[permission]) ===
+      CHANNEL_PERMISSIONS[permission]
+    );
   }
 }
 
-export const permissionService = new PermissionService()
+export const permissionService = new PermissionService();

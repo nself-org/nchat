@@ -14,108 +14,113 @@
  */
 export interface Plan {
   /** Unique plan identifier */
-  id: string
+  id: string;
   /** Plan name */
-  name: string
+  name: string;
   /** URL-friendly slug */
-  slug: string
+  slug: string;
   /** Plan description */
-  description: string | null
+  description: string | null;
   /** Plan tier for comparison */
-  tier: PlanTier
+  tier: PlanTier;
 
   // Pricing
   /** Monthly price in cents */
-  priceMonthly: number
+  priceMonthly: number;
   /** Yearly price in cents (discount) */
-  priceYearly: number | null
+  priceYearly: number | null;
   /** Currency code (ISO 4217) */
-  currency: Currency
+  currency: Currency;
 
   // Limits
   /** Maximum team members */
-  maxMembers: number | null
+  maxMembers: number | null;
   /** Maximum channels */
-  maxChannels: number | null
+  maxChannels: number | null;
   /** Maximum storage in bytes */
-  maxStorageBytes: number | null
+  maxStorageBytes: number | null;
   /** Maximum file upload size in bytes */
-  maxFileSizeBytes: number | null
+  maxFileSizeBytes: number | null;
 
   // Features
   /** Enabled features for this plan */
-  features: PlanFeatures
+  features: PlanFeatures;
 
   // Status
   /** Plan is available for new subscriptions */
-  isActive: boolean
+  isActive: boolean;
   /** Plan is publicly visible */
-  isPublic: boolean
+  isPublic: boolean;
   /** Sort order for display */
-  sortOrder: number
+  sortOrder: number;
 
   /** Plan creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last update timestamp */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
  * Plan tier levels.
  */
-export type PlanTier = 'free' | 'starter' | 'professional' | 'enterprise' | 'custom'
+export type PlanTier =
+  | "free"
+  | "starter"
+  | "professional"
+  | "enterprise"
+  | "custom";
 
 /**
  * Supported currencies.
  */
-export type Currency = 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD'
+export type Currency = "USD" | "EUR" | "GBP" | "CAD" | "AUD";
 
 /**
  * Plan feature flags.
  */
 export interface PlanFeatures {
   /** Public channels */
-  publicChannels: boolean
+  publicChannels: boolean;
   /** Private channels */
-  privateChannels: boolean
+  privateChannels: boolean;
   /** Direct messages */
-  directMessages: boolean
+  directMessages: boolean;
   /** Group DMs */
-  groupDMs: boolean
+  groupDMs: boolean;
   /** Message threads */
-  threads: boolean
+  threads: boolean;
   /** File uploads */
-  fileUploads: boolean
+  fileUploads: boolean;
   /** Voice messages */
-  voiceMessages: boolean
+  voiceMessages: boolean;
   /** Video calls */
-  videoCalls: boolean
+  videoCalls: boolean;
   /** Screen sharing */
-  screenSharing: boolean
+  screenSharing: boolean;
   /** Custom emoji */
-  customEmoji: boolean
+  customEmoji: boolean;
   /** Webhooks */
-  webhooks: boolean
+  webhooks: boolean;
   /** Integrations */
-  integrations: boolean
+  integrations: boolean;
   /** API access */
-  apiAccess: boolean
+  apiAccess: boolean;
   /** SSO/SAML */
-  sso: boolean
+  sso: boolean;
   /** Audit logs */
-  auditLogs: boolean
+  auditLogs: boolean;
   /** Admin dashboard */
-  adminDashboard: boolean
+  adminDashboard: boolean;
   /** Priority support */
-  prioritySupport: boolean
+  prioritySupport: boolean;
   /** Custom branding */
-  customBranding: boolean
+  customBranding: boolean;
   /** Data export */
-  dataExport: boolean
+  dataExport: boolean;
   /** Message history retention (days, -1 = unlimited) */
-  messageRetentionDays: number
+  messageRetentionDays: number;
   /** Search history (days, -1 = unlimited) */
-  searchHistoryDays: number
+  searchHistoryDays: number;
 }
 
 /**
@@ -143,26 +148,26 @@ export const FREE_PLAN_FEATURES: PlanFeatures = {
   dataExport: false,
   messageRetentionDays: 90,
   searchHistoryDays: 90,
-} as const
+} as const;
 
 /**
  * Plan display information.
  */
 export interface PlanDisplay {
   /** Plan */
-  plan: Plan
+  plan: Plan;
   /** Formatted monthly price */
-  formattedPriceMonthly: string
+  formattedPriceMonthly: string;
   /** Formatted yearly price */
-  formattedPriceYearly: string | null
+  formattedPriceYearly: string | null;
   /** Monthly price when billed yearly */
-  effectiveMonthlyPrice: number | null
+  effectiveMonthlyPrice: number | null;
   /** Savings percentage for yearly */
-  yearlySavingsPercent: number | null
+  yearlySavingsPercent: number | null;
   /** Highlighted features */
-  highlightedFeatures: string[]
+  highlightedFeatures: string[];
   /** Is recommended plan */
-  isRecommended: boolean
+  isRecommended: boolean;
 }
 
 // ============================================================================
@@ -173,83 +178,83 @@ export interface PlanDisplay {
  * Subscription status.
  */
 export type SubscriptionStatus =
-  | 'trialing'
-  | 'active'
-  | 'past_due'
-  | 'canceled'
-  | 'unpaid'
-  | 'paused'
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "paused";
 
 /**
  * Human-readable subscription status labels.
  */
 export const SUBSCRIPTION_STATUS_LABELS: Record<SubscriptionStatus, string> = {
-  trialing: 'Trial Period',
-  active: 'Active',
-  past_due: 'Past Due',
-  canceled: 'Canceled',
-  unpaid: 'Unpaid',
-  paused: 'Paused',
-} as const
+  trialing: "Trial Period",
+  active: "Active",
+  past_due: "Past Due",
+  canceled: "Canceled",
+  unpaid: "Unpaid",
+  paused: "Paused",
+} as const;
 
 /**
  * Subscription billing interval.
  */
-export type BillingInterval = 'monthly' | 'yearly'
+export type BillingInterval = "monthly" | "yearly";
 
 /**
  * Workspace subscription.
  */
 export interface Subscription {
   /** Unique subscription identifier */
-  id: string
+  id: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Plan ID */
-  planId: string
+  planId: string;
   /** Associated plan details */
-  plan: Plan
+  plan: Plan;
   /** Current status */
-  status: SubscriptionStatus
+  status: SubscriptionStatus;
   /** Billing interval */
-  billingInterval: BillingInterval
+  billingInterval: BillingInterval;
 
   // Stripe references
   /** Stripe subscription ID */
-  stripeSubscriptionId: string | null
+  stripeSubscriptionId: string | null;
   /** Stripe customer ID */
-  stripeCustomerId: string | null
+  stripeCustomerId: string | null;
   /** Stripe price ID */
-  stripePriceId: string | null
+  stripePriceId: string | null;
 
   // Trial
   /** Trial end timestamp */
-  trialEndsAt: Date | null
+  trialEndsAt: Date | null;
   /** Trial days remaining */
-  trialDaysRemaining: number | null
+  trialDaysRemaining: number | null;
 
   // Billing period
   /** Current period start */
-  currentPeriodStart: Date | null
+  currentPeriodStart: Date | null;
   /** Current period end */
-  currentPeriodEnd: Date | null
+  currentPeriodEnd: Date | null;
 
   // Cancellation
   /** Cancellation timestamp */
-  canceledAt: Date | null
+  canceledAt: Date | null;
   /** Cancel at period end (vs immediate) */
-  cancelAtPeriodEnd: boolean
+  cancelAtPeriodEnd: boolean;
 
   // Pause
   /** Pause start timestamp */
-  pausedAt: Date | null
+  pausedAt: Date | null;
   /** Resume timestamp */
-  resumesAt: Date | null
+  resumesAt: Date | null;
 
   /** Subscription creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last update timestamp */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
@@ -257,17 +262,17 @@ export interface Subscription {
  */
 export interface SubscriptionWithComputed extends Subscription {
   /** Is in trial period */
-  isTrialing: boolean
+  isTrialing: boolean;
   /** Is active (including trial) */
-  isActive: boolean
+  isActive: boolean;
   /** Is canceled */
-  isCanceled: boolean
+  isCanceled: boolean;
   /** Days until renewal */
-  daysUntilRenewal: number | null
+  daysUntilRenewal: number | null;
   /** Next billing amount */
-  nextBillingAmount: number
+  nextBillingAmount: number;
   /** Next billing date */
-  nextBillingDate: Date | null
+  nextBillingDate: Date | null;
 }
 
 // ============================================================================
@@ -277,64 +282,69 @@ export interface SubscriptionWithComputed extends Subscription {
 /**
  * Invoice status.
  */
-export type InvoiceStatus = 'draft' | 'open' | 'paid' | 'void' | 'uncollectible'
+export type InvoiceStatus =
+  | "draft"
+  | "open"
+  | "paid"
+  | "void"
+  | "uncollectible";
 
 /**
  * Billing invoice.
  */
 export interface Invoice {
   /** Unique invoice identifier */
-  id: string
+  id: string;
   /** Invoice number */
-  number: string
+  number: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Subscription ID */
-  subscriptionId: string | null
+  subscriptionId: string | null;
   /** Stripe invoice ID */
-  stripeInvoiceId: string | null
+  stripeInvoiceId: string | null;
 
   // Amounts
   /** Subtotal in cents */
-  subtotal: number
+  subtotal: number;
   /** Tax amount in cents */
-  tax: number
+  tax: number;
   /** Total amount in cents */
-  total: number
+  total: number;
   /** Amount paid in cents */
-  amountPaid: number
+  amountPaid: number;
   /** Amount due in cents */
-  amountDue: number
+  amountDue: number;
   /** Currency code */
-  currency: Currency
+  currency: Currency;
 
   /** Invoice status */
-  status: InvoiceStatus
+  status: InvoiceStatus;
 
   // Dates
   /** Billing period start */
-  periodStart: Date | null
+  periodStart: Date | null;
   /** Billing period end */
-  periodEnd: Date | null
+  periodEnd: Date | null;
   /** Due date */
-  dueDate: Date | null
+  dueDate: Date | null;
   /** Payment date */
-  paidAt: Date | null
+  paidAt: Date | null;
 
   // URLs
   /** Hosted invoice URL */
-  hostedInvoiceUrl: string | null
+  hostedInvoiceUrl: string | null;
   /** Invoice PDF URL */
-  invoicePdfUrl: string | null
+  invoicePdfUrl: string | null;
 
   // Line items
   /** Invoice line items */
-  lineItems: InvoiceLineItem[]
+  lineItems: InvoiceLineItem[];
 
   /** Invoice creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last update timestamp */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
@@ -342,19 +352,19 @@ export interface Invoice {
  */
 export interface InvoiceLineItem {
   /** Line item ID */
-  id: string
+  id: string;
   /** Description */
-  description: string
+  description: string;
   /** Quantity */
-  quantity: number
+  quantity: number;
   /** Unit amount in cents */
-  unitAmount: number
+  unitAmount: number;
   /** Total amount in cents */
-  amount: number
+  amount: number;
   /** Period start (for prorated items) */
-  periodStart: Date | null
+  periodStart: Date | null;
   /** Period end (for prorated items) */
-  periodEnd: Date | null
+  periodEnd: Date | null;
 }
 
 // ============================================================================
@@ -364,39 +374,43 @@ export interface InvoiceLineItem {
 /**
  * Payment method type.
  */
-export type PaymentMethodType = 'card' | 'bank_account' | 'ideal' | 'sepa_debit'
+export type PaymentMethodType =
+  | "card"
+  | "bank_account"
+  | "ideal"
+  | "sepa_debit";
 
 /**
  * Payment method.
  */
 export interface PaymentMethod {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Stripe payment method ID */
-  stripePaymentMethodId: string
+  stripePaymentMethodId: string;
   /** Payment method type */
-  type: PaymentMethodType
+  type: PaymentMethodType;
   /** Is default payment method */
-  isDefault: boolean
+  isDefault: boolean;
 
   // Card details (if type === 'card')
   /** Card brand (visa, mastercard, etc.) */
-  cardBrand: string | null
+  cardBrand: string | null;
   /** Last 4 digits */
-  cardLast4: string | null
+  cardLast4: string | null;
   /** Expiration month */
-  cardExpMonth: number | null
+  cardExpMonth: number | null;
   /** Expiration year */
-  cardExpYear: number | null
+  cardExpYear: number | null;
 
   // Bank account details (if type === 'bank_account')
   /** Bank name */
-  bankName: string | null
+  bankName: string | null;
   /** Account last 4 digits */
-  bankLast4: string | null
+  bankLast4: string | null;
 
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
 }
 
 // ============================================================================
@@ -408,42 +422,42 @@ export interface PaymentMethod {
  */
 export interface SubscriptionUsage {
   /** Subscription ID */
-  subscriptionId: string
+  subscriptionId: string;
   /** Plan ID */
-  planId: string
+  planId: string;
 
   // Member usage
   /** Current member count */
-  currentMembers: number
+  currentMembers: number;
   /** Maximum allowed members */
-  maxMembers: number | null
+  maxMembers: number | null;
   /** Members usage percentage */
-  membersUsagePercent: number | null
+  membersUsagePercent: number | null;
 
   // Channel usage
   /** Current channel count */
-  currentChannels: number
+  currentChannels: number;
   /** Maximum allowed channels */
-  maxChannels: number | null
+  maxChannels: number | null;
   /** Channels usage percentage */
-  channelsUsagePercent: number | null
+  channelsUsagePercent: number | null;
 
   // Storage usage
   /** Current storage used (bytes) */
-  currentStorageBytes: number
+  currentStorageBytes: number;
   /** Maximum storage allowed (bytes) */
-  maxStorageBytes: number | null
+  maxStorageBytes: number | null;
   /** Storage usage percentage */
-  storageUsagePercent: number | null
+  storageUsagePercent: number | null;
 
   // Message usage
   /** Messages sent this period */
-  messagesThisPeriod: number
+  messagesThisPeriod: number;
   /** Total messages stored */
-  totalMessages: number
+  totalMessages: number;
 
   /** Last updated timestamp */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
@@ -451,17 +465,17 @@ export interface SubscriptionUsage {
  */
 export interface UsageLimitWarning {
   /** Resource type */
-  resource: 'members' | 'channels' | 'storage' | 'messages'
+  resource: "members" | "channels" | "storage" | "messages";
   /** Current usage */
-  current: number
+  current: number;
   /** Limit */
-  limit: number
+  limit: number;
   /** Usage percentage */
-  percentage: number
+  percentage: number;
   /** Warning level */
-  level: 'info' | 'warning' | 'critical'
+  level: "info" | "warning" | "critical";
   /** Warning message */
-  message: string
+  message: string;
 }
 
 // ============================================================================
@@ -473,15 +487,15 @@ export interface UsageLimitWarning {
  */
 export interface CreateSubscriptionInput {
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Plan ID */
-  planId: string
+  planId: string;
   /** Billing interval */
-  billingInterval: BillingInterval
+  billingInterval: BillingInterval;
   /** Payment method ID */
-  paymentMethodId: string
+  paymentMethodId: string;
   /** Promotion code (optional) */
-  promotionCode?: string
+  promotionCode?: string;
 }
 
 /**
@@ -489,11 +503,11 @@ export interface CreateSubscriptionInput {
  */
 export interface UpdateSubscriptionInput {
   /** New plan ID */
-  planId?: string
+  planId?: string;
   /** New billing interval */
-  billingInterval?: BillingInterval
+  billingInterval?: BillingInterval;
   /** New payment method ID */
-  paymentMethodId?: string
+  paymentMethodId?: string;
 }
 
 /**
@@ -501,11 +515,11 @@ export interface UpdateSubscriptionInput {
  */
 export interface CancelSubscriptionInput {
   /** Cancel immediately or at period end */
-  immediately: boolean
+  immediately: boolean;
   /** Cancellation reason */
-  reason?: string
+  reason?: string;
   /** Additional feedback */
-  feedback?: string
+  feedback?: string;
 }
 
 /**
@@ -513,9 +527,9 @@ export interface CancelSubscriptionInput {
  */
 export interface AddPaymentMethodInput {
   /** Stripe payment method ID */
-  stripePaymentMethodId: string
+  stripePaymentMethodId: string;
   /** Set as default */
-  setAsDefault?: boolean
+  setAsDefault?: boolean;
 }
 
 // ============================================================================
@@ -526,35 +540,35 @@ export interface AddPaymentMethodInput {
  * Subscription event types.
  */
 export type SubscriptionEventType =
-  | 'subscription.created'
-  | 'subscription.updated'
-  | 'subscription.canceled'
-  | 'subscription.renewed'
-  | 'subscription.trial_ending'
-  | 'subscription.past_due'
-  | 'invoice.created'
-  | 'invoice.paid'
-  | 'invoice.payment_failed'
-  | 'payment_method.added'
-  | 'payment_method.removed'
-  | 'usage.limit_warning'
+  | "subscription.created"
+  | "subscription.updated"
+  | "subscription.canceled"
+  | "subscription.renewed"
+  | "subscription.trial_ending"
+  | "subscription.past_due"
+  | "invoice.created"
+  | "invoice.paid"
+  | "invoice.payment_failed"
+  | "payment_method.added"
+  | "payment_method.removed"
+  | "usage.limit_warning";
 
 /**
  * Subscription event.
  */
 export interface SubscriptionEvent {
   /** Event type */
-  type: SubscriptionEventType
+  type: SubscriptionEventType;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Subscription ID */
-  subscriptionId?: string
+  subscriptionId?: string;
   /** Invoice ID */
-  invoiceId?: string
+  invoiceId?: string;
   /** Event data */
-  data: Record<string, unknown>
+  data: Record<string, unknown>;
   /** Event timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -564,36 +578,39 @@ export interface SubscriptionEvent {
 /**
  * Format price in cents to display string.
  */
-export function formatPrice(cents: number, currency: Currency = 'USD'): string {
-  const amount = cents / 100
-  const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
+export function formatPrice(cents: number, currency: Currency = "USD"): string {
+  const amount = cents / 100;
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency,
-  })
-  return formatter.format(amount)
+  });
+  return formatter.format(amount);
 }
 
 /**
  * Calculate yearly savings percentage.
  */
-export function calculateYearlySavings(monthlyPrice: number, yearlyPrice: number): number {
-  const yearlyFromMonthly = monthlyPrice * 12
-  const savings = ((yearlyFromMonthly - yearlyPrice) / yearlyFromMonthly) * 100
-  return Math.round(savings)
+export function calculateYearlySavings(
+  monthlyPrice: number,
+  yearlyPrice: number,
+): number {
+  const yearlyFromMonthly = monthlyPrice * 12;
+  const savings = ((yearlyFromMonthly - yearlyPrice) / yearlyFromMonthly) * 100;
+  return Math.round(savings);
 }
 
 /**
  * Check if subscription is active (including trial).
  */
 export function isSubscriptionActive(status: SubscriptionStatus): boolean {
-  return status === 'active' || status === 'trialing'
+  return status === "active" || status === "trialing";
 }
 
 /**
  * Get days until date.
  */
 export function getDaysUntil(date: Date): number {
-  const now = new Date()
-  const diff = date.getTime() - now.getTime()
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  const now = new Date();
+  const diff = date.getTime() - now.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }

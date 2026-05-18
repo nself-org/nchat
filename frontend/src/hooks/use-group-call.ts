@@ -5,11 +5,11 @@
  * host controls, role assignments, lobby, layout options, and large room support.
  */
 
-'use client'
+"use client";
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
-import { useAuth } from '@/contexts/auth-context'
-import { useToast } from '@/hooks/use-toast'
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/use-toast";
 import {
   GroupCallService,
   createGroupCallService,
@@ -20,157 +20,162 @@ import {
   type GroupCallMetrics,
   type ParticipantRole,
   type LayoutType,
-} from '@/services/calls/group-call.service'
+} from "@/services/calls/group-call.service";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface UseGroupCallOptions {
-  maxParticipants?: number
-  enableLobby?: boolean
-  autoAdmitDomains?: string[]
-  muteOnEntry?: boolean
-  videoOffOnEntry?: boolean
-  allowParticipantScreenShare?: boolean
-  allowParticipantUnmute?: boolean
-  recordCall?: boolean
-  enableNotifications?: boolean
+  maxParticipants?: number;
+  enableLobby?: boolean;
+  autoAdmitDomains?: string[];
+  muteOnEntry?: boolean;
+  videoOffOnEntry?: boolean;
+  allowParticipantScreenShare?: boolean;
+  allowParticipantUnmute?: boolean;
+  recordCall?: boolean;
+  enableNotifications?: boolean;
 }
 
 export interface UseGroupCallReturn {
   // State
-  isInCall: boolean
-  callInfo: GroupCallInfo | null
-  callStatus: GroupCallStatus
-  callType: GroupCallType | null
-  callDuration: number
+  isInCall: boolean;
+  callInfo: GroupCallInfo | null;
+  callStatus: GroupCallStatus;
+  callType: GroupCallType | null;
+  callDuration: number;
 
   // Participants
-  participants: GroupCallParticipant[]
-  participantCount: number
-  lobbyParticipants: GroupCallParticipant[]
-  lobbyCount: number
+  participants: GroupCallParticipant[];
+  participantCount: number;
+  lobbyParticipants: GroupCallParticipant[];
+  lobbyCount: number;
 
   // Local user state
-  isHost: boolean
-  isCoHost: boolean
-  canManageParticipants: boolean
-  myRole: ParticipantRole | null
-  isMuted: boolean
-  isVideoEnabled: boolean
-  isScreenSharing: boolean
-  isHandRaised: boolean
-  localStream: MediaStream | null
+  isHost: boolean;
+  isCoHost: boolean;
+  canManageParticipants: boolean;
+  myRole: ParticipantRole | null;
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  isScreenSharing: boolean;
+  isHandRaised: boolean;
+  localStream: MediaStream | null;
 
   // Active speaker
-  activeSpeakerId: string | null
-  activeSpeaker: GroupCallParticipant | null
+  activeSpeakerId: string | null;
+  activeSpeaker: GroupCallParticipant | null;
 
   // Layout
-  layout: LayoutType
-  pinnedParticipantId: string | null
-  spotlightParticipantIds: string[]
-  layoutParticipants: GroupCallParticipant[]
+  layout: LayoutType;
+  pinnedParticipantId: string | null;
+  spotlightParticipantIds: string[];
+  layoutParticipants: GroupCallParticipant[];
 
   // Large room
-  isLargeRoom: boolean
-  currentPage: number
-  totalPages: number
-  pageParticipants: GroupCallParticipant[]
+  isLargeRoom: boolean;
+  currentPage: number;
+  totalPages: number;
+  pageParticipants: GroupCallParticipant[];
 
   // Room state
-  isLocked: boolean
-  isRecording: boolean
-  joinLink: string | null
+  isLocked: boolean;
+  isRecording: boolean;
+  joinLink: string | null;
 
   // Metrics
-  metrics: GroupCallMetrics
+  metrics: GroupCallMetrics;
 
   // Call Actions
   createCall: (
     type: GroupCallType,
     options?: {
-      channelId?: string
-      title?: string
-      description?: string
-      scheduledStartTime?: Date
-      scheduledEndTime?: Date
-      enableLobby?: boolean
-    }
-  ) => Promise<string>
+      channelId?: string;
+      title?: string;
+      description?: string;
+      scheduledStartTime?: Date;
+      scheduledEndTime?: Date;
+      enableLobby?: boolean;
+    },
+  ) => Promise<string>;
   joinCall: (
     callId: string,
     type: GroupCallType,
-    options?: { channelId?: string }
-  ) => Promise<void>
-  leaveCall: () => void
-  endCallForEveryone: () => Promise<void>
+    options?: { channelId?: string },
+  ) => Promise<void>;
+  leaveCall: () => void;
+  endCallForEveryone: () => Promise<void>;
 
   // Host Controls
-  muteAllParticipants: (except?: string[]) => Promise<void>
-  unmuteAllParticipants: () => Promise<void>
-  muteParticipant: (participantId: string) => Promise<void>
-  removeParticipant: (participantId: string, reason?: string) => Promise<void>
-  lockRoom: () => Promise<void>
-  unlockRoom: () => Promise<void>
-  transferHost: (newHostId: string) => Promise<void>
+  muteAllParticipants: (except?: string[]) => Promise<void>;
+  unmuteAllParticipants: () => Promise<void>;
+  muteParticipant: (participantId: string) => Promise<void>;
+  removeParticipant: (participantId: string, reason?: string) => Promise<void>;
+  lockRoom: () => Promise<void>;
+  unlockRoom: () => Promise<void>;
+  transferHost: (newHostId: string) => Promise<void>;
 
   // Role Controls
-  setParticipantRole: (participantId: string, role: ParticipantRole) => Promise<void>
-  promoteToCoHost: (participantId: string) => Promise<void>
-  demoteFromCoHost: (participantId: string) => Promise<void>
-  makeViewer: (participantId: string) => Promise<void>
-  getParticipantRole: (participantId: string) => ParticipantRole | null
+  setParticipantRole: (
+    participantId: string,
+    role: ParticipantRole,
+  ) => Promise<void>;
+  promoteToCoHost: (participantId: string) => Promise<void>;
+  demoteFromCoHost: (participantId: string) => Promise<void>;
+  makeViewer: (participantId: string) => Promise<void>;
+  getParticipantRole: (participantId: string) => ParticipantRole | null;
 
   // Lobby Controls
-  admitFromLobby: (participantId: string) => Promise<void>
-  admitAllFromLobby: () => Promise<void>
-  denyFromLobby: (participantId: string, reason?: string) => Promise<void>
-  denyAllFromLobby: (reason?: string) => Promise<void>
-  setAutoAdmit: (enabled: boolean, domains?: string[]) => void
+  admitFromLobby: (participantId: string) => Promise<void>;
+  admitAllFromLobby: () => Promise<void>;
+  denyFromLobby: (participantId: string, reason?: string) => Promise<void>;
+  denyAllFromLobby: (reason?: string) => Promise<void>;
+  setAutoAdmit: (enabled: boolean, domains?: string[]) => void;
 
   // Layout Controls
-  setLayout: (layout: LayoutType) => void
-  pinParticipant: (participantId: string) => void
-  unpinParticipant: () => void
-  spotlightParticipant: (participantId: string) => void
-  removeSpotlight: (participantId: string) => void
-  hideNonVideoParticipants: (hide: boolean) => void
+  setLayout: (layout: LayoutType) => void;
+  pinParticipant: (participantId: string) => void;
+  unpinParticipant: () => void;
+  spotlightParticipant: (participantId: string) => void;
+  removeSpotlight: (participantId: string) => void;
+  hideNonVideoParticipants: (hide: boolean) => void;
 
   // Pagination
-  goToPage: (page: number) => void
-  nextPage: () => void
-  previousPage: () => void
+  goToPage: (page: number) => void;
+  nextPage: () => void;
+  previousPage: () => void;
 
   // Media Controls
-  toggleMute: () => void
-  setMuted: (muted: boolean) => void
-  toggleVideo: () => void
-  setVideoEnabled: (enabled: boolean) => void
-  toggleScreenShare: () => Promise<void>
-  startScreenShare: () => Promise<void>
-  stopScreenShare: () => void
-  raiseHand: () => void
-  lowerHand: () => void
-  lowerParticipantHand: (participantId: string) => void
+  toggleMute: () => void;
+  setMuted: (muted: boolean) => void;
+  toggleVideo: () => void;
+  setVideoEnabled: (enabled: boolean) => void;
+  toggleScreenShare: () => Promise<void>;
+  startScreenShare: () => Promise<void>;
+  stopScreenShare: () => void;
+  raiseHand: () => void;
+  lowerHand: () => void;
+  lowerParticipantHand: (participantId: string) => void;
 
   // Recording
-  startRecording: () => Promise<void>
-  stopRecording: () => Promise<void>
+  startRecording: () => Promise<void>;
+  stopRecording: () => Promise<void>;
 
   // Remote Streams
-  getParticipantStream: (participantId: string) => MediaStream | undefined
+  getParticipantStream: (participantId: string) => MediaStream | undefined;
 
   // Error
-  error: string | null
+  error: string | null;
 }
 
 // =============================================================================
 // Hook
 // =============================================================================
 
-export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallReturn {
+export function useGroupCall(
+  options: UseGroupCallOptions = {},
+): UseGroupCallReturn {
   const {
     maxParticipants = 100,
     enableLobby = false,
@@ -181,33 +186,41 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
     allowParticipantUnmute = true,
     recordCall = false,
     enableNotifications = true,
-  } = options
+  } = options;
 
   // Auth
-  const { user } = useAuth()
-  const { toast } = useToast()
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   // Service ref
-  const serviceRef = useRef<GroupCallService | null>(null)
+  const serviceRef = useRef<GroupCallService | null>(null);
 
   // State
-  const [callInfo, setCallInfo] = useState<GroupCallInfo | null>(null)
-  const [participants, setParticipants] = useState<GroupCallParticipant[]>([])
-  const [lobbyParticipants, setLobbyParticipants] = useState<GroupCallParticipant[]>([])
-  const [isMuted, setIsMuted] = useState(muteOnEntry)
-  const [isVideoEnabled, setIsVideoEnabled] = useState(!videoOffOnEntry)
-  const [isScreenSharing, setIsScreenSharing] = useState(false)
-  const [isHandRaised, setIsHandRaised] = useState(false)
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null)
-  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
-  const [activeSpeakerId, setActiveSpeakerId] = useState<string | null>(null)
-  const [layout, setLayoutState] = useState<LayoutType>('grid')
-  const [pinnedParticipantId, setPinnedParticipantId] = useState<string | null>(null)
-  const [spotlightParticipantIds, setSpotlightParticipantIds] = useState<string[]>([])
-  const [isLocked, setIsLocked] = useState(false)
-  const [isRecording, setIsRecording] = useState(false)
-  const [currentPage, setCurrentPage] = useState(0)
-  const [hideNonVideo, setHideNonVideo] = useState(false)
+  const [callInfo, setCallInfo] = useState<GroupCallInfo | null>(null);
+  const [participants, setParticipants] = useState<GroupCallParticipant[]>([]);
+  const [lobbyParticipants, setLobbyParticipants] = useState<
+    GroupCallParticipant[]
+  >([]);
+  const [isMuted, setIsMuted] = useState(muteOnEntry);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(!videoOffOnEntry);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isHandRaised, setIsHandRaised] = useState(false);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(
+    new Map(),
+  );
+  const [activeSpeakerId, setActiveSpeakerId] = useState<string | null>(null);
+  const [layout, setLayoutState] = useState<LayoutType>("grid");
+  const [pinnedParticipantId, setPinnedParticipantId] = useState<string | null>(
+    null,
+  );
+  const [spotlightParticipantIds, setSpotlightParticipantIds] = useState<
+    string[]
+  >([]);
+  const [isLocked, setIsLocked] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hideNonVideo, setHideNonVideo] = useState(false);
   const [metrics, setMetrics] = useState<GroupCallMetrics>({
     duration: 0,
     participantCount: 0,
@@ -216,113 +229,122 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
     totalLeaves: 0,
     averageCallQuality: 100,
     networkIssues: 0,
-  })
-  const [callDuration, setCallDuration] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+  });
+  const [callDuration, setCallDuration] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   // Duration interval
-  const durationIntervalRef = useRef<number | null>(null)
+  const durationIntervalRef = useRef<number | null>(null);
 
   // Derived state
   const isInCall = useMemo(
-    () => callInfo !== null && !['idle', 'ended'].includes(callInfo.status),
-    [callInfo]
-  )
+    () => callInfo !== null && !["idle", "ended"].includes(callInfo.status),
+    [callInfo],
+  );
 
-  const callStatus = useMemo(() => callInfo?.status ?? 'idle', [callInfo])
+  const callStatus = useMemo(() => callInfo?.status ?? "idle", [callInfo]);
 
-  const callType = useMemo(() => callInfo?.type ?? null, [callInfo])
+  const callType = useMemo(() => callInfo?.type ?? null, [callInfo]);
 
-  const isHost = useMemo(() => callInfo?.hostId === user?.id, [callInfo, user?.id])
+  const isHost = useMemo(
+    () => callInfo?.hostId === user?.id,
+    [callInfo, user?.id],
+  );
 
   const isCoHost = useMemo(() => {
-    const participant = participants.find((p) => p.id === user?.id)
-    return participant?.role === 'co-host'
-  }, [participants, user?.id])
+    const participant = participants.find((p) => p.id === user?.id);
+    return participant?.role === "co-host";
+  }, [participants, user?.id]);
 
-  const canManageParticipants = useMemo(() => isHost || isCoHost, [isHost, isCoHost])
+  const canManageParticipants = useMemo(
+    () => isHost || isCoHost,
+    [isHost, isCoHost],
+  );
 
   const myRole = useMemo(() => {
-    const participant = participants.find((p) => p.id === user?.id)
-    return participant?.role ?? null
-  }, [participants, user?.id])
+    const participant = participants.find((p) => p.id === user?.id);
+    return participant?.role ?? null;
+  }, [participants, user?.id]);
 
-  const participantCount = useMemo(() => participants.length, [participants])
+  const participantCount = useMemo(() => participants.length, [participants]);
 
-  const lobbyCount = useMemo(() => lobbyParticipants.length, [lobbyParticipants])
+  const lobbyCount = useMemo(
+    () => lobbyParticipants.length,
+    [lobbyParticipants],
+  );
 
   const activeSpeaker = useMemo(
     () => participants.find((p) => p.id === activeSpeakerId) ?? null,
-    [participants, activeSpeakerId]
-  )
+    [participants, activeSpeakerId],
+  );
 
-  const isLargeRoom = useMemo(() => participantCount >= 50, [participantCount])
+  const isLargeRoom = useMemo(() => participantCount >= 50, [participantCount]);
 
-  const PARTICIPANT_PAGE_SIZE = 20
+  const PARTICIPANT_PAGE_SIZE = 20;
 
   const totalPages = useMemo(
     () => Math.ceil(participantCount / PARTICIPANT_PAGE_SIZE),
-    [participantCount]
-  )
+    [participantCount],
+  );
 
   const layoutParticipants = useMemo(() => {
-    let sorted = [...participants]
+    let sorted = [...participants];
 
     // Filter non-video participants if hidden
     if (hideNonVideo) {
-      sorted = sorted.filter((p) => p.isVideoEnabled || p.id === user?.id)
+      sorted = sorted.filter((p) => p.isVideoEnabled || p.id === user?.id);
     }
 
     switch (layout) {
-      case 'speaker':
+      case "speaker":
         return sorted.sort((a, b) => {
-          if (a.id === activeSpeakerId) return -1
-          if (b.id === activeSpeakerId) return 1
-          return b.audioLevel - a.audioLevel
-        })
+          if (a.id === activeSpeakerId) return -1;
+          if (b.id === activeSpeakerId) return 1;
+          return b.audioLevel - a.audioLevel;
+        });
 
-      case 'spotlight':
+      case "spotlight":
         return sorted.sort((a, b) => {
-          if (a.isSpotlight && !b.isSpotlight) return -1
-          if (!a.isSpotlight && b.isSpotlight) return 1
-          return 0
-        })
+          if (a.isSpotlight && !b.isSpotlight) return -1;
+          if (!a.isSpotlight && b.isSpotlight) return 1;
+          return 0;
+        });
 
-      case 'sidebar':
+      case "sidebar":
         return sorted.sort((a, b) => {
-          if (a.isPinned && !b.isPinned) return -1
-          if (!a.isPinned && b.isPinned) return 1
-          if (a.id === activeSpeakerId) return -1
-          if (b.id === activeSpeakerId) return 1
-          return 0
-        })
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          if (a.id === activeSpeakerId) return -1;
+          if (b.id === activeSpeakerId) return 1;
+          return 0;
+        });
 
-      case 'grid':
+      case "grid":
       default:
         return sorted.sort((a, b) => {
-          if (a.isPinned && !b.isPinned) return -1
-          if (!a.isPinned && b.isPinned) return 1
-          return a.joinedAt.getTime() - b.joinedAt.getTime()
-        })
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return a.joinedAt.getTime() - b.joinedAt.getTime();
+        });
     }
-  }, [participants, layout, activeSpeakerId, hideNonVideo, user?.id])
+  }, [participants, layout, activeSpeakerId, hideNonVideo, user?.id]);
 
   const pageParticipants = useMemo(() => {
-    const start = currentPage * PARTICIPANT_PAGE_SIZE
-    const end = start + PARTICIPANT_PAGE_SIZE
-    return layoutParticipants.slice(start, end)
-  }, [layoutParticipants, currentPage])
+    const start = currentPage * PARTICIPANT_PAGE_SIZE;
+    const end = start + PARTICIPANT_PAGE_SIZE;
+    return layoutParticipants.slice(start, end);
+  }, [layoutParticipants, currentPage]);
 
   // ===========================================================================
   // Initialize Service
   // ===========================================================================
 
   useEffect(() => {
-    if (!user) return
+    if (!user) return;
 
     const service = createGroupCallService({
       userId: user.id,
-      userName: user.displayName || user.email || 'User',
+      userName: user.displayName || user.email || "User",
       userAvatarUrl: user.avatarUrl,
       maxParticipants,
       enableLobby,
@@ -333,230 +355,281 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
       allowParticipantUnmute,
       recordCall,
       onCallStateChange: (status, _previousStatus) => {
-        setCallInfo((prev) => (prev ? { ...prev, status } : null))
+        setCallInfo((prev) => (prev ? { ...prev, status } : null));
 
-        if (status === 'connected') {
+        if (status === "connected") {
           // Start duration timer
           durationIntervalRef.current = window.setInterval(() => {
-            setCallDuration((d) => d + 1)
-          }, 1000)
+            setCallDuration((d) => d + 1);
+          }, 1000);
         }
 
-        if (status === 'ended') {
+        if (status === "ended") {
           // Stop duration timer
           if (durationIntervalRef.current) {
-            clearInterval(durationIntervalRef.current)
-            durationIntervalRef.current = null
+            clearInterval(durationIntervalRef.current);
+            durationIntervalRef.current = null;
           }
         }
       },
       onParticipantJoined: (participant) => {
-        setParticipants((prev) => [...prev, participant])
+        setParticipants((prev) => [...prev, participant]);
 
         if (enableNotifications) {
           toast({
-            title: 'Participant Joined',
+            title: "Participant Joined",
             description: `${participant.name} has joined the call`,
-          })
+          });
         }
       },
       onParticipantLeft: (participant, reason) => {
-        setParticipants((prev) => prev.filter((p) => p.id !== participant.id))
+        setParticipants((prev) => prev.filter((p) => p.id !== participant.id));
         setRemoteStreams((prev) => {
-          const next = new Map(prev)
-          next.delete(participant.id)
-          return next
-        })
+          const next = new Map(prev);
+          next.delete(participant.id);
+          return next;
+        });
 
         if (enableNotifications) {
           toast({
-            title: 'Participant Left',
-            description: `${participant.name} has left the call${reason ? `: ${reason}` : ''}`,
-          })
+            title: "Participant Left",
+            description: `${participant.name} has left the call${reason ? `: ${reason}` : ""}`,
+          });
         }
       },
       onLobbyUpdate: (lobbyList) => {
-        setLobbyParticipants(lobbyList)
+        setLobbyParticipants(lobbyList);
 
         if (enableNotifications && lobbyList.length > 0) {
           toast({
-            title: 'Waiting in Lobby',
+            title: "Waiting in Lobby",
             description: `${lobbyList.length} participant(s) waiting to join`,
-          })
+          });
         }
       },
       onRoleChanged: (participantId, newRole, _oldRole) => {
         setParticipants((prev) =>
-          prev.map((p) => (p.id === participantId ? { ...p, role: newRole } : p))
-        )
+          prev.map((p) =>
+            p.id === participantId ? { ...p, role: newRole } : p,
+          ),
+        );
       },
       onHostTransferred: (newHostId) => {
-        setCallInfo((prev) => (prev ? { ...prev, hostId: newHostId } : null))
+        setCallInfo((prev) => (prev ? { ...prev, hostId: newHostId } : null));
 
         if (enableNotifications && newHostId === user.id) {
           toast({
-            title: 'You are now the host',
-            description: 'Host controls have been transferred to you',
-          })
+            title: "You are now the host",
+            description: "Host controls have been transferred to you",
+          });
         }
       },
       onParticipantMediaChange: (participantId, mediaState) => {
         setParticipants((prev) =>
           prev.map((p) =>
             p.id === participantId
-              ? { ...p, isMuted: mediaState.isMuted, isVideoEnabled: mediaState.isVideoEnabled }
-              : p
-          )
-        )
+              ? {
+                  ...p,
+                  isMuted: mediaState.isMuted,
+                  isVideoEnabled: mediaState.isVideoEnabled,
+                }
+              : p,
+          ),
+        );
       },
       onActiveSpeakerChange: (speakerId) => {
-        setActiveSpeakerId(speakerId)
+        setActiveSpeakerId(speakerId);
       },
       onLayoutChange: (newLayout) => {
-        setLayoutState(newLayout)
+        setLayoutState(newLayout);
       },
       onRecordingStatusChange: (recording) => {
-        setIsRecording(recording)
+        setIsRecording(recording);
 
         if (enableNotifications) {
           toast({
-            title: recording ? 'Recording Started' : 'Recording Stopped',
+            title: recording ? "Recording Started" : "Recording Stopped",
             description: recording
-              ? 'This call is now being recorded'
-              : 'Call recording has stopped',
-          })
+              ? "This call is now being recorded"
+              : "Call recording has stopped",
+          });
         }
       },
       onCallLockChange: (locked) => {
-        setIsLocked(locked)
+        setIsLocked(locked);
       },
       onHandRaised: (participantId) => {
         setParticipants((prev) =>
-          prev.map((p) => (p.id === participantId ? { ...p, isHandRaised: true } : p))
-        )
+          prev.map((p) =>
+            p.id === participantId ? { ...p, isHandRaised: true } : p,
+          ),
+        );
 
         if (enableNotifications && participantId !== user.id) {
-          const participant = participants.find((p) => p.id === participantId)
+          const participant = participants.find((p) => p.id === participantId);
           toast({
-            title: 'Hand Raised',
-            description: `${participant?.name || 'A participant'} raised their hand`,
-          })
+            title: "Hand Raised",
+            description: `${participant?.name || "A participant"} raised their hand`,
+          });
         }
       },
       onError: (err) => {
-        setError(err.message)
+        setError(err.message);
         toast({
-          title: 'Call Error',
+          title: "Call Error",
           description: err.message,
-          variant: 'destructive',
-        })
+          variant: "destructive",
+        });
       },
       onReconnecting: (attempt, maxAttempts) => {
         if (enableNotifications) {
           toast({
-            title: 'Reconnecting',
+            title: "Reconnecting",
             description: `Attempt ${attempt} of ${maxAttempts}`,
-          })
+          });
         }
       },
-    })
+    });
 
     // Set up event listeners
-    service.on('local-stream-ready', ({ stream }: { stream: MediaStream }) => {
-      setLocalStream(stream)
-    })
+    service.on("local-stream-ready", ({ stream }: { stream: MediaStream }) => {
+      setLocalStream(stream);
+    });
 
-    service.on('remote-stream', ({ participantId, stream }: { participantId: string; stream: MediaStream }) => {
-      setRemoteStreams((prev) => {
-        const next = new Map(prev)
-        next.set(participantId, stream)
-        return next
-      })
-    })
+    service.on(
+      "remote-stream",
+      ({
+        participantId,
+        stream,
+      }: {
+        participantId: string;
+        stream: MediaStream;
+      }) => {
+        setRemoteStreams((prev) => {
+          const next = new Map(prev);
+          next.set(participantId, stream);
+          return next;
+        });
+      },
+    );
 
-    service.on('local-mute-change', ({ isMuted: muted }: { isMuted: boolean }) => {
-      setIsMuted(muted)
-    })
+    service.on(
+      "local-mute-change",
+      ({ isMuted: muted }: { isMuted: boolean }) => {
+        setIsMuted(muted);
+      },
+    );
 
-    service.on('local-video-change', ({ isVideoEnabled: enabled }: { isVideoEnabled: boolean }) => {
-      setIsVideoEnabled(enabled)
-    })
+    service.on(
+      "local-video-change",
+      ({ isVideoEnabled: enabled }: { isVideoEnabled: boolean }) => {
+        setIsVideoEnabled(enabled);
+      },
+    );
 
-    service.on('screen-share-started', () => {
-      setIsScreenSharing(true)
-    })
+    service.on("screen-share-started", () => {
+      setIsScreenSharing(true);
+    });
 
-    service.on('screen-share-stopped', () => {
-      setIsScreenSharing(false)
-    })
+    service.on("screen-share-stopped", () => {
+      setIsScreenSharing(false);
+    });
 
-    service.on('hand-raised', ({ participantId }: { participantId: string }) => {
-      if (participantId === user.id) {
-        setIsHandRaised(true)
-      }
-    })
+    service.on(
+      "hand-raised",
+      ({ participantId }: { participantId: string }) => {
+        if (participantId === user.id) {
+          setIsHandRaised(true);
+        }
+      },
+    );
 
-    service.on('hand-lowered', ({ participantId }: { participantId: string }) => {
-      if (participantId === user.id) {
-        setIsHandRaised(false)
-      }
-      setParticipants((prev) =>
-        prev.map((p) => (p.id === participantId ? { ...p, isHandRaised: false } : p))
-      )
-    })
+    service.on(
+      "hand-lowered",
+      ({ participantId }: { participantId: string }) => {
+        if (participantId === user.id) {
+          setIsHandRaised(false);
+        }
+        setParticipants((prev) =>
+          prev.map((p) =>
+            p.id === participantId ? { ...p, isHandRaised: false } : p,
+          ),
+        );
+      },
+    );
 
-    service.on('participant-pinned', ({ participantId }: { participantId: string }) => {
-      setPinnedParticipantId(participantId)
-      setParticipants((prev) =>
-        prev.map((p) => ({
-          ...p,
-          isPinned: p.id === participantId,
-        }))
-      )
-    })
+    service.on(
+      "participant-pinned",
+      ({ participantId }: { participantId: string }) => {
+        setPinnedParticipantId(participantId);
+        setParticipants((prev) =>
+          prev.map((p) => ({
+            ...p,
+            isPinned: p.id === participantId,
+          })),
+        );
+      },
+    );
 
-    service.on('participant-unpinned', () => {
-      setPinnedParticipantId(null)
-      setParticipants((prev) => prev.map((p) => ({ ...p, isPinned: false })))
-    })
+    service.on("participant-unpinned", () => {
+      setPinnedParticipantId(null);
+      setParticipants((prev) => prev.map((p) => ({ ...p, isPinned: false })));
+    });
 
-    service.on('participant-spotlighted', ({ participantId }: { participantId: string }) => {
-      setSpotlightParticipantIds((prev) => [...prev, participantId])
-      setParticipants((prev) =>
-        prev.map((p) => (p.id === participantId ? { ...p, isSpotlight: true } : p))
-      )
-    })
+    service.on(
+      "participant-spotlighted",
+      ({ participantId }: { participantId: string }) => {
+        setSpotlightParticipantIds((prev) => [...prev, participantId]);
+        setParticipants((prev) =>
+          prev.map((p) =>
+            p.id === participantId ? { ...p, isSpotlight: true } : p,
+          ),
+        );
+      },
+    );
 
-    service.on('spotlight-removed', ({ participantId }: { participantId: string }) => {
-      setSpotlightParticipantIds((prev) => prev.filter((id) => id !== participantId))
-      setParticipants((prev) =>
-        prev.map((p) => (p.id === participantId ? { ...p, isSpotlight: false } : p))
-      )
-    })
+    service.on(
+      "spotlight-removed",
+      ({ participantId }: { participantId: string }) => {
+        setSpotlightParticipantIds((prev) =>
+          prev.filter((id) => id !== participantId),
+        );
+        setParticipants((prev) =>
+          prev.map((p) =>
+            p.id === participantId ? { ...p, isSpotlight: false } : p,
+          ),
+        );
+      },
+    );
 
-    service.on('call-created', ({ callId, joinLink }: { callId: string; joinLink: string }) => {
-      setCallInfo((prev) => (prev ? { ...prev, id: callId, joinLink } : null))
-    })
+    service.on(
+      "call-created",
+      ({ callId, joinLink }: { callId: string; joinLink: string }) => {
+        setCallInfo((prev) =>
+          prev ? { ...prev, id: callId, joinLink } : null,
+        );
+      },
+    );
 
-    service.on('call-ended', () => {
+    service.on("call-ended", () => {
       // Reset all state
-      setCallInfo(null)
-      setParticipants([])
-      setLobbyParticipants([])
-      setRemoteStreams(new Map())
-      setLocalStream(null)
-      setIsMuted(muteOnEntry)
-      setIsVideoEnabled(!videoOffOnEntry)
-      setIsScreenSharing(false)
-      setIsHandRaised(false)
-      setActiveSpeakerId(null)
-      setLayoutState('grid')
-      setPinnedParticipantId(null)
-      setSpotlightParticipantIds([])
-      setIsLocked(false)
-      setIsRecording(false)
-      setCurrentPage(0)
-      setCallDuration(0)
+      setCallInfo(null);
+      setParticipants([]);
+      setLobbyParticipants([]);
+      setRemoteStreams(new Map());
+      setLocalStream(null);
+      setIsMuted(muteOnEntry);
+      setIsVideoEnabled(!videoOffOnEntry);
+      setIsScreenSharing(false);
+      setIsHandRaised(false);
+      setActiveSpeakerId(null);
+      setLayoutState("grid");
+      setPinnedParticipantId(null);
+      setSpotlightParticipantIds([]);
+      setIsLocked(false);
+      setIsRecording(false);
+      setCurrentPage(0);
+      setCallDuration(0);
       setMetrics({
         duration: 0,
         participantCount: 0,
@@ -565,21 +638,21 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
         totalLeaves: 0,
         averageCallQuality: 100,
         networkIssues: 0,
-      })
-    })
+      });
+    });
 
     // Initialize service
-    service.initialize()
+    service.initialize();
 
-    serviceRef.current = service
+    serviceRef.current = service;
 
     return () => {
       if (durationIntervalRef.current) {
-        clearInterval(durationIntervalRef.current)
+        clearInterval(durationIntervalRef.current);
       }
-      service.destroy()
-      serviceRef.current = null
-    }
+      service.destroy();
+      serviceRef.current = null;
+    };
   }, [
     user,
     maxParticipants,
@@ -593,20 +666,20 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
     enableNotifications,
     toast,
     participants,
-  ])
+  ]);
 
   // Update metrics periodically
   useEffect(() => {
-    if (!serviceRef.current) return
+    if (!serviceRef.current) return;
 
     const interval = setInterval(() => {
       if (serviceRef.current) {
-        setMetrics(serviceRef.current.callMetrics)
+        setMetrics(serviceRef.current.callMetrics);
       }
-    }, 1000)
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   // ===========================================================================
   // Call Actions
@@ -616,128 +689,146 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
     async (
       type: GroupCallType,
       callOptions?: {
-        channelId?: string
-        title?: string
-        description?: string
-        scheduledStartTime?: Date
-        scheduledEndTime?: Date
-        enableLobby?: boolean
-      }
+        channelId?: string;
+        title?: string;
+        description?: string;
+        scheduledStartTime?: Date;
+        scheduledEndTime?: Date;
+        enableLobby?: boolean;
+      },
     ): Promise<string> => {
       if (!serviceRef.current) {
-        throw new Error('Service not initialized')
+        throw new Error("Service not initialized");
       }
 
       try {
-        setError(null)
-        const callId = await serviceRef.current.createGroupCall(type, callOptions)
+        setError(null);
+        const callId = await serviceRef.current.createGroupCall(
+          type,
+          callOptions,
+        );
 
         // Update call info
-        setCallInfo(serviceRef.current.callInfo)
+        setCallInfo(serviceRef.current.callInfo);
         setParticipants(
-          Array.from(serviceRef.current.callInfo?.participants.values() ?? [])
-        )
+          Array.from(serviceRef.current.callInfo?.participants.values() ?? []),
+        );
 
         toast({
-          title: 'Call Started',
-          description: 'Your group call is ready',
-        })
+          title: "Call Started",
+          description: "Your group call is ready",
+        });
 
-        return callId
+        return callId;
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to create call'
-        setError(message)
-        toast({ title: 'Call Failed', description: message, variant: 'destructive' })
-        throw err
+        const message =
+          err instanceof Error ? err.message : "Failed to create call";
+        setError(message);
+        toast({
+          title: "Call Failed",
+          description: message,
+          variant: "destructive",
+        });
+        throw err;
       }
     },
-    [toast]
-  )
+    [toast],
+  );
 
   const joinCall = useCallback(
     async (
       callId: string,
       type: GroupCallType,
-      callOptions?: { channelId?: string }
+      callOptions?: { channelId?: string },
     ): Promise<void> => {
       if (!serviceRef.current) {
-        throw new Error('Service not initialized')
+        throw new Error("Service not initialized");
       }
 
       try {
-        setError(null)
-        await serviceRef.current.joinGroupCall(callId, type, callOptions)
+        setError(null);
+        await serviceRef.current.joinGroupCall(callId, type, callOptions);
 
-        setCallInfo(serviceRef.current.callInfo)
+        setCallInfo(serviceRef.current.callInfo);
         setParticipants(
-          Array.from(serviceRef.current.callInfo?.participants.values() ?? [])
-        )
+          Array.from(serviceRef.current.callInfo?.participants.values() ?? []),
+        );
         setLobbyParticipants(
-          Array.from(serviceRef.current.callInfo?.lobbyParticipants.values() ?? [])
-        )
+          Array.from(
+            serviceRef.current.callInfo?.lobbyParticipants.values() ?? [],
+          ),
+        );
 
         toast({
-          title: 'Joined Call',
-          description: 'You have joined the group call',
-        })
+          title: "Joined Call",
+          description: "You have joined the group call",
+        });
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to join call'
-        setError(message)
-        toast({ title: 'Join Failed', description: message, variant: 'destructive' })
-        throw err
+        const message =
+          err instanceof Error ? err.message : "Failed to join call";
+        setError(message);
+        toast({
+          title: "Join Failed",
+          description: message,
+          variant: "destructive",
+        });
+        throw err;
       }
     },
-    [toast]
-  )
+    [toast],
+  );
 
   const leaveCall = useCallback(() => {
-    if (!serviceRef.current) return
-    serviceRef.current.leaveCall()
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.leaveCall();
+  }, []);
 
   const endCallForEveryone = useCallback(async () => {
-    if (!serviceRef.current) return
-    await serviceRef.current.endCallForEveryone()
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.endCallForEveryone();
+  }, []);
 
   // ===========================================================================
   // Host Controls
   // ===========================================================================
 
   const muteAllParticipants = useCallback(async (except?: string[]) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.muteAllParticipants(except)
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.muteAllParticipants(except);
+  }, []);
 
   const unmuteAllParticipants = useCallback(async () => {
-    if (!serviceRef.current) return
-    await serviceRef.current.unmuteAllParticipants()
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.unmuteAllParticipants();
+  }, []);
 
   const muteParticipant = useCallback(async (participantId: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.muteParticipant(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.muteParticipant(participantId);
+  }, []);
 
-  const removeParticipant = useCallback(async (participantId: string, reason?: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.removeParticipant(participantId, reason)
-  }, [])
+  const removeParticipant = useCallback(
+    async (participantId: string, reason?: string) => {
+      if (!serviceRef.current) return;
+      await serviceRef.current.removeParticipant(participantId, reason);
+    },
+    [],
+  );
 
   const lockRoom = useCallback(async () => {
-    if (!serviceRef.current) return
-    await serviceRef.current.lockRoom()
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.lockRoom();
+  }, []);
 
   const unlockRoom = useCallback(async () => {
-    if (!serviceRef.current) return
-    await serviceRef.current.unlockRoom()
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.unlockRoom();
+  }, []);
 
   const transferHost = useCallback(async (newHostId: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.transferHost(newHostId)
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.transferHost(newHostId);
+  }, []);
 
   // ===========================================================================
   // Role Controls
@@ -745,97 +836,103 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
 
   const setParticipantRole = useCallback(
     async (participantId: string, role: ParticipantRole) => {
-      if (!serviceRef.current) return
-      await serviceRef.current.setParticipantRole(participantId, role)
+      if (!serviceRef.current) return;
+      await serviceRef.current.setParticipantRole(participantId, role);
     },
-    []
-  )
+    [],
+  );
 
   const promoteToCoHost = useCallback(async (participantId: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.promoteToCoHost(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.promoteToCoHost(participantId);
+  }, []);
 
   const demoteFromCoHost = useCallback(async (participantId: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.demoteFromCoHost(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.demoteFromCoHost(participantId);
+  }, []);
 
   const makeViewer = useCallback(async (participantId: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.makeViewer(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.makeViewer(participantId);
+  }, []);
 
-  const getParticipantRole = useCallback((participantId: string): ParticipantRole | null => {
-    if (!serviceRef.current) return null
-    return serviceRef.current.getParticipantRole(participantId)
-  }, [])
+  const getParticipantRole = useCallback(
+    (participantId: string): ParticipantRole | null => {
+      if (!serviceRef.current) return null;
+      return serviceRef.current.getParticipantRole(participantId);
+    },
+    [],
+  );
 
   // ===========================================================================
   // Lobby Controls
   // ===========================================================================
 
   const admitFromLobby = useCallback(async (participantId: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.admitFromLobby(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.admitFromLobby(participantId);
+  }, []);
 
   const admitAllFromLobby = useCallback(async () => {
-    if (!serviceRef.current) return
-    await serviceRef.current.admitAllFromLobby()
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.admitAllFromLobby();
+  }, []);
 
-  const denyFromLobby = useCallback(async (participantId: string, reason?: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.denyFromLobby(participantId, reason)
-  }, [])
+  const denyFromLobby = useCallback(
+    async (participantId: string, reason?: string) => {
+      if (!serviceRef.current) return;
+      await serviceRef.current.denyFromLobby(participantId, reason);
+    },
+    [],
+  );
 
   const denyAllFromLobby = useCallback(async (reason?: string) => {
-    if (!serviceRef.current) return
-    await serviceRef.current.denyAllFromLobby(reason)
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.denyAllFromLobby(reason);
+  }, []);
 
   const setAutoAdmit = useCallback((enabled: boolean, domains?: string[]) => {
-    if (!serviceRef.current) return
-    serviceRef.current.setAutoAdmit(enabled, domains)
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.setAutoAdmit(enabled, domains);
+  }, []);
 
   // ===========================================================================
   // Layout Controls
   // ===========================================================================
 
   const setLayout = useCallback((newLayout: LayoutType) => {
-    if (!serviceRef.current) return
-    serviceRef.current.setLayout(newLayout)
-    setLayoutState(newLayout)
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.setLayout(newLayout);
+    setLayoutState(newLayout);
+  }, []);
 
   const pinParticipant = useCallback((participantId: string) => {
-    if (!serviceRef.current) return
-    serviceRef.current.pinParticipant(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.pinParticipant(participantId);
+  }, []);
 
   const unpinParticipant = useCallback(() => {
-    if (!serviceRef.current) return
-    serviceRef.current.unpinParticipant()
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.unpinParticipant();
+  }, []);
 
   const spotlightParticipant = useCallback((participantId: string) => {
-    if (!serviceRef.current) return
-    serviceRef.current.spotlightParticipant(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.spotlightParticipant(participantId);
+  }, []);
 
   const removeSpotlight = useCallback((participantId: string) => {
-    if (!serviceRef.current) return
-    serviceRef.current.removeSpotlight(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.removeSpotlight(participantId);
+  }, []);
 
   const hideNonVideoParticipants = useCallback((hide: boolean) => {
-    setHideNonVideo(hide)
+    setHideNonVideo(hide);
     if (serviceRef.current) {
-      serviceRef.current.hideNonVideoParticipants(hide)
+      serviceRef.current.hideNonVideoParticipants(hide);
     }
-  }, [])
+  }, []);
 
   // ===========================================================================
   // Pagination
@@ -844,91 +941,91 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
   const goToPage = useCallback(
     (page: number) => {
       if (page >= 0 && page < totalPages) {
-        setCurrentPage(page)
+        setCurrentPage(page);
       }
     },
-    [totalPages]
-  )
+    [totalPages],
+  );
 
   const nextPage = useCallback(() => {
-    goToPage(currentPage + 1)
-  }, [currentPage, goToPage])
+    goToPage(currentPage + 1);
+  }, [currentPage, goToPage]);
 
   const previousPage = useCallback(() => {
-    goToPage(currentPage - 1)
-  }, [currentPage, goToPage])
+    goToPage(currentPage - 1);
+  }, [currentPage, goToPage]);
 
   // ===========================================================================
   // Media Controls
   // ===========================================================================
 
   const toggleMute = useCallback(() => {
-    if (!serviceRef.current) return
-    serviceRef.current.toggleMute()
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.toggleMute();
+  }, []);
 
   const setMuted = useCallback((muted: boolean) => {
-    if (!serviceRef.current) return
-    serviceRef.current.setMuted(muted)
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.setMuted(muted);
+  }, []);
 
   const toggleVideo = useCallback(() => {
-    if (!serviceRef.current) return
-    serviceRef.current.toggleVideo()
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.toggleVideo();
+  }, []);
 
   const setVideoEnabled = useCallback((enabled: boolean) => {
-    if (!serviceRef.current) return
-    serviceRef.current.setVideoEnabled(enabled)
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.setVideoEnabled(enabled);
+  }, []);
 
   const toggleScreenShare = useCallback(async () => {
-    if (!serviceRef.current) return
+    if (!serviceRef.current) return;
     if (isScreenSharing) {
-      serviceRef.current.stopScreenShare()
+      serviceRef.current.stopScreenShare();
     } else {
-      await serviceRef.current.startScreenShare()
+      await serviceRef.current.startScreenShare();
     }
-  }, [isScreenSharing])
+  }, [isScreenSharing]);
 
   const startScreenShare = useCallback(async () => {
-    if (!serviceRef.current) return
-    await serviceRef.current.startScreenShare()
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.startScreenShare();
+  }, []);
 
   const stopScreenShare = useCallback(() => {
-    if (!serviceRef.current) return
-    serviceRef.current.stopScreenShare()
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.stopScreenShare();
+  }, []);
 
   const raiseHand = useCallback(() => {
-    if (!serviceRef.current) return
-    serviceRef.current.raiseHand()
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.raiseHand();
+  }, []);
 
   const lowerHand = useCallback(() => {
-    if (!serviceRef.current) return
-    serviceRef.current.lowerHand()
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.lowerHand();
+  }, []);
 
   const lowerParticipantHand = useCallback((participantId: string) => {
-    if (!serviceRef.current) return
-    serviceRef.current.lowerParticipantHand(participantId)
-  }, [])
+    if (!serviceRef.current) return;
+    serviceRef.current.lowerParticipantHand(participantId);
+  }, []);
 
   // ===========================================================================
   // Recording
   // ===========================================================================
 
   const startRecording = useCallback(async () => {
-    if (!serviceRef.current) return
-    await serviceRef.current.startRecording()
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.startRecording();
+  }, []);
 
   const stopRecording = useCallback(async () => {
-    if (!serviceRef.current) return
-    await serviceRef.current.stopRecording()
-  }, [])
+    if (!serviceRef.current) return;
+    await serviceRef.current.stopRecording();
+  }, []);
 
   // ===========================================================================
   // Remote Streams
@@ -936,10 +1033,10 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
 
   const getParticipantStream = useCallback(
     (participantId: string): MediaStream | undefined => {
-      return remoteStreams.get(participantId)
+      return remoteStreams.get(participantId);
     },
-    [remoteStreams]
-  )
+    [remoteStreams],
+  );
 
   // ===========================================================================
   // Return
@@ -1057,7 +1154,13 @@ export function useGroupCall(options: UseGroupCallOptions = {}): UseGroupCallRet
 
     // Error
     error,
-  }
+  };
 }
 
-export type { GroupCallType, GroupCallStatus, GroupCallParticipant, ParticipantRole, LayoutType }
+export type {
+  GroupCallType,
+  GroupCallStatus,
+  GroupCallParticipant,
+  ParticipantRole,
+  LayoutType,
+};

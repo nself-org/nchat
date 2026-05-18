@@ -13,7 +13,7 @@ export {
   getChatbotService,
   createChatbotService,
   resetChatbotService,
-} from './chatbot.service'
+} from "./chatbot.service";
 
 // Handoff Service
 export {
@@ -21,7 +21,7 @@ export {
   getHandoffService,
   createHandoffService,
   resetHandoffService,
-} from './handoff.service'
+} from "./handoff.service";
 
 // Re-export types from lib
 export type {
@@ -56,7 +56,7 @@ export type {
   ChatbotEvent,
   // Analytics types
   ChatbotAnalytics,
-} from '@/lib/chatbot/chatbot-types'
+} from "@/lib/chatbot/chatbot-types";
 
 // Re-export intent matcher
 export {
@@ -65,4 +65,4 @@ export {
   createIntentMatcher,
   resetIntentMatcher,
   DEFAULT_INTENT_PATTERNS,
-} from '@/lib/chatbot/intent-matcher'
+} from "@/lib/chatbot/intent-matcher";

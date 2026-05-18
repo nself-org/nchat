@@ -8,11 +8,11 @@
  * DELETE /api/workspaces/[id]/members - Remove member (admin)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { z } from 'zod'
-import { apolloClient } from '@/lib/apollo-client'
-import { createWorkspaceService } from '@/services/workspaces'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
+import { apolloClient } from "@/lib/apollo-client";
+import { createWorkspaceService } from "@/services/workspaces";
 import {
   withAuth,
   withErrorHandler,
@@ -20,7 +20,7 @@ import {
   compose,
   type AuthenticatedRequest,
   type RouteContext,
-} from '@/lib/api/middleware'
+} from "@/lib/api/middleware";
 import {
   successResponse,
   createdResponse,
@@ -28,37 +28,37 @@ import {
   notFoundResponse,
   forbiddenResponse,
   internalErrorResponse,
-} from '@/lib/api/response'
+} from "@/lib/api/response";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 const ListMembersQuerySchema = z.object({
-  role: z.enum(['owner', 'admin', 'moderator', 'member', 'guest']).optional(),
+  role: z.enum(["owner", "admin", "moderator", "member", "guest"]).optional(),
   search: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
   offset: z.coerce.number().int().min(0).default(0),
-})
+});
 
 const AddMemberSchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
-  role: z.enum(['admin', 'moderator', 'member', 'guest']).default('member'),
+  userId: z.string().uuid("Invalid user ID"),
+  role: z.enum(["admin", "moderator", "member", "guest"]).default("member"),
   nickname: z.string().max(32).optional().nullable(),
-})
+});
 
 const RemoveMemberSchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
-})
+  userId: z.string().uuid("Invalid user ID"),
+});
 
 const UpdateMemberSchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
-  role: z.enum(['admin', 'moderator', 'member', 'guest']).optional(),
+  userId: z.string().uuid("Invalid user ID"),
+  role: z.enum(["admin", "moderator", "member", "guest"]).optional(),
   nickname: z.string().max(32).optional().nullable(),
-})
+});
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -70,11 +70,14 @@ const UpdateMemberSchema = z.object({
 async function hasAdminPermission(
   workspaceService: ReturnType<typeof createWorkspaceService>,
   workspaceId: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> {
-  const membership = await workspaceService.checkMembership(workspaceId, userId)
-  if (!membership) return false
-  return ['owner', 'admin'].includes(membership.role)
+  const membership = await workspaceService.checkMembership(
+    workspaceId,
+    userId,
+  );
+  if (!membership) return false;
+  return ["owner", "admin"].includes(membership.role);
 }
 
 /**
@@ -83,11 +86,14 @@ async function hasAdminPermission(
 async function hasModeratorPermission(
   workspaceService: ReturnType<typeof createWorkspaceService>,
   workspaceId: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> {
-  const membership = await workspaceService.checkMembership(workspaceId, userId)
-  if (!membership) return false
-  return ['owner', 'admin', 'moderator'].includes(membership.role)
+  const membership = await workspaceService.checkMembership(
+    workspaceId,
+    userId,
+  );
+  if (!membership) return false;
+  return ["owner", "admin", "moderator"].includes(membership.role);
 }
 
 // ============================================================================
@@ -96,65 +102,75 @@ async function hasModeratorPermission(
 
 async function handleGet(
   request: AuthenticatedRequest,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ): Promise<NextResponse> {
   try {
-    const { id: workspaceId } = await context.params
+    const { id: workspaceId } = await context.params;
 
-    logger.info('GET /api/workspaces/[id]/members - List members request', {
+    logger.info("GET /api/workspaces/[id]/members - List members request", {
       workspaceId,
       userId: request.user.id,
-    })
+    });
 
-    const workspaceService = createWorkspaceService(apolloClient)
+    const workspaceService = createWorkspaceService(apolloClient);
 
     // Check membership
-    const membership = await workspaceService.checkMembership(workspaceId, request.user.id)
+    const membership = await workspaceService.checkMembership(
+      workspaceId,
+      request.user.id,
+    );
     if (!membership) {
-      return forbiddenResponse('You are not a member of this workspace', 'NOT_MEMBER')
+      return forbiddenResponse(
+        "You are not a member of this workspace",
+        "NOT_MEMBER",
+      );
     }
 
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = request.nextUrl.searchParams;
     const queryParams = {
-      role: searchParams.get('role') || undefined,
-      search: searchParams.get('search') || undefined,
-      limit: searchParams.get('limit') || '50',
-      offset: searchParams.get('offset') || '0',
-    }
+      role: searchParams.get("role") || undefined,
+      search: searchParams.get("search") || undefined,
+      limit: searchParams.get("limit") || "50",
+      offset: searchParams.get("offset") || "0",
+    };
 
-    const validation = ListMembersQuerySchema.safeParse(queryParams)
+    const validation = ListMembersQuerySchema.safeParse(queryParams);
     if (!validation.success) {
-      return badRequestResponse('Invalid query parameters', 'INVALID_PARAMS', {
+      return badRequestResponse("Invalid query parameters", "INVALID_PARAMS", {
         errors: validation.error.flatten().fieldErrors,
-      })
+      });
     }
 
-    const params = validation.data
+    const params = validation.data;
 
-    let result
+    let result;
     if (params.search) {
       // Search members
-      const members = await workspaceService.searchMembers(workspaceId, params.search, params.limit)
+      const members = await workspaceService.searchMembers(
+        workspaceId,
+        params.search,
+        params.limit,
+      );
       result = {
         members,
         total: members.length,
         hasMore: false,
-      }
+      };
     } else {
       // List members with optional role filter
       result = await workspaceService.getWorkspaceMembers(workspaceId, {
         role: params.role,
         limit: params.limit,
         offset: params.offset,
-      })
+      });
     }
 
-    logger.info('GET /api/workspaces/[id]/members - Success', {
+    logger.info("GET /api/workspaces/[id]/members - Success", {
       workspaceId,
       total: result.total,
       returned: result.members.length,
-    })
+    });
 
     return successResponse({
       members: result.members,
@@ -164,10 +180,13 @@ async function handleGet(
         limit: params.limit,
         hasMore: result.hasMore,
       },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/workspaces/[id]/members - Error', error as Error)
-    return internalErrorResponse('Failed to fetch members', 'FETCH_MEMBERS_ERROR')
+    logger.error("GET /api/workspaces/[id]/members - Error", error as Error);
+    return internalErrorResponse(
+      "Failed to fetch members",
+      "FETCH_MEMBERS_ERROR",
+    );
   }
 }
 
@@ -177,40 +196,50 @@ async function handleGet(
 
 async function handlePost(
   request: AuthenticatedRequest,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ): Promise<NextResponse> {
   try {
-    const { id: workspaceId } = await context.params
+    const { id: workspaceId } = await context.params;
 
-    logger.info('POST /api/workspaces/[id]/members - Add member request', {
+    logger.info("POST /api/workspaces/[id]/members - Add member request", {
       workspaceId,
       userId: request.user.id,
-    })
+    });
 
-    const workspaceService = createWorkspaceService(apolloClient)
+    const workspaceService = createWorkspaceService(apolloClient);
 
     // Check admin permission
-    const hasPermission = await hasAdminPermission(workspaceService, workspaceId, request.user.id)
+    const hasPermission = await hasAdminPermission(
+      workspaceService,
+      workspaceId,
+      request.user.id,
+    );
     if (!hasPermission) {
-      return forbiddenResponse('Admin permission required', 'ADMIN_REQUIRED')
+      return forbiddenResponse("Admin permission required", "ADMIN_REQUIRED");
     }
 
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate request body
-    const validation = AddMemberSchema.safeParse(body)
+    const validation = AddMemberSchema.safeParse(body);
     if (!validation.success) {
-      return badRequestResponse('Invalid request body', 'VALIDATION_ERROR', {
+      return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
         errors: validation.error.flatten().fieldErrors,
-      })
+      });
     }
 
-    const data = validation.data
+    const data = validation.data;
 
     // Check if user is already a member
-    const existingMembership = await workspaceService.checkMembership(workspaceId, data.userId)
+    const existingMembership = await workspaceService.checkMembership(
+      workspaceId,
+      data.userId,
+    );
     if (existingMembership) {
-      return badRequestResponse('User is already a member of this workspace', 'ALREADY_MEMBER')
+      return badRequestResponse(
+        "User is already a member of this workspace",
+        "ALREADY_MEMBER",
+      );
     }
 
     // Add member
@@ -218,23 +247,23 @@ async function handlePost(
       workspaceId,
       data.userId,
       data.role,
-      data.nickname ?? undefined
-    )
+      data.nickname ?? undefined,
+    );
 
-    logger.info('POST /api/workspaces/[id]/members - Member added', {
+    logger.info("POST /api/workspaces/[id]/members - Member added", {
       workspaceId,
       memberId: data.userId,
       role: data.role,
       addedBy: request.user.id,
-    })
+    });
 
     return createdResponse({
       member,
-      message: 'Member added successfully',
-    })
+      message: "Member added successfully",
+    });
   } catch (error) {
-    logger.error('POST /api/workspaces/[id]/members - Error', error as Error)
-    return internalErrorResponse('Failed to add member', 'ADD_MEMBER_ERROR')
+    logger.error("POST /api/workspaces/[id]/members - Error", error as Error);
+    return internalErrorResponse("Failed to add member", "ADD_MEMBER_ERROR");
   }
 }
 
@@ -244,67 +273,80 @@ async function handlePost(
 
 async function handleDelete(
   request: AuthenticatedRequest,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ): Promise<NextResponse> {
   try {
-    const { id: workspaceId } = await context.params
+    const { id: workspaceId } = await context.params;
 
-    logger.info('DELETE /api/workspaces/[id]/members - Remove member request', {
+    logger.info("DELETE /api/workspaces/[id]/members - Remove member request", {
       workspaceId,
       userId: request.user.id,
-    })
+    });
 
-    const workspaceService = createWorkspaceService(apolloClient)
+    const workspaceService = createWorkspaceService(apolloClient);
 
     // Check admin permission
-    const hasPermission = await hasAdminPermission(workspaceService, workspaceId, request.user.id)
+    const hasPermission = await hasAdminPermission(
+      workspaceService,
+      workspaceId,
+      request.user.id,
+    );
     if (!hasPermission) {
-      return forbiddenResponse('Admin permission required', 'ADMIN_REQUIRED')
+      return forbiddenResponse("Admin permission required", "ADMIN_REQUIRED");
     }
 
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate request body
-    const validation = RemoveMemberSchema.safeParse(body)
+    const validation = RemoveMemberSchema.safeParse(body);
     if (!validation.success) {
-      return badRequestResponse('Invalid request body', 'VALIDATION_ERROR', {
+      return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
         errors: validation.error.flatten().fieldErrors,
-      })
+      });
     }
 
-    const data = validation.data
+    const data = validation.data;
 
     // Check if trying to remove owner
-    const workspace = await workspaceService.getWorkspace(workspaceId)
+    const workspace = await workspaceService.getWorkspace(workspaceId);
     if (!workspace) {
-      return notFoundResponse('Workspace not found', 'WORKSPACE_NOT_FOUND')
+      return notFoundResponse("Workspace not found", "WORKSPACE_NOT_FOUND");
     }
 
     if (workspace.ownerId === data.userId) {
-      return badRequestResponse('Cannot remove workspace owner', 'CANNOT_REMOVE_OWNER')
+      return badRequestResponse(
+        "Cannot remove workspace owner",
+        "CANNOT_REMOVE_OWNER",
+      );
     }
 
     // Check if member exists
-    const membership = await workspaceService.checkMembership(workspaceId, data.userId)
+    const membership = await workspaceService.checkMembership(
+      workspaceId,
+      data.userId,
+    );
     if (!membership) {
-      return notFoundResponse('Member not found', 'MEMBER_NOT_FOUND')
+      return notFoundResponse("Member not found", "MEMBER_NOT_FOUND");
     }
 
     // Remove member
-    await workspaceService.removeMember(workspaceId, data.userId)
+    await workspaceService.removeMember(workspaceId, data.userId);
 
-    logger.info('DELETE /api/workspaces/[id]/members - Member removed', {
+    logger.info("DELETE /api/workspaces/[id]/members - Member removed", {
       workspaceId,
       memberId: data.userId,
       removedBy: request.user.id,
-    })
+    });
 
     return successResponse({
-      message: 'Member removed successfully',
-    })
+      message: "Member removed successfully",
+    });
   } catch (error) {
-    logger.error('DELETE /api/workspaces/[id]/members - Error', error as Error)
-    return internalErrorResponse('Failed to remove member', 'REMOVE_MEMBER_ERROR')
+    logger.error("DELETE /api/workspaces/[id]/members - Error", error as Error);
+    return internalErrorResponse(
+      "Failed to remove member",
+      "REMOVE_MEMBER_ERROR",
+    );
   }
 }
 
@@ -314,71 +356,92 @@ async function handleDelete(
 
 async function handlePatch(
   request: AuthenticatedRequest,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ): Promise<NextResponse> {
   try {
-    const { id: workspaceId } = await context.params
+    const { id: workspaceId } = await context.params;
 
-    logger.info('PATCH /api/workspaces/[id]/members - Update member request', {
+    logger.info("PATCH /api/workspaces/[id]/members - Update member request", {
       workspaceId,
       userId: request.user.id,
-    })
+    });
 
-    const workspaceService = createWorkspaceService(apolloClient)
+    const workspaceService = createWorkspaceService(apolloClient);
 
     // Check admin permission
-    const hasPermission = await hasAdminPermission(workspaceService, workspaceId, request.user.id)
+    const hasPermission = await hasAdminPermission(
+      workspaceService,
+      workspaceId,
+      request.user.id,
+    );
     if (!hasPermission) {
-      return forbiddenResponse('Admin permission required', 'ADMIN_REQUIRED')
+      return forbiddenResponse("Admin permission required", "ADMIN_REQUIRED");
     }
 
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate request body
-    const validation = UpdateMemberSchema.safeParse(body)
+    const validation = UpdateMemberSchema.safeParse(body);
     if (!validation.success) {
-      return badRequestResponse('Invalid request body', 'VALIDATION_ERROR', {
+      return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
         errors: validation.error.flatten().fieldErrors,
-      })
+      });
     }
 
-    const data = validation.data
+    const data = validation.data;
 
     // Check if member exists
-    const membership = await workspaceService.checkMembership(workspaceId, data.userId)
+    const membership = await workspaceService.checkMembership(
+      workspaceId,
+      data.userId,
+    );
     if (!membership) {
-      return notFoundResponse('Member not found', 'MEMBER_NOT_FOUND')
+      return notFoundResponse("Member not found", "MEMBER_NOT_FOUND");
     }
 
     // Cannot change owner role
-    const workspace = await workspaceService.getWorkspace(workspaceId)
+    const workspace = await workspaceService.getWorkspace(workspaceId);
     if (workspace?.ownerId === data.userId && data.role) {
-      return badRequestResponse('Cannot change owner role', 'CANNOT_CHANGE_OWNER_ROLE')
+      return badRequestResponse(
+        "Cannot change owner role",
+        "CANNOT_CHANGE_OWNER_ROLE",
+      );
     }
 
     // Update member
-    let updatedMember = membership
+    let updatedMember = membership;
     if (data.role) {
-      updatedMember = await workspaceService.updateMemberRole(workspaceId, data.userId, data.role)
+      updatedMember = await workspaceService.updateMemberRole(
+        workspaceId,
+        data.userId,
+        data.role,
+      );
     }
     if (data.nickname !== undefined) {
-      await workspaceService.updateMemberNickname(workspaceId, data.userId, data.nickname)
-      updatedMember.nickname = data.nickname
+      await workspaceService.updateMemberNickname(
+        workspaceId,
+        data.userId,
+        data.nickname,
+      );
+      updatedMember.nickname = data.nickname;
     }
 
-    logger.info('PATCH /api/workspaces/[id]/members - Member updated', {
+    logger.info("PATCH /api/workspaces/[id]/members - Member updated", {
       workspaceId,
       memberId: data.userId,
       updatedBy: request.user.id,
-    })
+    });
 
     return successResponse({
       member: updatedMember,
-      message: 'Member updated successfully',
-    })
+      message: "Member updated successfully",
+    });
   } catch (error) {
-    logger.error('PATCH /api/workspaces/[id]/members - Error', error as Error)
-    return internalErrorResponse('Failed to update member', 'UPDATE_MEMBER_ERROR')
+    logger.error("PATCH /api/workspaces/[id]/members - Error", error as Error);
+    return internalErrorResponse(
+      "Failed to update member",
+      "UPDATE_MEMBER_ERROR",
+    );
   }
 }
 
@@ -389,23 +452,23 @@ async function handlePatch(
 export const GET = compose(
   withErrorHandler,
   withRateLimit({ limit: 100, window: 60 }),
-  withAuth
-)(handleGet as any)
+  withAuth,
+)(handleGet as any);
 
 export const POST = compose(
   withErrorHandler,
   withRateLimit({ limit: 30, window: 60 }),
-  withAuth
-)(handlePost as any)
+  withAuth,
+)(handlePost as any);
 
 export const DELETE = compose(
   withErrorHandler,
   withRateLimit({ limit: 30, window: 60 }),
-  withAuth
-)(handleDelete as any)
+  withAuth,
+)(handleDelete as any);
 
 export const PATCH = compose(
   withErrorHandler,
   withRateLimit({ limit: 30, window: 60 }),
-  withAuth
-)(handlePatch as any)
+  withAuth,
+)(handlePatch as any);

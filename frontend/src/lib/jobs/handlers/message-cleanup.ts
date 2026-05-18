@@ -14,39 +14,39 @@
  * @version 1.0.0
  */
 
-import { apolloClient } from '@/lib/apollo-client'
-import { getEphemeralMessageService } from '@/services/messages/ephemeral.service'
-import { createLogger } from '@/lib/logger'
-import { addJob, getSchedulerService } from '@/services/jobs'
+import { apolloClient } from "@/lib/apollo-client";
+import { getEphemeralMessageService } from "@/services/messages/ephemeral.service";
+import { createLogger } from "@/lib/logger";
+import { addJob, getSchedulerService } from "@/services/jobs";
 
-const log = createLogger('MessageCleanupJob')
+const log = createLogger("MessageCleanupJob");
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface MessageCleanupResult {
-  success: boolean
-  totalDeleted: number
-  batchesProcessed: number
-  affectedChannels: string[]
-  duration: number
-  errors: string[]
+  success: boolean;
+  totalDeleted: number;
+  batchesProcessed: number;
+  affectedChannels: string[];
+  duration: number;
+  errors: string[];
 }
 
 export interface MessageCleanupOptions {
-  batchSize?: number
-  maxBatches?: number
-  dryRun?: boolean
+  batchSize?: number;
+  maxBatches?: number;
+  dryRun?: boolean;
 }
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-const DEFAULT_BATCH_SIZE = 100
-const DEFAULT_MAX_BATCHES = 10 // Process at most 1000 messages per run
-const CLEANUP_INTERVAL = 60000 // 1 minute in ms
+const DEFAULT_BATCH_SIZE = 100;
+const DEFAULT_MAX_BATCHES = 10; // Process at most 1000 messages per run
+const CLEANUP_INTERVAL = 60000; // 1 minute in ms
 
 // ============================================================================
 // CLEANUP FUNCTION
@@ -62,15 +62,15 @@ const CLEANUP_INTERVAL = 60000 // 1 minute in ms
  * @returns Cleanup result with statistics
  */
 export async function cleanupExpiredMessages(
-  options: MessageCleanupOptions = {}
+  options: MessageCleanupOptions = {},
 ): Promise<MessageCleanupResult> {
   const {
     batchSize = DEFAULT_BATCH_SIZE,
     maxBatches = DEFAULT_MAX_BATCHES,
     dryRun = false,
-  } = options
+  } = options;
 
-  const startTime = Date.now()
+  const startTime = Date.now();
   const result: MessageCleanupResult = {
     success: true,
     totalDeleted: 0,
@@ -78,94 +78,105 @@ export async function cleanupExpiredMessages(
     affectedChannels: [],
     duration: 0,
     errors: [],
-  }
+  };
 
-  log.info('Starting message cleanup job', { batchSize, maxBatches, dryRun })
+  log.info("Starting message cleanup job", { batchSize, maxBatches, dryRun });
 
   try {
-    const ephemeralService = getEphemeralMessageService(apolloClient)
-    const channelSet = new Set<string>()
+    const ephemeralService = getEphemeralMessageService(apolloClient);
+    const channelSet = new Set<string>();
 
     // Process batches
     for (let batch = 0; batch < maxBatches; batch++) {
       try {
         if (dryRun) {
           // In dry-run mode, just count expired messages
-          const expiredResult = await ephemeralService.getExpiredMessages(batchSize)
+          const expiredResult =
+            await ephemeralService.getExpiredMessages(batchSize);
 
           if (!expiredResult.success || !expiredResult.data) {
-            result.errors.push(`Batch ${batch + 1}: Failed to get expired messages`)
-            continue
+            result.errors.push(
+              `Batch ${batch + 1}: Failed to get expired messages`,
+            );
+            continue;
           }
 
-          const { messages, totalExpiredCount } = expiredResult.data
+          const { messages, totalExpiredCount } = expiredResult.data;
 
           if (messages.length === 0) {
-            log.debug('No more expired messages found', { batch: batch + 1 })
-            break
+            log.debug("No more expired messages found", { batch: batch + 1 });
+            break;
           }
 
-          result.totalDeleted += messages.length
-          messages.forEach((m) => channelSet.add(m.channelId))
+          result.totalDeleted += messages.length;
+          messages.forEach((m) => channelSet.add(m.channelId));
 
-          log.info('Dry run: Would delete messages', {
+          log.info("Dry run: Would delete messages", {
             batch: batch + 1,
             count: messages.length,
             totalRemaining: totalExpiredCount - messages.length,
-          })
+          });
 
           // In dry-run, stop after first batch to avoid counting same messages
-          break
+          break;
         } else {
           // Actually delete expired messages
-          const deleteResult = await ephemeralService.deleteExpiredMessages(batchSize)
+          const deleteResult =
+            await ephemeralService.deleteExpiredMessages(batchSize);
 
           if (!deleteResult.success || !deleteResult.data) {
-            result.errors.push(`Batch ${batch + 1}: Failed to delete expired messages`)
-            continue
+            result.errors.push(
+              `Batch ${batch + 1}: Failed to delete expired messages`,
+            );
+            continue;
           }
 
-          const { deletedCount, channelIds } = deleteResult.data
+          const { deletedCount, channelIds } = deleteResult.data;
 
           if (deletedCount === 0) {
-            log.debug('No more expired messages to delete', { batch: batch + 1 })
-            break
+            log.debug("No more expired messages to delete", {
+              batch: batch + 1,
+            });
+            break;
           }
 
-          result.totalDeleted += deletedCount
-          result.batchesProcessed++
-          channelIds.forEach((id) => channelSet.add(id))
+          result.totalDeleted += deletedCount;
+          result.batchesProcessed++;
+          channelIds.forEach((id) => channelSet.add(id));
 
-          log.info('Deleted expired messages', {
+          log.info("Deleted expired messages", {
             batch: batch + 1,
             deletedCount,
             totalDeleted: result.totalDeleted,
             channelCount: channelIds.length,
-          })
+          });
 
           // If we deleted fewer than batch size, we're done
           if (deletedCount < batchSize) {
-            break
+            break;
           }
         }
       } catch (batchError) {
-        const errorMessage = batchError instanceof Error ? batchError.message : 'Unknown error'
-        result.errors.push(`Batch ${batch + 1}: ${errorMessage}`)
-        log.error('Batch processing failed', batchError as Error, { batch: batch + 1 })
+        const errorMessage =
+          batchError instanceof Error ? batchError.message : "Unknown error";
+        result.errors.push(`Batch ${batch + 1}: ${errorMessage}`);
+        log.error("Batch processing failed", batchError as Error, {
+          batch: batch + 1,
+        });
 
         // Continue to next batch despite error
-        continue
+        continue;
       }
     }
 
-    result.affectedChannels = Array.from(channelSet)
-    result.duration = Date.now() - startTime
+    result.affectedChannels = Array.from(channelSet);
+    result.duration = Date.now() - startTime;
 
     if (result.errors.length > 0) {
-      result.success = result.totalDeleted > 0 // Partial success if some deleted
+      result.success = result.totalDeleted > 0; // Partial success if some deleted
     }
 
-    log.info('Message cleanup job completed', {
+    log.info("Message cleanup job completed", {
       success: result.success,
       totalDeleted: result.totalDeleted,
       batchesProcessed: result.batchesProcessed,
@@ -173,17 +184,18 @@ export async function cleanupExpiredMessages(
       duration: result.duration,
       errors: result.errors.length,
       dryRun,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    result.errors.push(`Critical error: ${errorMessage}`)
-    result.success = false
-    result.duration = Date.now() - startTime
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    result.errors.push(`Critical error: ${errorMessage}`);
+    result.success = false;
+    result.duration = Date.now() - startTime;
 
-    log.error('Message cleanup job failed', error as Error)
-    return result
+    log.error("Message cleanup job failed", error as Error);
+    return result;
   }
 }
 
@@ -197,35 +209,37 @@ export async function cleanupExpiredMessages(
  * This queues a cleanup job to be processed by the job queue.
  * Use this for on-demand cleanup or when initializing scheduled cleanup.
  */
-export async function queueMessageCleanup(options?: MessageCleanupOptions): Promise<string | null> {
+export async function queueMessageCleanup(
+  options?: MessageCleanupOptions,
+): Promise<string | null> {
   try {
     // Use 'messages' as target type since that's what's allowed
     // The handler will specifically handle ephemeral message cleanup
     const { jobId } = await addJob(
-      'cleanup-expired',
+      "cleanup-expired",
       {
-        targetType: 'messages',
+        targetType: "messages",
         batchSize: options?.batchSize || DEFAULT_BATCH_SIZE,
         olderThanHours: 0, // We use expires_at field instead
         dryRun: options?.dryRun || false,
       },
       {
-        queue: 'low-priority',
-        priority: 'low',
-        tags: ['cleanup', 'messages', 'ephemeral'],
+        queue: "low-priority",
+        priority: "low",
+        tags: ["cleanup", "messages", "ephemeral"],
         metadata: {
-          scheduledBy: 'message-cleanup-handler',
+          scheduledBy: "message-cleanup-handler",
           maxBatches: options?.maxBatches || DEFAULT_MAX_BATCHES,
           isEphemeralCleanup: true,
         },
-      }
-    )
+      },
+    );
 
-    log.info('Message cleanup job queued', { jobId })
-    return jobId
+    log.info("Message cleanup job queued", { jobId });
+    return jobId;
   } catch (error) {
-    log.error('Failed to queue message cleanup job', error as Error)
-    return null
+    log.error("Failed to queue message cleanup job", error as Error);
+    return null;
   }
 }
 
@@ -236,33 +250,37 @@ export async function queueMessageCleanup(options?: MessageCleanupOptions): Prom
  * expired ephemeral messages.
  */
 export async function startCleanupScheduler(): Promise<{
-  success: boolean
-  scheduleId?: string
-  error?: string
+  success: boolean;
+  scheduleId?: string;
+  error?: string;
 }> {
   try {
-    const scheduler = getSchedulerService()
+    const scheduler = getSchedulerService();
 
     if (!scheduler.initialized) {
-      await scheduler.initialize()
+      await scheduler.initialize();
     }
 
     // Check if schedule already exists
-    const existingSchedule = scheduler.getScheduleByName('ephemeral-message-cleanup')
+    const existingSchedule = scheduler.getScheduleByName(
+      "ephemeral-message-cleanup",
+    );
     if (existingSchedule) {
-      log.info('Cleanup schedule already exists', { scheduleId: existingSchedule.id })
-      return { success: true, scheduleId: existingSchedule.id }
+      log.info("Cleanup schedule already exists", {
+        scheduleId: existingSchedule.id,
+      });
+      return { success: true, scheduleId: existingSchedule.id };
     }
 
     // Create new schedule
     const schedule = await scheduler.createSchedule({
-      name: 'ephemeral-message-cleanup',
-      description: 'Periodically clean up expired ephemeral messages',
-      cronExpression: '* * * * *', // Every minute
-      timezone: 'UTC',
-      jobType: 'cleanup-expired',
+      name: "ephemeral-message-cleanup",
+      description: "Periodically clean up expired ephemeral messages",
+      cronExpression: "* * * * *", // Every minute
+      timezone: "UTC",
+      jobType: "cleanup-expired",
       payload: {
-        targetType: 'messages',
+        targetType: "messages",
         batchSize: DEFAULT_BATCH_SIZE,
         olderThanHours: 0, // We use expires_at field
         dryRun: false,
@@ -272,18 +290,19 @@ export async function startCleanupScheduler(): Promise<{
         maxBatches: DEFAULT_MAX_BATCHES,
         isEphemeralCleanup: true,
       },
-    })
+    });
 
-    log.info('Cleanup scheduler started', {
+    log.info("Cleanup scheduler started", {
       scheduleId: schedule.scheduleId,
-      cronExpression: '* * * * *',
-    })
+      cronExpression: "* * * * *",
+    });
 
-    return { success: true, scheduleId: schedule.scheduleId }
+    return { success: true, scheduleId: schedule.scheduleId };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    log.error('Failed to start cleanup scheduler', error as Error)
-    return { success: false, error: errorMessage }
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    log.error("Failed to start cleanup scheduler", error as Error);
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -291,33 +310,38 @@ export async function startCleanupScheduler(): Promise<{
  * Stop the periodic cleanup scheduler
  */
 export async function stopCleanupScheduler(): Promise<{
-  success: boolean
-  error?: string
+  success: boolean;
+  error?: string;
 }> {
   try {
-    const scheduler = getSchedulerService()
+    const scheduler = getSchedulerService();
 
     if (!scheduler.initialized) {
-      return { success: true } // Nothing to stop
+      return { success: true }; // Nothing to stop
     }
 
-    const existingSchedule = scheduler.getScheduleByName('ephemeral-message-cleanup')
+    const existingSchedule = scheduler.getScheduleByName(
+      "ephemeral-message-cleanup",
+    );
     if (!existingSchedule) {
-      return { success: true } // Already stopped
+      return { success: true }; // Already stopped
     }
 
-    const deleted = await scheduler.deleteSchedule(existingSchedule.id)
+    const deleted = await scheduler.deleteSchedule(existingSchedule.id);
 
     if (deleted) {
-      log.info('Cleanup scheduler stopped', { scheduleId: existingSchedule.id })
-      return { success: true }
+      log.info("Cleanup scheduler stopped", {
+        scheduleId: existingSchedule.id,
+      });
+      return { success: true };
     }
 
-    return { success: false, error: 'Failed to delete schedule' }
+    return { success: false, error: "Failed to delete schedule" };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    log.error('Failed to stop cleanup scheduler', error as Error)
-    return { success: false, error: errorMessage }
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    log.error("Failed to stop cleanup scheduler", error as Error);
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -325,22 +349,22 @@ export async function stopCleanupScheduler(): Promise<{
  * Get cleanup scheduler status
  */
 export function getCleanupSchedulerStatus(): {
-  isRunning: boolean
-  scheduleId?: string
-  lastRun?: Date
-  nextRun?: Date
+  isRunning: boolean;
+  scheduleId?: string;
+  lastRun?: Date;
+  nextRun?: Date;
 } {
   try {
-    const scheduler = getSchedulerService()
+    const scheduler = getSchedulerService();
 
     if (!scheduler.initialized) {
-      return { isRunning: false }
+      return { isRunning: false };
     }
 
-    const schedule = scheduler.getScheduleByName('ephemeral-message-cleanup')
+    const schedule = scheduler.getScheduleByName("ephemeral-message-cleanup");
 
     if (!schedule) {
-      return { isRunning: false }
+      return { isRunning: false };
     }
 
     return {
@@ -348,9 +372,9 @@ export function getCleanupSchedulerStatus(): {
       scheduleId: schedule.id,
       lastRun: schedule.lastRunAt ? new Date(schedule.lastRunAt) : undefined,
       nextRun: schedule.nextRunAt ? new Date(schedule.nextRunAt) : undefined,
-    }
+    };
   } catch {
-    return { isRunning: false }
+    return { isRunning: false };
   }
 }
 
@@ -364,15 +388,15 @@ export function getCleanupSchedulerStatus(): {
  * This is called by the job queue when processing a cleanup-expired-messages job.
  */
 export async function handleMessageCleanupJob(payload: {
-  batchSize?: number
-  maxBatches?: number
-  dryRun?: boolean
+  batchSize?: number;
+  maxBatches?: number;
+  dryRun?: boolean;
 }): Promise<MessageCleanupResult> {
   return cleanupExpiredMessages({
     batchSize: payload.batchSize,
     maxBatches: payload.maxBatches,
     dryRun: payload.dryRun,
-  })
+  });
 }
 
 // ============================================================================
@@ -386,4 +410,4 @@ export default {
   stopCleanupScheduler,
   getCleanupSchedulerStatus,
   handleMessageCleanupJob,
-}
+};

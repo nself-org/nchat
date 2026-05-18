@@ -1,42 +1,53 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Calendar } from 'lucide-react'
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ProfileFieldDefinition {
-  key: string
-  label: string
-  type: 'text' | 'textarea' | 'email' | 'url' | 'phone' | 'date' | 'select' | 'boolean'
-  placeholder?: string
-  description?: string
-  required?: boolean
-  options?: { value: string; label: string }[]
-  maxLength?: number
+  key: string;
+  label: string;
+  type:
+    | "text"
+    | "textarea"
+    | "email"
+    | "url"
+    | "phone"
+    | "date"
+    | "select"
+    | "boolean";
+  placeholder?: string;
+  description?: string;
+  required?: boolean;
+  options?: { value: string; label: string }[];
+  maxLength?: number;
 }
 
-export interface ProfileFieldsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
-  fields: ProfileFieldDefinition[]
-  values: Record<string, string | boolean>
-  onChange: (key: string, value: string | boolean) => void
-  errors?: Record<string, string>
-  disabled?: boolean
-  variant?: 'default' | 'compact'
+export interface ProfileFieldsProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "onChange"
+> {
+  fields: ProfileFieldDefinition[];
+  values: Record<string, string | boolean>;
+  onChange: (key: string, value: string | boolean) => void;
+  errors?: Record<string, string>;
+  disabled?: boolean;
+  variant?: "default" | "compact";
 }
 
 // ============================================================================
@@ -52,24 +63,29 @@ const ProfileFields = React.forwardRef<HTMLDivElement, ProfileFieldsProps>(
       onChange,
       errors = {},
       disabled = false,
-      variant = 'default',
+      variant = "default",
       ...props
     },
-    ref
+    ref,
   ) => {
-    const isCompact = variant === 'compact'
+    const isCompact = variant === "compact";
 
     const renderField = (field: ProfileFieldDefinition) => {
-      const value = values[field.key] ?? ''
-      const error = errors[field.key]
+      const value = values[field.key] ?? "";
+      const error = errors[field.key];
 
       switch (field.type) {
-        case 'textarea':
+        case "textarea":
           return (
-            <div key={field.key} className={cn('space-y-2', isCompact && 'space-y-1')}>
-              <Label htmlFor={field.key} className={cn(isCompact && 'text-xs')}>
+            <div
+              key={field.key}
+              className={cn("space-y-2", isCompact && "space-y-1")}
+            >
+              <Label htmlFor={field.key} className={cn(isCompact && "text-xs")}>
                 {field.label}
-                {field.required && <span className="ml-1 text-destructive">*</span>}
+                {field.required && (
+                  <span className="ml-1 text-destructive">*</span>
+                )}
               </Label>
               <Textarea
                 id={field.key}
@@ -79,10 +95,12 @@ const ProfileFields = React.forwardRef<HTMLDivElement, ProfileFieldsProps>(
                 disabled={disabled}
                 maxLength={field.maxLength}
                 rows={isCompact ? 2 : 3}
-                className={cn(error && 'border-destructive')}
+                className={cn(error && "border-destructive")}
               />
               {field.description && !error && (
-                <p className="text-xs text-muted-foreground">{field.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  {field.description}
+                </p>
               )}
               {error && <p className="text-xs text-destructive">{error}</p>}
               {field.maxLength && (
@@ -91,14 +109,19 @@ const ProfileFields = React.forwardRef<HTMLDivElement, ProfileFieldsProps>(
                 </p>
               )}
             </div>
-          )
+          );
 
-        case 'select':
+        case "select":
           return (
-            <div key={field.key} className={cn('space-y-2', isCompact && 'space-y-1')}>
-              <Label htmlFor={field.key} className={cn(isCompact && 'text-xs')}>
+            <div
+              key={field.key}
+              className={cn("space-y-2", isCompact && "space-y-1")}
+            >
+              <Label htmlFor={field.key} className={cn(isCompact && "text-xs")}>
                 {field.label}
-                {field.required && <span className="ml-1 text-destructive">*</span>}
+                {field.required && (
+                  <span className="ml-1 text-destructive">*</span>
+                )}
               </Label>
               <Select
                 value={value as string}
@@ -107,10 +130,15 @@ const ProfileFields = React.forwardRef<HTMLDivElement, ProfileFieldsProps>(
               >
                 <SelectTrigger
                   id={field.key}
-                  className={cn(error && 'border-destructive', isCompact && 'h-8 text-sm')}
+                  className={cn(
+                    error && "border-destructive",
+                    isCompact && "h-8 text-sm",
+                  )}
                 >
                   <SelectValue
-                    placeholder={field.placeholder || `Select ${field.label.toLowerCase()}`}
+                    placeholder={
+                      field.placeholder || `Select ${field.label.toLowerCase()}`
+                    }
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -122,27 +150,37 @@ const ProfileFields = React.forwardRef<HTMLDivElement, ProfileFieldsProps>(
                 </SelectContent>
               </Select>
               {field.description && !error && (
-                <p className="text-xs text-muted-foreground">{field.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  {field.description}
+                </p>
               )}
               {error && <p className="text-xs text-destructive">{error}</p>}
             </div>
-          )
+          );
 
-        case 'boolean':
+        case "boolean":
           return (
             <div
               key={field.key}
               className={cn(
-                'flex items-center justify-between rounded-lg border p-3',
-                isCompact && 'p-2'
+                "flex items-center justify-between rounded-lg border p-3",
+                isCompact && "p-2",
               )}
             >
               <div className="space-y-0.5">
-                <Label htmlFor={field.key} className={cn('font-medium', isCompact && 'text-xs')}>
+                <Label
+                  htmlFor={field.key}
+                  className={cn("font-medium", isCompact && "text-xs")}
+                >
                   {field.label}
                 </Label>
                 {field.description && (
-                  <p className={cn('text-muted-foreground', isCompact ? 'text-[10px]' : 'text-xs')}>
+                  <p
+                    className={cn(
+                      "text-muted-foreground",
+                      isCompact ? "text-[10px]" : "text-xs",
+                    )}
+                  >
                     {field.description}
                   </p>
                 )}
@@ -154,14 +192,19 @@ const ProfileFields = React.forwardRef<HTMLDivElement, ProfileFieldsProps>(
                 disabled={disabled}
               />
             </div>
-          )
+          );
 
-        case 'date':
+        case "date":
           return (
-            <div key={field.key} className={cn('space-y-2', isCompact && 'space-y-1')}>
-              <Label htmlFor={field.key} className={cn(isCompact && 'text-xs')}>
+            <div
+              key={field.key}
+              className={cn("space-y-2", isCompact && "space-y-1")}
+            >
+              <Label htmlFor={field.key} className={cn(isCompact && "text-xs")}>
                 {field.label}
-                {field.required && <span className="ml-1 text-destructive">*</span>}
+                {field.required && (
+                  <span className="ml-1 text-destructive">*</span>
+                )}
               </Label>
               <div className="relative">
                 <Input
@@ -170,51 +213,71 @@ const ProfileFields = React.forwardRef<HTMLDivElement, ProfileFieldsProps>(
                   value={value as string}
                   onChange={(e) => onChange(field.key, e.target.value)}
                   disabled={disabled}
-                  className={cn(error && 'border-destructive', isCompact && 'h-8 text-sm', 'pr-10')}
+                  className={cn(
+                    error && "border-destructive",
+                    isCompact && "h-8 text-sm",
+                    "pr-10",
+                  )}
                 />
                 <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               </div>
               {field.description && !error && (
-                <p className="text-xs text-muted-foreground">{field.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  {field.description}
+                </p>
               )}
               {error && <p className="text-xs text-destructive">{error}</p>}
             </div>
-          )
+          );
 
         default:
           // text, email, url, phone
           return (
-            <div key={field.key} className={cn('space-y-2', isCompact && 'space-y-1')}>
-              <Label htmlFor={field.key} className={cn(isCompact && 'text-xs')}>
+            <div
+              key={field.key}
+              className={cn("space-y-2", isCompact && "space-y-1")}
+            >
+              <Label htmlFor={field.key} className={cn(isCompact && "text-xs")}>
                 {field.label}
-                {field.required && <span className="ml-1 text-destructive">*</span>}
+                {field.required && (
+                  <span className="ml-1 text-destructive">*</span>
+                )}
               </Label>
               <Input
                 id={field.key}
-                type={field.type === 'text' ? 'text' : field.type}
+                type={field.type === "text" ? "text" : field.type}
                 value={value as string}
                 onChange={(e) => onChange(field.key, e.target.value)}
                 placeholder={field.placeholder}
                 disabled={disabled}
                 maxLength={field.maxLength}
-                className={cn(error && 'border-destructive', isCompact && 'h-8 text-sm')}
+                className={cn(
+                  error && "border-destructive",
+                  isCompact && "h-8 text-sm",
+                )}
               />
               {field.description && !error && (
-                <p className="text-xs text-muted-foreground">{field.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  {field.description}
+                </p>
               )}
               {error && <p className="text-xs text-destructive">{error}</p>}
             </div>
-          )
+          );
       }
-    }
+    };
 
     return (
-      <div ref={ref} className={cn('space-y-4', isCompact && 'space-y-3', className)} {...props}>
+      <div
+        ref={ref}
+        className={cn("space-y-4", isCompact && "space-y-3", className)}
+        {...props}
+      >
         {fields.map(renderField)}
       </div>
-    )
-  }
-)
-ProfileFields.displayName = 'ProfileFields'
+    );
+  },
+);
+ProfileFields.displayName = "ProfileFields";
 
-export { ProfileFields }
+export { ProfileFields };

@@ -6,26 +6,29 @@
  * PUT: Update branding settings with database persistence
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import type { TenantBrandingData } from '@/lib/white-label/tenant-branding-service'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import type { TenantBrandingData } from "@/lib/white-label/tenant-branding-service";
 
 // GraphQL query to fetch tenant branding
-async function fetchBrandingFromDatabase(tenantId: string): Promise<TenantBrandingData | null> {
-  const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://api.localhost/v1/graphql'
-  const adminSecret = process.env.HASURA_ADMIN_SECRET
+async function fetchBrandingFromDatabase(
+  tenantId: string,
+): Promise<TenantBrandingData | null> {
+  const graphqlUrl =
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://api.localhost/v1/graphql";
+  const adminSecret = process.env.HASURA_ADMIN_SECRET;
 
   if (!adminSecret) {
-    logger.warn('HASURA_ADMIN_SECRET not set, cannot fetch branding')
-    return null
+    logger.warn("HASURA_ADMIN_SECRET not set, cannot fetch branding");
+    return null;
   }
 
   try {
     const response = await fetch(graphqlUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': adminSecret,
+        "Content-Type": "application/json",
+        "x-hasura-admin-secret": adminSecret,
       },
       body: JSON.stringify({
         query: `
@@ -69,19 +72,19 @@ async function fetchBrandingFromDatabase(tenantId: string): Promise<TenantBrandi
         `,
         variables: { tenantId },
       }),
-    })
+    });
 
-    const result = await response.json()
+    const result = await response.json();
 
     if (result.errors) {
-      logger.error('GraphQL error fetching branding:', result.errors)
-      return null
+      logger.error("GraphQL error fetching branding:", result.errors);
+      return null;
     }
 
-    const brandingRecord = result.data?.nchat_tenant_branding?.[0]
+    const brandingRecord = result.data?.nchat_tenant_branding?.[0];
 
     if (!brandingRecord) {
-      return null
+      return null;
     }
 
     // Transform database record to API format
@@ -117,24 +120,25 @@ async function fetchBrandingFromDatabase(tenantId: string): Promise<TenantBrandi
       termsOfServiceUrl: brandingRecord.terms_of_service_url,
       supportEmail: brandingRecord.support_email,
       contactEmail: brandingRecord.contact_email,
-    }
+    };
   } catch (error) {
-    logger.error('Failed to fetch branding from database:', error)
-    return null
+    logger.error("Failed to fetch branding from database:", error);
+    return null;
   }
 }
 
 // GraphQL mutation to update/insert tenant branding
 async function saveBrandingToDatabase(
   tenantId: string,
-  data: Partial<TenantBrandingData>
+  data: Partial<TenantBrandingData>,
 ): Promise<boolean> {
-  const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://api.localhost/v1/graphql'
-  const adminSecret = process.env.HASURA_ADMIN_SECRET
+  const graphqlUrl =
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://api.localhost/v1/graphql";
+  const adminSecret = process.env.HASURA_ADMIN_SECRET;
 
   if (!adminSecret) {
-    logger.warn('HASURA_ADMIN_SECRET not set, cannot save branding')
-    return false
+    logger.warn("HASURA_ADMIN_SECRET not set, cannot save branding");
+    return false;
   }
 
   try {
@@ -147,7 +151,7 @@ async function saveBrandingToDatabase(
           affected_rows
         }
       }
-    `
+    `;
 
     const variables = {
       tenantId,
@@ -183,117 +187,135 @@ async function saveBrandingToDatabase(
         contact_email: data.contactEmail,
         updated_at: new Date().toISOString(),
       },
-    }
+    };
 
     const response = await fetch(graphqlUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': adminSecret,
+        "Content-Type": "application/json",
+        "x-hasura-admin-secret": adminSecret,
       },
       body: JSON.stringify({
         query: mutation,
         variables,
       }),
-    })
+    });
 
-    const result = await response.json()
+    const result = await response.json();
 
     if (result.errors) {
-      logger.error('GraphQL error updating branding:', result.errors)
-      return false
+      logger.error("GraphQL error updating branding:", result.errors);
+      return false;
     }
 
-    return (result.data?.update_nchat_tenant_branding?.affected_rows || 0) > 0
+    return (result.data?.update_nchat_tenant_branding?.affected_rows || 0) > 0;
   } catch (error) {
-    logger.error('Failed to save branding to database:', error)
-    return false
+    logger.error("Failed to save branding to database:", error);
+    return false;
   }
 }
 
 // Provide default branding if none exists
 function getDefaultBranding(): TenantBrandingData {
   return {
-    appName: 'nchat',
-    tagline: 'Team Communication Platform',
-    companyName: 'Your Company',
-    websiteUrl: 'https://example.com',
+    appName: "nchat",
+    tagline: "Team Communication Platform",
+    companyName: "Your Company",
+    websiteUrl: "https://example.com",
     logoScale: 1,
     sslEnabled: true,
-  }
+  };
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id: tenantId } = await params
+    const { id: tenantId } = await params;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant ID is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Tenant ID is required" },
+        { status: 400 },
+      );
     }
 
     // Try to fetch from database
-    let branding = await fetchBrandingFromDatabase(tenantId)
+    let branding = await fetchBrandingFromDatabase(tenantId);
 
     // If not found, return defaults
     if (!branding) {
-      branding = getDefaultBranding()
+      branding = getDefaultBranding();
     }
 
     return NextResponse.json({
       success: true,
       data: branding,
       timestamp: new Date().toISOString(),
-    })
+    });
   } catch (error) {
-    logger.error('Failed to fetch branding:', error)
-    return NextResponse.json({ error: 'Failed to fetch branding' }, { status: 500 })
+    logger.error("Failed to fetch branding:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch branding" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id: tenantId } = await params
-    const data = await request.json()
+    const { id: tenantId } = await params;
+    const data = await request.json();
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant ID is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Tenant ID is required" },
+        { status: 400 },
+      );
     }
 
-    if (!data || typeof data !== 'object') {
-      return NextResponse.json({ error: 'Invalid branding data' }, { status: 400 })
+    if (!data || typeof data !== "object") {
+      return NextResponse.json(
+        { error: "Invalid branding data" },
+        { status: 400 },
+      );
     }
 
     // Validate key fields
-    if (data.appName && typeof data.appName !== 'string') {
-      return NextResponse.json({ error: 'Invalid appName' }, { status: 400 })
+    if (data.appName && typeof data.appName !== "string") {
+      return NextResponse.json({ error: "Invalid appName" }, { status: 400 });
     }
 
     // Save to database
-    const saved = await saveBrandingToDatabase(tenantId, data)
+    const saved = await saveBrandingToDatabase(tenantId, data);
 
     if (!saved) {
-      return NextResponse.json({ error: 'Failed to save branding' }, { status: 500 })
+      return NextResponse.json(
+        { error: "Failed to save branding" },
+        { status: 500 },
+      );
     }
 
     // Fetch updated branding
-    const updatedBranding = await fetchBrandingFromDatabase(tenantId)
+    const updatedBranding = await fetchBrandingFromDatabase(tenantId);
 
     return NextResponse.json({
       success: true,
       data: updatedBranding,
-      message: 'Branding updated successfully',
+      message: "Branding updated successfully",
       timestamp: new Date().toISOString(),
-    })
+    });
   } catch (error) {
-    logger.error('Failed to update branding:', error)
-    return NextResponse.json({ error: 'Failed to update branding' }, { status: 500 })
+    logger.error("Failed to update branding:", error);
+    return NextResponse.json(
+      { error: "Failed to update branding" },
+      { status: 500 },
+    );
   }
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";

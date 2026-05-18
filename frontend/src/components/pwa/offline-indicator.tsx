@@ -1,146 +1,152 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { Wifi, WifiOff, RefreshCw, CloudOff, Clock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { onServiceWorkerMessage } from '@/lib/pwa/register-sw'
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Wifi, WifiOff, RefreshCw, CloudOff, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { onServiceWorkerMessage } from "@/lib/pwa/register-sw";
 
 export interface OfflineIndicatorProps {
   /** Custom offline message */
-  offlineMessage?: string
+  offlineMessage?: string;
   /** Custom online message */
-  onlineMessage?: string
+  onlineMessage?: string;
   /** Show toast when coming back online */
-  showOnlineToast?: boolean
+  showOnlineToast?: boolean;
   /** Duration to show online toast (ms) */
-  onlineToastDuration?: number
+  onlineToastDuration?: number;
   /** Position of the indicator */
-  position?: 'top' | 'bottom'
+  position?: "top" | "bottom";
   /** Callback when online status changes */
-  onStatusChange?: (isOnline: boolean) => void
+  onStatusChange?: (isOnline: boolean) => void;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Show pending actions count */
-  showPendingActions?: boolean
+  showPendingActions?: boolean;
 }
 
 interface PendingAction {
-  id: string
-  type: string
-  timestamp: number
-  description: string
+  id: string;
+  type: string;
+  timestamp: number;
+  description: string;
 }
 
 export function OfflineIndicator({
-  offlineMessage = 'You are offline. Some features may be limited.',
-  onlineMessage = 'Back online!',
+  offlineMessage = "You are offline. Some features may be limited.",
+  onlineMessage = "Back online!",
   showOnlineToast = true,
   onlineToastDuration = 3000,
-  position = 'top',
+  position = "top",
   onStatusChange,
-  className = '',
+  className = "",
   showPendingActions = true,
 }: OfflineIndicatorProps) {
-  const [isOnline, setIsOnline] = useState(true)
-  const [showOnline, setShowOnline] = useState(false)
-  const [pendingActions, setPendingActions] = useState<PendingAction[]>([])
-  const [isExpanded, setIsExpanded] = useState(false)
-  const wasOfflineRef = useRef(false)
-  const onlineTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [isOnline, setIsOnline] = useState(true);
+  const [showOnline, setShowOnline] = useState(false);
+  const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const wasOfflineRef = useRef(false);
+  const onlineTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle online/offline status
   useEffect(() => {
     // Set initial state
-    setIsOnline(navigator.onLine)
+    setIsOnline(navigator.onLine);
 
     const handleOnline = () => {
-      setIsOnline(true)
+      setIsOnline(true);
 
       // Show online toast if we were previously offline
       if (wasOfflineRef.current && showOnlineToast) {
-        setShowOnline(true)
+        setShowOnline(true);
 
         // Hide after duration
         onlineTimeoutRef.current = setTimeout(() => {
-          setShowOnline(false)
-        }, onlineToastDuration)
+          setShowOnline(false);
+        }, onlineToastDuration);
       }
 
-      wasOfflineRef.current = false
-      onStatusChange?.(true)
-    }
+      wasOfflineRef.current = false;
+      onStatusChange?.(true);
+    };
 
     const handleOffline = () => {
-      setIsOnline(false)
-      wasOfflineRef.current = true
-      setShowOnline(false)
-      onStatusChange?.(false)
-    }
+      setIsOnline(false);
+      wasOfflineRef.current = true;
+      setShowOnline(false);
+      onStatusChange?.(false);
+    };
 
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
       if (onlineTimeoutRef.current) {
-        clearTimeout(onlineTimeoutRef.current)
+        clearTimeout(onlineTimeoutRef.current);
       }
-    }
-  }, [showOnlineToast, onlineToastDuration, onStatusChange])
+    };
+  }, [showOnlineToast, onlineToastDuration, onStatusChange]);
 
   // Listen for sync complete messages
   useEffect(() => {
-    const unsubscribe = onServiceWorkerMessage('SYNC_COMPLETE', (data: unknown) => {
-      const syncData = data as { url?: string; timestamp?: number }
+    const unsubscribe = onServiceWorkerMessage(
+      "SYNC_COMPLETE",
+      (data: unknown) => {
+        const syncData = data as { url?: string; timestamp?: number };
 
-      // Remove synced action from pending list
-      setPendingActions((prev) => prev.filter((action) => action.timestamp !== syncData.timestamp))
-    })
+        // Remove synced action from pending list
+        setPendingActions((prev) =>
+          prev.filter((action) => action.timestamp !== syncData.timestamp),
+        );
+      },
+    );
 
-    return unsubscribe
-  }, [])
+    return unsubscribe;
+  }, []);
 
   // Get pending actions from IndexedDB
   useEffect(() => {
-    if (!showPendingActions) return
+    if (!showPendingActions) return;
 
     const loadPendingActions = async () => {
       try {
-        const db = await openDatabase()
-        const actions = await getPendingRequests(db)
+        const db = await openDatabase();
+        const actions = await getPendingRequests(db);
         setPendingActions(
           actions.map((action) => ({
             id: action.id.toString(),
-            type: action.body?.type || 'message',
+            type: action.body?.type || "message",
             timestamp: action.timestamp,
             description: getActionDescription(action),
-          }))
-        )
+          })),
+        );
       } catch {
         // IndexedDB not available or no pending actions
       }
-    }
+    };
 
     if (!isOnline) {
-      loadPendingActions()
+      loadPendingActions();
       // Refresh every 5 seconds while offline
-      const interval = setInterval(loadPendingActions, 5000)
-      return () => clearInterval(interval)
+      const interval = setInterval(loadPendingActions, 5000);
+      return () => clearInterval(interval);
     }
-  }, [isOnline, showPendingActions])
+  }, [isOnline, showPendingActions]);
 
   const handleRetry = useCallback(() => {
     // Attempt to reconnect
-    window.location.reload()
-  }, [])
+    window.location.reload();
+  }, []);
 
   // Don't render if online and not showing online toast
   if (isOnline && !showOnline) {
-    return null
+    return null;
   }
 
-  const positionClasses = position === 'top' ? 'top-0 rounded-b-lg' : 'bottom-0 rounded-t-lg'
+  const positionClasses =
+    position === "top" ? "top-0 rounded-b-lg" : "bottom-0 rounded-t-lg";
 
   // Online toast
   if (isOnline && showOnline) {
@@ -155,7 +161,7 @@ export function OfflineIndicator({
           <span className="text-sm font-medium">{onlineMessage}</span>
         </div>
       </div>
-    )
+    );
   }
 
   // Offline indicator
@@ -229,7 +235,8 @@ export function OfflineIndicator({
         @keyframes slide-in {
           from {
             opacity: 0;
-            transform: translateX(-50%) translateY(${position === 'top' ? '-100%' : '100%'});
+            transform: translateX(-50%)
+              translateY(${position === "top" ? "-100%" : "100%"});
           }
           to {
             opacity: 1;
@@ -242,32 +249,32 @@ export function OfflineIndicator({
         }
       `}</style>
     </div>
-  )
+  );
 }
 
 /**
  * Compact offline badge for use in navigation
  */
-export function OfflineBadge({ className = '' }: { className?: string }) {
-  const [isOnline, setIsOnline] = useState(true)
+export function OfflineBadge({ className = "" }: { className?: string }) {
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
-    setIsOnline(navigator.onLine)
+    setIsOnline(navigator.onLine);
 
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   if (isOnline) {
-    return null
+    return null;
   }
 
   return (
@@ -278,40 +285,40 @@ export function OfflineBadge({ className = '' }: { className?: string }) {
       <WifiOff className="h-3 w-3" />
       Offline
     </span>
-  )
+  );
 }
 
 /**
  * Full-screen offline overlay
  */
 export function OfflineOverlay({
-  title = 'You are offline',
-  description = 'Please check your internet connection and try again.',
+  title = "You are offline",
+  description = "Please check your internet connection and try again.",
   showRetry = true,
 }: {
-  title?: string
-  description?: string
-  showRetry?: boolean
+  title?: string;
+  description?: string;
+  showRetry?: boolean;
 }) {
-  const [isOnline, setIsOnline] = useState(true)
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
-    setIsOnline(navigator.onLine)
+    setIsOnline(navigator.onLine);
 
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   if (isOnline) {
-    return null
+    return null;
   }
 
   return (
@@ -321,7 +328,9 @@ export function OfflineOverlay({
           <WifiOff className="h-8 w-8 text-amber-600 dark:text-amber-400" />
         </div>
 
-        <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-white">{title}</h2>
+        <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-white">
+          {title}
+        </h2>
 
         <p className="mb-6 text-zinc-600 dark:text-zinc-400">{description}</p>
 
@@ -336,76 +345,79 @@ export function OfflineOverlay({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // Helper functions
 
-const DB_NAME = 'nchat-offline'
-const DB_VERSION = 1
-const STORE_NAME = 'pending-requests'
+const DB_NAME = "nchat-offline";
+const DB_VERSION = 1;
+const STORE_NAME = "pending-requests";
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION)
-    request.onerror = () => reject(request.error)
-    request.onsuccess = () => resolve(request.result)
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
     request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result
+      const db = (event.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true })
+        db.createObjectStore(STORE_NAME, {
+          keyPath: "id",
+          autoIncrement: true,
+        });
       }
-    }
-  })
+    };
+  });
 }
 
 interface PendingRequest {
-  id: number
-  url: string
-  timestamp: number
-  body?: { type?: string; content?: string; channelId?: string }
+  id: number;
+  url: string;
+  timestamp: number;
+  body?: { type?: string; content?: string; channelId?: string };
 }
 
 function getPendingRequests(db: IDBDatabase): Promise<PendingRequest[]> {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, 'readonly')
-    const store = transaction.objectStore(STORE_NAME)
-    const request = store.getAll()
-    request.onerror = () => reject(request.error)
-    request.onsuccess = () => resolve(request.result)
-  })
+    const transaction = db.transaction(STORE_NAME, "readonly");
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAll();
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+  });
 }
 
 function getActionDescription(action: {
-  url: string
-  body?: { type?: string; content?: string; channelId?: string }
+  url: string;
+  body?: { type?: string; content?: string; channelId?: string };
 }): string {
-  const url = new URL(action.url, window.location.origin)
+  const url = new URL(action.url, window.location.origin);
 
-  if (url.pathname.includes('/messages')) {
-    return `Send message${action.body?.channelId ? ` to channel` : ''}`
+  if (url.pathname.includes("/messages")) {
+    return `Send message${action.body?.channelId ? ` to channel` : ""}`;
   }
-  if (url.pathname.includes('/reactions')) {
-    return 'Add reaction'
+  if (url.pathname.includes("/reactions")) {
+    return "Add reaction";
   }
-  if (url.pathname.includes('/read')) {
-    return 'Mark as read'
+  if (url.pathname.includes("/read")) {
+    return "Mark as read";
   }
 
-  return 'Pending action'
+  return "Pending action";
 }
 
 function formatTimestamp(timestamp: number): string {
-  const diff = Date.now() - timestamp
-  const minutes = Math.floor(diff / 60000)
+  const diff = Date.now() - timestamp;
+  const minutes = Math.floor(diff / 60000);
 
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
 
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
 
-  return `${Math.floor(hours / 24)}d ago`
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
-export default OfflineIndicator
+export default OfflineIndicator;

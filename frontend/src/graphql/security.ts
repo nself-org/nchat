@@ -4,100 +4,100 @@
  * Handles authentication security, session management, 2FA, and login history
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface Session {
-  id: string
-  userId: string
-  device: string
-  browser: string
-  os: string
-  ipAddress: string
+  id: string;
+  userId: string;
+  device: string;
+  browser: string;
+  os: string;
+  ipAddress: string;
   location?: {
-    city?: string
-    country?: string
-    region?: string
-  }
-  isCurrent: boolean
-  createdAt: string
-  lastActiveAt: string
-  expiresAt: string
+    city?: string;
+    country?: string;
+    region?: string;
+  };
+  isCurrent: boolean;
+  createdAt: string;
+  lastActiveAt: string;
+  expiresAt: string;
 }
 
 export interface LoginAttempt {
-  id: string
-  userId: string
-  success: boolean
-  ipAddress: string
-  device: string
-  browser: string
-  os: string
+  id: string;
+  userId: string;
+  success: boolean;
+  ipAddress: string;
+  device: string;
+  browser: string;
+  os: string;
   location?: {
-    city?: string
-    country?: string
-    region?: string
-  }
-  failureReason?: string
-  createdAt: string
+    city?: string;
+    country?: string;
+    region?: string;
+  };
+  failureReason?: string;
+  createdAt: string;
 }
 
 export interface TwoFactorSetup {
-  secret: string
-  qrCodeUrl: string
-  backupCodes: string[]
+  secret: string;
+  qrCodeUrl: string;
+  backupCodes: string[];
 }
 
 export interface ChangePasswordVariables {
-  userId: string
-  currentPassword: string
-  newPassword: string
+  userId: string;
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface Setup2FAVariables {
-  userId: string
+  userId: string;
 }
 
 export interface Verify2FAVariables {
-  userId: string
-  code: string
-  secret: string
+  userId: string;
+  code: string;
+  secret: string;
 }
 
 export interface Disable2FAVariables {
-  userId: string
-  password: string
+  userId: string;
+  password: string;
 }
 
 export interface GetSessionsVariables {
-  userId: string
+  userId: string;
 }
 
 export interface RevokeSessionVariables {
-  sessionId: string
+  sessionId: string;
 }
 
 export interface RevokeAllSessionsVariables {
-  userId: string
-  exceptCurrent?: boolean
+  userId: string;
+  exceptCurrent?: boolean;
 }
 
 export interface GetLoginHistoryVariables {
-  userId: string
-  limit?: number
-  offset?: number
+  userId: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface SecuritySettings {
-  twoFactorEnabled: boolean
-  twoFactorMethod?: 'authenticator' | 'sms' | 'email'
-  passwordLastChanged?: string
-  loginNotifications: boolean
-  newDeviceAlerts: boolean
-  securityAlertsEmail: boolean
+  twoFactorEnabled: boolean;
+  twoFactorMethod?: "authenticator" | "sms" | "email";
+  passwordLastChanged?: string;
+  loginNotifications: boolean;
+  newDeviceAlerts: boolean;
+  securityAlertsEmail: boolean;
 }
 
 // ============================================================================
@@ -118,7 +118,7 @@ export const SESSION_FRAGMENT = gql`
     last_active_at
     expires_at
   }
-`
+`;
 
 export const LOGIN_ATTEMPT_FRAGMENT = gql`
   fragment LoginAttemptFragment on nchat_login_history {
@@ -133,7 +133,7 @@ export const LOGIN_ATTEMPT_FRAGMENT = gql`
     failure_reason
     created_at
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -152,7 +152,7 @@ export const GET_SESSIONS = gql`
     }
   }
   ${SESSION_FRAGMENT}
-`
+`;
 
 /**
  * Get the current session
@@ -164,7 +164,7 @@ export const GET_CURRENT_SESSION = gql`
     }
   }
   ${SESSION_FRAGMENT}
-`
+`;
 
 /**
  * Get login history for a user
@@ -186,7 +186,7 @@ export const GET_LOGIN_HISTORY = gql`
     }
   }
   ${LOGIN_ATTEMPT_FRAGMENT}
-`
+`;
 
 /**
  * Get user's security settings
@@ -201,7 +201,7 @@ export const GET_SECURITY_SETTINGS = gql`
       security_settings
     }
   }
-`
+`;
 
 /**
  * Get 2FA backup codes count (not the actual codes for security)
@@ -216,7 +216,7 @@ export const GET_BACKUP_CODES_COUNT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -230,7 +230,11 @@ export const CHANGE_PASSWORD = gql`
   mutation ChangePassword($userId: uuid!, $passwordHash: String!) {
     update_nchat_users_by_pk(
       pk_columns: { id: $userId }
-      _set: { password_hash: $passwordHash, password_changed_at: "now()", updated_at: "now()" }
+      _set: {
+        password_hash: $passwordHash
+        password_changed_at: "now()"
+        updated_at: "now()"
+      }
     ) {
       id
       password_changed_at
@@ -238,7 +242,7 @@ export const CHANGE_PASSWORD = gql`
     # Optionally invalidate other sessions
     # This would be handled server-side for security
   }
-`
+`;
 
 /**
  * Setup 2FA - generates secret and backup codes
@@ -259,7 +263,7 @@ export const SETUP_2FA = gql`
       two_factor_pending
     }
   }
-`
+`;
 
 /**
  * Verify and enable 2FA
@@ -280,7 +284,7 @@ export const VERIFY_2FA = gql`
       two_factor_enabled_at
     }
   }
-`
+`;
 
 /**
  * Disable 2FA
@@ -305,13 +309,16 @@ export const DISABLE_2FA = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Store backup codes
  */
 export const STORE_BACKUP_CODES = gql`
-  mutation StoreBackupCodes($userId: uuid!, $codes: [nchat_backup_codes_insert_input!]!) {
+  mutation StoreBackupCodes(
+    $userId: uuid!
+    $codes: [nchat_backup_codes_insert_input!]!
+  ) {
     delete_nchat_backup_codes(where: { user_id: { _eq: $userId } }) {
       affected_rows
     }
@@ -324,7 +331,7 @@ export const STORE_BACKUP_CODES = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Revoke a specific session
@@ -336,7 +343,7 @@ export const REVOKE_SESSION = gql`
       user_id
     }
   }
-`
+`;
 
 /**
  * Revoke all sessions except current
@@ -349,7 +356,7 @@ export const REVOKE_ALL_SESSIONS = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Record a login attempt
@@ -381,7 +388,7 @@ export const RECORD_LOGIN_ATTEMPT = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Create a new session
@@ -412,7 +419,7 @@ export const CREATE_SESSION = gql`
     }
   }
   ${SESSION_FRAGMENT}
-`
+`;
 
 /**
  * Update session activity
@@ -427,7 +434,7 @@ export const UPDATE_SESSION_ACTIVITY = gql`
       last_active_at
     }
   }
-`
+`;
 
 /**
  * Update security settings
@@ -442,7 +449,7 @@ export const UPDATE_SECURITY_SETTINGS = gql`
       security_settings
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -461,7 +468,7 @@ export const SESSIONS_SUBSCRIPTION = gql`
     }
   }
   ${SESSION_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to login attempts (for real-time security alerts)
@@ -477,4 +484,4 @@ export const LOGIN_ATTEMPTS_SUBSCRIPTION = gql`
     }
   }
   ${LOGIN_ATTEMPT_FRAGMENT}
-`
+`;

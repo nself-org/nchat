@@ -5,7 +5,7 @@
  * This is the central type file for all messaging functionality.
  */
 
-import type { UserBasicInfo, UserPresenceStatus } from './user'
+import type { UserBasicInfo, UserPresenceStatus } from "./user";
 
 // ============================================================================
 // User Types (for messages)
@@ -16,17 +16,17 @@ import type { UserBasicInfo, UserPresenceStatus } from './user'
  */
 export interface MessageUser {
   /** User ID */
-  id: string
+  id: string;
   /** Unique username */
-  username: string
+  username: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Current presence status */
-  status?: UserPresenceStatus
+  status?: UserPresenceStatus;
   /** User role */
-  role?: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+  role?: "owner" | "admin" | "moderator" | "member" | "guest";
 }
 
 // ============================================================================
@@ -38,30 +38,30 @@ export interface MessageUser {
  */
 export interface Reaction {
   /** Emoji character or custom emoji ID */
-  emoji: string
+  emoji: string;
   /** Whether this is a custom emoji */
-  isCustomEmoji?: boolean
+  isCustomEmoji?: boolean;
   /** Custom emoji URL (if custom) */
-  customEmojiUrl?: string
+  customEmojiUrl?: string;
   /** Number of users who reacted */
-  count: number
+  count: number;
   /** Users who reacted */
-  users: MessageUser[]
+  users: MessageUser[];
   /** Whether current user has reacted with this emoji */
-  hasReacted: boolean
+  hasReacted: boolean;
 }
 
 /**
  * Reaction add/remove event.
  */
 export interface ReactionEvent {
-  messageId: string
-  channelId: string
-  emoji: string
-  userId: string
-  user: MessageUser
-  action: 'add' | 'remove'
-  timestamp: Date
+  messageId: string;
+  channelId: string;
+  emoji: string;
+  userId: string;
+  user: MessageUser;
+  action: "add" | "remove";
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -71,38 +71,38 @@ export interface ReactionEvent {
 /**
  * Types of message attachments.
  */
-export type AttachmentType = 'image' | 'video' | 'audio' | 'file' | 'link'
+export type AttachmentType = "image" | "video" | "audio" | "file" | "link";
 
 /**
  * Message attachment.
  */
 export interface Attachment {
   /** Unique attachment ID */
-  id: string
+  id: string;
   /** Attachment type */
-  type: AttachmentType
+  type: AttachmentType;
   /** URL to the attachment */
-  url: string
+  url: string;
   /** Original filename */
-  name: string
+  name: string;
   /** File size in bytes */
-  size?: number
+  size?: number;
   /** MIME type */
-  mimeType?: string
+  mimeType?: string;
   /** Width in pixels (for images/videos) */
-  width?: number
+  width?: number;
   /** Height in pixels (for images/videos) */
-  height?: number
+  height?: number;
   /** Duration in seconds (for audio/video) */
-  duration?: number
+  duration?: number;
   /** Thumbnail URL */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** Preview URL (for lower resolution) */
-  previewUrl?: string
+  previewUrl?: string;
   /** Blur hash for image placeholder */
-  blurHash?: string
+  blurHash?: string;
   /** Alt text for accessibility */
-  altText?: string
+  altText?: string;
 }
 
 /**
@@ -110,25 +110,25 @@ export interface Attachment {
  */
 export interface LinkPreview {
   /** Original URL */
-  url: string
+  url: string;
   /** Page title */
-  title?: string
+  title?: string;
   /** Page description */
-  description?: string
+  description?: string;
   /** Preview image URL */
-  imageUrl?: string
+  imageUrl?: string;
   /** Site name */
-  siteName?: string
+  siteName?: string;
   /** Site favicon URL */
-  favicon?: string
+  favicon?: string;
   /** Site theme color */
-  themeColor?: string
+  themeColor?: string;
   /** Video embed URL (for YouTube, etc.) */
-  videoUrl?: string
+  videoUrl?: string;
   /** Author name */
-  author?: string
+  author?: string;
   /** Published date */
-  publishedAt?: Date
+  publishedAt?: Date;
 }
 
 // ============================================================================
@@ -138,24 +138,24 @@ export interface LinkPreview {
 /**
  * Types of mentions in messages.
  */
-export type MentionType = 'user' | 'channel' | 'everyone' | 'here' | 'role'
+export type MentionType = "user" | "channel" | "everyone" | "here" | "role";
 
 /**
  * Mention in a message.
  */
 export interface MessageMention {
   /** Mention type */
-  type: MentionType
+  type: MentionType;
   /** ID of mentioned entity (user/channel/role) */
-  id?: string
+  id?: string;
   /** Display text in message */
-  displayText: string
+  displayText: string;
   /** Start position in message content */
-  startIndex: number
+  startIndex: number;
   /** End position in message content */
-  endIndex: number
+  endIndex: number;
   /** Resolved user/channel info */
-  resolved?: UserBasicInfo | { id: string; name: string }
+  resolved?: UserBasicInfo | { id: string; name: string };
 }
 
 // ============================================================================
@@ -167,19 +167,19 @@ export interface MessageMention {
  */
 export interface ThreadInfo {
   /** Number of replies in thread */
-  replyCount: number
+  replyCount: number;
   /** Timestamp of last reply */
-  lastReplyAt: Date
+  lastReplyAt: Date;
   /** Users who have participated in the thread */
-  participants: MessageUser[]
+  participants: MessageUser[];
   /** Latest reply preview */
   latestReply?: {
-    content: string
-    user: MessageUser
-    createdAt: Date
-  }
+    content: string;
+    user: MessageUser;
+    createdAt: Date;
+  };
   /** Whether thread is locked */
-  isLocked?: boolean
+  isLocked?: boolean;
 }
 
 /**
@@ -187,25 +187,25 @@ export interface ThreadInfo {
  */
 export interface Thread {
   /** Thread ID (same as root message ID) */
-  id: string
+  id: string;
   /** Parent channel ID */
-  channelId: string
+  channelId: string;
   /** Root message */
-  rootMessage: Message
+  rootMessage: Message;
   /** Thread replies */
-  replies: Message[]
+  replies: Message[];
   /** Participant users */
-  participants: MessageUser[]
+  participants: MessageUser[];
   /** Reply count */
-  replyCount: number
+  replyCount: number;
   /** When thread was created */
-  createdAt: Date
+  createdAt: Date;
   /** Last reply timestamp */
-  lastReplyAt: Date
+  lastReplyAt: Date;
   /** Whether thread is archived */
-  isArchived: boolean
+  isArchived: boolean;
   /** Whether thread is locked */
-  isLocked: boolean
+  isLocked: boolean;
 }
 
 // ============================================================================
@@ -217,37 +217,37 @@ export interface Thread {
  */
 export type MessageType =
   // Regular messages
-  | 'text'
-  | 'voice'
-  | 'poll'
-  | 'sticker'
+  | "text"
+  | "voice"
+  | "poll"
+  | "sticker"
   // System messages
-  | 'system'
-  | 'user_joined'
-  | 'user_left'
-  | 'user_added'
-  | 'user_removed'
-  | 'user_banned'
-  | 'channel_created'
-  | 'channel_renamed'
-  | 'channel_archived'
-  | 'topic_changed'
-  | 'description_changed'
-  | 'icon_changed'
-  | 'message_pinned'
-  | 'message_unpinned'
-  | 'call_started'
-  | 'call_ended'
-  | 'call_missed'
-  | 'thread_created'
-  | 'integration'
-  | 'bot_message'
+  | "system"
+  | "user_joined"
+  | "user_left"
+  | "user_added"
+  | "user_removed"
+  | "user_banned"
+  | "channel_created"
+  | "channel_renamed"
+  | "channel_archived"
+  | "topic_changed"
+  | "description_changed"
+  | "icon_changed"
+  | "message_pinned"
+  | "message_unpinned"
+  | "call_started"
+  | "call_ended"
+  | "call_missed"
+  | "thread_created"
+  | "integration"
+  | "bot_message";
 
 /**
  * Check if a message type is a system message.
  */
 export function isSystemMessage(type: MessageType): boolean {
-  return !['text', 'voice', 'poll', 'sticker', 'bot_message'].includes(type)
+  return !["text", "voice", "poll", "sticker", "bot_message"].includes(type);
 }
 
 // ============================================================================
@@ -259,103 +259,103 @@ export function isSystemMessage(type: MessageType): boolean {
  */
 export interface Message {
   /** Unique message identifier */
-  id: string
+  id: string;
   /** Channel ID the message belongs to */
-  channelId: string
+  channelId: string;
   /** Message content (text) */
-  content: string
+  content: string;
   /** Pre-rendered HTML content */
-  contentHtml?: string
+  contentHtml?: string;
   /** Message type */
-  type: MessageType
+  type: MessageType;
 
   // Author info
   /** Author's user ID */
-  userId: string
+  userId: string;
   /** Author's user info */
-  user: MessageUser
+  user: MessageUser;
 
   // Timestamps
   /** When the message was created */
-  createdAt: Date
+  createdAt: Date;
   /** When the message was last updated */
-  updatedAt?: Date
+  updatedAt?: Date;
 
   // Edit state
   /** Whether message has been edited */
-  isEdited: boolean
+  isEdited: boolean;
   /** When message was edited */
-  editedAt?: Date
+  editedAt?: Date;
   /** Edit history (if enabled) */
-  editHistory?: MessageEditRecord[]
+  editHistory?: MessageEditRecord[];
 
   // Reply/Thread info
   /** ID of message being replied to (inline reply) */
-  replyToId?: string
+  replyToId?: string;
   /** Referenced message (inline reply) */
-  replyTo?: Message
+  replyTo?: Message;
   /** Thread info if this message has a thread */
-  threadInfo?: ThreadInfo
+  threadInfo?: ThreadInfo;
   /** Parent thread ID if this is a thread reply */
-  parentThreadId?: string
+  parentThreadId?: string;
 
   // Attachments
   /** File attachments */
-  attachments?: Attachment[]
+  attachments?: Attachment[];
   /** Unfurled link previews */
-  linkPreviews?: LinkPreview[]
+  linkPreviews?: LinkPreview[];
 
   // Reactions
   /** Reactions on this message */
-  reactions?: Reaction[]
+  reactions?: Reaction[];
 
   // State flags
   /** Whether message is pinned */
-  isPinned?: boolean
+  isPinned?: boolean;
   /** Whether message is bookmarked by current user */
-  isBookmarked?: boolean
+  isBookmarked?: boolean;
   /** Whether message is deleted (soft delete) */
-  isDeleted?: boolean
+  isDeleted?: boolean;
   /** When message was deleted */
-  deletedAt?: Date
+  deletedAt?: Date;
   /** Who deleted the message */
-  deletedBy?: string
+  deletedBy?: string;
 
   // Mentions
   /** User IDs mentioned in message */
-  mentionedUsers?: string[]
+  mentionedUsers?: string[];
   /** Channel IDs mentioned in message */
-  mentionedChannels?: string[]
+  mentionedChannels?: string[];
   /** Whether @everyone was used */
-  mentionsEveryone?: boolean
+  mentionsEveryone?: boolean;
   /** Whether @here was used */
-  mentionsHere?: boolean
+  mentionsHere?: boolean;
   /** Parsed mentions with positions */
-  mentions?: MessageMention[]
+  mentions?: MessageMention[];
 
   // Read state (for current user)
   /** Whether current user has read this message */
-  isRead?: boolean
+  isRead?: boolean;
 
   // Bot/integration metadata
   /** Bot ID if sent by a bot */
-  botId?: string
+  botId?: string;
   /** Webhook ID if sent via webhook */
-  webhookId?: string
+  webhookId?: string;
   /** Integration-specific metadata */
-  integrationMetadata?: Record<string, unknown>
+  integrationMetadata?: Record<string, unknown>;
 
   // Voice message specific
   /** Voice message data */
-  voiceMessage?: VoiceMessageData
+  voiceMessage?: VoiceMessageData;
 
   // Poll specific
   /** Poll ID if message type is poll */
-  pollId?: string
+  pollId?: string;
 
   // Sticker specific
   /** Sticker ID if message type is sticker */
-  stickerId?: string
+  stickerId?: string;
 }
 
 /**
@@ -363,17 +363,17 @@ export interface Message {
  */
 export interface VoiceMessageData {
   /** Audio URL */
-  url: string
+  url: string;
   /** Duration in seconds */
-  duration: number
+  duration: number;
   /** Waveform data for visualization */
-  waveform?: number[]
+  waveform?: number[];
   /** Transcript (if available) */
-  transcript?: string
+  transcript?: string;
   /** File size in bytes */
-  size: number
+  size: number;
   /** Audio format */
-  format: 'mp3' | 'ogg' | 'webm' | 'wav'
+  format: "mp3" | "ogg" | "webm" | "wav";
 }
 
 /**
@@ -381,17 +381,17 @@ export interface VoiceMessageData {
  */
 export interface MessageEditRecord {
   /** ID of the edit record */
-  id?: string
+  id?: string;
   /** Previous content before the edit */
-  previousContent: string
+  previousContent: string;
   /** New content after the edit */
-  newContent: string
+  newContent: string;
   /** Summary of the changes */
-  changeSummary?: string
+  changeSummary?: string;
   /** When the edit was made */
-  editedAt: Date
+  editedAt: Date;
   /** User ID of who made the edit */
-  editorId: string
+  editorId: string;
 }
 
 // ============================================================================
@@ -403,17 +403,17 @@ export interface MessageEditRecord {
  */
 export interface MessageDraft {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Draft content */
-  content: string
+  content: string;
   /** Reply to message ID */
-  replyToId?: string
+  replyToId?: string;
   /** Thread ID if replying in thread */
-  threadId?: string
+  threadId?: string;
   /** Pending attachments */
-  attachments?: File[]
+  attachments?: File[];
   /** When draft was saved */
-  savedAt: Date
+  savedAt: Date;
 }
 
 /**
@@ -421,32 +421,32 @@ export interface MessageDraft {
  */
 export interface SendMessageInput {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Message content */
-  content: string
+  content: string;
   /** Reply to message ID */
-  replyToId?: string
+  replyToId?: string;
   /** Thread ID if replying in thread */
-  threadId?: string
+  threadId?: string;
   /** Attachments to upload */
-  attachments?: File[]
+  attachments?: File[];
   /** Sticker ID */
-  stickerId?: string
+  stickerId?: string;
   /** Mention settings */
   mentions?: {
-    users?: string[]
-    channels?: string[]
-    everyone?: boolean
-    here?: boolean
-  }
+    users?: string[];
+    channels?: string[];
+    everyone?: boolean;
+    here?: boolean;
+  };
 }
 
 /**
  * Input for editing a message.
  */
 export interface EditMessageInput {
-  messageId: string
-  content: string
+  messageId: string;
+  content: string;
 }
 
 /**
@@ -454,17 +454,17 @@ export interface EditMessageInput {
  */
 export interface MentionSuggestion {
   /** ID of the entity */
-  id: string
+  id: string;
   /** Type of mention */
-  type: 'user' | 'channel' | 'command'
+  type: "user" | "channel" | "command";
   /** Display label */
-  label: string
+  label: string;
   /** Value to insert */
-  value: string
+  value: string;
   /** Avatar URL (for users) */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Description/subtitle */
-  description?: string
+  description?: string;
 }
 
 /**
@@ -472,15 +472,15 @@ export interface MentionSuggestion {
  */
 export interface SlashCommand {
   /** Command name (without /) */
-  name: string
+  name: string;
   /** Command description */
-  description: string
+  description: string;
   /** Command arguments */
-  args?: SlashCommandArg[]
+  args?: SlashCommandArg[];
   /** Category for grouping */
-  category?: string
+  category?: string;
   /** Whether command is available */
-  isEnabled?: boolean
+  isEnabled?: boolean;
 }
 
 /**
@@ -488,15 +488,15 @@ export interface SlashCommand {
  */
 export interface SlashCommandArg {
   /** Argument name */
-  name: string
+  name: string;
   /** Whether argument is required */
-  required: boolean
+  required: boolean;
   /** Argument description */
-  description: string
+  description: string;
   /** Argument type */
-  type?: 'string' | 'number' | 'user' | 'channel' | 'boolean'
+  type?: "string" | "number" | "user" | "channel" | "boolean";
   /** Valid choices (if enum-like) */
-  choices?: { value: string; label: string }[]
+  choices?: { value: string; label: string }[];
 }
 
 // ============================================================================
@@ -508,15 +508,15 @@ export interface SlashCommandArg {
  */
 export interface MessageGroup {
   /** Group ID */
-  id: string
+  id: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User info */
-  user: MessageUser
+  user: MessageUser;
   /** Messages in this group */
-  messages: Message[]
+  messages: Message[];
   /** First message timestamp */
-  firstMessageTime: Date
+  firstMessageTime: Date;
 }
 
 /**
@@ -524,11 +524,11 @@ export interface MessageGroup {
  */
 export interface DateSeparator {
   /** Discriminant type */
-  type: 'date-separator'
+  type: "date-separator";
   /** Date of the separator */
-  date: Date
+  date: Date;
   /** Display label */
-  label: string
+  label: string;
 }
 
 /**
@@ -536,11 +536,11 @@ export interface DateSeparator {
  */
 export interface UnreadIndicator {
   /** Discriminant type */
-  type: 'unread-indicator'
+  type: "unread-indicator";
   /** Number of unread messages */
-  count: number
+  count: number;
   /** When unread messages started */
-  since: Date
+  since: Date;
 }
 
 /**
@@ -548,19 +548,24 @@ export interface UnreadIndicator {
  */
 export interface NewMessagesIndicator {
   /** Discriminant type */
-  type: 'new-messages-indicator'
+  type: "new-messages-indicator";
   /** Number of new messages */
-  count: number
+  count: number;
 }
 
 /**
  * Message list item (discriminated union).
  */
 export type MessageListItem =
-  | { type: 'message'; message: Message; isGrouped: boolean; showAvatar: boolean }
+  | {
+      type: "message";
+      message: Message;
+      isGrouped: boolean;
+      showAvatar: boolean;
+    }
   | DateSeparator
   | UnreadIndicator
-  | NewMessagesIndicator
+  | NewMessagesIndicator;
 
 // ============================================================================
 // System Message Types
@@ -571,54 +576,56 @@ export type MessageListItem =
  */
 export interface SystemMessageData {
   /** System message type */
-  type: MessageType
+  type: MessageType;
   /** User who performed the action */
-  actor?: MessageUser
+  actor?: MessageUser;
   /** Target user or value */
-  target?: MessageUser | string
+  target?: MessageUser | string;
   /** Previous value (for changes) */
-  oldValue?: string
+  oldValue?: string;
   /** New value (for changes) */
-  newValue?: string
+  newValue?: string;
   /** Call duration for call_ended */
-  duration?: number
+  duration?: number;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Format a system message for display.
  */
 export function formatSystemMessage(data: SystemMessageData): string {
-  const actorName = data.actor?.displayName || 'Someone'
+  const actorName = data.actor?.displayName || "Someone";
   const targetName =
-    typeof data.target === 'string' ? data.target : data.target?.displayName || 'someone'
+    typeof data.target === "string"
+      ? data.target
+      : data.target?.displayName || "someone";
 
   switch (data.type) {
-    case 'user_joined':
-      return `${actorName} joined the channel`
-    case 'user_left':
-      return `${actorName} left the channel`
-    case 'user_added':
-      return `${actorName} added ${targetName} to the channel`
-    case 'user_removed':
-      return `${actorName} removed ${targetName} from the channel`
-    case 'channel_created':
-      return `${actorName} created this channel`
-    case 'channel_renamed':
-      return `${actorName} renamed the channel to "${data.newValue}"`
-    case 'topic_changed':
-      return `${actorName} changed the topic to "${data.newValue}"`
-    case 'message_pinned':
-      return `${actorName} pinned a message`
-    case 'message_unpinned':
-      return `${actorName} unpinned a message`
-    case 'call_started':
-      return `${actorName} started a call`
-    case 'call_ended':
-      return `Call ended${data.duration ? ` (${Math.floor(data.duration / 60)}m ${data.duration % 60}s)` : ''}`
+    case "user_joined":
+      return `${actorName} joined the channel`;
+    case "user_left":
+      return `${actorName} left the channel`;
+    case "user_added":
+      return `${actorName} added ${targetName} to the channel`;
+    case "user_removed":
+      return `${actorName} removed ${targetName} from the channel`;
+    case "channel_created":
+      return `${actorName} created this channel`;
+    case "channel_renamed":
+      return `${actorName} renamed the channel to "${data.newValue}"`;
+    case "topic_changed":
+      return `${actorName} changed the topic to "${data.newValue}"`;
+    case "message_pinned":
+      return `${actorName} pinned a message`;
+    case "message_unpinned":
+      return `${actorName} unpinned a message`;
+    case "call_started":
+      return `${actorName} started a call`;
+    case "call_ended":
+      return `Call ended${data.duration ? ` (${Math.floor(data.duration / 60)}m ${data.duration % 60}s)` : ""}`;
     default:
-      return 'System message'
+      return "System message";
   }
 }
 
@@ -631,13 +638,13 @@ export function formatSystemMessage(data: SystemMessageData): string {
  */
 export interface TypingUser {
   /** User ID */
-  id: string
+  id: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** When typing started */
-  startedAt: Date
+  startedAt: Date;
 }
 
 /**
@@ -645,21 +652,22 @@ export interface TypingUser {
  */
 export interface ChannelTypingState {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Users currently typing */
-  users: TypingUser[]
+  users: TypingUser[];
 }
 
 /**
  * Format typing indicator text.
  */
 export function formatTypingIndicator(users: TypingUser[]): string {
-  if (users.length === 0) return ''
-  if (users.length === 1) return `${users[0].displayName} is typing...`
-  if (users.length === 2) return `${users[0].displayName} and ${users[1].displayName} are typing...`
+  if (users.length === 0) return "";
+  if (users.length === 1) return `${users[0].displayName} is typing...`;
+  if (users.length === 2)
+    return `${users[0].displayName} and ${users[1].displayName} are typing...`;
   if (users.length === 3)
-    return `${users[0].displayName}, ${users[1].displayName}, and ${users[2].displayName} are typing...`
-  return `${users[0].displayName}, ${users[1].displayName}, and ${users.length - 2} others are typing...`
+    return `${users[0].displayName}, ${users[1].displayName}, and ${users[2].displayName} are typing...`;
+  return `${users[0].displayName}, ${users[1].displayName}, and ${users.length - 2} others are typing...`;
 }
 
 // ============================================================================
@@ -670,47 +678,47 @@ export function formatTypingIndicator(users: TypingUser[]): string {
  * Available message actions.
  */
 export type MessageAction =
-  | 'react'
-  | 'reply'
-  | 'thread'
-  | 'edit'
-  | 'delete'
-  | 'pin'
-  | 'unpin'
-  | 'bookmark'
-  | 'unbookmark'
-  | 'forward'
-  | 'copy'
-  | 'copy-link'
-  | 'report'
-  | 'mark-unread'
+  | "react"
+  | "reply"
+  | "thread"
+  | "edit"
+  | "delete"
+  | "pin"
+  | "unpin"
+  | "bookmark"
+  | "unbookmark"
+  | "forward"
+  | "copy"
+  | "copy-link"
+  | "report"
+  | "mark-unread";
 
 /**
  * Permissions for message actions.
  */
 export interface MessageActionPermissions {
   /** Can add reactions */
-  canReact: boolean
+  canReact: boolean;
   /** Can reply to message */
-  canReply: boolean
+  canReply: boolean;
   /** Can start/view thread */
-  canThread: boolean
+  canThread: boolean;
   /** Can edit message */
-  canEdit: boolean
+  canEdit: boolean;
   /** Can delete message */
-  canDelete: boolean
+  canDelete: boolean;
   /** Can pin/unpin message */
-  canPin: boolean
+  canPin: boolean;
   /** Can bookmark message */
-  canBookmark: boolean
+  canBookmark: boolean;
   /** Can forward message */
-  canForward: boolean
+  canForward: boolean;
   /** Can report message */
-  canReport: boolean
+  canReport: boolean;
   /** Can copy message */
-  canCopy: boolean
+  canCopy: boolean;
   /** Can mark as unread */
-  canMarkUnread: boolean
+  canMarkUnread: boolean;
 }
 
 /**
@@ -719,11 +727,11 @@ export interface MessageActionPermissions {
 export function getMessagePermissions(
   message: Message,
   currentUserId: string,
-  userRole: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+  userRole: "owner" | "admin" | "moderator" | "member" | "guest",
 ): MessageActionPermissions {
-  const isAuthor = message.userId === currentUserId
-  const isModerator = ['owner', 'admin', 'moderator'].includes(userRole)
-  const isGuest = userRole === 'guest'
+  const isAuthor = message.userId === currentUserId;
+  const isModerator = ["owner", "admin", "moderator"].includes(userRole);
+  const isGuest = userRole === "guest";
 
   return {
     canReact: !isGuest && !message.isDeleted,
@@ -737,7 +745,7 @@ export function getMessagePermissions(
     canReport: !isGuest && !isAuthor,
     canCopy: true,
     canMarkUnread: !isGuest,
-  }
+  };
 }
 
 // ============================================================================
@@ -749,13 +757,13 @@ export function getMessagePermissions(
  */
 export interface MessageSearchResult {
   /** The message */
-  message: Message
+  message: Message;
   /** Channel info */
-  channel: { id: string; name: string; type: string }
+  channel: { id: string; name: string; type: string };
   /** Highlighted content */
-  highlightedContent?: string
+  highlightedContent?: string;
   /** Match score */
-  score?: number
+  score?: number;
 }
 
 /**
@@ -763,22 +771,22 @@ export interface MessageSearchResult {
  */
 export interface MessageSearchFilters {
   /** Search query */
-  query: string
+  query: string;
   /** Filter by channel IDs */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Filter by user IDs (authors) */
-  userIds?: string[]
+  userIds?: string[];
   /** Filter by date range */
-  dateFrom?: Date
-  dateTo?: Date
+  dateFrom?: Date;
+  dateTo?: Date;
   /** Include messages with attachments */
-  hasAttachments?: boolean
+  hasAttachments?: boolean;
   /** Include messages with links */
-  hasLinks?: boolean
+  hasLinks?: boolean;
   /** Include pinned messages only */
-  isPinned?: boolean
+  isPinned?: boolean;
   /** Include messages mentioning current user */
-  mentionsMe?: boolean
+  mentionsMe?: boolean;
 }
 
 // ============================================================================
@@ -790,22 +798,22 @@ export interface MessageSearchFilters {
  */
 export interface ChannelReadState {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Last read message ID */
-  lastReadMessageId?: string
+  lastReadMessageId?: string;
   /** Last read timestamp */
-  lastReadAt?: Date
+  lastReadAt?: Date;
   /** Unread message count */
-  unreadCount: number
+  unreadCount: number;
   /** Unread mention count */
-  unreadMentionCount: number
+  unreadMentionCount: number;
 }
 
 /**
  * Bulk read state update.
  */
 export interface ReadStateUpdate {
-  channelId: string
-  messageId: string
-  timestamp: Date
+  channelId: string;
+  messageId: string;
+  timestamp: Date;
 }

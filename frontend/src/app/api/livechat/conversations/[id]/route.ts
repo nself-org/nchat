@@ -8,9 +8,9 @@
  * DELETE /api/livechat/conversations/[id] - Close conversation
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { getLivechatService, getSLAService } from '@/services/livechat'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { getLivechatService, getSLAService } from "@/services/livechat";
 import {
   withAuth,
   withErrorHandler,
@@ -18,70 +18,72 @@ import {
   compose,
   type AuthenticatedRequest,
   type RouteContext,
-} from '@/lib/api/middleware'
+} from "@/lib/api/middleware";
 import {
   successResponse,
   badRequestResponse,
   notFoundResponse,
-} from '@/lib/api/response'
-import { logger } from '@/lib/logger'
+} from "@/lib/api/response";
+import { logger } from "@/lib/logger";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 const UpdateConversationSchema = z.object({
-  status: z.enum(['queued', 'open', 'on_hold', 'waiting', 'resolved', 'closed']).optional(),
-  priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+  status: z
+    .enum(["queued", "open", "on_hold", "waiting", "resolved", "closed"])
+    .optional(),
+  priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
   department: z.string().optional(),
   tags: z.array(z.string()).optional(),
   customFields: z.record(z.unknown()).optional(),
-})
+});
 
 // ============================================================================
 // HANDLERS
 // ============================================================================
 
-const livechatService = getLivechatService()
-const slaService = getSLAService()
+const livechatService = getLivechatService();
+const slaService = getSLAService();
 
 /**
  * GET /api/livechat/conversations/[id] - Get conversation details
  */
 async function getConversationHandler(
   request: AuthenticatedRequest,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
-  const params = await context.params
-  const id = params.id
+  const params = await context.params;
+  const id = params.id;
 
-  const result = await livechatService.getConversation(id)
+  const result = await livechatService.getConversation(id);
 
   if (!result.success) {
     return NextResponse.json(
       { success: false, error: result.error?.message },
-      { status: result.error?.status || 500 }
-    )
+      { status: result.error?.status || 500 },
+    );
   }
 
   if (!result.data) {
-    return notFoundResponse('Conversation not found')
+    return notFoundResponse("Conversation not found");
   }
 
   // Get SLA status
-  const slaResult = await slaService.checkSLA(id)
+  const slaResult = await slaService.checkSLA(id);
 
   // Get messages
-  const messagesResult = await livechatService.getMessages(id, { limit: 50 })
+  const messagesResult = await livechatService.getMessages(id, { limit: 50 });
 
   return successResponse({
     conversation: result.data,
     sla: slaResult.data,
     messages: messagesResult.data?.items || [],
-  })
+  });
 }
 
 /**
@@ -89,32 +91,32 @@ async function getConversationHandler(
  */
 async function updateConversationHandler(
   request: AuthenticatedRequest,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
-  const params = await context.params
-  const id = params.id
+  const params = await context.params;
+  const id = params.id;
 
-  const body = await request.json()
+  const body = await request.json();
 
-  const validation = UpdateConversationSchema.safeParse(body)
+  const validation = UpdateConversationSchema.safeParse(body);
   if (!validation.success) {
-    return badRequestResponse('Invalid request body', 'VALIDATION_ERROR', {
+    return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
       errors: validation.error.flatten().fieldErrors,
-    })
+    });
   }
 
-  const result = await livechatService.updateConversation(id, validation.data)
+  const result = await livechatService.updateConversation(id, validation.data);
 
   if (!result.success) {
     return NextResponse.json(
       { success: false, error: result.error?.message },
-      { status: result.error?.status || 500 }
-    )
+      { status: result.error?.status || 500 },
+    );
   }
 
-  logger.info('Conversation updated', { id })
+  logger.info("Conversation updated", { id });
 
-  return successResponse({ conversation: result.data })
+  return successResponse({ conversation: result.data });
 }
 
 /**
@@ -122,29 +124,29 @@ async function updateConversationHandler(
  */
 async function closeConversationHandler(
   request: AuthenticatedRequest,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
-  const params = await context.params
-  const id = params.id
+  const params = await context.params;
+  const id = params.id;
 
   // Record SLA resolution
-  await slaService.recordResolution(id)
+  await slaService.recordResolution(id);
 
   // Stop SLA tracking
-  await slaService.stopTracking(id)
+  await slaService.stopTracking(id);
 
-  const result = await livechatService.closeConversation(id)
+  const result = await livechatService.closeConversation(id);
 
   if (!result.success) {
     return NextResponse.json(
       { success: false, error: result.error?.message },
-      { status: result.error?.status || 500 }
-    )
+      { status: result.error?.status || 500 },
+    );
   }
 
-  logger.info('Conversation closed', { id })
+  logger.info("Conversation closed", { id });
 
-  return successResponse({ conversation: result.data })
+  return successResponse({ conversation: result.data });
 }
 
 // ============================================================================
@@ -154,17 +156,17 @@ async function closeConversationHandler(
 export const GET = compose(
   withErrorHandler,
   withRateLimit({ limit: 100, window: 60 }),
-  withAuth
-)(getConversationHandler as any)
+  withAuth,
+)(getConversationHandler as any);
 
 export const PUT = compose(
   withErrorHandler,
   withRateLimit({ limit: 60, window: 60 }),
-  withAuth
-)(updateConversationHandler as any)
+  withAuth,
+)(updateConversationHandler as any);
 
 export const DELETE = compose(
   withErrorHandler,
   withRateLimit({ limit: 30, window: 60 }),
-  withAuth
-)(closeConversationHandler as any)
+  withAuth,
+)(closeConversationHandler as any);

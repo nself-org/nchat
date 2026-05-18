@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import { type ReactNode } from 'react'
-import { usePermission } from '@/hooks/use-permission'
-import type { Permission, Role } from '@/types/rbac'
+import { type ReactNode } from "react";
+import { usePermission } from "@/hooks/use-permission";
+import type { Permission, Role } from "@/types/rbac";
 
 interface PermissionGateProps {
   /**
    * Content to render if the user has access
    */
-  children: ReactNode
+  children: ReactNode;
   /**
    * Permission required to view the children
    * If provided, checks if user has this specific permission
    */
-  permission?: Permission
+  permission?: Permission;
   /**
    * Role required to view the children
    * If provided, checks if user's role is at or above this level
    */
-  role?: Role
+  role?: Role;
   /**
    * Content to render if the user does NOT have access
    * Defaults to null (render nothing)
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 }
 
 /**
@@ -56,11 +56,15 @@ export function PermissionGate({
   role,
   fallback = null,
 }: PermissionGateProps) {
-  const { hasPermission, hasRole } = usePermission()
+  const { hasPermission, hasRole } = usePermission();
 
-  const hasAccess = permission ? hasPermission(permission) : role ? hasRole(role) : true
+  const hasAccess = permission
+    ? hasPermission(permission)
+    : role
+      ? hasRole(role)
+      : true;
 
-  if (!hasAccess) return <>{fallback}</>
+  if (!hasAccess) return <>{fallback}</>;
 
-  return <>{children}</>
+  return <>{children}</>;
 }

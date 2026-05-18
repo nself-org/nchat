@@ -5,20 +5,20 @@
  * including virtual scrolling, lazy loading, code splitting, and memoization.
  */
 
-import React, { Suspense, lazy, memo, useMemo, useCallback } from 'react'
-import { useVirtualizer } from '@tanstack/react-virtual'
-import dynamic from 'next/dynamic'
+import React, { Suspense, lazy, memo, useMemo, useCallback } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import dynamic from "next/dynamic";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Dynamic Import with Loading States
 // ============================================================================
 
 export interface DynamicImportOptions {
-  loading?: React.ComponentType
-  ssr?: boolean
-  suspense?: boolean
+  loading?: React.ComponentType;
+  ssr?: boolean;
+  suspense?: boolean;
 }
 
 /**
@@ -26,12 +26,14 @@ export interface DynamicImportOptions {
  */
 export function createDynamicComponent<P = {}>(
   importFn: () => Promise<{ default: React.ComponentType<P> }>,
-  options: DynamicImportOptions = {}
+  options: DynamicImportOptions = {},
 ): React.ComponentType<P> {
   return dynamic(importFn, {
-    loading: options.loading ? () => React.createElement(options.loading!) : undefined,
+    loading: options.loading
+      ? () => React.createElement(options.loading!)
+      : undefined,
     ssr: options.ssr ?? false,
-  })
+  });
 }
 
 // ============================================================================
@@ -39,14 +41,14 @@ export function createDynamicComponent<P = {}>(
 // ============================================================================
 
 export interface VirtualListProps<T> {
-  items: T[]
-  height: number
-  itemSize: number | ((index: number) => number)
-  renderItem: (item: T, index: number) => React.ReactNode
-  overscan?: number
-  className?: string
-  onEndReached?: () => void
-  endReachedThreshold?: number
+  items: T[];
+  height: number;
+  itemSize: number | ((index: number) => number);
+  renderItem: (item: T, index: number) => React.ReactNode;
+  overscan?: number;
+  className?: string;
+  onEndReached?: () => void;
+  endReachedThreshold?: number;
 }
 
 /**
@@ -62,29 +64,29 @@ export function VirtualList<T>({
   onEndReached,
   endReachedThreshold = 0.8,
 }: VirtualListProps<T>) {
-  const parentRef = React.useRef<HTMLDivElement>(null)
+  const parentRef = React.useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: typeof itemSize === 'function' ? itemSize : () => itemSize,
+    estimateSize: typeof itemSize === "function" ? itemSize : () => itemSize,
     overscan,
-  })
+  });
 
-  const virtualItems = virtualizer.getVirtualItems()
+  const virtualItems = virtualizer.getVirtualItems();
 
   // Handle end reached
   React.useEffect(() => {
-    if (!onEndReached) return
+    if (!onEndReached) return;
 
-    const lastItem = virtualItems[virtualItems.length - 1]
-    if (!lastItem) return
+    const lastItem = virtualItems[virtualItems.length - 1];
+    if (!lastItem) return;
 
-    const threshold = items.length * endReachedThreshold
+    const threshold = items.length * endReachedThreshold;
     if (lastItem.index >= threshold) {
-      onEndReached()
+      onEndReached();
     }
-  }, [virtualItems, items.length, onEndReached, endReachedThreshold])
+  }, [virtualItems, items.length, onEndReached, endReachedThreshold]);
 
   return (
     <div
@@ -92,15 +94,15 @@ export function VirtualList<T>({
       className={className}
       style={{
         height: `${height}px`,
-        overflow: 'auto',
-        contain: 'strict',
+        overflow: "auto",
+        contain: "strict",
       }}
     >
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
+          width: "100%",
+          position: "relative",
         }}
       >
         {virtualItems.map((virtualRow) => (
@@ -108,10 +110,10 @@ export function VirtualList<T>({
             key={virtualRow.key}
             data-index={virtualRow.index}
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
-              width: '100%',
+              width: "100%",
               height: `${virtualRow.size}px`,
               transform: `translateY(${virtualRow.start}px)`,
             }}
@@ -121,7 +123,7 @@ export function VirtualList<T>({
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -129,21 +131,21 @@ export function VirtualList<T>({
 // ============================================================================
 
 export interface Message {
-  id: string
-  content: string
-  userId: string
-  createdAt: string
-  [key: string]: any
+  id: string;
+  content: string;
+  userId: string;
+  createdAt: string;
+  [key: string]: any;
 }
 
 export interface VirtualMessageListProps {
-  messages: Message[]
-  height: number
-  renderMessage: (message: Message, index: number) => React.ReactNode
-  onLoadMore?: () => void
-  isLoading?: boolean
-  hasMore?: boolean
-  estimatedMessageHeight?: number
+  messages: Message[];
+  height: number;
+  renderMessage: (message: Message, index: number) => React.ReactNode;
+  onLoadMore?: () => void;
+  isLoading?: boolean;
+  hasMore?: boolean;
+  estimatedMessageHeight?: number;
 }
 
 export const VirtualMessageList = memo(function VirtualMessageList({
@@ -155,7 +157,7 @@ export const VirtualMessageList = memo(function VirtualMessageList({
   hasMore = false,
   estimatedMessageHeight = 80,
 }: VirtualMessageListProps) {
-  const parentRef = React.useRef<HTMLDivElement>(null)
+  const parentRef = React.useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
     count: messages.length,
@@ -164,41 +166,41 @@ export const VirtualMessageList = memo(function VirtualMessageList({
     overscan: 5,
     // Reverse for chat (newest at bottom)
     scrollPaddingEnd: 16,
-  })
+  });
 
   const handleScroll = useCallback(() => {
-    if (!parentRef.current || !hasMore || isLoading) return
+    if (!parentRef.current || !hasMore || isLoading) return;
 
-    const { scrollTop } = parentRef.current
+    const { scrollTop } = parentRef.current;
     if (scrollTop < 100 && onLoadMore) {
-      onLoadMore()
+      onLoadMore();
     }
-  }, [hasMore, isLoading, onLoadMore])
+  }, [hasMore, isLoading, onLoadMore]);
 
   React.useEffect(() => {
-    const element = parentRef.current
-    if (!element) return
+    const element = parentRef.current;
+    if (!element) return;
 
-    element.addEventListener('scroll', handleScroll)
-    return () => element.removeEventListener('scroll', handleScroll)
-  }, [handleScroll])
+    element.addEventListener("scroll", handleScroll);
+    return () => element.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   return (
     <div
       ref={parentRef}
       style={{
         height: `${height}px`,
-        overflow: 'auto',
-        contain: 'strict',
-        display: 'flex',
-        flexDirection: 'column-reverse',
+        overflow: "auto",
+        contain: "strict",
+        display: "flex",
+        flexDirection: "column-reverse",
       }}
     >
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
+          width: "100%",
+          position: "relative",
         }}
       >
         {virtualizer.getVirtualItems().map((virtualRow) => (
@@ -207,10 +209,10 @@ export const VirtualMessageList = memo(function VirtualMessageList({
             data-index={virtualRow.index}
             ref={virtualizer.measureElement}
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
-              width: '100%',
+              width: "100%",
               transform: `translateY(${virtualRow.start}px)`,
             }}
           >
@@ -224,20 +226,20 @@ export const VirtualMessageList = memo(function VirtualMessageList({
         </div>
       )}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Lazy Image Loading
 // ============================================================================
 
 export interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src: string
-  alt: string
-  placeholder?: string
-  className?: string
-  onLoad?: () => void
-  onError?: () => void
+  src: string;
+  alt: string;
+  placeholder?: string;
+  className?: string;
+  onLoad?: () => void;
+  onError?: () => void;
 }
 
 export const LazyImage = memo(function LazyImage({
@@ -249,39 +251,39 @@ export const LazyImage = memo(function LazyImage({
   onError,
   ...props
 }: LazyImageProps) {
-  const [imageSrc, setImageSrc] = React.useState(placeholder)
-  const [isLoaded, setIsLoaded] = React.useState(false)
-  const imgRef = React.useRef<HTMLImageElement>(null)
+  const [imageSrc, setImageSrc] = React.useState(placeholder);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const imgRef = React.useRef<HTMLImageElement>(null);
 
   React.useEffect(() => {
-    if (!imgRef.current) return
+    if (!imgRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setImageSrc(src)
-            observer.disconnect()
+            setImageSrc(src);
+            observer.disconnect();
           }
-        })
+        });
       },
-      { rootMargin: '50px' }
-    )
+      { rootMargin: "50px" },
+    );
 
-    observer.observe(imgRef.current)
+    observer.observe(imgRef.current);
 
-    return () => observer.disconnect()
-  }, [src])
+    return () => observer.disconnect();
+  }, [src]);
 
   const handleLoad = useCallback(() => {
-    setIsLoaded(true)
-    onLoad?.()
-  }, [onLoad])
+    setIsLoaded(true);
+    onLoad?.();
+  }, [onLoad]);
 
   const handleError = useCallback(() => {
-    setImageSrc(placeholder)
-    onError?.()
-  }, [placeholder, onError])
+    setImageSrc(placeholder);
+    onError?.();
+  }, [placeholder, onError]);
 
   return (
     <img
@@ -294,12 +296,12 @@ export const LazyImage = memo(function LazyImage({
       loading="lazy"
       style={{
         opacity: isLoaded ? 1 : 0.5,
-        transition: 'opacity 0.3s',
+        transition: "opacity 0.3s",
       }}
       {...props}
     />
-  )
-})
+  );
+});
 
 // ============================================================================
 // Memoization Utilities
@@ -309,13 +311,16 @@ export const LazyImage = memo(function LazyImage({
  * Deep comparison for useMemo and useCallback
  */
 export function useDeepMemo<T>(factory: () => T, deps: any[]): T {
-  const ref = React.useRef<{ deps: any[]; value: T } | undefined>(undefined)
+  const ref = React.useRef<{ deps: any[]; value: T } | undefined>(undefined);
 
-  if (!ref.current || !deps.every((dep, i) => Object.is(dep, ref.current!.deps[i]))) {
-    ref.current = { deps, value: factory() }
+  if (
+    !ref.current ||
+    !deps.every((dep, i) => Object.is(dep, ref.current!.deps[i]))
+  ) {
+    ref.current = { deps, value: factory() };
   }
 
-  return ref.current.value
+  return ref.current.value;
 }
 
 /**
@@ -323,21 +328,21 @@ export function useDeepMemo<T>(factory: () => T, deps: any[]): T {
  */
 export function useDebouncedCallback<T extends (...args: any[]) => any>(
   callback: T,
-  delay: number
+  delay: number,
 ): (...args: Parameters<T>) => void {
-  const timeoutRef = React.useRef<NodeJS.Timeout | undefined>(undefined)
+  const timeoutRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
 
   return useCallback(
     (...args: Parameters<T>) => {
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current);
       }
       timeoutRef.current = setTimeout(() => {
-        callback(...args)
-      }, delay)
+        callback(...args);
+      }, delay);
     },
-    [callback, delay]
-  )
+    [callback, delay],
+  );
 }
 
 /**
@@ -345,19 +350,19 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
  */
 export function useThrottledCallback<T extends (...args: any[]) => any>(
   callback: T,
-  delay: number
+  delay: number,
 ): (...args: Parameters<T>) => void {
-  const lastRun = React.useRef(Date.now())
+  const lastRun = React.useRef(Date.now());
 
   return useCallback(
     (...args: Parameters<T>) => {
       if (Date.now() - lastRun.current >= delay) {
-        callback(...args)
-        lastRun.current = Date.now()
+        callback(...args);
+        lastRun.current = Date.now();
       }
     },
-    [callback, delay]
-  )
+    [callback, delay],
+  );
 }
 
 // ============================================================================
@@ -367,22 +372,22 @@ export function useThrottledCallback<T extends (...args: any[]) => any>(
 export function useIntersectionObserver(
   elementRef: React.RefObject<Element>,
   callback: () => void,
-  options: IntersectionObserverInit = {}
+  options: IntersectionObserverInit = {},
 ) {
   React.useEffect(() => {
-    const element = elementRef.current
-    if (!element) return
+    const element = elementRef.current;
+    if (!element) return;
 
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
-        callback()
+        callback();
       }
-    }, options)
+    }, options);
 
-    observer.observe(element)
+    observer.observe(element);
 
-    return () => observer.disconnect()
-  }, [elementRef, callback, options])
+    return () => observer.disconnect();
+  }, [elementRef, callback, options]);
 }
 
 // ============================================================================
@@ -390,9 +395,9 @@ export function useIntersectionObserver(
 // ============================================================================
 
 export interface ErrorBoundaryProps {
-  children: React.ReactNode
-  fallback?: React.ReactNode
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
 export class ErrorBoundary extends React.Component<
@@ -400,16 +405,16 @@ export class ErrorBoundary extends React.Component<
   { hasError: boolean; error?: Error }
 > {
   constructor(props: ErrorBoundaryProps) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    this.props.onError?.(error, errorInfo)
+    this.props.onError?.(error, errorInfo);
   }
 
   render() {
@@ -421,10 +426,10 @@ export class ErrorBoundary extends React.Component<
             <p>{this.state.error?.message}</p>
           </div>
         )
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }
 
@@ -433,35 +438,37 @@ export class ErrorBoundary extends React.Component<
 // ============================================================================
 
 export interface PerformanceMetrics {
-  renderTime: number
-  updateTime: number
-  totalRenders: number
+  renderTime: number;
+  updateTime: number;
+  totalRenders: number;
 }
 
-export function usePerformanceMonitor(componentName: string): PerformanceMetrics {
+export function usePerformanceMonitor(
+  componentName: string,
+): PerformanceMetrics {
   const metrics = React.useRef<PerformanceMetrics>({
     renderTime: 0,
     updateTime: 0,
     totalRenders: 0,
-  })
+  });
 
-  const startTime = React.useRef(performance.now())
+  const startTime = React.useRef(performance.now());
 
   React.useEffect(() => {
-    const endTime = performance.now()
-    const renderTime = endTime - startTime.current
+    const endTime = performance.now();
+    const renderTime = endTime - startTime.current;
 
-    metrics.current.renderTime = renderTime
-    metrics.current.totalRenders++
+    metrics.current.renderTime = renderTime;
+    metrics.current.totalRenders++;
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       // REMOVED: console.log(`[Performance] ${componentName} render time: ${renderTime.toFixed(2)}ms`)
     }
 
-    startTime.current = performance.now()
-  })
+    startTime.current = performance.now();
+  });
 
-  return metrics.current
+  return metrics.current;
 }
 
 // ============================================================================
@@ -473,20 +480,20 @@ export function usePerformanceMonitor(componentName: string): PerformanceMetrics
  */
 export function lazyWithRetry<T extends React.ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
-  retries = 3
+  retries = 3,
 ): React.LazyExoticComponent<T> {
   const retryImport = async (): Promise<{ default: T }> => {
     try {
-      return await importFn()
+      return await importFn();
     } catch (error) {
       if (retries > 0) {
-        logger.warn(`Retry loading component (${retries} attempts left)`)
-        return retryImport()
+        logger.warn(`Retry loading component (${retries} attempts left)`);
+        return retryImport();
       }
-      throw error
+      throw error;
     }
-  }
-  return lazy(retryImport)
+  };
+  return lazy(retryImport);
 }
 
 // ============================================================================
@@ -494,18 +501,18 @@ export function lazyWithRetry<T extends React.ComponentType<any>>(
 // ============================================================================
 
 export function preloadComponent(
-  importFn: () => Promise<{ default: React.ComponentType<any> }>
+  importFn: () => Promise<{ default: React.ComponentType<any> }>,
 ): void {
-  importFn()
+  importFn();
 }
 
 export function preloadImage(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => resolve()
-    img.onerror = reject
-    img.src = src
-  })
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = reject;
+    img.src = src;
+  });
 }
 
 // ============================================================================
@@ -513,25 +520,27 @@ export function preloadImage(src: string): Promise<void> {
 // ============================================================================
 
 export function memoWithShallowCompare<P extends object>(
-  Component: React.ComponentType<P>
+  Component: React.ComponentType<P>,
 ): React.MemoExoticComponent<React.ComponentType<P>> {
   return memo(Component, (prevProps, nextProps) => {
-    const prevKeys = Object.keys(prevProps)
-    const nextKeys = Object.keys(nextProps)
+    const prevKeys = Object.keys(prevProps);
+    const nextKeys = Object.keys(nextProps);
 
-    if (prevKeys.length !== nextKeys.length) return false
+    if (prevKeys.length !== nextKeys.length) return false;
 
-    return prevKeys.every((key) => Object.is(prevProps[key as keyof P], nextProps[key as keyof P]))
-  })
+    return prevKeys.every((key) =>
+      Object.is(prevProps[key as keyof P], nextProps[key as keyof P]),
+    );
+  });
 }
 
 // ============================================================================
 // Service Worker for Caching
 // ============================================================================
 
-export function registerServiceWorker(swUrl: string = '/sw.js'): Promise<void> {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-    return Promise.reject('Service workers not supported')
+export function registerServiceWorker(swUrl: string = "/sw.js"): Promise<void> {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return Promise.reject("Service workers not supported");
   }
 
   return navigator.serviceWorker
@@ -540,15 +549,17 @@ export function registerServiceWorker(swUrl: string = '/sw.js'): Promise<void> {
       // REMOVED: console.log('[SW] Registered:', registration)
     })
     .catch((error) => {
-      logger.error('[SW] Registration failed:', error)
-      throw error
-    })
+      logger.error("[SW] Registration failed:", error);
+      throw error;
+    });
 }
 
 export function unregisterServiceWorker(): Promise<boolean> {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-    return Promise.resolve(false)
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return Promise.resolve(false);
   }
 
-  return navigator.serviceWorker.ready.then((registration) => registration.unregister())
+  return navigator.serviceWorker.ready.then((registration) =>
+    registration.unregister(),
+  );
 }

@@ -5,7 +5,7 @@
  * Permissions are granular access controls for specific actions.
  */
 
-import { UserRole, hasRoleOrHigher, getRoleLevel, ROLE_LEVELS } from './roles'
+import { UserRole, hasRoleOrHigher, getRoleLevel, ROLE_LEVELS } from "./roles";
 
 /**
  * All available permissions in the system
@@ -14,89 +14,89 @@ export const PERMISSIONS = {
   // ============================================================================
   // Channel Permissions
   // ============================================================================
-  CHANNEL_CREATE: 'channel:create',
-  CHANNEL_DELETE: 'channel:delete',
-  CHANNEL_UPDATE: 'channel:update',
-  CHANNEL_VIEW: 'channel:view',
-  CHANNEL_JOIN: 'channel:join',
-  CHANNEL_LEAVE: 'channel:leave',
-  CHANNEL_INVITE: 'channel:invite',
-  CHANNEL_KICK: 'channel:kick',
-  CHANNEL_ARCHIVE: 'channel:archive',
-  CHANNEL_PIN_MESSAGES: 'channel:pin_messages',
-  CHANNEL_MANAGE_PERMISSIONS: 'channel:manage_permissions',
+  CHANNEL_CREATE: "channel:create",
+  CHANNEL_DELETE: "channel:delete",
+  CHANNEL_UPDATE: "channel:update",
+  CHANNEL_VIEW: "channel:view",
+  CHANNEL_JOIN: "channel:join",
+  CHANNEL_LEAVE: "channel:leave",
+  CHANNEL_INVITE: "channel:invite",
+  CHANNEL_KICK: "channel:kick",
+  CHANNEL_ARCHIVE: "channel:archive",
+  CHANNEL_PIN_MESSAGES: "channel:pin_messages",
+  CHANNEL_MANAGE_PERMISSIONS: "channel:manage_permissions",
 
   // ============================================================================
   // Message Permissions
   // ============================================================================
-  MESSAGE_SEND: 'message:send',
-  MESSAGE_EDIT_OWN: 'message:edit_own',
-  MESSAGE_EDIT_ANY: 'message:edit_any',
-  MESSAGE_DELETE_OWN: 'message:delete_own',
-  MESSAGE_DELETE_ANY: 'message:delete_any',
-  MESSAGE_PIN: 'message:pin',
-  MESSAGE_REACT: 'message:react',
-  MESSAGE_THREAD: 'message:thread',
-  MESSAGE_MENTION: 'message:mention',
-  MESSAGE_MENTION_ALL: 'message:mention_all',
-  MESSAGE_SCHEDULE: 'message:schedule',
-  MESSAGE_FORWARD: 'message:forward',
+  MESSAGE_SEND: "message:send",
+  MESSAGE_EDIT_OWN: "message:edit_own",
+  MESSAGE_EDIT_ANY: "message:edit_any",
+  MESSAGE_DELETE_OWN: "message:delete_own",
+  MESSAGE_DELETE_ANY: "message:delete_any",
+  MESSAGE_PIN: "message:pin",
+  MESSAGE_REACT: "message:react",
+  MESSAGE_THREAD: "message:thread",
+  MESSAGE_MENTION: "message:mention",
+  MESSAGE_MENTION_ALL: "message:mention_all",
+  MESSAGE_SCHEDULE: "message:schedule",
+  MESSAGE_FORWARD: "message:forward",
 
   // ============================================================================
   // File Permissions
   // ============================================================================
-  FILE_UPLOAD: 'file:upload',
-  FILE_DOWNLOAD: 'file:download',
-  FILE_DELETE_OWN: 'file:delete_own',
-  FILE_DELETE_ANY: 'file:delete_any',
+  FILE_UPLOAD: "file:upload",
+  FILE_DOWNLOAD: "file:download",
+  FILE_DELETE_OWN: "file:delete_own",
+  FILE_DELETE_ANY: "file:delete_any",
 
   // ============================================================================
   // User Permissions
   // ============================================================================
-  USER_VIEW_PROFILE: 'user:view_profile',
-  USER_UPDATE_OWN_PROFILE: 'user:update_own_profile',
-  USER_UPDATE_ANY_PROFILE: 'user:update_any_profile',
-  USER_INVITE: 'user:invite',
-  USER_BAN: 'user:ban',
-  USER_UNBAN: 'user:unban',
-  USER_KICK: 'user:kick',
-  USER_MUTE: 'user:mute',
-  USER_ASSIGN_ROLE: 'user:assign_role',
-  USER_VIEW_ACTIVITY: 'user:view_activity',
+  USER_VIEW_PROFILE: "user:view_profile",
+  USER_UPDATE_OWN_PROFILE: "user:update_own_profile",
+  USER_UPDATE_ANY_PROFILE: "user:update_any_profile",
+  USER_INVITE: "user:invite",
+  USER_BAN: "user:ban",
+  USER_UNBAN: "user:unban",
+  USER_KICK: "user:kick",
+  USER_MUTE: "user:mute",
+  USER_ASSIGN_ROLE: "user:assign_role",
+  USER_VIEW_ACTIVITY: "user:view_activity",
 
   // ============================================================================
   // Admin Permissions
   // ============================================================================
-  ADMIN_DASHBOARD: 'admin:dashboard',
-  ADMIN_USERS: 'admin:users',
-  ADMIN_CHANNELS: 'admin:channels',
-  ADMIN_SETTINGS: 'admin:settings',
-  ADMIN_AUDIT_LOG: 'admin:audit_log',
-  ADMIN_ANALYTICS: 'admin:analytics',
-  ADMIN_INTEGRATIONS: 'admin:integrations',
-  ADMIN_WEBHOOKS: 'admin:webhooks',
-  ADMIN_BACKUP: 'admin:backup',
+  ADMIN_DASHBOARD: "admin:dashboard",
+  ADMIN_USERS: "admin:users",
+  ADMIN_CHANNELS: "admin:channels",
+  ADMIN_SETTINGS: "admin:settings",
+  ADMIN_AUDIT_LOG: "admin:audit_log",
+  ADMIN_ANALYTICS: "admin:analytics",
+  ADMIN_INTEGRATIONS: "admin:integrations",
+  ADMIN_WEBHOOKS: "admin:webhooks",
+  ADMIN_BACKUP: "admin:backup",
 
   // ============================================================================
   // Moderation Permissions
   // ============================================================================
-  MOD_VIEW_REPORTS: 'mod:view_reports',
-  MOD_RESOLVE_REPORTS: 'mod:resolve_reports',
-  MOD_WARN_USER: 'mod:warn_user',
-  MOD_MUTE_USER: 'mod:mute_user',
-  MOD_DELETE_MESSAGES: 'mod:delete_messages',
-  MOD_SLOW_MODE: 'mod:slow_mode',
+  MOD_VIEW_REPORTS: "mod:view_reports",
+  MOD_RESOLVE_REPORTS: "mod:resolve_reports",
+  MOD_WARN_USER: "mod:warn_user",
+  MOD_MUTE_USER: "mod:mute_user",
+  MOD_DELETE_MESSAGES: "mod:delete_messages",
+  MOD_SLOW_MODE: "mod:slow_mode",
 
   // ============================================================================
   // System Permissions
   // ============================================================================
-  SYSTEM_SETUP: 'system:setup',
-  SYSTEM_CONFIG: 'system:config',
-  SYSTEM_BRANDING: 'system:branding',
-  SYSTEM_TRANSFER_OWNERSHIP: 'system:transfer_ownership',
-} as const
+  SYSTEM_SETUP: "system:setup",
+  SYSTEM_CONFIG: "system:config",
+  SYSTEM_BRANDING: "system:branding",
+  SYSTEM_TRANSFER_OWNERSHIP: "system:transfer_ownership",
+} as const;
 
-export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS]
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 /**
  * Role to permissions mapping
@@ -182,68 +182,88 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     PERMISSIONS.SYSTEM_BRANDING,
     PERMISSIONS.SYSTEM_TRANSFER_OWNERSHIP,
   ],
-}
+};
 
 /**
  * Get all permissions for a role (including inherited permissions from lower roles)
  */
 export function getPermissionsForRole(role: UserRole): Permission[] {
-  const roleLevel = getRoleLevel(role)
-  const allPermissions = new Set<Permission>()
+  const roleLevel = getRoleLevel(role);
+  const allPermissions = new Set<Permission>();
 
   // Collect permissions from this role and all lower roles
   for (const [r, perms] of Object.entries(ROLE_PERMISSIONS)) {
     if (ROLE_LEVELS[r as UserRole] <= roleLevel) {
-      perms.forEach((p) => allPermissions.add(p))
+      perms.forEach((p) => allPermissions.add(p));
     }
   }
 
-  return Array.from(allPermissions)
+  return Array.from(allPermissions);
 }
 
 /**
  * Check if a role has a specific permission
  */
-export function roleHasPermission(role: UserRole, permission: Permission): boolean {
-  const permissions = getPermissionsForRole(role)
-  return permissions.includes(permission)
+export function roleHasPermission(
+  role: UserRole,
+  permission: Permission,
+): boolean {
+  const permissions = getPermissionsForRole(role);
+  return permissions.includes(permission);
 }
 
 /**
  * Check if a user (by role) has a specific permission
  */
-export function hasPermission(userRole: UserRole, permission: Permission): boolean {
-  return roleHasPermission(userRole, permission)
+export function hasPermission(
+  userRole: UserRole,
+  permission: Permission,
+): boolean {
+  return roleHasPermission(userRole, permission);
 }
 
 /**
  * Check if a user has all of the specified permissions
  */
-export function hasAllPermissions(userRole: UserRole, permissions: Permission[]): boolean {
-  return permissions.every((p) => hasPermission(userRole, p))
+export function hasAllPermissions(
+  userRole: UserRole,
+  permissions: Permission[],
+): boolean {
+  return permissions.every((p) => hasPermission(userRole, p));
 }
 
 /**
  * Check if a user has any of the specified permissions
  */
-export function hasAnyPermission(userRole: UserRole, permissions: Permission[]): boolean {
-  return permissions.some((p) => hasPermission(userRole, p))
+export function hasAnyPermission(
+  userRole: UserRole,
+  permissions: Permission[],
+): boolean {
+  return permissions.some((p) => hasPermission(userRole, p));
 }
 
 /**
  * Get the minimum role required for a permission
  */
-export function getMinimumRoleForPermission(permission: Permission): UserRole | null {
+export function getMinimumRoleForPermission(
+  permission: Permission,
+): UserRole | null {
   // Check from lowest role to highest
-  const rolesAscending: UserRole[] = ['guest', 'member', 'moderator', 'admin', 'owner']
+  const rolesAscending: UserRole[] = [
+    "guest",
+    "member",
+    "moderator",
+    "admin",
+    "owner",
+  ];
 
   for (const role of rolesAscending) {
     if (roleHasPermission(role, permission)) {
-      return role
+      return role;
     }
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -251,7 +271,7 @@ export function getMinimumRoleForPermission(permission: Permission): UserRole | 
  */
 export const PERMISSION_GROUPS = {
   channel: {
-    label: 'Channel',
+    label: "Channel",
     permissions: [
       PERMISSIONS.CHANNEL_CREATE,
       PERMISSIONS.CHANNEL_DELETE,
@@ -267,7 +287,7 @@ export const PERMISSION_GROUPS = {
     ],
   },
   message: {
-    label: 'Messages',
+    label: "Messages",
     permissions: [
       PERMISSIONS.MESSAGE_SEND,
       PERMISSIONS.MESSAGE_EDIT_OWN,
@@ -284,7 +304,7 @@ export const PERMISSION_GROUPS = {
     ],
   },
   file: {
-    label: 'Files',
+    label: "Files",
     permissions: [
       PERMISSIONS.FILE_UPLOAD,
       PERMISSIONS.FILE_DOWNLOAD,
@@ -293,7 +313,7 @@ export const PERMISSION_GROUPS = {
     ],
   },
   user: {
-    label: 'Users',
+    label: "Users",
     permissions: [
       PERMISSIONS.USER_VIEW_PROFILE,
       PERMISSIONS.USER_UPDATE_OWN_PROFILE,
@@ -308,7 +328,7 @@ export const PERMISSION_GROUPS = {
     ],
   },
   admin: {
-    label: 'Administration',
+    label: "Administration",
     permissions: [
       PERMISSIONS.ADMIN_DASHBOARD,
       PERMISSIONS.ADMIN_USERS,
@@ -322,7 +342,7 @@ export const PERMISSION_GROUPS = {
     ],
   },
   moderation: {
-    label: 'Moderation',
+    label: "Moderation",
     permissions: [
       PERMISSIONS.MOD_VIEW_REPORTS,
       PERMISSIONS.MOD_RESOLVE_REPORTS,
@@ -333,7 +353,7 @@ export const PERMISSION_GROUPS = {
     ],
   },
   system: {
-    label: 'System',
+    label: "System",
     permissions: [
       PERMISSIONS.SYSTEM_SETUP,
       PERMISSIONS.SYSTEM_CONFIG,
@@ -341,86 +361,87 @@ export const PERMISSION_GROUPS = {
       PERMISSIONS.SYSTEM_TRANSFER_OWNERSHIP,
     ],
   },
-} as const
+} as const;
 
 /**
  * Permission descriptions for UI
  */
 export const PERMISSION_DESCRIPTIONS: Record<Permission, string> = {
   // Channel
-  [PERMISSIONS.CHANNEL_CREATE]: 'Create new channels',
-  [PERMISSIONS.CHANNEL_DELETE]: 'Delete channels',
-  [PERMISSIONS.CHANNEL_UPDATE]: 'Update channel settings',
-  [PERMISSIONS.CHANNEL_VIEW]: 'View channels',
-  [PERMISSIONS.CHANNEL_JOIN]: 'Join channels',
-  [PERMISSIONS.CHANNEL_LEAVE]: 'Leave channels',
-  [PERMISSIONS.CHANNEL_INVITE]: 'Invite users to channels',
-  [PERMISSIONS.CHANNEL_KICK]: 'Remove users from channels',
-  [PERMISSIONS.CHANNEL_ARCHIVE]: 'Archive channels',
-  [PERMISSIONS.CHANNEL_PIN_MESSAGES]: 'Pin messages in channels',
-  [PERMISSIONS.CHANNEL_MANAGE_PERMISSIONS]: 'Manage channel-specific permissions',
+  [PERMISSIONS.CHANNEL_CREATE]: "Create new channels",
+  [PERMISSIONS.CHANNEL_DELETE]: "Delete channels",
+  [PERMISSIONS.CHANNEL_UPDATE]: "Update channel settings",
+  [PERMISSIONS.CHANNEL_VIEW]: "View channels",
+  [PERMISSIONS.CHANNEL_JOIN]: "Join channels",
+  [PERMISSIONS.CHANNEL_LEAVE]: "Leave channels",
+  [PERMISSIONS.CHANNEL_INVITE]: "Invite users to channels",
+  [PERMISSIONS.CHANNEL_KICK]: "Remove users from channels",
+  [PERMISSIONS.CHANNEL_ARCHIVE]: "Archive channels",
+  [PERMISSIONS.CHANNEL_PIN_MESSAGES]: "Pin messages in channels",
+  [PERMISSIONS.CHANNEL_MANAGE_PERMISSIONS]:
+    "Manage channel-specific permissions",
 
   // Message
-  [PERMISSIONS.MESSAGE_SEND]: 'Send messages',
-  [PERMISSIONS.MESSAGE_EDIT_OWN]: 'Edit own messages',
-  [PERMISSIONS.MESSAGE_EDIT_ANY]: 'Edit any message',
-  [PERMISSIONS.MESSAGE_DELETE_OWN]: 'Delete own messages',
-  [PERMISSIONS.MESSAGE_DELETE_ANY]: 'Delete any message',
-  [PERMISSIONS.MESSAGE_PIN]: 'Pin messages',
-  [PERMISSIONS.MESSAGE_REACT]: 'Add reactions to messages',
-  [PERMISSIONS.MESSAGE_THREAD]: 'Start and reply to threads',
-  [PERMISSIONS.MESSAGE_MENTION]: 'Mention users',
-  [PERMISSIONS.MESSAGE_MENTION_ALL]: 'Mention @everyone or @channel',
-  [PERMISSIONS.MESSAGE_SCHEDULE]: 'Schedule messages',
-  [PERMISSIONS.MESSAGE_FORWARD]: 'Forward messages',
+  [PERMISSIONS.MESSAGE_SEND]: "Send messages",
+  [PERMISSIONS.MESSAGE_EDIT_OWN]: "Edit own messages",
+  [PERMISSIONS.MESSAGE_EDIT_ANY]: "Edit any message",
+  [PERMISSIONS.MESSAGE_DELETE_OWN]: "Delete own messages",
+  [PERMISSIONS.MESSAGE_DELETE_ANY]: "Delete any message",
+  [PERMISSIONS.MESSAGE_PIN]: "Pin messages",
+  [PERMISSIONS.MESSAGE_REACT]: "Add reactions to messages",
+  [PERMISSIONS.MESSAGE_THREAD]: "Start and reply to threads",
+  [PERMISSIONS.MESSAGE_MENTION]: "Mention users",
+  [PERMISSIONS.MESSAGE_MENTION_ALL]: "Mention @everyone or @channel",
+  [PERMISSIONS.MESSAGE_SCHEDULE]: "Schedule messages",
+  [PERMISSIONS.MESSAGE_FORWARD]: "Forward messages",
 
   // File
-  [PERMISSIONS.FILE_UPLOAD]: 'Upload files',
-  [PERMISSIONS.FILE_DOWNLOAD]: 'Download files',
-  [PERMISSIONS.FILE_DELETE_OWN]: 'Delete own files',
-  [PERMISSIONS.FILE_DELETE_ANY]: 'Delete any file',
+  [PERMISSIONS.FILE_UPLOAD]: "Upload files",
+  [PERMISSIONS.FILE_DOWNLOAD]: "Download files",
+  [PERMISSIONS.FILE_DELETE_OWN]: "Delete own files",
+  [PERMISSIONS.FILE_DELETE_ANY]: "Delete any file",
 
   // User
-  [PERMISSIONS.USER_VIEW_PROFILE]: 'View user profiles',
-  [PERMISSIONS.USER_UPDATE_OWN_PROFILE]: 'Update own profile',
-  [PERMISSIONS.USER_UPDATE_ANY_PROFILE]: 'Update any user profile',
-  [PERMISSIONS.USER_INVITE]: 'Invite new users',
-  [PERMISSIONS.USER_BAN]: 'Ban users',
-  [PERMISSIONS.USER_UNBAN]: 'Unban users',
-  [PERMISSIONS.USER_KICK]: 'Kick users',
-  [PERMISSIONS.USER_MUTE]: 'Mute users',
-  [PERMISSIONS.USER_ASSIGN_ROLE]: 'Assign roles to users',
-  [PERMISSIONS.USER_VIEW_ACTIVITY]: 'View user activity logs',
+  [PERMISSIONS.USER_VIEW_PROFILE]: "View user profiles",
+  [PERMISSIONS.USER_UPDATE_OWN_PROFILE]: "Update own profile",
+  [PERMISSIONS.USER_UPDATE_ANY_PROFILE]: "Update any user profile",
+  [PERMISSIONS.USER_INVITE]: "Invite new users",
+  [PERMISSIONS.USER_BAN]: "Ban users",
+  [PERMISSIONS.USER_UNBAN]: "Unban users",
+  [PERMISSIONS.USER_KICK]: "Kick users",
+  [PERMISSIONS.USER_MUTE]: "Mute users",
+  [PERMISSIONS.USER_ASSIGN_ROLE]: "Assign roles to users",
+  [PERMISSIONS.USER_VIEW_ACTIVITY]: "View user activity logs",
 
   // Admin
-  [PERMISSIONS.ADMIN_DASHBOARD]: 'Access admin dashboard',
-  [PERMISSIONS.ADMIN_USERS]: 'Manage users',
-  [PERMISSIONS.ADMIN_CHANNELS]: 'Manage all channels',
-  [PERMISSIONS.ADMIN_SETTINGS]: 'Manage system settings',
-  [PERMISSIONS.ADMIN_AUDIT_LOG]: 'View audit logs',
-  [PERMISSIONS.ADMIN_ANALYTICS]: 'View analytics',
-  [PERMISSIONS.ADMIN_INTEGRATIONS]: 'Manage integrations',
-  [PERMISSIONS.ADMIN_WEBHOOKS]: 'Manage webhooks',
-  [PERMISSIONS.ADMIN_BACKUP]: 'Create and restore backups',
+  [PERMISSIONS.ADMIN_DASHBOARD]: "Access admin dashboard",
+  [PERMISSIONS.ADMIN_USERS]: "Manage users",
+  [PERMISSIONS.ADMIN_CHANNELS]: "Manage all channels",
+  [PERMISSIONS.ADMIN_SETTINGS]: "Manage system settings",
+  [PERMISSIONS.ADMIN_AUDIT_LOG]: "View audit logs",
+  [PERMISSIONS.ADMIN_ANALYTICS]: "View analytics",
+  [PERMISSIONS.ADMIN_INTEGRATIONS]: "Manage integrations",
+  [PERMISSIONS.ADMIN_WEBHOOKS]: "Manage webhooks",
+  [PERMISSIONS.ADMIN_BACKUP]: "Create and restore backups",
 
   // Moderation
-  [PERMISSIONS.MOD_VIEW_REPORTS]: 'View reports',
-  [PERMISSIONS.MOD_RESOLVE_REPORTS]: 'Resolve reports',
-  [PERMISSIONS.MOD_WARN_USER]: 'Warn users',
-  [PERMISSIONS.MOD_MUTE_USER]: 'Mute users',
-  [PERMISSIONS.MOD_DELETE_MESSAGES]: 'Delete messages',
-  [PERMISSIONS.MOD_SLOW_MODE]: 'Enable slow mode',
+  [PERMISSIONS.MOD_VIEW_REPORTS]: "View reports",
+  [PERMISSIONS.MOD_RESOLVE_REPORTS]: "Resolve reports",
+  [PERMISSIONS.MOD_WARN_USER]: "Warn users",
+  [PERMISSIONS.MOD_MUTE_USER]: "Mute users",
+  [PERMISSIONS.MOD_DELETE_MESSAGES]: "Delete messages",
+  [PERMISSIONS.MOD_SLOW_MODE]: "Enable slow mode",
 
   // System
-  [PERMISSIONS.SYSTEM_SETUP]: 'Run setup wizard',
-  [PERMISSIONS.SYSTEM_CONFIG]: 'Configure system settings',
-  [PERMISSIONS.SYSTEM_BRANDING]: 'Update branding',
-  [PERMISSIONS.SYSTEM_TRANSFER_OWNERSHIP]: 'Transfer ownership',
-}
+  [PERMISSIONS.SYSTEM_SETUP]: "Run setup wizard",
+  [PERMISSIONS.SYSTEM_CONFIG]: "Configure system settings",
+  [PERMISSIONS.SYSTEM_BRANDING]: "Update branding",
+  [PERMISSIONS.SYSTEM_TRANSFER_OWNERSHIP]: "Transfer ownership",
+};
 
 /**
  * Get human-readable description of a permission
  */
 export function getPermissionDescription(permission: Permission): string {
-  return PERMISSION_DESCRIPTIONS[permission] || permission
+  return PERMISSION_DESCRIPTIONS[permission] || permission;
 }

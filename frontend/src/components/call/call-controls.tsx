@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Call Controls Component
@@ -7,9 +7,9 @@
  * mute, video toggle, screen share, and end call buttons.
  */
 
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 import {
   Mic,
   MicOff,
@@ -24,51 +24,53 @@ import {
   Settings,
   Maximize2,
   Minimize2,
-} from 'lucide-react'
+} from "lucide-react";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export interface CallControlsProps extends VariantProps<typeof callControlsVariants> {
+export interface CallControlsProps extends VariantProps<
+  typeof callControlsVariants
+> {
   /** Whether the microphone is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Whether video is enabled */
-  isVideoEnabled?: boolean
+  isVideoEnabled?: boolean;
   /** Whether screen sharing is active */
-  isScreenSharing?: boolean
+  isScreenSharing?: boolean;
   /** Whether speaker is muted */
-  isSpeakerMuted?: boolean
+  isSpeakerMuted?: boolean;
   /** Whether controls are minimized */
-  isMinimized?: boolean
+  isMinimized?: boolean;
   /** Current call duration in seconds */
-  callDuration?: number
+  callDuration?: number;
   /** Show video controls (for video calls) */
-  showVideoControls?: boolean
+  showVideoControls?: boolean;
   /** Show screen share controls */
-  showScreenShareControls?: boolean
+  showScreenShareControls?: boolean;
   /** Show speaker controls */
-  showSpeakerControls?: boolean
+  showSpeakerControls?: boolean;
   /** Callback when mute is toggled */
-  onToggleMute: () => void
+  onToggleMute: () => void;
   /** Callback when video is toggled */
-  onToggleVideo?: () => void
+  onToggleVideo?: () => void;
   /** Callback when screen share is toggled */
-  onToggleScreenShare?: () => void
+  onToggleScreenShare?: () => void;
   /** Callback when speaker is toggled */
-  onToggleSpeaker?: () => void
+  onToggleSpeaker?: () => void;
   /** Callback when call is ended */
-  onEndCall: () => void
+  onEndCall: () => void;
   /** Callback when settings is clicked */
-  onOpenSettings?: () => void
+  onOpenSettings?: () => void;
   /** Callback when more options is clicked */
-  onOpenMore?: () => void
+  onOpenMore?: () => void;
   /** Callback when minimize is toggled */
-  onToggleMinimize?: () => void
+  onToggleMinimize?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Whether controls are disabled */
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 // =============================================================================
@@ -76,65 +78,66 @@ export interface CallControlsProps extends VariantProps<typeof callControlsVaria
 // =============================================================================
 
 const callControlsVariants = cva(
-  'flex items-center justify-center gap-2 rounded-xl p-2 transition-all',
+  "flex items-center justify-center gap-2 rounded-xl p-2 transition-all",
   {
     variants: {
       variant: {
-        default: 'bg-background/80 backdrop-blur-sm border shadow-lg',
-        dark: 'bg-gray-900/90 backdrop-blur-sm',
-        floating: 'bg-black/70 backdrop-blur-md',
-        minimal: 'bg-transparent',
+        default: "bg-background/80 backdrop-blur-sm border shadow-lg",
+        dark: "bg-gray-900/90 backdrop-blur-sm",
+        floating: "bg-black/70 backdrop-blur-md",
+        minimal: "bg-transparent",
       },
       size: {
-        sm: 'gap-1 p-1',
-        default: 'gap-2 p-2',
-        lg: 'gap-3 p-3',
+        sm: "gap-1 p-1",
+        default: "gap-2 p-2",
+        lg: "gap-3 p-3",
       },
     },
     defaultVariants: {
-      variant: 'default',
-      size: 'default',
+      variant: "default",
+      size: "default",
     },
-  }
-)
+  },
+);
 
 const controlButtonVariants = cva(
-  'rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+  "rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   {
     variants: {
       variant: {
-        default: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        active: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        muted: 'bg-red-500/20 text-red-500 hover:bg-red-500/30',
-        enabled: 'bg-green-500/20 text-green-500 hover:bg-green-500/30',
+        default: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        active: "bg-primary text-primary-foreground hover:bg-primary/90",
+        danger:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        muted: "bg-red-500/20 text-red-500 hover:bg-red-500/30",
+        enabled: "bg-green-500/20 text-green-500 hover:bg-green-500/30",
       },
       size: {
-        sm: 'h-8 w-8',
-        default: 'h-10 w-10',
-        lg: 'h-12 w-12',
+        sm: "h-8 w-8",
+        default: "h-10 w-10",
+        lg: "h-12 w-12",
       },
     },
     defaultVariants: {
-      variant: 'default',
-      size: 'default',
+      variant: "default",
+      size: "default",
     },
-  }
-)
+  },
+);
 
 // =============================================================================
 // Helper Functions
 // =============================================================================
 
 export function formatCallDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`
+  return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
 // =============================================================================
@@ -142,21 +145,21 @@ export function formatCallDuration(seconds: number): string {
 // =============================================================================
 
 interface ControlButtonProps {
-  icon: React.ReactNode
-  label: string
-  onClick: () => void
-  variant?: 'default' | 'active' | 'danger' | 'muted' | 'enabled'
-  size?: 'sm' | 'default' | 'lg'
-  disabled?: boolean
-  className?: string
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  variant?: "default" | "active" | "danger" | "muted" | "enabled";
+  size?: "sm" | "default" | "lg";
+  disabled?: boolean;
+  className?: string;
 }
 
 function ControlButton({
   icon,
   label,
   onClick,
-  variant = 'default',
-  size = 'default',
+  variant = "default",
+  size = "default",
   disabled = false,
   className,
 }: ControlButtonProps) {
@@ -169,14 +172,14 @@ function ControlButton({
       title={label}
       className={cn(
         controlButtonVariants({ variant, size }),
-        'flex items-center justify-center',
-        disabled && 'cursor-not-allowed opacity-50',
-        className
+        "flex items-center justify-center",
+        disabled && "cursor-not-allowed opacity-50",
+        className,
       )}
     >
       {icon}
     </button>
-  )
+  );
 }
 
 // =============================================================================
@@ -206,8 +209,8 @@ export function CallControls({
   className,
   disabled = false,
 }: CallControlsProps) {
-  const iconSize = size === 'sm' ? 16 : size === 'lg' ? 24 : 20
-  const buttonSize = size ?? 'default'
+  const iconSize = size === "sm" ? 16 : size === "lg" ? 24 : 20;
+  const buttonSize = size ?? "default";
 
   return (
     <div
@@ -229,8 +232,14 @@ export function CallControls({
       {/* Minimize Toggle */}
       {onToggleMinimize && (
         <ControlButton
-          icon={isMinimized ? <Maximize2 size={iconSize} /> : <Minimize2 size={iconSize} />}
-          label={isMinimized ? 'Expand controls' : 'Minimize controls'}
+          icon={
+            isMinimized ? (
+              <Maximize2 size={iconSize} />
+            ) : (
+              <Minimize2 size={iconSize} />
+            )
+          }
+          label={isMinimized ? "Expand controls" : "Minimize controls"}
           onClick={onToggleMinimize}
           size={buttonSize}
           disabled={disabled}
@@ -240,10 +249,16 @@ export function CallControls({
       {/* Speaker Toggle */}
       {showSpeakerControls && onToggleSpeaker && (
         <ControlButton
-          icon={isSpeakerMuted ? <VolumeX size={iconSize} /> : <Volume2 size={iconSize} />}
-          label={isSpeakerMuted ? 'Unmute speaker' : 'Mute speaker'}
+          icon={
+            isSpeakerMuted ? (
+              <VolumeX size={iconSize} />
+            ) : (
+              <Volume2 size={iconSize} />
+            )
+          }
+          label={isSpeakerMuted ? "Unmute speaker" : "Mute speaker"}
           onClick={onToggleSpeaker}
-          variant={isSpeakerMuted ? 'muted' : 'default'}
+          variant={isSpeakerMuted ? "muted" : "default"}
           size={buttonSize}
           disabled={disabled}
         />
@@ -252,9 +267,9 @@ export function CallControls({
       {/* Mute Toggle */}
       <ControlButton
         icon={isMuted ? <MicOff size={iconSize} /> : <Mic size={iconSize} />}
-        label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
+        label={isMuted ? "Unmute microphone" : "Mute microphone"}
         onClick={onToggleMute}
-        variant={isMuted ? 'muted' : 'default'}
+        variant={isMuted ? "muted" : "default"}
         size={buttonSize}
         disabled={disabled}
       />
@@ -262,10 +277,16 @@ export function CallControls({
       {/* Video Toggle */}
       {showVideoControls && onToggleVideo && (
         <ControlButton
-          icon={isVideoEnabled ? <Video size={iconSize} /> : <VideoOff size={iconSize} />}
-          label={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+          icon={
+            isVideoEnabled ? (
+              <Video size={iconSize} />
+            ) : (
+              <VideoOff size={iconSize} />
+            )
+          }
+          label={isVideoEnabled ? "Turn off camera" : "Turn on camera"}
           onClick={onToggleVideo}
-          variant={isVideoEnabled ? 'enabled' : 'muted'}
+          variant={isVideoEnabled ? "enabled" : "muted"}
           size={buttonSize}
           disabled={disabled}
         />
@@ -274,10 +295,16 @@ export function CallControls({
       {/* Screen Share Toggle */}
       {showScreenShareControls && onToggleScreenShare && (
         <ControlButton
-          icon={isScreenSharing ? <MonitorOff size={iconSize} /> : <Monitor size={iconSize} />}
-          label={isScreenSharing ? 'Stop screen sharing' : 'Share screen'}
+          icon={
+            isScreenSharing ? (
+              <MonitorOff size={iconSize} />
+            ) : (
+              <Monitor size={iconSize} />
+            )
+          }
+          label={isScreenSharing ? "Stop screen sharing" : "Share screen"}
           onClick={onToggleScreenShare}
-          variant={isScreenSharing ? 'active' : 'default'}
+          variant={isScreenSharing ? "active" : "default"}
           size={buttonSize}
           disabled={disabled}
         />
@@ -315,11 +342,11 @@ export function CallControls({
         />
       )}
     </div>
-  )
+  );
 }
 
 // =============================================================================
 // Exports
 // =============================================================================
 
-export { callControlsVariants, controlButtonVariants, ControlButton }
+export { callControlsVariants, controlButtonVariants, ControlButton };

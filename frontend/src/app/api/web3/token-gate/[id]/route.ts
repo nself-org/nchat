@@ -6,9 +6,9 @@
  * DELETE /api/web3/token-gate/[id] - Delete a token gate
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { logger } from "@/lib/logger";
 
 import {
   getTokenGate,
@@ -17,9 +17,9 @@ import {
   getGateStats,
   getGateEvents,
   getGracePeriodUsers,
-} from '@/services/web3/token-gate.service'
+} from "@/services/web3/token-gate.service";
 
-import type { ChainId, TokenStandard } from '@/lib/web3/token-gate-types'
+import type { ChainId, TokenStandard } from "@/lib/web3/token-gate-types";
 
 // =============================================================================
 // VALIDATION SCHEMAS
@@ -27,9 +27,11 @@ import type { ChainId, TokenStandard } from '@/lib/web3/token-gate-types'
 
 const requirementConditionSchema = z.object({
   id: z.string().optional(),
-  contractAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid contract address'),
+  contractAddress: z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid contract address"),
   chainId: z.string(),
-  standard: z.enum(['erc20', 'erc721', 'erc1155']),
+  standard: z.enum(["erc20", "erc721", "erc1155"]),
   minimumBalance: z.string().optional(),
   tokenSymbol: z.string().optional(),
   tokenDecimals: z.number().int().min(0).max(18).optional(),
@@ -39,11 +41,11 @@ const requirementConditionSchema = z.object({
   minimumAmount: z.string().optional(),
   name: z.string().optional(),
   description: z.string().optional(),
-})
+});
 
 const updateTokenGateSchema = z.object({
   requirements: z.array(requirementConditionSchema).optional(),
-  operator: z.enum(['AND', 'OR']).optional(),
+  operator: z.enum(["AND", "OR"]).optional(),
   isActive: z.boolean().optional(),
   bypassRoles: z.array(z.string()).optional(),
   cacheTTLSeconds: z.number().int().min(60).max(86400).optional(),
@@ -52,7 +54,7 @@ const updateTokenGateSchema = z.object({
   autoRevokeOnFailure: z.boolean().optional(),
   name: z.string().optional(),
   description: z.string().optional(),
-})
+});
 
 // =============================================================================
 // GET /api/web3/token-gate/[id]
@@ -60,41 +62,50 @@ const updateTokenGateSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await context.params
-    const searchParams = request.nextUrl.searchParams
-    const includeStats = searchParams.get('includeStats') === 'true'
-    const includeEvents = searchParams.get('includeEvents') === 'true'
-    const includeGracePeriod = searchParams.get('includeGracePeriod') === 'true'
+    const { id } = await context.params;
+    const searchParams = request.nextUrl.searchParams;
+    const includeStats = searchParams.get("includeStats") === "true";
+    const includeEvents = searchParams.get("includeEvents") === "true";
+    const includeGracePeriod =
+      searchParams.get("includeGracePeriod") === "true";
 
-    const gate = getTokenGate(id)
+    const gate = getTokenGate(id);
 
     if (!gate) {
-      return NextResponse.json({ error: 'Token gate not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: "Token gate not found" },
+        { status: 404 },
+      );
     }
 
-    const response: Record<string, unknown> = { gate }
+    const response: Record<string, unknown> = { gate };
 
     if (includeStats) {
-      response.stats = getGateStats(id)
+      response.stats = getGateStats(id);
     }
 
     if (includeEvents) {
-      const eventLimit = parseInt(searchParams.get('eventLimit') || '50', 10)
-      response.events = getGateEvents(id, { limit: eventLimit })
+      const eventLimit = parseInt(searchParams.get("eventLimit") || "50", 10);
+      response.events = getGateEvents(id, { limit: eventLimit });
     }
 
     if (includeGracePeriod) {
-      response.gracePeriodUsers = getGracePeriodUsers(id)
+      response.gracePeriodUsers = getGracePeriodUsers(id);
     }
 
-    return NextResponse.json(response)
+    return NextResponse.json(response);
   } catch (error) {
-    logger.error('Error getting token gate:', error)
-    const message = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    logger.error("Error getting token gate:", error);
+    const message =
+      error instanceof Error
+        ? error instanceof Error
+          ? error.message
+          : String(error)
+        : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -104,50 +115,58 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await context.params
-    const body = await request.json()
-    const validationResult = updateTokenGateSchema.safeParse(body)
+    const { id } = await context.params;
+    const body = await request.json();
+    const validationResult = updateTokenGateSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
         {
-          error: 'Validation failed',
+          error: "Validation failed",
           details: validationResult.error.errors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const data = validationResult.data
+    const data = validationResult.data;
 
     // Transform requirements if provided
-    let requirements
+    let requirements;
     if (data.requirements) {
       requirements = data.requirements.map((req, index) => ({
         ...req,
         id: req.id || `req_${Date.now()}_${index}`,
         chainId: req.chainId as ChainId,
         standard: req.standard as TokenStandard,
-      }))
+      }));
     }
 
     const gate = await updateTokenGate(id, {
       ...data,
       requirements,
-    })
+    });
 
     if (!gate) {
-      return NextResponse.json({ error: 'Token gate not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: "Token gate not found" },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json({ gate })
+    return NextResponse.json({ gate });
   } catch (error) {
-    logger.error('Error updating token gate:', error)
-    const message = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    logger.error("Error updating token gate:", error);
+    const message =
+      error instanceof Error
+        ? error instanceof Error
+          ? error.message
+          : String(error)
+        : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -157,21 +176,29 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await context.params
+    const { id } = await context.params;
 
-    const deleted = await deleteTokenGate(id)
+    const deleted = await deleteTokenGate(id);
 
     if (!deleted) {
-      return NextResponse.json({ error: 'Token gate not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: "Token gate not found" },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true });
   } catch (error) {
-    logger.error('Error deleting token gate:', error)
-    const message = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    logger.error("Error deleting token gate:", error);
+    const message =
+      error instanceof Error
+        ? error instanceof Error
+          ? error.message
+          : String(error)
+        : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

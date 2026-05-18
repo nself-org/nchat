@@ -6,8 +6,8 @@
  * steps, actions, and conditions.
  */
 
-import { generateId } from '../app-lifecycle'
-import type { AppScope, AppEventType } from '../app-contract'
+import { generateId } from "../app-lifecycle";
+import type { AppScope, AppEventType } from "../app-contract";
 import type {
   WorkflowDefinition,
   WorkflowTrigger,
@@ -21,7 +21,7 @@ import type {
   ConditionalBranch,
   WorkflowValidationResult,
   WorkflowValidationError,
-} from './types'
+} from "./types";
 import {
   DEFAULT_WORKFLOW_SETTINGS,
   DEFAULT_STEP_SETTINGS,
@@ -36,7 +36,7 @@ import {
   MAX_DELAY_DURATION_MS,
   WORKFLOW_NAME_REGEX,
   CRON_REGEX,
-} from './types'
+} from "./types";
 
 // ============================================================================
 // WORKFLOW BUILDER
@@ -59,15 +59,15 @@ import {
  * ```
  */
 export class WorkflowBuilder {
-  private definition: Partial<WorkflowDefinition>
-  private steps: WorkflowStep[] = []
+  private definition: Partial<WorkflowDefinition>;
+  private steps: WorkflowStep[] = [];
 
   constructor(name: string, createdBy: string) {
     this.definition = {
-      id: generateId('wf'),
+      id: generateId("wf"),
       name,
-      description: '',
-      version: '1.0.0',
+      description: "",
+      version: "1.0.0",
       enabled: true,
       inputSchema: [],
       settings: { ...DEFAULT_WORKFLOW_SETTINGS },
@@ -76,100 +76,116 @@ export class WorkflowBuilder {
       createdBy,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    }
+    };
   }
 
   /**
    * Set a custom workflow ID.
    */
   id(id: string): this {
-    this.definition.id = id
-    return this
+    this.definition.id = id;
+    return this;
   }
 
   /**
    * Set the description.
    */
   description(desc: string): this {
-    this.definition.description = desc
-    return this
+    this.definition.description = desc;
+    return this;
   }
 
   /**
    * Set the version.
    */
   version(v: string): this {
-    this.definition.version = v
-    return this
+    this.definition.version = v;
+    return this;
   }
 
   /**
    * Set enabled state.
    */
   enabled(e: boolean): this {
-    this.definition.enabled = e
-    return this
+    this.definition.enabled = e;
+    return this;
   }
 
   /**
    * Set the trigger.
    */
   trigger(trigger: WorkflowTrigger): this {
-    this.definition.trigger = trigger
-    return this
+    this.definition.trigger = trigger;
+    return this;
   }
 
   /**
    * Set an event trigger.
    */
-  onEvent(eventType: AppEventType, options?: { channelIds?: string[]; userIds?: string[]; conditions?: TriggerCondition[] }): this {
+  onEvent(
+    eventType: AppEventType,
+    options?: {
+      channelIds?: string[];
+      userIds?: string[];
+      conditions?: TriggerCondition[];
+    },
+  ): this {
     this.definition.trigger = {
-      type: 'event',
+      type: "event",
       eventType,
       channelIds: options?.channelIds,
       userIds: options?.userIds,
       conditions: options?.conditions,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
    * Set a schedule trigger.
    */
-  onSchedule(cronExpression: string, options?: { timezone?: string; startDate?: string; endDate?: string }): this {
+  onSchedule(
+    cronExpression: string,
+    options?: { timezone?: string; startDate?: string; endDate?: string },
+  ): this {
     this.definition.trigger = {
-      type: 'schedule',
+      type: "schedule",
       cronExpression,
-      timezone: options?.timezone ?? 'UTC',
+      timezone: options?.timezone ?? "UTC",
       startDate: options?.startDate,
       endDate: options?.endDate,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
    * Set a webhook trigger.
    */
-  onWebhook(methods: ('GET' | 'POST' | 'PUT')[], options?: { secret?: string; contentType?: string }): this {
+  onWebhook(
+    methods: ("GET" | "POST" | "PUT")[],
+    options?: { secret?: string; contentType?: string },
+  ): this {
     this.definition.trigger = {
-      type: 'webhook',
+      type: "webhook",
       methods,
       secret: options?.secret,
       contentType: options?.contentType,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
    * Set a manual trigger.
    */
-  onManual(options?: { allowedUserIds?: string[]; allowedRoles?: string[] }): this {
+  onManual(options?: {
+    allowedUserIds?: string[];
+    allowedRoles?: string[];
+  }): this {
     this.definition.trigger = {
-      type: 'manual',
+      type: "manual",
       allowedUserIds: options?.allowedUserIds,
       allowedRoles: options?.allowedRoles,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -180,14 +196,14 @@ export class WorkflowBuilder {
     name: string,
     action: WorkflowAction,
     options?: Partial<{
-      settings: Partial<StepSettings>
-      conditions: TriggerCondition[]
-      inputMapping: Record<string, string>
-      outputKey: string
-      dependsOn: string[]
-    }>
+      settings: Partial<StepSettings>;
+      conditions: TriggerCondition[];
+      inputMapping: Record<string, string>;
+      outputKey: string;
+      dependsOn: string[];
+    }>,
   ): this {
-    const stepType = this.inferStepType(action)
+    const stepType = this.inferStepType(action);
     const step: WorkflowStep = {
       id,
       name,
@@ -198,42 +214,45 @@ export class WorkflowBuilder {
       inputMapping: options?.inputMapping,
       outputKey: options?.outputKey,
       dependsOn: options?.dependsOn,
-    }
-    this.steps.push(step)
-    return this
+    };
+    this.steps.push(step);
+    return this;
   }
 
   /**
    * Add an input variable to the workflow schema.
    */
   addInput(variable: WorkflowVariable): this {
-    this.definition.inputSchema = this.definition.inputSchema ?? []
-    this.definition.inputSchema.push(variable)
-    return this
+    this.definition.inputSchema = this.definition.inputSchema ?? [];
+    this.definition.inputSchema.push(variable);
+    return this;
   }
 
   /**
    * Set workflow settings.
    */
   settings(settings: Partial<WorkflowSettings>): this {
-    this.definition.settings = { ...this.definition.settings, ...settings } as WorkflowSettings
-    return this
+    this.definition.settings = {
+      ...this.definition.settings,
+      ...settings,
+    } as WorkflowSettings;
+    return this;
   }
 
   /**
    * Set required scopes.
    */
   scopes(scopes: AppScope[]): this {
-    this.definition.requiredScopes = scopes
-    return this
+    this.definition.requiredScopes = scopes;
+    return this;
   }
 
   /**
    * Add tags.
    */
   tags(tags: string[]): this {
-    this.definition.tags = tags
-    return this
+    this.definition.tags = tags;
+    return this;
   }
 
   /**
@@ -241,47 +260,52 @@ export class WorkflowBuilder {
    * Throws if validation fails.
    */
   build(): WorkflowDefinition {
-    this.definition.steps = this.steps
-    this.definition.updatedAt = new Date().toISOString()
+    this.definition.steps = this.steps;
+    this.definition.updatedAt = new Date().toISOString();
 
-    const result = validateWorkflowDefinition(this.definition as WorkflowDefinition)
+    const result = validateWorkflowDefinition(
+      this.definition as WorkflowDefinition,
+    );
     if (!result.valid) {
       const errorMessages = result.errors
-        .filter(e => e.severity === 'error')
-        .map(e => `${e.field}: ${e.message}`)
-        .join('; ')
-      throw new WorkflowBuilderError(`Invalid workflow: ${errorMessages}`, result.errors)
+        .filter((e) => e.severity === "error")
+        .map((e) => `${e.field}: ${e.message}`)
+        .join("; ");
+      throw new WorkflowBuilderError(
+        `Invalid workflow: ${errorMessages}`,
+        result.errors,
+      );
     }
 
-    return this.definition as WorkflowDefinition
+    return this.definition as WorkflowDefinition;
   }
 
   /**
    * Build without validation (for testing).
    */
   buildUnsafe(): WorkflowDefinition {
-    this.definition.steps = this.steps
-    this.definition.updatedAt = new Date().toISOString()
-    return this.definition as WorkflowDefinition
+    this.definition.steps = this.steps;
+    this.definition.updatedAt = new Date().toISOString();
+    return this.definition as WorkflowDefinition;
   }
 
   /**
    * Infer the step type from the action type.
    */
-  private inferStepType(action: WorkflowAction): WorkflowStep['type'] {
+  private inferStepType(action: WorkflowAction): WorkflowStep["type"] {
     switch (action.type) {
-      case 'conditional_branch':
-        return 'condition'
-      case 'approval':
-        return 'approval'
-      case 'delay':
-        return 'delay'
-      case 'parallel':
-        return 'parallel'
-      case 'loop':
-        return 'loop'
+      case "conditional_branch":
+        return "condition";
+      case "approval":
+        return "approval";
+      case "delay":
+        return "delay";
+      case "parallel":
+        return "parallel";
+      case "loop":
+        return "loop";
       default:
-        return 'action'
+        return "action";
     }
   }
 }
@@ -293,10 +317,10 @@ export class WorkflowBuilder {
 export class WorkflowBuilderError extends Error {
   constructor(
     message: string,
-    public readonly validationErrors: WorkflowValidationError[]
+    public readonly validationErrors: WorkflowValidationError[],
   ) {
-    super(message)
-    this.name = 'WorkflowBuilderError'
+    super(message);
+    this.name = "WorkflowBuilderError";
   }
 }
 
@@ -308,119 +332,129 @@ export class WorkflowBuilderError extends Error {
  * Validate a workflow definition.
  */
 export function validateWorkflowDefinition(
-  definition: WorkflowDefinition
+  definition: WorkflowDefinition,
 ): WorkflowValidationResult {
-  const errors: WorkflowValidationError[] = []
+  const errors: WorkflowValidationError[] = [];
 
   // --- Name ---
   if (!definition.name || !WORKFLOW_NAME_REGEX.test(definition.name)) {
     errors.push({
-      field: 'name',
+      field: "name",
       message: `Workflow name must match ${WORKFLOW_NAME_REGEX} (1-${MAX_WORKFLOW_NAME_LENGTH} chars, starting with a letter)`,
-      severity: 'error',
-    })
+      severity: "error",
+    });
   }
 
   // --- Description ---
-  if (definition.description && definition.description.length > MAX_WORKFLOW_DESCRIPTION_LENGTH) {
+  if (
+    definition.description &&
+    definition.description.length > MAX_WORKFLOW_DESCRIPTION_LENGTH
+  ) {
     errors.push({
-      field: 'description',
+      field: "description",
       message: `Description must be at most ${MAX_WORKFLOW_DESCRIPTION_LENGTH} characters`,
-      severity: 'error',
-    })
+      severity: "error",
+    });
   }
 
   // --- Trigger ---
   if (!definition.trigger) {
     errors.push({
-      field: 'trigger',
-      message: 'Workflow must have a trigger',
-      severity: 'error',
-    })
+      field: "trigger",
+      message: "Workflow must have a trigger",
+      severity: "error",
+    });
   } else {
-    validateTrigger(definition.trigger, errors)
+    validateTrigger(definition.trigger, errors);
   }
 
   // --- Steps ---
   if (!definition.steps || definition.steps.length === 0) {
     errors.push({
-      field: 'steps',
-      message: 'Workflow must have at least one step',
-      severity: 'error',
-    })
+      field: "steps",
+      message: "Workflow must have at least one step",
+      severity: "error",
+    });
   } else if (definition.steps.length > MAX_WORKFLOW_STEPS) {
     errors.push({
-      field: 'steps',
+      field: "steps",
       message: `Workflow cannot have more than ${MAX_WORKFLOW_STEPS} steps`,
-      severity: 'error',
-    })
+      severity: "error",
+    });
   } else {
-    validateSteps(definition.steps, errors)
+    validateSteps(definition.steps, errors);
   }
 
   // --- Tags ---
   if (definition.tags && definition.tags.length > MAX_WORKFLOW_TAGS) {
     errors.push({
-      field: 'tags',
+      field: "tags",
       message: `Cannot have more than ${MAX_WORKFLOW_TAGS} tags`,
-      severity: 'warning',
-    })
+      severity: "warning",
+    });
   }
 
   // --- Settings ---
   if (definition.settings) {
-    validateSettings(definition.settings, errors)
+    validateSettings(definition.settings, errors);
   }
 
   return {
-    valid: errors.filter(e => e.severity === 'error').length === 0,
+    valid: errors.filter((e) => e.severity === "error").length === 0,
     errors,
-  }
+  };
 }
 
-function validateTrigger(trigger: WorkflowTrigger, errors: WorkflowValidationError[]): void {
-  if (!['event', 'schedule', 'webhook', 'manual'].includes(trigger.type)) {
+function validateTrigger(
+  trigger: WorkflowTrigger,
+  errors: WorkflowValidationError[],
+): void {
+  if (!["event", "schedule", "webhook", "manual"].includes(trigger.type)) {
     errors.push({
-      field: 'trigger.type',
+      field: "trigger.type",
       message: `Invalid trigger type: ${trigger.type}`,
-      severity: 'error',
-    })
-    return
+      severity: "error",
+    });
+    return;
   }
 
-  if (trigger.type === 'schedule') {
+  if (trigger.type === "schedule") {
     if (!trigger.cronExpression || !CRON_REGEX.test(trigger.cronExpression)) {
       errors.push({
-        field: 'trigger.cronExpression',
-        message: 'Invalid cron expression: must have 5 fields (min hour dom month dow)',
-        severity: 'error',
-      })
+        field: "trigger.cronExpression",
+        message:
+          "Invalid cron expression: must have 5 fields (min hour dom month dow)",
+        severity: "error",
+      });
     }
   }
 
-  if (trigger.type === 'event') {
+  if (trigger.type === "event") {
     if (!trigger.eventType) {
       errors.push({
-        field: 'trigger.eventType',
-        message: 'Event trigger must specify an eventType',
-        severity: 'error',
-      })
+        field: "trigger.eventType",
+        message: "Event trigger must specify an eventType",
+        severity: "error",
+      });
     }
   }
 
-  if (trigger.type === 'webhook') {
+  if (trigger.type === "webhook") {
     if (!trigger.methods || trigger.methods.length === 0) {
       errors.push({
-        field: 'trigger.methods',
-        message: 'Webhook trigger must specify at least one HTTP method',
-        severity: 'error',
-      })
+        field: "trigger.methods",
+        message: "Webhook trigger must specify at least one HTTP method",
+        severity: "error",
+      });
     }
   }
 }
 
-function validateSteps(steps: WorkflowStep[], errors: WorkflowValidationError[]): void {
-  const stepIds = new Set<string>()
+function validateSteps(
+  steps: WorkflowStep[],
+  errors: WorkflowValidationError[],
+): void {
+  const stepIds = new Set<string>();
 
   for (const step of steps) {
     // Unique step IDs
@@ -428,29 +462,29 @@ function validateSteps(steps: WorkflowStep[], errors: WorkflowValidationError[])
       errors.push({
         field: `steps.${step.id}`,
         message: `Duplicate step ID: "${step.id}"`,
-        severity: 'error',
-      })
+        severity: "error",
+      });
     }
-    stepIds.add(step.id)
+    stepIds.add(step.id);
 
     // Step name required
     if (!step.name || step.name.length === 0) {
       errors.push({
         field: `steps.${step.id}.name`,
-        message: 'Step must have a name',
-        severity: 'error',
-      })
+        message: "Step must have a name",
+        severity: "error",
+      });
     }
 
     // Action required
     if (!step.action) {
       errors.push({
         field: `steps.${step.id}.action`,
-        message: 'Step must have an action',
-        severity: 'error',
-      })
+        message: "Step must have an action",
+        severity: "error",
+      });
     } else {
-      validateAction(step.id, step.action, errors)
+      validateAction(step.id, step.action, errors);
     }
   }
 
@@ -462,170 +496,183 @@ function validateSteps(steps: WorkflowStep[], errors: WorkflowValidationError[])
           errors.push({
             field: `steps.${step.id}.dependsOn`,
             message: `Step "${step.id}" depends on unknown step "${depId}"`,
-            severity: 'error',
-          })
+            severity: "error",
+          });
         }
       }
     }
   }
 
   // Check for circular dependencies
-  const circularDep = detectCircularDependencies(steps)
+  const circularDep = detectCircularDependencies(steps);
   if (circularDep) {
     errors.push({
-      field: 'steps',
+      field: "steps",
       message: `Circular dependency detected: ${circularDep}`,
-      severity: 'error',
-    })
+      severity: "error",
+    });
   }
 }
 
-function validateAction(stepId: string, action: WorkflowAction, errors: WorkflowValidationError[]): void {
+function validateAction(
+  stepId: string,
+  action: WorkflowAction,
+  errors: WorkflowValidationError[],
+): void {
   switch (action.type) {
-    case 'send_message':
+    case "send_message":
       if (!action.channelId) {
         errors.push({
           field: `steps.${stepId}.action.channelId`,
-          message: 'send_message action requires a channelId',
-          severity: 'error',
-        })
+          message: "send_message action requires a channelId",
+          severity: "error",
+        });
       }
       if (!action.content) {
         errors.push({
           field: `steps.${stepId}.action.content`,
-          message: 'send_message action requires content',
-          severity: 'error',
-        })
+          message: "send_message action requires content",
+          severity: "error",
+        });
       }
-      break
+      break;
 
-    case 'http_request':
+    case "http_request":
       if (!action.url) {
         errors.push({
           field: `steps.${stepId}.action.url`,
-          message: 'http_request action requires a url',
-          severity: 'error',
-        })
+          message: "http_request action requires a url",
+          severity: "error",
+        });
       }
       if (!action.method) {
         errors.push({
           field: `steps.${stepId}.action.method`,
-          message: 'http_request action requires a method',
-          severity: 'error',
-        })
+          message: "http_request action requires a method",
+          severity: "error",
+        });
       }
-      break
+      break;
 
-    case 'conditional_branch':
+    case "conditional_branch":
       if (!action.branches || action.branches.length === 0) {
         errors.push({
           field: `steps.${stepId}.action.branches`,
-          message: 'conditional_branch must have at least one branch',
-          severity: 'error',
-        })
+          message: "conditional_branch must have at least one branch",
+          severity: "error",
+        });
       }
-      if (action.branches && action.branches.length > MAX_CONDITIONAL_BRANCHES) {
+      if (
+        action.branches &&
+        action.branches.length > MAX_CONDITIONAL_BRANCHES
+      ) {
         errors.push({
           field: `steps.${stepId}.action.branches`,
           message: `Cannot have more than ${MAX_CONDITIONAL_BRANCHES} branches`,
-          severity: 'error',
-        })
+          severity: "error",
+        });
       }
-      break
+      break;
 
-    case 'approval':
+    case "approval":
       if (!action.approverIds || action.approverIds.length === 0) {
         errors.push({
           field: `steps.${stepId}.action.approverIds`,
-          message: 'approval action requires at least one approver',
-          severity: 'error',
-        })
+          message: "approval action requires at least one approver",
+          severity: "error",
+        });
       }
       if (action.timeoutMs > MAX_APPROVAL_TIMEOUT_MS) {
         errors.push({
           field: `steps.${stepId}.action.timeoutMs`,
           message: `Approval timeout cannot exceed ${MAX_APPROVAL_TIMEOUT_MS}ms (24 hours)`,
-          severity: 'error',
-        })
+          severity: "error",
+        });
       }
-      break
+      break;
 
-    case 'delay':
+    case "delay":
       if (action.durationMs <= 0) {
         errors.push({
           field: `steps.${stepId}.action.durationMs`,
-          message: 'Delay duration must be positive',
-          severity: 'error',
-        })
+          message: "Delay duration must be positive",
+          severity: "error",
+        });
       }
       if (action.durationMs > MAX_DELAY_DURATION_MS) {
         errors.push({
           field: `steps.${stepId}.action.durationMs`,
           message: `Delay cannot exceed ${MAX_DELAY_DURATION_MS}ms (1 hour)`,
-          severity: 'error',
-        })
+          severity: "error",
+        });
       }
-      break
+      break;
 
-    case 'parallel':
+    case "parallel":
       if (!action.branches || action.branches.length === 0) {
         errors.push({
           field: `steps.${stepId}.action.branches`,
-          message: 'parallel action must have at least one branch',
-          severity: 'error',
-        })
+          message: "parallel action must have at least one branch",
+          severity: "error",
+        });
       }
       if (action.branches && action.branches.length > MAX_PARALLEL_BRANCHES) {
         errors.push({
           field: `steps.${stepId}.action.branches`,
           message: `Cannot have more than ${MAX_PARALLEL_BRANCHES} parallel branches`,
-          severity: 'error',
-        })
+          severity: "error",
+        });
       }
-      break
+      break;
 
-    case 'loop':
+    case "loop":
       if (!action.collection) {
         errors.push({
           field: `steps.${stepId}.action.collection`,
-          message: 'loop action requires a collection expression',
-          severity: 'error',
-        })
+          message: "loop action requires a collection expression",
+          severity: "error",
+        });
       }
       if (action.maxIterations > MAX_LOOP_ITERATIONS) {
         errors.push({
           field: `steps.${stepId}.action.maxIterations`,
           message: `Loop cannot exceed ${MAX_LOOP_ITERATIONS} iterations`,
-          severity: 'error',
-        })
+          severity: "error",
+        });
       }
-      break
+      break;
   }
 }
 
-function validateSettings(settings: WorkflowSettings, errors: WorkflowValidationError[]): void {
+function validateSettings(
+  settings: WorkflowSettings,
+  errors: WorkflowValidationError[],
+): void {
   if (settings.maxExecutionTimeMs <= 0) {
     errors.push({
-      field: 'settings.maxExecutionTimeMs',
-      message: 'maxExecutionTimeMs must be positive',
-      severity: 'error',
-    })
+      field: "settings.maxExecutionTimeMs",
+      message: "maxExecutionTimeMs must be positive",
+      severity: "error",
+    });
   }
 
   if (settings.maxRetryAttempts < 0) {
     errors.push({
-      field: 'settings.maxRetryAttempts',
-      message: 'maxRetryAttempts cannot be negative',
-      severity: 'error',
-    })
+      field: "settings.maxRetryAttempts",
+      message: "maxRetryAttempts cannot be negative",
+      severity: "error",
+    });
   }
 
-  if (settings.maxConcurrentExecutions <= 0 || settings.maxConcurrentExecutions > 10) {
+  if (
+    settings.maxConcurrentExecutions <= 0 ||
+    settings.maxConcurrentExecutions > 10
+  ) {
     errors.push({
-      field: 'settings.maxConcurrentExecutions',
-      message: 'maxConcurrentExecutions must be between 1 and 10',
-      severity: 'error',
-    })
+      field: "settings.maxConcurrentExecutions",
+      message: "maxConcurrentExecutions must be between 1 and 10",
+      severity: "error",
+    });
   }
 }
 
@@ -633,48 +680,50 @@ function validateSettings(settings: WorkflowSettings, errors: WorkflowValidation
  * Detect circular dependencies among workflow steps.
  * Returns a description of the cycle if found, null otherwise.
  */
-export function detectCircularDependencies(steps: WorkflowStep[]): string | null {
-  const graph = new Map<string, string[]>()
+export function detectCircularDependencies(
+  steps: WorkflowStep[],
+): string | null {
+  const graph = new Map<string, string[]>();
   for (const step of steps) {
-    graph.set(step.id, step.dependsOn ?? [])
+    graph.set(step.id, step.dependsOn ?? []);
   }
 
-  const visited = new Set<string>()
-  const inStack = new Set<string>()
+  const visited = new Set<string>();
+  const inStack = new Set<string>();
 
   function dfs(nodeId: string, path: string[]): string | null {
     if (inStack.has(nodeId)) {
-      const cycleStart = path.indexOf(nodeId)
-      const cycle = path.slice(cycleStart).concat(nodeId)
-      return cycle.join(' -> ')
+      const cycleStart = path.indexOf(nodeId);
+      const cycle = path.slice(cycleStart).concat(nodeId);
+      return cycle.join(" -> ");
     }
     if (visited.has(nodeId)) {
-      return null
+      return null;
     }
 
-    visited.add(nodeId)
-    inStack.add(nodeId)
+    visited.add(nodeId);
+    inStack.add(nodeId);
 
-    const deps = graph.get(nodeId) ?? []
+    const deps = graph.get(nodeId) ?? [];
     for (const dep of deps) {
-      const result = dfs(dep, [...path, nodeId])
+      const result = dfs(dep, [...path, nodeId]);
       if (result) {
-        return result
+        return result;
       }
     }
 
-    inStack.delete(nodeId)
-    return null
+    inStack.delete(nodeId);
+    return null;
   }
 
   for (const step of steps) {
-    const result = dfs(step.id, [])
+    const result = dfs(step.id, []);
     if (result) {
-      return result
+      return result;
     }
   }
 
-  return null
+  return null;
 }
 
 // ============================================================================
@@ -686,66 +735,83 @@ export function detectCircularDependencies(steps: WorkflowStep[]): string | null
  */
 export function evaluateCondition(
   condition: TriggerCondition,
-  context: Record<string, unknown>
+  context: Record<string, unknown>,
 ): boolean {
-  const fieldValue = getNestedValue(context, condition.field)
+  const fieldValue = getNestedValue(context, condition.field);
 
   switch (condition.operator) {
-    case 'equals':
-      return fieldValue === condition.value
-    case 'not_equals':
-      return fieldValue !== condition.value
-    case 'contains':
-      if (typeof fieldValue === 'string' && typeof condition.value === 'string') {
-        return fieldValue.includes(condition.value)
+    case "equals":
+      return fieldValue === condition.value;
+    case "not_equals":
+      return fieldValue !== condition.value;
+    case "contains":
+      if (
+        typeof fieldValue === "string" &&
+        typeof condition.value === "string"
+      ) {
+        return fieldValue.includes(condition.value);
       }
       if (Array.isArray(fieldValue)) {
-        return fieldValue.includes(condition.value)
+        return fieldValue.includes(condition.value);
       }
-      return false
-    case 'not_contains':
-      if (typeof fieldValue === 'string' && typeof condition.value === 'string') {
-        return !fieldValue.includes(condition.value)
+      return false;
+    case "not_contains":
+      if (
+        typeof fieldValue === "string" &&
+        typeof condition.value === "string"
+      ) {
+        return !fieldValue.includes(condition.value);
       }
       if (Array.isArray(fieldValue)) {
-        return !fieldValue.includes(condition.value)
+        return !fieldValue.includes(condition.value);
       }
-      return true
-    case 'greater_than':
-      return typeof fieldValue === 'number' && typeof condition.value === 'number'
+      return true;
+    case "greater_than":
+      return typeof fieldValue === "number" &&
+        typeof condition.value === "number"
         ? fieldValue > condition.value
-        : false
-    case 'less_than':
-      return typeof fieldValue === 'number' && typeof condition.value === 'number'
+        : false;
+    case "less_than":
+      return typeof fieldValue === "number" &&
+        typeof condition.value === "number"
         ? fieldValue < condition.value
-        : false
-    case 'greater_than_or_equal':
-      return typeof fieldValue === 'number' && typeof condition.value === 'number'
+        : false;
+    case "greater_than_or_equal":
+      return typeof fieldValue === "number" &&
+        typeof condition.value === "number"
         ? fieldValue >= condition.value
-        : false
-    case 'less_than_or_equal':
-      return typeof fieldValue === 'number' && typeof condition.value === 'number'
+        : false;
+    case "less_than_or_equal":
+      return typeof fieldValue === "number" &&
+        typeof condition.value === "number"
         ? fieldValue <= condition.value
-        : false
-    case 'in':
-      return Array.isArray(condition.value) ? condition.value.includes(fieldValue) : false
-    case 'not_in':
-      return Array.isArray(condition.value) ? !condition.value.includes(fieldValue) : true
-    case 'matches_regex':
-      if (typeof fieldValue === 'string' && typeof condition.value === 'string') {
+        : false;
+    case "in":
+      return Array.isArray(condition.value)
+        ? condition.value.includes(fieldValue)
+        : false;
+    case "not_in":
+      return Array.isArray(condition.value)
+        ? !condition.value.includes(fieldValue)
+        : true;
+    case "matches_regex":
+      if (
+        typeof fieldValue === "string" &&
+        typeof condition.value === "string"
+      ) {
         try {
-          return new RegExp(condition.value).test(fieldValue)
+          return new RegExp(condition.value).test(fieldValue);
         } catch {
-          return false
+          return false;
         }
       }
-      return false
-    case 'exists':
-      return fieldValue !== undefined && fieldValue !== null
-    case 'not_exists':
-      return fieldValue === undefined || fieldValue === null
+      return false;
+    case "exists":
+      return fieldValue !== undefined && fieldValue !== null;
+    case "not_exists":
+      return fieldValue === undefined || fieldValue === null;
     default:
-      return false
+      return false;
   }
 }
 
@@ -754,27 +820,30 @@ export function evaluateCondition(
  */
 export function evaluateConditions(
   conditions: TriggerCondition[],
-  context: Record<string, unknown>
+  context: Record<string, unknown>,
 ): boolean {
-  return conditions.every(c => evaluateCondition(c, context))
+  return conditions.every((c) => evaluateCondition(c, context));
 }
 
 /**
  * Get a nested value from an object using dot-separated path.
  */
-export function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
-  const parts = path.split('.')
-  let current: unknown = obj
+export function getNestedValue(
+  obj: Record<string, unknown>,
+  path: string,
+): unknown {
+  const parts = path.split(".");
+  let current: unknown = obj;
   for (const part of parts) {
     if (current === null || current === undefined) {
-      return undefined
+      return undefined;
     }
-    if (typeof current !== 'object') {
-      return undefined
+    if (typeof current !== "object") {
+      return undefined;
     }
-    current = (current as Record<string, unknown>)[part]
+    current = (current as Record<string, unknown>)[part];
   }
-  return current
+  return current;
 }
 
 /**
@@ -783,13 +852,13 @@ export function getNestedValue(obj: Record<string, unknown>, path: string): unkn
  */
 export function interpolateTemplate(
   template: string,
-  context: Record<string, unknown>
+  context: Record<string, unknown>,
 ): string {
   return template.replace(/\{\{([^}]+)\}\}/g, (_match, path: string) => {
-    const value = getNestedValue(context, path.trim())
+    const value = getNestedValue(context, path.trim());
     if (value === undefined || value === null) {
-      return ''
+      return "";
     }
-    return String(value)
-  })
+    return String(value);
+  });
 }

@@ -3,27 +3,30 @@
  * Main page for managing social media integrations
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { SocialAccountManager } from '@/components/admin/SocialAccountManager'
-import { SocialIntegrationSettings } from '@/components/admin/SocialIntegrationSettings'
-import { SocialPostHistory } from '@/components/admin/SocialPostHistory'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useSocialAccounts } from '@/hooks/use-social-accounts'
+import { useState } from "react";
+import { SocialAccountManager } from "@/components/admin/SocialAccountManager";
+import { SocialIntegrationSettings } from "@/components/admin/SocialIntegrationSettings";
+import { SocialPostHistory } from "@/components/admin/SocialPostHistory";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSocialAccounts } from "@/hooks/use-social-accounts";
 
 export default function SocialMediaAdminPage() {
-  const { accounts } = useSocialAccounts()
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null)
+  const { accounts } = useSocialAccounts();
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
+    null,
+  );
 
-  const selectedAccount = accounts.find((acc) => acc.id === selectedAccountId)
+  const selectedAccount = accounts.find((acc) => acc.id === selectedAccountId);
 
   return (
     <div className="container mx-auto space-y-8 py-8">
       <div>
         <h1 className="text-3xl font-bold">Social Media Integration</h1>
         <p className="mt-2 text-muted-foreground">
-          Connect social media accounts and automatically import posts to channels
+          Connect social media accounts and automatically import posts to
+          channels
         </p>
       </div>
 
@@ -53,8 +56,8 @@ export default function SocialMediaAdminPage() {
                     onClick={() => setSelectedAccountId(account.id)}
                     className={`rounded-lg border px-4 py-2 transition-colors ${
                       selectedAccountId === account.id
-                        ? 'text-primary-foreground bg-primary'
-                        : 'bg-background hover:bg-accent'
+                        ? "text-primary-foreground bg-primary"
+                        : "bg-background hover:bg-accent"
                     }`}
                   >
                     {account.account_name}
@@ -86,5 +89,5 @@ export default function SocialMediaAdminPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

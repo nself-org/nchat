@@ -8,8 +8,12 @@
  * @version 1.0.0
  */
 
-import type { PlanTier, BillingInterval, Currency } from '@/types/subscription.types'
-import type { SubscriptionState } from './subscription-types'
+import type {
+  PlanTier,
+  BillingInterval,
+  Currency,
+} from "@/types/subscription.types";
+import type { SubscriptionState } from "./subscription-types";
 
 // ============================================================================
 // Time Period Types
@@ -18,20 +22,25 @@ import type { SubscriptionState } from './subscription-types'
 /**
  * Granularity for analytics time series.
  */
-export type AnalyticsGranularity = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly'
+export type AnalyticsGranularity =
+  | "daily"
+  | "weekly"
+  | "monthly"
+  | "quarterly"
+  | "yearly";
 
 /**
  * Date range for analytics queries.
  */
 export interface AnalyticsDateRange {
   /** Start of date range (inclusive) */
-  startDate: Date
+  startDate: Date;
   /** End of date range (inclusive) */
-  endDate: Date
+  endDate: Date;
   /** Time granularity for aggregation */
-  granularity: AnalyticsGranularity
+  granularity: AnalyticsGranularity;
   /** Timezone for date boundaries */
-  timezone?: string
+  timezone?: string;
 }
 
 /**
@@ -39,11 +48,11 @@ export interface AnalyticsDateRange {
  */
 export interface TimePeriodBucket {
   /** Period start date */
-  periodStart: Date
+  periodStart: Date;
   /** Period end date */
-  periodEnd: Date
+  periodEnd: Date;
   /** Label for display (e.g., "Jan 2026") */
-  label: string
+  label: string;
 }
 
 // ============================================================================
@@ -56,36 +65,36 @@ export interface TimePeriodBucket {
  */
 export interface MRRSnapshot {
   /** Snapshot date */
-  date: Date
+  date: Date;
   /** Total MRR in cents */
-  totalMRR: number
+  totalMRR: number;
   /** MRR by plan tier in cents */
-  byPlan: Record<PlanTier, number>
+  byPlan: Record<PlanTier, number>;
   /** New MRR from new subscriptions */
-  newMRR: number
+  newMRR: number;
   /** Expansion MRR from upgrades */
-  expansionMRR: number
+  expansionMRR: number;
   /** Contraction MRR from downgrades */
-  contractionMRR: number
+  contractionMRR: number;
   /** Churned MRR from cancellations */
-  churnedMRR: number
+  churnedMRR: number;
   /** Reactivation MRR from returning customers */
-  reactivationMRR: number
+  reactivationMRR: number;
   /** Net new MRR (new + expansion + reactivation - contraction - churned) */
-  netNewMRR: number
+  netNewMRR: number;
 }
 
 /**
  * Revenue breakdown by plan tier.
  */
 export interface RevenueByPlan {
-  plan: PlanTier
+  plan: PlanTier;
   /** Total revenue in cents */
-  revenue: number
+  revenue: number;
   /** Number of active subscriptions */
-  subscriptionCount: number
+  subscriptionCount: number;
   /** Percentage of total revenue */
-  revenueShare: number
+  revenueShare: number;
 }
 
 /**
@@ -93,17 +102,17 @@ export interface RevenueByPlan {
  */
 export interface RevenueGrowth {
   /** Current period revenue in cents */
-  currentRevenue: number
+  currentRevenue: number;
   /** Previous period revenue in cents */
-  previousRevenue: number
+  previousRevenue: number;
   /** Absolute change in cents */
-  absoluteChange: number
+  absoluteChange: number;
   /** Percentage change (0-100 scale) */
-  percentageChange: number
+  percentageChange: number;
   /** Month-over-month growth rate */
-  momGrowthRate: number
+  momGrowthRate: number;
   /** Year-over-year growth rate (null if insufficient data) */
-  yoyGrowthRate: number | null
+  yoyGrowthRate: number | null;
 }
 
 /**
@@ -111,23 +120,23 @@ export interface RevenueGrowth {
  */
 export interface RevenueAnalyticsReport {
   /** Date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** Current MRR snapshot */
-  currentMRR: MRRSnapshot
+  currentMRR: MRRSnapshot;
   /** Annualized recurring revenue in cents */
-  currentARR: number
+  currentARR: number;
   /** MRR time series */
-  mrrTimeSeries: MRRSnapshot[]
+  mrrTimeSeries: MRRSnapshot[];
   /** Revenue by plan breakdown */
-  revenueByPlan: RevenueByPlan[]
+  revenueByPlan: RevenueByPlan[];
   /** Revenue growth metrics */
-  growth: RevenueGrowth
+  growth: RevenueGrowth;
   /** Total revenue for period in cents */
-  totalRevenue: number
+  totalRevenue: number;
   /** Currency */
-  currency: Currency
+  currency: Currency;
   /** Generated at */
-  generatedAt: Date
+  generatedAt: Date;
 }
 
 // ============================================================================
@@ -139,19 +148,19 @@ export interface RevenueAnalyticsReport {
  */
 export interface ChurnMetrics {
   /** Number of active subscriptions at start of period */
-  startCount: number
+  startCount: number;
   /** Number of cancellations during period */
-  canceledCount: number
+  canceledCount: number;
   /** Customer churn rate (percentage, 0-100) */
-  customerChurnRate: number
+  customerChurnRate: number;
   /** Revenue churn rate (percentage, 0-100) */
-  revenueChurnRate: number
+  revenueChurnRate: number;
   /** Net revenue churn rate (after expansion, percentage) */
-  netRevenueChurnRate: number
+  netRevenueChurnRate: number;
   /** MRR churned in cents */
-  churnedMRR: number
+  churnedMRR: number;
   /** Period */
-  period: TimePeriodBucket
+  period: TimePeriodBucket;
 }
 
 /**
@@ -159,15 +168,15 @@ export interface ChurnMetrics {
  */
 export interface RetentionCohort {
   /** Cohort start date (month customers signed up) */
-  cohortDate: Date
+  cohortDate: Date;
   /** Cohort label */
-  cohortLabel: string
+  cohortLabel: string;
   /** Number of customers in cohort */
-  cohortSize: number
+  cohortSize: number;
   /** Retention percentages by month [month0=100%, month1, month2, ...] */
-  retentionByMonth: number[]
+  retentionByMonth: number[];
   /** Revenue retention percentages by month */
-  revenueRetentionByMonth: number[]
+  revenueRetentionByMonth: number[];
 }
 
 /**
@@ -175,52 +184,52 @@ export interface RetentionCohort {
  */
 export interface AtRiskSignal {
   /** Signal type */
-  type: AtRiskSignalType
+  type: AtRiskSignalType;
   /** Signal weight (0-1, higher = more likely to churn) */
-  weight: number
+  weight: number;
   /** Description */
-  description: string
+  description: string;
   /** Detected at */
-  detectedAt: Date
+  detectedAt: Date;
   /** Additional data */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
 }
 
 /**
  * Types of at-risk signals.
  */
 export type AtRiskSignalType =
-  | 'payment_failed'
-  | 'downgrade'
-  | 'usage_decline'
-  | 'support_tickets'
-  | 'no_login'
-  | 'feature_disengagement'
-  | 'contract_ending'
-  | 'competitor_mention'
+  | "payment_failed"
+  | "downgrade"
+  | "usage_decline"
+  | "support_tickets"
+  | "no_login"
+  | "feature_disengagement"
+  | "contract_ending"
+  | "competitor_mention";
 
 /**
  * At-risk customer assessment.
  */
 export interface AtRiskCustomer {
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Current plan */
-  plan: PlanTier
+  plan: PlanTier;
   /** Monthly revenue in cents */
-  monthlyRevenue: number
+  monthlyRevenue: number;
   /** Risk score (0-100, higher = more at risk) */
-  riskScore: number
+  riskScore: number;
   /** Risk signals */
-  signals: AtRiskSignal[]
+  signals: AtRiskSignal[];
   /** Days since last active */
-  daysSinceActive: number
+  daysSinceActive: number;
   /** Customer tenure in months */
-  tenureMonths: number
+  tenureMonths: number;
   /** Assessment date */
-  assessedAt: Date
+  assessedAt: Date;
 }
 
 /**
@@ -228,19 +237,19 @@ export interface AtRiskCustomer {
  */
 export interface ChurnAnalyticsReport {
   /** Date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** Current churn metrics */
-  currentChurn: ChurnMetrics
+  currentChurn: ChurnMetrics;
   /** Churn time series */
-  churnTimeSeries: ChurnMetrics[]
+  churnTimeSeries: ChurnMetrics[];
   /** Retention cohorts */
-  retentionCohorts: RetentionCohort[]
+  retentionCohorts: RetentionCohort[];
   /** At-risk customers */
-  atRiskCustomers: AtRiskCustomer[]
+  atRiskCustomers: AtRiskCustomer[];
   /** Cancellation reason breakdown */
-  cancellationReasons: CancellationReasonBreakdown[]
+  cancellationReasons: CancellationReasonBreakdown[];
   /** Generated at */
-  generatedAt: Date
+  generatedAt: Date;
 }
 
 /**
@@ -248,13 +257,13 @@ export interface ChurnAnalyticsReport {
  */
 export interface CancellationReasonBreakdown {
   /** Reason */
-  reason: string
+  reason: string;
   /** Count */
-  count: number
+  count: number;
   /** Percentage */
-  percentage: number
+  percentage: number;
   /** MRR lost in cents */
-  mrrLost: number
+  mrrLost: number;
 }
 
 // ============================================================================
@@ -266,15 +275,15 @@ export interface CancellationReasonBreakdown {
  */
 export interface ARPUMetrics {
   /** Overall ARPU in cents */
-  overallARPU: number
+  overallARPU: number;
   /** ARPU by plan tier in cents */
-  byPlan: Record<PlanTier, number>
+  byPlan: Record<PlanTier, number>;
   /** ARPU by billing interval in cents */
-  byInterval: Record<BillingInterval, number>
+  byInterval: Record<BillingInterval, number>;
   /** ARPU trend (percentage change) */
-  trend: number
+  trend: number;
   /** Period */
-  period: TimePeriodBucket
+  period: TimePeriodBucket;
 }
 
 /**
@@ -282,15 +291,15 @@ export interface ARPUMetrics {
  */
 export interface LTVMetrics {
   /** Average LTV in cents */
-  averageLTV: number
+  averageLTV: number;
   /** LTV by plan tier in cents */
-  byPlan: Record<PlanTier, number>
+  byPlan: Record<PlanTier, number>;
   /** Average customer lifespan in months */
-  averageLifespanMonths: number
+  averageLifespanMonths: number;
   /** LTV:CAC ratio (if CAC is provided) */
-  ltvCacRatio: number | null
+  ltvCacRatio: number | null;
   /** Projected LTV based on current ARPU and churn */
-  projectedLTV: number
+  projectedLTV: number;
 }
 
 /**
@@ -298,21 +307,21 @@ export interface LTVMetrics {
  */
 export interface CustomerSegment {
   /** Segment name */
-  name: string
+  name: string;
   /** Segment criteria description */
-  criteria: string
+  criteria: string;
   /** Number of customers */
-  count: number
+  count: number;
   /** Percentage of total */
-  percentage: number
+  percentage: number;
   /** Total revenue in cents */
-  totalRevenue: number
+  totalRevenue: number;
   /** Average revenue per customer in cents */
-  averageRevenue: number
+  averageRevenue: number;
   /** Average tenure in months */
-  averageTenure: number
+  averageTenure: number;
   /** Churn rate */
-  churnRate: number
+  churnRate: number;
 }
 
 /**
@@ -320,21 +329,21 @@ export interface CustomerSegment {
  */
 export interface CustomerAnalyticsReport {
   /** Date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** ARPU metrics */
-  arpu: ARPUMetrics
+  arpu: ARPUMetrics;
   /** LTV metrics */
-  ltv: LTVMetrics
+  ltv: LTVMetrics;
   /** Customer segments */
-  segments: CustomerSegment[]
+  segments: CustomerSegment[];
   /** Total active customers */
-  totalActiveCustomers: number
+  totalActiveCustomers: number;
   /** New customers in period */
-  newCustomers: number
+  newCustomers: number;
   /** ARPU time series */
-  arpuTimeSeries: ARPUMetrics[]
+  arpuTimeSeries: ARPUMetrics[];
   /** Generated at */
-  generatedAt: Date
+  generatedAt: Date;
 }
 
 // ============================================================================
@@ -344,41 +353,46 @@ export interface CustomerAnalyticsReport {
 /**
  * Severity of entitlement drift.
  */
-export type DriftSeverity = 'none' | 'minor' | 'moderate' | 'severe' | 'critical'
+export type DriftSeverity =
+  | "none"
+  | "minor"
+  | "moderate"
+  | "severe"
+  | "critical";
 
 /**
  * Drift direction.
  */
-export type DriftDirection = 'over' | 'under' | 'none'
+export type DriftDirection = "over" | "under" | "none";
 
 /**
  * Single entitlement drift entry.
  */
 export interface EntitlementDriftEntry {
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Current plan */
-  plan: PlanTier
+  plan: PlanTier;
   /** Resource type */
-  resource: string
+  resource: string;
   /** Current usage (integer) */
-  currentUsage: number
+  currentUsage: number;
   /** Plan limit (null = unlimited) */
-  planLimit: number | null
+  planLimit: number | null;
   /** Drift direction */
-  direction: DriftDirection
+  direction: DriftDirection;
   /** Drift amount (absolute) */
-  driftAmount: number
+  driftAmount: number;
   /** Drift percentage (0-100 for over-usage; negative for under-usage) */
-  driftPercentage: number
+  driftPercentage: number;
   /** Severity */
-  severity: DriftSeverity
+  severity: DriftSeverity;
   /** Detected at */
-  detectedAt: Date
+  detectedAt: Date;
   /** Recommended action */
-  recommendedAction: string
+  recommendedAction: string;
 }
 
 /**
@@ -386,17 +400,17 @@ export interface EntitlementDriftEntry {
  */
 export interface DriftAlert {
   /** Alert ID */
-  id: string
+  id: string;
   /** Related drift entry */
-  drift: EntitlementDriftEntry
+  drift: EntitlementDriftEntry;
   /** Whether alert has been acknowledged */
-  acknowledged: boolean
+  acknowledged: boolean;
   /** Acknowledged by */
-  acknowledgedBy: string | null
+  acknowledgedBy: string | null;
   /** Acknowledged at */
-  acknowledgedAt: Date | null
+  acknowledgedAt: Date | null;
   /** Created at */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
@@ -404,23 +418,23 @@ export interface DriftAlert {
  */
 export interface EntitlementDriftReport {
   /** Date of analysis */
-  analysisDate: Date
+  analysisDate: Date;
   /** Total workspaces analyzed */
-  totalWorkspacesAnalyzed: number
+  totalWorkspacesAnalyzed: number;
   /** Workspaces with drift */
-  workspacesWithDrift: number
+  workspacesWithDrift: number;
   /** All drift entries */
-  driftEntries: EntitlementDriftEntry[]
+  driftEntries: EntitlementDriftEntry[];
   /** Active alerts */
-  activeAlerts: DriftAlert[]
+  activeAlerts: DriftAlert[];
   /** Summary by severity */
-  bySeverity: Record<DriftSeverity, number>
+  bySeverity: Record<DriftSeverity, number>;
   /** Summary by resource */
-  byResource: Record<string, number>
+  byResource: Record<string, number>;
   /** Estimated revenue impact in cents (from over-usage not being billed) */
-  estimatedRevenueImpact: number
+  estimatedRevenueImpact: number;
   /** Generated at */
-  generatedAt: Date
+  generatedAt: Date;
 }
 
 // ============================================================================
@@ -430,67 +444,67 @@ export interface EntitlementDriftReport {
 /**
  * Ledger entry source.
  */
-export type LedgerSource = 'stripe' | 'crypto' | 'internal' | 'manual'
+export type LedgerSource = "stripe" | "crypto" | "internal" | "manual";
 
 /**
  * Ledger entry for reconciliation.
  */
 export interface LedgerEntry {
   /** Entry ID */
-  id: string
+  id: string;
   /** Source system */
-  source: LedgerSource
+  source: LedgerSource;
   /** External ID (Stripe payment intent ID, crypto tx hash, etc.) */
-  externalId: string
+  externalId: string;
   /** Workspace or organization ID */
-  entityId: string
+  entityId: string;
   /** Amount in cents */
-  amount: number
+  amount: number;
   /** Currency */
-  currency: Currency
+  currency: Currency;
   /** Entry type */
-  type: 'payment' | 'refund' | 'credit' | 'fee' | 'adjustment'
+  type: "payment" | "refund" | "credit" | "fee" | "adjustment";
   /** Description */
-  description: string
+  description: string;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Metadata */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
 }
 
 /**
  * Reconciliation match status.
  */
 export type ReconciliationMatchStatus =
-  | 'matched'
-  | 'amount_mismatch'
-  | 'missing_internal'
-  | 'missing_external'
-  | 'duplicate'
-  | 'timing_difference'
+  | "matched"
+  | "amount_mismatch"
+  | "missing_internal"
+  | "missing_external"
+  | "duplicate"
+  | "timing_difference";
 
 /**
  * A single reconciliation match result.
  */
 export interface ReconciliationMatch {
   /** Match ID */
-  id: string
+  id: string;
   /** External ledger entry */
-  externalEntry: LedgerEntry | null
+  externalEntry: LedgerEntry | null;
   /** Internal ledger entry */
-  internalEntry: LedgerEntry | null
+  internalEntry: LedgerEntry | null;
   /** Match status */
-  status: ReconciliationMatchStatus
+  status: ReconciliationMatchStatus;
   /** Discrepancy amount in cents (0 if matched) */
-  discrepancyAmount: number
+  discrepancyAmount: number;
   /** Discrepancy reason */
-  discrepancyReason: string | null
+  discrepancyReason: string | null;
   /** Whether within tolerance */
-  withinTolerance: boolean
+  withinTolerance: boolean;
   /** Resolved */
-  resolved: boolean
+  resolved: boolean;
   /** Resolution notes */
-  resolutionNotes: string | null
+  resolutionNotes: string | null;
 }
 
 /**
@@ -498,39 +512,39 @@ export interface ReconciliationMatch {
  */
 export interface ReconciliationSummary {
   /** Date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** Total external entries */
-  totalExternalEntries: number
+  totalExternalEntries: number;
   /** Total internal entries */
-  totalInternalEntries: number
+  totalInternalEntries: number;
   /** Matched count */
-  matchedCount: number
+  matchedCount: number;
   /** Mismatched count */
-  mismatchedCount: number
+  mismatchedCount: number;
   /** Missing from internal count */
-  missingInternalCount: number
+  missingInternalCount: number;
   /** Missing from external count */
-  missingExternalCount: number
+  missingExternalCount: number;
   /** Total external amount in cents */
-  totalExternalAmount: number
+  totalExternalAmount: number;
   /** Total internal amount in cents */
-  totalInternalAmount: number
+  totalInternalAmount: number;
   /** Net discrepancy in cents */
-  netDiscrepancy: number
+  netDiscrepancy: number;
   /** Absolute discrepancy in cents */
-  absoluteDiscrepancy: number
+  absoluteDiscrepancy: number;
   /** Reconciliation rate (0-100) */
-  reconciliationRate: number
+  reconciliationRate: number;
   /** Within tolerance */
-  withinTolerance: boolean
+  withinTolerance: boolean;
   /** Tolerance amount in cents */
-  toleranceAmount: number
+  toleranceAmount: number;
   /** All matches */
-  matches: ReconciliationMatch[]
+  matches: ReconciliationMatch[];
   /** Source */
-  source: LedgerSource
+  source: LedgerSource;
   /** Generated at */
-  generatedAt: Date
+  generatedAt: Date;
 }
 
 // ============================================================================
@@ -540,41 +554,41 @@ export interface ReconciliationSummary {
 /**
  * Report format options.
  */
-export type ReportFormat = 'json' | 'csv'
+export type ReportFormat = "json" | "csv";
 
 /**
  * Report type options.
  */
 export type BillingReportType =
-  | 'revenue'
-  | 'churn'
-  | 'customer'
-  | 'entitlement_drift'
-  | 'reconciliation'
-  | 'comprehensive'
+  | "revenue"
+  | "churn"
+  | "customer"
+  | "entitlement_drift"
+  | "reconciliation"
+  | "comprehensive";
 
 /**
  * Report request.
  */
 export interface BillingReportRequest {
   /** Report type */
-  type: BillingReportType
+  type: BillingReportType;
   /** Date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** Output format */
-  format: ReportFormat
+  format: ReportFormat;
   /** Filter by plan tiers */
-  planFilter?: PlanTier[]
+  planFilter?: PlanTier[];
   /** Filter by subscription states */
-  stateFilter?: SubscriptionState[]
+  stateFilter?: SubscriptionState[];
   /** Include detailed entries */
-  includeDetails?: boolean
+  includeDetails?: boolean;
   /** Reconciliation tolerance in cents */
-  reconciliationTolerance?: number
+  reconciliationTolerance?: number;
   /** Requested by */
-  requestedBy: string
+  requestedBy: string;
   /** Request timestamp */
-  requestedAt: Date
+  requestedAt: Date;
 }
 
 /**
@@ -582,23 +596,23 @@ export interface BillingReportRequest {
  */
 export interface BillingReportMetadata {
   /** Report ID */
-  id: string
+  id: string;
   /** Report type */
-  type: BillingReportType
+  type: BillingReportType;
   /** Format */
-  format: ReportFormat
+  format: ReportFormat;
   /** Date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** Generated at */
-  generatedAt: Date
+  generatedAt: Date;
   /** Generation duration in milliseconds */
-  generationDurationMs: number
+  generationDurationMs: number;
   /** Row count (for CSV) */
-  rowCount: number
+  rowCount: number;
   /** File size in bytes (if applicable) */
-  fileSizeBytes: number | null
+  fileSizeBytes: number | null;
   /** Requested by */
-  requestedBy: string
+  requestedBy: string;
 }
 
 /**
@@ -606,11 +620,17 @@ export interface BillingReportMetadata {
  */
 export interface BillingReport {
   /** Report metadata */
-  metadata: BillingReportMetadata
+  metadata: BillingReportMetadata;
   /** Report data (JSON) */
-  data: RevenueAnalyticsReport | ChurnAnalyticsReport | CustomerAnalyticsReport | EntitlementDriftReport | ReconciliationSummary | ComprehensiveReport
+  data:
+    | RevenueAnalyticsReport
+    | ChurnAnalyticsReport
+    | CustomerAnalyticsReport
+    | EntitlementDriftReport
+    | ReconciliationSummary
+    | ComprehensiveReport;
   /** CSV content (if format is CSV) */
-  csv: string | null
+  csv: string | null;
 }
 
 /**
@@ -618,17 +638,17 @@ export interface BillingReport {
  */
 export interface ComprehensiveReport {
   /** Revenue analytics */
-  revenue: RevenueAnalyticsReport
+  revenue: RevenueAnalyticsReport;
   /** Churn analytics */
-  churn: ChurnAnalyticsReport
+  churn: ChurnAnalyticsReport;
   /** Customer analytics */
-  customer: CustomerAnalyticsReport
+  customer: CustomerAnalyticsReport;
   /** Entitlement drift */
-  entitlementDrift: EntitlementDriftReport
+  entitlementDrift: EntitlementDriftReport;
   /** Reconciliation */
-  reconciliation: ReconciliationSummary
+  reconciliation: ReconciliationSummary;
   /** Generated at */
-  generatedAt: Date
+  generatedAt: Date;
 }
 
 // ============================================================================
@@ -640,29 +660,29 @@ export interface ComprehensiveReport {
  */
 export interface AnalyticsSubscription {
   /** Subscription ID */
-  id: string
+  id: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Plan tier */
-  plan: PlanTier
+  plan: PlanTier;
   /** Billing interval */
-  interval: BillingInterval
+  interval: BillingInterval;
   /** State */
-  state: SubscriptionState
+  state: SubscriptionState;
   /** Monthly amount in cents */
-  monthlyAmount: number
+  monthlyAmount: number;
   /** Created at */
-  createdAt: Date
+  createdAt: Date;
   /** Canceled at (null if not canceled) */
-  canceledAt: Date | null
+  canceledAt: Date | null;
   /** Cancellation reason */
-  cancellationReason: string | null
+  cancellationReason: string | null;
   /** Last active date */
-  lastActiveAt: Date
+  lastActiveAt: Date;
   /** Customer acquisition cost in cents (optional) */
-  cac: number | null
+  cac: number | null;
 }
 
 /**
@@ -670,23 +690,23 @@ export interface AnalyticsSubscription {
  */
 export interface AnalyticsPayment {
   /** Payment ID */
-  id: string
+  id: string;
   /** Subscription ID */
-  subscriptionId: string
+  subscriptionId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Amount in cents */
-  amount: number
+  amount: number;
   /** Currency */
-  currency: Currency
+  currency: Currency;
   /** Source */
-  source: LedgerSource
+  source: LedgerSource;
   /** External reference ID */
-  externalId: string
+  externalId: string;
   /** Status */
-  status: 'succeeded' | 'failed' | 'refunded' | 'pending'
+  status: "succeeded" | "failed" | "refunded" | "pending";
   /** Created at */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
@@ -694,19 +714,19 @@ export interface AnalyticsPayment {
  */
 export interface AnalyticsUsageRecord {
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Organization ID */
-  organizationId: string
+  organizationId: string;
   /** Plan tier */
-  plan: PlanTier
+  plan: PlanTier;
   /** Resource type */
-  resource: string
+  resource: string;
   /** Current usage */
-  currentUsage: number
+  currentUsage: number;
   /** Plan limit (null = unlimited) */
-  planLimit: number | null
+  planLimit: number | null;
   /** Recorded at */
-  recordedAt: Date
+  recordedAt: Date;
 }
 
 // ============================================================================
@@ -717,14 +737,14 @@ export interface AnalyticsUsageRecord {
  * Billing analytics error codes.
  */
 export enum BillingAnalyticsErrorCode {
-  INVALID_DATE_RANGE = 'INVALID_DATE_RANGE',
-  INSUFFICIENT_DATA = 'INSUFFICIENT_DATA',
-  INVALID_REPORT_TYPE = 'INVALID_REPORT_TYPE',
-  GENERATION_FAILED = 'GENERATION_FAILED',
-  RECONCILIATION_FAILED = 'RECONCILIATION_FAILED',
-  EXPORT_FAILED = 'EXPORT_FAILED',
-  INVALID_FORMAT = 'INVALID_FORMAT',
-  DATA_INTEGRITY_ERROR = 'DATA_INTEGRITY_ERROR',
+  INVALID_DATE_RANGE = "INVALID_DATE_RANGE",
+  INSUFFICIENT_DATA = "INSUFFICIENT_DATA",
+  INVALID_REPORT_TYPE = "INVALID_REPORT_TYPE",
+  GENERATION_FAILED = "GENERATION_FAILED",
+  RECONCILIATION_FAILED = "RECONCILIATION_FAILED",
+  EXPORT_FAILED = "EXPORT_FAILED",
+  INVALID_FORMAT = "INVALID_FORMAT",
+  DATA_INTEGRITY_ERROR = "DATA_INTEGRITY_ERROR",
 }
 
 /**
@@ -734,9 +754,9 @@ export class BillingAnalyticsError extends Error {
   constructor(
     public readonly code: BillingAnalyticsErrorCode,
     message: string,
-    public readonly metadata?: Record<string, unknown>
+    public readonly metadata?: Record<string, unknown>,
   ) {
-    super(message)
-    this.name = 'BillingAnalyticsError'
+    super(message);
+    this.name = "BillingAnalyticsError";
   }
 }

@@ -13,25 +13,25 @@
 // =============================================================================
 
 export interface QueryStats {
-  query: string
-  count: number
-  totalTime: number
-  averageTime: number
-  maxTime: number
-  minTime: number
-  lastExecuted: Date
+  query: string;
+  count: number;
+  totalTime: number;
+  averageTime: number;
+  maxTime: number;
+  minTime: number;
+  lastExecuted: Date;
 }
 
 export interface BatchOptions {
-  maxBatchSize?: number
-  batchWindowMs?: number
+  maxBatchSize?: number;
+  batchWindowMs?: number;
 }
 
 export interface QueryOptimization {
-  query: string
-  issue: string
-  recommendation: string
-  estimatedImprovement: string
+  query: string;
+  issue: string;
+  recommendation: string;
+  estimatedImprovement: string;
 }
 
 // =============================================================================
@@ -42,87 +42,87 @@ export interface QueryOptimization {
  * Generic query batcher for deduplication and batching
  */
 export class QueryBatcher<K, V> {
-  private pendingBatches: Map<string, Promise<V>> = new Map()
-  private batchQueue: K[] = []
-  private batchTimer?: NodeJS.Timeout
-  private options: Required<BatchOptions>
+  private pendingBatches: Map<string, Promise<V>> = new Map();
+  private batchQueue: K[] = [];
+  private batchTimer?: NodeJS.Timeout;
+  private options: Required<BatchOptions>;
 
   constructor(
     private batchFn: (keys: K[]) => Promise<V[]>,
-    options: BatchOptions = {}
+    options: BatchOptions = {},
   ) {
     this.options = {
       maxBatchSize: options.maxBatchSize || 100,
       batchWindowMs: options.batchWindowMs || 10,
-    }
+    };
   }
 
   /**
    * Load a single item (will be batched)
    */
   async load(key: K): Promise<V> {
-    const keyString = JSON.stringify(key)
+    const keyString = JSON.stringify(key);
 
     // Check if already pending
-    const existing = this.pendingBatches.get(keyString)
+    const existing = this.pendingBatches.get(keyString);
     if (existing) {
-      return existing
+      return existing;
     }
 
     // Create promise and add to queue
     const promise = new Promise<V>((resolve, reject) => {
-      this.batchQueue.push(key)
+      this.batchQueue.push(key);
 
       // Set timer to process batch
       if (!this.batchTimer) {
         this.batchTimer = setTimeout(() => {
-          this.processBatch().catch(reject)
-        }, this.options.batchWindowMs)
+          this.processBatch().catch(reject);
+        }, this.options.batchWindowMs);
       }
 
       // Process immediately if batch is full
       if (this.batchQueue.length >= this.options.maxBatchSize) {
         if (this.batchTimer) {
-          clearTimeout(this.batchTimer)
-          this.batchTimer = undefined
+          clearTimeout(this.batchTimer);
+          this.batchTimer = undefined;
         }
         this.processBatch()
           .then(() => resolve(this.pendingBatches.get(keyString) as Promise<V>))
-          .catch(reject)
+          .catch(reject);
       }
-    })
+    });
 
-    this.pendingBatches.set(keyString, promise)
-    return promise
+    this.pendingBatches.set(keyString, promise);
+    return promise;
   }
 
   /**
    * Process batched queries
    */
   private async processBatch(): Promise<void> {
-    if (this.batchQueue.length === 0) return
+    if (this.batchQueue.length === 0) return;
 
-    const batch = [...this.batchQueue]
-    this.batchQueue = []
-    this.batchTimer = undefined
+    const batch = [...this.batchQueue];
+    this.batchQueue = [];
+    this.batchTimer = undefined;
 
     try {
-      const results = await this.batchFn(batch)
+      const results = await this.batchFn(batch);
 
       // Resolve all pending promises
       batch.forEach((key, index) => {
-        const keyString = JSON.stringify(key)
-        const result = results[index]
+        const keyString = JSON.stringify(key);
+        const result = results[index];
 
         // Replace promise with resolved value
-        this.pendingBatches.set(keyString, Promise.resolve(result))
-      })
+        this.pendingBatches.set(keyString, Promise.resolve(result));
+      });
     } catch (error) {
       // Reject all pending promises
       batch.forEach((key) => {
-        const keyString = JSON.stringify(key)
-        this.pendingBatches.set(keyString, Promise.reject(error))
-      })
+        const keyString = JSON.stringify(key);
+        this.pendingBatches.set(keyString, Promise.reject(error));
+      });
     }
   }
 
@@ -131,11 +131,11 @@ export class QueryBatcher<K, V> {
    */
   clear(): void {
     if (this.batchTimer) {
-      clearTimeout(this.batchTimer)
-      this.batchTimer = undefined
+      clearTimeout(this.batchTimer);
+      this.batchTimer = undefined;
     }
-    this.batchQueue = []
-    this.pendingBatches.clear()
+    this.batchQueue = [];
+    this.pendingBatches.clear();
   }
 }
 
@@ -147,30 +147,30 @@ export class QueryBatcher<K, V> {
  * Monitor query performance
  */
 export class QueryMonitor {
-  private stats: Map<string, QueryStats> = new Map()
-  private enabled = process.env.NODE_ENV === 'development'
+  private stats: Map<string, QueryStats> = new Map();
+  private enabled = process.env.NODE_ENV === "development";
 
   /**
    * Track query execution
    */
   async trackQuery<T>(query: string, executor: () => Promise<T>): Promise<T> {
     if (!this.enabled) {
-      return executor()
+      return executor();
     }
 
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const result = await executor()
-      const duration = Date.now() - startTime
+      const result = await executor();
+      const duration = Date.now() - startTime;
 
-      this.recordQuery(query, duration)
+      this.recordQuery(query, duration);
 
-      return result
+      return result;
     } catch (error) {
-      const duration = Date.now() - startTime
-      this.recordQuery(query, duration)
-      throw error
+      const duration = Date.now() - startTime;
+      this.recordQuery(query, duration);
+      throw error;
     }
   }
 
@@ -178,15 +178,15 @@ export class QueryMonitor {
    * Record query stats
    */
   private recordQuery(query: string, duration: number): void {
-    const existing = this.stats.get(query)
+    const existing = this.stats.get(query);
 
     if (existing) {
-      existing.count++
-      existing.totalTime += duration
-      existing.averageTime = existing.totalTime / existing.count
-      existing.maxTime = Math.max(existing.maxTime, duration)
-      existing.minTime = Math.min(existing.minTime, duration)
-      existing.lastExecuted = new Date()
+      existing.count++;
+      existing.totalTime += duration;
+      existing.averageTime = existing.totalTime / existing.count;
+      existing.maxTime = Math.max(existing.maxTime, duration);
+      existing.minTime = Math.min(existing.minTime, duration);
+      existing.lastExecuted = new Date();
     } else {
       this.stats.set(query, {
         query,
@@ -196,7 +196,7 @@ export class QueryMonitor {
         maxTime: duration,
         minTime: duration,
         lastExecuted: new Date(),
-      })
+      });
     }
   }
 
@@ -204,14 +204,14 @@ export class QueryMonitor {
    * Get all query stats
    */
   getStats(): QueryStats[] {
-    return Array.from(this.stats.values())
+    return Array.from(this.stats.values());
   }
 
   /**
    * Get slow queries (> threshold ms)
    */
   getSlowQueries(thresholdMs = 1000): QueryStats[] {
-    return this.getStats().filter((stat) => stat.averageTime > thresholdMs)
+    return this.getStats().filter((stat) => stat.averageTime > thresholdMs);
   }
 
   /**
@@ -220,21 +220,21 @@ export class QueryMonitor {
   getMostFrequent(limit = 10): QueryStats[] {
     return this.getStats()
       .sort((a, b) => b.count - a.count)
-      .slice(0, limit)
+      .slice(0, limit);
   }
 
   /**
    * Clear stats
    */
   clear(): void {
-    this.stats.clear()
+    this.stats.clear();
   }
 
   /**
    * Enable/disable monitoring
    */
   setEnabled(enabled: boolean): void {
-    this.enabled = enabled
+    this.enabled = enabled;
   }
 }
 
@@ -250,40 +250,41 @@ export class QueryOptimizer {
    * Analyze query and suggest optimizations
    */
   analyze(query: string, stats?: QueryStats): QueryOptimization[] {
-    const optimizations: QueryOptimization[] = []
+    const optimizations: QueryOptimization[] = [];
 
     // Check for SELECT *
-    if (query.includes('SELECT *')) {
+    if (query.includes("SELECT *")) {
       optimizations.push({
         query,
-        issue: 'Using SELECT * fetches all columns',
-        recommendation: 'Specify only needed columns to reduce data transfer',
-        estimatedImprovement: '10-50% faster',
-      })
+        issue: "Using SELECT * fetches all columns",
+        recommendation: "Specify only needed columns to reduce data transfer",
+        estimatedImprovement: "10-50% faster",
+      });
     }
 
     // Check for missing WHERE clause
     if (
-      query.toUpperCase().includes('SELECT') &&
-      !query.toUpperCase().includes('WHERE') &&
-      !query.toUpperCase().includes('LIMIT')
+      query.toUpperCase().includes("SELECT") &&
+      !query.toUpperCase().includes("WHERE") &&
+      !query.toUpperCase().includes("LIMIT")
     ) {
       optimizations.push({
         query,
-        issue: 'Query without WHERE or LIMIT clause',
-        recommendation: 'Add WHERE clause or LIMIT to prevent full table scans',
-        estimatedImprovement: '50-90% faster',
-      })
+        issue: "Query without WHERE or LIMIT clause",
+        recommendation: "Add WHERE clause or LIMIT to prevent full table scans",
+        estimatedImprovement: "50-90% faster",
+      });
     }
 
     // Check for N+1 queries
     if (stats && stats.count > 100 && stats.averageTime < 50) {
       optimizations.push({
         query,
-        issue: 'Potential N+1 query detected (many fast queries)',
-        recommendation: 'Use batching or JOIN to fetch related data in one query',
-        estimatedImprovement: '80-95% faster',
-      })
+        issue: "Potential N+1 query detected (many fast queries)",
+        recommendation:
+          "Use batching or JOIN to fetch related data in one query",
+        estimatedImprovement: "80-95% faster",
+      });
     }
 
     // Check for slow queries
@@ -291,41 +292,42 @@ export class QueryOptimizer {
       optimizations.push({
         query,
         issue: `Slow query (avg ${stats.averageTime}ms)`,
-        recommendation: 'Add indexes on WHERE/JOIN columns or optimize query logic',
-        estimatedImprovement: '60-90% faster',
-      })
+        recommendation:
+          "Add indexes on WHERE/JOIN columns or optimize query logic",
+        estimatedImprovement: "60-90% faster",
+      });
     }
 
     // Check for missing indexes on common patterns
-    const whereMatch = query.match(/WHERE\s+(\w+)\s*=/i)
+    const whereMatch = query.match(/WHERE\s+(\w+)\s*=/i);
     if (whereMatch) {
       optimizations.push({
         query,
         issue: `Filtering on column: ${whereMatch[1]}`,
         recommendation: `Consider adding index: CREATE INDEX idx_${whereMatch[1]} ON table(${whereMatch[1]})`,
-        estimatedImprovement: '70-95% faster',
-      })
+        estimatedImprovement: "70-95% faster",
+      });
     }
 
-    return optimizations
+    return optimizations;
   }
 
   /**
    * Generate index recommendations from query patterns
    */
   recommendIndexes(queries: QueryStats[]): string[] {
-    const recommendations = new Set<string>()
+    const recommendations = new Set<string>();
 
     for (const stat of queries) {
-      const optimizations = this.analyze(stat.query, stat)
+      const optimizations = this.analyze(stat.query, stat);
       for (const opt of optimizations) {
-        if (opt.recommendation.includes('CREATE INDEX')) {
-          recommendations.add(opt.recommendation)
+        if (opt.recommendation.includes("CREATE INDEX")) {
+          recommendations.add(opt.recommendation);
         }
       }
     }
 
-    return Array.from(recommendations)
+    return Array.from(recommendations);
   }
 }
 
@@ -338,25 +340,25 @@ export class QueryOptimizer {
  */
 export function createDataLoader<K, V>(
   batchFn: (keys: K[]) => Promise<(V | Error)[]>,
-  options?: BatchOptions
+  options?: BatchOptions,
 ): (key: K) => Promise<V> {
-  const batcher = new QueryBatcher<K, V | Error>(batchFn, options)
+  const batcher = new QueryBatcher<K, V | Error>(batchFn, options);
 
   return async (key: K): Promise<V> => {
-    const result = await batcher.load(key)
+    const result = await batcher.load(key);
     if (result instanceof Error) {
-      throw result
+      throw result;
     }
-    return result
-  }
+    return result;
+  };
 }
 
 // =============================================================================
 // Singleton Instances
 // =============================================================================
 
-export const queryMonitor = new QueryMonitor()
-export const queryOptimizer = new QueryOptimizer()
+export const queryMonitor = new QueryMonitor();
+export const queryOptimizer = new QueryOptimizer();
 
 // =============================================================================
 // Exports
@@ -369,4 +371,4 @@ export default {
   queryMonitor,
   queryOptimizer,
   createDataLoader,
-}
+};

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   ZoomIn,
   ZoomOut,
@@ -10,34 +10,34 @@ import {
   Undo,
   Check,
   X,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { logger } from '@/lib/logger'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import {
   cropLogo,
   resizeLogo,
   loadImage,
   type ProcessedLogo,
-} from '@/lib/white-label/logo-processor'
+} from "@/lib/white-label/logo-processor";
 
 interface LogoEditorProps {
-  src: string
-  onSave: (result: ProcessedLogo) => void
-  onCancel: () => void
-  aspectRatio?: number
-  minOutputSize?: number
-  maxOutputSize?: number
-  className?: string
+  src: string;
+  onSave: (result: ProcessedLogo) => void;
+  onCancel: () => void;
+  aspectRatio?: number;
+  minOutputSize?: number;
+  maxOutputSize?: number;
+  className?: string;
 }
 
 interface Transform {
-  scale: number
-  rotation: number
-  flipX: boolean
-  flipY: boolean
-  offsetX: number
-  offsetY: number
+  scale: number;
+  rotation: number;
+  flipX: boolean;
+  flipY: boolean;
+  offsetX: number;
+  offsetY: number;
 }
 
 const DEFAULT_TRANSFORM: Transform = {
@@ -47,7 +47,7 @@ const DEFAULT_TRANSFORM: Transform = {
   flipY: false,
   offsetX: 0,
   offsetY: 0,
-}
+};
 
 export function LogoEditor({
   src,
@@ -58,62 +58,62 @@ export function LogoEditor({
   maxOutputSize = 1024,
   className,
 }: LogoEditorProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [image, setImage] = useState<HTMLImageElement | null>(null)
-  const [transform, setTransform] = useState<Transform>(DEFAULT_TRANSFORM)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [isProcessing, setIsProcessing] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [transform, setTransform] = useState<Transform>(DEFAULT_TRANSFORM);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Load image
   useEffect(() => {
-    loadImage(src).then(setImage).catch(console.error)
-  }, [src])
+    loadImage(src).then(setImage).catch(console.error);
+  }, [src]);
 
   // Draw canvas
   useEffect(() => {
-    if (!image || !canvasRef.current) return
+    if (!image || !canvasRef.current) return;
 
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')!
-    const size = Math.min(canvas.width, canvas.height)
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d")!;
+    const size = Math.min(canvas.width, canvas.height);
 
     // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw checkerboard background (transparency indicator)
-    const tileSize = 10
+    const tileSize = 10;
     for (let x = 0; x < canvas.width; x += tileSize) {
       for (let y = 0; y < canvas.height; y += tileSize) {
-        ctx.fillStyle = (x + y) % (tileSize * 2) === 0 ? '#f0f0f0' : '#ffffff'
-        ctx.fillRect(x, y, tileSize, tileSize)
+        ctx.fillStyle = (x + y) % (tileSize * 2) === 0 ? "#f0f0f0" : "#ffffff";
+        ctx.fillRect(x, y, tileSize, tileSize);
       }
     }
 
     // Save context
-    ctx.save()
+    ctx.save();
 
     // Move to center
-    ctx.translate(canvas.width / 2, canvas.height / 2)
+    ctx.translate(canvas.width / 2, canvas.height / 2);
 
     // Apply transforms
-    ctx.rotate((transform.rotation * Math.PI) / 180)
+    ctx.rotate((transform.rotation * Math.PI) / 180);
     ctx.scale(
       transform.flipX ? -transform.scale : transform.scale,
-      transform.flipY ? -transform.scale : transform.scale
-    )
+      transform.flipY ? -transform.scale : transform.scale,
+    );
 
     // Calculate image dimensions to fit in canvas
-    const imgAspect = image.width / image.height
-    let drawWidth: number
-    let drawHeight: number
+    const imgAspect = image.width / image.height;
+    let drawWidth: number;
+    let drawHeight: number;
 
     if (imgAspect > 1) {
-      drawWidth = size * 0.8
-      drawHeight = drawWidth / imgAspect
+      drawWidth = size * 0.8;
+      drawHeight = drawWidth / imgAspect;
     } else {
-      drawHeight = size * 0.8
-      drawWidth = drawHeight * imgAspect
+      drawHeight = size * 0.8;
+      drawWidth = drawHeight * imgAspect;
     }
 
     // Draw image centered with offset
@@ -122,92 +122,101 @@ export function LogoEditor({
       -drawWidth / 2 + transform.offsetX,
       -drawHeight / 2 + transform.offsetY,
       drawWidth,
-      drawHeight
-    )
+      drawHeight,
+    );
 
     // Restore context
-    ctx.restore()
+    ctx.restore();
 
     // Draw crop guide
-    ctx.strokeStyle = 'rgba(0, 180, 255, 0.8)'
-    ctx.lineWidth = 2
-    ctx.setLineDash([5, 5])
+    ctx.strokeStyle = "rgba(0, 180, 255, 0.8)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
 
-    const cropSize = size * 0.9
-    const cropX = (canvas.width - cropSize) / 2
-    const cropY = (canvas.height - cropSize / aspectRatio) / 2
+    const cropSize = size * 0.9;
+    const cropX = (canvas.width - cropSize) / 2;
+    const cropY = (canvas.height - cropSize / aspectRatio) / 2;
 
-    ctx.strokeRect(cropX, cropY, cropSize, cropSize / aspectRatio)
-  }, [image, transform, aspectRatio])
+    ctx.strokeRect(cropX, cropY, cropSize, cropSize / aspectRatio);
+  }, [image, transform, aspectRatio]);
 
   const handleZoomIn = useCallback(() => {
-    setTransform((prev) => ({ ...prev, scale: Math.min(prev.scale + 0.1, 3) }))
-  }, [])
+    setTransform((prev) => ({ ...prev, scale: Math.min(prev.scale + 0.1, 3) }));
+  }, []);
 
   const handleZoomOut = useCallback(() => {
-    setTransform((prev) => ({ ...prev, scale: Math.max(prev.scale - 0.1, 0.1) }))
-  }, [])
+    setTransform((prev) => ({
+      ...prev,
+      scale: Math.max(prev.scale - 0.1, 0.1),
+    }));
+  }, []);
 
   const handleRotate = useCallback(() => {
-    setTransform((prev) => ({ ...prev, rotation: (prev.rotation + 90) % 360 }))
-  }, [])
+    setTransform((prev) => ({ ...prev, rotation: (prev.rotation + 90) % 360 }));
+  }, []);
 
   const handleFlipX = useCallback(() => {
-    setTransform((prev) => ({ ...prev, flipX: !prev.flipX }))
-  }, [])
+    setTransform((prev) => ({ ...prev, flipX: !prev.flipX }));
+  }, []);
 
   const handleFlipY = useCallback(() => {
-    setTransform((prev) => ({ ...prev, flipY: !prev.flipY }))
-  }, [])
+    setTransform((prev) => ({ ...prev, flipY: !prev.flipY }));
+  }, []);
 
   const handleReset = useCallback(() => {
-    setTransform(DEFAULT_TRANSFORM)
-  }, [])
+    setTransform(DEFAULT_TRANSFORM);
+  }, []);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      setIsDragging(true)
-      setDragStart({ x: e.clientX - transform.offsetX, y: e.clientY - transform.offsetY })
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - transform.offsetX,
+        y: e.clientY - transform.offsetY,
+      });
     },
-    [transform.offsetX, transform.offsetY]
-  )
+    [transform.offsetX, transform.offsetY],
+  );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!isDragging) return
+      if (!isDragging) return;
       setTransform((prev) => ({
         ...prev,
         offsetX: e.clientX - dragStart.x,
         offsetY: e.clientY - dragStart.y,
-      }))
+      }));
     },
-    [isDragging, dragStart]
-  )
+    [isDragging, dragStart],
+  );
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+    setIsDragging(false);
+  }, []);
 
   const handleSave = useCallback(async () => {
-    if (!canvasRef.current || !image) return
+    if (!canvasRef.current || !image) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
     try {
-      const canvas = canvasRef.current
-      const size = Math.min(canvas.width, canvas.height)
-      const cropSize = size * 0.9
+      const canvas = canvasRef.current;
+      const size = Math.min(canvas.width, canvas.height);
+      const cropSize = size * 0.9;
 
       // Create output canvas
-      const outputCanvas = document.createElement('canvas')
-      const outputSize = Math.min(Math.max(cropSize, minOutputSize), maxOutputSize)
-      outputCanvas.width = outputSize
-      outputCanvas.height = outputSize / aspectRatio
+      const outputCanvas = document.createElement("canvas");
+      const outputSize = Math.min(
+        Math.max(cropSize, minOutputSize),
+        maxOutputSize,
+      );
+      outputCanvas.width = outputSize;
+      outputCanvas.height = outputSize / aspectRatio;
 
-      const outputCtx = outputCanvas.getContext('2d')!
+      const outputCtx = outputCanvas.getContext("2d")!;
 
       // Draw from main canvas
-      const cropX = (canvas.width - cropSize) / 2
-      const cropY = (canvas.height - cropSize / aspectRatio) / 2
+      const cropX = (canvas.width - cropSize) / 2;
+      const cropY = (canvas.height - cropSize / aspectRatio) / 2;
 
       outputCtx.drawImage(
         canvas,
@@ -218,26 +227,26 @@ export function LogoEditor({
         0,
         0,
         outputCanvas.width,
-        outputCanvas.height
-      )
+        outputCanvas.height,
+      );
 
       const result: ProcessedLogo = {
-        dataUrl: outputCanvas.toDataURL('image/png'),
+        dataUrl: outputCanvas.toDataURL("image/png"),
         width: outputCanvas.width,
         height: outputCanvas.height,
-        format: 'png',
-      }
+        format: "png",
+      };
 
-      onSave(result)
+      onSave(result);
     } catch (error) {
-      logger.error('Failed to save logo:', error)
+      logger.error("Failed to save logo:", error);
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }, [image, onSave, aspectRatio, minOutputSize, maxOutputSize])
+  }, [image, onSave, aspectRatio, minOutputSize, maxOutputSize]);
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Canvas */}
       <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
         <canvas
@@ -263,7 +272,13 @@ export function LogoEditor({
         >
           <ZoomOut className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="outline" size="icon" onClick={handleZoomIn} title="Zoom in">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={handleZoomIn}
+          title="Zoom in"
+        >
           <ZoomIn className="h-4 w-4" />
         </Button>
         <div className="mx-1 h-6 w-px bg-zinc-200 dark:bg-zinc-700" />
@@ -295,7 +310,13 @@ export function LogoEditor({
           <FlipVertical className="h-4 w-4" />
         </Button>
         <div className="mx-1 h-6 w-px bg-zinc-200 dark:bg-zinc-700" />
-        <Button type="button" variant="outline" size="icon" onClick={handleReset} title="Reset">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={handleReset}
+          title="Reset"
+        >
           <Undo className="h-4 w-4" />
         </Button>
       </div>
@@ -317,11 +338,16 @@ export function LogoEditor({
           <X className="mr-2 h-4 w-4" />
           Cancel
         </Button>
-        <Button type="button" onClick={handleSave} className="flex-1" disabled={isProcessing}>
+        <Button
+          type="button"
+          onClick={handleSave}
+          className="flex-1"
+          disabled={isProcessing}
+        >
           <Check className="mr-2 h-4 w-4" />
-          {isProcessing ? 'Processing...' : 'Apply'}
+          {isProcessing ? "Processing..." : "Apply"}
         </Button>
       </div>
     </div>
-  )
+  );
 }

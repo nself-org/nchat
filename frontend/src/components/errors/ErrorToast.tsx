@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Error Toast Component
@@ -7,7 +7,7 @@
  * with retry buttons and contextual actions.
  */
 
-import React from 'react'
+import React from "react";
 import {
   WifiOff,
   AlertTriangle,
@@ -18,24 +18,24 @@ import {
   Lock,
   RefreshCw,
   X,
-} from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
-import { AppError, ErrorCategory } from '@/lib/errors/error-types'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { AppError, ErrorCategory } from "@/lib/errors/error-types";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Error Toast Options
 // ============================================================================
 
 export interface ErrorToastOptions {
-  error: AppError
-  onRetry?: () => void | Promise<void>
-  onDismiss?: () => void
-  duration?: number
-  actionLabel?: string
-  showErrorCode?: boolean
+  error: AppError;
+  onRetry?: () => void | Promise<void>;
+  onDismiss?: () => void;
+  duration?: number;
+  actionLabel?: string;
+  showErrorCode?: boolean;
 }
 
 // ============================================================================
@@ -51,12 +51,12 @@ export function showErrorToast(options: ErrorToastOptions) {
     onRetry,
     onDismiss,
     duration = 5000,
-    actionLabel = 'Retry',
+    actionLabel = "Retry",
     showErrorCode = false,
-  } = options
+  } = options;
 
-  const icon = getErrorIcon(error.category)
-  const title = getErrorTitle(error.category)
+  const icon = getErrorIcon(error.category);
+  const title = getErrorTitle(error.category);
 
   toast({
     title: (
@@ -69,18 +69,20 @@ export function showErrorToast(options: ErrorToastOptions) {
       <div className="space-y-1">
         <p>{error.userMessage}</p>
         {showErrorCode && error.context.errorCode && (
-          <p className="text-xs text-muted-foreground">Error code: {error.context.errorCode}</p>
+          <p className="text-xs text-muted-foreground">
+            Error code: {error.context.errorCode}
+          </p>
         )}
       </div>
     ),
-    variant: 'destructive',
+    variant: "destructive",
     action: onRetry ? (
       <button
         onClick={async () => {
           try {
-            await onRetry()
+            await onRetry();
           } catch (retryError) {
-            logger.error('Retry failed:', retryError)
+            logger.error("Retry failed:", retryError);
           }
         }}
         className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-transparent bg-transparent px-3 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
@@ -89,15 +91,18 @@ export function showErrorToast(options: ErrorToastOptions) {
         {actionLabel}
       </button>
     ) : undefined,
-  })
+  });
 
-  onDismiss?.()
+  onDismiss?.();
 }
 
 /**
  * Show network error toast
  */
-export function showNetworkErrorToast(message?: string, onRetry?: () => void | Promise<void>) {
+export function showNetworkErrorToast(
+  message?: string,
+  onRetry?: () => void | Promise<void>,
+) {
   toast({
     title: (
       <div className="flex items-center gap-2">
@@ -105,12 +110,13 @@ export function showNetworkErrorToast(message?: string, onRetry?: () => void | P
         <span>Connection Error</span>
       </div>
     ),
-    description: message || 'Unable to connect. Please check your internet connection.',
-    variant: 'destructive',
+    description:
+      message || "Unable to connect. Please check your internet connection.",
+    variant: "destructive",
     action: onRetry ? (
       <button
         onClick={async () => {
-          await onRetry()
+          await onRetry();
         }}
         className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-transparent bg-transparent px-3 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
@@ -119,13 +125,16 @@ export function showNetworkErrorToast(message?: string, onRetry?: () => void | P
       </button>
     ) : undefined,
     duration: 5000,
-  })
+  });
 }
 
 /**
  * Show upload error toast
  */
-export function showUploadErrorToast(fileName: string, onRetry?: () => void | Promise<void>) {
+export function showUploadErrorToast(
+  fileName: string,
+  onRetry?: () => void | Promise<void>,
+) {
   toast({
     title: (
       <div className="flex items-center gap-2">
@@ -134,11 +143,11 @@ export function showUploadErrorToast(fileName: string, onRetry?: () => void | Pr
       </div>
     ),
     description: `Failed to upload "${fileName}". Please try again.`,
-    variant: 'destructive',
+    variant: "destructive",
     action: onRetry ? (
       <button
         onClick={async () => {
-          await onRetry()
+          await onRetry();
         }}
         className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-transparent bg-transparent px-3 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
@@ -147,7 +156,7 @@ export function showUploadErrorToast(fileName: string, onRetry?: () => void | Pr
       </button>
     ) : undefined,
     duration: 5000,
-  })
+  });
 }
 
 /**
@@ -161,12 +170,12 @@ export function showSendErrorToast(onRetry?: () => void | Promise<void>) {
         <span>Send Failed</span>
       </div>
     ),
-    description: 'Failed to send message. Please try again.',
-    variant: 'destructive',
+    description: "Failed to send message. Please try again.",
+    variant: "destructive",
     action: onRetry ? (
       <button
         onClick={async () => {
-          await onRetry()
+          await onRetry();
         }}
         className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-transparent bg-transparent px-3 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
@@ -175,13 +184,16 @@ export function showSendErrorToast(onRetry?: () => void | Promise<void>) {
       </button>
     ) : undefined,
     duration: 5000,
-  })
+  });
 }
 
 /**
  * Show save error toast
  */
-export function showSaveErrorToast(itemName?: string, onRetry?: () => void | Promise<void>) {
+export function showSaveErrorToast(
+  itemName?: string,
+  onRetry?: () => void | Promise<void>,
+) {
   toast({
     title: (
       <div className="flex items-center gap-2">
@@ -191,12 +203,12 @@ export function showSaveErrorToast(itemName?: string, onRetry?: () => void | Pro
     ),
     description: itemName
       ? `Failed to save ${itemName}. Please try again.`
-      : 'Failed to save changes. Please try again.',
-    variant: 'destructive',
+      : "Failed to save changes. Please try again.",
+    variant: "destructive",
     action: onRetry ? (
       <button
         onClick={async () => {
-          await onRetry()
+          await onRetry();
         }}
         className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-transparent bg-transparent px-3 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
@@ -205,7 +217,7 @@ export function showSaveErrorToast(itemName?: string, onRetry?: () => void | Pro
       </button>
     ) : undefined,
     duration: 5000,
-  })
+  });
 }
 
 /**
@@ -220,11 +232,11 @@ export function showOfflineToast(queued = false) {
       </div>
     ),
     description: queued
-      ? 'This action will be completed when you reconnect.'
-      : 'Please check your internet connection.',
-    variant: 'default',
+      ? "This action will be completed when you reconnect."
+      : "Please check your internet connection.",
+    variant: "default",
     duration: 5000,
-  })
+  });
 }
 
 /**
@@ -241,9 +253,9 @@ export function showQueuedToast(operationName: string, queueSize?: number) {
     description: queueSize
       ? `${operationName} queued. ${queueSize} pending operations.`
       : `${operationName} will be completed when you reconnect.`,
-    variant: 'default',
+    variant: "default",
     duration: 3000,
-  })
+  });
 }
 
 /**
@@ -257,12 +269,12 @@ export function showTimeoutErrorToast(onRetry?: () => void | Promise<void>) {
         <span>Request Timeout</span>
       </div>
     ),
-    description: 'The request took too long. Please try again.',
-    variant: 'destructive',
+    description: "The request took too long. Please try again.",
+    variant: "destructive",
     action: onRetry ? (
       <button
         onClick={async () => {
-          await onRetry()
+          await onRetry();
         }}
         className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-transparent bg-transparent px-3 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
@@ -271,7 +283,7 @@ export function showTimeoutErrorToast(onRetry?: () => void | Promise<void>) {
       </button>
     ) : undefined,
     duration: 5000,
-  })
+  });
 }
 
 /**
@@ -285,12 +297,12 @@ export function showServerErrorToast(onRetry?: () => void | Promise<void>) {
         <span>Server Error</span>
       </div>
     ),
-    description: 'Something went wrong on our end. Our team has been notified.',
-    variant: 'destructive',
+    description: "Something went wrong on our end. Our team has been notified.",
+    variant: "destructive",
     action: onRetry ? (
       <button
         onClick={async () => {
-          await onRetry()
+          await onRetry();
         }}
         className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-transparent bg-transparent px-3 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
@@ -299,7 +311,7 @@ export function showServerErrorToast(onRetry?: () => void | Promise<void>) {
       </button>
     ) : undefined,
     duration: 7000,
-  })
+  });
 }
 
 /**
@@ -313,12 +325,12 @@ export function showAuthErrorToast(message?: string) {
         <span>Authentication Required</span>
       </div>
     ),
-    description: message || 'Your session has expired. Please log in again.',
-    variant: 'destructive',
+    description: message || "Your session has expired. Please log in again.",
+    variant: "destructive",
     action: (
       <button
         onClick={() => {
-          window.location.href = '/auth/signin?reason=session_expired'
+          window.location.href = "/auth/signin?reason=session_expired";
         }}
         className="inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-transparent bg-transparent px-3 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
@@ -326,7 +338,7 @@ export function showAuthErrorToast(message?: string) {
       </button>
     ),
     duration: 7000,
-  })
+  });
 }
 
 /**
@@ -342,10 +354,10 @@ export function showPermissionErrorToast(action?: string) {
     ),
     description: action
       ? `You don't have permission to ${action}.`
-      : 'You do not have permission to perform this action.',
-    variant: 'destructive',
+      : "You do not have permission to perform this action.",
+    variant: "destructive",
     duration: 5000,
-  })
+  });
 }
 
 /**
@@ -359,10 +371,12 @@ export function showNotFoundErrorToast(itemName?: string) {
         <span>Not Found</span>
       </div>
     ),
-    description: itemName ? `${itemName} not found.` : 'The requested item was not found.',
-    variant: 'destructive',
+    description: itemName
+      ? `${itemName} not found.`
+      : "The requested item was not found.",
+    variant: "destructive",
     duration: 5000,
-  })
+  });
 }
 
 /**
@@ -378,10 +392,10 @@ export function showRateLimitErrorToast(retryAfterSeconds?: number) {
     ),
     description: retryAfterSeconds
       ? `Please wait ${retryAfterSeconds} seconds before trying again.`
-      : 'You are making too many requests. Please slow down.',
-    variant: 'destructive',
+      : "You are making too many requests. Please slow down.",
+    variant: "destructive",
     duration: 7000,
-  })
+  });
 }
 
 // ============================================================================
@@ -389,45 +403,45 @@ export function showRateLimitErrorToast(retryAfterSeconds?: number) {
 // ============================================================================
 
 function getErrorIcon(category: ErrorCategory): React.ReactNode {
-  const iconClass = 'h-4 w-4'
+  const iconClass = "h-4 w-4";
 
   switch (category) {
     case ErrorCategory.NETWORK:
-      return <WifiOff className={iconClass} />
+      return <WifiOff className={iconClass} />;
     case ErrorCategory.AUTHENTICATION:
     case ErrorCategory.AUTHORIZATION:
-      return <Lock className={iconClass} />
+      return <Lock className={iconClass} />;
     case ErrorCategory.TIMEOUT:
     case ErrorCategory.RATE_LIMIT:
-      return <Clock className={iconClass} />
+      return <Clock className={iconClass} />;
     case ErrorCategory.UPLOAD:
-      return <Upload className={iconClass} />
+      return <Upload className={iconClass} />;
     case ErrorCategory.SERVER:
-      return <Server className={iconClass} />
+      return <Server className={iconClass} />;
     case ErrorCategory.OFFLINE:
-      return <WifiOff className={iconClass} />
+      return <WifiOff className={iconClass} />;
     default:
-      return <AlertTriangle className={iconClass} />
+      return <AlertTriangle className={iconClass} />;
   }
 }
 
 function getErrorTitle(category: ErrorCategory): string {
   const titles: Record<ErrorCategory, string> = {
-    [ErrorCategory.NETWORK]: 'Connection Error',
-    [ErrorCategory.AUTHENTICATION]: 'Authentication Required',
-    [ErrorCategory.AUTHORIZATION]: 'Permission Denied',
-    [ErrorCategory.VALIDATION]: 'Invalid Input',
-    [ErrorCategory.NOT_FOUND]: 'Not Found',
-    [ErrorCategory.RATE_LIMIT]: 'Rate Limit Exceeded',
-    [ErrorCategory.SERVER]: 'Server Error',
-    [ErrorCategory.CLIENT]: 'Request Error',
-    [ErrorCategory.GRAPHQL]: 'Data Error',
-    [ErrorCategory.UPLOAD]: 'Upload Failed',
-    [ErrorCategory.OFFLINE]: 'Offline',
-    [ErrorCategory.TIMEOUT]: 'Request Timeout',
-    [ErrorCategory.UNKNOWN]: 'Error',
-  }
-  return titles[category]
+    [ErrorCategory.NETWORK]: "Connection Error",
+    [ErrorCategory.AUTHENTICATION]: "Authentication Required",
+    [ErrorCategory.AUTHORIZATION]: "Permission Denied",
+    [ErrorCategory.VALIDATION]: "Invalid Input",
+    [ErrorCategory.NOT_FOUND]: "Not Found",
+    [ErrorCategory.RATE_LIMIT]: "Rate Limit Exceeded",
+    [ErrorCategory.SERVER]: "Server Error",
+    [ErrorCategory.CLIENT]: "Request Error",
+    [ErrorCategory.GRAPHQL]: "Data Error",
+    [ErrorCategory.UPLOAD]: "Upload Failed",
+    [ErrorCategory.OFFLINE]: "Offline",
+    [ErrorCategory.TIMEOUT]: "Request Timeout",
+    [ErrorCategory.UNKNOWN]: "Error",
+  };
+  return titles[category];
 }
 
 // ============================================================================
@@ -435,22 +449,25 @@ function getErrorTitle(category: ErrorCategory): string {
 // ============================================================================
 
 export interface UseErrorToastOptions {
-  showToast?: boolean
-  allowRetry?: boolean
-  onRetry?: () => void | Promise<void>
+  showToast?: boolean;
+  allowRetry?: boolean;
+  onRetry?: () => void | Promise<void>;
 }
 
 export function useErrorToast() {
-  const showError = React.useCallback((error: AppError, options: UseErrorToastOptions = {}) => {
-    const { showToast: show = true, allowRetry = false, onRetry } = options
+  const showError = React.useCallback(
+    (error: AppError, options: UseErrorToastOptions = {}) => {
+      const { showToast: show = true, allowRetry = false, onRetry } = options;
 
-    if (!show) return
+      if (!show) return;
 
-    showErrorToast({
-      error,
-      onRetry: allowRetry ? onRetry : undefined,
-    })
-  }, [])
+      showErrorToast({
+        error,
+        onRetry: allowRetry ? onRetry : undefined,
+      });
+    },
+    [],
+  );
 
   return {
     showError,
@@ -466,5 +483,5 @@ export function useErrorToast() {
     showPermissionError: showPermissionErrorToast,
     showNotFoundError: showNotFoundErrorToast,
     showRateLimitError: showRateLimitErrorToast,
-  }
+  };
 }

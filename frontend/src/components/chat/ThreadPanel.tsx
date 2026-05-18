@@ -5,13 +5,13 @@
  * Provides responsive behavior and seamless integration with ChatWithThreads.
  */
 
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { ThreadView } from './ThreadView'
-import { useThreadStore } from '@/stores/thread-store'
-import { useMediaQuery } from '@/hooks/use-media-query'
+import { useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { ThreadView } from "./ThreadView";
+import { useThreadStore } from "@/stores/thread-store";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 // ============================================================================
 // TYPES
@@ -19,15 +19,15 @@ import { useMediaQuery } from '@/hooks/use-media-query'
 
 export interface ThreadPanelProps {
   /** Thread ID to display */
-  threadId: string
+  threadId: string;
   /** Callback when panel is closed */
-  onClose?: () => void
+  onClose?: () => void;
   /** Whether to show in standalone mode (takes full width) */
-  standalone?: boolean
+  standalone?: boolean;
   /** Whether to use compact header */
-  compactHeader?: boolean
+  compactHeader?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -41,28 +41,28 @@ export function ThreadPanel({
   compactHeader = false,
   className,
 }: ThreadPanelProps) {
-  const isMobile = useMediaQuery('(max-width: 768px)')
-  const { markThreadAsRead } = useThreadStore()
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const { markThreadAsRead } = useThreadStore();
 
   // Mark thread as read when opened
   useEffect(() => {
     if (threadId) {
       // Delay to ensure messages are loaded
       const timer = setTimeout(() => {
-        markThreadAsRead(threadId)
-      }, 1000)
+        markThreadAsRead(threadId);
+      }, 1000);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [threadId, markThreadAsRead])
+  }, [threadId, markThreadAsRead]);
 
   return (
     <div
       className={cn(
-        'flex h-full flex-col border-l bg-background',
-        standalone && 'border-l-0',
-        isMobile && 'border-l-0',
-        className
+        "flex h-full flex-col border-l bg-background",
+        standalone && "border-l-0",
+        isMobile && "border-l-0",
+        className,
       )}
     >
       <ThreadView
@@ -72,7 +72,7 @@ export function ThreadPanel({
         compactHeader={compactHeader}
       />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -83,15 +83,15 @@ export function ThreadPanel({
  * Container component that manages thread panel visibility and state
  */
 export function ThreadPanelContainer({ className }: { className?: string }) {
-  const { activeThreadId, threadPanelOpen, closeThread } = useThreadStore()
+  const { activeThreadId, threadPanelOpen, closeThread } = useThreadStore();
 
   if (!threadPanelOpen || !activeThreadId) {
-    return null
+    return null;
   }
 
   return (
-    <div className={cn('h-full', className)}>
+    <div className={cn("h-full", className)}>
       <ThreadPanel threadId={activeThreadId} onClose={closeThread} />
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-import { Check, X } from 'lucide-react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { Check, X } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,65 +8,69 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { useAppConfig } from '@/contexts/app-config-context'
+} from "@/components/ui/card";
+import { useAppConfig } from "@/contexts/app-config-context";
 
 const plans = [
   {
-    name: 'Free',
-    price: '$0',
-    description: 'Perfect for small teams getting started',
+    name: "Free",
+    price: "$0",
+    description: "Perfect for small teams getting started",
     features: [
-      '10,000 messages',
-      'Up to 10 team members',
-      'Basic file sharing',
-      'Public channels',
-      'Standard support',
+      "10,000 messages",
+      "Up to 10 team members",
+      "Basic file sharing",
+      "Public channels",
+      "Standard support",
     ],
-    limitations: ['No private channels', 'Limited file storage', 'No custom branding'],
-    cta: 'Get Started Free',
-    href: '/signup',
+    limitations: [
+      "No private channels",
+      "Limited file storage",
+      "No custom branding",
+    ],
+    cta: "Get Started Free",
+    href: "/signup",
     highlighted: false,
   },
   {
-    name: 'Pro',
-    price: '$8',
-    period: 'per user/month',
-    description: 'Advanced features for growing teams',
+    name: "Pro",
+    price: "$8",
+    period: "per user/month",
+    description: "Advanced features for growing teams",
     features: [
-      'Unlimited messages',
-      'Unlimited team members',
-      'Advanced file sharing',
-      'Private channels',
-      'Message threads',
-      'Search history',
-      'Priority support',
+      "Unlimited messages",
+      "Unlimited team members",
+      "Advanced file sharing",
+      "Private channels",
+      "Message threads",
+      "Search history",
+      "Priority support",
     ],
-    cta: 'Start Pro Trial',
-    href: '/signup?plan=pro',
+    cta: "Start Pro Trial",
+    href: "/signup?plan=pro",
     highlighted: true,
   },
   {
-    name: 'Enterprise',
-    price: 'Custom',
-    description: 'Full control and security for large organizations',
+    name: "Enterprise",
+    price: "Custom",
+    description: "Full control and security for large organizations",
     features: [
-      'Everything in Pro',
-      'Custom branding',
-      'SSO integration',
-      'Advanced analytics',
-      'Compliance tools',
-      'Dedicated support',
-      'Custom integrations',
+      "Everything in Pro",
+      "Custom branding",
+      "SSO integration",
+      "Advanced analytics",
+      "Compliance tools",
+      "Dedicated support",
+      "Custom integrations",
     ],
-    cta: 'Contact Sales',
-    href: '/contact',
+    cta: "Contact Sales",
+    href: "/contact",
     highlighted: false,
   },
-]
+];
 
 export function PricingSection() {
-  const { config } = useAppConfig()
+  const { config } = useAppConfig();
 
   return (
     <section id="pricing" className="py-24 sm:py-32">
@@ -84,7 +88,7 @@ export function PricingSection() {
           {plans.map((plan) => (
             <Card
               key={plan.name}
-              className={`relative ${plan.highlighted ? 'scale-105 ring-2 ring-primary' : ''}`}
+              className={`relative ${plan.highlighted ? "scale-105 ring-2 ring-primary" : ""}`}
             >
               {plan.highlighted && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -95,7 +99,9 @@ export function PricingSection() {
               )}
 
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                <CardTitle className="text-2xl font-bold">
+                  {plan.name}
+                </CardTitle>
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-gray-900 dark:text-white">
                     {plan.price}
@@ -106,7 +112,9 @@ export function PricingSection() {
                     </span>
                   )}
                 </div>
-                <CardDescription className="mt-4">{plan.description}</CardDescription>
+                <CardDescription className="mt-4">
+                  {plan.description}
+                </CardDescription>
               </CardHeader>
 
               <CardContent>
@@ -118,7 +126,10 @@ export function PricingSection() {
                     </li>
                   ))}
                   {plan.limitations?.map((limitation) => (
-                    <li key={limitation} className="flex items-center text-gray-500">
+                    <li
+                      key={limitation}
+                      className="flex items-center text-gray-500"
+                    >
                       <X className="mr-3 h-4 w-4 flex-shrink-0 text-gray-400" />
                       <span className="text-sm">{limitation}</span>
                     </li>
@@ -130,7 +141,7 @@ export function PricingSection() {
                 <Button
                   asChild
                   className="w-full"
-                  variant={plan.highlighted ? 'default' : 'outline'}
+                  variant={plan.highlighted ? "default" : "outline"}
                 >
                   <Link href={plan.href}>{plan.cta}</Link>
                 </Button>
@@ -146,5 +157,5 @@ export function PricingSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

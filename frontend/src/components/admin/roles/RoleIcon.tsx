@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ROLE_ICON_OPTIONS } from '@/lib/admin/roles/role-defaults'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import * as Icons from 'lucide-react'
-import { Check, Search } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ROLE_ICON_OPTIONS } from "@/lib/admin/roles/role-defaults";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import * as Icons from "lucide-react";
+import { Check, Search } from "lucide-react";
 
 interface RoleIconProps {
-  value?: string
-  onChange: (icon: string | undefined) => void
-  color?: string
-  disabled?: boolean
-  className?: string
+  value?: string;
+  onChange: (icon: string | undefined) => void;
+  color?: string;
+  disabled?: boolean;
+  className?: string;
 }
 
 /**
@@ -22,25 +22,27 @@ interface RoleIconProps {
 export function RoleIcon({
   value,
   onChange,
-  color = '#6B7280',
+  color = "#6B7280",
   disabled = false,
   className,
 }: RoleIconProps) {
-  const [searchQuery, setSearchQuery] = React.useState('')
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const filteredIcons = React.useMemo(() => {
-    if (!searchQuery) return ROLE_ICON_OPTIONS
-    const query = searchQuery.toLowerCase()
-    return ROLE_ICON_OPTIONS.filter((icon) => icon.toLowerCase().includes(query))
-  }, [searchQuery])
+    if (!searchQuery) return ROLE_ICON_OPTIONS;
+    const query = searchQuery.toLowerCase();
+    return ROLE_ICON_OPTIONS.filter((icon) =>
+      icon.toLowerCase().includes(query),
+    );
+  }, [searchQuery]);
 
   const handleIconClick = (icon: string) => {
-    if (disabled) return
-    onChange(value === icon ? undefined : icon)
-  }
+    if (disabled) return;
+    onChange(value === icon ? undefined : icon);
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       <div className="space-y-2">
         <Label>Role Icon</Label>
         <div className="relative">
@@ -62,12 +64,12 @@ export function RoleIcon({
             type="button"
             disabled={disabled}
             className={cn(
-              'relative flex h-10 w-10 items-center justify-center rounded-md border-2 transition-all',
-              'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2',
-              !value ? 'bg-primary/10 border-primary' : 'border-transparent',
-              disabled && 'cursor-not-allowed opacity-50'
+              "relative flex h-10 w-10 items-center justify-center rounded-md border-2 transition-all",
+              "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2",
+              !value ? "bg-primary/10 border-primary" : "border-transparent",
+              disabled && "cursor-not-allowed opacity-50",
             )}
-            onClick={() => handleIconClick('')}
+            onClick={() => handleIconClick("")}
             title="No icon"
           >
             <span className="text-xs text-muted-foreground">None</span>
@@ -80,10 +82,12 @@ export function RoleIcon({
           </button>
 
           {filteredIcons.map((iconName) => {
-            const IconComponent = Icons[iconName as keyof typeof Icons] as React.ElementType
-            if (!IconComponent) return null
+            const IconComponent = Icons[
+              iconName as keyof typeof Icons
+            ] as React.ElementType;
+            if (!IconComponent) return null;
 
-            const isSelected = value === iconName
+            const isSelected = value === iconName;
 
             return (
               <button
@@ -91,15 +95,20 @@ export function RoleIcon({
                 type="button"
                 disabled={disabled}
                 className={cn(
-                  'relative flex h-10 w-10 items-center justify-center rounded-md border-2 transition-all',
-                  'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2',
-                  isSelected ? 'bg-primary/10 border-primary' : 'border-transparent',
-                  disabled && 'cursor-not-allowed opacity-50'
+                  "relative flex h-10 w-10 items-center justify-center rounded-md border-2 transition-all",
+                  "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2",
+                  isSelected
+                    ? "bg-primary/10 border-primary"
+                    : "border-transparent",
+                  disabled && "cursor-not-allowed opacity-50",
                 )}
                 onClick={() => handleIconClick(iconName)}
                 title={iconName}
               >
-                <IconComponent size={20} style={{ color: isSelected ? color : undefined }} />
+                <IconComponent
+                  size={20}
+                  style={{ color: isSelected ? color : undefined }}
+                />
                 {isSelected && (
                   <Check
                     className="text-primary-foreground absolute -right-1 -top-1 rounded-full bg-primary p-0.5"
@@ -107,7 +116,7 @@ export function RoleIcon({
                   />
                 )}
               </button>
-            )
+            );
           })}
         </div>
       </div>
@@ -126,31 +135,31 @@ export function RoleIcon({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
  * RoleIconPreview - Shows a preview of the icon
  */
 interface RoleIconPreviewProps {
-  icon?: string
-  color?: string
-  size?: number
-  className?: string
+  icon?: string;
+  color?: string;
+  size?: number;
+  className?: string;
 }
 
 export function RoleIconPreview({
   icon,
-  color = '#6B7280',
+  color = "#6B7280",
   size = 16,
   className,
 }: RoleIconPreviewProps) {
-  if (!icon) return null
+  if (!icon) return null;
 
-  const IconComponent = Icons[icon as keyof typeof Icons] as React.ElementType
-  if (!IconComponent) return null
+  const IconComponent = Icons[icon as keyof typeof Icons] as React.ElementType;
+  if (!IconComponent) return null;
 
-  return <IconComponent size={size} style={{ color }} className={className} />
+  return <IconComponent size={size} style={{ color }} className={className} />;
 }
 
-export default RoleIcon
+export default RoleIcon;

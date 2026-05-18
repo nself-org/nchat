@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Screen Share Example Component
@@ -7,28 +7,37 @@
  * This serves as a reference implementation for integrating all features.
  */
 
-import * as React from 'react'
-import { useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Monitor, Square, Circle, Download, Trash2, Play, Pause, StopCircle } from 'lucide-react'
-import { ScreenShareControls } from './ScreenShareControls'
-import { ScreenShareOverlay } from './ScreenShareOverlay'
-import { useScreenShare } from '@/hooks/use-screen-share'
-import { useScreenRecording } from '@/hooks/use-screen-recording'
+import * as React from "react";
+import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Monitor,
+  Square,
+  Circle,
+  Download,
+  Trash2,
+  Play,
+  Pause,
+  StopCircle,
+} from "lucide-react";
+import { ScreenShareControls } from "./ScreenShareControls";
+import { ScreenShareOverlay } from "./ScreenShareOverlay";
+import { useScreenShare } from "@/hooks/use-screen-share";
+import { useScreenRecording } from "@/hooks/use-screen-recording";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Component
 // =============================================================================
 
 export function ScreenShareExample() {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [userId] = useState('demo-user-123')
-  const [userName] = useState('Demo User')
-  const [annotationsEnabled, setAnnotationsEnabled] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [userId] = useState("demo-user-123");
+  const [userName] = useState("Demo User");
+  const [annotationsEnabled, setAnnotationsEnabled] = useState(false);
 
   // Screen share hook
   const screenShare = useScreenShare({
@@ -37,27 +46,27 @@ export function ScreenShareExample() {
     useAdvancedCapture: true,
     onScreenShareStarted: (stream) => {
       if (videoRef.current) {
-        videoRef.current.srcObject = stream
+        videoRef.current.srcObject = stream;
       }
     },
     onScreenShareStopped: () => {
       if (videoRef.current) {
-        videoRef.current.srcObject = null
+        videoRef.current.srcObject = null;
       }
-      setAnnotationsEnabled(false)
+      setAnnotationsEnabled(false);
     },
     onError: (error) => {
-      logger.error('Screen share error:', error)
-      alert(`Screen share error: ${error.message}`)
+      logger.error("Screen share error:", error);
+      alert(`Screen share error: ${error.message}`);
     },
-  })
+  });
 
   // Recording hook
   const recording = useScreenRecording({
     onStart: () => {},
     onStop: () => {},
-    onError: (error) => logger.error('Recording error:', error),
-  })
+    onError: (error) => logger.error("Recording error:", error),
+  });
 
   // ==========================================================================
   // Handlers
@@ -66,20 +75,20 @@ export function ScreenShareExample() {
   const handleStartRecording = async () => {
     if (screenShare.screenStream) {
       await recording.startRecording(screenShare.screenStream, {
-        format: 'webm',
-        quality: 'medium',
+        format: "webm",
+        quality: "medium",
         includeWebcam: false,
-      })
+      });
     }
-  }
+  };
 
   const handleStopRecording = async () => {
-    const rec = await recording.stopRecording()
+    const rec = await recording.stopRecording();
     if (rec) {
       // Auto-download
-      recording.downloadRecording(rec)
+      recording.downloadRecording(rec);
     }
-  }
+  };
 
   // ==========================================================================
   // Render
@@ -108,16 +117,18 @@ export function ScreenShareExample() {
               onStartShare={screenShare.startScreenShare}
               onStopShare={screenShare.stopScreenShare}
               onQualityChange={(quality) => screenShare.updateQuality(quality)}
-              onFrameRateChange={(frameRate) => screenShare.updateFrameRate(frameRate)}
+              onFrameRateChange={(frameRate) =>
+                screenShare.updateFrameRate(frameRate)
+              }
             />
 
             {screenShare.isScreenSharing && (
               <Button
-                variant={annotationsEnabled ? 'default' : 'outline'}
+                variant={annotationsEnabled ? "default" : "outline"}
                 onClick={() => setAnnotationsEnabled(!annotationsEnabled)}
               >
                 <Circle className="mr-2 h-4 w-4" />
-                {annotationsEnabled ? 'Hide' : 'Show'} Annotations
+                {annotationsEnabled ? "Hide" : "Show"} Annotations
               </Button>
             )}
           </div>
@@ -133,7 +144,9 @@ export function ScreenShareExample() {
               </Badge>
               {screenShare.activeShares.length > 0 && (
                 <>
-                  <Badge variant="outline">{screenShare.activeShares[0].type}</Badge>
+                  <Badge variant="outline">
+                    {screenShare.activeShares[0].type}
+                  </Badge>
                   {screenShare.activeShares[0].hasAudio && (
                     <Badge variant="outline">System Audio</Badge>
                   )}
@@ -165,17 +178,25 @@ export function ScreenShareExample() {
                     Stop Recording
                   </Button>
                   {recording.isPaused ? (
-                    <Button onClick={recording.resumeRecording} variant="outline">
+                    <Button
+                      onClick={recording.resumeRecording}
+                      variant="outline"
+                    >
                       <Play className="mr-2 h-4 w-4" />
                       Resume
                     </Button>
                   ) : (
-                    <Button onClick={recording.pauseRecording} variant="outline">
+                    <Button
+                      onClick={recording.pauseRecording}
+                      variant="outline"
+                    >
                       <Pause className="mr-2 h-4 w-4" />
                       Pause
                     </Button>
                   )}
-                  <Badge variant="outline">{recording.formatFileSize(recording.size)}</Badge>
+                  <Badge variant="outline">
+                    {recording.formatFileSize(recording.size)}
+                  </Badge>
                 </>
               )}
             </div>
@@ -230,7 +251,11 @@ export function ScreenShareExample() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Recordings</span>
-              <Button variant="ghost" size="sm" onClick={recording.clearRecordings}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={recording.clearRecordings}
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Clear All
               </Button>
@@ -244,10 +269,13 @@ export function ScreenShareExample() {
                   className="flex items-center justify-between rounded-lg border p-3"
                 >
                   <div className="flex-1">
-                    <div className="font-medium">Recording #{rec.id.split('-').pop()}</div>
+                    <div className="font-medium">
+                      Recording #{rec.id.split("-").pop()}
+                    </div>
                     <div className="text-sm text-muted-foreground">
-                      {recording.formatDuration(rec.duration)} •{' '}
-                      {recording.formatFileSize(rec.size)} • {rec.format.toUpperCase()}
+                      {recording.formatDuration(rec.duration)} •{" "}
+                      {recording.formatFileSize(rec.size)} •{" "}
+                      {rec.format.toUpperCase()}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -279,21 +307,22 @@ export function ScreenShareExample() {
         <CardContent className="p-4">
           <div className="space-y-1 text-sm text-muted-foreground">
             <p>
-              <strong>Features:</strong> Screen/window/tab sharing, system audio (Chrome/Edge),
-              quality control, annotations, recording
+              <strong>Features:</strong> Screen/window/tab sharing, system audio
+              (Chrome/Edge), quality control, annotations, recording
             </p>
             <p>
-              <strong>Browser Support:</strong> Chrome 72+, Edge 79+, Firefox 66+, Safari 13+
+              <strong>Browser Support:</strong> Chrome 72+, Edge 79+, Firefox
+              66+, Safari 13+
             </p>
             <p>
-              <strong>Shortcuts:</strong> Ctrl+Z (undo), Ctrl+Y (redo), Ctrl+D (pen), Ctrl+E
-              (eraser)
+              <strong>Shortcuts:</strong> Ctrl+Z (undo), Ctrl+Y (redo), Ctrl+D
+              (pen), Ctrl+E (eraser)
             </p>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
-export default ScreenShareExample
+export default ScreenShareExample;

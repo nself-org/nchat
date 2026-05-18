@@ -71,7 +71,7 @@ export {
   PLAN_TIER_HIERARCHY,
   DEFAULT_CACHE_CONFIG,
   DEFAULT_INHERITANCE_RULES,
-} from './entitlement-types'
+} from "./entitlement-types";
 
 // Graph
 export {
@@ -82,7 +82,7 @@ export {
   type EntitlementGraphNode,
   type GraphResolutionOptions,
   type GraphResolvedValue,
-} from './entitlement-graph'
+} from "./entitlement-graph";
 
 // Gates
 export {
@@ -104,4 +104,4 @@ export {
   workspaceSizeGate,
   trialGate,
   channelTypeGate,
-} from './gates'
+} from "./gates";

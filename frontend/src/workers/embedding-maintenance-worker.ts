@@ -10,18 +10,18 @@
  * @module workers/embedding-maintenance-worker
  */
 
-import { gql } from '@apollo/client'
-import { apolloClient } from '@/lib/apollo-client'
+import { gql } from "@apollo/client";
+import { apolloClient } from "@/lib/apollo-client";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ========================================
 // Configuration
 // ========================================
 
-const WORKER_ID = `maintenance-${process.pid}-${Date.now()}`
-const CHECK_INTERVAL_MS = 60 * 60 * 1000 // 1 hour
-const CACHE_CLEANUP_DAYS = 90 // Clean cache entries unused for 90+ days
+const WORKER_ID = `maintenance-${process.pid}-${Date.now()}`;
+const CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+const CACHE_CLEANUP_DAYS = 90; // Clean cache entries unused for 90+ days
 
 // ========================================
 // GraphQL Queries
@@ -33,15 +33,17 @@ const CLEANUP_QUEUE = gql`
       result
     }
   }
-`
+`;
 
 const CLEANUP_CACHE = gql`
   mutation CleanupEmbeddingCache($daysUnused: Int!) {
-    cleanup_embedding_cache: nchat_cleanup_embedding_cache(args: { days_unused: $daysUnused }) {
+    cleanup_embedding_cache: nchat_cleanup_embedding_cache(
+      args: { days_unused: $daysUnused }
+    ) {
       result
     }
   }
-`
+`;
 
 const OPTIMIZE_INDEX = gql`
   mutation OptimizeEmbeddingIndex {
@@ -49,16 +51,16 @@ const OPTIMIZE_INDEX = gql`
       result
     }
   }
-`
+`;
 
 // ========================================
 // Worker State
 // ========================================
 
-let isRunning = false
-let shouldStop = false
-let lastCleanup: Date | null = null
-let lastOptimization: Date | null = null
+let isRunning = false;
+let shouldStop = false;
+let lastCleanup: Date | null = null;
+let lastOptimization: Date | null = null;
 
 // ========================================
 // Worker Functions
@@ -70,27 +72,27 @@ let lastOptimization: Date | null = null
 export async function startMaintenanceWorker(): Promise<void> {
   if (isRunning) {
     // REMOVED: console.log('[Maintenance Worker] Already running')
-    return
+    return;
   }
 
-  isRunning = true
-  shouldStop = false
+  isRunning = true;
+  shouldStop = false;
 
   // REMOVED: console.log(`[Maintenance Worker] Started: ${WORKER_ID}`)
 
   // Run initial maintenance
-  await runMaintenance()
+  await runMaintenance();
 
   // Run periodic maintenance
   while (!shouldStop) {
-    await sleep(CHECK_INTERVAL_MS)
+    await sleep(CHECK_INTERVAL_MS);
 
     if (!shouldStop) {
-      await runMaintenance()
+      await runMaintenance();
     }
   }
 
-  isRunning = false
+  isRunning = false;
   // REMOVED: console.log('[Maintenance Worker] Stopped')
 }
 
@@ -99,7 +101,7 @@ export async function startMaintenanceWorker(): Promise<void> {
  */
 export function stopMaintenanceWorker(): void {
   // REMOVED: console.log('[Maintenance Worker] Stopping...')
-  shouldStop = true
+  shouldStop = true;
 }
 
 /**
@@ -111,7 +113,7 @@ export function getMaintenanceWorkerStatus() {
     isRunning,
     lastCleanup,
     lastOptimization,
-  }
+  };
 }
 
 /**
@@ -122,23 +124,24 @@ async function runMaintenance(): Promise<void> {
 
   try {
     // 1. Cleanup queue
-    await cleanupQueue()
+    await cleanupQueue();
 
     // 2. Cleanup cache
-    await cleanupCache()
+    await cleanupCache();
 
     // 3. Optimize index (once per day)
     const shouldOptimize =
-      !lastOptimization || Date.now() - lastOptimization.getTime() > 24 * 60 * 60 * 1000
+      !lastOptimization ||
+      Date.now() - lastOptimization.getTime() > 24 * 60 * 60 * 1000;
 
     if (shouldOptimize) {
-      await optimizeIndex()
+      await optimizeIndex();
     }
 
-    lastCleanup = new Date()
+    lastCleanup = new Date();
     // REMOVED: console.log('[Maintenance Worker] Maintenance completed successfully')
   } catch (error) {
-    logger.error('[Maintenance Worker] Maintenance error:', error)
+    logger.error("[Maintenance Worker] Maintenance error:", error);
   }
 }
 
@@ -151,13 +154,13 @@ async function cleanupQueue(): Promise<void> {
 
     const { data } = await apolloClient.mutate({
       mutation: CLEANUP_QUEUE,
-    })
+    });
 
-    const deleted = data?.cleanup_embedding_queue?.result || 0
+    const deleted = data?.cleanup_embedding_queue?.result || 0;
     // REMOVED: console.log(`[Maintenance Worker] Removed ${deleted} stale queue items`)
   } catch (error) {
-    logger.error('[Maintenance Worker] Queue cleanup error:', error)
-    throw error
+    logger.error("[Maintenance Worker] Queue cleanup error:", error);
+    throw error;
   }
 }
 
@@ -173,13 +176,13 @@ async function cleanupCache(): Promise<void> {
     const { data } = await apolloClient.mutate({
       mutation: CLEANUP_CACHE,
       variables: { daysUnused: CACHE_CLEANUP_DAYS },
-    })
+    });
 
-    const deleted = data?.cleanup_embedding_cache?.result || 0
+    const deleted = data?.cleanup_embedding_cache?.result || 0;
     // REMOVED: console.log(`[Maintenance Worker] Removed ${deleted} old cache entries`)
   } catch (error) {
-    logger.error('[Maintenance Worker] Cache cleanup error:', error)
-    throw error
+    logger.error("[Maintenance Worker] Cache cleanup error:", error);
+    throw error;
   }
 }
 
@@ -192,14 +195,14 @@ async function optimizeIndex(): Promise<void> {
 
     const { data } = await apolloClient.mutate({
       mutation: OPTIMIZE_INDEX,
-    })
+    });
 
-    const result = data?.optimize_embedding_index?.result || 'Unknown'
+    const result = data?.optimize_embedding_index?.result || "Unknown";
     // REMOVED: console.log(`[Maintenance Worker] Index optimization: ${result}`)
 
-    lastOptimization = new Date()
+    lastOptimization = new Date();
   } catch (error) {
-    logger.error('[Maintenance Worker] Index optimization error:', error)
+    logger.error("[Maintenance Worker] Index optimization error:", error);
     // Don't throw - optimization failure shouldn't stop maintenance
   }
 }
@@ -209,7 +212,7 @@ async function optimizeIndex(): Promise<void> {
 // ========================================
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // ========================================
@@ -218,19 +221,19 @@ function sleep(ms: number): Promise<void> {
 
 if (require.main === module) {
   // Handle graceful shutdown
-  process.on('SIGINT', () => {
+  process.on("SIGINT", () => {
     // REMOVED: console.log('\n[Maintenance Worker] Received SIGINT, shutting down...')
-    stopMaintenanceWorker()
-  })
+    stopMaintenanceWorker();
+  });
 
-  process.on('SIGTERM', () => {
+  process.on("SIGTERM", () => {
     // REMOVED: console.log('\n[Maintenance Worker] Received SIGTERM, shutting down...')
-    stopMaintenanceWorker()
-  })
+    stopMaintenanceWorker();
+  });
 
   // Start worker
   startMaintenanceWorker().catch((error) => {
-    logger.error('[Maintenance Worker] Fatal error:', error)
-    process.exit(1)
-  })
+    logger.error("[Maintenance Worker] Fatal error:", error);
+    process.exit(1);
+  });
 }

@@ -1,28 +1,34 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { CreateRoleInput, EffectivePermissions, Permission } from '@/lib/admin/roles/role-types'
-import { RoleEditor } from './RoleEditor'
+} from "@/components/ui/dialog";
+import {
+  CreateRoleInput,
+  EffectivePermissions,
+  Permission,
+} from "@/lib/admin/roles/role-types";
+import { RoleEditor } from "./RoleEditor";
 
 interface CreateRoleModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  editorPermissions?: EffectivePermissions | null
-  onCreateRole: (input: CreateRoleInput) => Promise<{ success: boolean; errors: string[] }>
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  editorPermissions?: EffectivePermissions | null;
+  onCreateRole: (
+    input: CreateRoleInput,
+  ) => Promise<{ success: boolean; errors: string[] }>;
   copyFrom?: {
-    name: string
-    description?: string
-    color: string
-    icon?: string
-    permissions: Permission[]
-  }
+    name: string;
+    description?: string;
+    color: string;
+    icon?: string;
+    permissions: Permission[];
+  };
 }
 
 /**
@@ -35,27 +41,27 @@ export function CreateRoleModal({
   onCreateRole,
   copyFrom,
 }: CreateRoleModalProps) {
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [errors, setErrors] = React.useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [errors, setErrors] = React.useState<string[]>([]);
 
   const handleSave = async (data: CreateRoleInput) => {
-    setIsSubmitting(true)
-    setErrors([])
+    setIsSubmitting(true);
+    setErrors([]);
 
     try {
-      const result = await onCreateRole(data)
+      const result = await onCreateRole(data);
 
       if (result.success) {
-        onOpenChange(false)
+        onOpenChange(false);
       } else {
-        setErrors(result.errors)
+        setErrors(result.errors);
       }
     } catch (error) {
-      setErrors(['An unexpected error occurred'])
+      setErrors(["An unexpected error occurred"]);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const initialData = copyFrom
     ? {
@@ -65,17 +71,19 @@ export function CreateRoleModal({
         icon: copyFrom.icon,
         permissions: copyFrom.permissions,
       }
-    : undefined
+    : undefined;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{copyFrom ? 'Duplicate Role' : 'Create New Role'}</DialogTitle>
+          <DialogTitle>
+            {copyFrom ? "Duplicate Role" : "Create New Role"}
+          </DialogTitle>
           <DialogDescription>
             {copyFrom
               ? `Creating a copy of "${copyFrom.name}"`
-              : 'Create a new role with custom permissions'}
+              : "Create a new role with custom permissions"}
           </DialogDescription>
         </DialogHeader>
 
@@ -99,7 +107,7 @@ export function CreateRoleModal({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default CreateRoleModal
+export default CreateRoleModal;

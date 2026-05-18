@@ -19,32 +19,32 @@
  * Primary chat entity types
  */
 export type ChatEntityType =
-  | 'dm' // 1-on-1 direct message
-  | 'group' // Small group (2-256 members)
-  | 'supergroup' // Large group (up to 100,000+)
-  | 'community' // Discord-style server/guild
-  | 'channel' // Broadcast channel
+  | "dm" // 1-on-1 direct message
+  | "group" // Small group (2-256 members)
+  | "supergroup" // Large group (up to 100,000+)
+  | "community" // Discord-style server/guild
+  | "channel"; // Broadcast channel
 
 /**
  * Entity visibility settings
  */
-export type EntityVisibility = 'private' | 'public' | 'discoverable'
+export type EntityVisibility = "private" | "public" | "discoverable";
 
 /**
  * Entity status
  */
-export type EntityStatus = 'active' | 'archived' | 'deleted' | 'suspended'
+export type EntityStatus = "active" | "archived" | "deleted" | "suspended";
 
 /**
  * Member role in an entity
  */
 export type EntityMemberRole =
-  | 'owner' // Full control, can delete entity
-  | 'admin' // Can manage members, settings
-  | 'moderator' // Can manage content
-  | 'member' // Regular participant
-  | 'subscriber' // Read-only (for channels)
-  | 'guest' // Limited access
+  | "owner" // Full control, can delete entity
+  | "admin" // Can manage members, settings
+  | "moderator" // Can manage content
+  | "member" // Regular participant
+  | "subscriber" // Read-only (for channels)
+  | "guest"; // Limited access
 
 // =============================================================================
 // ENTITY LIMITS
@@ -102,9 +102,9 @@ export const ENTITY_LIMITS = {
     canBroadcast: true, // Always broadcast mode
     hasPublicLink: true,
   },
-} as const
+} as const;
 
-export type EntityLimits = (typeof ENTITY_LIMITS)[ChatEntityType]
+export type EntityLimits = (typeof ENTITY_LIMITS)[ChatEntityType];
 
 // =============================================================================
 // ENTITY FEATURES BY TYPE
@@ -115,45 +115,45 @@ export type EntityLimits = (typeof ENTITY_LIMITS)[ChatEntityType]
  */
 export interface EntityFeatures {
   // Messaging
-  sendMessages: boolean
-  sendMedia: boolean
-  sendVoiceMessages: boolean
-  sendStickers: boolean
-  sendGifs: boolean
-  sendPolls: boolean
+  sendMessages: boolean;
+  sendMedia: boolean;
+  sendVoiceMessages: boolean;
+  sendStickers: boolean;
+  sendGifs: boolean;
+  sendPolls: boolean;
 
   // Interactions
-  reactions: boolean
-  threads: boolean
-  mentions: boolean
-  readReceipts: boolean
-  typingIndicators: boolean
-  messageEditing: boolean
-  messageDeleting: boolean
+  reactions: boolean;
+  threads: boolean;
+  mentions: boolean;
+  readReceipts: boolean;
+  typingIndicators: boolean;
+  messageEditing: boolean;
+  messageDeleting: boolean;
 
   // Media
-  voiceCalls: boolean
-  videoCalls: boolean
-  screenSharing: boolean
-  liveStreaming: boolean
+  voiceCalls: boolean;
+  videoCalls: boolean;
+  screenSharing: boolean;
+  liveStreaming: boolean;
 
   // Moderation
-  slowMode: boolean
-  memberBanning: boolean
-  messagePinning: boolean
-  messageReporting: boolean
-  autoModeration: boolean
+  slowMode: boolean;
+  memberBanning: boolean;
+  messagePinning: boolean;
+  messageReporting: boolean;
+  autoModeration: boolean;
 
   // Discovery
-  publicJoinLink: boolean
-  discoverability: boolean
-  vanityUrl: boolean
+  publicJoinLink: boolean;
+  discoverability: boolean;
+  vanityUrl: boolean;
 
   // Organization
-  categories: boolean
-  nestedChannels: boolean
-  roles: boolean
-  permissions: boolean
+  categories: boolean;
+  nestedChannels: boolean;
+  roles: boolean;
+  permissions: boolean;
 }
 
 /**
@@ -315,7 +315,7 @@ export const DEFAULT_ENTITY_FEATURES: Record<ChatEntityType, EntityFeatures> = {
     roles: false,
     permissions: true,
   },
-}
+};
 
 // =============================================================================
 // BASE ENTITY INTERFACE
@@ -326,55 +326,55 @@ export const DEFAULT_ENTITY_FEATURES: Record<ChatEntityType, EntityFeatures> = {
  */
 export interface BaseChatEntity {
   /** Unique identifier */
-  id: string
+  id: string;
 
   /** Entity type */
-  type: ChatEntityType
+  type: ChatEntityType;
 
   /** Display name */
-  name: string
+  name: string;
 
   /** URL-safe slug */
-  slug: string
+  slug: string;
 
   /** Description or topic */
-  description: string | null
+  description: string | null;
 
   /** Avatar/icon URL */
-  avatarUrl: string | null
+  avatarUrl: string | null;
 
   /** Banner/header image URL */
-  bannerUrl: string | null
+  bannerUrl: string | null;
 
   /** Visibility setting */
-  visibility: EntityVisibility
+  visibility: EntityVisibility;
 
   /** Current status */
-  status: EntityStatus
+  status: EntityStatus;
 
   /** Owner/creator user ID */
-  ownerId: string
+  ownerId: string;
 
   /** Workspace ID (for multi-tenant) */
-  workspaceId: string
+  workspaceId: string;
 
   /** Current member count */
-  memberCount: number
+  memberCount: number;
 
   /** Creation timestamp */
-  createdAt: string
+  createdAt: string;
 
   /** Last update timestamp */
-  updatedAt: string
+  updatedAt: string;
 
   /** Entity settings */
-  settings: EntitySettings
+  settings: EntitySettings;
 
   /** Feature flags */
-  features: Partial<EntityFeatures>
+  features: Partial<EntityFeatures>;
 
   /** Metadata for extensions */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -382,34 +382,34 @@ export interface BaseChatEntity {
  */
 export interface EntitySettings {
   /** Slow mode delay in seconds (0 = disabled) */
-  slowModeSeconds: number
+  slowModeSeconds: number;
 
   /** Whether new members are muted by default */
-  muteNewMembers: boolean
+  muteNewMembers: boolean;
 
   /** Minimum account age to join (in days) */
-  minAccountAgeDays: number
+  minAccountAgeDays: number;
 
   /** Whether entity is age-restricted */
-  isNsfw: boolean
+  isNsfw: boolean;
 
   /** Default notification level */
-  defaultNotificationLevel: 'all' | 'mentions' | 'none'
+  defaultNotificationLevel: "all" | "mentions" | "none";
 
   /** Who can send messages */
-  whoCanSendMessages: 'everyone' | 'admins' | 'no_one'
+  whoCanSendMessages: "everyone" | "admins" | "no_one";
 
   /** Who can add members */
-  whoCanAddMembers: 'everyone' | 'admins' | 'no_one'
+  whoCanAddMembers: "everyone" | "admins" | "no_one";
 
   /** Who can edit entity info */
-  whoCanEditInfo: 'everyone' | 'admins' | 'owner'
+  whoCanEditInfo: "everyone" | "admins" | "owner";
 
   /** Message retention days (0 = forever) */
-  messageRetentionDays: number
+  messageRetentionDays: number;
 
   /** Whether to show member list */
-  showMemberList: boolean
+  showMemberList: boolean;
 }
 
 /**
@@ -420,13 +420,13 @@ export const DEFAULT_ENTITY_SETTINGS: EntitySettings = {
   muteNewMembers: false,
   minAccountAgeDays: 0,
   isNsfw: false,
-  defaultNotificationLevel: 'all',
-  whoCanSendMessages: 'everyone',
-  whoCanAddMembers: 'admins',
-  whoCanEditInfo: 'admins',
+  defaultNotificationLevel: "all",
+  whoCanSendMessages: "everyone",
+  whoCanAddMembers: "admins",
+  whoCanEditInfo: "admins",
   messageRetentionDays: 0,
   showMemberList: true,
-}
+};
 
 // =============================================================================
 // DIRECT MESSAGE ENTITY
@@ -436,28 +436,28 @@ export const DEFAULT_ENTITY_SETTINGS: EntitySettings = {
  * Direct Message (1-on-1) entity
  */
 export interface DirectMessageEntity extends BaseChatEntity {
-  type: 'dm'
+  type: "dm";
 
   /** Always 2 for DMs */
-  memberCount: 2
+  memberCount: 2;
 
   /** The other participant (for display) */
-  otherParticipant: EntityMember
+  otherParticipant: EntityMember;
 
   /** Participant IDs [userId1, userId2] */
-  participantIds: [string, string]
+  participantIds: [string, string];
 
   /** Last message preview */
-  lastMessage: LastMessagePreview | null
+  lastMessage: LastMessagePreview | null;
 
   /** Archived by user (one-sided) */
-  archivedByUserId: string | null
+  archivedByUserId: string | null;
 
   /** Pinned by user (one-sided) */
-  isPinned: boolean
+  isPinned: boolean;
 
   /** Whether encryption is enabled */
-  isEncrypted: boolean
+  isEncrypted: boolean;
 }
 
 // =============================================================================
@@ -468,28 +468,28 @@ export interface DirectMessageEntity extends BaseChatEntity {
  * Group entity (2-256 members)
  */
 export interface GroupEntity extends BaseChatEntity {
-  type: 'group'
+  type: "group";
 
   /** Group-specific settings */
-  groupSettings: GroupSettings
+  groupSettings: GroupSettings;
 
   /** Public join link (if enabled) */
-  joinLink: string | null
+  joinLink: string | null;
 
   /** Join link expiry */
-  joinLinkExpiresAt: string | null
+  joinLinkExpiresAt: string | null;
 
   /** Last message preview */
-  lastMessage: LastMessagePreview | null
+  lastMessage: LastMessagePreview | null;
 
   /** Admin user IDs */
-  adminIds: string[]
+  adminIds: string[];
 
   /** Pinned message IDs */
-  pinnedMessageIds: string[]
+  pinnedMessageIds: string[];
 
   /** Whether this can be upgraded to supergroup */
-  canUpgradeToSupergroup: boolean
+  canUpgradeToSupergroup: boolean;
 }
 
 /**
@@ -497,32 +497,32 @@ export interface GroupEntity extends BaseChatEntity {
  */
 export interface GroupSettings {
   /** Who can send messages */
-  sendMessagesPermission: 'everyone' | 'admins'
+  sendMessagesPermission: "everyone" | "admins";
 
   /** Who can add members */
-  addMembersPermission: 'everyone' | 'admins'
+  addMembersPermission: "everyone" | "admins";
 
   /** Who can change group info */
-  changeInfoPermission: 'everyone' | 'admins'
+  changeInfoPermission: "everyone" | "admins";
 
   /** Who can pin messages */
-  pinMessagesPermission: 'everyone' | 'admins'
+  pinMessagesPermission: "everyone" | "admins";
 
   /** Whether members can invite via link */
-  membersCanShareLink: boolean
+  membersCanShareLink: boolean;
 
   /** Approval required for join requests */
-  approvalRequired: boolean
+  approvalRequired: boolean;
 }
 
 export const DEFAULT_GROUP_SETTINGS: GroupSettings = {
-  sendMessagesPermission: 'everyone',
-  addMembersPermission: 'admins',
-  changeInfoPermission: 'admins',
-  pinMessagesPermission: 'admins',
+  sendMessagesPermission: "everyone",
+  addMembersPermission: "admins",
+  changeInfoPermission: "admins",
+  pinMessagesPermission: "admins",
   membersCanShareLink: true,
   approvalRequired: false,
-}
+};
 
 // =============================================================================
 // SUPERGROUP ENTITY
@@ -532,32 +532,32 @@ export const DEFAULT_GROUP_SETTINGS: GroupSettings = {
  * Supergroup entity (Telegram-style, up to 200,000 members)
  */
 export interface SupergroupEntity extends BaseChatEntity {
-  type: 'supergroup'
+  type: "supergroup";
 
   /** Supergroup-specific settings */
-  supergroupSettings: SupergroupSettings
+  supergroupSettings: SupergroupSettings;
 
   /** Public username (for discoverable groups) */
-  username: string | null
+  username: string | null;
 
   /** Public join link */
-  joinLink: string | null
+  joinLink: string | null;
 
   /** Admin list with permissions */
-  admins: SupergroupAdmin[]
+  admins: SupergroupAdmin[];
 
   /** Pinned message IDs */
-  pinnedMessageIds: string[]
+  pinnedMessageIds: string[];
 
   /** Linked channel ID (for discussion groups) */
-  linkedChannelId: string | null
+  linkedChannelId: string | null;
 
   /** Last message preview */
-  lastMessage: LastMessagePreview | null
+  lastMessage: LastMessagePreview | null;
 
   /** Upgrade info from group */
-  upgradedFromGroupId: string | null
-  upgradedAt: string | null
+  upgradedFromGroupId: string | null;
+  upgradedAt: string | null;
 }
 
 /**
@@ -565,65 +565,65 @@ export interface SupergroupEntity extends BaseChatEntity {
  */
 export interface SupergroupSettings {
   /** Slow mode seconds (0, 10, 30, 60, 300, 900, 3600) */
-  slowModeSeconds: 0 | 10 | 30 | 60 | 300 | 900 | 3600
+  slowModeSeconds: 0 | 10 | 30 | 60 | 300 | 900 | 3600;
 
   /** Whether only admins can send messages */
-  restrictedMode: boolean
+  restrictedMode: boolean;
 
   /** Hide member list from non-admins */
-  hideMemberList: boolean
+  hideMemberList: boolean;
 
   /** Whether join requests require approval */
-  approvalRequired: boolean
+  approvalRequired: boolean;
 
   /** Topics/forum mode enabled */
-  forumMode: boolean
+  forumMode: boolean;
 
   /** Who can invite via link */
-  invitePermission: 'everyone' | 'admins'
+  invitePermission: "everyone" | "admins";
 
   /** Anti-spam settings */
   antiSpam: {
-    enabled: boolean
-    deleteSpam: boolean
-    banSpammers: boolean
-    minAccountAge: number // days
-  }
+    enabled: boolean;
+    deleteSpam: boolean;
+    banSpammers: boolean;
+    minAccountAge: number; // days
+  };
 
   /** Content restrictions */
   restrictions: {
-    stickersDisabled: boolean
-    gifsDisabled: boolean
-    mediaDisabled: boolean
-    pollsDisabled: boolean
-    linksDisabled: boolean
-  }
+    stickersDisabled: boolean;
+    gifsDisabled: boolean;
+    mediaDisabled: boolean;
+    pollsDisabled: boolean;
+    linksDisabled: boolean;
+  };
 }
 
 /**
  * Supergroup admin with granular permissions
  */
 export interface SupergroupAdmin {
-  userId: string
-  title: string | null
-  addedBy: string
-  addedAt: string
-  permissions: SupergroupAdminPermissions
+  userId: string;
+  title: string | null;
+  addedBy: string;
+  addedAt: string;
+  permissions: SupergroupAdminPermissions;
 }
 
 /**
  * Granular admin permissions
  */
 export interface SupergroupAdminPermissions {
-  changeInfo: boolean
-  deleteMessages: boolean
-  banUsers: boolean
-  inviteUsers: boolean
-  pinMessages: boolean
-  addAdmins: boolean
-  manageTopics: boolean
-  manageVideoChats: boolean
-  anonymous: boolean
+  changeInfo: boolean;
+  deleteMessages: boolean;
+  banUsers: boolean;
+  inviteUsers: boolean;
+  pinMessages: boolean;
+  addAdmins: boolean;
+  manageTopics: boolean;
+  manageVideoChats: boolean;
+  anonymous: boolean;
 }
 
 export const DEFAULT_SUPERGROUP_SETTINGS: SupergroupSettings = {
@@ -632,7 +632,7 @@ export const DEFAULT_SUPERGROUP_SETTINGS: SupergroupSettings = {
   hideMemberList: false,
   approvalRequired: false,
   forumMode: false,
-  invitePermission: 'admins',
+  invitePermission: "admins",
   antiSpam: {
     enabled: true,
     deleteSpam: true,
@@ -646,7 +646,7 @@ export const DEFAULT_SUPERGROUP_SETTINGS: SupergroupSettings = {
     pollsDisabled: false,
     linksDisabled: false,
   },
-}
+};
 
 // =============================================================================
 // COMMUNITY ENTITY (Discord-style)
@@ -656,50 +656,50 @@ export const DEFAULT_SUPERGROUP_SETTINGS: SupergroupSettings = {
  * Community/Server entity (Discord-style)
  */
 export interface CommunityEntity extends BaseChatEntity {
-  type: 'community'
+  type: "community";
 
   /** Community-specific settings */
-  communitySettings: CommunitySettings
+  communitySettings: CommunitySettings;
 
   /** Vanity URL slug */
-  vanityUrl: string | null
+  vanityUrl: string | null;
 
   /** Splash image for invites */
-  splashUrl: string | null
+  splashUrl: string | null;
 
   /** Discovery splash */
-  discoverySplashUrl: string | null
+  discoverySplashUrl: string | null;
 
   /** System channel for join/leave messages */
-  systemChannelId: string | null
+  systemChannelId: string | null;
 
   /** Rules channel */
-  rulesChannelId: string | null
+  rulesChannelId: string | null;
 
   /** Welcome channel */
-  welcomeChannelId: string | null
+  welcomeChannelId: string | null;
 
   /** Default channel */
-  defaultChannelId: string | null
+  defaultChannelId: string | null;
 
   /** Categories in this community */
-  categories: CommunityCategory[]
+  categories: CommunityCategory[];
 
   /** Roles defined in this community */
-  roles: CommunityRole[]
+  roles: CommunityRole[];
 
   /** Verification level */
-  verificationLevel: VerificationLevel
+  verificationLevel: VerificationLevel;
 
   /** Content filter level */
-  contentFilterLevel: ContentFilterLevel
+  contentFilterLevel: ContentFilterLevel;
 
   /** Boost tier and count */
-  boostTier: 0 | 1 | 2 | 3
-  boostCount: number
+  boostTier: 0 | 1 | 2 | 3;
+  boostCount: number;
 
   /** Total channel count */
-  channelCount: number
+  channelCount: number;
 }
 
 /**
@@ -707,102 +707,102 @@ export interface CommunityEntity extends BaseChatEntity {
  */
 export interface CommunitySettings {
   /** Who can create channels */
-  createChannelsPermission: 'admins' | 'moderators'
+  createChannelsPermission: "admins" | "moderators";
 
   /** Who can create categories */
-  createCategoriesPermission: 'admins' | 'moderators'
+  createCategoriesPermission: "admins" | "moderators";
 
   /** Who can create events */
-  createEventsPermission: 'everyone' | 'admins' | 'moderators'
+  createEventsPermission: "everyone" | "admins" | "moderators";
 
   /** Enable server discovery */
-  discoverable: boolean
+  discoverable: boolean;
 
   /** Enable community features */
-  communityEnabled: boolean
+  communityEnabled: boolean;
 
   /** Welcome screen configuration */
   welcomeScreen: {
-    enabled: boolean
-    description: string | null
+    enabled: boolean;
+    description: string | null;
     channels: Array<{
-      channelId: string
-      description: string
-      emoji: string | null
-    }>
-  }
+      channelId: string;
+      description: string;
+      emoji: string | null;
+    }>;
+  };
 
   /** Default notification settings */
-  defaultNotifications: 'all' | 'mentions' | 'nothing'
+  defaultNotifications: "all" | "mentions" | "nothing";
 
   /** Whether @everyone is restricted */
-  everyoneRestricted: boolean
+  everyoneRestricted: boolean;
 
   /** Max file upload size (MB) */
-  maxFileSizeMb: number
+  maxFileSizeMb: number;
 }
 
 /**
  * Community category (channel folder)
  */
 export interface CommunityCategory {
-  id: string
-  communityId: string
-  name: string
-  position: number
-  isCollapsed: boolean
-  channelIds: string[]
-  permissions: CategoryPermissionOverride[]
+  id: string;
+  communityId: string;
+  name: string;
+  position: number;
+  isCollapsed: boolean;
+  channelIds: string[];
+  permissions: CategoryPermissionOverride[];
 }
 
 /**
  * Community role
  */
 export interface CommunityRole {
-  id: string
-  communityId: string
-  name: string
-  color: string | null
-  icon: string | null
-  position: number // Higher = more power
-  permissions: bigint // Bitfield
-  isDefault: boolean
-  isMentionable: boolean
-  isHoisted: boolean // Display separately in sidebar
-  memberCount: number
+  id: string;
+  communityId: string;
+  name: string;
+  color: string | null;
+  icon: string | null;
+  position: number; // Higher = more power
+  permissions: bigint; // Bitfield
+  isDefault: boolean;
+  isMentionable: boolean;
+  isHoisted: boolean; // Display separately in sidebar
+  memberCount: number;
 }
 
 /**
  * Category permission override
  */
 export interface CategoryPermissionOverride {
-  roleId: string
-  allow: bigint
-  deny: bigint
+  roleId: string;
+  allow: bigint;
+  deny: bigint;
 }
 
 /**
  * Verification levels
  */
 export type VerificationLevel =
-  | 'none' // No restriction
-  | 'low' // Must have verified email
-  | 'medium' // Must be registered for 5+ minutes
-  | 'high' // Must be member for 10+ minutes
-  | 'very_high' // Must have verified phone
+  | "none" // No restriction
+  | "low" // Must have verified email
+  | "medium" // Must be registered for 5+ minutes
+  | "high" // Must be member for 10+ minutes
+  | "very_high"; // Must have verified phone
 
 /**
  * Content filter levels
  */
 export type ContentFilterLevel =
-  | 'disabled' // Don't scan
-  | 'members_without_roles' // Scan new members
-  | 'all_members' // Scan everyone
+  | "disabled" // Don't scan
+  | "members_without_roles" // Scan new members
+  | "all_members"; // Scan everyone
 
 export const DEFAULT_COMMUNITY_SETTINGS: CommunitySettings = {
-  createChannelsPermission: 'admins',
-  createCategoriesPermission: 'admins',
-  createEventsPermission: 'moderators',
+  createChannelsPermission: "admins",
+  createCategoriesPermission: "admins",
+  createEventsPermission: "moderators",
   discoverable: false,
   communityEnabled: true,
   welcomeScreen: {
@@ -810,10 +810,10 @@ export const DEFAULT_COMMUNITY_SETTINGS: CommunitySettings = {
     description: null,
     channels: [],
   },
-  defaultNotifications: 'mentions',
+  defaultNotifications: "mentions",
   everyoneRestricted: true,
   maxFileSizeMb: 25,
-}
+};
 
 // =============================================================================
 // CHANNEL ENTITY (Broadcast)
@@ -823,37 +823,37 @@ export const DEFAULT_COMMUNITY_SETTINGS: CommunitySettings = {
  * Broadcast channel entity
  */
 export interface ChannelEntity extends BaseChatEntity {
-  type: 'channel'
+  type: "channel";
 
   /** Channel-specific settings */
-  channelSettings: ChannelSettings
+  channelSettings: ChannelSettings;
 
   /** Public username (for discoverable channels) */
-  username: string | null
+  username: string | null;
 
   /** Public join link */
-  joinLink: string | null
+  joinLink: string | null;
 
   /** Subscriber count */
-  subscriberCount: number
+  subscriberCount: number;
 
   /** Admin list */
-  admins: ChannelAdmin[]
+  admins: ChannelAdmin[];
 
   /** Linked discussion group ID */
-  linkedGroupId: string | null
+  linkedGroupId: string | null;
 
   /** Last post preview */
-  lastPost: LastMessagePreview | null
+  lastPost: LastMessagePreview | null;
 
   /** Whether channel is verified */
-  isVerified: boolean
+  isVerified: boolean;
 
   /** Signature enabled (show admin name on posts) */
-  signatureEnabled: boolean
+  signatureEnabled: boolean;
 
   /** Content restriction age */
-  contentRestriction: 'none' | '16+' | '18+'
+  contentRestriction: "none" | "16+" | "18+";
 }
 
 /**
@@ -861,48 +861,48 @@ export interface ChannelEntity extends BaseChatEntity {
  */
 export interface ChannelSettings {
   /** Allow comments/reactions */
-  allowReactions: boolean
+  allowReactions: boolean;
 
   /** Show signature on posts */
-  showSignature: boolean
+  showSignature: boolean;
 
   /** Enable discussion group */
-  discussionEnabled: boolean
+  discussionEnabled: boolean;
 
   /** Slow mode for linked discussion */
-  discussionSlowMode: number
+  discussionSlowMode: number;
 
   /** Who can view subscriber list */
-  subscriberListVisibility: 'public' | 'admins'
+  subscriberListVisibility: "public" | "admins";
 
   /** Post scheduling enabled */
-  schedulingEnabled: boolean
+  schedulingEnabled: boolean;
 
   /** Silent broadcast (no notification) by default */
-  silentBroadcast: boolean
+  silentBroadcast: boolean;
 }
 
 /**
  * Channel admin
  */
 export interface ChannelAdmin {
-  userId: string
-  title: string | null
-  addedBy: string
-  addedAt: string
-  permissions: ChannelAdminPermissions
+  userId: string;
+  title: string | null;
+  addedBy: string;
+  addedAt: string;
+  permissions: ChannelAdminPermissions;
 }
 
 /**
  * Channel admin permissions
  */
 export interface ChannelAdminPermissions {
-  postMessages: boolean
-  editMessages: boolean
-  deleteMessages: boolean
-  inviteSubscribers: boolean
-  manageDiscussion: boolean
-  addAdmins: boolean
+  postMessages: boolean;
+  editMessages: boolean;
+  deleteMessages: boolean;
+  inviteSubscribers: boolean;
+  manageDiscussion: boolean;
+  addAdmins: boolean;
 }
 
 export const DEFAULT_CHANNEL_SETTINGS: ChannelSettings = {
@@ -910,10 +910,10 @@ export const DEFAULT_CHANNEL_SETTINGS: ChannelSettings = {
   showSignature: true,
   discussionEnabled: false,
   discussionSlowMode: 0,
-  subscriberListVisibility: 'public',
+  subscriberListVisibility: "public",
   schedulingEnabled: true,
   silentBroadcast: false,
-}
+};
 
 // =============================================================================
 // SHARED TYPES
@@ -923,78 +923,78 @@ export const DEFAULT_CHANNEL_SETTINGS: ChannelSettings = {
  * Entity member
  */
 export interface EntityMember {
-  id: string
-  entityId: string
-  userId: string
-  role: EntityMemberRole
-  joinedAt: string
-  lastReadAt: string | null
-  lastReadMessageId: string | null
-  notificationLevel: 'all' | 'mentions' | 'none'
-  isMuted: boolean
-  mutedUntil: string | null
-  isBanned: boolean
-  bannedAt: string | null
-  bannedBy: string | null
-  banReason: string | null
+  id: string;
+  entityId: string;
+  userId: string;
+  role: EntityMemberRole;
+  joinedAt: string;
+  lastReadAt: string | null;
+  lastReadMessageId: string | null;
+  notificationLevel: "all" | "mentions" | "none";
+  isMuted: boolean;
+  mutedUntil: string | null;
+  isBanned: boolean;
+  bannedAt: string | null;
+  bannedBy: string | null;
+  banReason: string | null;
 
   // User info
-  user: EntityUser
+  user: EntityUser;
 }
 
 /**
  * User info for display
  */
 export interface EntityUser {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl: string | null
-  status: 'online' | 'away' | 'busy' | 'offline'
-  lastSeenAt: string | null
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  status: "online" | "away" | "busy" | "offline";
+  lastSeenAt: string | null;
 }
 
 /**
  * Last message preview
  */
 export interface LastMessagePreview {
-  id: string
-  content: string
-  senderId: string
-  senderName: string
-  timestamp: string
-  hasAttachment: boolean
-  attachmentType: string | null
+  id: string;
+  content: string;
+  senderId: string;
+  senderName: string;
+  timestamp: string;
+  hasAttachment: boolean;
+  attachmentType: string | null;
 }
 
 /**
  * Join request for approval-required entities
  */
 export interface EntityJoinRequest {
-  id: string
-  entityId: string
-  userId: string
-  requestedAt: string
-  message: string | null
-  status: 'pending' | 'approved' | 'rejected'
-  reviewedBy: string | null
-  reviewedAt: string | null
+  id: string;
+  entityId: string;
+  userId: string;
+  requestedAt: string;
+  message: string | null;
+  status: "pending" | "approved" | "rejected";
+  reviewedBy: string | null;
+  reviewedAt: string | null;
 }
 
 /**
  * Invite link
  */
 export interface EntityInviteLink {
-  id: string
-  entityId: string
-  code: string
-  createdBy: string
-  createdAt: string
-  expiresAt: string | null
-  maxUses: number | null
-  uses: number
-  isRevoked: boolean
-  isPermanent: boolean
+  id: string;
+  entityId: string;
+  code: string;
+  createdBy: string;
+  createdAt: string;
+  expiresAt: string | null;
+  maxUses: number | null;
+  uses: number;
+  isRevoked: boolean;
+  isPermanent: boolean;
 }
 
 // =============================================================================
@@ -1009,7 +1009,7 @@ export type ChatEntity =
   | GroupEntity
   | SupergroupEntity
   | CommunityEntity
-  | ChannelEntity
+  | ChannelEntity;
 
 /**
  * Entities that support multiple members
@@ -1018,17 +1018,21 @@ export type MultiMemberEntity =
   | GroupEntity
   | SupergroupEntity
   | CommunityEntity
-  | ChannelEntity
+  | ChannelEntity;
 
 /**
  * Entities that support admin roles
  */
-export type AdminSupportedEntity = GroupEntity | SupergroupEntity | CommunityEntity | ChannelEntity
+export type AdminSupportedEntity =
+  | GroupEntity
+  | SupergroupEntity
+  | CommunityEntity
+  | ChannelEntity;
 
 /**
  * Entities that can be broadcast (admin-only posting)
  */
-export type BroadcastCapableEntity = SupergroupEntity | ChannelEntity
+export type BroadcastCapableEntity = SupergroupEntity | ChannelEntity;
 
 // =============================================================================
 // INPUT TYPES
@@ -1038,64 +1042,63 @@ export type BroadcastCapableEntity = SupergroupEntity | ChannelEntity
  * Create DM input
  */
 export interface CreateDMInput {
-  participantId: string
+  participantId: string;
 }
 
 /**
  * Create group input
  */
 export interface CreateGroupInput {
-  name: string
-  description?: string
-  avatarUrl?: string
-  participantIds: string[]
-  settings?: Partial<GroupSettings>
+  name: string;
+  description?: string;
+  avatarUrl?: string;
+  participantIds: string[];
+  settings?: Partial<GroupSettings>;
 }
 
 /**
  * Create supergroup input
  */
 export interface CreateSupergroupInput {
-  name: string
-  description?: string
-  avatarUrl?: string
-  bannerUrl?: string
-  username?: string
-  visibility?: EntityVisibility
-  settings?: Partial<SupergroupSettings>
+  name: string;
+  description?: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  username?: string;
+  visibility?: EntityVisibility;
+  settings?: Partial<SupergroupSettings>;
 }
 
 /**
  * Create community input
  */
 export interface CreateCommunityInput {
-  name: string
-  description?: string
-  avatarUrl?: string
-  bannerUrl?: string
-  vanityUrl?: string
-  template?: 'blank' | 'default' | 'community' | 'gaming' | 'study'
-  visibility?: EntityVisibility
-  settings?: Partial<CommunitySettings>
+  name: string;
+  description?: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  vanityUrl?: string;
+  template?: "blank" | "default" | "community" | "gaming" | "study";
+  visibility?: EntityVisibility;
+  settings?: Partial<CommunitySettings>;
 }
 
 /**
  * Create channel input
  */
 export interface CreateChannelInput {
-  name: string
-  description?: string
-  avatarUrl?: string
-  username?: string
-  visibility?: EntityVisibility
-  settings?: Partial<ChannelSettings>
+  name: string;
+  description?: string;
+  avatarUrl?: string;
+  username?: string;
+  visibility?: EntityVisibility;
+  settings?: Partial<ChannelSettings>;
 }
 
 /**
  * Upgrade group to supergroup input
  */
 export interface UpgradeToSupergroupInput {
-  groupId: string
-  reason?: string
+  groupId: string;
+  reason?: string;
 }
-

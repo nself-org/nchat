@@ -4,10 +4,10 @@
  * Export audit logs in various formats (CSV, JSON, XLSX)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuditQueryService } from '@/services/audit/audit-query.service'
-import { logger } from '@/lib/logger'
-import type { AuditLogFilters, ExportFormat } from '@/lib/audit/audit-types'
+import { NextRequest, NextResponse } from "next/server";
+import { getAuditQueryService } from "@/services/audit/audit-query.service";
+import { logger } from "@/lib/logger";
+import type { AuditLogFilters, ExportFormat } from "@/lib/audit/audit-types";
 
 /**
  * POST /api/admin/audit/export
@@ -23,28 +23,28 @@ import type { AuditLogFilters, ExportFormat } from '@/lib/audit/audit-types'
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     const {
-      format = 'csv',
+      format = "csv",
       filters,
       includeMetadata = true,
       dateRange,
       async: asyncExport = false,
     } = body as {
-      format: ExportFormat
-      filters?: AuditLogFilters
-      includeMetadata?: boolean
-      dateRange?: { start: string; end: string }
-      async?: boolean
-    }
+      format: ExportFormat;
+      filters?: AuditLogFilters;
+      includeMetadata?: boolean;
+      dateRange?: { start: string; end: string };
+      async?: boolean;
+    };
 
     // Validate format
-    if (!['csv', 'json', 'xlsx'].includes(format)) {
+    if (!["csv", "json", "xlsx"].includes(format)) {
       return NextResponse.json(
         { success: false, error: `Unsupported format: ${format}` },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     // Build filters with date range
@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
         startDate: new Date(dateRange.start),
         endDate: new Date(dateRange.end),
       }),
-    }
+    };
 
-    const queryService = getAuditQueryService()
+    const queryService = getAuditQueryService();
 
     // Create async export job if requested
     if (asyncExport) {
@@ -64,14 +64,15 @@ export async function POST(request: NextRequest) {
         format,
         filters: exportFilters,
         includeMetadata,
-      })
+      });
 
       return NextResponse.json({
         success: true,
         jobId: job.id,
         status: job.status,
-        message: 'Export job created. Check status at /api/admin/audit/export/{jobId}',
-      })
+        message:
+          "Export job created. Check status at /api/admin/audit/export/{jobId}",
+      });
     }
 
     // Synchronous export
@@ -79,20 +80,23 @@ export async function POST(request: NextRequest) {
       format,
       filters: exportFilters,
       includeMetadata,
-    })
+    });
 
     // Return file download
-    const headers = new Headers()
-    headers.set('Content-Type', result.mimeType)
-    headers.set('Content-Disposition', `attachment; filename="${result.filename}"`)
+    const headers = new Headers();
+    headers.set("Content-Type", result.mimeType);
+    headers.set(
+      "Content-Disposition",
+      `attachment; filename="${result.filename}"`,
+    );
 
-    return new NextResponse(result.data, { headers })
+    return new NextResponse(result.data, { headers });
   } catch (error) {
-    logger.error('[Audit Export API] Error', error)
+    logger.error("[Audit Export API] Error", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to export audit logs' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to export audit logs" },
+      { status: 500 },
+    );
   }
 }
 
@@ -103,20 +107,20 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const jobId = searchParams.get('jobId')
+    const searchParams = request.nextUrl.searchParams;
+    const jobId = searchParams.get("jobId");
 
-    const queryService = getAuditQueryService()
+    const queryService = getAuditQueryService();
 
     if (jobId) {
       // Get specific job status
-      const job = queryService.getExportJob(jobId)
+      const job = queryService.getExportJob(jobId);
 
       if (!job) {
         return NextResponse.json(
-          { success: false, error: 'Export job not found' },
-          { status: 404 }
-        )
+          { success: false, error: "Export job not found" },
+          { status: 404 },
+        );
       }
 
       return NextResponse.json({
@@ -133,23 +137,23 @@ export async function GET(request: NextRequest) {
           downloadUrl: job.downloadUrl,
           error: job.error,
         },
-      })
+      });
     }
 
     // Return info about export capabilities
     return NextResponse.json({
       success: true,
-      supportedFormats: ['csv', 'json', 'xlsx'],
+      supportedFormats: ["csv", "json", "xlsx"],
       maxRecords: 100000,
-      note: 'Use POST to create an export',
-    })
+      note: "Use POST to create an export",
+    });
   } catch (error) {
-    logger.error('[Audit Export API] GET error', error)
+    logger.error("[Audit Export API] GET error", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to get export info' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to get export info" },
+      { status: 500 },
+    );
   }
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";

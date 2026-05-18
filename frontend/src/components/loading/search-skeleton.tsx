@@ -1,17 +1,22 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Skeleton, CircleSkeleton, LineSkeleton, TextBlockSkeleton } from './skeleton'
+import { cn } from "@/lib/utils";
+import {
+  Skeleton,
+  CircleSkeleton,
+  LineSkeleton,
+  TextBlockSkeleton,
+} from "./skeleton";
 
 interface SearchSkeletonProps {
   /** Number of result items */
-  count?: number
+  count?: number;
   /** Show search input */
-  showInput?: boolean
+  showInput?: boolean;
   /** Show filters */
-  showFilters?: boolean
+  showFilters?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -25,7 +30,7 @@ export function SearchSkeleton({
   className,
 }: SearchSkeletonProps) {
   return (
-    <div className={cn('flex flex-col', className)}>
+    <div className={cn("flex flex-col", className)}>
       {/* Search input */}
       {showInput && (
         <div className="border-b p-4">
@@ -45,13 +50,16 @@ export function SearchSkeleton({
           {/* Result items */}
           <div className="space-y-3">
             {Array.from({ length: count }).map((_, i) => (
-              <SearchResultSkeleton key={i} type={i % 3 === 0 ? 'file' : 'message'} />
+              <SearchResultSkeleton
+                key={i}
+                type={i % 3 === 0 ? "file" : "message"}
+              />
             ))}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -59,7 +67,9 @@ export function SearchSkeleton({
  */
 export function SearchFiltersSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('flex gap-2 overflow-x-auto border-b px-4 py-2', className)}>
+    <div
+      className={cn("flex gap-2 overflow-x-auto border-b px-4 py-2", className)}
+    >
       <Skeleton className="h-7 w-16 shrink-0 rounded-full" />
       <Skeleton className="h-7 w-20 shrink-0 rounded-full" />
       <Skeleton className="h-7 w-14 shrink-0 rounded-full" />
@@ -67,32 +77,35 @@ export function SearchFiltersSkeleton({ className }: { className?: string }) {
       <div className="mx-1 h-7 w-px bg-border" />
       <Skeleton className="h-7 w-24 shrink-0 rounded-full" />
     </div>
-  )
+  );
 }
 
 interface SearchResultSkeletonProps {
   /** Type of result */
-  type?: 'message' | 'file' | 'channel' | 'user'
+  type?: "message" | "file" | "channel" | "user";
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
  * Single search result skeleton
  * Adapts based on result type
  */
-export function SearchResultSkeleton({ type = 'message', className }: SearchResultSkeletonProps) {
+export function SearchResultSkeleton({
+  type = "message",
+  className,
+}: SearchResultSkeletonProps) {
   switch (type) {
-    case 'message':
-      return <MessageResultSkeleton className={className} />
-    case 'file':
-      return <FileResultSkeleton className={className} />
-    case 'channel':
-      return <ChannelResultSkeleton className={className} />
-    case 'user':
-      return <UserResultSkeleton className={className} />
+    case "message":
+      return <MessageResultSkeleton className={className} />;
+    case "file":
+      return <FileResultSkeleton className={className} />;
+    case "channel":
+      return <ChannelResultSkeleton className={className} />;
+    case "user":
+      return <UserResultSkeleton className={className} />;
     default:
-      return <MessageResultSkeleton className={className} />
+      return <MessageResultSkeleton className={className} />;
   }
 }
 
@@ -103,8 +116,8 @@ export function MessageResultSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'hover:bg-muted/50 flex gap-3 rounded-lg border p-3 transition-colors',
-        className
+        "hover:bg-muted/50 flex gap-3 rounded-lg border p-3 transition-colors",
+        className,
       )}
     >
       {/* Avatar */}
@@ -124,7 +137,7 @@ export function MessageResultSkeleton({ className }: { className?: string }) {
         <TextBlockSkeleton lines={2} lineHeight={14} lastLineWidth="70%" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -134,8 +147,8 @@ export function FileResultSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'hover:bg-muted/50 flex gap-3 rounded-lg border p-3 transition-colors',
-        className
+        "hover:bg-muted/50 flex gap-3 rounded-lg border p-3 transition-colors",
+        className,
       )}
     >
       {/* File icon/preview */}
@@ -162,7 +175,7 @@ export function FileResultSkeleton({ className }: { className?: string }) {
         <Skeleton className="h-8 w-8 rounded" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -172,8 +185,8 @@ export function ChannelResultSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 transition-colors',
-        className
+        "hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 transition-colors",
+        className,
       )}
     >
       {/* Channel icon */}
@@ -191,7 +204,7 @@ export function ChannelResultSkeleton({ className }: { className?: string }) {
         <LineSkeleton width={20} height={12} />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -201,8 +214,8 @@ export function UserResultSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 transition-colors',
-        className
+        "hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 transition-colors",
+        className,
       )}
     >
       {/* Avatar */}
@@ -217,7 +230,7 @@ export function UserResultSkeleton({ className }: { className?: string }) {
       {/* Role badge */}
       <Skeleton className="h-5 w-16 shrink-0 rounded-full" />
     </div>
-  )
+  );
 }
 
 /**
@@ -227,8 +240,8 @@ export function QuickSearchSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'w-full max-w-lg overflow-hidden rounded-lg border bg-background shadow-lg',
-        className
+        "w-full max-w-lg overflow-hidden rounded-lg border bg-background shadow-lg",
+        className,
       )}
     >
       {/* Input */}
@@ -241,7 +254,10 @@ export function QuickSearchSkeleton({ className }: { className?: string }) {
         <LineSkeleton width={80} height={10} className="mb-2 px-2" />
         <div className="space-y-1">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2 rounded px-2 py-1.5">
+            <div
+              key={i}
+              className="flex items-center gap-2 rounded px-2 py-1.5"
+            >
               <Skeleton className="h-4 w-4 rounded" />
               <LineSkeleton width={120 + Math.random() * 60} height={14} />
             </div>
@@ -258,7 +274,7 @@ export function QuickSearchSkeleton({ className }: { className?: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -266,10 +282,15 @@ export function QuickSearchSkeleton({ className }: { className?: string }) {
  */
 export function EmptySearchSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12', className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-12",
+        className,
+      )}
+    >
       <Skeleton className="mb-4 h-16 w-16 rounded-full" />
       <LineSkeleton width={150} height={16} className="mb-2" />
       <LineSkeleton width={200} height={14} />
     </div>
-  )
+  );
 }

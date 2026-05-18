@@ -1,35 +1,47 @@
-'use client'
+"use client";
 
-import { useState, useRef, useCallback, useEffect, ReactNode, memo } from 'react'
-import { motion, useAnimation } from 'framer-motion'
-import { RefreshCw, ArrowDown, Check } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  ReactNode,
+  memo,
+} from "react";
+import { motion, useAnimation } from "framer-motion";
+import { RefreshCw, ArrowDown, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface PullToRefreshProps {
-  children: ReactNode
-  onRefresh: () => Promise<void> | void
-  threshold?: number
-  maxPullDistance?: number
-  disabled?: boolean
-  hapticFeedback?: boolean
-  className?: string
+  children: ReactNode;
+  onRefresh: () => Promise<void> | void;
+  threshold?: number;
+  maxPullDistance?: number;
+  disabled?: boolean;
+  hapticFeedback?: boolean;
+  className?: string;
 }
 
-export type RefreshState = 'idle' | 'pulling' | 'ready' | 'refreshing' | 'complete'
+export type RefreshState =
+  | "idle"
+  | "pulling"
+  | "ready"
+  | "refreshing"
+  | "complete";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const DEFAULT_THRESHOLD = 80
-const DEFAULT_MAX_PULL = 120
-const COMPLETE_DELAY = 500
+const DEFAULT_THRESHOLD = 80;
+const DEFAULT_MAX_PULL = 120;
+const COMPLETE_DELAY = 500;
 
 // ============================================================================
 // Component
@@ -64,118 +76,126 @@ export const PullToRefresh = memo(function PullToRefresh({
   hapticFeedback = true,
   className,
 }: PullToRefreshProps) {
-  const [refreshState, setRefreshState] = useState<RefreshState>('idle')
-  const [pullDistance, setPullDistance] = useState(0)
+  const [refreshState, setRefreshState] = useState<RefreshState>("idle");
+  const [pullDistance, setPullDistance] = useState(0);
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const touchStartY = useRef(0)
-  const isPulling = useRef(false)
-  const hasTriggeredHaptic = useRef(false)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef(0);
+  const isPulling = useRef(false);
+  const hasTriggeredHaptic = useRef(false);
 
-  const controls = useAnimation()
+  const controls = useAnimation();
 
   // Trigger haptic feedback
   const triggerHaptic = useCallback(() => {
-    if (!hapticFeedback || hasTriggeredHaptic.current) return
+    if (!hapticFeedback || hasTriggeredHaptic.current) return;
 
-    if ('vibrate' in navigator) {
-      navigator.vibrate(10)
+    if ("vibrate" in navigator) {
+      navigator.vibrate(10);
     }
 
-    hasTriggeredHaptic.current = true
-  }, [hapticFeedback])
+    hasTriggeredHaptic.current = true;
+  }, [hapticFeedback]);
 
   // Handle touch start
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
-      if (disabled || refreshState === 'refreshing') return
+      if (disabled || refreshState === "refreshing") return;
 
-      const scrollTop = containerRef.current?.scrollTop || 0
+      const scrollTop = containerRef.current?.scrollTop || 0;
 
       // Only allow pull if at top of scroll
       if (scrollTop === 0) {
-        touchStartY.current = e.touches[0].clientY
-        isPulling.current = true
-        hasTriggeredHaptic.current = false
+        touchStartY.current = e.touches[0].clientY;
+        isPulling.current = true;
+        hasTriggeredHaptic.current = false;
       }
     },
-    [disabled, refreshState]
-  )
+    [disabled, refreshState],
+  );
 
   // Handle touch move
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (!isPulling.current || disabled || refreshState === 'refreshing') return
+      if (!isPulling.current || disabled || refreshState === "refreshing")
+        return;
 
-      const touchY = e.touches[0].clientY
-      const distance = touchY - touchStartY.current
+      const touchY = e.touches[0].clientY;
+      const distance = touchY - touchStartY.current;
 
       if (distance > 0) {
         // Pulling down
-        e.preventDefault()
+        e.preventDefault();
 
         // Apply resistance curve
-        const resistance = 0.5
-        const adjustedDistance = Math.min(distance * resistance, maxPullDistance)
+        const resistance = 0.5;
+        const adjustedDistance = Math.min(
+          distance * resistance,
+          maxPullDistance,
+        );
 
-        setPullDistance(adjustedDistance)
+        setPullDistance(adjustedDistance);
 
         // Update state based on distance
         if (adjustedDistance >= threshold) {
-          setRefreshState('ready')
-          triggerHaptic()
+          setRefreshState("ready");
+          triggerHaptic();
         } else {
-          setRefreshState('pulling')
+          setRefreshState("pulling");
         }
       }
     },
-    [disabled, refreshState, threshold, maxPullDistance, triggerHaptic]
-  )
+    [disabled, refreshState, threshold, maxPullDistance, triggerHaptic],
+  );
 
   // Handle touch end
   const handleTouchEnd = useCallback(async () => {
-    if (!isPulling.current) return
+    if (!isPulling.current) return;
 
-    isPulling.current = false
+    isPulling.current = false;
 
-    if (refreshState === 'ready') {
+    if (refreshState === "ready") {
       // Trigger refresh
-      setRefreshState('refreshing')
+      setRefreshState("refreshing");
 
       try {
-        await Promise.resolve(onRefresh())
+        await Promise.resolve(onRefresh());
 
         // Show success state
-        setRefreshState('complete')
-        triggerHaptic()
+        setRefreshState("complete");
+        triggerHaptic();
 
         // Reset after delay
         setTimeout(() => {
-          setPullDistance(0)
-          setRefreshState('idle')
-        }, COMPLETE_DELAY)
+          setPullDistance(0);
+          setRefreshState("idle");
+        }, COMPLETE_DELAY);
       } catch (error) {
-        logger.error('Refresh failed:', error)
-        setPullDistance(0)
-        setRefreshState('idle')
+        logger.error("Refresh failed:", error);
+        setPullDistance(0);
+        setRefreshState("idle");
       }
     } else {
       // Reset if not at threshold
-      setPullDistance(0)
-      setRefreshState('idle')
+      setPullDistance(0);
+      setRefreshState("idle");
     }
-  }, [refreshState, onRefresh, triggerHaptic])
+  }, [refreshState, onRefresh, triggerHaptic]);
 
   // Calculate indicator properties
-  const indicatorOpacity = Math.min(pullDistance / threshold, 1)
-  const indicatorRotation = refreshState === 'refreshing' ? 360 : pullDistance * 2
-  const indicatorScale = Math.min(pullDistance / threshold, 1)
+  const indicatorOpacity = Math.min(pullDistance / threshold, 1);
+  const indicatorRotation =
+    refreshState === "refreshing" ? 360 : pullDistance * 2;
+  const indicatorScale = Math.min(pullDistance / threshold, 1);
 
   return (
     <div
       ref={containerRef}
-      className={cn('relative h-full overflow-y-auto overscroll-y-contain', className)}
+      className={cn(
+        "relative h-full overflow-y-auto overscroll-y-contain",
+        className,
+      )}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -199,21 +219,21 @@ export const PullToRefresh = memo(function PullToRefresh({
           <div className="relative">
             <motion.div
               animate={{
-                rotate: refreshState === 'refreshing' ? 360 : indicatorRotation,
+                rotate: refreshState === "refreshing" ? 360 : indicatorRotation,
               }}
               transition={
-                refreshState === 'refreshing'
-                  ? { duration: 1, repeat: Infinity, ease: 'linear' }
+                refreshState === "refreshing"
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
                   : { duration: 0 }
               }
             >
-              {refreshState === 'complete' ? (
+              {refreshState === "complete" ? (
                 <Check className="h-6 w-6 text-green-500" />
-              ) : refreshState === 'ready' || refreshState === 'refreshing' ? (
+              ) : refreshState === "ready" || refreshState === "refreshing" ? (
                 <RefreshCw
                   className={cn(
-                    'h-6 w-6 text-primary',
-                    refreshState === 'refreshing' && 'animate-spin'
+                    "h-6 w-6 text-primary",
+                    refreshState === "refreshing" && "animate-spin",
                   )}
                 />
               ) : (
@@ -224,13 +244,13 @@ export const PullToRefresh = memo(function PullToRefresh({
 
           {/* Text */}
           <p className="mt-2 text-xs font-medium text-muted-foreground">
-            {refreshState === 'complete'
-              ? 'Updated!'
-              : refreshState === 'ready'
-                ? 'Release to refresh'
-                : refreshState === 'refreshing'
-                  ? 'Refreshing...'
-                  : 'Pull to refresh'}
+            {refreshState === "complete"
+              ? "Updated!"
+              : refreshState === "ready"
+                ? "Release to refresh"
+                : refreshState === "refreshing"
+                  ? "Refreshing..."
+                  : "Pull to refresh"}
           </p>
         </motion.div>
       </div>
@@ -239,41 +259,41 @@ export const PullToRefresh = memo(function PullToRefresh({
       <motion.div
         ref={contentRef}
         animate={{
-          y: refreshState === 'refreshing' ? pullDistance : 0,
+          y: refreshState === "refreshing" ? pullDistance : 0,
         }}
         transition={{ duration: 0.2 }}
       >
         {children}
       </motion.div>
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Hook Version
 // ============================================================================
 
 export interface UsePullToRefreshOptions {
-  onRefresh: () => Promise<void> | void
-  threshold?: number
-  maxPullDistance?: number
-  disabled?: boolean
-  hapticFeedback?: boolean
+  onRefresh: () => Promise<void> | void;
+  threshold?: number;
+  maxPullDistance?: number;
+  disabled?: boolean;
+  hapticFeedback?: boolean;
 }
 
 export interface UsePullToRefreshReturn {
-  refreshState: RefreshState
-  pullDistance: number
+  refreshState: RefreshState;
+  pullDistance: number;
   handlers: {
-    onTouchStart: (e: React.TouchEvent) => void
-    onTouchMove: (e: React.TouchEvent) => void
-    onTouchEnd: () => void
-  }
+    onTouchStart: (e: React.TouchEvent) => void;
+    onTouchMove: (e: React.TouchEvent) => void;
+    onTouchEnd: () => void;
+  };
   indicatorProps: {
-    opacity: number
-    rotation: number
-    scale: number
-  }
+    opacity: number;
+    rotation: number;
+    scale: number;
+  };
 }
 
 /**
@@ -293,95 +313,102 @@ export interface UsePullToRefreshReturn {
  * </div>
  * ```
  */
-export function usePullToRefresh(options: UsePullToRefreshOptions): UsePullToRefreshReturn {
+export function usePullToRefresh(
+  options: UsePullToRefreshOptions,
+): UsePullToRefreshReturn {
   const {
     onRefresh,
     threshold = DEFAULT_THRESHOLD,
     maxPullDistance = DEFAULT_MAX_PULL,
     disabled = false,
     hapticFeedback = true,
-  } = options
+  } = options;
 
-  const [refreshState, setRefreshState] = useState<RefreshState>('idle')
-  const [pullDistance, setPullDistance] = useState(0)
+  const [refreshState, setRefreshState] = useState<RefreshState>("idle");
+  const [pullDistance, setPullDistance] = useState(0);
 
-  const touchStartY = useRef(0)
-  const isPulling = useRef(false)
-  const hasTriggeredHaptic = useRef(false)
+  const touchStartY = useRef(0);
+  const isPulling = useRef(false);
+  const hasTriggeredHaptic = useRef(false);
 
   const triggerHaptic = useCallback(() => {
-    if (!hapticFeedback || hasTriggeredHaptic.current) return
-    if ('vibrate' in navigator) {
-      navigator.vibrate(10)
+    if (!hapticFeedback || hasTriggeredHaptic.current) return;
+    if ("vibrate" in navigator) {
+      navigator.vibrate(10);
     }
-    hasTriggeredHaptic.current = true
-  }, [hapticFeedback])
+    hasTriggeredHaptic.current = true;
+  }, [hapticFeedback]);
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
-      if (disabled || refreshState === 'refreshing') return
-      touchStartY.current = e.touches[0].clientY
-      isPulling.current = true
-      hasTriggeredHaptic.current = false
+      if (disabled || refreshState === "refreshing") return;
+      touchStartY.current = e.touches[0].clientY;
+      isPulling.current = true;
+      hasTriggeredHaptic.current = false;
     },
-    [disabled, refreshState]
-  )
+    [disabled, refreshState],
+  );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (!isPulling.current || disabled || refreshState === 'refreshing') return
+      if (!isPulling.current || disabled || refreshState === "refreshing")
+        return;
 
-      const touchY = e.touches[0].clientY
-      const distance = touchY - touchStartY.current
+      const touchY = e.touches[0].clientY;
+      const distance = touchY - touchStartY.current;
 
       if (distance > 0) {
-        const resistance = 0.5
-        const adjustedDistance = Math.min(distance * resistance, maxPullDistance)
+        const resistance = 0.5;
+        const adjustedDistance = Math.min(
+          distance * resistance,
+          maxPullDistance,
+        );
 
-        setPullDistance(adjustedDistance)
+        setPullDistance(adjustedDistance);
 
         if (adjustedDistance >= threshold) {
-          setRefreshState('ready')
-          triggerHaptic()
+          setRefreshState("ready");
+          triggerHaptic();
         } else {
-          setRefreshState('pulling')
+          setRefreshState("pulling");
         }
       }
     },
-    [disabled, refreshState, threshold, maxPullDistance, triggerHaptic]
-  )
+    [disabled, refreshState, threshold, maxPullDistance, triggerHaptic],
+  );
 
   const handleTouchEnd = useCallback(async () => {
-    if (!isPulling.current) return
+    if (!isPulling.current) return;
 
-    isPulling.current = false
+    isPulling.current = false;
 
-    if (refreshState === 'ready') {
-      setRefreshState('refreshing')
+    if (refreshState === "ready") {
+      setRefreshState("refreshing");
 
       try {
-        await Promise.resolve(onRefresh())
-        setRefreshState('complete')
-        triggerHaptic()
+        await Promise.resolve(onRefresh());
+        setRefreshState("complete");
+        triggerHaptic();
 
         setTimeout(() => {
-          setPullDistance(0)
-          setRefreshState('idle')
-        }, COMPLETE_DELAY)
+          setPullDistance(0);
+          setRefreshState("idle");
+        }, COMPLETE_DELAY);
       } catch (error) {
-        logger.error('Refresh failed:', error)
-        setPullDistance(0)
-        setRefreshState('idle')
+        logger.error("Refresh failed:", error);
+        setPullDistance(0);
+        setRefreshState("idle");
       }
     } else {
-      setPullDistance(0)
-      setRefreshState('idle')
+      setPullDistance(0);
+      setRefreshState("idle");
     }
-  }, [refreshState, onRefresh, triggerHaptic])
+  }, [refreshState, onRefresh, triggerHaptic]);
 
-  const indicatorOpacity = Math.min(pullDistance / threshold, 1)
-  const indicatorRotation = refreshState === 'refreshing' ? 360 : pullDistance * 2
-  const indicatorScale = Math.min(pullDistance / threshold, 1)
+  const indicatorOpacity = Math.min(pullDistance / threshold, 1);
+  const indicatorRotation =
+    refreshState === "refreshing" ? 360 : pullDistance * 2;
+  const indicatorScale = Math.min(pullDistance / threshold, 1);
 
   return {
     refreshState,
@@ -396,7 +423,7 @@ export function usePullToRefresh(options: UsePullToRefreshOptions): UsePullToRef
       rotation: indicatorRotation,
       scale: indicatorScale,
     },
-  }
+  };
 }
 
-export default PullToRefresh
+export default PullToRefresh;

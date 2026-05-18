@@ -1,77 +1,93 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Pin, PinOff, MoreVertical, MessageSquare, ExternalLink } from 'lucide-react'
-import type { DirectMessage, DMPinnedMessage } from '@/lib/dm/dm-types'
-import { formatDMTimestamp } from '@/lib/dm'
-import { useDMStore, selectPinnedMessages } from '@/stores/dm-store'
+} from "@/components/ui/dropdown-menu";
+import {
+  Pin,
+  PinOff,
+  MoreVertical,
+  MessageSquare,
+  ExternalLink,
+} from "lucide-react";
+import type { DirectMessage, DMPinnedMessage } from "@/lib/dm/dm-types";
+import { formatDMTimestamp } from "@/lib/dm";
+import { useDMStore, selectPinnedMessages } from "@/stores/dm-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DMPinnedProps {
-  dm: DirectMessage
-  currentUserId: string
-  onMessageClick?: (messageId: string) => void
-  className?: string
+  dm: DirectMessage;
+  currentUserId: string;
+  onMessageClick?: (messageId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function DMPinned({ dm, currentUserId, onMessageClick, className }: DMPinnedProps) {
-  const pinnedMessages = useDMStore(selectPinnedMessages(dm.id))
-  const { removePinnedMessage, updateMessage } = useDMStore()
-  const [isLoading, setIsLoading] = React.useState(false)
+export function DMPinned({
+  dm,
+  currentUserId,
+  onMessageClick,
+  className,
+}: DMPinnedProps) {
+  const pinnedMessages = useDMStore(selectPinnedMessages(dm.id));
+  const { removePinnedMessage, updateMessage } = useDMStore();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleUnpin = async (messageId: string) => {
     try {
-      removePinnedMessage(dm.id, messageId)
-      updateMessage(dm.id, messageId, { isPinned: false })
+      removePinnedMessage(dm.id, messageId);
+      updateMessage(dm.id, messageId, { isPinned: false });
     } catch (error) {
-      logger.error('Failed to unpin message:', error)
+      logger.error("Failed to unpin message:", error);
     }
-  }
+  };
 
   if (isLoading) {
     return (
-      <div className={cn('space-y-3', className)}>
+      <div className={cn("space-y-3", className)}>
         <Skeleton className="h-20 w-full" />
         <Skeleton className="h-20 w-full" />
         <Skeleton className="h-20 w-full" />
       </div>
-    )
+    );
   }
 
   if (pinnedMessages.length === 0) {
     return (
-      <div className={cn('flex flex-col items-center justify-center py-12 text-center', className)}>
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center py-12 text-center",
+          className,
+        )}
+      >
         <Pin className="text-muted-foreground/50 mb-4 h-12 w-12" />
         <h3 className="text-sm font-medium">No pinned messages</h3>
         <p className="mt-1 max-w-[200px] text-xs text-muted-foreground">
           Pin important messages to find them easily later.
         </p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between px-1">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold">
           <Pin className="h-4 w-4" />
@@ -93,7 +109,7 @@ export function DMPinned({ dm, currentUserId, onMessageClick, className }: DMPin
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -101,10 +117,10 @@ export function DMPinned({ dm, currentUserId, onMessageClick, className }: DMPin
 // ============================================================================
 
 interface PinnedMessageItemProps {
-  pinned: DMPinnedMessage
-  currentUserId: string
-  onMessageClick?: (messageId: string) => void
-  onUnpin: () => void
+  pinned: DMPinnedMessage;
+  currentUserId: string;
+  onMessageClick?: (messageId: string) => void;
+  onUnpin: () => void;
 }
 
 function PinnedMessageItem({
@@ -113,7 +129,7 @@ function PinnedMessageItem({
   onMessageClick,
   onUnpin,
 }: PinnedMessageItemProps) {
-  const { message, pinnedByUser, pinnedAt } = pinned
+  const { message, pinnedByUser, pinnedAt } = pinned;
 
   return (
     <div className="hover:bg-accent/50 group relative rounded-lg border p-3 transition-colors">
@@ -126,7 +142,9 @@ function PinnedMessageItem({
       <div className="mb-2 flex items-center gap-2">
         <Avatar className="h-6 w-6">
           <AvatarImage src={message.user.avatarUrl || undefined} />
-          <AvatarFallback className="text-xs">{message.user.displayName.charAt(0)}</AvatarFallback>
+          <AvatarFallback className="text-xs">
+            {message.user.displayName.charAt(0)}
+          </AvatarFallback>
         </Avatar>
         <span className="text-sm font-medium">{message.user.displayName}</span>
         <span className="text-xs text-muted-foreground">
@@ -139,7 +157,8 @@ function PinnedMessageItem({
 
       {/* Pinned by info */}
       <p className="mt-2 text-xs text-muted-foreground">
-        Pinned by {pinnedByUser.displayName} on {new Date(pinnedAt).toLocaleDateString()}
+        Pinned by {pinnedByUser.displayName} on{" "}
+        {new Date(pinnedAt).toLocaleDateString()}
       </p>
 
       {/* Actions */}
@@ -163,7 +182,7 @@ function PinnedMessageItem({
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }
 
-DMPinned.displayName = 'DMPinned'
+DMPinned.displayName = "DMPinned";

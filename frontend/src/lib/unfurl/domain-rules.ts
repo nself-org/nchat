@@ -11,79 +11,85 @@
  * @module lib/unfurl/domain-rules
  */
 
-import { UrlProvider } from './url-parser'
+import { UrlProvider } from "./url-parser";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type UnfurlBehavior = 'allow' | 'block' | 'minimal' | 'full' | 'player'
+export type UnfurlBehavior = "allow" | "block" | "minimal" | "full" | "player";
 
-export type EmbedStyle = 'card' | 'compact' | 'inline' | 'player' | 'full' | 'custom'
+export type EmbedStyle =
+  | "card"
+  | "compact"
+  | "inline"
+  | "player"
+  | "full"
+  | "custom";
 
 export interface DomainRule {
   /** Domain pattern (supports wildcards) */
-  domain: string
+  domain: string;
   /** Whether to unfurl URLs from this domain */
-  enabled: boolean
+  enabled: boolean;
   /** Unfurl behavior */
-  behavior: UnfurlBehavior
+  behavior: UnfurlBehavior;
   /** Embed style to use */
-  embedStyle: EmbedStyle
+  embedStyle: EmbedStyle;
   /** Custom timeout in milliseconds */
-  timeout?: number
+  timeout?: number;
   /** Maximum image height in pixels */
-  maxImageHeight?: number
+  maxImageHeight?: number;
   /** Whether to show description */
-  showDescription?: boolean
+  showDescription?: boolean;
   /** Whether to show favicon */
-  showFavicon?: boolean
+  showFavicon?: boolean;
   /** Whether to show author */
-  showAuthor?: boolean
+  showAuthor?: boolean;
   /** Custom CSS class for styling */
-  customClass?: string
+  customClass?: string;
   /** Priority (higher = matched first) */
-  priority?: number
+  priority?: number;
   /** Reason for rule (for display) */
-  reason?: string
+  reason?: string;
   /** Created at timestamp */
-  createdAt?: Date
+  createdAt?: Date;
   /** Last modified timestamp */
-  updatedAt?: Date
+  updatedAt?: Date;
 }
 
 export interface DomainRulesConfig {
   /** Default behavior for unmatched domains */
-  defaultBehavior: UnfurlBehavior
+  defaultBehavior: UnfurlBehavior;
   /** Default embed style */
-  defaultEmbedStyle: EmbedStyle
+  defaultEmbedStyle: EmbedStyle;
   /** Default timeout in milliseconds */
-  defaultTimeout: number
+  defaultTimeout: number;
   /** Enable whitelist mode (only allow listed domains) */
-  whitelistMode: boolean
+  whitelistMode: boolean;
   /** Global rules */
-  rules: DomainRule[]
+  rules: DomainRule[];
   /** Provider-specific settings */
-  providers: Partial<Record<UrlProvider, ProviderSettings>>
+  providers: Partial<Record<UrlProvider, ProviderSettings>>;
   /** User overrides */
-  userOverrides: Map<string, DomainRule>
+  userOverrides: Map<string, DomainRule>;
   /** Channel-specific rules */
-  channelRules: Map<string, DomainRule[]>
+  channelRules: Map<string, DomainRule[]>;
 }
 
 export interface ProviderSettings {
   /** Whether this provider is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Default embed style for this provider */
-  embedStyle: EmbedStyle
+  embedStyle: EmbedStyle;
   /** Show player for video/audio content */
-  showPlayer: boolean
+  showPlayer: boolean;
   /** Custom timeout */
-  timeout?: number
+  timeout?: number;
   /** API key if required */
-  apiKey?: string
+  apiKey?: string;
   /** Additional settings */
-  settings?: Record<string, unknown>
+  settings?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -93,75 +99,76 @@ export interface ProviderSettings {
 /**
  * Default provider settings
  */
-export const DEFAULT_PROVIDER_SETTINGS: Record<UrlProvider, ProviderSettings> = {
-  twitter: { enabled: true, embedStyle: 'card', showPlayer: false },
-  youtube: { enabled: true, embedStyle: 'player', showPlayer: true },
-  github: { enabled: true, embedStyle: 'card', showPlayer: false },
-  spotify: { enabled: true, embedStyle: 'player', showPlayer: true },
-  reddit: { enabled: true, embedStyle: 'card', showPlayer: false },
-  twitch: { enabled: true, embedStyle: 'player', showPlayer: true },
-  vimeo: { enabled: true, embedStyle: 'player', showPlayer: true },
-  loom: { enabled: true, embedStyle: 'player', showPlayer: true },
-  figma: { enabled: true, embedStyle: 'card', showPlayer: false },
-  notion: { enabled: true, embedStyle: 'card', showPlayer: false },
-  slack: { enabled: false, embedStyle: 'card', showPlayer: false },
-  discord: { enabled: true, embedStyle: 'card', showPlayer: false },
-  linkedin: { enabled: true, embedStyle: 'card', showPlayer: false },
-  instagram: { enabled: true, embedStyle: 'card', showPlayer: false },
-  tiktok: { enabled: true, embedStyle: 'player', showPlayer: true },
-  medium: { enabled: true, embedStyle: 'card', showPlayer: false },
-  'dev.to': { enabled: true, embedStyle: 'card', showPlayer: false },
-  stackoverflow: { enabled: true, embedStyle: 'card', showPlayer: false },
-  codesandbox: { enabled: true, embedStyle: 'player', showPlayer: true },
-  codepen: { enabled: true, embedStyle: 'player', showPlayer: true },
-  jsfiddle: { enabled: true, embedStyle: 'player', showPlayer: true },
-  replit: { enabled: true, embedStyle: 'player', showPlayer: true },
-  generic: { enabled: true, embedStyle: 'card', showPlayer: false },
-}
+export const DEFAULT_PROVIDER_SETTINGS: Record<UrlProvider, ProviderSettings> =
+  {
+    twitter: { enabled: true, embedStyle: "card", showPlayer: false },
+    youtube: { enabled: true, embedStyle: "player", showPlayer: true },
+    github: { enabled: true, embedStyle: "card", showPlayer: false },
+    spotify: { enabled: true, embedStyle: "player", showPlayer: true },
+    reddit: { enabled: true, embedStyle: "card", showPlayer: false },
+    twitch: { enabled: true, embedStyle: "player", showPlayer: true },
+    vimeo: { enabled: true, embedStyle: "player", showPlayer: true },
+    loom: { enabled: true, embedStyle: "player", showPlayer: true },
+    figma: { enabled: true, embedStyle: "card", showPlayer: false },
+    notion: { enabled: true, embedStyle: "card", showPlayer: false },
+    slack: { enabled: false, embedStyle: "card", showPlayer: false },
+    discord: { enabled: true, embedStyle: "card", showPlayer: false },
+    linkedin: { enabled: true, embedStyle: "card", showPlayer: false },
+    instagram: { enabled: true, embedStyle: "card", showPlayer: false },
+    tiktok: { enabled: true, embedStyle: "player", showPlayer: true },
+    medium: { enabled: true, embedStyle: "card", showPlayer: false },
+    "dev.to": { enabled: true, embedStyle: "card", showPlayer: false },
+    stackoverflow: { enabled: true, embedStyle: "card", showPlayer: false },
+    codesandbox: { enabled: true, embedStyle: "player", showPlayer: true },
+    codepen: { enabled: true, embedStyle: "player", showPlayer: true },
+    jsfiddle: { enabled: true, embedStyle: "player", showPlayer: true },
+    replit: { enabled: true, embedStyle: "player", showPlayer: true },
+    generic: { enabled: true, embedStyle: "card", showPlayer: false },
+  };
 
 /**
  * Default blocked domains (security/spam)
  */
 export const DEFAULT_BLOCKED_DOMAINS: string[] = [
   // Malicious/phishing patterns
-  '*.tk',
-  '*.ml',
-  '*.ga',
-  '*.cf',
-  '*.gq',
+  "*.tk",
+  "*.ml",
+  "*.ga",
+  "*.cf",
+  "*.gq",
   // Ad tracking
-  'ad.doubleclick.net',
-  'ads.google.com',
-  'ads.facebook.com',
+  "ad.doubleclick.net",
+  "ads.google.com",
+  "ads.facebook.com",
   // Private/internal
-  'localhost',
-  '*.local',
-  '*.localhost',
-  '*.internal',
-  '127.0.0.1',
-  '0.0.0.0',
-]
+  "localhost",
+  "*.local",
+  "*.localhost",
+  "*.internal",
+  "127.0.0.1",
+  "0.0.0.0",
+];
 
 /**
  * Create default domain rules configuration
  */
 export function createDefaultDomainRulesConfig(): DomainRulesConfig {
   return {
-    defaultBehavior: 'allow',
-    defaultEmbedStyle: 'card',
+    defaultBehavior: "allow",
+    defaultEmbedStyle: "card",
     defaultTimeout: 10000,
     whitelistMode: false,
     rules: DEFAULT_BLOCKED_DOMAINS.map((domain) => ({
       domain,
       enabled: true,
-      behavior: 'block' as UnfurlBehavior,
-      embedStyle: 'card' as EmbedStyle,
-      reason: 'Default blocked domain',
+      behavior: "block" as UnfurlBehavior,
+      embedStyle: "card" as EmbedStyle,
+      reason: "Default blocked domain",
     })),
     providers: { ...DEFAULT_PROVIDER_SETTINGS },
     userOverrides: new Map(),
     channelRules: new Map(),
-  }
+  };
 }
 
 // ============================================================================
@@ -172,26 +179,29 @@ export function createDefaultDomainRulesConfig(): DomainRulesConfig {
  * Check if a domain matches a pattern (supports wildcards)
  */
 export function matchDomainPattern(domain: string, pattern: string): boolean {
-  const normalizedDomain = domain.toLowerCase().replace(/^www\./, '')
-  const normalizedPattern = pattern.toLowerCase().replace(/^www\./, '')
+  const normalizedDomain = domain.toLowerCase().replace(/^www\./, "");
+  const normalizedPattern = pattern.toLowerCase().replace(/^www\./, "");
 
   // Direct match
   if (normalizedDomain === normalizedPattern) {
-    return true
+    return true;
   }
 
   // Wildcard match
-  if (normalizedPattern.startsWith('*.')) {
-    const suffix = normalizedPattern.slice(1) // Keep the dot
-    return normalizedDomain.endsWith(suffix) || normalizedDomain === normalizedPattern.slice(2)
+  if (normalizedPattern.startsWith("*.")) {
+    const suffix = normalizedPattern.slice(1); // Keep the dot
+    return (
+      normalizedDomain.endsWith(suffix) ||
+      normalizedDomain === normalizedPattern.slice(2)
+    );
   }
 
   // Subdomain match (domain ends with .pattern)
-  if (normalizedDomain.endsWith('.' + normalizedPattern)) {
-    return true
+  if (normalizedDomain.endsWith("." + normalizedPattern)) {
+    return true;
   }
 
-  return false
+  return false;
 }
 
 /**
@@ -201,34 +211,38 @@ export function findMatchingRule(
   domain: string,
   config: DomainRulesConfig,
   channelId?: string,
-  userId?: string
+  userId?: string,
 ): DomainRule | null {
   // Check user overrides first (highest priority)
   if (userId) {
-    const userKey = `${userId}:${domain}`
-    const userRule = config.userOverrides.get(userKey)
-    if (userRule) return userRule
+    const userKey = `${userId}:${domain}`;
+    const userRule = config.userOverrides.get(userKey);
+    if (userRule) return userRule;
   }
 
   // Check channel-specific rules
   if (channelId) {
-    const channelRules = config.channelRules.get(channelId) || []
-    for (const rule of channelRules.sort((a, b) => (b.priority || 0) - (a.priority || 0))) {
+    const channelRules = config.channelRules.get(channelId) || [];
+    for (const rule of channelRules.sort(
+      (a, b) => (b.priority || 0) - (a.priority || 0),
+    )) {
       if (matchDomainPattern(domain, rule.domain)) {
-        return rule
+        return rule;
       }
     }
   }
 
   // Check global rules (sorted by priority)
-  const sortedRules = [...config.rules].sort((a, b) => (b.priority || 0) - (a.priority || 0))
+  const sortedRules = [...config.rules].sort(
+    (a, b) => (b.priority || 0) - (a.priority || 0),
+  );
   for (const rule of sortedRules) {
     if (matchDomainPattern(domain, rule.domain)) {
-      return rule
+      return rule;
     }
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -238,28 +252,28 @@ export function isDomainAllowed(
   domain: string,
   config: DomainRulesConfig,
   channelId?: string,
-  userId?: string
+  userId?: string,
 ): { allowed: boolean; reason?: string } {
-  const rule = findMatchingRule(domain, config, channelId, userId)
+  const rule = findMatchingRule(domain, config, channelId, userId);
 
   if (rule) {
-    if (rule.behavior === 'block') {
-      return { allowed: false, reason: rule.reason || 'Domain is blocked' }
+    if (rule.behavior === "block") {
+      return { allowed: false, reason: rule.reason || "Domain is blocked" };
     }
-    return { allowed: true }
+    return { allowed: true };
   }
 
   // In whitelist mode, unmatched domains are blocked
   if (config.whitelistMode) {
-    return { allowed: false, reason: 'Domain not in whitelist' }
+    return { allowed: false, reason: "Domain not in whitelist" };
   }
 
   // Default behavior
-  if (config.defaultBehavior === 'block') {
-    return { allowed: false, reason: 'Default behavior is block' }
+  if (config.defaultBehavior === "block") {
+    return { allowed: false, reason: "Default behavior is block" };
   }
 
-  return { allowed: true }
+  return { allowed: true };
 }
 
 /**
@@ -270,28 +284,32 @@ export function getDomainSettings(
   provider: UrlProvider,
   config: DomainRulesConfig,
   channelId?: string,
-  userId?: string
+  userId?: string,
 ): {
-  behavior: UnfurlBehavior
-  embedStyle: EmbedStyle
-  timeout: number
-  showPlayer: boolean
-  maxImageHeight?: number
-  showDescription: boolean
-  showFavicon: boolean
-  showAuthor: boolean
-  customClass?: string
+  behavior: UnfurlBehavior;
+  embedStyle: EmbedStyle;
+  timeout: number;
+  showPlayer: boolean;
+  maxImageHeight?: number;
+  showDescription: boolean;
+  showFavicon: boolean;
+  showAuthor: boolean;
+  customClass?: string;
 } {
   // Get provider settings
-  const providerSettings = config.providers[provider] || DEFAULT_PROVIDER_SETTINGS[provider]
+  const providerSettings =
+    config.providers[provider] || DEFAULT_PROVIDER_SETTINGS[provider];
 
   // Check for matching rule
-  const rule = findMatchingRule(domain, config, channelId, userId)
+  const rule = findMatchingRule(domain, config, channelId, userId);
 
   // Merge settings with priority: rule > provider > defaults
   return {
     behavior: rule?.behavior ?? config.defaultBehavior,
-    embedStyle: rule?.embedStyle ?? providerSettings.embedStyle ?? config.defaultEmbedStyle,
+    embedStyle:
+      rule?.embedStyle ??
+      providerSettings.embedStyle ??
+      config.defaultEmbedStyle,
     timeout: rule?.timeout ?? providerSettings.timeout ?? config.defaultTimeout,
     showPlayer: providerSettings.showPlayer ?? false,
     maxImageHeight: rule?.maxImageHeight,
@@ -299,7 +317,7 @@ export function getDomainSettings(
     showFavicon: rule?.showFavicon ?? true,
     showAuthor: rule?.showAuthor ?? true,
     customClass: rule?.customClass,
-  }
+  };
 }
 
 // ============================================================================
@@ -309,18 +327,21 @@ export function getDomainSettings(
 /**
  * Add a new domain rule
  */
-export function addDomainRule(config: DomainRulesConfig, rule: DomainRule): DomainRulesConfig {
-  const now = new Date()
+export function addDomainRule(
+  config: DomainRulesConfig,
+  rule: DomainRule,
+): DomainRulesConfig {
+  const now = new Date();
   const newRule = {
     ...rule,
     createdAt: rule.createdAt || now,
     updatedAt: now,
-  }
+  };
 
   return {
     ...config,
     rules: [...config.rules, newRule],
-  }
+  };
 }
 
 /**
@@ -329,9 +350,9 @@ export function addDomainRule(config: DomainRulesConfig, rule: DomainRule): Doma
 export function updateDomainRule(
   config: DomainRulesConfig,
   domain: string,
-  updates: Partial<DomainRule>
+  updates: Partial<DomainRule>,
 ): DomainRulesConfig {
-  const now = new Date()
+  const now = new Date();
 
   return {
     ...config,
@@ -342,19 +363,22 @@ export function updateDomainRule(
             ...updates,
             updatedAt: now,
           }
-        : rule
+        : rule,
     ),
-  }
+  };
 }
 
 /**
  * Remove a domain rule
  */
-export function removeDomainRule(config: DomainRulesConfig, domain: string): DomainRulesConfig {
+export function removeDomainRule(
+  config: DomainRulesConfig,
+  domain: string,
+): DomainRulesConfig {
   return {
     ...config,
     rules: config.rules.filter((rule) => rule.domain !== domain),
-  }
+  };
 }
 
 /**
@@ -364,15 +388,15 @@ export function setUserDomainOverride(
   config: DomainRulesConfig,
   userId: string,
   domain: string,
-  rule: DomainRule
+  rule: DomainRule,
 ): DomainRulesConfig {
-  const newOverrides = new Map(config.userOverrides)
-  newOverrides.set(`${userId}:${domain}`, rule)
+  const newOverrides = new Map(config.userOverrides);
+  newOverrides.set(`${userId}:${domain}`, rule);
 
   return {
     ...config,
     userOverrides: newOverrides,
-  }
+  };
 }
 
 /**
@@ -381,15 +405,15 @@ export function setUserDomainOverride(
 export function removeUserDomainOverride(
   config: DomainRulesConfig,
   userId: string,
-  domain: string
+  domain: string,
 ): DomainRulesConfig {
-  const newOverrides = new Map(config.userOverrides)
-  newOverrides.delete(`${userId}:${domain}`)
+  const newOverrides = new Map(config.userOverrides);
+  newOverrides.delete(`${userId}:${domain}`);
 
   return {
     ...config,
     userOverrides: newOverrides,
-  }
+  };
 }
 
 /**
@@ -398,15 +422,15 @@ export function removeUserDomainOverride(
 export function setChannelRules(
   config: DomainRulesConfig,
   channelId: string,
-  rules: DomainRule[]
+  rules: DomainRule[],
 ): DomainRulesConfig {
-  const newChannelRules = new Map(config.channelRules)
-  newChannelRules.set(channelId, rules)
+  const newChannelRules = new Map(config.channelRules);
+  newChannelRules.set(channelId, rules);
 
   return {
     ...config,
     channelRules: newChannelRules,
-  }
+  };
 }
 
 /**
@@ -415,7 +439,7 @@ export function setChannelRules(
 export function updateProviderSettings(
   config: DomainRulesConfig,
   provider: UrlProvider,
-  settings: Partial<ProviderSettings>
+  settings: Partial<ProviderSettings>,
 ): DomainRulesConfig {
   return {
     ...config,
@@ -427,7 +451,7 @@ export function updateProviderSettings(
         ...settings,
       },
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -442,22 +466,22 @@ export function serializeDomainRulesConfig(config: DomainRulesConfig): string {
     ...config,
     userOverrides: Array.from(config.userOverrides.entries()),
     channelRules: Array.from(config.channelRules.entries()),
-  }
+  };
 
-  return JSON.stringify(serializable)
+  return JSON.stringify(serializable);
 }
 
 /**
  * Deserialize domain rules config from JSON
  */
 export function deserializeDomainRulesConfig(json: string): DomainRulesConfig {
-  const parsed = JSON.parse(json)
+  const parsed = JSON.parse(json);
 
   return {
     ...parsed,
     userOverrides: new Map(parsed.userOverrides || []),
     channelRules: new Map(parsed.channelRules || []),
-  }
+  };
 }
 
 /**
@@ -465,7 +489,7 @@ export function deserializeDomainRulesConfig(json: string): DomainRulesConfig {
  */
 export function exportRules(config: DomainRulesConfig): object {
   return {
-    version: '1.0',
+    version: "1.0",
     exportedAt: new Date().toISOString(),
     defaultBehavior: config.defaultBehavior,
     defaultEmbedStyle: config.defaultEmbedStyle,
@@ -477,7 +501,7 @@ export function exportRules(config: DomainRulesConfig): object {
       reason: rule.reason,
     })),
     providers: config.providers,
-  }
+  };
 }
 
 /**
@@ -485,34 +509,40 @@ export function exportRules(config: DomainRulesConfig): object {
  */
 export function importRules(
   data: object,
-  config: DomainRulesConfig
+  config: DomainRulesConfig,
 ): { config: DomainRulesConfig; imported: number; skipped: number } {
   const importData = data as {
-    rules?: Array<{ domain: string; behavior: UnfurlBehavior; embedStyle: EmbedStyle }>
-    providers?: Partial<Record<UrlProvider, ProviderSettings>>
-    defaultBehavior?: UnfurlBehavior
-    whitelistMode?: boolean
-  }
+    rules?: Array<{
+      domain: string;
+      behavior: UnfurlBehavior;
+      embedStyle: EmbedStyle;
+    }>;
+    providers?: Partial<Record<UrlProvider, ProviderSettings>>;
+    defaultBehavior?: UnfurlBehavior;
+    whitelistMode?: boolean;
+  };
 
-  let imported = 0
-  let skipped = 0
-  let newConfig = { ...config }
+  let imported = 0;
+  let skipped = 0;
+  let newConfig = { ...config };
 
   if (importData.rules) {
     for (const rule of importData.rules) {
       if (rule.domain && rule.behavior) {
         // Check if rule already exists
-        const existingIndex = newConfig.rules.findIndex((r) => r.domain === rule.domain)
+        const existingIndex = newConfig.rules.findIndex(
+          (r) => r.domain === rule.domain,
+        );
         if (existingIndex >= 0) {
-          skipped++
+          skipped++;
         } else {
           newConfig = addDomainRule(newConfig, {
             domain: rule.domain,
             enabled: true,
             behavior: rule.behavior,
-            embedStyle: rule.embedStyle || 'card',
-          })
-          imported++
+            embedStyle: rule.embedStyle || "card",
+          });
+          imported++;
         }
       }
     }
@@ -522,16 +552,16 @@ export function importRules(
     newConfig.providers = {
       ...newConfig.providers,
       ...importData.providers,
-    }
+    };
   }
 
   if (importData.defaultBehavior) {
-    newConfig.defaultBehavior = importData.defaultBehavior
+    newConfig.defaultBehavior = importData.defaultBehavior;
   }
 
   if (importData.whitelistMode !== undefined) {
-    newConfig.whitelistMode = importData.whitelistMode
+    newConfig.whitelistMode = importData.whitelistMode;
   }
 
-  return { config: newConfig, imported, skipped }
+  return { config: newConfig, imported, skipped };
 }

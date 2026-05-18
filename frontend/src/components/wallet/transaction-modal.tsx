@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Send, ArrowDownToLine, Loader2 } from 'lucide-react'
+import * as React from "react";
+import { Send, ArrowDownToLine, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,90 +9,98 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useWallet } from '@/hooks/use-wallet'
-import { useTransactions } from '@/hooks/use-transactions'
-import { useWalletStore } from '@/stores/wallet-store'
-import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useWallet } from "@/hooks/use-wallet";
+import { useTransactions } from "@/hooks/use-transactions";
+import { useWalletStore } from "@/stores/wallet-store";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export function TransactionModal() {
-  const { isTransactionModalOpen, setTransactionModalOpen } = useWalletStore()
-  const { address, balance, weiToEther } = useWallet()
-  const { sendETH, estimateGas, weiToEther: txWeiToEther, etherToWei } = useTransactions()
+  const { isTransactionModalOpen, setTransactionModalOpen } = useWalletStore();
+  const { address, balance, weiToEther } = useWallet();
+  const {
+    sendETH,
+    estimateGas,
+    weiToEther: txWeiToEther,
+    etherToWei,
+  } = useTransactions();
 
-  const [recipient, setRecipient] = React.useState('')
-  const [amount, setAmount] = React.useState('')
-  const [isSending, setIsSending] = React.useState(false)
-  const [gasEstimate, setGasEstimate] = React.useState<string | null>(null)
+  const [recipient, setRecipient] = React.useState("");
+  const [amount, setAmount] = React.useState("");
+  const [isSending, setIsSending] = React.useState(false);
+  const [gasEstimate, setGasEstimate] = React.useState<string | null>(null);
 
   // Estimate gas when amount and recipient change
   React.useEffect(() => {
     const estimateTransactionGas = async () => {
       if (!recipient || !amount || !address) {
-        setGasEstimate(null)
-        return
+        setGasEstimate(null);
+        return;
       }
 
       try {
-        const amountWei = etherToWei(amount)
-        const estimate = await estimateGas({ to: recipient, value: amountWei })
+        const amountWei = etherToWei(amount);
+        const estimate = await estimateGas({ to: recipient, value: amountWei });
 
         if (estimate) {
-          setGasEstimate(estimate.estimatedCostEther)
+          setGasEstimate(estimate.estimatedCostEther);
         }
       } catch {
-        setGasEstimate(null)
+        setGasEstimate(null);
       }
-    }
+    };
 
-    const debounce = setTimeout(estimateTransactionGas, 500)
-    return () => clearTimeout(debounce)
-  }, [recipient, amount, address, estimateGas, etherToWei])
+    const debounce = setTimeout(estimateTransactionGas, 500);
+    return () => clearTimeout(debounce);
+  }, [recipient, amount, address, estimateGas, etherToWei]);
 
   const handleSend = async () => {
     if (!recipient || !amount) {
-      toast.error('Please enter recipient and amount')
-      return
+      toast.error("Please enter recipient and amount");
+      return;
     }
 
-    setIsSending(true)
+    setIsSending(true);
 
     try {
-      const result = await sendETH(recipient, amount)
+      const result = await sendETH(recipient, amount);
 
       if (result.success) {
-        toast.success('Transaction sent successfully', {
+        toast.success("Transaction sent successfully", {
           description: `Hash: ${result.hash?.slice(0, 10)}...`,
-        })
-        setRecipient('')
-        setAmount('')
-        setTransactionModalOpen(false)
+        });
+        setRecipient("");
+        setAmount("");
+        setTransactionModalOpen(false);
       } else {
-        toast.error(result.error ?? 'Failed to send transaction')
+        toast.error(result.error ?? "Failed to send transaction");
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Transaction failed')
+      toast.error(err instanceof Error ? err.message : "Transaction failed");
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
-  }
+  };
 
   const handleMaxAmount = () => {
     if (balance) {
-      const balanceEth = parseFloat(weiToEther(balance))
+      const balanceEth = parseFloat(weiToEther(balance));
       // Leave some for gas
-      const maxAmount = Math.max(0, balanceEth - 0.001)
-      setAmount(maxAmount.toFixed(6))
+      const maxAmount = Math.max(0, balanceEth - 0.001);
+      setAmount(maxAmount.toFixed(6));
     }
-  }
+  };
 
   return (
-    <Dialog open={isTransactionModalOpen} onOpenChange={setTransactionModalOpen}>
+    <Dialog
+      open={isTransactionModalOpen}
+      onOpenChange={setTransactionModalOpen}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Send & Receive</DialogTitle>
@@ -157,7 +165,10 @@ export function TransactionModal() {
                 <div className="mt-1 flex justify-between">
                   <span className="text-muted-foreground">Total Cost:</span>
                   <span className="font-medium">
-                    {(parseFloat(amount || '0') + parseFloat(gasEstimate)).toFixed(6)} ETH
+                    {(
+                      parseFloat(amount || "0") + parseFloat(gasEstimate)
+                    ).toFixed(6)}{" "}
+                    ETH
                   </span>
                 </div>
               </div>
@@ -170,7 +181,7 @@ export function TransactionModal() {
                 className="w-full gap-2"
               >
                 {isSending && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isSending ? 'Sending...' : 'Send Transaction'}
+                {isSending ? "Sending..." : "Send Transaction"}
               </Button>
             </DialogFooter>
           </TabsContent>
@@ -192,8 +203,8 @@ export function TransactionModal() {
                 className="w-full"
                 onClick={() => {
                   if (address) {
-                    navigator.clipboard.writeText(address)
-                    toast.success('Address copied to clipboard')
+                    navigator.clipboard.writeText(address);
+                    toast.success("Address copied to clipboard");
                   }
                 }}
               >
@@ -204,5 +215,5 @@ export function TransactionModal() {
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

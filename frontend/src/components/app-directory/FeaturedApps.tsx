@@ -1,32 +1,35 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import Link from 'next/link'
-import { ArrowRight, Sparkles } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useAppDirectoryStore, selectFeaturedApps } from '@/stores/app-directory-store'
-import { getFeaturedApps } from '@/lib/app-directory/app-registry'
-import { AppCard } from './AppCard'
+import * as React from "react";
+import Link from "next/link";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  useAppDirectoryStore,
+  selectFeaturedApps,
+} from "@/stores/app-directory-store";
+import { getFeaturedApps } from "@/lib/app-directory/app-registry";
+import { AppCard } from "./AppCard";
 
 interface FeaturedAppsProps {
-  className?: string
-  limit?: number
+  className?: string;
+  limit?: number;
 }
 
 export function FeaturedApps({ className, limit = 6 }: FeaturedAppsProps) {
-  const featuredApps = useAppDirectoryStore(selectFeaturedApps)
+  const featuredApps = useAppDirectoryStore(selectFeaturedApps);
 
   // Fall back to registry if store is empty
-  const apps = featuredApps.length > 0 ? featuredApps : getFeaturedApps()
-  const displayApps = apps.slice(0, limit)
+  const apps = featuredApps.length > 0 ? featuredApps : getFeaturedApps();
+  const displayApps = apps.slice(0, limit);
 
   if (displayApps.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <section className={cn('space-y-4', className)}>
+    <section className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-yellow-500" />
@@ -48,5 +51,5 @@ export function FeaturedApps({ className, limit = 6 }: FeaturedAppsProps) {
         ))}
       </div>
     </section>
-  )
+  );
 }

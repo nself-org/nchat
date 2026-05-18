@@ -1,59 +1,63 @@
-import { gql } from '@apollo/client'
-import { NOTIFICATION_FRAGMENT, USER_BASIC_FRAGMENT, CHANNEL_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import {
+  NOTIFICATION_FRAGMENT,
+  USER_BASIC_FRAGMENT,
+  CHANNEL_BASIC_FRAGMENT,
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export type NotificationType =
-  | 'message'
-  | 'mention'
-  | 'reaction'
-  | 'reply'
-  | 'thread_reply'
-  | 'channel_invite'
-  | 'dm'
-  | 'system'
+  | "message"
+  | "mention"
+  | "reaction"
+  | "reply"
+  | "thread_reply"
+  | "channel_invite"
+  | "dm"
+  | "system";
 
 export interface GetNotificationsVariables {
-  userId: string
-  limit?: number
-  offset?: number
-  unreadOnly?: boolean
-  type?: NotificationType
+  userId: string;
+  limit?: number;
+  offset?: number;
+  unreadOnly?: boolean;
+  type?: NotificationType;
 }
 
 export interface GetUnreadCountVariables {
-  userId: string
+  userId: string;
 }
 
 export interface MarkAsReadVariables {
-  notificationId: string
+  notificationId: string;
 }
 
 export interface MarkAllAsReadVariables {
-  userId: string
-  channelId?: string
+  userId: string;
+  channelId?: string;
 }
 
 export interface UpdateNotificationPreferencesVariables {
-  userId: string
+  userId: string;
   preferences: {
-    email?: boolean
-    push?: boolean
-    desktop?: boolean
-    mentions?: boolean
-    directMessages?: boolean
-    threads?: boolean
-    channelUpdates?: boolean
-    quietHoursStart?: string
-    quietHoursEnd?: string
-    mutedChannels?: string[]
-  }
+    email?: boolean;
+    push?: boolean;
+    desktop?: boolean;
+    mentions?: boolean;
+    directMessages?: boolean;
+    threads?: boolean;
+    channelUpdates?: boolean;
+    quietHoursStart?: string;
+    quietHoursEnd?: string;
+    mutedChannels?: string[];
+  };
 }
 
 export interface NotificationSubscriptionVariables {
-  userId: string
+  userId: string;
 }
 
 // ============================================================================
@@ -75,7 +79,12 @@ export const GET_NOTIFICATIONS = gql`
       where: {
         user_id: { _eq: $userId }
         _and: [
-          { _or: [{ is_read: { _eq: false } }, { is_read: { _neq: $unreadOnly } }] }
+          {
+            _or: [
+              { is_read: { _eq: false } }
+              { is_read: { _neq: $unreadOnly } }
+            ]
+          }
           { type: { _eq: $type } }
         ]
       }
@@ -89,7 +98,12 @@ export const GET_NOTIFICATIONS = gql`
       where: {
         user_id: { _eq: $userId }
         _and: [
-          { _or: [{ is_read: { _eq: false } }, { is_read: { _neq: $unreadOnly } }] }
+          {
+            _or: [
+              { is_read: { _eq: false } }
+              { is_read: { _neq: $unreadOnly } }
+            ]
+          }
           { type: { _eq: $type } }
         ]
       }
@@ -100,7 +114,7 @@ export const GET_NOTIFICATIONS = gql`
     }
   }
   ${NOTIFICATION_FRAGMENT}
-`
+`;
 
 /**
  * Get unread notification count
@@ -116,14 +130,22 @@ export const GET_UNREAD_COUNT = gql`
     }
     # By type
     mentions: nchat_notifications_aggregate(
-      where: { user_id: { _eq: $userId }, is_read: { _eq: false }, type: { _eq: "mention" } }
+      where: {
+        user_id: { _eq: $userId }
+        is_read: { _eq: false }
+        type: { _eq: "mention" }
+      }
     ) {
       aggregate {
         count
       }
     }
     dms: nchat_notifications_aggregate(
-      where: { user_id: { _eq: $userId }, is_read: { _eq: false }, type: { _eq: "dm" } }
+      where: {
+        user_id: { _eq: $userId }
+        is_read: { _eq: false }
+        type: { _eq: "dm" }
+      }
     ) {
       aggregate {
         count
@@ -141,7 +163,7 @@ export const GET_UNREAD_COUNT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get unread counts by channel
@@ -156,14 +178,20 @@ export const GET_UNREAD_BY_CHANNEL = gql`
         name
         slug
         unread: messages_aggregate(
-          where: { created_at: { _gt: "last_read_at" }, is_deleted: { _eq: false } }
+          where: {
+            created_at: { _gt: "last_read_at" }
+            is_deleted: { _eq: false }
+          }
         ) {
           aggregate {
             count
           }
         }
         has_mention: messages(
-          where: { created_at: { _gt: "last_read_at" }, mentions: { user_id: { _eq: $userId } } }
+          where: {
+            created_at: { _gt: "last_read_at" }
+            mentions: { user_id: { _eq: $userId } }
+          }
           limit: 1
         ) {
           id
@@ -171,7 +199,7 @@ export const GET_UNREAD_BY_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get notification preferences
@@ -186,7 +214,10 @@ export const GET_NOTIFICATION_PREFERENCES = gql`
     nchat_channel_members(
       where: {
         user_id: { _eq: $userId }
-        _or: [{ notifications_enabled: { _eq: false } }, { muted_until: { _gt: "now()" } }]
+        _or: [
+          { notifications_enabled: { _eq: false } }
+          { muted_until: { _gt: "now()" } }
+        ]
       }
     ) {
       channel_id
@@ -198,7 +229,7 @@ export const GET_NOTIFICATION_PREFERENCES = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get recent notifications grouped by type
@@ -214,7 +245,10 @@ export const GET_NOTIFICATIONS_GROUPED = gql`
     }
 
     threads: nchat_notifications(
-      where: { user_id: { _eq: $userId }, type: { _in: ["reply", "thread_reply"] } }
+      where: {
+        user_id: { _eq: $userId }
+        type: { _in: ["reply", "thread_reply"] }
+      }
       order_by: { created_at: desc }
       limit: $limit
     ) {
@@ -238,7 +272,7 @@ export const GET_NOTIFICATIONS_GROUPED = gql`
     }
   }
   ${NOTIFICATION_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -258,7 +292,7 @@ export const MARK_AS_READ = gql`
       read_at
     }
   }
-`
+`;
 
 /**
  * Mark multiple notifications as read
@@ -272,7 +306,7 @@ export const MARK_MULTIPLE_AS_READ = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Mark all notifications as read
@@ -280,22 +314,30 @@ export const MARK_MULTIPLE_AS_READ = gql`
 export const MARK_ALL_AS_READ = gql`
   mutation MarkAllAsRead($userId: uuid!, $channelId: uuid) {
     update_nchat_notifications(
-      where: { user_id: { _eq: $userId }, is_read: { _eq: false }, channel_id: { _eq: $channelId } }
+      where: {
+        user_id: { _eq: $userId }
+        is_read: { _eq: false }
+        channel_id: { _eq: $channelId }
+      }
       _set: { is_read: true, read_at: "now()" }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 // Re-export UPDATE_NOTIFICATION_PREFERENCES from users.ts
-export { UPDATE_NOTIFICATION_PREFERENCES } from './users'
+export { UPDATE_NOTIFICATION_PREFERENCES } from "./users";
 
 /**
  * Mute a channel's notifications
  */
 export const MUTE_CHANNEL_NOTIFICATIONS = gql`
-  mutation MuteChannelNotifications($channelId: uuid!, $userId: uuid!, $mutedUntil: timestamptz) {
+  mutation MuteChannelNotifications(
+    $channelId: uuid!
+    $userId: uuid!
+    $mutedUntil: timestamptz
+  ) {
     update_nchat_channel_members(
       where: { channel_id: { _eq: $channelId }, user_id: { _eq: $userId } }
       _set: { notifications_enabled: false, muted_until: $mutedUntil }
@@ -308,7 +350,7 @@ export const MUTE_CHANNEL_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Unmute a channel's notifications
@@ -326,7 +368,7 @@ export const UNMUTE_CHANNEL_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Delete a notification
@@ -337,7 +379,7 @@ export const DELETE_NOTIFICATION = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Delete all notifications for a user
@@ -348,7 +390,7 @@ export const DELETE_ALL_NOTIFICATIONS = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Create a notification (typically done server-side)
@@ -380,7 +422,7 @@ export const CREATE_NOTIFICATION = gql`
     }
   }
   ${NOTIFICATION_FRAGMENT}
-`
+`;
 
 /**
  * Register push notification token
@@ -393,7 +435,12 @@ export const REGISTER_PUSH_TOKEN = gql`
     $deviceId: String
   ) {
     insert_nchat_push_tokens_one(
-      object: { user_id: $userId, token: $token, platform: $platform, device_id: $deviceId }
+      object: {
+        user_id: $userId
+        token: $token
+        platform: $platform
+        device_id: $deviceId
+      }
       on_conflict: {
         constraint: nchat_push_tokens_token_key
         update_columns: [user_id, platform, device_id, updated_at]
@@ -404,7 +451,7 @@ export const REGISTER_PUSH_TOKEN = gql`
       platform
     }
   }
-`
+`;
 
 /**
  * Unregister push notification token
@@ -415,7 +462,7 @@ export const UNREGISTER_PUSH_TOKEN = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -435,20 +482,22 @@ export const NOTIFICATION_SUBSCRIPTION = gql`
     }
   }
   ${NOTIFICATION_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to unread count changes
  */
 export const UNREAD_COUNT_SUBSCRIPTION = gql`
   subscription UnreadCountSubscription($userId: uuid!) {
-    nchat_notifications_aggregate(where: { user_id: { _eq: $userId }, is_read: { _eq: false } }) {
+    nchat_notifications_aggregate(
+      where: { user_id: { _eq: $userId }, is_read: { _eq: false } }
+    ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to notification stream
@@ -482,18 +531,23 @@ export const NOTIFICATION_STREAM_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to channel unread updates
  */
 export const CHANNEL_UNREAD_SUBSCRIPTION = gql`
   subscription ChannelUnreadSubscription($userId: uuid!, $channelId: uuid!) {
-    nchat_channel_members(where: { user_id: { _eq: $userId }, channel_id: { _eq: $channelId } }) {
+    nchat_channel_members(
+      where: { user_id: { _eq: $userId }, channel_id: { _eq: $channelId } }
+    ) {
       last_read_at
       channel {
         messages_aggregate(
-          where: { created_at: { _gt: "last_read_at" }, is_deleted: { _eq: false } }
+          where: {
+            created_at: { _gt: "last_read_at" }
+            is_deleted: { _eq: false }
+          }
         ) {
           aggregate {
             count
@@ -502,4 +556,4 @@ export const CHANNEL_UNREAD_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;

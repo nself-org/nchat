@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { logger } from '@/lib/logger'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { logger } from "@/lib/logger";
 import {
   Search,
   Copy,
@@ -36,48 +36,55 @@ import {
   X,
   Loader2,
   UserPlus,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface InviteUser {
-  id: string
-  displayName: string
-  username: string
-  email: string
-  avatarUrl?: string
-  alreadyMember?: boolean
+  id: string;
+  displayName: string;
+  username: string;
+  email: string;
+  avatarUrl?: string;
+  alreadyMember?: boolean;
 }
 
 export interface InviteLink {
-  code: string
-  url: string
-  expiresAt?: Date
-  maxUses?: number
-  usedCount?: number
+  code: string;
+  url: string;
+  expiresAt?: Date;
+  maxUses?: number;
+  usedCount?: number;
 }
 
-export type InviteLinkExpiry = 'never' | '7days' | '1day' | '12hours' | '6hours' | '1hour' | '30min'
+export type InviteLinkExpiry =
+  | "never"
+  | "7days"
+  | "1day"
+  | "12hours"
+  | "6hours"
+  | "1hour"
+  | "30min";
 
 export interface InviteModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  channelName?: string
-  channelId?: string
-  inviteType: 'channel' | 'workspace'
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channelName?: string;
+  channelId?: string;
+  inviteType: "channel" | "workspace";
   // User search
-  users?: InviteUser[]
-  onSearchUsers?: (query: string) => Promise<InviteUser[]>
-  onInviteUsers?: (userIds: string[]) => Promise<void>
+  users?: InviteUser[];
+  onSearchUsers?: (query: string) => Promise<InviteUser[]>;
+  onInviteUsers?: (userIds: string[]) => Promise<void>;
   // Email invites
-  onInviteByEmail?: (emails: string[]) => Promise<void>
+  onInviteByEmail?: (emails: string[]) => Promise<void>;
   // Invite links
-  inviteLink?: InviteLink
-  onGenerateLink?: (expiry: InviteLinkExpiry) => Promise<InviteLink>
-  onRevokeLink?: () => Promise<void>
-  isLoading?: boolean
+  inviteLink?: InviteLink;
+  onGenerateLink?: (expiry: InviteLinkExpiry) => Promise<InviteLink>;
+  onRevokeLink?: () => Promise<void>;
+  isLoading?: boolean;
 }
 
 // ============================================================================
@@ -85,9 +92,9 @@ export interface InviteModalProps {
 // ============================================================================
 
 interface UserSearchResultProps {
-  user: InviteUser
-  selected: boolean
-  onToggle: () => void
+  user: InviteUser;
+  selected: boolean;
+  onToggle: () => void;
 }
 
 function UserSearchResult({ user, selected, onToggle }: UserSearchResultProps) {
@@ -97,19 +104,25 @@ function UserSearchResult({ user, selected, onToggle }: UserSearchResultProps) {
       onClick={onToggle}
       disabled={user.alreadyMember}
       className={cn(
-        'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors',
-        selected && 'bg-primary/10',
-        user.alreadyMember ? 'cursor-not-allowed opacity-50' : 'hover:bg-accent'
+        "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors",
+        selected && "bg-primary/10",
+        user.alreadyMember
+          ? "cursor-not-allowed opacity-50"
+          : "hover:bg-accent",
       )}
       data-testid={`user-result-${user.id}`}
     >
       <Avatar className="h-8 w-8">
         <AvatarImage src={user.avatarUrl} />
-        <AvatarFallback>{user.displayName.charAt(0).toUpperCase()}</AvatarFallback>
+        <AvatarFallback>
+          {user.displayName.charAt(0).toUpperCase()}
+        </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{user.displayName}</p>
-        <p className="truncate text-xs text-muted-foreground">@{user.username}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          @{user.username}
+        </p>
       </div>
       {user.alreadyMember ? (
         <Badge variant="secondary" className="text-xs">
@@ -119,17 +132,21 @@ function UserSearchResult({ user, selected, onToggle }: UserSearchResultProps) {
         <Badge className="text-xs">Selected</Badge>
       ) : null}
     </button>
-  )
+  );
 }
 
 interface SelectedUserBadgeProps {
-  user: InviteUser
-  onRemove: () => void
+  user: InviteUser;
+  onRemove: () => void;
 }
 
 function SelectedUserBadge({ user, onRemove }: SelectedUserBadgeProps) {
   return (
-    <Badge variant="secondary" className="gap-1 pr-1" data-testid={`selected-user-${user.id}`}>
+    <Badge
+      variant="secondary"
+      className="gap-1 pr-1"
+      data-testid={`selected-user-${user.id}`}
+    >
       {user.displayName}
       <button
         type="button"
@@ -140,7 +157,7 @@ function SelectedUserBadge({ user, onRemove }: SelectedUserBadgeProps) {
         <X className="h-3 w-3" />
       </button>
     </Badge>
-  )
+  );
 }
 
 // ============================================================================
@@ -148,14 +165,14 @@ function SelectedUserBadge({ user, onRemove }: SelectedUserBadgeProps) {
 // ============================================================================
 
 const EXPIRY_OPTIONS: { value: InviteLinkExpiry; label: string }[] = [
-  { value: 'never', label: 'Never expires' },
-  { value: '7days', label: '7 days' },
-  { value: '1day', label: '1 day' },
-  { value: '12hours', label: '12 hours' },
-  { value: '6hours', label: '6 hours' },
-  { value: '1hour', label: '1 hour' },
-  { value: '30min', label: '30 minutes' },
-]
+  { value: "never", label: "Never expires" },
+  { value: "7days", label: "7 days" },
+  { value: "1day", label: "1 day" },
+  { value: "12hours", label: "12 hours" },
+  { value: "6hours", label: "6 hours" },
+  { value: "1hour", label: "1 hour" },
+  { value: "30min", label: "30 minutes" },
+];
 
 // ============================================================================
 // Main Component
@@ -177,161 +194,170 @@ export function InviteModal({
   isLoading = false,
 }: InviteModalProps) {
   // State
-  const [activeTab, setActiveTab] = React.useState('users')
-  const [searchQuery, setSearchQuery] = React.useState('')
-  const [searchResults, setSearchResults] = React.useState<InviteUser[]>(users)
-  const [selectedUsers, setSelectedUsers] = React.useState<Set<string>>(new Set())
-  const [emailInput, setEmailInput] = React.useState('')
-  const [emails, setEmails] = React.useState<string[]>([])
-  const [linkExpiry, setLinkExpiry] = React.useState<InviteLinkExpiry>('7days')
-  const [copied, setCopied] = React.useState(false)
-  const [searching, setSearching] = React.useState(false)
-  const [inviting, setInviting] = React.useState(false)
-  const [generatingLink, setGeneratingLink] = React.useState(false)
+  const [activeTab, setActiveTab] = React.useState("users");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchResults, setSearchResults] = React.useState<InviteUser[]>(users);
+  const [selectedUsers, setSelectedUsers] = React.useState<Set<string>>(
+    new Set(),
+  );
+  const [emailInput, setEmailInput] = React.useState("");
+  const [emails, setEmails] = React.useState<string[]>([]);
+  const [linkExpiry, setLinkExpiry] = React.useState<InviteLinkExpiry>("7days");
+  const [copied, setCopied] = React.useState(false);
+  const [searching, setSearching] = React.useState(false);
+  const [inviting, setInviting] = React.useState(false);
+  const [generatingLink, setGeneratingLink] = React.useState(false);
 
   // Reset state when modal opens
   React.useEffect(() => {
     if (open) {
-      setSearchQuery('')
-      setSearchResults(users)
-      setSelectedUsers(new Set())
-      setEmailInput('')
-      setEmails([])
-      setCopied(false)
+      setSearchQuery("");
+      setSearchResults(users);
+      setSelectedUsers(new Set());
+      setEmailInput("");
+      setEmails([]);
+      setCopied(false);
     }
-  }, [open, users])
+  }, [open, users]);
 
   // Search users
   const handleSearch = React.useCallback(
     async (query: string) => {
-      setSearchQuery(query)
+      setSearchQuery(query);
       if (!onSearchUsers) {
         // Filter local users if no search function provided
         const filtered = users.filter(
           (u) =>
             u.displayName.toLowerCase().includes(query.toLowerCase()) ||
             u.username.toLowerCase().includes(query.toLowerCase()) ||
-            u.email.toLowerCase().includes(query.toLowerCase())
-        )
-        setSearchResults(filtered)
-        return
+            u.email.toLowerCase().includes(query.toLowerCase()),
+        );
+        setSearchResults(filtered);
+        return;
       }
 
       if (!query.trim()) {
-        setSearchResults(users)
-        return
+        setSearchResults(users);
+        return;
       }
 
-      setSearching(true)
+      setSearching(true);
       try {
-        const results = await onSearchUsers(query)
-        setSearchResults(results)
+        const results = await onSearchUsers(query);
+        setSearchResults(results);
       } catch (error) {
-        logger.error('Search failed:', error)
+        logger.error("Search failed:", error);
       } finally {
-        setSearching(false)
+        setSearching(false);
       }
     },
-    [onSearchUsers, users]
-  )
+    [onSearchUsers, users],
+  );
 
   // Toggle user selection
   const toggleUser = (userId: string) => {
-    const newSelected = new Set(selectedUsers)
+    const newSelected = new Set(selectedUsers);
     if (newSelected.has(userId)) {
-      newSelected.delete(userId)
+      newSelected.delete(userId);
     } else {
-      newSelected.add(userId)
+      newSelected.add(userId);
     }
-    setSelectedUsers(newSelected)
-  }
+    setSelectedUsers(newSelected);
+  };
 
   // Add email to list
   const addEmail = () => {
-    const email = emailInput.trim().toLowerCase()
-    if (email && !emails.includes(email) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmails([...emails, email])
-      setEmailInput('')
+    const email = emailInput.trim().toLowerCase();
+    if (
+      email &&
+      !emails.includes(email) &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      setEmails([...emails, email]);
+      setEmailInput("");
     }
-  }
+  };
 
   // Remove email from list
   const removeEmail = (email: string) => {
-    setEmails(emails.filter((e) => e !== email))
-  }
+    setEmails(emails.filter((e) => e !== email));
+  };
 
   // Handle email input key press
   const handleEmailKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault()
-      addEmail()
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addEmail();
     }
-  }
+  };
 
   // Invite selected users
   const handleInviteUsers = async () => {
-    if (!onInviteUsers || selectedUsers.size === 0) return
+    if (!onInviteUsers || selectedUsers.size === 0) return;
 
-    setInviting(true)
+    setInviting(true);
     try {
-      await onInviteUsers(Array.from(selectedUsers))
-      setSelectedUsers(new Set())
-      onOpenChange(false)
+      await onInviteUsers(Array.from(selectedUsers));
+      setSelectedUsers(new Set());
+      onOpenChange(false);
     } catch (error) {
-      logger.error('Invite failed:', error)
+      logger.error("Invite failed:", error);
     } finally {
-      setInviting(false)
+      setInviting(false);
     }
-  }
+  };
 
   // Invite by email
   const handleInviteByEmail = async () => {
-    if (!onInviteByEmail || emails.length === 0) return
+    if (!onInviteByEmail || emails.length === 0) return;
 
-    setInviting(true)
+    setInviting(true);
     try {
-      await onInviteByEmail(emails)
-      setEmails([])
-      onOpenChange(false)
+      await onInviteByEmail(emails);
+      setEmails([]);
+      onOpenChange(false);
     } catch (error) {
-      logger.error('Email invite failed:', error)
+      logger.error("Email invite failed:", error);
     } finally {
-      setInviting(false)
+      setInviting(false);
     }
-  }
+  };
 
   // Generate invite link
   const handleGenerateLink = async () => {
-    if (!onGenerateLink) return
+    if (!onGenerateLink) return;
 
-    setGeneratingLink(true)
+    setGeneratingLink(true);
     try {
-      await onGenerateLink(linkExpiry)
+      await onGenerateLink(linkExpiry);
     } catch (error) {
-      logger.error('Generate link failed:', error)
+      logger.error("Generate link failed:", error);
     } finally {
-      setGeneratingLink(false)
+      setGeneratingLink(false);
     }
-  }
+  };
 
   // Copy link to clipboard
   const handleCopyLink = async () => {
-    if (!inviteLink) return
+    if (!inviteLink) return;
 
     try {
-      await navigator.clipboard.writeText(inviteLink.url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(inviteLink.url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      logger.error('Copy failed:', error)
+      logger.error("Copy failed:", error);
     }
-  }
+  };
 
-  const title = inviteType === 'channel' ? `Invite to #${channelName}` : 'Invite to Workspace'
+  const title =
+    inviteType === "channel"
+      ? `Invite to #${channelName}`
+      : "Invite to Workspace";
 
   const selectedUserObjects = React.useMemo(() => {
-    return users.filter((u) => selectedUsers.has(u.id))
-  }, [users, selectedUsers])
+    return users.filter((u) => selectedUsers.has(u.id));
+  }, [users, selectedUsers]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -341,7 +367,9 @@ export function InviteModal({
             <UserPlus className="h-5 w-5 text-muted-foreground" />
             {title}
           </DialogTitle>
-          <DialogDescription>Invite people to join and collaborate</DialogDescription>
+          <DialogDescription>
+            Invite people to join and collaborate
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs
@@ -350,11 +378,19 @@ export function InviteModal({
           className="flex flex-1 flex-col overflow-hidden"
         >
           <TabsList className="w-full">
-            <TabsTrigger value="users" className="flex-1" data-testid="tab-users">
+            <TabsTrigger
+              value="users"
+              className="flex-1"
+              data-testid="tab-users"
+            >
               <Users className="mr-2 h-4 w-4" />
               Search Users
             </TabsTrigger>
-            <TabsTrigger value="email" className="flex-1" data-testid="tab-email">
+            <TabsTrigger
+              value="email"
+              className="flex-1"
+              data-testid="tab-email"
+            >
               <Mail className="mr-2 h-4 w-4" />
               Email
             </TabsTrigger>
@@ -365,7 +401,10 @@ export function InviteModal({
           </TabsList>
 
           {/* Users Tab */}
-          <TabsContent value="users" className="m-0 flex flex-1 flex-col overflow-hidden pt-4">
+          <TabsContent
+            value="users"
+            className="m-0 flex flex-1 flex-col overflow-hidden pt-4"
+          >
             {/* Selected Users */}
             {selectedUserObjects.length > 0 && (
               <div className="bg-muted/30 mb-4 flex flex-wrap gap-1.5 rounded-lg border p-2">
@@ -400,7 +439,7 @@ export function InviteModal({
               <div className="space-y-1">
                 {searchResults.length === 0 ? (
                   <p className="py-8 text-center text-sm text-muted-foreground">
-                    {searchQuery ? 'No users found' : 'Start typing to search'}
+                    {searchQuery ? "No users found" : "Start typing to search"}
                   </p>
                 ) : (
                   searchResults.map((user) => (
@@ -424,15 +463,21 @@ export function InviteModal({
                   className="w-full"
                   data-testid="invite-users-button"
                 >
-                  {inviting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Invite {selectedUsers.size} {selectedUsers.size === 1 ? 'User' : 'Users'}
+                  {inviting && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Invite {selectedUsers.size}{" "}
+                  {selectedUsers.size === 1 ? "User" : "Users"}
                 </Button>
               </div>
             )}
           </TabsContent>
 
           {/* Email Tab */}
-          <TabsContent value="email" className="m-0 flex flex-1 flex-col overflow-hidden pt-4">
+          <TabsContent
+            value="email"
+            className="m-0 flex flex-1 flex-col overflow-hidden pt-4"
+          >
             {/* Email Input */}
             <div className="mb-4 space-y-2">
               <Label htmlFor="email-input">Email Addresses</Label>
@@ -497,15 +542,21 @@ export function InviteModal({
                   className="w-full"
                   data-testid="send-invites-button"
                 >
-                  {inviting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Send {emails.length} {emails.length === 1 ? 'Invite' : 'Invites'}
+                  {inviting && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Send {emails.length}{" "}
+                  {emails.length === 1 ? "Invite" : "Invites"}
                 </Button>
               </div>
             )}
           </TabsContent>
 
           {/* Link Tab */}
-          <TabsContent value="link" className="m-0 flex flex-1 flex-col overflow-hidden pt-4">
+          <TabsContent
+            value="link"
+            className="m-0 flex flex-1 flex-col overflow-hidden pt-4"
+          >
             {/* Link Generation */}
             {onGenerateLink && (
               <div className="mb-4 space-y-4">
@@ -513,7 +564,9 @@ export function InviteModal({
                   <Label>Link Expiration</Label>
                   <Select
                     value={linkExpiry}
-                    onValueChange={(value: InviteLinkExpiry) => setLinkExpiry(value)}
+                    onValueChange={(value: InviteLinkExpiry) =>
+                      setLinkExpiry(value)
+                    }
                     disabled={isLoading}
                   >
                     <SelectTrigger data-testid="expiry-select">
@@ -532,7 +585,7 @@ export function InviteModal({
                 <Button
                   onClick={handleGenerateLink}
                   disabled={generatingLink || isLoading}
-                  variant={inviteLink ? 'outline' : 'default'}
+                  variant={inviteLink ? "outline" : "default"}
                   className="w-full"
                   data-testid="generate-link-button"
                 >
@@ -541,7 +594,7 @@ export function InviteModal({
                   ) : (
                     <RefreshCw className="mr-2 h-4 w-4" />
                   )}
-                  {inviteLink ? 'Generate New Link' : 'Generate Link'}
+                  {inviteLink ? "Generate New Link" : "Generate Link"}
                 </Button>
               </div>
             )}
@@ -576,7 +629,8 @@ export function InviteModal({
                     {inviteLink.expiresAt && (
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        Expires {new Date(inviteLink.expiresAt).toLocaleDateString()}
+                        Expires{" "}
+                        {new Date(inviteLink.expiresAt).toLocaleDateString()}
                       </span>
                     )}
                     {inviteLink.maxUses && (
@@ -611,7 +665,7 @@ export function InviteModal({
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export { UserSearchResult, SelectedUserBadge }
+export { UserSearchResult, SelectedUserBadge };

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Mail,
   Link as LinkIcon,
@@ -16,24 +16,30 @@ import {
   CheckCircle,
   Calendar,
   User,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
@@ -41,31 +47,36 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 
-import { useTeamStore } from '@/stores/team-store'
-import { teamManager } from '@/lib/team/team-manager'
-import type { TeamRole, InviteBulkResult } from '@/lib/team/team-types'
+import { useTeamStore } from "@/stores/team-store";
+import { teamManager } from "@/lib/team/team-manager";
+import type { TeamRole, InviteBulkResult } from "@/lib/team/team-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface InviteMembersProps {
-  teamId: string
+  teamId: string;
 }
 
 export function InviteMembers({ teamId }: InviteMembersProps) {
-  const [activeTab, setActiveTab] = useState('email')
-  const { invitations, inviteLinks, addInvitation, addInviteLink } = useTeamStore()
+  const [activeTab, setActiveTab] = useState("email");
+  const { invitations, inviteLinks, addInvitation, addInviteLink } =
+    useTeamStore();
 
-  const pendingInvitesCount = invitations.filter((i) => i.status === 'pending').length
-  const activeLinksCount = inviteLinks.filter((l) => l.isActive).length
+  const pendingInvitesCount = invitations.filter(
+    (i) => i.status === "pending",
+  ).length;
+  const activeLinksCount = inviteLinks.filter((l) => l.isActive).length;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Invite Team Members</h1>
-        <p className="text-muted-foreground">Invite new members to join your workspace</p>
+        <p className="text-muted-foreground">
+          Invite new members to join your workspace
+        </p>
       </div>
 
       {/* Stats */}
@@ -76,7 +87,9 @@ export function InviteMembers({ teamId }: InviteMembersProps) {
             <CardTitle className="text-2xl">{pendingInvitesCount}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xs text-muted-foreground">Awaiting acceptance</div>
+            <div className="text-xs text-muted-foreground">
+              Awaiting acceptance
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -85,7 +98,9 @@ export function InviteMembers({ teamId }: InviteMembersProps) {
             <CardTitle className="text-2xl">{activeLinksCount}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xs text-muted-foreground">Invite links active</div>
+            <div className="text-xs text-muted-foreground">
+              Invite links active
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -94,7 +109,9 @@ export function InviteMembers({ teamId }: InviteMembersProps) {
             <CardTitle className="text-2xl">{invitations.length}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xs text-muted-foreground">All time invitations</div>
+            <div className="text-xs text-muted-foreground">
+              All time invitations
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -117,11 +134,17 @@ export function InviteMembers({ teamId }: InviteMembersProps) {
         </TabsList>
 
         <TabsContent value="email" className="mt-4">
-          <EmailInvite teamId={teamId} onSuccess={(invitation) => addInvitation(invitation)} />
+          <EmailInvite
+            teamId={teamId}
+            onSuccess={(invitation) => addInvitation(invitation)}
+          />
         </TabsContent>
 
         <TabsContent value="link" className="mt-4">
-          <LinkInvite teamId={teamId} onSuccess={(link) => addInviteLink(link)} />
+          <LinkInvite
+            teamId={teamId}
+            onSuccess={(link) => addInviteLink(link)}
+          />
         </TabsContent>
 
         <TabsContent value="bulk" className="mt-4">
@@ -132,7 +155,7 @@ export function InviteMembers({ teamId }: InviteMembersProps) {
       {/* Pending Invitations */}
       <PendingInvitations teamId={teamId} invitations={invitations} />
     </div>
-  )
+  );
 }
 
 // Email Invite Component
@@ -140,22 +163,22 @@ function EmailInvite({
   teamId,
   onSuccess,
 }: {
-  teamId: string
-  onSuccess: (invitation: any) => void
+  teamId: string;
+  onSuccess: (invitation: any) => void;
 }) {
-  const [email, setEmail] = useState('')
-  const [role, setRole] = useState<TeamRole>('member')
-  const [message, setMessage] = useState('')
-  const [sendEmail, setSendEmail] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<TeamRole>("member");
+  const [message, setMessage] = useState("");
+  const [sendEmail, setSendEmail] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
-    setSuccess(false)
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(false);
 
     try {
       const result = await teamManager.inviteMemberByEmail(teamId, {
@@ -163,29 +186,31 @@ function EmailInvite({
         role,
         message: message || undefined,
         sendEmail,
-      })
+      });
 
       if (result.success && result.data) {
-        setSuccess(true)
-        onSuccess(result.data)
-        setEmail('')
-        setMessage('')
-        setTimeout(() => setSuccess(false), 3000)
+        setSuccess(true);
+        onSuccess(result.data);
+        setEmail("");
+        setMessage("");
+        setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || 'Failed to send invitation')
+        setError(result.error || "Failed to send invitation");
       }
     } catch (_err) {
-      setError('An unexpected error occurred')
+      setError("An unexpected error occurred");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Invite by Email</CardTitle>
-        <CardDescription>Send an invitation to a specific email address</CardDescription>
+        <CardDescription>
+          Send an invitation to a specific email address
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -240,7 +265,11 @@ function EmailInvite({
           </div>
 
           <div className="flex items-center space-x-2">
-            <Switch id="sendEmail" checked={sendEmail} onCheckedChange={setSendEmail} />
+            <Switch
+              id="sendEmail"
+              checked={sendEmail}
+              onCheckedChange={setSendEmail}
+            />
             <Label htmlFor="sendEmail">Send invitation email</Label>
           </div>
 
@@ -260,52 +289,60 @@ function EmailInvite({
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // Link Invite Component
-function LinkInvite({ teamId, onSuccess }: { teamId: string; onSuccess: (link: any) => void }) {
-  const [role, setRole] = useState<TeamRole>('member')
-  const [maxUses, setMaxUses] = useState<string>('unlimited')
-  const [expiresIn, setExpiresIn] = useState('7')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedLink, setGeneratedLink] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
+function LinkInvite({
+  teamId,
+  onSuccess,
+}: {
+  teamId: string;
+  onSuccess: (link: any) => void;
+}) {
+  const [role, setRole] = useState<TeamRole>("member");
+  const [maxUses, setMaxUses] = useState<string>("unlimited");
+  const [expiresIn, setExpiresIn] = useState("7");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleGenerate = async () => {
-    setIsGenerating(true)
+    setIsGenerating(true);
 
     try {
       const result = await teamManager.createInviteLink(teamId, {
         role,
-        maxUses: maxUses === 'unlimited' ? undefined : parseInt(maxUses),
+        maxUses: maxUses === "unlimited" ? undefined : parseInt(maxUses),
         expiresInDays: parseInt(expiresIn),
-      })
+      });
 
       if (result.success && result.data) {
-        setGeneratedLink(result.data.url)
-        onSuccess(result.data)
+        setGeneratedLink(result.data.url);
+        onSuccess(result.data);
       }
     } catch (err) {
-      logger.error('Failed to generate link:', err)
+      logger.error("Failed to generate link:", err);
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const handleCopy = async () => {
     if (generatedLink) {
-      await navigator.clipboard.writeText(generatedLink)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(generatedLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-  }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Generate Invite Link</CardTitle>
-        <CardDescription>Create a shareable link that anyone can use to join</CardDescription>
+        <CardDescription>
+          Create a shareable link that anyone can use to join
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -356,7 +393,11 @@ function LinkInvite({ teamId, onSuccess }: { teamId: string; onSuccess: (link: a
           </Select>
         </div>
 
-        <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
+        <Button
+          onClick={handleGenerate}
+          disabled={isGenerating}
+          className="w-full"
+        >
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -374,80 +415,93 @@ function LinkInvite({ teamId, onSuccess }: { teamId: string; onSuccess: (link: a
           <div className="space-y-2 rounded-lg border bg-muted p-4">
             <Label>Generated Link</Label>
             <div className="flex items-center gap-2">
-              <Input value={generatedLink} readOnly className="font-mono text-sm" />
+              <Input
+                value={generatedLink}
+                readOnly
+                className="font-mono text-sm"
+              />
               <Button size="sm" variant="outline" onClick={handleCopy}>
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copied ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Link expires in {expiresIn} day(s){' '}
-              {maxUses !== 'unlimited' && `• Max ${maxUses} uses`}
+              Link expires in {expiresIn} day(s){" "}
+              {maxUses !== "unlimited" && `• Max ${maxUses} uses`}
             </p>
           </div>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // Bulk Invite Component
 function BulkInvite({ teamId }: { teamId: string }) {
-  const [emails, setEmails] = useState('')
-  const [role, setRole] = useState<TeamRole>('member')
-  const [sendEmails, setSendEmails] = useState(true)
-  const [isValidating, setIsValidating] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [validation, setValidation] = useState<{ valid: string[]; invalid: string[] } | null>(null)
-  const [result, setResult] = useState<InviteBulkResult | null>(null)
+  const [emails, setEmails] = useState("");
+  const [role, setRole] = useState<TeamRole>("member");
+  const [sendEmails, setSendEmails] = useState(true);
+  const [isValidating, setIsValidating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validation, setValidation] = useState<{
+    valid: string[];
+    invalid: string[];
+  } | null>(null);
+  const [result, setResult] = useState<InviteBulkResult | null>(null);
 
   const handleValidate = () => {
-    setIsValidating(true)
-    const parsedEmails = teamManager.parseCSVEmails(emails)
-    const valid: string[] = []
-    const invalid: string[] = []
+    setIsValidating(true);
+    const parsedEmails = teamManager.parseCSVEmails(emails);
+    const valid: string[] = [];
+    const invalid: string[] = [];
 
     parsedEmails.forEach((email) => {
       if (teamManager.validateEmail(email)) {
-        valid.push(email)
+        valid.push(email);
       } else {
-        invalid.push(email)
+        invalid.push(email);
       }
-    })
+    });
 
-    setValidation({ valid, invalid })
-    setIsValidating(false)
-  }
+    setValidation({ valid, invalid });
+    setIsValidating(false);
+  };
 
   const handleSubmit = async () => {
-    if (!validation || validation.valid.length === 0) return
+    if (!validation || validation.valid.length === 0) return;
 
-    setIsSubmitting(true)
-    setResult(null)
+    setIsSubmitting(true);
+    setResult(null);
 
     try {
       const bulkResult = await teamManager.bulkInviteMembers(teamId, {
         emails: validation.valid,
         role,
         sendEmails,
-      })
+      });
 
       if (bulkResult.success && bulkResult.data) {
-        setResult(bulkResult.data)
-        setEmails('')
-        setValidation(null)
+        setResult(bulkResult.data);
+        setEmails("");
+        setValidation(null);
       }
     } catch (err) {
-      logger.error('Failed to send bulk invites:', err)
+      logger.error("Failed to send bulk invites:", err);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Bulk Invite</CardTitle>
-        <CardDescription>Invite multiple users at once via CSV or paste emails</CardDescription>
+        <CardDescription>
+          Invite multiple users at once via CSV or paste emails
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -457,9 +511,9 @@ function BulkInvite({ teamId }: { teamId: string }) {
             placeholder="Enter email addresses, one per line or comma-separated...&#10;&#10;user1@example.com&#10;user2@example.com&#10;user3@example.com"
             value={emails}
             onChange={(e) => {
-              setEmails(e.target.value)
-              setValidation(null)
-              setResult(null)
+              setEmails(e.target.value);
+              setValidation(null);
+              setResult(null);
             }}
             rows={8}
             className="font-mono text-sm"
@@ -482,7 +536,11 @@ function BulkInvite({ teamId }: { teamId: string }) {
 
           <div className="flex items-end pb-2">
             <div className="flex items-center space-x-2">
-              <Switch id="send-emails" checked={sendEmails} onCheckedChange={setSendEmails} />
+              <Switch
+                id="send-emails"
+                checked={sendEmails}
+                onCheckedChange={setSendEmails}
+              />
               <Label htmlFor="send-emails">Send emails</Label>
             </div>
           </div>
@@ -495,8 +553,9 @@ function BulkInvite({ teamId }: { teamId: string }) {
                 <CheckCircle className="h-4 w-4" />
                 <AlertTitle>Valid emails: {validation.valid.length}</AlertTitle>
                 <AlertDescription>
-                  {validation.valid.slice(0, 5).join(', ')}
-                  {validation.valid.length > 5 && ` and ${validation.valid.length - 5} more...`}
+                  {validation.valid.slice(0, 5).join(", ")}
+                  {validation.valid.length > 5 &&
+                    ` and ${validation.valid.length - 5} more...`}
                 </AlertDescription>
               </Alert>
             )}
@@ -504,8 +563,12 @@ function BulkInvite({ teamId }: { teamId: string }) {
             {validation.invalid.length > 0 && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Invalid emails: {validation.invalid.length}</AlertTitle>
-                <AlertDescription>{validation.invalid.join(', ')}</AlertDescription>
+                <AlertTitle>
+                  Invalid emails: {validation.invalid.length}
+                </AlertTitle>
+                <AlertDescription>
+                  {validation.invalid.join(", ")}
+                </AlertDescription>
               </Alert>
             )}
           </div>
@@ -524,8 +587,13 @@ function BulkInvite({ teamId }: { teamId: string }) {
 
         <div className="flex gap-2">
           {!validation ? (
-            <Button onClick={handleValidate} disabled={!emails.trim() || isValidating}>
-              {isValidating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button
+              onClick={handleValidate}
+              disabled={!emails.trim() || isValidating}
+            >
+              {isValidating && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Validate Emails
             </Button>
           ) : (
@@ -534,14 +602,16 @@ function BulkInvite({ teamId }: { teamId: string }) {
                 onClick={handleSubmit}
                 disabled={validation.valid.length === 0 || isSubmitting}
               >
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Send {validation.valid.length} Invitation(s)
               </Button>
               <Button
                 variant="outline"
                 onClick={() => {
-                  setValidation(null)
-                  setResult(null)
+                  setValidation(null);
+                  setResult(null);
                 }}
               >
                 Reset
@@ -551,54 +621,62 @@ function BulkInvite({ teamId }: { teamId: string }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // Pending Invitations Component
-function PendingInvitations({ teamId, invitations }: { teamId: string; invitations: any[] }) {
-  const { removeInvitation, updateInvitation } = useTeamStore()
-  const [canceling, setCanceling] = useState<string | null>(null)
-  const [resending, setResending] = useState<string | null>(null)
+function PendingInvitations({
+  teamId,
+  invitations,
+}: {
+  teamId: string;
+  invitations: any[];
+}) {
+  const { removeInvitation, updateInvitation } = useTeamStore();
+  const [canceling, setCanceling] = useState<string | null>(null);
+  const [resending, setResending] = useState<string | null>(null);
 
-  const pendingInvites = invitations.filter((i) => i.status === 'pending')
+  const pendingInvites = invitations.filter((i) => i.status === "pending");
 
   const handleCancel = async (invitationId: string) => {
-    setCanceling(invitationId)
+    setCanceling(invitationId);
     try {
-      const result = await teamManager.cancelInvitation(teamId, invitationId)
+      const result = await teamManager.cancelInvitation(teamId, invitationId);
       if (result.success) {
-        removeInvitation(invitationId)
+        removeInvitation(invitationId);
       }
     } catch (err) {
-      logger.error('Failed to cancel invitation:', err)
+      logger.error("Failed to cancel invitation:", err);
     } finally {
-      setCanceling(null)
+      setCanceling(null);
     }
-  }
+  };
 
   const handleResend = async (invitationId: string) => {
-    setResending(invitationId)
+    setResending(invitationId);
     try {
-      const result = await teamManager.resendInvitation(teamId, invitationId)
+      const result = await teamManager.resendInvitation(teamId, invitationId);
       if (result.success) {
-        updateInvitation(invitationId, { createdAt: new Date().toISOString() })
+        updateInvitation(invitationId, { createdAt: new Date().toISOString() });
       }
     } catch (err) {
-      logger.error('Failed to resend invitation:', err)
+      logger.error("Failed to resend invitation:", err);
     } finally {
-      setResending(null)
+      setResending(null);
     }
-  }
+  };
 
   if (pendingInvites.length === 0) {
-    return null
+    return null;
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Pending Invitations</CardTitle>
-        <CardDescription>{pendingInvites.length} pending invitation(s)</CardDescription>
+        <CardDescription>
+          {pendingInvites.length} pending invitation(s)
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -622,7 +700,9 @@ function PendingInvitations({ teamId, invitations }: { teamId: string; invitatio
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{invite.invitedBy.displayName}</span>
+                    <span className="text-sm">
+                      {invite.invitedBy.displayName}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -671,7 +751,7 @@ function PendingInvitations({ teamId, invitations }: { teamId: string; invitatio
         </Table>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default InviteMembers
+export default InviteMembers;

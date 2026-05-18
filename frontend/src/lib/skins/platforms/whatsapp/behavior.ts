@@ -21,7 +21,7 @@
  * @version 1.0.0
  */
 
-import type { BehaviorPreset } from '../../types'
+import type { BehaviorPreset } from "../../types";
 
 // ============================================================================
 // WHATSAPP-SPECIFIC BEHAVIOR TYPES
@@ -32,31 +32,31 @@ import type { BehaviorPreset } from '../../types'
  */
 export interface WhatsAppStatusConfig {
   /** Whether status/stories feature is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum status duration in seconds (for images) */
-  imageDurationSec: number
+  imageDurationSec: number;
   /** Maximum video status length in seconds */
-  maxVideoDurationSec: number
+  maxVideoDurationSec: number;
   /** Status expiration time in hours */
-  expirationHours: number
+  expirationHours: number;
   /** Whether text statuses are supported */
-  textStatus: boolean
+  textStatus: boolean;
   /** Whether image statuses are supported */
-  imageStatus: boolean
+  imageStatus: boolean;
   /** Whether video statuses are supported */
-  videoStatus: boolean
+  videoStatus: boolean;
   /** Whether voice note statuses are supported */
-  voiceStatus: boolean
+  voiceStatus: boolean;
   /** Maximum status updates per day (0 = unlimited) */
-  maxPerDay: number
+  maxPerDay: number;
   /** Who can see statuses */
-  defaultAudience: 'contacts' | 'contacts-except' | 'selected-contacts'
+  defaultAudience: "contacts" | "contacts-except" | "selected-contacts";
   /** Whether status viewers list is visible */
-  viewersList: boolean
+  viewersList: boolean;
   /** Whether status reactions are supported */
-  reactions: boolean
+  reactions: boolean;
   /** Whether status replies are supported */
-  replies: boolean
+  replies: boolean;
 }
 
 /**
@@ -64,21 +64,21 @@ export interface WhatsAppStatusConfig {
  */
 export interface WhatsAppCommunityConfig {
   /** Whether communities feature is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum groups per community */
-  maxGroups: number
+  maxGroups: number;
   /** Maximum members per community */
-  maxMembers: number
+  maxMembers: number;
   /** Announcement group (read-only for non-admins) */
-  announcementGroup: boolean
+  announcementGroup: boolean;
   /** Community description max length */
-  descriptionMaxLength: number
+  descriptionMaxLength: number;
   /** Whether community admins can add groups */
-  adminCanAddGroups: boolean
+  adminCanAddGroups: boolean;
   /** Whether community has its own profile picture */
-  profilePicture: boolean
+  profilePicture: boolean;
   /** Whether community invites via link are supported */
-  inviteLinks: boolean
+  inviteLinks: boolean;
 }
 
 /**
@@ -86,29 +86,29 @@ export interface WhatsAppCommunityConfig {
  */
 export interface WhatsAppCallConfig {
   /** Voice calls supported */
-  voiceCalls: boolean
+  voiceCalls: boolean;
   /** Video calls supported */
-  videoCalls: boolean
+  videoCalls: boolean;
   /** Group voice calls */
-  groupVoiceCalls: boolean
+  groupVoiceCalls: boolean;
   /** Group video calls */
-  groupVideoCalls: boolean
+  groupVideoCalls: boolean;
   /** Maximum participants in group call */
-  groupCallMax: number
+  groupCallMax: number;
   /** Whether call can be upgraded from voice to video */
-  voiceToVideoSwitch: boolean
+  voiceToVideoSwitch: boolean;
   /** Whether call waiting is supported */
-  callWaiting: boolean
+  callWaiting: boolean;
   /** End-to-end encrypted calls */
-  e2eeCalls: boolean
+  e2eeCalls: boolean;
   /** Whether call recording is available (not on WhatsApp) */
-  recording: boolean
+  recording: boolean;
   /** Whether screen sharing is available in calls */
-  screenShare: boolean
+  screenShare: boolean;
   /** Whether call links are supported */
-  callLinks: boolean
+  callLinks: boolean;
   /** Whether ringtone customization is available */
-  customRingtone: boolean
+  customRingtone: boolean;
 }
 
 /**
@@ -116,25 +116,25 @@ export interface WhatsAppCallConfig {
  */
 export interface WhatsAppFormattingConfig {
   /** Bold (*text*) */
-  bold: boolean
+  bold: boolean;
   /** Italic (_text_) */
-  italic: boolean
+  italic: boolean;
   /** Strikethrough (~text~) */
-  strikethrough: boolean
+  strikethrough: boolean;
   /** Monospace (```text```) */
-  monospace: boolean
+  monospace: boolean;
   /** Bulleted lists */
-  bulletedLists: boolean
+  bulletedLists: boolean;
   /** Numbered lists */
-  numberedLists: boolean
+  numberedLists: boolean;
   /** Inline code (backtick) */
-  inlineCode: boolean
+  inlineCode: boolean;
   /** Quote (> text) */
-  quote: boolean
+  quote: boolean;
   /** Rich text editor (NO - WhatsApp uses plain text) */
-  richTextEditor: boolean
+  richTextEditor: boolean;
   /** Markdown rendering (NO - WhatsApp uses its own format) */
-  markdownRendering: boolean
+  markdownRendering: boolean;
 }
 
 /**
@@ -142,27 +142,27 @@ export interface WhatsAppFormattingConfig {
  */
 export interface WhatsAppChatListConfig {
   /** Whether chats can be pinned to the top */
-  pinChats: boolean
+  pinChats: boolean;
   /** Maximum number of pinned chats */
-  maxPinnedChats: number
+  maxPinnedChats: number;
   /** Whether chats can be archived */
-  archiveChats: boolean
+  archiveChats: boolean;
   /** Whether archived chats stay archived on new messages */
-  keepArchived: boolean
+  keepArchived: boolean;
   /** Whether chats can be marked as unread */
-  markUnread: boolean
+  markUnread: boolean;
   /** Whether chat list has a search bar */
-  searchBar: boolean
+  searchBar: boolean;
   /** Whether unread filter is available */
-  unreadFilter: boolean
+  unreadFilter: boolean;
   /** Whether chat list shows message preview */
-  messagePreview: boolean
+  messagePreview: boolean;
   /** Whether chat list shows delivery status */
-  deliveryStatus: boolean
+  deliveryStatus: boolean;
   /** Whether chat list shows timestamp */
-  timestamp: boolean
+  timestamp: boolean;
   /** Whether swipe actions are available (mobile) */
-  swipeActions: boolean
+  swipeActions: boolean;
 }
 
 /**
@@ -170,35 +170,35 @@ export interface WhatsAppChatListConfig {
  */
 export interface WhatsAppMediaConfig {
   /** Maximum image size in MB */
-  maxImageSizeMB: number
+  maxImageSizeMB: number;
   /** Maximum video size in MB */
-  maxVideoSizeMB: number
+  maxVideoSizeMB: number;
   /** Maximum file size in MB */
-  maxFileSizeMB: number
+  maxFileSizeMB: number;
   /** Maximum audio size in MB */
-  maxAudioSizeMB: number
+  maxAudioSizeMB: number;
   /** Maximum images per message (album) */
-  maxImagesPerMessage: number
+  maxImagesPerMessage: number;
   /** View-once media */
-  viewOnce: boolean
+  viewOnce: boolean;
   /** Image compression before sending */
-  imageCompression: boolean
+  imageCompression: boolean;
   /** Send as document (uncompressed) option */
-  sendAsDocument: boolean
+  sendAsDocument: boolean;
   /** Camera integration */
-  camera: boolean
+  camera: boolean;
   /** Gallery/photo picker */
-  gallery: boolean
+  gallery: boolean;
   /** Document picker */
-  documentPicker: boolean
+  documentPicker: boolean;
   /** Audio file sharing */
-  audioSharing: boolean
+  audioSharing: boolean;
   /** GIF search and sharing */
-  gifSearch: boolean
+  gifSearch: boolean;
   /** Sticker packs */
-  stickerPacks: boolean
+  stickerPacks: boolean;
   /** Custom sticker creation */
-  customStickers: boolean
+  customStickers: boolean;
 }
 
 /**
@@ -206,29 +206,29 @@ export interface WhatsAppMediaConfig {
  */
 export interface WhatsAppGroupAdminConfig {
   /** Whether group description can be changed */
-  editDescription: boolean
+  editDescription: boolean;
   /** Whether group name can be changed */
-  editGroupName: boolean
+  editGroupName: boolean;
   /** Whether group icon can be changed */
-  editGroupIcon: boolean
+  editGroupIcon: boolean;
   /** Who can edit group info */
-  editInfoPermission: 'admins' | 'everyone'
+  editInfoPermission: "admins" | "everyone";
   /** Who can send messages */
-  sendMessagesPermission: 'admins' | 'everyone'
+  sendMessagesPermission: "admins" | "everyone";
   /** Who can add members */
-  addMembersPermission: 'admins' | 'everyone'
+  addMembersPermission: "admins" | "everyone";
   /** Approve new members */
-  memberApproval: boolean
+  memberApproval: boolean;
   /** Disappearing messages timer setting */
-  disappearingMessages: boolean
+  disappearingMessages: boolean;
   /** Admin can remove members */
-  removeMember: boolean
+  removeMember: boolean;
   /** Admin can promote/demote admins */
-  manageAdmins: boolean
+  manageAdmins: boolean;
   /** Group invite link generation */
-  inviteLink: boolean
+  inviteLink: boolean;
   /** QR code invite */
-  qrCodeInvite: boolean
+  qrCodeInvite: boolean;
 }
 
 /**
@@ -236,13 +236,13 @@ export interface WhatsAppGroupAdminConfig {
  * Includes all WhatsApp-specific features beyond the standard BehaviorPreset.
  */
 export interface WhatsAppExtendedBehavior {
-  status: WhatsAppStatusConfig
-  communities: WhatsAppCommunityConfig
-  callAffordances: WhatsAppCallConfig
-  formatting: WhatsAppFormattingConfig
-  chatList: WhatsAppChatListConfig
-  media: WhatsAppMediaConfig
-  groupAdmin: WhatsAppGroupAdminConfig
+  status: WhatsAppStatusConfig;
+  communities: WhatsAppCommunityConfig;
+  callAffordances: WhatsAppCallConfig;
+  formatting: WhatsAppFormattingConfig;
+  chatList: WhatsAppChatListConfig;
+  media: WhatsAppMediaConfig;
+  groupAdmin: WhatsAppGroupAdminConfig;
 }
 
 // ============================================================================
@@ -259,11 +259,11 @@ export const whatsappStatusConfig: WhatsAppStatusConfig = {
   videoStatus: true,
   voiceStatus: true,
   maxPerDay: 0, // unlimited
-  defaultAudience: 'contacts',
+  defaultAudience: "contacts",
   viewersList: true,
   reactions: true,
   replies: true,
-}
+};
 
 // ============================================================================
 // WHATSAPP COMMUNITY CONFIG
@@ -278,7 +278,7 @@ export const whatsappCommunityConfig: WhatsAppCommunityConfig = {
   adminCanAddGroups: true,
   profilePicture: true,
   inviteLinks: true,
-}
+};
 
 // ============================================================================
 // WHATSAPP CALL CONFIG
@@ -297,7 +297,7 @@ export const whatsappCallConfig: WhatsAppCallConfig = {
   screenShare: false,
   callLinks: true,
   customRingtone: true,
-}
+};
 
 // ============================================================================
 // WHATSAPP FORMATTING CONFIG
@@ -314,7 +314,7 @@ export const whatsappFormattingConfig: WhatsAppFormattingConfig = {
   quote: true,
   richTextEditor: false,
   markdownRendering: false,
-}
+};
 
 // ============================================================================
 // WHATSAPP CHAT LIST CONFIG
@@ -332,7 +332,7 @@ export const whatsappChatListConfig: WhatsAppChatListConfig = {
   deliveryStatus: true,
   timestamp: true,
   swipeActions: true,
-}
+};
 
 // ============================================================================
 // WHATSAPP MEDIA CONFIG
@@ -354,7 +354,7 @@ export const whatsappMediaConfig: WhatsAppMediaConfig = {
   gifSearch: true,
   stickerPacks: true,
   customStickers: true,
-}
+};
 
 // ============================================================================
 // WHATSAPP GROUP ADMIN CONFIG
@@ -364,16 +364,16 @@ export const whatsappGroupAdminConfig: WhatsAppGroupAdminConfig = {
   editDescription: true,
   editGroupName: true,
   editGroupIcon: true,
-  editInfoPermission: 'admins',
-  sendMessagesPermission: 'everyone',
-  addMembersPermission: 'admins',
+  editInfoPermission: "admins",
+  sendMessagesPermission: "everyone",
+  addMembersPermission: "admins",
   memberApproval: true,
   disappearingMessages: true,
   removeMember: true,
   manageAdmins: true,
   inviteLink: true,
   qrCodeInvite: true,
-}
+};
 
 // ============================================================================
 // WHATSAPP DETAILED BEHAVIOR PRESET
@@ -385,20 +385,20 @@ export const whatsappGroupAdminConfig: WhatsAppGroupAdminConfig = {
  * and interaction patterns.
  */
 export const whatsappDetailedBehavior: BehaviorPreset = {
-  id: 'whatsapp-detailed',
-  name: 'WhatsApp',
+  id: "whatsapp-detailed",
+  name: "WhatsApp",
   description:
-    'Detailed WhatsApp behavior preset with exact feature flags, limits, and interaction patterns matching WhatsApp as of 2026',
-  version: '0.9.1',
+    "Detailed WhatsApp behavior preset with exact feature flags, limits, and interaction patterns matching WhatsApp as of 2026",
+  version: "0.9.1",
   messaging: {
     editWindow: 15 * 60 * 1000, // 15 minutes
     deleteWindow: 0, // unlimited delete-for-self
     deleteForEveryone: true,
     deleteForEveryoneWindow: 2 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000, // ~2.5 days (60 hours)
     showEditedIndicator: true,
-    reactionStyle: 'quick-reactions',
+    reactionStyle: "quick-reactions",
     maxReactionsPerMessage: 1,
-    threadingModel: 'reply-chain',
+    threadingModel: "reply-chain",
     maxMessageLength: 4096,
     forwarding: true,
     forwardLimit: 5,
@@ -408,7 +408,7 @@ export const whatsappDetailedBehavior: BehaviorPreset = {
     linkPreviews: true,
   },
   channels: {
-    types: ['dm', 'group-dm', 'broadcast'],
+    types: ["dm", "group-dm", "broadcast"],
     hierarchy: false,
     categories: false,
     forums: false,
@@ -418,7 +418,7 @@ export const whatsappDetailedBehavior: BehaviorPreset = {
     slowMode: false,
   },
   presence: {
-    states: ['online', 'offline'],
+    states: ["online", "offline"],
     showLastSeen: true,
     lastSeenPrivacy: true,
     customStatus: true,
@@ -440,8 +440,8 @@ export const whatsappDetailedBehavior: BehaviorPreset = {
     huddles: false,
   },
   notifications: {
-    defaultLevel: 'all',
-    mentionRules: ['user'],
+    defaultLevel: "all",
+    mentionRules: ["user"],
     quietHours: true,
     threadNotifications: false,
     soundEnabled: true,
@@ -463,11 +463,11 @@ export const whatsappDetailedBehavior: BehaviorPreset = {
     readReceiptsOptional: true,
     lastSeen: true,
     lastSeenPrivacy: true,
-    profileVisibility: 'contacts',
+    profileVisibility: "contacts",
     onlineStatusVisible: true,
     e2eeDefault: true,
     disappearingMessages: true,
-    disappearingOptions: ['off', '24h', '7d', '90d'],
+    disappearingOptions: ["off", "24h", "7d", "90d"],
   },
   features: {
     richText: false,
@@ -496,7 +496,7 @@ export const whatsappDetailedBehavior: BehaviorPreset = {
     chatLock: true,
     screenLock: true,
   },
-}
+};
 
 // ============================================================================
 // WHATSAPP EXTENDED BEHAVIOR CONFIG
@@ -510,18 +510,18 @@ export const whatsappExtendedBehavior: WhatsAppExtendedBehavior = {
   chatList: whatsappChatListConfig,
   media: whatsappMediaConfig,
   groupAdmin: whatsappGroupAdminConfig,
-}
+};
 
 /**
  * Complete WhatsApp behavior configuration including both the standard
  * BehaviorPreset and WhatsApp-specific extensions.
  */
 export interface WhatsAppBehaviorConfig {
-  preset: BehaviorPreset
-  extended: WhatsAppExtendedBehavior
+  preset: BehaviorPreset;
+  extended: WhatsAppExtendedBehavior;
 }
 
 export const whatsappBehaviorConfig: WhatsAppBehaviorConfig = {
   preset: whatsappDetailedBehavior,
   extended: whatsappExtendedBehavior,
-}
+};

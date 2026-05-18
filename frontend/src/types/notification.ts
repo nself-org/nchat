@@ -5,7 +5,7 @@
  * Supports in-app, push, email, and desktop notifications.
  */
 
-import type { UserBasicInfo } from './user'
+import type { UserBasicInfo } from "./user";
 
 // ============================================================================
 // Notification Type Definitions
@@ -16,43 +16,43 @@ import type { UserBasicInfo } from './user'
  */
 export type NotificationType =
   // Message notifications
-  | 'mention'
-  | 'direct_message'
-  | 'reply'
-  | 'thread_reply'
+  | "mention"
+  | "direct_message"
+  | "reply"
+  | "thread_reply"
   // Reaction notifications
-  | 'reaction'
+  | "reaction"
   // Channel notifications
-  | 'channel_invite'
-  | 'channel_join'
-  | 'channel_leave'
-  | 'channel_update'
+  | "channel_invite"
+  | "channel_join"
+  | "channel_leave"
+  | "channel_update"
   // User notifications
-  | 'follow'
-  | 'user_join'
+  | "follow"
+  | "user_join"
   // System notifications
-  | 'system'
-  | 'announcement'
-  | 'security_alert'
+  | "system"
+  | "announcement"
+  | "security_alert"
   // Integration notifications
-  | 'integration'
-  | 'bot'
-  | 'webhook'
+  | "integration"
+  | "bot"
+  | "webhook";
 
 /**
  * Notification priority levels.
  */
-export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent'
+export type NotificationPriority = "low" | "normal" | "high" | "urgent";
 
 /**
  * Notification delivery channels.
  */
-export type NotificationChannel = 'in_app' | 'push' | 'email' | 'desktop'
+export type NotificationChannel = "in_app" | "push" | "email" | "desktop";
 
 /**
  * Notification status.
  */
-export type NotificationStatus = 'unread' | 'read' | 'dismissed' | 'archived'
+export type NotificationStatus = "unread" | "read" | "dismissed" | "archived";
 
 // ============================================================================
 // Notification Content Types
@@ -62,95 +62,95 @@ export type NotificationStatus = 'unread' | 'read' | 'dismissed' | 'archived'
  * Content for message-related notifications.
  */
 export interface MessageNotificationContent {
-  type: 'mention' | 'direct_message' | 'reply' | 'thread_reply'
+  type: "mention" | "direct_message" | "reply" | "thread_reply";
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Message preview text */
-  messagePreview: string
+  messagePreview: string;
   /** Channel info */
   channel: {
-    id: string
-    name: string
-    type: 'public' | 'private' | 'direct' | 'group_dm'
-  }
+    id: string;
+    name: string;
+    type: "public" | "private" | "direct" | "group_dm";
+  };
   /** Thread ID (if thread reply) */
-  threadId?: string
+  threadId?: string;
 }
 
 /**
  * Content for reaction notifications.
  */
 export interface ReactionNotificationContent {
-  type: 'reaction'
+  type: "reaction";
   /** Message ID that received reaction */
-  messageId: string
+  messageId: string;
   /** Message preview text */
-  messagePreview: string
+  messagePreview: string;
   /** Reaction emoji */
-  emoji: string
+  emoji: string;
   /** Channel info */
   channel: {
-    id: string
-    name: string
-  }
+    id: string;
+    name: string;
+  };
 }
 
 /**
  * Content for channel notifications.
  */
 export interface ChannelNotificationContent {
-  type: 'channel_invite' | 'channel_join' | 'channel_leave' | 'channel_update'
+  type: "channel_invite" | "channel_join" | "channel_leave" | "channel_update";
   /** Channel info */
   channel: {
-    id: string
-    name: string
-    type: 'public' | 'private'
-  }
+    id: string;
+    name: string;
+    type: "public" | "private";
+  };
   /** Change description (for updates) */
-  changeDescription?: string
+  changeDescription?: string;
 }
 
 /**
  * Content for user notifications.
  */
 export interface UserNotificationContent {
-  type: 'follow' | 'user_join'
+  type: "follow" | "user_join";
   /** Target user (who performed action) */
-  targetUser?: UserBasicInfo
+  targetUser?: UserBasicInfo;
 }
 
 /**
  * Content for system notifications.
  */
 export interface SystemNotificationContent {
-  type: 'system' | 'announcement' | 'security_alert'
+  type: "system" | "announcement" | "security_alert";
   /** Notification title */
-  title: string
+  title: string;
   /** Notification body */
-  body: string
+  body: string;
   /** Action URL */
-  actionUrl?: string
+  actionUrl?: string;
   /** Action label */
-  actionLabel?: string
+  actionLabel?: string;
 }
 
 /**
  * Content for integration notifications.
  */
 export interface IntegrationNotificationContent {
-  type: 'integration' | 'bot' | 'webhook'
+  type: "integration" | "bot" | "webhook";
   /** Integration/bot name */
-  sourceName: string
+  sourceName: string;
   /** Integration/bot icon */
-  sourceIcon?: string
+  sourceIcon?: string;
   /** Notification title */
-  title: string
+  title: string;
   /** Notification body */
-  body: string
+  body: string;
   /** Action URL */
-  actionUrl?: string
+  actionUrl?: string;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -162,7 +162,7 @@ export type NotificationContent =
   | ChannelNotificationContent
   | UserNotificationContent
   | SystemNotificationContent
-  | IntegrationNotificationContent
+  | IntegrationNotificationContent;
 
 // ============================================================================
 // Main Notification Interface
@@ -173,41 +173,41 @@ export type NotificationContent =
  */
 export interface Notification {
   /** Unique notification ID */
-  id: string
+  id: string;
   /** Recipient user ID */
-  userId: string
+  userId: string;
   /** Notification type */
-  type: NotificationType
+  type: NotificationType;
   /** Notification priority */
-  priority: NotificationPriority
+  priority: NotificationPriority;
   /** Current status */
-  status: NotificationStatus
+  status: NotificationStatus;
   /** User who triggered the notification (if applicable) */
-  actor?: UserBasicInfo
+  actor?: UserBasicInfo;
   /** Notification title */
-  title: string
+  title: string;
   /** Notification body/description */
-  body: string
+  body: string;
   /** Type-specific content */
-  content: NotificationContent
+  content: NotificationContent;
   /** Channels this notification was sent to */
-  deliveredTo: NotificationChannel[]
+  deliveredTo: NotificationChannel[];
   /** Whether notification has been clicked/acted upon */
-  isActioned: boolean
+  isActioned: boolean;
   /** Action URL (deep link) */
-  actionUrl?: string
+  actionUrl?: string;
   /** Custom action data */
-  actionData?: Record<string, unknown>
+  actionData?: Record<string, unknown>;
   /** When notification was created */
-  createdAt: Date
+  createdAt: Date;
   /** When notification was read */
-  readAt?: Date
+  readAt?: Date;
   /** When notification expires */
-  expiresAt?: Date
+  expiresAt?: Date;
   /** Grouping key (for collapsing similar notifications) */
-  groupKey?: string
+  groupKey?: string;
   /** Count of grouped notifications */
-  groupCount?: number
+  groupCount?: number;
 }
 
 /**
@@ -215,15 +215,15 @@ export interface Notification {
  */
 export interface GroupedNotification {
   /** Group key */
-  groupKey: string
+  groupKey: string;
   /** Representative notification */
-  notification: Notification
+  notification: Notification;
   /** Number of notifications in group */
-  count: number
+  count: number;
   /** Actors involved in group */
-  actors: UserBasicInfo[]
+  actors: UserBasicInfo[];
   /** Latest timestamp in group */
-  latestAt: Date
+  latestAt: Date;
 }
 
 // ============================================================================
@@ -235,15 +235,15 @@ export interface GroupedNotification {
  */
 export interface ChannelNotificationSettings {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Enable notifications for this channel */
-  enabled: boolean
+  enabled: boolean;
   /** Notification level */
-  level: 'all' | 'mentions' | 'none'
+  level: "all" | "mentions" | "none";
   /** Override mute status */
-  isMuted: boolean
+  isMuted: boolean;
   /** Mute until timestamp */
-  mutedUntil?: Date
+  mutedUntil?: Date;
 }
 
 /**
@@ -251,17 +251,17 @@ export interface ChannelNotificationSettings {
  */
 export interface NotificationSchedule {
   /** Enable quiet hours */
-  enabled: boolean
+  enabled: boolean;
   /** Days of week (0 = Sunday) */
-  daysOfWeek: number[]
+  daysOfWeek: number[];
   /** Start time (HH:MM in 24h format) */
-  startTime: string
+  startTime: string;
   /** End time (HH:MM in 24h format) */
-  endTime: string
+  endTime: string;
   /** Timezone (IANA format) */
-  timezone: string
+  timezone: string;
   /** Allow urgent notifications during quiet hours */
-  allowUrgent: boolean
+  allowUrgent: boolean;
 }
 
 /**
@@ -269,23 +269,23 @@ export interface NotificationSchedule {
  */
 export interface EmailNotificationSettings {
   /** Enable email notifications */
-  enabled: boolean
+  enabled: boolean;
   /** Send for direct messages */
-  directMessages: boolean
+  directMessages: boolean;
   /** Send for mentions */
-  mentions: boolean
+  mentions: boolean;
   /** Send for thread replies */
-  threadReplies: boolean
+  threadReplies: boolean;
   /** Send for channel updates */
-  channelUpdates: boolean
+  channelUpdates: boolean;
   /** Digest frequency */
-  digestFrequency: 'none' | 'hourly' | 'daily' | 'weekly'
+  digestFrequency: "none" | "hourly" | "daily" | "weekly";
   /** Digest day (for weekly) */
-  digestDay?: number
+  digestDay?: number;
   /** Digest time (HH:MM) */
-  digestTime?: string
+  digestTime?: string;
   /** Minimum delay before sending (minutes) */
-  delayMinutes: number
+  delayMinutes: number;
 }
 
 /**
@@ -293,23 +293,23 @@ export interface EmailNotificationSettings {
  */
 export interface PushNotificationSettings {
   /** Enable push notifications */
-  enabled: boolean
+  enabled: boolean;
   /** Send for direct messages */
-  directMessages: boolean
+  directMessages: boolean;
   /** Send for mentions */
-  mentions: boolean
+  mentions: boolean;
   /** Send for thread replies */
-  threadReplies: boolean
+  threadReplies: boolean;
   /** Send for reactions */
-  reactions: boolean
+  reactions: boolean;
   /** Show message preview in push */
-  showPreview: boolean
+  showPreview: boolean;
   /** Show sender name */
-  showSender: boolean
+  showSender: boolean;
   /** Vibrate on receive */
-  vibrate: boolean
+  vibrate: boolean;
   /** Sound for notifications */
-  sound: string | null
+  sound: string | null;
 }
 
 /**
@@ -317,21 +317,21 @@ export interface PushNotificationSettings {
  */
 export interface DesktopNotificationSettings {
   /** Enable desktop notifications */
-  enabled: boolean
+  enabled: boolean;
   /** Send for direct messages */
-  directMessages: boolean
+  directMessages: boolean;
   /** Send for mentions */
-  mentions: boolean
+  mentions: boolean;
   /** Send for all messages in active channels */
-  allMessages: boolean
+  allMessages: boolean;
   /** Show message preview */
-  showPreview: boolean
+  showPreview: boolean;
   /** Play sound */
-  playSound: boolean
+  playSound: boolean;
   /** Sound file/name */
-  sound: string | null
+  sound: string | null;
   /** Duration in seconds (0 = until dismissed) */
-  duration: number
+  duration: number;
 }
 
 /**
@@ -339,13 +339,13 @@ export interface DesktopNotificationSettings {
  */
 export interface KeywordNotificationSettings {
   /** Enable keyword notifications */
-  enabled: boolean
+  enabled: boolean;
   /** Keywords to trigger notifications */
-  keywords: string[]
+  keywords: string[];
   /** Case sensitive matching */
-  caseSensitive: boolean
+  caseSensitive: boolean;
   /** Match whole words only */
-  wholeWordsOnly: boolean
+  wholeWordsOnly: boolean;
 }
 
 /**
@@ -353,29 +353,29 @@ export interface KeywordNotificationSettings {
  */
 export interface NotificationPreferences {
   /** Global enable/disable */
-  enabled: boolean
+  enabled: boolean;
   /** Email settings */
-  email: EmailNotificationSettings
+  email: EmailNotificationSettings;
   /** Push settings */
-  push: PushNotificationSettings
+  push: PushNotificationSettings;
   /** Desktop settings */
-  desktop: DesktopNotificationSettings
+  desktop: DesktopNotificationSettings;
   /** Keyword settings */
-  keywords: KeywordNotificationSettings
+  keywords: KeywordNotificationSettings;
   /** Quiet hours schedule */
-  schedule: NotificationSchedule
+  schedule: NotificationSchedule;
   /** Channel-specific overrides */
-  channelOverrides: ChannelNotificationSettings[]
+  channelOverrides: ChannelNotificationSettings[];
   /** Muted channel IDs */
-  mutedChannels: string[]
+  mutedChannels: string[];
   /** Muted user IDs */
-  mutedUsers: string[]
+  mutedUsers: string[];
   /** Do not disturb mode */
   doNotDisturb: {
-    enabled: boolean
-    until?: Date
-    allowUrgent: boolean
-  }
+    enabled: boolean;
+    until?: Date;
+    allowUrgent: boolean;
+  };
 }
 
 /**
@@ -389,7 +389,7 @@ export const DefaultNotificationPreferences: NotificationPreferences = {
     mentions: true,
     threadReplies: false,
     channelUpdates: false,
-    digestFrequency: 'daily',
+    digestFrequency: "daily",
     delayMinutes: 5,
   },
   push: {
@@ -401,7 +401,7 @@ export const DefaultNotificationPreferences: NotificationPreferences = {
     showPreview: true,
     showSender: true,
     vibrate: true,
-    sound: 'default',
+    sound: "default",
   },
   desktop: {
     enabled: true,
@@ -410,7 +410,7 @@ export const DefaultNotificationPreferences: NotificationPreferences = {
     allMessages: false,
     showPreview: true,
     playSound: true,
-    sound: 'default',
+    sound: "default",
     duration: 5,
   },
   keywords: {
@@ -422,9 +422,9 @@ export const DefaultNotificationPreferences: NotificationPreferences = {
   schedule: {
     enabled: false,
     daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-    startTime: '22:00',
-    endTime: '08:00',
-    timezone: 'UTC',
+    startTime: "22:00",
+    endTime: "08:00",
+    timezone: "UTC",
     allowUrgent: true,
   },
   channelOverrides: [],
@@ -434,7 +434,7 @@ export const DefaultNotificationPreferences: NotificationPreferences = {
     enabled: false,
     allowUrgent: true,
   },
-}
+};
 
 // ============================================================================
 // Notification Actions
@@ -444,22 +444,22 @@ export const DefaultNotificationPreferences: NotificationPreferences = {
  * Actions that can be taken on notifications.
  */
 export type NotificationAction =
-  | 'mark_read'
-  | 'mark_unread'
-  | 'dismiss'
-  | 'archive'
-  | 'mute_channel'
-  | 'mute_thread'
-  | 'open'
+  | "mark_read"
+  | "mark_unread"
+  | "dismiss"
+  | "archive"
+  | "mute_channel"
+  | "mute_thread"
+  | "open";
 
 /**
  * Bulk notification action input.
  */
 export interface BulkNotificationAction {
   /** Notification IDs */
-  notificationIds: string[]
+  notificationIds: string[];
   /** Action to perform */
-  action: NotificationAction
+  action: NotificationAction;
 }
 
 // ============================================================================
@@ -471,28 +471,28 @@ export interface BulkNotificationAction {
  */
 export interface NotificationFilter {
   /** Filter by types */
-  types?: NotificationType[]
+  types?: NotificationType[];
   /** Filter by status */
-  status?: NotificationStatus[]
+  status?: NotificationStatus[];
   /** Filter by priority */
-  priority?: NotificationPriority[]
+  priority?: NotificationPriority[];
   /** Filter by date range */
-  after?: Date
-  before?: Date
+  after?: Date;
+  before?: Date;
   /** Include archived */
-  includeArchived?: boolean
+  includeArchived?: boolean;
   /** Filter by channel */
-  channelId?: string
+  channelId?: string;
   /** Search text */
-  search?: string
+  search?: string;
 }
 
 /**
  * Notification sort options.
  */
 export interface NotificationSortOptions {
-  sortBy: 'createdAt' | 'priority' | 'type'
-  sortOrder: 'asc' | 'desc'
+  sortBy: "createdAt" | "priority" | "type";
+  sortOrder: "asc" | "desc";
 }
 
 /**
@@ -500,13 +500,13 @@ export interface NotificationSortOptions {
  */
 export interface NotificationCount {
   /** Total unread */
-  total: number
+  total: number;
   /** Unread by type */
-  byType: Partial<Record<NotificationType, number>>
+  byType: Partial<Record<NotificationType, number>>;
   /** Unread mentions */
-  mentions: number
+  mentions: number;
   /** Unread direct messages */
-  directMessages: number
+  directMessages: number;
 }
 
 // ============================================================================
@@ -518,38 +518,38 @@ export interface NotificationCount {
  */
 export interface PushToken {
   /** Token ID */
-  id: string
+  id: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** Token value */
-  token: string
+  token: string;
   /** Platform */
-  platform: 'ios' | 'android' | 'web'
+  platform: "ios" | "android" | "web";
   /** Device info */
   device?: {
-    name?: string
-    model?: string
-    os?: string
-  }
+    name?: string;
+    model?: string;
+    os?: string;
+  };
   /** Whether token is active */
-  isActive: boolean
+  isActive: boolean;
   /** When token was registered */
-  createdAt: Date
+  createdAt: Date;
   /** Last time token was used */
-  lastUsedAt?: Date
+  lastUsedAt?: Date;
 }
 
 /**
  * Input for registering a push token.
  */
 export interface RegisterPushTokenInput {
-  token: string
-  platform: 'ios' | 'android' | 'web'
+  token: string;
+  platform: "ios" | "android" | "web";
   device?: {
-    name?: string
-    model?: string
-    os?: string
-  }
+    name?: string;
+    model?: string;
+    os?: string;
+  };
 }
 
 // ============================================================================
@@ -560,25 +560,25 @@ export interface RegisterPushTokenInput {
  * Notification received event.
  */
 export interface NotificationReceivedEvent {
-  notification: Notification
-  channels: NotificationChannel[]
-  timestamp: Date
+  notification: Notification;
+  channels: NotificationChannel[];
+  timestamp: Date;
 }
 
 /**
  * Notification read event.
  */
 export interface NotificationReadEvent {
-  notificationId: string
-  userId: string
-  timestamp: Date
+  notificationId: string;
+  userId: string;
+  timestamp: Date;
 }
 
 /**
  * Notification count updated event.
  */
 export interface NotificationCountUpdatedEvent {
-  userId: string
-  counts: NotificationCount
-  timestamp: Date
+  userId: string;
+  counts: NotificationCount;
+  timestamp: Date;
 }

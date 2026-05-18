@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Forward,
   X,
@@ -13,15 +13,19 @@ import {
   Loader2,
   CheckCircle2,
   XCircle,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { UserAvatar } from '@/components/user/user-avatar'
-import type { ForwardMessage, ForwardDestination, ForwardResult } from '@/lib/forward/forward-store'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { UserAvatar } from "@/components/user/user-avatar";
+import type {
+  ForwardMessage,
+  ForwardDestination,
+  ForwardResult,
+} from "@/lib/forward/forward-store";
 
 // ============================================================================
 // Types
@@ -29,46 +33,49 @@ import type { ForwardMessage, ForwardDestination, ForwardResult } from '@/lib/fo
 
 export interface ForwardPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The message being forwarded */
-  message: ForwardMessage
+  message: ForwardMessage;
   /** Selected destinations */
-  selectedDestinations: ForwardDestination[]
+  selectedDestinations: ForwardDestination[];
   /** Optional comment to add */
-  comment: string
+  comment: string;
   /** Called when comment changes */
-  onCommentChange: (comment: string) => void
+  onCommentChange: (comment: string) => void;
   /** Called when a destination is removed */
-  onRemoveDestination: (destinationId: string) => void
+  onRemoveDestination: (destinationId: string) => void;
   /** Called when forward is confirmed */
-  onConfirm: () => void
+  onConfirm: () => void;
   /** Called when cancelled */
-  onCancel: () => void
+  onCancel: () => void;
   /** Whether forwarding is in progress */
-  isForwarding?: boolean
+  isForwarding?: boolean;
   /** Results from forwarding */
-  forwardResults?: ForwardResult[]
+  forwardResults?: ForwardResult[];
   /** Maximum comment length */
-  maxCommentLength?: number
+  maxCommentLength?: number;
 }
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-function getDestinationIcon(type: ForwardDestination['type'], isPrivate?: boolean) {
+function getDestinationIcon(
+  type: ForwardDestination["type"],
+  isPrivate?: boolean,
+) {
   switch (type) {
-    case 'direct':
-      return MessageCircle
-    case 'group':
-      return Users
-    case 'channel':
+    case "direct":
+      return MessageCircle;
+    case "group":
+      return Users;
+    case "channel":
     default:
-      return isPrivate ? Lock : Hash
+      return isPrivate ? Lock : Hash;
   }
 }
 
 function truncateContent(content: string, maxLength: number = 200): string {
-  if (content.length <= maxLength) return content
-  return content.substring(0, maxLength) + '...'
+  if (content.length <= maxLength) return content;
+  return content.substring(0, maxLength) + "...";
 }
 
 // ============================================================================
@@ -76,11 +83,11 @@ function truncateContent(content: string, maxLength: number = 200): string {
 // ============================================================================
 
 interface MessagePreviewProps {
-  message: ForwardMessage
+  message: ForwardMessage;
 }
 
 function MessagePreview({ message }: MessagePreviewProps) {
-  const hasAttachments = message.attachments && message.attachments.length > 0
+  const hasAttachments = message.attachments && message.attachments.length > 0;
 
   return (
     <div className="bg-muted/30 rounded-lg border p-3">
@@ -95,9 +102,13 @@ function MessagePreview({ message }: MessagePreviewProps) {
           showPresence={false}
         />
         <div className="min-w-0 flex-1">
-          <span className="text-sm font-medium">{message.user.displayName}</span>
+          <span className="text-sm font-medium">
+            {message.user.displayName}
+          </span>
           {message.channelName && (
-            <span className="ml-2 text-xs text-muted-foreground">in #{message.channelName}</span>
+            <span className="ml-2 text-xs text-muted-foreground">
+              in #{message.channelName}
+            </span>
           )}
         </div>
       </div>
@@ -110,19 +121,19 @@ function MessagePreview({ message }: MessagePreviewProps) {
       {/* Attachments indicator */}
       {hasAttachments && (
         <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-          {message.attachments!.some((a) => a.fileType.startsWith('image/')) ? (
+          {message.attachments!.some((a) => a.fileType.startsWith("image/")) ? (
             <ImageIcon className="h-3 w-3" />
           ) : (
             <Paperclip className="h-3 w-3" />
           )}
           <span>
-            {message.attachments!.length}{' '}
-            {message.attachments!.length === 1 ? 'attachment' : 'attachments'}
+            {message.attachments!.length}{" "}
+            {message.attachments!.length === 1 ? "attachment" : "attachments"}
           </span>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -130,21 +141,27 @@ function MessagePreview({ message }: MessagePreviewProps) {
 // ============================================================================
 
 interface DestinationBadgeProps {
-  destination: ForwardDestination
-  onRemove: () => void
-  result?: ForwardResult
-  disabled?: boolean
+  destination: ForwardDestination;
+  onRemove: () => void;
+  result?: ForwardResult;
+  disabled?: boolean;
 }
 
-function DestinationBadge({ destination, onRemove, result, disabled }: DestinationBadgeProps) {
-  const Icon = getDestinationIcon(destination.type, destination.isPrivate)
+function DestinationBadge({
+  destination,
+  onRemove,
+  result,
+  disabled,
+}: DestinationBadgeProps) {
+  const Icon = getDestinationIcon(destination.type, destination.isPrivate);
 
   return (
     <Badge
-      variant={result?.success === false ? 'destructive' : 'secondary'}
+      variant={result?.success === false ? "destructive" : "secondary"}
       className={cn(
-        'gap-1 pl-1.5 pr-1',
-        result?.success && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+        "gap-1 pl-1.5 pr-1",
+        result?.success &&
+          "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
       )}
     >
       {result ? (
@@ -157,7 +174,7 @@ function DestinationBadge({ destination, onRemove, result, disabled }: Destinati
         <Icon className="h-3 w-3" />
       )}
       <span className="max-w-[100px] truncate">
-        {destination.type === 'direct' && destination.members?.length === 1
+        {destination.type === "direct" && destination.members?.length === 1
           ? destination.members[0].displayName
           : destination.name}
       </span>
@@ -172,14 +189,17 @@ function DestinationBadge({ destination, onRemove, result, disabled }: Destinati
         </button>
       )}
     </Badge>
-  )
+  );
 }
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
-export const ForwardPreview = React.forwardRef<HTMLDivElement, ForwardPreviewProps>(
+export const ForwardPreview = React.forwardRef<
+  HTMLDivElement,
+  ForwardPreviewProps
+>(
   (
     {
       className,
@@ -195,27 +215,35 @@ export const ForwardPreview = React.forwardRef<HTMLDivElement, ForwardPreviewPro
       maxCommentLength = 500,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const hasResults = forwardResults.length > 0
-    const allSuccessful = hasResults && forwardResults.every((r) => r.success)
-    const hasFailures = hasResults && forwardResults.some((r) => !r.success)
+    const hasResults = forwardResults.length > 0;
+    const allSuccessful = hasResults && forwardResults.every((r) => r.success);
+    const hasFailures = hasResults && forwardResults.some((r) => !r.success);
 
     // Get result for a specific destination
     const getResult = (destinationId: string) =>
-      forwardResults.find((r) => r.destinationId === destinationId)
+      forwardResults.find((r) => r.destinationId === destinationId);
 
     return (
-      <div ref={ref} className={cn('flex flex-col gap-4', className)} {...props}>
+      <div
+        ref={ref}
+        className={cn("flex flex-col gap-4", className)}
+        {...props}
+      >
         {/* Message Preview */}
         <div>
-          <span className="mb-2 block text-sm font-medium">Forwarding message</span>
+          <span className="mb-2 block text-sm font-medium">
+            Forwarding message
+          </span>
           <MessagePreview message={message} />
         </div>
 
         {/* Selected Destinations */}
         <div>
-          <span className="mb-2 block text-sm font-medium">To ({selectedDestinations.length})</span>
+          <span className="mb-2 block text-sm font-medium">
+            To ({selectedDestinations.length})
+          </span>
           <ScrollArea className="max-h-24">
             <div className="flex flex-wrap gap-1.5">
               {selectedDestinations.map((destination) => (
@@ -234,7 +262,10 @@ export const ForwardPreview = React.forwardRef<HTMLDivElement, ForwardPreviewPro
         {/* Comment Input */}
         {!hasResults && (
           <div>
-            <label htmlFor="forward-comment" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="forward-comment"
+              className="mb-2 block text-sm font-medium"
+            >
               Add a comment (optional)
             </label>
             <Textarea
@@ -257,28 +288,28 @@ export const ForwardPreview = React.forwardRef<HTMLDivElement, ForwardPreviewPro
         {hasResults && (
           <div
             className={cn(
-              'rounded-lg p-3 text-sm',
+              "rounded-lg p-3 text-sm",
               allSuccessful
-                ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400"
                 : hasFailures
-                  ? 'bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-                  : 'bg-muted'
+                  ? "bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                  : "bg-muted",
             )}
           >
             {allSuccessful ? (
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>
-                  Successfully forwarded to {forwardResults.length}{' '}
-                  {forwardResults.length === 1 ? 'destination' : 'destinations'}
+                  Successfully forwarded to {forwardResults.length}{" "}
+                  {forwardResults.length === 1 ? "destination" : "destinations"}
                 </span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <XCircle className="h-4 w-4" />
                 <span>
-                  {forwardResults.filter((r) => r.success).length} of {forwardResults.length}{' '}
-                  forwards succeeded
+                  {forwardResults.filter((r) => r.success).length} of{" "}
+                  {forwardResults.length} forwards succeeded
                 </span>
               </div>
             )}
@@ -289,8 +320,13 @@ export const ForwardPreview = React.forwardRef<HTMLDivElement, ForwardPreviewPro
 
         {/* Actions */}
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isForwarding}>
-            {hasResults ? 'Close' : 'Cancel'}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isForwarding}
+          >
+            {hasResults ? "Close" : "Cancel"}
           </Button>
           {!hasResults && (
             <Button
@@ -306,18 +342,20 @@ export const ForwardPreview = React.forwardRef<HTMLDivElement, ForwardPreviewPro
               ) : (
                 <>
                   <Forward className="mr-2 h-4 w-4" />
-                  Forward to {selectedDestinations.length}{' '}
-                  {selectedDestinations.length === 1 ? 'destination' : 'destinations'}
+                  Forward to {selectedDestinations.length}{" "}
+                  {selectedDestinations.length === 1
+                    ? "destination"
+                    : "destinations"}
                 </>
               )}
             </Button>
           )}
         </div>
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-ForwardPreview.displayName = 'ForwardPreview'
+ForwardPreview.displayName = "ForwardPreview";
 
-export default ForwardPreview
+export default ForwardPreview;

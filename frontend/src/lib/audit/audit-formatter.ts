@@ -14,8 +14,11 @@ import type {
   categoryDisplayNames,
   severityColors,
   severityDisplayNames,
-} from './audit-types'
-import { eventDescriptionTemplates, getActionDisplayName } from './audit-events'
+} from "./audit-types";
+import {
+  eventDescriptionTemplates,
+  getActionDisplayName,
+} from "./audit-events";
 
 // ============================================================================
 // Date/Time Formatting
@@ -26,34 +29,34 @@ import { eventDescriptionTemplates, getActionDisplayName } from './audit-events'
  */
 export function formatTimestamp(
   date: Date | string,
-  format: 'short' | 'long' | 'relative' = 'short'
+  format: "short" | "long" | "relative" = "short",
 ): string {
-  const d = typeof date === 'string' ? new Date(date) : date
+  const d = typeof date === "string" ? new Date(date) : date;
 
   switch (format) {
-    case 'short':
-      return d.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
+    case "short":
+      return d.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
         hour12: true,
-      })
-    case 'long':
-      return d.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
+      });
+    case "long":
+      return d.toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
         hour12: true,
-        timeZoneName: 'short',
-      })
-    case 'relative':
-      return formatRelativeTime(d)
+        timeZoneName: "short",
+      });
+    case "relative":
+      return formatRelativeTime(d);
     default:
-      return d.toISOString()
+      return d.toISOString();
   }
 }
 
@@ -61,30 +64,30 @@ export function formatTimestamp(
  * Format a relative time string (e.g., "2 hours ago")
  */
 export function formatRelativeTime(date: Date): string {
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffSecs = Math.floor(diffMs / 1000)
-  const diffMins = Math.floor(diffSecs / 60)
-  const diffHours = Math.floor(diffMins / 60)
-  const diffDays = Math.floor(diffHours / 24)
-  const diffWeeks = Math.floor(diffDays / 7)
-  const diffMonths = Math.floor(diffDays / 30)
-  const diffYears = Math.floor(diffDays / 365)
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffWeeks = Math.floor(diffDays / 7);
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
 
   if (diffSecs < 60) {
-    return 'just now'
+    return "just now";
   } else if (diffMins < 60) {
-    return `${diffMins} minute${diffMins === 1 ? '' : 's'} ago`
+    return `${diffMins} minute${diffMins === 1 ? "" : "s"} ago`;
   } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`
+    return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
   } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
+    return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
   } else if (diffWeeks < 4) {
-    return `${diffWeeks} week${diffWeeks === 1 ? '' : 's'} ago`
+    return `${diffWeeks} week${diffWeeks === 1 ? "" : "s"} ago`;
   } else if (diffMonths < 12) {
-    return `${diffMonths} month${diffMonths === 1 ? '' : 's'} ago`
+    return `${diffMonths} month${diffMonths === 1 ? "" : "s"} ago`;
   } else {
-    return `${diffYears} year${diffYears === 1 ? '' : 's'} ago`
+    return `${diffYears} year${diffYears === 1 ? "" : "s"} ago`;
   }
 }
 
@@ -92,13 +95,16 @@ export function formatRelativeTime(date: Date): string {
  * Format a date range
  */
 export function formatDateRange(start: Date, end: Date): string {
-  const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  const endStr = end.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-  return `${startStr} - ${endStr}`
+  const startStr = start.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  const endStr = end.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  return `${startStr} - ${endStr}`;
 }
 
 // ============================================================================
@@ -109,61 +115,65 @@ export function formatDateRange(start: Date, end: Date): string {
  * Format an audit entry description with placeholders replaced
  */
 export function formatDescription(entry: AuditLogEntry): string {
-  const template = eventDescriptionTemplates[entry.action]
+  const template = eventDescriptionTemplates[entry.action];
   if (!template) {
-    return entry.description
+    return entry.description;
   }
 
-  let description = template
+  let description = template;
 
   // Replace actor placeholder
   const actorName =
-    entry.actor.displayName ?? entry.actor.username ?? entry.actor.email ?? entry.actor.id
-  description = description.replace('{actor}', actorName)
+    entry.actor.displayName ??
+    entry.actor.username ??
+    entry.actor.email ??
+    entry.actor.id;
+  description = description.replace("{actor}", actorName);
 
   // Replace target placeholder
   if (entry.target) {
-    const targetName = entry.target.name ?? entry.target.id
-    description = description.replace('{target}', targetName)
+    const targetName = entry.target.name ?? entry.target.id;
+    description = description.replace("{target}", targetName);
   }
 
   // Replace resource placeholder
   if (entry.resource) {
-    const resourceName = entry.resource.name ?? entry.resource.id
-    description = description.replace('{channel}', resourceName)
-    description = description.replace('{resource}', resourceName)
+    const resourceName = entry.resource.name ?? entry.resource.id;
+    description = description.replace("{channel}", resourceName);
+    description = description.replace("{resource}", resourceName);
   }
 
   // Replace metadata placeholders
   if (entry.metadata) {
     for (const [key, value] of Object.entries(entry.metadata)) {
-      description = description.replace(`{${key}}`, String(value))
+      description = description.replace(`{${key}}`, String(value));
     }
   }
 
-  return description
+  return description;
 }
 
 /**
  * Generate a summary of an audit entry
  */
 export function formatEntrySummary(entry: AuditLogEntry): string {
-  const actorName = entry.actor.displayName ?? entry.actor.username ?? entry.actor.id
-  const action = getActionDisplayName(entry.action)
-  const time = formatTimestamp(entry.timestamp, 'relative')
+  const actorName =
+    entry.actor.displayName ?? entry.actor.username ?? entry.actor.id;
+  const action = getActionDisplayName(entry.action);
+  const time = formatTimestamp(entry.timestamp, "relative");
 
-  let summary = `${actorName} ${action.toLowerCase()}`
+  let summary = `${actorName} ${action.toLowerCase()}`;
 
   if (entry.resource) {
-    summary += ` ${entry.resource.type}`
+    summary += ` ${entry.resource.type}`;
     if (entry.resource.name) {
-      summary += ` "${entry.resource.name}"`
+      summary += ` "${entry.resource.name}"`;
     }
   }
 
-  summary += ` ${time}`
+  summary += ` ${time}`;
 
-  return summary
+  return summary;
 }
 
 // ============================================================================
@@ -173,7 +183,9 @@ export function formatEntrySummary(entry: AuditLogEntry): string {
 /**
  * Format an audit entry for CSV export
  */
-export function formatEntryForCSV(entry: AuditLogEntry): Record<string, string> {
+export function formatEntryForCSV(
+  entry: AuditLogEntry,
+): Record<string, string> {
   return {
     id: entry.id,
     timestamp: entry.timestamp.toISOString(),
@@ -182,23 +194,26 @@ export function formatEntryForCSV(entry: AuditLogEntry): Record<string, string> 
     severity: entry.severity,
     actor_id: entry.actor.id,
     actor_type: entry.actor.type,
-    actor_email: entry.actor.email ?? '',
-    actor_username: entry.actor.username ?? '',
-    resource_type: entry.resource?.type ?? '',
-    resource_id: entry.resource?.id ?? '',
-    resource_name: entry.resource?.name ?? '',
+    actor_email: entry.actor.email ?? "",
+    actor_username: entry.actor.username ?? "",
+    resource_type: entry.resource?.type ?? "",
+    resource_id: entry.resource?.id ?? "",
+    resource_name: entry.resource?.name ?? "",
     description: entry.description,
-    success: entry.success ? 'true' : 'false',
-    error_message: entry.errorMessage ?? '',
-    ip_address: entry.ipAddress ?? '',
-    request_id: entry.requestId ?? '',
-  }
+    success: entry.success ? "true" : "false",
+    error_message: entry.errorMessage ?? "",
+    ip_address: entry.ipAddress ?? "",
+    request_id: entry.requestId ?? "",
+  };
 }
 
 /**
  * Format audit entries for JSON export
  */
-export function formatEntriesForJSON(entries: AuditLogEntry[], includeMetadata = true): string {
+export function formatEntriesForJSON(
+  entries: AuditLogEntry[],
+  includeMetadata = true,
+): string {
   const formattedEntries = entries.map((entry) => {
     const base = {
       id: entry.id,
@@ -209,7 +224,7 @@ export function formatEntriesForJSON(entries: AuditLogEntry[], includeMetadata =
       actor: entry.actor,
       description: entry.description,
       success: entry.success,
-    }
+    };
 
     if (includeMetadata) {
       return {
@@ -222,13 +237,13 @@ export function formatEntriesForJSON(entries: AuditLogEntry[], includeMetadata =
         geoLocation: entry.geoLocation,
         requestId: entry.requestId,
         correlationId: entry.correlationId,
-      }
+      };
     }
 
-    return base
-  })
+    return base;
+  });
 
-  return JSON.stringify(formattedEntries, null, 2)
+  return JSON.stringify(formattedEntries, null, 2);
 }
 
 /**
@@ -236,24 +251,24 @@ export function formatEntriesForJSON(entries: AuditLogEntry[], includeMetadata =
  */
 export function getCSVHeaders(): string[] {
   return [
-    'id',
-    'timestamp',
-    'category',
-    'action',
-    'severity',
-    'actor_id',
-    'actor_type',
-    'actor_email',
-    'actor_username',
-    'resource_type',
-    'resource_id',
-    'resource_name',
-    'description',
-    'success',
-    'error_message',
-    'ip_address',
-    'request_id',
-  ]
+    "id",
+    "timestamp",
+    "category",
+    "action",
+    "severity",
+    "actor_id",
+    "actor_type",
+    "actor_email",
+    "actor_username",
+    "resource_type",
+    "resource_id",
+    "resource_name",
+    "description",
+    "success",
+    "error_message",
+    "ip_address",
+    "request_id",
+  ];
 }
 
 // ============================================================================
@@ -265,16 +280,16 @@ export function getCSVHeaders(): string[] {
  */
 export function getSeverityBadgeClass(severity: AuditSeverity): string {
   switch (severity) {
-    case 'info':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-    case 'warning':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-    case 'error':
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-    case 'critical':
-      return 'bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100'
+    case "info":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+    case "warning":
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+    case "error":
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+    case "critical":
+      return "bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100";
     default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
   }
 }
 
@@ -283,22 +298,22 @@ export function getSeverityBadgeClass(severity: AuditSeverity): string {
  */
 export function getCategoryBadgeClass(category: AuditCategory): string {
   switch (category) {
-    case 'user':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-    case 'message':
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-    case 'channel':
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-    case 'file':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-    case 'admin':
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-    case 'security':
-      return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-    case 'integration':
-      return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200'
+    case "user":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+    case "message":
+      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+    case "channel":
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
+    case "file":
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+    case "admin":
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+    case "security":
+      return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+    case "integration":
+      return "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200";
     default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
   }
 }
 
@@ -307,22 +322,22 @@ export function getCategoryBadgeClass(category: AuditCategory): string {
  */
 export function getCategoryIcon(category: AuditCategory): string {
   switch (category) {
-    case 'user':
-      return 'User'
-    case 'message':
-      return 'MessageSquare'
-    case 'channel':
-      return 'Hash'
-    case 'file':
-      return 'File'
-    case 'admin':
-      return 'Shield'
-    case 'security':
-      return 'Lock'
-    case 'integration':
-      return 'Puzzle'
+    case "user":
+      return "User";
+    case "message":
+      return "MessageSquare";
+    case "channel":
+      return "Hash";
+    case "file":
+      return "File";
+    case "admin":
+      return "Shield";
+    case "security":
+      return "Lock";
+    case "integration":
+      return "Puzzle";
     default:
-      return 'Activity'
+      return "Activity";
   }
 }
 
@@ -331,16 +346,16 @@ export function getCategoryIcon(category: AuditCategory): string {
  */
 export function getSeverityIcon(severity: AuditSeverity): string {
   switch (severity) {
-    case 'info':
-      return 'Info'
-    case 'warning':
-      return 'AlertTriangle'
-    case 'error':
-      return 'XCircle'
-    case 'critical':
-      return 'AlertOctagon'
+    case "info":
+      return "Info";
+    case "warning":
+      return "AlertTriangle";
+    case "error":
+      return "XCircle";
+    case "critical":
+      return "AlertOctagon";
     default:
-      return 'Circle'
+      return "Circle";
   }
 }
 
@@ -353,9 +368,9 @@ export function getSeverityIcon(severity: AuditSeverity): string {
  */
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) {
-    return text
+    return text;
   }
-  return text.slice(0, maxLength - 3) + '...'
+  return text.slice(0, maxLength - 3) + "...";
 }
 
 /**
@@ -363,29 +378,29 @@ export function truncateText(text: string, maxLength: number): string {
  */
 export function formatIPAddress(ip: string, mask = false): string {
   if (!mask) {
-    return ip
+    return ip;
   }
-  const parts = ip.split('.')
+  const parts = ip.split(".");
   if (parts.length === 4) {
-    return `${parts[0]}.${parts[1]}.xxx.xxx`
+    return `${parts[0]}.${parts[1]}.xxx.xxx`;
   }
-  return ip
+  return ip;
 }
 
 /**
  * Format file size
  */
 export function formatFileSize(bytes: number): string {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  let unitIndex = 0
-  let size = bytes
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let unitIndex = 0;
+  let size = bytes;
 
   while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024
-    unitIndex++
+    size /= 1024;
+    unitIndex++;
   }
 
-  return `${size.toFixed(unitIndex > 0 ? 1 : 0)} ${units[unitIndex]}`
+  return `${size.toFixed(unitIndex > 0 ? 1 : 0)} ${units[unitIndex]}`;
 }
 
 /**
@@ -393,12 +408,12 @@ export function formatFileSize(bytes: number): string {
  */
 export function formatCount(count: number, abbreviate = false): string {
   if (!abbreviate || count < 1000) {
-    return count.toLocaleString()
+    return count.toLocaleString();
   }
 
   if (count < 1000000) {
-    return `${(count / 1000).toFixed(1)}K`
+    return `${(count / 1000).toFixed(1)}K`;
   }
 
-  return `${(count / 1000000).toFixed(1)}M`
+  return `${(count / 1000000).toFixed(1)}M`;
 }

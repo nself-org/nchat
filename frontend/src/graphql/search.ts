@@ -1,78 +1,78 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   SEARCH_MESSAGE_RESULT_FRAGMENT,
   USER_BASIC_FRAGMENT,
   CHANNEL_BASIC_FRAGMENT,
   ATTACHMENT_FRAGMENT,
-} from './fragments'
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface SearchMessagesVariables {
-  query: string
-  channelId?: string
-  userId?: string
-  before?: string
-  after?: string
-  hasAttachments?: boolean
-  limit?: number
-  offset?: number
+  query: string;
+  channelId?: string;
+  userId?: string;
+  before?: string;
+  after?: string;
+  hasAttachments?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export interface SearchFilesVariables {
-  query: string
-  channelId?: string
-  fileType?: string
-  limit?: number
-  offset?: number
+  query: string;
+  channelId?: string;
+  fileType?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface SearchUsersVariables {
-  query: string
-  limit?: number
-  offset?: number
+  query: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface SearchChannelsVariables {
-  query: string
-  type?: string
-  limit?: number
-  offset?: number
+  query: string;
+  type?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface SearchAllVariables {
-  query: string
-  limit?: number
+  query: string;
+  limit?: number;
 }
 
 export interface SearchResult {
   messages: Array<{
-    id: string
-    content: string
-    created_at: string
-    user: { id: string; username: string; display_name: string }
-    channel: { id: string; name: string; slug: string }
-  }>
+    id: string;
+    content: string;
+    created_at: string;
+    user: { id: string; username: string; display_name: string };
+    channel: { id: string; name: string; slug: string };
+  }>;
   files: Array<{
-    id: string
-    file_name: string
-    file_type: string
-    file_url: string
-  }>
+    id: string;
+    file_name: string;
+    file_type: string;
+    file_url: string;
+  }>;
   users: Array<{
-    id: string
-    username: string
-    display_name: string
-    avatar_url: string
-  }>
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string;
+  }>;
   channels: Array<{
-    id: string
-    name: string
-    slug: string
-    description: string
-  }>
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+  }>;
 }
 
 // ============================================================================
@@ -136,14 +136,19 @@ export const SEARCH_MESSAGES = gql`
     }
   }
   ${SEARCH_MESSAGE_RESULT_FRAGMENT}
-`
+`;
 
 /**
  * Full-text search messages (PostgreSQL FTS)
  * Requires tsvector column and GIN index on messages table
  */
 export const SEARCH_MESSAGES_FTS = gql`
-  query SearchMessagesFTS($query: String!, $channelId: uuid, $limit: Int = 20, $offset: Int = 0) {
+  query SearchMessagesFTS(
+    $query: String!
+    $channelId: uuid
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     search_messages(
       args: { search_query: $query, channel_id: $channelId }
       limit: $limit
@@ -170,7 +175,7 @@ export const SEARCH_MESSAGES_FTS = gql`
   }
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Search files/attachments
@@ -231,7 +236,7 @@ export const SEARCH_FILES = gql`
   ${ATTACHMENT_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Search users
@@ -285,13 +290,18 @@ export const SEARCH_USERS = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Search channels
  */
 export const SEARCH_CHANNELS = gql`
-  query SearchChannels($query: String!, $type: String, $limit: Int = 20, $offset: Int = 0) {
+  query SearchChannels(
+    $query: String!
+    $type: String
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_channels(
       where: {
         _and: [
@@ -331,7 +341,12 @@ export const SEARCH_CHANNELS = gql`
     nchat_channels_aggregate(
       where: {
         _and: [
-          { _or: [{ name: { _ilike: $query } }, { description: { _ilike: $query } }] }
+          {
+            _or: [
+              { name: { _ilike: $query } }
+              { description: { _ilike: $query } }
+            ]
+          }
           { type: { _eq: $type } }
           { is_archived: { _eq: false } }
         ]
@@ -344,7 +359,7 @@ export const SEARCH_CHANNELS = gql`
   }
   ${CHANNEL_BASIC_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Combined search across all entities
@@ -371,7 +386,10 @@ export const SEARCH_ALL = gql`
     }
 
     files: nchat_attachments(
-      where: { file_name: { _ilike: $query }, message: { is_deleted: { _eq: false } } }
+      where: {
+        file_name: { _ilike: $query }
+        message: { is_deleted: { _eq: false } }
+      }
       order_by: { created_at: desc }
       limit: $limit
     ) {
@@ -392,7 +410,10 @@ export const SEARCH_ALL = gql`
 
     users: nchat_users(
       where: {
-        _or: [{ username: { _ilike: $query } }, { display_name: { _ilike: $query } }]
+        _or: [
+          { username: { _ilike: $query } }
+          { display_name: { _ilike: $query } }
+        ]
         is_active: { _eq: true }
       }
       order_by: { display_name: asc }
@@ -424,7 +445,7 @@ export const SEARCH_ALL = gql`
   }
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Quick search (for command palette / spotlight)
@@ -447,7 +468,10 @@ export const QUICK_SEARCH = gql`
     # Users
     users: nchat_users(
       where: {
-        _or: [{ username: { _ilike: $query } }, { display_name: { _ilike: $query } }]
+        _or: [
+          { username: { _ilike: $query } }
+          { display_name: { _ilike: $query } }
+        ]
         is_active: { _eq: true }
       }
       limit: $limit
@@ -462,7 +486,7 @@ export const QUICK_SEARCH = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Search messages in a specific channel
@@ -488,15 +512,24 @@ export const SEARCH_CHANNEL_MESSAGES = gql`
     }
   }
   ${SEARCH_MESSAGE_RESULT_FRAGMENT}
-`
+`;
 
 /**
  * Search messages from a specific user
  */
 export const SEARCH_USER_MESSAGES = gql`
-  query SearchUserMessages($userId: uuid!, $query: String!, $limit: Int = 20, $offset: Int = 0) {
+  query SearchUserMessages(
+    $userId: uuid!
+    $query: String!
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_messages(
-      where: { user_id: { _eq: $userId }, content: { _ilike: $query }, is_deleted: { _eq: false } }
+      where: {
+        user_id: { _eq: $userId }
+        content: { _ilike: $query }
+        is_deleted: { _eq: false }
+      }
       order_by: { created_at: desc }
       limit: $limit
       offset: $offset
@@ -505,7 +538,7 @@ export const SEARCH_USER_MESSAGES = gql`
     }
   }
   ${SEARCH_MESSAGE_RESULT_FRAGMENT}
-`
+`;
 
 /**
  * Search messages with date range
@@ -532,7 +565,7 @@ export const SEARCH_MESSAGES_BY_DATE = gql`
     }
   }
   ${SEARCH_MESSAGE_RESULT_FRAGMENT}
-`
+`;
 
 /**
  * Get recent searches (if tracking search history)
@@ -551,22 +584,32 @@ export const GET_RECENT_SEARCHES = gql`
       searched_at
     }
   }
-`
+`;
 
 /**
  * Save search query to history
  */
 export const SAVE_SEARCH = gql`
-  mutation SaveSearch($userId: uuid!, $query: String!, $type: String!, $resultCount: Int!) {
+  mutation SaveSearch(
+    $userId: uuid!
+    $query: String!
+    $type: String!
+    $resultCount: Int!
+  ) {
     insert_nchat_search_history_one(
-      object: { user_id: $userId, query: $query, type: $type, result_count: $resultCount }
+      object: {
+        user_id: $userId
+        query: $query
+        type: $type
+        result_count: $resultCount
+      }
     ) {
       id
       query
       searched_at
     }
   }
-`
+`;
 
 /**
  * Clear search history
@@ -577,4 +620,4 @@ export const CLEAR_SEARCH_HISTORY = gql`
       affected_rows
     }
   }
-`
+`;

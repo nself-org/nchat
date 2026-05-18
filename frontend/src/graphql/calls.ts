@@ -4,7 +4,7 @@
  * Mutations, queries, and subscriptions for WebRTC call management.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // =============================================================================
 // Fragments
@@ -25,7 +25,7 @@ export const CALL_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 export const CALL_PARTICIPANT_FRAGMENT = gql`
   fragment CallParticipantFields on nchat_call_participants {
@@ -44,7 +44,7 @@ export const CALL_PARTICIPANT_FRAGMENT = gql`
       avatar_url
     }
   }
-`
+`;
 
 // =============================================================================
 // Queries
@@ -61,7 +61,7 @@ export const GET_CALL = gql`
       }
     }
   }
-`
+`;
 
 export const GET_ACTIVE_CALLS = gql`
   ${CALL_FRAGMENT}
@@ -70,7 +70,10 @@ export const GET_ACTIVE_CALLS = gql`
     nchat_calls(
       where: {
         status: { _in: ["ringing", "connecting", "connected"] }
-        _or: [{ caller_id: { _eq: $userId } }, { participants: { user_id: { _eq: $userId } } }]
+        _or: [
+          { caller_id: { _eq: $userId } }
+          { participants: { user_id: { _eq: $userId } } }
+        ]
       }
       order_by: { started_at: desc }
     ) {
@@ -80,7 +83,7 @@ export const GET_ACTIVE_CALLS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_CALL_HISTORY = gql`
   ${CALL_FRAGMENT}
@@ -89,7 +92,10 @@ export const GET_CALL_HISTORY = gql`
     nchat_calls(
       where: {
         status: { _eq: "ended" }
-        _or: [{ caller_id: { _eq: $userId } }, { participants: { user_id: { _eq: $userId } } }]
+        _or: [
+          { caller_id: { _eq: $userId } }
+          { participants: { user_id: { _eq: $userId } } }
+        ]
       }
       order_by: { started_at: desc }
       limit: $limit
@@ -107,7 +113,7 @@ export const GET_CALL_HISTORY = gql`
       }
     }
   }
-`
+`;
 
 export const GET_CHANNEL_CALLS = gql`
   ${CALL_FRAGMENT}
@@ -130,7 +136,7 @@ export const GET_CHANNEL_CALLS = gql`
       }
     }
   }
-`
+`;
 
 // =============================================================================
 // Mutations
@@ -157,7 +163,12 @@ export const INITIATE_CALL = gql`
         started_at: "now()"
         participants: {
           data: [
-            { user_id: $callerId, joined_at: "now()", is_muted: false, is_video_enabled: false }
+            {
+              user_id: $callerId
+              joined_at: "now()"
+              is_muted: false
+              is_video_enabled: false
+            }
             { user_id: $targetUserId, is_muted: false, is_video_enabled: false }
           ]
         }
@@ -166,7 +177,7 @@ export const INITIATE_CALL = gql`
       ...CallFields
     }
   }
-`
+`;
 
 export const UPDATE_CALL_STATUS = gql`
   mutation UpdateCallStatus($callId: String!, $status: String!) {
@@ -182,13 +193,18 @@ export const UPDATE_CALL_STATUS = gql`
       }
     }
   }
-`
+`;
 
 export const END_CALL = gql`
   mutation EndCall($callId: String!, $duration: Int) {
     update_nchat_calls(
       where: { call_id: { _eq: $callId } }
-      _set: { status: "ended", ended_at: "now()", duration: $duration, updated_at: "now()" }
+      _set: {
+        status: "ended"
+        ended_at: "now()"
+        duration: $duration
+        updated_at: "now()"
+      }
     ) {
       affected_rows
       returning {
@@ -199,7 +215,7 @@ export const END_CALL = gql`
       }
     }
   }
-`
+`;
 
 export const JOIN_CALL = gql`
   ${CALL_PARTICIPANT_FRAGMENT}
@@ -221,7 +237,7 @@ export const JOIN_CALL = gql`
       ...CallParticipantFields
     }
   }
-`
+`;
 
 export const LEAVE_CALL = gql`
   mutation LeaveCall($callId: String!, $userId: uuid!) {
@@ -237,10 +253,14 @@ export const LEAVE_CALL = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_PARTICIPANT_MUTE = gql`
-  mutation UpdateParticipantMute($callId: String!, $userId: uuid!, $isMuted: Boolean!) {
+  mutation UpdateParticipantMute(
+    $callId: String!
+    $userId: uuid!
+    $isMuted: Boolean!
+  ) {
     update_nchat_call_participants(
       where: { call_id: { _eq: $callId }, user_id: { _eq: $userId } }
       _set: { is_muted: $isMuted }
@@ -253,10 +273,14 @@ export const UPDATE_PARTICIPANT_MUTE = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_PARTICIPANT_VIDEO = gql`
-  mutation UpdateParticipantVideo($callId: String!, $userId: uuid!, $isVideoEnabled: Boolean!) {
+  mutation UpdateParticipantVideo(
+    $callId: String!
+    $userId: uuid!
+    $isVideoEnabled: Boolean!
+  ) {
     update_nchat_call_participants(
       where: { call_id: { _eq: $callId }, user_id: { _eq: $userId } }
       _set: { is_video_enabled: $isVideoEnabled }
@@ -269,7 +293,7 @@ export const UPDATE_PARTICIPANT_VIDEO = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_PARTICIPANT_SCREEN_SHARE = gql`
   mutation UpdateParticipantScreenShare(
@@ -289,7 +313,7 @@ export const UPDATE_PARTICIPANT_SCREEN_SHARE = gql`
       }
     }
   }
-`
+`;
 
 // =============================================================================
 // Subscriptions
@@ -306,14 +330,17 @@ export const SUBSCRIBE_TO_CALL = gql`
       }
     }
   }
-`
+`;
 
 export const SUBSCRIBE_TO_INCOMING_CALLS = gql`
   ${CALL_FRAGMENT}
   ${CALL_PARTICIPANT_FRAGMENT}
   subscription SubscribeToIncomingCalls($userId: uuid!) {
     nchat_calls(
-      where: { status: { _eq: "ringing" }, participants: { user_id: { _eq: $userId } } }
+      where: {
+        status: { _eq: "ringing" }
+        participants: { user_id: { _eq: $userId } }
+      }
       order_by: { started_at: desc }
     ) {
       ...CallFields
@@ -328,78 +355,81 @@ export const SUBSCRIBE_TO_INCOMING_CALLS = gql`
       }
     }
   }
-`
+`;
 
 export const SUBSCRIBE_TO_CALL_PARTICIPANTS = gql`
   ${CALL_PARTICIPANT_FRAGMENT}
   subscription SubscribeToCallParticipants($callId: String!) {
-    nchat_call_participants(where: { call_id: { _eq: $callId } }, order_by: { joined_at: asc }) {
+    nchat_call_participants(
+      where: { call_id: { _eq: $callId } }
+      order_by: { joined_at: asc }
+    ) {
       ...CallParticipantFields
     }
   }
-`
+`;
 
 // =============================================================================
 // TypeScript Types
 // =============================================================================
 
-export type CallType = 'voice' | 'video'
+export type CallType = "voice" | "video";
 
 export type CallStatus =
-  | 'idle'
-  | 'initiating'
-  | 'ringing'
-  | 'connecting'
-  | 'connected'
-  | 'reconnecting'
-  | 'ended'
+  | "idle"
+  | "initiating"
+  | "ringing"
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "ended";
 
 export interface Call {
-  id: string
-  call_id: string
-  type: CallType
-  status: CallStatus
-  started_at: string
-  ended_at?: string
-  duration?: number
-  caller_id: string
-  channel_id?: string
-  metadata?: Record<string, unknown>
-  created_at: string
-  updated_at: string
-  participants?: CallParticipant[]
+  id: string;
+  call_id: string;
+  type: CallType;
+  status: CallStatus;
+  started_at: string;
+  ended_at?: string;
+  duration?: number;
+  caller_id: string;
+  channel_id?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  participants?: CallParticipant[];
   caller?: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
 }
 
 export interface CallParticipant {
-  id: string
-  call_id: string
-  user_id: string
-  joined_at?: string
-  left_at?: string
-  is_muted: boolean
-  is_video_enabled: boolean
-  is_screen_sharing: boolean
+  id: string;
+  call_id: string;
+  user_id: string;
+  joined_at?: string;
+  left_at?: string;
+  is_muted: boolean;
+  is_video_enabled: boolean;
+  is_screen_sharing: boolean;
   user: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
 }
 
 export interface InitiateCallInput {
-  callId: string
-  type: CallType
-  callerId: string
-  targetUserId?: string
-  channelId?: string
-  metadata?: Record<string, unknown>
+  callId: string;
+  type: CallType;
+  callerId: string;
+  targetUserId?: string;
+  channelId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 // =============================================================================
@@ -413,7 +443,7 @@ export const GET_CALL_BY_ID = gql`
       ...CallFields
     }
   }
-`
+`;
 
 export const GET_CALL_PARTICIPANTS = gql`
   ${CALL_PARTICIPANT_FRAGMENT}
@@ -430,7 +460,7 @@ export const GET_CALL_PARTICIPANTS = gql`
       is_speaking
     }
   }
-`
+`;
 
 export const GET_CALL_PARTICIPANT = gql`
   query GetCallParticipant($callId: uuid!, $userId: uuid!) {
@@ -451,7 +481,7 @@ export const GET_CALL_PARTICIPANT = gql`
       remove_reason
     }
   }
-`
+`;
 
 export const CHECK_CALL_ACCESS = gql`
   query CheckCallAccess($callId: uuid!, $userId: uuid!) {
@@ -469,13 +499,17 @@ export const CHECK_CALL_ACCESS = gql`
       }
     }
     nchat_call_participants(
-      where: { call_id: { _eq: $callId }, user_id: { _eq: $userId }, left_at: { _is_null: true } }
+      where: {
+        call_id: { _eq: $callId }
+        user_id: { _eq: $userId }
+        left_at: { _is_null: true }
+      }
     ) {
       id
       user_id
     }
   }
-`
+`;
 
 export const GET_USERS_BY_IDS = gql`
   query GetUsersByIds($userIds: [uuid!]!) {
@@ -486,14 +520,16 @@ export const GET_USERS_BY_IDS = gql`
       avatar_url
     }
   }
-`
+`;
 
 // =============================================================================
 // Additional Mutations for Participants API
 // =============================================================================
 
 export const ADD_CALL_PARTICIPANTS = gql`
-  mutation AddCallParticipants($participants: [nchat_call_participants_insert_input!]!) {
+  mutation AddCallParticipants(
+    $participants: [nchat_call_participants_insert_input!]!
+  ) {
     insert_nchat_call_participants(
       objects: $participants
       on_conflict: {
@@ -521,7 +557,7 @@ export const ADD_CALL_PARTICIPANTS = gql`
       }
     }
   }
-`
+`;
 
 export const REMOVE_CALL_PARTICIPANT = gql`
   mutation RemoveCallParticipant(
@@ -533,7 +569,11 @@ export const REMOVE_CALL_PARTICIPANT = gql`
   ) {
     update_nchat_call_participants(
       where: { call_id: { _eq: $callId }, user_id: { _eq: $userId } }
-      _set: { left_at: $leftAt, removed_by: $removedBy, remove_reason: $removeReason }
+      _set: {
+        left_at: $leftAt
+        removed_by: $removedBy
+        remove_reason: $removeReason
+      }
     ) {
       affected_rows
       returning {
@@ -546,14 +586,18 @@ export const REMOVE_CALL_PARTICIPANT = gql`
       }
     }
   }
-`
+`;
 
 export const GET_EXISTING_PARTICIPANTS = gql`
   query GetExistingParticipants($callId: uuid!, $userIds: [uuid!]!) {
     nchat_call_participants(
-      where: { call_id: { _eq: $callId }, user_id: { _in: $userIds }, left_at: { _is_null: true } }
+      where: {
+        call_id: { _eq: $callId }
+        user_id: { _in: $userIds }
+        left_at: { _is_null: true }
+      }
     ) {
       user_id
     }
   }
-`
+`;

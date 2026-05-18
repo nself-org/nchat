@@ -5,23 +5,23 @@
  * Redirects unauthenticated users to the login page.
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import { useAuth } from '@/contexts/auth-context'
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
 
 interface AuthGuardProps {
   /** Content to render when authenticated */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Where to redirect if not authenticated (default: /login) */
-  redirectTo?: string
+  redirectTo?: string;
   /** Custom loading component */
-  loadingComponent?: React.ReactNode
+  loadingComponent?: React.ReactNode;
   /** Callback when authentication fails */
-  onAuthFailure?: () => void
+  onAuthFailure?: () => void;
   /** Whether to show loading state (default: true) */
-  showLoading?: boolean
+  showLoading?: boolean;
 }
 
 /**
@@ -32,10 +32,12 @@ function DefaultLoadingSpinner() {
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-sm text-muted-foreground">Checking authentication...</p>
+        <p className="text-sm text-muted-foreground">
+          Checking authentication...
+        </p>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -43,80 +45,83 @@ function DefaultLoadingSpinner() {
  */
 export function AuthGuard({
   children,
-  redirectTo = '/login',
+  redirectTo = "/login",
   loadingComponent,
   onAuthFailure,
   showLoading = true,
 }: AuthGuardProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const { user, loading } = useAuth()
-  const [isChecking, setIsChecking] = useState(true)
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user, loading } = useAuth();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     // Wait for auth to finish loading
-    if (loading) return
+    if (loading) return;
 
     // If no user, redirect to login
     if (!user) {
-      onAuthFailure?.()
+      onAuthFailure?.();
 
       // Build redirect URL with return path
-      const returnUrl = encodeURIComponent(pathname)
-      const loginUrl = redirectTo.includes('?')
+      const returnUrl = encodeURIComponent(pathname);
+      const loginUrl = redirectTo.includes("?")
         ? `${redirectTo}&returnTo=${returnUrl}`
-        : `${redirectTo}?returnTo=${returnUrl}`
+        : `${redirectTo}?returnTo=${returnUrl}`;
 
-      router.replace(loginUrl)
+      router.replace(loginUrl);
     } else {
       // User is authenticated
-      setIsChecking(false)
+      setIsChecking(false);
     }
-  }, [user, loading, router, pathname, redirectTo, onAuthFailure])
+  }, [user, loading, router, pathname, redirectTo, onAuthFailure]);
 
   // Show loading while checking auth
   if (loading || isChecking) {
     if (!showLoading) {
-      return null
+      return null;
     }
-    return loadingComponent ?? <DefaultLoadingSpinner />
+    return loadingComponent ?? <DefaultLoadingSpinner />;
   }
 
   // If we get here, user is authenticated
   if (!user) {
     // Should not happen, but handle gracefully
-    return null
+    return null;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
  * Hook version of AuthGuard for more control
  */
-export function useAuthGuard(options?: { redirectTo?: string; onAuthFailure?: () => void }): {
-  isAuthenticated: boolean
-  isLoading: boolean
-  user: ReturnType<typeof useAuth>['user']
+export function useAuthGuard(options?: {
+  redirectTo?: string;
+  onAuthFailure?: () => void;
+}): {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  user: ReturnType<typeof useAuth>["user"];
 } {
-  const router = useRouter()
-  const pathname = usePathname()
-  const { user, loading } = useAuth()
-  const { redirectTo = '/login', onAuthFailure } = options ?? {}
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user, loading } = useAuth();
+  const { redirectTo = "/login", onAuthFailure } = options ?? {};
 
   useEffect(() => {
     if (!loading && !user) {
-      onAuthFailure?.()
-      const returnUrl = encodeURIComponent(pathname)
-      router.replace(`${redirectTo}?returnTo=${returnUrl}`)
+      onAuthFailure?.();
+      const returnUrl = encodeURIComponent(pathname);
+      router.replace(`${redirectTo}?returnTo=${returnUrl}`);
     }
-  }, [user, loading, router, pathname, redirectTo, onAuthFailure])
+  }, [user, loading, router, pathname, redirectTo, onAuthFailure]);
 
   return {
     isAuthenticated: !!user,
     isLoading: loading,
     user,
-  }
+  };
 }
 
 /**
@@ -125,17 +130,20 @@ export function useAuthGuard(options?: { redirectTo?: string; onAuthFailure?: ()
 export function withAuthGuard<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   options?: {
-    redirectTo?: string
-    loadingComponent?: React.ReactNode
-  }
+    redirectTo?: string;
+    loadingComponent?: React.ReactNode;
+  },
 ) {
   return function AuthGuardedComponent(props: P) {
     return (
-      <AuthGuard redirectTo={options?.redirectTo} loadingComponent={options?.loadingComponent}>
+      <AuthGuard
+        redirectTo={options?.redirectTo}
+        loadingComponent={options?.loadingComponent}
+      >
         <WrappedComponent {...props} />
       </AuthGuard>
-    )
-  }
+    );
+  };
 }
 
 /**
@@ -144,62 +152,62 @@ export function withAuthGuard<P extends object>(
  */
 export function GuestGuard({
   children,
-  redirectTo = '/chat',
+  redirectTo = "/chat",
   loadingComponent,
   showLoading = true,
-}: Omit<AuthGuardProps, 'onAuthFailure'>) {
-  const router = useRouter()
-  const { user, loading } = useAuth()
-  const [isChecking, setIsChecking] = useState(true)
+}: Omit<AuthGuardProps, "onAuthFailure">) {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (loading) return
+    if (loading) return;
 
     if (user) {
       // User is authenticated, redirect away from guest-only page
-      router.replace(redirectTo)
+      router.replace(redirectTo);
     } else {
-      setIsChecking(false)
+      setIsChecking(false);
     }
-  }, [user, loading, router, redirectTo])
+  }, [user, loading, router, redirectTo]);
 
   // Show loading while checking
   if (loading || isChecking) {
     if (!showLoading) {
-      return null
+      return null;
     }
-    return loadingComponent ?? <DefaultLoadingSpinner />
+    return loadingComponent ?? <DefaultLoadingSpinner />;
   }
 
   // If we get here, user is NOT authenticated (guest)
   if (user) {
-    return null
+    return null;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
  * Hook version of GuestGuard
  */
 export function useGuestGuard(options?: { redirectTo?: string }): {
-  isGuest: boolean
-  isLoading: boolean
+  isGuest: boolean;
+  isLoading: boolean;
 } {
-  const router = useRouter()
-  const { user, loading } = useAuth()
-  const { redirectTo = '/chat' } = options ?? {}
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const { redirectTo = "/chat" } = options ?? {};
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace(redirectTo)
+      router.replace(redirectTo);
     }
-  }, [user, loading, router, redirectTo])
+  }, [user, loading, router, redirectTo]);
 
   return {
     isGuest: !user,
     isLoading: loading,
-  }
+  };
 }
 
-export default AuthGuard
+export default AuthGuard;

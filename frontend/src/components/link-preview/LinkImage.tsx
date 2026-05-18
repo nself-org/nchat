@@ -1,51 +1,51 @@
-'use client'
+"use client";
 
 /**
  * LinkImage - Displays preview image for link previews
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface LinkImageProps {
   /** Image URL */
-  src?: string
+  src?: string;
   /** Alt text */
-  alt?: string
+  alt?: string;
   /** Image width (from metadata) */
-  width?: number
+  width?: number;
   /** Image height (from metadata) */
-  height?: number
+  height?: number;
   /** Maximum height in pixels */
-  maxHeight?: number
+  maxHeight?: number;
   /** Layout variant */
-  layout?: 'cover' | 'contain' | 'responsive'
+  layout?: "cover" | "contain" | "responsive";
   /** Aspect ratio */
-  aspectRatio?: 'auto' | '16/9' | '4/3' | '1/1' | '2/1'
+  aspectRatio?: "auto" | "16/9" | "4/3" | "1/1" | "2/1";
   /** Show loading state */
-  loading?: boolean
+  loading?: boolean;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Callback when image loads */
-  onLoad?: () => void
+  onLoad?: () => void;
   /** Callback when image fails to load */
-  onError?: () => void
+  onError?: () => void;
 }
 
 const aspectRatioClasses = {
-  auto: '',
-  '16/9': 'aspect-video',
-  '4/3': 'aspect-[4/3]',
-  '1/1': 'aspect-square',
-  '2/1': 'aspect-[2/1]',
-}
+  auto: "",
+  "16/9": "aspect-video",
+  "4/3": "aspect-[4/3]",
+  "1/1": "aspect-square",
+  "2/1": "aspect-[2/1]",
+};
 
 const layoutClasses = {
-  cover: 'object-cover',
-  contain: 'object-contain',
-  responsive: 'object-contain max-h-full',
-}
+  cover: "object-cover",
+  contain: "object-contain",
+  responsive: "object-contain max-h-full",
+};
 
 export function LinkImage({
   src,
@@ -53,65 +53,71 @@ export function LinkImage({
   width,
   height,
   maxHeight = 300,
-  layout = 'cover',
-  aspectRatio = '16/9',
+  layout = "cover",
+  aspectRatio = "16/9",
   loading = false,
   className,
   onLoad,
   onError,
 }: LinkImageProps) {
-  const [imageLoading, setImageLoading] = React.useState(true)
-  const [imageError, setImageError] = React.useState(false)
+  const [imageLoading, setImageLoading] = React.useState(true);
+  const [imageError, setImageError] = React.useState(false);
 
   const handleLoad = React.useCallback(() => {
-    setImageLoading(false)
-    onLoad?.()
-  }, [onLoad])
+    setImageLoading(false);
+    onLoad?.();
+  }, [onLoad]);
 
   const handleError = React.useCallback(() => {
-    setImageLoading(false)
-    setImageError(true)
-    onError?.()
-  }, [onError])
+    setImageLoading(false);
+    setImageError(true);
+    onError?.();
+  }, [onError]);
 
   // Reset states when src changes
   React.useEffect(() => {
     if (src) {
-      setImageLoading(true)
-      setImageError(false)
+      setImageLoading(true);
+      setImageError(false);
     }
-  }, [src])
+  }, [src]);
 
   // Calculate aspect ratio from dimensions if available
   const computedAspectRatio = React.useMemo(() => {
-    if (aspectRatio !== 'auto') return aspectRatio
+    if (aspectRatio !== "auto") return aspectRatio;
     if (width && height) {
-      const ratio = width / height
-      if (ratio >= 1.7) return '16/9'
-      if (ratio >= 1.2) return '4/3'
-      if (ratio <= 0.8) return '1/1'
-      return '16/9'
+      const ratio = width / height;
+      if (ratio >= 1.7) return "16/9";
+      if (ratio >= 1.2) return "4/3";
+      if (ratio <= 0.8) return "1/1";
+      return "16/9";
     }
-    return '16/9'
-  }, [aspectRatio, width, height])
+    return "16/9";
+  }, [aspectRatio, width, height]);
 
   // Show skeleton during loading
   if (loading || (imageLoading && src)) {
     return (
       <div
         className={cn(
-          'relative overflow-hidden rounded-t-lg bg-muted',
+          "relative overflow-hidden rounded-t-lg bg-muted",
           aspectRatioClasses[computedAspectRatio],
-          className
+          className,
         )}
         style={{ maxHeight }}
       >
         <Skeleton className="absolute inset-0" />
         {src && (
-          <img src={src} alt="" className="sr-only" onLoad={handleLoad} onError={handleError} />
+          <img
+            src={src}
+            alt=""
+            className="sr-only"
+            onLoad={handleLoad}
+            onError={handleError}
+          />
         )}
       </div>
-    )
+    );
   }
 
   // Show placeholder on error or no src
@@ -119,9 +125,9 @@ export function LinkImage({
     return (
       <div
         className={cn(
-          'relative flex items-center justify-center overflow-hidden rounded-t-lg bg-muted',
+          "relative flex items-center justify-center overflow-hidden rounded-t-lg bg-muted",
           aspectRatioClasses[computedAspectRatio],
-          className
+          className,
         )}
         style={{ maxHeight }}
       >
@@ -139,28 +145,31 @@ export function LinkImage({
           />
         </svg>
       </div>
-    )
+    );
   }
 
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-t-lg bg-muted',
+        "relative overflow-hidden rounded-t-lg bg-muted",
         aspectRatioClasses[computedAspectRatio],
-        className
+        className,
       )}
       style={{ maxHeight }}
     >
       <img
         src={src}
-        alt={alt || 'Preview image'}
-        className={cn('h-full w-full transition-opacity duration-200', layoutClasses[layout])}
+        alt={alt || "Preview image"}
+        className={cn(
+          "h-full w-full transition-opacity duration-200",
+          layoutClasses[layout],
+        )}
         loading="lazy"
         onLoad={handleLoad}
         onError={handleError}
       />
     </div>
-  )
+  );
 }
 
-export default LinkImage
+export default LinkImage;

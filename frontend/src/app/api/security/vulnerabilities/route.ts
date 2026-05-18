@@ -7,8 +7,8 @@
  * POST /api/security/vulnerabilities - Import vulnerabilities
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import {
   createVulnerabilityTracker,
   type VulnerabilityQuery,
@@ -16,10 +16,10 @@ import {
   type VulnerabilityStatus,
   type VulnerabilitySource,
   type RemediationPriority,
-} from '@/lib/security/vulnerability-tracker'
+} from "@/lib/security/vulnerability-tracker";
 
 // In-memory tracker instance (in production, this would be backed by a database)
-const tracker = createVulnerabilityTracker()
+const tracker = createVulnerabilityTracker();
 
 // ============================================================================
 // Request/Response Schemas
@@ -36,18 +36,22 @@ const queryParamsSchema = z.object({
   package: z.string().optional(),
   cve: z.string().optional(),
   cwe: z.string().optional(),
-  suppressed: z.enum(['true', 'false']).optional(),
+  suppressed: z.enum(["true", "false"]).optional(),
   limit: z.string().optional(),
   offset: z.string().optional(),
-  sortBy: z.enum(['severity', 'priority', 'firstSeen', 'lastSeen', 'dueDate']).optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
-})
+  sortBy: z
+    .enum(["severity", "priority", "firstSeen", "lastSeen", "dueDate"])
+    .optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+});
 
 const importVulnerabilitySchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
-  severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
-  source: z.enum(['sast', 'dast', 'sca', 'manual', 'pentest', 'bugbounty']).optional(),
+  severity: z.enum(["critical", "high", "medium", "low", "info"]),
+  source: z
+    .enum(["sast", "dast", "sca", "manual", "pentest", "bugbounty"])
+    .optional(),
   location: z
     .object({
       file: z.string().optional(),
@@ -70,13 +74,15 @@ const importVulnerabilitySchema = z.object({
   remediation: z
     .object({
       recommendation: z.string().optional(),
-      effort: z.enum(['trivial', 'small', 'medium', 'large', 'unknown']).optional(),
+      effort: z
+        .enum(["trivial", "small", "medium", "large", "unknown"])
+        .optional(),
       fixedIn: z.string().optional(),
       patchAvailable: z.boolean().optional(),
     })
     .optional(),
   tags: z.array(z.string()).optional(),
-})
+});
 
 // ============================================================================
 // GET /api/security/vulnerabilities
@@ -84,78 +90,78 @@ const importVulnerabilitySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url);
 
     // Parse query parameters
-    const params = queryParamsSchema.parse(Object.fromEntries(searchParams))
+    const params = queryParamsSchema.parse(Object.fromEntries(searchParams));
 
     // Build query
-    const query: VulnerabilityQuery = {}
+    const query: VulnerabilityQuery = {};
 
     if (params.source) {
-      query.source = params.source.split(',') as VulnerabilitySource[]
+      query.source = params.source.split(",") as VulnerabilitySource[];
     }
 
     if (params.severity) {
-      query.severity = params.severity.split(',') as UnifiedSeverity[]
+      query.severity = params.severity.split(",") as UnifiedSeverity[];
     }
 
     if (params.status) {
-      query.status = params.status.split(',') as VulnerabilityStatus[]
+      query.status = params.status.split(",") as VulnerabilityStatus[];
     }
 
     if (params.priority) {
-      query.priority = params.priority.split(',') as RemediationPriority[]
+      query.priority = params.priority.split(",") as RemediationPriority[];
     }
 
     if (params.assignee) {
-      query.assignee = params.assignee
+      query.assignee = params.assignee;
     }
 
     if (params.tags) {
-      query.tags = params.tags.split(',')
+      query.tags = params.tags.split(",");
     }
 
     if (params.file) {
-      query.file = params.file
+      query.file = params.file;
     }
 
     if (params.package) {
-      query.package = params.package
+      query.package = params.package;
     }
 
     if (params.cve) {
-      query.cve = params.cve
+      query.cve = params.cve;
     }
 
     if (params.cwe) {
-      query.cwe = params.cwe
+      query.cwe = params.cwe;
     }
 
     if (params.suppressed !== undefined) {
-      query.suppressed = params.suppressed === 'true'
+      query.suppressed = params.suppressed === "true";
     }
 
     if (params.limit) {
-      query.limit = parseInt(params.limit, 10)
+      query.limit = parseInt(params.limit, 10);
     }
 
     if (params.offset) {
-      query.offset = parseInt(params.offset, 10)
+      query.offset = parseInt(params.offset, 10);
     }
 
     if (params.sortBy) {
-      query.sortBy = params.sortBy
+      query.sortBy = params.sortBy;
     }
 
     if (params.sortOrder) {
-      query.sortOrder = params.sortOrder
+      query.sortOrder = params.sortOrder;
     }
 
     // Execute query
-    const result = tracker.query(query)
-    const stats = tracker.getStats()
-    const blockStatus = tracker.shouldBlockDeployment()
+    const result = tracker.query(query);
+    const stats = tracker.getStats();
+    const blockStatus = tracker.shouldBlockDeployment();
 
     return NextResponse.json({
       vulnerabilities: result.vulnerabilities,
@@ -170,16 +176,19 @@ export async function GET(request: NextRequest) {
         deploymentBlocked: blockStatus.blocked,
         blockReasons: blockStatus.reasons,
       },
-    })
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid query parameters', details: error.errors },
-        { status: 400 }
-      )
+        { error: "Invalid query parameters", details: error.errors },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -189,10 +198,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate request body
-    const data = importVulnerabilitySchema.parse(body)
+    const data = importVulnerabilitySchema.parse(body);
 
     // Import vulnerability
     const vuln = tracker.importManualFinding({
@@ -204,23 +213,26 @@ export async function POST(request: NextRequest) {
       identifiers: data.identifiers,
       remediation: data.remediation,
       tags: data.tags,
-    })
+    });
 
     return NextResponse.json(
       {
-        message: 'Vulnerability imported successfully',
+        message: "Vulnerability imported successfully",
         vulnerability: vuln,
       },
-      { status: 201 }
-    )
+      { status: 201 },
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request body', details: error.errors },
-        { status: 400 }
-      )
+        { error: "Invalid request body", details: error.errors },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -4,10 +4,10 @@
  * Export all code-related components for easy importing
  */
 
-export { InlineCode } from '../InlineCode'
-export { CodeBlock } from '../CodeBlock'
-export { CodeSnippetModal, CodeSnippetSuggestions } from '../CodeSnippetModal'
-export type { CodeSnippet } from '../CodeSnippetModal'
+export { InlineCode } from "../InlineCode";
+export { CodeBlock } from "../CodeBlock";
+export { CodeSnippetModal, CodeSnippetSuggestions } from "../CodeSnippetModal";
+export type { CodeSnippet } from "../CodeSnippetModal";
 
 // Re-export syntax highlighter utilities
 export {
@@ -18,6 +18,6 @@ export {
   isLanguageSupported,
   normalizeLanguage,
   lowlight,
-} from '@/lib/markdown/syntax-highlighter'
+} from "@/lib/markdown/syntax-highlighter";
 
-export type { LanguageInfo } from '@/lib/markdown/syntax-highlighter'
+export type { LanguageInfo } from "@/lib/markdown/syntax-highlighter";

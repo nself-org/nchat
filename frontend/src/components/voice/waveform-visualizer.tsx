@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Waveform Visualizer Component
@@ -7,66 +7,66 @@
  * Supports progress indication and interactive seeking.
  */
 
-import { useRef, useEffect, useState, useCallback, memo } from 'react'
-import { cn } from '@/lib/utils'
-import type { RealtimeWaveformData, WaveformData } from '@/lib/voice'
+import { useRef, useEffect, useState, useCallback, memo } from "react";
+import { cn } from "@/lib/utils";
+import type { RealtimeWaveformData, WaveformData } from "@/lib/voice";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export type WaveformStyle = 'bars' | 'line' | 'mirror'
+export type WaveformStyle = "bars" | "line" | "mirror";
 
 export interface WaveformVisualizerProps {
   /** Real-time waveform data from recording */
-  realtimeData?: RealtimeWaveformData | null
+  realtimeData?: RealtimeWaveformData | null;
   /** Static waveform data for playback */
-  staticData?: WaveformData | number[] | null
+  staticData?: WaveformData | number[] | null;
   /** Progress percentage (0-100) for playback indication */
-  progress?: number
+  progress?: number;
   /** Whether the waveform is interactive (clickable to seek) */
-  interactive?: boolean
+  interactive?: boolean;
   /** Callback when user clicks to seek (progress 0-100) */
-  onSeek?: (progress: number) => void
+  onSeek?: (progress: number) => void;
   /** Visual style of the waveform */
-  style?: WaveformStyle
+  style?: WaveformStyle;
   /** Number of bars to display */
-  barCount?: number
+  barCount?: number;
   /** Gap between bars in pixels */
-  barGap?: number
+  barGap?: number;
   /** Minimum bar height as percentage (0-1) */
-  minBarHeight?: number
+  minBarHeight?: number;
   /** Bar border radius in pixels */
-  barRadius?: number
+  barRadius?: number;
   /** Color of the waveform (active/played portion) */
-  activeColor?: string
+  activeColor?: string;
   /** Color of the inactive/unplayed portion */
-  inactiveColor?: string
+  inactiveColor?: string;
   /** Background color */
-  backgroundColor?: string
+  backgroundColor?: string;
   /** Height of the visualizer */
-  height?: number | string
+  height?: number | string;
   /** Width of the visualizer */
-  width?: number | string
+  width?: number | string;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Animate bars (for recording) */
-  animated?: boolean
+  animated?: boolean;
   /** Show a gradient fade at the edges */
-  gradientFade?: boolean
+  gradientFade?: boolean;
 }
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-const DEFAULT_BAR_COUNT = 50
-const DEFAULT_BAR_GAP = 2
-const DEFAULT_MIN_BAR_HEIGHT = 0.08
-const DEFAULT_BAR_RADIUS = 2
-const DEFAULT_HEIGHT = 40
-const DEFAULT_ACTIVE_COLOR = 'hsl(var(--primary))'
-const DEFAULT_INACTIVE_COLOR = 'hsl(var(--muted-foreground) / 0.3)'
+const DEFAULT_BAR_COUNT = 50;
+const DEFAULT_BAR_GAP = 2;
+const DEFAULT_MIN_BAR_HEIGHT = 0.08;
+const DEFAULT_BAR_RADIUS = 2;
+const DEFAULT_HEIGHT = 40;
+const DEFAULT_ACTIVE_COLOR = "hsl(var(--primary))";
+const DEFAULT_INACTIVE_COLOR = "hsl(var(--muted-foreground) / 0.3)";
 
 // ============================================================================
 // COMPONENT
@@ -78,7 +78,7 @@ export const WaveformVisualizer = memo(function WaveformVisualizer({
   progress = 0,
   interactive = false,
   onSeek,
-  style = 'bars',
+  style = "bars",
   barCount = DEFAULT_BAR_COUNT,
   barGap = DEFAULT_BAR_GAP,
   minBarHeight = DEFAULT_MIN_BAR_HEIGHT,
@@ -87,89 +87,93 @@ export const WaveformVisualizer = memo(function WaveformVisualizer({
   inactiveColor = DEFAULT_INACTIVE_COLOR,
   backgroundColor,
   height = DEFAULT_HEIGHT,
-  width = '100%',
+  width = "100%",
   className,
   animated = false,
   gradientFade = false,
 }: WaveformVisualizerProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [bars, setBars] = useState<number[]>(() => new Array(barCount).fill(minBarHeight))
-  const [isHovering, setIsHovering] = useState(false)
-  const [hoverProgress, setHoverProgress] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [bars, setBars] = useState<number[]>(() =>
+    new Array(barCount).fill(minBarHeight),
+  );
+  const [isHovering, setIsHovering] = useState(false);
+  const [hoverProgress, setHoverProgress] = useState(0);
 
   // Process waveform data into bars
   useEffect(() => {
-    let newBars: number[]
+    let newBars: number[];
 
     if (realtimeData?.bars) {
       // Real-time data from recording
-      newBars = realtimeData.bars.slice(0, barCount)
+      newBars = realtimeData.bars.slice(0, barCount);
       // Pad if needed
       while (newBars.length < barCount) {
-        newBars.push(minBarHeight)
+        newBars.push(minBarHeight);
       }
     } else if (staticData) {
       // Static waveform data
-      const amplitudes = Array.isArray(staticData) ? staticData : staticData.amplitudes
+      const amplitudes = Array.isArray(staticData)
+        ? staticData
+        : staticData.amplitudes;
 
       if (amplitudes.length === barCount) {
-        newBars = amplitudes
+        newBars = amplitudes;
       } else {
         // Resample to match bar count
-        newBars = resampleArray(amplitudes, barCount)
+        newBars = resampleArray(amplitudes, barCount);
       }
     } else {
       // Default empty bars
-      newBars = new Array(barCount).fill(minBarHeight)
+      newBars = new Array(barCount).fill(minBarHeight);
     }
 
     // Apply minimum height
-    newBars = newBars.map((value) => Math.max(value, minBarHeight))
+    newBars = newBars.map((value) => Math.max(value, minBarHeight));
 
-    setBars(newBars)
-  }, [realtimeData, staticData, barCount, minBarHeight])
+    setBars(newBars);
+  }, [realtimeData, staticData, barCount, minBarHeight]);
 
   // Handle click for seeking
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!interactive || !onSeek || !containerRef.current) return
+      if (!interactive || !onSeek || !containerRef.current) return;
 
-      const rect = containerRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const percentage = (x / rect.width) * 100
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = (x / rect.width) * 100;
 
-      onSeek(Math.max(0, Math.min(100, percentage)))
+      onSeek(Math.max(0, Math.min(100, percentage)));
     },
-    [interactive, onSeek]
-  )
+    [interactive, onSeek],
+  );
 
   // Handle mouse move for hover preview
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!interactive || !containerRef.current) return
+      if (!interactive || !containerRef.current) return;
 
-      const rect = containerRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const percentage = (x / rect.width) * 100
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = (x / rect.width) * 100;
 
-      setHoverProgress(Math.max(0, Math.min(100, percentage)))
+      setHoverProgress(Math.max(0, Math.min(100, percentage)));
     },
-    [interactive]
-  )
+    [interactive],
+  );
 
   // Calculate bar dimensions
-  const containerWidth = typeof width === 'number' ? width : 0
-  const totalGapWidth = (barCount - 1) * barGap
-  const availableWidth = containerWidth - totalGapWidth
-  const barWidth = availableWidth / barCount
+  const containerWidth = typeof width === "number" ? width : 0;
+  const totalGapWidth = (barCount - 1) * barGap;
+  const availableWidth = containerWidth - totalGapWidth;
+  const barWidth = availableWidth / barCount;
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        'relative select-none overflow-hidden',
-        interactive && 'cursor-pointer',
-        className
+        "relative select-none overflow-hidden",
+        interactive && "cursor-pointer",
+        className,
       )}
       style={{
         height,
@@ -180,12 +184,12 @@ export const WaveformVisualizer = memo(function WaveformVisualizer({
       onKeyDown={
         interactive && onSeek
           ? (e) => {
-              if (e.key === 'ArrowLeft') {
-                e.preventDefault()
-                onSeek(Math.max(0, progress - 5))
-              } else if (e.key === 'ArrowRight') {
-                e.preventDefault()
-                onSeek(Math.min(100, progress + 5))
+              if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                onSeek(Math.max(0, progress - 5));
+              } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                onSeek(Math.min(100, progress + 5));
               }
             }
           : undefined
@@ -193,9 +197,9 @@ export const WaveformVisualizer = memo(function WaveformVisualizer({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      role={interactive ? 'slider' : 'presentation'}
+      role={interactive ? "slider" : "presentation"}
       tabIndex={interactive ? 0 : undefined}
-      aria-label={interactive ? 'Audio progress' : 'Audio waveform'}
+      aria-label={interactive ? "Audio progress" : "Audio waveform"}
       aria-valuemin={interactive ? 0 : undefined}
       aria-valuemax={interactive ? 100 : undefined}
       aria-valuenow={interactive ? Math.round(progress) : undefined}
@@ -203,9 +207,9 @@ export const WaveformVisualizer = memo(function WaveformVisualizer({
       {/* Bars container */}
       <div className="flex h-full w-full items-center justify-center gap-px">
         {bars.map((amplitude, index) => {
-          const barProgress = (index / barCount) * 100
-          const isActive = barProgress <= progress
-          const isHoverActive = isHovering && barProgress <= hoverProgress
+          const barProgress = (index / barCount) * 100;
+          const isActive = barProgress <= progress;
+          const isHoverActive = isHovering && barProgress <= hoverProgress;
 
           return (
             <WaveformBar
@@ -222,7 +226,7 @@ export const WaveformVisualizer = memo(function WaveformVisualizer({
               index={index}
               total={barCount}
             />
-          )
+          );
         })}
       </div>
 
@@ -232,13 +236,13 @@ export const WaveformVisualizer = memo(function WaveformVisualizer({
           <div
             className="pointer-events-none absolute inset-y-0 left-0 w-4"
             style={{
-              background: `linear-gradient(to right, ${backgroundColor || 'hsl(var(--background))'}, transparent)`,
+              background: `linear-gradient(to right, ${backgroundColor || "hsl(var(--background))"}, transparent)`,
             }}
           />
           <div
             className="pointer-events-none absolute inset-y-0 right-0 w-4"
             style={{
-              background: `linear-gradient(to left, ${backgroundColor || 'hsl(var(--background))'}, transparent)`,
+              background: `linear-gradient(to left, ${backgroundColor || "hsl(var(--background))"}, transparent)`,
             }}
           />
         </>
@@ -252,25 +256,25 @@ export const WaveformVisualizer = memo(function WaveformVisualizer({
         />
       )}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // SUB-COMPONENTS
 // ============================================================================
 
 interface WaveformBarProps {
-  amplitude: number
-  isActive: boolean
-  isHoverActive: boolean
-  activeColor: string
-  inactiveColor: string
-  barGap: number
-  barRadius: number
-  animated: boolean
-  style: WaveformStyle
-  index: number
-  total: number
+  amplitude: number;
+  isActive: boolean;
+  isHoverActive: boolean;
+  activeColor: string;
+  inactiveColor: string;
+  barGap: number;
+  barRadius: number;
+  animated: boolean;
+  style: WaveformStyle;
+  index: number;
+  total: number;
 }
 
 const WaveformBar = memo(function WaveformBar({
@@ -286,25 +290,25 @@ const WaveformBar = memo(function WaveformBar({
   index,
   total,
 }: WaveformBarProps) {
-  const heightPercent = amplitude * 100
+  const heightPercent = amplitude * 100;
 
   // Determine color
-  let color = inactiveColor
+  let color = inactiveColor;
   if (isActive) {
-    color = activeColor
+    color = activeColor;
   } else if (isHoverActive) {
-    color = `${activeColor}80` // 50% opacity
+    color = `${activeColor}80`; // 50% opacity
   }
 
   // Animation delay for wave effect
-  const animationDelay = animated ? `${(index / total) * 0.5}s` : undefined
+  const animationDelay = animated ? `${(index / total) * 0.5}s` : undefined;
 
-  if (style === 'mirror') {
+  if (style === "mirror") {
     return (
       <div
         className={cn(
-          'flex flex-1 flex-col items-center justify-center gap-0.5',
-          animated && 'animate-pulse'
+          "flex flex-1 flex-col items-center justify-center gap-0.5",
+          animated && "animate-pulse",
         )}
         style={{
           marginLeft: index === 0 ? 0 : barGap / 2,
@@ -333,10 +337,10 @@ const WaveformBar = memo(function WaveformBar({
           }}
         />
       </div>
-    )
+    );
   }
 
-  if (style === 'line') {
+  if (style === "line") {
     // Line style - connected path
     return (
       <div
@@ -347,7 +351,10 @@ const WaveformBar = memo(function WaveformBar({
         }}
       >
         <div
-          className={cn('h-0.5 w-full transition-all duration-75', animated && 'animate-pulse')}
+          className={cn(
+            "h-0.5 w-full transition-all duration-75",
+            animated && "animate-pulse",
+          )}
           style={{
             backgroundColor: color,
             transform: `scaleY(${Math.max(0.5, amplitude * 8)})`,
@@ -355,15 +362,15 @@ const WaveformBar = memo(function WaveformBar({
           }}
         />
       </div>
-    )
+    );
   }
 
   // Default: bars style
   return (
     <div
       className={cn(
-        'flex flex-1 items-center justify-center transition-all duration-75',
-        animated && 'animate-pulse'
+        "flex flex-1 items-center justify-center transition-all duration-75",
+        animated && "animate-pulse",
       )}
       style={{
         marginLeft: index === 0 ? 0 : barGap / 2,
@@ -381,8 +388,8 @@ const WaveformBar = memo(function WaveformBar({
         }}
       />
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -392,24 +399,25 @@ const WaveformBar = memo(function WaveformBar({
  * Resample an array to a target length using linear interpolation
  */
 function resampleArray(arr: number[], targetLength: number): number[] {
-  if (arr.length === 0) return new Array(targetLength).fill(0)
-  if (arr.length === targetLength) return arr
+  if (arr.length === 0) return new Array(targetLength).fill(0);
+  if (arr.length === targetLength) return arr;
 
-  const result: number[] = []
-  const ratio = arr.length / targetLength
+  const result: number[] = [];
+  const ratio = arr.length / targetLength;
 
   for (let i = 0; i < targetLength; i++) {
-    const srcIndex = i * ratio
-    const srcIndexFloor = Math.floor(srcIndex)
-    const srcIndexCeil = Math.min(srcIndexFloor + 1, arr.length - 1)
-    const fraction = srcIndex - srcIndexFloor
+    const srcIndex = i * ratio;
+    const srcIndexFloor = Math.floor(srcIndex);
+    const srcIndexCeil = Math.min(srcIndexFloor + 1, arr.length - 1);
+    const fraction = srcIndex - srcIndexFloor;
 
     // Linear interpolation
-    const value = arr[srcIndexFloor] * (1 - fraction) + arr[srcIndexCeil] * fraction
-    result.push(value)
+    const value =
+      arr[srcIndexFloor] * (1 - fraction) + arr[srcIndexCeil] * fraction;
+    result.push(value);
   }
 
-  return result
+  return result;
 }
 
 // ============================================================================
@@ -418,21 +426,21 @@ function resampleArray(arr: number[], targetLength: number): number[] {
 
 export interface CanvasWaveformProps {
   /** Waveform amplitudes (0-1) */
-  amplitudes: number[]
+  amplitudes: number[];
   /** Progress percentage (0-100) */
-  progress?: number
+  progress?: number;
   /** Active color */
-  activeColor?: string
+  activeColor?: string;
   /** Inactive color */
-  inactiveColor?: string
+  inactiveColor?: string;
   /** Canvas width */
-  width?: number
+  width?: number;
   /** Canvas height */
-  height?: number
+  height?: number;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Callback for seeking */
-  onSeek?: (progress: number) => void
+  onSeek?: (progress: number) => void;
 }
 
 /**
@@ -448,63 +456,63 @@ export function CanvasWaveform({
   className,
   onSeek,
 }: CanvasWaveformProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     // Clear canvas
-    ctx.clearRect(0, 0, width, height)
+    ctx.clearRect(0, 0, width, height);
 
     // Calculate bar dimensions
-    const barCount = amplitudes.length
-    const barWidth = width / barCount
-    const progressX = (progress / 100) * width
+    const barCount = amplitudes.length;
+    const barWidth = width / barCount;
+    const progressX = (progress / 100) * width;
 
     // Draw bars
     amplitudes.forEach((amplitude, index) => {
-      const x = index * barWidth
-      const barHeight = amplitude * height
-      const y = (height - barHeight) / 2
+      const x = index * barWidth;
+      const barHeight = amplitude * height;
+      const y = (height - barHeight) / 2;
 
       // Determine color based on progress
-      ctx.fillStyle = x < progressX ? activeColor : inactiveColor
+      ctx.fillStyle = x < progressX ? activeColor : inactiveColor;
 
       // Draw rounded rect
-      const radius = Math.min(2, barWidth / 2)
-      roundRect(ctx, x + 1, y, Math.max(1, barWidth - 2), barHeight, radius)
-    })
-  }, [amplitudes, progress, activeColor, inactiveColor, width, height])
+      const radius = Math.min(2, barWidth / 2);
+      roundRect(ctx, x + 1, y, Math.max(1, barWidth - 2), barHeight, radius);
+    });
+  }, [amplitudes, progress, activeColor, inactiveColor, width, height]);
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
-      if (!onSeek) return
+      if (!onSeek) return;
 
-      const canvas = canvasRef.current
-      if (!canvas) return
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-      const rect = canvas.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const percentage = (x / rect.width) * 100
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = (x / rect.width) * 100;
 
-      onSeek(Math.max(0, Math.min(100, percentage)))
+      onSeek(Math.max(0, Math.min(100, percentage)));
     },
-    [onSeek]
-  )
+    [onSeek],
+  );
 
   return (
     <canvas
       ref={canvasRef}
       width={width}
       height={height}
-      className={cn(onSeek && 'cursor-pointer', className)}
+      className={cn(onSeek && "cursor-pointer", className)}
       onClick={handleClick}
     />
-  )
+  );
 }
 
 /**
@@ -516,20 +524,20 @@ function roundRect(
   y: number,
   width: number,
   height: number,
-  radius: number
+  radius: number,
 ) {
-  ctx.beginPath()
-  ctx.moveTo(x + radius, y)
-  ctx.lineTo(x + width - radius, y)
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
-  ctx.lineTo(x + width, y + height - radius)
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-  ctx.lineTo(x + radius, y + height)
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
-  ctx.lineTo(x, y + radius)
-  ctx.quadraticCurveTo(x, y, x + radius, y)
-  ctx.closePath()
-  ctx.fill()
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+  ctx.fill();
 }
 
-export default WaveformVisualizer
+export default WaveformVisualizer;

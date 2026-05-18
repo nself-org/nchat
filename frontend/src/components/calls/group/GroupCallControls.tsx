@@ -5,24 +5,24 @@
  * layout options, and participant management.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import {
   Mic,
   MicOff,
@@ -47,52 +47,55 @@ import {
   Circle,
   Square,
   ChevronUp,
-} from 'lucide-react'
+} from "lucide-react";
 
-import type { LayoutType, ParticipantRole } from '@/services/calls/group-call.service'
+import type {
+  LayoutType,
+  ParticipantRole,
+} from "@/services/calls/group-call.service";
 
 export interface GroupCallControlsProps {
   // Media state
-  isMuted: boolean
-  isVideoEnabled: boolean
-  isScreenSharing: boolean
-  isHandRaised: boolean
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  isScreenSharing: boolean;
+  isHandRaised: boolean;
 
   // Role and permissions
-  isHost: boolean
-  isCoHost: boolean
-  myRole: ParticipantRole | null
+  isHost: boolean;
+  isCoHost: boolean;
+  myRole: ParticipantRole | null;
 
   // Room state
-  isLocked: boolean
-  isRecording: boolean
-  layout: LayoutType
-  participantCount: number
-  lobbyCount: number
+  isLocked: boolean;
+  isRecording: boolean;
+  layout: LayoutType;
+  participantCount: number;
+  lobbyCount: number;
 
   // Actions
-  onToggleMute: () => void
-  onToggleVideo: () => void
-  onToggleScreenShare: () => void
-  onRaiseHand: () => void
-  onLowerHand: () => void
-  onEndCall: () => void
-  onEndCallForEveryone?: () => void
+  onToggleMute: () => void;
+  onToggleVideo: () => void;
+  onToggleScreenShare: () => void;
+  onRaiseHand: () => void;
+  onLowerHand: () => void;
+  onEndCall: () => void;
+  onEndCallForEveryone?: () => void;
 
   // Host controls
-  onMuteAll?: () => void
-  onUnmuteAll?: () => void
-  onLockRoom?: () => void
-  onUnlockRoom?: () => void
-  onStartRecording?: () => void
-  onStopRecording?: () => void
+  onMuteAll?: () => void;
+  onUnmuteAll?: () => void;
+  onLockRoom?: () => void;
+  onUnlockRoom?: () => void;
+  onStartRecording?: () => void;
+  onStopRecording?: () => void;
 
   // Layout controls
-  onSetLayout: (layout: LayoutType) => void
-  onOpenParticipants?: () => void
-  onOpenSettings?: () => void
+  onSetLayout: (layout: LayoutType) => void;
+  onOpenParticipants?: () => void;
+  onOpenSettings?: () => void;
 
-  className?: string
+  className?: string;
 }
 
 export function GroupCallControls({
@@ -126,20 +129,21 @@ export function GroupCallControls({
   onOpenSettings,
   className,
 }: GroupCallControlsProps) {
-  const [showEndOptions, setShowEndOptions] = useState(false)
+  const [showEndOptions, setShowEndOptions] = useState(false);
 
-  const canManageParticipants = isHost || isCoHost
-  const canRecord = isHost
-  const canUnmute = myRole !== 'viewer'
-  const canEnableVideo = myRole !== 'viewer'
-  const canShareScreen = myRole === 'host' || myRole === 'co-host' || myRole === 'participant'
+  const canManageParticipants = isHost || isCoHost;
+  const canRecord = isHost;
+  const canUnmute = myRole !== "viewer";
+  const canEnableVideo = myRole !== "viewer";
+  const canShareScreen =
+    myRole === "host" || myRole === "co-host" || myRole === "participant";
 
   return (
     <TooltipProvider>
       <div
         className={cn(
-          'flex items-center justify-center gap-2 p-4 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg',
-          className
+          "flex items-center justify-center gap-2 p-4 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg",
+          className,
         )}
       >
         {/* Left section: Media controls */}
@@ -148,7 +152,7 @@ export function GroupCallControls({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant={isMuted ? 'destructive' : 'secondary'}
+                variant={isMuted ? "destructive" : "secondary"}
                 size="icon"
                 onClick={onToggleMute}
                 disabled={!canUnmute && !isMuted}
@@ -161,16 +165,14 @@ export function GroupCallControls({
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>
-              {isMuted ? 'Unmute' : 'Mute'}
-            </TooltipContent>
+            <TooltipContent>{isMuted ? "Unmute" : "Mute"}</TooltipContent>
           </Tooltip>
 
           {/* Camera */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant={isVideoEnabled ? 'secondary' : 'destructive'}
+                variant={isVideoEnabled ? "secondary" : "destructive"}
                 size="icon"
                 onClick={onToggleVideo}
                 disabled={!canEnableVideo && !isVideoEnabled}
@@ -184,7 +186,7 @@ export function GroupCallControls({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+              {isVideoEnabled ? "Turn off camera" : "Turn on camera"}
             </TooltipContent>
           </Tooltip>
 
@@ -193,7 +195,7 @@ export function GroupCallControls({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={isScreenSharing ? 'default' : 'secondary'}
+                  variant={isScreenSharing ? "default" : "secondary"}
                   size="icon"
                   onClick={onToggleScreenShare}
                   className="rounded-full h-12 w-12"
@@ -206,7 +208,7 @@ export function GroupCallControls({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {isScreenSharing ? 'Stop sharing' : 'Share screen'}
+                {isScreenSharing ? "Stop sharing" : "Share screen"}
               </TooltipContent>
             </Tooltip>
           )}
@@ -215,19 +217,20 @@ export function GroupCallControls({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant={isHandRaised ? 'default' : 'secondary'}
+                variant={isHandRaised ? "default" : "secondary"}
                 size="icon"
                 onClick={isHandRaised ? onLowerHand : onRaiseHand}
                 className={cn(
-                  'rounded-full h-12 w-12',
-                  isHandRaised && 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                  "rounded-full h-12 w-12",
+                  isHandRaised &&
+                    "bg-yellow-500 hover:bg-yellow-600 text-white",
                 )}
               >
                 <Hand className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {isHandRaised ? 'Lower hand' : 'Raise hand'}
+              {isHandRaised ? "Lower hand" : "Raise hand"}
             </TooltipContent>
           </Tooltip>
         </div>
@@ -240,35 +243,39 @@ export function GroupCallControls({
           {/* Layout selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full h-10 w-10">
+              <Button
+                variant="secondary"
+                size="icon"
+                className="rounded-full h-10 w-10"
+              >
                 <LayoutGrid className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
               <DropdownMenuItem
-                onClick={() => onSetLayout('grid')}
-                className={layout === 'grid' ? 'bg-accent' : ''}
+                onClick={() => onSetLayout("grid")}
+                className={layout === "grid" ? "bg-accent" : ""}
               >
                 <Grid3X3 className="h-4 w-4 mr-2" />
                 Grid View
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => onSetLayout('speaker')}
-                className={layout === 'speaker' ? 'bg-accent' : ''}
+                onClick={() => onSetLayout("speaker")}
+                className={layout === "speaker" ? "bg-accent" : ""}
               >
                 <Maximize2 className="h-4 w-4 mr-2" />
                 Speaker View
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => onSetLayout('spotlight')}
-                className={layout === 'spotlight' ? 'bg-accent' : ''}
+                onClick={() => onSetLayout("spotlight")}
+                className={layout === "spotlight" ? "bg-accent" : ""}
               >
                 <LayoutList className="h-4 w-4 mr-2" />
                 Spotlight
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => onSetLayout('sidebar')}
-                className={layout === 'sidebar' ? 'bg-accent' : ''}
+                onClick={() => onSetLayout("sidebar")}
+                className={layout === "sidebar" ? "bg-accent" : ""}
               >
                 <LayoutGrid className="h-4 w-4 mr-2" />
                 Sidebar
@@ -332,7 +339,11 @@ export function GroupCallControls({
           {canManageParticipants && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full h-10 w-10">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="rounded-full h-10 w-10"
+                >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -404,7 +415,10 @@ export function GroupCallControls({
                   <Phone className="h-5 w-5 rotate-[135deg] mr-2" />
                   Leave
                 </Button>
-                <DropdownMenu open={showEndOptions} onOpenChange={setShowEndOptions}>
+                <DropdownMenu
+                  open={showEndOptions}
+                  onOpenChange={setShowEndOptions}
+                >
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="destructive"
@@ -447,5 +461,5 @@ export function GroupCallControls({
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }

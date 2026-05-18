@@ -6,9 +6,14 @@
  * provides fallback implementations for non-native environments.
  */
 
-import { Platform, detectPlatform, isNative, isBrowser } from './platform-detector'
+import {
+  Platform,
+  detectPlatform,
+  isNative,
+  isBrowser,
+} from "./platform-detector";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -19,21 +24,21 @@ import { logger } from '@/lib/logger'
  */
 export interface NativeBridgePlugin<T = unknown> {
   /** Unique plugin identifier */
-  id: string
+  id: string;
   /** Human-readable plugin name */
-  name: string
+  name: string;
   /** Plugin version */
-  version: string
+  version: string;
   /** Platforms this plugin supports */
-  supportedPlatforms: Platform[]
+  supportedPlatforms: Platform[];
   /** Initialize the plugin */
-  initialize: () => Promise<void>
+  initialize: () => Promise<void>;
   /** Check if the plugin is available */
-  isAvailable: () => boolean
+  isAvailable: () => boolean;
   /** Plugin API */
-  api: T
+  api: T;
   /** Cleanup function */
-  cleanup?: () => Promise<void>
+  cleanup?: () => Promise<void>;
 }
 
 /**
@@ -41,9 +46,9 @@ export interface NativeBridgePlugin<T = unknown> {
  */
 export interface PluginRegistrationOptions {
   /** Override existing plugin with same ID */
-  override?: boolean
+  override?: boolean;
   /** Initialize immediately after registration */
-  autoInitialize?: boolean
+  autoInitialize?: boolean;
 }
 
 /**
@@ -51,48 +56,48 @@ export interface PluginRegistrationOptions {
  */
 export interface NativeBridgeConfig {
   /** Enable debug logging */
-  debug?: boolean
+  debug?: boolean;
   /** Fallback to web APIs when native not available */
-  enableFallbacks?: boolean
+  enableFallbacks?: boolean;
   /** Plugin initialization timeout in ms */
-  initTimeout?: number
+  initTimeout?: number;
 }
 
 /**
  * Plugin state
  */
 export interface PluginState {
-  initialized: boolean
-  available: boolean
-  error?: Error
+  initialized: boolean;
+  available: boolean;
+  error?: Error;
 }
 
 /**
  * Bridge event types
  */
 export type BridgeEventType =
-  | 'plugin:registered'
-  | 'plugin:initialized'
-  | 'plugin:error'
-  | 'plugin:removed'
-  | 'bridge:ready'
-  | 'bridge:error'
+  | "plugin:registered"
+  | "plugin:initialized"
+  | "plugin:error"
+  | "plugin:removed"
+  | "bridge:ready"
+  | "bridge:error";
 
 /**
  * Bridge event payload
  */
 export interface BridgeEvent {
-  type: BridgeEventType
-  pluginId?: string
-  data?: unknown
-  error?: Error
-  timestamp: number
+  type: BridgeEventType;
+  pluginId?: string;
+  data?: unknown;
+  error?: Error;
+  timestamp: number;
 }
 
 /**
  * Bridge event listener
  */
-export type BridgeEventListener = (event: BridgeEvent) => void
+export type BridgeEventListener = (event: BridgeEvent) => void;
 
 // ============================================================================
 // Native Bridge Implementation
@@ -102,12 +107,13 @@ export type BridgeEventListener = (event: BridgeEvent) => void
  * Native Bridge class for managing platform plugins
  */
 class NativeBridgeImpl {
-  private plugins: Map<string, NativeBridgePlugin> = new Map()
-  private pluginStates: Map<string, PluginState> = new Map()
-  private eventListeners: Map<BridgeEventType, Set<BridgeEventListener>> = new Map()
-  private config: NativeBridgeConfig
-  private initialized: boolean = false
-  private currentPlatform: Platform
+  private plugins: Map<string, NativeBridgePlugin> = new Map();
+  private pluginStates: Map<string, PluginState> = new Map();
+  private eventListeners: Map<BridgeEventType, Set<BridgeEventListener>> =
+    new Map();
+  private config: NativeBridgeConfig;
+  private initialized: boolean = false;
+  private currentPlatform: Platform;
 
   constructor(config: NativeBridgeConfig = {}) {
     this.config = {
@@ -115,8 +121,8 @@ class NativeBridgeImpl {
       enableFallbacks: true,
       initTimeout: 5000,
       ...config,
-    }
-    this.currentPlatform = detectPlatform()
+    };
+    this.currentPlatform = detectPlatform();
   }
 
   /**
@@ -124,20 +130,20 @@ class NativeBridgeImpl {
    */
   async initialize(): Promise<void> {
     if (this.initialized) {
-      this.log('Bridge already initialized')
-      return
+      this.log("Bridge already initialized");
+      return;
     }
 
     try {
-      this.log('Initializing native bridge...')
-      this.currentPlatform = detectPlatform()
-      this.initialized = true
-      this.emit({ type: 'bridge:ready', timestamp: Date.now() })
-      this.log('Native bridge initialized successfully')
+      this.log("Initializing native bridge...");
+      this.currentPlatform = detectPlatform();
+      this.initialized = true;
+      this.emit({ type: "bridge:ready", timestamp: Date.now() });
+      this.log("Native bridge initialized successfully");
     } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
-      this.emit({ type: 'bridge:error', error: err, timestamp: Date.now() })
-      throw err
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.emit({ type: "bridge:error", error: err, timestamp: Date.now() });
+      throw err;
     }
   }
 
@@ -146,94 +152,96 @@ class NativeBridgeImpl {
    */
   registerPlugin<T>(
     plugin: NativeBridgePlugin<T>,
-    options: PluginRegistrationOptions = {}
+    options: PluginRegistrationOptions = {},
   ): boolean {
-    const { override = false, autoInitialize = false } = options
+    const { override = false, autoInitialize = false } = options;
 
     // Check if plugin already exists
     if (this.plugins.has(plugin.id) && !override) {
-      this.log(`Plugin ${plugin.id} already registered`)
-      return false
+      this.log(`Plugin ${plugin.id} already registered`);
+      return false;
     }
 
     // Check platform support
     if (!plugin.supportedPlatforms.includes(this.currentPlatform)) {
-      this.log(`Plugin ${plugin.id} does not support platform ${this.currentPlatform}`)
+      this.log(
+        `Plugin ${plugin.id} does not support platform ${this.currentPlatform}`,
+      );
       if (!this.config.enableFallbacks) {
-        return false
+        return false;
       }
     }
 
-    this.plugins.set(plugin.id, plugin)
+    this.plugins.set(plugin.id, plugin);
     this.pluginStates.set(plugin.id, {
       initialized: false,
       available: plugin.isAvailable(),
-    })
+    });
 
     this.emit({
-      type: 'plugin:registered',
+      type: "plugin:registered",
       pluginId: plugin.id,
       timestamp: Date.now(),
-    })
+    });
 
-    this.log(`Plugin ${plugin.id} registered`)
+    this.log(`Plugin ${plugin.id} registered`);
 
     if (autoInitialize) {
       this.initializePlugin(plugin.id).catch((error) => {
-        this.log(`Auto-initialize failed for ${plugin.id}: ${error}`)
-      })
+        this.log(`Auto-initialize failed for ${plugin.id}: ${error}`);
+      });
     }
 
-    return true
+    return true;
   }
 
   /**
    * Unregister a plugin
    */
   async unregisterPlugin(pluginId: string): Promise<boolean> {
-    const plugin = this.plugins.get(pluginId)
+    const plugin = this.plugins.get(pluginId);
     if (!plugin) {
-      this.log(`Plugin ${pluginId} not found`)
-      return false
+      this.log(`Plugin ${pluginId} not found`);
+      return false;
     }
 
     // Cleanup if needed
     if (plugin.cleanup) {
       try {
-        await plugin.cleanup()
+        await plugin.cleanup();
       } catch (error) {
-        this.log(`Cleanup failed for ${pluginId}: ${error}`)
+        this.log(`Cleanup failed for ${pluginId}: ${error}`);
       }
     }
 
-    this.plugins.delete(pluginId)
-    this.pluginStates.delete(pluginId)
+    this.plugins.delete(pluginId);
+    this.pluginStates.delete(pluginId);
 
     this.emit({
-      type: 'plugin:removed',
+      type: "plugin:removed",
       pluginId,
       timestamp: Date.now(),
-    })
+    });
 
-    this.log(`Plugin ${pluginId} unregistered`)
-    return true
+    this.log(`Plugin ${pluginId} unregistered`);
+    return true;
   }
 
   /**
    * Initialize a specific plugin
    */
   async initializePlugin(pluginId: string): Promise<boolean> {
-    const plugin = this.plugins.get(pluginId)
-    const state = this.pluginStates.get(pluginId)
+    const plugin = this.plugins.get(pluginId);
+    const state = this.pluginStates.get(pluginId);
 
     if (!plugin || !state) {
-      this.log(`Plugin ${pluginId} not found`)
-      return false
+      this.log(`Plugin ${pluginId} not found`);
+      return false;
     }
 
     if (state.initialized) {
-      this.log(`Plugin ${pluginId} already initialized`)
-      return true
+      this.log(`Plugin ${pluginId} already initialized`);
+      return true;
     }
 
     try {
@@ -241,45 +249,45 @@ class NativeBridgeImpl {
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(
           () => reject(new Error(`Plugin ${pluginId} initialization timeout`)),
-          this.config.initTimeout
-        )
-      })
+          this.config.initTimeout,
+        );
+      });
 
       // Race initialization against timeout
-      await Promise.race([plugin.initialize(), timeoutPromise])
+      await Promise.race([plugin.initialize(), timeoutPromise]);
 
       this.pluginStates.set(pluginId, {
         ...state,
         initialized: true,
         available: plugin.isAvailable(),
-      })
+      });
 
       this.emit({
-        type: 'plugin:initialized',
+        type: "plugin:initialized",
         pluginId,
         timestamp: Date.now(),
-      })
+      });
 
-      this.log(`Plugin ${pluginId} initialized`)
-      return true
+      this.log(`Plugin ${pluginId} initialized`);
+      return true;
     } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
+      const err = error instanceof Error ? error : new Error(String(error));
 
       this.pluginStates.set(pluginId, {
         ...state,
         initialized: false,
         error: err,
-      })
+      });
 
       this.emit({
-        type: 'plugin:error',
+        type: "plugin:error",
         pluginId,
         error: err,
         timestamp: Date.now(),
-      })
+      });
 
-      this.log(`Plugin ${pluginId} initialization failed: ${err.message}`)
-      return false
+      this.log(`Plugin ${pluginId} initialization failed: ${err.message}`);
+      return false;
     }
   }
 
@@ -287,103 +295,105 @@ class NativeBridgeImpl {
    * Initialize all registered plugins
    */
   async initializeAllPlugins(): Promise<Map<string, boolean>> {
-    const results = new Map<string, boolean>()
+    const results = new Map<string, boolean>();
 
     for (const pluginId of this.plugins.keys()) {
-      const success = await this.initializePlugin(pluginId)
-      results.set(pluginId, success)
+      const success = await this.initializePlugin(pluginId);
+      results.set(pluginId, success);
     }
 
-    return results
+    return results;
   }
 
   /**
    * Get a plugin by ID
    */
   getPlugin<T>(pluginId: string): NativeBridgePlugin<T> | undefined {
-    return this.plugins.get(pluginId) as NativeBridgePlugin<T> | undefined
+    return this.plugins.get(pluginId) as NativeBridgePlugin<T> | undefined;
   }
 
   /**
    * Get plugin API
    */
   getPluginAPI<T>(pluginId: string): T | undefined {
-    const plugin = this.plugins.get(pluginId) as NativeBridgePlugin<T> | undefined
+    const plugin = this.plugins.get(pluginId) as
+      | NativeBridgePlugin<T>
+      | undefined;
     if (!plugin) {
-      return undefined
+      return undefined;
     }
 
-    const state = this.pluginStates.get(pluginId)
+    const state = this.pluginStates.get(pluginId);
     if (!state?.available) {
-      return undefined
+      return undefined;
     }
 
-    return plugin.api
+    return plugin.api;
   }
 
   /**
    * Check if a plugin is registered
    */
   hasPlugin(pluginId: string): boolean {
-    return this.plugins.has(pluginId)
+    return this.plugins.has(pluginId);
   }
 
   /**
    * Check if a plugin is available
    */
   isPluginAvailable(pluginId: string): boolean {
-    const state = this.pluginStates.get(pluginId)
-    return state?.available ?? false
+    const state = this.pluginStates.get(pluginId);
+    return state?.available ?? false;
   }
 
   /**
    * Check if a plugin is initialized
    */
   isPluginInitialized(pluginId: string): boolean {
-    const state = this.pluginStates.get(pluginId)
-    return state?.initialized ?? false
+    const state = this.pluginStates.get(pluginId);
+    return state?.initialized ?? false;
   }
 
   /**
    * Get plugin state
    */
   getPluginState(pluginId: string): PluginState | undefined {
-    return this.pluginStates.get(pluginId)
+    return this.pluginStates.get(pluginId);
   }
 
   /**
    * Get all registered plugin IDs
    */
   getPluginIds(): string[] {
-    return Array.from(this.plugins.keys())
+    return Array.from(this.plugins.keys());
   }
 
   /**
    * Get all plugins
    */
   getAllPlugins(): NativeBridgePlugin[] {
-    return Array.from(this.plugins.values())
+    return Array.from(this.plugins.values());
   }
 
   /**
    * Get current platform
    */
   getPlatform(): Platform {
-    return this.currentPlatform
+    return this.currentPlatform;
   }
 
   /**
    * Check if running on native platform
    */
   isNativePlatform(): boolean {
-    return isNative()
+    return isNative();
   }
 
   /**
    * Check if bridge is initialized
    */
   isInitialized(): boolean {
-    return this.initialized
+    return this.initialized;
   }
 
   /**
@@ -391,36 +401,36 @@ class NativeBridgeImpl {
    */
   on(eventType: BridgeEventType, listener: BridgeEventListener): () => void {
     if (!this.eventListeners.has(eventType)) {
-      this.eventListeners.set(eventType, new Set())
+      this.eventListeners.set(eventType, new Set());
     }
-    this.eventListeners.get(eventType)!.add(listener)
+    this.eventListeners.get(eventType)!.add(listener);
 
     // Return unsubscribe function
     return () => {
-      this.eventListeners.get(eventType)?.delete(listener)
-    }
+      this.eventListeners.get(eventType)?.delete(listener);
+    };
   }
 
   /**
    * Unsubscribe from bridge events
    */
   off(eventType: BridgeEventType, listener: BridgeEventListener): void {
-    this.eventListeners.get(eventType)?.delete(listener)
+    this.eventListeners.get(eventType)?.delete(listener);
   }
 
   /**
    * Emit a bridge event
    */
   private emit(event: BridgeEvent): void {
-    const listeners = this.eventListeners.get(event.type)
+    const listeners = this.eventListeners.get(event.type);
     if (listeners) {
       listeners.forEach((listener) => {
         try {
-          listener(event)
+          listener(event);
         } catch (error) {
-          logger.error('Bridge event listener error:', error)
+          logger.error("Bridge event listener error:", error);
         }
-      })
+      });
     }
   }
 
@@ -436,25 +446,25 @@ class NativeBridgeImpl {
    * Reset the bridge (for testing)
    */
   reset(): void {
-    this.plugins.clear()
-    this.pluginStates.clear()
-    this.eventListeners.clear()
-    this.initialized = false
-    this.currentPlatform = detectPlatform()
+    this.plugins.clear();
+    this.pluginStates.clear();
+    this.eventListeners.clear();
+    this.initialized = false;
+    this.currentPlatform = detectPlatform();
   }
 
   /**
    * Update configuration
    */
   configure(config: Partial<NativeBridgeConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
   }
 
   /**
    * Get current configuration
    */
   getConfig(): NativeBridgeConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 }
 
@@ -462,18 +472,18 @@ class NativeBridgeImpl {
 // Singleton Instance
 // ============================================================================
 
-let bridgeInstance: NativeBridgeImpl | null = null
+let bridgeInstance: NativeBridgeImpl | null = null;
 
 /**
  * Get the native bridge instance
  */
 export function getNativeBridge(config?: NativeBridgeConfig): NativeBridgeImpl {
   if (!bridgeInstance) {
-    bridgeInstance = new NativeBridgeImpl(config)
+    bridgeInstance = new NativeBridgeImpl(config);
   } else if (config) {
-    bridgeInstance.configure(config)
+    bridgeInstance.configure(config);
   }
-  return bridgeInstance
+  return bridgeInstance;
 }
 
 /**
@@ -481,8 +491,8 @@ export function getNativeBridge(config?: NativeBridgeConfig): NativeBridgeImpl {
  */
 export function resetNativeBridge(): void {
   if (bridgeInstance) {
-    bridgeInstance.reset()
-    bridgeInstance = null
+    bridgeInstance.reset();
+    bridgeInstance = null;
   }
 }
 
@@ -494,14 +504,14 @@ export function resetNativeBridge(): void {
  * Create a plugin definition
  */
 export function createPlugin<T>(
-  config: Omit<NativeBridgePlugin<T>, 'isAvailable'> & {
-    isAvailable?: () => boolean
-  }
+  config: Omit<NativeBridgePlugin<T>, "isAvailable"> & {
+    isAvailable?: () => boolean;
+  },
 ): NativeBridgePlugin<T> {
   return {
     ...config,
     isAvailable: config.isAvailable ?? (() => true),
-  }
+  };
 }
 
 /**
@@ -512,16 +522,16 @@ export function createFallbackPlugin<T>(
   name: string,
   api: T,
   options: {
-    version?: string
-    initialize?: () => Promise<void>
-    cleanup?: () => Promise<void>
-    isAvailable?: () => boolean
-  } = {}
+    version?: string;
+    initialize?: () => Promise<void>;
+    cleanup?: () => Promise<void>;
+    isAvailable?: () => boolean;
+  } = {},
 ): NativeBridgePlugin<T> {
   return {
     id,
     name,
-    version: options.version ?? '1.0.0',
+    version: options.version ?? "1.0.0",
     supportedPlatforms: [
       Platform.WEB,
       Platform.IOS,
@@ -533,7 +543,7 @@ export function createFallbackPlugin<T>(
     isAvailable: options.isAvailable ?? (() => isBrowser()),
     api,
     cleanup: options.cleanup,
-  }
+  };
 }
 
 // ============================================================================
@@ -545,23 +555,23 @@ export function createFallbackPlugin<T>(
  */
 export function registerPlugin<T>(
   plugin: NativeBridgePlugin<T>,
-  options?: PluginRegistrationOptions
+  options?: PluginRegistrationOptions,
 ): boolean {
-  return getNativeBridge().registerPlugin(plugin, options)
+  return getNativeBridge().registerPlugin(plugin, options);
 }
 
 /**
  * Get a plugin API from the native bridge
  */
 export function getPluginAPI<T>(pluginId: string): T | undefined {
-  return getNativeBridge().getPluginAPI<T>(pluginId)
+  return getNativeBridge().getPluginAPI<T>(pluginId);
 }
 
 /**
  * Check if a plugin is available
  */
 export function isPluginAvailable(pluginId: string): boolean {
-  return getNativeBridge().isPluginAvailable(pluginId)
+  return getNativeBridge().isPluginAvailable(pluginId);
 }
 
 /**
@@ -569,16 +579,16 @@ export function isPluginAvailable(pluginId: string): boolean {
  */
 export function onBridgeEvent(
   eventType: BridgeEventType,
-  listener: BridgeEventListener
+  listener: BridgeEventListener,
 ): () => void {
-  return getNativeBridge().on(eventType, listener)
+  return getNativeBridge().on(eventType, listener);
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export { NativeBridgeImpl }
+export { NativeBridgeImpl };
 
 export const NativeBridge = {
   getInstance: getNativeBridge,
@@ -589,6 +599,6 @@ export const NativeBridge = {
   getPluginAPI,
   isPluginAvailable,
   onBridgeEvent,
-}
+};
 
-export default NativeBridge
+export default NativeBridge;

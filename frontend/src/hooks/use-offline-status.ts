@@ -8,27 +8,27 @@
  * @version 1.0.0
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   realtimeClient,
   RealtimeConnectionState,
   ConnectionQuality,
-} from '@/services/realtime/realtime-client'
+} from "@/services/realtime/realtime-client";
 import {
   getOfflineQueueService,
   initializeOfflineQueue,
   QueuedMessage,
   QueueEventType,
-} from '@/services/realtime/offline-queue'
+} from "@/services/realtime/offline-queue";
 import {
   getSyncService,
   initializeSyncService,
   SyncStatus,
   SyncResult,
   SyncEventType,
-} from '@/services/realtime/sync.service'
+} from "@/services/realtime/sync.service";
 
 // ============================================================================
 // Types
@@ -39,27 +39,27 @@ import {
  */
 export interface OfflineStatusState {
   /** Whether the browser is online */
-  isOnline: boolean
+  isOnline: boolean;
   /** Whether the socket is connected */
-  isConnected: boolean
+  isConnected: boolean;
   /** Current connection state */
-  connectionState: RealtimeConnectionState
+  connectionState: RealtimeConnectionState;
   /** Connection quality */
-  connectionQuality: ConnectionQuality
+  connectionQuality: ConnectionQuality;
   /** Average latency in ms */
-  latency: number | null
+  latency: number | null;
   /** Number of messages in offline queue */
-  queueCount: number
+  queueCount: number;
   /** Whether queue is being flushed */
-  isFlushing: boolean
+  isFlushing: boolean;
   /** Current sync status */
-  syncStatus: SyncStatus
+  syncStatus: SyncStatus;
   /** Whether currently syncing */
-  isSyncing: boolean
+  isSyncing: boolean;
   /** Last sync timestamp */
-  lastSyncAt: number | null
+  lastSyncAt: number | null;
   /** Was previously offline (needs sync) */
-  wasOffline: boolean
+  wasOffline: boolean;
 }
 
 /**
@@ -67,17 +67,19 @@ export interface OfflineStatusState {
  */
 export interface OfflineStatusActions {
   /** Manually trigger sync */
-  sync: () => Promise<SyncResult | null>
+  sync: () => Promise<SyncResult | null>;
   /** Flush the offline queue */
-  flushQueue: () => Promise<{ sent: number; failed: number }>
+  flushQueue: () => Promise<{ sent: number; failed: number }>;
   /** Clear the offline queue */
-  clearQueue: () => void
+  clearQueue: () => void;
   /** Get queued messages */
-  getQueuedMessages: () => QueuedMessage[]
+  getQueuedMessages: () => QueuedMessage[];
   /** Queue a message for sending */
-  queueMessage: (message: Omit<QueuedMessage, 'id' | 'timestamp' | 'retries'>) => QueuedMessage
+  queueMessage: (
+    message: Omit<QueuedMessage, "id" | "timestamp" | "retries">,
+  ) => QueuedMessage;
   /** Remove a message from queue */
-  removeFromQueue: (id: string) => boolean
+  removeFromQueue: (id: string) => boolean;
 }
 
 /**
@@ -85,17 +87,17 @@ export interface OfflineStatusActions {
  */
 export interface UseOfflineStatusOptions {
   /** Enable offline queue service */
-  enableQueue?: boolean
+  enableQueue?: boolean;
   /** Enable sync service */
-  enableSync?: boolean
+  enableSync?: boolean;
   /** Enable debug logging */
-  debug?: boolean
+  debug?: boolean;
 }
 
 /**
  * useOfflineStatus hook return type
  */
-export type UseOfflineStatusReturn = OfflineStatusState & OfflineStatusActions
+export type UseOfflineStatusReturn = OfflineStatusState & OfflineStatusActions;
 
 // ============================================================================
 // Hook Implementation
@@ -136,26 +138,30 @@ export type UseOfflineStatusReturn = OfflineStatusState & OfflineStatusActions
  * }
  * ```
  */
-export function useOfflineStatus(options: UseOfflineStatusOptions = {}): UseOfflineStatusReturn {
-  const { enableQueue = true, enableSync = true, debug = false } = options
+export function useOfflineStatus(
+  options: UseOfflineStatusOptions = {},
+): UseOfflineStatusReturn {
+  const { enableQueue = true, enableSync = true, debug = false } = options;
 
   // State
   const [isOnline, setIsOnline] = useState(() => {
-    if (typeof window === 'undefined') return true
-    return navigator.onLine
-  })
-  const [isConnected, setIsConnected] = useState(false)
-  const [connectionState, setConnectionState] = useState<RealtimeConnectionState>('disconnected')
-  const [connectionQuality, setConnectionQuality] = useState<ConnectionQuality>('unknown')
-  const [latency, setLatency] = useState<number | null>(null)
-  const [queueCount, setQueueCount] = useState(0)
-  const [isFlushing, setIsFlushing] = useState(false)
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle')
-  const [lastSyncAt, setLastSyncAt] = useState<number | null>(null)
-  const [wasOffline, setWasOffline] = useState(false)
+    if (typeof window === "undefined") return true;
+    return navigator.onLine;
+  });
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionState, setConnectionState] =
+    useState<RealtimeConnectionState>("disconnected");
+  const [connectionQuality, setConnectionQuality] =
+    useState<ConnectionQuality>("unknown");
+  const [latency, setLatency] = useState<number | null>(null);
+  const [queueCount, setQueueCount] = useState(0);
+  const [isFlushing, setIsFlushing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const [lastSyncAt, setLastSyncAt] = useState<number | null>(null);
+  const [wasOffline, setWasOffline] = useState(false);
 
   // Refs
-  const unsubscribersRef = useRef<Array<() => void>>([])
+  const unsubscribersRef = useRef<Array<() => void>>([]);
 
   // ============================================================================
   // Logging
@@ -167,8 +173,8 @@ export function useOfflineStatus(options: UseOfflineStatusOptions = {}): UseOffl
         // REMOVED: console.log('[useOfflineStatus]', ...args)
       }
     },
-    [debug]
-  )
+    [debug],
+  );
 
   // ============================================================================
   // Queue Operations
@@ -178,59 +184,66 @@ export function useOfflineStatus(options: UseOfflineStatusOptions = {}): UseOffl
    * Get queued messages
    */
   const getQueuedMessages = useCallback((): QueuedMessage[] => {
-    if (!enableQueue) return []
-    const queue = getOfflineQueueService()
-    return queue.initialized ? queue.getQueuedMessages() : []
-  }, [enableQueue])
+    if (!enableQueue) return [];
+    const queue = getOfflineQueueService();
+    return queue.initialized ? queue.getQueuedMessages() : [];
+  }, [enableQueue]);
 
   /**
    * Queue a message
    */
   const queueMessage = useCallback(
-    (message: Omit<QueuedMessage, 'id' | 'timestamp' | 'retries'>): QueuedMessage => {
+    (
+      message: Omit<QueuedMessage, "id" | "timestamp" | "retries">,
+    ): QueuedMessage => {
       if (!enableQueue) {
-        throw new Error('Offline queue is not enabled')
+        throw new Error("Offline queue is not enabled");
       }
-      const queue = getOfflineQueueService()
+      const queue = getOfflineQueueService();
       if (!queue.initialized) {
-        initializeOfflineQueue({ debug })
+        initializeOfflineQueue({ debug });
       }
-      return queue.queueMessage(message)
+      return queue.queueMessage(message);
     },
-    [enableQueue, debug]
-  )
+    [enableQueue, debug],
+  );
 
   /**
    * Remove from queue
    */
   const removeFromQueue = useCallback(
     (id: string): boolean => {
-      if (!enableQueue) return false
-      const queue = getOfflineQueueService()
-      return queue.initialized ? queue.removeFromQueue(id) : false
+      if (!enableQueue) return false;
+      const queue = getOfflineQueueService();
+      return queue.initialized ? queue.removeFromQueue(id) : false;
     },
-    [enableQueue]
-  )
+    [enableQueue],
+  );
 
   /**
    * Flush the queue
    */
-  const flushQueue = useCallback(async (): Promise<{ sent: number; failed: number }> => {
-    if (!enableQueue) return { sent: 0, failed: 0 }
-    const queue = getOfflineQueueService()
-    return queue.initialized ? await queue.flushQueue() : { sent: 0, failed: 0 }
-  }, [enableQueue])
+  const flushQueue = useCallback(async (): Promise<{
+    sent: number;
+    failed: number;
+  }> => {
+    if (!enableQueue) return { sent: 0, failed: 0 };
+    const queue = getOfflineQueueService();
+    return queue.initialized
+      ? await queue.flushQueue()
+      : { sent: 0, failed: 0 };
+  }, [enableQueue]);
 
   /**
    * Clear the queue
    */
   const clearQueue = useCallback((): void => {
-    if (!enableQueue) return
-    const queue = getOfflineQueueService()
+    if (!enableQueue) return;
+    const queue = getOfflineQueueService();
     if (queue.initialized) {
-      queue.clearQueue()
+      queue.clearQueue();
     }
-  }, [enableQueue])
+  }, [enableQueue]);
 
   // ============================================================================
   // Sync Operations
@@ -240,24 +253,24 @@ export function useOfflineStatus(options: UseOfflineStatusOptions = {}): UseOffl
    * Trigger manual sync
    */
   const sync = useCallback(async (): Promise<SyncResult | null> => {
-    if (!enableSync) return null
+    if (!enableSync) return null;
 
-    const syncService = getSyncService()
+    const syncService = getSyncService();
     if (!syncService.initialized) {
-      initializeSyncService({ debug })
+      initializeSyncService({ debug });
     }
 
     try {
-      const result = await syncService.syncOnReconnect()
-      setLastSyncAt(result.timestamp)
-      setWasOffline(false)
-      realtimeClient.clearWasOffline()
-      return result
+      const result = await syncService.syncOnReconnect();
+      setLastSyncAt(result.timestamp);
+      setWasOffline(false);
+      realtimeClient.clearWasOffline();
+      return result;
     } catch (error) {
-      log('Sync failed:', error)
-      return null
+      log("Sync failed:", error);
+      return null;
     }
-  }, [enableSync, debug, log])
+  }, [enableSync, debug, log]);
 
   // ============================================================================
   // Effects
@@ -269,67 +282,67 @@ export function useOfflineStatus(options: UseOfflineStatusOptions = {}): UseOffl
   useEffect(() => {
     // Initialize queue service
     if (enableQueue) {
-      const queue = initializeOfflineQueue({ debug })
-      setQueueCount(queue.getQueueLength())
+      const queue = initializeOfflineQueue({ debug });
+      setQueueCount(queue.getQueueLength());
 
       // Subscribe to queue events
       const unsubQueue = queue.subscribe((event: QueueEventType) => {
-        log('Queue event:', event)
+        log("Queue event:", event);
 
         switch (event) {
-          case 'message:queued':
-          case 'message:sent':
-          case 'message:failed':
-          case 'queue:cleared':
-            setQueueCount(queue.getQueueLength())
-            break
-          case 'queue:flushing':
-            setIsFlushing(true)
-            break
-          case 'queue:flushed':
-            setIsFlushing(false)
-            setQueueCount(queue.getQueueLength())
-            break
+          case "message:queued":
+          case "message:sent":
+          case "message:failed":
+          case "queue:cleared":
+            setQueueCount(queue.getQueueLength());
+            break;
+          case "queue:flushing":
+            setIsFlushing(true);
+            break;
+          case "queue:flushed":
+            setIsFlushing(false);
+            setQueueCount(queue.getQueueLength());
+            break;
         }
-      })
+      });
 
-      unsubscribersRef.current.push(unsubQueue)
+      unsubscribersRef.current.push(unsubQueue);
     }
 
     // Initialize sync service
     if (enableSync) {
-      const syncService = initializeSyncService({ debug })
-      setLastSyncAt(syncService.getLastSyncTimestamp())
+      const syncService = initializeSyncService({ debug });
+      setLastSyncAt(syncService.getLastSyncTimestamp());
 
       // Subscribe to sync events
       const unsubSync = syncService.subscribe((event: SyncEventType, data) => {
-        log('Sync event:', event, data)
+        log("Sync event:", event, data);
 
         switch (event) {
-          case 'sync:started':
-            setSyncStatus('syncing')
-            break
-          case 'sync:completed':
-            setSyncStatus('completed')
+          case "sync:started":
+            setSyncStatus("syncing");
+            break;
+          case "sync:completed":
+            setSyncStatus("completed");
             if (data?.result) {
-              setLastSyncAt(data.result.timestamp)
-              setWasOffline(false)
+              setLastSyncAt(data.result.timestamp);
+              setWasOffline(false);
             }
-            break
-          case 'sync:failed':
-            setSyncStatus('failed')
-            break
+            break;
+          case "sync:failed":
+            setSyncStatus("failed");
+            break;
         }
-      })
+      });
 
-      unsubscribersRef.current.push(unsubSync)
+      unsubscribersRef.current.push(unsubSync);
     }
 
     return () => {
-      unsubscribersRef.current.forEach((unsub) => unsub())
-      unsubscribersRef.current = []
-    }
-  }, [enableQueue, enableSync, debug, log])
+      unsubscribersRef.current.forEach((unsub) => unsub());
+      unsubscribersRef.current = [];
+    };
+  }, [enableQueue, enableSync, debug, log]);
 
   /**
    * Subscribe to realtime client events
@@ -337,85 +350,87 @@ export function useOfflineStatus(options: UseOfflineStatusOptions = {}): UseOffl
   useEffect(() => {
     // Connection state changes
     const unsubConnection = realtimeClient.onConnectionStateChange((state) => {
-      log('Connection state:', state)
-      setConnectionState(state)
-      setIsConnected(state === 'connected' || state === 'authenticated')
-    })
+      log("Connection state:", state);
+      setConnectionState(state);
+      setIsConnected(state === "connected" || state === "authenticated");
+    });
 
-    unsubscribersRef.current.push(unsubConnection)
+    unsubscribersRef.current.push(unsubConnection);
 
     // Offline status changes
     const unsubOffline = realtimeClient.onOfflineStatusChange((online) => {
-      log('Online status:', online)
-      setIsOnline(online)
+      log("Online status:", online);
+      setIsOnline(online);
       if (!online) {
-        setWasOffline(true)
+        setWasOffline(true);
       }
-    })
+    });
 
-    unsubscribersRef.current.push(unsubOffline)
+    unsubscribersRef.current.push(unsubOffline);
 
     // Reconnection events
-    const unsubReconnection = realtimeClient.onReconnection((attempts, wasOffline) => {
-      log('Reconnected after', attempts, 'attempts, wasOffline:', wasOffline)
-      setWasOffline(wasOffline)
-    })
+    const unsubReconnection = realtimeClient.onReconnection(
+      (attempts, wasOffline) => {
+        log("Reconnected after", attempts, "attempts, wasOffline:", wasOffline);
+        setWasOffline(wasOffline);
+      },
+    );
 
-    unsubscribersRef.current.push(unsubReconnection)
+    unsubscribersRef.current.push(unsubReconnection);
 
     // Initial state
-    setIsOnline(realtimeClient.isOnline)
-    setIsConnected(realtimeClient.isConnected)
-    setConnectionState(realtimeClient.state)
-    setConnectionQuality(realtimeClient.connectionQuality)
-    setLatency(realtimeClient.averageLatency)
-    setWasOffline(realtimeClient.wasOffline)
+    setIsOnline(realtimeClient.isOnline);
+    setIsConnected(realtimeClient.isConnected);
+    setConnectionState(realtimeClient.state);
+    setConnectionQuality(realtimeClient.connectionQuality);
+    setLatency(realtimeClient.averageLatency);
+    setWasOffline(realtimeClient.wasOffline);
 
     return () => {
       // Cleanup is handled in the first useEffect
-    }
-  }, [log])
+    };
+  }, [log]);
 
   /**
    * Browser online/offline events
    */
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
     const handleOnline = () => {
-      log('Browser online')
-      setIsOnline(true)
-    }
+      log("Browser online");
+      setIsOnline(true);
+    };
 
     const handleOffline = () => {
-      log('Browser offline')
-      setIsOnline(false)
-      setWasOffline(true)
-    }
+      log("Browser offline");
+      setIsOnline(false);
+      setWasOffline(true);
+    };
 
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [log])
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [log]);
 
   /**
    * Update connection quality periodically
    */
   useEffect(() => {
     const updateQuality = () => {
-      setConnectionQuality(realtimeClient.connectionQuality)
-      setLatency(realtimeClient.averageLatency)
-    }
+      setConnectionQuality(realtimeClient.connectionQuality);
+      setLatency(realtimeClient.averageLatency);
+    };
 
-    const interval = setInterval(updateQuality, 5000)
-    updateQuality()
+    const interval = setInterval(updateQuality, 5000);
+    updateQuality();
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   // ============================================================================
   // Return
@@ -431,7 +446,7 @@ export function useOfflineStatus(options: UseOfflineStatusOptions = {}): UseOffl
     queueCount,
     isFlushing,
     syncStatus,
-    isSyncing: syncStatus === 'syncing',
+    isSyncing: syncStatus === "syncing",
     lastSyncAt,
     wasOffline,
     // Actions
@@ -441,7 +456,7 @@ export function useOfflineStatus(options: UseOfflineStatusOptions = {}): UseOffl
     getQueuedMessages,
     queueMessage,
     removeFromQueue,
-  }
+  };
 }
 
-export default useOfflineStatus
+export default useOfflineStatus;

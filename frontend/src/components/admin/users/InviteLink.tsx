@@ -1,19 +1,31 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Copy, Link as LinkIcon, Loader2, Trash2, ExternalLink } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useState } from "react";
+import {
+  Copy,
+  Link as LinkIcon,
+  Loader2,
+  Trash2,
+  ExternalLink,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -21,48 +33,57 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import { formatInviteExpiration, generateInviteUrl } from '@/lib/admin/users/user-invite'
-import type { UserRole, InviteLink as InviteLinkType } from '@/lib/admin/users/user-types'
+} from "@/components/ui/table";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import {
+  formatInviteExpiration,
+  generateInviteUrl,
+} from "@/lib/admin/users/user-invite";
+import type {
+  UserRole,
+  InviteLink as InviteLinkType,
+} from "@/lib/admin/users/user-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export function InviteLink() {
-  const [linkRole, setLinkRole] = useState<UserRole>('member')
-  const [maxUses, setMaxUses] = useState('')
-  const [expiresInDays, setExpiresInDays] = useState('7')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedLink, setGeneratedLink] = useState('')
-  const [copied, setCopied] = useState(false)
+  const [linkRole, setLinkRole] = useState<UserRole>("member");
+  const [maxUses, setMaxUses] = useState("");
+  const [expiresInDays, setExpiresInDays] = useState("7");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  const { inviteLinks, roles, addInviteLink, removeInviteLink } = useUserManagementStore()
+  const { inviteLinks, roles, addInviteLink, removeInviteLink } =
+    useUserManagementStore();
 
   const roleOptions =
     roles.length > 0
       ? roles
       : [
-          { id: 'admin', name: 'Admin' },
-          { id: 'moderator', name: 'Moderator' },
-          { id: 'member', name: 'Member' },
-          { id: 'guest', name: 'Guest' },
-        ]
+          { id: "admin", name: "Admin" },
+          { id: "moderator", name: "Moderator" },
+          { id: "member", name: "Member" },
+          { id: "guest", name: "Guest" },
+        ];
 
   const handleGenerateLink = async () => {
-    setIsGenerating(true)
+    setIsGenerating(true);
     try {
       // Generate a unique code
-      const code = Math.random().toString(36).substring(2, 10)
-      const link = generateInviteUrl(code)
+      const code = Math.random().toString(36).substring(2, 10);
+      const link = generateInviteUrl(code);
 
       // Calculate expiration
-      let expiresAt: string
-      if (expiresInDays === 'never') {
-        expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+      let expiresAt: string;
+      if (expiresInDays === "never") {
+        expiresAt = new Date(
+          Date.now() + 365 * 24 * 60 * 60 * 1000,
+        ).toISOString();
       } else {
         expiresAt = new Date(
-          Date.now() + parseInt(expiresInDays, 10) * 24 * 60 * 60 * 1000
-        ).toISOString()
+          Date.now() + parseInt(expiresInDays, 10) * 24 * 60 * 60 * 1000,
+        ).toISOString();
       }
 
       // Add to store
@@ -76,34 +97,34 @@ export function InviteLink() {
         expiresAt,
         createdAt: new Date().toISOString(),
         createdBy: {
-          id: 'current-user',
-          username: 'admin',
-          displayName: 'Admin User',
+          id: "current-user",
+          username: "admin",
+          displayName: "Admin User",
         },
         isActive: true,
-      }
+      };
 
-      addInviteLink(newLink)
-      setGeneratedLink(link)
+      addInviteLink(newLink);
+      setGeneratedLink(link);
     } catch (error) {
-      logger.error('Failed to generate link:', error)
+      logger.error("Failed to generate link:", error);
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const handleCopyLink = (link: string) => {
-    navigator.clipboard.writeText(link)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleDeleteLink = async (linkId: string) => {
     // In production, call the API first
-    removeInviteLink(linkId)
-  }
+    removeInviteLink(linkId);
+  };
 
-  const activeLinks = inviteLinks.filter((l) => l.isActive)
+  const activeLinks = inviteLinks.filter((l) => l.isActive);
 
   return (
     <div className="space-y-6">
@@ -119,7 +140,10 @@ export function InviteLink() {
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="link-role">Default Role</Label>
-              <Select value={linkRole} onValueChange={(v) => setLinkRole(v as UserRole)}>
+              <Select
+                value={linkRole}
+                onValueChange={(v) => setLinkRole(v as UserRole)}
+              >
                 <SelectTrigger id="link-role">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -166,12 +190,23 @@ export function InviteLink() {
             <div className="space-y-2">
               <Label>Generated Link</Label>
               <div className="flex gap-2">
-                <Input value={generatedLink} readOnly className="font-mono text-sm" />
-                <Button variant="outline" onClick={() => handleCopyLink(generatedLink)}>
-                  {copied ? 'Copied!' : <Copy className="h-4 w-4" />}
+                <Input
+                  value={generatedLink}
+                  readOnly
+                  className="font-mono text-sm"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => handleCopyLink(generatedLink)}
+                >
+                  {copied ? "Copied!" : <Copy className="h-4 w-4" />}
                 </Button>
                 <Button variant="outline" asChild>
-                  <a href={generatedLink} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={generatedLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
@@ -195,7 +230,9 @@ export function InviteLink() {
         </CardHeader>
         <CardContent>
           {activeLinks.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground">No active invite links</div>
+            <div className="py-8 text-center text-muted-foreground">
+              No active invite links
+            </div>
           ) : (
             <Table>
               <TableHeader>
@@ -211,7 +248,9 @@ export function InviteLink() {
                 {activeLinks.map((link) => (
                   <TableRow key={link.id}>
                     <TableCell>
-                      <code className="rounded bg-muted px-2 py-1 text-xs">{link.code}</code>
+                      <code className="rounded bg-muted px-2 py-1 text-xs">
+                        {link.code}
+                      </code>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="capitalize">
@@ -222,7 +261,9 @@ export function InviteLink() {
                       {link.currentUses}
                       {link.maxUses && ` / ${link.maxUses}`}
                     </TableCell>
-                    <TableCell>{formatInviteExpiration(link.expiresAt)}</TableCell>
+                    <TableCell>
+                      {formatInviteExpiration(link.expiresAt)}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
@@ -251,7 +292,7 @@ export function InviteLink() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
-export default InviteLink
+export default InviteLink;

@@ -1,16 +1,33 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { User, Shield, Crown, MessageSquare, Phone, MoreHorizontal } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
-import { ComponentPreview, PreviewCard, PreviewGrid } from '@/components/dev/component-preview'
-import { CodeBlock } from '@/components/dev/code-block'
-import { PropsTable, PropDefinition } from '@/components/dev/props-table'
+import { useState } from "react";
+import {
+  User,
+  Shield,
+  Crown,
+  MessageSquare,
+  Phone,
+  MoreHorizontal,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import {
+  ComponentPreview,
+  PreviewCard,
+  PreviewGrid,
+} from "@/components/dev/component-preview";
+import { CodeBlock } from "@/components/dev/code-block";
+import { PropsTable, PropDefinition } from "@/components/dev/props-table";
 
 // ============================================================================
 // Mock Data
@@ -18,41 +35,41 @@ import { PropsTable, PropDefinition } from '@/components/dev/props-table'
 
 const mockUsers = [
   {
-    id: 'user-1',
-    displayName: 'Alice Johnson',
-    username: 'alice',
+    id: "user-1",
+    displayName: "Alice Johnson",
+    username: "alice",
     avatarUrl: null,
-    presence: 'online',
-    role: 'owner',
-    bio: 'Building the future of team communication',
-    customStatus: { emoji: 'coffee', text: 'In deep work mode' },
+    presence: "online",
+    role: "owner",
+    bio: "Building the future of team communication",
+    customStatus: { emoji: "coffee", text: "In deep work mode" },
   },
   {
-    id: 'user-2',
-    displayName: 'Bob Smith',
-    username: 'bob',
+    id: "user-2",
+    displayName: "Bob Smith",
+    username: "bob",
     avatarUrl: null,
-    presence: 'away',
-    role: 'admin',
-    bio: 'Full-stack developer',
+    presence: "away",
+    role: "admin",
+    bio: "Full-stack developer",
   },
   {
-    id: 'user-3',
-    displayName: 'Carol Williams',
-    username: 'carol',
+    id: "user-3",
+    displayName: "Carol Williams",
+    username: "carol",
     avatarUrl: null,
-    presence: 'dnd',
-    role: 'moderator',
+    presence: "dnd",
+    role: "moderator",
   },
   {
-    id: 'user-4',
-    displayName: 'David Brown',
-    username: 'david',
+    id: "user-4",
+    displayName: "David Brown",
+    username: "david",
     avatarUrl: null,
-    presence: 'offline',
-    role: 'member',
+    presence: "offline",
+    role: "member",
   },
-]
+];
 
 // ============================================================================
 // Props Definitions
@@ -60,82 +77,130 @@ const mockUsers = [
 
 const userAvatarProps: PropDefinition[] = [
   {
-    name: 'user',
+    name: "user",
     type: 'Pick<UserProfile, "avatarUrl" | "displayName">',
-    description: 'User object with avatar and name',
+    description: "User object with avatar and name",
   },
-  { name: 'src', type: 'string', description: 'Direct avatar URL (overrides user.avatarUrl)' },
-  { name: 'name', type: 'string', description: 'Display name for fallback initials' },
   {
-    name: 'size',
+    name: "src",
+    type: "string",
+    description: "Direct avatar URL (overrides user.avatarUrl)",
+  },
+  {
+    name: "name",
+    type: "string",
+    description: "Display name for fallback initials",
+  },
+  {
+    name: "size",
     type: '"xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"',
     default: '"md"',
-    description: 'Avatar size',
+    description: "Avatar size",
   },
   {
-    name: 'shape',
+    name: "shape",
     type: '"circle" | "rounded" | "square"',
     default: '"circle"',
-    description: 'Avatar shape',
+    description: "Avatar shape",
   },
-  { name: 'presence', type: 'PresenceStatus', description: 'User presence status' },
   {
-    name: 'showPresence',
-    type: 'boolean',
-    default: 'true',
-    description: 'Whether to show presence indicator',
+    name: "presence",
+    type: "PresenceStatus",
+    description: "User presence status",
   },
-  { name: 'loading', type: 'boolean', default: 'false', description: 'Show loading skeleton' },
   {
-    name: 'interactive',
-    type: 'boolean',
-    default: 'false',
-    description: 'Enable hover/click effects',
+    name: "showPresence",
+    type: "boolean",
+    default: "true",
+    description: "Whether to show presence indicator",
   },
-  { name: 'fallbackColor', type: 'string', description: 'Background color for fallback' },
-]
+  {
+    name: "loading",
+    type: "boolean",
+    default: "false",
+    description: "Show loading skeleton",
+  },
+  {
+    name: "interactive",
+    type: "boolean",
+    default: "false",
+    description: "Enable hover/click effects",
+  },
+  {
+    name: "fallbackColor",
+    type: "string",
+    description: "Background color for fallback",
+  },
+];
 
 const userProfileCardProps: PropDefinition[] = [
-  { name: 'user', type: 'UserProfile', required: true, description: 'User profile object' },
-  { name: 'onMessage', type: '() => void', description: 'Callback for message button' },
-  { name: 'onCall', type: '() => void', description: 'Callback for call button' },
-  { name: 'onViewProfile', type: '() => void', description: 'Callback for view profile button' },
   {
-    name: 'showQuickActions',
-    type: 'boolean',
-    default: 'true',
-    description: 'Show action buttons',
+    name: "user",
+    type: "UserProfile",
+    required: true,
+    description: "User profile object",
   },
-  { name: 'compact', type: 'boolean', default: 'false', description: 'Compact card mode' },
-]
+  {
+    name: "onMessage",
+    type: "() => void",
+    description: "Callback for message button",
+  },
+  {
+    name: "onCall",
+    type: "() => void",
+    description: "Callback for call button",
+  },
+  {
+    name: "onViewProfile",
+    type: "() => void",
+    description: "Callback for view profile button",
+  },
+  {
+    name: "showQuickActions",
+    type: "boolean",
+    default: "true",
+    description: "Show action buttons",
+  },
+  {
+    name: "compact",
+    type: "boolean",
+    default: "false",
+    description: "Compact card mode",
+  },
+];
 
 const presenceDotProps: PropDefinition[] = [
   {
-    name: 'status',
+    name: "status",
     type: '"online" | "away" | "dnd" | "offline"',
     required: true,
-    description: 'Presence status',
+    description: "Presence status",
   },
   {
-    name: 'size',
+    name: "size",
     type: '"xs" | "sm" | "md" | "lg" | "xl"',
     default: '"md"',
-    description: 'Dot size',
+    description: "Dot size",
   },
   {
-    name: 'position',
+    name: "position",
     type: '"bottom-right" | "bottom-left" | "top-right" | "top-left" | "inline"',
     default: '"bottom-right"',
-    description: 'Position relative to parent',
+    description: "Position relative to parent",
   },
   {
-    name: 'showTooltip',
-    type: 'boolean',
-    default: 'false',
-    description: 'Show status tooltip on hover',
+    name: "showTooltip",
+    type: "boolean",
+    default: "false",
+    description: "Show status tooltip on hover",
   },
-  { name: 'animate', type: 'boolean', default: 'true', description: 'Animate online status' },
-]
+  {
+    name: "animate",
+    type: "boolean",
+    default: "true",
+    description: "Animate online status",
+  },
+];
 
 // ============================================================================
 // Code Examples
@@ -169,7 +234,7 @@ import { UserAvatarGroup } from '@/components/user/user-avatar'
   ]}
   max={3}
   size="sm"
-/>`
+/>`;
 
 const userProfileCardCode = `import { UserProfileCard, UserProfileCardTrigger } from '@/components/user/user-profile-card'
 
@@ -187,49 +252,49 @@ const userProfileCardCode = `import { UserProfileCard, UserProfileCardTrigger } 
   side="right"
 >
   <UserAvatar user={user} size="sm" interactive />
-</UserProfileCardTrigger>`
+</UserProfileCardTrigger>`;
 
 const presenceDotCode = `import { UserPresenceDot } from '@/components/user/user-presence-dot'
 
 <UserPresenceDot status="online" size="md" />
 <UserPresenceDot status="away" size="sm" showTooltip />
 <UserPresenceDot status="dnd" size="lg" position="inline" />
-<UserPresenceDot status="offline" animate={false} />`
+<UserPresenceDot status="offline" animate={false} />`;
 
 // ============================================================================
 // Page Component
 // ============================================================================
 
 export default function UsersPage() {
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Helper to get presence color
   const getPresenceColor = (status: string) => {
     switch (status) {
-      case 'online':
-        return 'bg-green-500'
-      case 'away':
-        return 'bg-yellow-500'
-      case 'dnd':
-        return 'bg-red-500'
+      case "online":
+        return "bg-green-500";
+      case "away":
+        return "bg-yellow-500";
+      case "dnd":
+        return "bg-red-500";
       default:
-        return 'bg-gray-400'
+        return "bg-gray-400";
     }
-  }
+  };
 
   // Helper to get role badge color
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'owner':
-        return 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-      case 'admin':
-        return 'bg-red-500/10 text-red-500 border-red-500/20'
-      case 'moderator':
-        return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+      case "owner":
+        return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+      case "admin":
+        return "bg-red-500/10 text-red-500 border-red-500/20";
+      case "moderator":
+        return "bg-blue-500/10 text-blue-500 border-blue-500/20";
       default:
-        return 'bg-muted text-muted-foreground'
+        return "bg-muted text-muted-foreground";
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
@@ -242,20 +307,20 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold tracking-tight">User Components</h1>
         </div>
         <p className="text-muted-foreground">
-          Components for displaying user information including avatars, profile cards, presence
-          indicators, and role badges.
+          Components for displaying user information including avatars, profile
+          cards, presence indicators, and role badges.
         </p>
       </div>
 
       {/* Component List */}
       <div className="flex flex-wrap gap-2">
         {[
-          'UserAvatar',
-          'UserAvatarGroup',
-          'UserProfileCard',
-          'UserPresenceDot',
-          'RoleBadge',
-          'UserStatus',
+          "UserAvatar",
+          "UserAvatarGroup",
+          "UserProfileCard",
+          "UserPresenceDot",
+          "RoleBadge",
+          "UserStatus",
         ].map((name) => (
           <Badge key={name} variant="secondary" className="text-sm">
             {name}
@@ -280,8 +345,8 @@ export default function UsersPage() {
             <CardHeader>
               <CardTitle>User Component System</CardTitle>
               <CardDescription>
-                A complete set of components for displaying user identity, status, and profile
-                information throughout the application.
+                A complete set of components for displaying user identity,
+                status, and profile information throughout the application.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -289,7 +354,8 @@ export default function UsersPage() {
                 <PreviewCard title="UserAvatar">
                   <div className="space-y-2 text-sm">
                     <p className="text-muted-foreground">
-                      Display user avatar with fallback initials and optional presence indicator.
+                      Display user avatar with fallback initials and optional
+                      presence indicator.
                     </p>
                     <ul className="list-inside list-disc text-muted-foreground">
                       <li>7 size variants</li>
@@ -303,7 +369,8 @@ export default function UsersPage() {
                 <PreviewCard title="UserProfileCard">
                   <div className="space-y-2 text-sm">
                     <p className="text-muted-foreground">
-                      Rich profile card with cover image, bio, and quick action buttons.
+                      Rich profile card with cover image, bio, and quick action
+                      buttons.
                     </p>
                     <ul className="list-inside list-disc text-muted-foreground">
                       <li>Hover trigger</li>
@@ -317,7 +384,8 @@ export default function UsersPage() {
                 <PreviewCard title="UserPresenceDot">
                   <div className="space-y-2 text-sm">
                     <p className="text-muted-foreground">
-                      Status indicator showing online, away, DND, or offline state.
+                      Status indicator showing online, away, DND, or offline
+                      state.
                     </p>
                     <ul className="list-inside list-disc text-muted-foreground">
                       <li>4 status states</li>
@@ -341,34 +409,36 @@ export default function UsersPage() {
               <div>
                 <h4 className="mb-3 text-sm font-medium">Avatar Sizes</h4>
                 <div className="flex items-end gap-4">
-                  {['xs', 'sm', 'md', 'lg', 'xl', '2xl'].map((size, i) => (
+                  {["xs", "sm", "md", "lg", "xl", "2xl"].map((size, i) => (
                     <div key={size} className="text-center">
                       <div
                         className={cn(
-                          'relative flex items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 font-medium text-white',
-                          size === 'xs' && 'h-6 w-6 text-[10px]',
-                          size === 'sm' && 'h-8 w-8 text-xs',
-                          size === 'md' && 'h-10 w-10 text-sm',
-                          size === 'lg' && 'h-12 w-12 text-base',
-                          size === 'xl' && 'h-16 w-16 text-lg',
-                          size === '2xl' && 'h-20 w-20 text-xl'
+                          "relative flex items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 font-medium text-white",
+                          size === "xs" && "h-6 w-6 text-[10px]",
+                          size === "sm" && "h-8 w-8 text-xs",
+                          size === "md" && "h-10 w-10 text-sm",
+                          size === "lg" && "h-12 w-12 text-base",
+                          size === "xl" && "h-16 w-16 text-lg",
+                          size === "2xl" && "h-20 w-20 text-xl",
                         )}
                       >
                         {mockUsers[i % 4].displayName.charAt(0)}
                         <span
                           className={cn(
-                            'absolute rounded-full border-2 border-background',
+                            "absolute rounded-full border-2 border-background",
                             getPresenceColor(mockUsers[i % 4].presence),
-                            size === 'xs' && 'bottom-0 right-0 h-2 w-2',
-                            size === 'sm' && 'bottom-0 right-0 h-2.5 w-2.5',
-                            size === 'md' && 'bottom-0 right-0 h-3 w-3',
-                            size === 'lg' && 'bottom-0 right-0 h-3.5 w-3.5',
-                            size === 'xl' && 'bottom-0 right-0 h-4 w-4',
-                            size === '2xl' && 'bottom-1 right-1 h-4 w-4'
+                            size === "xs" && "bottom-0 right-0 h-2 w-2",
+                            size === "sm" && "bottom-0 right-0 h-2.5 w-2.5",
+                            size === "md" && "bottom-0 right-0 h-3 w-3",
+                            size === "lg" && "bottom-0 right-0 h-3.5 w-3.5",
+                            size === "xl" && "bottom-0 right-0 h-4 w-4",
+                            size === "2xl" && "bottom-1 right-1 h-4 w-4",
                           )}
                         />
                       </div>
-                      <span className="mt-1 text-xs text-muted-foreground">{size}</span>
+                      <span className="mt-1 text-xs text-muted-foreground">
+                        {size}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -382,10 +452,10 @@ export default function UsersPage() {
                     <div
                       key={user.id}
                       className={cn(
-                        'flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br text-xs font-medium text-white ring-2 ring-background',
-                        i === 0 && 'from-blue-500 to-cyan-500',
-                        i === 1 && '-ml-2 from-green-500 to-emerald-500',
-                        i === 2 && '-ml-2 from-purple-500 to-pink-500'
+                        "flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br text-xs font-medium text-white ring-2 ring-background",
+                        i === 0 && "from-blue-500 to-cyan-500",
+                        i === 1 && "-ml-2 from-green-500 to-emerald-500",
+                        i === 2 && "-ml-2 from-purple-500 to-pink-500",
                       )}
                     >
                       {user.displayName.charAt(0)}
@@ -402,13 +472,27 @@ export default function UsersPage() {
                 <h4 className="mb-3 text-sm font-medium">Presence States</h4>
                 <div className="flex gap-6">
                   {[
-                    { status: 'online', label: 'Online', color: 'bg-green-500' },
-                    { status: 'away', label: 'Away', color: 'bg-yellow-500' },
-                    { status: 'dnd', label: 'Do Not Disturb', color: 'bg-red-500' },
-                    { status: 'offline', label: 'Offline', color: 'bg-gray-400' },
+                    {
+                      status: "online",
+                      label: "Online",
+                      color: "bg-green-500",
+                    },
+                    { status: "away", label: "Away", color: "bg-yellow-500" },
+                    {
+                      status: "dnd",
+                      label: "Do Not Disturb",
+                      color: "bg-red-500",
+                    },
+                    {
+                      status: "offline",
+                      label: "Offline",
+                      color: "bg-gray-400",
+                    },
                   ].map((item) => (
                     <div key={item.status} className="flex items-center gap-2">
-                      <span className={cn('h-3 w-3 rounded-full', item.color)} />
+                      <span
+                        className={cn("h-3 w-3 rounded-full", item.color)}
+                      />
                       <span className="text-sm">{item.label}</span>
                     </div>
                   ))}
@@ -420,24 +504,24 @@ export default function UsersPage() {
                 <h4 className="mb-3 text-sm font-medium">Role Badges</h4>
                 <div className="flex gap-2">
                   {[
-                    { role: 'owner', label: 'Owner', icon: Crown },
-                    { role: 'admin', label: 'Admin', icon: Shield },
-                    { role: 'moderator', label: 'Moderator', icon: Shield },
-                    { role: 'member', label: 'Member', icon: User },
+                    { role: "owner", label: "Owner", icon: Crown },
+                    { role: "admin", label: "Admin", icon: Shield },
+                    { role: "moderator", label: "Moderator", icon: Shield },
+                    { role: "member", label: "Member", icon: User },
                   ].map((item) => {
-                    const Icon = item.icon
+                    const Icon = item.icon;
                     return (
                       <span
                         key={item.role}
                         className={cn(
-                          'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium',
-                          getRoleBadgeColor(item.role)
+                          "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium",
+                          getRoleBadgeColor(item.role),
                         )}
                       >
                         <Icon className="h-3 w-3" />
                         {item.label}
                       </span>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -455,11 +539,13 @@ export default function UsersPage() {
                       </div>
                       <div className="flex-1 pb-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-semibold">Alice Johnson</h3>
+                          <h3 className="text-lg font-semibold">
+                            Alice Johnson
+                          </h3>
                           <span
                             className={cn(
-                              'inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium',
-                              getRoleBadgeColor('owner')
+                              "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium",
+                              getRoleBadgeColor("owner"),
                             )}
                           >
                             <Crown className="h-2.5 w-2.5" />
@@ -502,12 +588,16 @@ export default function UsersPage() {
             <CardHeader>
               <CardTitle>UserAvatar</CardTitle>
               <CardDescription>
-                A flexible avatar component with multiple sizes, shapes, and an integrated presence
-                indicator.
+                A flexible avatar component with multiple sizes, shapes, and an
+                integrated presence indicator.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <CodeBlock code={userAvatarCode} language="tsx" filename="avatar-examples.tsx" />
+              <CodeBlock
+                code={userAvatarCode}
+                language="tsx"
+                filename="avatar-examples.tsx"
+              />
             </CardContent>
           </Card>
 
@@ -597,8 +687,8 @@ export default function UsersPage() {
             <CardHeader>
               <CardTitle>UserProfileCard</CardTitle>
               <CardDescription>
-                A rich profile card that shows user information with optional cover image, custom
-                status, and quick action buttons.
+                A rich profile card that shows user information with optional
+                cover image, custom status, and quick action buttons.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -627,14 +717,14 @@ export default function UsersPage() {
               <PreviewGrid cols={2}>
                 <PreviewCard title="Full Card">
                   <p className="text-sm text-muted-foreground">
-                    Full-size card with cover image, avatar, bio, and action buttons. Used in hover
-                    cards and profile modals.
+                    Full-size card with cover image, avatar, bio, and action
+                    buttons. Used in hover cards and profile modals.
                   </p>
                 </PreviewCard>
                 <PreviewCard title="Compact Card">
                   <p className="text-sm text-muted-foreground">
-                    Minimal card with just avatar, name, and role. Used in member lists and search
-                    results.
+                    Minimal card with just avatar, name, and role. Used in
+                    member lists and search results.
                   </p>
                 </PreviewCard>
               </PreviewGrid>
@@ -648,12 +738,17 @@ export default function UsersPage() {
             <CardHeader>
               <CardTitle>UserPresenceDot</CardTitle>
               <CardDescription>
-                A status indicator dot showing the user&apos;s current online status. Can be
-                positioned absolutely within avatars or inline in text.
+                A status indicator dot showing the user&apos;s current online
+                status. Can be positioned absolutely within avatars or inline in
+                text.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <CodeBlock code={presenceDotCode} language="tsx" filename="presence-examples.tsx" />
+              <CodeBlock
+                code={presenceDotCode}
+                language="tsx"
+                filename="presence-examples.tsx"
+              />
             </CardContent>
           </Card>
 
@@ -693,7 +788,9 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-2">Pulse</td>
-                      <td className="px-4 py-2">User is active and available</td>
+                      <td className="px-4 py-2">
+                        User is active and available
+                      </td>
                     </tr>
                     <tr className="border-b">
                       <td className="px-4 py-2">
@@ -706,7 +803,9 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-2">None</td>
-                      <td className="px-4 py-2">User is idle or stepped away</td>
+                      <td className="px-4 py-2">
+                        User is idle or stepped away
+                      </td>
                     </tr>
                     <tr className="border-b">
                       <td className="px-4 py-2">
@@ -719,7 +818,9 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-2">None</td>
-                      <td className="px-4 py-2">Do not disturb - no notifications</td>
+                      <td className="px-4 py-2">
+                        Do not disturb - no notifications
+                      </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2">
@@ -742,5 +843,5 @@ export default function UsersPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

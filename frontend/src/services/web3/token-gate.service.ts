@@ -28,70 +28,70 @@ import {
   generateVerificationCacheKey,
   calculateGracePeriodEnd,
   isInGracePeriod,
-} from '@/lib/web3/token-gate-types'
+} from "@/lib/web3/token-gate-types";
 
 import {
   verifyRequirements,
   clearVerificationCache,
   clearWalletCache,
   clearContractCache,
-} from '@/lib/web3/token-gate-verifier'
+} from "@/lib/web3/token-gate-verifier";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // CONSTANTS
 // =============================================================================
 
-const DEFAULT_CACHE_TTL_SECONDS = 300 // 5 minutes
-const DEFAULT_GRACE_PERIOD_SECONDS = 3600 // 1 hour
-const DEFAULT_REVOCATION_CHECK_INTERVAL_SECONDS = 60 // 1 minute
-const MAX_VERIFICATION_CACHE_SIZE = 10000
-const STATS_RETENTION_DAYS = 30
+const DEFAULT_CACHE_TTL_SECONDS = 300; // 5 minutes
+const DEFAULT_GRACE_PERIOD_SECONDS = 3600; // 1 hour
+const DEFAULT_REVOCATION_CHECK_INTERVAL_SECONDS = 60; // 1 minute
+const MAX_VERIFICATION_CACHE_SIZE = 10000;
+const STATS_RETENTION_DAYS = 30;
 
 // =============================================================================
 // IN-MEMORY STORES
 // =============================================================================
 
 // Token gate configurations
-const gateConfigs = new Map<string, TokenGateConfig>()
+const gateConfigs = new Map<string, TokenGateConfig>();
 
 // Resource to gate mappings
-const resourceGateMappings = new Map<string, string>() // resourceKey -> gateId
+const resourceGateMappings = new Map<string, string>(); // resourceKey -> gateId
 
 // Verification results cache
-const verificationCache = new Map<string, VerificationCacheEntry>()
+const verificationCache = new Map<string, VerificationCacheEntry>();
 
 // Grace period tracking
 const gracePeriods = new Map<
   string,
   {
-    userId: string
-    gateId: string
-    walletAddress: string
-    startedAt: Date
-    endsAt: Date
-    previousStatus: TokenGateStatus
+    userId: string;
+    gateId: string;
+    walletAddress: string;
+    startedAt: Date;
+    endsAt: Date;
+    previousStatus: TokenGateStatus;
   }
->()
+>();
 
 // Event log
-const eventLog: TokenGateEvent[] = []
-const maxEventLogSize = 10000
+const eventLog: TokenGateEvent[] = [];
+const maxEventLogSize = 10000;
 
 // Statistics tracking
 const statsMap = new Map<
   string,
   {
-    gateId: string
-    checks: number
-    successes: number
-    failures: number
-    users: Set<string>
-    totalTimeMs: number
-    cacheHits: number
+    gateId: string;
+    checks: number;
+    successes: number;
+    failures: number;
+    users: Set<string>;
+    totalTimeMs: number;
+    cacheHits: number;
   }
->()
+>();
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -101,37 +101,43 @@ const statsMap = new Map<
  * Generate resource key for gate mapping
  */
 function getResourceKey(
-  resourceType: 'channel' | 'feature' | 'role' | 'workspace',
-  resourceId: string
+  resourceType: "channel" | "feature" | "role" | "workspace",
+  resourceId: string,
 ): string {
-  return `${resourceType}:${resourceId}`
+  return `${resourceType}:${resourceId}`;
 }
 
 /**
  * Generate user-gate cache key
  */
-function getUserGateCacheKey(gateId: string, userId: string, walletAddress: string): string {
-  return `${gateId}:${userId}:${normalizeAddress(walletAddress)}`
+function getUserGateCacheKey(
+  gateId: string,
+  userId: string,
+  walletAddress: string,
+): string {
+  return `${gateId}:${userId}:${normalizeAddress(walletAddress)}`;
 }
 
 /**
  * Log token gate event
  */
-function logEvent(event: Omit<TokenGateEvent, 'id' | 'timestamp'>): TokenGateEvent {
+function logEvent(
+  event: Omit<TokenGateEvent, "id" | "timestamp">,
+): TokenGateEvent {
   const fullEvent: TokenGateEvent = {
     ...event,
     id: `evt_${Date.now()}_${Math.random().toString(36).substring(7)}`,
     timestamp: new Date(),
-  }
+  };
 
-  eventLog.unshift(fullEvent)
+  eventLog.unshift(fullEvent);
 
   // Trim event log to max size
   if (eventLog.length > maxEventLogSize) {
-    eventLog.pop()
+    eventLog.pop();
   }
 
-  return fullEvent
+  return fullEvent;
 }
 
 /**
@@ -142,9 +148,9 @@ function updateStats(
   userId: string,
   success: boolean,
   durationMs: number,
-  cacheHit: boolean
+  cacheHit: boolean,
 ): void {
-  let stats = statsMap.get(gateId)
+  let stats = statsMap.get(gateId);
   if (!stats) {
     stats = {
       gateId,
@@ -154,16 +160,16 @@ function updateStats(
       users: new Set(),
       totalTimeMs: 0,
       cacheHits: 0,
-    }
-    statsMap.set(gateId, stats)
+    };
+    statsMap.set(gateId, stats);
   }
 
-  stats.checks++
-  if (success) stats.successes++
-  else stats.failures++
-  stats.users.add(userId)
-  stats.totalTimeMs += durationMs
-  if (cacheHit) stats.cacheHits++
+  stats.checks++;
+  if (success) stats.successes++;
+  else stats.failures++;
+  stats.users.add(userId);
+  stats.totalTimeMs += durationMs;
+  if (cacheHit) stats.cacheHits++;
 }
 
 // =============================================================================
@@ -174,15 +180,15 @@ function updateStats(
  * Create a new token gate configuration
  */
 export async function createTokenGate(
-  config: Omit<TokenGateConfig, 'id' | 'createdAt' | 'updatedAt'>
+  config: Omit<TokenGateConfig, "id" | "createdAt" | "updatedAt">,
 ): Promise<TokenGateConfig> {
   // Validate requirements
   for (const req of config.requirements) {
     if (!isValidAddress(req.contractAddress)) {
       throw new TokenGateError(
         TokenGateErrorCode.INVALID_CONTRACT_ADDRESS,
-        `Invalid contract address: ${req.contractAddress}`
-      )
+        `Invalid contract address: ${req.contractAddress}`,
+      );
     }
   }
 
@@ -191,28 +197,28 @@ export async function createTokenGate(
     id: `gate_${Date.now()}_${Math.random().toString(36).substring(7)}`,
     createdAt: new Date(),
     updatedAt: new Date(),
-  }
+  };
 
   // Store configuration
-  gateConfigs.set(gate.id, gate)
+  gateConfigs.set(gate.id, gate);
 
   // Create resource mapping
-  const resourceKey = getResourceKey(config.resourceType, config.resourceId)
-  resourceGateMappings.set(resourceKey, gate.id)
+  const resourceKey = getResourceKey(config.resourceType, config.resourceId);
+  resourceGateMappings.set(resourceKey, gate.id);
 
   // Log event
   logEvent({
-    type: 'gate_created',
+    type: "gate_created",
     gateId: gate.id,
     resourceType: config.resourceType,
     resourceId: config.resourceId,
     details: { config: gate },
-    source: 'system',
-  })
+    source: "system",
+  });
 
-  logger.info(`Token gate created: ${gate.id} for ${resourceKey}`)
+  logger.info(`Token gate created: ${gate.id} for ${resourceKey}`);
 
-  return gate
+  return gate;
 }
 
 /**
@@ -220,11 +226,11 @@ export async function createTokenGate(
  */
 export async function updateTokenGate(
   gateId: string,
-  updates: Partial<Omit<TokenGateConfig, 'id' | 'createdAt' | 'updatedAt'>>
+  updates: Partial<Omit<TokenGateConfig, "id" | "createdAt" | "updatedAt">>,
 ): Promise<TokenGateConfig | null> {
-  const existing = gateConfigs.get(gateId)
+  const existing = gateConfigs.get(gateId);
   if (!existing) {
-    return null
+    return null;
   }
 
   // Validate new requirements if provided
@@ -233,8 +239,8 @@ export async function updateTokenGate(
       if (!isValidAddress(req.contractAddress)) {
         throw new TokenGateError(
           TokenGateErrorCode.INVALID_CONTRACT_ADDRESS,
-          `Invalid contract address: ${req.contractAddress}`
-        )
+          `Invalid contract address: ${req.contractAddress}`,
+        );
       }
     }
   }
@@ -243,100 +249,103 @@ export async function updateTokenGate(
     ...existing,
     ...updates,
     updatedAt: new Date(),
-  }
+  };
 
-  gateConfigs.set(gateId, updated)
+  gateConfigs.set(gateId, updated);
 
   // Invalidate cache for this gate
-  invalidateGateCache(gateId)
+  invalidateGateCache(gateId);
 
   // Log event
   logEvent({
-    type: 'gate_config_updated',
+    type: "gate_config_updated",
     gateId,
     resourceType: updated.resourceType,
     resourceId: updated.resourceId,
     details: { updates },
-    source: 'system',
-  })
+    source: "system",
+  });
 
-  logger.info(`Token gate updated: ${gateId}`)
+  logger.info(`Token gate updated: ${gateId}`);
 
-  return updated
+  return updated;
 }
 
 /**
  * Delete a token gate configuration
  */
 export async function deleteTokenGate(gateId: string): Promise<boolean> {
-  const existing = gateConfigs.get(gateId)
+  const existing = gateConfigs.get(gateId);
   if (!existing) {
-    return false
+    return false;
   }
 
   // Remove gate config
-  gateConfigs.delete(gateId)
+  gateConfigs.delete(gateId);
 
   // Remove resource mapping
-  const resourceKey = getResourceKey(existing.resourceType, existing.resourceId)
-  resourceGateMappings.delete(resourceKey)
+  const resourceKey = getResourceKey(
+    existing.resourceType,
+    existing.resourceId,
+  );
+  resourceGateMappings.delete(resourceKey);
 
   // Invalidate cache
-  invalidateGateCache(gateId)
+  invalidateGateCache(gateId);
 
   // Log event
   logEvent({
-    type: 'gate_deleted',
+    type: "gate_deleted",
     gateId,
     resourceType: existing.resourceType,
     resourceId: existing.resourceId,
     details: {},
-    source: 'system',
-  })
+    source: "system",
+  });
 
-  logger.info(`Token gate deleted: ${gateId}`)
+  logger.info(`Token gate deleted: ${gateId}`);
 
-  return true
+  return true;
 }
 
 /**
  * Get token gate by ID
  */
 export function getTokenGate(gateId: string): TokenGateConfig | undefined {
-  return gateConfigs.get(gateId)
+  return gateConfigs.get(gateId);
 }
 
 /**
  * Get token gate for a resource
  */
 export function getTokenGateForResource(
-  resourceType: 'channel' | 'feature' | 'role' | 'workspace',
-  resourceId: string
+  resourceType: "channel" | "feature" | "role" | "workspace",
+  resourceId: string,
 ): TokenGateConfig | undefined {
-  const resourceKey = getResourceKey(resourceType, resourceId)
-  const gateId = resourceGateMappings.get(resourceKey)
-  if (!gateId) return undefined
-  return gateConfigs.get(gateId)
+  const resourceKey = getResourceKey(resourceType, resourceId);
+  const gateId = resourceGateMappings.get(resourceKey);
+  if (!gateId) return undefined;
+  return gateConfigs.get(gateId);
 }
 
 /**
  * List all token gates
  */
 export function listTokenGates(filter?: {
-  resourceType?: 'channel' | 'feature' | 'role' | 'workspace'
-  isActive?: boolean
+  resourceType?: "channel" | "feature" | "role" | "workspace";
+  isActive?: boolean;
 }): TokenGateConfig[] {
-  let gates = Array.from(gateConfigs.values())
+  let gates = Array.from(gateConfigs.values());
 
   if (filter?.resourceType) {
-    gates = gates.filter((g) => g.resourceType === filter.resourceType)
+    gates = gates.filter((g) => g.resourceType === filter.resourceType);
   }
 
   if (filter?.isActive !== undefined) {
-    gates = gates.filter((g) => g.isActive === filter.isActive)
+    gates = gates.filter((g) => g.isActive === filter.isActive);
   }
 
-  return gates.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+  return gates.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 // =============================================================================
@@ -346,85 +355,100 @@ export function listTokenGates(filter?: {
 /**
  * Check access to a token-gated resource
  */
-export async function checkAccess(request: AccessCheckRequest): Promise<AccessCheckResult> {
-  const startTime = Date.now()
-  const { userId, resourceType, resourceId, walletAddress, userRoles = [], forceRefresh } = request
+export async function checkAccess(
+  request: AccessCheckRequest,
+): Promise<AccessCheckResult> {
+  const startTime = Date.now();
+  const {
+    userId,
+    resourceType,
+    resourceId,
+    walletAddress,
+    userRoles = [],
+    forceRefresh,
+  } = request;
 
   // Find gate for resource
-  const gate = getTokenGateForResource(resourceType, resourceId)
+  const gate = getTokenGateForResource(resourceType, resourceId);
 
   // No gate configured - allow access
   if (!gate) {
     return {
       hasAccess: true,
-      status: 'granted',
+      status: "granted",
       requiresVerification: false,
       bypassedByRole: false,
       inGracePeriod: false,
-    }
+    };
   }
 
   // Gate is inactive - allow access
   if (!gate.isActive) {
     return {
       hasAccess: true,
-      status: 'granted',
+      status: "granted",
       gateId: gate.id,
       requiresVerification: false,
       bypassedByRole: false,
       inGracePeriod: false,
-    }
+    };
   }
 
   // Check role bypass
-  const bypassRole = gate.bypassRoles.find((role) => userRoles.includes(role))
+  const bypassRole = gate.bypassRoles.find((role) => userRoles.includes(role));
   if (bypassRole) {
-    updateStats(gate.id, userId, true, Date.now() - startTime, false)
+    updateStats(gate.id, userId, true, Date.now() - startTime, false);
     return {
       hasAccess: true,
-      status: 'granted',
+      status: "granted",
       gateId: gate.id,
       requiresVerification: false,
       bypassedByRole: true,
       bypassRole,
       inGracePeriod: false,
-    }
+    };
   }
 
   // Wallet address required
   if (!walletAddress) {
-    updateStats(gate.id, userId, false, Date.now() - startTime, false)
+    updateStats(gate.id, userId, false, Date.now() - startTime, false);
     return {
       hasAccess: false,
-      status: 'denied',
-      reason: 'Wallet connection required to verify token ownership',
+      status: "denied",
+      reason: "Wallet connection required to verify token ownership",
       gateId: gate.id,
       requiresVerification: true,
       bypassedByRole: false,
       inGracePeriod: false,
-    }
+    };
   }
 
   // Validate wallet address
   if (!isValidAddress(walletAddress)) {
-    updateStats(gate.id, userId, false, Date.now() - startTime, false)
+    updateStats(gate.id, userId, false, Date.now() - startTime, false);
     return {
       hasAccess: false,
-      status: 'denied',
-      reason: 'Invalid wallet address',
+      status: "denied",
+      reason: "Invalid wallet address",
       gateId: gate.id,
       requiresVerification: true,
       bypassedByRole: false,
       inGracePeriod: false,
-    }
+    };
   }
 
   // Check cache (unless force refresh)
-  const cacheKey = getUserGateCacheKey(gate.id, userId, walletAddress)
+  const cacheKey = getUserGateCacheKey(gate.id, userId, walletAddress);
   if (!forceRefresh) {
-    const cached = verificationCache.get(cacheKey)
+    const cached = verificationCache.get(cacheKey);
     if (cached && !cached.invalidatedAt && new Date() < cached.expiresAt) {
-      updateStats(gate.id, userId, cached.result.hasAccess, Date.now() - startTime, true)
+      updateStats(
+        gate.id,
+        userId,
+        cached.result.hasAccess,
+        Date.now() - startTime,
+        true,
+      );
       return {
         hasAccess: cached.result.hasAccess,
         status: cached.result.status,
@@ -435,12 +459,12 @@ export async function checkAccess(request: AccessCheckRequest): Promise<AccessCh
         inGracePeriod: cached.result.inGracePeriod,
         gracePeriodEndsAt: cached.result.gracePeriodEndsAt,
         cacheExpiresAt: cached.expiresAt,
-      }
+      };
     }
   }
 
   // Perform verification
-  const verification = await verifyTokenGate(gate, userId, walletAddress)
+  const verification = await verifyTokenGate(gate, userId, walletAddress);
 
   // Cache the result
   const cacheEntry: VerificationCacheEntry = {
@@ -448,16 +472,22 @@ export async function checkAccess(request: AccessCheckRequest): Promise<AccessCh
     result: verification,
     createdAt: new Date(),
     expiresAt: new Date(Date.now() + gate.cacheTTLSeconds * 1000),
-  }
-  verificationCache.set(cacheKey, cacheEntry)
+  };
+  verificationCache.set(cacheKey, cacheEntry);
 
   // Enforce max cache size
   if (verificationCache.size > MAX_VERIFICATION_CACHE_SIZE) {
-    const oldestKey = verificationCache.keys().next().value
-    if (oldestKey) verificationCache.delete(oldestKey)
+    const oldestKey = verificationCache.keys().next().value;
+    if (oldestKey) verificationCache.delete(oldestKey);
   }
 
-  updateStats(gate.id, userId, verification.hasAccess, Date.now() - startTime, false)
+  updateStats(
+    gate.id,
+    userId,
+    verification.hasAccess,
+    Date.now() - startTime,
+    false,
+  );
 
   return {
     hasAccess: verification.hasAccess,
@@ -470,7 +500,7 @@ export async function checkAccess(request: AccessCheckRequest): Promise<AccessCh
     inGracePeriod: verification.inGracePeriod,
     gracePeriodEndsAt: verification.gracePeriodEndsAt,
     cacheExpiresAt: cacheEntry.expiresAt,
-  }
+  };
 }
 
 /**
@@ -479,10 +509,10 @@ export async function checkAccess(request: AccessCheckRequest): Promise<AccessCh
 async function verifyTokenGate(
   gate: TokenGateConfig,
   userId: string,
-  walletAddress: string
+  walletAddress: string,
 ): Promise<TokenGateVerificationResult> {
-  const normalizedWallet = normalizeAddress(walletAddress)
-  const gracePeriodKey = `${gate.id}:${userId}:${normalizedWallet}`
+  const normalizedWallet = normalizeAddress(walletAddress);
+  const gracePeriodKey = `${gate.id}:${userId}:${normalizedWallet}`;
 
   try {
     // Verify requirements
@@ -490,19 +520,19 @@ async function verifyTokenGate(
       gate.requirements,
       normalizedWallet,
       gate.operator,
-      gate.cacheTTLSeconds * 1000
-    )
+      gate.cacheTTLSeconds * 1000,
+    );
 
     if (verified) {
       // Clear any grace period
-      const existingGracePeriod = gracePeriods.get(gracePeriodKey)
+      const existingGracePeriod = gracePeriods.get(gracePeriodKey);
       if (existingGracePeriod) {
-        gracePeriods.delete(gracePeriodKey)
+        gracePeriods.delete(gracePeriodKey);
       }
 
       // Log access granted event
       logEvent({
-        type: 'access_granted',
+        type: "access_granted",
         gateId: gate.id,
         userId,
         walletAddress: normalizedWallet,
@@ -510,15 +540,15 @@ async function verifyTokenGate(
         resourceId: gate.resourceId,
         details: { requirementResults: results },
         previousState: existingGracePeriod?.previousStatus,
-        newState: 'granted',
-        source: 'system',
-      })
+        newState: "granted",
+        source: "system",
+      });
 
       return {
         gateId: gate.id,
         userId,
         walletAddress: normalizedWallet,
-        status: 'granted',
+        status: "granted",
         hasAccess: true,
         requirementResults: results,
         accessGranted: true,
@@ -526,19 +556,19 @@ async function verifyTokenGate(
         inGracePeriod: false,
         verifiedAt: new Date(),
         expiresAt: new Date(Date.now() + gate.cacheTTLSeconds * 1000),
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         fromCache: false,
-      }
+      };
     }
 
     // Check for existing grace period
-    const existingGracePeriod = gracePeriods.get(gracePeriodKey)
+    const existingGracePeriod = gracePeriods.get(gracePeriodKey);
     if (existingGracePeriod && isInGracePeriod(existingGracePeriod.endsAt)) {
       return {
         gateId: gate.id,
         userId,
         walletAddress: normalizedWallet,
-        status: 'grace_period',
+        status: "grace_period",
         hasAccess: true, // Still allowed during grace period
         requirementResults: results,
         accessGranted: true,
@@ -547,16 +577,18 @@ async function verifyTokenGate(
         gracePeriodEndsAt: existingGracePeriod.endsAt,
         verifiedAt: new Date(),
         expiresAt: existingGracePeriod.endsAt,
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         fromCache: false,
-      }
+      };
     }
 
     // Start grace period if configured and this is a revocation
     if (gate.gracePeriodSeconds > 0 && !existingGracePeriod) {
       // Check if user previously had access (would need to check historical data)
       // For now, we'll start grace period on first failure
-      const gracePeriodEndsAt = calculateGracePeriodEnd(gate.gracePeriodSeconds)
+      const gracePeriodEndsAt = calculateGracePeriodEnd(
+        gate.gracePeriodSeconds,
+      );
 
       gracePeriods.set(gracePeriodKey, {
         userId,
@@ -564,28 +596,28 @@ async function verifyTokenGate(
         walletAddress: normalizedWallet,
         startedAt: new Date(),
         endsAt: gracePeriodEndsAt,
-        previousStatus: 'granted',
-      })
+        previousStatus: "granted",
+      });
 
       // Log grace period started
       logEvent({
-        type: 'grace_period_started',
+        type: "grace_period_started",
         gateId: gate.id,
         userId,
         walletAddress: normalizedWallet,
         resourceType: gate.resourceType,
         resourceId: gate.resourceId,
         details: { gracePeriodEndsAt, requirementResults: results },
-        previousState: 'granted',
-        newState: 'grace_period',
-        source: 'system',
-      })
+        previousState: "granted",
+        newState: "grace_period",
+        source: "system",
+      });
 
       return {
         gateId: gate.id,
         userId,
         walletAddress: normalizedWallet,
-        status: 'grace_period',
+        status: "grace_period",
         hasAccess: true,
         requirementResults: results,
         accessGranted: true,
@@ -594,35 +626,35 @@ async function verifyTokenGate(
         gracePeriodEndsAt,
         verifiedAt: new Date(),
         expiresAt: gracePeriodEndsAt,
-        verificationMethod: 'on_chain',
+        verificationMethod: "on_chain",
         fromCache: false,
-      }
+      };
     }
 
     // Access denied - find the reason
-    const failedRequirements = results.filter((r) => !r.verified)
+    const failedRequirements = results.filter((r) => !r.verified);
     const deniedReason = failedRequirements
-      .map((r) => r.error || 'Requirement not met')
-      .join('; ')
+      .map((r) => r.error || "Requirement not met")
+      .join("; ");
 
     // Log access denied
     logEvent({
-      type: 'access_denied',
+      type: "access_denied",
       gateId: gate.id,
       userId,
       walletAddress: normalizedWallet,
       resourceType: gate.resourceType,
       resourceId: gate.resourceId,
       details: { reason: deniedReason, requirementResults: results },
-      newState: 'denied',
-      source: 'system',
-    })
+      newState: "denied",
+      source: "system",
+    });
 
     return {
       gateId: gate.id,
       userId,
       walletAddress: normalizedWallet,
-      status: 'denied',
+      status: "denied",
       hasAccess: false,
       requirementResults: results,
       accessGranted: false,
@@ -631,29 +663,30 @@ async function verifyTokenGate(
       inGracePeriod: false,
       verifiedAt: new Date(),
       expiresAt: new Date(Date.now() + gate.cacheTTLSeconds * 1000),
-      verificationMethod: 'on_chain',
+      verificationMethod: "on_chain",
       fromCache: false,
-    }
+    };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Verification failed'
+    const errorMessage =
+      error instanceof Error ? error.message : "Verification failed";
 
     // Log verification failure
     logEvent({
-      type: 'verification_failed',
+      type: "verification_failed",
       gateId: gate.id,
       userId,
       walletAddress: normalizedWallet,
       resourceType: gate.resourceType,
       resourceId: gate.resourceId,
       details: { error: errorMessage },
-      source: 'system',
-    })
+      source: "system",
+    });
 
     return {
       gateId: gate.id,
       userId,
       walletAddress: normalizedWallet,
-      status: 'denied',
+      status: "denied",
       hasAccess: false,
       requirementResults: [],
       accessGranted: false,
@@ -662,9 +695,9 @@ async function verifyTokenGate(
       inGracePeriod: false,
       verifiedAt: new Date(),
       expiresAt: new Date(Date.now() + 60 * 1000), // Short expiry on error
-      verificationMethod: 'on_chain',
+      verificationMethod: "on_chain",
       fromCache: false,
-    }
+    };
   }
 }
 
@@ -676,40 +709,47 @@ async function verifyTokenGate(
  * Invalidate cache for a specific gate
  */
 export function invalidateGateCache(gateId: string, reason?: string): void {
-  const now = new Date()
-  let invalidatedCount = 0
+  const now = new Date();
+  let invalidatedCount = 0;
 
   for (const [key, entry] of verificationCache.entries()) {
     if (entry.result.gateId === gateId) {
-      entry.invalidatedAt = now
-      entry.invalidationReason = reason || 'Gate configuration changed'
-      invalidatedCount++
+      entry.invalidatedAt = now;
+      entry.invalidationReason = reason || "Gate configuration changed";
+      invalidatedCount++;
     }
   }
 
-  logger.info(`Invalidated ${invalidatedCount} cache entries for gate ${gateId}`)
+  logger.info(
+    `Invalidated ${invalidatedCount} cache entries for gate ${gateId}`,
+  );
 }
 
 /**
  * Invalidate cache for a wallet address
  */
-export function invalidateWalletCache(walletAddress: string, reason?: string): void {
-  const normalizedAddress = normalizeAddress(walletAddress)
-  const now = new Date()
-  let invalidatedCount = 0
+export function invalidateWalletCache(
+  walletAddress: string,
+  reason?: string,
+): void {
+  const normalizedAddress = normalizeAddress(walletAddress);
+  const now = new Date();
+  let invalidatedCount = 0;
 
   for (const [key, entry] of verificationCache.entries()) {
     if (key.includes(normalizedAddress)) {
-      entry.invalidatedAt = now
-      entry.invalidationReason = reason || 'Wallet cache invalidated'
-      invalidatedCount++
+      entry.invalidatedAt = now;
+      entry.invalidationReason = reason || "Wallet cache invalidated";
+      invalidatedCount++;
     }
   }
 
   // Also clear the verification cache in the verifier
-  clearWalletCache(walletAddress)
+  clearWalletCache(walletAddress);
 
-  logger.info(`Invalidated ${invalidatedCount} cache entries for wallet ${walletAddress}`)
+  logger.info(
+    `Invalidated ${invalidatedCount} cache entries for wallet ${walletAddress}`,
+  );
 }
 
 /**
@@ -718,49 +758,55 @@ export function invalidateWalletCache(walletAddress: string, reason?: string): v
 export function invalidateContractCache(
   contractAddress: string,
   chainId?: ChainId,
-  reason?: string
+  reason?: string,
 ): void {
   // Clear contract cache in verifier
-  clearContractCache(contractAddress, chainId)
+  clearContractCache(contractAddress, chainId);
 
-  logger.info(`Invalidated contract cache for ${contractAddress}${chainId ? ` on ${chainId}` : ''}`)
+  logger.info(
+    `Invalidated contract cache for ${contractAddress}${chainId ? ` on ${chainId}` : ""}`,
+  );
 }
 
 /**
  * Handle cache invalidation event (e.g., from webhook)
  */
 export function handleCacheInvalidation(event: CacheInvalidationEvent): void {
-  logger.info(`Processing cache invalidation: ${event.type}`, { event })
+  logger.info(`Processing cache invalidation: ${event.type}`, { event });
 
   switch (event.type) {
-    case 'transfer':
+    case "transfer":
       if (event.walletAddress) {
-        invalidateWalletCache(event.walletAddress, event.reason)
+        invalidateWalletCache(event.walletAddress, event.reason);
       }
       if (event.contractAddress) {
-        invalidateContractCache(event.contractAddress, event.chainId, event.reason)
+        invalidateContractCache(
+          event.contractAddress,
+          event.chainId,
+          event.reason,
+        );
       }
-      break
+      break;
 
-    case 'config_change':
+    case "config_change":
       if (event.gateId) {
-        invalidateGateCache(event.gateId, event.reason)
+        invalidateGateCache(event.gateId, event.reason);
       }
-      break
+      break;
 
-    case 'manual':
+    case "manual":
       if (event.gateId) {
-        invalidateGateCache(event.gateId, event.reason)
+        invalidateGateCache(event.gateId, event.reason);
       }
       if (event.walletAddress) {
-        invalidateWalletCache(event.walletAddress, event.reason)
+        invalidateWalletCache(event.walletAddress, event.reason);
       }
-      break
+      break;
 
-    case 'expiry':
+    case "expiry":
       // Cleanup expired entries
-      cleanupExpiredCache()
-      break
+      cleanupExpiredCache();
+      break;
   }
 }
 
@@ -768,39 +814,39 @@ export function handleCacheInvalidation(event: CacheInvalidationEvent): void {
  * Clean up expired cache entries
  */
 export function cleanupExpiredCache(): void {
-  const now = new Date()
-  let removedCount = 0
+  const now = new Date();
+  let removedCount = 0;
 
   for (const [key, entry] of verificationCache.entries()) {
     if (now > entry.expiresAt || entry.invalidatedAt) {
-      verificationCache.delete(key)
-      removedCount++
+      verificationCache.delete(key);
+      removedCount++;
     }
   }
 
   // Clean up expired grace periods
   for (const [key, gracePeriod] of gracePeriods.entries()) {
     if (!isInGracePeriod(gracePeriod.endsAt)) {
-      gracePeriods.delete(key)
+      gracePeriods.delete(key);
 
       // Log grace period ended
       logEvent({
-        type: 'grace_period_ended',
+        type: "grace_period_ended",
         gateId: gracePeriod.gateId,
         userId: gracePeriod.userId,
         walletAddress: gracePeriod.walletAddress,
-        resourceType: 'channel', // Would need to look up from gate config
-        resourceId: '',
+        resourceType: "channel", // Would need to look up from gate config
+        resourceId: "",
         details: { endedAt: gracePeriod.endsAt },
-        previousState: 'grace_period',
-        newState: 'expired',
-        source: 'system',
-      })
+        previousState: "grace_period",
+        newState: "expired",
+        source: "system",
+      });
     }
   }
 
   if (removedCount > 0) {
-    logger.info(`Cleaned up ${removedCount} expired cache entries`)
+    logger.info(`Cleaned up ${removedCount} expired cache entries`);
   }
 }
 
@@ -813,14 +859,18 @@ export function cleanupExpiredCache(): void {
  */
 export async function checkRevocations(gateId?: string): Promise<void> {
   const gatesToCheck = gateId
-    ? [gateConfigs.get(gateId)].filter((g): g is TokenGateConfig => !!g && g.autoRevokeOnFailure)
-    : Array.from(gateConfigs.values()).filter((g) => g.isActive && g.autoRevokeOnFailure)
+    ? [gateConfigs.get(gateId)].filter(
+        (g): g is TokenGateConfig => !!g && g.autoRevokeOnFailure,
+      )
+    : Array.from(gateConfigs.values()).filter(
+        (g) => g.isActive && g.autoRevokeOnFailure,
+      );
 
   for (const gate of gatesToCheck) {
     // Get all cached entries for this gate
     const cacheEntries = Array.from(verificationCache.entries()).filter(
-      ([_, entry]) => entry.result.gateId === gate.id && entry.result.hasAccess
-    )
+      ([_, entry]) => entry.result.gateId === gate.id && entry.result.hasAccess,
+    );
 
     for (const [cacheKey, entry] of cacheEntries) {
       // Re-verify access
@@ -830,22 +880,22 @@ export async function checkRevocations(gateId?: string): Promise<void> {
         resourceId: gate.resourceId,
         walletAddress: entry.result.walletAddress,
         forceRefresh: true,
-      })
+      });
 
       // If access revoked and not in grace period, log the event
       if (!accessResult.hasAccess && !accessResult.inGracePeriod) {
         logEvent({
-          type: 'access_revoked',
+          type: "access_revoked",
           gateId: gate.id,
           userId: entry.result.userId,
           walletAddress: entry.result.walletAddress,
           resourceType: gate.resourceType,
           resourceId: gate.resourceId,
           details: { reason: accessResult.reason },
-          previousState: 'granted',
-          newState: 'denied',
-          source: 'system',
-        })
+          previousState: "granted",
+          newState: "denied",
+          source: "system",
+        });
       }
     }
   }
@@ -859,8 +909,8 @@ export async function checkRevocations(gateId?: string): Promise<void> {
  * Get statistics for a token gate
  */
 export function getGateStats(gateId: string): TokenGateStats | null {
-  const stats = statsMap.get(gateId)
-  if (!stats) return null
+  const stats = statsMap.get(gateId);
+  if (!stats) return null;
 
   return {
     gateId,
@@ -868,10 +918,11 @@ export function getGateStats(gateId: string): TokenGateStats | null {
     successfulChecks: stats.successes,
     failedChecks: stats.failures,
     uniqueUsers: stats.users.size,
-    averageVerificationTimeMs: stats.checks > 0 ? stats.totalTimeMs / stats.checks : 0,
+    averageVerificationTimeMs:
+      stats.checks > 0 ? stats.totalTimeMs / stats.checks : 0,
     cacheHitRate: stats.checks > 0 ? stats.cacheHits / stats.checks : 0,
     lastCheckAt: undefined, // Would need to track this
-  }
+  };
 }
 
 /**
@@ -880,36 +931,38 @@ export function getGateStats(gateId: string): TokenGateStats | null {
 export function getGateEvents(
   gateId?: string,
   options?: {
-    types?: TokenGateEventType[]
-    limit?: number
-    since?: Date
-  }
+    types?: TokenGateEventType[];
+    limit?: number;
+    since?: Date;
+  },
 ): TokenGateEvent[] {
-  let events = gateId ? eventLog.filter((e) => e.gateId === gateId) : [...eventLog]
+  let events = gateId
+    ? eventLog.filter((e) => e.gateId === gateId)
+    : [...eventLog];
 
   if (options?.types && options.types.length > 0) {
-    events = events.filter((e) => options.types!.includes(e.type))
+    events = events.filter((e) => options.types!.includes(e.type));
   }
 
   if (options?.since) {
-    events = events.filter((e) => e.timestamp >= options.since!)
+    events = events.filter((e) => e.timestamp >= options.since!);
   }
 
   if (options?.limit) {
-    events = events.slice(0, options.limit)
+    events = events.slice(0, options.limit);
   }
 
-  return events
+  return events;
 }
 
 /**
  * Get users currently in grace period for a gate
  */
 export function getGracePeriodUsers(gateId: string): Array<{
-  userId: string
-  walletAddress: string
-  startedAt: Date
-  endsAt: Date
+  userId: string;
+  walletAddress: string;
+  startedAt: Date;
+  endsAt: Date;
 }> {
   return Array.from(gracePeriods.values())
     .filter((gp) => gp.gateId === gateId && isInGracePeriod(gp.endsAt))
@@ -918,7 +971,7 @@ export function getGracePeriodUsers(gateId: string): Array<{
       walletAddress: gp.walletAddress,
       startedAt: gp.startedAt,
       endsAt: gp.endsAt,
-    }))
+    }));
 }
 
 // =============================================================================
@@ -929,20 +982,20 @@ export function getGracePeriodUsers(gateId: string): Array<{
  * Check access for multiple users/resources
  */
 export async function batchCheckAccess(
-  requests: AccessCheckRequest[]
+  requests: AccessCheckRequest[],
 ): Promise<Map<string, AccessCheckResult>> {
-  const results = new Map<string, AccessCheckResult>()
+  const results = new Map<string, AccessCheckResult>();
 
   // Process in parallel
   await Promise.all(
     requests.map(async (request) => {
-      const key = `${request.resourceType}:${request.resourceId}:${request.userId}`
-      const result = await checkAccess(request)
-      results.set(key, result)
-    })
-  )
+      const key = `${request.resourceType}:${request.resourceId}:${request.userId}`;
+      const result = await checkAccess(request);
+      results.set(key, result);
+    }),
+  );
 
-  return results
+  return results;
 }
 
 /**
@@ -951,12 +1004,12 @@ export async function batchCheckAccess(
 export async function getUserAccessStatus(
   userId: string,
   walletAddress: string,
-  userRoles: string[] = []
+  userRoles: string[] = [],
 ): Promise<Map<string, AccessCheckResult>> {
-  const results = new Map<string, AccessCheckResult>()
+  const results = new Map<string, AccessCheckResult>();
 
   for (const gate of gateConfigs.values()) {
-    if (!gate.isActive) continue
+    if (!gate.isActive) continue;
 
     const result = await checkAccess({
       userId,
@@ -964,12 +1017,12 @@ export async function getUserAccessStatus(
       resourceId: gate.resourceId,
       walletAddress,
       userRoles,
-    })
+    });
 
-    results.set(gate.id, result)
+    results.set(gate.id, result);
   }
 
-  return results
+  return results;
 }
 
 // =============================================================================
@@ -977,7 +1030,7 @@ export async function getUserAccessStatus(
 // =============================================================================
 
 // Periodic cleanup interval
-let cleanupInterval: ReturnType<typeof setInterval> | null = null
+let cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
 /**
  * Initialize the token gate service
@@ -987,13 +1040,13 @@ export function initializeTokenGateService(): void {
   if (!cleanupInterval) {
     cleanupInterval = setInterval(
       () => {
-        cleanupExpiredCache()
+        cleanupExpiredCache();
       },
-      5 * 60 * 1000
-    ) // Every 5 minutes
+      5 * 60 * 1000,
+    ); // Every 5 minutes
   }
 
-  logger.info('Token gate service initialized')
+  logger.info("Token gate service initialized");
 }
 
 /**
@@ -1001,24 +1054,24 @@ export function initializeTokenGateService(): void {
  */
 export function shutdownTokenGateService(): void {
   if (cleanupInterval) {
-    clearInterval(cleanupInterval)
-    cleanupInterval = null
+    clearInterval(cleanupInterval);
+    cleanupInterval = null;
   }
 
-  logger.info('Token gate service shutdown')
+  logger.info("Token gate service shutdown");
 }
 
 /**
  * Reset service state (for testing)
  */
 export function resetTokenGateService(): void {
-  gateConfigs.clear()
-  resourceGateMappings.clear()
-  verificationCache.clear()
-  gracePeriods.clear()
-  eventLog.length = 0
-  statsMap.clear()
-  clearVerificationCache()
+  gateConfigs.clear();
+  resourceGateMappings.clear();
+  verificationCache.clear();
+  gracePeriods.clear();
+  eventLog.length = 0;
+  statsMap.clear();
+  clearVerificationCache();
 }
 
 // =============================================================================
@@ -1030,4 +1083,4 @@ export {
   clearVerificationCache,
   clearWalletCache,
   clearContractCache,
-}
+};

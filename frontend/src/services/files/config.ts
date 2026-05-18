@@ -13,40 +13,40 @@
  * - NEXT_PUBLIC_STORAGE_URL - Nhost storage URL (alternative)
  */
 
-import type { StorageConfig, FileTypeConfig, StorageProvider } from './types'
-import { DEFAULT_FILE_CONFIG } from './types'
+import type { StorageConfig, FileTypeConfig, StorageProvider } from "./types";
+import { DEFAULT_FILE_CONFIG } from "./types";
 
 // ============================================================================
 // Environment Variable Readers
 // ============================================================================
 
-function getEnv(key: string, defaultValue = ''): string {
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[key] || defaultValue
+function getEnv(key: string, defaultValue = ""): string {
+  if (typeof process !== "undefined" && process.env) {
+    return process.env[key] || defaultValue;
   }
-  return defaultValue
+  return defaultValue;
 }
 
 function getEnvBool(key: string, defaultValue = false): boolean {
-  const value = getEnv(key)
-  if (!value) return defaultValue
-  return value.toLowerCase() === 'true' || value === '1'
+  const value = getEnv(key);
+  if (!value) return defaultValue;
+  return value.toLowerCase() === "true" || value === "1";
 }
 
 function getEnvNumber(key: string, defaultValue: number): number {
-  const value = getEnv(key)
-  if (!value) return defaultValue
-  const parsed = parseInt(value, 10)
-  return isNaN(parsed) ? defaultValue : parsed
+  const value = getEnv(key);
+  if (!value) return defaultValue;
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? defaultValue : parsed;
 }
 
 function getEnvArray(key: string, defaultValue: string[] = []): string[] {
-  const value = getEnv(key)
-  if (!value) return defaultValue
+  const value = getEnv(key);
+  if (!value) return defaultValue;
   return value
-    .split(',')
+    .split(",")
     .map((s) => s.trim())
-    .filter(Boolean)
+    .filter(Boolean);
 }
 
 // ============================================================================
@@ -59,20 +59,28 @@ function getEnvArray(key: string, defaultValue: string[] = []): string[] {
  * Supports both legacy FILE_STORAGE_* and new STORAGE_* env vars
  */
 export function getStorageConfig(): StorageConfig {
-  const provider = (getEnv('FILE_STORAGE_PROVIDER') ||
-    getEnv('STORAGE_PROVIDER', 'minio')) as StorageProvider
+  const provider = (getEnv("FILE_STORAGE_PROVIDER") ||
+    getEnv("STORAGE_PROVIDER", "minio")) as StorageProvider;
 
   // Use new STORAGE_* vars with fallback to legacy FILE_STORAGE_* vars
   return {
     provider,
-    bucket: getEnv('STORAGE_BUCKET') || getEnv('FILE_STORAGE_BUCKET', 'nchat-files'),
+    bucket:
+      getEnv("STORAGE_BUCKET") || getEnv("FILE_STORAGE_BUCKET", "nchat-files"),
     endpoint:
-      getEnv('STORAGE_ENDPOINT') || getEnv('FILE_STORAGE_ENDPOINT', 'http://localhost:9000'),
-    region: getEnv('STORAGE_REGION') || getEnv('FILE_STORAGE_REGION', 'us-east-1'),
-    accessKey: getEnv('STORAGE_ACCESS_KEY') || getEnv('FILE_STORAGE_ACCESS_KEY', 'minioadmin'),
-    secretKey: getEnv('STORAGE_SECRET_KEY') || getEnv('FILE_STORAGE_SECRET_KEY', 'minioadmin'),
-    publicUrlBase: getEnv('FILE_STORAGE_PUBLIC_URL') || getEnv('NEXT_PUBLIC_STORAGE_URL'),
-  }
+      getEnv("STORAGE_ENDPOINT") ||
+      getEnv("FILE_STORAGE_ENDPOINT", "http://localhost:9000"),
+    region:
+      getEnv("STORAGE_REGION") || getEnv("FILE_STORAGE_REGION", "us-east-1"),
+    accessKey:
+      getEnv("STORAGE_ACCESS_KEY") ||
+      getEnv("FILE_STORAGE_ACCESS_KEY", "minioadmin"),
+    secretKey:
+      getEnv("STORAGE_SECRET_KEY") ||
+      getEnv("FILE_STORAGE_SECRET_KEY", "minioadmin"),
+    publicUrlBase:
+      getEnv("FILE_STORAGE_PUBLIC_URL") || getEnv("NEXT_PUBLIC_STORAGE_URL"),
+  };
 }
 
 /**
@@ -80,32 +88,41 @@ export function getStorageConfig(): StorageConfig {
  */
 export function getFileTypeConfig(): FileTypeConfig {
   return {
-    maxSize: getEnvNumber('FILE_MAX_SIZE', DEFAULT_FILE_CONFIG.maxSize),
-    allowedMimeTypes: getEnvArray('FILE_ALLOWED_TYPES', DEFAULT_FILE_CONFIG.allowedMimeTypes),
-    blockedMimeTypes: getEnvArray('FILE_BLOCKED_TYPES', DEFAULT_FILE_CONFIG.blockedMimeTypes),
+    maxSize: getEnvNumber("FILE_MAX_SIZE", DEFAULT_FILE_CONFIG.maxSize),
+    allowedMimeTypes: getEnvArray(
+      "FILE_ALLOWED_TYPES",
+      DEFAULT_FILE_CONFIG.allowedMimeTypes,
+    ),
+    blockedMimeTypes: getEnvArray(
+      "FILE_BLOCKED_TYPES",
+      DEFAULT_FILE_CONFIG.blockedMimeTypes,
+    ),
     allowedExtensions: getEnvArray(
-      'FILE_ALLOWED_EXTENSIONS',
-      DEFAULT_FILE_CONFIG.allowedExtensions
+      "FILE_ALLOWED_EXTENSIONS",
+      DEFAULT_FILE_CONFIG.allowedExtensions,
     ),
     blockedExtensions: getEnvArray(
-      'FILE_BLOCKED_EXTENSIONS',
-      DEFAULT_FILE_CONFIG.blockedExtensions
+      "FILE_BLOCKED_EXTENSIONS",
+      DEFAULT_FILE_CONFIG.blockedExtensions,
     ),
-    enableVirusScan: getEnvBool('FILE_ENABLE_VIRUS_SCAN', DEFAULT_FILE_CONFIG.enableVirusScan),
+    enableVirusScan: getEnvBool(
+      "FILE_ENABLE_VIRUS_SCAN",
+      DEFAULT_FILE_CONFIG.enableVirusScan,
+    ),
     enableOptimization: getEnvBool(
-      'FILE_ENABLE_OPTIMIZATION',
-      DEFAULT_FILE_CONFIG.enableOptimization
+      "FILE_ENABLE_OPTIMIZATION",
+      DEFAULT_FILE_CONFIG.enableOptimization,
     ),
-    stripExif: getEnvBool('FILE_STRIP_EXIF', DEFAULT_FILE_CONFIG.stripExif),
+    stripExif: getEnvBool("FILE_STRIP_EXIF", DEFAULT_FILE_CONFIG.stripExif),
     generateThumbnails: getEnvBool(
-      'FILE_GENERATE_THUMBNAILS',
-      DEFAULT_FILE_CONFIG.generateThumbnails
+      "FILE_GENERATE_THUMBNAILS",
+      DEFAULT_FILE_CONFIG.generateThumbnails,
     ),
     thumbnailSizes: getEnvArray(
-      'FILE_THUMBNAIL_SIZES',
-      DEFAULT_FILE_CONFIG.thumbnailSizes.map(String)
+      "FILE_THUMBNAIL_SIZES",
+      DEFAULT_FILE_CONFIG.thumbnailSizes.map(String),
     ).map(Number),
-  }
+  };
 }
 
 // ============================================================================
@@ -114,15 +131,15 @@ export function getFileTypeConfig(): FileTypeConfig {
 
 export interface ProcessingPluginConfig {
   /** Base URL of the file-processing plugin server */
-  baseUrl: string
+  baseUrl: string;
   /** Webhook URL for processing completion callbacks */
-  webhookUrl: string
+  webhookUrl: string;
   /** Webhook secret for signature verification */
-  webhookSecret: string
+  webhookSecret: string;
   /** Queue concurrency */
-  concurrency: number
+  concurrency: number;
   /** Request timeout in milliseconds */
-  timeout: number
+  timeout: number;
 }
 
 /**
@@ -130,12 +147,12 @@ export interface ProcessingPluginConfig {
  */
 export function getProcessingConfig(): ProcessingPluginConfig {
   return {
-    baseUrl: getEnv('FILE_PROCESSING_URL', 'http://localhost:3104'),
-    webhookUrl: getEnv('FILE_PROCESSING_WEBHOOK_URL', ''),
-    webhookSecret: getEnv('FILE_PROCESSING_WEBHOOK_SECRET', ''),
-    concurrency: getEnvNumber('FILE_QUEUE_CONCURRENCY', 3),
-    timeout: getEnvNumber('FILE_PROCESSING_TIMEOUT', 30000),
-  }
+    baseUrl: getEnv("FILE_PROCESSING_URL", "http://localhost:3104"),
+    webhookUrl: getEnv("FILE_PROCESSING_WEBHOOK_URL", ""),
+    webhookSecret: getEnv("FILE_PROCESSING_WEBHOOK_SECRET", ""),
+    concurrency: getEnvNumber("FILE_QUEUE_CONCURRENCY", 3),
+    timeout: getEnvNumber("FILE_PROCESSING_TIMEOUT", 30000),
+  };
 }
 
 // ============================================================================
@@ -143,30 +160,30 @@ export function getProcessingConfig(): ProcessingPluginConfig {
 // ============================================================================
 
 export interface S3ClientConfig {
-  endpoint: string
-  region: string
+  endpoint: string;
+  region: string;
   credentials: {
-    accessKeyId: string
-    secretAccessKey: string
-  }
-  forcePathStyle: boolean
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+  forcePathStyle: boolean;
 }
 
 /**
  * Get S3 client configuration for the storage adapter
  */
 export function getS3ClientConfig(): S3ClientConfig {
-  const storage = getStorageConfig()
+  const storage = getStorageConfig();
 
   return {
-    endpoint: storage.endpoint || 'http://localhost:9000',
-    region: storage.region || 'us-east-1',
+    endpoint: storage.endpoint || "http://localhost:9000",
+    region: storage.region || "us-east-1",
     credentials: {
-      accessKeyId: storage.accessKey || '',
-      secretAccessKey: storage.secretKey || '',
+      accessKeyId: storage.accessKey || "",
+      secretAccessKey: storage.secretKey || "",
     },
-    forcePathStyle: storage.provider === 'minio',
-  }
+    forcePathStyle: storage.provider === "minio",
+  };
 }
 
 // ============================================================================
@@ -177,20 +194,20 @@ export function getS3ClientConfig(): S3ClientConfig {
  * Get the public URL for a file
  */
 export function getPublicFileUrl(storagePath: string): string {
-  const config = getStorageConfig()
+  const config = getStorageConfig();
 
   // Use Nhost storage URL if available
-  const nhostStorageUrl = getEnv('NEXT_PUBLIC_STORAGE_URL')
+  const nhostStorageUrl = getEnv("NEXT_PUBLIC_STORAGE_URL");
   if (nhostStorageUrl) {
-    return `${nhostStorageUrl}/files/${storagePath}`
+    return `${nhostStorageUrl}/files/${storagePath}`;
   }
 
   if (config.publicUrlBase) {
-    return `${config.publicUrlBase}/${storagePath}`
+    return `${config.publicUrlBase}/${storagePath}`;
   }
 
   // Default MinIO URL pattern
-  return `${config.endpoint}/${config.bucket}/${storagePath}`
+  return `${config.endpoint}/${config.bucket}/${storagePath}`;
 }
 
 /**
@@ -201,34 +218,34 @@ export function generateStoragePath(
   fileId: string,
   fileName: string,
   options: {
-    channelId?: string
-    userId?: string
-    prefix?: string
-  } = {}
+    channelId?: string;
+    userId?: string;
+    prefix?: string;
+  } = {},
 ): string {
-  const { channelId, userId, prefix = 'uploads' } = options
-  const extension = fileName.split('.').pop()?.toLowerCase() || ''
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+  const { channelId, userId, prefix = "uploads" } = options;
+  const extension = fileName.split(".").pop()?.toLowerCase() || "";
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
-  let path = prefix
+  let path = prefix;
 
   if (channelId) {
-    path += `/channels/${channelId}`
+    path += `/channels/${channelId}`;
   } else if (userId) {
-    path += `/users/${userId}`
+    path += `/users/${userId}`;
   }
 
-  path += `/${year}/${month}/${day}`
-  path += `/${fileId}`
+  path += `/${year}/${month}/${day}`;
+  path += `/${fileId}`;
 
   if (extension) {
-    path += `.${extension}`
+    path += `.${extension}`;
   }
 
-  return path
+  return path;
 }
 
 /**
@@ -237,9 +254,9 @@ export function generateStoragePath(
 export function generateThumbnailPath(
   fileId: string,
   size: number,
-  format: 'jpeg' | 'png' | 'webp' = 'jpeg'
+  format: "jpeg" | "png" | "webp" = "jpeg",
 ): string {
-  return `thumbnails/${fileId}/${size}.${format}`
+  return `thumbnails/${fileId}/${size}.${format}`;
 }
 
 // ============================================================================
@@ -269,25 +286,25 @@ export const FILE_SERVICE_CONSTANTS = {
   THUMBNAIL_SIZES: [100, 400, 1200],
 
   /** Supported image formats for thumbnails */
-  THUMBNAIL_FORMATS: ['jpeg', 'png', 'webp'] as const,
+  THUMBNAIL_FORMATS: ["jpeg", "png", "webp"] as const,
 
   /** Image MIME types that support thumbnails */
   THUMBNAIL_SUPPORTED_TYPES: [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/bmp',
-    'image/tiff',
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/bmp",
+    "image/tiff",
   ],
 
   /** Video MIME types that support thumbnails */
   VIDEO_THUMBNAIL_SUPPORTED_TYPES: [
-    'video/mp4',
-    'video/webm',
-    'video/quicktime',
-    'video/x-msvideo',
-    'video/x-matroska',
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "video/x-msvideo",
+    "video/x-matroska",
   ],
 
   /** Maximum file size for regular users (25MB) */
@@ -308,11 +325,11 @@ export const FILE_SERVICE_CONSTANTS = {
     /** ClamAV default port */
     CLAMAV_DEFAULT_PORT: 3310,
     /** VirusTotal API URL */
-    VIRUSTOTAL_API_URL: 'https://www.virustotal.com/api/v3',
+    VIRUSTOTAL_API_URL: "https://www.virustotal.com/api/v3",
     /** Health check interval in milliseconds */
     HEALTH_CHECK_INTERVAL: 60000,
   },
-} as const
+} as const;
 
 // ============================================================================
 // Virus Scanner Configuration
@@ -320,37 +337,37 @@ export const FILE_SERVICE_CONSTANTS = {
 
 export interface VirusScannerConfig {
   /** Enable virus scanning */
-  enabled: boolean
+  enabled: boolean;
   /** Primary scanner backend: 'clamav' | 'virustotal' | 'plugin' | 'none' */
-  backend: 'clamav' | 'virustotal' | 'plugin' | 'none'
+  backend: "clamav" | "virustotal" | "plugin" | "none";
   /** Fallback backend if primary fails */
-  fallbackBackend?: 'clamav' | 'virustotal' | 'plugin' | 'none'
+  fallbackBackend?: "clamav" | "virustotal" | "plugin" | "none";
   /** Block uploads when scanner is unavailable */
-  blockOnScannerUnavailable: boolean
+  blockOnScannerUnavailable: boolean;
   /** Quarantine infected files instead of deleting */
-  quarantineInfected: boolean
+  quarantineInfected: boolean;
   /** Maximum file size to scan in bytes */
-  maxScanSize: number
+  maxScanSize: number;
   /** Scan timeout in milliseconds */
-  timeout: number
+  timeout: number;
   /** ClamAV configuration */
   clamav?: {
-    host: string
-    port: number
-    timeout?: number
-  }
+    host: string;
+    port: number;
+    timeout?: number;
+  };
   /** VirusTotal configuration */
   virustotal?: {
-    apiKey: string
-    apiUrl?: string
-    waitForResult?: boolean
-    maxWaitTime?: number
-  }
+    apiKey: string;
+    apiUrl?: string;
+    waitForResult?: boolean;
+    maxWaitTime?: number;
+  };
   /** Plugin scanner configuration */
   plugin?: {
-    baseUrl: string
-    timeout?: number
-  }
+    baseUrl: string;
+    timeout?: number;
+  };
 }
 
 /**
@@ -369,56 +386,64 @@ export interface VirusScannerConfig {
  * - FILE_PROCESSING_URL: Plugin scanner URL
  */
 export function getVirusScannerConfig(): VirusScannerConfig {
-  const enabled = getEnvBool('FILE_ENABLE_VIRUS_SCAN', false)
+  const enabled = getEnvBool("FILE_ENABLE_VIRUS_SCAN", false);
 
   // Determine backend based on available configuration
-  let backend: VirusScannerConfig['backend'] = 'none'
+  let backend: VirusScannerConfig["backend"] = "none";
 
-  const clamavHost = getEnv('CLAMAV_HOST')
-  const virustotalKey = getEnv('VIRUSTOTAL_API_KEY')
-  const pluginUrl = getEnv('FILE_PROCESSING_URL')
+  const clamavHost = getEnv("CLAMAV_HOST");
+  const virustotalKey = getEnv("VIRUSTOTAL_API_KEY");
+  const pluginUrl = getEnv("FILE_PROCESSING_URL");
 
   // Priority: ClamAV > VirusTotal > Plugin > None
   if (clamavHost) {
-    backend = 'clamav'
+    backend = "clamav";
   } else if (virustotalKey) {
-    backend = 'virustotal'
+    backend = "virustotal";
   } else if (pluginUrl && enabled) {
-    backend = 'plugin'
+    backend = "plugin";
   }
 
   // Allow explicit backend override
-  const explicitBackend = getEnv('VIRUS_SCANNER_BACKEND')
-  if (explicitBackend && ['clamav', 'virustotal', 'plugin', 'none'].includes(explicitBackend)) {
-    backend = explicitBackend as VirusScannerConfig['backend']
+  const explicitBackend = getEnv("VIRUS_SCANNER_BACKEND");
+  if (
+    explicitBackend &&
+    ["clamav", "virustotal", "plugin", "none"].includes(explicitBackend)
+  ) {
+    backend = explicitBackend as VirusScannerConfig["backend"];
   }
 
   return {
     enabled,
     backend,
-    fallbackBackend: getEnv('VIRUS_SCANNER_FALLBACK') as VirusScannerConfig['fallbackBackend'],
+    fallbackBackend: getEnv(
+      "VIRUS_SCANNER_FALLBACK",
+    ) as VirusScannerConfig["fallbackBackend"],
     // Security-first: block by default when scanner is unavailable.
     // Operators may opt out via VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE=false
     // or the alias NCHAT_UPLOAD_SCAN_OPTIONAL=true.
     blockOnScannerUnavailable: getEnvBool(
-      'VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE',
-      getEnv('NCHAT_UPLOAD_SCAN_OPTIONAL') !== 'true'
+      "VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE",
+      getEnv("NCHAT_UPLOAD_SCAN_OPTIONAL") !== "true",
     ),
-    quarantineInfected: getEnvBool('VIRUS_SCANNER_QUARANTINE', true),
+    quarantineInfected: getEnvBool("VIRUS_SCANNER_QUARANTINE", true),
     maxScanSize: getEnvNumber(
-      'VIRUS_SCANNER_MAX_SIZE',
-      FILE_SERVICE_CONSTANTS.VIRUS_SCANNER.MAX_SCAN_SIZE
+      "VIRUS_SCANNER_MAX_SIZE",
+      FILE_SERVICE_CONSTANTS.VIRUS_SCANNER.MAX_SCAN_SIZE,
     ),
     timeout: getEnvNumber(
-      'VIRUS_SCANNER_TIMEOUT',
-      FILE_SERVICE_CONSTANTS.VIRUS_SCANNER.DEFAULT_TIMEOUT
+      "VIRUS_SCANNER_TIMEOUT",
+      FILE_SERVICE_CONSTANTS.VIRUS_SCANNER.DEFAULT_TIMEOUT,
     ),
 
     clamav: clamavHost
       ? {
           host: clamavHost,
-          port: getEnvNumber('CLAMAV_PORT', FILE_SERVICE_CONSTANTS.VIRUS_SCANNER.CLAMAV_DEFAULT_PORT),
-          timeout: getEnvNumber('CLAMAV_TIMEOUT', 30000),
+          port: getEnvNumber(
+            "CLAMAV_PORT",
+            FILE_SERVICE_CONSTANTS.VIRUS_SCANNER.CLAMAV_DEFAULT_PORT,
+          ),
+          timeout: getEnvNumber("CLAMAV_TIMEOUT", 30000),
         }
       : undefined,
 
@@ -426,19 +451,19 @@ export function getVirusScannerConfig(): VirusScannerConfig {
       ? {
           apiKey: virustotalKey,
           apiUrl: getEnv(
-            'VIRUSTOTAL_API_URL',
-            FILE_SERVICE_CONSTANTS.VIRUS_SCANNER.VIRUSTOTAL_API_URL
+            "VIRUSTOTAL_API_URL",
+            FILE_SERVICE_CONSTANTS.VIRUS_SCANNER.VIRUSTOTAL_API_URL,
           ),
-          waitForResult: getEnvBool('VIRUSTOTAL_WAIT_FOR_RESULT', true),
-          maxWaitTime: getEnvNumber('VIRUSTOTAL_MAX_WAIT_TIME', 120000),
+          waitForResult: getEnvBool("VIRUSTOTAL_WAIT_FOR_RESULT", true),
+          maxWaitTime: getEnvNumber("VIRUSTOTAL_MAX_WAIT_TIME", 120000),
         }
       : undefined,
 
     plugin: pluginUrl
       ? {
           baseUrl: pluginUrl,
-          timeout: getEnvNumber('FILE_PROCESSING_TIMEOUT', 30000),
+          timeout: getEnvNumber("FILE_PROCESSING_TIMEOUT", 30000),
         }
       : undefined,
-  }
+  };
 }

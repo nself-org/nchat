@@ -23,7 +23,7 @@ export {
   getDefaultScheduledTime,
   type ScheduledMessageDraft,
   type ScheduledMessagesState,
-} from './scheduled-store'
+} from "./scheduled-store";
 
 // React hooks
 export {
@@ -32,4 +32,4 @@ export {
   useScheduledMessagesCount,
   type UseScheduledOptions,
   type UseScheduledReturn,
-} from './use-scheduled'
+} from "./use-scheduled";

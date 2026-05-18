@@ -11,31 +11,44 @@
 /**
  * Supported operating systems
  */
-export type OperatingSystem = 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'web' | 'unknown'
+export type OperatingSystem =
+  | "ios"
+  | "android"
+  | "macos"
+  | "windows"
+  | "linux"
+  | "web"
+  | "unknown";
 
 /**
  * Security levels for stored items
  */
 export type SecureStorageSecurityLevel =
-  | 'hardware' // Hardware-backed (Secure Enclave, TEE, TPM)
-  | 'system' // OS-level protection (Keychain, Keystore, Credential Manager)
-  | 'encrypted' // Software encryption
-  | 'plaintext' // Not recommended - no protection
+  | "hardware" // Hardware-backed (Secure Enclave, TEE, TPM)
+  | "system" // OS-level protection (Keychain, Keystore, Credential Manager)
+  | "encrypted" // Software encryption
+  | "plaintext"; // Not recommended - no protection
 
 /**
  * Access control policy for stored items
  */
 export type AccessControlPolicy =
-  | 'whenUnlocked' // Available only when device is unlocked
-  | 'afterFirstUnlock' // Available after first unlock until reboot
-  | 'always' // Always available (less secure)
-  | 'whenPasscodeSetThisDeviceOnly' // Requires passcode, this device only
-  | 'whenUnlockedThisDeviceOnly' // When unlocked, this device only
+  | "whenUnlocked" // Available only when device is unlocked
+  | "afterFirstUnlock" // Available after first unlock until reboot
+  | "always" // Always available (less secure)
+  | "whenPasscodeSetThisDeviceOnly" // Requires passcode, this device only
+  | "whenUnlockedThisDeviceOnly"; // When unlocked, this device only
 
 /**
  * Biometric authentication type
  */
-export type BiometricAuthType = 'faceId' | 'touchId' | 'fingerprint' | 'face' | 'iris' | 'none'
+export type BiometricAuthType =
+  | "faceId"
+  | "touchId"
+  | "fingerprint"
+  | "face"
+  | "iris"
+  | "none";
 
 // ============================================================================
 // Storage Item Types
@@ -46,21 +59,21 @@ export type BiometricAuthType = 'faceId' | 'touchId' | 'fingerprint' | 'face' | 
  */
 export interface SecureStorageSetOptions {
   /** Service/application identifier for the item */
-  service?: string
+  service?: string;
   /** Account/username associated with the item */
-  account?: string
+  account?: string;
   /** Access control policy */
-  accessControl?: AccessControlPolicy
+  accessControl?: AccessControlPolicy;
   /** Require biometric authentication for access */
-  requireBiometric?: boolean
+  requireBiometric?: boolean;
   /** Synchronizable across devices (iCloud Keychain, etc.) */
-  synchronizable?: boolean
+  synchronizable?: boolean;
   /** Access group for shared Keychain access (iOS) */
-  accessGroup?: string
+  accessGroup?: string;
   /** Label for the keychain item */
-  label?: string
+  label?: string;
   /** Comment for the keychain item */
-  comment?: string
+  comment?: string;
 }
 
 /**
@@ -68,13 +81,13 @@ export interface SecureStorageSetOptions {
  */
 export interface SecureStorageGetOptions {
   /** Service/application identifier */
-  service?: string
+  service?: string;
   /** Account/username */
-  account?: string
+  account?: string;
   /** Biometric authentication prompt message */
-  biometricPrompt?: string
+  biometricPrompt?: string;
   /** Allow fallback to passcode if biometric fails */
-  allowPasscodeFallback?: boolean
+  allowPasscodeFallback?: boolean;
 }
 
 /**
@@ -82,21 +95,21 @@ export interface SecureStorageGetOptions {
  */
 export interface SecureStorageItemMeta {
   /** When the item was created */
-  createdAt: Date
+  createdAt: Date;
   /** When the item was last modified */
-  modifiedAt: Date
+  modifiedAt: Date;
   /** Security level of the storage */
-  securityLevel: SecureStorageSecurityLevel
+  securityLevel: SecureStorageSecurityLevel;
   /** Whether biometric protection is enabled */
-  biometricProtected: boolean
+  biometricProtected: boolean;
   /** Whether the item is synchronizable */
-  synchronizable: boolean
+  synchronizable: boolean;
   /** Access control policy */
-  accessControl: AccessControlPolicy
+  accessControl: AccessControlPolicy;
   /** Service identifier */
-  service: string
+  service: string;
   /** Account identifier */
-  account: string
+  account: string;
 }
 
 /**
@@ -104,15 +117,15 @@ export interface SecureStorageItemMeta {
  */
 export interface SecureStorageResult<T> {
   /** Whether the operation succeeded */
-  success: boolean
+  success: boolean;
   /** The result data (if successful) */
-  data: T | null
+  data: T | null;
   /** Error message (if failed) */
-  error: string | null
+  error: string | null;
   /** Error code for programmatic handling */
-  errorCode?: SecureStorageErrorCode
+  errorCode?: SecureStorageErrorCode;
   /** Item metadata (if applicable) */
-  meta?: SecureStorageItemMeta
+  meta?: SecureStorageItemMeta;
 }
 
 // ============================================================================
@@ -123,22 +136,22 @@ export interface SecureStorageResult<T> {
  * Error codes for secure storage operations
  */
 export type SecureStorageErrorCode =
-  | 'NOT_AVAILABLE' // Secure storage not available on platform
-  | 'NOT_INITIALIZED' // Storage not initialized
-  | 'ITEM_NOT_FOUND' // Requested item not found
-  | 'ACCESS_DENIED' // Access denied (authentication failed)
-  | 'BIOMETRIC_FAILED' // Biometric authentication failed
-  | 'BIOMETRIC_CANCELLED' // User cancelled biometric authentication
-  | 'BIOMETRIC_NOT_AVAILABLE' // Biometric not available
-  | 'ENCRYPTION_FAILED' // Encryption operation failed
-  | 'DECRYPTION_FAILED' // Decryption operation failed
-  | 'SERIALIZATION_FAILED' // Failed to serialize data
-  | 'DESERIALIZATION_FAILED' // Failed to deserialize data
-  | 'STORAGE_FULL' // Storage is full
-  | 'KEY_NOT_FOUND' // Encryption key not found
-  | 'INVALID_KEY' // Invalid encryption key
-  | 'PLATFORM_ERROR' // Platform-specific error
-  | 'UNKNOWN_ERROR' // Unknown error
+  | "NOT_AVAILABLE" // Secure storage not available on platform
+  | "NOT_INITIALIZED" // Storage not initialized
+  | "ITEM_NOT_FOUND" // Requested item not found
+  | "ACCESS_DENIED" // Access denied (authentication failed)
+  | "BIOMETRIC_FAILED" // Biometric authentication failed
+  | "BIOMETRIC_CANCELLED" // User cancelled biometric authentication
+  | "BIOMETRIC_NOT_AVAILABLE" // Biometric not available
+  | "ENCRYPTION_FAILED" // Encryption operation failed
+  | "DECRYPTION_FAILED" // Decryption operation failed
+  | "SERIALIZATION_FAILED" // Failed to serialize data
+  | "DESERIALIZATION_FAILED" // Failed to deserialize data
+  | "STORAGE_FULL" // Storage is full
+  | "KEY_NOT_FOUND" // Encryption key not found
+  | "INVALID_KEY" // Invalid encryption key
+  | "PLATFORM_ERROR" // Platform-specific error
+  | "UNKNOWN_ERROR"; // Unknown error
 
 /**
  * Secure storage error class
@@ -147,10 +160,10 @@ export class SecureStorageError extends Error {
   constructor(
     message: string,
     public readonly code: SecureStorageErrorCode,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
-    super(message)
-    this.name = 'SecureStorageError'
+    super(message);
+    this.name = "SecureStorageError";
   }
 
   /**
@@ -162,7 +175,7 @@ export class SecureStorageError extends Error {
       data: null,
       error: this.message,
       errorCode: this.code,
-    }
+    };
   }
 }
 
@@ -175,23 +188,23 @@ export class SecureStorageError extends Error {
  */
 export interface SecureStorageCapabilities {
   /** Whether hardware-backed storage is available */
-  hardwareStorage: boolean
+  hardwareStorage: boolean;
   /** Whether biometric authentication is available */
-  biometricAuth: boolean
+  biometricAuth: boolean;
   /** Available biometric authentication types */
-  biometricTypes: BiometricAuthType[]
+  biometricTypes: BiometricAuthType[];
   /** Whether secure enclave/TEE is available */
-  secureEnclave: boolean
+  secureEnclave: boolean;
   /** Whether items can be synchronized across devices */
-  syncSupported: boolean
+  syncSupported: boolean;
   /** Maximum size for a single item (bytes) */
-  maxItemSize: number
+  maxItemSize: number;
   /** Whether access groups are supported (iOS) */
-  accessGroupsSupported: boolean
+  accessGroupsSupported: boolean;
   /** Operating system */
-  os: OperatingSystem
+  os: OperatingSystem;
   /** Security level of the implementation */
-  securityLevel: SecureStorageSecurityLevel
+  securityLevel: SecureStorageSecurityLevel;
 }
 
 // ============================================================================
@@ -203,43 +216,56 @@ export interface SecureStorageCapabilities {
  */
 export interface ISecureStorage {
   /** Operating system this implementation supports */
-  readonly os: OperatingSystem
+  readonly os: OperatingSystem;
 
   /** Initialize the secure storage */
-  initialize(): Promise<void>
+  initialize(): Promise<void>;
 
   /** Check if initialized */
-  isInitialized(): boolean
+  isInitialized(): boolean;
 
   /** Get storage capabilities */
-  getCapabilities(): Promise<SecureStorageCapabilities>
+  getCapabilities(): Promise<SecureStorageCapabilities>;
 
   /** Store a secret value */
-  setItem(key: string, value: string, options?: SecureStorageSetOptions): Promise<SecureStorageResult<void>>
+  setItem(
+    key: string,
+    value: string,
+    options?: SecureStorageSetOptions,
+  ): Promise<SecureStorageResult<void>>;
 
   /** Retrieve a secret value */
-  getItem(key: string, options?: SecureStorageGetOptions): Promise<SecureStorageResult<string>>
+  getItem(
+    key: string,
+    options?: SecureStorageGetOptions,
+  ): Promise<SecureStorageResult<string>>;
 
   /** Check if an item exists */
-  hasItem(key: string, options?: SecureStorageGetOptions): Promise<boolean>
+  hasItem(key: string, options?: SecureStorageGetOptions): Promise<boolean>;
 
   /** Remove an item */
-  removeItem(key: string, options?: SecureStorageGetOptions): Promise<SecureStorageResult<void>>
+  removeItem(
+    key: string,
+    options?: SecureStorageGetOptions,
+  ): Promise<SecureStorageResult<void>>;
 
   /** Get all keys (may require authentication) */
-  getAllKeys(options?: SecureStorageGetOptions): Promise<string[]>
+  getAllKeys(options?: SecureStorageGetOptions): Promise<string[]>;
 
   /** Clear all items */
-  clear(options?: SecureStorageGetOptions): Promise<SecureStorageResult<void>>
+  clear(options?: SecureStorageGetOptions): Promise<SecureStorageResult<void>>;
 
   /** Get item metadata without accessing the value */
-  getItemMeta(key: string, options?: SecureStorageGetOptions): Promise<SecureStorageItemMeta | null>
+  getItemMeta(
+    key: string,
+    options?: SecureStorageGetOptions,
+  ): Promise<SecureStorageItemMeta | null>;
 
   /** Check if biometric authentication is available */
-  isBiometricAvailable(): Promise<boolean>
+  isBiometricAvailable(): Promise<boolean>;
 
   /** Authenticate with biometrics */
-  authenticateBiometric(reason: string): Promise<SecureStorageResult<void>>
+  authenticateBiometric(reason: string): Promise<SecureStorageResult<void>>;
 }
 
 /**
@@ -247,13 +273,13 @@ export interface ISecureStorage {
  */
 export interface SecureStorageManagerOptions {
   /** Default service identifier */
-  service?: string
+  service?: string;
   /** Whether to prefer hardware-backed storage */
-  preferHardwareStorage?: boolean
+  preferHardwareStorage?: boolean;
   /** Enable debug logging */
-  debug?: boolean
+  debug?: boolean;
   /** Custom fallback storage implementation */
-  fallbackStorage?: ISecureStorage
+  fallbackStorage?: ISecureStorage;
 }
 
 // ============================================================================
@@ -264,55 +290,69 @@ export interface SecureStorageManagerOptions {
  * iOS Keychain native bridge interface
  */
 export interface iOSKeychainBridge {
-  setItem(key: string, value: string, options: iOSKeychainOptions): Promise<boolean>
-  getItem(key: string, options: iOSKeychainOptions): Promise<string | null>
-  removeItem(key: string, options: iOSKeychainOptions): Promise<boolean>
-  getAllKeys(options: iOSKeychainOptions): Promise<string[]>
-  clear(options: iOSKeychainOptions): Promise<boolean>
-  isAvailable(): Promise<boolean>
-  getBiometricType(): Promise<'faceId' | 'touchId' | 'none'>
-  authenticateBiometric(reason: string): Promise<boolean>
+  setItem(
+    key: string,
+    value: string,
+    options: iOSKeychainOptions,
+  ): Promise<boolean>;
+  getItem(key: string, options: iOSKeychainOptions): Promise<string | null>;
+  removeItem(key: string, options: iOSKeychainOptions): Promise<boolean>;
+  getAllKeys(options: iOSKeychainOptions): Promise<string[]>;
+  clear(options: iOSKeychainOptions): Promise<boolean>;
+  isAvailable(): Promise<boolean>;
+  getBiometricType(): Promise<"faceId" | "touchId" | "none">;
+  authenticateBiometric(reason: string): Promise<boolean>;
 }
 
 export interface iOSKeychainOptions {
-  service: string
-  accessControl?: string
-  accessGroup?: string
-  synchronizable?: boolean
-  requireBiometric?: boolean
+  service: string;
+  accessControl?: string;
+  accessGroup?: string;
+  synchronizable?: boolean;
+  requireBiometric?: boolean;
 }
 
 /**
  * Android Keystore native bridge interface
  */
 export interface AndroidKeystoreBridge {
-  setItem(key: string, value: string, options: AndroidKeystoreOptions): Promise<boolean>
-  getItem(key: string, options: AndroidKeystoreOptions): Promise<string | null>
-  removeItem(key: string, options: AndroidKeystoreOptions): Promise<boolean>
-  getAllKeys(): Promise<string[]>
-  clear(): Promise<boolean>
-  isAvailable(): Promise<boolean>
-  getBiometricType(): Promise<'fingerprint' | 'face' | 'iris' | 'none'>
-  authenticateBiometric(reason: string): Promise<boolean>
-  isStrongBoxAvailable(): Promise<boolean>
+  setItem(
+    key: string,
+    value: string,
+    options: AndroidKeystoreOptions,
+  ): Promise<boolean>;
+  getItem(key: string, options: AndroidKeystoreOptions): Promise<string | null>;
+  removeItem(key: string, options: AndroidKeystoreOptions): Promise<boolean>;
+  getAllKeys(): Promise<string[]>;
+  clear(): Promise<boolean>;
+  isAvailable(): Promise<boolean>;
+  getBiometricType(): Promise<"fingerprint" | "face" | "iris" | "none">;
+  authenticateBiometric(reason: string): Promise<boolean>;
+  isStrongBoxAvailable(): Promise<boolean>;
 }
 
 export interface AndroidKeystoreOptions {
-  requireBiometric?: boolean
-  invalidateOnBiometricChange?: boolean
-  userAuthenticationRequired?: boolean
-  useStrongBox?: boolean
+  requireBiometric?: boolean;
+  invalidateOnBiometricChange?: boolean;
+  userAuthenticationRequired?: boolean;
+  useStrongBox?: boolean;
 }
 
 /**
  * Desktop keychain native bridge interface (macOS/Windows/Linux)
  */
 export interface DesktopKeychainBridge {
-  setPassword(service: string, account: string, password: string): Promise<boolean>
-  getPassword(service: string, account: string): Promise<string | null>
-  deletePassword(service: string, account: string): Promise<boolean>
-  findCredentials(service: string): Promise<Array<{ account: string; password: string }>>
-  isAvailable(): Promise<boolean>
+  setPassword(
+    service: string,
+    account: string,
+    password: string,
+  ): Promise<boolean>;
+  getPassword(service: string, account: string): Promise<string | null>;
+  deletePassword(service: string, account: string): Promise<boolean>;
+  findCredentials(
+    service: string,
+  ): Promise<Array<{ account: string; password: string }>>;
+  isAvailable(): Promise<boolean>;
 }
 
 // ============================================================================
@@ -322,19 +362,19 @@ export interface DesktopKeychainBridge {
 /**
  * Default service identifier for secure storage
  */
-export const DEFAULT_SERVICE = 'com.nchat.secure-storage'
+export const DEFAULT_SERVICE = "com.nchat.secure-storage";
 
 /**
  * Maximum item size (5MB)
  */
-export const MAX_ITEM_SIZE = 5 * 1024 * 1024
+export const MAX_ITEM_SIZE = 5 * 1024 * 1024;
 
 /**
  * Key prefix for all stored items
  */
-export const STORAGE_KEY_PREFIX = 'nchat_secure_'
+export const STORAGE_KEY_PREFIX = "nchat_secure_";
 
 /**
  * Metadata suffix for stored items
  */
-export const METADATA_SUFFIX = '_meta'
+export const METADATA_SUFFIX = "_meta";

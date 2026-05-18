@@ -6,5 +6,5 @@
  * @module components/streaming
  */
 
-export { StreamBroadcaster } from './StreamBroadcaster'
-export { StreamViewer } from './StreamViewer'
+export { StreamBroadcaster } from "./StreamBroadcaster";
+export { StreamViewer } from "./StreamViewer";

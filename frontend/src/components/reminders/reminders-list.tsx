@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Reminders List Component
@@ -15,7 +15,7 @@
  * ```
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Bell,
   Calendar,
@@ -29,20 +29,20 @@ import {
   Plus,
   Search,
   Trash2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -50,7 +50,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,35 +60,38 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Skeleton } from '@/components/ui/skeleton'
-import { ReminderItem } from './reminder-item'
-import { useReminders } from '@/lib/reminders/use-reminders'
-import { useReminderStore, type ReminderFilter } from '@/lib/reminders/reminder-store'
-import { isToday, isThisWeek } from '@/lib/date'
-import type { Reminder } from '@/graphql/reminders'
+} from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ReminderItem } from "./reminder-item";
+import { useReminders } from "@/lib/reminders/use-reminders";
+import {
+  useReminderStore,
+  type ReminderFilter,
+} from "@/lib/reminders/reminder-store";
+import { isToday, isThisWeek } from "@/lib/date";
+import type { Reminder } from "@/graphql/reminders";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface RemindersListProps {
-  userId: string
-  channelId?: string
-  onEdit?: (reminder: Reminder) => void
-  onCreateNew?: () => void
-  showFilters?: boolean
-  showSearch?: boolean
-  showTabs?: boolean
-  maxHeight?: string | number
-  emptyMessage?: string
-  className?: string
+  userId: string;
+  channelId?: string;
+  onEdit?: (reminder: Reminder) => void;
+  onCreateNew?: () => void;
+  showFilters?: boolean;
+  showSearch?: boolean;
+  showTabs?: boolean;
+  maxHeight?: string | number;
+  emptyMessage?: string;
+  className?: string;
 }
 
 interface ReminderGroup {
-  id: string
-  label: string
-  reminders: Reminder[]
+  id: string;
+  label: string;
+  reminders: Reminder[];
 }
 
 // ============================================================================
@@ -96,75 +99,76 @@ interface ReminderGroup {
 // ============================================================================
 
 function groupRemindersByDate(reminders: Reminder[]): ReminderGroup[] {
-  const today: Reminder[] = []
-  const thisWeek: Reminder[] = []
-  const later: Reminder[] = []
-  const overdue: Reminder[] = []
+  const today: Reminder[] = [];
+  const thisWeek: Reminder[] = [];
+  const later: Reminder[] = [];
+  const overdue: Reminder[] = [];
 
-  const now = new Date()
+  const now = new Date();
 
   for (const reminder of reminders) {
-    const remindAt = new Date(reminder.remind_at)
+    const remindAt = new Date(reminder.remind_at);
 
-    if (remindAt < now && reminder.status === 'pending') {
-      overdue.push(reminder)
+    if (remindAt < now && reminder.status === "pending") {
+      overdue.push(reminder);
     } else if (isToday(remindAt)) {
-      today.push(reminder)
+      today.push(reminder);
     } else if (isThisWeek(remindAt)) {
-      thisWeek.push(reminder)
+      thisWeek.push(reminder);
     } else {
-      later.push(reminder)
+      later.push(reminder);
     }
   }
 
-  const groups: ReminderGroup[] = []
+  const groups: ReminderGroup[] = [];
 
   if (overdue.length > 0) {
-    groups.push({ id: 'overdue', label: 'Overdue', reminders: overdue })
+    groups.push({ id: "overdue", label: "Overdue", reminders: overdue });
   }
   if (today.length > 0) {
-    groups.push({ id: 'today', label: 'Today', reminders: today })
+    groups.push({ id: "today", label: "Today", reminders: today });
   }
   if (thisWeek.length > 0) {
-    groups.push({ id: 'this-week', label: 'This Week', reminders: thisWeek })
+    groups.push({ id: "this-week", label: "This Week", reminders: thisWeek });
   }
   if (later.length > 0) {
-    groups.push({ id: 'later', label: 'Later', reminders: later })
+    groups.push({ id: "later", label: "Later", reminders: later });
   }
 
-  return groups
+  return groups;
 }
 
 function groupRemindersByChannel(reminders: Reminder[]): ReminderGroup[] {
-  const channelMap = new Map<string, Reminder[]>()
-  const noChannel: Reminder[] = []
+  const channelMap = new Map<string, Reminder[]>();
+  const noChannel: Reminder[] = [];
 
   for (const reminder of reminders) {
-    const channelName = reminder.channel?.name || reminder.message?.channel?.name
+    const channelName =
+      reminder.channel?.name || reminder.message?.channel?.name;
 
     if (channelName) {
-      const existing = channelMap.get(channelName) || []
-      channelMap.set(channelName, [...existing, reminder])
+      const existing = channelMap.get(channelName) || [];
+      channelMap.set(channelName, [...existing, reminder]);
     } else {
-      noChannel.push(reminder)
+      noChannel.push(reminder);
     }
   }
 
-  const groups: ReminderGroup[] = []
+  const groups: ReminderGroup[] = [];
 
   for (const [channelName, channelReminders] of channelMap) {
     groups.push({
       id: `channel-${channelName}`,
       label: `#${channelName}`,
       reminders: channelReminders,
-    })
+    });
   }
 
   if (noChannel.length > 0) {
-    groups.push({ id: 'no-channel', label: 'General', reminders: noChannel })
+    groups.push({ id: "no-channel", label: "General", reminders: noChannel });
   }
 
-  return groups
+  return groups;
 }
 
 // ============================================================================
@@ -172,11 +176,11 @@ function groupRemindersByChannel(reminders: Reminder[]): ReminderGroup[] {
 // ============================================================================
 
 interface RemindersFilterBarProps {
-  filter: ReminderFilter
-  onFilterChange: (filter: Partial<ReminderFilter>) => void
-  searchQuery: string
-  onSearchChange: (query: string) => void
-  showSearch: boolean
+  filter: ReminderFilter;
+  onFilterChange: (filter: Partial<ReminderFilter>) => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  showSearch: boolean;
 }
 
 function RemindersFilterBar({
@@ -201,10 +205,11 @@ function RemindersFilterBar({
       )}
 
       <Select
-        value={filter.type || 'all'}
+        value={filter.type || "all"}
         onValueChange={(value) =>
           onFilterChange({
-            type: value === 'all' ? undefined : (value as ReminderFilter['type']),
+            type:
+              value === "all" ? undefined : (value as ReminderFilter["type"]),
           })
         }
       >
@@ -231,59 +236,68 @@ function RemindersFilterBar({
           <DropdownMenuLabel>Status</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuCheckboxItem
-            checked={!filter.status || filter.status === 'all'}
-            onCheckedChange={() => onFilterChange({ status: 'all' })}
+            checked={!filter.status || filter.status === "all"}
+            onCheckedChange={() => onFilterChange({ status: "all" })}
           >
             All
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={filter.status === 'pending'}
-            onCheckedChange={() => onFilterChange({ status: 'pending' })}
+            checked={filter.status === "pending"}
+            onCheckedChange={() => onFilterChange({ status: "pending" })}
           >
             Pending
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={filter.status === 'completed'}
-            onCheckedChange={() => onFilterChange({ status: 'completed' })}
+            checked={filter.status === "completed"}
+            onCheckedChange={() => onFilterChange({ status: "completed" })}
           >
             Completed
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={filter.status === 'snoozed'}
-            onCheckedChange={() => onFilterChange({ status: 'snoozed' })}
+            checked={filter.status === "snoozed"}
+            onCheckedChange={() => onFilterChange({ status: "snoozed" })}
           >
             Snoozed
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }
 
 interface ReminderGroupHeaderProps {
-  group: ReminderGroup
-  isExpanded: boolean
-  onToggle: () => void
+  group: ReminderGroup;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
-function ReminderGroupHeader({ group, isExpanded, onToggle }: ReminderGroupHeaderProps) {
+function ReminderGroupHeader({
+  group,
+  isExpanded,
+  onToggle,
+}: ReminderGroupHeaderProps) {
   return (
     <button
       onClick={onToggle}
       className="hover:bg-accent/50 flex w-full items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground"
     >
-      <ChevronDown className={cn('h-4 w-4 transition-transform', !isExpanded && '-rotate-90')} />
+      <ChevronDown
+        className={cn(
+          "h-4 w-4 transition-transform",
+          !isExpanded && "-rotate-90",
+        )}
+      />
       <span>{group.label}</span>
       <Badge variant="secondary" className="ml-auto text-xs">
         {group.reminders.length}
       </Badge>
     </button>
-  )
+  );
 }
 
 interface EmptyStateProps {
-  message: string
-  onCreateNew?: () => void
+  message: string;
+  onCreateNew?: () => void;
 }
 
 function EmptyState({ message, onCreateNew }: EmptyStateProps) {
@@ -301,7 +315,7 @@ function EmptyState({ message, onCreateNew }: EmptyStateProps) {
         </Button>
       )}
     </div>
-  )
+  );
 }
 
 function LoadingState() {
@@ -317,7 +331,7 @@ function LoadingState() {
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -332,19 +346,23 @@ export function RemindersList({
   showFilters = true,
   showSearch = true,
   showTabs = true,
-  maxHeight = '600px',
-  emptyMessage = 'No reminders yet. Create one to get started.',
+  maxHeight = "600px",
+  emptyMessage = "No reminders yet. Create one to get started.",
   className,
 }: RemindersListProps) {
   // State
-  const [searchQuery, setSearchQuery] = React.useState('')
-  const [selectedReminders, setSelectedReminders] = React.useState<Set<string>>(new Set())
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [selectedReminders, setSelectedReminders] = React.useState<Set<string>>(
+    new Set(),
+  );
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(
-    new Set(['overdue', 'today', 'this-week', 'later'])
-  )
-  const [groupBy, setGroupBy] = React.useState<'date' | 'channel'>('date')
-  const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null)
-  const [activeTab, setActiveTab] = React.useState('upcoming')
+    new Set(["overdue", "today", "this-week", "later"]),
+  );
+  const [groupBy, setGroupBy] = React.useState<"date" | "channel">("date");
+  const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(
+    null,
+  );
+  const [activeTab, setActiveTab] = React.useState("upcoming");
 
   // Hooks
   const {
@@ -361,93 +379,98 @@ export function RemindersList({
     isCompleting,
     isDeleting,
     openReminderModal,
-  } = useReminders({ userId, channelId })
+  } = useReminders({ userId, channelId });
 
-  const { filter, setFilter } = useReminderStore()
+  const { filter, setFilter } = useReminderStore();
 
   // Filtered reminders
   const filteredReminders = React.useMemo(() => {
-    let result = activeTab === 'upcoming' ? upcomingReminders : completedReminders
+    let result =
+      activeTab === "upcoming" ? upcomingReminders : completedReminders;
 
     // Apply search
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       result = result.filter(
-        (r) => r.content.toLowerCase().includes(query) || r.note?.toLowerCase().includes(query)
-      )
+        (r) =>
+          r.content.toLowerCase().includes(query) ||
+          r.note?.toLowerCase().includes(query),
+      );
     }
 
     // Apply type filter
-    if (filter.type && filter.type !== 'all') {
-      result = result.filter((r) => r.type === filter.type)
+    if (filter.type && filter.type !== "all") {
+      result = result.filter((r) => r.type === filter.type);
     }
 
     // Apply channel filter
     if (filter.channelId) {
       result = result.filter(
-        (r) => r.channel_id === filter.channelId || r.message?.channel?.id === filter.channelId
-      )
+        (r) =>
+          r.channel_id === filter.channelId ||
+          r.message?.channel?.id === filter.channelId,
+      );
     }
 
-    return result
-  }, [activeTab, upcomingReminders, completedReminders, searchQuery, filter])
+    return result;
+  }, [activeTab, upcomingReminders, completedReminders, searchQuery, filter]);
 
   // Grouped reminders
   const groupedReminders = React.useMemo(() => {
-    if (groupBy === 'channel') {
-      return groupRemindersByChannel(filteredReminders)
+    if (groupBy === "channel") {
+      return groupRemindersByChannel(filteredReminders);
     }
-    return groupRemindersByDate(filteredReminders)
-  }, [filteredReminders, groupBy])
+    return groupRemindersByDate(filteredReminders);
+  }, [filteredReminders, groupBy]);
 
   // Handlers
   const handleToggleGroup = (groupId: string) => {
     setExpandedGroups((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(groupId)) {
-        next.delete(groupId)
+        next.delete(groupId);
       } else {
-        next.add(groupId)
+        next.add(groupId);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   const handleSelectReminder = (id: string) => {
     setSelectedReminders((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(id)) {
-        next.delete(id)
+        next.delete(id);
       } else {
-        next.add(id)
+        next.add(id);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   const handleBulkComplete = async () => {
-    await bulkComplete(Array.from(selectedReminders))
-    setSelectedReminders(new Set())
-  }
+    await bulkComplete(Array.from(selectedReminders));
+    setSelectedReminders(new Set());
+  };
 
   const handleBulkDelete = async () => {
-    await bulkDelete(Array.from(selectedReminders))
-    setSelectedReminders(new Set())
-  }
+    await bulkDelete(Array.from(selectedReminders));
+    setSelectedReminders(new Set());
+  };
 
   const handleSnooze = (id: string) => {
     // Snooze for 1 hour by default
-    snoozeReminder(id, 60 * 60 * 1000)
-  }
+    snoozeReminder(id, 60 * 60 * 1000);
+  };
 
   const handleDelete = async (id: string) => {
-    await deleteReminder(id)
-    setDeleteConfirmId(null)
-  }
+    await deleteReminder(id);
+    setDeleteConfirmId(null);
+  };
 
   // Render
   if (isLoading) {
-    return <LoadingState />
+    return <LoadingState />;
   }
 
   if (error) {
@@ -458,11 +481,11 @@ export function RemindersList({
           <p className="text-sm text-muted-foreground">{error}</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex flex-col', className)}>
+    <div className={cn("flex flex-col", className)}>
       {/* Header */}
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
@@ -473,7 +496,10 @@ export function RemindersList({
           )}
         </div>
         {onCreateNew && (
-          <Button size="sm" onClick={onCreateNew || (() => openReminderModal())}>
+          <Button
+            size="sm"
+            onClick={onCreateNew || (() => openReminderModal())}
+          >
             <Plus className="mr-2 h-4 w-4" />
             New
           </Button>
@@ -521,9 +547,16 @@ export function RemindersList({
       {/* Bulk Actions */}
       {selectedReminders.size > 0 && (
         <div className="bg-muted/50 flex items-center gap-2 border-b px-4 py-2">
-          <span className="text-sm text-muted-foreground">{selectedReminders.size} selected</span>
+          <span className="text-sm text-muted-foreground">
+            {selectedReminders.size} selected
+          </span>
           <div className="flex-1" />
-          <Button variant="ghost" size="sm" onClick={handleBulkComplete} disabled={isCompleting}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBulkComplete}
+            disabled={isCompleting}
+          >
             <CheckCheck className="mr-2 h-4 w-4" />
             Complete all
           </Button>
@@ -544,19 +577,19 @@ export function RemindersList({
       <div className="flex items-center gap-2 border-b px-4 py-2">
         <span className="text-xs text-muted-foreground">Group by:</span>
         <Button
-          variant={groupBy === 'date' ? 'secondary' : 'ghost'}
+          variant={groupBy === "date" ? "secondary" : "ghost"}
           size="sm"
           className="h-6 text-xs"
-          onClick={() => setGroupBy('date')}
+          onClick={() => setGroupBy("date")}
         >
           <Calendar className="mr-1 h-3 w-3" />
           Date
         </Button>
         <Button
-          variant={groupBy === 'channel' ? 'secondary' : 'ghost'}
+          variant={groupBy === "channel" ? "secondary" : "ghost"}
           size="sm"
           className="h-6 text-xs"
-          onClick={() => setGroupBy('channel')}
+          onClick={() => setGroupBy("channel")}
         >
           <Hash className="mr-1 h-3 w-3" />
           Channel
@@ -567,8 +600,12 @@ export function RemindersList({
       <ScrollArea style={{ maxHeight }} className="flex-1">
         {filteredReminders.length === 0 ? (
           <EmptyState
-            message={activeTab === 'upcoming' ? emptyMessage : 'No completed reminders yet.'}
-            onCreateNew={activeTab === 'upcoming' ? onCreateNew : undefined}
+            message={
+              activeTab === "upcoming"
+                ? emptyMessage
+                : "No completed reminders yet."
+            }
+            onCreateNew={activeTab === "upcoming" ? onCreateNew : undefined}
           />
         ) : (
           <div className="divide-y">
@@ -590,7 +627,7 @@ export function RemindersList({
                         onDelete={(id) => setDeleteConfirmId(id)}
                         onSnooze={handleSnooze}
                         isLoading={isCompleting || isDeleting}
-                        showChannel={groupBy !== 'channel'}
+                        showChannel={groupBy !== "channel"}
                       />
                     ))}
                   </div>
@@ -610,7 +647,8 @@ export function RemindersList({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete reminder?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The reminder will be permanently deleted.
+              This action cannot be undone. The reminder will be permanently
+              deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -630,7 +668,7 @@ export function RemindersList({
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
 
-export default RemindersList
+export default RemindersList;

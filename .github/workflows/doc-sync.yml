@@ -24,22 +24,18 @@ jobs:
         id: diff
         run: |
           git fetch origin "${{ github.base_ref }}" --depth=1
-          changed=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD || true)
-          echo "changed<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$changed" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-          echo "$changed"
+          git diff --name-only "origin/${{ github.base_ref }}"...HEAD > /tmp/changed-files.txt || true
+          echo "Diff written to /tmp/changed-files.txt ($(wc -l < /tmp/changed-files.txt) files)"
+          cat /tmp/changed-files.txt
 
       - name: Doc-Sync matrix check
-        env:
-          CHANGED: ${{ steps.diff.outputs.changed }}
         run: |
           set -u
           missing=0
           rows=""
 
           matches() {
-            echo "$CHANGED" | grep -qE "$1"
+            grep -qE "$1" /tmp/changed-files.txt
           }
 
           # Commands / flags

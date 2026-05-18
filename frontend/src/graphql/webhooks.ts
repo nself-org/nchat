@@ -1,103 +1,103 @@
-import { gql } from '@apollo/client'
-import { CHANNEL_BASIC_FRAGMENT, USER_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import { CHANNEL_BASIC_FRAGMENT, USER_BASIC_FRAGMENT } from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type WebhookStatus = 'active' | 'paused' | 'disabled'
-export type DeliveryStatus = 'pending' | 'success' | 'failed' | 'retrying'
+export type WebhookStatus = "active" | "paused" | "disabled";
+export type DeliveryStatus = "pending" | "success" | "failed" | "retrying";
 
 export interface Webhook {
-  id: string
-  name: string
-  avatar_url?: string
-  channel_id: string
-  token: string
-  url: string
-  status: WebhookStatus
-  created_by: string
-  created_at: string
-  updated_at: string
-  last_used_at?: string
+  id: string;
+  name: string;
+  avatar_url?: string;
+  channel_id: string;
+  token: string;
+  url: string;
+  status: WebhookStatus;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  last_used_at?: string;
   channel?: {
-    id: string
-    name: string
-    slug: string
-  }
+    id: string;
+    name: string;
+    slug: string;
+  };
   creator?: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
 }
 
 export interface WebhookDelivery {
-  id: string
-  webhook_id: string
-  status: DeliveryStatus
-  request_body: string
-  request_headers?: Record<string, string>
-  response_body?: string
-  response_status?: number
-  error_message?: string
-  attempt_count: number
-  created_at: string
-  delivered_at?: string
-  next_retry_at?: string
+  id: string;
+  webhook_id: string;
+  status: DeliveryStatus;
+  request_body: string;
+  request_headers?: Record<string, string>;
+  response_body?: string;
+  response_status?: number;
+  error_message?: string;
+  attempt_count: number;
+  created_at: string;
+  delivered_at?: string;
+  next_retry_at?: string;
 }
 
 export interface GetWebhooksVariables {
-  channelId?: string
-  status?: WebhookStatus
-  limit?: number
-  offset?: number
+  channelId?: string;
+  status?: WebhookStatus;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetWebhookVariables {
-  id: string
+  id: string;
 }
 
 export interface CreateWebhookVariables {
-  name: string
-  channelId: string
-  avatarUrl?: string
-  createdBy: string
+  name: string;
+  channelId: string;
+  avatarUrl?: string;
+  createdBy: string;
 }
 
 export interface UpdateWebhookVariables {
-  id: string
-  name?: string
-  channelId?: string
-  avatarUrl?: string
-  status?: WebhookStatus
+  id: string;
+  name?: string;
+  channelId?: string;
+  avatarUrl?: string;
+  status?: WebhookStatus;
 }
 
 export interface DeleteWebhookVariables {
-  id: string
+  id: string;
 }
 
 export interface RegenerateWebhookUrlVariables {
-  id: string
+  id: string;
 }
 
 export interface TestWebhookVariables {
-  id: string
-  content: string
-  username?: string
-  avatarUrl?: string
+  id: string;
+  content: string;
+  username?: string;
+  avatarUrl?: string;
 }
 
 export interface GetWebhookDeliveriesVariables {
-  webhookId: string
-  status?: DeliveryStatus
-  limit?: number
-  offset?: number
+  webhookId: string;
+  status?: DeliveryStatus;
+  limit?: number;
+  offset?: number;
 }
 
 export interface RetryDeliveryVariables {
-  deliveryId: string
+  deliveryId: string;
 }
 
 // ============================================================================
@@ -126,7 +126,7 @@ export const WEBHOOK_FRAGMENT = gql`
   }
   ${CHANNEL_BASIC_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const WEBHOOK_DELIVERY_FRAGMENT = gql`
   fragment WebhookDeliveryFragment on nchat_webhook_deliveries {
@@ -143,7 +143,7 @@ export const WEBHOOK_DELIVERY_FRAGMENT = gql`
     delivered_at
     next_retry_at
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -153,9 +153,19 @@ export const WEBHOOK_DELIVERY_FRAGMENT = gql`
  * Get all webhooks with optional filtering
  */
 export const GET_WEBHOOKS = gql`
-  query GetWebhooks($channelId: uuid, $status: String, $limit: Int = 50, $offset: Int = 0) {
+  query GetWebhooks(
+    $channelId: uuid
+    $status: String
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_webhooks(
-      where: { _and: [{ channel_id: { _eq: $channelId } }, { status: { _eq: $status } }] }
+      where: {
+        _and: [
+          { channel_id: { _eq: $channelId } }
+          { status: { _eq: $status } }
+        ]
+      }
       order_by: { created_at: desc }
       limit: $limit
       offset: $offset
@@ -163,7 +173,12 @@ export const GET_WEBHOOKS = gql`
       ...WebhookFragment
     }
     nchat_webhooks_aggregate(
-      where: { _and: [{ channel_id: { _eq: $channelId } }, { status: { _eq: $status } }] }
+      where: {
+        _and: [
+          { channel_id: { _eq: $channelId } }
+          { status: { _eq: $status } }
+        ]
+      }
     ) {
       aggregate {
         count
@@ -171,14 +186,18 @@ export const GET_WEBHOOKS = gql`
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Get all webhooks without filtering (for admin view)
  */
 export const GET_ALL_WEBHOOKS = gql`
   query GetAllWebhooks($limit: Int = 50, $offset: Int = 0) {
-    nchat_webhooks(order_by: { created_at: desc }, limit: $limit, offset: $offset) {
+    nchat_webhooks(
+      order_by: { created_at: desc }
+      limit: $limit
+      offset: $offset
+    ) {
       ...WebhookFragment
     }
     nchat_webhooks_aggregate {
@@ -188,7 +207,7 @@ export const GET_ALL_WEBHOOKS = gql`
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Get a single webhook by ID
@@ -200,19 +219,22 @@ export const GET_WEBHOOK = gql`
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Get webhook by token (for incoming webhook requests)
  */
 export const GET_WEBHOOK_BY_TOKEN = gql`
   query GetWebhookByToken($token: String!) {
-    nchat_webhooks(where: { token: { _eq: $token }, status: { _eq: "active" } }, limit: 1) {
+    nchat_webhooks(
+      where: { token: { _eq: $token }, status: { _eq: "active" } }
+      limit: 1
+    ) {
       ...WebhookFragment
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Get webhook deliveries with optional filtering
@@ -241,7 +263,7 @@ export const GET_WEBHOOK_DELIVERIES = gql`
     }
   }
   ${WEBHOOK_DELIVERY_FRAGMENT}
-`
+`;
 
 /**
  * Get recent deliveries across all webhooks (for dashboard)
@@ -261,14 +283,16 @@ export const GET_RECENT_DELIVERIES = gql`
     }
   }
   ${WEBHOOK_DELIVERY_FRAGMENT}
-`
+`;
 
 /**
  * Get webhook statistics
  */
 export const GET_WEBHOOK_STATS = gql`
   query GetWebhookStats($webhookId: uuid!) {
-    total: nchat_webhook_deliveries_aggregate(where: { webhook_id: { _eq: $webhookId } }) {
+    total: nchat_webhook_deliveries_aggregate(
+      where: { webhook_id: { _eq: $webhookId } }
+    ) {
       aggregate {
         count
       }
@@ -288,14 +312,17 @@ export const GET_WEBHOOK_STATS = gql`
       }
     }
     pending: nchat_webhook_deliveries_aggregate(
-      where: { webhook_id: { _eq: $webhookId }, status: { _in: ["pending", "retrying"] } }
+      where: {
+        webhook_id: { _eq: $webhookId }
+        status: { _in: ["pending", "retrying"] }
+      }
     ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -305,7 +332,12 @@ export const GET_WEBHOOK_STATS = gql`
  * Create a new webhook
  */
 export const CREATE_WEBHOOK = gql`
-  mutation CreateWebhook($name: String!, $channelId: uuid!, $avatarUrl: String, $createdBy: uuid!) {
+  mutation CreateWebhook(
+    $name: String!
+    $channelId: uuid!
+    $avatarUrl: String
+    $createdBy: uuid!
+  ) {
     insert_nchat_webhooks_one(
       object: {
         name: $name
@@ -319,7 +351,7 @@ export const CREATE_WEBHOOK = gql`
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Update an existing webhook
@@ -346,7 +378,7 @@ export const UPDATE_WEBHOOK = gql`
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Delete a webhook
@@ -358,7 +390,7 @@ export const DELETE_WEBHOOK = gql`
       name
     }
   }
-`
+`;
 
 /**
  * Regenerate webhook URL/token
@@ -373,7 +405,7 @@ export const REGENERATE_WEBHOOK_URL = gql`
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Test a webhook by sending a sample message
@@ -397,19 +429,22 @@ export const TEST_WEBHOOK = gql`
     }
   }
   ${WEBHOOK_DELIVERY_FRAGMENT}
-`
+`;
 
 /**
  * Update webhook last used timestamp
  */
 export const UPDATE_WEBHOOK_LAST_USED = gql`
   mutation UpdateWebhookLastUsed($id: uuid!) {
-    update_nchat_webhooks_by_pk(pk_columns: { id: $id }, _set: { last_used_at: "now()" }) {
+    update_nchat_webhooks_by_pk(
+      pk_columns: { id: $id }
+      _set: { last_used_at: "now()" }
+    ) {
       id
       last_used_at
     }
   }
-`
+`;
 
 /**
  * Create a webhook delivery record
@@ -433,7 +468,7 @@ export const CREATE_WEBHOOK_DELIVERY = gql`
     }
   }
   ${WEBHOOK_DELIVERY_FRAGMENT}
-`
+`;
 
 /**
  * Update webhook delivery status
@@ -461,7 +496,7 @@ export const UPDATE_WEBHOOK_DELIVERY = gql`
     }
   }
   ${WEBHOOK_DELIVERY_FRAGMENT}
-`
+`;
 
 /**
  * Retry a failed webhook delivery
@@ -477,7 +512,7 @@ export const RETRY_WEBHOOK_DELIVERY = gql`
     }
   }
   ${WEBHOOK_DELIVERY_FRAGMENT}
-`
+`;
 
 /**
  * Delete old webhook deliveries (cleanup)
@@ -485,12 +520,15 @@ export const RETRY_WEBHOOK_DELIVERY = gql`
 export const DELETE_OLD_DELIVERIES = gql`
   mutation DeleteOldDeliveries($webhookId: uuid!, $beforeDate: timestamptz!) {
     delete_nchat_webhook_deliveries(
-      where: { webhook_id: { _eq: $webhookId }, created_at: { _lt: $beforeDate } }
+      where: {
+        webhook_id: { _eq: $webhookId }
+        created_at: { _lt: $beforeDate }
+      }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -506,7 +544,7 @@ export const WEBHOOK_SUBSCRIPTION = gql`
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to all webhooks (for admin dashboard)
@@ -518,7 +556,7 @@ export const WEBHOOKS_SUBSCRIPTION = gql`
     }
   }
   ${WEBHOOK_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to webhook deliveries
@@ -534,7 +572,7 @@ export const WEBHOOK_DELIVERIES_SUBSCRIPTION = gql`
     }
   }
   ${WEBHOOK_DELIVERY_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to recent deliveries across all webhooks
@@ -554,4 +592,4 @@ export const RECENT_DELIVERIES_SUBSCRIPTION = gql`
     }
   }
   ${WEBHOOK_DELIVERY_FRAGMENT}
-`
+`;

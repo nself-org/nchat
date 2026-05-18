@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Slack Huddle Component
@@ -9,9 +9,9 @@
 //
 // ===============================================================================
 
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { slackColors } from '../config'
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { slackColors } from "../config";
 import {
   Mic,
   MicOff,
@@ -23,33 +23,33 @@ import {
   MoreHorizontal,
   ChevronUp,
   ChevronDown,
-} from 'lucide-react'
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface SlackHuddleProps {
-  isActive?: boolean
-  channelName?: string
-  participants?: SlackHuddleParticipant[]
-  isMuted?: boolean
-  isVideoOn?: boolean
-  isScreenSharing?: boolean
-  onMuteToggle?: () => void
-  onVideoToggle?: () => void
-  onScreenShareToggle?: () => void
-  onLeave?: () => void
-  onInvite?: () => void
-  className?: string
+  isActive?: boolean;
+  channelName?: string;
+  participants?: SlackHuddleParticipant[];
+  isMuted?: boolean;
+  isVideoOn?: boolean;
+  isScreenSharing?: boolean;
+  onMuteToggle?: () => void;
+  onVideoToggle?: () => void;
+  onScreenShareToggle?: () => void;
+  onLeave?: () => void;
+  onInvite?: () => void;
+  className?: string;
 }
 
 export interface SlackHuddleParticipant {
-  id: string
-  name: string
-  avatar?: string
-  isSpeaking?: boolean
-  isMuted?: boolean
+  id: string;
+  name: string;
+  avatar?: string;
+  isSpeaking?: boolean;
+  isMuted?: boolean;
 }
 
 // -------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ export interface SlackHuddleParticipant {
 
 export function SlackHuddle({
   isActive = false,
-  channelName = 'general',
+  channelName = "general",
   participants = [],
   isMuted = false,
   isVideoOn = false,
@@ -70,12 +70,12 @@ export function SlackHuddle({
   onInvite,
   className,
 }: SlackHuddleProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!isActive) return null
+  if (!isActive) return null;
 
   return (
-    <div className={cn('border-t border-white/10', 'bg-[#350D36]', className)}>
+    <div className={cn("border-t border-white/10", "bg-[#350D36]", className)}>
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -111,7 +111,10 @@ export function SlackHuddle({
           {/* Participants */}
           <div className="mb-4 flex flex-wrap gap-2">
             {participants.map((participant) => (
-              <ParticipantAvatar key={participant.id} participant={participant} />
+              <ParticipantAvatar
+                key={participant.id}
+                participant={participant}
+              />
             ))}
             <button
               onClick={onInvite}
@@ -124,22 +127,34 @@ export function SlackHuddle({
           {/* Controls */}
           <div className="flex items-center justify-center gap-2">
             <HuddleButton
-              icon={isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              icon={
+                isMuted ? (
+                  <MicOff className="h-5 w-5" />
+                ) : (
+                  <Mic className="h-5 w-5" />
+                )
+              }
               isActive={!isMuted}
               onClick={onMuteToggle}
-              tooltip={isMuted ? 'Unmute' : 'Mute'}
+              tooltip={isMuted ? "Unmute" : "Mute"}
             />
             <HuddleButton
-              icon={isVideoOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+              icon={
+                isVideoOn ? (
+                  <Video className="h-5 w-5" />
+                ) : (
+                  <VideoOff className="h-5 w-5" />
+                )
+              }
               isActive={isVideoOn}
               onClick={onVideoToggle}
-              tooltip={isVideoOn ? 'Turn off video' : 'Turn on video'}
+              tooltip={isVideoOn ? "Turn off video" : "Turn on video"}
             />
             <HuddleButton
               icon={<Monitor className="h-5 w-5" />}
               isActive={isScreenSharing}
               onClick={onScreenShareToggle}
-              tooltip={isScreenSharing ? 'Stop sharing' : 'Share screen'}
+              tooltip={isScreenSharing ? "Stop sharing" : "Share screen"}
             />
             <HuddleButton
               icon={<MoreHorizontal className="h-5 w-5" />}
@@ -163,10 +178,16 @@ export function SlackHuddle({
       {!isExpanded && (
         <div className="flex items-center justify-center gap-2 px-4 pb-3">
           <HuddleButton
-            icon={isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            icon={
+              isMuted ? (
+                <MicOff className="h-4 w-4" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )
+            }
             isActive={!isMuted}
             onClick={onMuteToggle}
-            tooltip={isMuted ? 'Unmute' : 'Mute'}
+            tooltip={isMuted ? "Unmute" : "Mute"}
             size="sm"
           />
           <button
@@ -178,20 +199,24 @@ export function SlackHuddle({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
 // Sub-components
 // -------------------------------------------------------------------------------
 
-function ParticipantAvatar({ participant }: { participant: SlackHuddleParticipant }) {
+function ParticipantAvatar({
+  participant,
+}: {
+  participant: SlackHuddleParticipant;
+}) {
   return (
     <div className="relative">
       <div
         className={cn(
-          'h-8 w-8 overflow-hidden rounded-full ring-2',
-          participant.isSpeaking ? 'ring-green-400' : 'ring-transparent'
+          "h-8 w-8 overflow-hidden rounded-full ring-2",
+          participant.isSpeaking ? "ring-green-400" : "ring-transparent",
         )}
       >
         {participant.avatar ? (
@@ -215,7 +240,7 @@ function ParticipantAvatar({ participant }: { participant: SlackHuddleParticipan
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function HuddleButton({
@@ -223,34 +248,34 @@ function HuddleButton({
   isActive,
   onClick,
   tooltip,
-  size = 'md',
+  size = "md",
 }: {
-  icon: React.ReactNode
-  isActive: boolean
-  onClick?: () => void
-  tooltip: string
-  size?: 'sm' | 'md'
+  icon: React.ReactNode;
+  isActive: boolean;
+  onClick?: () => void;
+  tooltip: string;
+  size?: "sm" | "md";
 }) {
   const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-  }
+    sm: "w-8 h-8",
+    md: "w-10 h-10",
+  };
 
   return (
     <button
       onClick={onClick}
       title={tooltip}
       className={cn(
-        'flex items-center justify-center rounded-full transition-colors',
+        "flex items-center justify-center rounded-full transition-colors",
         sizeClasses[size],
         isActive
-          ? 'bg-white/20 text-white'
-          : 'bg-white/10 text-white/60 hover:bg-white/20 hover:text-white'
+          ? "bg-white/20 text-white"
+          : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white",
       )}
     >
       {icon}
     </button>
-  )
+  );
 }
 
-export default SlackHuddle
+export default SlackHuddle;

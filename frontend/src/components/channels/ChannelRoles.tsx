@@ -1,15 +1,21 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import { Shield, Crown, Plus, Trash2, Pencil, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import * as React from "react";
+import { useState } from "react";
+import { Shield, Crown, Plus, Trash2, Pencil, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -18,49 +24,52 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import type { Channel } from '@/stores/channel-store'
+} from "@/components/ui/dialog";
+import type { Channel } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelRolesProps {
-  channel: Channel
-  isAdmin?: boolean
-  onCreateRole?: (role: ChannelRole) => Promise<void>
-  onUpdateRole?: (roleId: string, updates: Partial<ChannelRole>) => Promise<void>
-  onDeleteRole?: (roleId: string) => Promise<void>
-  className?: string
+  channel: Channel;
+  isAdmin?: boolean;
+  onCreateRole?: (role: ChannelRole) => Promise<void>;
+  onUpdateRole?: (
+    roleId: string,
+    updates: Partial<ChannelRole>,
+  ) => Promise<void>;
+  onDeleteRole?: (roleId: string) => Promise<void>;
+  className?: string;
 }
 
 export interface ChannelRole {
-  id: string
-  name: string
-  color: string
-  position: number
-  permissions: RolePermissions
-  memberCount: number
+  id: string;
+  name: string;
+  color: string;
+  position: number;
+  permissions: RolePermissions;
+  memberCount: number;
 }
 
 export interface RolePermissions {
-  canPost: boolean
-  canReact: boolean
-  canThread: boolean
-  canUpload: boolean
-  canMention: boolean
-  canInvite: boolean
-  canModerate: boolean
-  canManageRoles: boolean
-  canManageChannel: boolean
+  canPost: boolean;
+  canReact: boolean;
+  canThread: boolean;
+  canUpload: boolean;
+  canMention: boolean;
+  canInvite: boolean;
+  canModerate: boolean;
+  canManageRoles: boolean;
+  canManageChannel: boolean;
 }
 
 // Default roles
 const DEFAULT_ROLES: ChannelRole[] = [
   {
-    id: 'owner',
-    name: 'Owner',
-    color: '#fbbf24',
+    id: "owner",
+    name: "Owner",
+    color: "#fbbf24",
     position: 0,
     permissions: {
       canPost: true,
@@ -76,9 +85,9 @@ const DEFAULT_ROLES: ChannelRole[] = [
     memberCount: 1,
   },
   {
-    id: 'admin',
-    name: 'Admin',
-    color: '#3b82f6',
+    id: "admin",
+    name: "Admin",
+    color: "#3b82f6",
     position: 1,
     permissions: {
       canPost: true,
@@ -94,9 +103,9 @@ const DEFAULT_ROLES: ChannelRole[] = [
     memberCount: 2,
   },
   {
-    id: 'member',
-    name: 'Member',
-    color: '#6b7280',
+    id: "member",
+    name: "Member",
+    color: "#6b7280",
     position: 2,
     permissions: {
       canPost: true,
@@ -111,7 +120,7 @@ const DEFAULT_ROLES: ChannelRole[] = [
     },
     memberCount: 15,
   },
-]
+];
 
 // ============================================================================
 // Component
@@ -125,37 +134,37 @@ export function ChannelRoles({
   onDeleteRole,
   className,
 }: ChannelRolesProps) {
-  const [roles] = useState<ChannelRole[]>(DEFAULT_ROLES)
-  const [editingRole, setEditingRole] = useState<ChannelRole | null>(null)
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
+  const [roles] = useState<ChannelRole[]>(DEFAULT_ROLES);
+  const [editingRole, setEditingRole] = useState<ChannelRole | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSaveRole = async (role: ChannelRole) => {
     try {
-      setIsSaving(true)
+      setIsSaving(true);
       if (editingRole) {
-        await onUpdateRole?.(role.id, role)
+        await onUpdateRole?.(role.id, role);
       } else {
-        await onCreateRole?.(role)
+        await onCreateRole?.(role);
       }
-      setEditingRole(null)
-      setShowCreateDialog(false)
+      setEditingRole(null);
+      setShowCreateDialog(false);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleDeleteRole = async (roleId: string) => {
     try {
-      setIsSaving(true)
-      await onDeleteRole?.(roleId)
+      setIsSaving(true);
+      await onDeleteRole?.(roleId);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -164,7 +173,9 @@ export function ChannelRoles({
                 <Shield className="h-5 w-5" />
                 Channel Roles
               </CardTitle>
-              <CardDescription>Manage roles and permissions for channel members</CardDescription>
+              <CardDescription>
+                Manage roles and permissions for channel members
+              </CardDescription>
             </div>
             {isAdmin && (
               <Button onClick={() => setShowCreateDialog(true)}>
@@ -182,14 +193,19 @@ export function ChannelRoles({
                 className="flex items-center justify-between rounded-lg border p-4"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-4 w-4 rounded-full" style={{ backgroundColor: role.color }} />
+                  <div
+                    className="h-4 w-4 rounded-full"
+                    style={{ backgroundColor: role.color }}
+                  />
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{role.name}</span>
-                      {role.id === 'owner' && <Crown className="h-4 w-4 text-yellow-500" />}
+                      {role.id === "owner" && (
+                        <Crown className="h-4 w-4 text-yellow-500" />
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {role.memberCount} member{role.memberCount !== 1 && 's'}
+                      {role.memberCount} member{role.memberCount !== 1 && "s"}
                     </p>
                   </div>
                 </div>
@@ -206,7 +222,7 @@ export function ChannelRoles({
                       </Badge>
                     )}
                   </div>
-                  {isAdmin && role.id !== 'owner' && role.id !== 'member' && (
+                  {isAdmin && role.id !== "owner" && role.id !== "member" && (
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
@@ -238,8 +254,8 @@ export function ChannelRoles({
         open={showCreateDialog || editingRole !== null}
         onOpenChange={(open) => {
           if (!open) {
-            setShowCreateDialog(false)
-            setEditingRole(null)
+            setShowCreateDialog(false);
+            setEditingRole(null);
           }
         }}
         role={editingRole}
@@ -247,7 +263,7 @@ export function ChannelRoles({
         isSaving={isSaving}
       />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -255,18 +271,24 @@ export function ChannelRoles({
 // ============================================================================
 
 interface RoleDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  role: ChannelRole | null
-  onSave: (role: ChannelRole) => void
-  isSaving: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  role: ChannelRole | null;
+  onSave: (role: ChannelRole) => void;
+  isSaving: boolean;
 }
 
-function RoleDialog({ open, onOpenChange, role, onSave, isSaving }: RoleDialogProps) {
+function RoleDialog({
+  open,
+  onOpenChange,
+  role,
+  onSave,
+  isSaving,
+}: RoleDialogProps) {
   const [formData, setFormData] = useState<Partial<ChannelRole>>(
     role || {
-      name: '',
-      color: '#6b7280',
+      name: "",
+      color: "#6b7280",
       permissions: {
         canPost: true,
         canReact: true,
@@ -278,16 +300,16 @@ function RoleDialog({ open, onOpenChange, role, onSave, isSaving }: RoleDialogPr
         canManageRoles: false,
         canManageChannel: false,
       },
-    }
-  )
+    },
+  );
 
   React.useEffect(() => {
     if (role) {
-      setFormData(role)
+      setFormData(role);
     } else {
       setFormData({
-        name: '',
-        color: '#6b7280',
+        name: "",
+        color: "#6b7280",
         permissions: {
           canPost: true,
           canReact: true,
@@ -299,60 +321,67 @@ function RoleDialog({ open, onOpenChange, role, onSave, isSaving }: RoleDialogPr
           canManageRoles: false,
           canManageChannel: false,
         },
-      })
+      });
     }
-  }, [role])
+  }, [role]);
 
-  const handlePermissionChange = (key: keyof RolePermissions, value: boolean) => {
+  const handlePermissionChange = (
+    key: keyof RolePermissions,
+    value: boolean,
+  ) => {
     setFormData((prev) => ({
       ...prev,
       permissions: {
         ...prev.permissions!,
         [key]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const handleSave = () => {
     onSave({
       id: role?.id || `role-${Date.now()}`,
-      name: formData.name || 'New Role',
-      color: formData.color || '#6b7280',
+      name: formData.name || "New Role",
+      color: formData.color || "#6b7280",
       position: role?.position ?? 99,
       permissions: formData.permissions!,
       memberCount: role?.memberCount ?? 0,
-    })
-  }
+    });
+  };
 
   const COLORS = [
-    '#ef4444',
-    '#f97316',
-    '#fbbf24',
-    '#84cc16',
-    '#22c55e',
-    '#14b8a6',
-    '#06b6d4',
-    '#3b82f6',
-    '#6366f1',
-    '#8b5cf6',
-    '#a855f7',
-    '#ec4899',
-  ]
+    "#ef4444",
+    "#f97316",
+    "#fbbf24",
+    "#84cc16",
+    "#22c55e",
+    "#14b8a6",
+    "#06b6d4",
+    "#3b82f6",
+    "#6366f1",
+    "#8b5cf6",
+    "#a855f7",
+    "#ec4899",
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{role ? 'Edit Role' : 'Create Role'}</DialogTitle>
-          <DialogDescription>Configure role name and permissions</DialogDescription>
+          <DialogTitle>{role ? "Edit Role" : "Create Role"}</DialogTitle>
+          <DialogDescription>
+            Configure role name and permissions
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label>Role Name</Label>
             <Input
-              value={formData.name || ''}
-              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+              value={formData.name || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
               placeholder="Role name"
             />
           </div>
@@ -366,8 +395,10 @@ function RoleDialog({ open, onOpenChange, role, onSave, isSaving }: RoleDialogPr
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, color }))}
                   className={cn(
-                    'h-6 w-6 rounded-full border-2 transition-all',
-                    formData.color === color ? 'scale-110 border-foreground' : 'border-transparent'
+                    "h-6 w-6 rounded-full border-2 transition-all",
+                    formData.color === color
+                      ? "scale-110 border-foreground"
+                      : "border-transparent",
                   )}
                   style={{ backgroundColor: color }}
                 />
@@ -379,22 +410,28 @@ function RoleDialog({ open, onOpenChange, role, onSave, isSaving }: RoleDialogPr
             <Label>Permissions</Label>
             <div className="space-y-2">
               {[
-                { key: 'canPost', label: 'Send messages' },
-                { key: 'canReact', label: 'Add reactions' },
-                { key: 'canThread', label: 'Create threads' },
-                { key: 'canUpload', label: 'Upload files' },
-                { key: 'canMention', label: 'Use @channel/@here' },
-                { key: 'canInvite', label: 'Invite members' },
-                { key: 'canModerate', label: 'Moderate messages' },
-                { key: 'canManageRoles', label: 'Manage roles' },
-                { key: 'canManageChannel', label: 'Manage channel' },
+                { key: "canPost", label: "Send messages" },
+                { key: "canReact", label: "Add reactions" },
+                { key: "canThread", label: "Create threads" },
+                { key: "canUpload", label: "Upload files" },
+                { key: "canMention", label: "Use @channel/@here" },
+                { key: "canInvite", label: "Invite members" },
+                { key: "canModerate", label: "Moderate messages" },
+                { key: "canManageRoles", label: "Manage roles" },
+                { key: "canManageChannel", label: "Manage channel" },
               ].map(({ key, label }) => (
                 <div key={key} className="flex items-center justify-between">
                   <span className="text-sm">{label}</span>
                   <Switch
-                    checked={formData.permissions?.[key as keyof RolePermissions] ?? false}
+                    checked={
+                      formData.permissions?.[key as keyof RolePermissions] ??
+                      false
+                    }
                     onCheckedChange={(checked) =>
-                      handlePermissionChange(key as keyof RolePermissions, checked)
+                      handlePermissionChange(
+                        key as keyof RolePermissions,
+                        checked,
+                      )
                     }
                   />
                 </div>
@@ -409,12 +446,12 @@ function RoleDialog({ open, onOpenChange, role, onSave, isSaving }: RoleDialogPr
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {role ? 'Save Changes' : 'Create Role'}
+            {role ? "Save Changes" : "Create Role"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-ChannelRoles.displayName = 'ChannelRoles'
+ChannelRoles.displayName = "ChannelRoles";

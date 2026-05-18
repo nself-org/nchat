@@ -8,7 +8,7 @@
  */
 
 // Types
-export * from './compliance.types'
+export * from "./compliance.types";
 
 // GDPR Export Service
 export {
@@ -21,7 +21,7 @@ export {
   type ExportProgressCallback,
   type DataCollector,
   type DataCollectors,
-} from './gdpr-export.service'
+} from "./gdpr-export.service";
 
 // DSAR Service
 export {
@@ -30,7 +30,7 @@ export {
   createDSARService,
   initializeDSARService,
   resetDSARService,
-} from './dsar.service'
+} from "./dsar.service";
 
 // Data Deletion Service
 export {
@@ -43,4 +43,4 @@ export {
   type DataDeleter,
   type DataDeleters,
   type DeletionProgressCallback,
-} from './data-deletion.service'
+} from "./data-deletion.service";

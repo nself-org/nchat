@@ -25,7 +25,7 @@ export {
   type SlashCommandMenuProps,
   type FloatingCommandMenuProps,
   type InlineCommandMenuProps,
-} from './slash-command-menu'
+} from "./slash-command-menu";
 
 // ============================================================================
 // Command Item
@@ -36,7 +36,7 @@ export {
   CommandCategoryHeader,
   type CommandItemProps,
   type CommandCategoryHeaderProps,
-} from './command-item'
+} from "./command-item";
 
 // ============================================================================
 // Command Input
@@ -49,7 +49,7 @@ export {
   type CommandInputProps,
   type ArgumentInputProps,
   type InlineCommandInputProps,
-} from './command-input'
+} from "./command-input";
 
 // ============================================================================
 // Command Preview
@@ -60,4 +60,4 @@ export {
   CompactPreview,
   type CommandPreviewProps,
   type CompactPreviewProps,
-} from './command-preview'
+} from "./command-preview";

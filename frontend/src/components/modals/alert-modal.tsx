@@ -1,8 +1,14 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { AlertTriangle, AlertCircle, CheckCircle2, Info, type LucideIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Button } from "@/components/ui/button";
+import {
+  AlertTriangle,
+  AlertCircle,
+  CheckCircle2,
+  Info,
+  type LucideIcon,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   BaseModal,
   ModalHeader,
@@ -11,81 +17,81 @@ import {
   ModalBody,
   ModalFooter,
   type ModalSize,
-} from './base-modal'
+} from "./base-modal";
 
-export type AlertIcon = 'warning' | 'error' | 'success' | 'info'
+export type AlertIcon = "warning" | "error" | "success" | "info";
 
 export interface AlertModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  message: string | React.ReactNode
-  icon?: AlertIcon
-  customIcon?: React.ReactNode
-  buttonText?: string
-  onClose?: () => void
-  size?: ModalSize
-  children?: React.ReactNode
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  message: string | React.ReactNode;
+  icon?: AlertIcon;
+  customIcon?: React.ReactNode;
+  buttonText?: string;
+  onClose?: () => void;
+  size?: ModalSize;
+  children?: React.ReactNode;
 }
 
 const ICON_CONFIG: Record<
   AlertIcon,
   {
-    Icon: LucideIcon
-    bgColor: string
-    iconColor: string
+    Icon: LucideIcon;
+    bgColor: string;
+    iconColor: string;
   }
 > = {
   warning: {
     Icon: AlertTriangle,
-    bgColor: 'bg-yellow-500/10',
-    iconColor: 'text-yellow-600 dark:text-yellow-500',
+    bgColor: "bg-yellow-500/10",
+    iconColor: "text-yellow-600 dark:text-yellow-500",
   },
   error: {
     Icon: AlertCircle,
-    bgColor: 'bg-destructive/10',
-    iconColor: 'text-destructive',
+    bgColor: "bg-destructive/10",
+    iconColor: "text-destructive",
   },
   success: {
     Icon: CheckCircle2,
-    bgColor: 'bg-green-500/10',
-    iconColor: 'text-green-600 dark:text-green-500',
+    bgColor: "bg-green-500/10",
+    iconColor: "text-green-600 dark:text-green-500",
   },
   info: {
     Icon: Info,
-    bgColor: 'bg-primary/10',
-    iconColor: 'text-primary',
+    bgColor: "bg-primary/10",
+    iconColor: "text-primary",
   },
-}
+};
 
 export function AlertModal({
   open,
   onOpenChange,
   title,
   message,
-  icon = 'info',
+  icon = "info",
   customIcon,
-  buttonText = 'OK',
+  buttonText = "OK",
   onClose,
-  size = 'sm',
+  size = "sm",
   children,
 }: AlertModalProps) {
   const handleClose = () => {
-    onClose?.()
-    onOpenChange(false)
-  }
+    onClose?.();
+    onOpenChange(false);
+  };
 
-  const config = ICON_CONFIG[icon]
-  const IconComponent = config.Icon
+  const config = ICON_CONFIG[icon];
+  const IconComponent = config.Icon;
 
   return (
     <BaseModal
       open={open}
       onOpenChange={(newOpen) => {
         if (!newOpen) {
-          handleClose()
+          handleClose();
         } else {
-          onOpenChange(newOpen)
+          onOpenChange(newOpen);
         }
       }}
       size={size}
@@ -95,16 +101,16 @@ export function AlertModal({
         <div className="flex items-start gap-4">
           <div
             className={cn(
-              'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
               config.bgColor,
-              config.iconColor
+              config.iconColor,
             )}
           >
             {customIcon || <IconComponent className="h-5 w-5" />}
           </div>
           <div className="flex-1 space-y-1.5 pt-0.5">
             <ModalTitle>{title}</ModalTitle>
-            {typeof message === 'string' ? (
+            {typeof message === "string" ? (
               <ModalDescription>{message}</ModalDescription>
             ) : (
               <div className="text-sm text-muted-foreground">{message}</div>
@@ -121,7 +127,7 @@ export function AlertModal({
         </Button>
       </ModalFooter>
     </BaseModal>
-  )
+  );
 }
 
 // Convenience components for specific alert types
@@ -130,9 +136,9 @@ export function WarningAlert({
   onOpenChange,
   title,
   message,
-  buttonText = 'OK',
+  buttonText = "OK",
   onClose,
-}: Omit<AlertModalProps, 'icon'>) {
+}: Omit<AlertModalProps, "icon">) {
   return (
     <AlertModal
       open={open}
@@ -143,7 +149,7 @@ export function WarningAlert({
       buttonText={buttonText}
       onClose={onClose}
     />
-  )
+  );
 }
 
 export function ErrorAlert({
@@ -151,9 +157,9 @@ export function ErrorAlert({
   onOpenChange,
   title,
   message,
-  buttonText = 'OK',
+  buttonText = "OK",
   onClose,
-}: Omit<AlertModalProps, 'icon'>) {
+}: Omit<AlertModalProps, "icon">) {
   return (
     <AlertModal
       open={open}
@@ -164,7 +170,7 @@ export function ErrorAlert({
       buttonText={buttonText}
       onClose={onClose}
     />
-  )
+  );
 }
 
 export function SuccessAlert({
@@ -172,9 +178,9 @@ export function SuccessAlert({
   onOpenChange,
   title,
   message,
-  buttonText = 'OK',
+  buttonText = "OK",
   onClose,
-}: Omit<AlertModalProps, 'icon'>) {
+}: Omit<AlertModalProps, "icon">) {
   return (
     <AlertModal
       open={open}
@@ -185,7 +191,7 @@ export function SuccessAlert({
       buttonText={buttonText}
       onClose={onClose}
     />
-  )
+  );
 }
 
 export function InfoAlert({
@@ -193,9 +199,9 @@ export function InfoAlert({
   onOpenChange,
   title,
   message,
-  buttonText = 'OK',
+  buttonText = "OK",
   onClose,
-}: Omit<AlertModalProps, 'icon'>) {
+}: Omit<AlertModalProps, "icon">) {
   return (
     <AlertModal
       open={open}
@@ -206,5 +212,5 @@ export function InfoAlert({
       buttonText={buttonText}
       onClose={onClose}
     />
-  )
+  );
 }

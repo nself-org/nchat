@@ -1,26 +1,29 @@
-'use client'
+"use client";
 
 /**
  * MeetingReminders - Reminder settings for meetings
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Bell, BellOff } from 'lucide-react'
-import { ReminderTiming } from '@/lib/meetings/meeting-types'
-import { REMINDER_TIMINGS, REMINDER_LABELS } from '@/lib/meetings/meeting-reminders'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Bell, BellOff } from "lucide-react";
+import { ReminderTiming } from "@/lib/meetings/meeting-types";
+import {
+  REMINDER_TIMINGS,
+  REMINDER_LABELS,
+} from "@/lib/meetings/meeting-reminders";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface MeetingRemindersProps {
-  selectedTimings: ReminderTiming[]
-  onChange: (timings: ReminderTiming[]) => void
-  disabled?: boolean
+  selectedTimings: ReminderTiming[];
+  onChange: (timings: ReminderTiming[]) => void;
+  disabled?: boolean;
 }
 
 // ============================================================================
@@ -32,24 +35,26 @@ export function MeetingReminders({
   onChange,
   disabled = false,
 }: MeetingRemindersProps) {
-  const [remindersEnabled, setRemindersEnabled] = React.useState(selectedTimings.length > 0)
+  const [remindersEnabled, setRemindersEnabled] = React.useState(
+    selectedTimings.length > 0,
+  );
 
   const toggleReminder = (timing: ReminderTiming) => {
     if (selectedTimings.includes(timing)) {
-      onChange(selectedTimings.filter((t) => t !== timing))
+      onChange(selectedTimings.filter((t) => t !== timing));
     } else {
-      onChange([...selectedTimings, timing])
+      onChange([...selectedTimings, timing]);
     }
-  }
+  };
 
   const toggleAllReminders = (enabled: boolean) => {
-    setRemindersEnabled(enabled)
+    setRemindersEnabled(enabled);
     if (!enabled) {
-      onChange([])
+      onChange([]);
     } else if (selectedTimings.length === 0) {
-      onChange(['15min']) // Default reminder
+      onChange(["15min"]); // Default reminder
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -71,15 +76,17 @@ export function MeetingReminders({
 
       {remindersEnabled && (
         <div className="space-y-3 pl-6">
-          <p className="text-sm text-muted-foreground">Get notified before the meeting starts</p>
+          <p className="text-sm text-muted-foreground">
+            Get notified before the meeting starts
+          </p>
           <div className="space-y-2">
             {REMINDER_TIMINGS.map((timing) => (
               <label
                 key={timing}
                 className={cn(
-                  'flex cursor-pointer items-center gap-3 rounded-lg p-2',
-                  'transition-colors hover:bg-accent',
-                  disabled && 'cursor-not-allowed opacity-50'
+                  "flex cursor-pointer items-center gap-3 rounded-lg p-2",
+                  "transition-colors hover:bg-accent",
+                  disabled && "cursor-not-allowed opacity-50",
                 )}
               >
                 <Checkbox
@@ -94,5 +101,5 @@ export function MeetingReminders({
         </div>
       )}
     </div>
-  )
+  );
 }

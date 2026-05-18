@@ -10,9 +10,9 @@
  * - Reconnection UI
  */
 
-'use client'
+"use client";
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from "react";
 import {
   Phone,
   PhoneOff,
@@ -30,11 +30,11 @@ import {
   SignalZero,
   Wifi,
   WifiOff,
-} from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { IncomingCallModal } from './IncomingCallModal'
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { IncomingCallModal } from "./IncomingCallModal";
 
 // =============================================================================
 // Types
@@ -42,53 +42,53 @@ import { IncomingCallModal } from './IncomingCallModal'
 
 export interface CallInterfaceProps {
   // Call state
-  isInCall: boolean
-  callType: 'voice' | 'video' | null
+  isInCall: boolean;
+  callType: "voice" | "video" | null;
   callState:
-    | 'idle'
-    | 'initiating'
-    | 'ringing'
-    | 'connecting'
-    | 'connected'
-    | 'reconnecting'
-    | 'ended'
-  callDuration: number
+    | "idle"
+    | "initiating"
+    | "ringing"
+    | "connecting"
+    | "connected"
+    | "reconnecting"
+    | "ended";
+  callDuration: number;
 
   // Participants
   remoteUser: {
-    id: string
-    name: string
-    avatarUrl?: string
-  } | null
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  } | null;
 
   // Media state
-  isMuted: boolean
-  isVideoEnabled: boolean
-  isScreenSharing: boolean
-  localStream: MediaStream | null
-  remoteStream: MediaStream | null
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  isScreenSharing: boolean;
+  localStream: MediaStream | null;
+  remoteStream: MediaStream | null;
 
   // Network quality
-  connectionQuality?: 'excellent' | 'good' | 'fair' | 'poor'
-  isReconnecting?: boolean
+  connectionQuality?: "excellent" | "good" | "fair" | "poor";
+  isReconnecting?: boolean;
 
   // Incoming calls
   incomingCall?: {
-    id: string
-    callerId: string
-    callerName: string
-    callerAvatarUrl?: string
-    type: 'voice' | 'video'
-  } | null
+    id: string;
+    callerId: string;
+    callerName: string;
+    callerAvatarUrl?: string;
+    type: "voice" | "video";
+  } | null;
 
   // Actions
-  onToggleMute: () => void
-  onToggleVideo: () => void
-  onToggleScreenShare: () => void
-  onEndCall: () => void
-  onAcceptIncoming: (callId: string, withVideo: boolean) => void
-  onDeclineIncoming: (callId: string) => void
-  onSettings?: () => void
+  onToggleMute: () => void;
+  onToggleVideo: () => void;
+  onToggleScreenShare: () => void;
+  onEndCall: () => void;
+  onAcceptIncoming: (callId: string, withVideo: boolean) => void;
+  onDeclineIncoming: (callId: string) => void;
+  onSettings?: () => void;
 }
 
 // =============================================================================
@@ -106,7 +106,7 @@ export function CallInterface({
   isScreenSharing,
   localStream,
   remoteStream,
-  connectionQuality = 'good',
+  connectionQuality = "good",
   isReconnecting = false,
   incomingCall,
   onToggleMute,
@@ -117,65 +117,65 @@ export function CallInterface({
   onDeclineIncoming,
   onSettings,
 }: CallInterfaceProps) {
-  const localVideoRef = useRef<HTMLVideoElement>(null)
-  const remoteVideoRef = useRef<HTMLVideoElement>(null)
-  const remoteAudioRef = useRef<HTMLAudioElement>(null)
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
 
   // Attach streams to video/audio elements
   useEffect(() => {
     if (localVideoRef.current && localStream) {
-      localVideoRef.current.srcObject = localStream
+      localVideoRef.current.srcObject = localStream;
     }
-  }, [localStream])
+  }, [localStream]);
 
   useEffect(() => {
-    if (callType === 'video' && remoteVideoRef.current && remoteStream) {
-      remoteVideoRef.current.srcObject = remoteStream
+    if (callType === "video" && remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream;
     }
-    if (callType === 'voice' && remoteAudioRef.current && remoteStream) {
-      remoteAudioRef.current.srcObject = remoteStream
+    if (callType === "voice" && remoteAudioRef.current && remoteStream) {
+      remoteAudioRef.current.srcObject = remoteStream;
     }
-  }, [remoteStream, callType])
+  }, [remoteStream, callType]);
 
   // Format duration
   const formatDuration = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // Get connection quality icon
   const getQualityIcon = () => {
     switch (connectionQuality) {
-      case 'excellent':
-        return <SignalHigh className="h-4 w-4 text-green-500" />
-      case 'good':
-        return <Signal className="h-4 w-4 text-green-400" />
-      case 'fair':
-        return <SignalMedium className="h-4 w-4 text-yellow-500" />
-      case 'poor':
-        return <SignalLow className="h-4 w-4 text-red-500" />
+      case "excellent":
+        return <SignalHigh className="h-4 w-4 text-green-500" />;
+      case "good":
+        return <Signal className="h-4 w-4 text-green-400" />;
+      case "fair":
+        return <SignalMedium className="h-4 w-4 text-yellow-500" />;
+      case "poor":
+        return <SignalLow className="h-4 w-4 text-red-500" />;
       default:
-        return <SignalZero className="h-4 w-4 text-gray-500" />
+        return <SignalZero className="h-4 w-4 text-gray-500" />;
     }
-  }
+  };
 
   const getStateText = () => {
     switch (callState) {
-      case 'initiating':
-        return 'Starting call...'
-      case 'ringing':
-        return 'Ringing...'
-      case 'connecting':
-        return 'Connecting...'
-      case 'connected':
-        return formatDuration(callDuration)
-      case 'reconnecting':
-        return 'Reconnecting...'
+      case "initiating":
+        return "Starting call...";
+      case "ringing":
+        return "Ringing...";
+      case "connecting":
+        return "Connecting...";
+      case "connected":
+        return formatDuration(callDuration);
+      case "reconnecting":
+        return "Reconnecting...";
       default:
-        return ''
+        return "";
     }
-  }
+  };
 
   // Render incoming call modal
   if (incomingCall) {
@@ -189,16 +189,16 @@ export function CallInterface({
         onAccept={(withVideo) => onAcceptIncoming(incomingCall.id, withVideo)}
         onDecline={() => onDeclineIncoming(incomingCall.id)}
       />
-    )
+    );
   }
 
   // Don't render if not in call
   if (!isInCall || !remoteUser) {
-    return null
+    return null;
   }
 
   // Video Call UI
-  if (callType === 'video') {
+  if (callType === "video") {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-gray-900">
         {/* Header */}
@@ -208,14 +208,16 @@ export function CallInterface({
               <AvatarImage src={remoteUser.avatarUrl} alt={remoteUser.name} />
               <AvatarFallback>
                 {remoteUser.name
-                  .split(' ')
+                  .split(" ")
                   .map((n) => n[0])
-                  .join('')
+                  .join("")
                   .toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="text-sm font-semibold text-white">{remoteUser.name}</h3>
+              <h3 className="text-sm font-semibold text-white">
+                {remoteUser.name}
+              </h3>
               <div className="flex items-center gap-2">
                 {getQualityIcon()}
                 <p className="text-xs text-gray-400">{getStateText()}</p>
@@ -259,21 +261,26 @@ export function CallInterface({
           )}
 
           {/* State Overlay */}
-          {callState !== 'connected' && (
+          {callState !== "connected" && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80">
               <div className="flex flex-col items-center gap-4">
                 <Avatar className="border-primary/50 h-24 w-24 border-4">
-                  <AvatarImage src={remoteUser.avatarUrl} alt={remoteUser.name} />
+                  <AvatarImage
+                    src={remoteUser.avatarUrl}
+                    alt={remoteUser.name}
+                  />
                   <AvatarFallback className="text-2xl">
                     {remoteUser.name
-                      .split(' ')
+                      .split(" ")
                       .map((n) => n[0])
-                      .join('')
+                      .join("")
                       .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-center gap-1">
-                  <h2 className="text-2xl font-bold text-white">{remoteUser.name}</h2>
+                  <h2 className="text-2xl font-bold text-white">
+                    {remoteUser.name}
+                  </h2>
                   <p className="text-gray-400">{getStateText()}</p>
                 </div>
               </div>
@@ -289,15 +296,19 @@ export function CallInterface({
               variant="ghost"
               size="icon"
               className={cn(
-                'h-14 w-14 rounded-full transition-all',
+                "h-14 w-14 rounded-full transition-all",
                 isMuted
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-gray-700 text-white hover:bg-gray-600",
               )}
               onClick={onToggleMute}
-              title={isMuted ? 'Unmute' : 'Mute'}
+              title={isMuted ? "Unmute" : "Mute"}
             >
-              {isMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+              {isMuted ? (
+                <MicOff className="h-6 w-6" />
+              ) : (
+                <Mic className="h-6 w-6" />
+              )}
             </Button>
 
             {/* Video */}
@@ -305,15 +316,19 @@ export function CallInterface({
               variant="ghost"
               size="icon"
               className={cn(
-                'h-14 w-14 rounded-full transition-all',
+                "h-14 w-14 rounded-full transition-all",
                 !isVideoEnabled
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-gray-700 text-white hover:bg-gray-600",
               )}
               onClick={onToggleVideo}
-              title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+              title={isVideoEnabled ? "Turn off camera" : "Turn on camera"}
             >
-              {isVideoEnabled ? <Video className="h-6 w-6" /> : <VideoOff className="h-6 w-6" />}
+              {isVideoEnabled ? (
+                <Video className="h-6 w-6" />
+              ) : (
+                <VideoOff className="h-6 w-6" />
+              )}
             </Button>
 
             {/* Screen Share */}
@@ -321,13 +336,13 @@ export function CallInterface({
               variant="ghost"
               size="icon"
               className={cn(
-                'h-14 w-14 rounded-full transition-all',
+                "h-14 w-14 rounded-full transition-all",
                 isScreenSharing
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-700 text-white hover:bg-gray-600",
               )}
               onClick={onToggleScreenShare}
-              title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
+              title={isScreenSharing ? "Stop sharing" : "Share screen"}
             >
               {isScreenSharing ? (
                 <MonitorStop className="h-6 w-6" />
@@ -362,7 +377,7 @@ export function CallInterface({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Voice Call UI
@@ -384,9 +399,9 @@ export function CallInterface({
           <AvatarImage src={remoteUser.avatarUrl} alt={remoteUser.name} />
           <AvatarFallback className="text-primary-foreground bg-primary text-4xl font-semibold">
             {remoteUser.name
-              .split(' ')
+              .split(" ")
               .map((n) => n[0])
-              .join('')
+              .join("")
               .toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -420,16 +435,22 @@ export function CallInterface({
               variant="ghost"
               size="icon"
               className={cn(
-                'h-16 w-16 rounded-full transition-all',
+                "h-16 w-16 rounded-full transition-all",
                 isMuted
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-gray-700 text-white hover:bg-gray-600",
               )}
               onClick={onToggleMute}
             >
-              {isMuted ? <MicOff className="h-7 w-7" /> : <Mic className="h-7 w-7" />}
+              {isMuted ? (
+                <MicOff className="h-7 w-7" />
+              ) : (
+                <Mic className="h-7 w-7" />
+              )}
             </Button>
-            <span className="text-sm text-gray-400">{isMuted ? 'Muted' : 'Mute'}</span>
+            <span className="text-sm text-gray-400">
+              {isMuted ? "Muted" : "Mute"}
+            </span>
           </div>
 
           {/* End Call */}
@@ -465,10 +486,12 @@ export function CallInterface({
       {/* Connection quality footer */}
       <div className="absolute bottom-8 flex items-center gap-2 rounded-full bg-gray-800/80 px-4 py-2 backdrop-blur-sm">
         {getQualityIcon()}
-        <span className="text-xs capitalize text-gray-400">{connectionQuality} connection</span>
+        <span className="text-xs capitalize text-gray-400">
+          {connectionQuality} connection
+        </span>
       </div>
     </div>
-  )
+  );
 }
 
 // Add mirror class for local video
@@ -476,10 +499,10 @@ const styles = `
   .mirror {
     transform: scaleX(-1);
   }
-`
+`;
 
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style')
-  styleSheet.textContent = styles
-  document.head.appendChild(styleSheet)
+if (typeof document !== "undefined") {
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
 }

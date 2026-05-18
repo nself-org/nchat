@@ -5,12 +5,12 @@
  * showing the active huddle with quick controls.
  */
 
-'use client'
+"use client";
 
-import React from 'react'
-import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { useHuddle } from '@/hooks/use-huddle'
+import React from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { useHuddle } from "@/hooks/use-huddle";
 import {
   Mic,
   MicOff,
@@ -20,19 +20,24 @@ import {
   PhoneOff,
   Users,
   Headphones,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface HuddleBarProps {
-  className?: string
-  position?: 'top' | 'bottom'
-  onExpand?: () => void
+  className?: string;
+  position?: "top" | "bottom";
+  onExpand?: () => void;
 }
 
 // =============================================================================
@@ -41,7 +46,7 @@ export interface HuddleBarProps {
 
 export function HuddleBar({
   className,
-  position = 'bottom',
+  position = "bottom",
   onExpand,
 }: HuddleBarProps) {
   const {
@@ -57,28 +62,28 @@ export function HuddleBar({
     toggleMute,
     toggleVideo,
     leaveHuddle,
-  } = useHuddle()
+  } = useHuddle();
 
   if (!isInHuddle || !huddleInfo) {
-    return null
+    return null;
   }
 
   // Show max 5 participant avatars
-  const visibleParticipants = participants.slice(0, 5)
-  const remainingCount = Math.max(0, participantCount - 5)
+  const visibleParticipants = participants.slice(0, 5);
+  const remainingCount = Math.max(0, participantCount - 5);
 
   return (
     <TooltipProvider>
       <motion.div
-        initial={{ opacity: 0, y: position === 'top' ? -20 : 20 }}
+        initial={{ opacity: 0, y: position === "top" ? -20 : 20 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: position === 'top' ? -20 : 20 }}
+        exit={{ opacity: 0, y: position === "top" ? -20 : 20 }}
         transition={{ duration: 0.2 }}
         className={cn(
-          'flex items-center justify-between px-4 py-2',
-          'bg-primary/10 border-primary/20',
-          position === 'top' ? 'border-b' : 'border-t',
-          className
+          "flex items-center justify-between px-4 py-2",
+          "bg-primary/10 border-primary/20",
+          position === "top" ? "border-b" : "border-t",
+          className,
         )}
       >
         {/* Left side - Huddle info */}
@@ -87,7 +92,7 @@ export function HuddleBar({
           <div className="flex items-center gap-2">
             <Headphones className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium">
-              {huddleInfo.channelName || 'Huddle'}
+              {huddleInfo.channelName || "Huddle"}
             </span>
           </div>
 
@@ -100,7 +105,9 @@ export function HuddleBar({
           {activeSpeaker && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="truncate max-w-[100px]">{activeSpeaker.name}</span>
+              <span className="truncate max-w-[100px]">
+                {activeSpeaker.name}
+              </span>
             </div>
           )}
         </div>
@@ -115,11 +122,14 @@ export function HuddleBar({
               <Avatar
                 key={participant.id}
                 className={cn(
-                  'w-6 h-6 border-2 border-background',
-                  participant.isSpeaking && 'ring-2 ring-primary ring-offset-1'
+                  "w-6 h-6 border-2 border-background",
+                  participant.isSpeaking && "ring-2 ring-primary ring-offset-1",
                 )}
               >
-                <AvatarImage src={participant.avatarUrl} alt={participant.name} />
+                <AvatarImage
+                  src={participant.avatarUrl}
+                  alt={participant.name}
+                />
                 <AvatarFallback className="text-[10px]">
                   {participant.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
@@ -140,7 +150,7 @@ export function HuddleBar({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant={isMuted ? 'destructive' : 'ghost'}
+                variant={isMuted ? "destructive" : "ghost"}
                 size="icon"
                 className="h-7 w-7"
                 onClick={toggleMute}
@@ -152,14 +162,14 @@ export function HuddleBar({
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{isMuted ? 'Unmute' : 'Mute'}</TooltipContent>
+            <TooltipContent>{isMuted ? "Unmute" : "Mute"}</TooltipContent>
           </Tooltip>
 
           {/* Video */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant={isVideoEnabled ? 'ghost' : 'secondary'}
+                variant={isVideoEnabled ? "ghost" : "secondary"}
                 size="icon"
                 className="h-7 w-7"
                 onClick={toggleVideo}
@@ -172,7 +182,7 @@ export function HuddleBar({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+              {isVideoEnabled ? "Turn off camera" : "Turn on camera"}
             </TooltipContent>
           </Tooltip>
 
@@ -207,7 +217,7 @@ export function HuddleBar({
         </div>
       </motion.div>
     </TooltipProvider>
-  )
+  );
 }
 
-export default HuddleBar
+export default HuddleBar;

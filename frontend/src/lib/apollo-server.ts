@@ -5,37 +5,44 @@
  * Uses admin credentials to perform mutations without user authentication.
  */
 
-import { ApolloClient, InMemoryCache, HttpLink, ApolloLink } from '@apollo/client'
-import { setContext } from '@apollo/client/link/context'
+import {
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+  ApolloLink,
+} from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 
-let serverClient: ApolloClient<any> | null = null
+let serverClient: ApolloClient<any> | null = null;
 
 /**
  * Get or create Apollo Client for server-side operations
  */
 export function getApolloClient(): ApolloClient<any> {
   if (serverClient) {
-    return serverClient
+    return serverClient;
   }
 
   // GraphQL endpoint
-  const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
+  const graphqlUrl =
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql";
 
   // Admin secret for server-side operations
-  const adminSecret = process.env.HASURA_ADMIN_SECRET || process.env.NHOST_ADMIN_SECRET
+  const adminSecret =
+    process.env.HASURA_ADMIN_SECRET || process.env.NHOST_ADMIN_SECRET;
 
   // Create HTTP link
   const httpLink = new HttpLink({
     uri: graphqlUrl,
     fetch,
-  })
+  });
 
   // Add authentication header
   const authLink = setContext((_, { headers }) => {
-    const authHeaders: Record<string, string> = {}
+    const authHeaders: Record<string, string> = {};
 
     if (adminSecret) {
-      authHeaders['x-hasura-admin-secret'] = adminSecret
+      authHeaders["x-hasura-admin-secret"] = adminSecret;
     }
 
     return {
@@ -43,8 +50,8 @@ export function getApolloClient(): ApolloClient<any> {
         ...headers,
         ...authHeaders,
       },
-    }
-  })
+    };
+  });
 
   // Create client
   serverClient = new ApolloClient({
@@ -52,20 +59,20 @@ export function getApolloClient(): ApolloClient<any> {
     cache: new InMemoryCache(),
     defaultOptions: {
       watchQuery: {
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       },
       query: {
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       },
     },
-  })
+  });
 
-  return serverClient
+  return serverClient;
 }
 
 /**
  * Reset the server client (for testing)
  */
 export function resetApolloServerClient(): void {
-  serverClient = null
+  serverClient = null;
 }

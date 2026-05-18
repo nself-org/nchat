@@ -8,7 +8,7 @@
  */
 
 // Types
-export * from './retention-types'
+export * from "./retention-types";
 
 // Policy Inheritance
-export * from './policy-inheritance'
+export * from "./policy-inheritance";

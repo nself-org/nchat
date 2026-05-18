@@ -5,46 +5,50 @@
  * Used for plan selection, upgrade/downgrade logic, and feature enforcement.
  */
 
-import type { PlanTier, PlanFeatures, Currency } from '@/types/subscription.types'
+import type {
+  PlanTier,
+  PlanFeatures,
+  Currency,
+} from "@/types/subscription.types";
 
 // ============================================================================
 // Plan Configuration Types
 // ============================================================================
 
 export interface PlanLimits {
-  maxMembers: number | null // null = unlimited
-  maxChannels: number | null
-  maxStorageBytes: number | null
-  maxFileSizeBytes: number | null
-  maxApiCallsPerMonth: number | null
-  maxCallParticipants: number | null
-  maxStreamDurationMinutes: number | null
+  maxMembers: number | null; // null = unlimited
+  maxChannels: number | null;
+  maxStorageBytes: number | null;
+  maxFileSizeBytes: number | null;
+  maxApiCallsPerMonth: number | null;
+  maxCallParticipants: number | null;
+  maxStreamDurationMinutes: number | null;
 }
 
 export interface PlanPricing {
-  monthly: number // cents
-  yearly: number | null // cents, null = not available
-  currency: Currency
+  monthly: number; // cents
+  yearly: number | null; // cents, null = not available
+  currency: Currency;
 }
 
 export interface PlanConfig {
-  tier: PlanTier
-  name: string
-  description: string
-  pricing: PlanPricing
-  limits: PlanLimits
-  features: PlanFeatures
-  highlightedFeatures: string[]
-  isRecommended: boolean
-  stripePriceIdMonthly?: string
-  stripePriceIdYearly?: string
+  tier: PlanTier;
+  name: string;
+  description: string;
+  pricing: PlanPricing;
+  limits: PlanLimits;
+  features: PlanFeatures;
+  highlightedFeatures: string[];
+  isRecommended: boolean;
+  stripePriceIdMonthly?: string;
+  stripePriceIdYearly?: string;
 }
 
 // ============================================================================
 // Plan Limits Constants
 // ============================================================================
 
-export const UNLIMITED = null
+export const UNLIMITED = null;
 
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   free: {
@@ -92,7 +96,7 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     maxCallParticipants: 500,
     maxStreamDurationMinutes: UNLIMITED,
   },
-}
+};
 
 // ============================================================================
 // Plan Features Configuration
@@ -214,7 +218,7 @@ export const PLAN_FEATURES: Record<PlanTier, PlanFeatures> = {
     messageRetentionDays: -1,
     searchHistoryDays: -1,
   },
-}
+};
 
 // ============================================================================
 // Plan Pricing Configuration
@@ -224,35 +228,38 @@ export const PLAN_PRICING: Record<PlanTier, PlanPricing> = {
   free: {
     monthly: 0,
     yearly: 0,
-    currency: 'USD',
+    currency: "USD",
   },
   starter: {
     monthly: 500, // $5/month
     yearly: 5000, // $50/year (16% discount)
-    currency: 'USD',
+    currency: "USD",
   },
   professional: {
     monthly: 1500, // $15/month
     yearly: 15000, // $150/year (16% discount)
-    currency: 'USD',
+    currency: "USD",
   },
   enterprise: {
     monthly: 9900, // $99/month
     yearly: 99000, // $990/year (16% discount)
-    currency: 'USD',
+    currency: "USD",
   },
   custom: {
     monthly: 0, // Custom pricing
     yearly: null,
-    currency: 'USD',
+    currency: "USD",
   },
-}
+};
 
 // ============================================================================
 // Stripe Price IDs (populate these from your Stripe dashboard)
 // ============================================================================
 
-export const STRIPE_PRICE_IDS: Record<PlanTier, { monthly?: string; yearly?: string }> = {
+export const STRIPE_PRICE_IDS: Record<
+  PlanTier,
+  { monthly?: string; yearly?: string }
+> = {
   free: {
     monthly: undefined,
     yearly: undefined,
@@ -273,7 +280,7 @@ export const STRIPE_PRICE_IDS: Record<PlanTier, { monthly?: string; yearly?: str
     monthly: undefined,
     yearly: undefined,
   },
-}
+};
 
 // ============================================================================
 // Complete Plan Configuration
@@ -281,99 +288,99 @@ export const STRIPE_PRICE_IDS: Record<PlanTier, { monthly?: string; yearly?: str
 
 export const PLANS: Record<PlanTier, PlanConfig> = {
   free: {
-    tier: 'free',
-    name: 'Free',
-    description: 'For small teams getting started',
+    tier: "free",
+    name: "Free",
+    description: "For small teams getting started",
     pricing: PLAN_PRICING.free,
     limits: PLAN_LIMITS.free,
     features: PLAN_FEATURES.free,
     highlightedFeatures: [
-      '10 team members',
-      '5 channels',
-      '1 GB storage',
-      'Basic messaging',
-      '90-day history',
+      "10 team members",
+      "5 channels",
+      "1 GB storage",
+      "Basic messaging",
+      "90-day history",
     ],
     isRecommended: false,
     stripePriceIdMonthly: STRIPE_PRICE_IDS.free.monthly,
     stripePriceIdYearly: STRIPE_PRICE_IDS.free.yearly,
   },
   starter: {
-    tier: 'starter',
-    name: 'Starter',
-    description: 'For small teams that need video calls',
+    tier: "starter",
+    name: "Starter",
+    description: "For small teams that need video calls",
     pricing: PLAN_PRICING.starter,
     limits: PLAN_LIMITS.starter,
     features: PLAN_FEATURES.starter,
     highlightedFeatures: [
-      '25 team members',
-      '20 channels',
-      '10 GB storage',
-      'Video calls & voice messages',
-      'Unlimited history',
-      'Basic integrations',
+      "25 team members",
+      "20 channels",
+      "10 GB storage",
+      "Video calls & voice messages",
+      "Unlimited history",
+      "Basic integrations",
     ],
     isRecommended: false,
     stripePriceIdMonthly: STRIPE_PRICE_IDS.starter.monthly,
     stripePriceIdYearly: STRIPE_PRICE_IDS.starter.yearly,
   },
   professional: {
-    tier: 'professional',
-    name: 'Professional',
-    description: 'For growing teams that need more',
+    tier: "professional",
+    name: "Professional",
+    description: "For growing teams that need more",
     pricing: PLAN_PRICING.professional,
     limits: PLAN_LIMITS.professional,
     features: PLAN_FEATURES.professional,
     highlightedFeatures: [
-      '100 team members',
-      '50 channels',
-      '100 GB storage',
-      'Screen sharing',
-      'API access',
-      'Audit logs',
-      'Advanced integrations',
+      "100 team members",
+      "50 channels",
+      "100 GB storage",
+      "Screen sharing",
+      "API access",
+      "Audit logs",
+      "Advanced integrations",
     ],
     isRecommended: true,
     stripePriceIdMonthly: STRIPE_PRICE_IDS.professional.monthly,
     stripePriceIdYearly: STRIPE_PRICE_IDS.professional.yearly,
   },
   enterprise: {
-    tier: 'enterprise',
-    name: 'Enterprise',
-    description: 'For large organizations',
+    tier: "enterprise",
+    name: "Enterprise",
+    description: "For large organizations",
     pricing: PLAN_PRICING.enterprise,
     limits: PLAN_LIMITS.enterprise,
     features: PLAN_FEATURES.enterprise,
     highlightedFeatures: [
-      'Unlimited members',
-      'Unlimited channels',
-      'Unlimited storage',
-      'SSO & SAML',
-      'Priority support',
-      'Custom branding',
-      'Advanced security',
+      "Unlimited members",
+      "Unlimited channels",
+      "Unlimited storage",
+      "SSO & SAML",
+      "Priority support",
+      "Custom branding",
+      "Advanced security",
     ],
     isRecommended: false,
     stripePriceIdMonthly: STRIPE_PRICE_IDS.enterprise.monthly,
     stripePriceIdYearly: STRIPE_PRICE_IDS.enterprise.yearly,
   },
   custom: {
-    tier: 'custom',
-    name: 'Custom',
-    description: 'Tailored solution for your needs',
+    tier: "custom",
+    name: "Custom",
+    description: "Tailored solution for your needs",
     pricing: PLAN_PRICING.custom,
     limits: PLAN_LIMITS.custom,
     features: PLAN_FEATURES.custom,
     highlightedFeatures: [
-      'Everything in Enterprise',
-      'Custom contracts',
-      'Dedicated support',
-      'On-premise deployment',
-      'Custom integrations',
+      "Everything in Enterprise",
+      "Custom contracts",
+      "Dedicated support",
+      "On-premise deployment",
+      "Custom integrations",
     ],
     isRecommended: false,
   },
-}
+};
 
 // ============================================================================
 // Helper Functions
@@ -383,21 +390,24 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
  * Get plan configuration by tier
  */
 export function getPlanConfig(tier: PlanTier): PlanConfig {
-  return PLANS[tier]
+  return PLANS[tier];
 }
 
 /**
  * Get all available plans (excluding custom)
  */
 export function getAvailablePlans(): PlanConfig[] {
-  return Object.values(PLANS).filter((plan) => plan.tier !== 'custom')
+  return Object.values(PLANS).filter((plan) => plan.tier !== "custom");
 }
 
 /**
  * Check if a feature is available in a plan
  */
-export function hasFeature(tier: PlanTier, feature: keyof PlanFeatures): boolean {
-  return PLAN_FEATURES[tier][feature] as boolean
+export function hasFeature(
+  tier: PlanTier,
+  feature: keyof PlanFeatures,
+): boolean {
+  return PLAN_FEATURES[tier][feature] as boolean;
 }
 
 /**
@@ -406,11 +416,11 @@ export function hasFeature(tier: PlanTier, feature: keyof PlanFeatures): boolean
 export function isWithinLimit(
   tier: PlanTier,
   limitKey: keyof PlanLimits,
-  currentUsage: number
+  currentUsage: number,
 ): boolean {
-  const limit = PLAN_LIMITS[tier][limitKey]
-  if (limit === null) return true // unlimited
-  return currentUsage < limit
+  const limit = PLAN_LIMITS[tier][limitKey];
+  if (limit === null) return true; // unlimited
+  return currentUsage < limit;
 }
 
 /**
@@ -419,11 +429,11 @@ export function isWithinLimit(
 export function getRemainingQuota(
   tier: PlanTier,
   limitKey: keyof PlanLimits,
-  currentUsage: number
+  currentUsage: number,
 ): number | null {
-  const limit = PLAN_LIMITS[tier][limitKey]
-  if (limit === null) return null // unlimited
-  return Math.max(0, limit - currentUsage)
+  const limit = PLAN_LIMITS[tier][limitKey];
+  if (limit === null) return null; // unlimited
+  return Math.max(0, limit - currentUsage);
 }
 
 /**
@@ -432,19 +442,25 @@ export function getRemainingQuota(
 export function getUsagePercentage(
   tier: PlanTier,
   limitKey: keyof PlanLimits,
-  currentUsage: number
+  currentUsage: number,
 ): number | null {
-  const limit = PLAN_LIMITS[tier][limitKey]
-  if (limit === null) return null // unlimited
-  return Math.min(100, (currentUsage / limit) * 100)
+  const limit = PLAN_LIMITS[tier][limitKey];
+  if (limit === null) return null; // unlimited
+  return Math.min(100, (currentUsage / limit) * 100);
 }
 
 /**
  * Compare two plans (returns 1 if a > b, -1 if a < b, 0 if equal)
  */
 export function comparePlans(a: PlanTier, b: PlanTier): number {
-  const order: PlanTier[] = ['free', 'starter', 'professional', 'enterprise', 'custom']
-  return order.indexOf(a) - order.indexOf(b)
+  const order: PlanTier[] = [
+    "free",
+    "starter",
+    "professional",
+    "enterprise",
+    "custom",
+  ];
+  return order.indexOf(a) - order.indexOf(b);
 }
 
 /**
@@ -452,31 +468,32 @@ export function comparePlans(a: PlanTier, b: PlanTier): number {
  */
 export function needsUpgradeForFeature(
   currentTier: PlanTier,
-  feature: keyof PlanFeatures
+  feature: keyof PlanFeatures,
 ): PlanTier | null {
-  if (hasFeature(currentTier, feature)) return null
+  if (hasFeature(currentTier, feature)) return null;
 
   // Find minimum tier that has this feature
-  for (const tier of ['starter', 'professional', 'enterprise'] as PlanTier[]) {
+  for (const tier of ["starter", "professional", "enterprise"] as PlanTier[]) {
     if (hasFeature(tier, feature)) {
-      return tier
+      return tier;
     }
   }
 
-  return 'enterprise'
+  return "enterprise";
 }
 
 /**
  * Calculate yearly savings
  */
 export function calculateYearlySavings(tier: PlanTier): number | null {
-  const pricing = PLAN_PRICING[tier]
-  if (!pricing.yearly) return null
+  const pricing = PLAN_PRICING[tier];
+  if (!pricing.yearly) return null;
 
-  const yearlyFromMonthly = pricing.monthly * 12
-  const savings = ((yearlyFromMonthly - pricing.yearly) / yearlyFromMonthly) * 100
+  const yearlyFromMonthly = pricing.monthly * 12;
+  const savings =
+    ((yearlyFromMonthly - pricing.yearly) / yearlyFromMonthly) * 100;
 
-  return Math.round(savings)
+  return Math.round(savings);
 }
 
 /**
@@ -484,18 +501,18 @@ export function calculateYearlySavings(tier: PlanTier): number | null {
  */
 export function formatPrice(
   cents: number,
-  currency: Currency = 'USD',
-  showCurrency: boolean = true
+  currency: Currency = "USD",
+  showCurrency: boolean = true,
 ): string {
-  const amount = cents / 100
-  const formatter = new Intl.NumberFormat('en-US', {
-    style: showCurrency ? 'currency' : 'decimal',
+  const amount = cents / 100;
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: showCurrency ? "currency" : "decimal",
     currency: showCurrency ? currency : undefined,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  })
+  });
 
-  return formatter.format(amount)
+  return formatter.format(amount);
 }
 
 /**
@@ -504,45 +521,49 @@ export function formatPrice(
 export function getUpgradeSuggestion(
   currentTier: PlanTier,
   usage: {
-    members?: number
-    channels?: number
-    storageBytes?: number
-  }
+    members?: number;
+    channels?: number;
+    storageBytes?: number;
+  },
 ): {
-  shouldUpgrade: boolean
-  suggestedTier: PlanTier | null
-  reasons: string[]
+  shouldUpgrade: boolean;
+  suggestedTier: PlanTier | null;
+  reasons: string[];
 } {
-  const currentLimits = PLAN_LIMITS[currentTier]
-  const reasons: string[] = []
+  const currentLimits = PLAN_LIMITS[currentTier];
+  const reasons: string[] = [];
 
   // Check each limit
   if (usage.members && currentLimits.maxMembers !== null) {
-    const percentage = (usage.members / currentLimits.maxMembers) * 100
+    const percentage = (usage.members / currentLimits.maxMembers) * 100;
     if (percentage >= 80) {
       reasons.push(
-        `You're using ${Math.round(percentage)}% of your member limit (${usage.members}/${currentLimits.maxMembers})`
-      )
+        `You're using ${Math.round(percentage)}% of your member limit (${usage.members}/${currentLimits.maxMembers})`,
+      );
     }
   }
 
   if (usage.channels && currentLimits.maxChannels !== null) {
-    const percentage = (usage.channels / currentLimits.maxChannels) * 100
+    const percentage = (usage.channels / currentLimits.maxChannels) * 100;
     if (percentage >= 80) {
       reasons.push(
-        `You're using ${Math.round(percentage)}% of your channel limit (${usage.channels}/${currentLimits.maxChannels})`
-      )
+        `You're using ${Math.round(percentage)}% of your channel limit (${usage.channels}/${currentLimits.maxChannels})`,
+      );
     }
   }
 
   if (usage.storageBytes && currentLimits.maxStorageBytes !== null) {
-    const percentage = (usage.storageBytes / currentLimits.maxStorageBytes) * 100
+    const percentage =
+      (usage.storageBytes / currentLimits.maxStorageBytes) * 100;
     if (percentage >= 80) {
-      const usageGB = (usage.storageBytes / (1024 * 1024 * 1024)).toFixed(1)
-      const limitGB = (currentLimits.maxStorageBytes / (1024 * 1024 * 1024)).toFixed(1)
+      const usageGB = (usage.storageBytes / (1024 * 1024 * 1024)).toFixed(1);
+      const limitGB = (
+        currentLimits.maxStorageBytes /
+        (1024 * 1024 * 1024)
+      ).toFixed(1);
       reasons.push(
-        `You're using ${Math.round(percentage)}% of your storage (${usageGB} GB / ${limitGB} GB)`
-      )
+        `You're using ${Math.round(percentage)}% of your storage (${usageGB} GB / ${limitGB} GB)`,
+      );
     }
   }
 
@@ -551,17 +572,23 @@ export function getUpgradeSuggestion(
       shouldUpgrade: false,
       suggestedTier: null,
       reasons: [],
-    }
+    };
   }
 
   // Suggest next tier
-  const tierOrder: PlanTier[] = ['free', 'starter', 'professional', 'enterprise']
-  const currentIndex = tierOrder.indexOf(currentTier)
-  const suggestedTier = currentIndex < tierOrder.length - 1 ? tierOrder[currentIndex + 1] : null
+  const tierOrder: PlanTier[] = [
+    "free",
+    "starter",
+    "professional",
+    "enterprise",
+  ];
+  const currentIndex = tierOrder.indexOf(currentTier);
+  const suggestedTier =
+    currentIndex < tierOrder.length - 1 ? tierOrder[currentIndex + 1] : null;
 
   return {
     shouldUpgrade: true,
     suggestedTier,
     reasons,
-  }
+  };
 }

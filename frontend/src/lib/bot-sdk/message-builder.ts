@@ -12,7 +12,7 @@ import type {
   ActionsBlock,
   ContextBlock,
   RichMessage,
-} from './types'
+} from "./types";
 
 // ============================================================================
 // BLOCK BUILDERS
@@ -23,47 +23,47 @@ import type {
  */
 export class TextBlockBuilder {
   private block: TextBlock = {
-    type: 'text',
-    text: '',
-  }
+    type: "text",
+    text: "",
+  };
 
   /**
    * Set the text content
    */
   text(text: string): this {
-    this.block.text = text
-    return this
+    this.block.text = text;
+    return this;
   }
 
   /**
    * Enable markdown parsing
    */
   markdown(enabled = true): this {
-    this.block.markdown = enabled
-    return this
+    this.block.markdown = enabled;
+    return this;
   }
 
   /**
    * Append text to existing content
    */
   append(text: string): this {
-    this.block.text += text
-    return this
+    this.block.text += text;
+    return this;
   }
 
   /**
    * Add a new line
    */
   newLine(): this {
-    this.block.text += '\n'
-    return this
+    this.block.text += "\n";
+    return this;
   }
 
   /**
    * Build the text block
    */
   build(): TextBlock {
-    return { ...this.block }
+    return { ...this.block };
   }
 }
 
@@ -72,39 +72,39 @@ export class TextBlockBuilder {
  */
 export class ImageBlockBuilder {
   private block: ImageBlock = {
-    type: 'image',
-    url: '',
-  }
+    type: "image",
+    url: "",
+  };
 
   /**
    * Set the image URL
    */
   url(url: string): this {
-    this.block.url = url
-    return this
+    this.block.url = url;
+    return this;
   }
 
   /**
    * Set alt text
    */
   alt(alt: string): this {
-    this.block.alt = alt
-    return this
+    this.block.alt = alt;
+    return this;
   }
 
   /**
    * Set title
    */
   title(title: string): this {
-    this.block.title = title
-    return this
+    this.block.title = title;
+    return this;
   }
 
   /**
    * Build the image block
    */
   build(): ImageBlock {
-    return { ...this.block }
+    return { ...this.block };
   }
 }
 
@@ -112,85 +112,85 @@ export class ImageBlockBuilder {
  * Builder for button blocks
  */
 export class ButtonBlockBuilder {
-  private block: ButtonBlock
+  private block: ButtonBlock;
 
   constructor(actionId: string) {
     this.block = {
-      type: 'button',
-      text: '',
+      type: "button",
+      text: "",
       actionId,
-    }
+    };
   }
 
   /**
    * Set button text
    */
   text(text: string): this {
-    this.block.text = text
-    return this
+    this.block.text = text;
+    return this;
   }
 
   /**
    * Set button style to primary
    */
   primary(): this {
-    this.block.style = 'primary'
-    return this
+    this.block.style = "primary";
+    return this;
   }
 
   /**
    * Set button style to danger
    */
   danger(): this {
-    this.block.style = 'danger'
-    return this
+    this.block.style = "danger";
+    return this;
   }
 
   /**
    * Set button style to default
    */
   default(): this {
-    this.block.style = 'default'
-    return this
+    this.block.style = "default";
+    return this;
   }
 
   /**
    * Set button style
    */
-  style(style: 'primary' | 'danger' | 'default'): this {
-    this.block.style = style
-    return this
+  style(style: "primary" | "danger" | "default"): this {
+    this.block.style = style;
+    return this;
   }
 
   /**
    * Set URL (makes it a link button)
    */
   url(url: string): this {
-    this.block.url = url
-    return this
+    this.block.url = url;
+    return this;
   }
 
   /**
    * Set value (passed to action handler)
    */
   value(value: string): this {
-    this.block.value = value
-    return this
+    this.block.value = value;
+    return this;
   }
 
   /**
    * Disable the button
    */
   disabled(disabled = true): this {
-    this.block.disabled = disabled
-    return this
+    this.block.disabled = disabled;
+    return this;
   }
 
   /**
    * Build the button block
    */
   build(): ButtonBlock {
-    return { ...this.block }
+    return { ...this.block };
   }
 }
 
@@ -199,17 +199,18 @@ export class ButtonBlockBuilder {
  */
 export class ActionsBlockBuilder {
   private block: ActionsBlock = {
-    type: 'actions',
+    type: "actions",
     elements: [],
-  }
+  };
 
   /**
    * Add a button
    */
   button(button: ButtonBlock | ButtonBlockBuilder): this {
-    const built = button instanceof ButtonBlockBuilder ? button.build() : button
-    this.block.elements.push(built)
-    return this
+    const built =
+      button instanceof ButtonBlockBuilder ? button.build() : button;
+    this.block.elements.push(built);
+    return this;
   }
 
   /**
@@ -217,17 +218,17 @@ export class ActionsBlockBuilder {
    */
   buttons(...buttons: (ButtonBlock | ButtonBlockBuilder)[]): this {
     for (const button of buttons) {
-      this.button(button)
+      this.button(button);
     }
-    return this
+    return this;
   }
 
   /**
    * Set block ID
    */
   blockId(id: string): this {
-    this.block.blockId = id
-    return this
+    this.block.blockId = id;
+    return this;
   }
 
   /**
@@ -237,7 +238,7 @@ export class ActionsBlockBuilder {
     return {
       ...this.block,
       elements: [...this.block.elements],
-    }
+    };
   }
 }
 
@@ -246,20 +247,20 @@ export class ActionsBlockBuilder {
  */
 export class ContextBlockBuilder {
   private block: ContextBlock = {
-    type: 'context',
+    type: "context",
     elements: [],
-  }
+  };
 
   /**
    * Add a text element
    */
   text(text: string, markdown = false): this {
     this.block.elements.push({
-      type: 'text',
+      type: "text",
       text,
       markdown,
-    })
-    return this
+    });
+    return this;
   }
 
   /**
@@ -267,11 +268,11 @@ export class ContextBlockBuilder {
    */
   image(url: string, alt?: string): this {
     this.block.elements.push({
-      type: 'image',
+      type: "image",
       url,
       alt,
-    })
-    return this
+    });
+    return this;
   }
 
   /**
@@ -281,7 +282,7 @@ export class ContextBlockBuilder {
     return {
       ...this.block,
       elements: [...this.block.elements],
-    }
+    };
   }
 }
 
@@ -293,14 +294,14 @@ export class ContextBlockBuilder {
  * Fluent builder for rich messages
  */
 export class MessageBuilder {
-  private message: RichMessage = {}
+  private message: RichMessage = {};
 
   /**
    * Set plain text content
    */
   text(text: string): this {
-    this.message.text = text
-    return this
+    this.message.text = text;
+    return this;
   }
 
   /**
@@ -308,10 +309,10 @@ export class MessageBuilder {
    */
   textBlock(text: string, markdown = false): this {
     return this.addBlock({
-      type: 'text',
+      type: "text",
       text,
       markdown,
-    })
+    });
   }
 
   /**
@@ -319,49 +320,56 @@ export class MessageBuilder {
    */
   imageBlock(url: string, alt?: string, title?: string): this {
     return this.addBlock({
-      type: 'image',
+      type: "image",
       url,
       alt,
       title,
-    })
+    });
   }
 
   /**
    * Add a button block
    */
-  buttonBlock(actionId: string, text: string, style?: 'primary' | 'danger' | 'default'): this {
+  buttonBlock(
+    actionId: string,
+    text: string,
+    style?: "primary" | "danger" | "default",
+  ): this {
     return this.addBlock({
-      type: 'button',
+      type: "button",
       actionId,
       text,
       style,
-    })
+    });
   }
 
   /**
    * Add a divider
    */
   divider(): this {
-    return this.addBlock({ type: 'divider' })
+    return this.addBlock({ type: "divider" });
   }
 
   /**
    * Add an actions block with buttons
    */
   actions(...buttons: (ButtonBlock | ButtonBlockBuilder)[]): this {
-    const elements = buttons.map((b) => (b instanceof ButtonBlockBuilder ? b.build() : b))
+    const elements = buttons.map((b) =>
+      b instanceof ButtonBlockBuilder ? b.build() : b,
+    );
     return this.addBlock({
-      type: 'actions',
+      type: "actions",
       elements,
-    })
+    });
   }
 
   /**
    * Add a context block
    */
   context(builder: ContextBlockBuilder | ContextBlock): this {
-    const block = builder instanceof ContextBlockBuilder ? builder.build() : builder
-    return this.addBlock(block)
+    const block =
+      builder instanceof ContextBlockBuilder ? builder.build() : builder;
+    return this.addBlock(block);
   }
 
   /**
@@ -369,10 +377,10 @@ export class MessageBuilder {
    */
   addBlock(block: Block): this {
     if (!this.message.blocks) {
-      this.message.blocks = []
+      this.message.blocks = [];
     }
-    this.message.blocks.push(block)
-    return this
+    this.message.blocks.push(block);
+    return this;
   }
 
   /**
@@ -380,49 +388,49 @@ export class MessageBuilder {
    */
   addBlocks(...blocks: Block[]): this {
     for (const block of blocks) {
-      this.addBlock(block)
+      this.addBlock(block);
     }
-    return this
+    return this;
   }
 
   /**
    * Set thread timestamp (for replying in thread)
    */
   threadTs(ts: string): this {
-    this.message.threadTs = ts
-    return this
+    this.message.threadTs = ts;
+    return this;
   }
 
   /**
    * Also send to channel when replying in thread
    */
   replyBroadcast(broadcast = true): this {
-    this.message.replyBroadcast = broadcast
-    return this
+    this.message.replyBroadcast = broadcast;
+    return this;
   }
 
   /**
    * Enable/disable URL unfurling
    */
   unfurlLinks(unfurl = true): this {
-    this.message.unfurlLinks = unfurl
-    return this
+    this.message.unfurlLinks = unfurl;
+    return this;
   }
 
   /**
    * Enable/disable media unfurling
    */
   unfurlMedia(unfurl = true): this {
-    this.message.unfurlMedia = unfurl
-    return this
+    this.message.unfurlMedia = unfurl;
+    return this;
   }
 
   /**
    * Set metadata
    */
   metadata(data: Record<string, unknown>): this {
-    this.message.metadata = data
-    return this
+    this.message.metadata = data;
+    return this;
   }
 
   /**
@@ -432,8 +440,10 @@ export class MessageBuilder {
     return {
       ...this.message,
       blocks: this.message.blocks ? [...this.message.blocks] : undefined,
-      metadata: this.message.metadata ? { ...this.message.metadata } : undefined,
-    }
+      metadata: this.message.metadata
+        ? { ...this.message.metadata }
+        : undefined,
+    };
   }
 }
 
@@ -445,49 +455,53 @@ export class MessageBuilder {
  * Create a new message builder
  */
 export function message(): MessageBuilder {
-  return new MessageBuilder()
+  return new MessageBuilder();
 }
 
 /**
  * Create a simple text message
  */
 export function textMessage(text: string): RichMessage {
-  return { text }
+  return { text };
 }
 
 /**
  * Create a text block builder
  */
 export function textBlock(): TextBlockBuilder {
-  return new TextBlockBuilder()
+  return new TextBlockBuilder();
 }
 
 /**
  * Create a text block directly
  */
 export function createTextBlock(text: string, markdown = false): TextBlock {
-  return { type: 'text', text, markdown }
+  return { type: "text", text, markdown };
 }
 
 /**
  * Create an image block builder
  */
 export function imageBlock(): ImageBlockBuilder {
-  return new ImageBlockBuilder()
+  return new ImageBlockBuilder();
 }
 
 /**
  * Create an image block directly
  */
-export function createImageBlock(url: string, alt?: string, title?: string): ImageBlock {
-  return { type: 'image', url, alt, title }
+export function createImageBlock(
+  url: string,
+  alt?: string,
+  title?: string,
+): ImageBlock {
+  return { type: "image", url, alt, title };
 }
 
 /**
  * Create a button block builder
  */
 export function button(actionId: string): ButtonBlockBuilder {
-  return new ButtonBlockBuilder(actionId)
+  return new ButtonBlockBuilder(actionId);
 }
 
 /**
@@ -496,30 +510,30 @@ export function button(actionId: string): ButtonBlockBuilder {
 export function createButton(
   actionId: string,
   text: string,
-  style: 'primary' | 'danger' | 'default' = 'default'
+  style: "primary" | "danger" | "default" = "default",
 ): ButtonBlock {
-  return { type: 'button', actionId, text, style }
+  return { type: "button", actionId, text, style };
 }
 
 /**
  * Create an actions block builder
  */
 export function actions(): ActionsBlockBuilder {
-  return new ActionsBlockBuilder()
+  return new ActionsBlockBuilder();
 }
 
 /**
  * Create a context block builder
  */
 export function context(): ContextBlockBuilder {
-  return new ContextBlockBuilder()
+  return new ContextBlockBuilder();
 }
 
 /**
  * Create a divider block
  */
 export function divider(): DividerBlock {
-  return { type: 'divider' }
+  return { type: "divider" };
 }
 
 // ============================================================================
@@ -530,35 +544,35 @@ export function divider(): DividerBlock {
  * Format text as bold (markdown)
  */
 export function bold(text: string): string {
-  return `**${text}**`
+  return `**${text}**`;
 }
 
 /**
  * Format text as italic (markdown)
  */
 export function italic(text: string): string {
-  return `*${text}*`
+  return `*${text}*`;
 }
 
 /**
  * Format text as strikethrough (markdown)
  */
 export function strikethrough(text: string): string {
-  return `~~${text}~~`
+  return `~~${text}~~`;
 }
 
 /**
  * Format text as inline code
  */
 export function inlineCode(text: string): string {
-  return `\`${text}\``
+  return `\`${text}\``;
 }
 
 /**
  * Format text as code block
  */
-export function codeBlock(code: string, language = ''): string {
-  return `\`\`\`${language}\n${code}\n\`\`\``
+export function codeBlock(code: string, language = ""): string {
+  return `\`\`\`${language}\n${code}\n\`\`\``;
 }
 
 /**
@@ -566,51 +580,51 @@ export function codeBlock(code: string, language = ''): string {
  */
 export function blockquote(text: string): string {
   return text
-    .split('\n')
+    .split("\n")
     .map((line) => `> ${line}`)
-    .join('\n')
+    .join("\n");
 }
 
 /**
  * Create a user mention
  */
 export function mentionUser(userId: string): string {
-  return `<@${userId}>`
+  return `<@${userId}>`;
 }
 
 /**
  * Create a channel mention
  */
 export function mentionChannel(channelId: string): string {
-  return `<#${channelId}>`
+  return `<#${channelId}>`;
 }
 
 /**
  * Create a link
  */
 export function link(text: string, url: string): string {
-  return `[${text}](${url})`
+  return `[${text}](${url})`;
 }
 
 /**
  * Create an unordered list
  */
 export function unorderedList(items: string[]): string {
-  return items.map((item) => `- ${item}`).join('\n')
+  return items.map((item) => `- ${item}`).join("\n");
 }
 
 /**
  * Create an ordered list
  */
 export function orderedList(items: string[]): string {
-  return items.map((item, i) => `${i + 1}. ${item}`).join('\n')
+  return items.map((item, i) => `${i + 1}. ${item}`).join("\n");
 }
 
 /**
  * Join lines with newlines
  */
 export function lines(...parts: string[]): string {
-  return parts.join('\n')
+  return parts.join("\n");
 }
 
 // ============================================================================
@@ -620,11 +634,14 @@ export function lines(...parts: string[]): string {
 /**
  * Create a success message
  */
-export function successMessage(title: string, description?: string): RichMessage {
+export function successMessage(
+  title: string,
+  description?: string,
+): RichMessage {
   return message()
     .textBlock(`**${title}**`, true)
-    .textBlock(description ?? '', true)
-    .build()
+    .textBlock(description ?? "", true)
+    .build();
 }
 
 /**
@@ -633,18 +650,21 @@ export function successMessage(title: string, description?: string): RichMessage
 export function errorMessage(title: string, details?: string): RichMessage {
   return message()
     .textBlock(`**Error: ${title}**`, true)
-    .textBlock(details ?? '', true)
-    .build()
+    .textBlock(details ?? "", true)
+    .build();
 }
 
 /**
  * Create a warning message
  */
-export function warningMessage(title: string, description?: string): RichMessage {
+export function warningMessage(
+  title: string,
+  description?: string,
+): RichMessage {
   return message()
     .textBlock(`**Warning: ${title}**`, true)
-    .textBlock(description ?? '', true)
-    .build()
+    .textBlock(description ?? "", true)
+    .build();
 }
 
 /**
@@ -653,8 +673,8 @@ export function warningMessage(title: string, description?: string): RichMessage
 export function infoMessage(title: string, description?: string): RichMessage {
   return message()
     .textBlock(`**${title}**`, true)
-    .textBlock(description ?? '', true)
-    .build()
+    .textBlock(description ?? "", true)
+    .build();
 }
 
 /**
@@ -663,20 +683,20 @@ export function infoMessage(title: string, description?: string): RichMessage {
 export function confirmPrompt(
   question: string,
   confirmActionId: string,
-  cancelActionId: string
+  cancelActionId: string,
 ): RichMessage {
   return message()
     .textBlock(question)
     .actions(
-      button(confirmActionId).text('Confirm').primary(),
-      button(cancelActionId).text('Cancel').default()
+      button(confirmActionId).text("Confirm").primary(),
+      button(cancelActionId).text("Cancel").default(),
     )
-    .build()
+    .build();
 }
 
 /**
  * Create a loading message
  */
-export function loadingMessage(text = 'Loading...'): RichMessage {
-  return message().textBlock(text).build()
+export function loadingMessage(text = "Loading..."): RichMessage {
+  return message().textBlock(text).build();
 }

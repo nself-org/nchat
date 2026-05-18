@@ -4,9 +4,9 @@
  * Control bar for video calls with mute, video, screen share, and hang up.
  */
 
-'use client'
+"use client";
 
-import React from 'react'
+import React from "react";
 import {
   Mic,
   MicOff,
@@ -16,23 +16,23 @@ import {
   MonitorStop,
   PhoneOff,
   Settings,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface VideoControlsProps {
-  isMuted: boolean
-  isVideoEnabled: boolean
-  isScreenSharing: boolean
-  onToggleMute: () => void
-  onToggleVideo: () => void
-  onToggleScreenShare: () => void
-  onEndCall: () => void
-  onSettings?: () => void
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  isScreenSharing: boolean;
+  onToggleMute: () => void;
+  onToggleVideo: () => void;
+  onToggleScreenShare: () => void;
+  onEndCall: () => void;
+  onSettings?: () => void;
 }
 
 // =============================================================================
@@ -56,13 +56,13 @@ export function VideoControls({
         variant="ghost"
         size="icon"
         className={cn(
-          'h-12 w-12 rounded-full',
+          "h-12 w-12 rounded-full",
           isMuted
-            ? 'bg-red-600 text-white hover:bg-red-700'
-            : 'bg-gray-700 text-white hover:bg-gray-600'
+            ? "bg-red-600 text-white hover:bg-red-700"
+            : "bg-gray-700 text-white hover:bg-gray-600",
         )}
         onClick={onToggleMute}
-        title={isMuted ? 'Unmute' : 'Mute'}
+        title={isMuted ? "Unmute" : "Mute"}
       >
         {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
       </Button>
@@ -72,15 +72,19 @@ export function VideoControls({
         variant="ghost"
         size="icon"
         className={cn(
-          'h-12 w-12 rounded-full',
+          "h-12 w-12 rounded-full",
           !isVideoEnabled
-            ? 'bg-red-600 text-white hover:bg-red-700'
-            : 'bg-gray-700 text-white hover:bg-gray-600'
+            ? "bg-red-600 text-white hover:bg-red-700"
+            : "bg-gray-700 text-white hover:bg-gray-600",
         )}
         onClick={onToggleVideo}
-        title={isVideoEnabled ? 'Turn off video' : 'Turn on video'}
+        title={isVideoEnabled ? "Turn off video" : "Turn on video"}
       >
-        {isVideoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+        {isVideoEnabled ? (
+          <Video className="h-5 w-5" />
+        ) : (
+          <VideoOff className="h-5 w-5" />
+        )}
       </Button>
 
       {/* Screen Share */}
@@ -88,15 +92,19 @@ export function VideoControls({
         variant="ghost"
         size="icon"
         className={cn(
-          'h-12 w-12 rounded-full',
+          "h-12 w-12 rounded-full",
           isScreenSharing
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-gray-700 text-white hover:bg-gray-600'
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : "bg-gray-700 text-white hover:bg-gray-600",
         )}
         onClick={onToggleScreenShare}
-        title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
+        title={isScreenSharing ? "Stop sharing" : "Share screen"}
       >
-        {isScreenSharing ? <MonitorStop className="h-5 w-5" /> : <MonitorUp className="h-5 w-5" />}
+        {isScreenSharing ? (
+          <MonitorStop className="h-5 w-5" />
+        ) : (
+          <MonitorUp className="h-5 w-5" />
+        )}
       </Button>
 
       {/* Settings */}
@@ -123,5 +131,5 @@ export function VideoControls({
         <PhoneOff className="h-5 w-5" />
       </Button>
     </div>
-  )
+  );
 }

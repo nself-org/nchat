@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Role Editor Component
@@ -10,24 +10,24 @@
  * - Role inheritance
  */
 
-import * as React from 'react'
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   CustomRole,
   RoleTemplate,
   ROLE_TEMPLATES,
   getCustomRoleService,
   canAssignRole,
-} from '@/lib/rbac/custom-roles'
-import { Permission } from '@/lib/admin/roles/role-types'
-import { Permission as AuthPermission } from '@/lib/auth/permissions'
-import { UserRole } from '@/lib/auth/roles'
+} from "@/lib/rbac/custom-roles";
+import { Permission } from "@/lib/admin/roles/role-types";
+import { Permission as AuthPermission } from "@/lib/auth/permissions";
+import { UserRole } from "@/lib/auth/roles";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -35,14 +35,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -50,110 +50,119 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Trash2, Edit, Shield, Users, Star, Copy, AlertTriangle } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import { RolePermissions } from '@/components/admin/roles/RolePermissions'
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Plus,
+  Trash2,
+  Edit,
+  Shield,
+  Users,
+  Star,
+  Copy,
+  AlertTriangle,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { RolePermissions } from "@/components/admin/roles/RolePermissions";
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export function RoleEditor() {
-  const [roles, setRoles] = useState<CustomRole[]>([])
-  const [selectedRole, setSelectedRole] = useState<CustomRole | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [isCreating, setIsCreating] = useState(false)
-  const [showTemplates, setShowTemplates] = useState(false)
-  const { toast } = useToast()
+  const [roles, setRoles] = useState<CustomRole[]>([]);
+  const [selectedRole, setSelectedRole] = useState<CustomRole | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const { toast } = useToast();
 
   React.useEffect(() => {
-    loadRoles()
-  }, [])
+    loadRoles();
+  }, []);
 
   const loadRoles = () => {
-    const service = getCustomRoleService()
-    setRoles(service.getAllRoles())
-  }
+    const service = getCustomRoleService();
+    setRoles(service.getAllRoles());
+  };
 
   const handleCreateRole = async (data: Partial<CustomRole>) => {
     try {
-      const service = getCustomRoleService()
+      const service = getCustomRoleService();
       await service.createRole(
         {
-          name: data.name || 'New Role',
-          slug: data.slug || 'new-role',
-          color: data.color || '#6B7280',
+          name: data.name || "New Role",
+          slug: data.slug || "new-role",
+          color: data.color || "#6B7280",
           permissions: data.permissions || [],
           isSystem: false,
           isDefault: false,
           priority: data.priority || 50,
           ...data,
-        } as Omit<CustomRole, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>,
-        'current-user-id' // Replace with actual user ID
-      )
-      loadRoles()
-      setIsCreating(false)
+        } as Omit<CustomRole, "id" | "createdAt" | "updatedAt" | "createdBy">,
+        "current-user-id", // Replace with actual user ID
+      );
+      loadRoles();
+      setIsCreating(false);
 
       toast({
-        title: 'Role Created',
+        title: "Role Created",
         description: `${data.name} has been created successfully.`,
-      })
+      });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleUpdateRole = async (id: string, updates: Partial<CustomRole>) => {
     try {
-      const service = getCustomRoleService()
-      await service.updateRole(id, updates, 'current-user-id')
-      loadRoles()
-      setIsEditing(false)
-      setSelectedRole(null)
+      const service = getCustomRoleService();
+      await service.updateRole(id, updates, "current-user-id");
+      loadRoles();
+      setIsEditing(false);
+      setSelectedRole(null);
 
       toast({
-        title: 'Role Updated',
-        description: 'Role settings have been saved.',
-      })
+        title: "Role Updated",
+        description: "Role settings have been saved.",
+      });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleDeleteRole = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this role?')) return
+    if (!confirm("Are you sure you want to delete this role?")) return;
 
     try {
-      const service = getCustomRoleService()
-      await service.deleteRole(id, 'current-user-id')
-      loadRoles()
-      setSelectedRole(null)
+      const service = getCustomRoleService();
+      await service.deleteRole(id, "current-user-id");
+      loadRoles();
+      setSelectedRole(null);
 
       toast({
-        title: 'Role Deleted',
-        description: 'The role has been removed.',
-      })
+        title: "Role Deleted",
+        description: "The role has been removed.",
+      });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleDuplicateRole = async (role: CustomRole) => {
     const duplicated = {
@@ -161,29 +170,29 @@ export function RoleEditor() {
       name: `${role.name} (Copy)`,
       slug: `${role.slug}-copy`,
       isSystem: false,
-    }
-    await handleCreateRole(duplicated)
-  }
+    };
+    await handleCreateRole(duplicated);
+  };
 
   const handleCreateFromTemplate = async (template: RoleTemplate) => {
     try {
-      const service = getCustomRoleService()
-      await service.createFromTemplate(template.id, {}, 'current-user-id')
-      loadRoles()
-      setShowTemplates(false)
+      const service = getCustomRoleService();
+      await service.createFromTemplate(template.id, {}, "current-user-id");
+      loadRoles();
+      setShowTemplates(false);
 
       toast({
-        title: 'Role Created from Template',
+        title: "Role Created from Template",
         description: `${template.name} has been created.`,
-      })
+      });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -210,11 +219,17 @@ export function RoleEditor() {
       {/* Roles List */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {roles.map((role) => (
-          <Card key={role.id} className={cn(role.isSystem && 'border-primary/50')}>
+          <Card
+            key={role.id}
+            className={cn(role.isSystem && "border-primary/50")}
+          >
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: role.color }} />
+                  <div
+                    className="h-3 w-3 rounded-full"
+                    style={{ backgroundColor: role.color }}
+                  />
                   <CardTitle>{role.name}</CardTitle>
                 </div>
                 <div className="flex gap-1">
@@ -230,7 +245,9 @@ export function RoleEditor() {
                   )}
                 </div>
               </div>
-              {role.description && <CardDescription>{role.description}</CardDescription>}
+              {role.description && (
+                <CardDescription>{role.description}</CardDescription>
+              )}
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between text-sm">
@@ -254,20 +271,28 @@ export function RoleEditor() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setSelectedRole(role)
-                    setIsEditing(true)
+                    setSelectedRole(role);
+                    setIsEditing(true);
                   }}
                   disabled={role.isSystem}
                 >
                   <Edit className="mr-1 h-4 w-4" />
                   Edit
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handleDuplicateRole(role)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDuplicateRole(role)}
+                >
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
               {!role.isSystem && (
-                <Button variant="ghost" size="sm" onClick={() => handleDeleteRole(role.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteRole(role.id)}
+                >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               )}
@@ -298,15 +323,15 @@ export function RoleEditor() {
           role={isEditing ? selectedRole : null}
           open={isCreating || isEditing}
           onClose={() => {
-            setIsCreating(false)
-            setIsEditing(false)
-            setSelectedRole(null)
+            setIsCreating(false);
+            setIsEditing(false);
+            setSelectedRole(null);
           }}
           onSave={(data) => {
             if (isEditing && selectedRole) {
-              handleUpdateRole(selectedRole.id, data)
+              handleUpdateRole(selectedRole.id, data);
             } else {
-              handleCreateRole(data)
+              handleCreateRole(data);
             }
           }}
         />
@@ -321,7 +346,7 @@ export function RoleEditor() {
         />
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -329,39 +354,46 @@ export function RoleEditor() {
 // ============================================================================
 
 interface RoleEditorDialogProps {
-  role: CustomRole | null
-  open: boolean
-  onClose: () => void
-  onSave: (data: Partial<CustomRole>) => void
+  role: CustomRole | null;
+  open: boolean;
+  onClose: () => void;
+  onSave: (data: Partial<CustomRole>) => void;
 }
 
-function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps) {
+function RoleEditorDialog({
+  role,
+  open,
+  onClose,
+  onSave,
+}: RoleEditorDialogProps) {
   const [formData, setFormData] = useState<Partial<CustomRole>>(
     role || {
-      name: '',
-      slug: '',
-      description: '',
-      color: '#6B7280',
+      name: "",
+      slug: "",
+      description: "",
+      color: "#6B7280",
       permissions: [],
       isDefault: false,
       priority: 50,
-    }
-  )
+    },
+  );
 
   const handleNameChange = (name: string) => {
     const slug = name
       .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '')
-    setFormData({ ...formData, name, slug })
-  }
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+    setFormData({ ...formData, name, slug });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{role ? 'Edit Role' : 'Create Custom Role'}</DialogTitle>
-          <DialogDescription>Configure role settings and permissions</DialogDescription>
+          <DialogTitle>{role ? "Edit Role" : "Create Custom Role"}</DialogTitle>
+          <DialogDescription>
+            Configure role settings and permissions
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="basic" className="w-full">
@@ -388,7 +420,9 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
                 <Input
                   id="slug"
                   value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, slug: e.target.value })
+                  }
                   placeholder="content-manager"
                 />
               </div>
@@ -399,7 +433,9 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Describe this role's purpose and responsibilities"
               />
             </div>
@@ -412,12 +448,16 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
                     id="color"
                     type="color"
                     value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, color: e.target.value })
+                    }
                     className="w-20"
                   />
                   <Input
                     value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, color: e.target.value })
+                    }
                     placeholder="#6B7280"
                   />
                 </div>
@@ -431,7 +471,12 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
                   min="1"
                   max="100"
                   value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      priority: parseInt(e.target.value),
+                    })
+                  }
                 />
               </div>
             </div>
@@ -440,7 +485,9 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
               <Label htmlFor="baseRole">Base Role (Optional)</Label>
               <Select
                 value={formData.baseRole}
-                onValueChange={(value) => setFormData({ ...formData, baseRole: value as UserRole })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, baseRole: value as UserRole })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="No base role" />
@@ -461,15 +508,21 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
               <Switch
                 id="isDefault"
                 checked={formData.isDefault}
-                onCheckedChange={(checked) => setFormData({ ...formData, isDefault: checked })}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, isDefault: checked })
+                }
               />
-              <Label htmlFor="isDefault">Set as default role for new users</Label>
+              <Label htmlFor="isDefault">
+                Set as default role for new users
+              </Label>
             </div>
           </TabsContent>
 
           <TabsContent value="permissions" className="space-y-4">
             <RolePermissions
-              permissions={(formData.permissions || []) as unknown as Permission[]}
+              permissions={
+                (formData.permissions || []) as unknown as Permission[]
+              }
               onChange={(permissions) =>
                 setFormData({
                   ...formData,
@@ -487,11 +540,13 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
                 id="maxUsers"
                 type="number"
                 min="0"
-                value={formData.maxUsers || ''}
+                value={formData.maxUsers || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    maxUsers: e.target.value ? parseInt(e.target.value) : undefined,
+                    maxUsers: e.target.value
+                      ? parseInt(e.target.value)
+                      : undefined,
                   })
                 }
                 placeholder="No limit"
@@ -507,11 +562,13 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
                 id="expiresAfter"
                 type="number"
                 min="0"
-                value={formData.expiresAfter || ''}
+                value={formData.expiresAfter || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    expiresAfter: e.target.value ? parseInt(e.target.value) : undefined,
+                    expiresAfter: e.target.value
+                      ? parseInt(e.target.value)
+                      : undefined,
                   })
                 }
                 placeholder="Never expires"
@@ -527,11 +584,13 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={() => onSave(formData)}>{role ? 'Update Role' : 'Create Role'}</Button>
+          <Button onClick={() => onSave(formData)}>
+            {role ? "Update Role" : "Create Role"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -539,23 +598,32 @@ function RoleEditorDialog({ role, open, onClose, onSave }: RoleEditorDialogProps
 // ============================================================================
 
 interface RoleTemplatesDialogProps {
-  open: boolean
-  onClose: () => void
-  onSelect: (template: RoleTemplate) => void
+  open: boolean;
+  onClose: () => void;
+  onSelect: (template: RoleTemplate) => void;
 }
 
-function RoleTemplatesDialog({ open, onClose, onSelect }: RoleTemplatesDialogProps) {
+function RoleTemplatesDialog({
+  open,
+  onClose,
+  onSelect,
+}: RoleTemplatesDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Role Templates</DialogTitle>
-          <DialogDescription>Quick start with pre-configured role templates</DialogDescription>
+          <DialogDescription>
+            Quick start with pre-configured role templates
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 md:grid-cols-2">
           {ROLE_TEMPLATES.map((template) => (
-            <Card key={template.id} className="cursor-pointer hover:border-primary">
+            <Card
+              key={template.id}
+              className="cursor-pointer hover:border-primary"
+            >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-4 w-4" />
@@ -572,7 +640,9 @@ function RoleTemplatesDialog({ open, onClose, onSelect }: RoleTemplatesDialogPro
               <CardContent>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Permissions:</span>
-                  <span className="font-medium">{template.permissions.length}</span>
+                  <span className="font-medium">
+                    {template.permissions.length}
+                  </span>
                 </div>
                 {template.baseRole && (
                   <div className="mt-2 flex items-center justify-between text-sm">
@@ -597,7 +667,7 @@ function RoleTemplatesDialog({ open, onClose, onSelect }: RoleTemplatesDialogPro
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default RoleEditor
+export default RoleEditor;

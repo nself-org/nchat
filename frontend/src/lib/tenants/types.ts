@@ -5,104 +5,109 @@
  * Supports schema-level isolation with row-level security.
  */
 
-export type TenantStatus = 'active' | 'suspended' | 'trial' | 'cancelled' | 'pending'
-export type BillingPlan = 'free' | 'pro' | 'enterprise' | 'custom'
-export type BillingInterval = 'monthly' | 'yearly'
+export type TenantStatus =
+  | "active"
+  | "suspended"
+  | "trial"
+  | "cancelled"
+  | "pending";
+export type BillingPlan = "free" | "pro" | "enterprise" | "custom";
+export type BillingInterval = "monthly" | "yearly";
 
 /**
  * Tenant Entity
  */
 export interface Tenant {
-  id: string
-  name: string
-  slug: string // Subdomain identifier (e.g., 'acme' -> acme.nchat.app)
-  customDomain?: string // Optional custom domain (e.g., chat.acme.com)
-  status: TenantStatus
+  id: string;
+  name: string;
+  slug: string; // Subdomain identifier (e.g., 'acme' -> acme.nchat.app)
+  customDomain?: string; // Optional custom domain (e.g., chat.acme.com)
+  status: TenantStatus;
 
   // Owner Information
-  ownerId: string
-  ownerEmail: string
-  ownerName: string
+  ownerId: string;
+  ownerEmail: string;
+  ownerName: string;
 
   // Branding
-  branding: TenantBranding
+  branding: TenantBranding;
 
   // Billing
-  billing: TenantBilling
+  billing: TenantBilling;
 
   // Resource Limits
-  limits: TenantLimits
+  limits: TenantLimits;
 
   // Feature Flags (overrides)
-  features: TenantFeatures
+  features: TenantFeatures;
 
   // Database Isolation
-  schemaName: string // PostgreSQL schema name for this tenant
+  schemaName: string; // PostgreSQL schema name for this tenant
 
   // Metadata
-  metadata: Record<string, any>
+  metadata: Record<string, any>;
 
   // Timestamps
-  createdAt: Date
-  updatedAt: Date
-  trialEndsAt?: Date
-  suspendedAt?: Date
-  cancelledAt?: Date
+  createdAt: Date;
+  updatedAt: Date;
+  trialEndsAt?: Date;
+  suspendedAt?: Date;
+  cancelledAt?: Date;
 }
 
 /**
  * Tenant Branding Configuration
  */
 export interface TenantBranding {
-  appName: string
-  logoUrl?: string
-  faviconUrl?: string
-  primaryColor: string
-  secondaryColor: string
-  customCSS?: string
+  appName: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  primaryColor: string;
+  secondaryColor: string;
+  customCSS?: string;
 }
 
 /**
  * Tenant Billing Information
  */
 export interface TenantBilling {
-  plan: BillingPlan
-  interval: BillingInterval
-  stripeCustomerId?: string
-  stripeSubscriptionId?: string
-  stripePriceId?: string
-  currentPeriodStart?: Date
-  currentPeriodEnd?: Date
-  cancelAtPeriodEnd: boolean
+  plan: BillingPlan;
+  interval: BillingInterval;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  stripePriceId?: string;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
+  cancelAtPeriodEnd: boolean;
 
   // Usage-based billing
   usageTracking: {
-    users: number
-    storageBytes: number
-    apiCallsThisMonth: number
-  }
+    users: number;
+    storageBytes: number;
+    apiCallsThisMonth: number;
+  };
 
   // Payment history
-  lastPaymentDate?: Date
-  lastPaymentAmount?: number
-  lastPaymentStatus?: 'succeeded' | 'failed' | 'pending'
+  lastPaymentDate?: Date;
+  lastPaymentAmount?: number;
+  lastPaymentStatus?: "succeeded" | "failed" | "pending";
 }
 
 /**
  * Tenant Resource Limits
  */
 export interface TenantLimits {
-  maxUsers: number // -1 = unlimited
-  maxChannels: number
-  maxStorageGB: number // -1 = unlimited
-  maxApiCallsPerMonth: number // -1 = unlimited
-  maxFileUploadSizeMB: number
-  maxCallParticipants: number
-  maxStreamDurationMinutes: number
+  maxUsers: number; // -1 = unlimited
+  maxChannels: number;
+  maxStorageGB: number; // -1 = unlimited
+  maxApiCallsPerMonth: number; // -1 = unlimited
+  maxFileUploadSizeMB: number;
+  maxCallParticipants: number;
+  maxStreamDurationMinutes: number;
 
   // Rate limiting
-  rateLimitPerMinute: number
-  rateLimitPerHour: number
+  rateLimitPerMinute: number;
+  rateLimitPerHour: number;
 }
 
 /**
@@ -110,192 +115,192 @@ export interface TenantLimits {
  */
 export interface TenantFeatures {
   // Core Features
-  publicChannels: boolean
-  privateChannels: boolean
-  directMessages: boolean
-  threads: boolean
-  reactions: boolean
+  publicChannels: boolean;
+  privateChannels: boolean;
+  directMessages: boolean;
+  threads: boolean;
+  reactions: boolean;
 
   // Advanced Features
-  fileUploads: boolean
-  voiceMessages: boolean
-  videoCalls: boolean
-  screenSharing: boolean
-  liveStreaming: boolean
-  endToEndEncryption: boolean
+  fileUploads: boolean;
+  voiceMessages: boolean;
+  videoCalls: boolean;
+  screenSharing: boolean;
+  liveStreaming: boolean;
+  endToEndEncryption: boolean;
 
   // Integrations
-  slackIntegration: boolean
-  githubIntegration: boolean
-  webhooks: boolean
+  slackIntegration: boolean;
+  githubIntegration: boolean;
+  webhooks: boolean;
 
   // Enterprise Features
-  ssoEnabled: boolean
-  auditLogs: boolean
-  advancedAnalytics: boolean
-  customBranding: boolean
-  whiteLabel: boolean
-  apiAccess: boolean
-  prioritySupport: boolean
+  ssoEnabled: boolean;
+  auditLogs: boolean;
+  advancedAnalytics: boolean;
+  customBranding: boolean;
+  whiteLabel: boolean;
+  apiAccess: boolean;
+  prioritySupport: boolean;
 }
 
 /**
  * Tenant Usage Statistics
  */
 export interface TenantUsage {
-  tenantId: string
-  period: string // YYYY-MM format
+  tenantId: string;
+  period: string; // YYYY-MM format
 
   users: {
-    active: number
-    total: number
-  }
+    active: number;
+    total: number;
+  };
 
   messages: {
-    sent: number
-    total: number
-  }
+    sent: number;
+    total: number;
+  };
 
   storage: {
-    bytesUsed: number
-    filesCount: number
-  }
+    bytesUsed: number;
+    filesCount: number;
+  };
 
   calls: {
-    totalMinutes: number
-    totalCalls: number
-  }
+    totalMinutes: number;
+    totalCalls: number;
+  };
 
   apiCalls: {
-    total: number
-    byEndpoint: Record<string, number>
-  }
+    total: number;
+    byEndpoint: Record<string, number>;
+  };
 
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
  * Tenant Subscription Plans
  */
 export interface SubscriptionPlan {
-  id: BillingPlan
-  name: string
-  description: string
+  id: BillingPlan;
+  name: string;
+  description: string;
 
   pricing: {
-    monthly: number // USD cents
-    yearly: number // USD cents (usually discounted)
-  }
+    monthly: number; // USD cents
+    yearly: number; // USD cents (usually discounted)
+  };
 
-  limits: TenantLimits
-  features: TenantFeatures
+  limits: TenantLimits;
+  features: TenantFeatures;
 
   // Stripe integration
-  stripePriceIdMonthly?: string
-  stripePriceIdYearly?: string
+  stripePriceIdMonthly?: string;
+  stripePriceIdYearly?: string;
 }
 
 /**
  * Tenant Settings (stored per tenant)
  */
 export interface TenantSettings {
-  tenantId: string
+  tenantId: string;
 
   // General
-  timezone: string
-  language: string
-  dateFormat: string
+  timezone: string;
+  language: string;
+  dateFormat: string;
 
   // Security
-  requireEmailVerification: boolean
-  requireTwoFactor: boolean
-  sessionTimeoutMinutes: number
+  requireEmailVerification: boolean;
+  requireTwoFactor: boolean;
+  sessionTimeoutMinutes: number;
   passwordPolicy: {
-    minLength: number
-    requireUppercase: boolean
-    requireLowercase: boolean
-    requireNumbers: boolean
-    requireSpecialChars: boolean
-  }
+    minLength: number;
+    requireUppercase: boolean;
+    requireLowercase: boolean;
+    requireNumbers: boolean;
+    requireSpecialChars: boolean;
+  };
 
   // Notifications
-  emailNotifications: boolean
-  slackNotifications: boolean
-  webhookNotifications: boolean
+  emailNotifications: boolean;
+  slackNotifications: boolean;
+  webhookNotifications: boolean;
 
   // Data Retention
-  messageRetentionDays: number // 0 = forever
-  fileRetentionDays: number
-  auditLogRetentionDays: number
+  messageRetentionDays: number; // 0 = forever
+  fileRetentionDays: number;
+  auditLogRetentionDays: number;
 
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
  * Tenant Invitation
  */
 export interface TenantInvitation {
-  id: string
-  tenantId: string
-  email: string
-  role: 'owner' | 'admin' | 'member'
-  invitedBy: string
-  token: string
-  expiresAt: Date
-  acceptedAt?: Date
-  createdAt: Date
+  id: string;
+  tenantId: string;
+  email: string;
+  role: "owner" | "admin" | "member";
+  invitedBy: string;
+  token: string;
+  expiresAt: Date;
+  acceptedAt?: Date;
+  createdAt: Date;
 }
 
 /**
  * Tenant Audit Log Entry
  */
 export interface TenantAuditLog {
-  id: string
-  tenantId: string
-  userId?: string
-  action: string
-  resource: string
-  resourceId?: string
-  details: Record<string, any>
-  ipAddress?: string
-  userAgent?: string
-  createdAt: Date
+  id: string;
+  tenantId: string;
+  userId?: string;
+  action: string;
+  resource: string;
+  resourceId?: string;
+  details: Record<string, any>;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: Date;
 }
 
 /**
  * Tenant Context (used in middleware and API)
  */
 export interface TenantContext {
-  tenant: Tenant
-  subdomain: string
-  isCustomDomain: boolean
-  schemaName: string
+  tenant: Tenant;
+  subdomain: string;
+  isCustomDomain: boolean;
+  schemaName: string;
 }
 
 /**
  * Tenant Creation Request
  */
 export interface CreateTenantRequest {
-  name: string
-  slug: string
-  ownerEmail: string
-  ownerName: string
-  ownerPassword: string
-  plan?: BillingPlan
-  trial?: boolean
-  metadata?: Record<string, any>
+  name: string;
+  slug: string;
+  ownerEmail: string;
+  ownerName: string;
+  ownerPassword: string;
+  plan?: BillingPlan;
+  trial?: boolean;
+  metadata?: Record<string, any>;
 }
 
 /**
  * Tenant Update Request
  */
 export interface UpdateTenantRequest {
-  name?: string
-  customDomain?: string
-  branding?: Partial<TenantBranding>
-  limits?: Partial<TenantLimits>
-  features?: Partial<TenantFeatures>
-  metadata?: Record<string, any>
+  name?: string;
+  customDomain?: string;
+  branding?: Partial<TenantBranding>;
+  limits?: Partial<TenantLimits>;
+  features?: Partial<TenantFeatures>;
+  metadata?: Record<string, any>;
 }
 
 /**
@@ -303,9 +308,9 @@ export interface UpdateTenantRequest {
  */
 export const DEFAULT_PLANS: Record<BillingPlan, SubscriptionPlan> = {
   free: {
-    id: 'free',
-    name: 'Free',
-    description: 'For small teams getting started',
+    id: "free",
+    name: "Free",
+    description: "For small teams getting started",
     pricing: {
       monthly: 0,
       yearly: 0,
@@ -346,9 +351,9 @@ export const DEFAULT_PLANS: Record<BillingPlan, SubscriptionPlan> = {
     },
   },
   pro: {
-    id: 'pro',
-    name: 'Pro',
-    description: 'For growing teams that need more',
+    id: "pro",
+    name: "Pro",
+    description: "For growing teams that need more",
     pricing: {
       monthly: 1500, // $15.00
       yearly: 15000, // $150.00 (2 months free)
@@ -389,9 +394,9 @@ export const DEFAULT_PLANS: Record<BillingPlan, SubscriptionPlan> = {
     },
   },
   enterprise: {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'For large organizations with advanced needs',
+    id: "enterprise",
+    name: "Enterprise",
+    description: "For large organizations with advanced needs",
     pricing: {
       monthly: 9900, // $99.00
       yearly: 99000, // $990.00 (2 months free)
@@ -432,9 +437,9 @@ export const DEFAULT_PLANS: Record<BillingPlan, SubscriptionPlan> = {
     },
   },
   custom: {
-    id: 'custom',
-    name: 'Custom',
-    description: 'Custom plan with tailored features and pricing',
+    id: "custom",
+    name: "Custom",
+    description: "Custom plan with tailored features and pricing",
     pricing: {
       monthly: 0, // Contact sales
       yearly: 0,
@@ -474,4 +479,4 @@ export const DEFAULT_PLANS: Record<BillingPlan, SubscriptionPlan> = {
       prioritySupport: true,
     },
   },
-}
+};

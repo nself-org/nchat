@@ -11,29 +11,40 @@
  * - Action buttons (edit, message, block, report)
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { useUser } from '@/hooks/use-user'
-import { useUserStore, getInitials } from '@/stores/user-store'
-import { useAuth } from '@/contexts/auth-context'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { useUser } from "@/hooks/use-user";
+import { useUserStore, getInitials } from "@/stores/user-store";
+import { useAuth } from "@/contexts/auth-context";
 
 // UI Components
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // User Components
-import { UserStatus } from './user-status'
-import { UserPresenceDot } from './user-presence-dot'
-import { RoleBadge } from './role-badge'
-import { SetStatusModal } from './set-status-modal'
-import { EditProfileForm } from './edit-profile-form'
+import { UserStatus } from "./user-status";
+import { UserPresenceDot } from "./user-presence-dot";
+import { RoleBadge } from "./role-badge";
+import { SetStatusModal } from "./set-status-modal";
+import { EditProfileForm } from "./edit-profile-form";
 
 // Icons
 import {
@@ -52,7 +63,7 @@ import {
   Link2,
   MoreVertical,
   Shield,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
@@ -60,11 +71,11 @@ import {
 
 export interface UserProfileProps {
   /** User ID to display (if not provided, shows current user) */
-  userId?: string
+  userId?: string;
   /** Callback when profile is updated */
-  onUpdate?: () => void
+  onUpdate?: () => void;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -72,24 +83,25 @@ export interface UserProfileProps {
 // ============================================================================
 
 export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
-  const { user: authUser } = useAuth()
-  const { user, currentUser, isLoading, updateProfile } = useUser({ userId })
-  const [isEditing, setIsEditing] = React.useState(false)
-  const [statusModalOpen, setStatusModalOpen] = React.useState(false)
+  const { user: authUser } = useAuth();
+  const { user, currentUser, isLoading, updateProfile } = useUser({ userId });
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [statusModalOpen, setStatusModalOpen] = React.useState(false);
 
   // Determine if viewing own profile
-  const isOwnProfile = !userId || userId === authUser?.id || userId === currentUser?.id
+  const isOwnProfile =
+    !userId || userId === authUser?.id || userId === currentUser?.id;
 
   // Use current user if no userId provided
-  const displayUser = user || currentUser
+  const displayUser = user || currentUser;
 
   // Loading state
   if (isLoading || !displayUser) {
-    return <UserProfileSkeleton />
+    return <UserProfileSkeleton />;
   }
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn("w-full", className)}>
       {/* Cover Image */}
       <div
         className="from-primary/20 to-primary/10 relative h-48 overflow-hidden rounded-t-lg bg-gradient-to-r"
@@ -97,8 +109,8 @@ export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
           displayUser.coverUrl
             ? {
                 backgroundImage: `url(${displayUser.coverUrl})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundSize: "cover",
+                backgroundPosition: "center",
               }
             : undefined
         }
@@ -122,13 +134,19 @@ export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
           {/* Avatar */}
           <div className="relative">
             <Avatar className="h-32 w-32 border-4 border-background shadow-xl">
-              <AvatarImage src={displayUser.avatarUrl} alt={displayUser.displayName} />
+              <AvatarImage
+                src={displayUser.avatarUrl}
+                alt={displayUser.displayName}
+              />
               <AvatarFallback className="text-3xl">
                 {getInitials(displayUser.displayName)}
               </AvatarFallback>
             </Avatar>
             <div className="absolute bottom-2 right-2">
-              <UserPresenceDot status={displayUser.presence ?? 'offline'} size="lg" />
+              <UserPresenceDot
+                status={displayUser.presence ?? "offline"}
+                size="lg"
+              />
             </div>
           </div>
 
@@ -137,12 +155,17 @@ export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
             <div className="flex items-start justify-between">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-3xl font-bold">{displayUser.displayName}</h1>
+                  <h1 className="text-3xl font-bold">
+                    {displayUser.displayName}
+                  </h1>
                   <RoleBadge role={displayUser.role} />
                 </div>
                 <p className="text-muted-foreground">@{displayUser.username}</p>
                 {displayUser.customStatus && (
-                  <UserStatus status={displayUser.customStatus} variant="full" />
+                  <UserStatus
+                    status={displayUser.customStatus}
+                    variant="full"
+                  />
                 )}
               </div>
 
@@ -185,7 +208,10 @@ export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
               )}
 
               {isOwnProfile && (
-                <Button variant="outline" onClick={() => setStatusModalOpen(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setStatusModalOpen(true)}
+                >
                   Set Status
                 </Button>
               )}
@@ -203,9 +229,9 @@ export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
               <EditProfileForm
                 user={displayUser}
                 onSave={async (data) => {
-                  await updateProfile(data)
-                  setIsEditing(false)
-                  onUpdate?.()
+                  await updateProfile(data);
+                  setIsEditing(false);
+                  onUpdate?.();
                 }}
                 onCancel={() => setIsEditing(false)}
               />
@@ -242,10 +268,13 @@ export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">Joined:</span>
                     <span>
-                      {new Date(displayUser.createdAt).toLocaleDateString('en-US', {
-                        month: 'long',
-                        year: 'numeric',
-                      })}
+                      {new Date(displayUser.createdAt).toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )}
                     </span>
                   </div>
 
@@ -254,12 +283,15 @@ export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
                       <Shield className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Last seen:</span>
                       <span>
-                        {new Date(displayUser.lastSeenAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        })}
+                        {new Date(displayUser.lastSeenAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "numeric",
+                          },
+                        )}
                       </span>
                     </div>
                   )}
@@ -314,7 +346,7 @@ export function UserProfile({ userId, onUpdate, className }: UserProfileProps) {
         currentStatus={displayUser.customStatus}
       />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -364,5 +396,5 @@ function UserProfileSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }

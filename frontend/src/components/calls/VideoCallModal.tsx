@@ -4,39 +4,53 @@
  * Main modal component for video calls with all controls and layouts.
  */
 
-'use client'
+"use client";
 
-import React, { useRef, useEffect } from 'react'
-import { X, Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, Maximize2 } from 'lucide-react'
-import { useVideoCall } from '@/hooks/use-video-call'
-import { useVideoLayout } from '@/hooks/use-video-layout'
-import { useCallStore, selectParticipants } from '@/stores/call-store'
-import { VideoGrid } from './VideoGrid'
-import { SpeakerView } from './SpeakerView'
-import { VideoControls } from './VideoControls'
-import { Button } from '@/components/ui/button'
+import React, { useRef, useEffect } from "react";
+import {
+  X,
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  MonitorUp,
+  PhoneOff,
+  Maximize2,
+} from "lucide-react";
+import { useVideoCall } from "@/hooks/use-video-call";
+import { useVideoLayout } from "@/hooks/use-video-layout";
+import { useCallStore, selectParticipants } from "@/stores/call-store";
+import { VideoGrid } from "./VideoGrid";
+import { SpeakerView } from "./SpeakerView";
+import { VideoControls } from "./VideoControls";
+import { Button } from "@/components/ui/button";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface VideoCallModalProps {
-  userId: string
-  userName: string
-  userAvatarUrl?: string
-  onClose?: () => void
+  userId: string;
+  userName: string;
+  userAvatarUrl?: string;
+  onClose?: () => void;
 }
 
 // =============================================================================
 // Component
 // =============================================================================
 
-export function VideoCallModal({ userId, userName, userAvatarUrl, onClose }: VideoCallModalProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
+export function VideoCallModal({
+  userId,
+  userName,
+  userAvatarUrl,
+  onClose,
+}: VideoCallModalProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Call state
-  const participants = useCallStore(selectParticipants)
-  const participantIds = participants.map((p) => p.id)
+  const participants = useCallStore(selectParticipants);
+  const participantIds = participants.map((p) => p.id);
 
   // Video call hook
   const {
@@ -59,39 +73,46 @@ export function VideoCallModal({ userId, userName, userAvatarUrl, onClose }: Vid
     userName,
     userAvatarUrl,
     onCallEnded: () => {
-      onClose?.()
+      onClose?.();
     },
-  })
+  });
 
   // Layout management
-  const { mode, tiles, setMode, setSpeakingParticipant, setScreenShareParticipant } =
-    useVideoLayout({
-      containerRef,
-      participantIds,
-      initialMode: 'speaker',
-    })
+  const {
+    mode,
+    tiles,
+    setMode,
+    setSpeakingParticipant,
+    setScreenShareParticipant,
+  } = useVideoLayout({
+    containerRef,
+    participantIds,
+    initialMode: "speaker",
+  });
 
   // Format call duration
   const formatDuration = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // Handle screen share detection
   useEffect(() => {
-    const screenSharingParticipant = participants.find((p) => p.isScreenSharing)
-    setScreenShareParticipant(screenSharingParticipant?.id || null)
-  }, [participants, setScreenShareParticipant])
+    const screenSharingParticipant = participants.find(
+      (p) => p.isScreenSharing,
+    );
+    setScreenShareParticipant(screenSharingParticipant?.id || null);
+  }, [participants, setScreenShareParticipant]);
 
   // Handle speaking detection (simplified - you'd use audio level detection)
   useEffect(() => {
-    const speakingParticipant = participants.find((p) => p.isSpeaking)
-    setSpeakingParticipant(speakingParticipant?.id || null)
-  }, [participants, setSpeakingParticipant])
+    const speakingParticipant = participants.find((p) => p.isSpeaking);
+    setSpeakingParticipant(speakingParticipant?.id || null);
+  }, [participants, setSpeakingParticipant]);
 
   if (!isInCall) {
-    return null
+    return null;
   }
 
   return (
@@ -101,7 +122,9 @@ export function VideoCallModal({ userId, userName, userAvatarUrl, onClose }: Vid
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-semibold text-white">Video Call</h2>
           {isCallConnected && (
-            <span className="text-sm text-gray-400">{formatDuration(callDuration)}</span>
+            <span className="text-sm text-gray-400">
+              {formatDuration(callDuration)}
+            </span>
           )}
         </div>
 
@@ -110,11 +133,11 @@ export function VideoCallModal({ userId, userName, userAvatarUrl, onClose }: Vid
             variant="ghost"
             size="sm"
             onClick={() => {
-              if (mode === 'grid') setMode('speaker')
-              else setMode('grid')
+              if (mode === "grid") setMode("speaker");
+              else setMode("grid");
             }}
           >
-            {mode === 'grid' ? 'Speaker View' : 'Grid View'}
+            {mode === "grid" ? "Speaker View" : "Grid View"}
           </Button>
 
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -125,7 +148,7 @@ export function VideoCallModal({ userId, userName, userAvatarUrl, onClose }: Vid
 
       {/* Video Container */}
       <div ref={containerRef} className="relative flex-1 bg-gray-950">
-        {mode === 'grid' ? (
+        {mode === "grid" ? (
           <VideoGrid
             tiles={tiles}
             localStream={localStream}
@@ -153,14 +176,14 @@ export function VideoCallModal({ userId, userName, userAvatarUrl, onClose }: Vid
           onToggleVideo={toggleVideo}
           onToggleScreenShare={() => {
             if (isScreenSharing) {
-              stopScreenShare()
+              stopScreenShare();
             } else {
-              startScreenShare()
+              startScreenShare();
             }
           }}
           onEndCall={endCall}
         />
       </div>
     </div>
-  )
+  );
 }

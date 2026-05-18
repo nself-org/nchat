@@ -1,44 +1,62 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Circle, Clock, Moon, MinusCircle, X, Smile, Loader2 } from 'lucide-react'
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
+  Circle,
+  Clock,
+  Moon,
+  MinusCircle,
+  X,
+  Smile,
+  Loader2,
+} from "lucide-react";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type PresenceStatus = 'online' | 'away' | 'dnd' | 'offline'
+export type PresenceStatus = "online" | "away" | "dnd" | "offline";
 
 export interface CustomStatus {
-  emoji?: string
-  text?: string
-  expiresAt?: Date
+  emoji?: string;
+  text?: string;
+  expiresAt?: Date;
 }
 
-export type ClearAfterOption = 'never' | '30min' | '1hour' | '4hours' | 'today' | 'tomorrow'
+export type ClearAfterOption =
+  | "never"
+  | "30min"
+  | "1hour"
+  | "4hours"
+  | "today"
+  | "tomorrow";
 
 export interface UserStatusSelectorProps {
-  currentPresence: PresenceStatus
-  currentStatus?: CustomStatus
-  onPresenceChange: (presence: PresenceStatus) => void
-  onStatusChange: (status: CustomStatus | null) => Promise<void>
-  disabled?: boolean
-  className?: string
+  currentPresence: PresenceStatus;
+  currentStatus?: CustomStatus;
+  onPresenceChange: (presence: PresenceStatus) => void;
+  onStatusChange: (status: CustomStatus | null) => Promise<void>;
+  disabled?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -46,83 +64,100 @@ export interface UserStatusSelectorProps {
 // ============================================================================
 
 const PRESENCE_OPTIONS: {
-  value: PresenceStatus
-  label: string
-  description: string
-  icon: React.ReactNode
-  color: string
+  value: PresenceStatus;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
 }[] = [
   {
-    value: 'online',
-    label: 'Online',
-    description: 'You will appear online',
+    value: "online",
+    label: "Online",
+    description: "You will appear online",
     icon: <Circle className="h-3 w-3 fill-green-500 text-green-500" />,
-    color: 'bg-green-500',
+    color: "bg-green-500",
   },
   {
-    value: 'away',
-    label: 'Away',
-    description: 'You will appear away',
+    value: "away",
+    label: "Away",
+    description: "You will appear away",
     icon: <Clock className="h-3 w-3 text-yellow-500" />,
-    color: 'bg-yellow-500',
+    color: "bg-yellow-500",
   },
   {
-    value: 'dnd',
-    label: 'Do Not Disturb',
+    value: "dnd",
+    label: "Do Not Disturb",
     description: "You won't receive notifications",
     icon: <MinusCircle className="h-3 w-3 text-red-500" />,
-    color: 'bg-red-500',
+    color: "bg-red-500",
   },
   {
-    value: 'offline',
-    label: 'Invisible',
-    description: 'You will appear offline',
+    value: "offline",
+    label: "Invisible",
+    description: "You will appear offline",
     icon: <Moon className="h-3 w-3 text-gray-400" />,
-    color: 'bg-gray-400',
+    color: "bg-gray-400",
   },
-]
+];
 
 const CLEAR_AFTER_OPTIONS: { value: ClearAfterOption; label: string }[] = [
-  { value: 'never', label: "Don't clear" },
-  { value: '30min', label: '30 minutes' },
-  { value: '1hour', label: '1 hour' },
-  { value: '4hours', label: '4 hours' },
-  { value: 'today', label: 'Today' },
-  { value: 'tomorrow', label: 'Tomorrow' },
-]
+  { value: "never", label: "Don't clear" },
+  { value: "30min", label: "30 minutes" },
+  { value: "1hour", label: "1 hour" },
+  { value: "4hours", label: "4 hours" },
+  { value: "today", label: "Today" },
+  { value: "tomorrow", label: "Tomorrow" },
+];
 
-const PRESET_EMOJIS = ['😀', '😊', '🎉', '💻', '🏠', '☕', '🎧', '✈️', '🏖️', '🤒', '🍕', '📚']
+const PRESET_EMOJIS = [
+  "😀",
+  "😊",
+  "🎉",
+  "💻",
+  "🏠",
+  "☕",
+  "🎧",
+  "✈️",
+  "🏖️",
+  "🤒",
+  "🍕",
+  "📚",
+];
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
 export function getPresenceConfig(presence: PresenceStatus) {
-  return PRESENCE_OPTIONS.find((p) => p.value === presence) ?? PRESENCE_OPTIONS[0]
+  return (
+    PRESENCE_OPTIONS.find((p) => p.value === presence) ?? PRESENCE_OPTIONS[0]
+  );
 }
 
-export function calculateExpiryDate(clearAfter: ClearAfterOption): Date | undefined {
-  const now = new Date()
+export function calculateExpiryDate(
+  clearAfter: ClearAfterOption,
+): Date | undefined {
+  const now = new Date();
 
   switch (clearAfter) {
-    case '30min':
-      return new Date(now.getTime() + 30 * 60 * 1000)
-    case '1hour':
-      return new Date(now.getTime() + 60 * 60 * 1000)
-    case '4hours':
-      return new Date(now.getTime() + 4 * 60 * 60 * 1000)
-    case 'today':
-      const endOfToday = new Date(now)
-      endOfToday.setHours(23, 59, 59, 999)
-      return endOfToday
-    case 'tomorrow':
-      const endOfTomorrow = new Date(now)
-      endOfTomorrow.setDate(endOfTomorrow.getDate() + 1)
-      endOfTomorrow.setHours(23, 59, 59, 999)
-      return endOfTomorrow
-    case 'never':
+    case "30min":
+      return new Date(now.getTime() + 30 * 60 * 1000);
+    case "1hour":
+      return new Date(now.getTime() + 60 * 60 * 1000);
+    case "4hours":
+      return new Date(now.getTime() + 4 * 60 * 60 * 1000);
+    case "today":
+      const endOfToday = new Date(now);
+      endOfToday.setHours(23, 59, 59, 999);
+      return endOfToday;
+    case "tomorrow":
+      const endOfTomorrow = new Date(now);
+      endOfTomorrow.setDate(endOfTomorrow.getDate() + 1);
+      endOfTomorrow.setHours(23, 59, 59, 999);
+      return endOfTomorrow;
+    case "never":
     default:
-      return undefined
+      return undefined;
   }
 }
 
@@ -131,26 +166,30 @@ export function calculateExpiryDate(clearAfter: ClearAfterOption): Date | undefi
 // ============================================================================
 
 interface PresenceIndicatorProps {
-  presence: PresenceStatus
-  size?: 'sm' | 'md' | 'lg'
-  className?: string
+  presence: PresenceStatus;
+  size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
-export function PresenceIndicator({ presence, size = 'md', className }: PresenceIndicatorProps) {
-  const config = getPresenceConfig(presence)
+export function PresenceIndicator({
+  presence,
+  size = "md",
+  className,
+}: PresenceIndicatorProps) {
+  const config = getPresenceConfig(presence);
   const sizeClass = {
-    sm: 'h-2 w-2',
-    md: 'h-3 w-3',
-    lg: 'h-4 w-4',
-  }[size]
+    sm: "h-2 w-2",
+    md: "h-3 w-3",
+    lg: "h-4 w-4",
+  }[size];
 
   return (
     <span
-      className={cn('rounded-full', config.color, sizeClass, className)}
+      className={cn("rounded-full", config.color, sizeClass, className)}
       data-testid={`presence-indicator-${presence}`}
       aria-label={config.label}
     />
-  )
+  );
 }
 
 // ============================================================================
@@ -158,13 +197,16 @@ export function PresenceIndicator({ presence, size = 'md', className }: Presence
 // ============================================================================
 
 interface EmojiPickerProps {
-  onSelect: (emoji: string) => void
-  className?: string
+  onSelect: (emoji: string) => void;
+  className?: string;
 }
 
 function EmojiPicker({ onSelect, className }: EmojiPickerProps) {
   return (
-    <div className={cn('grid grid-cols-6 gap-1 p-2', className)} data-testid="emoji-picker">
+    <div
+      className={cn("grid grid-cols-6 gap-1 p-2", className)}
+      data-testid="emoji-picker"
+    >
       {PRESET_EMOJIS.map((emoji) => (
         <button
           key={emoji}
@@ -177,7 +219,7 @@ function EmojiPicker({ onSelect, className }: EmojiPickerProps) {
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -192,65 +234,67 @@ export function UserStatusSelector({
   disabled = false,
   className,
 }: UserStatusSelectorProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [showStatusForm, setShowStatusForm] = React.useState(false)
-  const [statusEmoji, setStatusEmoji] = React.useState(currentStatus?.emoji || '')
-  const [statusText, setStatusText] = React.useState(currentStatus?.text || '')
-  const [clearAfter, setClearAfter] = React.useState<ClearAfterOption>('never')
-  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false)
-  const [saving, setSaving] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [showStatusForm, setShowStatusForm] = React.useState(false);
+  const [statusEmoji, setStatusEmoji] = React.useState(
+    currentStatus?.emoji || "",
+  );
+  const [statusText, setStatusText] = React.useState(currentStatus?.text || "");
+  const [clearAfter, setClearAfter] = React.useState<ClearAfterOption>("never");
+  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
 
   // Reset form when popover opens
   React.useEffect(() => {
     if (isOpen) {
-      setStatusEmoji(currentStatus?.emoji || '')
-      setStatusText(currentStatus?.text || '')
-      setClearAfter('never')
-      setShowStatusForm(false)
-      setShowEmojiPicker(false)
+      setStatusEmoji(currentStatus?.emoji || "");
+      setStatusText(currentStatus?.text || "");
+      setClearAfter("never");
+      setShowStatusForm(false);
+      setShowEmojiPicker(false);
     }
-  }, [isOpen, currentStatus])
+  }, [isOpen, currentStatus]);
 
   const handlePresenceChange = (presence: PresenceStatus) => {
-    onPresenceChange(presence)
+    onPresenceChange(presence);
     if (!showStatusForm) {
-      setIsOpen(false)
+      setIsOpen(false);
     }
-  }
+  };
 
   const handleSetStatus = async () => {
-    if (!statusText.trim() && !statusEmoji) return
+    if (!statusText.trim() && !statusEmoji) return;
 
-    setSaving(true)
+    setSaving(true);
     try {
       await onStatusChange({
         emoji: statusEmoji || undefined,
         text: statusText.trim() || undefined,
         expiresAt: calculateExpiryDate(clearAfter),
-      })
-      setIsOpen(false)
+      });
+      setIsOpen(false);
     } catch (error) {
-      logger.error('Failed to set status:', error)
+      logger.error("Failed to set status:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleClearStatus = async () => {
-    setSaving(true)
+    setSaving(true);
     try {
-      await onStatusChange(null)
-      setStatusEmoji('')
-      setStatusText('')
-      setIsOpen(false)
+      await onStatusChange(null);
+      setStatusEmoji("");
+      setStatusText("");
+      setIsOpen(false);
     } catch (error) {
-      logger.error('Failed to clear status:', error)
+      logger.error("Failed to clear status:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
-  const presenceConfig = getPresenceConfig(currentPresence)
+  const presenceConfig = getPresenceConfig(currentPresence);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -259,7 +303,7 @@ export function UserStatusSelector({
           variant="ghost"
           size="sm"
           disabled={disabled}
-          className={cn('gap-2', className)}
+          className={cn("gap-2", className)}
           data-testid="status-selector-trigger"
         >
           <PresenceIndicator presence={currentPresence} size="sm" />
@@ -298,11 +342,15 @@ export function UserStatusSelector({
                     {statusEmoji || <Smile className="h-4 w-4" />}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" side="bottom" align="start">
+                <PopoverContent
+                  className="w-auto p-0"
+                  side="bottom"
+                  align="start"
+                >
                   <EmojiPicker
                     onSelect={(emoji) => {
-                      setStatusEmoji(emoji)
-                      setShowEmojiPicker(false)
+                      setStatusEmoji(emoji);
+                      setShowEmojiPicker(false);
                     }}
                   />
                 </PopoverContent>
@@ -321,7 +369,9 @@ export function UserStatusSelector({
               <Label>Clear after</Label>
               <Select
                 value={clearAfter}
-                onValueChange={(value: ClearAfterOption) => setClearAfter(value)}
+                onValueChange={(value: ClearAfterOption) =>
+                  setClearAfter(value)
+                }
               >
                 <SelectTrigger data-testid="clear-after-select">
                   <SelectValue />
@@ -377,7 +427,11 @@ export function UserStatusSelector({
                       disabled={saving}
                       data-testid="clear-status-button"
                     >
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Clear'}
+                      {saving ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Clear"
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -404,16 +458,18 @@ export function UserStatusSelector({
                 <button
                   key={option.value}
                   className={cn(
-                    'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-accent',
-                    currentPresence === option.value && 'bg-accent'
+                    "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-accent",
+                    currentPresence === option.value && "bg-accent",
                   )}
                   onClick={() => handlePresenceChange(option.value)}
                   data-testid={`presence-option-${option.value}`}
                 >
-                  <span className={cn('h-3 w-3 rounded-full', option.color)} />
+                  <span className={cn("h-3 w-3 rounded-full", option.color)} />
                   <div className="flex-1">
                     <p className="text-sm font-medium">{option.label}</p>
-                    <p className="text-xs text-muted-foreground">{option.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {option.description}
+                    </p>
                   </div>
                   {currentPresence === option.value && (
                     <span className="text-sm text-primary">✓</span>
@@ -425,7 +481,7 @@ export function UserStatusSelector({
         )}
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
-export { PRESENCE_OPTIONS, CLEAR_AFTER_OPTIONS, EmojiPicker }
+export { PRESENCE_OPTIONS, CLEAR_AFTER_OPTIONS, EmojiPicker };

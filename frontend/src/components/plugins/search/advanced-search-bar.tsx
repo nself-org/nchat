@@ -3,52 +3,59 @@
  * Search interface with auto-suggestions and filters
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Search, X, Filter } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Label } from '@/components/ui/label'
-import { useAdvancedSearch, useSearchSuggestions } from '@/hooks/use-search-plugin'
-import type { SearchFilters } from '@/services/plugins/search.service'
+import { useState } from "react";
+import { Search, X, Filter } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import {
+  useAdvancedSearch,
+  useSearchSuggestions,
+} from "@/hooks/use-search-plugin";
+import type { SearchFilters } from "@/services/plugins/search.service";
 
 interface AdvancedSearchBarProps {
-  onSearch?: (query: string, filters: SearchFilters) => void
-  placeholder?: string
+  onSearch?: (query: string, filters: SearchFilters) => void;
+  placeholder?: string;
 }
 
 export function AdvancedSearchBar({
   onSearch,
-  placeholder = 'Search messages, channels, users...',
+  placeholder = "Search messages, channels, users...",
 }: AdvancedSearchBarProps) {
-  const [inputValue, setInputValue] = useState('')
-  const [showFilters, setShowFilters] = useState(false)
-  const { suggestions } = useSearchSuggestions(inputValue)
-  const { setQuery, filters, setFilters, search } = useAdvancedSearch()
+  const [inputValue, setInputValue] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const { suggestions } = useSearchSuggestions(inputValue);
+  const { setQuery, filters, setFilters, search } = useAdvancedSearch();
 
   const handleSearch = () => {
-    setQuery(inputValue)
-    search()
-    onSearch?.(inputValue, filters)
-  }
+    setQuery(inputValue);
+    search();
+    onSearch?.(inputValue, filters);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch()
+    if (e.key === "Enter") {
+      handleSearch();
     }
-  }
+  };
 
   const handleFilterChange = (key: keyof SearchFilters, value: string) => {
-    setFilters({ ...filters, [key]: value })
-  }
+    setFilters({ ...filters, [key]: value });
+  };
 
   const clearFilters = () => {
-    setFilters({})
-  }
+    setFilters({});
+  };
 
-  const hasFilters = Object.keys(filters).length > 0
+  const hasFilters = Object.keys(filters).length > 0;
 
   return (
     <div className="relative w-full">
@@ -67,7 +74,7 @@ export function AdvancedSearchBar({
               variant="ghost"
               size="sm"
               className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
-              onClick={() => setInputValue('')}
+              onClick={() => setInputValue("")}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -99,8 +106,8 @@ export function AdvancedSearchBar({
                 <Input
                   id="filter-from"
                   placeholder="@username"
-                  value={filters.from || ''}
-                  onChange={(e) => handleFilterChange('from', e.target.value)}
+                  value={filters.from || ""}
+                  onChange={(e) => handleFilterChange("from", e.target.value)}
                 />
               </div>
 
@@ -109,8 +116,8 @@ export function AdvancedSearchBar({
                 <Input
                   id="filter-in"
                   placeholder="#channel-name"
-                  value={filters.in || ''}
-                  onChange={(e) => handleFilterChange('in', e.target.value)}
+                  value={filters.in || ""}
+                  onChange={(e) => handleFilterChange("in", e.target.value)}
                 />
               </div>
 
@@ -119,8 +126,8 @@ export function AdvancedSearchBar({
                 <Input
                   id="filter-after"
                   type="date"
-                  value={filters.after || ''}
-                  onChange={(e) => handleFilterChange('after', e.target.value)}
+                  value={filters.after || ""}
+                  onChange={(e) => handleFilterChange("after", e.target.value)}
                 />
               </div>
 
@@ -129,8 +136,8 @@ export function AdvancedSearchBar({
                 <Input
                   id="filter-before"
                   type="date"
-                  value={filters.before || ''}
-                  onChange={(e) => handleFilterChange('before', e.target.value)}
+                  value={filters.before || ""}
+                  onChange={(e) => handleFilterChange("before", e.target.value)}
                 />
               </div>
 
@@ -139,8 +146,8 @@ export function AdvancedSearchBar({
                 <Input
                   id="filter-has"
                   placeholder="image, file, link"
-                  value={filters.has || ''}
-                  onChange={(e) => handleFilterChange('has', e.target.value)}
+                  value={filters.has || ""}
+                  onChange={(e) => handleFilterChange("has", e.target.value)}
                 />
               </div>
             </div>
@@ -158,13 +165,15 @@ export function AdvancedSearchBar({
                 key={index}
                 className="w-full rounded px-2 py-1.5 text-left text-sm hover:bg-accent"
                 onClick={() => {
-                  setInputValue(suggestion.value)
-                  handleSearch()
+                  setInputValue(suggestion.value);
+                  handleSearch();
                 }}
               >
                 <span className="font-medium">{suggestion.label}</span>
                 {suggestion.type && (
-                  <span className="ml-2 text-xs text-muted-foreground">{suggestion.type}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {suggestion.type}
+                  </span>
                 )}
               </button>
             ))}
@@ -172,5 +181,5 @@ export function AdvancedSearchBar({
         </div>
       )}
     </div>
-  )
+  );
 }

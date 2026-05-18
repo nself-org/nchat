@@ -9,9 +9,9 @@
  * - Managing rule status
  */
 
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo } from "react";
 import {
   Zap,
   Plus,
@@ -26,11 +26,17 @@ import {
   XCircle,
   Search,
   Filter,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -38,14 +44,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -53,24 +59,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
-import { formatDistanceToNow } from 'date-fns'
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
 import {
   useAutomationStore,
   selectFilteredRules,
   selectRulesPagination,
   selectExecutions,
-} from '@/lib/automation/automation-store'
+} from "@/lib/automation/automation-store";
 import {
   describeCronSchedule,
   getAutomationStatusBadgeVariant,
   formatAutomationRunCount,
   formatAutomationSuccessRate,
   AUTOMATION_TEMPLATES,
-} from '@/lib/automation/automation-engine'
-import type { AutomationRule, AutomationStatus } from '@/lib/automation/automation-engine'
+} from "@/lib/automation/automation-engine";
+import type {
+  AutomationRule,
+  AutomationStatus,
+} from "@/lib/automation/automation-engine";
 
 // ============================================================================
 // Main Component
@@ -86,35 +95,38 @@ export function AutomationManager() {
     openEditRuleModal,
     openDeleteRuleModal,
     updateRule,
-  } = useAutomationStore()
+  } = useAutomationStore();
 
-  const filteredRules = useAutomationStore(selectFilteredRules)
-  const executions = useAutomationStore(selectExecutions)
-  const pagination = useAutomationStore(selectRulesPagination)
+  const filteredRules = useAutomationStore(selectFilteredRules);
+  const executions = useAutomationStore(selectExecutions);
+  const pagination = useAutomationStore(selectRulesPagination);
 
-  const [selectedRule, setSelectedRule] = useState<AutomationRule | null>(null)
-  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [selectedRule, setSelectedRule] = useState<AutomationRule | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const handleToggleStatus = async (rule: AutomationRule) => {
-    const newStatus: AutomationStatus = rule.status === 'active' ? 'paused' : 'active'
-    updateRule(rule.id, { status: newStatus })
-    toast.success(`Rule ${newStatus === 'active' ? 'activated' : 'paused'}`)
-  }
+    const newStatus: AutomationStatus =
+      rule.status === "active" ? "paused" : "active";
+    updateRule(rule.id, { status: newStatus });
+    toast.success(`Rule ${newStatus === "active" ? "activated" : "paused"}`);
+  };
 
   const handleRunNow = async (rule: AutomationRule) => {
-    toast.info('Running automation rule...', { description: rule.name })
+    toast.info("Running automation rule...", { description: rule.name });
     // In production, this would trigger the rule execution
     setTimeout(() => {
-      toast.success('Automation completed', { description: 'Check execution history for details' })
-    }, 2000)
-  }
+      toast.success("Automation completed", {
+        description: "Check execution history for details",
+      });
+    }, 2000);
+  };
 
   const handleDuplicate = (rule: AutomationRule) => {
     const duplicatedRule: AutomationRule = {
       ...rule,
       id: crypto.randomUUID(),
       name: `${rule.name} (Copy)`,
-      status: 'disabled',
+      status: "disabled",
       runCount: 0,
       successCount: 0,
       failureCount: 0,
@@ -122,10 +134,12 @@ export function AutomationManager() {
       nextRunAt: undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
+    };
     // Add to store
-    toast.success('Rule duplicated', { description: 'Edit the new rule to customize it' })
-  }
+    toast.success("Rule duplicated", {
+      description: "Edit the new rule to customize it",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -166,7 +180,7 @@ export function AutomationManager() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {filteredRules.filter((r) => r.status === 'active').length}
+              {filteredRules.filter((r) => r.status === "active").length}
             </div>
             <p className="text-xs text-muted-foreground">Currently running</p>
           </CardContent>
@@ -190,7 +204,9 @@ export function AutomationManager() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">98.5%</div>
-            <p className="text-xs text-muted-foreground">Average success rate</p>
+            <p className="text-xs text-muted-foreground">
+              Average success rate
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -208,7 +224,10 @@ export function AutomationManager() {
             />
           </div>
         </div>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+        <Select
+          value={statusFilter}
+          onValueChange={(v) => setStatusFilter(v as any)}
+        >
           <SelectTrigger className="w-[180px]">
             <Filter className="mr-2 h-4 w-4" />
             <SelectValue />
@@ -239,8 +258,8 @@ export function AutomationManager() {
             onDelete={openDeleteRuleModal}
             onDuplicate={handleDuplicate}
             onViewDetails={(rule) => {
-              setSelectedRule(rule)
-              setDetailsOpen(true)
+              setSelectedRule(rule);
+              setDetailsOpen(true);
             }}
           />
         </TabsContent>
@@ -263,7 +282,7 @@ export function AutomationManager() {
         />
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -271,13 +290,13 @@ export function AutomationManager() {
 // ============================================================================
 
 interface RulesTableProps {
-  rules: AutomationRule[]
-  onToggleStatus: (rule: AutomationRule) => void
-  onRunNow: (rule: AutomationRule) => void
-  onEdit: (rule: AutomationRule) => void
-  onDelete: (rule: AutomationRule) => void
-  onDuplicate: (rule: AutomationRule) => void
-  onViewDetails: (rule: AutomationRule) => void
+  rules: AutomationRule[];
+  onToggleStatus: (rule: AutomationRule) => void;
+  onRunNow: (rule: AutomationRule) => void;
+  onEdit: (rule: AutomationRule) => void;
+  onDelete: (rule: AutomationRule) => void;
+  onDuplicate: (rule: AutomationRule) => void;
+  onViewDetails: (rule: AutomationRule) => void;
 }
 
 function RulesTable({
@@ -300,7 +319,7 @@ function RulesTable({
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -330,13 +349,15 @@ function RulesTable({
                     {rule.name}
                   </button>
                   {rule.description && (
-                    <p className="text-xs text-muted-foreground">{rule.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {rule.description}
+                    </p>
                   )}
                 </div>
               </TableCell>
               <TableCell>
                 <Badge variant="outline" className="capitalize">
-                  {rule.trigger.replace('_', ' ')}
+                  {rule.trigger.replace("_", " ")}
                 </Badge>
                 {rule.triggerConfig.schedule && (
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -346,11 +367,13 @@ function RulesTable({
               </TableCell>
               <TableCell>
                 <Badge variant="outline" className="capitalize">
-                  {rule.action.replace('_', ' ')}
+                  {rule.action.replace("_", " ")}
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge variant={getAutomationStatusBadgeVariant(rule.status)}>{rule.status}</Badge>
+                <Badge variant={getAutomationStatusBadgeVariant(rule.status)}>
+                  {rule.status}
+                </Badge>
               </TableCell>
               <TableCell>
                 <div className="text-sm">
@@ -379,8 +402,11 @@ function RulesTable({
               <TableCell>
                 <div className="text-sm">
                   {rule.runCount > 0
-                    ? formatAutomationSuccessRate(rule.successCount, rule.runCount)
-                    : 'N/A'}
+                    ? formatAutomationSuccessRate(
+                        rule.successCount,
+                        rule.runCount,
+                      )
+                    : "N/A"}
                 </div>
               </TableCell>
               <TableCell>
@@ -389,9 +415,9 @@ function RulesTable({
                     variant="ghost"
                     size="icon"
                     onClick={() => onToggleStatus(rule)}
-                    title={rule.status === 'active' ? 'Pause' : 'Activate'}
+                    title={rule.status === "active" ? "Pause" : "Activate"}
                   >
-                    {rule.status === 'active' ? (
+                    {rule.status === "active" ? (
                       <Pause className="h-4 w-4" />
                     ) : (
                       <Play className="h-4 w-4" />
@@ -405,7 +431,12 @@ function RulesTable({
                   >
                     <Zap className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(rule)} title="Edit">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(rule)}
+                    title="Edit"
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
@@ -416,7 +447,12 @@ function RulesTable({
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => onDelete(rule)} title="Delete">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(rule)}
+                    title="Delete"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -426,7 +462,7 @@ function RulesTable({
         </TableBody>
       </Table>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -434,7 +470,7 @@ function RulesTable({
 // ============================================================================
 
 interface ExecutionHistoryTableProps {
-  executions: any[]
+  executions: any[];
 }
 
 function ExecutionHistoryTable({ executions }: ExecutionHistoryTableProps) {
@@ -449,7 +485,7 @@ function ExecutionHistoryTable({ executions }: ExecutionHistoryTableProps) {
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -469,26 +505,36 @@ function ExecutionHistoryTable({ executions }: ExecutionHistoryTableProps) {
         <TableBody>
           {executions.map((execution) => (
             <TableRow key={execution.id}>
-              <TableCell className="font-medium">{execution.ruleName}</TableCell>
-              <TableCell>{formatDistanceToNow(execution.startedAt, { addSuffix: true })}</TableCell>
+              <TableCell className="font-medium">
+                {execution.ruleName}
+              </TableCell>
+              <TableCell>
+                {formatDistanceToNow(execution.startedAt, { addSuffix: true })}
+              </TableCell>
               <TableCell>
                 {execution.completedAt
                   ? `${Math.round(
-                      (execution.completedAt.getTime() - execution.startedAt.getTime()) / 1000
+                      (execution.completedAt.getTime() -
+                        execution.startedAt.getTime()) /
+                        1000,
                     )}s`
-                  : '-'}
+                  : "-"}
               </TableCell>
               <TableCell>{execution.itemsProcessed}</TableCell>
-              <TableCell className="text-green-600">{execution.itemsSuccessful}</TableCell>
-              <TableCell className="text-destructive">{execution.itemsFailed}</TableCell>
+              <TableCell className="text-green-600">
+                {execution.itemsSuccessful}
+              </TableCell>
+              <TableCell className="text-destructive">
+                {execution.itemsFailed}
+              </TableCell>
               <TableCell>
                 <Badge
                   variant={
-                    execution.status === 'completed'
-                      ? 'default'
-                      : execution.status === 'failed'
-                        ? 'destructive'
-                        : 'secondary'
+                    execution.status === "completed"
+                      ? "default"
+                      : execution.status === "failed"
+                        ? "destructive"
+                        : "secondary"
                   }
                 >
                   {execution.status}
@@ -499,7 +545,7 @@ function ExecutionHistoryTable({ executions }: ExecutionHistoryTableProps) {
         </TableBody>
       </Table>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -507,14 +553,17 @@ function ExecutionHistoryTable({ executions }: ExecutionHistoryTableProps) {
 // ============================================================================
 
 interface TemplatesGridProps {
-  onSelectTemplate: () => void
+  onSelectTemplate: () => void;
 }
 
 function TemplatesGrid({ onSelectTemplate }: TemplatesGridProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {AUTOMATION_TEMPLATES.map((template, index) => (
-        <Card key={index} className="cursor-pointer transition-colors hover:border-primary">
+        <Card
+          key={index}
+          className="cursor-pointer transition-colors hover:border-primary"
+        >
           <CardHeader>
             <CardTitle className="text-base">{template.name}</CardTitle>
             <CardDescription>{template.description}</CardDescription>
@@ -524,13 +573,13 @@ function TemplatesGrid({ onSelectTemplate }: TemplatesGridProps) {
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Trigger:</span>
                 <Badge variant="outline" className="capitalize">
-                  {template.trigger?.replace('_', ' ')}
+                  {template.trigger?.replace("_", " ")}
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Action:</span>
                 <Badge variant="outline" className="capitalize">
-                  {template.action?.replace('_', ' ')}
+                  {template.action?.replace("_", " ")}
                 </Badge>
               </div>
               {template.triggerConfig?.schedule && (
@@ -539,14 +588,18 @@ function TemplatesGrid({ onSelectTemplate }: TemplatesGridProps) {
                 </div>
               )}
             </div>
-            <Button onClick={onSelectTemplate} className="mt-4 w-full" size="sm">
+            <Button
+              onClick={onSelectTemplate}
+              className="mt-4 w-full"
+              size="sm"
+            >
               Use Template
             </Button>
           </CardContent>
         </Card>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -554,9 +607,9 @@ function TemplatesGrid({ onSelectTemplate }: TemplatesGridProps) {
 // ============================================================================
 
 interface RuleDetailsDialogProps {
-  rule: AutomationRule
-  open: boolean
-  onClose: () => void
+  rule: AutomationRule;
+  open: boolean;
+  onClose: () => void;
 }
 
 function RuleDetailsDialog({ rule, open, onClose }: RuleDetailsDialogProps) {
@@ -571,18 +624,25 @@ function RuleDetailsDialog({ rule, open, onClose }: RuleDetailsDialogProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h4 className="mb-2 text-sm font-medium">Status</h4>
-              <Badge variant={getAutomationStatusBadgeVariant(rule.status)}>{rule.status}</Badge>
+              <Badge variant={getAutomationStatusBadgeVariant(rule.status)}>
+                {rule.status}
+              </Badge>
             </div>
             <div>
               <h4 className="mb-2 text-sm font-medium">Run Count</h4>
-              <p className="text-sm">{formatAutomationRunCount(rule.runCount)}</p>
+              <p className="text-sm">
+                {formatAutomationRunCount(rule.runCount)}
+              </p>
             </div>
             <div>
               <h4 className="mb-2 text-sm font-medium">Success Rate</h4>
               <p className="text-sm">
                 {rule.runCount > 0
-                  ? formatAutomationSuccessRate(rule.successCount, rule.runCount)
-                  : 'N/A'}
+                  ? formatAutomationSuccessRate(
+                      rule.successCount,
+                      rule.runCount,
+                    )
+                  : "N/A"}
               </p>
             </div>
             <div>
@@ -590,7 +650,7 @@ function RuleDetailsDialog({ rule, open, onClose }: RuleDetailsDialogProps) {
               <p className="text-sm">
                 {rule.lastRunAt
                   ? formatDistanceToNow(rule.lastRunAt, { addSuffix: true })
-                  : 'Never'}
+                  : "Never"}
               </p>
             </div>
           </div>
@@ -598,7 +658,7 @@ function RuleDetailsDialog({ rule, open, onClose }: RuleDetailsDialogProps) {
           <div>
             <h4 className="mb-2 text-sm font-medium">Trigger</h4>
             <Badge variant="outline" className="capitalize">
-              {rule.trigger.replace('_', ' ')}
+              {rule.trigger.replace("_", " ")}
             </Badge>
             {rule.triggerConfig.schedule && (
               <p className="mt-2 text-sm text-muted-foreground">
@@ -610,14 +670,18 @@ function RuleDetailsDialog({ rule, open, onClose }: RuleDetailsDialogProps) {
           <div>
             <h4 className="mb-2 text-sm font-medium">Action</h4>
             <Badge variant="outline" className="capitalize">
-              {rule.action.replace('_', ' ')}
+              {rule.action.replace("_", " ")}
             </Badge>
           </div>
 
           <div>
             <h4 className="mb-2 text-sm font-medium">Configuration</h4>
             <pre className="overflow-auto rounded-lg bg-muted p-3 text-xs">
-              {JSON.stringify({ trigger: rule.triggerConfig, action: rule.actionConfig }, null, 2)}
+              {JSON.stringify(
+                { trigger: rule.triggerConfig, action: rule.actionConfig },
+                null,
+                2,
+              )}
             </pre>
           </div>
         </div>
@@ -628,5 +692,5 @@ function RuleDetailsDialog({ rule, open, onClose }: RuleDetailsDialogProps) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

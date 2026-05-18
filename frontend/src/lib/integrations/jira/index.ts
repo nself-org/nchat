@@ -20,7 +20,7 @@ export {
   containsJiraIssueKey,
   extractAllJiraIssueKeys,
   type JiraClientConfig,
-} from './jira-client'
+} from "./jira-client";
 
 // Export OAuth
 export {
@@ -46,7 +46,7 @@ export {
   type JiraOAuthResult,
   type JiraAccessibleResource,
   type JiraOAuthError,
-} from './oauth'
+} from "./oauth";
 
 // Export formatter
 export {
@@ -57,7 +57,7 @@ export {
   type JiraNotificationIcon,
   type JiraNotificationColor,
   type JiraNotificationMetadata,
-} from './formatter'
+} from "./formatter";
 
 // Export types
 export type {
@@ -88,4 +88,4 @@ export type {
   JiraProjectNotificationSettings,
   JiraUnfurlResult,
   JiraIntegrationConfig,
-} from './types'
+} from "./types";

@@ -5,39 +5,45 @@
  * GET /api/trust-safety/evidence/export - List export requests
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 import {
   getEvidenceExportService,
   getEvidenceCollector,
-} from '@/services/trust-safety'
+} from "@/services/trust-safety";
 
-const collector = getEvidenceCollector()
-const exportService = getEvidenceExportService(undefined, collector)
+const collector = getEvidenceCollector();
+const exportService = getEvidenceExportService(undefined, collector);
 
 /**
  * POST - Create and process export request
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate required fields
-    if (!body.evidenceIds || !Array.isArray(body.evidenceIds) || body.evidenceIds.length === 0) {
+    if (
+      !body.evidenceIds ||
+      !Array.isArray(body.evidenceIds) ||
+      body.evidenceIds.length === 0
+    ) {
       return NextResponse.json(
-        { success: false, error: 'Missing or empty evidenceIds array' },
-        { status: 400 }
-      )
+        { success: false, error: "Missing or empty evidenceIds array" },
+        { status: 400 },
+      );
     }
 
     if (!body.format) {
       return NextResponse.json(
-        { success: false, error: 'Missing required field: format' },
-        { status: 400 }
-      )
+        { success: false, error: "Missing required field: format" },
+        { status: 400 },
+      );
     }
 
-    const requestedBy = body.requestedBy || request.headers.get('x-user-id') || 'system'
-    const requestedByRole = body.requestedByRole || request.headers.get('x-user-role') || 'system'
+    const requestedBy =
+      body.requestedBy || request.headers.get("x-user-id") || "system";
+    const requestedByRole =
+      body.requestedByRole || request.headers.get("x-user-role") || "system";
 
     // Create export request
     const createResult = await exportService.createExportRequest({
@@ -49,27 +55,27 @@ export async function POST(request: NextRequest) {
       includeVerification: body.includeVerification,
       redactSensitive: body.redactSensitive,
       reason: body.reason,
-    })
+    });
 
     if (!createResult.success) {
       return NextResponse.json(
         { success: false, error: createResult.error },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     // Process the export
     const processResult = await exportService.processExport(
       createResult.request.id,
       requestedBy,
-      requestedByRole
-    )
+      requestedByRole,
+    );
 
     if (!processResult.success) {
       return NextResponse.json(
         { success: false, error: processResult.error },
-        { status: 500 }
-      )
+        { status: 500 },
+      );
     }
 
     // Return export package
@@ -77,7 +83,7 @@ export async function POST(request: NextRequest) {
       success: true,
       export: {
         id: createResult.request.id,
-        status: 'completed',
+        status: "completed",
         format: createResult.request.format,
         evidenceCount: processResult.package.metadata.evidenceCount,
         totalSizeBytes: processResult.package.metadata.totalSizeBytes,
@@ -87,13 +93,13 @@ export async function POST(request: NextRequest) {
         expiresAt: createResult.request.resultExpiresAt,
       },
       package: body.includePackage ? processResult.package : undefined,
-    })
+    });
   } catch (error) {
-    console.error('Export creation error:', error)
+    console.error("Export creation error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create export' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to create export" },
+      { status: 500 },
+    );
   }
 }
 
@@ -102,36 +108,36 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url);
 
-    const filters: Parameters<typeof exportService.getExportRequests>[0] = {}
+    const filters: Parameters<typeof exportService.getExportRequests>[0] = {};
 
-    const status = searchParams.get('status')
+    const status = searchParams.get("status");
     if (status) {
-      filters.status = status.split(',') as any
+      filters.status = status.split(",") as any;
     }
 
-    const requestedBy = searchParams.get('requestedBy')
+    const requestedBy = searchParams.get("requestedBy");
     if (requestedBy) {
-      filters.requestedBy = requestedBy
+      filters.requestedBy = requestedBy;
     }
 
-    const startDate = searchParams.get('startDate')
+    const startDate = searchParams.get("startDate");
     if (startDate) {
-      filters.startDate = new Date(startDate)
+      filters.startDate = new Date(startDate);
     }
 
-    const endDate = searchParams.get('endDate')
+    const endDate = searchParams.get("endDate");
     if (endDate) {
-      filters.endDate = new Date(endDate)
+      filters.endDate = new Date(endDate);
     }
 
-    const limit = searchParams.get('limit')
+    const limit = searchParams.get("limit");
     if (limit) {
-      filters.limit = parseInt(limit, 10)
+      filters.limit = parseInt(limit, 10);
     }
 
-    const requests = exportService.getExportRequests(filters)
+    const requests = exportService.getExportRequests(filters);
 
     return NextResponse.json({
       success: true,
@@ -148,12 +154,12 @@ export async function GET(request: NextRequest) {
         resultExpiresAt: r.resultExpiresAt,
         error: r.error,
       })),
-    })
+    });
   } catch (error) {
-    console.error('Export list error:', error)
+    console.error("Export list error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to list exports' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to list exports" },
+      { status: 500 },
+    );
   }
 }

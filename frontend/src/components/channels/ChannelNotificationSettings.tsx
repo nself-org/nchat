@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
+import * as React from "react";
+import { useState } from "react";
 import {
   Bell,
   BellOff,
@@ -12,42 +12,48 @@ import {
   Monitor,
   Clock,
   Loader2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { Channel } from '@/stores/channel-store'
+} from "@/components/ui/select";
+import type { Channel } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelNotificationSettingsProps {
-  channel: Channel
-  currentSettings?: NotificationPreferences
-  onSave?: (settings: NotificationPreferences) => Promise<void>
-  className?: string
+  channel: Channel;
+  currentSettings?: NotificationPreferences;
+  onSave?: (settings: NotificationPreferences) => Promise<void>;
+  className?: string;
 }
 
 export interface NotificationPreferences {
-  enabled: boolean
-  muteUntil: string | null
-  notifyOn: 'all' | 'mentions' | 'nothing'
-  sound: boolean
-  desktop: boolean
-  mobile: boolean
-  email: boolean
-  emailDigest: 'instant' | 'hourly' | 'daily' | 'never'
+  enabled: boolean;
+  muteUntil: string | null;
+  notifyOn: "all" | "mentions" | "nothing";
+  sound: boolean;
+  desktop: boolean;
+  mobile: boolean;
+  email: boolean;
+  emailDigest: "instant" | "hourly" | "daily" | "never";
 }
 
 // ============================================================================
@@ -60,71 +66,72 @@ export function ChannelNotificationSettings({
   onSave,
   className,
 }: ChannelNotificationSettingsProps) {
-  const [isSaving, setIsSaving] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
   const [settings, setSettings] = useState<NotificationPreferences>(
     currentSettings || {
       enabled: true,
       muteUntil: null,
-      notifyOn: 'all',
+      notifyOn: "all",
       sound: true,
       desktop: true,
       mobile: true,
       email: false,
-      emailDigest: 'daily',
-    }
-  )
+      emailDigest: "daily",
+    },
+  );
 
   const handleSettingChange = <K extends keyof NotificationPreferences>(
     key: K,
-    value: NotificationPreferences[K]
+    value: NotificationPreferences[K],
   ) => {
-    setSettings((prev) => ({ ...prev, [key]: value }))
-  }
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSave = async () => {
     try {
-      setIsSaving(true)
-      await onSave?.(settings)
+      setIsSaving(true);
+      await onSave?.(settings);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleMuteFor = (duration: string) => {
-    const muteUntil = new Date()
+    const muteUntil = new Date();
     switch (duration) {
-      case '15min':
-        muteUntil.setMinutes(muteUntil.getMinutes() + 15)
-        break
-      case '1hour':
-        muteUntil.setHours(muteUntil.getHours() + 1)
-        break
-      case '8hours':
-        muteUntil.setHours(muteUntil.getHours() + 8)
-        break
-      case '24hours':
-        muteUntil.setHours(muteUntil.getHours() + 24)
-        break
-      case 'forever':
-        muteUntil.setFullYear(muteUntil.getFullYear() + 10)
-        break
+      case "15min":
+        muteUntil.setMinutes(muteUntil.getMinutes() + 15);
+        break;
+      case "1hour":
+        muteUntil.setHours(muteUntil.getHours() + 1);
+        break;
+      case "8hours":
+        muteUntil.setHours(muteUntil.getHours() + 8);
+        break;
+      case "24hours":
+        muteUntil.setHours(muteUntil.getHours() + 24);
+        break;
+      case "forever":
+        muteUntil.setFullYear(muteUntil.getFullYear() + 10);
+        break;
       default:
-        return
+        return;
     }
-    handleSettingChange('muteUntil', muteUntil.toISOString())
-    handleSettingChange('enabled', false)
-  }
+    handleSettingChange("muteUntil", muteUntil.toISOString());
+    handleSettingChange("enabled", false);
+  };
 
   const handleUnmute = () => {
-    handleSettingChange('muteUntil', null)
-    handleSettingChange('enabled', true)
-  }
+    handleSettingChange("muteUntil", null);
+    handleSettingChange("enabled", true);
+  };
 
-  const isMuted = !settings.enabled || !!settings.muteUntil
-  const hasChanges = JSON.stringify(settings) !== JSON.stringify(currentSettings)
+  const isMuted = !settings.enabled || !!settings.muteUntil;
+  const hasChanges =
+    JSON.stringify(settings) !== JSON.stringify(currentSettings);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Main Toggle */}
       <Card>
         <CardHeader>
@@ -140,17 +147,17 @@ export function ChannelNotificationSettings({
               </CardTitle>
               <CardDescription>
                 {isMuted
-                  ? 'Notifications are muted for this channel'
-                  : 'Get notified about activity in this channel'}
+                  ? "Notifications are muted for this channel"
+                  : "Get notified about activity in this channel"}
               </CardDescription>
             </div>
             <Switch
               checked={settings.enabled && !settings.muteUntil}
               onCheckedChange={(enabled) => {
                 if (enabled) {
-                  handleUnmute()
+                  handleUnmute();
                 } else {
-                  handleSettingChange('enabled', false)
+                  handleSettingChange("enabled", false);
                 }
               }}
             />
@@ -162,7 +169,9 @@ export function ChannelNotificationSettings({
             <div className="flex items-center justify-between rounded-lg bg-muted p-3">
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4 text-muted-foreground" />
-                <span>Muted until {new Date(settings.muteUntil).toLocaleString()}</span>
+                <span>
+                  Muted until {new Date(settings.muteUntil).toLocaleString()}
+                </span>
               </div>
               <Button variant="ghost" size="sm" onClick={handleUnmute}>
                 Unmute
@@ -181,22 +190,38 @@ export function ChannelNotificationSettings({
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleMuteFor('15min')}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleMuteFor("15min")}
+              >
                 15 minutes
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleMuteFor('1hour')}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleMuteFor("1hour")}
+              >
                 1 hour
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleMuteFor('8hours')}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleMuteFor("8hours")}
+              >
                 8 hours
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleMuteFor('24hours')}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleMuteFor("24hours")}
+              >
                 24 hours
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleMuteFor('forever')}
+                onClick={() => handleMuteFor("forever")}
                 className="col-span-2"
               >
                 Until I turn it back on
@@ -211,13 +236,18 @@ export function ChannelNotificationSettings({
         <Card>
           <CardHeader>
             <CardTitle>Notify me about...</CardTitle>
-            <CardDescription>Choose what triggers a notification</CardDescription>
+            <CardDescription>
+              Choose what triggers a notification
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <RadioGroup
               value={settings.notifyOn}
               onValueChange={(value) =>
-                handleSettingChange('notifyOn', value as NotificationPreferences['notifyOn'])
+                handleSettingChange(
+                  "notifyOn",
+                  value as NotificationPreferences["notifyOn"],
+                )
               }
             >
               <div className="flex items-center space-x-2 rounded-lg p-3 hover:bg-accent">
@@ -231,7 +261,10 @@ export function ChannelNotificationSettings({
               </div>
               <div className="flex items-center space-x-2 rounded-lg p-3 hover:bg-accent">
                 <RadioGroupItem value="mentions" id="notify-mentions" />
-                <Label htmlFor="notify-mentions" className="flex-1 cursor-pointer">
+                <Label
+                  htmlFor="notify-mentions"
+                  className="flex-1 cursor-pointer"
+                >
                   <div className="font-medium">Only @mentions</div>
                   <p className="text-xs text-muted-foreground">
                     When someone mentions you or @channel
@@ -240,7 +273,10 @@ export function ChannelNotificationSettings({
               </div>
               <div className="flex items-center space-x-2 rounded-lg p-3 hover:bg-accent">
                 <RadioGroupItem value="nothing" id="notify-nothing" />
-                <Label htmlFor="notify-nothing" className="flex-1 cursor-pointer">
+                <Label
+                  htmlFor="notify-nothing"
+                  className="flex-1 cursor-pointer"
+                >
                   <div className="font-medium">Nothing</div>
                   <p className="text-xs text-muted-foreground">
                     No notifications from this channel
@@ -253,7 +289,7 @@ export function ChannelNotificationSettings({
       )}
 
       {/* Notification Methods */}
-      {!isMuted && settings.notifyOn !== 'nothing' && (
+      {!isMuted && settings.notifyOn !== "nothing" && (
         <Card>
           <CardHeader>
             <CardTitle>Notification Methods</CardTitle>
@@ -277,7 +313,9 @@ export function ChannelNotificationSettings({
               </div>
               <Switch
                 checked={settings.sound}
-                onCheckedChange={(checked) => handleSettingChange('sound', checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("sound", checked)
+                }
               />
             </div>
 
@@ -294,7 +332,9 @@ export function ChannelNotificationSettings({
               </div>
               <Switch
                 checked={settings.desktop}
-                onCheckedChange={(checked) => handleSettingChange('desktop', checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("desktop", checked)
+                }
               />
             </div>
 
@@ -311,7 +351,9 @@ export function ChannelNotificationSettings({
               </div>
               <Switch
                 checked={settings.mobile}
-                onCheckedChange={(checked) => handleSettingChange('mobile', checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("mobile", checked)
+                }
               />
             </div>
 
@@ -328,7 +370,9 @@ export function ChannelNotificationSettings({
               </div>
               <Switch
                 checked={settings.email}
-                onCheckedChange={(checked) => handleSettingChange('email', checked)}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("email", checked)
+                }
               />
             </div>
 
@@ -340,8 +384,8 @@ export function ChannelNotificationSettings({
                   value={settings.emailDigest}
                   onValueChange={(value) =>
                     handleSettingChange(
-                      'emailDigest',
-                      value as NotificationPreferences['emailDigest']
+                      "emailDigest",
+                      value as NotificationPreferences["emailDigest"],
                     )
                   }
                 >
@@ -371,7 +415,7 @@ export function ChannelNotificationSettings({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-ChannelNotificationSettings.displayName = 'ChannelNotificationSettings'
+ChannelNotificationSettings.displayName = "ChannelNotificationSettings";

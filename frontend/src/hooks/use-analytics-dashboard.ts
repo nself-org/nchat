@@ -5,76 +5,80 @@
  * Uses the analytics store for state management.
  */
 
-import { useEffect, useCallback } from 'react'
-import { useAnalyticsStore, type AnalyticsViewType } from '@/stores/analytics-store'
+import { useEffect, useCallback } from "react";
+import {
+  useAnalyticsStore,
+  type AnalyticsViewType,
+} from "@/stores/analytics-store";
 import type {
   DateRange,
   TimeGranularity,
   AnalyticsSectionType,
   ExportFormat,
-} from '@/lib/analytics/analytics-types'
+} from "@/lib/analytics/analytics-types";
 
 // ============================================================================
 // Main Hook
 // ============================================================================
 
 export function useAnalyticsDashboard() {
-  const store = useAnalyticsStore()
+  const store = useAnalyticsStore();
 
   // Auto-fetch dashboard data on mount
   useEffect(() => {
     if (!store.dashboardData && !store.isLoading) {
-      store.fetchDashboardData()
+      store.fetchDashboardData();
     }
-  }, [store])
+  }, [store]);
 
   // ============================================================================
   // Computed Values
   // ============================================================================
 
-  const hasData = store.dashboardData !== null
-  const hasError = store.error !== null
-  const isReady = hasData && !store.isLoading
+  const hasData = store.dashboardData !== null;
+  const hasError = store.error !== null;
+  const isReady = hasData && !store.isLoading;
 
   // ============================================================================
   // Methods
   // ============================================================================
 
   const refresh = useCallback(async () => {
-    await store.refreshData()
-  }, [store])
+    await store.refreshData();
+  }, [store]);
 
   const setView = useCallback(
     (view: AnalyticsViewType) => {
-      store.setCurrentView(view)
+      store.setCurrentView(view);
 
       // Auto-fetch section data if not loaded
-      const sectionMap: Record<AnalyticsViewType, AnalyticsSectionType | null> = {
-        overview: null,
-        messages: 'messages',
-        users: 'users',
-        channels: 'channels',
-        reactions: 'reactions',
-        files: 'files',
-        search: 'search',
-        bots: 'bots',
-        reports: null,
-      }
+      const sectionMap: Record<AnalyticsViewType, AnalyticsSectionType | null> =
+        {
+          overview: null,
+          messages: "messages",
+          users: "users",
+          channels: "channels",
+          reactions: "reactions",
+          files: "files",
+          search: "search",
+          bots: "bots",
+          reports: null,
+        };
 
-      const section = sectionMap[view]
+      const section = sectionMap[view];
       if (section) {
-        store.fetchSectionData(section)
+        store.fetchSectionData(section);
       }
     },
-    [store]
-  )
+    [store],
+  );
 
   const exportData = useCallback(
     async (format: ExportFormat, sections: AnalyticsSectionType[]) => {
-      await store.exportData(format, sections)
+      await store.exportData(format, sections);
     },
-    [store]
-  )
+    [store],
+  );
 
   return {
     // State
@@ -135,7 +139,7 @@ export function useAnalyticsDashboard() {
     fetchComparisonData: store.fetchComparisonData,
     exportData,
     clearError: store.clearError,
-  }
+  };
 }
 
 // ============================================================================
@@ -146,26 +150,27 @@ export function useAnalyticsDashboard() {
  * Hook for specific analytics sections
  */
 export function useAnalyticsSection(section: AnalyticsSectionType) {
-  const store = useAnalyticsStore()
+  const store = useAnalyticsStore();
 
   useEffect(() => {
-    if (store.currentView !== 'overview') {
-      store.fetchSectionData(section)
+    if (store.currentView !== "overview") {
+      store.fetchSectionData(section);
     }
-  }, [section, store])
+  }, [section, store]);
 
   return {
     isLoading: store.isLoading,
     error: store.error,
     refresh: () => store.fetchSectionData(section),
-  }
+  };
 }
 
 /**
  * Hook for message analytics
  */
 export function useMessageAnalytics() {
-  const { messageVolume, topMessages, summary, isLoading, error } = useAnalyticsDashboard()
+  const { messageVolume, topMessages, summary, isLoading, error } =
+    useAnalyticsDashboard();
 
   return {
     volume: messageVolume,
@@ -173,15 +178,22 @@ export function useMessageAnalytics() {
     stats: summary?.messages,
     isLoading,
     error,
-  }
+  };
 }
 
 /**
  * Hook for user analytics
  */
 export function useUserAnalytics() {
-  const { userActivity, inactiveUsers, userGrowth, activeUsers, summary, isLoading, error } =
-    useAnalyticsDashboard()
+  const {
+    userActivity,
+    inactiveUsers,
+    userGrowth,
+    activeUsers,
+    summary,
+    isLoading,
+    error,
+  } = useAnalyticsDashboard();
 
   return {
     activity: userActivity,
@@ -191,76 +203,77 @@ export function useUserAnalytics() {
     stats: summary?.users,
     isLoading,
     error,
-  }
+  };
 }
 
 /**
  * Hook for channel analytics
  */
 export function useChannelAnalytics() {
-  const { channelActivity, summary, isLoading, error } = useAnalyticsDashboard()
+  const { channelActivity, summary, isLoading, error } =
+    useAnalyticsDashboard();
 
   return {
     activity: channelActivity,
     stats: summary?.channels,
     isLoading,
     error,
-  }
+  };
 }
 
 /**
  * Hook for reaction analytics
  */
 export function useReactionAnalytics() {
-  const { reactions, summary, isLoading, error } = useAnalyticsDashboard()
+  const { reactions, summary, isLoading, error } = useAnalyticsDashboard();
 
   return {
     reactions,
     stats: summary?.reactions,
     isLoading,
     error,
-  }
+  };
 }
 
 /**
  * Hook for file analytics
  */
 export function useFileAnalytics() {
-  const { fileUploads, summary, isLoading, error } = useAnalyticsDashboard()
+  const { fileUploads, summary, isLoading, error } = useAnalyticsDashboard();
 
   return {
     uploads: fileUploads,
     stats: summary?.files,
     isLoading,
     error,
-  }
+  };
 }
 
 /**
  * Hook for search analytics
  */
 export function useSearchAnalytics() {
-  const { searchQueries, summary, isLoading, error } = useAnalyticsDashboard()
+  const { searchQueries, summary, isLoading, error } = useAnalyticsDashboard();
 
   return {
     queries: searchQueries,
     stats: summary?.search,
     isLoading,
     error,
-  }
+  };
 }
 
 /**
  * Hook for peak hours analytics
  */
 export function usePeakHoursAnalytics() {
-  const { peakHours, isLoading, error } = useAnalyticsDashboard()
+  const { peakHours, isLoading, error } = useAnalyticsDashboard();
 
   return {
     hours: peakHours,
     isLoading,
     error,
-  }
+  };
 }
 
 /**
@@ -274,21 +287,21 @@ export function useDateRangeFilter() {
     setDateRangePreset,
     granularity,
     setGranularity,
-  } = useAnalyticsDashboard()
+  } = useAnalyticsDashboard();
 
   const setRange = useCallback(
     (start: Date, end: Date) => {
-      setDateRange({ start, end, preset: 'custom' })
+      setDateRange({ start, end, preset: "custom" });
     },
-    [setDateRange]
-  )
+    [setDateRange],
+  );
 
   const setPreset = useCallback(
     (preset: typeof dateRangePreset) => {
-      setDateRangePreset(preset)
+      setDateRangePreset(preset);
     },
-    [setDateRangePreset]
-  )
+    [setDateRangePreset],
+  );
 
   return {
     dateRange,
@@ -297,7 +310,7 @@ export function useDateRangeFilter() {
     setRange,
     setPreset,
     setGranularity,
-  }
+  };
 }
 
 /**
@@ -311,28 +324,28 @@ export function useAnalyticsComparison() {
     toggleComparison,
     fetchComparisonData,
     isLoading,
-  } = useAnalyticsDashboard()
+  } = useAnalyticsDashboard();
 
   useEffect(() => {
     if (comparisonEnabled && !comparisonData && !isLoading) {
-      fetchComparisonData()
+      fetchComparisonData();
     }
-  }, [comparisonEnabled, comparisonData, isLoading, fetchComparisonData])
+  }, [comparisonEnabled, comparisonData, isLoading, fetchComparisonData]);
 
   const calculateChange = useCallback(
     (
       current: number | undefined,
-      previous: number | undefined
+      previous: number | undefined,
     ): { value: number; percentage: number } | null => {
-      if (current === undefined || previous === undefined) return null
+      if (current === undefined || previous === undefined) return null;
 
-      const change = current - previous
-      const percentage = previous > 0 ? (change / previous) * 100 : 0
+      const change = current - previous;
+      const percentage = previous > 0 ? (change / previous) * 100 : 0;
 
-      return { value: change, percentage }
+      return { value: change, percentage };
     },
-    []
-  )
+    [],
+  );
 
   return {
     enabled: comparisonEnabled,
@@ -341,22 +354,22 @@ export function useAnalyticsComparison() {
     toggleComparison,
     calculateChange,
     isLoading,
-  }
+  };
 }
 
 /**
  * Hook for real-time updates
  */
 export function useRealtimeAnalytics(intervalMs: number = 30000) {
-  const { refresh, isLoading } = useAnalyticsDashboard()
+  const { refresh, isLoading } = useAnalyticsDashboard();
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isLoading) {
-        refresh()
+        refresh();
       }
-    }, intervalMs)
+    }, intervalMs);
 
-    return () => clearInterval(interval)
-  }, [refresh, isLoading, intervalMs])
+    return () => clearInterval(interval);
+  }, [refresh, isLoading, intervalMs]);
 }

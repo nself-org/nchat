@@ -1,40 +1,44 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { type UserProfile } from '@/stores/user-store'
-import { UserAvatar } from './user-avatar'
-import { UserStatus } from './user-status'
-import { RoleBadge } from './role-badge'
-import { UserPresenceDot } from './user-presence-dot'
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Card, CardContent } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { MessageSquare, Phone, MoreHorizontal, User } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { type UserProfile } from "@/stores/user-store";
+import { UserAvatar } from "./user-avatar";
+import { UserStatus } from "./user-status";
+import { RoleBadge } from "./role-badge";
+import { UserPresenceDot } from "./user-presence-dot";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { MessageSquare, Phone, MoreHorizontal, User } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UserProfileCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: UserProfile
-  onMessage?: () => void
-  onCall?: () => void
-  onViewProfile?: () => void
-  showQuickActions?: boolean
-  compact?: boolean
+  user: UserProfile;
+  onMessage?: () => void;
+  onCall?: () => void;
+  onViewProfile?: () => void;
+  showQuickActions?: boolean;
+  compact?: boolean;
 }
 
 export interface UserProfileCardTriggerProps {
-  user: UserProfile
-  children: React.ReactNode
-  onMessage?: () => void
-  onCall?: () => void
-  onViewProfile?: () => void
-  showQuickActions?: boolean
-  side?: 'top' | 'right' | 'bottom' | 'left'
-  align?: 'start' | 'center' | 'end'
+  user: UserProfile;
+  children: React.ReactNode;
+  onMessage?: () => void;
+  onCall?: () => void;
+  onViewProfile?: () => void;
+  showQuickActions?: boolean;
+  side?: "top" | "right" | "bottom" | "left";
+  align?: "start" | "center" | "end";
 }
 
 // ============================================================================
@@ -53,32 +57,46 @@ const UserProfileCard = React.forwardRef<HTMLDivElement, UserProfileCardProps>(
       compact = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     if (compact) {
       return (
-        <div ref={ref} className={cn('flex items-center gap-3 p-2', className)} {...props}>
+        <div
+          ref={ref}
+          className={cn("flex items-center gap-3 p-2", className)}
+          {...props}
+        >
           <UserAvatar user={user} size="sm" presence={user.presence} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="truncate text-sm font-medium">{user.displayName}</span>
+              <span className="truncate text-sm font-medium">
+                {user.displayName}
+              </span>
               <RoleBadge role={user.role} size="xs" />
             </div>
-            <span className="block truncate text-xs text-muted-foreground">@{user.username}</span>
+            <span className="block truncate text-xs text-muted-foreground">
+              @{user.username}
+            </span>
           </div>
         </div>
-      )
+      );
     }
 
     return (
-      <Card ref={ref} className={cn('w-80 overflow-hidden', className)} {...props}>
+      <Card
+        ref={ref}
+        className={cn("w-80 overflow-hidden", className)}
+        {...props}
+      >
         {/* Header with cover gradient */}
         <div
           className="from-primary/20 to-primary/10 h-16 bg-gradient-to-r"
           style={{
-            backgroundImage: user.coverUrl ? `url(${user.coverUrl})` : undefined,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundImage: user.coverUrl
+              ? `url(${user.coverUrl})`
+              : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         />
 
@@ -93,21 +111,33 @@ const UserProfileCard = React.forwardRef<HTMLDivElement, UserProfileCardProps>(
             />
             <div className="min-w-0 flex-1 pb-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="truncate text-lg font-semibold">{user.displayName}</h3>
+                <h3 className="truncate text-lg font-semibold">
+                  {user.displayName}
+                </h3>
                 <RoleBadge role={user.role} size="sm" />
               </div>
-              <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
+              <p className="truncate text-sm text-muted-foreground">
+                @{user.username}
+              </p>
             </div>
           </div>
 
           {/* Custom status */}
           {user.customStatus && (
-            <UserStatus status={user.customStatus} variant="full" className="mb-3" />
+            <UserStatus
+              status={user.customStatus}
+              variant="full"
+              className="mb-3"
+            />
           )}
 
           {/* Presence status */}
           <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-            <UserPresenceDot status={user.presence} size="sm" position="inline" />
+            <UserPresenceDot
+              status={user.presence}
+              size="sm"
+              position="inline"
+            />
             <span className="capitalize">{user.presence}</span>
           </div>
 
@@ -115,7 +145,9 @@ const UserProfileCard = React.forwardRef<HTMLDivElement, UserProfileCardProps>(
           {user.bio && (
             <>
               <Separator className="my-3" />
-              <p className="line-clamp-2 text-sm text-muted-foreground">{user.bio}</p>
+              <p className="line-clamp-2 text-sm text-muted-foreground">
+                {user.bio}
+              </p>
             </>
           )}
 
@@ -125,7 +157,12 @@ const UserProfileCard = React.forwardRef<HTMLDivElement, UserProfileCardProps>(
               <Separator className="my-3" />
               <div className="flex items-center gap-2">
                 {onMessage && (
-                  <Button variant="default" size="sm" className="flex-1" onClick={onMessage}>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="flex-1"
+                    onClick={onMessage}
+                  >
                     <MessageSquare className="mr-2 h-4 w-4" />
                     Message
                   </Button>
@@ -148,10 +185,10 @@ const UserProfileCard = React.forwardRef<HTMLDivElement, UserProfileCardProps>(
           )}
         </CardContent>
       </Card>
-    )
-  }
-)
-UserProfileCard.displayName = 'UserProfileCard'
+    );
+  },
+);
+UserProfileCard.displayName = "UserProfileCard";
 
 // ============================================================================
 // UserProfileCardTrigger - Hover card wrapper
@@ -164,46 +201,46 @@ const UserProfileCardTrigger: React.FC<UserProfileCardTriggerProps> = ({
   onCall,
   onViewProfile,
   showQuickActions = true,
-  side = 'right',
-  align = 'start',
+  side = "right",
+  align = "start",
 }) => {
-  const [open, setOpen] = React.useState(false)
-  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+  const [open, setOpen] = React.useState(false);
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = () => {
     timeoutRef.current = setTimeout(() => {
-      setOpen(true)
-    }, 300) // 300ms delay before showing
-  }
+      setOpen(true);
+    }, 300); // 300ms delay before showing
+  };
 
   const handleMouseLeave = () => {
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
+      clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
-      setOpen(false)
-    }, 150) // 150ms delay before hiding
-  }
+      setOpen(false);
+    }, 150); // 150ms delay before hiding
+  };
 
   const handleContentMouseEnter = () => {
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
+      clearTimeout(timeoutRef.current);
     }
-  }
+  };
 
   const handleContentMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
-      setOpen(false)
-    }, 150)
-  }
+      setOpen(false);
+    }, 150);
+  };
 
   React.useEffect(() => {
     return () => {
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -232,8 +269,8 @@ const UserProfileCardTrigger: React.FC<UserProfileCardTriggerProps> = ({
         />
       </PopoverContent>
     </Popover>
-  )
-}
-UserProfileCardTrigger.displayName = 'UserProfileCardTrigger'
+  );
+};
+UserProfileCardTrigger.displayName = "UserProfileCardTrigger";
 
-export { UserProfileCard, UserProfileCardTrigger }
+export { UserProfileCard, UserProfileCardTrigger };

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Channel Browse Page
@@ -6,23 +6,23 @@
  * Demonstrates the complete channel discovery and browse functionality
  */
 
-import * as React from 'react'
-import { useCallback } from 'react'
-import { ChannelBrowser } from '@/components/channels/ChannelBrowser'
-import { ChannelDirectory } from '@/components/channels/ChannelDirectory'
-import { useChannelDiscovery } from '@/hooks/use-channel-discovery'
-import { useChannelMutations } from '@/hooks/use-channels'
-import { useAuth } from '@/contexts/auth-context'
-import { logger } from '@/lib/logger'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import * as React from "react";
+import { useCallback } from "react";
+import { ChannelBrowser } from "@/components/channels/ChannelBrowser";
+import { ChannelDirectory } from "@/components/channels/ChannelDirectory";
+import { useChannelDiscovery } from "@/hooks/use-channel-discovery";
+import { useChannelMutations } from "@/hooks/use-channels";
+import { useAuth } from "@/contexts/auth-context";
+import { logger } from "@/lib/logger";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // ============================================================================
 // Page Component
 // ============================================================================
 
 export default function ChannelBrowsePage() {
-  const { user } = useAuth()
-  const { joinChannel, leaveChannel } = useChannelMutations()
+  const { user } = useAuth();
+  const { joinChannel, leaveChannel } = useChannelMutations();
 
   // Use channel discovery hook
   const {
@@ -53,39 +53,39 @@ export default function ChannelBrowsePage() {
     enableRealtime: false,
     limit: 50,
     includeJoined: true,
-  })
+  });
 
   // Get user's joined channels
   const joinedChannelIds = React.useMemo(() => {
     // In a real app, this would come from the user's channel memberships
-    return new Set<string>()
-  }, [])
+    return new Set<string>();
+  }, []);
 
   // Handle join channel
   const handleJoin = useCallback(
     async (channelId: string) => {
       try {
-        logger.info('Joining channel', { channelId, userId: user?.id })
-        await joinChannel(channelId)
+        logger.info("Joining channel", { channelId, userId: user?.id });
+        await joinChannel(channelId);
       } catch (error) {
-        logger.error('Failed to join channel', error as Error, { channelId })
+        logger.error("Failed to join channel", error as Error, { channelId });
       }
     },
-    [joinChannel, user]
-  )
+    [joinChannel, user],
+  );
 
   // Handle leave channel
   const handleLeave = useCallback(
     async (channelId: string) => {
       try {
-        logger.info('Leaving channel', { channelId, userId: user?.id })
-        await leaveChannel(channelId)
+        logger.info("Leaving channel", { channelId, userId: user?.id });
+        await leaveChannel(channelId);
       } catch (error) {
-        logger.error('Failed to leave channel', error as Error, { channelId })
+        logger.error("Failed to leave channel", error as Error, { channelId });
       }
     },
-    [leaveChannel, user]
-  )
+    [leaveChannel, user],
+  );
 
   return (
     <div className="container max-w-7xl space-y-8 py-8">
@@ -188,11 +188,14 @@ export default function ChannelBrowsePage() {
         <div className="bg-destructive/10 rounded-lg border border-destructive p-4 text-destructive">
           <p className="font-medium">Failed to load channels</p>
           <p className="mt-1 text-sm">{error.message}</p>
-          <button onClick={() => refresh()} className="mt-2 text-sm underline hover:no-underline">
+          <button
+            onClick={() => refresh()}
+            className="mt-2 text-sm underline hover:no-underline"
+          >
             Try again
           </button>
         </div>
       )}
     </div>
-  )
+  );
 }

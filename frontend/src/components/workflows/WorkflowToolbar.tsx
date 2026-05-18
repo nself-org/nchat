@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * WorkflowToolbar - Toolbar for workflow builder actions
@@ -6,12 +6,17 @@
  * Provides undo/redo, zoom, and other canvas controls
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { useWorkflowBuilderStore } from '@/stores/workflow-builder-store'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { useWorkflowBuilderStore } from "@/stores/workflow-builder-store";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Undo2,
   Redo2,
@@ -27,10 +32,10 @@ import {
   PanelRight,
   CheckCircle,
   RotateCcw,
-} from 'lucide-react'
+} from "lucide-react";
 
 interface WorkflowToolbarProps {
-  className?: string
+  className?: string;
 }
 
 export function WorkflowToolbar({ className }: WorkflowToolbarProps) {
@@ -52,21 +57,24 @@ export function WorkflowToolbar({ className }: WorkflowToolbarProps) {
     deleteEdge,
     togglePropertiesPanel,
     validate,
-  } = useWorkflowBuilderStore()
+  } = useWorkflowBuilderStore();
 
-  const hasSelection = canvas.selectedStepIds.length > 0 || canvas.selectedEdgeId
+  const hasSelection =
+    canvas.selectedStepIds.length > 0 || canvas.selectedEdgeId;
 
   const handleDelete = () => {
     if (canvas.selectedStepIds.length > 0) {
-      canvas.selectedStepIds.forEach((id) => deleteStep(id))
+      canvas.selectedStepIds.forEach((id) => deleteStep(id));
     } else if (canvas.selectedEdgeId) {
-      deleteEdge(canvas.selectedEdgeId)
+      deleteEdge(canvas.selectedEdgeId);
     }
-  }
+  };
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className={cn('flex items-center gap-1 bg-card px-2 py-1', className)}>
+      <div
+        className={cn("flex items-center gap-1 bg-card px-2 py-1", className)}
+      >
         {/* Undo/Redo */}
         <div className="flex items-center">
           <Tooltip>
@@ -136,7 +144,12 @@ export function WorkflowToolbar({ className }: WorkflowToolbarProps) {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => paste()}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => paste()}
+              >
                 <Clipboard className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -199,7 +212,12 @@ export function WorkflowToolbar({ className }: WorkflowToolbarProps) {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={zoomToFit}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={zoomToFit}
+              >
                 <Maximize2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -208,7 +226,12 @@ export function WorkflowToolbar({ className }: WorkflowToolbarProps) {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={resetZoom}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={resetZoom}
+              >
                 <RotateCcw className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -222,7 +245,12 @@ export function WorkflowToolbar({ className }: WorkflowToolbarProps) {
         <div className="flex items-center">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={validate}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={validate}
+              >
                 <CheckCircle className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -256,13 +284,13 @@ export function WorkflowToolbar({ className }: WorkflowToolbarProps) {
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {propertiesPanelOpen ? 'Hide Properties' : 'Show Properties'}
+              {propertiesPanelOpen ? "Hide Properties" : "Show Properties"}
             </TooltipContent>
           </Tooltip>
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }
 
-export default WorkflowToolbar
+export default WorkflowToolbar;

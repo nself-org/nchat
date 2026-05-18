@@ -3,22 +3,22 @@
  */
 
 // Categories
-export * from './channel-categories'
+export * from "./channel-categories";
 
 // Templates
-export * from './channel-templates'
+export * from "./channel-templates";
 
 // Discovery
-export * from './channel-discovery'
+export * from "./channel-discovery";
 
 // Search
-export * from './channel-search'
+export * from "./channel-search";
 
 // Suggestions
-export * from './channel-suggestions'
+export * from "./channel-suggestions";
 
 // Statistics
-export * from './channel-stats'
+export * from "./channel-stats";
 
 // Policies (naming, validation, governance utilities)
-export * from './channel-policies'
+export * from "./channel-policies";

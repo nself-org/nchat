@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Mobile Picture-in-Picture Overlay
@@ -7,12 +7,19 @@
  * or when user switches away from the call screen.
  */
 
-import * as React from 'react'
-import { motion, useMotionValue, useAnimation, PanInfo } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { Maximize2, PhoneOff, Mic, MicOff, Video, VideoOff } from 'lucide-react'
-import { useCallStore } from '@/stores/call-store'
-import { formatCallDuration } from '@/components/call/call-controls'
+import * as React from "react";
+import { motion, useMotionValue, useAnimation, PanInfo } from "framer-motion";
+import { cn } from "@/lib/utils";
+import {
+  Maximize2,
+  PhoneOff,
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+} from "lucide-react";
+import { useCallStore } from "@/stores/call-store";
+import { formatCallDuration } from "@/components/call/call-controls";
 
 // =============================================================================
 // Types
@@ -20,23 +27,23 @@ import { formatCallDuration } from '@/components/call/call-controls'
 
 export interface MobilePiPOverlayProps {
   /** Whether PiP is active */
-  isActive: boolean
+  isActive: boolean;
   /** Callback when overlay is expanded */
-  onExpand: () => void
+  onExpand: () => void;
   /** Callback when call is ended */
-  onEndCall?: () => void
+  onEndCall?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // =============================================================================
 // Constants
 // =============================================================================
 
-const PIP_WIDTH = 160
-const PIP_HEIGHT = 220
-const EDGE_MARGIN = 16
-const SNAP_THRESHOLD = 50
+const PIP_WIDTH = 160;
+const PIP_HEIGHT = 220;
+const EDGE_MARGIN = 16;
+const SNAP_THRESHOLD = 50;
 
 // =============================================================================
 // Mobile PiP Overlay Component
@@ -48,105 +55,111 @@ export function MobilePiPOverlay({
   onEndCall,
   className,
 }: MobilePiPOverlayProps) {
-  const activeCall = useCallStore((state) => state.activeCall)
-  const toggleLocalMute = useCallStore((state) => state.toggleLocalMute)
-  const toggleLocalVideo = useCallStore((state) => state.toggleLocalVideo)
+  const activeCall = useCallStore((state) => state.activeCall);
+  const toggleLocalMute = useCallStore((state) => state.toggleLocalMute);
+  const toggleLocalVideo = useCallStore((state) => state.toggleLocalVideo);
 
-  const [callDuration, setCallDuration] = React.useState(0)
-  const [isExpanded, setIsExpanded] = React.useState(false)
-  const [position, setPosition] = React.useState({ x: EDGE_MARGIN, y: 100 })
+  const [callDuration, setCallDuration] = React.useState(0);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [position, setPosition] = React.useState({ x: EDGE_MARGIN, y: 100 });
 
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const x = useMotionValue(position.x)
-  const y = useMotionValue(position.y)
-  const controls = useAnimation()
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const x = useMotionValue(position.x);
+  const y = useMotionValue(position.y);
+  const controls = useAnimation();
 
   // Update video stream
   React.useEffect(() => {
-    if (!videoRef.current || !activeCall?.localStream) return
+    if (!videoRef.current || !activeCall?.localStream) return;
 
-    videoRef.current.srcObject = activeCall.localStream
-  }, [activeCall?.localStream])
+    videoRef.current.srcObject = activeCall.localStream;
+  }, [activeCall?.localStream]);
 
   // Update call duration
   React.useEffect(() => {
-    if (!activeCall || activeCall.state !== 'connected') return
+    if (!activeCall || activeCall.state !== "connected") return;
 
     const interval = setInterval(() => {
       if (activeCall.connectedAt) {
         const duration = Math.floor(
-          (Date.now() - new Date(activeCall.connectedAt).getTime()) / 1000
-        )
-        setCallDuration(duration)
+          (Date.now() - new Date(activeCall.connectedAt).getTime()) / 1000,
+        );
+        setCallDuration(duration);
       }
-    }, 1000)
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [activeCall])
+    return () => clearInterval(interval);
+  }, [activeCall]);
 
   // Handle drag end - snap to edges
-  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const windowWidth = window.innerWidth
-    const windowHeight = window.innerHeight
+  const handleDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
 
-    const currentX = info.point.x
-    const currentY = info.point.y
+    const currentX = info.point.x;
+    const currentY = info.point.y;
 
-    let newX = currentX
-    let newY = currentY
+    let newX = currentX;
+    let newY = currentY;
 
     // Snap to left or right edge
     if (currentX < windowWidth / 2) {
-      newX = EDGE_MARGIN
+      newX = EDGE_MARGIN;
     } else {
-      newX = windowWidth - PIP_WIDTH - EDGE_MARGIN
+      newX = windowWidth - PIP_WIDTH - EDGE_MARGIN;
     }
 
     // Constrain Y within bounds
-    newY = Math.max(EDGE_MARGIN, Math.min(currentY, windowHeight - PIP_HEIGHT - EDGE_MARGIN))
+    newY = Math.max(
+      EDGE_MARGIN,
+      Math.min(currentY, windowHeight - PIP_HEIGHT - EDGE_MARGIN),
+    );
 
-    setPosition({ x: newX, y: newY })
-    controls.start({ x: newX, y: newY })
+    setPosition({ x: newX, y: newY });
+    controls.start({ x: newX, y: newY });
 
     // Light haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(10)
+    if ("vibrate" in navigator) {
+      navigator.vibrate(10);
     }
-  }
+  };
 
   // Handle tap - toggle expanded state
   const handleTap = () => {
-    setIsExpanded((prev) => !prev)
-  }
+    setIsExpanded((prev) => !prev);
+  };
 
   // Handle double tap - expand to full screen
   const handleDoubleTap = () => {
-    onExpand()
+    onExpand();
     // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate([10, 20, 10])
+    if ("vibrate" in navigator) {
+      navigator.vibrate([10, 20, 10]);
     }
-  }
+  };
 
   // Handle end call
   const handleEndCall = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onEndCall?.()
+    e.stopPropagation();
+    onEndCall?.();
     // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50)
+    if ("vibrate" in navigator) {
+      navigator.vibrate(50);
     }
-  }
+  };
 
   if (!isActive || !activeCall) {
-    return null
+    return null;
   }
 
-  const isVideoCall = activeCall.type === 'video'
-  const isMuted = activeCall.isLocalMuted
-  const isVideoEnabled = activeCall.isLocalVideoEnabled
-  const participants = Array.from(activeCall.participants.values())
-  const participant = participants[0]
+  const isVideoCall = activeCall.type === "video";
+  const isMuted = activeCall.isLocalMuted;
+  const isVideoEnabled = activeCall.isLocalVideoEnabled;
+  const participants = Array.from(activeCall.participants.values());
+  const participant = participants[0];
 
   return (
     <motion.div
@@ -165,10 +178,10 @@ export function MobilePiPOverlay({
       initial={{ x: position.x, y: position.y }}
       style={{ x, y }}
       className={cn(
-        'fixed z-50 cursor-move touch-none',
-        'overflow-hidden rounded-2xl shadow-2xl',
-        'bg-gray-900',
-        className
+        "fixed z-50 cursor-move touch-none",
+        "overflow-hidden rounded-2xl shadow-2xl",
+        "bg-gray-900",
+        className,
       )}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
@@ -176,11 +189,17 @@ export function MobilePiPOverlay({
       {/* Video/Avatar */}
       <div className="relative h-56 w-40 bg-gray-800">
         {isVideoCall && isVideoEnabled ? (
-          <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-cover" />
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="h-full w-full object-cover"
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-700 text-xl font-semibold text-white">
-              {participant?.name?.charAt(0).toUpperCase() || '?'}
+              {participant?.name?.charAt(0).toUpperCase() || "?"}
             </div>
           </div>
         )}
@@ -189,14 +208,16 @@ export function MobilePiPOverlay({
         <div className="absolute left-2 right-2 top-2 flex items-center justify-between">
           <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
           <div className="rounded-full bg-black/70 px-2 py-1 backdrop-blur-sm">
-            <span className="font-mono text-xs text-white">{formatCallDuration(callDuration)}</span>
+            <span className="font-mono text-xs text-white">
+              {formatCallDuration(callDuration)}
+            </span>
           </div>
         </div>
 
         {/* Participant Name */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
           <p className="truncate text-xs font-medium text-white">
-            {participant?.name || 'Unknown'}
+            {participant?.name || "Unknown"}
           </p>
         </div>
 
@@ -213,7 +234,7 @@ export function MobilePiPOverlay({
         className="absolute bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm"
         initial={false}
         animate={{
-          height: isExpanded ? 'auto' : 0,
+          height: isExpanded ? "auto" : 0,
           opacity: isExpanded ? 1 : 0,
         }}
         transition={{ duration: 0.2 }}
@@ -223,14 +244,14 @@ export function MobilePiPOverlay({
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation()
-              toggleLocalMute()
+              e.stopPropagation();
+              toggleLocalMute();
             }}
             className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-full',
-              isMuted ? 'bg-red-500' : 'bg-gray-700'
+              "flex h-8 w-8 items-center justify-center rounded-full",
+              isMuted ? "bg-red-500" : "bg-gray-700",
             )}
-            aria-label={isMuted ? 'Unmute' : 'Mute'}
+            aria-label={isMuted ? "Unmute" : "Mute"}
           >
             {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
           </button>
@@ -240,14 +261,14 @@ export function MobilePiPOverlay({
             <button
               type="button"
               onClick={(e) => {
-                e.stopPropagation()
-                toggleLocalVideo()
+                e.stopPropagation();
+                toggleLocalVideo();
               }}
               className={cn(
-                'flex h-8 w-8 items-center justify-center rounded-full',
-                isVideoEnabled ? 'bg-blue-500' : 'bg-gray-700'
+                "flex h-8 w-8 items-center justify-center rounded-full",
+                isVideoEnabled ? "bg-blue-500" : "bg-gray-700",
               )}
-              aria-label={isVideoEnabled ? 'Stop Video' : 'Start Video'}
+              aria-label={isVideoEnabled ? "Stop Video" : "Start Video"}
             >
               {isVideoEnabled ? <Video size={16} /> : <VideoOff size={16} />}
             </button>
@@ -257,8 +278,8 @@ export function MobilePiPOverlay({
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation()
-              onExpand()
+              e.stopPropagation();
+              onExpand();
             }}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500"
             aria-label="Expand"
@@ -285,11 +306,11 @@ export function MobilePiPOverlay({
         animate={{ opacity: isExpanded ? 0 : 0 }}
       />
     </motion.div>
-  )
+  );
 }
 
 // =============================================================================
 // Exports
 // =============================================================================
 
-export default MobilePiPOverlay
+export default MobilePiPOverlay;

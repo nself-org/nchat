@@ -78,7 +78,7 @@ export type {
   PaginatedResponse,
   ApiError,
   Result,
-} from './types'
+} from "./types";
 
 // ============================================================================
 // BOT CLIENT
@@ -90,19 +90,24 @@ export {
   BotEventEmitter,
   createBotClient,
   createAuthenticatedBotClient,
-} from './bot-client'
+} from "./bot-client";
 
 // ============================================================================
 // COMMAND REGISTRY
 // ============================================================================
 
-export { CommandRegistry, createCommandRegistry, defineCommand, param } from './command-registry'
+export {
+  CommandRegistry,
+  createCommandRegistry,
+  defineCommand,
+  param,
+} from "./command-registry";
 
 export type {
   RegisteredCommand,
   CommandValidationResult,
   CommandRegistryConfig,
-} from './command-registry'
+} from "./command-registry";
 
 // ============================================================================
 // MESSAGE BUILDER
@@ -153,7 +158,7 @@ export {
   infoMessage,
   confirmPrompt,
   loadingMessage,
-} from './message-builder'
+} from "./message-builder";
 
 // ============================================================================
 // INTERACTION HANDLER
@@ -177,14 +182,14 @@ export {
   rateLimitMiddleware,
   authMiddleware,
   validationMiddleware,
-} from './interaction-handler'
+} from "./interaction-handler";
 
 export type {
   HandlerRegistration,
   MiddlewareContext,
   InteractionMiddleware,
   InteractionRouterConfig,
-} from './interaction-handler'
+} from "./interaction-handler";
 
 // ============================================================================
 // WEBHOOK HANDLER
@@ -209,11 +214,11 @@ export {
   // Framework handlers
   createExpressHandler,
   createNextHandler,
-} from './webhook-handler'
+} from "./webhook-handler";
 
 export type {
   WebhookValidationResult,
   WebhookRouterConfig,
   WebhookRequest,
   WebhookResponse,
-} from './webhook-handler'
+} from "./webhook-handler";

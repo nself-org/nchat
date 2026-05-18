@@ -1,30 +1,30 @@
-'use client'
+"use client";
 
-import { SettingsSection } from './settings-section'
-import { SettingsToggle } from './SettingsToggle'
-import { SettingsSelect } from './SettingsSelect'
+import { SettingsSection } from "./settings-section";
+import { SettingsToggle } from "./SettingsToggle";
+import { SettingsSelect } from "./SettingsSelect";
 
 interface EmojiSettingsProps {
-  className?: string
+  className?: string;
 }
 
 const skinToneOptions = [
-  { value: 'default', label: 'Default' },
-  { value: 'light', label: 'Light' },
-  { value: 'medium-light', label: 'Medium-Light' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'medium-dark', label: 'Medium-Dark' },
-  { value: 'dark', label: 'Dark' },
-]
+  { value: "default", label: "Default" },
+  { value: "light", label: "Light" },
+  { value: "medium-light", label: "Medium-Light" },
+  { value: "medium", label: "Medium" },
+  { value: "medium-dark", label: "Medium-Dark" },
+  { value: "dark", label: "Dark" },
+];
 
 /**
  * EmojiSettings - Emoji preferences
  */
 export function EmojiSettings({ className }: EmojiSettingsProps) {
   // Local state for now - would be part of settings store in production
-  const showEmojiPreviews = true
-  const emojiAutocomplete = true
-  const preferredSkinTone = 'default'
+  const showEmojiPreviews = true;
+  const emojiAutocomplete = true;
+  const preferredSkinTone = "default";
 
   return (
     <SettingsSection
@@ -57,5 +57,5 @@ export function EmojiSettings({ className }: EmojiSettingsProps) {
         options={skinToneOptions}
       />
     </SettingsSection>
-  )
+  );
 }

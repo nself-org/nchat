@@ -1,33 +1,39 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { type ExtendedUserProfile } from './UserCard'
-import { UserBio } from './UserBio'
-import { UserLinks } from './UserLinks'
-import { UserTimezone } from './UserTimezone'
-import { UserRoles } from './UserRoles'
-import { Separator } from '@/components/ui/separator'
-import { Mail, Phone, Building2, Briefcase, Users, Globe } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { type ExtendedUserProfile } from "./UserCard";
+import { UserBio } from "./UserBio";
+import { UserLinks } from "./UserLinks";
+import { UserTimezone } from "./UserTimezone";
+import { UserRoles } from "./UserRoles";
+import { Separator } from "@/components/ui/separator";
+import { Mail, Phone, Building2, Briefcase, Users, Globe } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UserProfileAboutProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: ExtendedUserProfile
-  showContactInfo?: boolean
-  showWorkInfo?: boolean
+  user: ExtendedUserProfile;
+  showContactInfo?: boolean;
+  showWorkInfo?: boolean;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-const UserProfileAbout = React.forwardRef<HTMLDivElement, UserProfileAboutProps>(
-  ({ className, user, showContactInfo = true, showWorkInfo = true, ...props }, ref) => {
+const UserProfileAbout = React.forwardRef<
+  HTMLDivElement,
+  UserProfileAboutProps
+>(
+  (
+    { className, user, showContactInfo = true, showWorkInfo = true, ...props },
+    ref,
+  ) => {
     return (
-      <div ref={ref} className={cn('space-y-6 p-6', className)} {...props}>
+      <div ref={ref} className={cn("space-y-6 p-6", className)} {...props}>
         {/* Bio */}
         {user.bio && (
           <section>
@@ -91,7 +97,9 @@ const UserProfileAbout = React.forwardRef<HTMLDivElement, UserProfileAboutProps>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Title</p>
-                    <p className="text-sm text-muted-foreground">{user.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {user.title}
+                    </p>
                   </div>
                 </div>
               )}
@@ -102,7 +110,9 @@ const UserProfileAbout = React.forwardRef<HTMLDivElement, UserProfileAboutProps>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Department</p>
-                    <p className="text-sm text-muted-foreground">{user.department}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {user.department}
+                    </p>
                   </div>
                 </div>
               )}
@@ -132,7 +142,8 @@ const UserProfileAbout = React.forwardRef<HTMLDivElement, UserProfileAboutProps>
         )}
 
         {/* Website and social links */}
-        {(user.website || (user.socialLinks && user.socialLinks.length > 0)) && (
+        {(user.website ||
+          (user.socialLinks && user.socialLinks.length > 0)) && (
           <>
             <Separator />
             <section>
@@ -151,7 +162,7 @@ const UserProfileAbout = React.forwardRef<HTMLDivElement, UserProfileAboutProps>
                         rel="noopener noreferrer"
                         className="text-sm text-muted-foreground hover:text-primary"
                       >
-                        {user.website.replace(/^https?:\/\//, '')}
+                        {user.website.replace(/^https?:\/\//, "")}
                       </a>
                     </div>
                   </div>
@@ -172,9 +183,9 @@ const UserProfileAbout = React.forwardRef<HTMLDivElement, UserProfileAboutProps>
           <UserRoles role={user.role} />
         </section>
       </div>
-    )
-  }
-)
-UserProfileAbout.displayName = 'UserProfileAbout'
+    );
+  },
+);
+UserProfileAbout.displayName = "UserProfileAbout";
 
-export { UserProfileAbout }
+export { UserProfileAbout };

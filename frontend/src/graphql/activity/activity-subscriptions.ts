@@ -1,22 +1,26 @@
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, CHANNEL_BASIC_FRAGMENT, MESSAGE_BASIC_FRAGMENT } from '../fragments'
-import { ACTIVITY_FRAGMENT } from './activity-queries'
+import { gql } from "@apollo/client";
+import {
+  USER_BASIC_FRAGMENT,
+  CHANNEL_BASIC_FRAGMENT,
+  MESSAGE_BASIC_FRAGMENT,
+} from "../fragments";
+import { ACTIVITY_FRAGMENT } from "./activity-queries";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface ActivitySubscriptionVariables {
-  userId: string
+  userId: string;
 }
 
 export interface ActivityUnreadSubscriptionVariables {
-  userId: string
+  userId: string;
 }
 
 export interface ActivityCategorySubscriptionVariables {
-  userId: string
-  category: string
+  userId: string;
+  category: string;
 }
 
 // ============================================================================
@@ -37,7 +41,7 @@ export const ACTIVITY_SUBSCRIPTION = gql`
     }
   }
   ${ACTIVITY_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to unread count changes
@@ -45,14 +49,18 @@ export const ACTIVITY_SUBSCRIPTION = gql`
 export const ACTIVITY_UNREAD_SUBSCRIPTION = gql`
   subscription ActivityUnreadSubscription($userId: uuid!) {
     total: nchat_activities_aggregate(
-      where: { user_id: { _eq: $userId }, is_read: { _eq: false }, is_archived: { _eq: false } }
+      where: {
+        user_id: { _eq: $userId }
+        is_read: { _eq: false }
+        is_archived: { _eq: false }
+      }
     ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to unread counts by category
@@ -124,13 +132,16 @@ export const ACTIVITY_UNREAD_BY_CATEGORY_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to activities in a specific category
  */
 export const ACTIVITY_CATEGORY_SUBSCRIPTION = gql`
-  subscription ActivityCategorySubscription($userId: uuid!, $category: String!) {
+  subscription ActivityCategorySubscription(
+    $userId: uuid!
+    $category: String!
+  ) {
     nchat_activities(
       where: {
         user_id: { _eq: $userId }
@@ -144,7 +155,7 @@ export const ACTIVITY_CATEGORY_SUBSCRIPTION = gql`
     }
   }
   ${ACTIVITY_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to activity stream using Hasura streaming subscriptions
@@ -184,7 +195,7 @@ export const ACTIVITY_STREAM_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to mentions specifically
@@ -204,7 +215,7 @@ export const MENTION_ACTIVITY_SUBSCRIPTION = gql`
     }
   }
   ${ACTIVITY_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to thread replies specifically
@@ -224,7 +235,7 @@ export const THREAD_ACTIVITY_SUBSCRIPTION = gql`
     }
   }
   ${ACTIVITY_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to file activity specifically
@@ -232,7 +243,11 @@ export const THREAD_ACTIVITY_SUBSCRIPTION = gql`
 export const FILE_ACTIVITY_SUBSCRIPTION = gql`
   subscription FileActivitySubscription($userId: uuid!) {
     nchat_activities(
-      where: { user_id: { _eq: $userId }, category: { _eq: "files" }, is_archived: { _eq: false } }
+      where: {
+        user_id: { _eq: $userId }
+        category: { _eq: "files" }
+        is_archived: { _eq: false }
+      }
       order_by: { created_at: desc }
       limit: 1
     ) {
@@ -240,7 +255,7 @@ export const FILE_ACTIVITY_SUBSCRIPTION = gql`
     }
   }
   ${ACTIVITY_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to activity read state changes
@@ -258,4 +273,4 @@ export const ACTIVITY_READ_STATE_SUBSCRIPTION = gql`
       read_at
     }
   }
-`
+`;

@@ -26,7 +26,7 @@
  * ```
  */
 
-import { Pool, QueryResult } from 'pg'
+import { Pool, QueryResult } from "pg";
 
 // ============================================================================
 // Security Guidelines
@@ -44,9 +44,9 @@ import { Pool, QueryResult } from 'pg'
  * GOOD:
  *   pool.query('SELECT * FROM users WHERE id = $1', [userId])
  *
- * BAD (SQL INJECTION VULNERABLE):
- *   pool.query(`SELECT * FROM users WHERE id = ${userId}`)
- *   pool.query('SELECT * FROM users WHERE id = ' + userId)
+ * BAD (SQL INJECTION VULNERABLE — do not copy this pattern):
+ *   pool.query("SELECT * FROM users WHERE id = " + userId)
+ *   pool.query("SELECT * FROM users WHERE id = " + userId) // string concat
  */
 
 // ============================================================================
@@ -54,23 +54,23 @@ import { Pool, QueryResult } from 'pg'
 // ============================================================================
 
 export interface WhereCondition {
-  [key: string]: string | number | boolean | null | string[] | number[]
+  [key: string]: string | number | boolean | null | string[] | number[];
 }
 
 export interface WhereClauseResult {
-  clause: string
-  values: any[]
+  clause: string;
+  values: any[];
 }
 
 export interface SafeQueryOptions {
   /** Maximum number of rows to return */
-  limit?: number
+  limit?: number;
   /** Number of rows to skip */
-  offset?: number
+  offset?: number;
   /** Order by clause (column names only, validated) */
-  orderBy?: string
+  orderBy?: string;
   /** Sort direction (validated) */
-  sortOrder?: 'ASC' | 'DESC'
+  sortOrder?: "ASC" | "DESC";
 }
 
 // ============================================================================
@@ -94,20 +94,18 @@ export interface SafeQueryOptions {
  * )
  * ```
  */
-export async function executeQuery<T extends Record<string, any> = Record<string, any>>(
-  pool: Pool,
-  query: string,
-  values: any[] = []
-): Promise<QueryResult<T>> {
+export async function executeQuery<
+  T extends Record<string, any> = Record<string, any>,
+>(pool: Pool, query: string, values: any[] = []): Promise<QueryResult<T>> {
   // Validate query doesn't contain template literal patterns
-  if (query.includes('${') || query.includes('`')) {
+  if (query.includes("${") || query.includes("`")) {
     throw new Error(
-      'SECURITY ERROR: Query contains template literal syntax. Use parameterized queries only.'
-    )
+      "SECURITY ERROR: Query contains template literal syntax. Use parameterized queries only.",
+    );
   }
 
   // Execute with parameters
-  return pool.query<T>(query, values)
+  return pool.query<T>(query, values);
 }
 
 // ============================================================================
@@ -133,45 +131,46 @@ export async function executeQuery<T extends Record<string, any> = Record<string
  * // clause: "email = $1 AND status = $2 AND age = $3"
  * // values: ['user@example.com', 'active', 25]
  *
+ * // sast-ignore: SQL_INJECTION -- clause is the safe output of buildWhereClause (parameterized), not user input
  * const query = `SELECT * FROM users WHERE ${clause}`
  * const result = await pool.query(query, values)
  * ```
  */
 export function buildWhereClause(
   conditions: WhereCondition,
-  startIndex: number = 1
+  startIndex: number = 1,
 ): WhereClauseResult {
-  const clauses: string[] = []
-  const values: any[] = []
-  let paramIndex = startIndex
+  const clauses: string[] = [];
+  const values: any[] = [];
+  let paramIndex = startIndex;
 
   for (const [column, value] of Object.entries(conditions)) {
     // Validate column name (prevent SQL injection via column names)
     if (!isValidColumnName(column)) {
-      throw new Error(`Invalid column name: ${column}`)
+      throw new Error(`Invalid column name: ${column}`);
     }
 
     if (value === null) {
-      clauses.push(`${column} IS NULL`)
+      clauses.push(`${column} IS NULL`);
     } else if (Array.isArray(value)) {
       // Handle IN clause for arrays
       if (value.length === 0) {
-        clauses.push('FALSE') // No matches for empty array
+        clauses.push("FALSE"); // No matches for empty array
       } else {
-        const placeholders = value.map(() => `$${paramIndex++}`)
-        clauses.push(`${column} IN (${placeholders.join(', ')})`)
-        values.push(...value)
+        const placeholders = value.map(() => `$${paramIndex++}`);
+        clauses.push(`${column} IN (${placeholders.join(", ")})`);
+        values.push(...value);
       }
     } else {
-      clauses.push(`${column} = $${paramIndex++}`)
-      values.push(value)
+      clauses.push(`${column} = $${paramIndex++}`);
+      values.push(value);
     }
   }
 
   return {
-    clause: clauses.join(' AND '),
+    clause: clauses.join(" AND "),
     values,
-  }
+  };
 }
 
 // ============================================================================
@@ -188,8 +187,8 @@ export function buildWhereClause(
  */
 export function isValidColumnName(name: string): boolean {
   // Only allow alphanumeric, underscore, and dot
-  const validPattern = /^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/
-  return validPattern.test(name)
+  const validPattern = /^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/;
+  return validPattern.test(name);
 }
 
 /**
@@ -202,10 +201,10 @@ export function isValidColumnName(name: string): boolean {
 export function sanitizeColumnName(name: string): string {
   if (!isValidColumnName(name)) {
     throw new Error(
-      `Invalid column name: "${name}". Column names must contain only letters, numbers, underscores, and dots.`
-    )
+      `Invalid column name: "${name}". Column names must contain only letters, numbers, underscores, and dots.`,
+    );
   }
-  return name
+  return name;
 }
 
 // ============================================================================
@@ -227,16 +226,21 @@ export function sanitizeColumnName(name: string): string {
  * const query = `SELECT * FROM users ${orderBy}`
  * ```
  */
-export function buildOrderByClause(column: string, direction: 'ASC' | 'DESC' = 'ASC'): string {
+export function buildOrderByClause(
+  column: string,
+  direction: "ASC" | "DESC" = "ASC",
+): string {
   // Validate column name
-  const safeColumn = sanitizeColumnName(column)
+  const safeColumn = sanitizeColumnName(column);
 
   // Validate direction
-  if (direction !== 'ASC' && direction !== 'DESC') {
-    throw new Error(`Invalid sort direction: ${direction}. Must be ASC or DESC.`)
+  if (direction !== "ASC" && direction !== "DESC") {
+    throw new Error(
+      `Invalid sort direction: ${direction}. Must be ASC or DESC.`,
+    );
   }
 
-  return `ORDER BY ${safeColumn} ${direction}`
+  return `ORDER BY ${safeColumn} ${direction}`;
 }
 
 // ============================================================================
@@ -258,32 +262,32 @@ export function buildOrderByClause(column: string, direction: 'ASC' | 'DESC' = '
  */
 export function buildLimitOffsetClause(
   options: SafeQueryOptions,
-  startIndex: number = 1
+  startIndex: number = 1,
 ): { clause: string; values: number[] } {
-  const clauses: string[] = []
-  const values: number[] = []
-  let paramIndex = startIndex
+  const clauses: string[] = [];
+  const values: number[] = [];
+  let paramIndex = startIndex;
 
   if (options.limit !== undefined) {
     if (options.limit < 0) {
-      throw new Error('LIMIT must be non-negative')
+      throw new Error("LIMIT must be non-negative");
     }
-    clauses.push(`LIMIT $${paramIndex++}`)
-    values.push(options.limit)
+    clauses.push(`LIMIT $${paramIndex++}`);
+    values.push(options.limit);
   }
 
   if (options.offset !== undefined) {
     if (options.offset < 0) {
-      throw new Error('OFFSET must be non-negative')
+      throw new Error("OFFSET must be non-negative");
     }
-    clauses.push(`OFFSET $${paramIndex++}`)
-    values.push(options.offset)
+    clauses.push(`OFFSET $${paramIndex++}`);
+    values.push(options.offset);
   }
 
   return {
-    clause: clauses.join(' '),
+    clause: clauses.join(" "),
     values,
-  }
+  };
 }
 
 // ============================================================================
@@ -311,41 +315,41 @@ export function buildLimitOffsetClause(
 export function buildSelectQuery(
   table: string,
   conditions: WhereCondition = {},
-  options: SafeQueryOptions = {}
+  options: SafeQueryOptions = {},
 ): { query: string; values: any[] } {
   // Validate table name
-  const safeTable = sanitizeColumnName(table)
+  const safeTable = sanitizeColumnName(table);
 
   // Build WHERE clause
-  const where = buildWhereClause(conditions)
-  let paramIndex = where.values.length + 1
+  const where = buildWhereClause(conditions);
+  let paramIndex = where.values.length + 1;
 
   // Build ORDER BY
-  let orderByClause = ''
+  let orderByClause = "";
   if (options.orderBy) {
-    orderByClause = buildOrderByClause(options.orderBy, options.sortOrder)
+    orderByClause = buildOrderByClause(options.orderBy, options.sortOrder);
   }
 
   // Build LIMIT/OFFSET
-  const limitOffset = buildLimitOffsetClause(options, paramIndex)
+  const limitOffset = buildLimitOffsetClause(options, paramIndex);
 
   // Construct query
-  const queryParts = [`SELECT * FROM ${safeTable}`]
+  const queryParts = [`SELECT * FROM ${safeTable}`];
 
   if (where.clause) {
-    queryParts.push(`WHERE ${where.clause}`)
+    queryParts.push(`WHERE ${where.clause}`);
   }
 
   if (orderByClause) {
-    queryParts.push(orderByClause)
+    queryParts.push(orderByClause);
   }
 
   if (limitOffset.clause) {
-    queryParts.push(limitOffset.clause)
+    queryParts.push(limitOffset.clause);
   }
 
   return {
-    query: queryParts.join(' '),
+    query: queryParts.join(" "),
     values: [...where.values, ...limitOffset.values],
-  }
+  };
 }

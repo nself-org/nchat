@@ -4,30 +4,34 @@
  * POST /api/streams/[id]/start - Start broadcasting stream (go live)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { nhost } from '@/lib/nhost.server'
+import { NextRequest, NextResponse } from "next/server";
+import { nhost } from "@/lib/nhost.server";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
   try {
     // Get user from session
-    const session = await nhost.auth.getSession()
+    const session = await nhost.auth.getSession();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const streamId = id
-    const userId = session.user?.id
+    const streamId = id;
+    const userId = session.user?.id;
 
     if (!userId) {
-      return NextResponse.json({ error: 'User ID not found' }, { status: 401 })
+      return NextResponse.json({ error: "User ID not found" }, { status: 401 });
     }
 
     // Verify user is the broadcaster
-    const { data: streamData, error: streamError } = await nhost.graphql.request(
-      `
+    const { data: streamData, error: streamError } =
+      await nhost.graphql.request(
+        `
         query GetStreamBroadcaster($id: uuid!) {
           nchat_streams_by_pk(id: $id) {
             broadcaster_id
@@ -35,24 +39,27 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           }
         }
       `,
-      { id: streamId }
-    )
+        { id: streamId },
+      );
 
     if (streamError || !streamData?.nchat_streams_by_pk) {
-      return NextResponse.json({ error: 'Stream not found' }, { status: 404 })
+      return NextResponse.json({ error: "Stream not found" }, { status: 404 });
     }
 
     if (streamData.nchat_streams_by_pk.broadcaster_id !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    if (streamData.nchat_streams_by_pk.status === 'live') {
-      return NextResponse.json({ error: 'Stream is already live' }, { status: 400 })
+    if (streamData.nchat_streams_by_pk.status === "live") {
+      return NextResponse.json(
+        { error: "Stream is already live" },
+        { status: 400 },
+      );
     }
 
     // Generate HLS and DASH manifest URLs
-    const hlsManifestUrl = `${process.env.NEXT_PUBLIC_HLS_BASE_URL}/${streamId}/index.m3u8`
-    const dashManifestUrl = `${process.env.NEXT_PUBLIC_DASH_BASE_URL || process.env.NEXT_PUBLIC_HLS_BASE_URL}/${streamId}/manifest.mpd`
+    const hlsManifestUrl = `${process.env.NEXT_PUBLIC_HLS_BASE_URL}/${streamId}/index.m3u8`;
+    const dashManifestUrl = `${process.env.NEXT_PUBLIC_DASH_BASE_URL || process.env.NEXT_PUBLIC_HLS_BASE_URL}/${streamId}/manifest.mpd`;
 
     // Update stream status to live with both HLS and DASH manifests
     const { data, error } = await nhost.graphql.request(
@@ -83,17 +90,23 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           }
         }
       `,
-      { id: streamId, hlsUrl: hlsManifestUrl, dashUrl: dashManifestUrl }
-    )
+      { id: streamId, hlsUrl: hlsManifestUrl, dashUrl: dashManifestUrl },
+    );
 
     if (error || !data?.update_nchat_streams_by_pk) {
-      logger.error('Failed to start stream:', error)
-      return NextResponse.json({ error: 'Failed to start stream' }, { status: 500 })
+      logger.error("Failed to start stream:", error);
+      return NextResponse.json(
+        { error: "Failed to start stream" },
+        { status: 500 },
+      );
     }
 
-    return NextResponse.json(data.update_nchat_streams_by_pk)
+    return NextResponse.json(data.update_nchat_streams_by_pk);
   } catch (error) {
-    logger.error('Start stream error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    logger.error("Start stream error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

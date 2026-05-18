@@ -3,11 +3,11 @@
  * Manages integration between social accounts and channels
  */
 
-import { useQuery, useMutation, gql } from '@apollo/client'
-import { useCallback } from 'react'
-import type { SocialIntegration } from '@/lib/social/types'
+import { useQuery, useMutation, gql } from "@apollo/client";
+import { useCallback } from "react";
+import type { SocialIntegration } from "@/lib/social/types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 const GET_SOCIAL_INTEGRATIONS = gql`
   query GetSocialIntegrations {
@@ -37,7 +37,7 @@ const GET_SOCIAL_INTEGRATIONS = gql`
       }
     }
   }
-`
+`;
 
 const GET_INTEGRATIONS_BY_ACCOUNT = gql`
   query GetIntegrationsByAccount($accountId: uuid!) {
@@ -61,10 +61,12 @@ const GET_INTEGRATIONS_BY_ACCOUNT = gql`
       }
     }
   }
-`
+`;
 
 const CREATE_INTEGRATION = gql`
-  mutation CreateSocialIntegration($integration: nchat_social_integrations_insert_input!) {
+  mutation CreateSocialIntegration(
+    $integration: nchat_social_integrations_insert_input!
+  ) {
     insert_nchat_social_integrations_one(object: $integration) {
       id
       account_id
@@ -77,11 +79,17 @@ const CREATE_INTEGRATION = gql`
       min_engagement
     }
   }
-`
+`;
 
 const UPDATE_INTEGRATION = gql`
-  mutation UpdateSocialIntegration($id: uuid!, $updates: nchat_social_integrations_set_input!) {
-    update_nchat_social_integrations_by_pk(pk_columns: { id: $id }, _set: $updates) {
+  mutation UpdateSocialIntegration(
+    $id: uuid!
+    $updates: nchat_social_integrations_set_input!
+  ) {
+    update_nchat_social_integrations_by_pk(
+      pk_columns: { id: $id }
+      _set: $updates
+    ) {
       id
       auto_post
       filter_hashtags
@@ -91,7 +99,7 @@ const UPDATE_INTEGRATION = gql`
       min_engagement
     }
   }
-`
+`;
 
 const DELETE_INTEGRATION = gql`
   mutation DeleteSocialIntegration($id: uuid!) {
@@ -99,37 +107,40 @@ const DELETE_INTEGRATION = gql`
       id
     }
   }
-`
+`;
 
 export function useSocialIntegrations(accountId?: string) {
-  const query = accountId ? GET_INTEGRATIONS_BY_ACCOUNT : GET_SOCIAL_INTEGRATIONS
-  const variables = accountId ? { accountId } : undefined
+  const query = accountId
+    ? GET_INTEGRATIONS_BY_ACCOUNT
+    : GET_SOCIAL_INTEGRATIONS;
+  const variables = accountId ? { accountId } : undefined;
 
   const { data, loading, error, refetch } = useQuery(query, {
     variables,
-    fetchPolicy: 'cache-and-network',
-  })
+    fetchPolicy: "cache-and-network",
+  });
 
-  const [createIntegrationMutation] = useMutation(CREATE_INTEGRATION)
-  const [updateIntegrationMutation] = useMutation(UPDATE_INTEGRATION)
-  const [deleteIntegrationMutation] = useMutation(DELETE_INTEGRATION)
+  const [createIntegrationMutation] = useMutation(CREATE_INTEGRATION);
+  const [updateIntegrationMutation] = useMutation(UPDATE_INTEGRATION);
+  const [deleteIntegrationMutation] = useMutation(DELETE_INTEGRATION);
 
-  const integrations: SocialIntegration[] = data?.nchat_social_integrations || []
+  const integrations: SocialIntegration[] =
+    data?.nchat_social_integrations || [];
 
   /**
    * Create a new integration
    */
   const createIntegration = useCallback(
     async (input: {
-      accountId: string
-      channelId: string
-      autoPost?: boolean
-      filterHashtags?: string[]
-      filterKeywords?: string[]
-      excludeRetweets?: boolean
-      excludeReplies?: boolean
-      minEngagement?: number
-      createdBy: string
+      accountId: string;
+      channelId: string;
+      autoPost?: boolean;
+      filterHashtags?: string[];
+      filterKeywords?: string[];
+      excludeRetweets?: boolean;
+      excludeReplies?: boolean;
+      minEngagement?: number;
+      createdBy: string;
     }) => {
       try {
         const { data } = await createIntegrationMutation({
@@ -147,16 +158,16 @@ export function useSocialIntegrations(accountId?: string) {
             },
           },
           refetchQueries: [query],
-        })
+        });
 
-        return data?.insert_nchat_social_integrations_one
+        return data?.insert_nchat_social_integrations_one;
       } catch (err) {
-        logger.error('Failed to create integration:', err)
-        throw err
+        logger.error("Failed to create integration:", err);
+        throw err;
       }
     },
-    [createIntegrationMutation, query]
-  )
+    [createIntegrationMutation, query],
+  );
 
   /**
    * Update an existing integration
@@ -165,13 +176,13 @@ export function useSocialIntegrations(accountId?: string) {
     async (
       id: string,
       updates: {
-        autoPost?: boolean
-        filterHashtags?: string[]
-        filterKeywords?: string[]
-        excludeRetweets?: boolean
-        excludeReplies?: boolean
-        minEngagement?: number
-      }
+        autoPost?: boolean;
+        filterHashtags?: string[];
+        filterKeywords?: string[];
+        excludeRetweets?: boolean;
+        excludeReplies?: boolean;
+        minEngagement?: number;
+      },
     ) => {
       try {
         const { data } = await updateIntegrationMutation({
@@ -186,16 +197,16 @@ export function useSocialIntegrations(accountId?: string) {
               min_engagement: updates.minEngagement,
             },
           },
-        })
+        });
 
-        return data?.update_nchat_social_integrations_by_pk
+        return data?.update_nchat_social_integrations_by_pk;
       } catch (err) {
-        logger.error('Failed to update integration:', err)
-        throw err
+        logger.error("Failed to update integration:", err);
+        throw err;
       }
     },
-    [updateIntegrationMutation]
-  )
+    [updateIntegrationMutation],
+  );
 
   /**
    * Delete an integration
@@ -206,27 +217,27 @@ export function useSocialIntegrations(accountId?: string) {
         await deleteIntegrationMutation({
           variables: { id },
           update(cache) {
-            cache.evict({ id: `nchat_social_integrations:${id}` })
-            cache.gc()
+            cache.evict({ id: `nchat_social_integrations:${id}` });
+            cache.gc();
           },
-        })
+        });
       } catch (err) {
-        logger.error('Failed to delete integration:', err)
-        throw err
+        logger.error("Failed to delete integration:", err);
+        throw err;
       }
     },
-    [deleteIntegrationMutation]
-  )
+    [deleteIntegrationMutation],
+  );
 
   /**
    * Get integrations for a specific channel
    */
   const getIntegrationsByChannel = useCallback(
     (channelId: string) => {
-      return integrations.filter((int) => int.channel_id === channelId)
+      return integrations.filter((int) => int.channel_id === channelId);
     },
-    [integrations]
-  )
+    [integrations],
+  );
 
   return {
     integrations,
@@ -237,5 +248,5 @@ export function useSocialIntegrations(accountId?: string) {
     updateIntegration,
     deleteIntegration,
     getIntegrationsByChannel,
-  }
+  };
 }

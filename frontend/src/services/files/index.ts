@@ -6,10 +6,10 @@
  */
 
 // Types
-export * from './types'
+export * from "./types";
 
 // Configuration
-export * from './config'
+export * from "./config";
 
 // Upload Service
 export {
@@ -21,7 +21,7 @@ export {
   getImageDimensions,
   getVideoMetadata,
   getAudioDuration,
-} from './upload.service'
+} from "./upload.service";
 
 // Download Service
 export {
@@ -34,7 +34,7 @@ export {
   getFileIcon,
   canPreviewInline,
   supportsThumbnail,
-} from './download.service'
+} from "./download.service";
 
 // Processing Service
 export {
@@ -44,7 +44,7 @@ export {
   isProcessingSuccessful,
   getStatusMessage,
   estimateProcessingTime,
-} from './processing.service'
+} from "./processing.service";
 
 // Access Control Service
 export {
@@ -59,7 +59,7 @@ export {
   type FileInfo,
   type ChannelInfo,
   type AccessCheckResult,
-} from './access.service'
+} from "./access.service";
 
 // Validation Service
 export {
@@ -79,4 +79,4 @@ export {
   SAFE_MIME_TYPES,
   type ValidationResult,
   type FileValidationOptions,
-} from './validation.service'
+} from "./validation.service";

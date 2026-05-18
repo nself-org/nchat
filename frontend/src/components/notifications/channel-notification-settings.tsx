@@ -1,83 +1,83 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Card } from '@/components/ui/card'
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 import {
   useNotificationStore,
   type ChannelNotificationLevel,
   type ChannelNotificationSettings as ChannelSettings,
-} from '@/stores/notification-store'
+} from "@/stores/notification-store";
 
 // Notification level options
 const NOTIFICATION_LEVELS: Array<{
-  value: ChannelNotificationLevel
-  label: string
-  description: string
+  value: ChannelNotificationLevel;
+  label: string;
+  description: string;
 }> = [
   {
-    value: 'all',
-    label: 'All messages',
-    description: 'Get notified for every message',
+    value: "all",
+    label: "All messages",
+    description: "Get notified for every message",
   },
   {
-    value: 'mentions',
-    label: 'Mentions only',
-    description: 'Only when someone @mentions you',
+    value: "mentions",
+    label: "Mentions only",
+    description: "Only when someone @mentions you",
   },
   {
-    value: 'nothing',
-    label: 'Nothing',
-    description: 'No notifications from this channel',
+    value: "nothing",
+    label: "Nothing",
+    description: "No notifications from this channel",
   },
-]
+];
 
 // Mute duration options
 const MUTE_DURATIONS = [
-  { value: '15m', label: '15 minutes', minutes: 15 },
-  { value: '1h', label: '1 hour', minutes: 60 },
-  { value: '8h', label: '8 hours', minutes: 480 },
-  { value: '24h', label: '24 hours', minutes: 1440 },
-  { value: '1w', label: '1 week', minutes: 10080 },
-  { value: 'forever', label: 'Until I turn it back on', minutes: Infinity },
-]
+  { value: "15m", label: "15 minutes", minutes: 15 },
+  { value: "1h", label: "1 hour", minutes: 60 },
+  { value: "8h", label: "8 hours", minutes: 480 },
+  { value: "24h", label: "24 hours", minutes: 1440 },
+  { value: "1w", label: "1 week", minutes: 10080 },
+  { value: "forever", label: "Until I turn it back on", minutes: Infinity },
+];
 
 export interface ChannelNotificationSettingsProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * The channel ID
    */
-  channelId: string
+  channelId: string;
 
   /**
    * The channel name (for display)
    */
-  channelName: string
+  channelName: string;
 
   /**
    * Callback when settings are saved
    */
-  onSave?: () => void
+  onSave?: () => void;
 
   /**
    * Callback when dialog should close
    */
-  onClose?: () => void
+  onClose?: () => void;
 
   /**
    * Whether to show as a compact inline form
    * @default false
    */
-  compact?: boolean
+  compact?: boolean;
 }
 
 /**
@@ -97,130 +97,144 @@ export function ChannelNotificationSettings({
   className,
   ...props
 }: ChannelNotificationSettingsProps) {
-  const preferences = useNotificationStore((state) => state.preferences)
+  const preferences = useNotificationStore((state) => state.preferences);
   const setChannelNotificationLevel = useNotificationStore(
-    (state) => state.setChannelNotificationLevel
-  )
-  const muteChannel = useNotificationStore((state) => state.muteChannel)
-  const unmuteChannel = useNotificationStore((state) => state.unmuteChannel)
+    (state) => state.setChannelNotificationLevel,
+  );
+  const muteChannel = useNotificationStore((state) => state.muteChannel);
+  const unmuteChannel = useNotificationStore((state) => state.unmuteChannel);
 
   // Get current channel settings
-  const currentSettings: ChannelSettings = preferences.channelSettings[channelId] || {
+  const currentSettings: ChannelSettings = preferences.channelSettings[
+    channelId
+  ] || {
     channelId,
-    level: 'all',
+    level: "all",
     overrideGlobal: false,
-  }
+  };
 
-  const [level, setLevel] = React.useState<ChannelNotificationLevel>(currentSettings.level)
-  const [overrideGlobal, setOverrideGlobal] = React.useState(currentSettings.overrideGlobal)
+  const [level, setLevel] = React.useState<ChannelNotificationLevel>(
+    currentSettings.level,
+  );
+  const [overrideGlobal, setOverrideGlobal] = React.useState(
+    currentSettings.overrideGlobal,
+  );
   const [isMuted, setIsMuted] = React.useState(
-    currentSettings.level === 'nothing' ||
-      Boolean(currentSettings.muteUntil && new Date(currentSettings.muteUntil) > new Date())
-  )
-  const [selectedMuteDuration, setSelectedMuteDuration] = React.useState<string>('1h')
+    currentSettings.level === "nothing" ||
+      Boolean(
+        currentSettings.muteUntil &&
+        new Date(currentSettings.muteUntil) > new Date(),
+      ),
+  );
+  const [selectedMuteDuration, setSelectedMuteDuration] =
+    React.useState<string>("1h");
 
   // Check if currently muted
-  const muteEndTime = currentSettings.muteUntil ? new Date(currentSettings.muteUntil) : null
-  const isCurrentlyMuted = muteEndTime && muteEndTime > new Date()
+  const muteEndTime = currentSettings.muteUntil
+    ? new Date(currentSettings.muteUntil)
+    : null;
+  const isCurrentlyMuted = muteEndTime && muteEndTime > new Date();
 
   // Handle level change
   const handleLevelChange = React.useCallback(
     (newLevel: ChannelNotificationLevel) => {
-      setLevel(newLevel)
+      setLevel(newLevel);
       if (overrideGlobal) {
-        setChannelNotificationLevel(channelId, newLevel)
-        if (newLevel === 'nothing') {
-          setIsMuted(true)
+        setChannelNotificationLevel(channelId, newLevel);
+        if (newLevel === "nothing") {
+          setIsMuted(true);
         } else {
-          setIsMuted(false)
-          unmuteChannel(channelId)
+          setIsMuted(false);
+          unmuteChannel(channelId);
         }
       }
     },
-    [channelId, overrideGlobal, setChannelNotificationLevel, unmuteChannel]
-  )
+    [channelId, overrideGlobal, setChannelNotificationLevel, unmuteChannel],
+  );
 
   // Handle mute toggle
   const handleMuteToggle = React.useCallback(
     (muted: boolean) => {
-      setIsMuted(muted)
+      setIsMuted(muted);
       if (muted) {
-        const duration = MUTE_DURATIONS.find((d) => d.value === selectedMuteDuration)
+        const duration = MUTE_DURATIONS.find(
+          (d) => d.value === selectedMuteDuration,
+        );
         if (duration) {
           if (duration.minutes === Infinity) {
-            muteChannel(channelId)
+            muteChannel(channelId);
           } else {
-            const until = new Date()
-            until.setMinutes(until.getMinutes() + duration.minutes)
-            muteChannel(channelId, until.toISOString())
+            const until = new Date();
+            until.setMinutes(until.getMinutes() + duration.minutes);
+            muteChannel(channelId, until.toISOString());
           }
         }
       } else {
-        unmuteChannel(channelId)
+        unmuteChannel(channelId);
       }
     },
-    [channelId, selectedMuteDuration, muteChannel, unmuteChannel]
-  )
+    [channelId, selectedMuteDuration, muteChannel, unmuteChannel],
+  );
 
   // Handle mute duration change
   const handleMuteDurationChange = React.useCallback(
     (duration: string) => {
-      setSelectedMuteDuration(duration)
+      setSelectedMuteDuration(duration);
       if (isMuted) {
-        const durationConfig = MUTE_DURATIONS.find((d) => d.value === duration)
+        const durationConfig = MUTE_DURATIONS.find((d) => d.value === duration);
         if (durationConfig) {
           if (durationConfig.minutes === Infinity) {
-            muteChannel(channelId)
+            muteChannel(channelId);
           } else {
-            const until = new Date()
-            until.setMinutes(until.getMinutes() + durationConfig.minutes)
-            muteChannel(channelId, until.toISOString())
+            const until = new Date();
+            until.setMinutes(until.getMinutes() + durationConfig.minutes);
+            muteChannel(channelId, until.toISOString());
           }
         }
       }
     },
-    [channelId, isMuted, muteChannel]
-  )
+    [channelId, isMuted, muteChannel],
+  );
 
   // Handle override toggle
   const handleOverrideToggle = React.useCallback(
     (override: boolean) => {
-      setOverrideGlobal(override)
+      setOverrideGlobal(override);
       if (override) {
-        setChannelNotificationLevel(channelId, level)
+        setChannelNotificationLevel(channelId, level);
       }
     },
-    [channelId, level, setChannelNotificationLevel]
-  )
+    [channelId, level, setChannelNotificationLevel],
+  );
 
   // Format remaining mute time
   const formatMuteRemaining = React.useCallback(() => {
-    if (!muteEndTime) return null
-    const now = new Date()
-    const diffMs = muteEndTime.getTime() - now.getTime()
-    if (diffMs <= 0) return null
+    if (!muteEndTime) return null;
+    const now = new Date();
+    const diffMs = muteEndTime.getTime() - now.getTime();
+    if (diffMs <= 0) return null;
 
-    const diffMins = Math.floor(diffMs / 60000)
-    if (diffMins < 60) return `${diffMins} minutes`
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 60) return `${diffMins} minutes`;
 
-    const diffHours = Math.floor(diffMins / 60)
-    if (diffHours < 24) return `${diffHours} hours`
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hours`;
 
-    const diffDays = Math.floor(diffHours / 24)
-    return `${diffDays} days`
-  }, [muteEndTime])
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} days`;
+  }, [muteEndTime]);
 
-  const muteRemaining = formatMuteRemaining()
+  const muteRemaining = formatMuteRemaining();
 
   // Save handler
   const handleSave = React.useCallback(() => {
-    onSave?.()
-    onClose?.()
-  }, [onSave, onClose])
+    onSave?.();
+    onClose?.();
+  }, [onSave, onClose]);
 
   if (compact) {
     return (
-      <div className={cn('space-y-3', className)} {...props}>
+      <div className={cn("space-y-3", className)} {...props}>
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">Notifications</span>
           <Select value={level} onValueChange={handleLevelChange}>
@@ -236,18 +250,18 @@ export function ChannelNotificationSettings({
             </SelectContent>
           </Select>
         </div>
-        {level !== 'nothing' && (
+        {level !== "nothing" && (
           <div className="flex items-center justify-between">
             <span className="text-sm">Mute</span>
             <Switch checked={isMuted} onCheckedChange={handleMuteToggle} />
           </div>
         )}
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-4', className)} {...props}>
+    <div className={cn("space-y-4", className)} {...props}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -263,7 +277,11 @@ export function ChannelNotificationSettings({
               stroke="currentColor"
               strokeWidth={2}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </Button>
         )}
@@ -287,17 +305,22 @@ export function ChannelNotificationSettings({
       </Card>
 
       {/* Notification Level */}
-      <Card className={cn('p-4', !overrideGlobal && 'pointer-events-none opacity-50')}>
+      <Card
+        className={cn(
+          "p-4",
+          !overrideGlobal && "pointer-events-none opacity-50",
+        )}
+      >
         <h4 className="mb-3 text-sm font-medium">Notification Level</h4>
         <div className="space-y-2">
           {NOTIFICATION_LEVELS.map((option) => (
             <label
               key={option.value}
               className={cn(
-                'flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors',
+                "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
                 level === option.value
-                  ? 'bg-primary/5 border-primary'
-                  : 'hover:bg-accent/50 border-border'
+                  ? "bg-primary/5 border-primary"
+                  : "hover:bg-accent/50 border-border",
               )}
             >
               <input
@@ -312,7 +335,9 @@ export function ChannelNotificationSettings({
               />
               <div>
                 <span className="text-sm font-medium">{option.label}</span>
-                <p className="text-xs text-muted-foreground">{option.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  {option.description}
+                </p>
               </div>
             </label>
           ))}
@@ -320,13 +345,20 @@ export function ChannelNotificationSettings({
       </Card>
 
       {/* Mute Settings */}
-      {level !== 'nothing' && (
-        <Card className={cn('p-4', !overrideGlobal && 'pointer-events-none opacity-50')}>
+      {level !== "nothing" && (
+        <Card
+          className={cn(
+            "p-4",
+            !overrideGlobal && "pointer-events-none opacity-50",
+          )}
+        >
           <div className="mb-3 flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="mute-channel">Mute channel</Label>
               {isCurrentlyMuted && muteRemaining && (
-                <p className="text-xs text-muted-foreground">Muted for {muteRemaining}</p>
+                <p className="text-xs text-muted-foreground">
+                  Muted for {muteRemaining}
+                </p>
               )}
             </div>
             <Switch
@@ -339,7 +371,9 @@ export function ChannelNotificationSettings({
 
           {isMuted && (
             <div className="mt-3">
-              <Label className="mb-2 block text-xs text-muted-foreground">Mute duration</Label>
+              <Label className="mb-2 block text-xs text-muted-foreground">
+                Mute duration
+              </Label>
               <Select
                 value={selectedMuteDuration}
                 onValueChange={handleMuteDurationChange}
@@ -371,9 +405,9 @@ export function ChannelNotificationSettings({
         <Button onClick={handleSave}>Save Changes</Button>
       </div>
     </div>
-  )
+  );
 }
 
-ChannelNotificationSettings.displayName = 'ChannelNotificationSettings'
+ChannelNotificationSettings.displayName = "ChannelNotificationSettings";
 
-export default ChannelNotificationSettings
+export default ChannelNotificationSettings;

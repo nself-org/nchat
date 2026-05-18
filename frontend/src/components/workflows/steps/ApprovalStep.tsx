@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ApprovalStep - Approval configuration component
@@ -6,27 +6,33 @@
  * Configures approval request steps
  */
 
-import * as React from 'react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
+import * as React from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { ApprovalStep as ApprovalStepType, ApprovalType } from '@/lib/workflows/workflow-types'
+} from "@/components/ui/select";
+import type {
+  ApprovalStep as ApprovalStepType,
+  ApprovalType,
+} from "@/lib/workflows/workflow-types";
 
 interface ApprovalStepPropertiesProps {
-  step: ApprovalStepType
-  onUpdate: (config: Record<string, unknown>) => void
+  step: ApprovalStepType;
+  onUpdate: (config: Record<string, unknown>) => void;
 }
 
-export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertiesProps) {
-  const config = step.config
+export function ApprovalStepProperties({
+  step,
+  onUpdate,
+}: ApprovalStepPropertiesProps) {
+  const config = step.config;
 
   return (
     <div className="space-y-3">
@@ -35,7 +41,9 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
         <Label className="text-xs">Approval Type</Label>
         <Select
           value={config.approvalType}
-          onValueChange={(value) => onUpdate({ approvalType: value as ApprovalType })}
+          onValueChange={(value) =>
+            onUpdate({ approvalType: value as ApprovalType })
+          }
         >
           <SelectTrigger className="mt-1 h-8 text-sm">
             <SelectValue />
@@ -48,10 +56,11 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
           </SelectContent>
         </Select>
         <p className="mt-1 text-[10px] text-muted-foreground">
-          {config.approvalType === 'single' && 'Only one approval is needed'}
-          {config.approvalType === 'all' && 'All listed approvers must approve'}
-          {config.approvalType === 'any' && 'First response (approve or reject) decides'}
-          {config.approvalType === 'majority' && 'More than half must approve'}
+          {config.approvalType === "single" && "Only one approval is needed"}
+          {config.approvalType === "all" && "All listed approvers must approve"}
+          {config.approvalType === "any" &&
+            "First response (approve or reject) decides"}
+          {config.approvalType === "majority" && "More than half must approve"}
         </p>
       </div>
 
@@ -59,19 +68,19 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
       <div>
         <Label className="text-xs">Approvers (User IDs)</Label>
         <Textarea
-          value={config.approvers?.join('\n') || ''}
+          value={config.approvers?.join("\n") || ""}
           onChange={(e) => {
             const approvers = e.target.value
-              .split('\n')
+              .split("\n")
               .map((s) => s.trim())
-              .filter((s) => s)
-            onUpdate({ approvers })
+              .filter((s) => s);
+            onUpdate({ approvers });
           }}
           className="mt-1 min-h-[60px] font-mono text-xs"
           placeholder="user_id_1&#10;user_id_2&#10;{{manager_id}}"
         />
         <p className="mt-1 text-[10px] text-muted-foreground">
-          One user ID per line. Use variables like {'{{manager_id}}'}
+          One user ID per line. Use variables like {"{{manager_id}}"}
         </p>
       </div>
 
@@ -79,13 +88,13 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
       <div>
         <Label className="text-xs">Approver Roles (optional)</Label>
         <Input
-          value={config.approverRoles?.join(', ') || ''}
+          value={config.approverRoles?.join(", ") || ""}
           onChange={(e) => {
             const roles = e.target.value
-              .split(',')
+              .split(",")
               .map((s) => s.trim())
-              .filter((s) => s)
-            onUpdate({ approverRoles: roles })
+              .filter((s) => s);
+            onUpdate({ approverRoles: roles });
           }}
           className="mt-1 h-8 text-sm"
           placeholder="admin, manager"
@@ -99,7 +108,7 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
       <div>
         <Label className="text-xs">Approval Message</Label>
         <Textarea
-          value={config.message || ''}
+          value={config.message || ""}
           onChange={(e) => onUpdate({ message: e.target.value })}
           className="mt-1 min-h-[80px] text-sm"
           placeholder="Please review and approve this request..."
@@ -116,7 +125,9 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
           <Input
             type="number"
             value={config.timeoutMinutes || 1440}
-            onChange={(e) => onUpdate({ timeoutMinutes: parseInt(e.target.value) })}
+            onChange={(e) =>
+              onUpdate({ timeoutMinutes: parseInt(e.target.value) })
+            }
             className="h-8 w-24 text-sm"
             min={1}
           />
@@ -131,7 +142,7 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
       <div>
         <Label className="text-xs">On Timeout</Label>
         <Select
-          value={config.timeoutAction || 'reject'}
+          value={config.timeoutAction || "reject"}
           onValueChange={(value) => onUpdate({ timeoutAction: value })}
         >
           <SelectTrigger className="mt-1 h-8 text-sm">
@@ -146,17 +157,17 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
       </div>
 
       {/* Escalation */}
-      {config.timeoutAction === 'escalate' && (
+      {config.timeoutAction === "escalate" && (
         <div>
           <Label className="text-xs">Escalate To (User IDs)</Label>
           <Input
-            value={config.escalateTo?.join(', ') || ''}
+            value={config.escalateTo?.join(", ") || ""}
             onChange={(e) => {
               const users = e.target.value
-                .split(',')
+                .split(",")
                 .map((s) => s.trim())
-                .filter((s) => s)
-              onUpdate({ escalateTo: users })
+                .filter((s) => s);
+              onUpdate({ escalateTo: users });
             }}
             className="mt-1 h-8 text-sm"
             placeholder="manager_id, director_id"
@@ -169,7 +180,9 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
         <div className="flex items-center justify-between">
           <div>
             <Label className="text-xs">Require Comment</Label>
-            <p className="text-[10px] text-muted-foreground">Approvers must provide a comment</p>
+            <p className="text-[10px] text-muted-foreground">
+              Approvers must provide a comment
+            </p>
           </div>
           <Switch
             checked={config.requireComment === true}
@@ -180,7 +193,9 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
         <div className="flex items-center justify-between">
           <div>
             <Label className="text-xs">Allow Delegation</Label>
-            <p className="text-[10px] text-muted-foreground">Approvers can delegate to others</p>
+            <p className="text-[10px] text-muted-foreground">
+              Approvers can delegate to others
+            </p>
           </div>
           <Switch
             checked={config.allowDelegate === true}
@@ -194,10 +209,10 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
         <Label className="text-xs">Reminder Interval (minutes)</Label>
         <Input
           type="number"
-          value={config.reminderIntervalMinutes || ''}
+          value={config.reminderIntervalMinutes || ""}
           onChange={(e) => {
-            const value = e.target.value ? parseInt(e.target.value) : undefined
-            onUpdate({ reminderIntervalMinutes: value })
+            const value = e.target.value ? parseInt(e.target.value) : undefined;
+            onUpdate({ reminderIntervalMinutes: value });
           }}
           className="mt-1 h-8 text-sm"
           min={15}
@@ -220,7 +235,7 @@ export function ApprovalStepProperties({ step, onUpdate }: ApprovalStepPropertie
         </p>
       </div>
     </div>
-  )
+  );
 }
 
-export default ApprovalStepProperties
+export default ApprovalStepProperties;

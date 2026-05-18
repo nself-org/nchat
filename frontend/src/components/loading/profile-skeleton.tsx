@@ -1,19 +1,24 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Skeleton, CircleSkeleton, LineSkeleton, TextBlockSkeleton } from './skeleton'
+import { cn } from "@/lib/utils";
+import {
+  Skeleton,
+  CircleSkeleton,
+  LineSkeleton,
+  TextBlockSkeleton,
+} from "./skeleton";
 
 interface ProfileSkeletonProps {
   /** Show cover image */
-  showCover?: boolean
+  showCover?: boolean;
   /** Show bio section */
-  showBio?: boolean
+  showBio?: boolean;
   /** Show stats */
-  showStats?: boolean
+  showStats?: boolean;
   /** Show action buttons */
-  showActions?: boolean
+  showActions?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -28,12 +33,12 @@ export function ProfileSkeleton({
   className,
 }: ProfileSkeletonProps) {
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn("w-full", className)}>
       {/* Cover image */}
       {showCover && <Skeleton className="h-32 w-full rounded-t-lg" />}
 
       {/* Profile content */}
-      <div className={cn('px-4 pb-4', showCover && '-mt-12')}>
+      <div className={cn("px-4 pb-4", showCover && "-mt-12")}>
         {/* Avatar */}
         <div className="relative inline-block">
           <CircleSkeleton size={96} className="border-4 border-background" />
@@ -76,7 +81,7 @@ export function ProfileSkeleton({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -88,7 +93,7 @@ function ProfileStatSkeleton() {
       <LineSkeleton width={30} height={18} />
       <LineSkeleton width={50} height={12} />
     </div>
-  )
+  );
 }
 
 /**
@@ -97,7 +102,7 @@ function ProfileStatSkeleton() {
  */
 export function CompactProfileSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('flex items-start gap-3 p-4', className)}>
+    <div className={cn("flex items-start gap-3 p-4", className)}>
       {/* Avatar */}
       <CircleSkeleton size={48} />
 
@@ -108,7 +113,7 @@ export function CompactProfileSkeleton({ className }: { className?: string }) {
         <LineSkeleton width="90%" height={12} />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -116,7 +121,7 @@ export function CompactProfileSkeleton({ className }: { className?: string }) {
  */
 export function ProfileHeaderSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn("relative", className)}>
       {/* Banner */}
       <Skeleton className="h-48 w-full" />
 
@@ -135,7 +140,7 @@ export function ProfileHeaderSkeleton({ className }: { className?: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -143,7 +148,7 @@ export function ProfileHeaderSkeleton({ className }: { className?: string }) {
  */
 export function ProfileFormSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Avatar upload */}
       <div className="flex items-center gap-4">
         <CircleSkeleton size={80} />
@@ -167,7 +172,7 @@ export function ProfileFormSkeleton({ className }: { className?: string }) {
         <Skeleton className="h-10 w-24 rounded-md" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -177,15 +182,17 @@ function ProfileFormFieldSkeleton({
   label,
   isTextarea = false,
 }: {
-  label: string
-  isTextarea?: boolean
+  label: string;
+  isTextarea?: boolean;
 }) {
   return (
     <div className="space-y-2">
       <LineSkeleton width={80} height={14} />
-      <Skeleton className={cn('w-full rounded-md', isTextarea ? 'h-24' : 'h-10')} />
+      <Skeleton
+        className={cn("w-full rounded-md", isTextarea ? "h-24" : "h-10")}
+      />
     </div>
-  )
+  );
 }
 
 /**
@@ -193,7 +200,7 @@ function ProfileFormFieldSkeleton({
  */
 export function ProfileTabsSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Tab navigation */}
       <div className="flex gap-1 border-b pb-2">
         <Skeleton className="h-8 w-20 rounded-md" />
@@ -214,5 +221,5 @@ export function ProfileTabsSkeleton({ className }: { className?: string }) {
         ))}
       </div>
     </div>
-  )
+  );
 }

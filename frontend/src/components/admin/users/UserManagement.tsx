@@ -1,26 +1,35 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Plus, Download, Upload, Filter, RefreshCw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { UserList } from './UserList'
-import { UserFilters } from './UserFilters'
-import { UserStats } from './UserStats'
-import { InviteModal } from './InviteModal'
-import { BanUserModal } from './BanUserModal'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import type { AdminUser } from '@/lib/admin/users/user-types'
+import { useState, useEffect } from "react";
+import { Plus, Download, Upload, Filter, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserList } from "./UserList";
+import { UserFilters } from "./UserFilters";
+import { UserStats } from "./UserStats";
+import { InviteModal } from "./InviteModal";
+import { BanUserModal } from "./BanUserModal";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import type { AdminUser } from "@/lib/admin/users/user-types";
 
 interface UserManagementProps {
-  initialUsers?: AdminUser[]
-  initialTotal?: number
+  initialUsers?: AdminUser[];
+  initialTotal?: number;
 }
 
-export function UserManagement({ initialUsers = [], initialTotal = 0 }: UserManagementProps) {
-  const [showFilters, setShowFilters] = useState(false)
-  const [activeTab, setActiveTab] = useState('all')
+export function UserManagement({
+  initialUsers = [],
+  initialTotal = 0,
+}: UserManagementProps) {
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
 
   const {
     users,
@@ -37,44 +46,48 @@ export function UserManagement({ initialUsers = [], initialTotal = 0 }: UserMana
     usersFilters,
     setUsersFilters,
     clearUsersFilters,
-  } = useUserManagementStore()
+  } = useUserManagementStore();
 
   // Initialize with server data
   useEffect(() => {
     if (initialUsers.length > 0) {
-      setUsers(initialUsers, initialTotal)
+      setUsers(initialUsers, initialTotal);
     }
-  }, [initialUsers, initialTotal, setUsers])
+  }, [initialUsers, initialTotal, setUsers]);
 
   const handleRefresh = async () => {
     // Trigger refetch - in production this would call the API
-  }
+  };
 
   const handleExport = () => {
     // Open export dialog or trigger export
-  }
+  };
 
   const handleImport = () => {
     // Open import dialog
-  }
+  };
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value)
+    setActiveTab(value);
     switch (value) {
-      case 'all':
-        setUsersFilters({ ...usersFilters, isBanned: undefined, isActive: undefined })
-        break
-      case 'active':
-        setUsersFilters({ ...usersFilters, isActive: true, isBanned: false })
-        break
-      case 'inactive':
-        setUsersFilters({ ...usersFilters, isActive: false, isBanned: false })
-        break
-      case 'banned':
-        setUsersFilters({ ...usersFilters, isBanned: true })
-        break
+      case "all":
+        setUsersFilters({
+          ...usersFilters,
+          isBanned: undefined,
+          isActive: undefined,
+        });
+        break;
+      case "active":
+        setUsersFilters({ ...usersFilters, isActive: true, isBanned: false });
+        break;
+      case "inactive":
+        setUsersFilters({ ...usersFilters, isActive: false, isBanned: false });
+        break;
+      case "banned":
+        setUsersFilters({ ...usersFilters, isBanned: true });
+        break;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -82,10 +95,16 @@ export function UserManagement({ initialUsers = [], initialTotal = 0 }: UserMana
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Users</h1>
-          <p className="text-muted-foreground">Manage user accounts, roles, and permissions</p>
+          <p className="text-muted-foreground">
+            Manage user accounts, roles, and permissions
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+          >
             <Filter className="mr-2 h-4 w-4" />
             Filters
           </Button>
@@ -101,7 +120,7 @@ export function UserManagement({ initialUsers = [], initialTotal = 0 }: UserMana
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
-          <Button size="sm" onClick={() => openInviteModal('single')}>
+          <Button size="sm" onClick={() => openInviteModal("single")}>
             <Plus className="mr-2 h-4 w-4" />
             Invite User
           </Button>
@@ -143,11 +162,19 @@ export function UserManagement({ initialUsers = [], initialTotal = 0 }: UserMana
       </Tabs>
 
       {/* Modals */}
-      <InviteModal open={inviteModalOpen} onClose={closeInviteModal} mode={inviteModalMode} />
+      <InviteModal
+        open={inviteModalOpen}
+        onClose={closeInviteModal}
+        mode={inviteModalMode}
+      />
 
-      <BanUserModal open={banModalOpen} user={banModalUser} onClose={closeBanModal} />
+      <BanUserModal
+        open={banModalOpen}
+        user={banModalUser}
+        onClose={closeBanModal}
+      />
     </div>
-  )
+  );
 }
 
-export default UserManagement
+export default UserManagement;

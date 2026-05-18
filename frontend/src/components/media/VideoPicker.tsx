@@ -1,46 +1,46 @@
-'use client'
+"use client";
 
 /**
  * VideoPicker Component
  * Video selection with trimming UI and preview
  */
 
-import * as React from 'react'
-import { useState, useRef, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Slider } from '@/components/ui/slider'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Video, Camera, Play, Pause, X, Scissors, Check } from 'lucide-react'
-import { video } from '@/lib/capacitor/video'
-import { formatDuration } from '@/lib/media/video-processor'
-import { trimVideoWeb } from '@/lib/capacitor/video'
-import { Capacitor } from '@capacitor/core'
+import * as React from "react";
+import { useState, useRef, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Video, Camera, Play, Pause, X, Scissors, Check } from "lucide-react";
+import { video } from "@/lib/capacitor/video";
+import { formatDuration } from "@/lib/media/video-processor";
+import { trimVideoWeb } from "@/lib/capacitor/video";
+import { Capacitor } from "@capacitor/core";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface VideoPickerProps {
-  maxDurationSeconds?: number
-  maxSizeMB?: number
-  allowCamera?: boolean
-  allowGallery?: boolean
-  allowTrimming?: boolean
-  onVideoSelected?: (videoBlob: Blob, metadata: VideoMetadata) => void
-  onError?: (error: string) => void
-  className?: string
+  maxDurationSeconds?: number;
+  maxSizeMB?: number;
+  allowCamera?: boolean;
+  allowGallery?: boolean;
+  allowTrimming?: boolean;
+  onVideoSelected?: (videoBlob: Blob, metadata: VideoMetadata) => void;
+  onError?: (error: string) => void;
+  className?: string;
 }
 
 export interface VideoMetadata {
-  duration: number
-  width: number
-  height: number
-  size: number
-  thumbnail?: string
+  duration: number;
+  width: number;
+  height: number;
+  size: number;
+  thumbnail?: string;
 }
 
 // ============================================================================
@@ -57,63 +57,68 @@ export function VideoPicker({
   onError,
   className,
 }: VideoPickerProps) {
-  const [selectedVideo, setSelectedVideo] = useState<File | null>(null)
-  const [videoUrl, setVideoUrl] = useState<string>('')
-  const [metadata, setMetadata] = useState<VideoMetadata | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [trimStart, setTrimStart] = useState(0)
-  const [trimEnd, setTrimEnd] = useState(0)
-  const [isTrimming, setIsTrimming] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [trimStart, setTrimStart] = useState(0);
+  const [trimEnd, setTrimEnd] = useState(0);
+  const [isTrimming, setIsTrimming] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   /**
    * Handle file selection
    */
-  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+  const handleFileSelect = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-    await processVideo(file)
-  }, [])
+      await processVideo(file);
+    },
+    [],
+  );
 
   /**
    * Process video file
    */
   const processVideo = async (file: File) => {
     // Validate file type
-    if (!file.type.startsWith('video/')) {
-      onError?.('Please select a video file')
-      return
+    if (!file.type.startsWith("video/")) {
+      onError?.("Please select a video file");
+      return;
     }
 
     // Validate file size
-    const sizeMB = file.size / 1024 / 1024
+    const sizeMB = file.size / 1024 / 1024;
     if (sizeMB > maxSizeMB) {
-      onError?.(`Video size exceeds ${maxSizeMB}MB limit`)
-      return
+      onError?.(`Video size exceeds ${maxSizeMB}MB limit`);
+      return;
     }
 
-    const url = URL.createObjectURL(file)
-    setVideoUrl(url)
-    setSelectedVideo(file)
+    const url = URL.createObjectURL(file);
+    setVideoUrl(url);
+    setSelectedVideo(file);
 
     // Load video metadata
-    const videoElement = document.createElement('video')
-    videoElement.src = url
+    const videoElement = document.createElement("video");
+    videoElement.src = url;
 
     videoElement.onloadedmetadata = () => {
-      const duration = videoElement.duration
+      const duration = videoElement.duration;
 
       if (duration > maxDurationSeconds) {
-        onError?.(`Video duration exceeds ${Math.floor(maxDurationSeconds / 60)} minutes limit`)
-        URL.revokeObjectURL(url)
-        setVideoUrl('')
-        setSelectedVideo(null)
-        return
+        onError?.(
+          `Video duration exceeds ${Math.floor(maxDurationSeconds / 60)} minutes limit`,
+        );
+        URL.revokeObjectURL(url);
+        setVideoUrl("");
+        setSelectedVideo(null);
+        return;
       }
 
       setMetadata({
@@ -121,47 +126,47 @@ export function VideoPicker({
         width: videoElement.videoWidth,
         height: videoElement.videoHeight,
         size: file.size,
-      })
+      });
 
-      setTrimEnd(duration)
-    }
-  }
+      setTrimEnd(duration);
+    };
+  };
 
   /**
    * Handle camera recording
    */
   const handleCameraRecord = async () => {
     try {
-      const hasPermission = await video.requestCameraPermission()
+      const hasPermission = await video.requestCameraPermission();
       if (!hasPermission) {
-        onError?.('Camera permission denied')
-        return
+        onError?.("Camera permission denied");
+        return;
       }
 
       const recording = await video.recordVideo({
         maxDuration: maxDurationSeconds,
-        quality: 'medium',
+        quality: "medium",
         saveToGallery: true,
-      })
+      });
 
       if (!recording) {
-        onError?.('Failed to record video')
-        return
+        onError?.("Failed to record video");
+        return;
       }
 
       // Convert to File
-      const response = await fetch(recording.uri)
-      const blob = await response.blob()
+      const response = await fetch(recording.uri);
+      const blob = await response.blob();
       const file = new File([blob], `video-${Date.now()}.mp4`, {
-        type: 'video/mp4',
-      })
+        type: "video/mp4",
+      });
 
-      await processVideo(file)
+      await processVideo(file);
     } catch (error) {
-      logger.error('Camera recording failed:', error)
-      onError?.('Failed to record video')
+      logger.error("Camera recording failed:", error);
+      onError?.("Failed to record video");
     }
-  }
+  };
 
   /**
    * Handle gallery selection
@@ -169,102 +174,102 @@ export function VideoPicker({
   const handleGallerySelect = async () => {
     if (Capacitor.isNativePlatform()) {
       try {
-        const recording = await video.pickVideo()
-        if (!recording) return
+        const recording = await video.pickVideo();
+        if (!recording) return;
 
-        const response = await fetch(recording.uri)
-        const blob = await response.blob()
+        const response = await fetch(recording.uri);
+        const blob = await response.blob();
         const file = new File([blob], `video-${Date.now()}.mp4`, {
-          type: 'video/mp4',
-        })
+          type: "video/mp4",
+        });
 
-        await processVideo(file)
+        await processVideo(file);
       } catch (error) {
-        logger.error('Gallery selection failed:', error)
-        onError?.('Failed to select video')
+        logger.error("Gallery selection failed:", error);
+        onError?.("Failed to select video");
       }
     } else {
-      fileInputRef.current?.click()
+      fileInputRef.current?.click();
     }
-  }
+  };
 
   /**
    * Play/Pause video
    */
   const handlePlayPause = () => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
     if (isPlaying) {
-      videoRef.current.pause()
-      setIsPlaying(false)
+      videoRef.current.pause();
+      setIsPlaying(false);
     } else {
-      videoRef.current.play()
-      setIsPlaying(true)
+      videoRef.current.play();
+      setIsPlaying(true);
     }
-  }
+  };
 
   /**
    * Handle time update
    */
   const handleTimeUpdate = () => {
     if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime)
+      setCurrentTime(videoRef.current.currentTime);
     }
-  }
+  };
 
   /**
    * Apply trim
    */
   const handleApplyTrim = async () => {
-    if (!selectedVideo || !metadata) return
+    if (!selectedVideo || !metadata) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     try {
-      const result = await trimVideoWeb(selectedVideo, trimStart, trimEnd)
+      const result = await trimVideoWeb(selectedVideo, trimStart, trimEnd);
 
       onVideoSelected?.(result.blob, {
         ...metadata,
         duration: result.duration,
         size: result.blob.size,
-      })
+      });
 
-      setIsProcessing(false)
+      setIsProcessing(false);
     } catch (error) {
-      logger.error('Failed to trim video:', error)
-      onError?.('Failed to trim video')
-      setIsProcessing(false)
+      logger.error("Failed to trim video:", error);
+      onError?.("Failed to trim video");
+      setIsProcessing(false);
     }
-  }
+  };
 
   /**
    * Send video without trimming
    */
   const handleSendVideo = () => {
-    if (!selectedVideo || !metadata) return
+    if (!selectedVideo || !metadata) return;
 
-    onVideoSelected?.(selectedVideo, metadata)
-  }
+    onVideoSelected?.(selectedVideo, metadata);
+  };
 
   /**
    * Clear selection
    */
   const handleClear = () => {
     if (videoUrl) {
-      URL.revokeObjectURL(videoUrl)
+      URL.revokeObjectURL(videoUrl);
     }
-    setVideoUrl('')
-    setSelectedVideo(null)
-    setMetadata(null)
-    setTrimStart(0)
-    setTrimEnd(0)
-    setIsTrimming(false)
-    setCurrentTime(0)
-    setIsPlaying(false)
-  }
+    setVideoUrl("");
+    setSelectedVideo(null);
+    setMetadata(null);
+    setTrimStart(0);
+    setTrimEnd(0);
+    setIsTrimming(false);
+    setCurrentTime(0);
+    setIsPlaying(false);
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Action Buttons */}
       {!selectedVideo && (
         <div className="flex gap-2">
@@ -329,7 +334,9 @@ export function VideoPicker({
                 <span>{(metadata.size / 1024 / 1024).toFixed(1)} MB</span>
               </div>
               {isTrimming && (
-                <Badge variant="secondary">Trim: {formatDuration(trimEnd - trimStart)}</Badge>
+                <Badge variant="secondary">
+                  Trim: {formatDuration(trimEnd - trimStart)}
+                </Badge>
               )}
             </div>
           )}
@@ -339,8 +346,12 @@ export function VideoPicker({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Trim Video</span>
-                <Button size="sm" variant="outline" onClick={() => setIsTrimming(!isTrimming)}>
-                  {isTrimming ? 'Cancel Trim' : 'Enable Trim'}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsTrimming(!isTrimming)}
+                >
+                  {isTrimming ? "Cancel Trim" : "Enable Trim"}
                 </Button>
               </div>
 
@@ -358,10 +369,10 @@ export function VideoPicker({
                       max={metadata.duration}
                       step={0.1}
                       onValueChange={([start, end]) => {
-                        setTrimStart(start)
-                        setTrimEnd(end)
+                        setTrimStart(start);
+                        setTrimEnd(end);
                         if (videoRef.current) {
-                          videoRef.current.currentTime = start
+                          videoRef.current.currentTime = start;
                         }
                       }}
                       className="my-4"
@@ -411,7 +422,7 @@ export function VideoPicker({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default VideoPicker
+export default VideoPicker;

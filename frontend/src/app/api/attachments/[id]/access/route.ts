@@ -11,26 +11,26 @@
  * - Virus scan status check
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { z } from 'zod'
-import { apolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
-import { logAuditEvent } from '@/lib/audit'
-import crypto from 'crypto'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
+import { apolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
+import { logAuditEvent } from "@/lib/audit";
+import crypto from "crypto";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // ============================================================================
 // VALIDATION SCHEMA
 // ============================================================================
 
 const AccessRequestSchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
+  userId: z.string().uuid("Invalid user ID"),
   expiresIn: z.number().int().min(60).max(3600).default(300), // 1 min to 1 hour
   download: z.boolean().default(false), // Force download vs inline view
-})
+});
 
 // ============================================================================
 // GRAPHQL OPERATIONS
@@ -71,10 +71,14 @@ const GET_ATTACHMENT_WITH_PERMISSIONS = gql`
       }
     }
   }
-`
+`;
 
 const UPDATE_ACCESS_TOKEN = gql`
-  mutation UpdateAccessToken($id: uuid!, $accessToken: String!, $accessExpiresAt: timestamptz!) {
+  mutation UpdateAccessToken(
+    $id: uuid!
+    $accessToken: String!
+    $accessExpiresAt: timestamptz!
+  ) {
     update_nchat_attachments_by_pk(
       pk_columns: { id: $id }
       _set: { access_token: $accessToken, access_expires_at: $accessExpiresAt }
@@ -84,140 +88,155 @@ const UPDATE_ACCESS_TOKEN = gql`
       access_expires_at
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPERS
 // ============================================================================
 
-function generateSignedToken(attachmentId: string, userId: string, expiresAt: number): string {
-  const secret = process.env.ATTACHMENT_SECRET || 'default-secret-change-in-production'
-  const payload = `${attachmentId}:${userId}:${expiresAt}`
-  const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex')
-  return `${Buffer.from(payload).toString('base64')}.${signature}`
+function generateSignedToken(
+  attachmentId: string,
+  userId: string,
+  expiresAt: number,
+): string {
+  const secret =
+    process.env.ATTACHMENT_SECRET || "default-secret-change-in-production";
+  const payload = `${attachmentId}:${userId}:${expiresAt}`;
+  const signature = crypto
+    .createHmac("sha256", secret)
+    .update(payload)
+    .digest("hex");
+  return `${Buffer.from(payload).toString("base64")}.${signature}`;
 }
 
 function checkPermissions(
   attachment: Record<string, unknown>,
-  userId: string
+  userId: string,
 ): { allowed: boolean; reason?: string } {
-  const message = attachment.message as Record<string, unknown>
-  const channel = message.channel as Record<string, unknown>
-  const members = (channel.members as unknown[]) || []
+  const message = attachment.message as Record<string, unknown>;
+  const channel = message.channel as Record<string, unknown>;
+  const members = (channel.members as unknown[]) || [];
 
   // Check if attachment is public
   if (attachment.is_public === true) {
-    return { allowed: true }
+    return { allowed: true };
   }
 
   // Check if message is deleted
   if (message.is_deleted === true) {
-    return { allowed: false, reason: 'Message has been deleted' }
+    return { allowed: false, reason: "Message has been deleted" };
   }
 
   // Check if channel is archived
   if (channel.is_archived === true) {
-    return { allowed: false, reason: 'Channel is archived' }
+    return { allowed: false, reason: "Channel is archived" };
   }
 
   // Check if user is message author
   if (message.user_id === userId) {
-    return { allowed: true }
+    return { allowed: true };
   }
 
   // Check if user is channel member
-  const isMember = members.some((m: any) => m.user_id === userId)
+  const isMember = members.some((m: any) => m.user_id === userId);
   if (!isMember) {
-    return { allowed: false, reason: 'Not a channel member' }
+    return { allowed: false, reason: "Not a channel member" };
   }
 
   // Check virus scan status
-  if (attachment.virus_scan_status === 'infected') {
-    return { allowed: false, reason: 'File failed virus scan' }
+  if (attachment.virus_scan_status === "infected") {
+    return { allowed: false, reason: "File failed virus scan" };
   }
 
-  return { allowed: true }
+  return { allowed: true };
 }
 
 // ============================================================================
 // GET - Generate signed access URL
 // ============================================================================
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params
-  const attachmentId = resolvedParams.id
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const resolvedParams = await params;
+  const attachmentId = resolvedParams.id;
 
   try {
-    logger.info('GET /api/attachments/[id]/access', { attachmentId })
+    logger.info("GET /api/attachments/[id]/access", { attachmentId });
 
     // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(attachmentId)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid attachment ID format' },
-        { status: 400 }
-      )
+        { success: false, error: "Invalid attachment ID format" },
+        { status: 400 },
+      );
     }
 
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = request.nextUrl.searchParams;
     const validation = AccessRequestSchema.safeParse({
-      userId: searchParams.get('userId'),
-      expiresIn: searchParams.get('expiresIn')
-        ? parseInt(searchParams.get('expiresIn')!)
+      userId: searchParams.get("userId"),
+      expiresIn: searchParams.get("expiresIn")
+        ? parseInt(searchParams.get("expiresIn")!)
         : undefined,
-      download: searchParams.get('download') === 'true',
-    })
+      download: searchParams.get("download") === "true",
+    });
 
     if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid query parameters',
+          error: "Invalid query parameters",
           details: validation.error.flatten().fieldErrors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const { userId, expiresIn, download } = validation.data
+    const { userId, expiresIn, download } = validation.data;
 
     // Fetch attachment with permission context
     const { data, errors } = await apolloClient.query({
       query: GET_ATTACHMENT_WITH_PERMISSIONS,
       variables: { id: attachmentId, userId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (errors || !data?.nchat_attachments_by_pk) {
-      return NextResponse.json({ success: false, error: 'Attachment not found' }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: "Attachment not found" },
+        { status: 404 },
+      );
     }
 
-    const attachment = data.nchat_attachments_by_pk
+    const attachment = data.nchat_attachments_by_pk;
 
     // Check permissions
-    const permissionCheck = checkPermissions(attachment, userId)
+    const permissionCheck = checkPermissions(attachment, userId);
     if (!permissionCheck.allowed) {
-      logger.warn('Attachment access denied', {
+      logger.warn("Attachment access denied", {
         attachmentId,
         userId,
         reason: permissionCheck.reason,
-      })
+      });
 
       return NextResponse.json(
         {
           success: false,
-          error: 'Access denied',
+          error: "Access denied",
           reason: permissionCheck.reason,
         },
-        { status: 403 }
-      )
+        { status: 403 },
+      );
     }
 
     // Generate signed token
-    const expiresAt = Date.now() + expiresIn * 1000
-    const accessToken = generateSignedToken(attachmentId, userId, expiresAt)
-    const expiresAtISO = new Date(expiresAt).toISOString()
+    const expiresAt = Date.now() + expiresIn * 1000;
+    const accessToken = generateSignedToken(attachmentId, userId, expiresAt);
+    const expiresAtISO = new Date(expiresAt).toISOString();
 
     // Store access token in database
     await apolloClient.mutate({
@@ -227,20 +246,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         accessToken,
         accessExpiresAt: expiresAtISO,
       },
-    })
+    });
 
     // Generate signed URL
-    const baseUrl = process.env.NEXT_PUBLIC_STORAGE_URL || 'http://storage.localhost/v1/storage'
-    const storageKey = attachment.storage_key || attachment.file_url
-    const signedUrl = `${baseUrl}/files/${storageKey}?token=${encodeURIComponent(accessToken)}&expires=${expiresAt}${download ? '&download=true' : ''}`
+    const baseUrl =
+      process.env.NEXT_PUBLIC_STORAGE_URL ||
+      "http://storage.localhost/v1/storage";
+    const storageKey = attachment.storage_key || attachment.file_url;
+    const signedUrl = `${baseUrl}/files/${storageKey}?token=${encodeURIComponent(accessToken)}&expires=${expiresAt}${download ? "&download=true" : ""}`;
 
     // Log audit event
     await logAuditEvent({
-      action: 'access',
+      action: "access",
       actor: userId,
-      category: 'attachment',
-      resource: { type: 'attachment', id: attachmentId },
-      description: `Attachment access granted${download ? ' (download)' : ''}`,
+      category: "attachment",
+      resource: { type: "attachment", id: attachmentId },
+      description: `Attachment access granted${download ? " (download)" : ""}`,
       metadata: {
         fileName: attachment.file_name,
         fileType: attachment.file_type,
@@ -249,14 +270,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         expiresIn,
         download,
       },
-    })
+    });
 
-    logger.info('Attachment access granted', {
+    logger.info("Attachment access granted", {
       attachmentId,
       userId,
       expiresIn,
       download,
-    })
+    });
 
     return NextResponse.json({
       success: true,
@@ -270,18 +291,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         expiresIn,
         download,
       },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/attachments/[id]/access - Error', error as Error, {
+    logger.error("GET /api/attachments/[id]/access - Error", error as Error, {
       attachmentId,
-    })
+    });
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to generate access URL',
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to generate access URL",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

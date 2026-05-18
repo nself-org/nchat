@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Schedule Message Modal Component
@@ -19,7 +19,7 @@
  * ```
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,40 +27,52 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Clock, Send, Loader2, Hash, Lock, AlertCircle, CalendarClock } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { SchedulePicker } from './schedule-picker'
-import { ScheduleQuickOptions } from './schedule-quick-options'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+  Clock,
+  Send,
+  Loader2,
+  Hash,
+  Lock,
+  AlertCircle,
+  CalendarClock,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { SchedulePicker } from "./schedule-picker";
+import { ScheduleQuickOptions } from "./schedule-quick-options";
 import {
   getUserTimezone,
   getDefaultScheduledTime,
   isScheduledInPast,
-} from '@/lib/scheduled/scheduled-store'
-import type { ScheduledMessage } from '@/graphql/scheduled'
+} from "@/lib/scheduled/scheduled-store";
+import type { ScheduledMessage } from "@/graphql/scheduled";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ScheduleMessageModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  channelId: string
-  channelName: string
-  isPrivate?: boolean
-  initialContent?: string
-  editingMessage?: ScheduledMessage | null
-  onSchedule: (data: { content: string; scheduledAt: Date; timezone: string }) => Promise<void>
-  isLoading?: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channelId: string;
+  channelName: string;
+  isPrivate?: boolean;
+  initialContent?: string;
+  editingMessage?: ScheduledMessage | null;
+  onSchedule: (data: {
+    content: string;
+    scheduledAt: Date;
+    timezone: string;
+  }) => Promise<void>;
+  isLoading?: boolean;
 }
 
 // ============================================================================
@@ -73,101 +85,116 @@ export function ScheduleMessageModal({
   channelId,
   channelName,
   isPrivate = false,
-  initialContent = '',
+  initialContent = "",
   editingMessage,
   onSchedule,
   isLoading = false,
 }: ScheduleMessageModalProps) {
   // Form state
-  const [content, setContent] = useState(initialContent)
+  const [content, setContent] = useState(initialContent);
   const [scheduledAt, setScheduledAt] = useState<Date>(() =>
-    editingMessage ? new Date(editingMessage.scheduled_at) : getDefaultScheduledTime()
-  )
+    editingMessage
+      ? new Date(editingMessage.scheduled_at)
+      : getDefaultScheduledTime(),
+  );
   const [timezone, setTimezone] = useState<string>(
-    () => editingMessage?.timezone || getUserTimezone()
-  )
-  const [activeTab, setActiveTab] = useState<'quick' | 'custom'>('quick')
-  const [selectedQuickOption, setSelectedQuickOption] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+    () => editingMessage?.timezone || getUserTimezone(),
+  );
+  const [activeTab, setActiveTab] = useState<"quick" | "custom">("quick");
+  const [selectedQuickOption, setSelectedQuickOption] = useState<string | null>(
+    null,
+  );
+  const [submitting, setSubmitting] = useState(false);
 
   // Reset form when modal opens
   useEffect(() => {
     if (open) {
       if (editingMessage) {
-        setContent(editingMessage.content)
-        setScheduledAt(new Date(editingMessage.scheduled_at))
-        setTimezone(editingMessage.timezone)
-        setActiveTab('custom')
-        setSelectedQuickOption(null)
+        setContent(editingMessage.content);
+        setScheduledAt(new Date(editingMessage.scheduled_at));
+        setTimezone(editingMessage.timezone);
+        setActiveTab("custom");
+        setSelectedQuickOption(null);
       } else {
-        setContent(initialContent)
-        setScheduledAt(getDefaultScheduledTime())
-        setTimezone(getUserTimezone())
-        setActiveTab('quick')
-        setSelectedQuickOption(null)
+        setContent(initialContent);
+        setScheduledAt(getDefaultScheduledTime());
+        setTimezone(getUserTimezone());
+        setActiveTab("quick");
+        setSelectedQuickOption(null);
       }
     }
-  }, [open, editingMessage, initialContent])
+  }, [open, editingMessage, initialContent]);
 
   // Validation
-  const isContentValid = content.trim().length > 0
-  const isTimeValid = !isScheduledInPast(scheduledAt)
-  const isValid = isContentValid && isTimeValid
+  const isContentValid = content.trim().length > 0;
+  const isTimeValid = !isScheduledInPast(scheduledAt);
+  const isValid = isContentValid && isTimeValid;
 
   // Error messages
   const errors = useMemo(() => {
-    const errs: string[] = []
+    const errs: string[] = [];
     if (!isContentValid && content.length > 0) {
-      errs.push('Message cannot be empty')
+      errs.push("Message cannot be empty");
     }
     if (!isTimeValid) {
-      errs.push('Scheduled time must be in the future')
+      errs.push("Scheduled time must be in the future");
     }
-    return errs
-  }, [isContentValid, isTimeValid, content])
+    return errs;
+  }, [isContentValid, isTimeValid, content]);
 
   // Handlers
-  const handleQuickOptionSelect = useCallback((date: Date, optionId: string) => {
-    setScheduledAt(date)
-    setSelectedQuickOption(optionId)
-  }, [])
+  const handleQuickOptionSelect = useCallback(
+    (date: Date, optionId: string) => {
+      setScheduledAt(date);
+      setSelectedQuickOption(optionId);
+    },
+    [],
+  );
 
   const handleCustomClick = useCallback(() => {
-    setActiveTab('custom')
-    setSelectedQuickOption('custom')
-  }, [])
+    setActiveTab("custom");
+    setSelectedQuickOption("custom");
+  }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!isValid || submitting) return
+    if (!isValid || submitting) return;
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       await onSchedule({
         content: content.trim(),
         scheduledAt,
         timezone,
-      })
-      onOpenChange(false)
+      });
+      onOpenChange(false);
     } catch (error) {
-      logger.error('Failed to schedule message:', error)
+      logger.error("Failed to schedule message:", error);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }, [isValid, submitting, content, scheduledAt, timezone, onSchedule, onOpenChange])
+  }, [
+    isValid,
+    submitting,
+    content,
+    scheduledAt,
+    timezone,
+    onSchedule,
+    onOpenChange,
+  ]);
 
   // Preview formatted time
   const previewTime = useMemo(() => {
-    return scheduledAt.toLocaleString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
+    return scheduledAt.toLocaleString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
       hour12: true,
       timeZone: timezone,
-    })
-  }, [scheduledAt, timezone])
+    });
+  }, [scheduledAt, timezone]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -175,12 +202,16 @@ export function ScheduleMessageModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarClock className="h-5 w-5 text-muted-foreground" />
-            {editingMessage ? 'Edit Scheduled Message' : 'Schedule Message'}
+            {editingMessage ? "Edit Scheduled Message" : "Schedule Message"}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1">
-            Schedule a message to{' '}
+            Schedule a message to{" "}
             <Badge variant="secondary" className="gap-1">
-              {isPrivate ? <Lock className="h-3 w-3" /> : <Hash className="h-3 w-3" />}
+              {isPrivate ? (
+                <Lock className="h-3 w-3" />
+              ) : (
+                <Hash className="h-3 w-3" />
+              )}
               {channelName}
             </Badge>
           </DialogDescription>
@@ -199,15 +230,20 @@ export function ScheduleMessageModal({
                 rows={4}
                 disabled={isLoading || submitting}
                 className={cn(
-                  'resize-none',
-                  !isContentValid && content.length > 0 && 'border-destructive'
+                  "resize-none",
+                  !isContentValid && content.length > 0 && "border-destructive",
                 )}
               />
-              <p className="text-xs text-muted-foreground">{content.length} characters</p>
+              <p className="text-xs text-muted-foreground">
+                {content.length} characters
+              </p>
             </div>
 
             {/* Schedule Time Selection */}
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'quick' | 'custom')}>
+            <Tabs
+              value={activeTab}
+              onValueChange={(v) => setActiveTab(v as "quick" | "custom")}
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="quick" className="gap-2">
                   <Clock className="h-4 w-4" />
@@ -255,7 +291,9 @@ export function ScheduleMessageModal({
               </div>
               {content && (
                 <div className="mt-3 rounded-md border bg-background p-3">
-                  <p className="whitespace-pre-wrap break-words text-sm">{content}</p>
+                  <p className="whitespace-pre-wrap break-words text-sm">
+                    {content}
+                  </p>
                 </div>
               )}
             </div>
@@ -279,21 +317,28 @@ export function ScheduleMessageModal({
         </ScrollArea>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={submitting}
+          >
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!isValid || isLoading || submitting}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!isValid || isLoading || submitting}
+          >
             {submitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Send className="mr-2 h-4 w-4" />
             )}
-            {editingMessage ? 'Update Schedule' : 'Schedule Message'}
+            {editingMessage ? "Update Schedule" : "Schedule Message"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default ScheduleMessageModal
+export default ScheduleMessageModal;

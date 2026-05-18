@@ -101,9 +101,9 @@ export type {
   // Processors
   JobProcessor,
   RegisteredProcessor,
-} from './types'
+} from "./types";
 
-export { DEFAULT_JOBS_CONFIG, JobPriorityValue } from './types'
+export { DEFAULT_JOBS_CONFIG, JobPriorityValue } from "./types";
 
 // ============================================================================
 // Queue Service
@@ -115,7 +115,7 @@ export {
   createQueueService,
   initializeQueueService,
   QUEUE_NAMES,
-} from './queue.service'
+} from "./queue.service";
 
 // ============================================================================
 // Scheduler Service
@@ -128,7 +128,7 @@ export {
   initializeSchedulerService,
   type CreateScheduleResult,
   type UpdateScheduleResult,
-} from './scheduler.service'
+} from "./scheduler.service";
 
 // ============================================================================
 // Processor Service
@@ -139,27 +139,30 @@ export {
   getProcessorService,
   createProcessorService,
   initializeProcessorService,
-} from './processor.service'
+} from "./processor.service";
 
 // ============================================================================
 // Convenience Functions
 // ============================================================================
 
-import { getQueueService, initializeQueueService } from './queue.service'
-import { getSchedulerService, initializeSchedulerService } from './scheduler.service'
-import type { NchatJobType, JobPayload, CreateJobOptions } from './types'
+import { getQueueService, initializeQueueService } from "./queue.service";
+import {
+  getSchedulerService,
+  initializeSchedulerService,
+} from "./scheduler.service";
+import type { NchatJobType, JobPayload, CreateJobOptions } from "./types";
 
 /**
  * Initialize all job services
  */
 export async function initializeJobServices(): Promise<{
-  queueService: ReturnType<typeof getQueueService>
-  schedulerService: ReturnType<typeof getSchedulerService>
+  queueService: ReturnType<typeof getQueueService>;
+  schedulerService: ReturnType<typeof getSchedulerService>;
 }> {
-  const queueService = await initializeQueueService()
-  const schedulerService = await initializeSchedulerService()
+  const queueService = await initializeQueueService();
+  const schedulerService = await initializeSchedulerService();
 
-  return { queueService, schedulerService }
+  return { queueService, schedulerService };
 }
 
 /**
@@ -168,13 +171,13 @@ export async function initializeJobServices(): Promise<{
 export async function addJob<T extends JobPayload>(
   type: NchatJobType,
   payload: T,
-  options?: CreateJobOptions
+  options?: CreateJobOptions,
 ): Promise<{ jobId: string }> {
-  const service = getQueueService()
+  const service = getQueueService();
   if (!service.initialized) {
-    await service.initialize()
+    await service.initialize();
   }
-  return service.addJob(type, payload, options)
+  return service.addJob(type, payload, options);
 }
 
 /**
@@ -186,16 +189,21 @@ export async function scheduleMessage(
   content: string,
   scheduledAt: Date,
   options?: {
-    threadId?: string
-    replyToId?: string
-    attachments?: Array<{ id: string; name: string; type: string; url: string }>
-    mentions?: string[]
-  }
+    threadId?: string;
+    replyToId?: string;
+    attachments?: Array<{
+      id: string;
+      name: string;
+      type: string;
+      url: string;
+    }>;
+    mentions?: string[];
+  },
 ): Promise<{ jobId: string; scheduledMessageId: string }> {
-  const scheduledMessageId = `sched_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  const scheduledMessageId = `sched_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   const { jobId } = await addJob(
-    'scheduled-message',
+    "scheduled-message",
     {
       scheduledMessageId,
       channelId,
@@ -208,18 +216,18 @@ export async function scheduleMessage(
     },
     {
       delay: scheduledAt.getTime() - Date.now(),
-      queue: 'scheduled',
-      priority: 'normal',
-      tags: ['scheduled-message', `channel:${channelId}`, `user:${userId}`],
+      queue: "scheduled",
+      priority: "normal",
+      tags: ["scheduled-message", `channel:${channelId}`, `user:${userId}`],
       metadata: {
         scheduledAt: scheduledAt.toISOString(),
         channelId,
         userId,
       },
-    }
-  )
+    },
+  );
 
-  return { jobId, scheduledMessageId }
+  return { jobId, scheduledMessageId };
 }
 
 /**
@@ -230,17 +238,17 @@ export async function queueNotification(
   title: string,
   body: string,
   options?: {
-    type?: 'push' | 'email' | 'in-app' | 'sms'
-    url?: string
-    iconUrl?: string
-    data?: Record<string, unknown>
-    priority?: 'critical' | 'high' | 'normal' | 'low'
-  }
+    type?: "push" | "email" | "in-app" | "sms";
+    url?: string;
+    iconUrl?: string;
+    data?: Record<string, unknown>;
+    priority?: "critical" | "high" | "normal" | "low";
+  },
 ): Promise<{ jobId: string }> {
   return addJob(
-    'send-notification',
+    "send-notification",
     {
-      notificationType: options?.type || 'push',
+      notificationType: options?.type || "push",
       userIds,
       title,
       body,
@@ -249,27 +257,27 @@ export async function queueNotification(
       data: options?.data,
     },
     {
-      queue: 'high-priority',
-      priority: options?.priority || 'normal',
-      tags: ['notification', options?.type || 'push'],
-    }
-  )
+      queue: "high-priority",
+      priority: options?.priority || "normal",
+      tags: ["notification", options?.type || "push"],
+    },
+  );
 }
 
 /**
  * Queue a search indexing operation
  */
 export async function queueSearchIndex(
-  operation: 'index' | 'update' | 'delete' | 'reindex',
-  entityType: 'message' | 'channel' | 'user' | 'file',
+  operation: "index" | "update" | "delete" | "reindex",
+  entityType: "message" | "channel" | "user" | "file",
   entityIds: string[],
   options?: {
-    channelId?: string
-    fullReindex?: boolean
-  }
+    channelId?: string;
+    fullReindex?: boolean;
+  },
 ): Promise<{ jobId: string }> {
   return addJob(
-    'index-search',
+    "index-search",
     {
       operation,
       entityType,
@@ -278,11 +286,11 @@ export async function queueSearchIndex(
       fullReindex: options?.fullReindex,
     },
     {
-      queue: 'low-priority',
-      priority: 'low',
-      tags: ['search-index', entityType, operation],
-    }
-  )
+      queue: "low-priority",
+      priority: "low",
+      tags: ["search-index", entityType, operation],
+    },
+  );
 }
 
 /**
@@ -294,34 +302,39 @@ export async function queueFileProcessing(
   mimeType: string,
   fileSize: number,
   operations: Array<
-    'thumbnail' | 'preview' | 'extract_text' | 'virus_scan' | 'compress' | 'transcode'
+    | "thumbnail"
+    | "preview"
+    | "extract_text"
+    | "virus_scan"
+    | "compress"
+    | "transcode"
   >,
   options?: {
-    userId?: string
-    channelId?: string
-    messageId?: string
-  }
+    userId?: string;
+    channelId?: string;
+    messageId?: string;
+  },
 ): Promise<{ jobId: string }> {
   return addJob(
-    'process-file',
+    "process-file",
     {
       fileId,
       fileUrl,
       mimeType,
       fileSize,
       operations,
-      userId: options?.userId || '',
+      userId: options?.userId || "",
       channelId: options?.channelId,
       messageId: options?.messageId,
     },
     {
-      queue: 'default',
-      priority: 'normal',
-      tags: ['file-processing', ...operations],
+      queue: "default",
+      priority: "normal",
+      tags: ["file-processing", ...operations],
       metadata: {
         fileId,
         mimeType,
       },
-    }
-  )
+    },
+  );
 }

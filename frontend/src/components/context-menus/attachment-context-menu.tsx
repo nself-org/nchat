@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   ExternalLink,
   Download,
@@ -11,7 +11,7 @@ import {
   FileVideo,
   FileAudio,
   File,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -19,24 +19,24 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
   ContextMenuLabel,
-} from './context-menu-base'
-import { useAuth } from '@/contexts/auth-context'
-import type { Attachment, AttachmentType } from '@/types/message'
+} from "./context-menu-base";
+import { useAuth } from "@/contexts/auth-context";
+import type { Attachment, AttachmentType } from "@/types/message";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface AttachmentContextMenuProps {
-  children: React.ReactNode
-  attachment: Attachment
-  messageUserId?: string // ID of user who posted the message containing this attachment
-  onOpenInNewTab?: (attachment: Attachment) => void
-  onDownload?: (attachment: Attachment) => void
-  onCopyLink?: (attachment: Attachment) => void
-  onShare?: (attachment: Attachment) => void
-  onDelete?: (attachment: Attachment) => void
-  disabled?: boolean
+  children: React.ReactNode;
+  attachment: Attachment;
+  messageUserId?: string; // ID of user who posted the message containing this attachment
+  onOpenInNewTab?: (attachment: Attachment) => void;
+  onDownload?: (attachment: Attachment) => void;
+  onCopyLink?: (attachment: Attachment) => void;
+  onShare?: (attachment: Attachment) => void;
+  onDelete?: (attachment: Attachment) => void;
+  disabled?: boolean;
 }
 
 // ============================================================================
@@ -45,30 +45,30 @@ export interface AttachmentContextMenuProps {
 
 function getFileTypeIcon(type: AttachmentType) {
   switch (type) {
-    case 'image':
-      return <FileImage className="h-4 w-4" />
-    case 'video':
-      return <FileVideo className="h-4 w-4" />
-    case 'audio':
-      return <FileAudio className="h-4 w-4" />
+    case "image":
+      return <FileImage className="h-4 w-4" />;
+    case "video":
+      return <FileVideo className="h-4 w-4" />;
+    case "audio":
+      return <FileAudio className="h-4 w-4" />;
     default:
-      return <File className="h-4 w-4" />
+      return <File className="h-4 w-4" />;
   }
 }
 
 function formatFileSize(bytes?: number): string {
-  if (!bytes) return 'Unknown size'
+  if (!bytes) return "Unknown size";
 
-  const units = ['B', 'KB', 'MB', 'GB']
-  let size = bytes
-  let unitIndex = 0
+  const units = ["B", "KB", "MB", "GB"];
+  let size = bytes;
+  let unitIndex = 0;
 
   while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024
-    unitIndex++
+    size /= 1024;
+    unitIndex++;
   }
 
-  return `${size.toFixed(unitIndex > 0 ? 1 : 0)} ${units[unitIndex]}`
+  return `${size.toFixed(unitIndex > 0 ? 1 : 0)} ${units[unitIndex]}`;
 }
 
 // ============================================================================
@@ -86,46 +86,46 @@ export function AttachmentContextMenu({
   onDelete,
   disabled = false,
 }: AttachmentContextMenuProps) {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
-  const isOwner = user?.id === messageUserId
-  const isAdmin = user?.role === 'owner' || user?.role === 'admin'
-  const canDelete = isOwner || isAdmin
+  const isOwner = user?.id === messageUserId;
+  const isAdmin = user?.role === "owner" || user?.role === "admin";
+  const canDelete = isOwner || isAdmin;
 
   const handleOpenInNewTab = React.useCallback(() => {
     if (onOpenInNewTab) {
-      onOpenInNewTab(attachment)
+      onOpenInNewTab(attachment);
     } else {
-      window.open(attachment.url, '_blank', 'noopener,noreferrer')
+      window.open(attachment.url, "_blank", "noopener,noreferrer");
     }
-  }, [attachment, onOpenInNewTab])
+  }, [attachment, onOpenInNewTab]);
 
   const handleDownload = React.useCallback(() => {
     if (onDownload) {
-      onDownload(attachment)
+      onDownload(attachment);
     } else {
       // Create a temporary link to trigger download
-      const link = document.createElement('a')
-      link.href = attachment.url
-      link.download = attachment.name
-      link.target = '_blank'
-      link.rel = 'noopener noreferrer'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const link = document.createElement("a");
+      link.href = attachment.url;
+      link.download = attachment.name;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  }, [attachment, onDownload])
+  }, [attachment, onDownload]);
 
   const handleCopyLink = React.useCallback(() => {
     if (onCopyLink) {
-      onCopyLink(attachment)
+      onCopyLink(attachment);
     } else {
-      navigator.clipboard.writeText(attachment.url)
+      navigator.clipboard.writeText(attachment.url);
     }
-  }, [attachment, onCopyLink])
+  }, [attachment, onCopyLink]);
 
   if (disabled) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
   return (
@@ -168,7 +168,10 @@ export function AttachmentContextMenu({
         <ContextMenuSeparator />
 
         {/* Copy link */}
-        <ContextMenuItemWithIcon icon={<Link2 className="h-4 w-4" />} onClick={handleCopyLink}>
+        <ContextMenuItemWithIcon
+          icon={<Link2 className="h-4 w-4" />}
+          onClick={handleCopyLink}
+        >
           Copy link
         </ContextMenuItemWithIcon>
 
@@ -195,7 +198,7 @@ export function AttachmentContextMenu({
         )}
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }
 
-AttachmentContextMenu.displayName = 'AttachmentContextMenu'
+AttachmentContextMenu.displayName = "AttachmentContextMenu";

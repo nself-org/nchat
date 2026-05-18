@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useMemo } from 'react'
+import * as React from "react";
+import { useState, useMemo } from "react";
 import {
   ArrowUpDown,
   Clock,
@@ -12,10 +12,10 @@ import {
   SortAsc,
   SortDesc,
   Check,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,29 +26,39 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import type { Channel } from '@/stores/channel-store'
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { Channel } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type SortField = 'name' | 'activity' | 'members' | 'created' | 'custom' | 'unread'
-export type SortDirection = 'asc' | 'desc'
+export type SortField =
+  | "name"
+  | "activity"
+  | "members"
+  | "created"
+  | "custom"
+  | "unread";
+export type SortDirection = "asc" | "desc";
 
 export interface SortOption {
-  field: SortField
-  direction: SortDirection
+  field: SortField;
+  direction: SortDirection;
 }
 
 export interface ChannelSortingProps {
-  value?: SortOption
-  onChange?: (option: SortOption) => void
-  variant?: 'dropdown' | 'popover' | 'inline'
-  showLabel?: boolean
-  className?: string
+  value?: SortOption;
+  onChange?: (option: SortOption) => void;
+  variant?: "dropdown" | "popover" | "inline";
+  showLabel?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -56,93 +66,98 @@ export interface ChannelSortingProps {
 // ============================================================================
 
 const SORT_FIELDS: Array<{
-  field: SortField
-  label: string
-  description: string
-  icon: React.ComponentType<{ className?: string }>
-  defaultDirection: SortDirection
+  field: SortField;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  defaultDirection: SortDirection;
 }> = [
   {
-    field: 'activity',
-    label: 'Recent Activity',
-    description: 'Channels with recent messages first',
+    field: "activity",
+    label: "Recent Activity",
+    description: "Channels with recent messages first",
     icon: Clock,
-    defaultDirection: 'desc',
+    defaultDirection: "desc",
   },
   {
-    field: 'name',
-    label: 'Alphabetical',
-    description: 'Sort by channel name (A-Z or Z-A)',
+    field: "name",
+    label: "Alphabetical",
+    description: "Sort by channel name (A-Z or Z-A)",
     icon: Hash,
-    defaultDirection: 'asc',
+    defaultDirection: "asc",
   },
   {
-    field: 'members',
-    label: 'Member Count',
-    description: 'Channels with most members first',
+    field: "members",
+    label: "Member Count",
+    description: "Channels with most members first",
     icon: Users,
-    defaultDirection: 'desc',
+    defaultDirection: "desc",
   },
   {
-    field: 'created',
-    label: 'Date Created',
-    description: 'Newest or oldest channels first',
+    field: "created",
+    label: "Date Created",
+    description: "Newest or oldest channels first",
     icon: MessageSquare,
-    defaultDirection: 'desc',
+    defaultDirection: "desc",
   },
   {
-    field: 'unread',
-    label: 'Unread Messages',
-    description: 'Channels with unread messages first',
+    field: "unread",
+    label: "Unread Messages",
+    description: "Channels with unread messages first",
     icon: Star,
-    defaultDirection: 'desc',
+    defaultDirection: "desc",
   },
   {
-    field: 'custom',
-    label: 'Custom Order',
-    description: 'Your manually arranged order',
+    field: "custom",
+    label: "Custom Order",
+    description: "Your manually arranged order",
     icon: ArrowUpDown,
-    defaultDirection: 'asc',
+    defaultDirection: "asc",
   },
-]
+];
 
 // ============================================================================
 // Component
 // ============================================================================
 
 export function ChannelSorting({
-  value = { field: 'activity', direction: 'desc' },
+  value = { field: "activity", direction: "desc" },
   onChange,
-  variant = 'dropdown',
+  variant = "dropdown",
   showLabel = true,
   className,
 }: ChannelSortingProps) {
-  const currentField = SORT_FIELDS.find((f) => f.field === value.field) || SORT_FIELDS[0]
+  const currentField =
+    SORT_FIELDS.find((f) => f.field === value.field) || SORT_FIELDS[0];
 
   const handleFieldChange = (field: SortField) => {
-    const fieldDef = SORT_FIELDS.find((f) => f.field === field)
+    const fieldDef = SORT_FIELDS.find((f) => f.field === field);
     onChange?.({
       field,
-      direction: fieldDef?.defaultDirection || 'asc',
-    })
-  }
+      direction: fieldDef?.defaultDirection || "asc",
+    });
+  };
 
   const handleDirectionToggle = () => {
     onChange?.({
       ...value,
-      direction: value.direction === 'asc' ? 'desc' : 'asc',
-    })
-  }
+      direction: value.direction === "asc" ? "desc" : "asc",
+    });
+  };
 
   // Dropdown variant
-  if (variant === 'dropdown') {
+  if (variant === "dropdown") {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={cn('gap-2', className)}>
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn("gap-2", className)}
+          >
             <ArrowUpDown className="h-4 w-4" />
             {showLabel && <span>{currentField.label}</span>}
-            {value.direction === 'asc' ? (
+            {value.direction === "asc" ? (
               <SortAsc className="h-3 w-3" />
             ) : (
               <SortDesc className="h-3 w-3" />
@@ -169,7 +184,9 @@ export function ChannelSorting({
           <DropdownMenuLabel>Direction</DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={value.direction}
-            onValueChange={(dir) => onChange?.({ ...value, direction: dir as SortDirection })}
+            onValueChange={(dir) =>
+              onChange?.({ ...value, direction: dir as SortDirection })
+            }
           >
             <DropdownMenuRadioItem value="asc" className="gap-2">
               <SortAsc className="h-4 w-4" />
@@ -182,15 +199,19 @@ export function ChannelSorting({
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-    )
+    );
   }
 
   // Popover variant
-  if (variant === 'popover') {
+  if (variant === "popover") {
     return (
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className={cn('gap-2', className)}>
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn("gap-2", className)}
+          >
             <ArrowUpDown className="h-4 w-4" />
             {showLabel && <span>{currentField.label}</span>}
           </Button>
@@ -198,27 +219,37 @@ export function ChannelSorting({
         <PopoverContent className="w-[280px]" align="end">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs font-medium uppercase text-muted-foreground">Sort by</Label>
+              <Label className="text-xs font-medium uppercase text-muted-foreground">
+                Sort by
+              </Label>
               <RadioGroup
                 value={value.field}
                 onValueChange={(field) => handleFieldChange(field as SortField)}
                 className="gap-2"
               >
-                {SORT_FIELDS.map(({ field, label, description, icon: Icon }) => (
-                  <div key={field} className="flex items-start space-x-3">
-                    <RadioGroupItem value={field} id={`sort-${field}`} className="mt-1" />
-                    <div className="flex-1 space-y-0.5">
-                      <Label
-                        htmlFor={`sort-${field}`}
-                        className="flex cursor-pointer items-center gap-2 font-medium"
-                      >
-                        <Icon className="h-4 w-4 text-muted-foreground" />
-                        {label}
-                      </Label>
-                      <p className="text-xs text-muted-foreground">{description}</p>
+                {SORT_FIELDS.map(
+                  ({ field, label, description, icon: Icon }) => (
+                    <div key={field} className="flex items-start space-x-3">
+                      <RadioGroupItem
+                        value={field}
+                        id={`sort-${field}`}
+                        className="mt-1"
+                      />
+                      <div className="flex-1 space-y-0.5">
+                        <Label
+                          htmlFor={`sort-${field}`}
+                          className="flex cursor-pointer items-center gap-2 font-medium"
+                        >
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                          {label}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          {description}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </RadioGroup>
             </div>
 
@@ -228,19 +259,19 @@ export function ChannelSorting({
               </Label>
               <div className="flex gap-2">
                 <Button
-                  variant={value.direction === 'asc' ? 'default' : 'outline'}
+                  variant={value.direction === "asc" ? "default" : "outline"}
                   size="sm"
                   className="flex-1 gap-2"
-                  onClick={() => onChange?.({ ...value, direction: 'asc' })}
+                  onClick={() => onChange?.({ ...value, direction: "asc" })}
                 >
                   <SortAsc className="h-4 w-4" />
                   Ascending
                 </Button>
                 <Button
-                  variant={value.direction === 'desc' ? 'default' : 'outline'}
+                  variant={value.direction === "desc" ? "default" : "outline"}
                   size="sm"
                   className="flex-1 gap-2"
-                  onClick={() => onChange?.({ ...value, direction: 'desc' })}
+                  onClick={() => onChange?.({ ...value, direction: "desc" })}
                 >
                   <SortDesc className="h-4 w-4" />
                   Descending
@@ -250,19 +281,19 @@ export function ChannelSorting({
           </div>
         </PopoverContent>
       </Popover>
-    )
+    );
   }
 
   // Inline variant
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       <select
         value={value.field}
         onChange={(e) => handleFieldChange(e.target.value as SortField)}
         className={cn(
-          'h-9 rounded-md border border-input bg-background px-3 py-1',
-          'text-sm ring-offset-background',
-          'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+          "h-9 rounded-md border border-input bg-background px-3 py-1",
+          "text-sm ring-offset-background",
+          "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
         )}
       >
         {SORT_FIELDS.map(({ field, label }) => (
@@ -276,16 +307,16 @@ export function ChannelSorting({
         size="icon"
         className="h-9 w-9"
         onClick={handleDirectionToggle}
-        title={value.direction === 'asc' ? 'Ascending' : 'Descending'}
+        title={value.direction === "asc" ? "Ascending" : "Descending"}
       >
-        {value.direction === 'asc' ? (
+        {value.direction === "asc" ? (
           <SortAsc className="h-4 w-4" />
         ) : (
           <SortDesc className="h-4 w-4" />
         )}
       </Button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -295,99 +326,99 @@ export function ChannelSorting({
 export function sortChannels(
   channels: Channel[],
   sortOption: SortOption,
-  unreadCounts?: Map<string, number>
+  unreadCounts?: Map<string, number>,
 ): Channel[] {
-  const sorted = [...channels]
+  const sorted = [...channels];
 
   sorted.sort((a, b) => {
-    let comparison = 0
+    let comparison = 0;
 
     switch (sortOption.field) {
-      case 'name':
-        comparison = a.name.localeCompare(b.name)
-        break
+      case "name":
+        comparison = a.name.localeCompare(b.name);
+        break;
 
-      case 'activity':
-        const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
-        const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
-        comparison = bTime - aTime
-        break
+      case "activity":
+        const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+        const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+        comparison = bTime - aTime;
+        break;
 
-      case 'members':
-        comparison = (b.memberCount || 0) - (a.memberCount || 0)
-        break
+      case "members":
+        comparison = (b.memberCount || 0) - (a.memberCount || 0);
+        break;
 
-      case 'created':
-        const aCreated = a.createdAt ? new Date(a.createdAt).getTime() : 0
-        const bCreated = b.createdAt ? new Date(b.createdAt).getTime() : 0
-        comparison = bCreated - aCreated
-        break
+      case "created":
+        const aCreated = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bCreated = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        comparison = bCreated - aCreated;
+        break;
 
-      case 'unread':
-        const aUnread = unreadCounts?.get(a.id) || 0
-        const bUnread = unreadCounts?.get(b.id) || 0
-        comparison = bUnread - aUnread
-        break
+      case "unread":
+        const aUnread = unreadCounts?.get(a.id) || 0;
+        const bUnread = unreadCounts?.get(b.id) || 0;
+        comparison = bUnread - aUnread;
+        break;
 
-      case 'custom':
+      case "custom":
         // Custom order would rely on a position field
         // For now, maintain insertion order
-        comparison = 0
-        break
+        comparison = 0;
+        break;
 
       default:
-        comparison = 0
+        comparison = 0;
     }
 
     // Apply direction
-    return sortOption.direction === 'asc' ? comparison : -comparison
-  })
+    return sortOption.direction === "asc" ? comparison : -comparison;
+  });
 
-  return sorted
+  return sorted;
 }
 
 // ============================================================================
 // Hook for Channel Sorting
 // ============================================================================
 
-const SORT_STORAGE_KEY = 'nchat-channel-sort-preference'
+const SORT_STORAGE_KEY = "nchat-channel-sort-preference";
 
 export function useChannelSorting(defaultSort?: SortOption) {
   const [sortOption, setSortOption] = useState<SortOption>(() => {
     // Try to load from localStorage
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(SORT_STORAGE_KEY)
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(SORT_STORAGE_KEY);
       if (stored) {
         try {
-          return JSON.parse(stored)
+          return JSON.parse(stored);
         } catch {
           // Invalid JSON, use default
         }
       }
     }
-    return defaultSort || { field: 'activity', direction: 'desc' }
-  })
+    return defaultSort || { field: "activity", direction: "desc" };
+  });
 
   const handleSortChange = React.useCallback((option: SortOption) => {
-    setSortOption(option)
+    setSortOption(option);
     // Persist to localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(option))
+    if (typeof window !== "undefined") {
+      localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(option));
     }
-  }, [])
+  }, []);
 
   const sortedChannels = React.useCallback(
     (channels: Channel[], unreadCounts?: Map<string, number>) => {
-      return sortChannels(channels, sortOption, unreadCounts)
+      return sortChannels(channels, sortOption, unreadCounts);
     },
-    [sortOption]
-  )
+    [sortOption],
+  );
 
   return {
     sortOption,
     setSortOption: handleSortChange,
     sortChannels: sortedChannels,
-  }
+  };
 }
 
-ChannelSorting.displayName = 'ChannelSorting'
+ChannelSorting.displayName = "ChannelSorting";

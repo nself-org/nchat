@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Telegram Chat View Component
@@ -8,31 +8,31 @@
 //
 // ===============================================================================
 
-import { ReactNode } from 'react'
-import { cn } from '@/lib/utils'
-import { TELEGRAM_COLORS } from '../config'
-import { ArrowLeft, Search, Phone, MoreVertical, Lock } from 'lucide-react'
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { TELEGRAM_COLORS } from "../config";
+import { ArrowLeft, Search, Phone, MoreVertical, Lock } from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface TelegramChatViewProps {
-  chatId?: string
-  chatName?: string
-  chatAvatar?: string
-  chatType?: 'private' | 'group' | 'supergroup' | 'channel' | 'secret' | 'bot'
-  memberCount?: number
-  isOnline?: boolean
-  lastSeen?: string
-  children?: ReactNode
-  composer?: ReactNode
-  onBackClick?: () => void
-  onSearchClick?: () => void
-  onCallClick?: () => void
-  onMenuClick?: () => void
-  onHeaderClick?: () => void
-  className?: string
+  chatId?: string;
+  chatName?: string;
+  chatAvatar?: string;
+  chatType?: "private" | "group" | "supergroup" | "channel" | "secret" | "bot";
+  memberCount?: number;
+  isOnline?: boolean;
+  lastSeen?: string;
+  children?: ReactNode;
+  composer?: ReactNode;
+  onBackClick?: () => void;
+  onSearchClick?: () => void;
+  onCallClick?: () => void;
+  onMenuClick?: () => void;
+  onHeaderClick?: () => void;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -41,9 +41,9 @@ export interface TelegramChatViewProps {
 
 export function TelegramChatView({
   chatId,
-  chatName = 'Chat',
+  chatName = "Chat",
   chatAvatar,
-  chatType = 'private',
+  chatType = "private",
   memberCount,
   isOnline,
   lastSeen,
@@ -57,40 +57,50 @@ export function TelegramChatView({
   className,
 }: TelegramChatViewProps) {
   const getSubtitle = () => {
-    if (chatType === 'secret') {
-      return 'Secret chat'
+    if (chatType === "secret") {
+      return "Secret chat";
     }
-    if (chatType === 'channel') {
-      return memberCount ? `${memberCount.toLocaleString()} subscribers` : 'Channel'
+    if (chatType === "channel") {
+      return memberCount
+        ? `${memberCount.toLocaleString()} subscribers`
+        : "Channel";
     }
-    if (chatType === 'group' || chatType === 'supergroup') {
-      return memberCount ? `${memberCount.toLocaleString()} members` : 'Group'
+    if (chatType === "group" || chatType === "supergroup") {
+      return memberCount ? `${memberCount.toLocaleString()} members` : "Group";
     }
-    if (chatType === 'bot') {
-      return 'bot'
+    if (chatType === "bot") {
+      return "bot";
     }
     if (isOnline) {
-      return 'online'
+      return "online";
     }
-    return lastSeen || 'last seen recently'
-  }
+    return lastSeen || "last seen recently";
+  };
 
   if (!chatId) {
     return (
       <div
         className={cn(
-          'flex flex-1 items-center justify-center',
-          'bg-[#EFEAE2] dark:bg-[#0E1621]',
-          className
+          "flex flex-1 items-center justify-center",
+          "bg-[#EFEAE2] dark:bg-[#0E1621]",
+          className,
         )}
       >
-        <p className="text-gray-500 dark:text-gray-400">Select a chat to start messaging</p>
+        <p className="text-gray-500 dark:text-gray-400">
+          Select a chat to start messaging
+        </p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex h-full flex-col', 'bg-[#EFEAE2] dark:bg-[#0E1621]', className)}>
+    <div
+      className={cn(
+        "flex h-full flex-col",
+        "bg-[#EFEAE2] dark:bg-[#0E1621]",
+        className,
+      )}
+    >
       {/* Header */}
       <header
         className="flex items-center gap-2 bg-white px-4 py-2 shadow-sm dark:bg-[#17212B]"
@@ -105,11 +115,18 @@ export function TelegramChatView({
         </button>
 
         {/* Avatar & Info */}
-        <button onClick={onHeaderClick} className="flex min-w-0 flex-1 items-center gap-3">
+        <button
+          onClick={onHeaderClick}
+          className="flex min-w-0 flex-1 items-center gap-3"
+        >
           <div className="relative flex-shrink-0">
             <div className="h-10 w-10 overflow-hidden rounded-full">
               {chatAvatar ? (
-                <img src={chatAvatar} alt={chatName} className="h-full w-full object-cover" />
+                <img
+                  src={chatAvatar}
+                  alt={chatName}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <div
                   className="flex h-full w-full items-center justify-center font-medium text-white"
@@ -119,7 +136,7 @@ export function TelegramChatView({
                 </div>
               )}
             </div>
-            {chatType === 'secret' && (
+            {chatType === "secret" && (
               <span
                 className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full"
                 style={{ backgroundColor: TELEGRAM_COLORS.online }}
@@ -130,15 +147,17 @@ export function TelegramChatView({
           </div>
 
           <div className="min-w-0 text-left">
-            <h1 className="truncate font-medium text-gray-900 dark:text-white">{chatName}</h1>
+            <h1 className="truncate font-medium text-gray-900 dark:text-white">
+              {chatName}
+            </h1>
             <p
               className={cn(
-                'truncate text-sm',
+                "truncate text-sm",
                 isOnline
-                  ? 'text-[#2AABEE]'
-                  : chatType === 'secret'
-                    ? 'text-green-500'
-                    : 'text-gray-500 dark:text-gray-400'
+                  ? "text-[#2AABEE]"
+                  : chatType === "secret"
+                    ? "text-green-500"
+                    : "text-gray-500 dark:text-gray-400",
               )}
             >
               {getSubtitle()}
@@ -154,7 +173,7 @@ export function TelegramChatView({
           >
             <Search className="h-5 w-5" />
           </button>
-          {chatType === 'private' && (
+          {chatType === "private" && (
             <button
               onClick={onCallClick}
               className="rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#232E3C]"
@@ -177,7 +196,7 @@ export function TelegramChatView({
       {/* Composer */}
       {composer}
     </div>
-  )
+  );
 }
 
-export default TelegramChatView
+export default TelegramChatView;

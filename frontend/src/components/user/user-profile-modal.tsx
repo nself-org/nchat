@@ -1,19 +1,24 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { type UserProfile, type UserRole } from '@/stores/user-store'
-import { useUIStore } from '@/stores/ui-store'
-import { UserAvatar } from './user-avatar'
-import { UserStatus } from './user-status'
-import { RoleBadge } from './role-badge'
-import { UserPresenceDot } from './user-presence-dot'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { type UserProfile, type UserRole } from "@/stores/user-store";
+import { useUIStore } from "@/stores/ui-store";
+import { UserAvatar } from "./user-avatar";
+import { UserStatus } from "./user-status";
+import { RoleBadge } from "./role-badge";
+import { UserPresenceDot } from "./user-presence-dot";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   MessageSquare,
   Phone,
@@ -28,49 +33,49 @@ import {
   Ban,
   UserMinus,
   Crown,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { formatDistanceToNow, format } from 'date-fns'
+} from "@/components/ui/dropdown-menu";
+import { formatDistanceToNow, format } from "date-fns";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SharedChannel {
-  id: string
-  name: string
-  isPrivate: boolean
+  id: string;
+  name: string;
+  isPrivate: boolean;
 }
 
 export interface SharedFile {
-  id: string
-  name: string
-  type: string
-  size: number
-  uploadedAt: Date
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  uploadedAt: Date;
 }
 
 export interface UserProfileModalProps {
-  user: UserProfile | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onMessage?: () => void
-  onCall?: () => void
-  onVideoCall?: () => void
-  sharedChannels?: SharedChannel[]
-  sharedFiles?: SharedFile[]
+  user: UserProfile | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onMessage?: () => void;
+  onCall?: () => void;
+  onVideoCall?: () => void;
+  sharedChannels?: SharedChannel[];
+  sharedFiles?: SharedFile[];
   // Admin actions
-  currentUserRole?: UserRole
-  onBanUser?: () => void
-  onKickUser?: () => void
-  onChangeRole?: (role: UserRole) => void
-  onRemoveFromChannel?: () => void
+  currentUserRole?: UserRole;
+  onBanUser?: () => void;
+  onKickUser?: () => void;
+  onChangeRole?: (role: UserRole) => void;
+  onRemoveFromChannel?: () => void;
 }
 
 // ============================================================================
@@ -92,18 +97,20 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   onChangeRole,
   onRemoveFromChannel,
 }) => {
-  if (!user) return null
+  if (!user) return null;
 
   const canModerate =
     currentUserRole &&
-    ['owner', 'admin', 'moderator'].includes(currentUserRole) &&
+    ["owner", "admin", "moderator"].includes(currentUserRole) &&
     // Can't moderate users with same or higher role
-    !['owner'].includes(user.role) &&
-    (currentUserRole === 'owner' ||
-      (currentUserRole === 'admin' && !['admin'].includes(user.role)) ||
-      (currentUserRole === 'moderator' && !['admin', 'moderator'].includes(user.role)))
+    !["owner"].includes(user.role) &&
+    (currentUserRole === "owner" ||
+      (currentUserRole === "admin" && !["admin"].includes(user.role)) ||
+      (currentUserRole === "moderator" &&
+        !["admin", "moderator"].includes(user.role)));
 
-  const canManageRoles = currentUserRole && ['owner', 'admin'].includes(currentUserRole)
+  const canManageRoles =
+    currentUserRole && ["owner", "admin"].includes(currentUserRole);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -112,9 +119,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         <div
           className="from-primary/30 via-primary/20 to-primary/10 h-24 bg-gradient-to-r"
           style={{
-            backgroundImage: user.coverUrl ? `url(${user.coverUrl})` : undefined,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundImage: user.coverUrl
+              ? `url(${user.coverUrl})`
+              : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         />
 
@@ -130,7 +139,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <div className="min-w-0 flex-1 pb-2">
               <div className="flex flex-wrap items-center gap-2">
                 <DialogHeader className="p-0">
-                  <DialogTitle className="text-xl">{user.displayName}</DialogTitle>
+                  <DialogTitle className="text-xl">
+                    {user.displayName}
+                  </DialogTitle>
                 </DialogHeader>
                 <RoleBadge role={user.role} size="sm" showTooltip />
               </div>
@@ -176,7 +187,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   <>
                     <DropdownMenuSeparator />
                     {canManageRoles && (
-                      <DropdownMenuItem onClick={() => onChangeRole?.('admin')}>
+                      <DropdownMenuItem onClick={() => onChangeRole?.("admin")}>
                         <Crown className="mr-2 h-4 w-4" />
                         Make Admin
                       </DropdownMenuItem>
@@ -188,13 +199,19 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       </DropdownMenuItem>
                     )}
                     {onKickUser && (
-                      <DropdownMenuItem onClick={onKickUser} className="text-yellow-600">
+                      <DropdownMenuItem
+                        onClick={onKickUser}
+                        className="text-yellow-600"
+                      >
                         <Shield className="mr-2 h-4 w-4" />
                         Kick User
                       </DropdownMenuItem>
                     )}
                     {onBanUser && (
-                      <DropdownMenuItem onClick={onBanUser} className="text-destructive">
+                      <DropdownMenuItem
+                        onClick={onBanUser}
+                        className="text-destructive"
+                      >
                         <Ban className="mr-2 h-4 w-4" />
                         Ban User
                       </DropdownMenuItem>
@@ -238,11 +255,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <div className="mb-4">
                 <h4 className="mb-2 text-sm font-medium">Status</h4>
                 <div className="flex items-center gap-2">
-                  <UserPresenceDot status={user.presence} size="md" position="inline" />
+                  <UserPresenceDot
+                    status={user.presence}
+                    size="md"
+                    position="inline"
+                  />
                   <span className="text-sm capitalize">{user.presence}</span>
-                  {user.lastSeenAt && user.presence === 'offline' && (
+                  {user.lastSeenAt && user.presence === "offline" && (
                     <span className="text-xs text-muted-foreground">
-                      Last seen{' '}
+                      Last seen{" "}
                       {formatDistanceToNow(new Date(user.lastSeenAt), {
                         addSuffix: true,
                       })}
@@ -268,7 +289,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      {user.website.replace(/^https?:\/\//, '')}
+                      {user.website.replace(/^https?:\/\//, "")}
                     </a>
                   </div>
                 )}
@@ -280,7 +301,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 )}
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Member since {format(new Date(user.createdAt), 'MMMM yyyy')}</span>
+                  <span>
+                    Member since {format(new Date(user.createdAt), "MMMM yyyy")}
+                  </span>
                 </div>
               </div>
             </TabsContent>
@@ -328,7 +351,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm">{file.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatFileSize(file.size)} -{' '}
+                          {formatFileSize(file.size)} -{" "}
                           {formatDistanceToNow(new Date(file.uploadedAt), {
                             addSuffix: true,
                           })}
@@ -343,19 +366,19 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
 // ============================================================================
 // Helper function
 // ============================================================================
 
 function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
-export default UserProfileModal
+export default UserProfileModal;

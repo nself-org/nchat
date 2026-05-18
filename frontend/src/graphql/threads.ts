@@ -1,47 +1,51 @@
-import { gql } from '@apollo/client'
-import { THREAD_FRAGMENT, MESSAGE_FULL_FRAGMENT, USER_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import {
+  THREAD_FRAGMENT,
+  MESSAGE_FULL_FRAGMENT,
+  USER_BASIC_FRAGMENT,
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface GetThreadMessagesVariables {
-  threadId: string
-  limit?: number
-  offset?: number
-  before?: string
+  threadId: string;
+  limit?: number;
+  offset?: number;
+  before?: string;
 }
 
 export interface GetThreadParticipantsVariables {
-  threadId: string
+  threadId: string;
 }
 
 export interface CreateThreadVariables {
-  channelId: string
-  parentMessageId: string
-  userId: string
-  content: string
+  channelId: string;
+  parentMessageId: string;
+  userId: string;
+  content: string;
 }
 
 export interface ReplyToThreadVariables {
-  threadId: string
-  userId: string
-  content: string
-  type?: string
+  threadId: string;
+  userId: string;
+  content: string;
+  type?: string;
 }
 
 export interface JoinThreadVariables {
-  threadId: string
-  userId: string
+  threadId: string;
+  userId: string;
 }
 
 export interface LeaveThreadVariables {
-  threadId: string
-  userId: string
+  threadId: string;
+  userId: string;
 }
 
 export interface ThreadSubscriptionVariables {
-  threadId: string
+  threadId: string;
 }
 
 // ============================================================================
@@ -58,7 +62,7 @@ export const GET_THREAD = gql`
     }
   }
   ${THREAD_FRAGMENT}
-`
+`;
 
 /**
  * Get messages in a thread with pagination
@@ -82,7 +86,9 @@ export const GET_THREAD_MESSAGES = gql`
     ) {
       ...MessageFull
     }
-    nchat_messages_aggregate(where: { thread_id: { _eq: $threadId }, is_deleted: { _eq: false } }) {
+    nchat_messages_aggregate(
+      where: { thread_id: { _eq: $threadId }, is_deleted: { _eq: false } }
+    ) {
       aggregate {
         count
       }
@@ -96,7 +102,7 @@ export const GET_THREAD_MESSAGES = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get thread participants
@@ -117,20 +123,26 @@ export const GET_THREAD_PARTICIPANTS = gql`
         status
       }
     }
-    nchat_thread_participants_aggregate(where: { thread_id: { _eq: $threadId } }) {
+    nchat_thread_participants_aggregate(
+      where: { thread_id: { _eq: $threadId } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get all threads in a channel
  */
 export const GET_CHANNEL_THREADS = gql`
-  query GetChannelThreads($channelId: uuid!, $limit: Int = 20, $offset: Int = 0) {
+  query GetChannelThreads(
+    $channelId: uuid!
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_threads(
       where: { channel_id: { _eq: $channelId } }
       order_by: { last_reply_at: desc }
@@ -154,7 +166,7 @@ export const GET_CHANNEL_THREADS = gql`
   }
   ${THREAD_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get threads that a user is participating in
@@ -190,7 +202,10 @@ export const GET_USER_THREADS = gql`
       last_read_at
       has_unread: thread {
         messages_aggregate(
-          where: { created_at: { _gt: "last_read_at" }, is_deleted: { _eq: false } }
+          where: {
+            created_at: { _gt: "last_read_at" }
+            is_deleted: { _eq: false }
+          }
         ) {
           aggregate {
             count
@@ -201,7 +216,7 @@ export const GET_USER_THREADS = gql`
   }
   ${THREAD_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get unread thread count for user
@@ -211,7 +226,12 @@ export const GET_UNREAD_THREADS_COUNT = gql`
     nchat_thread_participants_aggregate(
       where: {
         user_id: { _eq: $userId }
-        thread: { messages: { created_at: { _gt: "last_read_at" }, is_deleted: { _eq: false } } }
+        thread: {
+          messages: {
+            created_at: { _gt: "last_read_at" }
+            is_deleted: { _eq: false }
+          }
+        }
       }
     ) {
       aggregate {
@@ -219,7 +239,7 @@ export const GET_UNREAD_THREADS_COUNT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -244,7 +264,14 @@ export const CREATE_THREAD = gql`
         last_reply_at: "now()"
         participants: { data: [{ user_id: $userId }] }
         messages: {
-          data: [{ channel_id: $channelId, user_id: $userId, content: $content, type: "text" }]
+          data: [
+            {
+              channel_id: $channelId
+              user_id: $userId
+              content: $content
+              type: "text"
+            }
+          ]
         }
       }
     ) {
@@ -256,7 +283,7 @@ export const CREATE_THREAD = gql`
   }
   ${THREAD_FRAGMENT}
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Reply to an existing thread
@@ -303,7 +330,7 @@ export const REPLY_TO_THREAD = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Join a thread (follow for notifications)
@@ -311,7 +338,11 @@ export const REPLY_TO_THREAD = gql`
 export const JOIN_THREAD = gql`
   mutation JoinThread($threadId: uuid!, $userId: uuid!) {
     insert_nchat_thread_participants_one(
-      object: { thread_id: $threadId, user_id: $userId, notifications_enabled: true }
+      object: {
+        thread_id: $threadId
+        user_id: $userId
+        notifications_enabled: true
+      }
       on_conflict: {
         constraint: nchat_thread_participants_thread_id_user_id_key
         update_columns: [notifications_enabled]
@@ -324,7 +355,7 @@ export const JOIN_THREAD = gql`
       notifications_enabled
     }
   }
-`
+`;
 
 /**
  * Leave a thread (unfollow)
@@ -337,13 +368,17 @@ export const LEAVE_THREAD = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Update thread notification settings
  */
 export const UPDATE_THREAD_NOTIFICATIONS = gql`
-  mutation UpdateThreadNotifications($threadId: uuid!, $userId: uuid!, $enabled: Boolean!) {
+  mutation UpdateThreadNotifications(
+    $threadId: uuid!
+    $userId: uuid!
+    $enabled: Boolean!
+  ) {
     update_nchat_thread_participants(
       where: { thread_id: { _eq: $threadId }, user_id: { _eq: $userId } }
       _set: { notifications_enabled: $enabled }
@@ -355,7 +390,7 @@ export const UPDATE_THREAD_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Mark thread as read
@@ -373,7 +408,7 @@ export const MARK_THREAD_READ = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Delete a thread (admin only)
@@ -393,7 +428,7 @@ export const DELETE_THREAD = gql`
       id
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -408,13 +443,17 @@ export const THREAD_SUBSCRIPTION = gql`
       id
       message_count
       last_reply_at
-      messages(limit: 1, order_by: { created_at: desc }, where: { is_deleted: { _eq: false } }) {
+      messages(
+        limit: 1
+        order_by: { created_at: desc }
+        where: { is_deleted: { _eq: false } }
+      ) {
         ...MessageFull
       }
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to new messages in a thread
@@ -430,7 +469,7 @@ export const THREAD_MESSAGES_SUBSCRIPTION = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to thread participant changes
@@ -447,7 +486,7 @@ export const THREAD_PARTICIPANTS_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to all threads user is participating in
@@ -475,4 +514,4 @@ export const USER_THREADS_SUBSCRIPTION = gql`
       last_read_at
     }
   }
-`
+`;

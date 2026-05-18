@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Copy,
@@ -14,7 +14,7 @@ import {
   Forward,
   Flag,
   Smile,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -25,19 +25,23 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
   ContextMenuShortcut,
-} from '@/components/ui/context-menu'
-import { emojiFromName } from './message-reactions'
-import type { MessageActionPermissions, MessageAction, Message } from '@/types/message'
+} from "@/components/ui/context-menu";
+import { emojiFromName } from "./message-reactions";
+import type {
+  MessageActionPermissions,
+  MessageAction,
+  Message,
+} from "@/types/message";
 
 interface MessageContextMenuProps {
-  children: React.ReactNode
-  message: Message
-  permissions: MessageActionPermissions
-  onAction: (action: MessageAction, data?: unknown) => void
-  className?: string
+  children: React.ReactNode;
+  message: Message;
+  permissions: MessageActionPermissions;
+  onAction: (action: MessageAction, data?: unknown) => void;
+  className?: string;
 }
 
-const QUICK_REACTIONS = ['thumbs_up', 'heart', 'smile', 'tada', 'eyes', 'fire']
+const QUICK_REACTIONS = ["thumbs_up", "heart", "smile", "tada", "eyes", "fire"];
 
 /**
  * Message context menu
@@ -51,15 +55,15 @@ export function MessageContextMenu({
   className,
 }: MessageContextMenuProps) {
   const handleCopyText = () => {
-    navigator.clipboard.writeText(message.content)
-    onAction('copy')
-  }
+    navigator.clipboard.writeText(message.content);
+    onAction("copy");
+  };
 
   const handleCopyLink = () => {
-    const url = `${window.location.origin}/chat/${message.channelId}?message=${message.id}`
-    navigator.clipboard.writeText(url)
-    onAction('copy-link')
-  }
+    const url = `${window.location.origin}/chat/${message.channelId}?message=${message.id}`;
+    navigator.clipboard.writeText(url);
+    onAction("copy-link");
+  };
 
   return (
     <ContextMenu>
@@ -75,7 +79,7 @@ export function MessageContextMenu({
               {QUICK_REACTIONS.map((emoji) => (
                 <button
                   key={emoji}
-                  onClick={() => onAction('react', { emoji })}
+                  onClick={() => onAction("react", { emoji })}
                   className="flex h-8 w-8 items-center justify-center rounded-md text-lg hover:bg-muted"
                 >
                   {emojiFromName(emoji)}
@@ -103,7 +107,7 @@ export function MessageContextMenu({
 
         {/* Reply */}
         {permissions.canReply && (
-          <ContextMenuItem onClick={() => onAction('reply')}>
+          <ContextMenuItem onClick={() => onAction("reply")}>
             <Reply className="mr-2 h-4 w-4" />
             Reply
             <ContextMenuShortcut>R</ContextMenuShortcut>
@@ -112,7 +116,7 @@ export function MessageContextMenu({
 
         {/* Thread */}
         {permissions.canThread && (
-          <ContextMenuItem onClick={() => onAction('thread')}>
+          <ContextMenuItem onClick={() => onAction("thread")}>
             <MessageSquare className="mr-2 h-4 w-4" />
             Reply in thread
             <ContextMenuShortcut>T</ContextMenuShortcut>
@@ -127,7 +131,9 @@ export function MessageContextMenu({
               Add reaction
             </ContextMenuSubTrigger>
             <ContextMenuSubContent className="w-56">
-              <ReactionGrid onSelect={(emoji) => onAction('react', { emoji })} />
+              <ReactionGrid
+                onSelect={(emoji) => onAction("react", { emoji })}
+              />
             </ContextMenuSubContent>
           </ContextMenuSub>
         )}
@@ -139,7 +145,7 @@ export function MessageContextMenu({
 
         {/* Edit */}
         {permissions.canEdit && (
-          <ContextMenuItem onClick={() => onAction('edit')}>
+          <ContextMenuItem onClick={() => onAction("edit")}>
             <Edit className="mr-2 h-4 w-4" />
             Edit message
             <ContextMenuShortcut>E</ContextMenuShortcut>
@@ -148,7 +154,9 @@ export function MessageContextMenu({
 
         {/* Pin / Unpin */}
         {permissions.canPin && (
-          <ContextMenuItem onClick={() => onAction(message.isPinned ? 'unpin' : 'pin')}>
+          <ContextMenuItem
+            onClick={() => onAction(message.isPinned ? "unpin" : "pin")}
+          >
             {message.isPinned ? (
               <>
                 <PinOff className="mr-2 h-4 w-4" />
@@ -166,7 +174,9 @@ export function MessageContextMenu({
         {/* Bookmark */}
         {permissions.canBookmark && (
           <ContextMenuItem
-            onClick={() => onAction(message.isBookmarked ? 'unbookmark' : 'bookmark')}
+            onClick={() =>
+              onAction(message.isBookmarked ? "unbookmark" : "bookmark")
+            }
           >
             {message.isBookmarked ? (
               <>
@@ -184,18 +194,20 @@ export function MessageContextMenu({
 
         {/* Forward */}
         {permissions.canForward && (
-          <ContextMenuItem onClick={() => onAction('forward')}>
+          <ContextMenuItem onClick={() => onAction("forward")}>
             <Forward className="mr-2 h-4 w-4" />
             Forward message
           </ContextMenuItem>
         )}
 
-        {(permissions.canReport || permissions.canDelete) && <ContextMenuSeparator />}
+        {(permissions.canReport || permissions.canDelete) && (
+          <ContextMenuSeparator />
+        )}
 
         {/* Report */}
         {permissions.canReport && (
           <ContextMenuItem
-            onClick={() => onAction('report')}
+            onClick={() => onAction("report")}
             className="text-amber-500 focus:bg-amber-500/10 focus:text-amber-500"
           >
             <Flag className="mr-2 h-4 w-4" />
@@ -206,7 +218,7 @@ export function MessageContextMenu({
         {/* Delete */}
         {permissions.canDelete && (
           <ContextMenuItem
-            onClick={() => onAction('delete')}
+            onClick={() => onAction("delete")}
             className="focus:bg-destructive/10 text-destructive focus:text-destructive"
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -216,7 +228,7 @@ export function MessageContextMenu({
         )}
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }
 
 /**
@@ -224,11 +236,11 @@ export function MessageContextMenu({
  */
 function ReactionGrid({ onSelect }: { onSelect: (emoji: string) => void }) {
   const reactions = [
-    ['thumbs_up', 'thumbs_down', 'clap', 'wave'],
-    ['heart', 'fire', 'star', 'eyes'],
-    ['smile', 'joy', 'thinking', 'cry'],
-    ['tada', 'rocket', 'check', 'x'],
-  ]
+    ["thumbs_up", "thumbs_down", "clap", "wave"],
+    ["heart", "fire", "star", "eyes"],
+    ["smile", "joy", "thinking", "cry"],
+    ["tada", "rocket", "check", "x"],
+  ];
 
   return (
     <div className="grid grid-cols-4 gap-1 p-2">
@@ -242,15 +254,15 @@ function ReactionGrid({ onSelect }: { onSelect: (emoji: string) => void }) {
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 /**
  * Custom Context Menu UI component (if not using Radix)
  */
 interface ContextMenuUIProps {
-  children: React.ReactNode
-  trigger: React.ReactNode
+  children: React.ReactNode;
+  trigger: React.ReactNode;
 }
 
-export { ContextMenuContent as ContextMenuContentUI }
+export { ContextMenuContent as ContextMenuContentUI };

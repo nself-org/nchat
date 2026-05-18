@@ -17,8 +17,8 @@
  * - Rate-limiting recommendations for verification
  */
 
-import { sha256 } from '@noble/hashes/sha256'
-import { randomBytes, bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { sha256 } from "@noble/hashes/sha256";
+import { randomBytes, bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import {
   encryptAESGCM,
   decryptAESGCM,
@@ -30,41 +30,41 @@ import {
   bytesToBase64,
   base64ToBytes,
   constantTimeEqual,
-} from './crypto'
+} from "./crypto";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** Recovery key entropy in bytes (256 bits) */
-const RECOVERY_KEY_ENTROPY = 32
+const RECOVERY_KEY_ENTROPY = 32;
 
 /** Recovery key checksum length in bytes */
-const RECOVERY_KEY_CHECKSUM = 2
+const RECOVERY_KEY_CHECKSUM = 2;
 
 /** Characters used in recovery key (case-insensitive, avoid confusing chars) */
-const RECOVERY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+const RECOVERY_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 /** Number of characters in a recovery key group */
-const GROUP_SIZE = 5
+const GROUP_SIZE = 5;
 
 /**
  * Number of groups in a full recovery key.
  * 34 bytes (32 entropy + 2 checksum) * 8 bits / 5 bits per char = ~55 chars = 11 groups
  */
-const NUM_GROUPS = 11
+const NUM_GROUPS = 11;
 
 /**
  * Total expected length of raw recovery key.
  * 34 bytes encoded in base32 = ceil(34 * 8 / 5) = 55 chars
  */
-const EXPECTED_RAW_LENGTH = 55
+const EXPECTED_RAW_LENGTH = 55;
 
 /** Domain separation for recovery key derivation */
-const DOMAIN_RECOVERY = 'nchat-recovery-key-v1'
+const DOMAIN_RECOVERY = "nchat-recovery-key-v1";
 
 /** Domain separation for master key encryption */
-const DOMAIN_MASTER_KEY = 'nchat-master-key-encrypt-v1'
+const DOMAIN_MASTER_KEY = "nchat-master-key-encrypt-v1";
 
 // ============================================================================
 // Types
@@ -75,15 +75,15 @@ const DOMAIN_MASTER_KEY = 'nchat-master-key-encrypt-v1'
  */
 export interface RecoveryKeyResult {
   /** The recovery key in display format (with dashes) */
-  displayKey: string
+  displayKey: string;
   /** The recovery key raw (no dashes, uppercase) */
-  rawKey: string
+  rawKey: string;
   /** Key bytes for encryption operations */
-  keyBytes: Uint8Array
+  keyBytes: Uint8Array;
   /** Checksum bytes */
-  checksum: Uint8Array
+  checksum: Uint8Array;
   /** Creation timestamp */
-  createdAt: number
+  createdAt: number;
 }
 
 /**
@@ -91,13 +91,13 @@ export interface RecoveryKeyResult {
  */
 export interface ValidatedRecoveryKey {
   /** Whether the key is valid */
-  valid: boolean
+  valid: boolean;
   /** Normalized key (if valid) */
-  normalizedKey?: string
+  normalizedKey?: string;
   /** Key bytes (if valid) */
-  keyBytes?: Uint8Array
+  keyBytes?: Uint8Array;
   /** Error message (if invalid) */
-  error?: string
+  error?: string;
 }
 
 /**
@@ -105,13 +105,13 @@ export interface ValidatedRecoveryKey {
  */
 export interface EncryptedMasterKey {
   /** Encrypted master key (base64) */
-  encryptedKey: string
+  encryptedKey: string;
   /** Recovery key hash for verification */
-  recoveryKeyHash: string
+  recoveryKeyHash: string;
   /** Version for compatibility */
-  version: number
+  version: number;
   /** Creation timestamp */
-  createdAt: number
+  createdAt: number;
 }
 
 /**
@@ -119,11 +119,11 @@ export interface EncryptedMasterKey {
  */
 export interface VerificationAttempt {
   /** Timestamp of attempt */
-  timestamp: number
+  timestamp: number;
   /** Whether attempt was successful */
-  success: boolean
+  success: boolean;
   /** Source IP or device identifier */
-  source?: string
+  source?: string;
 }
 
 /**
@@ -131,11 +131,11 @@ export interface VerificationAttempt {
  */
 export interface RateLimitResult {
   /** Whether operation is allowed */
-  allowed: boolean
+  allowed: boolean;
   /** Seconds until next attempt allowed */
-  waitSeconds: number
+  waitSeconds: number;
   /** Number of remaining attempts */
-  remainingAttempts: number
+  remainingAttempts: number;
 }
 
 // ============================================================================
@@ -152,20 +152,20 @@ export interface RateLimitResult {
  */
 export function generateRecoveryKey(): RecoveryKeyResult {
   // Generate random bytes
-  const entropy = randomBytes(RECOVERY_KEY_ENTROPY)
+  const entropy = randomBytes(RECOVERY_KEY_ENTROPY);
 
   // Calculate checksum
-  const hash = sha256(entropy)
-  const checksum = hash.slice(0, RECOVERY_KEY_CHECKSUM)
+  const hash = sha256(entropy);
+  const checksum = hash.slice(0, RECOVERY_KEY_CHECKSUM);
 
   // Combine entropy and checksum
-  const combined = new Uint8Array(entropy.length + checksum.length)
-  combined.set(entropy, 0)
-  combined.set(checksum, entropy.length)
+  const combined = new Uint8Array(entropy.length + checksum.length);
+  combined.set(entropy, 0);
+  combined.set(checksum, entropy.length);
 
   // Encode to recovery key format
-  const rawKey = encodeToRecoveryFormat(combined)
-  const displayKey = formatRecoveryKey(rawKey)
+  const rawKey = encodeToRecoveryFormat(combined);
+  const displayKey = formatRecoveryKey(rawKey);
 
   return {
     displayKey,
@@ -173,7 +173,7 @@ export function generateRecoveryKey(): RecoveryKeyResult {
     keyBytes: entropy,
     checksum,
     createdAt: Date.now(),
-  }
+  };
 }
 
 /**
@@ -186,28 +186,28 @@ export function generateRecoveryKey(): RecoveryKeyResult {
  * @returns Encoded string
  */
 function encodeToRecoveryFormat(bytes: Uint8Array): string {
-  let result = ''
-  let bits = 0
-  let value = 0
+  let result = "";
+  let bits = 0;
+  let value = 0;
 
   for (const byte of bytes) {
-    value = (value << 8) | byte
-    bits += 8
+    value = (value << 8) | byte;
+    bits += 8;
 
     while (bits >= 5) {
-      bits -= 5
-      const index = (value >> bits) & 0x1f
-      result += RECOVERY_ALPHABET[index]
+      bits -= 5;
+      const index = (value >> bits) & 0x1f;
+      result += RECOVERY_ALPHABET[index];
     }
   }
 
   // Handle remaining bits
   if (bits > 0) {
-    const index = (value << (5 - bits)) & 0x1f
-    result += RECOVERY_ALPHABET[index]
+    const index = (value << (5 - bits)) & 0x1f;
+    result += RECOVERY_ALPHABET[index];
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -218,27 +218,27 @@ function encodeToRecoveryFormat(bytes: Uint8Array): string {
  * @throws Error if invalid character encountered
  */
 function decodeFromRecoveryFormat(encoded: string): Uint8Array {
-  const normalizedEncoded = encoded.toUpperCase().replace(/-/g, '')
-  const bytes: number[] = []
-  let bits = 0
-  let value = 0
+  const normalizedEncoded = encoded.toUpperCase().replace(/-/g, "");
+  const bytes: number[] = [];
+  let bits = 0;
+  let value = 0;
 
   for (const char of normalizedEncoded) {
-    const index = RECOVERY_ALPHABET.indexOf(char)
+    const index = RECOVERY_ALPHABET.indexOf(char);
     if (index === -1) {
-      throw new Error(`Invalid character in recovery key: ${char}`)
+      throw new Error(`Invalid character in recovery key: ${char}`);
     }
 
-    value = (value << 5) | index
-    bits += 5
+    value = (value << 5) | index;
+    bits += 5;
 
     while (bits >= 8) {
-      bits -= 8
-      bytes.push((value >> bits) & 0xff)
+      bits -= 8;
+      bytes.push((value >> bits) & 0xff);
     }
   }
 
-  return new Uint8Array(bytes)
+  return new Uint8Array(bytes);
 }
 
 /**
@@ -248,14 +248,14 @@ function decodeFromRecoveryFormat(encoded: string): Uint8Array {
  * @returns Formatted key with dashes
  */
 export function formatRecoveryKey(rawKey: string): string {
-  const normalized = rawKey.toUpperCase().replace(/-/g, '')
-  const groups: string[] = []
+  const normalized = rawKey.toUpperCase().replace(/-/g, "");
+  const groups: string[] = [];
 
   for (let i = 0; i < normalized.length; i += GROUP_SIZE) {
-    groups.push(normalized.slice(i, i + GROUP_SIZE))
+    groups.push(normalized.slice(i, i + GROUP_SIZE));
   }
 
-  return groups.join('-')
+  return groups.join("-");
 }
 
 /**
@@ -265,7 +265,7 @@ export function formatRecoveryKey(rawKey: string): string {
  * @returns Normalized key
  */
 export function normalizeRecoveryKey(key: string): string {
-  return key.toUpperCase().replace(/[\s-]/g, '')
+  return key.toUpperCase().replace(/[\s-]/g, "");
 }
 
 // ============================================================================
@@ -280,14 +280,14 @@ export function normalizeRecoveryKey(key: string): string {
  */
 export function validateRecoveryKey(key: string): ValidatedRecoveryKey {
   // Normalize the key
-  const normalized = normalizeRecoveryKey(key)
+  const normalized = normalizeRecoveryKey(key);
 
   // Check length (55 chars for 34 bytes encoded in base32)
   if (normalized.length !== EXPECTED_RAW_LENGTH) {
     return {
       valid: false,
       error: `Invalid recovery key length: expected ${EXPECTED_RAW_LENGTH}, got ${normalized.length}`,
-    }
+    };
   }
 
   // Check for invalid characters
@@ -296,40 +296,40 @@ export function validateRecoveryKey(key: string): ValidatedRecoveryKey {
       return {
         valid: false,
         error: `Invalid character in recovery key: ${char}`,
-      }
+      };
     }
   }
 
   // Decode and verify checksum
   try {
-    const decoded = decodeFromRecoveryFormat(normalized)
+    const decoded = decodeFromRecoveryFormat(normalized);
 
     // Split entropy and checksum
-    const entropy = decoded.slice(0, RECOVERY_KEY_ENTROPY)
-    const providedChecksum = decoded.slice(RECOVERY_KEY_ENTROPY)
+    const entropy = decoded.slice(0, RECOVERY_KEY_ENTROPY);
+    const providedChecksum = decoded.slice(RECOVERY_KEY_ENTROPY);
 
     // Calculate expected checksum
-    const hash = sha256(entropy)
-    const expectedChecksum = hash.slice(0, RECOVERY_KEY_CHECKSUM)
+    const hash = sha256(entropy);
+    const expectedChecksum = hash.slice(0, RECOVERY_KEY_CHECKSUM);
 
     // Verify checksum
     if (!constantTimeEqual(providedChecksum, expectedChecksum)) {
       return {
         valid: false,
-        error: 'Invalid recovery key checksum - key may be mistyped',
-      }
+        error: "Invalid recovery key checksum - key may be mistyped",
+      };
     }
 
     return {
       valid: true,
       normalizedKey: normalized,
       keyBytes: entropy,
-    }
+    };
   } catch (error) {
     return {
       valid: false,
-      error: `Failed to decode recovery key: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    }
+      error: `Failed to decode recovery key: ${error instanceof Error ? error.message : "Unknown error"}`,
+    };
   }
 }
 
@@ -340,19 +340,19 @@ export function validateRecoveryKey(key: string): ValidatedRecoveryKey {
  * @returns True if format appears valid
  */
 export function looksLikeRecoveryKey(key: string): boolean {
-  const normalized = normalizeRecoveryKey(key)
+  const normalized = normalizeRecoveryKey(key);
 
   if (normalized.length !== EXPECTED_RAW_LENGTH) {
-    return false
+    return false;
   }
 
   for (const char of normalized) {
     if (!RECOVERY_ALPHABET.includes(char)) {
-      return false
+      return false;
     }
   }
 
-  return true
+  return true;
 }
 
 // ============================================================================
@@ -368,24 +368,27 @@ export function looksLikeRecoveryKey(key: string): boolean {
  */
 export async function encryptMasterKeyWithRecovery(
   masterKey: Uint8Array,
-  recoveryKeyBytes: Uint8Array
+  recoveryKeyBytes: Uint8Array,
 ): Promise<EncryptedMasterKey> {
   // Derive encryption key from recovery key
-  const encryptionKey = deriveFromRecoveryKey(recoveryKeyBytes, DOMAIN_MASTER_KEY)
+  const encryptionKey = deriveFromRecoveryKey(
+    recoveryKeyBytes,
+    DOMAIN_MASTER_KEY,
+  );
 
   // Encrypt master key
-  const { ciphertext, iv } = await encryptAESGCM(masterKey, encryptionKey)
-  const encrypted = encodeEncryptedData(ciphertext, iv)
+  const { ciphertext, iv } = await encryptAESGCM(masterKey, encryptionKey);
+  const encrypted = encodeEncryptedData(ciphertext, iv);
 
   // Create recovery key hash for verification
-  const recoveryKeyHash = bytesToHex(hash256(recoveryKeyBytes))
+  const recoveryKeyHash = bytesToHex(hash256(recoveryKeyBytes));
 
   return {
     encryptedKey: bytesToBase64(encrypted),
     recoveryKeyHash,
     version: 1,
     createdAt: Date.now(),
-  }
+  };
 }
 
 /**
@@ -398,25 +401,28 @@ export async function encryptMasterKeyWithRecovery(
  */
 export async function decryptMasterKeyWithRecovery(
   encryptedMasterKey: EncryptedMasterKey,
-  recoveryKeyBytes: Uint8Array
+  recoveryKeyBytes: Uint8Array,
 ): Promise<Uint8Array> {
   // Verify recovery key hash
-  const computedHash = bytesToHex(hash256(recoveryKeyBytes))
+  const computedHash = bytesToHex(hash256(recoveryKeyBytes));
   if (computedHash !== encryptedMasterKey.recoveryKeyHash) {
-    throw new Error('Invalid recovery key')
+    throw new Error("Invalid recovery key");
   }
 
   // Derive encryption key from recovery key
-  const encryptionKey = deriveFromRecoveryKey(recoveryKeyBytes, DOMAIN_MASTER_KEY)
+  const encryptionKey = deriveFromRecoveryKey(
+    recoveryKeyBytes,
+    DOMAIN_MASTER_KEY,
+  );
 
   // Decrypt master key
-  const encrypted = base64ToBytes(encryptedMasterKey.encryptedKey)
-  const { ciphertext, iv } = decodeEncryptedData(encrypted)
+  const encrypted = base64ToBytes(encryptedMasterKey.encryptedKey);
+  const { ciphertext, iv } = decodeEncryptedData(encrypted);
 
   try {
-    return await decryptAESGCM(ciphertext, encryptionKey, iv)
+    return await decryptAESGCM(ciphertext, encryptionKey, iv);
   } catch (error) {
-    throw new Error('Failed to decrypt master key with recovery key')
+    throw new Error("Failed to decrypt master key with recovery key");
   }
 }
 
@@ -427,12 +433,15 @@ export async function decryptMasterKeyWithRecovery(
  * @param domain - Domain separation string
  * @returns Derived key
  */
-function deriveFromRecoveryKey(recoveryKeyBytes: Uint8Array, domain: string): Uint8Array {
-  const domainBytes = stringToBytes(domain)
-  const combined = new Uint8Array(recoveryKeyBytes.length + domainBytes.length)
-  combined.set(recoveryKeyBytes, 0)
-  combined.set(domainBytes, recoveryKeyBytes.length)
-  return hash256(combined)
+function deriveFromRecoveryKey(
+  recoveryKeyBytes: Uint8Array,
+  domain: string,
+): Uint8Array {
+  const domainBytes = stringToBytes(domain);
+  const combined = new Uint8Array(recoveryKeyBytes.length + domainBytes.length);
+  combined.set(recoveryKeyBytes, 0);
+  combined.set(domainBytes, recoveryKeyBytes.length);
+  return hash256(combined);
 }
 
 // ============================================================================
@@ -446,8 +455,8 @@ function deriveFromRecoveryKey(recoveryKeyBytes: Uint8Array, domain: string): Ui
  * @returns Hash for storage
  */
 export function createRecoveryKeyHash(recoveryKeyBytes: Uint8Array): string {
-  const hashBytes = hash256(recoveryKeyBytes)
-  return bytesToHex(hashBytes)
+  const hashBytes = hash256(recoveryKeyBytes);
+  return bytesToHex(hashBytes);
 }
 
 /**
@@ -457,9 +466,15 @@ export function createRecoveryKeyHash(recoveryKeyBytes: Uint8Array): string {
  * @param storedHash - Stored hash to compare against
  * @returns True if recovery key matches
  */
-export function verifyRecoveryKeyHash(recoveryKeyBytes: Uint8Array, storedHash: string): boolean {
-  const computedHash = bytesToHex(hash256(recoveryKeyBytes))
-  return constantTimeEqual(stringToBytes(computedHash), stringToBytes(storedHash))
+export function verifyRecoveryKeyHash(
+  recoveryKeyBytes: Uint8Array,
+  storedHash: string,
+): boolean {
+  const computedHash = bytesToHex(hash256(recoveryKeyBytes));
+  return constantTimeEqual(
+    stringToBytes(computedHash),
+    stringToBytes(storedHash),
+  );
 }
 
 // ============================================================================
@@ -469,17 +484,17 @@ export function verifyRecoveryKeyHash(recoveryKeyBytes: Uint8Array, storedHash: 
 /**
  * Maximum verification attempts before lockout
  */
-export const MAX_VERIFICATION_ATTEMPTS = 5
+export const MAX_VERIFICATION_ATTEMPTS = 5;
 
 /**
  * Lockout duration in seconds
  */
-export const LOCKOUT_DURATION_SECONDS = 300 // 5 minutes
+export const LOCKOUT_DURATION_SECONDS = 300; // 5 minutes
 
 /**
  * Window for counting attempts in seconds
  */
-export const ATTEMPT_WINDOW_SECONDS = 60 // 1 minute
+export const ATTEMPT_WINDOW_SECONDS = 60; // 1 minute
 
 /**
  * Checks if a verification attempt is allowed based on rate limiting
@@ -487,26 +502,28 @@ export const ATTEMPT_WINDOW_SECONDS = 60 // 1 minute
  * @param attempts - Previous verification attempts
  * @returns Rate limit check result
  */
-export function checkRateLimit(attempts: VerificationAttempt[]): RateLimitResult {
-  const now = Date.now()
-  const windowStart = now - ATTEMPT_WINDOW_SECONDS * 1000
+export function checkRateLimit(
+  attempts: VerificationAttempt[],
+): RateLimitResult {
+  const now = Date.now();
+  const windowStart = now - ATTEMPT_WINDOW_SECONDS * 1000;
 
   // Filter attempts within the window
-  const recentAttempts = attempts.filter((a) => a.timestamp > windowStart)
-  const failedAttempts = recentAttempts.filter((a) => !a.success)
+  const recentAttempts = attempts.filter((a) => a.timestamp > windowStart);
+  const failedAttempts = recentAttempts.filter((a) => !a.success);
 
   // Check for lockout
   if (failedAttempts.length >= MAX_VERIFICATION_ATTEMPTS) {
-    const oldestFailure = Math.min(...failedAttempts.map((a) => a.timestamp))
-    const lockoutEnd = oldestFailure + LOCKOUT_DURATION_SECONDS * 1000
-    const waitMs = lockoutEnd - now
+    const oldestFailure = Math.min(...failedAttempts.map((a) => a.timestamp));
+    const lockoutEnd = oldestFailure + LOCKOUT_DURATION_SECONDS * 1000;
+    const waitMs = lockoutEnd - now;
 
     if (waitMs > 0) {
       return {
         allowed: false,
         waitSeconds: Math.ceil(waitMs / 1000),
         remainingAttempts: 0,
-      }
+      };
     }
   }
 
@@ -514,7 +531,7 @@ export function checkRateLimit(attempts: VerificationAttempt[]): RateLimitResult
     allowed: true,
     waitSeconds: 0,
     remainingAttempts: MAX_VERIFICATION_ATTEMPTS - failedAttempts.length,
-  }
+  };
 }
 
 /**
@@ -528,22 +545,22 @@ export function checkRateLimit(attempts: VerificationAttempt[]): RateLimitResult
 export function recordVerificationAttempt(
   attempts: VerificationAttempt[],
   success: boolean,
-  source?: string
+  source?: string,
 ): VerificationAttempt[] {
-  const now = Date.now()
-  const windowStart = now - LOCKOUT_DURATION_SECONDS * 1000
+  const now = Date.now();
+  const windowStart = now - LOCKOUT_DURATION_SECONDS * 1000;
 
   // Filter out old attempts
-  const recentAttempts = attempts.filter((a) => a.timestamp > windowStart)
+  const recentAttempts = attempts.filter((a) => a.timestamp > windowStart);
 
   // Add new attempt
   recentAttempts.push({
     timestamp: now,
     success,
     source,
-  })
+  });
 
-  return recentAttempts
+  return recentAttempts;
 }
 
 // ============================================================================
@@ -557,7 +574,7 @@ export function recordVerificationAttempt(
  * @returns Array of groups for rendering
  */
 export function getRecoveryKeyGroups(displayKey: string): string[] {
-  return displayKey.split('-')
+  return displayKey.split("-");
 }
 
 /**
@@ -568,15 +585,15 @@ export function getRecoveryKeyGroups(displayKey: string): string[] {
  * @returns Strength level (0-4)
  */
 export function getRecoveryPhraseStrength(phrase: string): number {
-  let strength = 0
+  let strength = 0;
 
-  if (phrase.length >= 12) strength++
-  if (phrase.length >= 16) strength++
-  if (/[a-z]/.test(phrase) && /[A-Z]/.test(phrase)) strength++
-  if (/[0-9]/.test(phrase)) strength++
-  if (/[^a-zA-Z0-9]/.test(phrase)) strength++
+  if (phrase.length >= 12) strength++;
+  if (phrase.length >= 16) strength++;
+  if (/[a-z]/.test(phrase) && /[A-Z]/.test(phrase)) strength++;
+  if (/[0-9]/.test(phrase)) strength++;
+  if (/[^a-zA-Z0-9]/.test(phrase)) strength++;
 
-  return Math.min(strength, 4)
+  return Math.min(strength, 4);
 }
 
 /**
@@ -586,18 +603,25 @@ export function getRecoveryPhraseStrength(phrase: string): number {
  * @param visibleGroups - Number of groups to show (from start and end)
  * @returns Masked recovery key
  */
-export function maskRecoveryKey(displayKey: string, visibleGroups: number = 2): string {
-  const groups = displayKey.split('-')
+export function maskRecoveryKey(
+  displayKey: string,
+  visibleGroups: number = 2,
+): string {
+  const groups = displayKey.split("-");
 
   if (groups.length <= visibleGroups * 2) {
-    return displayKey
+    return displayKey;
   }
 
-  const startGroups = groups.slice(0, visibleGroups)
-  const endGroups = groups.slice(-visibleGroups)
-  const middleCount = groups.length - visibleGroups * 2
+  const startGroups = groups.slice(0, visibleGroups);
+  const endGroups = groups.slice(-visibleGroups);
+  const middleCount = groups.length - visibleGroups * 2;
 
-  return [...startGroups, ...Array(middleCount).fill('*****'), ...endGroups].join('-')
+  return [
+    ...startGroups,
+    ...Array(middleCount).fill("*****"),
+    ...endGroups,
+  ].join("-");
 }
 
 // ============================================================================
@@ -611,14 +635,17 @@ export function maskRecoveryKey(displayKey: string, visibleGroups: number = 2): 
  * @param userId - User ID for context
  * @returns QR code data string
  */
-export function createRecoveryKeyQR(recoveryKey: RecoveryKeyResult, userId: string): string {
+export function createRecoveryKeyQR(
+  recoveryKey: RecoveryKeyResult,
+  userId: string,
+): string {
   return JSON.stringify({
-    type: 'nchat-recovery-key',
+    type: "nchat-recovery-key",
     version: 1,
     userId,
     key: recoveryKey.rawKey,
     createdAt: recoveryKey.createdAt,
-  })
+  });
 }
 
 /**
@@ -628,24 +655,24 @@ export function createRecoveryKeyQR(recoveryKey: RecoveryKeyResult, userId: stri
  * @returns Parsed data or null if invalid
  */
 export function parseRecoveryKeyQR(qrData: string): {
-  userId: string
-  recoveryKey: string
-  createdAt: number
+  userId: string;
+  recoveryKey: string;
+  createdAt: number;
 } | null {
   try {
-    const parsed = JSON.parse(qrData)
+    const parsed = JSON.parse(qrData);
 
-    if (parsed.type !== 'nchat-recovery-key' || parsed.version !== 1) {
-      return null
+    if (parsed.type !== "nchat-recovery-key" || parsed.version !== 1) {
+      return null;
     }
 
     return {
       userId: parsed.userId,
       recoveryKey: parsed.key,
       createdAt: parsed.createdAt,
-    }
+    };
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -686,6 +713,6 @@ export const recoveryKey = {
   // QR code
   createRecoveryKeyQR,
   parseRecoveryKeyQR,
-}
+};
 
-export default recoveryKey
+export default recoveryKey;

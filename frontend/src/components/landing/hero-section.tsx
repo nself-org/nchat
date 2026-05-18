@@ -1,10 +1,10 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { useAppConfig } from '@/contexts/app-config-context'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useAppConfig } from "@/contexts/app-config-context";
 
 export function HeroSection() {
-  const { config } = useAppConfig()
-  const { branding, authPermissions } = config
+  const { config } = useAppConfig();
+  const { branding, authPermissions } = config;
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -13,7 +13,11 @@ export function HeroSection() {
           {/* Logo */}
           {branding.logo && (
             <div className="mb-8">
-              <img src={branding.logo} alt={branding.appName} className="mx-auto h-16 w-auto" />
+              <img
+                src={branding.logo}
+                alt={branding.appName}
+                className="mx-auto h-16 w-auto"
+              />
             </div>
           )}
 
@@ -30,7 +34,7 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            {authPermissions.mode !== 'admin-only' ? (
+            {authPermissions.mode !== "admin-only" ? (
               <Button asChild size="lg">
                 <Link href="/auth/signup">Get Started</Link>
               </Button>
@@ -54,5 +58,5 @@ export function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

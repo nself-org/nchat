@@ -17,7 +17,7 @@ export {
   selectFileTarget,
   selectTextSelectionTarget,
   selectActiveSubmenu,
-} from './context-menu-store'
+} from "./context-menu-store";
 
 export type {
   ContextMenuType,
@@ -31,7 +31,7 @@ export type {
   ContextMenuState,
   ContextMenuActions,
   ContextMenuStore,
-} from './context-menu-store'
+} from "./context-menu-store";
 
 // Hook
 export {
@@ -42,6 +42,9 @@ export {
   useFileContextMenu,
   useTextSelectionContextMenu,
   getPositionFromEvent,
-} from './use-context-menu'
+} from "./use-context-menu";
 
-export type { UseContextMenuOptions, UseContextMenuReturn } from './use-context-menu'
+export type {
+  UseContextMenuOptions,
+  UseContextMenuReturn,
+} from "./use-context-menu";

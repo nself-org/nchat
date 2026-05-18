@@ -1,80 +1,96 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { useNotificationSettingsStore } from '@/stores/notification-settings-store'
-import { createKeyword, validateKeyword } from '@/lib/notifications/keyword-matcher'
-import type { KeywordNotification } from '@/lib/notifications/notification-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { useNotificationSettingsStore } from "@/stores/notification-settings-store";
+import {
+  createKeyword,
+  validateKeyword,
+} from "@/lib/notifications/keyword-matcher";
+import type { KeywordNotification } from "@/lib/notifications/notification-types";
 
 export interface KeywordNotificationsPanelProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 /**
  * KeywordNotificationsPanel - Custom keyword alert settings
  */
-export function KeywordNotificationsPanel({ className, ...props }: KeywordNotificationsPanelProps) {
-  const [newKeyword, setNewKeyword] = React.useState('')
-  const [caseSensitive, setCaseSensitive] = React.useState(false)
-  const [wholeWord, setWholeWord] = React.useState(true)
-  const [error, setError] = React.useState<string | null>(null)
-  const [editingId, setEditingId] = React.useState<string | null>(null)
+export function KeywordNotificationsPanel({
+  className,
+  ...props
+}: KeywordNotificationsPanelProps) {
+  const [newKeyword, setNewKeyword] = React.useState("");
+  const [caseSensitive, setCaseSensitive] = React.useState(false);
+  const [wholeWord, setWholeWord] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [editingId, setEditingId] = React.useState<string | null>(null);
 
-  const keywords = useNotificationSettingsStore((state) => state.preferences.keywords)
-  const addKeyword = useNotificationSettingsStore((state) => state.addKeyword)
-  const updateKeyword = useNotificationSettingsStore((state) => state.updateKeyword)
-  const removeKeyword = useNotificationSettingsStore((state) => state.removeKeyword)
-  const toggleKeyword = useNotificationSettingsStore((state) => state.toggleKeyword)
+  const keywords = useNotificationSettingsStore(
+    (state) => state.preferences.keywords,
+  );
+  const addKeyword = useNotificationSettingsStore((state) => state.addKeyword);
+  const updateKeyword = useNotificationSettingsStore(
+    (state) => state.updateKeyword,
+  );
+  const removeKeyword = useNotificationSettingsStore(
+    (state) => state.removeKeyword,
+  );
+  const toggleKeyword = useNotificationSettingsStore(
+    (state) => state.toggleKeyword,
+  );
 
   // Add new keyword
   const handleAddKeyword = () => {
-    const validation = validateKeyword(newKeyword)
+    const validation = validateKeyword(newKeyword);
     if (!validation.valid) {
-      setError(validation.error || 'Invalid keyword')
-      return
+      setError(validation.error || "Invalid keyword");
+      return;
     }
 
     // Check for duplicates
-    const exists = keywords.some((k) => k.keyword.toLowerCase() === newKeyword.toLowerCase().trim())
+    const exists = keywords.some(
+      (k) => k.keyword.toLowerCase() === newKeyword.toLowerCase().trim(),
+    );
     if (exists) {
-      setError('This keyword already exists')
-      return
+      setError("This keyword already exists");
+      return;
     }
 
     const keyword = createKeyword(newKeyword, {
       caseSensitive,
       wholeWord,
       enabled: true,
-    })
+    });
 
-    addKeyword(keyword)
-    setNewKeyword('')
-    setCaseSensitive(false)
-    setWholeWord(true)
-    setError(null)
-  }
+    addKeyword(keyword);
+    setNewKeyword("");
+    setCaseSensitive(false);
+    setWholeWord(true);
+    setError(null);
+  };
 
   // Handle key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleAddKeyword()
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddKeyword();
     }
-  }
+  };
 
   // Handle delete
   const handleDelete = (keywordId: string) => {
-    if (window.confirm('Are you sure you want to delete this keyword?')) {
-      removeKeyword(keywordId)
+    if (window.confirm("Are you sure you want to delete this keyword?")) {
+      removeKeyword(keywordId);
     }
-  }
+  };
 
   return (
-    <div className={cn('space-y-6', className)} {...props}>
+    <div className={cn("space-y-6", className)} {...props}>
       {/* Add New Keyword */}
       <Card className="p-4">
         <h3 className="mb-4 text-sm font-medium">Add Keyword</h3>
@@ -84,8 +100,8 @@ export function KeywordNotificationsPanel({ className, ...props }: KeywordNotifi
               placeholder="Enter a word or phrase..."
               value={newKeyword}
               onChange={(e) => {
-                setNewKeyword(e.target.value)
-                setError(null)
+                setNewKeyword(e.target.value);
+                setError(null);
               }}
               onKeyPress={handleKeyPress}
               className="flex-1"
@@ -109,7 +125,11 @@ export function KeywordNotificationsPanel({ className, ...props }: KeywordNotifi
               </Label>
             </div>
             <div className="flex items-center gap-2">
-              <Switch id="whole-word" checked={wholeWord} onCheckedChange={setWholeWord} />
+              <Switch
+                id="whole-word"
+                checked={wholeWord}
+                onCheckedChange={setWholeWord}
+              />
               <Label htmlFor="whole-word" className="text-sm">
                 Whole word only
               </Label>
@@ -123,7 +143,9 @@ export function KeywordNotificationsPanel({ className, ...props }: KeywordNotifi
         <h3 className="mb-4 text-sm font-medium">
           Your Keywords
           {keywords.length > 0 && (
-            <span className="ml-2 font-normal text-muted-foreground">({keywords.length})</span>
+            <span className="ml-2 font-normal text-muted-foreground">
+              ({keywords.length})
+            </span>
           )}
         </h3>
 
@@ -153,8 +175,8 @@ export function KeywordNotificationsPanel({ className, ...props }: KeywordNotifi
                 isEditing={editingId === keyword.id}
                 onEdit={() => setEditingId(keyword.id)}
                 onSave={(updates) => {
-                  updateKeyword(keyword.id, updates)
-                  setEditingId(null)
+                  updateKeyword(keyword.id, updates);
+                  setEditingId(null);
                 }}
                 onCancel={() => setEditingId(null)}
                 onToggle={() => toggleKeyword(keyword.id)}
@@ -176,18 +198,18 @@ export function KeywordNotificationsPanel({ className, ...props }: KeywordNotifi
         </ul>
       </Card>
     </div>
-  )
+  );
 }
 
 // Keyword Item Component
 interface KeywordItemProps {
-  keyword: KeywordNotification
-  isEditing: boolean
-  onEdit: () => void
-  onSave: (updates: Partial<KeywordNotification>) => void
-  onCancel: () => void
-  onToggle: () => void
-  onDelete: () => void
+  keyword: KeywordNotification;
+  isEditing: boolean;
+  onEdit: () => void;
+  onSave: (updates: Partial<KeywordNotification>) => void;
+  onCancel: () => void;
+  onToggle: () => void;
+  onDelete: () => void;
 }
 
 function KeywordItem({
@@ -199,22 +221,34 @@ function KeywordItem({
   onToggle,
   onDelete,
 }: KeywordItemProps) {
-  const [editValue, setEditValue] = React.useState(keyword.keyword)
-  const [editCaseSensitive, setEditCaseSensitive] = React.useState(keyword.caseSensitive)
-  const [editWholeWord, setEditWholeWord] = React.useState(keyword.wholeWord)
+  const [editValue, setEditValue] = React.useState(keyword.keyword);
+  const [editCaseSensitive, setEditCaseSensitive] = React.useState(
+    keyword.caseSensitive,
+  );
+  const [editWholeWord, setEditWholeWord] = React.useState(keyword.wholeWord);
 
   if (isEditing) {
     return (
       <div className="space-y-3 rounded-lg border p-3">
-        <Input value={editValue} onChange={(e) => setEditValue(e.target.value)} autoFocus />{' '}
+        <Input
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          autoFocus
+        />{" "}
         {/* eslint-disable-line jsx-a11y/no-autofocus */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Switch checked={editCaseSensitive} onCheckedChange={setEditCaseSensitive} />
+            <Switch
+              checked={editCaseSensitive}
+              onCheckedChange={setEditCaseSensitive}
+            />
             <span className="text-xs">Case sensitive</span>
           </div>
           <div className="flex items-center gap-2">
-            <Switch checked={editWholeWord} onCheckedChange={setEditWholeWord} />
+            <Switch
+              checked={editWholeWord}
+              onCheckedChange={setEditWholeWord}
+            />
             <span className="text-xs">Whole word</span>
           </div>
         </div>
@@ -236,7 +270,7 @@ function KeywordItem({
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -244,7 +278,12 @@ function KeywordItem({
       <div className="flex items-center gap-3">
         <Switch checked={keyword.enabled} onCheckedChange={onToggle} />
         <div>
-          <span className={cn('font-medium', !keyword.enabled && 'text-muted-foreground')}>
+          <span
+            className={cn(
+              "font-medium",
+              !keyword.enabled && "text-muted-foreground",
+            )}
+          >
             {keyword.keyword}
           </span>
           <div className="mt-0.5 flex items-center gap-2">
@@ -260,7 +299,8 @@ function KeywordItem({
             )}
             {keyword.channelIds.length > 0 && (
               <Badge variant="outline" className="text-xs">
-                {keyword.channelIds.length} channel{keyword.channelIds.length > 1 ? 's' : ''}
+                {keyword.channelIds.length} channel
+                {keyword.channelIds.length > 1 ? "s" : ""}
               </Badge>
             )}
           </div>
@@ -293,9 +333,9 @@ function KeywordItem({
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
-KeywordNotificationsPanel.displayName = 'KeywordNotificationsPanel'
+KeywordNotificationsPanel.displayName = "KeywordNotificationsPanel";
 
-export default KeywordNotificationsPanel
+export default KeywordNotificationsPanel;

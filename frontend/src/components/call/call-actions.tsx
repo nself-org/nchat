@@ -5,43 +5,43 @@
  * like channel headers, user profiles, direct messages, etc.
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Phone, Video } from 'lucide-react'
-import { CallButton } from './call-button'
-import { FeatureGate } from '@/components/features/feature-gate'
-import { Button } from '@/components/ui/button'
-import { useCall } from '@/hooks/use-call'
-import { useToast } from '@/hooks/use-toast'
+import * as React from "react";
+import { Phone, Video } from "lucide-react";
+import { CallButton } from "./call-button";
+import { FeatureGate } from "@/components/features/feature-gate";
+import { Button } from "@/components/ui/button";
+import { useCall } from "@/hooks/use-call";
+import { useToast } from "@/hooks/use-toast";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Upgrade Prompt Button
 // =============================================================================
 
 interface UpgradeCallButtonProps {
-  callType: 'voice' | 'video'
-  variant?: 'default' | 'ghost' | 'outline'
-  size?: 'sm' | 'md' | 'lg' | 'icon'
-  showLabel?: boolean
+  callType: "voice" | "video";
+  variant?: "default" | "ghost" | "outline";
+  size?: "sm" | "md" | "lg" | "icon";
+  showLabel?: boolean;
 }
 
 function UpgradeCallButton({
   callType,
-  variant = 'ghost',
-  size = 'icon',
+  variant = "ghost",
+  size = "icon",
   showLabel = false,
 }: UpgradeCallButtonProps) {
-  const Icon = callType === 'voice' ? Phone : Video
-  const label = callType === 'voice' ? 'Voice Call' : 'Video Call'
-  const upgradeTitle = 'Requires Starter plan or higher'
+  const Icon = callType === "voice" ? Phone : Video;
+  const label = callType === "voice" ? "Voice Call" : "Video Call";
+  const upgradeTitle = "Requires Starter plan or higher";
 
   return (
     <Button
-      variant={variant as 'default' | 'ghost' | 'outline'}
-      size={size === 'md' ? 'default' : (size as 'sm' | 'lg' | 'icon')}
+      variant={variant as "default" | "ghost" | "outline"}
+      size={size === "md" ? "default" : (size as "sm" | "lg" | "icon")}
       disabled
       aria-label={upgradeTitle}
       title={upgradeTitle}
@@ -50,7 +50,7 @@ function UpgradeCallButton({
       <Icon className="h-4 w-4" />
       {showLabel && <span className="ml-2">{label}</span>}
     </Button>
-  )
+  );
 }
 
 // =============================================================================
@@ -59,23 +59,23 @@ function UpgradeCallButton({
 
 export interface CallActionsProps {
   /** Target user ID to call */
-  targetUserId: string
+  targetUserId: string;
   /** Target user name for display */
-  targetUserName: string
+  targetUserName: string;
   /** Optional channel ID if calling within a channel */
-  channelId?: string
+  channelId?: string;
   /** Show voice call button */
-  showVoiceCall?: boolean
+  showVoiceCall?: boolean;
   /** Show video call button */
-  showVideoCall?: boolean
+  showVideoCall?: boolean;
   /** Button variant */
-  variant?: 'default' | 'ghost' | 'outline'
+  variant?: "default" | "ghost" | "outline";
   /** Button size */
-  size?: 'sm' | 'md' | 'lg' | 'icon'
+  size?: "sm" | "md" | "lg" | "icon";
   /** Show labels on buttons */
-  showLabels?: boolean
+  showLabels?: boolean;
   /** Custom className */
-  className?: string
+  className?: string;
 }
 
 // =============================================================================
@@ -88,48 +88,62 @@ export function CallActions({
   channelId,
   showVoiceCall = true,
   showVideoCall = true,
-  variant = 'ghost',
-  size = 'icon',
+  variant = "ghost",
+  size = "icon",
   showLabels = false,
   className,
 }: CallActionsProps) {
-  const livekitEnabled = Boolean(process.env.NEXT_PUBLIC_LIVEKIT_URL)
-  const { initiateVoiceCall, initiateVideoCall, isInCall } = useCall()
-  const { toast } = useToast()
+  const livekitEnabled = Boolean(process.env.NEXT_PUBLIC_LIVEKIT_URL);
+  const { initiateVoiceCall, initiateVideoCall, isInCall } = useCall();
+  const { toast } = useToast();
 
   const handleVoiceCall = React.useCallback(async () => {
     if (isInCall) {
       toast({
-        title: 'Already in a call',
-        description: 'Please end your current call before starting a new one.',
-        variant: 'destructive',
-      })
-      return
+        title: "Already in a call",
+        description: "Please end your current call before starting a new one.",
+        variant: "destructive",
+      });
+      return;
     }
 
     try {
-      await initiateVoiceCall(targetUserId, targetUserName, channelId)
+      await initiateVoiceCall(targetUserId, targetUserName, channelId);
     } catch (error) {
-      logger.error('Failed to initiate voice call:', error)
+      logger.error("Failed to initiate voice call:", error);
     }
-  }, [isInCall, initiateVoiceCall, targetUserId, targetUserName, channelId, toast])
+  }, [
+    isInCall,
+    initiateVoiceCall,
+    targetUserId,
+    targetUserName,
+    channelId,
+    toast,
+  ]);
 
   const handleVideoCall = React.useCallback(async () => {
     if (isInCall) {
       toast({
-        title: 'Already in a call',
-        description: 'Please end your current call before starting a new one.',
-        variant: 'destructive',
-      })
-      return
+        title: "Already in a call",
+        description: "Please end your current call before starting a new one.",
+        variant: "destructive",
+      });
+      return;
     }
 
     try {
-      await initiateVideoCall(targetUserId, targetUserName, channelId)
+      await initiateVideoCall(targetUserId, targetUserName, channelId);
     } catch (error) {
-      logger.error('Failed to initiate video call:', error)
+      logger.error("Failed to initiate video call:", error);
     }
-  }, [isInCall, initiateVideoCall, targetUserId, targetUserName, channelId, toast])
+  }, [
+    isInCall,
+    initiateVideoCall,
+    targetUserId,
+    targetUserName,
+    channelId,
+    toast,
+  ]);
 
   return (
     <div className={className}>
@@ -137,7 +151,14 @@ export function CallActions({
         <FeatureGate
           category="voice"
           feature="calls"
-          fallback={<UpgradeCallButton callType="voice" variant={variant} size={size} showLabel={showLabels} />}
+          fallback={
+            <UpgradeCallButton
+              callType="voice"
+              variant={variant}
+              size={size}
+              showLabel={showLabels}
+            />
+          }
         >
           {livekitEnabled && (
             <CallButton
@@ -155,7 +176,14 @@ export function CallActions({
         <FeatureGate
           category="video"
           feature="calls"
-          fallback={<UpgradeCallButton callType="video" variant={variant} size={size} showLabel={showLabels} />}
+          fallback={
+            <UpgradeCallButton
+              callType="video"
+              variant={variant}
+              size={size}
+              showLabel={showLabels}
+            />
+          }
         >
           {livekitEnabled && (
             <CallButton
@@ -170,20 +198,20 @@ export function CallActions({
         </FeatureGate>
       )}
     </div>
-  )
+  );
 }
 
-CallActions.displayName = 'CallActions'
+CallActions.displayName = "CallActions";
 
 // =============================================================================
 // User Profile Call Actions
 // =============================================================================
 
 export interface UserProfileCallActionsProps {
-  userId: string
-  userName: string
-  userAvatar?: string
-  className?: string
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  className?: string;
 }
 
 export function UserProfileCallActions({
@@ -204,22 +232,26 @@ export function UserProfileCallActions({
         className="flex gap-2"
       />
     </div>
-  )
+  );
 }
 
-UserProfileCallActions.displayName = 'UserProfileCallActions'
+UserProfileCallActions.displayName = "UserProfileCallActions";
 
 // =============================================================================
 // DM Call Actions (for Direct Message headers)
 // =============================================================================
 
 export interface DMCallActionsProps {
-  userId: string
-  userName: string
-  className?: string
+  userId: string;
+  userName: string;
+  className?: string;
 }
 
-export function DMCallActions({ userId, userName, className }: DMCallActionsProps) {
+export function DMCallActions({
+  userId,
+  userName,
+  className,
+}: DMCallActionsProps) {
   return (
     <CallActions
       targetUserId={userId}
@@ -230,23 +262,23 @@ export function DMCallActions({ userId, userName, className }: DMCallActionsProp
       size="icon"
       className={className}
     />
-  )
+  );
 }
 
-DMCallActions.displayName = 'DMCallActions'
+DMCallActions.displayName = "DMCallActions";
 
 // =============================================================================
 // Channel Call Actions (for channel headers)
 // =============================================================================
 
 export interface ChannelCallActionsProps {
-  channelId: string
+  channelId: string;
   /** For 1-on-1 DMs, provide the other user's info */
-  targetUserId?: string
-  targetUserName?: string
+  targetUserId?: string;
+  targetUserName?: string;
   /** For group channels, show group call option */
-  isGroupChannel?: boolean
-  className?: string
+  isGroupChannel?: boolean;
+  className?: string;
 }
 
 export function ChannelCallActions({
@@ -258,12 +290,12 @@ export function ChannelCallActions({
 }: ChannelCallActionsProps) {
   // For now, group calls are not implemented, so disable for group channels
   if (isGroupChannel) {
-    return null
+    return null;
   }
 
   // For DM channels, require target user info
   if (!targetUserId || !targetUserName) {
-    return null
+    return null;
   }
 
   return (
@@ -277,7 +309,7 @@ export function ChannelCallActions({
       size="icon"
       className={className}
     />
-  )
+  );
 }
 
-ChannelCallActions.displayName = 'ChannelCallActions'
+ChannelCallActions.displayName = "ChannelCallActions";

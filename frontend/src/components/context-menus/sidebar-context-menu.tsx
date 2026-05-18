@@ -1,30 +1,38 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Plus, Hash, Search, FolderPlus, ChevronsUpDown, RefreshCw, Settings } from 'lucide-react'
+import * as React from "react";
+import {
+  Plus,
+  Hash,
+  Search,
+  FolderPlus,
+  ChevronsUpDown,
+  RefreshCw,
+  Settings,
+} from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItemWithIcon,
   ContextMenuSeparator,
   ContextMenuTrigger,
-} from './context-menu-base'
-import { useAuth } from '@/contexts/auth-context'
+} from "./context-menu-base";
+import { useAuth } from "@/contexts/auth-context";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SidebarContextMenuProps {
-  children: React.ReactNode
-  onCreateChannel?: () => void
-  onBrowseChannels?: () => void
-  onCreateCategory?: () => void
-  onCollapseAllCategories?: () => void
-  onExpandAllCategories?: () => void
-  onRefreshChannels?: () => void
-  onOpenSettings?: () => void
-  disabled?: boolean
+  children: React.ReactNode;
+  onCreateChannel?: () => void;
+  onBrowseChannels?: () => void;
+  onCreateCategory?: () => void;
+  onCollapseAllCategories?: () => void;
+  onExpandAllCategories?: () => void;
+  onRefreshChannels?: () => void;
+  onOpenSettings?: () => void;
+  disabled?: boolean;
 }
 
 // ============================================================================
@@ -42,24 +50,24 @@ export function SidebarContextMenu({
   onOpenSettings,
   disabled = false,
 }: SidebarContextMenuProps) {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
-  const isAdmin = user?.role === 'owner' || user?.role === 'admin'
+  const isAdmin = user?.role === "owner" || user?.role === "admin";
 
   // Track collapsed state to show appropriate action
-  const [allCollapsed, setAllCollapsed] = React.useState(false)
+  const [allCollapsed, setAllCollapsed] = React.useState(false);
 
   const handleToggleCollapse = React.useCallback(() => {
     if (allCollapsed) {
-      onExpandAllCategories?.()
+      onExpandAllCategories?.();
     } else {
-      onCollapseAllCategories?.()
+      onCollapseAllCategories?.();
     }
-    setAllCollapsed(!allCollapsed)
-  }, [allCollapsed, onCollapseAllCategories, onExpandAllCategories])
+    setAllCollapsed(!allCollapsed);
+  }, [allCollapsed, onCollapseAllCategories, onExpandAllCategories]);
 
   if (disabled) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
   return (
@@ -106,7 +114,7 @@ export function SidebarContextMenu({
           icon={<ChevronsUpDown className="h-4 w-4" />}
           onClick={handleToggleCollapse}
         >
-          {allCollapsed ? 'Expand all categories' : 'Collapse all categories'}
+          {allCollapsed ? "Expand all categories" : "Collapse all categories"}
         </ContextMenuItemWithIcon>
 
         {/* Refresh channels */}
@@ -131,7 +139,7 @@ export function SidebarContextMenu({
         )}
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }
 
-SidebarContextMenu.displayName = 'SidebarContextMenu'
+SidebarContextMenu.displayName = "SidebarContextMenu";

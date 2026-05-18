@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface TourNavigationProps {
-  onNext: () => void
-  onPrev: () => void
-  onSkip: () => void
-  hasNext: boolean
-  hasPrev: boolean
-  isLastStep?: boolean
-  className?: string
+  onNext: () => void;
+  onPrev: () => void;
+  onSkip: () => void;
+  hasNext: boolean;
+  hasPrev: boolean;
+  isLastStep?: boolean;
+  className?: string;
 }
 
 export function TourNavigation({
@@ -24,7 +24,7 @@ export function TourNavigation({
   className,
 }: TourNavigationProps) {
   return (
-    <div className={cn('flex items-center justify-between gap-2', className)}>
+    <div className={cn("flex items-center justify-between gap-2", className)}>
       <Button
         variant="ghost"
         size="sm"
@@ -48,7 +48,7 @@ export function TourNavigation({
 
         <Button size="sm" onClick={onNext}>
           {isLastStep ? (
-            'Finish'
+            "Finish"
           ) : (
             <>
               Next
@@ -58,5 +58,5 @@ export function TourNavigation({
         </Button>
       </div>
     </div>
-  )
+  );
 }

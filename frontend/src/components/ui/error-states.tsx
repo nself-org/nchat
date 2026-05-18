@@ -5,25 +5,38 @@
  * Provides helpful messages and recovery actions for users.
  */
 
-import { AlertCircle, RefreshCw, Wifi, WifiOff, ServerCrash, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  AlertCircle,
+  RefreshCw,
+  Wifi,
+  WifiOff,
+  ServerCrash,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // Base error state component
 interface ErrorStateProps {
-  title: string
-  description: string
-  icon?: React.ReactNode
+  title: string;
+  description: string;
+  icon?: React.ReactNode;
   action?: {
-    label: string
-    onClick: () => void
-  }
+    label: string;
+    onClick: () => void;
+  };
   secondaryAction?: {
-    label: string
-    onClick: () => void
-  }
-  dismissible?: boolean
-  onDismiss?: () => void
+    label: string;
+    onClick: () => void;
+  };
+  dismissible?: boolean;
+  onDismiss?: () => void;
 }
 
 export function ErrorState({
@@ -40,7 +53,12 @@ export function ErrorState({
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            {icon || <AlertCircle className="h-5 w-5 text-destructive" aria-hidden="true" />}
+            {icon || (
+              <AlertCircle
+                className="h-5 w-5 text-destructive"
+                aria-hidden="true"
+              />
+            )}
             <CardTitle>{title}</CardTitle>
           </div>
           {dismissible && onDismiss && (
@@ -76,13 +94,13 @@ export function ErrorState({
         </CardContent>
       )}
     </Card>
-  )
+  );
 }
 
 // Network error (offline/connection issues)
 interface NetworkErrorProps {
-  onRetry?: () => void
-  onDismiss?: () => void
+  onRetry?: () => void;
+  onDismiss?: () => void;
 }
 
 export function NetworkError({ onRetry, onDismiss }: NetworkErrorProps) {
@@ -94,7 +112,7 @@ export function NetworkError({ onRetry, onDismiss }: NetworkErrorProps) {
       action={
         onRetry
           ? {
-              label: 'Retry',
+              label: "Retry",
               onClick: onRetry,
             }
           : undefined
@@ -102,13 +120,13 @@ export function NetworkError({ onRetry, onDismiss }: NetworkErrorProps) {
       dismissible={!!onDismiss}
       onDismiss={onDismiss}
     />
-  )
+  );
 }
 
 // Server error (500, 502, 503, etc.)
 interface ServerErrorProps {
-  onRetry?: () => void
-  message?: string
+  onRetry?: () => void;
+  message?: string;
 }
 
 export function ServerError({ onRetry, message }: ServerErrorProps) {
@@ -119,27 +137,33 @@ export function ServerError({ onRetry, message }: ServerErrorProps) {
         message ||
         "Something went wrong on our end. We've been notified and are working to fix it. Please try again in a few moments."
       }
-      icon={<ServerCrash className="h-5 w-5 text-destructive" aria-hidden="true" />}
+      icon={
+        <ServerCrash className="h-5 w-5 text-destructive" aria-hidden="true" />
+      }
       action={
         onRetry
           ? {
-              label: 'Try Again',
+              label: "Try Again",
               onClick: onRetry,
             }
           : undefined
       }
     />
-  )
+  );
 }
 
 // Not found error (404)
 interface NotFoundErrorProps {
-  resourceType?: string
-  onGoBack?: () => void
-  onGoHome?: () => void
+  resourceType?: string;
+  onGoBack?: () => void;
+  onGoHome?: () => void;
 }
 
-export function NotFoundError({ resourceType = 'page', onGoBack, onGoHome }: NotFoundErrorProps) {
+export function NotFoundError({
+  resourceType = "page",
+  onGoBack,
+  onGoHome,
+}: NotFoundErrorProps) {
   return (
     <ErrorState
       title={`${resourceType.charAt(0).toUpperCase() + resourceType.slice(1)} Not Found`}
@@ -148,7 +172,7 @@ export function NotFoundError({ resourceType = 'page', onGoBack, onGoHome }: Not
       action={
         onGoHome
           ? {
-              label: 'Go to Home',
+              label: "Go to Home",
               onClick: onGoHome,
             }
           : undefined
@@ -156,70 +180,80 @@ export function NotFoundError({ resourceType = 'page', onGoBack, onGoHome }: Not
       secondaryAction={
         onGoBack
           ? {
-              label: 'Go Back',
+              label: "Go Back",
               onClick: onGoBack,
             }
           : undefined
       }
     />
-  )
+  );
 }
 
 // Permission denied error (403)
 interface PermissionErrorProps {
-  resource?: string
-  onGoBack?: () => void
+  resource?: string;
+  onGoBack?: () => void;
 }
 
-export function PermissionError({ resource = 'this resource', onGoBack }: PermissionErrorProps) {
+export function PermissionError({
+  resource = "this resource",
+  onGoBack,
+}: PermissionErrorProps) {
   return (
     <ErrorState
       title="Access Denied"
       description={`You don't have permission to access ${resource}. Please contact your administrator if you believe this is a mistake.`}
-      icon={<AlertCircle className="h-5 w-5 text-destructive" aria-hidden="true" />}
+      icon={
+        <AlertCircle className="h-5 w-5 text-destructive" aria-hidden="true" />
+      }
       secondaryAction={
         onGoBack
           ? {
-              label: 'Go Back',
+              label: "Go Back",
               onClick: onGoBack,
             }
           : undefined
       }
     />
-  )
+  );
 }
 
 // Load failed error (for failed data fetches)
 interface LoadFailedErrorProps {
-  resourceType?: string
-  onRetry?: () => void
+  resourceType?: string;
+  onRetry?: () => void;
 }
 
-export function LoadFailedError({ resourceType = 'data', onRetry }: LoadFailedErrorProps) {
+export function LoadFailedError({
+  resourceType = "data",
+  onRetry,
+}: LoadFailedErrorProps) {
   return (
     <ErrorState
       title="Failed to Load"
       description={`We couldn't load the ${resourceType}. This might be a temporary issue.`}
-      icon={<RefreshCw className="h-5 w-5 text-destructive" aria-hidden="true" />}
+      icon={
+        <RefreshCw className="h-5 w-5 text-destructive" aria-hidden="true" />
+      }
       action={
         onRetry
           ? {
-              label: 'Retry',
+              label: "Retry",
               onClick: onRetry,
             }
           : undefined
       }
     />
-  )
+  );
 }
 
 // Inline error message (for form errors, etc.)
 interface InlineErrorProps {
-  message: string
-  className?: string
+  message: string;
+  className?: string;
 }
 
-export function InlineError({ message, className = '' }: InlineErrorProps) {
+export function InlineError({ message, className = "" }: InlineErrorProps) {
   return (
     <div
       className={`bg-destructive/10 flex items-center gap-2 rounded-md p-3 text-sm text-destructive ${className}`}
@@ -228,17 +262,21 @@ export function InlineError({ message, className = '' }: InlineErrorProps) {
       <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
       <span>{message}</span>
     </div>
-  )
+  );
 }
 
 // Success message (for confirmation feedback)
 interface SuccessMessageProps {
-  message: string
-  onDismiss?: () => void
-  className?: string
+  message: string;
+  onDismiss?: () => void;
+  className?: string;
 }
 
-export function SuccessMessage({ message, onDismiss, className = '' }: SuccessMessageProps) {
+export function SuccessMessage({
+  message,
+  onDismiss,
+  className = "",
+}: SuccessMessageProps) {
   return (
     <div
       className={`flex items-center justify-between gap-2 rounded-md bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950 dark:text-green-300 ${className}`}
@@ -253,7 +291,12 @@ export function SuccessMessage({ message, onDismiss, className = '' }: SuccessMe
             stroke="currentColor"
             aria-hidden="true"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
         <span>{message}</span>
@@ -270,24 +313,31 @@ export function SuccessMessage({ message, onDismiss, className = '' }: SuccessMe
         </Button>
       )}
     </div>
-  )
+  );
 }
 
 // Warning message
 interface WarningMessageProps {
-  message: string
-  onDismiss?: () => void
-  className?: string
+  message: string;
+  onDismiss?: () => void;
+  className?: string;
 }
 
-export function WarningMessage({ message, onDismiss, className = '' }: WarningMessageProps) {
+export function WarningMessage({
+  message,
+  onDismiss,
+  className = "",
+}: WarningMessageProps) {
   return (
     <div
       className={`flex items-center justify-between gap-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300 ${className}`}
       role="alert"
     >
       <div className="flex items-center gap-2">
-        <AlertCircle className="h-4 w-4 flex-shrink-0 text-yellow-500" aria-hidden="true" />
+        <AlertCircle
+          className="h-4 w-4 flex-shrink-0 text-yellow-500"
+          aria-hidden="true"
+        />
         <span>{message}</span>
       </div>
       {onDismiss && (
@@ -302,5 +352,5 @@ export function WarningMessage({ message, onDismiss, className = '' }: WarningMe
         </Button>
       )}
     </div>
-  )
+  );
 }

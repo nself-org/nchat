@@ -4,9 +4,9 @@
  * Exports all security-related utilities, stores, and hooks
  */
 
-import { authConfig } from '@/config/auth.config'
+import { authConfig } from "@/config/auth.config";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Production Security Guards
@@ -17,33 +17,44 @@ import { logger } from '@/lib/logger'
  * Call this at application startup
  */
 export function assertProductionSecurity(): void {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     // Check dev auth is disabled
     if (authConfig.useDevAuth) {
       throw new Error(
-        '[SECURITY] FATAL: Dev auth is enabled in production. ' +
-          'This is a critical security vulnerability. Shutting down.'
-      )
+        "[SECURITY] FATAL: Dev auth is enabled in production. " +
+          "This is a critical security vulnerability. Shutting down.",
+      );
     }
 
     // Check JWT secret is set and strong enough
-    const jwtSecret = process.env.JWT_SECRET
+    const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-      throw new Error('[SECURITY] FATAL: JWT_SECRET environment variable is not set in production.')
+      throw new Error(
+        "[SECURITY] FATAL: JWT_SECRET environment variable is not set in production.",
+      );
     }
 
     if (jwtSecret.length < 32) {
-      throw new Error('[SECURITY] FATAL: JWT_SECRET must be at least 32 characters in production.')
+      throw new Error(
+        "[SECURITY] FATAL: JWT_SECRET must be at least 32 characters in production.",
+      );
     }
 
     // Check for common weak secrets
-    const weakSecrets = ['secret', 'jwt_secret', 'your-secret', 'change-me', 'development', 'test']
+    const weakSecrets = [
+      "secret",
+      "jwt_secret",
+      "your-secret",
+      "change-me",
+      "development",
+      "test",
+    ];
 
     if (weakSecrets.some((weak) => jwtSecret.toLowerCase().includes(weak))) {
       throw new Error(
-        '[SECURITY] FATAL: JWT_SECRET appears to be a weak or default value. ' +
-          'Use a cryptographically secure random string.'
-      )
+        "[SECURITY] FATAL: JWT_SECRET appears to be a weak or default value. " +
+          "Use a cryptographically secure random string.",
+      );
     }
 
     // REMOVED: console.log('[SECURITY] Production security checks passed.')
@@ -55,10 +66,10 @@ export function assertProductionSecurity(): void {
  * Returns true if safe (production without dev auth, or development)
  */
 export function isDevAuthSafe(): boolean {
-  if (process.env.NODE_ENV === 'production') {
-    return !authConfig.useDevAuth
+  if (process.env.NODE_ENV === "production") {
+    return !authConfig.useDevAuth;
   }
-  return true // Always safe in development/test
+  return true; // Always safe in development/test
 }
 
 /**
@@ -66,15 +77,15 @@ export function isDevAuthSafe(): boolean {
  */
 export function getSecurityHeaders(): Record<string, string> {
   return {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'X-XSS-Protection': '1; mode=block',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    ...(process.env.NODE_ENV === 'production' && {
-      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    ...(process.env.NODE_ENV === "production" && {
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
     }),
-  }
+  };
 }
 
 /**
@@ -82,8 +93,8 @@ export function getSecurityHeaders(): Record<string, string> {
  */
 export function logSecurityEvent(
   event: string,
-  level: 'info' | 'warning' | 'error' | 'critical',
-  details?: Record<string, unknown>
+  level: "info" | "warning" | "error" | "critical",
+  details?: Record<string, unknown>,
 ): void {
   const logEntry = {
     timestamp: new Date().toISOString(),
@@ -91,12 +102,12 @@ export function logSecurityEvent(
     event,
     details,
     env: process.env.NODE_ENV,
-  }
+  };
 
-  if (level === 'critical' || level === 'error') {
-    logger.error(`[SECURITY ${level.toUpperCase()}]`, undefined, logEntry)
-  } else if (level === 'warning') {
-    logger.warn(`[SECURITY ${level.toUpperCase()}]`, logEntry)
+  if (level === "critical" || level === "error") {
+    logger.error(`[SECURITY ${level.toUpperCase()}]`, undefined, logEntry);
+  } else if (level === "warning") {
+    logger.warn(`[SECURITY ${level.toUpperCase()}]`, logEntry);
   } else {
     // REMOVED: console.log(`[SECURITY ${level.toUpperCase()}]`, JSON.stringify(logEntry))
   }
@@ -120,7 +131,7 @@ export {
   type SessionState,
   type SessionActions,
   type SessionStore,
-} from './session-store'
+} from "./session-store";
 
 // Two-Factor Authentication
 export {
@@ -150,7 +161,7 @@ export {
   type TwoFactorSetupData,
   type BackupCode,
   type PasswordStrength,
-} from './two-factor'
+} from "./two-factor";
 
 // Security Hook
 export {
@@ -160,7 +171,7 @@ export {
   type TwoFactorVerifyResult,
   type RevokeSessionResult,
   type SecurityAlertPreferences,
-} from './use-security'
+} from "./use-security";
 
 // PIN Lock
 export {
@@ -190,7 +201,7 @@ export {
   type PinAttempt,
   type LockoutStatus,
   type PinSetupResult,
-} from './pin'
+} from "./pin";
 
 // Session Management
 export {
@@ -229,7 +240,7 @@ export {
   getSessionDebugInfo,
   type LockState,
   type SessionActivity,
-} from './session'
+} from "./session";
 
 // Biometric Authentication
 export {
@@ -253,7 +264,7 @@ export {
   type BiometricCredential,
   type BiometricSetupResult,
   type BiometricVerifyResult,
-} from './biometric'
+} from "./biometric";
 
 // SAST Scanner
 export {
@@ -280,7 +291,7 @@ export {
   type SASTFinding,
   type SASTScannerConfig,
   type SASTScanResult,
-} from './sast-scanner'
+} from "./sast-scanner";
 
 // Dependency Scanner (SCA)
 export {
@@ -315,7 +326,7 @@ export {
   type PackageJson,
   type PackageLock,
   type VulnerabilityDbEntry,
-} from './dependency-scanner'
+} from "./dependency-scanner";
 
 // Vulnerability Tracker
 export {
@@ -343,7 +354,7 @@ export {
   type VulnerabilityStats,
   type RemediationPolicy,
   type VulnerabilityTrackerConfig,
-} from './vulnerability-tracker'
+} from "./vulnerability-tracker";
 
 // Transport Security
 export {
@@ -388,7 +399,7 @@ export {
   type TransportSecurityEvent,
   type TransportSecurityAudit,
   type TransportSecurityFinding,
-} from './transport-security'
+} from "./transport-security";
 
 // Certificate Pinning
 export {
@@ -434,7 +445,7 @@ export {
   type PinValidationResult,
   type PlatformPinConfig,
   type PinViolationReport,
-} from './certificate-pinning'
+} from "./certificate-pinning";
 
 // Security Headers
 export {
@@ -480,7 +491,7 @@ export {
   type SecurityHeadersConfig,
   type ReportToConfig,
   type GeneratedSecurityHeaders,
-} from './security-headers'
+} from "./security-headers";
 
 // Session Wipe
 export {
@@ -506,7 +517,7 @@ export {
   type WipeEventType,
   type WipeEvent,
   type WipeEventListener,
-} from './session-wipe'
+} from "./session-wipe";
 
 // Panic Mode
 export {
@@ -532,4 +543,4 @@ export {
   type PanicEventType,
   type PanicEvent,
   type PanicEventListener,
-} from './panic-mode'
+} from "./panic-mode";

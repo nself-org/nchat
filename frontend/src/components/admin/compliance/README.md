@@ -16,10 +16,10 @@ Central compliance management interface with:
 **Usage:**
 
 ```tsx
-import { ComplianceDashboard } from '@/components/admin/compliance/ComplianceDashboard'
+import { ComplianceDashboard } from "@/components/admin/compliance/ComplianceDashboard";
 
 export default function CompliancePage() {
-  return <ComplianceDashboard />
+  return <ComplianceDashboard />;
 }
 ```
 
@@ -47,10 +47,10 @@ Comprehensive data retention policy management:
 **Usage:**
 
 ```tsx
-import { DataRetention } from '@/components/admin/compliance/DataRetention'
+import { DataRetention } from "@/components/admin/compliance/DataRetention";
 
 export default function RetentionPage() {
-  return <DataRetention />
+  return <DataRetention />;
 }
 ```
 
@@ -68,10 +68,10 @@ Export audit logs and compliance data:
 **Usage:**
 
 ```tsx
-import { AuditExport } from '@/components/admin/compliance/AuditExport'
+import { AuditExport } from "@/components/admin/compliance/AuditExport";
 
 export default function ExportPage() {
-  return <AuditExport />
+  return <AuditExport />;
 }
 ```
 
@@ -109,23 +109,26 @@ generatePolicySummary(policies: RetentionPolicy[]): PolicySummary
 **Example - Create Retention Policy:**
 
 ```typescript
-import { createDefaultPolicy, validateRetentionPolicy } from '@/lib/compliance/retention-policy'
+import {
+  createDefaultPolicy,
+  validateRetentionPolicy,
+} from "@/lib/compliance/retention-policy";
 
-const policy = createDefaultPolicy('messages', {
-  name: 'Messages - 1 Year',
-  description: 'Delete messages older than 1 year',
-  period: '1_year',
+const policy = createDefaultPolicy("messages", {
+  name: "Messages - 1 Year",
+  description: "Delete messages older than 1 year",
+  period: "1_year",
   excludePinnedMessages: true,
   excludeStarredMessages: true,
-})
+});
 
-const validation = validateRetentionPolicy(policy)
+const validation = validateRetentionPolicy(policy);
 if (!validation.valid) {
-  console.error('Validation errors:', validation.errors)
+  console.error("Validation errors:", validation.errors);
 }
 
 if (validation.warnings.length > 0) {
-  console.warn('Warnings:', validation.warnings)
+  console.warn("Warnings:", validation.warnings);
 }
 ```
 
@@ -135,66 +138,66 @@ if (validation.warnings.length > 0) {
 import {
   createDefaultAutoDeleteConfig,
   calculateNextRunTime,
-} from '@/lib/compliance/retention-policy'
+} from "@/lib/compliance/retention-policy";
 
-const config = createDefaultAutoDeleteConfig()
-config.enabled = true
-config.scheduleTime = '02:00' // 2 AM
-config.dryRunMode = false // Live mode
-config.notifyAdmins = true
-config.excludeWeekends = true
-config.batchSize = 1000
-config.maxDeletionsPerRun = 100000
+const config = createDefaultAutoDeleteConfig();
+config.enabled = true;
+config.scheduleTime = "02:00"; // 2 AM
+config.dryRunMode = false; // Live mode
+config.notifyAdmins = true;
+config.excludeWeekends = true;
+config.batchSize = 1000;
+config.maxDeletionsPerRun = 100000;
 
-const nextRun = calculateNextRunTime(config)
-console.log('Next deletion run:', nextRun)
+const nextRun = calculateNextRunTime(config);
+console.log("Next deletion run:", nextRun);
 ```
 
 **Example - Check Item Retention:**
 
 ```typescript
-import { shouldRetainItem } from '@/lib/compliance/retention-policy'
+import { shouldRetainItem } from "@/lib/compliance/retention-policy";
 
 const message = {
-  createdAt: new Date('2023-01-01'),
-  type: 'text',
+  createdAt: new Date("2023-01-01"),
+  type: "text",
   isPinned: false,
   isStarred: false,
-  channelId: 'channel-123',
-}
+  channelId: "channel-123",
+};
 
 const policy = {
-  period: '1_year',
+  period: "1_year",
   excludePinnedMessages: true,
   excludeStarredMessages: true,
   channelOverrides: [],
-}
+};
 
-const shouldKeep = shouldRetainItem(message, policy, new Date())
-console.log('Should retain:', shouldKeep)
+const shouldKeep = shouldRetainItem(message, policy, new Date());
+console.log("Should retain:", shouldKeep);
 ```
 
 **Example - Legal Hold Protection:**
 
 ```typescript
-import { isProtectedByLegalHold } from '@/lib/compliance/retention-policy'
+import { isProtectedByLegalHold } from "@/lib/compliance/retention-policy";
 
 const legalHolds = [
   {
-    status: 'active',
-    custodians: ['user1', 'user2'],
-    channels: ['channel1'],
+    status: "active",
+    custodians: ["user1", "user2"],
+    channels: ["channel1"],
   },
-]
+];
 
 const message = {
-  userId: 'user1',
-  channelId: 'channel1',
-}
+  userId: "user1",
+  channelId: "channel1",
+};
 
-const isProtected = isProtectedByLegalHold(message, legalHolds)
+const isProtected = isProtectedByLegalHold(message, legalHolds);
 if (isProtected) {
-  console.log('Cannot delete - under legal hold')
+  console.log("Cannot delete - under legal hold");
 }
 ```
 
@@ -235,48 +238,54 @@ calculateLegalHoldStatistics(holds): LegalHoldStatistics
 **Example - Create Legal Hold:**
 
 ```typescript
-import { createLegalHold, validateLegalHold } from '@/lib/compliance/legal-hold'
+import {
+  createLegalHold,
+  validateLegalHold,
+} from "@/lib/compliance/legal-hold";
 
-const hold = createLegalHold('admin-user-id', {
-  name: 'Discovery Hold - Smith Case',
-  matterName: 'Smith v. Jones',
-  matterNumber: '2024-CV-12345',
-  custodians: ['user1-id', 'user2-id'],
-  channels: ['channel1-id'],
+const hold = createLegalHold("admin-user-id", {
+  name: "Discovery Hold - Smith Case",
+  matterName: "Smith v. Jones",
+  matterNumber: "2024-CV-12345",
+  custodians: ["user1-id", "user2-id"],
+  channels: ["channel1-id"],
   startDate: new Date(),
-  endDate: new Date('2025-12-31'),
+  endDate: new Date("2025-12-31"),
   preserveMessages: true,
   preserveFiles: true,
   preserveAuditLogs: true,
   notifyCustodians: true,
-  notes: 'Litigation hold for discovery',
-})
+  notes: "Litigation hold for discovery",
+});
 
-const validation = validateLegalHold(hold)
+const validation = validateLegalHold(hold);
 if (!validation.valid) {
-  console.error('Validation errors:', validation.errors)
+  console.error("Validation errors:", validation.errors);
 }
 ```
 
 **Example - Check Legal Hold Status:**
 
 ```typescript
-import { isUserUnderLegalHold, isChannelUnderLegalHold } from '@/lib/compliance/legal-hold'
+import {
+  isUserUnderLegalHold,
+  isChannelUnderLegalHold,
+} from "@/lib/compliance/legal-hold";
 
 const legalHolds = [
   // ... active legal holds
-]
+];
 
 // Check user
-const userStatus = isUserUnderLegalHold('user123', legalHolds)
+const userStatus = isUserUnderLegalHold("user123", legalHolds);
 if (userStatus.underHold) {
-  console.log(`User is under ${userStatus.holds.length} legal hold(s)`)
+  console.log(`User is under ${userStatus.holds.length} legal hold(s)`);
 }
 
 // Check channel
-const channelStatus = isChannelUnderLegalHold('channel123', legalHolds)
+const channelStatus = isChannelUnderLegalHold("channel123", legalHolds);
 if (channelStatus.underHold) {
-  console.log('Channel is under legal hold')
+  console.log("Channel is under legal hold");
 }
 ```
 
@@ -287,19 +296,19 @@ import {
   generateLegalHoldNoticeEmail,
   generateLegalHoldReleaseEmail,
   generateLegalHoldReminderEmail,
-} from '@/lib/compliance/legal-hold'
+} from "@/lib/compliance/legal-hold";
 
 // Initiation notice
-const notice = generateLegalHoldNoticeEmail(hold, 'John Doe')
-await sendEmail(custodian.email, notice.subject, notice.body)
+const notice = generateLegalHoldNoticeEmail(hold, "John Doe");
+await sendEmail(custodian.email, notice.subject, notice.body);
 
 // Reminder
-const reminder = generateLegalHoldReminderEmail(hold, 'John Doe')
-await sendEmail(custodian.email, reminder.subject, reminder.body)
+const reminder = generateLegalHoldReminderEmail(hold, "John Doe");
+await sendEmail(custodian.email, reminder.subject, reminder.body);
 
 // Release notice
-const release = generateLegalHoldReleaseEmail(hold, 'John Doe')
-await sendEmail(custodian.email, release.subject, release.body)
+const release = generateLegalHoldReleaseEmail(hold, "John Doe");
+await sendEmail(custodian.email, release.subject, release.body);
 ```
 
 ## Types
@@ -310,39 +319,39 @@ await sendEmail(custodian.email, release.subject, release.body)
 
 ```typescript
 // Retention
-RetentionPolicy
-RetentionPeriod
-DataCategory
-MessageType
-ChannelRetentionOverride
-AutoDeleteConfig
-RetentionJobStatus
+RetentionPolicy;
+RetentionPeriod;
+DataCategory;
+MessageType;
+ChannelRetentionOverride;
+AutoDeleteConfig;
+RetentionJobStatus;
 
 // Legal Holds
-LegalHold
-LegalHoldNotification
+LegalHold;
+LegalHoldNotification;
 
 // GDPR
-DataExportRequest
-ExportedUserData
-DataDeletionRequest
+DataExportRequest;
+ExportedUserData;
+DataDeletionRequest;
 
 // Consent
-UserConsent
-ConsentConfig
-CookiePreferences
+UserConsent;
+ConsentConfig;
+CookiePreferences;
 
 // Privacy
-PrivacySettings
+PrivacySettings;
 
 // Compliance
-ComplianceReport
-ComplianceStandard
-ComplianceBadge
+ComplianceReport;
+ComplianceStandard;
+ComplianceBadge;
 
 // Audit
-ComplianceAuditEntry
-ComplianceAction
+ComplianceAuditEntry;
+ComplianceAction;
 ```
 
 ## Best Practices

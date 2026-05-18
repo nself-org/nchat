@@ -5,7 +5,7 @@
  * It provides strong typing for feature configurations, states, and utilities.
  */
 
-import type { FEATURES, FEATURE_CATEGORIES } from './feature-flags'
+import type { FEATURES, FEATURE_CATEGORIES } from "./feature-flags";
 
 // ============================================================================
 // CORE TYPES
@@ -14,22 +14,22 @@ import type { FEATURES, FEATURE_CATEGORIES } from './feature-flags'
 /**
  * Type representing all feature flag keys (e.g., 'MESSAGES_EDIT')
  */
-export type FeatureKey = keyof typeof FEATURES
+export type FeatureKey = keyof typeof FEATURES;
 
 /**
  * Type representing all feature flag values (e.g., 'messages.edit')
  */
-export type FeatureFlag = (typeof FEATURES)[FeatureKey]
+export type FeatureFlag = (typeof FEATURES)[FeatureKey];
 
 /**
  * Type representing feature categories
  */
-export type FeatureCategory = keyof typeof FEATURE_CATEGORIES
+export type FeatureCategory = keyof typeof FEATURE_CATEGORIES;
 
 /**
  * Type representing category display names
  */
-export type FeatureCategoryLabel = (typeof FEATURE_CATEGORIES)[FeatureCategory]
+export type FeatureCategoryLabel = (typeof FEATURE_CATEGORIES)[FeatureCategory];
 
 // ============================================================================
 // FEATURE STATE TYPES
@@ -40,34 +40,34 @@ export type FeatureCategoryLabel = (typeof FEATURE_CATEGORIES)[FeatureCategory]
  */
 export interface FeatureState {
   /** The feature flag identifier */
-  flag: FeatureFlag
+  flag: FeatureFlag;
   /** Whether the feature is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Source of the feature state (env, config, default, override) */
-  source: FeatureSource
+  source: FeatureSource;
   /** Timestamp when the feature state was last updated */
-  updatedAt?: number
+  updatedAt?: number;
 }
 
 /**
  * Source of a feature flag's state
  */
 export type FeatureSource =
-  | 'default' // Built-in default value
-  | 'env' // Environment variable
-  | 'config' // AppConfig/database
-  | 'override' // Runtime override
-  | 'dependency' // Auto-enabled due to dependency
+  | "default" // Built-in default value
+  | "env" // Environment variable
+  | "config" // AppConfig/database
+  | "override" // Runtime override
+  | "dependency"; // Auto-enabled due to dependency
 
 /**
  * Map of all feature states
  */
-export type FeatureStateMap = Record<FeatureFlag, FeatureState>
+export type FeatureStateMap = Record<FeatureFlag, FeatureState>;
 
 /**
  * Simple map of feature flags to their enabled state
  */
-export type FeatureEnabledMap = Record<FeatureFlag, boolean>
+export type FeatureEnabledMap = Record<FeatureFlag, boolean>;
 
 // ============================================================================
 // CONFIGURATION TYPES
@@ -78,11 +78,11 @@ export type FeatureEnabledMap = Record<FeatureFlag, boolean>
  */
 export interface FeatureEnvConfig {
   /** Feature flag identifier */
-  flag: FeatureFlag
+  flag: FeatureFlag;
   /** Environment variable name */
-  envVar: string
+  envVar: string;
   /** Default value if env var not set */
-  defaultValue: boolean
+  defaultValue: boolean;
 }
 
 /**
@@ -90,35 +90,35 @@ export interface FeatureEnvConfig {
  */
 export interface FeatureConfig {
   /** Feature flag identifier */
-  flag: FeatureFlag
+  flag: FeatureFlag;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Description of what the feature does */
-  description: string
+  description: string;
   /** Category for organization */
-  category: FeatureCategory
+  category: FeatureCategory;
   /** Default enabled state */
-  defaultEnabled: boolean
+  defaultEnabled: boolean;
   /** Whether the feature can be toggled by users */
-  userConfigurable: boolean
+  userConfigurable: boolean;
   /** Required plan level (if applicable) */
-  requiredPlan?: 'free' | 'pro' | 'enterprise'
+  requiredPlan?: "free" | "pro" | "enterprise";
   /** Features this depends on */
-  dependencies?: FeatureFlag[]
+  dependencies?: FeatureFlag[];
   /** Features that cannot be enabled with this */
-  conflictsWith?: FeatureFlag[]
+  conflictsWith?: FeatureFlag[];
   /** Experimental feature flag */
-  experimental?: boolean
+  experimental?: boolean;
   /** Deprecated feature flag */
-  deprecated?: boolean
+  deprecated?: boolean;
   /** Beta feature flag */
-  beta?: boolean
+  beta?: boolean;
 }
 
 /**
  * Full feature configuration map
  */
-export type FeatureConfigMap = Record<FeatureFlag, FeatureConfig>
+export type FeatureConfigMap = Record<FeatureFlag, FeatureConfig>;
 
 // ============================================================================
 // DEPENDENCY TYPES
@@ -129,34 +129,34 @@ export type FeatureConfigMap = Record<FeatureFlag, FeatureConfig>
  */
 export interface FeatureDependency {
   /** The feature that has dependencies */
-  feature: FeatureFlag
+  feature: FeatureFlag;
   /** Features that must be enabled for this feature to work */
-  requires: FeatureFlag[]
+  requires: FeatureFlag[];
   /** Optional features that enhance this feature */
-  enhancedBy?: FeatureFlag[]
+  enhancedBy?: FeatureFlag[];
   /** Features that are automatically enabled when this feature is enabled */
-  autoEnables?: FeatureFlag[]
+  autoEnables?: FeatureFlag[];
 }
 
 /**
  * Map of feature dependencies
  */
-export type FeatureDependencyMap = Record<FeatureFlag, FeatureDependency>
+export type FeatureDependencyMap = Record<FeatureFlag, FeatureDependency>;
 
 /**
  * Result of dependency validation
  */
 export interface DependencyValidationResult {
   /** Whether all dependencies are satisfied */
-  valid: boolean
+  valid: boolean;
   /** Missing required dependencies */
-  missingDependencies: FeatureFlag[]
+  missingDependencies: FeatureFlag[];
   /** Conflicting features that are enabled */
-  conflicts: FeatureFlag[]
+  conflicts: FeatureFlag[];
   /** Features that should be auto-enabled */
-  shouldAutoEnable: FeatureFlag[]
+  shouldAutoEnable: FeatureFlag[];
   /** Warning messages */
-  warnings: string[]
+  warnings: string[];
 }
 
 // ============================================================================
@@ -168,27 +168,27 @@ export interface DependencyValidationResult {
  */
 export interface LimitConfig {
   /** Limit identifier */
-  key: string
+  key: string;
   /** Current value */
-  value: number
+  value: number;
   /** Minimum allowed value */
-  min: number
+  min: number;
   /** Maximum allowed value */
-  max: number
+  max: number;
   /** Default value */
-  defaultValue: number
+  defaultValue: number;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Description */
-  description: string
+  description: string;
   /** Unit of measurement */
-  unit?: 'bytes' | 'ms' | 'seconds' | 'minutes' | 'count' | 'characters'
+  unit?: "bytes" | "ms" | "seconds" | "minutes" | "count" | "characters";
 }
 
 /**
  * All configurable limits
  */
-export type LimitsConfig = Record<string, LimitConfig>
+export type LimitsConfig = Record<string, LimitConfig>;
 
 // ============================================================================
 // HOOK TYPES
@@ -199,11 +199,11 @@ export type LimitsConfig = Record<string, LimitConfig>
  */
 export interface UseFeatureResult {
   /** Whether the feature is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Loading state while checking feature status */
-  loading: boolean
+  loading: boolean;
   /** Source of the feature state */
-  source: FeatureSource
+  source: FeatureSource;
 }
 
 /**
@@ -211,17 +211,17 @@ export interface UseFeatureResult {
  */
 export interface UseFeaturesResult {
   /** Map of all feature states */
-  features: FeatureEnabledMap
+  features: FeatureEnabledMap;
   /** Loading state */
-  loading: boolean
+  loading: boolean;
   /** Check if a specific feature is enabled */
-  isEnabled: (feature: FeatureFlag) => boolean
+  isEnabled: (feature: FeatureFlag) => boolean;
   /** Check if all specified features are enabled */
-  areAllEnabled: (features: FeatureFlag[]) => boolean
+  areAllEnabled: (features: FeatureFlag[]) => boolean;
   /** Check if any of the specified features are enabled */
-  isAnyEnabled: (features: FeatureFlag[]) => boolean
+  isAnyEnabled: (features: FeatureFlag[]) => boolean;
   /** Get all enabled features in a category */
-  getEnabledInCategory: (category: FeatureCategory) => FeatureFlag[]
+  getEnabledInCategory: (category: FeatureCategory) => FeatureFlag[];
 }
 
 // ============================================================================
@@ -233,13 +233,13 @@ export interface UseFeaturesResult {
  */
 export interface FeatureGateProps {
   /** Feature flag to check */
-  feature: FeatureFlag
+  feature: FeatureFlag;
   /** Content to render when feature is enabled */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Content to render when feature is disabled */
-  fallback?: React.ReactNode
+  fallback?: React.ReactNode;
   /** Callback when feature check completes */
-  onCheck?: (enabled: boolean) => void
+  onCheck?: (enabled: boolean) => void;
 }
 
 /**
@@ -247,13 +247,13 @@ export interface FeatureGateProps {
  */
 export interface FeatureGateAnyProps {
   /** Feature flags to check (renders if ANY are enabled) */
-  features: FeatureFlag[]
+  features: FeatureFlag[];
   /** Content to render when any feature is enabled */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Content to render when all features are disabled */
-  fallback?: React.ReactNode
+  fallback?: React.ReactNode;
   /** Callback when feature check completes */
-  onCheck?: (enabledFeatures: FeatureFlag[]) => void
+  onCheck?: (enabledFeatures: FeatureFlag[]) => void;
 }
 
 /**
@@ -261,13 +261,13 @@ export interface FeatureGateAnyProps {
  */
 export interface FeatureGateAllProps {
   /** Feature flags to check (renders only if ALL are enabled) */
-  features: FeatureFlag[]
+  features: FeatureFlag[];
   /** Content to render when all features are enabled */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Content to render when any feature is disabled */
-  fallback?: React.ReactNode
+  fallback?: React.ReactNode;
   /** Callback when feature check completes */
-  onCheck?: (allEnabled: boolean, missingFeatures: FeatureFlag[]) => void
+  onCheck?: (allEnabled: boolean, missingFeatures: FeatureFlag[]) => void;
 }
 
 // ============================================================================
@@ -279,17 +279,17 @@ export interface FeatureGateAllProps {
  */
 export interface FeatureToggleEvent {
   /** Feature that was toggled */
-  feature: FeatureFlag
+  feature: FeatureFlag;
   /** New enabled state */
-  enabled: boolean
+  enabled: boolean;
   /** Previous enabled state */
-  previousState: boolean
+  previousState: boolean;
   /** Source of the toggle */
-  source: FeatureSource
+  source: FeatureSource;
   /** Timestamp of the toggle */
-  timestamp: number
+  timestamp: number;
   /** User who triggered the toggle (if applicable) */
-  userId?: string
+  userId?: string;
 }
 
 /**
@@ -297,15 +297,15 @@ export interface FeatureToggleEvent {
  */
 export interface FeatureErrorEvent {
   /** Feature related to the error */
-  feature: FeatureFlag
+  feature: FeatureFlag;
   /** Error type */
-  type: 'dependency_missing' | 'conflict' | 'validation' | 'unknown'
+  type: "dependency_missing" | "conflict" | "validation" | "unknown";
   /** Error message */
-  message: string
+  message: string;
   /** Related features */
-  relatedFeatures?: FeatureFlag[]
+  relatedFeatures?: FeatureFlag[];
   /** Timestamp */
-  timestamp: number
+  timestamp: number;
 }
 
 // ============================================================================
@@ -316,52 +316,60 @@ export interface FeatureErrorEvent {
  * Type guard for feature flags
  */
 export function isFeatureFlag(value: unknown): value is FeatureFlag {
-  return typeof value === 'string' && value.includes('.') && value.split('.').length === 2
+  return (
+    typeof value === "string" &&
+    value.includes(".") &&
+    value.split(".").length === 2
+  );
 }
 
 /**
  * Type guard for feature keys
  */
 export function isFeatureKey(value: unknown): value is FeatureKey {
-  return typeof value === 'string' && value.toUpperCase() === value
+  return typeof value === "string" && value.toUpperCase() === value;
 }
 
 /**
  * Extract category from feature flag
  */
-export type ExtractCategory<T extends FeatureFlag> = T extends `${infer C}.${string}` ? C : never
+export type ExtractCategory<T extends FeatureFlag> =
+  T extends `${infer C}.${string}` ? C : never;
 
 /**
  * Extract feature name from feature flag
  */
-export type ExtractFeatureName<T extends FeatureFlag> = T extends `${string}.${infer N}` ? N : never
+export type ExtractFeatureName<T extends FeatureFlag> =
+  T extends `${string}.${infer N}` ? N : never;
 
 /**
  * Filter features by category
  */
 export type FeaturesInCategory<C extends string> = {
-  [K in FeatureKey]: (typeof FEATURES)[K] extends `${C}.${string}` ? (typeof FEATURES)[K] : never
-}[FeatureKey]
+  [K in FeatureKey]: (typeof FEATURES)[K] extends `${C}.${string}`
+    ? (typeof FEATURES)[K]
+    : never;
+}[FeatureKey];
 
 /**
  * Partial feature state for updates
  */
-export type PartialFeatureState = Partial<FeatureState> & { flag: FeatureFlag }
+export type PartialFeatureState = Partial<FeatureState> & { flag: FeatureFlag };
 
 /**
  * Feature preset (predefined set of features)
  */
 export interface FeaturePreset {
   /** Preset identifier */
-  id: string
+  id: string;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Description */
-  description: string
+  description: string;
   /** Features enabled in this preset */
-  enabledFeatures: FeatureFlag[]
+  enabledFeatures: FeatureFlag[];
   /** Features explicitly disabled in this preset */
-  disabledFeatures?: FeatureFlag[]
+  disabledFeatures?: FeatureFlag[];
 }
 
 /**
@@ -369,21 +377,21 @@ export interface FeaturePreset {
  */
 export interface FeatureAuditEntry {
   /** Unique entry ID */
-  id: string
+  id: string;
   /** Feature that was changed */
-  feature: FeatureFlag
+  feature: FeatureFlag;
   /** Action taken */
-  action: 'enable' | 'disable' | 'override' | 'reset'
+  action: "enable" | "disable" | "override" | "reset";
   /** Previous state */
-  previousState: boolean
+  previousState: boolean;
   /** New state */
-  newState: boolean
+  newState: boolean;
   /** User who made the change */
-  userId?: string
+  userId?: string;
   /** Reason for the change */
-  reason?: string
+  reason?: string;
   /** Timestamp */
-  timestamp: number
+  timestamp: number;
   /** IP address (if applicable) */
-  ipAddress?: string
+  ipAddress?: string;
 }

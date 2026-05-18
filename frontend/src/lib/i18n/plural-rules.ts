@@ -9,51 +9,54 @@
  * https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
  */
 
-import type { PluralCategory } from './plurals'
+import type { PluralCategory } from "./plurals";
 
 /**
  * Extended plural rule function that handles integers and decimals
  */
-export type ExtendedPluralRule = (n: number, options?: { type?: 'cardinal' | 'ordinal' }) => PluralCategory
+export type ExtendedPluralRule = (
+  n: number,
+  options?: { type?: "cardinal" | "ordinal" },
+) => PluralCategory;
 
 /**
  * Plural form definition for a locale
  */
 export interface PluralFormDefinition {
   /** Locale code */
-  locale: string
+  locale: string;
   /** Which plural forms the locale uses for cardinal numbers */
-  cardinalForms: PluralCategory[]
+  cardinalForms: PluralCategory[];
   /** Which plural forms the locale uses for ordinal numbers */
-  ordinalForms: PluralCategory[]
+  ordinalForms: PluralCategory[];
   /** The plural rule function */
-  rule: ExtendedPluralRule
+  rule: ExtendedPluralRule;
   /** Example counts for each form */
-  examples: Partial<Record<PluralCategory, number[]>>
+  examples: Partial<Record<PluralCategory, number[]>>;
 }
 
 /**
  * Helper: get integer digits and visible fraction digits
  */
 function getNumberParts(n: number): {
-  i: number // integer part
-  v: number // number of visible fraction digits
-  f: number // visible fraction digits as integer
+  i: number; // integer part
+  v: number; // number of visible fraction digits
+  f: number; // visible fraction digits as integer
 } {
-  const abs = Math.abs(n)
-  const str = String(abs)
-  const dotIndex = str.indexOf('.')
+  const abs = Math.abs(n);
+  const str = String(abs);
+  const dotIndex = str.indexOf(".");
 
   if (dotIndex === -1) {
-    return { i: Math.floor(abs), v: 0, f: 0 }
+    return { i: Math.floor(abs), v: 0, f: 0 };
   }
 
-  const fracStr = str.substring(dotIndex + 1)
+  const fracStr = str.substring(dotIndex + 1);
   return {
     i: Math.floor(abs),
     v: fracStr.length,
     f: parseInt(fracStr, 10) || 0,
-  }
+  };
 }
 
 /**
@@ -62,21 +65,21 @@ function getNumberParts(n: number): {
 export const extendedPluralRules: Record<string, PluralFormDefinition> = {
   // English: one, other
   en: {
-    locale: 'en',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['one', 'two', 'few', 'other'],
+    locale: "en",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["one", "two", "few", "other"],
     rule: (n, opts) => {
-      if (opts?.type === 'ordinal') {
-        const mod10 = n % 10
-        const mod100 = n % 100
-        if (mod10 === 1 && mod100 !== 11) return 'one'
-        if (mod10 === 2 && mod100 !== 12) return 'two'
-        if (mod10 === 3 && mod100 !== 13) return 'few'
-        return 'other'
+      if (opts?.type === "ordinal") {
+        const mod10 = n % 10;
+        const mod100 = n % 100;
+        if (mod10 === 1 && mod100 !== 11) return "one";
+        if (mod10 === 2 && mod100 !== 12) return "two";
+        if (mod10 === 3 && mod100 !== 13) return "few";
+        return "other";
       }
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -86,12 +89,12 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Spanish: one, many, other
   es: {
-    locale: 'es',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "es",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      if (n === 1) return 'one'
-      return 'other'
+      if (n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -101,17 +104,17 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // French: one, many, other (0 and 1 are singular)
   fr: {
-    locale: 'fr',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['one', 'other'],
+    locale: "fr",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["one", "other"],
     rule: (n, opts) => {
-      if (opts?.type === 'ordinal') {
-        if (n === 1) return 'one'
-        return 'other'
+      if (opts?.type === "ordinal") {
+        if (n === 1) return "one";
+        return "other";
       }
-      const { i } = getNumberParts(n)
-      if (i === 0 || i === 1) return 'one'
-      return 'other'
+      const { i } = getNumberParts(n);
+      if (i === 0 || i === 1) return "one";
+      return "other";
     },
     examples: {
       one: [0, 1],
@@ -121,13 +124,13 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // German: one, other
   de: {
-    locale: 'de',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "de",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -137,17 +140,17 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Arabic: zero, one, two, few, many, other (most complex)
   ar: {
-    locale: 'ar',
-    cardinalForms: ['zero', 'one', 'two', 'few', 'many', 'other'],
-    ordinalForms: ['other'],
+    locale: "ar",
+    cardinalForms: ["zero", "one", "two", "few", "many", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      if (n === 0) return 'zero'
-      if (n === 1) return 'one'
-      if (n === 2) return 'two'
-      const mod100 = n % 100
-      if (mod100 >= 3 && mod100 <= 10) return 'few'
-      if (mod100 >= 11 && mod100 <= 99) return 'many'
-      return 'other'
+      if (n === 0) return "zero";
+      if (n === 1) return "one";
+      if (n === 2) return "two";
+      const mod100 = n % 100;
+      if (mod100 >= 3 && mod100 <= 10) return "few";
+      if (mod100 >= 11 && mod100 <= 99) return "many";
+      return "other";
     },
     examples: {
       zero: [0],
@@ -161,14 +164,14 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Hebrew: one, two, other
   he: {
-    locale: 'he',
-    cardinalForms: ['one', 'two', 'other'],
-    ordinalForms: ['other'],
+    locale: "he",
+    cardinalForms: ["one", "two", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      if (i === 2 && v === 0) return 'two'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      if (i === 2 && v === 0) return "two";
+      return "other";
     },
     examples: {
       one: [1],
@@ -179,10 +182,10 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Korean: other only (no plural distinctions)
   ko: {
-    locale: 'ko',
-    cardinalForms: ['other'],
-    ordinalForms: ['other'],
-    rule: () => 'other',
+    locale: "ko",
+    cardinalForms: ["other"],
+    ordinalForms: ["other"],
+    rule: () => "other",
     examples: {
       other: [0, 1, 2, 3, 10, 100],
     },
@@ -190,10 +193,10 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Chinese (Simplified): other only
   zh: {
-    locale: 'zh',
-    cardinalForms: ['other'],
-    ordinalForms: ['other'],
-    rule: () => 'other',
+    locale: "zh",
+    cardinalForms: ["other"],
+    ordinalForms: ["other"],
+    rule: () => "other",
     examples: {
       other: [0, 1, 2, 3, 10, 100],
     },
@@ -201,10 +204,10 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Japanese: other only
   ja: {
-    locale: 'ja',
-    cardinalForms: ['other'],
-    ordinalForms: ['other'],
-    rule: () => 'other',
+    locale: "ja",
+    cardinalForms: ["other"],
+    ordinalForms: ["other"],
+    rule: () => "other",
     examples: {
       other: [0, 1, 2, 3, 10, 100],
     },
@@ -212,13 +215,13 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Portuguese: one, other
   pt: {
-    locale: 'pt',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "pt",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i } = getNumberParts(n)
-      if (i === 0 || i === 1) return 'one'
-      return 'other'
+      const { i } = getNumberParts(n);
+      if (i === 0 || i === 1) return "one";
+      return "other";
     },
     examples: {
       one: [0, 1],
@@ -228,18 +231,19 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Russian: one, few, many, other
   ru: {
-    locale: 'ru',
-    cardinalForms: ['one', 'few', 'many', 'other'],
-    ordinalForms: ['other'],
+    locale: "ru",
+    cardinalForms: ["one", "few", "many", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i, v } = getNumberParts(n)
-      const mod10 = i % 10
-      const mod100 = i % 100
+      const { i, v } = getNumberParts(n);
+      const mod10 = i % 10;
+      const mod100 = i % 100;
 
-      if (v !== 0) return 'other'
-      if (mod10 === 1 && mod100 !== 11) return 'one'
-      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'few'
-      return 'many'
+      if (v !== 0) return "other";
+      if (mod10 === 1 && mod100 !== 11) return "one";
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20))
+        return "few";
+      return "many";
     },
     examples: {
       one: [1, 21, 31, 41, 51, 61],
@@ -251,17 +255,17 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Italian: one, other
   it: {
-    locale: 'it',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['many', 'other'],
+    locale: "it",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["many", "other"],
     rule: (n, opts) => {
-      if (opts?.type === 'ordinal') {
-        if (n === 8 || n === 11 || n === 80 || n === 800) return 'many'
-        return 'other'
+      if (opts?.type === "ordinal") {
+        if (n === 8 || n === 11 || n === 80 || n === 800) return "many";
+        return "other";
       }
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -271,13 +275,13 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Dutch: one, other
   nl: {
-    locale: 'nl',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "nl",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -287,18 +291,19 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Polish: one, few, many, other
   pl: {
-    locale: 'pl',
-    cardinalForms: ['one', 'few', 'many', 'other'],
-    ordinalForms: ['other'],
+    locale: "pl",
+    cardinalForms: ["one", "few", "many", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      if (v !== 0) return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      if (v !== 0) return "other";
 
-      const mod10 = i % 10
-      const mod100 = i % 100
-      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'few'
-      return 'many'
+      const mod10 = i % 10;
+      const mod100 = i % 100;
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20))
+        return "few";
+      return "many";
     },
     examples: {
       one: [1],
@@ -310,12 +315,12 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Turkish: one, other
   tr: {
-    locale: 'tr',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "tr",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      if (n === 1) return 'one'
-      return 'other'
+      if (n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -325,13 +330,13 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Swedish: one, other
   sv: {
-    locale: 'sv',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "sv",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -341,10 +346,10 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Thai: other only
   th: {
-    locale: 'th',
-    cardinalForms: ['other'],
-    ordinalForms: ['other'],
-    rule: () => 'other',
+    locale: "th",
+    cardinalForms: ["other"],
+    ordinalForms: ["other"],
+    rule: () => "other",
     examples: {
       other: [0, 1, 2, 3, 10, 100],
     },
@@ -352,10 +357,10 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Vietnamese: other only
   vi: {
-    locale: 'vi',
-    cardinalForms: ['other'],
-    ordinalForms: ['other'],
-    rule: () => 'other',
+    locale: "vi",
+    cardinalForms: ["other"],
+    ordinalForms: ["other"],
+    rule: () => "other",
     examples: {
       other: [0, 1, 2, 3, 10, 100],
     },
@@ -363,10 +368,10 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Indonesian: other only
   id: {
-    locale: 'id',
-    cardinalForms: ['other'],
-    ordinalForms: ['other'],
-    rule: () => 'other',
+    locale: "id",
+    cardinalForms: ["other"],
+    ordinalForms: ["other"],
+    rule: () => "other",
     examples: {
       other: [0, 1, 2, 3, 10, 100],
     },
@@ -374,20 +379,20 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Hindi: one, other
   hi: {
-    locale: 'hi',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['one', 'two', 'few', 'many', 'other'],
+    locale: "hi",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["one", "two", "few", "many", "other"],
     rule: (n, opts) => {
-      if (opts?.type === 'ordinal') {
-        if (n === 1) return 'one'
-        if (n === 2 || n === 3) return 'two'
-        if (n === 4) return 'few'
-        if (n === 6) return 'many'
-        return 'other'
+      if (opts?.type === "ordinal") {
+        if (n === 1) return "one";
+        if (n === 2 || n === 3) return "two";
+        if (n === 4) return "few";
+        if (n === 6) return "many";
+        return "other";
       }
-      const { i } = getNumberParts(n)
-      if (i === 0 || n === 1) return 'one'
-      return 'other'
+      const { i } = getNumberParts(n);
+      if (i === 0 || n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [0, 1],
@@ -397,13 +402,13 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Persian/Farsi: one, other
   fa: {
-    locale: 'fa',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "fa",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i } = getNumberParts(n)
-      if (i === 0 || n === 1) return 'one'
-      return 'other'
+      const { i } = getNumberParts(n);
+      if (i === 0 || n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [0, 1],
@@ -413,22 +418,23 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Ukrainian: one, few, many, other
   uk: {
-    locale: 'uk',
-    cardinalForms: ['one', 'few', 'many', 'other'],
-    ordinalForms: ['few', 'other'],
+    locale: "uk",
+    cardinalForms: ["one", "few", "many", "other"],
+    ordinalForms: ["few", "other"],
     rule: (n, opts) => {
-      if (opts?.type === 'ordinal') {
-        if (n === 3) return 'few'
-        return 'other'
+      if (opts?.type === "ordinal") {
+        if (n === 3) return "few";
+        return "other";
       }
-      const { i, v } = getNumberParts(n)
-      const mod10 = i % 10
-      const mod100 = i % 100
+      const { i, v } = getNumberParts(n);
+      const mod10 = i % 10;
+      const mod100 = i % 100;
 
-      if (v !== 0) return 'other'
-      if (mod10 === 1 && mod100 !== 11) return 'one'
-      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'few'
-      return 'many'
+      if (v !== 0) return "other";
+      if (mod10 === 1 && mod100 !== 11) return "one";
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20))
+        return "few";
+      return "many";
     },
     examples: {
       one: [1, 21, 31, 41],
@@ -440,15 +446,15 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Czech: one, few, many, other
   cs: {
-    locale: 'cs',
-    cardinalForms: ['one', 'few', 'many', 'other'],
-    ordinalForms: ['other'],
+    locale: "cs",
+    cardinalForms: ["one", "few", "many", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      if (i >= 2 && i <= 4 && v === 0) return 'few'
-      if (v !== 0) return 'many'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      if (i >= 2 && i <= 4 && v === 0) return "few";
+      if (v !== 0) return "many";
+      return "other";
     },
     examples: {
       one: [1],
@@ -460,19 +466,19 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Romanian: one, few, other
   ro: {
-    locale: 'ro',
-    cardinalForms: ['one', 'few', 'other'],
-    ordinalForms: ['one', 'other'],
+    locale: "ro",
+    cardinalForms: ["one", "few", "other"],
+    ordinalForms: ["one", "other"],
     rule: (n, opts) => {
-      if (opts?.type === 'ordinal') {
-        if (n === 1) return 'one'
-        return 'other'
+      if (opts?.type === "ordinal") {
+        if (n === 1) return "one";
+        return "other";
       }
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      const mod100 = v !== 0 ? Math.floor(n * 100) % 100 : i % 100
-      if (v !== 0 || n === 0 || (mod100 >= 2 && mod100 <= 19)) return 'few'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      const mod100 = v !== 0 ? Math.floor(n * 100) % 100 : i % 100;
+      if (v !== 0 || n === 0 || (mod100 >= 2 && mod100 <= 19)) return "few";
+      return "other";
     },
     examples: {
       one: [1],
@@ -483,12 +489,12 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Danish: one, other
   da: {
-    locale: 'da',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "da",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      if (n === 1) return 'one'
-      return 'other'
+      if (n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -498,13 +504,13 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Finnish: one, other
   fi: {
-    locale: 'fi',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "fi",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      const { i, v } = getNumberParts(n)
-      if (i === 1 && v === 0) return 'one'
-      return 'other'
+      const { i, v } = getNumberParts(n);
+      if (i === 1 && v === 0) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -514,12 +520,12 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Norwegian: one, other
   no: {
-    locale: 'no',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "no",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      if (n === 1) return 'one'
-      return 'other'
+      if (n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -529,12 +535,12 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Greek: one, other
   el: {
-    locale: 'el',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "el",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      if (n === 1) return 'one'
-      return 'other'
+      if (n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -544,12 +550,12 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Hungarian: one, other
   hu: {
-    locale: 'hu',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "hu",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      if (n === 1) return 'one'
-      return 'other'
+      if (n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -559,15 +565,15 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Malay: other only
   ms: {
-    locale: 'ms',
-    cardinalForms: ['other'],
-    ordinalForms: ['one', 'other'],
+    locale: "ms",
+    cardinalForms: ["other"],
+    ordinalForms: ["one", "other"],
     rule: (n, opts) => {
-      if (opts?.type === 'ordinal') {
-        if (n === 1) return 'one'
-        return 'other'
+      if (opts?.type === "ordinal") {
+        if (n === 1) return "one";
+        return "other";
       }
-      return 'other'
+      return "other";
     },
     examples: {
       other: [0, 1, 2, 3, 10, 100],
@@ -576,20 +582,21 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Bengali: one, other
   bn: {
-    locale: 'bn',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['one', 'two', 'few', 'many', 'other'],
+    locale: "bn",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["one", "two", "few", "many", "other"],
     rule: (n, opts) => {
-      if (opts?.type === 'ordinal') {
-        if (n === 1 || n === 5 || n === 7 || n === 8 || n === 9 || n === 10) return 'one'
-        if (n === 2 || n === 3) return 'two'
-        if (n === 4) return 'few'
-        if (n === 6) return 'many'
-        return 'other'
+      if (opts?.type === "ordinal") {
+        if (n === 1 || n === 5 || n === 7 || n === 8 || n === 9 || n === 10)
+          return "one";
+        if (n === 2 || n === 3) return "two";
+        if (n === 4) return "few";
+        if (n === 6) return "many";
+        return "other";
       }
-      const { i } = getNumberParts(n)
-      if (i === 0 || n === 1) return 'one'
-      return 'other'
+      const { i } = getNumberParts(n);
+      if (i === 0 || n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [0, 1],
@@ -599,12 +606,12 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
 
   // Tamil: one, other
   ta: {
-    locale: 'ta',
-    cardinalForms: ['one', 'other'],
-    ordinalForms: ['other'],
+    locale: "ta",
+    cardinalForms: ["one", "other"],
+    ordinalForms: ["other"],
     rule: (n) => {
-      if (n === 1) return 'one'
-      return 'other'
+      if (n === 1) return "one";
+      return "other";
     },
     examples: {
       one: [1],
@@ -613,16 +620,16 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
   },
 
   // Chinese (Traditional): other only
-  'zh-TW': {
-    locale: 'zh-TW',
-    cardinalForms: ['other'],
-    ordinalForms: ['other'],
-    rule: () => 'other',
+  "zh-TW": {
+    locale: "zh-TW",
+    cardinalForms: ["other"],
+    ordinalForms: ["other"],
+    rule: () => "other",
     examples: {
       other: [0, 1, 2, 3, 10, 100],
     },
   },
-}
+};
 
 /**
  * Get the extended plural rule for a locale.
@@ -630,17 +637,17 @@ export const extendedPluralRules: Record<string, PluralFormDefinition> = {
  */
 export function getExtendedPluralRule(locale: string): PluralFormDefinition {
   if (locale in extendedPluralRules) {
-    return extendedPluralRules[locale]
+    return extendedPluralRules[locale];
   }
 
   // Try base language
-  const base = locale.split('-')[0]
+  const base = locale.split("-")[0];
   if (base in extendedPluralRules) {
-    return extendedPluralRules[base]
+    return extendedPluralRules[base];
   }
 
   // Fallback to English
-  return extendedPluralRules.en
+  return extendedPluralRules.en;
 }
 
 /**
@@ -650,33 +657,33 @@ export function getExtendedPluralRule(locale: string): PluralFormDefinition {
 export function getExtendedPluralCategory(
   locale: string,
   count: number,
-  type: 'cardinal' | 'ordinal' = 'cardinal'
+  type: "cardinal" | "ordinal" = "cardinal",
 ): PluralCategory {
-  const def = getExtendedPluralRule(locale)
-  return def.rule(Math.abs(count), { type })
+  const def = getExtendedPluralRule(locale);
+  return def.rule(Math.abs(count), { type });
 }
 
 /**
  * Get all required cardinal plural forms for a locale.
  */
 export function getRequiredPluralForms(locale: string): PluralCategory[] {
-  return getExtendedPluralRule(locale).cardinalForms
+  return getExtendedPluralRule(locale).cardinalForms;
 }
 
 /**
  * Get all required ordinal plural forms for a locale.
  */
 export function getRequiredOrdinalForms(locale: string): PluralCategory[] {
-  return getExtendedPluralRule(locale).ordinalForms
+  return getExtendedPluralRule(locale).ordinalForms;
 }
 
 /**
  * Get example numbers for each plural category of a locale.
  */
 export function getPluralExamples(
-  locale: string
+  locale: string,
 ): Partial<Record<PluralCategory, number[]>> {
-  return getExtendedPluralRule(locale).examples
+  return getExtendedPluralRule(locale).examples;
 }
 
 /**
@@ -685,31 +692,38 @@ export function getPluralExamples(
 export function validatePluralKeys(
   keys: string[],
   locale: string,
-  separator: string = '_'
+  separator: string = "_",
 ): { complete: boolean; missing: string[] } {
-  const required = getRequiredPluralForms(locale)
-  const baseKeys = new Set<string>()
+  const required = getRequiredPluralForms(locale);
+  const baseKeys = new Set<string>();
 
   // Identify plural base keys
   for (const key of keys) {
-    const lastSep = key.lastIndexOf(separator)
-    if (lastSep === -1) continue
-    const suffix = key.substring(lastSep + separator.length)
-    const allForms: PluralCategory[] = ['zero', 'one', 'two', 'few', 'many', 'other']
+    const lastSep = key.lastIndexOf(separator);
+    if (lastSep === -1) continue;
+    const suffix = key.substring(lastSep + separator.length);
+    const allForms: PluralCategory[] = [
+      "zero",
+      "one",
+      "two",
+      "few",
+      "many",
+      "other",
+    ];
     if (allForms.includes(suffix as PluralCategory)) {
-      baseKeys.add(key.substring(0, lastSep))
+      baseKeys.add(key.substring(0, lastSep));
     }
   }
 
-  const missing: string[] = []
+  const missing: string[] = [];
   for (const baseKey of baseKeys) {
     for (const form of required) {
-      const fullKey = `${baseKey}${separator}${form}`
+      const fullKey = `${baseKey}${separator}${form}`;
       if (!keys.includes(fullKey)) {
-        missing.push(fullKey)
+        missing.push(fullKey);
       }
     }
   }
 
-  return { complete: missing.length === 0, missing }
+  return { complete: missing.length === 0, missing };
 }

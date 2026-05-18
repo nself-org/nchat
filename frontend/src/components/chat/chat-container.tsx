@@ -1,33 +1,33 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { MessageList, SimpleMessageList } from '@/components/chat/message-list'
-import { MessageInput } from '@/components/chat/message-input'
-import { ChatEmpty } from '@/components/chat/chat-empty'
-import { ChatLoading } from '@/components/chat/chat-loading'
-import { useMessageStore } from '@/stores/message-store'
-import { useAuth } from '@/contexts/auth-context'
-import type { Message, TypingUser } from '@/types/message'
-import type { Channel } from '@/stores/channel-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { MessageList, SimpleMessageList } from "@/components/chat/message-list";
+import { MessageInput } from "@/components/chat/message-input";
+import { ChatEmpty } from "@/components/chat/chat-empty";
+import { ChatLoading } from "@/components/chat/chat-loading";
+import { useMessageStore } from "@/stores/message-store";
+import { useAuth } from "@/contexts/auth-context";
+import type { Message, TypingUser } from "@/types/message";
+import type { Channel } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChatContainerProps {
-  channel: Channel
-  messages: Message[]
-  loading?: boolean
-  hasMore?: boolean
-  typingUsers?: TypingUser[]
-  onSendMessage: (content: string, replyToId?: string) => void
-  onEditMessage?: (messageId: string, content: string) => void
-  onDeleteMessage?: (messageId: string) => void
-  onReactToMessage?: (messageId: string, emoji: string) => void
-  onLoadMore?: () => void
-  onOpenThread?: (messageId: string) => void
-  className?: string
+  channel: Channel;
+  messages: Message[];
+  loading?: boolean;
+  hasMore?: boolean;
+  typingUsers?: TypingUser[];
+  onSendMessage: (content: string, replyToId?: string) => void;
+  onEditMessage?: (messageId: string, content: string) => void;
+  onDeleteMessage?: (messageId: string) => void;
+  onReactToMessage?: (messageId: string, emoji: string) => void;
+  onLoadMore?: () => void;
+  onOpenThread?: (messageId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -48,98 +48,115 @@ export function ChatContainer({
   onOpenThread,
   className,
 }: ChatContainerProps) {
-  const { user } = useAuth()
+  const { user } = useAuth();
   const messageListRef = React.useRef<{
-    scrollToBottom: (behavior?: ScrollBehavior) => void
-    scrollToMessage: (id: string) => void
-  } | null>(null)
+    scrollToBottom: (behavior?: ScrollBehavior) => void;
+    scrollToMessage: (id: string) => void;
+  } | null>(null);
 
   // Get store state for editing/replying
-  const { editingMessage, replyingTo, startEditing, stopEditing, startReplying, stopReplying } =
-    useMessageStore()
+  const {
+    editingMessage,
+    replyingTo,
+    startEditing,
+    stopEditing,
+    startReplying,
+    stopReplying,
+  } = useMessageStore();
 
   // Handle send message
   const handleSendMessage = React.useCallback(
     (content: string) => {
       if (editingMessage) {
         // Editing an existing message
-        onEditMessage?.(editingMessage.messageId, content)
-        stopEditing()
+        onEditMessage?.(editingMessage.messageId, content);
+        stopEditing();
       } else if (replyingTo) {
         // Replying to a message
-        onSendMessage(content, replyingTo.messageId)
-        stopReplying()
+        onSendMessage(content, replyingTo.messageId);
+        stopReplying();
       } else {
         // New message
-        onSendMessage(content)
+        onSendMessage(content);
       }
 
       // Scroll to bottom after sending
-      setTimeout(() => messageListRef.current?.scrollToBottom(), 100)
+      setTimeout(() => messageListRef.current?.scrollToBottom(), 100);
     },
-    [editingMessage, replyingTo, onSendMessage, onEditMessage, stopEditing, stopReplying]
-  )
+    [
+      editingMessage,
+      replyingTo,
+      onSendMessage,
+      onEditMessage,
+      stopEditing,
+      stopReplying,
+    ],
+  );
 
   // Handle message actions
   const handleReply = React.useCallback(
     (message: Message) => {
-      startReplying(message)
+      startReplying(message);
     },
-    [startReplying]
-  )
+    [startReplying],
+  );
 
   const handleEdit = React.useCallback(
     (message: Message) => {
-      startEditing(message.id, message.content)
+      startEditing(message.id, message.content);
     },
-    [startEditing]
-  )
+    [startEditing],
+  );
 
   const handleDelete = React.useCallback(
     (messageId: string) => {
-      onDeleteMessage?.(messageId)
+      onDeleteMessage?.(messageId);
     },
-    [onDeleteMessage]
-  )
+    [onDeleteMessage],
+  );
 
   const handleReact = React.useCallback(
     (messageId: string, emoji: string) => {
-      onReactToMessage?.(messageId, emoji)
+      onReactToMessage?.(messageId, emoji);
     },
-    [onReactToMessage]
-  )
+    [onReactToMessage],
+  );
 
   const handleThread = React.useCallback(
     (message: Message) => {
-      onOpenThread?.(message.id)
+      onOpenThread?.(message.id);
     },
-    [onOpenThread]
-  )
+    [onOpenThread],
+  );
 
   // Loading state
   if (loading && messages.length === 0) {
-    return <ChatLoading />
+    return <ChatLoading />;
   }
 
   // Empty state
   if (!loading && messages.length === 0) {
     return (
-      <div className={cn('flex h-full flex-col', className)}>
+      <div className={cn("flex h-full flex-col", className)}>
         <ChatEmpty channel={channel} />
         <MessageInput channelId={channel.id} onSend={handleSendMessage} />
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('relative flex h-full flex-col', className)}>
+    <div className={cn("relative flex h-full flex-col", className)}>
       {/* Messages Area */}
       <MessageList
         ref={messageListRef}
         channelId={channel.id}
         channelName={channel.name}
         channelType={
-          channel.type === 'direct' ? 'dm' : channel.type === 'group' ? 'group-dm' : channel.type
+          channel.type === "direct"
+            ? "dm"
+            : channel.type === "group"
+              ? "group-dm"
+              : channel.type
         }
         messages={messages}
         isLoading={loading}
@@ -155,17 +172,22 @@ export function ChatContainer({
       />
 
       {/* Reply Preview */}
-      {replyingTo && <ReplyPreview message={replyingTo.message} onCancel={stopReplying} />}
+      {replyingTo && (
+        <ReplyPreview message={replyingTo.message} onCancel={stopReplying} />
+      )}
 
       {/* Edit Preview */}
       {editingMessage && (
-        <EditPreview originalContent={editingMessage.originalContent} onCancel={stopEditing} />
+        <EditPreview
+          originalContent={editingMessage.originalContent}
+          onCancel={stopEditing}
+        />
       )}
 
       {/* Message Input */}
       <MessageInput channelId={channel.id} onSend={handleSendMessage} />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -173,8 +195,8 @@ export function ChatContainer({
 // ============================================================================
 
 interface ReplyPreviewProps {
-  message: Message
-  onCancel: () => void
+  message: Message;
+  onCancel: () => void;
 }
 
 function ReplyPreview({ message, onCancel }: ReplyPreviewProps) {
@@ -186,9 +208,14 @@ function ReplyPreview({ message, onCancel }: ReplyPreviewProps) {
             Replying to {message.user.displayName}
           </span>
         </div>
-        <p className="truncate text-xs text-muted-foreground">{message.content}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {message.content}
+        </p>
       </div>
-      <button onClick={onCancel} className="rounded p-1 transition-colors hover:bg-muted">
+      <button
+        onClick={onCancel}
+        className="rounded p-1 transition-colors hover:bg-muted"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -206,7 +233,7 @@ function ReplyPreview({ message, onCancel }: ReplyPreviewProps) {
         </svg>
       </button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -214,8 +241,8 @@ function ReplyPreview({ message, onCancel }: ReplyPreviewProps) {
 // ============================================================================
 
 interface EditPreviewProps {
-  originalContent: string
-  onCancel: () => void
+  originalContent: string;
+  onCancel: () => void;
 }
 
 function EditPreview({ originalContent, onCancel }: EditPreviewProps) {
@@ -223,11 +250,18 @@ function EditPreview({ originalContent, onCancel }: EditPreviewProps) {
     <div className="flex items-center gap-2 border-t bg-amber-500/10 px-4 py-2">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-amber-600">Editing message</span>
+          <span className="text-xs font-medium text-amber-600">
+            Editing message
+          </span>
         </div>
-        <p className="truncate text-xs text-muted-foreground">{originalContent}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {originalContent}
+        </p>
       </div>
-      <button onClick={onCancel} className="rounded p-1 transition-colors hover:bg-muted">
+      <button
+        onClick={onCancel}
+        className="rounded p-1 transition-colors hover:bg-muted"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -245,7 +279,7 @@ function EditPreview({ originalContent, onCancel }: EditPreviewProps) {
         </svg>
       </button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -253,41 +287,41 @@ function EditPreview({ originalContent, onCancel }: EditPreviewProps) {
 // ============================================================================
 
 interface TypingIndicatorProps {
-  users: TypingUser[]
+  users: TypingUser[];
 }
 
 export function TypingIndicator({ users }: TypingIndicatorProps) {
-  if (users.length === 0) return null
+  if (users.length === 0) return null;
 
   const getTypingText = () => {
     if (users.length === 1) {
-      return `${users[0].displayName} is typing...`
+      return `${users[0].displayName} is typing...`;
     }
     if (users.length === 2) {
-      return `${users[0].displayName} and ${users[1].displayName} are typing...`
+      return `${users[0].displayName} and ${users[1].displayName} are typing...`;
     }
     if (users.length === 3) {
-      return `${users[0].displayName}, ${users[1].displayName}, and ${users[2].displayName} are typing...`
+      return `${users[0].displayName}, ${users[1].displayName}, and ${users[2].displayName} are typing...`;
     }
-    return `${users[0].displayName} and ${users.length - 1} others are typing...`
-  }
+    return `${users[0].displayName} and ${users.length - 1} others are typing...`;
+  };
 
   return (
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
       <div className="flex gap-1">
-        <span className="animate-bounce" style={{ animationDelay: '0ms' }}>
+        <span className="animate-bounce" style={{ animationDelay: "0ms" }}>
           .
         </span>
-        <span className="animate-bounce" style={{ animationDelay: '150ms' }}>
+        <span className="animate-bounce" style={{ animationDelay: "150ms" }}>
           .
         </span>
-        <span className="animate-bounce" style={{ animationDelay: '300ms' }}>
+        <span className="animate-bounce" style={{ animationDelay: "300ms" }}>
           .
         </span>
       </div>
       <span>{getTypingText()}</span>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -295,9 +329,9 @@ export function TypingIndicator({ users }: TypingIndicatorProps) {
 // ============================================================================
 
 interface ScrollToBottomButtonProps {
-  visible: boolean
-  onClick: () => void
-  unreadCount?: number
+  visible: boolean;
+  onClick: () => void;
+  unreadCount?: number;
 }
 
 export function ScrollToBottomButton({
@@ -305,18 +339,18 @@ export function ScrollToBottomButton({
   onClick,
   unreadCount = 0,
 }: ScrollToBottomButtonProps) {
-  if (!visible) return null
+  if (!visible) return null;
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'absolute bottom-20 right-4 z-10',
-        'flex items-center gap-2 rounded-full',
-        'text-primary-foreground bg-primary',
-        'px-4 py-2 shadow-lg',
-        'hover:bg-primary/90 transition-colors',
-        'animate-in fade-in slide-in-from-bottom-2'
+        "absolute bottom-20 right-4 z-10",
+        "flex items-center gap-2 rounded-full",
+        "text-primary-foreground bg-primary",
+        "px-4 py-2 shadow-lg",
+        "hover:bg-primary/90 transition-colors",
+        "animate-in fade-in slide-in-from-bottom-2",
       )}
     >
       <svg
@@ -335,9 +369,9 @@ export function ScrollToBottomButton({
       </svg>
       {unreadCount > 0 && (
         <span className="text-sm font-medium">
-          {unreadCount} new message{unreadCount !== 1 && 's'}
+          {unreadCount} new message{unreadCount !== 1 && "s"}
         </span>
       )}
     </button>
-  )
+  );
 }

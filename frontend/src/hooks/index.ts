@@ -9,10 +9,14 @@
 // ============================================================================
 
 // Channels
-export { useChannelDetails, useChannelMutations, useChannel } from './use-channels'
+export {
+  useChannelDetails,
+  useChannelMutations,
+  useChannel,
+} from "./use-channels";
 
 // Messages
-export { useMessages, useMessageMutations } from './use-messages'
+export { useMessages, useMessageMutations } from "./use-messages";
 
 // Threads
 export {
@@ -27,7 +31,7 @@ export {
   type UseThreadOptions,
   type UseThreadReturn,
   type UseCreateThreadOptions,
-} from './use-thread'
+} from "./use-thread";
 
 // Thread Notifications
 export {
@@ -36,14 +40,14 @@ export {
   type ThreadNotificationOptions,
   type UseThreadNotificationsReturn,
   type UseThreadReplyNotificationsOptions,
-} from './use-thread-notifications'
+} from "./use-thread-notifications";
 
 // Notifications
 export {
   useNotifications,
   type UseNotificationsOptions,
   type UseNotificationsReturn,
-} from './use-notifications'
+} from "./use-notifications";
 
 // Unread Counts
 export {
@@ -52,20 +56,20 @@ export {
   type ChannelUnreadInfo,
   type UseUnreadCountsOptions,
   type UseUnreadCountsReturn,
-} from './use-unread-counts'
+} from "./use-unread-counts";
 
 // Toast
-export { useToast, toast } from './use-toast'
+export { useToast, toast } from "./use-toast";
 
 // ============================================================================
 // Utility Hooks
 // ============================================================================
 
 // Debounce
-export { useDebounce, useDebouncedCallback } from './use-debounce'
+export { useDebounce, useDebouncedCallback } from "./use-debounce";
 
 // Local Storage
-export { useLocalStorage } from './use-local-storage'
+export { useLocalStorage } from "./use-local-storage";
 
 // Media Queries
 export {
@@ -76,10 +80,10 @@ export {
   usePrefersDarkMode,
   usePrefersReducedMotion,
   breakpoints,
-} from './use-media-query'
+} from "./use-media-query";
 
 // Click Outside
-export { useClickOutside, useClickOutsideRef } from './use-click-outside'
+export { useClickOutside, useClickOutsideRef } from "./use-click-outside";
 
 // Scroll Position
 export {
@@ -87,22 +91,30 @@ export {
   useScrollToBottom,
   useIsAtBottom,
   useScrollManagement,
-} from './use-scroll-position'
+} from "./use-scroll-position";
 
 // Intersection Observer
-export { useInView, useInfiniteScroll } from './use-intersection-observer'
+export { useInView, useInfiniteScroll } from "./use-intersection-observer";
 
 // Clipboard
-export { useCopyToClipboard, useClipboard } from './use-clipboard'
+export { useCopyToClipboard, useClipboard } from "./use-clipboard";
 
 // Online Status
-export { useOnlineStatus, useNetworkStatus } from './use-online-status'
+export { useOnlineStatus, useNetworkStatus } from "./use-online-status";
 
 // Window Focus
-export { useWindowFocus, useWindowFocusEffect, useDocumentVisibility } from './use-window-focus'
+export {
+  useWindowFocus,
+  useWindowFocusEffect,
+  useDocumentVisibility,
+} from "./use-window-focus";
 
 // Previous Value
-export { usePrevious, usePreviousWithInitial, useValueChange } from './use-previous'
+export {
+  usePrevious,
+  usePreviousWithInitial,
+  useValueChange,
+} from "./use-previous";
 
 // Mounted State
 export {
@@ -111,7 +123,7 @@ export {
   useOnMount,
   useOnUnmount,
   useSafeSetState,
-} from './use-mounted'
+} from "./use-mounted";
 
 // ============================================================================
 // Auth & Permissions Hooks
@@ -125,7 +137,7 @@ export {
   useIsAdmin,
   useIsModerator,
   type UseRoleReturn,
-} from './use-role'
+} from "./use-role";
 
 // Permissions Hook
 export {
@@ -141,7 +153,7 @@ export {
   useModerationPermissions,
   useSystemPermissions,
   type UsePermissionsReturn,
-} from './use-permissions'
+} from "./use-permissions";
 
 // ============================================================================
 // Command Palette Hooks
@@ -152,7 +164,7 @@ export {
   useCommandPalette,
   type UseCommandPaletteOptions,
   type UseCommandPaletteReturn,
-} from './useCommandPalette'
+} from "./useCommandPalette";
 
 // Quick Switch
 export {
@@ -160,42 +172,42 @@ export {
   type QuickSwitchItem,
   type UseQuickSwitchOptions,
   type UseQuickSwitchReturn,
-} from './useQuickSwitch'
+} from "./useQuickSwitch";
 
 // ============================================================================
 // Socket Hooks (re-exported from lib/socket)
 // ============================================================================
 
-export { useSocket } from '@/lib/socket/hooks/use-socket'
-export { usePresence } from '@/lib/socket/hooks/use-presence'
-export { useTyping } from '@/lib/socket/hooks/use-typing'
-export { useChannelEvents } from '@/lib/socket/hooks/use-channel-events'
+export { useSocket } from "@/lib/socket/hooks/use-socket";
+export { usePresence } from "@/lib/socket/hooks/use-presence";
+export { useTyping } from "@/lib/socket/hooks/use-typing";
+export { useChannelEvents } from "@/lib/socket/hooks/use-channel-events";
 
 // Typing Indicator Hook (integrated with store and WebSocket)
 export {
   useChannelTyping,
   type UseChannelTypingOptions,
   type UseChannelTypingReturn,
-} from './use-channel-typing'
+} from "./use-channel-typing";
 
 // Legacy typing indicator hook
-export { useTypingIndicator } from './use-typing-indicator'
+export { useTypingIndicator } from "./use-typing-indicator";
 
 // Hasura-based presence (uses GraphQL subscriptions)
-export { useHasuraPresence, useMyPresence } from './use-hasura-presence'
+export { useHasuraPresence, useMyPresence } from "./use-hasura-presence";
 
 // Presence sync (full presence system with WebSocket)
 export {
   usePresenceSync,
   type UsePresenceSyncOptions,
   type UsePresenceSyncReturn,
-} from './use-presence-sync'
+} from "./use-presence-sync";
 
 // Read Receipts
-export { useChannelReadStatus, useMarkRead } from './use-read-receipts'
+export { useChannelReadStatus, useMarkRead } from "./use-read-receipts";
 
 // Reactions (uses Hasura subscriptions)
-export { useMessageReactions } from './use-reactions'
+export { useMessageReactions } from "./use-reactions";
 
 // Platform-aware Reaction Mode
 export {
@@ -206,7 +218,7 @@ export {
   type UseReactionModeReturn,
   type UseReactionPickerOptions,
   type UseReactionPickerReturn,
-} from './use-reaction-mode'
+} from "./use-reaction-mode";
 
 // ============================================================================
 // Gesture Hooks
@@ -221,4 +233,4 @@ export {
   type GestureCallbacks,
   type UseGesturesOptions,
   type UseGesturesReturn,
-} from './use-gestures'
+} from "./use-gestures";

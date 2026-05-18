@@ -5,19 +5,19 @@
  * Displays participant bubbles, controls, and huddle state.
  */
 
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { HuddleBar } from './HuddleBar'
-import { HuddleParticipants } from './HuddleParticipants'
-import { HuddleControls } from './HuddleControls'
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { HuddleBar } from "./HuddleBar";
+import { HuddleParticipants } from "./HuddleParticipants";
+import { HuddleControls } from "./HuddleControls";
 import {
   useHuddle,
   type HuddleParticipant,
   type HuddleReaction,
-} from '@/hooks/use-huddle'
+} from "@/hooks/use-huddle";
 import {
   Mic,
   MicOff,
@@ -30,25 +30,30 @@ import {
   ChevronDown,
   MessageSquare,
   Users,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface HuddleOverlayProps {
-  className?: string
-  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
-  onOpenThread?: (threadId: string) => void
+  className?: string;
+  position?: "bottom-right" | "bottom-left" | "top-right" | "top-left";
+  onOpenThread?: (threadId: string) => void;
 }
 
 // =============================================================================
 // Reaction Emojis
 // =============================================================================
 
-const REACTION_EMOJIS = ['👍', '👎', '❤️', '😂', '🎉', '👏', '🔥', '💯']
+const REACTION_EMOJIS = ["👍", "👎", "❤️", "😂", "🎉", "👏", "🔥", "💯"];
 
 // =============================================================================
 // Component
@@ -56,7 +61,7 @@ const REACTION_EMOJIS = ['👍', '👎', '❤️', '😂', '🎉', '👏', '🔥
 
 export function HuddleOverlay({
   className,
-  position = 'bottom-right',
+  position = "bottom-right",
   onOpenThread,
 }: HuddleOverlayProps) {
   const {
@@ -79,30 +84,30 @@ export function HuddleOverlay({
     leaveHuddle,
     sendReaction,
     createMessageThread,
-  } = useHuddle()
+  } = useHuddle();
 
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [showReactions, setShowReactions] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showReactions, setShowReactions] = useState(false);
 
   if (!isInHuddle || !huddleInfo) {
-    return null
+    return null;
   }
 
   const positionClasses = {
-    'bottom-right': 'bottom-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'top-right': 'top-4 right-4',
-    'top-left': 'top-4 left-4',
-  }
+    "bottom-right": "bottom-4 right-4",
+    "bottom-left": "bottom-4 left-4",
+    "top-right": "top-4 right-4",
+    "top-left": "top-4 left-4",
+  };
 
   const handleOpenThread = () => {
     if (!messageThreadId) {
-      createMessageThread()
+      createMessageThread();
     }
     if (messageThreadId && onOpenThread) {
-      onOpenThread(messageThreadId)
+      onOpenThread(messageThreadId);
     }
-  }
+  };
 
   return (
     <TooltipProvider>
@@ -111,17 +116,13 @@ export function HuddleOverlay({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className={cn(
-          'fixed z-50',
-          positionClasses[position],
-          className
-        )}
+        className={cn("fixed z-50", positionClasses[position], className)}
       >
         <div
           className={cn(
-            'bg-background/95 backdrop-blur-md rounded-xl shadow-2xl border border-border',
-            'transition-all duration-200',
-            isExpanded ? 'w-80' : 'w-64'
+            "bg-background/95 backdrop-blur-md rounded-xl shadow-2xl border border-border",
+            "transition-all duration-200",
+            isExpanded ? "w-80" : "w-64",
           )}
         >
           {/* Header - Always visible */}
@@ -134,13 +135,15 @@ export function HuddleOverlay({
               <div className="relative">
                 <div
                   className={cn(
-                    'w-2 h-2 rounded-full',
-                    activeSpeakerId ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
+                    "w-2 h-2 rounded-full",
+                    activeSpeakerId
+                      ? "bg-green-500 animate-pulse"
+                      : "bg-yellow-500",
                   )}
                 />
               </div>
               <span className="text-sm font-medium truncate max-w-[120px]">
-                {huddleInfo.channelName || 'Huddle'}
+                {huddleInfo.channelName || "Huddle"}
               </span>
               <span className="text-xs text-muted-foreground">
                 {formattedDuration}
@@ -164,7 +167,7 @@ export function HuddleOverlay({
             {isExpanded && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
+                animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
@@ -216,7 +219,7 @@ export function HuddleOverlay({
                   {showReactions && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="px-3 py-2 border-t border-border"
                     >
@@ -225,8 +228,8 @@ export function HuddleOverlay({
                           <button
                             key={emoji}
                             onClick={() => {
-                              sendReaction(emoji)
-                              setShowReactions(false)
+                              sendReaction(emoji);
+                              setShowReactions(false);
                             }}
                             className="p-1 hover:bg-muted rounded transition-colors text-lg"
                           >
@@ -248,7 +251,7 @@ export function HuddleOverlay({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isMuted ? 'destructive' : 'ghost'}
+                    variant={isMuted ? "destructive" : "ghost"}
                     size="icon"
                     className="h-8 w-8"
                     onClick={toggleMute}
@@ -260,14 +263,14 @@ export function HuddleOverlay({
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{isMuted ? 'Unmute' : 'Mute'}</TooltipContent>
+                <TooltipContent>{isMuted ? "Unmute" : "Mute"}</TooltipContent>
               </Tooltip>
 
               {/* Video */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isVideoEnabled ? 'ghost' : 'secondary'}
+                    variant={isVideoEnabled ? "ghost" : "secondary"}
                     size="icon"
                     className="h-8 w-8"
                     onClick={toggleVideo}
@@ -280,7 +283,7 @@ export function HuddleOverlay({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+                  {isVideoEnabled ? "Turn off camera" : "Turn on camera"}
                 </TooltipContent>
               </Tooltip>
 
@@ -288,7 +291,7 @@ export function HuddleOverlay({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isScreenSharing ? 'default' : 'ghost'}
+                    variant={isScreenSharing ? "default" : "ghost"}
                     size="icon"
                     className="h-8 w-8"
                     onClick={toggleScreenShare}
@@ -301,7 +304,7 @@ export function HuddleOverlay({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {isScreenSharing ? 'Stop sharing' : 'Share screen'}
+                  {isScreenSharing ? "Stop sharing" : "Share screen"}
                 </TooltipContent>
               </Tooltip>
 
@@ -354,7 +357,7 @@ export function HuddleOverlay({
         </div>
       </motion.div>
     </TooltipProvider>
-  )
+  );
 }
 
-export default HuddleOverlay
+export default HuddleOverlay;

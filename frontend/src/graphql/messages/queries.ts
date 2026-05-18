@@ -5,57 +5,57 @@
  * Connects to the Hasura GraphQL backend via nchat_messages table.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   MESSAGE_FULL_FRAGMENT,
   MESSAGE_BASIC_FRAGMENT,
   USER_BASIC_FRAGMENT,
   ATTACHMENT_FRAGMENT,
   REACTION_FRAGMENT,
-} from '../fragments'
+} from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface GetMessagesVariables {
-  channelId: string
-  limit?: number
-  offset?: number
-  before?: string
-  after?: string
+  channelId: string;
+  limit?: number;
+  offset?: number;
+  before?: string;
+  after?: string;
 }
 
 export interface GetMessageVariables {
-  id: string
+  id: string;
 }
 
 export interface GetThreadMessagesVariables {
-  threadId: string
-  limit?: number
-  offset?: number
-  before?: string
+  threadId: string;
+  limit?: number;
+  offset?: number;
+  before?: string;
 }
 
 export interface GetPinnedMessagesVariables {
-  channelId: string
+  channelId: string;
 }
 
 export interface GetMessagesAroundVariables {
-  channelId: string
-  messageId: string
-  limit?: number
+  channelId: string;
+  messageId: string;
+  limit?: number;
 }
 
 export interface SearchMessagesVariables {
-  channelId?: string
-  query: string
-  limit?: number
-  offset?: number
-  userId?: string
-  hasAttachments?: boolean
-  dateFrom?: string
-  dateTo?: string
+  channelId?: string;
+  query: string;
+  limit?: number;
+  offset?: number;
+  userId?: string;
+  hasAttachments?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 // ============================================================================
@@ -79,7 +79,10 @@ export const GET_MESSAGES = gql`
         channel_id: { _eq: $channelId }
         is_deleted: { _eq: false }
         thread_id: { _is_null: true }
-        _and: [{ created_at: { _lt: $before } }, { created_at: { _gt: $after } }]
+        _and: [
+          { created_at: { _lt: $before } }
+          { created_at: { _gt: $after } }
+        ]
       }
       order_by: { created_at: desc }
       limit: $limit
@@ -100,7 +103,7 @@ export const GET_MESSAGES = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get a single message by ID with all relations
@@ -131,7 +134,7 @@ export const GET_MESSAGE = gql`
   }
   ${MESSAGE_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get messages for a thread with pagination
@@ -155,7 +158,9 @@ export const GET_THREAD_MESSAGES = gql`
     ) {
       ...MessageFull
     }
-    nchat_messages_aggregate(where: { thread_id: { _eq: $threadId }, is_deleted: { _eq: false } }) {
+    nchat_messages_aggregate(
+      where: { thread_id: { _eq: $threadId }, is_deleted: { _eq: false } }
+    ) {
       aggregate {
         count
       }
@@ -174,7 +179,7 @@ export const GET_THREAD_MESSAGES = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get pinned messages for a channel
@@ -199,13 +204,17 @@ export const GET_PINNED_MESSAGES = gql`
   }
   ${MESSAGE_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get messages around a specific message (for jump-to-message)
  */
 export const GET_MESSAGES_AROUND = gql`
-  query GetMessagesAround($channelId: uuid!, $messageId: uuid!, $limit: Int = 25) {
+  query GetMessagesAround(
+    $channelId: uuid!
+    $messageId: uuid!
+    $limit: Int = 25
+  ) {
     before: nchat_messages(
       where: {
         channel_id: { _eq: $channelId }
@@ -235,7 +244,7 @@ export const GET_MESSAGES_AROUND = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Search messages across channels
@@ -289,7 +298,7 @@ export const SEARCH_MESSAGES = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get recent messages for a user's mentions
@@ -319,7 +328,7 @@ export const GET_USER_MENTIONS = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get message count for a channel
@@ -334,13 +343,17 @@ export const GET_MESSAGE_COUNT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get unread message count for a channel/user
  */
 export const GET_UNREAD_COUNT = gql`
-  query GetUnreadCount($channelId: uuid!, $userId: uuid!, $lastReadAt: timestamptz) {
+  query GetUnreadCount(
+    $channelId: uuid!
+    $userId: uuid!
+    $lastReadAt: timestamptz
+  ) {
     nchat_messages_aggregate(
       where: {
         channel_id: { _eq: $channelId }
@@ -354,4 +367,4 @@ export const GET_UNREAD_COUNT = gql`
       }
     }
   }
-`
+`;

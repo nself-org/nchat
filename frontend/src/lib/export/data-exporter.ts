@@ -4,8 +4,8 @@
  * Core export engine that fetches data from GraphQL and prepares it for export.
  */
 
-import { ApolloClient } from '@apollo/client'
-import { gql } from '@apollo/client'
+import { ApolloClient } from "@apollo/client";
+import { gql } from "@apollo/client";
 import type {
   ExportOptions,
   ExportData,
@@ -16,7 +16,7 @@ import type {
   ExportedAttachment,
   ExportedReaction,
   ExportedThread,
-} from './types'
+} from "./types";
 
 // ============================================================================
 // GraphQL Queries
@@ -90,7 +90,11 @@ const GET_MESSAGES_FOR_EXPORT = gql`
           avatar_url
         }
       }
-      replies(where: { is_deleted: { _eq: false } }, order_by: { created_at: asc }, limit: 100) {
+      replies(
+        where: { is_deleted: { _eq: false } }
+        order_by: { created_at: asc }
+        limit: 100
+      ) {
         id
         content
         user_id
@@ -103,10 +107,14 @@ const GET_MESSAGES_FOR_EXPORT = gql`
       }
     }
   }
-`
+`;
 
 const GET_MESSAGES_COUNT = gql`
-  query GetMessagesCount($channelIds: [uuid!], $fromDate: timestamptz, $toDate: timestamptz) {
+  query GetMessagesCount(
+    $channelIds: [uuid!]
+    $fromDate: timestamptz
+    $toDate: timestamptz
+  ) {
     nchat_messages_aggregate(
       where: {
         channel_id: { _in: $channelIds }
@@ -119,7 +127,7 @@ const GET_MESSAGES_COUNT = gql`
       }
     }
   }
-`
+`;
 
 const GET_CHANNELS_FOR_EXPORT = gql`
   query GetChannelsForExport($channelIds: [uuid!]!) {
@@ -148,7 +156,7 @@ const GET_CHANNELS_FOR_EXPORT = gql`
       }
     }
   }
-`
+`;
 
 const GET_USERS_FOR_EXPORT = gql`
   query GetUsersForExport($userIds: [uuid!]!) {
@@ -163,7 +171,7 @@ const GET_USERS_FOR_EXPORT = gql`
       status
     }
   }
-`
+`;
 
 const GET_MESSAGE_HISTORY = gql`
   query GetMessageHistory($messageIds: [uuid!]!) {
@@ -183,18 +191,18 @@ const GET_MESSAGE_HISTORY = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Data Exporter Class
 // ============================================================================
 
 export class DataExporter {
-  private client: ApolloClient<unknown>
-  private batchSize = 100 // Number of messages to fetch per batch
+  private client: ApolloClient<unknown>;
+  private batchSize = 100; // Number of messages to fetch per batch
 
   constructor(client: ApolloClient<unknown>) {
-    this.client = client
+    this.client = client;
   }
 
   /**
@@ -203,75 +211,105 @@ export class DataExporter {
   async export(
     options: ExportOptions,
     userId: string,
-    onProgress?: (progress: number, itemsProcessed: number, itemsTotal: number) => void
+    onProgress?: (
+      progress: number,
+      itemsProcessed: number,
+      itemsTotal: number,
+    ) => void,
   ): Promise<ExportData> {
     // Get channel IDs based on scope
-    const channelIds = await this.getChannelIds(options, userId)
+    const channelIds = await this.getChannelIds(options, userId);
 
     // Get total count
-    const totalMessages = await this.getMessageCount(channelIds, options)
+    const totalMessages = await this.getMessageCount(channelIds, options);
 
     // Fetch messages in batches
-    const messages: ExportedMessage[] = []
-    let offset = 0
+    const messages: ExportedMessage[] = [];
+    let offset = 0;
 
     while (offset < totalMessages) {
-      const batch = await this.fetchMessageBatch(channelIds, options, offset, this.batchSize)
-      const processedBatch = await this.processMessages(batch, options)
-      messages.push(...processedBatch)
+      const batch = await this.fetchMessageBatch(
+        channelIds,
+        options,
+        offset,
+        this.batchSize,
+      );
+      const processedBatch = await this.processMessages(batch, options);
+      messages.push(...processedBatch);
 
-      offset += this.batchSize
-      const progress = Math.min(100, Math.round((offset / totalMessages) * 100))
-      onProgress?.(progress, Math.min(offset, totalMessages), totalMessages)
+      offset += this.batchSize;
+      const progress = Math.min(
+        100,
+        Math.round((offset / totalMessages) * 100),
+      );
+      onProgress?.(progress, Math.min(offset, totalMessages), totalMessages);
     }
 
     // Fetch channels and users if requested
-    const channels = options.includeChannelData ? await this.fetchChannels(channelIds) : undefined
+    const channels = options.includeChannelData
+      ? await this.fetchChannels(channelIds)
+      : undefined;
 
-    const userIds = [...new Set(messages.map((m) => m.userId))]
-    const users = options.includeUserData ? await this.fetchUsers(userIds) : undefined
+    const userIds = [...new Set(messages.map((m) => m.userId))];
+    const users = options.includeUserData
+      ? await this.fetchUsers(userIds)
+      : undefined;
 
     // Anonymize if requested (GDPR compliance)
     if (options.anonymize) {
-      this.anonymizeData(messages, users)
+      this.anonymizeData(messages, users);
     }
 
     // Build metadata
-    const metadata = this.buildMetadata(messages, channels, users, options, userId)
+    const metadata = this.buildMetadata(
+      messages,
+      channels,
+      users,
+      options,
+      userId,
+    );
 
     return {
       metadata,
       messages,
       channels,
       users,
-    }
+    };
   }
 
   /**
    * Get channel IDs based on export scope
    */
-  private async getChannelIds(options: ExportOptions, userId: string): Promise<string[]> {
+  private async getChannelIds(
+    options: ExportOptions,
+    userId: string,
+  ): Promise<string[]> {
     switch (options.scope) {
-      case 'specific_channels':
-        return options.channelIds || []
+      case "specific_channels":
+        return options.channelIds || [];
 
-      case 'direct_messages': {
+      case "direct_messages": {
         const { data } = await this.client.query({
           query: gql`
             query GetUserDirectMessages($userId: uuid!) {
               nchat_channel_members(
-                where: { user_id: { _eq: $userId }, channel: { type: { _eq: "direct" } } }
+                where: {
+                  user_id: { _eq: $userId }
+                  channel: { type: { _eq: "direct" } }
+                }
               ) {
                 channel_id
               }
             }
           `,
           variables: { userId },
-        })
-        return data.nchat_channel_members.map((m: { channel_id: string }) => m.channel_id)
+        });
+        return data.nchat_channel_members.map(
+          (m: { channel_id: string }) => m.channel_id,
+        );
       }
 
-      case 'all_messages': {
+      case "all_messages": {
         const { data } = await this.client.query({
           query: gql`
             query GetAllUserChannels($userId: uuid!) {
@@ -281,24 +319,29 @@ export class DataExporter {
             }
           `,
           variables: { userId },
-        })
-        return data.nchat_channel_members.map((m: { channel_id: string }) => m.channel_id)
+        });
+        return data.nchat_channel_members.map(
+          (m: { channel_id: string }) => m.channel_id,
+        );
       }
 
-      case 'user_data':
+      case "user_data":
         // User data export includes all channels the user has access to
-        return []
+        return [];
 
       default:
-        return []
+        return [];
     }
   }
 
   /**
    * Get total message count
    */
-  private async getMessageCount(channelIds: string[], options: ExportOptions): Promise<number> {
-    if (channelIds.length === 0) return 0
+  private async getMessageCount(
+    channelIds: string[],
+    options: ExportOptions,
+  ): Promise<number> {
+    if (channelIds.length === 0) return 0;
 
     const { data } = await this.client.query({
       query: GET_MESSAGES_COUNT,
@@ -307,9 +350,9 @@ export class DataExporter {
         fromDate: options.fromDate?.toISOString(),
         toDate: options.toDate?.toISOString(),
       },
-    })
+    });
 
-    return data.nchat_messages_aggregate.aggregate.count
+    return data.nchat_messages_aggregate.aggregate.count;
   }
 
   /**
@@ -319,9 +362,9 @@ export class DataExporter {
     channelIds: string[],
     options: ExportOptions,
     offset: number,
-    limit: number
+    limit: number,
   ) {
-    if (channelIds.length === 0) return []
+    if (channelIds.length === 0) return [];
 
     const { data } = await this.client.query({
       query: GET_MESSAGES_FOR_EXPORT,
@@ -332,10 +375,10 @@ export class DataExporter {
         limit,
         offset,
       },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    return data.nchat_messages
+    return data.nchat_messages;
   }
 
   /**
@@ -343,18 +386,18 @@ export class DataExporter {
    */
   private async processMessages(
     rawMessages: any[],
-    options: ExportOptions
+    options: ExportOptions,
   ): Promise<ExportedMessage[]> {
-    const messages: ExportedMessage[] = []
+    const messages: ExportedMessage[] = [];
 
     for (const msg of rawMessages) {
       const exportedMessage: ExportedMessage = {
         id: msg.id,
         channelId: msg.channel_id,
-        channelName: msg.channel?.name || 'Unknown',
+        channelName: msg.channel?.name || "Unknown",
         userId: msg.user_id,
-        username: msg.user?.username || 'Unknown',
-        displayName: msg.user?.display_name || 'Unknown',
+        username: msg.user?.username || "Unknown",
+        displayName: msg.user?.display_name || "Unknown",
         content: msg.content,
         type: msg.type,
         createdAt: msg.created_at,
@@ -364,56 +407,59 @@ export class DataExporter {
         isPinned: msg.is_pinned,
         editedAt: msg.edited_at,
         deletedAt: msg.deleted_at,
-      }
+      };
 
       // Add optional fields based on export options
       if (options.includeFiles && msg.attachments) {
         exportedMessage.attachments = this.processAttachments(
           msg.attachments,
-          options.embedFiles || false
-        )
+          options.embedFiles || false,
+        );
       }
 
       if (options.includeReactions && msg.reactions) {
-        exportedMessage.reactions = this.processReactions(msg.reactions)
+        exportedMessage.reactions = this.processReactions(msg.reactions);
       }
 
       if (options.includeThreads && msg.replies) {
-        exportedMessage.thread = this.processThread(msg.replies)
+        exportedMessage.thread = this.processThread(msg.replies);
       }
 
       if (msg.reply_to) {
         exportedMessage.replyTo = {
           id: msg.reply_to.id,
           content: msg.reply_to.content,
-          username: msg.reply_to.user?.username || 'Unknown',
-        }
+          username: msg.reply_to.user?.username || "Unknown",
+        };
       }
 
       if (msg.mentions) {
-        exportedMessage.mentions = msg.mentions
+        exportedMessage.mentions = msg.mentions;
       }
 
       if (options.includeMetadata && msg.metadata) {
-        exportedMessage.metadata = msg.metadata
+        exportedMessage.metadata = msg.metadata;
       }
 
-      messages.push(exportedMessage)
+      messages.push(exportedMessage);
     }
 
     // Fetch edit history if requested
     if (options.includeEdits) {
-      await this.addEditHistory(messages)
+      await this.addEditHistory(messages);
     }
 
-    return messages
+    return messages;
   }
 
   /**
    * Process attachments
    */
-  private processAttachments(attachments: any, embedFiles: boolean): ExportedAttachment[] {
-    if (!Array.isArray(attachments)) return []
+  private processAttachments(
+    attachments: any,
+    embedFiles: boolean,
+  ): ExportedAttachment[] {
+    if (!Array.isArray(attachments)) return [];
 
     return attachments.map((att) => ({
       id: att.id || att.file_id,
@@ -423,7 +469,7 @@ export class DataExporter {
       url: att.url,
       uploadedAt: att.uploaded_at || att.created_at,
       // embedData would be populated by separate file download logic if needed
-    }))
+    }));
   }
 
   /**
@@ -433,10 +479,10 @@ export class DataExporter {
     return reactions.map((reaction) => ({
       emoji: reaction.emoji,
       userId: reaction.user_id,
-      username: reaction.user?.username || 'Unknown',
-      displayName: reaction.user?.display_name || 'Unknown',
+      username: reaction.user?.username || "Unknown",
+      displayName: reaction.user?.display_name || "Unknown",
       createdAt: reaction.created_at,
-    }))
+    }));
   }
 
   /**
@@ -449,40 +495,42 @@ export class DataExporter {
         id: reply.id,
         content: reply.content,
         userId: reply.user_id,
-        username: reply.user?.username || 'Unknown',
+        username: reply.user?.username || "Unknown",
         createdAt: reply.created_at,
       })),
-    }
+    };
   }
 
   /**
    * Add edit history to messages
    */
   private async addEditHistory(messages: ExportedMessage[]): Promise<void> {
-    const editedMessageIds = messages.filter((m) => m.isEdited).map((m) => m.id)
+    const editedMessageIds = messages
+      .filter((m) => m.isEdited)
+      .map((m) => m.id);
 
-    if (editedMessageIds.length === 0) return
+    if (editedMessageIds.length === 0) return;
 
     const { data } = await this.client.query({
       query: GET_MESSAGE_HISTORY,
       variables: { messageIds: editedMessageIds },
-    })
+    });
 
-    const historyByMessageId = new Map<string, any[]>()
+    const historyByMessageId = new Map<string, any[]>();
     for (const history of data.nchat_message_history) {
-      const existing = historyByMessageId.get(history.message_id) || []
-      existing.push(history)
-      historyByMessageId.set(history.message_id, existing)
+      const existing = historyByMessageId.get(history.message_id) || [];
+      existing.push(history);
+      historyByMessageId.set(history.message_id, existing);
     }
 
     for (const message of messages) {
-      const history = historyByMessageId.get(message.id)
+      const history = historyByMessageId.get(message.id);
       if (history) {
         message.editHistory = history.map((h) => ({
           content: h.content,
           editedAt: h.edited_at,
-          editedBy: h.editor?.username || 'Unknown',
-        }))
+          editedBy: h.editor?.username || "Unknown",
+        }));
       }
     }
   }
@@ -490,13 +538,15 @@ export class DataExporter {
   /**
    * Fetch channels
    */
-  private async fetchChannels(channelIds: string[]): Promise<ExportedChannel[]> {
-    if (channelIds.length === 0) return []
+  private async fetchChannels(
+    channelIds: string[],
+  ): Promise<ExportedChannel[]> {
+    if (channelIds.length === 0) return [];
 
     const { data } = await this.client.query({
       query: GET_CHANNELS_FOR_EXPORT,
       variables: { channelIds },
-    })
+    });
 
     return data.nchat_channels.map((channel: any) => ({
       id: channel.id,
@@ -507,24 +557,24 @@ export class DataExporter {
       isPrivate: channel.is_private,
       createdAt: channel.created_at,
       createdBy: {
-        id: channel.creator?.id || '',
-        username: channel.creator?.username || 'Unknown',
+        id: channel.creator?.id || "",
+        username: channel.creator?.username || "Unknown",
       },
       memberCount: channel.members_aggregate?.aggregate?.count || 0,
       messageCount: channel.messages_aggregate?.aggregate?.count || 0,
-    }))
+    }));
   }
 
   /**
    * Fetch users
    */
   private async fetchUsers(userIds: string[]): Promise<ExportedUser[]> {
-    if (userIds.length === 0) return []
+    if (userIds.length === 0) return [];
 
     const { data } = await this.client.query({
       query: GET_USERS_FOR_EXPORT,
       variables: { userIds },
-    })
+    });
 
     return data.nchat_users.map((user: any) => ({
       id: user.id,
@@ -535,35 +585,38 @@ export class DataExporter {
       createdAt: user.created_at,
       avatarUrl: user.avatar_url,
       status: user.status,
-    }))
+    }));
   }
 
   /**
    * Anonymize data for GDPR compliance
    */
-  private anonymizeData(messages: ExportedMessage[], users?: ExportedUser[]): void {
+  private anonymizeData(
+    messages: ExportedMessage[],
+    users?: ExportedUser[],
+  ): void {
     // Create anonymization map
-    const userMap = new Map<string, string>()
-    let counter = 1
+    const userMap = new Map<string, string>();
+    let counter = 1;
 
     for (const message of messages) {
       if (!userMap.has(message.userId)) {
-        userMap.set(message.userId, `User ${counter++}`)
+        userMap.set(message.userId, `User ${counter++}`);
       }
 
-      const anonymousName = userMap.get(message.userId)!
-      message.username = anonymousName
-      message.displayName = anonymousName
+      const anonymousName = userMap.get(message.userId)!;
+      message.username = anonymousName;
+      message.displayName = anonymousName;
 
       // Anonymize reactions
       if (message.reactions) {
         for (const reaction of message.reactions) {
           if (!userMap.has(reaction.userId)) {
-            userMap.set(reaction.userId, `User ${counter++}`)
+            userMap.set(reaction.userId, `User ${counter++}`);
           }
-          const anonName = userMap.get(reaction.userId)!
-          reaction.username = anonName
-          reaction.displayName = anonName
+          const anonName = userMap.get(reaction.userId)!;
+          reaction.username = anonName;
+          reaction.displayName = anonName;
         }
       }
 
@@ -571,9 +624,9 @@ export class DataExporter {
       if (message.thread) {
         for (const reply of message.thread.replies) {
           if (!userMap.has(reply.userId)) {
-            userMap.set(reply.userId, `User ${counter++}`)
+            userMap.set(reply.userId, `User ${counter++}`);
           }
-          reply.username = userMap.get(reply.userId)!
+          reply.username = userMap.get(reply.userId)!;
         }
       }
     }
@@ -582,11 +635,11 @@ export class DataExporter {
     if (users) {
       for (const user of users) {
         if (userMap.has(user.id)) {
-          const anonName = userMap.get(user.id)!
-          user.email = `${anonName.toLowerCase().replace(' ', '')}@anonymized.local`
-          user.username = anonName
-          user.displayName = anonName
-          user.avatarUrl = undefined
+          const anonName = userMap.get(user.id)!;
+          user.email = `${anonName.toLowerCase().replace(" ", "")}@anonymized.local`;
+          user.username = anonName;
+          user.displayName = anonName;
+          user.avatarUrl = undefined;
         }
       }
     }
@@ -600,20 +653,27 @@ export class DataExporter {
     channels: ExportedChannel[] | undefined,
     users: ExportedUser[] | undefined,
     options: ExportOptions,
-    userId: string
+    userId: string,
   ): ExportMetadata {
-    const uniqueUsers = new Set(messages.map((m) => m.userId))
-    const uniqueChannels = new Set(messages.map((m) => m.channelId))
-    const totalFiles = messages.reduce((sum, m) => sum + (m.attachments?.length || 0), 0)
-    const totalReactions = messages.reduce((sum, m) => sum + (m.reactions?.length || 0), 0)
-    const totalThreads = messages.filter((m) => m.thread?.totalReplies).length
+    const uniqueUsers = new Set(messages.map((m) => m.userId));
+    const uniqueChannels = new Set(messages.map((m) => m.channelId));
+    const totalFiles = messages.reduce(
+      (sum, m) => sum + (m.attachments?.length || 0),
+      0,
+    );
+    const totalReactions = messages.reduce(
+      (sum, m) => sum + (m.reactions?.length || 0),
+      0,
+    );
+    const totalThreads = messages.filter((m) => m.thread?.totalReplies).length;
 
     // Get user info (would come from auth context in real implementation)
     const exportedBy = {
       id: userId,
-      email: users?.find((u) => u.id === userId)?.email || 'unknown@example.com',
-      username: users?.find((u) => u.id === userId)?.username || 'Unknown',
-    }
+      email:
+        users?.find((u) => u.id === userId)?.email || "unknown@example.com",
+      username: users?.find((u) => u.id === userId)?.username || "Unknown",
+    };
 
     return {
       exportId: `export-${Date.now()}`,
@@ -634,6 +694,6 @@ export class DataExporter {
         totalThreads,
       },
       options,
-    }
+    };
   }
 }

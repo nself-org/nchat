@@ -4,15 +4,15 @@
  * User-facing page for managing PIN lock settings
  */
 
-'use client'
+"use client";
 
-import { useAuth } from '@/contexts/auth-context'
-import { PinManage } from '@/components/security/PinManage'
-import { Card, CardContent } from '@/components/ui/card'
-import { Shield } from 'lucide-react'
+import { useAuth } from "@/contexts/auth-context";
+import { PinManage } from "@/components/security/PinManage";
+import { Card, CardContent } from "@/components/ui/card";
+import { Shield } from "lucide-react";
 
 export default function PinLockSettingsPage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   if (!user) {
     return (
@@ -25,7 +25,7 @@ export default function PinLockSettingsPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -38,14 +38,17 @@ export default function PinLockSettingsPage() {
             PIN Lock
           </h1>
           <p className="text-muted-foreground">
-            Secure your account with a PIN lock. Your app will require a PIN to unlock after periods
-            of inactivity or when closed.
+            Secure your account with a PIN lock. Your app will require a PIN to
+            unlock after periods of inactivity or when closed.
           </p>
         </div>
 
         {/* PIN Management */}
-        <PinManage userId={user.id} userName={user.email || user.displayName || 'User'} />
+        <PinManage
+          userId={user.id}
+          userName={user.email || user.displayName || "User"}
+        />
       </div>
     </div>
-  )
+  );
 }

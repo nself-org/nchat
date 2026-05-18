@@ -1,24 +1,31 @@
-'use client'
+"use client";
 
-import { Map, Play, Clock, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import type { OnboardingStepProps } from '@/lib/onboarding/onboarding-types'
-import { tourStops } from '@/lib/onboarding/tour-manager'
+import { Map, Play, Clock, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { OnboardingStepProps } from "@/lib/onboarding/onboarding-types";
+import { tourStops } from "@/lib/onboarding/tour-manager";
 
 interface TourStepProps extends OnboardingStepProps {
-  onStartTour?: () => void
+  onStartTour?: () => void;
 }
 
-export function TourStep({ onNext, onPrev, onSkip, isFirst, canSkip, onStartTour }: TourStepProps) {
+export function TourStep({
+  onNext,
+  onPrev,
+  onSkip,
+  isFirst,
+  canSkip,
+  onStartTour,
+}: TourStepProps) {
   const handleStartTour = () => {
-    onStartTour?.()
-    onNext()
-  }
+    onStartTour?.();
+    onNext();
+  };
 
   const handleSkipTour = () => {
-    onSkip?.()
-  }
+    onSkip?.();
+  };
 
   return (
     <div className="flex flex-col px-4 py-6">
@@ -27,9 +34,12 @@ export function TourStep({ onNext, onPrev, onSkip, isFirst, canSkip, onStartTour
         <div className="from-primary/20 to-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
           <Map className="h-8 w-8 text-primary" />
         </div>
-        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">Take a Quick Tour</h2>
+        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">
+          Take a Quick Tour
+        </h2>
         <p className="mx-auto max-w-md text-zinc-600 dark:text-zinc-400">
-          Learn how to get the most out of nchat with an interactive walkthrough.
+          Learn how to get the most out of nchat with an interactive
+          walkthrough.
         </p>
       </div>
 
@@ -38,7 +48,9 @@ export function TourStep({ onNext, onPrev, onSkip, isFirst, canSkip, onStartTour
         <div className="from-primary/10 to-primary/5 mb-6 rounded-2xl bg-gradient-to-br p-6">
           <div className="mb-4 flex items-center justify-center gap-2">
             <Clock className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">About 2 minutes</span>
+            <span className="text-sm font-medium text-primary">
+              About 2 minutes
+            </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -66,7 +78,9 @@ export function TourStep({ onNext, onPrev, onSkip, isFirst, canSkip, onStartTour
 
         {/* What you'll learn */}
         <div className="space-y-3">
-          <h3 className="font-semibold text-zinc-900 dark:text-white">What you'll learn:</h3>
+          <h3 className="font-semibold text-zinc-900 dark:text-white">
+            What you'll learn:
+          </h3>
           <ul className="space-y-2">
             <li className="flex items-start gap-2">
               <ArrowRight className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
@@ -102,7 +116,9 @@ export function TourStep({ onNext, onPrev, onSkip, isFirst, canSkip, onStartTour
           <Play className="mr-2 h-4 w-4" />
           Start Tour
         </Button>
-        <p className="mt-3 text-xs text-zinc-500">You can always restart the tour from Settings</p>
+        <p className="mt-3 text-xs text-zinc-500">
+          You can always restart the tour from Settings
+        </p>
       </div>
 
       {/* Navigation */}
@@ -124,5 +140,5 @@ export function TourStep({ onNext, onPrev, onSkip, isFirst, canSkip, onStartTour
         </div>
       </div>
     </div>
-  )
+  );
 }

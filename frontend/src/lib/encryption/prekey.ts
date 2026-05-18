@@ -6,8 +6,8 @@
  * (typically every 7 days).
  */
 
-import type { SignedPreKey, IdentityKeyPair } from '@/types/encryption'
-import { EncryptionError, EncryptionErrorType } from '@/types/encryption'
+import type { SignedPreKey, IdentityKeyPair } from "@/types/encryption";
+import { EncryptionError, EncryptionErrorType } from "@/types/encryption";
 import {
   generateKeyPair,
   sign,
@@ -15,42 +15,42 @@ import {
   uint8ArrayToBase64,
   base64ToUint8Array,
   randomBytes,
-} from './crypto-primitives'
-import { getIdentityManager } from './identity'
+} from "./crypto-primitives";
+import { getIdentityManager } from "./identity";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface StoredSignedPreKey {
-  keyId: number
-  publicKey: string // base64
-  privateKey: string // base64
-  signature: string // base64
-  timestamp: number
-  version: number
+  keyId: number;
+  publicKey: string; // base64
+  privateKey: string; // base64
+  signature: string; // base64
+  timestamp: number;
+  version: number;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const SIGNED_PREKEY_STORAGE_KEY = 'nchat_signed_prekey'
-const SIGNED_PREKEY_ARCHIVE_KEY = 'nchat_signed_prekey_archive'
-const ROTATION_INTERVAL = 7 * 24 * 60 * 60 * 1000 // 7 days
-const ARCHIVE_MAX_AGE = 30 * 24 * 60 * 60 * 1000 // 30 days
-const CURRENT_VERSION = 1
+const SIGNED_PREKEY_STORAGE_KEY = "nchat_signed_prekey";
+const SIGNED_PREKEY_ARCHIVE_KEY = "nchat_signed_prekey_archive";
+const ROTATION_INTERVAL = 7 * 24 * 60 * 60 * 1000; // 7 days
+const ARCHIVE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days
+const CURRENT_VERSION = 1;
 
 // ============================================================================
 // Signed PreKey Manager
 // ============================================================================
 
 export class SignedPreKeyManager {
-  private static instance: SignedPreKeyManager
-  private currentPreKey: SignedPreKey | null = null
-  private initialized = false
+  private static instance: SignedPreKeyManager;
+  private currentPreKey: SignedPreKey | null = null;
+  private initialized = false;
 
   private constructor() {}
 
@@ -59,18 +59,18 @@ export class SignedPreKeyManager {
    */
   static getInstance(): SignedPreKeyManager {
     if (!SignedPreKeyManager.instance) {
-      SignedPreKeyManager.instance = new SignedPreKeyManager()
+      SignedPreKeyManager.instance = new SignedPreKeyManager();
     }
-    return SignedPreKeyManager.instance
+    return SignedPreKeyManager.instance;
   }
 
   /**
    * Initializes the signed prekey manager
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return
+    if (this.initialized) return;
 
-    const stored = this.loadFromStorage()
+    const stored = this.loadFromStorage();
 
     if (stored) {
       this.currentPreKey = {
@@ -79,27 +79,34 @@ export class SignedPreKeyManager {
         privateKey: base64ToUint8Array(stored.privateKey),
         signature: base64ToUint8Array(stored.signature),
         timestamp: stored.timestamp,
-      }
+      };
     }
 
-    this.initialized = true
+    this.initialized = true;
   }
 
   /**
    * Generates a new signed prekey
    */
-  async generateSignedPreKey(identityKeyPair?: IdentityKeyPair): Promise<SignedPreKey> {
+  async generateSignedPreKey(
+    identityKeyPair?: IdentityKeyPair,
+  ): Promise<SignedPreKey> {
     // Get identity key pair for signing
-    const identity = identityKeyPair ?? (await getIdentityManager().getIdentityKeyPair())
+    const identity =
+      identityKeyPair ?? (await getIdentityManager().getIdentityKeyPair());
 
     // Generate new key pair for the prekey
-    const keyPair = await generateKeyPair()
+    const keyPair = await generateKeyPair();
 
     // Generate a unique key ID
-    const keyId = this.generateKeyId()
+    const keyId = this.generateKeyId();
 
     // Sign the public key with identity key
-    const signature = await sign(identity.privateKey, identity.publicKey, keyPair.publicKey)
+    const signature = await sign(
+      identity.privateKey,
+      identity.publicKey,
+      keyPair.publicKey,
+    );
 
     const signedPreKey: SignedPreKey = {
       keyId,
@@ -107,17 +114,17 @@ export class SignedPreKeyManager {
       privateKey: keyPair.privateKey,
       signature,
       timestamp: Date.now(),
-    }
+    };
 
     // Archive the old prekey if exists
     if (this.currentPreKey) {
-      this.archivePreKey(this.currentPreKey)
+      this.archivePreKey(this.currentPreKey);
     }
 
-    this.currentPreKey = signedPreKey
-    this.saveToStorage()
+    this.currentPreKey = signedPreKey;
+    this.saveToStorage();
 
-    return signedPreKey
+    return signedPreKey;
   }
 
   /**
@@ -125,15 +132,15 @@ export class SignedPreKeyManager {
    */
   async getCurrentSignedPreKey(): Promise<SignedPreKey> {
     if (!this.initialized) {
-      await this.initialize()
+      await this.initialize();
     }
 
     if (!this.currentPreKey) {
       // Generate a new one if none exists
-      return this.generateSignedPreKey()
+      return this.generateSignedPreKey();
     }
 
-    return this.currentPreKey
+    return this.currentPreKey;
   }
 
   /**
@@ -141,16 +148,16 @@ export class SignedPreKeyManager {
    */
   async getSignedPreKey(keyId: number): Promise<SignedPreKey | null> {
     if (!this.initialized) {
-      await this.initialize()
+      await this.initialize();
     }
 
     // Check current prekey
     if (this.currentPreKey && this.currentPreKey.keyId === keyId) {
-      return this.currentPreKey
+      return this.currentPreKey;
     }
 
     // Check archived prekeys
-    return this.getArchivedPreKey(keyId)
+    return this.getArchivedPreKey(keyId);
   }
 
   /**
@@ -158,33 +165,33 @@ export class SignedPreKeyManager {
    */
   async needsRotation(): Promise<boolean> {
     if (!this.initialized) {
-      await this.initialize()
+      await this.initialize();
     }
 
     if (!this.currentPreKey) {
-      return true
+      return true;
     }
 
-    const age = Date.now() - this.currentPreKey.timestamp
-    return age >= ROTATION_INTERVAL
+    const age = Date.now() - this.currentPreKey.timestamp;
+    return age >= ROTATION_INTERVAL;
   }
 
   /**
    * Rotates the signed prekey if needed
    */
   async rotateIfNeeded(): Promise<SignedPreKey | null> {
-    const needs = await this.needsRotation()
+    const needs = await this.needsRotation();
     if (needs) {
-      return this.generateSignedPreKey()
+      return this.generateSignedPreKey();
     }
-    return null
+    return null;
   }
 
   /**
    * Forces rotation of the signed prekey
    */
   async forceRotate(): Promise<SignedPreKey> {
-    return this.generateSignedPreKey()
+    return this.generateSignedPreKey();
   }
 
   /**
@@ -193,37 +200,37 @@ export class SignedPreKeyManager {
   async verifySignedPreKey(
     identityPublicKey: Uint8Array,
     signedPreKeyPublic: Uint8Array,
-    signature: Uint8Array
+    signature: Uint8Array,
   ): Promise<boolean> {
-    return verify(identityPublicKey, signature, signedPreKeyPublic)
+    return verify(identityPublicKey, signature, signedPreKeyPublic);
   }
 
   /**
    * Gets the public prekey data for sharing
    */
   async getPublicPreKeyData(): Promise<{
-    keyId: number
-    publicKey: Uint8Array
-    signature: Uint8Array
+    keyId: number;
+    publicKey: Uint8Array;
+    signature: Uint8Array;
   }> {
-    const preKey = await this.getCurrentSignedPreKey()
+    const preKey = await this.getCurrentSignedPreKey();
     return {
       keyId: preKey.keyId,
       publicKey: preKey.publicKey,
       signature: preKey.signature,
-    }
+    };
   }
 
   /**
    * Clears all signed prekeys
    */
   async clear(): Promise<void> {
-    this.currentPreKey = null
-    this.initialized = false
+    this.currentPreKey = null;
+    this.initialized = false;
 
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(SIGNED_PREKEY_STORAGE_KEY)
-      localStorage.removeItem(SIGNED_PREKEY_ARCHIVE_KEY)
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(SIGNED_PREKEY_STORAGE_KEY);
+      localStorage.removeItem(SIGNED_PREKEY_ARCHIVE_KEY);
     }
   }
 
@@ -235,33 +242,33 @@ export class SignedPreKeyManager {
    * Generates a unique key ID
    */
   private generateKeyId(): number {
-    const bytes = randomBytes(4)
-    const view = new DataView(bytes.buffer)
-    return view.getUint32(0, false) >>> 8 // 24-bit ID
+    const bytes = randomBytes(4);
+    const view = new DataView(bytes.buffer);
+    return view.getUint32(0, false) >>> 8; // 24-bit ID
   }
 
   /**
    * Loads the current prekey from storage
    */
   private loadFromStorage(): StoredSignedPreKey | null {
-    if (typeof localStorage === 'undefined') {
-      return null
+    if (typeof localStorage === "undefined") {
+      return null;
     }
 
     try {
-      const stored = localStorage.getItem(SIGNED_PREKEY_STORAGE_KEY)
-      if (!stored) return null
+      const stored = localStorage.getItem(SIGNED_PREKEY_STORAGE_KEY);
+      if (!stored) return null;
 
-      const parsed = JSON.parse(stored) as StoredSignedPreKey
+      const parsed = JSON.parse(stored) as StoredSignedPreKey;
 
       if (!parsed.publicKey || !parsed.privateKey || !parsed.signature) {
-        return null
+        return null;
       }
 
-      return parsed
+      return parsed;
     } catch (error) {
-      logger.error('Failed to load signed prekey:', error)
-      return null
+      logger.error("Failed to load signed prekey:", error);
+      return null;
     }
   }
 
@@ -269,8 +276,8 @@ export class SignedPreKeyManager {
    * Saves the current prekey to storage
    */
   private saveToStorage(): void {
-    if (typeof localStorage === 'undefined') return
-    if (!this.currentPreKey) return
+    if (typeof localStorage === "undefined") return;
+    if (!this.currentPreKey) return;
 
     const stored: StoredSignedPreKey = {
       keyId: this.currentPreKey.keyId,
@@ -279,16 +286,16 @@ export class SignedPreKeyManager {
       signature: uint8ArrayToBase64(this.currentPreKey.signature),
       timestamp: this.currentPreKey.timestamp,
       version: CURRENT_VERSION,
-    }
+    };
 
     try {
-      localStorage.setItem(SIGNED_PREKEY_STORAGE_KEY, JSON.stringify(stored))
+      localStorage.setItem(SIGNED_PREKEY_STORAGE_KEY, JSON.stringify(stored));
     } catch (error) {
       throw new EncryptionError(
         EncryptionErrorType.STORAGE_ERROR,
-        'Failed to save signed prekey',
-        error
-      )
+        "Failed to save signed prekey",
+        error,
+      );
     }
   }
 
@@ -296,11 +303,11 @@ export class SignedPreKeyManager {
    * Archives an old prekey
    */
   private archivePreKey(preKey: SignedPreKey): void {
-    if (typeof localStorage === 'undefined') return
+    if (typeof localStorage === "undefined") return;
 
     try {
-      const stored = localStorage.getItem(SIGNED_PREKEY_ARCHIVE_KEY)
-      const archive: StoredSignedPreKey[] = stored ? JSON.parse(stored) : []
+      const stored = localStorage.getItem(SIGNED_PREKEY_ARCHIVE_KEY);
+      const archive: StoredSignedPreKey[] = stored ? JSON.parse(stored) : [];
 
       // Add to archive
       archive.push({
@@ -310,15 +317,15 @@ export class SignedPreKeyManager {
         signature: uint8ArrayToBase64(preKey.signature),
         timestamp: preKey.timestamp,
         version: CURRENT_VERSION,
-      })
+      });
 
       // Clean up old entries
-      const cutoff = Date.now() - ARCHIVE_MAX_AGE
-      const filtered = archive.filter((pk) => pk.timestamp > cutoff)
+      const cutoff = Date.now() - ARCHIVE_MAX_AGE;
+      const filtered = archive.filter((pk) => pk.timestamp > cutoff);
 
-      localStorage.setItem(SIGNED_PREKEY_ARCHIVE_KEY, JSON.stringify(filtered))
+      localStorage.setItem(SIGNED_PREKEY_ARCHIVE_KEY, JSON.stringify(filtered));
     } catch (error) {
-      logger.error('Failed to archive prekey:', error)
+      logger.error("Failed to archive prekey:", error);
     }
   }
 
@@ -326,16 +333,16 @@ export class SignedPreKeyManager {
    * Gets an archived prekey by ID
    */
   private getArchivedPreKey(keyId: number): SignedPreKey | null {
-    if (typeof localStorage === 'undefined') return null
+    if (typeof localStorage === "undefined") return null;
 
     try {
-      const stored = localStorage.getItem(SIGNED_PREKEY_ARCHIVE_KEY)
-      if (!stored) return null
+      const stored = localStorage.getItem(SIGNED_PREKEY_ARCHIVE_KEY);
+      if (!stored) return null;
 
-      const archive: StoredSignedPreKey[] = JSON.parse(stored)
-      const found = archive.find((pk) => pk.keyId === keyId)
+      const archive: StoredSignedPreKey[] = JSON.parse(stored);
+      const found = archive.find((pk) => pk.keyId === keyId);
 
-      if (!found) return null
+      if (!found) return null;
 
       return {
         keyId: found.keyId,
@@ -343,10 +350,10 @@ export class SignedPreKeyManager {
         privateKey: base64ToUint8Array(found.privateKey),
         signature: base64ToUint8Array(found.signature),
         timestamp: found.timestamp,
-      }
+      };
     } catch (error) {
-      logger.error('Failed to get archived prekey:', error)
-      return null
+      logger.error("Failed to get archived prekey:", error);
+      return null;
     }
   }
 }
@@ -359,37 +366,37 @@ export class SignedPreKeyManager {
  * Gets the signed prekey manager instance
  */
 export function getSignedPreKeyManager(): SignedPreKeyManager {
-  return SignedPreKeyManager.getInstance()
+  return SignedPreKeyManager.getInstance();
 }
 
 /**
  * Generates a new signed prekey
  */
 export async function generateSignedPreKey(
-  identityKeyPair?: IdentityKeyPair
+  identityKeyPair?: IdentityKeyPair,
 ): Promise<SignedPreKey> {
-  return getSignedPreKeyManager().generateSignedPreKey(identityKeyPair)
+  return getSignedPreKeyManager().generateSignedPreKey(identityKeyPair);
 }
 
 /**
  * Gets the current signed prekey
  */
 export async function getCurrentSignedPreKey(): Promise<SignedPreKey> {
-  return getSignedPreKeyManager().getCurrentSignedPreKey()
+  return getSignedPreKeyManager().getCurrentSignedPreKey();
 }
 
 /**
  * Checks if signed prekey rotation is needed
  */
 export async function needsSignedPreKeyRotation(): Promise<boolean> {
-  return getSignedPreKeyManager().needsRotation()
+  return getSignedPreKeyManager().needsRotation();
 }
 
 /**
  * Rotates signed prekey if needed
  */
 export async function rotateSignedPreKeyIfNeeded(): Promise<SignedPreKey | null> {
-  return getSignedPreKeyManager().rotateIfNeeded()
+  return getSignedPreKeyManager().rotateIfNeeded();
 }
 
 /**
@@ -398,11 +405,11 @@ export async function rotateSignedPreKeyIfNeeded(): Promise<SignedPreKey | null>
 export async function verifySignedPreKey(
   identityPublicKey: Uint8Array,
   signedPreKeyPublic: Uint8Array,
-  signature: Uint8Array
+  signature: Uint8Array,
 ): Promise<boolean> {
   return getSignedPreKeyManager().verifySignedPreKey(
     identityPublicKey,
     signedPreKeyPublic,
-    signature
-  )
+    signature,
+  );
 }

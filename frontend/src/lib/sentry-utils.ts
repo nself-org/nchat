@@ -4,18 +4,18 @@
  * Helper functions for working with Sentry error tracking and monitoring.
  */
 
-import * as Sentry from '@sentry/nextjs'
-import { logger } from '@/lib/logger'
+import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 
 /**
  * Set user context in Sentry
  * Call this when a user logs in or their data changes
  */
 export function setSentryUser(user: {
-  id: string
-  email?: string
-  username?: string
-  role?: string
+  id: string;
+  email?: string;
+  username?: string;
+  role?: string;
 }) {
   Sentry.setUser({
     id: user.id,
@@ -23,7 +23,7 @@ export function setSentryUser(user: {
     username: user.username,
     // Add custom fields
     role: user.role,
-  })
+  });
 }
 
 /**
@@ -31,15 +31,18 @@ export function setSentryUser(user: {
  * Call this when a user logs out
  */
 export function clearSentryUser() {
-  Sentry.setUser(null)
+  Sentry.setUser(null);
 }
 
 /**
  * Add custom context to Sentry events
  * Use this to add relevant business context
  */
-export function setSentryContext(name: string, context: Record<string, unknown>) {
-  Sentry.setContext(name, context)
+export function setSentryContext(
+  name: string,
+  context: Record<string, unknown>,
+) {
+  Sentry.setContext(name, context);
 }
 
 /**
@@ -49,14 +52,14 @@ export function addSentryBreadcrumb(
   category: string,
   message: string,
   data?: Record<string, unknown>,
-  level: 'debug' | 'info' | 'warning' | 'error' = 'info'
+  level: "debug" | "info" | "warning" | "error" = "info",
 ) {
   Sentry.addBreadcrumb({
     category,
     message,
     level,
     data,
-  })
+  });
 }
 
 /**
@@ -65,16 +68,16 @@ export function addSentryBreadcrumb(
 export function captureError(
   error: Error,
   context?: {
-    tags?: Record<string, string>
-    extra?: Record<string, unknown>
-    level?: 'fatal' | 'error' | 'warning' | 'info' | 'debug'
-  }
+    tags?: Record<string, string>;
+    extra?: Record<string, unknown>;
+    level?: "fatal" | "error" | "warning" | "info" | "debug";
+  },
 ) {
   Sentry.captureException(error, {
     tags: context?.tags,
     extra: context?.extra,
     level: context?.level,
-  })
+  });
 }
 
 /**
@@ -83,16 +86,16 @@ export function captureError(
 export function captureMessage(
   message: string,
   context?: {
-    tags?: Record<string, string>
-    extra?: Record<string, unknown>
-    level?: 'fatal' | 'error' | 'warning' | 'info' | 'debug'
-  }
+    tags?: Record<string, string>;
+    extra?: Record<string, unknown>;
+    level?: "fatal" | "error" | "warning" | "info" | "debug";
+  },
 ) {
   Sentry.captureMessage(message, {
     tags: context?.tags,
     extra: context?.extra,
-    level: context?.level || 'info',
-  })
+    level: context?.level || "info",
+  });
 }
 
 /**
@@ -102,7 +105,7 @@ export function captureMessage(
 export async function trackTransaction<T>(
   name: string,
   operation: string,
-  callback: () => Promise<T>
+  callback: () => Promise<T>,
 ): Promise<T> {
   return await Sentry.startSpan(
     {
@@ -110,9 +113,9 @@ export async function trackTransaction<T>(
       op: operation,
     },
     async () => {
-      return await callback()
-    }
-  )
+      return await callback();
+    },
+  );
 }
 
 /**
@@ -120,20 +123,20 @@ export async function trackTransaction<T>(
  */
 export function setSentryTags(tags: Record<string, string>) {
   Object.entries(tags).forEach(([key, value]) => {
-    Sentry.setTag(key, value)
-  })
+    Sentry.setTag(key, value);
+  });
 }
 
 /**
  * Check if user has opted out of error tracking
  */
 export function hasOptedOutOfTracking(): boolean {
-  if (typeof window === 'undefined') return false
+  if (typeof window === "undefined") return false;
 
   try {
-    return window.localStorage.getItem('sentry-opt-out') === 'true'
+    return window.localStorage.getItem("sentry-opt-out") === "true";
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -141,14 +144,14 @@ export function hasOptedOutOfTracking(): boolean {
  * Opt user out of error tracking
  */
 export function optOutOfTracking(): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   try {
-    window.localStorage.setItem('sentry-opt-out', 'true')
+    window.localStorage.setItem("sentry-opt-out", "true");
     // Close current Sentry client
-    Sentry.close()
+    Sentry.close();
   } catch (error) {
-    logger.error('Failed to opt out of tracking:', error)
+    logger.error("Failed to opt out of tracking:", error);
   }
 }
 
@@ -156,13 +159,13 @@ export function optOutOfTracking(): void {
  * Opt user back in to error tracking
  */
 export function optInToTracking(): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   try {
-    window.localStorage.removeItem('sentry-opt-out')
+    window.localStorage.removeItem("sentry-opt-out");
     // Note: User needs to refresh page for Sentry to reinitialize
   } catch (error) {
-    logger.error('Failed to opt in to tracking:', error)
+    logger.error("Failed to opt in to tracking:", error);
   }
 }
 
@@ -186,7 +189,7 @@ function handleLogin(user) {
 function handleLogout() {
   clearSentryUser()
 }
-`
+`;
 
 /**
  * Example usage for tracking feature usage
@@ -211,7 +214,7 @@ function sendMessage(channelId: string, message: string) {
 
   // ... send message logic
 }
-`
+`;
 
 /**
  * Example usage for error handling
@@ -241,7 +244,7 @@ async function uploadFile(file: File) {
     throw error
   }
 }
-`
+`;
 
 /**
  * Example usage for performance tracking
@@ -266,4 +269,4 @@ async function loadDashboard() {
     }
   )
 }
-`
+`;

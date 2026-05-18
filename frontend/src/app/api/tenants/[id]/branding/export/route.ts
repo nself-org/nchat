@@ -4,25 +4,28 @@
  * GET /api/tenants/[id]/branding/export - Export branding as JSON
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
-const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://api.localhost/v1/graphql'
-const ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET
+const GRAPHQL_URL =
+  process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://api.localhost/v1/graphql";
+const ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
 
 async function fetchBrandingForExport(tenantId: string) {
   if (!ADMIN_SECRET) {
-    logger.warn('HASURA_ADMIN_SECRET not set, cannot fetch branding for export')
-    return null
+    logger.warn(
+      "HASURA_ADMIN_SECRET not set, cannot fetch branding for export",
+    );
+    return null;
   }
 
   const response = await fetch(GRAPHQL_URL, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': ADMIN_SECRET,
+      "Content-Type": "application/json",
+      "x-hasura-admin-secret": ADMIN_SECRET,
     },
     body: JSON.stringify({
       query: `
@@ -71,40 +74,47 @@ async function fetchBrandingForExport(tenantId: string) {
       `,
       variables: { tenantId },
     }),
-  })
+  });
 
-  const result = await response.json()
+  const result = await response.json();
 
   if (result.errors) {
-    logger.error('GraphQL error fetching branding for export:', result.errors)
-    return null
+    logger.error("GraphQL error fetching branding for export:", result.errors);
+    return null;
   }
 
   return {
     branding: result.data?.branding?.[0] ?? null,
     themes: result.data?.themes ?? [],
-  }
+  };
 }
 
 /**
  * GET - Export branding configuration
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const { id: tenantId } = await params
+    const { id: tenantId } = await params;
 
     // Fetch branding from database
-    const dbData = await fetchBrandingForExport(tenantId)
-    const dbBranding = dbData?.branding
-    const dbThemes = dbData?.themes ?? []
+    const dbData = await fetchBrandingForExport(tenantId);
+    const dbBranding = dbData?.branding;
+    const dbThemes = dbData?.themes ?? [];
 
     // Build export payload — merge DB data over defaults
     const branding = {
-      version: '1.0.0',
+      version: "1.0.0",
       exportedAt: new Date().toISOString(),
       tenantId,
       theme: {
-        light: dbThemes.find((t: { is_active: boolean; theme_data: Record<string, unknown> }) => t.is_active)?.theme_data ?? {},
+        light:
+          dbThemes.find(
+            (t: { is_active: boolean; theme_data: Record<string, unknown> }) =>
+              t.is_active,
+          )?.theme_data ?? {},
         dark: {},
       },
       logos: {
@@ -147,7 +157,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         supportEmail: dbBranding?.support_email ?? null,
         contactEmail: dbBranding?.contact_email ?? null,
       },
-      customCSS: '',
+      customCSS: "",
       domains: dbBranding?.custom_domain
         ? [
             {
@@ -158,18 +168,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           ]
         : [],
       featureFlags: {},
-    }
+    };
 
-    logger.info('Branding configuration exported:', { tenantId })
+    logger.info("Branding configuration exported:", { tenantId });
 
     return new NextResponse(JSON.stringify(branding, null, 2), {
       headers: {
-        'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="branding-${tenantId}-${Date.now()}.json"`,
+        "Content-Type": "application/json",
+        "Content-Disposition": `attachment; filename="branding-${tenantId}-${Date.now()}.json"`,
       },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/tenants/[id]/branding/export failed:', error)
-    return NextResponse.json({ error: 'Export failed' }, { status: 500 })
+    logger.error("GET /api/tenants/[id]/branding/export failed:", error);
+    return NextResponse.json({ error: "Export failed" }, { status: 500 });
   }
 }

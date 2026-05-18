@@ -9,14 +9,14 @@
  * @version 1.0.0
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { createLogger } from '@/lib/logger'
-import { getKnowledgeBaseService } from '@/services/knowledge'
+import { NextRequest, NextResponse } from "next/server";
+import { createLogger } from "@/lib/logger";
+import { getKnowledgeBaseService } from "@/services/knowledge";
 
-const logger = createLogger('KnowledgeFAQAPI')
+const logger = createLogger("KnowledgeFAQAPI");
 
 interface RouteParams {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -25,34 +25,38 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params
-    const service = getKnowledgeBaseService()
-    const result = await service.getFAQ(id)
+    const { id } = await params;
+    const service = getKnowledgeBaseService();
+    const result = await service.getFAQ(id);
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: result.error?.status || 500 }
-      )
+        { status: result.error?.status || 500 },
+      );
     }
 
     if (!result.data) {
       return NextResponse.json(
-        { success: false, error: 'FAQ not found' },
-        { status: 404 }
-      )
+        { success: false, error: "FAQ not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
       success: true,
       data: result.data,
-    })
+    });
   } catch (error) {
-    logger.error('Failed to get FAQ', error as Error)
+    logger.error("Failed to get FAQ", error as Error);
     return NextResponse.json(
-      { success: false, error: 'Failed to get FAQ', message: (error as Error).message },
-      { status: 500 }
-    )
+      {
+        success: false,
+        error: "Failed to get FAQ",
+        message: (error as Error).message,
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -62,42 +66,50 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params
-    const body = await request.json()
-    const updatedBy = body.updatedBy || 'system'
+    const { id } = await params;
+    const body = await request.json();
+    const updatedBy = body.updatedBy || "system";
 
-    const service = getKnowledgeBaseService()
-    const result = await service.updateFAQ(id, {
-      question: body.question,
-      answer: body.answer,
-      alternativeQuestions: body.alternativeQuestions,
-      keywords: body.keywords,
-      category: body.category,
-      priority: body.priority,
-      isActive: body.isActive,
-      articleId: body.articleId,
-    }, updatedBy)
+    const service = getKnowledgeBaseService();
+    const result = await service.updateFAQ(
+      id,
+      {
+        question: body.question,
+        answer: body.answer,
+        alternativeQuestions: body.alternativeQuestions,
+        keywords: body.keywords,
+        category: body.category,
+        priority: body.priority,
+        isActive: body.isActive,
+        articleId: body.articleId,
+      },
+      updatedBy,
+    );
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: result.error?.status || 500 }
-      )
+        { status: result.error?.status || 500 },
+      );
     }
 
-    logger.info('Updated FAQ', { id })
+    logger.info("Updated FAQ", { id });
 
     return NextResponse.json({
       success: true,
       data: result.data,
-      message: 'FAQ updated successfully',
-    })
+      message: "FAQ updated successfully",
+    });
   } catch (error) {
-    logger.error('Failed to update FAQ', error as Error)
+    logger.error("Failed to update FAQ", error as Error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update FAQ', message: (error as Error).message },
-      { status: 500 }
-    )
+      {
+        success: false,
+        error: "Failed to update FAQ",
+        message: (error as Error).message,
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -107,28 +119,32 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params
-    const service = getKnowledgeBaseService()
-    const result = await service.deleteFAQ(id)
+    const { id } = await params;
+    const service = getKnowledgeBaseService();
+    const result = await service.deleteFAQ(id);
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: result.error?.status || 500 }
-      )
+        { status: result.error?.status || 500 },
+      );
     }
 
-    logger.info('Deleted FAQ', { id })
+    logger.info("Deleted FAQ", { id });
 
     return NextResponse.json({
       success: true,
-      message: 'FAQ deleted successfully',
-    })
+      message: "FAQ deleted successfully",
+    });
   } catch (error) {
-    logger.error('Failed to delete FAQ', error as Error)
+    logger.error("Failed to delete FAQ", error as Error);
     return NextResponse.json(
-      { success: false, error: 'Failed to delete FAQ', message: (error as Error).message },
-      { status: 500 }
-    )
+      {
+        success: false,
+        error: "Failed to delete FAQ",
+        message: (error as Error).message,
+      },
+      { status: 500 },
+    );
   }
 }

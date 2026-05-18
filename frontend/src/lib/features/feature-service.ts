@@ -26,38 +26,45 @@
  * ```
  */
 
-import { FEATURE_FLAGS, type FeatureFlags, type FeatureCategory } from '@/config/feature-flags'
+import {
+  FEATURE_FLAGS,
+  type FeatureFlags,
+  type FeatureCategory,
+} from "@/config/feature-flags";
 
 /**
  * Deep merge utility for feature flags
  */
-function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
-  const result = { ...target }
+function deepMerge<T extends Record<string, unknown>>(
+  target: T,
+  source: Partial<T>,
+): T {
+  const result = { ...target };
 
   for (const key of Object.keys(source) as (keyof T)[]) {
-    const sourceValue = source[key]
-    const targetValue = target[key]
+    const sourceValue = source[key];
+    const targetValue = target[key];
 
     if (
       sourceValue !== undefined &&
-      typeof sourceValue === 'object' &&
+      typeof sourceValue === "object" &&
       sourceValue !== null &&
       !Array.isArray(sourceValue) &&
-      typeof targetValue === 'object' &&
+      typeof targetValue === "object" &&
       targetValue !== null &&
       !Array.isArray(targetValue)
     ) {
       // Recursively merge nested objects
       result[key] = deepMerge(
         targetValue as Record<string, unknown>,
-        sourceValue as Partial<Record<string, unknown>>
-      ) as T[keyof T]
+        sourceValue as Partial<Record<string, unknown>>,
+      ) as T[keyof T];
     } else if (sourceValue !== undefined) {
-      result[key] = sourceValue as T[keyof T]
+      result[key] = sourceValue as T[keyof T];
     }
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -66,7 +73,7 @@ function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial
  * Provides methods for checking and managing feature flag states.
  */
 class FeatureService {
-  private flags: FeatureFlags = FEATURE_FLAGS
+  private flags: FeatureFlags = FEATURE_FLAGS;
 
   /**
    * Set feature flag overrides.
@@ -75,14 +82,14 @@ class FeatureService {
    * @param overrides - Partial feature flags to override
    */
   setFlags(overrides: Partial<FeatureFlags>): void {
-    this.flags = deepMerge(FEATURE_FLAGS, overrides) as FeatureFlags
+    this.flags = deepMerge(FEATURE_FLAGS, overrides) as FeatureFlags;
   }
 
   /**
    * Reset flags to defaults
    */
   resetFlags(): void {
-    this.flags = FEATURE_FLAGS
+    this.flags = FEATURE_FLAGS;
   }
 
   /**
@@ -113,31 +120,34 @@ class FeatureService {
    * featureService.isEnabled('voice', 'calls') // false (category disabled)
    * ```
    */
-  isEnabled<C extends FeatureCategory>(category: C, feature?: keyof FeatureFlags[C]): boolean {
-    const categoryFlags = this.flags[category]
+  isEnabled<C extends FeatureCategory>(
+    category: C,
+    feature?: keyof FeatureFlags[C],
+  ): boolean {
+    const categoryFlags = this.flags[category];
 
-    if (!categoryFlags) return false
+    if (!categoryFlags) return false;
 
     // Check if category has an 'enabled' master switch
-    if ('enabled' in categoryFlags && !categoryFlags.enabled) {
-      return false
+    if ("enabled" in categoryFlags && !categoryFlags.enabled) {
+      return false;
     }
 
     // If no specific feature requested, check category enabled state
     if (!feature) {
-      return 'enabled' in categoryFlags ? Boolean(categoryFlags.enabled) : true
+      return "enabled" in categoryFlags ? Boolean(categoryFlags.enabled) : true;
     }
 
     // Check specific feature
-    const featureValue = categoryFlags[feature as keyof typeof categoryFlags]
+    const featureValue = categoryFlags[feature as keyof typeof categoryFlags];
 
     // Handle non-boolean values (like arrays or numbers)
-    if (typeof featureValue === 'boolean') {
-      return featureValue
+    if (typeof featureValue === "boolean") {
+      return featureValue;
     }
 
     // For non-boolean values, check if they are truthy
-    return featureValue !== undefined && featureValue !== null
+    return featureValue !== undefined && featureValue !== null;
   }
 
   /**
@@ -146,7 +156,7 @@ class FeatureService {
    * @returns The complete feature flags object
    */
   getFlags(): FeatureFlags {
-    return this.flags
+    return this.flags;
   }
 
   /**
@@ -156,7 +166,7 @@ class FeatureService {
    * @returns The flags for the specified category
    */
   getCategoryFlags<C extends FeatureCategory>(category: C): FeatureFlags[C] {
-    return this.flags[category]
+    return this.flags[category];
   }
 
   /**
@@ -168,9 +178,9 @@ class FeatureService {
    */
   getFlag<C extends FeatureCategory>(
     category: C,
-    feature: keyof FeatureFlags[C]
+    feature: keyof FeatureFlags[C],
   ): FeatureFlags[C][typeof feature] {
-    return this.flags[category][feature]
+    return this.flags[category][feature];
   }
 
   /**
@@ -179,10 +189,12 @@ class FeatureService {
    * @param features - Array of [category, feature] tuples to check
    * @returns boolean indicating if all features are enabled
    */
-  areAllEnabled(features: Array<[FeatureCategory, string | undefined]>): boolean {
+  areAllEnabled(
+    features: Array<[FeatureCategory, string | undefined]>,
+  ): boolean {
     return features.every(([category, feature]) =>
-      this.isEnabled(category, feature as keyof FeatureFlags[typeof category])
-    )
+      this.isEnabled(category, feature as keyof FeatureFlags[typeof category]),
+    );
   }
 
   /**
@@ -191,10 +203,12 @@ class FeatureService {
    * @param features - Array of [category, feature] tuples to check
    * @returns boolean indicating if any feature is enabled
    */
-  isAnyEnabled(features: Array<[FeatureCategory, string | undefined]>): boolean {
+  isAnyEnabled(
+    features: Array<[FeatureCategory, string | undefined]>,
+  ): boolean {
     return features.some(([category, feature]) =>
-      this.isEnabled(category, feature as keyof FeatureFlags[typeof category])
-    )
+      this.isEnabled(category, feature as keyof FeatureFlags[typeof category]),
+    );
   }
 
   /**
@@ -203,23 +217,25 @@ class FeatureService {
    * @param category - The category to check
    * @returns Array of enabled feature names
    */
-  getEnabledInCategory<C extends FeatureCategory>(category: C): (keyof FeatureFlags[C])[] {
-    const categoryFlags = this.flags[category]
-    const enabled: (keyof FeatureFlags[C])[] = []
+  getEnabledInCategory<C extends FeatureCategory>(
+    category: C,
+  ): (keyof FeatureFlags[C])[] {
+    const categoryFlags = this.flags[category];
+    const enabled: (keyof FeatureFlags[C])[] = [];
 
     // If category has master switch and it's off, nothing is enabled
-    if ('enabled' in categoryFlags && !categoryFlags.enabled) {
-      return enabled
+    if ("enabled" in categoryFlags && !categoryFlags.enabled) {
+      return enabled;
     }
 
     for (const [key, value] of Object.entries(categoryFlags)) {
-      if (key === 'enabled') continue
-      if (typeof value === 'boolean' && value) {
-        enabled.push(key as keyof FeatureFlags[C])
+      if (key === "enabled") continue;
+      if (typeof value === "boolean" && value) {
+        enabled.push(key as keyof FeatureFlags[C]);
       }
     }
 
-    return enabled
+    return enabled;
   }
 
   /**
@@ -228,32 +244,36 @@ class FeatureService {
    * @param category - The category to check
    * @returns Array of disabled feature names
    */
-  getDisabledInCategory<C extends FeatureCategory>(category: C): (keyof FeatureFlags[C])[] {
-    const categoryFlags = this.flags[category]
-    const disabled: (keyof FeatureFlags[C])[] = []
+  getDisabledInCategory<C extends FeatureCategory>(
+    category: C,
+  ): (keyof FeatureFlags[C])[] {
+    const categoryFlags = this.flags[category];
+    const disabled: (keyof FeatureFlags[C])[] = [];
 
     // If category has master switch and it's off, everything is disabled
-    if ('enabled' in categoryFlags && !categoryFlags.enabled) {
-      return Object.keys(categoryFlags).filter((k) => k !== 'enabled') as (keyof FeatureFlags[C])[]
+    if ("enabled" in categoryFlags && !categoryFlags.enabled) {
+      return Object.keys(categoryFlags).filter(
+        (k) => k !== "enabled",
+      ) as (keyof FeatureFlags[C])[];
     }
 
     for (const [key, value] of Object.entries(categoryFlags)) {
-      if (key === 'enabled') continue
-      if (typeof value === 'boolean' && !value) {
-        disabled.push(key as keyof FeatureFlags[C])
+      if (key === "enabled") continue;
+      if (typeof value === "boolean" && !value) {
+        disabled.push(key as keyof FeatureFlags[C]);
       }
     }
 
-    return disabled
+    return disabled;
   }
 }
 
 /**
  * Singleton instance of the FeatureService
  */
-export const featureService = new FeatureService()
+export const featureService = new FeatureService();
 
 /**
  * Export the class for testing or custom instances
  */
-export { FeatureService }
+export { FeatureService };

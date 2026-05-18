@@ -1,9 +1,20 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useDropzone, type DropzoneOptions, type FileRejection } from 'react-dropzone'
-import { Upload, FileUp, AlertCircle, Image as ImageIcon, Film, File } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import {
+  useDropzone,
+  type DropzoneOptions,
+  type FileRejection,
+} from "react-dropzone";
+import {
+  Upload,
+  FileUp,
+  AlertCircle,
+  Image as ImageIcon,
+  Film,
+  File,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   validateFile,
   formatFileSize,
@@ -11,7 +22,7 @@ import {
   ALL_ALLOWED_MIME_TYPES,
   ALLOWED_MIME_TYPES,
   type UploadError,
-} from '@/lib/storage/upload'
+} from "@/lib/storage/upload";
 
 // ============================================================================
 // TYPES
@@ -19,33 +30,33 @@ import {
 
 export interface FileUploadZoneProps {
   /** Callback when files are accepted */
-  onFilesAccepted: (files: File[]) => void
+  onFilesAccepted: (files: File[]) => void;
   /** Callback when files are rejected */
-  onFilesRejected?: (rejections: FileRejection[]) => void
+  onFilesRejected?: (rejections: FileRejection[]) => void;
   /** Accepted file types (MIME types or extensions) */
-  accept?: Record<string, string[]>
+  accept?: Record<string, string[]>;
   /** Maximum file size in bytes */
-  maxSize?: number
+  maxSize?: number;
   /** Maximum number of files */
-  maxFiles?: number
+  maxFiles?: number;
   /** Allow multiple files */
-  multiple?: boolean
+  multiple?: boolean;
   /** Disable the dropzone */
-  disabled?: boolean
+  disabled?: boolean;
   /** Variant style */
-  variant?: 'default' | 'compact' | 'inline' | 'minimal'
+  variant?: "default" | "compact" | "inline" | "minimal";
   /** Show accepted file types */
-  showAcceptedTypes?: boolean
+  showAcceptedTypes?: boolean;
   /** Show size limit */
-  showSizeLimit?: boolean
+  showSizeLimit?: boolean;
   /** Custom placeholder */
-  placeholder?: React.ReactNode
+  placeholder?: React.ReactNode;
   /** Custom drag active placeholder */
-  dragActivePlaceholder?: React.ReactNode
+  dragActivePlaceholder?: React.ReactNode;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Children to render inside */
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 // ============================================================================
@@ -54,23 +65,29 @@ export interface FileUploadZoneProps {
 
 /** Default accept configuration */
 const DEFAULT_ACCEPT: Record<string, string[]> = {
-  'image/*': [...ALLOWED_MIME_TYPES.images],
-  'video/*': [...ALLOWED_MIME_TYPES.videos],
-  'audio/*': [...ALLOWED_MIME_TYPES.audio],
-  'application/pdf': ['.pdf'],
-  'application/msword': ['.doc'],
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-  'application/vnd.ms-excel': ['.xls'],
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-  'application/vnd.ms-powerpoint': ['.ppt'],
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
-  'text/plain': ['.txt'],
-  'text/markdown': ['.md'],
-  'text/csv': ['.csv'],
-  'application/zip': ['.zip'],
-  'application/x-rar-compressed': ['.rar'],
-  'application/x-7z-compressed': ['.7z'],
-}
+  "image/*": [...ALLOWED_MIME_TYPES.images],
+  "video/*": [...ALLOWED_MIME_TYPES.videos],
+  "audio/*": [...ALLOWED_MIME_TYPES.audio],
+  "application/pdf": [".pdf"],
+  "application/msword": [".doc"],
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+    ".docx",
+  ],
+  "application/vnd.ms-excel": [".xls"],
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+    ".xlsx",
+  ],
+  "application/vnd.ms-powerpoint": [".ppt"],
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [
+    ".pptx",
+  ],
+  "text/plain": [".txt"],
+  "text/markdown": [".md"],
+  "text/csv": [".csv"],
+  "application/zip": [".zip"],
+  "application/x-rar-compressed": [".rar"],
+  "application/x-7z-compressed": [".7z"],
+};
 
 // ============================================================================
 // COMPONENT
@@ -96,7 +113,7 @@ export function FileUploadZone({
   maxFiles,
   multiple = true,
   disabled = false,
-  variant = 'default',
+  variant = "default",
   showAcceptedTypes = true,
   showSizeLimit = true,
   placeholder,
@@ -104,75 +121,75 @@ export function FileUploadZone({
   className,
   children,
 }: FileUploadZoneProps) {
-  const [error, setError] = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null);
 
   // Handle drop
   const onDrop = React.useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-      setError(null)
+      setError(null);
 
       // Validate each file
-      const validFiles: File[] = []
-      const errors: string[] = []
+      const validFiles: File[] = [];
+      const errors: string[] = [];
 
       for (const file of acceptedFiles) {
-        const validation = validateFile(file, { maxSize })
+        const validation = validateFile(file, { maxSize });
         if (validation.valid) {
-          validFiles.push(file)
+          validFiles.push(file);
         } else if (validation.error) {
-          errors.push(`${file.name}: ${validation.error.message}`)
+          errors.push(`${file.name}: ${validation.error.message}`);
         }
       }
 
       // Handle rejected files
       if (rejectedFiles.length > 0) {
         for (const rejection of rejectedFiles) {
-          const fileErrors = rejection.errors.map((e) => e.message).join(', ')
-          errors.push(`${rejection.file.name}: ${fileErrors}`)
+          const fileErrors = rejection.errors.map((e) => e.message).join(", ");
+          errors.push(`${rejection.file.name}: ${fileErrors}`);
         }
-        onFilesRejected?.(rejectedFiles)
+        onFilesRejected?.(rejectedFiles);
       }
 
       // Set error if any
       if (errors.length > 0) {
-        setError(errors.slice(0, 3).join('\n'))
+        setError(errors.slice(0, 3).join("\n"));
       }
 
       // Call callback with valid files
       if (validFiles.length > 0) {
-        onFilesAccepted(validFiles)
+        onFilesAccepted(validFiles);
       }
     },
-    [maxSize, onFilesAccepted, onFilesRejected]
-  )
+    [maxSize, onFilesAccepted, onFilesRejected],
+  );
 
   // Handle paste from clipboard
   const onPaste = React.useCallback(
     (event: React.ClipboardEvent) => {
-      if (disabled) return
+      if (disabled) return;
 
-      const items = event.clipboardData?.items
-      if (!items) return
+      const items = event.clipboardData?.items;
+      if (!items) return;
 
-      const files: File[] = []
+      const files: File[] = [];
 
       for (let i = 0; i < items.length; i++) {
-        const item = items[i]
-        if (item.kind === 'file') {
-          const file = item.getAsFile()
+        const item = items[i];
+        if (item.kind === "file") {
+          const file = item.getAsFile();
           if (file) {
-            files.push(file)
+            files.push(file);
           }
         }
       }
 
       if (files.length > 0) {
-        event.preventDefault()
-        onDrop(files, [])
+        event.preventDefault();
+        onDrop(files, []);
       }
     },
-    [disabled, onDrop]
-  )
+    [disabled, onDrop],
+  );
 
   // Dropzone options
   const dropzoneOptions: DropzoneOptions = {
@@ -182,35 +199,41 @@ export function FileUploadZone({
     maxFiles,
     multiple,
     disabled,
-    noClick: variant === 'inline',
-    noKeyboard: variant === 'inline',
-  }
+    noClick: variant === "inline",
+    noKeyboard: variant === "inline",
+  };
 
-  const { getRootProps, getInputProps, isDragActive, isDragAccept, isDragReject, open } =
-    useDropzone(dropzoneOptions)
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+    open,
+  } = useDropzone(dropzoneOptions);
 
   // Render placeholder based on variant
   const renderPlaceholder = () => {
     if (placeholder && !isDragActive) {
-      return placeholder
+      return placeholder;
     }
 
     if (dragActivePlaceholder && isDragActive) {
-      return dragActivePlaceholder
+      return dragActivePlaceholder;
     }
 
-    if (variant === 'minimal') {
+    if (variant === "minimal") {
       return (
         <div className="flex items-center gap-2 text-muted-foreground">
           <Upload className="h-4 w-4" />
           <span className="text-sm">
-            {isDragActive ? 'Drop files here' : 'Drag files or click to upload'}
+            {isDragActive ? "Drop files here" : "Drag files or click to upload"}
           </span>
         </div>
-      )
+      );
     }
 
-    if (variant === 'compact') {
+    if (variant === "compact") {
       return (
         <div className="flex flex-col items-center gap-2 py-4 text-center">
           {isDragActive ? (
@@ -222,13 +245,15 @@ export function FileUploadZone({
             <>
               <Upload className="h-8 w-8 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
-                Drag & drop or{' '}
-                <span className="cursor-pointer text-primary hover:underline">browse</span>
+                Drag & drop or{" "}
+                <span className="cursor-pointer text-primary hover:underline">
+                  browse
+                </span>
               </p>
             </>
           )}
         </div>
-      )
+      );
     }
 
     // Default variant
@@ -241,7 +266,9 @@ export function FileUploadZone({
             </div>
             <div>
               <p className="text-lg font-medium">Drop files here</p>
-              <p className="text-sm text-muted-foreground">Release to upload your files</p>
+              <p className="text-sm text-muted-foreground">
+                Release to upload your files
+              </p>
             </div>
           </>
         ) : (
@@ -252,8 +279,11 @@ export function FileUploadZone({
             <div>
               <p className="text-lg font-medium">Drag & drop files here</p>
               <p className="text-sm text-muted-foreground">
-                or <span className="cursor-pointer text-primary hover:underline">browse</span> to
-                upload
+                or{" "}
+                <span className="cursor-pointer text-primary hover:underline">
+                  browse
+                </span>{" "}
+                to upload
               </p>
             </div>
 
@@ -281,33 +311,37 @@ export function FileUploadZone({
           </>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   // Get border styles based on state
   const getBorderStyles = () => {
     if (disabled) {
-      return 'border-muted bg-muted/30 cursor-not-allowed opacity-60'
+      return "border-muted bg-muted/30 cursor-not-allowed opacity-60";
     }
     if (isDragReject) {
-      return 'border-destructive bg-destructive/5 border-2'
+      return "border-destructive bg-destructive/5 border-2";
     }
     if (isDragAccept) {
-      return 'border-primary bg-primary/5 border-2'
+      return "border-primary bg-primary/5 border-2";
     }
     if (isDragActive) {
-      return 'border-primary border-2'
+      return "border-primary border-2";
     }
-    return 'border-border hover:border-primary/50 cursor-pointer'
-  }
+    return "border-border hover:border-primary/50 cursor-pointer";
+  };
 
   // Inline variant wraps children
-  if (variant === 'inline' && children) {
+  if (variant === "inline" && children) {
     return (
       <div
         {...getRootProps()}
         onPaste={onPaste}
-        className={cn('relative', isDragActive && 'ring-2 ring-primary ring-offset-2', className)}
+        className={cn(
+          "relative",
+          isDragActive && "ring-2 ring-primary ring-offset-2",
+          className,
+        )}
       >
         <input {...getInputProps()} />
         {children}
@@ -322,20 +356,20 @@ export function FileUploadZone({
           </div>
         )}
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn("w-full", className)}>
       <div
         {...getRootProps()}
         onPaste={onPaste}
         className={cn(
-          'relative rounded-lg border-2 border-dashed transition-colors',
+          "relative rounded-lg border-2 border-dashed transition-colors",
           getBorderStyles(),
-          variant === 'minimal' && 'border-0 p-2',
-          variant === 'compact' && 'p-2',
-          variant === 'default' && 'p-4'
+          variant === "minimal" && "border-0 p-2",
+          variant === "compact" && "p-2",
+          variant === "default" && "p-4",
         )}
       >
         <input {...getInputProps()} />
@@ -350,13 +384,15 @@ export function FileUploadZone({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
  * useFileUploadZone - Hook for programmatic access to dropzone
  */
-export function useFileUploadZone(options: Omit<FileUploadZoneProps, 'className' | 'children'>) {
+export function useFileUploadZone(
+  options: Omit<FileUploadZoneProps, "className" | "children">,
+) {
   const {
     onFilesAccepted,
     onFilesRejected,
@@ -365,29 +401,29 @@ export function useFileUploadZone(options: Omit<FileUploadZoneProps, 'className'
     maxFiles,
     multiple = true,
     disabled = false,
-  } = options
+  } = options;
 
   const onDrop = React.useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-      const validFiles: File[] = []
+      const validFiles: File[] = [];
 
       for (const file of acceptedFiles) {
-        const validation = validateFile(file, { maxSize })
+        const validation = validateFile(file, { maxSize });
         if (validation.valid) {
-          validFiles.push(file)
+          validFiles.push(file);
         }
       }
 
       if (rejectedFiles.length > 0) {
-        onFilesRejected?.(rejectedFiles)
+        onFilesRejected?.(rejectedFiles);
       }
 
       if (validFiles.length > 0) {
-        onFilesAccepted(validFiles)
+        onFilesAccepted(validFiles);
       }
     },
-    [maxSize, onFilesAccepted, onFilesRejected]
-  )
+    [maxSize, onFilesAccepted, onFilesRejected],
+  );
 
   const dropzone = useDropzone({
     onDrop,
@@ -398,11 +434,11 @@ export function useFileUploadZone(options: Omit<FileUploadZoneProps, 'className'
     disabled,
     noClick: true,
     noKeyboard: true,
-  })
+  });
 
   return {
     ...dropzone,
     /** Open file picker */
     openFilePicker: dropzone.open,
-  }
+  };
 }

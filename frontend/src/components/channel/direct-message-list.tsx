@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useMemo } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import * as React from "react";
+import { useState, useMemo } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Plus,
   Search,
@@ -15,28 +15,32 @@ import {
   Volume2,
   Trash2,
   X,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useChannelStore, selectDirectMessages, type Channel } from '@/stores/channel-store'
-import { useUIStore } from '@/stores/ui-store'
+} from "@/components/ui/dropdown-menu";
+import {
+  useChannelStore,
+  selectDirectMessages,
+  type Channel,
+} from "@/stores/channel-store";
+import { useUIStore } from "@/stores/ui-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DirectMessageListProps {
-  className?: string
-  onSelect?: (dm: Channel) => void
+  className?: string;
+  onSelect?: (dm: Channel) => void;
 }
 
 // ============================================================================
@@ -45,72 +49,72 @@ interface DirectMessageListProps {
 
 const mockDMs: Channel[] = [
   {
-    id: 'dm-1',
-    name: 'alice',
-    slug: 'dm-alice',
+    id: "dm-1",
+    name: "alice",
+    slug: "dm-alice",
     description: null,
-    type: 'direct',
+    type: "direct",
     categoryId: null,
-    createdBy: 'user-1',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-15T10:30:00Z',
+    createdBy: "user-1",
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-15T10:30:00Z",
     topic: null,
     icon: null,
     color: null,
     isArchived: false,
     isDefault: false,
     memberCount: 2,
-    lastMessageAt: '2024-01-15T10:30:00Z',
-    lastMessagePreview: 'Hey, are you free for a quick call?',
-    otherUserId: '2',
-    otherUserName: 'Alice Johnson',
+    lastMessageAt: "2024-01-15T10:30:00Z",
+    lastMessagePreview: "Hey, are you free for a quick call?",
+    otherUserId: "2",
+    otherUserName: "Alice Johnson",
     otherUserAvatar: undefined,
   },
   {
-    id: 'dm-2',
-    name: 'bob',
-    slug: 'dm-bob',
+    id: "dm-2",
+    name: "bob",
+    slug: "dm-bob",
     description: null,
-    type: 'direct',
+    type: "direct",
     categoryId: null,
-    createdBy: 'user-1',
-    createdAt: '2024-01-02T00:00:00Z',
-    updatedAt: '2024-01-14T15:45:00Z',
+    createdBy: "user-1",
+    createdAt: "2024-01-02T00:00:00Z",
+    updatedAt: "2024-01-14T15:45:00Z",
     topic: null,
     icon: null,
     color: null,
     isArchived: false,
     isDefault: false,
     memberCount: 2,
-    lastMessageAt: '2024-01-14T15:45:00Z',
-    lastMessagePreview: 'The PR looks good, merging now',
-    otherUserId: '3',
-    otherUserName: 'Bob Smith',
+    lastMessageAt: "2024-01-14T15:45:00Z",
+    lastMessagePreview: "The PR looks good, merging now",
+    otherUserId: "3",
+    otherUserName: "Bob Smith",
     otherUserAvatar: undefined,
   },
   {
-    id: 'dm-3',
-    name: 'charlie',
-    slug: 'dm-charlie',
+    id: "dm-3",
+    name: "charlie",
+    slug: "dm-charlie",
     description: null,
-    type: 'direct',
+    type: "direct",
     categoryId: null,
-    createdBy: 'user-1',
-    createdAt: '2024-01-03T00:00:00Z',
-    updatedAt: '2024-01-10T09:00:00Z',
+    createdBy: "user-1",
+    createdAt: "2024-01-03T00:00:00Z",
+    updatedAt: "2024-01-10T09:00:00Z",
     topic: null,
     icon: null,
     color: null,
     isArchived: false,
     isDefault: false,
     memberCount: 2,
-    lastMessageAt: '2024-01-10T09:00:00Z',
-    lastMessagePreview: 'Thanks for your help!',
-    otherUserId: '4',
-    otherUserName: 'Charlie Brown',
+    lastMessageAt: "2024-01-10T09:00:00Z",
+    lastMessagePreview: "Thanks for your help!",
+    otherUserId: "4",
+    otherUserName: "Charlie Brown",
     otherUserAvatar: undefined,
   },
-]
+];
 
 // ============================================================================
 // DM Item Component
@@ -125,20 +129,20 @@ function DirectMessageItem({
   onUnmute,
   onHide,
 }: {
-  dm: Channel
-  isActive: boolean
-  isMuted: boolean
-  onSelect?: (dm: Channel) => void
-  onMute: () => void
-  onUnmute: () => void
-  onHide: () => void
+  dm: Channel;
+  isActive: boolean;
+  isMuted: boolean;
+  onSelect?: (dm: Channel) => void;
+  onMute: () => void;
+  onUnmute: () => void;
+  onHide: () => void;
 }) {
   const handleClick = (e: React.MouseEvent) => {
     if (onSelect) {
-      e.preventDefault()
-      onSelect(dm)
+      e.preventDefault();
+      onSelect(dm);
     }
-  }
+  };
 
   return (
     <div className="group relative flex items-center">
@@ -146,10 +150,10 @@ function DirectMessageItem({
         href={`/chat/dm/${dm.slug}`}
         onClick={handleClick}
         className={cn(
-          'flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-          'hover:text-accent-foreground hover:bg-accent',
-          isActive && 'text-accent-foreground bg-accent font-medium',
-          isMuted && 'opacity-60'
+          "flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+          "hover:text-accent-foreground hover:bg-accent",
+          isActive && "text-accent-foreground bg-accent font-medium",
+          isMuted && "opacity-60",
         )}
       >
         {/* Avatar with presence */}
@@ -157,7 +161,7 @@ function DirectMessageItem({
           <Avatar className="h-6 w-6">
             <AvatarImage src={dm.otherUserAvatar} alt={dm.otherUserName} />
             <AvatarFallback className="text-[10px]">
-              {dm.otherUserName?.charAt(0).toUpperCase() || 'U'}
+              {dm.otherUserName?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
           {/* Online indicator - would come from real-time presence */}
@@ -166,7 +170,9 @@ function DirectMessageItem({
 
         {/* Name and Preview */}
         <div className="min-w-0 flex-1">
-          <span className={cn('block truncate', isMuted && 'text-muted-foreground')}>
+          <span
+            className={cn("block truncate", isMuted && "text-muted-foreground")}
+          >
             {dm.otherUserName || dm.name}
           </span>
           {dm.lastMessagePreview && (
@@ -215,52 +221,57 @@ function DirectMessageItem({
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function DirectMessageList({ className, onSelect }: DirectMessageListProps) {
-  const pathname = usePathname()
-  const { openModal } = useUIStore()
-  const { mutedChannels, hiddenChannels, toggleMuteChannel, hideChannel } = useChannelStore()
+export function DirectMessageList({
+  className,
+  onSelect,
+}: DirectMessageListProps) {
+  const pathname = usePathname();
+  const { openModal } = useUIStore();
+  const { mutedChannels, hiddenChannels, toggleMuteChannel, hideChannel } =
+    useChannelStore();
 
   // Local state
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showSearch, setShowSearch] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
   // Get DMs from store (using mock data for now)
-  const directMessages = mockDMs
+  const directMessages = mockDMs;
 
   // Filter DMs
   const filteredDMs = useMemo(() => {
-    let dms = directMessages.filter((dm) => !hiddenChannels.has(dm.id))
+    let dms = directMessages.filter((dm) => !hiddenChannels.has(dm.id));
 
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       dms = dms.filter(
         (dm) =>
-          dm.otherUserName?.toLowerCase().includes(query) || dm.name.toLowerCase().includes(query)
-      )
+          dm.otherUserName?.toLowerCase().includes(query) ||
+          dm.name.toLowerCase().includes(query),
+      );
     }
 
     // Sort by last message time
     return dms.sort((a, b) => {
-      const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
-      const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
-      return bTime - aTime
-    })
-  }, [directMessages, hiddenChannels, searchQuery])
+      const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+      const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+      return bTime - aTime;
+    });
+  }, [directMessages, hiddenChannels, searchQuery]);
 
   const handleCreateDM = () => {
-    openModal('create-workspace') // Would be 'create-dm' in production
-  }
+    openModal("create-workspace"); // Would be 'create-dm' in production
+  };
 
   return (
-    <div className={cn('mb-4', className)}>
+    <div className={cn("mb-4", className)}>
       {/* Header */}
       <div
         className="hover:bg-accent/50 group flex cursor-pointer items-center justify-between rounded-md px-2 py-1 transition-colors"
@@ -268,9 +279,9 @@ export function DirectMessageList({ className, onSelect }: DirectMessageListProp
         tabIndex={0}
         onClick={() => setIsCollapsed(!isCollapsed)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            setIsCollapsed(!isCollapsed)
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setIsCollapsed(!isCollapsed);
           }
         }}
       >
@@ -287,7 +298,9 @@ export function DirectMessageList({ className, onSelect }: DirectMessageListProp
             Direct Messages
           </span>
           {filteredDMs.length > 0 && (
-            <span className="text-muted-foreground/60 text-xs">({filteredDMs.length})</span>
+            <span className="text-muted-foreground/60 text-xs">
+              ({filteredDMs.length})
+            </span>
           )}
         </div>
 
@@ -297,8 +310,8 @@ export function DirectMessageList({ className, onSelect }: DirectMessageListProp
             size="icon"
             className="h-5 w-5"
             onClick={(e) => {
-              e.stopPropagation()
-              setShowSearch(!showSearch)
+              e.stopPropagation();
+              setShowSearch(!showSearch);
             }}
           >
             <Search className="h-3.5 w-3.5" />
@@ -308,8 +321,8 @@ export function DirectMessageList({ className, onSelect }: DirectMessageListProp
             size="icon"
             className="h-5 w-5"
             onClick={(e) => {
-              e.stopPropagation()
-              handleCreateDM()
+              e.stopPropagation();
+              handleCreateDM();
             }}
           >
             <Plus className="h-3.5 w-3.5" />
@@ -369,7 +382,7 @@ export function DirectMessageList({ className, onSelect }: DirectMessageListProp
         </div>
       )}
     </div>
-  )
+  );
 }
 
-DirectMessageList.displayName = 'DirectMessageList'
+DirectMessageList.displayName = "DirectMessageList";

@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Loader2 } from 'lucide-react'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Switch } from '@/components/ui/switch'
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,58 +15,63 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import { getUserInitials } from '@/lib/admin/users/user-manager'
-import type { AdminUser } from '@/lib/admin/users/user-types'
+} from "@/components/ui/alert-dialog";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import { getUserInitials } from "@/lib/admin/users/user-manager";
+import type { AdminUser } from "@/lib/admin/users/user-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface UnbanUserModalProps {
-  open: boolean
-  user: AdminUser | null
-  onClose: () => void
-  onUnbanned?: () => void
+  open: boolean;
+  user: AdminUser | null;
+  onClose: () => void;
+  onUnbanned?: () => void;
 }
 
-export function UnbanUserModal({ open, user, onClose, onUnbanned }: UnbanUserModalProps) {
-  const [reason, setReason] = useState('')
-  const [notifyUser, setNotifyUser] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function UnbanUserModal({
+  open,
+  user,
+  onClose,
+  onUnbanned,
+}: UnbanUserModalProps) {
+  const [reason, setReason] = useState("");
+  const [notifyUser, setNotifyUser] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { updateUserInList } = useUserManagementStore()
+  const { updateUserInList } = useUserManagementStore();
 
   const handleUnban = async () => {
-    if (!user) return
+    if (!user) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // In production, call the API
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       updateUserInList(user.id, {
         isBanned: false,
         bannedAt: undefined,
         bannedUntil: undefined,
         banReason: undefined,
-      })
+      });
 
-      onUnbanned?.()
-      handleClose()
+      onUnbanned?.();
+      handleClose();
     } catch (error) {
-      logger.error('Failed to unban user:', error)
+      logger.error("Failed to unban user:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setReason('')
-    setNotifyUser(true)
-    onClose()
-  }
+    setReason("");
+    setNotifyUser(true);
+    onClose();
+  };
 
-  if (!user) return null
+  if (!user) return null;
 
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
@@ -74,7 +79,8 @@ export function UnbanUserModal({ open, user, onClose, onUnbanned }: UnbanUserMod
         <AlertDialogHeader>
           <AlertDialogTitle>Unban User</AlertDialogTitle>
           <AlertDialogDescription>
-            Remove the ban from this user's account and restore their access to the workspace.
+            Remove the ban from this user's account and restore their access to
+            the workspace.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -83,7 +89,9 @@ export function UnbanUserModal({ open, user, onClose, onUnbanned }: UnbanUserMod
           <div className="mb-4 flex items-center gap-3">
             <Avatar className="h-10 w-10">
               <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-              <AvatarFallback>{getUserInitials(user.displayName)}</AvatarFallback>
+              <AvatarFallback>
+                {getUserInitials(user.displayName)}
+              </AvatarFallback>
             </Avatar>
             <div>
               <p className="font-medium">{user.displayName}</p>
@@ -118,7 +126,11 @@ export function UnbanUserModal({ open, user, onClose, onUnbanned }: UnbanUserMod
 
           {/* Notify User */}
           <div className="flex items-center space-x-2">
-            <Switch id="notify-unban" checked={notifyUser} onCheckedChange={setNotifyUser} />
+            <Switch
+              id="notify-unban"
+              checked={notifyUser}
+              onCheckedChange={setNotifyUser}
+            />
             <Label htmlFor="notify-unban">Notify user by email</Label>
           </div>
         </div>
@@ -127,8 +139,8 @@ export function UnbanUserModal({ open, user, onClose, onUnbanned }: UnbanUserMod
           <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
-              e.preventDefault()
-              handleUnban()
+              e.preventDefault();
+              handleUnban();
             }}
             disabled={isSubmitting}
           >
@@ -138,7 +150,7 @@ export function UnbanUserModal({ open, user, onClose, onUnbanned }: UnbanUserMod
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
 
-export default UnbanUserModal
+export default UnbanUserModal;

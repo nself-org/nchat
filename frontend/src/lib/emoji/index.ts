@@ -60,7 +60,7 @@ export type {
   // Admin types
   EmojiAnalytics,
   BulkEmojiOperationResult,
-} from './emoji-types'
+} from "./emoji-types";
 
 // ============================================================================
 // Data
@@ -82,7 +82,7 @@ export {
   getSkinToneInfo,
   getEmojiCount,
   getCategoriesWithCounts,
-} from './emoji-data'
+} from "./emoji-data";
 
 // ============================================================================
 // Shortcodes
@@ -111,7 +111,7 @@ export {
   registerCustomShortcodes,
   findMatchingShortcodes,
   getShortcodeSuggestions,
-} from './emoji-shortcodes'
+} from "./emoji-shortcodes";
 
 // ============================================================================
 // Search
@@ -125,7 +125,7 @@ export {
   getContextualSuggestions,
   getSearchIndex,
   fastPrefixSearch,
-} from './emoji-search'
+} from "./emoji-search";
 
 // ============================================================================
 // Autocomplete
@@ -146,7 +146,7 @@ export {
   createAutocompleteController,
   isAutocompleteKey,
   handleAutocompleteKey,
-} from './emoji-autocomplete'
+} from "./emoji-autocomplete";
 
 // ============================================================================
 // Recent/Frequent Tracking
@@ -170,7 +170,7 @@ export {
   exportEmojiTrackingData,
   importEmojiTrackingData,
   getEmojiStats,
-} from './emoji-recent'
+} from "./emoji-recent";
 
 // ============================================================================
 // Custom Emojis
@@ -199,7 +199,7 @@ export {
   mergeCustomEmojis,
   exportCustomEmojis,
   importCustomEmojis,
-} from './emoji-custom'
+} from "./emoji-custom";
 
 // ============================================================================
 // Skin Tones
@@ -226,4 +226,4 @@ export {
   parseSkinTone,
   getSkinToneClass,
   getSkinToneColor,
-} from './emoji-skin-tone'
+} from "./emoji-skin-tone";

@@ -1,32 +1,35 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import Link from 'next/link'
-import { ArrowRight, TrendingUp } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useAppDirectoryStore, selectPopularApps } from '@/stores/app-directory-store'
-import { getPopularApps } from '@/lib/app-directory/app-registry'
-import { AppCard } from './AppCard'
+import * as React from "react";
+import Link from "next/link";
+import { ArrowRight, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  useAppDirectoryStore,
+  selectPopularApps,
+} from "@/stores/app-directory-store";
+import { getPopularApps } from "@/lib/app-directory/app-registry";
+import { AppCard } from "./AppCard";
 
 interface PopularAppsProps {
-  className?: string
-  limit?: number
+  className?: string;
+  limit?: number;
 }
 
 export function PopularApps({ className, limit = 8 }: PopularAppsProps) {
-  const popularApps = useAppDirectoryStore(selectPopularApps)
+  const popularApps = useAppDirectoryStore(selectPopularApps);
 
   // Fall back to registry if store is empty
-  const apps = popularApps.length > 0 ? popularApps : getPopularApps(limit)
-  const displayApps = apps.slice(0, limit)
+  const apps = popularApps.length > 0 ? popularApps : getPopularApps(limit);
+  const displayApps = apps.slice(0, limit);
 
   if (displayApps.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <section className={cn('space-y-4', className)}>
+    <section className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-green-500" />
@@ -48,5 +51,5 @@ export function PopularApps({ className, limit = 8 }: PopularAppsProps) {
         ))}
       </div>
     </section>
-  )
+  );
 }

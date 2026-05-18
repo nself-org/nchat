@@ -4,14 +4,14 @@
  * Manages background blur and virtual backgrounds for video streams.
  */
 
-'use client'
+"use client";
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   BackgroundBlur,
   createBackgroundBlur,
   type BlurStrength,
-} from '@/lib/calls/background-blur'
+} from "@/lib/calls/background-blur";
 import {
   VirtualBackground,
   createVirtualBackground,
@@ -19,40 +19,43 @@ import {
   type BackgroundImage,
   PRESET_BACKGROUNDS,
   PRESET_COLORS,
-} from '@/lib/calls/virtual-background'
+} from "@/lib/calls/virtual-background";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type EffectType = 'none' | 'blur' | 'virtual'
+export type EffectType = "none" | "blur" | "virtual";
 
 export interface UseBackgroundEffectsOptions {
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 export interface UseBackgroundEffectsReturn {
   // State
-  effectType: EffectType
-  blurStrength: BlurStrength
-  virtualBackgroundType: BackgroundType
-  virtualBackgroundSource: string | null
-  isProcessing: boolean
-  isInitialized: boolean
-  error: string | null
+  effectType: EffectType;
+  blurStrength: BlurStrength;
+  virtualBackgroundType: BackgroundType;
+  virtualBackgroundSource: string | null;
+  isProcessing: boolean;
+  isInitialized: boolean;
+  error: string | null;
 
   // Actions
-  setEffectType: (type: EffectType) => void
-  setBlurStrength: (strength: BlurStrength) => void
-  setVirtualBackground: (type: BackgroundType, source?: string) => Promise<void>
-  applyToStream: (stream: MediaStream) => Promise<MediaStream>
-  stopProcessing: () => void
+  setEffectType: (type: EffectType) => void;
+  setBlurStrength: (strength: BlurStrength) => void;
+  setVirtualBackground: (
+    type: BackgroundType,
+    source?: string,
+  ) => Promise<void>;
+  applyToStream: (stream: MediaStream) => Promise<MediaStream>;
+  stopProcessing: () => void;
 
   // Presets
-  presetBackgrounds: BackgroundImage[]
-  presetColors: Array<{ id: string; name: string; color: string }>
-  selectPresetBackground: (id: string) => Promise<void>
-  selectPresetColor: (id: string) => void
+  presetBackgrounds: BackgroundImage[];
+  presetColors: Array<{ id: string; name: string; color: string }>;
+  selectPresetBackground: (id: string) => Promise<void>;
+  selectPresetColor: (id: string) => void;
 }
 
 // =============================================================================
@@ -60,21 +63,24 @@ export interface UseBackgroundEffectsReturn {
 // =============================================================================
 
 export function useBackgroundEffects(
-  options: UseBackgroundEffectsOptions = {}
+  options: UseBackgroundEffectsOptions = {},
 ): UseBackgroundEffectsReturn {
-  const { onError } = options
+  const { onError } = options;
 
-  const [effectType, setEffectTypeState] = useState<EffectType>('none')
-  const [blurStrength, setBlurStrengthState] = useState<BlurStrength>('medium')
-  const [virtualBackgroundType, setVirtualBackgroundType] = useState<BackgroundType>('color')
-  const [virtualBackgroundSource, setVirtualBackgroundSource] = useState<string | null>('#1f2937')
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [isInitialized, setIsInitialized] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [effectType, setEffectTypeState] = useState<EffectType>("none");
+  const [blurStrength, setBlurStrengthState] = useState<BlurStrength>("medium");
+  const [virtualBackgroundType, setVirtualBackgroundType] =
+    useState<BackgroundType>("color");
+  const [virtualBackgroundSource, setVirtualBackgroundSource] = useState<
+    string | null
+  >("#1f2937");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const backgroundBlurRef = useRef<BackgroundBlur | null>(null)
-  const virtualBackgroundRef = useRef<VirtualBackground | null>(null)
-  const processedStreamRef = useRef<MediaStream | null>(null)
+  const backgroundBlurRef = useRef<BackgroundBlur | null>(null);
+  const virtualBackgroundRef = useRef<VirtualBackground | null>(null);
+  const processedStreamRef = useRef<MediaStream | null>(null);
 
   // ===========================================================================
   // Initialization
@@ -84,50 +90,51 @@ export function useBackgroundEffects(
     return () => {
       // Cleanup on unmount
       if (backgroundBlurRef.current) {
-        backgroundBlurRef.current.cleanup()
+        backgroundBlurRef.current.cleanup();
       }
       if (virtualBackgroundRef.current) {
-        virtualBackgroundRef.current.cleanup()
+        virtualBackgroundRef.current.cleanup();
       }
       if (processedStreamRef.current) {
-        processedStreamRef.current.getTracks().forEach((track) => track.stop())
+        processedStreamRef.current.getTracks().forEach((track) => track.stop());
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // ===========================================================================
   // Effect Management
   // ===========================================================================
 
   const setEffectType = useCallback((type: EffectType) => {
-    setEffectTypeState(type)
-    setError(null)
-  }, [])
+    setEffectTypeState(type);
+    setError(null);
+  }, []);
 
   const setBlurStrength = useCallback((strength: BlurStrength) => {
-    setBlurStrengthState(strength)
+    setBlurStrengthState(strength);
     if (backgroundBlurRef.current) {
-      backgroundBlurRef.current.setStrength(strength)
+      backgroundBlurRef.current.setStrength(strength);
     }
-  }, [])
+  }, []);
 
   const setVirtualBackground = useCallback(
     async (type: BackgroundType, source?: string): Promise<void> => {
-      setVirtualBackgroundType(type)
-      setVirtualBackgroundSource(source || null)
+      setVirtualBackgroundType(type);
+      setVirtualBackgroundSource(source || null);
 
       if (virtualBackgroundRef.current) {
         try {
-          await virtualBackgroundRef.current.setBackground(type, source)
+          await virtualBackgroundRef.current.setBackground(type, source);
         } catch (err) {
-          const error = err instanceof Error ? err : new Error('Failed to set background')
-          setError(error.message)
-          onError?.(error)
+          const error =
+            err instanceof Error ? err : new Error("Failed to set background");
+          setError(error.message);
+          onError?.(error);
         }
       }
     },
-    [onError]
-  )
+    [onError],
+  );
 
   // ===========================================================================
   // Stream Processing
@@ -135,71 +142,74 @@ export function useBackgroundEffects(
 
   const applyToStream = useCallback(
     async (stream: MediaStream): Promise<MediaStream> => {
-      setError(null)
+      setError(null);
 
       // If no effect, return original stream
-      if (effectType === 'none') {
-        return stream
+      if (effectType === "none") {
+        return stream;
       }
 
       try {
-        setIsProcessing(true)
+        setIsProcessing(true);
 
-        let processedStream: MediaStream
+        let processedStream: MediaStream;
 
-        if (effectType === 'blur') {
+        if (effectType === "blur") {
           // Initialize blur if needed
           if (!backgroundBlurRef.current) {
             backgroundBlurRef.current = createBackgroundBlur({
               strength: blurStrength,
-            })
+            });
           }
 
           // Initialize model
           if (!isInitialized) {
-            await backgroundBlurRef.current.initialize()
-            setIsInitialized(true)
+            await backgroundBlurRef.current.initialize();
+            setIsInitialized(true);
           }
 
           // Process stream
-          processedStream = await backgroundBlurRef.current.processStream(stream)
-        } else if (effectType === 'virtual') {
+          processedStream =
+            await backgroundBlurRef.current.processStream(stream);
+        } else if (effectType === "virtual") {
           // Initialize virtual background if needed
           if (!virtualBackgroundRef.current) {
             virtualBackgroundRef.current = createVirtualBackground({
               type: virtualBackgroundType,
               source: virtualBackgroundSource || undefined,
-            })
+            });
           }
 
           // Initialize model
           if (!isInitialized) {
-            await virtualBackgroundRef.current.initialize()
-            setIsInitialized(true)
+            await virtualBackgroundRef.current.initialize();
+            setIsInitialized(true);
           }
 
           // Process stream
-          processedStream = await virtualBackgroundRef.current.processStream(stream)
+          processedStream =
+            await virtualBackgroundRef.current.processStream(stream);
         } else {
-          processedStream = stream
+          processedStream = stream;
         }
 
         // Stop previous processed stream
         if (processedStreamRef.current) {
           processedStreamRef.current.getTracks().forEach((track) => {
-            if (track.kind === 'video') track.stop()
-          })
+            if (track.kind === "video") track.stop();
+          });
         }
 
-        processedStreamRef.current = processedStream
-        return processedStream
+        processedStreamRef.current = processedStream;
+        return processedStream;
       } catch (err) {
-        const error = err instanceof Error ? err : new Error('Failed to apply effect')
-        setError(error.message)
-        onError?.(error)
-        return stream // Return original stream on error
+        const error =
+          err instanceof Error ? err : new Error("Failed to apply effect");
+        setError(error.message);
+        onError?.(error);
+        return stream; // Return original stream on error
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
     },
     [
@@ -209,24 +219,24 @@ export function useBackgroundEffects(
       virtualBackgroundSource,
       isInitialized,
       onError,
-    ]
-  )
+    ],
+  );
 
   const stopProcessing = useCallback(() => {
     if (backgroundBlurRef.current) {
-      backgroundBlurRef.current.stopProcessing()
+      backgroundBlurRef.current.stopProcessing();
     }
     if (virtualBackgroundRef.current) {
-      virtualBackgroundRef.current.stopProcessing()
+      virtualBackgroundRef.current.stopProcessing();
     }
     if (processedStreamRef.current) {
       processedStreamRef.current.getTracks().forEach((track) => {
-        if (track.kind === 'video') track.stop()
-      })
-      processedStreamRef.current = null
+        if (track.kind === "video") track.stop();
+      });
+      processedStreamRef.current = null;
     }
-    setIsProcessing(false)
-  }, [])
+    setIsProcessing(false);
+  }, []);
 
   // ===========================================================================
   // Presets
@@ -234,23 +244,23 @@ export function useBackgroundEffects(
 
   const selectPresetBackground = useCallback(
     async (id: string): Promise<void> => {
-      const background = PRESET_BACKGROUNDS.find((bg) => bg.id === id)
+      const background = PRESET_BACKGROUNDS.find((bg) => bg.id === id);
       if (background) {
-        await setVirtualBackground('image', background.url)
+        await setVirtualBackground("image", background.url);
       }
     },
-    [setVirtualBackground]
-  )
+    [setVirtualBackground],
+  );
 
   const selectPresetColor = useCallback(
     (id: string): void => {
-      const color = PRESET_COLORS.find((c) => c.id === id)
+      const color = PRESET_COLORS.find((c) => c.id === id);
       if (color) {
-        setVirtualBackground('color', color.color)
+        setVirtualBackground("color", color.color);
       }
     },
-    [setVirtualBackground]
-  )
+    [setVirtualBackground],
+  );
 
   // ===========================================================================
   // Return
@@ -278,5 +288,5 @@ export function useBackgroundEffects(
     presetColors: PRESET_COLORS,
     selectPresetBackground,
     selectPresetColor,
-  }
+  };
 }

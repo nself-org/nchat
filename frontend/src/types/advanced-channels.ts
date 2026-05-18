@@ -10,68 +10,68 @@
  * - Permission overrides (bitfield-based)
  */
 
-import type { UserRole } from './user'
+import type { UserRole } from "./user";
 
 // =============================================================================
 // ENUMS
 // =============================================================================
 
 export type ChannelSubtype =
-  | 'standard'
-  | 'supergroup' // Telegram: >200 members
-  | 'gigagroup' // Telegram: admin-only posting
-  | 'community_announcement' // WhatsApp: announcement channel
-  | 'news' // Discord: news channel
+  | "standard"
+  | "supergroup" // Telegram: >200 members
+  | "gigagroup" // Telegram: admin-only posting
+  | "community_announcement" // WhatsApp: announcement channel
+  | "news"; // Discord: news channel
 
-export type BroadcastSubscriptionStatus = 'active' | 'unsubscribed' | 'blocked'
+export type BroadcastSubscriptionStatus = "active" | "unsubscribed" | "blocked";
 
-export type SubscriptionMode = 'open' | 'invite' | 'admin'
+export type SubscriptionMode = "open" | "invite" | "admin";
 
-export type PermissionTarget = 'role' | 'user'
+export type PermissionTarget = "role" | "user";
 
 // =============================================================================
 // CATEGORIES
 // =============================================================================
 
 export interface ChannelCategory {
-  id: string
-  workspaceId: string
-  name: string
-  description?: string
-  icon?: string
-  color?: string
-  position: number
-  defaultPermissions: bigint
-  syncPermissions: boolean
-  isSystem: boolean
-  createdAt: string
-  updatedAt: string
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  position: number;
+  defaultPermissions: bigint;
+  syncPermissions: boolean;
+  isSystem: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateCategoryInput {
-  workspaceId: string
-  name: string
-  description?: string
-  icon?: string
-  color?: string
-  position?: number
-  defaultPermissions?: bigint
-  syncPermissions?: boolean
+  workspaceId: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  position?: number;
+  defaultPermissions?: bigint;
+  syncPermissions?: boolean;
 }
 
 export interface UpdateCategoryInput {
-  name?: string
-  description?: string
-  icon?: string
-  color?: string
-  position?: number
-  defaultPermissions?: bigint
-  syncPermissions?: boolean
+  name?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  position?: number;
+  defaultPermissions?: bigint;
+  syncPermissions?: boolean;
 }
 
 export interface CategoryWithChannels extends ChannelCategory {
-  channels: Channel[]
-  channelCount: number
+  channels: Channel[];
+  channelCount: number;
 }
 
 // =============================================================================
@@ -79,49 +79,49 @@ export interface CategoryWithChannels extends ChannelCategory {
 // =============================================================================
 
 export interface WorkspaceEnhancements {
-  vanityUrl?: string
-  splashUrl?: string
-  discoverySplashUrl?: string
-  isDiscoverable: boolean
-  verificationLevel: number
-  explicitContentFilter: number
-  systemChannelId?: string
-  rulesChannelId?: string
-  memberCount: number
-  boostTier: number
-  boostCount: number
+  vanityUrl?: string;
+  splashUrl?: string;
+  discoverySplashUrl?: string;
+  isDiscoverable: boolean;
+  verificationLevel: number;
+  explicitContentFilter: number;
+  systemChannelId?: string;
+  rulesChannelId?: string;
+  memberCount: number;
+  boostTier: number;
+  boostCount: number;
 }
 
 export interface Workspace {
-  id: string
-  organizationId: string
-  name: string
-  slug: string
-  description?: string
-  iconUrl?: string
-  bannerUrl?: string
-  settings: Record<string, unknown>
-  features: Record<string, unknown>
-  maxMembers: number
-  maxChannels: number
-  maxFileSizeMb: number
-  ownerId: string
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  id: string;
+  organizationId: string;
+  name: string;
+  slug: string;
+  description?: string;
+  iconUrl?: string;
+  bannerUrl?: string;
+  settings: Record<string, unknown>;
+  features: Record<string, unknown>;
+  maxMembers: number;
+  maxChannels: number;
+  maxFileSizeMb: number;
+  ownerId: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 
   // Guild enhancements
-  vanityUrl?: string
-  splashUrl?: string
-  discoverySplashUrl?: string
-  isDiscoverable: boolean
-  verificationLevel: number
-  explicitContentFilter: number
-  systemChannelId?: string
-  rulesChannelId?: string
-  memberCount: number
-  boostTier: number
-  boostCount: number
+  vanityUrl?: string;
+  splashUrl?: string;
+  discoverySplashUrl?: string;
+  isDiscoverable: boolean;
+  verificationLevel: number;
+  explicitContentFilter: number;
+  systemChannelId?: string;
+  rulesChannelId?: string;
+  memberCount: number;
+  boostTier: number;
+  boostCount: number;
 }
 
 // =============================================================================
@@ -129,55 +129,71 @@ export interface Workspace {
 // =============================================================================
 
 export interface Channel {
-  id: string
-  workspaceId: string
-  categoryId?: string
-  name: string
-  slug: string
-  description?: string
-  topic?: string
-  icon?: string
-  type: 'public' | 'private' | 'direct' | 'group' | 'broadcast' | 'voice' | 'stage' | 'forum'
-  subtype?: ChannelSubtype
-  isPrivate: boolean
-  isArchived: boolean
-  isDefault: boolean
-  isReadonly: boolean
-  isNsfw: boolean
-  maxMembers: number
-  slowmodeSeconds: number
-  bannerUrl?: string
-  position: number
-  permissionSyncId?: string
-  creatorId: string
-  lastMessageAt?: string
-  lastMessageId?: string
-  messageCount: number
-  memberCount: number
-  createdAt: string
-  updatedAt: string
-  archivedAt?: string
+  id: string;
+  workspaceId: string;
+  categoryId?: string;
+  name: string;
+  slug: string;
+  description?: string;
+  topic?: string;
+  icon?: string;
+  type:
+    | "public"
+    | "private"
+    | "direct"
+    | "group"
+    | "broadcast"
+    | "voice"
+    | "stage"
+    | "forum";
+  subtype?: ChannelSubtype;
+  isPrivate: boolean;
+  isArchived: boolean;
+  isDefault: boolean;
+  isReadonly: boolean;
+  isNsfw: boolean;
+  maxMembers: number;
+  slowmodeSeconds: number;
+  bannerUrl?: string;
+  position: number;
+  permissionSyncId?: string;
+  creatorId: string;
+  lastMessageAt?: string;
+  lastMessageId?: string;
+  messageCount: number;
+  memberCount: number;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string;
 }
 
 export interface CreateChannelInput {
-  workspaceId: string
-  categoryId?: string
-  name: string
-  slug?: string
-  description?: string
-  topic?: string
-  icon?: string
-  type: 'public' | 'private' | 'direct' | 'group' | 'broadcast' | 'voice' | 'stage' | 'forum'
-  subtype?: ChannelSubtype
-  isPrivate?: boolean
-  isDefault?: boolean
-  isReadonly?: boolean
-  isNsfw?: boolean
-  maxMembers?: number
-  slowmodeSeconds?: number
-  bannerUrl?: string
-  position?: number
-  memberIds?: string[]
+  workspaceId: string;
+  categoryId?: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  topic?: string;
+  icon?: string;
+  type:
+    | "public"
+    | "private"
+    | "direct"
+    | "group"
+    | "broadcast"
+    | "voice"
+    | "stage"
+    | "forum";
+  subtype?: ChannelSubtype;
+  isPrivate?: boolean;
+  isDefault?: boolean;
+  isReadonly?: boolean;
+  isNsfw?: boolean;
+  maxMembers?: number;
+  slowmodeSeconds?: number;
+  bannerUrl?: string;
+  position?: number;
+  memberIds?: string[];
 }
 
 // =============================================================================
@@ -214,38 +230,38 @@ export const CHANNEL_PERMISSIONS = {
   SEND_VOICE_MESSAGES: 1n << 25n,
   SEND_POLLS: 1n << 26n,
   USE_APPLICATION_COMMANDS: 1n << 27n,
-} as const
+} as const;
 
-export type ChannelPermission = keyof typeof CHANNEL_PERMISSIONS
+export type ChannelPermission = keyof typeof CHANNEL_PERMISSIONS;
 
 export interface ChannelPermissionOverride {
-  id: string
-  channelId: string
-  targetType: PermissionTarget
-  targetId: string
-  allowPermissions: bigint
-  denyPermissions: bigint
-  createdAt: string
-  createdBy: string
-  expiresAt?: string
+  id: string;
+  channelId: string;
+  targetType: PermissionTarget;
+  targetId: string;
+  allowPermissions: bigint;
+  denyPermissions: bigint;
+  createdAt: string;
+  createdBy: string;
+  expiresAt?: string;
 }
 
 export interface CreatePermissionOverrideInput {
-  channelId: string
-  targetType: PermissionTarget
-  targetId: string
-  allowPermissions: bigint
-  denyPermissions: bigint
-  expiresAt?: string
+  channelId: string;
+  targetType: PermissionTarget;
+  targetId: string;
+  allowPermissions: bigint;
+  denyPermissions: bigint;
+  expiresAt?: string;
 }
 
 export interface PermissionContext {
-  workspace: Workspace
-  channel: Channel
-  category?: ChannelCategory
-  userRoles: string[]
-  userOverrides: ChannelPermissionOverride[]
-  roleOverrides: ChannelPermissionOverride[]
+  workspace: Workspace;
+  channel: Channel;
+  category?: ChannelCategory;
+  userRoles: string[];
+  userOverrides: ChannelPermissionOverride[];
+  roleOverrides: ChannelPermissionOverride[];
 }
 
 // =============================================================================
@@ -253,49 +269,49 @@ export interface PermissionContext {
 // =============================================================================
 
 export interface Community {
-  id: string
-  workspaceId: string
-  name: string
-  description?: string
-  iconUrl?: string
-  announcementChannelId: string
-  addGroupsPermission: 'admin' | 'member'
-  membersCanInvite: boolean
-  approvalRequired: boolean
-  eventsEnabled: boolean
-  maxGroups: number
-  maxMembers: number
-  groupCount: number
-  totalMemberCount: number
-  createdBy: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string;
+  iconUrl?: string;
+  announcementChannelId: string;
+  addGroupsPermission: "admin" | "member";
+  membersCanInvite: boolean;
+  approvalRequired: boolean;
+  eventsEnabled: boolean;
+  maxGroups: number;
+  maxMembers: number;
+  groupCount: number;
+  totalMemberCount: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateCommunityInput {
-  workspaceId: string
-  name: string
-  description?: string
-  iconUrl?: string
-  addGroupsPermission?: 'admin' | 'member'
-  membersCanInvite?: boolean
-  approvalRequired?: boolean
-  eventsEnabled?: boolean
-  maxGroups?: number
-  maxMembers?: number
+  workspaceId: string;
+  name: string;
+  description?: string;
+  iconUrl?: string;
+  addGroupsPermission?: "admin" | "member";
+  membersCanInvite?: boolean;
+  approvalRequired?: boolean;
+  eventsEnabled?: boolean;
+  maxGroups?: number;
+  maxMembers?: number;
 }
 
 export interface CommunityGroup {
-  communityId: string
-  channelId: string
-  position: number
-  addedAt: string
-  addedBy: string
+  communityId: string;
+  channelId: string;
+  position: number;
+  addedAt: string;
+  addedBy: string;
 }
 
 export interface CommunityWithGroups extends Community {
-  announcementChannel: Channel
-  groups: Array<CommunityGroup & { channel: Channel }>
+  announcementChannel: Channel;
+  groups: Array<CommunityGroup & { channel: Channel }>;
 }
 
 // =============================================================================
@@ -303,83 +319,83 @@ export interface CommunityWithGroups extends Community {
 // =============================================================================
 
 export interface BroadcastList {
-  id: string
-  workspaceId: string
-  name: string
-  description?: string
-  icon?: string
-  ownerId: string
-  subscriptionMode: SubscriptionMode
-  allowReplies: boolean
-  showSenderName: boolean
-  trackDelivery: boolean
-  trackReads: boolean
-  maxSubscribers: number
-  subscriberCount: number
-  totalMessagesSent: number
-  lastBroadcastAt?: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  ownerId: string;
+  subscriptionMode: SubscriptionMode;
+  allowReplies: boolean;
+  showSenderName: boolean;
+  trackDelivery: boolean;
+  trackReads: boolean;
+  maxSubscribers: number;
+  subscriberCount: number;
+  totalMessagesSent: number;
+  lastBroadcastAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateBroadcastListInput {
-  workspaceId: string
-  name: string
-  description?: string
-  icon?: string
-  subscriptionMode?: SubscriptionMode
-  allowReplies?: boolean
-  showSenderName?: boolean
-  trackDelivery?: boolean
-  trackReads?: boolean
-  maxSubscribers?: number
+  workspaceId: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  subscriptionMode?: SubscriptionMode;
+  allowReplies?: boolean;
+  showSenderName?: boolean;
+  trackDelivery?: boolean;
+  trackReads?: boolean;
+  maxSubscribers?: number;
 }
 
 export interface BroadcastSubscriber {
-  broadcastListId: string
-  userId: string
-  subscribedAt: string
-  subscribedBy?: string
-  notificationsEnabled: boolean
-  status: BroadcastSubscriptionStatus
-  unsubscribedAt?: string
+  broadcastListId: string;
+  userId: string;
+  subscribedAt: string;
+  subscribedBy?: string;
+  notificationsEnabled: boolean;
+  status: BroadcastSubscriptionStatus;
+  unsubscribedAt?: string;
 }
 
 export interface BroadcastMessage {
-  id: string
-  broadcastListId: string
-  content: string
-  attachments: unknown[]
-  sentBy: string
-  sentAt: string
-  scheduledFor?: string
-  isScheduled: boolean
-  totalRecipients: number
-  deliveredCount: number
-  readCount: number
-  failedCount: number
+  id: string;
+  broadcastListId: string;
+  content: string;
+  attachments: unknown[];
+  sentBy: string;
+  sentAt: string;
+  scheduledFor?: string;
+  isScheduled: boolean;
+  totalRecipients: number;
+  deliveredCount: number;
+  readCount: number;
+  failedCount: number;
 }
 
 export interface SendBroadcastInput {
-  broadcastListId: string
-  content: string
-  attachments?: unknown[]
-  scheduledFor?: string
+  broadcastListId: string;
+  content: string;
+  attachments?: unknown[];
+  scheduledFor?: string;
 }
 
 export interface BroadcastDelivery {
-  id: string
-  broadcastMessageId: string
-  userId: string
-  status: 'pending' | 'delivered' | 'read' | 'failed'
-  deliveredAt?: string
-  readAt?: string
-  failedAt?: string
-  errorMessage?: string
+  id: string;
+  broadcastMessageId: string;
+  userId: string;
+  status: "pending" | "delivered" | "read" | "failed";
+  deliveredAt?: string;
+  readAt?: string;
+  failedAt?: string;
+  errorMessage?: string;
 }
 
 export interface BroadcastMessageWithDelivery extends BroadcastMessage {
-  deliveries: BroadcastDelivery[]
+  deliveries: BroadcastDelivery[];
 }
 
 // =============================================================================
@@ -387,36 +403,36 @@ export interface BroadcastMessageWithDelivery extends BroadcastMessage {
 // =============================================================================
 
 export interface ChannelInvite {
-  id: string
-  code: string
-  workspaceId?: string
-  channelId?: string
-  createdBy: string
-  createdAt: string
-  expiresAt?: string
-  maxUses: number
-  uses: number
-  isTemporary: boolean
-  isActive: boolean
+  id: string;
+  code: string;
+  workspaceId?: string;
+  channelId?: string;
+  createdBy: string;
+  createdAt: string;
+  expiresAt?: string;
+  maxUses: number;
+  uses: number;
+  isTemporary: boolean;
+  isActive: boolean;
 }
 
 export interface CreateInviteInput {
-  workspaceId?: string
-  channelId?: string
-  maxUses?: number
-  expiresAt?: string
-  isTemporary?: boolean
+  workspaceId?: string;
+  channelId?: string;
+  maxUses?: number;
+  expiresAt?: string;
+  isTemporary?: boolean;
 }
 
 export interface InviteWithMetadata extends ChannelInvite {
-  workspace?: Workspace
-  channel?: Channel
+  workspace?: Workspace;
+  channel?: Channel;
   creator: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
 }
 
 // =============================================================================
@@ -424,41 +440,41 @@ export interface InviteWithMetadata extends ChannelInvite {
 // =============================================================================
 
 export interface ReorderCategoriesInput {
-  workspaceId: string
-  categoryIds: string[]
+  workspaceId: string;
+  categoryIds: string[];
 }
 
 export interface ReorderChannelsInput {
-  categoryId?: string
-  channelIds: string[]
+  categoryId?: string;
+  channelIds: string[];
 }
 
 export interface MoveChannelInput {
-  channelId: string
-  categoryId?: string
-  position?: number
+  channelId: string;
+  categoryId?: string;
+  position?: number;
 }
 
 export interface PromoteToSupergroupInput {
-  channelId: string
-  reason?: string
+  channelId: string;
+  reason?: string;
 }
 
 export interface AddCommunityGroupInput {
-  communityId: string
-  channelId: string
-  position?: number
+  communityId: string;
+  channelId: string;
+  position?: number;
 }
 
 export interface BulkAddMembersInput {
-  channelId: string
-  userIds: string[]
-  role?: UserRole
+  channelId: string;
+  userIds: string[];
+  role?: UserRole;
 }
 
 export interface BulkSubscribersInput {
-  broadcastListId: string
-  userIds: string[]
+  broadcastListId: string;
+  userIds: string[];
 }
 
 // =============================================================================
@@ -466,28 +482,28 @@ export interface BulkSubscribersInput {
 // =============================================================================
 
 export interface CategoryFilters {
-  workspaceId: string
-  includeSystem?: boolean
+  workspaceId: string;
+  includeSystem?: boolean;
 }
 
 export interface ChannelFilters {
-  workspaceId?: string
-  categoryId?: string
-  type?: string
-  subtype?: ChannelSubtype
-  includeArchived?: boolean
-  isPrivate?: boolean
-  isNsfw?: boolean
+  workspaceId?: string;
+  categoryId?: string;
+  type?: string;
+  subtype?: ChannelSubtype;
+  includeArchived?: boolean;
+  isPrivate?: boolean;
+  isNsfw?: boolean;
 }
 
 export interface CommunityFilters {
-  workspaceId: string
-  includeGroups?: boolean
+  workspaceId: string;
+  includeGroups?: boolean;
 }
 
 export interface BroadcastListFilters {
-  workspaceId: string
-  ownerId?: string
+  workspaceId: string;
+  ownerId?: string;
 }
 
 // =============================================================================
@@ -495,23 +511,23 @@ export interface BroadcastListFilters {
 // =============================================================================
 
 export interface CategoryResponse {
-  category: ChannelCategory
-  channels?: Channel[]
+  category: ChannelCategory;
+  channels?: Channel[];
 }
 
 export interface CommunityResponse {
-  community: Community
-  announcementChannel: Channel
-  groups?: Array<CommunityGroup & { channel: Channel }>
+  community: Community;
+  announcementChannel: Channel;
+  groups?: Array<CommunityGroup & { channel: Channel }>;
 }
 
 export interface BroadcastResponse {
-  broadcastList: BroadcastList
-  subscribers?: BroadcastSubscriber[]
+  broadcastList: BroadcastList;
+  subscribers?: BroadcastSubscriber[];
 }
 
 export interface InviteResponse {
-  invite: ChannelInvite
-  workspace?: Workspace
-  channel?: Channel
+  invite: ChannelInvite;
+  workspace?: Workspace;
+  channel?: Channel;
 }

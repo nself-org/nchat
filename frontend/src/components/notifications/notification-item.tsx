@@ -1,57 +1,63 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import type { NotificationType } from '@/stores/notification-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import type { NotificationType } from "@/stores/notification-store";
 
 // Time formatting utility
 function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (diffInSeconds < 60) {
-    return 'just now'
+    return "just now";
   }
 
-  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60) {
-    return `${diffInMinutes}m ago`
+    return `${diffInMinutes}m ago`;
   }
 
-  const diffInHours = Math.floor(diffInMinutes / 60)
+  const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) {
-    return `${diffInHours}h ago`
+    return `${diffInHours}h ago`;
   }
 
-  const diffInDays = Math.floor(diffInHours / 24)
+  const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 7) {
-    return `${diffInDays}d ago`
+    return `${diffInDays}d ago`;
   }
 
   // Return formatted date for older notifications
   return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-  })
+    month: "short",
+    day: "numeric",
+  });
 }
 
 // Get initials from name
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((part) => part[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 // Notification type icons
 const NotificationIcon: Record<NotificationType, React.ReactNode> = {
   mention: (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -60,7 +66,13 @@ const NotificationIcon: Record<NotificationType, React.ReactNode> = {
     </svg>
   ),
   direct_message: (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -69,7 +81,13 @@ const NotificationIcon: Record<NotificationType, React.ReactNode> = {
     </svg>
   ),
   thread_reply: (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -78,7 +96,13 @@ const NotificationIcon: Record<NotificationType, React.ReactNode> = {
     </svg>
   ),
   reaction: (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -87,7 +111,13 @@ const NotificationIcon: Record<NotificationType, React.ReactNode> = {
     </svg>
   ),
   channel_invite: (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -96,12 +126,28 @@ const NotificationIcon: Record<NotificationType, React.ReactNode> = {
     </svg>
   ),
   channel_update: (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
+      />
     </svg>
   ),
   system: (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -110,7 +156,13 @@ const NotificationIcon: Record<NotificationType, React.ReactNode> = {
     </svg>
   ),
   announcement: (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -118,78 +170,78 @@ const NotificationIcon: Record<NotificationType, React.ReactNode> = {
       />
     </svg>
   ),
-}
+};
 
 // Type color mapping
 const typeColorClasses: Record<NotificationType, string> = {
-  mention: 'text-yellow-500 bg-yellow-500/10',
-  direct_message: 'text-blue-500 bg-blue-500/10',
-  thread_reply: 'text-purple-500 bg-purple-500/10',
-  reaction: 'text-pink-500 bg-pink-500/10',
-  channel_invite: 'text-green-500 bg-green-500/10',
-  channel_update: 'text-cyan-500 bg-cyan-500/10',
-  system: 'text-gray-500 bg-gray-500/10',
-  announcement: 'text-orange-500 bg-orange-500/10',
-}
+  mention: "text-yellow-500 bg-yellow-500/10",
+  direct_message: "text-blue-500 bg-blue-500/10",
+  thread_reply: "text-purple-500 bg-purple-500/10",
+  reaction: "text-pink-500 bg-pink-500/10",
+  channel_invite: "text-green-500 bg-green-500/10",
+  channel_update: "text-cyan-500 bg-cyan-500/10",
+  system: "text-gray-500 bg-gray-500/10",
+  announcement: "text-orange-500 bg-orange-500/10",
+};
 
 export interface NotificationItemProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
-  'onClick'
+  "onClick"
 > {
   /**
    * The notification data
    */
   notification: {
-    id: string
-    type: NotificationType
-    priority?: string
-    title: string
-    body: string
+    id: string;
+    type: NotificationType;
+    priority?: string;
+    title: string;
+    body: string;
     actor?: {
-      id: string
-      name: string
-      avatarUrl?: string
-    }
-    channelId?: string
-    channelName?: string
-    messageId?: string
-    threadId?: string
-    isRead: boolean
-    createdAt: string
-    actionUrl?: string
-  }
+      id: string;
+      name: string;
+      avatarUrl?: string;
+    };
+    channelId?: string;
+    channelName?: string;
+    messageId?: string;
+    threadId?: string;
+    isRead: boolean;
+    createdAt: string;
+    actionUrl?: string;
+  };
 
   /**
    * Callback when marking as read
    */
-  onRead?: (id: string) => void
+  onRead?: (id: string) => void;
 
   /**
    * Callback when dismissing
    */
-  onDismiss?: (id: string) => void
+  onDismiss?: (id: string) => void;
 
   /**
    * Callback when archiving
    */
-  onArchive?: (id: string) => void
+  onArchive?: (id: string) => void;
 
   /**
    * Callback when clicking the notification
    */
-  onClick?: (id: string) => void
+  onClick?: (id: string) => void;
 
   /**
    * Whether to show the dismiss button
    * @default true
    */
-  showDismiss?: boolean
+  showDismiss?: boolean;
 
   /**
    * Whether to use compact styling
    * @default false
    */
-  compact?: boolean
+  compact?: boolean;
 }
 
 /**
@@ -208,50 +260,52 @@ export function NotificationItem({
   className,
   ...props
 }: NotificationItemProps) {
-  const [isHovered, setIsHovered] = React.useState(false)
+  const [isHovered, setIsHovered] = React.useState(false);
 
   const handleClick = React.useCallback(() => {
     if (!notification.isRead) {
-      onRead?.(notification.id)
+      onRead?.(notification.id);
     }
-    onClick?.(notification.id)
-  }, [notification.id, notification.isRead, onRead, onClick])
+    onClick?.(notification.id);
+  }, [notification.id, notification.isRead, onRead, onClick]);
 
   const handleDismiss = React.useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation()
-      onDismiss?.(notification.id)
+      e.stopPropagation();
+      onDismiss?.(notification.id);
     },
-    [notification.id, onDismiss]
-  )
+    [notification.id, onDismiss],
+  );
 
   const handleMarkAsRead = React.useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation()
-      onRead?.(notification.id)
+      e.stopPropagation();
+      onRead?.(notification.id);
     },
-    [notification.id, onRead]
-  )
+    [notification.id, onRead],
+  );
 
-  const typeIcon = NotificationIcon[notification.type] || NotificationIcon.system
-  const typeColor = typeColorClasses[notification.type] || typeColorClasses.system
+  const typeIcon =
+    NotificationIcon[notification.type] || NotificationIcon.system;
+  const typeColor =
+    typeColorClasses[notification.type] || typeColorClasses.system;
 
   return (
     <div
       className={cn(
-        'relative flex cursor-pointer gap-3 px-4 py-3 transition-colors',
-        'hover:bg-accent/50',
-        !notification.isRead && 'bg-accent/30',
-        compact && 'py-2',
-        className
+        "relative flex cursor-pointer gap-3 px-4 py-3 transition-colors",
+        "hover:bg-accent/50",
+        !notification.isRead && "bg-accent/30",
+        compact && "py-2",
+        className,
       )}
       role="button"
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          handleClick()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
         }
       }}
       onMouseEnter={() => setIsHovered(true)}
@@ -270,17 +324,22 @@ export function NotificationItem({
       {/* Avatar or Icon */}
       <div className="flex-shrink-0">
         {notification.actor ? (
-          <Avatar className={cn('h-10 w-10', compact && 'h-8 w-8')}>
-            <AvatarImage src={notification.actor.avatarUrl} alt={notification.actor.name} />
-            <AvatarFallback>{getInitials(notification.actor.name)}</AvatarFallback>
+          <Avatar className={cn("h-10 w-10", compact && "h-8 w-8")}>
+            <AvatarImage
+              src={notification.actor.avatarUrl}
+              alt={notification.actor.name}
+            />
+            <AvatarFallback>
+              {getInitials(notification.actor.name)}
+            </AvatarFallback>
           </Avatar>
         ) : (
           <div
             className={cn(
-              'flex items-center justify-center rounded-full',
-              'h-10 w-10',
-              compact && 'h-8 w-8',
-              typeColor
+              "flex items-center justify-center rounded-full",
+              "h-10 w-10",
+              compact && "h-8 w-8",
+              typeColor,
             )}
           >
             {typeIcon}
@@ -294,9 +353,14 @@ export function NotificationItem({
           <div className="min-w-0 flex-1">
             {/* Title with type icon */}
             <div className="flex items-center gap-1.5">
-              <span className={cn('flex-shrink-0', typeColor, 'rounded p-0.5')}>{typeIcon}</span>
+              <span className={cn("flex-shrink-0", typeColor, "rounded p-0.5")}>
+                {typeIcon}
+              </span>
               <p
-                className={cn('truncate text-sm font-medium text-foreground', compact && 'text-xs')}
+                className={cn(
+                  "truncate text-sm font-medium text-foreground",
+                  compact && "text-xs",
+                )}
               >
                 {notification.title}
               </p>
@@ -305,8 +369,8 @@ export function NotificationItem({
             {/* Body */}
             <p
               className={cn(
-                'mt-0.5 line-clamp-2 text-sm text-muted-foreground',
-                compact && 'line-clamp-1 text-xs'
+                "mt-0.5 line-clamp-2 text-sm text-muted-foreground",
+                compact && "line-clamp-1 text-xs",
               )}
             >
               {notification.body}
@@ -314,7 +378,12 @@ export function NotificationItem({
 
             {/* Channel name if applicable */}
             {notification.channelName && (
-              <p className={cn('mt-1 text-xs text-muted-foreground', compact && 'mt-0.5')}>
+              <p
+                className={cn(
+                  "mt-1 text-xs text-muted-foreground",
+                  compact && "mt-0.5",
+                )}
+              >
                 in #{notification.channelName}
               </p>
             )}
@@ -322,7 +391,10 @@ export function NotificationItem({
 
           {/* Timestamp */}
           <span
-            className={cn('flex-shrink-0 text-xs text-muted-foreground', compact && 'text-[10px]')}
+            className={cn(
+              "flex-shrink-0 text-xs text-muted-foreground",
+              compact && "text-[10px]",
+            )}
           >
             {formatRelativeTime(notification.createdAt)}
           </span>
@@ -333,9 +405,9 @@ export function NotificationItem({
       {(isHovered || !notification.isRead) && (
         <div
           className={cn(
-            'absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1',
-            'opacity-0 transition-opacity',
-            isHovered && 'opacity-100'
+            "absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1",
+            "opacity-0 transition-opacity",
+            isHovered && "opacity-100",
           )}
         >
           {!notification.isRead && (
@@ -353,7 +425,11 @@ export function NotificationItem({
                 stroke="currentColor"
                 strokeWidth={2}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </Button>
           )}
@@ -372,16 +448,20 @@ export function NotificationItem({
                 stroke="currentColor"
                 strokeWidth={2}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </Button>
           )}
         </div>
       )}
     </div>
-  )
+  );
 }
 
-NotificationItem.displayName = 'NotificationItem'
+NotificationItem.displayName = "NotificationItem";
 
-export default NotificationItem
+export default NotificationItem;

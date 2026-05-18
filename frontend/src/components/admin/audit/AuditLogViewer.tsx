@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Audit Log Viewer Component
@@ -10,9 +10,9 @@
  * - Real-time updates
  */
 
-import * as React from 'react'
-import { useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 import {
   TamperProofLogEntry,
   AuditSearchFilter,
@@ -21,28 +21,34 @@ import {
   getTamperProofAuditService,
   verifyAuditIntegrity,
   searchTamperProofLogs,
-} from '@/lib/audit/tamper-proof-audit'
-import { AuditAction, AuditCategory } from '@/lib/audit/audit-types'
+} from "@/lib/audit/tamper-proof-audit";
+import { AuditAction, AuditCategory } from "@/lib/audit/audit-types";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -50,13 +56,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Search,
   Download,
@@ -69,133 +75,135 @@ import {
   Calendar,
   User,
   Activity,
-} from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export function AuditLogViewer() {
-  const [entries, setEntries] = useState<TamperProofLogEntry[]>([])
-  const [total, setTotal] = useState(0)
-  const [hasMore, setHasMore] = useState(false)
+  const [entries, setEntries] = useState<TamperProofLogEntry[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [filter, setFilter] = useState<AuditSearchFilter>({
     limit: 50,
     offset: 0,
-    sortBy: 'timestamp',
-    sortOrder: 'desc',
-  })
-  const [selectedEntry, setSelectedEntry] = useState<TamperProofLogEntry | null>(null)
-  const [verification, setVerification] = useState<IntegrityVerification | null>(null)
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [showFilters, setShowFilters] = useState(false)
-  const { toast } = useToast()
+    sortBy: "timestamp",
+    sortOrder: "desc",
+  });
+  const [selectedEntry, setSelectedEntry] =
+    useState<TamperProofLogEntry | null>(null);
+  const [verification, setVerification] =
+    useState<IntegrityVerification | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    loadLogs()
-  }, [filter])
+    loadLogs();
+  }, [filter]);
 
   const loadLogs = async () => {
     try {
-      const result = await searchTamperProofLogs(filter)
-      setEntries(result.entries)
-      setTotal(result.total)
-      setHasMore(result.hasMore)
+      const result = await searchTamperProofLogs(filter);
+      setEntries(result.entries);
+      setTotal(result.total);
+      setHasMore(result.hasMore);
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to load audit logs',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to load audit logs",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleVerifyIntegrity = async () => {
-    setIsVerifying(true)
+    setIsVerifying(true);
     try {
-      const result = await verifyAuditIntegrity()
-      setVerification(result)
+      const result = await verifyAuditIntegrity();
+      setVerification(result);
 
       toast({
-        title: result.isValid ? 'Integrity Verified' : 'Integrity Compromised',
+        title: result.isValid ? "Integrity Verified" : "Integrity Compromised",
         description: result.isValid
           ? `All ${result.verifiedEntries} entries verified successfully`
           : `${result.compromisedBlocks.length} blocks compromised`,
-        variant: result.isValid ? 'default' : 'destructive',
-      })
+        variant: result.isValid ? "default" : "destructive",
+      });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to verify integrity',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to verify integrity",
+        variant: "destructive",
+      });
     } finally {
-      setIsVerifying(false)
+      setIsVerifying(false);
     }
-  }
+  };
 
   const handleExport = async (format: ExportFormat) => {
     try {
-      const service = getTamperProofAuditService()
-      const data = await service.exportLogs(filter, format)
+      const service = getTamperProofAuditService();
+      const data = await service.exportLogs(filter, format);
 
       const blob =
         data instanceof Blob
           ? data
           : new Blob([data], {
               type:
-                format === 'json'
-                  ? 'application/json'
-                  : format === 'csv'
-                    ? 'text/csv'
-                    : format === 'pdf'
-                      ? 'application/pdf'
-                      : 'text/plain',
-            })
+                format === "json"
+                  ? "application/json"
+                  : format === "csv"
+                    ? "text/csv"
+                    : format === "pdf"
+                      ? "application/pdf"
+                      : "text/plain",
+            });
 
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `audit-log-${new Date().toISOString()}.${format}`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `audit-log-${new Date().toISOString()}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
       toast({
-        title: 'Export Successful',
+        title: "Export Successful",
         description: `Audit logs exported as ${format.toUpperCase()}`,
-      })
+      });
     } catch (error) {
       toast({
-        title: 'Export Failed',
+        title: "Export Failed",
         description: (error as Error).message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleSearch = (searchText: string) => {
-    setFilter({ ...filter, searchText, offset: 0 })
-  }
+    setFilter({ ...filter, searchText, offset: 0 });
+  };
 
   const handlePageChange = (newOffset: number) => {
-    setFilter({ ...filter, offset: newOffset })
-  }
+    setFilter({ ...filter, offset: newOffset });
+  };
 
   const getSeverityVariant = (severity: string) => {
     switch (severity) {
-      case 'critical':
-        return 'destructive'
-      case 'error':
-        return 'destructive'
-      case 'warning':
-        return 'default'
+      case "critical":
+        return "destructive";
+      case "error":
+        return "destructive";
+      case "warning":
+        return "default";
       default:
-        return 'secondary'
+        return "secondary";
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -208,9 +216,13 @@ export function AuditLogViewer() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleVerifyIntegrity} disabled={isVerifying}>
+          <Button
+            variant="outline"
+            onClick={handleVerifyIntegrity}
+            disabled={isVerifying}
+          >
             <Shield className="mr-2 h-4 w-4" />
-            {isVerifying ? 'Verifying...' : 'Verify Integrity'}
+            {isVerifying ? "Verifying..." : "Verify Integrity"}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -220,10 +232,16 @@ export function AuditLogViewer() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleExport('json')}>JSON</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('syslog')}>Syslog</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('cef')}>
+              <DropdownMenuItem onClick={() => handleExport("json")}>
+                JSON
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
+                CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("syslog")}>
+                Syslog
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("cef")}>
                 CEF (Common Event Format)
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -234,7 +252,10 @@ export function AuditLogViewer() {
       {/* Integrity Status */}
       {verification && (
         <Card
-          className={cn('border-2', verification.isValid ? 'border-green-500' : 'border-red-500')}
+          className={cn(
+            "border-2",
+            verification.isValid ? "border-green-500" : "border-red-500",
+          )}
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -243,14 +264,16 @@ export function AuditLogViewer() {
               ) : (
                 <XCircle className="h-5 w-5 text-red-500" />
               )}
-              Integrity {verification.isValid ? 'Verified' : 'Compromised'}
+              Integrity {verification.isValid ? "Verified" : "Compromised"}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-4 gap-4 text-sm">
               <div>
                 <div className="text-muted-foreground">Total Entries</div>
-                <div className="text-2xl font-bold">{verification.totalEntries}</div>
+                <div className="text-2xl font-bold">
+                  {verification.totalEntries}
+                </div>
               </div>
               <div>
                 <div className="text-muted-foreground">Verified</div>
@@ -266,7 +289,9 @@ export function AuditLogViewer() {
               </div>
               <div>
                 <div className="text-muted-foreground">Verified At</div>
-                <div className="text-sm">{verification.verifiedAt.toLocaleString()}</div>
+                <div className="text-sm">
+                  {verification.verifiedAt.toLocaleString()}
+                </div>
               </div>
             </div>
             {verification.errors.length > 0 && (
@@ -293,12 +318,15 @@ export function AuditLogViewer() {
                 <Input
                   placeholder="Search audit logs..."
                   className="pl-10"
-                  value={filter.searchText || ''}
+                  value={filter.searchText || ""}
                   onChange={(e) => handleSearch(e.target.value)}
                 />
               </div>
             </div>
-            <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+            >
               <Filter className="mr-2 h-4 w-4" />
               Filters
             </Button>
@@ -309,7 +337,7 @@ export function AuditLogViewer() {
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select
-                  value={filter.categories?.[0] || ''}
+                  value={filter.categories?.[0] || ""}
                   onValueChange={(value) =>
                     setFilter({
                       ...filter,
@@ -334,7 +362,7 @@ export function AuditLogViewer() {
               <div className="space-y-2">
                 <Label>Severity</Label>
                 <Select
-                  value={filter.severities?.[0] || ''}
+                  value={filter.severities?.[0] || ""}
                   onValueChange={(value) =>
                     setFilter({
                       ...filter,
@@ -358,11 +386,11 @@ export function AuditLogViewer() {
               <div className="space-y-2">
                 <Label>Status</Label>
                 <Select
-                  value={filter.success?.toString() || ''}
+                  value={filter.success?.toString() || ""}
                   onValueChange={(value) =>
                     setFilter({
                       ...filter,
-                      success: value ? value === 'true' : undefined,
+                      success: value ? value === "true" : undefined,
                     })
                   }
                 >
@@ -380,8 +408,10 @@ export function AuditLogViewer() {
               <div className="space-y-2">
                 <Label>Sort By</Label>
                 <Select
-                  value={filter.sortBy || 'timestamp'}
-                  onValueChange={(value: any) => setFilter({ ...filter, sortBy: value })}
+                  value={filter.sortBy || "timestamp"}
+                  onValueChange={(value: any) =>
+                    setFilter({ ...filter, sortBy: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -408,7 +438,7 @@ export function AuditLogViewer() {
           {verification && (
             <span className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              Chain integrity: {verification.isValid ? 'Valid' : 'Compromised'}
+              Chain integrity: {verification.isValid ? "Valid" : "Compromised"}
             </span>
           )}
         </div>
@@ -432,8 +462,12 @@ export function AuditLogViewer() {
           <TableBody>
             {entries.map((entry) => (
               <TableRow key={entry.id}>
-                <TableCell className="font-mono text-xs">#{entry.blockNumber}</TableCell>
-                <TableCell className="text-sm">{entry.timestamp.toLocaleString()}</TableCell>
+                <TableCell className="font-mono text-xs">
+                  #{entry.blockNumber}
+                </TableCell>
+                <TableCell className="text-sm">
+                  {entry.timestamp.toLocaleString()}
+                </TableCell>
                 <TableCell>
                   <code className="text-xs">{entry.action}</code>
                 </TableCell>
@@ -447,7 +481,9 @@ export function AuditLogViewer() {
                   <Badge variant="outline">{entry.category}</Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getSeverityVariant(entry.severity)}>{entry.severity}</Badge>
+                  <Badge variant={getSeverityVariant(entry.severity)}>
+                    {entry.severity}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   {entry.success ? (
@@ -457,7 +493,11 @@ export function AuditLogViewer() {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedEntry(entry)}
+                  >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </TableCell>
@@ -473,7 +513,9 @@ export function AuditLogViewer() {
           <Button
             variant="outline"
             disabled={filter.offset === 0}
-            onClick={() => handlePageChange(Math.max(0, filter.offset! - filter.limit!))}
+            onClick={() =>
+              handlePageChange(Math.max(0, filter.offset! - filter.limit!))
+            }
           >
             Previous
           </Button>
@@ -496,7 +538,7 @@ export function AuditLogViewer() {
         />
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -504,9 +546,9 @@ export function AuditLogViewer() {
 // ============================================================================
 
 interface AuditEntryDialogProps {
-  entry: TamperProofLogEntry
-  open: boolean
-  onClose: () => void
+  entry: TamperProofLogEntry;
+  open: boolean;
+  onClose: () => void;
 }
 
 function AuditEntryDialog({ entry, open, onClose }: AuditEntryDialogProps) {
@@ -515,14 +557,18 @@ function AuditEntryDialog({ entry, open, onClose }: AuditEntryDialogProps) {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Audit Log Entry #{entry.blockNumber}</DialogTitle>
-          <DialogDescription>Tamper-proof audit log entry details</DialogDescription>
+          <DialogDescription>
+            Tamper-proof audit log entry details
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Basic Info */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs text-muted-foreground">Block Number</Label>
+              <Label className="text-xs text-muted-foreground">
+                Block Number
+              </Label>
               <div className="font-mono">{entry.blockNumber}</div>
             </div>
             <div>
@@ -577,12 +623,20 @@ function AuditEntryDialog({ entry, open, onClose }: AuditEntryDialogProps) {
               <span className="font-medium">Cryptographic Verification</span>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">Entry Hash</Label>
-              <div className="break-all font-mono text-xs">{entry.entryHash}</div>
+              <Label className="text-xs text-muted-foreground">
+                Entry Hash
+              </Label>
+              <div className="break-all font-mono text-xs">
+                {entry.entryHash}
+              </div>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">Previous Hash</Label>
-              <div className="break-all font-mono text-xs">{entry.previousHash}</div>
+              <Label className="text-xs text-muted-foreground">
+                Previous Hash
+              </Label>
+              <div className="break-all font-mono text-xs">
+                {entry.previousHash}
+              </div>
             </div>
           </div>
 
@@ -598,7 +652,7 @@ function AuditEntryDialog({ entry, open, onClose }: AuditEntryDialogProps) {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default AuditLogViewer
+export default AuditLogViewer;

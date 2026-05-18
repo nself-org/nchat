@@ -5,19 +5,19 @@ Production-ready error handling with retry logic, circuit breaker, and Sentry in
 ## Quick Start
 
 ```typescript
-import { handleError, withRetry } from '@/lib/errors'
+import { handleError, withRetry } from "@/lib/errors";
 
 // Basic error handling
 try {
-  await someOperation()
+  await someOperation();
 } catch (error) {
-  await handleError(error)
+  await handleError(error);
 }
 
 // With retry logic
 const result = await withRetry(async () => {
-  return await fetchData()
-})
+  return await fetchData();
+});
 ```
 
 ## Files
@@ -87,39 +87,39 @@ Exports all error handling utilities.
 ### Handle GraphQL Error
 
 ```typescript
-import { handleGraphQLError } from '@/lib/errors'
-import { useMutation } from '@apollo/client'
+import { handleGraphQLError } from "@/lib/errors";
+import { useMutation } from "@apollo/client";
 
-const [createChannel] = useMutation(CREATE_CHANNEL)
+const [createChannel] = useMutation(CREATE_CHANNEL);
 
 try {
-  await createChannel({ variables: { name } })
+  await createChannel({ variables: { name } });
 } catch (error) {
-  await handleGraphQLError(error, 'create_channel', { name })
+  await handleGraphQLError(error, "create_channel", { name });
 }
 ```
 
 ### Upload with Retry
 
 ```typescript
-import { handleUploadError, withRetry } from '@/lib/errors'
+import { handleUploadError, withRetry } from "@/lib/errors";
 
 async function uploadFile(file: File) {
   try {
     return await withRetry(async () => {
-      const formData = new FormData()
-      formData.append('file', file)
-      const response = await fetch('/api/upload', {
-        method: 'POST',
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch("/api/upload", {
+        method: "POST",
         body: formData,
-      })
-      if (!response.ok) throw new Error('Upload failed')
-      return await response.json()
-    })
+      });
+      if (!response.ok) throw new Error("Upload failed");
+      return await response.json();
+    });
   } catch (error) {
     await handleUploadError(error, file, async () => {
-      await uploadFile(file)
-    })
+      await uploadFile(file);
+    });
   }
 }
 ```
@@ -127,22 +127,22 @@ async function uploadFile(file: File) {
 ### Offline Queue
 
 ```typescript
-import { offlineQueue } from '@/lib/errors'
-import { showQueuedToast } from '@/components/errors'
+import { offlineQueue } from "@/lib/errors";
+import { showQueuedToast } from "@/components/errors";
 
 if (!navigator.onLine) {
-  offlineQueue.enqueue(async () => await sendMessage(message), 'Send message')
-  showQueuedToast('Message', offlineQueue.size())
-  return
+  offlineQueue.enqueue(async () => await sendMessage(message), "Send message");
+  showQueuedToast("Message", offlineQueue.size());
+  return;
 }
 
-await sendMessage(message)
+await sendMessage(message);
 ```
 
 ### Custom Retry Config
 
 ```typescript
-import { RetryManager } from '@/lib/errors'
+import { RetryManager } from "@/lib/errors";
 
 const retryManager = new RetryManager({
   maxAttempts: 5,
@@ -152,28 +152,28 @@ const retryManager = new RetryManager({
   useJitter: true,
   useCircuitBreaker: true,
   onRetry: (attempt, error, delayMs) => {
-    console.log(`Retry ${attempt}, waiting ${delayMs}ms`)
+    console.log(`Retry ${attempt}, waiting ${delayMs}ms`);
   },
-})
+});
 
 const result = await retryManager.execute(async () => {
-  return await fetchData()
-})
+  return await fetchData();
+});
 ```
 
 ### Error Parsing
 
 ```typescript
-import { parseError, parseHttpError, parseGraphQLError } from '@/lib/errors'
+import { parseError, parseHttpError, parseGraphQLError } from "@/lib/errors";
 
 // Parse unknown error
-const appError = parseError(error)
+const appError = parseError(error);
 
 // Parse HTTP response
-const httpError = parseHttpError(404, 'Not found')
+const httpError = parseHttpError(404, "Not found");
 
 // Parse Apollo GraphQL error
-const graphQLError = parseGraphQLError(apolloError)
+const graphQLError = parseGraphQLError(apolloError);
 ```
 
 ### Check Error Type
@@ -186,7 +186,7 @@ import {
   isTimeoutError,
   isRetryableError,
   shouldReportError,
-} from '@/lib/errors'
+} from "@/lib/errors";
 
 if (isNetworkError(error)) {
   // Handle network error
@@ -244,34 +244,34 @@ if (shouldReportError(error)) {
 1. **Use specific error types**
 
    ```typescript
-   throw new ValidationError('Email is required')
+   throw new ValidationError("Email is required");
    ```
 
 2. **Add context**
 
    ```typescript
    await handleError(error, {
-     context: { userId, channelId, operation: 'send_message' },
-   })
+     context: { userId, channelId, operation: "send_message" },
+   });
    ```
 
 3. **Choose appropriate retry**
 
    ```typescript
    // Critical operations
-   await withAggressiveRetry(() => saveData())
+   await withAggressiveRetry(() => saveData());
 
    // Background tasks
-   await withConservativeRetry(() => syncData())
+   await withConservativeRetry(() => syncData());
    ```
 
 4. **Handle offline**
 
    ```typescript
    if (!navigator.onLine) {
-     offlineQueue.enqueue(() => operation(), 'Operation')
-     showOfflineToast(true)
-     return
+     offlineQueue.enqueue(() => operation(), "Operation");
+     showOfflineToast(true);
+     return;
    }
    ```
 
@@ -279,28 +279,28 @@ if (shouldReportError(error)) {
    ```typescript
    await handleError(error, {
      reportToSentry: error.severity >= ErrorSeverity.MEDIUM,
-   })
+   });
    ```
 
 ## Testing
 
 ```typescript
-import { NetworkError, withRetry } from '@/lib/errors'
+import { NetworkError, withRetry } from "@/lib/errors";
 
-test('handles network error', async () => {
-  mockFetch.mockRejectedValue(new NetworkError('Connection failed'))
-  await expect(fetchData()).rejects.toThrow(NetworkError)
-})
+test("handles network error", async () => {
+  mockFetch.mockRejectedValue(new NetworkError("Connection failed"));
+  await expect(fetchData()).rejects.toThrow(NetworkError);
+});
 
-test('retries failed requests', async () => {
+test("retries failed requests", async () => {
   mockFetch
-    .mockRejectedValueOnce(new Error('Fail 1'))
-    .mockRejectedValueOnce(new Error('Fail 2'))
-    .mockResolvedValueOnce({ data: 'success' })
+    .mockRejectedValueOnce(new Error("Fail 1"))
+    .mockRejectedValueOnce(new Error("Fail 2"))
+    .mockResolvedValueOnce({ data: "success" });
 
-  const result = await withRetry(() => mockFetch())
-  expect(result.data).toBe('success')
-})
+  const result = await withRetry(() => mockFetch());
+  expect(result.data).toBe("success");
+});
 ```
 
 ## See Also

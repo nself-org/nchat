@@ -4,7 +4,7 @@
  * Comprehensive mutations for message lifecycle, reactions, threading, and features.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Message CRUD Mutations
@@ -46,13 +46,22 @@ export const SEND_MESSAGE = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_MESSAGE = gql`
-  mutation UpdateMessage($messageId: uuid!, $content: String!, $mentions: jsonb) {
+  mutation UpdateMessage(
+    $messageId: uuid!
+    $content: String!
+    $mentions: jsonb
+  ) {
     update_nchat_messages_by_pk(
       pk_columns: { id: $messageId }
-      _set: { content: $content, mentions: $mentions, updated_at: "now()", is_edited: true }
+      _set: {
+        content: $content
+        mentions: $mentions
+        updated_at: "now()"
+        is_edited: true
+      }
     ) {
       id
       content
@@ -61,7 +70,7 @@ export const UPDATE_MESSAGE = gql`
       mentions
     }
   }
-`
+`;
 
 export const DELETE_MESSAGE = gql`
   mutation DeleteMessage($messageId: uuid!) {
@@ -71,7 +80,7 @@ export const DELETE_MESSAGE = gql`
       channel_id
     }
   }
-`
+`;
 
 export const SOFT_DELETE_MESSAGE = gql`
   mutation SoftDeleteMessage($messageId: uuid!) {
@@ -84,7 +93,7 @@ export const SOFT_DELETE_MESSAGE = gql`
       deleted_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Message Interaction Mutations
@@ -114,17 +123,20 @@ export const PIN_MESSAGE = gql`
       }
     }
   }
-`
+`;
 
 export const UNPIN_MESSAGE = gql`
   mutation UnpinMessage($messageId: uuid!, $channelId: uuid!) {
     delete_nchat_pinned_messages(
-      where: { message_id: { _eq: $messageId }, channel_id: { _eq: $channelId } }
+      where: {
+        message_id: { _eq: $messageId }
+        channel_id: { _eq: $channelId }
+      }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 export const STAR_MESSAGE = gql`
   mutation StarMessage($messageId: uuid!, $userId: uuid!) {
@@ -140,7 +152,7 @@ export const STAR_MESSAGE = gql`
       starred_at
     }
   }
-`
+`;
 
 export const UNSTAR_MESSAGE = gql`
   mutation UnstarMessage($messageId: uuid!, $userId: uuid!) {
@@ -150,7 +162,7 @@ export const UNSTAR_MESSAGE = gql`
       affected_rows
     }
   }
-`
+`;
 
 export const FORWARD_MESSAGE = gql`
   mutation ForwardMessage(
@@ -183,20 +195,23 @@ export const FORWARD_MESSAGE = gql`
       }
     }
   }
-`
+`;
 
 export const MARK_MESSAGE_READ = gql`
   mutation MarkMessageRead($messageId: uuid!, $userId: uuid!) {
     insert_nchat_read_receipts_one(
       object: { message_id: $messageId, user_id: $userId, read_at: "now()" }
-      on_conflict: { constraint: read_receipts_message_id_user_id_key, update_columns: [read_at] }
+      on_conflict: {
+        constraint: read_receipts_message_id_user_id_key
+        update_columns: [read_at]
+      }
     ) {
       id
       message_id
       read_at
     }
   }
-`
+`;
 
 export const MARK_MESSAGE_UNREAD = gql`
   mutation MarkMessageUnread($messageId: uuid!, $userId: uuid!) {
@@ -206,7 +221,7 @@ export const MARK_MESSAGE_UNREAD = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Thread Mutations
@@ -228,10 +243,15 @@ export const CREATE_THREAD = gql`
       }
     }
   }
-`
+`;
 
 export const REPLY_TO_THREAD = gql`
-  mutation ReplyToThread($threadId: uuid!, $channelId: uuid!, $content: String!, $mentions: jsonb) {
+  mutation ReplyToThread(
+    $threadId: uuid!
+    $channelId: uuid!
+    $content: String!
+    $mentions: jsonb
+  ) {
     insert_nchat_messages_one(
       object: {
         reply_to_id: $threadId
@@ -251,7 +271,7 @@ export const REPLY_TO_THREAD = gql`
       }
     }
   }
-`
+`;
 
 export const SUBSCRIBE_TO_THREAD = gql`
   mutation SubscribeToThread($messageId: uuid!, $userId: uuid!) {
@@ -267,7 +287,7 @@ export const SUBSCRIBE_TO_THREAD = gql`
       subscribed_at
     }
   }
-`
+`;
 
 export const UNSUBSCRIBE_FROM_THREAD = gql`
   mutation UnsubscribeFromThread($messageId: uuid!, $userId: uuid!) {
@@ -277,7 +297,7 @@ export const UNSUBSCRIBE_FROM_THREAD = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Message Attachments
@@ -293,7 +313,7 @@ export const ADD_ATTACHMENT = gql`
       attachments
     }
   }
-`
+`;
 
 export const REMOVE_ATTACHMENT = gql`
   mutation RemoveAttachment($messageId: uuid!, $attachmentIndex: Int!) {
@@ -305,7 +325,7 @@ export const REMOVE_ATTACHMENT = gql`
       attachments
     }
   }
-`
+`;
 
 // ============================================================================
 // Scheduled Messages
@@ -336,7 +356,7 @@ export const SCHEDULE_MESSAGE = gql`
       status
     }
   }
-`
+`;
 
 export const CANCEL_SCHEDULED_MESSAGE = gql`
   mutation CancelScheduledMessage($messageId: uuid!) {
@@ -349,10 +369,14 @@ export const CANCEL_SCHEDULED_MESSAGE = gql`
       cancelled_at
     }
   }
-`
+`;
 
 export const UPDATE_SCHEDULED_MESSAGE = gql`
-  mutation UpdateScheduledMessage($messageId: uuid!, $content: String, $scheduledFor: timestamptz) {
+  mutation UpdateScheduledMessage(
+    $messageId: uuid!
+    $content: String
+    $scheduledFor: timestamptz
+  ) {
     update_nchat_scheduled_messages_by_pk(
       pk_columns: { id: $messageId }
       _set: { content: $content, scheduled_for: $scheduledFor }
@@ -362,7 +386,7 @@ export const UPDATE_SCHEDULED_MESSAGE = gql`
       scheduled_for
     }
   }
-`
+`;
 
 // ============================================================================
 // Typing Indicators
@@ -383,7 +407,7 @@ export const START_TYPING = gql`
       started_at
     }
   }
-`
+`;
 
 export const STOP_TYPING = gql`
   mutation StopTyping($channelId: uuid!, $userId: uuid!) {
@@ -393,7 +417,7 @@ export const STOP_TYPING = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Bulk Operations
@@ -405,7 +429,7 @@ export const DELETE_MULTIPLE_MESSAGES = gql`
       affected_rows
     }
   }
-`
+`;
 
 export const PIN_MULTIPLE_MESSAGES = gql`
   mutation PinMultipleMessages($pins: [nchat_pinned_messages_insert_input!]!) {
@@ -424,58 +448,58 @@ export const PIN_MULTIPLE_MESSAGES = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Re-export reaction mutations
 // ============================================================================
 
-export { ADD_REACTION, REMOVE_REACTION, TOGGLE_REACTION } from './reactions'
+export { ADD_REACTION, REMOVE_REACTION, TOGGLE_REACTION } from "./reactions";
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
 export interface SendMessageInput {
-  channelId: string
-  content: string
-  replyToId?: string
-  threadId?: string
-  attachments?: unknown[]
-  mentions?: { userId: string; displayName: string }[]
-  metadata?: Record<string, unknown>
+  channelId: string;
+  content: string;
+  replyToId?: string;
+  threadId?: string;
+  attachments?: unknown[];
+  mentions?: { userId: string; displayName: string }[];
+  metadata?: Record<string, unknown>;
 }
 
 export interface UpdateMessageInput {
-  content: string
-  mentions?: { userId: string; displayName: string }[]
+  content: string;
+  mentions?: { userId: string; displayName: string }[];
 }
 
 export interface ForwardMessageInput {
-  messageId: string
-  targetChannelId: string
-  content?: string
+  messageId: string;
+  targetChannelId: string;
+  content?: string;
 }
 
 export interface ScheduleMessageInput {
-  channelId: string
-  content: string
-  scheduledFor: string
-  attachments?: unknown[]
-  mentions?: { userId: string; displayName: string }[]
+  channelId: string;
+  content: string;
+  scheduledFor: string;
+  attachments?: unknown[];
+  mentions?: { userId: string; displayName: string }[];
 }
 
 export interface AttachmentInput {
-  type: 'file' | 'image' | 'video' | 'audio' | 'link'
-  url: string
-  name?: string
-  size?: number
-  mimeType?: string
-  thumbnail?: string
-  metadata?: Record<string, unknown>
+  type: "file" | "image" | "video" | "audio" | "link";
+  url: string;
+  name?: string;
+  size?: number;
+  mimeType?: string;
+  thumbnail?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface PinMessageInput {
-  message_id: string
-  channel_id: string
+  message_id: string;
+  channel_id: string;
 }

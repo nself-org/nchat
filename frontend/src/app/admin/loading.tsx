@@ -1,6 +1,6 @@
-import { cn } from '@/lib/utils'
-import { Skeleton, LineSkeleton } from '@/components/loading/skeleton'
-import { UserRowSkeleton } from '@/components/loading/user-skeleton'
+import { cn } from "@/lib/utils";
+import { Skeleton, LineSkeleton } from "@/components/loading/skeleton";
+import { UserRowSkeleton } from "@/components/loading/user-skeleton";
 
 /**
  * Admin page loading skeleton
@@ -17,7 +17,7 @@ export default function AdminLoading() {
         <AdminDashboardSkeleton />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -37,7 +37,10 @@ function AdminSidebarSkeleton() {
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className={cn('flex items-center gap-2 rounded-md px-3 py-2', i === 0 && 'bg-muted')}
+            className={cn(
+              "flex items-center gap-2 rounded-md px-3 py-2",
+              i === 0 && "bg-muted",
+            )}
           >
             <Skeleton className="h-4 w-4 rounded" />
             <LineSkeleton width={80 + Math.random() * 40} height={14} />
@@ -53,7 +56,7 @@ function AdminSidebarSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -104,7 +107,7 @@ function AdminDashboardSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -120,7 +123,7 @@ function StatCardSkeleton() {
       <LineSkeleton width={80} height={28} className="mb-1" />
       <LineSkeleton width={100} height={12} />
     </div>
-  )
+  );
 }
 
 /**
@@ -135,5 +138,5 @@ function ActivityItemSkeleton() {
         <LineSkeleton width={60} height={12} />
       </div>
     </div>
-  )
+  );
 }

@@ -11,9 +11,9 @@ import {
   isInputElement,
   shouldIgnoreShortcut,
   isMacOS,
-} from './shortcut-utils'
-import { SHORTCUTS, ShortcutKey, ShortcutDefinition } from './shortcuts'
-import { useShortcutStore } from './shortcut-store'
+} from "./shortcut-utils";
+import { SHORTCUTS, ShortcutKey, ShortcutDefinition } from "./shortcuts";
+import { useShortcutStore } from "./shortcut-store";
 
 // ============================================================================
 // Types
@@ -21,36 +21,36 @@ import { useShortcutStore } from './shortcut-store'
 
 export type ShortcutActionHandler = (
   event: KeyboardEvent,
-  shortcut: ShortcutDefinition & { id: ShortcutKey }
-) => void | boolean
+  shortcut: ShortcutDefinition & { id: ShortcutKey },
+) => void | boolean;
 
 export interface ShortcutContext {
   /** Context identifier (e.g., 'chat', 'editor', 'modal') */
-  name: string
+  name: string;
   /** Whether this context is currently active */
-  active: boolean
+  active: boolean;
   /** Priority (higher = checked first) */
-  priority?: number
+  priority?: number;
 }
 
 export interface ShortcutHandlerOptions {
   /** Target element to attach listener (default: document) */
-  target?: HTMLElement | Document
+  target?: HTMLElement | Document;
   /** Whether to use capture phase (default: false) */
-  capture?: boolean
+  capture?: boolean;
   /** Default action handler */
-  onAction?: ShortcutActionHandler
+  onAction?: ShortcutActionHandler;
   /** Called when a shortcut is triggered but no handler found */
-  onUnhandled?: (event: KeyboardEvent, shortcut: string) => void
+  onUnhandled?: (event: KeyboardEvent, shortcut: string) => void;
   /** Enable debug logging */
-  debug?: boolean
+  debug?: boolean;
 }
 
 export interface RegisteredHandler {
-  shortcutId: ShortcutKey
-  handler: ShortcutActionHandler
-  context?: string
-  priority?: number
+  shortcutId: ShortcutKey;
+  handler: ShortcutActionHandler;
+  context?: string;
+  priority?: number;
 }
 
 // ============================================================================
@@ -58,27 +58,27 @@ export interface RegisteredHandler {
 // ============================================================================
 
 export class ShortcutHandler {
-  private target: HTMLElement | Document
-  private capture: boolean
-  private onAction?: ShortcutActionHandler
-  private onUnhandled?: (event: KeyboardEvent, shortcut: string) => void
-  private debug: boolean
+  private target: HTMLElement | Document;
+  private capture: boolean;
+  private onAction?: ShortcutActionHandler;
+  private onUnhandled?: (event: KeyboardEvent, shortcut: string) => void;
+  private debug: boolean;
 
-  private handlers: Map<ShortcutKey, RegisteredHandler[]> = new Map()
-  private activeContexts: Set<string> = new Set(['global'])
-  private enabled: boolean = true
-  private bound: boolean = false
+  private handlers: Map<ShortcutKey, RegisteredHandler[]> = new Map();
+  private activeContexts: Set<string> = new Set(["global"]);
+  private enabled: boolean = true;
+  private bound: boolean = false;
 
-  private boundHandleKeydown: EventListener
+  private boundHandleKeydown: EventListener;
 
   constructor(options: ShortcutHandlerOptions = {}) {
-    this.target = options.target || document
-    this.capture = options.capture || false
-    this.onAction = options.onAction
-    this.onUnhandled = options.onUnhandled
-    this.debug = options.debug || false
+    this.target = options.target || document;
+    this.capture = options.capture || false;
+    this.onAction = options.onAction;
+    this.onUnhandled = options.onUnhandled;
+    this.debug = options.debug || false;
 
-    this.boundHandleKeydown = this.handleKeydown.bind(this) as EventListener
+    this.boundHandleKeydown = this.handleKeydown.bind(this) as EventListener;
   }
 
   // ============================================================================
@@ -89,12 +89,12 @@ export class ShortcutHandler {
    * Start listening for keyboard events
    */
   bind(): void {
-    if (this.bound) return
+    if (this.bound) return;
 
-    this.target.addEventListener('keydown', this.boundHandleKeydown, {
+    this.target.addEventListener("keydown", this.boundHandleKeydown, {
       capture: this.capture,
-    })
-    this.bound = true
+    });
+    this.bound = true;
 
     if (this.debug) {
     }
@@ -104,12 +104,12 @@ export class ShortcutHandler {
    * Stop listening for keyboard events
    */
   unbind(): void {
-    if (!this.bound) return
+    if (!this.bound) return;
 
-    this.target.removeEventListener('keydown', this.boundHandleKeydown, {
+    this.target.removeEventListener("keydown", this.boundHandleKeydown, {
       capture: this.capture,
-    })
-    this.bound = false
+    });
+    this.bound = false;
 
     if (this.debug) {
     }
@@ -119,7 +119,7 @@ export class ShortcutHandler {
    * Enable or disable the handler
    */
   setEnabled(enabled: boolean): void {
-    this.enabled = enabled
+    this.enabled = enabled;
 
     if (this.debug) {
     }
@@ -135,51 +135,51 @@ export class ShortcutHandler {
   register(
     shortcutId: ShortcutKey,
     handler: ShortcutActionHandler,
-    options: { context?: string; priority?: number } = {}
+    options: { context?: string; priority?: number } = {},
   ): () => void {
-    const { context = 'global', priority = 0 } = options
+    const { context = "global", priority = 0 } = options;
 
     const registration: RegisteredHandler = {
       shortcutId,
       handler,
       context,
       priority,
-    }
+    };
 
     if (!this.handlers.has(shortcutId)) {
-      this.handlers.set(shortcutId, [])
+      this.handlers.set(shortcutId, []);
     }
 
-    const handlers = this.handlers.get(shortcutId)!
-    handlers.push(registration)
+    const handlers = this.handlers.get(shortcutId)!;
+    handlers.push(registration);
 
     // Sort by priority (descending)
-    handlers.sort((a, b) => (b.priority || 0) - (a.priority || 0))
+    handlers.sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
     if (this.debug) {
     }
 
     // Return unregister function
     return () => {
-      this.unregister(shortcutId, handler)
-    }
+      this.unregister(shortcutId, handler);
+    };
   }
 
   /**
    * Unregister a handler for a shortcut
    */
   unregister(shortcutId: ShortcutKey, handler?: ShortcutActionHandler): void {
-    const handlers = this.handlers.get(shortcutId)
-    if (!handlers) return
+    const handlers = this.handlers.get(shortcutId);
+    if (!handlers) return;
 
     if (handler) {
-      const index = handlers.findIndex((h) => h.handler === handler)
+      const index = handlers.findIndex((h) => h.handler === handler);
       if (index !== -1) {
-        handlers.splice(index, 1)
+        handlers.splice(index, 1);
       }
     } else {
       // Remove all handlers for this shortcut
-      this.handlers.delete(shortcutId)
+      this.handlers.delete(shortcutId);
     }
 
     if (this.debug) {
@@ -191,16 +191,16 @@ export class ShortcutHandler {
    */
   registerMany(
     handlers: Record<ShortcutKey, ShortcutActionHandler>,
-    options: { context?: string; priority?: number } = {}
+    options: { context?: string; priority?: number } = {},
   ): () => void {
     const unregisters = Object.entries(handlers).map(([id, handler]) =>
-      this.register(id as ShortcutKey, handler, options)
-    )
+      this.register(id as ShortcutKey, handler, options),
+    );
 
     // Return combined unregister function
     return () => {
-      unregisters.forEach((unregister) => unregister())
-    }
+      unregisters.forEach((unregister) => unregister());
+    };
   }
 
   // ============================================================================
@@ -211,7 +211,7 @@ export class ShortcutHandler {
    * Activate a context
    */
   activateContext(context: string): void {
-    this.activeContexts.add(context)
+    this.activeContexts.add(context);
 
     if (this.debug) {
     }
@@ -221,7 +221,7 @@ export class ShortcutHandler {
    * Deactivate a context
    */
   deactivateContext(context: string): void {
-    this.activeContexts.delete(context)
+    this.activeContexts.delete(context);
 
     if (this.debug) {
     }
@@ -231,7 +231,7 @@ export class ShortcutHandler {
    * Set active contexts (replaces all)
    */
   setActiveContexts(contexts: string[]): void {
-    this.activeContexts = new Set(contexts)
+    this.activeContexts = new Set(contexts);
 
     if (this.debug) {
     }
@@ -241,14 +241,14 @@ export class ShortcutHandler {
    * Check if a context is active
    */
   isContextActive(context: string): boolean {
-    return this.activeContexts.has(context)
+    return this.activeContexts.has(context);
   }
 
   /**
    * Get all active contexts
    */
   getActiveContexts(): string[] {
-    return Array.from(this.activeContexts)
+    return Array.from(this.activeContexts);
   }
 
   // ============================================================================
@@ -257,131 +257,136 @@ export class ShortcutHandler {
 
   private handleKeydown(event: KeyboardEvent): void {
     // Check if handler is enabled
-    if (!this.enabled) return
+    if (!this.enabled) return;
 
     // Check if shortcuts are globally enabled
-    const store = useShortcutStore.getState()
-    if (!store.shortcutsEnabled) return
+    const store = useShortcutStore.getState();
+    if (!store.shortcutsEnabled) return;
 
     // Get the shortcut string from the event
-    const shortcutString = eventToShortcut(event)
-    if (!shortcutString) return
+    const shortcutString = eventToShortcut(event);
+    if (!shortcutString) return;
 
     if (this.debug) {
     }
 
     // Find matching shortcut
-    const match = this.findMatchingShortcut(event)
+    const match = this.findMatchingShortcut(event);
 
     if (!match) {
       // No matching shortcut defined
       if (this.onUnhandled) {
-        this.onUnhandled(event, shortcutString)
+        this.onUnhandled(event, shortcutString);
       }
-      return
+      return;
     }
 
-    const { id, shortcut } = match
+    const { id, shortcut } = match;
 
     // Check if shortcut is enabled
     if (!store.isShortcutEnabled(id)) {
       if (this.debug) {
       }
-      return
+      return;
     }
 
     // Check if we should ignore based on focus
     const shouldIgnore = shouldIgnoreShortcut(event, {
       enableOnInputs: shortcut.enableOnFormTags,
       enableOnContentEditable: shortcut.enableOnFormTags,
-    })
+    });
 
     if (shouldIgnore) {
       if (this.debug) {
       }
-      return
+      return;
     }
 
     // Check scopes
     if (shortcut.scopes && shortcut.scopes.length > 0) {
-      const hasActiveScope = shortcut.scopes.some((scope) => this.activeContexts.has(scope))
+      const hasActiveScope = shortcut.scopes.some((scope) =>
+        this.activeContexts.has(scope),
+      );
       if (!hasActiveScope) {
         if (this.debug) {
         }
-        return
+        return;
       }
     }
 
     // Find and execute handler
-    const handled = this.executeHandler(id, shortcut, event)
+    const handled = this.executeHandler(id, shortcut, event);
 
     if (handled) {
       if (shortcut.preventDefault) {
-        event.preventDefault()
+        event.preventDefault();
       }
-      event.stopPropagation()
+      event.stopPropagation();
     }
   }
 
   private findMatchingShortcut(
-    event: KeyboardEvent
+    event: KeyboardEvent,
   ): { id: ShortcutKey; shortcut: ShortcutDefinition } | null {
-    const store = useShortcutStore.getState()
+    const store = useShortcutStore.getState();
 
     for (const [id, shortcut] of Object.entries(SHORTCUTS)) {
-      const effectiveKey = store.getEffectiveKey(id as ShortcutKey)
+      const effectiveKey = store.getEffectiveKey(id as ShortcutKey);
 
       if (matchesShortcut(event, effectiveKey)) {
         return {
           id: id as ShortcutKey,
           shortcut: shortcut as ShortcutDefinition,
-        }
+        };
       }
     }
 
-    return null
+    return null;
   }
 
   private executeHandler(
     id: ShortcutKey,
     shortcut: ShortcutDefinition,
-    event: KeyboardEvent
+    event: KeyboardEvent,
   ): boolean {
-    const handlers = this.handlers.get(id)
+    const handlers = this.handlers.get(id);
 
     // Try registered handlers first (sorted by priority)
     if (handlers && handlers.length > 0) {
       for (const registration of handlers) {
         // Check if handler's context is active
-        if (registration.context && !this.activeContexts.has(registration.context)) {
-          continue
+        if (
+          registration.context &&
+          !this.activeContexts.has(registration.context)
+        ) {
+          continue;
         }
 
-        const result = registration.handler(event, { ...shortcut, id })
+        const result = registration.handler(event, { ...shortcut, id });
 
         // If handler returns false, continue to next handler
         if (result === false) {
-          continue
+          continue;
         }
 
         // Handler executed
         if (this.debug) {
         }
-        return true
+        return true;
       }
     }
 
     // Try default action handler
     if (this.onAction) {
-      const result = this.onAction(event, { ...shortcut, id })
+      const result = this.onAction(event, { ...shortcut, id });
       if (result !== false) {
         if (this.debug) {
         }
-        return true
+        return true;
       }
     }
 
-    return false
+    return false;
   }
 
   // ============================================================================
@@ -392,39 +397,43 @@ export class ShortcutHandler {
    * Simulate a shortcut trigger
    */
   trigger(shortcutId: ShortcutKey): boolean {
-    const shortcut = SHORTCUTS[shortcutId]
-    if (!shortcut) return false
+    const shortcut = SHORTCUTS[shortcutId];
+    if (!shortcut) return false;
 
     // Create a synthetic event
-    const event = new KeyboardEvent('keydown', {
-      key: '',
+    const event = new KeyboardEvent("keydown", {
+      key: "",
       bubbles: true,
       cancelable: true,
-    })
+    });
 
-    return this.executeHandler(shortcutId, shortcut as ShortcutDefinition, event)
+    return this.executeHandler(
+      shortcutId,
+      shortcut as ShortcutDefinition,
+      event,
+    );
   }
 
   /**
    * Get all registered shortcut IDs
    */
   getRegisteredShortcuts(): ShortcutKey[] {
-    return Array.from(this.handlers.keys())
+    return Array.from(this.handlers.keys());
   }
 
   /**
    * Check if a shortcut has handlers registered
    */
   hasHandler(shortcutId: ShortcutKey): boolean {
-    const handlers = this.handlers.get(shortcutId)
-    return !!handlers && handlers.length > 0
+    const handlers = this.handlers.get(shortcutId);
+    return !!handlers && handlers.length > 0;
   }
 
   /**
    * Clear all handlers
    */
   clearHandlers(): void {
-    this.handlers.clear()
+    this.handlers.clear();
 
     if (this.debug) {
     }
@@ -435,24 +444,26 @@ export class ShortcutHandler {
 // Singleton Instance
 // ============================================================================
 
-let globalHandler: ShortcutHandler | null = null
+let globalHandler: ShortcutHandler | null = null;
 
 /**
  * Get the global shortcut handler instance
  */
 export function getGlobalShortcutHandler(): ShortcutHandler {
   if (!globalHandler) {
-    globalHandler = new ShortcutHandler()
-    globalHandler.bind()
+    globalHandler = new ShortcutHandler();
+    globalHandler.bind();
   }
-  return globalHandler
+  return globalHandler;
 }
 
 /**
  * Create a new shortcut handler with custom options
  */
-export function createShortcutHandler(options?: ShortcutHandlerOptions): ShortcutHandler {
-  return new ShortcutHandler(options)
+export function createShortcutHandler(
+  options?: ShortcutHandlerOptions,
+): ShortcutHandler {
+  return new ShortcutHandler(options);
 }
 
 // ============================================================================
@@ -464,49 +475,50 @@ export function createShortcutHandler(options?: ShortcutHandlerOptions): Shortcu
  */
 export const ShortcutActions = {
   // Navigation
-  OPEN_QUICK_SWITCHER: 'openQuickSwitcher',
-  SHOW_SHORTCUTS: 'showShortcuts',
-  OPEN_ALL_DMS: 'openAllDMs',
-  PREVIOUS_CHANNEL: 'previousChannel',
-  NEXT_CHANNEL: 'nextChannel',
-  OPEN_THREADS: 'openThreads',
-  OPEN_MENTIONS: 'openMentions',
-  OPEN_SAVED_ITEMS: 'openSavedItems',
-  FOCUS_SEARCH: 'focusSearch',
+  OPEN_QUICK_SWITCHER: "openQuickSwitcher",
+  SHOW_SHORTCUTS: "showShortcuts",
+  OPEN_ALL_DMS: "openAllDMs",
+  PREVIOUS_CHANNEL: "previousChannel",
+  NEXT_CHANNEL: "nextChannel",
+  OPEN_THREADS: "openThreads",
+  OPEN_MENTIONS: "openMentions",
+  OPEN_SAVED_ITEMS: "openSavedItems",
+  FOCUS_SEARCH: "focusSearch",
 
   // Messages
-  NEW_MESSAGE: 'newMessage',
-  UPLOAD_FILE: 'uploadFile',
-  SEND_MESSAGE: 'sendMessage',
-  EDIT_LAST_MESSAGE: 'editLastMessage',
-  CLOSE_PANEL: 'closePanel',
-  REPLY_TO_MESSAGE: 'replyToMessage',
-  ADD_REACTION: 'addReaction',
-  PIN_MESSAGE: 'pinMessage',
-  DELETE_MESSAGE: 'deleteMessage',
+  NEW_MESSAGE: "newMessage",
+  UPLOAD_FILE: "uploadFile",
+  SEND_MESSAGE: "sendMessage",
+  EDIT_LAST_MESSAGE: "editLastMessage",
+  CLOSE_PANEL: "closePanel",
+  REPLY_TO_MESSAGE: "replyToMessage",
+  ADD_REACTION: "addReaction",
+  PIN_MESSAGE: "pinMessage",
+  DELETE_MESSAGE: "deleteMessage",
 
   // Formatting
-  FORMAT_BOLD: 'formatBold',
-  FORMAT_ITALIC: 'formatItalic',
-  FORMAT_STRIKETHROUGH: 'formatStrikethrough',
-  FORMAT_CODE: 'formatCode',
-  FORMAT_CODE_BLOCK: 'formatCodeBlock',
-  FORMAT_LINK: 'formatLink',
-  FORMAT_QUOTE: 'formatQuote',
+  FORMAT_BOLD: "formatBold",
+  FORMAT_ITALIC: "formatItalic",
+  FORMAT_STRIKETHROUGH: "formatStrikethrough",
+  FORMAT_CODE: "formatCode",
+  FORMAT_CODE_BLOCK: "formatCodeBlock",
+  FORMAT_LINK: "formatLink",
+  FORMAT_QUOTE: "formatQuote",
 
   // UI
-  TOGGLE_SIDEBAR: 'toggleSidebar',
-  TOGGLE_REACTIONS: 'toggleReactions',
-  TOGGLE_THREAD_PANEL: 'toggleThreadPanel',
-  TOGGLE_MEMBERS_PANEL: 'toggleMembersPanel',
-  TOGGLE_FULLSCREEN: 'toggleFullscreen',
-  OPEN_EMOJI_PICKER: 'openEmojiPicker',
-  OPEN_SETTINGS: 'openSettings',
+  TOGGLE_SIDEBAR: "toggleSidebar",
+  TOGGLE_REACTIONS: "toggleReactions",
+  TOGGLE_THREAD_PANEL: "toggleThreadPanel",
+  TOGGLE_MEMBERS_PANEL: "toggleMembersPanel",
+  TOGGLE_FULLSCREEN: "toggleFullscreen",
+  OPEN_EMOJI_PICKER: "openEmojiPicker",
+  OPEN_SETTINGS: "openSettings",
 
   // Channel
-  MUTE_CHANNEL: 'muteChannel',
-  INVITE_MEMBERS: 'inviteMembers',
-  CREATE_CHANNEL: 'createChannel',
-} as const
+  MUTE_CHANNEL: "muteChannel",
+  INVITE_MEMBERS: "inviteMembers",
+  CREATE_CHANNEL: "createChannel",
+} as const;
 
-export type ShortcutAction = (typeof ShortcutActions)[keyof typeof ShortcutActions]
+export type ShortcutAction =
+  (typeof ShortcutActions)[keyof typeof ShortcutActions];

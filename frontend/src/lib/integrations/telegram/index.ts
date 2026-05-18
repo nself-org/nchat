@@ -17,7 +17,7 @@ export {
   TELEGRAM_API_BASE,
   verifyTelegramWebhook,
   type TelegramClientConfig,
-} from './telegram-client'
+} from "./telegram-client";
 
 // Export formatter
 export {
@@ -33,7 +33,7 @@ export {
   type TelegramNotificationIcon,
   type TelegramNotificationColor,
   type TelegramNotificationMetadata,
-} from './formatter'
+} from "./formatter";
 
 // Export types
 export type {
@@ -68,4 +68,4 @@ export type {
   TelegramChatNotificationSettings,
   TelegramIntegrationConfig,
   TelegramUnfurlResult,
-} from './types'
+} from "./types";

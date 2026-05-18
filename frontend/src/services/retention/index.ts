@@ -17,7 +17,7 @@ export {
   type ListPoliciesOptions,
   type ListLegalHoldsOptions,
   type PolicyOperationResult,
-} from './retention-policy.service'
+} from "./retention-policy.service";
 
 // Retention Executor Service
 export {
@@ -29,7 +29,7 @@ export {
   InMemoryContentProvider,
   type ContentProvider,
   type ContentItem,
-} from './retention-executor.service'
+} from "./retention-executor.service";
 
 // Re-export types from lib
-export * from '@/lib/retention'
+export * from "@/lib/retention";

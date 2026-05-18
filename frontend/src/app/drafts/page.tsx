@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Drafts Page - View and manage all drafts
@@ -6,17 +6,17 @@
  * Full-page view for draft management
  */
 
-import * as React from 'react'
-import { useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { FileText, ArrowLeft, Settings } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { DraftList, DraftBadge, AutoSaveIndicator } from '@/components/drafts'
-import { useDrafts, useDraftCount } from '@/hooks/useDrafts'
-import { useDraftsStore } from '@/stores/drafts-store'
-import type { Draft, DraftContextType } from '@/lib/drafts/draft-types'
+import * as React from "react";
+import { useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { FileText, ArrowLeft, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { DraftList, DraftBadge, AutoSaveIndicator } from "@/components/drafts";
+import { useDrafts, useDraftCount } from "@/hooks/useDrafts";
+import { useDraftsStore } from "@/stores/drafts-store";
+import type { Draft, DraftContextType } from "@/lib/drafts/draft-types";
 
 // ============================================================================
 // Context Name Resolver
@@ -28,14 +28,14 @@ import type { Draft, DraftContextType } from '@/lib/drafts/draft-types'
  */
 function resolveContextName(type: DraftContextType, id: string): string {
   switch (type) {
-    case 'channel':
-      return `#${id}`
-    case 'thread':
-      return `Thread in ${id.slice(0, 8)}...`
-    case 'dm':
-      return `DM with ${id.slice(0, 8)}...`
+    case "channel":
+      return `#${id}`;
+    case "thread":
+      return `Thread in ${id.slice(0, 8)}...`;
+    case "dm":
+      return `DM with ${id.slice(0, 8)}...`;
     default:
-      return id
+      return id;
   }
 }
 
@@ -44,45 +44,47 @@ function resolveContextName(type: DraftContextType, id: string): string {
 // ============================================================================
 
 export default function DraftsPage() {
-  const router = useRouter()
-  const draftCount = useDraftCount()
-  const { initialize, isInitialized } = useDrafts()
-  const autoSaveEnabled = useDraftsStore((state) => state.autoSaveEnabled)
-  const setAutoSaveEnabled = useDraftsStore((state) => state.setAutoSaveEnabled)
+  const router = useRouter();
+  const draftCount = useDraftCount();
+  const { initialize, isInitialized } = useDrafts();
+  const autoSaveEnabled = useDraftsStore((state) => state.autoSaveEnabled);
+  const setAutoSaveEnabled = useDraftsStore(
+    (state) => state.setAutoSaveEnabled,
+  );
 
   // Initialize drafts store on mount
   useEffect(() => {
     if (!isInitialized) {
-      initialize()
+      initialize();
     }
-  }, [isInitialized, initialize])
+  }, [isInitialized, initialize]);
 
   // Handle draft selection (navigate to context)
   const handleSelect = useCallback(
     (draft: Draft) => {
       // Navigate to the appropriate context
       switch (draft.contextType) {
-        case 'channel':
-          router.push(`/chat/${draft.contextId}`)
-          break
-        case 'thread':
-          router.push(`/chat/thread/${draft.contextId}`)
-          break
-        case 'dm':
-          router.push(`/chat/dm/${draft.contextId}`)
-          break
+        case "channel":
+          router.push(`/chat/${draft.contextId}`);
+          break;
+        case "thread":
+          router.push(`/chat/thread/${draft.contextId}`);
+          break;
+        case "dm":
+          router.push(`/chat/dm/${draft.contextId}`);
+          break;
       }
     },
-    [router]
-  )
+    [router],
+  );
 
   // Handle draft restore (navigate and restore)
   const handleRestore = useCallback(
     (draft: Draft) => {
-      handleSelect(draft)
+      handleSelect(draft);
     },
-    [handleSelect]
-  )
+    [handleSelect],
+  );
 
   // Handle draft send (would need to integrate with message sending)
   const handleSend = useCallback(
@@ -92,10 +94,10 @@ export default function DraftsPage() {
       // 2. Populate the composer
       // 3. Trigger send
       // For now, just navigate
-      handleSelect(draft)
+      handleSelect(draft);
     },
-    [handleSelect]
-  )
+    [handleSelect],
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -103,7 +105,12 @@ export default function DraftsPage() {
       <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="gap-2"
+            >
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
@@ -114,7 +121,9 @@ export default function DraftsPage() {
               </div>
               <div>
                 <h1 className="text-lg font-semibold">Drafts</h1>
-                <p className="text-sm text-muted-foreground">Manage your unsent messages</p>
+                <p className="text-sm text-muted-foreground">
+                  Manage your unsent messages
+                </p>
               </div>
             </div>
           </div>
@@ -169,12 +178,17 @@ export default function DraftsPage() {
       {/* Footer */}
       <footer className="border-t py-4">
         <div className="container flex items-center justify-between px-4 text-sm text-muted-foreground">
-          <p>Drafts are automatically saved as you type and persist across sessions.</p>
           <p>
-            {draftCount === 0 ? 'No drafts' : `${draftCount} draft${draftCount !== 1 ? 's' : ''}`}
+            Drafts are automatically saved as you type and persist across
+            sessions.
+          </p>
+          <p>
+            {draftCount === 0
+              ? "No drafts"
+              : `${draftCount} draft${draftCount !== 1 ? "s" : ""}`}
           </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }

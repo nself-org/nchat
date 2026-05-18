@@ -1,35 +1,46 @@
-'use client'
+"use client";
 
 /**
  * CommandTesting - Test command sandbox
  */
 
-import { useState, useCallback } from 'react'
-import { Play, Terminal, CheckCircle, XCircle, Loader2, RefreshCw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import type { CommandDraft, CommandResult, ParsedCommand } from '@/lib/slash-commands/command-types'
-import { parseCommand } from '@/lib/slash-commands'
-import { cn } from '@/lib/utils'
+import { useState, useCallback } from "react";
+import {
+  Play,
+  Terminal,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  RefreshCw,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import type {
+  CommandDraft,
+  CommandResult,
+  ParsedCommand,
+} from "@/lib/slash-commands/command-types";
+import { parseCommand } from "@/lib/slash-commands";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandTestingProps {
-  command: CommandDraft
+  command: CommandDraft;
 }
 
 interface TestResult {
-  id: string
-  input: string
-  parsed: ParsedCommand | null
-  result: CommandResult | null
-  timestamp: Date
-  duration: number
+  id: string;
+  input: string;
+  parsed: ParsedCommand | null;
+  result: CommandResult | null;
+  timestamp: Date;
+  duration: number;
 }
 
 // ============================================================================
@@ -37,69 +48,72 @@ interface TestResult {
 // ============================================================================
 
 export function CommandTesting({ command }: CommandTestingProps) {
-  const [input, setInput] = useState(`/${command.trigger || 'command'}`)
-  const [isRunning, setIsRunning] = useState(false)
-  const [results, setResults] = useState<TestResult[]>([])
+  const [input, setInput] = useState(`/${command.trigger || "command"}`);
+  const [isRunning, setIsRunning] = useState(false);
+  const [results, setResults] = useState<TestResult[]>([]);
 
   // Update input when trigger changes
   const handleInputChange = useCallback((value: string) => {
-    setInput(value)
-  }, [])
+    setInput(value);
+  }, []);
 
   // Run test
   const handleTest = useCallback(async () => {
-    if (!command.trigger) return
+    if (!command.trigger) return;
 
-    setIsRunning(true)
-    const startTime = Date.now()
+    setIsRunning(true);
+    const startTime = Date.now();
 
     // Create a full command for parsing
     const fullCommand = {
       ...command,
-      id: command.id || 'test-command',
+      id: command.id || "test-command",
       name: command.name || command.trigger,
-      description: command.description || '',
-      category: command.category || 'custom',
+      description: command.description || "",
+      category: command.category || "custom",
       arguments: command.arguments || [],
-      permissions: command.permissions || { minRole: 'member', allowGuests: false },
+      permissions: command.permissions || {
+        minRole: "member",
+        allowGuests: false,
+      },
       channels: command.channels || {
-        allowedTypes: ['public', 'private', 'direct', 'group'],
+        allowedTypes: ["public", "private", "direct", "group"],
         allowInThreads: true,
       },
       responseConfig: command.responseConfig || {
-        type: 'ephemeral',
+        type: "ephemeral",
         ephemeral: true,
         showTyping: false,
       },
-      actionType: command.actionType || 'message',
-      action: command.action || { type: 'message' },
+      actionType: command.actionType || "message",
+      action: command.action || { type: "message" },
       isEnabled: true,
       isBuiltIn: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      createdBy: 'test',
-    } as const
+      createdBy: "test",
+    } as const;
 
     try {
       // Parse the command
-      const parsed = parseCommand(input, fullCommand as any)
-      const duration = Date.now() - startTime
+      const parsed = parseCommand(input, fullCommand as any);
+      const duration = Date.now() - startTime;
 
       // Create mock result (actual execution would require full context)
       const result: CommandResult = parsed.isValid
         ? {
             success: true,
             response: {
-              type: command.responseConfig?.type || 'ephemeral',
+              type: command.responseConfig?.type || "ephemeral",
               content:
-                'Command parsed successfully. In production, this would execute the configured action.',
+                "Command parsed successfully. In production, this would execute the configured action.",
               ephemeral: true,
             },
           }
         : {
             success: false,
-            error: parsed.errors.map((e) => e.message).join('\n'),
-          }
+            error: parsed.errors.map((e) => e.message).join("\n"),
+          };
 
       const testResult: TestResult = {
         id: `test-${Date.now()}`,
@@ -108,9 +122,9 @@ export function CommandTesting({ command }: CommandTestingProps) {
         result,
         timestamp: new Date(),
         duration,
-      }
+      };
 
-      setResults((prev) => [testResult, ...prev.slice(0, 9)])
+      setResults((prev) => [testResult, ...prev.slice(0, 9)]);
     } catch (error) {
       const testResult: TestResult = {
         id: `test-${Date.now()}`,
@@ -118,22 +132,22 @@ export function CommandTesting({ command }: CommandTestingProps) {
         parsed: null,
         result: {
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         },
         timestamp: new Date(),
         duration: Date.now() - startTime,
-      }
+      };
 
-      setResults((prev) => [testResult, ...prev.slice(0, 9)])
+      setResults((prev) => [testResult, ...prev.slice(0, 9)]);
     } finally {
-      setIsRunning(false)
+      setIsRunning(false);
     }
-  }, [command, input])
+  }, [command, input]);
 
   // Clear results
   const handleClear = useCallback(() => {
-    setResults([])
-  }, [])
+    setResults([]);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -147,17 +161,20 @@ export function CommandTesting({ command }: CommandTestingProps) {
               <Input
                 value={input}
                 onChange={(e) => handleInputChange(e.target.value)}
-                placeholder={`/${command.trigger || 'command'} [args...]`}
+                placeholder={`/${command.trigger || "command"} [args...]`}
                 className="pl-9 font-mono"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleTest()
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleTest();
                   }
                 }}
               />
             </div>
-            <Button onClick={handleTest} disabled={isRunning || !command.trigger}>
+            <Button
+              onClick={handleTest}
+              disabled={isRunning || !command.trigger}
+            >
               {isRunning ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -167,8 +184,8 @@ export function CommandTesting({ command }: CommandTestingProps) {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Press Enter or click Test to run. Results show parsing and validation, not actual
-            execution.
+            Press Enter or click Test to run. Results show parsing and
+            validation, not actual execution.
           </p>
         </div>
 
@@ -179,7 +196,7 @@ export function CommandTesting({ command }: CommandTestingProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setInput(`/${command.trigger || 'command'}`)}
+              onClick={() => setInput(`/${command.trigger || "command"}`)}
             >
               Basic
             </Button>
@@ -191,9 +208,15 @@ export function CommandTesting({ command }: CommandTestingProps) {
                   const args = command.arguments
                     ?.filter((a) => a.required && a.position !== undefined)
                     .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-                    .map((a) => (a.type === 'user' ? '@user' : a.type === 'number' ? '42' : 'test'))
-                    .join(' ')
-                  setInput(`/${command.trigger || 'command'} ${args}`)
+                    .map((a) =>
+                      a.type === "user"
+                        ? "@user"
+                        : a.type === "number"
+                          ? "42"
+                          : "test",
+                    )
+                    .join(" ");
+                  setInput(`/${command.trigger || "command"} ${args}`);
                 }}
               >
                 With Required Args
@@ -204,8 +227,10 @@ export function CommandTesting({ command }: CommandTestingProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const flag = command.arguments?.find((a) => a.flag)
-                  setInput(`/${command.trigger || 'command'} --${flag?.flag} value`)
+                  const flag = command.arguments?.find((a) => a.flag);
+                  setInput(
+                    `/${command.trigger || "command"} --${flag?.flag} value`,
+                  );
                 }}
               >
                 With Flag
@@ -214,7 +239,9 @@ export function CommandTesting({ command }: CommandTestingProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setInput(`/${command.trigger || 'command'} invalid @#$%`)}
+              onClick={() =>
+                setInput(`/${command.trigger || "command"} invalid @#$%`)
+              }
             >
               Invalid Input
             </Button>
@@ -252,7 +279,7 @@ export function CommandTesting({ command }: CommandTestingProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -260,15 +287,15 @@ export function CommandTesting({ command }: CommandTestingProps) {
 // ============================================================================
 
 function TestResultCard({ result }: { result: TestResult }) {
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(true);
 
   return (
     <div
       className={cn(
-        'rounded-lg border',
+        "rounded-lg border",
         result.result?.success
-          ? 'border-green-500/20 bg-green-500/5'
-          : 'border-red-500/20 bg-red-500/5'
+          ? "border-green-500/20 bg-green-500/5"
+          : "border-red-500/20 bg-red-500/5",
       )}
     >
       {/* Header */}
@@ -282,15 +309,17 @@ function TestResultCard({ result }: { result: TestResult }) {
           <XCircle className="h-5 w-5 text-red-500" />
         )}
         <div className="min-w-0 flex-1">
-          <code className="block truncate font-mono text-sm">{result.input}</code>
+          <code className="block truncate font-mono text-sm">
+            {result.input}
+          </code>
           <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
             <span>{result.timestamp.toLocaleTimeString()}</span>
             <span>-</span>
             <span>{result.duration}ms</span>
           </div>
         </div>
-        <Badge variant={result.result?.success ? 'outline' : 'destructive'}>
-          {result.result?.success ? 'Passed' : 'Failed'}
+        <Badge variant={result.result?.success ? "outline" : "destructive"}>
+          {result.result?.success ? "Passed" : "Failed"}
         </Badge>
       </button>
 
@@ -300,20 +329,32 @@ function TestResultCard({ result }: { result: TestResult }) {
           {/* Parsing Results */}
           {result.parsed && (
             <div className="space-y-2">
-              <h4 className="text-xs font-medium uppercase text-muted-foreground">Parsing</h4>
+              <h4 className="text-xs font-medium uppercase text-muted-foreground">
+                Parsing
+              </h4>
               <div className="bg-muted/50 rounded p-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">Valid:</span>
-                  <span className={result.parsed.isValid ? 'text-green-500' : 'text-red-500'}>
-                    {result.parsed.isValid ? 'Yes' : 'No'}
+                  <span
+                    className={
+                      result.parsed.isValid ? "text-green-500" : "text-red-500"
+                    }
+                  >
+                    {result.parsed.isValid ? "Yes" : "No"}
                   </span>
                 </div>
                 {result.parsed.args.length > 0 && (
                   <div className="mt-2">
-                    <span className="text-xs text-muted-foreground">Arguments:</span>
+                    <span className="text-xs text-muted-foreground">
+                      Arguments:
+                    </span>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {result.parsed.args.map((arg, i) => (
-                        <Badge key={i} variant="secondary" className="font-mono text-xs">
+                        <Badge
+                          key={i}
+                          variant="secondary"
+                          className="font-mono text-xs"
+                        >
                           {arg.definition.name}: {String(arg.value)}
                         </Badge>
                       ))}
@@ -322,13 +363,21 @@ function TestResultCard({ result }: { result: TestResult }) {
                 )}
                 {Object.keys(result.parsed.flags).length > 0 && (
                   <div className="mt-2">
-                    <span className="text-xs text-muted-foreground">Flags:</span>
+                    <span className="text-xs text-muted-foreground">
+                      Flags:
+                    </span>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {Object.entries(result.parsed.flags).map(([flag, arg]) => (
-                        <Badge key={flag} variant="outline" className="font-mono text-xs">
-                          --{flag}: {String(arg.value)}
-                        </Badge>
-                      ))}
+                      {Object.entries(result.parsed.flags).map(
+                        ([flag, arg]) => (
+                          <Badge
+                            key={flag}
+                            variant="outline"
+                            className="font-mono text-xs"
+                          >
+                            --{flag}: {String(arg.value)}
+                          </Badge>
+                        ),
+                      )}
                     </div>
                   </div>
                 )}
@@ -339,7 +388,9 @@ function TestResultCard({ result }: { result: TestResult }) {
           {/* Errors */}
           {result.parsed?.errors && result.parsed.errors.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-xs font-medium uppercase text-muted-foreground">Errors</h4>
+              <h4 className="text-xs font-medium uppercase text-muted-foreground">
+                Errors
+              </h4>
               <div className="rounded bg-red-500/10 p-2">
                 <ul className="list-disc pl-4 text-sm text-red-600">
                   {result.parsed.errors.map((error, i) => (
@@ -353,7 +404,9 @@ function TestResultCard({ result }: { result: TestResult }) {
           {/* Result */}
           {result.result?.error && (
             <div className="space-y-2">
-              <h4 className="text-xs font-medium uppercase text-muted-foreground">Error</h4>
+              <h4 className="text-xs font-medium uppercase text-muted-foreground">
+                Error
+              </h4>
               <div className="rounded bg-red-500/10 p-2">
                 <pre className="whitespace-pre-wrap text-sm text-red-600">
                   {result.result.error}
@@ -385,7 +438,7 @@ function TestResultCard({ result }: { result: TestResult }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default CommandTesting
+export default CommandTesting;

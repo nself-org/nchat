@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Bookmarks Page
@@ -6,10 +6,10 @@
  * Main page for viewing and managing bookmarks.
  */
 
-import { BookmarkList } from '@/components/bookmarks/BookmarkList'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SavedMessages } from '@/components/bookmarks/SavedMessages'
-import { Bookmark, Save } from 'lucide-react'
+import { BookmarkList } from "@/components/bookmarks/BookmarkList";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SavedMessages } from "@/components/bookmarks/SavedMessages";
+import { Bookmark, Save } from "lucide-react";
 
 export default function BookmarksPage() {
   return (
@@ -43,5 +43,5 @@ export default function BookmarksPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

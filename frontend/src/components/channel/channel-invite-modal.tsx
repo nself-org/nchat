@@ -1,15 +1,23 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useEffect } from 'react'
-import { Users, X, Search, Link as LinkIcon, Copy, Check, Mail } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Switch } from '@/components/ui/switch'
+import * as React from "react";
+import { useState, useEffect } from "react";
+import {
+  Users,
+  X,
+  Search,
+  Link as LinkIcon,
+  Copy,
+  Check,
+  Mail,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -17,28 +25,28 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useChannelStore, selectActiveChannel } from '@/stores/channel-store'
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useChannelStore, selectActiveChannel } from "@/stores/channel-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChannelInviteModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  channelId?: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channelId?: string;
 }
 
 interface UserOption {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl?: string
-  email?: string
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
+  email?: string;
 }
 
 // ============================================================================
@@ -46,116 +54,158 @@ interface UserOption {
 // ============================================================================
 
 const mockUsers: UserOption[] = [
-  { id: '1', username: 'alice', displayName: 'Alice Johnson', email: 'alice@example.com' },
-  { id: '2', username: 'bob', displayName: 'Bob Smith', email: 'bob@example.com' },
-  { id: '3', username: 'charlie', displayName: 'Charlie Brown', email: 'charlie@example.com' },
-  { id: '4', username: 'diana', displayName: 'Diana Prince', email: 'diana@example.com' },
-  { id: '5', username: 'eve', displayName: 'Eve Wilson', email: 'eve@example.com' },
-  { id: '6', username: 'frank', displayName: 'Frank Castle', email: 'frank@example.com' },
-  { id: '7', username: 'grace', displayName: 'Grace Hopper', email: 'grace@example.com' },
-]
+  {
+    id: "1",
+    username: "alice",
+    displayName: "Alice Johnson",
+    email: "alice@example.com",
+  },
+  {
+    id: "2",
+    username: "bob",
+    displayName: "Bob Smith",
+    email: "bob@example.com",
+  },
+  {
+    id: "3",
+    username: "charlie",
+    displayName: "Charlie Brown",
+    email: "charlie@example.com",
+  },
+  {
+    id: "4",
+    username: "diana",
+    displayName: "Diana Prince",
+    email: "diana@example.com",
+  },
+  {
+    id: "5",
+    username: "eve",
+    displayName: "Eve Wilson",
+    email: "eve@example.com",
+  },
+  {
+    id: "6",
+    username: "frank",
+    displayName: "Frank Castle",
+    email: "frank@example.com",
+  },
+  {
+    id: "7",
+    username: "grace",
+    displayName: "Grace Hopper",
+    email: "grace@example.com",
+  },
+];
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function ChannelInviteModal({ open, onOpenChange, channelId }: ChannelInviteModalProps) {
-  const channel = useChannelStore(selectActiveChannel)
-  const { addChannelMember } = useChannelStore()
+export function ChannelInviteModal({
+  open,
+  onOpenChange,
+  channelId,
+}: ChannelInviteModalProps) {
+  const channel = useChannelStore(selectActiveChannel);
+  const { addChannelMember } = useChannelStore();
 
   // State
-  const [activeTab, setActiveTab] = useState<'members' | 'link' | 'email'>('members')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedUsers, setSelectedUsers] = useState<UserOption[]>([])
-  const [emailInvites, setEmailInvites] = useState('')
-  const [linkCopied, setLinkCopied] = useState(false)
-  const [linkExpiry, setLinkExpiry] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<"members" | "link" | "email">(
+    "members",
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState<UserOption[]>([]);
+  const [emailInvites, setEmailInvites] = useState("");
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [linkExpiry, setLinkExpiry] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Reset state when modal opens/closes
   useEffect(() => {
     if (open) {
-      setSearchQuery('')
-      setSelectedUsers([])
-      setEmailInvites('')
-      setLinkCopied(false)
-      setActiveTab('members')
+      setSearchQuery("");
+      setSelectedUsers([]);
+      setEmailInvites("");
+      setLinkCopied(false);
+      setActiveTab("members");
     }
-  }, [open])
+  }, [open]);
 
   // Filter users based on search
   const filteredUsers = React.useMemo(() => {
-    const query = searchQuery.toLowerCase().trim()
-    if (!query) return mockUsers.filter((u) => !selectedUsers.some((s) => s.id === u.id))
+    const query = searchQuery.toLowerCase().trim();
+    if (!query)
+      return mockUsers.filter((u) => !selectedUsers.some((s) => s.id === u.id));
     return mockUsers.filter(
       (u) =>
         !selectedUsers.some((s) => s.id === u.id) &&
         (u.displayName.toLowerCase().includes(query) ||
           u.username.toLowerCase().includes(query) ||
-          u.email?.toLowerCase().includes(query))
-    )
-  }, [searchQuery, selectedUsers])
+          u.email?.toLowerCase().includes(query)),
+    );
+  }, [searchQuery, selectedUsers]);
 
   const handleSelectUser = (user: UserOption) => {
-    setSelectedUsers((prev) => [...prev, user])
-    setSearchQuery('')
-  }
+    setSelectedUsers((prev) => [...prev, user]);
+    setSearchQuery("");
+  };
 
   const handleRemoveUser = (userId: string) => {
-    setSelectedUsers((prev) => prev.filter((u) => u.id !== userId))
-  }
+    setSelectedUsers((prev) => prev.filter((u) => u.id !== userId));
+  };
 
   const handleCopyLink = async () => {
-    if (!channel) return
-    const inviteUrl = `${window.location.origin}/invite/${channel.slug}?token=xxx`
-    await navigator.clipboard.writeText(inviteUrl)
-    setLinkCopied(true)
-    setTimeout(() => setLinkCopied(false), 2000)
-  }
+    if (!channel) return;
+    const inviteUrl = `${window.location.origin}/invite/${channel.slug}?token=xxx`;
+    await navigator.clipboard.writeText(inviteUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
 
   const handleInviteMembers = async () => {
-    if (!channel || selectedUsers.length === 0) return
+    if (!channel || selectedUsers.length === 0) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // In production, this would call an API
       for (const user of selectedUsers) {
         addChannelMember(channel.id, {
           userId: user.id,
-          role: 'member',
+          role: "member",
           joinedAt: new Date().toISOString(),
           lastReadAt: null,
           lastReadMessageId: null,
-        })
+        });
       }
-      onOpenChange(false)
+      onOpenChange(false);
     } catch (error) {
-      logger.error('Failed to invite members:', error)
+      logger.error("Failed to invite members:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSendEmailInvites = async () => {
-    if (!emailInvites.trim()) return
+    if (!emailInvites.trim()) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // In production, this would call an API to send email invites
       const emails = emailInvites
         .split(/[,\n]/)
         .map((e) => e.trim())
-        .filter((e) => e.includes('@'))
+        .filter((e) => e.includes("@"));
 
-      onOpenChange(false)
+      onOpenChange(false);
     } catch (error) {
-      logger.error('Failed to send email invites:', error)
+      logger.error("Failed to send email invites:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  if (!channel) return null
+  if (!channel) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -170,7 +220,10 @@ export function ChannelInviteModal({ open, onOpenChange, channelId }: ChannelInv
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="link">Invite Link</TabsTrigger>
@@ -194,7 +247,11 @@ export function ChannelInviteModal({ open, onOpenChange, channelId }: ChannelInv
             {selectedUsers.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {selectedUsers.map((user) => (
-                  <Badge key={user.id} variant="secondary" className="gap-1 py-0.5 pl-1 pr-0.5">
+                  <Badge
+                    key={user.id}
+                    variant="secondary"
+                    className="gap-1 py-0.5 pl-1 pr-0.5"
+                  >
                     <Avatar className="h-4 w-4">
                       <AvatarImage src={user.avatarUrl} />
                       <AvatarFallback className="text-[8px]">
@@ -227,17 +284,23 @@ export function ChannelInviteModal({ open, onOpenChange, channelId }: ChannelInv
                     >
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={user.avatarUrl} />
-                        <AvatarFallback>{user.displayName.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>
+                          {user.displayName.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{user.displayName}</p>
-                        <p className="truncate text-xs text-muted-foreground">@{user.username}</p>
+                        <p className="truncate text-sm font-medium">
+                          {user.displayName}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          @{user.username}
+                        </p>
                       </div>
                     </button>
                   ))
                 ) : (
                   <div className="py-8 text-center text-sm text-muted-foreground">
-                    {searchQuery ? 'No users found' : 'Start typing to search'}
+                    {searchQuery ? "No users found" : "Start typing to search"}
                   </div>
                 )}
               </div>
@@ -249,8 +312,8 @@ export function ChannelInviteModal({ open, onOpenChange, channelId }: ChannelInv
               disabled={selectedUsers.length === 0 || isLoading}
             >
               {isLoading
-                ? 'Adding...'
-                : `Add ${selectedUsers.length} member${selectedUsers.length !== 1 ? 's' : ''}`}
+                ? "Adding..."
+                : `Add ${selectedUsers.length} member${selectedUsers.length !== 1 ? "s" : ""}`}
             </Button>
           </TabsContent>
 
@@ -285,14 +348,20 @@ export function ChannelInviteModal({ open, onOpenChange, channelId }: ChannelInv
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-0.5">
                 <Label className="font-medium">Link expires</Label>
-                <p className="text-xs text-muted-foreground">Link will expire in 7 days</p>
+                <p className="text-xs text-muted-foreground">
+                  Link will expire in 7 days
+                </p>
               </div>
               <Switch checked={linkExpiry} onCheckedChange={setLinkExpiry} />
             </div>
 
-            <Button variant="outline" className="w-full" onClick={handleCopyLink}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleCopyLink}
+            >
               <LinkIcon className="mr-2 h-4 w-4" />
-              {linkCopied ? 'Copied!' : 'Copy invite link'}
+              {linkCopied ? "Copied!" : "Copy invite link"}
             </Button>
           </TabsContent>
 
@@ -308,8 +377,8 @@ export function ChannelInviteModal({ open, onOpenChange, channelId }: ChannelInv
                 className="flex min-h-[120px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
               <p className="text-xs text-muted-foreground">
-                Invitations will be sent via email. Recipients will need to create an account if
-                they don&apos;t have one.
+                Invitations will be sent via email. Recipients will need to
+                create an account if they don&apos;t have one.
               </p>
             </div>
 
@@ -319,13 +388,13 @@ export function ChannelInviteModal({ open, onOpenChange, channelId }: ChannelInv
               disabled={!emailInvites.trim() || isLoading}
             >
               <Mail className="mr-2 h-4 w-4" />
-              {isLoading ? 'Sending...' : 'Send invitations'}
+              {isLoading ? "Sending..." : "Send invitations"}
             </Button>
           </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-ChannelInviteModal.displayName = 'ChannelInviteModal'
+ChannelInviteModal.displayName = "ChannelInviteModal";

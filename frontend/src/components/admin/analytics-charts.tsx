@@ -1,31 +1,37 @@
-'use client'
+"use client";
 
-import { Progress } from '@/components/ui/progress'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from "@/components/ui/progress";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface ChartData {
-  date: string
-  users: number
-  messages: number
-  activeUsers: number
+  date: string;
+  users: number;
+  messages: number;
+  activeUsers: number;
 }
 
 interface PeakHour {
-  hour: string
-  messages: number
+  hour: string;
+  messages: number;
 }
 
 interface PopularChannel {
-  name: string
-  messages: number
-  members: number
-  percentage: number
+  name: string;
+  messages: number;
+  members: number;
+  percentage: number;
 }
 
 interface RoleDistribution {
-  role: string
-  count: number
-  color: string
+  role: string;
+  count: number;
+  color: string;
 }
 
 export function MessagesOverTimeChart({ data }: { data: ChartData[] }) {
@@ -33,7 +39,9 @@ export function MessagesOverTimeChart({ data }: { data: ChartData[] }) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Messages Over Time</CardTitle>
-        <CardDescription>Daily message volume for the selected period</CardDescription>
+        <CardDescription>
+          Daily message volume for the selected period
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex h-[300px] items-end gap-1">
@@ -43,23 +51,23 @@ export function MessagesOverTimeChart({ data }: { data: ChartData[] }) {
               className="bg-primary/20 hover:bg-primary/40 flex-1 rounded-t transition-colors"
               style={{
                 height: `${(d.messages / 600) * 100}%`,
-                minHeight: '4px',
+                minHeight: "4px",
               }}
               title={`${d.date}: ${d.messages} messages`}
             />
           ))}
         </div>
         <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-          <span>{data[data.length - 14]?.date ?? ''}</span>
-          <span>{data[data.length - 1]?.date ?? ''}</span>
+          <span>{data[data.length - 14]?.date ?? ""}</span>
+          <span>{data[data.length - 1]?.date ?? ""}</span>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function PeakActivityChart({ data }: { data: PeakHour[] }) {
-  const maxMessages = Math.max(...data.map((h) => h.messages))
+  const maxMessages = Math.max(...data.map((h) => h.messages));
 
   return (
     <Card>
@@ -71,9 +79,14 @@ export function PeakActivityChart({ data }: { data: PeakHour[] }) {
         <div className="space-y-3">
           {data.map((hour) => (
             <div key={hour.hour} className="flex items-center gap-3">
-              <span className="w-16 text-sm text-muted-foreground">{hour.hour}</span>
+              <span className="w-16 text-sm text-muted-foreground">
+                {hour.hour}
+              </span>
               <div className="flex-1">
-                <Progress value={(hour.messages / maxMessages) * 100} className="h-2" />
+                <Progress
+                  value={(hour.messages / maxMessages) * 100}
+                  className="h-2"
+                />
               </div>
               <span className="w-12 text-right text-sm">{hour.messages}</span>
             </div>
@@ -81,7 +94,7 @@ export function PeakActivityChart({ data }: { data: PeakHour[] }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function UserGrowthChart({ data }: { data: ChartData[] }) {
@@ -99,27 +112,27 @@ export function UserGrowthChart({ data }: { data: ChartData[] }) {
               className="flex-1 rounded-t bg-green-500/20 transition-colors hover:bg-green-500/40"
               style={{
                 height: `${(d.users / 25) * 100}%`,
-                minHeight: '4px',
+                minHeight: "4px",
               }}
               title={`${d.date}: ${d.users} new users`}
             />
           ))}
         </div>
         <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-          <span>{data[data.length - 14]?.date ?? ''}</span>
-          <span>{data[data.length - 1]?.date ?? ''}</span>
+          <span>{data[data.length - 14]?.date ?? ""}</span>
+          <span>{data[data.length - 1]?.date ?? ""}</span>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function RoleDistributionChart({
   data,
   totalCount,
 }: {
-  data: RoleDistribution[]
-  totalCount: number
+  data: RoleDistribution[];
+  totalCount: number;
 }) {
   return (
     <Card>
@@ -140,13 +153,16 @@ export function RoleDistributionChart({
                   {role.count} ({((role.count / totalCount) * 100).toFixed(1)}%)
                 </span>
               </div>
-              <Progress value={(role.count / totalCount) * 100} className="h-2" />
+              <Progress
+                value={(role.count / totalCount) * 100}
+                className="h-2"
+              />
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function DailyActiveUsersChart({ data }: { data: ChartData[] }) {
@@ -164,19 +180,19 @@ export function DailyActiveUsersChart({ data }: { data: ChartData[] }) {
               className="flex-1 rounded-t bg-blue-500/20 transition-colors hover:bg-blue-500/40"
               style={{
                 height: `${(d.activeUsers / 70) * 100}%`,
-                minHeight: '4px',
+                minHeight: "4px",
               }}
               title={`${d.date}: ${d.activeUsers} active users`}
             />
           ))}
         </div>
         <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-          <span>{data[0]?.date ?? ''}</span>
-          <span>{data[data.length - 1]?.date ?? ''}</span>
+          <span>{data[0]?.date ?? ""}</span>
+          <span>{data[data.length - 1]?.date ?? ""}</span>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function PopularChannelsChart({ data }: { data: PopularChannel[] }) {
@@ -207,5 +223,5 @@ export function PopularChannelsChart({ data }: { data: PopularChannel[] }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

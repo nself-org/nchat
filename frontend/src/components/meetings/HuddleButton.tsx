@@ -1,29 +1,38 @@
-'use client'
+"use client";
 
 /**
  * HuddleButton - Start or join a huddle in a channel
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
-import { Huddle, RoomType } from '@/lib/meetings/meeting-types'
-import { useHuddle } from '@/hooks/useHuddle'
-import { Headphones, Video, Phone, Users, Plus, Loader2 } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { Huddle, RoomType } from "@/lib/meetings/meeting-types";
+import { useHuddle } from "@/hooks/useHuddle";
+import { Headphones, Video, Phone, Users, Plus, Loader2 } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface HuddleButtonProps {
-  channelId: string
-  userId?: string
-  variant?: 'default' | 'icon' | 'compact'
-  className?: string
+  channelId: string;
+  userId?: string;
+  variant?: "default" | "icon" | "compact";
+  className?: string;
 }
 
 // ============================================================================
@@ -33,10 +42,10 @@ interface HuddleButtonProps {
 export function HuddleButton({
   channelId,
   userId,
-  variant = 'default',
+  variant = "default",
   className,
 }: HuddleButtonProps) {
-  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
+  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
   const {
     huddle,
@@ -51,26 +60,26 @@ export function HuddleButton({
     joinHuddle,
     canStartHuddle,
     canJoinHuddle,
-  } = useHuddle({ channelId, userId })
+  } = useHuddle({ channelId, userId });
 
   const handleStartHuddle = async (roomType: RoomType) => {
-    await startHuddle(roomType)
-    setIsPopoverOpen(false)
-  }
+    await startHuddle(roomType);
+    setIsPopoverOpen(false);
+  };
 
   const handleJoinHuddle = async () => {
-    await joinHuddle()
-  }
+    await joinHuddle();
+  };
 
   // Get initials
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   // Active huddle display
   if (isActive && huddle) {
@@ -79,9 +88,13 @@ export function HuddleButton({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isInHuddle ? 'default' : 'outline'}
-              size={variant === 'icon' ? 'icon' : 'sm'}
-              className={cn('relative', isInHuddle && 'bg-green-600 hover:bg-green-700', className)}
+              variant={isInHuddle ? "default" : "outline"}
+              size={variant === "icon" ? "icon" : "sm"}
+              className={cn(
+                "relative",
+                isInHuddle && "bg-green-600 hover:bg-green-700",
+                className,
+              )}
               onClick={canJoinHuddle ? handleJoinHuddle : undefined}
               disabled={isJoining || isInHuddle}
             >
@@ -90,8 +103,10 @@ export function HuddleButton({
               ) : (
                 <>
                   <Headphones className="h-4 w-4" />
-                  {variant !== 'icon' && (
-                    <span className="ml-1">{isInHuddle ? 'In Huddle' : 'Join'}</span>
+                  {variant !== "icon" && (
+                    <span className="ml-1">
+                      {isInHuddle ? "In Huddle" : "Join"}
+                    </span>
                   )}
                 </>
               )}
@@ -99,8 +114,10 @@ export function HuddleButton({
               {/* Participant count badge */}
               <span
                 className={cn(
-                  'absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-xs',
-                  isInHuddle ? 'bg-white text-green-600' : 'bg-green-500 text-white'
+                  "absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-xs",
+                  isInHuddle
+                    ? "bg-white text-green-600"
+                    : "bg-green-500 text-white",
                 )}
               >
                 {participantCount}
@@ -118,7 +135,10 @@ export function HuddleButton({
               </div>
               <div className="flex -space-x-2">
                 {participants.slice(0, 5).map((p) => (
-                  <Avatar key={p.userId} className="h-6 w-6 border-2 border-background">
+                  <Avatar
+                    key={p.userId}
+                    className="h-6 w-6 border-2 border-background"
+                  >
                     <AvatarImage src={p.avatarUrl || undefined} />
                     <AvatarFallback className="text-xs">
                       {getInitials(p.displayName)}
@@ -132,13 +152,15 @@ export function HuddleButton({
                 )}
               </div>
               {canJoinHuddle && (
-                <p className="text-xs text-muted-foreground">Click to join the huddle</p>
+                <p className="text-xs text-muted-foreground">
+                  Click to join the huddle
+                </p>
               )}
             </div>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
+    );
   }
 
   // Start huddle button
@@ -148,8 +170,11 @@ export function HuddleButton({
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
-            size={variant === 'icon' ? 'icon' : 'sm'}
-            className={cn('text-muted-foreground hover:text-foreground', className)}
+            size={variant === "icon" ? "icon" : "sm"}
+            className={cn(
+              "text-muted-foreground hover:text-foreground",
+              className,
+            )}
             disabled={isStarting || isLoading}
           >
             {isStarting ? (
@@ -157,7 +182,7 @@ export function HuddleButton({
             ) : (
               <>
                 <Headphones className="h-4 w-4" />
-                {variant !== 'icon' && <span className="ml-1">Huddle</span>}
+                {variant !== "icon" && <span className="ml-1">Huddle</span>}
               </>
             )}
           </Button>
@@ -172,7 +197,7 @@ export function HuddleButton({
           <div className="space-y-1 p-2">
             <button
               className="flex w-full items-center gap-3 rounded-lg p-2 transition-colors hover:bg-accent"
-              onClick={() => handleStartHuddle('audio')}
+              onClick={() => handleStartHuddle("audio")}
             >
               <div className="bg-primary/10 flex h-9 w-9 items-center justify-center rounded-full">
                 <Phone className="h-4 w-4 text-primary" />
@@ -184,20 +209,22 @@ export function HuddleButton({
             </button>
             <button
               className="flex w-full items-center gap-3 rounded-lg p-2 transition-colors hover:bg-accent"
-              onClick={() => handleStartHuddle('video')}
+              onClick={() => handleStartHuddle("video")}
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/10">
                 <Video className="h-4 w-4 text-blue-500" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium">Video Huddle</p>
-                <p className="text-xs text-muted-foreground">Video and audio call</p>
+                <p className="text-xs text-muted-foreground">
+                  Video and audio call
+                </p>
               </div>
             </button>
           </div>
         </PopoverContent>
       </Popover>
-    )
+    );
   }
 
   // Loading state
@@ -205,15 +232,15 @@ export function HuddleButton({
     return (
       <Button
         variant="ghost"
-        size={variant === 'icon' ? 'icon' : 'sm'}
+        size={variant === "icon" ? "icon" : "sm"}
         className={className}
         disabled
       >
         <Loader2 className="h-4 w-4 animate-spin" />
       </Button>
-    )
+    );
   }
 
   // Default disabled state
-  return null
+  return null;
 }

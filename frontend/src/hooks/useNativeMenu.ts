@@ -1,33 +1,33 @@
-'use client'
+"use client";
 
-import { useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   setupMenuListeners,
   setMenuItemEnabled,
   type MenuEventHandlers,
   type NavigationTarget,
-} from '@/lib/tauri'
-import { useTauriCheck } from './useTauri'
+} from "@/lib/tauri";
+import { useTauriCheck } from "./useTauri";
 
 export interface UseNativeMenuOptions {
-  onNewMessage?: () => void
-  onNewChannel?: () => void
-  onPreferences?: () => void
-  onFind?: () => void
-  onToggleSidebar?: () => void
-  onKeyboardShortcuts?: () => void
-  onCheckUpdates?: () => void
-  onAbout?: () => void
-  enableNavigation?: boolean
+  onNewMessage?: () => void;
+  onNewChannel?: () => void;
+  onPreferences?: () => void;
+  onFind?: () => void;
+  onToggleSidebar?: () => void;
+  onKeyboardShortcuts?: () => void;
+  onCheckUpdates?: () => void;
+  onAbout?: () => void;
+  enableNavigation?: boolean;
 }
 
 /**
  * Hook for handling native menu interactions
  */
 export function useNativeMenu(options: UseNativeMenuOptions = {}) {
-  const isTauri = useTauriCheck()
-  const router = useRouter()
+  const isTauri = useTauriCheck();
+  const router = useRouter();
 
   const {
     onNewMessage,
@@ -39,35 +39,35 @@ export function useNativeMenu(options: UseNativeMenuOptions = {}) {
     onCheckUpdates,
     onAbout,
     enableNavigation = true,
-  } = options
+  } = options;
 
   const handleNavigate = useCallback(
     (target: NavigationTarget) => {
-      if (!enableNavigation) return
+      if (!enableNavigation) return;
 
       switch (target) {
-        case 'home':
-          router.push('/chat')
-          break
-        case 'channels':
-          router.push('/chat/channels')
-          break
-        case 'messages':
-          router.push('/chat/messages')
-          break
-        case 'threads':
-          router.push('/chat/threads')
-          break
-        case 'settings':
-          router.push('/settings')
-          break
+        case "home":
+          router.push("/chat");
+          break;
+        case "channels":
+          router.push("/chat/channels");
+          break;
+        case "messages":
+          router.push("/chat/messages");
+          break;
+        case "threads":
+          router.push("/chat/threads");
+          break;
+        case "settings":
+          router.push("/settings");
+          break;
       }
     },
-    [router, enableNavigation]
-  )
+    [router, enableNavigation],
+  );
 
   useEffect(() => {
-    if (!isTauri) return
+    if (!isTauri) return;
 
     const handlers: MenuEventHandlers = {
       onNewMessage,
@@ -79,17 +79,17 @@ export function useNativeMenu(options: UseNativeMenuOptions = {}) {
       onKeyboardShortcuts,
       onCheckUpdates,
       onAbout,
-    }
+    };
 
-    let cleanup: (() => void) | undefined
+    let cleanup: (() => void) | undefined;
 
     setupMenuListeners(handlers).then((unsub) => {
-      cleanup = unsub
-    })
+      cleanup = unsub;
+    });
 
     return () => {
-      cleanup?.()
-    }
+      cleanup?.();
+    };
   }, [
     isTauri,
     onNewMessage,
@@ -101,21 +101,21 @@ export function useNativeMenu(options: UseNativeMenuOptions = {}) {
     onKeyboardShortcuts,
     onCheckUpdates,
     onAbout,
-  ])
+  ]);
 
   const enableMenuItem = useCallback(async (id: string) => {
-    await setMenuItemEnabled(id, true)
-  }, [])
+    await setMenuItemEnabled(id, true);
+  }, []);
 
   const disableMenuItem = useCallback(async (id: string) => {
-    await setMenuItemEnabled(id, false)
-  }, [])
+    await setMenuItemEnabled(id, false);
+  }, []);
 
   return {
     enableMenuItem,
     disableMenuItem,
     isAvailable: isTauri,
-  }
+  };
 }
 
-export default useNativeMenu
+export default useNativeMenu;

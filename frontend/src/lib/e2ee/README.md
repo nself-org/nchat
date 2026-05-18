@@ -36,23 +36,27 @@ src/lib/e2ee/
 Main orchestration layer that ties everything together.
 
 ```typescript
-import { getE2EEManager } from '@/lib/e2ee'
+import { getE2EEManager } from "@/lib/e2ee";
 
-const e2eeManager = getE2EEManager(apolloClient)
+const e2eeManager = getE2EEManager(apolloClient);
 
 // Initialize
-await e2eeManager.initialize(password)
+await e2eeManager.initialize(password);
 
 // Encrypt
-const result = await e2eeManager.encryptMessage(plaintext, recipientUserId, recipientDeviceId)
+const result = await e2eeManager.encryptMessage(
+  plaintext,
+  recipientUserId,
+  recipientDeviceId,
+);
 
 // Decrypt
 const plaintext = await e2eeManager.decryptMessage(
   encryptedPayload,
   messageType,
   senderUserId,
-  senderDeviceId
-)
+  senderDeviceId,
+);
 ```
 
 **Key Features**:
@@ -69,26 +73,26 @@ const plaintext = await e2eeManager.decryptMessage(
 Low-level cryptographic operations.
 
 ```typescript
-import { crypto } from '@/lib/e2ee/crypto'
+import { crypto } from "@/lib/e2ee/crypto";
 
 // Random generation
-const salt = crypto.generateSalt()
-const deviceId = crypto.generateDeviceId()
+const salt = crypto.generateSalt();
+const deviceId = crypto.generateDeviceId();
 
 // Key derivation
-const masterKey = await crypto.deriveMasterKey(password, salt, 100000)
+const masterKey = await crypto.deriveMasterKey(password, salt, 100000);
 
 // Symmetric encryption
-const { ciphertext, iv } = await crypto.encryptAESGCM(plaintext, key)
-const plaintext = await crypto.decryptAESGCM(ciphertext, key, iv)
+const { ciphertext, iv } = await crypto.encryptAESGCM(plaintext, key);
+const plaintext = await crypto.decryptAESGCM(ciphertext, key, iv);
 
 // Safety numbers
 const safetyNumber = crypto.generateSafetyNumber(
   localIdentityKey,
   localUserId,
   remoteIdentityKey,
-  remoteUserId
-)
+  remoteUserId,
+);
 ```
 
 **Algorithms**:
@@ -105,20 +109,23 @@ const safetyNumber = crypto.generateSafetyNumber(
 Wrapper around `@signalapp/libsignal-client`.
 
 ```typescript
-import { signalClient } from '@/lib/e2ee/signal-client'
+import { signalClient } from "@/lib/e2ee/signal-client";
 
 // Generate keys
-const identityKeyPair = await signalClient.generateIdentityKeyPair()
-const signedPreKey = await signalClient.generateSignedPreKey(identityKeyPair, 1)
-const oneTimePreKeys = await signalClient.generateOneTimePreKeys(1, 100)
+const identityKeyPair = await signalClient.generateIdentityKeyPair();
+const signedPreKey = await signalClient.generateSignedPreKey(
+  identityKeyPair,
+  1,
+);
+const oneTimePreKeys = await signalClient.generateOneTimePreKeys(1, 100);
 
 // Encrypt/decrypt messages
 const encrypted = await signalClient.encryptMessage(
   plaintext,
   address,
   sessionStore,
-  identityKeyStore
-)
+  identityKeyStore,
+);
 
 const decrypted = await signalClient.decryptMessage(
   encrypted,
@@ -126,8 +133,8 @@ const decrypted = await signalClient.decryptMessage(
   sessionStore,
   identityKeyStore,
   preKeyStore,
-  signedPreKeyStore
-)
+  signedPreKeyStore,
+);
 ```
 
 **Protocol**: X3DH + Double Ratchet
@@ -139,22 +146,22 @@ const decrypted = await signalClient.decryptMessage(
 Manages all cryptographic keys.
 
 ```typescript
-import KeyManager from '@/lib/e2ee/key-manager'
+import KeyManager from "@/lib/e2ee/key-manager";
 
-const keyManager = new KeyManager(apolloClient)
+const keyManager = new KeyManager(apolloClient);
 
 // Initialize master key
-await keyManager.initializeMasterKey(password)
+await keyManager.initializeMasterKey(password);
 
 // Generate device keys
-const deviceKeys = await keyManager.generateDeviceKeys()
-await keyManager.uploadDeviceKeys(deviceKeys)
+const deviceKeys = await keyManager.generateDeviceKeys();
+await keyManager.uploadDeviceKeys(deviceKeys);
 
 // Rotate signed prekey
-await keyManager.rotateSignedPreKey(deviceId)
+await keyManager.rotateSignedPreKey(deviceId);
 
 // Replenish one-time prekeys
-await keyManager.replenishOneTimePreKeys(deviceId, 50)
+await keyManager.replenishOneTimePreKeys(deviceId, 50);
 ```
 
 **Key Types**:
@@ -171,18 +178,26 @@ await keyManager.replenishOneTimePreKeys(deviceId, 50)
 Manages Signal Protocol sessions.
 
 ```typescript
-import SessionManager from '@/lib/e2ee/session-manager'
+import SessionManager from "@/lib/e2ee/session-manager";
 
-const sessionManager = new SessionManager(apolloClient, keyManager, deviceId)
+const sessionManager = new SessionManager(apolloClient, keyManager, deviceId);
 
 // Create session
-await sessionManager.createSession(peerUserId, peerDeviceId)
+await sessionManager.createSession(peerUserId, peerDeviceId);
 
 // Encrypt message
-const encrypted = await sessionManager.encryptMessage(plaintext, peerUserId, peerDeviceId)
+const encrypted = await sessionManager.encryptMessage(
+  plaintext,
+  peerUserId,
+  peerDeviceId,
+);
 
 // Decrypt message
-const plaintext = await sessionManager.decryptMessage(encrypted, peerUserId, peerDeviceId)
+const plaintext = await sessionManager.decryptMessage(
+  encrypted,
+  peerUserId,
+  peerDeviceId,
+);
 ```
 
 **Features**:
@@ -204,19 +219,19 @@ import {
   decryptReceivedMessage,
   prepareMessageForStorage,
   extractMessageContent,
-} from '@/lib/e2ee/message-encryption'
+} from "@/lib/e2ee/message-encryption";
 
 // Sending
 const payload = await encryptMessageForSending(
   plaintext,
   { recipientUserId, isDirectMessage: true },
-  apolloClient
-)
+  apolloClient,
+);
 
-const messageData = prepareMessageForStorage(payload)
+const messageData = prepareMessageForStorage(payload);
 
 // Receiving
-const plaintext = await extractMessageContent(message, apolloClient)
+const plaintext = await extractMessageContent(message, apolloClient);
 ```
 
 **Helpers**:
@@ -244,19 +259,19 @@ const plaintext = await extractMessageContent(message, apolloClient)
 ### Complete Setup Flow
 
 ```typescript
-import { getE2EEManager } from '@/lib/e2ee'
+import { getE2EEManager } from "@/lib/e2ee";
 
 // 1. Initialize E2EE
-const e2eeManager = getE2EEManager(apolloClient)
-await e2eeManager.initialize('strong-password')
+const e2eeManager = getE2EEManager(apolloClient);
+await e2eeManager.initialize("strong-password");
 
 // 2. Get recovery code (save securely!)
-const recoveryCode = e2eeManager.getRecoveryCode()
-console.log('Recovery code:', recoveryCode)
+const recoveryCode = e2eeManager.getRecoveryCode();
+console.log("Recovery code:", recoveryCode);
 
 // 3. Check status
-const status = e2eeManager.getStatus()
-console.log(status)
+const status = e2eeManager.getStatus();
+console.log(status);
 // {
 //   initialized: true,
 //   masterKeyInitialized: true,
@@ -270,23 +285,23 @@ console.log(status)
 ```typescript
 // 1. Encrypt message
 const result = await e2eeManager.encryptMessage(
-  'Hello, World!',
-  'recipient-user-id',
-  'recipient-device-id'
-)
+  "Hello, World!",
+  "recipient-user-id",
+  "recipient-device-id",
+);
 
 // 2. Store in database
 await apolloClient.mutate({
   mutation: INSERT_MESSAGE,
   variables: {
     channel_id: channelId,
-    content: '[Encrypted]',
+    content: "[Encrypted]",
     is_encrypted: true,
     encrypted_payload: Array.from(result.encryptedPayload),
     sender_device_id: result.deviceId,
     encryption_version: 1,
   },
-})
+});
 ```
 
 ### Receive Encrypted Message
@@ -296,17 +311,17 @@ await apolloClient.mutate({
 const message = await apolloClient.query({
   query: GET_MESSAGE,
   variables: { messageId },
-})
+});
 
 // 2. Decrypt if encrypted
 if (message.is_encrypted) {
   const plaintext = await e2eeManager.decryptMessage(
     new Uint8Array(message.encrypted_payload),
-    'Normal', // or 'PreKey'
+    "Normal", // or 'PreKey'
     message.sender_user_id,
-    message.sender_device_id
-  )
-  console.log('Decrypted:', plaintext)
+    message.sender_device_id,
+  );
+  console.log("Decrypted:", plaintext);
 }
 ```
 
@@ -317,15 +332,19 @@ if (message.is_encrypted) {
 const safetyNumber = await e2eeManager.generateSafetyNumber(
   localUserId,
   peerUserId,
-  peerIdentityKey
-)
+  peerIdentityKey,
+);
 
 // 2. Format for display
-const formatted = e2eeManager.formatSafetyNumber(safetyNumber)
-console.log(formatted) // "12345 67890 12345 ..."
+const formatted = e2eeManager.formatSafetyNumber(safetyNumber);
+console.log(formatted); // "12345 67890 12345 ..."
 
 // 3. Generate QR code
-const qrData = await e2eeManager.generateSafetyNumberQR(localUserId, peerUserId, peerIdentityKey)
+const qrData = await e2eeManager.generateSafetyNumberQR(
+  localUserId,
+  peerUserId,
+  peerIdentityKey,
+);
 ```
 
 ---
@@ -475,45 +494,49 @@ try {
 ### Unit Tests
 
 ```typescript
-import { crypto } from '@/lib/e2ee/crypto'
+import { crypto } from "@/lib/e2ee/crypto";
 
-describe('Crypto', () => {
-  it('derives master key correctly', async () => {
-    const salt = crypto.generateSalt()
-    const key = await crypto.deriveMasterKey('password', salt)
-    expect(key).toHaveLength(32)
-  })
+describe("Crypto", () => {
+  it("derives master key correctly", async () => {
+    const salt = crypto.generateSalt();
+    const key = await crypto.deriveMasterKey("password", salt);
+    expect(key).toHaveLength(32);
+  });
 
-  it('encrypts and decrypts', async () => {
-    const key = crypto.generateRandomBytes(32)
-    const plaintext = new Uint8Array([1, 2, 3])
-    const { ciphertext, iv } = await crypto.encryptAESGCM(plaintext, key)
-    const decrypted = await crypto.decryptAESGCM(ciphertext, key, iv)
-    expect(decrypted).toEqual(plaintext)
-  })
-})
+  it("encrypts and decrypts", async () => {
+    const key = crypto.generateRandomBytes(32);
+    const plaintext = new Uint8Array([1, 2, 3]);
+    const { ciphertext, iv } = await crypto.encryptAESGCM(plaintext, key);
+    const decrypted = await crypto.decryptAESGCM(ciphertext, key, iv);
+    expect(decrypted).toEqual(plaintext);
+  });
+});
 ```
 
 ### Integration Tests
 
 ```typescript
-describe('E2EE Manager', () => {
-  it('encrypts and decrypts messages', async () => {
-    const e2ee = getE2EEManager(apolloClient)
-    await e2ee.initialize('password')
+describe("E2EE Manager", () => {
+  it("encrypts and decrypts messages", async () => {
+    const e2ee = getE2EEManager(apolloClient);
+    await e2ee.initialize("password");
 
-    const encrypted = await e2ee.encryptMessage('Hello', recipientUserId, recipientDeviceId)
+    const encrypted = await e2ee.encryptMessage(
+      "Hello",
+      recipientUserId,
+      recipientDeviceId,
+    );
 
     const decrypted = await e2ee.decryptMessage(
       encrypted.encryptedPayload,
       encrypted.type,
       senderUserId,
-      senderDeviceId
-    )
+      senderDeviceId,
+    );
 
-    expect(decrypted).toBe('Hello')
-  })
-})
+    expect(decrypted).toBe("Hello");
+  });
+});
 ```
 
 ---
@@ -546,15 +569,15 @@ describe('E2EE Manager', () => {
 
 ```typescript
 // Enable debug logging
-localStorage.setItem('e2ee_debug', 'true')
+localStorage.setItem("e2ee_debug", "true");
 
 // Check E2EE status
-const status = e2eeManager.getStatus()
-console.log('E2EE Status:', status)
+const status = e2eeManager.getStatus();
+console.log("E2EE Status:", status);
 
 // Check session
-const hasSession = await e2eeManager.hasSession(userId, deviceId)
-console.log('Session exists:', hasSession)
+const hasSession = await e2eeManager.hasSession(userId, deviceId);
+console.log("Session exists:", hasSession);
 ```
 
 ### Common Issues

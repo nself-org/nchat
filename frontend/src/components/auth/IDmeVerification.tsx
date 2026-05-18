@@ -4,98 +4,118 @@
  * Displays ID.me verification status and allows users to initiate verification.
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Shield, CheckCircle2, AlertCircle, ExternalLink, Loader2 } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import {
+  Shield,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 
 interface IDmeVerificationProps {
-  userId?: string
-  onVerificationComplete?: () => void
+  userId?: string;
+  onVerificationComplete?: () => void;
 }
 
 interface VerificationStatus {
-  verified: boolean
-  verificationType?: string
-  verificationGroup?: string
-  verifiedAt?: string
+  verified: boolean;
+  verificationType?: string;
+  verificationGroup?: string;
+  verifiedAt?: string;
 }
 
-export function IDmeVerification({ userId, onVerificationComplete }: IDmeVerificationProps) {
-  const [status, setStatus] = useState<VerificationStatus | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [error, setError] = useState('')
+export function IDmeVerification({
+  userId,
+  onVerificationComplete,
+}: IDmeVerificationProps) {
+  const [status, setStatus] = useState<VerificationStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    loadVerificationStatus()
-  }, [userId])
+    loadVerificationStatus();
+  }, [userId]);
 
   const loadVerificationStatus = async () => {
     if (!userId) {
-      setIsLoading(false)
-      return
+      setIsLoading(false);
+      return;
     }
 
     try {
-      const response = await fetch(`/api/auth/idme/status?userId=${userId}`)
+      const response = await fetch(`/api/auth/idme/status?userId=${userId}`);
       if (response.ok) {
-        const data = await response.json()
-        setStatus(data)
+        const data = await response.json();
+        setStatus(data);
       }
     } catch (error) {
-      console.error('Failed to load verification status:', error)
+      console.error("Failed to load verification status:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const initiateVerification = async () => {
-    setIsVerifying(true)
-    setError('')
+    setIsVerifying(true);
+    setError("");
 
     try {
       // Generate state with user ID
-      const state = Buffer.from(JSON.stringify({ userId })).toString('base64')
+      const state = Buffer.from(JSON.stringify({ userId })).toString("base64");
 
       // Construct ID.me authorization URL
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
-      const redirectUri = `${baseUrl}/api/auth/idme/callback`
-      const clientId = process.env.NEXT_PUBLIC_IDME_CLIENT_ID
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+      const redirectUri = `${baseUrl}/api/auth/idme/callback`;
+      const clientId = process.env.NEXT_PUBLIC_IDME_CLIENT_ID;
 
-      const authUrl = new URL('https://api.id.me/oauth/authorize')
-      authUrl.searchParams.set('client_id', clientId!)
-      authUrl.searchParams.set('redirect_uri', redirectUri)
-      authUrl.searchParams.set('response_type', 'code')
-      authUrl.searchParams.set('scope', 'military student responder teacher government')
-      authUrl.searchParams.set('state', state)
+      const authUrl = new URL("https://api.id.me/oauth/authorize");
+      authUrl.searchParams.set("client_id", clientId!);
+      authUrl.searchParams.set("redirect_uri", redirectUri);
+      authUrl.searchParams.set("response_type", "code");
+      authUrl.searchParams.set(
+        "scope",
+        "military student responder teacher government",
+      );
+      authUrl.searchParams.set("state", state);
 
       // Redirect to ID.me
-      window.location.href = authUrl.toString()
+      window.location.href = authUrl.toString();
     } catch (error) {
-      setError('Failed to initiate verification')
-      setIsVerifying(false)
+      setError("Failed to initiate verification");
+      setIsVerifying(false);
     }
-  }
+  };
 
   const getVerificationBadge = (type: string) => {
-    const badges: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> =
-      {
-        military: { label: '🎖️ Military', variant: 'default' },
-        responder: { label: '🚒 First Responder', variant: 'default' },
-        student: { label: '🎓 Student', variant: 'secondary' },
-        teacher: { label: '👨‍🏫 Teacher', variant: 'secondary' },
-        government: { label: '🏛️ Government', variant: 'secondary' },
-        verified: { label: '✓ Verified', variant: 'outline' },
-      }
+    const badges: Record<
+      string,
+      { label: string; variant: "default" | "secondary" | "outline" }
+    > = {
+      military: { label: "🎖️ Military", variant: "default" },
+      responder: { label: "🚒 First Responder", variant: "default" },
+      student: { label: "🎓 Student", variant: "secondary" },
+      teacher: { label: "👨‍🏫 Teacher", variant: "secondary" },
+      government: { label: "🏛️ Government", variant: "secondary" },
+      verified: { label: "✓ Verified", variant: "outline" },
+    };
 
-    const badge = badges[type] || badges.verified
-    return <Badge variant={badge.variant}>{badge.label}</Badge>
-  }
+    const badge = badges[type] || badges.verified;
+    return <Badge variant={badge.variant}>{badge.label}</Badge>;
+  };
 
   if (isLoading) {
     return (
@@ -104,7 +124,7 @@ export function IDmeVerification({ userId, onVerificationComplete }: IDmeVerific
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -132,12 +152,15 @@ export function IDmeVerification({ userId, onVerificationComplete }: IDmeVerific
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Verification Status</span>
-                {status.verificationType && getVerificationBadge(status.verificationType)}
+                {status.verificationType &&
+                  getVerificationBadge(status.verificationType)}
               </div>
 
               {status.verifiedAt && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Verified</span>
+                  <span className="text-sm text-muted-foreground">
+                    Verified
+                  </span>
                   <span className="text-sm">
                     {new Date(status.verifiedAt).toLocaleDateString()}
                   </span>
@@ -147,14 +170,17 @@ export function IDmeVerification({ userId, onVerificationComplete }: IDmeVerific
               {status.verificationGroup && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Group</span>
-                  <span className="text-sm capitalize">{status.verificationGroup}</span>
+                  <span className="text-sm capitalize">
+                    {status.verificationGroup}
+                  </span>
                 </div>
               )}
             </div>
 
             <div className="pt-2">
               <p className="text-xs text-muted-foreground">
-                Your verification is managed by ID.me, a trusted identity verification service.
+                Your verification is managed by ID.me, a trusted identity
+                verification service.
               </p>
             </div>
           </>
@@ -168,7 +194,9 @@ export function IDmeVerification({ userId, onVerificationComplete }: IDmeVerific
             )}
 
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Verify your identity as a member of:</p>
+              <p className="text-sm text-muted-foreground">
+                Verify your identity as a member of:
+              </p>
 
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
@@ -210,7 +238,7 @@ export function IDmeVerification({ userId, onVerificationComplete }: IDmeVerific
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                Secure verification powered by{' '}
+                Secure verification powered by{" "}
                 <a
                   href="https://www.id.me"
                   target="_blank"
@@ -225,5 +253,5 @@ export function IDmeVerification({ userId, onVerificationComplete }: IDmeVerific
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -3,15 +3,21 @@
  * Shows imported social media posts and their status
  */
 
-'use client'
+"use client";
 
-import { useQuery, gql } from '@apollo/client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ExternalLink, Loader2 } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import type { SocialPost } from '@/lib/social/types'
+import { useQuery, gql } from "@apollo/client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Loader2 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import type { SocialPost } from "@/lib/social/types";
 
 const GET_SOCIAL_POSTS = gql`
   query GetSocialPosts($accountId: uuid, $limit: Int = 50) {
@@ -41,36 +47,38 @@ const GET_SOCIAL_POSTS = gql`
       }
     }
   }
-`
+`;
 
 interface Props {
-  accountId?: string
+  accountId?: string;
 }
 
 export function SocialPostHistory({ accountId }: Props) {
   const { data, loading, error } = useQuery(GET_SOCIAL_POSTS, {
     variables: accountId ? { accountId } : {},
-    fetchPolicy: 'cache-and-network',
-  })
+    fetchPolicy: "cache-and-network",
+  });
 
-  const posts: SocialPost[] = data?.nchat_social_posts || []
+  const posts: SocialPost[] = data?.nchat_social_posts || [];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
       <Card>
         <CardContent className="py-12">
-          <p className="text-center text-destructive">Failed to load post history</p>
+          <p className="text-center text-destructive">
+            Failed to load post history
+          </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -87,12 +95,12 @@ export function SocialPostHistory({ accountId }: Props) {
         ) : (
           <div className="space-y-4">
             {posts.map((post: any) => {
-              const engagement = post.engagement || {}
+              const engagement = post.engagement || {};
               const totalEngagement =
                 (engagement.likes || 0) +
                 (engagement.retweets || 0) +
                 (engagement.shares || 0) +
-                (engagement.comments || 0)
+                (engagement.comments || 0);
 
               return (
                 <div key={post.id} className="space-y-3 rounded-lg border p-4">
@@ -107,9 +115,13 @@ export function SocialPostHistory({ accountId }: Props) {
                           />
                         )}
                         <div>
-                          <p className="text-sm font-semibold">{post.author_name}</p>
+                          <p className="text-sm font-semibold">
+                            {post.author_name}
+                          </p>
                           {post.author_handle && (
-                            <p className="text-xs text-muted-foreground">@{post.author_handle}</p>
+                            <p className="text-xs text-muted-foreground">
+                              @{post.author_handle}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -119,7 +131,11 @@ export function SocialPostHistory({ accountId }: Props) {
                       {post.hashtags && post.hashtags.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
                           {post.hashtags.slice(0, 5).map((tag: string) => (
-                            <Badge key={tag} variant="secondary" className="text-xs">
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="text-xs"
+                            >
                               #{tag}
                             </Badge>
                           ))}
@@ -128,20 +144,26 @@ export function SocialPostHistory({ accountId }: Props) {
 
                       {post.media_urls && post.media_urls.length > 0 && (
                         <div className="mt-2 flex gap-2">
-                          {post.media_urls.slice(0, 4).map((url: string, idx: number) => (
-                            <img
-                              key={idx}
-                              src={url}
-                              alt=""
-                              className="h-16 w-16 rounded object-cover"
-                            />
-                          ))}
+                          {post.media_urls
+                            .slice(0, 4)
+                            .map((url: string, idx: number) => (
+                              <img
+                                key={idx}
+                                src={url}
+                                alt=""
+                                className="h-16 w-16 rounded object-cover"
+                              />
+                            ))}
                         </div>
                       )}
                     </div>
 
                     <Button variant="outline" size="sm" asChild>
-                      <a href={post.post_url} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={post.post_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <ExternalLink className="h-4 w-4" />
                       </a>
                     </Button>
@@ -150,15 +172,21 @@ export function SocialPostHistory({ accountId }: Props) {
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-4">
                       <span>
-                        Posted {formatDistanceToNow(new Date(post.posted_at), { addSuffix: true })}
+                        Posted{" "}
+                        {formatDistanceToNow(new Date(post.posted_at), {
+                          addSuffix: true,
+                        })}
                       </span>
-                      {totalEngagement > 0 && <span>{totalEngagement} interactions</span>}
+                      {totalEngagement > 0 && (
+                        <span>{totalEngagement} interactions</span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2">
                       {post.was_posted_to_channel ? (
                         <Badge variant="default" className="text-xs">
-                          Posted to {post.posted_to_channels?.length || 0} channel(s)
+                          Posted to {post.posted_to_channels?.length || 0}{" "}
+                          channel(s)
                         </Badge>
                       ) : post.import_error ? (
                         <Badge variant="destructive" className="text-xs">
@@ -172,11 +200,11 @@ export function SocialPostHistory({ accountId }: Props) {
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

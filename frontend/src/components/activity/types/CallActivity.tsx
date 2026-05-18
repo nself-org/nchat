@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CallActivity Component
@@ -6,44 +6,53 @@
  * Displays call-related activities (started, ended)
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ActivityAvatar } from '../ActivityAvatar'
-import { ActivityDate } from '../ActivityDate'
-import { ActivityIcon } from '../ActivityIcon'
-import { formatCallDuration } from '@/lib/activity/activity-formatter'
-import type { CallStartedActivity, CallEndedActivity } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ActivityAvatar } from "../ActivityAvatar";
+import { ActivityDate } from "../ActivityDate";
+import { ActivityIcon } from "../ActivityIcon";
+import { formatCallDuration } from "@/lib/activity/activity-formatter";
+import type {
+  CallStartedActivity,
+  CallEndedActivity,
+} from "@/lib/activity/activity-types";
 
-type CallActivityType = CallStartedActivity | CallEndedActivity
+type CallActivityType = CallStartedActivity | CallEndedActivity;
 
 interface CallActivityProps {
-  activity: CallActivityType
-  onClick?: () => void
-  className?: string
+  activity: CallActivityType;
+  onClick?: () => void;
+  className?: string;
 }
 
-export function CallActivity({ activity, onClick, className }: CallActivityProps) {
-  const { actor, call, channel, type, isRead, createdAt } = activity
+export function CallActivity({
+  activity,
+  onClick,
+  className,
+}: CallActivityProps) {
+  const { actor, call, channel, type, isRead, createdAt } = activity;
 
-  const isCallStarted = type === 'call_started'
-  const callTypeText = call.type === 'video' ? 'video call' : 'voice call'
+  const isCallStarted = type === "call_started";
+  const callTypeText = call.type === "video" ? "video call" : "voice call";
 
   return (
     <div
       className={cn(
-        'group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors',
-        'hover:bg-muted/50',
+        "group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors",
+        "hover:bg-muted/50",
         !isRead &&
-          (isCallStarted ? 'bg-cyan-50 dark:bg-cyan-950/30' : 'bg-gray-50 dark:bg-gray-900/30'),
-        className
+          (isCallStarted
+            ? "bg-cyan-50 dark:bg-cyan-950/30"
+            : "bg-gray-50 dark:bg-gray-900/30"),
+        className,
       )}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
@@ -51,8 +60,8 @@ export function CallActivity({ activity, onClick, className }: CallActivityProps
       {!isRead && (
         <div
           className={cn(
-            'absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full',
-            isCallStarted ? 'bg-cyan-500' : 'bg-gray-500'
+            "absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full",
+            isCallStarted ? "bg-cyan-500" : "bg-gray-500",
           )}
         />
       )}
@@ -65,19 +74,19 @@ export function CallActivity({ activity, onClick, className }: CallActivityProps
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             {/* Header */}
-            <p className={cn('text-sm', !isRead && 'font-medium')}>
+            <p className={cn("text-sm", !isRead && "font-medium")}>
               {isCallStarted ? (
                 <>
                   <span className="font-medium">{actor.displayName}</span>
-                  {' started a '}
+                  {" started a "}
                   {callTypeText}
-                  {' in '}
+                  {" in "}
                   <span className="font-medium">#{channel.name}</span>
                 </>
               ) : (
                 <>
                   {callTypeText.charAt(0).toUpperCase() + callTypeText.slice(1)}
-                  {' ended in '}
+                  {" ended in "}
                   <span className="font-medium">#{channel.name}</span>
                 </>
               )}
@@ -87,7 +96,7 @@ export function CallActivity({ activity, onClick, className }: CallActivityProps
             <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
               {/* Call type icon */}
               <div className="flex items-center gap-1">
-                {call.type === 'video' ? (
+                {call.type === "video" ? (
                   <svg
                     className="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -153,8 +162,10 @@ export function CallActivity({ activity, onClick, className }: CallActivityProps
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                   <span>
-                    {call.participantCount}{' '}
-                    {call.participantCount === 1 ? 'participant' : 'participants'}
+                    {call.participantCount}{" "}
+                    {call.participantCount === 1
+                      ? "participant"
+                      : "participants"}
                   </span>
                 </div>
               )}
@@ -165,7 +176,7 @@ export function CallActivity({ activity, onClick, className }: CallActivityProps
               <button
                 type="button"
                 onClick={(e) => {
-                  e.stopPropagation()
+                  e.stopPropagation();
                   // Handle join call
                 }}
                 className="mt-2 rounded-md bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-600"
@@ -180,7 +191,7 @@ export function CallActivity({ activity, onClick, className }: CallActivityProps
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default CallActivity
+export default CallActivity;

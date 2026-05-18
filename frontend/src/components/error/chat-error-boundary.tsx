@@ -1,89 +1,94 @@
-'use client'
+"use client";
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { Button } from '@/components/ui/button'
-import { errorReporter } from '@/lib/error/error-reporter'
-import { isDevelopment } from '@/lib/environment'
-import { cn } from '@/lib/utils'
-import { AlertTriangle, RefreshCw, MessageSquareOff } from 'lucide-react'
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { errorReporter } from "@/lib/error/error-reporter";
+import { isDevelopment } from "@/lib/environment";
+import { cn } from "@/lib/utils";
+import { AlertTriangle, RefreshCw, MessageSquareOff } from "lucide-react";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface ChatErrorBoundaryProps {
-  children: ReactNode
-  channelId?: string
-  onRetry?: () => void
-  className?: string
+  children: ReactNode;
+  channelId?: string;
+  onRetry?: () => void;
+  className?: string;
 }
 
 interface ChatErrorBoundaryState {
-  hasError: boolean
-  error: Error | null
-  isRetrying: boolean
+  hasError: boolean;
+  error: Error | null;
+  isRetrying: boolean;
 }
 
 /**
  * Chat-specific error boundary that handles message list errors
  * without crashing the entire application.
  */
-export class ChatErrorBoundary extends Component<ChatErrorBoundaryProps, ChatErrorBoundaryState> {
+export class ChatErrorBoundary extends Component<
+  ChatErrorBoundaryProps,
+  ChatErrorBoundaryState
+> {
   constructor(props: ChatErrorBoundaryProps) {
-    super(props)
+    super(props);
     this.state = {
       hasError: false,
       error: null,
       isRetrying: false,
-    }
+    };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<ChatErrorBoundaryState> {
+  static getDerivedStateFromError(
+    error: Error,
+  ): Partial<ChatErrorBoundaryState> {
     return {
       hasError: true,
       error,
-    }
+    };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     if (isDevelopment()) {
-      logger.error('ChatErrorBoundary caught an error:', error)
-      logger.error('Component stack:', errorInfo.componentStack)
+      logger.error("ChatErrorBoundary caught an error:", error);
+      logger.error("Component stack:", errorInfo.componentStack);
     }
 
     errorReporter.reportError(error, {
       componentStack: errorInfo.componentStack || undefined,
-      componentName: 'ChatErrorBoundary',
+      componentName: "ChatErrorBoundary",
       context: {
         channelId: this.props.channelId,
       },
-    })
+    });
   }
 
   handleRetry = async (): Promise<void> => {
-    this.setState({ isRetrying: true })
+    this.setState({ isRetrying: true });
 
     // Small delay to show loading state
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     this.setState({
       hasError: false,
       error: null,
       isRetrying: false,
-    })
+    });
 
-    this.props.onRetry?.()
-  }
+    this.props.onRetry?.();
+  };
 
   render(): ReactNode {
-    const { hasError, error, isRetrying } = this.state
-    const { children, className } = this.props
+    const { hasError, error, isRetrying } = this.state;
+    const { children, className } = this.props;
 
     if (hasError) {
       return (
         <div
           className={cn(
-            'flex flex-col items-center justify-center p-8 text-center',
-            'rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50',
-            className
+            "flex flex-col items-center justify-center p-8 text-center",
+            "rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50",
+            className,
           )}
         >
           <div className="mb-4 rounded-full bg-amber-100 p-3 dark:bg-amber-900/30">
@@ -110,8 +115,10 @@ export class ChatErrorBoundary extends Component<ChatErrorBoundaryProps, ChatErr
               disabled={isRetrying}
               className="gap-2"
             >
-              <RefreshCw className={cn('h-4 w-4', isRetrying && 'animate-spin')} />
-              {isRetrying ? 'Retrying...' : 'Try Again'}
+              <RefreshCw
+                className={cn("h-4 w-4", isRetrying && "animate-spin")}
+              />
+              {isRetrying ? "Retrying..." : "Try Again"}
             </Button>
           </div>
 
@@ -126,10 +133,10 @@ export class ChatErrorBoundary extends Component<ChatErrorBoundaryProps, ChatErr
             </details>
           )}
         </div>
-      )
+      );
     }
 
-    return children
+    return children;
   }
 }
 
@@ -141,21 +148,26 @@ export function ChatErrorBoundaryWrapper({
   channelId,
   className,
 }: {
-  children: ReactNode
-  channelId?: string
-  className?: string
+  children: ReactNode;
+  channelId?: string;
+  className?: string;
 }) {
-  const [key, setKey] = React.useState(0)
+  const [key, setKey] = React.useState(0);
 
   const handleRetry = () => {
-    setKey((prev) => prev + 1)
-  }
+    setKey((prev) => prev + 1);
+  };
 
   return (
-    <ChatErrorBoundary key={key} channelId={channelId} onRetry={handleRetry} className={className}>
+    <ChatErrorBoundary
+      key={key}
+      channelId={channelId}
+      onRetry={handleRetry}
+      className={className}
+    >
       {children}
     </ChatErrorBoundary>
-  )
+  );
 }
 
-export default ChatErrorBoundary
+export default ChatErrorBoundary;

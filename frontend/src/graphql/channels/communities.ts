@@ -3,7 +3,7 @@
  * Phase 6: Tasks 60-65
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // FRAGMENTS
@@ -29,7 +29,7 @@ export const COMMUNITY_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 export const COMMUNITY_GROUP_FRAGMENT = gql`
   fragment CommunityGroupFragment on nchat_community_groups {
@@ -49,7 +49,7 @@ export const COMMUNITY_GROUP_FRAGMENT = gql`
       last_message_at
     }
   }
-`
+`;
 
 export const COMMUNITY_WITH_GROUPS_FRAGMENT = gql`
   ${COMMUNITY_FRAGMENT}
@@ -68,7 +68,7 @@ export const COMMUNITY_WITH_GROUPS_FRAGMENT = gql`
       ...CommunityGroupFragment
     }
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -84,7 +84,7 @@ export const GET_COMMUNITIES = gql`
       ...CommunityFragment
     }
   }
-`
+`;
 
 export const GET_COMMUNITY = gql`
   ${COMMUNITY_WITH_GROUPS_FRAGMENT}
@@ -93,7 +93,7 @@ export const GET_COMMUNITY = gql`
       ...CommunityWithGroupsFragment
     }
   }
-`
+`;
 
 export const GET_COMMUNITY_GROUPS = gql`
   ${COMMUNITY_GROUP_FRAGMENT}
@@ -105,7 +105,7 @@ export const GET_COMMUNITY_GROUPS = gql`
       ...CommunityGroupFragment
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -146,7 +146,7 @@ export const CREATE_COMMUNITY = gql`
       ...CommunityFragment
     }
   }
-`
+`;
 
 export const UPDATE_COMMUNITY = gql`
   ${COMMUNITY_FRAGMENT}
@@ -179,7 +179,7 @@ export const UPDATE_COMMUNITY = gql`
       ...CommunityFragment
     }
   }
-`
+`;
 
 export const DELETE_COMMUNITY = gql`
   mutation DeleteCommunity($id: uuid!) {
@@ -187,7 +187,7 @@ export const DELETE_COMMUNITY = gql`
       id
     }
   }
-`
+`;
 
 export const ADD_COMMUNITY_GROUP = gql`
   ${COMMUNITY_GROUP_FRAGMENT}
@@ -208,25 +208,30 @@ export const ADD_COMMUNITY_GROUP = gql`
       ...CommunityGroupFragment
     }
   }
-`
+`;
 
 export const REMOVE_COMMUNITY_GROUP = gql`
   mutation RemoveCommunityGroup($community_id: uuid!, $channel_id: uuid!) {
     delete_nchat_community_groups(
-      where: { community_id: { _eq: $community_id }, channel_id: { _eq: $channel_id } }
+      where: {
+        community_id: { _eq: $community_id }
+        channel_id: { _eq: $channel_id }
+      }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 export const REORDER_COMMUNITY_GROUPS = gql`
-  mutation ReorderCommunityGroups($updates: [nchat_community_groups_updates!]!) {
+  mutation ReorderCommunityGroups(
+    $updates: [nchat_community_groups_updates!]!
+  ) {
     update_nchat_community_groups_many(updates: $updates) {
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -242,7 +247,7 @@ export const SUBSCRIBE_TO_COMMUNITIES = gql`
       ...CommunityFragment
     }
   }
-`
+`;
 
 export const SUBSCRIBE_TO_COMMUNITY_GROUPS = gql`
   ${COMMUNITY_GROUP_FRAGMENT}
@@ -254,4 +259,4 @@ export const SUBSCRIBE_TO_COMMUNITY_GROUPS = gql`
       ...CommunityGroupFragment
     }
   }
-`
+`;

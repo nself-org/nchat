@@ -18,4 +18,4 @@ export {
   type TransformedMedia,
   type MediaStats,
   type SignedUrlResult,
-} from './media.service'
+} from "./media.service";

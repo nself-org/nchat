@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Message Translator Component
@@ -6,49 +6,53 @@
  * Inline translation dropdown for translating messages to user's preferred language.
  */
 
-import { useState } from 'react'
-import { Languages, Loader2, Check, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useState } from "react";
+import { Languages, Loader2, Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 const LANGUAGES = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
-  { code: 'fr', name: 'French', flag: '🇫🇷' },
-  { code: 'de', name: 'German', flag: '🇩🇪' },
-  { code: 'it', name: 'Italian', flag: '🇮🇹' },
-  { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
-  { code: 'ru', name: 'Russian', flag: '🇷🇺' },
-  { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
-  { code: 'ko', name: 'Korean', flag: '🇰🇷' },
-  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
-  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
-  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
-]
+  { code: "en", name: "English", flag: "🇺🇸" },
+  { code: "es", name: "Spanish", flag: "🇪🇸" },
+  { code: "fr", name: "French", flag: "🇫🇷" },
+  { code: "de", name: "German", flag: "🇩🇪" },
+  { code: "it", name: "Italian", flag: "🇮🇹" },
+  { code: "pt", name: "Portuguese", flag: "🇵🇹" },
+  { code: "ru", name: "Russian", flag: "🇷🇺" },
+  { code: "ja", name: "Japanese", flag: "🇯🇵" },
+  { code: "ko", name: "Korean", flag: "🇰🇷" },
+  { code: "zh", name: "Chinese", flag: "🇨🇳" },
+  { code: "ar", name: "Arabic", flag: "🇸🇦" },
+  { code: "hi", name: "Hindi", flag: "🇮🇳" },
+];
 
 interface TranslationResult {
-  translatedText: string
-  sourceLanguage: string
-  targetLanguage: string
+  translatedText: string;
+  sourceLanguage: string;
+  targetLanguage: string;
 }
 
 interface MessageTranslatorProps {
-  messageId: string
-  originalText: string
-  translation?: TranslationResult
-  isTranslating?: boolean
-  onTranslate: (messageId: string, targetLanguage: string) => Promise<void>
-  onDismissTranslation?: (messageId: string) => void
-  className?: string
+  messageId: string;
+  originalText: string;
+  translation?: TranslationResult;
+  isTranslating?: boolean;
+  onTranslate: (messageId: string, targetLanguage: string) => Promise<void>;
+  onDismissTranslation?: (messageId: string) => void;
+  className?: string;
 }
 
 export function MessageTranslator({
@@ -60,20 +64,20 @@ export function MessageTranslator({
   onDismissTranslation,
   className,
 }: MessageTranslatorProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('en')
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
 
   const handleTranslate = async () => {
-    await onTranslate(messageId, selectedLanguage)
-    setIsOpen(false)
-  }
+    await onTranslate(messageId, selectedLanguage);
+    setIsOpen(false);
+  };
 
   const handleDismiss = () => {
-    onDismissTranslation?.(messageId)
-  }
+    onDismissTranslation?.(messageId);
+  };
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {/* Translation Result */}
       {translation && !isTranslating && (
         <div className="bg-primary/5 relative rounded-r border-l-2 border-primary py-1.5 pl-3">
@@ -82,9 +86,9 @@ export function MessageTranslator({
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Languages className="h-3 w-3" />
                 <span>
-                  Translated from{' '}
-                  {LANGUAGES.find((l) => l.code === translation.sourceLanguage)?.name ||
-                    translation.sourceLanguage}
+                  Translated from{" "}
+                  {LANGUAGES.find((l) => l.code === translation.sourceLanguage)
+                    ?.name || translation.sourceLanguage}
                 </span>
               </div>
               <p className="text-sm">{translation.translatedText}</p>
@@ -122,7 +126,11 @@ export function MessageTranslator({
       {/* Translate Button/Popover */}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className={cn('h-7 text-xs', translation && 'hidden')}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn("h-7 text-xs", translation && "hidden")}
+          >
             <Languages className="mr-1.5 h-3 w-3" />
             Translate
           </Button>
@@ -130,8 +138,13 @@ export function MessageTranslator({
         <PopoverContent className="w-80 p-0" align="start">
           <div className="space-y-3 p-3">
             <div className="space-y-1.5">
-              <div className="text-xs font-medium text-muted-foreground">Translate to</div>
-              <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+              <div className="text-xs font-medium text-muted-foreground">
+                Translate to
+              </div>
+              <Select
+                value={selectedLanguage}
+                onValueChange={setSelectedLanguage}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -150,17 +163,31 @@ export function MessageTranslator({
               <>
                 <Separator />
                 <div className="space-y-2">
-                  <div className="text-xs font-medium text-muted-foreground">Original message</div>
-                  <p className="text-sm text-muted-foreground">{originalText}</p>
+                  <div className="text-xs font-medium text-muted-foreground">
+                    Original message
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {originalText}
+                  </p>
                 </div>
               </>
             )}
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setIsOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button type="button" size="sm" onClick={handleTranslate} disabled={isTranslating}>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleTranslate}
+                disabled={isTranslating}
+              >
                 {isTranslating ? (
                   <>
                     <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
@@ -178,5 +205,5 @@ export function MessageTranslator({
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }

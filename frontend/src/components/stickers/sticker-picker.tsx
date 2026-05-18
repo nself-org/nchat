@@ -1,53 +1,61 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
-import { Search, Clock, Heart, Plus, Settings2, X, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { StickerGrid, StickerGridSection } from './sticker-grid'
-import { StickerPackTab } from './sticker-pack'
-import { useStickers } from '@/lib/stickers/use-stickers'
-import type { Sticker, StickerPack } from '@/graphql/stickers'
+import { useState, useCallback, useMemo, useEffect } from "react";
+import {
+  Search,
+  Clock,
+  Heart,
+  Plus,
+  Settings2,
+  X,
+  Loader2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { StickerGrid, StickerGridSection } from "./sticker-grid";
+import { StickerPackTab } from "./sticker-pack";
+import { useStickers } from "@/lib/stickers/use-stickers";
+import type { Sticker, StickerPack } from "@/graphql/stickers";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface StickerPickerProps {
-  onStickerSelect: (sticker: Sticker) => void
-  onClose?: () => void
-  onManageClick?: () => void
-  onAddPackClick?: () => void
-  className?: string
+  onStickerSelect: (sticker: Sticker) => void;
+  onClose?: () => void;
+  onManageClick?: () => void;
+  onAddPackClick?: () => void;
+  className?: string;
 }
 
-type PickerTab = 'recent' | 'favorites' | 'search' | 'packs'
+type PickerTab = "recent" | "favorites" | "search" | "packs";
 
 // ============================================================================
 // SEARCH INPUT COMPONENT
 // ============================================================================
 
 interface SearchInputProps {
-  value: string
-  onChange: (value: string) => void
-  onClear: () => void
-  placeholder?: string
-  loading?: boolean
-  className?: string
+  value: string;
+  onChange: (value: string) => void;
+  onClear: () => void;
+  placeholder?: string;
+  loading?: boolean;
+  className?: string;
 }
 
 function SearchInput({
   value,
   onChange,
   onClear,
-  placeholder = 'Search stickers...',
+  placeholder = "Search stickers...",
   loading = false,
   className,
 }: SearchInputProps) {
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn("relative", className)}>
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <input
         type="text"
@@ -55,9 +63,9 @@ function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className={cn(
-          'h-9 w-full rounded-lg border border-input bg-background pl-9 pr-9',
-          'text-sm placeholder:text-muted-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+          "h-9 w-full rounded-lg border border-input bg-background pl-9 pr-9",
+          "text-sm placeholder:text-muted-foreground",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         )}
       />
       {loading ? (
@@ -74,7 +82,7 @@ function SearchInput({
         )
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -82,14 +90,14 @@ function SearchInput({
 // ============================================================================
 
 interface PackTabsProps {
-  packs: { pack_id: string; pack: StickerPack }[]
-  activePackId: string | null
-  onPackSelect: (packId: string) => void
-  onRecentClick: () => void
-  onFavoritesClick: () => void
-  showRecent?: boolean
-  showFavorites?: boolean
-  className?: string
+  packs: { pack_id: string; pack: StickerPack }[];
+  activePackId: string | null;
+  onPackSelect: (packId: string) => void;
+  onRecentClick: () => void;
+  onFavoritesClick: () => void;
+  showRecent?: boolean;
+  showFavorites?: boolean;
+  className?: string;
 }
 
 function PackTabs({
@@ -103,7 +111,7 @@ function PackTabs({
   className,
 }: PackTabsProps) {
   return (
-    <ScrollArea className={cn('w-full', className)}>
+    <ScrollArea className={cn("w-full", className)}>
       <div className="flex gap-1 p-1">
         {/* Recent Tab */}
         {showRecent && (
@@ -111,9 +119,9 @@ function PackTabs({
             type="button"
             onClick={onRecentClick}
             className={cn(
-              'flex flex-col items-center justify-center gap-1 rounded-lg p-2 transition-colors',
-              'hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-              activePackId === 'recent' && 'bg-accent'
+              "flex flex-col items-center justify-center gap-1 rounded-lg p-2 transition-colors",
+              "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              activePackId === "recent" && "bg-accent",
             )}
             title="Recent"
           >
@@ -127,9 +135,9 @@ function PackTabs({
             type="button"
             onClick={onFavoritesClick}
             className={cn(
-              'flex flex-col items-center justify-center gap-1 rounded-lg p-2 transition-colors',
-              'hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-              activePackId === 'favorites' && 'bg-accent'
+              "flex flex-col items-center justify-center gap-1 rounded-lg p-2 transition-colors",
+              "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              activePackId === "favorites" && "bg-accent",
             )}
             title="Favorites"
           >
@@ -153,7 +161,7 @@ function PackTabs({
         ))}
       </div>
     </ScrollArea>
-  )
+  );
 }
 
 // ============================================================================
@@ -184,113 +192,117 @@ export function StickerPicker({
     removeFromFavorites,
     isFavorite,
     setActivePackId,
-  } = useStickers()
+  } = useStickers();
 
-  const [localSearchQuery, setLocalSearchQuery] = useState('')
-  const [activeTab, setActiveTab] = useState<PickerTab>('recent')
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<PickerTab>("recent");
 
   // Favorite IDs for quick lookup
   const favoriteIds = useMemo(() => {
-    return new Set(favoriteStickers.map((f) => f.sticker_id))
-  }, [favoriteStickers])
+    return new Set(favoriteStickers.map((f) => f.sticker_id));
+  }, [favoriteStickers]);
 
   // Handle search input change
   const handleSearchChange = useCallback(
     (value: string) => {
-      setLocalSearchQuery(value)
+      setLocalSearchQuery(value);
       if (value.length >= 2) {
-        setActiveTab('search')
-        searchStickers(value)
+        setActiveTab("search");
+        searchStickers(value);
       } else if (value.length === 0) {
-        setActiveTab('recent')
+        setActiveTab("recent");
       }
     },
-    [searchStickers]
-  )
+    [searchStickers],
+  );
 
   // Handle search clear
   const handleSearchClear = useCallback(() => {
-    setLocalSearchQuery('')
-    setActiveTab('recent')
-  }, [])
+    setLocalSearchQuery("");
+    setActiveTab("recent");
+  }, []);
 
   // Handle sticker click
   const handleStickerClick = useCallback(
     (sticker: Sticker) => {
-      sendSticker(sticker)
-      onStickerSelect(sticker)
+      sendSticker(sticker);
+      onStickerSelect(sticker);
     },
-    [sendSticker, onStickerSelect]
-  )
+    [sendSticker, onStickerSelect],
+  );
 
   // Handle sticker long press (toggle favorite)
   const handleStickerLongPress = useCallback(
     (sticker: Sticker) => {
       if (isFavorite(sticker.id)) {
-        removeFromFavorites(sticker.id)
+        removeFromFavorites(sticker.id);
       } else {
-        addToFavorites(sticker)
+        addToFavorites(sticker);
       }
     },
-    [isFavorite, addToFavorites, removeFromFavorites]
-  )
+    [isFavorite, addToFavorites, removeFromFavorites],
+  );
 
   // Handle favorite toggle
   const handleFavorite = useCallback(
     (sticker: Sticker) => {
       if (isFavorite(sticker.id)) {
-        removeFromFavorites(sticker.id)
+        removeFromFavorites(sticker.id);
       } else {
-        addToFavorites(sticker)
+        addToFavorites(sticker);
       }
     },
-    [isFavorite, addToFavorites, removeFromFavorites]
-  )
+    [isFavorite, addToFavorites, removeFromFavorites],
+  );
 
   // Handle pack tab click
   const handlePackSelect = useCallback(
     (packId: string) => {
-      setActiveTab('packs')
-      setActivePackId(packId)
-      loadPackStickers(packId)
+      setActiveTab("packs");
+      setActivePackId(packId);
+      loadPackStickers(packId);
     },
-    [setActivePackId, loadPackStickers]
-  )
+    [setActivePackId, loadPackStickers],
+  );
 
   // Handle recent tab click
   const handleRecentClick = useCallback(() => {
-    setActiveTab('recent')
-    setActivePackId(null)
-  }, [setActivePackId])
+    setActiveTab("recent");
+    setActivePackId(null);
+  }, [setActivePackId]);
 
   // Handle favorites tab click
   const handleFavoritesClick = useCallback(() => {
-    setActiveTab('favorites')
-    setActivePackId(null)
-  }, [setActivePackId])
+    setActiveTab("favorites");
+    setActivePackId(null);
+  }, [setActivePackId]);
 
   // Load first pack if no recent stickers
   useEffect(() => {
-    if (recentStickers.length === 0 && installedPacks.length > 0 && !activePackId) {
-      handlePackSelect(installedPacks[0].pack_id)
+    if (
+      recentStickers.length === 0 &&
+      installedPacks.length > 0 &&
+      !activePackId
+    ) {
+      handlePackSelect(installedPacks[0].pack_id);
     }
-  }, [recentStickers.length, installedPacks, activePackId, handlePackSelect])
+  }, [recentStickers.length, installedPacks, activePackId, handlePackSelect]);
 
   // Extract recent stickers data
   const recentStickerItems = useMemo(() => {
-    return recentStickers.map((r) => r.sticker)
-  }, [recentStickers])
+    return recentStickers.map((r) => r.sticker);
+  }, [recentStickers]);
 
   // Extract favorite stickers data
   const favoriteStickerItems = useMemo(() => {
-    return favoriteStickers.map((f) => f.sticker)
-  }, [favoriteStickers])
+    return favoriteStickers.map((f) => f.sticker);
+  }, [favoriteStickers]);
 
   return (
     <div
       className={cn(
-        'flex h-[400px] w-[360px] flex-col overflow-hidden rounded-xl border bg-background shadow-lg',
-        className
+        "flex h-[400px] w-[360px] flex-col overflow-hidden rounded-xl border bg-background shadow-lg",
+        className,
       )}
     >
       {/* Header */}
@@ -320,7 +332,12 @@ export function StickerPicker({
             </Button>
           )}
           {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-7 w-7"
+            >
               <X className="h-4 w-4" />
             </Button>
           )}
@@ -342,10 +359,10 @@ export function StickerPicker({
         <PackTabs
           packs={installedPacks}
           activePackId={
-            activeTab === 'recent'
-              ? 'recent'
-              : activeTab === 'favorites'
-                ? 'favorites'
+            activeTab === "recent"
+              ? "recent"
+              : activeTab === "favorites"
+                ? "favorites"
                 : activePackId
           }
           onPackSelect={handlePackSelect}
@@ -357,7 +374,7 @@ export function StickerPicker({
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         {/* Search Results */}
-        {activeTab === 'search' && (
+        {activeTab === "search" && (
           <StickerGrid
             stickers={searchResults}
             onStickerClick={handleStickerClick}
@@ -365,13 +382,17 @@ export function StickerPicker({
             onFavorite={handleFavorite}
             favoriteIds={favoriteIds}
             loading={isSearching}
-            emptyMessage={localSearchQuery.length < 2 ? 'Type to search...' : 'No stickers found'}
+            emptyMessage={
+              localSearchQuery.length < 2
+                ? "Type to search..."
+                : "No stickers found"
+            }
             maxHeight="100%"
           />
         )}
 
         {/* Recent Stickers */}
-        {activeTab === 'recent' && (
+        {activeTab === "recent" && (
           <StickerGrid
             stickers={recentStickerItems}
             onStickerClick={handleStickerClick}
@@ -384,7 +405,7 @@ export function StickerPicker({
         )}
 
         {/* Favorite Stickers */}
-        {activeTab === 'favorites' && (
+        {activeTab === "favorites" && (
           <StickerGrid
             stickers={favoriteStickerItems}
             onStickerClick={handleStickerClick}
@@ -397,7 +418,7 @@ export function StickerPicker({
         )}
 
         {/* Pack Stickers */}
-        {activeTab === 'packs' && (
+        {activeTab === "packs" && (
           <StickerGrid
             stickers={activePackStickers}
             onStickerClick={handleStickerClick}
@@ -412,7 +433,7 @@ export function StickerPicker({
       </div>
 
       {/* No Packs Message */}
-      {installedPacks.length === 0 && activeTab !== 'search' && (
+      {installedPacks.length === 0 && activeTab !== "search" && (
         <div className="bg-background/95 absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
           <div className="mb-3 text-4xl">:-)</div>
           <h3 className="mb-1 font-medium">No sticker packs</h3>
@@ -428,7 +449,7 @@ export function StickerPicker({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -436,11 +457,14 @@ export function StickerPicker({
 // ============================================================================
 
 export interface CompactStickerPickerProps {
-  onStickerSelect: (sticker: Sticker) => void
-  className?: string
+  onStickerSelect: (sticker: Sticker) => void;
+  className?: string;
 }
 
-export function CompactStickerPicker({ onStickerSelect, className }: CompactStickerPickerProps) {
+export function CompactStickerPicker({
+  onStickerSelect,
+  className,
+}: CompactStickerPickerProps) {
   const {
     installedPacks,
     recentStickers,
@@ -450,46 +474,46 @@ export function CompactStickerPicker({ onStickerSelect, className }: CompactStic
     loadPackStickers,
     sendSticker,
     setActivePackId,
-  } = useStickers()
+  } = useStickers();
 
-  const [activeTab, setActiveTab] = useState<'recent' | 'packs'>('recent')
+  const [activeTab, setActiveTab] = useState<"recent" | "packs">("recent");
 
   const handleStickerClick = useCallback(
     (sticker: Sticker) => {
-      sendSticker(sticker)
-      onStickerSelect(sticker)
+      sendSticker(sticker);
+      onStickerSelect(sticker);
     },
-    [sendSticker, onStickerSelect]
-  )
+    [sendSticker, onStickerSelect],
+  );
 
   const handlePackSelect = useCallback(
     (packId: string) => {
-      setActiveTab('packs')
-      setActivePackId(packId)
-      loadPackStickers(packId)
+      setActiveTab("packs");
+      setActivePackId(packId);
+      loadPackStickers(packId);
     },
-    [setActivePackId, loadPackStickers]
-  )
+    [setActivePackId, loadPackStickers],
+  );
 
   const recentStickerItems = useMemo(() => {
-    return recentStickers.map((r) => r.sticker)
-  }, [recentStickers])
+    return recentStickers.map((r) => r.sticker);
+  }, [recentStickers]);
 
   return (
-    <div className={cn('flex w-full flex-col', className)}>
+    <div className={cn("flex w-full flex-col", className)}>
       {/* Pack Tabs */}
       <ScrollArea className="w-full border-b">
         <div className="flex gap-1 p-1">
           <button
             type="button"
             onClick={() => {
-              setActiveTab('recent')
-              setActivePackId(null)
+              setActiveTab("recent");
+              setActivePackId(null);
             }}
             className={cn(
-              'flex items-center justify-center rounded-lg p-2 transition-colors',
-              'hover:bg-accent',
-              activeTab === 'recent' && 'bg-accent'
+              "flex items-center justify-center rounded-lg p-2 transition-colors",
+              "hover:bg-accent",
+              activeTab === "recent" && "bg-accent",
             )}
           >
             <Clock className="h-5 w-5 text-muted-foreground" />
@@ -507,17 +531,21 @@ export function CompactStickerPicker({ onStickerSelect, className }: CompactStic
 
       {/* Content */}
       <StickerGrid
-        stickers={activeTab === 'recent' ? recentStickerItems : activePackStickers}
+        stickers={
+          activeTab === "recent" ? recentStickerItems : activePackStickers
+        }
         onStickerClick={handleStickerClick}
         columns={6}
         stickerSize="sm"
         loading={isLoadingStickers}
-        emptyMessage={activeTab === 'recent' ? 'No recent stickers' : 'No stickers'}
+        emptyMessage={
+          activeTab === "recent" ? "No recent stickers" : "No stickers"
+        }
         maxHeight="200px"
         showHoverActions={false}
       />
     </div>
-  )
+  );
 }
 
-export default StickerPicker
+export default StickerPicker;

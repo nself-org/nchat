@@ -16,7 +16,7 @@ export {
   type MeetingQueryOptions,
   type RescheduleOptions,
   type CancelMeetingOptions,
-} from './meeting.service'
+} from "./meeting.service";
 
 export {
   CalendarService,
@@ -26,4 +26,4 @@ export {
   type CalendarExport,
   type ReminderPreferences,
   type ReminderDeliveryResult,
-} from './calendar.service'
+} from "./calendar.service";

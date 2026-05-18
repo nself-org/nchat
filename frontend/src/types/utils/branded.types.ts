@@ -13,13 +13,13 @@
  * Unique brand symbol for creating branded types.
  * Using a unique symbol ensures types are incompatible at compile time.
  */
-declare const __brand: unique symbol
+declare const __brand: unique symbol;
 
 /**
  * Brand type definition.
  * Adds a phantom brand property to a type for nominal typing.
  */
-type Brand<T, TBrand extends string> = T & { readonly [__brand]: TBrand }
+type Brand<T, TBrand extends string> = T & { readonly [__brand]: TBrand };
 
 // ============================================================================
 // ID Branded Types
@@ -29,87 +29,87 @@ type Brand<T, TBrand extends string> = T & { readonly [__brand]: TBrand }
  * Branded UUID type for user IDs.
  * Prevents accidentally using a channel ID where a user ID is expected.
  */
-export type UserId = Brand<string, 'UserId'>
+export type UserId = Brand<string, "UserId">;
 
 /**
  * Branded UUID type for channel IDs.
  */
-export type ChannelId = Brand<string, 'ChannelId'>
+export type ChannelId = Brand<string, "ChannelId">;
 
 /**
  * Branded UUID type for message IDs.
  */
-export type MessageId = Brand<string, 'MessageId'>
+export type MessageId = Brand<string, "MessageId">;
 
 /**
  * Branded UUID type for thread IDs.
  */
-export type ThreadId = Brand<string, 'ThreadId'>
+export type ThreadId = Brand<string, "ThreadId">;
 
 /**
  * Branded UUID type for workspace IDs.
  */
-export type WorkspaceId = Brand<string, 'WorkspaceId'>
+export type WorkspaceId = Brand<string, "WorkspaceId">;
 
 /**
  * Branded UUID type for category IDs.
  */
-export type CategoryId = Brand<string, 'CategoryId'>
+export type CategoryId = Brand<string, "CategoryId">;
 
 /**
  * Branded UUID type for role IDs.
  */
-export type RoleId = Brand<string, 'RoleId'>
+export type RoleId = Brand<string, "RoleId">;
 
 /**
  * Branded UUID type for attachment IDs.
  */
-export type AttachmentId = Brand<string, 'AttachmentId'>
+export type AttachmentId = Brand<string, "AttachmentId">;
 
 /**
  * Branded UUID type for reaction IDs.
  */
-export type ReactionId = Brand<string, 'ReactionId'>
+export type ReactionId = Brand<string, "ReactionId">;
 
 /**
  * Branded UUID type for notification IDs.
  */
-export type NotificationId = Brand<string, 'NotificationId'>
+export type NotificationId = Brand<string, "NotificationId">;
 
 /**
  * Branded UUID type for subscription IDs.
  */
-export type SubscriptionId = Brand<string, 'SubscriptionId'>
+export type SubscriptionId = Brand<string, "SubscriptionId">;
 
 /**
  * Branded UUID type for plan IDs.
  */
-export type PlanId = Brand<string, 'PlanId'>
+export type PlanId = Brand<string, "PlanId">;
 
 /**
  * Branded UUID type for invoice IDs.
  */
-export type InvoiceId = Brand<string, 'InvoiceId'>
+export type InvoiceId = Brand<string, "InvoiceId">;
 
 /**
  * Branded UUID type for webhook IDs.
  */
-export type WebhookId = Brand<string, 'WebhookId'>
+export type WebhookId = Brand<string, "WebhookId">;
 
 /**
  * Branded UUID type for bot IDs.
  */
-export type BotId = Brand<string, 'BotId'>
+export type BotId = Brand<string, "BotId">;
 
 /**
  * Branded UUID type for session IDs.
  */
-export type SessionId = Brand<string, 'SessionId'>
+export type SessionId = Brand<string, "SessionId">;
 
 /**
  * Branded UUID type for audit log IDs.
  */
-export type AuditLogId = Brand<string, 'AuditLogId'>
+export type AuditLogId = Brand<string, "AuditLogId">;
 
 // ============================================================================
 // Code/Token Branded Types
@@ -118,27 +118,27 @@ export type AuditLogId = Brand<string, 'AuditLogId'>
 /**
  * Branded type for invite codes.
  */
-export type InviteCode = Brand<string, 'InviteCode'>
+export type InviteCode = Brand<string, "InviteCode">;
 
 /**
  * Branded type for webhook tokens.
  */
-export type WebhookToken = Brand<string, 'WebhookToken'>
+export type WebhookToken = Brand<string, "WebhookToken">;
 
 /**
  * Branded type for API keys.
  */
-export type ApiKey = Brand<string, 'ApiKey'>
+export type ApiKey = Brand<string, "ApiKey">;
 
 /**
  * Branded type for JWT access tokens.
  */
-export type AccessToken = Brand<string, 'AccessToken'>
+export type AccessToken = Brand<string, "AccessToken">;
 
 /**
  * Branded type for JWT refresh tokens.
  */
-export type RefreshToken = Brand<string, 'RefreshToken'>
+export type RefreshToken = Brand<string, "RefreshToken">;
 
 // ============================================================================
 // String Format Branded Types
@@ -147,47 +147,47 @@ export type RefreshToken = Brand<string, 'RefreshToken'>
 /**
  * Branded type for email addresses.
  */
-export type Email = Brand<string, 'Email'>
+export type Email = Brand<string, "Email">;
 
 /**
  * Branded type for URLs.
  */
-export type Url = Brand<string, 'Url'>
+export type Url = Brand<string, "Url">;
 
 /**
  * Branded type for URL slugs.
  */
-export type Slug = Brand<string, 'Slug'>
+export type Slug = Brand<string, "Slug">;
 
 /**
  * Branded type for usernames.
  */
-export type Username = Brand<string, 'Username'>
+export type Username = Brand<string, "Username">;
 
 /**
  * Branded type for ISO 8601 date strings.
  */
-export type ISODateString = Brand<string, 'ISODateString'>
+export type ISODateString = Brand<string, "ISODateString">;
 
 /**
  * Branded type for hex color strings.
  */
-export type HexColor = Brand<string, 'HexColor'>
+export type HexColor = Brand<string, "HexColor">;
 
 /**
  * Branded type for IANA timezone strings.
  */
-export type Timezone = Brand<string, 'Timezone'>
+export type Timezone = Brand<string, "Timezone">;
 
 /**
  * Branded type for locale/language codes.
  */
-export type Locale = Brand<string, 'Locale'>
+export type Locale = Brand<string, "Locale">;
 
 /**
  * Branded type for MIME types.
  */
-export type MimeType = Brand<string, 'MimeType'>
+export type MimeType = Brand<string, "MimeType">;
 
 // ============================================================================
 // Numeric Branded Types
@@ -196,42 +196,42 @@ export type MimeType = Brand<string, 'MimeType'>
 /**
  * Branded type for positive integers.
  */
-export type PositiveInt = Brand<number, 'PositiveInt'>
+export type PositiveInt = Brand<number, "PositiveInt">;
 
 /**
  * Branded type for non-negative integers.
  */
-export type NonNegativeInt = Brand<number, 'NonNegativeInt'>
+export type NonNegativeInt = Brand<number, "NonNegativeInt">;
 
 /**
  * Branded type for percentage values (0-100).
  */
-export type Percentage = Brand<number, 'Percentage'>
+export type Percentage = Brand<number, "Percentage">;
 
 /**
  * Branded type for Unix timestamps (seconds).
  */
-export type UnixTimestamp = Brand<number, 'UnixTimestamp'>
+export type UnixTimestamp = Brand<number, "UnixTimestamp">;
 
 /**
  * Branded type for Unix timestamps (milliseconds).
  */
-export type UnixTimestampMs = Brand<number, 'UnixTimestampMs'>
+export type UnixTimestampMs = Brand<number, "UnixTimestampMs">;
 
 /**
  * Branded type for byte counts.
  */
-export type Bytes = Brand<number, 'Bytes'>
+export type Bytes = Brand<number, "Bytes">;
 
 /**
  * Branded type for duration in seconds.
  */
-export type DurationSeconds = Brand<number, 'DurationSeconds'>
+export type DurationSeconds = Brand<number, "DurationSeconds">;
 
 /**
  * Branded type for duration in milliseconds.
  */
-export type DurationMs = Brand<number, 'DurationMs'>
+export type DurationMs = Brand<number, "DurationMs">;
 
 // ============================================================================
 // Factory Functions
@@ -243,9 +243,9 @@ export type DurationMs = Brand<number, 'DurationMs'>
  */
 export function createUserId(id: string): UserId {
   if (!isValidUUID(id)) {
-    throw new Error(`Invalid UserId: ${id}`)
+    throw new Error(`Invalid UserId: ${id}`);
   }
-  return id as UserId
+  return id as UserId;
 }
 
 /**
@@ -253,9 +253,9 @@ export function createUserId(id: string): UserId {
  */
 export function createChannelId(id: string): ChannelId {
   if (!isValidUUID(id)) {
-    throw new Error(`Invalid ChannelId: ${id}`)
+    throw new Error(`Invalid ChannelId: ${id}`);
   }
-  return id as ChannelId
+  return id as ChannelId;
 }
 
 /**
@@ -263,9 +263,9 @@ export function createChannelId(id: string): ChannelId {
  */
 export function createMessageId(id: string): MessageId {
   if (!isValidUUID(id)) {
-    throw new Error(`Invalid MessageId: ${id}`)
+    throw new Error(`Invalid MessageId: ${id}`);
   }
-  return id as MessageId
+  return id as MessageId;
 }
 
 /**
@@ -273,9 +273,9 @@ export function createMessageId(id: string): MessageId {
  */
 export function createThreadId(id: string): ThreadId {
   if (!isValidUUID(id)) {
-    throw new Error(`Invalid ThreadId: ${id}`)
+    throw new Error(`Invalid ThreadId: ${id}`);
   }
-  return id as ThreadId
+  return id as ThreadId;
 }
 
 /**
@@ -283,9 +283,9 @@ export function createThreadId(id: string): ThreadId {
  */
 export function createWorkspaceId(id: string): WorkspaceId {
   if (!isValidUUID(id)) {
-    throw new Error(`Invalid WorkspaceId: ${id}`)
+    throw new Error(`Invalid WorkspaceId: ${id}`);
   }
-  return id as WorkspaceId
+  return id as WorkspaceId;
 }
 
 /**
@@ -294,9 +294,9 @@ export function createWorkspaceId(id: string): WorkspaceId {
  */
 export function createEmail(email: string): Email {
   if (!isValidEmail(email)) {
-    throw new Error(`Invalid Email: ${email}`)
+    throw new Error(`Invalid Email: ${email}`);
   }
-  return email.toLowerCase() as Email
+  return email.toLowerCase() as Email;
 }
 
 /**
@@ -305,9 +305,9 @@ export function createEmail(email: string): Email {
  */
 export function createUrl(url: string): Url {
   if (!isValidUrl(url)) {
-    throw new Error(`Invalid URL: ${url}`)
+    throw new Error(`Invalid URL: ${url}`);
   }
-  return url as Url
+  return url as Url;
 }
 
 /**
@@ -316,9 +316,9 @@ export function createUrl(url: string): Url {
  */
 export function createSlug(slug: string): Slug {
   if (!isValidSlug(slug)) {
-    throw new Error(`Invalid Slug: ${slug}`)
+    throw new Error(`Invalid Slug: ${slug}`);
   }
-  return slug.toLowerCase() as Slug
+  return slug.toLowerCase() as Slug;
 }
 
 /**
@@ -327,20 +327,20 @@ export function createSlug(slug: string): Slug {
  */
 export function createUsername(username: string): Username {
   if (!isValidUsername(username)) {
-    throw new Error(`Invalid Username: ${username}`)
+    throw new Error(`Invalid Username: ${username}`);
   }
-  return username.toLowerCase() as Username
+  return username.toLowerCase() as Username;
 }
 
 /**
  * Create an ISODateString from a Date or string.
  */
 export function createISODateString(date: Date | string): ISODateString {
-  const d = typeof date === 'string' ? new Date(date) : date
+  const d = typeof date === "string" ? new Date(date) : date;
   if (isNaN(d.getTime())) {
-    throw new Error(`Invalid date: ${date}`)
+    throw new Error(`Invalid date: ${date}`);
   }
-  return d.toISOString() as ISODateString
+  return d.toISOString() as ISODateString;
 }
 
 /**
@@ -349,9 +349,9 @@ export function createISODateString(date: Date | string): ISODateString {
  */
 export function createHexColor(color: string): HexColor {
   if (!isValidHexColor(color)) {
-    throw new Error(`Invalid HexColor: ${color}`)
+    throw new Error(`Invalid HexColor: ${color}`);
   }
-  return color.toLowerCase() as HexColor
+  return color.toLowerCase() as HexColor;
 }
 
 /**
@@ -360,9 +360,9 @@ export function createHexColor(color: string): HexColor {
  */
 export function createPositiveInt(n: number): PositiveInt {
   if (!Number.isInteger(n) || n <= 0) {
-    throw new Error(`Invalid PositiveInt: ${n}`)
+    throw new Error(`Invalid PositiveInt: ${n}`);
   }
-  return n as PositiveInt
+  return n as PositiveInt;
 }
 
 /**
@@ -371,9 +371,9 @@ export function createPositiveInt(n: number): PositiveInt {
  */
 export function createNonNegativeInt(n: number): NonNegativeInt {
   if (!Number.isInteger(n) || n < 0) {
-    throw new Error(`Invalid NonNegativeInt: ${n}`)
+    throw new Error(`Invalid NonNegativeInt: ${n}`);
   }
-  return n as NonNegativeInt
+  return n as NonNegativeInt;
 }
 
 /**
@@ -382,9 +382,9 @@ export function createNonNegativeInt(n: number): NonNegativeInt {
  */
 export function createPercentage(n: number): Percentage {
   if (n < 0 || n > 100) {
-    throw new Error(`Invalid Percentage: ${n}`)
+    throw new Error(`Invalid Percentage: ${n}`);
   }
-  return n as Percentage
+  return n as Percentage;
 }
 
 // ============================================================================
@@ -396,28 +396,28 @@ export function createPercentage(n: number): Percentage {
  * Use only when you know the value is valid (e.g., from database).
  */
 export function unsafeUserId(id: string): UserId {
-  return id as UserId
+  return id as UserId;
 }
 
 /**
  * Unsafe: Create a ChannelId without validation.
  */
 export function unsafeChannelId(id: string): ChannelId {
-  return id as ChannelId
+  return id as ChannelId;
 }
 
 /**
  * Unsafe: Create a MessageId without validation.
  */
 export function unsafeMessageId(id: string): MessageId {
-  return id as MessageId
+  return id as MessageId;
 }
 
 /**
  * Unsafe: Create an Email without validation.
  */
 export function unsafeEmail(email: string): Email {
-  return email as Email
+  return email as Email;
 }
 
 // ============================================================================
@@ -427,40 +427,41 @@ export function unsafeEmail(email: string): Email {
 /**
  * UUID v4 regex pattern.
  */
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /**
  * Email regex pattern.
  */
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * Hex color regex pattern.
  */
-const HEX_COLOR_REGEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
+const HEX_COLOR_REGEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 /**
  * Slug regex pattern.
  */
-const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /**
  * Username regex pattern.
  */
-const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/
+const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
 
 /**
  * Validate UUID format.
  */
 export function isValidUUID(value: string): boolean {
-  return UUID_REGEX.test(value)
+  return UUID_REGEX.test(value);
 }
 
 /**
  * Validate email format.
  */
 export function isValidEmail(value: string): boolean {
-  return EMAIL_REGEX.test(value)
+  return EMAIL_REGEX.test(value);
 }
 
 /**
@@ -468,10 +469,10 @@ export function isValidEmail(value: string): boolean {
  */
 export function isValidUrl(value: string): boolean {
   try {
-    new URL(value)
-    return true
+    new URL(value);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -479,21 +480,21 @@ export function isValidUrl(value: string): boolean {
  * Validate hex color format.
  */
 export function isValidHexColor(value: string): boolean {
-  return HEX_COLOR_REGEX.test(value)
+  return HEX_COLOR_REGEX.test(value);
 }
 
 /**
  * Validate slug format.
  */
 export function isValidSlug(value: string): boolean {
-  return SLUG_REGEX.test(value.toLowerCase())
+  return SLUG_REGEX.test(value.toLowerCase());
 }
 
 /**
  * Validate username format.
  */
 export function isValidUsername(value: string): boolean {
-  return USERNAME_REGEX.test(value.toLowerCase())
+  return USERNAME_REGEX.test(value.toLowerCase());
 }
 
 // ============================================================================
@@ -503,9 +504,9 @@ export function isValidUsername(value: string): boolean {
 /**
  * Extract the raw type from a branded type.
  */
-export type Unbrand<T> = T extends Brand<infer U, string> ? U : T
+export type Unbrand<T> = T extends Brand<infer U, string> ? U : T;
 
 /**
  * Extract the brand name from a branded type.
  */
-export type BrandOf<T> = T extends Brand<unknown, infer B> ? B : never
+export type BrandOf<T> = T extends Brand<unknown, infer B> ? B : never;

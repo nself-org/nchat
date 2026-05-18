@@ -4,65 +4,71 @@
  * GDPR-compliant consent banner shown on first app launch
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Shield, X, Settings } from 'lucide-react'
-import { analyticsPrivacy, hasProvidedConsent } from '@/lib/analytics/privacy'
-import { analytics } from '@/lib/analytics'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Shield, X, Settings } from "lucide-react";
+import { analyticsPrivacy, hasProvidedConsent } from "@/lib/analytics/privacy";
+import { analytics } from "@/lib/analytics";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export function ConsentBanner() {
-  const [isVisible, setIsVisible] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [isVisible, setIsVisible] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     // Show banner if user hasn't provided consent
-    const hasConsent = hasProvidedConsent()
-    setIsVisible(!hasConsent)
-  }, [])
+    const hasConsent = hasProvidedConsent();
+    setIsVisible(!hasConsent);
+  }, []);
 
   const handleAcceptAll = async () => {
     try {
-      setSaving(true)
-      await analyticsPrivacy.acceptAll()
+      setSaving(true);
+      await analyticsPrivacy.acceptAll();
 
       // Track consent acceptance
       if (analytics.isEnabled()) {
-        await analytics.trackScreenView('consent_accepted')
+        await analytics.trackScreenView("consent_accepted");
       }
 
-      setIsVisible(false)
+      setIsVisible(false);
     } catch (error) {
-      logger.error('Failed to accept analytics:', error)
+      logger.error("Failed to accept analytics:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleRejectAll = async () => {
     try {
-      setSaving(true)
-      await analyticsPrivacy.rejectAll()
-      setIsVisible(false)
+      setSaving(true);
+      await analyticsPrivacy.rejectAll();
+      setIsVisible(false);
     } catch (error) {
-      logger.error('Failed to reject analytics:', error)
+      logger.error("Failed to reject analytics:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleCustomize = () => {
     // Navigate to settings
-    window.location.href = '/settings/privacy'
-  }
+    window.location.href = "/settings/privacy";
+  };
 
   if (!isVisible) {
-    return null
+    return null;
   }
 
   return (
@@ -85,7 +91,9 @@ export function ConsentBanner() {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            <CardDescription>We use analytics to improve your experience</CardDescription>
+            <CardDescription>
+              We use analytics to improve your experience
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2 text-sm text-muted-foreground">
@@ -113,7 +121,11 @@ export function ConsentBanner() {
             </Alert>
 
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Button onClick={handleAcceptAll} disabled={saving} className="flex-1">
+              <Button
+                onClick={handleAcceptAll}
+                disabled={saving}
+                className="flex-1"
+              >
                 Accept All
               </Button>
               <Button
@@ -136,11 +148,11 @@ export function ConsentBanner() {
             </div>
 
             <p className="text-center text-xs text-muted-foreground">
-              By using nChat, you agree to our{' '}
+              By using nChat, you agree to our{" "}
               <a href="/privacy" className="underline hover:text-foreground">
                 Privacy Policy
-              </a>{' '}
-              and{' '}
+              </a>{" "}
+              and{" "}
               <a href="/terms" className="underline hover:text-foreground">
                 Terms of Service
               </a>
@@ -149,5 +161,5 @@ export function ConsentBanner() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

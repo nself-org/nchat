@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Skeleton, CircleSkeleton, LineSkeleton } from './skeleton'
-import { ChannelSkeleton, DirectMessagesSkeleton } from './channel-skeleton'
+import { cn } from "@/lib/utils";
+import { Skeleton, CircleSkeleton, LineSkeleton } from "./skeleton";
+import { ChannelSkeleton, DirectMessagesSkeleton } from "./channel-skeleton";
 
 interface SidebarSkeletonProps {
   /** Show workspace header */
-  showHeader?: boolean
+  showHeader?: boolean;
   /** Show user profile at bottom */
-  showUserProfile?: boolean
+  showUserProfile?: boolean;
   /** Number of channel categories */
-  categoryCount?: number
+  categoryCount?: number;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -27,7 +27,10 @@ export function SidebarSkeleton({
 }: SidebarSkeletonProps) {
   return (
     <div
-      className={cn('flex h-full w-64 flex-col border-r bg-zinc-50 dark:bg-zinc-900/50', className)}
+      className={cn(
+        "flex h-full w-64 flex-col border-r bg-zinc-50 dark:bg-zinc-900/50",
+        className,
+      )}
     >
       {/* Workspace header */}
       {showHeader && <WorkspaceHeaderSkeleton />}
@@ -49,7 +52,10 @@ export function SidebarSkeleton({
         {Array.from({ length: categoryCount }).map((_, i) => (
           <div key={i} className="mt-4">
             <ChannelCategoryHeaderSkeleton />
-            <ChannelSkeleton count={2 + Math.floor(Math.random() * 3)} showCategories={false} />
+            <ChannelSkeleton
+              count={2 + Math.floor(Math.random() * 3)}
+              showCategories={false}
+            />
           </div>
         ))}
 
@@ -62,7 +68,7 @@ export function SidebarSkeleton({
       {/* User profile */}
       {showUserProfile && <UserProfileSkeleton />}
     </div>
-  )
+  );
 }
 
 /**
@@ -72,8 +78,8 @@ export function WorkspaceHeaderSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'flex h-16 items-center justify-between border-b border-zinc-200 px-4 dark:border-zinc-800',
-        className
+        "flex h-16 items-center justify-between border-b border-zinc-200 px-4 dark:border-zinc-800",
+        className,
       )}
     >
       {/* Logo/name */}
@@ -84,7 +90,7 @@ export function WorkspaceHeaderSkeleton({ className }: { className?: string }) {
         <Skeleton className="h-8 w-8 rounded" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -95,12 +101,14 @@ export function SectionHeaderSkeleton({
   showActions = true,
   className,
 }: {
-  title?: string
-  showActions?: boolean
-  className?: string
+  title?: string;
+  showActions?: boolean;
+  className?: string;
 }) {
   return (
-    <div className={cn('flex items-center justify-between px-2 py-1', className)}>
+    <div
+      className={cn("flex items-center justify-between px-2 py-1", className)}
+    >
       <LineSkeleton width={60} height={10} />
       {showActions && (
         <div className="flex gap-1">
@@ -109,19 +117,23 @@ export function SectionHeaderSkeleton({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
  * Channel category header skeleton
  */
-export function ChannelCategoryHeaderSkeleton({ className }: { className?: string }) {
+export function ChannelCategoryHeaderSkeleton({
+  className,
+}: {
+  className?: string;
+}) {
   return (
-    <div className={cn('mb-1 flex items-center gap-1 px-2 py-1', className)}>
+    <div className={cn("mb-1 flex items-center gap-1 px-2 py-1", className)}>
       <Skeleton className="h-3 w-3 rounded" />
       <LineSkeleton width={50} height={10} />
     </div>
-  )
+  );
 }
 
 /**
@@ -129,7 +141,12 @@ export function ChannelCategoryHeaderSkeleton({ className }: { className?: strin
  */
 export function UserProfileSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('border-t border-zinc-200 p-4 dark:border-zinc-800', className)}>
+    <div
+      className={cn(
+        "border-t border-zinc-200 p-4 dark:border-zinc-800",
+        className,
+      )}
+    >
       <div className="flex items-center gap-3">
         {/* Avatar */}
         <CircleSkeleton size={32} />
@@ -144,19 +161,23 @@ export function UserProfileSkeleton({ className }: { className?: string }) {
         <Skeleton className="h-6 w-6 rounded" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
  * Minimal sidebar skeleton
  * For collapsed sidebar state
  */
-export function CollapsedSidebarSkeleton({ className }: { className?: string }) {
+export function CollapsedSidebarSkeleton({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <div
       className={cn(
-        'flex h-full w-16 flex-col items-center border-r bg-zinc-50 py-4 dark:bg-zinc-900/50',
-        className
+        "flex h-full w-16 flex-col items-center border-r bg-zinc-50 py-4 dark:bg-zinc-900/50",
+        className,
       )}
     >
       {/* Logo */}
@@ -172,7 +193,7 @@ export function CollapsedSidebarSkeleton({ className }: { className?: string }) 
       {/* User avatar */}
       <CircleSkeleton size={32} />
     </div>
-  )
+  );
 }
 
 /**
@@ -182,8 +203,8 @@ export function ServerListSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'w-18 flex h-full flex-col items-center gap-2 border-r bg-zinc-100 py-3 dark:bg-zinc-950',
-        className
+        "w-18 flex h-full flex-col items-center gap-2 border-r bg-zinc-100 py-3 dark:bg-zinc-950",
+        className,
       )}
     >
       {/* Home/DMs */}
@@ -202,7 +223,7 @@ export function ServerListSkeleton({ className }: { className?: string }) {
         <Skeleton className="h-12 w-12 rounded-2xl" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -210,9 +231,9 @@ export function ServerListSkeleton({ className }: { className?: string }) {
  */
 export function FullLayoutSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('flex h-full', className)}>
+    <div className={cn("flex h-full", className)}>
       <ServerListSkeleton />
       <SidebarSkeleton />
     </div>
-  )
+  );
 }

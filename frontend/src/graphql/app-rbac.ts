@@ -2,7 +2,7 @@
  * GraphQL Queries and Mutations for Per-App RBAC/ACL
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 /**
  * Get all apps
@@ -19,7 +19,7 @@ export const GET_APPS = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Get a specific app by app_id
@@ -36,7 +36,7 @@ export const GET_APP = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Get user's roles for a specific app
@@ -47,7 +47,10 @@ export const GET_USER_APP_ROLES = gql`
       where: {
         user_id: { _eq: $userId }
         app_id: { _eq: $appId }
-        _or: [{ expires_at: { _is_null: true } }, { expires_at: { _gt: "now()" } }]
+        _or: [
+          { expires_at: { _is_null: true } }
+          { expires_at: { _gt: "now()" } }
+        ]
       }
       order_by: { granted_at: desc }
     ) {
@@ -62,7 +65,7 @@ export const GET_USER_APP_ROLES = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Get all roles for a user across all apps
@@ -72,7 +75,10 @@ export const GET_USER_ALL_APP_ROLES = gql`
     app_user_roles(
       where: {
         user_id: { _eq: $userId }
-        _or: [{ expires_at: { _is_null: true } }, { expires_at: { _gt: "now()" } }]
+        _or: [
+          { expires_at: { _is_null: true } }
+          { expires_at: { _gt: "now()" } }
+        ]
       }
       order_by: { app_id: asc, granted_at: desc }
     ) {
@@ -87,14 +93,16 @@ export const GET_USER_ALL_APP_ROLES = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Get permissions for a role in an app
  */
 export const GET_APP_ROLE_PERMISSIONS = gql`
   query GetAppRolePermissions($appId: String!, $role: String!) {
-    app_role_permissions(where: { app_id: { _eq: $appId }, role: { _eq: $role } }) {
+    app_role_permissions(
+      where: { app_id: { _eq: $appId }, role: { _eq: $role } }
+    ) {
       id
       app_id
       role
@@ -103,7 +111,7 @@ export const GET_APP_ROLE_PERMISSIONS = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Get all permissions for a user in an app
@@ -120,7 +128,10 @@ export const GET_USER_APP_PERMISSIONS = gql`
                 where: {
                   user_id: { _eq: $userId }
                   app_id: { _eq: $appId }
-                  _or: [{ expires_at: { _is_null: true } }, { expires_at: { _gt: "now()" } }]
+                  _or: [
+                    { expires_at: { _is_null: true } }
+                    { expires_at: { _gt: "now()" } }
+                  ]
                 }
               }
             }
@@ -137,16 +148,18 @@ export const GET_USER_APP_PERMISSIONS = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Check if user has a specific role using the database function
  */
 export const CHECK_USER_HAS_ROLE = gql`
   query CheckUserHasRole($userId: uuid!, $appId: String!, $role: String!) {
-    user_has_app_role(args: { p_user_id: $userId, p_app_id: $appId, p_role: $role })
+    user_has_app_role(
+      args: { p_user_id: $userId, p_app_id: $appId, p_role: $role }
+    )
   }
-`
+`;
 
 /**
  * Check if user has a specific permission using the database function
@@ -167,7 +180,7 @@ export const CHECK_USER_HAS_PERMISSION = gql`
       }
     )
   }
-`
+`;
 
 /**
  * Grant a role to a user
@@ -204,7 +217,7 @@ export const GRANT_USER_ROLE = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Revoke a role from a user
@@ -212,12 +225,16 @@ export const GRANT_USER_ROLE = gql`
 export const REVOKE_USER_ROLE = gql`
   mutation RevokeUserRole($appId: String!, $userId: uuid!, $role: String!) {
     delete_app_user_roles(
-      where: { app_id: { _eq: $appId }, user_id: { _eq: $userId }, role: { _eq: $role } }
+      where: {
+        app_id: { _eq: $appId }
+        user_id: { _eq: $userId }
+        role: { _eq: $role }
+      }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Add a permission to a role
@@ -230,7 +247,12 @@ export const ADD_ROLE_PERMISSION = gql`
     $resource: String
   ) {
     insert_app_role_permissions_one(
-      object: { app_id: $appId, role: $role, permission: $permission, resource: $resource }
+      object: {
+        app_id: $appId
+        role: $role
+        permission: $permission
+        resource: $resource
+      }
       on_conflict: {
         constraint: app_role_permissions_app_id_role_permission_resource_key
         update_columns: []
@@ -244,7 +266,7 @@ export const ADD_ROLE_PERMISSION = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Remove a permission from a role
@@ -267,7 +289,7 @@ export const REMOVE_ROLE_PERMISSION = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Register a new app
@@ -275,8 +297,16 @@ export const REMOVE_ROLE_PERMISSION = gql`
 export const REGISTER_APP = gql`
   mutation RegisterApp($appId: String!, $appName: String!, $appUrl: String) {
     insert_apps_one(
-      object: { app_id: $appId, app_name: $appName, app_url: $appUrl, is_active: true }
-      on_conflict: { constraint: apps_app_id_key, update_columns: [app_name, app_url, updated_at] }
+      object: {
+        app_id: $appId
+        app_name: $appName
+        app_url: $appUrl
+        is_active: true
+      }
+      on_conflict: {
+        constraint: apps_app_id_key
+        update_columns: [app_name, app_url, updated_at]
+      }
     ) {
       id
       app_id
@@ -287,15 +317,18 @@ export const REGISTER_APP = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Deactivate an app
  */
 export const DEACTIVATE_APP = gql`
   mutation DeactivateApp($appId: String!) {
-    update_apps(where: { app_id: { _eq: $appId } }, _set: { is_active: false }) {
+    update_apps(
+      where: { app_id: { _eq: $appId } }
+      _set: { is_active: false }
+    ) {
       affected_rows
     }
   }
-`
+`;

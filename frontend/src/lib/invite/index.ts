@@ -36,7 +36,7 @@ export {
   type InviteValidationError,
   type ExpirationOption,
   type MaxUsesOption,
-} from './invite-service'
+} from "./invite-service";
 
 // Store exports
 export {
@@ -62,7 +62,11 @@ export {
   type InviteState,
   type InviteActions,
   type InviteStore,
-} from './invite-store'
+} from "./invite-store";
 
 // Hook exports
-export { useInvite, type UseInviteOptions, type UseInviteReturn } from './use-invite'
+export {
+  useInvite,
+  type UseInviteOptions,
+  type UseInviteReturn,
+} from "./use-invite";

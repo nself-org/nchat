@@ -1,26 +1,37 @@
-'use client'
+"use client";
 
 /**
  * ParticipantGrid - Video/audio participant grid layout
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { RemoteParticipant, LocalUserState } from '@/lib/meetings/meeting-types'
-import { Mic, MicOff, Video, VideoOff, Hand, Crown, MonitorUp } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  RemoteParticipant,
+  LocalUserState,
+} from "@/lib/meetings/meeting-types";
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  Hand,
+  Crown,
+  MonitorUp,
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ParticipantGridProps {
-  participants: RemoteParticipant[]
-  localUser: LocalUserState | undefined
-  activeSpeakerId: string | null
-  screenShareUserId: string | null
-  maxVisible?: number
+  participants: RemoteParticipant[];
+  localUser: LocalUserState | undefined;
+  activeSpeakerId: string | null;
+  screenShareUserId: string | null;
+  maxVisible?: number;
 }
 
 // ============================================================================
@@ -35,31 +46,31 @@ export function ParticipantGrid({
   maxVisible = 16,
 }: ParticipantGridProps) {
   // Calculate grid layout based on participant count
-  const totalParticipants = participants.length + 1 // +1 for local user
-  const visibleCount = Math.min(totalParticipants, maxVisible)
-  const overflowCount = totalParticipants - maxVisible
+  const totalParticipants = participants.length + 1; // +1 for local user
+  const visibleCount = Math.min(totalParticipants, maxVisible);
+  const overflowCount = totalParticipants - maxVisible;
 
   const getGridClass = (count: number): string => {
-    if (count === 1) return 'grid-cols-1'
-    if (count === 2) return 'grid-cols-2'
-    if (count <= 4) return 'grid-cols-2'
-    if (count <= 6) return 'grid-cols-3'
-    if (count <= 9) return 'grid-cols-3'
-    if (count <= 12) return 'grid-cols-4'
-    return 'grid-cols-4'
-  }
+    if (count === 1) return "grid-cols-1";
+    if (count === 2) return "grid-cols-2";
+    if (count <= 4) return "grid-cols-2";
+    if (count <= 6) return "grid-cols-3";
+    if (count <= 9) return "grid-cols-3";
+    if (count <= 12) return "grid-cols-4";
+    return "grid-cols-4";
+  };
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   return (
-    <div className={cn('grid h-full gap-2', getGridClass(visibleCount))}>
+    <div className={cn("grid h-full gap-2", getGridClass(visibleCount))}>
       {/* Local User Tile */}
       <ParticipantTile
         displayName="You"
@@ -83,8 +94,10 @@ export function ParticipantGrid({
           isVideoOn={participant.isVideoOn}
           isScreenSharing={participant.isScreenSharing}
           isHandRaised={participant.isHandRaised}
-          isSpeaking={participant.isSpeaking || participant.peerId === activeSpeakerId}
-          isHost={participant.role === 'host'}
+          isSpeaking={
+            participant.isSpeaking || participant.peerId === activeSpeakerId
+          }
+          isHost={participant.role === "host"}
           connectionQuality={participant.connectionQuality}
         />
       ))}
@@ -96,7 +109,7 @@ export function ParticipantGrid({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -104,16 +117,16 @@ export function ParticipantGrid({
 // ============================================================================
 
 interface ParticipantTileProps {
-  displayName: string
-  avatarUrl: string | null
-  isMuted: boolean
-  isVideoOn: boolean
-  isScreenSharing: boolean
-  isHandRaised: boolean
-  isSpeaking: boolean
-  isHost?: boolean
-  isLocal?: boolean
-  connectionQuality?: 'excellent' | 'good' | 'fair' | 'poor' | 'unknown'
+  displayName: string;
+  avatarUrl: string | null;
+  isMuted: boolean;
+  isVideoOn: boolean;
+  isScreenSharing: boolean;
+  isHandRaised: boolean;
+  isSpeaking: boolean;
+  isHost?: boolean;
+  isLocal?: boolean;
+  connectionQuality?: "excellent" | "good" | "fair" | "poor" | "unknown";
 }
 
 function ParticipantTile({
@@ -126,37 +139,38 @@ function ParticipantTile({
   isSpeaking,
   isHost = false,
   isLocal = false,
-  connectionQuality = 'unknown',
+  connectionQuality = "unknown",
 }: ParticipantTileProps) {
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   const getConnectionColor = () => {
     switch (connectionQuality) {
-      case 'excellent':
-        return 'bg-green-500'
-      case 'good':
-        return 'bg-green-400'
-      case 'fair':
-        return 'bg-yellow-500'
-      case 'poor':
-        return 'bg-red-500'
+      case "excellent":
+        return "bg-green-500";
+      case "good":
+        return "bg-green-400";
+      case "fair":
+        return "bg-yellow-500";
+      case "poor":
+        return "bg-red-500";
       default:
-        return 'bg-gray-500'
+        return "bg-gray-500";
     }
-  }
+  };
 
   return (
     <div
       className={cn(
-        'relative flex items-center justify-center overflow-hidden rounded-lg bg-gray-800 transition-all',
-        isSpeaking && 'ring-2 ring-green-500 ring-offset-2 ring-offset-gray-900'
+        "relative flex items-center justify-center overflow-hidden rounded-lg bg-gray-800 transition-all",
+        isSpeaking &&
+          "ring-2 ring-green-500 ring-offset-2 ring-offset-gray-900",
       )}
     >
       {/* Video or Avatar */}
@@ -175,8 +189,8 @@ function ParticipantTile({
       ) : (
         <Avatar
           className={cn(
-            'h-20 w-20 border-2 transition-all',
-            isSpeaking ? 'scale-105 border-green-500' : 'border-gray-600'
+            "h-20 w-20 border-2 transition-all",
+            isSpeaking ? "scale-105 border-green-500" : "border-gray-600",
           )}
         >
           <AvatarImage src={avatarUrl || undefined} />
@@ -219,31 +233,31 @@ function ParticipantTile({
         <div className="flex items-center justify-between">
           <span className="truncate text-sm font-medium">
             {displayName}
-            {isLocal && ' (You)'}
+            {isLocal && " (You)"}
           </span>
           <div className="flex items-center gap-1">
             {/* Connection quality */}
-            {!isLocal && connectionQuality !== 'unknown' && (
+            {!isLocal && connectionQuality !== "unknown" && (
               <div className="flex items-center gap-0.5">
                 {[1, 2, 3, 4].map((bar) => (
                   <div
                     key={bar}
                     className={cn(
-                      'w-0.5 rounded-full',
+                      "w-0.5 rounded-full",
                       bar <=
-                        (connectionQuality === 'excellent'
+                        (connectionQuality === "excellent"
                           ? 4
-                          : connectionQuality === 'good'
+                          : connectionQuality === "good"
                             ? 3
-                            : connectionQuality === 'fair'
+                            : connectionQuality === "fair"
                               ? 2
                               : 1)
                         ? getConnectionColor()
-                        : 'bg-gray-600',
-                      bar === 1 && 'h-1',
-                      bar === 2 && 'h-1.5',
-                      bar === 3 && 'h-2',
-                      bar === 4 && 'h-2.5'
+                        : "bg-gray-600",
+                      bar === 1 && "h-1",
+                      bar === 2 && "h-1.5",
+                      bar === 3 && "h-2",
+                      bar === 4 && "h-2.5",
                     )}
                   />
                 ))}
@@ -251,11 +265,18 @@ function ParticipantTile({
             )}
 
             {/* Audio indicator */}
-            <div className={cn('rounded p-0.5', isMuted ? 'text-red-400' : 'text-white')}>
+            <div
+              className={cn(
+                "rounded p-0.5",
+                isMuted ? "text-red-400" : "text-white",
+              )}
+            >
               {isMuted ? (
                 <MicOff className="h-3.5 w-3.5" />
               ) : (
-                <Mic className={cn('h-3.5 w-3.5', isSpeaking && 'text-green-400')} />
+                <Mic
+                  className={cn("h-3.5 w-3.5", isSpeaking && "text-green-400")}
+                />
               )}
             </div>
 
@@ -269,5 +290,5 @@ function ParticipantTile({
         </div>
       </div>
     </div>
-  )
+  );
 }

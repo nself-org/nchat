@@ -7,7 +7,7 @@
  * @module services/livestream/analytics.service
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import type {
   StreamAnalytics,
   RealTimeAnalytics,
@@ -17,47 +17,47 @@ import type {
   EngagementStats,
   QualityStats,
   StreamViewer,
-} from './types'
+} from "./types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ViewerSnapshot {
-  timestamp: number
-  count: number
+  timestamp: number;
+  count: number;
 }
 
 interface EngagementEvent {
-  type: 'chat' | 'reaction'
-  timestamp: number
-  userId?: string
-  emoji?: string
-  messageLength?: number
+  type: "chat" | "reaction";
+  timestamp: number;
+  userId?: string;
+  emoji?: string;
+  messageLength?: number;
 }
 
 interface QualityEvent {
-  timestamp: number
-  bitrate: number
-  fps: number
-  resolution: string
-  droppedFrames: number
-  bufferingDuration: number
+  timestamp: number;
+  bitrate: number;
+  fps: number;
+  resolution: string;
+  droppedFrames: number;
+  bufferingDuration: number;
 }
 
 interface AnalyticsStore {
-  viewerSnapshots: ViewerSnapshot[]
-  engagementEvents: EngagementEvent[]
-  qualityEvents: QualityEvent[]
-  viewerLocations: Map<string, GeographicStats>
-  viewerDevices: Map<string, DeviceStats>
-  peakViewers: number
-  totalUniqueViewers: Set<string>
-  totalViews: number
-  chatMessagesCount: number
-  reactionsCount: number
-  reactionsByType: Map<string, number>
-  qualityDistribution: Map<StreamQuality, number>
+  viewerSnapshots: ViewerSnapshot[];
+  engagementEvents: EngagementEvent[];
+  qualityEvents: QualityEvent[];
+  viewerLocations: Map<string, GeographicStats>;
+  viewerDevices: Map<string, DeviceStats>;
+  peakViewers: number;
+  totalUniqueViewers: Set<string>;
+  totalViews: number;
+  chatMessagesCount: number;
+  reactionsCount: number;
+  reactionsByType: Map<string, number>;
+  qualityDistribution: Map<StreamQuality, number>;
 }
 
 // ============================================================================
@@ -65,14 +65,14 @@ interface AnalyticsStore {
 // ============================================================================
 
 export class LivestreamAnalyticsService {
-  private streamId: string
-  private startTime: number
-  private store: AnalyticsStore
-  private snapshotInterval: ReturnType<typeof setInterval> | null = null
+  private streamId: string;
+  private startTime: number;
+  private store: AnalyticsStore;
+  private snapshotInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(streamId: string) {
-    this.streamId = streamId
-    this.startTime = Date.now()
+    this.streamId = streamId;
+    this.startTime = Date.now();
     this.store = {
       viewerSnapshots: [],
       engagementEvents: [],
@@ -86,7 +86,7 @@ export class LivestreamAnalyticsService {
       reactionsCount: 0,
       reactionsByType: new Map(),
       qualityDistribution: new Map(),
-    }
+    };
   }
 
   // ==========================================================================
@@ -99,10 +99,10 @@ export class LivestreamAnalyticsService {
   start(): void {
     // Take viewer snapshots every 30 seconds
     this.snapshotInterval = setInterval(() => {
-      this.takeViewerSnapshot()
-    }, 30000)
+      this.takeViewerSnapshot();
+    }, 30000);
 
-    logger.info('Analytics started for stream', { streamId: this.streamId })
+    logger.info("Analytics started for stream", { streamId: this.streamId });
   }
 
   /**
@@ -110,18 +110,18 @@ export class LivestreamAnalyticsService {
    */
   stop(): void {
     if (this.snapshotInterval) {
-      clearInterval(this.snapshotInterval)
-      this.snapshotInterval = null
+      clearInterval(this.snapshotInterval);
+      this.snapshotInterval = null;
     }
 
-    logger.info('Analytics stopped for stream', { streamId: this.streamId })
+    logger.info("Analytics stopped for stream", { streamId: this.streamId });
   }
 
   /**
    * Reset analytics data
    */
   reset(): void {
-    this.startTime = Date.now()
+    this.startTime = Date.now();
     this.store = {
       viewerSnapshots: [],
       engagementEvents: [],
@@ -135,7 +135,7 @@ export class LivestreamAnalyticsService {
       reactionsCount: 0,
       reactionsByType: new Map(),
       qualityDistribution: new Map(),
-    }
+    };
   }
 
   // ==========================================================================
@@ -146,55 +146,55 @@ export class LivestreamAnalyticsService {
    * Track viewer join
    */
   trackViewerJoin(viewer: StreamViewer): void {
-    const viewerId = viewer.userId ?? viewer.sessionId
-    this.store.totalUniqueViewers.add(viewerId)
-    this.store.totalViews++
+    const viewerId = viewer.userId ?? viewer.sessionId;
+    this.store.totalUniqueViewers.add(viewerId);
+    this.store.totalViews++;
 
     // Track geographic data
     if (viewer.country) {
-      const key = `${viewer.country}-${viewer.region ?? 'unknown'}`
-      const existing = this.store.viewerLocations.get(key)
+      const key = `${viewer.country}-${viewer.region ?? "unknown"}`;
+      const existing = this.store.viewerLocations.get(key);
       if (existing) {
-        existing.viewers++
+        existing.viewers++;
       } else {
         this.store.viewerLocations.set(key, {
           country: viewer.country,
           region: viewer.region,
           viewers: 1,
           percentage: 0,
-        })
+        });
       }
     }
 
     // Track device data
     if (viewer.device || viewer.browser) {
-      const key = `${viewer.device ?? 'unknown'}-${viewer.browser ?? 'unknown'}`
-      const existing = this.store.viewerDevices.get(key)
+      const key = `${viewer.device ?? "unknown"}-${viewer.browser ?? "unknown"}`;
+      const existing = this.store.viewerDevices.get(key);
       if (existing) {
-        existing.viewers++
+        existing.viewers++;
       } else {
         this.store.viewerDevices.set(key, {
-          device: viewer.device ?? 'unknown',
-          browser: viewer.browser ?? 'unknown',
-          os: viewer.os ?? 'unknown',
+          device: viewer.device ?? "unknown",
+          browser: viewer.browser ?? "unknown",
+          os: viewer.os ?? "unknown",
           viewers: 1,
           percentage: 0,
-        })
+        });
       }
     }
 
-    logger.debug('Viewer join tracked', { streamId: this.streamId, viewerId })
+    logger.debug("Viewer join tracked", { streamId: this.streamId, viewerId });
   }
 
   /**
    * Track viewer leave
    */
   trackViewerLeave(viewer: StreamViewer): void {
-    logger.debug('Viewer leave tracked', {
+    logger.debug("Viewer leave tracked", {
       streamId: this.streamId,
       viewerId: viewer.userId ?? viewer.sessionId,
       watchTime: viewer.totalWatchTimeSeconds,
-    })
+    });
   }
 
   /**
@@ -204,17 +204,17 @@ export class LivestreamAnalyticsService {
     const snapshot: ViewerSnapshot = {
       timestamp: Date.now(),
       count,
-    }
+    };
 
-    this.store.viewerSnapshots.push(snapshot)
+    this.store.viewerSnapshots.push(snapshot);
 
     if (count > this.store.peakViewers) {
-      this.store.peakViewers = count
+      this.store.peakViewers = count;
     }
 
     // Keep only last 1000 snapshots
     if (this.store.viewerSnapshots.length > 1000) {
-      this.store.viewerSnapshots = this.store.viewerSnapshots.slice(-1000)
+      this.store.viewerSnapshots = this.store.viewerSnapshots.slice(-1000);
     }
   }
 
@@ -222,8 +222,8 @@ export class LivestreamAnalyticsService {
    * Track quality selection
    */
   trackQualitySelection(quality: StreamQuality): void {
-    const current = this.store.qualityDistribution.get(quality) ?? 0
-    this.store.qualityDistribution.set(quality, current + 1)
+    const current = this.store.qualityDistribution.get(quality) ?? 0;
+    this.store.qualityDistribution.set(quality, current + 1);
   }
 
   /**
@@ -231,13 +231,14 @@ export class LivestreamAnalyticsService {
    */
   private takeViewerSnapshot(): void {
     // Get latest count from snapshots or default to 0
-    const latestSnapshot = this.store.viewerSnapshots[this.store.viewerSnapshots.length - 1]
-    const count = latestSnapshot?.count ?? 0
+    const latestSnapshot =
+      this.store.viewerSnapshots[this.store.viewerSnapshots.length - 1];
+    const count = latestSnapshot?.count ?? 0;
 
     this.store.viewerSnapshots.push({
       timestamp: Date.now(),
       count,
-    })
+    });
   }
 
   // ==========================================================================
@@ -248,17 +249,17 @@ export class LivestreamAnalyticsService {
    * Track chat message
    */
   trackChatMessage(userId?: string, messageLength?: number): void {
-    this.store.chatMessagesCount++
+    this.store.chatMessagesCount++;
     this.store.engagementEvents.push({
-      type: 'chat',
+      type: "chat",
       timestamp: Date.now(),
       userId,
       messageLength,
-    })
+    });
 
     // Keep only last 10000 events
     if (this.store.engagementEvents.length > 10000) {
-      this.store.engagementEvents = this.store.engagementEvents.slice(-10000)
+      this.store.engagementEvents = this.store.engagementEvents.slice(-10000);
     }
   }
 
@@ -266,17 +267,17 @@ export class LivestreamAnalyticsService {
    * Track reaction
    */
   trackReaction(emoji: string, userId?: string): void {
-    this.store.reactionsCount++
+    this.store.reactionsCount++;
 
-    const current = this.store.reactionsByType.get(emoji) ?? 0
-    this.store.reactionsByType.set(emoji, current + 1)
+    const current = this.store.reactionsByType.get(emoji) ?? 0;
+    this.store.reactionsByType.set(emoji, current + 1);
 
     this.store.engagementEvents.push({
-      type: 'reaction',
+      type: "reaction",
       timestamp: Date.now(),
       userId,
       emoji,
-    })
+    });
   }
 
   // ==========================================================================
@@ -287,20 +288,20 @@ export class LivestreamAnalyticsService {
    * Track quality metrics
    */
   trackQualityMetrics(metrics: {
-    bitrate: number
-    fps: number
-    resolution: string
-    droppedFrames: number
-    bufferingDuration: number
+    bitrate: number;
+    fps: number;
+    resolution: string;
+    droppedFrames: number;
+    bufferingDuration: number;
   }): void {
     this.store.qualityEvents.push({
       timestamp: Date.now(),
       ...metrics,
-    })
+    });
 
     // Keep only last 1000 quality events
     if (this.store.qualityEvents.length > 1000) {
-      this.store.qualityEvents = this.store.qualityEvents.slice(-1000)
+      this.store.qualityEvents = this.store.qualityEvents.slice(-1000);
     }
   }
 
@@ -312,36 +313,42 @@ export class LivestreamAnalyticsService {
    * Get real-time analytics
    */
   getRealTimeAnalytics(): RealTimeAnalytics {
-    const now = Date.now()
-    const oneMinuteAgo = now - 60000
+    const now = Date.now();
+    const oneMinuteAgo = now - 60000;
 
     // Current viewers from latest snapshot
-    const currentSnapshot = this.store.viewerSnapshots[this.store.viewerSnapshots.length - 1]
-    const currentViewers = currentSnapshot?.count ?? 0
+    const currentSnapshot =
+      this.store.viewerSnapshots[this.store.viewerSnapshots.length - 1];
+    const currentViewers = currentSnapshot?.count ?? 0;
 
     // Viewer delta (compare to 1 minute ago)
     const previousSnapshot = this.store.viewerSnapshots.find(
-      (s) => s.timestamp <= oneMinuteAgo
-    )
-    const viewerDelta = currentViewers - (previousSnapshot?.count ?? 0)
+      (s) => s.timestamp <= oneMinuteAgo,
+    );
+    const viewerDelta = currentViewers - (previousSnapshot?.count ?? 0);
 
     // Chat and reactions per minute
     const recentEngagement = this.store.engagementEvents.filter(
-      (e) => e.timestamp >= oneMinuteAgo
-    )
-    const chatMessagesPerMinute = recentEngagement.filter((e) => e.type === 'chat').length
-    const reactionsPerMinute = recentEngagement.filter((e) => e.type === 'reaction').length
+      (e) => e.timestamp >= oneMinuteAgo,
+    );
+    const chatMessagesPerMinute = recentEngagement.filter(
+      (e) => e.type === "chat",
+    ).length;
+    const reactionsPerMinute = recentEngagement.filter(
+      (e) => e.type === "reaction",
+    ).length;
 
     // Average watch time (estimated from session data)
-    const durationSeconds = this.getDuration()
-    const averageWatchTime = this.store.totalViews > 0
-      ? Math.min(durationSeconds, durationSeconds * 0.7) // Estimate 70% retention
-      : 0
+    const durationSeconds = this.getDuration();
+    const averageWatchTime =
+      this.store.totalViews > 0
+        ? Math.min(durationSeconds, durationSeconds * 0.7) // Estimate 70% retention
+        : 0;
 
     // Quality metrics from recent events
-    const recentQuality = this.store.qualityEvents.slice(-10)
-    const bufferingRatio = this.calculateBufferingRatio(recentQuality)
-    const healthScore = this.calculateHealthScore(recentQuality)
+    const recentQuality = this.store.qualityEvents.slice(-10);
+    const bufferingRatio = this.calculateBufferingRatio(recentQuality);
+    const healthScore = this.calculateHealthScore(recentQuality);
 
     return {
       currentViewers,
@@ -353,65 +360,72 @@ export class LivestreamAnalyticsService {
       averageWatchTime,
       bufferingRatio,
       healthScore,
-    }
+    };
   }
 
   /**
    * Get comprehensive analytics
    */
   getAnalytics(): StreamAnalytics {
-    const duration = this.getDuration()
-    const durationMinutes = Math.max(1, duration / 60)
+    const duration = this.getDuration();
+    const durationMinutes = Math.max(1, duration / 60);
 
     // Calculate average viewers
-    const avgViewers = this.calculateAverageViewers()
+    const avgViewers = this.calculateAverageViewers();
 
     // Calculate geographic breakdown with percentages
-    const totalGeoViewers = Array.from(this.store.viewerLocations.values())
-      .reduce((sum, g) => sum + g.viewers, 0)
+    const totalGeoViewers = Array.from(
+      this.store.viewerLocations.values(),
+    ).reduce((sum, g) => sum + g.viewers, 0);
     const geographicBreakdown = Array.from(this.store.viewerLocations.values())
       .map((g) => ({
         ...g,
-        percentage: totalGeoViewers > 0 ? (g.viewers / totalGeoViewers) * 100 : 0,
+        percentage:
+          totalGeoViewers > 0 ? (g.viewers / totalGeoViewers) * 100 : 0,
       }))
-      .sort((a, b) => b.viewers - a.viewers)
+      .sort((a, b) => b.viewers - a.viewers);
 
     // Calculate device breakdown with percentages
-    const totalDeviceViewers = Array.from(this.store.viewerDevices.values())
-      .reduce((sum, d) => sum + d.viewers, 0)
+    const totalDeviceViewers = Array.from(
+      this.store.viewerDevices.values(),
+    ).reduce((sum, d) => sum + d.viewers, 0);
     const deviceBreakdown = Array.from(this.store.viewerDevices.values())
       .map((d) => ({
         ...d,
-        percentage: totalDeviceViewers > 0 ? (d.viewers / totalDeviceViewers) * 100 : 0,
+        percentage:
+          totalDeviceViewers > 0 ? (d.viewers / totalDeviceViewers) * 100 : 0,
       }))
-      .sort((a, b) => b.viewers - a.viewers)
+      .sort((a, b) => b.viewers - a.viewers);
 
     // Calculate quality breakdown
     const qualityBreakdown: Record<StreamQuality, number> = {
       auto: 0,
-      '1080p': 0,
-      '720p': 0,
-      '480p': 0,
-      '360p': 0,
-    }
+      "1080p": 0,
+      "720p": 0,
+      "480p": 0,
+      "360p": 0,
+    };
     for (const [quality, count] of this.store.qualityDistribution) {
-      qualityBreakdown[quality] = count
+      qualityBreakdown[quality] = count;
     }
 
     // Calculate engagement stats
-    const chatEvents = this.store.engagementEvents.filter((e) => e.type === 'chat')
-    const avgMessageLength = chatEvents.length > 0
-      ? chatEvents.reduce((sum, e) => sum + (e.messageLength ?? 0), 0) / chatEvents.length
-      : 0
+    const chatEvents = this.store.engagementEvents.filter(
+      (e) => e.type === "chat",
+    );
+    const avgMessageLength =
+      chatEvents.length > 0
+        ? chatEvents.reduce((sum, e) => sum + (e.messageLength ?? 0), 0) /
+          chatEvents.length
+        : 0;
 
     const uniqueEngagers = new Set(
-      this.store.engagementEvents
-        .filter((e) => e.userId)
-        .map((e) => e.userId!)
-    )
-    const participationRate = this.store.totalUniqueViewers.size > 0
-      ? (uniqueEngagers.size / this.store.totalUniqueViewers.size) * 100
-      : 0
+      this.store.engagementEvents.filter((e) => e.userId).map((e) => e.userId!),
+    );
+    const participationRate =
+      this.store.totalUniqueViewers.size > 0
+        ? (uniqueEngagers.size / this.store.totalUniqueViewers.size) * 100
+        : 0;
 
     const engagement: EngagementStats = {
       chatRate: this.store.chatMessagesCount / durationMinutes,
@@ -419,15 +433,15 @@ export class LivestreamAnalyticsService {
       averageMessageLength: Math.round(avgMessageLength),
       participationRate,
       retentionRate: this.calculateRetentionRate(),
-    }
+    };
 
     // Calculate quality stats
-    const quality = this.calculateQualityStats()
+    const quality = this.calculateQualityStats();
 
     // Reactions by type
-    const reactionsByType: Record<string, number> = {}
+    const reactionsByType: Record<string, number> = {};
     for (const [emoji, count] of this.store.reactionsByType) {
-      reactionsByType[emoji] = count
+      reactionsByType[emoji] = count;
     }
 
     return {
@@ -446,7 +460,7 @@ export class LivestreamAnalyticsService {
       deviceBreakdown,
       engagement,
       quality,
-    }
+    };
   }
 
   /**
@@ -454,30 +468,31 @@ export class LivestreamAnalyticsService {
    */
   getViewerHistory(
     intervalMs: number = 60000,
-    maxPoints: number = 60
+    maxPoints: number = 60,
   ): Array<{ timestamp: number; count: number }> {
     if (this.store.viewerSnapshots.length === 0) {
-      return []
+      return [];
     }
 
-    const now = Date.now()
-    const points: Array<{ timestamp: number; count: number }> = []
+    const now = Date.now();
+    const points: Array<{ timestamp: number; count: number }> = [];
 
     for (let i = 0; i < maxPoints; i++) {
-      const targetTime = now - (maxPoints - i - 1) * intervalMs
+      const targetTime = now - (maxPoints - i - 1) * intervalMs;
 
       // Find closest snapshot
       const snapshot = this.store.viewerSnapshots.find(
-        (s) => s.timestamp >= targetTime && s.timestamp < targetTime + intervalMs
-      )
+        (s) =>
+          s.timestamp >= targetTime && s.timestamp < targetTime + intervalMs,
+      );
 
       points.push({
         timestamp: targetTime,
         count: snapshot?.count ?? 0,
-      })
+      });
     }
 
-    return points
+    return points;
   }
 
   /**
@@ -485,27 +500,31 @@ export class LivestreamAnalyticsService {
    */
   getEngagementTimeline(
     intervalMs: number = 60000,
-    maxPoints: number = 60
+    maxPoints: number = 60,
   ): Array<{ timestamp: number; chat: number; reactions: number }> {
-    const now = Date.now()
-    const points: Array<{ timestamp: number; chat: number; reactions: number }> = []
+    const now = Date.now();
+    const points: Array<{
+      timestamp: number;
+      chat: number;
+      reactions: number;
+    }> = [];
 
     for (let i = 0; i < maxPoints; i++) {
-      const startTime = now - (maxPoints - i - 1) * intervalMs
-      const endTime = startTime + intervalMs
+      const startTime = now - (maxPoints - i - 1) * intervalMs;
+      const endTime = startTime + intervalMs;
 
       const events = this.store.engagementEvents.filter(
-        (e) => e.timestamp >= startTime && e.timestamp < endTime
-      )
+        (e) => e.timestamp >= startTime && e.timestamp < endTime,
+      );
 
       points.push({
         timestamp: startTime,
-        chat: events.filter((e) => e.type === 'chat').length,
-        reactions: events.filter((e) => e.type === 'reaction').length,
-      })
+        chat: events.filter((e) => e.type === "chat").length,
+        reactions: events.filter((e) => e.type === "reaction").length,
+      });
     }
 
-    return points
+    return points;
   }
 
   // ==========================================================================
@@ -513,62 +532,68 @@ export class LivestreamAnalyticsService {
   // ==========================================================================
 
   private getDuration(): number {
-    return Math.floor((Date.now() - this.startTime) / 1000)
+    return Math.floor((Date.now() - this.startTime) / 1000);
   }
 
   private calculateAverageViewers(): number {
-    if (this.store.viewerSnapshots.length === 0) return 0
+    if (this.store.viewerSnapshots.length === 0) return 0;
 
-    const sum = this.store.viewerSnapshots.reduce((acc, s) => acc + s.count, 0)
-    return Math.round(sum / this.store.viewerSnapshots.length)
+    const sum = this.store.viewerSnapshots.reduce((acc, s) => acc + s.count, 0);
+    return Math.round(sum / this.store.viewerSnapshots.length);
   }
 
   private calculateRetentionRate(): number {
     // Simplified retention calculation
     // In production, this would use actual session data
-    if (this.store.totalViews === 0) return 0
+    if (this.store.totalViews === 0) return 0;
 
-    const currentSnapshot = this.store.viewerSnapshots[this.store.viewerSnapshots.length - 1]
-    const currentViewers = currentSnapshot?.count ?? 0
+    const currentSnapshot =
+      this.store.viewerSnapshots[this.store.viewerSnapshots.length - 1];
+    const currentViewers = currentSnapshot?.count ?? 0;
 
-    return (currentViewers / this.store.totalViews) * 100
+    return (currentViewers / this.store.totalViews) * 100;
   }
 
   private calculateBufferingRatio(events: QualityEvent[]): number {
-    if (events.length === 0) return 0
+    if (events.length === 0) return 0;
 
-    const totalBuffering = events.reduce((sum, e) => sum + e.bufferingDuration, 0)
-    const timeSpan = events.length * 5000 // Assuming 5 second intervals
+    const totalBuffering = events.reduce(
+      (sum, e) => sum + e.bufferingDuration,
+      0,
+    );
+    const timeSpan = events.length * 5000; // Assuming 5 second intervals
 
-    return (totalBuffering / timeSpan) * 100
+    return (totalBuffering / timeSpan) * 100;
   }
 
   private calculateHealthScore(events: QualityEvent[]): number {
-    if (events.length === 0) return 100
+    if (events.length === 0) return 100;
 
-    let score = 100
+    let score = 100;
 
     // Penalize for dropped frames
-    const avgDroppedFrames = events.reduce((sum, e) => sum + e.droppedFrames, 0) / events.length
-    score -= Math.min(20, avgDroppedFrames * 0.5)
+    const avgDroppedFrames =
+      events.reduce((sum, e) => sum + e.droppedFrames, 0) / events.length;
+    score -= Math.min(20, avgDroppedFrames * 0.5);
 
     // Penalize for buffering
-    const bufferingRatio = this.calculateBufferingRatio(events)
-    score -= Math.min(30, bufferingRatio * 3)
+    const bufferingRatio = this.calculateBufferingRatio(events);
+    score -= Math.min(30, bufferingRatio * 3);
 
     // Penalize for low bitrate
-    const avgBitrate = events.reduce((sum, e) => sum + e.bitrate, 0) / events.length
+    const avgBitrate =
+      events.reduce((sum, e) => sum + e.bitrate, 0) / events.length;
     if (avgBitrate < 1000) {
-      score -= 20
+      score -= 20;
     } else if (avgBitrate < 2000) {
-      score -= 10
+      score -= 10;
     }
 
-    return Math.max(0, Math.round(score))
+    return Math.max(0, Math.round(score));
   }
 
   private calculateQualityStats(): QualityStats {
-    const events = this.store.qualityEvents
+    const events = this.store.qualityEvents;
 
     if (events.length === 0) {
       return {
@@ -577,17 +602,18 @@ export class LivestreamAnalyticsService {
         bufferingRatio: 0,
         healthScore: 100,
         qualityDrops: 0,
-      }
+      };
     }
 
-    const avgBitrate = events.reduce((sum, e) => sum + e.bitrate, 0) / events.length
-    const avgFps = events.reduce((sum, e) => sum + e.fps, 0) / events.length
+    const avgBitrate =
+      events.reduce((sum, e) => sum + e.bitrate, 0) / events.length;
+    const avgFps = events.reduce((sum, e) => sum + e.fps, 0) / events.length;
 
     // Count quality drops (significant bitrate decrease)
-    let qualityDrops = 0
+    let qualityDrops = 0;
     for (let i = 1; i < events.length; i++) {
       if (events[i].bitrate < events[i - 1].bitrate * 0.7) {
-        qualityDrops++
+        qualityDrops++;
       }
     }
 
@@ -597,7 +623,7 @@ export class LivestreamAnalyticsService {
       bufferingRatio: this.calculateBufferingRatio(events),
       healthScore: this.calculateHealthScore(events),
       qualityDrops,
-    }
+    };
   }
 }
 
@@ -606,30 +632,30 @@ export class LivestreamAnalyticsService {
 // ============================================================================
 
 class AnalyticsManager {
-  private collectors: Map<string, LivestreamAnalyticsService> = new Map()
+  private collectors: Map<string, LivestreamAnalyticsService> = new Map();
 
   /**
    * Get or create analytics collector for stream
    */
   getAnalytics(streamId: string): LivestreamAnalyticsService {
-    let collector = this.collectors.get(streamId)
+    let collector = this.collectors.get(streamId);
 
     if (!collector) {
-      collector = new LivestreamAnalyticsService(streamId)
-      this.collectors.set(streamId, collector)
+      collector = new LivestreamAnalyticsService(streamId);
+      this.collectors.set(streamId, collector);
     }
 
-    return collector
+    return collector;
   }
 
   /**
    * Remove analytics collector
    */
   removeAnalytics(streamId: string): void {
-    const collector = this.collectors.get(streamId)
+    const collector = this.collectors.get(streamId);
     if (collector) {
-      collector.stop()
-      this.collectors.delete(streamId)
+      collector.stop();
+      this.collectors.delete(streamId);
     }
   }
 
@@ -637,7 +663,7 @@ class AnalyticsManager {
    * Get all active collectors
    */
   getAllCollectors(): LivestreamAnalyticsService[] {
-    return Array.from(this.collectors.values())
+    return Array.from(this.collectors.values());
   }
 
   /**
@@ -645,24 +671,28 @@ class AnalyticsManager {
    */
   clearAll(): void {
     for (const collector of this.collectors.values()) {
-      collector.stop()
+      collector.stop();
     }
-    this.collectors.clear()
+    this.collectors.clear();
   }
 }
 
-export const analyticsManager = new AnalyticsManager()
+export const analyticsManager = new AnalyticsManager();
 
 /**
  * Get analytics service for stream
  */
-export function getLivestreamAnalytics(streamId: string): LivestreamAnalyticsService {
-  return analyticsManager.getAnalytics(streamId)
+export function getLivestreamAnalytics(
+  streamId: string,
+): LivestreamAnalyticsService {
+  return analyticsManager.getAnalytics(streamId);
 }
 
 /**
  * Create new analytics service
  */
-export function createLivestreamAnalytics(streamId: string): LivestreamAnalyticsService {
-  return new LivestreamAnalyticsService(streamId)
+export function createLivestreamAnalytics(
+  streamId: string,
+): LivestreamAnalyticsService {
+  return new LivestreamAnalyticsService(streamId);
 }

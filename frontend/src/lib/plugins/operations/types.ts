@@ -13,36 +13,40 @@
 /**
  * Health status for a plugin.
  */
-export type PluginHealthState = 'healthy' | 'degraded' | 'unhealthy' | 'unknown'
+export type PluginHealthState =
+  | "healthy"
+  | "degraded"
+  | "unhealthy"
+  | "unknown";
 
 /**
  * Detailed health check result for a plugin.
  */
 export interface PluginHealthCheckResult {
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Overall health state */
-  state: PluginHealthState
+  state: PluginHealthState;
   /** Human-readable message */
-  message: string
+  message: string;
   /** When the check was performed */
-  checkedAt: string
+  checkedAt: string;
   /** Response time in milliseconds */
-  responseTimeMs: number
+  responseTimeMs: number;
   /** Uptime percentage (0-100) */
-  uptimePercent: number
+  uptimePercent: number;
   /** Total number of checks performed */
-  totalChecks: number
+  totalChecks: number;
   /** Number of consecutive failures */
-  consecutiveFailures: number
+  consecutiveFailures: number;
   /** Number of consecutive successes */
-  consecutiveSuccesses: number
+  consecutiveSuccesses: number;
   /** Last time the plugin was healthy */
-  lastHealthyAt: string | null
+  lastHealthyAt: string | null;
   /** Last error message */
-  lastError: string | null
+  lastError: string | null;
   /** Additional details */
-  details: Record<string, unknown>
+  details: Record<string, unknown>;
 }
 
 /**
@@ -50,17 +54,17 @@ export interface PluginHealthCheckResult {
  */
 export interface HealthCheckConfig {
   /** Interval between health checks in ms */
-  intervalMs: number
+  intervalMs: number;
   /** Timeout for individual health check in ms */
-  timeoutMs: number
+  timeoutMs: number;
   /** Number of consecutive failures to mark unhealthy */
-  unhealthyThreshold: number
+  unhealthyThreshold: number;
   /** Number of consecutive successes to mark healthy after degraded */
-  healthyThreshold: number
+  healthyThreshold: number;
   /** Whether to enable health checking */
-  enabled: boolean
+  enabled: boolean;
   /** Number of degraded checks before marking unhealthy */
-  degradedThreshold: number
+  degradedThreshold: number;
 }
 
 /**
@@ -73,16 +77,16 @@ export const DEFAULT_HEALTH_CHECK_CONFIG: HealthCheckConfig = {
   healthyThreshold: 2,
   enabled: true,
   degradedThreshold: 2,
-}
+};
 
 /**
  * Health check function type.
  */
 export type HealthCheckFn = () => Promise<{
-  healthy: boolean
-  message?: string
-  details?: Record<string, unknown>
-}>
+  healthy: boolean;
+  message?: string;
+  details?: Record<string, unknown>;
+}>;
 
 // ============================================================================
 // VERSION COMPATIBILITY TYPES
@@ -92,10 +96,10 @@ export type HealthCheckFn = () => Promise<{
  * Semantic version components.
  */
 export interface SemVer {
-  major: number
-  minor: number
-  patch: number
-  prerelease: string | null
+  major: number;
+  minor: number;
+  patch: number;
+  prerelease: string | null;
 }
 
 /**
@@ -103,15 +107,15 @@ export interface SemVer {
  */
 export interface VersionCompatibilityRule {
   /** Plugin ID this rule applies to */
-  pluginId: string
+  pluginId: string;
   /** Minimum compatible version (inclusive) */
-  minVersion: string
+  minVersion: string;
   /** Maximum compatible version (inclusive) */
-  maxVersion: string
+  maxVersion: string;
   /** Whether to allow prerelease versions */
-  allowPrerelease: boolean
+  allowPrerelease: boolean;
   /** Description of the compatibility constraint */
-  description: string
+  description: string;
 }
 
 /**
@@ -119,19 +123,19 @@ export interface VersionCompatibilityRule {
  */
 export interface VersionCompatibilityResult {
   /** Whether the version is compatible */
-  compatible: boolean
+  compatible: boolean;
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Plugin version checked */
-  pluginVersion: string
+  pluginVersion: string;
   /** Platform version */
-  platformVersion: string
+  platformVersion: string;
   /** Specific compatibility issues */
-  issues: VersionIssue[]
+  issues: VersionIssue[];
   /** Deprecation warnings */
-  deprecations: string[]
+  deprecations: string[];
   /** Suggested upgrade path */
-  suggestedVersion: string | null
+  suggestedVersion: string | null;
 }
 
 /**
@@ -139,11 +143,11 @@ export interface VersionCompatibilityResult {
  */
 export interface VersionIssue {
   /** Severity of the issue */
-  severity: 'error' | 'warning' | 'info'
+  severity: "error" | "warning" | "info";
   /** Description of the issue */
-  message: string
+  message: string;
   /** Field or constraint that failed */
-  field: string
+  field: string;
 }
 
 /**
@@ -151,24 +155,25 @@ export interface VersionIssue {
  */
 export interface VersionCompatibilityConfig {
   /** Current platform version */
-  platformVersion: string
+  platformVersion: string;
   /** Whether to enforce strict semver */
-  strictSemver: boolean
+  strictSemver: boolean;
   /** Whether to allow prerelease plugins */
-  allowPrerelease: boolean
+  allowPrerelease: boolean;
   /** Custom compatibility rules */
-  rules: VersionCompatibilityRule[]
+  rules: VersionCompatibilityRule[];
 }
 
 /**
  * Default version compatibility configuration.
  */
-export const DEFAULT_VERSION_COMPATIBILITY_CONFIG: VersionCompatibilityConfig = {
-  platformVersion: '0.9.1',
-  strictSemver: true,
-  allowPrerelease: false,
-  rules: [],
-}
+export const DEFAULT_VERSION_COMPATIBILITY_CONFIG: VersionCompatibilityConfig =
+  {
+    platformVersion: "0.9.1",
+    strictSemver: true,
+    allowPrerelease: false,
+    rules: [],
+  };
 
 // ============================================================================
 // ROLLBACK TYPES
@@ -177,30 +182,35 @@ export const DEFAULT_VERSION_COMPATIBILITY_CONFIG: VersionCompatibilityConfig = 
 /**
  * Status of a rollback operation.
  */
-export type RollbackStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled'
+export type RollbackStatus =
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 /**
  * A snapshot of a plugin's state before an update.
  */
 export interface PluginSnapshot {
   /** Snapshot ID */
-  id: string
+  id: string;
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Plugin version at snapshot time */
-  version: string
+  version: string;
   /** Plugin configuration at snapshot time */
-  config: Record<string, unknown>
+  config: Record<string, unknown>;
   /** Plugin state data */
-  stateData: Record<string, unknown>
+  stateData: Record<string, unknown>;
   /** When the snapshot was taken */
-  createdAt: string
+  createdAt: string;
   /** Description of why snapshot was taken */
-  reason: string
+  reason: string;
   /** Whether this snapshot has been verified */
-  verified: boolean
+  verified: boolean;
   /** Checksum for integrity verification */
-  checksum: string
+  checksum: string;
 }
 
 /**
@@ -208,27 +218,27 @@ export interface PluginSnapshot {
  */
 export interface RollbackRecord {
   /** Rollback ID */
-  id: string
+  id: string;
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Source version (being rolled back from) */
-  fromVersion: string
+  fromVersion: string;
   /** Target version (being rolled back to) */
-  toVersion: string
+  toVersion: string;
   /** Snapshot used for rollback */
-  snapshotId: string
+  snapshotId: string;
   /** Status of the rollback */
-  status: RollbackStatus
+  status: RollbackStatus;
   /** When rollback was initiated */
-  initiatedAt: string
+  initiatedAt: string;
   /** When rollback completed or failed */
-  completedAt: string | null
+  completedAt: string | null;
   /** Who initiated the rollback */
-  initiatedBy: string
+  initiatedBy: string;
   /** Error message if failed */
-  error: string | null
+  error: string | null;
   /** Duration in ms */
-  durationMs: number | null
+  durationMs: number | null;
 }
 
 /**
@@ -236,13 +246,13 @@ export interface RollbackRecord {
  */
 export interface RollbackConfig {
   /** Maximum number of snapshots to retain per plugin */
-  maxSnapshotsPerPlugin: number
+  maxSnapshotsPerPlugin: number;
   /** Whether to auto-rollback on failure */
-  autoRollbackOnFailure: boolean
+  autoRollbackOnFailure: boolean;
   /** Timeout for rollback operations in ms */
-  rollbackTimeoutMs: number
+  rollbackTimeoutMs: number;
   /** Whether to verify snapshots before rollback */
-  verifyBeforeRollback: boolean
+  verifyBeforeRollback: boolean;
 }
 
 /**
@@ -253,7 +263,7 @@ export const DEFAULT_ROLLBACK_CONFIG: RollbackConfig = {
   autoRollbackOnFailure: true,
   rollbackTimeoutMs: 30000,
   verifyBeforeRollback: true,
-}
+};
 
 // ============================================================================
 // CIRCUIT BREAKER TYPES
@@ -262,28 +272,28 @@ export const DEFAULT_ROLLBACK_CONFIG: RollbackConfig = {
 /**
  * State of a circuit breaker.
  */
-export type CircuitBreakerState = 'closed' | 'open' | 'half_open'
+export type CircuitBreakerState = "closed" | "open" | "half_open";
 
 /**
  * Configuration for the circuit breaker.
  */
 export interface CircuitBreakerConfig {
   /** Failure threshold to open the circuit */
-  failureThreshold: number
+  failureThreshold: number;
   /** Success threshold in half-open to close the circuit */
-  successThreshold: number
+  successThreshold: number;
   /** How long the circuit stays open before transitioning to half-open (ms) */
-  resetTimeoutMs: number
+  resetTimeoutMs: number;
   /** Time window for counting failures (ms) */
-  failureWindowMs: number
+  failureWindowMs: number;
   /** Maximum number of requests in half-open state */
-  halfOpenMaxRequests: number
+  halfOpenMaxRequests: number;
   /** Whether to monitor response times */
-  monitorResponseTime: boolean
+  monitorResponseTime: boolean;
   /** Response time threshold to count as slow (ms) */
-  slowCallThresholdMs: number
+  slowCallThresholdMs: number;
   /** Percentage of slow calls to open circuit */
-  slowCallRateThreshold: number
+  slowCallRateThreshold: number;
 }
 
 /**
@@ -298,26 +308,26 @@ export const DEFAULT_CIRCUIT_BREAKER_CONFIG: CircuitBreakerConfig = {
   monitorResponseTime: true,
   slowCallThresholdMs: 5000,
   slowCallRateThreshold: 0.5,
-}
+};
 
 /**
  * Record of circuit breaker state changes.
  */
 export interface CircuitBreakerEvent {
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Previous state */
-  fromState: CircuitBreakerState
+  fromState: CircuitBreakerState;
   /** New state */
-  toState: CircuitBreakerState
+  toState: CircuitBreakerState;
   /** When the transition happened */
-  timestamp: string
+  timestamp: string;
   /** Reason for the transition */
-  reason: string
+  reason: string;
   /** Current failure count */
-  failureCount: number
+  failureCount: number;
   /** Current success count */
-  successCount: number
+  successCount: number;
 }
 
 /**
@@ -325,25 +335,25 @@ export interface CircuitBreakerEvent {
  */
 export interface CircuitBreakerStatus {
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Current state */
-  state: CircuitBreakerState
+  state: CircuitBreakerState;
   /** Number of failures in current window */
-  failureCount: number
+  failureCount: number;
   /** Number of successes in half-open state */
-  successCount: number
+  successCount: number;
   /** Total requests */
-  totalRequests: number
+  totalRequests: number;
   /** Last failure time */
-  lastFailureAt: string | null
+  lastFailureAt: string | null;
   /** Last success time */
-  lastSuccessAt: string | null
+  lastSuccessAt: string | null;
   /** When the circuit was last opened */
-  lastOpenedAt: string | null
+  lastOpenedAt: string | null;
   /** When the circuit will next try half-open (if open) */
-  nextRetryAt: string | null
+  nextRetryAt: string | null;
   /** State change history */
-  history: CircuitBreakerEvent[]
+  history: CircuitBreakerEvent[];
 }
 
 // ============================================================================
@@ -353,51 +363,51 @@ export interface CircuitBreakerStatus {
 /**
  * Degradation level for a plugin.
  */
-export type DegradationLevel = 'none' | 'partial' | 'fallback' | 'disabled'
+export type DegradationLevel = "none" | "partial" | "fallback" | "disabled";
 
 /**
  * Fallback configuration for a plugin feature.
  */
 export interface FallbackConfig {
   /** Feature identifier */
-  featureId: string
+  featureId: string;
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Fallback handler */
-  handler: FallbackHandler
+  handler: FallbackHandler;
   /** Whether this fallback is cacheable */
-  cacheable: boolean
+  cacheable: boolean;
   /** Cache TTL in ms (if cacheable) */
-  cacheTtlMs: number
+  cacheTtlMs: number;
   /** Priority (higher = preferred) */
-  priority: number
+  priority: number;
   /** Description */
-  description: string
+  description: string;
 }
 
 /**
  * Fallback handler type. Returns a fallback value or throws if no fallback is possible.
  */
 export type FallbackHandler<T = unknown> = (
-  context: FallbackContext
-) => Promise<T> | T
+  context: FallbackContext,
+) => Promise<T> | T;
 
 /**
  * Context provided to fallback handlers.
  */
 export interface FallbackContext {
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Feature that failed */
-  featureId: string
+  featureId: string;
   /** Original error */
-  error: Error | null
+  error: Error | null;
   /** Number of times fallback has been invoked */
-  invocationCount: number
+  invocationCount: number;
   /** Last invocation time */
-  lastInvokedAt: string | null
+  lastInvokedAt: string | null;
   /** Additional metadata */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -405,19 +415,19 @@ export interface FallbackContext {
  */
 export interface DegradationStatus {
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Current degradation level */
-  level: DegradationLevel
+  level: DegradationLevel;
   /** Features that are degraded */
-  degradedFeatures: string[]
+  degradedFeatures: string[];
   /** Features using fallback */
-  fallbackFeatures: string[]
+  fallbackFeatures: string[];
   /** Features that are fully disabled */
-  disabledFeatures: string[]
+  disabledFeatures: string[];
   /** When degradation started */
-  degradedSince: string | null
+  degradedSince: string | null;
   /** Reason for degradation */
-  reason: string | null
+  reason: string | null;
 }
 
 /**
@@ -425,15 +435,15 @@ export interface DegradationStatus {
  */
 export interface GracefulDegradationConfig {
   /** Whether to enable graceful degradation */
-  enabled: boolean
+  enabled: boolean;
   /** Whether to cache fallback results */
-  cacheFallbacks: boolean
+  cacheFallbacks: boolean;
   /** Default cache TTL in ms */
-  defaultCacheTtlMs: number
+  defaultCacheTtlMs: number;
   /** Maximum number of fallback invocations before disabling */
-  maxFallbackInvocations: number
+  maxFallbackInvocations: number;
   /** Time window for counting fallback invocations (ms) */
-  fallbackWindowMs: number
+  fallbackWindowMs: number;
 }
 
 /**
@@ -445,7 +455,7 @@ export const DEFAULT_GRACEFUL_DEGRADATION_CONFIG: GracefulDegradationConfig = {
   defaultCacheTtlMs: 60000,
   maxFallbackInvocations: 100,
   fallbackWindowMs: 300000,
-}
+};
 
 // ============================================================================
 // OPERATIONS MANAGER TYPES
@@ -455,11 +465,11 @@ export const DEFAULT_GRACEFUL_DEGRADATION_CONFIG: GracefulDegradationConfig = {
  * Overall configuration for plugin operations management.
  */
 export interface PluginOperationsConfig {
-  healthCheck: HealthCheckConfig
-  versionCompatibility: VersionCompatibilityConfig
-  rollback: RollbackConfig
-  circuitBreaker: CircuitBreakerConfig
-  gracefulDegradation: GracefulDegradationConfig
+  healthCheck: HealthCheckConfig;
+  versionCompatibility: VersionCompatibilityConfig;
+  rollback: RollbackConfig;
+  circuitBreaker: CircuitBreakerConfig;
+  gracefulDegradation: GracefulDegradationConfig;
 }
 
 /**
@@ -471,24 +481,24 @@ export const DEFAULT_PLUGIN_OPERATIONS_CONFIG: PluginOperationsConfig = {
   rollback: DEFAULT_ROLLBACK_CONFIG,
   circuitBreaker: DEFAULT_CIRCUIT_BREAKER_CONFIG,
   gracefulDegradation: DEFAULT_GRACEFUL_DEGRADATION_CONFIG,
-}
+};
 
 /**
  * Overall status of a plugin's operational state.
  */
 export interface PluginOperationalStatus {
   /** Plugin ID */
-  pluginId: string
+  pluginId: string;
   /** Health check result */
-  health: PluginHealthCheckResult
+  health: PluginHealthCheckResult;
   /** Circuit breaker status */
-  circuitBreaker: CircuitBreakerStatus
+  circuitBreaker: CircuitBreakerStatus;
   /** Degradation status */
-  degradation: DegradationStatus
+  degradation: DegradationStatus;
   /** Version compatibility */
-  versionCompatibility: VersionCompatibilityResult | null
+  versionCompatibility: VersionCompatibilityResult | null;
   /** Whether the plugin is operational */
-  operational: boolean
+  operational: boolean;
   /** Summary message */
-  summary: string
+  summary: string;
 }

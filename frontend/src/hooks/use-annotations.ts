@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Annotations Hook
@@ -7,8 +7,8 @@
  * Supports drawing, shapes, text, and collaborative annotations.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { logger } from '@/lib/logger'
+import { useCallback, useEffect, useRef, useState } from "react";
+import { logger } from "@/lib/logger";
 import {
   ScreenAnnotator,
   createScreenAnnotator,
@@ -19,61 +19,63 @@ import {
   DEFAULT_COLORS,
   DEFAULT_STROKE_WIDTHS,
   DEFAULT_FONT_SIZES,
-} from '@/lib/webrtc/screen-annotator'
+} from "@/lib/webrtc/screen-annotator";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface UseAnnotationsOptions {
-  canvas: HTMLCanvasElement | null
-  userId: string
-  userName: string
-  onAnnotationAdded?: (annotation: Annotation) => void
-  onAnnotationsCleared?: () => void
-  onUndo?: () => void
-  onRedo?: () => void
-  enabled?: boolean
+  canvas: HTMLCanvasElement | null;
+  userId: string;
+  userName: string;
+  onAnnotationAdded?: (annotation: Annotation) => void;
+  onAnnotationsCleared?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  enabled?: boolean;
 }
 
 export interface UseAnnotationsReturn {
   // State
-  isEnabled: boolean
-  currentTool: AnnotationTool
-  currentColor: AnnotationColor
-  currentStrokeWidth: number
-  currentFontSize: number
-  isFilled: boolean
-  annotations: Annotation[]
-  canUndo: boolean
-  canRedo: boolean
+  isEnabled: boolean;
+  currentTool: AnnotationTool;
+  currentColor: AnnotationColor;
+  currentStrokeWidth: number;
+  currentFontSize: number;
+  isFilled: boolean;
+  annotations: Annotation[];
+  canUndo: boolean;
+  canRedo: boolean;
 
   // Actions
-  setTool: (tool: AnnotationTool) => void
-  setColor: (color: AnnotationColor) => void
-  setStrokeWidth: (width: number) => void
-  setFontSize: (size: number) => void
-  setFilled: (filled: boolean) => void
-  undo: () => void
-  redo: () => void
-  clear: () => void
-  addRemoteAnnotation: (annotation: Annotation) => void
+  setTool: (tool: AnnotationTool) => void;
+  setColor: (color: AnnotationColor) => void;
+  setStrokeWidth: (width: number) => void;
+  setFontSize: (size: number) => void;
+  setFilled: (filled: boolean) => void;
+  undo: () => void;
+  redo: () => void;
+  clear: () => void;
+  addRemoteAnnotation: (annotation: Annotation) => void;
 
   // State management
-  enable: () => void
-  disable: () => void
+  enable: () => void;
+  disable: () => void;
 
   // Constants
-  availableColors: AnnotationColor[]
-  availableStrokeWidths: number[]
-  availableFontSizes: number[]
+  availableColors: AnnotationColor[];
+  availableStrokeWidths: number[];
+  availableFontSizes: number[];
 }
 
 // =============================================================================
 // Hook
 // =============================================================================
 
-export function useAnnotations(options: UseAnnotationsOptions): UseAnnotationsReturn {
+export function useAnnotations(
+  options: UseAnnotationsOptions,
+): UseAnnotationsReturn {
   const {
     canvas,
     userId,
@@ -83,27 +85,27 @@ export function useAnnotations(options: UseAnnotationsOptions): UseAnnotationsRe
     onUndo,
     onRedo,
     enabled = true,
-  } = options
+  } = options;
 
   // State
-  const [isEnabled, setIsEnabled] = useState(enabled)
+  const [isEnabled, setIsEnabled] = useState(enabled);
   const [currentState, setCurrentState] = useState<DrawingState>({
-    tool: 'pen',
+    tool: "pen",
     color: DEFAULT_COLORS[0],
     strokeWidth: 4,
     fontSize: 20,
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "Arial, sans-serif",
     filled: false,
-  })
-  const [annotations, setAnnotations] = useState<Annotation[]>([])
-  const [undoStackSize, setUndoStackSize] = useState(0)
+  });
+  const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [undoStackSize, setUndoStackSize] = useState(0);
 
   // Refs
-  const annotatorRef = useRef<ScreenAnnotator | null>(null)
+  const annotatorRef = useRef<ScreenAnnotator | null>(null);
 
   // Derived state
-  const canUndo = annotations.length > 0
-  const canRedo = undoStackSize > 0
+  const canUndo = annotations.length > 0;
+  const canRedo = undoStackSize > 0;
 
   // ==========================================================================
   // Initialize Annotator
@@ -113,10 +115,10 @@ export function useAnnotations(options: UseAnnotationsOptions): UseAnnotationsRe
     if (!canvas || !isEnabled) {
       // Cleanup if disabled or no canvas
       if (annotatorRef.current) {
-        annotatorRef.current.cleanup()
-        annotatorRef.current = null
+        annotatorRef.current.cleanup();
+        annotatorRef.current = null;
       }
-      return
+      return;
     }
 
     try {
@@ -126,132 +128,141 @@ export function useAnnotations(options: UseAnnotationsOptions): UseAnnotationsRe
         userId,
         userName,
         onAnnotationAdded: (annotation) => {
-          setAnnotations((prev) => [...prev, annotation])
-          setUndoStackSize(0) // Clear redo stack
-          onAnnotationAdded?.(annotation)
+          setAnnotations((prev) => [...prev, annotation]);
+          setUndoStackSize(0); // Clear redo stack
+          onAnnotationAdded?.(annotation);
         },
         onAnnotationsCleared: () => {
-          setAnnotations([])
-          setUndoStackSize(0)
-          onAnnotationsCleared?.()
+          setAnnotations([]);
+          setUndoStackSize(0);
+          onAnnotationsCleared?.();
         },
         onUndo: () => {
-          setAnnotations((prev) => prev.slice(0, -1))
-          setUndoStackSize((prev) => prev + 1)
-          onUndo?.()
+          setAnnotations((prev) => prev.slice(0, -1));
+          setUndoStackSize((prev) => prev + 1);
+          onUndo?.();
         },
         onRedo: () => {
           // Redo will add annotation back via onAnnotationAdded
-          setUndoStackSize((prev) => Math.max(0, prev - 1))
-          onRedo?.()
+          setUndoStackSize((prev) => Math.max(0, prev - 1));
+          onRedo?.();
         },
-      })
+      });
 
       // Set initial state
-      annotatorRef.current.setTool(currentState.tool)
-      annotatorRef.current.setColor(currentState.color)
-      annotatorRef.current.setStrokeWidth(currentState.strokeWidth)
-      annotatorRef.current.setFontSize(currentState.fontSize)
-      annotatorRef.current.setFilled(currentState.filled)
+      annotatorRef.current.setTool(currentState.tool);
+      annotatorRef.current.setColor(currentState.color);
+      annotatorRef.current.setStrokeWidth(currentState.strokeWidth);
+      annotatorRef.current.setFontSize(currentState.fontSize);
+      annotatorRef.current.setFilled(currentState.filled);
 
       return () => {
-        annotatorRef.current?.cleanup()
-        annotatorRef.current = null
-      }
+        annotatorRef.current?.cleanup();
+        annotatorRef.current = null;
+      };
     } catch (error) {
-      logger.error('Failed to initialize annotator:', error)
+      logger.error("Failed to initialize annotator:", error);
     }
-  }, [canvas, userId, userName, isEnabled, onAnnotationAdded, onAnnotationsCleared, onUndo, onRedo]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    canvas,
+    userId,
+    userName,
+    isEnabled,
+    onAnnotationAdded,
+    onAnnotationsCleared,
+    onUndo,
+    onRedo,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ==========================================================================
   // Set Tool
   // ==========================================================================
 
   const setTool = useCallback((tool: AnnotationTool): void => {
-    setCurrentState((prev) => ({ ...prev, tool }))
-    annotatorRef.current?.setTool(tool)
-  }, [])
+    setCurrentState((prev) => ({ ...prev, tool }));
+    annotatorRef.current?.setTool(tool);
+  }, []);
 
   // ==========================================================================
   // Set Color
   // ==========================================================================
 
   const setColor = useCallback((color: AnnotationColor): void => {
-    setCurrentState((prev) => ({ ...prev, color }))
-    annotatorRef.current?.setColor(color)
-  }, [])
+    setCurrentState((prev) => ({ ...prev, color }));
+    annotatorRef.current?.setColor(color);
+  }, []);
 
   // ==========================================================================
   // Set Stroke Width
   // ==========================================================================
 
   const setStrokeWidth = useCallback((width: number): void => {
-    setCurrentState((prev) => ({ ...prev, strokeWidth: width }))
-    annotatorRef.current?.setStrokeWidth(width)
-  }, [])
+    setCurrentState((prev) => ({ ...prev, strokeWidth: width }));
+    annotatorRef.current?.setStrokeWidth(width);
+  }, []);
 
   // ==========================================================================
   // Set Font Size
   // ==========================================================================
 
   const setFontSize = useCallback((size: number): void => {
-    setCurrentState((prev) => ({ ...prev, fontSize: size }))
-    annotatorRef.current?.setFontSize(size)
-  }, [])
+    setCurrentState((prev) => ({ ...prev, fontSize: size }));
+    annotatorRef.current?.setFontSize(size);
+  }, []);
 
   // ==========================================================================
   // Set Filled
   // ==========================================================================
 
   const setFilled = useCallback((filled: boolean): void => {
-    setCurrentState((prev) => ({ ...prev, filled }))
-    annotatorRef.current?.setFilled(filled)
-  }, [])
+    setCurrentState((prev) => ({ ...prev, filled }));
+    annotatorRef.current?.setFilled(filled);
+  }, []);
 
   // ==========================================================================
   // Undo
   // ==========================================================================
 
   const undo = useCallback((): void => {
-    annotatorRef.current?.undo()
-  }, [])
+    annotatorRef.current?.undo();
+  }, []);
 
   // ==========================================================================
   // Redo
   // ==========================================================================
 
   const redo = useCallback((): void => {
-    annotatorRef.current?.redo()
-  }, [])
+    annotatorRef.current?.redo();
+  }, []);
 
   // ==========================================================================
   // Clear
   // ==========================================================================
 
   const clear = useCallback((): void => {
-    annotatorRef.current?.clear()
-  }, [])
+    annotatorRef.current?.clear();
+  }, []);
 
   // ==========================================================================
   // Add Remote Annotation
   // ==========================================================================
 
   const addRemoteAnnotation = useCallback((annotation: Annotation): void => {
-    annotatorRef.current?.addRemoteAnnotation(annotation)
-    setAnnotations((prev) => [...prev, annotation])
-  }, [])
+    annotatorRef.current?.addRemoteAnnotation(annotation);
+    setAnnotations((prev) => [...prev, annotation]);
+  }, []);
 
   // ==========================================================================
   // Enable/Disable
   // ==========================================================================
 
   const enable = useCallback((): void => {
-    setIsEnabled(true)
-  }, [])
+    setIsEnabled(true);
+  }, []);
 
   const disable = useCallback((): void => {
-    setIsEnabled(false)
-  }, [])
+    setIsEnabled(false);
+  }, []);
 
   // ==========================================================================
   // Return
@@ -288,5 +299,5 @@ export function useAnnotations(options: UseAnnotationsOptions): UseAnnotationsRe
     availableColors: DEFAULT_COLORS,
     availableStrokeWidths: DEFAULT_STROKE_WIDTHS,
     availableFontSizes: DEFAULT_FONT_SIZES,
-  }
+  };
 }

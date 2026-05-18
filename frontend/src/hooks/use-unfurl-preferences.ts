@@ -10,9 +10,9 @@
  * @module hooks/use-unfurl-preferences
  */
 
-'use client'
+"use client";
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo } from "react";
 import {
   DomainRule,
   EmbedStyle,
@@ -25,8 +25,8 @@ import {
   getDomainSettings,
   serializeDomainRulesConfig,
   deserializeDomainRulesConfig,
-} from '@/lib/unfurl/domain-rules'
-import { UrlProvider } from '@/lib/unfurl/url-parser'
+} from "@/lib/unfurl/domain-rules";
+import { UrlProvider } from "@/lib/unfurl/url-parser";
 
 // ============================================================================
 // Types
@@ -34,90 +34,90 @@ import { UrlProvider } from '@/lib/unfurl/url-parser'
 
 export interface UnfurlPreferences {
   /** Global enable/disable for link previews */
-  enabled: boolean
+  enabled: boolean;
   /** Auto-unfurl URLs as user types */
-  autoUnfurl: boolean
+  autoUnfurl: boolean;
   /** Collapse previews by default */
-  collapseByDefault: boolean
+  collapseByDefault: boolean;
   /** Show images in previews */
-  showImages: boolean
+  showImages: boolean;
   /** Show descriptions in previews */
-  showDescriptions: boolean
+  showDescriptions: boolean;
   /** Show favicons in previews */
-  showFavicons: boolean
+  showFavicons: boolean;
   /** Maximum image height in pixels */
-  maxImageHeight: number
+  maxImageHeight: number;
   /** Use compact mode for previews */
-  compactMode: boolean
+  compactMode: boolean;
   /** Lazy load preview images */
-  lazyLoadImages: boolean
+  lazyLoadImages: boolean;
   /** Preload images on hover */
-  preloadOnHover: boolean
+  preloadOnHover: boolean;
   /** Hide referrer when opening links */
-  hideReferrer: boolean
+  hideReferrer: boolean;
   /** Default embed style */
-  defaultEmbedStyle: EmbedStyle
+  defaultEmbedStyle: EmbedStyle;
   /** User's blocked domains */
-  blockedDomains: string[]
+  blockedDomains: string[];
   /** User's allowed domains (whitelist mode) */
-  allowedDomains: string[]
+  allowedDomains: string[];
   /** Enable whitelist mode */
-  whitelistMode: boolean
+  whitelistMode: boolean;
 }
 
 export interface UseUnfurlPreferencesOptions {
   /** User ID */
-  userId?: string
+  userId?: string;
   /** Channel ID for channel-specific settings */
-  channelId?: string
+  channelId?: string;
   /** Storage key prefix */
-  storageKey?: string
+  storageKey?: string;
   /** Callback when preferences change */
-  onPreferencesChange?: (preferences: UnfurlPreferences) => void
+  onPreferencesChange?: (preferences: UnfurlPreferences) => void;
 }
 
 export interface UseUnfurlPreferencesReturn {
   /** Current preferences */
-  preferences: UnfurlPreferences
+  preferences: UnfurlPreferences;
   /** Domain rules configuration */
-  domainRulesConfig: DomainRulesConfig
+  domainRulesConfig: DomainRulesConfig;
   /** Whether preferences are loading */
-  isLoading: boolean
+  isLoading: boolean;
   /** Update preferences */
-  updatePreferences: (updates: Partial<UnfurlPreferences>) => void
+  updatePreferences: (updates: Partial<UnfurlPreferences>) => void;
   /** Block a domain */
-  blockDomain: (domain: string, reason?: string) => void
+  blockDomain: (domain: string, reason?: string) => void;
   /** Unblock a domain */
-  unblockDomain: (domain: string) => void
+  unblockDomain: (domain: string) => void;
   /** Allow a domain (in whitelist mode) */
-  allowDomain: (domain: string) => void
+  allowDomain: (domain: string) => void;
   /** Remove domain from allowed list */
-  disallowDomain: (domain: string) => void
+  disallowDomain: (domain: string) => void;
   /** Check if a domain is allowed */
-  checkDomainAllowed: (domain: string) => { allowed: boolean; reason?: string }
+  checkDomainAllowed: (domain: string) => { allowed: boolean; reason?: string };
   /** Get settings for a domain */
   getDomainConfig: (
     domain: string,
-    provider: UrlProvider
+    provider: UrlProvider,
   ) => {
-    behavior: UnfurlBehavior
-    embedStyle: EmbedStyle
-    timeout: number
-    showPlayer: boolean
-    showDescription: boolean
-    showFavicon: boolean
-    showAuthor: boolean
-  }
+    behavior: UnfurlBehavior;
+    embedStyle: EmbedStyle;
+    timeout: number;
+    showPlayer: boolean;
+    showDescription: boolean;
+    showFavicon: boolean;
+    showAuthor: boolean;
+  };
   /** Set custom domain override */
-  setDomainOverride: (domain: string, settings: Partial<DomainRule>) => void
+  setDomainOverride: (domain: string, settings: Partial<DomainRule>) => void;
   /** Remove custom domain override */
-  removeDomainOverride: (domain: string) => void
+  removeDomainOverride: (domain: string) => void;
   /** Reset to default preferences */
-  resetToDefaults: () => void
+  resetToDefaults: () => void;
   /** Export preferences for backup */
-  exportPreferences: () => string
+  exportPreferences: () => string;
   /** Import preferences from backup */
-  importPreferences: (data: string) => boolean
+  importPreferences: (data: string) => boolean;
 }
 
 // ============================================================================
@@ -136,122 +136,129 @@ export const DEFAULT_UNFURL_PREFERENCES: UnfurlPreferences = {
   lazyLoadImages: true,
   preloadOnHover: false,
   hideReferrer: true,
-  defaultEmbedStyle: 'card',
+  defaultEmbedStyle: "card",
   blockedDomains: [],
   allowedDomains: [],
   whitelistMode: false,
-}
+};
 
 // ============================================================================
 // Storage Keys
 // ============================================================================
 
-const STORAGE_KEY_PREFERENCES = 'nchat:unfurl:preferences'
-const STORAGE_KEY_DOMAIN_RULES = 'nchat:unfurl:domain-rules'
+const STORAGE_KEY_PREFERENCES = "nchat:unfurl:preferences";
+const STORAGE_KEY_DOMAIN_RULES = "nchat:unfurl:domain-rules";
 
 // ============================================================================
 // Hook Implementation
 // ============================================================================
 
 export function useUnfurlPreferences(
-  options: UseUnfurlPreferencesOptions = {}
+  options: UseUnfurlPreferencesOptions = {},
 ): UseUnfurlPreferencesReturn {
-  const { userId, channelId, storageKey = '', onPreferencesChange } = options
+  const { userId, channelId, storageKey = "", onPreferencesChange } = options;
 
   // State
-  const [preferences, setPreferences] = useState<UnfurlPreferences>(DEFAULT_UNFURL_PREFERENCES)
+  const [preferences, setPreferences] = useState<UnfurlPreferences>(
+    DEFAULT_UNFURL_PREFERENCES,
+  );
   const [domainRulesConfig, setDomainRulesConfig] = useState<DomainRulesConfig>(
-    createDefaultDomainRulesConfig()
-  )
-  const [isLoading, setIsLoading] = useState(true)
+    createDefaultDomainRulesConfig(),
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
   // Storage keys with optional prefix
   const preferencesKey = storageKey
     ? `${storageKey}:${STORAGE_KEY_PREFERENCES}`
-    : STORAGE_KEY_PREFERENCES
+    : STORAGE_KEY_PREFERENCES;
   const domainRulesKey = storageKey
     ? `${storageKey}:${STORAGE_KEY_DOMAIN_RULES}`
-    : STORAGE_KEY_DOMAIN_RULES
+    : STORAGE_KEY_DOMAIN_RULES;
 
   // Load preferences from storage
   useEffect(() => {
     try {
-      if (typeof window === 'undefined') {
-        setIsLoading(false)
-        return
+      if (typeof window === "undefined") {
+        setIsLoading(false);
+        return;
       }
 
       // Load preferences
-      const storedPrefs = localStorage.getItem(preferencesKey)
+      const storedPrefs = localStorage.getItem(preferencesKey);
       if (storedPrefs) {
-        const parsed = JSON.parse(storedPrefs)
-        setPreferences({ ...DEFAULT_UNFURL_PREFERENCES, ...parsed })
+        const parsed = JSON.parse(storedPrefs);
+        setPreferences({ ...DEFAULT_UNFURL_PREFERENCES, ...parsed });
       }
 
       // Load domain rules
-      const storedRules = localStorage.getItem(domainRulesKey)
+      const storedRules = localStorage.getItem(domainRulesKey);
       if (storedRules) {
-        const parsed = deserializeDomainRulesConfig(storedRules)
-        setDomainRulesConfig(parsed)
+        const parsed = deserializeDomainRulesConfig(storedRules);
+        setDomainRulesConfig(parsed);
       }
     } catch (error) {
-      console.error('Failed to load unfurl preferences:', error)
+      console.error("Failed to load unfurl preferences:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [preferencesKey, domainRulesKey])
+  }, [preferencesKey, domainRulesKey]);
 
   // Save preferences to storage
   const savePreferences = useCallback(
     (newPrefs: UnfurlPreferences) => {
       try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(preferencesKey, JSON.stringify(newPrefs))
+        if (typeof window !== "undefined") {
+          localStorage.setItem(preferencesKey, JSON.stringify(newPrefs));
         }
       } catch (error) {
-        console.error('Failed to save unfurl preferences:', error)
+        console.error("Failed to save unfurl preferences:", error);
       }
     },
-    [preferencesKey]
-  )
+    [preferencesKey],
+  );
 
   // Save domain rules to storage
   const saveDomainRules = useCallback(
     (newRules: DomainRulesConfig) => {
       try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(domainRulesKey, serializeDomainRulesConfig(newRules))
+        if (typeof window !== "undefined") {
+          localStorage.setItem(
+            domainRulesKey,
+            serializeDomainRulesConfig(newRules),
+          );
         }
       } catch (error) {
-        console.error('Failed to save domain rules:', error)
+        console.error("Failed to save domain rules:", error);
       }
     },
-    [domainRulesKey]
-  )
+    [domainRulesKey],
+  );
 
   // Update preferences
   const updatePreferences = useCallback(
     (updates: Partial<UnfurlPreferences>) => {
       setPreferences((prev) => {
-        const newPrefs = { ...prev, ...updates }
-        savePreferences(newPrefs)
-        onPreferencesChange?.(newPrefs)
-        return newPrefs
-      })
+        const newPrefs = { ...prev, ...updates };
+        savePreferences(newPrefs);
+        onPreferencesChange?.(newPrefs);
+        return newPrefs;
+      });
     },
-    [savePreferences, onPreferencesChange]
-  )
+    [savePreferences, onPreferencesChange],
+  );
 
   // Block a domain
   const blockDomain = useCallback(
     (domain: string, reason?: string) => {
       // Add to blocked domains in preferences
       setPreferences((prev) => {
-        const newBlockedDomains = [...new Set([...prev.blockedDomains, domain])]
-        const newPrefs = { ...prev, blockedDomains: newBlockedDomains }
-        savePreferences(newPrefs)
-        return newPrefs
-      })
+        const newBlockedDomains = [
+          ...new Set([...prev.blockedDomains, domain]),
+        ];
+        const newPrefs = { ...prev, blockedDomains: newBlockedDomains };
+        savePreferences(newPrefs);
+        return newPrefs;
+      });
 
       // Add rule to domain config
       if (userId) {
@@ -259,148 +266,163 @@ export function useUnfurlPreferences(
           const newConfig = setUserDomainOverride(prev, userId, domain, {
             domain,
             enabled: true,
-            behavior: 'block',
-            embedStyle: 'card',
-            reason: reason || 'Blocked by user',
+            behavior: "block",
+            embedStyle: "card",
+            reason: reason || "Blocked by user",
             createdAt: new Date(),
             updatedAt: new Date(),
-          })
-          saveDomainRules(newConfig)
-          return newConfig
-        })
+          });
+          saveDomainRules(newConfig);
+          return newConfig;
+        });
       }
     },
-    [userId, savePreferences, saveDomainRules]
-  )
+    [userId, savePreferences, saveDomainRules],
+  );
 
   // Unblock a domain
   const unblockDomain = useCallback(
     (domain: string) => {
       // Remove from blocked domains in preferences
       setPreferences((prev) => {
-        const newBlockedDomains = prev.blockedDomains.filter((d) => d !== domain)
-        const newPrefs = { ...prev, blockedDomains: newBlockedDomains }
-        savePreferences(newPrefs)
-        return newPrefs
-      })
+        const newBlockedDomains = prev.blockedDomains.filter(
+          (d) => d !== domain,
+        );
+        const newPrefs = { ...prev, blockedDomains: newBlockedDomains };
+        savePreferences(newPrefs);
+        return newPrefs;
+      });
 
       // Remove rule from domain config
       if (userId) {
         setDomainRulesConfig((prev) => {
-          const newConfig = removeUserDomainOverride(prev, userId, domain)
-          saveDomainRules(newConfig)
-          return newConfig
-        })
+          const newConfig = removeUserDomainOverride(prev, userId, domain);
+          saveDomainRules(newConfig);
+          return newConfig;
+        });
       }
     },
-    [userId, savePreferences, saveDomainRules]
-  )
+    [userId, savePreferences, saveDomainRules],
+  );
 
   // Allow a domain (whitelist mode)
   const allowDomain = useCallback(
     (domain: string) => {
       setPreferences((prev) => {
-        const newAllowedDomains = [...new Set([...prev.allowedDomains, domain])]
-        const newPrefs = { ...prev, allowedDomains: newAllowedDomains }
-        savePreferences(newPrefs)
-        return newPrefs
-      })
+        const newAllowedDomains = [
+          ...new Set([...prev.allowedDomains, domain]),
+        ];
+        const newPrefs = { ...prev, allowedDomains: newAllowedDomains };
+        savePreferences(newPrefs);
+        return newPrefs;
+      });
     },
-    [savePreferences]
-  )
+    [savePreferences],
+  );
 
   // Disallow a domain
   const disallowDomain = useCallback(
     (domain: string) => {
       setPreferences((prev) => {
-        const newAllowedDomains = prev.allowedDomains.filter((d) => d !== domain)
-        const newPrefs = { ...prev, allowedDomains: newAllowedDomains }
-        savePreferences(newPrefs)
-        return newPrefs
-      })
+        const newAllowedDomains = prev.allowedDomains.filter(
+          (d) => d !== domain,
+        );
+        const newPrefs = { ...prev, allowedDomains: newAllowedDomains };
+        savePreferences(newPrefs);
+        return newPrefs;
+      });
     },
-    [savePreferences]
-  )
+    [savePreferences],
+  );
 
   // Check if a domain is allowed
   const checkDomainAllowed = useCallback(
     (domain: string): { allowed: boolean; reason?: string } => {
       // Check global enable
       if (!preferences.enabled) {
-        return { allowed: false, reason: 'Link previews are disabled' }
+        return { allowed: false, reason: "Link previews are disabled" };
       }
 
       // Check blocked domains
       if (preferences.blockedDomains.includes(domain)) {
-        return { allowed: false, reason: 'Domain is blocked by user' }
+        return { allowed: false, reason: "Domain is blocked by user" };
       }
 
       // Check whitelist mode
-      if (preferences.whitelistMode && !preferences.allowedDomains.includes(domain)) {
-        return { allowed: false, reason: 'Domain not in allowed list' }
+      if (
+        preferences.whitelistMode &&
+        !preferences.allowedDomains.includes(domain)
+      ) {
+        return { allowed: false, reason: "Domain not in allowed list" };
       }
 
       // Check domain rules
-      return isDomainAllowed(domain, domainRulesConfig, channelId, userId)
+      return isDomainAllowed(domain, domainRulesConfig, channelId, userId);
     },
-    [preferences, domainRulesConfig, channelId, userId]
-  )
+    [preferences, domainRulesConfig, channelId, userId],
+  );
 
   // Get settings for a domain
   const getDomainConfig = useCallback(
     (domain: string, provider: UrlProvider) => {
-      return getDomainSettings(domain, provider, domainRulesConfig, channelId, userId)
+      return getDomainSettings(
+        domain,
+        provider,
+        domainRulesConfig,
+        channelId,
+        userId,
+      );
     },
-    [domainRulesConfig, channelId, userId]
-  )
+    [domainRulesConfig, channelId, userId],
+  );
 
   // Set custom domain override
   const setDomainOverride = useCallback(
     (domain: string, settings: Partial<DomainRule>) => {
-      if (!userId) return
+      if (!userId) return;
 
       setDomainRulesConfig((prev) => {
         const newConfig = setUserDomainOverride(prev, userId, domain, {
           domain,
           enabled: true,
-          behavior: 'allow',
-          embedStyle: 'card',
+          behavior: "allow",
+          embedStyle: "card",
           ...settings,
           updatedAt: new Date(),
-        } as DomainRule)
-        saveDomainRules(newConfig)
-        return newConfig
-      })
+        } as DomainRule);
+        saveDomainRules(newConfig);
+        return newConfig;
+      });
     },
-    [userId, saveDomainRules]
-  )
+    [userId, saveDomainRules],
+  );
 
   // Remove custom domain override
   const removeDomainOverride = useCallback(
     (domain: string) => {
-      if (!userId) return
+      if (!userId) return;
 
       setDomainRulesConfig((prev) => {
-        const newConfig = removeUserDomainOverride(prev, userId, domain)
-        saveDomainRules(newConfig)
-        return newConfig
-      })
+        const newConfig = removeUserDomainOverride(prev, userId, domain);
+        saveDomainRules(newConfig);
+        return newConfig;
+      });
     },
-    [userId, saveDomainRules]
-  )
+    [userId, saveDomainRules],
+  );
 
   // Reset to defaults
   const resetToDefaults = useCallback(() => {
-    setPreferences(DEFAULT_UNFURL_PREFERENCES)
-    setDomainRulesConfig(createDefaultDomainRulesConfig())
-    savePreferences(DEFAULT_UNFURL_PREFERENCES)
-    saveDomainRules(createDefaultDomainRulesConfig())
-  }, [savePreferences, saveDomainRules])
+    setPreferences(DEFAULT_UNFURL_PREFERENCES);
+    setDomainRulesConfig(createDefaultDomainRulesConfig());
+    savePreferences(DEFAULT_UNFURL_PREFERENCES);
+    saveDomainRules(createDefaultDomainRulesConfig());
+  }, [savePreferences, saveDomainRules]);
 
   // Export preferences
   const exportPreferences = useCallback((): string => {
     return JSON.stringify({
-      version: '1.0',
+      version: "1.0",
       exportedAt: new Date().toISOString(),
       preferences,
       domainRules: {
@@ -409,19 +431,22 @@ export function useUnfurlPreferences(
         defaultBehavior: domainRulesConfig.defaultBehavior,
         whitelistMode: domainRulesConfig.whitelistMode,
       },
-    })
-  }, [preferences, domainRulesConfig])
+    });
+  }, [preferences, domainRulesConfig]);
 
   // Import preferences
   const importPreferences = useCallback(
     (data: string): boolean => {
       try {
-        const parsed = JSON.parse(data)
+        const parsed = JSON.parse(data);
 
         if (parsed.preferences) {
-          const newPrefs = { ...DEFAULT_UNFURL_PREFERENCES, ...parsed.preferences }
-          setPreferences(newPrefs)
-          savePreferences(newPrefs)
+          const newPrefs = {
+            ...DEFAULT_UNFURL_PREFERENCES,
+            ...parsed.preferences,
+          };
+          setPreferences(newPrefs);
+          savePreferences(newPrefs);
         }
 
         if (parsed.domainRules) {
@@ -430,19 +455,19 @@ export function useUnfurlPreferences(
             ...parsed.domainRules,
             userOverrides: new Map(),
             channelRules: new Map(),
-          }
-          setDomainRulesConfig(newRules)
-          saveDomainRules(newRules)
+          };
+          setDomainRulesConfig(newRules);
+          saveDomainRules(newRules);
         }
 
-        return true
+        return true;
       } catch (error) {
-        console.error('Failed to import preferences:', error)
-        return false
+        console.error("Failed to import preferences:", error);
+        return false;
       }
     },
-    [savePreferences, saveDomainRules]
-  )
+    [savePreferences, saveDomainRules],
+  );
 
   return {
     preferences,
@@ -460,7 +485,7 @@ export function useUnfurlPreferences(
     resetToDefaults,
     exportPreferences,
     importPreferences,
-  }
+  };
 }
 
 // ============================================================================
@@ -470,24 +495,28 @@ export function useUnfurlPreferences(
 /**
  * Check if previews should be shown for a URL
  */
-export function useShouldShowPreview(url: string, options: UseUnfurlPreferencesOptions = {}) {
-  const { preferences, checkDomainAllowed, isLoading } = useUnfurlPreferences(options)
+export function useShouldShowPreview(
+  url: string,
+  options: UseUnfurlPreferencesOptions = {},
+) {
+  const { preferences, checkDomainAllowed, isLoading } =
+    useUnfurlPreferences(options);
 
   return useMemo(() => {
     if (isLoading) {
-      return { shouldShow: false, reason: 'Loading preferences' }
+      return { shouldShow: false, reason: "Loading preferences" };
     }
 
     if (!preferences.enabled) {
-      return { shouldShow: false, reason: 'Link previews disabled' }
+      return { shouldShow: false, reason: "Link previews disabled" };
     }
 
     try {
-      const urlObj = new URL(url)
-      const domain = urlObj.hostname.replace(/^www\./, '')
-      return checkDomainAllowed(domain)
+      const urlObj = new URL(url);
+      const domain = urlObj.hostname.replace(/^www\./, "");
+      return checkDomainAllowed(domain);
     } catch {
-      return { shouldShow: false, reason: 'Invalid URL' }
+      return { shouldShow: false, reason: "Invalid URL" };
     }
-  }, [url, preferences.enabled, checkDomainAllowed, isLoading])
+  }, [url, preferences.enabled, checkDomainAllowed, isLoading]);
 }

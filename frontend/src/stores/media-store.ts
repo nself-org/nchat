@@ -4,9 +4,9 @@
  * Manages gallery items, filters, sorting, selection, and viewer state.
  */
 
-import { create } from 'zustand'
-import { devtools, subscribeWithSelector, persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, subscribeWithSelector, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 import {
   MediaItem,
   MediaFilters,
@@ -19,7 +19,7 @@ import {
   MediaType,
   MediaFilterTab,
   GALLERY_PAGE_SIZE,
-} from '@/lib/media/media-types'
+} from "@/lib/media/media-types";
 import {
   filterMediaItems,
   sortMediaItems,
@@ -29,7 +29,7 @@ import {
   getNextIndex,
   getPreviousIndex,
   findItemIndex,
-} from '@/lib/media/media-gallery'
+} from "@/lib/media/media-gallery";
 
 // ============================================================================
 // Types
@@ -37,129 +37,129 @@ import {
 
 export interface MediaState {
   // Items
-  items: MediaItem[]
-  filteredItems: MediaItem[]
+  items: MediaItem[];
+  filteredItems: MediaItem[];
 
   // Loading state
-  isLoading: boolean
-  isLoadingMore: boolean
-  error: string | null
+  isLoading: boolean;
+  isLoadingMore: boolean;
+  error: string | null;
 
   // Filters
-  filters: MediaFilters
+  filters: MediaFilters;
 
   // Sorting
-  sorting: MediaSorting
+  sorting: MediaSorting;
 
   // Pagination
-  pagination: MediaPagination
+  pagination: MediaPagination;
 
   // View mode
-  viewMode: MediaViewMode
+  viewMode: MediaViewMode;
 
   // Selection
-  selectedItems: Set<string>
-  isSelectMode: boolean
-  lastSelectedId: string | null
+  selectedItems: Set<string>;
+  isSelectMode: boolean;
+  lastSelectedId: string | null;
 
   // Viewer state
-  viewer: ViewerState
+  viewer: ViewerState;
 
   // Context (for scoped galleries)
   context: {
-    channelId: string | null
-    threadId: string | null
-    userId: string | null
-  }
+    channelId: string | null;
+    threadId: string | null;
+    userId: string | null;
+  };
 }
 
 export interface MediaActions {
   // Item management
-  setItems: (items: MediaItem[]) => void
-  addItems: (items: MediaItem[]) => void
-  removeItem: (itemId: string) => void
-  removeItems: (itemIds: string[]) => void
-  updateItem: (itemId: string, updates: Partial<MediaItem>) => void
-  clearItems: () => void
+  setItems: (items: MediaItem[]) => void;
+  addItems: (items: MediaItem[]) => void;
+  removeItem: (itemId: string) => void;
+  removeItems: (itemIds: string[]) => void;
+  updateItem: (itemId: string, updates: Partial<MediaItem>) => void;
+  clearItems: () => void;
 
   // Loading state
-  setLoading: (isLoading: boolean) => void
-  setLoadingMore: (isLoadingMore: boolean) => void
-  setError: (error: string | null) => void
+  setLoading: (isLoading: boolean) => void;
+  setLoadingMore: (isLoadingMore: boolean) => void;
+  setError: (error: string | null) => void;
 
   // Filters
-  setFilters: (filters: Partial<MediaFilters>) => void
-  setTypeFilter: (type: MediaFilterTab) => void
-  setSearchQuery: (query: string) => void
-  setDateRange: (start: Date | null, end: Date | null) => void
-  clearFilters: () => void
-  hasActiveFilters: () => boolean
-  getActiveFilterCount: () => number
+  setFilters: (filters: Partial<MediaFilters>) => void;
+  setTypeFilter: (type: MediaFilterTab) => void;
+  setSearchQuery: (query: string) => void;
+  setDateRange: (start: Date | null, end: Date | null) => void;
+  clearFilters: () => void;
+  hasActiveFilters: () => boolean;
+  getActiveFilterCount: () => number;
 
   // Sorting
-  setSorting: (sorting: Partial<MediaSorting>) => void
-  toggleSortDirection: () => void
+  setSorting: (sorting: Partial<MediaSorting>) => void;
+  toggleSortDirection: () => void;
 
   // Pagination
-  setPagination: (pagination: Partial<MediaPagination>) => void
-  nextPage: () => void
-  previousPage: () => void
-  goToPage: (page: number) => void
-  setPageSize: (size: number) => void
+  setPagination: (pagination: Partial<MediaPagination>) => void;
+  nextPage: () => void;
+  previousPage: () => void;
+  goToPage: (page: number) => void;
+  setPageSize: (size: number) => void;
 
   // View mode
-  setViewMode: (mode: MediaViewMode) => void
+  setViewMode: (mode: MediaViewMode) => void;
 
   // Selection
-  selectItem: (itemId: string) => void
-  deselectItem: (itemId: string) => void
-  toggleSelection: (itemId: string) => void
-  selectAll: () => void
-  clearSelection: () => void
-  selectRange: (itemId: string) => void
-  setSelectMode: (enabled: boolean) => void
-  getSelectedItems: () => MediaItem[]
+  selectItem: (itemId: string) => void;
+  deselectItem: (itemId: string) => void;
+  toggleSelection: (itemId: string) => void;
+  selectAll: () => void;
+  clearSelection: () => void;
+  selectRange: (itemId: string) => void;
+  setSelectMode: (enabled: boolean) => void;
+  getSelectedItems: () => MediaItem[];
 
   // Viewer
-  openViewer: (itemId: string) => void
-  closeViewer: () => void
-  nextItem: () => void
-  previousItem: () => void
-  goToItem: (index: number) => void
-  setZoom: (zoom: number) => void
-  setPan: (x: number, y: number) => void
-  setRotation: (degrees: number) => void
-  resetView: () => void
-  toggleFullscreen: () => void
-  toggleInfo: () => void
-  toggleControls: () => void
+  openViewer: (itemId: string) => void;
+  closeViewer: () => void;
+  nextItem: () => void;
+  previousItem: () => void;
+  goToItem: (index: number) => void;
+  setZoom: (zoom: number) => void;
+  setPan: (x: number, y: number) => void;
+  setRotation: (degrees: number) => void;
+  resetView: () => void;
+  toggleFullscreen: () => void;
+  toggleInfo: () => void;
+  toggleControls: () => void;
 
   // Video/Audio player
-  setPlaying: (isPlaying: boolean) => void
-  setCurrentTime: (time: number) => void
-  setVolume: (volume: number) => void
-  setMuted: (isMuted: boolean) => void
-  setPlaybackRate: (rate: number) => void
+  setPlaying: (isPlaying: boolean) => void;
+  setCurrentTime: (time: number) => void;
+  setVolume: (volume: number) => void;
+  setMuted: (isMuted: boolean) => void;
+  setPlaybackRate: (rate: number) => void;
 
   // Carousel
-  setCarouselMode: (enabled: boolean) => void
-  setCarouselAutoplay: (enabled: boolean) => void
-  setCarouselInterval: (ms: number) => void
+  setCarouselMode: (enabled: boolean) => void;
+  setCarouselAutoplay: (enabled: boolean) => void;
+  setCarouselInterval: (ms: number) => void;
 
   // Context
   setContext: (context: {
-    channelId?: string | null
-    threadId?: string | null
-    userId?: string | null
-  }) => void
-  clearContext: () => void
+    channelId?: string | null;
+    threadId?: string | null;
+    userId?: string | null;
+  }) => void;
+  clearContext: () => void;
 
   // Utility
-  applyFiltersAndSort: () => void
-  reset: () => void
+  applyFiltersAndSort: () => void;
+  reset: () => void;
 }
 
-export type MediaStore = MediaState & MediaActions
+export type MediaStore = MediaState & MediaActions;
 
 // ============================================================================
 // Initial State
@@ -173,8 +173,8 @@ const initialState: MediaState = {
   error: null,
   filters: { ...defaultMediaFilters },
   sorting: {
-    sortBy: 'date_desc',
-    direction: 'desc',
+    sortBy: "date_desc",
+    direction: "desc",
   },
   pagination: {
     page: 1,
@@ -184,7 +184,7 @@ const initialState: MediaState = {
     hasMore: false,
     cursor: null,
   },
-  viewMode: 'grid',
+  viewMode: "grid",
   selectedItems: new Set(),
   isSelectMode: false,
   lastSelectedId: null,
@@ -194,7 +194,7 @@ const initialState: MediaState = {
     threadId: null,
     userId: null,
   },
-}
+};
 
 // ============================================================================
 // Store
@@ -214,79 +214,91 @@ export const useMediaStore = create<MediaStore>()(
           setItems: (items) =>
             set(
               (state) => {
-                state.items = items
-                state.pagination.total = items.length
-                state.pagination.totalPages = Math.ceil(items.length / state.pagination.limit)
+                state.items = items;
+                state.pagination.total = items.length;
+                state.pagination.totalPages = Math.ceil(
+                  items.length / state.pagination.limit,
+                );
               },
               false,
-              'media/setItems'
+              "media/setItems",
             ),
 
           addItems: (items) =>
             set(
               (state) => {
-                state.items.push(...items)
-                state.pagination.total = state.items.length
-                state.pagination.totalPages = Math.ceil(state.items.length / state.pagination.limit)
+                state.items.push(...items);
+                state.pagination.total = state.items.length;
+                state.pagination.totalPages = Math.ceil(
+                  state.items.length / state.pagination.limit,
+                );
               },
               false,
-              'media/addItems'
+              "media/addItems",
             ),
 
           removeItem: (itemId) =>
             set(
               (state) => {
-                state.items = state.items.filter((item) => item.id !== itemId)
-                state.filteredItems = state.filteredItems.filter((item) => item.id !== itemId)
-                state.selectedItems.delete(itemId)
-                state.pagination.total = state.items.length
+                state.items = state.items.filter((item) => item.id !== itemId);
+                state.filteredItems = state.filteredItems.filter(
+                  (item) => item.id !== itemId,
+                );
+                state.selectedItems.delete(itemId);
+                state.pagination.total = state.items.length;
               },
               false,
-              'media/removeItem'
+              "media/removeItem",
             ),
 
           removeItems: (itemIds) =>
             set(
               (state) => {
-                const idSet = new Set(itemIds)
-                state.items = state.items.filter((item) => !idSet.has(item.id))
-                state.filteredItems = state.filteredItems.filter((item) => !idSet.has(item.id))
-                itemIds.forEach((id) => state.selectedItems.delete(id))
-                state.pagination.total = state.items.length
+                const idSet = new Set(itemIds);
+                state.items = state.items.filter((item) => !idSet.has(item.id));
+                state.filteredItems = state.filteredItems.filter(
+                  (item) => !idSet.has(item.id),
+                );
+                itemIds.forEach((id) => state.selectedItems.delete(id));
+                state.pagination.total = state.items.length;
               },
               false,
-              'media/removeItems'
+              "media/removeItems",
             ),
 
           updateItem: (itemId, updates) =>
             set(
               (state) => {
-                const index = state.items.findIndex((item) => item.id === itemId)
+                const index = state.items.findIndex(
+                  (item) => item.id === itemId,
+                );
                 if (index !== -1) {
-                  state.items[index] = { ...state.items[index], ...updates }
+                  state.items[index] = { ...state.items[index], ...updates };
                 }
-                const filteredIndex = state.filteredItems.findIndex((item) => item.id === itemId)
+                const filteredIndex = state.filteredItems.findIndex(
+                  (item) => item.id === itemId,
+                );
                 if (filteredIndex !== -1) {
                   state.filteredItems[filteredIndex] = {
                     ...state.filteredItems[filteredIndex],
                     ...updates,
-                  }
+                  };
                 }
               },
               false,
-              'media/updateItem'
+              "media/updateItem",
             ),
 
           clearItems: () =>
             set(
               (state) => {
-                state.items = []
-                state.filteredItems = []
-                state.pagination.total = 0
-                state.pagination.totalPages = 0
+                state.items = [];
+                state.filteredItems = [];
+                state.pagination.total = 0;
+                state.pagination.totalPages = 0;
               },
               false,
-              'media/clearItems'
+              "media/clearItems",
             ),
 
           // ================================================================
@@ -296,28 +308,28 @@ export const useMediaStore = create<MediaStore>()(
           setLoading: (isLoading) =>
             set(
               (state) => {
-                state.isLoading = isLoading
+                state.isLoading = isLoading;
               },
               false,
-              'media/setLoading'
+              "media/setLoading",
             ),
 
           setLoadingMore: (isLoadingMore) =>
             set(
               (state) => {
-                state.isLoadingMore = isLoadingMore
+                state.isLoadingMore = isLoadingMore;
               },
               false,
-              'media/setLoadingMore'
+              "media/setLoadingMore",
             ),
 
           setError: (error) =>
             set(
               (state) => {
-                state.error = error
+                state.error = error;
               },
               false,
-              'media/setError'
+              "media/setError",
             ),
 
           // ================================================================
@@ -327,51 +339,51 @@ export const useMediaStore = create<MediaStore>()(
           setFilters: (filters) =>
             set(
               (state) => {
-                state.filters = { ...state.filters, ...filters }
-                state.pagination.page = 1
+                state.filters = { ...state.filters, ...filters };
+                state.pagination.page = 1;
               },
               false,
-              'media/setFilters'
+              "media/setFilters",
             ),
 
           setTypeFilter: (type) =>
             set(
               (state) => {
-                state.filters.type = type
-                state.pagination.page = 1
+                state.filters.type = type;
+                state.pagination.page = 1;
               },
               false,
-              'media/setTypeFilter'
+              "media/setTypeFilter",
             ),
 
           setSearchQuery: (query) =>
             set(
               (state) => {
-                state.filters.searchQuery = query
-                state.pagination.page = 1
+                state.filters.searchQuery = query;
+                state.pagination.page = 1;
               },
               false,
-              'media/setSearchQuery'
+              "media/setSearchQuery",
             ),
 
           setDateRange: (start, end) =>
             set(
               (state) => {
-                state.filters.dateRange = { start, end }
-                state.pagination.page = 1
+                state.filters.dateRange = { start, end };
+                state.pagination.page = 1;
               },
               false,
-              'media/setDateRange'
+              "media/setDateRange",
             ),
 
           clearFilters: () =>
             set(
               (state) => {
-                state.filters = { ...defaultMediaFilters }
-                state.pagination.page = 1
+                state.filters = { ...defaultMediaFilters };
+                state.pagination.page = 1;
               },
               false,
-              'media/clearFilters'
+              "media/clearFilters",
             ),
 
           hasActiveFilters: () => hasActiveFilters(get().filters),
@@ -385,19 +397,20 @@ export const useMediaStore = create<MediaStore>()(
           setSorting: (sorting) =>
             set(
               (state) => {
-                state.sorting = { ...state.sorting, ...sorting }
+                state.sorting = { ...state.sorting, ...sorting };
               },
               false,
-              'media/setSorting'
+              "media/setSorting",
             ),
 
           toggleSortDirection: () =>
             set(
               (state) => {
-                state.sorting.direction = state.sorting.direction === 'asc' ? 'desc' : 'asc'
+                state.sorting.direction =
+                  state.sorting.direction === "asc" ? "desc" : "asc";
               },
               false,
-              'media/toggleSortDirection'
+              "media/toggleSortDirection",
             ),
 
           // ================================================================
@@ -407,52 +420,57 @@ export const useMediaStore = create<MediaStore>()(
           setPagination: (pagination) =>
             set(
               (state) => {
-                state.pagination = { ...state.pagination, ...pagination }
+                state.pagination = { ...state.pagination, ...pagination };
               },
               false,
-              'media/setPagination'
+              "media/setPagination",
             ),
 
           nextPage: () =>
             set(
               (state) => {
                 if (state.pagination.page < state.pagination.totalPages) {
-                  state.pagination.page++
+                  state.pagination.page++;
                 }
               },
               false,
-              'media/nextPage'
+              "media/nextPage",
             ),
 
           previousPage: () =>
             set(
               (state) => {
                 if (state.pagination.page > 1) {
-                  state.pagination.page--
+                  state.pagination.page--;
                 }
               },
               false,
-              'media/previousPage'
+              "media/previousPage",
             ),
 
           goToPage: (page) =>
             set(
               (state) => {
-                state.pagination.page = Math.max(1, Math.min(page, state.pagination.totalPages))
+                state.pagination.page = Math.max(
+                  1,
+                  Math.min(page, state.pagination.totalPages),
+                );
               },
               false,
-              'media/goToPage'
+              "media/goToPage",
             ),
 
           setPageSize: (size) =>
             set(
               (state) => {
-                state.pagination.limit = size
-                state.pagination.totalPages = Math.ceil(state.pagination.total / size)
-                state.pagination.page = 1
+                state.pagination.limit = size;
+                state.pagination.totalPages = Math.ceil(
+                  state.pagination.total / size,
+                );
+                state.pagination.page = 1;
               },
               false,
-              'media/setPageSize'
+              "media/setPageSize",
             ),
 
           // ================================================================
@@ -462,10 +480,10 @@ export const useMediaStore = create<MediaStore>()(
           setViewMode: (mode) =>
             set(
               (state) => {
-                state.viewMode = mode
+                state.viewMode = mode;
               },
               false,
-              'media/setViewMode'
+              "media/setViewMode",
             ),
 
           // ================================================================
@@ -475,98 +493,104 @@ export const useMediaStore = create<MediaStore>()(
           selectItem: (itemId) =>
             set(
               (state) => {
-                state.selectedItems.add(itemId)
-                state.lastSelectedId = itemId
+                state.selectedItems.add(itemId);
+                state.lastSelectedId = itemId;
               },
               false,
-              'media/selectItem'
+              "media/selectItem",
             ),
 
           deselectItem: (itemId) =>
             set(
               (state) => {
-                state.selectedItems.delete(itemId)
+                state.selectedItems.delete(itemId);
               },
               false,
-              'media/deselectItem'
+              "media/deselectItem",
             ),
 
           toggleSelection: (itemId) =>
             set(
               (state) => {
                 if (state.selectedItems.has(itemId)) {
-                  state.selectedItems.delete(itemId)
+                  state.selectedItems.delete(itemId);
                 } else {
-                  state.selectedItems.add(itemId)
-                  state.lastSelectedId = itemId
+                  state.selectedItems.add(itemId);
+                  state.lastSelectedId = itemId;
                 }
               },
               false,
-              'media/toggleSelection'
+              "media/toggleSelection",
             ),
 
           selectAll: () =>
             set(
               (state) => {
-                state.selectedItems = new Set(state.filteredItems.map((item) => item.id))
+                state.selectedItems = new Set(
+                  state.filteredItems.map((item) => item.id),
+                );
               },
               false,
-              'media/selectAll'
+              "media/selectAll",
             ),
 
           clearSelection: () =>
             set(
               (state) => {
-                state.selectedItems = new Set()
-                state.lastSelectedId = null
+                state.selectedItems = new Set();
+                state.lastSelectedId = null;
               },
               false,
-              'media/clearSelection'
+              "media/clearSelection",
             ),
 
           selectRange: (itemId) =>
             set(
               (state) => {
                 if (!state.lastSelectedId) {
-                  state.selectedItems.add(itemId)
-                  state.lastSelectedId = itemId
-                  return
+                  state.selectedItems.add(itemId);
+                  state.lastSelectedId = itemId;
+                  return;
                 }
 
                 const startIndex = state.filteredItems.findIndex(
-                  (item) => item.id === state.lastSelectedId
-                )
-                const endIndex = state.filteredItems.findIndex((item) => item.id === itemId)
+                  (item) => item.id === state.lastSelectedId,
+                );
+                const endIndex = state.filteredItems.findIndex(
+                  (item) => item.id === itemId,
+                );
 
-                if (startIndex === -1 || endIndex === -1) return
+                if (startIndex === -1 || endIndex === -1) return;
 
-                const start = Math.min(startIndex, endIndex)
-                const end = Math.max(startIndex, endIndex)
+                const start = Math.min(startIndex, endIndex);
+                const end = Math.max(startIndex, endIndex);
 
                 for (let i = start; i <= end; i++) {
-                  state.selectedItems.add(state.filteredItems[i].id)
+                  state.selectedItems.add(state.filteredItems[i].id);
                 }
               },
               false,
-              'media/selectRange'
+              "media/selectRange",
             ),
 
           setSelectMode: (enabled) =>
             set(
               (state) => {
-                state.isSelectMode = enabled
+                state.isSelectMode = enabled;
                 if (!enabled) {
-                  state.selectedItems = new Set()
-                  state.lastSelectedId = null
+                  state.selectedItems = new Set();
+                  state.lastSelectedId = null;
                 }
               },
               false,
-              'media/setSelectMode'
+              "media/setSelectMode",
             ),
 
           getSelectedItems: () => {
-            const state = get()
-            return state.items.filter((item) => state.selectedItems.has(item.id))
+            const state = get();
+            return state.items.filter((item) =>
+              state.selectedItems.has(item.id),
+            );
           },
 
           // ================================================================
@@ -576,25 +600,25 @@ export const useMediaStore = create<MediaStore>()(
           openViewer: (itemId) =>
             set(
               (state) => {
-                const index = findItemIndex(state.filteredItems, itemId)
+                const index = findItemIndex(state.filteredItems, itemId);
                 if (index !== -1) {
-                  state.viewer.isOpen = true
-                  state.viewer.currentItem = state.filteredItems[index]
-                  state.viewer.currentIndex = index
-                  state.viewer.items = state.filteredItems
+                  state.viewer.isOpen = true;
+                  state.viewer.currentItem = state.filteredItems[index];
+                  state.viewer.currentIndex = index;
+                  state.viewer.items = state.filteredItems;
                 }
               },
               false,
-              'media/openViewer'
+              "media/openViewer",
             ),
 
           closeViewer: () =>
             set(
               (state) => {
-                state.viewer = { ...defaultViewerState }
+                state.viewer = { ...defaultViewerState };
               },
               false,
-              'media/closeViewer'
+              "media/closeViewer",
             ),
 
           nextItem: () =>
@@ -603,20 +627,20 @@ export const useMediaStore = create<MediaStore>()(
                 const nextIndex = getNextIndex(
                   state.viewer.currentIndex,
                   state.viewer.items.length,
-                  state.viewer.isCarouselMode
-                )
+                  state.viewer.isCarouselMode,
+                );
                 if (nextIndex !== state.viewer.currentIndex) {
-                  state.viewer.currentIndex = nextIndex
-                  state.viewer.currentItem = state.viewer.items[nextIndex]
+                  state.viewer.currentIndex = nextIndex;
+                  state.viewer.currentItem = state.viewer.items[nextIndex];
                   // Reset view state for new item
-                  state.viewer.zoom = 1
-                  state.viewer.panX = 0
-                  state.viewer.panY = 0
-                  state.viewer.rotation = 0
+                  state.viewer.zoom = 1;
+                  state.viewer.panX = 0;
+                  state.viewer.panY = 0;
+                  state.viewer.rotation = 0;
                 }
               },
               false,
-              'media/nextItem'
+              "media/nextItem",
             ),
 
           previousItem: () =>
@@ -625,102 +649,102 @@ export const useMediaStore = create<MediaStore>()(
                 const prevIndex = getPreviousIndex(
                   state.viewer.currentIndex,
                   state.viewer.items.length,
-                  state.viewer.isCarouselMode
-                )
+                  state.viewer.isCarouselMode,
+                );
                 if (prevIndex !== state.viewer.currentIndex) {
-                  state.viewer.currentIndex = prevIndex
-                  state.viewer.currentItem = state.viewer.items[prevIndex]
-                  state.viewer.zoom = 1
-                  state.viewer.panX = 0
-                  state.viewer.panY = 0
-                  state.viewer.rotation = 0
+                  state.viewer.currentIndex = prevIndex;
+                  state.viewer.currentItem = state.viewer.items[prevIndex];
+                  state.viewer.zoom = 1;
+                  state.viewer.panX = 0;
+                  state.viewer.panY = 0;
+                  state.viewer.rotation = 0;
                 }
               },
               false,
-              'media/previousItem'
+              "media/previousItem",
             ),
 
           goToItem: (index) =>
             set(
               (state) => {
                 if (index >= 0 && index < state.viewer.items.length) {
-                  state.viewer.currentIndex = index
-                  state.viewer.currentItem = state.viewer.items[index]
-                  state.viewer.zoom = 1
-                  state.viewer.panX = 0
-                  state.viewer.panY = 0
-                  state.viewer.rotation = 0
+                  state.viewer.currentIndex = index;
+                  state.viewer.currentItem = state.viewer.items[index];
+                  state.viewer.zoom = 1;
+                  state.viewer.panX = 0;
+                  state.viewer.panY = 0;
+                  state.viewer.rotation = 0;
                 }
               },
               false,
-              'media/goToItem'
+              "media/goToItem",
             ),
 
           setZoom: (zoom) =>
             set(
               (state) => {
-                state.viewer.zoom = Math.max(0.1, Math.min(5, zoom))
+                state.viewer.zoom = Math.max(0.1, Math.min(5, zoom));
               },
               false,
-              'media/setZoom'
+              "media/setZoom",
             ),
 
           setPan: (x, y) =>
             set(
               (state) => {
-                state.viewer.panX = x
-                state.viewer.panY = y
+                state.viewer.panX = x;
+                state.viewer.panY = y;
               },
               false,
-              'media/setPan'
+              "media/setPan",
             ),
 
           setRotation: (degrees) =>
             set(
               (state) => {
-                state.viewer.rotation = degrees % 360
+                state.viewer.rotation = degrees % 360;
               },
               false,
-              'media/setRotation'
+              "media/setRotation",
             ),
 
           resetView: () =>
             set(
               (state) => {
-                state.viewer.zoom = 1
-                state.viewer.panX = 0
-                state.viewer.panY = 0
-                state.viewer.rotation = 0
+                state.viewer.zoom = 1;
+                state.viewer.panX = 0;
+                state.viewer.panY = 0;
+                state.viewer.rotation = 0;
               },
               false,
-              'media/resetView'
+              "media/resetView",
             ),
 
           toggleFullscreen: () =>
             set(
               (state) => {
-                state.viewer.isFullscreen = !state.viewer.isFullscreen
+                state.viewer.isFullscreen = !state.viewer.isFullscreen;
               },
               false,
-              'media/toggleFullscreen'
+              "media/toggleFullscreen",
             ),
 
           toggleInfo: () =>
             set(
               (state) => {
-                state.viewer.showInfo = !state.viewer.showInfo
+                state.viewer.showInfo = !state.viewer.showInfo;
               },
               false,
-              'media/toggleInfo'
+              "media/toggleInfo",
             ),
 
           toggleControls: () =>
             set(
               (state) => {
-                state.viewer.showControls = !state.viewer.showControls
+                state.viewer.showControls = !state.viewer.showControls;
               },
               false,
-              'media/toggleControls'
+              "media/toggleControls",
             ),
 
           // ================================================================
@@ -730,46 +754,46 @@ export const useMediaStore = create<MediaStore>()(
           setPlaying: (isPlaying) =>
             set(
               (state) => {
-                state.viewer.isPlaying = isPlaying
+                state.viewer.isPlaying = isPlaying;
               },
               false,
-              'media/setPlaying'
+              "media/setPlaying",
             ),
 
           setCurrentTime: (time) =>
             set(
               (state) => {
-                state.viewer.currentTime = time
+                state.viewer.currentTime = time;
               },
               false,
-              'media/setCurrentTime'
+              "media/setCurrentTime",
             ),
 
           setVolume: (volume) =>
             set(
               (state) => {
-                state.viewer.volume = Math.max(0, Math.min(1, volume))
+                state.viewer.volume = Math.max(0, Math.min(1, volume));
               },
               false,
-              'media/setVolume'
+              "media/setVolume",
             ),
 
           setMuted: (isMuted) =>
             set(
               (state) => {
-                state.viewer.isMuted = isMuted
+                state.viewer.isMuted = isMuted;
               },
               false,
-              'media/setMuted'
+              "media/setMuted",
             ),
 
           setPlaybackRate: (rate) =>
             set(
               (state) => {
-                state.viewer.playbackRate = rate
+                state.viewer.playbackRate = rate;
               },
               false,
-              'media/setPlaybackRate'
+              "media/setPlaybackRate",
             ),
 
           // ================================================================
@@ -779,28 +803,28 @@ export const useMediaStore = create<MediaStore>()(
           setCarouselMode: (enabled) =>
             set(
               (state) => {
-                state.viewer.isCarouselMode = enabled
+                state.viewer.isCarouselMode = enabled;
               },
               false,
-              'media/setCarouselMode'
+              "media/setCarouselMode",
             ),
 
           setCarouselAutoplay: (enabled) =>
             set(
               (state) => {
-                state.viewer.carouselAutoplay = enabled
+                state.viewer.carouselAutoplay = enabled;
               },
               false,
-              'media/setCarouselAutoplay'
+              "media/setCarouselAutoplay",
             ),
 
           setCarouselInterval: (ms) =>
             set(
               (state) => {
-                state.viewer.carouselInterval = ms
+                state.viewer.carouselInterval = ms;
               },
               false,
-              'media/setCarouselInterval'
+              "media/setCarouselInterval",
             ),
 
           // ================================================================
@@ -810,21 +834,28 @@ export const useMediaStore = create<MediaStore>()(
           setContext: (context) =>
             set(
               (state) => {
-                if (context.channelId !== undefined) state.context.channelId = context.channelId
-                if (context.threadId !== undefined) state.context.threadId = context.threadId
-                if (context.userId !== undefined) state.context.userId = context.userId
+                if (context.channelId !== undefined)
+                  state.context.channelId = context.channelId;
+                if (context.threadId !== undefined)
+                  state.context.threadId = context.threadId;
+                if (context.userId !== undefined)
+                  state.context.userId = context.userId;
               },
               false,
-              'media/setContext'
+              "media/setContext",
             ),
 
           clearContext: () =>
             set(
               (state) => {
-                state.context = { channelId: null, threadId: null, userId: null }
+                state.context = {
+                  channelId: null,
+                  threadId: null,
+                  userId: null,
+                };
               },
               false,
-              'media/clearContext'
+              "media/clearContext",
             ),
 
           // ================================================================
@@ -834,15 +865,18 @@ export const useMediaStore = create<MediaStore>()(
           applyFiltersAndSort: () =>
             set(
               (state) => {
-                let result = filterMediaItems(state.items, state.filters)
-                result = sortMediaItems(result, state.sorting)
-                state.filteredItems = result
-                state.pagination.total = result.length
-                state.pagination.totalPages = Math.ceil(result.length / state.pagination.limit)
-                state.pagination.hasMore = state.pagination.page < state.pagination.totalPages
+                let result = filterMediaItems(state.items, state.filters);
+                result = sortMediaItems(result, state.sorting);
+                state.filteredItems = result;
+                state.pagination.total = result.length;
+                state.pagination.totalPages = Math.ceil(
+                  result.length / state.pagination.limit,
+                );
+                state.pagination.hasMore =
+                  state.pagination.page < state.pagination.totalPages;
               },
               false,
-              'media/applyFiltersAndSort'
+              "media/applyFiltersAndSort",
             ),
 
           reset: () =>
@@ -852,48 +886,55 @@ export const useMediaStore = create<MediaStore>()(
                 selectedItems: new Set(),
               }),
               false,
-              'media/reset'
+              "media/reset",
             ),
         })),
         {
-          name: 'nchat-media-store',
+          name: "nchat-media-store",
           partialize: (state) => ({
             viewMode: state.viewMode,
             sorting: state.sorting,
           }),
-        }
-      )
+        },
+      ),
     ),
-    { name: 'media-store' }
-  )
-)
+    { name: "media-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectMediaItems = (state: MediaStore) => state.items
-export const selectFilteredMediaItems = (state: MediaStore) => state.filteredItems
-export const selectMediaLoading = (state: MediaStore) => state.isLoading
-export const selectMediaLoadingMore = (state: MediaStore) => state.isLoadingMore
-export const selectMediaError = (state: MediaStore) => state.error
-export const selectMediaFilters = (state: MediaStore) => state.filters
-export const selectMediaSorting = (state: MediaStore) => state.sorting
-export const selectMediaPagination = (state: MediaStore) => state.pagination
-export const selectMediaViewMode = (state: MediaStore) => state.viewMode
-export const selectSelectedMediaItems = (state: MediaStore) => state.selectedItems
-export const selectIsSelectMode = (state: MediaStore) => state.isSelectMode
-export const selectMediaViewer = (state: MediaStore) => state.viewer
-export const selectIsViewerOpen = (state: MediaStore) => state.viewer.isOpen
-export const selectCurrentViewerItem = (state: MediaStore) => state.viewer.currentItem
-export const selectMediaContext = (state: MediaStore) => state.context
+export const selectMediaItems = (state: MediaStore) => state.items;
+export const selectFilteredMediaItems = (state: MediaStore) =>
+  state.filteredItems;
+export const selectMediaLoading = (state: MediaStore) => state.isLoading;
+export const selectMediaLoadingMore = (state: MediaStore) =>
+  state.isLoadingMore;
+export const selectMediaError = (state: MediaStore) => state.error;
+export const selectMediaFilters = (state: MediaStore) => state.filters;
+export const selectMediaSorting = (state: MediaStore) => state.sorting;
+export const selectMediaPagination = (state: MediaStore) => state.pagination;
+export const selectMediaViewMode = (state: MediaStore) => state.viewMode;
+export const selectSelectedMediaItems = (state: MediaStore) =>
+  state.selectedItems;
+export const selectIsSelectMode = (state: MediaStore) => state.isSelectMode;
+export const selectMediaViewer = (state: MediaStore) => state.viewer;
+export const selectIsViewerOpen = (state: MediaStore) => state.viewer.isOpen;
+export const selectCurrentViewerItem = (state: MediaStore) =>
+  state.viewer.currentItem;
+export const selectMediaContext = (state: MediaStore) => state.context;
 
 export const selectMediaByType = (type: MediaType) => (state: MediaStore) =>
-  state.items.filter((item) => item.fileType === type)
+  state.items.filter((item) => item.fileType === type);
 
-export const selectMediaByChannel = (channelId: string) => (state: MediaStore) =>
-  state.items.filter((item) => item.channelId === channelId)
+export const selectMediaByChannel =
+  (channelId: string) => (state: MediaStore) =>
+    state.items.filter((item) => item.channelId === channelId);
 
-export const selectSelectionCount = (state: MediaStore) => state.selectedItems.size
+export const selectSelectionCount = (state: MediaStore) =>
+  state.selectedItems.size;
 
-export const selectHasSelection = (state: MediaStore) => state.selectedItems.size > 0
+export const selectHasSelection = (state: MediaStore) =>
+  state.selectedItems.size > 0;

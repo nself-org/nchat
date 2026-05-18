@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const MESSAGE_REACTIONS_SUBSCRIPTION = gql`
   subscription MessageReactions($messageId: uuid!) {
@@ -13,7 +13,7 @@ export const MESSAGE_REACTIONS_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 export const MESSAGE_REACTION_COUNTS_SUBSCRIPTION = gql`
   subscription MessageReactionCounts($messageId: uuid!) {
@@ -26,7 +26,7 @@ export const MESSAGE_REACTION_COUNTS_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 export const CHANNEL_REACTIONS_SUBSCRIPTION = gql`
   subscription ChannelReactions($channelId: uuid!, $messageIds: [uuid!]!) {
@@ -37,4 +37,4 @@ export const CHANNEL_REACTIONS_SUBSCRIPTION = gql`
       user_id
     }
   }
-`
+`;

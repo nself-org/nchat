@@ -7,8 +7,8 @@
  * @module lib/unfurl/url-resolver
  */
 
-import { URL_SHORTENERS, parseUrl } from './url-parser'
-import { validateUrl } from '@/services/messages/link-unfurl.service'
+import { URL_SHORTENERS, parseUrl } from "./url-parser";
+import { validateUrl } from "@/services/messages/link-unfurl.service";
 
 // ============================================================================
 // Types
@@ -16,41 +16,41 @@ import { validateUrl } from '@/services/messages/link-unfurl.service'
 
 export interface UrlResolutionResult {
   /** Original URL */
-  originalUrl: string
+  originalUrl: string;
   /** Final resolved URL */
-  resolvedUrl: string
+  resolvedUrl: string;
   /** Chain of redirects */
-  redirectChain: string[]
+  redirectChain: string[];
   /** Whether the URL was shortened */
-  wasShortened: boolean
+  wasShortened: boolean;
   /** Whether resolution was successful */
-  success: boolean
+  success: boolean;
   /** Error message if failed */
-  error?: string
+  error?: string;
   /** Resolution time in ms */
-  durationMs: number
+  durationMs: number;
 }
 
 export interface UrlResolverOptions {
   /** Maximum redirects to follow */
-  maxRedirects?: number
+  maxRedirects?: number;
   /** Timeout in milliseconds */
-  timeout?: number
+  timeout?: number;
   /** User agent string */
-  userAgent?: string
+  userAgent?: string;
   /** Whether to validate each URL in chain for SSRF */
-  validateEachRedirect?: boolean
+  validateEachRedirect?: boolean;
   /** Custom fetch function */
-  customFetch?: typeof fetch
+  customFetch?: typeof fetch;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const DEFAULT_MAX_REDIRECTS = 10
-const DEFAULT_TIMEOUT = 10000
-const DEFAULT_USER_AGENT = 'nchat-url-resolver/1.0 (+https://nself.org/bot)'
+const DEFAULT_MAX_REDIRECTS = 10;
+const DEFAULT_TIMEOUT = 10000;
+const DEFAULT_USER_AGENT = "nchat-url-resolver/1.0 (+https://nself.org/bot)";
 
 // Well-known shortener patterns
 const SHORTENER_PATTERNS = [
@@ -68,7 +68,7 @@ const SHORTENER_PATTERNS = [
   /^https?:\/\/amzn\.to\//i,
   /^https?:\/\/rb\.gy\//i,
   /^https?:\/\/cutt\.ly\//i,
-]
+];
 
 // ============================================================================
 // URL Resolution Functions
@@ -79,18 +79,18 @@ const SHORTENER_PATTERNS = [
  */
 export function isShortenerUrl(url: string): boolean {
   try {
-    const parsed = new URL(url)
-    const domain = parsed.hostname.toLowerCase().replace(/^www\./, '')
+    const parsed = new URL(url);
+    const domain = parsed.hostname.toLowerCase().replace(/^www\./, "");
 
     // Check exact domain match
     if (URL_SHORTENERS.has(domain)) {
-      return true
+      return true;
     }
 
     // Check patterns
-    return SHORTENER_PATTERNS.some((pattern) => pattern.test(url))
+    return SHORTENER_PATTERNS.some((pattern) => pattern.test(url));
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -99,7 +99,7 @@ export function isShortenerUrl(url: string): boolean {
  */
 export async function resolveUrl(
   url: string,
-  options: UrlResolverOptions = {}
+  options: UrlResolverOptions = {},
 ): Promise<UrlResolutionResult> {
   const {
     maxRedirects = DEFAULT_MAX_REDIRECTS,
@@ -107,16 +107,16 @@ export async function resolveUrl(
     userAgent = DEFAULT_USER_AGENT,
     validateEachRedirect = true,
     customFetch = fetch,
-  } = options
+  } = options;
 
-  const startTime = Date.now()
-  const redirectChain: string[] = []
-  let currentUrl = url
-  let wasShortened = isShortenerUrl(url)
+  const startTime = Date.now();
+  const redirectChain: string[] = [];
+  let currentUrl = url;
+  let wasShortened = isShortenerUrl(url);
 
   try {
     // Validate initial URL
-    const initialValidation = await validateUrl(url)
+    const initialValidation = await validateUrl(url);
     if (!initialValidation.valid) {
       return {
         originalUrl: url,
@@ -126,49 +126,49 @@ export async function resolveUrl(
         success: false,
         error: initialValidation.error,
         durationMs: Date.now() - startTime,
-      }
+      };
     }
 
     // Follow redirects
     for (let i = 0; i < maxRedirects; i++) {
-      redirectChain.push(currentUrl)
+      redirectChain.push(currentUrl);
 
       // Create abort controller for timeout
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), timeout)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
 
       try {
         const response = await customFetch(currentUrl, {
-          method: 'HEAD',
+          method: "HEAD",
           headers: {
-            'User-Agent': userAgent,
-            Accept: '*/*',
+            "User-Agent": userAgent,
+            Accept: "*/*",
           },
-          redirect: 'manual',
+          redirect: "manual",
           signal: controller.signal,
-        })
+        });
 
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
 
         // Check for redirect
         if (response.status >= 300 && response.status < 400) {
-          const location = response.headers.get('location')
+          const location = response.headers.get("location");
           if (!location) {
             // No location header, we're done
-            break
+            break;
           }
 
           // Resolve relative URLs
-          const nextUrl = new URL(location, currentUrl).href
+          const nextUrl = new URL(location, currentUrl).href;
 
           // Check if this is another shortener
           if (isShortenerUrl(nextUrl)) {
-            wasShortened = true
+            wasShortened = true;
           }
 
           // Validate the redirect URL if enabled
           if (validateEachRedirect) {
-            const redirectValidation = await validateUrl(nextUrl)
+            const redirectValidation = await validateUrl(nextUrl);
             if (!redirectValidation.valid) {
               return {
                 originalUrl: url,
@@ -178,48 +178,48 @@ export async function resolveUrl(
                 success: false,
                 error: `Redirect blocked: ${redirectValidation.error}`,
                 durationMs: Date.now() - startTime,
-              }
+              };
             }
           }
 
-          currentUrl = nextUrl
+          currentUrl = nextUrl;
         } else {
           // Not a redirect, we're done
-          break
+          break;
         }
       } catch (error) {
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
 
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error instanceof Error && error.name === "AbortError") {
           return {
             originalUrl: url,
             resolvedUrl: currentUrl,
             redirectChain,
             wasShortened,
             success: false,
-            error: 'Request timed out',
+            error: "Request timed out",
             durationMs: Date.now() - startTime,
-          }
+          };
         }
 
         // Try GET request as fallback (some servers don't support HEAD)
         try {
           const response = await customFetch(currentUrl, {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'User-Agent': userAgent,
-              Accept: '*/*',
+              "User-Agent": userAgent,
+              Accept: "*/*",
             },
-            redirect: 'follow',
+            redirect: "follow",
             signal: AbortSignal.timeout(timeout),
-          })
+          });
 
           // Final URL after all redirects
-          currentUrl = response.url
-          break
+          currentUrl = response.url;
+          break;
         } catch {
           // Give up
-          break
+          break;
         }
       }
     }
@@ -231,7 +231,7 @@ export async function resolveUrl(
       wasShortened,
       success: true,
       durationMs: Date.now() - startTime,
-    }
+    };
   } catch (error) {
     return {
       originalUrl: url,
@@ -239,9 +239,9 @@ export async function resolveUrl(
       redirectChain,
       wasShortened,
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
       durationMs: Date.now() - startTime,
-    }
+    };
   }
 }
 
@@ -250,25 +250,27 @@ export async function resolveUrl(
  */
 export async function resolveUrls(
   urls: string[],
-  options: UrlResolverOptions = {}
+  options: UrlResolverOptions = {},
 ): Promise<Map<string, UrlResolutionResult>> {
-  const results = new Map<string, UrlResolutionResult>()
+  const results = new Map<string, UrlResolutionResult>();
 
   // Filter to only resolve shortener URLs for efficiency
-  const urlsToResolve = urls.filter((url) => isShortenerUrl(url))
+  const urlsToResolve = urls.filter((url) => isShortenerUrl(url));
 
   // Resolve in parallel with a concurrency limit
-  const concurrency = 5
-  const chunks: string[][] = []
+  const concurrency = 5;
+  const chunks: string[][] = [];
   for (let i = 0; i < urlsToResolve.length; i += concurrency) {
-    chunks.push(urlsToResolve.slice(i, i + concurrency))
+    chunks.push(urlsToResolve.slice(i, i + concurrency));
   }
 
   for (const chunk of chunks) {
-    const chunkResults = await Promise.all(chunk.map((url) => resolveUrl(url, options)))
+    const chunkResults = await Promise.all(
+      chunk.map((url) => resolveUrl(url, options)),
+    );
 
     for (let i = 0; i < chunk.length; i++) {
-      results.set(chunk[i], chunkResults[i])
+      results.set(chunk[i], chunkResults[i]);
     }
   }
 
@@ -282,19 +284,22 @@ export async function resolveUrls(
         wasShortened: false,
         success: true,
         durationMs: 0,
-      })
+      });
     }
   }
 
-  return results
+  return results;
 }
 
 /**
  * Get the canonical URL (after following redirects)
  */
-export async function getCanonicalUrl(url: string, options?: UrlResolverOptions): Promise<string> {
-  const result = await resolveUrl(url, options)
-  return result.success ? result.resolvedUrl : url
+export async function getCanonicalUrl(
+  url: string,
+  options?: UrlResolverOptions,
+): Promise<string> {
+  const result = await resolveUrl(url, options);
+  return result.success ? result.resolvedUrl : url;
 }
 
 /**
@@ -302,28 +307,32 @@ export async function getCanonicalUrl(url: string, options?: UrlResolverOptions)
  */
 export async function expandShortenedUrls(
   text: string,
-  options?: UrlResolverOptions
+  options?: UrlResolverOptions,
 ): Promise<{ text: string; expansions: Map<string, string> }> {
   // Extract URLs from text
   const urlRegex =
-    /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)/gi
-  const urls = text.match(urlRegex) || []
+    /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)/gi;
+  const urls = text.match(urlRegex) || [];
 
   // Resolve all shortened URLs
-  const resolutions = await resolveUrls(urls, options)
+  const resolutions = await resolveUrls(urls, options);
 
   // Build expansion map
-  const expansions = new Map<string, string>()
-  let expandedText = text
+  const expansions = new Map<string, string>();
+  let expandedText = text;
 
   for (const [originalUrl, result] of resolutions) {
-    if (result.wasShortened && result.success && result.resolvedUrl !== originalUrl) {
-      expansions.set(originalUrl, result.resolvedUrl)
-      expandedText = expandedText.replace(originalUrl, result.resolvedUrl)
+    if (
+      result.wasShortened &&
+      result.success &&
+      result.resolvedUrl !== originalUrl
+    ) {
+      expansions.set(originalUrl, result.resolvedUrl);
+      expandedText = expandedText.replace(originalUrl, result.resolvedUrl);
     }
   }
 
-  return { text: expandedText, expansions }
+  return { text: expandedText, expansions };
 }
 
 // ============================================================================
@@ -331,66 +340,66 @@ export async function expandShortenedUrls(
 // ============================================================================
 
 interface CachedResolution {
-  result: UrlResolutionResult
-  timestamp: number
+  result: UrlResolutionResult;
+  timestamp: number;
 }
 
-const resolutionCache = new Map<string, CachedResolution>()
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
-const MAX_CACHE_SIZE = 1000
+const resolutionCache = new Map<string, CachedResolution>();
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_CACHE_SIZE = 1000;
 
 /**
  * Resolve URL with caching
  */
 export async function resolveUrlCached(
   url: string,
-  options?: UrlResolverOptions
+  options?: UrlResolverOptions,
 ): Promise<UrlResolutionResult> {
-  const now = Date.now()
+  const now = Date.now();
 
   // Check cache
-  const cached = resolutionCache.get(url)
+  const cached = resolutionCache.get(url);
   if (cached && now - cached.timestamp < CACHE_TTL_MS) {
-    return cached.result
+    return cached.result;
   }
 
   // Resolve URL
-  const result = await resolveUrl(url, options)
+  const result = await resolveUrl(url, options);
 
   // Cache successful resolutions
   if (result.success) {
     // Evict old entries if cache is full
     if (resolutionCache.size >= MAX_CACHE_SIZE) {
       const oldestKey = [...resolutionCache.entries()].sort(
-        (a, b) => a[1].timestamp - b[1].timestamp
-      )[0][0]
-      resolutionCache.delete(oldestKey)
+        (a, b) => a[1].timestamp - b[1].timestamp,
+      )[0][0];
+      resolutionCache.delete(oldestKey);
     }
 
-    resolutionCache.set(url, { result, timestamp: now })
+    resolutionCache.set(url, { result, timestamp: now });
   }
 
-  return result
+  return result;
 }
 
 /**
  * Clear the resolution cache
  */
 export function clearResolutionCache(): void {
-  resolutionCache.clear()
+  resolutionCache.clear();
 }
 
 /**
  * Get cache statistics
  */
 export function getResolutionCacheStats(): {
-  size: number
-  maxSize: number
-  ttlMs: number
+  size: number;
+  maxSize: number;
+  ttlMs: number;
 } {
   return {
     size: resolutionCache.size,
     maxSize: MAX_CACHE_SIZE,
     ttlMs: CACHE_TTL_MS,
-  }
+  };
 }

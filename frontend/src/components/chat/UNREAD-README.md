@@ -16,22 +16,27 @@ Complete unread message tracking and navigation system for nself-chat.
 ### 1. Basic Usage
 
 ```tsx
-import { useUnread } from '@/hooks/use-unread'
-import { JumpToUnreadButton } from '@/components/chat/JumpToUnread'
-import { UnreadLine } from '@/components/chat/UnreadIndicator'
+import { useUnread } from "@/hooks/use-unread";
+import { JumpToUnreadButton } from "@/components/chat/JumpToUnread";
+import { UnreadLine } from "@/components/chat/UnreadIndicator";
 
 function ChatView({ channelId, messages }) {
-  const { unreadCount, mentionCount, firstUnreadMessageId, hasUnread, markChannelAsRead } =
-    useUnread({
-      channelId,
-      messages,
-      autoMarkRead: true,
-    })
+  const {
+    unreadCount,
+    mentionCount,
+    firstUnreadMessageId,
+    hasUnread,
+    markChannelAsRead,
+  } = useUnread({
+    channelId,
+    messages,
+    autoMarkRead: true,
+  });
 
   const handleJumpToUnread = () => {
     // Scroll to first unread message
-    scrollToMessage(firstUnreadMessageId)
-  }
+    scrollToMessage(firstUnreadMessageId);
+  };
 
   return (
     <div>
@@ -44,18 +49,18 @@ function ChatView({ channelId, messages }) {
         onJumpToUnread={handleJumpToUnread}
       />
     </div>
-  )
+  );
 }
 ```
 
 ### 2. Channel Sidebar with Badges
 
 ```tsx
-import { SidebarUnread } from '@/components/chat/UnreadIndicator'
-import { useAllUnread } from '@/hooks/use-unread'
+import { SidebarUnread } from "@/components/chat/UnreadIndicator";
+import { useAllUnread } from "@/hooks/use-unread";
 
 function ChannelList({ channels, onSelect }) {
-  const { allStates } = useAllUnread()
+  const { allStates } = useAllUnread();
 
   return (
     <div>
@@ -70,25 +75,27 @@ function ChannelList({ channels, onSelect }) {
         />
       ))}
     </div>
-  )
+  );
 }
 ```
 
 ### 3. Unread Line in Messages
 
 ```tsx
-import { UnreadLine } from '@/components/chat/UnreadIndicator'
+import { UnreadLine } from "@/components/chat/UnreadIndicator";
 
 // In your message list rendering
 {
   messages.map((message, index) => (
     <React.Fragment key={message.id}>
       {/* Show unread line before first unread message */}
-      {message.id === firstUnreadMessageId && <UnreadLine count={messages.length - index} />}
+      {message.id === firstUnreadMessageId && (
+        <UnreadLine count={messages.length - index} />
+      )}
 
       <MessageItem message={message} />
     </React.Fragment>
-  ))
+  ));
 }
 ```
 
@@ -221,11 +228,11 @@ const {
   isMessageUnread,
   recalculate,
 } = useUnread({
-  channelId: 'channel-123',
+  channelId: "channel-123",
   messages: messages,
   autoMarkRead: true,
   autoMarkReadDelay: 1000,
-})
+});
 ```
 
 ### useAllUnread
@@ -238,7 +245,7 @@ const {
   totalUnread, // Total unread count
   totalMentions, // Total mention count
   markAllAsRead, // Mark all channels as read
-} = useAllUnread()
+} = useAllUnread();
 ```
 
 ### useUnreadNavigation
@@ -253,14 +260,14 @@ const {
   hasMentionChannels,
   getNextUnreadChannel,
   getPreviousUnreadChannel,
-} = useUnreadNavigation(currentChannelId)
+} = useUnreadNavigation(currentChannelId);
 
 // Jump to next unread channel
-const next = getNextUnreadChannel()
-if (next) navigateToChannel(next)
+const next = getNextUnreadChannel();
+if (next) navigateToChannel(next);
 
 // Jump to next mention
-const nextMention = getNextUnreadChannel(true) // onlyMentions
+const nextMention = getNextUnreadChannel(true); // onlyMentions
 ```
 
 ## 🔧 Core Library
@@ -270,30 +277,27 @@ const nextMention = getNextUnreadChannel(true) // onlyMentions
 Low-level tracking API:
 
 ```tsx
-import { getUnreadTracker } from '@/lib/messaging/unread-tracker'
+import { getUnreadTracker } from "@/lib/messaging/unread-tracker";
 
-const tracker = getUnreadTracker()
+const tracker = getUnreadTracker();
 
 // Initialize with user ID
-tracker.initialize(userId)
+tracker.initialize(userId);
 
 // Mark as read
-tracker.markAsRead(channelId, messageId, messageTimestamp)
+tracker.markAsRead(channelId, messageId, messageTimestamp);
 
 // Mark as unread
-tracker.markAsUnread(channelId, messageId, messageTimestamp)
+tracker.markAsUnread(channelId, messageId, messageTimestamp);
 
 // Calculate unread
-const { unreadCount, mentionCount, firstUnreadMessageId } = tracker.calculateUnread(
-  channelId,
-  messages,
-  currentUserId
-)
+const { unreadCount, mentionCount, firstUnreadMessageId } =
+  tracker.calculateUnread(channelId, messages, currentUserId);
 
 // Subscribe to changes
 const unsubscribe = tracker.subscribe(channelId, () => {
-  console.log('Unread state changed')
-})
+  console.log("Unread state changed");
+});
 ```
 
 ## 🎨 Styling
@@ -351,34 +355,34 @@ NotificationStore (Zustand)
 ### Unit Tests
 
 ```tsx
-import { renderHook, act } from '@testing-library/react'
-import { useUnread } from '@/hooks/use-unread'
+import { renderHook, act } from "@testing-library/react";
+import { useUnread } from "@/hooks/use-unread";
 
-test('tracks unread messages', () => {
+test("tracks unread messages", () => {
   const { result } = renderHook(() =>
     useUnread({
-      channelId: 'test',
+      channelId: "test",
       messages: mockMessages,
-    })
-  )
+    }),
+  );
 
-  expect(result.current.unreadCount).toBe(5)
-})
+  expect(result.current.unreadCount).toBe(5);
+});
 
-test('marks as read', () => {
+test("marks as read", () => {
   const { result } = renderHook(() =>
     useUnread({
-      channelId: 'test',
+      channelId: "test",
       messages: mockMessages,
-    })
-  )
+    }),
+  );
 
   act(() => {
-    result.current.markChannelAsRead()
-  })
+    result.current.markChannelAsRead();
+  });
 
-  expect(result.current.unreadCount).toBe(0)
-})
+  expect(result.current.unreadCount).toBe(0);
+});
 ```
 
 ## 📖 Full Documentation

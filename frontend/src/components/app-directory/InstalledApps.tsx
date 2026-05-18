@@ -1,54 +1,73 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import Link from 'next/link'
-import { Package, Settings, AlertCircle, ArrowUpCircle, Pause, Play, Search } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { useAppDirectoryStore, selectInstalledApps } from '@/stores/app-directory-store'
-import { AppCard, AppIcon } from './AppCard'
-import type { AppInstallation } from '@/lib/app-directory/app-types'
+import * as React from "react";
+import Link from "next/link";
+import {
+  Package,
+  Settings,
+  AlertCircle,
+  ArrowUpCircle,
+  Pause,
+  Play,
+  Search,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  useAppDirectoryStore,
+  selectInstalledApps,
+} from "@/stores/app-directory-store";
+import { AppCard, AppIcon } from "./AppCard";
+import type { AppInstallation } from "@/lib/app-directory/app-types";
 
 interface InstalledAppsProps {
-  className?: string
+  className?: string;
 }
 
 export function InstalledApps({ className }: InstalledAppsProps) {
-  const [searchQuery, setSearchQuery] = React.useState('')
-  const installedApps = useAppDirectoryStore(selectInstalledApps)
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const installedApps = useAppDirectoryStore(selectInstalledApps);
 
   // Filter apps by search query
   const filteredApps = installedApps.filter((installation) =>
-    installation.app.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+    installation.app.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   // Group by status
-  const activeApps = filteredApps.filter((i) => i.status === 'active')
-  const pausedApps = filteredApps.filter((i) => i.status === 'paused')
+  const activeApps = filteredApps.filter((i) => i.status === "active");
+  const pausedApps = filteredApps.filter((i) => i.status === "paused");
 
   // Check for updates (mock for now)
-  const appsWithUpdates = installedApps.filter((i) => i.installedVersion !== i.app.currentVersion)
+  const appsWithUpdates = installedApps.filter(
+    (i) => i.installedVersion !== i.app.currentVersion,
+  );
 
   if (installedApps.length === 0) {
     return (
-      <div className={cn('flex flex-col items-center justify-center py-16', className)}>
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center py-16",
+          className,
+        )}
+      >
         <Package className="mb-4 h-16 w-16 text-muted-foreground" />
         <h2 className="mb-2 text-xl font-semibold">No apps installed</h2>
         <p className="mb-6 max-w-md text-center text-muted-foreground">
-          Browse the App Directory to discover apps and integrations for your workspace.
+          Browse the App Directory to discover apps and integrations for your
+          workspace.
         </p>
         <Button asChild>
           <Link href="/apps">Browse Apps</Link>
         </Button>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
@@ -64,10 +83,14 @@ export function InstalledApps({ className }: InstalledAppsProps) {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Apps</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Active Apps
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{activeApps.length}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {activeApps.length}
+            </div>
           </CardContent>
         </Card>
 
@@ -81,7 +104,9 @@ export function InstalledApps({ className }: InstalledAppsProps) {
             <CardContent>
               <div className="flex items-center gap-2">
                 <ArrowUpCircle className="h-5 w-5 text-yellow-600" />
-                <span className="text-2xl font-bold text-yellow-600">{appsWithUpdates.length}</span>
+                <span className="text-2xl font-bold text-yellow-600">
+                  {appsWithUpdates.length}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -108,7 +133,11 @@ export function InstalledApps({ className }: InstalledAppsProps) {
           </div>
           <div className="space-y-2">
             {appsWithUpdates.map((installation) => (
-              <InstalledAppRow key={installation.id} installation={installation} showUpdate />
+              <InstalledAppRow
+                key={installation.id}
+                installation={installation}
+                showUpdate
+              />
             ))}
           </div>
         </section>
@@ -120,7 +149,10 @@ export function InstalledApps({ className }: InstalledAppsProps) {
           <h2 className="font-semibold">Active Apps ({activeApps.length})</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {activeApps.map((installation) => (
-              <InstalledAppRow key={installation.id} installation={installation} />
+              <InstalledAppRow
+                key={installation.id}
+                installation={installation}
+              />
             ))}
           </div>
         </section>
@@ -137,7 +169,10 @@ export function InstalledApps({ className }: InstalledAppsProps) {
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {pausedApps.map((installation) => (
-              <InstalledAppRow key={installation.id} installation={installation} />
+              <InstalledAppRow
+                key={installation.id}
+                installation={installation}
+              />
             ))}
           </div>
         </section>
@@ -150,43 +185,49 @@ export function InstalledApps({ className }: InstalledAppsProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 interface InstalledAppRowProps {
-  installation: AppInstallation
-  showUpdate?: boolean
+  installation: AppInstallation;
+  showUpdate?: boolean;
 }
 
 function InstalledAppRow({ installation, showUpdate }: InstalledAppRowProps) {
-  const { app, status, installedVersion, installedAt } = installation
-  const hasUpdate = installedVersion !== app.currentVersion
+  const { app, status, installedVersion, installedAt } = installation;
+  const hasUpdate = installedVersion !== app.currentVersion;
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
-    <Card className={cn(status === 'paused' && 'opacity-60')}>
+    <Card className={cn(status === "paused" && "opacity-60")}>
       <CardContent className="p-4">
         <div className="flex items-center gap-4">
           <AppIcon icon={app.icon} name={app.name} size="md" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <Link href={`/apps/${app.slug}`} className="truncate font-medium hover:underline">
+              <Link
+                href={`/apps/${app.slug}`}
+                className="truncate font-medium hover:underline"
+              >
                 {app.name}
               </Link>
-              {status === 'paused' && (
+              {status === "paused" && (
                 <Badge variant="secondary" className="text-xs">
                   Paused
                 </Badge>
               )}
               {hasUpdate && showUpdate && (
-                <Badge variant="outline" className="border-yellow-200 text-xs text-yellow-600">
+                <Badge
+                  variant="outline"
+                  className="border-yellow-200 text-xs text-yellow-600"
+                >
                   Update available
                 </Badge>
               )}
@@ -212,5 +253,5 @@ function InstalledAppRow({ installation, showUpdate }: InstalledAppRowProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

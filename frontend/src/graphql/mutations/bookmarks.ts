@@ -4,7 +4,7 @@
  * Mutations for creating, updating, and deleting bookmarks, collections, and saved messages.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Bookmark Mutations
@@ -54,7 +54,7 @@ export const ADD_BOOKMARK = gql`
       }
     }
   }
-`
+`;
 
 export const REMOVE_BOOKMARK = gql`
   mutation RemoveBookmark($bookmarkId: uuid!) {
@@ -64,11 +64,13 @@ export const REMOVE_BOOKMARK = gql`
       user_id
     }
   }
-`
+`;
 
 export const REMOVE_BOOKMARK_BY_MESSAGE = gql`
   mutation RemoveBookmarkByMessage($userId: uuid!, $messageId: uuid!) {
-    delete_nchat_bookmarks(where: { user_id: { _eq: $userId }, message_id: { _eq: $messageId } }) {
+    delete_nchat_bookmarks(
+      where: { user_id: { _eq: $userId }, message_id: { _eq: $messageId } }
+    ) {
       affected_rows
       returning {
         id
@@ -76,10 +78,15 @@ export const REMOVE_BOOKMARK_BY_MESSAGE = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_BOOKMARK = gql`
-  mutation UpdateBookmark($bookmarkId: uuid!, $note: String, $tags: jsonb, $collectionIds: jsonb) {
+  mutation UpdateBookmark(
+    $bookmarkId: uuid!
+    $note: String
+    $tags: jsonb
+    $collectionIds: jsonb
+  ) {
     update_nchat_bookmarks_by_pk(
       pk_columns: { id: $bookmarkId }
       _set: { note: $note, tags: $tags, collection_ids: $collectionIds }
@@ -92,25 +99,31 @@ export const UPDATE_BOOKMARK = gql`
       bookmarked_at
     }
   }
-`
+`;
 
 export const ADD_BOOKMARK_TAG = gql`
   mutation AddBookmarkTag($bookmarkId: uuid!, $tag: String!) {
-    update_nchat_bookmarks_by_pk(pk_columns: { id: $bookmarkId }, _append: { tags: [$tag] }) {
+    update_nchat_bookmarks_by_pk(
+      pk_columns: { id: $bookmarkId }
+      _append: { tags: [$tag] }
+    ) {
       id
       tags
     }
   }
-`
+`;
 
 export const REMOVE_BOOKMARK_TAG = gql`
   mutation RemoveBookmarkTag($bookmarkId: uuid!, $tag: String!) {
-    update_nchat_bookmarks_by_pk(pk_columns: { id: $bookmarkId }, _delete_elem: { tags: $tag }) {
+    update_nchat_bookmarks_by_pk(
+      pk_columns: { id: $bookmarkId }
+      _delete_elem: { tags: $tag }
+    ) {
       id
       tags
     }
   }
-`
+`;
 
 export const ADD_TO_COLLECTION = gql`
   mutation AddToCollection($bookmarkId: uuid!, $collectionId: uuid!) {
@@ -122,7 +135,7 @@ export const ADD_TO_COLLECTION = gql`
       collection_ids
     }
   }
-`
+`;
 
 export const REMOVE_FROM_COLLECTION = gql`
   mutation RemoveFromCollection($bookmarkId: uuid!, $collectionId: uuid!) {
@@ -134,13 +147,16 @@ export const REMOVE_FROM_COLLECTION = gql`
       collection_ids
     }
   }
-`
+`;
 
 export const BATCH_ADD_BOOKMARKS = gql`
   mutation BatchAddBookmarks($bookmarks: [nchat_bookmarks_insert_input!]!) {
     insert_nchat_bookmarks(
       objects: $bookmarks
-      on_conflict: { constraint: bookmarks_message_id_user_id_key, update_columns: [bookmarked_at] }
+      on_conflict: {
+        constraint: bookmarks_message_id_user_id_key
+        update_columns: [bookmarked_at]
+      }
     ) {
       affected_rows
       returning {
@@ -150,7 +166,7 @@ export const BATCH_ADD_BOOKMARKS = gql`
       }
     }
   }
-`
+`;
 
 export const BATCH_REMOVE_BOOKMARKS = gql`
   mutation BatchRemoveBookmarks($bookmarkIds: [uuid!]!) {
@@ -158,7 +174,7 @@ export const BATCH_REMOVE_BOOKMARKS = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Bookmark Collection Mutations
@@ -202,7 +218,7 @@ export const CREATE_BOOKMARK_COLLECTION = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_BOOKMARK_COLLECTION = gql`
   mutation UpdateBookmarkCollection(
@@ -236,7 +252,7 @@ export const UPDATE_BOOKMARK_COLLECTION = gql`
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_BOOKMARK_COLLECTION = gql`
   mutation DeleteBookmarkCollection($collectionId: uuid!) {
@@ -245,15 +261,17 @@ export const DELETE_BOOKMARK_COLLECTION = gql`
       name
     }
   }
-`
+`;
 
 export const REORDER_BOOKMARK_COLLECTIONS = gql`
-  mutation ReorderBookmarkCollections($updates: [nchat_bookmark_collections_updates!]!) {
+  mutation ReorderBookmarkCollections(
+    $updates: [nchat_bookmark_collections_updates!]!
+  ) {
     update_nchat_bookmark_collections_many(updates: $updates) {
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Saved Messages Mutations
@@ -304,7 +322,7 @@ export const SAVE_MESSAGE = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_SAVED_MESSAGE = gql`
   mutation UpdateSavedMessage(
@@ -324,7 +342,7 @@ export const UPDATE_SAVED_MESSAGE = gql`
       saved_at
     }
   }
-`
+`;
 
 export const DELETE_SAVED_MESSAGE = gql`
   mutation DeleteSavedMessage($savedMessageId: uuid!) {
@@ -333,7 +351,7 @@ export const DELETE_SAVED_MESSAGE = gql`
       user_id
     }
   }
-`
+`;
 
 export const BATCH_DELETE_SAVED_MESSAGES = gql`
   mutation BatchDeleteSavedMessages($savedMessageIds: [uuid!]!) {
@@ -341,74 +359,74 @@ export const BATCH_DELETE_SAVED_MESSAGES = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Input Types (TypeScript)
 // ============================================================================
 
 export interface AddBookmarkInput {
-  messageId: string
-  userId: string
-  note?: string
-  tags?: string[]
-  collectionIds?: string[]
+  messageId: string;
+  userId: string;
+  note?: string;
+  tags?: string[];
+  collectionIds?: string[];
 }
 
 export interface UpdateBookmarkInput {
-  bookmarkId: string
-  note?: string
-  tags?: string[]
-  collectionIds?: string[]
+  bookmarkId: string;
+  note?: string;
+  tags?: string[];
+  collectionIds?: string[];
 }
 
 export interface RemoveBookmarkInput {
-  bookmarkId: string
+  bookmarkId: string;
 }
 
 export interface CreateBookmarkCollectionInput {
-  userId: string
-  name: string
-  description?: string
-  icon?: string
-  color?: string
-  isPrivate?: boolean
-  sortOrder?: number
+  userId: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  isPrivate?: boolean;
+  sortOrder?: number;
 }
 
 export interface UpdateBookmarkCollectionInput {
-  collectionId: string
-  name?: string
-  description?: string
-  icon?: string
-  color?: string
-  isPrivate?: boolean
-  sortOrder?: number
+  collectionId: string;
+  name?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  isPrivate?: boolean;
+  sortOrder?: number;
 }
 
 export interface SaveMessageInput {
-  userId: string
-  content: string
-  originalMessageId?: string
-  sourceChannelId?: string
-  note?: string
-  tags?: string[]
-  attachments?: unknown[]
+  userId: string;
+  content: string;
+  originalMessageId?: string;
+  sourceChannelId?: string;
+  note?: string;
+  tags?: string[];
+  attachments?: unknown[];
 }
 
 export interface UpdateSavedMessageInput {
-  savedMessageId: string
-  content?: string
-  note?: string
-  tags?: string[]
+  savedMessageId: string;
+  content?: string;
+  note?: string;
+  tags?: string[];
 }
 
 export interface BatchAddBookmarksInput {
   bookmarks: Array<{
-    messageId: string
-    userId: string
-    note?: string
-    tags?: string[]
-    collectionIds?: string[]
-  }>
+    messageId: string;
+    userId: string;
+    note?: string;
+    tags?: string[];
+    collectionIds?: string[];
+  }>;
 }

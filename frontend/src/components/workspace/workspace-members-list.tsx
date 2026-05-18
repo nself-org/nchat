@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Workspace Members List Component
@@ -11,7 +11,7 @@
  * - Invite management
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Search,
   MoreHorizontal,
@@ -24,13 +24,13 @@ import {
   Copy,
   Link2,
   RefreshCw,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,14 +41,14 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -56,26 +56,26 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import {
   useWorkspaceMembers,
   useMemberManagement,
   type WorkspaceMember,
-} from '@/hooks/use-workspace'
+} from "@/hooks/use-workspace";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 interface WorkspaceMembersListProps {
-  workspaceId: string
-  currentUserId: string
-  currentUserRole: string
-  className?: string
+  workspaceId: string;
+  currentUserId: string;
+  currentUserRole: string;
+  className?: string;
 }
 
-type MemberRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+type MemberRole = "owner" | "admin" | "moderator" | "member" | "guest";
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -83,29 +83,29 @@ type MemberRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
 
 function getRoleIcon(role: string) {
   switch (role) {
-    case 'owner':
-      return <ShieldAlert className="h-4 w-4 text-yellow-500" />
-    case 'admin':
-      return <ShieldCheck className="h-4 w-4 text-blue-500" />
-    case 'moderator':
-      return <Shield className="h-4 w-4 text-green-500" />
+    case "owner":
+      return <ShieldAlert className="h-4 w-4 text-yellow-500" />;
+    case "admin":
+      return <ShieldCheck className="h-4 w-4 text-blue-500" />;
+    case "moderator":
+      return <Shield className="h-4 w-4 text-green-500" />;
     default:
-      return <User className="h-4 w-4 text-muted-foreground" />
+      return <User className="h-4 w-4 text-muted-foreground" />;
   }
 }
 
 function getRoleBadgeVariant(
-  role: string
-): 'default' | 'secondary' | 'destructive' | 'outline' {
+  role: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (role) {
-    case 'owner':
-      return 'default'
-    case 'admin':
-      return 'secondary'
-    case 'moderator':
-      return 'outline'
+    case "owner":
+      return "default";
+    case "admin":
+      return "secondary";
+    case "moderator":
+      return "outline";
     default:
-      return 'outline'
+      return "outline";
   }
 }
 
@@ -116,20 +116,20 @@ function canManageRole(currentRole: string, targetRole: string): boolean {
     moderator: 2,
     member: 1,
     guest: 0,
-  }
-  return hierarchy[currentRole] > hierarchy[targetRole]
+  };
+  return hierarchy[currentRole] > hierarchy[targetRole];
 }
 
 function getAvailableRoles(
-  currentRole: string
-): Array<'admin' | 'moderator' | 'member' | 'guest'> {
-  if (currentRole === 'owner') {
-    return ['admin', 'moderator', 'member', 'guest']
+  currentRole: string,
+): Array<"admin" | "moderator" | "member" | "guest"> {
+  if (currentRole === "owner") {
+    return ["admin", "moderator", "member", "guest"];
   }
-  if (currentRole === 'admin') {
-    return ['moderator', 'member', 'guest']
+  if (currentRole === "admin") {
+    return ["moderator", "member", "guest"];
   }
-  return []
+  return [];
 }
 
 // ============================================================================
@@ -137,15 +137,15 @@ function getAvailableRoles(
 // ============================================================================
 
 interface MemberItemProps {
-  member: WorkspaceMember
-  currentUserId: string
-  currentUserRole: string
+  member: WorkspaceMember;
+  currentUserId: string;
+  currentUserRole: string;
   onUpdateRole: (
     userId: string,
-    role: 'admin' | 'moderator' | 'member' | 'guest'
-  ) => Promise<void>
-  onRemove: (userId: string) => Promise<void>
-  onDeactivate: (userId: string) => Promise<void>
+    role: "admin" | "moderator" | "member" | "guest",
+  ) => Promise<void>;
+  onRemove: (userId: string) => Promise<void>;
+  onDeactivate: (userId: string) => Promise<void>;
 }
 
 function MemberItem({
@@ -156,25 +156,29 @@ function MemberItem({
   onRemove,
   onDeactivate,
 }: MemberItemProps) {
-  const isCurrentUser = member.userId === currentUserId
-  const canManage = canManageRole(currentUserRole, member.role) && !isCurrentUser
-  const availableRoles = getAvailableRoles(currentUserRole)
+  const isCurrentUser = member.userId === currentUserId;
+  const canManage =
+    canManageRole(currentUserRole, member.role) && !isCurrentUser;
+  const availableRoles = getAvailableRoles(currentUserRole);
 
   return (
     <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 group">
       <Avatar className="h-10 w-10">
         {member.user?.avatarUrl ? (
-          <AvatarImage src={member.user.avatarUrl} alt={member.user.displayName} />
+          <AvatarImage
+            src={member.user.avatarUrl}
+            alt={member.user.displayName}
+          />
         ) : null}
         <AvatarFallback>
-          {member.user?.displayName?.slice(0, 2).toUpperCase() || 'U'}
+          {member.user?.displayName?.slice(0, 2).toUpperCase() || "U"}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-medium truncate">
-            {member.nickname || member.user?.displayName || 'Unknown User'}
+            {member.nickname || member.user?.displayName || "Unknown User"}
           </span>
           {isCurrentUser && (
             <Badge variant="outline" className="h-4 text-[10px]">
@@ -183,7 +187,7 @@ function MemberItem({
           )}
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>@{member.user?.username || 'unknown'}</span>
+          <span>@{member.user?.username || "unknown"}</span>
           {member.user?.email && (
             <>
               <span className="text-muted-foreground/50">·</span>
@@ -254,7 +258,7 @@ function MemberItem({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -262,9 +266,9 @@ function MemberItem({
 // ============================================================================
 
 interface InviteLinkDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  workspaceId: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  workspaceId: string;
 }
 
 function InviteLinkDialog({
@@ -272,33 +276,40 @@ function InviteLinkDialog({
   onOpenChange,
   workspaceId,
 }: InviteLinkDialogProps) {
-  const { toast } = useToast()
-  const { createInvite, isProcessing } = useMemberManagement(workspaceId)
-  const [inviteUrl, setInviteUrl] = React.useState<string | null>(null)
-  const [expiresIn, setExpiresIn] = React.useState<string>('7d')
+  const { toast } = useToast();
+  const { createInvite, isProcessing } = useMemberManagement(workspaceId);
+  const [inviteUrl, setInviteUrl] = React.useState<string | null>(null);
+  const [expiresIn, setExpiresIn] = React.useState<string>("7d");
 
   const handleCreateInvite = async () => {
     const result = await createInvite({
-      expiresIn: expiresIn as '30m' | '1h' | '6h' | '12h' | '1d' | '7d' | 'never',
-    })
+      expiresIn: expiresIn as
+        | "30m"
+        | "1h"
+        | "6h"
+        | "12h"
+        | "1d"
+        | "7d"
+        | "never",
+    });
     if (result) {
-      setInviteUrl(result.url)
+      setInviteUrl(result.url);
     }
-  }
+  };
 
   const handleCopyLink = () => {
     if (inviteUrl) {
-      navigator.clipboard.writeText(inviteUrl)
+      navigator.clipboard.writeText(inviteUrl);
       toast({
-        title: 'Link copied',
-        description: 'Invite link has been copied to clipboard.',
-      })
+        title: "Link copied",
+        description: "Invite link has been copied to clipboard.",
+      });
     }
-  }
+  };
 
   const handleReset = () => {
-    setInviteUrl(null)
-  }
+    setInviteUrl(null);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -360,13 +371,13 @@ function InviteLinkDialog({
             </>
           ) : (
             <Button onClick={handleCreateInvite} disabled={isProcessing}>
-              {isProcessing ? 'Creating...' : 'Create Invite Link'}
+              {isProcessing ? "Creating..." : "Create Invite Link"}
             </Button>
           )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -379,34 +390,33 @@ export function WorkspaceMembersList({
   currentUserRole,
   className,
 }: WorkspaceMembersListProps) {
-  const [searchQuery, setSearchQuery] = React.useState('')
-  const [roleFilter, setRoleFilter] = React.useState<string>('all')
-  const [showInviteDialog, setShowInviteDialog] = React.useState(false)
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [roleFilter, setRoleFilter] = React.useState<string>("all");
+  const [showInviteDialog, setShowInviteDialog] = React.useState(false);
 
-  const { members, loading, error, refetch } = useWorkspaceMembers(workspaceId, {
-    role: roleFilter === 'all' ? undefined : roleFilter,
-    limit: 100,
-  })
+  const { members, loading, error, refetch } = useWorkspaceMembers(
+    workspaceId,
+    {
+      role: roleFilter === "all" ? undefined : roleFilter,
+      limit: 100,
+    },
+  );
 
-  const {
-    updateMemberRole,
-    removeMember,
-    deactivateMember,
-    isProcessing,
-  } = useMemberManagement(workspaceId)
+  const { updateMemberRole, removeMember, deactivateMember, isProcessing } =
+    useMemberManagement(workspaceId);
 
   // Filter members by search query
   const filteredMembers = React.useMemo(() => {
-    if (!searchQuery.trim()) return members
-    const query = searchQuery.toLowerCase()
+    if (!searchQuery.trim()) return members;
+    const query = searchQuery.toLowerCase();
     return members.filter(
       (m) =>
         m.user?.displayName?.toLowerCase().includes(query) ||
         m.user?.username?.toLowerCase().includes(query) ||
         m.user?.email?.toLowerCase().includes(query) ||
-        m.nickname?.toLowerCase().includes(query)
-    )
-  }, [members, searchQuery])
+        m.nickname?.toLowerCase().includes(query),
+    );
+  }, [members, searchQuery]);
 
   // Group members by role
   const groupedMembers = React.useMemo(() => {
@@ -416,63 +426,61 @@ export function WorkspaceMembersList({
       moderator: [],
       member: [],
       guest: [],
-    }
+    };
     filteredMembers.forEach((member) => {
       if (groups[member.role]) {
-        groups[member.role].push(member)
+        groups[member.role].push(member);
       } else {
-        groups.member.push(member)
+        groups.member.push(member);
       }
-    })
-    return groups
-  }, [filteredMembers])
+    });
+    return groups;
+  }, [filteredMembers]);
 
   const handleUpdateRole = async (
     userId: string,
-    role: 'admin' | 'moderator' | 'member' | 'guest'
+    role: "admin" | "moderator" | "member" | "guest",
   ) => {
-    await updateMemberRole(userId, role)
-    refetch()
-  }
+    await updateMemberRole(userId, role);
+    refetch();
+  };
 
   const handleRemove = async (userId: string) => {
     const confirmed = window.confirm(
-      'Are you sure you want to remove this member from the workspace?'
-    )
+      "Are you sure you want to remove this member from the workspace?",
+    );
     if (confirmed) {
-      await removeMember(userId)
-      refetch()
+      await removeMember(userId);
+      refetch();
     }
-  }
+  };
 
   const handleDeactivate = async (userId: string) => {
     const confirmed = window.confirm(
-      'Are you sure you want to deactivate this member? They will be removed but can rejoin later.'
-    )
+      "Are you sure you want to deactivate this member? They will be removed but can rejoin later.",
+    );
     if (confirmed) {
-      await deactivateMember(userId)
-      refetch()
+      await deactivateMember(userId);
+      refetch();
     }
-  }
+  };
 
-  const canInvite = ['owner', 'admin', 'moderator'].includes(currentUserRole)
+  const canInvite = ["owner", "admin", "moderator"].includes(currentUserRole);
 
   if (error) {
     return (
       <div className="p-4 text-center text-destructive">
         Failed to load members. Please try again.
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div className={cn("flex flex-col h-full", className)}>
       {/* Header */}
       <div className="p-4 border-b space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">
-            Members ({members.length})
-          </h2>
+          <h2 className="text-lg font-semibold">Members ({members.length})</h2>
           {canInvite && (
             <Button size="sm" onClick={() => setShowInviteDialog(true)}>
               <UserPlus className="mr-2 h-4 w-4" />
@@ -527,8 +535,8 @@ export function WorkspaceMembersList({
         ) : filteredMembers.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
             {searchQuery
-              ? 'No members found matching your search.'
-              : 'No members in this workspace.'}
+              ? "No members found matching your search."
+              : "No members in this workspace."}
           </div>
         ) : (
           <div className="p-4 space-y-6">
@@ -555,7 +563,7 @@ export function WorkspaceMembersList({
                       ))}
                     </div>
                   </div>
-                )
+                ),
             )}
           </div>
         )}
@@ -568,7 +576,7 @@ export function WorkspaceMembersList({
         workspaceId={workspaceId}
       />
     </div>
-  )
+  );
 }
 
-export default WorkspaceMembersList
+export default WorkspaceMembersList;

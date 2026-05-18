@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Embedding Monitor Component
@@ -8,4 +8,4 @@
 export {
   EmbeddingsDashboard as default,
   EmbeddingsDashboard as EmbeddingMonitor,
-} from './EmbeddingsDashboard'
+} from "./EmbeddingsDashboard";

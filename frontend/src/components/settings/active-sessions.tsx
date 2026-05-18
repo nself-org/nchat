@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useEffect, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,11 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { useSecurity, type Session } from '@/lib/security/use-security'
-import { formatLocation, formatSessionTime, getDeviceIcon } from '@/lib/security/session-store'
-import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/alert-dialog";
+import { useSecurity, type Session } from "@/lib/security/use-security";
+import {
+  formatLocation,
+  formatSessionTime,
+  getDeviceIcon,
+} from "@/lib/security/session-store";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
 import {
   Monitor,
   Smartphone,
@@ -32,10 +36,10 @@ import {
   Shield,
   Globe,
   CheckCircle2,
-} from 'lucide-react'
+} from "lucide-react";
 
 export function ActiveSessions() {
-  const { isDevMode } = useAuth()
+  const { isDevMode } = useAuth();
   const {
     sessions,
     currentSession,
@@ -45,85 +49,89 @@ export function ActiveSessions() {
     isRevoking,
     revokeError,
     refetchSessions,
-  } = useSecurity()
+  } = useSecurity();
 
   // Refresh sessions on mount
   useEffect(() => {
-    refetchSessions()
-  }, [refetchSessions])
+    refetchSessions();
+  }, [refetchSessions]);
 
   // Handle single session revoke
   const handleRevokeSession = useCallback(
     async (sessionId: string) => {
-      await revokeSession(sessionId)
+      await revokeSession(sessionId);
     },
-    [revokeSession]
-  )
+    [revokeSession],
+  );
 
   // Handle revoke all other sessions
   const handleRevokeAllOthers = useCallback(async () => {
-    await revokeAllOtherSessions()
-  }, [revokeAllOtherSessions])
+    await revokeAllOtherSessions();
+  }, [revokeAllOtherSessions]);
 
   // Get device icon component
   const getDeviceIconComponent = (device: string) => {
     switch (device.toLowerCase()) {
-      case 'mobile':
-        return Smartphone
-      case 'tablet':
-        return Tablet
+      case "mobile":
+        return Smartphone;
+      case "tablet":
+        return Tablet;
       default:
-        return Monitor
+        return Monitor;
     }
-  }
+  };
 
   // Demo sessions for development mode
   const demoSessions: Session[] = [
     {
-      id: 'current-session',
-      userId: 'user-1',
-      device: 'Desktop',
-      browser: 'Chrome',
-      os: 'macOS',
-      ipAddress: '192.168.1.100',
-      location: { city: 'New York', country: 'United States' },
+      id: "current-session",
+      userId: "user-1",
+      device: "Desktop",
+      browser: "Chrome",
+      os: "macOS",
+      ipAddress: "192.168.1.100",
+      location: { city: "New York", country: "United States" },
       isCurrent: true,
       createdAt: new Date().toISOString(),
       lastActiveAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
-      id: 'session-2',
-      userId: 'user-1',
-      device: 'Mobile',
-      browser: 'Safari',
-      os: 'iOS',
-      ipAddress: '192.168.1.101',
-      location: { city: 'New York', country: 'United States' },
+      id: "session-2",
+      userId: "user-1",
+      device: "Mobile",
+      browser: "Safari",
+      os: "iOS",
+      ipAddress: "192.168.1.101",
+      location: { city: "New York", country: "United States" },
       isCurrent: false,
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
       lastActiveAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
       expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
-      id: 'session-3',
-      userId: 'user-1',
-      device: 'Tablet',
-      browser: 'Firefox',
-      os: 'Android',
-      ipAddress: '192.168.1.102',
-      location: { city: 'Los Angeles', country: 'United States' },
+      id: "session-3",
+      userId: "user-1",
+      device: "Tablet",
+      browser: "Firefox",
+      os: "Android",
+      ipAddress: "192.168.1.102",
+      location: { city: "Los Angeles", country: "United States" },
       isCurrent: false,
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      lastActiveAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      lastActiveAt: new Date(
+        Date.now() - 3 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
       expiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     },
-  ]
+  ];
 
   // Use demo sessions in dev mode if no real sessions
-  const displaySessions = isDevMode && sessions.length === 0 ? demoSessions : sessions
-  const displayCurrentSession = isDevMode && !currentSession ? demoSessions[0] : currentSession
-  const otherSessions = displaySessions.filter((s: Session) => !s.isCurrent)
+  const displaySessions =
+    isDevMode && sessions.length === 0 ? demoSessions : sessions;
+  const displayCurrentSession =
+    isDevMode && !currentSession ? demoSessions[0] : currentSession;
+  const otherSessions = displaySessions.filter((s: Session) => !s.isCurrent);
 
   // Loading state
   if (loadingSessions && !isDevMode) {
@@ -133,7 +141,7 @@ export function ActiveSessions() {
         <SessionSkeleton />
         <SessionSkeleton />
       </div>
-    )
+    );
   }
 
   return (
@@ -143,7 +151,8 @@ export function ActiveSessions() {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            In development mode, sessions are simulated. Actions will not persist.
+            In development mode, sessions are simulated. Actions will not
+            persist.
           </AlertDescription>
         </Alert>
       )}
@@ -159,7 +168,9 @@ export function ActiveSessions() {
       {/* Current Session */}
       {displayCurrentSession && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-muted-foreground">Current Session</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">
+            Current Session
+          </h3>
           <SessionCard session={displayCurrentSession} isCurrent />
         </div>
       )}
@@ -180,10 +191,12 @@ export function ActiveSessions() {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Sign out all other sessions?</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    Sign out all other sessions?
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will sign you out of all devices except this one. You will need to sign in
-                    again on those devices.
+                    This will sign you out of all devices except this one. You
+                    will need to sign in again on those devices.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -192,7 +205,9 @@ export function ActiveSessions() {
                     onClick={handleRevokeAllOthers}
                     className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
                   >
-                    {isRevoking ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    {isRevoking ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
                     Sign Out All
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -222,7 +237,7 @@ export function ActiveSessions() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -230,31 +245,44 @@ export function ActiveSessions() {
 // ============================================================================
 
 interface SessionCardProps {
-  session: Session
-  isCurrent?: boolean
-  onRevoke?: () => void
-  isRevoking?: boolean
+  session: Session;
+  isCurrent?: boolean;
+  onRevoke?: () => void;
+  isRevoking?: boolean;
 }
 
-function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardProps) {
+function SessionCard({
+  session,
+  isCurrent,
+  onRevoke,
+  isRevoking,
+}: SessionCardProps) {
   const DeviceIcon =
-    session.device.toLowerCase() === 'mobile'
+    session.device.toLowerCase() === "mobile"
       ? Smartphone
-      : session.device.toLowerCase() === 'tablet'
+      : session.device.toLowerCase() === "tablet"
         ? Tablet
-        : Monitor
+        : Monitor;
 
   return (
     <div
       className={cn(
-        'flex items-start gap-4 rounded-lg border p-4',
-        isCurrent && 'bg-primary/5 border-primary/20'
+        "flex items-start gap-4 rounded-lg border p-4",
+        isCurrent && "bg-primary/5 border-primary/20",
       )}
     >
       {/* Device Icon */}
-      <div className={cn('rounded-full p-2', isCurrent ? 'bg-primary/10' : 'bg-muted')}>
+      <div
+        className={cn(
+          "rounded-full p-2",
+          isCurrent ? "bg-primary/10" : "bg-muted",
+        )}
+      >
         <DeviceIcon
-          className={cn('h-5 w-5', isCurrent ? 'text-primary' : 'text-muted-foreground')}
+          className={cn(
+            "h-5 w-5",
+            isCurrent ? "text-primary" : "text-muted-foreground",
+          )}
         />
       </div>
 
@@ -288,7 +316,9 @@ function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardPr
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {isCurrent ? 'Active now' : `Last active ${formatSessionTime(session.lastActiveAt)}`}
+            {isCurrent
+              ? "Active now"
+              : `Last active ${formatSessionTime(session.lastActiveAt)}`}
           </div>
         </div>
       </div>
@@ -310,8 +340,8 @@ function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardPr
             <AlertDialogHeader>
               <AlertDialogTitle>Sign out this session?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will sign you out of {session.browser} on {session.os}. You will need to sign
-                in again on that device.
+                This will sign you out of {session.browser} on {session.os}. You
+                will need to sign in again on that device.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -327,7 +357,7 @@ function SessionCard({ session, isCurrent, onRevoke, isRevoking }: SessionCardPr
         </AlertDialog>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -338,8 +368,8 @@ function SessionSkeleton({ isCurrent }: { isCurrent?: boolean }) {
   return (
     <div
       className={cn(
-        'flex items-start gap-4 rounded-lg border p-4',
-        isCurrent && 'bg-primary/5 border-primary/20'
+        "flex items-start gap-4 rounded-lg border p-4",
+        isCurrent && "bg-primary/5 border-primary/20",
       )}
     >
       <Skeleton className="h-9 w-9 rounded-full" />
@@ -349,5 +379,5 @@ function SessionSkeleton({ isCurrent }: { isCurrent?: boolean }) {
         <Skeleton className="h-4 w-32" />
       </div>
     </div>
-  )
+  );
 }

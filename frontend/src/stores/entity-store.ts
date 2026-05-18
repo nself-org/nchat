@@ -11,9 +11,9 @@
  * @module stores/entity-store
  */
 
-import { create } from 'zustand'
-import { devtools, subscribeWithSelector, persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, subscribeWithSelector, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 import type {
   ChatEntity,
@@ -26,7 +26,7 @@ import type {
   EntityMember,
   EntityStatus,
   LastMessagePreview,
-} from '@/types/entities'
+} from "@/types/entities";
 
 import {
   isDirectMessage,
@@ -34,31 +34,36 @@ import {
   isSupergroup,
   isCommunity,
   isChannel,
-} from '@/lib/entities'
+} from "@/lib/entities";
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
 export interface EntityFilter {
-  types?: ChatEntityType[]
-  status?: EntityStatus[]
-  search?: string
-  visibility?: ('private' | 'public' | 'discoverable')[]
-  hasUnread?: boolean
-  isPinned?: boolean
-  isMuted?: boolean
+  types?: ChatEntityType[];
+  status?: EntityStatus[];
+  search?: string;
+  visibility?: ("private" | "public" | "discoverable")[];
+  hasUnread?: boolean;
+  isPinned?: boolean;
+  isMuted?: boolean;
 }
 
-export type EntitySortBy = 'recent' | 'name' | 'unread' | 'memberCount' | 'created'
-export type SortOrder = 'asc' | 'desc'
+export type EntitySortBy =
+  | "recent"
+  | "name"
+  | "unread"
+  | "memberCount"
+  | "created";
+export type SortOrder = "asc" | "desc";
 
 export interface EntityListOptions {
-  filter?: EntityFilter
-  sortBy?: EntitySortBy
-  sortOrder?: SortOrder
-  limit?: number
-  offset?: number
+  filter?: EntityFilter;
+  sortBy?: EntitySortBy;
+  sortOrder?: SortOrder;
+  limit?: number;
+  offset?: number;
 }
 
 // =============================================================================
@@ -67,41 +72,41 @@ export interface EntityListOptions {
 
 export interface EntityState {
   // Entity data by type for efficient lookups
-  entities: Map<string, ChatEntity>
-  entitiesBySlug: Map<string, string> // slug -> id
+  entities: Map<string, ChatEntity>;
+  entitiesBySlug: Map<string, string>; // slug -> id
 
   // Categorized entity IDs for quick access
-  dmIds: Set<string>
-  groupIds: Set<string>
-  supergroupIds: Set<string>
-  communityIds: Set<string>
-  channelIds: Set<string>
+  dmIds: Set<string>;
+  groupIds: Set<string>;
+  supergroupIds: Set<string>;
+  communityIds: Set<string>;
+  channelIds: Set<string>;
 
   // Active entity
-  activeEntityId: string | null
-  previousEntityId: string | null
+  activeEntityId: string | null;
+  previousEntityId: string | null;
 
   // User preferences
-  mutedEntityIds: Set<string>
-  pinnedEntityIds: Set<string>
-  archivedEntityIds: Set<string>
-  hiddenEntityIds: Set<string>
+  mutedEntityIds: Set<string>;
+  pinnedEntityIds: Set<string>;
+  archivedEntityIds: Set<string>;
+  hiddenEntityIds: Set<string>;
 
   // Unread tracking
-  unreadCounts: Record<string, number>
-  totalUnreadCount: number
+  unreadCounts: Record<string, number>;
+  totalUnreadCount: number;
 
   // Recent entities (for quick access)
-  recentEntityIds: string[]
+  recentEntityIds: string[];
 
   // Loading states
-  isLoading: boolean
-  loadingEntityId: string | null
-  error: string | null
+  isLoading: boolean;
+  loadingEntityId: string | null;
+  error: string | null;
 
   // Pagination
-  hasMore: boolean
-  cursor: string | null
+  hasMore: boolean;
+  cursor: string | null;
 }
 
 // =============================================================================
@@ -110,75 +115,75 @@ export interface EntityState {
 
 export interface EntityActions {
   // CRUD
-  setEntities: (entities: ChatEntity[]) => void
-  addEntity: (entity: ChatEntity) => void
-  updateEntity: (entityId: string, updates: Partial<ChatEntity>) => void
-  removeEntity: (entityId: string) => void
-  getEntityById: (entityId: string) => ChatEntity | undefined
-  getEntityBySlug: (slug: string) => ChatEntity | undefined
+  setEntities: (entities: ChatEntity[]) => void;
+  addEntity: (entity: ChatEntity) => void;
+  updateEntity: (entityId: string, updates: Partial<ChatEntity>) => void;
+  removeEntity: (entityId: string) => void;
+  getEntityById: (entityId: string) => ChatEntity | undefined;
+  getEntityBySlug: (slug: string) => ChatEntity | undefined;
 
   // Active entity
-  setActiveEntity: (entityId: string | null) => void
-  goToPreviousEntity: () => void
+  setActiveEntity: (entityId: string | null) => void;
+  goToPreviousEntity: () => void;
 
   // Filtering and selection
-  getEntitiesByType: (type: ChatEntityType) => ChatEntity[]
-  getFilteredEntities: (options: EntityListOptions) => ChatEntity[]
-  getAllDMs: () => DirectMessageEntity[]
-  getAllGroups: () => GroupEntity[]
-  getAllSupergroups: () => SupergroupEntity[]
-  getAllCommunities: () => CommunityEntity[]
-  getAllChannels: () => ChannelEntity[]
+  getEntitiesByType: (type: ChatEntityType) => ChatEntity[];
+  getFilteredEntities: (options: EntityListOptions) => ChatEntity[];
+  getAllDMs: () => DirectMessageEntity[];
+  getAllGroups: () => GroupEntity[];
+  getAllSupergroups: () => SupergroupEntity[];
+  getAllCommunities: () => CommunityEntity[];
+  getAllChannels: () => ChannelEntity[];
 
   // User preferences
-  toggleMute: (entityId: string) => void
-  setMuted: (entityId: string, muted: boolean) => void
-  togglePin: (entityId: string) => void
-  setPin: (entityId: string, pinned: boolean) => void
-  archiveEntity: (entityId: string) => void
-  unarchiveEntity: (entityId: string) => void
-  hideEntity: (entityId: string) => void
-  unhideEntity: (entityId: string) => void
+  toggleMute: (entityId: string) => void;
+  setMuted: (entityId: string, muted: boolean) => void;
+  togglePin: (entityId: string) => void;
+  setPin: (entityId: string, pinned: boolean) => void;
+  archiveEntity: (entityId: string) => void;
+  unarchiveEntity: (entityId: string) => void;
+  hideEntity: (entityId: string) => void;
+  unhideEntity: (entityId: string) => void;
 
   // Unread tracking
-  setUnreadCount: (entityId: string, count: number) => void
-  incrementUnread: (entityId: string) => void
-  markAsRead: (entityId: string) => void
-  markAllAsRead: () => void
-  recalculateTotalUnread: () => void
+  setUnreadCount: (entityId: string, count: number) => void;
+  incrementUnread: (entityId: string) => void;
+  markAsRead: (entityId: string) => void;
+  markAllAsRead: () => void;
+  recalculateTotalUnread: () => void;
 
   // Recent entities
-  addToRecent: (entityId: string) => void
-  clearRecent: () => void
+  addToRecent: (entityId: string) => void;
+  clearRecent: () => void;
 
   // Last message updates
-  updateLastMessage: (entityId: string, message: LastMessagePreview) => void
+  updateLastMessage: (entityId: string, message: LastMessagePreview) => void;
 
   // Loading states
-  setLoading: (loading: boolean) => void
-  setLoadingEntity: (entityId: string | null) => void
-  setError: (error: string | null) => void
+  setLoading: (loading: boolean) => void;
+  setLoadingEntity: (entityId: string | null) => void;
+  setError: (error: string | null) => void;
 
   // Pagination
-  setHasMore: (hasMore: boolean) => void
-  setCursor: (cursor: string | null) => void
+  setHasMore: (hasMore: boolean) => void;
+  setCursor: (cursor: string | null) => void;
 
   // Bulk operations
-  muteMultiple: (entityIds: string[]) => void
-  archiveMultiple: (entityIds: string[]) => void
-  deleteMultiple: (entityIds: string[]) => void
+  muteMultiple: (entityIds: string[]) => void;
+  archiveMultiple: (entityIds: string[]) => void;
+  deleteMultiple: (entityIds: string[]) => void;
 
   // Reset
-  resetStore: () => void
+  resetStore: () => void;
 }
 
-export type EntityStore = EntityState & EntityActions
+export type EntityStore = EntityState & EntityActions;
 
 // =============================================================================
 // INITIAL STATE
 // =============================================================================
 
-const MAX_RECENT_ENTITIES = 20
+const MAX_RECENT_ENTITIES = 20;
 
 const initialState: EntityState = {
   entities: new Map(),
@@ -202,7 +207,7 @@ const initialState: EntityState = {
   error: null,
   hasMore: false,
   cursor: null,
-}
+};
 
 // =============================================================================
 // STORE
@@ -222,88 +227,94 @@ export const useEntityStore = create<EntityStore>()(
           setEntities: (entities) =>
             set(
               (state) => {
-                state.entities = new Map()
-                state.entitiesBySlug = new Map()
-                state.dmIds = new Set()
-                state.groupIds = new Set()
-                state.supergroupIds = new Set()
-                state.communityIds = new Set()
-                state.channelIds = new Set()
+                state.entities = new Map();
+                state.entitiesBySlug = new Map();
+                state.dmIds = new Set();
+                state.groupIds = new Set();
+                state.supergroupIds = new Set();
+                state.communityIds = new Set();
+                state.channelIds = new Set();
 
                 entities.forEach((entity) => {
-                  state.entities.set(entity.id, entity)
-                  state.entitiesBySlug.set(entity.slug, entity.id)
-                  addToTypeSet(state, entity)
-                })
+                  state.entities.set(entity.id, entity);
+                  state.entitiesBySlug.set(entity.slug, entity.id);
+                  addToTypeSet(state, entity);
+                });
               },
               false,
-              'entity/setEntities'
+              "entity/setEntities",
             ),
 
           addEntity: (entity) =>
             set(
               (state) => {
-                state.entities.set(entity.id, entity)
-                state.entitiesBySlug.set(entity.slug, entity.id)
-                addToTypeSet(state, entity)
+                state.entities.set(entity.id, entity);
+                state.entitiesBySlug.set(entity.slug, entity.id);
+                addToTypeSet(state, entity);
               },
               false,
-              'entity/addEntity'
+              "entity/addEntity",
             ),
 
           updateEntity: (entityId, updates) =>
             set(
               (state) => {
-                const entity = state.entities.get(entityId)
+                const entity = state.entities.get(entityId);
                 if (entity) {
-                  const oldSlug = entity.slug
-                  const updated = { ...entity, ...updates, updatedAt: new Date().toISOString() }
-                  state.entities.set(entityId, updated as ChatEntity)
+                  const oldSlug = entity.slug;
+                  const updated = {
+                    ...entity,
+                    ...updates,
+                    updatedAt: new Date().toISOString(),
+                  };
+                  state.entities.set(entityId, updated as ChatEntity);
 
                   // Update slug mapping if changed
                   if (updates.slug && updates.slug !== oldSlug) {
-                    state.entitiesBySlug.delete(oldSlug)
-                    state.entitiesBySlug.set(updates.slug, entityId)
+                    state.entitiesBySlug.delete(oldSlug);
+                    state.entitiesBySlug.set(updates.slug, entityId);
                   }
                 }
               },
               false,
-              'entity/updateEntity'
+              "entity/updateEntity",
             ),
 
           removeEntity: (entityId) =>
             set(
               (state) => {
-                const entity = state.entities.get(entityId)
+                const entity = state.entities.get(entityId);
                 if (entity) {
-                  state.entities.delete(entityId)
-                  state.entitiesBySlug.delete(entity.slug)
-                  removeFromTypeSet(state, entity)
+                  state.entities.delete(entityId);
+                  state.entitiesBySlug.delete(entity.slug);
+                  removeFromTypeSet(state, entity);
 
                   // Clean up related state
-                  state.mutedEntityIds.delete(entityId)
-                  state.pinnedEntityIds.delete(entityId)
-                  state.archivedEntityIds.delete(entityId)
-                  state.hiddenEntityIds.delete(entityId)
-                  state.recentEntityIds = state.recentEntityIds.filter((id) => id !== entityId)
-                  delete state.unreadCounts[entityId]
+                  state.mutedEntityIds.delete(entityId);
+                  state.pinnedEntityIds.delete(entityId);
+                  state.archivedEntityIds.delete(entityId);
+                  state.hiddenEntityIds.delete(entityId);
+                  state.recentEntityIds = state.recentEntityIds.filter(
+                    (id) => id !== entityId,
+                  );
+                  delete state.unreadCounts[entityId];
 
                   // Update active entity if needed
                   if (state.activeEntityId === entityId) {
-                    state.activeEntityId = state.previousEntityId
-                    state.previousEntityId = null
+                    state.activeEntityId = state.previousEntityId;
+                    state.previousEntityId = null;
                   }
                 }
               },
               false,
-              'entity/removeEntity'
+              "entity/removeEntity",
             ),
 
           getEntityById: (entityId) => get().entities.get(entityId),
 
           getEntityBySlug: (slug) => {
-            const entityId = get().entitiesBySlug.get(slug)
-            return entityId ? get().entities.get(entityId) : undefined
+            const entityId = get().entitiesBySlug.get(slug);
+            return entityId ? get().entities.get(entityId) : undefined;
           },
 
           // ===================================================================
@@ -314,38 +325,41 @@ export const useEntityStore = create<EntityStore>()(
             set(
               (state) => {
                 if (state.activeEntityId !== entityId) {
-                  state.previousEntityId = state.activeEntityId
-                  state.activeEntityId = entityId
+                  state.previousEntityId = state.activeEntityId;
+                  state.activeEntityId = entityId;
 
                   if (entityId) {
                     // Add to recent
                     state.recentEntityIds = [
                       entityId,
                       ...state.recentEntityIds.filter((id) => id !== entityId),
-                    ].slice(0, MAX_RECENT_ENTITIES)
+                    ].slice(0, MAX_RECENT_ENTITIES);
 
                     // Mark as read
-                    const prevCount = state.unreadCounts[entityId] || 0
-                    state.unreadCounts[entityId] = 0
-                    state.totalUnreadCount = Math.max(0, state.totalUnreadCount - prevCount)
+                    const prevCount = state.unreadCounts[entityId] || 0;
+                    state.unreadCounts[entityId] = 0;
+                    state.totalUnreadCount = Math.max(
+                      0,
+                      state.totalUnreadCount - prevCount,
+                    );
                   }
                 }
               },
               false,
-              'entity/setActiveEntity'
+              "entity/setActiveEntity",
             ),
 
           goToPreviousEntity: () =>
             set(
               (state) => {
                 if (state.previousEntityId) {
-                  const temp = state.activeEntityId
-                  state.activeEntityId = state.previousEntityId
-                  state.previousEntityId = temp
+                  const temp = state.activeEntityId;
+                  state.activeEntityId = state.previousEntityId;
+                  state.previousEntityId = temp;
                 }
               },
               false,
-              'entity/goToPreviousEntity'
+              "entity/goToPreviousEntity",
             ),
 
           // ===================================================================
@@ -353,134 +367,151 @@ export const useEntityStore = create<EntityStore>()(
           // ===================================================================
 
           getEntitiesByType: (type) => {
-            const state = get()
-            let ids: Set<string>
+            const state = get();
+            let ids: Set<string>;
 
             switch (type) {
-              case 'dm':
-                ids = state.dmIds
-                break
-              case 'group':
-                ids = state.groupIds
-                break
-              case 'supergroup':
-                ids = state.supergroupIds
-                break
-              case 'community':
-                ids = state.communityIds
-                break
-              case 'channel':
-                ids = state.channelIds
-                break
+              case "dm":
+                ids = state.dmIds;
+                break;
+              case "group":
+                ids = state.groupIds;
+                break;
+              case "supergroup":
+                ids = state.supergroupIds;
+                break;
+              case "community":
+                ids = state.communityIds;
+                break;
+              case "channel":
+                ids = state.channelIds;
+                break;
               default:
-                return []
+                return [];
             }
 
             return Array.from(ids)
               .map((id) => state.entities.get(id))
-              .filter((e): e is ChatEntity => !!e)
+              .filter((e): e is ChatEntity => !!e);
           },
 
           getFilteredEntities: (options) => {
-            const state = get()
-            let entities = Array.from(state.entities.values())
+            const state = get();
+            let entities = Array.from(state.entities.values());
 
-            const { filter, sortBy = 'recent', sortOrder = 'desc' } = options
+            const { filter, sortBy = "recent", sortOrder = "desc" } = options;
 
             // Apply filters
             if (filter) {
               if (filter.types?.length) {
-                entities = entities.filter((e) => filter.types!.includes(e.type))
+                entities = entities.filter((e) =>
+                  filter.types!.includes(e.type),
+                );
               }
 
               if (filter.status?.length) {
-                entities = entities.filter((e) => filter.status!.includes(e.status))
+                entities = entities.filter((e) =>
+                  filter.status!.includes(e.status),
+                );
               }
 
               if (filter.visibility?.length) {
-                entities = entities.filter((e) => filter.visibility!.includes(e.visibility))
+                entities = entities.filter((e) =>
+                  filter.visibility!.includes(e.visibility),
+                );
               }
 
               if (filter.search) {
-                const searchLower = filter.search.toLowerCase()
+                const searchLower = filter.search.toLowerCase();
                 entities = entities.filter(
                   (e) =>
                     e.name.toLowerCase().includes(searchLower) ||
-                    e.description?.toLowerCase().includes(searchLower)
-                )
+                    e.description?.toLowerCase().includes(searchLower),
+                );
               }
 
               if (filter.hasUnread === true) {
-                entities = entities.filter((e) => (state.unreadCounts[e.id] || 0) > 0)
+                entities = entities.filter(
+                  (e) => (state.unreadCounts[e.id] || 0) > 0,
+                );
               }
 
               if (filter.isPinned === true) {
-                entities = entities.filter((e) => state.pinnedEntityIds.has(e.id))
+                entities = entities.filter((e) =>
+                  state.pinnedEntityIds.has(e.id),
+                );
               }
 
               if (filter.isMuted === true) {
-                entities = entities.filter((e) => state.mutedEntityIds.has(e.id))
+                entities = entities.filter((e) =>
+                  state.mutedEntityIds.has(e.id),
+                );
               }
             }
 
             // Exclude hidden and archived by default
             entities = entities.filter(
-              (e) => !state.hiddenEntityIds.has(e.id) && !state.archivedEntityIds.has(e.id)
-            )
+              (e) =>
+                !state.hiddenEntityIds.has(e.id) &&
+                !state.archivedEntityIds.has(e.id),
+            );
 
             // Sort
             entities.sort((a, b) => {
-              let comparison = 0
+              let comparison = 0;
 
               switch (sortBy) {
-                case 'recent': {
-                  const aTime = getLastActivityTime(a)
-                  const bTime = getLastActivityTime(b)
-                  comparison = bTime - aTime
-                  break
+                case "recent": {
+                  const aTime = getLastActivityTime(a);
+                  const bTime = getLastActivityTime(b);
+                  comparison = bTime - aTime;
+                  break;
                 }
-                case 'name':
-                  comparison = a.name.localeCompare(b.name)
-                  break
-                case 'unread':
-                  comparison = (state.unreadCounts[b.id] || 0) - (state.unreadCounts[a.id] || 0)
-                  break
-                case 'memberCount':
-                  comparison = b.memberCount - a.memberCount
-                  break
-                case 'created':
-                  comparison = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                  break
+                case "name":
+                  comparison = a.name.localeCompare(b.name);
+                  break;
+                case "unread":
+                  comparison =
+                    (state.unreadCounts[b.id] || 0) -
+                    (state.unreadCounts[a.id] || 0);
+                  break;
+                case "memberCount":
+                  comparison = b.memberCount - a.memberCount;
+                  break;
+                case "created":
+                  comparison =
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime();
+                  break;
               }
 
-              return sortOrder === 'asc' ? -comparison : comparison
-            })
+              return sortOrder === "asc" ? -comparison : comparison;
+            });
 
             // Apply pagination
             if (options.offset) {
-              entities = entities.slice(options.offset)
+              entities = entities.slice(options.offset);
             }
             if (options.limit) {
-              entities = entities.slice(0, options.limit)
+              entities = entities.slice(0, options.limit);
             }
 
-            return entities
+            return entities;
           },
 
           getAllDMs: () =>
-            get().getEntitiesByType('dm') as DirectMessageEntity[],
+            get().getEntitiesByType("dm") as DirectMessageEntity[],
 
-          getAllGroups: () =>
-            get().getEntitiesByType('group') as GroupEntity[],
+          getAllGroups: () => get().getEntitiesByType("group") as GroupEntity[],
 
           getAllSupergroups: () =>
-            get().getEntitiesByType('supergroup') as SupergroupEntity[],
+            get().getEntitiesByType("supergroup") as SupergroupEntity[],
 
           getAllCommunities: () =>
-            get().getEntitiesByType('community') as CommunityEntity[],
+            get().getEntitiesByType("community") as CommunityEntity[],
 
           getAllChannels: () =>
-            get().getEntitiesByType('channel') as ChannelEntity[],
+            get().getEntitiesByType("channel") as ChannelEntity[],
 
           // ===================================================================
           // User Preferences
@@ -490,96 +521,96 @@ export const useEntityStore = create<EntityStore>()(
             set(
               (state) => {
                 if (state.mutedEntityIds.has(entityId)) {
-                  state.mutedEntityIds.delete(entityId)
+                  state.mutedEntityIds.delete(entityId);
                 } else {
-                  state.mutedEntityIds.add(entityId)
+                  state.mutedEntityIds.add(entityId);
                 }
               },
               false,
-              'entity/toggleMute'
+              "entity/toggleMute",
             ),
 
           setMuted: (entityId, muted) =>
             set(
               (state) => {
                 if (muted) {
-                  state.mutedEntityIds.add(entityId)
+                  state.mutedEntityIds.add(entityId);
                 } else {
-                  state.mutedEntityIds.delete(entityId)
+                  state.mutedEntityIds.delete(entityId);
                 }
               },
               false,
-              'entity/setMuted'
+              "entity/setMuted",
             ),
 
           togglePin: (entityId) =>
             set(
               (state) => {
                 if (state.pinnedEntityIds.has(entityId)) {
-                  state.pinnedEntityIds.delete(entityId)
+                  state.pinnedEntityIds.delete(entityId);
                 } else {
-                  state.pinnedEntityIds.add(entityId)
+                  state.pinnedEntityIds.add(entityId);
                 }
               },
               false,
-              'entity/togglePin'
+              "entity/togglePin",
             ),
 
           setPin: (entityId, pinned) =>
             set(
               (state) => {
                 if (pinned) {
-                  state.pinnedEntityIds.add(entityId)
+                  state.pinnedEntityIds.add(entityId);
                 } else {
-                  state.pinnedEntityIds.delete(entityId)
+                  state.pinnedEntityIds.delete(entityId);
                 }
               },
               false,
-              'entity/setPin'
+              "entity/setPin",
             ),
 
           archiveEntity: (entityId) =>
             set(
               (state) => {
-                state.archivedEntityIds.add(entityId)
-                const entity = state.entities.get(entityId)
+                state.archivedEntityIds.add(entityId);
+                const entity = state.entities.get(entityId);
                 if (entity) {
-                  (entity as ChatEntity).status = 'archived'
+                  (entity as ChatEntity).status = "archived";
                 }
               },
               false,
-              'entity/archiveEntity'
+              "entity/archiveEntity",
             ),
 
           unarchiveEntity: (entityId) =>
             set(
               (state) => {
-                state.archivedEntityIds.delete(entityId)
-                const entity = state.entities.get(entityId)
+                state.archivedEntityIds.delete(entityId);
+                const entity = state.entities.get(entityId);
                 if (entity) {
-                  (entity as ChatEntity).status = 'active'
+                  (entity as ChatEntity).status = "active";
                 }
               },
               false,
-              'entity/unarchiveEntity'
+              "entity/unarchiveEntity",
             ),
 
           hideEntity: (entityId) =>
             set(
               (state) => {
-                state.hiddenEntityIds.add(entityId)
+                state.hiddenEntityIds.add(entityId);
               },
               false,
-              'entity/hideEntity'
+              "entity/hideEntity",
             ),
 
           unhideEntity: (entityId) =>
             set(
               (state) => {
-                state.hiddenEntityIds.delete(entityId)
+                state.hiddenEntityIds.delete(entityId);
               },
               false,
-              'entity/unhideEntity'
+              "entity/unhideEntity",
             ),
 
           // ===================================================================
@@ -589,55 +620,58 @@ export const useEntityStore = create<EntityStore>()(
           setUnreadCount: (entityId, count) =>
             set(
               (state) => {
-                const oldCount = state.unreadCounts[entityId] || 0
-                state.unreadCounts[entityId] = count
-                state.totalUnreadCount += count - oldCount
+                const oldCount = state.unreadCounts[entityId] || 0;
+                state.unreadCounts[entityId] = count;
+                state.totalUnreadCount += count - oldCount;
               },
               false,
-              'entity/setUnreadCount'
+              "entity/setUnreadCount",
             ),
 
           incrementUnread: (entityId) =>
             set(
               (state) => {
-                state.unreadCounts[entityId] = (state.unreadCounts[entityId] || 0) + 1
-                state.totalUnreadCount += 1
+                state.unreadCounts[entityId] =
+                  (state.unreadCounts[entityId] || 0) + 1;
+                state.totalUnreadCount += 1;
               },
               false,
-              'entity/incrementUnread'
+              "entity/incrementUnread",
             ),
 
           markAsRead: (entityId) =>
             set(
               (state) => {
-                const count = state.unreadCounts[entityId] || 0
-                state.unreadCounts[entityId] = 0
-                state.totalUnreadCount = Math.max(0, state.totalUnreadCount - count)
+                const count = state.unreadCounts[entityId] || 0;
+                state.unreadCounts[entityId] = 0;
+                state.totalUnreadCount = Math.max(
+                  0,
+                  state.totalUnreadCount - count,
+                );
               },
               false,
-              'entity/markAsRead'
+              "entity/markAsRead",
             ),
 
           markAllAsRead: () =>
             set(
               (state) => {
-                state.unreadCounts = {}
-                state.totalUnreadCount = 0
+                state.unreadCounts = {};
+                state.totalUnreadCount = 0;
               },
               false,
-              'entity/markAllAsRead'
+              "entity/markAllAsRead",
             ),
 
           recalculateTotalUnread: () =>
             set(
               (state) => {
-                state.totalUnreadCount = Object.values(state.unreadCounts).reduce(
-                  (sum, count) => sum + count,
-                  0
-                )
+                state.totalUnreadCount = Object.values(
+                  state.unreadCounts,
+                ).reduce((sum, count) => sum + count, 0);
               },
               false,
-              'entity/recalculateTotalUnread'
+              "entity/recalculateTotalUnread",
             ),
 
           // ===================================================================
@@ -650,19 +684,19 @@ export const useEntityStore = create<EntityStore>()(
                 state.recentEntityIds = [
                   entityId,
                   ...state.recentEntityIds.filter((id) => id !== entityId),
-                ].slice(0, MAX_RECENT_ENTITIES)
+                ].slice(0, MAX_RECENT_ENTITIES);
               },
               false,
-              'entity/addToRecent'
+              "entity/addToRecent",
             ),
 
           clearRecent: () =>
             set(
               (state) => {
-                state.recentEntityIds = []
+                state.recentEntityIds = [];
               },
               false,
-              'entity/clearRecent'
+              "entity/clearRecent",
             ),
 
           // ===================================================================
@@ -672,14 +706,14 @@ export const useEntityStore = create<EntityStore>()(
           updateLastMessage: (entityId, message) =>
             set(
               (state) => {
-                const entity = state.entities.get(entityId)
-                if (entity && 'lastMessage' in entity) {
-                  (entity as GroupEntity).lastMessage = message
-                  entity.updatedAt = message.timestamp
+                const entity = state.entities.get(entityId);
+                if (entity && "lastMessage" in entity) {
+                  (entity as GroupEntity).lastMessage = message;
+                  entity.updatedAt = message.timestamp;
                 }
               },
               false,
-              'entity/updateLastMessage'
+              "entity/updateLastMessage",
             ),
 
           // ===================================================================
@@ -689,28 +723,28 @@ export const useEntityStore = create<EntityStore>()(
           setLoading: (loading) =>
             set(
               (state) => {
-                state.isLoading = loading
+                state.isLoading = loading;
               },
               false,
-              'entity/setLoading'
+              "entity/setLoading",
             ),
 
           setLoadingEntity: (entityId) =>
             set(
               (state) => {
-                state.loadingEntityId = entityId
+                state.loadingEntityId = entityId;
               },
               false,
-              'entity/setLoadingEntity'
+              "entity/setLoadingEntity",
             ),
 
           setError: (error) =>
             set(
               (state) => {
-                state.error = error
+                state.error = error;
               },
               false,
-              'entity/setError'
+              "entity/setError",
             ),
 
           // ===================================================================
@@ -720,19 +754,19 @@ export const useEntityStore = create<EntityStore>()(
           setHasMore: (hasMore) =>
             set(
               (state) => {
-                state.hasMore = hasMore
+                state.hasMore = hasMore;
               },
               false,
-              'entity/setHasMore'
+              "entity/setHasMore",
             ),
 
           setCursor: (cursor) =>
             set(
               (state) => {
-                state.cursor = cursor
+                state.cursor = cursor;
               },
               false,
-              'entity/setCursor'
+              "entity/setCursor",
             ),
 
           // ===================================================================
@@ -742,49 +776,49 @@ export const useEntityStore = create<EntityStore>()(
           muteMultiple: (entityIds) =>
             set(
               (state) => {
-                entityIds.forEach((id) => state.mutedEntityIds.add(id))
+                entityIds.forEach((id) => state.mutedEntityIds.add(id));
               },
               false,
-              'entity/muteMultiple'
+              "entity/muteMultiple",
             ),
 
           archiveMultiple: (entityIds) =>
             set(
               (state) => {
                 entityIds.forEach((id) => {
-                  state.archivedEntityIds.add(id)
-                  const entity = state.entities.get(id)
+                  state.archivedEntityIds.add(id);
+                  const entity = state.entities.get(id);
                   if (entity) {
-                    (entity as ChatEntity).status = 'archived'
+                    (entity as ChatEntity).status = "archived";
                   }
-                })
+                });
               },
               false,
-              'entity/archiveMultiple'
+              "entity/archiveMultiple",
             ),
 
           deleteMultiple: (entityIds) =>
             set(
               (state) => {
                 entityIds.forEach((entityId) => {
-                  const entity = state.entities.get(entityId)
+                  const entity = state.entities.get(entityId);
                   if (entity) {
-                    state.entities.delete(entityId)
-                    state.entitiesBySlug.delete(entity.slug)
-                    removeFromTypeSet(state, entity)
-                    state.mutedEntityIds.delete(entityId)
-                    state.pinnedEntityIds.delete(entityId)
-                    state.archivedEntityIds.delete(entityId)
-                    state.hiddenEntityIds.delete(entityId)
-                    delete state.unreadCounts[entityId]
+                    state.entities.delete(entityId);
+                    state.entitiesBySlug.delete(entity.slug);
+                    removeFromTypeSet(state, entity);
+                    state.mutedEntityIds.delete(entityId);
+                    state.pinnedEntityIds.delete(entityId);
+                    state.archivedEntityIds.delete(entityId);
+                    state.hiddenEntityIds.delete(entityId);
+                    delete state.unreadCounts[entityId];
                   }
-                })
+                });
                 state.recentEntityIds = state.recentEntityIds.filter(
-                  (id) => !entityIds.includes(id)
-                )
+                  (id) => !entityIds.includes(id),
+                );
               },
               false,
-              'entity/deleteMultiple'
+              "entity/deleteMultiple",
             ),
 
           // ===================================================================
@@ -808,11 +842,11 @@ export const useEntityStore = create<EntityStore>()(
                 hiddenEntityIds: new Set(),
               }),
               false,
-              'entity/resetStore'
+              "entity/resetStore",
             ),
         })),
         {
-          name: 'entity-store',
+          name: "entity-store",
           partialize: (state) => ({
             mutedEntityIds: Array.from(state.mutedEntityIds),
             pinnedEntityIds: Array.from(state.pinnedEntityIds),
@@ -821,33 +855,35 @@ export const useEntityStore = create<EntityStore>()(
             recentEntityIds: state.recentEntityIds,
           }),
           merge: (persisted, current) => {
-            const merged = { ...current }
-            if (persisted && typeof persisted === 'object') {
-              const p = persisted as Record<string, unknown>
+            const merged = { ...current };
+            if (persisted && typeof persisted === "object") {
+              const p = persisted as Record<string, unknown>;
               if (Array.isArray(p.mutedEntityIds)) {
-                merged.mutedEntityIds = new Set(p.mutedEntityIds as string[])
+                merged.mutedEntityIds = new Set(p.mutedEntityIds as string[]);
               }
               if (Array.isArray(p.pinnedEntityIds)) {
-                merged.pinnedEntityIds = new Set(p.pinnedEntityIds as string[])
+                merged.pinnedEntityIds = new Set(p.pinnedEntityIds as string[]);
               }
               if (Array.isArray(p.archivedEntityIds)) {
-                merged.archivedEntityIds = new Set(p.archivedEntityIds as string[])
+                merged.archivedEntityIds = new Set(
+                  p.archivedEntityIds as string[],
+                );
               }
               if (Array.isArray(p.hiddenEntityIds)) {
-                merged.hiddenEntityIds = new Set(p.hiddenEntityIds as string[])
+                merged.hiddenEntityIds = new Set(p.hiddenEntityIds as string[]);
               }
               if (Array.isArray(p.recentEntityIds)) {
-                merged.recentEntityIds = p.recentEntityIds as string[]
+                merged.recentEntityIds = p.recentEntityIds as string[];
               }
             }
-            return merged
+            return merged;
           },
-        }
-      )
+        },
+      ),
     ),
-    { name: 'entity-store' }
-  )
-)
+    { name: "entity-store" },
+  ),
+);
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -855,53 +891,53 @@ export const useEntityStore = create<EntityStore>()(
 
 function addToTypeSet(state: EntityState, entity: ChatEntity) {
   switch (entity.type) {
-    case 'dm':
-      state.dmIds.add(entity.id)
-      break
-    case 'group':
-      state.groupIds.add(entity.id)
-      break
-    case 'supergroup':
-      state.supergroupIds.add(entity.id)
-      break
-    case 'community':
-      state.communityIds.add(entity.id)
-      break
-    case 'channel':
-      state.channelIds.add(entity.id)
-      break
+    case "dm":
+      state.dmIds.add(entity.id);
+      break;
+    case "group":
+      state.groupIds.add(entity.id);
+      break;
+    case "supergroup":
+      state.supergroupIds.add(entity.id);
+      break;
+    case "community":
+      state.communityIds.add(entity.id);
+      break;
+    case "channel":
+      state.channelIds.add(entity.id);
+      break;
   }
 }
 
 function removeFromTypeSet(state: EntityState, entity: ChatEntity) {
   switch (entity.type) {
-    case 'dm':
-      state.dmIds.delete(entity.id)
-      break
-    case 'group':
-      state.groupIds.delete(entity.id)
-      break
-    case 'supergroup':
-      state.supergroupIds.delete(entity.id)
-      break
-    case 'community':
-      state.communityIds.delete(entity.id)
-      break
-    case 'channel':
-      state.channelIds.delete(entity.id)
-      break
+    case "dm":
+      state.dmIds.delete(entity.id);
+      break;
+    case "group":
+      state.groupIds.delete(entity.id);
+      break;
+    case "supergroup":
+      state.supergroupIds.delete(entity.id);
+      break;
+    case "community":
+      state.communityIds.delete(entity.id);
+      break;
+    case "channel":
+      state.channelIds.delete(entity.id);
+      break;
   }
 }
 
 function getLastActivityTime(entity: ChatEntity): number {
   // Check for lastMessage in entities that have it
-  if ('lastMessage' in entity && entity.lastMessage) {
-    return new Date(entity.lastMessage.timestamp).getTime()
+  if ("lastMessage" in entity && entity.lastMessage) {
+    return new Date(entity.lastMessage.timestamp).getTime();
   }
-  if ('lastPost' in entity && entity.lastPost) {
-    return new Date(entity.lastPost.timestamp).getTime()
+  if ("lastPost" in entity && entity.lastPost) {
+    return new Date(entity.lastPost.timestamp).getTime();
   }
-  return new Date(entity.updatedAt).getTime()
+  return new Date(entity.updatedAt).getTime();
 }
 
 // =============================================================================
@@ -909,43 +945,49 @@ function getLastActivityTime(entity: ChatEntity): number {
 // =============================================================================
 
 export const selectActiveEntity = (state: EntityStore) =>
-  state.activeEntityId ? state.entities.get(state.activeEntityId) : undefined
+  state.activeEntityId ? state.entities.get(state.activeEntityId) : undefined;
 
-export const selectEntityCount = (state: EntityStore) => state.entities.size
+export const selectEntityCount = (state: EntityStore) => state.entities.size;
 
-export const selectDMCount = (state: EntityStore) => state.dmIds.size
+export const selectDMCount = (state: EntityStore) => state.dmIds.size;
 
-export const selectGroupCount = (state: EntityStore) => state.groupIds.size
+export const selectGroupCount = (state: EntityStore) => state.groupIds.size;
 
-export const selectSupergroupCount = (state: EntityStore) => state.supergroupIds.size
+export const selectSupergroupCount = (state: EntityStore) =>
+  state.supergroupIds.size;
 
-export const selectCommunityCount = (state: EntityStore) => state.communityIds.size
+export const selectCommunityCount = (state: EntityStore) =>
+  state.communityIds.size;
 
-export const selectChannelCount = (state: EntityStore) => state.channelIds.size
+export const selectChannelCount = (state: EntityStore) => state.channelIds.size;
 
 export const selectRecentEntities = (state: EntityStore) =>
   state.recentEntityIds
     .map((id) => state.entities.get(id))
-    .filter((e): e is ChatEntity => !!e)
+    .filter((e): e is ChatEntity => !!e);
 
 export const selectPinnedEntities = (state: EntityStore) =>
   Array.from(state.pinnedEntityIds)
     .map((id) => state.entities.get(id))
-    .filter((e): e is ChatEntity => !!e)
+    .filter((e): e is ChatEntity => !!e);
 
 export const selectMutedEntities = (state: EntityStore) =>
   Array.from(state.mutedEntityIds)
     .map((id) => state.entities.get(id))
-    .filter((e): e is ChatEntity => !!e)
+    .filter((e): e is ChatEntity => !!e);
 
 export const selectUnreadEntities = (state: EntityStore) =>
-  Array.from(state.entities.values()).filter((e) => (state.unreadCounts[e.id] || 0) > 0)
+  Array.from(state.entities.values()).filter(
+    (e) => (state.unreadCounts[e.id] || 0) > 0,
+  );
 
 export const selectIsEntityMuted = (entityId: string) => (state: EntityStore) =>
-  state.mutedEntityIds.has(entityId)
+  state.mutedEntityIds.has(entityId);
 
-export const selectIsEntityPinned = (entityId: string) => (state: EntityStore) =>
-  state.pinnedEntityIds.has(entityId)
+export const selectIsEntityPinned =
+  (entityId: string) => (state: EntityStore) =>
+    state.pinnedEntityIds.has(entityId);
 
-export const selectEntityUnreadCount = (entityId: string) => (state: EntityStore) =>
-  state.unreadCounts[entityId] || 0
+export const selectEntityUnreadCount =
+  (entityId: string) => (state: EntityStore) =>
+    state.unreadCounts[entityId] || 0;

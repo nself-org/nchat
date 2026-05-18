@@ -1,80 +1,97 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { useSecurity } from '@/lib/security/use-security'
-import { calculatePasswordStrength, getStrengthColor } from '@/lib/security/two-factor'
-import { useAuth } from '@/contexts/auth-context'
-import { Eye, EyeOff, Check, X, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useSecurity } from "@/lib/security/use-security";
+import {
+  calculatePasswordStrength,
+  getStrengthColor,
+} from "@/lib/security/two-factor";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  Eye,
+  EyeOff,
+  Check,
+  X,
+  AlertCircle,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function ChangePasswordForm() {
-  const { isDevMode } = useAuth()
-  const { changePassword, isChangingPassword, passwordError } = useSecurity()
+  const { isDevMode } = useAuth();
+  const { changePassword, isChangingPassword, passwordError } = useSecurity();
 
   // Form state
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // UI state
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Password strength calculation
-  const passwordStrength = useMemo(() => calculatePasswordStrength(newPassword), [newPassword])
+  const passwordStrength = useMemo(
+    () => calculatePasswordStrength(newPassword),
+    [newPassword],
+  );
 
   // Validation
-  const passwordsMatch = newPassword === confirmPassword
-  const isCurrentPasswordValid = currentPassword.length >= 1
-  const isNewPasswordValid = passwordStrength.isAcceptable
+  const passwordsMatch = newPassword === confirmPassword;
+  const isCurrentPasswordValid = currentPassword.length >= 1;
+  const isNewPasswordValid = passwordStrength.isAcceptable;
   const canSubmit =
     isCurrentPasswordValid &&
     isNewPasswordValid &&
     passwordsMatch &&
     confirmPassword.length > 0 &&
-    !isChangingPassword
+    !isChangingPassword;
 
   // Handle form submission
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
-      e.preventDefault()
-      setError(null)
-      setSuccess(false)
+      e.preventDefault();
+      setError(null);
+      setSuccess(false);
 
-      if (!canSubmit) return
+      if (!canSubmit) return;
 
-      const result = await changePassword(currentPassword, newPassword)
+      const result = await changePassword(currentPassword, newPassword);
 
       if (result.success) {
-        setSuccess(true)
-        setCurrentPassword('')
-        setNewPassword('')
-        setConfirmPassword('')
+        setSuccess(true);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
 
         // Clear success message after 5 seconds
-        setTimeout(() => setSuccess(false), 5000)
+        setTimeout(() => setSuccess(false), 5000);
       } else {
-        setError(result.error || 'Failed to change password')
+        setError(result.error || "Failed to change password");
       }
     },
-    [canSubmit, changePassword, currentPassword, newPassword]
-  )
+    [canSubmit, changePassword, currentPassword, newPassword],
+  );
 
   // Password requirement checks
   const requirements = [
-    { label: 'At least 8 characters', met: newPassword.length >= 8 },
-    { label: 'Uppercase letter', met: /[A-Z]/.test(newPassword) },
-    { label: 'Lowercase letter', met: /[a-z]/.test(newPassword) },
-    { label: 'Number', met: /\d/.test(newPassword) },
-    { label: 'Special character', met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword) },
-  ]
+    { label: "At least 8 characters", met: newPassword.length >= 8 },
+    { label: "Uppercase letter", met: /[A-Z]/.test(newPassword) },
+    { label: "Lowercase letter", met: /[a-z]/.test(newPassword) },
+    { label: "Number", met: /\d/.test(newPassword) },
+    {
+      label: "Special character",
+      met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword),
+    },
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -82,7 +99,9 @@ export function ChangePasswordForm() {
       {success && (
         <Alert className="border-green-500/20 bg-green-500/10 text-green-600">
           <CheckCircle2 className="h-4 w-4" />
-          <AlertDescription>Your password has been changed successfully.</AlertDescription>
+          <AlertDescription>
+            Your password has been changed successfully.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -99,7 +118,8 @@ export function ChangePasswordForm() {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            In development mode, password changes are simulated and will not persist.
+            In development mode, password changes are simulated and will not
+            persist.
           </AlertDescription>
         </Alert>
       )}
@@ -110,7 +130,7 @@ export function ChangePasswordForm() {
         <div className="relative">
           <Input
             id="current-password"
-            type={showCurrentPassword ? 'text' : 'password'}
+            type={showCurrentPassword ? "text" : "password"}
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             placeholder="Enter your current password"
@@ -139,7 +159,7 @@ export function ChangePasswordForm() {
         <div className="relative">
           <Input
             id="new-password"
-            type={showNewPassword ? 'text' : 'password'}
+            type={showNewPassword ? "text" : "password"}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Enter your new password"
@@ -170,20 +190,20 @@ export function ChangePasswordForm() {
                   <div
                     key={index}
                     className={cn(
-                      'h-1.5 flex-1 rounded-full transition-colors',
+                      "h-1.5 flex-1 rounded-full transition-colors",
                       index <= passwordStrength.score
                         ? getStrengthColor(passwordStrength.score)
-                        : 'bg-muted'
+                        : "bg-muted",
                     )}
                   />
                 ))}
               </div>
               <span
                 className={cn(
-                  'text-xs font-medium',
-                  passwordStrength.score <= 1 && 'text-red-500',
-                  passwordStrength.score === 2 && 'text-yellow-500',
-                  passwordStrength.score >= 3 && 'text-green-500'
+                  "text-xs font-medium",
+                  passwordStrength.score <= 1 && "text-red-500",
+                  passwordStrength.score === 2 && "text-yellow-500",
+                  passwordStrength.score >= 3 && "text-green-500",
                 )}
               >
                 {passwordStrength.label}
@@ -196,11 +216,15 @@ export function ChangePasswordForm() {
                 <div
                   key={req.label}
                   className={cn(
-                    'flex items-center gap-1.5 text-xs',
-                    req.met ? 'text-green-600' : 'text-muted-foreground'
+                    "flex items-center gap-1.5 text-xs",
+                    req.met ? "text-green-600" : "text-muted-foreground",
                   )}
                 >
-                  {req.met ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                  {req.met ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <X className="h-3 w-3" />
+                  )}
                   {req.label}
                 </div>
               ))}
@@ -215,14 +239,14 @@ export function ChangePasswordForm() {
         <div className="relative">
           <Input
             id="confirm-password"
-            type={showConfirmPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm your new password"
             autoComplete="new-password"
             className={cn(
-              'pr-10',
-              confirmPassword.length > 0 && !passwordsMatch && 'border-red-500'
+              "pr-10",
+              confirmPassword.length > 0 && !passwordsMatch && "border-red-500",
             )}
           />
           <Button
@@ -259,10 +283,10 @@ export function ChangePasswordForm() {
               Changing Password...
             </>
           ) : (
-            'Change Password'
+            "Change Password"
           )}
         </Button>
       </div>
     </form>
-  )
+  );
 }

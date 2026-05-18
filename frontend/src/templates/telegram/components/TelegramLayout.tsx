@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Telegram Layout Component
@@ -9,20 +9,20 @@
 //
 // ===============================================================================
 
-import { ReactNode, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { TELEGRAM_COLORS } from '../config'
+import { ReactNode, useState } from "react";
+import { cn } from "@/lib/utils";
+import { TELEGRAM_COLORS } from "../config";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface TelegramLayoutProps {
-  children: ReactNode
-  chatList?: ReactNode
-  infoPanel?: ReactNode
-  showInfoPanel?: boolean
-  className?: string
+  children: ReactNode;
+  chatList?: ReactNode;
+  infoPanel?: ReactNode;
+  showInfoPanel?: boolean;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -39,9 +39,9 @@ export function TelegramLayout({
   return (
     <div
       className={cn(
-        'telegram-template flex h-screen w-screen overflow-hidden',
-        'bg-white dark:bg-[#17212B]',
-        className
+        "telegram-template flex h-screen w-screen overflow-hidden",
+        "bg-white dark:bg-[#17212B]",
+        className,
       )}
       style={{
         fontFamily:
@@ -73,7 +73,7 @@ export function TelegramLayout({
         </aside>
       )}
     </div>
-  )
+  );
 }
 
-export default TelegramLayout
+export default TelegramLayout;

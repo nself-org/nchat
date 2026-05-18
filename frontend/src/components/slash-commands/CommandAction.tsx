@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CommandAction - Configure what the command does
@@ -12,25 +12,28 @@ import {
   Webhook,
   Workflow,
   Code,
-} from 'lucide-react'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type {
   CommandActionType,
   CommandAction as CommandActionConfig,
-} from '@/lib/slash-commands/command-types'
-import { cn } from '@/lib/utils'
+} from "@/lib/slash-commands/command-types";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandActionProps {
-  actionType?: CommandActionType
-  action?: CommandActionConfig
-  onChange: (actionType: CommandActionType, action: CommandActionConfig) => void
+  actionType?: CommandActionType;
+  action?: CommandActionConfig;
+  onChange: (
+    actionType: CommandActionType,
+    action: CommandActionConfig,
+  ) => void;
 }
 
 // ============================================================================
@@ -38,67 +41,67 @@ interface CommandActionProps {
 // ============================================================================
 
 const actionTypes: {
-  value: CommandActionType
-  label: string
-  description: string
-  icon: React.ComponentType<{ className?: string }>
+  value: CommandActionType;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
 }[] = [
   {
-    value: 'message',
-    label: 'Send Message',
-    description: 'Send a message to the channel',
+    value: "message",
+    label: "Send Message",
+    description: "Send a message to the channel",
     icon: MessageSquare,
   },
   {
-    value: 'status',
-    label: 'Update Status',
+    value: "status",
+    label: "Update Status",
     description: "Change the user's status",
     icon: UserCircle,
   },
   {
-    value: 'navigate',
-    label: 'Navigate',
-    description: 'Go to a URL or page',
+    value: "navigate",
+    label: "Navigate",
+    description: "Go to a URL or page",
     icon: Navigation,
   },
   {
-    value: 'modal',
-    label: 'Open Modal',
-    description: 'Display a modal dialog',
+    value: "modal",
+    label: "Open Modal",
+    description: "Display a modal dialog",
     icon: Layers,
   },
   {
-    value: 'webhook',
-    label: 'Call Webhook',
-    description: 'Send data to an external URL',
+    value: "webhook",
+    label: "Call Webhook",
+    description: "Send data to an external URL",
     icon: Webhook,
   },
   {
-    value: 'workflow',
-    label: 'Trigger Workflow',
-    description: 'Start an automation workflow',
+    value: "workflow",
+    label: "Trigger Workflow",
+    description: "Start an automation workflow",
     icon: Workflow,
   },
   {
-    value: 'api',
-    label: 'API Call',
-    description: 'Call an internal API endpoint',
+    value: "api",
+    label: "API Call",
+    description: "Call an internal API endpoint",
     icon: Code,
   },
-]
+];
 
 // ============================================================================
 // Component
 // ============================================================================
 
 export function CommandAction({
-  actionType = 'message',
-  action = { type: 'message' },
+  actionType = "message",
+  action = { type: "message" },
   onChange,
 }: CommandActionProps) {
   const handleTypeChange = (type: CommandActionType) => {
-    onChange(type, { type })
-  }
+    onChange(type, { type });
+  };
 
   return (
     <div className="space-y-6">
@@ -107,7 +110,9 @@ export function CommandAction({
         <Label>Action Type</Label>
         <RadioGroup
           value={actionType}
-          onValueChange={(value) => handleTypeChange(value as CommandActionType)}
+          onValueChange={(value) =>
+            handleTypeChange(value as CommandActionType)
+          }
           className="grid gap-3 sm:grid-cols-2"
         >
           {actionTypes.map((type) => (
@@ -115,17 +120,23 @@ export function CommandAction({
               key={type.value}
               htmlFor={type.value}
               className={cn(
-                'hover:bg-muted/50 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors',
-                actionType === type.value && 'bg-primary/5 border-primary'
+                "hover:bg-muted/50 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors",
+                actionType === type.value && "bg-primary/5 border-primary",
               )}
             >
-              <RadioGroupItem value={type.value} id={type.value} className="mt-1" />
+              <RadioGroupItem
+                value={type.value}
+                id={type.value}
+                className="mt-1"
+              />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <type.icon className="h-4 w-4 text-primary" />
                   <span className="font-medium">{type.label}</span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">{type.description}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {type.description}
+                </p>
               </div>
             </Label>
           ))}
@@ -137,33 +148,35 @@ export function CommandAction({
         <h4 className="font-medium">Configure Action</h4>
 
         {/* Message Action */}
-        {actionType === 'message' && (
+        {actionType === "message" && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Message Template</Label>
               <Textarea
-                value={action.message || ''}
-                onChange={(e) => onChange(actionType, { ...action, message: e.target.value })}
+                value={action.message || ""}
+                onChange={(e) =>
+                  onChange(actionType, { ...action, message: e.target.value })
+                }
                 placeholder="Hello {{username}}! You said: {{args}}"
                 rows={4}
                 className="font-mono text-sm"
               />
               <p className="text-xs text-muted-foreground">
-                Use {'{{variable}}'} to include dynamic content. Available: username, displayName,
-                channelName, plus any argument names.
+                Use {"{{variable}}"} to include dynamic content. Available:
+                username, displayName, channelName, plus any argument names.
               </p>
             </div>
           </div>
         )}
 
         {/* Status Action */}
-        {actionType === 'status' && (
+        {actionType === "status" && (
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Status Text</Label>
                 <Input
-                  value={action.status?.text || ''}
+                  value={action.status?.text || ""}
                   onChange={(e) =>
                     onChange(actionType, {
                       ...action,
@@ -176,13 +189,13 @@ export function CommandAction({
               <div className="space-y-2">
                 <Label>Emoji</Label>
                 <Input
-                  value={action.status?.emoji || ''}
+                  value={action.status?.emoji || ""}
                   onChange={(e) =>
                     onChange(actionType, {
                       ...action,
                       status: {
                         ...action.status,
-                        text: action.status?.text || '',
+                        text: action.status?.text || "",
                         emoji: e.target.value,
                       },
                     })
@@ -194,13 +207,13 @@ export function CommandAction({
             <div className="space-y-2">
               <Label>Expiry (optional)</Label>
               <Input
-                value={action.status?.expiry || ''}
+                value={action.status?.expiry || ""}
                 onChange={(e) =>
                   onChange(actionType, {
                     ...action,
                     status: {
                       ...action.status,
-                      text: action.status?.text || '',
+                      text: action.status?.text || "",
                       expiry: e.target.value,
                     },
                   })
@@ -212,12 +225,12 @@ export function CommandAction({
         )}
 
         {/* Navigate Action */}
-        {actionType === 'navigate' && (
+        {actionType === "navigate" && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>URL or Path</Label>
               <Input
-                value={action.navigate?.url || ''}
+                value={action.navigate?.url || ""}
                 onChange={(e) =>
                   onChange(actionType, {
                     ...action,
@@ -227,8 +240,8 @@ export function CommandAction({
                 placeholder="/settings or https://example.com"
               />
               <p className="text-xs text-muted-foreground">
-                Use relative paths for internal pages, or full URLs for external links. Variables
-                like {'{{userId}}'} are supported.
+                Use relative paths for internal pages, or full URLs for external
+                links. Variables like {"{{userId}}"} are supported.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -241,7 +254,7 @@ export function CommandAction({
                     ...action,
                     navigate: {
                       ...action.navigate,
-                      url: action.navigate?.url || '',
+                      url: action.navigate?.url || "",
                       newTab: e.target.checked,
                     },
                   })
@@ -254,12 +267,12 @@ export function CommandAction({
         )}
 
         {/* Modal Action */}
-        {actionType === 'modal' && (
+        {actionType === "modal" && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Component Name</Label>
               <Input
-                value={action.modal?.component || ''}
+                value={action.modal?.component || ""}
                 onChange={(e) =>
                   onChange(actionType, {
                     ...action,
@@ -276,20 +289,20 @@ export function CommandAction({
         )}
 
         {/* API Action */}
-        {actionType === 'api' && (
+        {actionType === "api" && (
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2 sm:col-span-2">
                 <Label>Endpoint</Label>
                 <Input
-                  value={action.api?.endpoint || ''}
+                  value={action.api?.endpoint || ""}
                   onChange={(e) =>
                     onChange(actionType, {
                       ...action,
                       api: {
                         ...action.api,
                         endpoint: e.target.value,
-                        method: action.api?.method || 'POST',
+                        method: action.api?.method || "POST",
                       },
                     })
                   }
@@ -299,13 +312,13 @@ export function CommandAction({
               <div className="space-y-2">
                 <Label>Method</Label>
                 <select
-                  value={action.api?.method || 'POST'}
+                  value={action.api?.method || "POST"}
                   onChange={(e) =>
                     onChange(actionType, {
                       ...action,
                       api: {
                         ...action.api,
-                        endpoint: action.api?.endpoint || '',
+                        endpoint: action.api?.endpoint || "",
                         method: e.target.value,
                       },
                     })
@@ -324,23 +337,27 @@ export function CommandAction({
         )}
 
         {/* Webhook Action */}
-        {actionType === 'webhook' && (
+        {actionType === "webhook" && (
           <div className="rounded-lg border border-dashed p-4 text-center text-muted-foreground">
             <Webhook className="mx-auto mb-2 h-8 w-8" />
-            <p className="text-sm">Configure webhook settings in the Webhook tab below.</p>
+            <p className="text-sm">
+              Configure webhook settings in the Webhook tab below.
+            </p>
           </div>
         )}
 
         {/* Workflow Action */}
-        {actionType === 'workflow' && (
+        {actionType === "workflow" && (
           <div className="rounded-lg border border-dashed p-4 text-center text-muted-foreground">
             <Workflow className="mx-auto mb-2 h-8 w-8" />
-            <p className="text-sm">Configure workflow settings in the Workflow tab below.</p>
+            <p className="text-sm">
+              Configure workflow settings in the Workflow tab below.
+            </p>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default CommandAction
+export default CommandAction;

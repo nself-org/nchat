@@ -1,12 +1,15 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useSubscription } from '@apollo/client'
-import { useAuth } from '@/contexts/auth-context'
-import { useNotificationStore } from '@/stores/notification-store'
-import { useThreadStore } from '@/stores/thread-store'
-import { USER_THREADS_SUBSCRIPTION, THREAD_MESSAGES_SUBSCRIPTION } from '@/graphql/threads'
-import type { Notification } from '@/stores/notification-store'
+import { useCallback, useEffect, useMemo } from "react";
+import { useSubscription } from "@apollo/client";
+import { useAuth } from "@/contexts/auth-context";
+import { useNotificationStore } from "@/stores/notification-store";
+import { useThreadStore } from "@/stores/thread-store";
+import {
+  USER_THREADS_SUBSCRIPTION,
+  THREAD_MESSAGES_SUBSCRIPTION,
+} from "@/graphql/threads";
+import type { Notification } from "@/stores/notification-store";
 
 // ============================================================================
 // TYPES
@@ -14,24 +17,28 @@ import type { Notification } from '@/stores/notification-store'
 
 export interface ThreadNotificationOptions {
   /** Whether to enable desktop notifications */
-  desktopNotifications?: boolean
+  desktopNotifications?: boolean;
   /** Whether to play sounds for new thread replies */
-  playSounds?: boolean
+  playSounds?: boolean;
   /** Callback when a new thread reply is received */
-  onNewReply?: (threadId: string, messageContent: string, authorName: string) => void
+  onNewReply?: (
+    threadId: string,
+    messageContent: string,
+    authorName: string,
+  ) => void;
 }
 
 export interface UseThreadNotificationsReturn {
   /** Total unread thread count */
-  unreadThreadCount: number
+  unreadThreadCount: number;
   /** Mark a specific thread as read */
-  markThreadAsRead: (threadId: string) => void
+  markThreadAsRead: (threadId: string) => void;
   /** Mark all threads as read */
-  markAllThreadsAsRead: () => void
+  markAllThreadsAsRead: () => void;
   /** Check if a thread has unread messages */
-  hasUnreadInThread: (threadId: string) => boolean
+  hasUnreadInThread: (threadId: string) => boolean;
   /** Enable/disable notifications for a specific thread */
-  toggleThreadNotifications: (threadId: string, enabled: boolean) => void
+  toggleThreadNotifications: (threadId: string, enabled: boolean) => void;
 }
 
 // ============================================================================
@@ -39,17 +46,21 @@ export interface UseThreadNotificationsReturn {
 // ============================================================================
 
 export function useThreadNotifications(
-  options: ThreadNotificationOptions = {}
+  options: ThreadNotificationOptions = {},
 ): UseThreadNotificationsReturn {
-  const { desktopNotifications = true, playSounds = true, onNewReply } = options
+  const {
+    desktopNotifications = true,
+    playSounds = true,
+    onNewReply,
+  } = options;
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   // Stores
-  const notificationStore = useNotificationStore()
-  const threadStore = useThreadStore()
+  const notificationStore = useNotificationStore();
+  const threadStore = useThreadStore();
 
-  const { addNotification, preferences, unreadCounts } = notificationStore
+  const { addNotification, preferences, unreadCounts } = notificationStore;
 
   const {
     unreadThreadIds,
@@ -61,7 +72,7 @@ export function useThreadNotifications(
     mutedThreadIds,
     muteThread,
     unmuteThread,
-  } = threadStore
+  } = threadStore;
 
   // Subscribe to user's threads for real-time updates
   useSubscription(USER_THREADS_SUBSCRIPTION, {
@@ -70,43 +81,43 @@ export function useThreadNotifications(
     onData: ({ data }) => {
       if (data.data?.nchat_thread_participants) {
         // Process thread updates
-        const participations = data.data.nchat_thread_participants
+        const participations = data.data.nchat_thread_participants;
 
         participations.forEach(
           (participation: {
             thread: {
-              id: string
-              message_count: number
-              last_reply_at: string
+              id: string;
+              message_count: number;
+              last_reply_at: string;
               parent_message?: {
-                id: string
-                content: string
+                id: string;
+                content: string;
                 channel?: {
-                  id: string
-                  name: string
-                  slug: string
-                }
-              }
-            }
-            last_read_at?: string
+                  id: string;
+                  name: string;
+                  slug: string;
+                };
+              };
+            };
+            last_read_at?: string;
           }) => {
-            const { thread, last_read_at } = participation
+            const { thread, last_read_at } = participation;
 
-            if (!thread || !last_read_at) return
+            if (!thread || !last_read_at) return;
 
             // Check if there are new messages since last read
-            const lastReplyTime = new Date(thread.last_reply_at).getTime()
-            const lastReadTime = new Date(last_read_at).getTime()
+            const lastReplyTime = new Date(thread.last_reply_at).getTime();
+            const lastReadTime = new Date(last_read_at).getTime();
 
             if (lastReplyTime > lastReadTime) {
               // Thread has unread messages
-              incrementThreadUnread(thread.id)
+              incrementThreadUnread(thread.id);
             }
-          }
-        )
+          },
+        );
       }
     },
-  })
+  });
 
   // Create a thread notification
   const createThreadNotification = useCallback(
@@ -115,23 +126,23 @@ export function useThreadNotifications(
       channelId: string,
       channelName: string,
       messageContent: string,
-      author: { id: string; name: string; avatar?: string }
+      author: { id: string; name: string; avatar?: string },
     ) => {
       // Check if notifications are enabled for this thread
       if (mutedThreadIds.has(threadId)) {
-        return
+        return;
       }
 
       // Check global thread notification preference
       if (!preferences.threadRepliesEnabled) {
-        return
+        return;
       }
 
       // Create notification
       const notification: Notification = {
         id: `thread-reply-${threadId}-${Date.now()}`,
-        type: 'thread_reply',
-        priority: 'normal',
+        type: "thread_reply",
+        priority: "normal",
         title: `New reply in thread`,
         body: messageContent,
         actor: {
@@ -146,31 +157,35 @@ export function useThreadNotifications(
         isArchived: false,
         createdAt: new Date().toISOString(),
         actionUrl: `/chat/channel/${channelName}?thread=${threadId}`,
-      }
+      };
 
-      addNotification(notification)
+      addNotification(notification);
 
       // Trigger callback if provided
       if (onNewReply) {
-        onNewReply(threadId, messageContent, author.name)
+        onNewReply(threadId, messageContent, author.name);
       }
 
       // Desktop notification
-      if (desktopNotifications && preferences.desktopEnabled && preferences.showPreview) {
-        if (typeof window !== 'undefined' && 'Notification' in window) {
-          if (Notification.permission === 'granted') {
+      if (
+        desktopNotifications &&
+        preferences.desktopEnabled &&
+        preferences.showPreview
+      ) {
+        if (typeof window !== "undefined" && "Notification" in window) {
+          if (Notification.permission === "granted") {
             const desktopNotif = new Notification(`Reply from ${author.name}`, {
               body: messageContent.slice(0, 100),
-              icon: author.avatar || '/favicon.ico',
+              icon: author.avatar || "/favicon.ico",
               tag: `thread-${threadId}`,
               silent: !playSounds || !preferences.soundEnabled,
-            })
+            });
 
             desktopNotif.onclick = () => {
-              window.focus()
+              window.focus();
               // Navigate to thread
-              window.location.href = `/chat/channel/${channelName}?thread=${threadId}`
-            }
+              window.location.href = `/chat/channel/${channelName}?thread=${threadId}`;
+            };
           }
         }
       }
@@ -181,60 +196,67 @@ export function useThreadNotifications(
         // This is handled by the notification-sounds.ts utility
       }
     },
-    [addNotification, desktopNotifications, mutedThreadIds, onNewReply, playSounds, preferences]
-  )
+    [
+      addNotification,
+      desktopNotifications,
+      mutedThreadIds,
+      onNewReply,
+      playSounds,
+      preferences,
+    ],
+  );
 
   // Mark a thread as read
   const markThreadAsRead = useCallback(
     (threadId: string) => {
-      markThreadReadInStore(threadId)
+      markThreadReadInStore(threadId);
 
       // Also update the notification store
       notificationStore.notifications
         .filter((n) => n.threadId === threadId && !n.isRead)
         .forEach((n) => {
-          notificationStore.markAsRead(n.id)
-        })
+          notificationStore.markAsRead(n.id);
+        });
     },
-    [markThreadReadInStore, notificationStore]
-  )
+    [markThreadReadInStore, notificationStore],
+  );
 
   // Mark all threads as read
   const markAllThreadsAsRead = useCallback(() => {
-    markAllReadInStore()
+    markAllReadInStore();
 
     // Also mark all thread notifications as read
     notificationStore.notifications
-      .filter((n) => n.type === 'thread_reply' && !n.isRead)
+      .filter((n) => n.type === "thread_reply" && !n.isRead)
       .forEach((n) => {
-        notificationStore.markAsRead(n.id)
-      })
-  }, [markAllReadInStore, notificationStore])
+        notificationStore.markAsRead(n.id);
+      });
+  }, [markAllReadInStore, notificationStore]);
 
   // Check if a thread has unread messages
   const hasUnreadInThread = useCallback(
     (threadId: string) => {
-      return unreadThreadIds.has(threadId)
+      return unreadThreadIds.has(threadId);
     },
-    [unreadThreadIds]
-  )
+    [unreadThreadIds],
+  );
 
   // Toggle thread notifications
   const toggleThreadNotifications = useCallback(
     (threadId: string, enabled: boolean) => {
       if (enabled) {
-        unmuteThread(threadId)
+        unmuteThread(threadId);
       } else {
-        muteThread(threadId)
+        muteThread(threadId);
       }
     },
-    [muteThread, unmuteThread]
-  )
+    [muteThread, unmuteThread],
+  );
 
   // Unread thread count
   const unreadThreadCount = useMemo(() => {
-    return totalUnreadCount
-  }, [totalUnreadCount])
+    return totalUnreadCount;
+  }, [totalUnreadCount]);
 
   return {
     unreadThreadCount,
@@ -242,7 +264,7 @@ export function useThreadNotifications(
     markAllThreadsAsRead,
     hasUnreadInThread,
     toggleThreadNotifications,
-  }
+  };
 }
 
 // ============================================================================
@@ -250,16 +272,16 @@ export function useThreadNotifications(
 // ============================================================================
 
 export interface UseThreadReplyNotificationsOptions {
-  threadId: string
-  onNewMessage?: (content: string, authorName: string) => void
+  threadId: string;
+  onNewMessage?: (content: string, authorName: string) => void;
 }
 
 export function useThreadReplyNotifications({
   threadId,
   onNewMessage,
 }: UseThreadReplyNotificationsOptions) {
-  const { user } = useAuth()
-  const { incrementThreadUnread } = useThreadStore()
+  const { user } = useAuth();
+  const { incrementThreadUnread } = useThreadStore();
 
   // Subscribe to new messages in this specific thread
   useSubscription(THREAD_MESSAGES_SUBSCRIPTION, {
@@ -267,24 +289,27 @@ export function useThreadReplyNotifications({
     skip: !threadId,
     onData: ({ data }) => {
       if (data.data?.nchat_messages?.[0]) {
-        const newMessage = data.data.nchat_messages[0]
+        const newMessage = data.data.nchat_messages[0];
 
         // Don't notify for own messages
         if (newMessage.user_id === user?.id) {
-          return
+          return;
         }
 
         // Increment unread count
-        incrementThreadUnread(threadId)
+        incrementThreadUnread(threadId);
 
         // Trigger callback
         if (onNewMessage) {
-          const authorName = newMessage.user?.display_name || newMessage.user?.username || 'Unknown'
-          onNewMessage(newMessage.content, authorName)
+          const authorName =
+            newMessage.user?.display_name ||
+            newMessage.user?.username ||
+            "Unknown";
+          onNewMessage(newMessage.content, authorName);
         }
       }
     },
-  })
+  });
 }
 
-export default useThreadNotifications
+export default useThreadNotifications;

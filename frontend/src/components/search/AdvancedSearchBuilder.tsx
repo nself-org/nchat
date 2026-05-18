@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * AdvancedSearchBuilder - Visual query builder with boolean operators
@@ -12,26 +12,42 @@
  * - Export/import queries
  */
 
-import * as React from 'react'
-import { Plus, X, Code, Eye, Copy, Download, Upload, Trash2, GripVertical } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import * as React from "react";
+import {
+  Plus,
+  X,
+  Code,
+  Eye,
+  Copy,
+  Download,
+  Upload,
+  Trash2,
+  GripVertical,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -39,41 +55,50 @@ import { logger } from '@/lib/logger'
 
 export interface AdvancedSearchBuilderProps {
   /** Initial query parts */
-  initialParts?: QueryPart[]
+  initialParts?: QueryPart[];
   /** Callback when query changes */
-  onChange?: (query: string, parts: QueryPart[]) => void
+  onChange?: (query: string, parts: QueryPart[]) => void;
   /** Callback when search is executed */
-  onSearch?: (query: string) => void
+  onSearch?: (query: string) => void;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
-export type BooleanOperator = 'AND' | 'OR' | 'NOT'
+export type BooleanOperator = "AND" | "OR" | "NOT";
 
-export type QueryField = 'text' | 'from' | 'in' | 'has' | 'is' | 'before' | 'after' | 'on'
+export type QueryField =
+  | "text"
+  | "from"
+  | "in"
+  | "has"
+  | "is"
+  | "before"
+  | "after"
+  | "on";
 
 export interface QueryPart {
-  id: string
-  field: QueryField
-  operator: BooleanOperator
-  value: string
-  exact?: boolean
+  id: string;
+  field: QueryField;
+  operator: BooleanOperator;
+  value: string;
+  exact?: boolean;
 }
 
 // ============================================================================
 // Field Configuration
 // ============================================================================
 
-const fieldConfig: Record<QueryField, { label: string; placeholder: string }> = {
-  text: { label: 'Text', placeholder: 'Search text' },
-  from: { label: 'From User', placeholder: 'Username or ID' },
-  in: { label: 'In Channel', placeholder: 'Channel name or ID' },
-  has: { label: 'Has', placeholder: 'link, file, image, code, mention' },
-  is: { label: 'Is', placeholder: 'pinned, starred, thread, unread' },
-  before: { label: 'Before Date', placeholder: 'YYYY-MM-DD' },
-  after: { label: 'After Date', placeholder: 'YYYY-MM-DD' },
-  on: { label: 'On Date', placeholder: 'YYYY-MM-DD' },
-}
+const fieldConfig: Record<QueryField, { label: string; placeholder: string }> =
+  {
+    text: { label: "Text", placeholder: "Search text" },
+    from: { label: "From User", placeholder: "Username or ID" },
+    in: { label: "In Channel", placeholder: "Channel name or ID" },
+    has: { label: "Has", placeholder: "link, file, image, code, mention" },
+    is: { label: "Is", placeholder: "pinned, starred, thread, unread" },
+    before: { label: "Before Date", placeholder: "YYYY-MM-DD" },
+    after: { label: "After Date", placeholder: "YYYY-MM-DD" },
+    on: { label: "On Date", placeholder: "YYYY-MM-DD" },
+  };
 
 // ============================================================================
 // Main Component
@@ -91,94 +116,96 @@ export function AdvancedSearchBuilder({
       : [
           {
             id: crypto.randomUUID(),
-            field: 'text',
-            operator: 'AND',
-            value: '',
+            field: "text",
+            operator: "AND",
+            value: "",
             exact: false,
           },
-        ]
-  )
-  const [activeTab, setActiveTab] = React.useState<'visual' | 'code'>('visual')
-  const [queryString, setQueryString] = React.useState('')
+        ],
+  );
+  const [activeTab, setActiveTab] = React.useState<"visual" | "code">("visual");
+  const [queryString, setQueryString] = React.useState("");
 
   // Build query string from parts
   React.useEffect(() => {
-    const built = buildQueryString(queryParts)
-    setQueryString(built)
-    onChange?.(built, queryParts)
-  }, [queryParts, onChange])
+    const built = buildQueryString(queryParts);
+    setQueryString(built);
+    onChange?.(built, queryParts);
+  }, [queryParts, onChange]);
 
   const addQueryPart = () => {
     setQueryParts([
       ...queryParts,
       {
         id: crypto.randomUUID(),
-        field: 'text',
-        operator: 'AND',
-        value: '',
+        field: "text",
+        operator: "AND",
+        value: "",
         exact: false,
       },
-    ])
-  }
+    ]);
+  };
 
   const updateQueryPart = (id: string, updates: Partial<QueryPart>) => {
-    setQueryParts((parts) => parts.map((part) => (part.id === id ? { ...part, ...updates } : part)))
-  }
+    setQueryParts((parts) =>
+      parts.map((part) => (part.id === id ? { ...part, ...updates } : part)),
+    );
+  };
 
   const removeQueryPart = (id: string) => {
-    setQueryParts((parts) => parts.filter((part) => part.id !== id))
-  }
+    setQueryParts((parts) => parts.filter((part) => part.id !== id));
+  };
 
   const handleSearch = () => {
-    onSearch?.(queryString)
-  }
+    onSearch?.(queryString);
+  };
 
   const handleExport = () => {
-    const dataStr = JSON.stringify(queryParts, null, 2)
-    const dataBlob = new Blob([dataStr], { type: 'application/json' })
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'search-query.json'
-    link.click()
-    URL.revokeObjectURL(url)
-  }
+    const dataStr = JSON.stringify(queryParts, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "search-query.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const parts = JSON.parse(e.target?.result as string)
-          setQueryParts(parts)
+          const parts = JSON.parse(e.target?.result as string);
+          setQueryParts(parts);
         } catch (error) {
-          logger.error('Failed to import query:', error)
-          alert('Failed to import query. Please check the file format.')
+          logger.error("Failed to import query:", error);
+          alert("Failed to import query. Please check the file format.");
         }
-      }
-      reader.readAsText(file)
+      };
+      reader.readAsText(file);
     }
-  }
+  };
 
   const handleCopyQuery = () => {
-    navigator.clipboard.writeText(queryString)
-  }
+    navigator.clipboard.writeText(queryString);
+  };
 
   const handleClear = () => {
     setQueryParts([
       {
         id: crypto.randomUUID(),
-        field: 'text',
-        operator: 'AND',
-        value: '',
+        field: "text",
+        operator: "AND",
+        value: "",
         exact: false,
       },
-    ])
-  }
+    ]);
+  };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <div className="flex items-center justify-between">
           <TabsList>
@@ -195,7 +222,12 @@ export function AdvancedSearchBuilder({
               <label>
                 <Upload className="mr-2 h-4 w-4" />
                 Import
-                <input type="file" accept=".json" className="hidden" onChange={handleImport} />
+                <input
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={handleImport}
+                />
               </label>
             </Button>
             <Button variant="outline" size="sm" onClick={handleClear}>
@@ -244,11 +276,13 @@ export function AdvancedSearchBuilder({
                   Copy
                 </Button>
               </CardTitle>
-              <CardDescription>The generated search query based on your conditions</CardDescription>
+              <CardDescription>
+                The generated search query based on your conditions
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <pre className="rounded-md bg-muted p-4 text-sm">
-                <code>{queryString || '(empty query)'}</code>
+                <code>{queryString || "(empty query)"}</code>
               </pre>
             </CardContent>
           </Card>
@@ -260,32 +294,38 @@ export function AdvancedSearchBuilder({
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
               <div>
-                <code className="rounded bg-muted px-1">from:alice</code> - Messages from user alice
+                <code className="rounded bg-muted px-1">from:alice</code> -
+                Messages from user alice
               </div>
               <div>
-                <code className="rounded bg-muted px-1">in:general</code> - Messages in #general
-                channel
+                <code className="rounded bg-muted px-1">in:general</code> -
+                Messages in #general channel
               </div>
               <div>
-                <code className="rounded bg-muted px-1">has:link</code> - Messages containing links
+                <code className="rounded bg-muted px-1">has:link</code> -
+                Messages containing links
               </div>
               <div>
-                <code className="rounded bg-muted px-1">is:pinned</code> - Pinned messages
+                <code className="rounded bg-muted px-1">is:pinned</code> -
+                Pinned messages
               </div>
               <div>
-                <code className="rounded bg-muted px-1">&quot;exact phrase&quot;</code> - Match
-                exact phrase
+                <code className="rounded bg-muted px-1">
+                  &quot;exact phrase&quot;
+                </code>{" "}
+                - Match exact phrase
               </div>
               <div>
-                <code className="rounded bg-muted px-1">term1 AND term2</code> - Both terms must
-                appear
+                <code className="rounded bg-muted px-1">term1 AND term2</code> -
+                Both terms must appear
               </div>
               <div>
-                <code className="rounded bg-muted px-1">term1 OR term2</code> - Either term can
-                appear
+                <code className="rounded bg-muted px-1">term1 OR term2</code> -
+                Either term can appear
               </div>
               <div>
-                <code className="rounded bg-muted px-1">NOT term</code> - Exclude term
+                <code className="rounded bg-muted px-1">NOT term</code> -
+                Exclude term
               </div>
             </CardContent>
           </Card>
@@ -303,7 +343,9 @@ export function AdvancedSearchBuilder({
         <CardContent>
           <div className="flex items-center gap-2 rounded-md bg-muted p-3">
             <Code className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <code className="flex-1 text-sm">{queryString || '(empty query)'}</code>
+            <code className="flex-1 text-sm">
+              {queryString || "(empty query)"}
+            </code>
             <Button onClick={handleSearch} size="sm">
               Search
             </Button>
@@ -311,7 +353,7 @@ export function AdvancedSearchBuilder({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -319,14 +361,20 @@ export function AdvancedSearchBuilder({
 // ============================================================================
 
 interface QueryPartEditorProps {
-  part: QueryPart
-  index: number
-  showOperator: boolean
-  onChange: (updates: Partial<QueryPart>) => void
-  onRemove: () => void
+  part: QueryPart;
+  index: number;
+  showOperator: boolean;
+  onChange: (updates: Partial<QueryPart>) => void;
+  onRemove: () => void;
 }
 
-function QueryPartEditor({ part, index, showOperator, onChange, onRemove }: QueryPartEditorProps) {
+function QueryPartEditor({
+  part,
+  index,
+  showOperator,
+  onChange,
+  onRemove,
+}: QueryPartEditorProps) {
   return (
     <div className="hover:border-primary/50 group relative rounded-lg border bg-card p-4 transition-colors">
       {/* Drag Handle */}
@@ -341,7 +389,9 @@ function QueryPartEditor({ part, index, showOperator, onChange, onRemove }: Quer
             <Label className="w-20 text-xs">Operator</Label>
             <Select
               value={part.operator}
-              onValueChange={(value: BooleanOperator) => onChange({ operator: value })}
+              onValueChange={(value: BooleanOperator) =>
+                onChange({ operator: value })
+              }
             >
               <SelectTrigger className="h-8 w-24">
                 <SelectValue />
@@ -381,9 +431,9 @@ function QueryPartEditor({ part, index, showOperator, onChange, onRemove }: Quer
             className="h-8 flex-1"
           />
 
-          {part.field === 'text' && (
+          {part.field === "text" && (
             <Button
-              variant={part.exact ? 'secondary' : 'outline'}
+              variant={part.exact ? "secondary" : "outline"}
               size="sm"
               onClick={() => onChange({ exact: !part.exact })}
               className="h-8"
@@ -407,12 +457,14 @@ function QueryPartEditor({ part, index, showOperator, onChange, onRemove }: Quer
         {part.value && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Code className="h-3 w-3" />
-            <code className="rounded bg-muted px-1">{buildSinglePartQuery(part)}</code>
+            <code className="rounded bg-muted px-1">
+              {buildSinglePartQuery(part)}
+            </code>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -420,35 +472,35 @@ function QueryPartEditor({ part, index, showOperator, onChange, onRemove }: Quer
 // ============================================================================
 
 function buildSinglePartQuery(part: QueryPart): string {
-  if (!part.value) return ''
+  if (!part.value) return "";
 
-  let query = ''
+  let query = "";
 
-  if (part.field === 'text') {
-    query = part.exact ? `"${part.value}"` : part.value
+  if (part.field === "text") {
+    query = part.exact ? `"${part.value}"` : part.value;
   } else {
-    query = `${part.field}:${part.value}`
+    query = `${part.field}:${part.value}`;
   }
 
-  return query
+  return query;
 }
 
 function buildQueryString(parts: QueryPart[]): string {
-  const validParts = parts.filter((part) => part.value)
+  const validParts = parts.filter((part) => part.value);
 
-  if (validParts.length === 0) return ''
+  if (validParts.length === 0) return "";
 
   return validParts
     .map((part, index) => {
-      const partQuery = buildSinglePartQuery(part)
+      const partQuery = buildSinglePartQuery(part);
 
       if (index === 0) {
-        return part.operator === 'NOT' ? `NOT ${partQuery}` : partQuery
+        return part.operator === "NOT" ? `NOT ${partQuery}` : partQuery;
       }
 
-      return `${part.operator} ${partQuery}`
+      return `${part.operator} ${partQuery}`;
     })
-    .join(' ')
+    .join(" ");
 }
 
-export default AdvancedSearchBuilder
+export default AdvancedSearchBuilder;

@@ -1,46 +1,46 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
-import { useQuery } from '@apollo/client'
+import { useState, useMemo } from "react";
+import { useQuery } from "@apollo/client";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Badge } from '@/components/ui/badge'
-import { Search, Users, Clock, CheckCircle2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { GET_OPTION_VOTERS } from '@/graphql/polls'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Search, Users, Clock, CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { GET_OPTION_VOTERS } from "@/graphql/polls";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface PollVotersModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  pollId: string
-  optionId: string
-  optionText: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  pollId: string;
+  optionId: string;
+  optionText: string;
 }
 
 interface Voter {
-  id: string
-  user_id: string
-  created_at: string
+  id: string;
+  user_id: string;
+  created_at: string;
   user: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url: string | null
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+  };
 }
 
 // ============================================================================
@@ -48,33 +48,37 @@ interface Voter {
 // ============================================================================
 
 function VoterItem({ voter }: { voter: Voter }) {
-  const votedAt = new Date(voter.created_at)
-  const formattedDate = votedAt.toLocaleDateString()
+  const votedAt = new Date(voter.created_at);
+  const formattedDate = votedAt.toLocaleDateString();
   const formattedTime = votedAt.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   return (
     <div className="hover:bg-accent/50 flex items-center gap-3 rounded-lg p-3 transition-colors">
       <Avatar className="h-10 w-10">
         <AvatarImage src={voter.user.avatar_url || undefined} />
         <AvatarFallback>
-          {voter.user.display_name?.charAt(0) || voter.user.username?.charAt(0) || '?'}
+          {voter.user.display_name?.charAt(0) ||
+            voter.user.username?.charAt(0) ||
+            "?"}
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">
           {voter.user.display_name || voter.user.username}
         </p>
-        <p className="truncate text-xs text-muted-foreground">@{voter.user.username}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          @{voter.user.username}
+        </p>
       </div>
       <div className="flex-shrink-0 text-right text-xs text-muted-foreground">
         <p>{formattedDate}</p>
         <p>{formattedTime}</p>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -94,7 +98,7 @@ function VoterSkeleton() {
         <Skeleton className="h-3 w-12" />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -108,51 +112,54 @@ export function PollVotersModal({
   optionId,
   optionText,
 }: PollVotersModalProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [loadingMore, setLoadingMore] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const { data, loading, error, fetchMore } = useQuery(GET_OPTION_VOTERS, {
     variables: { optionId, limit: 50, offset: 0 },
     skip: !open,
-    fetchPolicy: 'cache-and-network',
-  })
+    fetchPolicy: "cache-and-network",
+  });
 
-  const voters: Voter[] = data?.nchat_poll_votes || []
-  const totalCount = data?.nchat_poll_votes_aggregate?.aggregate?.count || 0
-  const hasMore = voters.length < totalCount
+  const voters: Voter[] = data?.nchat_poll_votes || [];
+  const totalCount = data?.nchat_poll_votes_aggregate?.aggregate?.count || 0;
+  const hasMore = voters.length < totalCount;
 
   const filteredVoters = useMemo(() => {
-    if (!searchQuery.trim()) return voters
+    if (!searchQuery.trim()) return voters;
 
-    const query = searchQuery.toLowerCase()
+    const query = searchQuery.toLowerCase();
     return voters.filter(
       (voter) =>
         voter.user.display_name?.toLowerCase().includes(query) ||
-        voter.user.username?.toLowerCase().includes(query)
-    )
-  }, [voters, searchQuery])
+        voter.user.username?.toLowerCase().includes(query),
+    );
+  }, [voters, searchQuery]);
 
   const handleLoadMore = async () => {
-    if (loadingMore || !hasMore) return
+    if (loadingMore || !hasMore) return;
 
-    setLoadingMore(true)
+    setLoadingMore(true);
     try {
       await fetchMore({
         variables: {
           offset: voters.length,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev
+          if (!fetchMoreResult) return prev;
           return {
             ...prev,
-            nchat_poll_votes: [...prev.nchat_poll_votes, ...fetchMoreResult.nchat_poll_votes],
-          }
+            nchat_poll_votes: [
+              ...prev.nchat_poll_votes,
+              ...fetchMoreResult.nchat_poll_votes,
+            ],
+          };
         },
-      })
+      });
     } finally {
-      setLoadingMore(false)
+      setLoadingMore(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -172,7 +179,7 @@ export function PollVotersModal({
         <div className="flex items-center gap-4 py-2">
           <Badge variant="secondary" className="text-sm">
             <Users className="mr-1 h-3 w-3" />
-            {totalCount} voter{totalCount !== 1 ? 's' : ''}
+            {totalCount} voter{totalCount !== 1 ? "s" : ""}
           </Badge>
         </div>
 
@@ -200,7 +207,9 @@ export function PollVotersModal({
 
             {error && (
               <div className="py-8 text-center">
-                <p className="text-sm text-destructive">Failed to load voters</p>
+                <p className="text-sm text-destructive">
+                  Failed to load voters
+                </p>
               </div>
             )}
 
@@ -208,7 +217,9 @@ export function PollVotersModal({
               <div className="py-8 text-center">
                 <Users className="text-muted-foreground/50 mx-auto mb-2 h-12 w-12" />
                 <p className="text-sm text-muted-foreground">
-                  {searchQuery ? 'No voters match your search' : 'No voters yet'}
+                  {searchQuery
+                    ? "No voters match your search"
+                    : "No voters yet"}
                 </p>
               </div>
             )}
@@ -224,9 +235,14 @@ export function PollVotersModal({
             {/* Load More */}
             {hasMore && !searchQuery && (
               <div className="py-4 text-center">
-                <Button variant="outline" size="sm" onClick={handleLoadMore} disabled={loadingMore}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                >
                   {loadingMore
-                    ? 'Loading...'
+                    ? "Loading..."
                     : `Load More (${totalCount - voters.length} remaining)`}
                 </Button>
               </div>
@@ -242,7 +258,7 @@ export function PollVotersModal({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default PollVotersModal
+export default PollVotersModal;

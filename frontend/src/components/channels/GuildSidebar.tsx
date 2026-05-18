@@ -1,38 +1,46 @@
-'use client'
+"use client";
 
 /**
  * Guild Sidebar Component - Discord-style server sidebar
  * Shows categories and channels in hierarchical structure
  */
 
-import React, { useState } from 'react'
-import { ChevronDown, ChevronRight, Hash, Volume2, Lock, Plus, Settings } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { ChannelCategory, Channel } from '@/types/advanced-channels'
+import React, { useState } from "react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Hash,
+  Volume2,
+  Lock,
+  Plus,
+  Settings,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { ChannelCategory, Channel } from "@/types/advanced-channels";
 
 // ============================================================================
 // Interfaces
 // ============================================================================
 
 export interface GuildSidebarProps {
-  workspaceId: string
-  workspaceName: string
-  workspaceIcon?: string
-  categories: ChannelCategory[]
-  channels: Channel[]
-  currentChannelId?: string
-  onChannelSelect?: (channelId: string) => void
-  onCreateChannel?: (categoryId?: string) => void
-  onCreateCategory?: () => void
-  onManageChannel?: (channelId: string) => void
+  workspaceId: string;
+  workspaceName: string;
+  workspaceIcon?: string;
+  categories: ChannelCategory[];
+  channels: Channel[];
+  currentChannelId?: string;
+  onChannelSelect?: (channelId: string) => void;
+  onCreateChannel?: (categoryId?: string) => void;
+  onCreateCategory?: () => void;
+  onManageChannel?: (channelId: string) => void;
   userPermissions?: {
-    canManageChannels: boolean
-    canManageCategories: boolean
-  }
+    canManageChannels: boolean;
+    canManageCategories: boolean;
+  };
 }
 
 interface CategoryWithChannels extends ChannelCategory {
-  channels: Channel[]
+  channels: Channel[];
 }
 
 // ============================================================================
@@ -52,34 +60,38 @@ export function GuildSidebar({
   onManageChannel,
   userPermissions = { canManageChannels: false, canManageCategories: false },
 }: GuildSidebarProps) {
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set())
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Group channels by category
-  const categoriesWithChannels: CategoryWithChannels[] = categories.map((cat) => ({
-    ...cat,
-    channels: channels.filter((ch) => ch.categoryId === cat.id),
-  }))
+  const categoriesWithChannels: CategoryWithChannels[] = categories.map(
+    (cat) => ({
+      ...cat,
+      channels: channels.filter((ch) => ch.categoryId === cat.id),
+    }),
+  );
 
   // Uncategorized channels
-  const uncategorizedChannels = channels.filter((ch) => !ch.categoryId)
+  const uncategorizedChannels = channels.filter((ch) => !ch.categoryId);
 
   const toggleCategory = (categoryId: string) => {
     setCollapsedCategories((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(categoryId)) {
-        next.delete(categoryId)
+        next.delete(categoryId);
       } else {
-        next.add(categoryId)
+        next.add(categoryId);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   const getChannelIcon = (channel: Channel) => {
-    if (channel.type === 'voice') return <Volume2 className="h-4 w-4" />
-    if (channel.isPrivate) return <Lock className="h-4 w-4" />
-    return <Hash className="h-4 w-4" />
-  }
+    if (channel.type === "voice") return <Volume2 className="h-4 w-4" />;
+    if (channel.isPrivate) return <Lock className="h-4 w-4" />;
+    return <Hash className="h-4 w-4" />;
+  };
 
   return (
     <div className="bg-secondary/30 flex h-full w-60 flex-col">
@@ -87,7 +99,11 @@ export function GuildSidebar({
       <div className="flex h-12 items-center justify-between border-b border-border px-4">
         <div className="flex items-center gap-2">
           {workspaceIcon ? (
-            <img src={workspaceIcon} alt={workspaceName} className="h-6 w-6 rounded" />
+            <img
+              src={workspaceIcon}
+              alt={workspaceName}
+              className="h-6 w-6 rounded"
+            />
           ) : (
             <div className="text-primary-foreground flex h-6 w-6 items-center justify-center rounded bg-primary text-xs font-bold">
               {workspaceName[0].toUpperCase()}
@@ -153,7 +169,7 @@ export function GuildSidebar({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -161,18 +177,18 @@ export function GuildSidebar({
 // ============================================================================
 
 interface CategorySectionProps {
-  category: CategoryWithChannels
-  isCollapsed: boolean
-  onToggle: () => void
-  currentChannelId?: string
-  onChannelSelect?: (channelId: string) => void
-  onCreateChannel?: (categoryId?: string) => void
-  onManageChannel?: (channelId: string) => void
-  getChannelIcon: (channel: Channel) => React.ReactNode
+  category: CategoryWithChannels;
+  isCollapsed: boolean;
+  onToggle: () => void;
+  currentChannelId?: string;
+  onChannelSelect?: (channelId: string) => void;
+  onCreateChannel?: (categoryId?: string) => void;
+  onManageChannel?: (channelId: string) => void;
+  getChannelIcon: (channel: Channel) => React.ReactNode;
   userPermissions: {
-    canManageChannels: boolean
-    canManageCategories: boolean
-  }
+    canManageChannels: boolean;
+    canManageCategories: boolean;
+  };
 }
 
 function CategorySection({
@@ -194,7 +210,11 @@ function CategorySection({
           onClick={onToggle}
           className="flex flex-1 items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
         >
-          {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          {isCollapsed ? (
+            <ChevronRight className="h-3 w-3" />
+          ) : (
+            <ChevronDown className="h-3 w-3" />
+          )}
           {category.icon && <span>{category.icon}</span>}
           <span>{category.name}</span>
         </button>
@@ -226,26 +246,33 @@ function CategorySection({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 interface ChannelItemProps {
-  channel: Channel
-  isActive: boolean
-  icon: React.ReactNode
-  onClick: () => void
-  onManage: () => void
-  canManage: boolean
+  channel: Channel;
+  isActive: boolean;
+  icon: React.ReactNode;
+  onClick: () => void;
+  onManage: () => void;
+  canManage: boolean;
 }
 
-function ChannelItem({ channel, isActive, icon, onClick, onManage, canManage }: ChannelItemProps) {
+function ChannelItem({
+  channel,
+  isActive,
+  icon,
+  onClick,
+  onManage,
+  canManage,
+}: ChannelItemProps) {
   return (
     <div
       className={cn(
-        'group mx-2 flex items-center justify-between rounded px-2 py-1.5',
+        "group mx-2 flex items-center justify-between rounded px-2 py-1.5",
         isActive
-          ? 'bg-primary/10 text-primary'
-          : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+          ? "bg-primary/10 text-primary"
+          : "text-muted-foreground hover:bg-secondary hover:text-foreground",
       )}
     >
       <button
@@ -255,13 +282,15 @@ function ChannelItem({ channel, isActive, icon, onClick, onManage, canManage }: 
       >
         {icon}
         <span className="text-sm font-medium">{channel.name}</span>
-        {channel.isDefault && <span className="text-xs text-muted-foreground">(default)</span>}
+        {channel.isDefault && (
+          <span className="text-xs text-muted-foreground">(default)</span>
+        )}
       </button>
       {canManage && (
         <button
           onClick={(e) => {
-            e.stopPropagation()
-            onManage()
+            e.stopPropagation();
+            onManage();
           }}
           className="opacity-0 transition-opacity group-hover:opacity-100"
           title="Manage Channel"
@@ -270,5 +299,5 @@ function ChannelItem({ channel, isActive, icon, onClick, onManage, canManage }: 
         </button>
       )}
     </div>
-  )
+  );
 }

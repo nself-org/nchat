@@ -16,7 +16,7 @@ export {
   isEmpty,
   type ParseOptions,
   type MarkdownNode,
-} from './parser'
+} from "./parser";
 
 // Renderer
 export {
@@ -26,4 +26,4 @@ export {
   type MarkdownRendererProps,
   type MarkdownPreviewProps,
   type CompactMarkdownRendererProps,
-} from './renderer'
+} from "./renderer";

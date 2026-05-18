@@ -59,7 +59,7 @@ export {
   isValidUrl,
   getDomain,
   isEmbeddable,
-} from './embed-patterns'
+} from "./embed-patterns";
 
 // Unfurl Service
 export {
@@ -89,7 +89,7 @@ export {
   // Rate limiting
   isRateLimited,
   recordRequest,
-} from './unfurl-service'
+} from "./unfurl-service";
 
 // React Hooks
 export {
@@ -104,4 +104,4 @@ export {
   type UseUnfurlOptions,
   type UseUnfurlReturn,
   type UseUnfurlBatchReturn,
-} from './use-unfurl'
+} from "./use-unfurl";

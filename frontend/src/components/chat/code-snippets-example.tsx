@@ -3,18 +3,18 @@
  * This file demonstrates all features of the code highlighting system
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Code2 } from 'lucide-react'
-import { CodeBlock } from './CodeBlock'
-import { InlineCode } from './InlineCode'
-import { CodeSnippetModal } from './CodeSnippetModal'
-import type { CodeSnippet } from './CodeSnippetModal'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Code2 } from "lucide-react";
+import { CodeBlock } from "./CodeBlock";
+import { InlineCode } from "./InlineCode";
+import { CodeSnippetModal } from "./CodeSnippetModal";
+import type { CodeSnippet } from "./CodeSnippetModal";
 
 export function CodeSnippetsExample() {
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
 
   // Example code snippets
   const examples = {
@@ -145,19 +145,21 @@ func main() {
     http.HandleFunc("/user", server.handleUser)
     http.ListenAndServe(":8080", nil)
 }`,
-  }
+  };
 
   // Handle snippet share
   const handleShare = async (snippet: CodeSnippet) => {
     // REMOVED: console.log('Sharing snippet:', snippet)
     // In production, this would send to the backend
-    alert(`Shared: ${snippet.title} (${snippet.language})`)
-  }
+    alert(`Shared: ${snippet.title} (${snippet.language})`);
+  };
 
   return (
     <div className="space-y-8 p-6">
       <div>
-        <h2 className="mb-4 text-2xl font-bold">Code Snippets & Syntax Highlighting</h2>
+        <h2 className="mb-4 text-2xl font-bold">
+          Code Snippets & Syntax Highlighting
+        </h2>
         <p className="mb-4 text-muted-foreground">
           Examples of inline code and code blocks with syntax highlighting
         </p>
@@ -166,11 +168,13 @@ func main() {
         <div className="mb-6 space-y-2">
           <h3 className="text-lg font-semibold">Inline Code</h3>
           <p>
-            Use <InlineCode>const variable = "value"</InlineCode> to declare constants. You can also
-            use <InlineCode>npm install</InlineCode> to install packages.
+            Use <InlineCode>const variable = "value"</InlineCode> to declare
+            constants. You can also use <InlineCode>npm install</InlineCode> to
+            install packages.
           </p>
           <p>
-            API endpoint: <InlineCode>https://api.example.com/v1/users</InlineCode>
+            API endpoint:{" "}
+            <InlineCode>https://api.example.com/v1/users</InlineCode>
           </p>
         </div>
 
@@ -232,13 +236,22 @@ func main() {
 
           {/* Go Example */}
           <div>
-            <h4 className="mb-2 text-sm font-medium text-muted-foreground">Go - HTTP Server</h4>
-            <CodeBlock code={examples.go} language="go" filename="server.go" showLineNumbers />
+            <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+              Go - HTTP Server
+            </h4>
+            <CodeBlock
+              code={examples.go}
+              language="go"
+              filename="server.go"
+              showLineNumbers
+            />
           </div>
 
           {/* Without Line Numbers */}
           <div>
-            <h4 className="mb-2 text-sm font-medium text-muted-foreground">Without Line Numbers</h4>
+            <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+              Without Line Numbers
+            </h4>
             <CodeBlock
               code="console.log('Hello, World!')\nconsole.log('No line numbers')"
               language="javascript"
@@ -248,7 +261,11 @@ func main() {
 
           {/* Create Snippet Button */}
           <div className="flex justify-center pt-6">
-            <Button onClick={() => setShowModal(true)} size="lg" className="gap-2">
+            <Button
+              onClick={() => setShowModal(true)}
+              size="lg"
+              className="gap-2"
+            >
               <Code2 className="h-5 w-5" />
               Create Code Snippet
             </Button>
@@ -257,9 +274,13 @@ func main() {
       </div>
 
       {/* Code Snippet Modal */}
-      <CodeSnippetModal open={showModal} onOpenChange={setShowModal} onShare={handleShare} />
+      <CodeSnippetModal
+        open={showModal}
+        onOpenChange={setShowModal}
+        onShare={handleShare}
+      />
     </div>
-  )
+  );
 }
 
 /**
@@ -278,7 +299,7 @@ export function MessageWithCodeExample() {
 
       <div className="space-y-3">
         <p>
-          Here's how to fix the authentication issue. You need to update the{' '}
+          Here's how to fix the authentication issue. You need to update the{" "}
           <InlineCode>useAuth</InlineCode> hook:
         </p>
 
@@ -299,10 +320,11 @@ export function MessageWithCodeExample() {
         />
 
         <p>
-          This ensures that <InlineCode>user</InlineCode> is <InlineCode>null</InlineCode> while
-          loading, preventing any undefined errors.
+          This ensures that <InlineCode>user</InlineCode> is{" "}
+          <InlineCode>null</InlineCode> while loading, preventing any undefined
+          errors.
         </p>
       </div>
     </div>
-  )
+  );
 }

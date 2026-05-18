@@ -5,10 +5,10 @@
  * Provides utilities for permission-based access control in components.
  */
 
-'use client'
+"use client";
 
-import { useMemo, useCallback } from 'react'
-import { useAuth } from '@/contexts/auth-context'
+import { useMemo, useCallback } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import {
   type Permission,
   PERMISSIONS,
@@ -19,78 +19,82 @@ import {
   getPermissionsForRole,
   getPermissionDescription,
   getMinimumRoleForPermission,
-} from '@/lib/auth/permissions'
-import type { UserRole } from '@/lib/auth/roles'
+} from "@/lib/auth/permissions";
+import type { UserRole } from "@/lib/auth/roles";
 
 export interface UsePermissionsReturn {
   /** All permissions the current user has */
-  permissions: Permission[]
+  permissions: Permission[];
 
   /** Check if user has a specific permission */
-  can: (permission: Permission) => boolean
+  can: (permission: Permission) => boolean;
 
   /** Check if user has all of the specified permissions */
-  canAll: (permissions: Permission[]) => boolean
+  canAll: (permissions: Permission[]) => boolean;
 
   /** Check if user has any of the specified permissions */
-  canAny: (permissions: Permission[]) => boolean
+  canAny: (permissions: Permission[]) => boolean;
 
   /** Get description for a permission */
-  getDescription: (permission: Permission) => string
+  getDescription: (permission: Permission) => string;
 
   /** Check if user is authenticated */
-  isAuthenticated: boolean
+  isAuthenticated: boolean;
 
   /** User's role (null if not authenticated) */
-  role: UserRole | null
+  role: UserRole | null;
 
   // Common permission checks (shortcuts)
   /** Can user send messages */
-  canSendMessages: boolean
+  canSendMessages: boolean;
   /** Can user create channels */
-  canCreateChannels: boolean
+  canCreateChannels: boolean;
   /** Can user delete any message */
-  canDeleteAnyMessage: boolean
+  canDeleteAnyMessage: boolean;
   /** Can user manage users */
-  canManageUsers: boolean
+  canManageUsers: boolean;
   /** Can user access admin dashboard */
-  canAccessAdmin: boolean
+  canAccessAdmin: boolean;
   /** Can user moderate content */
-  canModerate: boolean
+  canModerate: boolean;
   /** Can user configure system */
-  canConfigureSystem: boolean
+  canConfigureSystem: boolean;
 }
 
 /**
  * Hook for checking user permissions
  */
 export function usePermissions(): UsePermissionsReturn {
-  const { user } = useAuth()
-  const role = user?.role ?? null
+  const { user } = useAuth();
+  const role = user?.role ?? null;
 
   // Get all permissions for the user's role
-  const permissions = useMemo(() => (role ? getPermissionsForRole(role) : []), [role])
+  const permissions = useMemo(
+    () => (role ? getPermissionsForRole(role) : []),
+    [role],
+  );
 
   // Memoized permission check functions
   const can = useCallback(
-    (permission: Permission) => (role ? hasPermission(role, permission) : false),
-    [role]
-  )
+    (permission: Permission) =>
+      role ? hasPermission(role, permission) : false,
+    [role],
+  );
 
   const canAll = useCallback(
     (perms: Permission[]) => (role ? hasAllPermissions(role, perms) : false),
-    [role]
-  )
+    [role],
+  );
 
   const canAny = useCallback(
     (perms: Permission[]) => (role ? hasAnyPermission(role, perms) : false),
-    [role]
-  )
+    [role],
+  );
 
   const getDescription = useCallback(
     (permission: Permission) => getPermissionDescription(permission),
-    []
-  )
+    [],
+  );
 
   // Common permission shortcuts
   const commonPermissions = useMemo(
@@ -107,8 +111,8 @@ export function usePermissions(): UsePermissionsReturn {
       ]),
       canConfigureSystem: can(PERMISSIONS.SYSTEM_CONFIG),
     }),
-    [can, canAny]
-  )
+    [can, canAny],
+  );
 
   return useMemo(
     () => ({
@@ -121,39 +125,39 @@ export function usePermissions(): UsePermissionsReturn {
       role,
       ...commonPermissions,
     }),
-    [permissions, can, canAll, canAny, getDescription, role, commonPermissions]
-  )
+    [permissions, can, canAll, canAny, getDescription, role, commonPermissions],
+  );
 }
 
 /**
  * Hook that returns true if user has the specified permission
  */
 export function useCan(permission: Permission): boolean {
-  const { can } = usePermissions()
-  return can(permission)
+  const { can } = usePermissions();
+  return can(permission);
 }
 
 /**
  * Hook that returns true if user has all of the specified permissions
  */
 export function useCanAll(permissions: Permission[]): boolean {
-  const { canAll } = usePermissions()
-  return canAll(permissions)
+  const { canAll } = usePermissions();
+  return canAll(permissions);
 }
 
 /**
  * Hook that returns true if user has any of the specified permissions
  */
 export function useCanAny(permissions: Permission[]): boolean {
-  const { canAny } = usePermissions()
-  return canAny(permissions)
+  const { canAny } = usePermissions();
+  return canAny(permissions);
 }
 
 /**
  * Hook for channel permissions
  */
 export function useChannelPermissions() {
-  const { can } = usePermissions()
+  const { can } = usePermissions();
 
   return useMemo(
     () => ({
@@ -169,15 +173,15 @@ export function useChannelPermissions() {
       canPinMessages: can(PERMISSIONS.CHANNEL_PIN_MESSAGES),
       canManagePermissions: can(PERMISSIONS.CHANNEL_MANAGE_PERMISSIONS),
     }),
-    [can]
-  )
+    [can],
+  );
 }
 
 /**
  * Hook for message permissions
  */
 export function useMessagePermissions() {
-  const { can } = usePermissions()
+  const { can } = usePermissions();
 
   return useMemo(
     () => ({
@@ -194,15 +198,15 @@ export function useMessagePermissions() {
       canSchedule: can(PERMISSIONS.MESSAGE_SCHEDULE),
       canForward: can(PERMISSIONS.MESSAGE_FORWARD),
     }),
-    [can]
-  )
+    [can],
+  );
 }
 
 /**
  * Hook for file permissions
  */
 export function useFilePermissions() {
-  const { can } = usePermissions()
+  const { can } = usePermissions();
 
   return useMemo(
     () => ({
@@ -211,15 +215,15 @@ export function useFilePermissions() {
       canDeleteOwn: can(PERMISSIONS.FILE_DELETE_OWN),
       canDeleteAny: can(PERMISSIONS.FILE_DELETE_ANY),
     }),
-    [can]
-  )
+    [can],
+  );
 }
 
 /**
  * Hook for user management permissions
  */
 export function useUserPermissions() {
-  const { can } = usePermissions()
+  const { can } = usePermissions();
 
   return useMemo(
     () => ({
@@ -234,15 +238,15 @@ export function useUserPermissions() {
       canAssignRole: can(PERMISSIONS.USER_ASSIGN_ROLE),
       canViewActivity: can(PERMISSIONS.USER_VIEW_ACTIVITY),
     }),
-    [can]
-  )
+    [can],
+  );
 }
 
 /**
  * Hook for admin permissions
  */
 export function useAdminPermissions() {
-  const { can } = usePermissions()
+  const { can } = usePermissions();
 
   return useMemo(
     () => ({
@@ -256,15 +260,15 @@ export function useAdminPermissions() {
       canManageWebhooks: can(PERMISSIONS.ADMIN_WEBHOOKS),
       canBackup: can(PERMISSIONS.ADMIN_BACKUP),
     }),
-    [can]
-  )
+    [can],
+  );
 }
 
 /**
  * Hook for moderation permissions
  */
 export function useModerationPermissions() {
-  const { can } = usePermissions()
+  const { can } = usePermissions();
 
   return useMemo(
     () => ({
@@ -275,15 +279,15 @@ export function useModerationPermissions() {
       canDeleteMessages: can(PERMISSIONS.MOD_DELETE_MESSAGES),
       canEnableSlowMode: can(PERMISSIONS.MOD_SLOW_MODE),
     }),
-    [can]
-  )
+    [can],
+  );
 }
 
 /**
  * Hook for system permissions
  */
 export function useSystemPermissions() {
-  const { can } = usePermissions()
+  const { can } = usePermissions();
 
   return useMemo(
     () => ({
@@ -292,9 +296,14 @@ export function useSystemPermissions() {
       canUpdateBranding: can(PERMISSIONS.SYSTEM_BRANDING),
       canTransferOwnership: can(PERMISSIONS.SYSTEM_TRANSFER_OWNERSHIP),
     }),
-    [can]
-  )
+    [can],
+  );
 }
 
 // Re-export types and constants for convenience
-export { type Permission, PERMISSIONS, PERMISSION_GROUPS, getMinimumRoleForPermission }
+export {
+  type Permission,
+  PERMISSIONS,
+  PERMISSION_GROUPS,
+  getMinimumRoleForPermission,
+};

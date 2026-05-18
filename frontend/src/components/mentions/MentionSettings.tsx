@@ -4,26 +4,29 @@
  * Settings panel for configuring mention preferences.
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+import * as React from "react";
+import { useState, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { MentionPreferences, ChannelMentionSettings } from '@/lib/mentions/mention-types'
+} from "@/components/ui/select";
+import type {
+  MentionPreferences,
+  ChannelMentionSettings,
+} from "@/lib/mentions/mention-types";
 import {
   DEFAULT_MENTION_PREFERENCES,
   DEFAULT_CHANNEL_MENTION_SETTINGS,
-} from '@/lib/mentions/mention-types'
+} from "@/lib/mentions/mention-types";
 
 // ============================================================================
 // Types
@@ -31,28 +34,28 @@ import {
 
 export interface MentionSettingsProps {
   /** Current preferences */
-  preferences: MentionPreferences
+  preferences: MentionPreferences;
   /** Callback when preferences change */
-  onPreferencesChange: (preferences: MentionPreferences) => void
+  onPreferencesChange: (preferences: MentionPreferences) => void;
   /** Whether settings are being saved */
-  isSaving?: boolean
+  isSaving?: boolean;
   /** Additional CSS class */
-  className?: string
+  className?: string;
 }
 
 export interface ChannelMentionSettingsProps {
   /** Current settings */
-  settings: ChannelMentionSettings
+  settings: ChannelMentionSettings;
   /** Callback when settings change */
-  onSettingsChange: (settings: ChannelMentionSettings) => void
+  onSettingsChange: (settings: ChannelMentionSettings) => void;
   /** Channel name */
-  channelName?: string
+  channelName?: string;
   /** Whether user is admin */
-  isAdmin?: boolean
+  isAdmin?: boolean;
   /** Whether settings are being saved */
-  isSaving?: boolean
+  isSaving?: boolean;
   /** Additional CSS class */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -70,23 +73,23 @@ export function MentionSettings({
       onPreferencesChange({
         ...preferences,
         [key]: !preferences[key],
-      })
+      });
     },
-    [preferences, onPreferencesChange]
-  )
+    [preferences, onPreferencesChange],
+  );
 
   const handleSoundChange = useCallback(
-    (value: 'default' | 'subtle' | 'none') => {
+    (value: "default" | "subtle" | "none") => {
       onPreferencesChange({
         ...preferences,
         mentionSound: value,
-      })
+      });
     },
-    [preferences, onPreferencesChange]
-  )
+    [preferences, onPreferencesChange],
+  );
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div>
         <h3 className="text-lg font-semibold">Mention Preferences</h3>
@@ -105,7 +108,7 @@ export function MentionSettings({
           label="Direct mentions"
           description="Notify when someone mentions you directly with @username"
           checked={preferences.notifyOnMention}
-          onCheckedChange={() => handleToggle('notifyOnMention')}
+          onCheckedChange={() => handleToggle("notifyOnMention")}
           disabled={isSaving}
         />
 
@@ -113,7 +116,7 @@ export function MentionSettings({
           label="@everyone mentions"
           description="Notify when someone uses @everyone"
           checked={preferences.notifyOnEveryone}
-          onCheckedChange={() => handleToggle('notifyOnEveryone')}
+          onCheckedChange={() => handleToggle("notifyOnEveryone")}
           disabled={isSaving}
         />
 
@@ -121,7 +124,7 @@ export function MentionSettings({
           label="@here mentions"
           description="Notify when someone uses @here (online members)"
           checked={preferences.notifyOnHere}
-          onCheckedChange={() => handleToggle('notifyOnHere')}
+          onCheckedChange={() => handleToggle("notifyOnHere")}
           disabled={isSaving}
         />
 
@@ -129,7 +132,7 @@ export function MentionSettings({
           label="@channel mentions"
           description="Notify when someone uses @channel"
           checked={preferences.notifyOnChannel}
-          onCheckedChange={() => handleToggle('notifyOnChannel')}
+          onCheckedChange={() => handleToggle("notifyOnChannel")}
           disabled={isSaving}
         />
       </div>
@@ -144,7 +147,7 @@ export function MentionSettings({
           label="Highlight mentions"
           description="Highlight messages that mention you"
           checked={preferences.highlightMentions}
-          onCheckedChange={() => handleToggle('highlightMentions')}
+          onCheckedChange={() => handleToggle("highlightMentions")}
           disabled={isSaving}
         />
 
@@ -152,7 +155,7 @@ export function MentionSettings({
           label="Show mention badge"
           description="Show unread mention count in sidebar"
           checked={preferences.showMentionBadge}
-          onCheckedChange={() => handleToggle('showMentionBadge')}
+          onCheckedChange={() => handleToggle("showMentionBadge")}
           disabled={isSaving}
         />
       </div>
@@ -198,7 +201,7 @@ export function MentionSettings({
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -215,36 +218,39 @@ export function ChannelMentionSettingsPanel({
 }: ChannelMentionSettingsProps) {
   const handleToggle = useCallback(
     (key: keyof ChannelMentionSettings) => {
-      if (typeof settings[key] === 'boolean') {
+      if (typeof settings[key] === "boolean") {
         onSettingsChange({
           ...settings,
           [key]: !settings[key],
-        })
+        });
       }
     },
-    [settings, onSettingsChange]
-  )
+    [settings, onSettingsChange],
+  );
 
   const handleRoleChange = useCallback(
-    (key: 'everyoneMinRole' | 'hereMinRole' | 'channelMinRole', value: string) => {
+    (
+      key: "everyoneMinRole" | "hereMinRole" | "channelMinRole",
+      value: string,
+    ) => {
       onSettingsChange({
         ...settings,
-        [key]: value as 'owner' | 'admin' | 'moderator' | 'member',
-      })
+        [key]: value as "owner" | "admin" | "moderator" | "member",
+      });
     },
-    [settings, onSettingsChange]
-  )
+    [settings, onSettingsChange],
+  );
 
   if (!isAdmin) {
     return (
-      <div className={cn('p-4 text-center text-muted-foreground', className)}>
+      <div className={cn("p-4 text-center text-muted-foreground", className)}>
         <p>Only admins can modify channel mention settings.</p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div>
         <h3 className="text-lg font-semibold">
@@ -260,11 +266,13 @@ export function ChannelMentionSettingsPanel({
         <div className="flex items-center justify-between">
           <div>
             <Label className="text-base">@everyone</Label>
-            <p className="text-xs text-muted-foreground">Notifies all workspace members</p>
+            <p className="text-xs text-muted-foreground">
+              Notifies all workspace members
+            </p>
           </div>
           <Switch
             checked={settings.allowEveryone}
-            onCheckedChange={() => handleToggle('allowEveryone')}
+            onCheckedChange={() => handleToggle("allowEveryone")}
             disabled={isSaving}
           />
         </div>
@@ -274,7 +282,7 @@ export function ChannelMentionSettingsPanel({
             <Label className="text-sm">Minimum role required</Label>
             <Select
               value={settings.everyoneMinRole}
-              onValueChange={(v) => handleRoleChange('everyoneMinRole', v)}
+              onValueChange={(v) => handleRoleChange("everyoneMinRole", v)}
               disabled={isSaving}
             >
               <SelectTrigger className="w-32">
@@ -296,11 +304,13 @@ export function ChannelMentionSettingsPanel({
         <div className="flex items-center justify-between">
           <div>
             <Label className="text-base">@here</Label>
-            <p className="text-xs text-muted-foreground">Notifies online members only</p>
+            <p className="text-xs text-muted-foreground">
+              Notifies online members only
+            </p>
           </div>
           <Switch
             checked={settings.allowHere}
-            onCheckedChange={() => handleToggle('allowHere')}
+            onCheckedChange={() => handleToggle("allowHere")}
             disabled={isSaving}
           />
         </div>
@@ -310,7 +320,7 @@ export function ChannelMentionSettingsPanel({
             <Label className="text-sm">Minimum role required</Label>
             <Select
               value={settings.hereMinRole}
-              onValueChange={(v) => handleRoleChange('hereMinRole', v)}
+              onValueChange={(v) => handleRoleChange("hereMinRole", v)}
               disabled={isSaving}
             >
               <SelectTrigger className="w-32">
@@ -332,11 +342,13 @@ export function ChannelMentionSettingsPanel({
         <div className="flex items-center justify-between">
           <div>
             <Label className="text-base">@channel</Label>
-            <p className="text-xs text-muted-foreground">Notifies all channel members</p>
+            <p className="text-xs text-muted-foreground">
+              Notifies all channel members
+            </p>
           </div>
           <Switch
             checked={settings.allowChannel}
-            onCheckedChange={() => handleToggle('allowChannel')}
+            onCheckedChange={() => handleToggle("allowChannel")}
             disabled={isSaving}
           />
         </div>
@@ -346,7 +358,7 @@ export function ChannelMentionSettingsPanel({
             <Label className="text-sm">Minimum role required</Label>
             <Select
               value={settings.channelMinRole}
-              onValueChange={(v) => handleRoleChange('channelMinRole', v)}
+              onValueChange={(v) => handleRoleChange("channelMinRole", v)}
               disabled={isSaving}
             >
               <SelectTrigger className="w-32">
@@ -374,7 +386,7 @@ export function ChannelMentionSettingsPanel({
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -382,23 +394,33 @@ export function ChannelMentionSettingsPanel({
 // ============================================================================
 
 interface SettingRowProps {
-  label: string
-  description: string
-  checked: boolean
-  onCheckedChange: () => void
-  disabled?: boolean
+  label: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: () => void;
+  disabled?: boolean;
 }
 
-function SettingRow({ label, description, checked, onCheckedChange, disabled }: SettingRowProps) {
+function SettingRow({
+  label,
+  description,
+  checked,
+  onCheckedChange,
+  disabled,
+}: SettingRowProps) {
   return (
     <div className="flex items-center justify-between">
       <div>
         <Label className="text-sm font-medium">{label}</Label>
         <p className="text-xs text-muted-foreground">{description}</p>
       </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        disabled={disabled}
+      />
     </div>
-  )
+  );
 }
 
-export default MentionSettings
+export default MentionSettings;

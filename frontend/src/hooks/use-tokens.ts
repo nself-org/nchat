@@ -4,178 +4,221 @@
  * Provides token balance fetching, transfers, and token gating
  */
 
-import { useCallback, useEffect } from 'react'
-import { useWalletStore } from '@/stores/wallet-store'
-import { getTokenManager } from '@/lib/wallet/token-manager'
-import { getWalletConnector } from '@/lib/wallet/wallet-connector'
-import type { TokenInfo, TokenBalance, TransferParams } from '@/lib/wallet/token-manager'
-import type { ChainId } from '@/lib/wallet/wallet-connector'
+import { useCallback, useEffect } from "react";
+import { useWalletStore } from "@/stores/wallet-store";
+import { getTokenManager } from "@/lib/wallet/token-manager";
+import { getWalletConnector } from "@/lib/wallet/wallet-connector";
+import type {
+  TokenInfo,
+  TokenBalance,
+  TransferParams,
+} from "@/lib/wallet/token-manager";
+import type { ChainId } from "@/lib/wallet/wallet-connector";
 
 export function useTokens() {
-  const { address, chainId, tokens, isLoadingTokens, setTokens, setLoadingTokens } =
-    useWalletStore()
+  const {
+    address,
+    chainId,
+    tokens,
+    isLoadingTokens,
+    setTokens,
+    setLoadingTokens,
+  } = useWalletStore();
 
-  const walletConnector = getWalletConnector()
-  const tokenManager = getTokenManager(walletConnector.getEthereumProvider() ?? undefined)
+  const walletConnector = getWalletConnector();
+  const tokenManager = getTokenManager(
+    walletConnector.getEthereumProvider() ?? undefined,
+  );
 
   // Fetch token balances
   const fetchTokenBalances = useCallback(
     async (tokenAddresses: string[]) => {
       if (!address || !chainId) {
-        return { success: false, error: 'Wallet not connected' }
+        return { success: false, error: "Wallet not connected" };
       }
 
       try {
-        setLoadingTokens(true)
-        const result = await tokenManager.getTokenBalances(tokenAddresses, address, chainId)
+        setLoadingTokens(true);
+        const result = await tokenManager.getTokenBalances(
+          tokenAddresses,
+          address,
+          chainId,
+        );
 
         if (result.success && result.data) {
-          setTokens(result.data)
-          return { success: true, data: result.data }
+          setTokens(result.data);
+          return { success: true, data: result.data };
         }
 
-        return { success: false, error: 'Failed to fetch token balances' }
+        return { success: false, error: "Failed to fetch token balances" };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       } finally {
-        setLoadingTokens(false)
+        setLoadingTokens(false);
       }
     },
-    [address, chainId, tokenManager, setTokens, setLoadingTokens]
-  )
+    [address, chainId, tokenManager, setTokens, setLoadingTokens],
+  );
 
   // Fetch common tokens for current chain
   const fetchCommonTokens = useCallback(async () => {
     if (!address || !chainId) {
-      return { success: false, error: 'Wallet not connected' }
+      return { success: false, error: "Wallet not connected" };
     }
 
     try {
-      setLoadingTokens(true)
-      const commonTokens = tokenManager.getCommonTokens(chainId)
-      const tokenAddresses = commonTokens.map((t) => t.address)
+      setLoadingTokens(true);
+      const commonTokens = tokenManager.getCommonTokens(chainId);
+      const tokenAddresses = commonTokens.map((t) => t.address);
 
-      const result = await tokenManager.getTokenBalances(tokenAddresses, address, chainId)
+      const result = await tokenManager.getTokenBalances(
+        tokenAddresses,
+        address,
+        chainId,
+      );
 
       if (result.success && result.data) {
-        setTokens(result.data)
-        return { success: true, data: result.data }
+        setTokens(result.data);
+        return { success: true, data: result.data };
       }
 
-      return { success: false, error: 'Failed to fetch common tokens' }
+      return { success: false, error: "Failed to fetch common tokens" };
     } catch (err) {
-      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : "Unknown error",
+      };
     } finally {
-      setLoadingTokens(false)
+      setLoadingTokens(false);
     }
-  }, [address, chainId, tokenManager, setTokens, setLoadingTokens])
+  }, [address, chainId, tokenManager, setTokens, setLoadingTokens]);
 
   // Get token info
   const getTokenInfo = useCallback(
     async (tokenAddress: string) => {
       if (!chainId) {
-        return { success: false, error: 'Wallet not connected' }
+        return { success: false, error: "Wallet not connected" };
       }
 
       try {
-        const result = await tokenManager.getTokenInfo(tokenAddress, chainId)
-        return result
+        const result = await tokenManager.getTokenInfo(tokenAddress, chainId);
+        return result;
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       }
     },
-    [chainId, tokenManager]
-  )
+    [chainId, tokenManager],
+  );
 
   // Get token balance for specific token
   const getTokenBalance = useCallback(
     async (tokenAddress: string) => {
       if (!address || !chainId) {
-        return { success: false, error: 'Wallet not connected' }
+        return { success: false, error: "Wallet not connected" };
       }
 
       try {
-        const result = await tokenManager.getTokenBalance(tokenAddress, address, chainId)
-        return result
+        const result = await tokenManager.getTokenBalance(
+          tokenAddress,
+          address,
+          chainId,
+        );
+        return result;
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       }
     },
-    [address, chainId, tokenManager]
-  )
+    [address, chainId, tokenManager],
+  );
 
   // Transfer tokens
   const transferTokens = useCallback(
-    async (params: Omit<TransferParams, 'from'>) => {
+    async (params: Omit<TransferParams, "from">) => {
       if (!address) {
-        return { success: false, error: 'Wallet not connected' }
+        return { success: false, error: "Wallet not connected" };
       }
 
       try {
         const result = await tokenManager.transfer({
           ...params,
           from: address,
-        })
+        });
 
         if (result.success) {
           // Refresh token balances after transfer
-          await fetchCommonTokens()
+          await fetchCommonTokens();
         }
 
-        return result
+        return result;
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       }
     },
-    [address, tokenManager, fetchCommonTokens]
-  )
+    [address, tokenManager, fetchCommonTokens],
+  );
 
   // Check if user has minimum token balance (for token gating)
   const hasMinimumTokenBalance = useCallback(
     async (tokenAddress: string, minimumBalance: string): Promise<boolean> => {
       if (!address || !chainId) {
-        return false
+        return false;
       }
 
       try {
-        const result = await tokenManager.getTokenBalance(tokenAddress, address, chainId)
+        const result = await tokenManager.getTokenBalance(
+          tokenAddress,
+          address,
+          chainId,
+        );
 
         if (result.success && result.data) {
-          const userBalance = BigInt(result.data.balance)
-          const requiredBalance = BigInt(minimumBalance)
-          return userBalance >= requiredBalance
+          const userBalance = BigInt(result.data.balance);
+          const requiredBalance = BigInt(minimumBalance);
+          return userBalance >= requiredBalance;
         }
 
-        return false
+        return false;
       } catch {
-        return false
+        return false;
       }
     },
-    [address, chainId, tokenManager]
-  )
+    [address, chainId, tokenManager],
+  );
 
   // Format token amount for display
   const formatTokenAmount = useCallback(
     (amount: string, decimals: number) => {
-      return tokenManager.formatTokenAmount(amount, decimals)
+      return tokenManager.formatTokenAmount(amount, decimals);
     },
-    [tokenManager]
-  )
+    [tokenManager],
+  );
 
   // Parse token amount from user input
   const parseTokenAmount = useCallback(
     (amount: string, decimals: number) => {
-      return tokenManager.parseTokenAmount(amount, decimals)
+      return tokenManager.parseTokenAmount(amount, decimals);
     },
-    [tokenManager]
-  )
+    [tokenManager],
+  );
 
   // Auto-fetch common tokens when wallet connects
   useEffect(() => {
     if (address && chainId) {
-      fetchCommonTokens()
+      fetchCommonTokens();
     }
-  }, [address, chainId, fetchCommonTokens])
+  }, [address, chainId, fetchCommonTokens]);
 
   return {
     // State
@@ -193,5 +236,5 @@ export function useTokens() {
     // Utilities
     formatTokenAmount,
     parseTokenAmount,
-  }
+  };
 }

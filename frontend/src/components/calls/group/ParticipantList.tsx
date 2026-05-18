@@ -5,9 +5,9 @@
  * role badges, and action buttons for hosts.
  */
 
-'use client'
+"use client";
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo } from "react";
 import {
   Mic,
   MicOff,
@@ -22,76 +22,81 @@ import {
   UserCog,
   Pin,
   Presentation,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import type { GroupCallParticipant, ParticipantRole } from '@/services/calls/group-call.service'
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import type {
+  GroupCallParticipant,
+  ParticipantRole,
+} from "@/services/calls/group-call.service";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface ParticipantListProps {
-  participants: GroupCallParticipant[]
-  currentUserId: string
-  isHost: boolean
-  isCoHost: boolean
-  activeSpeakerId: string | null
-  pinnedParticipantId: string | null
-  onMuteParticipant?: (participantId: string) => void
-  onRemoveParticipant?: (participantId: string) => void
-  onSetRole?: (participantId: string, role: ParticipantRole) => void
-  onPinParticipant?: (participantId: string) => void
-  onUnpinParticipant?: () => void
-  onSpotlightParticipant?: (participantId: string) => void
-  onLowerHand?: (participantId: string) => void
-  className?: string
+  participants: GroupCallParticipant[];
+  currentUserId: string;
+  isHost: boolean;
+  isCoHost: boolean;
+  activeSpeakerId: string | null;
+  pinnedParticipantId: string | null;
+  onMuteParticipant?: (participantId: string) => void;
+  onRemoveParticipant?: (participantId: string) => void;
+  onSetRole?: (participantId: string, role: ParticipantRole) => void;
+  onPinParticipant?: (participantId: string) => void;
+  onUnpinParticipant?: () => void;
+  onSpotlightParticipant?: (participantId: string) => void;
+  onLowerHand?: (participantId: string) => void;
+  className?: string;
 }
 
 // =============================================================================
 // Helper Functions
 // =============================================================================
 
-function getRoleBadgeVariant(role: ParticipantRole): 'default' | 'secondary' | 'outline' {
+function getRoleBadgeVariant(
+  role: ParticipantRole,
+): "default" | "secondary" | "outline" {
   switch (role) {
-    case 'host':
-      return 'default'
-    case 'co-host':
-      return 'secondary'
+    case "host":
+      return "default";
+    case "co-host":
+      return "secondary";
     default:
-      return 'outline'
+      return "outline";
   }
 }
 
 function getRoleIcon(role: ParticipantRole): React.ReactNode {
   switch (role) {
-    case 'host':
-      return <Crown className="mr-1 h-3 w-3" />
-    case 'co-host':
-      return <Shield className="mr-1 h-3 w-3" />
+    case "host":
+      return <Crown className="mr-1 h-3 w-3" />;
+    case "co-host":
+      return <Shield className="mr-1 h-3 w-3" />;
     default:
-      return null
+      return null;
   }
 }
 
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 // =============================================================================
@@ -114,46 +119,48 @@ export function ParticipantList({
   onLowerHand,
   className,
 }: ParticipantListProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const canManageParticipants = isHost || isCoHost
+  const canManageParticipants = isHost || isCoHost;
 
   // Sort participants: Host first, then co-hosts, then raised hands, then alphabetically
   const sortedParticipants = useMemo(() => {
     const roleOrder: Record<ParticipantRole, number> = {
       host: 0,
-      'co-host': 1,
+      "co-host": 1,
       participant: 2,
       viewer: 3,
-    }
+    };
 
     return [...participants]
       .filter(
         (p) =>
           p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.id.toLowerCase().includes(searchQuery.toLowerCase())
+          p.id.toLowerCase().includes(searchQuery.toLowerCase()),
       )
       .sort((a, b) => {
         // Role order
-        const roleCompare = roleOrder[a.role] - roleOrder[b.role]
-        if (roleCompare !== 0) return roleCompare
+        const roleCompare = roleOrder[a.role] - roleOrder[b.role];
+        if (roleCompare !== 0) return roleCompare;
 
         // Raised hands first within same role
-        if (a.isHandRaised && !b.isHandRaised) return -1
-        if (!a.isHandRaised && b.isHandRaised) return 1
+        if (a.isHandRaised && !b.isHandRaised) return -1;
+        if (!a.isHandRaised && b.isHandRaised) return 1;
 
         // Alphabetically
-        return a.name.localeCompare(b.name)
-      })
-  }, [participants, searchQuery])
+        return a.name.localeCompare(b.name);
+      });
+  }, [participants, searchQuery]);
 
-  const raisedHandsCount = participants.filter((p) => p.isHandRaised).length
+  const raisedHandsCount = participants.filter((p) => p.isHandRaised).length;
 
   return (
-    <div className={cn('flex h-full flex-col', className)}>
+    <div className={cn("flex h-full flex-col", className)}>
       {/* Header */}
       <div className="border-b p-4">
-        <h3 className="mb-2 font-semibold">Participants ({participants.length})</h3>
+        <h3 className="mb-2 font-semibold">
+          Participants ({participants.length})
+        </h3>
         <Input
           placeholder="Search participants..."
           value={searchQuery}
@@ -167,7 +174,7 @@ export function ParticipantList({
         <div className="border-b bg-amber-50 p-3 dark:bg-amber-900/20">
           <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
             <Hand className="h-4 w-4" />
-            {raisedHandsCount} raised hand{raisedHandsCount > 1 ? 's' : ''}
+            {raisedHandsCount} raised hand{raisedHandsCount > 1 ? "s" : ""}
           </div>
         </div>
       )}
@@ -182,7 +189,9 @@ export function ParticipantList({
               isCurrentUser={participant.id === currentUserId}
               isActiveSpeaker={participant.id === activeSpeakerId}
               isPinned={participant.id === pinnedParticipantId}
-              canManage={canManageParticipants && participant.id !== currentUserId}
+              canManage={
+                canManageParticipants && participant.id !== currentUserId
+              }
               canManageRoles={isHost && participant.id !== currentUserId}
               onMute={onMuteParticipant}
               onRemove={onRemoveParticipant}
@@ -202,7 +211,7 @@ export function ParticipantList({
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -210,19 +219,19 @@ export function ParticipantList({
 // =============================================================================
 
 interface ParticipantItemProps {
-  participant: GroupCallParticipant
-  isCurrentUser: boolean
-  isActiveSpeaker: boolean
-  isPinned: boolean
-  canManage: boolean
-  canManageRoles: boolean
-  onMute?: (participantId: string) => void
-  onRemove?: (participantId: string) => void
-  onSetRole?: (participantId: string, role: ParticipantRole) => void
-  onPin?: (participantId: string) => void
-  onUnpin?: () => void
-  onSpotlight?: (participantId: string) => void
-  onLowerHand?: (participantId: string) => void
+  participant: GroupCallParticipant;
+  isCurrentUser: boolean;
+  isActiveSpeaker: boolean;
+  isPinned: boolean;
+  canManage: boolean;
+  canManageRoles: boolean;
+  onMute?: (participantId: string) => void;
+  onRemove?: (participantId: string) => void;
+  onSetRole?: (participantId: string, role: ParticipantRole) => void;
+  onPin?: (participantId: string) => void;
+  onUnpin?: () => void;
+  onSpotlight?: (participantId: string) => void;
+  onLowerHand?: (participantId: string) => void;
 }
 
 function ParticipantItem({
@@ -243,10 +252,10 @@ function ParticipantItem({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-lg p-2 transition-colors',
-        isActiveSpeaker && 'bg-blue-50 dark:bg-blue-900/20',
-        participant.isHandRaised && 'bg-amber-50 dark:bg-amber-900/20',
-        'hover:bg-muted/50'
+        "flex items-center gap-3 rounded-lg p-2 transition-colors",
+        isActiveSpeaker && "bg-blue-50 dark:bg-blue-900/20",
+        participant.isHandRaised && "bg-amber-50 dark:bg-amber-900/20",
+        "hover:bg-muted/50",
       )}
     >
       {/* Avatar */}
@@ -267,14 +276,19 @@ function ParticipantItem({
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-medium">
             {participant.name}
-            {isCurrentUser && <span className="ml-1 text-muted-foreground">(You)</span>}
+            {isCurrentUser && (
+              <span className="ml-1 text-muted-foreground">(You)</span>
+            )}
           </span>
 
           {/* Role Badge */}
-          {(participant.role === 'host' || participant.role === 'co-host') && (
-            <Badge variant={getRoleBadgeVariant(participant.role)} className="h-5 text-xs">
+          {(participant.role === "host" || participant.role === "co-host") && (
+            <Badge
+              variant={getRoleBadgeVariant(participant.role)}
+              className="h-5 text-xs"
+            >
               {getRoleIcon(participant.role)}
-              {participant.role === 'host' ? 'Host' : 'Co-host'}
+              {participant.role === "host" ? "Host" : "Co-host"}
             </Badge>
           )}
         </div>
@@ -293,9 +307,13 @@ function ParticipantItem({
             <VideoOff className="h-3 w-3 text-red-500" />
           )}
 
-          {participant.isScreenSharing && <Monitor className="h-3 w-3 text-blue-500" />}
+          {participant.isScreenSharing && (
+            <Monitor className="h-3 w-3 text-blue-500" />
+          )}
 
-          {participant.isHandRaised && <Hand className="h-3 w-3 text-amber-500" />}
+          {participant.isHandRaised && (
+            <Hand className="h-3 w-3 text-amber-500" />
+          )}
 
           {isPinned && <Pin className="h-3 w-3 text-purple-500" />}
         </div>
@@ -346,16 +364,20 @@ function ParticipantItem({
             )}
 
             {/* Role Management */}
-            {canManageRoles && participant.role !== 'host' && (
+            {canManageRoles && participant.role !== "host" && (
               <>
                 <DropdownMenuSeparator />
-                {participant.role === 'co-host' ? (
-                  <DropdownMenuItem onClick={() => onSetRole?.(participant.id, 'participant')}>
+                {participant.role === "co-host" ? (
+                  <DropdownMenuItem
+                    onClick={() => onSetRole?.(participant.id, "participant")}
+                  >
                     <UserCog className="mr-2 h-4 w-4" />
                     Remove Co-host
                   </DropdownMenuItem>
                 ) : (
-                  <DropdownMenuItem onClick={() => onSetRole?.(participant.id, 'co-host')}>
+                  <DropdownMenuItem
+                    onClick={() => onSetRole?.(participant.id, "co-host")}
+                  >
                     <Shield className="mr-2 h-4 w-4" />
                     Make Co-host
                   </DropdownMenuItem>
@@ -364,7 +386,7 @@ function ParticipantItem({
             )}
 
             {/* Remove */}
-            {participant.role !== 'host' && (
+            {participant.role !== "host" && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -380,5 +402,5 @@ function ParticipantItem({
         </DropdownMenu>
       )}
     </div>
-  )
+  );
 }

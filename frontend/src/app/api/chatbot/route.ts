@@ -8,11 +8,11 @@
  * @version 1.0.0
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { createLogger } from '@/lib/logger'
-import { getChatbotService } from '@/services/chatbot'
+import { NextRequest, NextResponse } from "next/server";
+import { createLogger } from "@/lib/logger";
+import { getChatbotService } from "@/services/chatbot";
 
-const logger = createLogger('ChatbotAPI')
+const logger = createLogger("ChatbotAPI");
 
 /**
  * GET /api/chatbot
@@ -20,26 +20,30 @@ const logger = createLogger('ChatbotAPI')
  */
 export async function GET() {
   try {
-    const service = getChatbotService()
-    const result = await service.getConfig()
+    const service = getChatbotService();
+    const result = await service.getConfig();
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: result.error?.status || 500 }
-      )
+        { status: result.error?.status || 500 },
+      );
     }
 
     return NextResponse.json({
       success: true,
       data: result.data,
-    })
+    });
   } catch (error) {
-    logger.error('Failed to get chatbot config', error as Error)
+    logger.error("Failed to get chatbot config", error as Error);
     return NextResponse.json(
-      { success: false, error: 'Failed to get chatbot config', message: (error as Error).message },
-      { status: 500 }
-    )
+      {
+        success: false,
+        error: "Failed to get chatbot config",
+        message: (error as Error).message,
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -49,9 +53,9 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
-    const service = getChatbotService()
+    const service = getChatbotService();
     const result = await service.updateConfig({
       name: body.name,
       description: body.description,
@@ -68,27 +72,31 @@ export async function PUT(request: NextRequest) {
       features: body.features,
       departments: body.departments,
       languages: body.languages,
-    })
+    });
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: result.error?.status || 500 }
-      )
+        { status: result.error?.status || 500 },
+      );
     }
 
-    logger.info('Updated chatbot config')
+    logger.info("Updated chatbot config");
 
     return NextResponse.json({
       success: true,
       data: result.data,
-      message: 'Chatbot configuration updated',
-    })
+      message: "Chatbot configuration updated",
+    });
   } catch (error) {
-    logger.error('Failed to update chatbot config', error as Error)
+    logger.error("Failed to update chatbot config", error as Error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update chatbot config', message: (error as Error).message },
-      { status: 500 }
-    )
+      {
+        success: false,
+        error: "Failed to update chatbot config",
+        message: (error as Error).message,
+      },
+      { status: 500 },
+    );
   }
 }

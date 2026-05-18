@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import { useAuth } from '@/contexts/auth-context'
-import { authConfig } from '@/config/auth.config'
-import { Button } from '@/components/ui/button'
-import { X } from 'lucide-react'
-import { useState } from 'react'
+import { useAuth } from "@/contexts/auth-context";
+import { authConfig } from "@/config/auth.config";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { useState } from "react";
 
 export function DevModeBanner() {
-  const { user, switchUser, isDevMode } = useAuth()
-  const [isVisible, setIsVisible] = useState(true)
+  const { user, switchUser, isDevMode } = useAuth();
+  const [isVisible, setIsVisible] = useState(true);
 
-  if (!isDevMode || !isVisible) return null
+  if (!isDevMode || !isVisible) return null;
 
   return (
     <div className="bg-yellow-500 px-4 py-2 text-sm text-black">
@@ -45,5 +45,5 @@ export function DevModeBanner() {
         </button>
       </div>
     </div>
-  )
+  );
 }

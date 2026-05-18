@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // WhatsApp Status Component
@@ -8,9 +8,9 @@
 //
 // ===============================================================================
 
-import { cn } from '@/lib/utils'
-import { WHATSAPP_COLORS } from '../config'
-import { Plus, MoreVertical } from 'lucide-react'
+import { cn } from "@/lib/utils";
+import { WHATSAPP_COLORS } from "../config";
+import { Plus, MoreVertical } from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
@@ -18,27 +18,27 @@ import { Plus, MoreVertical } from 'lucide-react'
 
 export interface WhatsAppStatusProps {
   myStatus?: {
-    hasStatus: boolean
-    lastUpdate?: Date
-    viewCount?: number
-  }
-  recentStatuses?: WhatsAppStatusData[]
-  mutedStatuses?: WhatsAppStatusData[]
-  onMyStatusClick?: () => void
-  onStatusClick?: (statusId: string) => void
-  onMenuClick?: () => void
-  className?: string
+    hasStatus: boolean;
+    lastUpdate?: Date;
+    viewCount?: number;
+  };
+  recentStatuses?: WhatsAppStatusData[];
+  mutedStatuses?: WhatsAppStatusData[];
+  onMyStatusClick?: () => void;
+  onStatusClick?: (statusId: string) => void;
+  onMenuClick?: () => void;
+  className?: string;
 }
 
 export interface WhatsAppStatusData {
-  id: string
-  userId: string
-  userName: string
-  userAvatar?: string
-  time: Date
-  viewedCount: number
-  totalCount: number
-  isMuted?: boolean
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  time: Date;
+  viewedCount: number;
+  totalCount: number;
+  isMuted?: boolean;
 }
 
 // -------------------------------------------------------------------------------
@@ -56,12 +56,18 @@ export function WhatsAppStatus({
 }: WhatsAppStatusProps) {
   return (
     <div
-      className={cn('flex h-full flex-col', className)}
+      className={cn("flex h-full flex-col", className)}
       style={{ backgroundColor: WHATSAPP_COLORS.chatBgDark }}
     >
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-2" style={{ minHeight: 60 }}>
-        <h1 className="text-xl font-bold" style={{ color: WHATSAPP_COLORS.textPrimaryDark }}>
+      <header
+        className="flex items-center justify-between px-4 py-2"
+        style={{ minHeight: 60 }}
+      >
+        <h1
+          className="text-xl font-bold"
+          style={{ color: WHATSAPP_COLORS.textPrimaryDark }}
+        >
           Status
         </h1>
         <button
@@ -100,13 +106,19 @@ export function WhatsAppStatus({
             </div>
           </div>
           <div className="text-left">
-            <div style={{ color: WHATSAPP_COLORS.textPrimaryDark }} className="font-medium">
+            <div
+              style={{ color: WHATSAPP_COLORS.textPrimaryDark }}
+              className="font-medium"
+            >
               My status
             </div>
-            <div className="text-sm" style={{ color: WHATSAPP_COLORS.textSecondaryDark }}>
+            <div
+              className="text-sm"
+              style={{ color: WHATSAPP_COLORS.textSecondaryDark }}
+            >
               {myStatus?.hasStatus
                 ? `${myStatus.viewCount || 0} views`
-                : 'Tap to add status update'}
+                : "Tap to add status update"}
             </div>
           </div>
         </button>
@@ -150,31 +162,40 @@ export function WhatsAppStatus({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
 // Sub-components
 // -------------------------------------------------------------------------------
 
-function StatusItem({ status, onClick }: { status: WhatsAppStatusData; onClick: () => void }) {
+function StatusItem({
+  status,
+  onClick,
+}: {
+  status: WhatsAppStatusData;
+  onClick: () => void;
+}) {
   const formatTime = (date: Date) => {
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMins / 60)
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
 
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins} minutes ago`
-    if (diffHours < 24) return `${diffHours} hours ago`
-    return 'Yesterday'
-  }
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    return "Yesterday";
+  };
 
-  const progress = status.viewedCount / status.totalCount
-  const isFullyViewed = progress >= 1
+  const progress = status.viewedCount / status.totalCount;
+  const isFullyViewed = progress >= 1;
 
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 px-4 py-3 hover:bg-white/5">
+    <button
+      onClick={onClick}
+      className="flex w-full items-center gap-3 px-4 py-3 hover:bg-white/5"
+    >
       {/* Avatar with Ring */}
       <div className="relative">
         <StatusRing
@@ -194,9 +215,11 @@ function StatusItem({ status, onClick }: { status: WhatsAppStatusData; onClick: 
           ) : (
             <div
               className="flex h-full w-full items-center justify-center"
-              style={{ backgroundColor: '#6B7C85' }}
+              style={{ backgroundColor: "#6B7C85" }}
             >
-              <span className="font-medium text-white">{status.userName[0]?.toUpperCase()}</span>
+              <span className="font-medium text-white">
+                {status.userName[0]?.toUpperCase()}
+              </span>
             </div>
           )}
         </div>
@@ -204,15 +227,21 @@ function StatusItem({ status, onClick }: { status: WhatsAppStatusData; onClick: 
 
       {/* Info */}
       <div className="text-left">
-        <div style={{ color: WHATSAPP_COLORS.textPrimaryDark }} className="font-medium">
+        <div
+          style={{ color: WHATSAPP_COLORS.textPrimaryDark }}
+          className="font-medium"
+        >
           {status.userName}
         </div>
-        <div className="text-sm" style={{ color: WHATSAPP_COLORS.textSecondaryDark }}>
+        <div
+          className="text-sm"
+          style={{ color: WHATSAPP_COLORS.textSecondaryDark }}
+        >
           {formatTime(status.time)}
         </div>
       </div>
     </button>
-  )
+  );
 }
 
 function StatusRing({
@@ -222,24 +251,24 @@ function StatusRing({
   size,
   isMuted,
 }: {
-  progress: number
-  totalSegments: number
-  viewedSegments: number
-  size: number
-  isMuted?: boolean
+  progress: number;
+  totalSegments: number;
+  viewedSegments: number;
+  size: number;
+  isMuted?: boolean;
 }) {
-  const strokeWidth = 2
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const gapAngle = 4 // degrees
-  const segmentAngle = (360 - gapAngle * totalSegments) / totalSegments
+  const strokeWidth = 2;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const gapAngle = 4; // degrees
+  const segmentAngle = (360 - gapAngle * totalSegments) / totalSegments;
 
   return (
     <svg width={size} height={size} className="-rotate-90 transform">
       {Array.from({ length: totalSegments }).map((_, i) => {
-        const isViewed = i < viewedSegments
-        const startAngle = i * (segmentAngle + gapAngle)
-        const segmentLength = (segmentAngle / 360) * circumference
+        const isViewed = i < viewedSegments;
+        const startAngle = i * (segmentAngle + gapAngle);
+        const segmentLength = (segmentAngle / 360) * circumference;
 
         return (
           <circle
@@ -249,15 +278,21 @@ function StatusRing({
             r={radius}
             fill="none"
             strokeWidth={strokeWidth}
-            stroke={isMuted ? '#8696A0' : isViewed ? '#8696A0' : WHATSAPP_COLORS.primaryGreen}
+            stroke={
+              isMuted
+                ? "#8696A0"
+                : isViewed
+                  ? "#8696A0"
+                  : WHATSAPP_COLORS.primaryGreen
+            }
             strokeDasharray={`${segmentLength} ${circumference}`}
             strokeDashoffset={-startAngle * (circumference / 360)}
             strokeLinecap="round"
           />
-        )
+        );
       })}
     </svg>
-  )
+  );
 }
 
-export default WhatsAppStatus
+export default WhatsAppStatus;

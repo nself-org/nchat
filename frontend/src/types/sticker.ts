@@ -5,7 +5,7 @@
  * Supports static and animated stickers similar to Telegram.
  */
 
-import type { UserBasicInfo } from './user'
+import type { UserBasicInfo } from "./user";
 
 // ============================================================================
 // Sticker Type Definitions
@@ -14,17 +14,17 @@ import type { UserBasicInfo } from './user'
 /**
  * Sticker format types.
  */
-export type StickerType = 'static' | 'animated' | 'video'
+export type StickerType = "static" | "animated" | "video";
 
 /**
  * Sticker format details.
  */
-export type StickerFormat = 'png' | 'apng' | 'gif' | 'webp' | 'webm' | 'lottie'
+export type StickerFormat = "png" | "apng" | "gif" | "webp" | "webm" | "lottie";
 
 /**
  * Sticker visibility options.
  */
-export type StickerVisibility = 'public' | 'private' | 'unlisted'
+export type StickerVisibility = "public" | "private" | "unlisted";
 
 // ============================================================================
 // Main Sticker Interface
@@ -35,43 +35,43 @@ export type StickerVisibility = 'public' | 'private' | 'unlisted'
  */
 export interface Sticker {
   /** Unique sticker ID */
-  id: string
+  id: string;
   /** Sticker pack ID */
-  packId: string
+  packId: string;
   /** Sticker name/identifier */
-  name: string
+  name: string;
   /** Sticker description */
-  description?: string
+  description?: string;
   /** Sticker type */
-  type: StickerType
+  type: StickerType;
   /** Sticker format */
-  format: StickerFormat
+  format: StickerFormat;
   /** Sticker URL */
-  url: string
+  url: string;
   /** Thumbnail URL (static preview) */
-  thumbnailUrl: string
+  thumbnailUrl: string;
   /** Sticker width in pixels */
-  width: number
+  width: number;
   /** Sticker height in pixels */
-  height: number
+  height: number;
   /** File size in bytes */
-  size: number
+  size: number;
   /** Duration in seconds (for animated/video) */
-  duration?: number
+  duration?: number;
   /** Related emoji */
-  emoji?: string
+  emoji?: string;
   /** Search keywords */
-  keywords?: string[]
+  keywords?: string[];
   /** Position in pack */
-  position: number
+  position: number;
   /** Usage count */
-  usageCount: number
+  usageCount: number;
   /** When sticker was created */
-  createdAt: Date
+  createdAt: Date;
   /** When sticker was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** Whether sticker is available */
-  isAvailable: boolean
+  isAvailable: boolean;
 }
 
 /**
@@ -79,7 +79,7 @@ export interface Sticker {
  */
 export interface StickerWithPack extends Sticker {
   /** Sticker pack */
-  pack: StickerPackBasic
+  pack: StickerPackBasic;
 }
 
 // ============================================================================
@@ -91,15 +91,15 @@ export interface StickerWithPack extends Sticker {
  */
 export interface StickerPackBasic {
   /** Pack ID */
-  id: string
+  id: string;
   /** Pack name */
-  name: string
+  name: string;
   /** Pack thumbnail URL */
-  thumbnailUrl: string
+  thumbnailUrl: string;
   /** Sticker count */
-  stickerCount: number
+  stickerCount: number;
   /** Whether pack is animated */
-  isAnimated: boolean
+  isAnimated: boolean;
 }
 
 /**
@@ -107,49 +107,49 @@ export interface StickerPackBasic {
  */
 export interface StickerPack {
   /** Unique pack ID */
-  id: string
+  id: string;
   /** Pack name */
-  name: string
+  name: string;
   /** Pack title (display name) */
-  title: string
+  title: string;
   /** Pack description */
-  description?: string
+  description?: string;
   /** Pack thumbnail URL */
-  thumbnailUrl: string
+  thumbnailUrl: string;
   /** Pack banner URL */
-  bannerUrl?: string
+  bannerUrl?: string;
   /** Stickers in the pack */
-  stickers: Sticker[]
+  stickers: Sticker[];
   /** Number of stickers */
-  stickerCount: number
+  stickerCount: number;
   /** Sticker type (all stickers must match) */
-  type: StickerType
+  type: StickerType;
   /** Pack visibility */
-  visibility: StickerVisibility
+  visibility: StickerVisibility;
   /** Who created the pack */
-  createdBy: string
+  createdBy: string;
   /** Creator info */
-  creator?: UserBasicInfo
+  creator?: UserBasicInfo;
   /** Whether pack is official */
-  isOfficial: boolean
+  isOfficial: boolean;
   /** Whether pack is verified */
-  isVerified: boolean
+  isVerified: boolean;
   /** Whether pack is featured */
-  isFeatured: boolean
+  isFeatured: boolean;
   /** Install count */
-  installCount: number
+  installCount: number;
   /** Tags for discovery */
-  tags?: string[]
+  tags?: string[];
   /** Website/artist URL */
-  websiteUrl?: string
+  websiteUrl?: string;
   /** When pack was created */
-  createdAt: Date
+  createdAt: Date;
   /** When pack was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** Whether pack is installed by current user */
-  isInstalled?: boolean
+  isInstalled?: boolean;
   /** Pack order in user's collection */
-  userOrder?: number
+  userOrder?: number;
 }
 
 /**
@@ -157,17 +157,17 @@ export interface StickerPack {
  */
 export interface StickerPackInstallation {
   /** Installation ID */
-  id: string
+  id: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** Pack ID */
-  packId: string
+  packId: string;
   /** Display order */
-  order: number
+  order: number;
   /** When installed */
-  installedAt: Date
+  installedAt: Date;
   /** Whether pack is favorited */
-  isFavorite: boolean
+  isFavorite: boolean;
 }
 
 // ============================================================================
@@ -179,11 +179,11 @@ export interface StickerPackInstallation {
  */
 export interface RecentSticker {
   /** Sticker */
-  sticker: Sticker
+  sticker: Sticker;
   /** Last used timestamp */
-  lastUsedAt: Date
+  lastUsedAt: Date;
   /** Usage count */
-  usageCount: number
+  usageCount: number;
 }
 
 /**
@@ -191,7 +191,7 @@ export interface RecentSticker {
  */
 export interface FrequentSticker extends RecentSticker {
   /** Frequency score */
-  frequencyScore: number
+  frequencyScore: number;
 }
 
 /**
@@ -199,11 +199,11 @@ export interface FrequentSticker extends RecentSticker {
  */
 export interface StickerSuggestion {
   /** Sticker */
-  sticker: Sticker
+  sticker: Sticker;
   /** Match score */
-  score: number
+  score: number;
   /** Matched term */
-  matchedTerm?: string
+  matchedTerm?: string;
 }
 
 // ============================================================================
@@ -215,17 +215,17 @@ export interface StickerSuggestion {
  */
 export interface StickerPickerCategory {
   /** Category ID */
-  id: string
+  id: string;
   /** Category name */
-  name: string
+  name: string;
   /** Category type */
-  type: 'recent' | 'favorites' | 'pack' | 'trending'
+  type: "recent" | "favorites" | "pack" | "trending";
   /** Stickers in category */
-  stickers: Sticker[]
+  stickers: Sticker[];
   /** Pack info (if pack category) */
-  pack?: StickerPackBasic
+  pack?: StickerPackBasic;
   /** Icon URL or emoji */
-  icon?: string
+  icon?: string;
 }
 
 /**
@@ -233,19 +233,19 @@ export interface StickerPickerCategory {
  */
 export interface StickerPickerState {
   /** Search query */
-  searchQuery: string
+  searchQuery: string;
   /** Selected category ID */
-  selectedCategoryId: string
+  selectedCategoryId: string;
   /** Available categories */
-  categories: StickerPickerCategory[]
+  categories: StickerPickerCategory[];
   /** Installed packs */
-  installedPacks: StickerPackBasic[]
+  installedPacks: StickerPackBasic[];
   /** Recent stickers */
-  recentStickers: RecentSticker[]
+  recentStickers: RecentSticker[];
   /** Favorite stickers */
-  favoriteStickers: Sticker[]
+  favoriteStickers: Sticker[];
   /** Is loading */
-  isLoading: boolean
+  isLoading: boolean;
 }
 
 // ============================================================================
@@ -257,17 +257,17 @@ export interface StickerPickerState {
  */
 export interface StickerSearchQuery {
   /** Search text */
-  query: string
+  query: string;
   /** Filter by pack ID */
-  packId?: string
+  packId?: string;
   /** Filter by type */
-  type?: StickerType
+  type?: StickerType;
   /** Filter by format */
-  format?: StickerFormat
+  format?: StickerFormat;
   /** Limit results */
-  limit?: number
+  limit?: number;
   /** Offset for pagination */
-  offset?: number
+  offset?: number;
 }
 
 /**
@@ -275,11 +275,11 @@ export interface StickerSearchQuery {
  */
 export interface StickerSearchResponse {
   /** Search results */
-  stickers: StickerWithPack[]
+  stickers: StickerWithPack[];
   /** Total count */
-  totalCount: number
+  totalCount: number;
   /** Has more results */
-  hasMore: boolean
+  hasMore: boolean;
 }
 
 /**
@@ -287,13 +287,13 @@ export interface StickerSearchResponse {
  */
 export interface TrendingSticker {
   /** Sticker */
-  sticker: Sticker
+  sticker: Sticker;
   /** Pack info */
-  pack: StickerPackBasic
+  pack: StickerPackBasic;
   /** Trend score */
-  trendScore: number
+  trendScore: number;
   /** Usage delta (change in usage) */
-  usageDelta: number
+  usageDelta: number;
 }
 
 // ============================================================================
@@ -305,19 +305,19 @@ export interface TrendingSticker {
  */
 export interface CreateStickerPackInput {
   /** Pack name (unique identifier) */
-  name: string
+  name: string;
   /** Pack title (display name) */
-  title: string
+  title: string;
   /** Pack description */
-  description?: string
+  description?: string;
   /** Pack visibility */
-  visibility?: StickerVisibility
+  visibility?: StickerVisibility;
   /** Sticker files to upload */
-  stickers: CreateStickerInput[]
+  stickers: CreateStickerInput[];
   /** Tags */
-  tags?: string[]
+  tags?: string[];
   /** Website URL */
-  websiteUrl?: string
+  websiteUrl?: string;
 }
 
 /**
@@ -325,13 +325,13 @@ export interface CreateStickerPackInput {
  */
 export interface CreateStickerInput {
   /** Sticker name */
-  name: string
+  name: string;
   /** Sticker file */
-  file: File
+  file: File;
   /** Related emoji */
-  emoji?: string
+  emoji?: string;
   /** Keywords for search */
-  keywords?: string[]
+  keywords?: string[];
 }
 
 /**
@@ -339,15 +339,15 @@ export interface CreateStickerInput {
  */
 export interface UpdateStickerPackInput {
   /** Pack title */
-  title?: string
+  title?: string;
   /** Pack description */
-  description?: string
+  description?: string;
   /** Pack visibility */
-  visibility?: StickerVisibility
+  visibility?: StickerVisibility;
   /** Tags */
-  tags?: string[]
+  tags?: string[];
   /** Website URL */
-  websiteUrl?: string
+  websiteUrl?: string;
 }
 
 /**
@@ -355,17 +355,17 @@ export interface UpdateStickerPackInput {
  */
 export interface UpdateStickerInput {
   /** Sticker name */
-  name?: string
+  name?: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Related emoji */
-  emoji?: string
+  emoji?: string;
   /** Keywords */
-  keywords?: string[]
+  keywords?: string[];
   /** Position in pack */
-  position?: number
+  position?: number;
   /** Is available */
-  isAvailable?: boolean
+  isAvailable?: boolean;
 }
 
 /**
@@ -373,9 +373,9 @@ export interface UpdateStickerInput {
  */
 export interface ReorderStickersInput {
   /** Pack ID */
-  packId: string
+  packId: string;
   /** Sticker ID to position mapping */
-  positions: { stickerId: string; position: number }[]
+  positions: { stickerId: string; position: number }[];
 }
 
 // ============================================================================
@@ -387,21 +387,21 @@ export interface ReorderStickersInput {
  */
 export interface StickerUploadValidation {
   /** Is valid */
-  isValid: boolean
+  isValid: boolean;
   /** Validation errors */
-  errors: string[]
+  errors: string[];
   /** Warnings */
-  warnings: string[]
+  warnings: string[];
   /** Detected format */
-  format?: StickerFormat
+  format?: StickerFormat;
   /** Detected type */
-  type?: StickerType
+  type?: StickerType;
   /** Dimensions */
-  dimensions?: { width: number; height: number }
+  dimensions?: { width: number; height: number };
   /** File size */
-  fileSize?: number
+  fileSize?: number;
   /** Duration (for animated) */
-  duration?: number
+  duration?: number;
 }
 
 /**
@@ -409,19 +409,19 @@ export interface StickerUploadValidation {
  */
 export interface StickerUploadConstraints {
   /** Maximum file size in bytes */
-  maxFileSize: number
+  maxFileSize: number;
   /** Maximum dimensions (pixels) */
-  maxDimensions: number
+  maxDimensions: number;
   /** Minimum dimensions (pixels) */
-  minDimensions: number
+  minDimensions: number;
   /** Allowed formats */
-  allowedFormats: StickerFormat[]
+  allowedFormats: StickerFormat[];
   /** Maximum duration for animated (seconds) */
-  maxDuration: number
+  maxDuration: number;
   /** Maximum stickers per pack */
-  maxStickersPerPack: number
+  maxStickersPerPack: number;
   /** Maximum packs per user */
-  maxPacksPerUser: number
+  maxPacksPerUser: number;
 }
 
 /**
@@ -431,11 +431,11 @@ export const DefaultStickerUploadConstraints: StickerUploadConstraints = {
   maxFileSize: 512 * 1024, // 512KB
   maxDimensions: 512,
   minDimensions: 64,
-  allowedFormats: ['png', 'webp', 'gif', 'lottie'],
+  allowedFormats: ["png", "webp", "gif", "lottie"],
   maxDuration: 3,
   maxStickersPerPack: 120,
   maxPacksPerUser: 10,
-}
+};
 
 // ============================================================================
 // Sticker Events
@@ -445,39 +445,39 @@ export const DefaultStickerUploadConstraints: StickerUploadConstraints = {
  * Sticker pack created event.
  */
 export interface StickerPackCreatedEvent {
-  pack: StickerPack
-  creator: UserBasicInfo
-  timestamp: Date
+  pack: StickerPack;
+  creator: UserBasicInfo;
+  timestamp: Date;
 }
 
 /**
  * Sticker pack updated event.
  */
 export interface StickerPackUpdatedEvent {
-  packId: string
-  updates: Partial<StickerPack>
-  updatedBy: UserBasicInfo
-  timestamp: Date
+  packId: string;
+  updates: Partial<StickerPack>;
+  updatedBy: UserBasicInfo;
+  timestamp: Date;
 }
 
 /**
  * Sticker pack installed event.
  */
 export interface StickerPackInstalledEvent {
-  packId: string
-  userId: string
-  timestamp: Date
+  packId: string;
+  userId: string;
+  timestamp: Date;
 }
 
 /**
  * Sticker used event (for analytics).
  */
 export interface StickerUsedEvent {
-  stickerId: string
-  packId: string
-  userId: string
-  channelId: string
-  timestamp: Date
+  stickerId: string;
+  packId: string;
+  userId: string;
+  channelId: string;
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -489,17 +489,17 @@ export interface StickerUsedEvent {
  */
 export function getStickerTypeFromFormat(format: StickerFormat): StickerType {
   switch (format) {
-    case 'png':
-    case 'webp':
-      return 'static'
-    case 'apng':
-    case 'gif':
-    case 'lottie':
-      return 'animated'
-    case 'webm':
-      return 'video'
+    case "png":
+    case "webp":
+      return "static";
+    case "apng":
+    case "gif":
+    case "lottie":
+      return "animated";
+    case "webm":
+      return "video";
     default:
-      return 'static'
+      return "static";
   }
 }
 
@@ -507,7 +507,7 @@ export function getStickerTypeFromFormat(format: StickerFormat): StickerType {
  * Check if sticker format is animated.
  */
 export function isAnimatedStickerFormat(format: StickerFormat): boolean {
-  return ['apng', 'gif', 'lottie', 'webm'].includes(format)
+  return ["apng", "gif", "lottie", "webm"].includes(format);
 }
 
 /**
@@ -515,14 +515,14 @@ export function isAnimatedStickerFormat(format: StickerFormat): boolean {
  */
 export function getStickerMimeType(format: StickerFormat): string {
   const mimeTypes: Record<StickerFormat, string> = {
-    png: 'image/png',
-    apng: 'image/apng',
-    gif: 'image/gif',
-    webp: 'image/webp',
-    webm: 'video/webm',
-    lottie: 'application/json',
-  }
-  return mimeTypes[format] || 'application/octet-stream'
+    png: "image/png",
+    apng: "image/apng",
+    gif: "image/gif",
+    webp: "image/webp",
+    webm: "video/webm",
+    lottie: "application/json",
+  };
+  return mimeTypes[format] || "application/octet-stream";
 }
 
 /**
@@ -530,7 +530,7 @@ export function getStickerMimeType(format: StickerFormat): string {
  */
 export function isValidStickerName(name: string): boolean {
   // Must be 1-64 characters, alphanumeric with underscores
-  return /^[a-zA-Z0-9_]{1,64}$/.test(name)
+  return /^[a-zA-Z0-9_]{1,64}$/.test(name);
 }
 
 /**
@@ -538,21 +538,21 @@ export function isValidStickerName(name: string): boolean {
  */
 export function isValidPackName(name: string): boolean {
   // Must be 3-64 characters, alphanumeric with underscores, start with letter
-  return /^[a-zA-Z][a-zA-Z0-9_]{2,63}$/.test(name)
+  return /^[a-zA-Z][a-zA-Z0-9_]{2,63}$/.test(name);
 }
 
 /**
  * Generate sticker pack URL.
  */
 export function getStickerPackUrl(packName: string): string {
-  return `/stickers/${encodeURIComponent(packName)}`
+  return `/stickers/${encodeURIComponent(packName)}`;
 }
 
 /**
  * Format sticker file size for display.
  */
 export function formatStickerSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }

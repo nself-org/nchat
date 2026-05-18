@@ -29,7 +29,7 @@ export {
   getNextLowerRole,
   getAssignableRoles,
   canModifyUserRole,
-} from './roles'
+} from "./roles";
 
 // Permission definitions and utilities
 export {
@@ -44,7 +44,7 @@ export {
   hasAnyPermission,
   getMinimumRoleForPermission,
   getPermissionDescription,
-} from './permissions'
+} from "./permissions";
 
 // Session management
 export {
@@ -57,7 +57,7 @@ export {
   type SuspiciousActivityResult,
   type SessionNotification,
   DEFAULT_SESSION_CONFIG,
-} from './session-manager'
+} from "./session-manager";
 
 // Unified session service (cross-platform)
 export {
@@ -69,4 +69,4 @@ export {
   type SessionRefreshResult,
   type DeviceInfo,
   type SessionRevocationResult,
-} from './unified-session.service'
+} from "./unified-session.service";

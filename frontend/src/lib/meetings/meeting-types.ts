@@ -8,131 +8,142 @@
 // Enums and Constants
 // ============================================================================
 
-export type MeetingType = 'scheduled' | 'instant' | 'huddle' | 'recurring'
+export type MeetingType = "scheduled" | "instant" | "huddle" | "recurring";
 
-export type MeetingStatus = 'scheduled' | 'live' | 'ended' | 'cancelled'
+export type MeetingStatus = "scheduled" | "live" | "ended" | "cancelled";
 
-export type ParticipantRole = 'host' | 'co-host' | 'presenter' | 'participant'
+export type ParticipantRole = "host" | "co-host" | "presenter" | "participant";
 
 export type ParticipantStatus =
-  | 'invited'
-  | 'accepted'
-  | 'declined'
-  | 'tentative'
-  | 'joined'
-  | 'left'
+  | "invited"
+  | "accepted"
+  | "declined"
+  | "tentative"
+  | "joined"
+  | "left";
 
-export type RoomType = 'video' | 'audio' | 'screenshare'
+export type RoomType = "video" | "audio" | "screenshare";
 
-export type RecurrencePattern = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'custom'
+export type RecurrencePattern =
+  | "daily"
+  | "weekly"
+  | "biweekly"
+  | "monthly"
+  | "custom";
 
-export type ReminderTiming = '5min' | '10min' | '15min' | '30min' | '1hour' | '1day'
+export type ReminderTiming =
+  | "5min"
+  | "10min"
+  | "15min"
+  | "30min"
+  | "1hour"
+  | "1day";
 
 // ============================================================================
 // Core Types
 // ============================================================================
 
 export interface MeetingParticipant {
-  id: string
-  meetingId: string
-  userId: string
-  role: ParticipantRole
-  status: ParticipantStatus
-  invitedAt: string
-  respondedAt: string | null
-  joinedAt: string | null
-  leftAt: string | null
+  id: string;
+  meetingId: string;
+  userId: string;
+  role: ParticipantRole;
+  status: ParticipantStatus;
+  invitedAt: string;
+  respondedAt: string | null;
+  joinedAt: string | null;
+  leftAt: string | null;
   // User info (populated from join)
-  displayName?: string
-  avatarUrl?: string
-  email?: string
+  displayName?: string;
+  avatarUrl?: string;
+  email?: string;
 }
 
 export interface MeetingReminder {
-  id: string
-  meetingId: string
-  userId: string
-  timing: ReminderTiming
-  sentAt: string | null
-  isEnabled: boolean
+  id: string;
+  meetingId: string;
+  userId: string;
+  timing: ReminderTiming;
+  sentAt: string | null;
+  isEnabled: boolean;
 }
 
 export interface RecurrenceRule {
-  pattern: RecurrencePattern
-  interval: number // e.g., every 2 weeks
-  daysOfWeek?: number[] // 0-6, Sunday-Saturday
-  dayOfMonth?: number // 1-31
-  endDate?: string
-  occurrences?: number // Max number of occurrences
+  pattern: RecurrencePattern;
+  interval: number; // e.g., every 2 weeks
+  daysOfWeek?: number[]; // 0-6, Sunday-Saturday
+  dayOfMonth?: number; // 1-31
+  endDate?: string;
+  occurrences?: number; // Max number of occurrences
 }
 
 export interface Meeting {
-  id: string
-  title: string
-  description: string | null
-  type: MeetingType
-  status: MeetingStatus
-  roomType: RoomType
+  id: string;
+  title: string;
+  description: string | null;
+  type: MeetingType;
+  status: MeetingStatus;
+  roomType: RoomType;
 
   // Scheduling
-  scheduledStartAt: string
-  scheduledEndAt: string
-  timezone: string
-  actualStartAt: string | null
-  actualEndAt: string | null
-  duration: number // minutes
+  scheduledStartAt: string;
+  scheduledEndAt: string;
+  timezone: string;
+  actualStartAt: string | null;
+  actualEndAt: string | null;
+  duration: number; // minutes
 
   // Recurrence
-  isRecurring: boolean
-  recurrenceRule: RecurrenceRule | null
-  parentMeetingId: string | null // For recurring instances
+  isRecurring: boolean;
+  recurrenceRule: RecurrenceRule | null;
+  parentMeetingId: string | null; // For recurring instances
 
   // Access
-  hostId: string
-  channelId: string | null // If tied to a channel
-  isPrivate: boolean
-  requiresApproval: boolean
-  password: string | null
+  hostId: string;
+  channelId: string | null; // If tied to a channel
+  isPrivate: boolean;
+  requiresApproval: boolean;
+  password: string | null;
 
   // Meeting link
-  meetingLink: string
-  meetingCode: string
+  meetingLink: string;
+  meetingCode: string;
 
   // Settings
-  settings: MeetingSettings
+  settings: MeetingSettings;
 
   // Participants
-  participants: MeetingParticipant[]
-  participantCount: number
-  maxParticipants: number | null
+  participants: MeetingParticipant[];
+  participantCount: number;
+  maxParticipants: number | null;
 
   // Timestamps
-  createdAt: string
-  updatedAt: string
-  createdBy: string
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
 }
 
 export interface MeetingSettings {
   // Audio/Video
-  muteOnJoin: boolean
-  videoOffOnJoin: boolean
-  allowScreenShare: boolean
-  allowRecording: boolean
+  muteOnJoin: boolean;
+  videoOffOnJoin: boolean;
+  allowScreenShare: boolean;
+  allowRecording: boolean;
 
   // Access control
-  waitingRoom: boolean
-  allowGuests: boolean
-  requiresSignIn: boolean
+  waitingRoom: boolean;
+  allowGuests: boolean;
+  requiresSignIn: boolean;
 
   // Features
-  enableChat: boolean
-  enableReactions: boolean
-  enableHandRaise: boolean
-  enableBreakoutRooms: boolean
+  enableChat: boolean;
+  enableReactions: boolean;
+  enableHandRaise: boolean;
+  enableBreakoutRooms: boolean;
 
   // Recording
-  autoRecord: boolean
-  recordingConsent: boolean
+  autoRecord: boolean;
+  recordingConsent: boolean;
 }
 
 // ============================================================================
@@ -140,35 +151,35 @@ export interface MeetingSettings {
 // ============================================================================
 
 export interface Huddle {
-  id: string
-  channelId: string
-  roomType: RoomType
-  status: 'active' | 'ended'
+  id: string;
+  channelId: string;
+  roomType: RoomType;
+  status: "active" | "ended";
 
   // Host
-  hostId: string
-  hostName: string
-  hostAvatarUrl: string | null
+  hostId: string;
+  hostName: string;
+  hostAvatarUrl: string | null;
 
   // Participants
-  participants: HuddleParticipant[]
-  participantCount: number
-  maxParticipants: number
+  participants: HuddleParticipant[];
+  participantCount: number;
+  maxParticipants: number;
 
   // Timestamps
-  startedAt: string
-  endedAt: string | null
+  startedAt: string;
+  endedAt: string | null;
 }
 
 export interface HuddleParticipant {
-  userId: string
-  displayName: string
-  avatarUrl: string | null
-  joinedAt: string
-  isMuted: boolean
-  isVideoOn: boolean
-  isSpeaking: boolean
-  isScreenSharing: boolean
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  joinedAt: string;
+  isMuted: boolean;
+  isVideoOn: boolean;
+  isSpeaking: boolean;
+  isScreenSharing: boolean;
 }
 
 // ============================================================================
@@ -176,66 +187,66 @@ export interface HuddleParticipant {
 // ============================================================================
 
 export interface RoomState {
-  meetingId: string
-  isConnected: boolean
-  isConnecting: boolean
-  connectionError: string | null
+  meetingId: string;
+  isConnected: boolean;
+  isConnecting: boolean;
+  connectionError: string | null;
 
   // Local user state
-  localUser: LocalUserState
+  localUser: LocalUserState;
 
   // Remote participants
-  remoteParticipants: RemoteParticipant[]
+  remoteParticipants: RemoteParticipant[];
 
   // Room info
-  activeSpeakerId: string | null
-  screenShareUserId: string | null
-  recordingStatus: 'none' | 'starting' | 'recording' | 'paused' | 'stopping'
+  activeSpeakerId: string | null;
+  screenShareUserId: string | null;
+  recordingStatus: "none" | "starting" | "recording" | "paused" | "stopping";
 
   // Chat
-  chatMessages: RoomChatMessage[]
-  unreadChatCount: number
+  chatMessages: RoomChatMessage[];
+  unreadChatCount: number;
 }
 
 export interface LocalUserState {
-  isMuted: boolean
-  isVideoOn: boolean
-  isScreenSharing: boolean
-  isHandRaised: boolean
-  selectedAudioInput: string | null
-  selectedAudioOutput: string | null
-  selectedVideoInput: string | null
+  isMuted: boolean;
+  isVideoOn: boolean;
+  isScreenSharing: boolean;
+  isHandRaised: boolean;
+  selectedAudioInput: string | null;
+  selectedAudioOutput: string | null;
+  selectedVideoInput: string | null;
 }
 
 export interface RemoteParticipant {
-  id: string
-  peerId: string
-  userId: string
-  displayName: string
-  avatarUrl: string | null
-  role: ParticipantRole
+  id: string;
+  peerId: string;
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  role: ParticipantRole;
 
   // Media state
-  isMuted: boolean
-  isVideoOn: boolean
-  isScreenSharing: boolean
-  isSpeaking: boolean
-  isHandRaised: boolean
+  isMuted: boolean;
+  isVideoOn: boolean;
+  isScreenSharing: boolean;
+  isSpeaking: boolean;
+  isHandRaised: boolean;
 
   // Connection quality
-  connectionQuality: 'excellent' | 'good' | 'fair' | 'poor' | 'unknown'
+  connectionQuality: "excellent" | "good" | "fair" | "poor" | "unknown";
 
   // Timestamps
-  joinedAt: string
+  joinedAt: string;
 }
 
 export interface RoomChatMessage {
-  id: string
-  userId: string
-  displayName: string
-  content: string
-  timestamp: string
-  type: 'message' | 'system'
+  id: string;
+  userId: string;
+  displayName: string;
+  content: string;
+  timestamp: string;
+  type: "message" | "system";
 }
 
 // ============================================================================
@@ -243,32 +254,32 @@ export interface RoomChatMessage {
 // ============================================================================
 
 export interface CalendarDay {
-  date: string // YYYY-MM-DD
-  meetings: Meeting[]
-  isToday: boolean
-  isCurrentMonth: boolean
-  isWeekend: boolean
+  date: string; // YYYY-MM-DD
+  meetings: Meeting[];
+  isToday: boolean;
+  isCurrentMonth: boolean;
+  isWeekend: boolean;
 }
 
 export interface CalendarWeek {
-  weekNumber: number
-  days: CalendarDay[]
+  weekNumber: number;
+  days: CalendarDay[];
 }
 
 export interface CalendarMonth {
-  year: number
-  month: number // 0-11
-  weeks: CalendarWeek[]
+  year: number;
+  month: number; // 0-11
+  weeks: CalendarWeek[];
 }
 
 export interface CalendarEvent {
-  id: string
-  meetingId: string
-  title: string
-  startTime: string
-  endTime: string
-  color: string
-  isAllDay: boolean
+  id: string;
+  meetingId: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  color: string;
+  isAllDay: boolean;
 }
 
 // ============================================================================
@@ -276,37 +287,37 @@ export interface CalendarEvent {
 // ============================================================================
 
 export interface CreateMeetingInput {
-  title: string
-  description?: string
-  roomType: RoomType
-  scheduledStartAt: string
-  scheduledEndAt: string
-  timezone: string
-  channelId?: string
-  isPrivate?: boolean
-  password?: string
-  isRecurring?: boolean
-  recurrenceRule?: RecurrenceRule
-  participantIds?: string[]
-  settings?: Partial<MeetingSettings>
+  title: string;
+  description?: string;
+  roomType: RoomType;
+  scheduledStartAt: string;
+  scheduledEndAt: string;
+  timezone: string;
+  channelId?: string;
+  isPrivate?: boolean;
+  password?: string;
+  isRecurring?: boolean;
+  recurrenceRule?: RecurrenceRule;
+  participantIds?: string[];
+  settings?: Partial<MeetingSettings>;
 }
 
 export interface UpdateMeetingInput {
-  title?: string
-  description?: string
-  scheduledStartAt?: string
-  scheduledEndAt?: string
-  timezone?: string
-  isPrivate?: boolean
-  password?: string
-  settings?: Partial<MeetingSettings>
+  title?: string;
+  description?: string;
+  scheduledStartAt?: string;
+  scheduledEndAt?: string;
+  timezone?: string;
+  isPrivate?: boolean;
+  password?: string;
+  settings?: Partial<MeetingSettings>;
 }
 
 export interface InviteParticipantsInput {
-  meetingId: string
-  userIds: string[]
-  role?: ParticipantRole
-  sendEmail?: boolean
+  meetingId: string;
+  userIds: string[];
+  role?: ParticipantRole;
+  sendEmail?: boolean;
 }
 
 // ============================================================================
@@ -314,17 +325,21 @@ export interface InviteParticipantsInput {
 // ============================================================================
 
 export interface MeetingFilters {
-  status?: MeetingStatus[]
-  type?: MeetingType[]
+  status?: MeetingStatus[];
+  type?: MeetingType[];
   dateRange?: {
-    start: string
-    end: string
-  }
-  channelId?: string
-  hostId?: string
-  participantId?: string
-  search?: string
+    start: string;
+    end: string;
+  };
+  channelId?: string;
+  hostId?: string;
+  participantId?: string;
+  search?: string;
 }
 
-export type MeetingSortBy = 'scheduledStartAt' | 'createdAt' | 'title' | 'participantCount'
-export type SortOrder = 'asc' | 'desc'
+export type MeetingSortBy =
+  | "scheduledStartAt"
+  | "createdAt"
+  | "title"
+  | "participantCount";
+export type SortOrder = "asc" | "desc";

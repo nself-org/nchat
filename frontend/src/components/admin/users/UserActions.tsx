@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Eye,
@@ -13,8 +13,8 @@ import {
   Activity,
   Smartphone,
   MoreHorizontal,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,21 +22,21 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import type { AdminUser } from '@/lib/admin/users/user-types'
+} from "@/components/ui/dropdown-menu";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import type { AdminUser } from "@/lib/admin/users/user-types";
 
 interface UserActionsProps {
-  user: AdminUser
-  variant?: 'dropdown' | 'buttons'
-  showViewDetails?: boolean
-  onViewDetails?: () => void
-  onEdit?: () => void
+  user: AdminUser;
+  variant?: "dropdown" | "buttons";
+  showViewDetails?: boolean;
+  onViewDetails?: () => void;
+  onEdit?: () => void;
 }
 
 export function UserActions({
   user,
-  variant = 'dropdown',
+  variant = "dropdown",
   showViewDetails = true,
   onViewDetails,
   onEdit,
@@ -48,25 +48,25 @@ export function UserActions({
     openRoleChangeModal,
     openImpersonateModal,
     openResetPasswordModal,
-  } = useUserManagementStore()
+  } = useUserManagementStore();
 
-  const isOwner = user.role.name === 'owner'
-  const isBanned = user.isBanned
-  const isActive = user.isActive
+  const isOwner = user.role.name === "owner";
+  const isBanned = user.isBanned;
+  const isActive = user.isActive;
 
   const handleViewDetails = () => {
-    onViewDetails?.()
-  }
+    onViewDetails?.();
+  };
 
   const handleEdit = () => {
     if (onEdit) {
-      onEdit()
+      onEdit();
     } else {
-      openUserModal('edit', user)
+      openUserModal("edit", user);
     }
-  }
+  };
 
-  if (variant === 'buttons') {
+  if (variant === "buttons") {
     return (
       <div className="flex flex-wrap gap-2">
         {showViewDetails && (
@@ -88,12 +88,21 @@ export function UserActions({
           <Shield className="mr-2 h-4 w-4" />
           Role
         </Button>
-        <Button variant="outline" size="sm" onClick={() => openResetPasswordModal(user)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => openResetPasswordModal(user)}
+        >
           <Key className="mr-2 h-4 w-4" />
           Password
         </Button>
         {isBanned ? (
-          <Button variant="outline" size="sm" onClick={() => openBanModal(user)} disabled={isOwner}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openBanModal(user)}
+            disabled={isOwner}
+          >
             <UserCheck className="mr-2 h-4 w-4" />
             Unban
           </Button>
@@ -120,7 +129,7 @@ export function UserActions({
           Delete
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -147,7 +156,10 @@ export function UserActions({
           Edit User
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={() => openRoleChangeModal(user)} disabled={isOwner}>
+        <DropdownMenuItem
+          onClick={() => openRoleChangeModal(user)}
+          disabled={isOwner}
+        >
           <Shield className="mr-2 h-4 w-4" />
           Change Role
         </DropdownMenuItem>
@@ -159,7 +171,10 @@ export function UserActions({
           Reset Password
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={() => openImpersonateModal(user)} disabled={isOwner}>
+        <DropdownMenuItem
+          onClick={() => openImpersonateModal(user)}
+          disabled={isOwner}
+        >
           <UserCog className="mr-2 h-4 w-4" />
           Impersonate
         </DropdownMenuItem>
@@ -179,7 +194,10 @@ export function UserActions({
         <DropdownMenuSeparator />
 
         {isBanned ? (
-          <DropdownMenuItem onClick={() => openBanModal(user)} disabled={isOwner}>
+          <DropdownMenuItem
+            onClick={() => openBanModal(user)}
+            disabled={isOwner}
+          >
             <UserCheck className="mr-2 h-4 w-4" />
             Unban User
           </DropdownMenuItem>
@@ -216,7 +234,7 @@ export function UserActions({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
-export default UserActions
+export default UserActions;

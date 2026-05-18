@@ -3,14 +3,14 @@
  * Verify or unverify a peer's safety number
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger.server'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger.server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 interface RouteParams {
-  params: Promise<{ peerId: string }>
+  params: Promise<{ peerId: string }>;
 }
 
 /**
@@ -19,41 +19,49 @@ interface RouteParams {
  */
 export async function POST(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: RouteParams,
 ): Promise<NextResponse> {
   try {
-    const { peerId } = await params
-    const body = await request.json()
-    const { safetyNumber, method, notes } = body
+    const { peerId } = await params;
+    const body = await request.json();
+    const { safetyNumber, method, notes } = body;
 
     // Get authenticated user ID
-    const userId = request.headers.get('x-user-id')
+    const userId = request.headers.get("x-user-id");
     if (!userId) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     if (!safetyNumber) {
       return NextResponse.json(
-        { error: 'Safety number is required' },
-        { status: 400 }
-      )
+        { error: "Safety number is required" },
+        { status: 400 },
+      );
     }
 
     // Dynamic imports
     const [
-      { generateSafetyNumber, verifySafetyNumber, createVerificationRecord, serializeVerificationState, deserializeVerificationState, createVerificationState, updateVerificationState },
+      {
+        generateSafetyNumber,
+        verifySafetyNumber,
+        createVerificationRecord,
+        serializeVerificationState,
+        deserializeVerificationState,
+        createVerificationState,
+        updateVerificationState,
+      },
       { generateFingerprint },
     ] = await Promise.all([
-      import('@/lib/e2ee/safety-number'),
-      import('@/lib/e2ee/safety-number'),
-    ])
+      import("@/lib/e2ee/safety-number"),
+      import("@/lib/e2ee/safety-number"),
+    ]);
 
-    const { getApolloClient } = await import('@/lib/apollo-client')
-    const { gql } = await import('@apollo/client')
-    const apolloClient = getApolloClient()
+    const { getApolloClient } = await import("@/lib/apollo-client");
+    const { gql } = await import("@apollo/client");
+    const apolloClient = getApolloClient();
 
     // Query for keys
     const GET_KEYS = gql`
@@ -79,30 +87,30 @@ export async function POST(
           state_data
         }
       }
-    `
+    `;
 
     const { data } = await apolloClient.query({
       query: GET_KEYS,
       variables: { userId, peerId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (data.local.length === 0) {
       return NextResponse.json(
-        { error: 'E2EE not initialized' },
-        { status: 400 }
-      )
+        { error: "E2EE not initialized" },
+        { status: 400 },
+      );
     }
 
     if (data.peer.length === 0) {
       return NextResponse.json(
-        { error: 'Peer identity key not found' },
-        { status: 404 }
-      )
+        { error: "Peer identity key not found" },
+        { status: 404 },
+      );
     }
 
-    const localKey = new Uint8Array(data.local[0].identity_key_public)
-    const peerKey = new Uint8Array(data.peer[0].identity_key_public)
+    const localKey = new Uint8Array(data.local[0].identity_key_public);
+    const peerKey = new Uint8Array(data.peer[0].identity_key_public);
 
     // Generate expected safety number
     const expectedResult = generateSafetyNumber({
@@ -110,19 +118,19 @@ export async function POST(
       localUserId: userId,
       peerIdentityKey: peerKey,
       peerUserId: peerId,
-    })
+    });
 
     // Verify the provided safety number matches
-    const verification = verifySafetyNumber(safetyNumber, expectedResult.raw)
+    const verification = verifySafetyNumber(safetyNumber, expectedResult.raw);
     if (!verification.matches) {
       return NextResponse.json(
         {
-          error: 'Safety number mismatch',
+          error: "Safety number mismatch",
           message: verification.reason,
           suggestions: verification.suggestions,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     // Create verification record
@@ -130,27 +138,31 @@ export async function POST(
       peerId,
       peerKey,
       safetyNumber,
-      method || 'numeric_comparison',
+      method || "numeric_comparison",
       undefined,
-      notes
-    )
+      notes,
+    );
 
     // Get or create verification state
-    let state = createVerificationState(peerId)
+    let state = createVerificationState(peerId);
     if (data.verification.length > 0) {
       try {
-        state = deserializeVerificationState(data.verification[0].state_data)
+        state = deserializeVerificationState(data.verification[0].state_data);
       } catch {
         // Use new state
       }
     }
 
     // Update state with new verification
-    const updatedState = updateVerificationState(state, record)
+    const updatedState = updateVerificationState(state, record);
 
     // Save to database
     const SAVE_VERIFICATION = gql`
-      mutation SaveVerificationState($userId: uuid!, $peerId: uuid!, $stateData: String!) {
+      mutation SaveVerificationState(
+        $userId: uuid!
+        $peerId: uuid!
+        $stateData: String!
+      ) {
         insert_nchat_verification_states_one(
           object: {
             user_id: $userId
@@ -165,7 +177,7 @@ export async function POST(
           id
         }
       }
-    `
+    `;
 
     await apolloClient.mutate({
       mutation: SAVE_VERIFICATION,
@@ -174,11 +186,16 @@ export async function POST(
         peerId,
         stateData: serializeVerificationState(updatedState),
       },
-    })
+    });
 
     // Log verification event
     const LOG_EVENT = gql`
-      mutation LogVerificationEvent($userId: uuid!, $peerId: uuid!, $eventType: String!, $eventData: jsonb!) {
+      mutation LogVerificationEvent(
+        $userId: uuid!
+        $peerId: uuid!
+        $eventType: String!
+        $eventData: jsonb!
+      ) {
         insert_nchat_verification_events_one(
           object: {
             user_id: $userId
@@ -190,35 +207,34 @@ export async function POST(
           id
         }
       }
-    `
+    `;
 
-    await apolloClient.mutate({
-      mutation: LOG_EVENT,
-      variables: {
-        userId,
-        peerId,
-        eventType: 'verification_completed',
-        eventData: {
-          method: method || 'numeric_comparison',
-          timestamp: Date.now(),
+    await apolloClient
+      .mutate({
+        mutation: LOG_EVENT,
+        variables: {
+          userId,
+          peerId,
+          eventType: "verification_completed",
+          eventData: {
+            method: method || "numeric_comparison",
+            timestamp: Date.now(),
+          },
         },
-      },
-    }).catch(() => {
-      // Non-critical
-    })
+      })
+      .catch(() => {
+        // Non-critical
+      });
 
     return NextResponse.json({
       success: true,
       verified: true,
       verifiedAt: new Date(record.verifiedAt).toISOString(),
       method: record.method,
-    })
+    });
   } catch (error) {
-    logger.error('Verification failed:', error)
-    return NextResponse.json(
-      { error: 'Verification failed' },
-      { status: 500 }
-    )
+    logger.error("Verification failed:", error);
+    return NextResponse.json({ error: "Verification failed" }, { status: 500 });
   }
 }
 
@@ -228,24 +244,25 @@ export async function POST(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: RouteParams,
 ): Promise<NextResponse> {
   try {
-    const { peerId } = await params
+    const { peerId } = await params;
 
     // Get authenticated user ID
-    const userId = request.headers.get('x-user-id')
+    const userId = request.headers.get("x-user-id");
     if (!userId) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const { deserializeVerificationState, serializeVerificationState } = await import('@/lib/e2ee/safety-number')
-    const { getApolloClient } = await import('@/lib/apollo-client')
-    const { gql } = await import('@apollo/client')
-    const apolloClient = getApolloClient()
+    const { deserializeVerificationState, serializeVerificationState } =
+      await import("@/lib/e2ee/safety-number");
+    const { getApolloClient } = await import("@/lib/apollo-client");
+    const { gql } = await import("@apollo/client");
+    const apolloClient = getApolloClient();
 
     // Get current verification state
     const GET_STATE = gql`
@@ -257,33 +274,35 @@ export async function DELETE(
           state_data
         }
       }
-    `
+    `;
 
     const { data } = await apolloClient.query({
       query: GET_STATE,
       variables: { userId, peerId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (data.nchat_verification_states.length === 0) {
       return NextResponse.json(
-        { error: 'No verification found' },
-        { status: 404 }
-      )
+        { error: "No verification found" },
+        { status: 404 },
+      );
     }
 
     // Update state to remove verification
-    const state = deserializeVerificationState(data.nchat_verification_states[0].state_data)
+    const state = deserializeVerificationState(
+      data.nchat_verification_states[0].state_data,
+    );
 
     const updatedState = {
       ...state,
-      trustLevel: 'unknown' as const,
+      trustLevel: "unknown" as const,
       currentVerification: null,
       verificationHistory: state.currentVerification
         ? [...state.verificationHistory, state.currentVerification]
         : state.verificationHistory,
       lastUpdated: Date.now(),
-    }
+    };
 
     // Save updated state
     const SAVE_STATE = gql`
@@ -295,7 +314,7 @@ export async function DELETE(
           id
         }
       }
-    `
+    `;
 
     await apolloClient.mutate({
       mutation: SAVE_STATE,
@@ -303,11 +322,16 @@ export async function DELETE(
         id: data.nchat_verification_states[0].id,
         stateData: serializeVerificationState(updatedState),
       },
-    })
+    });
 
     // Log event
     const LOG_EVENT = gql`
-      mutation LogVerificationEvent($userId: uuid!, $peerId: uuid!, $eventType: String!, $eventData: jsonb!) {
+      mutation LogVerificationEvent(
+        $userId: uuid!
+        $peerId: uuid!
+        $eventType: String!
+        $eventData: jsonb!
+      ) {
         insert_nchat_verification_events_one(
           object: {
             user_id: $userId
@@ -319,27 +343,29 @@ export async function DELETE(
           id
         }
       }
-    `
+    `;
 
-    await apolloClient.mutate({
-      mutation: LOG_EVENT,
-      variables: {
-        userId,
-        peerId,
-        eventType: 'verification_removed',
-        eventData: { timestamp: Date.now() },
-      },
-    }).catch(() => {})
+    await apolloClient
+      .mutate({
+        mutation: LOG_EVENT,
+        variables: {
+          userId,
+          peerId,
+          eventType: "verification_removed",
+          eventData: { timestamp: Date.now() },
+        },
+      })
+      .catch(() => {});
 
     return NextResponse.json({
       success: true,
       verified: false,
-    })
+    });
   } catch (error) {
-    logger.error('Failed to remove verification:', error)
+    logger.error("Failed to remove verification:", error);
     return NextResponse.json(
-      { error: 'Failed to remove verification' },
-      { status: 500 }
-    )
+      { error: "Failed to remove verification" },
+      { status: 500 },
+    );
   }
 }

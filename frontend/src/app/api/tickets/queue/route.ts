@@ -7,8 +7,8 @@
  * @route GET /api/tickets/queue/stats - Get queue statistics
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getTicketService } from '@/services/tickets'
+import { NextRequest, NextResponse } from "next/server";
+import { getTicketService } from "@/services/tickets";
 
 /**
  * GET /api/tickets/queue
@@ -16,34 +16,38 @@ import { getTicketService } from '@/services/tickets'
  */
 export async function GET(request: NextRequest) {
   try {
-    const ticketService = getTicketService()
-    const searchParams = request.nextUrl.searchParams
+    const ticketService = getTicketService();
+    const searchParams = request.nextUrl.searchParams;
 
-    const department = searchParams.get('department') || undefined
-    const statsOnly = searchParams.get('stats') === 'true'
+    const department = searchParams.get("department") || undefined;
+    const statsOnly = searchParams.get("stats") === "true";
 
     if (statsOnly) {
-      const result = await ticketService.getQueueStats(department)
+      const result = await ticketService.getQueueStats(department);
 
       if (!result.success) {
-        return NextResponse.json(result.error, { status: result.error?.status || 500 })
+        return NextResponse.json(result.error, {
+          status: result.error?.status || 500,
+        });
       }
 
-      return NextResponse.json(result.data)
+      return NextResponse.json(result.data);
     }
 
-    const result = await ticketService.getQueue(department)
+    const result = await ticketService.getQueue(department);
 
     if (!result.success) {
-      return NextResponse.json(result.error, { status: result.error?.status || 500 })
+      return NextResponse.json(result.error, {
+        status: result.error?.status || 500,
+      });
     }
 
-    return NextResponse.json(result.data)
+    return NextResponse.json(result.data);
   } catch (error) {
-    console.error('Error getting queue:', error)
+    console.error("Error getting queue:", error);
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: 'Failed to get queue' },
-      { status: 500 }
-    )
+      { code: "INTERNAL_ERROR", message: "Failed to get queue" },
+      { status: 500 },
+    );
   }
 }

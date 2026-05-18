@@ -3,11 +3,17 @@
  * Analytics and overview of moderation activity
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BarChart,
   Bar,
@@ -22,8 +28,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts'
-import { logger } from '@/lib/logger'
+} from "recharts";
+import { logger } from "@/lib/logger";
 import {
   Shield,
   AlertTriangle,
@@ -33,65 +39,65 @@ import {
   TrendingUp,
   Users,
   Activity,
-} from 'lucide-react'
+} from "lucide-react";
 
 const COLORS = {
-  primary: '#3b82f6',
-  success: '#10b981',
-  warning: '#f59e0b',
-  danger: '#ef4444',
-  purple: '#8b5cf6',
-  pink: '#ec4899',
-}
+  primary: "#3b82f6",
+  success: "#10b981",
+  warning: "#f59e0b",
+  danger: "#ef4444",
+  purple: "#8b5cf6",
+  pink: "#ec4899",
+};
 
 interface ModerationStats {
   metrics: {
-    totalFlagged: number
-    pendingReview: number
-    highPriority: number
-    totalActions: number
-    automatedActions: number
-    manualActions: number
-    avgResponseTime: number
-    flaggedRate: number
-  }
-  queueStats: any
-  actionStats: any
-  topViolators: any[]
-  violationTrends: any
+    totalFlagged: number;
+    pendingReview: number;
+    highPriority: number;
+    totalActions: number;
+    automatedActions: number;
+    manualActions: number;
+    avgResponseTime: number;
+    flaggedRate: number;
+  };
+  queueStats: any;
+  actionStats: any;
+  topViolators: any[];
+  violationTrends: any;
 }
 
 export function ModerationDashboard() {
-  const [stats, setStats] = useState<ModerationStats | null>(null)
-  const [period, setPeriod] = useState('7d')
-  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<ModerationStats | null>(null);
+  const [period, setPeriod] = useState("7d");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats()
-  }, [period])
+    fetchStats();
+  }, [period]);
 
   const fetchStats = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await fetch(`/api/moderation/stats?period=${period}`)
-      const data = await response.json()
+      const response = await fetch(`/api/moderation/stats?period=${period}`);
+      const data = await response.json();
 
       if (data.success) {
-        setStats(data)
+        setStats(data);
       }
     } catch (error) {
-      logger.error('Failed to fetch stats:', error)
+      logger.error("Failed to fetch stats:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <p className="text-muted-foreground">Loading dashboard...</p>
       </div>
-    )
+    );
   }
 
   if (!stats) {
@@ -99,26 +105,32 @@ export function ModerationDashboard() {
       <div className="flex h-64 items-center justify-center">
         <p className="text-muted-foreground">Failed to load dashboard</p>
       </div>
-    )
+    );
   }
 
-  const { metrics, queueStats, actionStats } = stats
+  const { metrics, queueStats, actionStats } = stats;
 
   // Prepare chart data
-  const queueByStatus = Object.entries(queueStats.byStatus).map(([name, value]) => ({
-    name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
-  }))
+  const queueByStatus = Object.entries(queueStats.byStatus).map(
+    ([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+    }),
+  );
 
-  const queueByPriority = Object.entries(queueStats.byPriority).map(([name, value]) => ({
-    name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
-  }))
+  const queueByPriority = Object.entries(queueStats.byPriority).map(
+    ([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+    }),
+  );
 
-  const actionsByType = Object.entries(actionStats.byType).map(([name, value]) => ({
-    name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
-  }))
+  const actionsByType = Object.entries(actionStats.byType).map(
+    ([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+    }),
+  );
 
   return (
     <div className="space-y-6">
@@ -126,7 +138,9 @@ export function ModerationDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Moderation Dashboard</h2>
-          <p className="text-muted-foreground">AI-powered content moderation analytics</p>
+          <p className="text-muted-foreground">
+            AI-powered content moderation analytics
+          </p>
         </div>
         <Tabs value={period} onValueChange={setPeriod}>
           <TabsList>
@@ -147,7 +161,9 @@ export function ModerationDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.totalFlagged}</div>
-            <p className="text-xs text-muted-foreground">{metrics.pendingReview} pending review</p>
+            <p className="text-xs text-muted-foreground">
+              {metrics.pendingReview} pending review
+            </p>
           </CardContent>
         </Card>
 
@@ -158,7 +174,9 @@ export function ModerationDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.highPriority}</div>
-            <p className="text-xs text-muted-foreground">Requires immediate attention</p>
+            <p className="text-xs text-muted-foreground">
+              Requires immediate attention
+            </p>
           </CardContent>
         </Card>
 
@@ -170,24 +188,31 @@ export function ModerationDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{metrics.totalActions}</div>
             <p className="text-xs text-muted-foreground">
-              {metrics.automatedActions} automated, {metrics.manualActions} manual
+              {metrics.automatedActions} automated, {metrics.manualActions}{" "}
+              manual
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Automation Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Automation Rate
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {metrics.totalActions > 0
-                ? Math.round((metrics.automatedActions / metrics.totalActions) * 100)
+                ? Math.round(
+                    (metrics.automatedActions / metrics.totalActions) * 100,
+                  )
                 : 0}
               %
             </div>
-            <p className="text-xs text-muted-foreground">AI-powered moderation</p>
+            <p className="text-xs text-muted-foreground">
+              AI-powered moderation
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -198,7 +223,9 @@ export function ModerationDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Queue Status</CardTitle>
-            <CardDescription>Distribution of queue items by status</CardDescription>
+            <CardDescription>
+              Distribution of queue items by status
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -208,7 +235,9 @@ export function ModerationDashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  }
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -217,11 +246,11 @@ export function ModerationDashboard() {
                     <Cell
                       key={`cell-${index}`}
                       fill={
-                        entry.name === 'Approved'
+                        entry.name === "Approved"
                           ? COLORS.success
-                          : entry.name === 'Rejected'
+                          : entry.name === "Rejected"
                             ? COLORS.danger
-                            : entry.name === 'Reviewing'
+                            : entry.name === "Reviewing"
                               ? COLORS.primary
                               : COLORS.warning
                       }
@@ -252,11 +281,11 @@ export function ModerationDashboard() {
                     <Cell
                       key={`cell-${index}`}
                       fill={
-                        entry.name === 'Critical'
+                        entry.name === "Critical"
                           ? COLORS.danger
-                          : entry.name === 'High'
+                          : entry.name === "High"
                             ? COLORS.warning
-                            : entry.name === 'Medium'
+                            : entry.name === "Medium"
                               ? COLORS.primary
                               : COLORS.success
                       }
@@ -303,18 +332,26 @@ export function ModerationDashboard() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                        <span className="text-sm font-bold text-red-600">{index + 1}</span>
+                        <span className="text-sm font-bold text-red-600">
+                          {index + 1}
+                        </span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">User {user.user_id.slice(0, 8)}</p>
+                        <p className="text-sm font-medium">
+                          User {user.user_id.slice(0, 8)}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           Trust Score: {user.trust_score}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold">{user.total_violations}</p>
-                      <p className="text-xs text-muted-foreground">violations</p>
+                      <p className="text-lg font-bold">
+                        {user.total_violations}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        violations
+                      </p>
                     </div>
                   </div>
                 ))
@@ -341,8 +378,12 @@ export function ModerationDashboard() {
                 <Shield className="h-5 w-5 text-blue-600" />
                 <p className="text-sm font-medium">Automated Actions</p>
               </div>
-              <p className="text-2xl font-bold text-blue-600">{metrics.automatedActions}</p>
-              <p className="mt-1 text-xs text-muted-foreground">AI-powered decisions</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {metrics.automatedActions}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                AI-powered decisions
+              </p>
             </div>
 
             <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
@@ -350,8 +391,12 @@ export function ModerationDashboard() {
                 <Users className="h-5 w-5 text-purple-600" />
                 <p className="text-sm font-medium">Manual Actions</p>
               </div>
-              <p className="text-2xl font-bold text-purple-600">{metrics.manualActions}</p>
-              <p className="mt-1 text-xs text-muted-foreground">Human moderator decisions</p>
+              <p className="text-2xl font-bold text-purple-600">
+                {metrics.manualActions}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Human moderator decisions
+              </p>
             </div>
 
             <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
@@ -362,11 +407,13 @@ export function ModerationDashboard() {
               <p className="text-2xl font-bold text-green-600">
                 {Math.round((metrics.automatedActions * 2) / 60)}h
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">Estimated hours saved</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Estimated hours saved
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

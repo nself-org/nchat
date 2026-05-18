@@ -15,7 +15,7 @@ export {
   type FeatureGateDisabledProps,
   type FeatureGateDebugProps,
   type FeatureGateRenderProps,
-} from './feature-gate'
+} from "./feature-gate";
 
 // Multiple feature gates
 export {
@@ -37,4 +37,4 @@ export {
   type FeatureCasesProps,
   type FeatureGateAnyRenderProps,
   type FeatureGateAllRenderProps,
-} from './feature-gate-any'
+} from "./feature-gate-any";

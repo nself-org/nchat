@@ -1,62 +1,70 @@
-'use client'
+"use client";
 
-import { forwardRef, useState, useCallback } from 'react'
-import { Smile } from 'lucide-react'
-import { EmojiClickData } from 'emoji-picker-react'
-import { Button, ButtonProps } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
-import { EmojiPicker } from './emoji-picker'
-import { cn } from '@/lib/utils'
+import { forwardRef, useState, useCallback } from "react";
+import { Smile } from "lucide-react";
+import { EmojiClickData } from "emoji-picker-react";
+import { Button, ButtonProps } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { EmojiPicker } from "./emoji-picker";
+import { cn } from "@/lib/utils";
 
-export interface EmojiButtonProps extends Omit<ButtonProps, 'onClick'> {
-  onEmojiSelect: (emoji: string, emojiData?: EmojiClickData) => void
-  tooltipText?: string
-  showTooltip?: boolean
-  pickerSide?: 'top' | 'right' | 'bottom' | 'left'
-  pickerAlign?: 'start' | 'center' | 'end'
-  iconClassName?: string
+export interface EmojiButtonProps extends Omit<ButtonProps, "onClick"> {
+  onEmojiSelect: (emoji: string, emojiData?: EmojiClickData) => void;
+  tooltipText?: string;
+  showTooltip?: boolean;
+  pickerSide?: "top" | "right" | "bottom" | "left";
+  pickerAlign?: "start" | "center" | "end";
+  iconClassName?: string;
 }
 
 export const EmojiButton = forwardRef<HTMLButtonElement, EmojiButtonProps>(
   (
     {
       onEmojiSelect,
-      tooltipText = 'Add emoji',
+      tooltipText = "Add emoji",
       showTooltip = true,
-      pickerSide = 'top',
-      pickerAlign = 'start',
+      pickerSide = "top",
+      pickerAlign = "start",
       iconClassName,
       className,
-      variant = 'ghost',
-      size = 'icon',
+      variant = "ghost",
+      size = "icon",
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = useState(false);
 
     const handleEmojiSelect = useCallback(
       (emoji: string, emojiData: EmojiClickData) => {
-        onEmojiSelect(emoji, emojiData)
-        setOpen(false)
+        onEmojiSelect(emoji, emojiData);
+        setOpen(false);
       },
-      [onEmojiSelect]
-    )
+      [onEmojiSelect],
+    );
 
     const buttonElement = (
       <Button
         ref={ref}
         variant={variant}
         size={size}
-        className={cn('text-muted-foreground transition-colors hover:text-foreground', className)}
+        className={cn(
+          "text-muted-foreground transition-colors hover:text-foreground",
+          className,
+        )}
         disabled={disabled}
         {...props}
       >
-        <Smile className={cn('h-5 w-5', iconClassName)} />
+        <Smile className={cn("h-5 w-5", iconClassName)} />
         <span className="sr-only">{tooltipText}</span>
       </Button>
-    )
+    );
 
     const buttonWithPicker = (
       <EmojiPicker
@@ -69,10 +77,10 @@ export const EmojiButton = forwardRef<HTMLButtonElement, EmojiButtonProps>(
       >
         {buttonElement}
       </EmojiPicker>
-    )
+    );
 
     if (!showTooltip) {
-      return buttonWithPicker
+      return buttonWithPicker;
     }
 
     return (
@@ -84,17 +92,17 @@ export const EmojiButton = forwardRef<HTMLButtonElement, EmojiButtonProps>(
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
-  }
-)
+    );
+  },
+);
 
-EmojiButton.displayName = 'EmojiButton'
+EmojiButton.displayName = "EmojiButton";
 
 // Compact emoji button variant for inline use
 export interface CompactEmojiButtonProps {
-  onEmojiSelect: (emoji: string) => void
-  className?: string
-  disabled?: boolean
+  onEmojiSelect: (emoji: string) => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 export function CompactEmojiButton({
@@ -102,15 +110,15 @@ export function CompactEmojiButton({
   className,
   disabled,
 }: CompactEmojiButtonProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const handleEmojiSelect = useCallback(
     (emoji: string) => {
-      onEmojiSelect(emoji)
-      setOpen(false)
+      onEmojiSelect(emoji);
+      setOpen(false);
     },
-    [onEmojiSelect]
-  )
+    [onEmojiSelect],
+  );
 
   return (
     <EmojiPicker
@@ -125,23 +133,23 @@ export function CompactEmojiButton({
         type="button"
         disabled={disabled}
         className={cn(
-          'rounded-md p-1.5 text-muted-foreground hover:text-foreground',
-          'transition-colors hover:bg-accent',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          className
+          "rounded-md p-1.5 text-muted-foreground hover:text-foreground",
+          "transition-colors hover:bg-accent",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          className,
         )}
       >
         <Smile className="h-4 w-4" />
       </button>
     </EmojiPicker>
-  )
+  );
 }
 
 // Message input emoji button with integrated picker
 export interface MessageInputEmojiButtonProps {
-  onEmojiSelect: (emoji: string) => void
-  className?: string
-  disabled?: boolean
+  onEmojiSelect: (emoji: string) => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 export function MessageInputEmojiButton({
@@ -149,15 +157,15 @@ export function MessageInputEmojiButton({
   className,
   disabled,
 }: MessageInputEmojiButtonProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip>
         <EmojiPicker
           onEmojiSelect={(emoji) => {
-            onEmojiSelect(emoji)
-            setOpen(false)
+            onEmojiSelect(emoji);
+            setOpen(false);
           }}
           open={open}
           onOpenChange={setOpen}
@@ -171,7 +179,10 @@ export function MessageInputEmojiButton({
               variant="ghost"
               size="sm"
               disabled={disabled}
-              className={cn('h-8 w-8 p-0 text-muted-foreground hover:text-foreground', className)}
+              className={cn(
+                "h-8 w-8 p-0 text-muted-foreground hover:text-foreground",
+                className,
+              )}
             >
               <Smile className="h-5 w-5" />
               <span className="sr-only">Add emoji</span>
@@ -183,5 +194,5 @@ export function MessageInputEmojiButton({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }

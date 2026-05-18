@@ -12,8 +12,8 @@
  * @version 1.0.0
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT } from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -22,71 +22,71 @@ import { USER_BASIC_FRAGMENT } from '../fragments'
 /**
  * Room type for typing context
  */
-export type TypingRoomType = 'channel' | 'thread' | 'dm'
+export type TypingRoomType = "channel" | "thread" | "dm";
 
 /**
  * Typing indicator record from database
  */
 export interface TypingIndicator {
-  id: string
-  userId: string
-  channelId: string
-  threadId?: string
-  dmId?: string
-  roomType: TypingRoomType
-  startedAt: string
-  expiresAt: string
+  id: string;
+  userId: string;
+  channelId: string;
+  threadId?: string;
+  dmId?: string;
+  roomType: TypingRoomType;
+  startedAt: string;
+  expiresAt: string;
   user?: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
 }
 
 /**
  * Variables for starting typing
  */
 export interface StartTypingVariables {
-  userId: string
-  channelId?: string
-  threadId?: string
-  dmId?: string
-  roomType: TypingRoomType
+  userId: string;
+  channelId?: string;
+  threadId?: string;
+  dmId?: string;
+  roomType: TypingRoomType;
 }
 
 /**
  * Variables for stopping typing
  */
 export interface StopTypingVariables {
-  userId: string
-  channelId?: string
-  threadId?: string
-  dmId?: string
+  userId: string;
+  channelId?: string;
+  threadId?: string;
+  dmId?: string;
 }
 
 /**
  * Variables for typing subscription
  */
 export interface TypingSubscriptionVariables {
-  channelId?: string
-  threadId?: string
-  dmId?: string
+  channelId?: string;
+  threadId?: string;
+  dmId?: string;
 }
 
 /**
  * Typing event payload
  */
 export interface TypingEventPayload {
-  roomName: string
-  roomType: TypingRoomType
-  threadId?: string
+  roomName: string;
+  roomType: TypingRoomType;
+  threadId?: string;
   users: Array<{
-    userId: string
-    userName: string
-    userAvatar?: string
-    startedAt: string
-  }>
+    userId: string;
+    userName: string;
+    userAvatar?: string;
+    startedAt: string;
+  }>;
 }
 
 // ============================================================================
@@ -111,7 +111,7 @@ export const TYPING_INDICATOR_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -134,7 +134,7 @@ export const GET_CHANNEL_TYPING_USERS = gql`
     }
   }
   ${TYPING_INDICATOR_FRAGMENT}
-`
+`;
 
 /**
  * Get typing users in a thread
@@ -153,7 +153,7 @@ export const GET_THREAD_TYPING_USERS = gql`
     }
   }
   ${TYPING_INDICATOR_FRAGMENT}
-`
+`;
 
 /**
  * Get typing users in a DM
@@ -168,13 +168,18 @@ export const GET_DM_TYPING_USERS = gql`
     }
   }
   ${TYPING_INDICATOR_FRAGMENT}
-`
+`;
 
 /**
  * Check if specific user is typing
  */
 export const CHECK_USER_TYPING = gql`
-  query CheckUserTyping($userId: uuid!, $channelId: uuid, $threadId: uuid, $dmId: uuid) {
+  query CheckUserTyping(
+    $userId: uuid!
+    $channelId: uuid
+    $threadId: uuid
+    $dmId: uuid
+  ) {
     nchat_typing_indicators(
       where: {
         user_id: { _eq: $userId }
@@ -191,7 +196,7 @@ export const CHECK_USER_TYPING = gql`
       expires_at
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -220,13 +225,17 @@ export const START_TYPING_IN_CHANNEL = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Start typing indicator in a thread
  */
 export const START_TYPING_IN_THREAD = gql`
-  mutation StartTypingInThread($userId: uuid!, $channelId: uuid!, $threadId: uuid!) {
+  mutation StartTypingInThread(
+    $userId: uuid!
+    $channelId: uuid!
+    $threadId: uuid!
+  ) {
     insert_nchat_typing_indicators_one(
       object: {
         user_id: $userId
@@ -246,7 +255,7 @@ export const START_TYPING_IN_THREAD = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Start typing indicator in a DM
@@ -271,35 +280,44 @@ export const START_TYPING_IN_DM = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Stop typing indicator in a channel/thread
  */
 export const STOP_TYPING_IN_CHANNEL = gql`
-  mutation StopTypingInChannel($userId: uuid!, $channelId: uuid!, $threadId: uuid) {
+  mutation StopTypingInChannel(
+    $userId: uuid!
+    $channelId: uuid!
+    $threadId: uuid
+  ) {
     delete_nchat_typing_indicators(
       where: {
         user_id: { _eq: $userId }
         channel_id: { _eq: $channelId }
-        _or: [{ thread_id: { _eq: $threadId } }, { thread_id: { _is_null: true } }]
+        _or: [
+          { thread_id: { _eq: $threadId } }
+          { thread_id: { _is_null: true } }
+        ]
       }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Stop typing indicator in a DM
  */
 export const STOP_TYPING_IN_DM = gql`
   mutation StopTypingInDM($userId: uuid!, $dmId: uuid!) {
-    delete_nchat_typing_indicators(where: { user_id: { _eq: $userId }, dm_id: { _eq: $dmId } }) {
+    delete_nchat_typing_indicators(
+      where: { user_id: { _eq: $userId }, dm_id: { _eq: $dmId } }
+    ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Stop all typing indicators for a user (on disconnect)
@@ -310,7 +328,7 @@ export const STOP_ALL_TYPING = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Clean up expired typing indicators (maintenance job)
@@ -321,13 +339,18 @@ export const CLEANUP_EXPIRED_TYPING = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Extend typing indicator (keep-alive)
  */
 export const EXTEND_TYPING = gql`
-  mutation ExtendTyping($userId: uuid!, $channelId: uuid, $threadId: uuid, $dmId: uuid) {
+  mutation ExtendTyping(
+    $userId: uuid!
+    $channelId: uuid
+    $threadId: uuid
+    $dmId: uuid
+  ) {
     update_nchat_typing_indicators(
       where: {
         user_id: { _eq: $userId }
@@ -345,7 +368,7 @@ export const EXTEND_TYPING = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -376,7 +399,7 @@ export const CHANNEL_TYPING_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to typing indicators in a thread
@@ -399,7 +422,7 @@ export const THREAD_TYPING_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to typing indicators in a DM
@@ -422,7 +445,7 @@ export const DM_TYPING_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to all typing activity in channels user is member of
@@ -450,7 +473,7 @@ export const ALL_CHANNELS_TYPING_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Subscribe to typing using Hasura streaming subscription
@@ -477,7 +500,7 @@ export const TYPING_STREAM_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPER TYPES
@@ -487,43 +510,46 @@ export const TYPING_STREAM_SUBSCRIPTION = gql`
  * Transformed typing user for UI display
  */
 export interface TypingUserDisplay {
-  userId: string
-  displayName: string
-  avatarUrl?: string
-  startedAt: Date
+  userId: string;
+  displayName: string;
+  avatarUrl?: string;
+  startedAt: Date;
 }
 
 /**
  * Transform raw GraphQL response to display format
  */
-export function transformTypingIndicator(indicator: TypingIndicator): TypingUserDisplay {
+export function transformTypingIndicator(
+  indicator: TypingIndicator,
+): TypingUserDisplay {
   return {
     userId: indicator.userId,
-    displayName: indicator.user?.displayName || indicator.user?.username || 'Unknown',
+    displayName:
+      indicator.user?.displayName || indicator.user?.username || "Unknown",
     avatarUrl: indicator.user?.avatarUrl,
     startedAt: new Date(indicator.startedAt),
-  }
+  };
 }
 
 /**
  * Format typing text from users
  */
 export function formatTypingText(users: TypingUserDisplay[]): string | null {
-  if (users.length === 0) return null
+  if (users.length === 0) return null;
 
-  const names = users.map((u) => u.displayName)
+  const names = users.map((u) => u.displayName);
 
   if (names.length === 1) {
-    return `${names[0]} is typing...`
+    return `${names[0]} is typing...`;
   }
 
   if (names.length === 2) {
-    return `${names[0]} and ${names[1]} are typing...`
+    return `${names[0]} and ${names[1]} are typing...`;
   }
 
   if (names.length === 3) {
-    return `${names[0]}, ${names[1]}, and ${names[2]} are typing...`
+    return `${names[0]}, ${names[1]}, and ${names[2]} are typing...`;
   }
 
-  return `${names[0]}, ${names[1]}, and ${names.length - 2} others are typing...`
+  return `${names[0]}, ${names[1]}, and ${names.length - 2} others are typing...`;
 }

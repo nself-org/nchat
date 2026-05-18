@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Audit Export Component
@@ -12,23 +12,29 @@
  * - Scheduled exports
  */
 
-import * as React from 'react'
-import { useState } from 'react'
-import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
+import * as React from "react";
+import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +42,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -44,8 +50,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Progress } from '@/components/ui/progress'
+} from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
 import {
   Download,
   FileJson,
@@ -59,8 +65,8 @@ import {
   Loader2,
   Filter,
   Plus,
-} from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Import types
 import type {
@@ -68,34 +74,34 @@ import type {
   DataExportRequest,
   ExportDataCategory,
   ExportRequestStatus,
-} from '@/lib/compliance/compliance-types'
+} from "@/lib/compliance/compliance-types";
 
-type ExportDataType = 'user' | 'channel' | 'audit' | 'all' | 'audit_logs'
-type ExportStatus = ExportRequestStatus
+type ExportDataType = "user" | "channel" | "audit" | "all" | "audit_logs";
+type ExportStatus = ExportRequestStatus;
 type ExportFilters = {
-  startDate?: Date
-  endDate?: Date
-  userIds?: string[]
-  channelIds?: string[]
-  includeDeleted?: boolean
-  includeSystem?: boolean
-}
+  startDate?: Date;
+  endDate?: Date;
+  userIds?: string[];
+  channelIds?: string[];
+  includeDeleted?: boolean;
+  includeSystem?: boolean;
+};
 
 // UI-specific export request interface
 interface ExportRequest {
-  id: string
-  dataType: ExportDataType
-  format: ExportFormat
-  status: ExportStatus
-  progress?: number
-  filters?: ExportFilters
-  requestedBy: string
-  createdAt: Date
-  completedAt?: Date
-  downloadUrl?: string
-  recordCount?: number
-  errorMessage?: string
-  expiresAt?: Date
+  id: string;
+  dataType: ExportDataType;
+  format: ExportFormat;
+  status: ExportStatus;
+  progress?: number;
+  filters?: ExportFilters;
+  requestedBy: string;
+  createdAt: Date;
+  completedAt?: Date;
+  downloadUrl?: string;
+  recordCount?: number;
+  errorMessage?: string;
+  expiresAt?: Date;
 }
 
 // ============================================================================
@@ -103,47 +109,47 @@ interface ExportRequest {
 // ============================================================================
 
 export function AuditExport() {
-  const { user } = useAuth()
-  const [exports, setExports] = useState<ExportRequest[]>([])
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
+  const { user } = useAuth();
+  const [exports, setExports] = useState<ExportRequest[]>([]);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleCreateExport = async (request: Partial<ExportRequest>) => {
     try {
-      setLoading(true)
+      setLoading(true);
 
       const newExport: ExportRequest = {
         id: crypto.randomUUID(),
-        dataType: request.dataType || 'audit_logs',
-        format: request.format || 'json',
-        status: 'pending',
+        dataType: request.dataType || "audit_logs",
+        format: request.format || "json",
+        status: "pending",
         progress: 0,
         filters: request.filters || {},
-        requestedBy: user?.id || 'unknown',
+        requestedBy: user?.id || "unknown",
         createdAt: new Date(),
-      }
+      };
 
-      setExports([newExport, ...exports])
-      setShowCreateDialog(false)
+      setExports([newExport, ...exports]);
+      setShowCreateDialog(false);
 
       // Simulate export processing
-      simulateExportProcessing(newExport)
+      simulateExportProcessing(newExport);
 
       toast({
-        title: 'Export Started',
-        description: 'Your export request is being processed.',
-      })
+        title: "Export Started",
+        description: "Your export request is being processed.",
+      });
     } catch (_error) {
       toast({
-        title: 'Error',
-        description: 'Failed to create export request',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to create export request",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const simulateExportProcessing = (exportRequest: ExportRequest) => {
     // Simulate processing
@@ -151,27 +157,34 @@ export function AuditExport() {
       setExports((prev) =>
         prev.map((exp) =>
           exp.id === exportRequest.id
-            ? { ...exp, status: 'processing' as ExportStatus, startedAt: new Date(), progress: 0 }
-            : exp
-        )
-      )
+            ? {
+                ...exp,
+                status: "processing" as ExportStatus,
+                startedAt: new Date(),
+                progress: 0,
+              }
+            : exp,
+        ),
+      );
 
       // Progress updates
-      let progress = 0
+      let progress = 0;
       const interval = setInterval(() => {
-        progress += 10
+        progress += 10;
         setExports((prev) =>
-          prev.map((exp) => (exp.id === exportRequest.id ? { ...exp, progress } : exp))
-        )
+          prev.map((exp) =>
+            exp.id === exportRequest.id ? { ...exp, progress } : exp,
+          ),
+        );
 
         if (progress >= 100) {
-          clearInterval(interval)
+          clearInterval(interval);
           setExports((prev) =>
             prev.map((exp) =>
               exp.id === exportRequest.id
                 ? {
                     ...exp,
-                    status: 'completed' as ExportStatus,
+                    status: "completed" as ExportStatus,
                     progress: 100,
                     completedAt: new Date(),
                     downloadUrl: `/api/exports/${exp.id}/download`,
@@ -179,63 +192,68 @@ export function AuditExport() {
                     recordCount: 1523,
                     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
                   }
-                : exp
-            )
-          )
+                : exp,
+            ),
+          );
         }
-      }, 500)
-    }, 1000)
-  }
+      }, 500);
+    }, 1000);
+  };
 
   const handleDownload = (exportRequest: ExportRequest) => {
-    if (!exportRequest.downloadUrl) return
+    if (!exportRequest.downloadUrl) return;
 
     toast({
-      title: 'Download Started',
+      title: "Download Started",
       description: `Downloading ${exportRequest.format.toUpperCase()} file...`,
-    })
+    });
 
     // window.location.href = exportRequest.downloadUrl
-  }
+  };
 
   const getStatusIcon = (status: ExportStatus) => {
     switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case 'failed':
-        return <XCircle className="h-4 w-4 text-red-500" />
-      case 'processing':
-        return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+      case "completed":
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case "failed":
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case "processing":
+        return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />
+        return <Clock className="h-4 w-4 text-gray-500" />;
     }
-  }
+  };
 
   const getStatusBadge = (status: ExportStatus) => {
-    const variants: Record<ExportStatus, 'default' | 'secondary' | 'destructive'> = {
-      pending: 'secondary',
-      processing: 'default',
-      completed: 'default',
-      failed: 'destructive',
-      expired: 'secondary',
-      cancelled: 'secondary',
-    }
+    const variants: Record<
+      ExportStatus,
+      "default" | "secondary" | "destructive"
+    > = {
+      pending: "secondary",
+      processing: "default",
+      completed: "default",
+      failed: "destructive",
+      expired: "secondary",
+      cancelled: "secondary",
+    };
 
     return (
-      <Badge variant={variants[status]}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
-    )
-  }
+      <Badge variant={variants[status]}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
 
   const getFormatIcon = (format: ExportFormat) => {
     switch (format) {
-      case 'json':
-        return <FileJson className="h-4 w-4" />
-      case 'csv':
-        return <FileText className="h-4 w-4" />
+      case "json":
+        return <FileJson className="h-4 w-4" />;
+      case "csv":
+        return <FileText className="h-4 w-4" />;
       default:
-        return <File className="h-4 w-4" />
+        return <File className="h-4 w-4" />;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -257,7 +275,9 @@ export function AuditExport() {
       <Card>
         <CardHeader>
           <CardTitle>Export Requests</CardTitle>
-          <CardDescription>View and download your export requests</CardDescription>
+          <CardDescription>
+            View and download your export requests
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {exports.length > 0 ? (
@@ -283,28 +303,38 @@ export function AuditExport() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{exp.dataType.replace(/_/g, ' ')}</Badge>
+                      <Badge variant="outline">
+                        {exp.dataType.replace(/_/g, " ")}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getFormatIcon(exp.format)}
-                        <span className="font-mono text-xs uppercase">{exp.format}</span>
+                        <span className="font-mono text-xs uppercase">
+                          {exp.format}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {exp.status === 'processing' ? (
+                      {exp.status === "processing" ? (
                         <div className="space-y-1">
                           <Progress value={exp.progress} className="w-24" />
-                          <span className="text-xs text-muted-foreground">{exp.progress}%</span>
+                          <span className="text-xs text-muted-foreground">
+                            {exp.progress}%
+                          </span>
                         </div>
-                      ) : exp.status === 'completed' ? (
-                        <div className="text-sm">{exp.recordCount?.toLocaleString()} records</div>
+                      ) : exp.status === "completed" ? (
+                        <div className="text-sm">
+                          {exp.recordCount?.toLocaleString()} records
+                        </div>
                       ) : (
                         <span className="text-sm text-muted-foreground">-</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">{exp.createdAt.toLocaleDateString()}</div>
+                      <div className="text-sm">
+                        {exp.createdAt.toLocaleDateString()}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         {exp.createdAt.toLocaleTimeString()}
                       </div>
@@ -312,7 +342,10 @@ export function AuditExport() {
                     <TableCell>
                       {exp.expiresAt ? (
                         <div
-                          className={cn('text-sm', new Date() > exp.expiresAt && 'text-red-500')}
+                          className={cn(
+                            "text-sm",
+                            new Date() > exp.expiresAt && "text-red-500",
+                          )}
                         >
                           {exp.expiresAt.toLocaleDateString()}
                         </div>
@@ -321,13 +354,17 @@ export function AuditExport() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      {exp.status === 'completed' && exp.downloadUrl && (
-                        <Button variant="outline" size="sm" onClick={() => handleDownload(exp)}>
+                      {exp.status === "completed" && exp.downloadUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownload(exp)}
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           Download
                         </Button>
                       )}
-                      {exp.status === 'failed' && (
+                      {exp.status === "failed" && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -367,7 +404,7 @@ export function AuditExport() {
         loading={loading}
       />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -375,21 +412,26 @@ export function AuditExport() {
 // ============================================================================
 
 interface CreateExportDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onCreate: (request: Partial<ExportRequest>) => void
-  loading: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreate: (request: Partial<ExportRequest>) => void;
+  loading: boolean;
 }
 
-function CreateExportDialog({ open, onOpenChange, onCreate, loading }: CreateExportDialogProps) {
-  const [dataType, setDataType] = useState<ExportDataType>('audit_logs')
-  const [format, setFormat] = useState<ExportFormat>('json')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [channelIds, _setChannelIds] = useState<string[]>([])
-  const [userIds, _setUserIds] = useState<string[]>([])
-  const [includeDeleted, setIncludeDeleted] = useState(false)
-  const [includeSystem, setIncludeSystem] = useState(false)
+function CreateExportDialog({
+  open,
+  onOpenChange,
+  onCreate,
+  loading,
+}: CreateExportDialogProps) {
+  const [dataType, setDataType] = useState<ExportDataType>("audit_logs");
+  const [format, setFormat] = useState<ExportFormat>("json");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [channelIds, _setChannelIds] = useState<string[]>([]);
+  const [userIds, _setUserIds] = useState<string[]>([]);
+  const [includeDeleted, setIncludeDeleted] = useState(false);
+  const [includeSystem, setIncludeSystem] = useState(false);
 
   const handleSubmit = () => {
     const filters: ExportFilters = {
@@ -399,14 +441,14 @@ function CreateExportDialog({ open, onOpenChange, onCreate, loading }: CreateExp
       userIds: userIds.length > 0 ? userIds : undefined,
       includeDeleted,
       includeSystem,
-    }
+    };
 
     onCreate({
       dataType,
       format,
       filters,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -422,7 +464,10 @@ function CreateExportDialog({ open, onOpenChange, onCreate, loading }: CreateExp
           {/* Data Type */}
           <div className="space-y-2">
             <Label htmlFor="dataType">Data Type *</Label>
-            <Select value={dataType} onValueChange={(value: ExportDataType) => setDataType(value)}>
+            <Select
+              value={dataType}
+              onValueChange={(value: ExportDataType) => setDataType(value)}
+            >
               <SelectTrigger id="dataType">
                 <SelectValue />
               </SelectTrigger>
@@ -440,7 +485,10 @@ function CreateExportDialog({ open, onOpenChange, onCreate, loading }: CreateExp
           {/* Export Format */}
           <div className="space-y-2">
             <Label htmlFor="format">Format *</Label>
-            <Select value={format} onValueChange={(value: ExportFormat) => setFormat(value)}>
+            <Select
+              value={format}
+              onValueChange={(value: ExportFormat) => setFormat(value)}
+            >
               <SelectTrigger id="format">
                 <SelectValue />
               </SelectTrigger>
@@ -496,7 +544,9 @@ function CreateExportDialog({ open, onOpenChange, onCreate, loading }: CreateExp
               <Checkbox
                 id="includeDeleted"
                 checked={includeDeleted}
-                onCheckedChange={(checked) => setIncludeDeleted(checked as boolean)}
+                onCheckedChange={(checked) =>
+                  setIncludeDeleted(checked as boolean)
+                }
               />
               <Label htmlFor="includeDeleted" className="font-normal">
                 Include deleted items
@@ -506,7 +556,9 @@ function CreateExportDialog({ open, onOpenChange, onCreate, loading }: CreateExp
               <Checkbox
                 id="includeSystem"
                 checked={includeSystem}
-                onCheckedChange={(checked) => setIncludeSystem(checked as boolean)}
+                onCheckedChange={(checked) =>
+                  setIncludeSystem(checked as boolean)
+                }
               />
               <Label htmlFor="includeSystem" className="font-normal">
                 Include system messages
@@ -521,8 +573,9 @@ function CreateExportDialog({ open, onOpenChange, onCreate, loading }: CreateExp
               <div className="text-sm text-blue-900 dark:text-blue-100">
                 <p className="mb-1 font-medium">GDPR Compliance</p>
                 <p className="text-blue-700 dark:text-blue-300">
-                  Exports will be available for 7 days and will be automatically deleted. All export
-                  requests are logged for compliance purposes.
+                  Exports will be available for 7 days and will be automatically
+                  deleted. All export requests are logged for compliance
+                  purposes.
                 </p>
               </div>
             </div>
@@ -540,7 +593,7 @@ function CreateExportDialog({ open, onOpenChange, onCreate, loading }: CreateExp
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default AuditExport
+export default AuditExport;

@@ -1,21 +1,25 @@
-'use client'
+"use client";
 
-import { useState, memo, useMemo } from 'react'
-import { format, formatDistanceToNow } from 'date-fns'
-import { Eye, Users, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState, memo, useMemo } from "react";
+import { format, formatDistanceToNow } from "date-fns";
+import { Eye, Users, ChevronDown, ChevronUp } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import type { MessageUser } from '@/types/message'
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { MessageUser } from "@/types/message";
 
 // ============================================================================
 // Types
@@ -23,52 +27,52 @@ import type { MessageUser } from '@/types/message'
 
 export interface ReadReceipt {
   /** User who read the message */
-  user: MessageUser
+  user: MessageUser;
   /** When they read it */
-  readAt: Date | string
+  readAt: Date | string;
 }
 
 export interface ReadByListProps {
   /** List of users who have read the message */
-  readBy: ReadReceipt[]
+  readBy: ReadReceipt[];
   /** Total recipients (for showing read/unread ratio) */
-  totalRecipients?: number
+  totalRecipients?: number;
   /** Whether to show as modal (for many readers) */
-  asModal?: boolean
+  asModal?: boolean;
   /** Whether the modal is open (controlled) */
-  open?: boolean
+  open?: boolean;
   /** Callback when modal open state changes */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
   /** Maximum avatars to show inline */
-  maxInlineAvatars?: number
+  maxInlineAvatars?: number;
   /** Size variant */
-  size?: 'sm' | 'default'
+  size?: "sm" | "default";
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 export interface ReadByPopoverProps {
   /** List of users who have read the message */
-  readBy: ReadReceipt[]
+  readBy: ReadReceipt[];
   /** Trigger element */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Side of popover */
-  side?: 'top' | 'bottom' | 'left' | 'right'
+  side?: "top" | "bottom" | "left" | "right";
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 export interface ReadByModalProps {
   /** Whether the dialog is open */
-  open: boolean
+  open: boolean;
   /** Callback when dialog open state changes */
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void;
   /** List of users who have read the message */
-  readBy: ReadReceipt[]
+  readBy: ReadReceipt[];
   /** Total recipients */
-  totalRecipients?: number
+  totalRecipients?: number;
   /** Loading state */
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 // ============================================================================
@@ -82,16 +86,19 @@ const ReadReceiptItem = memo(function ReadReceiptItem({
   receipt,
   showTime = true,
 }: {
-  receipt: ReadReceipt
-  showTime?: boolean
+  receipt: ReadReceipt;
+  showTime?: boolean;
 }) {
-  const readDate = new Date(receipt.readAt)
+  const readDate = new Date(receipt.readAt);
 
   return (
     <div className="flex items-center justify-between gap-3 py-2">
       <div className="flex items-center gap-2">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={receipt.user.avatarUrl} alt={receipt.user.displayName} />
+          <AvatarImage
+            src={receipt.user.avatarUrl}
+            alt={receipt.user.displayName}
+          />
           <AvatarFallback className="text-xs">
             {receipt.user.displayName.charAt(0).toUpperCase()}
           </AvatarFallback>
@@ -99,18 +106,23 @@ const ReadReceiptItem = memo(function ReadReceiptItem({
         <div>
           <p className="text-sm font-medium">{receipt.user.displayName}</p>
           {receipt.user.username && (
-            <p className="text-xs text-muted-foreground">@{receipt.user.username}</p>
+            <p className="text-xs text-muted-foreground">
+              @{receipt.user.username}
+            </p>
           )}
         </div>
       </div>
       {showTime && (
-        <p className="text-xs text-muted-foreground" title={format(readDate, 'PPpp')}>
+        <p
+          className="text-xs text-muted-foreground"
+          title={format(readDate, "PPpp")}
+        >
           {formatDistanceToNow(readDate, { addSuffix: true })}
         </p>
       )}
     </div>
-  )
-})
+  );
+});
 
 /**
  * Stacked avatar display for inline read indicators
@@ -118,24 +130,28 @@ const ReadReceiptItem = memo(function ReadReceiptItem({
 const StackedAvatars = memo(function StackedAvatars({
   users,
   maxDisplay = 3,
-  size = 'default',
+  size = "default",
 }: {
-  users: MessageUser[]
-  maxDisplay?: number
-  size?: 'sm' | 'default'
+  users: MessageUser[];
+  maxDisplay?: number;
+  size?: "sm" | "default";
 }) {
-  const displayUsers = users.slice(0, maxDisplay)
-  const remainingCount = users.length - maxDisplay
+  const displayUsers = users.slice(0, maxDisplay);
+  const remainingCount = users.length - maxDisplay;
 
-  const avatarSize = size === 'sm' ? 'h-5 w-5' : 'h-6 w-6'
-  const overlap = size === 'sm' ? '-ml-1.5' : '-ml-2'
+  const avatarSize = size === "sm" ? "h-5 w-5" : "h-6 w-6";
+  const overlap = size === "sm" ? "-ml-1.5" : "-ml-2";
 
   return (
     <div className="flex items-center">
       {displayUsers.map((user, index) => (
         <Avatar
           key={user.id}
-          className={cn(avatarSize, 'border-2 border-background', index > 0 && overlap)}
+          className={cn(
+            avatarSize,
+            "border-2 border-background",
+            index > 0 && overlap,
+          )}
         >
           <AvatarImage src={user.avatarUrl} alt={user.displayName} />
           <AvatarFallback className="text-[10px]">
@@ -148,15 +164,15 @@ const StackedAvatars = memo(function StackedAvatars({
           className={cn(
             avatarSize,
             overlap,
-            'flex items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium'
+            "flex items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium",
           )}
         >
           +{remainingCount}
         </span>
       )}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Popover Component
@@ -170,18 +186,25 @@ const StackedAvatars = memo(function StackedAvatars({
 export const ReadByPopover = memo(function ReadByPopover({
   readBy,
   children,
-  side = 'top',
+  side = "top",
   className,
 }: ReadByPopoverProps) {
   const sortedReadBy = useMemo(
-    () => [...readBy].sort((a, b) => new Date(b.readAt).getTime() - new Date(a.readAt).getTime()),
-    [readBy]
-  )
+    () =>
+      [...readBy].sort(
+        (a, b) => new Date(b.readAt).getTime() - new Date(a.readAt).getTime(),
+      ),
+    [readBy],
+  );
 
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent side={side} align="end" className={cn('w-64 p-2', className)}>
+      <PopoverContent
+        side={side}
+        align="end"
+        className={cn("w-64 p-2", className)}
+      >
         <div className="mb-2 flex items-center gap-2 text-sm font-medium">
           <Eye className="h-4 w-4" />
           <span>Read by {readBy.length}</span>
@@ -195,8 +218,8 @@ export const ReadByPopover = memo(function ReadByPopover({
         </ScrollArea>
       </PopoverContent>
     </Popover>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Modal Component
@@ -215,11 +238,14 @@ export const ReadByModal = memo(function ReadByModal({
   isLoading = false,
 }: ReadByModalProps) {
   const sortedReadBy = useMemo(
-    () => [...readBy].sort((a, b) => new Date(b.readAt).getTime() - new Date(a.readAt).getTime()),
-    [readBy]
-  )
+    () =>
+      [...readBy].sort(
+        (a, b) => new Date(b.readAt).getTime() - new Date(a.readAt).getTime(),
+      ),
+    [readBy],
+  );
 
-  const unreadCount = totalRecipients ? totalRecipients - readBy.length : 0
+  const unreadCount = totalRecipients ? totalRecipients - readBy.length : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -234,7 +260,7 @@ export const ReadByModal = memo(function ReadByModal({
               <DialogDescription>
                 {totalRecipients
                   ? `${readBy.length} of ${totalRecipients} recipients`
-                  : `${readBy.length} ${readBy.length === 1 ? 'person' : 'people'}`}
+                  : `${readBy.length} ${readBy.length === 1 ? "person" : "people"}`}
               </DialogDescription>
             </div>
           </div>
@@ -276,13 +302,14 @@ export const ReadByModal = memo(function ReadByModal({
         {unreadCount > 0 && (
           <div className="bg-muted/30 rounded-lg border p-3 text-center text-sm text-muted-foreground">
             <Users className="mr-1 inline-block h-4 w-4" />
-            {unreadCount} recipient{unreadCount !== 1 ? 's' : ''} haven't read this yet
+            {unreadCount} recipient{unreadCount !== 1 ? "s" : ""} haven't read
+            this yet
           </div>
         )}
       </DialogContent>
     </Dialog>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Main Component
@@ -300,25 +327,25 @@ export const ReadByList = memo(function ReadByList({
   open,
   onOpenChange,
   maxInlineAvatars = 3,
-  size = 'default',
+  size = "default",
   className,
 }: ReadByListProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const users = useMemo(() => readBy.map((r) => r.user), [readBy])
+  const users = useMemo(() => readBy.map((r) => r.user), [readBy]);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (onOpenChange) {
-      onOpenChange(newOpen)
+      onOpenChange(newOpen);
     } else {
-      setIsModalOpen(newOpen)
+      setIsModalOpen(newOpen);
     }
-  }
+  };
 
-  const actualOpen = open !== undefined ? open : isModalOpen
+  const actualOpen = open !== undefined ? open : isModalOpen;
 
   if (readBy.length === 0) {
-    return null
+    return null;
   }
 
   // For modal mode or many readers
@@ -328,12 +355,16 @@ export const ReadByList = memo(function ReadByList({
         <button
           onClick={() => handleOpenChange(true)}
           className={cn(
-            'inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground',
-            size === 'sm' ? 'text-xs' : 'text-sm',
-            className
+            "inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground",
+            size === "sm" ? "text-xs" : "text-sm",
+            className,
           )}
         >
-          <StackedAvatars users={users} maxDisplay={maxInlineAvatars} size={size} />
+          <StackedAvatars
+            users={users}
+            maxDisplay={maxInlineAvatars}
+            size={size}
+          />
           <span>
             Read by {readBy.length}
             {totalRecipients && ` of ${totalRecipients}`}
@@ -347,7 +378,7 @@ export const ReadByList = memo(function ReadByList({
           totalRecipients={totalRecipients}
         />
       </>
-    )
+    );
   }
 
   // Inline popover for few readers
@@ -355,12 +386,16 @@ export const ReadByList = memo(function ReadByList({
     <ReadByPopover readBy={readBy}>
       <button
         className={cn(
-          'inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground',
-          size === 'sm' ? 'text-xs' : 'text-sm',
-          className
+          "inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground",
+          size === "sm" ? "text-xs" : "text-sm",
+          className,
         )}
       >
-        <StackedAvatars users={users} maxDisplay={maxInlineAvatars} size={size} />
+        <StackedAvatars
+          users={users}
+          maxDisplay={maxInlineAvatars}
+          size={size}
+        />
         {totalRecipients && (
           <span>
             {readBy.length}/{totalRecipients}
@@ -368,8 +403,8 @@ export const ReadByList = memo(function ReadByList({
         )}
       </button>
     </ReadByPopover>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Inline Read Indicator (for DMs)
@@ -377,13 +412,13 @@ export const ReadByList = memo(function ReadByList({
 
 export interface InlineReadIndicatorProps {
   /** Whether the message has been read */
-  isRead: boolean
+  isRead: boolean;
   /** When it was read */
-  readAt?: Date | string
+  readAt?: Date | string;
   /** Reader info (for DMs) */
-  reader?: MessageUser
+  reader?: MessageUser;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -398,20 +433,20 @@ export const InlineReadIndicator = memo(function InlineReadIndicator({
   className,
 }: InlineReadIndicatorProps) {
   if (!isRead) {
-    return null
+    return null;
   }
 
-  const readDate = readAt ? new Date(readAt) : null
+  const readDate = readAt ? new Date(readAt) : null;
 
   return (
     <span
-      className={cn('text-xs text-muted-foreground', className)}
-      title={readDate ? format(readDate, 'PPpp') : undefined}
+      className={cn("text-xs text-muted-foreground", className)}
+      title={readDate ? format(readDate, "PPpp") : undefined}
     >
       Seen
       {readDate && ` ${formatDistanceToNow(readDate, { addSuffix: true })}`}
     </span>
-  )
-})
+  );
+});
 
-export default ReadByList
+export default ReadByList;

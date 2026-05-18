@@ -1,129 +1,129 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type BotStatus = 'active' | 'inactive' | 'suspended' | 'pending'
+export type BotStatus = "active" | "inactive" | "suspended" | "pending";
 
 export type BotPermission =
-  | 'read_messages'
-  | 'send_messages'
-  | 'manage_channels'
-  | 'manage_users'
-  | 'read_files'
-  | 'upload_files'
-  | 'use_slash_commands'
-  | 'send_notifications'
-  | 'access_user_data'
-  | 'manage_webhooks'
+  | "read_messages"
+  | "send_messages"
+  | "manage_channels"
+  | "manage_users"
+  | "read_files"
+  | "upload_files"
+  | "use_slash_commands"
+  | "send_notifications"
+  | "access_user_data"
+  | "manage_webhooks";
 
 export interface Bot {
-  id: string
-  name: string
-  description: string
-  avatarUrl?: string
-  token?: string
-  status: BotStatus
-  permissions: BotPermission[]
-  createdAt: string
-  updatedAt: string
-  ownerId: string
+  id: string;
+  name: string;
+  description: string;
+  avatarUrl?: string;
+  token?: string;
+  status: BotStatus;
+  permissions: BotPermission[];
+  createdAt: string;
+  updatedAt: string;
+  ownerId: string;
   owner?: {
-    id: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
   installedChannels?: {
-    id: string
-    name: string
-    slug: string
-  }[]
-  commandsCount?: number
-  installCount?: number
-  rating?: number
-  reviewsCount?: number
-  category?: string
-  website?: string
-  supportUrl?: string
-  privacyPolicyUrl?: string
-  featured?: boolean
-  verified?: boolean
+    id: string;
+    name: string;
+    slug: string;
+  }[];
+  commandsCount?: number;
+  installCount?: number;
+  rating?: number;
+  reviewsCount?: number;
+  category?: string;
+  website?: string;
+  supportUrl?: string;
+  privacyPolicyUrl?: string;
+  featured?: boolean;
+  verified?: boolean;
 }
 
 export interface BotCommand {
-  id: string
-  botId: string
-  name: string
-  description: string
-  usage: string
-  examples?: string[]
+  id: string;
+  botId: string;
+  name: string;
+  description: string;
+  usage: string;
+  examples?: string[];
 }
 
 export interface BotInstallation {
-  id: string
-  botId: string
-  channelId: string
-  installedBy: string
-  installedAt: string
-  permissions: BotPermission[]
-  bot?: Bot
+  id: string;
+  botId: string;
+  channelId: string;
+  installedBy: string;
+  installedAt: string;
+  permissions: BotPermission[];
+  bot?: Bot;
   channel?: {
-    id: string
-    name: string
-    slug: string
-  }
+    id: string;
+    name: string;
+    slug: string;
+  };
 }
 
 export interface BotReview {
-  id: string
-  botId: string
-  userId: string
-  rating: number
-  comment?: string
-  createdAt: string
+  id: string;
+  botId: string;
+  userId: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
   user?: {
-    id: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
 }
 
 export interface GetInstalledBotsVariables {
-  workspaceId?: string
-  channelId?: string
-  limit?: number
-  offset?: number
+  workspaceId?: string;
+  channelId?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetMarketplaceBotsVariables {
-  category?: string
-  search?: string
-  featured?: boolean
-  limit?: number
-  offset?: number
+  category?: string;
+  search?: string;
+  featured?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetBotVariables {
-  id: string
+  id: string;
 }
 
 export interface InstallBotVariables {
-  botId: string
-  channelIds: string[]
-  permissions: BotPermission[]
+  botId: string;
+  channelIds: string[];
+  permissions: BotPermission[];
 }
 
 export interface RemoveBotVariables {
-  botId: string
-  channelId?: string
+  botId: string;
+  channelId?: string;
 }
 
 export interface UpdateBotSettingsVariables {
-  botId: string
-  channelId?: string
-  permissions?: BotPermission[]
-  status?: BotStatus
+  botId: string;
+  channelId?: string;
+  permissions?: BotPermission[];
+  status?: BotStatus;
 }
 
 // ============================================================================
@@ -141,7 +141,7 @@ export const BOT_BASIC_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 export const BOT_DETAIL_FRAGMENT = gql`
   fragment BotDetail on nchat_bots {
@@ -176,7 +176,7 @@ export const BOT_DETAIL_FRAGMENT = gql`
       examples
     }
   }
-`
+`;
 
 export const BOT_INSTALLATION_FRAGMENT = gql`
   fragment BotInstallation on nchat_bot_installations {
@@ -196,7 +196,7 @@ export const BOT_INSTALLATION_FRAGMENT = gql`
     }
   }
   ${BOT_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -206,7 +206,12 @@ export const BOT_INSTALLATION_FRAGMENT = gql`
  * Get all installed bots for a workspace or channel
  */
 export const GET_INSTALLED_BOTS = gql`
-  query GetInstalledBots($workspaceId: uuid, $channelId: uuid, $limit: Int = 50, $offset: Int = 0) {
+  query GetInstalledBots(
+    $workspaceId: uuid
+    $channelId: uuid
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_bot_installations(
       where: {
         _and: [
@@ -234,7 +239,7 @@ export const GET_INSTALLED_BOTS = gql`
     }
   }
   ${BOT_INSTALLATION_FRAGMENT}
-`
+`;
 
 /**
  * Get bots from marketplace with optional filtering
@@ -254,7 +259,12 @@ export const GET_MARKETPLACE_BOTS = gql`
           { is_public: { _eq: true } }
           { category: { _eq: $category } }
           { featured: { _eq: $featured } }
-          { _or: [{ name: { _ilike: $search } }, { description: { _ilike: $search } }] }
+          {
+            _or: [
+              { name: { _ilike: $search } }
+              { description: { _ilike: $search } }
+            ]
+          }
         ]
       }
       order_by: [
@@ -274,7 +284,12 @@ export const GET_MARKETPLACE_BOTS = gql`
           { is_public: { _eq: true } }
           { category: { _eq: $category } }
           { featured: { _eq: $featured } }
-          { _or: [{ name: { _ilike: $search } }, { description: { _ilike: $search } }] }
+          {
+            _or: [
+              { name: { _ilike: $search } }
+              { description: { _ilike: $search } }
+            ]
+          }
         ]
       }
     ) {
@@ -284,7 +299,7 @@ export const GET_MARKETPLACE_BOTS = gql`
     }
   }
   ${BOT_DETAIL_FRAGMENT}
-`
+`;
 
 /**
  * Get a single bot by ID
@@ -301,14 +316,17 @@ export const GET_BOT = gql`
     }
   }
   ${BOT_DETAIL_FRAGMENT}
-`
+`;
 
 /**
  * Get bot commands
  */
 export const GET_BOT_COMMANDS = gql`
   query GetBotCommands($botId: uuid!) {
-    nchat_bot_commands(where: { bot_id: { _eq: $botId } }, order_by: { name: asc }) {
+    nchat_bot_commands(
+      where: { bot_id: { _eq: $botId } }
+      order_by: { name: asc }
+    ) {
       id
       name
       description
@@ -316,7 +334,7 @@ export const GET_BOT_COMMANDS = gql`
       examples
     }
   }
-`
+`;
 
 /**
  * Get bot reviews
@@ -348,7 +366,7 @@ export const GET_BOT_REVIEWS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get featured bots for marketplace homepage
@@ -374,7 +392,7 @@ export const GET_FEATURED_BOTS = gql`
     }
   }
   ${BOT_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get bot categories
@@ -394,7 +412,7 @@ export const GET_BOT_CATEGORIES = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Search bots
@@ -406,7 +424,12 @@ export const SEARCH_BOTS = gql`
         _and: [
           { status: { _eq: "active" } }
           { is_public: { _eq: true } }
-          { _or: [{ name: { _ilike: $search } }, { description: { _ilike: $search } }] }
+          {
+            _or: [
+              { name: { _ilike: $search } }
+              { description: { _ilike: $search } }
+            ]
+          }
         ]
       }
       order_by: { install_count: desc_nulls_last }
@@ -419,7 +442,7 @@ export const SEARCH_BOTS = gql`
     }
   }
   ${BOT_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -429,9 +452,17 @@ export const SEARCH_BOTS = gql`
  * Install a bot to channels
  */
 export const INSTALL_BOT = gql`
-  mutation InstallBot($botId: uuid!, $channelIds: [uuid!]!, $permissions: jsonb!) {
+  mutation InstallBot(
+    $botId: uuid!
+    $channelIds: [uuid!]!
+    $permissions: jsonb!
+  ) {
     insert_nchat_bot_installations(
-      objects: { bot_id: $botId, channel_ids: $channelIds, permissions: $permissions }
+      objects: {
+        bot_id: $botId
+        channel_ids: $channelIds
+        permissions: $permissions
+      }
       on_conflict: {
         constraint: nchat_bot_installations_bot_id_channel_id_key
         update_columns: [permissions, installed_at]
@@ -443,13 +474,16 @@ export const INSTALL_BOT = gql`
       }
     }
     # Increment install count
-    update_nchat_bots_by_pk(pk_columns: { id: $botId }, _inc: { install_count: 1 }) {
+    update_nchat_bots_by_pk(
+      pk_columns: { id: $botId }
+      _inc: { install_count: 1 }
+    ) {
       id
       install_count
     }
   }
   ${BOT_INSTALLATION_FRAGMENT}
-`
+`;
 
 /**
  * Remove a bot from a channel or all channels
@@ -457,7 +491,9 @@ export const INSTALL_BOT = gql`
 export const REMOVE_BOT = gql`
   mutation RemoveBot($botId: uuid!, $channelId: uuid) {
     delete_nchat_bot_installations(
-      where: { _and: [{ bot_id: { _eq: $botId } }, { channel_id: { _eq: $channelId } }] }
+      where: {
+        _and: [{ bot_id: { _eq: $botId } }, { channel_id: { _eq: $channelId } }]
+      }
     ) {
       affected_rows
       returning {
@@ -467,12 +503,15 @@ export const REMOVE_BOT = gql`
       }
     }
     # Decrement install count
-    update_nchat_bots_by_pk(pk_columns: { id: $botId }, _inc: { install_count: -1 }) {
+    update_nchat_bots_by_pk(
+      pk_columns: { id: $botId }
+      _inc: { install_count: -1 }
+    ) {
       id
       install_count
     }
   }
-`
+`;
 
 /**
  * Update bot settings/permissions for an installation
@@ -485,7 +524,9 @@ export const UPDATE_BOT_SETTINGS = gql`
     $status: String
   ) {
     update_nchat_bot_installations(
-      where: { _and: [{ bot_id: { _eq: $botId } }, { channel_id: { _eq: $channelId } }] }
+      where: {
+        _and: [{ bot_id: { _eq: $botId } }, { channel_id: { _eq: $channelId } }]
+      }
       _set: { permissions: $permissions }
     ) {
       affected_rows
@@ -495,7 +536,7 @@ export const UPDATE_BOT_SETTINGS = gql`
     }
   }
   ${BOT_INSTALLATION_FRAGMENT}
-`
+`;
 
 /**
  * Add bot by token
@@ -515,7 +556,7 @@ export const ADD_BOT_BY_TOKEN = gql`
   }
   ${BOT_BASIC_FRAGMENT}
   ${BOT_INSTALLATION_FRAGMENT}
-`
+`;
 
 /**
  * Submit a bot review
@@ -540,7 +581,7 @@ export const SUBMIT_BOT_REVIEW = gql`
       reviews_count
     }
   }
-`
+`;
 
 /**
  * Delete a bot review
@@ -552,7 +593,7 @@ export const DELETE_BOT_REVIEW = gql`
       bot_id
     }
   }
-`
+`;
 
 /**
  * Register a new bot (for developers)
@@ -588,7 +629,7 @@ export const REGISTER_BOT = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Update bot details (for bot owners)
@@ -621,7 +662,7 @@ export const UPDATE_BOT = gql`
     }
   }
   ${BOT_DETAIL_FRAGMENT}
-`
+`;
 
 /**
  * Delete a bot (for bot owners)
@@ -638,7 +679,7 @@ export const DELETE_BOT = gql`
       name
     }
   }
-`
+`;
 
 // ============================================================================
 // BOT API - Token Management
@@ -649,7 +690,10 @@ export const DELETE_BOT = gql`
  */
 export const GET_BOT_TOKENS = gql`
   query GetBotTokens($botId: uuid!) {
-    nchat_bot_tokens(where: { bot_id: { _eq: $botId } }, order_by: { created_at: desc }) {
+    nchat_bot_tokens(
+      where: { bot_id: { _eq: $botId } }
+      order_by: { created_at: desc }
+    ) {
       id
       name
       scopes
@@ -659,7 +703,7 @@ export const GET_BOT_TOKENS = gql`
       is_active
     }
   }
-`
+`;
 
 /**
  * Create bot token
@@ -688,19 +732,22 @@ export const CREATE_BOT_TOKEN = gql`
       expires_at
     }
   }
-`
+`;
 
 /**
  * Revoke bot token
  */
 export const REVOKE_BOT_TOKEN = gql`
   mutation RevokeBotToken($tokenId: uuid!) {
-    update_nchat_bot_tokens_by_pk(pk_columns: { id: $tokenId }, _set: { is_active: false }) {
+    update_nchat_bot_tokens_by_pk(
+      pk_columns: { id: $tokenId }
+      _set: { is_active: false }
+    ) {
       id
       is_active
     }
   }
-`
+`;
 
 /**
  * Delete bot token
@@ -711,7 +758,7 @@ export const DELETE_BOT_TOKEN = gql`
       id
     }
   }
-`
+`;
 
 // ============================================================================
 // BOT API - Webhook Management
@@ -722,7 +769,10 @@ export const DELETE_BOT_TOKEN = gql`
  */
 export const GET_BOT_WEBHOOKS = gql`
   query GetBotWebhooks($botId: uuid!) {
-    nchat_bot_webhooks(where: { bot_id: { _eq: $botId } }, order_by: { created_at: desc }) {
+    nchat_bot_webhooks(
+      where: { bot_id: { _eq: $botId } }
+      order_by: { created_at: desc }
+    ) {
       id
       url
       events
@@ -734,13 +784,18 @@ export const GET_BOT_WEBHOOKS = gql`
       failure_count
     }
   }
-`
+`;
 
 /**
  * Create bot webhook
  */
 export const CREATE_BOT_WEBHOOK = gql`
-  mutation CreateBotWebhook($botId: uuid!, $url: String!, $events: [String!]!, $secret: String!) {
+  mutation CreateBotWebhook(
+    $botId: uuid!
+    $url: String!
+    $events: [String!]!
+    $secret: String!
+  ) {
     insert_nchat_bot_webhooks_one(
       object: { bot_id: $botId, url: $url, events: $events, secret: $secret }
     ) {
@@ -750,7 +805,7 @@ export const CREATE_BOT_WEBHOOK = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Update bot webhook
@@ -773,7 +828,7 @@ export const UPDATE_BOT_WEBHOOK = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Delete bot webhook
@@ -784,7 +839,7 @@ export const DELETE_BOT_WEBHOOK = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Get webhook logs
@@ -806,7 +861,7 @@ export const GET_WEBHOOK_LOGS = gql`
       created_at
     }
   }
-`
+`;
 
 // ============================================================================
 // BOT API - Permissions Management
@@ -817,7 +872,10 @@ export const GET_WEBHOOK_LOGS = gql`
  */
 export const GET_BOT_PERMISSIONS = gql`
   query GetBotPermissions($botId: uuid!) {
-    nchat_bot_permissions(where: { bot_id: { _eq: $botId } }, order_by: { permission: asc }) {
+    nchat_bot_permissions(
+      where: { bot_id: { _eq: $botId } }
+      order_by: { permission: asc }
+    ) {
       id
       permission
       granted_by
@@ -828,15 +886,23 @@ export const GET_BOT_PERMISSIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Grant bot permission
  */
 export const GRANT_BOT_PERMISSION = gql`
-  mutation GrantBotPermission($botId: uuid!, $permission: String!, $grantedBy: uuid!) {
+  mutation GrantBotPermission(
+    $botId: uuid!
+    $permission: String!
+    $grantedBy: uuid!
+  ) {
     insert_nchat_bot_permissions_one(
-      object: { bot_id: $botId, permission: $permission, granted_by: $grantedBy }
+      object: {
+        bot_id: $botId
+        permission: $permission
+        granted_by: $grantedBy
+      }
       on_conflict: { constraint: bot_permission_unique, update_columns: [] }
     ) {
       id
@@ -844,7 +910,7 @@ export const GRANT_BOT_PERMISSION = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Revoke bot permission
@@ -857,21 +923,23 @@ export const REVOKE_BOT_PERMISSION = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Get permission definitions
  */
 export const GET_PERMISSION_DEFINITIONS = gql`
   query GetPermissionDefinitions {
-    nchat_bot_permission_definitions(order_by: { category: asc, permission: asc }) {
+    nchat_bot_permission_definitions(
+      order_by: { category: asc, permission: asc }
+    ) {
       permission
       description
       category
       is_dangerous
     }
   }
-`
+`;
 
 /**
  * Get bot API logs
@@ -893,7 +961,7 @@ export const GET_BOT_API_LOGS = gql`
       ip_address
     }
   }
-`
+`;
 
 // ============================================================================
 // ALIASES (for backward compatibility)
@@ -902,12 +970,12 @@ export const GET_BOT_API_LOGS = gql`
 /**
  * Alias: GET_BOTS -> GET_MARKETPLACE_BOTS
  */
-export const GET_BOTS = GET_MARKETPLACE_BOTS
+export const GET_BOTS = GET_MARKETPLACE_BOTS;
 
 /**
  * Alias: CREATE_BOT -> REGISTER_BOT
  */
-export const CREATE_BOT = REGISTER_BOT
+export const CREATE_BOT = REGISTER_BOT;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -926,7 +994,7 @@ export const BOT_INSTALLATIONS_SUBSCRIPTION = gql`
     }
   }
   ${BOT_INSTALLATION_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to bot status changes
@@ -939,4 +1007,4 @@ export const BOT_STATUS_SUBSCRIPTION = gql`
       updated_at
     }
   }
-`
+`;

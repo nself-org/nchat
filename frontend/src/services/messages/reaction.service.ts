@@ -4,10 +4,10 @@
  * Operations for message reactions including add, remove, and toggle.
  */
 
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { logger } from '@/lib/logger'
-import type { Reaction } from '@/types/message'
-import type { APIResponse } from '@/types/api'
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+import { logger } from "@/lib/logger";
+import type { Reaction } from "@/types/message";
+import type { APIResponse } from "@/types/api";
 
 import {
   GET_MESSAGE_REACTIONS,
@@ -21,38 +21,38 @@ import {
   CLEAR_MESSAGE_REACTIONS,
   REMOVE_USER_REACTIONS,
   BULK_ADD_REACTIONS,
-} from '@/graphql/reactions'
+} from "@/graphql/reactions";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface ReactionCount {
-  emoji: string
-  count: number
+  emoji: string;
+  count: number;
   users: Array<{
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }>
-  hasReacted: boolean
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  }>;
+  hasReacted: boolean;
 }
 
 export interface AddReactionInput {
-  messageId: string
-  userId: string
-  emoji: string
+  messageId: string;
+  userId: string;
+  emoji: string;
 }
 
 export interface RemoveReactionInput {
-  messageId: string
-  userId: string
-  emoji: string
+  messageId: string;
+  userId: string;
+  emoji: string;
 }
 
 export interface ReactionServiceConfig {
-  apolloClient: ApolloClient<NormalizedCacheObject>
+  apolloClient: ApolloClient<NormalizedCacheObject>;
 }
 
 // ============================================================================
@@ -60,10 +60,10 @@ export interface ReactionServiceConfig {
 // ============================================================================
 
 export class ReactionService {
-  private client: ApolloClient<NormalizedCacheObject>
+  private client: ApolloClient<NormalizedCacheObject>;
 
   constructor(config: ReactionServiceConfig) {
-    this.client = config.apolloClient
+    this.client = config.apolloClient;
   }
 
   // ==========================================================================
@@ -73,29 +73,35 @@ export class ReactionService {
   /**
    * Get all reactions for a message
    */
-  async getMessageReactions(messageId: string): Promise<APIResponse<ReactionCount[]>> {
+  async getMessageReactions(
+    messageId: string,
+  ): Promise<APIResponse<ReactionCount[]>> {
     try {
-      logger.debug('ReactionService.getMessageReactions', { messageId })
+      logger.debug("ReactionService.getMessageReactions", { messageId });
 
       const { data, error } = await this.client.query({
         query: GET_MESSAGE_REACTIONS_GROUPED,
         variables: { messageId },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (error) {
-        throw error
+        throw error;
       }
 
-      const reactions = this.groupReactions(data.nchat_reactions || [])
+      const reactions = this.groupReactions(data.nchat_reactions || []);
 
       return {
         success: true,
         data: reactions,
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.getMessageReactions failed', error as Error, { messageId })
-      return this.handleError(error)
+      logger.error(
+        "ReactionService.getMessageReactions failed",
+        error as Error,
+        { messageId },
+      );
+      return this.handleError(error);
     }
   }
 
@@ -103,44 +109,49 @@ export class ReactionService {
    * Get reactions for multiple messages (batch)
    */
   async getMessagesReactions(
-    messageIds: string[]
+    messageIds: string[],
   ): Promise<APIResponse<Map<string, ReactionCount[]>>> {
     try {
-      logger.debug('ReactionService.getMessagesReactions', { count: messageIds.length })
+      logger.debug("ReactionService.getMessagesReactions", {
+        count: messageIds.length,
+      });
 
       const { data, error } = await this.client.query({
         query: GET_MESSAGES_REACTIONS,
         variables: { messageIds },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (error) {
-        throw error
+        throw error;
       }
 
       // Group reactions by message ID
-      const reactionsByMessage = new Map<string, Record<string, unknown>[]>()
+      const reactionsByMessage = new Map<string, Record<string, unknown>[]>();
       for (const reaction of data.nchat_reactions || []) {
-        const messageId = reaction.message_id
+        const messageId = reaction.message_id;
         if (!reactionsByMessage.has(messageId)) {
-          reactionsByMessage.set(messageId, [])
+          reactionsByMessage.set(messageId, []);
         }
-        reactionsByMessage.get(messageId)!.push(reaction)
+        reactionsByMessage.get(messageId)!.push(reaction);
       }
 
       // Transform to ReactionCount format
-      const result = new Map<string, ReactionCount[]>()
+      const result = new Map<string, ReactionCount[]>();
       for (const [messageId, reactions] of reactionsByMessage) {
-        result.set(messageId, this.groupReactions(reactions))
+        result.set(messageId, this.groupReactions(reactions));
       }
 
       return {
         success: true,
         data: result,
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.getMessagesReactions failed', error as Error)
-      return this.handleError(error)
+      logger.error(
+        "ReactionService.getMessagesReactions failed",
+        error as Error,
+      );
+      return this.handleError(error);
     }
   }
 
@@ -150,63 +161,74 @@ export class ReactionService {
   async hasUserReacted(
     messageId: string,
     userId: string,
-    emoji: string
+    emoji: string,
   ): Promise<APIResponse<boolean>> {
     try {
-      logger.debug('ReactionService.hasUserReacted', { messageId, userId, emoji })
+      logger.debug("ReactionService.hasUserReacted", {
+        messageId,
+        userId,
+        emoji,
+      });
 
       const { data, error } = await this.client.query({
         query: CHECK_USER_REACTION,
         variables: { messageId, userId, emoji },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (error) {
-        throw error
+        throw error;
       }
 
       return {
         success: true,
         data: (data.nchat_reactions?.length || 0) > 0,
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.hasUserReacted failed', error as Error, {
+      logger.error("ReactionService.hasUserReacted failed", error as Error, {
         messageId,
         userId,
         emoji,
-      })
-      return this.handleError(error)
+      });
+      return this.handleError(error);
     }
   }
 
   /**
    * Get popular reactions in a channel
    */
-  async getPopularReactions(channelId: string, limit: number = 10): Promise<APIResponse<string[]>> {
+  async getPopularReactions(
+    channelId: string,
+    limit: number = 10,
+  ): Promise<APIResponse<string[]>> {
     try {
-      logger.debug('ReactionService.getPopularReactions', { channelId, limit })
+      logger.debug("ReactionService.getPopularReactions", { channelId, limit });
 
       const { data, error } = await this.client.query({
         query: GET_POPULAR_REACTIONS,
         variables: { channelId, limit },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (error) {
-        throw error
+        throw error;
       }
 
       const emojis = (data.nchat_reactions || []).map(
-        (r: Record<string, unknown>) => r.emoji as string
-      )
+        (r: Record<string, unknown>) => r.emoji as string,
+      );
 
       return {
         success: true,
         data: emojis,
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.getPopularReactions failed', error as Error, { channelId })
-      return this.handleError(error)
+      logger.error(
+        "ReactionService.getPopularReactions failed",
+        error as Error,
+        { channelId },
+      );
+      return this.handleError(error);
     }
   }
 
@@ -215,32 +237,39 @@ export class ReactionService {
    */
   async getUserFrequentReactions(
     userId: string,
-    limit: number = 10
+    limit: number = 10,
   ): Promise<APIResponse<string[]>> {
     try {
-      logger.debug('ReactionService.getUserFrequentReactions', { userId, limit })
+      logger.debug("ReactionService.getUserFrequentReactions", {
+        userId,
+        limit,
+      });
 
       const { data, error } = await this.client.query({
         query: GET_USER_FREQUENT_REACTIONS,
         variables: { userId, limit },
-        fetchPolicy: 'network-only',
-      })
+        fetchPolicy: "network-only",
+      });
 
       if (error) {
-        throw error
+        throw error;
       }
 
       const emojis = (data.nchat_reactions || []).map(
-        (r: Record<string, unknown>) => r.emoji as string
-      )
+        (r: Record<string, unknown>) => r.emoji as string,
+      );
 
       return {
         success: true,
         data: emojis,
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.getUserFrequentReactions failed', error as Error, { userId })
-      return this.handleError(error)
+      logger.error(
+        "ReactionService.getUserFrequentReactions failed",
+        error as Error,
+        { userId },
+      );
+      return this.handleError(error);
     }
   }
 
@@ -251,12 +280,14 @@ export class ReactionService {
   /**
    * Add a reaction to a message
    */
-  async addReaction(input: AddReactionInput): Promise<APIResponse<{ added: boolean }>> {
+  async addReaction(
+    input: AddReactionInput,
+  ): Promise<APIResponse<{ added: boolean }>> {
     try {
-      logger.debug('ReactionService.addReaction', {
+      logger.debug("ReactionService.addReaction", {
         messageId: input.messageId,
         emoji: input.emoji,
-      })
+      });
 
       const { errors } = await this.client.mutate({
         mutation: ADD_REACTION,
@@ -265,39 +296,41 @@ export class ReactionService {
           userId: input.userId,
           emoji: input.emoji,
         },
-      })
+      });
 
       if (errors && errors.length > 0) {
-        throw new Error(errors[0].message)
+        throw new Error(errors[0].message);
       }
 
-      logger.info('ReactionService.addReaction success', {
+      logger.info("ReactionService.addReaction success", {
         messageId: input.messageId,
         emoji: input.emoji,
-      })
+      });
 
       return {
         success: true,
         data: { added: true },
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.addReaction failed', error as Error, {
+      logger.error("ReactionService.addReaction failed", error as Error, {
         messageId: input.messageId,
         emoji: input.emoji,
-      })
-      return this.handleError(error)
+      });
+      return this.handleError(error);
     }
   }
 
   /**
    * Remove a reaction from a message
    */
-  async removeReaction(input: RemoveReactionInput): Promise<APIResponse<{ removed: boolean }>> {
+  async removeReaction(
+    input: RemoveReactionInput,
+  ): Promise<APIResponse<{ removed: boolean }>> {
     try {
-      logger.debug('ReactionService.removeReaction', {
+      logger.debug("ReactionService.removeReaction", {
         messageId: input.messageId,
         emoji: input.emoji,
-      })
+      });
 
       const { errors } = await this.client.mutate({
         mutation: REMOVE_REACTION,
@@ -306,27 +339,27 @@ export class ReactionService {
           userId: input.userId,
           emoji: input.emoji,
         },
-      })
+      });
 
       if (errors && errors.length > 0) {
-        throw new Error(errors[0].message)
+        throw new Error(errors[0].message);
       }
 
-      logger.info('ReactionService.removeReaction success', {
+      logger.info("ReactionService.removeReaction success", {
         messageId: input.messageId,
         emoji: input.emoji,
-      })
+      });
 
       return {
         success: true,
         data: { removed: true },
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.removeReaction failed', error as Error, {
+      logger.error("ReactionService.removeReaction failed", error as Error, {
         messageId: input.messageId,
         emoji: input.emoji,
-      })
-      return this.handleError(error)
+      });
+      return this.handleError(error);
     }
   }
 
@@ -336,74 +369,90 @@ export class ReactionService {
   async toggleReaction(
     messageId: string,
     userId: string,
-    emoji: string
-  ): Promise<APIResponse<{ action: 'added' | 'removed' }>> {
+    emoji: string,
+  ): Promise<APIResponse<{ action: "added" | "removed" }>> {
     try {
-      logger.debug('ReactionService.toggleReaction', { messageId, userId, emoji })
+      logger.debug("ReactionService.toggleReaction", {
+        messageId,
+        userId,
+        emoji,
+      });
 
       // Check if user has already reacted
-      const hasReactedResult = await this.hasUserReacted(messageId, userId, emoji)
+      const hasReactedResult = await this.hasUserReacted(
+        messageId,
+        userId,
+        emoji,
+      );
 
       if (!hasReactedResult.success) {
-        throw new Error('Failed to check existing reaction')
+        throw new Error("Failed to check existing reaction");
       }
 
       if (hasReactedResult.data) {
         // Remove the reaction
-        const removeResult = await this.removeReaction({ messageId, userId, emoji })
+        const removeResult = await this.removeReaction({
+          messageId,
+          userId,
+          emoji,
+        });
         if (!removeResult.success) {
-          throw new Error('Failed to remove reaction')
+          throw new Error("Failed to remove reaction");
         }
         return {
           success: true,
-          data: { action: 'removed' },
-        }
+          data: { action: "removed" },
+        };
       } else {
         // Add the reaction
-        const addResult = await this.addReaction({ messageId, userId, emoji })
+        const addResult = await this.addReaction({ messageId, userId, emoji });
         if (!addResult.success) {
-          throw new Error('Failed to add reaction')
+          throw new Error("Failed to add reaction");
         }
         return {
           success: true,
-          data: { action: 'added' },
-        }
+          data: { action: "added" },
+        };
       }
     } catch (error) {
-      logger.error('ReactionService.toggleReaction failed', error as Error, {
+      logger.error("ReactionService.toggleReaction failed", error as Error, {
         messageId,
         userId,
         emoji,
-      })
-      return this.handleError(error)
+      });
+      return this.handleError(error);
     }
   }
 
   /**
    * Clear all reactions from a message (moderator action)
    */
-  async clearReactions(messageId: string): Promise<APIResponse<{ cleared: boolean }>> {
+  async clearReactions(
+    messageId: string,
+  ): Promise<APIResponse<{ cleared: boolean }>> {
     try {
-      logger.debug('ReactionService.clearReactions', { messageId })
+      logger.debug("ReactionService.clearReactions", { messageId });
 
       const { errors } = await this.client.mutate({
         mutation: CLEAR_MESSAGE_REACTIONS,
         variables: { messageId },
-      })
+      });
 
       if (errors && errors.length > 0) {
-        throw new Error(errors[0].message)
+        throw new Error(errors[0].message);
       }
 
-      logger.info('ReactionService.clearReactions success', { messageId })
+      logger.info("ReactionService.clearReactions success", { messageId });
 
       return {
         success: true,
         data: { cleared: true },
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.clearReactions failed', error as Error, { messageId })
-      return this.handleError(error)
+      logger.error("ReactionService.clearReactions failed", error as Error, {
+        messageId,
+      });
+      return this.handleError(error);
     }
   }
 
@@ -412,30 +461,37 @@ export class ReactionService {
    */
   async removeUserReactions(
     messageId: string,
-    userId: string
+    userId: string,
   ): Promise<APIResponse<{ removed: boolean }>> {
     try {
-      logger.debug('ReactionService.removeUserReactions', { messageId, userId })
+      logger.debug("ReactionService.removeUserReactions", {
+        messageId,
+        userId,
+      });
 
       const { errors } = await this.client.mutate({
         mutation: REMOVE_USER_REACTIONS,
         variables: { messageId, userId },
-      })
+      });
 
       if (errors && errors.length > 0) {
-        throw new Error(errors[0].message)
+        throw new Error(errors[0].message);
       }
 
       return {
         success: true,
         data: { removed: true },
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.removeUserReactions failed', error as Error, {
-        messageId,
-        userId,
-      })
-      return this.handleError(error)
+      logger.error(
+        "ReactionService.removeUserReactions failed",
+        error as Error,
+        {
+          messageId,
+          userId,
+        },
+      );
+      return this.handleError(error);
     }
   }
 
@@ -443,33 +499,35 @@ export class ReactionService {
    * Bulk add reactions (for importing/syncing)
    */
   async bulkAddReactions(
-    reactions: Array<{ messageId: string; userId: string; emoji: string }>
+    reactions: Array<{ messageId: string; userId: string; emoji: string }>,
   ): Promise<APIResponse<{ addedCount: number }>> {
     try {
-      logger.debug('ReactionService.bulkAddReactions', { count: reactions.length })
+      logger.debug("ReactionService.bulkAddReactions", {
+        count: reactions.length,
+      });
 
       const formattedReactions = reactions.map((r) => ({
         message_id: r.messageId,
         user_id: r.userId,
         emoji: r.emoji,
-      }))
+      }));
 
       const { data, errors } = await this.client.mutate({
         mutation: BULK_ADD_REACTIONS,
         variables: { reactions: formattedReactions },
-      })
+      });
 
       if (errors && errors.length > 0) {
-        throw new Error(errors[0].message)
+        throw new Error(errors[0].message);
       }
 
       return {
         success: true,
         data: { addedCount: data.insert_nchat_reactions.affected_rows },
-      }
+      };
     } catch (error) {
-      logger.error('ReactionService.bulkAddReactions failed', error as Error)
-      return this.handleError(error)
+      logger.error("ReactionService.bulkAddReactions failed", error as Error);
+      return this.handleError(error);
     }
   }
 
@@ -482,37 +540,38 @@ export class ReactionService {
    */
   private groupReactions(
     reactions: Record<string, unknown>[],
-    currentUserId?: string
+    currentUserId?: string,
   ): ReactionCount[] {
     const grouped = new Map<
       string,
-      { emoji: string; users: ReactionCount['users']; userIds: Set<string> }
-    >()
+      { emoji: string; users: ReactionCount["users"]; userIds: Set<string> }
+    >();
 
     for (const r of reactions) {
-      const emoji = r.emoji as string
-      const user = r.user as Record<string, unknown>
-      const userId = r.user_id as string
+      const emoji = r.emoji as string;
+      const user = r.user as Record<string, unknown>;
+      const userId = r.user_id as string;
 
       const userInfo = {
         id: user?.id as string,
         username: user?.username as string,
-        displayName: (user?.display_name as string) || (user?.username as string),
+        displayName:
+          (user?.display_name as string) || (user?.username as string),
         avatarUrl: user?.avatar_url as string | undefined,
-      }
+      };
 
       if (grouped.has(emoji)) {
-        const group = grouped.get(emoji)!
+        const group = grouped.get(emoji)!;
         if (!group.userIds.has(userId)) {
-          group.users.push(userInfo)
-          group.userIds.add(userId)
+          group.users.push(userInfo);
+          group.userIds.add(userId);
         }
       } else {
         grouped.set(emoji, {
           emoji,
           users: [userInfo],
           userIds: new Set([userId]),
-        })
+        });
       }
     }
 
@@ -521,23 +580,23 @@ export class ReactionService {
       count: users.length,
       users,
       hasReacted: currentUserId ? userIds.has(currentUserId) : false,
-    }))
+    }));
   }
 
   /**
    * Handle errors
    */
   private handleError<T>(error: unknown): APIResponse<T> {
-    const err = error as Error
+    const err = error as Error;
 
     return {
       success: false,
       error: {
-        code: 'INTERNAL_ERROR',
+        code: "INTERNAL_ERROR",
         status: 500,
-        message: err.message || 'An error occurred',
+        message: err.message || "An error occurred",
       },
-    }
+    };
   }
 }
 
@@ -545,27 +604,27 @@ export class ReactionService {
 // SINGLETON INSTANCE
 // ============================================================================
 
-let reactionServiceInstance: ReactionService | null = null
+let reactionServiceInstance: ReactionService | null = null;
 
 /**
  * Get or create the reaction service singleton
  */
 export function getReactionService(
-  apolloClient: ApolloClient<NormalizedCacheObject>
+  apolloClient: ApolloClient<NormalizedCacheObject>,
 ): ReactionService {
   if (!reactionServiceInstance) {
-    reactionServiceInstance = new ReactionService({ apolloClient })
+    reactionServiceInstance = new ReactionService({ apolloClient });
   }
-  return reactionServiceInstance
+  return reactionServiceInstance;
 }
 
 /**
  * Create a new reaction service instance
  */
 export function createReactionService(
-  apolloClient: ApolloClient<NormalizedCacheObject>
+  apolloClient: ApolloClient<NormalizedCacheObject>,
 ): ReactionService {
-  return new ReactionService({ apolloClient })
+  return new ReactionService({ apolloClient });
 }
 
-export default ReactionService
+export default ReactionService;

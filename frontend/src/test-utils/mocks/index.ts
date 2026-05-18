@@ -4,10 +4,10 @@
  * Central export for all test mocks
  */
 
-export * from './auth'
-export * from './router'
-export * from './graphql'
-export * from './stores'
+export * from "./auth";
+export * from "./router";
+export * from "./graphql";
+export * from "./stores";
 
 // ============================================================================
 // Common Browser API Mocks
@@ -17,7 +17,7 @@ export * from './stores'
  * Mock window.matchMedia
  */
 export function mockMatchMedia(matches: boolean = false) {
-  Object.defineProperty(window, 'matchMedia', {
+  Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: jest.fn().mockImplementation((query: string) => ({
       matches,
@@ -29,7 +29,7 @@ export function mockMatchMedia(matches: boolean = false) {
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
     })),
-  })
+  });
 }
 
 /**
@@ -40,14 +40,14 @@ export function mockResizeObserver() {
     observe: jest.fn(),
     unobserve: jest.fn(),
     disconnect: jest.fn(),
-  }))
+  }));
 
-  Object.defineProperty(window, 'ResizeObserver', {
+  Object.defineProperty(window, "ResizeObserver", {
     writable: true,
     value: mockResizeObserver,
-  })
+  });
 
-  return mockResizeObserver
+  return mockResizeObserver;
 }
 
 /**
@@ -55,27 +55,29 @@ export function mockResizeObserver() {
  */
 export function mockIntersectionObserver(
   intersect: boolean = false,
-  callback?: (entries: IntersectionObserverEntry[]) => void
+  callback?: (entries: IntersectionObserverEntry[]) => void,
 ) {
-  const mockIntersectionObserver = jest.fn().mockImplementation((observerCallback) => {
-    if (callback) {
-      callback = observerCallback
-    }
-    return {
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn(),
-      root: null,
-      rootMargin: '',
-      thresholds: [],
-      takeRecords: jest.fn(() => []),
-    }
-  })
+  const mockIntersectionObserver = jest
+    .fn()
+    .mockImplementation((observerCallback) => {
+      if (callback) {
+        callback = observerCallback;
+      }
+      return {
+        observe: jest.fn(),
+        unobserve: jest.fn(),
+        disconnect: jest.fn(),
+        root: null,
+        rootMargin: "",
+        thresholds: [],
+        takeRecords: jest.fn(() => []),
+      };
+    });
 
-  Object.defineProperty(window, 'IntersectionObserver', {
+  Object.defineProperty(window, "IntersectionObserver", {
     writable: true,
     value: mockIntersectionObserver,
-  })
+  });
 
   return {
     mockObserver: mockIntersectionObserver,
@@ -88,30 +90,30 @@ export function mockIntersectionObserver(
             intersectionRatio: isIntersecting ? 1 : 0,
             intersectionRect: {} as DOMRectReadOnly,
             rootBounds: null,
-            target: document.createElement('div'),
+            target: document.createElement("div"),
             time: Date.now(),
           },
-        ])
+        ]);
       }
     },
-  }
+  };
 }
 
 /**
  * Mock window.scrollTo
  */
 export function mockScrollTo() {
-  Object.defineProperty(window, 'scrollTo', {
+  Object.defineProperty(window, "scrollTo", {
     writable: true,
     value: jest.fn(),
-  })
+  });
 }
 
 /**
  * Mock document.execCommand (for clipboard operations)
  */
 export function mockExecCommand() {
-  document.execCommand = jest.fn()
+  document.execCommand = jest.fn();
 }
 
 /**
@@ -120,17 +122,17 @@ export function mockExecCommand() {
 export function mockClipboard() {
   const clipboard = {
     writeText: jest.fn().mockResolvedValue(undefined),
-    readText: jest.fn().mockResolvedValue(''),
+    readText: jest.fn().mockResolvedValue(""),
     write: jest.fn().mockResolvedValue(undefined),
     read: jest.fn().mockResolvedValue([]),
-  }
+  };
 
-  Object.defineProperty(navigator, 'clipboard', {
+  Object.defineProperty(navigator, "clipboard", {
     writable: true,
     value: clipboard,
-  })
+  });
 
-  return clipboard
+  return clipboard;
 }
 
 /**
@@ -147,42 +149,44 @@ export function mockMediaDevices() {
     getDisplayMedia: jest.fn().mockResolvedValue({
       getTracks: () => [],
     }),
-  }
+  };
 
-  Object.defineProperty(navigator, 'mediaDevices', {
+  Object.defineProperty(navigator, "mediaDevices", {
     writable: true,
     value: mediaDevices,
-  })
+  });
 
-  return mediaDevices
+  return mediaDevices;
 }
 
 /**
  * Mock fetch API
  */
 export function mockFetch(responses: Record<string, any> = {}) {
-  const mockFetch = jest.fn().mockImplementation((url: string, options?: RequestInit) => {
-    const response = responses[url]
-    if (response) {
+  const mockFetch = jest
+    .fn()
+    .mockImplementation((url: string, options?: RequestInit) => {
+      const response = responses[url];
+      if (response) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(response),
+          text: () => Promise.resolve(JSON.stringify(response)),
+          blob: () => Promise.resolve(new Blob()),
+          headers: new Headers(),
+        });
+      }
       return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(response),
-        text: () => Promise.resolve(JSON.stringify(response)),
-        blob: () => Promise.resolve(new Blob()),
-        headers: new Headers(),
-      })
-    }
-    return Promise.resolve({
-      ok: false,
-      status: 404,
-      json: () => Promise.resolve({ error: 'Not found' }),
-      text: () => Promise.resolve('Not found'),
-    })
-  })
+        ok: false,
+        status: 404,
+        json: () => Promise.resolve({ error: "Not found" }),
+        text: () => Promise.resolve("Not found"),
+      });
+    });
 
-  global.fetch = mockFetch
-  return mockFetch
+  global.fetch = mockFetch;
+  return mockFetch;
 }
 
 /**
@@ -203,76 +207,79 @@ export function mockWebSocket() {
     onclose: null as ((ev: CloseEvent) => void) | null,
     onerror: null as ((ev: Event) => void) | null,
     onmessage: null as ((ev: MessageEvent) => void) | null,
-  }
+  };
 
-  const MockWebSocket = jest.fn().mockImplementation(() => mockWs)
+  const MockWebSocket = jest.fn().mockImplementation(() => mockWs);
 
-  Object.defineProperty(global, 'WebSocket', {
+  Object.defineProperty(global, "WebSocket", {
     writable: true,
     value: MockWebSocket,
-  })
+  });
 
   return {
     MockWebSocket,
     instance: mockWs,
     simulateOpen: () => {
-      if (mockWs.onopen) mockWs.onopen(new Event('open'))
+      if (mockWs.onopen) mockWs.onopen(new Event("open"));
     },
-    simulateClose: (code: number = 1000, reason: string = '') => {
-      if (mockWs.onclose) mockWs.onclose(new CloseEvent('close', { code, reason }))
+    simulateClose: (code: number = 1000, reason: string = "") => {
+      if (mockWs.onclose)
+        mockWs.onclose(new CloseEvent("close", { code, reason }));
     },
     simulateMessage: (data: any) => {
       if (mockWs.onmessage)
-        mockWs.onmessage(new MessageEvent('message', { data: JSON.stringify(data) }))
+        mockWs.onmessage(
+          new MessageEvent("message", { data: JSON.stringify(data) }),
+        );
     },
     simulateError: () => {
-      if (mockWs.onerror) mockWs.onerror(new Event('error'))
+      if (mockWs.onerror) mockWs.onerror(new Event("error"));
     },
-  }
+  };
 }
 
 /**
  * Mock File constructor
  */
 export function createMockFile(
-  name: string = 'test.txt',
+  name: string = "test.txt",
   size: number = 1024,
-  type: string = 'text/plain',
-  content: string = ''
+  type: string = "text/plain",
+  content: string = "",
 ): File {
-  const blob = new Blob([content || 'x'.repeat(size)], { type })
-  return new File([blob], name, { type })
+  const blob = new Blob([content || "x".repeat(size)], { type });
+  return new File([blob], name, { type });
 }
 
 /**
  * Mock Image constructor for image loading
  */
 export function mockImageLoad(success: boolean = true) {
-  const originalImage = global.Image
+  const originalImage = global.Image;
 
   class MockImage {
-    onload: (() => void) | null = null
-    onerror: (() => void) | null = null
-    src: string = ''
-    width: number = 100
-    height: number = 100
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    src: string = "";
+    width: number = 100;
+    height: number = 100;
 
     constructor() {
       setTimeout(() => {
         if (success && this.onload) {
-          this.onload()
+          this.onload();
         } else if (!success && this.onerror) {
-          this.onerror()
+          this.onerror();
         }
-      }, 0)
+      }, 0);
     }
   }
 
-  global.Image = MockImage as any
+  global.Image = MockImage as any;
 
   return () => {
-    global.Image = originalImage
-  }
+    global.Image = originalImage;
+  };
 }
 
 // ============================================================================
@@ -283,9 +290,9 @@ export function mockImageLoad(success: boolean = true) {
  * Setup all common mocks for testing
  */
 export function setupAllMocks() {
-  mockMatchMedia()
-  mockResizeObserver()
-  mockIntersectionObserver()
-  mockScrollTo()
-  mockClipboard()
+  mockMatchMedia();
+  mockResizeObserver();
+  mockIntersectionObserver();
+  mockScrollTo();
+  mockClipboard();
 }

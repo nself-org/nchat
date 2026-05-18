@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Search, X, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { Search, X, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 // ============================================================================
 // Types
@@ -12,26 +12,26 @@ import { Button } from '@/components/ui/button'
 
 export interface SearchInputProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
-  'onChange' | 'size'
+  "onChange" | "size"
 > {
   /** Current search query value */
-  value: string
+  value: string;
   /** Callback when search value changes */
-  onChange: (value: string) => void
+  onChange: (value: string) => void;
   /** Callback when search is submitted (Enter key) */
-  onSubmit?: () => void
+  onSubmit?: () => void;
   /** Whether the search is loading */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Keyboard shortcut hint to display */
-  shortcutHint?: string
+  shortcutHint?: string;
   /** Whether to show the clear button */
-  showClear?: boolean
+  showClear?: boolean;
   /** Custom icon to use instead of search icon */
-  icon?: React.ReactNode
+  icon?: React.ReactNode;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Whether to auto-focus on mount */
-  autoFocus?: boolean
+  autoFocus?: boolean;
 }
 
 // ============================================================================
@@ -48,75 +48,75 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
       shortcutHint,
       showClear = true,
       icon,
-      size = 'md',
+      size = "md",
       autoFocus = false,
       className,
-      placeholder = 'Search...',
+      placeholder = "Search...",
       ...props
     },
-    ref
+    ref,
   ) => {
-    const inputRef = React.useRef<HTMLInputElement>(null)
+    const inputRef = React.useRef<HTMLInputElement>(null);
 
     // Merge refs
-    React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement)
+    React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
     // Auto-focus on mount
     React.useEffect(() => {
       if (autoFocus && inputRef.current) {
-        inputRef.current.focus()
+        inputRef.current.focus();
       }
-    }, [autoFocus])
+    }, [autoFocus]);
 
     // Handle keyboard events
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && onSubmit) {
-        e.preventDefault()
-        onSubmit()
+      if (e.key === "Enter" && onSubmit) {
+        e.preventDefault();
+        onSubmit();
       }
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        onChange('')
-        inputRef.current?.blur()
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onChange("");
+        inputRef.current?.blur();
       }
-    }
+    };
 
     // Handle clear
     const handleClear = () => {
-      onChange('')
-      inputRef.current?.focus()
-    }
+      onChange("");
+      inputRef.current?.focus();
+    };
 
     // Size classes
     const sizeClasses = {
-      sm: 'h-8 text-sm',
-      md: 'h-10 text-sm',
-      lg: 'h-12 text-base',
-    }
+      sm: "h-8 text-sm",
+      md: "h-10 text-sm",
+      lg: "h-12 text-base",
+    };
 
     const iconSizeClasses = {
-      sm: 'h-4 w-4',
-      md: 'h-4 w-4',
-      lg: 'h-5 w-5',
-    }
+      sm: "h-4 w-4",
+      md: "h-4 w-4",
+      lg: "h-5 w-5",
+    };
 
     const paddingClasses = {
-      sm: 'pl-8 pr-8',
-      md: 'pl-10 pr-10',
-      lg: 'pl-12 pr-12',
-    }
+      sm: "pl-8 pr-8",
+      md: "pl-10 pr-10",
+      lg: "pl-12 pr-12",
+    };
 
     return (
-      <div className={cn('relative w-full', className)}>
+      <div className={cn("relative w-full", className)}>
         {/* Left icon */}
         <div
           className={cn(
-            'pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground',
-            size === 'lg' && 'left-4'
+            "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground",
+            size === "lg" && "left-4",
           )}
         >
           {isLoading ? (
-            <Loader2 className={cn(iconSizeClasses[size], 'animate-spin')} />
+            <Loader2 className={cn(iconSizeClasses[size], "animate-spin")} />
           ) : icon ? (
             icon
           ) : (
@@ -135,20 +135,22 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           className={cn(
             sizeClasses[size],
             paddingClasses[size],
-            'bg-muted/50 border-transparent focus:border-input focus:bg-background',
-            'transition-colors duration-200'
+            "bg-muted/50 border-transparent focus:border-input focus:bg-background",
+            "transition-colors duration-200",
           )}
           aria-invalid={
-            props['aria-invalid'] === true || props['aria-invalid'] === 'true' ? true : undefined
+            props["aria-invalid"] === true || props["aria-invalid"] === "true"
+              ? true
+              : undefined
           }
-          {...(({ 'aria-invalid': _, ...rest }) => rest)(props)}
+          {...(({ "aria-invalid": _, ...rest }) => rest)(props)}
         />
 
         {/* Right side: clear button or shortcut hint */}
         <div
           className={cn(
-            'absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1',
-            size === 'lg' && 'right-4'
+            "absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1",
+            size === "lg" && "right-4",
           )}
         >
           {value && showClear ? (
@@ -165,9 +167,9 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           ) : shortcutHint && !value ? (
             <kbd
               className={cn(
-                'pointer-events-none inline-flex items-center gap-1 rounded border',
-                'bg-muted px-1.5 font-mono font-medium text-muted-foreground',
-                size === 'sm' ? 'text-[10px]' : 'text-xs'
+                "pointer-events-none inline-flex items-center gap-1 rounded border",
+                "bg-muted px-1.5 font-mono font-medium text-muted-foreground",
+                size === "sm" ? "text-[10px]" : "text-xs",
               )}
             >
               {shortcutHint}
@@ -175,11 +177,11 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           ) : null}
         </div>
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-SearchInput.displayName = 'SearchInput'
+SearchInput.displayName = "SearchInput";
 
 // ============================================================================
 // Compact Search Input (for inline use)
@@ -187,65 +189,69 @@ SearchInput.displayName = 'SearchInput'
 
 export interface CompactSearchInputProps extends SearchInputProps {
   /** Whether the input is expanded */
-  expanded?: boolean
+  expanded?: boolean;
   /** Callback when expansion state changes */
-  onExpandedChange?: (expanded: boolean) => void
+  onExpandedChange?: (expanded: boolean) => void;
 }
 
-export const CompactSearchInput = React.forwardRef<HTMLInputElement, CompactSearchInputProps>(
-  ({ expanded = false, onExpandedChange, className, ...props }, ref) => {
-    const [isExpanded, setIsExpanded] = React.useState(expanded)
-    const inputRef = React.useRef<HTMLInputElement>(null)
+export const CompactSearchInput = React.forwardRef<
+  HTMLInputElement,
+  CompactSearchInputProps
+>(({ expanded = false, onExpandedChange, className, ...props }, ref) => {
+  const [isExpanded, setIsExpanded] = React.useState(expanded);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-    React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement)
+  React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
-    const handleExpand = () => {
-      setIsExpanded(true)
-      onExpandedChange?.(true)
-      setTimeout(() => inputRef.current?.focus(), 0)
+  const handleExpand = () => {
+    setIsExpanded(true);
+    onExpandedChange?.(true);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleCollapse = () => {
+    if (!props.value) {
+      setIsExpanded(false);
+      onExpandedChange?.(false);
     }
+  };
 
-    const handleCollapse = () => {
-      if (!props.value) {
-        setIsExpanded(false)
-        onExpandedChange?.(false)
-      }
-    }
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    handleCollapse();
+    props.onBlur?.(e);
+  };
 
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      handleCollapse()
-      props.onBlur?.(e)
-    }
-
-    if (!isExpanded) {
-      return (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={handleExpand}
-          className={cn('h-9 w-9', className)}
-          aria-label="Open search"
-        >
-          <Search className="h-4 w-4" />
-        </Button>
-      )
-    }
-
+  if (!isExpanded) {
     return (
-      <div className={cn('relative', className)}>
-        <SearchInput
-          ref={inputRef}
-          size="sm"
-          {...props}
-          onBlur={handleBlur}
-          className={cn('w-48 transition-all duration-200', !isExpanded && 'w-0 opacity-0')}
-        />
-      </div>
-    )
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={handleExpand}
+        className={cn("h-9 w-9", className)}
+        aria-label="Open search"
+      >
+        <Search className="h-4 w-4" />
+      </Button>
+    );
   }
-)
 
-CompactSearchInput.displayName = 'CompactSearchInput'
+  return (
+    <div className={cn("relative", className)}>
+      <SearchInput
+        ref={inputRef}
+        size="sm"
+        {...props}
+        onBlur={handleBlur}
+        className={cn(
+          "w-48 transition-all duration-200",
+          !isExpanded && "w-0 opacity-0",
+        )}
+      />
+    </div>
+  );
+});
 
-export default SearchInput
+CompactSearchInput.displayName = "CompactSearchInput";
+
+export default SearchInput;

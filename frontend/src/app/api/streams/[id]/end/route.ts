@@ -4,30 +4,34 @@
  * POST /api/streams/[id]/end - End broadcasting stream
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { nhost } from '@/lib/nhost.server'
+import { NextRequest, NextResponse } from "next/server";
+import { nhost } from "@/lib/nhost.server";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
   try {
     // Get user from session
-    const session = await nhost.auth.getSession()
+    const session = await nhost.auth.getSession();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const streamId = id
-    const userId = session.user?.id
+    const streamId = id;
+    const userId = session.user?.id;
 
     if (!userId) {
-      return NextResponse.json({ error: 'User ID not found' }, { status: 401 })
+      return NextResponse.json({ error: "User ID not found" }, { status: 401 });
     }
 
     // Verify user is the broadcaster
-    const { data: streamData, error: streamError } = await nhost.graphql.request(
-      `
+    const { data: streamData, error: streamError } =
+      await nhost.graphql.request(
+        `
         query GetStreamBroadcaster($id: uuid!) {
           nchat_streams_by_pk(id: $id) {
             broadcaster_id
@@ -36,23 +40,25 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           }
         }
       `,
-      { id: streamId }
-    )
+        { id: streamId },
+      );
 
     if (streamError || !streamData?.nchat_streams_by_pk) {
-      return NextResponse.json({ error: 'Stream not found' }, { status: 404 })
+      return NextResponse.json({ error: "Stream not found" }, { status: 404 });
     }
 
     if (streamData.nchat_streams_by_pk.broadcaster_id !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Calculate duration if started
-    let recordingDuration = null
+    let recordingDuration = null;
     if (streamData.nchat_streams_by_pk.started_at) {
-      const startTime = new Date(streamData.nchat_streams_by_pk.started_at).getTime()
-      const endTime = Date.now()
-      recordingDuration = Math.floor((endTime - startTime) / 1000) // seconds
+      const startTime = new Date(
+        streamData.nchat_streams_by_pk.started_at,
+      ).getTime();
+      const endTime = Date.now();
+      recordingDuration = Math.floor((endTime - startTime) / 1000); // seconds
     }
 
     // Update stream status to ended
@@ -82,17 +88,23 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           }
         }
       `,
-      { id: streamId, duration: recordingDuration }
-    )
+      { id: streamId, duration: recordingDuration },
+    );
 
     if (error || !data?.update_nchat_streams_by_pk) {
-      logger.error('Failed to end stream:', error)
-      return NextResponse.json({ error: 'Failed to end stream' }, { status: 500 })
+      logger.error("Failed to end stream:", error);
+      return NextResponse.json(
+        { error: "Failed to end stream" },
+        { status: 500 },
+      );
     }
 
-    return NextResponse.json(data.update_nchat_streams_by_pk)
+    return NextResponse.json(data.update_nchat_streams_by_pk);
   } catch (error) {
-    logger.error('End stream error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    logger.error("End stream error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

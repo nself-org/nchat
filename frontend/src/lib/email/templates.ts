@@ -4,17 +4,17 @@
  * Functions to send specific email types using the templates.
  */
 
-import * as React from 'react'
-import WelcomeEmail from '@/emails/templates/welcome'
-import EmailVerification from '@/emails/templates/email-verification'
-import PasswordResetEmail from '@/emails/templates/password-reset'
-import PasswordChangedEmail from '@/emails/templates/password-changed'
-import NewLoginEmail from '@/emails/templates/new-login'
-import MentionNotificationEmail from '@/emails/templates/mention-notification'
-import DMNotificationEmail from '@/emails/templates/dm-notification'
-import DigestEmail from '@/emails/templates/digest'
+import * as React from "react";
+import WelcomeEmail from "@/emails/templates/welcome";
+import EmailVerification from "@/emails/templates/email-verification";
+import PasswordResetEmail from "@/emails/templates/password-reset";
+import PasswordChangedEmail from "@/emails/templates/password-changed";
+import NewLoginEmail from "@/emails/templates/new-login";
+import MentionNotificationEmail from "@/emails/templates/mention-notification";
+import DMNotificationEmail from "@/emails/templates/dm-notification";
+import DigestEmail from "@/emails/templates/digest";
 
-import { renderEmailTemplate, getEmailSender } from './sender'
+import { renderEmailTemplate, getEmailSender } from "./sender";
 import type {
   Email,
   EmailRecipient,
@@ -28,26 +28,26 @@ import type {
   DigestEmailData,
   EmailSendResult,
   EmailQueueOptions,
-} from './types'
+} from "./types";
 
 // ============================================================================
 // App Config Helper
 // ============================================================================
 
 interface AppEmailBranding {
-  appName: string
-  logoUrl?: string
-  supportEmail?: string
+  appName: string;
+  logoUrl?: string;
+  supportEmail?: string;
 }
 
 let appBranding: AppEmailBranding = {
-  appName: 'nChat',
+  appName: "nChat",
   logoUrl: undefined,
-  supportEmail: 'support@example.com',
-}
+  supportEmail: "support@example.com",
+};
 
 export function setEmailBranding(branding: Partial<AppEmailBranding>): void {
-  appBranding = { ...appBranding, ...branding }
+  appBranding = { ...appBranding, ...branding };
 }
 
 // ============================================================================
@@ -57,7 +57,7 @@ export function setEmailBranding(branding: Partial<AppEmailBranding>): void {
 export async function sendWelcomeEmail(
   to: EmailRecipient,
   data: WelcomeEmailData,
-  options?: EmailQueueOptions
+  options?: EmailQueueOptions,
 ): Promise<string> {
   const component = React.createElement(WelcomeEmail, {
     userName: data.userName,
@@ -65,21 +65,21 @@ export async function sendWelcomeEmail(
     appName: appBranding.appName,
     logoUrl: appBranding.logoUrl,
     supportEmail: appBranding.supportEmail,
-  })
+  });
 
-  const { html, text } = await renderEmailTemplate(component)
+  const { html, text } = await renderEmailTemplate(component);
 
   const email: Email = {
     to,
     subject: `Welcome to ${appBranding.appName}!`,
     html,
     text,
-    tags: ['welcome', 'onboarding'],
-    metadata: { type: 'welcome' },
-  }
+    tags: ["welcome", "onboarding"],
+    metadata: { type: "welcome" },
+  };
 
-  const sender = getEmailSender()
-  return sender.queue(email, 'welcome', { priority: 'high', ...options })
+  const sender = getEmailSender();
+  return sender.queue(email, "welcome", { priority: "high", ...options });
 }
 
 // ============================================================================
@@ -89,7 +89,7 @@ export async function sendWelcomeEmail(
 export async function sendEmailVerification(
   to: EmailRecipient,
   data: EmailVerificationData,
-  options?: EmailQueueOptions
+  options?: EmailQueueOptions,
 ): Promise<string> {
   const component = React.createElement(EmailVerification, {
     userName: data.userName,
@@ -98,21 +98,24 @@ export async function sendEmailVerification(
     expiresInHours: data.expiresInHours || 24,
     appName: appBranding.appName,
     logoUrl: appBranding.logoUrl,
-  })
+  });
 
-  const { html, text } = await renderEmailTemplate(component)
+  const { html, text } = await renderEmailTemplate(component);
 
   const email: Email = {
     to,
     subject: `Verify your email address`,
     html,
     text,
-    tags: ['verification', 'security'],
-    metadata: { type: 'email-verification' },
-  }
+    tags: ["verification", "security"],
+    metadata: { type: "email-verification" },
+  };
 
-  const sender = getEmailSender()
-  return sender.queue(email, 'email-verification', { priority: 'urgent', ...options })
+  const sender = getEmailSender();
+  return sender.queue(email, "email-verification", {
+    priority: "urgent",
+    ...options,
+  });
 }
 
 // ============================================================================
@@ -122,7 +125,7 @@ export async function sendEmailVerification(
 export async function sendPasswordReset(
   to: EmailRecipient,
   data: PasswordResetData,
-  options?: EmailQueueOptions
+  options?: EmailQueueOptions,
 ): Promise<string> {
   const component = React.createElement(PasswordResetEmail, {
     userName: data.userName,
@@ -132,21 +135,24 @@ export async function sendPasswordReset(
     userAgent: data.userAgent,
     appName: appBranding.appName,
     logoUrl: appBranding.logoUrl,
-  })
+  });
 
-  const { html, text } = await renderEmailTemplate(component)
+  const { html, text } = await renderEmailTemplate(component);
 
   const email: Email = {
     to,
     subject: `Reset your password`,
     html,
     text,
-    tags: ['password-reset', 'security'],
-    metadata: { type: 'password-reset' },
-  }
+    tags: ["password-reset", "security"],
+    metadata: { type: "password-reset" },
+  };
 
-  const sender = getEmailSender()
-  return sender.queue(email, 'password-reset', { priority: 'urgent', ...options })
+  const sender = getEmailSender();
+  return sender.queue(email, "password-reset", {
+    priority: "urgent",
+    ...options,
+  });
 }
 
 // ============================================================================
@@ -156,7 +162,7 @@ export async function sendPasswordReset(
 export async function sendPasswordChanged(
   to: EmailRecipient,
   data: PasswordChangedData,
-  options?: EmailQueueOptions
+  options?: EmailQueueOptions,
 ): Promise<string> {
   const component = React.createElement(PasswordChangedEmail, {
     userName: data.userName,
@@ -165,21 +171,24 @@ export async function sendPasswordChanged(
     timestamp: data.timestamp,
     appName: appBranding.appName,
     logoUrl: appBranding.logoUrl,
-  })
+  });
 
-  const { html, text } = await renderEmailTemplate(component)
+  const { html, text } = await renderEmailTemplate(component);
 
   const email: Email = {
     to,
     subject: `Your password was changed`,
     html,
     text,
-    tags: ['password-changed', 'security'],
-    metadata: { type: 'password-changed' },
-  }
+    tags: ["password-changed", "security"],
+    metadata: { type: "password-changed" },
+  };
 
-  const sender = getEmailSender()
-  return sender.queue(email, 'password-changed', { priority: 'high', ...options })
+  const sender = getEmailSender();
+  return sender.queue(email, "password-changed", {
+    priority: "high",
+    ...options,
+  });
 }
 
 // ============================================================================
@@ -189,7 +198,7 @@ export async function sendPasswordChanged(
 export async function sendNewLoginAlert(
   to: EmailRecipient,
   data: NewLoginData,
-  options?: EmailQueueOptions
+  options?: EmailQueueOptions,
 ): Promise<string> {
   const component = React.createElement(NewLoginEmail, {
     userName: data.userName,
@@ -200,21 +209,21 @@ export async function sendNewLoginAlert(
     timestamp: data.timestamp,
     appName: appBranding.appName,
     logoUrl: appBranding.logoUrl,
-  })
+  });
 
-  const { html, text } = await renderEmailTemplate(component)
+  const { html, text } = await renderEmailTemplate(component);
 
   const email: Email = {
     to,
     subject: `New login detected`,
     html,
     text,
-    tags: ['new-login', 'security'],
-    metadata: { type: 'new-login' },
-  }
+    tags: ["new-login", "security"],
+    metadata: { type: "new-login" },
+  };
 
-  const sender = getEmailSender()
-  return sender.queue(email, 'new-login', { priority: 'high', ...options })
+  const sender = getEmailSender();
+  return sender.queue(email, "new-login", { priority: "high", ...options });
 }
 
 // ============================================================================
@@ -224,7 +233,7 @@ export async function sendNewLoginAlert(
 export async function sendMentionNotification(
   to: EmailRecipient,
   data: MentionNotificationData,
-  options?: EmailQueueOptions
+  options?: EmailQueueOptions,
 ): Promise<string> {
   const component = React.createElement(MentionNotificationEmail, {
     userName: data.userName,
@@ -235,25 +244,28 @@ export async function sendMentionNotification(
     timestamp: data.timestamp,
     appName: appBranding.appName,
     logoUrl: appBranding.logoUrl,
-  })
+  });
 
-  const { html, text } = await renderEmailTemplate(component)
+  const { html, text } = await renderEmailTemplate(component);
 
   const email: Email = {
     to,
     subject: `${data.mentionedBy.name} mentioned you in #${data.channel.name}`,
     html,
     text,
-    tags: ['mention', 'notification'],
+    tags: ["mention", "notification"],
     metadata: {
-      type: 'mention-notification',
+      type: "mention-notification",
       channelId: data.channel.name,
       senderId: data.mentionedBy.name,
     },
-  }
+  };
 
-  const sender = getEmailSender()
-  return sender.queue(email, 'mention-notification', { priority: 'normal', ...options })
+  const sender = getEmailSender();
+  return sender.queue(email, "mention-notification", {
+    priority: "normal",
+    ...options,
+  });
 }
 
 // ============================================================================
@@ -263,7 +275,7 @@ export async function sendMentionNotification(
 export async function sendDMNotification(
   to: EmailRecipient,
   data: DMNotificationData,
-  options?: EmailQueueOptions
+  options?: EmailQueueOptions,
 ): Promise<string> {
   const component = React.createElement(DMNotificationEmail, {
     userName: data.userName,
@@ -274,24 +286,27 @@ export async function sendDMNotification(
     isFirstMessage: data.isFirstMessage,
     appName: appBranding.appName,
     logoUrl: appBranding.logoUrl,
-  })
+  });
 
-  const { html, text } = await renderEmailTemplate(component)
+  const { html, text } = await renderEmailTemplate(component);
 
   const email: Email = {
     to,
     subject: `New message from ${data.sender.name}`,
     html,
     text,
-    tags: ['dm', 'notification'],
+    tags: ["dm", "notification"],
     metadata: {
-      type: 'dm-notification',
+      type: "dm-notification",
       senderId: data.sender.name,
     },
-  }
+  };
 
-  const sender = getEmailSender()
-  return sender.queue(email, 'dm-notification', { priority: 'normal', ...options })
+  const sender = getEmailSender();
+  return sender.queue(email, "dm-notification", {
+    priority: "normal",
+    ...options,
+  });
 }
 
 // ============================================================================
@@ -301,7 +316,7 @@ export async function sendDMNotification(
 export async function sendDigest(
   to: EmailRecipient,
   data: DigestEmailData,
-  options?: EmailQueueOptions
+  options?: EmailQueueOptions,
 ): Promise<string> {
   const component = React.createElement(DigestEmail, {
     userName: data.userName,
@@ -313,33 +328,35 @@ export async function sendDigest(
     preferencesUrl: data.preferencesUrl,
     appName: appBranding.appName,
     logoUrl: appBranding.logoUrl,
-  })
+  });
 
-  const { html, text } = await renderEmailTemplate(component)
+  const { html, text } = await renderEmailTemplate(component);
 
   const email: Email = {
     to,
     subject: `Your ${data.frequency} ${appBranding.appName} digest`,
     html,
     text,
-    tags: ['digest', data.frequency],
+    tags: ["digest", data.frequency],
     metadata: {
-      type: 'digest',
+      type: "digest",
       frequency: data.frequency,
     },
-  }
+  };
 
-  const sender = getEmailSender()
-  return sender.queue(email, 'digest', { priority: 'low', ...options })
+  const sender = getEmailSender();
+  return sender.queue(email, "digest", { priority: "low", ...options });
 }
 
 // ============================================================================
 // Send Immediate Email (bypass queue)
 // ============================================================================
 
-export async function sendEmailImmediate(email: Email): Promise<EmailSendResult> {
-  const sender = getEmailSender()
-  return sender.send(email)
+export async function sendEmailImmediate(
+  email: Email,
+): Promise<EmailSendResult> {
+  const sender = getEmailSender();
+  return sender.send(email);
 }
 
 // ============================================================================
@@ -347,8 +364,8 @@ export async function sendEmailImmediate(email: Email): Promise<EmailSendResult>
 // ============================================================================
 
 export function getEmailQueueStatus() {
-  const sender = getEmailSender()
-  return sender.getQueueStatus()
+  const sender = getEmailSender();
+  return sender.getQueueStatus();
 }
 
 // ============================================================================
@@ -356,6 +373,6 @@ export function getEmailQueueStatus() {
 // ============================================================================
 
 export async function verifyEmailConfig(): Promise<boolean> {
-  const sender = getEmailSender()
-  return sender.verify()
+  const sender = getEmailSender();
+  return sender.verify();
 }

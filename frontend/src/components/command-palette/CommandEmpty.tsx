@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CommandEmpty
@@ -6,9 +6,9 @@
  * Empty state component shown when no commands match the search query.
  */
 
-import * as React from 'react'
-import { Search, Frown } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { Search, Frown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -16,13 +16,13 @@ import { cn } from '@/lib/utils'
 
 export interface CommandEmptyProps {
   /** The search query that returned no results */
-  query?: string
+  query?: string;
   /** Custom message to display */
-  message?: string
+  message?: string;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Whether to show suggestions */
-  showSuggestions?: boolean
+  showSuggestions?: boolean;
 }
 
 // ============================================================================
@@ -36,10 +36,16 @@ export function CommandEmpty({
   showSuggestions = true,
 }: CommandEmptyProps) {
   const displayMessage =
-    message || (query ? `No results found for "${query}"` : 'No commands available')
+    message ||
+    (query ? `No results found for "${query}"` : "No commands available");
 
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12 text-center', className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-12 text-center",
+        className,
+      )}
+    >
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
         {query ? (
           <Frown className="h-6 w-6 text-muted-foreground" />
@@ -48,7 +54,9 @@ export function CommandEmpty({
         )}
       </div>
 
-      <p className="mb-2 text-sm font-medium text-foreground">{displayMessage}</p>
+      <p className="mb-2 text-sm font-medium text-foreground">
+        {displayMessage}
+      </p>
 
       {showSuggestions && query && (
         <div className="text-xs text-muted-foreground">
@@ -57,19 +65,27 @@ export function CommandEmpty({
             <li>Using fewer or different keywords</li>
             <li>Checking for typos</li>
             <li>
-              Using prefixes:{' '}
-              <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">#</kbd> for
-              channels,{' '}
-              <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">@</kbd> for
-              users
+              Using prefixes:{" "}
+              <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
+                #
+              </kbd>{" "}
+              for channels,{" "}
+              <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">
+                @
+              </kbd>{" "}
+              for users
             </li>
           </ul>
         </div>
       )}
 
-      {!query && <p className="text-xs text-muted-foreground">Start typing to search commands</p>}
+      {!query && (
+        <p className="text-xs text-muted-foreground">
+          Start typing to search commands
+        </p>
+      )}
     </div>
-  )
+  );
 }
 
-export default CommandEmpty
+export default CommandEmpty;

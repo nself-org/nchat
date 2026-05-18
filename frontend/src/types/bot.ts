@@ -5,7 +5,7 @@
  * Supports custom bots, slash commands, and bot messaging.
  */
 
-import type { UserBasicInfo, UserPermissions } from './user'
+import type { UserBasicInfo, UserPermissions } from "./user";
 
 // ============================================================================
 // Bot Type Definitions
@@ -14,26 +14,26 @@ import type { UserBasicInfo, UserPermissions } from './user'
 /**
  * Bot status values.
  */
-export type BotStatus = 'online' | 'offline' | 'maintenance' | 'disabled'
+export type BotStatus = "online" | "offline" | "maintenance" | "disabled";
 
 /**
  * Bot visibility options.
  */
-export type BotVisibility = 'public' | 'private' | 'unlisted'
+export type BotVisibility = "public" | "private" | "unlisted";
 
 /**
  * Bot category types.
  */
 export type BotCategory =
-  | 'productivity'
-  | 'moderation'
-  | 'fun'
-  | 'utility'
-  | 'integration'
-  | 'analytics'
-  | 'social'
-  | 'developer'
-  | 'other'
+  | "productivity"
+  | "moderation"
+  | "fun"
+  | "utility"
+  | "integration"
+  | "analytics"
+  | "social"
+  | "developer"
+  | "other";
 
 // ============================================================================
 // Bot Permissions Types
@@ -44,46 +44,46 @@ export type BotCategory =
  */
 export type BotPermissionScope =
   // Message permissions
-  | 'messages.read'
-  | 'messages.write'
-  | 'messages.delete'
-  | 'messages.history'
+  | "messages.read"
+  | "messages.write"
+  | "messages.delete"
+  | "messages.history"
   // Channel permissions
-  | 'channels.read'
-  | 'channels.write'
-  | 'channels.manage'
-  | 'channels.join'
+  | "channels.read"
+  | "channels.write"
+  | "channels.manage"
+  | "channels.join"
   // User permissions
-  | 'users.read'
-  | 'users.profile'
+  | "users.read"
+  | "users.profile"
   // Reaction permissions
-  | 'reactions.read'
-  | 'reactions.write'
+  | "reactions.read"
+  | "reactions.write"
   // File permissions
-  | 'files.read'
-  | 'files.write'
+  | "files.read"
+  | "files.write"
   // Webhook permissions
-  | 'webhooks.read'
-  | 'webhooks.write'
+  | "webhooks.read"
+  | "webhooks.write"
   // Admin permissions
-  | 'admin.read'
-  | 'admin.write'
+  | "admin.read"
+  | "admin.write";
 
 /**
  * Bot permissions configuration.
  */
 export interface BotPermissions {
   /** Granted permission scopes */
-  scopes: BotPermissionScope[]
+  scopes: BotPermissionScope[];
   /** Channel-specific permissions */
-  channelPermissions?: BotChannelPermission[]
+  channelPermissions?: BotChannelPermission[];
   /** Rate limit overrides */
   rateLimit?: {
-    messagesPerMinute: number
-    actionsPerMinute: number
-  }
+    messagesPerMinute: number;
+    actionsPerMinute: number;
+  };
   /** IP whitelist for API access */
-  ipWhitelist?: string[]
+  ipWhitelist?: string[];
 }
 
 /**
@@ -91,36 +91,39 @@ export interface BotPermissions {
  */
 export interface BotChannelPermission {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Allowed scopes in this channel */
-  allowedScopes: BotPermissionScope[]
+  allowedScopes: BotPermissionScope[];
   /** Denied scopes in this channel */
-  deniedScopes: BotPermissionScope[]
+  deniedScopes: BotPermissionScope[];
 }
 
 /**
  * Permission scope descriptions.
  */
-export const BotPermissionScopeDescriptions: Record<BotPermissionScope, string> = {
-  'messages.read': 'Read messages in channels the bot has access to',
-  'messages.write': 'Send messages in channels the bot has access to',
-  'messages.delete': "Delete bot's own messages",
-  'messages.history': 'Access message history',
-  'channels.read': 'View channel information',
-  'channels.write': 'Create and update channels',
-  'channels.manage': 'Manage channel settings and members',
-  'channels.join': 'Join channels when invited',
-  'users.read': 'View user information',
-  'users.profile': 'Access user profiles',
-  'reactions.read': 'View reactions on messages',
-  'reactions.write': 'Add and remove reactions',
-  'files.read': 'View file attachments',
-  'files.write': 'Upload files',
-  'webhooks.read': 'View webhook configurations',
-  'webhooks.write': 'Create and manage webhooks',
-  'admin.read': 'View administrative information',
-  'admin.write': 'Perform administrative actions',
-}
+export const BotPermissionScopeDescriptions: Record<
+  BotPermissionScope,
+  string
+> = {
+  "messages.read": "Read messages in channels the bot has access to",
+  "messages.write": "Send messages in channels the bot has access to",
+  "messages.delete": "Delete bot's own messages",
+  "messages.history": "Access message history",
+  "channels.read": "View channel information",
+  "channels.write": "Create and update channels",
+  "channels.manage": "Manage channel settings and members",
+  "channels.join": "Join channels when invited",
+  "users.read": "View user information",
+  "users.profile": "Access user profiles",
+  "reactions.read": "View reactions on messages",
+  "reactions.write": "Add and remove reactions",
+  "files.read": "View file attachments",
+  "files.write": "Upload files",
+  "webhooks.read": "View webhook configurations",
+  "webhooks.write": "Create and manage webhooks",
+  "admin.read": "View administrative information",
+  "admin.write": "Perform administrative actions",
+};
 
 // ============================================================================
 // Bot Command Types
@@ -130,39 +133,39 @@ export const BotPermissionScopeDescriptions: Record<BotPermissionScope, string> 
  * Bot command option types.
  */
 export type BotCommandOptionType =
-  | 'string'
-  | 'integer'
-  | 'boolean'
-  | 'user'
-  | 'channel'
-  | 'role'
-  | 'attachment'
-  | 'number'
+  | "string"
+  | "integer"
+  | "boolean"
+  | "user"
+  | "channel"
+  | "role"
+  | "attachment"
+  | "number";
 
 /**
  * Bot command option.
  */
 export interface BotCommandOption {
   /** Option name */
-  name: string
+  name: string;
   /** Option description */
-  description: string
+  description: string;
   /** Option type */
-  type: BotCommandOptionType
+  type: BotCommandOptionType;
   /** Whether option is required */
-  required: boolean
+  required: boolean;
   /** Choices for enum-like options */
-  choices?: BotCommandChoice[]
+  choices?: BotCommandChoice[];
   /** Min value (for number/integer) */
-  minValue?: number
+  minValue?: number;
   /** Max value (for number/integer) */
-  maxValue?: number
+  maxValue?: number;
   /** Min length (for string) */
-  minLength?: number
+  minLength?: number;
   /** Max length (for string) */
-  maxLength?: number
+  maxLength?: number;
   /** Autocomplete enabled */
-  autocomplete?: boolean
+  autocomplete?: boolean;
 }
 
 /**
@@ -170,9 +173,9 @@ export interface BotCommandOption {
  */
 export interface BotCommandChoice {
   /** Display name */
-  name: string
+  name: string;
   /** Value */
-  value: string | number
+  value: string | number;
 }
 
 /**
@@ -180,30 +183,30 @@ export interface BotCommandChoice {
  */
 export interface BotCommand {
   /** Command name (without /) */
-  name: string
+  name: string;
   /** Command description */
-  description: string
+  description: string;
   /** Command options/arguments */
-  options?: BotCommandOption[]
+  options?: BotCommandOption[];
   /** Required permissions to use */
-  requiredPermissions?: BotPermissionScope[]
+  requiredPermissions?: BotPermissionScope[];
   /** Whether command is enabled */
-  isEnabled: boolean
+  isEnabled: boolean;
   /** Cooldown in seconds */
-  cooldown?: number
+  cooldown?: number;
   /** Whether command can be used in DMs */
-  allowInDM: boolean
+  allowInDM: boolean;
   /** Whether command is NSFW-only */
-  isNsfw: boolean
+  isNsfw: boolean;
   /** Guild/channel restrictions */
   restrictions?: {
-    channelIds?: string[]
-    excludeChannelIds?: string[]
-  }
+    channelIds?: string[];
+    excludeChannelIds?: string[];
+  };
   /** Usage examples */
-  examples?: string[]
+  examples?: string[];
   /** Command category for grouping */
-  category?: string
+  category?: string;
 }
 
 /**
@@ -211,19 +214,19 @@ export interface BotCommand {
  */
 export interface BotCommandInvocation {
   /** Invocation ID */
-  id: string
+  id: string;
   /** Command name */
-  command: string
+  command: string;
   /** Parsed options */
-  options: Record<string, unknown>
+  options: Record<string, unknown>;
   /** User who invoked */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Channel where invoked */
-  channelId: string
+  channelId: string;
   /** Message ID (if from message) */
-  messageId?: string
+  messageId?: string;
   /** When invoked */
-  invokedAt: Date
+  invokedAt: Date;
 }
 
 // ============================================================================
@@ -235,65 +238,65 @@ export interface BotCommandInvocation {
  */
 export interface Bot {
   /** Unique bot ID */
-  id: string
+  id: string;
   /** Bot username */
-  username: string
+  username: string;
   /** Bot display name */
-  displayName: string
+  displayName: string;
   /** Bot description */
-  description?: string
+  description?: string;
   /** Detailed about text (markdown) */
-  about?: string
+  about?: string;
   /** Bot avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Bot banner URL */
-  bannerUrl?: string
+  bannerUrl?: string;
   /** Bot category */
-  category: BotCategory
+  category: BotCategory;
   /** Bot visibility */
-  visibility: BotVisibility
+  visibility: BotVisibility;
   /** Current status */
-  status: BotStatus
+  status: BotStatus;
   /** Status message */
-  statusMessage?: string
+  statusMessage?: string;
   /** Bot permissions */
-  permissions: BotPermissions
+  permissions: BotPermissions;
   /** Bot commands */
-  commands: BotCommand[]
+  commands: BotCommand[];
   /** Bot owner user ID */
-  ownerId: string
+  ownerId: string;
   /** Bot owner info */
-  owner?: UserBasicInfo
+  owner?: UserBasicInfo;
   /** Team members (if team-owned) */
-  teamIds?: string[]
+  teamIds?: string[];
   /** API token (hashed) */
-  tokenHash?: string
+  tokenHash?: string;
   /** Webhook URL for receiving events */
-  webhookUrl?: string
+  webhookUrl?: string;
   /** Website URL */
-  websiteUrl?: string
+  websiteUrl?: string;
   /** Support URL/email */
-  supportUrl?: string
+  supportUrl?: string;
   /** Privacy policy URL */
-  privacyPolicyUrl?: string
+  privacyPolicyUrl?: string;
   /** Terms of service URL */
-  termsOfServiceUrl?: string
+  termsOfServiceUrl?: string;
   /** Is verified/official bot */
-  isVerified: boolean
+  isVerified: boolean;
   /** Is featured bot */
-  isFeatured: boolean
+  isFeatured: boolean;
   /** Install count */
-  installCount: number
+  installCount: number;
   /** Server/channel count */
-  serverCount?: number
+  serverCount?: number;
   /** When bot was created */
-  createdAt: Date
+  createdAt: Date;
   /** When bot was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** When bot was last active */
-  lastActiveAt?: Date
+  lastActiveAt?: Date;
   /** Bot flags */
-  flags?: BotFlags
+  flags?: BotFlags;
 }
 
 /**
@@ -301,13 +304,13 @@ export interface Bot {
  */
 export interface BotFlags {
   /** Bot requires privileged intents */
-  requiresPrivilegedIntents: boolean
+  requiresPrivilegedIntents: boolean;
   /** Bot supports interactions */
-  supportsInteractions: boolean
+  supportsInteractions: boolean;
   /** Bot supports message content */
-  supportsMessageContent: boolean
+  supportsMessageContent: boolean;
   /** Bot is managed by platform */
-  isPlatformManaged: boolean
+  isPlatformManaged: boolean;
 }
 
 /**
@@ -315,13 +318,13 @@ export interface BotFlags {
  */
 export interface BotWithInstallStatus extends Bot {
   /** Whether bot is installed */
-  isInstalled: boolean
+  isInstalled: boolean;
   /** Installation date */
-  installedAt?: Date
+  installedAt?: Date;
   /** Who installed the bot */
-  installedBy?: UserBasicInfo
+  installedBy?: UserBasicInfo;
   /** Channels bot is active in */
-  activeChannels?: string[]
+  activeChannels?: string[];
 }
 
 // ============================================================================
@@ -333,23 +336,23 @@ export interface BotWithInstallStatus extends Bot {
  */
 export interface BotInstallation {
   /** Installation ID */
-  id: string
+  id: string;
   /** Bot ID */
-  botId: string
+  botId: string;
   /** Who installed the bot */
-  installedBy: string
+  installedBy: string;
   /** Installer info */
-  installer?: UserBasicInfo
+  installer?: UserBasicInfo;
   /** When installed */
-  installedAt: Date
+  installedAt: Date;
   /** Granted permissions */
-  grantedPermissions: BotPermissionScope[]
+  grantedPermissions: BotPermissionScope[];
   /** Active channel IDs */
-  channelIds: string[]
+  channelIds: string[];
   /** Installation status */
-  status: 'active' | 'suspended' | 'uninstalled'
+  status: "active" | "suspended" | "uninstalled";
   /** Configuration */
-  config?: Record<string, unknown>
+  config?: Record<string, unknown>;
 }
 
 /**
@@ -357,11 +360,11 @@ export interface BotInstallation {
  */
 export interface InstallBotInput {
   /** Bot ID */
-  botId: string
+  botId: string;
   /** Permissions to grant */
-  permissions: BotPermissionScope[]
+  permissions: BotPermissionScope[];
   /** Channels to add bot to */
-  channelIds?: string[]
+  channelIds?: string[];
 }
 
 // ============================================================================
@@ -372,64 +375,64 @@ export interface InstallBotInput {
  * Bot interaction types.
  */
 export type BotInteractionType =
-  | 'command'
-  | 'button'
-  | 'select_menu'
-  | 'modal_submit'
-  | 'autocomplete'
+  | "command"
+  | "button"
+  | "select_menu"
+  | "modal_submit"
+  | "autocomplete";
 
 /**
  * Bot interaction.
  */
 export interface BotInteraction {
   /** Interaction ID */
-  id: string
+  id: string;
   /** Interaction type */
-  type: BotInteractionType
+  type: BotInteractionType;
   /** Bot ID */
-  botId: string
+  botId: string;
   /** User who triggered */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Message ID (if from message component) */
-  messageId?: string
+  messageId?: string;
   /** Custom ID (for components) */
-  customId?: string
+  customId?: string;
   /** Interaction data */
-  data: BotInteractionData
+  data: BotInteractionData;
   /** When interaction occurred */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
  * Bot interaction data.
  */
 export type BotInteractionData =
-  | { type: 'command'; name: string; options: Record<string, unknown> }
-  | { type: 'button'; customId: string }
-  | { type: 'select_menu'; customId: string; values: string[] }
-  | { type: 'modal_submit'; customId: string; fields: Record<string, string> }
-  | { type: 'autocomplete'; name: string; focused: string; value: string }
+  | { type: "command"; name: string; options: Record<string, unknown> }
+  | { type: "button"; customId: string }
+  | { type: "select_menu"; customId: string; values: string[] }
+  | { type: "modal_submit"; customId: string; fields: Record<string, string> }
+  | { type: "autocomplete"; name: string; focused: string; value: string };
 
 /**
  * Bot interaction response.
  */
 export interface BotInteractionResponse {
   /** Response type */
-  type: 'message' | 'update' | 'modal' | 'autocomplete'
+  type: "message" | "update" | "modal" | "autocomplete";
   /** Message content (for message/update) */
-  content?: string
+  content?: string;
   /** Components (for message/update) */
-  components?: BotMessageComponent[]
+  components?: BotMessageComponent[];
   /** Embeds (for message/update) */
-  embeds?: BotMessageEmbed[]
+  embeds?: BotMessageEmbed[];
   /** Modal (for modal response) */
-  modal?: BotModal
+  modal?: BotModal;
   /** Autocomplete choices */
-  choices?: BotCommandChoice[]
+  choices?: BotCommandChoice[];
   /** Is ephemeral (only visible to user) */
-  ephemeral?: boolean
+  ephemeral?: boolean;
 }
 
 // ============================================================================
@@ -439,101 +442,106 @@ export interface BotInteractionResponse {
 /**
  * Bot message component types.
  */
-export type BotMessageComponentType = 'button' | 'select_menu' | 'text_input'
+export type BotMessageComponentType = "button" | "select_menu" | "text_input";
 
 /**
  * Button styles.
  */
-export type BotButtonStyle = 'primary' | 'secondary' | 'success' | 'danger' | 'link'
+export type BotButtonStyle =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "danger"
+  | "link";
 
 /**
  * Bot button component.
  */
 export interface BotButton {
-  type: 'button'
-  style: BotButtonStyle
-  label: string
-  customId?: string
-  url?: string // For link buttons
-  emoji?: string
-  disabled?: boolean
+  type: "button";
+  style: BotButtonStyle;
+  label: string;
+  customId?: string;
+  url?: string; // For link buttons
+  emoji?: string;
+  disabled?: boolean;
 }
 
 /**
  * Bot select menu component.
  */
 export interface BotSelectMenu {
-  type: 'select_menu'
-  customId: string
-  placeholder?: string
-  minValues?: number
-  maxValues?: number
-  options: BotSelectOption[]
-  disabled?: boolean
+  type: "select_menu";
+  customId: string;
+  placeholder?: string;
+  minValues?: number;
+  maxValues?: number;
+  options: BotSelectOption[];
+  disabled?: boolean;
 }
 
 /**
  * Bot select menu option.
  */
 export interface BotSelectOption {
-  label: string
-  value: string
-  description?: string
-  emoji?: string
-  default?: boolean
+  label: string;
+  value: string;
+  description?: string;
+  emoji?: string;
+  default?: boolean;
 }
 
 /**
  * Bot text input component (for modals).
  */
 export interface BotTextInput {
-  type: 'text_input'
-  customId: string
-  label: string
-  style: 'short' | 'paragraph'
-  placeholder?: string
-  value?: string
-  required?: boolean
-  minLength?: number
-  maxLength?: number
+  type: "text_input";
+  customId: string;
+  label: string;
+  style: "short" | "paragraph";
+  placeholder?: string;
+  value?: string;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
 }
 
 /**
  * Bot action row (container for components).
  */
 export interface BotActionRow {
-  type: 'action_row'
-  components: (BotButton | BotSelectMenu | BotTextInput)[]
+  type: "action_row";
+  components: (BotButton | BotSelectMenu | BotTextInput)[];
 }
 
 /**
  * Bot message component.
  */
-export type BotMessageComponent = BotActionRow
+export type BotMessageComponent = BotActionRow;
 
 /**
  * Bot modal dialog.
  */
 export interface BotModal {
-  customId: string
-  title: string
-  components: BotActionRow[]
+  customId: string;
+  title: string;
+  components: BotActionRow[];
 }
 
 /**
  * Bot message embed.
  */
 export interface BotMessageEmbed {
-  title?: string
-  description?: string
-  url?: string
-  color?: string
-  timestamp?: Date
-  footer?: { text: string; iconUrl?: string }
-  image?: { url: string }
-  thumbnail?: { url: string }
-  author?: { name: string; url?: string; iconUrl?: string }
-  fields?: { name: string; value: string; inline?: boolean }[]
+  title?: string;
+  description?: string;
+  url?: string;
+  color?: string;
+  timestamp?: Date;
+  footer?: { text: string; iconUrl?: string };
+  image?: { url: string };
+  thumbnail?: { url: string };
+  author?: { name: string; url?: string; iconUrl?: string };
+  fields?: { name: string; value: string; inline?: boolean }[];
 }
 
 // ============================================================================
@@ -544,46 +552,46 @@ export interface BotMessageEmbed {
  * Input for creating a bot.
  */
 export interface CreateBotInput {
-  username: string
-  displayName: string
-  description?: string
-  avatarUrl?: string
-  category: BotCategory
-  visibility?: BotVisibility
-  permissions?: Partial<BotPermissions>
-  commands?: Omit<BotCommand, 'isEnabled'>[]
-  webhookUrl?: string
-  websiteUrl?: string
-  supportUrl?: string
-  privacyPolicyUrl?: string
-  termsOfServiceUrl?: string
+  username: string;
+  displayName: string;
+  description?: string;
+  avatarUrl?: string;
+  category: BotCategory;
+  visibility?: BotVisibility;
+  permissions?: Partial<BotPermissions>;
+  commands?: Omit<BotCommand, "isEnabled">[];
+  webhookUrl?: string;
+  websiteUrl?: string;
+  supportUrl?: string;
+  privacyPolicyUrl?: string;
+  termsOfServiceUrl?: string;
 }
 
 /**
  * Input for updating a bot.
  */
 export interface UpdateBotInput {
-  displayName?: string
-  description?: string
-  about?: string
-  avatarUrl?: string
-  bannerUrl?: string
-  category?: BotCategory
-  visibility?: BotVisibility
-  status?: BotStatus
-  statusMessage?: string
-  webhookUrl?: string
-  websiteUrl?: string
-  supportUrl?: string
-  privacyPolicyUrl?: string
-  termsOfServiceUrl?: string
+  displayName?: string;
+  description?: string;
+  about?: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  category?: BotCategory;
+  visibility?: BotVisibility;
+  status?: BotStatus;
+  statusMessage?: string;
+  webhookUrl?: string;
+  websiteUrl?: string;
+  supportUrl?: string;
+  privacyPolicyUrl?: string;
+  termsOfServiceUrl?: string;
 }
 
 /**
  * Input for updating bot commands.
  */
 export interface UpdateBotCommandsInput {
-  commands: BotCommand[]
+  commands: BotCommand[];
 }
 
 // ============================================================================
@@ -595,21 +603,21 @@ export interface UpdateBotCommandsInput {
  */
 export interface BotToken {
   /** Token ID */
-  id: string
+  id: string;
   /** Bot ID */
-  botId: string
+  botId: string;
   /** Token name/label */
-  name: string
+  name: string;
   /** Token prefix (for identification) */
-  prefix: string
+  prefix: string;
   /** Scopes this token can access */
-  scopes: BotPermissionScope[]
+  scopes: BotPermissionScope[];
   /** When token was created */
-  createdAt: Date
+  createdAt: Date;
   /** When token was last used */
-  lastUsedAt?: Date
+  lastUsedAt?: Date;
   /** When token expires */
-  expiresAt?: Date
+  expiresAt?: Date;
 }
 
 /**
@@ -617,7 +625,7 @@ export interface BotToken {
  */
 export interface NewBotToken extends BotToken {
   /** Full token value (only shown once) */
-  token: string
+  token: string;
 }
 
 // ============================================================================
@@ -629,23 +637,23 @@ export interface NewBotToken extends BotToken {
  */
 export interface BotAnalytics {
   /** Bot ID */
-  botId: string
+  botId: string;
   /** Time period */
-  period: 'day' | 'week' | 'month'
+  period: "day" | "week" | "month";
   /** Command usage */
-  commandUsage: { command: string; count: number }[]
+  commandUsage: { command: string; count: number }[];
   /** Total interactions */
-  totalInteractions: number
+  totalInteractions: number;
   /** Unique users */
-  uniqueUsers: number
+  uniqueUsers: number;
   /** Active channels */
-  activeChannels: number
+  activeChannels: number;
   /** Error rate */
-  errorRate: number
+  errorRate: number;
   /** Average response time (ms) */
-  avgResponseTime: number
+  avgResponseTime: number;
   /** Usage over time */
-  usageOverTime: { date: string; count: number }[]
+  usageOverTime: { date: string; count: number }[];
 }
 
 // ============================================================================
@@ -656,27 +664,27 @@ export interface BotAnalytics {
  * Bot status change event.
  */
 export interface BotStatusChangeEvent {
-  botId: string
-  previousStatus: BotStatus
-  newStatus: BotStatus
-  timestamp: Date
+  botId: string;
+  previousStatus: BotStatus;
+  newStatus: BotStatus;
+  timestamp: Date;
 }
 
 /**
  * Bot installed event.
  */
 export interface BotInstalledEvent {
-  botId: string
-  installation: BotInstallation
-  timestamp: Date
+  botId: string;
+  installation: BotInstallation;
+  timestamp: Date;
 }
 
 /**
  * Bot uninstalled event.
  */
 export interface BotUninstalledEvent {
-  botId: string
-  installationId: string
-  uninstalledBy: UserBasicInfo
-  timestamp: Date
+  botId: string;
+  installationId: string;
+  uninstalledBy: UserBasicInfo;
+  timestamp: Date;
 }

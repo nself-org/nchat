@@ -5,11 +5,11 @@
  * Supports pen, shapes, text, eraser, and color selection.
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Pen,
   ArrowRight,
@@ -23,28 +23,34 @@ import {
   Trash2,
   Palette,
   Settings,
-} from 'lucide-react'
-import type { AnnotationTool, AnnotationColor } from '@/lib/webrtc/screen-annotator'
-import { DEFAULT_COLORS, DEFAULT_STROKE_WIDTHS } from '@/lib/webrtc/screen-annotator'
+} from "lucide-react";
+import type {
+  AnnotationTool,
+  AnnotationColor,
+} from "@/lib/webrtc/screen-annotator";
+import {
+  DEFAULT_COLORS,
+  DEFAULT_STROKE_WIDTHS,
+} from "@/lib/webrtc/screen-annotator";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface AnnotationToolbarProps {
-  selectedTool: AnnotationTool
-  selectedColor: AnnotationColor
-  strokeWidth: number
-  onToolChange: (tool: AnnotationTool) => void
-  onColorChange: (color: AnnotationColor) => void
-  onStrokeWidthChange: (width: number) => void
-  onUndo?: () => void
-  onRedo?: () => void
-  onClear?: () => void
-  canUndo?: boolean
-  canRedo?: boolean
-  className?: string
-  orientation?: 'horizontal' | 'vertical'
+  selectedTool: AnnotationTool;
+  selectedColor: AnnotationColor;
+  strokeWidth: number;
+  onToolChange: (tool: AnnotationTool) => void;
+  onColorChange: (color: AnnotationColor) => void;
+  onStrokeWidthChange: (width: number) => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onClear?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  className?: string;
+  orientation?: "horizontal" | "vertical";
 }
 
 // =============================================================================
@@ -52,31 +58,37 @@ export interface AnnotationToolbarProps {
 // =============================================================================
 
 interface ToolButtonProps {
-  icon: React.ReactNode
-  label: string
-  isActive: boolean
-  onClick: () => void
-  disabled?: boolean
+  icon: React.ReactNode;
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+  disabled?: boolean;
 }
 
-function ToolButton({ icon, label, isActive, onClick, disabled }: ToolButtonProps) {
+function ToolButton({
+  icon,
+  label,
+  isActive,
+  onClick,
+  disabled,
+}: ToolButtonProps) {
   return (
     <Button
       type="button"
       size="icon"
-      variant={isActive ? 'secondary' : 'ghost'}
+      variant={isActive ? "secondary" : "ghost"}
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
       title={label}
       className={cn(
-        'h-9 w-9',
-        isActive && 'text-primary-foreground hover:bg-primary/90 bg-primary'
+        "h-9 w-9",
+        isActive && "text-primary-foreground hover:bg-primary/90 bg-primary",
       )}
     >
       {icon}
     </Button>
-  )
+  );
 }
 
 // =============================================================================
@@ -96,72 +108,87 @@ export function AnnotationToolbar({
   canUndo = false,
   canRedo = false,
   className,
-  orientation = 'vertical',
+  orientation = "vertical",
 }: AnnotationToolbarProps) {
-  const [showColorPicker, setShowColorPicker] = React.useState(false)
-  const [showStrokePicker, setShowStrokePicker] = React.useState(false)
+  const [showColorPicker, setShowColorPicker] = React.useState(false);
+  const [showStrokePicker, setShowStrokePicker] = React.useState(false);
 
-  const iconSize = 18
+  const iconSize = 18;
 
   return (
     <div
       className={cn(
-        'flex gap-1 rounded-lg bg-black/70 p-2 backdrop-blur-sm',
-        orientation === 'vertical' ? 'flex-col' : 'flex-row items-center',
-        className
+        "flex gap-1 rounded-lg bg-black/70 p-2 backdrop-blur-sm",
+        orientation === "vertical" ? "flex-col" : "flex-row items-center",
+        className,
       )}
     >
       {/* Drawing Tools */}
-      <div className={cn('flex gap-1', orientation === 'vertical' ? 'flex-col' : 'flex-row')}>
+      <div
+        className={cn(
+          "flex gap-1",
+          orientation === "vertical" ? "flex-col" : "flex-row",
+        )}
+      >
         <ToolButton
           icon={<Pen size={iconSize} />}
           label="Pen"
-          isActive={selectedTool === 'pen'}
-          onClick={() => onToolChange('pen')}
+          isActive={selectedTool === "pen"}
+          onClick={() => onToolChange("pen")}
         />
         <ToolButton
           icon={<ArrowRight size={iconSize} />}
           label="Arrow"
-          isActive={selectedTool === 'arrow'}
-          onClick={() => onToolChange('arrow')}
+          isActive={selectedTool === "arrow"}
+          onClick={() => onToolChange("arrow")}
         />
         <ToolButton
           icon={<Minus size={iconSize} />}
           label="Line"
-          isActive={selectedTool === 'line'}
-          onClick={() => onToolChange('line')}
+          isActive={selectedTool === "line"}
+          onClick={() => onToolChange("line")}
         />
         <ToolButton
           icon={<Square size={iconSize} />}
           label="Rectangle"
-          isActive={selectedTool === 'rectangle'}
-          onClick={() => onToolChange('rectangle')}
+          isActive={selectedTool === "rectangle"}
+          onClick={() => onToolChange("rectangle")}
         />
         <ToolButton
           icon={<Circle size={iconSize} />}
           label="Circle"
-          isActive={selectedTool === 'circle'}
-          onClick={() => onToolChange('circle')}
+          isActive={selectedTool === "circle"}
+          onClick={() => onToolChange("circle")}
         />
         <ToolButton
           icon={<Type size={iconSize} />}
           label="Text"
-          isActive={selectedTool === 'text'}
-          onClick={() => onToolChange('text')}
+          isActive={selectedTool === "text"}
+          onClick={() => onToolChange("text")}
         />
         <ToolButton
           icon={<Eraser size={iconSize} />}
           label="Eraser"
-          isActive={selectedTool === 'eraser'}
-          onClick={() => onToolChange('eraser')}
+          isActive={selectedTool === "eraser"}
+          onClick={() => onToolChange("eraser")}
         />
       </div>
 
       {/* Divider */}
-      <div className={cn('bg-white/20', orientation === 'vertical' ? 'h-px w-full' : 'h-6 w-px')} />
+      <div
+        className={cn(
+          "bg-white/20",
+          orientation === "vertical" ? "h-px w-full" : "h-6 w-px",
+        )}
+      />
 
       {/* Style Controls */}
-      <div className={cn('flex gap-1', orientation === 'vertical' ? 'flex-col' : 'flex-row')}>
+      <div
+        className={cn(
+          "flex gap-1",
+          orientation === "vertical" ? "flex-col" : "flex-row",
+        )}
+      >
         {/* Color Picker */}
         <div className="relative">
           <Button
@@ -181,8 +208,10 @@ export function AnnotationToolbar({
           {showColorPicker && (
             <div
               className={cn(
-                'absolute z-10 rounded-lg bg-black/90 p-2 shadow-lg backdrop-blur-sm',
-                orientation === 'vertical' ? 'left-full top-0 ml-2' : 'bottom-full left-0 mb-2'
+                "absolute z-10 rounded-lg bg-black/90 p-2 shadow-lg backdrop-blur-sm",
+                orientation === "vertical"
+                  ? "left-full top-0 ml-2"
+                  : "bottom-full left-0 mb-2",
               )}
             >
               <div className="grid grid-cols-5 gap-1">
@@ -191,12 +220,14 @@ export function AnnotationToolbar({
                     key={color}
                     type="button"
                     onClick={() => {
-                      onColorChange(color)
-                      setShowColorPicker(false)
+                      onColorChange(color);
+                      setShowColorPicker(false);
                     }}
                     className={cn(
-                      'h-7 w-7 rounded border-2 transition-transform hover:scale-110',
-                      selectedColor === color ? 'border-white' : 'border-transparent'
+                      "h-7 w-7 rounded border-2 transition-transform hover:scale-110",
+                      selectedColor === color
+                        ? "border-white"
+                        : "border-transparent",
                     )}
                     style={{ backgroundColor: color }}
                     aria-label={`Select color ${color}`}
@@ -223,8 +254,10 @@ export function AnnotationToolbar({
           {showStrokePicker && (
             <div
               className={cn(
-                'absolute z-10 rounded-lg bg-black/90 p-2 shadow-lg backdrop-blur-sm',
-                orientation === 'vertical' ? 'left-full top-0 ml-2' : 'bottom-full left-0 mb-2'
+                "absolute z-10 rounded-lg bg-black/90 p-2 shadow-lg backdrop-blur-sm",
+                orientation === "vertical"
+                  ? "left-full top-0 ml-2"
+                  : "bottom-full left-0 mb-2",
               )}
             >
               <div className="flex flex-col gap-2">
@@ -233,12 +266,12 @@ export function AnnotationToolbar({
                     key={width}
                     type="button"
                     onClick={() => {
-                      onStrokeWidthChange(width)
-                      setShowStrokePicker(false)
+                      onStrokeWidthChange(width);
+                      setShowStrokePicker(false);
                     }}
                     className={cn(
-                      'flex h-8 items-center justify-center rounded px-3 hover:bg-white/10',
-                      strokeWidth === width && 'bg-white/20'
+                      "flex h-8 items-center justify-center rounded px-3 hover:bg-white/10",
+                      strokeWidth === width && "bg-white/20",
                     )}
                   >
                     <div
@@ -254,10 +287,20 @@ export function AnnotationToolbar({
       </div>
 
       {/* Divider */}
-      <div className={cn('bg-white/20', orientation === 'vertical' ? 'h-px w-full' : 'h-6 w-px')} />
+      <div
+        className={cn(
+          "bg-white/20",
+          orientation === "vertical" ? "h-px w-full" : "h-6 w-px",
+        )}
+      />
 
       {/* Action Buttons */}
-      <div className={cn('flex gap-1', orientation === 'vertical' ? 'flex-col' : 'flex-row')}>
+      <div
+        className={cn(
+          "flex gap-1",
+          orientation === "vertical" ? "flex-col" : "flex-row",
+        )}
+      >
         <Button
           type="button"
           size="icon"
@@ -296,5 +339,5 @@ export function AnnotationToolbar({
         </Button>
       </div>
     </div>
-  )
+  );
 }

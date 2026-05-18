@@ -5,61 +5,61 @@
  * Implements replay protection and idempotent processing.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getWebhookHandler } from '@/lib/billing/webhook-handler'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { getWebhookHandler } from "@/lib/billing/webhook-handler";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
-    const signature = request.headers.get('stripe-signature')
+    const signature = request.headers.get("stripe-signature");
 
     if (!signature) {
       return NextResponse.json(
-        { error: 'Missing stripe signature' },
-        { status: 400 }
-      )
+        { error: "Missing stripe signature" },
+        { status: 400 },
+      );
     }
 
     // Get raw body
-    const rawBody = await request.text()
+    const rawBody = await request.text();
 
     // Process webhook event with replay protection
-    const webhookHandler = getWebhookHandler()
-    const result = await webhookHandler.processEvent(rawBody, signature)
+    const webhookHandler = getWebhookHandler();
+    const result = await webhookHandler.processEvent(rawBody, signature);
 
     // Handle different processing outcomes
-    if (result.status === 'skipped_duplicate') {
+    if (result.status === "skipped_duplicate") {
       // Duplicate event - acknowledge but don't reprocess
       return NextResponse.json({
         received: true,
-        status: 'skipped_duplicate',
-        message: 'Event already processed',
-      })
+        status: "skipped_duplicate",
+        message: "Event already processed",
+      });
     }
 
-    if (result.status === 'skipped_old') {
+    if (result.status === "skipped_old") {
       // Event too old
       return NextResponse.json({
         received: true,
-        status: 'skipped_old',
-        message: 'Event expired',
-      })
+        status: "skipped_old",
+        message: "Event expired",
+      });
     }
 
     if (!result.success) {
-      logger.error('Webhook processing failed:', {
+      logger.error("Webhook processing failed:", {
         eventId: result.eventId,
         eventType: result.eventType,
         error: result.error,
-      })
+      });
       return NextResponse.json(
         {
-          error: 'Webhook processing failed',
+          error: "Webhook processing failed",
           details: result.error,
           eventId: result.eventId,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     return NextResponse.json({
@@ -68,12 +68,15 @@ export async function POST(request: NextRequest) {
       eventId: result.eventId,
       eventType: result.eventType,
       duration: result.duration,
-    })
+    });
   } catch (error) {
-    logger.error('Error processing webhook:', error)
+    logger.error("Error processing webhook:", error);
     return NextResponse.json(
-      { error: 'Webhook processing failed', details: (error instanceof Error ? error.message : String(error)) },
-      { status: 400 }
-    )
+      {
+        error: "Webhook processing failed",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 400 },
+    );
   }
 }

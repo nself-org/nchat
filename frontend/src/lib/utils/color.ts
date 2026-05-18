@@ -7,32 +7,32 @@
  * RGB color object
  */
 export interface RGB {
-  r: number
-  g: number
-  b: number
+  r: number;
+  g: number;
+  b: number;
 }
 
 /**
  * RGBA color object
  */
 export interface RGBA extends RGB {
-  a: number
+  a: number;
 }
 
 /**
  * HSL color object
  */
 export interface HSL {
-  h: number
-  s: number
-  l: number
+  h: number;
+  s: number;
+  l: number;
 }
 
 /**
  * HSLA color object
  */
 export interface HSLA extends HSL {
-  a: number
+  a: number;
 }
 
 /**
@@ -45,32 +45,32 @@ export interface HSLA extends HSL {
  */
 export function hexToRgb(hex: string): RGB | null {
   // Remove # if present
-  let cleanHex = hex.replace(/^#/, '')
+  let cleanHex = hex.replace(/^#/, "");
 
   // Handle shorthand (e.g., 'f50' -> 'ff5500')
   if (cleanHex.length === 3) {
     cleanHex = cleanHex
-      .split('')
+      .split("")
       .map((char) => char + char)
-      .join('')
+      .join("");
   }
 
   // Handle 8-character hex (with alpha) - just use first 6
   if (cleanHex.length === 8) {
-    cleanHex = cleanHex.slice(0, 6)
+    cleanHex = cleanHex.slice(0, 6);
   }
 
   if (cleanHex.length !== 6 || !/^[0-9a-fA-F]+$/.test(cleanHex)) {
-    return null
+    return null;
   }
 
-  const num = parseInt(cleanHex, 16)
+  const num = parseInt(cleanHex, 16);
 
   return {
     r: (num >> 16) & 255,
     g: (num >> 8) & 255,
     b: num & 255,
-  }
+  };
 }
 
 /**
@@ -81,36 +81,36 @@ export function hexToRgb(hex: string): RGB | null {
  * hexToRgba('#ff550080') // { r: 255, g: 85, b: 0, a: 0.5 }
  */
 export function hexToRgba(hex: string): RGBA | null {
-  let cleanHex = hex.replace(/^#/, '')
+  let cleanHex = hex.replace(/^#/, "");
 
   // Handle shorthand
   if (cleanHex.length === 3) {
     cleanHex =
       cleanHex
-        .split('')
+        .split("")
         .map((char) => char + char)
-        .join('') + 'ff'
+        .join("") + "ff";
   } else if (cleanHex.length === 4) {
     cleanHex = cleanHex
-      .split('')
+      .split("")
       .map((char) => char + char)
-      .join('')
+      .join("");
   } else if (cleanHex.length === 6) {
-    cleanHex += 'ff'
+    cleanHex += "ff";
   }
 
   if (cleanHex.length !== 8 || !/^[0-9a-fA-F]+$/.test(cleanHex)) {
-    return null
+    return null;
   }
 
-  const num = parseInt(cleanHex, 16)
+  const num = parseInt(cleanHex, 16);
 
   return {
     r: (num >> 24) & 255,
     g: (num >> 16) & 255,
     b: (num >> 8) & 255,
     a: (num & 255) / 255,
-  }
+  };
 }
 
 /**
@@ -122,26 +122,26 @@ export function hexToRgba(hex: string): RGBA | null {
  * rgbToHex(255, 85, 0) // '#ff5500'
  */
 export function rgbToHex(rgbOrR: RGB | number, g?: number, b?: number): string {
-  let r: number, green: number, blue: number
+  let r: number, green: number, blue: number;
 
-  if (typeof rgbOrR === 'object') {
-    r = rgbOrR.r
-    green = rgbOrR.g
-    blue = rgbOrR.b
+  if (typeof rgbOrR === "object") {
+    r = rgbOrR.r;
+    green = rgbOrR.g;
+    blue = rgbOrR.b;
   } else {
-    r = rgbOrR
-    green = g ?? 0
-    blue = b ?? 0
+    r = rgbOrR;
+    green = g ?? 0;
+    blue = b ?? 0;
   }
 
   // Clamp values
-  r = Math.max(0, Math.min(255, Math.round(r)))
-  green = Math.max(0, Math.min(255, Math.round(green)))
-  blue = Math.max(0, Math.min(255, Math.round(blue)))
+  r = Math.max(0, Math.min(255, Math.round(r)));
+  green = Math.max(0, Math.min(255, Math.round(green)));
+  blue = Math.max(0, Math.min(255, Math.round(blue)));
 
-  const toHex = (n: number) => n.toString(16).padStart(2, '0')
+  const toHex = (n: number) => n.toString(16).padStart(2, "0");
 
-  return `#${toHex(r)}${toHex(green)}${toHex(blue)}`
+  return `#${toHex(r)}${toHex(green)}${toHex(blue)}`;
 }
 
 /**
@@ -150,9 +150,9 @@ export function rgbToHex(rgbOrR: RGB | number, g?: number, b?: number): string {
  * @returns Hex color string with # (8 characters)
  */
 export function rgbaToHex(rgba: RGBA): string {
-  const hex = rgbToHex(rgba)
-  const alpha = Math.max(0, Math.min(255, Math.round(rgba.a * 255)))
-  return hex + alpha.toString(16).padStart(2, '0')
+  const hex = rgbToHex(rgba);
+  const alpha = Math.max(0, Math.min(255, Math.round(rgba.a * 255)));
+  return hex + alpha.toString(16).padStart(2, "0");
 }
 
 /**
@@ -161,34 +161,34 @@ export function rgbaToHex(rgba: RGBA): string {
  * @returns HSL object
  */
 export function rgbToHsl(rgb: RGB): HSL {
-  const r = rgb.r / 255
-  const g = rgb.g / 255
-  const b = rgb.b / 255
+  const r = rgb.r / 255;
+  const g = rgb.g / 255;
+  const b = rgb.b / 255;
 
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  const l = (max + min) / 2
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
 
   if (max === min) {
-    return { h: 0, s: 0, l }
+    return { h: 0, s: 0, l };
   }
 
-  const d = max - min
-  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
-  let h: number
+  let h: number;
   switch (max) {
     case r:
-      h = ((g - b) / d + (g < b ? 6 : 0)) / 6
-      break
+      h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+      break;
     case g:
-      h = ((b - r) / d + 2) / 6
-      break
+      h = ((b - r) / d + 2) / 6;
+      break;
     default:
-      h = ((r - g) / d + 4) / 6
+      h = ((r - g) / d + 4) / 6;
   }
 
-  return { h: h * 360, s, l }
+  return { h: h * 360, s, l };
 }
 
 /**
@@ -197,32 +197,32 @@ export function rgbToHsl(rgb: RGB): HSL {
  * @returns RGB object
  */
 export function hslToRgb(hsl: HSL): RGB {
-  const { h, s, l } = hsl
-  const hue = h / 360
+  const { h, s, l } = hsl;
+  const hue = h / 360;
 
   if (s === 0) {
-    const gray = Math.round(l * 255)
-    return { r: gray, g: gray, b: gray }
+    const gray = Math.round(l * 255);
+    return { r: gray, g: gray, b: gray };
   }
 
   const hueToRgb = (p: number, q: number, t: number): number => {
-    let adjustedT = t
-    if (adjustedT < 0) adjustedT += 1
-    if (adjustedT > 1) adjustedT -= 1
-    if (adjustedT < 1 / 6) return p + (q - p) * 6 * adjustedT
-    if (adjustedT < 1 / 2) return q
-    if (adjustedT < 2 / 3) return p + (q - p) * (2 / 3 - adjustedT) * 6
-    return p
-  }
+    let adjustedT = t;
+    if (adjustedT < 0) adjustedT += 1;
+    if (adjustedT > 1) adjustedT -= 1;
+    if (adjustedT < 1 / 6) return p + (q - p) * 6 * adjustedT;
+    if (adjustedT < 1 / 2) return q;
+    if (adjustedT < 2 / 3) return p + (q - p) * (2 / 3 - adjustedT) * 6;
+    return p;
+  };
 
-  const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-  const p = 2 * l - q
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
 
   return {
     r: Math.round(hueToRgb(p, q, hue + 1 / 3) * 255),
     g: Math.round(hueToRgb(p, q, hue) * 255),
     b: Math.round(hueToRgb(p, q, hue - 1 / 3) * 255),
-  }
+  };
 }
 
 /**
@@ -231,9 +231,9 @@ export function hslToRgb(hsl: HSL): RGB {
  * @returns HSL object or null if invalid
  */
 export function hexToHsl(hex: string): HSL | null {
-  const rgb = hexToRgb(hex)
-  if (!rgb) return null
-  return rgbToHsl(rgb)
+  const rgb = hexToRgb(hex);
+  if (!rgb) return null;
+  return rgbToHsl(rgb);
 }
 
 /**
@@ -242,7 +242,7 @@ export function hexToHsl(hex: string): HSL | null {
  * @returns Hex color string
  */
 export function hslToHex(hsl: HSL): string {
-  return rgbToHex(hslToRgb(hsl))
+  return rgbToHex(hslToRgb(hsl));
 }
 
 /**
@@ -254,11 +254,11 @@ export function hslToHex(hsl: HSL): string {
  * lighten('#3366ff', 0.2) // Lighter blue
  */
 export function lighten(color: string, amount: number = 0.1): string {
-  const hsl = hexToHsl(color)
-  if (!hsl) return color
+  const hsl = hexToHsl(color);
+  if (!hsl) return color;
 
-  hsl.l = Math.min(1, hsl.l + amount)
-  return hslToHex(hsl)
+  hsl.l = Math.min(1, hsl.l + amount);
+  return hslToHex(hsl);
 }
 
 /**
@@ -270,11 +270,11 @@ export function lighten(color: string, amount: number = 0.1): string {
  * darken('#3366ff', 0.2) // Darker blue
  */
 export function darken(color: string, amount: number = 0.1): string {
-  const hsl = hexToHsl(color)
-  if (!hsl) return color
+  const hsl = hexToHsl(color);
+  if (!hsl) return color;
 
-  hsl.l = Math.max(0, hsl.l - amount)
-  return hslToHex(hsl)
+  hsl.l = Math.max(0, hsl.l - amount);
+  return hslToHex(hsl);
 }
 
 /**
@@ -284,11 +284,11 @@ export function darken(color: string, amount: number = 0.1): string {
  * @returns Saturated hex color
  */
 export function saturate(color: string, amount: number = 0.1): string {
-  const hsl = hexToHsl(color)
-  if (!hsl) return color
+  const hsl = hexToHsl(color);
+  if (!hsl) return color;
 
-  hsl.s = Math.min(1, hsl.s + amount)
-  return hslToHex(hsl)
+  hsl.s = Math.min(1, hsl.s + amount);
+  return hslToHex(hsl);
 }
 
 /**
@@ -298,11 +298,11 @@ export function saturate(color: string, amount: number = 0.1): string {
  * @returns Desaturated hex color
  */
 export function desaturate(color: string, amount: number = 0.1): string {
-  const hsl = hexToHsl(color)
-  if (!hsl) return color
+  const hsl = hexToHsl(color);
+  if (!hsl) return color;
 
-  hsl.s = Math.max(0, hsl.s - amount)
-  return hslToHex(hsl)
+  hsl.s = Math.max(0, hsl.s - amount);
+  return hslToHex(hsl);
 }
 
 /**
@@ -312,11 +312,11 @@ export function desaturate(color: string, amount: number = 0.1): string {
  * @returns Adjusted hex color
  */
 export function adjustHue(color: string, degrees: number): string {
-  const hsl = hexToHsl(color)
-  if (!hsl) return color
+  const hsl = hexToHsl(color);
+  if (!hsl) return color;
 
-  hsl.h = (hsl.h + degrees + 360) % 360
-  return hslToHex(hsl)
+  hsl.h = (hsl.h + degrees + 360) % 360;
+  return hslToHex(hsl);
 }
 
 /**
@@ -325,7 +325,7 @@ export function adjustHue(color: string, degrees: number): string {
  * @returns Complementary hex color
  */
 export function getComplementary(color: string): string {
-  return adjustHue(color, 180)
+  return adjustHue(color, 180);
 }
 
 /**
@@ -341,17 +341,17 @@ export function getComplementary(color: string): string {
  */
 export function getContrastColor(
   backgroundColor: string,
-  darkColor: string = '#000000',
-  lightColor: string = '#ffffff'
+  darkColor: string = "#000000",
+  lightColor: string = "#ffffff",
 ): string {
-  const rgb = hexToRgb(backgroundColor)
-  if (!rgb) return darkColor
+  const rgb = hexToRgb(backgroundColor);
+  if (!rgb) return darkColor;
 
   // Calculate relative luminance using WCAG formula
-  const luminance = getLuminance(rgb)
+  const luminance = getLuminance(rgb);
 
   // Use contrast ratio threshold
-  return luminance > 0.179 ? darkColor : lightColor
+  return luminance > 0.179 ? darkColor : lightColor;
 }
 
 /**
@@ -361,15 +361,15 @@ export function getContrastColor(
  */
 export function getLuminance(rgb: RGB): number {
   const toLinear = (value: number): number => {
-    const v = value / 255
-    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
-  }
+    const v = value / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
 
-  const r = toLinear(rgb.r)
-  const g = toLinear(rgb.g)
-  const b = toLinear(rgb.b)
+  const r = toLinear(rgb.r);
+  const g = toLinear(rgb.g);
+  const b = toLinear(rgb.b);
 
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
 /**
@@ -379,18 +379,18 @@ export function getLuminance(rgb: RGB): number {
  * @returns Contrast ratio (1-21)
  */
 export function getContrastRatio(color1: string, color2: string): number {
-  const rgb1 = hexToRgb(color1)
-  const rgb2 = hexToRgb(color2)
+  const rgb1 = hexToRgb(color1);
+  const rgb2 = hexToRgb(color2);
 
-  if (!rgb1 || !rgb2) return 1
+  if (!rgb1 || !rgb2) return 1;
 
-  const l1 = getLuminance(rgb1)
-  const l2 = getLuminance(rgb2)
+  const l1 = getLuminance(rgb1);
+  const l2 = getLuminance(rgb2);
 
-  const lighter = Math.max(l1, l2)
-  const darker = Math.min(l1, l2)
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
 
-  return (lighter + 0.05) / (darker + 0.05)
+  return (lighter + 0.05) / (darker + 0.05);
 }
 
 /**
@@ -404,19 +404,21 @@ export function getContrastRatio(color1: string, color2: string): number {
 export function meetsContrastRequirement(
   color1: string,
   color2: string,
-  level: 'AA' | 'AAA' = 'AA',
-  largeText: boolean = false
+  level: "AA" | "AAA" = "AA",
+  largeText: boolean = false,
 ): boolean {
-  const ratio = getContrastRatio(color1, color2)
+  const ratio = getContrastRatio(color1, color2);
 
   const requirements = {
     AA: { normal: 4.5, large: 3 },
     AAA: { normal: 7, large: 4.5 },
-  }
+  };
 
-  const minRatio = largeText ? requirements[level].large : requirements[level].normal
+  const minRatio = largeText
+    ? requirements[level].large
+    : requirements[level].normal;
 
-  return ratio >= minRatio
+  return ratio >= minRatio;
 }
 
 /**
@@ -426,19 +428,23 @@ export function meetsContrastRequirement(
  * @param weight - Weight of first color (0-1, default: 0.5)
  * @returns Mixed hex color
  */
-export function mix(color1: string, color2: string, weight: number = 0.5): string {
-  const rgb1 = hexToRgb(color1)
-  const rgb2 = hexToRgb(color2)
+export function mix(
+  color1: string,
+  color2: string,
+  weight: number = 0.5,
+): string {
+  const rgb1 = hexToRgb(color1);
+  const rgb2 = hexToRgb(color2);
 
-  if (!rgb1 || !rgb2) return color1
+  if (!rgb1 || !rgb2) return color1;
 
-  const w = Math.max(0, Math.min(1, weight))
+  const w = Math.max(0, Math.min(1, weight));
 
   return rgbToHex({
     r: Math.round(rgb1.r * w + rgb2.r * (1 - w)),
     g: Math.round(rgb1.g * w + rgb2.g * (1 - w)),
     b: Math.round(rgb1.b * w + rgb2.b * (1 - w)),
-  })
+  });
 }
 
 /**
@@ -448,7 +454,7 @@ export function mix(color1: string, color2: string, weight: number = 0.5): strin
  * @returns Tinted hex color
  */
 export function tint(color: string, amount: number = 0.1): string {
-  return mix(color, '#ffffff', 1 - amount)
+  return mix(color, "#ffffff", 1 - amount);
 }
 
 /**
@@ -458,7 +464,7 @@ export function tint(color: string, amount: number = 0.1): string {
  * @returns Shaded hex color
  */
 export function shade(color: string, amount: number = 0.1): string {
-  return mix(color, '#000000', 1 - amount)
+  return mix(color, "#000000", 1 - amount);
 }
 
 /**
@@ -467,24 +473,27 @@ export function shade(color: string, amount: number = 0.1): string {
  * @param steps - Number of steps (default: 10)
  * @returns Array of hex colors from lightest to darkest
  */
-export function generatePalette(baseColor: string, steps: number = 10): string[] {
-  const palette: string[] = []
+export function generatePalette(
+  baseColor: string,
+  steps: number = 10,
+): string[] {
+  const palette: string[] = [];
 
   for (let i = 0; i < steps; i++) {
-    const amount = (i / (steps - 1)) * 2 - 1 // -1 to 1
+    const amount = (i / (steps - 1)) * 2 - 1; // -1 to 1
 
     if (amount < 0) {
       // Tint (lighter)
-      palette.push(tint(baseColor, Math.abs(amount)))
+      palette.push(tint(baseColor, Math.abs(amount)));
     } else if (amount > 0) {
       // Shade (darker)
-      palette.push(shade(baseColor, amount))
+      palette.push(shade(baseColor, amount));
     } else {
-      palette.push(baseColor)
+      palette.push(baseColor);
     }
   }
 
-  return palette
+  return palette;
 }
 
 /**
@@ -493,7 +502,7 @@ export function generatePalette(baseColor: string, steps: number = 10): string[]
  * @returns Array of three hex colors
  */
 export function getTriadic(color: string): [string, string, string] {
-  return [color, adjustHue(color, 120), adjustHue(color, 240)]
+  return [color, adjustHue(color, 120), adjustHue(color, 240)];
 }
 
 /**
@@ -502,8 +511,11 @@ export function getTriadic(color: string): [string, string, string] {
  * @param angle - Angle between colors (default: 30)
  * @returns Array of three hex colors
  */
-export function getAnalogous(color: string, angle: number = 30): [string, string, string] {
-  return [adjustHue(color, -angle), color, adjustHue(color, angle)]
+export function getAnalogous(
+  color: string,
+  angle: number = 30,
+): [string, string, string] {
+  return [adjustHue(color, -angle), color, adjustHue(color, angle)];
 }
 
 /**
@@ -512,8 +524,11 @@ export function getAnalogous(color: string, angle: number = 30): [string, string
  * @param angle - Split angle (default: 30)
  * @returns Array of three hex colors
  */
-export function getSplitComplementary(color: string, angle: number = 30): [string, string, string] {
-  return [color, adjustHue(color, 180 - angle), adjustHue(color, 180 + angle)]
+export function getSplitComplementary(
+  color: string,
+  angle: number = 30,
+): [string, string, string] {
+  return [color, adjustHue(color, 180 - angle), adjustHue(color, 180 + angle)];
 }
 
 /**
@@ -522,12 +537,12 @@ export function getSplitComplementary(color: string, angle: number = 30): [strin
  * @returns Grayscale hex color
  */
 export function toGrayscale(color: string): string {
-  const rgb = hexToRgb(color)
-  if (!rgb) return color
+  const rgb = hexToRgb(color);
+  if (!rgb) return color;
 
   // Use luminance-based conversion for perceptual accuracy
-  const gray = Math.round(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b)
-  return rgbToHex({ r: gray, g: gray, b: gray })
+  const gray = Math.round(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+  return rgbToHex({ r: gray, g: gray, b: gray });
 }
 
 /**
@@ -536,14 +551,14 @@ export function toGrayscale(color: string): string {
  * @returns Inverted hex color
  */
 export function invert(color: string): string {
-  const rgb = hexToRgb(color)
-  if (!rgb) return color
+  const rgb = hexToRgb(color);
+  if (!rgb) return color;
 
   return rgbToHex({
     r: 255 - rgb.r,
     g: 255 - rgb.g,
     b: 255 - rgb.b,
-  })
+  });
 }
 
 /**
@@ -552,7 +567,7 @@ export function invert(color: string): string {
  * @returns Whether it's a valid hex color
  */
 export function isValidHex(color: string): boolean {
-  return hexToRgb(color) !== null
+  return hexToRgb(color) !== null;
 }
 
 /**
@@ -561,59 +576,59 @@ export function isValidHex(color: string): boolean {
  * @returns Hex color or null if unparseable
  */
 export function parseColor(color: string): string | null {
-  if (!color) return null
+  if (!color) return null;
 
-  const trimmed = color.trim().toLowerCase()
+  const trimmed = color.trim().toLowerCase();
 
   // Already hex
-  if (trimmed.startsWith('#')) {
-    const rgb = hexToRgb(trimmed)
-    return rgb ? rgbToHex(rgb) : null
+  if (trimmed.startsWith("#")) {
+    const rgb = hexToRgb(trimmed);
+    return rgb ? rgbToHex(rgb) : null;
   }
 
   // RGB/RGBA
   const rgbMatch = trimmed.match(
-    /^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*[\d.]+)?\s*\)$/
-  )
+    /^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*[\d.]+)?\s*\)$/,
+  );
   if (rgbMatch) {
     return rgbToHex({
       r: parseInt(rgbMatch[1], 10),
       g: parseInt(rgbMatch[2], 10),
       b: parseInt(rgbMatch[3], 10),
-    })
+    });
   }
 
   // HSL/HSLA
   const hslMatch = trimmed.match(
-    /^hsla?\s*\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%(?:\s*,\s*[\d.]+)?\s*\)$/
-  )
+    /^hsla?\s*\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%(?:\s*,\s*[\d.]+)?\s*\)$/,
+  );
   if (hslMatch) {
     return hslToHex({
       h: parseFloat(hslMatch[1]),
       s: parseFloat(hslMatch[2]) / 100,
       l: parseFloat(hslMatch[3]) / 100,
-    })
+    });
   }
 
   // Named colors (common ones)
   const namedColors: Record<string, string> = {
-    black: '#000000',
-    white: '#ffffff',
-    red: '#ff0000',
-    green: '#008000',
-    blue: '#0000ff',
-    yellow: '#ffff00',
-    cyan: '#00ffff',
-    magenta: '#ff00ff',
-    gray: '#808080',
-    grey: '#808080',
-    orange: '#ffa500',
-    purple: '#800080',
-    pink: '#ffc0cb',
-    transparent: '#00000000',
-  }
+    black: "#000000",
+    white: "#ffffff",
+    red: "#ff0000",
+    green: "#008000",
+    blue: "#0000ff",
+    yellow: "#ffff00",
+    cyan: "#00ffff",
+    magenta: "#ff00ff",
+    gray: "#808080",
+    grey: "#808080",
+    orange: "#ffa500",
+    purple: "#800080",
+    pink: "#ffc0cb",
+    transparent: "#00000000",
+  };
 
-  return namedColors[trimmed] || null
+  return namedColors[trimmed] || null;
 }
 
 /**
@@ -622,9 +637,9 @@ export function parseColor(color: string): string | null {
  * @returns CSS rgb() string
  */
 export function toRgbString(color: string): string | null {
-  const rgb = hexToRgb(color)
-  if (!rgb) return null
-  return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
+  const rgb = hexToRgb(color);
+  if (!rgb) return null;
+  return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
 }
 
 /**
@@ -633,7 +648,7 @@ export function toRgbString(color: string): string | null {
  * @returns CSS hsl() string
  */
 export function toHslString(color: string): string | null {
-  const hsl = hexToHsl(color)
-  if (!hsl) return null
-  return `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s * 100)}%, ${Math.round(hsl.l * 100)}%)`
+  const hsl = hexToHsl(color);
+  if (!hsl) return null;
+  return `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s * 100)}%, ${Math.round(hsl.l * 100)}%)`;
 }

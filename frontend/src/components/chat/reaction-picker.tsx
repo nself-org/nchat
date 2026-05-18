@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Reaction Picker Component
@@ -6,239 +6,254 @@
  * Full emoji picker for message reactions with categories and search.
  */
 
-import { useState, useCallback, useMemo } from 'react'
-import { Search, Smile, Heart, ThumbsUp, Flame, Star, Clock } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useMemo } from "react";
+import {
+  Search,
+  Smile,
+  Heart,
+  ThumbsUp,
+  Flame,
+  Star,
+  Clock,
+} from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 // Common emoji categories
 const EMOJI_CATEGORIES = {
   recent: {
-    label: 'Recent',
+    label: "Recent",
     icon: Clock,
     emojis: [], // Will be populated from localStorage
   },
   smileys: {
-    label: 'Smileys',
+    label: "Smileys",
     icon: Smile,
     emojis: [
-      '😀',
-      '😃',
-      '😄',
-      '😁',
-      '😆',
-      '😅',
-      '🤣',
-      '😂',
-      '🙂',
-      '🙃',
-      '😉',
-      '😊',
-      '😇',
-      '🥰',
-      '😍',
-      '🤩',
-      '😘',
-      '😗',
-      '😚',
-      '😙',
-      '🥲',
-      '😋',
-      '😛',
-      '😜',
-      '🤪',
-      '😝',
-      '🤑',
-      '🤗',
-      '🤭',
-      '🤫',
-      '🤔',
-      '🤐',
-      '🤨',
-      '😐',
-      '😑',
-      '😶',
-      '😏',
-      '😒',
-      '🙄',
-      '😬',
-      '😮‍💨',
-      '🤥',
-      '😌',
-      '😔',
-      '😪',
-      '🤤',
-      '😴',
-      '😷',
+      "😀",
+      "😃",
+      "😄",
+      "😁",
+      "😆",
+      "😅",
+      "🤣",
+      "😂",
+      "🙂",
+      "🙃",
+      "😉",
+      "😊",
+      "😇",
+      "🥰",
+      "😍",
+      "🤩",
+      "😘",
+      "😗",
+      "😚",
+      "😙",
+      "🥲",
+      "😋",
+      "😛",
+      "😜",
+      "🤪",
+      "😝",
+      "🤑",
+      "🤗",
+      "🤭",
+      "🤫",
+      "🤔",
+      "🤐",
+      "🤨",
+      "😐",
+      "😑",
+      "😶",
+      "😏",
+      "😒",
+      "🙄",
+      "😬",
+      "😮‍💨",
+      "🤥",
+      "😌",
+      "😔",
+      "😪",
+      "🤤",
+      "😴",
+      "😷",
     ],
   },
   gestures: {
-    label: 'Gestures',
+    label: "Gestures",
     icon: ThumbsUp,
     emojis: [
-      '👍',
-      '👎',
-      '👌',
-      '✌️',
-      '🤞',
-      '🤟',
-      '🤘',
-      '🤙',
-      '👈',
-      '👉',
-      '👆',
-      '🖕',
-      '👇',
-      '☝️',
-      '👋',
-      '🤚',
-      '🖐️',
-      '✋',
-      '🖖',
-      '👏',
-      '🙌',
-      '👐',
-      '🤲',
-      '🤝',
-      '🙏',
-      '✍️',
-      '💪',
-      '🦵',
-      '🦶',
-      '👂',
-      '🦻',
-      '👃',
+      "👍",
+      "👎",
+      "👌",
+      "✌️",
+      "🤞",
+      "🤟",
+      "🤘",
+      "🤙",
+      "👈",
+      "👉",
+      "👆",
+      "🖕",
+      "👇",
+      "☝️",
+      "👋",
+      "🤚",
+      "🖐️",
+      "✋",
+      "🖖",
+      "👏",
+      "🙌",
+      "👐",
+      "🤲",
+      "🤝",
+      "🙏",
+      "✍️",
+      "💪",
+      "🦵",
+      "🦶",
+      "👂",
+      "🦻",
+      "👃",
     ],
   },
   hearts: {
-    label: 'Hearts',
+    label: "Hearts",
     icon: Heart,
     emojis: [
-      '❤️',
-      '🧡',
-      '💛',
-      '💚',
-      '💙',
-      '💜',
-      '🖤',
-      '🤍',
-      '🤎',
-      '💔',
-      '❤️‍🔥',
-      '❤️‍🩹',
-      '💕',
-      '💞',
-      '💓',
-      '💗',
-      '💖',
-      '💘',
-      '💝',
-      '💟',
-      '♥️',
-      '💌',
+      "❤️",
+      "🧡",
+      "💛",
+      "💚",
+      "💙",
+      "💜",
+      "🖤",
+      "🤍",
+      "🤎",
+      "💔",
+      "❤️‍🔥",
+      "❤️‍🩹",
+      "💕",
+      "💞",
+      "💓",
+      "💗",
+      "💖",
+      "💘",
+      "💝",
+      "💟",
+      "♥️",
+      "💌",
     ],
   },
   symbols: {
-    label: 'Symbols',
+    label: "Symbols",
     icon: Star,
     emojis: [
-      '⭐',
-      '🌟',
-      '✨',
-      '💫',
-      '🔥',
-      '💥',
-      '💯',
-      '✅',
-      '❌',
-      '❗',
-      '❓',
-      '⚠️',
-      '🚫',
-      '💢',
-      '💤',
-      '💦',
-      '💨',
-      '🎉',
-      '🎊',
-      '🎈',
-      '🎁',
-      '🏆',
-      '🥇',
-      '🥈',
-      '🥉',
-      '🏅',
-      '🎖️',
-      '👑',
-      '💎',
-      '💍',
-      '🔔',
-      '🔕',
+      "⭐",
+      "🌟",
+      "✨",
+      "💫",
+      "🔥",
+      "💥",
+      "💯",
+      "✅",
+      "❌",
+      "❗",
+      "❓",
+      "⚠️",
+      "🚫",
+      "💢",
+      "💤",
+      "💦",
+      "💨",
+      "🎉",
+      "🎊",
+      "🎈",
+      "🎁",
+      "🏆",
+      "🥇",
+      "🥈",
+      "🥉",
+      "🏅",
+      "🎖️",
+      "👑",
+      "💎",
+      "💍",
+      "🔔",
+      "🔕",
     ],
   },
-}
+};
 
-const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🎉', '🔥', '👏']
+const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "🎉", "🔥", "👏"];
 
 interface ReactionPickerProps {
-  onSelectReaction: (emoji: string) => void
-  trigger?: React.ReactNode
-  align?: 'start' | 'center' | 'end'
+  onSelectReaction: (emoji: string) => void;
+  trigger?: React.ReactNode;
+  align?: "start" | "center" | "end";
 }
 
 export function ReactionPicker({
   onSelectReaction,
   trigger,
-  align = 'start',
+  align = "start",
 }: ReactionPickerProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [recentEmojis, setRecentEmojis] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nchat-recent-emojis')
-      return saved ? JSON.parse(saved) : []
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("nchat-recent-emojis");
+      return saved ? JSON.parse(saved) : [];
     }
-    return []
-  })
+    return [];
+  });
 
   const handleSelectEmoji = useCallback(
     (emoji: string) => {
-      onSelectReaction(emoji)
-      setIsOpen(false)
-      setSearchQuery('')
+      onSelectReaction(emoji);
+      setIsOpen(false);
+      setSearchQuery("");
 
       // Add to recent emojis
       setRecentEmojis((prev) => {
-        const updated = [emoji, ...prev.filter((e) => e !== emoji)].slice(0, 24)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('nchat-recent-emojis', JSON.stringify(updated))
+        const updated = [emoji, ...prev.filter((e) => e !== emoji)].slice(
+          0,
+          24,
+        );
+        if (typeof window !== "undefined") {
+          localStorage.setItem("nchat-recent-emojis", JSON.stringify(updated));
         }
-        return updated
-      })
+        return updated;
+      });
     },
-    [onSelectReaction]
-  )
+    [onSelectReaction],
+  );
 
   const filteredEmojis = useMemo(() => {
-    if (!searchQuery) return null
+    if (!searchQuery) return null;
 
-    const query = searchQuery.toLowerCase()
-    const results: string[] = []
+    const query = searchQuery.toLowerCase();
+    const results: string[] = [];
 
     Object.values(EMOJI_CATEGORIES).forEach((category) => {
       category.emojis.forEach((emoji) => {
         if (emoji.includes(query)) {
-          results.push(emoji)
+          results.push(emoji);
         }
-      })
-    })
+      });
+    });
 
-    return results
-  }, [searchQuery])
+    return results;
+  }, [searchQuery]);
 
   const categoriesWithRecent = useMemo(() => {
     return {
@@ -247,8 +262,8 @@ export function ReactionPicker({
         ...EMOJI_CATEGORIES.recent,
         emojis: recentEmojis,
       },
-    }
-  }, [recentEmojis])
+    };
+  }, [recentEmojis]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -324,14 +339,15 @@ export function ReactionPicker({
           ) : (
             // Category Tabs
             <Tabs
-              defaultValue={recentEmojis.length > 0 ? 'recent' : 'smileys'}
+              defaultValue={recentEmojis.length > 0 ? "recent" : "smileys"}
               className="flex flex-1 flex-col"
             >
               <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-1">
                 {Object.entries(categoriesWithRecent).map(([key, category]) => {
-                  if (key === 'recent' && category.emojis.length === 0) return null
+                  if (key === "recent" && category.emojis.length === 0)
+                    return null;
 
-                  const Icon = category.icon
+                  const Icon = category.icon;
                   return (
                     <TabsTrigger
                       key={key}
@@ -340,15 +356,20 @@ export function ReactionPicker({
                     >
                       <Icon className="h-4 w-4" />
                     </TabsTrigger>
-                  )
+                  );
                 })}
               </TabsList>
 
               {Object.entries(categoriesWithRecent).map(([key, category]) => {
-                if (key === 'recent' && category.emojis.length === 0) return null
+                if (key === "recent" && category.emojis.length === 0)
+                  return null;
 
                 return (
-                  <TabsContent key={key} value={key} className="m-0 mt-0 flex-1">
+                  <TabsContent
+                    key={key}
+                    value={key}
+                    className="m-0 mt-0 flex-1"
+                  >
                     <ScrollArea className="h-full">
                       <div className="p-3">
                         <div className="mb-2 text-xs font-medium text-muted-foreground">
@@ -369,12 +390,12 @@ export function ReactionPicker({
                       </div>
                     </ScrollArea>
                   </TabsContent>
-                )
+                );
               })}
             </Tabs>
           )}
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

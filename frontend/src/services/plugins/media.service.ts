@@ -4,71 +4,71 @@
  */
 
 export interface MediaUploadResponse {
-  id: string
-  filename: string
-  size: number
-  mimeType: string
-  width?: number
-  height?: number
-  url: string
-  thumbnailUrl: string
+  id: string;
+  filename: string;
+  size: number;
+  mimeType: string;
+  width?: number;
+  height?: number;
+  url: string;
+  thumbnailUrl: string;
 }
 
 export interface MediaMetadata {
-  id: string
-  filename: string
-  size: number
-  mimeType: string
-  width?: number
-  height?: number
-  format?: string
-  createdAt: string
+  id: string;
+  filename: string;
+  size: number;
+  mimeType: string;
+  width?: number;
+  height?: number;
+  format?: string;
+  createdAt: string;
 }
 
 class MediaService {
-  private baseUrl = '/api/plugins/media'
+  private baseUrl = "/api/plugins/media";
 
   async uploadImage(file: File): Promise<MediaUploadResponse> {
-    const formData = new FormData()
-    formData.append('file', file)
+    const formData = new FormData();
+    formData.append("file", file);
 
     const response = await fetch(`${this.baseUrl}/upload`, {
-      method: 'POST',
+      method: "POST",
       body: formData,
-    })
+    });
 
     if (!response.ok) {
-      throw new Error(`Failed to upload image: ${response.statusText}`)
+      throw new Error(`Failed to upload image: ${response.statusText}`);
     }
 
-    return response.json()
+    return response.json();
   }
 
   getThumbnailUrl(id: string): string {
-    return `${this.baseUrl}/${id}/thumbnail`
+    return `${this.baseUrl}/${id}/thumbnail`;
   }
 
   async getMetadata(id: string): Promise<MediaMetadata> {
-    const response = await fetch(`${this.baseUrl}/${id}/metadata`)
+    const response = await fetch(`${this.baseUrl}/${id}/metadata`);
 
     if (!response.ok) {
-      throw new Error(`Failed to get metadata: ${response.statusText}`)
+      throw new Error(`Failed to get metadata: ${response.statusText}`);
     }
 
-    return response.json()
+    return response.json();
   }
 
   async checkHealth() {
     try {
-      const response = await fetch(`${this.baseUrl}/health`)
-      return response.json()
+      const response = await fetch(`${this.baseUrl}/health`);
+      return response.json();
     } catch (error) {
       return {
-        status: 'unhealthy',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        status: "unhealthy",
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 }
 
-export const mediaService = new MediaService()
+export const mediaService = new MediaService();

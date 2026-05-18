@@ -1,68 +1,72 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Forward, ChevronLeft } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { Forward, ChevronLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { useFeatureEnabled } from '@/lib/features/hooks/use-feature'
-import { FEATURES } from '@/lib/features/feature-flags'
-import { ForwardDestinationList } from './forward-destination-list'
-import { ForwardPreview } from './forward-preview'
-import type { ForwardMessage, ForwardDestination, ForwardResult } from '@/lib/forward/forward-store'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useFeatureEnabled } from "@/lib/features/hooks/use-feature";
+import { FEATURES } from "@/lib/features/feature-flags";
+import { ForwardDestinationList } from "./forward-destination-list";
+import { ForwardPreview } from "./forward-preview";
+import type {
+  ForwardMessage,
+  ForwardDestination,
+  ForwardResult,
+} from "@/lib/forward/forward-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-type ModalStep = 'select' | 'preview'
+type ModalStep = "select" | "preview";
 
 export interface ForwardMessageModalProps {
   /** Whether the modal is open */
-  open: boolean
+  open: boolean;
   /** Called when the modal should close */
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void;
   /** The message to forward */
-  message: ForwardMessage | null
+  message: ForwardMessage | null;
   /** Recent forward destinations */
-  recentDestinations?: ForwardDestination[]
+  recentDestinations?: ForwardDestination[];
   /** Available channels */
-  channels?: ForwardDestination[]
+  channels?: ForwardDestination[];
   /** Available direct messages */
-  directMessages?: ForwardDestination[]
+  directMessages?: ForwardDestination[];
   /** Selected destinations */
-  selectedDestinations: ForwardDestination[]
+  selectedDestinations: ForwardDestination[];
   /** Called when a destination is toggled */
-  onToggleDestination: (destination: ForwardDestination) => void
+  onToggleDestination: (destination: ForwardDestination) => void;
   /** Called when a destination is removed */
-  onRemoveDestination: (destinationId: string) => void
+  onRemoveDestination: (destinationId: string) => void;
   /** Comment to include */
-  comment: string
+  comment: string;
   /** Called when comment changes */
-  onCommentChange: (comment: string) => void
+  onCommentChange: (comment: string) => void;
   /** Search query */
-  searchQuery: string
+  searchQuery: string;
   /** Called when search query changes */
-  onSearchChange: (query: string) => void
+  onSearchChange: (query: string) => void;
   /** Called to load destinations */
-  onLoadDestinations?: (query?: string) => void
+  onLoadDestinations?: (query?: string) => void;
   /** Called when forward is confirmed */
-  onConfirm: () => Promise<ForwardResult[]>
+  onConfirm: () => Promise<ForwardResult[]>;
   /** Whether destinations are loading */
-  isLoadingDestinations?: boolean
+  isLoadingDestinations?: boolean;
   /** Whether forward is in progress */
-  isForwarding?: boolean
+  isForwarding?: boolean;
   /** Results from forwarding */
-  forwardResults?: ForwardResult[]
+  forwardResults?: ForwardResult[];
   /** Called when modal closes after successful forward */
-  onComplete?: () => void
+  onComplete?: () => void;
 }
 
 // ============================================================================
@@ -90,79 +94,79 @@ export function ForwardMessageModal({
   forwardResults = [],
   onComplete,
 }: ForwardMessageModalProps) {
-  const isForwardEnabled = useFeatureEnabled(FEATURES.MESSAGES_FORWARD)
-  const [step, setStep] = React.useState<ModalStep>('select')
+  const isForwardEnabled = useFeatureEnabled(FEATURES.MESSAGES_FORWARD);
+  const [step, setStep] = React.useState<ModalStep>("select");
 
   // Load destinations when modal opens
   React.useEffect(() => {
     if (open && onLoadDestinations) {
-      onLoadDestinations()
+      onLoadDestinations();
     }
-  }, [open, onLoadDestinations])
+  }, [open, onLoadDestinations]);
 
   // Reset step when modal closes
   React.useEffect(() => {
     if (!open) {
-      setStep('select')
+      setStep("select");
     }
-  }, [open])
+  }, [open]);
 
   // Handle search submit
   const handleSearchSubmit = () => {
     if (onLoadDestinations) {
-      onLoadDestinations(searchQuery)
+      onLoadDestinations(searchQuery);
     }
-  }
+  };
 
   // Handle continuing to preview
   const handleContinue = () => {
     if (selectedDestinations.length > 0) {
-      setStep('preview')
+      setStep("preview");
     }
-  }
+  };
 
   // Handle going back to selection
   const handleBack = () => {
-    setStep('select')
-  }
+    setStep("select");
+  };
 
   // Handle forward confirmation
   const handleConfirm = async () => {
-    const results = await onConfirm()
+    const results = await onConfirm();
 
     // If all successful, we can close after a short delay
     if (results.every((r) => r.success)) {
       setTimeout(() => {
-        onOpenChange(false)
-        onComplete?.()
-      }, 1500)
+        onOpenChange(false);
+        onComplete?.();
+      }, 1500);
     }
-  }
+  };
 
   // Handle cancel/close
   const handleCancel = () => {
     if (forwardResults.length > 0) {
       // After forwarding, just close
-      onOpenChange(false)
-      onComplete?.()
-    } else if (step === 'preview') {
-      handleBack()
+      onOpenChange(false);
+      onComplete?.();
+    } else if (step === "preview") {
+      handleBack();
     } else {
-      onOpenChange(false)
+      onOpenChange(false);
     }
-  }
+  };
 
   // Don't render if feature is disabled
   if (!isForwardEnabled) {
-    return null
+    return null;
   }
 
   // Don't render if no message
   if (!message) {
-    return null
+    return null;
   }
 
-  const hasResults = forwardResults.length > 0
+  const hasResults = forwardResults.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -170,7 +174,7 @@ export function ForwardMessageModal({
         {/* Header */}
         <DialogHeader className="border-b px-4 py-3">
           <div className="flex items-center gap-2">
-            {step === 'preview' && !hasResults && (
+            {step === "preview" && !hasResults && (
               <Button
                 type="button"
                 variant="ghost"
@@ -184,20 +188,20 @@ export function ForwardMessageModal({
             <div className="flex items-center gap-2">
               <Forward className="h-5 w-5 text-primary" />
               <DialogTitle className="text-base">
-                {step === 'select' ? 'Forward Message' : 'Confirm Forward'}
+                {step === "select" ? "Forward Message" : "Confirm Forward"}
               </DialogTitle>
             </div>
           </div>
           <DialogDescription className="sr-only">
-            {step === 'select'
-              ? 'Select channels or conversations to forward this message to'
-              : 'Review and confirm your forward'}
+            {step === "select"
+              ? "Select channels or conversations to forward this message to"
+              : "Review and confirm your forward"}
           </DialogDescription>
         </DialogHeader>
 
         {/* Content */}
         <div className="flex-1 overflow-hidden">
-          {step === 'select' ? (
+          {step === "select" ? (
             <>
               <ForwardDestinationList
                 recentDestinations={recentDestinations}
@@ -216,9 +220,15 @@ export function ForwardMessageModal({
               {/* Continue Button */}
               {selectedDestinations.length > 0 && (
                 <div className="border-t p-3">
-                  <Button type="button" onClick={handleContinue} className="w-full">
-                    Continue with {selectedDestinations.length}{' '}
-                    {selectedDestinations.length === 1 ? 'destination' : 'destinations'}
+                  <Button
+                    type="button"
+                    onClick={handleContinue}
+                    className="w-full"
+                  >
+                    Continue with {selectedDestinations.length}{" "}
+                    {selectedDestinations.length === 1
+                      ? "destination"
+                      : "destinations"}
                   </Button>
                 </div>
               )}
@@ -241,20 +251,20 @@ export function ForwardMessageModal({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
 // Connected Modal (uses hooks internally)
 // ============================================================================
 
-import { useForward } from '@/lib/forward/use-forward'
+import { useForward } from "@/lib/forward/use-forward";
 
 export interface ConnectedForwardModalProps {
   /** Called when modal closes */
-  onClose?: () => void
+  onClose?: () => void;
   /** Called after successful forward */
-  onSuccess?: (results: ForwardResult[]) => void
+  onSuccess?: (results: ForwardResult[]) => void;
 }
 
 /**
@@ -274,7 +284,10 @@ export interface ConnectedForwardModalProps {
  * }
  * ```
  */
-export function ConnectedForwardModal({ onClose, onSuccess }: ConnectedForwardModalProps) {
+export function ConnectedForwardModal({
+  onClose,
+  onSuccess,
+}: ConnectedForwardModalProps) {
   const {
     isOpen,
     closeForwardModal,
@@ -295,30 +308,30 @@ export function ConnectedForwardModal({ onClose, onSuccess }: ConnectedForwardMo
     executeForward,
   } = useForward({
     onSuccess: (results) => {
-      onSuccess?.(results)
+      onSuccess?.(results);
     },
     onClose: () => {
-      onClose?.()
+      onClose?.();
     },
-  })
+  });
 
   // Separate channels and DMs from destinations
   const channels = React.useMemo(
-    () => destinations.filter((d) => d.type === 'channel'),
-    [destinations]
-  )
+    () => destinations.filter((d) => d.type === "channel"),
+    [destinations],
+  );
 
   const directMessages = React.useMemo(
-    () => destinations.filter((d) => d.type === 'direct' || d.type === 'group'),
-    [destinations]
-  )
+    () => destinations.filter((d) => d.type === "direct" || d.type === "group"),
+    [destinations],
+  );
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      closeForwardModal()
-      onClose?.()
+      closeForwardModal();
+      onClose?.();
     }
-  }
+  };
 
   return (
     <ForwardMessageModal
@@ -341,7 +354,7 @@ export function ConnectedForwardModal({ onClose, onSuccess }: ConnectedForwardMo
       isForwarding={isForwarding}
       forwardResults={forwardResults}
     />
-  )
+  );
 }
 
-export default ForwardMessageModal
+export default ForwardMessageModal;

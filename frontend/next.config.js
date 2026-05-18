@@ -27,6 +27,40 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  // isomorphic-dompurify imports jsdom on the server side. jsdom reads its own
+  // browser/default-stylesheet.css at module init via readFileSync. When Next.js
+  // bundles jsdom for the server, the relative path resolution breaks and the
+  // build fails with ENOENT during page data collection for routes that import
+  // the message formatter service. Marking jsdom (and its canvas peer) as server
+  // externals causes Node.js to load them natively, preserving the correct
+  // __dirname-relative path and eliminating the ENOENT entirely.
+  serverExternalPackages: ['jsdom', 'canvas'],
+  // Webpack externals: belt-and-suspenders approach to guarantee jsdom is never
+  // bundled. serverExternalPackages handles most cases; webpack externals handles
+  // edge cases in the App Router's isAppLayer bundling path.
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Force jsdom (and its canvas peer) to be loaded natively by Node.js,
+      // not bundled by webpack. jsdom's style-rules.js reads
+      // browser/default-stylesheet.css via readFileSync at module init using
+      // a __dirname-relative path that only resolves correctly when loaded
+      // natively from node_modules, not from a webpack chunk.
+      const existingExternals = config.externals || []
+      const externalsArray = Array.isArray(existingExternals)
+        ? existingExternals
+        : [existingExternals]
+      config.externals = [
+        ...externalsArray,
+        ({ request }, callback) => {
+          if (request === 'jsdom' || request === 'canvas') {
+            return callback(null, `commonjs ${request}`)
+          }
+          return callback()
+        },
+      ]
+    }
+    return config
+  },
   experimental: {
     // Optimize package imports to reduce bundle size
     optimizePackageImports: [

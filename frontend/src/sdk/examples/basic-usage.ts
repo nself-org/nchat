@@ -2,17 +2,17 @@
  * Basic SDK Usage Examples
  */
 
-import { NChatClient } from '../index'
+import { NChatClient } from "../index";
 
 // ============================================================================
 // Example 1: Initialize the Client
 // ============================================================================
 
 const client = new NChatClient({
-  apiUrl: 'https://api.nchat.example.com',
-  apiKey: 'your-api-key',
+  apiUrl: "https://api.nchat.example.com",
+  apiKey: "your-api-key",
   debug: true, // Enable debug logging
-})
+});
 
 // ============================================================================
 // Example 2: Authentication
@@ -21,18 +21,18 @@ const client = new NChatClient({
 async function authenticateExample() {
   // Sign in with email/password
   const { user, token } = await client.auth.signIn({
-    email: 'user@example.com',
-    password: 'password123',
-  })
+    email: "user@example.com",
+    password: "password123",
+  });
 
-  console.log('Signed in as:', user.displayName)
+  console.log("Signed in as:", user.displayName);
 
   // Update client token for authenticated requests
-  client.setToken(token)
+  client.setToken(token);
 
   // Get current user
-  const currentUser = await client.users.me()
-  console.log('Current user:', currentUser)
+  const currentUser = await client.users.me();
+  console.log("Current user:", currentUser);
 }
 
 // ============================================================================
@@ -42,26 +42,26 @@ async function authenticateExample() {
 async function channelExample() {
   // Create a public channel
   const channel = await client.channels.create({
-    name: 'general',
-    description: 'General discussion',
-    type: 'public',
-  })
+    name: "general",
+    description: "General discussion",
+    type: "public",
+  });
 
-  console.log('Created channel:', channel.id)
+  console.log("Created channel:", channel.id);
 
   // List all channels
   const { data: channels } = await client.channels.list({
     limit: 50,
-  })
+  });
 
-  console.log('Total channels:', channels.length)
+  console.log("Total channels:", channels.length);
 
   // Join a channel
-  await client.channels.join(channel.id)
+  await client.channels.join(channel.id);
 
   // Get channel members
-  const { data: members } = await client.channels.getMembers(channel.id)
-  console.log('Channel members:', members.length)
+  const { data: members } = await client.channels.getMembers(channel.id);
+  console.log("Channel members:", members.length);
 }
 
 // ============================================================================
@@ -71,33 +71,33 @@ async function channelExample() {
 async function messageExample() {
   // Send a simple message
   const message = await client.messages.send({
-    channelId: 'channel-123',
-    content: 'Hello, world!',
-  })
+    channelId: "channel-123",
+    content: "Hello, world!",
+  });
 
-  console.log('Message sent:', message.id)
+  console.log("Message sent:", message.id);
 
   // Send a message with mentions
   await client.messages.send({
-    channelId: 'channel-123',
-    content: 'Hey @john, check this out!',
-    mentions: ['user-456'],
-  })
+    channelId: "channel-123",
+    content: "Hey @john, check this out!",
+    mentions: ["user-456"],
+  });
 
   // Reply in a thread
   await client.messages.send({
-    channelId: 'channel-123',
-    content: 'This is a reply',
+    channelId: "channel-123",
+    content: "This is a reply",
     parentId: message.id,
-  })
+  });
 
   // Add a reaction
-  await client.messages.react(message.id, '👍')
+  await client.messages.react(message.id, "👍");
 
   // Edit a message
   await client.messages.update(message.id, {
-    content: 'Hello, world! (edited)',
-  })
+    content: "Hello, world! (edited)",
+  });
 }
 
 // ============================================================================
@@ -106,23 +106,26 @@ async function messageExample() {
 
 async function listMessagesExample() {
   // Get recent messages in a channel
-  const { data: messages, pagination } = await client.messages.list('channel-123', {
-    limit: 50,
-    orderBy: 'created_at',
-    orderDirection: 'desc',
-  })
+  const { data: messages, pagination } = await client.messages.list(
+    "channel-123",
+    {
+      limit: 50,
+      orderBy: "created_at",
+      orderDirection: "desc",
+    },
+  );
 
-  console.log('Messages:', messages.length)
-  console.log('Has more:', pagination.hasMore)
+  console.log("Messages:", messages.length);
+  console.log("Has more:", pagination.hasMore);
 
   // Load more messages (pagination)
   if (pagination.hasMore) {
-    const { data: moreMessages } = await client.messages.list('channel-123', {
+    const { data: moreMessages } = await client.messages.list("channel-123", {
       limit: 50,
       offset: pagination.offset + pagination.limit,
-    })
+    });
 
-    console.log('More messages:', moreMessages.length)
+    console.log("More messages:", moreMessages.length);
   }
 }
 
@@ -132,27 +135,27 @@ async function listMessagesExample() {
 
 async function userExample() {
   // Search for users
-  const { data: users } = await client.users.search('john', {
+  const { data: users } = await client.users.search("john", {
     limit: 10,
-  })
+  });
 
-  console.log('Found users:', users.length)
+  console.log("Found users:", users.length);
 
   // Update your profile
   await client.users.update({
-    displayName: 'John Doe',
-    avatarUrl: 'https://example.com/avatar.jpg',
-  })
+    displayName: "John Doe",
+    avatarUrl: "https://example.com/avatar.jpg",
+  });
 
   // Update presence
-  await client.users.updatePresence('online')
+  await client.users.updatePresence("online");
 
   // Block a user
-  await client.users.block('user-789')
+  await client.users.block("user-789");
 
   // Get blocked users
-  const { data: blocked } = await client.users.getBlocked()
-  console.log('Blocked users:', blocked.length)
+  const { data: blocked } = await client.users.getBlocked();
+  console.log("Blocked users:", blocked.length);
 }
 
 // ============================================================================
@@ -162,26 +165,26 @@ async function userExample() {
 async function webhookExample() {
   // Create a webhook
   const webhook = await client.webhooks.create({
-    name: 'My Webhook',
-    url: 'https://example.com/webhook',
-    events: ['message.created', 'message.updated', 'channel.created'],
-  })
+    name: "My Webhook",
+    url: "https://example.com/webhook",
+    events: ["message.created", "message.updated", "channel.created"],
+  });
 
-  console.log('Webhook created:', webhook.id)
-  console.log('Webhook secret:', webhook.secret)
+  console.log("Webhook created:", webhook.id);
+  console.log("Webhook secret:", webhook.secret);
 
   // Test the webhook
-  const { success } = await client.webhooks.test(webhook.id)
-  console.log('Webhook test:', success ? 'passed' : 'failed')
+  const { success } = await client.webhooks.test(webhook.id);
+  console.log("Webhook test:", success ? "passed" : "failed");
 
   // Update webhook
   await client.webhooks.update(webhook.id, {
     isActive: false,
-  })
+  });
 
   // Regenerate secret
-  const { secret } = await client.webhooks.regenerateSecret(webhook.id)
-  console.log('New secret:', secret)
+  const { secret } = await client.webhooks.regenerateSecret(webhook.id);
+  console.log("New secret:", secret);
 }
 
 // ============================================================================
@@ -191,23 +194,23 @@ async function webhookExample() {
 async function botExample() {
   // Create a bot
   const bot = await client.bots.create({
-    name: 'Helper Bot',
-    username: 'helperbot',
-    description: 'A helpful bot',
-    permissions: ['send_messages', 'read_messages'],
-  })
+    name: "Helper Bot",
+    username: "helperbot",
+    description: "A helpful bot",
+    permissions: ["send_messages", "read_messages"],
+  });
 
-  console.log('Bot created:', bot.id)
-  console.log('Bot API key:', bot.apiKey)
+  console.log("Bot created:", bot.id);
+  console.log("Bot API key:", bot.apiKey);
 
   // Send a message as bot
   await client.bots.sendMessage(bot.id, {
-    channelId: 'channel-123',
-    content: 'Hello! I am a bot.',
-  })
+    channelId: "channel-123",
+    content: "Hello! I am a bot.",
+  });
 
   // Add reaction as bot
-  await client.bots.addReaction(bot.id, 'message-456', '🤖')
+  await client.bots.addReaction(bot.id, "message-456", "🤖");
 }
 
 // ============================================================================
@@ -216,28 +219,28 @@ async function botExample() {
 
 async function adminExample() {
   // Get system stats
-  const stats = await client.admin.getStats()
-  console.log('Total users:', stats.users.total)
-  console.log('Active users:', stats.users.active)
-  console.log('Total messages:', stats.messages.total)
+  const stats = await client.admin.getStats();
+  console.log("Total users:", stats.users.total);
+  console.log("Active users:", stats.users.active);
+  console.log("Total messages:", stats.messages.total);
 
   // Update user role
-  await client.admin.updateUserRole('user-123', {
-    role: 'moderator',
-  })
+  await client.admin.updateUserRole("user-123", {
+    role: "moderator",
+  });
 
   // Suspend a user
-  await client.admin.suspendUser('user-456', 'Violated terms of service')
+  await client.admin.suspendUser("user-456", "Violated terms of service");
 
   // Get audit logs
   const { data: logs } = await client.admin.getAuditLogs({
     limit: 100,
-  })
-  console.log('Audit logs:', logs.length)
+  });
+  console.log("Audit logs:", logs.length);
 
   // Export data
-  const { downloadUrl } = await client.admin.exportData('json')
-  console.log('Download export at:', downloadUrl)
+  const { downloadUrl } = await client.admin.exportData("json");
+  console.log("Download export at:", downloadUrl);
 }
 
 // ============================================================================
@@ -247,18 +250,18 @@ async function adminExample() {
 async function errorHandlingExample() {
   try {
     await client.messages.send({
-      channelId: 'invalid-channel',
-      content: 'This will fail',
-    })
+      channelId: "invalid-channel",
+      content: "This will fail",
+    });
   } catch (error) {
     if (error instanceof NChatClient.AuthenticationError) {
-      console.error('Not authenticated')
+      console.error("Not authenticated");
     } else if (error instanceof NChatClient.ValidationError) {
-      console.error('Validation failed:', error.errors)
+      console.error("Validation failed:", error.errors);
     } else if (error instanceof NChatClient.RateLimitError) {
-      console.error('Rate limited. Retry after:', error.retryAfter)
+      console.error("Rate limited. Retry after:", error.retryAfter);
     } else {
-      console.error('Unknown error:', error)
+      console.error("Unknown error:", error);
     }
   }
 }
@@ -269,17 +272,17 @@ async function errorHandlingExample() {
 
 async function runAllExamples() {
   try {
-    await authenticateExample()
-    await channelExample()
-    await messageExample()
-    await listMessagesExample()
-    await userExample()
-    await webhookExample()
-    await botExample()
-    await adminExample()
-    await errorHandlingExample()
+    await authenticateExample();
+    await channelExample();
+    await messageExample();
+    await listMessagesExample();
+    await userExample();
+    await webhookExample();
+    await botExample();
+    await adminExample();
+    await errorHandlingExample();
   } catch (error) {
-    console.error('Error running examples:', error)
+    console.error("Error running examples:", error);
   }
 }
 
@@ -294,4 +297,4 @@ export {
   botExample,
   adminExample,
   errorHandlingExample,
-}
+};

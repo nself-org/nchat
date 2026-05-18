@@ -19,7 +19,7 @@ export {
   supportsSystemAudio,
   getOptimalQuality,
   getBitrateForQuality,
-} from './screen-share.service'
+} from "./screen-share.service";
 
 export {
   ScreenSharePermissionsService,
@@ -31,4 +31,4 @@ export {
   type ShareRequestStatus,
   type ActiveShare,
   type ScreenSharePermissionCallbacks,
-} from './screen-share-permissions.service'
+} from "./screen-share-permissions.service";

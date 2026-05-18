@@ -1,38 +1,38 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { type CustomStatus, useUserStore } from '@/stores/user-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { type CustomStatus, useUserStore } from "@/stores/user-store";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Smile, X, Clock } from 'lucide-react'
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Smile, X, Clock } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SetStatusModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  currentStatus?: CustomStatus
-  onSave?: (status: CustomStatus) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  currentStatus?: CustomStatus;
+  onSave?: (status: CustomStatus) => void;
 }
 
 // ============================================================================
@@ -40,61 +40,61 @@ export interface SetStatusModalProps {
 // ============================================================================
 
 const presetStatuses: Array<{ emoji: string; text: string }> = [
-  { emoji: '📅', text: 'In a meeting' },
-  { emoji: '🚗', text: 'Commuting' },
-  { emoji: '🤒', text: 'Out sick' },
-  { emoji: '🌴', text: 'Vacationing' },
-  { emoji: '🏠', text: 'Working remotely' },
-  { emoji: '🎯', text: 'Focusing' },
-  { emoji: '🍔', text: 'Lunch break' },
-  { emoji: '💻', text: 'Coding' },
-  { emoji: '☕', text: 'Coffee break' },
-  { emoji: '🎧', text: 'Listening to music' },
-]
+  { emoji: "📅", text: "In a meeting" },
+  { emoji: "🚗", text: "Commuting" },
+  { emoji: "🤒", text: "Out sick" },
+  { emoji: "🌴", text: "Vacationing" },
+  { emoji: "🏠", text: "Working remotely" },
+  { emoji: "🎯", text: "Focusing" },
+  { emoji: "🍔", text: "Lunch break" },
+  { emoji: "💻", text: "Coding" },
+  { emoji: "☕", text: "Coffee break" },
+  { emoji: "🎧", text: "Listening to music" },
+];
 
 // ============================================================================
 // Common emojis for quick selection
 // ============================================================================
 
 const commonEmojis = [
-  '😀',
-  '😊',
-  '🎉',
-  '🔥',
-  '💪',
-  '👋',
-  '🙏',
-  '💡',
-  '⚡',
-  '🚀',
-  '💻',
-  '📱',
-  '🎯',
-  '✅',
-  '❤️',
-  '⭐',
-  '🌟',
-  '🎮',
-  '🎨',
-  '📚',
-  '🎵',
-  '🏃',
-  '🍕',
-  '☕',
-]
+  "😀",
+  "😊",
+  "🎉",
+  "🔥",
+  "💪",
+  "👋",
+  "🙏",
+  "💡",
+  "⚡",
+  "🚀",
+  "💻",
+  "📱",
+  "🎯",
+  "✅",
+  "❤️",
+  "⭐",
+  "🌟",
+  "🎮",
+  "🎨",
+  "📚",
+  "🎵",
+  "🏃",
+  "🍕",
+  "☕",
+];
 
 // ============================================================================
 // Clear time options
 // ============================================================================
 
 const clearTimeOptions = [
-  { value: 'none', label: "Don't clear" },
-  { value: '30m', label: 'in 30 minutes' },
-  { value: '1h', label: 'in 1 hour' },
-  { value: '4h', label: 'in 4 hours' },
-  { value: 'today', label: 'Today' },
-  { value: 'week', label: 'This week' },
-]
+  { value: "none", label: "Don't clear" },
+  { value: "30m", label: "in 30 minutes" },
+  { value: "1h", label: "in 1 hour" },
+  { value: "4h", label: "in 4 hours" },
+  { value: "today", label: "Today" },
+  { value: "week", label: "This week" },
+];
 
 // ============================================================================
 // Component
@@ -106,80 +106,82 @@ export const SetStatusModal: React.FC<SetStatusModalProps> = ({
   currentStatus,
   onSave,
 }) => {
-  const setMyCustomStatus = useUserStore((state) => state.setMyCustomStatus)
-  const clearMyCustomStatus = useUserStore((state) => state.clearMyCustomStatus)
+  const setMyCustomStatus = useUserStore((state) => state.setMyCustomStatus);
+  const clearMyCustomStatus = useUserStore(
+    (state) => state.clearMyCustomStatus,
+  );
 
-  const [emoji, setEmoji] = React.useState(currentStatus?.emoji ?? '')
-  const [text, setText] = React.useState(currentStatus?.text ?? '')
-  const [clearTime, setClearTime] = React.useState('none')
-  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false)
+  const [emoji, setEmoji] = React.useState(currentStatus?.emoji ?? "");
+  const [text, setText] = React.useState(currentStatus?.text ?? "");
+  const [clearTime, setClearTime] = React.useState("none");
+  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
 
   // Reset form when modal opens
   React.useEffect(() => {
     if (open) {
-      setEmoji(currentStatus?.emoji ?? '')
-      setText(currentStatus?.text ?? '')
-      setClearTime('none')
-      setShowEmojiPicker(false)
+      setEmoji(currentStatus?.emoji ?? "");
+      setText(currentStatus?.text ?? "");
+      setClearTime("none");
+      setShowEmojiPicker(false);
     }
-  }, [open, currentStatus])
+  }, [open, currentStatus]);
 
   const handlePresetClick = (preset: { emoji: string; text: string }) => {
-    setEmoji(preset.emoji)
-    setText(preset.text)
-  }
+    setEmoji(preset.emoji);
+    setText(preset.text);
+  };
 
   const handleEmojiClick = (selectedEmoji: string) => {
-    setEmoji(selectedEmoji)
-    setShowEmojiPicker(false)
-  }
+    setEmoji(selectedEmoji);
+    setShowEmojiPicker(false);
+  };
 
   const calculateExpiresAt = (clearTimeValue: string): Date | null => {
-    const now = new Date()
+    const now = new Date();
     switch (clearTimeValue) {
-      case '30m':
-        return new Date(now.getTime() + 30 * 60 * 1000)
-      case '1h':
-        return new Date(now.getTime() + 60 * 60 * 1000)
-      case '4h':
-        return new Date(now.getTime() + 4 * 60 * 60 * 1000)
-      case 'today': {
-        const endOfDay = new Date(now)
-        endOfDay.setHours(23, 59, 59, 999)
-        return endOfDay
+      case "30m":
+        return new Date(now.getTime() + 30 * 60 * 1000);
+      case "1h":
+        return new Date(now.getTime() + 60 * 60 * 1000);
+      case "4h":
+        return new Date(now.getTime() + 4 * 60 * 60 * 1000);
+      case "today": {
+        const endOfDay = new Date(now);
+        endOfDay.setHours(23, 59, 59, 999);
+        return endOfDay;
       }
-      case 'week': {
-        const endOfWeek = new Date(now)
-        endOfWeek.setDate(now.getDate() + (7 - now.getDay()))
-        endOfWeek.setHours(23, 59, 59, 999)
-        return endOfWeek
+      case "week": {
+        const endOfWeek = new Date(now);
+        endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
+        endOfWeek.setHours(23, 59, 59, 999);
+        return endOfWeek;
       }
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   const handleSave = () => {
     if (!emoji && !text) {
-      handleClear()
-      return
+      handleClear();
+      return;
     }
 
     const status: CustomStatus = {
       emoji: emoji || undefined,
       text: text || undefined,
       expiresAt: calculateExpiresAt(clearTime),
-    }
+    };
 
-    setMyCustomStatus(status)
-    onSave?.(status)
-    onOpenChange(false)
-  }
+    setMyCustomStatus(status);
+    onSave?.(status);
+    onOpenChange(false);
+  };
 
   const handleClear = () => {
-    clearMyCustomStatus()
-    onOpenChange(false)
-  }
+    clearMyCustomStatus();
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -231,8 +233,8 @@ export const SetStatusModal: React.FC<SetStatusModalProps> = ({
                   size="icon"
                   className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2"
                   onClick={() => {
-                    setEmoji('')
-                    setText('')
+                    setEmoji("");
+                    setText("");
                   }}
                 >
                   <X className="h-3 w-3" />
@@ -265,7 +267,9 @@ export const SetStatusModal: React.FC<SetStatusModalProps> = ({
 
           {/* Preset statuses */}
           <div>
-            <Label className="mb-2 block text-sm text-muted-foreground">Quick select</Label>
+            <Label className="mb-2 block text-sm text-muted-foreground">
+              Quick select
+            </Label>
             <ScrollArea className="h-40">
               <div className="space-y-1">
                 {presetStatuses.map((preset, index) => (
@@ -273,10 +277,10 @@ export const SetStatusModal: React.FC<SetStatusModalProps> = ({
                     key={index}
                     onClick={() => handlePresetClick(preset)}
                     className={cn(
-                      'flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors',
+                      "flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors",
                       emoji === preset.emoji && text === preset.text
-                        ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-muted'
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-muted",
                     )}
                   >
                     <span className="text-lg">{preset.emoji}</span>
@@ -301,7 +305,7 @@ export const SetStatusModal: React.FC<SetStatusModalProps> = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default SetStatusModal
+export default SetStatusModal;

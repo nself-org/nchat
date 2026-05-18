@@ -1,58 +1,61 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Card } from '@/components/ui/card'
-import { useNotificationStore, type NotificationPreferences } from '@/stores/notification-store'
-import { useNotifications } from '@/hooks/use-notifications'
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import {
+  useNotificationStore,
+  type NotificationPreferences,
+} from "@/stores/notification-store";
+import { useNotifications } from "@/hooks/use-notifications";
 
 // Days of the week for DND schedule
 const DAYS_OF_WEEK = [
-  { value: 0, label: 'Sun' },
-  { value: 1, label: 'Mon' },
-  { value: 2, label: 'Tue' },
-  { value: 3, label: 'Wed' },
-  { value: 4, label: 'Thu' },
-  { value: 5, label: 'Fri' },
-  { value: 6, label: 'Sat' },
-]
+  { value: 0, label: "Sun" },
+  { value: 1, label: "Mon" },
+  { value: 2, label: "Tue" },
+  { value: 3, label: "Wed" },
+  { value: 4, label: "Thu" },
+  { value: 5, label: "Fri" },
+  { value: 6, label: "Sat" },
+];
 
 // Email digest frequency options
 const EMAIL_FREQUENCIES = [
-  { value: 'instant', label: 'Instant' },
-  { value: 'hourly', label: 'Hourly' },
-  { value: 'daily', label: 'Daily digest' },
-  { value: 'weekly', label: 'Weekly digest' },
-  { value: 'never', label: 'Never' },
-]
+  { value: "instant", label: "Instant" },
+  { value: "hourly", label: "Hourly" },
+  { value: "daily", label: "Daily digest" },
+  { value: "weekly", label: "Weekly digest" },
+  { value: "never", label: "Never" },
+];
 
 export interface NotificationPreferencesProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Callback when preferences are saved
    */
-  onSave?: () => void
+  onSave?: () => void;
 
   /**
    * Whether to show the save button
    * @default true
    */
-  showSaveButton?: boolean
+  showSaveButton?: boolean;
 
   /**
    * Whether changes are auto-saved (updates applied immediately without save button)
    * @default true
    */
-  saveOnChange?: boolean
+  saveOnChange?: boolean;
 }
 
 /**
@@ -72,102 +75,118 @@ export function NotificationPreferences({
   className,
   ...props
 }: NotificationPreferencesProps) {
-  const preferences = useNotificationStore((state) => state.preferences)
-  const updatePreferences = useNotificationStore((state) => state.updatePreferences)
-  const { requestDesktopPermission, desktopPermission } = useNotifications()
+  const preferences = useNotificationStore((state) => state.preferences);
+  const updatePreferences = useNotificationStore(
+    (state) => state.updatePreferences,
+  );
+  const { requestDesktopPermission, desktopPermission } = useNotifications();
 
   const [localPreferences, setLocalPreferences] =
-    React.useState<NotificationPreferences>(preferences)
-  const [hasChanges, setHasChanges] = React.useState(false)
+    React.useState<NotificationPreferences>(preferences);
+  const [hasChanges, setHasChanges] = React.useState(false);
 
   // Sync local state with store
   React.useEffect(() => {
-    setLocalPreferences(preferences)
-  }, [preferences])
+    setLocalPreferences(preferences);
+  }, [preferences]);
 
   // Update handler
   const handleUpdate = React.useCallback(
-    <K extends keyof NotificationPreferences>(key: K, value: NotificationPreferences[K]) => {
-      const updated = { ...localPreferences, [key]: value }
-      setLocalPreferences(updated)
-      setHasChanges(true)
+    <K extends keyof NotificationPreferences>(
+      key: K,
+      value: NotificationPreferences[K],
+    ) => {
+      const updated = { ...localPreferences, [key]: value };
+      setLocalPreferences(updated);
+      setHasChanges(true);
 
       if (saveOnChange) {
-        updatePreferences({ [key]: value })
+        updatePreferences({ [key]: value });
       }
     },
-    [localPreferences, saveOnChange, updatePreferences]
-  )
+    [localPreferences, saveOnChange, updatePreferences],
+  );
 
   // DND schedule handler
   const handleDndUpdate = React.useCallback(
-    <K extends keyof NotificationPreferences['dndSchedule']>(
+    <K extends keyof NotificationPreferences["dndSchedule"]>(
       key: K,
-      value: NotificationPreferences['dndSchedule'][K]
+      value: NotificationPreferences["dndSchedule"][K],
     ) => {
       const updated = {
         ...localPreferences,
         dndSchedule: { ...localPreferences.dndSchedule, [key]: value },
-      }
-      setLocalPreferences(updated)
-      setHasChanges(true)
+      };
+      setLocalPreferences(updated);
+      setHasChanges(true);
 
       if (saveOnChange) {
-        updatePreferences({ dndSchedule: updated.dndSchedule })
+        updatePreferences({ dndSchedule: updated.dndSchedule });
       }
     },
-    [localPreferences, saveOnChange, updatePreferences]
-  )
+    [localPreferences, saveOnChange, updatePreferences],
+  );
 
   // Toggle DND day
   const toggleDndDay = React.useCallback(
     (day: number) => {
-      const currentDays = localPreferences.dndSchedule.days
+      const currentDays = localPreferences.dndSchedule.days;
       const newDays = currentDays.includes(day)
         ? currentDays.filter((d) => d !== day)
-        : [...currentDays, day].sort((a, b) => a - b)
+        : [...currentDays, day].sort((a, b) => a - b);
 
-      handleDndUpdate('days', newDays)
+      handleDndUpdate("days", newDays);
     },
-    [localPreferences.dndSchedule.days, handleDndUpdate]
-  )
+    [localPreferences.dndSchedule.days, handleDndUpdate],
+  );
 
   // Save handler
   const handleSave = React.useCallback(() => {
-    updatePreferences(localPreferences)
-    setHasChanges(false)
-    onSave?.()
-  }, [localPreferences, updatePreferences, onSave])
+    updatePreferences(localPreferences);
+    setHasChanges(false);
+    onSave?.();
+  }, [localPreferences, updatePreferences, onSave]);
 
   // Request desktop permission
   const handleRequestPermission = React.useCallback(async () => {
-    const permission = await requestDesktopPermission()
-    if (permission === 'granted') {
-      handleUpdate('desktopEnabled', true)
+    const permission = await requestDesktopPermission();
+    if (permission === "granted") {
+      handleUpdate("desktopEnabled", true);
     }
-  }, [requestDesktopPermission, handleUpdate])
+  }, [requestDesktopPermission, handleUpdate]);
 
   return (
-    <div className={cn('space-y-6', className)} {...props}>
+    <div className={cn("space-y-6", className)} {...props}>
       {/* Desktop Notifications */}
       <Card className="p-4">
         <h3 className="mb-4 text-sm font-medium">Desktop Notifications</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="desktop-enabled">Enable desktop notifications</Label>
-              <p className="text-xs text-muted-foreground">Show notifications on your desktop</p>
+              <Label htmlFor="desktop-enabled">
+                Enable desktop notifications
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Show notifications on your desktop
+              </p>
             </div>
             <div className="flex items-center gap-2">
-              {desktopPermission !== 'granted' && localPreferences.desktopEnabled && (
-                <Button variant="outline" size="sm" onClick={handleRequestPermission}>
-                  Grant Permission
-                </Button>
-              )}
+              {desktopPermission !== "granted" &&
+                localPreferences.desktopEnabled && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRequestPermission}
+                  >
+                    Grant Permission
+                  </Button>
+                )}
               <Switch
                 id="desktop-enabled"
                 checked={localPreferences.desktopEnabled}
-                onCheckedChange={(checked) => handleUpdate('desktopEnabled', checked)}
+                onCheckedChange={(checked) =>
+                  handleUpdate("desktopEnabled", checked)
+                }
               />
             </div>
           </div>
@@ -182,7 +201,9 @@ export function NotificationPreferences({
             <Switch
               id="show-preview"
               checked={localPreferences.showPreview}
-              onCheckedChange={(checked) => handleUpdate('showPreview', checked)}
+              onCheckedChange={(checked) =>
+                handleUpdate("showPreview", checked)
+              }
               disabled={!localPreferences.desktopEnabled}
             />
           </div>
@@ -196,12 +217,16 @@ export function NotificationPreferences({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="sound-enabled">Enable sound</Label>
-              <p className="text-xs text-muted-foreground">Play a sound for new notifications</p>
+              <p className="text-xs text-muted-foreground">
+                Play a sound for new notifications
+              </p>
             </div>
             <Switch
               id="sound-enabled"
               checked={localPreferences.soundEnabled}
-              onCheckedChange={(checked) => handleUpdate('soundEnabled', checked)}
+              onCheckedChange={(checked) =>
+                handleUpdate("soundEnabled", checked)
+              }
             />
           </div>
 
@@ -218,7 +243,9 @@ export function NotificationPreferences({
               min="0"
               max="100"
               value={localPreferences.soundVolume}
-              onChange={(e) => handleUpdate('soundVolume', parseInt(e.target.value, 10))}
+              onChange={(e) =>
+                handleUpdate("soundVolume", parseInt(e.target.value, 10))
+              }
               className="w-32"
               disabled={!localPreferences.soundEnabled}
             />
@@ -233,26 +260,32 @@ export function NotificationPreferences({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="email-enabled">Enable email notifications</Label>
-              <p className="text-xs text-muted-foreground">Receive notifications via email</p>
+              <p className="text-xs text-muted-foreground">
+                Receive notifications via email
+              </p>
             </div>
             <Switch
               id="email-enabled"
               checked={localPreferences.emailEnabled}
-              onCheckedChange={(checked) => handleUpdate('emailEnabled', checked)}
+              onCheckedChange={(checked) =>
+                handleUpdate("emailEnabled", checked)
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="email-frequency">Email frequency</Label>
-              <p className="text-xs text-muted-foreground">How often to send email digests</p>
+              <p className="text-xs text-muted-foreground">
+                How often to send email digests
+              </p>
             </div>
             <Select
               value={localPreferences.emailDigestFrequency}
               onValueChange={(value) =>
                 handleUpdate(
-                  'emailDigestFrequency',
-                  value as NotificationPreferences['emailDigestFrequency']
+                  "emailDigestFrequency",
+                  value as NotificationPreferences["emailDigestFrequency"],
                 )
               }
               disabled={!localPreferences.emailEnabled}
@@ -279,12 +312,16 @@ export function NotificationPreferences({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="mentions-enabled">Mentions</Label>
-              <p className="text-xs text-muted-foreground">When someone @mentions you</p>
+              <p className="text-xs text-muted-foreground">
+                When someone @mentions you
+              </p>
             </div>
             <Switch
               id="mentions-enabled"
               checked={localPreferences.mentionsEnabled}
-              onCheckedChange={(checked) => handleUpdate('mentionsEnabled', checked)}
+              onCheckedChange={(checked) =>
+                handleUpdate("mentionsEnabled", checked)
+              }
             />
           </div>
 
@@ -298,7 +335,9 @@ export function NotificationPreferences({
             <Switch
               id="dm-enabled"
               checked={localPreferences.directMessagesEnabled}
-              onCheckedChange={(checked) => handleUpdate('directMessagesEnabled', checked)}
+              onCheckedChange={(checked) =>
+                handleUpdate("directMessagesEnabled", checked)
+              }
             />
           </div>
 
@@ -312,19 +351,25 @@ export function NotificationPreferences({
             <Switch
               id="threads-enabled"
               checked={localPreferences.threadRepliesEnabled}
-              onCheckedChange={(checked) => handleUpdate('threadRepliesEnabled', checked)}
+              onCheckedChange={(checked) =>
+                handleUpdate("threadRepliesEnabled", checked)
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="reactions-enabled">Reactions</Label>
-              <p className="text-xs text-muted-foreground">When someone reacts to your message</p>
+              <p className="text-xs text-muted-foreground">
+                When someone reacts to your message
+              </p>
             </div>
             <Switch
               id="reactions-enabled"
               checked={localPreferences.reactionsEnabled}
-              onCheckedChange={(checked) => handleUpdate('reactionsEnabled', checked)}
+              onCheckedChange={(checked) =>
+                handleUpdate("reactionsEnabled", checked)
+              }
             />
           </div>
         </div>
@@ -344,7 +389,7 @@ export function NotificationPreferences({
             <Switch
               id="dnd-enabled"
               checked={localPreferences.dndSchedule.enabled}
-              onCheckedChange={(checked) => handleDndUpdate('enabled', checked)}
+              onCheckedChange={(checked) => handleDndUpdate("enabled", checked)}
             />
           </div>
 
@@ -352,33 +397,43 @@ export function NotificationPreferences({
             <>
               <div className="flex items-center gap-4">
                 <div className="flex-1">
-                  <Label htmlFor="dnd-start" className="text-xs text-muted-foreground">
+                  <Label
+                    htmlFor="dnd-start"
+                    className="text-xs text-muted-foreground"
+                  >
                     Start time
                   </Label>
                   <input
                     type="time"
                     id="dnd-start"
                     value={localPreferences.dndSchedule.startTime}
-                    onChange={(e) => handleDndUpdate('startTime', e.target.value)}
+                    onChange={(e) =>
+                      handleDndUpdate("startTime", e.target.value)
+                    }
                     className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   />
                 </div>
                 <div className="flex-1">
-                  <Label htmlFor="dnd-end" className="text-xs text-muted-foreground">
+                  <Label
+                    htmlFor="dnd-end"
+                    className="text-xs text-muted-foreground"
+                  >
                     End time
                   </Label>
                   <input
                     type="time"
                     id="dnd-end"
                     value={localPreferences.dndSchedule.endTime}
-                    onChange={(e) => handleDndUpdate('endTime', e.target.value)}
+                    onChange={(e) => handleDndUpdate("endTime", e.target.value)}
                     className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <Label className="mb-2 block text-xs text-muted-foreground">Active days</Label>
+                <Label className="mb-2 block text-xs text-muted-foreground">
+                  Active days
+                </Label>
                 <div className="flex gap-1">
                   {DAYS_OF_WEEK.map((day) => (
                     <button
@@ -386,10 +441,10 @@ export function NotificationPreferences({
                       type="button"
                       onClick={() => toggleDndDay(day.value)}
                       className={cn(
-                        'rounded-md border px-2 py-1 text-xs transition-colors',
+                        "rounded-md border px-2 py-1 text-xs transition-colors",
                         localPreferences.dndSchedule.days.includes(day.value)
-                          ? 'text-primary-foreground border-primary bg-primary'
-                          : 'border-input bg-background hover:bg-accent'
+                          ? "text-primary-foreground border-primary bg-primary"
+                          : "border-input bg-background hover:bg-accent",
                       )}
                     >
                       {day.label}
@@ -411,9 +466,9 @@ export function NotificationPreferences({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-NotificationPreferences.displayName = 'NotificationPreferences'
+NotificationPreferences.displayName = "NotificationPreferences";
 
-export default NotificationPreferences
+export default NotificationPreferences;

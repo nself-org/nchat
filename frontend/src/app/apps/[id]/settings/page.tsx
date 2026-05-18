@@ -1,34 +1,34 @@
-'use client'
+"use client";
 
-import { useParams, notFound } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { ArrowLeft, Package } from 'lucide-react'
-import { AppSettings } from '@/components/app-directory'
-import { getAppBySlug, getAppById } from '@/lib/app-directory/app-registry'
-import { useAppDirectoryStore } from '@/stores/app-directory-store'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import type { App, AppInstallation } from '@/lib/app-directory/app-types'
+import { useParams, notFound } from "next/navigation";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, Package } from "lucide-react";
+import { AppSettings } from "@/components/app-directory";
+import { getAppBySlug, getAppById } from "@/lib/app-directory/app-registry";
+import { useAppDirectoryStore } from "@/stores/app-directory-store";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { App, AppInstallation } from "@/lib/app-directory/app-types";
 
 export default function AppSettingsPage() {
-  const params = useParams()
-  const [app, setApp] = useState<App | null>(null)
-  const [loading, setLoading] = useState(true)
+  const params = useParams();
+  const [app, setApp] = useState<App | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const { isAppInstalled, getInstallation } = useAppDirectoryStore()
+  const { isAppInstalled, getInstallation } = useAppDirectoryStore();
 
   useEffect(() => {
-    const id = params.id as string
+    const id = params.id as string;
 
     // Try to find app by slug first, then by ID
-    const foundApp = getAppBySlug(id) || getAppById(id)
+    const foundApp = getAppBySlug(id) || getAppById(id);
 
     if (foundApp) {
-      setApp(foundApp)
+      setApp(foundApp);
     }
-    setLoading(false)
-  }, [params.id])
+    setLoading(false);
+  }, [params.id]);
 
   if (loading) {
     return (
@@ -43,7 +43,7 @@ export default function AppSettingsPage() {
         </div>
         <Skeleton className="h-60 w-full rounded-lg" />
       </div>
-    )
+    );
   }
 
   if (!app) {
@@ -52,7 +52,8 @@ export default function AppSettingsPage() {
         <div className="mb-4 text-6xl">404</div>
         <h1 className="mb-2 text-2xl font-bold">App Not Found</h1>
         <p className="mb-6 text-muted-foreground">
-          The app you&apos;re looking for doesn&apos;t exist or has been removed.
+          The app you&apos;re looking for doesn&apos;t exist or has been
+          removed.
         </p>
         <Link
           href="/apps"
@@ -61,12 +62,12 @@ export default function AppSettingsPage() {
           Browse Apps
         </Link>
       </div>
-    )
+    );
   }
 
   // Check if the app is installed
-  const installed = isAppInstalled(app.id)
-  const installation = getInstallation(app.id)
+  const installed = isAppInstalled(app.id);
+  const installation = getInstallation(app.id);
 
   if (!installed || !installation) {
     return (
@@ -83,19 +84,20 @@ export default function AppSettingsPage() {
           <Package className="mb-4 h-16 w-16 text-muted-foreground" />
           <h2 className="mb-2 text-xl font-semibold">App Not Installed</h2>
           <p className="mb-6 max-w-md text-muted-foreground">
-            You need to install {app.name} before you can configure its settings.
+            You need to install {app.name} before you can configure its
+            settings.
           </p>
           <Button asChild>
             <Link href={`/apps/${app.slug}`}>View App Details</Link>
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8">
       <AppSettings app={app} installation={installation} />
     </div>
-  )
+  );
 }

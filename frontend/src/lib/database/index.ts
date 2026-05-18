@@ -4,4 +4,4 @@
  * Centralized database utilities including query optimization and monitoring.
  */
 
-export * from './query-optimizer'
+export * from "./query-optimizer";

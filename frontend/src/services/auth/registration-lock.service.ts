@@ -13,7 +13,7 @@
  * - Audit logging
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   RegistrationLockManager,
   RegistrationLockConfig,
@@ -27,7 +27,7 @@ import {
   checkPinStrength,
   generateRecoveryKey,
   isValidRecoveryKeyFormat,
-} from '@/lib/auth/registration-lock'
+} from "@/lib/auth/registration-lock";
 import {
   RecoveryLockManager,
   RecoveryLockConfig,
@@ -38,7 +38,7 @@ import {
   TrustedContact,
   ContactResponse,
   getRecoveryLockManager,
-} from '@/lib/auth/recovery-lock'
+} from "@/lib/auth/recovery-lock";
 
 // ============================================================================
 // Types
@@ -49,15 +49,15 @@ import {
  */
 export interface CombinedLockState {
   /** Registration lock state */
-  registrationLock: RegistrationLockState
+  registrationLock: RegistrationLockState;
   /** Recovery lock state */
-  recoveryLock: RecoveryLockState
+  recoveryLock: RecoveryLockState;
   /** Whether re-registration is blocked */
-  isBlocked: boolean
+  isBlocked: boolean;
   /** Block reason if blocked */
-  blockReason: string | null
+  blockReason: string | null;
   /** Recovery options available */
-  recoveryOptionsAvailable: boolean
+  recoveryOptionsAvailable: boolean;
 }
 
 /**
@@ -65,21 +65,21 @@ export interface CombinedLockState {
  */
 export interface LockSetupOptions {
   /** PIN to set */
-  pin: string
+  pin: string;
   /** Device ID */
-  deviceId?: string
+  deviceId?: string;
   /** Enable device binding */
-  enableDeviceBinding?: boolean
+  enableDeviceBinding?: boolean;
   /** Set up trusted contacts */
   trustedContacts?: Array<{
-    name: string
-    contactMethod: 'email' | 'phone'
-    contactValue: string
-  }>
+    name: string;
+    contactMethod: "email" | "phone";
+    contactValue: string;
+  }>;
   /** Enable time-delayed recovery */
-  enableTimeDelayedRecovery?: boolean
+  enableTimeDelayedRecovery?: boolean;
   /** Time delay in hours */
-  timeDelayHours?: number
+  timeDelayHours?: number;
 }
 
 /**
@@ -87,17 +87,17 @@ export interface LockSetupOptions {
  */
 export interface LockSetupResult {
   /** Whether setup succeeded */
-  success: boolean
+  success: boolean;
   /** Recovery key (only returned once) */
-  recoveryKey: string | null
+  recoveryKey: string | null;
   /** Trusted contact verification codes */
   trustedContactCodes: Array<{
-    contactId: string
-    name: string
-    verificationCode: string
-  }>
+    contactId: string;
+    name: string;
+    verificationCode: string;
+  }>;
   /** Error message if failed */
-  error: string | null
+  error: string | null;
 }
 
 /**
@@ -105,13 +105,13 @@ export interface LockSetupResult {
  */
 export interface LockVerificationOptions {
   /** PIN to verify */
-  pin?: string
+  pin?: string;
   /** Recovery key to use */
-  recoveryKey?: string
+  recoveryKey?: string;
   /** Device ID */
-  deviceId?: string
+  deviceId?: string;
   /** IP address */
-  ipAddress?: string
+  ipAddress?: string;
 }
 
 /**
@@ -119,17 +119,17 @@ export interface LockVerificationOptions {
  */
 export interface LockVerificationResult {
   /** Whether verification succeeded */
-  success: boolean
+  success: boolean;
   /** Method used for verification */
-  method: 'pin' | 'recovery_key' | null
+  method: "pin" | "recovery_key" | null;
   /** Error message if failed */
-  error: string | null
+  error: string | null;
   /** Remaining PIN attempts */
-  remainingAttempts: number
+  remainingAttempts: number;
   /** If locked out, when lockout expires */
-  lockoutExpiresAt: Date | null
+  lockoutExpiresAt: Date | null;
   /** Available recovery methods if PIN fails */
-  availableRecoveryMethods: RecoveryMethod[]
+  availableRecoveryMethods: RecoveryMethod[];
 }
 
 /**
@@ -137,17 +137,17 @@ export interface LockVerificationResult {
  */
 export interface RegistrationLockServiceConfig {
   /** Registration lock config */
-  registrationLock?: Partial<RegistrationLockConfig>
+  registrationLock?: Partial<RegistrationLockConfig>;
   /** Recovery lock config */
-  recoveryLock?: Partial<RecoveryLockConfig>
+  recoveryLock?: Partial<RecoveryLockConfig>;
   /** Whether to sync with database */
-  syncWithDatabase?: boolean
+  syncWithDatabase?: boolean;
   /** Whether to send notifications */
-  sendNotifications?: boolean
+  sendNotifications?: boolean;
   /** Notification callback */
-  onNotification?: (notification: LockNotification) => Promise<void>
+  onNotification?: (notification: LockNotification) => Promise<void>;
   /** Audit callback */
-  onAuditEvent?: (event: AuditEvent) => Promise<void>
+  onAuditEvent?: (event: AuditEvent) => Promise<void>;
 }
 
 /**
@@ -155,19 +155,25 @@ export interface RegistrationLockServiceConfig {
  */
 export interface LockNotification {
   /** Notification type */
-  type: 'lock_enabled' | 'lock_disabled' | 'pin_changed' | 'lockout' | 'recovery_initiated' | 'recovery_completed'
+  type:
+    | "lock_enabled"
+    | "lock_disabled"
+    | "pin_changed"
+    | "lockout"
+    | "recovery_initiated"
+    | "recovery_completed";
   /** User ID */
-  userId: string
+  userId: string;
   /** Title */
-  title: string
+  title: string;
   /** Message */
-  message: string
+  message: string;
   /** Severity */
-  severity: 'info' | 'warning' | 'critical'
+  severity: "info" | "warning" | "critical";
   /** Additional data */
-  data: Record<string, unknown>
+  data: Record<string, unknown>;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
@@ -175,19 +181,19 @@ export interface LockNotification {
  */
 export interface AuditEvent {
   /** Event type */
-  type: string
+  type: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** IP address */
-  ipAddress: string | null
+  ipAddress: string | null;
   /** Device ID */
-  deviceId: string | null
+  deviceId: string | null;
   /** Success */
-  success: boolean
+  success: boolean;
   /** Details */
-  details: Record<string, unknown>
+  details: Record<string, unknown>;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -198,75 +204,81 @@ export interface AuditEvent {
  * Service for managing registration locks
  */
 export class RegistrationLockService {
-  private static instance: RegistrationLockService
-  private registrationLockManager: RegistrationLockManager
-  private recoveryLockManager: RecoveryLockManager
-  private config: RegistrationLockServiceConfig
-  private userId: string | null = null
-  private initialized = false
+  private static instance: RegistrationLockService;
+  private registrationLockManager: RegistrationLockManager;
+  private recoveryLockManager: RecoveryLockManager;
+  private config: RegistrationLockServiceConfig;
+  private userId: string | null = null;
+  private initialized = false;
 
   private constructor(config: RegistrationLockServiceConfig = {}) {
     this.config = {
       syncWithDatabase: false,
       sendNotifications: true,
       ...config,
-    }
+    };
 
-    this.registrationLockManager = getRegistrationLockManager(config.registrationLock)
-    this.recoveryLockManager = getRecoveryLockManager(config.recoveryLock)
+    this.registrationLockManager = getRegistrationLockManager(
+      config.registrationLock,
+    );
+    this.recoveryLockManager = getRecoveryLockManager(config.recoveryLock);
   }
 
   /**
    * Gets the singleton instance
    */
-  static getInstance(config?: RegistrationLockServiceConfig): RegistrationLockService {
+  static getInstance(
+    config?: RegistrationLockServiceConfig,
+  ): RegistrationLockService {
     if (!RegistrationLockService.instance) {
-      RegistrationLockService.instance = new RegistrationLockService(config)
+      RegistrationLockService.instance = new RegistrationLockService(config);
     }
-    return RegistrationLockService.instance
+    return RegistrationLockService.instance;
   }
 
   /**
    * Resets the singleton (for testing)
    */
   static resetInstance(): void {
-    RegistrationLockService.instance = undefined as unknown as RegistrationLockService
-    RegistrationLockManager.resetInstance()
-    RecoveryLockManager.resetInstance()
+    RegistrationLockService.instance =
+      undefined as unknown as RegistrationLockService;
+    RegistrationLockManager.resetInstance();
+    RecoveryLockManager.resetInstance();
   }
 
   /**
    * Initializes the service
    */
   async initialize(userId: string): Promise<void> {
-    if (this.initialized && this.userId === userId) return
+    if (this.initialized && this.userId === userId) return;
 
-    this.userId = userId
+    this.userId = userId;
 
-    await this.registrationLockManager.initialize()
-    await this.recoveryLockManager.initialize()
+    await this.registrationLockManager.initialize();
+    await this.recoveryLockManager.initialize();
 
-    this.initialized = true
+    this.initialized = true;
 
-    logger.info('Registration lock service initialized', { userId })
+    logger.info("Registration lock service initialized", { userId });
   }
 
   /**
    * Gets the combined lock state
    */
   getCombinedState(): CombinedLockState {
-    const regState = this.registrationLockManager.getState()
-    const recState = this.recoveryLockManager.getState()
+    const regState = this.registrationLockManager.getState();
+    const recState = this.recoveryLockManager.getState();
 
-    const isBlocked = regState.enabled && regState.status === 'active'
-    let blockReason: string | null = null
+    const isBlocked = regState.enabled && regState.status === "active";
+    let blockReason: string | null = null;
 
     if (isBlocked) {
-      blockReason = 'Registration lock is enabled. Please enter your PIN to continue.'
-    } else if (regState.status === 'locked_out') {
-      blockReason = 'Too many failed attempts. Account is temporarily locked.'
-    } else if (regState.status === 'expired') {
-      blockReason = 'Registration lock PIN has expired. Please set a new PIN.'
+      blockReason =
+        "Registration lock is enabled. Please enter your PIN to continue.";
+    } else if (regState.status === "locked_out") {
+      blockReason = "Too many failed attempts. Account is temporarily locked.";
+    } else if (regState.status === "expired") {
+      blockReason = "Registration lock PIN has expired. Please set a new PIN.";
     }
 
     return {
@@ -275,7 +287,7 @@ export class RegistrationLockService {
       isBlocked,
       blockReason,
       recoveryOptionsAvailable: recState.availableMethods.length > 0,
-    }
+    };
   }
 
   /**
@@ -283,13 +295,16 @@ export class RegistrationLockService {
    */
   async setupLock(options: LockSetupOptions): Promise<LockSetupResult> {
     const trustedContactCodes: Array<{
-      contactId: string
-      name: string
-      verificationCode: string
-    }> = []
+      contactId: string;
+      name: string;
+      verificationCode: string;
+    }> = [];
 
     // Enable the registration lock
-    const result = await this.registrationLockManager.enableLock(options.pin, options.deviceId)
+    const result = await this.registrationLockManager.enableLock(
+      options.pin,
+      options.deviceId,
+    );
 
     if (!result.success) {
       return {
@@ -297,14 +312,14 @@ export class RegistrationLockService {
         recoveryKey: null,
         trustedContactCodes: [],
         error: result.error,
-      }
+      };
     }
 
     // Update config if needed
     if (options.enableDeviceBinding !== undefined) {
       this.registrationLockManager.updateConfig({
         deviceBinding: options.enableDeviceBinding,
-      })
+      });
     }
 
     // Set up trusted contacts if provided
@@ -313,15 +328,19 @@ export class RegistrationLockService {
         const contactResult = await this.recoveryLockManager.addTrustedContact(
           contact.name,
           contact.contactMethod,
-          contact.contactValue
-        )
+          contact.contactValue,
+        );
 
-        if (contactResult.success && contactResult.contact && contactResult.verificationCode) {
+        if (
+          contactResult.success &&
+          contactResult.contact &&
+          contactResult.verificationCode
+        ) {
           trustedContactCodes.push({
             contactId: contactResult.contact.id,
             name: contact.name,
             verificationCode: contactResult.verificationCode,
-          })
+          });
         }
       }
     }
@@ -331,27 +350,27 @@ export class RegistrationLockService {
       this.recoveryLockManager.updateConfig({
         enableTimeDelayedRecovery: options.enableTimeDelayedRecovery,
         timeDelayHours: options.timeDelayHours ?? 72,
-      })
+      });
     }
 
     // Send notification
     await this.sendNotification({
-      type: 'lock_enabled',
-      userId: this.userId ?? 'unknown',
-      title: 'Registration Lock Enabled',
-      message: 'Your account is now protected with a registration lock.',
-      severity: 'info',
+      type: "lock_enabled",
+      userId: this.userId ?? "unknown",
+      title: "Registration Lock Enabled",
+      message: "Your account is now protected with a registration lock.",
+      severity: "info",
       data: {
         hasTrustedContacts: trustedContactCodes.length > 0,
         deviceBinding: options.enableDeviceBinding ?? false,
       },
       timestamp: new Date(),
-    })
+    });
 
     // Audit event
     await this.auditEvent({
-      type: 'lock_enabled',
-      userId: this.userId ?? 'unknown',
+      type: "lock_enabled",
+      userId: this.userId ?? "unknown",
       ipAddress: null,
       deviceId: options.deviceId ?? null,
       success: true,
@@ -360,26 +379,28 @@ export class RegistrationLockService {
         deviceBinding: options.enableDeviceBinding ?? false,
       },
       timestamp: new Date(),
-    })
+    });
 
-    logger.info('Registration lock set up', {
+    logger.info("Registration lock set up", {
       userId: this.userId,
       trustedContactCount: trustedContactCodes.length,
-    })
+    });
 
     return {
       success: true,
       recoveryKey: result.recoveryKey,
       trustedContactCodes,
       error: null,
-    }
+    };
   }
 
   /**
    * Verifies lock access (during re-registration)
    */
-  async verifyLock(options: LockVerificationOptions): Promise<LockVerificationResult> {
-    const state = this.registrationLockManager.getState()
+  async verifyLock(
+    options: LockVerificationOptions,
+  ): Promise<LockVerificationResult> {
+    const state = this.registrationLockManager.getState();
 
     // If lock is not enabled, no verification needed
     if (!state.enabled) {
@@ -390,7 +411,7 @@ export class RegistrationLockService {
         remainingAttempts: 0,
         lockoutExpiresAt: null,
         availableRecoveryMethods: [],
-      }
+      };
     }
 
     // Try recovery key first if provided
@@ -399,37 +420,39 @@ export class RegistrationLockService {
         return {
           success: false,
           method: null,
-          error: 'Invalid recovery key format',
+          error: "Invalid recovery key format",
           remainingAttempts: state.failedAttempts,
           lockoutExpiresAt: state.lockedUntil,
-          availableRecoveryMethods: this.recoveryLockManager.getState().availableMethods,
-        }
+          availableRecoveryMethods:
+            this.recoveryLockManager.getState().availableMethods,
+        };
       }
 
-      const bypassResult = await this.registrationLockManager.bypassWithRecoveryKey(
-        options.recoveryKey,
-        options.deviceId
-      )
+      const bypassResult =
+        await this.registrationLockManager.bypassWithRecoveryKey(
+          options.recoveryKey,
+          options.deviceId,
+        );
 
       if (bypassResult.success) {
         await this.auditEvent({
-          type: 'lock_bypassed',
-          userId: this.userId ?? 'unknown',
+          type: "lock_bypassed",
+          userId: this.userId ?? "unknown",
           ipAddress: options.ipAddress ?? null,
           deviceId: options.deviceId ?? null,
           success: true,
-          details: { method: 'recovery_key' },
+          details: { method: "recovery_key" },
           timestamp: new Date(),
-        })
+        });
 
         return {
           success: true,
-          method: 'recovery_key',
+          method: "recovery_key",
           error: null,
           remainingAttempts: 0,
           lockoutExpiresAt: null,
           availableRecoveryMethods: [],
-        }
+        };
       }
 
       return {
@@ -438,8 +461,9 @@ export class RegistrationLockService {
         error: bypassResult.error,
         remainingAttempts: 0,
         lockoutExpiresAt: null,
-        availableRecoveryMethods: this.recoveryLockManager.getState().availableMethods,
-      }
+        availableRecoveryMethods:
+          this.recoveryLockManager.getState().availableMethods,
+      };
     }
 
     // Try PIN verification
@@ -447,48 +471,49 @@ export class RegistrationLockService {
       const pinResult = await this.registrationLockManager.verifyPin(
         options.pin,
         options.deviceId,
-        options.ipAddress
-      )
+        options.ipAddress,
+      );
 
       if (pinResult.valid) {
         await this.auditEvent({
-          type: 'lock_verified',
-          userId: this.userId ?? 'unknown',
+          type: "lock_verified",
+          userId: this.userId ?? "unknown",
           ipAddress: options.ipAddress ?? null,
           deviceId: options.deviceId ?? null,
           success: true,
-          details: { method: 'pin' },
+          details: { method: "pin" },
           timestamp: new Date(),
-        })
+        });
 
         return {
           success: true,
-          method: 'pin',
+          method: "pin",
           error: null,
           remainingAttempts: pinResult.remainingAttempts,
           lockoutExpiresAt: null,
           availableRecoveryMethods: [],
-        }
+        };
       }
 
       // Check for lockout
       if (pinResult.remainingAttempts === 0) {
         await this.sendNotification({
-          type: 'lockout',
-          userId: this.userId ?? 'unknown',
-          title: 'Account Locked',
-          message: 'Too many failed PIN attempts. Your account is temporarily locked.',
-          severity: 'critical',
+          type: "lockout",
+          userId: this.userId ?? "unknown",
+          title: "Account Locked",
+          message:
+            "Too many failed PIN attempts. Your account is temporarily locked.",
+          severity: "critical",
           data: {
             lockoutExpiresAt: pinResult.lockoutExpiresAt?.toISOString(),
           },
           timestamp: new Date(),
-        })
+        });
       }
 
       await this.auditEvent({
-        type: 'lock_verification_failed',
-        userId: this.userId ?? 'unknown',
+        type: "lock_verification_failed",
+        userId: this.userId ?? "unknown",
         ipAddress: options.ipAddress ?? null,
         deviceId: options.deviceId ?? null,
         success: false,
@@ -497,7 +522,7 @@ export class RegistrationLockService {
           lockedOut: pinResult.remainingAttempts === 0,
         },
         timestamp: new Date(),
-      })
+      });
 
       return {
         success: false,
@@ -505,19 +530,23 @@ export class RegistrationLockService {
         error: pinResult.error,
         remainingAttempts: pinResult.remainingAttempts,
         lockoutExpiresAt: pinResult.lockoutExpiresAt,
-        availableRecoveryMethods: this.recoveryLockManager.getState().availableMethods,
-      }
+        availableRecoveryMethods:
+          this.recoveryLockManager.getState().availableMethods,
+      };
     }
 
     // No credentials provided
     return {
       success: false,
       method: null,
-      error: 'PIN or recovery key required',
-      remainingAttempts: this.registrationLockManager.getConfig().maxFailedAttempts - state.failedAttempts,
+      error: "PIN or recovery key required",
+      remainingAttempts:
+        this.registrationLockManager.getConfig().maxFailedAttempts -
+        state.failedAttempts,
       lockoutExpiresAt: state.lockedUntil,
-      availableRecoveryMethods: this.recoveryLockManager.getState().availableMethods,
-    }
+      availableRecoveryMethods:
+        this.recoveryLockManager.getState().availableMethods,
+    };
   }
 
   /**
@@ -526,33 +555,37 @@ export class RegistrationLockService {
   async changePin(
     currentPin: string,
     newPin: string,
-    deviceId?: string
+    deviceId?: string,
   ): Promise<{ success: boolean; error: string | null }> {
-    const result = await this.registrationLockManager.changePin(currentPin, newPin, deviceId)
+    const result = await this.registrationLockManager.changePin(
+      currentPin,
+      newPin,
+      deviceId,
+    );
 
     if (result.success) {
       await this.sendNotification({
-        type: 'pin_changed',
-        userId: this.userId ?? 'unknown',
-        title: 'PIN Changed',
-        message: 'Your registration lock PIN has been changed.',
-        severity: 'info',
+        type: "pin_changed",
+        userId: this.userId ?? "unknown",
+        title: "PIN Changed",
+        message: "Your registration lock PIN has been changed.",
+        severity: "info",
         data: {},
         timestamp: new Date(),
-      })
+      });
 
       await this.auditEvent({
-        type: 'pin_changed',
-        userId: this.userId ?? 'unknown',
+        type: "pin_changed",
+        userId: this.userId ?? "unknown",
         ipAddress: null,
         deviceId: deviceId ?? null,
         success: true,
         details: {},
         timestamp: new Date(),
-      })
+      });
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -560,33 +593,36 @@ export class RegistrationLockService {
    */
   async disableLock(
     pin: string,
-    deviceId?: string
+    deviceId?: string,
   ): Promise<{ success: boolean; error: string | null }> {
-    const result = await this.registrationLockManager.disableLock(pin, deviceId)
+    const result = await this.registrationLockManager.disableLock(
+      pin,
+      deviceId,
+    );
 
     if (result.success) {
       await this.sendNotification({
-        type: 'lock_disabled',
-        userId: this.userId ?? 'unknown',
-        title: 'Registration Lock Disabled',
-        message: 'Your registration lock has been disabled.',
-        severity: 'warning',
+        type: "lock_disabled",
+        userId: this.userId ?? "unknown",
+        title: "Registration Lock Disabled",
+        message: "Your registration lock has been disabled.",
+        severity: "warning",
         data: {},
         timestamp: new Date(),
-      })
+      });
 
       await this.auditEvent({
-        type: 'lock_disabled',
-        userId: this.userId ?? 'unknown',
+        type: "lock_disabled",
+        userId: this.userId ?? "unknown",
         ipAddress: null,
         deviceId: deviceId ?? null,
         success: true,
         details: {},
         timestamp: new Date(),
-      })
+      });
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -595,36 +631,40 @@ export class RegistrationLockService {
   async initiateRecovery(
     method: RecoveryMethod,
     deviceId?: string,
-    ipAddress?: string
+    ipAddress?: string,
   ): Promise<RecoveryResult> {
-    const result = await this.recoveryLockManager.initiateRecoveryRequest(method, deviceId, ipAddress)
+    const result = await this.recoveryLockManager.initiateRecoveryRequest(
+      method,
+      deviceId,
+      ipAddress,
+    );
 
     if (result.success) {
       await this.sendNotification({
-        type: 'recovery_initiated',
-        userId: this.userId ?? 'unknown',
-        title: 'Recovery Request Initiated',
-        message: `A recovery request has been started using ${method.replace('_', ' ')}.`,
-        severity: 'warning',
+        type: "recovery_initiated",
+        userId: this.userId ?? "unknown",
+        title: "Recovery Request Initiated",
+        message: `A recovery request has been started using ${method.replace("_", " ")}.`,
+        severity: "warning",
         data: {
           method,
           canCompleteAt: result.canCompleteAt?.toISOString(),
         },
         timestamp: new Date(),
-      })
+      });
 
       await this.auditEvent({
-        type: 'recovery_initiated',
-        userId: this.userId ?? 'unknown',
+        type: "recovery_initiated",
+        userId: this.userId ?? "unknown",
         ipAddress: ipAddress ?? null,
         deviceId: deviceId ?? null,
         success: true,
         details: { method },
         timestamp: new Date(),
-      })
+      });
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -632,40 +672,44 @@ export class RegistrationLockService {
    */
   async completeRecovery(
     requestId: string,
-    completionToken: string
+    completionToken: string,
   ): Promise<{ success: boolean; error: string | null }> {
-    const result = await this.recoveryLockManager.completeRecovery(requestId, completionToken)
+    const result = await this.recoveryLockManager.completeRecovery(
+      requestId,
+      completionToken,
+    );
 
     if (result.success) {
       // Disable the registration lock
-      const regState = this.registrationLockManager.getState()
+      const regState = this.registrationLockManager.getState();
       if (regState.enabled) {
         // Clear the lock state
-        await this.registrationLockManager.clearAll()
+        await this.registrationLockManager.clearAll();
       }
 
       await this.sendNotification({
-        type: 'recovery_completed',
-        userId: this.userId ?? 'unknown',
-        title: 'Recovery Completed',
-        message: 'Your account has been recovered. Please set up a new registration lock.',
-        severity: 'info',
+        type: "recovery_completed",
+        userId: this.userId ?? "unknown",
+        title: "Recovery Completed",
+        message:
+          "Your account has been recovered. Please set up a new registration lock.",
+        severity: "info",
         data: { requestId },
         timestamp: new Date(),
-      })
+      });
 
       await this.auditEvent({
-        type: 'recovery_completed',
-        userId: this.userId ?? 'unknown',
+        type: "recovery_completed",
+        userId: this.userId ?? "unknown",
         ipAddress: null,
         deviceId: null,
         success: true,
         details: { requestId },
         timestamp: new Date(),
-      })
+      });
     }
 
-    return result
+    return result;
   }
 
   // ============================================================================
@@ -677,15 +721,19 @@ export class RegistrationLockService {
    */
   async addTrustedContact(
     name: string,
-    contactMethod: 'email' | 'phone',
-    contactValue: string
+    contactMethod: "email" | "phone",
+    contactValue: string,
   ): Promise<{
-    success: boolean
-    contact: TrustedContact | null
-    verificationCode: string | null
-    error: string | null
+    success: boolean;
+    contact: TrustedContact | null;
+    verificationCode: string | null;
+    error: string | null;
   }> {
-    return this.recoveryLockManager.addTrustedContact(name, contactMethod, contactValue)
+    return this.recoveryLockManager.addTrustedContact(
+      name,
+      contactMethod,
+      contactValue,
+    );
   }
 
   /**
@@ -693,23 +741,28 @@ export class RegistrationLockService {
    */
   async verifyTrustedContact(
     contactId: string,
-    verificationCode: string
+    verificationCode: string,
   ): Promise<{ success: boolean; error: string | null }> {
-    return this.recoveryLockManager.verifyTrustedContact(contactId, verificationCode)
+    return this.recoveryLockManager.verifyTrustedContact(
+      contactId,
+      verificationCode,
+    );
   }
 
   /**
    * Removes a trusted contact
    */
-  async removeTrustedContact(contactId: string): Promise<{ success: boolean; error: string | null }> {
-    return this.recoveryLockManager.removeTrustedContact(contactId)
+  async removeTrustedContact(
+    contactId: string,
+  ): Promise<{ success: boolean; error: string | null }> {
+    return this.recoveryLockManager.removeTrustedContact(contactId);
   }
 
   /**
    * Gets all trusted contacts
    */
   getTrustedContacts(): TrustedContact[] {
-    return this.recoveryLockManager.getState().trustedContacts
+    return this.recoveryLockManager.getState().trustedContacts;
   }
 
   /**
@@ -719,9 +772,14 @@ export class RegistrationLockService {
     requestId: string,
     contactId: string,
     approved: boolean,
-    message?: string
+    message?: string,
   ): Promise<RecoveryResult> {
-    return this.recoveryLockManager.recordContactResponse(requestId, contactId, approved, message)
+    return this.recoveryLockManager.recordContactResponse(
+      requestId,
+      contactId,
+      approved,
+      message,
+    );
   }
 
   // ============================================================================
@@ -733,9 +791,9 @@ export class RegistrationLockService {
    */
   async addBoundDevice(
     deviceId: string,
-    pin: string
+    pin: string,
   ): Promise<{ success: boolean; error: string | null }> {
-    return this.registrationLockManager.addBoundDevice(deviceId, pin)
+    return this.registrationLockManager.addBoundDevice(deviceId, pin);
   }
 
   /**
@@ -743,16 +801,16 @@ export class RegistrationLockService {
    */
   async removeBoundDevice(
     deviceId: string,
-    pin: string
+    pin: string,
   ): Promise<{ success: boolean; error: string | null }> {
-    return this.registrationLockManager.removeBoundDevice(deviceId, pin)
+    return this.registrationLockManager.removeBoundDevice(deviceId, pin);
   }
 
   /**
    * Gets bound devices
    */
   getBoundDevices(): string[] {
-    return this.registrationLockManager.getState().boundDevices
+    return this.registrationLockManager.getState().boundDevices;
   }
 
   // ============================================================================
@@ -763,28 +821,30 @@ export class RegistrationLockService {
    * Gets a recovery request
    */
   getRecoveryRequest(requestId: string): RecoveryRequest | null {
-    return this.recoveryLockManager.getRequest(requestId)
+    return this.recoveryLockManager.getRequest(requestId);
   }
 
   /**
    * Gets active recovery requests
    */
   getActiveRecoveryRequests(): RecoveryRequest[] {
-    return this.recoveryLockManager.getState().activeRequests
+    return this.recoveryLockManager.getState().activeRequests;
   }
 
   /**
    * Checks if time-delayed recovery is ready
    */
   async checkTimeDelayedRecovery(requestId: string): Promise<RecoveryResult> {
-    return this.recoveryLockManager.checkTimeDelayedRecovery(requestId)
+    return this.recoveryLockManager.checkTimeDelayedRecovery(requestId);
   }
 
   /**
    * Cancels a recovery request
    */
-  async cancelRecoveryRequest(requestId: string): Promise<{ success: boolean; error: string | null }> {
-    return this.recoveryLockManager.cancelRecoveryRequest(requestId)
+  async cancelRecoveryRequest(
+    requestId: string,
+  ): Promise<{ success: boolean; error: string | null }> {
+    return this.recoveryLockManager.cancelRecoveryRequest(requestId);
   }
 
   /**
@@ -793,13 +853,13 @@ export class RegistrationLockService {
   async verifyIdentity(
     requestId: string,
     verificationData: {
-      provider: string
-      verified: boolean
-      userId?: string
-      verifiedAt?: Date
-    }
+      provider: string;
+      verified: boolean;
+      userId?: string;
+      verifiedAt?: Date;
+    },
   ): Promise<RecoveryResult> {
-    return this.recoveryLockManager.verifyIdentity(requestId, verificationData)
+    return this.recoveryLockManager.verifyIdentity(requestId, verificationData);
   }
 
   // ============================================================================
@@ -810,28 +870,28 @@ export class RegistrationLockService {
    * Gets lock attempts
    */
   getLockAttempts(limit?: number): LockAttempt[] {
-    return this.registrationLockManager.getAttempts(limit)
+    return this.registrationLockManager.getAttempts(limit);
   }
 
   /**
    * Gets lock events
    */
   getLockEvents(limit?: number): LockChangeEvent[] {
-    return this.registrationLockManager.getEvents(limit)
+    return this.registrationLockManager.getEvents(limit);
   }
 
   /**
    * Gets recovery request history
    */
   getRecoveryHistory(): RecoveryRequest[] {
-    return this.recoveryLockManager.getState().requestHistory
+    return this.recoveryLockManager.getState().requestHistory;
   }
 
   /**
    * Gets contact responses for a request
    */
   getContactResponses(requestId: string): ContactResponse[] {
-    return this.recoveryLockManager.getContactResponses(requestId)
+    return this.recoveryLockManager.getContactResponses(requestId);
   }
 
   // ============================================================================
@@ -842,53 +902,53 @@ export class RegistrationLockService {
    * Checks if registration should be blocked
    */
   shouldBlockRegistration(): boolean {
-    const state = this.registrationLockManager.getState()
-    return state.enabled && state.status === 'active'
+    const state = this.registrationLockManager.getState();
+    return state.enabled && state.status === "active";
   }
 
   /**
    * Checks if re-verification is needed
    */
   needsReverification(): boolean {
-    return this.registrationLockManager.needsReverification()
+    return this.registrationLockManager.needsReverification();
   }
 
   /**
    * Validates a PIN format
    */
   validatePinFormat(pin: string): { valid: boolean; error: string | null } {
-    const config = this.registrationLockManager.getConfig()
+    const config = this.registrationLockManager.getConfig();
     if (!isValidPinFormat(pin, config)) {
       return {
         valid: false,
         error: `PIN must be ${config.minPinLength}-${config.maxPinLength} digits`,
-      }
+      };
     }
-    return { valid: true, error: null }
+    return { valid: true, error: null };
   }
 
   /**
    * Checks PIN strength
    */
   checkPinStrength(pin: string): { score: number; feedback: string[] } {
-    return checkPinStrength(pin)
+    return checkPinStrength(pin);
   }
 
   /**
    * Generates a new recovery key
    */
   generateNewRecoveryKey(): string {
-    return generateRecoveryKey()
+    return generateRecoveryKey();
   }
 
   /**
    * Clears all lock data
    */
   async clearAllData(): Promise<void> {
-    await this.registrationLockManager.clearAll()
-    await this.recoveryLockManager.clearAll()
+    await this.registrationLockManager.clearAll();
+    await this.recoveryLockManager.clearAll();
 
-    logger.warn('All registration lock data cleared', { userId: this.userId })
+    logger.warn("All registration lock data cleared", { userId: this.userId });
   }
 
   // ============================================================================
@@ -898,22 +958,27 @@ export class RegistrationLockService {
   /**
    * Sends a notification
    */
-  private async sendNotification(notification: LockNotification): Promise<void> {
-    if (!this.config.sendNotifications) return
+  private async sendNotification(
+    notification: LockNotification,
+  ): Promise<void> {
+    if (!this.config.sendNotifications) return;
 
     if (this.config.onNotification) {
       try {
-        await this.config.onNotification(notification)
+        await this.config.onNotification(notification);
       } catch (error) {
-        logger.error('Failed to send lock notification', { error, notification })
+        logger.error("Failed to send lock notification", {
+          error,
+          notification,
+        });
       }
     }
 
-    logger.info('Lock notification', {
+    logger.info("Lock notification", {
       type: notification.type,
       userId: notification.userId,
       severity: notification.severity,
-    })
+    });
   }
 
   /**
@@ -922,17 +987,17 @@ export class RegistrationLockService {
   private async auditEvent(event: AuditEvent): Promise<void> {
     if (this.config.onAuditEvent) {
       try {
-        await this.config.onAuditEvent(event)
+        await this.config.onAuditEvent(event);
       } catch (error) {
-        logger.error('Failed to record audit event', { error, event })
+        logger.error("Failed to record audit event", { error, event });
       }
     }
 
-    logger.info('Lock audit event', {
+    logger.info("Lock audit event", {
       type: event.type,
       userId: event.userId,
       success: event.success,
-    })
+    });
   }
 }
 
@@ -944,33 +1009,35 @@ export class RegistrationLockService {
  * Gets the global registration lock service instance
  */
 export function getRegistrationLockService(
-  config?: RegistrationLockServiceConfig
+  config?: RegistrationLockServiceConfig,
 ): RegistrationLockService {
-  return RegistrationLockService.getInstance(config)
+  return RegistrationLockService.getInstance(config);
 }
 
 /**
  * Initializes the registration lock service
  */
-export async function initializeRegistrationLockService(userId: string): Promise<void> {
-  const service = getRegistrationLockService()
-  await service.initialize(userId)
+export async function initializeRegistrationLockService(
+  userId: string,
+): Promise<void> {
+  const service = getRegistrationLockService();
+  await service.initialize(userId);
 }
 
 /**
  * Checks if a user's registration should be blocked
  */
 export function shouldBlockUserRegistration(): boolean {
-  const service = getRegistrationLockService()
-  return service.shouldBlockRegistration()
+  const service = getRegistrationLockService();
+  return service.shouldBlockRegistration();
 }
 
 /**
  * Verifies lock access for re-registration
  */
 export async function verifyRegistrationLock(
-  options: LockVerificationOptions
+  options: LockVerificationOptions,
 ): Promise<LockVerificationResult> {
-  const service = getRegistrationLockService()
-  return service.verifyLock(options)
+  const service = getRegistrationLockService();
+  return service.verifyLock(options);
 }

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ActionCommand
@@ -6,13 +6,13 @@
  * Specialized command item for actions.
  */
 
-import * as React from 'react'
-import { Command as CommandPrimitive } from 'cmdk'
-import { Play, AlertTriangle } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { CommandIcon } from './CommandIcon'
-import { CommandShortcut } from './CommandShortcut'
-import type { ActionCommandData } from '@/lib/command-palette/command-types'
+import * as React from "react";
+import { Command as CommandPrimitive } from "cmdk";
+import { Play, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CommandIcon } from "./CommandIcon";
+import { CommandShortcut } from "./CommandShortcut";
+import type { ActionCommandData } from "@/lib/command-palette/command-types";
 
 // ============================================================================
 // Types
@@ -20,13 +20,13 @@ import type { ActionCommandData } from '@/lib/command-palette/command-types'
 
 export interface ActionCommandProps {
   /** Action command data */
-  command: ActionCommandData
+  command: ActionCommandData;
   /** Whether this item is currently selected */
-  isSelected?: boolean
+  isSelected?: boolean;
   /** Click handler */
-  onSelect?: (command: ActionCommandData) => void
+  onSelect?: (command: ActionCommandData) => void;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -44,13 +44,13 @@ export function ActionCommand({
       value={command.id}
       onSelect={() => onSelect?.(command)}
       className={cn(
-        'relative flex cursor-pointer select-none items-center gap-3 rounded-md px-3 py-2 text-sm outline-none',
-        'aria-selected:text-accent-foreground aria-selected:bg-accent',
-        'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        'hover:text-accent-foreground hover:bg-accent',
-        isSelected && 'text-accent-foreground bg-accent',
-        command.isDestructive && 'text-destructive hover:text-destructive',
-        className
+        "relative flex cursor-pointer select-none items-center gap-3 rounded-md px-3 py-2 text-sm outline-none",
+        "aria-selected:text-accent-foreground aria-selected:bg-accent",
+        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "hover:text-accent-foreground hover:bg-accent",
+        isSelected && "text-accent-foreground bg-accent",
+        command.isDestructive && "text-destructive hover:text-destructive",
+        className,
       )}
       data-selected={isSelected}
     >
@@ -58,8 +58,8 @@ export function ActionCommand({
       <CommandIcon
         icon={command.icon}
         size="md"
-        className={cn(command.isDestructive && 'bg-destructive/10')}
-        color={command.isDestructive ? 'hsl(var(--destructive))' : undefined}
+        className={cn(command.isDestructive && "bg-destructive/10")}
+        color={command.isDestructive ? "hsl(var(--destructive))" : undefined}
       />
 
       {/* Action info */}
@@ -68,7 +68,9 @@ export function ActionCommand({
           <span className="truncate font-medium">{command.name}</span>
 
           {/* Destructive warning */}
-          {command.isDestructive && <AlertTriangle className="h-3 w-3 text-destructive" />}
+          {command.isDestructive && (
+            <AlertTriangle className="h-3 w-3 text-destructive" />
+          )}
 
           {/* Confirmation required badge */}
           {command.requiresConfirmation && !command.isDestructive && (
@@ -82,8 +84,10 @@ export function ActionCommand({
         {command.description && (
           <p
             className={cn(
-              'truncate text-xs',
-              command.isDestructive ? 'text-destructive/70' : 'text-muted-foreground'
+              "truncate text-xs",
+              command.isDestructive
+                ? "text-destructive/70"
+                : "text-muted-foreground",
             )}
           >
             {command.description}
@@ -92,9 +96,11 @@ export function ActionCommand({
       </div>
 
       {/* Shortcut */}
-      {command.shortcut && <CommandShortcut keys={command.shortcut.keys} size="sm" />}
+      {command.shortcut && (
+        <CommandShortcut keys={command.shortcut.keys} size="sm" />
+      )}
     </CommandPrimitive.Item>
-  )
+  );
 }
 
-export default ActionCommand
+export default ActionCommand;

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // WhatsApp Chat List Component
@@ -9,9 +9,9 @@
 //
 // ===============================================================================
 
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { WHATSAPP_COLORS } from '../config'
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { WHATSAPP_COLORS } from "../config";
 import {
   MoreVertical,
   MessageSquarePlus,
@@ -23,44 +23,44 @@ import {
   Mic,
   Pin,
   BellOff,
-} from 'lucide-react'
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface WhatsAppChatListProps {
-  chats?: WhatsAppChatData[]
-  activeChatId?: string
-  onChatSelect?: (chatId: string) => void
-  onNewChatClick?: () => void
-  onMenuClick?: () => void
-  searchQuery?: string
-  onSearchChange?: (query: string) => void
-  showArchived?: boolean
-  archivedCount?: number
-  onArchivedClick?: () => void
-  className?: string
+  chats?: WhatsAppChatData[];
+  activeChatId?: string;
+  onChatSelect?: (chatId: string) => void;
+  onNewChatClick?: () => void;
+  onMenuClick?: () => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  showArchived?: boolean;
+  archivedCount?: number;
+  onArchivedClick?: () => void;
+  className?: string;
 }
 
 export interface WhatsAppChatData {
-  id: string
-  name: string
-  avatar?: string
-  type: 'private' | 'group' | 'broadcast' | 'business'
+  id: string;
+  name: string;
+  avatar?: string;
+  type: "private" | "group" | "broadcast" | "business";
   lastMessage?: {
-    content: string
-    type: 'text' | 'image' | 'video' | 'audio' | 'document' | 'voice'
-    senderName?: string
-    isOwn?: boolean
-    time: Date
-    status?: 'sending' | 'sent' | 'delivered' | 'read'
-  }
-  unreadCount?: number
-  isPinned?: boolean
-  isMuted?: boolean
-  isTyping?: boolean
-  isOnline?: boolean
+    content: string;
+    type: "text" | "image" | "video" | "audio" | "document" | "voice";
+    senderName?: string;
+    isOwn?: boolean;
+    time: Date;
+    status?: "sending" | "sent" | "delivered" | "read";
+  };
+  unreadCount?: number;
+  isPinned?: boolean;
+  isMuted?: boolean;
+  isTyping?: boolean;
+  isOnline?: boolean;
 }
 
 // -------------------------------------------------------------------------------
@@ -73,35 +73,39 @@ export function WhatsAppChatList({
   onChatSelect,
   onNewChatClick,
   onMenuClick,
-  searchQuery = '',
+  searchQuery = "",
   onSearchChange,
   showArchived,
   archivedCount = 0,
   onArchivedClick,
   className,
 }: WhatsAppChatListProps) {
-  const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const [filterMode, setFilterMode] = useState<'all' | 'unread' | 'groups'>('all')
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [filterMode, setFilterMode] = useState<"all" | "unread" | "groups">(
+    "all",
+  );
 
   const filteredChats = chats.filter((chat) => {
-    const matchesSearch = chat.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = chat.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
 
-    if (filterMode === 'unread') {
-      return matchesSearch && (chat.unreadCount ?? 0) > 0
+    if (filterMode === "unread") {
+      return matchesSearch && (chat.unreadCount ?? 0) > 0;
     }
-    if (filterMode === 'groups') {
-      return matchesSearch && chat.type === 'group'
+    if (filterMode === "groups") {
+      return matchesSearch && chat.type === "group";
     }
-    return matchesSearch
-  })
+    return matchesSearch;
+  });
 
   // Separate pinned and unpinned
-  const pinnedChats = filteredChats.filter((chat) => chat.isPinned)
-  const unpinnedChats = filteredChats.filter((chat) => !chat.isPinned)
+  const pinnedChats = filteredChats.filter((chat) => chat.isPinned);
+  const unpinnedChats = filteredChats.filter((chat) => !chat.isPinned);
 
   return (
     <div
-      className={cn('flex h-full flex-col', className)}
+      className={cn("flex h-full flex-col", className)}
       style={{ backgroundColor: WHATSAPP_COLORS.chatBgDark }}
     >
       {/* Header */}
@@ -112,7 +116,10 @@ export function WhatsAppChatList({
           minHeight: 60,
         }}
       >
-        <h1 className="text-xl font-bold" style={{ color: WHATSAPP_COLORS.textPrimaryDark }}>
+        <h1
+          className="text-xl font-bold"
+          style={{ color: WHATSAPP_COLORS.textPrimaryDark }}
+        >
           Chats
         </h1>
         <div className="flex items-center gap-1">
@@ -142,8 +149,11 @@ export function WhatsAppChatList({
       {/* Search Bar */}
       <div className="px-3 pb-2">
         <div
-          className={cn('flex items-center gap-3 rounded-lg px-3 py-2', 'transition-colors')}
-          style={{ backgroundColor: '#202C33' }}
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2",
+            "transition-colors",
+          )}
+          style={{ backgroundColor: "#202C33" }}
         >
           <Search
             className="h-4 w-4 flex-shrink-0"
@@ -174,18 +184,18 @@ export function WhatsAppChatList({
       <div className="flex items-center gap-2 px-3 pb-2">
         <FilterPill
           label="All"
-          isActive={filterMode === 'all'}
-          onClick={() => setFilterMode('all')}
+          isActive={filterMode === "all"}
+          onClick={() => setFilterMode("all")}
         />
         <FilterPill
           label="Unread"
-          isActive={filterMode === 'unread'}
-          onClick={() => setFilterMode('unread')}
+          isActive={filterMode === "unread"}
+          onClick={() => setFilterMode("unread")}
         />
         <FilterPill
           label="Groups"
-          isActive={filterMode === 'groups'}
-          onClick={() => setFilterMode('groups')}
+          isActive={filterMode === "groups"}
+          onClick={() => setFilterMode("groups")}
         />
       </div>
 
@@ -202,7 +212,10 @@ export function WhatsAppChatList({
             </svg>
           </div>
           <span className="font-medium">Archived</span>
-          <span className="ml-auto text-sm" style={{ color: WHATSAPP_COLORS.textSecondaryDark }}>
+          <span
+            className="ml-auto text-sm"
+            style={{ color: WHATSAPP_COLORS.textSecondaryDark }}
+          >
             {archivedCount}
           </span>
         </button>
@@ -228,7 +241,7 @@ export function WhatsAppChatList({
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -240,21 +253,23 @@ function FilterPill({
   isActive,
   onClick,
 }: {
-  label: string
-  isActive: boolean
-  onClick: () => void
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'rounded-full px-3 py-1 text-sm transition-colors',
-        isActive ? 'bg-[#00A884] text-[#111B21]' : 'bg-[#202C33] text-[#8696A0] hover:bg-[#2A3942]'
+        "rounded-full px-3 py-1 text-sm transition-colors",
+        isActive
+          ? "bg-[#00A884] text-[#111B21]"
+          : "bg-[#202C33] text-[#8696A0] hover:bg-[#2A3942]",
       )}
     >
       {label}
     </button>
-  )
+  );
 }
 
 function ChatItem({
@@ -262,54 +277,71 @@ function ChatItem({
   isActive,
   onClick,
 }: {
-  chat: WhatsAppChatData
-  isActive: boolean
-  onClick: () => void
+  chat: WhatsAppChatData;
+  isActive: boolean;
+  onClick: () => void;
 }) {
   const formatTime = (date: Date) => {
-    const now = new Date()
-    const isToday = date.toDateString() === now.toDateString()
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
 
     if (isToday) {
-      return date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
         hour12: true,
-      })
+      });
     }
 
-    const yesterday = new Date(now)
-    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
     if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday'
+      return "Yesterday";
     }
 
-    return date.toLocaleDateString('en-US', {
-      month: 'numeric',
-      day: 'numeric',
-      year: '2-digit',
-    })
-  }
+    return date.toLocaleDateString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "2-digit",
+    });
+  };
 
   const getCheckmarkIcon = (status?: string) => {
     switch (status) {
-      case 'read':
-        return <CheckCheck className="h-4 w-4" style={{ color: WHATSAPP_COLORS.checkBlue }} />
-      case 'delivered':
-        return <CheckCheck className="h-4 w-4" style={{ color: WHATSAPP_COLORS.checkGray }} />
-      case 'sent':
-        return <Check className="h-4 w-4" style={{ color: WHATSAPP_COLORS.checkGray }} />
+      case "read":
+        return (
+          <CheckCheck
+            className="h-4 w-4"
+            style={{ color: WHATSAPP_COLORS.checkBlue }}
+          />
+        );
+      case "delivered":
+        return (
+          <CheckCheck
+            className="h-4 w-4"
+            style={{ color: WHATSAPP_COLORS.checkGray }}
+          />
+        );
+      case "sent":
+        return (
+          <Check
+            className="h-4 w-4"
+            style={{ color: WHATSAPP_COLORS.checkGray }}
+          />
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   const getMessagePreview = () => {
     if (chat.isTyping) {
-      return <span style={{ color: WHATSAPP_COLORS.primaryGreen }}>typing...</span>
+      return (
+        <span style={{ color: WHATSAPP_COLORS.primaryGreen }}>typing...</span>
+      );
     }
 
-    if (!chat.lastMessage) return null
+    if (!chat.lastMessage) return null;
 
     const prefixes: Record<string, React.ReactNode> = {
       image: (
@@ -322,29 +354,33 @@ function ChatItem({
           <Mic className="h-4 w-4" /> Voice message
         </span>
       ),
-    }
+    };
 
-    return prefixes[chat.lastMessage.type] || chat.lastMessage.content
-  }
+    return prefixes[chat.lastMessage.type] || chat.lastMessage.content;
+  };
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-3 px-3 py-2',
-        'transition-colors hover:bg-[#202C33]',
-        isActive && 'bg-[#2A3942]'
+        "flex w-full items-center gap-3 px-3 py-2",
+        "transition-colors hover:bg-[#202C33]",
+        isActive && "bg-[#2A3942]",
       )}
     >
       {/* Avatar */}
       <div className="relative flex-shrink-0">
         <div className="h-12 w-12 overflow-hidden rounded-full">
           {chat.avatar ? (
-            <img src={chat.avatar} alt={chat.name} className="h-full w-full object-cover" />
+            <img
+              src={chat.avatar}
+              alt={chat.name}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div
               className="flex h-full w-full items-center justify-center"
-              style={{ backgroundColor: '#6B7C85' }}
+              style={{ backgroundColor: "#6B7C85" }}
             >
               <svg viewBox="0 0 212 212" className="h-full w-full">
                 <path
@@ -364,7 +400,10 @@ function ChatItem({
       {/* Content */}
       <div className="min-w-0 flex-1 border-b border-[#222D34] py-2 text-left">
         <div className="mb-0.5 flex items-center justify-between">
-          <span className="truncate font-medium" style={{ color: WHATSAPP_COLORS.textPrimaryDark }}>
+          <span
+            className="truncate font-medium"
+            style={{ color: WHATSAPP_COLORS.textPrimaryDark }}
+          >
             {chat.name}
           </span>
           <span
@@ -384,22 +423,31 @@ function ChatItem({
             className="flex items-center gap-1 truncate text-sm"
             style={{ color: WHATSAPP_COLORS.textSecondaryDark }}
           >
-            {chat.lastMessage?.isOwn && getCheckmarkIcon(chat.lastMessage.status)}
+            {chat.lastMessage?.isOwn &&
+              getCheckmarkIcon(chat.lastMessage.status)}
             {getMessagePreview()}
           </p>
           <div className="ml-2 flex flex-shrink-0 items-center gap-1">
             {chat.isMuted && (
-              <BellOff className="h-4 w-4" style={{ color: WHATSAPP_COLORS.textSecondaryDark }} />
+              <BellOff
+                className="h-4 w-4"
+                style={{ color: WHATSAPP_COLORS.textSecondaryDark }}
+              />
             )}
             {chat.isPinned && (
-              <Pin className="h-4 w-4" style={{ color: WHATSAPP_COLORS.textSecondaryDark }} />
+              <Pin
+                className="h-4 w-4"
+                style={{ color: WHATSAPP_COLORS.textSecondaryDark }}
+              />
             )}
             {(chat.unreadCount ?? 0) > 0 && (
               <span
                 className="flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-medium"
                 style={{
-                  backgroundColor: chat.isMuted ? '#8696A0' : WHATSAPP_COLORS.primaryGreen,
-                  color: '#111B21',
+                  backgroundColor: chat.isMuted
+                    ? "#8696A0"
+                    : WHATSAPP_COLORS.primaryGreen,
+                  color: "#111B21",
                 }}
               >
                 {chat.unreadCount}
@@ -409,7 +457,7 @@ function ChatItem({
         </div>
       </div>
     </button>
-  )
+  );
 }
 
-export default WhatsAppChatList
+export default WhatsAppChatList;

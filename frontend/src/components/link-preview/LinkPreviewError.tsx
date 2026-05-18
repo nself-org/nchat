@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
 /**
  * LinkPreviewError - Error state for link previews
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export interface LinkPreviewErrorProps {
   /** Original URL */
-  url: string
+  url: string;
   /** Error message */
-  error: string
+  error: string;
   /** Retry callback */
-  onRetry?: () => void
+  onRetry?: () => void;
   /** Dismiss callback */
-  onDismiss?: () => void
+  onDismiss?: () => void;
   /** Show retry button */
-  showRetry?: boolean
+  showRetry?: boolean;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 export function LinkPreviewError({
@@ -33,17 +33,17 @@ export function LinkPreviewError({
 }: LinkPreviewErrorProps) {
   const domain = React.useMemo(() => {
     try {
-      return new URL(url).hostname.replace(/^www\./, '')
+      return new URL(url).hostname.replace(/^www\./, "");
     } catch {
-      return url
+      return url;
     }
-  }, [url])
+  }, [url]);
 
   return (
     <div
       className={cn(
-        'border-destructive/20 bg-destructive/5 flex items-center gap-3 rounded-lg border p-3',
-        className
+        "border-destructive/20 bg-destructive/5 flex items-center gap-3 rounded-lg border p-3",
+        className,
       )}
     >
       <div className="flex-shrink-0">
@@ -63,15 +63,27 @@ export function LinkPreviewError({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">Failed to load preview</p>
+        <p className="truncate text-sm font-medium text-foreground">
+          Failed to load preview
+        </p>
         <p className="truncate text-xs text-muted-foreground">{domain}</p>
         {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-2">
         {showRetry && onRetry && (
-          <Button variant="ghost" size="sm" onClick={onRetry} className="h-8 px-2">
-            <svg className="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRetry}
+            className="h-8 px-2"
+          >
+            <svg
+              className="mr-1 h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -84,8 +96,18 @@ export function LinkPreviewError({
         )}
 
         {onDismiss && (
-          <Button variant="ghost" size="sm" onClick={onDismiss} className="h-8 w-8 p-0">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDismiss}
+            className="h-8 w-8 p-0"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -98,7 +120,7 @@ export function LinkPreviewError({
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default LinkPreviewError
+export default LinkPreviewError;

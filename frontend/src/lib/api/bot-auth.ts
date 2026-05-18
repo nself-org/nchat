@@ -3,29 +3,29 @@
  * Handles authentication and authorization for bot API requests
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { gql } from '@apollo/client'
-import { getApolloClient } from '@/lib/apollo-client'
+import { NextRequest, NextResponse } from "next/server";
+import { gql } from "@apollo/client";
+import { getApolloClient } from "@/lib/apollo-client";
 import {
   extractTokenFromHeader,
   hashToken,
   isValidTokenFormat,
   isTokenExpired,
   checkRateLimit,
-} from '@/lib/bots/tokens'
-import { BotPermission, tokenHasPermission } from '@/lib/bots/permissions'
+} from "@/lib/bots/tokens";
+import { BotPermission, tokenHasPermission } from "@/lib/bots/permissions";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 /**
  * Bot authentication result
  */
 export interface BotAuthResult {
-  botId: string
-  userId: string
-  botName: string
-  scopes: string[]
-  tokenId: string
+  botId: string;
+  userId: string;
+  botName: string;
+  scopes: string[];
+  tokenId: string;
 }
 
 /**
@@ -49,18 +49,21 @@ const VERIFY_BOT_TOKEN = gql`
       }
     }
   }
-`
+`;
 
 /**
  * GraphQL mutation to update token last_used_at
  */
 const UPDATE_TOKEN_LAST_USED = gql`
   mutation UpdateTokenLastUsed($tokenId: uuid!) {
-    update_nchat_bot_tokens_by_pk(pk_columns: { id: $tokenId }, _set: { last_used_at: "now()" }) {
+    update_nchat_bot_tokens_by_pk(
+      pk_columns: { id: $tokenId }
+      _set: { last_used_at: "now()" }
+    ) {
       id
     }
   }
-`
+`;
 
 /**
  * GraphQL mutation to log API call
@@ -89,7 +92,7 @@ const LOG_API_CALL = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Error response helper
@@ -100,8 +103,8 @@ function errorResponse(message: string, status: number = 401) {
       error: message,
       status,
     },
-    { status }
-  )
+    { status },
+  );
 }
 
 /**
@@ -116,46 +119,48 @@ function errorResponse(message: string, status: number = 401) {
  *   return errorResponse('Invalid token', 401);
  * }
  */
-export async function verifyBotToken(request: NextRequest): Promise<BotAuthResult | null> {
+export async function verifyBotToken(
+  request: NextRequest,
+): Promise<BotAuthResult | null> {
   try {
     // Extract token from Authorization header
-    const authHeader = request.headers.get('Authorization')
-    const token = extractTokenFromHeader(authHeader)
+    const authHeader = request.headers.get("Authorization");
+    const token = extractTokenFromHeader(authHeader);
 
     if (!token) {
-      return null
+      return null;
     }
 
     // Validate token format
     if (!isValidTokenFormat(token)) {
-      return null
+      return null;
     }
 
     // Hash token for database lookup
-    const tokenHash = hashToken(token)
+    const tokenHash = hashToken(token);
 
     // Query database for token
-    const client = getApolloClient()
+    const client = getApolloClient();
     const { data } = await client.query({
       query: VERIFY_BOT_TOKEN,
       variables: { tokenHash },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const tokenData = data?.nchat_bot_tokens?.[0]
+    const tokenData = data?.nchat_bot_tokens?.[0];
 
     if (!tokenData) {
-      return null
+      return null;
     }
 
     // Check if token is expired
     if (isTokenExpired(tokenData.expires_at)) {
-      return null
+      return null;
     }
 
     // Check if bot is active
     if (!tokenData.bot?.is_active) {
-      return null
+      return null;
     }
 
     // Update token last_used_at (fire and forget)
@@ -164,7 +169,9 @@ export async function verifyBotToken(request: NextRequest): Promise<BotAuthResul
         mutation: UPDATE_TOKEN_LAST_USED,
         variables: { tokenId: tokenData.id },
       })
-      .catch((err) => logger.error('Failed to update token last_used_at:', err))
+      .catch((err) =>
+        logger.error("Failed to update token last_used_at:", err),
+      );
 
     return {
       botId: tokenData.bot.id,
@@ -172,10 +179,10 @@ export async function verifyBotToken(request: NextRequest): Promise<BotAuthResul
       botName: tokenData.bot.name,
       scopes: tokenData.scopes || [],
       tokenId: tokenData.id,
-    }
+    };
   } catch (error) {
-    logger.error('Error verifying bot token:', error)
-    return null
+    logger.error("Error verifying bot token:", error);
+    return null;
   }
 }
 
@@ -191,11 +198,11 @@ export async function verifyBotToken(request: NextRequest): Promise<BotAuthResul
  */
 export async function checkPermission(
   auth: BotAuthResult,
-  permission: BotPermission
+  permission: BotPermission,
 ): Promise<void> {
   // Check token scopes first (faster)
   if (!tokenHasPermission(auth.scopes, permission)) {
-    throw new Error(`Bot does not have permission: ${permission}`)
+    throw new Error(`Bot does not have permission: ${permission}`);
   }
 
   // Note: We could also check database permissions here for additional security
@@ -213,21 +220,21 @@ export async function checkPermission(
 export function checkBotRateLimit(
   botId: string,
   limit: number = 100,
-  windowMs: number = 60000
+  windowMs: number = 60000,
 ): { remaining: number; resetAt: number } {
-  const result = checkRateLimit(botId, limit, windowMs)
+  const result = checkRateLimit(botId, limit, windowMs);
 
   if (!result.allowed) {
-    const error = new Error('Rate limit exceeded') as any
-    error.statusCode = 429
-    error.resetAt = result.resetAt
-    throw error
+    const error = new Error("Rate limit exceeded") as any;
+    error.statusCode = 429;
+    error.resetAt = result.resetAt;
+    throw error;
   }
 
   return {
     remaining: result.remaining,
     resetAt: result.resetAt,
-  }
+  };
 }
 
 /**
@@ -242,11 +249,11 @@ export async function logApiCall(
   auth: BotAuthResult,
   request: NextRequest,
   statusCode: number,
-  responseTimeMs: number
+  responseTimeMs: number,
 ): Promise<void> {
   try {
-    const client = getApolloClient()
-    const url = new URL(request.url)
+    const client = getApolloClient();
+    const url = new URL(request.url);
 
     await client.mutate({
       mutation: LOG_API_CALL,
@@ -256,15 +263,15 @@ export async function logApiCall(
         method: request.method,
         statusCode,
         responseTimeMs,
-        userAgent: request.headers.get('User-Agent') || null,
+        userAgent: request.headers.get("User-Agent") || null,
         ipAddress:
-          request.headers.get('X-Forwarded-For')?.split(',')[0] ||
-          request.headers.get('X-Real-IP') ||
+          request.headers.get("X-Forwarded-For")?.split(",")[0] ||
+          request.headers.get("X-Real-IP") ||
           null,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Failed to log API call:', error)
+    logger.error("Failed to log API call:", error);
     // Don't throw - logging failure shouldn't break the request
   }
 }
@@ -288,75 +295,83 @@ export async function logApiCall(
  */
 export function withBotAuth(
   handler: (request: NextRequest, auth: BotAuthResult) => Promise<NextResponse>,
-  requiredPermission?: BotPermission
+  requiredPermission?: BotPermission,
 ) {
   return async (request: NextRequest): Promise<NextResponse> => {
-    const startTime = Date.now()
-    let statusCode = 200
+    const startTime = Date.now();
+    let statusCode = 200;
 
     try {
       // Verify bot token
-      const auth = await verifyBotToken(request)
+      const auth = await verifyBotToken(request);
       if (!auth) {
-        statusCode = 401
-        return errorResponse('Invalid or missing bot token', 401)
+        statusCode = 401;
+        return errorResponse("Invalid or missing bot token", 401);
       }
 
       // Check rate limit
       try {
-        const rateLimit = checkBotRateLimit(auth.botId)
+        const rateLimit = checkBotRateLimit(auth.botId);
 
         // Add rate limit headers to response
-        const headers = new Headers()
-        headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString())
-        headers.set('X-RateLimit-Reset', new Date(rateLimit.resetAt).toISOString())
+        const headers = new Headers();
+        headers.set("X-RateLimit-Remaining", rateLimit.remaining.toString());
+        headers.set(
+          "X-RateLimit-Reset",
+          new Date(rateLimit.resetAt).toISOString(),
+        );
       } catch (error: any) {
-        statusCode = 429
-        const resetAt = new Date(error.resetAt).toISOString()
+        statusCode = 429;
+        const resetAt = new Date(error.resetAt).toISOString();
         return NextResponse.json(
           {
-            error: 'Rate limit exceeded',
+            error: "Rate limit exceeded",
             status: 429,
             resetAt,
           },
           {
             status: 429,
             headers: {
-              'X-RateLimit-Remaining': '0',
-              'X-RateLimit-Reset': resetAt,
-              'Retry-After': Math.ceil((error.resetAt - Date.now()) / 1000).toString(),
+              "X-RateLimit-Remaining": "0",
+              "X-RateLimit-Reset": resetAt,
+              "Retry-After": Math.ceil(
+                (error.resetAt - Date.now()) / 1000,
+              ).toString(),
             },
-          }
-        )
+          },
+        );
       }
 
       // Check permission if required
       if (requiredPermission) {
         try {
-          await checkPermission(auth, requiredPermission)
+          await checkPermission(auth, requiredPermission);
         } catch (error: any) {
-          statusCode = 403
-          return errorResponse(error.message, 403)
+          statusCode = 403;
+          return errorResponse(error.message, 403);
         }
       }
 
       // Call the actual handler
-      const response = await handler(request, auth)
-      statusCode = response.status
+      const response = await handler(request, auth);
+      statusCode = response.status;
 
       // Log API call
-      const responseTime = Date.now() - startTime
+      const responseTime = Date.now() - startTime;
       logApiCall(auth, request, statusCode, responseTime).catch(() => {
         // Ignore logging errors
-      })
+      });
 
-      return response
+      return response;
     } catch (error: any) {
-      logger.error('Bot API error:', error)
-      statusCode = error.statusCode || 500
-      return errorResponse(error.message || 'Internal server error', statusCode)
+      logger.error("Bot API error:", error);
+      statusCode = error.statusCode || 500;
+      return errorResponse(
+        error.message || "Internal server error",
+        statusCode,
+      );
     }
-  }
+  };
 }
 
 /**
@@ -369,5 +384,5 @@ export function getBotInfo(auth: BotAuthResult) {
     userId: auth.userId,
     botName: auth.botName,
     scopes: auth.scopes,
-  }
+  };
 }

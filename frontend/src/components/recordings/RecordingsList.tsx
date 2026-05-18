@@ -8,27 +8,27 @@
  * - Status indicators
  */
 
-'use client'
+"use client";
 
-import React, { useState, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+import React, { useState, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Video,
   Mic,
@@ -48,34 +48,38 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react'
-import type { Recording, RecordingStatus, RecordingSource } from '@/services/recordings/types'
+} from "lucide-react";
+import type {
+  Recording,
+  RecordingStatus,
+  RecordingSource,
+} from "@/services/recordings/types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface RecordingsListProps {
-  recordings: Recording[]
-  total: number
-  isLoading?: boolean
-  page: number
-  pageSize: number
-  onPageChange: (page: number) => void
-  onPlay: (recording: Recording) => void
-  onDownload: (recording: Recording) => void
-  onShare: (recording: Recording) => void
-  onDelete: (recording: Recording) => void
-  onFilterChange?: (filters: RecordingFilters) => void
-  className?: string
+  recordings: Recording[];
+  total: number;
+  isLoading?: boolean;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPlay: (recording: Recording) => void;
+  onDownload: (recording: Recording) => void;
+  onShare: (recording: Recording) => void;
+  onDelete: (recording: Recording) => void;
+  onFilterChange?: (filters: RecordingFilters) => void;
+  className?: string;
 }
 
 interface RecordingFilters {
-  search?: string
-  status?: RecordingStatus[]
-  source?: RecordingSource[]
-  sortBy?: 'createdAt' | 'duration' | 'fileSize'
-  sortOrder?: 'asc' | 'desc'
+  search?: string;
+  status?: RecordingStatus[];
+  source?: RecordingSource[];
+  sortBy?: "createdAt" | "duration" | "fileSize";
+  sortOrder?: "asc" | "desc";
 }
 
 // ============================================================================
@@ -83,72 +87,90 @@ interface RecordingFilters {
 // ============================================================================
 
 function formatDuration(seconds?: number): string {
-  if (!seconds) return '0:00'
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = Math.floor(seconds % 60)
+  if (!seconds) return "0:00";
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`
+  return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
 function formatFileSize(bytes?: number): string {
-  if (!bytes) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  let unitIndex = 0
-  let size = bytes
+  if (!bytes) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  let unitIndex = 0;
+  let size = bytes;
 
   while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024
-    unitIndex++
+    size /= 1024;
+    unitIndex++;
   }
 
-  return `${size.toFixed(1)} ${units[unitIndex]}`
+  return `${size.toFixed(1)} ${units[unitIndex]}`;
 }
 
 function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function getSourceIcon(source: RecordingSource) {
   switch (source) {
-    case 'call':
-      return Phone
-    case 'livestream':
-      return Video
-    case 'screen_share':
-      return Monitor
-    case 'voice_chat':
-      return Mic
+    case "call":
+      return Phone;
+    case "livestream":
+      return Video;
+    case "screen_share":
+      return Monitor;
+    case "voice_chat":
+      return Mic;
     default:
-      return Video
+      return Video;
   }
 }
 
 function getStatusBadge(status: RecordingStatus) {
   switch (status) {
-    case 'recording':
-      return <Badge variant="default" className="bg-red-500">Recording</Badge>
-    case 'processing':
-      return <Badge variant="secondary"><Loader2 className="w-3 h-3 mr-1 animate-spin" />Processing</Badge>
-    case 'completed':
-      return <Badge variant="default" className="bg-green-500">Completed</Badge>
-    case 'failed':
-      return <Badge variant="destructive">Failed</Badge>
-    case 'archived':
-      return <Badge variant="outline">Archived</Badge>
-    case 'legal_hold':
-      return <Badge variant="default" className="bg-yellow-500"><Shield className="w-3 h-3 mr-1" />Legal Hold</Badge>
+    case "recording":
+      return (
+        <Badge variant="default" className="bg-red-500">
+          Recording
+        </Badge>
+      );
+    case "processing":
+      return (
+        <Badge variant="secondary">
+          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+          Processing
+        </Badge>
+      );
+    case "completed":
+      return (
+        <Badge variant="default" className="bg-green-500">
+          Completed
+        </Badge>
+      );
+    case "failed":
+      return <Badge variant="destructive">Failed</Badge>;
+    case "archived":
+      return <Badge variant="outline">Archived</Badge>;
+    case "legal_hold":
+      return (
+        <Badge variant="default" className="bg-yellow-500">
+          <Shield className="w-3 h-3 mr-1" />
+          Legal Hold
+        </Badge>
+      );
     default:
-      return <Badge variant="outline">{status}</Badge>
+      return <Badge variant="outline">{status}</Badge>;
   }
 }
 
@@ -171,26 +193,32 @@ export function RecordingsList({
   className,
 }: RecordingsListProps) {
   const [filters, setFilters] = useState<RecordingFilters>({
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
-  })
-  const [searchQuery, setSearchQuery] = useState('')
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const totalPages = Math.ceil(total / pageSize)
+  const totalPages = Math.ceil(total / pageSize);
 
-  const handleFilterChange = useCallback((updates: Partial<RecordingFilters>) => {
-    const newFilters = { ...filters, ...updates }
-    setFilters(newFilters)
-    onFilterChange?.(newFilters)
-  }, [filters, onFilterChange])
+  const handleFilterChange = useCallback(
+    (updates: Partial<RecordingFilters>) => {
+      const newFilters = { ...filters, ...updates };
+      setFilters(newFilters);
+      onFilterChange?.(newFilters);
+    },
+    [filters, onFilterChange],
+  );
 
-  const handleSearch = useCallback((e: React.FormEvent) => {
-    e.preventDefault()
-    handleFilterChange({ search: searchQuery })
-  }, [searchQuery, handleFilterChange])
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      handleFilterChange({ search: searchQuery });
+    },
+    [searchQuery, handleFilterChange],
+  );
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Filters Bar */}
       <div className="flex flex-wrap items-center gap-4">
         {/* Search */}
@@ -208,10 +236,10 @@ export function RecordingsList({
 
         {/* Status Filter */}
         <Select
-          value={filters.status?.[0] || 'all'}
+          value={filters.status?.[0] || "all"}
           onValueChange={(value) =>
             handleFilterChange({
-              status: value === 'all' ? undefined : [value as RecordingStatus],
+              status: value === "all" ? undefined : [value as RecordingStatus],
             })
           }
         >
@@ -231,10 +259,10 @@ export function RecordingsList({
 
         {/* Source Filter */}
         <Select
-          value={filters.source?.[0] || 'all'}
+          value={filters.source?.[0] || "all"}
           onValueChange={(value) =>
             handleFilterChange({
-              source: value === 'all' ? undefined : [value as RecordingSource],
+              source: value === "all" ? undefined : [value as RecordingSource],
             })
           }
         >
@@ -254,11 +282,11 @@ export function RecordingsList({
         <Select
           value={`${filters.sortBy}-${filters.sortOrder}`}
           onValueChange={(value) => {
-            const [sortBy, sortOrder] = value.split('-') as [
-              RecordingFilters['sortBy'],
-              RecordingFilters['sortOrder']
-            ]
-            handleFilterChange({ sortBy, sortOrder })
+            const [sortBy, sortOrder] = value.split("-") as [
+              RecordingFilters["sortBy"],
+              RecordingFilters["sortOrder"],
+            ];
+            handleFilterChange({ sortBy, sortOrder });
           }}
         >
           <SelectTrigger className="w-40">
@@ -288,7 +316,7 @@ export function RecordingsList({
       ) : (
         <div className="space-y-2">
           {recordings.map((recording) => {
-            const SourceIcon = getSourceIcon(recording.source)
+            const SourceIcon = getSourceIcon(recording.source);
 
             return (
               <div
@@ -327,11 +355,15 @@ export function RecordingsList({
                   <div className="flex items-center gap-2 mb-1">
                     <SourceIcon className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium truncate">
-                      {recording.source === 'call' ? 'Call' : recording.source} Recording
+                      {recording.source === "call" ? "Call" : recording.source}{" "}
+                      Recording
                     </span>
                     {getStatusBadge(recording.status)}
                     {recording.legalHold && (
-                      <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                      <Badge
+                        variant="outline"
+                        className="text-yellow-600 border-yellow-600"
+                      >
                         <Shield className="w-3 h-3 mr-1" />
                         Legal Hold
                       </Badge>
@@ -349,14 +381,16 @@ export function RecordingsList({
                     </span>
                     <span>{recording.quality}</span>
                     {recording.metadata.totalParticipants > 0 && (
-                      <span>{recording.metadata.totalParticipants} participants</span>
+                      <span>
+                        {recording.metadata.totalParticipants} participants
+                      </span>
                     )}
                   </div>
                 </div>
 
                 {/* Actions */}
                 <div className="flex items-center gap-2">
-                  {recording.status === 'completed' && (
+                  {recording.status === "completed" && (
                     <>
                       <Button
                         variant="ghost"
@@ -392,13 +426,15 @@ export function RecordingsList({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {recording.status === 'completed' && (
+                      {recording.status === "completed" && (
                         <>
                           <DropdownMenuItem onClick={() => onPlay(recording)}>
                             <Play className="w-4 h-4 mr-2" />
                             Play
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDownload(recording)}>
+                          <DropdownMenuItem
+                            onClick={() => onDownload(recording)}
+                          >
                             <Download className="w-4 h-4 mr-2" />
                             Download
                           </DropdownMenuItem>
@@ -421,7 +457,7 @@ export function RecordingsList({
                   </DropdownMenu>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       )}
@@ -430,7 +466,8 @@ export function RecordingsList({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total}
+            Showing {(page - 1) * pageSize + 1} -{" "}
+            {Math.min(page * pageSize, total)} of {total}
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -456,7 +493,7 @@ export function RecordingsList({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default RecordingsList
+export default RecordingsList;

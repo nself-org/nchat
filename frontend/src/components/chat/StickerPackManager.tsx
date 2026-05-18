@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Plus, Edit, Trash2, Loader2, ImagePlus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState } from "react";
+import { Plus, Edit, Trash2, Loader2, ImagePlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -14,101 +14,116 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { useToast } from '@/hooks/use-toast'
-import { useStickerPacks } from '@/hooks/use-stickers'
-import { useStickerPacksManagement } from '@/hooks/use-sticker-packs'
-import type { StickerPack } from '@/hooks/use-stickers'
+} from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useStickerPacks } from "@/hooks/use-stickers";
+import { useStickerPacksManagement } from "@/hooks/use-sticker-packs";
+import type { StickerPack } from "@/hooks/use-stickers";
 
 /**
  * Sticker Pack Manager (Admin/Owner Only)
  * Create, edit, and manage sticker packs
  */
 export function StickerPackManager() {
-  const { toast } = useToast()
-  const { packs, isLoading, refetch } = useStickerPacks()
+  const { toast } = useToast();
+  const { packs, isLoading, refetch } = useStickerPacks();
   const {
     createPack,
     updatePack,
     deletePack,
     isLoading: isMutating,
     canManage,
-  } = useStickerPacksManagement()
+  } = useStickerPacksManagement();
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [editingPack, setEditingPack] = useState<StickerPack | null>(null)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingPack, setEditingPack] = useState<StickerPack | null>(null);
 
-  const handleCreatePack = async (input: { name: string; slug: string; description?: string }) => {
+  const handleCreatePack = async (input: {
+    name: string;
+    slug: string;
+    description?: string;
+  }) => {
     try {
-      await createPack(input)
+      await createPack(input);
       toast({
-        title: 'Success',
-        description: 'Sticker pack created successfully',
-      })
-      setIsCreateDialogOpen(false)
-      refetch()
+        title: "Success",
+        description: "Sticker pack created successfully",
+      });
+      setIsCreateDialogOpen(false);
+      refetch();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to create pack',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to create pack",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleUpdatePack = async (
     id: string,
-    input: Partial<{ name: string; description: string; is_enabled: boolean }>
+    input: Partial<{ name: string; description: string; is_enabled: boolean }>,
   ) => {
     try {
-      await updatePack(id, input)
+      await updatePack(id, input);
       toast({
-        title: 'Success',
-        description: 'Sticker pack updated successfully',
-      })
-      setEditingPack(null)
-      refetch()
+        title: "Success",
+        description: "Sticker pack updated successfully",
+      });
+      setEditingPack(null);
+      refetch();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to update pack',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to update pack",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const handleDeletePack = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) {
-      return
+      return;
     }
 
     try {
-      await deletePack(id)
+      await deletePack(id);
       toast({
-        title: 'Success',
-        description: 'Sticker pack deleted successfully',
-      })
-      refetch()
+        title: "Success",
+        description: "Sticker pack deleted successfully",
+      });
+      refetch();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to delete pack',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to delete pack",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   if (!canManage) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Access Denied</CardTitle>
-          <CardDescription>You don't have permission to manage sticker packs</CardDescription>
+          <CardDescription>
+            You don't have permission to manage sticker packs
+          </CardDescription>
         </CardHeader>
       </Card>
-    )
+    );
   }
 
   if (isLoading) {
@@ -118,7 +133,7 @@ export function StickerPackManager() {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -126,7 +141,9 @@ export function StickerPackManager() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Sticker Packs</h2>
-          <p className="text-sm text-muted-foreground">Manage custom sticker packs for your team</p>
+          <p className="text-sm text-muted-foreground">
+            Manage custom sticker packs for your team
+          </p>
         </div>
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -186,7 +203,9 @@ export function StickerPackManager() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{pack.stickers.length} stickers</span>
+                <span className="text-muted-foreground">
+                  {pack.stickers.length} stickers
+                </span>
                 <Button variant="outline" size="sm" asChild>
                   <a href={`/admin/stickers/${pack.id}`}>
                     <ImagePlus className="mr-2 h-4 w-4" />
@@ -200,7 +219,10 @@ export function StickerPackManager() {
       </div>
 
       {/* Edit Pack Dialog */}
-      <Dialog open={!!editingPack} onOpenChange={(open) => !open && setEditingPack(null)}>
+      <Dialog
+        open={!!editingPack}
+        onOpenChange={(open) => !open && setEditingPack(null)}
+      >
         <DialogContent>
           {editingPack && (
             <EditPackForm
@@ -213,7 +235,7 @@ export function StickerPackManager() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
 /**
@@ -224,32 +246,38 @@ function CreatePackForm({
   onCancel,
   isLoading,
 }: {
-  onSubmit: (input: { name: string; slug: string; description?: string }) => void
-  onCancel: () => void
-  isLoading: boolean
+  onSubmit: (input: {
+    name: string;
+    slug: string;
+    description?: string;
+  }) => void;
+  onCancel: () => void;
+  isLoading: boolean;
 }) {
-  const [name, setName] = useState('')
-  const [slug, setSlug] = useState('')
-  const [description, setDescription] = useState('')
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [description, setDescription] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit({ name, slug, description: description || undefined })
-  }
+    e.preventDefault();
+    onSubmit({ name, slug, description: description || undefined });
+  };
 
   // Auto-generate slug from name
   const handleNameChange = (value: string) => {
-    setName(value)
-    if (!slug || slug === name.toLowerCase().replace(/\s+/g, '-')) {
-      setSlug(value.toLowerCase().replace(/\s+/g, '-'))
+    setName(value);
+    if (!slug || slug === name.toLowerCase().replace(/\s+/g, "-")) {
+      setSlug(value.toLowerCase().replace(/\s+/g, "-"));
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
       <DialogHeader>
         <DialogTitle>Create Sticker Pack</DialogTitle>
-        <DialogDescription>Create a new sticker pack for your team</DialogDescription>
+        <DialogDescription>
+          Create a new sticker pack for your team
+        </DialogDescription>
       </DialogHeader>
 
       <div className="space-y-4 py-4">
@@ -292,7 +320,12 @@ function CreatePackForm({
       </div>
 
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isLoading}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={isLoading || !name || !slug}>
@@ -302,12 +335,12 @@ function CreatePackForm({
               Creating...
             </>
           ) : (
-            'Create Pack'
+            "Create Pack"
           )}
         </Button>
       </DialogFooter>
     </form>
-  )
+  );
 }
 
 /**
@@ -319,18 +352,18 @@ function EditPackForm({
   onCancel,
   isLoading,
 }: {
-  pack: StickerPack
-  onSubmit: (input: Partial<{ name: string; description: string }>) => void
-  onCancel: () => void
-  isLoading: boolean
+  pack: StickerPack;
+  onSubmit: (input: Partial<{ name: string; description: string }>) => void;
+  onCancel: () => void;
+  isLoading: boolean;
 }) {
-  const [name, setName] = useState(pack.name)
-  const [description, setDescription] = useState(pack.description || '')
+  const [name, setName] = useState(pack.name);
+  const [description, setDescription] = useState(pack.description || "");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit({ name, description: description || undefined })
-  }
+    e.preventDefault();
+    onSubmit({ name, description: description || undefined });
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -342,7 +375,12 @@ function EditPackForm({
       <div className="space-y-4 py-4">
         <div className="space-y-2">
           <Label htmlFor="edit-name">Pack Name</Label>
-          <Input id="edit-name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <Input
+            id="edit-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
         </div>
 
         <div className="space-y-2">
@@ -357,7 +395,12 @@ function EditPackForm({
       </div>
 
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isLoading}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={isLoading || !name}>
@@ -367,10 +410,10 @@ function EditPackForm({
               Saving...
             </>
           ) : (
-            'Save Changes'
+            "Save Changes"
           )}
         </Button>
       </DialogFooter>
     </form>
-  )
+  );
 }

@@ -5,14 +5,14 @@
  * session key derivation, and forward secrecy implementation.
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   KeyPair,
   exportKey,
   importPublicKey,
   deriveEncryptionKey,
   generateKeyPair,
-} from './key-manager'
+} from "./key-manager";
 
 // ============================================================================
 // Types
@@ -20,66 +20,66 @@ import {
 
 export interface EncryptedMessage {
   /** Base64-encoded ciphertext */
-  ciphertext: string
+  ciphertext: string;
   /** Base64-encoded initialization vector */
-  iv: string
+  iv: string;
   /** Base64-encoded ephemeral public key (for forward secrecy) */
-  ephemeralPublicKey: string
+  ephemeralPublicKey: string;
   /** Message version for backward compatibility */
-  version: number
+  version: number;
   /** Timestamp when message was encrypted */
-  timestamp: number
+  timestamp: number;
   /** Optional message signature */
-  signature?: string
+  signature?: string;
 }
 
 export interface DecryptedMessage {
   /** The decrypted plaintext content */
-  content: string
+  content: string;
   /** Timestamp from the encrypted message */
-  timestamp: number
+  timestamp: number;
   /** Whether the message integrity was verified */
-  verified: boolean
+  verified: boolean;
 }
 
 export interface SessionKey {
   /** The derived AES-GCM key */
-  key: CryptoKey
+  key: CryptoKey;
   /** Public key of the peer */
-  peerPublicKey: JsonWebKey
+  peerPublicKey: JsonWebKey;
   /** When this session key was created */
-  createdAt: Date
+  createdAt: Date;
   /** Number of messages encrypted with this key */
-  messageCount: number
+  messageCount: number;
   /** Maximum messages before ratchet */
-  maxMessages: number
+  maxMessages: number;
 }
 
 export interface EncryptionOptions {
   /** Whether to use forward secrecy (ephemeral keys) */
-  forwardSecrecy?: boolean
+  forwardSecrecy?: boolean;
   /** Whether to sign the message */
-  sign?: boolean
+  sign?: boolean;
   /** Signing key for message authentication */
-  signingKey?: CryptoKey
+  signingKey?: CryptoKey;
   /** Additional authenticated data */
-  additionalData?: string
+  additionalData?: string;
 }
 
 export interface DecryptionOptions {
   /** Verification key for signature checking */
-  verificationKey?: CryptoKey
+  verificationKey?: CryptoKey;
   /** Expected additional authenticated data */
-  additionalData?: string
+  additionalData?: string;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const CURRENT_VERSION = 1
-const IV_LENGTH = 12 // 96 bits for AES-GCM
-const MAX_MESSAGES_PER_SESSION = 100
+const CURRENT_VERSION = 1;
+const IV_LENGTH = 12; // 96 bits for AES-GCM
+const MAX_MESSAGES_PER_SESSION = 100;
 
 // ============================================================================
 // Utility Functions
@@ -89,66 +89,68 @@ const MAX_MESSAGES_PER_SESSION = 100
  * Converts an ArrayBuffer to a Base64 string
  */
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
   for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i])
+    binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary)
+  return btoa(binary);
 }
 
 /**
  * Converts a Base64 string to an ArrayBuffer
  */
 export function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
+    bytes[i] = binary.charCodeAt(i);
   }
-  return bytes.buffer
+  return bytes.buffer;
 }
 
 /**
  * Converts a string to an ArrayBuffer using UTF-8 encoding
  */
 export function stringToArrayBuffer(str: string): ArrayBuffer {
-  const encoder = new TextEncoder()
-  return encoder.encode(str).buffer
+  const encoder = new TextEncoder();
+  return encoder.encode(str).buffer;
 }
 
 /**
  * Converts an ArrayBuffer to a string using UTF-8 decoding
  */
 export function arrayBufferToString(buffer: ArrayBuffer): string {
-  const decoder = new TextDecoder()
-  return decoder.decode(buffer)
+  const decoder = new TextDecoder();
+  return decoder.decode(buffer);
 }
 
 /**
  * Generates a random initialization vector
  */
 export function generateIV(): Uint8Array {
-  const iv = new Uint8Array(IV_LENGTH)
-  crypto.getRandomValues(iv)
-  return iv
+  const iv = new Uint8Array(IV_LENGTH);
+  crypto.getRandomValues(iv);
+  return iv;
 }
 
 /**
  * Validates an encrypted message structure
  */
-export function validateEncryptedMessage(message: unknown): message is EncryptedMessage {
-  if (!message || typeof message !== 'object') return false
+export function validateEncryptedMessage(
+  message: unknown,
+): message is EncryptedMessage {
+  if (!message || typeof message !== "object") return false;
 
-  const msg = message as Record<string, unknown>
+  const msg = message as Record<string, unknown>;
 
   return (
-    typeof msg.ciphertext === 'string' &&
-    typeof msg.iv === 'string' &&
-    typeof msg.ephemeralPublicKey === 'string' &&
-    typeof msg.version === 'number' &&
-    typeof msg.timestamp === 'number'
-  )
+    typeof msg.ciphertext === "string" &&
+    typeof msg.iv === "string" &&
+    typeof msg.ephemeralPublicKey === "string" &&
+    typeof msg.version === "number" &&
+    typeof msg.timestamp === "number"
+  );
 }
 
 // ============================================================================
@@ -161,29 +163,29 @@ export function validateEncryptedMessage(message: unknown): message is Encrypted
 export async function encryptWithKey(
   plaintext: string,
   key: CryptoKey,
-  additionalData?: string
+  additionalData?: string,
 ): Promise<{ ciphertext: ArrayBuffer; iv: Uint8Array }> {
-  const iv = generateIV()
-  const encodedText = stringToArrayBuffer(plaintext)
+  const iv = generateIV();
+  const encodedText = stringToArrayBuffer(plaintext);
 
   const algorithm: AesGcmParams = {
-    name: 'AES-GCM',
+    name: "AES-GCM",
     iv: iv as BufferSource,
-  }
+  };
 
   if (additionalData) {
-    const additionalBuffer = stringToArrayBuffer(additionalData)
-    algorithm.additionalData = additionalBuffer as BufferSource
+    const additionalBuffer = stringToArrayBuffer(additionalData);
+    algorithm.additionalData = additionalBuffer as BufferSource;
   }
 
   try {
-    const ciphertext = await crypto.subtle.encrypt(algorithm, key, encodedText)
+    const ciphertext = await crypto.subtle.encrypt(algorithm, key, encodedText);
 
-    return { ciphertext, iv }
+    return { ciphertext, iv };
   } catch (error) {
     throw new Error(
-      `Encryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    )
+      `Encryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -194,26 +196,26 @@ export async function decryptWithKey(
   ciphertext: ArrayBuffer,
   key: CryptoKey,
   iv: Uint8Array,
-  additionalData?: string
+  additionalData?: string,
 ): Promise<string> {
   const algorithm: AesGcmParams = {
-    name: 'AES-GCM',
+    name: "AES-GCM",
     iv: iv as BufferSource,
-  }
+  };
 
   if (additionalData) {
-    const additionalBuffer = stringToArrayBuffer(additionalData)
-    algorithm.additionalData = additionalBuffer as BufferSource
+    const additionalBuffer = stringToArrayBuffer(additionalData);
+    algorithm.additionalData = additionalBuffer as BufferSource;
   }
 
   try {
-    const decrypted = await crypto.subtle.decrypt(algorithm, key, ciphertext)
+    const decrypted = await crypto.subtle.decrypt(algorithm, key, ciphertext);
 
-    return arrayBufferToString(decrypted)
+    return arrayBufferToString(decrypted);
   } catch (error) {
     throw new Error(
-      `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    )
+      `Decryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -224,29 +226,36 @@ export async function encryptMessage(
   plaintext: string,
   recipientPublicKey: JsonWebKey,
   senderPrivateKey: CryptoKey,
-  options: EncryptionOptions = {}
+  options: EncryptionOptions = {},
 ): Promise<EncryptedMessage> {
-  const { forwardSecrecy = true, additionalData } = options
+  const { forwardSecrecy = true, additionalData } = options;
 
-  let encryptionKey: CryptoKey
-  let ephemeralPublicKeyJwk: JsonWebKey
+  let encryptionKey: CryptoKey;
+  let ephemeralPublicKeyJwk: JsonWebKey;
 
   if (forwardSecrecy) {
     // Generate ephemeral key pair for forward secrecy
-    const ephemeralKeyPair = await generateKeyPair()
-    ephemeralPublicKeyJwk = await exportKey(ephemeralKeyPair.publicKey)
+    const ephemeralKeyPair = await generateKeyPair();
+    ephemeralPublicKeyJwk = await exportKey(ephemeralKeyPair.publicKey);
 
     // Derive encryption key from ephemeral private key and recipient's public key
-    const recipientKey = await importPublicKey(recipientPublicKey)
-    encryptionKey = await deriveEncryptionKey(ephemeralKeyPair.privateKey, recipientKey)
+    const recipientKey = await importPublicKey(recipientPublicKey);
+    encryptionKey = await deriveEncryptionKey(
+      ephemeralKeyPair.privateKey,
+      recipientKey,
+    );
   } else {
     // Derive encryption key from sender's static key pair
-    ephemeralPublicKeyJwk = {} as JsonWebKey // Empty when not using forward secrecy
-    const recipientKey = await importPublicKey(recipientPublicKey)
-    encryptionKey = await deriveEncryptionKey(senderPrivateKey, recipientKey)
+    ephemeralPublicKeyJwk = {} as JsonWebKey; // Empty when not using forward secrecy
+    const recipientKey = await importPublicKey(recipientPublicKey);
+    encryptionKey = await deriveEncryptionKey(senderPrivateKey, recipientKey);
   }
 
-  const { ciphertext, iv } = await encryptWithKey(plaintext, encryptionKey, additionalData)
+  const { ciphertext, iv } = await encryptWithKey(
+    plaintext,
+    encryptionKey,
+    additionalData,
+  );
 
   const encryptedMessage: EncryptedMessage = {
     ciphertext: arrayBufferToBase64(ciphertext),
@@ -254,9 +263,9 @@ export async function encryptMessage(
     ephemeralPublicKey: JSON.stringify(ephemeralPublicKeyJwk),
     version: CURRENT_VERSION,
     timestamp: Date.now(),
-  }
+  };
 
-  return encryptedMessage
+  return encryptedMessage;
 }
 
 /**
@@ -266,69 +275,80 @@ export async function decryptMessage(
   encryptedMessage: EncryptedMessage,
   recipientPrivateKey: CryptoKey,
   senderPublicKey?: JsonWebKey,
-  options: DecryptionOptions = {}
+  options: DecryptionOptions = {},
 ): Promise<DecryptedMessage> {
-  const { additionalData } = options
+  const { additionalData } = options;
 
   // Validate message structure
   if (!validateEncryptedMessage(encryptedMessage)) {
-    throw new Error('Invalid encrypted message format')
+    throw new Error("Invalid encrypted message format");
   }
 
   // Check version compatibility
   if (encryptedMessage.version > CURRENT_VERSION) {
-    throw new Error(`Unsupported message version: ${encryptedMessage.version}`)
+    throw new Error(`Unsupported message version: ${encryptedMessage.version}`);
   }
 
-  let encryptionKey: CryptoKey
+  let encryptionKey: CryptoKey;
 
   // Parse ephemeral public key
-  const ephemeralPublicKeyJwk = JSON.parse(encryptedMessage.ephemeralPublicKey)
+  const ephemeralPublicKeyJwk = JSON.parse(encryptedMessage.ephemeralPublicKey);
 
   // Check if forward secrecy was used (ephemeral key has required fields)
-  const usedForwardSecrecy = ephemeralPublicKeyJwk.kty && ephemeralPublicKeyJwk.crv
+  const usedForwardSecrecy =
+    ephemeralPublicKeyJwk.kty && ephemeralPublicKeyJwk.crv;
 
   if (usedForwardSecrecy) {
     // Derive key from ephemeral public key
-    const ephemeralPublicKey = await importPublicKey(ephemeralPublicKeyJwk)
-    encryptionKey = await deriveEncryptionKey(recipientPrivateKey, ephemeralPublicKey)
+    const ephemeralPublicKey = await importPublicKey(ephemeralPublicKeyJwk);
+    encryptionKey = await deriveEncryptionKey(
+      recipientPrivateKey,
+      ephemeralPublicKey,
+    );
   } else if (senderPublicKey) {
     // Derive key from sender's static public key
-    const senderKey = await importPublicKey(senderPublicKey)
-    encryptionKey = await deriveEncryptionKey(recipientPrivateKey, senderKey)
+    const senderKey = await importPublicKey(senderPublicKey);
+    encryptionKey = await deriveEncryptionKey(recipientPrivateKey, senderKey);
   } else {
-    throw new Error('Sender public key required when forward secrecy is disabled')
+    throw new Error(
+      "Sender public key required when forward secrecy is disabled",
+    );
   }
 
   // Decode and decrypt
-  const ciphertext = base64ToArrayBuffer(encryptedMessage.ciphertext)
-  const iv = new Uint8Array(base64ToArrayBuffer(encryptedMessage.iv))
+  const ciphertext = base64ToArrayBuffer(encryptedMessage.ciphertext);
+  const iv = new Uint8Array(base64ToArrayBuffer(encryptedMessage.iv));
 
-  const content = await decryptWithKey(ciphertext, encryptionKey, iv, additionalData)
+  const content = await decryptWithKey(
+    ciphertext,
+    encryptionKey,
+    iv,
+    additionalData,
+  );
 
   // Verify message signature if present
-  let verified = false
+  let verified = false;
   if (encryptedMessage.signature && options.verificationKey) {
     try {
       verified = await verifyMessageSignature(
         content,
         encryptedMessage.signature,
-        options.verificationKey
-      )
+        options.verificationKey,
+      );
     } catch (error) {
-      logger.error('Signature verification failed:', error)
-      verified = false
+      logger.error("Signature verification failed:", error);
+      verified = false;
     }
   } else {
     // If no signature is present, consider it unverified but not failed
-    verified = !encryptedMessage.signature
+    verified = !encryptedMessage.signature;
   }
 
   return {
     content,
     timestamp: encryptedMessage.timestamp,
     verified,
-  }
+  };
 }
 
 // ============================================================================
@@ -341,10 +361,10 @@ export async function decryptMessage(
 export async function createSessionKey(
   ownPrivateKey: CryptoKey,
   peerPublicKey: JsonWebKey,
-  maxMessages: number = MAX_MESSAGES_PER_SESSION
+  maxMessages: number = MAX_MESSAGES_PER_SESSION,
 ): Promise<SessionKey> {
-  const peerKey = await importPublicKey(peerPublicKey)
-  const key = await deriveEncryptionKey(ownPrivateKey, peerKey)
+  const peerKey = await importPublicKey(peerPublicKey);
+  const key = await deriveEncryptionKey(ownPrivateKey, peerKey);
 
   return {
     key,
@@ -352,14 +372,14 @@ export async function createSessionKey(
     createdAt: new Date(),
     messageCount: 0,
     maxMessages,
-  }
+  };
 }
 
 /**
  * Checks if a session key needs to be rotated
  */
 export function shouldRotateSessionKey(session: SessionKey): boolean {
-  return session.messageCount >= session.maxMessages
+  return session.messageCount >= session.maxMessages;
 }
 
 /**
@@ -369,7 +389,7 @@ export function incrementSessionKeyCount(session: SessionKey): SessionKey {
   return {
     ...session,
     messageCount: session.messageCount + 1,
-  }
+  };
 }
 
 /**
@@ -378,13 +398,19 @@ export function incrementSessionKeyCount(session: SessionKey): SessionKey {
 export async function encryptWithSessionKey(
   plaintext: string,
   session: SessionKey,
-  additionalData?: string
+  additionalData?: string,
 ): Promise<{ encrypted: EncryptedMessage; updatedSession: SessionKey }> {
   if (shouldRotateSessionKey(session)) {
-    throw new Error('Session key has reached maximum message count. Please rotate.')
+    throw new Error(
+      "Session key has reached maximum message count. Please rotate.",
+    );
   }
 
-  const { ciphertext, iv } = await encryptWithKey(plaintext, session.key, additionalData)
+  const { ciphertext, iv } = await encryptWithKey(
+    plaintext,
+    session.key,
+    additionalData,
+  );
 
   const encrypted: EncryptedMessage = {
     ciphertext: arrayBufferToBase64(ciphertext),
@@ -392,12 +418,12 @@ export async function encryptWithSessionKey(
     ephemeralPublicKey: JSON.stringify({}), // Session keys don't use ephemeral keys
     version: CURRENT_VERSION,
     timestamp: Date.now(),
-  }
+  };
 
   return {
     encrypted,
     updatedSession: incrementSessionKeyCount(session),
-  }
+  };
 }
 
 /**
@@ -406,18 +432,23 @@ export async function encryptWithSessionKey(
 export async function decryptWithSessionKey(
   encryptedMessage: EncryptedMessage,
   session: SessionKey,
-  additionalData?: string
+  additionalData?: string,
 ): Promise<DecryptedMessage> {
-  const ciphertext = base64ToArrayBuffer(encryptedMessage.ciphertext)
-  const iv = new Uint8Array(base64ToArrayBuffer(encryptedMessage.iv))
+  const ciphertext = base64ToArrayBuffer(encryptedMessage.ciphertext);
+  const iv = new Uint8Array(base64ToArrayBuffer(encryptedMessage.iv));
 
-  const content = await decryptWithKey(ciphertext, session.key, iv, additionalData)
+  const content = await decryptWithKey(
+    ciphertext,
+    session.key,
+    iv,
+    additionalData,
+  );
 
   return {
     content,
     timestamp: encryptedMessage.timestamp,
     verified: true,
-  }
+  };
 }
 
 // ============================================================================
@@ -426,17 +457,17 @@ export async function decryptWithSessionKey(
 
 export interface RatchetState {
   /** Current chain key for sending */
-  sendingChainKey: CryptoKey | null
+  sendingChainKey: CryptoKey | null;
   /** Current chain key for receiving */
-  receivingChainKey: CryptoKey | null
+  receivingChainKey: CryptoKey | null;
   /** Current message number in the sending chain */
-  sendingMessageNumber: number
+  sendingMessageNumber: number;
   /** Current message number in the receiving chain */
-  receivingMessageNumber: number
+  receivingMessageNumber: number;
   /** Previous sending chain keys (for out-of-order messages) */
-  previousChainKeys: Map<number, CryptoKey>
+  previousChainKeys: Map<number, CryptoKey>;
   /** Root key for deriving new chain keys */
-  rootKey: CryptoKey | null
+  rootKey: CryptoKey | null;
 }
 
 /**
@@ -450,31 +481,40 @@ export function initializeRatchetState(): RatchetState {
     receivingMessageNumber: 0,
     previousChainKeys: new Map(),
     rootKey: null,
-  }
+  };
 }
 
 /**
  * Derives a new chain key using HKDF
  */
-export async function deriveChainKey(rootKey: CryptoKey, info: string): Promise<CryptoKey> {
+export async function deriveChainKey(
+  rootKey: CryptoKey,
+  info: string,
+): Promise<CryptoKey> {
   // Export root key for derivation
-  const rawRootKey = await crypto.subtle.exportKey('raw', rootKey)
+  const rawRootKey = await crypto.subtle.exportKey("raw", rootKey);
 
   // Use HKDF to derive new key material
-  const keyMaterial = await crypto.subtle.importKey('raw', rawRootKey, 'HKDF', false, ['deriveKey'])
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    rawRootKey,
+    "HKDF",
+    false,
+    ["deriveKey"],
+  );
 
   return crypto.subtle.deriveKey(
     {
-      name: 'HKDF',
-      hash: 'SHA-256',
+      name: "HKDF",
+      hash: "SHA-256",
       salt: new Uint8Array(32), // In production, use a proper salt
       info: stringToArrayBuffer(info),
     },
     keyMaterial,
-    { name: 'AES-GCM', length: 256 },
+    { name: "AES-GCM", length: 256 },
     true,
-    ['encrypt', 'decrypt']
-  )
+    ["encrypt", "decrypt"],
+  );
 }
 
 /**
@@ -482,14 +522,14 @@ export async function deriveChainKey(rootKey: CryptoKey, info: string): Promise<
  */
 export async function ratchetSend(state: RatchetState): Promise<RatchetState> {
   if (!state.sendingChainKey || !state.rootKey) {
-    throw new Error('Ratchet state not initialized for sending')
+    throw new Error("Ratchet state not initialized for sending");
   }
 
   // Derive new chain key
   const newChainKey = await deriveChainKey(
     state.sendingChainKey,
-    `chain-key-send-${state.sendingMessageNumber + 1}`
-  )
+    `chain-key-send-${state.sendingMessageNumber + 1}`,
+  );
 
   return {
     ...state,
@@ -499,7 +539,7 @@ export async function ratchetSend(state: RatchetState): Promise<RatchetState> {
       ...state.previousChainKeys,
       [state.sendingMessageNumber, state.sendingChainKey],
     ]),
-  }
+  };
 }
 
 /**
@@ -507,21 +547,21 @@ export async function ratchetSend(state: RatchetState): Promise<RatchetState> {
  */
 export async function ratchetReceive(
   state: RatchetState,
-  messageNumber: number
+  messageNumber: number,
 ): Promise<RatchetState> {
   if (!state.receivingChainKey || !state.rootKey) {
-    throw new Error('Ratchet state not initialized for receiving')
+    throw new Error("Ratchet state not initialized for receiving");
   }
 
   // Check if we need to catch up
   if (messageNumber > state.receivingMessageNumber) {
     // Store intermediate keys for out-of-order messages
-    let currentKey = state.receivingChainKey
-    const newPreviousKeys = new Map(state.previousChainKeys)
+    let currentKey = state.receivingChainKey;
+    const newPreviousKeys = new Map(state.previousChainKeys);
 
     for (let i = state.receivingMessageNumber; i < messageNumber; i++) {
-      newPreviousKeys.set(i, currentKey)
-      currentKey = await deriveChainKey(currentKey, `chain-key-recv-${i + 1}`)
+      newPreviousKeys.set(i, currentKey);
+      currentKey = await deriveChainKey(currentKey, `chain-key-recv-${i + 1}`);
     }
 
     return {
@@ -529,10 +569,10 @@ export async function ratchetReceive(
       receivingChainKey: currentKey,
       receivingMessageNumber: messageNumber,
       previousChainKeys: newPreviousKeys,
-    }
+    };
   }
 
-  return state
+  return state;
 }
 
 // ============================================================================
@@ -542,21 +582,24 @@ export async function ratchetReceive(
 /**
  * Signs a message with an ECDSA private key
  */
-export async function signMessage(message: string, signingKey: CryptoKey): Promise<string> {
+export async function signMessage(
+  message: string,
+  signingKey: CryptoKey,
+): Promise<string> {
   try {
-    const encodedMessage = stringToArrayBuffer(message)
+    const encodedMessage = stringToArrayBuffer(message);
 
     const signature = await crypto.subtle.sign(
-      { name: 'ECDSA', hash: 'SHA-256' },
+      { name: "ECDSA", hash: "SHA-256" },
       signingKey,
-      encodedMessage
-    )
+      encodedMessage,
+    );
 
-    return arrayBufferToBase64(signature)
+    return arrayBufferToBase64(signature);
   } catch (error) {
     throw new Error(
-      `Message signing failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    )
+      `Message signing failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -566,22 +609,22 @@ export async function signMessage(message: string, signingKey: CryptoKey): Promi
 export async function verifyMessageSignature(
   message: string,
   signature: string,
-  verificationKey: CryptoKey
+  verificationKey: CryptoKey,
 ): Promise<boolean> {
   try {
-    const encodedMessage = stringToArrayBuffer(message)
-    const signatureBuffer = base64ToArrayBuffer(signature)
+    const encodedMessage = stringToArrayBuffer(message);
+    const signatureBuffer = base64ToArrayBuffer(signature);
 
     return await crypto.subtle.verify(
-      { name: 'ECDSA', hash: 'SHA-256' },
+      { name: "ECDSA", hash: "SHA-256" },
       verificationKey,
       signatureBuffer,
-      encodedMessage
-    )
+      encodedMessage,
+    );
   } catch (error) {
     throw new Error(
-      `Signature verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    )
+      `Signature verification failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -596,11 +639,13 @@ export async function encryptMessageBatch(
   messages: string[],
   recipientPublicKey: JsonWebKey,
   senderPrivateKey: CryptoKey,
-  options: EncryptionOptions = {}
+  options: EncryptionOptions = {},
 ): Promise<EncryptedMessage[]> {
   return Promise.all(
-    messages.map((msg) => encryptMessage(msg, recipientPublicKey, senderPrivateKey, options))
-  )
+    messages.map((msg) =>
+      encryptMessage(msg, recipientPublicKey, senderPrivateKey, options),
+    ),
+  );
 }
 
 /**
@@ -610,13 +655,13 @@ export async function decryptMessageBatch(
   encryptedMessages: EncryptedMessage[],
   recipientPrivateKey: CryptoKey,
   senderPublicKey?: JsonWebKey,
-  options: DecryptionOptions = {}
+  options: DecryptionOptions = {},
 ): Promise<DecryptedMessage[]> {
   return Promise.all(
     encryptedMessages.map((msg) =>
-      decryptMessage(msg, recipientPrivateKey, senderPublicKey, options)
-    )
-  )
+      decryptMessage(msg, recipientPrivateKey, senderPublicKey, options),
+    ),
+  );
 }
 
 // ============================================================================
@@ -624,39 +669,45 @@ export async function decryptMessageBatch(
 // ============================================================================
 
 export class MessageEncryption {
-  private ownKeyPair: KeyPair | null = null
-  private sessionKeys: Map<string, SessionKey> = new Map()
+  private ownKeyPair: KeyPair | null = null;
+  private sessionKeys: Map<string, SessionKey> = new Map();
 
   /**
    * Initializes the message encryption with a key pair
    */
   initialize(keyPair: KeyPair): void {
-    this.ownKeyPair = keyPair
+    this.ownKeyPair = keyPair;
   }
 
   /**
    * Checks if the encryption manager is initialized
    */
   isInitialized(): boolean {
-    return this.ownKeyPair !== null
+    return this.ownKeyPair !== null;
   }
 
   /**
    * Gets or creates a session key for a peer
    */
-  async getOrCreateSessionKey(peerId: string, peerPublicKey: JsonWebKey): Promise<SessionKey> {
+  async getOrCreateSessionKey(
+    peerId: string,
+    peerPublicKey: JsonWebKey,
+  ): Promise<SessionKey> {
     if (!this.ownKeyPair) {
-      throw new Error('Message encryption not initialized')
+      throw new Error("Message encryption not initialized");
     }
 
-    const existing = this.sessionKeys.get(peerId)
+    const existing = this.sessionKeys.get(peerId);
     if (existing && !shouldRotateSessionKey(existing)) {
-      return existing
+      return existing;
     }
 
-    const session = await createSessionKey(this.ownKeyPair.privateKey, peerPublicKey)
-    this.sessionKeys.set(peerId, session)
-    return session
+    const session = await createSessionKey(
+      this.ownKeyPair.privateKey,
+      peerPublicKey,
+    );
+    this.sessionKeys.set(peerId, session);
+    return session;
   }
 
   /**
@@ -666,26 +717,31 @@ export class MessageEncryption {
     plaintext: string,
     peerId: string,
     peerPublicKey: JsonWebKey,
-    options: EncryptionOptions = {}
+    options: EncryptionOptions = {},
   ): Promise<EncryptedMessage> {
     if (!this.ownKeyPair) {
-      throw new Error('Message encryption not initialized')
+      throw new Error("Message encryption not initialized");
     }
 
     // For forward secrecy, use the full encryption flow
     if (options.forwardSecrecy !== false) {
-      return encryptMessage(plaintext, peerPublicKey, this.ownKeyPair.privateKey, options)
+      return encryptMessage(
+        plaintext,
+        peerPublicKey,
+        this.ownKeyPair.privateKey,
+        options,
+      );
     }
 
     // For session-based encryption
-    const session = await this.getOrCreateSessionKey(peerId, peerPublicKey)
+    const session = await this.getOrCreateSessionKey(peerId, peerPublicKey);
     const { encrypted, updatedSession } = await encryptWithSessionKey(
       plaintext,
       session,
-      options.additionalData
-    )
-    this.sessionKeys.set(peerId, updatedSession)
-    return encrypted
+      options.additionalData,
+    );
+    this.sessionKeys.set(peerId, updatedSession);
+    return encrypted;
   }
 
   /**
@@ -694,44 +750,49 @@ export class MessageEncryption {
   async decrypt(
     encryptedMessage: EncryptedMessage,
     senderPublicKey?: JsonWebKey,
-    options: DecryptionOptions = {}
+    options: DecryptionOptions = {},
   ): Promise<DecryptedMessage> {
     if (!this.ownKeyPair) {
-      throw new Error('Message encryption not initialized')
+      throw new Error("Message encryption not initialized");
     }
 
-    return decryptMessage(encryptedMessage, this.ownKeyPair.privateKey, senderPublicKey, options)
+    return decryptMessage(
+      encryptedMessage,
+      this.ownKeyPair.privateKey,
+      senderPublicKey,
+      options,
+    );
   }
 
   /**
    * Clears all session keys
    */
   clearSessionKeys(): void {
-    this.sessionKeys.clear()
+    this.sessionKeys.clear();
   }
 
   /**
    * Removes a specific session key
    */
   removeSessionKey(peerId: string): void {
-    this.sessionKeys.delete(peerId)
+    this.sessionKeys.delete(peerId);
   }
 
   /**
    * Gets the number of active session keys
    */
   getSessionKeyCount(): number {
-    return this.sessionKeys.size
+    return this.sessionKeys.size;
   }
 
   /**
    * Resets the encryption manager
    */
   reset(): void {
-    this.ownKeyPair = null
-    this.sessionKeys.clear()
+    this.ownKeyPair = null;
+    this.sessionKeys.clear();
   }
 }
 
 // Export singleton instance
-export const messageEncryption = new MessageEncryption()
+export const messageEncryption = new MessageEncryption();

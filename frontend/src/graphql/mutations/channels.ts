@@ -4,7 +4,7 @@
  * Comprehensive mutations for channel lifecycle, membership, and settings.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Channel CRUD Mutations
@@ -44,7 +44,7 @@ export const CREATE_CHANNEL = gql`
       owner_id
     }
   }
-`
+`;
 
 export const UPDATE_CHANNEL = gql`
   mutation UpdateChannel(
@@ -75,7 +75,7 @@ export const UPDATE_CHANNEL = gql`
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_CHANNEL = gql`
   mutation DeleteChannel($channelId: uuid!) {
@@ -84,7 +84,7 @@ export const DELETE_CHANNEL = gql`
       name
     }
   }
-`
+`;
 
 export const ARCHIVE_CHANNEL = gql`
   mutation ArchiveChannel($channelId: uuid!) {
@@ -98,7 +98,7 @@ export const ARCHIVE_CHANNEL = gql`
       archived_at
     }
   }
-`
+`;
 
 export const UNARCHIVE_CHANNEL = gql`
   mutation UnarchiveChannel($channelId: uuid!) {
@@ -112,7 +112,7 @@ export const UNARCHIVE_CHANNEL = gql`
       archived_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Channel Membership Mutations
@@ -129,7 +129,7 @@ export const JOIN_CHANNEL = gql`
       joined_at
     }
   }
-`
+`;
 
 export const LEAVE_CHANNEL = gql`
   mutation LeaveChannel($channelId: uuid!, $userId: uuid!) {
@@ -139,7 +139,7 @@ export const LEAVE_CHANNEL = gql`
       affected_rows
     }
   }
-`
+`;
 
 export const ADD_CHANNEL_MEMBER = gql`
   mutation AddChannelMember($channelId: uuid!, $userId: uuid!, $role: String) {
@@ -158,7 +158,7 @@ export const ADD_CHANNEL_MEMBER = gql`
       }
     }
   }
-`
+`;
 
 export const REMOVE_CHANNEL_MEMBER = gql`
   mutation RemoveChannelMember($channelId: uuid!, $userId: uuid!) {
@@ -168,7 +168,7 @@ export const REMOVE_CHANNEL_MEMBER = gql`
       affected_rows
     }
   }
-`
+`;
 
 export const UPDATE_MEMBER_ROLE = gql`
   mutation UpdateMemberRole($channelId: uuid!, $userId: uuid!, $role: String!) {
@@ -188,11 +188,14 @@ export const UPDATE_MEMBER_ROLE = gql`
       }
     }
   }
-`
+`;
 
 export const TRANSFER_OWNERSHIP = gql`
   mutation TransferOwnership($channelId: uuid!, $newOwnerId: uuid!) {
-    update_nchat_channels_by_pk(pk_columns: { id: $channelId }, _set: { owner_id: $newOwnerId }) {
+    update_nchat_channels_by_pk(
+      pk_columns: { id: $channelId }
+      _set: { owner_id: $newOwnerId }
+    ) {
       id
       owner_id
       owner {
@@ -203,7 +206,7 @@ export const TRANSFER_OWNERSHIP = gql`
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Channel Settings Mutations
@@ -222,7 +225,7 @@ export const MUTE_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 export const UNMUTE_CHANNEL = gql`
   mutation UnmuteChannel($channelId: uuid!, $userId: uuid!) {
@@ -237,7 +240,7 @@ export const UNMUTE_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 export const PIN_CHANNEL = gql`
   mutation PinChannel($channelId: uuid!, $userId: uuid!) {
@@ -252,7 +255,7 @@ export const PIN_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 export const UNPIN_CHANNEL = gql`
   mutation UnpinChannel($channelId: uuid!, $userId: uuid!) {
@@ -267,7 +270,7 @@ export const UNPIN_CHANNEL = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_CHANNEL_NOTIFICATIONS = gql`
   mutation UpdateChannelNotifications(
@@ -286,24 +289,29 @@ export const UPDATE_CHANNEL_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 export const UPDATE_CHANNEL_PRIVACY = gql`
   mutation UpdateChannelPrivacy($channelId: uuid!, $isPrivate: Boolean!) {
-    update_nchat_channels_by_pk(pk_columns: { id: $channelId }, _set: { is_private: $isPrivate }) {
+    update_nchat_channels_by_pk(
+      pk_columns: { id: $channelId }
+      _set: { is_private: $isPrivate }
+    ) {
       id
       is_private
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Bulk Operations
 // ============================================================================
 
 export const ADD_MULTIPLE_MEMBERS = gql`
-  mutation AddMultipleMembers($members: [nchat_channel_members_insert_input!]!) {
+  mutation AddMultipleMembers(
+    $members: [nchat_channel_members_insert_input!]!
+  ) {
     insert_nchat_channel_members(
       objects: $members
       on_conflict: { constraint: channel_members_pkey, update_columns: [role] }
@@ -321,7 +329,7 @@ export const ADD_MULTIPLE_MEMBERS = gql`
       }
     }
   }
-`
+`;
 
 export const REMOVE_MULTIPLE_MEMBERS = gql`
   mutation RemoveMultipleMembers($channelId: uuid!, $userIds: [uuid!]!) {
@@ -331,38 +339,38 @@ export const REMOVE_MULTIPLE_MEMBERS = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
 export interface CreateChannelInput {
-  name: string
-  description?: string
-  type: 'text' | 'voice' | 'announcement' | 'general'
-  isPrivate: boolean
-  topic?: string
-  icon?: string
-  categoryId?: string
+  name: string;
+  description?: string;
+  type: "text" | "voice" | "announcement" | "general";
+  isPrivate: boolean;
+  topic?: string;
+  icon?: string;
+  categoryId?: string;
 }
 
 export interface UpdateChannelInput {
-  name?: string
-  description?: string
-  topic?: string
-  icon?: string
-  categoryId?: string
+  name?: string;
+  description?: string;
+  topic?: string;
+  icon?: string;
+  categoryId?: string;
 }
 
 export interface ChannelMemberInput {
-  channelId: string
-  userId: string
-  role?: 'owner' | 'admin' | 'moderator' | 'member'
+  channelId: string;
+  userId: string;
+  role?: "owner" | "admin" | "moderator" | "member";
 }
 
 export interface BulkMemberInput {
-  channel_id: string
-  user_id: string
-  role?: string
+  channel_id: string;
+  user_id: string;
+  role?: string;
 }

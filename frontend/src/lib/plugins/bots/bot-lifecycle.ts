@@ -6,8 +6,8 @@
  * and moderation into a unified bot management system.
  */
 
-import type { AppScope } from '../app-contract'
-import { generateId } from '../app-lifecycle'
+import type { AppScope } from "../app-contract";
+import { generateId } from "../app-lifecycle";
 import type {
   BotAccount,
   BotAccountStatus,
@@ -20,12 +20,20 @@ import type {
   BotRateLimitConfig,
   BotAuditEntry,
   BotAuditEventType,
-} from './types'
-import { BOT_INSTALLATION_TRANSITIONS, MAX_ACTIVE_CHANNELS } from './types'
-import { BotIdentityManager, BotAccountStore, BotIdentityError } from './bot-identity'
-import { BotScopeManager, BotScopeValidator, BotScopeError } from './bot-scopes'
-import { BotRateLimiter } from './bot-rate-limiter'
-import { BotModerationManager, BotModerationStore } from './bot-moderation'
+} from "./types";
+import { BOT_INSTALLATION_TRANSITIONS, MAX_ACTIVE_CHANNELS } from "./types";
+import {
+  BotIdentityManager,
+  BotAccountStore,
+  BotIdentityError,
+} from "./bot-identity";
+import {
+  BotScopeManager,
+  BotScopeValidator,
+  BotScopeError,
+} from "./bot-scopes";
+import { BotRateLimiter } from "./bot-rate-limiter";
+import { BotModerationManager, BotModerationStore } from "./bot-moderation";
 
 // ============================================================================
 // ERRORS
@@ -35,10 +43,10 @@ export class BotLifecycleError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly statusCode: number = 400
+    public readonly statusCode: number = 400,
   ) {
-    super(message)
-    this.name = 'BotLifecycleError'
+    super(message);
+    this.name = "BotLifecycleError";
   }
 }
 
@@ -47,52 +55,54 @@ export class BotLifecycleError extends Error {
 // ============================================================================
 
 export class BotInstallationStore {
-  private installations: Map<string, BotInstallation> = new Map()
+  private installations: Map<string, BotInstallation> = new Map();
 
   getInstallation(id: string): BotInstallation | undefined {
-    return this.installations.get(id)
+    return this.installations.get(id);
   }
 
   getInstallationByBotAndWorkspace(
     botId: string,
-    workspaceId: string
+    workspaceId: string,
   ): BotInstallation | undefined {
     for (const inst of Array.from(this.installations.values())) {
       if (inst.botId === botId && inst.workspaceId === workspaceId) {
-        return inst
+        return inst;
       }
     }
-    return undefined
+    return undefined;
   }
 
   listInstallations(filter?: {
-    botId?: string
-    workspaceId?: string
-    status?: BotInstallationStatus
+    botId?: string;
+    workspaceId?: string;
+    status?: BotInstallationStatus;
   }): BotInstallation[] {
-    let installations = Array.from(this.installations.values())
+    let installations = Array.from(this.installations.values());
     if (filter?.botId) {
-      installations = installations.filter((i) => i.botId === filter.botId)
+      installations = installations.filter((i) => i.botId === filter.botId);
     }
     if (filter?.workspaceId) {
-      installations = installations.filter((i) => i.workspaceId === filter.workspaceId)
+      installations = installations.filter(
+        (i) => i.workspaceId === filter.workspaceId,
+      );
     }
     if (filter?.status) {
-      installations = installations.filter((i) => i.status === filter.status)
+      installations = installations.filter((i) => i.status === filter.status);
     }
-    return installations
+    return installations;
   }
 
   saveInstallation(installation: BotInstallation): void {
-    this.installations.set(installation.id, installation)
+    this.installations.set(installation.id, installation);
   }
 
   deleteInstallation(id: string): boolean {
-    return this.installations.delete(id)
+    return this.installations.delete(id);
   }
 
   clear(): void {
-    this.installations.clear()
+    this.installations.clear();
   }
 }
 
@@ -101,24 +111,24 @@ export class BotInstallationStore {
 // ============================================================================
 
 export class BotLifecycleManager {
-  private identityManager: BotIdentityManager
-  private scopeManager: BotScopeManager
-  private rateLimiter: BotRateLimiter
-  private moderationManager: BotModerationManager
+  private identityManager: BotIdentityManager;
+  private scopeManager: BotScopeManager;
+  private rateLimiter: BotRateLimiter;
+  private moderationManager: BotModerationManager;
 
-  private accountStore: BotAccountStore
-  private installationStore: BotInstallationStore
-  private moderationStore: BotModerationStore
+  private accountStore: BotAccountStore;
+  private installationStore: BotInstallationStore;
+  private moderationStore: BotModerationStore;
 
   constructor() {
-    this.accountStore = new BotAccountStore()
-    this.installationStore = new BotInstallationStore()
-    this.moderationStore = new BotModerationStore()
+    this.accountStore = new BotAccountStore();
+    this.installationStore = new BotInstallationStore();
+    this.moderationStore = new BotModerationStore();
 
-    this.identityManager = new BotIdentityManager(this.accountStore)
-    this.scopeManager = new BotScopeManager()
-    this.rateLimiter = new BotRateLimiter()
-    this.moderationManager = new BotModerationManager(this.moderationStore)
+    this.identityManager = new BotIdentityManager(this.accountStore);
+    this.scopeManager = new BotScopeManager();
+    this.rateLimiter = new BotRateLimiter();
+    this.moderationManager = new BotModerationManager(this.moderationStore);
   }
 
   // ==========================================================================
@@ -129,17 +139,17 @@ export class BotLifecycleManager {
    * Create a new bot account.
    */
   createBot(params: {
-    appId: string
-    username: string
-    displayName: string
-    description: string
-    avatarUrl?: string
-    homepageUrl?: string
-    botType?: BotType
-    version?: string
-    createdBy: string
+    appId: string;
+    username: string;
+    displayName: string;
+    description: string;
+    avatarUrl?: string;
+    homepageUrl?: string;
+    botType?: BotType;
+    version?: string;
+    createdBy: string;
   }): BotAccount {
-    return this.identityManager.createBot(params)
+    return this.identityManager.createBot(params);
   }
 
   // ==========================================================================
@@ -150,120 +160,137 @@ export class BotLifecycleManager {
    * Install a bot into a workspace with specific scope grants.
    */
   installBot(params: {
-    botId: string
-    workspaceId: string
-    installedBy: string
-    scopes?: AppScope[]
-    capabilityPreset?: BotCapabilityPreset
-    channelIds?: string[]
-    manifestScopes?: AppScope[]
-    config?: Record<string, unknown>
+    botId: string;
+    workspaceId: string;
+    installedBy: string;
+    scopes?: AppScope[];
+    capabilityPreset?: BotCapabilityPreset;
+    channelIds?: string[];
+    manifestScopes?: AppScope[];
+    config?: Record<string, unknown>;
   }): BotInstallation {
-    const bot = this.identityManager.getAccount(params.botId)
+    const bot = this.identityManager.getAccount(params.botId);
     if (!bot) {
-      throw new BotLifecycleError(`Bot not found: ${params.botId}`, 'BOT_NOT_FOUND', 404)
+      throw new BotLifecycleError(
+        `Bot not found: ${params.botId}`,
+        "BOT_NOT_FOUND",
+        404,
+      );
     }
 
-    if (bot.status !== 'active') {
+    if (bot.status !== "active") {
       throw new BotLifecycleError(
         `Bot "${bot.username}" is not active (status: ${bot.status})`,
-        'BOT_NOT_ACTIVE'
-      )
+        "BOT_NOT_ACTIVE",
+      );
     }
 
     // Check moderation
-    const canAct = this.moderationManager.canAct(params.botId)
+    const canAct = this.moderationManager.canAct(params.botId);
     if (!canAct.allowed) {
       throw new BotLifecycleError(
         `Bot cannot be installed: ${canAct.reason}`,
-        'BOT_MODERATED'
-      )
+        "BOT_MODERATED",
+      );
     }
 
     // Check for existing installation
     const existing = this.installationStore.getInstallationByBotAndWorkspace(
       params.botId,
-      params.workspaceId
-    )
+      params.workspaceId,
+    );
 
-    if (existing && existing.status === 'active') {
+    if (existing && existing.status === "active") {
       throw new BotLifecycleError(
-        'Bot is already installed in this workspace',
-        'ALREADY_INSTALLED',
-        409
-      )
+        "Bot is already installed in this workspace",
+        "ALREADY_INSTALLED",
+        409,
+      );
     }
 
     // Build scope grants
-    let scopeGrants: BotScopeGrant[]
+    let scopeGrants: BotScopeGrant[];
     if (params.capabilityPreset) {
       scopeGrants = this.scopeManager.createGrantsFromPreset(
         params.capabilityPreset,
         params.installedBy,
-        params.channelIds
-      )
+        params.channelIds,
+      );
     } else if (params.scopes) {
       // Validate against manifest if provided
       if (params.manifestScopes) {
-        const validation = this.scopeManager.getValidator().validateAgainstManifest(
-          params.scopes,
-          params.manifestScopes
-        )
+        const validation = this.scopeManager
+          .getValidator()
+          .validateAgainstManifest(params.scopes, params.manifestScopes);
         if (!validation.valid) {
           throw new BotLifecycleError(
-            `Scopes exceed manifest: ${validation.violations.join(', ')}`,
-            'SCOPE_EXCEEDS_MANIFEST'
-          )
+            `Scopes exceed manifest: ${validation.violations.join(", ")}`,
+            "SCOPE_EXCEEDS_MANIFEST",
+          );
         }
       }
       scopeGrants = params.scopes.map((scope) =>
-        this.scopeManager.createGrant(scope, params.installedBy, params.channelIds)
-      )
+        this.scopeManager.createGrant(
+          scope,
+          params.installedBy,
+          params.channelIds,
+        ),
+      );
     } else {
-      scopeGrants = []
+      scopeGrants = [];
     }
 
     // Validate channel count
     if (params.channelIds && params.channelIds.length > MAX_ACTIVE_CHANNELS) {
       throw new BotLifecycleError(
         `Cannot exceed ${MAX_ACTIVE_CHANNELS} active channels`,
-        'CHANNEL_LIMIT_EXCEEDED'
-      )
+        "CHANNEL_LIMIT_EXCEEDED",
+      );
     }
 
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
 
     // Re-activate uninstalled installation if exists
-    if (existing && existing.status === 'uninstalled') {
-      existing.status = 'active'
-      existing.scopeGrants = scopeGrants
-      existing.activeChannels = params.channelIds ?? []
-      existing.config = params.config ?? {}
-      existing.installedBy = params.installedBy
-      existing.updatedAt = now
-      this.installationStore.saveInstallation(existing)
+    if (existing && existing.status === "uninstalled") {
+      existing.status = "active";
+      existing.scopeGrants = scopeGrants;
+      existing.activeChannels = params.channelIds ?? [];
+      existing.config = params.config ?? {};
+      existing.installedBy = params.installedBy;
+      existing.updatedAt = now;
+      this.installationStore.saveInstallation(existing);
 
-      this.auditInstallation(existing, 'bot.installed', params.installedBy, 'Bot reinstalled')
-      return existing
+      this.auditInstallation(
+        existing,
+        "bot.installed",
+        params.installedBy,
+        "Bot reinstalled",
+      );
+      return existing;
     }
 
     const installation: BotInstallation = {
-      id: generateId('inst'),
+      id: generateId("inst"),
       botId: params.botId,
       workspaceId: params.workspaceId,
       scopeGrants,
       activeChannels: params.channelIds ?? [],
-      status: 'active',
+      status: "active",
       config: params.config ?? {},
       installedBy: params.installedBy,
       installedAt: now,
       updatedAt: now,
-    }
+    };
 
-    this.installationStore.saveInstallation(installation)
-    this.auditInstallation(installation, 'bot.installed', params.installedBy, 'Bot installed')
+    this.installationStore.saveInstallation(installation);
+    this.auditInstallation(
+      installation,
+      "bot.installed",
+      params.installedBy,
+      "Bot installed",
+    );
 
-    return installation
+    return installation;
   }
 
   // ==========================================================================
@@ -273,68 +300,92 @@ export class BotLifecycleManager {
   /**
    * Disable a bot installation.
    */
-  disableInstallation(installationId: string, disabledBy: string): BotInstallation {
-    return this.transitionInstallation(installationId, 'disabled', disabledBy)
+  disableInstallation(
+    installationId: string,
+    disabledBy: string,
+  ): BotInstallation {
+    return this.transitionInstallation(installationId, "disabled", disabledBy);
   }
 
   /**
    * Enable a disabled bot installation.
    */
-  enableInstallation(installationId: string, enabledBy: string): BotInstallation {
-    const installation = this.getInstallationOrThrow(installationId)
+  enableInstallation(
+    installationId: string,
+    enabledBy: string,
+  ): BotInstallation {
+    const installation = this.getInstallationOrThrow(installationId);
 
     // Check moderation before enabling
-    const canAct = this.moderationManager.canAct(installation.botId, installation.workspaceId)
+    const canAct = this.moderationManager.canAct(
+      installation.botId,
+      installation.workspaceId,
+    );
     if (!canAct.allowed) {
       throw new BotLifecycleError(
         `Cannot enable bot: ${canAct.reason}`,
-        'BOT_MODERATED'
-      )
+        "BOT_MODERATED",
+      );
     }
 
-    return this.transitionInstallation(installationId, 'active', enabledBy)
+    return this.transitionInstallation(installationId, "active", enabledBy);
   }
 
   /**
    * Suspend a bot installation (moderation action).
    */
-  suspendInstallation(installationId: string, suspendedBy: string, reason: string): BotInstallation {
-    const installation = this.transitionInstallation(installationId, 'suspended', suspendedBy)
+  suspendInstallation(
+    installationId: string,
+    suspendedBy: string,
+    reason: string,
+  ): BotInstallation {
+    const installation = this.transitionInstallation(
+      installationId,
+      "suspended",
+      suspendedBy,
+    );
 
     this.moderationManager.suspend(
       installation.botId,
       reason,
       suspendedBy,
       undefined,
-      installation.workspaceId
-    )
+      installation.workspaceId,
+    );
 
-    return installation
+    return installation;
   }
 
   /**
    * Unsuspend a bot installation.
    */
-  unsuspendInstallation(installationId: string, unsuspendedBy: string): BotInstallation {
-    return this.transitionInstallation(installationId, 'active', unsuspendedBy)
+  unsuspendInstallation(
+    installationId: string,
+    unsuspendedBy: string,
+  ): BotInstallation {
+    return this.transitionInstallation(installationId, "active", unsuspendedBy);
   }
 
   /**
    * Uninstall a bot from a workspace.
    */
   uninstallBot(installationId: string, uninstalledBy: string): BotInstallation {
-    const installation = this.transitionInstallation(installationId, 'uninstalled', uninstalledBy)
+    const installation = this.transitionInstallation(
+      installationId,
+      "uninstalled",
+      uninstalledBy,
+    );
 
     // Clear scope grants on uninstall
-    installation.scopeGrants = []
-    installation.activeChannels = []
-    installation.updatedAt = new Date().toISOString()
-    this.installationStore.saveInstallation(installation)
+    installation.scopeGrants = [];
+    installation.activeChannels = [];
+    installation.updatedAt = new Date().toISOString();
+    this.installationStore.saveInstallation(installation);
 
     // Reset rate limits
-    this.rateLimiter.resetBot(installation.botId)
+    this.rateLimiter.resetBot(installation.botId);
 
-    return installation
+    return installation;
   }
 
   // ==========================================================================
@@ -349,25 +400,35 @@ export class BotLifecycleManager {
     scopes: AppScope[],
     manifestScopes: AppScope[],
     grantedBy: string,
-    channelIds?: string[]
+    channelIds?: string[],
   ): BotInstallation {
-    const installation = this.getInstallationOrThrow(installationId)
+    const installation = this.getInstallationOrThrow(installationId);
 
-    if (installation.status !== 'active') {
+    if (installation.status !== "active") {
       throw new BotLifecycleError(
-        'Can only modify scopes on active installations',
-        'INSTALLATION_NOT_ACTIVE'
-      )
+        "Can only modify scopes on active installations",
+        "INSTALLATION_NOT_ACTIVE",
+      );
     }
 
-    this.scopeManager.grantScopes(installation, scopes, manifestScopes, grantedBy, channelIds)
-    installation.updatedAt = new Date().toISOString()
-    this.installationStore.saveInstallation(installation)
+    this.scopeManager.grantScopes(
+      installation,
+      scopes,
+      manifestScopes,
+      grantedBy,
+      channelIds,
+    );
+    installation.updatedAt = new Date().toISOString();
+    this.installationStore.saveInstallation(installation);
 
-    this.auditInstallation(installation, 'bot.scope_granted', grantedBy,
-      `Scopes granted: ${scopes.join(', ')}`)
+    this.auditInstallation(
+      installation,
+      "bot.scope_granted",
+      grantedBy,
+      `Scopes granted: ${scopes.join(", ")}`,
+    );
 
-    return installation
+    return installation;
   }
 
   /**
@@ -376,20 +437,24 @@ export class BotLifecycleManager {
   revokeScopes(
     installationId: string,
     scopes: AppScope[],
-    revokedBy: string
+    revokedBy: string,
   ): BotInstallation {
-    const installation = this.getInstallationOrThrow(installationId)
+    const installation = this.getInstallationOrThrow(installationId);
 
-    const revoked = this.scopeManager.revokeScopes(installation, scopes)
-    installation.updatedAt = new Date().toISOString()
-    this.installationStore.saveInstallation(installation)
+    const revoked = this.scopeManager.revokeScopes(installation, scopes);
+    installation.updatedAt = new Date().toISOString();
+    this.installationStore.saveInstallation(installation);
 
     if (revoked.length > 0) {
-      this.auditInstallation(installation, 'bot.scope_revoked', revokedBy,
-        `Scopes revoked: ${revoked.join(', ')}`)
+      this.auditInstallation(
+        installation,
+        "bot.scope_revoked",
+        revokedBy,
+        `Scopes revoked: ${revoked.join(", ")}`,
+      );
     }
 
-    return installation
+    return installation;
   }
 
   /**
@@ -398,23 +463,23 @@ export class BotLifecycleManager {
   restrictToChannels(
     installationId: string,
     channelIds: string[],
-    restrictedBy: string
+    restrictedBy: string,
   ): BotInstallation {
-    const installation = this.getInstallationOrThrow(installationId)
+    const installation = this.getInstallationOrThrow(installationId);
 
     if (channelIds.length > MAX_ACTIVE_CHANNELS) {
       throw new BotLifecycleError(
         `Cannot exceed ${MAX_ACTIVE_CHANNELS} active channels`,
-        'CHANNEL_LIMIT_EXCEEDED'
-      )
+        "CHANNEL_LIMIT_EXCEEDED",
+      );
     }
 
-    this.scopeManager.restrictToChannels(installation, channelIds)
-    installation.activeChannels = channelIds
-    installation.updatedAt = new Date().toISOString()
-    this.installationStore.saveInstallation(installation)
+    this.scopeManager.restrictToChannels(installation, channelIds);
+    installation.activeChannels = channelIds;
+    installation.updatedAt = new Date().toISOString();
+    this.installationStore.saveInstallation(installation);
 
-    return installation
+    return installation;
   }
 
   /**
@@ -425,40 +490,43 @@ export class BotLifecycleManager {
   enforceScope(
     installationId: string,
     requiredScope: AppScope,
-    channelId?: string
+    channelId?: string,
   ): BotInstallation {
-    const installation = this.getInstallationOrThrow(installationId)
+    const installation = this.getInstallationOrThrow(installationId);
 
     // Check bot account status
-    const bot = this.identityManager.getAccount(installation.botId)
-    if (bot && bot.status !== 'active') {
+    const bot = this.identityManager.getAccount(installation.botId);
+    if (bot && bot.status !== "active") {
       throw new BotLifecycleError(
         `Bot action blocked: bot account is ${bot.status}`,
-        'BOT_NOT_ACTIVE'
-      )
+        "BOT_NOT_ACTIVE",
+      );
     }
 
     // Check installation status
-    if (installation.status !== 'active') {
+    if (installation.status !== "active") {
       throw new BotLifecycleError(
         `Bot action blocked: installation is ${installation.status}`,
-        'INSTALLATION_NOT_ACTIVE'
-      )
+        "INSTALLATION_NOT_ACTIVE",
+      );
     }
 
     // Check moderation records
-    const canAct = this.moderationManager.canAct(installation.botId, installation.workspaceId)
+    const canAct = this.moderationManager.canAct(
+      installation.botId,
+      installation.workspaceId,
+    );
     if (!canAct.allowed) {
       throw new BotLifecycleError(
         `Bot action blocked: ${canAct.reason}`,
-        'BOT_MODERATED'
-      )
+        "BOT_MODERATED",
+      );
     }
 
     // Check scope
-    this.scopeManager.enforceScope(installation, requiredScope, channelId)
+    this.scopeManager.enforceScope(installation, requiredScope, channelId);
 
-    return installation
+    return installation;
   }
 
   // ==========================================================================
@@ -472,22 +540,22 @@ export class BotLifecycleManager {
   checkRateLimit(
     botId: string,
     endpoint?: string,
-    channelId?: string
-  ): { allowed: boolean; result: import('./types').BotRateLimitResult } {
-    const result = this.rateLimiter.checkAll(botId, endpoint, channelId)
+    channelId?: string,
+  ): { allowed: boolean; result: import("./types").BotRateLimitResult } {
+    const result = this.rateLimiter.checkAll(botId, endpoint, channelId);
 
     if (!result.allowed) {
-      this.moderationManager.recordRateLimitViolation(botId)
+      this.moderationManager.recordRateLimitViolation(botId);
     }
 
-    return { allowed: result.allowed, result }
+    return { allowed: result.allowed, result };
   }
 
   /**
    * Set custom rate limit config for a bot.
    */
   setRateLimitConfig(botId: string, config: BotRateLimitConfig): void {
-    this.rateLimiter.setConfig(botId, config)
+    this.rateLimiter.setConfig(botId, config);
   }
 
   // ==========================================================================
@@ -497,22 +565,30 @@ export class BotLifecycleManager {
   /**
    * Update bot profile.
    */
-  updateBotProfile(botId: string, update: BotProfileUpdate, updatedBy: string): BotAccount {
-    return this.identityManager.updateProfile(botId, update, updatedBy)
+  updateBotProfile(
+    botId: string,
+    update: BotProfileUpdate,
+    updatedBy: string,
+  ): BotAccount {
+    return this.identityManager.updateProfile(botId, update, updatedBy);
   }
 
   /**
    * Update bot version.
    */
-  updateBotVersion(botId: string, newVersion: string, updatedBy: string): BotAccount {
-    return this.identityManager.updateVersion(botId, newVersion, updatedBy)
+  updateBotVersion(
+    botId: string,
+    newVersion: string,
+    updatedBy: string,
+  ): BotAccount {
+    return this.identityManager.updateVersion(botId, newVersion, updatedBy);
   }
 
   /**
    * Verify a bot.
    */
   verifyBot(botId: string, verifiedBy: string): BotAccount {
-    return this.identityManager.verifyBot(botId, verifiedBy)
+    return this.identityManager.verifyBot(botId, verifiedBy);
   }
 
   // ==========================================================================
@@ -523,28 +599,37 @@ export class BotLifecycleManager {
    * Suspend a bot account (affects all installations).
    */
   suspendBot(botId: string, reason: string, suspendedBy: string): BotAccount {
-    const bot = this.identityManager.transitionStatus(botId, 'suspended', suspendedBy, reason)
+    const bot = this.identityManager.transitionStatus(
+      botId,
+      "suspended",
+      suspendedBy,
+      reason,
+    );
 
     // Suspend all active installations
     const installations = this.installationStore.listInstallations({
       botId,
-      status: 'active',
-    })
+      status: "active",
+    });
     for (const inst of installations) {
-      this.transitionInstallation(inst.id, 'suspended', suspendedBy)
+      this.transitionInstallation(inst.id, "suspended", suspendedBy);
     }
 
     // Reset rate limits
-    this.rateLimiter.resetBot(botId)
+    this.rateLimiter.resetBot(botId);
 
-    return bot
+    return bot;
   }
 
   /**
    * Unsuspend a bot account.
    */
   unsuspendBot(botId: string, unsuspendedBy: string): BotAccount {
-    return this.identityManager.transitionStatus(botId, 'active', unsuspendedBy)
+    return this.identityManager.transitionStatus(
+      botId,
+      "active",
+      unsuspendedBy,
+    );
   }
 
   /**
@@ -552,17 +637,17 @@ export class BotLifecycleManager {
    */
   deleteBot(botId: string, deletedBy: string): BotAccount {
     // Uninstall all installations
-    const installations = this.installationStore.listInstallations({ botId })
+    const installations = this.installationStore.listInstallations({ botId });
     for (const inst of installations) {
-      if (inst.status !== 'uninstalled') {
-        this.uninstallBot(inst.id, deletedBy)
+      if (inst.status !== "uninstalled") {
+        this.uninstallBot(inst.id, deletedBy);
       }
     }
 
     // Reset rate limits
-    this.rateLimiter.resetBot(botId)
+    this.rateLimiter.resetBot(botId);
 
-    return this.identityManager.deleteBot(botId, deletedBy)
+    return this.identityManager.deleteBot(botId, deletedBy);
   }
 
   // ==========================================================================
@@ -573,7 +658,7 @@ export class BotLifecycleManager {
    * Get moderation manager for direct moderation actions.
    */
   getModeration(): BotModerationManager {
-    return this.moderationManager
+    return this.moderationManager;
   }
 
   /**
@@ -583,26 +668,32 @@ export class BotLifecycleManager {
     botId: string,
     workspaceId: string,
     reason: string,
-    performedBy: string
+    performedBy: string,
   ): BotInstallation | undefined {
-    const installation = this.installationStore.getInstallationByBotAndWorkspace(
-      botId,
-      workspaceId
-    )
-    if (!installation) return undefined
-    if (installation.status === 'uninstalled') return installation
+    const installation =
+      this.installationStore.getInstallationByBotAndWorkspace(
+        botId,
+        workspaceId,
+      );
+    if (!installation) return undefined;
+    if (installation.status === "uninstalled") return installation;
 
     // Force transition regardless of current state
-    installation.status = 'uninstalled'
-    installation.scopeGrants = []
-    installation.activeChannels = []
-    installation.updatedAt = new Date().toISOString()
-    this.installationStore.saveInstallation(installation)
+    installation.status = "uninstalled";
+    installation.scopeGrants = [];
+    installation.activeChannels = [];
+    installation.updatedAt = new Date().toISOString();
+    this.installationStore.saveInstallation(installation);
 
-    this.moderationManager.forceUninstall(botId, reason, performedBy, workspaceId)
-    this.rateLimiter.resetBot(botId)
+    this.moderationManager.forceUninstall(
+      botId,
+      reason,
+      performedBy,
+      workspaceId,
+    );
+    this.rateLimiter.resetBot(botId);
 
-    return installation
+    return installation;
   }
 
   // ==========================================================================
@@ -610,39 +701,39 @@ export class BotLifecycleManager {
   // ==========================================================================
 
   getBot(botId: string): BotAccount | undefined {
-    return this.identityManager.getAccount(botId)
+    return this.identityManager.getAccount(botId);
   }
 
   getBotByUsername(username: string): BotAccount | undefined {
-    return this.identityManager.getAccountByUsername(username)
+    return this.identityManager.getAccountByUsername(username);
   }
 
   listBots(filter?: {
-    appId?: string
-    status?: BotAccountStatus
-    botType?: BotType
+    appId?: string;
+    status?: BotAccountStatus;
+    botType?: BotType;
   }): BotAccount[] {
-    return this.identityManager.listAccounts(filter)
+    return this.identityManager.listAccounts(filter);
   }
 
   getInstallation(installationId: string): BotInstallation | undefined {
-    return this.installationStore.getInstallation(installationId)
+    return this.installationStore.getInstallation(installationId);
   }
 
   listInstallations(filter?: {
-    botId?: string
-    workspaceId?: string
-    status?: BotInstallationStatus
+    botId?: string;
+    workspaceId?: string;
+    status?: BotInstallationStatus;
   }): BotInstallation[] {
-    return this.installationStore.listInstallations(filter)
+    return this.installationStore.listInstallations(filter);
   }
 
   getAuditLog(filter?: {
-    botId?: string
-    eventType?: BotAuditEventType
-    limit?: number
+    botId?: string;
+    eventType?: BotAuditEventType;
+    limit?: number;
   }): BotAuditEntry[] {
-    return this.identityManager.getAuditLog(filter)
+    return this.identityManager.getAuditLog(filter);
   }
 
   // ==========================================================================
@@ -653,18 +744,18 @@ export class BotLifecycleManager {
    * Destroy the lifecycle manager (cleanup intervals).
    */
   destroy(): void {
-    this.rateLimiter.destroy()
+    this.rateLimiter.destroy();
   }
 
   /**
    * Clear all data (for testing).
    */
   clearAll(): void {
-    this.accountStore.clear()
-    this.installationStore.clear()
-    this.moderationStore.clear()
-    this.rateLimiter.destroy()
-    this.rateLimiter = new BotRateLimiter()
+    this.accountStore.clear();
+    this.installationStore.clear();
+    this.moderationStore.clear();
+    this.rateLimiter.destroy();
+    this.rateLimiter = new BotRateLimiter();
   }
 
   // ==========================================================================
@@ -672,54 +763,61 @@ export class BotLifecycleManager {
   // ==========================================================================
 
   private getInstallationOrThrow(installationId: string): BotInstallation {
-    const installation = this.installationStore.getInstallation(installationId)
+    const installation = this.installationStore.getInstallation(installationId);
     if (!installation) {
       throw new BotLifecycleError(
         `Installation not found: ${installationId}`,
-        'INSTALLATION_NOT_FOUND',
-        404
-      )
+        "INSTALLATION_NOT_FOUND",
+        404,
+      );
     }
-    return installation
+    return installation;
   }
 
   private transitionInstallation(
     installationId: string,
     newStatus: BotInstallationStatus,
-    actorId: string
+    actorId: string,
   ): BotInstallation {
-    const installation = this.getInstallationOrThrow(installationId)
-    const allowedTransitions = BOT_INSTALLATION_TRANSITIONS[installation.status]
+    const installation = this.getInstallationOrThrow(installationId);
+    const allowedTransitions =
+      BOT_INSTALLATION_TRANSITIONS[installation.status];
 
     if (!allowedTransitions.includes(newStatus)) {
       throw new BotLifecycleError(
         `Cannot transition installation from "${installation.status}" to "${newStatus}"`,
-        'INVALID_STATUS_TRANSITION'
-      )
+        "INVALID_STATUS_TRANSITION",
+      );
     }
 
-    const oldStatus = installation.status
-    installation.status = newStatus
-    installation.updatedAt = new Date().toISOString()
-    this.installationStore.saveInstallation(installation)
+    const oldStatus = installation.status;
+    installation.status = newStatus;
+    installation.updatedAt = new Date().toISOString();
+    this.installationStore.saveInstallation(installation);
 
-    const eventType = this.getInstallEventType(newStatus)
+    const eventType = this.getInstallEventType(newStatus);
     this.auditInstallation(
       installation,
       eventType,
       actorId,
-      `Installation status changed from ${oldStatus} to ${newStatus}`
-    )
+      `Installation status changed from ${oldStatus} to ${newStatus}`,
+    );
 
-    return installation
+    return installation;
   }
 
-  private getInstallEventType(status: BotInstallationStatus): BotAuditEventType {
+  private getInstallEventType(
+    status: BotInstallationStatus,
+  ): BotAuditEventType {
     switch (status) {
-      case 'active': return 'bot.enabled'
-      case 'disabled': return 'bot.disabled'
-      case 'suspended': return 'bot.suspended'
-      case 'uninstalled': return 'bot.uninstalled'
+      case "active":
+        return "bot.enabled";
+      case "disabled":
+        return "bot.disabled";
+      case "suspended":
+        return "bot.suspended";
+      case "uninstalled":
+        return "bot.uninstalled";
     }
   }
 
@@ -727,10 +825,10 @@ export class BotLifecycleManager {
     installation: BotInstallation,
     eventType: BotAuditEventType,
     actorId: string,
-    description: string
+    description: string,
   ): void {
     this.accountStore.addAuditEntry({
-      id: generateId('audit'),
+      id: generateId("audit"),
       eventType,
       botId: installation.botId,
       actorId,
@@ -741,6 +839,6 @@ export class BotLifecycleManager {
         installationId: installation.id,
         workspaceId: installation.workspaceId,
       },
-    })
+    });
   }
 }

@@ -4,7 +4,7 @@
  * Queries specifically for channel discovery, browsing, and recommendations
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Discovery Queries
@@ -14,7 +14,11 @@ export const GET_PUBLIC_CHANNELS = gql`
   query GetPublicChannels($limit: Int = 50, $offset: Int = 0) {
     nchat_channels(
       where: { is_private: { _eq: false }, is_archived: { _eq: false } }
-      order_by: [{ is_default: desc }, { members_aggregate: { count: desc } }, { name: asc }]
+      order_by: [
+        { is_default: desc }
+        { members_aggregate: { count: desc } }
+        { name: asc }
+      ]
       limit: $limit
       offset: $offset
     ) {
@@ -52,7 +56,7 @@ export const GET_PUBLIC_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 export const SEARCH_CHANNELS = gql`
   query SearchChannels($query: String!, $limit: Int = 20) {
@@ -89,7 +93,7 @@ export const SEARCH_CHANNELS = gql`
       last_message_at
     }
   }
-`
+`;
 
 export const GET_TRENDING_CHANNELS = gql`
   query GetTrendingChannels($limit: Int = 10, $since: timestamptz!) {
@@ -99,7 +103,10 @@ export const GET_TRENDING_CHANNELS = gql`
         is_archived: { _eq: false }
         last_message_at: { _gte: $since }
       }
-      order_by: [{ messages_aggregate: { count: desc } }, { members_aggregate: { count: desc } }]
+      order_by: [
+        { messages_aggregate: { count: desc } }
+        { members_aggregate: { count: desc } }
+      ]
       limit: $limit
     ) {
       id
@@ -127,12 +134,16 @@ export const GET_TRENDING_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_FEATURED_CHANNELS = gql`
   query GetFeaturedChannels($limit: Int = 10) {
     nchat_channels(
-      where: { is_private: { _eq: false }, is_archived: { _eq: false }, is_default: { _eq: true } }
+      where: {
+        is_private: { _eq: false }
+        is_archived: { _eq: false }
+        is_default: { _eq: true }
+      }
       order_by: [{ position: asc }, { created_at: asc }]
       limit: $limit
     ) {
@@ -156,7 +167,7 @@ export const GET_FEATURED_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_POPULAR_CHANNELS = gql`
   query GetPopularChannels($limit: Int = 10) {
@@ -184,7 +195,7 @@ export const GET_POPULAR_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_NEW_CHANNELS = gql`
   query GetNewChannels($limit: Int = 10, $since: timestamptz!) {
@@ -217,7 +228,7 @@ export const GET_NEW_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_CHANNELS_BY_CATEGORY = gql`
   query GetChannelsByCategory($categoryId: uuid!) {
@@ -245,7 +256,7 @@ export const GET_CHANNELS_BY_CATEGORY = gql`
       last_message_at
     }
   }
-`
+`;
 
 export const GET_RECOMMENDED_CHANNELS = gql`
   query GetRecommendedChannels($userId: uuid!, $limit: Int = 10) {
@@ -277,10 +288,14 @@ export const GET_RECOMMENDED_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_SIMILAR_CHANNELS = gql`
-  query GetSimilarChannels($channelId: uuid!, $categoryId: uuid, $limit: Int = 5) {
+  query GetSimilarChannels(
+    $channelId: uuid!
+    $categoryId: uuid
+    $limit: Int = 5
+  ) {
     nchat_channels(
       where: {
         id: { _neq: $channelId }
@@ -308,7 +323,7 @@ export const GET_SIMILAR_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_DISCOVERY_STATS = gql`
   query GetDiscoveryStats {
@@ -342,14 +357,17 @@ export const GET_DISCOVERY_STATS = gql`
       }
     }
     new_this_week: nchat_channels_aggregate(
-      where: { created_at: { _gte: "now() - interval '7 days'" }, is_archived: { _eq: false } }
+      where: {
+        created_at: { _gte: "now() - interval '7 days'" }
+        is_archived: { _eq: false }
+      }
     ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Channel Preview Query
@@ -403,18 +421,18 @@ export const GET_CHANNEL_PREVIEW = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
 export interface ChannelDiscoveryVariables {
-  limit?: number
-  offset?: number
-  query?: string
-  categoryId?: string
-  userId?: string
-  channelId?: string
-  since?: string
+  limit?: number;
+  offset?: number;
+  query?: string;
+  categoryId?: string;
+  userId?: string;
+  channelId?: string;
+  since?: string;
 }

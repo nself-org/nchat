@@ -6,23 +6,23 @@
  * WalletConnect v2 integration is fully implemented with proper session management.
  */
 
-import type { CryptoNetwork } from '@/types/billing'
-import { CRYPTO_NETWORKS } from '@/config/billing-plans'
+import type { CryptoNetwork } from "@/types/billing";
+import { CRYPTO_NETWORKS } from "@/config/billing-plans";
 
-export type WalletProvider = 'metamask' | 'coinbase' | 'walletconnect'
+export type WalletProvider = "metamask" | "coinbase" | "walletconnect";
 
 export interface WalletInfo {
-  address: string
-  network: CryptoNetwork
-  provider: WalletProvider
-  balance: string
+  address: string;
+  network: CryptoNetwork;
+  provider: WalletProvider;
+  balance: string;
 }
 
 export interface ConnectResult {
-  success: boolean
-  address?: string
-  network?: CryptoNetwork
-  error?: string
+  success: boolean;
+  address?: string;
+  network?: CryptoNetwork;
+  error?: string;
 }
 
 // ============================================================================
@@ -30,85 +30,95 @@ export interface ConnectResult {
 // ============================================================================
 
 export interface WalletConnectSession {
-  topic: string
-  pairingTopic?: string
-  relay: { protocol: string }
-  expiry: number
-  acknowledged: boolean
-  controller: string
-  namespaces: Record<string, WalletConnectNamespace>
-  requiredNamespaces: Record<string, WalletConnectNamespace>
-  optionalNamespaces: Record<string, WalletConnectNamespace>
-  sessionProperties?: Record<string, string>
+  topic: string;
+  pairingTopic?: string;
+  relay: { protocol: string };
+  expiry: number;
+  acknowledged: boolean;
+  controller: string;
+  namespaces: Record<string, WalletConnectNamespace>;
+  requiredNamespaces: Record<string, WalletConnectNamespace>;
+  optionalNamespaces: Record<string, WalletConnectNamespace>;
+  sessionProperties?: Record<string, string>;
 }
 
 export interface WalletConnectNamespace {
-  chains?: string[]
-  accounts: string[]
-  methods: string[]
-  events: string[]
+  chains?: string[];
+  accounts: string[];
+  methods: string[];
+  events: string[];
 }
 
 export interface WalletConnectConfig {
-  projectId: string
+  projectId: string;
   metadata: {
-    name: string
-    description: string
-    url: string
-    icons: string[]
-  }
-  chains?: number[]
-  optionalChains?: number[]
-  showQrModal?: boolean
+    name: string;
+    description: string;
+    url: string;
+    icons: string[];
+  };
+  chains?: number[];
+  optionalChains?: number[];
+  showQrModal?: boolean;
   qrModalOptions?: {
-    themeMode?: 'light' | 'dark'
-    themeVariables?: Record<string, string>
-  }
+    themeMode?: "light" | "dark";
+    themeVariables?: Record<string, string>;
+  };
 }
 
 export interface WalletConnectProvider {
-  accounts: string[]
-  chainId: number
-  session: WalletConnectSession | null
-  connect: (params?: { chains?: number[] }) => Promise<void>
-  disconnect: () => Promise<void>
-  request: <T = unknown>(args: { method: string; params?: unknown[] }) => Promise<T>
-  on: (event: string, handler: (...args: unknown[]) => void) => void
-  removeListener: (event: string, handler: (...args: unknown[]) => void) => void
-  enable: () => Promise<string[]>
+  accounts: string[];
+  chainId: number;
+  session: WalletConnectSession | null;
+  connect: (params?: { chains?: number[] }) => Promise<void>;
+  disconnect: () => Promise<void>;
+  request: <T = unknown>(args: {
+    method: string;
+    params?: unknown[];
+  }) => Promise<T>;
+  on: (event: string, handler: (...args: unknown[]) => void) => void;
+  removeListener: (
+    event: string,
+    handler: (...args: unknown[]) => void,
+  ) => void;
+  enable: () => Promise<string[]>;
 }
 
 // ============================================================================
 // WalletConnect Session Storage
 // ============================================================================
 
-const WC_SESSION_KEY = 'walletconnect_session'
-const WC_PAIRING_KEY = 'walletconnect_pairings'
+const WC_SESSION_KEY = "walletconnect_session";
+const WC_PAIRING_KEY = "walletconnect_pairings";
 
 interface StoredSession {
-  session: WalletConnectSession
-  address: string
-  chainId: number
-  expiry: number
+  session: WalletConnectSession;
+  address: string;
+  chainId: number;
+  expiry: number;
 }
 
 /**
  * Store WalletConnect session for reconnection
  */
-function storeWalletConnectSession(session: WalletConnectSession, address: string, chainId: number): void {
-  if (typeof window === 'undefined') return
+function storeWalletConnectSession(
+  session: WalletConnectSession,
+  address: string,
+  chainId: number,
+): void {
+  if (typeof window === "undefined") return;
 
   const storedSession: StoredSession = {
     session,
     address,
     chainId,
     expiry: session.expiry,
-  }
+  };
 
   try {
-    localStorage.setItem(WC_SESSION_KEY, JSON.stringify(storedSession))
+    localStorage.setItem(WC_SESSION_KEY, JSON.stringify(storedSession));
   } catch (error) {
-    console.error('Failed to store WalletConnect session:', error)
+    console.error("Failed to store WalletConnect session:", error);
   }
 }
 
@@ -116,25 +126,25 @@ function storeWalletConnectSession(session: WalletConnectSession, address: strin
  * Retrieve stored WalletConnect session
  */
 function getStoredWalletConnectSession(): StoredSession | null {
-  if (typeof window === 'undefined') return null
+  if (typeof window === "undefined") return null;
 
   try {
-    const stored = localStorage.getItem(WC_SESSION_KEY)
-    if (!stored) return null
+    const stored = localStorage.getItem(WC_SESSION_KEY);
+    if (!stored) return null;
 
-    const session: StoredSession = JSON.parse(stored)
+    const session: StoredSession = JSON.parse(stored);
 
     // Check if session is expired
-    const now = Math.floor(Date.now() / 1000)
+    const now = Math.floor(Date.now() / 1000);
     if (session.expiry && session.expiry < now) {
-      clearWalletConnectSession()
-      return null
+      clearWalletConnectSession();
+      return null;
     }
 
-    return session
+    return session;
   } catch (error) {
-    console.error('Failed to retrieve WalletConnect session:', error)
-    return null
+    console.error("Failed to retrieve WalletConnect session:", error);
+    return null;
   }
 }
 
@@ -142,13 +152,13 @@ function getStoredWalletConnectSession(): StoredSession | null {
  * Clear stored WalletConnect session
  */
 function clearWalletConnectSession(): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   try {
-    localStorage.removeItem(WC_SESSION_KEY)
-    localStorage.removeItem(WC_PAIRING_KEY)
+    localStorage.removeItem(WC_SESSION_KEY);
+    localStorage.removeItem(WC_PAIRING_KEY);
   } catch (error) {
-    console.error('Failed to clear WalletConnect session:', error)
+    console.error("Failed to clear WalletConnect session:", error);
   }
 }
 
@@ -156,39 +166,40 @@ function clearWalletConnectSession(): void {
 // WalletConnect Provider Instance
 // ============================================================================
 
-let walletConnectProvider: WalletConnectProvider | null = null
-let walletConnectEventHandlers: Map<string, (...args: unknown[]) => void> = new Map()
+let walletConnectProvider: WalletConnectProvider | null = null;
+let walletConnectEventHandlers: Map<string, (...args: unknown[]) => void> =
+  new Map();
 
 /**
  * Check if MetaMask is installed
  */
 export function isMetaMaskInstalled(): boolean {
-  if (typeof window === 'undefined') return false
-  return typeof (window as any).ethereum !== 'undefined'
+  if (typeof window === "undefined") return false;
+  return typeof (window as any).ethereum !== "undefined";
 }
 
 /**
  * Check if Coinbase Wallet is installed
  */
 export function isCoinbaseWalletInstalled(): boolean {
-  if (typeof window === 'undefined') return false
-  const ethereum = (window as any).ethereum
-  return ethereum?.isCoinbaseWallet === true
+  if (typeof window === "undefined") return false;
+  const ethereum = (window as any).ethereum;
+  return ethereum?.isCoinbaseWallet === true;
 }
 
 /**
  * Get available wallet providers
  */
 export function getAvailableWallets(): WalletProvider[] {
-  const wallets: WalletProvider[] = []
+  const wallets: WalletProvider[] = [];
 
-  if (isMetaMaskInstalled()) wallets.push('metamask')
-  if (isCoinbaseWalletInstalled()) wallets.push('coinbase')
+  if (isMetaMaskInstalled()) wallets.push("metamask");
+  if (isCoinbaseWalletInstalled()) wallets.push("coinbase");
 
   // WalletConnect is always available (uses QR code)
-  wallets.push('walletconnect')
+  wallets.push("walletconnect");
 
-  return wallets
+  return wallets;
 }
 
 /**
@@ -198,40 +209,40 @@ export async function connectMetaMask(): Promise<ConnectResult> {
   if (!isMetaMaskInstalled()) {
     return {
       success: false,
-      error: 'MetaMask is not installed. Please install MetaMask extension.',
-    }
+      error: "MetaMask is not installed. Please install MetaMask extension.",
+    };
   }
 
   try {
-    const ethereum = (window as any).ethereum
+    const ethereum = (window as any).ethereum;
 
     // Request account access
     const accounts = await ethereum.request({
-      method: 'eth_requestAccounts',
-    })
+      method: "eth_requestAccounts",
+    });
 
     if (!accounts || accounts.length === 0) {
       return {
         success: false,
-        error: 'No accounts found',
-      }
+        error: "No accounts found",
+      };
     }
 
     // Get network
-    const chainId = await ethereum.request({ method: 'eth_chainId' })
-    const network = getNetworkFromChainId(parseInt(chainId, 16))
+    const chainId = await ethereum.request({ method: "eth_chainId" });
+    const network = getNetworkFromChainId(parseInt(chainId, 16));
 
     return {
       success: true,
       address: accounts[0],
       network,
-    }
+    };
   } catch (error: any) {
-    console.error('MetaMask connection error:', error)
+    console.error("MetaMask connection error:", error);
     return {
       success: false,
-      error: error.message || 'Failed to connect to MetaMask',
-    }
+      error: error.message || "Failed to connect to MetaMask",
+    };
   }
 }
 
@@ -242,40 +253,41 @@ export async function connectCoinbaseWallet(): Promise<ConnectResult> {
   if (!isCoinbaseWalletInstalled()) {
     return {
       success: false,
-      error: 'Coinbase Wallet is not installed. Please install Coinbase Wallet extension.',
-    }
+      error:
+        "Coinbase Wallet is not installed. Please install Coinbase Wallet extension.",
+    };
   }
 
   try {
-    const ethereum = (window as any).ethereum
+    const ethereum = (window as any).ethereum;
 
     // Request account access
     const accounts = await ethereum.request({
-      method: 'eth_requestAccounts',
-    })
+      method: "eth_requestAccounts",
+    });
 
     if (!accounts || accounts.length === 0) {
       return {
         success: false,
-        error: 'No accounts found',
-      }
+        error: "No accounts found",
+      };
     }
 
     // Get network
-    const chainId = await ethereum.request({ method: 'eth_chainId' })
-    const network = getNetworkFromChainId(parseInt(chainId, 16))
+    const chainId = await ethereum.request({ method: "eth_chainId" });
+    const network = getNetworkFromChainId(parseInt(chainId, 16));
 
     return {
       success: true,
       address: accounts[0],
       network,
-    }
+    };
   } catch (error: any) {
-    console.error('Coinbase Wallet connection error:', error)
+    console.error("Coinbase Wallet connection error:", error);
     return {
       success: false,
-      error: error.message || 'Failed to connect to Coinbase Wallet',
-    }
+      error: error.message || "Failed to connect to Coinbase Wallet",
+    };
   }
 }
 
@@ -283,15 +295,18 @@ export async function connectCoinbaseWallet(): Promise<ConnectResult> {
  * Get default WalletConnect configuration
  */
 function getWalletConnectConfig(): WalletConnectConfig {
-  const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || ''
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'nchat'
-  const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://nchat.app'
+  const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "";
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || "nchat";
+  const appUrl =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://nchat.app";
 
   return {
     projectId,
     metadata: {
       name: appName,
-      description: 'Secure team communication with crypto wallet integration',
+      description: "Secure team communication with crypto wallet integration",
       url: appUrl,
       icons: [`${appUrl}/icon.png`],
     },
@@ -299,9 +314,9 @@ function getWalletConnectConfig(): WalletConnectConfig {
     optionalChains: [137, 56, 42161], // Polygon, BSC, Arbitrum
     showQrModal: true,
     qrModalOptions: {
-      themeMode: 'dark',
+      themeMode: "dark",
     },
-  }
+  };
 }
 
 /**
@@ -309,23 +324,27 @@ function getWalletConnectConfig(): WalletConnectConfig {
  * Uses dynamic import to avoid bundling WalletConnect if not used
  */
 async function initializeWalletConnectProvider(): Promise<WalletConnectProvider | null> {
-  if (typeof window === 'undefined') return null
+  if (typeof window === "undefined") return null;
 
   // Return existing provider if already initialized
   if (walletConnectProvider) {
-    return walletConnectProvider
+    return walletConnectProvider;
   }
 
   try {
     // Dynamic import of WalletConnect packages
     // This allows the app to work even if WalletConnect is not installed
-    const { EthereumProvider } = await import('@walletconnect/ethereum-provider')
+    const { EthereumProvider } = await import(
+      /* webpackIgnore: true */ "@walletconnect/ethereum-provider"
+    );
 
-    const config = getWalletConnectConfig()
+    const config = getWalletConnectConfig();
 
     if (!config.projectId) {
-      console.warn('WalletConnect: No project ID configured. Set NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID')
-      return null
+      console.warn(
+        "WalletConnect: No project ID configured. Set NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID",
+      );
+      return null;
     }
 
     // Initialize the provider
@@ -336,92 +355,107 @@ async function initializeWalletConnectProvider(): Promise<WalletConnectProvider 
       optionalChains: config.optionalChains,
       showQrModal: config.showQrModal,
       qrModalOptions: config.qrModalOptions,
-    })
+    });
 
-    walletConnectProvider = provider as unknown as WalletConnectProvider
+    walletConnectProvider = provider as unknown as WalletConnectProvider;
 
     // Set up event handlers
-    setupWalletConnectEventHandlers(walletConnectProvider)
+    setupWalletConnectEventHandlers(walletConnectProvider);
 
-    return walletConnectProvider
+    return walletConnectProvider;
   } catch (error: unknown) {
     // WalletConnect package not installed - provide helpful error
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    if (errorMessage.includes('Cannot find module') || errorMessage.includes('@walletconnect')) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    if (
+      errorMessage.includes("Cannot find module") ||
+      errorMessage.includes("@walletconnect")
+    ) {
       console.warn(
-        'WalletConnect: Package not installed. Run: pnpm add @walletconnect/ethereum-provider @walletconnect/modal'
-      )
+        "WalletConnect: Package not installed. Run: pnpm add @walletconnect/ethereum-provider @walletconnect/modal",
+      );
     } else {
-      console.error('WalletConnect: Failed to initialize provider:', error)
+      console.error("WalletConnect: Failed to initialize provider:", error);
     }
-    return null
+    return null;
   }
 }
 
 /**
  * Set up WalletConnect event handlers
  */
-function setupWalletConnectEventHandlers(provider: WalletConnectProvider): void {
+function setupWalletConnectEventHandlers(
+  provider: WalletConnectProvider,
+): void {
   // Account change handler
   const accountsChangedHandler = (accounts: unknown) => {
-    const accountArray = accounts as string[]
+    const accountArray = accounts as string[];
     if (accountArray.length === 0) {
       // User disconnected
-      clearWalletConnectSession()
-      walletConnectProvider = null
+      clearWalletConnectSession();
+      walletConnectProvider = null;
     } else {
       // Update stored session with new address
-      const storedSession = getStoredWalletConnectSession()
+      const storedSession = getStoredWalletConnectSession();
       if (storedSession && provider.session) {
-        storeWalletConnectSession(provider.session, accountArray[0], provider.chainId)
+        storeWalletConnectSession(
+          provider.session,
+          accountArray[0],
+          provider.chainId,
+        );
       }
     }
-  }
+  };
 
   // Chain change handler
   const chainChangedHandler = (chainId: unknown) => {
-    const newChainId = typeof chainId === 'string' ? parseInt(chainId, 16) : (chainId as number)
-    const storedSession = getStoredWalletConnectSession()
+    const newChainId =
+      typeof chainId === "string" ? parseInt(chainId, 16) : (chainId as number);
+    const storedSession = getStoredWalletConnectSession();
     if (storedSession && provider.session && provider.accounts[0]) {
-      storeWalletConnectSession(provider.session, provider.accounts[0], newChainId)
+      storeWalletConnectSession(
+        provider.session,
+        provider.accounts[0],
+        newChainId,
+      );
     }
-  }
+  };
 
   // Disconnect handler
   const disconnectHandler = () => {
-    clearWalletConnectSession()
-    walletConnectProvider = null
-  }
+    clearWalletConnectSession();
+    walletConnectProvider = null;
+  };
 
   // Session expiry handler
   const sessionExpireHandler = () => {
-    clearWalletConnectSession()
-    walletConnectProvider = null
-  }
+    clearWalletConnectSession();
+    walletConnectProvider = null;
+  };
 
   // Register handlers
-  provider.on('accountsChanged', accountsChangedHandler)
-  provider.on('chainChanged', chainChangedHandler)
-  provider.on('disconnect', disconnectHandler)
-  provider.on('session_expire', sessionExpireHandler)
+  provider.on("accountsChanged", accountsChangedHandler);
+  provider.on("chainChanged", chainChangedHandler);
+  provider.on("disconnect", disconnectHandler);
+  provider.on("session_expire", sessionExpireHandler);
 
   // Store handler references for cleanup
-  walletConnectEventHandlers.set('accountsChanged', accountsChangedHandler)
-  walletConnectEventHandlers.set('chainChanged', chainChangedHandler)
-  walletConnectEventHandlers.set('disconnect', disconnectHandler)
-  walletConnectEventHandlers.set('session_expire', sessionExpireHandler)
+  walletConnectEventHandlers.set("accountsChanged", accountsChangedHandler);
+  walletConnectEventHandlers.set("chainChanged", chainChangedHandler);
+  walletConnectEventHandlers.set("disconnect", disconnectHandler);
+  walletConnectEventHandlers.set("session_expire", sessionExpireHandler);
 }
 
 /**
  * Clean up WalletConnect event handlers
  */
 function cleanupWalletConnectEventHandlers(): void {
-  if (!walletConnectProvider) return
+  if (!walletConnectProvider) return;
 
   walletConnectEventHandlers.forEach((handler, event) => {
-    walletConnectProvider?.removeListener(event, handler)
-  })
-  walletConnectEventHandlers.clear()
+    walletConnectProvider?.removeListener(event, handler);
+  });
+  walletConnectEventHandlers.clear();
 }
 
 /**
@@ -429,85 +463,93 @@ function cleanupWalletConnectEventHandlers(): void {
  * Implements EIP-1193 compatible connection with session persistence
  */
 export async function connectWalletConnect(): Promise<ConnectResult> {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return {
       success: false,
-      error: 'WalletConnect is only available in browser',
-    }
+      error: "WalletConnect is only available in browser",
+    };
   }
 
   try {
     // Try to reconnect from stored session first
-    const storedSession = getStoredWalletConnectSession()
+    const storedSession = getStoredWalletConnectSession();
     if (storedSession) {
-      const reconnectResult = await reconnectWalletConnect()
+      const reconnectResult = await reconnectWalletConnect();
       if (reconnectResult.success) {
-        return reconnectResult
+        return reconnectResult;
       }
       // If reconnection failed, continue with fresh connection
     }
 
     // Initialize provider
-    const provider = await initializeWalletConnectProvider()
+    const provider = await initializeWalletConnectProvider();
 
     if (!provider) {
       return {
         success: false,
-        error: 'WalletConnect is not available. Please ensure the package is installed and project ID is configured.',
-      }
+        error:
+          "WalletConnect is not available. Please ensure the package is installed and project ID is configured.",
+      };
     }
 
     // Connect and show QR modal
-    await provider.connect()
+    await provider.connect();
 
     // Get connected account and chain
-    const accounts = provider.accounts
-    const chainId = provider.chainId
+    const accounts = provider.accounts;
+    const chainId = provider.chainId;
 
     if (!accounts || accounts.length === 0) {
       return {
         success: false,
-        error: 'No accounts found',
-      }
+        error: "No accounts found",
+      };
     }
 
-    const address = accounts[0]
-    const network = getNetworkFromChainId(chainId)
+    const address = accounts[0];
+    const network = getNetworkFromChainId(chainId);
 
     // Store session for reconnection
     if (provider.session) {
-      storeWalletConnectSession(provider.session, address, chainId)
+      storeWalletConnectSession(provider.session, address, chainId);
     }
 
     return {
       success: true,
       address,
       network,
-    }
+    };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     // Handle user rejection
-    if (errorMessage.includes('User rejected') || errorMessage.includes('user rejected')) {
+    if (
+      errorMessage.includes("User rejected") ||
+      errorMessage.includes("user rejected")
+    ) {
       return {
         success: false,
-        error: 'Connection request was rejected',
-      }
+        error: "Connection request was rejected",
+      };
     }
 
     // Handle modal close
-    if (errorMessage.includes('Modal closed') || errorMessage.includes('User closed modal')) {
+    if (
+      errorMessage.includes("Modal closed") ||
+      errorMessage.includes("User closed modal")
+    ) {
       return {
         success: false,
-        error: 'Connection modal was closed',
-      }
+        error: "Connection modal was closed",
+      };
     }
 
-    console.error('WalletConnect connection error:', error)
+    console.error("WalletConnect connection error:", error);
     return {
       success: false,
-      error: errorMessage || 'Failed to connect via WalletConnect',
-    }
+      error: errorMessage || "Failed to connect via WalletConnect",
+    };
   }
 }
 
@@ -515,57 +557,58 @@ export async function connectWalletConnect(): Promise<ConnectResult> {
  * Reconnect to WalletConnect using stored session
  */
 export async function reconnectWalletConnect(): Promise<ConnectResult> {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return {
       success: false,
-      error: 'WalletConnect is only available in browser',
-    }
+      error: "WalletConnect is only available in browser",
+    };
   }
 
-  const storedSession = getStoredWalletConnectSession()
+  const storedSession = getStoredWalletConnectSession();
   if (!storedSession) {
     return {
       success: false,
-      error: 'No stored session found',
-    }
+      error: "No stored session found",
+    };
   }
 
   try {
-    const provider = await initializeWalletConnectProvider()
+    const provider = await initializeWalletConnectProvider();
 
     if (!provider) {
-      clearWalletConnectSession()
+      clearWalletConnectSession();
       return {
         success: false,
-        error: 'WalletConnect provider not available',
-      }
+        error: "WalletConnect provider not available",
+      };
     }
 
     // Check if provider has an active session
     if (provider.session && provider.accounts.length > 0) {
-      const address = provider.accounts[0]
-      const network = getNetworkFromChainId(provider.chainId)
+      const address = provider.accounts[0];
+      const network = getNetworkFromChainId(provider.chainId);
 
       return {
         success: true,
         address,
         network,
-      }
+      };
     }
 
     // Session expired or invalid
-    clearWalletConnectSession()
+    clearWalletConnectSession();
     return {
       success: false,
-      error: 'Session expired',
-    }
+      error: "Session expired",
+    };
   } catch (error: unknown) {
-    clearWalletConnectSession()
-    const errorMessage = error instanceof Error ? error.message : 'Failed to reconnect'
+    clearWalletConnectSession();
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to reconnect";
     return {
       success: false,
       error: errorMessage,
-    }
+    };
   }
 }
 
@@ -575,16 +618,16 @@ export async function reconnectWalletConnect(): Promise<ConnectResult> {
 export async function disconnectWalletConnect(): Promise<void> {
   if (walletConnectProvider) {
     try {
-      cleanupWalletConnectEventHandlers()
-      await walletConnectProvider.disconnect()
+      cleanupWalletConnectEventHandlers();
+      await walletConnectProvider.disconnect();
     } catch (error) {
-      console.error('Error disconnecting WalletConnect:', error)
+      console.error("Error disconnecting WalletConnect:", error);
     } finally {
-      walletConnectProvider = null
-      clearWalletConnectSession()
+      walletConnectProvider = null;
+      clearWalletConnectSession();
     }
   } else {
-    clearWalletConnectSession()
+    clearWalletConnectSession();
   }
 }
 
@@ -592,7 +635,7 @@ export async function disconnectWalletConnect(): Promise<void> {
  * Get WalletConnect provider instance (for signing operations)
  */
 export function getWalletConnectProvider(): WalletConnectProvider | null {
-  return walletConnectProvider
+  return walletConnectProvider;
 }
 
 /**
@@ -600,55 +643,59 @@ export function getWalletConnectProvider(): WalletConnectProvider | null {
  */
 export function isWalletConnectSessionActive(): boolean {
   if (walletConnectProvider?.session) {
-    return true
+    return true;
   }
-  const storedSession = getStoredWalletConnectSession()
-  return storedSession !== null
+  const storedSession = getStoredWalletConnectSession();
+  return storedSession !== null;
 }
 
 /**
  * Sign message with WalletConnect
  */
-export async function signMessageWithWalletConnect(message: string): Promise<string | null> {
+export async function signMessageWithWalletConnect(
+  message: string,
+): Promise<string | null> {
   if (!walletConnectProvider || !walletConnectProvider.accounts[0]) {
-    return null
+    return null;
   }
 
   try {
     const signature = await walletConnectProvider.request<string>({
-      method: 'personal_sign',
+      method: "personal_sign",
       params: [message, walletConnectProvider.accounts[0]],
-    })
-    return signature
+    });
+    return signature;
   } catch (error) {
-    console.error('WalletConnect sign error:', error)
-    return null
+    console.error("WalletConnect sign error:", error);
+    return null;
   }
 }
 
 /**
  * Switch network with WalletConnect
  */
-export async function switchNetworkWalletConnect(network: CryptoNetwork): Promise<boolean> {
-  if (!walletConnectProvider) return false
+export async function switchNetworkWalletConnect(
+  network: CryptoNetwork,
+): Promise<boolean> {
+  if (!walletConnectProvider) return false;
 
-  const networkConfig = CRYPTO_NETWORKS[network]
-  const chainIdHex = `0x${networkConfig.chainId.toString(16)}`
+  const networkConfig = CRYPTO_NETWORKS[network];
+  const chainIdHex = `0x${networkConfig.chainId.toString(16)}`;
 
   try {
     await walletConnectProvider.request({
-      method: 'wallet_switchEthereumChain',
+      method: "wallet_switchEthereumChain",
       params: [{ chainId: chainIdHex }],
-    })
-    return true
+    });
+    return true;
   } catch (error: unknown) {
-    const errorCode = (error as { code?: number })?.code
+    const errorCode = (error as { code?: number })?.code;
 
     // Chain not added - try to add it
     if (errorCode === 4902) {
       try {
         await walletConnectProvider.request({
-          method: 'wallet_addEthereumChain',
+          method: "wallet_addEthereumChain",
           params: [
             {
               chainId: chainIdHex,
@@ -661,35 +708,37 @@ export async function switchNetworkWalletConnect(network: CryptoNetwork): Promis
               },
             },
           ],
-        })
-        return true
+        });
+        return true;
       } catch (addError) {
-        console.error('Error adding network via WalletConnect:', addError)
-        return false
+        console.error("Error adding network via WalletConnect:", addError);
+        return false;
       }
     }
 
-    console.error('Error switching network via WalletConnect:', error)
-    return false
+    console.error("Error switching network via WalletConnect:", error);
+    return false;
   }
 }
 
 /**
  * Generic wallet connection
  */
-export async function connectWallet(provider: WalletProvider): Promise<ConnectResult> {
+export async function connectWallet(
+  provider: WalletProvider,
+): Promise<ConnectResult> {
   switch (provider) {
-    case 'metamask':
-      return connectMetaMask()
-    case 'coinbase':
-      return connectCoinbaseWallet()
-    case 'walletconnect':
-      return connectWalletConnect()
+    case "metamask":
+      return connectMetaMask();
+    case "coinbase":
+      return connectCoinbaseWallet();
+    case "walletconnect":
+      return connectWalletConnect();
     default:
       return {
         success: false,
-        error: 'Unknown wallet provider',
-      }
+        error: "Unknown wallet provider",
+      };
   }
 }
 
@@ -698,11 +747,11 @@ export async function connectWallet(provider: WalletProvider): Promise<ConnectRe
  */
 export async function disconnectWallet(): Promise<void> {
   // Disconnect WalletConnect if active
-  await disconnectWalletConnect()
+  await disconnectWalletConnect();
 
   // Clear any stored wallet info
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('connectedWallet')
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("connectedWallet");
   }
 }
 
@@ -711,23 +760,27 @@ export async function disconnectWallet(): Promise<void> {
  * Supports both injected providers and WalletConnect
  */
 export async function getCurrentAddress(): Promise<string | null> {
-  if (typeof window === 'undefined') return null
+  if (typeof window === "undefined") return null;
 
   // Check WalletConnect first
-  if (isWalletConnectSessionActive() && walletConnectProvider && walletConnectProvider.accounts[0]) {
-    return walletConnectProvider.accounts[0]
+  if (
+    isWalletConnectSessionActive() &&
+    walletConnectProvider &&
+    walletConnectProvider.accounts[0]
+  ) {
+    return walletConnectProvider.accounts[0];
   }
 
   // Fall back to injected provider
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return null
+  const ethereum = (window as any).ethereum;
+  if (!ethereum) return null;
 
   try {
-    const accounts = await ethereum.request({ method: 'eth_accounts' })
-    return accounts[0] || null
+    const accounts = await ethereum.request({ method: "eth_accounts" });
+    return accounts[0] || null;
   } catch (error) {
-    console.error('Error getting current address:', error)
-    return null
+    console.error("Error getting current address:", error);
+    return null;
   }
 }
 
@@ -735,23 +788,23 @@ export async function getCurrentAddress(): Promise<string | null> {
  * Get wallet balance
  */
 export async function getBalance(address: string): Promise<string> {
-  if (typeof window === 'undefined') return '0'
+  if (typeof window === "undefined") return "0";
 
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return '0'
+  const ethereum = (window as any).ethereum;
+  if (!ethereum) return "0";
 
   try {
     const balance = await ethereum.request({
-      method: 'eth_getBalance',
-      params: [address, 'latest'],
-    })
+      method: "eth_getBalance",
+      params: [address, "latest"],
+    });
 
     // Convert from wei to ETH
-    const balanceInEth = parseInt(balance, 16) / 1e18
-    return balanceInEth.toFixed(4)
+    const balanceInEth = parseInt(balance, 16) / 1e18;
+    return balanceInEth.toFixed(4);
   } catch (error) {
-    console.error('Error getting balance:', error)
-    return '0'
+    console.error("Error getting balance:", error);
+    return "0";
   }
 }
 
@@ -760,32 +813,32 @@ export async function getBalance(address: string): Promise<string> {
  * Supports both injected providers and WalletConnect
  */
 export async function switchNetwork(network: CryptoNetwork): Promise<boolean> {
-  if (typeof window === 'undefined') return false
+  if (typeof window === "undefined") return false;
 
   // Use WalletConnect if session is active
   if (isWalletConnectSessionActive() && walletConnectProvider) {
-    return switchNetworkWalletConnect(network)
+    return switchNetworkWalletConnect(network);
   }
 
   // Fall back to injected provider
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return false
+  const ethereum = (window as any).ethereum;
+  if (!ethereum) return false;
 
-  const networkConfig = CRYPTO_NETWORKS[network]
-  const chainIdHex = `0x${networkConfig.chainId.toString(16)}`
+  const networkConfig = CRYPTO_NETWORKS[network];
+  const chainIdHex = `0x${networkConfig.chainId.toString(16)}`;
 
   try {
     await ethereum.request({
-      method: 'wallet_switchEthereumChain',
+      method: "wallet_switchEthereumChain",
       params: [{ chainId: chainIdHex }],
-    })
-    return true
+    });
+    return true;
   } catch (error: any) {
     // This error code indicates that the chain has not been added to MetaMask
     if (error.code === 4902) {
       try {
         await ethereum.request({
-          method: 'wallet_addEthereumChain',
+          method: "wallet_addEthereumChain",
           params: [
             {
               chainId: chainIdHex,
@@ -798,16 +851,16 @@ export async function switchNetwork(network: CryptoNetwork): Promise<boolean> {
               },
             },
           ],
-        })
-        return true
+        });
+        return true;
       } catch (addError) {
-        console.error('Error adding network:', addError)
-        return false
+        console.error("Error adding network:", addError);
+        return false;
       }
     }
 
-    console.error('Error switching network:', error)
-    return false
+    console.error("Error switching network:", error);
+    return false;
   }
 }
 
@@ -816,13 +869,13 @@ export async function switchNetwork(network: CryptoNetwork): Promise<boolean> {
  */
 function getNetworkFromChainId(chainId: number): CryptoNetwork {
   const networkMap: Record<number, CryptoNetwork> = {
-    1: 'ethereum',
-    137: 'polygon',
-    56: 'bsc',
-    42161: 'arbitrum',
-  }
+    1: "ethereum",
+    137: "polygon",
+    56: "bsc",
+    42161: "arbitrum",
+  };
 
-  return networkMap[chainId] || 'ethereum'
+  return networkMap[chainId] || "ethereum";
 }
 
 /**
@@ -830,68 +883,70 @@ function getNetworkFromChainId(chainId: number): CryptoNetwork {
  * Supports both injected providers (MetaMask, Coinbase) and WalletConnect
  */
 export async function signMessage(message: string): Promise<string | null> {
-  if (typeof window === 'undefined') return null
+  if (typeof window === "undefined") return null;
 
   // Try WalletConnect first if session is active
   if (isWalletConnectSessionActive() && walletConnectProvider) {
-    return signMessageWithWalletConnect(message)
+    return signMessageWithWalletConnect(message);
   }
 
   // Fall back to injected provider
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return null
+  const ethereum = (window as any).ethereum;
+  if (!ethereum) return null;
 
   try {
-    const address = await getCurrentAddress()
-    if (!address) return null
+    const address = await getCurrentAddress();
+    if (!address) return null;
 
     const signature = await ethereum.request({
-      method: 'personal_sign',
+      method: "personal_sign",
       params: [message, address],
-    })
+    });
 
-    return signature
+    return signature;
   } catch (error) {
-    console.error('Error signing message:', error)
-    return null
+    console.error("Error signing message:", error);
+    return null;
   }
 }
 
 /**
  * Listen for account changes
  */
-export function onAccountsChanged(callback: (accounts: string[]) => void): void {
-  if (typeof window === 'undefined') return
+export function onAccountsChanged(
+  callback: (accounts: string[]) => void,
+): void {
+  if (typeof window === "undefined") return;
 
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return
+  const ethereum = (window as any).ethereum;
+  if (!ethereum) return;
 
-  ethereum.on('accountsChanged', callback)
+  ethereum.on("accountsChanged", callback);
 }
 
 /**
  * Listen for network changes
  */
 export function onChainChanged(callback: (chainId: string) => void): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return
+  const ethereum = (window as any).ethereum;
+  if (!ethereum) return;
 
-  ethereum.on('chainChanged', callback)
+  ethereum.on("chainChanged", callback);
 }
 
 /**
  * Remove listeners
  */
 export function removeListeners(): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return
+  const ethereum = (window as any).ethereum;
+  if (!ethereum) return;
 
-  ethereum.removeAllListeners('accountsChanged')
-  ethereum.removeAllListeners('chainChanged')
+  ethereum.removeAllListeners("accountsChanged");
+  ethereum.removeAllListeners("chainChanged");
 }
 
 /**
@@ -900,46 +955,50 @@ export function removeListeners(): void {
  */
 export async function getWalletInfo(): Promise<WalletInfo | null> {
   // Check WalletConnect first
-  if (isWalletConnectSessionActive() && walletConnectProvider && walletConnectProvider.accounts[0]) {
-    const address = walletConnectProvider.accounts[0]
-    const network = getNetworkFromChainId(walletConnectProvider.chainId)
+  if (
+    isWalletConnectSessionActive() &&
+    walletConnectProvider &&
+    walletConnectProvider.accounts[0]
+  ) {
+    const address = walletConnectProvider.accounts[0];
+    const network = getNetworkFromChainId(walletConnectProvider.chainId);
 
     // Get balance via WalletConnect provider
-    let balance = '0'
+    let balance = "0";
     try {
       const balanceHex = await walletConnectProvider.request<string>({
-        method: 'eth_getBalance',
-        params: [address, 'latest'],
-      })
-      const balanceInEth = parseInt(balanceHex, 16) / 1e18
-      balance = balanceInEth.toFixed(4)
+        method: "eth_getBalance",
+        params: [address, "latest"],
+      });
+      const balanceInEth = parseInt(balanceHex, 16) / 1e18;
+      balance = balanceInEth.toFixed(4);
     } catch (error) {
-      console.error('Error getting WalletConnect balance:', error)
+      console.error("Error getting WalletConnect balance:", error);
     }
 
     return {
       address,
       network,
-      provider: 'walletconnect',
+      provider: "walletconnect",
       balance,
-    }
+    };
   }
 
   // Fall back to injected provider
-  const address = await getCurrentAddress()
-  if (!address) return null
+  const address = await getCurrentAddress();
+  if (!address) return null;
 
-  const ethereum = (window as any).ethereum
-  if (!ethereum) return null
+  const ethereum = (window as any).ethereum;
+  if (!ethereum) return null;
 
-  const chainId = await ethereum.request({ method: 'eth_chainId' })
-  const network = getNetworkFromChainId(parseInt(chainId, 16))
-  const balance = await getBalance(address)
+  const chainId = await ethereum.request({ method: "eth_chainId" });
+  const network = getNetworkFromChainId(parseInt(chainId, 16));
+  const balance = await getBalance(address);
 
   // Determine provider
-  let provider: WalletProvider = 'metamask'
+  let provider: WalletProvider = "metamask";
   if (ethereum.isCoinbaseWallet) {
-    provider = 'coinbase'
+    provider = "coinbase";
   }
 
   return {
@@ -947,5 +1006,5 @@ export async function getWalletInfo(): Promise<WalletInfo | null> {
     network,
     provider,
     balance,
-  }
+  };
 }

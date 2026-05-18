@@ -1,8 +1,8 @@
 // Types
-export * from './types'
+export * from "./types";
 
 // Store
-export { useWebhookStore, default as webhookStore } from './webhook-store'
+export { useWebhookStore, default as webhookStore } from "./webhook-store";
 export {
   selectWebhooksByStatus,
   selectWebhooksByChannel,
@@ -13,7 +13,7 @@ export {
   useWebhooksByChannel,
   useWebhookById,
   useDeliveriesByStatus,
-} from './webhook-store'
+} from "./webhook-store";
 
 // Hooks
 export {
@@ -25,9 +25,9 @@ export {
   formatDeliveryTime,
   getDeliveryStatusColor,
   getWebhookStatusColor,
-} from './use-webhooks'
+} from "./use-webhooks";
 export type {
   UseWebhooksOptions,
   UseWebhookOptions,
   UseWebhookDeliveriesOptions,
-} from './use-webhooks'
+} from "./use-webhooks";

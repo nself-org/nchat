@@ -7,17 +7,22 @@
 // ===============================================================================
 
 // Components
-export { TemplateSwitcher } from './TemplateSwitcher'
-export type { TemplateSwitcherProps } from './TemplateSwitcher'
+export { TemplateSwitcher } from "./TemplateSwitcher";
+export type { TemplateSwitcherProps } from "./TemplateSwitcher";
 
-export { TemplatePreview } from './TemplatePreview'
-export type { TemplatePreviewProps } from './TemplatePreview'
+export { TemplatePreview } from "./TemplatePreview";
+export type { TemplatePreviewProps } from "./TemplatePreview";
 
-export { TemplateGallery } from './TemplateGallery'
-export type { TemplateGalleryProps } from './TemplateGallery'
+export { TemplateGallery } from "./TemplateGallery";
+export type { TemplateGalleryProps } from "./TemplateGallery";
 
-export { DemoMode, DemoModeProvider, useDemoMode, useDemoModeOptional } from './DemoMode'
-export type { DemoModeProps, DemoContextValue } from './DemoMode'
+export {
+  DemoMode,
+  DemoModeProvider,
+  useDemoMode,
+  useDemoModeOptional,
+} from "./DemoMode";
+export type { DemoModeProps, DemoContextValue } from "./DemoMode";
 
 // Data utilities
 export {
@@ -47,7 +52,7 @@ export {
   getDiscordMembers,
   getTelegramChats,
   getWhatsAppChats,
-} from './DemoData'
+} from "./DemoData";
 
 export type {
   DemoUser,
@@ -56,4 +61,4 @@ export type {
   DemoReaction,
   DemoFile,
   TemplateBranding,
-} from './DemoData'
+} from "./DemoData";

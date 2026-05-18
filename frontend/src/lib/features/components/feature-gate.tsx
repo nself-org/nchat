@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * FeatureGate Component
@@ -29,10 +29,10 @@
  * ```
  */
 
-import { useEffect } from 'react'
-import type { ReactNode } from 'react'
-import type { FeatureFlag } from '../types'
-import { useFeature } from '../hooks/use-feature'
+import { useEffect } from "react";
+import type { ReactNode } from "react";
+import type { FeatureFlag } from "../types";
+import { useFeature } from "../hooks/use-feature";
 
 // ============================================================================
 // TYPES
@@ -42,35 +42,35 @@ export interface FeatureGateProps {
   /**
    * The feature flag to check
    */
-  feature: FeatureFlag
+  feature: FeatureFlag;
 
   /**
    * Content to render when the feature is enabled
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * Content to render when the feature is disabled
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 
   /**
    * Callback fired after the feature check completes
    */
-  onCheck?: (enabled: boolean) => void
+  onCheck?: (enabled: boolean) => void;
 
   /**
    * If true, renders nothing while loading (SSR safety)
    * @default false
    */
-  suspenseOnLoad?: boolean
+  suspenseOnLoad?: boolean;
 
   /**
    * Content to render while loading
    * Only used if suspenseOnLoad is true
    */
-  loadingFallback?: ReactNode
+  loadingFallback?: ReactNode;
 }
 
 // ============================================================================
@@ -118,22 +118,22 @@ export function FeatureGate({
   suspenseOnLoad = false,
   loadingFallback = null,
 }: FeatureGateProps): ReactNode {
-  const { enabled, loading } = useFeature(feature)
+  const { enabled, loading } = useFeature(feature);
 
   // Fire callback when check completes
   useEffect(() => {
     if (!loading && onCheck) {
-      onCheck(enabled)
+      onCheck(enabled);
     }
-  }, [enabled, loading, onCheck])
+  }, [enabled, loading, onCheck]);
 
   // Handle loading state if requested
   if (suspenseOnLoad && loading) {
-    return loadingFallback
+    return loadingFallback;
   }
 
   // Render based on feature state
-  return enabled ? children : fallback
+  return enabled ? children : fallback;
 }
 
 // ============================================================================
@@ -144,23 +144,23 @@ export interface FeatureGateDisabledProps {
   /**
    * The feature flag to check
    */
-  feature: FeatureFlag
+  feature: FeatureFlag;
 
   /**
    * Content to render when the feature is DISABLED
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * Content to render when the feature is ENABLED
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 
   /**
    * Callback fired after the feature check completes
    */
-  onCheck?: (disabled: boolean) => void
+  onCheck?: (disabled: boolean) => void;
 }
 
 /**
@@ -181,15 +181,15 @@ export function FeatureGateDisabled({
   fallback = null,
   onCheck,
 }: FeatureGateDisabledProps): ReactNode {
-  const { enabled, loading } = useFeature(feature)
+  const { enabled, loading } = useFeature(feature);
 
   useEffect(() => {
     if (!loading && onCheck) {
-      onCheck(!enabled)
+      onCheck(!enabled);
     }
-  }, [enabled, loading, onCheck])
+  }, [enabled, loading, onCheck]);
 
-  return enabled ? fallback : children
+  return enabled ? fallback : children;
 }
 
 // ============================================================================
@@ -200,7 +200,7 @@ export interface FeatureGateDebugProps {
   /**
    * The feature flag to display info for
    */
-  feature: FeatureFlag
+  feature: FeatureFlag;
 }
 
 /**
@@ -214,35 +214,37 @@ export interface FeatureGateDebugProps {
  * )}
  * ```
  */
-export function FeatureGateDebug({ feature }: FeatureGateDebugProps): ReactNode {
-  const { enabled, loading, source } = useFeature(feature)
+export function FeatureGateDebug({
+  feature,
+}: FeatureGateDebugProps): ReactNode {
+  const { enabled, loading, source } = useFeature(feature);
 
   // Only render in development
-  if (process.env.NODE_ENV === 'production') {
-    return null
+  if (process.env.NODE_ENV === "production") {
+    return null;
   }
 
   return (
     <div
       style={{
-        padding: '4px 8px',
-        fontSize: '10px',
-        fontFamily: 'monospace',
-        backgroundColor: enabled ? '#d4edda' : '#f8d7da',
-        color: enabled ? '#155724' : '#721c24',
-        borderRadius: '4px',
-        display: 'inline-block',
+        padding: "4px 8px",
+        fontSize: "10px",
+        fontFamily: "monospace",
+        backgroundColor: enabled ? "#d4edda" : "#f8d7da",
+        color: enabled ? "#155724" : "#721c24",
+        borderRadius: "4px",
+        display: "inline-block",
       }}
     >
       {loading ? (
         <span>Loading...</span>
       ) : (
         <span>
-          {feature}: {enabled ? 'ON' : 'OFF'} ({source})
+          {feature}: {enabled ? "ON" : "OFF"} ({source})
         </span>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -270,23 +272,24 @@ export function FeatureGateDebug({ feature }: FeatureGateDebugProps): ReactNode 
 export function withFeatureGate<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   feature: FeatureFlag,
-  FallbackComponent?: React.ComponentType<P>
+  FallbackComponent?: React.ComponentType<P>,
 ): React.FC<P> {
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  const displayName =
+    WrappedComponent.displayName || WrappedComponent.name || "Component";
 
   const FeatureGatedComponent: React.FC<P> = (props) => {
-    const { enabled } = useFeature(feature)
+    const { enabled } = useFeature(feature);
 
     if (!enabled) {
-      return FallbackComponent ? <FallbackComponent {...props} /> : null
+      return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
 
-    return <WrappedComponent {...props} />
-  }
+    return <WrappedComponent {...props} />;
+  };
 
-  FeatureGatedComponent.displayName = `FeatureGated(${displayName})`
+  FeatureGatedComponent.displayName = `FeatureGated(${displayName})`;
 
-  return FeatureGatedComponent
+  return FeatureGatedComponent;
 }
 
 // ============================================================================
@@ -297,12 +300,16 @@ export interface FeatureGateRenderProps {
   /**
    * The feature flag to check
    */
-  feature: FeatureFlag
+  feature: FeatureFlag;
 
   /**
    * Render function that receives feature state
    */
-  children: (state: { enabled: boolean; loading: boolean; source: string }) => ReactNode
+  children: (state: {
+    enabled: boolean;
+    loading: boolean;
+    source: string;
+  }) => ReactNode;
 }
 
 /**
@@ -319,13 +326,16 @@ export interface FeatureGateRenderProps {
  * </FeatureGateRender>
  * ```
  */
-export function FeatureGateRender({ feature, children }: FeatureGateRenderProps): ReactNode {
-  const state = useFeature(feature)
-  return children(state)
+export function FeatureGateRender({
+  feature,
+  children,
+}: FeatureGateRenderProps): ReactNode {
+  const state = useFeature(feature);
+  return children(state);
 }
 
 // ============================================================================
 // DEFAULT EXPORT
 // ============================================================================
 
-export default FeatureGate
+export default FeatureGate;

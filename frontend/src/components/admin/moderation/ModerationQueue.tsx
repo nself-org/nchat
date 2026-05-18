@@ -3,102 +3,118 @@
  * Displays flagged content for review
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { AlertTriangle, CheckCircle, XCircle, Eye, EyeOff, Flag, Shield } from 'lucide-react'
-import type { QueueItem } from '@/lib/moderation/moderation-queue'
-import { useAuth } from '@/contexts/auth-context'
-import { logger } from '@/lib/logger'
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Eye,
+  EyeOff,
+  Flag,
+  Shield,
+} from "lucide-react";
+import type { QueueItem } from "@/lib/moderation/moderation-queue";
+import { useAuth } from "@/contexts/auth-context";
+import { logger } from "@/lib/logger";
 
 interface ModerationQueueProps {
-  onAction?: (itemId: string, action: string) => void
+  onAction?: (itemId: string, action: string) => void;
 }
 
 export function ModerationQueue({ onAction }: ModerationQueueProps) {
-  const { user } = useAuth()
-  const [items, setItems] = useState<QueueItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'pending' | 'high-priority'>('pending')
+  const { user } = useAuth();
+  const [items, setItems] = useState<QueueItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"all" | "pending" | "high-priority">(
+    "pending",
+  );
 
   useEffect(() => {
-    fetchQueueItems()
-  }, [filter])
+    fetchQueueItems();
+  }, [filter]);
 
   const fetchQueueItems = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const params = new URLSearchParams()
-      if (filter === 'pending') params.set('status', 'pending')
-      if (filter === 'high-priority') params.set('priority', 'high,critical')
+      const params = new URLSearchParams();
+      if (filter === "pending") params.set("status", "pending");
+      if (filter === "high-priority") params.set("priority", "high,critical");
 
-      const response = await fetch(`/api/moderation/queue?${params}`)
-      const data = await response.json()
+      const response = await fetch(`/api/moderation/queue?${params}`);
+      const data = await response.json();
 
       if (data.success) {
-        setItems(data.items || [])
+        setItems(data.items || []);
       }
     } catch (error) {
-      logger.error('Failed to fetch queue items:', error)
+      logger.error("Failed to fetch queue items:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleAction = async (itemId: string, action: string) => {
     try {
-      const response = await fetch('/api/moderation/actions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/moderation/actions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           itemId,
           action,
-          moderatorId: user?.id || 'unknown',
+          moderatorId: user?.id || "unknown",
           reason: `Action: ${action}`,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
         // Refresh queue
-        fetchQueueItems()
-        onAction?.(itemId, action)
+        fetchQueueItems();
+        onAction?.(itemId, action);
       }
     } catch (error) {
-      logger.error('Action failed:', error)
+      logger.error("Action failed:", error);
     }
-  }
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'critical':
-        return 'bg-red-500'
-      case 'high':
-        return 'bg-orange-500'
-      case 'medium':
-        return 'bg-yellow-500'
+      case "critical":
+        return "bg-red-500";
+      case "high":
+        return "bg-orange-500";
+      case "medium":
+        return "bg-yellow-500";
       default:
-        return 'bg-blue-500'
+        return "bg-blue-500";
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved':
-        return 'bg-green-500'
-      case 'rejected':
-        return 'bg-red-500'
-      case 'reviewing':
-        return 'bg-blue-500'
+      case "approved":
+        return "bg-green-500";
+      case "rejected":
+        return "bg-red-500";
+      case "reviewing":
+        return "bg-blue-500";
       default:
-        return 'bg-gray-500'
+        return "bg-gray-500";
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -149,8 +165,12 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="mb-2 flex items-center gap-2">
-                        <Badge className={getPriorityColor(item.priority)}>{item.priority}</Badge>
-                        <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
+                        <Badge className={getPriorityColor(item.priority)}>
+                          {item.priority}
+                        </Badge>
+                        <Badge className={getStatusColor(item.status)}>
+                          {item.status}
+                        </Badge>
                         <Badge variant="outline">{item.contentType}</Badge>
                         {item.isHidden && (
                           <Badge variant="destructive">
@@ -160,9 +180,11 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                         )}
                       </div>
                       <CardTitle className="text-lg">
-                        {item.userDisplayName || 'Unknown User'}
+                        {item.userDisplayName || "Unknown User"}
                       </CardTitle>
-                      <CardDescription>{new Date(item.createdAt).toLocaleString()}</CardDescription>
+                      <CardDescription>
+                        {new Date(item.createdAt).toLocaleString()}
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -171,7 +193,9 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                   {/* Content Preview */}
                   {item.contentText && (
                     <div className="rounded-lg bg-muted p-4">
-                      <p className="line-clamp-4 whitespace-pre-wrap text-sm">{item.contentText}</p>
+                      <p className="line-clamp-4 whitespace-pre-wrap text-sm">
+                        {item.contentText}
+                      </p>
                     </div>
                   )}
 
@@ -193,7 +217,9 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     {item.toxicScore > 0 && (
                       <div>
-                        <p className="text-xs text-muted-foreground">Toxicity</p>
+                        <p className="text-xs text-muted-foreground">
+                          Toxicity
+                        </p>
                         <p className="text-lg font-semibold">
                           {(item.toxicScore * 100).toFixed(0)}%
                         </p>
@@ -216,7 +242,9 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                       </div>
                     )}
                     <div>
-                      <p className="text-xs text-muted-foreground">Confidence</p>
+                      <p className="text-xs text-muted-foreground">
+                        Confidence
+                      </p>
                       <p className="text-lg font-semibold">
                         {(item.confidenceScore * 100).toFixed(0)}%
                       </p>
@@ -226,7 +254,9 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                   {/* Profanity */}
                   {item.profanityDetected && item.profanityWords && (
                     <div>
-                      <p className="mb-2 text-sm font-medium">Profanity Detected:</p>
+                      <p className="mb-2 text-sm font-medium">
+                        Profanity Detected:
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {item.profanityWords.map((word, index) => (
                           <Badge key={index} variant="destructive">
@@ -238,20 +268,24 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                   )}
 
                   {/* Auto Action */}
-                  {item.autoAction && item.autoAction !== 'none' && (
+                  {item.autoAction && item.autoAction !== "none" && (
                     <div className="rounded-lg bg-yellow-50 p-3 dark:bg-yellow-900/20">
-                      <p className="mb-1 text-sm font-medium">Auto Action: {item.autoAction}</p>
+                      <p className="mb-1 text-sm font-medium">
+                        Auto Action: {item.autoAction}
+                      </p>
                       {item.autoActionReason && (
-                        <p className="text-xs text-muted-foreground">{item.autoActionReason}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.autoActionReason}
+                        </p>
                       )}
                     </div>
                   )}
 
                   {/* Actions */}
-                  {item.status === 'pending' && (
+                  {item.status === "pending" && (
                     <div className="flex flex-wrap gap-2 border-t pt-4">
                       <Button
-                        onClick={() => handleAction(item.id, 'approve')}
+                        onClick={() => handleAction(item.id, "approve")}
                         variant="default"
                         size="sm"
                       >
@@ -259,7 +293,7 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                         Approve
                       </Button>
                       <Button
-                        onClick={() => handleAction(item.id, 'reject')}
+                        onClick={() => handleAction(item.id, "reject")}
                         variant="destructive"
                         size="sm"
                       >
@@ -267,7 +301,7 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                         Delete
                       </Button>
                       <Button
-                        onClick={() => handleAction(item.id, 'warn')}
+                        onClick={() => handleAction(item.id, "warn")}
                         variant="outline"
                         size="sm"
                       >
@@ -276,7 +310,7 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                       </Button>
                       {!item.isHidden && (
                         <Button
-                          onClick={() => handleAction(item.id, 'hide')}
+                          onClick={() => handleAction(item.id, "hide")}
                           variant="outline"
                           size="sm"
                         >
@@ -288,10 +322,13 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
                   )}
 
                   {/* Review Info */}
-                  {item.status !== 'pending' && item.reviewedBy && (
+                  {item.status !== "pending" && item.reviewedBy && (
                     <div className="text-sm text-muted-foreground">
-                      Reviewed by {item.reviewedBy} on {new Date(item.reviewedAt!).toLocaleString()}
-                      {item.moderatorNotes && <p className="mt-1">Notes: {item.moderatorNotes}</p>}
+                      Reviewed by {item.reviewedBy} on{" "}
+                      {new Date(item.reviewedAt!).toLocaleString()}
+                      {item.moderatorNotes && (
+                        <p className="mt-1">Notes: {item.moderatorNotes}</p>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -301,5 +338,5 @@ export function ModerationQueue({ onAction }: ModerationQueueProps) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

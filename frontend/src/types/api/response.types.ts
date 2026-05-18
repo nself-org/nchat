@@ -5,12 +5,27 @@
  * Provides consistent typing for frontend data consumption.
  */
 
-import type { User, UserBasicInfo, UserPresence, UserSettings, UserProfile } from '../user'
-import type { Channel, ChannelMember, Thread } from '../channel'
-import type { Message, Attachment, Reaction } from '../message'
-import type { Notification, NotificationPreferences, NotificationCount } from '../notification'
-import type { Plan, Subscription, Invoice, SubscriptionUsage } from '../subscription.types'
-import type { AuditLog, AuditStatistics } from '../audit.types'
+import type {
+  User,
+  UserBasicInfo,
+  UserPresence,
+  UserSettings,
+  UserProfile,
+} from "../user";
+import type { Channel, ChannelMember, Thread } from "../channel";
+import type { Message, Attachment, Reaction } from "../message";
+import type {
+  Notification,
+  NotificationPreferences,
+  NotificationCount,
+} from "../notification";
+import type {
+  Plan,
+  Subscription,
+  Invoice,
+  SubscriptionUsage,
+} from "../subscription.types";
+import type { AuditLog, AuditStatistics } from "../audit.types";
 
 // ============================================================================
 // Common Response Types
@@ -21,9 +36,9 @@ import type { AuditLog, AuditStatistics } from '../audit.types'
  */
 export interface ApiResponse<T = unknown> {
   /** Response data */
-  data: T
+  data: T;
   /** Response metadata */
-  meta?: ResponseMeta
+  meta?: ResponseMeta;
 }
 
 /**
@@ -31,13 +46,13 @@ export interface ApiResponse<T = unknown> {
  */
 export interface ResponseMeta {
   /** Request ID for tracing */
-  requestId: string
+  requestId: string;
   /** Server timestamp (ISO 8601) */
-  timestamp: string
+  timestamp: string;
   /** Response time in milliseconds */
-  responseTime?: number
+  responseTime?: number;
   /** API version */
-  version?: string
+  version?: string;
 }
 
 /**
@@ -45,11 +60,11 @@ export interface ResponseMeta {
  */
 export interface PaginatedResponse<T> {
   /** Data items */
-  items: T[]
+  items: T[];
   /** Pagination info */
-  pagination: PaginationInfo
+  pagination: PaginationInfo;
   /** Response metadata */
-  meta?: ResponseMeta
+  meta?: ResponseMeta;
 }
 
 /**
@@ -57,21 +72,21 @@ export interface PaginatedResponse<T> {
  */
 export interface PaginationInfo {
   /** Current page (1-based) */
-  page: number
+  page: number;
   /** Items per page */
-  limit: number
+  limit: number;
   /** Total items */
-  total: number
+  total: number;
   /** Total pages */
-  totalPages: number
+  totalPages: number;
   /** Has next page */
-  hasNext: boolean
+  hasNext: boolean;
   /** Has previous page */
-  hasPrev: boolean
+  hasPrev: boolean;
   /** Next cursor (cursor-based) */
-  nextCursor?: string
+  nextCursor?: string;
   /** Previous cursor (cursor-based) */
-  prevCursor?: string
+  prevCursor?: string;
 }
 
 /**
@@ -79,13 +94,13 @@ export interface PaginationInfo {
  */
 export interface CursorPaginationInfo {
   /** Start cursor */
-  startCursor: string | null
+  startCursor: string | null;
   /** End cursor */
-  endCursor: string | null
+  endCursor: string | null;
   /** Has next page */
-  hasNextPage: boolean
+  hasNextPage: boolean;
   /** Has previous page */
-  hasPreviousPage: boolean
+  hasPreviousPage: boolean;
 }
 
 /**
@@ -93,11 +108,11 @@ export interface CursorPaginationInfo {
  */
 export interface Connection<T> {
   /** Edges */
-  edges: Edge<T>[]
+  edges: Edge<T>[];
   /** Page info */
-  pageInfo: CursorPaginationInfo
+  pageInfo: CursorPaginationInfo;
   /** Total count */
-  totalCount: number
+  totalCount: number;
 }
 
 /**
@@ -105,9 +120,9 @@ export interface Connection<T> {
  */
 export interface Edge<T> {
   /** Node data */
-  node: T
+  node: T;
   /** Cursor */
-  cursor: string
+  cursor: string;
 }
 
 // ============================================================================
@@ -119,19 +134,19 @@ export interface Edge<T> {
  */
 export interface AuthResponse {
   /** User data */
-  user: User
+  user: User;
   /** Access token (JWT) */
-  accessToken: string
+  accessToken: string;
   /** Refresh token */
-  refreshToken: string
+  refreshToken: string;
   /** Token expiration (ISO 8601) */
-  expiresAt: string
+  expiresAt: string;
   /** Session ID */
-  sessionId: string
+  sessionId: string;
   /** MFA required */
-  mfaRequired?: boolean
+  mfaRequired?: boolean;
   /** MFA methods available */
-  mfaMethods?: ('totp' | 'sms' | 'email')[]
+  mfaMethods?: ("totp" | "sms" | "email")[];
 }
 
 /**
@@ -139,11 +154,11 @@ export interface AuthResponse {
  */
 export interface TokenRefreshResponse {
   /** New access token */
-  accessToken: string
+  accessToken: string;
   /** New refresh token */
-  refreshToken: string
+  refreshToken: string;
   /** New expiration */
-  expiresAt: string
+  expiresAt: string;
 }
 
 /**
@@ -151,26 +166,26 @@ export interface TokenRefreshResponse {
  */
 export interface SessionResponse {
   /** Session ID */
-  id: string
+  id: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** Device info */
   device: {
-    type: 'desktop' | 'mobile' | 'tablet' | 'web'
-    name?: string
-    os?: string
-    browser?: string
-  }
+    type: "desktop" | "mobile" | "tablet" | "web";
+    name?: string;
+    os?: string;
+    browser?: string;
+  };
   /** IP address */
-  ipAddress: string | null
+  ipAddress: string | null;
   /** Location */
-  location: string | null
+  location: string | null;
   /** Created timestamp */
-  createdAt: string
+  createdAt: string;
   /** Last active timestamp */
-  lastActiveAt: string
+  lastActiveAt: string;
   /** Is current session */
-  isCurrent: boolean
+  isCurrent: boolean;
 }
 
 // ============================================================================
@@ -182,26 +197,26 @@ export interface SessionResponse {
  */
 export interface UserResponse extends User {
   /** Extended profile */
-  profile: UserProfile
+  profile: UserProfile;
   /** User settings */
-  settings: UserSettings
+  settings: UserSettings;
   /** Current presence */
-  presence: UserPresence
+  presence: UserPresence;
 }
 
 /**
  * User list response.
  */
-export type UserListResponse = PaginatedResponse<UserBasicInfo>
+export type UserListResponse = PaginatedResponse<UserBasicInfo>;
 
 /**
  * User search response.
  */
 export interface UserSearchResponse extends PaginatedResponse<UserBasicInfo> {
   /** Search query */
-  query: string
+  query: string;
   /** Search took (ms) */
-  took: number
+  took: number;
 }
 
 /**
@@ -209,15 +224,15 @@ export interface UserSearchResponse extends PaginatedResponse<UserBasicInfo> {
  */
 export interface UserProfileResponse {
   /** User data */
-  user: User
+  user: User;
   /** Profile data */
-  profile: UserProfile
+  profile: UserProfile;
   /** Mutual channels */
-  mutualChannels?: { id: string; name: string }[]
+  mutualChannels?: { id: string; name: string }[];
   /** Is blocked */
-  isBlocked: boolean
+  isBlocked: boolean;
   /** Is contact */
-  isContact: boolean
+  isContact: boolean;
 }
 
 // ============================================================================
@@ -229,13 +244,13 @@ export interface UserProfileResponse {
  */
 export interface ChannelResponse extends Channel {
   /** Current user membership */
-  membership: ChannelMember | null
+  membership: ChannelMember | null;
   /** Is member */
-  isMember: boolean
+  isMember: boolean;
   /** Recent messages preview */
-  recentMessages?: Message[]
+  recentMessages?: Message[];
   /** Pinned messages */
-  pinnedMessages?: Message[]
+  pinnedMessages?: Message[];
 }
 
 /**
@@ -244,16 +259,16 @@ export interface ChannelResponse extends Channel {
 export interface ChannelListResponse {
   /** Channels grouped by category */
   categories: {
-    id: string
-    name: string
-    position: number
-    isCollapsed: boolean
-    channels: ChannelListItem[]
-  }[]
+    id: string;
+    name: string;
+    position: number;
+    isCollapsed: boolean;
+    channels: ChannelListItem[];
+  }[];
   /** Uncategorized channels */
-  uncategorized: ChannelListItem[]
+  uncategorized: ChannelListItem[];
   /** Direct messages */
-  directMessages: DirectMessageItem[]
+  directMessages: DirectMessageItem[];
 }
 
 /**
@@ -261,29 +276,29 @@ export interface ChannelListResponse {
  */
 export interface ChannelListItem {
   /** Channel ID */
-  id: string
+  id: string;
   /** Channel name */
-  name: string
+  name: string;
   /** Channel type */
-  type: string
+  type: string;
   /** Icon */
-  icon?: string
+  icon?: string;
   /** Unread count */
-  unreadCount: number
+  unreadCount: number;
   /** Mention count */
-  mentionCount: number
+  mentionCount: number;
   /** Is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Is pinned */
-  isPinned: boolean
+  isPinned: boolean;
   /** Last message preview */
   lastMessage?: {
-    content: string
-    authorName: string
-    timestamp: string
-  }
+    content: string;
+    authorName: string;
+    timestamp: string;
+  };
   /** Position */
-  position: number
+  position: number;
 }
 
 /**
@@ -291,19 +306,19 @@ export interface ChannelListItem {
  */
 export interface DirectMessageItem {
   /** Channel ID */
-  id: string
+  id: string;
   /** Other participant(s) */
-  participants: UserBasicInfo[]
+  participants: UserBasicInfo[];
   /** Unread count */
-  unreadCount: number
+  unreadCount: number;
   /** Last message preview */
   lastMessage?: {
-    content: string
-    authorId: string
-    timestamp: string
-  }
+    content: string;
+    authorId: string;
+    timestamp: string;
+  };
   /** Is group DM */
-  isGroup: boolean
+  isGroup: boolean;
 }
 
 /**
@@ -311,9 +326,9 @@ export interface DirectMessageItem {
  */
 export interface ChannelMembersResponse extends PaginatedResponse<ChannelMemberResponse> {
   /** Online count */
-  onlineCount: number
+  onlineCount: number;
   /** Total member count */
-  totalMembers: number
+  totalMembers: number;
 }
 
 /**
@@ -322,8 +337,8 @@ export interface ChannelMembersResponse extends PaginatedResponse<ChannelMemberR
 export interface ChannelMemberResponse extends ChannelMember {
   /** User details */
   user: UserBasicInfo & {
-    presence: UserPresence
-  }
+    presence: UserPresence;
+  };
 }
 
 /**
@@ -331,22 +346,22 @@ export interface ChannelMemberResponse extends ChannelMember {
  */
 export interface ChannelInviteResponse {
   /** Invite code */
-  code: string
+  code: string;
   /** Invite URL */
-  url: string
+  url: string;
   /** Expires at */
-  expiresAt: string | null
+  expiresAt: string | null;
   /** Max uses */
-  maxUses: number | null
+  maxUses: number | null;
   /** Current uses */
-  uses: number
+  uses: number;
   /** Channel info */
   channel: {
-    id: string
-    name: string
-    type: string
-    memberCount: number
-  }
+    id: string;
+    name: string;
+    type: string;
+    memberCount: number;
+  };
 }
 
 // ============================================================================
@@ -356,17 +371,17 @@ export interface ChannelInviteResponse {
 /**
  * Message response.
  */
-export interface MessageResponse extends Omit<Message, 'replyTo'> {
+export interface MessageResponse extends Omit<Message, "replyTo"> {
   /** Author details */
-  author: UserBasicInfo
+  author: UserBasicInfo;
   /** Attachments */
-  attachments: Attachment[]
+  attachments: Attachment[];
   /** Reactions with users */
-  reactions: ReactionWithUsers[]
+  reactions: ReactionWithUsers[];
   /** Thread info (if has thread) */
-  thread?: ThreadSummary
+  thread?: ThreadSummary;
   /** Reply to message (if reply) */
-  replyTo?: MessagePreview | null
+  replyTo?: MessagePreview | null;
 }
 
 /**
@@ -374,9 +389,9 @@ export interface MessageResponse extends Omit<Message, 'replyTo'> {
  */
 export interface ReactionWithUsers extends Reaction {
   /** Users who reacted */
-  users: UserBasicInfo[]
+  users: UserBasicInfo[];
   /** Has current user reacted */
-  hasReacted: boolean
+  hasReacted: boolean;
 }
 
 /**
@@ -384,15 +399,15 @@ export interface ReactionWithUsers extends Reaction {
  */
 export interface ThreadSummary {
   /** Thread ID */
-  id: string
+  id: string;
   /** Reply count */
-  replyCount: number
+  replyCount: number;
   /** Participant count */
-  participantCount: number
+  participantCount: number;
   /** Last reply at */
-  lastReplyAt: string
+  lastReplyAt: string;
   /** Participant previews */
-  participants: UserBasicInfo[]
+  participants: UserBasicInfo[];
 }
 
 /**
@@ -400,13 +415,13 @@ export interface ThreadSummary {
  */
 export interface MessagePreview {
   /** Message ID */
-  id: string
+  id: string;
   /** Content preview */
-  content: string
+  content: string;
   /** Author */
-  author: UserBasicInfo
+  author: UserBasicInfo;
   /** Has attachments */
-  hasAttachments: boolean
+  hasAttachments: boolean;
 }
 
 /**
@@ -414,15 +429,15 @@ export interface MessagePreview {
  */
 export interface MessagesResponse {
   /** Messages */
-  messages: MessageResponse[]
+  messages: MessageResponse[];
   /** Has more (older) */
-  hasMore: boolean
+  hasMore: boolean;
   /** Has newer */
-  hasNewer: boolean
+  hasNewer: boolean;
   /** Oldest message timestamp */
-  oldestTimestamp: string | null
+  oldestTimestamp: string | null;
   /** Newest message timestamp */
-  newestTimestamp: string | null
+  newestTimestamp: string | null;
 }
 
 /**
@@ -430,11 +445,11 @@ export interface MessagesResponse {
  */
 export interface MessageSearchResponse extends PaginatedResponse<MessageSearchResult> {
   /** Search query */
-  query: string
+  query: string;
   /** Search took (ms) */
-  took: number
+  took: number;
   /** Total matches */
-  totalMatches: number
+  totalMatches: number;
 }
 
 /**
@@ -442,17 +457,17 @@ export interface MessageSearchResponse extends PaginatedResponse<MessageSearchRe
  */
 export interface MessageSearchResult {
   /** Message */
-  message: MessageResponse
+  message: MessageResponse;
   /** Channel info */
   channel: {
-    id: string
-    name: string
-    type: string
-  }
+    id: string;
+    name: string;
+    type: string;
+  };
   /** Highlighted content */
-  highlight?: string
+  highlight?: string;
   /** Match score */
-  score: number
+  score: number;
 }
 
 // ============================================================================
@@ -464,45 +479,45 @@ export interface MessageSearchResult {
  */
 export interface ThreadResponse extends Thread {
   /** Root message */
-  rootMessage: MessageResponse
+  rootMessage: MessageResponse;
   /** Replies */
-  replies: MessageResponse[]
+  replies: MessageResponse[];
   /** Participants */
-  participants: UserBasicInfo[]
+  participants: UserBasicInfo[];
   /** User's read state */
   userReadState?: {
-    lastReadMessageId: string | null
-    unreadCount: number
-  }
+    lastReadMessageId: string | null;
+    unreadCount: number;
+  };
 }
 
 /**
  * Thread list response.
  */
-export type ThreadListResponse = PaginatedResponse<ThreadListItem>
+export type ThreadListResponse = PaginatedResponse<ThreadListItem>;
 
 /**
  * Thread list item.
  */
 export interface ThreadListItem {
   /** Thread ID */
-  id: string
+  id: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Channel name */
-  channelName: string
+  channelName: string;
   /** Root message preview */
-  rootMessage: MessagePreview
+  rootMessage: MessagePreview;
   /** Reply count */
-  replyCount: number
+  replyCount: number;
   /** Unread count */
-  unreadCount: number
+  unreadCount: number;
   /** Last reply at */
-  lastReplyAt: string
+  lastReplyAt: string;
   /** Participants preview */
-  participants: UserBasicInfo[]
+  participants: UserBasicInfo[];
   /** Is subscribed */
-  isSubscribed: boolean
+  isSubscribed: boolean;
 }
 
 // ============================================================================
@@ -514,7 +529,7 @@ export interface ThreadListItem {
  */
 export interface NotificationResponse extends Notification {
   /** Actor details */
-  actor?: UserBasicInfo
+  actor?: UserBasicInfo;
 }
 
 /**
@@ -522,9 +537,9 @@ export interface NotificationResponse extends Notification {
  */
 export interface NotificationsResponse extends PaginatedResponse<NotificationResponse> {
   /** Unread count */
-  unreadCount: number
+  unreadCount: number;
   /** Counts by type */
-  countsByType: NotificationCount
+  countsByType: NotificationCount;
 }
 
 /**
@@ -532,14 +547,14 @@ export interface NotificationsResponse extends PaginatedResponse<NotificationRes
  */
 export interface NotificationPreferencesResponse {
   /** Preferences */
-  preferences: NotificationPreferences
+  preferences: NotificationPreferences;
   /** Channel overrides */
   channelOverrides: {
-    channelId: string
-    channelName: string
-    level: 'all' | 'mentions' | 'none'
-    isMuted: boolean
-  }[]
+    channelId: string;
+    channelName: string;
+    level: "all" | "mentions" | "none";
+    isMuted: boolean;
+  }[];
 }
 
 // ============================================================================
@@ -551,19 +566,19 @@ export interface NotificationPreferencesResponse {
  */
 export interface PresignedUploadResponse {
   /** Upload ID */
-  uploadId: string
+  uploadId: string;
   /** Presigned URL */
-  url: string
+  url: string;
   /** HTTP method */
-  method: 'PUT' | 'POST'
+  method: "PUT" | "POST";
   /** Required headers */
-  headers: Record<string, string>
+  headers: Record<string, string>;
   /** URL expiration */
-  expiresAt: string
+  expiresAt: string;
   /** Maximum file size */
-  maxSize: number
+  maxSize: number;
   /** Allowed MIME types */
-  allowedMimeTypes: string[]
+  allowedMimeTypes: string[];
 }
 
 /**
@@ -571,11 +586,11 @@ export interface PresignedUploadResponse {
  */
 export interface UploadCompleteResponse {
   /** Attachment info */
-  attachment: Attachment
+  attachment: Attachment;
   /** Public URL */
-  url: string
+  url: string;
   /** Thumbnail URL (if applicable) */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
 }
 
 // ============================================================================
@@ -587,40 +602,40 @@ export interface UploadCompleteResponse {
  */
 export interface WorkspaceResponse {
   /** Workspace ID */
-  id: string
+  id: string;
   /** Workspace name */
-  name: string
+  name: string;
   /** URL slug */
-  slug: string
+  slug: string;
   /** Description */
-  description: string | null
+  description: string | null;
   /** Logo URL */
-  logoUrl: string | null
+  logoUrl: string | null;
   /** Icon URL */
-  iconUrl: string | null
+  iconUrl: string | null;
   /** Banner URL */
-  bannerUrl: string | null
+  bannerUrl: string | null;
   /** Primary color */
-  primaryColor: string | null
+  primaryColor: string | null;
   /** Is public */
-  isPublic: boolean
+  isPublic: boolean;
   /** Is discoverable */
-  isDiscoverable: boolean
+  isDiscoverable: boolean;
   /** Member count */
-  memberCount: number
+  memberCount: number;
   /** Channel count */
-  channelCount: number
+  channelCount: number;
   /** Owner info */
-  owner: UserBasicInfo
+  owner: UserBasicInfo;
   /** Current user's membership */
   membership?: {
-    role: string
-    joinedAt: string
-  }
+    role: string;
+    joinedAt: string;
+  };
   /** Features */
-  features: Record<string, boolean>
+  features: Record<string, boolean>;
   /** Created at */
-  createdAt: string
+  createdAt: string;
 }
 
 /**
@@ -628,23 +643,23 @@ export interface WorkspaceResponse {
  */
 export interface WorkspaceInviteResponse {
   /** Invite code */
-  code: string
+  code: string;
   /** Invite URL */
-  url: string
+  url: string;
   /** Expires at */
-  expiresAt: string | null
+  expiresAt: string | null;
   /** Max uses */
-  maxUses: number | null
+  maxUses: number | null;
   /** Current uses */
-  uses: number
+  uses: number;
   /** Target role */
-  targetRole: string
+  targetRole: string;
   /** Workspace info */
   workspace: {
-    id: string
-    name: string
-    memberCount: number
-  }
+    id: string;
+    name: string;
+    memberCount: number;
+  };
 }
 
 // ============================================================================
@@ -656,11 +671,11 @@ export interface WorkspaceInviteResponse {
  */
 export interface SubscriptionResponse {
   /** Subscription */
-  subscription: Subscription
+  subscription: Subscription;
   /** Usage */
-  usage: SubscriptionUsage
+  usage: SubscriptionUsage;
   /** Available plans */
-  availablePlans: Plan[]
+  availablePlans: Plan[];
 }
 
 /**
@@ -668,26 +683,26 @@ export interface SubscriptionResponse {
  */
 export interface PlansResponse {
   /** Plans */
-  plans: Plan[]
+  plans: Plan[];
   /** Current plan (if subscribed) */
-  currentPlan?: Plan
+  currentPlan?: Plan;
 }
 
 /**
  * Invoices response.
  */
-export type InvoicesResponse = PaginatedResponse<Invoice>
+export type InvoicesResponse = PaginatedResponse<Invoice>;
 
 /**
  * Checkout session response.
  */
 export interface CheckoutSessionResponse {
   /** Checkout URL */
-  url: string
+  url: string;
   /** Session ID */
-  sessionId: string
+  sessionId: string;
   /** Expires at */
-  expiresAt: string
+  expiresAt: string;
 }
 
 /**
@@ -695,7 +710,7 @@ export interface CheckoutSessionResponse {
  */
 export interface PortalSessionResponse {
   /** Portal URL */
-  url: string
+  url: string;
 }
 
 // ============================================================================
@@ -705,16 +720,16 @@ export interface PortalSessionResponse {
 /**
  * Audit logs response.
  */
-export type AuditLogsResponse = PaginatedResponse<AuditLog>
+export type AuditLogsResponse = PaginatedResponse<AuditLog>;
 
 /**
  * Audit statistics response.
  */
 export interface AuditStatsResponse {
   /** Statistics */
-  stats: AuditStatistics
+  stats: AuditStatistics;
   /** Generated at */
-  generatedAt: string
+  generatedAt: string;
 }
 
 // ============================================================================
@@ -726,22 +741,22 @@ export interface AuditStatsResponse {
  */
 export interface HealthResponse {
   /** Overall status */
-  status: 'healthy' | 'degraded' | 'unhealthy'
+  status: "healthy" | "degraded" | "unhealthy";
   /** Service checks */
   services: {
-    name: string
-    status: 'up' | 'down' | 'degraded'
-    latency?: number
-    message?: string
-  }[]
+    name: string;
+    status: "up" | "down" | "degraded";
+    latency?: number;
+    message?: string;
+  }[];
   /** Version info */
   version: {
-    api: string
-    build: string
-    commit: string
-  }
+    api: string;
+    build: string;
+    commit: string;
+  };
   /** Timestamp */
-  timestamp: string
+  timestamp: string;
 }
 
 /**
@@ -749,11 +764,11 @@ export interface HealthResponse {
  */
 export interface RateLimitResponse {
   /** Limit */
-  limit: number
+  limit: number;
   /** Remaining */
-  remaining: number
+  remaining: number;
   /** Reset timestamp */
-  reset: string
+  reset: string;
   /** Retry after (seconds) */
-  retryAfter?: number
+  retryAfter?: number;
 }

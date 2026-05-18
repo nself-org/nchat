@@ -29,7 +29,7 @@ export {
   useConnectionStatus,
   useSession,
   useSettings,
-} from './app-store'
+} from "./app-store";
 
 export type {
   InitializationStatus,
@@ -41,7 +41,7 @@ export type {
   AppState,
   AppActions,
   AppStore,
-} from './app-store'
+} from "./app-store";
 
 // ============================================================================
 // UI Store
@@ -53,9 +53,15 @@ export {
   selectThreadPanelState,
   selectHasActiveOverlay,
   selectIsMobileMenuVisible,
-} from './ui-store'
+} from "./ui-store";
 
-export type { ModalType, ModalData, UIState, UIActions, UIStore } from './ui-store'
+export type {
+  ModalType,
+  ModalData,
+  UIState,
+  UIActions,
+  UIStore,
+} from "./ui-store";
 
 // ============================================================================
 // Channel Store
@@ -76,7 +82,7 @@ export {
   selectIsChannelMuted,
   selectIsChannelStarred,
   selectIsChannelPinned,
-} from './channel-store'
+} from "./channel-store";
 
 export type {
   ChannelType,
@@ -86,7 +92,7 @@ export type {
   ChannelState,
   ChannelActions,
   ChannelStore,
-} from './channel-store'
+} from "./channel-store";
 
 // ============================================================================
 // Message Store
@@ -101,7 +107,7 @@ export {
   selectUnreadCount,
   selectIsEditing,
   selectIsReplying,
-} from './message-store'
+} from "./message-store";
 
 export type {
   EditingState,
@@ -109,7 +115,7 @@ export type {
   MessageState,
   MessageActions,
   MessageStore,
-} from './message-store'
+} from "./message-store";
 
 // ============================================================================
 // Thread Store
@@ -127,7 +133,7 @@ export {
   selectIsThreadMuted,
   selectHasMoreThreadMessages,
   selectTotalUnreadThreadCount,
-} from './thread-store'
+} from "./thread-store";
 
 export type {
   ThreadParticipant,
@@ -136,7 +142,7 @@ export type {
   ThreadState,
   ThreadActions,
   ThreadStore,
-} from './thread-store'
+} from "./thread-store";
 
 // ============================================================================
 // User Store
@@ -158,7 +164,7 @@ export {
   getRoleLabel,
   getPresenceColor,
   getPresenceLabel,
-} from './user-store'
+} from "./user-store";
 
 export type {
   UserRole,
@@ -168,7 +174,7 @@ export type {
   UserState,
   UserActions,
   UserStore,
-} from './user-store'
+} from "./user-store";
 
 // ============================================================================
 // Notification Store
@@ -182,7 +188,7 @@ export {
   selectIsChannelMuted as selectIsChannelNotificationMuted,
   selectNotificationPreferences,
   selectHasUnread,
-} from './notification-store'
+} from "./notification-store";
 
 export type {
   NotificationType,
@@ -197,7 +203,7 @@ export type {
   NotificationState,
   NotificationActions,
   NotificationStore,
-} from './notification-store'
+} from "./notification-store";
 
 // ============================================================================
 // Typing Store
@@ -216,9 +222,14 @@ export {
   selectTypingCount,
   selectCurrentUserTyping,
   getTypingIndicatorText,
-} from './typing-store'
+} from "./typing-store";
 
-export type { TypingUser, TypingState, TypingActions, TypingStore } from './typing-store'
+export type {
+  TypingUser,
+  TypingState,
+  TypingActions,
+  TypingStore,
+} from "./typing-store";
 
 // ============================================================================
 // Presence Store
@@ -243,9 +254,13 @@ export {
   getChannelContextKey as getPresenceChannelContextKey,
   getThreadContextKey as getPresenceThreadContextKey,
   getDMContextKey as getPresenceDMContextKey,
-} from './presence-store'
+} from "./presence-store";
 
-export type { PresenceState, PresenceActions, PresenceStore } from './presence-store'
+export type {
+  PresenceState,
+  PresenceActions,
+  PresenceStore,
+} from "./presence-store";
 
 // ============================================================================
 // Draft Store
@@ -265,7 +280,7 @@ export {
   selectDraftCount,
   selectActiveDraftContext,
   selectActiveDraft,
-} from './draft-store'
+} from "./draft-store";
 
 export type {
   DraftAttachment,
@@ -273,7 +288,7 @@ export type {
   DraftState,
   DraftActions,
   DraftStore,
-} from './draft-store'
+} from "./draft-store";
 
 // ============================================================================
 // Preferences Store
@@ -299,7 +314,7 @@ export {
   formatShortcutKeys,
   getFontSizePixels,
   getMessageSpacing,
-} from './preferences-store'
+} from "./preferences-store";
 
 export type {
   ThemeMode,
@@ -322,7 +337,7 @@ export type {
   PreferencesState,
   PreferencesActions,
   PreferencesStore,
-} from './preferences-store'
+} from "./preferences-store";
 
 // ============================================================================
 // Search Store
@@ -335,7 +350,7 @@ export {
   selectFilteredResults,
   selectResultsByType,
   selectInChannelSearchState,
-} from './search-store'
+} from "./search-store";
 
 export type {
   SearchTab,
@@ -355,7 +370,7 @@ export type {
   SearchState,
   SearchActions,
   SearchStore,
-} from './search-store'
+} from "./search-store";
 
 // ============================================================================
 // Reaction Store
@@ -376,7 +391,7 @@ export {
   getEmojiCategories,
   getCategoryLabel,
   getCategoryIcon,
-} from './reaction-store'
+} from "./reaction-store";
 
 export type {
   CustomEmoji,
@@ -385,7 +400,7 @@ export type {
   ReactionState,
   ReactionActions,
   ReactionStore,
-} from './reaction-store'
+} from "./reaction-store";
 
 // ============================================================================
 // Attachment Store
@@ -411,7 +426,7 @@ export {
   selectLastError as selectCommandLastError,
   selectRecentCommandNames,
   selectCommandUsageCount,
-} from '@/lib/commands/command-store'
+} from "@/lib/commands/command-store";
 
 export type {
   CustomCommand,
@@ -422,7 +437,7 @@ export type {
   CommandState,
   CommandActions,
   CommandStore,
-} from '@/lib/commands/command-store'
+} from "@/lib/commands/command-store";
 
 // ============================================================================
 // Command Palette Store
@@ -441,13 +456,13 @@ export {
   selectError as selectPaletteError,
   selectShowRecent,
   selectHasResults,
-} from './command-palette-store'
+} from "./command-palette-store";
 
 export type {
   CommandPaletteState,
   CommandPaletteActions,
   CommandPaletteStore,
-} from './command-palette-store'
+} from "./command-palette-store";
 
 // ============================================================================
 // App Directory Store
@@ -467,13 +482,13 @@ export {
   selectHasActiveFilters as selectAppDirectoryHasActiveFilters,
   selectAppById,
   selectIsInstalled,
-} from './app-directory-store'
+} from "./app-directory-store";
 
 export type {
   AppDirectoryState,
   AppDirectoryActions,
   AppDirectoryStore,
-} from '@/lib/app-directory/app-types'
+} from "@/lib/app-directory/app-types";
 
 export {
   useAttachmentStore,
@@ -493,7 +508,7 @@ export {
   getFileExtension,
   isPreviewable,
   estimateTimeRemaining,
-} from './attachment-store'
+} from "./attachment-store";
 
 export type {
   UploadStatus,
@@ -503,7 +518,7 @@ export type {
   AttachmentState,
   AttachmentActions,
   AttachmentStore,
-} from './attachment-store'
+} from "./attachment-store";
 
 // ============================================================================
 // Read Receipts Store
@@ -521,7 +536,7 @@ export {
   selectHasUserRead,
   selectPendingReadsCount,
   selectIsLoadingChannel,
-} from './read-receipts-store'
+} from "./read-receipts-store";
 
 export type {
   ReadReceipt,
@@ -531,7 +546,7 @@ export type {
   ReadReceiptsState,
   ReadReceiptsActions,
   ReadReceiptsStore,
-} from './read-receipts-store'
+} from "./read-receipts-store";
 
 // ============================================================================
 // Media Store
@@ -558,33 +573,33 @@ export {
   selectMediaByChannel,
   selectSelectionCount,
   selectHasSelection,
-} from './media-store'
+} from "./media-store";
 
-export type { MediaState, MediaActions, MediaStore } from './media-store'
+export type { MediaState, MediaActions, MediaStore } from "./media-store";
 
 // ============================================================================
 // Combined Store Hook
 // ============================================================================
 
-import { useUIStore } from './ui-store'
-import { useChannelStore } from './channel-store'
-import { useMessageStore } from './message-store'
-import { useThreadStore } from './thread-store'
-import { useUserStore } from './user-store'
-import { useNotificationStore } from './notification-store'
-import { useTypingStore } from './typing-store'
-import { usePresenceStore } from './presence-store'
-import { useDraftStore } from './draft-store'
-import { usePreferencesStore } from './preferences-store'
-import { useSearchStore } from './search-store'
-import { useReactionStore } from './reaction-store'
-import { useAttachmentStore } from './attachment-store'
-import { useMediaStore } from './media-store'
-import { useReadReceiptsStore } from './read-receipts-store'
-import { useCommandStore } from '@/lib/commands/command-store'
-import { useAppStore } from './app-store'
-import { useCommandPaletteStore } from './command-palette-store'
-import { useAppDirectoryStore } from './app-directory-store'
+import { useUIStore } from "./ui-store";
+import { useChannelStore } from "./channel-store";
+import { useMessageStore } from "./message-store";
+import { useThreadStore } from "./thread-store";
+import { useUserStore } from "./user-store";
+import { useNotificationStore } from "./notification-store";
+import { useTypingStore } from "./typing-store";
+import { usePresenceStore } from "./presence-store";
+import { useDraftStore } from "./draft-store";
+import { usePreferencesStore } from "./preferences-store";
+import { useSearchStore } from "./search-store";
+import { useReactionStore } from "./reaction-store";
+import { useAttachmentStore } from "./attachment-store";
+import { useMediaStore } from "./media-store";
+import { useReadReceiptsStore } from "./read-receipts-store";
+import { useCommandStore } from "@/lib/commands/command-store";
+import { useAppStore } from "./app-store";
+import { useCommandPaletteStore } from "./command-palette-store";
+import { useAppDirectoryStore } from "./app-directory-store";
 
 /**
  * Combined hook for accessing all stores at once
@@ -615,42 +630,42 @@ export const useStores = () => ({
   command: useCommandStore(),
   commandPalette: useCommandPaletteStore(),
   appDirectory: useAppDirectoryStore(),
-})
+});
 
 /**
  * Reset all stores to their initial state
  * Useful for logout or testing
  */
 export const resetAllStores = () => {
-  useAppStore.getState().reset()
-  useUIStore.getState().resetUI()
-  useChannelStore.getState().resetChannelStore()
-  useMessageStore.getState().reset()
-  useThreadStore.getState().resetThreadStore()
-  useUserStore.getState().reset()
-  useNotificationStore.getState().reset()
-  useTypingStore.getState().reset()
-  usePresenceStore.getState().reset()
-  useDraftStore.getState().reset()
-  usePreferencesStore.getState().resetToDefaults()
-  useSearchStore.getState().reset()
-  useReactionStore.getState().reset()
-  useAttachmentStore.getState().reset()
-  useMediaStore.getState().reset()
-  useReadReceiptsStore.getState().reset()
-  useCommandStore.getState().reset()
-  useCommandPaletteStore.getState().reset()
-  useAppDirectoryStore.getState().resetStore()
-}
+  useAppStore.getState().reset();
+  useUIStore.getState().resetUI();
+  useChannelStore.getState().resetChannelStore();
+  useMessageStore.getState().reset();
+  useThreadStore.getState().resetThreadStore();
+  useUserStore.getState().reset();
+  useNotificationStore.getState().reset();
+  useTypingStore.getState().reset();
+  usePresenceStore.getState().reset();
+  useDraftStore.getState().reset();
+  usePreferencesStore.getState().resetToDefaults();
+  useSearchStore.getState().reset();
+  useReactionStore.getState().reset();
+  useAttachmentStore.getState().reset();
+  useMediaStore.getState().reset();
+  useReadReceiptsStore.getState().reset();
+  useCommandStore.getState().reset();
+  useCommandPaletteStore.getState().reset();
+  useAppDirectoryStore.getState().resetStore();
+};
 
 // ============================================================================
 // Store Debugging (Development Only)
 // ============================================================================
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   // Expose stores to window for debugging
-  if (typeof window !== 'undefined') {
-    ;(window as unknown as Record<string, unknown>).__NCHAT_STORES__ = {
+  if (typeof window !== "undefined") {
+    (window as unknown as Record<string, unknown>).__NCHAT_STORES__ = {
       ui: useUIStore,
       channel: useChannelStore,
       message: useMessageStore,
@@ -670,6 +685,6 @@ if (process.env.NODE_ENV === 'development') {
       commandPalette: useCommandPaletteStore,
       appDirectory: useAppDirectoryStore,
       resetAll: resetAllStores,
-    }
+    };
   }
 }

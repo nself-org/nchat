@@ -5,14 +5,14 @@
  * in text input, providing suggestions as users type.
  */
 
-import { quickSearch, searchEmojisWithCustom } from './emoji-search'
-import { getShortcodeSuggestions } from './emoji-shortcodes'
+import { quickSearch, searchEmojisWithCustom } from "./emoji-search";
+import { getShortcodeSuggestions } from "./emoji-shortcodes";
 import type {
   AutocompleteSuggestion,
   AutocompleteState,
   AutocompleteOptions,
   CustomEmoji,
-} from './emoji-types'
+} from "./emoji-types";
 
 // ============================================================================
 // Constants
@@ -25,7 +25,7 @@ const DEFAULT_AUTOCOMPLETE_OPTIONS: Required<AutocompleteOptions> = {
   fuzzy: true,
   includeCustom: true,
   prioritizeRecent: true,
-}
+};
 
 // ============================================================================
 // Autocomplete State Management
@@ -36,21 +36,21 @@ const DEFAULT_AUTOCOMPLETE_OPTIONS: Required<AutocompleteOptions> = {
  */
 export const INITIAL_AUTOCOMPLETE_STATE: AutocompleteState = {
   isActive: false,
-  query: '',
+  query: "",
   suggestions: [],
   selectedIndex: 0,
   triggerPosition: -1,
   cursorPosition: -1,
-}
+};
 
 /**
  * Create a new autocomplete state with updates
  */
 export function updateAutocompleteState(
   state: AutocompleteState,
-  updates: Partial<AutocompleteState>
+  updates: Partial<AutocompleteState>,
 ): AutocompleteState {
-  return { ...state, ...updates }
+  return { ...state, ...updates };
 }
 
 // ============================================================================
@@ -66,47 +66,47 @@ export function updateAutocompleteState(
  */
 export function detectAutocompleteTrigger(
   text: string,
-  cursorPosition: number
+  cursorPosition: number,
 ): { query: string; triggerPosition: number } | null {
   // Find the position of the last colon before cursor
-  let colonPosition = -1
+  let colonPosition = -1;
 
   for (let i = cursorPosition - 1; i >= 0; i--) {
-    const char = text[i]
+    const char = text[i];
 
     // Stop at whitespace or newline
-    if (char === ' ' || char === '\n' || char === '\t') {
-      break
+    if (char === " " || char === "\n" || char === "\t") {
+      break;
     }
 
     // Found a colon
-    if (char === ':') {
-      colonPosition = i
-      break
+    if (char === ":") {
+      colonPosition = i;
+      break;
     }
 
     // Stop at another colon (already completed shortcode)
-    if (i > 0 && text[i - 1] === ':') {
-      break
+    if (i > 0 && text[i - 1] === ":") {
+      break;
     }
   }
 
   if (colonPosition === -1) {
-    return null
+    return null;
   }
 
   // Extract the query (text between colon and cursor)
-  const query = text.slice(colonPosition + 1, cursorPosition)
+  const query = text.slice(colonPosition + 1, cursorPosition);
 
   // Validate query (alphanumeric, underscore, plus, minus)
   if (!/^[a-zA-Z0-9_+-]*$/.test(query)) {
-    return null
+    return null;
   }
 
   return {
     query,
     triggerPosition: colonPosition,
-  }
+  };
 }
 
 /**
@@ -116,9 +116,12 @@ export function detectAutocompleteTrigger(
  * @param cursorPosition - Current cursor position
  * @returns Whether cursor is in a potential shortcode
  */
-export function isCursorInShortcode(text: string, cursorPosition: number): boolean {
-  const trigger = detectAutocompleteTrigger(text, cursorPosition)
-  return trigger !== null && trigger.query.length > 0
+export function isCursorInShortcode(
+  text: string,
+  cursorPosition: number,
+): boolean {
+  const trigger = detectAutocompleteTrigger(text, cursorPosition);
+  return trigger !== null && trigger.query.length > 0;
 }
 
 // ============================================================================
@@ -138,27 +141,27 @@ export function generateSuggestions(
   query: string,
   options: AutocompleteOptions = {},
   customEmojis: CustomEmoji[] = [],
-  recentEmojis: string[] = []
+  recentEmojis: string[] = [],
 ): AutocompleteSuggestion[] {
-  const opts = { ...DEFAULT_AUTOCOMPLETE_OPTIONS, ...options }
+  const opts = { ...DEFAULT_AUTOCOMPLETE_OPTIONS, ...options };
 
   if (query.length < opts.minChars) {
-    return []
+    return [];
   }
 
-  const suggestions: AutocompleteSuggestion[] = []
-  const seen = new Set<string>()
+  const suggestions: AutocompleteSuggestion[] = [];
+  const seen = new Set<string>();
 
   // First, add matching recent emojis if prioritizing
   if (opts.prioritizeRecent && recentEmojis.length > 0) {
     const recentMatches = getShortcodeSuggestions(query, {
       limit: 3,
       includeAliases: true,
-    }).filter((s) => recentEmojis.includes(s.emoji))
+    }).filter((s) => recentEmojis.includes(s.emoji));
 
     for (const match of recentMatches) {
       if (!seen.has(match.emoji)) {
-        seen.add(match.emoji)
+        seen.add(match.emoji);
         suggestions.push({
           id: `recent-${match.shortcode}`,
           emoji: match.emoji,
@@ -166,15 +169,15 @@ export function generateSuggestions(
           isCustom: false,
           displayName: match.displayName,
           preview: `${match.emoji} :${match.shortcode}:`,
-        })
+        });
       }
     }
   }
 
   // Add matching custom emojis
   if (opts.includeCustom && customEmojis.length > 0) {
-    const enabledCustom = customEmojis.filter((e) => e.enabled)
-    const q = query.toLowerCase()
+    const enabledCustom = customEmojis.filter((e) => e.enabled);
+    const q = query.toLowerCase();
 
     for (const emoji of enabledCustom) {
       if (
@@ -182,7 +185,7 @@ export function generateSuggestions(
         emoji.aliases.some((a) => a.toLowerCase().includes(q))
       ) {
         if (!seen.has(emoji.shortcode)) {
-          seen.add(emoji.shortcode)
+          seen.add(emoji.shortcode);
           suggestions.push({
             id: `custom-${emoji.id}`,
             emoji: emoji.url,
@@ -190,11 +193,11 @@ export function generateSuggestions(
             isCustom: true,
             displayName: emoji.name,
             preview: emoji.shortcode,
-          })
+          });
         }
 
         if (suggestions.length >= opts.maxSuggestions) {
-          return suggestions
+          return suggestions;
         }
       }
     }
@@ -205,11 +208,11 @@ export function generateSuggestions(
     limit: opts.maxSuggestions - suggestions.length,
     includeAliases: true,
     prioritizeExact: true,
-  })
+  });
 
   for (const suggestion of standardSuggestions) {
     if (!seen.has(suggestion.emoji)) {
-      seen.add(suggestion.emoji)
+      seen.add(suggestion.emoji);
       suggestions.push({
         id: `emoji-${suggestion.shortcode}`,
         emoji: suggestion.emoji,
@@ -217,15 +220,15 @@ export function generateSuggestions(
         isCustom: false,
         displayName: suggestion.displayName,
         preview: `${suggestion.emoji} :${suggestion.shortcode}:`,
-      })
+      });
     }
 
     if (suggestions.length >= opts.maxSuggestions) {
-      break
+      break;
     }
   }
 
-  return suggestions
+  return suggestions;
 }
 
 /**
@@ -237,11 +240,11 @@ export function generateSuggestions(
  */
 export function generateQuickSuggestions(
   query: string,
-  limit: number = 6
+  limit: number = 6,
 ): AutocompleteSuggestion[] {
-  if (!query) return []
+  if (!query) return [];
 
-  const results = quickSearch(query, limit)
+  const results = quickSearch(query, limit);
 
   return results.map((result, index) => ({
     id: `quick-${index}-${result.shortcode}`,
@@ -250,7 +253,7 @@ export function generateQuickSuggestions(
     isCustom: false,
     displayName: result.name,
     preview: `${result.emoji} :${result.shortcode}:`,
-  }))
+  }));
 }
 
 // ============================================================================
@@ -272,19 +275,19 @@ export function getReplacementText(
   triggerPosition: number,
   cursorPosition: number,
   emoji: string,
-  isCustom: boolean = false
+  isCustom: boolean = false,
 ): { text: string; cursorOffset: number } {
-  const before = text.slice(0, triggerPosition)
-  const after = text.slice(cursorPosition)
+  const before = text.slice(0, triggerPosition);
+  const after = text.slice(cursorPosition);
 
   // For custom emojis, we might want to keep the shortcode
   // For now, insert the emoji character
-  const newText = `${before}${emoji}${after}`
+  const newText = `${before}${emoji}${after}`;
 
   // Position cursor after the inserted emoji
-  const cursorOffset = before.length + emoji.length
+  const cursorOffset = before.length + emoji.length;
 
-  return { text: newText, cursorOffset }
+  return { text: newText, cursorOffset };
 }
 
 /**
@@ -298,27 +301,27 @@ export function getReplacementText(
 export function applyAutocompleteSuggestion(
   text: string,
   state: AutocompleteState,
-  suggestion: AutocompleteSuggestion
+  suggestion: AutocompleteSuggestion,
 ): { text: string; cursorPosition: number } {
-  const { triggerPosition, cursorPosition } = state
+  const { triggerPosition, cursorPosition } = state;
 
   // Use emoji character for standard emojis
   const insertText = suggestion.isCustom
     ? suggestion.shortcode // Keep shortcode for custom emojis
-    : suggestion.emoji
+    : suggestion.emoji;
 
   const result = getReplacementText(
     text,
     triggerPosition,
     cursorPosition,
     insertText,
-    suggestion.isCustom
-  )
+    suggestion.isCustom,
+  );
 
   return {
     text: result.text,
     cursorPosition: result.cursorOffset,
-  }
+  };
 }
 
 // ============================================================================
@@ -330,12 +333,15 @@ export function applyAutocompleteSuggestion(
  */
 export function navigateUp(state: AutocompleteState): AutocompleteState {
   if (!state.isActive || state.suggestions.length === 0) {
-    return state
+    return state;
   }
 
-  const newIndex = state.selectedIndex <= 0 ? state.suggestions.length - 1 : state.selectedIndex - 1
+  const newIndex =
+    state.selectedIndex <= 0
+      ? state.suggestions.length - 1
+      : state.selectedIndex - 1;
 
-  return { ...state, selectedIndex: newIndex }
+  return { ...state, selectedIndex: newIndex };
 }
 
 /**
@@ -343,23 +349,28 @@ export function navigateUp(state: AutocompleteState): AutocompleteState {
  */
 export function navigateDown(state: AutocompleteState): AutocompleteState {
   if (!state.isActive || state.suggestions.length === 0) {
-    return state
+    return state;
   }
 
-  const newIndex = state.selectedIndex >= state.suggestions.length - 1 ? 0 : state.selectedIndex + 1
+  const newIndex =
+    state.selectedIndex >= state.suggestions.length - 1
+      ? 0
+      : state.selectedIndex + 1;
 
-  return { ...state, selectedIndex: newIndex }
+  return { ...state, selectedIndex: newIndex };
 }
 
 /**
  * Get currently selected suggestion
  */
-export function getSelectedSuggestion(state: AutocompleteState): AutocompleteSuggestion | null {
+export function getSelectedSuggestion(
+  state: AutocompleteState,
+): AutocompleteSuggestion | null {
   if (!state.isActive || state.suggestions.length === 0) {
-    return null
+    return null;
   }
 
-  return state.suggestions[state.selectedIndex] ?? null
+  return state.suggestions[state.selectedIndex] ?? null;
 }
 
 // ============================================================================
@@ -369,17 +380,19 @@ export function getSelectedSuggestion(state: AutocompleteState): AutocompleteSug
 /**
  * Create an autocomplete controller for managing state
  */
-export function createAutocompleteController(options: AutocompleteOptions = {}) {
-  const opts = { ...DEFAULT_AUTOCOMPLETE_OPTIONS, ...options }
-  let state = { ...INITIAL_AUTOCOMPLETE_STATE }
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null
+export function createAutocompleteController(
+  options: AutocompleteOptions = {},
+) {
+  const opts = { ...DEFAULT_AUTOCOMPLETE_OPTIONS, ...options };
+  let state = { ...INITIAL_AUTOCOMPLETE_STATE };
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   return {
     /**
      * Get current state
      */
     getState(): AutocompleteState {
-      return state
+      return state;
     },
 
     /**
@@ -389,24 +402,29 @@ export function createAutocompleteController(options: AutocompleteOptions = {}) 
       text: string,
       cursorPosition: number,
       customEmojis: CustomEmoji[] = [],
-      recentEmojis: string[] = []
+      recentEmojis: string[] = [],
     ): void {
       // Clear existing debounce
       if (debounceTimer) {
-        clearTimeout(debounceTimer)
+        clearTimeout(debounceTimer);
       }
 
       // Detect trigger
-      const trigger = detectAutocompleteTrigger(text, cursorPosition)
+      const trigger = detectAutocompleteTrigger(text, cursorPosition);
 
       if (!trigger) {
-        state = { ...INITIAL_AUTOCOMPLETE_STATE }
-        return
+        state = { ...INITIAL_AUTOCOMPLETE_STATE };
+        return;
       }
 
       // Debounce suggestion generation
       debounceTimer = setTimeout(() => {
-        const suggestions = generateSuggestions(trigger.query, opts, customEmojis, recentEmojis)
+        const suggestions = generateSuggestions(
+          trigger.query,
+          opts,
+          customEmojis,
+          recentEmojis,
+        );
 
         state = {
           isActive: suggestions.length > 0,
@@ -415,8 +433,8 @@ export function createAutocompleteController(options: AutocompleteOptions = {}) 
           selectedIndex: 0,
           triggerPosition: trigger.triggerPosition,
           cursorPosition,
-        }
-      }, opts.debounceMs)
+        };
+      }, opts.debounceMs);
 
       // Immediately update position info
       state = {
@@ -424,45 +442,50 @@ export function createAutocompleteController(options: AutocompleteOptions = {}) 
         query: trigger.query,
         triggerPosition: trigger.triggerPosition,
         cursorPosition,
-      }
+      };
     },
 
     /**
      * Navigate up
      */
     navigateUp(): void {
-      state = navigateUp(state)
+      state = navigateUp(state);
     },
 
     /**
      * Navigate down
      */
     navigateDown(): void {
-      state = navigateDown(state)
+      state = navigateDown(state);
     },
 
     /**
      * Select current suggestion
      */
-    selectCurrent(text: string): { text: string; cursorPosition: number } | null {
-      const suggestion = getSelectedSuggestion(state)
-      if (!suggestion) return null
+    selectCurrent(
+      text: string,
+    ): { text: string; cursorPosition: number } | null {
+      const suggestion = getSelectedSuggestion(state);
+      if (!suggestion) return null;
 
-      const result = applyAutocompleteSuggestion(text, state, suggestion)
-      state = { ...INITIAL_AUTOCOMPLETE_STATE }
-      return result
+      const result = applyAutocompleteSuggestion(text, state, suggestion);
+      state = { ...INITIAL_AUTOCOMPLETE_STATE };
+      return result;
     },
 
     /**
      * Select suggestion at index
      */
-    selectAtIndex(text: string, index: number): { text: string; cursorPosition: number } | null {
-      if (index < 0 || index >= state.suggestions.length) return null
+    selectAtIndex(
+      text: string,
+      index: number,
+    ): { text: string; cursorPosition: number } | null {
+      if (index < 0 || index >= state.suggestions.length) return null;
 
-      const suggestion = state.suggestions[index]
-      const result = applyAutocompleteSuggestion(text, state, suggestion)
-      state = { ...INITIAL_AUTOCOMPLETE_STATE }
-      return result
+      const suggestion = state.suggestions[index];
+      const result = applyAutocompleteSuggestion(text, state, suggestion);
+      state = { ...INITIAL_AUTOCOMPLETE_STATE };
+      return result;
     },
 
     /**
@@ -470,9 +493,9 @@ export function createAutocompleteController(options: AutocompleteOptions = {}) 
      */
     close(): void {
       if (debounceTimer) {
-        clearTimeout(debounceTimer)
+        clearTimeout(debounceTimer);
       }
-      state = { ...INITIAL_AUTOCOMPLETE_STATE }
+      state = { ...INITIAL_AUTOCOMPLETE_STATE };
     },
 
     /**
@@ -480,11 +503,11 @@ export function createAutocompleteController(options: AutocompleteOptions = {}) 
      */
     reset(): void {
       if (debounceTimer) {
-        clearTimeout(debounceTimer)
+        clearTimeout(debounceTimer);
       }
-      state = { ...INITIAL_AUTOCOMPLETE_STATE }
+      state = { ...INITIAL_AUTOCOMPLETE_STATE };
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -495,7 +518,7 @@ export function createAutocompleteController(options: AutocompleteOptions = {}) 
  * Check if key should trigger autocomplete action
  */
 export function isAutocompleteKey(key: string): boolean {
-  return ['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'Escape'].includes(key)
+  return ["ArrowUp", "ArrowDown", "Enter", "Tab", "Escape"].includes(key);
 }
 
 /**
@@ -509,35 +532,35 @@ export function isAutocompleteKey(key: string): boolean {
 export function handleAutocompleteKey(
   key: string,
   state: AutocompleteState,
-  text: string
+  text: string,
 ):
-  | { action: 'navigate'; state: AutocompleteState }
-  | { action: 'select'; text: string; cursorPosition: number }
-  | { action: 'close' }
+  | { action: "navigate"; state: AutocompleteState }
+  | { action: "select"; text: string; cursorPosition: number }
+  | { action: "close" }
   | null {
-  if (!state.isActive) return null
+  if (!state.isActive) return null;
 
   switch (key) {
-    case 'ArrowUp':
-      return { action: 'navigate', state: navigateUp(state) }
+    case "ArrowUp":
+      return { action: "navigate", state: navigateUp(state) };
 
-    case 'ArrowDown':
-      return { action: 'navigate', state: navigateDown(state) }
+    case "ArrowDown":
+      return { action: "navigate", state: navigateDown(state) };
 
-    case 'Enter':
-    case 'Tab': {
-      const suggestion = getSelectedSuggestion(state)
+    case "Enter":
+    case "Tab": {
+      const suggestion = getSelectedSuggestion(state);
       if (suggestion) {
-        const result = applyAutocompleteSuggestion(text, state, suggestion)
-        return { action: 'select', ...result }
+        const result = applyAutocompleteSuggestion(text, state, suggestion);
+        return { action: "select", ...result };
       }
-      return null
+      return null;
     }
 
-    case 'Escape':
-      return { action: 'close' }
+    case "Escape":
+      return { action: "close" };
 
     default:
-      return null
+      return null;
   }
 }

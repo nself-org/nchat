@@ -5,65 +5,72 @@
  * Automatically resolves tenant from subdomain/domain.
  */
 
-'use client'
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import type { Tenant, TenantContext as TenantContextType } from '@/lib/tenants/types'
+import React, { createContext, useContext, useEffect, useState } from "react";
+import type {
+  Tenant,
+  TenantContext as TenantContextType,
+} from "@/lib/tenants/types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface TenantProviderProps {
-  children: React.ReactNode
-  initialTenant?: Tenant
+  children: React.ReactNode;
+  initialTenant?: Tenant;
 }
 
 interface TenantContextValue {
-  tenant: Tenant | null
-  context: TenantContextType | null
-  isLoading: boolean
-  error: string | null
-  refetch: () => Promise<void>
+  tenant: Tenant | null;
+  context: TenantContextType | null;
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
 }
 
-const TenantContext = createContext<TenantContextValue | undefined>(undefined)
+const TenantContext = createContext<TenantContextValue | undefined>(undefined);
 
 /**
  * Tenant Provider Component
  */
-export function TenantProvider({ children, initialTenant }: TenantProviderProps) {
-  const [tenant, setTenant] = useState<Tenant | null>(initialTenant || null)
-  const [context, setContext] = useState<TenantContextType | null>(null)
-  const [isLoading, setIsLoading] = useState(!initialTenant)
-  const [error, setError] = useState<string | null>(null)
+export function TenantProvider({
+  children,
+  initialTenant,
+}: TenantProviderProps) {
+  const [tenant, setTenant] = useState<Tenant | null>(initialTenant || null);
+  const [context, setContext] = useState<TenantContextType | null>(null);
+  const [isLoading, setIsLoading] = useState(!initialTenant);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchTenant = async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       // Tenant is resolved server-side by middleware
       // Just fetch from current context
-      const response = await fetch('/api/tenant/current')
+      const response = await fetch("/api/tenant/current");
 
       if (!response.ok) {
-        throw new Error('Failed to fetch tenant')
+        throw new Error("Failed to fetch tenant");
       }
 
-      const data = await response.json()
-      setTenant(data.tenant)
-      setContext(data.context)
+      const data = await response.json();
+      setTenant(data.tenant);
+      setContext(data.context);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch tenant'
-      setError(errorMessage)
-      logger.error('Error fetching tenant:', error)
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch tenant";
+      setError(errorMessage);
+      logger.error("Error fetching tenant:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (!initialTenant) {
-      fetchTenant()
+      fetchTenant();
     } else {
       // Build context from initial tenant
       setContext({
@@ -71,9 +78,9 @@ export function TenantProvider({ children, initialTenant }: TenantProviderProps)
         subdomain: initialTenant.slug,
         isCustomDomain: false,
         schemaName: initialTenant.schemaName,
-      })
+      });
     }
-  }, [initialTenant])
+  }, [initialTenant]);
 
   const value: TenantContextValue = {
     tenant,
@@ -81,85 +88,87 @@ export function TenantProvider({ children, initialTenant }: TenantProviderProps)
     isLoading,
     error,
     refetch: fetchTenant,
-  }
+  };
 
-  return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>
+  return (
+    <TenantContext.Provider value={value}>{children}</TenantContext.Provider>
+  );
 }
 
 /**
  * Hook to use tenant context
  */
 export function useTenant(): TenantContextValue {
-  const context = useContext(TenantContext)
+  const context = useContext(TenantContext);
 
   if (context === undefined) {
-    throw new Error('useTenant must be used within a TenantProvider')
+    throw new Error("useTenant must be used within a TenantProvider");
   }
 
-  return context
+  return context;
 }
 
 /**
  * Hook to check if tenant has a specific feature
  */
-export function useTenantFeature(feature: keyof Tenant['features']): boolean {
-  const { tenant } = useTenant()
+export function useTenantFeature(feature: keyof Tenant["features"]): boolean {
+  const { tenant } = useTenant();
 
   if (!tenant) {
-    return false
+    return false;
   }
 
-  return tenant.features[feature] || false
+  return tenant.features[feature] || false;
 }
 
 /**
  * Hook to check if tenant has exceeded limits
  */
 export function useTenantLimits() {
-  const { tenant } = useTenant()
-  const [limitsExceeded, setLimitsExceeded] = useState<string[]>([])
-  const [isChecking, setIsChecking] = useState(false)
+  const { tenant } = useTenant();
+  const [limitsExceeded, setLimitsExceeded] = useState<string[]>([]);
+  const [isChecking, setIsChecking] = useState(false);
 
   const checkLimits = async () => {
     if (!tenant) {
-      return
+      return;
     }
 
     try {
-      setIsChecking(true)
+      setIsChecking(true);
 
-      const response = await fetch(`/api/tenant/limits`)
+      const response = await fetch(`/api/tenant/limits`);
 
       if (!response.ok) {
-        throw new Error('Failed to check limits')
+        throw new Error("Failed to check limits");
       }
 
-      const data = await response.json()
-      setLimitsExceeded(data.limits || [])
+      const data = await response.json();
+      setLimitsExceeded(data.limits || []);
     } catch (err) {
-      logger.error('Error checking limits:', err)
+      logger.error("Error checking limits:", err);
     } finally {
-      setIsChecking(false)
+      setIsChecking(false);
     }
-  }
+  };
 
   useEffect(() => {
-    checkLimits()
-  }, [tenant?.id])
+    checkLimits();
+  }, [tenant?.id]);
 
   return {
     limitsExceeded,
     hasExceededLimits: limitsExceeded.length > 0,
     isChecking,
     checkLimits,
-  }
+  };
 }
 
 /**
  * Hook to get tenant billing information
  */
 export function useTenantBilling() {
-  const { tenant } = useTenant()
+  const { tenant } = useTenant();
 
   if (!tenant) {
     return {
@@ -169,11 +178,11 @@ export function useTenantBilling() {
       isTrialing: false,
       isCancelled: false,
       currentPeriodEnd: null,
-    }
+    };
   }
 
-  const isTrialing = tenant.status === 'trial'
-  const isCancelled = tenant.status === 'cancelled'
+  const isTrialing = tenant.status === "trial";
+  const isCancelled = tenant.status === "cancelled";
 
   return {
     plan: tenant.billing.plan,
@@ -183,5 +192,5 @@ export function useTenantBilling() {
     isCancelled,
     currentPeriodEnd: tenant.billing.currentPeriodEnd,
     cancelAtPeriodEnd: tenant.billing.cancelAtPeriodEnd,
-  }
+  };
 }

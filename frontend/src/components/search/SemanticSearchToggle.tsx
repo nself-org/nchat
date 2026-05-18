@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SemanticSearchToggle Component
@@ -9,22 +9,22 @@
  * @module components/search/SemanticSearchToggle
  */
 
-import React from 'react'
-import { Sparkles, Zap, HelpCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+import React from "react";
+import { Sparkles, Zap, HelpCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
+} from "@/components/ui/popover";
 
 // ============================================================================
 // Types
@@ -32,17 +32,17 @@ import {
 
 export interface SemanticSearchToggleProps {
   /** Whether semantic search is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Callback when toggle changes */
-  onToggle: (enabled: boolean) => void
+  onToggle: (enabled: boolean) => void;
   /** Whether the toggle is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Show compact version (icon only) */
-  compact?: boolean
+  compact?: boolean;
   /** Show help tooltip */
-  showHelp?: boolean
+  showHelp?: boolean;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -66,27 +66,27 @@ export function SemanticSearchToggle({
               onClick={() => !disabled && onToggle(!enabled)}
               disabled={disabled}
               className={cn(
-                'flex h-8 w-8 items-center justify-center rounded-md transition-colors',
+                "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
                 enabled
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-accent',
-                disabled && 'cursor-not-allowed opacity-50',
-                className
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent",
+                disabled && "cursor-not-allowed opacity-50",
+                className,
               )}
             >
               <Sparkles className="h-4 w-4" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <p>{enabled ? 'Semantic search ON' : 'Enable semantic search'}</p>
+            <p>{enabled ? "Semantic search ON" : "Enable semantic search"}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex items-center gap-3', className)}>
+    <div className={cn("flex items-center gap-3", className)}>
       <div className="flex items-center gap-2">
         <Switch
           id="semantic-search"
@@ -97,11 +97,16 @@ export function SemanticSearchToggle({
         <Label
           htmlFor="semantic-search"
           className={cn(
-            'flex cursor-pointer items-center gap-1.5 text-sm',
-            disabled && 'cursor-not-allowed opacity-50'
+            "flex cursor-pointer items-center gap-1.5 text-sm",
+            disabled && "cursor-not-allowed opacity-50",
           )}
         >
-          <Sparkles className={cn('h-4 w-4', enabled ? 'text-primary' : 'text-muted-foreground')} />
+          <Sparkles
+            className={cn(
+              "h-4 w-4",
+              enabled ? "text-primary" : "text-muted-foreground",
+            )}
+          />
           <span className="font-medium">Semantic Search</span>
         </Label>
       </div>
@@ -120,8 +125,8 @@ export function SemanticSearchToggle({
                 <div>
                   <h4 className="text-sm font-semibold">Semantic Search</h4>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Uses AI to understand the meaning of your search query, not just exact
-                    keyword matches.
+                    Uses AI to understand the meaning of your search query, not
+                    just exact keyword matches.
                   </p>
                 </div>
               </div>
@@ -132,8 +137,9 @@ export function SemanticSearchToggle({
                   <div>
                     <p className="text-xs font-medium">Example</p>
                     <p className="text-xs text-muted-foreground">
-                      Searching &quot;project deadline&quot; will also find messages about
-                      &quot;due date&quot;, &quot;timeline&quot;, or &quot;completion date&quot;.
+                      Searching &quot;project deadline&quot; will also find
+                      messages about &quot;due date&quot;, &quot;timeline&quot;,
+                      or &quot;completion date&quot;.
                     </p>
                   </div>
                 </div>
@@ -165,7 +171,7 @@ export function SemanticSearchToggle({
         </Popover>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -174,13 +180,13 @@ export function SemanticSearchToggle({
 
 export interface FindSimilarButtonProps {
   /** Message ID to find similar messages for */
-  messageId: string
+  messageId: string;
   /** Callback when clicked */
-  onClick: (messageId: string) => void
+  onClick: (messageId: string) => void;
   /** Disabled state */
-  disabled?: boolean
+  disabled?: boolean;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 export function FindSimilarButton({
@@ -197,10 +203,10 @@ export function FindSimilarButton({
             onClick={() => onClick(messageId)}
             disabled={disabled}
             className={cn(
-              'flex items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-colors',
-              'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground',
-              disabled && 'cursor-not-allowed opacity-50',
-              className
+              "flex items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-colors",
+              "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+              disabled && "cursor-not-allowed opacity-50",
+              className,
             )}
           >
             <Sparkles className="h-3 w-3" />
@@ -212,7 +218,7 @@ export function FindSimilarButton({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
-export default SemanticSearchToggle
+export default SemanticSearchToggle;

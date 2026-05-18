@@ -1,22 +1,45 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { CheckCircle, XCircle, Clock, Info, Shield, Save, Loader2 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+import { useState, useEffect } from "react";
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  Info,
+  Shield,
+  Save,
+  Loader2,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { useComplianceStore } from '@/stores/compliance-store'
-import type { ConsentType, ConsentStatus, UserConsent } from '@/lib/compliance/compliance-types'
-import { logger } from '@/lib/logger'
+} from "@/components/ui/accordion";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useComplianceStore } from "@/stores/compliance-store";
+import type {
+  ConsentType,
+  ConsentStatus,
+  UserConsent,
+} from "@/lib/compliance/compliance-types";
+import { logger } from "@/lib/logger";
 import {
   CONSENT_CONFIGS,
   createConsent,
@@ -25,18 +48,18 @@ import {
   getCurrentConsentStatus,
   generateConsentSummary,
   getLegalBasisInfo,
-} from '@/lib/compliance/consent-manager'
+} from "@/lib/compliance/consent-manager";
 
 interface ConsentItemProps {
-  config: (typeof CONSENT_CONFIGS)[number]
-  consent?: UserConsent
-  onToggle: (type: ConsentType, granted: boolean) => void
+  config: (typeof CONSENT_CONFIGS)[number];
+  consent?: UserConsent;
+  onToggle: (type: ConsentType, granted: boolean) => void;
 }
 
 function ConsentItem({ config, consent, onToggle }: ConsentItemProps) {
-  const status = consent?.status || 'pending'
-  const isGranted = status === 'granted'
-  const legalBasisInfo = getLegalBasisInfo(config.legalBasis)
+  const status = consent?.status || "pending";
+  const isGranted = status === "granted";
+  const legalBasisInfo = getLegalBasisInfo(config.legalBasis);
 
   return (
     <div className="space-y-3 rounded-lg border p-4">
@@ -61,7 +84,9 @@ function ConsentItem({ config, consent, onToggle }: ConsentItemProps) {
               </Tooltip>
             </TooltipProvider>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">{config.description}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {config.description}
+          </p>
         </div>
         <Switch
           checked={isGranted}
@@ -78,7 +103,9 @@ function ConsentItem({ config, consent, onToggle }: ConsentItemProps) {
           <AccordionContent>
             <div className="space-y-2 text-sm">
               <div>
-                <p className="font-medium text-muted-foreground">Data Processed</p>
+                <p className="font-medium text-muted-foreground">
+                  Data Processed
+                </p>
                 <ul className="list-inside list-disc text-muted-foreground">
                   {config.dataProcessed.map((data, i) => (
                     <li key={i}>{data}</li>
@@ -87,14 +114,22 @@ function ConsentItem({ config, consent, onToggle }: ConsentItemProps) {
               </div>
               {config.thirdParties && config.thirdParties.length > 0 && (
                 <div>
-                  <p className="font-medium text-muted-foreground">Third Parties</p>
-                  <p className="text-muted-foreground">{config.thirdParties.join(', ')}</p>
+                  <p className="font-medium text-muted-foreground">
+                    Third Parties
+                  </p>
+                  <p className="text-muted-foreground">
+                    {config.thirdParties.join(", ")}
+                  </p>
                 </div>
               )}
               {config.retentionPeriod && (
                 <div>
-                  <p className="font-medium text-muted-foreground">Retention Period</p>
-                  <p className="text-muted-foreground">{config.retentionPeriod}</p>
+                  <p className="font-medium text-muted-foreground">
+                    Retention Period
+                  </p>
+                  <p className="text-muted-foreground">
+                    {config.retentionPeriod}
+                  </p>
                 </div>
               )}
               <div>
@@ -105,7 +140,9 @@ function ConsentItem({ config, consent, onToggle }: ConsentItemProps) {
               </div>
               {consent?.grantedAt && (
                 <div>
-                  <p className="font-medium text-muted-foreground">Consent Given</p>
+                  <p className="font-medium text-muted-foreground">
+                    Consent Given
+                  </p>
                   <p className="text-muted-foreground">
                     {new Date(consent.grantedAt).toLocaleString()}
                   </p>
@@ -116,87 +153,93 @@ function ConsentItem({ config, consent, onToggle }: ConsentItemProps) {
         </AccordionItem>
       </Accordion>
     </div>
-  )
+  );
 }
 
 export function ConsentManager() {
-  const [isSaving, setIsSaving] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
-  const { userConsents, setUserConsents, updateConsent } = useComplianceStore()
+  const { userConsents, setUserConsents, updateConsent } = useComplianceStore();
 
   // Initialize consents if not present
   useEffect(() => {
     if (userConsents.length === 0) {
       const initialConsents = CONSENT_CONFIGS.map((config) =>
-        createConsent('user-123', config.type, config.required ? 'granted' : 'pending', {
-          source: 'signup',
-        })
-      )
-      setUserConsents(initialConsents)
+        createConsent(
+          "user-123",
+          config.type,
+          config.required ? "granted" : "pending",
+          {
+            source: "signup",
+          },
+        ),
+      );
+      setUserConsents(initialConsents);
     }
-  }, [userConsents.length, setUserConsents])
+  }, [userConsents.length, setUserConsents]);
 
-  const summary = generateConsentSummary(userConsents)
-  const { valid: hasRequired, missing } = hasRequiredConsents(userConsents)
+  const summary = generateConsentSummary(userConsents);
+  const { valid: hasRequired, missing } = hasRequiredConsents(userConsents);
 
   const handleToggle = (type: ConsentType, granted: boolean) => {
-    const config = CONSENT_CONFIGS.find((c) => c.type === type)
-    if (config?.required) return // Can't toggle required consents
+    const config = CONSENT_CONFIGS.find((c) => c.type === type);
+    if (config?.required) return; // Can't toggle required consents
 
-    updateConsent(type, granted ? 'granted' : 'denied')
-    setHasChanges(true)
-  }
+    updateConsent(type, granted ? "granted" : "denied");
+    setHasChanges(true);
+  };
 
   const handleSave = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
     try {
       // API call would go here
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setHasChanges(false)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setHasChanges(false);
     } catch (error) {
-      logger.error('Failed to save consent preferences:', error)
+      logger.error("Failed to save consent preferences:", error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleAcceptAll = () => {
     CONSENT_CONFIGS.forEach((config) => {
-      updateConsent(config.type, 'granted')
-    })
-    setHasChanges(true)
-  }
+      updateConsent(config.type, "granted");
+    });
+    setHasChanges(true);
+  };
 
   const handleRejectOptional = () => {
     CONSENT_CONFIGS.forEach((config) => {
       if (!config.required) {
-        updateConsent(config.type, 'denied')
+        updateConsent(config.type, "denied");
       }
-    })
-    setHasChanges(true)
-  }
+    });
+    setHasChanges(true);
+  };
 
-  const getConsentByType = (type: ConsentType) => userConsents.find((c) => c.consentType === type)
+  const getConsentByType = (type: ConsentType) =>
+    userConsents.find((c) => c.consentType === type);
 
   // Group configs by category
   const groupedConfigs = CONSENT_CONFIGS.reduce(
     (acc, config) => {
       if (!acc[config.category]) {
-        acc[config.category] = []
+        acc[config.category] = [];
       }
-      acc[config.category].push(config)
-      return acc
+      acc[config.category].push(config);
+      return acc;
     },
-    {} as Record<string, typeof CONSENT_CONFIGS>
-  )
+    {} as Record<string, typeof CONSENT_CONFIGS>,
+  );
 
   const categoryLabels: Record<string, string> = {
-    essential: 'Essential',
-    functional: 'Functional',
-    analytics: 'Analytics',
-    marketing: 'Marketing',
-  }
+    essential: "Essential",
+    functional: "Functional",
+    analytics: "Analytics",
+    marketing: "Marketing",
+  };
 
   return (
     <div className="space-y-6">
@@ -245,7 +288,11 @@ export function ConsentManager() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleRejectOptional}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRejectOptional}
+              >
                 Reject Optional
               </Button>
               <Button size="sm" onClick={handleAcceptAll}>
@@ -256,8 +303,10 @@ export function ConsentManager() {
           {!hasRequired && missing.length > 0 && (
             <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
               <p className="text-sm text-yellow-800">
-                <strong>Required consent missing:</strong>{' '}
-                {missing.map((m) => CONSENT_CONFIGS.find((c) => c.type === m)?.name).join(', ')}
+                <strong>Required consent missing:</strong>{" "}
+                {missing
+                  .map((m) => CONSENT_CONFIGS.find((c) => c.type === m)?.name)
+                  .join(", ")}
               </p>
             </div>
           )}
@@ -268,12 +317,18 @@ export function ConsentManager() {
       {Object.entries(groupedConfigs).map(([category, configs]) => (
         <Card key={category}>
           <CardHeader>
-            <CardTitle className="text-lg">{categoryLabels[category] || category}</CardTitle>
+            <CardTitle className="text-lg">
+              {categoryLabels[category] || category}
+            </CardTitle>
             <CardDescription>
-              {category === 'essential' && 'Required for the application to function'}
-              {category === 'functional' && 'Enhance your experience with additional features'}
-              {category === 'analytics' && 'Help us understand how you use our service'}
-              {category === 'marketing' && 'Receive relevant communications and offers'}
+              {category === "essential" &&
+                "Required for the application to function"}
+              {category === "functional" &&
+                "Enhance your experience with additional features"}
+              {category === "analytics" &&
+                "Help us understand how you use our service"}
+              {category === "marketing" &&
+                "Receive relevant communications and offers"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -299,15 +354,18 @@ export function ConsentManager() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
-            You can change your consent preferences at any time. Changes will take effect
-            immediately.
+            You can change your consent preferences at any time. Changes will
+            take effect immediately.
           </p>
           <ul className="list-inside list-disc space-y-1">
-            <li>Essential consents cannot be withdrawn as they are required for the service</li>
+            <li>
+              Essential consents cannot be withdrawn as they are required for
+              the service
+            </li>
             <li>Withdrawing consent may limit some features</li>
             <li>Your consent history is logged for compliance purposes</li>
             <li>
-              For more information, see our{' '}
+              For more information, see our{" "}
               <a href="/privacy" className="text-primary hover:underline">
                 Privacy Policy
               </a>
@@ -316,5 +374,5 @@ export function ConsentManager() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

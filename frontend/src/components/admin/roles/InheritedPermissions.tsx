@@ -1,19 +1,23 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Permission, Role } from '@/lib/admin/roles/role-types'
-import { PERMISSIONS } from '@/lib/admin/roles/permission-types'
-import { getPermissionSourceMap } from '@/lib/admin/roles/role-inheritance'
-import { RoleBadge } from './RoleBadge'
-import { Lock, ChevronDown, ChevronRight } from 'lucide-react'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Permission, Role } from "@/lib/admin/roles/role-types";
+import { PERMISSIONS } from "@/lib/admin/roles/permission-types";
+import { getPermissionSourceMap } from "@/lib/admin/roles/role-inheritance";
+import { RoleBadge } from "./RoleBadge";
+import { Lock, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface InheritedPermissionsProps {
-  userRoles: Role[]
-  showDetails?: boolean
-  groupByPermission?: boolean
-  className?: string
+  userRoles: Role[];
+  showDetails?: boolean;
+  groupByPermission?: boolean;
+  className?: string;
 }
 
 /**
@@ -25,27 +29,30 @@ export function InheritedPermissions({
   groupByPermission = true,
   className,
 }: InheritedPermissionsProps) {
-  const [expandedItems, setExpandedItems] = React.useState<string[]>([])
+  const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
 
-  const sourceMap = React.useMemo(() => getPermissionSourceMap(userRoles), [userRoles])
+  const sourceMap = React.useMemo(
+    () => getPermissionSourceMap(userRoles),
+    [userRoles],
+  );
 
   // Group permissions by source count
   const uniquePermissions = Array.from(sourceMap.entries()).filter(
-    ([_, sources]) => sources.length === 1
-  )
+    ([_, sources]) => sources.length === 1,
+  );
   const sharedPermissions = Array.from(sourceMap.entries()).filter(
-    ([_, sources]) => sources.length > 1
-  )
+    ([_, sources]) => sources.length > 1,
+  );
 
   const toggleItem = (key: string) => {
     setExpandedItems((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    )
-  }
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
+  };
 
   if (groupByPermission) {
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn("space-y-4", className)}>
         {/* Shared permissions */}
         {sharedPermissions.length > 0 && (
           <div className="space-y-2">
@@ -61,14 +68,22 @@ export function InheritedPermissions({
                 >
                   <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center gap-2 rounded-md p-2 text-left">
                     {expandedItems.includes(permission) ? (
-                      <ChevronDown size={14} className="text-muted-foreground" />
+                      <ChevronDown
+                        size={14}
+                        className="text-muted-foreground"
+                      />
                     ) : (
-                      <ChevronRight size={14} className="text-muted-foreground" />
+                      <ChevronRight
+                        size={14}
+                        className="text-muted-foreground"
+                      />
                     )}
                     <span className="flex-1 text-sm">
                       {PERMISSIONS[permission]?.name ?? permission}
                     </span>
-                    <span className="text-xs text-muted-foreground">{roles.length} roles</span>
+                    <span className="text-xs text-muted-foreground">
+                      {roles.length} roles
+                    </span>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <div className="ml-6 flex flex-wrap gap-1 pb-2">
@@ -97,30 +112,47 @@ export function InheritedPermissions({
             </h4>
             <div className="space-y-1">
               {uniquePermissions.map(([permission, roles]) => {
-                const role = roles[0]
+                const role = roles[0];
                 return (
-                  <div key={permission} className="flex items-center gap-2 rounded-md p-2 text-sm">
-                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: role.color }} />
-                    <span className="flex-1">{PERMISSIONS[permission]?.name ?? permission}</span>
-                    <RoleBadge name={role.name} color={role.color} size="sm" showIcon={false} />
+                  <div
+                    key={permission}
+                    className="flex items-center gap-2 rounded-md p-2 text-sm"
+                  >
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: role.color }}
+                    />
+                    <span className="flex-1">
+                      {PERMISSIONS[permission]?.name ?? permission}
+                    </span>
+                    <RoleBadge
+                      name={role.name}
+                      color={role.color}
+                      size="sm"
+                      showIcon={false}
+                    />
                   </div>
-                )
+                );
               })}
             </div>
           </div>
         )}
       </div>
-    )
+    );
   }
 
   // Group by role
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {userRoles.map((role) => {
-        const isExpanded = expandedItems.includes(role.id)
+        const isExpanded = expandedItems.includes(role.id);
 
         return (
-          <Collapsible key={role.id} open={isExpanded} onOpenChange={() => toggleItem(role.id)}>
+          <Collapsible
+            key={role.id}
+            open={isExpanded}
+            onOpenChange={() => toggleItem(role.id)}
+          >
             <CollapsibleTrigger className="hover:bg-accent/50 flex w-full items-center gap-3 rounded-lg border p-3">
               {isExpanded ? (
                 <ChevronDown size={16} className="text-muted-foreground" />
@@ -146,19 +178,19 @@ export function InheritedPermissions({
               </div>
             </CollapsibleContent>
           </Collapsible>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 /**
  * InheritedPermissionsBadge - Shows inherited permission indicator
  */
 interface InheritedPermissionsBadgeProps {
-  permission: Permission
-  fromRoles: Role[]
-  className?: string
+  permission: Permission;
+  fromRoles: Role[];
+  className?: string;
 }
 
 export function InheritedPermissionsBadge({
@@ -166,18 +198,18 @@ export function InheritedPermissionsBadge({
   fromRoles,
   className,
 }: InheritedPermissionsBadgeProps) {
-  if (fromRoles.length === 0) return null
+  if (fromRoles.length === 0) return null;
 
   return (
     <div
       className={cn(
-        'flex items-center gap-1.5 rounded bg-muted px-2 py-1 text-xs text-muted-foreground',
-        className
+        "flex items-center gap-1.5 rounded bg-muted px-2 py-1 text-xs text-muted-foreground",
+        className,
       )}
     >
       <Lock size={10} />
       <span>
-        Inherited from{' '}
+        Inherited from{" "}
         {fromRoles.length === 1 ? (
           <span style={{ color: fromRoles[0].color }}>{fromRoles[0].name}</span>
         ) : (
@@ -185,7 +217,7 @@ export function InheritedPermissionsBadge({
         )}
       </span>
     </div>
-  )
+  );
 }
 
-export default InheritedPermissions
+export default InheritedPermissions;

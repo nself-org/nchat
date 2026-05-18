@@ -38,7 +38,7 @@ export {
   type MessageDialogOptions,
   type MessageDialogResult,
   type PlatformInfo,
-} from './electron-bridge'
+} from "./electron-bridge";
 
 // IPC Communication
 export {
@@ -79,7 +79,7 @@ export {
   type UpdateProgressPayload,
   type UpdateInfoPayload,
   type UpdateErrorPayload,
-} from './ipc'
+} from "./ipc";
 
 // Native Features
 export {
@@ -106,7 +106,7 @@ export {
   isWindows,
   isLinux,
   getPlatformInfo,
-} from './native-features'
+} from "./native-features";
 
 // Window Management
 export {
@@ -130,7 +130,7 @@ export {
   getModifierKey,
   getModifierLabel,
   type WindowState,
-} from './window'
+} from "./window";
 
 // Notifications
 export {
@@ -146,7 +146,7 @@ export {
   setUnreadCount,
   flashFrame,
   updateTrayMenu,
-} from './notifications'
+} from "./notifications";
 
 // Settings Store
 export {
@@ -169,4 +169,4 @@ export {
   getLastWorkspaceId,
   setLastWorkspaceId,
   type AppSettings,
-} from './store'
+} from "./store";

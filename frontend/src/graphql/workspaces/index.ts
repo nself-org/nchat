@@ -5,16 +5,16 @@
  */
 
 // Fragments
-export * from './fragments'
+export * from "./fragments";
 
 // Queries
-export * from './queries'
+export * from "./queries";
 
 // Mutations
-export * from './mutations'
+export * from "./mutations";
 
 // Subscriptions
-export * from './subscriptions'
+export * from "./subscriptions";
 
 // Re-export common types
 export type {
@@ -25,7 +25,7 @@ export type {
   SearchWorkspaceMembersVariables,
   GetWorkspaceInvitesVariables,
   ValidateInviteVariables,
-} from './queries'
+} from "./queries";
 
 export type {
   CreateWorkspaceInput,
@@ -34,4 +34,4 @@ export type {
   CreateInviteInput,
   AddMemberInput,
   UpdateMemberInput,
-} from './mutations'
+} from "./mutations";

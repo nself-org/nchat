@@ -21,39 +21,39 @@ import type {
   ArgumentValidation,
   AutocompleteConfig,
   CommandDraft,
-} from './command-types'
+} from "./command-types";
 
 // ============================================================================
 // Command Builder Class
 // ============================================================================
 
 export class CommandBuilder {
-  private command: CommandDraft
+  private command: CommandDraft;
 
   constructor(trigger: string) {
     this.command = {
-      trigger: trigger.toLowerCase().replace(/^\//, ''),
+      trigger: trigger.toLowerCase().replace(/^\//, ""),
       arguments: [],
       permissions: {
-        minRole: 'member',
+        minRole: "member",
         allowGuests: false,
       },
       channels: {
-        allowedTypes: ['public', 'private', 'direct', 'group'],
+        allowedTypes: ["public", "private", "direct", "group"],
         allowInThreads: true,
       },
       responseConfig: {
-        type: 'ephemeral',
+        type: "ephemeral",
         ephemeral: true,
         showTyping: false,
       },
-      actionType: 'message',
+      actionType: "message",
       action: {
-        type: 'message',
+        type: "message",
       },
       isEnabled: true,
       isBuiltIn: false,
-    }
+    };
   }
 
   // --------------------------------
@@ -64,88 +64,90 @@ export class CommandBuilder {
    * Set command ID (optional - will be generated if not provided)
    */
   id(id: string): this {
-    this.command.id = id
-    return this
+    this.command.id = id;
+    return this;
   }
 
   /**
    * Set command name
    */
   name(name: string): this {
-    this.command.name = name
-    return this
+    this.command.name = name;
+    return this;
   }
 
   /**
    * Set command description
    */
   description(description: string): this {
-    this.command.description = description
-    return this
+    this.command.description = description;
+    return this;
   }
 
   /**
    * Set detailed help text
    */
   helpText(helpText: string): this {
-    this.command.helpText = helpText
-    return this
+    this.command.helpText = helpText;
+    return this;
   }
 
   /**
    * Set usage example
    */
   usage(usage: string): this {
-    this.command.usage = usage
-    return this
+    this.command.usage = usage;
+    return this;
   }
 
   /**
    * Add command aliases
    */
   aliases(...aliases: string[]): this {
-    this.command.aliases = aliases.map((a) => a.toLowerCase().replace(/^\//, ''))
-    return this
+    this.command.aliases = aliases.map((a) =>
+      a.toLowerCase().replace(/^\//, ""),
+    );
+    return this;
   }
 
   /**
    * Set command category
    */
   category(category: CommandCategory): this {
-    this.command.category = category
-    return this
+    this.command.category = category;
+    return this;
   }
 
   /**
    * Set command icon
    */
   icon(icon: string): this {
-    this.command.icon = icon
-    return this
+    this.command.icon = icon;
+    return this;
   }
 
   /**
    * Set display order
    */
   order(order: number): this {
-    this.command.order = order
-    return this
+    this.command.order = order;
+    return this;
   }
 
   /**
    * Set cooldown in seconds
    */
   cooldown(seconds: number): this {
-    this.command.cooldown = seconds
-    return this
+    this.command.cooldown = seconds;
+    return this;
   }
 
   /**
    * Enable/disable command
    */
   enabled(enabled: boolean): this {
-    this.command.isEnabled = enabled
-    return this
+    this.command.isEnabled = enabled;
+    return this;
   }
 
   // --------------------------------
@@ -156,19 +158,21 @@ export class CommandBuilder {
    * Add a positional argument
    */
   addArgument(config: {
-    name: string
-    type: CommandArgType
-    description: string
-    required?: boolean
-    defaultValue?: string | number | boolean
-    choices?: CommandChoice[]
-    validation?: ArgumentValidation
-    autocomplete?: AutocompleteConfig
+    name: string;
+    type: CommandArgType;
+    description: string;
+    required?: boolean;
+    defaultValue?: string | number | boolean;
+    choices?: CommandChoice[];
+    validation?: ArgumentValidation;
+    autocomplete?: AutocompleteConfig;
   }): this {
-    const position = this.command.arguments?.filter((a) => a.position !== undefined).length ?? 0
+    const position =
+      this.command.arguments?.filter((a) => a.position !== undefined).length ??
+      0;
 
     const arg: CommandArgument = {
-      id: config.name.toLowerCase().replace(/\s+/g, '_'),
+      id: config.name.toLowerCase().replace(/\s+/g, "_"),
       name: config.name,
       type: config.type,
       description: config.description,
@@ -178,10 +182,10 @@ export class CommandBuilder {
       choices: config.choices,
       validation: config.validation,
       autocomplete: config.autocomplete,
-    }
+    };
 
-    this.command.arguments = [...(this.command.arguments || []), arg]
-    return this
+    this.command.arguments = [...(this.command.arguments || []), arg];
+    return this;
   }
 
   /**
@@ -191,16 +195,16 @@ export class CommandBuilder {
     name: string,
     description: string,
     options?: {
-      required?: boolean
-      default?: string
-      minLength?: number
-      maxLength?: number
-      pattern?: string
-    }
+      required?: boolean;
+      default?: string;
+      minLength?: number;
+      maxLength?: number;
+      pattern?: string;
+    },
   ): this {
     return this.addArgument({
       name,
-      type: 'string',
+      type: "string",
       description,
       required: options?.required,
       defaultValue: options?.default,
@@ -209,7 +213,7 @@ export class CommandBuilder {
         maxLength: options?.maxLength,
         pattern: options?.pattern,
       },
-    })
+    });
   }
 
   /**
@@ -219,15 +223,15 @@ export class CommandBuilder {
     name: string,
     description: string,
     options?: {
-      required?: boolean
-      default?: number
-      min?: number
-      max?: number
-    }
+      required?: boolean;
+      default?: number;
+      min?: number;
+      max?: number;
+    },
   ): this {
     return this.addArgument({
       name,
-      type: 'number',
+      type: "number",
       description,
       required: options?.required,
       defaultValue: options?.default,
@@ -235,7 +239,7 @@ export class CommandBuilder {
         min: options?.min,
         max: options?.max,
       },
-    })
+    });
   }
 
   /**
@@ -244,14 +248,14 @@ export class CommandBuilder {
   addUserArg(name: string, description: string, required = true): this {
     return this.addArgument({
       name,
-      type: 'user',
+      type: "user",
       description,
       required,
       autocomplete: {
-        source: 'users',
+        source: "users",
         minChars: 1,
       },
-    })
+    });
   }
 
   /**
@@ -260,14 +264,14 @@ export class CommandBuilder {
   addChannelArg(name: string, description: string, required = true): this {
     return this.addArgument({
       name,
-      type: 'channel',
+      type: "channel",
       description,
       required,
       autocomplete: {
-        source: 'channels',
+        source: "channels",
         minChars: 1,
       },
-    })
+    });
   }
 
   /**
@@ -276,24 +280,27 @@ export class CommandBuilder {
   addChoiceArg(
     name: string,
     description: string,
-    choices: (string | { value: string; label: string; description?: string })[],
+    choices: (
+      | string
+      | { value: string; label: string; description?: string }
+    )[],
     options?: {
-      required?: boolean
-      default?: string
-    }
+      required?: boolean;
+      default?: string;
+    },
   ): this {
     const normalizedChoices: CommandChoice[] = choices.map((c) =>
-      typeof c === 'string' ? { value: c, label: c } : c
-    )
+      typeof c === "string" ? { value: c, label: c } : c,
+    );
 
     return this.addArgument({
       name,
-      type: 'choice',
+      type: "choice",
       description,
       required: options?.required,
       defaultValue: options?.default,
       choices: normalizedChoices,
-    })
+    });
   }
 
   /**
@@ -302,10 +309,10 @@ export class CommandBuilder {
   addDurationArg(name: string, description: string, required = false): this {
     return this.addArgument({
       name,
-      type: 'duration',
+      type: "duration",
       description,
       required,
-    })
+    });
   }
 
   /**
@@ -314,23 +321,23 @@ export class CommandBuilder {
   addRestArg(name: string, description: string, required = false): this {
     return this.addArgument({
       name,
-      type: 'rest',
+      type: "rest",
       description,
       required,
-    })
+    });
   }
 
   /**
    * Add a flag argument (--flag value)
    */
   addFlag(config: {
-    name: string
-    flag: string
-    shortFlag?: string
-    type: CommandArgType
-    description: string
-    required?: boolean
-    defaultValue?: string | number | boolean
+    name: string;
+    flag: string;
+    shortFlag?: string;
+    type: CommandArgType;
+    description: string;
+    required?: boolean;
+    defaultValue?: string | number | boolean;
   }): this {
     const arg: CommandArgument = {
       id: config.flag,
@@ -341,10 +348,10 @@ export class CommandBuilder {
       flag: config.flag,
       shortFlag: config.shortFlag,
       defaultValue: config.defaultValue,
-    }
+    };
 
-    this.command.arguments = [...(this.command.arguments || []), arg]
-    return this
+    this.command.arguments = [...(this.command.arguments || []), arg];
+    return this;
   }
 
   // --------------------------------
@@ -354,12 +361,12 @@ export class CommandBuilder {
   /**
    * Set minimum required role
    */
-  minRole(role: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'): this {
+  minRole(role: "owner" | "admin" | "moderator" | "member" | "guest"): this {
     this.command.permissions = {
       ...this.command.permissions!,
       minRole: role,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -369,8 +376,8 @@ export class CommandBuilder {
     this.command.permissions = {
       ...this.command.permissions!,
       allowedRoles: roles,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -380,8 +387,8 @@ export class CommandBuilder {
     this.command.permissions = {
       ...this.command.permissions!,
       allowedUsers: userIds,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -391,8 +398,8 @@ export class CommandBuilder {
     this.command.permissions = {
       ...this.command.permissions!,
       deniedUsers: userIds,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -402,8 +409,8 @@ export class CommandBuilder {
     this.command.permissions = {
       ...this.command.permissions!,
       allowGuests: allow,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -413,8 +420,8 @@ export class CommandBuilder {
     this.command.permissions = {
       ...this.command.permissions!,
       ...permissions,
-    }
-    return this
+    };
+    return this;
   }
 
   // --------------------------------
@@ -424,12 +431,14 @@ export class CommandBuilder {
   /**
    * Allow in specific channel types
    */
-  allowInChannelTypes(...types: ('public' | 'private' | 'direct' | 'group')[]): this {
+  allowInChannelTypes(
+    ...types: ("public" | "private" | "direct" | "group")[]
+  ): this {
     this.command.channels = {
       ...this.command.channels!,
       allowedTypes: types,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -439,8 +448,8 @@ export class CommandBuilder {
     this.command.channels = {
       ...this.command.channels!,
       allowedChannels: channelIds,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -450,8 +459,8 @@ export class CommandBuilder {
     this.command.channels = {
       ...this.command.channels!,
       blockedChannels: channelIds,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -461,8 +470,8 @@ export class CommandBuilder {
     this.command.channels = {
       ...this.command.channels!,
       allowInThreads: allow,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -472,8 +481,8 @@ export class CommandBuilder {
     this.command.channels = {
       ...this.command.channels!,
       ...config,
-    }
-    return this
+    };
+    return this;
   }
 
   // --------------------------------
@@ -487,8 +496,8 @@ export class CommandBuilder {
     this.command.responseConfig = {
       ...this.command.responseConfig!,
       type,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -498,8 +507,8 @@ export class CommandBuilder {
     this.command.responseConfig = {
       ...this.command.responseConfig!,
       template,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -509,8 +518,8 @@ export class CommandBuilder {
     this.command.responseConfig = {
       ...this.command.responseConfig!,
       ephemeral: isEphemeral,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -520,8 +529,8 @@ export class CommandBuilder {
     this.command.responseConfig = {
       ...this.command.responseConfig!,
       showTyping: show,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -531,8 +540,8 @@ export class CommandBuilder {
     this.command.responseConfig = {
       ...this.command.responseConfig!,
       delay: ms,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -542,8 +551,8 @@ export class CommandBuilder {
     this.command.responseConfig = {
       ...this.command.responseConfig!,
       ...config,
-    }
-    return this
+    };
+    return this;
   }
 
   // --------------------------------
@@ -554,98 +563,106 @@ export class CommandBuilder {
    * Set action to send a message
    */
   sendMessage(message: string): this {
-    this.command.actionType = 'message'
+    this.command.actionType = "message";
     this.command.action = {
-      type: 'message',
+      type: "message",
       message,
-    }
+    };
     this.command.responseConfig = {
       ...this.command.responseConfig!,
-      type: 'message',
+      type: "message",
       ephemeral: false,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
    * Set action to update user status
    */
-  updateStatus(status: { text: string; emoji?: string; expiry?: string }): this {
-    this.command.actionType = 'status'
+  updateStatus(status: {
+    text: string;
+    emoji?: string;
+    expiry?: string;
+  }): this {
+    this.command.actionType = "status";
     this.command.action = {
-      type: 'status',
+      type: "status",
       status,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
    * Set action to navigate
    */
   navigate(url: string, newTab = false): this {
-    this.command.actionType = 'navigate'
+    this.command.actionType = "navigate";
     this.command.action = {
-      type: 'navigate',
+      type: "navigate",
       navigate: { url, newTab },
-    }
-    return this
+    };
+    return this;
   }
 
   /**
    * Set action to open a modal
    */
   openModal(component: string, props?: Record<string, unknown>): this {
-    this.command.actionType = 'modal'
+    this.command.actionType = "modal";
     this.command.action = {
-      type: 'modal',
+      type: "modal",
       modal: { component, props },
-    }
-    return this
+    };
+    return this;
   }
 
   /**
    * Set action to call an API
    */
-  callApi(endpoint: string, method = 'POST', body?: Record<string, unknown>): this {
-    this.command.actionType = 'api'
+  callApi(
+    endpoint: string,
+    method = "POST",
+    body?: Record<string, unknown>,
+  ): this {
+    this.command.actionType = "api";
     this.command.action = {
-      type: 'api',
+      type: "api",
       api: { endpoint, method, body },
-    }
-    return this
+    };
+    return this;
   }
 
   /**
    * Set action to call a webhook
    */
   callWebhook(config: CommandWebhook): this {
-    this.command.actionType = 'webhook'
-    this.command.webhook = config
+    this.command.actionType = "webhook";
+    this.command.webhook = config;
     this.command.action = {
-      type: 'webhook',
-    }
-    return this
+      type: "webhook",
+    };
+    return this;
   }
 
   /**
    * Set action to trigger a workflow
    */
   triggerWorkflow(config: CommandWorkflow): this {
-    this.command.actionType = 'workflow'
-    this.command.workflow = config
+    this.command.actionType = "workflow";
+    this.command.workflow = config;
     this.command.action = {
-      type: 'workflow',
-    }
-    return this
+      type: "workflow",
+    };
+    return this;
   }
 
   /**
    * Set full action config
    */
   action(type: CommandActionType, action: CommandAction): this {
-    this.command.actionType = type
-    this.command.action = action
-    return this
+    this.command.actionType = type;
+    this.command.action = action;
+    return this;
   }
 
   // --------------------------------
@@ -656,28 +673,29 @@ export class CommandBuilder {
    * Get the command draft (for validation before building)
    */
   getDraft(): CommandDraft {
-    return { ...this.command }
+    return { ...this.command };
   }
 
   /**
    * Build the final command
    */
   build(createdBy: string): SlashCommand {
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
 
     // Generate ID if not provided
-    const id = this.command.id || `custom-${this.command.trigger}-${Date.now()}`
+    const id =
+      this.command.id || `custom-${this.command.trigger}-${Date.now()}`;
 
     // Generate usage if not provided
-    const usage = this.command.usage || generateUsage(this.command)
+    const usage = this.command.usage || generateUsage(this.command);
 
     return {
       ...this.command,
       id,
       trigger: this.command.trigger,
       name: this.command.name || this.command.trigger,
-      description: this.command.description || '',
-      category: this.command.category || 'custom',
+      description: this.command.description || "",
+      category: this.command.category || "custom",
       arguments: this.command.arguments || [],
       permissions: this.command.permissions!,
       channels: this.command.channels!,
@@ -690,7 +708,7 @@ export class CommandBuilder {
       createdAt: now,
       updatedAt: now,
       createdBy,
-    } as SlashCommand
+    } as SlashCommand;
   }
 }
 
@@ -702,34 +720,34 @@ export class CommandBuilder {
  * Generate usage string from command arguments
  */
 function generateUsage(command: CommandDraft): string {
-  let usage = `/${command.trigger}`
+  let usage = `/${command.trigger}`;
 
   const positionalArgs = command.arguments
     ?.filter((a) => a.position !== undefined)
-    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
   if (positionalArgs) {
     for (const arg of positionalArgs) {
       if (arg.required) {
-        usage += ` <${arg.name}>`
+        usage += ` <${arg.name}>`;
       } else {
-        usage += ` [${arg.name}]`
+        usage += ` [${arg.name}]`;
       }
     }
   }
 
-  const flags = command.arguments?.filter((a) => a.flag)
+  const flags = command.arguments?.filter((a) => a.flag);
   if (flags && flags.length > 0) {
     for (const flag of flags) {
       if (flag.required) {
-        usage += ` --${flag.flag} <${flag.name}>`
+        usage += ` --${flag.flag} <${flag.name}>`;
       } else {
-        usage += ` [--${flag.flag} ${flag.name}]`
+        usage += ` [--${flag.flag} ${flag.name}]`;
       }
     }
   }
 
-  return usage
+  return usage;
 }
 
 // ============================================================================
@@ -740,7 +758,7 @@ function generateUsage(command: CommandDraft): string {
  * Create a new command builder
  */
 export function createCommand(trigger: string): CommandBuilder {
-  return new CommandBuilder(trigger)
+  return new CommandBuilder(trigger);
 }
 
 // ============================================================================
@@ -753,9 +771,12 @@ export function createCommand(trigger: string): CommandBuilder {
 export function createMessageCommand(
   trigger: string,
   message: string,
-  description: string
+  description: string,
 ): CommandBuilder {
-  return createCommand(trigger).description(description).sendMessage(message).category('custom')
+  return createCommand(trigger)
+    .description(description)
+    .sendMessage(message)
+    .category("custom");
 }
 
 /**
@@ -764,15 +785,15 @@ export function createMessageCommand(
 export function createWebhookCommand(
   trigger: string,
   webhookUrl: string,
-  description: string
+  description: string,
 ): CommandBuilder {
   return createCommand(trigger)
     .description(description)
     .callWebhook({
       url: webhookUrl,
-      method: 'POST',
+      method: "POST",
     })
-    .category('integration')
+    .category("integration");
 }
 
 /**
@@ -781,7 +802,10 @@ export function createWebhookCommand(
 export function createNavigationCommand(
   trigger: string,
   url: string,
-  description: string
+  description: string,
 ): CommandBuilder {
-  return createCommand(trigger).description(description).navigate(url).category('utility')
+  return createCommand(trigger)
+    .description(description)
+    .navigate(url)
+    .category("utility");
 }

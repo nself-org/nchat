@@ -4,14 +4,14 @@
  * Generates and saves .env files from wizard configuration
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import * as fs from 'fs'
-import * as path from 'path'
-import { generateEnvFile, envToConfig } from '@/lib/setup/environment-detector'
+import { NextRequest, NextResponse } from "next/server";
+import * as fs from "fs";
+import * as path from "path";
+import { generateEnvFile, envToConfig } from "@/lib/setup/environment-detector";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-const PROJECT_ROOT = process.cwd()
+const PROJECT_ROOT = process.cwd();
 
 /**
  * GET /api/setup/env
@@ -19,22 +19,22 @@ const PROJECT_ROOT = process.cwd()
  */
 export async function GET() {
   try {
-    const envFiles = await detectEnvFiles()
-    const currentEnv = process.env.NEXT_PUBLIC_ENV || 'development'
-    const configFromEnv = envToConfig(process.env as Record<string, string>)
+    const envFiles = await detectEnvFiles();
+    const currentEnv = process.env.NEXT_PUBLIC_ENV || "development";
+    const configFromEnv = envToConfig(process.env as Record<string, string>);
 
     return NextResponse.json({
       environment: currentEnv,
       files: envFiles,
       configFromEnv,
       variables: getPublicEnvVars(),
-    })
+    });
   } catch (error) {
-    logger.error('Env detection error:', error)
+    logger.error("Env detection error:", error);
     return NextResponse.json(
-      { error: 'Failed to detect environment', details: String(error) },
-      { status: 500 }
-    )
+      { error: "Failed to detect environment", details: String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -44,28 +44,37 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { action, config, environment, backendUrls } = body
+    const body = await request.json();
+    const { action, config, environment, backendUrls } = body;
 
     switch (action) {
-      case 'generate':
-        return NextResponse.json(await generateEnv(config, environment, backendUrls))
+      case "generate":
+        return NextResponse.json(
+          await generateEnv(config, environment, backendUrls),
+        );
 
-      case 'save':
-        return NextResponse.json(await saveEnvFile(config, environment, backendUrls))
+      case "save":
+        return NextResponse.json(
+          await saveEnvFile(config, environment, backendUrls),
+        );
 
-      case 'preview':
-        return NextResponse.json(previewEnvFile(config, environment, backendUrls))
+      case "preview":
+        return NextResponse.json(
+          previewEnvFile(config, environment, backendUrls),
+        );
 
       default:
-        return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 })
+        return NextResponse.json(
+          { error: `Unknown action: ${action}` },
+          { status: 400 },
+        );
     }
   } catch (error) {
-    logger.error('Env generation error:', error)
+    logger.error("Env generation error:", error);
     return NextResponse.json(
-      { error: 'Environment generation failed', details: String(error) },
-      { status: 500 }
-    )
+      { error: "Environment generation failed", details: String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -73,49 +82,51 @@ export async function POST(request: NextRequest) {
  * Detect existing .env files
  */
 async function detectEnvFiles() {
-  const files: Record<string, { exists: boolean; path: string; size?: number; modified?: string }> =
-    {}
+  const files: Record<
+    string,
+    { exists: boolean; path: string; size?: number; modified?: string }
+  > = {};
 
   const envFileNames = [
-    { name: 'local', file: '.env.local' },
-    { name: 'development', file: '.env.development' },
-    { name: 'staging', file: '.env.staging' },
-    { name: 'production', file: '.env.production' },
-    { name: 'example', file: '.env.example' },
-  ]
+    { name: "local", file: ".env.local" },
+    { name: "development", file: ".env.development" },
+    { name: "staging", file: ".env.staging" },
+    { name: "production", file: ".env.production" },
+    { name: "example", file: ".env.example" },
+  ];
 
   for (const { name, file } of envFileNames) {
-    const filePath = path.join(PROJECT_ROOT, file)
-    const exists = fs.existsSync(filePath)
+    const filePath = path.join(PROJECT_ROOT, file);
+    const exists = fs.existsSync(filePath);
 
     files[name] = {
       exists,
       path: filePath,
-    }
+    };
 
     if (exists) {
-      const stats = fs.statSync(filePath)
-      files[name].size = stats.size
-      files[name].modified = stats.mtime.toISOString()
+      const stats = fs.statSync(filePath);
+      files[name].size = stats.size;
+      files[name].modified = stats.mtime.toISOString();
     }
   }
 
-  return files
+  return files;
 }
 
 /**
  * Get all NEXT_PUBLIC_ environment variables
  */
 function getPublicEnvVars(): Record<string, string> {
-  const vars: Record<string, string> = {}
+  const vars: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(process.env)) {
-    if (key.startsWith('NEXT_PUBLIC_') && value) {
-      vars[key] = value
+    if (key.startsWith("NEXT_PUBLIC_") && value) {
+      vars[key] = value;
     }
   }
 
-  return vars
+  return vars;
 }
 
 /**
@@ -123,21 +134,26 @@ function getPublicEnvVars(): Record<string, string> {
  */
 async function generateEnv(
   config: Record<string, unknown>,
-  environment: 'development' | 'staging' | 'production' = 'development',
-  backendUrls?: { graphql?: string; auth?: string; storage?: string; socket?: string }
+  environment: "development" | "staging" | "production" = "development",
+  backendUrls?: {
+    graphql?: string;
+    auth?: string;
+    storage?: string;
+    socket?: string;
+  },
 ) {
   const content = generateEnvFile(config, {
     environment,
     backendUrls,
     includeComments: true,
-  })
+  });
 
   return {
     content,
     environment,
-    lineCount: content.split('\n').length,
-    variableCount: content.split('\n').filter((l) => l.includes('=')).length,
-  }
+    lineCount: content.split("\n").length,
+    variableCount: content.split("\n").filter((l) => l.includes("=")).length,
+  };
 }
 
 /**
@@ -145,20 +161,26 @@ async function generateEnv(
  */
 function previewEnvFile(
   config: Record<string, unknown>,
-  environment: 'development' | 'staging' | 'production' = 'development',
-  backendUrls?: { graphql?: string; auth?: string; storage?: string; socket?: string }
+  environment: "development" | "staging" | "production" = "development",
+  backendUrls?: {
+    graphql?: string;
+    auth?: string;
+    storage?: string;
+    socket?: string;
+  },
 ) {
   const content = generateEnvFile(config, {
     environment,
     backendUrls,
     includeComments: true,
-  })
+  });
 
   return {
     preview: content,
-    filename: environment === 'development' ? '.env.local' : `.env.${environment}`,
+    filename:
+      environment === "development" ? ".env.local" : `.env.${environment}`,
     environment,
-  }
+  };
 }
 
 /**
@@ -166,35 +188,41 @@ function previewEnvFile(
  */
 async function saveEnvFile(
   config: Record<string, unknown>,
-  environment: 'development' | 'staging' | 'production' = 'development',
-  backendUrls?: { graphql?: string; auth?: string; storage?: string; socket?: string }
+  environment: "development" | "staging" | "production" = "development",
+  backendUrls?: {
+    graphql?: string;
+    auth?: string;
+    storage?: string;
+    socket?: string;
+  },
 ) {
   const content = generateEnvFile(config, {
     environment,
     backendUrls,
     includeComments: true,
-  })
+  });
 
   // Determine filename
-  const filename = environment === 'development' ? '.env.local' : `.env.${environment}`
-  const filePath = path.join(PROJECT_ROOT, filename)
+  const filename =
+    environment === "development" ? ".env.local" : `.env.${environment}`;
+  const filePath = path.join(PROJECT_ROOT, filename);
 
   // Backup existing file if it exists
   if (fs.existsSync(filePath)) {
-    const backupPath = `${filePath}.backup.${Date.now()}`
-    fs.copyFileSync(filePath, backupPath)
+    const backupPath = `${filePath}.backup.${Date.now()}`;
+    fs.copyFileSync(filePath, backupPath);
   }
 
   // Write new file
-  fs.writeFileSync(filePath, content, 'utf-8')
+  fs.writeFileSync(filePath, content, "utf-8");
 
   return {
     success: true,
     filename,
     path: filePath,
     environment,
-    lineCount: content.split('\n').length,
-    variableCount: content.split('\n').filter((l) => l.includes('=')).length,
+    lineCount: content.split("\n").length,
+    variableCount: content.split("\n").filter((l) => l.includes("=")).length,
     message: `Environment file saved to ${filename}`,
-  }
+  };
 }

@@ -1,23 +1,29 @@
-'use client'
+"use client";
 
-import React from 'react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { isDevelopment } from '@/lib/environment'
-import { AlertTriangle, RefreshCw, Home, ArrowLeft, HelpCircle } from 'lucide-react'
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { isDevelopment } from "@/lib/environment";
+import {
+  AlertTriangle,
+  RefreshCw,
+  Home,
+  ArrowLeft,
+  HelpCircle,
+} from "lucide-react";
 
 interface ErrorPageProps {
-  error?: Error
-  statusCode?: number
-  title?: string
-  description?: string
-  showHomeButton?: boolean
-  showBackButton?: boolean
-  showRetryButton?: boolean
-  showSupportButton?: boolean
-  onRetry?: () => void
-  supportUrl?: string
-  className?: string
+  error?: Error;
+  statusCode?: number;
+  title?: string;
+  description?: string;
+  showHomeButton?: boolean;
+  showBackButton?: boolean;
+  showRetryButton?: boolean;
+  showSupportButton?: boolean;
+  onRetry?: () => void;
+  supportUrl?: string;
+  className?: string;
 }
 
 /**
@@ -34,62 +40,62 @@ export function ErrorPage({
   showRetryButton = true,
   showSupportButton = false,
   onRetry,
-  supportUrl = '/support',
+  supportUrl = "/support",
   className,
 }: ErrorPageProps) {
   // Default titles based on status code
   const defaultTitle = statusCode
     ? {
-        400: 'Bad Request',
-        401: 'Unauthorized',
-        403: 'Access Denied',
-        404: 'Page Not Found',
-        500: 'Server Error',
-        502: 'Bad Gateway',
-        503: 'Service Unavailable',
-        504: 'Gateway Timeout',
-      }[statusCode] || 'Something Went Wrong'
-    : 'Something Went Wrong'
+        400: "Bad Request",
+        401: "Unauthorized",
+        403: "Access Denied",
+        404: "Page Not Found",
+        500: "Server Error",
+        502: "Bad Gateway",
+        503: "Service Unavailable",
+        504: "Gateway Timeout",
+      }[statusCode] || "Something Went Wrong"
+    : "Something Went Wrong";
 
   const defaultDescription = statusCode
     ? {
-        400: 'The request could not be understood by the server.',
-        401: 'You need to sign in to access this page.',
-        403: 'You do not have permission to access this resource.',
-        404: 'The page you are looking for does not exist or has been moved.',
-        500: 'An internal server error occurred. Please try again later.',
-        502: 'The server received an invalid response from an upstream server.',
-        503: 'The service is temporarily unavailable. Please try again later.',
-        504: 'The server took too long to respond. Please try again.',
-      }[statusCode] || 'An unexpected error occurred. Please try again later.'
-    : 'An unexpected error occurred. Please try again later.'
+        400: "The request could not be understood by the server.",
+        401: "You need to sign in to access this page.",
+        403: "You do not have permission to access this resource.",
+        404: "The page you are looking for does not exist or has been moved.",
+        500: "An internal server error occurred. Please try again later.",
+        502: "The server received an invalid response from an upstream server.",
+        503: "The service is temporarily unavailable. Please try again later.",
+        504: "The server took too long to respond. Please try again.",
+      }[statusCode] || "An unexpected error occurred. Please try again later."
+    : "An unexpected error occurred. Please try again later.";
 
-  const displayTitle = title || defaultTitle
-  const displayDescription = description || defaultDescription
+  const displayTitle = title || defaultTitle;
+  const displayDescription = description || defaultDescription;
 
   const handleBack = () => {
-    window.history.back()
-  }
+    window.history.back();
+  };
 
   const handleHome = () => {
-    window.location.href = '/'
-  }
+    window.location.href = "/";
+  };
 
   const handleRetry = () => {
     if (onRetry) {
-      onRetry()
+      onRetry();
     } else {
-      window.location.reload()
+      window.location.reload();
     }
-  }
+  };
 
   return (
     <div
       className={cn(
-        'flex min-h-screen flex-col items-center justify-center p-6',
-        'bg-gradient-to-b from-zinc-50 to-zinc-100',
-        'dark:from-zinc-900 dark:to-zinc-950',
-        className
+        "flex min-h-screen flex-col items-center justify-center p-6",
+        "bg-gradient-to-b from-zinc-50 to-zinc-100",
+        "dark:from-zinc-900 dark:to-zinc-950",
+        className,
       )}
     >
       <div className="w-full max-w-lg text-center">
@@ -139,21 +145,36 @@ export function ErrorPage({
         {/* Action buttons */}
         <div className="flex flex-wrap justify-center gap-3">
           {showRetryButton && (
-            <Button onClick={handleRetry} variant="default" size="lg" className="gap-2">
+            <Button
+              onClick={handleRetry}
+              variant="default"
+              size="lg"
+              className="gap-2"
+            >
               <RefreshCw className="h-4 w-4" />
               Try Again
             </Button>
           )}
 
           {showHomeButton && (
-            <Button onClick={handleHome} variant="outline" size="lg" className="gap-2">
+            <Button
+              onClick={handleHome}
+              variant="outline"
+              size="lg"
+              className="gap-2"
+            >
               <Home className="h-4 w-4" />
               Go Home
             </Button>
           )}
 
           {showBackButton && (
-            <Button onClick={handleBack} variant="ghost" size="lg" className="gap-2">
+            <Button
+              onClick={handleBack}
+              variant="ghost"
+              size="lg"
+              className="gap-2"
+            >
               <ArrowLeft className="h-4 w-4" />
               Go Back
             </Button>
@@ -175,7 +196,7 @@ export function ErrorPage({
         </p>
       </div>
     </div>
-  )
+  );
 }
 
-export default ErrorPage
+export default ErrorPage;

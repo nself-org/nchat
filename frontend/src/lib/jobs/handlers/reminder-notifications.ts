@@ -14,62 +14,62 @@
  * @version 1.0.0
  */
 
-import { Job } from 'bullmq'
-import { createLogger } from '@/lib/logger'
-import { getNotificationService } from '@/services/notifications/notification.service'
-import { getPreferenceService } from '@/services/notifications/preference.service'
-import type { JobResult } from '@/services/jobs/types'
+import { Job } from "bullmq";
+import { createLogger } from "@/lib/logger";
+import { getNotificationService } from "@/services/notifications/notification.service";
+import { getPreferenceService } from "@/services/notifications/preference.service";
+import type { JobResult } from "@/services/jobs/types";
 
-const log = createLogger('ReminderNotificationsHandler')
+const log = createLogger("ReminderNotificationsHandler");
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-export const MAX_RETRIES = 3
-export const BASE_RETRY_DELAY = 5000
-export const BATCH_SIZE = 50
+export const MAX_RETRIES = 3;
+export const BASE_RETRY_DELAY = 5000;
+export const BATCH_SIZE = 50;
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface ReminderPayload {
-  reminderId: string
-  userId: string
-  content: string
-  note?: string
-  messageId?: string
-  channelId?: string
-  channelName?: string
-  type: 'message' | 'custom' | 'followup'
-  actionUrl?: string
-  isRecurring?: boolean
+  reminderId: string;
+  userId: string;
+  content: string;
+  note?: string;
+  messageId?: string;
+  channelId?: string;
+  channelName?: string;
+  type: "message" | "custom" | "followup";
+  actionUrl?: string;
+  isRecurring?: boolean;
   recurrenceRule?: {
-    frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
-    interval: number
-    daysOfWeek?: number[]
-    dayOfMonth?: number
-    endDate?: string
-    count?: number
-  }
+    frequency: "daily" | "weekly" | "monthly" | "yearly";
+    interval: number;
+    daysOfWeek?: number[];
+    dayOfMonth?: number;
+    endDate?: string;
+    count?: number;
+  };
 }
 
 export interface ReminderResult {
-  reminderId: string
-  userId: string
-  notificationsSent: number
-  channels: string[]
-  sentAt: Date
-  nextReminder?: Date
+  reminderId: string;
+  userId: string;
+  notificationsSent: number;
+  channels: string[];
+  sentAt: Date;
+  nextReminder?: Date;
 }
 
 interface JobData {
-  type: string
-  payload: ReminderPayload
-  metadata: Record<string, unknown>
-  tags: string[]
-  createdAt: string
+  type: string;
+  payload: ReminderPayload;
+  metadata: Record<string, unknown>;
+  tags: string[];
+  createdAt: string;
 }
 
 // ============================================================================
@@ -109,7 +109,7 @@ const GET_REMINDER_QUERY = `
       updated_at
     }
   }
-`
+`;
 
 const UPDATE_REMINDER_STATUS = `
   mutation UpdateReminderStatus(
@@ -132,7 +132,7 @@ const UPDATE_REMINDER_STATUS = `
       remind_at
     }
   }
-`
+`;
 
 const GET_DUE_REMINDERS_QUERY = `
   query GetDueReminders($now: timestamptz!, $limit: Int!) {
@@ -159,7 +159,7 @@ const GET_DUE_REMINDERS_QUERY = `
       recurrence_rule
     }
   }
-`
+`;
 
 const GET_USER_INFO_QUERY = `
   query GetUserInfo($userId: uuid!) {
@@ -178,7 +178,7 @@ const GET_USER_INFO_QUERY = `
       auth_key
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -186,30 +186,31 @@ const GET_USER_INFO_QUERY = `
 
 async function executeGraphQL<T = unknown>(
   query: string,
-  variables: Record<string, unknown> = {}
+  variables: Record<string, unknown> = {},
 ): Promise<{ data?: T; errors?: Array<{ message: string }> }> {
-  const hasuraUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
-  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET
+  const hasuraUrl =
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql";
+  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET;
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  }
+    "Content-Type": "application/json",
+  };
 
   if (hasuraAdminSecret) {
-    headers['x-hasura-admin-secret'] = hasuraAdminSecret
+    headers["x-hasura-admin-secret"] = hasuraAdminSecret;
   }
 
   const response = await fetch(hasuraUrl, {
-    method: 'POST',
+    method: "POST",
     headers,
     body: JSON.stringify({ query, variables }),
-  })
+  });
 
   if (!response.ok) {
-    throw new Error(`GraphQL request failed: ${response.statusText}`)
+    throw new Error(`GraphQL request failed: ${response.statusText}`);
   }
 
-  return response.json()
+  return response.json();
 }
 
 /**
@@ -217,63 +218,65 @@ async function executeGraphQL<T = unknown>(
  */
 function calculateNextReminder(
   currentDate: Date,
-  recurrenceRule: ReminderPayload['recurrenceRule']
+  recurrenceRule: ReminderPayload["recurrenceRule"],
 ): Date | null {
-  if (!recurrenceRule) return null
+  if (!recurrenceRule) return null;
 
-  const { frequency, interval, endDate, count } = recurrenceRule
-  const next = new Date(currentDate)
+  const { frequency, interval, endDate, count } = recurrenceRule;
+  const next = new Date(currentDate);
 
   switch (frequency) {
-    case 'daily':
-      next.setDate(next.getDate() + interval)
-      break
-    case 'weekly':
-      next.setDate(next.getDate() + interval * 7)
-      break
-    case 'monthly':
-      next.setMonth(next.getMonth() + interval)
-      break
-    case 'yearly':
-      next.setFullYear(next.getFullYear() + interval)
-      break
+    case "daily":
+      next.setDate(next.getDate() + interval);
+      break;
+    case "weekly":
+      next.setDate(next.getDate() + interval * 7);
+      break;
+    case "monthly":
+      next.setMonth(next.getMonth() + interval);
+      break;
+    case "yearly":
+      next.setFullYear(next.getFullYear() + interval);
+      break;
   }
 
   // Check if past end date
   if (endDate && next > new Date(endDate)) {
-    return null
+    return null;
   }
 
-  return next
+  return next;
 }
 
 /**
  * Format reminder content for notification
  */
 function formatReminderNotification(payload: ReminderPayload): {
-  title: string
-  body: string
+  title: string;
+  body: string;
 } {
-  let title = 'Reminder'
-  let body = payload.content
+  let title = "Reminder";
+  let body = payload.content;
 
   switch (payload.type) {
-    case 'message':
-      title = payload.channelName ? `Reminder: #${payload.channelName}` : 'Message Reminder'
-      break
-    case 'followup':
-      title = 'Follow-up Reminder'
-      break
-    case 'custom':
+    case "message":
+      title = payload.channelName
+        ? `Reminder: #${payload.channelName}`
+        : "Message Reminder";
+      break;
+    case "followup":
+      title = "Follow-up Reminder";
+      break;
+    case "custom":
     default:
-      title = 'Reminder'
+      title = "Reminder";
   }
 
   if (payload.note) {
-    body = `${payload.content}\n\nNote: ${payload.note}`
+    body = `${payload.content}\n\nNote: ${payload.note}`;
   }
 
-  return { title, body }
+  return { title, body };
 }
 
 // ============================================================================
@@ -283,55 +286,61 @@ function formatReminderNotification(payload: ReminderPayload): {
 /**
  * Process a reminder notification job
  */
-export async function processReminderJob(job: Job<JobData>): Promise<JobResult<ReminderResult>> {
-  const payload = job.data.payload as ReminderPayload
-  const jobLog = createLogger(`ReminderJob:${job.id}`)
+export async function processReminderJob(
+  job: Job<JobData>,
+): Promise<JobResult<ReminderResult>> {
+  const payload = job.data.payload as ReminderPayload;
+  const jobLog = createLogger(`ReminderJob:${job.id}`);
 
-  jobLog.info('Processing reminder job', {
+  jobLog.info("Processing reminder job", {
     reminderId: payload.reminderId,
     userId: payload.userId,
     type: payload.type,
     attemptsMade: job.attemptsMade,
-  })
+  });
 
   try {
-    await job.updateProgress(10)
+    await job.updateProgress(10);
 
     // Get user preferences
-    const preferenceService = getPreferenceService()
-    const preferences = await preferenceService.getPreferences(payload.userId)
+    const preferenceService = getPreferenceService();
+    const preferences = await preferenceService.getPreferences(payload.userId);
 
-    await job.updateProgress(20)
+    await job.updateProgress(20);
 
     // Get user info for notifications
     const userResult = await executeGraphQL<{
-      users_by_pk: { id: string; email: string; display_name: string } | null
+      users_by_pk: { id: string; email: string; display_name: string } | null;
       nchat_push_subscriptions: Array<{
-        id: string
-        endpoint: string
-        p256dh_key: string
-        auth_key: string
-      }>
-    }>(GET_USER_INFO_QUERY, { userId: payload.userId })
+        id: string;
+        endpoint: string;
+        p256dh_key: string;
+        auth_key: string;
+      }>;
+    }>(GET_USER_INFO_QUERY, { userId: payload.userId });
 
-    const user = userResult.data?.users_by_pk
-    const pushSubscriptions = userResult.data?.nchat_push_subscriptions || []
+    const user = userResult.data?.users_by_pk;
+    const pushSubscriptions = userResult.data?.nchat_push_subscriptions || [];
 
     if (!user) {
-      throw new Error('User not found')
+      throw new Error("User not found");
     }
 
-    await job.updateProgress(40)
+    await job.updateProgress(40);
 
     // Format notification content
-    const { title, body } = formatReminderNotification(payload)
+    const { title, body } = formatReminderNotification(payload);
 
-    const notificationService = getNotificationService()
-    const channelsSent: string[] = []
-    let notificationsSent = 0
+    const notificationService = getNotificationService();
+    const channelsSent: string[] = [];
+    let notificationsSent = 0;
 
     // Check if user can receive push notifications
-    const canReceivePush = await preferenceService.canReceive(payload.userId, 'push', 'alert')
+    const canReceivePush = await preferenceService.canReceive(
+      payload.userId,
+      "push",
+      "alert",
+    );
 
     // Send push notification if enabled and has subscriptions
     if (canReceivePush && pushSubscriptions.length > 0) {
@@ -340,36 +349,41 @@ export async function processReminderJob(job: Job<JobData>): Promise<JobResult<R
           await notificationService.sendPush(payload.userId, sub.endpoint, {
             title,
             body,
-            category: 'alert',
+            category: "alert",
             metadata: {
               reminderId: payload.reminderId,
               type: payload.type,
               actionUrl: payload.actionUrl,
             },
-          })
-          notificationsSent++
-          if (!channelsSent.includes('push')) {
-            channelsSent.push('push')
+          });
+          notificationsSent++;
+          if (!channelsSent.includes("push")) {
+            channelsSent.push("push");
           }
         } catch (err) {
-          jobLog.warn('Failed to send push notification', {
+          jobLog.warn("Failed to send push notification", {
             subscriptionId: sub.id,
             error: err,
-          })
+          });
         }
       }
     }
 
-    await job.updateProgress(60)
+    await job.updateProgress(60);
 
     // Check if user can receive email notifications
-    const canReceiveEmail = await preferenceService.canReceive(payload.userId, 'email', 'alert')
+    const canReceiveEmail = await preferenceService.canReceive(
+      payload.userId,
+      "email",
+      "alert",
+    );
 
     // Send email notification if enabled
     if (canReceiveEmail && user.email) {
       try {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.nchat.com'
-        const appName = process.env.NEXT_PUBLIC_APP_NAME || 'nchat'
+        const appUrl =
+          process.env.NEXT_PUBLIC_APP_URL || "https://app.nchat.com";
+        const appName = process.env.NEXT_PUBLIC_APP_NAME || "nchat";
 
         const htmlContent = `
 <!DOCTYPE html>
@@ -389,7 +403,7 @@ export async function processReminderJob(job: Job<JobData>): Promise<JobResult<R
       ${
         payload.actionUrl
           ? `<a href="${payload.actionUrl}" style="display: inline-block; padding: 12px 24px; background: #f59e0b; color: white; text-decoration: none; border-radius: 6px; font-weight: 500;">View in ${appName}</a>`
-          : ''
+          : ""
       }
     </div>
     <div style="background: #f9fafb; padding: 16px 24px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb;">
@@ -398,63 +412,64 @@ export async function processReminderJob(job: Job<JobData>): Promise<JobResult<R
   </div>
 </body>
 </html>
-        `.trim()
+        `.trim();
 
         await notificationService.sendEmail(payload.userId, user.email, {
-          subject: `Reminder: ${payload.content.substring(0, 50)}${payload.content.length > 50 ? '...' : ''}`,
+          subject: `Reminder: ${payload.content.substring(0, 50)}${payload.content.length > 50 ? "..." : ""}`,
           html: htmlContent,
-          category: 'alert',
-        })
-        notificationsSent++
-        channelsSent.push('email')
+          category: "alert",
+        });
+        notificationsSent++;
+        channelsSent.push("email");
       } catch (err) {
-        jobLog.warn('Failed to send email notification', { error: err })
+        jobLog.warn("Failed to send email notification", { error: err });
       }
     }
 
-    await job.updateProgress(80)
+    await job.updateProgress(80);
 
     // Update reminder status
-    let nextReminder: Date | undefined
+    let nextReminder: Date | undefined;
 
     if (payload.isRecurring && payload.recurrenceRule) {
-      nextReminder = calculateNextReminder(new Date(), payload.recurrenceRule) || undefined
+      nextReminder =
+        calculateNextReminder(new Date(), payload.recurrenceRule) || undefined;
 
       if (nextReminder) {
         // Reschedule for next occurrence
         await executeGraphQL(UPDATE_REMINDER_STATUS, {
           id: payload.reminderId,
-          status: 'pending',
+          status: "pending",
           completedAt: null,
           nextRemindAt: nextReminder.toISOString(),
-        })
+        });
       } else {
         // No more occurrences, mark as completed
         await executeGraphQL(UPDATE_REMINDER_STATUS, {
           id: payload.reminderId,
-          status: 'completed',
+          status: "completed",
           completedAt: new Date().toISOString(),
           nextRemindAt: null,
-        })
+        });
       }
     } else {
       // Non-recurring, mark as completed
       await executeGraphQL(UPDATE_REMINDER_STATUS, {
         id: payload.reminderId,
-        status: 'completed',
+        status: "completed",
         completedAt: new Date().toISOString(),
         nextRemindAt: null,
-      })
+      });
     }
 
-    await job.updateProgress(100)
+    await job.updateProgress(100);
 
-    jobLog.info('Reminder notifications sent', {
+    jobLog.info("Reminder notifications sent", {
       reminderId: payload.reminderId,
       notificationsSent,
       channels: channelsSent,
       nextReminder,
-    })
+    });
 
     return {
       success: true,
@@ -470,18 +485,18 @@ export async function processReminderJob(job: Job<JobData>): Promise<JobResult<R
         type: payload.type,
         isRecurring: payload.isRecurring,
       },
-    }
+    };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorMessage = error instanceof Error ? error.message : String(error);
 
-    jobLog.error('Error processing reminder job', error as Error, {
+    jobLog.error("Error processing reminder job", error as Error, {
       reminderId: payload.reminderId,
       userId: payload.userId,
-    })
+    });
 
     // Throw to trigger retry if attempts remaining
     if (job.attemptsMade < MAX_RETRIES) {
-      throw error
+      throw error;
     }
 
     return {
@@ -491,7 +506,7 @@ export async function processReminderJob(job: Job<JobData>): Promise<JobResult<R
         reminderId: payload.reminderId,
         attemptsMade: job.attemptsMade,
       },
-    }
+    };
   }
 }
 
@@ -503,65 +518,65 @@ export async function processReminderJob(job: Job<JobData>): Promise<JobResult<R
  * Process all due reminders
  */
 export async function processDueReminders(): Promise<{
-  processed: number
-  succeeded: number
-  failed: number
-  skipped: number
+  processed: number;
+  succeeded: number;
+  failed: number;
+  skipped: number;
 }> {
-  log.info('Processing due reminders')
+  log.info("Processing due reminders");
 
   const result = {
     processed: 0,
     succeeded: 0,
     failed: 0,
     skipped: 0,
-  }
+  };
 
   try {
     // Get due reminders
     const dueResult = await executeGraphQL<{
       nchat_reminders: Array<{
-        id: string
-        user_id: string
-        content: string
-        note?: string
-        message_id?: string
-        channel_id?: string
-        channel?: { name: string }
-        remind_at: string
-        type: string
-        is_recurring: boolean
-        recurrence_rule?: ReminderPayload['recurrenceRule']
-      }>
+        id: string;
+        user_id: string;
+        content: string;
+        note?: string;
+        message_id?: string;
+        channel_id?: string;
+        channel?: { name: string };
+        remind_at: string;
+        type: string;
+        is_recurring: boolean;
+        recurrence_rule?: ReminderPayload["recurrenceRule"];
+      }>;
     }>(GET_DUE_REMINDERS_QUERY, {
       now: new Date().toISOString(),
       limit: BATCH_SIZE,
-    })
+    });
 
     if (dueResult.errors) {
-      log.error('Failed to get due reminders', undefined, {
+      log.error("Failed to get due reminders", undefined, {
         errors: dueResult.errors,
-      })
-      return result
+      });
+      return result;
     }
 
-    const reminders = dueResult.data?.nchat_reminders || []
-    log.info('Found due reminders', { count: reminders.length })
+    const reminders = dueResult.data?.nchat_reminders || [];
+    log.info("Found due reminders", { count: reminders.length });
 
     // Process each reminder
     for (const reminder of reminders) {
-      result.processed++
+      result.processed++;
 
       try {
-        const notificationService = getNotificationService()
+        const notificationService = getNotificationService();
 
         // Create a chat event to trigger notifications
         await notificationService.processChatEvent({
-          type: 'reminder.due',
+          type: "reminder.due",
           timestamp: new Date().toISOString(),
           actor: {
-            id: 'system',
-            name: 'Reminder',
+            id: "system",
+            name: "Reminder",
           },
           target: {
             user_id: reminder.user_id,
@@ -577,32 +592,35 @@ export async function processDueReminders(): Promise<{
             reminder_id: reminder.id,
             reminder_type: reminder.type,
           },
-        })
+        });
 
         // Update reminder status
         await executeGraphQL(UPDATE_REMINDER_STATUS, {
           id: reminder.id,
-          status: reminder.is_recurring ? 'pending' : 'completed',
+          status: reminder.is_recurring ? "pending" : "completed",
           completedAt: reminder.is_recurring ? null : new Date().toISOString(),
           nextRemindAt: reminder.is_recurring
-            ? calculateNextReminder(new Date(), reminder.recurrence_rule)?.toISOString()
+            ? calculateNextReminder(
+                new Date(),
+                reminder.recurrence_rule,
+              )?.toISOString()
             : null,
-        })
+        });
 
-        result.succeeded++
+        result.succeeded++;
       } catch (error) {
-        result.failed++
-        log.error('Failed to process reminder', error as Error, {
+        result.failed++;
+        log.error("Failed to process reminder", error as Error, {
           reminderId: reminder.id,
-        })
+        });
       }
     }
 
-    log.info('Due reminders processing complete', result)
-    return result
+    log.info("Due reminders processing complete", result);
+    return result;
   } catch (error) {
-    log.error('Error processing due reminders', error as Error)
-    return result
+    log.error("Error processing due reminders", error as Error);
+    return result;
   }
 }
 
@@ -616,14 +634,14 @@ export async function processDueReminders(): Promise<{
 export function registerReminderProcessor(processorService: {
   registerProcessor: (
     type: string,
-    processor: (job: Job<JobData>) => Promise<JobResult<unknown>>
-  ) => void
+    processor: (job: Job<JobData>) => Promise<JobResult<unknown>>,
+  ) => void;
 }): void {
   processorService.registerProcessor(
-    'reminder-notification',
-    processReminderJob as (job: Job<JobData>) => Promise<JobResult<unknown>>
-  )
-  log.info('Reminder notification processor registered')
+    "reminder-notification",
+    processReminderJob as (job: Job<JobData>) => Promise<JobResult<unknown>>,
+  );
+  log.info("Reminder notification processor registered");
 }
 
 export default {
@@ -633,4 +651,4 @@ export default {
   MAX_RETRIES,
   BASE_RETRY_DELAY,
   BATCH_SIZE,
-}
+};

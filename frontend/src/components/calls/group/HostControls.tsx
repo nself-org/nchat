@@ -5,9 +5,9 @@
  * mute all, lock meeting, end call for all, and room settings.
  */
 
-'use client'
+"use client";
 
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   MicOff,
   VideoOff,
@@ -23,9 +23,9 @@ import {
   UserPlus,
   Circle,
   StopCircle,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +34,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuCheckboxItem,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,46 +45,51 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
-import { Badge } from '@/components/ui/badge'
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface HostControlsProps {
-  isHost: boolean
-  isCoHost: boolean
-  isLocked: boolean
-  isRecording: boolean
-  lobbyEnabled: boolean
-  lobbyCount: number
-  raisedHandsCount: number
-  participantCount: number
-  maxParticipants: number
-  muteOnEntry: boolean
-  videoOffOnEntry: boolean
-  allowParticipantUnmute: boolean
-  allowParticipantScreenShare: boolean
-  onMuteAll: () => void
-  onUnmuteAll: () => void
-  onDisableAllVideo: () => void
-  onLockRoom: () => void
-  onUnlockRoom: () => void
-  onEndCallForAll: () => void
-  onToggleLobby: (enabled: boolean) => void
-  onLowerAllHands: () => void
-  onInviteParticipant: () => void
-  onStartRecording: () => void
-  onStopRecording: () => void
+  isHost: boolean;
+  isCoHost: boolean;
+  isLocked: boolean;
+  isRecording: boolean;
+  lobbyEnabled: boolean;
+  lobbyCount: number;
+  raisedHandsCount: number;
+  participantCount: number;
+  maxParticipants: number;
+  muteOnEntry: boolean;
+  videoOffOnEntry: boolean;
+  allowParticipantUnmute: boolean;
+  allowParticipantScreenShare: boolean;
+  onMuteAll: () => void;
+  onUnmuteAll: () => void;
+  onDisableAllVideo: () => void;
+  onLockRoom: () => void;
+  onUnlockRoom: () => void;
+  onEndCallForAll: () => void;
+  onToggleLobby: (enabled: boolean) => void;
+  onLowerAllHands: () => void;
+  onInviteParticipant: () => void;
+  onStartRecording: () => void;
+  onStopRecording: () => void;
   onSettingsChange: (settings: {
-    muteOnEntry?: boolean
-    videoOffOnEntry?: boolean
-    allowParticipantUnmute?: boolean
-    allowParticipantScreenShare?: boolean
-  }) => void
-  className?: string
+    muteOnEntry?: boolean;
+    videoOffOnEntry?: boolean;
+    allowParticipantUnmute?: boolean;
+    allowParticipantScreenShare?: boolean;
+  }) => void;
+  className?: string;
 }
 
 // =============================================================================
@@ -119,15 +124,15 @@ export function HostControls({
   onSettingsChange,
   className,
 }: HostControlsProps) {
-  const canManage = isHost || isCoHost
+  const canManage = isHost || isCoHost;
 
   if (!canManage) {
-    return null
+    return null;
   }
 
   return (
     <TooltipProvider>
-      <div className={cn('flex items-center gap-2', className)}>
+      <div className={cn("flex items-center gap-2", className)}>
         {/* Mute All */}
         <DropdownMenu>
           <Tooltip>
@@ -161,7 +166,7 @@ export function HostControls({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isLocked ? 'destructive' : 'outline'}
+              variant={isLocked ? "destructive" : "outline"}
               size="sm"
               onClick={isLocked ? onUnlockRoom : onLockRoom}
               className="gap-2"
@@ -180,7 +185,9 @@ export function HostControls({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {isLocked ? 'Unlock room to allow new participants' : 'Lock room to prevent new joins'}
+            {isLocked
+              ? "Unlock room to allow new participants"
+              : "Lock room to prevent new joins"}
           </TooltipContent>
         </Tooltip>
 
@@ -188,7 +195,7 @@ export function HostControls({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={lobbyEnabled ? 'secondary' : 'outline'}
+              variant={lobbyEnabled ? "secondary" : "outline"}
               size="sm"
               onClick={() => onToggleLobby(!lobbyEnabled)}
               className="relative gap-2"
@@ -208,7 +215,7 @@ export function HostControls({
           <TooltipContent>
             {lobbyEnabled
               ? `Waiting room enabled (${lobbyCount} waiting)`
-              : 'Enable waiting room for new participants'}
+              : "Enable waiting room for new participants"}
           </TooltipContent>
         </Tooltip>
 
@@ -235,7 +242,12 @@ export function HostControls({
         {/* Invite */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="sm" onClick={onInviteParticipant} className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onInviteParticipant}
+              className="gap-2"
+            >
               <UserPlus className="h-4 w-4" />
               <span className="hidden sm:inline">Invite</span>
             </Button>
@@ -250,7 +262,7 @@ export function HostControls({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant={isRecording ? 'destructive' : 'outline'}
+                variant={isRecording ? "destructive" : "outline"}
                 size="sm"
                 onClick={isRecording ? onStopRecording : onStartRecording}
                 className="gap-2"
@@ -268,7 +280,9 @@ export function HostControls({
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{isRecording ? 'Stop recording' : 'Start recording'}</TooltipContent>
+            <TooltipContent>
+              {isRecording ? "Stop recording" : "Start recording"}
+            </TooltipContent>
           </Tooltip>
         )}
 
@@ -289,20 +303,26 @@ export function HostControls({
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem
               checked={muteOnEntry}
-              onCheckedChange={(checked) => onSettingsChange({ muteOnEntry: checked })}
+              onCheckedChange={(checked) =>
+                onSettingsChange({ muteOnEntry: checked })
+              }
             >
               Mute on entry
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={videoOffOnEntry}
-              onCheckedChange={(checked) => onSettingsChange({ videoOffOnEntry: checked })}
+              onCheckedChange={(checked) =>
+                onSettingsChange({ videoOffOnEntry: checked })
+              }
             >
               Video off on entry
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem
               checked={allowParticipantUnmute}
-              onCheckedChange={(checked) => onSettingsChange({ allowParticipantUnmute: checked })}
+              onCheckedChange={(checked) =>
+                onSettingsChange({ allowParticipantUnmute: checked })
+              }
             >
               Allow participants to unmute
             </DropdownMenuCheckboxItem>
@@ -329,13 +349,16 @@ export function HostControls({
             <AlertDialogHeader>
               <AlertDialogTitle>End call for everyone?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will end the call for all {participantCount} participants. This action cannot
-                be undone.
+                This will end the call for all {participantCount} participants.
+                This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onEndCallForAll} className="bg-destructive">
+              <AlertDialogAction
+                onClick={onEndCallForAll}
+                className="bg-destructive"
+              >
                 End Call for All
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -358,5 +381,5 @@ export function HostControls({
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }

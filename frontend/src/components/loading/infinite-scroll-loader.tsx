@@ -1,31 +1,31 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Spinner } from './spinner'
-import { Button } from '@/components/ui/button'
+import { useEffect, useRef, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Spinner } from "./spinner";
+import { Button } from "@/components/ui/button";
 
 interface InfiniteScrollLoaderProps {
   /** Whether more items are being loaded */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Whether there are more items to load */
-  hasMore?: boolean
+  hasMore?: boolean;
   /** Callback when load more is triggered */
-  onLoadMore: () => void
+  onLoadMore: () => void;
   /** Mode: auto triggers on scroll, manual shows button */
-  mode?: 'auto' | 'manual'
+  mode?: "auto" | "manual";
   /** Root margin for intersection observer */
-  rootMargin?: string
+  rootMargin?: string;
   /** Threshold for intersection observer */
-  threshold?: number
+  threshold?: number;
   /** Custom loading content */
-  loadingContent?: React.ReactNode
+  loadingContent?: React.ReactNode;
   /** Custom "load more" button content */
-  loadMoreContent?: React.ReactNode
+  loadMoreContent?: React.ReactNode;
   /** Custom "end of list" content */
-  endContent?: React.ReactNode
+  endContent?: React.ReactNode;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -36,86 +36,93 @@ export function InfiniteScrollLoader({
   isLoading = false,
   hasMore = true,
   onLoadMore,
-  mode = 'auto',
-  rootMargin = '100px',
+  mode = "auto",
+  rootMargin = "100px",
   threshold = 0.1,
   loadingContent,
   loadMoreContent,
   endContent,
   className,
 }: InfiniteScrollLoaderProps) {
-  const loaderRef = useRef<HTMLDivElement>(null)
+  const loaderRef = useRef<HTMLDivElement>(null);
 
   const handleIntersection = useCallback(
     (entries: IntersectionObserverEntry[]) => {
-      const [entry] = entries
-      if (entry.isIntersecting && hasMore && !isLoading && mode === 'auto') {
-        onLoadMore()
+      const [entry] = entries;
+      if (entry.isIntersecting && hasMore && !isLoading && mode === "auto") {
+        onLoadMore();
       }
     },
-    [hasMore, isLoading, mode, onLoadMore]
-  )
+    [hasMore, isLoading, mode, onLoadMore],
+  );
 
   useEffect(() => {
-    if (mode !== 'auto') return
+    if (mode !== "auto") return;
 
-    const element = loaderRef.current
-    if (!element) return
+    const element = loaderRef.current;
+    if (!element) return;
 
     const observer = new IntersectionObserver(handleIntersection, {
       rootMargin,
       threshold,
-    })
+    });
 
-    observer.observe(element)
+    observer.observe(element);
 
     return () => {
-      observer.disconnect()
-    }
-  }, [handleIntersection, mode, rootMargin, threshold])
+      observer.disconnect();
+    };
+  }, [handleIntersection, mode, rootMargin, threshold]);
 
   // Nothing more to load
   if (!hasMore && !isLoading) {
-    return endContent ? <div className={cn('py-4 text-center', className)}>{endContent}</div> : null
+    return endContent ? (
+      <div className={cn("py-4 text-center", className)}>{endContent}</div>
+    ) : null;
   }
 
   // Loading state
   if (isLoading) {
     return (
-      <div ref={loaderRef} className={cn('flex justify-center py-4', className)}>
+      <div
+        ref={loaderRef}
+        className={cn("flex justify-center py-4", className)}
+      >
         {loadingContent ?? <Spinner size="md" text="Loading more..." />}
       </div>
-    )
+    );
   }
 
   // Manual mode - show button
-  if (mode === 'manual') {
+  if (mode === "manual") {
     return (
-      <div className={cn('flex justify-center py-4', className)}>
+      <div className={cn("flex justify-center py-4", className)}>
         <Button variant="outline" onClick={onLoadMore}>
-          {loadMoreContent ?? 'Load more'}
+          {loadMoreContent ?? "Load more"}
         </Button>
       </div>
-    )
+    );
   }
 
   // Auto mode - invisible trigger element
-  return <div ref={loaderRef} className={cn('h-4', className)} aria-hidden="true" />
+  return (
+    <div ref={loaderRef} className={cn("h-4", className)} aria-hidden="true" />
+  );
 }
 
 interface LoadMoreButtonProps {
   /** Whether loading */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Whether there are more items */
-  hasMore?: boolean
+  hasMore?: boolean;
   /** Click handler */
-  onClick: () => void
+  onClick: () => void;
   /** Items remaining count (optional) */
-  remainingCount?: number
+  remainingCount?: number;
   /** Button variant */
-  variant?: 'default' | 'outline' | 'ghost' | 'link'
+  variant?: "default" | "outline" | "ghost" | "link";
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -126,15 +133,15 @@ export function LoadMoreButton({
   hasMore = true,
   onClick,
   remainingCount,
-  variant = 'outline',
+  variant = "outline",
   className,
 }: LoadMoreButtonProps) {
   if (!hasMore) {
-    return null
+    return null;
   }
 
   return (
-    <div className={cn('flex justify-center py-4', className)}>
+    <div className={cn("flex justify-center py-4", className)}>
       <Button variant={variant} onClick={onClick} disabled={isLoading}>
         {isLoading ? (
           <>
@@ -144,20 +151,20 @@ export function LoadMoreButton({
         ) : remainingCount !== undefined ? (
           `Load ${remainingCount} more`
         ) : (
-          'Load more'
+          "Load more"
         )}
       </Button>
     </div>
-  )
+  );
 }
 
 interface EndOfListProps {
   /** Message to display */
-  message?: string
+  message?: string;
   /** Show icon */
-  showIcon?: boolean
+  showIcon?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -171,8 +178,8 @@ export function EndOfList({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center py-8 text-muted-foreground',
-        className
+        "flex flex-col items-center justify-center py-8 text-muted-foreground",
+        className,
       )}
     >
       {showIcon && (
@@ -197,20 +204,20 @@ export function EndOfList({
       )}
       <p className="text-sm">{message}</p>
     </div>
-  )
+  );
 }
 
 interface PullToRefreshProps {
   /** Whether refreshing */
-  isRefreshing?: boolean
+  isRefreshing?: boolean;
   /** Refresh callback */
-  onRefresh: () => Promise<void>
+  onRefresh: () => Promise<void>;
   /** Pull threshold in pixels */
-  threshold?: number
+  threshold?: number;
   /** Children content */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -224,34 +231,34 @@ export function PullToRefresh({
   children,
   className,
 }: PullToRefreshProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const startY = useRef(0)
-  const pullDistance = useRef(0)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const startY = useRef(0);
+  const pullDistance = useRef(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (containerRef.current?.scrollTop === 0) {
-      startY.current = e.touches[0].clientY
+      startY.current = e.touches[0].clientY;
     }
-  }
+  };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startY.current > 0) {
-      pullDistance.current = e.touches[0].clientY - startY.current
+      pullDistance.current = e.touches[0].clientY - startY.current;
     }
-  }
+  };
 
   const handleTouchEnd = async () => {
     if (pullDistance.current > threshold && !isRefreshing) {
-      await onRefresh()
+      await onRefresh();
     }
-    startY.current = 0
-    pullDistance.current = 0
-  }
+    startY.current = 0;
+    pullDistance.current = 0;
+  };
 
   return (
     <div
       ref={containerRef}
-      className={cn('relative overflow-auto', className)}
+      className={cn("relative overflow-auto", className)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -265,5 +272,5 @@ export function PullToRefresh({
 
       {children}
     </div>
-  )
+  );
 }

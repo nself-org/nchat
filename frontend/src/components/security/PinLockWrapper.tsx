@@ -5,20 +5,20 @@
  * Should be placed at the root layout level
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { usePinLock } from '@/hooks/use-pin-lock'
-import { PinLock } from './PinLock'
-import { useAuth } from '@/contexts/auth-context'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { usePinLock } from "@/hooks/use-pin-lock";
+import { PinLock } from "./PinLock";
+import { useAuth } from "@/contexts/auth-context";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface PinLockWrapperProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 // ============================================================================
@@ -26,12 +26,12 @@ interface PinLockWrapperProps {
 // ============================================================================
 
 export function PinLockWrapper({ children }: PinLockWrapperProps) {
-  const router = useRouter()
-  const { user, signOut } = useAuth()
-  const { isLocked, hasPinSetup, unlock } = usePinLock()
+  const router = useRouter();
+  const { user, signOut } = useAuth();
+  const { isLocked, hasPinSetup, unlock } = usePinLock();
 
   // Track if we should show the lock screen
-  const [showLock, setShowLock] = useState(false)
+  const [showLock, setShowLock] = useState(false);
 
   // Update show lock when lock state changes
   useEffect(() => {
@@ -40,37 +40,37 @@ export function PinLockWrapper({ children }: PinLockWrapperProps) {
     // 2. PIN is configured
     // 3. Session is locked
     if (user && hasPinSetup && isLocked) {
-      setShowLock(true)
+      setShowLock(true);
     } else {
-      setShowLock(false)
+      setShowLock(false);
     }
-  }, [user, hasPinSetup, isLocked])
+  }, [user, hasPinSetup, isLocked]);
 
   // Handle unlock
   const handleUnlock = () => {
-    unlock()
-    setShowLock(false)
-  }
+    unlock();
+    setShowLock(false);
+  };
 
   // Handle forgot PIN
   const handleForgotPin = async () => {
     const confirmed = confirm(
-      'Forgot PIN? You will be signed out and need to sign in with your password. PIN lock will be disabled.'
-    )
+      "Forgot PIN? You will be signed out and need to sign in with your password. PIN lock will be disabled.",
+    );
 
     if (confirmed) {
       // Sign out user
-      await signOut()
+      await signOut();
 
       // Clear PIN settings (will happen on sign out)
       // Navigate to login
-      router.push('/auth/signin')
+      router.push("/auth/signin");
     }
-  }
+  };
 
   // Don't render lock screen if not needed
   if (!showLock) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
   return (
@@ -81,5 +81,5 @@ export function PinLockWrapper({ children }: PinLockWrapperProps) {
       {/* PIN Lock Overlay */}
       <PinLock onUnlock={handleUnlock} onForgotPin={handleForgotPin} />
     </>
-  )
+  );
 }

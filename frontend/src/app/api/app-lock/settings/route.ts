@@ -14,24 +14,24 @@
  * This API only manages the settings/policy configuration.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { apolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { apolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
 import {
   withAuth,
   withRateLimit,
   withErrorHandler,
   compose,
   type AuthenticatedRequest,
-} from '@/lib/api/middleware'
+} from "@/lib/api/middleware";
 import {
   successResponse,
   errorResponse,
   badRequestResponse,
   validationErrorResponse,
-} from '@/lib/api/response'
-import { logger } from '@/lib/logger'
+} from "@/lib/api/response";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // GraphQL Queries and Mutations
@@ -56,7 +56,7 @@ const GET_APP_LOCK_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 const UPSERT_APP_LOCK_SETTINGS = gql`
   mutation UpsertAppLockSettings(
@@ -119,7 +119,7 @@ const UPSERT_APP_LOCK_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 const DELETE_APP_LOCK_SETTINGS = gql`
   mutation DeleteAppLockSettings($userId: uuid!) {
@@ -127,62 +127,68 @@ const DELETE_APP_LOCK_SETTINGS = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DbAppLockSettings {
-  id: string
-  user_id: string
-  mode: string
-  idle_timeout_enabled: boolean
-  idle_timeout_minutes: number
-  idle_timeout_warning_seconds: number
-  lock_on_launch_enabled: boolean
-  lock_on_launch_threshold_seconds: number
-  max_pin_attempts: number
-  lockout_minutes: number
-  pin_length: number
-  daily_biometric_reset_hour: number
-  created_at: string
-  updated_at: string
+  id: string;
+  user_id: string;
+  mode: string;
+  idle_timeout_enabled: boolean;
+  idle_timeout_minutes: number;
+  idle_timeout_warning_seconds: number;
+  lock_on_launch_enabled: boolean;
+  lock_on_launch_threshold_seconds: number;
+  max_pin_attempts: number;
+  lockout_minutes: number;
+  pin_length: number;
+  daily_biometric_reset_hour: number;
+  created_at: string;
+  updated_at: string;
 }
 
 interface ApiLockSettings {
-  mode: 'none' | 'pin' | 'biometric' | 'pin_or_biometric' | 'pin_and_biometric'
+  mode: "none" | "pin" | "biometric" | "pin_or_biometric" | "pin_and_biometric";
   idleTimeout: {
-    enabled: boolean
-    timeoutMinutes: number
-    warningSeconds: number
-  }
+    enabled: boolean;
+    timeoutMinutes: number;
+    warningSeconds: number;
+  };
   lockOnLaunch: {
-    enabled: boolean
-    backgroundThresholdSeconds: number
-  }
-  maxPinAttempts: number
-  lockoutMinutes: number
-  pinLength: number
-  dailyBiometricResetHour: number
+    enabled: boolean;
+    backgroundThresholdSeconds: number;
+  };
+  maxPinAttempts: number;
+  lockoutMinutes: number;
+  pinLength: number;
+  dailyBiometricResetHour: number;
 }
 
 // ============================================================================
 // Validation Schemas
 // ============================================================================
 
-const lockModeSchema = z.enum(['none', 'pin', 'biometric', 'pin_or_biometric', 'pin_and_biometric'])
+const lockModeSchema = z.enum([
+  "none",
+  "pin",
+  "biometric",
+  "pin_or_biometric",
+  "pin_and_biometric",
+]);
 
 const idleTimeoutSchema = z.object({
   enabled: z.boolean(),
   timeoutMinutes: z.number().int().min(1).max(60),
   warningSeconds: z.number().int().min(0).max(120),
-})
+});
 
 const lockOnLaunchSchema = z.object({
   enabled: z.boolean(),
   backgroundThresholdSeconds: z.number().int().min(0).max(3600),
-})
+});
 
 const updateSettingsSchema = z.object({
   mode: lockModeSchema.optional(),
@@ -192,14 +198,14 @@ const updateSettingsSchema = z.object({
   lockoutMinutes: z.number().int().min(1).max(60).optional(),
   pinLength: z.number().int().min(4).max(8).optional(),
   dailyBiometricResetHour: z.number().int().min(0).max(23).optional(),
-})
+});
 
 // ============================================================================
 // Default Settings
 // ============================================================================
 
 const DEFAULT_SETTINGS: ApiLockSettings = {
-  mode: 'none',
+  mode: "none",
   idleTimeout: {
     enabled: false,
     timeoutMinutes: 5,
@@ -213,7 +219,7 @@ const DEFAULT_SETTINGS: ApiLockSettings = {
   lockoutMinutes: 15,
   pinLength: 6,
   dailyBiometricResetHour: 4,
-}
+};
 
 // ============================================================================
 // Helpers
@@ -221,7 +227,7 @@ const DEFAULT_SETTINGS: ApiLockSettings = {
 
 function dbToApiSettings(db: DbAppLockSettings): ApiLockSettings {
   return {
-    mode: db.mode as ApiLockSettings['mode'],
+    mode: db.mode as ApiLockSettings["mode"],
     idleTimeout: {
       enabled: db.idle_timeout_enabled,
       timeoutMinutes: db.idle_timeout_minutes,
@@ -235,7 +241,7 @@ function dbToApiSettings(db: DbAppLockSettings): ApiLockSettings {
     lockoutMinutes: db.lockout_minutes,
     pinLength: db.pin_length,
     dailyBiometricResetHour: db.daily_biometric_reset_hour,
-  }
+  };
 }
 
 // ============================================================================
@@ -243,38 +249,41 @@ function dbToApiSettings(db: DbAppLockSettings): ApiLockSettings {
 // ============================================================================
 
 async function handleGet(request: AuthenticatedRequest): Promise<NextResponse> {
-  const userId = request.user.id
+  const userId = request.user.id;
 
   try {
     const { data } = await apolloClient.query<{
-      nchat_app_lock_settings: DbAppLockSettings[]
+      nchat_app_lock_settings: DbAppLockSettings[];
     }>({
       query: GET_APP_LOCK_SETTINGS,
       variables: { userId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const settings = data.nchat_app_lock_settings[0]
+    const settings = data.nchat_app_lock_settings[0];
 
     if (!settings) {
       return successResponse({
         settings: DEFAULT_SETTINGS,
         hasStoredSettings: false,
-      })
+      });
     }
 
     return successResponse({
       settings: dbToApiSettings(settings),
       hasStoredSettings: true,
       updatedAt: settings.updated_at,
-    })
+    });
   } catch (error) {
-    logger.error('[AppLockSettings] Failed to get settings', error instanceof Error ? error : new Error(String(error)))
+    logger.error(
+      "[AppLockSettings] Failed to get settings",
+      error instanceof Error ? error : new Error(String(error)),
+    );
     return errorResponse(
-      'Failed to retrieve app lock settings',
-      'SETTINGS_FETCH_FAILED',
-      500
-    )
+      "Failed to retrieve app lock settings",
+      "SETTINGS_FETCH_FAILED",
+      500,
+    );
   }
 }
 
@@ -283,42 +292,42 @@ async function handleGet(request: AuthenticatedRequest): Promise<NextResponse> {
 // ============================================================================
 
 async function handlePut(request: AuthenticatedRequest): Promise<NextResponse> {
-  const userId = request.user.id
+  const userId = request.user.id;
 
-  let body: unknown
+  let body: unknown;
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    return badRequestResponse('Invalid JSON body')
+    return badRequestResponse("Invalid JSON body");
   }
 
-  const validation = updateSettingsSchema.safeParse(body)
+  const validation = updateSettingsSchema.safeParse(body);
   if (!validation.success) {
-    const errors: Record<string, string[]> = {}
+    const errors: Record<string, string[]> = {};
     for (const error of validation.error.errors) {
-      const path = error.path.join('.')
+      const path = error.path.join(".");
       if (!errors[path]) {
-        errors[path] = []
+        errors[path] = [];
       }
-      errors[path].push((error instanceof Error ? error.message : String(error)))
+      errors[path].push(error instanceof Error ? error.message : String(error));
     }
-    return validationErrorResponse(errors)
+    return validationErrorResponse(errors);
   }
 
-  const updates = validation.data
+  const updates = validation.data;
 
   try {
     // Get current settings first
     const { data: currentData } = await apolloClient.query<{
-      nchat_app_lock_settings: DbAppLockSettings[]
+      nchat_app_lock_settings: DbAppLockSettings[];
     }>({
       query: GET_APP_LOCK_SETTINGS,
       variables: { userId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const current = currentData.nchat_app_lock_settings[0]
-    const base = current ? dbToApiSettings(current) : DEFAULT_SETTINGS
+    const current = currentData.nchat_app_lock_settings[0];
+    const base = current ? dbToApiSettings(current) : DEFAULT_SETTINGS;
 
     // Merge updates
     const merged: ApiLockSettings = {
@@ -334,12 +343,13 @@ async function handlePut(request: AuthenticatedRequest): Promise<NextResponse> {
       maxPinAttempts: updates.maxPinAttempts ?? base.maxPinAttempts,
       lockoutMinutes: updates.lockoutMinutes ?? base.lockoutMinutes,
       pinLength: updates.pinLength ?? base.pinLength,
-      dailyBiometricResetHour: updates.dailyBiometricResetHour ?? base.dailyBiometricResetHour,
-    }
+      dailyBiometricResetHour:
+        updates.dailyBiometricResetHour ?? base.dailyBiometricResetHour,
+    };
 
     // Upsert settings
     const { data: upsertData } = await apolloClient.mutate<{
-      insert_nchat_app_lock_settings_one: DbAppLockSettings
+      insert_nchat_app_lock_settings_one: DbAppLockSettings;
     }>({
       mutation: UPSERT_APP_LOCK_SETTINGS,
       variables: {
@@ -349,31 +359,42 @@ async function handlePut(request: AuthenticatedRequest): Promise<NextResponse> {
         idleTimeoutMinutes: merged.idleTimeout.timeoutMinutes,
         idleTimeoutWarningSeconds: merged.idleTimeout.warningSeconds,
         lockOnLaunchEnabled: merged.lockOnLaunch.enabled,
-        lockOnLaunchThresholdSeconds: merged.lockOnLaunch.backgroundThresholdSeconds,
+        lockOnLaunchThresholdSeconds:
+          merged.lockOnLaunch.backgroundThresholdSeconds,
         maxPinAttempts: merged.maxPinAttempts,
         lockoutMinutes: merged.lockoutMinutes,
         pinLength: merged.pinLength,
         dailyBiometricResetHour: merged.dailyBiometricResetHour,
       },
-    })
+    });
 
     if (!upsertData?.insert_nchat_app_lock_settings_one) {
-      return errorResponse('Failed to save settings', 'SETTINGS_SAVE_FAILED', 500)
+      return errorResponse(
+        "Failed to save settings",
+        "SETTINGS_SAVE_FAILED",
+        500,
+      );
     }
 
-    logger.info('[AppLockSettings] Settings updated', { userId, mode: merged.mode })
+    logger.info("[AppLockSettings] Settings updated", {
+      userId,
+      mode: merged.mode,
+    });
 
     return successResponse({
       settings: dbToApiSettings(upsertData.insert_nchat_app_lock_settings_one),
       updatedAt: upsertData.insert_nchat_app_lock_settings_one.updated_at,
-    })
+    });
   } catch (error) {
-    logger.error('[AppLockSettings] Failed to update settings', error instanceof Error ? error : new Error(String(error)))
+    logger.error(
+      "[AppLockSettings] Failed to update settings",
+      error instanceof Error ? error : new Error(String(error)),
+    );
     return errorResponse(
-      'Failed to save app lock settings',
-      'SETTINGS_SAVE_FAILED',
-      500
-    )
+      "Failed to save app lock settings",
+      "SETTINGS_SAVE_FAILED",
+      500,
+    );
   }
 }
 
@@ -381,28 +402,33 @@ async function handlePut(request: AuthenticatedRequest): Promise<NextResponse> {
 // DELETE Handler
 // ============================================================================
 
-async function handleDelete(request: AuthenticatedRequest): Promise<NextResponse> {
-  const userId = request.user.id
+async function handleDelete(
+  request: AuthenticatedRequest,
+): Promise<NextResponse> {
+  const userId = request.user.id;
 
   try {
     await apolloClient.mutate({
       mutation: DELETE_APP_LOCK_SETTINGS,
       variables: { userId },
-    })
+    });
 
-    logger.info('[AppLockSettings] Settings deleted', { userId })
+    logger.info("[AppLockSettings] Settings deleted", { userId });
 
     return successResponse({
-      message: 'App lock settings deleted',
+      message: "App lock settings deleted",
       settings: DEFAULT_SETTINGS,
-    })
+    });
   } catch (error) {
-    logger.error('[AppLockSettings] Failed to delete settings', error instanceof Error ? error : new Error(String(error)))
+    logger.error(
+      "[AppLockSettings] Failed to delete settings",
+      error instanceof Error ? error : new Error(String(error)),
+    );
     return errorResponse(
-      'Failed to delete app lock settings',
-      'SETTINGS_DELETE_FAILED',
-      500
-    )
+      "Failed to delete app lock settings",
+      "SETTINGS_DELETE_FAILED",
+      500,
+    );
   }
 }
 
@@ -413,17 +439,17 @@ async function handleDelete(request: AuthenticatedRequest): Promise<NextResponse
 export const GET = compose(
   withErrorHandler,
   withRateLimit({ limit: 60, window: 60 }),
-  withAuth
-)(handleGet)
+  withAuth,
+)(handleGet);
 
 export const PUT = compose(
   withErrorHandler,
   withRateLimit({ limit: 30, window: 60 }),
-  withAuth
-)(handlePut)
+  withAuth,
+)(handlePut);
 
 export const DELETE = compose(
   withErrorHandler,
   withRateLimit({ limit: 10, window: 60 }),
-  withAuth
-)(handleDelete)
+  withAuth,
+)(handleDelete);

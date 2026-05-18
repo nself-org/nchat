@@ -1,44 +1,44 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { cva, type VariantProps } from 'class-variance-authority'
+import * as React from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 
 // Modal size variants
 const modalSizeVariants = cva(
-  'fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
+  "fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
   {
     variants: {
       size: {
-        sm: 'w-full max-w-sm rounded-lg',
-        md: 'w-full max-w-md rounded-lg',
-        lg: 'w-full max-w-lg rounded-lg',
-        xl: 'w-full max-w-xl rounded-lg',
-        '2xl': 'w-full max-w-2xl rounded-lg',
-        full: 'w-screen h-screen max-w-none rounded-none',
+        sm: "w-full max-w-sm rounded-lg",
+        md: "w-full max-w-md rounded-lg",
+        lg: "w-full max-w-lg rounded-lg",
+        xl: "w-full max-w-xl rounded-lg",
+        "2xl": "w-full max-w-2xl rounded-lg",
+        full: "w-screen h-screen max-w-none rounded-none",
       },
     },
     defaultVariants: {
-      size: 'md',
+      size: "md",
     },
-  }
-)
+  },
+);
 
-export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
+export type ModalSize = "sm" | "md" | "lg" | "xl" | "2xl" | "full";
 
 // Base Modal Types
 export interface BaseModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  children: React.ReactNode
-  size?: ModalSize
-  className?: string
-  showCloseButton?: boolean
-  preventOutsideClose?: boolean
-  preventEscapeClose?: boolean
-  onAnimationEnd?: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
+  size?: ModalSize;
+  className?: string;
+  showCloseButton?: boolean;
+  preventOutsideClose?: boolean;
+  preventEscapeClose?: boolean;
+  onAnimationEnd?: () => void;
 }
 
 // Modal Overlay
@@ -49,20 +49,20 @@ const ModalOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      className
+      "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className,
     )}
     {...props}
   />
-))
-ModalOverlay.displayName = 'ModalOverlay'
+));
+ModalOverlay.displayName = "ModalOverlay";
 
 // Base Modal Component
 export function BaseModal({
   open,
   onOpenChange,
   children,
-  size = 'md',
+  size = "md",
   className,
   showCloseButton = true,
   preventOutsideClose = false,
@@ -71,10 +71,10 @@ export function BaseModal({
 }: BaseModalProps) {
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen && preventEscapeClose) {
-      return
+      return;
     }
-    onOpenChange(newOpen)
-  }
+    onOpenChange(newOpen);
+  };
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
@@ -84,12 +84,12 @@ export function BaseModal({
           className={cn(modalSizeVariants({ size }), className)}
           onPointerDownOutside={(e) => {
             if (preventOutsideClose) {
-              e.preventDefault()
+              e.preventDefault();
             }
           }}
           onEscapeKeyDown={(e) => {
             if (preventEscapeClose) {
-              e.preventDefault()
+              e.preventDefault();
             }
           }}
           onAnimationEnd={onAnimationEnd}
@@ -104,20 +104,27 @@ export function BaseModal({
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
-  )
+  );
 }
 
 // Modal Header
 export interface ModalHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-export function ModalHeader({ className, children, ...props }: ModalHeaderProps) {
+export function ModalHeader({
+  className,
+  children,
+  ...props
+}: ModalHeaderProps) {
   return (
-    <div className={cn('flex flex-col space-y-1.5 p-6 pb-0', className)} {...props}>
+    <div
+      className={cn("flex flex-col space-y-1.5 p-6 pb-0", className)}
+      {...props}
+    >
       {children}
     </div>
-  )
+  );
 }
 
 // Modal Title
@@ -131,11 +138,14 @@ export const ModalTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold leading-none tracking-tight', className)}
+    className={cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      className,
+    )}
     {...props}
   />
-))
-ModalTitle.displayName = 'ModalTitle'
+));
+ModalTitle.displayName = "ModalTitle";
 
 // Modal Description
 export interface ModalDescriptionProps extends React.ComponentPropsWithoutRef<
@@ -148,50 +158,57 @@ export const ModalDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-muted-foreground', className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
-))
-ModalDescription.displayName = 'ModalDescription'
+));
+ModalDescription.displayName = "ModalDescription";
 
 // Modal Body
 export interface ModalBodyProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function ModalBody({ className, children, ...props }: ModalBodyProps) {
   return (
-    <div className={cn('flex-1 p-6', className)} {...props}>
+    <div className={cn("flex-1 p-6", className)} {...props}>
       {children}
     </div>
-  )
+  );
 }
 
 // Modal Footer
 export interface ModalFooterProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-export function ModalFooter({ className, children, ...props }: ModalFooterProps) {
+export function ModalFooter({
+  className,
+  children,
+  ...props
+}: ModalFooterProps) {
   return (
     <div
-      className={cn('flex flex-col-reverse gap-2 p-6 pt-0 sm:flex-row sm:justify-end', className)}
+      className={cn(
+        "flex flex-col-reverse gap-2 p-6 pt-0 sm:flex-row sm:justify-end",
+        className,
+      )}
       {...props}
     >
       {children}
     </div>
-  )
+  );
 }
 
 // Convenience component for a complete modal with header, body, and footer
-export interface CompleteModalProps extends Omit<BaseModalProps, 'children'> {
-  title: string
-  description?: string
-  body: React.ReactNode
-  footer?: React.ReactNode
-  headerClassName?: string
-  bodyClassName?: string
-  footerClassName?: string
+export interface CompleteModalProps extends Omit<BaseModalProps, "children"> {
+  title: string;
+  description?: string;
+  body: React.ReactNode;
+  footer?: React.ReactNode;
+  headerClassName?: string;
+  bodyClassName?: string;
+  footerClassName?: string;
 }
 
 export function CompleteModal({
@@ -211,12 +228,14 @@ export function CompleteModal({
         {description && <ModalDescription>{description}</ModalDescription>}
       </ModalHeader>
       <ModalBody className={bodyClassName}>{body}</ModalBody>
-      {footer && <ModalFooter className={footerClassName}>{footer}</ModalFooter>}
+      {footer && (
+        <ModalFooter className={footerClassName}>{footer}</ModalFooter>
+      )}
     </BaseModal>
-  )
+  );
 }
 
 // Re-export Dialog primitives for advanced use cases
-export const ModalClose = DialogPrimitive.Close
-export const ModalTrigger = DialogPrimitive.Trigger
-export const ModalPortal = DialogPrimitive.Portal
+export const ModalClose = DialogPrimitive.Close;
+export const ModalTrigger = DialogPrimitive.Trigger;
+export const ModalPortal = DialogPrimitive.Portal;

@@ -1,52 +1,71 @@
-'use client'
+"use client";
 
 /**
  * AuditLogRetention - Retention policy settings component
  */
 
-import { useState } from 'react'
-import { Archive, Plus, Trash2, Edit, Save, X, Clock, Shield, Check } from 'lucide-react'
+import { useState } from "react";
+import {
+  Archive,
+  Plus,
+  Trash2,
+  Edit,
+  Save,
+  X,
+  Clock,
+  Shield,
+  Check,
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 
 import type {
   AuditRetentionPolicy,
   AuditSettings,
   AuditCategory,
   AuditSeverity,
-} from '@/lib/audit/audit-types'
+} from "@/lib/audit/audit-types";
 import {
   createRetentionPolicy,
   formatRetentionPeriod,
   presetPolicies,
   getSuggestedRetentionForCompliance,
-} from '@/lib/audit/audit-retention'
-import { categoryDisplayNames, severityDisplayNames } from '@/lib/audit/audit-types'
+} from "@/lib/audit/audit-retention";
+import {
+  categoryDisplayNames,
+  severityDisplayNames,
+} from "@/lib/audit/audit-types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AuditLogRetentionProps {
-  settings: AuditSettings
-  onSettingsChange: (settings: Partial<AuditSettings>) => void
-  onPolicyAdd: (policy: AuditRetentionPolicy) => void
-  onPolicyUpdate: (id: string, updates: Partial<AuditRetentionPolicy>) => void
-  onPolicyDelete: (id: string) => void
-  saving?: boolean
+  settings: AuditSettings;
+  onSettingsChange: (settings: Partial<AuditSettings>) => void;
+  onPolicyAdd: (policy: AuditRetentionPolicy) => void;
+  onPolicyUpdate: (id: string, updates: Partial<AuditRetentionPolicy>) => void;
+  onPolicyDelete: (id: string) => void;
+  saving?: boolean;
 }
 
 // ============================================================================
@@ -61,73 +80,79 @@ export function AuditLogRetention({
   onPolicyDelete,
   saving = false,
 }: AuditLogRetentionProps) {
-  const [isAddingPolicy, setIsAddingPolicy] = useState(false)
-  const [editingPolicyId, setEditingPolicyId] = useState<string | null>(null)
+  const [isAddingPolicy, setIsAddingPolicy] = useState(false);
+  const [editingPolicyId, setEditingPolicyId] = useState<string | null>(null);
   const [newPolicy, setNewPolicy] = useState({
-    name: '',
+    name: "",
     retentionDays: 90,
     categories: [] as AuditCategory[],
     severities: [] as AuditSeverity[],
     archiveEnabled: false,
-  })
+  });
 
   const categories: AuditCategory[] = [
-    'user',
-    'message',
-    'channel',
-    'file',
-    'admin',
-    'security',
-    'integration',
-  ]
+    "user",
+    "message",
+    "channel",
+    "file",
+    "admin",
+    "security",
+    "integration",
+  ];
 
-  const severities: AuditSeverity[] = ['info', 'warning', 'error', 'critical']
+  const severities: AuditSeverity[] = ["info", "warning", "error", "critical"];
 
   const handleAddPolicy = () => {
-    if (!newPolicy.name || newPolicy.retentionDays <= 0) return
+    if (!newPolicy.name || newPolicy.retentionDays <= 0) return;
 
-    const policy = createRetentionPolicy(newPolicy.name, newPolicy.retentionDays, {
-      categories: newPolicy.categories.length > 0 ? newPolicy.categories : undefined,
-      severities: newPolicy.severities.length > 0 ? newPolicy.severities : undefined,
-      archiveEnabled: newPolicy.archiveEnabled,
-    })
+    const policy = createRetentionPolicy(
+      newPolicy.name,
+      newPolicy.retentionDays,
+      {
+        categories:
+          newPolicy.categories.length > 0 ? newPolicy.categories : undefined,
+        severities:
+          newPolicy.severities.length > 0 ? newPolicy.severities : undefined,
+        archiveEnabled: newPolicy.archiveEnabled,
+      },
+    );
 
-    onPolicyAdd(policy)
+    onPolicyAdd(policy);
     setNewPolicy({
-      name: '',
+      name: "",
       retentionDays: 90,
       categories: [],
       severities: [],
       archiveEnabled: false,
-    })
-    setIsAddingPolicy(false)
-  }
+    });
+    setIsAddingPolicy(false);
+  };
 
   const handlePresetSelect = (presetName: string) => {
-    const preset = presetPolicies[presetName]
-    if (!preset) return
+    const preset = presetPolicies[presetName];
+    if (!preset) return;
 
     const policy = createRetentionPolicy(
       preset.name || presetName,
       preset.retentionDays || settings.defaultRetentionDays,
-      preset
-    )
-    onPolicyAdd(policy)
-  }
+      preset,
+    );
+    onPolicyAdd(policy);
+  };
 
   const togglePolicyCategory = (policyId: string, category: AuditCategory) => {
-    const policy = settings.policies.find((p) => p.id === policyId)
-    if (!policy) return
+    const policy = settings.policies.find((p) => p.id === policyId);
+    if (!policy) return;
 
-    const currentCategories = policy.categories || []
+    const currentCategories = policy.categories || [];
     const newCategories = currentCategories.includes(category)
       ? currentCategories.filter((c) => c !== category)
-      : [...currentCategories, category]
+      : [...currentCategories, category];
 
     onPolicyUpdate(policyId, {
       categories: newCategories.length > 0 ? newCategories : undefined,
-    })
-  }
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -138,12 +163,16 @@ export function AuditLogRetention({
             <Clock className="h-5 w-5" />
             Global Retention Settings
           </CardTitle>
-          <CardDescription>Configure default retention periods for all audit logs</CardDescription>
+          <CardDescription>
+            Configure default retention periods for all audit logs
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="default-retention">Default Retention (days)</Label>
+              <Label htmlFor="default-retention">
+                Default Retention (days)
+              </Label>
               <Input
                 id="default-retention"
                 type="number"
@@ -204,7 +233,9 @@ export function AuditLogRetention({
             <Switch
               id="archive-enabled"
               checked={settings.archiveEnabled}
-              onCheckedChange={(checked) => onSettingsChange({ archiveEnabled: checked })}
+              onCheckedChange={(checked) =>
+                onSettingsChange({ archiveEnabled: checked })
+              }
             />
           </div>
 
@@ -214,8 +245,10 @@ export function AuditLogRetention({
               <Input
                 id="archive-location"
                 placeholder="s3://bucket/audit-archives/"
-                value={settings.archiveLocation || ''}
-                onChange={(e) => onSettingsChange({ archiveLocation: e.target.value })}
+                value={settings.archiveLocation || ""}
+                onChange={(e) =>
+                  onSettingsChange({ archiveLocation: e.target.value })
+                }
               />
             </div>
           )}
@@ -224,20 +257,24 @@ export function AuditLogRetention({
           <div className="border-t pt-4">
             <Label className="mb-2 block text-sm">Compliance Presets</Label>
             <div className="flex flex-wrap gap-2">
-              {(['gdpr', 'hipaa', 'sox', 'pci'] as const).map((compliance) => (
+              {(["gdpr", "hipaa", "sox", "pci"] as const).map((compliance) => (
                 <Button
                   key={compliance}
                   variant="outline"
                   size="sm"
                   onClick={() =>
                     onSettingsChange({
-                      defaultRetentionDays: getSuggestedRetentionForCompliance(compliance),
+                      defaultRetentionDays:
+                        getSuggestedRetentionForCompliance(compliance),
                     })
                   }
                   className="text-xs uppercase"
                 >
                   {compliance} (
-                  {formatRetentionPeriod(getSuggestedRetentionForCompliance(compliance))})
+                  {formatRetentionPeriod(
+                    getSuggestedRetentionForCompliance(compliance),
+                  )}
+                  )
                 </Button>
               ))}
             </div>
@@ -265,7 +302,9 @@ export function AuditLogRetention({
         <CardContent className="space-y-4">
           {/* Quick Add Presets */}
           <div className="flex flex-wrap gap-2 border-b pb-4">
-            <span className="mr-2 text-sm text-muted-foreground">Quick add:</span>
+            <span className="mr-2 text-sm text-muted-foreground">
+              Quick add:
+            </span>
             {Object.keys(presetPolicies).map((preset) => (
               <Button
                 key={preset}
@@ -289,7 +328,9 @@ export function AuditLogRetention({
                     <Input
                       placeholder="e.g., Security Events"
                       value={newPolicy.name}
-                      onChange={(e) => setNewPolicy({ ...newPolicy, name: e.target.value })}
+                      onChange={(e) =>
+                        setNewPolicy({ ...newPolicy, name: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -315,13 +356,17 @@ export function AuditLogRetention({
                     {categories.map((cat) => (
                       <Badge
                         key={cat}
-                        variant={newPolicy.categories.includes(cat) ? 'default' : 'outline'}
+                        variant={
+                          newPolicy.categories.includes(cat)
+                            ? "default"
+                            : "outline"
+                        }
                         className="cursor-pointer"
                         onClick={() => {
                           const cats = newPolicy.categories.includes(cat)
                             ? newPolicy.categories.filter((c) => c !== cat)
-                            : [...newPolicy.categories, cat]
-                          setNewPolicy({ ...newPolicy, categories: cats })
+                            : [...newPolicy.categories, cat];
+                          setNewPolicy({ ...newPolicy, categories: cats });
                         }}
                       >
                         {categoryDisplayNames[cat]}
@@ -336,13 +381,17 @@ export function AuditLogRetention({
                     {severities.map((sev) => (
                       <Badge
                         key={sev}
-                        variant={newPolicy.severities.includes(sev) ? 'default' : 'outline'}
+                        variant={
+                          newPolicy.severities.includes(sev)
+                            ? "default"
+                            : "outline"
+                        }
                         className="cursor-pointer"
                         onClick={() => {
                           const sevs = newPolicy.severities.includes(sev)
                             ? newPolicy.severities.filter((s) => s !== sev)
-                            : [...newPolicy.severities, sev]
-                          setNewPolicy({ ...newPolicy, severities: sevs })
+                            : [...newPolicy.severities, sev];
+                          setNewPolicy({ ...newPolicy, severities: sevs });
                         }}
                       >
                         {severityDisplayNames[sev]}
@@ -352,7 +401,9 @@ export function AuditLogRetention({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label className="cursor-pointer">Archive before deletion</Label>
+                  <Label className="cursor-pointer">
+                    Archive before deletion
+                  </Label>
                   <Switch
                     checked={newPolicy.archiveEnabled}
                     onCheckedChange={(checked) =>
@@ -362,7 +413,10 @@ export function AuditLogRetention({
                 </div>
 
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsAddingPolicy(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddingPolicy(false)}
+                  >
                     <X className="mr-1 h-4 w-4" />
                     Cancel
                   </Button>
@@ -381,7 +435,8 @@ export function AuditLogRetention({
               <Archive className="mx-auto mb-2 h-8 w-8 opacity-50" />
               <p>No custom retention policies</p>
               <p className="text-sm">
-                Default retention of {formatRetentionPeriod(settings.defaultRetentionDays)} applies
+                Default retention of{" "}
+                {formatRetentionPeriod(settings.defaultRetentionDays)} applies
                 to all events
               </p>
             </div>
@@ -391,14 +446,16 @@ export function AuditLogRetention({
                 <div
                   key={policy.id}
                   className={cn(
-                    'flex items-center justify-between rounded-lg border p-3',
-                    policy.enabled ? 'bg-card' : 'bg-muted/50 opacity-70'
+                    "flex items-center justify-between rounded-lg border p-3",
+                    policy.enabled ? "bg-card" : "bg-muted/50 opacity-70",
                   )}
                 >
                   <div className="flex items-center gap-3">
                     <Switch
                       checked={policy.enabled}
-                      onCheckedChange={(checked) => onPolicyUpdate(policy.id, { enabled: checked })}
+                      onCheckedChange={(checked) =>
+                        onPolicyUpdate(policy.id, { enabled: checked })
+                      }
                     />
                     <div>
                       <div className="flex items-center gap-2">
@@ -415,18 +472,29 @@ export function AuditLogRetention({
                       </div>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {policy.categories?.map((cat) => (
-                          <Badge key={cat} variant="outline" className="text-xs">
+                          <Badge
+                            key={cat}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {categoryDisplayNames[cat]}
                           </Badge>
                         ))}
                         {policy.severities?.map((sev) => (
-                          <Badge key={sev} variant="outline" className="text-xs">
+                          <Badge
+                            key={sev}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {severityDisplayNames[sev]}
                           </Badge>
                         ))}
-                        {!policy.categories?.length && !policy.severities?.length && (
-                          <span className="text-xs text-muted-foreground">All events</span>
-                        )}
+                        {!policy.categories?.length &&
+                          !policy.severities?.length && (
+                            <span className="text-xs text-muted-foreground">
+                              All events
+                            </span>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -445,5 +513,5 @@ export function AuditLogRetention({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

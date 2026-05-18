@@ -7,15 +7,15 @@
  * POST: Advanced query with body parameters
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuditQueryService } from '@/services/audit/audit-query.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { getAuditQueryService } from "@/services/audit/audit-query.service";
+import { logger } from "@/lib/logger";
 import type {
   AuditCategory,
   AuditSeverity,
   AuditLogFilters,
   AuditLogSortOptions,
-} from '@/lib/audit/audit-types'
+} from "@/lib/audit/audit-types";
 
 /**
  * GET /api/admin/audit
@@ -41,82 +41,88 @@ import type {
  */
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = request.nextUrl.searchParams;
 
     // Parse pagination
-    const page = parseInt(searchParams.get('page') || '1', 10)
-    const pageSize = Math.min(parseInt(searchParams.get('pageSize') || '50', 10), 100)
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const pageSize = Math.min(
+      parseInt(searchParams.get("pageSize") || "50", 10),
+      100,
+    );
 
     // Parse filters
-    const filters: AuditLogFilters = {}
+    const filters: AuditLogFilters = {};
 
-    const category = searchParams.get('category')
+    const category = searchParams.get("category");
     if (category) {
-      filters.category = category.split(',') as AuditCategory[]
+      filters.category = category.split(",") as AuditCategory[];
     }
 
-    const severity = searchParams.get('severity')
+    const severity = searchParams.get("severity");
     if (severity) {
-      filters.severity = severity.split(',') as AuditSeverity[]
+      filters.severity = severity.split(",") as AuditSeverity[];
     }
 
-    const action = searchParams.get('action')
+    const action = searchParams.get("action");
     if (action) {
-      filters.action = action.split(',') as AuditLogFilters['action']
+      filters.action = action.split(",") as AuditLogFilters["action"];
     }
 
-    const actorId = searchParams.get('actorId')
+    const actorId = searchParams.get("actorId");
     if (actorId) {
-      filters.actorId = actorId
+      filters.actorId = actorId;
     }
 
-    const resourceId = searchParams.get('resourceId')
+    const resourceId = searchParams.get("resourceId");
     if (resourceId) {
-      filters.resourceId = resourceId
+      filters.resourceId = resourceId;
     }
 
-    const startDate = searchParams.get('startDate')
+    const startDate = searchParams.get("startDate");
     if (startDate) {
-      filters.startDate = new Date(startDate)
+      filters.startDate = new Date(startDate);
     }
 
-    const endDate = searchParams.get('endDate')
+    const endDate = searchParams.get("endDate");
     if (endDate) {
-      filters.endDate = new Date(endDate)
+      filters.endDate = new Date(endDate);
     }
 
-    const success = searchParams.get('success')
+    const success = searchParams.get("success");
     if (success !== null) {
-      filters.success = success === 'true'
+      filters.success = success === "true";
     }
 
-    const searchQuery = searchParams.get('q')
+    const searchQuery = searchParams.get("q");
     if (searchQuery) {
-      filters.searchQuery = searchQuery
+      filters.searchQuery = searchQuery;
     }
 
     // Parse sort
-    const sortField = searchParams.get('sort') as AuditLogSortOptions['field'] | null
-    const sortDirection = searchParams.get('order') as 'asc' | 'desc' | null
+    const sortField = searchParams.get("sort") as
+      | AuditLogSortOptions["field"]
+      | null;
+    const sortDirection = searchParams.get("order") as "asc" | "desc" | null;
 
     const sort: AuditLogSortOptions = {
-      field: sortField || 'timestamp',
-      direction: sortDirection || 'desc',
-    }
+      field: sortField || "timestamp",
+      direction: sortDirection || "desc",
+    };
 
     // Parse options
-    const includeAggregations = searchParams.get('includeAggregations') === 'true'
-    const includeIntegrity = searchParams.get('includeIntegrity') === 'true'
+    const includeAggregations =
+      searchParams.get("includeAggregations") === "true";
+    const includeIntegrity = searchParams.get("includeIntegrity") === "true";
 
     // Execute query
-    const queryService = getAuditQueryService()
+    const queryService = getAuditQueryService();
     const result = await queryService.query({
       filters,
       sort,
       pagination: { page, pageSize },
       includeAggregations,
       includeIntegrity,
-    })
+    });
 
     return NextResponse.json({
       success: true,
@@ -125,13 +131,13 @@ export async function GET(request: NextRequest) {
       aggregations: result.aggregations,
       integrityStatus: result.integrityStatus,
       cursor: result.cursor,
-    })
+    });
   } catch (error) {
-    logger.error('[Audit API] GET error', error)
+    logger.error("[Audit API] GET error", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to query audit logs' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to query audit logs" },
+      { status: 500 },
+    );
   }
 }
 
@@ -142,7 +148,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     const {
       filters,
@@ -154,42 +160,47 @@ export async function POST(request: NextRequest) {
       searchQuery,
       dateRange,
     } = body as {
-      filters?: AuditLogFilters
-      sort?: AuditLogSortOptions
-      pagination?: { page: number; pageSize: number }
-      cursor?: string
-      includeAggregations?: boolean
-      includeIntegrity?: boolean
-      searchQuery?: string
-      dateRange?: { start: string; end: string }
-    }
+      filters?: AuditLogFilters;
+      sort?: AuditLogSortOptions;
+      pagination?: { page: number; pageSize: number };
+      cursor?: string;
+      includeAggregations?: boolean;
+      includeIntegrity?: boolean;
+      searchQuery?: string;
+      dateRange?: { start: string; end: string };
+    };
 
-    const queryService = getAuditQueryService()
+    const queryService = getAuditQueryService();
 
     // Use cursor if provided
     if (cursor) {
-      const result = await queryService.queryByCursor(cursor, pagination?.pageSize)
+      const result = await queryService.queryByCursor(
+        cursor,
+        pagination?.pageSize,
+      );
       return NextResponse.json({
         success: true,
         data: result.entries,
         pagination: result.pagination,
         cursor: result.cursor,
-      })
+      });
     }
 
     // Execute advanced query
     const result = await queryService.query({
       filters,
-      sort: sort || { field: 'timestamp', direction: 'desc' },
+      sort: sort || { field: "timestamp", direction: "desc" },
       pagination: pagination || { page: 1, pageSize: 50 },
       includeAggregations,
       includeIntegrity,
       searchQuery,
-      dateRange: dateRange ? {
-        start: new Date(dateRange.start),
-        end: new Date(dateRange.end),
-      } : undefined,
-    })
+      dateRange: dateRange
+        ? {
+            start: new Date(dateRange.start),
+            end: new Date(dateRange.end),
+          }
+        : undefined,
+    });
 
     return NextResponse.json({
       success: true,
@@ -198,14 +209,14 @@ export async function POST(request: NextRequest) {
       aggregations: result.aggregations,
       integrityStatus: result.integrityStatus,
       cursor: result.cursor,
-    })
+    });
   } catch (error) {
-    logger.error('[Audit API] POST error', error)
+    logger.error("[Audit API] POST error", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to query audit logs' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to query audit logs" },
+      { status: 500 },
+    );
   }
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";

@@ -3,37 +3,49 @@
  * Process cryptocurrency payments for subscriptions
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Coins, AlertCircle, CheckCircle2, Copy, ExternalLink } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import {
+  Coins,
+  AlertCircle,
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { WalletConnector } from './WalletConnector'
-import type { WalletInfo } from '@/lib/crypto/wallet-connector'
-import type { CryptoNetwork, PlanTier, BillingInterval } from '@/types/billing'
-import { CRYPTO_NETWORKS, PLANS } from '@/config/billing-plans'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import { WalletConnector } from "./WalletConnector";
+import type { WalletInfo } from "@/lib/crypto/wallet-connector";
+import type { CryptoNetwork, PlanTier, BillingInterval } from "@/types/billing";
+import { CRYPTO_NETWORKS, PLANS } from "@/config/billing-plans";
+import { cn } from "@/lib/utils";
 
 interface CryptoPaymentProps {
-  planId: PlanTier
-  interval: BillingInterval
-  onPaymentComplete?: (txHash: string) => void
-  className?: string
+  planId: PlanTier;
+  interval: BillingInterval;
+  onPaymentComplete?: (txHash: string) => void;
+  className?: string;
 }
 
-type CryptoCurrency = 'ETH' | 'USDC' | 'USDT'
+type CryptoCurrency = "ETH" | "USDC" | "USDT";
 
 export function CryptoPayment({
   planId,
@@ -41,58 +53,60 @@ export function CryptoPayment({
   onPaymentComplete,
   className,
 }: CryptoPaymentProps) {
-  const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null)
-  const [selectedNetwork, setSelectedNetwork] = useState<CryptoNetwork>('ethereum')
-  const [selectedCurrency, setSelectedCurrency] = useState<CryptoCurrency>('USDC')
-  const [processing, setProcessing] = useState(false)
-  const [txHash, setTxHash] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null);
+  const [selectedNetwork, setSelectedNetwork] =
+    useState<CryptoNetwork>("ethereum");
+  const [selectedCurrency, setSelectedCurrency] =
+    useState<CryptoCurrency>("USDC");
+  const [processing, setProcessing] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const plan = PLANS[planId]
-  const price = interval === 'month' ? plan.price.monthly : plan.price.yearly
+  const plan = PLANS[planId];
+  const price = interval === "month" ? plan.price.monthly : plan.price.yearly;
 
   // Get crypto price
   const getCryptoPrice = () => {
-    if (!plan.price.cryptoMonthly) return 0
+    if (!plan.price.cryptoMonthly) return 0;
 
-    const monthlyPrice = plan.price.cryptoMonthly
-    const basePrice = interval === 'month' ? 1 : 12
+    const monthlyPrice = plan.price.cryptoMonthly;
+    const basePrice = interval === "month" ? 1 : 12;
 
     switch (selectedCurrency) {
-      case 'ETH':
-        return monthlyPrice.eth * basePrice
-      case 'USDC':
-        return monthlyPrice.usdc * basePrice
-      case 'USDT':
-        return monthlyPrice.usdt * basePrice
+      case "ETH":
+        return monthlyPrice.eth * basePrice;
+      case "USDC":
+        return monthlyPrice.usdc * basePrice;
+      case "USDT":
+        return monthlyPrice.usdt * basePrice;
       default:
-        return 0
+        return 0;
     }
-  }
+  };
 
-  const cryptoPrice = getCryptoPrice()
+  const cryptoPrice = getCryptoPrice();
 
   // Payment address (in production, generate unique address per transaction)
-  const paymentAddress = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+  const paymentAddress = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
 
   const handleWalletConnect = (info: WalletInfo) => {
-    setWalletInfo(info)
-    setSelectedNetwork(info.network)
-  }
+    setWalletInfo(info);
+    setSelectedNetwork(info.network);
+  };
 
   const handleWalletDisconnect = () => {
-    setWalletInfo(null)
-    setError(null)
-  }
+    setWalletInfo(null);
+    setError(null);
+  };
 
   const handlePayment = async () => {
     if (!walletInfo) {
-      setError('Please connect your wallet first')
-      return
+      setError("Please connect your wallet first");
+      return;
     }
 
-    setProcessing(true)
-    setError(null)
+    setProcessing(true);
+    setError(null);
 
     try {
       // In production, this would:
@@ -103,25 +117,25 @@ export function CryptoPayment({
       // 5. Update subscription status
 
       // For now, simulate payment
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Mock transaction hash
-      const mockTxHash = `0x${Math.random().toString(16).substring(2, 66)}`
-      setTxHash(mockTxHash)
+      const mockTxHash = `0x${Math.random().toString(16).substring(2, 66)}`;
+      setTxHash(mockTxHash);
 
       if (onPaymentComplete) {
-        onPaymentComplete(mockTxHash)
+        onPaymentComplete(mockTxHash);
       }
     } catch (err: any) {
-      setError(err.message || 'Payment failed')
+      setError(err.message || "Payment failed");
     } finally {
-      setProcessing(false)
+      setProcessing(false);
     }
-  }
+  };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
+    navigator.clipboard.writeText(text);
+  };
 
   const getBlockExplorerUrl = (txHash: string) => {
     const explorers: Record<CryptoNetwork, string> = {
@@ -129,9 +143,9 @@ export function CryptoPayment({
       polygon: `https://polygonscan.com/tx/${txHash}`,
       bsc: `https://bscscan.com/tx/${txHash}`,
       arbitrum: `https://arbiscan.io/tx/${txHash}`,
-    }
-    return explorers[selectedNetwork]
-  }
+    };
+    return explorers[selectedNetwork];
+  };
 
   if (txHash) {
     return (
@@ -141,15 +155,17 @@ export function CryptoPayment({
             <CheckCircle2 className="h-6 w-6 text-green-600" />
             Payment Submitted
           </CardTitle>
-          <CardDescription>Your payment is being processed on the blockchain</CardDescription>
+          <CardDescription>
+            Your payment is being processed on the blockchain
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert>
             <CheckCircle2 className="h-4 w-4" />
             <AlertTitle>Transaction Submitted</AlertTitle>
             <AlertDescription>
-              Your payment has been submitted to the blockchain. It may take a few minutes to
-              confirm.
+              Your payment has been submitted to the blockchain. It may take a
+              few minutes to confirm.
             </AlertDescription>
           </Alert>
 
@@ -157,11 +173,19 @@ export function CryptoPayment({
             <Label>Transaction Hash</Label>
             <div className="flex gap-2">
               <Input value={txHash} readOnly className="font-mono text-xs" />
-              <Button variant="outline" size="icon" onClick={() => copyToClipboard(txHash)}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => copyToClipboard(txHash)}
+              >
                 <Copy className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="icon" asChild>
-                <a href={getBlockExplorerUrl(txHash)} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={getBlockExplorerUrl(txHash)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </Button>
@@ -183,7 +207,7 @@ export function CryptoPayment({
           </Button>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -193,7 +217,9 @@ export function CryptoPayment({
           <Coins className="h-6 w-6" />
           Pay with Cryptocurrency
         </CardTitle>
-        <CardDescription>Subscribe to {plan.name} with crypto payments</CardDescription>
+        <CardDescription>
+          Subscribe to {plan.name} with crypto payments
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -202,10 +228,13 @@ export function CryptoPayment({
           <div>
             <p className="font-medium">Wallet</p>
             <p className="text-sm text-muted-foreground">
-              {walletInfo ? 'Connected' : 'Connect your wallet to continue'}
+              {walletInfo ? "Connected" : "Connect your wallet to continue"}
             </p>
           </div>
-          <WalletConnector onConnect={handleWalletConnect} onDisconnect={handleWalletDisconnect} />
+          <WalletConnector
+            onConnect={handleWalletConnect}
+            onDisconnect={handleWalletDisconnect}
+          />
         </div>
 
         {walletInfo && (
@@ -241,7 +270,9 @@ export function CryptoPayment({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ETH">{CRYPTO_NETWORKS[selectedNetwork].symbol}</SelectItem>
+                  <SelectItem value="ETH">
+                    {CRYPTO_NETWORKS[selectedNetwork].symbol}
+                  </SelectItem>
                   <SelectItem value="USDC">USDC</SelectItem>
                   <SelectItem value="USDT">USDT</SelectItem>
                 </SelectContent>
@@ -277,7 +308,11 @@ export function CryptoPayment({
             <div className="space-y-2">
               <Label>Payment Address</Label>
               <div className="flex gap-2">
-                <Input value={paymentAddress} readOnly className="font-mono text-xs" />
+                <Input
+                  value={paymentAddress}
+                  readOnly
+                  className="font-mono text-xs"
+                />
                 <Button
                   variant="outline"
                   size="icon"
@@ -297,8 +332,15 @@ export function CryptoPayment({
             )}
 
             {/* Pay Button */}
-            <Button className="w-full" size="lg" onClick={handlePayment} disabled={processing}>
-              {processing ? 'Processing...' : `Pay ${cryptoPrice} ${selectedCurrency}`}
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={handlePayment}
+              disabled={processing}
+            >
+              {processing
+                ? "Processing..."
+                : `Pay ${cryptoPrice} ${selectedCurrency}`}
             </Button>
 
             {/* Info */}
@@ -317,5 +359,5 @@ export function CryptoPayment({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

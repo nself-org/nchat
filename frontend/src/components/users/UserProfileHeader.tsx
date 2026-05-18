@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { type ExtendedUserProfile } from './UserCard'
-import { UserAvatar } from '@/components/user/user-avatar'
-import { UserStatus } from '@/components/user/user-status'
-import { RoleBadge } from '@/components/user/role-badge'
-import { UserPresenceDot } from '@/components/user/user-presence-dot'
-import { UserBadges } from './UserBadges'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { type ExtendedUserProfile } from "./UserCard";
+import { UserAvatar } from "@/components/user/user-avatar";
+import { UserStatus } from "@/components/user/user-status";
+import { RoleBadge } from "@/components/user/role-badge";
+import { UserPresenceDot } from "@/components/user/user-presence-dot";
+import { UserBadges } from "./UserBadges";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   MessageSquare,
   Phone,
@@ -29,30 +29,33 @@ import {
   MapPin,
   Clock,
   Calendar,
-} from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UserProfileHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: ExtendedUserProfile
-  isOwnProfile?: boolean
-  onMessage?: () => void
-  onCall?: () => void
-  onVideoCall?: () => void
-  onBlock?: () => void
-  onReport?: () => void
-  onEditProfile?: () => void
-  onAddToContacts?: () => void
+  user: ExtendedUserProfile;
+  isOwnProfile?: boolean;
+  onMessage?: () => void;
+  onCall?: () => void;
+  onVideoCall?: () => void;
+  onBlock?: () => void;
+  onReport?: () => void;
+  onEditProfile?: () => void;
+  onAddToContacts?: () => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-const UserProfileHeader = React.forwardRef<HTMLDivElement, UserProfileHeaderProps>(
+const UserProfileHeader = React.forwardRef<
+  HTMLDivElement,
+  UserProfileHeaderProps
+>(
   (
     {
       className,
@@ -67,21 +70,23 @@ const UserProfileHeader = React.forwardRef<HTMLDivElement, UserProfileHeaderProp
       onAddToContacts,
       ...props
     },
-    ref
+    ref,
   ) => {
     const handleCopyUsername = () => {
-      navigator.clipboard.writeText(`@${user.username}`)
-    }
+      navigator.clipboard.writeText(`@${user.username}`);
+    };
 
     return (
-      <div ref={ref} className={cn('flex-shrink-0', className)} {...props}>
+      <div ref={ref} className={cn("flex-shrink-0", className)} {...props}>
         {/* Cover photo */}
         <div
           className="from-primary/30 via-primary/20 to-primary/10 h-32 bg-gradient-to-r md:h-40"
           style={{
-            backgroundImage: user.coverUrl ? `url(${user.coverUrl})` : undefined,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundImage: user.coverUrl
+              ? `url(${user.coverUrl})`
+              : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         />
 
@@ -99,7 +104,9 @@ const UserProfileHeader = React.forwardRef<HTMLDivElement, UserProfileHeaderProp
             {/* Name and details */}
             <div className="min-w-0 flex-1 md:pb-2">
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="truncate text-2xl font-bold">{user.displayName}</h1>
+                <h1 className="truncate text-2xl font-bold">
+                  {user.displayName}
+                </h1>
                 <RoleBadge role={user.role} size="md" showTooltip />
               </div>
 
@@ -124,25 +131,34 @@ const UserProfileHeader = React.forwardRef<HTMLDivElement, UserProfileHeaderProp
               {(user.title || user.department) && (
                 <p className="mt-1 text-sm text-muted-foreground">
                   {user.title}
-                  {user.title && user.department && ' - '}
+                  {user.title && user.department && " - "}
                   {user.department}
                 </p>
               )}
 
               {/* Presence status */}
               <div className="mt-2 flex items-center gap-2">
-                <UserPresenceDot status={user.presence} size="sm" position="inline" />
+                <UserPresenceDot
+                  status={user.presence}
+                  size="sm"
+                  position="inline"
+                />
                 <span className="text-sm capitalize">{user.presence}</span>
-                {user.presence === 'offline' && user.lastSeenAt && (
+                {user.presence === "offline" && user.lastSeenAt && (
                   <span className="text-xs text-muted-foreground">
-                    (last seen {formatDistanceToNow(user.lastSeenAt, { addSuffix: true })})
+                    (last seen{" "}
+                    {formatDistanceToNow(user.lastSeenAt, { addSuffix: true })})
                   </span>
                 )}
               </div>
 
               {/* Custom status */}
               {user.customStatus && (
-                <UserStatus status={user.customStatus} variant="full" className="mt-2" />
+                <UserStatus
+                  status={user.customStatus}
+                  variant="full"
+                  className="mt-2"
+                />
               )}
             </div>
 
@@ -230,7 +246,10 @@ const UserProfileHeader = React.forwardRef<HTMLDivElement, UserProfileHeaderProp
             )}
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              <span>Joined {formatDistanceToNow(user.createdAt, { addSuffix: true })}</span>
+              <span>
+                Joined{" "}
+                {formatDistanceToNow(user.createdAt, { addSuffix: true })}
+              </span>
             </div>
           </div>
 
@@ -240,9 +259,9 @@ const UserProfileHeader = React.forwardRef<HTMLDivElement, UserProfileHeaderProp
           )}
         </div>
       </div>
-    )
-  }
-)
-UserProfileHeader.displayName = 'UserProfileHeader'
+    );
+  },
+);
+UserProfileHeader.displayName = "UserProfileHeader";
 
-export { UserProfileHeader }
+export { UserProfileHeader };

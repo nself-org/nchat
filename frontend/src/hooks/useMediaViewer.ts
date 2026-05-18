@@ -4,115 +4,117 @@
  * Provides controls for viewing, zooming, panning, and navigating media items.
  */
 
-import { useCallback, useEffect, useRef } from 'react'
-import { useMediaStore } from '@/stores/media-store'
-import { MediaItem, ViewerState } from '@/lib/media/media-types'
-import { useHotkeys } from 'react-hotkeys-hook'
+import { useCallback, useEffect, useRef } from "react";
+import { useMediaStore } from "@/stores/media-store";
+import { MediaItem, ViewerState } from "@/lib/media/media-types";
+import { useHotkeys } from "react-hotkeys-hook";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UseMediaViewerOptions {
-  enableKeyboardNavigation?: boolean
-  enableZoomGestures?: boolean
-  enableFullscreen?: boolean
-  loop?: boolean
-  autoplayCarousel?: boolean
-  carouselInterval?: number
+  enableKeyboardNavigation?: boolean;
+  enableZoomGestures?: boolean;
+  enableFullscreen?: boolean;
+  loop?: boolean;
+  autoplayCarousel?: boolean;
+  carouselInterval?: number;
 }
 
 export interface UseMediaViewerReturn {
   // State
-  isOpen: boolean
-  currentItem: MediaItem | null
-  currentIndex: number
-  items: MediaItem[]
-  totalItems: number
+  isOpen: boolean;
+  currentItem: MediaItem | null;
+  currentIndex: number;
+  items: MediaItem[];
+  totalItems: number;
 
   // Navigation
-  hasNext: boolean
-  hasPrevious: boolean
-  next: () => void
-  previous: () => void
-  goTo: (index: number) => void
+  hasNext: boolean;
+  hasPrevious: boolean;
+  next: () => void;
+  previous: () => void;
+  goTo: (index: number) => void;
 
   // Viewer controls
-  open: (itemId: string) => void
-  close: () => void
+  open: (itemId: string) => void;
+  close: () => void;
 
   // Zoom/Pan/Rotate
-  zoom: number
-  panX: number
-  panY: number
-  rotation: number
-  setZoom: (zoom: number) => void
-  zoomIn: () => void
-  zoomOut: () => void
-  resetZoom: () => void
-  setPan: (x: number, y: number) => void
-  rotate: (degrees: number) => void
-  rotateLeft: () => void
-  rotateRight: () => void
-  resetView: () => void
+  zoom: number;
+  panX: number;
+  panY: number;
+  rotation: number;
+  setZoom: (zoom: number) => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetZoom: () => void;
+  setPan: (x: number, y: number) => void;
+  rotate: (degrees: number) => void;
+  rotateLeft: () => void;
+  rotateRight: () => void;
+  resetView: () => void;
 
   // Video/Audio controls
-  isPlaying: boolean
-  currentTime: number
-  duration: number
-  volume: number
-  isMuted: boolean
-  playbackRate: number
-  play: () => void
-  pause: () => void
-  togglePlay: () => void
-  seek: (time: number) => void
-  setVolume: (volume: number) => void
-  toggleMute: () => void
-  setPlaybackRate: (rate: number) => void
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  isMuted: boolean;
+  playbackRate: number;
+  play: () => void;
+  pause: () => void;
+  togglePlay: () => void;
+  seek: (time: number) => void;
+  setVolume: (volume: number) => void;
+  toggleMute: () => void;
+  setPlaybackRate: (rate: number) => void;
 
   // Fullscreen
-  isFullscreen: boolean
-  toggleFullscreen: () => void
-  enterFullscreen: () => void
-  exitFullscreen: () => void
+  isFullscreen: boolean;
+  toggleFullscreen: () => void;
+  enterFullscreen: () => void;
+  exitFullscreen: () => void;
 
   // Info panel
-  showInfo: boolean
-  toggleInfo: () => void
+  showInfo: boolean;
+  toggleInfo: () => void;
 
   // Carousel
-  isCarouselMode: boolean
-  carouselAutoplay: boolean
-  carouselInterval: number
-  setCarouselMode: (enabled: boolean) => void
-  setCarouselAutoplay: (enabled: boolean) => void
-  startCarousel: () => void
-  stopCarousel: () => void
+  isCarouselMode: boolean;
+  carouselAutoplay: boolean;
+  carouselInterval: number;
+  setCarouselMode: (enabled: boolean) => void;
+  setCarouselAutoplay: (enabled: boolean) => void;
+  startCarousel: () => void;
+  stopCarousel: () => void;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const MIN_ZOOM = 0.1
-const MAX_ZOOM = 5
-const ZOOM_STEP = 0.25
-const ROTATION_STEP = 90
-const DEFAULT_CAROUSEL_INTERVAL = 5000
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 5;
+const ZOOM_STEP = 0.25;
+const ROTATION_STEP = 90;
+const DEFAULT_CAROUSEL_INTERVAL = 5000;
 
 // ============================================================================
 // Hook
 // ============================================================================
 
-export function useMediaViewer(options: UseMediaViewerOptions = {}): UseMediaViewerReturn {
+export function useMediaViewer(
+  options: UseMediaViewerOptions = {},
+): UseMediaViewerReturn {
   const {
     enableKeyboardNavigation = true,
     enableFullscreen = true,
     loop = false,
     autoplayCarousel = false,
     carouselInterval = DEFAULT_CAROUSEL_INTERVAL,
-  } = options
+  } = options;
 
   // Store state and actions
   const {
@@ -136,316 +138,327 @@ export function useMediaViewer(options: UseMediaViewerOptions = {}): UseMediaVie
     setCarouselMode: storeSetCarouselMode,
     setCarouselAutoplay: storeSetCarouselAutoplay,
     setCarouselInterval: storeSetCarouselInterval,
-  } = useMediaStore()
+  } = useMediaStore();
 
   // Refs
-  const carouselTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const containerRef = useRef<HTMLElement | null>(null)
+  const carouselTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
 
   // Computed values
-  const hasNext = viewer.currentIndex < viewer.items.length - 1 || loop
-  const hasPrevious = viewer.currentIndex > 0 || loop
+  const hasNext = viewer.currentIndex < viewer.items.length - 1 || loop;
+  const hasPrevious = viewer.currentIndex > 0 || loop;
 
   // Navigation handlers
   const next = useCallback(() => {
     if (hasNext) {
-      nextItem()
+      nextItem();
     }
-  }, [hasNext, nextItem])
+  }, [hasNext, nextItem]);
 
   const previous = useCallback(() => {
     if (hasPrevious) {
-      previousItem()
+      previousItem();
     }
-  }, [hasPrevious, previousItem])
+  }, [hasPrevious, previousItem]);
 
   const goTo = useCallback(
     (index: number) => {
-      goToItem(index)
+      goToItem(index);
     },
-    [goToItem]
-  )
+    [goToItem],
+  );
 
   // Zoom handlers
   const setZoom = useCallback(
     (zoom: number) => {
-      const clampedZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom))
-      storeSetZoom(clampedZoom)
+      const clampedZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
+      storeSetZoom(clampedZoom);
     },
-    [storeSetZoom]
-  )
+    [storeSetZoom],
+  );
 
   const zoomIn = useCallback(() => {
-    setZoom(viewer.zoom + ZOOM_STEP)
-  }, [viewer.zoom, setZoom])
+    setZoom(viewer.zoom + ZOOM_STEP);
+  }, [viewer.zoom, setZoom]);
 
   const zoomOut = useCallback(() => {
-    setZoom(viewer.zoom - ZOOM_STEP)
-  }, [viewer.zoom, setZoom])
+    setZoom(viewer.zoom - ZOOM_STEP);
+  }, [viewer.zoom, setZoom]);
 
   const resetZoom = useCallback(() => {
-    storeSetZoom(1)
-  }, [storeSetZoom])
+    storeSetZoom(1);
+  }, [storeSetZoom]);
 
   // Pan handlers
   const setPan = useCallback(
     (x: number, y: number) => {
-      storeSetPan(x, y)
+      storeSetPan(x, y);
     },
-    [storeSetPan]
-  )
+    [storeSetPan],
+  );
 
   // Rotation handlers
   const rotate = useCallback(
     (degrees: number) => {
-      setRotation(viewer.rotation + degrees)
+      setRotation(viewer.rotation + degrees);
     },
-    [viewer.rotation, setRotation]
-  )
+    [viewer.rotation, setRotation],
+  );
 
   const rotateLeft = useCallback(() => {
-    rotate(-ROTATION_STEP)
-  }, [rotate])
+    rotate(-ROTATION_STEP);
+  }, [rotate]);
 
   const rotateRight = useCallback(() => {
-    rotate(ROTATION_STEP)
-  }, [rotate])
+    rotate(ROTATION_STEP);
+  }, [rotate]);
 
   const resetView = useCallback(() => {
-    storeResetView()
-  }, [storeResetView])
+    storeResetView();
+  }, [storeResetView]);
 
   // Video/Audio handlers
   const play = useCallback(() => {
-    setPlaying(true)
-  }, [setPlaying])
+    setPlaying(true);
+  }, [setPlaying]);
 
   const pause = useCallback(() => {
-    setPlaying(false)
-  }, [setPlaying])
+    setPlaying(false);
+  }, [setPlaying]);
 
   const togglePlay = useCallback(() => {
-    setPlaying(!viewer.isPlaying)
-  }, [viewer.isPlaying, setPlaying])
+    setPlaying(!viewer.isPlaying);
+  }, [viewer.isPlaying, setPlaying]);
 
   const seek = useCallback(
     (time: number) => {
-      setCurrentTime(Math.max(0, Math.min(time, viewer.duration)))
+      setCurrentTime(Math.max(0, Math.min(time, viewer.duration)));
     },
-    [viewer.duration, setCurrentTime]
-  )
+    [viewer.duration, setCurrentTime],
+  );
 
   const setVolume = useCallback(
     (volume: number) => {
-      storeSetVolume(Math.max(0, Math.min(1, volume)))
+      storeSetVolume(Math.max(0, Math.min(1, volume)));
       if (volume > 0 && viewer.isMuted) {
-        setMuted(false)
+        setMuted(false);
       }
     },
-    [viewer.isMuted, storeSetVolume, setMuted]
-  )
+    [viewer.isMuted, storeSetVolume, setMuted],
+  );
 
   const toggleMute = useCallback(() => {
-    setMuted(!viewer.isMuted)
-  }, [viewer.isMuted, setMuted])
+    setMuted(!viewer.isMuted);
+  }, [viewer.isMuted, setMuted]);
 
   const setPlaybackRate = useCallback(
     (rate: number) => {
-      storeSetPlaybackRate(rate)
+      storeSetPlaybackRate(rate);
     },
-    [storeSetPlaybackRate]
-  )
+    [storeSetPlaybackRate],
+  );
 
   // Fullscreen handlers
   const toggleFullscreen = useCallback(() => {
     if (enableFullscreen) {
-      storeToggleFullscreen()
+      storeToggleFullscreen();
 
       // Actually toggle browser fullscreen
       if (!document.fullscreenElement) {
-        containerRef.current?.requestFullscreen?.()
+        containerRef.current?.requestFullscreen?.();
       } else {
-        document.exitFullscreen?.()
+        document.exitFullscreen?.();
       }
     }
-  }, [enableFullscreen, storeToggleFullscreen])
+  }, [enableFullscreen, storeToggleFullscreen]);
 
   const enterFullscreen = useCallback(() => {
     if (enableFullscreen && !viewer.isFullscreen) {
-      toggleFullscreen()
+      toggleFullscreen();
     }
-  }, [enableFullscreen, viewer.isFullscreen, toggleFullscreen])
+  }, [enableFullscreen, viewer.isFullscreen, toggleFullscreen]);
 
   const exitFullscreen = useCallback(() => {
     if (viewer.isFullscreen) {
-      toggleFullscreen()
+      toggleFullscreen();
     }
-  }, [viewer.isFullscreen, toggleFullscreen])
+  }, [viewer.isFullscreen, toggleFullscreen]);
 
   // Info panel handlers
   const toggleInfo = useCallback(() => {
-    storeToggleInfo()
-  }, [storeToggleInfo])
+    storeToggleInfo();
+  }, [storeToggleInfo]);
 
   // Carousel handlers
   const setCarouselMode = useCallback(
     (enabled: boolean) => {
-      storeSetCarouselMode(enabled)
+      storeSetCarouselMode(enabled);
     },
-    [storeSetCarouselMode]
-  )
+    [storeSetCarouselMode],
+  );
 
   const setCarouselAutoplay = useCallback(
     (enabled: boolean) => {
-      storeSetCarouselAutoplay(enabled)
+      storeSetCarouselAutoplay(enabled);
     },
-    [storeSetCarouselAutoplay]
-  )
+    [storeSetCarouselAutoplay],
+  );
 
   const startCarousel = useCallback(() => {
-    setCarouselMode(true)
-    setCarouselAutoplay(true)
-  }, [setCarouselMode, setCarouselAutoplay])
+    setCarouselMode(true);
+    setCarouselAutoplay(true);
+  }, [setCarouselMode, setCarouselAutoplay]);
 
   const stopCarousel = useCallback(() => {
-    setCarouselAutoplay(false)
-  }, [setCarouselAutoplay])
+    setCarouselAutoplay(false);
+  }, [setCarouselAutoplay]);
 
   // Set up carousel timer
   useEffect(() => {
     if (viewer.isCarouselMode && viewer.carouselAutoplay && viewer.isOpen) {
       carouselTimerRef.current = setInterval(() => {
-        next()
-      }, viewer.carouselInterval)
+        next();
+      }, viewer.carouselInterval);
 
       return () => {
         if (carouselTimerRef.current) {
-          clearInterval(carouselTimerRef.current)
+          clearInterval(carouselTimerRef.current);
         }
-      }
+      };
     }
-  }, [viewer.isCarouselMode, viewer.carouselAutoplay, viewer.carouselInterval, viewer.isOpen, next])
+  }, [
+    viewer.isCarouselMode,
+    viewer.carouselAutoplay,
+    viewer.carouselInterval,
+    viewer.isOpen,
+    next,
+  ]);
 
   // Initialize carousel settings
   useEffect(() => {
     if (autoplayCarousel) {
-      storeSetCarouselAutoplay(true)
+      storeSetCarouselAutoplay(true);
     }
-    storeSetCarouselInterval(carouselInterval)
-  }, [autoplayCarousel, carouselInterval, storeSetCarouselAutoplay, storeSetCarouselInterval])
+    storeSetCarouselInterval(carouselInterval);
+  }, [
+    autoplayCarousel,
+    carouselInterval,
+    storeSetCarouselAutoplay,
+    storeSetCarouselInterval,
+  ]);
 
   // Keyboard navigation
   useHotkeys(
-    'left',
+    "left",
     (e) => {
-      e.preventDefault()
-      previous()
+      e.preventDefault();
+      previous();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    'right',
+    "right",
     (e) => {
-      e.preventDefault()
-      next()
+      e.preventDefault();
+      next();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    'escape',
+    "escape",
     (e) => {
-      e.preventDefault()
+      e.preventDefault();
       if (viewer.isFullscreen) {
-        exitFullscreen()
+        exitFullscreen();
       } else {
-        closeViewer()
+        closeViewer();
       }
     },
-    { enabled: viewer.isOpen }
-  )
+    { enabled: viewer.isOpen },
+  );
 
   useHotkeys(
-    'f',
+    "f",
     (e) => {
-      e.preventDefault()
-      toggleFullscreen()
+      e.preventDefault();
+      toggleFullscreen();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    'i',
+    "i",
     (e) => {
-      e.preventDefault()
-      toggleInfo()
+      e.preventDefault();
+      toggleInfo();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    'space',
+    "space",
     (e) => {
-      e.preventDefault()
-      togglePlay()
+      e.preventDefault();
+      togglePlay();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    'plus,=',
+    "plus,=",
     (e) => {
-      e.preventDefault()
-      zoomIn()
+      e.preventDefault();
+      zoomIn();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    'minus,-',
+    "minus,-",
     (e) => {
-      e.preventDefault()
-      zoomOut()
+      e.preventDefault();
+      zoomOut();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    '0',
+    "0",
     (e) => {
-      e.preventDefault()
-      resetView()
+      e.preventDefault();
+      resetView();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    'r',
+    "r",
     (e) => {
-      e.preventDefault()
-      rotateRight()
+      e.preventDefault();
+      rotateRight();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   useHotkeys(
-    'shift+r',
+    "shift+r",
     (e) => {
-      e.preventDefault()
-      rotateLeft()
+      e.preventDefault();
+      rotateLeft();
     },
-    { enabled: enableKeyboardNavigation && viewer.isOpen }
-  )
+    { enabled: enableKeyboardNavigation && viewer.isOpen },
+  );
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (carouselTimerRef.current) {
-        clearInterval(carouselTimerRef.current)
+        clearInterval(carouselTimerRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   return {
     // State
@@ -514,7 +527,7 @@ export function useMediaViewer(options: UseMediaViewerOptions = {}): UseMediaVie
     setCarouselAutoplay,
     startCarousel,
     stopCarousel,
-  }
+  };
 }
 
-export default useMediaViewer
+export default useMediaViewer;

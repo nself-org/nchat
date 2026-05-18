@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * RecentCommands
@@ -6,12 +6,12 @@
  * Display recently used commands for quick access.
  */
 
-import * as React from 'react'
-import { Clock, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { CommandItem } from './CommandItem'
-import { CommandGroup } from './CommandGroup'
-import type { Command } from '@/lib/command-palette/command-types'
+import * as React from "react";
+import { Clock, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CommandItem } from "./CommandItem";
+import { CommandGroup } from "./CommandGroup";
+import type { Command } from "@/lib/command-palette/command-types";
 
 // ============================================================================
 // Types
@@ -19,19 +19,19 @@ import type { Command } from '@/lib/command-palette/command-types'
 
 export interface RecentCommandsProps {
   /** Recently used commands */
-  commands: Command[]
+  commands: Command[];
   /** Handler when a command is selected */
-  onSelect?: (command: Command) => void
+  onSelect?: (command: Command) => void;
   /** Handler to clear history */
-  onClearHistory?: () => void
+  onClearHistory?: () => void;
   /** Currently selected index */
-  selectedIndex?: number
+  selectedIndex?: number;
   /** Maximum commands to show */
-  maxItems?: number
+  maxItems?: number;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Whether to show the clear history button */
-  showClearButton?: boolean
+  showClearButton?: boolean;
 }
 
 // ============================================================================
@@ -47,18 +47,21 @@ export function RecentCommands({
   className,
   showClearButton = true,
 }: RecentCommandsProps) {
-  const displayCommands = commands.slice(0, maxItems)
+  const displayCommands = commands.slice(0, maxItems);
 
   if (displayCommands.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <div className={cn('py-1', className)}>
+    <div className={cn("py-1", className)}>
       <CommandGroup
         heading="Recent"
         icon={Clock}
-        headingClassName={cn('flex items-center justify-between', showClearButton && 'pr-2')}
+        headingClassName={cn(
+          "flex items-center justify-between",
+          showClearButton && "pr-2",
+        )}
       >
         {displayCommands.map((command, index) => (
           <CommandItem
@@ -76,9 +79,9 @@ export function RecentCommands({
             type="button"
             onClick={onClearHistory}
             className={cn(
-              'flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground',
-              'hover:text-accent-foreground hover:bg-accent',
-              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+              "flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground",
+              "hover:text-accent-foreground hover:bg-accent",
+              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
             )}
           >
             <X className="h-3 w-3" />
@@ -87,7 +90,7 @@ export function RecentCommands({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -96,13 +99,13 @@ export function RecentCommands({
 
 export interface CompactRecentListProps {
   /** Recently used commands */
-  commands: Command[]
+  commands: Command[];
   /** Handler when a command is selected */
-  onSelect?: (command: Command) => void
+  onSelect?: (command: Command) => void;
   /** Maximum commands to show */
-  maxItems?: number
+  maxItems?: number;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 export function CompactRecentList({
@@ -111,14 +114,14 @@ export function CompactRecentList({
   maxItems = 3,
   className,
 }: CompactRecentListProps) {
-  const displayCommands = commands.slice(0, maxItems)
+  const displayCommands = commands.slice(0, maxItems);
 
   if (displayCommands.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <div className={cn('flex flex-wrap gap-1 px-3 py-2', className)}>
+    <div className={cn("flex flex-wrap gap-1 px-3 py-2", className)}>
       <span className="mr-1 text-xs text-muted-foreground">Recent:</span>
       {displayCommands.map((command) => (
         <button
@@ -126,9 +129,9 @@ export function CompactRecentList({
           type="button"
           onClick={() => onSelect?.(command)}
           className={cn(
-            'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs',
-            'hover:text-accent-foreground hover:bg-accent',
-            'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+            "inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs",
+            "hover:text-accent-foreground hover:bg-accent",
+            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
           )}
         >
           <Clock className="h-2.5 w-2.5" />
@@ -136,7 +139,7 @@ export function CompactRecentList({
         </button>
       ))}
     </div>
-  )
+  );
 }
 
-export default RecentCommands
+export default RecentCommands;

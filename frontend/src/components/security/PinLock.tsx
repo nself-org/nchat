@@ -4,259 +4,269 @@
  * Fullscreen PIN unlock interface with biometric support
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   loadPinSettings,
   verifyPin,
   recordLocalPinAttempt,
   checkLocalLockout,
-} from '@/lib/security/pin'
-import { unlockSession, getLockState } from '@/lib/security/session'
+} from "@/lib/security/pin";
+import { unlockSession, getLockState } from "@/lib/security/session";
 import {
   verifyBiometric,
   hasRegisteredCredentials,
   getBiometricType,
-} from '@/lib/security/biometric'
-import { Lock, Fingerprint, AlertCircle, Loader2, KeyRound } from 'lucide-react'
-import { cn } from '@/lib/utils'
+} from "@/lib/security/biometric";
+import {
+  Lock,
+  Fingerprint,
+  AlertCircle,
+  Loader2,
+  KeyRound,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface PinLockProps {
-  onUnlock?: () => void
-  onForgotPin?: () => void
-  showBiometric?: boolean
+  onUnlock?: () => void;
+  onForgotPin?: () => void;
+  showBiometric?: boolean;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function PinLock({ onUnlock, onForgotPin, showBiometric = true }: PinLockProps) {
+export function PinLock({
+  onUnlock,
+  onForgotPin,
+  showBiometric = true,
+}: PinLockProps) {
   // PIN input
-  const [pin, setPin] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isVerifying, setIsVerifying] = useState(false)
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Biometric state
-  const [biometricAvailable, setBiometricAvailable] = useState(false)
-  const [biometricType, setBiometricType] = useState('Biometric')
-  const [isBiometricVerifying, setIsBiometricVerifying] = useState(false)
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricType, setBiometricType] = useState("Biometric");
+  const [isBiometricVerifying, setIsBiometricVerifying] = useState(false);
 
   // Lockout state
   const [lockoutInfo, setLockoutInfo] = useState<{
-    isLocked: boolean
-    remainingMinutes: number
-    failedAttempts: number
-  }>({ isLocked: false, remainingMinutes: 0, failedAttempts: 0 })
+    isLocked: boolean;
+    remainingMinutes: number;
+    failedAttempts: number;
+  }>({ isLocked: false, remainingMinutes: 0, failedAttempts: 0 });
 
   // Lock reason
-  const [lockReason, setLockReason] = useState<string | null>(null)
+  const [lockReason, setLockReason] = useState<string | null>(null);
 
   // Refs
-  const pinInputRef = useRef<HTMLInputElement>(null)
+  const pinInputRef = useRef<HTMLInputElement>(null);
 
   // Check lockout status on mount and periodically
   useEffect(() => {
     function checkLockout() {
-      const lockout = checkLocalLockout()
-      setLockoutInfo(lockout)
+      const lockout = checkLocalLockout();
+      setLockoutInfo(lockout);
 
       if (!lockout.isLocked) {
         // Clear error when lockout expires
-        if (error?.includes('locked')) {
-          setError(null)
+        if (error?.includes("locked")) {
+          setError(null);
         }
       }
     }
 
-    checkLockout()
-    const interval = setInterval(checkLockout, 10000) // Check every 10 seconds
+    checkLockout();
+    const interval = setInterval(checkLockout, 10000); // Check every 10 seconds
 
-    return () => clearInterval(interval)
-  }, [error])
+    return () => clearInterval(interval);
+  }, [error]);
 
   // Check biometric availability
   useEffect(() => {
     async function checkBiometric() {
-      const pinSettings = loadPinSettings()
+      const pinSettings = loadPinSettings();
       if (!pinSettings?.biometricEnabled || !showBiometric) {
-        setBiometricAvailable(false)
-        return
+        setBiometricAvailable(false);
+        return;
       }
 
-      const hasCredentials = hasRegisteredCredentials()
-      setBiometricAvailable(hasCredentials)
+      const hasCredentials = hasRegisteredCredentials();
+      setBiometricAvailable(hasCredentials);
 
       if (hasCredentials) {
-        const type = await getBiometricType()
-        setBiometricType(type)
+        const type = await getBiometricType();
+        setBiometricType(type);
       }
     }
 
-    checkBiometric()
-  }, [showBiometric])
+    checkBiometric();
+  }, [showBiometric]);
 
   // Get lock reason on mount
   useEffect(() => {
-    const lockState = getLockState()
+    const lockState = getLockState();
     if (lockState.lockReason) {
-      setLockReason(getLockReasonMessage(lockState.lockReason))
+      setLockReason(getLockReasonMessage(lockState.lockReason));
     }
-  }, [])
+  }, []);
 
   // Focus input on mount
   useEffect(() => {
     if (pinInputRef.current && !lockoutInfo.isLocked) {
-      pinInputRef.current.focus()
+      pinInputRef.current.focus();
     }
-  }, [lockoutInfo.isLocked])
+  }, [lockoutInfo.isLocked]);
 
   // Handle PIN submission
   const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault()
+    e?.preventDefault();
 
     if (lockoutInfo.isLocked) {
       setError(
-        `Too many failed attempts. Try again in ${lockoutInfo.remainingMinutes} minute${lockoutInfo.remainingMinutes !== 1 ? 's' : ''}.`
-      )
-      return
+        `Too many failed attempts. Try again in ${lockoutInfo.remainingMinutes} minute${lockoutInfo.remainingMinutes !== 1 ? "s" : ""}.`,
+      );
+      return;
     }
 
     if (pin.length < 4) {
-      setError('PIN must be at least 4 digits')
-      return
+      setError("PIN must be at least 4 digits");
+      return;
     }
 
     try {
-      setIsVerifying(true)
-      setError(null)
+      setIsVerifying(true);
+      setError(null);
 
       // Load PIN settings
-      const settings = loadPinSettings()
+      const settings = loadPinSettings();
       if (!settings) {
-        setError('PIN not configured')
-        return
+        setError("PIN not configured");
+        return;
       }
 
       // Verify PIN
-      const isValid = await verifyPin(pin, settings.pinHash, settings.pinSalt)
+      const isValid = await verifyPin(pin, settings.pinHash, settings.pinSalt);
 
       if (isValid) {
         // Record successful attempt
-        recordLocalPinAttempt(true)
+        recordLocalPinAttempt(true);
 
         // Unlock session
-        unlockSession()
+        unlockSession();
 
         // Notify parent
         if (onUnlock) {
-          onUnlock()
+          onUnlock();
         }
       } else {
         // Record failed attempt
-        recordLocalPinAttempt(false, 'incorrect_pin')
+        recordLocalPinAttempt(false, "incorrect_pin");
 
         // Check if now locked out
-        const lockout = checkLocalLockout()
-        setLockoutInfo(lockout)
+        const lockout = checkLocalLockout();
+        setLockoutInfo(lockout);
 
         if (lockout.isLocked) {
           setError(
-            `Too many failed attempts. Try again in ${lockout.remainingMinutes} minute${lockout.remainingMinutes !== 1 ? 's' : ''}.`
-          )
+            `Too many failed attempts. Try again in ${lockout.remainingMinutes} minute${lockout.remainingMinutes !== 1 ? "s" : ""}.`,
+          );
         } else {
-          const remaining = 5 - lockout.failedAttempts
+          const remaining = 5 - lockout.failedAttempts;
           setError(
-            `Incorrect PIN. ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining before lockout.`
-          )
+            `Incorrect PIN. ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining before lockout.`,
+          );
         }
 
         // Clear PIN input
-        setPin('')
+        setPin("");
       }
     } catch (err) {
-      logger.error('PIN verification error:', err)
-      setError('An error occurred. Please try again.')
+      logger.error("PIN verification error:", err);
+      setError("An error occurred. Please try again.");
     } finally {
-      setIsVerifying(false)
+      setIsVerifying(false);
     }
-  }
+  };
 
   // Handle biometric unlock
   const handleBiometricUnlock = async () => {
     try {
-      setIsBiometricVerifying(true)
-      setError(null)
+      setIsBiometricVerifying(true);
+      setError(null);
 
-      const result = await verifyBiometric()
+      const result = await verifyBiometric();
 
       if (result.success) {
         // Record successful attempt
-        recordLocalPinAttempt(true)
+        recordLocalPinAttempt(true);
 
         // Unlock session
-        unlockSession()
+        unlockSession();
 
         // Notify parent
         if (onUnlock) {
-          onUnlock()
+          onUnlock();
         }
       } else {
-        setError(result.error || 'Biometric verification failed')
+        setError(result.error || "Biometric verification failed");
       }
     } catch (err) {
-      logger.error('Biometric verification error:', err)
-      setError('Biometric verification failed')
+      logger.error("Biometric verification error:", err);
+      setError("Biometric verification failed");
     } finally {
-      setIsBiometricVerifying(false)
+      setIsBiometricVerifying(false);
     }
-  }
+  };
 
   // Handle PIN digit input (for better UX with number buttons)
   const handleDigitInput = (digit: string) => {
     if (pin.length < 6) {
-      const newPin = pin + digit
-      setPin(newPin)
-      setError(null)
+      const newPin = pin + digit;
+      setPin(newPin);
+      setError(null);
 
       // Auto-submit when 6 digits entered
       if (newPin.length === 6) {
-        setTimeout(() => handleSubmit(), 100)
+        setTimeout(() => handleSubmit(), 100);
       }
     }
-  }
+  };
 
   // Handle backspace
   const handleBackspace = () => {
-    setPin(pin.slice(0, -1))
-    setError(null)
-  }
+    setPin(pin.slice(0, -1));
+    setError(null);
+  };
 
   // Format lock reason
   function getLockReasonMessage(reason: string): string {
     switch (reason) {
-      case 'timeout':
-        return 'App locked due to inactivity'
-      case 'manual':
-        return 'App locked manually'
-      case 'close':
-        return 'App locked on close'
-      case 'background':
-        return 'App locked when sent to background'
-      case 'failed_attempts':
-        return 'App locked due to too many failed attempts'
+      case "timeout":
+        return "App locked due to inactivity";
+      case "manual":
+        return "App locked manually";
+      case "close":
+        return "App locked on close";
+      case "background":
+        return "App locked when sent to background";
+      case "failed_attempts":
+        return "App locked due to too many failed attempts";
       default:
-        return 'App is locked'
+        return "App is locked";
     }
   }
 
@@ -271,7 +281,9 @@ export function PinLock({ onUnlock, onForgotPin, showBiometric = true }: PinLock
             </div>
           </div>
           <h1 className="text-2xl font-bold">App Locked</h1>
-          {lockReason && <p className="text-sm text-muted-foreground">{lockReason}</p>}
+          {lockReason && (
+            <p className="text-sm text-muted-foreground">{lockReason}</p>
+          )}
         </div>
 
         {/* Error alert */}
@@ -287,9 +299,10 @@ export function PinLock({ onUnlock, onForgotPin, showBiometric = true }: PinLock
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Your account is temporarily locked due to too many failed attempts. Please wait{' '}
-              {lockoutInfo.remainingMinutes} minute
-              {lockoutInfo.remainingMinutes !== 1 ? 's' : ''} before trying again.
+              Your account is temporarily locked due to too many failed
+              attempts. Please wait {lockoutInfo.remainingMinutes} minute
+              {lockoutInfo.remainingMinutes !== 1 ? "s" : ""} before trying
+              again.
             </AlertDescription>
           </Alert>
         )}
@@ -311,9 +324,9 @@ export function PinLock({ onUnlock, onForgotPin, showBiometric = true }: PinLock
                 maxLength={6}
                 value={pin}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '')
-                  setPin(value)
-                  setError(null)
+                  const value = e.target.value.replace(/\D/g, "");
+                  setPin(value);
+                  setError(null);
                 }}
                 placeholder="Enter PIN"
                 className="text-center text-2xl tracking-widest"
@@ -327,8 +340,10 @@ export function PinLock({ onUnlock, onForgotPin, showBiometric = true }: PinLock
                   <div
                     key={i}
                     className={cn(
-                      'h-3 w-3 rounded-full border-2 transition-colors',
-                      i < pin.length ? 'border-primary bg-primary' : 'border-muted-foreground/20'
+                      "h-3 w-3 rounded-full border-2 transition-colors",
+                      i < pin.length
+                        ? "border-primary bg-primary"
+                        : "border-muted-foreground/20",
                     )}
                   />
                 ))}
@@ -365,7 +380,9 @@ export function PinLock({ onUnlock, onForgotPin, showBiometric = true }: PinLock
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or unlock with</span>
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or unlock with
+                </span>
               </div>
             </div>
 
@@ -410,10 +427,10 @@ export function PinLock({ onUnlock, onForgotPin, showBiometric = true }: PinLock
         {!lockoutInfo.isLocked && lockoutInfo.failedAttempts > 0 && (
           <div className="text-center text-sm text-muted-foreground">
             {lockoutInfo.failedAttempts} failed attempt
-            {lockoutInfo.failedAttempts !== 1 ? 's' : ''}
+            {lockoutInfo.failedAttempts !== 1 ? "s" : ""}
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

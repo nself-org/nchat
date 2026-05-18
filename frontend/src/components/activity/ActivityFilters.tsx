@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ActivityFilters Component
@@ -6,28 +6,28 @@
  * Filter controls for the activity feed
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   getAllCategories,
   getCategoryLabel,
   hasActiveFilters,
   clearFilters,
-} from '@/lib/activity/activity-filters'
+} from "@/lib/activity/activity-filters";
 import type {
   ActivityFilters as ActivityFiltersType,
   ActivityCategory,
   ActivityFiltersProps,
-} from '@/lib/activity/activity-types'
+} from "@/lib/activity/activity-types";
 
 // Search icon component
 function SearchIcon({ className }: { className?: string }) {
@@ -44,7 +44,7 @@ function SearchIcon({ className }: { className?: string }) {
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
-  )
+  );
 }
 
 // X icon component
@@ -62,7 +62,7 @@ function XIcon({ className }: { className?: string }) {
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
-  )
+  );
 }
 
 // Calendar icon component
@@ -82,7 +82,7 @@ function CalendarIcon({ className }: { className?: string }) {
       <line x1="8" y1="2" x2="8" y2="6" />
       <line x1="3" y1="10" x2="21" y2="10" />
     </svg>
-  )
+  );
 }
 
 export function ActivityFilters({
@@ -92,37 +92,43 @@ export function ActivityFilters({
   showSearch = true,
   showDateRange = false,
 }: ActivityFiltersProps) {
-  const [searchValue, setSearchValue] = React.useState(filters.searchQuery || '')
-  const categories = availableCategories || getAllCategories()
+  const [searchValue, setSearchValue] = React.useState(
+    filters.searchQuery || "",
+  );
+  const categories = availableCategories || getAllCategories();
 
   // Debounce search input
   React.useEffect(() => {
     const timer = setTimeout(() => {
       if (searchValue !== filters.searchQuery) {
-        onChange({ ...filters, searchQuery: searchValue || undefined })
+        onChange({ ...filters, searchQuery: searchValue || undefined });
       }
-    }, 300)
+    }, 300);
 
-    return () => clearTimeout(timer)
-  }, [searchValue, filters, onChange])
+    return () => clearTimeout(timer);
+  }, [searchValue, filters, onChange]);
 
   const handleCategoryChange = (category: string) => {
-    const newCategory = category === 'all' ? undefined : (category as ActivityCategory)
-    onChange({ ...filters, category: newCategory })
-  }
+    const newCategory =
+      category === "all" ? undefined : (category as ActivityCategory);
+    onChange({ ...filters, category: newCategory });
+  };
 
   const handleClearFilters = () => {
-    setSearchValue('')
-    onChange(clearFilters())
-  }
+    setSearchValue("");
+    onChange(clearFilters());
+  };
 
-  const hasFilters = hasActiveFilters(filters)
+  const hasFilters = hasActiveFilters(filters);
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         {/* Category filter */}
-        <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
+        <Select
+          value={filters.category || "all"}
+          onValueChange={handleCategoryChange}
+        >
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="All Activity" />
           </SelectTrigger>
@@ -149,7 +155,7 @@ export function ActivityFilters({
             {searchValue && (
               <button
                 type="button"
-                onClick={() => setSearchValue('')}
+                onClick={() => setSearchValue("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 <XIcon className="h-4 w-4" />
@@ -160,7 +166,12 @@ export function ActivityFilters({
 
         {/* Clear filters button */}
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={handleClearFilters} className="shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearFilters}
+            className="shrink-0"
+          >
             Clear
           </Button>
         )}
@@ -173,11 +184,13 @@ export function ActivityFilters({
             <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="date"
-              value={filters.dateFrom?.split('T')[0] || ''}
+              value={filters.dateFrom?.split("T")[0] || ""}
               onChange={(e) =>
                 onChange({
                   ...filters,
-                  dateFrom: e.target.value ? new Date(e.target.value).toISOString() : undefined,
+                  dateFrom: e.target.value
+                    ? new Date(e.target.value).toISOString()
+                    : undefined,
                 })
               }
               className="w-[150px] pl-9"
@@ -189,11 +202,13 @@ export function ActivityFilters({
             <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="date"
-              value={filters.dateTo?.split('T')[0] || ''}
+              value={filters.dateTo?.split("T")[0] || ""}
               onChange={(e) =>
                 onChange({
                   ...filters,
-                  dateTo: e.target.value ? new Date(e.target.value).toISOString() : undefined,
+                  dateTo: e.target.value
+                    ? new Date(e.target.value).toISOString()
+                    : undefined,
                 })
               }
               className="w-[150px] pl-9"
@@ -203,7 +218,7 @@ export function ActivityFilters({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
@@ -215,24 +230,29 @@ export function ActivityFilterTabs({
   counts,
   className,
 }: {
-  activeCategory: ActivityCategory
-  onChange: (category: ActivityCategory) => void
-  counts?: Partial<Record<ActivityCategory, number>>
-  className?: string
+  activeCategory: ActivityCategory;
+  onChange: (category: ActivityCategory) => void;
+  counts?: Partial<Record<ActivityCategory, number>>;
+  className?: string;
 }) {
   const tabs: { category: ActivityCategory; label: string }[] = [
-    { category: 'all', label: 'All' },
-    { category: 'mentions', label: 'Mentions' },
-    { category: 'threads', label: 'Threads' },
-    { category: 'reactions', label: 'Reactions' },
-    { category: 'files', label: 'Files' },
-  ]
+    { category: "all", label: "All" },
+    { category: "mentions", label: "Mentions" },
+    { category: "threads", label: "Threads" },
+    { category: "reactions", label: "Reactions" },
+    { category: "files", label: "Files" },
+  ];
 
   return (
-    <div className={cn('bg-muted/50 flex items-center gap-1 rounded-lg p-1', className)}>
+    <div
+      className={cn(
+        "bg-muted/50 flex items-center gap-1 rounded-lg p-1",
+        className,
+      )}
+    >
       {tabs.map(({ category, label }) => {
-        const count = counts?.[category]
-        const isActive = activeCategory === category
+        const count = counts?.[category];
+        const isActive = activeCategory === category;
 
         return (
           <button
@@ -240,28 +260,30 @@ export function ActivityFilterTabs({
             type="button"
             onClick={() => onChange(category)}
             className={cn(
-              'relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              "relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               isActive
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             {label}
             {count !== undefined && count > 0 && (
               <span
                 className={cn(
-                  'ml-1.5 rounded-full px-1.5 py-0.5 text-xs',
-                  isActive ? 'text-primary-foreground bg-primary' : 'bg-muted-foreground/20'
+                  "ml-1.5 rounded-full px-1.5 py-0.5 text-xs",
+                  isActive
+                    ? "text-primary-foreground bg-primary"
+                    : "bg-muted-foreground/20",
                 )}
               >
-                {count > 99 ? '99+' : count}
+                {count > 99 ? "99+" : count}
               </span>
             )}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
-export default ActivityFilters
+export default ActivityFilters;

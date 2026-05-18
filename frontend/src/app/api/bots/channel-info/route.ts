@@ -5,13 +5,13 @@
  * Allows bots to read channel information
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { gql } from '@apollo/client'
-import { getApolloClient } from '@/lib/apollo-client'
-import { withBotAuth } from '@/lib/api/bot-auth'
-import { BotPermission } from '@/lib/bots/permissions'
+import { NextRequest, NextResponse } from "next/server";
+import { gql } from "@apollo/client";
+import { getApolloClient } from "@/lib/apollo-client";
+import { withBotAuth } from "@/lib/api/bot-auth";
+import { BotPermission } from "@/lib/bots/permissions";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 /**
  * GraphQL query to get channel info
@@ -44,7 +44,7 @@ const GET_CHANNEL_INFO = gql`
       }
     }
   }
-`
+`;
 
 /**
  * GET handler
@@ -52,33 +52,36 @@ const GET_CHANNEL_INFO = gql`
 export const GET = withBotAuth(async (request: NextRequest) => {
   try {
     // Get channelId from query params
-    const { searchParams } = new URL(request.url)
-    const channelId = searchParams.get('channelId')
+    const { searchParams } = new URL(request.url);
+    const channelId = searchParams.get("channelId");
 
     if (!channelId) {
-      return NextResponse.json({ error: 'channelId query parameter is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "channelId query parameter is required" },
+        { status: 400 },
+      );
     }
 
     // Fetch channel info
-    const client = getApolloClient()
+    const client = getApolloClient();
     const { data, errors } = await client.query({
       query: GET_CHANNEL_INFO,
       variables: { channelId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (errors) {
-      logger.error('GraphQL errors:', errors)
+      logger.error("GraphQL errors:", errors);
       return NextResponse.json(
-        { error: 'Failed to fetch channel info', details: errors },
-        { status: 500 }
-      )
+        { error: "Failed to fetch channel info", details: errors },
+        { status: 500 },
+      );
     }
 
-    const channel = data?.nchat_channels_by_pk
+    const channel = data?.nchat_channels_by_pk;
 
     if (!channel) {
-      return NextResponse.json({ error: 'Channel not found' }, { status: 404 })
+      return NextResponse.json({ error: "Channel not found" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -98,9 +101,16 @@ export const GET = withBotAuth(async (request: NextRequest) => {
           memberCount: channel._aggregate_members?.aggregate?.count || 0,
         },
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error fetching channel info:', error)
-    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) || 'Internal server error' }, { status: 500 })
+    logger.error("Error fetching channel info:", error);
+    return NextResponse.json(
+      {
+        error:
+          (error instanceof Error ? error.message : String(error)) ||
+          "Internal server error",
+      },
+      { status: 500 },
+    );
   }
-}, BotPermission.CHANNELS_READ)
+}, BotPermission.CHANNELS_READ);

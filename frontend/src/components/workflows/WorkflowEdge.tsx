@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * WorkflowEdge - Connection line between workflow nodes
@@ -6,17 +6,20 @@
  * Renders bezier curves connecting steps in the workflow
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { useWorkflowBuilderStore } from '@/stores/workflow-builder-store'
-import type { WorkflowEdge as WorkflowEdgeType, Position } from '@/lib/workflows/workflow-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { useWorkflowBuilderStore } from "@/stores/workflow-builder-store";
+import type {
+  WorkflowEdge as WorkflowEdgeType,
+  Position,
+} from "@/lib/workflows/workflow-types";
 
 interface WorkflowEdgeProps {
-  edge: WorkflowEdgeType
-  sourcePosition: Position
-  targetPosition: Position
-  isSelected?: boolean
-  className?: string
+  edge: WorkflowEdgeType;
+  sourcePosition: Position;
+  targetPosition: Position;
+  isSelected?: boolean;
+  className?: string;
 }
 
 export function WorkflowEdge({
@@ -26,12 +29,12 @@ export function WorkflowEdge({
   isSelected = false,
   className,
 }: WorkflowEdgeProps) {
-  const { selectEdge, deleteEdge } = useWorkflowBuilderStore()
+  const { selectEdge, deleteEdge } = useWorkflowBuilderStore();
 
   // Calculate bezier curve control points
-  const dx = targetPosition.x - sourcePosition.x
-  const dy = targetPosition.y - sourcePosition.y
-  const controlPointOffset = Math.min(Math.abs(dx) * 0.5, 150)
+  const dx = targetPosition.x - sourcePosition.x;
+  const dy = targetPosition.y - sourcePosition.y;
+  const controlPointOffset = Math.min(Math.abs(dx) * 0.5, 150);
 
   // Create path
   const path = `
@@ -39,44 +42,44 @@ export function WorkflowEdge({
     C ${sourcePosition.x + controlPointOffset} ${sourcePosition.y},
       ${targetPosition.x - controlPointOffset} ${targetPosition.y},
       ${targetPosition.x} ${targetPosition.y}
-  `
+  `;
 
   // Get edge color based on type
   const getEdgeColor = () => {
     switch (edge.type) {
-      case 'true':
-        return 'stroke-green-500'
-      case 'false':
-        return 'stroke-red-500'
-      case 'error':
-        return 'stroke-destructive'
-      case 'timeout':
-        return 'stroke-amber-500'
-      case 'loop':
-        return 'stroke-cyan-500'
+      case "true":
+        return "stroke-green-500";
+      case "false":
+        return "stroke-red-500";
+      case "error":
+        return "stroke-destructive";
+      case "timeout":
+        return "stroke-amber-500";
+      case "loop":
+        return "stroke-cyan-500";
       default:
-        return 'stroke-muted-foreground'
+        return "stroke-muted-foreground";
     }
-  }
+  };
 
   // Handle click
   const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    selectEdge(edge.id)
-  }
+    e.stopPropagation();
+    selectEdge(edge.id);
+  };
 
   // Handle double click to delete
   const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    deleteEdge(edge.id)
-  }
+    e.stopPropagation();
+    deleteEdge(edge.id);
+  };
 
   // Calculate label position (midpoint of the curve)
-  const labelX = (sourcePosition.x + targetPosition.x) / 2
-  const labelY = (sourcePosition.y + targetPosition.y) / 2 - 10
+  const labelX = (sourcePosition.x + targetPosition.x) / 2;
+  const labelY = (sourcePosition.y + targetPosition.y) / 2 - 10;
 
   return (
-    <g className={cn('workflow-edge', className)}>
+    <g className={cn("workflow-edge", className)}>
       {/* Invisible wider path for easier clicking */}
       <path
         d={path}
@@ -93,12 +96,12 @@ export function WorkflowEdge({
         d={path}
         fill="none"
         className={cn(
-          'transition-all',
+          "transition-all",
           getEdgeColor(),
-          isSelected ? 'stroke-primary stroke-[3]' : 'stroke-2'
+          isSelected ? "stroke-primary stroke-[3]" : "stroke-2",
         )}
         strokeLinecap="round"
-        markerEnd={isSelected ? 'url(#arrowhead-selected)' : 'url(#arrowhead)'}
+        markerEnd={isSelected ? "url(#arrowhead-selected)" : "url(#arrowhead)"}
       />
 
       {/* Edge label */}
@@ -126,8 +129,18 @@ export function WorkflowEdge({
 
       {/* Arrow marker definitions */}
       <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="hsl(var(--muted-foreground))" />
+        <marker
+          id="arrowhead"
+          markerWidth="10"
+          markerHeight="7"
+          refX="9"
+          refY="3.5"
+          orient="auto"
+        >
+          <polygon
+            points="0 0, 10 3.5, 0 7"
+            fill="hsl(var(--muted-foreground))"
+          />
         </marker>
         <marker
           id="arrowhead-selected"
@@ -141,7 +154,7 @@ export function WorkflowEdge({
         </marker>
       </defs>
     </g>
-  )
+  );
 }
 
-export default WorkflowEdge
+export default WorkflowEdge;

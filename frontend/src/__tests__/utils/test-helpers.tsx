@@ -4,51 +4,63 @@
  * Common utilities and helpers for tests
  */
 
-import { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
-import { ApolloProvider } from '@apollo/client'
-import { createMockApolloClient } from '../mocks/apollo-client'
+import { ReactElement } from "react";
+import { render, RenderOptions } from "@testing-library/react";
+import { ApolloProvider } from "@apollo/client";
+import { createMockApolloClient } from "../mocks/apollo-client";
 
 // ============================================================================
 // Custom Render with Providers
 // ============================================================================
 
-interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
-  apolloMocks?: any[]
-  initialAuth?: any
-  initialConfig?: any
+interface CustomRenderOptions extends Omit<RenderOptions, "wrapper"> {
+  apolloMocks?: any[];
+  initialAuth?: any;
+  initialConfig?: any;
 }
 
-export function renderWithProviders(ui: ReactElement, options?: CustomRenderOptions) {
-  const { apolloMocks = [], initialAuth, initialConfig, ...renderOptions } = options || {}
+export function renderWithProviders(
+  ui: ReactElement,
+  options?: CustomRenderOptions,
+) {
+  const {
+    apolloMocks = [],
+    initialAuth,
+    initialConfig,
+    ...renderOptions
+  } = options || {};
 
-  const mockApolloClient = createMockApolloClient(apolloMocks)
+  const mockApolloClient = createMockApolloClient(apolloMocks);
 
   function Wrapper({ children }: { children: React.ReactNode }) {
-    return <ApolloProvider client={mockApolloClient}>{children}</ApolloProvider>
+    return (
+      <ApolloProvider client={mockApolloClient}>{children}</ApolloProvider>
+    );
   }
 
-  return render(ui, { wrapper: Wrapper, ...renderOptions })
+  return render(ui, { wrapper: Wrapper, ...renderOptions });
 }
 
 // ============================================================================
 // Wait Utilities
 // ============================================================================
 
-export const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+export const waitFor = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
-export const waitForNextTick = () => new Promise((resolve) => process.nextTick(resolve))
+export const waitForNextTick = () =>
+  new Promise((resolve) => process.nextTick(resolve));
 
 // ============================================================================
 // Mock Data Generators
 // ============================================================================
 
-export function generateId(prefix = 'test'): string {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+export function generateId(prefix = "test"): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 export function generateEmail(username: string): string {
-  return `${username}@test.example.com`
+  return `${username}@test.example.com`;
 }
 
 // ============================================================================
@@ -56,22 +68,22 @@ export function generateEmail(username: string): string {
 // ============================================================================
 
 export function suppressConsoleError(callback: () => void) {
-  const originalError = console.error
-  console.error = jest.fn()
+  const originalError = console.error;
+  console.error = jest.fn();
   try {
-    callback()
+    callback();
   } finally {
-    console.error = originalError
+    console.error = originalError;
   }
 }
 
 export function suppressConsoleWarn(callback: () => void) {
-  const originalWarn = console.warn
-  console.warn = jest.fn()
+  const originalWarn = console.warn;
+  console.warn = jest.fn();
   try {
-    callback()
+    callback();
   } finally {
-    console.warn = originalWarn
+    console.warn = originalWarn;
   }
 }
 
@@ -80,20 +92,20 @@ export function suppressConsoleWarn(callback: () => void) {
 // ============================================================================
 
 export function createMockLocalStorage() {
-  const store: Record<string, string> = {}
+  const store: Record<string, string> = {};
 
   return {
     getItem: (key: string) => store[key] || null,
     setItem: (key: string, value: string) => {
-      store[key] = value.toString()
+      store[key] = value.toString();
     },
     removeItem: (key: string) => {
-      delete store[key]
+      delete store[key];
     },
     clear: () => {
-      Object.keys(store).forEach((key) => delete store[key])
+      Object.keys(store).forEach((key) => delete store[key]);
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -101,11 +113,11 @@ export function createMockLocalStorage() {
 // ============================================================================
 
 export function runTimers() {
-  jest.runAllTimers()
+  jest.runAllTimers();
 }
 
 export function advanceTimers(ms: number) {
-  jest.advanceTimersByTime(ms)
+  jest.advanceTimersByTime(ms);
 }
 
 // ============================================================================
@@ -113,7 +125,7 @@ export function advanceTimers(ms: number) {
 // ============================================================================
 
 export async function flushPromises() {
-  return new Promise((resolve) => setImmediate(resolve))
+  return new Promise((resolve) => setImmediate(resolve));
 }
 
 // ============================================================================
@@ -124,43 +136,46 @@ export function createMockFile(
   name: string,
   size: number,
   type: string,
-  content: string = ''
+  content: string = "",
 ): File {
-  const blob = new Blob([content], { type })
-  return new File([blob], name, { type })
+  const blob = new Blob([content], { type });
+  return new File([blob], name, { type });
 }
 
 export function createMockImage(
-  name: string = 'test.png',
+  name: string = "test.png",
   width: number = 100,
-  height: number = 100
+  height: number = 100,
 ): File {
-  return createMockFile(name, 1024, 'image/png')
+  return createMockFile(name, 1024, "image/png");
 }
 
 // ============================================================================
 // Event Mocks
 // ============================================================================
 
-export function createMockMouseEvent(type: string, options: any = {}): MouseEvent {
+export function createMockMouseEvent(
+  type: string,
+  options: any = {},
+): MouseEvent {
   return new MouseEvent(type, {
     bubbles: true,
     cancelable: true,
     ...options,
-  })
+  });
 }
 
 export function createMockKeyboardEvent(
   type: string,
   key: string,
-  options: any = {}
+  options: any = {},
 ): KeyboardEvent {
   return new KeyboardEvent(type, {
     bubbles: true,
     cancelable: true,
     key,
     ...options,
-  })
+  });
 }
 
 // ============================================================================
@@ -176,7 +191,7 @@ export function createGraphQLMock(query: any, data: any, variables?: any) {
     result: {
       data,
     },
-  }
+  };
 }
 
 export function createGraphQLError(query: any, error: string, variables?: any) {
@@ -186,7 +201,7 @@ export function createGraphQLError(query: any, error: string, variables?: any) {
       variables,
     },
     error: new Error(error),
-  }
+  };
 }
 
 // ============================================================================
@@ -201,13 +216,13 @@ export function mockRouter(overrides: any = {}) {
     back: jest.fn(),
     forward: jest.fn(),
     prefetch: jest.fn(),
-    pathname: '/',
+    pathname: "/",
     query: {},
     ...overrides,
-  }
+  };
 }
 
 export function mockSearchParams(params: Record<string, string> = {}) {
-  const searchParams = new URLSearchParams(params)
-  return searchParams
+  const searchParams = new URLSearchParams(params);
+  return searchParams;
 }

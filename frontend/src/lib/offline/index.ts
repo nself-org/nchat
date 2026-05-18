@@ -68,9 +68,9 @@ export type {
 
   // Config types
   OfflineConfig,
-} from './offline-types'
+} from "./offline-types";
 
-export { DEFAULT_OFFLINE_CONFIG } from './offline-types'
+export { DEFAULT_OFFLINE_CONFIG } from "./offline-types";
 
 // =============================================================================
 // Network Detection
@@ -84,7 +84,7 @@ export {
   getConnectionStateText,
   getNetworkQualityText,
   type NetworkChangeListener,
-} from './network-detector'
+} from "./network-detector";
 
 // =============================================================================
 // Connection Management
@@ -98,7 +98,7 @@ export {
   type CombinedConnectionState,
   type ConnectionStateListener,
   type ConnectionManagerOptions,
-} from './connection-manager'
+} from "./connection-manager";
 
 // =============================================================================
 // Retry Management
@@ -117,7 +117,7 @@ export {
   type RetryCondition,
   type RetryProgressCallback,
   type RetryOptions,
-} from './retry-manager'
+} from "./retry-manager";
 
 // =============================================================================
 // Offline Storage
@@ -151,7 +151,7 @@ export {
 
   // Stats
   getStorageStats,
-} from './offline-storage'
+} from "./offline-storage";
 
 // =============================================================================
 // Offline Cache
@@ -164,7 +164,7 @@ export {
   cleanupOfflineCache,
   type CacheEventType,
   type CacheEventListener,
-} from './offline-cache'
+} from "./offline-cache";
 
 // =============================================================================
 // Offline Queue
@@ -178,7 +178,7 @@ export {
   type QueueEventType,
   type QueueEventListener,
   type ActionProcessor,
-} from './offline-queue'
+} from "./offline-queue";
 
 // =============================================================================
 // Offline Sync
@@ -193,7 +193,7 @@ export {
   type SyncEventListener,
   type DataFetchers,
   type SyncOptions,
-} from './offline-sync'
+} from "./offline-sync";
 
 // =============================================================================
 // Sync Manager (v0.8.0)
@@ -207,7 +207,7 @@ export {
   type SyncProgress,
   type SyncEvent,
   type SyncEventListener as SyncManagerEventListener,
-} from './sync-manager'
+} from "./sync-manager";
 
 // =============================================================================
 // Conflict Resolution (v0.8.0)
@@ -226,7 +226,7 @@ export {
   type ConflictResolution,
   type Tombstone,
   type UserChoiceCallback,
-} from './conflict-resolver'
+} from "./conflict-resolver";
 
 // =============================================================================
 // Attachment Cache (v0.8.0)
@@ -241,7 +241,7 @@ export {
   type AttachmentCacheStats,
   type DownloadProgress,
   type DownloadProgressCallback,
-} from './attachment-cache'
+} from "./attachment-cache";
 
 // =============================================================================
 // Sync Queue (v0.8.0)
@@ -258,7 +258,7 @@ export {
   type SyncItemType,
   type SyncItemOperation,
   type SyncItemStatus,
-} from './sync-queue'
+} from "./sync-queue";
 
 // =============================================================================
 // Reconciliation Manager (v0.9.0)
@@ -274,7 +274,7 @@ export {
   type ReconciliationEventType,
   type ReconciliationEventListener,
   type ReconciliationConfig,
-} from './reconciliation-manager'
+} from "./reconciliation-manager";
 
 // =============================================================================
 // Optimistic Updates (v0.9.0)
@@ -292,7 +292,7 @@ export {
   type ConfirmCallback,
   type UpdateCallbacks,
   type OptimisticUpdatesOptions,
-} from './optimistic-updates'
+} from "./optimistic-updates";
 
 // =============================================================================
 // Storage Quota Manager (v0.9.0)
@@ -309,42 +309,51 @@ export {
   type StorageEventType,
   type StorageEventListener,
   type StorageQuotaOptions,
-} from './storage-quota-manager'
+} from "./storage-quota-manager";
 
 // =============================================================================
 // Initialization Helper
 // =============================================================================
 
-import { initializeConnectionManager, cleanupConnectionManager } from './connection-manager'
-import { initializeOfflineCache, cleanupOfflineCache } from './offline-cache'
-import { initializeOfflineQueue, cleanupOfflineQueue } from './offline-queue'
-import { initializeOfflineSync, cleanupOfflineSync, type DataFetchers } from './offline-sync'
-import type { OfflineConfig } from './offline-types'
-import type { ConnectionManagerOptions } from './connection-manager'
+import {
+  initializeConnectionManager,
+  cleanupConnectionManager,
+} from "./connection-manager";
+import { initializeOfflineCache, cleanupOfflineCache } from "./offline-cache";
+import { initializeOfflineQueue, cleanupOfflineQueue } from "./offline-queue";
+import {
+  initializeOfflineSync,
+  cleanupOfflineSync,
+  type DataFetchers,
+} from "./offline-sync";
+import type { OfflineConfig } from "./offline-types";
+import type { ConnectionManagerOptions } from "./connection-manager";
 
 export interface OfflineSystemOptions {
-  config?: Partial<OfflineConfig>
-  connectionOptions?: Partial<ConnectionManagerOptions>
-  fetchers?: DataFetchers
-  token?: string
+  config?: Partial<OfflineConfig>;
+  connectionOptions?: Partial<ConnectionManagerOptions>;
+  fetchers?: DataFetchers;
+  token?: string;
 }
 
 /**
  * Initialize the complete offline system
  */
-export function initializeOfflineSystem(options: OfflineSystemOptions = {}): void {
+export function initializeOfflineSystem(
+  options: OfflineSystemOptions = {},
+): void {
   // Initialize connection manager
-  initializeConnectionManager(options.token, options.connectionOptions)
+  initializeConnectionManager(options.token, options.connectionOptions);
 
   // Initialize cache
-  initializeOfflineCache(options.config)
+  initializeOfflineCache(options.config);
 
   // Initialize queue
-  initializeOfflineQueue(options.config)
+  initializeOfflineQueue(options.config);
 
   // Initialize sync (if fetchers provided)
   if (options.fetchers) {
-    initializeOfflineSync(options.fetchers)
+    initializeOfflineSync(options.fetchers);
   }
 }
 
@@ -352,8 +361,8 @@ export function initializeOfflineSystem(options: OfflineSystemOptions = {}): voi
  * Cleanup the complete offline system
  */
 export function cleanupOfflineSystem(): void {
-  cleanupOfflineSync()
-  cleanupOfflineQueue()
-  cleanupOfflineCache()
-  cleanupConnectionManager()
+  cleanupOfflineSync();
+  cleanupOfflineQueue();
+  cleanupOfflineCache();
+  cleanupConnectionManager();
 }

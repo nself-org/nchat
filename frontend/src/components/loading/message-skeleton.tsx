@@ -1,21 +1,26 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Skeleton, CircleSkeleton, LineSkeleton, TextBlockSkeleton } from './skeleton'
+import { cn } from "@/lib/utils";
+import {
+  Skeleton,
+  CircleSkeleton,
+  LineSkeleton,
+  TextBlockSkeleton,
+} from "./skeleton";
 
 interface MessageSkeletonProps {
   /** Number of message items to render */
-  count?: number
+  count?: number;
   /** Compact mode with smaller spacing */
-  compact?: boolean
+  compact?: boolean;
   /** Show avatar */
-  showAvatar?: boolean
+  showAvatar?: boolean;
   /** Show reactions */
-  showReactions?: boolean
+  showReactions?: boolean;
   /** Show thread preview */
-  showThreadPreview?: boolean
+  showThreadPreview?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -31,7 +36,9 @@ export function MessageSkeleton({
   className,
 }: MessageSkeletonProps) {
   return (
-    <div className={cn('flex flex-col', compact ? 'gap-2' : 'gap-4', className)}>
+    <div
+      className={cn("flex flex-col", compact ? "gap-2" : "gap-4", className)}
+    >
       {Array.from({ length: count }).map((_, i) => (
         <MessageSkeletonItem
           key={i}
@@ -42,20 +49,20 @@ export function MessageSkeleton({
         />
       ))}
     </div>
-  )
+  );
 }
 
 interface MessageSkeletonItemProps {
   /** Compact mode */
-  compact?: boolean
+  compact?: boolean;
   /** Show avatar */
-  showAvatar?: boolean
+  showAvatar?: boolean;
   /** Show reactions */
-  showReactions?: boolean
+  showReactions?: boolean;
   /** Show thread preview */
-  showThreadPreview?: boolean
+  showThreadPreview?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -69,7 +76,13 @@ export function MessageSkeletonItem({
   className,
 }: MessageSkeletonItemProps) {
   return (
-    <div className={cn('flex', compact ? 'gap-2 px-2 py-1' : 'gap-3 px-4 py-2', className)}>
+    <div
+      className={cn(
+        "flex",
+        compact ? "gap-2 px-2 py-1" : "gap-3 px-4 py-2",
+        className,
+      )}
+    >
       {/* Avatar */}
       {showAvatar && <CircleSkeleton size={compact ? 24 : 36} />}
 
@@ -82,7 +95,12 @@ export function MessageSkeletonItem({
         </div>
 
         {/* Message content */}
-        <TextBlockSkeleton lines={2} lastLineWidth="70%" lineHeight={compact ? 12 : 14} gap={4} />
+        <TextBlockSkeleton
+          lines={2}
+          lastLineWidth="70%"
+          lineHeight={compact ? 12 : 14}
+          gap={4}
+        />
 
         {/* Reactions */}
         {showReactions && (
@@ -103,7 +121,7 @@ export function MessageSkeletonItem({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -113,12 +131,18 @@ export function MessageSkeletonItem({
 export function GroupedMessageSkeleton({
   compact = false,
   className,
-}: Pick<MessageSkeletonItemProps, 'compact' | 'className'>) {
+}: Pick<MessageSkeletonItemProps, "compact" | "className">) {
   return (
-    <div className={cn('pl-12', compact ? 'px-2 py-0.5' : 'px-4 py-0.5', className)}>
+    <div
+      className={cn(
+        "pl-12",
+        compact ? "px-2 py-0.5" : "px-4 py-0.5",
+        className,
+      )}
+    >
       <TextBlockSkeleton lines={1} lineHeight={compact ? 12 : 14} />
     </div>
-  )
+  );
 }
 
 /**
@@ -127,10 +151,10 @@ export function GroupedMessageSkeleton({
  */
 export function SystemMessageSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('flex justify-center py-2', className)}>
+    <div className={cn("flex justify-center py-2", className)}>
       <LineSkeleton width={200} height={12} />
     </div>
-  )
+  );
 }
 
 /**
@@ -139,9 +163,15 @@ export function SystemMessageSkeleton({ className }: { className?: string }) {
 export function MessageWithAttachmentSkeleton({
   compact = false,
   className,
-}: Pick<MessageSkeletonItemProps, 'compact' | 'className'>) {
+}: Pick<MessageSkeletonItemProps, "compact" | "className">) {
   return (
-    <div className={cn('flex gap-3', compact ? 'px-2 py-1' : 'px-4 py-2', className)}>
+    <div
+      className={cn(
+        "flex gap-3",
+        compact ? "px-2 py-1" : "px-4 py-2",
+        className,
+      )}
+    >
       <CircleSkeleton size={compact ? 24 : 36} />
 
       <div className="min-w-0 flex-1">
@@ -158,7 +188,7 @@ export function MessageWithAttachmentSkeleton({
         <Skeleton className="h-40 w-64 max-w-full rounded-lg" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -166,7 +196,7 @@ export function MessageWithAttachmentSkeleton({
  */
 export function MessageListSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('flex h-full flex-col', className)}>
+    <div className={cn("flex h-full flex-col", className)}>
       {/* Channel header skeleton */}
       <div className="flex items-center gap-3 border-b px-4 py-3">
         <Skeleton className="h-6 w-6 rounded" />
@@ -191,5 +221,5 @@ export function MessageListSkeleton({ className }: { className?: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

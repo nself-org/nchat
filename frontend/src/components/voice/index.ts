@@ -12,7 +12,7 @@ export {
   type WaveformVisualizerProps,
   type WaveformStyle,
   type CanvasWaveformProps,
-} from './waveform-visualizer'
+} from "./waveform-visualizer";
 
 // Recording Indicator
 export {
@@ -22,10 +22,10 @@ export {
   type RecordingIndicatorProps,
   type CompactRecordingIndicatorProps,
   type FloatingRecordingIndicatorProps,
-} from './recording-indicator'
+} from "./recording-indicator";
 
 // Voice Recorder
-export { VoiceRecorder, type VoiceRecorderProps } from './voice-recorder'
+export { VoiceRecorder, type VoiceRecorderProps } from "./voice-recorder";
 
 // Voice Recorder Button
 export {
@@ -36,10 +36,13 @@ export {
   type RecorderButtonState,
   type AnimatedVoiceRecorderButtonProps,
   type FloatingVoiceButtonProps,
-} from './voice-recorder-button'
+} from "./voice-recorder-button";
 
 // Voice Message
-export { VoiceMessage, type VoiceMessageProps } from './voice-message'
+export { VoiceMessage, type VoiceMessageProps } from "./voice-message";
 
 // Voice Message Preview
-export { VoiceMessagePreview, type VoiceMessagePreviewProps } from './voice-message-preview'
+export {
+  VoiceMessagePreview,
+  type VoiceMessagePreviewProps,
+} from "./voice-message-preview";

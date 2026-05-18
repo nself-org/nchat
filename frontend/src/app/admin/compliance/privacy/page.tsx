@@ -1,10 +1,14 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ConsentManager, CookieSettings, LegalHold } from '@/components/compliance'
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ConsentManager,
+  CookieSettings,
+  LegalHold,
+} from "@/components/compliance";
 
 export default function PrivacySettingsPage() {
   return (
@@ -38,5 +42,5 @@ export default function PrivacySettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

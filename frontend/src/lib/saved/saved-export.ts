@@ -10,7 +10,7 @@ import type {
   ExportFormat,
   ExportOptions,
   ExportResult,
-} from './saved-types'
+} from "./saved-types";
 
 // ============================================================================
 // Export Implementation
@@ -22,49 +22,51 @@ import type {
 export function exportSavedMessages(
   messages: SavedMessage[],
   collections: SavedCollection[],
-  options: ExportOptions
+  options: ExportOptions,
 ): ExportResult {
   try {
     // Filter messages
-    let filtered = [...messages]
+    let filtered = [...messages];
 
     if (options.collectionId) {
-      filtered = filtered.filter((m) => m.collectionIds.includes(options.collectionId!))
+      filtered = filtered.filter((m) =>
+        m.collectionIds.includes(options.collectionId!),
+      );
     }
 
     if (options.dateFrom) {
-      filtered = filtered.filter((m) => m.savedAt >= options.dateFrom!)
+      filtered = filtered.filter((m) => m.savedAt >= options.dateFrom!);
     }
 
     if (options.dateTo) {
-      filtered = filtered.filter((m) => m.savedAt <= options.dateTo!)
+      filtered = filtered.filter((m) => m.savedAt <= options.dateTo!);
     }
 
     // Generate export based on format
     switch (options.format) {
-      case 'json':
-        return exportAsJson(filtered, collections, options)
-      case 'markdown':
-        return exportAsMarkdown(filtered, collections, options)
-      case 'html':
-        return exportAsHtml(filtered, collections, options)
-      case 'csv':
-        return exportAsCsv(filtered, options)
+      case "json":
+        return exportAsJson(filtered, collections, options);
+      case "markdown":
+        return exportAsMarkdown(filtered, collections, options);
+      case "html":
+        return exportAsHtml(filtered, collections, options);
+      case "csv":
+        return exportAsCsv(filtered, options);
       default:
         return {
           success: false,
-          filename: '',
-          mimeType: '',
-          error: 'Invalid export format',
-        }
+          filename: "",
+          mimeType: "",
+          error: "Invalid export format",
+        };
     }
   } catch (error) {
     return {
       success: false,
-      filename: '',
-      mimeType: '',
-      error: error instanceof Error ? error.message : 'Export failed',
-    }
+      filename: "",
+      mimeType: "",
+      error: error instanceof Error ? error.message : "Export failed",
+    };
   }
 }
 
@@ -75,7 +77,7 @@ export function exportSavedMessages(
 function exportAsJson(
   messages: SavedMessage[],
   collections: SavedCollection[],
-  options: ExportOptions
+  options: ExportOptions,
 ): ExportResult {
   const data = {
     exportedAt: new Date().toISOString(),
@@ -108,14 +110,14 @@ function exportAsJson(
       collectionIds: m.collectionIds,
       isStarred: m.isStarred,
     })),
-  }
+  };
 
   return {
     success: true,
     data: JSON.stringify(data, null, 2),
     filename: `saved-messages-${formatDate(new Date())}.json`,
-    mimeType: 'application/json',
-  }
+    mimeType: "application/json",
+  };
 }
 
 // ============================================================================
@@ -125,58 +127,60 @@ function exportAsJson(
 function exportAsMarkdown(
   messages: SavedMessage[],
   collections: SavedCollection[],
-  options: ExportOptions
+  options: ExportOptions,
 ): ExportResult {
-  const lines: string[] = []
+  const lines: string[] = [];
 
-  lines.push('# Saved Messages Export')
-  lines.push('')
-  lines.push(`Exported on: ${new Date().toLocaleString()}`)
-  lines.push(`Total messages: ${messages.length}`)
-  lines.push('')
+  lines.push("# Saved Messages Export");
+  lines.push("");
+  lines.push(`Exported on: ${new Date().toLocaleString()}`);
+  lines.push(`Total messages: ${messages.length}`);
+  lines.push("");
 
   // Group by collection
-  const byCollection = new Map<string | null, SavedMessage[]>()
+  const byCollection = new Map<string | null, SavedMessage[]>();
   messages.forEach((m) => {
     if (m.collectionIds.length === 0) {
-      const arr = byCollection.get(null) ?? []
-      arr.push(m)
-      byCollection.set(null, arr)
+      const arr = byCollection.get(null) ?? [];
+      arr.push(m);
+      byCollection.set(null, arr);
     } else {
       m.collectionIds.forEach((cid) => {
-        const arr = byCollection.get(cid) ?? []
-        arr.push(m)
-        byCollection.set(cid, arr)
-      })
+        const arr = byCollection.get(cid) ?? [];
+        arr.push(m);
+        byCollection.set(cid, arr);
+      });
     }
-  })
+  });
 
   // Export each collection
   for (const [collId, collMessages] of byCollection) {
-    const collection = collections.find((c) => c.id === collId)
-    const collName = collection?.name ?? 'Uncategorized'
+    const collection = collections.find((c) => c.id === collId);
+    const collName = collection?.name ?? "Uncategorized";
 
-    lines.push(`## ${collName}`)
-    lines.push('')
+    lines.push(`## ${collName}`);
+    lines.push("");
 
     for (const msg of collMessages) {
-      lines.push(`### ${msg.isStarred ? '*** ' : ''}${msg.message.user.displayName}`)
-      lines.push(`*Saved: ${msg.savedAt.toLocaleDateString()}*`)
-      lines.push('')
+      lines.push(
+        `### ${msg.isStarred ? "*** " : ""}${msg.message.user.displayName}`,
+      );
+      lines.push(`*Saved: ${msg.savedAt.toLocaleDateString()}*`);
+      lines.push("");
 
       if (options.includeContent) {
-        lines.push(msg.message.content)
-        lines.push('')
+        lines.push(msg.message.content);
+        lines.push("");
       }
 
       if (options.includeNotes && msg.note) {
-        lines.push(`> **Note:** ${msg.note}`)
-        lines.push('')
+        lines.push(`> **Note:** ${msg.note}`);
+        lines.push("");
       }
 
       if (options.includeTags && msg.tags.length > 0) {
-        lines.push(`Tags: ${msg.tags.map((t) => `\`${t}\``).join(', ')}`)
-        lines.push('')
+        lines.push(`Tags: ${msg.tags.map((t) => `\`${t}\``).join(", ")}`);
+        lines.push("");
       }
 
       if (
@@ -184,24 +188,24 @@ function exportAsMarkdown(
         msg.message.attachments &&
         msg.message.attachments.length > 0
       ) {
-        lines.push('**Attachments:**')
+        lines.push("**Attachments:**");
         msg.message.attachments.forEach((a) => {
-          lines.push(`- [${a.name}](${a.url})`)
-        })
-        lines.push('')
+          lines.push(`- [${a.name}](${a.url})`);
+        });
+        lines.push("");
       }
 
-      lines.push('---')
-      lines.push('')
+      lines.push("---");
+      lines.push("");
     }
   }
 
   return {
     success: true,
-    data: lines.join('\n'),
+    data: lines.join("\n"),
     filename: `saved-messages-${formatDate(new Date())}.md`,
-    mimeType: 'text/markdown',
-  }
+    mimeType: "text/markdown",
+  };
 }
 
 // ============================================================================
@@ -211,7 +215,7 @@ function exportAsMarkdown(
 function exportAsHtml(
   messages: SavedMessage[],
   collections: SavedCollection[],
-  options: ExportOptions
+  options: ExportOptions,
 ): ExportResult {
   const html = `
 <!DOCTYPE html>
@@ -300,79 +304,89 @@ function exportAsHtml(
       (m) => `
     <div class="message">
       <div class="message-header">
-        <span class="author">${m.isStarred ? '<span class="starred">&#9733;</span> ' : ''}${escapeHtml(m.message.user.displayName)}</span>
+        <span class="author">${m.isStarred ? '<span class="starred">&#9733;</span> ' : ""}${escapeHtml(m.message.user.displayName)}</span>
         <span class="date">${m.savedAt.toLocaleDateString()}</span>
       </div>
-      ${options.includeContent ? `<div class="content">${escapeHtml(m.message.content)}</div>` : ''}
-      ${options.includeNotes && m.note ? `<div class="note">${escapeHtml(m.note)}</div>` : ''}
-      ${options.includeTags && m.tags.length > 0 ? `<div class="tags">${m.tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+      ${options.includeContent ? `<div class="content">${escapeHtml(m.message.content)}</div>` : ""}
+      ${options.includeNotes && m.note ? `<div class="note">${escapeHtml(m.note)}</div>` : ""}
+      ${options.includeTags && m.tags.length > 0 ? `<div class="tags">${m.tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
       ${
-        options.includeAttachments && m.message.attachments && m.message.attachments.length > 0
+        options.includeAttachments &&
+        m.message.attachments &&
+        m.message.attachments.length > 0
           ? `<div class="attachments">
               <strong>Attachments:</strong>
-              ${m.message.attachments.map((a) => `<a class="attachment" href="${a.url}">${escapeHtml(a.name)}</a>`).join(', ')}
+              ${m.message.attachments.map((a) => `<a class="attachment" href="${a.url}">${escapeHtml(a.name)}</a>`).join(", ")}
             </div>`
-          : ''
+          : ""
       }
     </div>
-  `
+  `,
     )
-    .join('')}
+    .join("")}
 </body>
 </html>
-  `.trim()
+  `.trim();
 
   return {
     success: true,
     data: html,
     filename: `saved-messages-${formatDate(new Date())}.html`,
-    mimeType: 'text/html',
-  }
+    mimeType: "text/html",
+  };
 }
 
 // ============================================================================
 // CSV Export
 // ============================================================================
 
-function exportAsCsv(messages: SavedMessage[], options: ExportOptions): ExportResult {
-  const headers = ['ID', 'Saved At', 'Author', 'Channel']
+function exportAsCsv(
+  messages: SavedMessage[],
+  options: ExportOptions,
+): ExportResult {
+  const headers = ["ID", "Saved At", "Author", "Channel"];
 
   if (options.includeContent) {
-    headers.push('Content')
+    headers.push("Content");
   }
   if (options.includeNotes) {
-    headers.push('Note')
+    headers.push("Note");
   }
   if (options.includeTags) {
-    headers.push('Tags')
+    headers.push("Tags");
   }
-  headers.push('Starred')
+  headers.push("Starred");
 
   const rows = messages.map((m) => {
-    const row = [m.id, m.savedAt.toISOString(), m.message.user.displayName, m.channelId]
+    const row = [
+      m.id,
+      m.savedAt.toISOString(),
+      m.message.user.displayName,
+      m.channelId,
+    ];
 
     if (options.includeContent) {
-      row.push(csvEscape(m.message.content))
+      row.push(csvEscape(m.message.content));
     }
     if (options.includeNotes) {
-      row.push(csvEscape(m.note ?? ''))
+      row.push(csvEscape(m.note ?? ""));
     }
     if (options.includeTags) {
-      row.push(m.tags.join(';'))
+      row.push(m.tags.join(";"));
     }
-    row.push(m.isStarred ? 'Yes' : 'No')
+    row.push(m.isStarred ? "Yes" : "No");
 
-    return row
-  })
+    return row;
+  });
 
-  const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
 
   return {
     success: true,
     data: csv,
     filename: `saved-messages-${formatDate(new Date())}.csv`,
-    mimeType: 'text/csv',
-  }
+    mimeType: "text/csv",
+  };
 }
 
 // ============================================================================
@@ -380,25 +394,25 @@ function exportAsCsv(messages: SavedMessage[], options: ExportOptions): ExportRe
 // ============================================================================
 
 function formatDate(date: Date): string {
-  return date.toISOString().split('T')[0]
+  return date.toISOString().split("T")[0];
 }
 
 function escapeHtml(text: string): string {
   const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
-  }
-  return text.replace(/[&<>"']/g, (m) => map[m])
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
 function csvEscape(text: string): string {
-  if (text.includes(',') || text.includes('"') || text.includes('\n')) {
-    return `"${text.replace(/"/g, '""')}"`
+  if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+    return `"${text.replace(/"/g, '""')}"`;
   }
-  return text
+  return text;
 }
 
 // ============================================================================
@@ -409,17 +423,19 @@ function csvEscape(text: string): string {
  * Trigger download of export result.
  */
 export function downloadExport(result: ExportResult): void {
-  if (!result.success || !result.data) return
+  if (!result.success || !result.data) return;
 
   const blob =
-    result.data instanceof Blob ? result.data : new Blob([result.data], { type: result.mimeType })
+    result.data instanceof Blob
+      ? result.data
+      : new Blob([result.data], { type: result.mimeType });
 
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = result.filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = result.filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

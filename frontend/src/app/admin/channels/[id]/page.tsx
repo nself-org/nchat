@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import dynamic from 'next/dynamic'
-import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useAuth } from '@/contexts/auth-context'
+import dynamic from "next/dynamic";
+import { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/contexts/auth-context";
 import {
   ArrowLeft,
   Calendar,
@@ -20,32 +20,41 @@ import {
   UserPlus,
   UserMinus,
   Shield,
-} from 'lucide-react'
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { generateMockActivityData } from '@/components/admin/activity-chart'
-import { ChartSkeleton } from '@/components/ui/loading-skeletons'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from "lucide-react";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { generateMockActivityData } from "@/components/admin/activity-chart";
+import { ChartSkeleton } from "@/components/ui/loading-skeletons";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // Lazy load heavy chart component (recharts)
 const ActivityChart = dynamic(
-  () => import('@/components/admin/activity-chart').then((mod) => ({ default: mod.ActivityChart })),
-  { loading: () => <ChartSkeleton />, ssr: false }
-)
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
+  () =>
+    import("@/components/admin/activity-chart").then((mod) => ({
+      default: mod.ActivityChart,
+    })),
+  { loading: () => <ChartSkeleton />, ssr: false },
+);
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,102 +64,139 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-type ChannelType = 'public' | 'private'
+type ChannelType = "public" | "private";
 
 // Mock channel data
 const mockChannelData: {
-  id: string
-  name: string
-  slug: string
-  description: string
-  type: ChannelType
-  memberCount: number
-  messageCount: number
-  isArchived: boolean
-  createdAt: string
-  lastActivityAt: string
-  createdBy: { id: string; name: string; avatarUrl: string }
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  type: ChannelType;
+  memberCount: number;
+  messageCount: number;
+  isArchived: boolean;
+  createdAt: string;
+  lastActivityAt: string;
+  createdBy: { id: string; name: string; avatarUrl: string };
   members: {
-    id: string
-    name: string
-    username: string
-    role: 'admin' | 'member'
-    avatarUrl: string
-  }[]
-  stats: { messagesThisWeek: number; activeMembers: number; averageResponseTime: string }
+    id: string;
+    name: string;
+    username: string;
+    role: "admin" | "member";
+    avatarUrl: string;
+  }[];
+  stats: {
+    messagesThisWeek: number;
+    activeMembers: number;
+    averageResponseTime: string;
+  };
 } = {
-  id: '4',
-  name: 'engineering',
-  slug: 'engineering',
-  description: 'Engineering team discussions and technical collaboration',
-  type: 'private',
+  id: "4",
+  name: "engineering",
+  slug: "engineering",
+  description: "Engineering team discussions and technical collaboration",
+  type: "private",
   memberCount: 24,
   messageCount: 1856,
   isArchived: false,
-  createdAt: '2024-01-05T00:00:00Z',
+  createdAt: "2024-01-05T00:00:00Z",
   lastActivityAt: new Date().toISOString(),
   createdBy: {
-    id: '1',
-    name: 'Workspace Owner',
-    avatarUrl: '',
+    id: "1",
+    name: "Workspace Owner",
+    avatarUrl: "",
   },
   members: [
-    { id: '1', name: 'Workspace Owner', username: 'owner', role: 'admin', avatarUrl: '' },
-    { id: '2', name: 'Admin User', username: 'admin', role: 'admin', avatarUrl: '' },
-    { id: '4', name: 'Alice Johnson', username: 'alice', role: 'member', avatarUrl: '' },
-    { id: '5', name: 'Bob Smith', username: 'bob', role: 'member', avatarUrl: '' },
-    { id: '6', name: 'Charlie Brown', username: 'charlie', role: 'member', avatarUrl: '' },
+    {
+      id: "1",
+      name: "Workspace Owner",
+      username: "owner",
+      role: "admin",
+      avatarUrl: "",
+    },
+    {
+      id: "2",
+      name: "Admin User",
+      username: "admin",
+      role: "admin",
+      avatarUrl: "",
+    },
+    {
+      id: "4",
+      name: "Alice Johnson",
+      username: "alice",
+      role: "member",
+      avatarUrl: "",
+    },
+    {
+      id: "5",
+      name: "Bob Smith",
+      username: "bob",
+      role: "member",
+      avatarUrl: "",
+    },
+    {
+      id: "6",
+      name: "Charlie Brown",
+      username: "charlie",
+      role: "member",
+      avatarUrl: "",
+    },
   ],
   stats: {
     messagesThisWeek: 234,
     activeMembers: 18,
-    averageResponseTime: '15 min',
+    averageResponseTime: "15 min",
   },
-}
+};
 
-type MemberRole = 'admin' | 'member'
+type MemberRole = "admin" | "member";
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 export default function ChannelDetailPage({ params }: PageProps) {
-  const { id } = use(params)
-  const { user: currentUser, loading } = useAuth()
-  const router = useRouter()
-  const [channelData, setChannelData] = useState(mockChannelData)
-  const [isEditing, setIsEditing] = useState(false)
+  const { id } = use(params);
+  const { user: currentUser, loading } = useAuth();
+  const router = useRouter();
+  const [channelData, setChannelData] = useState(mockChannelData);
+  const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<{
-    name: string
-    description: string
-    type: ChannelType
+    name: string;
+    description: string;
+    type: ChannelType;
   }>({
     name: channelData.name,
-    description: channelData.description || '',
+    description: channelData.description || "",
     type: channelData.type,
-  })
-  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [activityData] = useState(generateMockActivityData(7))
+  });
+  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [activityData] = useState(generateMockActivityData(7));
 
   useEffect(() => {
-    if (!loading && (!currentUser || !['owner', 'admin'].includes(currentUser.role))) {
-      router.push('/chat')
+    if (
+      !loading &&
+      (!currentUser || !["owner", "admin"].includes(currentUser.role))
+    ) {
+      router.push("/chat");
     }
-  }, [currentUser, loading, router])
+  }, [currentUser, loading, router]);
 
   useEffect(() => {
     // In production, fetch channel data based on id
-  }, [id])
+  }, [id]);
 
   const handleSave = async () => {
     // In production, this would call an API
@@ -159,47 +205,53 @@ export default function ChannelDetailPage({ params }: PageProps) {
       name: editedData.name,
       description: editedData.description,
       type: editedData.type,
-    }))
-    setIsEditing(false)
-  }
+    }));
+    setIsEditing(false);
+  };
 
   const handleArchive = async () => {
-    setChannelData((prev) => ({ ...prev, isArchived: !prev.isArchived }))
-    setArchiveDialogOpen(false)
-  }
+    setChannelData((prev) => ({ ...prev, isArchived: !prev.isArchived }));
+    setArchiveDialogOpen(false);
+  };
 
   const handleDelete = async () => {
     // In production, this would call an API
-    setDeleteDialogOpen(false)
-    router.push('/admin/channels')
-  }
+    setDeleteDialogOpen(false);
+    router.push("/admin/channels");
+  };
 
   const handleMemberRoleChange = (memberId: string, newRole: MemberRole) => {
     setChannelData((prev) => ({
       ...prev,
-      members: prev.members.map((m) => (m.id === memberId ? { ...m, role: newRole } : m)),
-    }))
-  }
+      members: prev.members.map((m) =>
+        m.id === memberId ? { ...m, role: newRole } : m,
+      ),
+    }));
+  };
 
   const handleRemoveMember = (memberId: string) => {
     setChannelData((prev) => ({
       ...prev,
       members: prev.members.filter((m) => m.id !== memberId),
       memberCount: prev.memberCount - 1,
-    }))
-  }
+    }));
+  };
 
-  if (loading || !currentUser || !['owner', 'admin'].includes(currentUser.role)) {
-    return null
+  if (
+    loading ||
+    !currentUser ||
+    !["owner", "admin"].includes(currentUser.role)
+  ) {
+    return null;
   }
 
   const typeIcons = {
     public: Hash,
     private: Lock,
     direct: Users,
-  }
+  };
 
-  const TypeIcon = typeIcons[channelData.type]
+  const TypeIcon = typeIcons[channelData.type];
 
   return (
     <AdminLayout>
@@ -215,9 +267,13 @@ export default function ChannelDetailPage({ params }: PageProps) {
             <div className="flex items-center gap-2">
               <TypeIcon className="h-6 w-6 text-muted-foreground" />
               <h1 className="text-3xl font-bold">{channelData.name}</h1>
-              {channelData.isArchived && <Badge variant="secondary">Archived</Badge>}
+              {channelData.isArchived && (
+                <Badge variant="secondary">Archived</Badge>
+              )}
             </div>
-            <p className="text-muted-foreground">Manage channel settings and members</p>
+            <p className="text-muted-foreground">
+              Manage channel settings and members
+            </p>
           </div>
           <div className="flex gap-2">
             {isEditing ? (
@@ -232,9 +288,12 @@ export default function ChannelDetailPage({ params }: PageProps) {
               </>
             ) : (
               <>
-                <Button variant="outline" onClick={() => setArchiveDialogOpen(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setArchiveDialogOpen(true)}
+                >
                   <Archive className="mr-2 h-4 w-4" />
-                  {channelData.isArchived ? 'Unarchive' : 'Archive'}
+                  {channelData.isArchived ? "Unarchive" : "Archive"}
                 </Button>
                 <Button onClick={() => setIsEditing(true)}>
                   <Settings className="mr-2 h-4 w-4" />
@@ -252,10 +311,10 @@ export default function ChannelDetailPage({ params }: PageProps) {
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
-                    'flex h-12 w-12 items-center justify-center rounded-lg',
-                    channelData.type === 'public'
-                      ? 'bg-green-500/10 text-green-600'
-                      : 'bg-yellow-500/10 text-yellow-600'
+                    "flex h-12 w-12 items-center justify-center rounded-lg",
+                    channelData.type === "public"
+                      ? "bg-green-500/10 text-green-600"
+                      : "bg-yellow-500/10 text-yellow-600",
                   )}
                 >
                   <TypeIcon className="h-6 w-6" />
@@ -270,7 +329,9 @@ export default function ChannelDetailPage({ params }: PageProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               {channelData.description && (
-                <p className="text-sm text-muted-foreground">{channelData.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {channelData.description}
+                </p>
               )}
               <Separator />
               <div className="space-y-3">
@@ -280,26 +341,33 @@ export default function ChannelDetailPage({ params }: PageProps) {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                  <span>{channelData.messageCount.toLocaleString()} messages</span>
+                  <span>
+                    {channelData.messageCount.toLocaleString()} messages
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Created {new Date(channelData.createdAt).toLocaleDateString()}</span>
+                  <span>
+                    Created{" "}
+                    {new Date(channelData.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span>
-                    Last activity{' '}
+                    Last activity{" "}
                     {channelData.lastActivityAt
                       ? new Date(channelData.lastActivityAt).toLocaleString()
-                      : 'Never'}
+                      : "Never"}
                   </span>
                 </div>
               </div>
               <Separator />
               <div className="text-sm">
                 <span className="text-muted-foreground">Created by: </span>
-                <span className="font-medium">{channelData.createdBy.name}</span>
+                <span className="font-medium">
+                  {channelData.createdBy.name}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -327,7 +395,9 @@ export default function ChannelDetailPage({ params }: PageProps) {
                   <Card>
                     <CardHeader className="pb-2">
                       <CardDescription>Active Members</CardDescription>
-                      <CardTitle className="text-2xl">{channelData.stats.activeMembers}</CardTitle>
+                      <CardTitle className="text-2xl">
+                        {channelData.stats.activeMembers}
+                      </CardTitle>
                     </CardHeader>
                   </Card>
                   <Card>
@@ -376,8 +446,12 @@ export default function ChannelDetailPage({ params }: PageProps) {
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="text-sm font-medium">{member.name}</p>
-                              <p className="text-xs text-muted-foreground">@{member.username}</p>
+                              <p className="text-sm font-medium">
+                                {member.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                @{member.username}
+                              </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -469,7 +543,7 @@ export default function ChannelDetailPage({ params }: PageProps) {
                         <Label>Channel Type</Label>
                         <Select
                           value={editedData.type}
-                          onValueChange={(value: 'public' | 'private') =>
+                          onValueChange={(value: "public" | "private") =>
                             setEditedData((prev) => ({ ...prev, type: value }))
                           }
                         >
@@ -498,7 +572,9 @@ export default function ChannelDetailPage({ params }: PageProps) {
                   <Card>
                     <CardHeader>
                       <CardTitle>Channel Settings</CardTitle>
-                      <CardDescription>Current channel configuration</CardDescription>
+                      <CardDescription>
+                        Current channel configuration
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid gap-4 md:grid-cols-2">
@@ -508,12 +584,16 @@ export default function ChannelDetailPage({ params }: PageProps) {
                         </div>
                         <div className="rounded-lg border p-4">
                           <Label className="text-muted-foreground">Type</Label>
-                          <p className="mt-1 font-medium capitalize">{channelData.type}</p>
+                          <p className="mt-1 font-medium capitalize">
+                            {channelData.type}
+                          </p>
                         </div>
                       </div>
                       {channelData.description && (
                         <div className="rounded-lg border p-4">
-                          <Label className="text-muted-foreground">Description</Label>
+                          <Label className="text-muted-foreground">
+                            Description
+                          </Label>
                           <p className="mt-1">{channelData.description}</p>
                         </div>
                       )}
@@ -524,19 +604,25 @@ export default function ChannelDetailPage({ params }: PageProps) {
                 <Card>
                   <CardHeader>
                     <CardTitle>Danger Zone</CardTitle>
-                    <CardDescription>Irreversible and destructive actions</CardDescription>
+                    <CardDescription>
+                      Irreversible and destructive actions
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-950">
                       <div>
                         <p className="font-medium">Archive Channel</p>
                         <p className="text-sm text-muted-foreground">
-                          Hide this channel from the channel list. Can be restored later.
+                          Hide this channel from the channel list. Can be
+                          restored later.
                         </p>
                       </div>
-                      <Button variant="outline" onClick={() => setArchiveDialogOpen(true)}>
+                      <Button
+                        variant="outline"
+                        onClick={() => setArchiveDialogOpen(true)}
+                      >
                         <Archive className="mr-2 h-4 w-4" />
-                        {channelData.isArchived ? 'Unarchive' : 'Archive'}
+                        {channelData.isArchived ? "Unarchive" : "Archive"}
                       </Button>
                     </div>
                     <div className="border-destructive/50 bg-destructive/10 flex items-center justify-between rounded-lg border p-4">
@@ -546,7 +632,10 @@ export default function ChannelDetailPage({ params }: PageProps) {
                           Permanently delete this channel and all messages.
                         </p>
                       </div>
-                      <Button variant="destructive" onClick={() => setDeleteDialogOpen(true)}>
+                      <Button
+                        variant="destructive"
+                        onClick={() => setDeleteDialogOpen(true)}
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </Button>
@@ -559,11 +648,14 @@ export default function ChannelDetailPage({ params }: PageProps) {
         </div>
 
         {/* Archive Dialog */}
-        <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
+        <AlertDialog
+          open={archiveDialogOpen}
+          onOpenChange={setArchiveDialogOpen}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {channelData.isArchived ? 'Unarchive' : 'Archive'} Channel
+                {channelData.isArchived ? "Unarchive" : "Archive"} Channel
               </AlertDialogTitle>
               <AlertDialogDescription>
                 {channelData.isArchived
@@ -574,7 +666,7 @@ export default function ChannelDetailPage({ params }: PageProps) {
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={handleArchive}>
-                {channelData.isArchived ? 'Unarchive' : 'Archive'} Channel
+                {channelData.isArchived ? "Unarchive" : "Archive"} Channel
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -586,8 +678,9 @@ export default function ChannelDetailPage({ params }: PageProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Channel</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete #{channelData.name}? This action cannot be undone.
-                All messages in this channel will be permanently deleted.
+                Are you sure you want to delete #{channelData.name}? This action
+                cannot be undone. All messages in this channel will be
+                permanently deleted.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -603,5 +696,5 @@ export default function ChannelDetailPage({ params }: PageProps) {
         </AlertDialog>
       </div>
     </AdminLayout>
-  )
+  );
 }

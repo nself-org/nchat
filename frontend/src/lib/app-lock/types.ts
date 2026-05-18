@@ -13,31 +13,45 @@
  * Lock policy modes
  */
 export type LockPolicyMode =
-  | 'none'           // No lock
-  | 'pin'            // PIN only
-  | 'biometric'      // Biometric only
-  | 'pin_or_biometric' // Either PIN or biometric
-  | 'pin_and_biometric' // Both required (daily biometric + PIN on each unlock)
+  | "none" // No lock
+  | "pin" // PIN only
+  | "biometric" // Biometric only
+  | "pin_or_biometric" // Either PIN or biometric
+  | "pin_and_biometric"; // Both required (daily biometric + PIN on each unlock)
 
 /**
  * Lock state
  */
-export type LockState = 'locked' | 'unlocked' | 'uninitialized'
+export type LockState = "locked" | "unlocked" | "uninitialized";
 
 /**
  * Authentication method used
  */
-export type AuthMethod = 'pin' | 'biometric' | 'none'
+export type AuthMethod = "pin" | "biometric" | "none";
 
 /**
  * Biometric type available on device
  */
-export type BiometricType = 'faceId' | 'touchId' | 'fingerprint' | 'face' | 'iris' | 'none'
+export type BiometricType =
+  | "faceId"
+  | "touchId"
+  | "fingerprint"
+  | "face"
+  | "iris"
+  | "none";
 
 /**
  * Platform type
  */
-export type Platform = 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'electron' | 'tauri'
+export type Platform =
+  | "web"
+  | "ios"
+  | "android"
+  | "macos"
+  | "windows"
+  | "linux"
+  | "electron"
+  | "tauri";
 
 // ============================================================================
 // Configuration Types
@@ -48,34 +62,34 @@ export type Platform = 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux'
  */
 export interface IdleTimeoutConfig {
   /** Enable idle timeout lock */
-  enabled: boolean
+  enabled: boolean;
   /** Timeout duration in minutes (1-60) */
-  timeoutMinutes: number
+  timeoutMinutes: number;
   /** Show warning before locking (seconds before lock) */
-  warningSeconds: number
+  warningSeconds: number;
   /** Events that reset the idle timer */
-  resetEvents: IdleResetEvent[]
+  resetEvents: IdleResetEvent[];
 }
 
 /**
  * Events that reset the idle timer
  */
 export type IdleResetEvent =
-  | 'keypress'
-  | 'mousemove'
-  | 'mousedown'
-  | 'scroll'
-  | 'touchstart'
-  | 'visibilitychange'
+  | "keypress"
+  | "mousemove"
+  | "mousedown"
+  | "scroll"
+  | "touchstart"
+  | "visibilitychange";
 
 /**
  * Lock on app launch configuration
  */
 export interface LockOnLaunchConfig {
   /** Enable lock on app launch/resume */
-  enabled: boolean
+  enabled: boolean;
   /** Only lock if app was in background for this long (seconds) */
-  backgroundThresholdSeconds: number
+  backgroundThresholdSeconds: number;
 }
 
 /**
@@ -83,11 +97,11 @@ export interface LockOnLaunchConfig {
  */
 export interface DailyBiometricConfig {
   /** Whether biometric was verified today */
-  verifiedToday: boolean
+  verifiedToday: boolean;
   /** Date of last verification (ISO string) */
-  lastVerifiedDate: string | null
+  lastVerifiedDate: string | null;
   /** Require biometric again after this hour (0-23) */
-  resetHour: number
+  resetHour: number;
 }
 
 /**
@@ -95,21 +109,21 @@ export interface DailyBiometricConfig {
  */
 export interface LockSettings {
   /** Lock policy mode */
-  mode: LockPolicyMode
+  mode: LockPolicyMode;
   /** Idle timeout configuration */
-  idleTimeout: IdleTimeoutConfig
+  idleTimeout: IdleTimeoutConfig;
   /** Lock on launch configuration */
-  lockOnLaunch: LockOnLaunchConfig
+  lockOnLaunch: LockOnLaunchConfig;
   /** Daily biometric config (for pin_and_biometric mode) */
-  dailyBiometric: DailyBiometricConfig
+  dailyBiometric: DailyBiometricConfig;
   /** Maximum PIN attempts before lockout */
-  maxPinAttempts: number
+  maxPinAttempts: number;
   /** Lockout duration in minutes after max attempts */
-  lockoutMinutes: number
+  lockoutMinutes: number;
   /** PIN length (4-8 digits) */
-  pinLength: number
+  pinLength: number;
   /** When settings were last updated */
-  updatedAt: string
+  updatedAt: string;
 }
 
 // ============================================================================
@@ -121,19 +135,19 @@ export interface LockSettings {
  */
 export interface LockStateInfo {
   /** Current lock state */
-  state: LockState
+  state: LockState;
   /** When the app was locked (ISO string) */
-  lockedAt: string | null
+  lockedAt: string | null;
   /** When the app was last unlocked (ISO string) */
-  unlockedAt: string | null
+  unlockedAt: string | null;
   /** Last authentication method used */
-  lastAuthMethod: AuthMethod
+  lastAuthMethod: AuthMethod;
   /** Failed PIN attempts count */
-  failedAttempts: number
+  failedAttempts: number;
   /** Lockout end time if in lockout (ISO string) */
-  lockoutEndTime: string | null
+  lockoutEndTime: string | null;
   /** Whether user is currently locked out */
-  isLockedOut: boolean
+  isLockedOut: boolean;
 }
 
 /**
@@ -141,13 +155,13 @@ export interface LockStateInfo {
  */
 export interface BiometricInfo {
   /** Whether biometrics are available */
-  available: boolean
+  available: boolean;
   /** Type of biometric available */
-  type: BiometricType
+  type: BiometricType;
   /** Whether enrolled (has biometric data registered) */
-  enrolled: boolean
+  enrolled: boolean;
   /** Human-readable name for the biometric type */
-  displayName: string
+  displayName: string;
 }
 
 /**
@@ -155,17 +169,17 @@ export interface BiometricInfo {
  */
 export interface AppLockState {
   /** Whether the lock system is initialized */
-  initialized: boolean
+  initialized: boolean;
   /** Current platform */
-  platform: Platform
+  platform: Platform;
   /** Lock settings */
-  settings: LockSettings
+  settings: LockSettings;
   /** Current lock state info */
-  lockState: LockStateInfo
+  lockState: LockStateInfo;
   /** Biometric info */
-  biometric: BiometricInfo
+  biometric: BiometricInfo;
   /** Whether a PIN is set */
-  hasPinSet: boolean
+  hasPinSet: boolean;
 }
 
 // ============================================================================
@@ -176,34 +190,34 @@ export interface AppLockState {
  * Lock operation error codes
  */
 export type LockErrorCode =
-  | 'NOT_INITIALIZED'
-  | 'ALREADY_LOCKED'
-  | 'ALREADY_UNLOCKED'
-  | 'INVALID_PIN'
-  | 'PIN_TOO_SHORT'
-  | 'PIN_TOO_LONG'
-  | 'PIN_NOT_SET'
-  | 'BIOMETRIC_FAILED'
-  | 'BIOMETRIC_CANCELLED'
-  | 'BIOMETRIC_NOT_AVAILABLE'
-  | 'BIOMETRIC_NOT_ENROLLED'
-  | 'LOCKED_OUT'
-  | 'STORAGE_ERROR'
-  | 'ENCRYPTION_ERROR'
-  | 'UNKNOWN_ERROR'
+  | "NOT_INITIALIZED"
+  | "ALREADY_LOCKED"
+  | "ALREADY_UNLOCKED"
+  | "INVALID_PIN"
+  | "PIN_TOO_SHORT"
+  | "PIN_TOO_LONG"
+  | "PIN_NOT_SET"
+  | "BIOMETRIC_FAILED"
+  | "BIOMETRIC_CANCELLED"
+  | "BIOMETRIC_NOT_AVAILABLE"
+  | "BIOMETRIC_NOT_ENROLLED"
+  | "LOCKED_OUT"
+  | "STORAGE_ERROR"
+  | "ENCRYPTION_ERROR"
+  | "UNKNOWN_ERROR";
 
 /**
  * Result of a lock operation
  */
 export interface LockResult<T = void> {
   /** Whether the operation succeeded */
-  success: boolean
+  success: boolean;
   /** Result data (if any) */
-  data: T | null
+  data: T | null;
   /** Error message (if failed) */
-  error: string | null
+  error: string | null;
   /** Error code (if failed) */
-  errorCode: LockErrorCode | null
+  errorCode: LockErrorCode | null;
 }
 
 // ============================================================================
@@ -214,30 +228,30 @@ export interface LockResult<T = void> {
  * Lock event types
  */
 export type LockEventType =
-  | 'locked'
-  | 'unlocked'
-  | 'lock_failed'
-  | 'unlock_failed'
-  | 'lockout_started'
-  | 'lockout_ended'
-  | 'idle_warning'
-  | 'settings_changed'
-  | 'pin_changed'
-  | 'biometric_enrolled'
+  | "locked"
+  | "unlocked"
+  | "lock_failed"
+  | "unlock_failed"
+  | "lockout_started"
+  | "lockout_ended"
+  | "idle_warning"
+  | "settings_changed"
+  | "pin_changed"
+  | "biometric_enrolled";
 
 /**
  * Lock event payload
  */
 export interface LockEvent {
-  type: LockEventType
-  timestamp: string
-  data?: Record<string, unknown>
+  type: LockEventType;
+  timestamp: string;
+  data?: Record<string, unknown>;
 }
 
 /**
  * Lock event listener
  */
-export type LockEventListener = (event: LockEvent) => void
+export type LockEventListener = (event: LockEvent) => void;
 
 // ============================================================================
 // Platform Capability Types
@@ -248,19 +262,19 @@ export type LockEventListener = (event: LockEvent) => void
  */
 export interface PlatformCapabilities {
   /** Platform identifier */
-  platform: Platform
+  platform: Platform;
   /** Supports PIN authentication */
-  supportsPin: boolean
+  supportsPin: boolean;
   /** Supports biometric authentication */
-  supportsBiometric: boolean
+  supportsBiometric: boolean;
   /** Available biometric types */
-  biometricTypes: BiometricType[]
+  biometricTypes: BiometricType[];
   /** Supports secure storage for PIN */
-  supportsSecureStorage: boolean
+  supportsSecureStorage: boolean;
   /** Supports background detection */
-  supportsBackgroundDetection: boolean
+  supportsBackgroundDetection: boolean;
   /** Supports idle detection */
-  supportsIdleDetection: boolean
+  supportsIdleDetection: boolean;
 }
 
 // ============================================================================
@@ -274,8 +288,8 @@ export const DEFAULT_IDLE_TIMEOUT_CONFIG: IdleTimeoutConfig = {
   enabled: false,
   timeoutMinutes: 5,
   warningSeconds: 30,
-  resetEvents: ['keypress', 'mousemove', 'mousedown', 'scroll', 'touchstart'],
-}
+  resetEvents: ["keypress", "mousemove", "mousedown", "scroll", "touchstart"],
+};
 
 /**
  * Default lock on launch configuration
@@ -283,7 +297,7 @@ export const DEFAULT_IDLE_TIMEOUT_CONFIG: IdleTimeoutConfig = {
 export const DEFAULT_LOCK_ON_LAUNCH_CONFIG: LockOnLaunchConfig = {
   enabled: true,
   backgroundThresholdSeconds: 60,
-}
+};
 
 /**
  * Default daily biometric configuration
@@ -292,13 +306,13 @@ export const DEFAULT_DAILY_BIOMETRIC_CONFIG: DailyBiometricConfig = {
   verifiedToday: false,
   lastVerifiedDate: null,
   resetHour: 4, // 4 AM
-}
+};
 
 /**
  * Default lock settings
  */
 export const DEFAULT_LOCK_SETTINGS: LockSettings = {
-  mode: 'none',
+  mode: "none",
   idleTimeout: DEFAULT_IDLE_TIMEOUT_CONFIG,
   lockOnLaunch: DEFAULT_LOCK_ON_LAUNCH_CONFIG,
   dailyBiometric: DEFAULT_DAILY_BIOMETRIC_CONFIG,
@@ -306,30 +320,30 @@ export const DEFAULT_LOCK_SETTINGS: LockSettings = {
   lockoutMinutes: 15,
   pinLength: 6,
   updatedAt: new Date().toISOString(),
-}
+};
 
 /**
  * Default lock state info
  */
 export const DEFAULT_LOCK_STATE_INFO: LockStateInfo = {
-  state: 'uninitialized',
+  state: "uninitialized",
   lockedAt: null,
   unlockedAt: null,
-  lastAuthMethod: 'none',
+  lastAuthMethod: "none",
   failedAttempts: 0,
   lockoutEndTime: null,
   isLockedOut: false,
-}
+};
 
 /**
  * Default biometric info
  */
 export const DEFAULT_BIOMETRIC_INFO: BiometricInfo = {
   available: false,
-  type: 'none',
+  type: "none",
   enrolled: false,
-  displayName: 'Biometric',
-}
+  displayName: "Biometric",
+};
 
 // ============================================================================
 // Storage Keys
@@ -339,13 +353,13 @@ export const DEFAULT_BIOMETRIC_INFO: BiometricInfo = {
  * Storage keys for app lock data
  */
 export const STORAGE_KEYS = {
-  SETTINGS: 'nchat_app_lock_settings',
-  PIN_HASH: 'nchat_app_lock_pin_hash',
-  LOCK_STATE: 'nchat_app_lock_state',
-  DAILY_BIOMETRIC: 'nchat_app_lock_daily_biometric',
-} as const
+  SETTINGS: "nchat_app_lock_settings",
+  PIN_HASH: "nchat_app_lock_pin_hash",
+  LOCK_STATE: "nchat_app_lock_state",
+  DAILY_BIOMETRIC: "nchat_app_lock_daily_biometric",
+} as const;
 
 /**
  * Secure storage service identifier
  */
-export const SECURE_STORAGE_SERVICE = 'com.nchat.app-lock'
+export const SECURE_STORAGE_SERVICE = "com.nchat.app-lock";

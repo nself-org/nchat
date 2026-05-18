@@ -1,23 +1,23 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
-import { Bookmark, Plus, Download, ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { useSavedStore, selectAllCollections } from '@/stores/saved-store'
-import { SavedMessageList } from '@/components/saved/SavedMessageList'
-import { SavedFilters } from '@/components/saved/SavedFilters'
-import { CollectionList } from '@/components/saved/CollectionList'
-import { CreateCollection } from '@/components/saved/CreateCollection'
-import { AddToCollection } from '@/components/saved/AddToCollection'
-import { exportSavedMessages, downloadExport } from '@/lib/saved'
-import type { SavedMessage, SavedCollection } from '@/lib/saved'
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { Bookmark, Plus, Download, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useSavedStore, selectAllCollections } from "@/stores/saved-store";
+import { SavedMessageList } from "@/components/saved/SavedMessageList";
+import { SavedFilters } from "@/components/saved/SavedFilters";
+import { CollectionList } from "@/components/saved/CollectionList";
+import { CreateCollection } from "@/components/saved/CreateCollection";
+import { AddToCollection } from "@/components/saved/AddToCollection";
+import { exportSavedMessages, downloadExport } from "@/lib/saved";
+import type { SavedMessage, SavedCollection } from "@/lib/saved";
 
 /**
  * Saved messages page - shows all saved/starred messages for the current user.
  */
 export default function SavedMessagesPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   const {
     getFilteredSavedMessages,
@@ -50,49 +50,54 @@ export default function SavedMessagesPage() {
     closeCreateCollection,
     isCreateCollectionOpen,
     addCollection,
-  } = useSavedStore()
+  } = useSavedStore();
 
-  const allCollections = useSavedStore(selectAllCollections)
-  const savedMessages = getFilteredSavedMessages()
-  const stats = getSavedStats()
-  const availableTags = getAllTags()
+  const allCollections = useSavedStore(selectAllCollections);
+  const savedMessages = getFilteredSavedMessages();
+  const stats = getSavedStats();
+  const availableTags = getAllTags();
 
-  const selectedSaved = selectedSavedId ? getSavedMessage(selectedSavedId) : undefined
+  const selectedSaved = selectedSavedId
+    ? getSavedMessage(selectedSavedId)
+    : undefined;
 
   const handleJumpToMessage = (messageId: string, channelId: string) => {
-    router.push(`/chat/channel/${channelId}?message=${messageId}`)
-  }
+    router.push(`/chat/channel/${channelId}?message=${messageId}`);
+  };
 
   const handleUnsave = (saved: SavedMessage) => {
-    removeSavedMessage(saved.id)
-  }
+    removeSavedMessage(saved.id);
+  };
 
   const handleToggleStar = (saved: SavedMessage) => {
-    toggleStar(saved.id)
-  }
+    toggleStar(saved.id);
+  };
 
   const handleAddToCollection = (saved: SavedMessage) => {
-    openAddToCollection(saved.id)
-  }
+    openAddToCollection(saved.id);
+  };
 
-  const handleSortChange = (newSortBy: typeof sortBy, newSortOrder: typeof sortOrder) => {
-    setSortBy(newSortBy)
-    setSortOrder(newSortOrder)
-  }
+  const handleSortChange = (
+    newSortBy: typeof sortBy,
+    newSortOrder: typeof sortOrder,
+  ) => {
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+  };
 
   const handleCollectionSave = () => {
-    closeAddToCollection()
-  }
+    closeAddToCollection();
+  };
 
   const handleCreateCollection = (data: {
-    name: string
-    description?: string
-    icon?: string
-    color?: string
+    name: string;
+    description?: string;
+    icon?: string;
+    color?: string;
   }) => {
     const newCollection: SavedCollection = {
       id: crypto.randomUUID(),
-      userId: '',
+      userId: "",
       name: data.name,
       description: data.description,
       icon: data.icon,
@@ -102,30 +107,35 @@ export default function SavedMessagesPage() {
       updatedAt: new Date(),
       position: allCollections.length,
       isShared: false,
-    }
-    addCollection(newCollection)
-    closeCreateCollection()
-  }
+    };
+    addCollection(newCollection);
+    closeCreateCollection();
+  };
 
   const handleExport = () => {
     const result = exportSavedMessages(savedMessages, allCollections, {
-      format: 'json',
+      format: "json",
       includeContent: true,
       includeAttachments: true,
       includeNotes: true,
       includeTags: true,
-    })
+    });
     if (result.success) {
-      downloadExport(result)
+      downloadExport(result);
     }
-  }
+  };
 
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <div className="flex w-64 flex-col border-r">
         <div className="border-b p-4">
-          <Button variant="ghost" size="sm" className="mb-2" onClick={() => router.push('/chat')}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mb-2"
+            onClick={() => router.push("/chat")}
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Chat
           </Button>
@@ -145,7 +155,9 @@ export default function SavedMessagesPage() {
           onSelect={setSelectedCollection}
           onCreate={openCreateCollection}
           showUncategorized
-          uncategorizedCount={savedMessages.filter((m) => m.collectionIds.length === 0).length}
+          uncategorizedCount={
+            savedMessages.filter((m) => m.collectionIds.length === 0).length
+          }
           className="flex-1"
         />
       </div>
@@ -158,11 +170,13 @@ export default function SavedMessagesPage() {
             <div>
               <h2 className="text-lg font-medium">
                 {selectedCollectionId
-                  ? allCollections.find((c) => c.id === selectedCollectionId)?.name
-                  : 'All Saved'}
+                  ? allCollections.find((c) => c.id === selectedCollectionId)
+                      ?.name
+                  : "All Saved"}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {savedMessages.length} message{savedMessages.length !== 1 ? 's' : ''}
+                {savedMessages.length} message
+                {savedMessages.length !== 1 ? "s" : ""}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -219,17 +233,17 @@ export default function SavedMessagesPage() {
         collections={allCollections}
         selectedIds={selectedSaved?.collectionIds ?? []}
         onSelectionChange={(ids) => {
-          if (!selectedSavedId) return
-          const current = selectedSaved?.collectionIds ?? []
-          const toAdd = ids.filter((id) => !current.includes(id))
-          const toRemove = current.filter((id) => !ids.includes(id))
+          if (!selectedSavedId) return;
+          const current = selectedSaved?.collectionIds ?? [];
+          const toAdd = ids.filter((id) => !current.includes(id));
+          const toRemove = current.filter((id) => !ids.includes(id));
 
-          toAdd.forEach((cid) => addToCollection(selectedSavedId, cid))
-          toRemove.forEach((cid) => removeFromCollection(selectedSavedId, cid))
+          toAdd.forEach((cid) => addToCollection(selectedSavedId, cid));
+          toRemove.forEach((cid) => removeFromCollection(selectedSavedId, cid));
         }}
         onSave={handleCollectionSave}
         onCreateCollection={openCreateCollection}
       />
     </div>
-  )
+  );
 }

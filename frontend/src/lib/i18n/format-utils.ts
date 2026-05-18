@@ -6,21 +6,21 @@
  * fallback behavior.
  */
 
-import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from './locales'
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from "./locales";
 
 /**
  * Resolved locale for Intl APIs.
  * Converts our short locale codes to BCP 47 tags.
  */
 function resolveBcp47(locale: string): string {
-  const config = SUPPORTED_LOCALES[locale]
-  if (config) return config.bcp47
+  const config = SUPPORTED_LOCALES[locale];
+  if (config) return config.bcp47;
 
-  const base = locale.split('-')[0]
-  const baseConfig = SUPPORTED_LOCALES[base]
-  if (baseConfig) return baseConfig.bcp47
+  const base = locale.split("-")[0];
+  const baseConfig = SUPPORTED_LOCALES[base];
+  if (baseConfig) return baseConfig.bcp47;
 
-  return SUPPORTED_LOCALES[DEFAULT_LOCALE].bcp47
+  return SUPPORTED_LOCALES[DEFAULT_LOCALE].bcp47;
 }
 
 // ─── Date Formatting ───────────────────────────────────────────────
@@ -28,12 +28,12 @@ function resolveBcp47(locale: string): string {
 /**
  * Date format presets
  */
-export type DateFormatPreset = 'short' | 'medium' | 'long' | 'full'
+export type DateFormatPreset = "short" | "medium" | "long" | "full";
 
 /**
  * Time format presets
  */
-export type TimeFormatPreset = 'short' | 'medium' | 'long'
+export type TimeFormatPreset = "short" | "medium" | "long";
 
 /**
  * Format a date using Intl.DateTimeFormat with a named preset.
@@ -41,24 +41,24 @@ export type TimeFormatPreset = 'short' | 'medium' | 'long'
 export function formatLocalDate(
   date: Date | number | string,
   locale: string = DEFAULT_LOCALE,
-  preset: DateFormatPreset = 'medium'
+  preset: DateFormatPreset = "medium",
 ): string {
-  const dateObj = date instanceof Date ? date : new Date(date)
-  if (isNaN(dateObj.getTime())) return ''
+  const dateObj = date instanceof Date ? date : new Date(date);
+  if (isNaN(dateObj.getTime())) return "";
 
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   const presetMap: Record<DateFormatPreset, Intl.DateTimeFormatOptions> = {
-    short: { year: '2-digit', month: 'numeric', day: 'numeric' },
-    medium: { year: 'numeric', month: 'short', day: 'numeric' },
-    long: { year: 'numeric', month: 'long', day: 'numeric' },
-    full: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' },
-  }
+    short: { year: "2-digit", month: "numeric", day: "numeric" },
+    medium: { year: "numeric", month: "short", day: "numeric" },
+    long: { year: "numeric", month: "long", day: "numeric" },
+    full: { year: "numeric", month: "long", day: "numeric", weekday: "long" },
+  };
 
   try {
-    return new Intl.DateTimeFormat(bcp47, presetMap[preset]).format(dateObj)
+    return new Intl.DateTimeFormat(bcp47, presetMap[preset]).format(dateObj);
   } catch {
-    return dateObj.toLocaleDateString()
+    return dateObj.toLocaleDateString();
   }
 }
 
@@ -68,23 +68,28 @@ export function formatLocalDate(
 export function formatLocalTime(
   date: Date | number | string,
   locale: string = DEFAULT_LOCALE,
-  preset: TimeFormatPreset = 'short'
+  preset: TimeFormatPreset = "short",
 ): string {
-  const dateObj = date instanceof Date ? date : new Date(date)
-  if (isNaN(dateObj.getTime())) return ''
+  const dateObj = date instanceof Date ? date : new Date(date);
+  if (isNaN(dateObj.getTime())) return "";
 
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   const presetMap: Record<TimeFormatPreset, Intl.DateTimeFormatOptions> = {
-    short: { hour: 'numeric', minute: 'numeric' },
-    medium: { hour: 'numeric', minute: 'numeric', second: 'numeric' },
-    long: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' },
-  }
+    short: { hour: "numeric", minute: "numeric" },
+    medium: { hour: "numeric", minute: "numeric", second: "numeric" },
+    long: {
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      timeZoneName: "short",
+    },
+  };
 
   try {
-    return new Intl.DateTimeFormat(bcp47, presetMap[preset]).format(dateObj)
+    return new Intl.DateTimeFormat(bcp47, presetMap[preset]).format(dateObj);
   } catch {
-    return dateObj.toLocaleTimeString()
+    return dateObj.toLocaleTimeString();
   }
 }
 
@@ -94,34 +99,42 @@ export function formatLocalTime(
 export function formatLocalDateTime(
   date: Date | number | string,
   locale: string = DEFAULT_LOCALE,
-  options: { datePreset?: DateFormatPreset; timePreset?: TimeFormatPreset } = {}
+  options: {
+    datePreset?: DateFormatPreset;
+    timePreset?: TimeFormatPreset;
+  } = {},
 ): string {
-  const { datePreset = 'medium', timePreset = 'short' } = options
-  const dateObj = date instanceof Date ? date : new Date(date)
-  if (isNaN(dateObj.getTime())) return ''
+  const { datePreset = "medium", timePreset = "short" } = options;
+  const dateObj = date instanceof Date ? date : new Date(date);
+  if (isNaN(dateObj.getTime())) return "";
 
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   const dateOptions: Record<DateFormatPreset, Intl.DateTimeFormatOptions> = {
-    short: { year: '2-digit', month: 'numeric', day: 'numeric' },
-    medium: { year: 'numeric', month: 'short', day: 'numeric' },
-    long: { year: 'numeric', month: 'long', day: 'numeric' },
-    full: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' },
-  }
+    short: { year: "2-digit", month: "numeric", day: "numeric" },
+    medium: { year: "numeric", month: "short", day: "numeric" },
+    long: { year: "numeric", month: "long", day: "numeric" },
+    full: { year: "numeric", month: "long", day: "numeric", weekday: "long" },
+  };
 
   const timeOptions: Record<TimeFormatPreset, Intl.DateTimeFormatOptions> = {
-    short: { hour: 'numeric', minute: 'numeric' },
-    medium: { hour: 'numeric', minute: 'numeric', second: 'numeric' },
-    long: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' },
-  }
+    short: { hour: "numeric", minute: "numeric" },
+    medium: { hour: "numeric", minute: "numeric", second: "numeric" },
+    long: {
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      timeZoneName: "short",
+    },
+  };
 
   try {
     return new Intl.DateTimeFormat(bcp47, {
       ...dateOptions[datePreset],
       ...timeOptions[timePreset],
-    }).format(dateObj)
+    }).format(dateObj);
   } catch {
-    return dateObj.toLocaleString()
+    return dateObj.toLocaleString();
   }
 }
 
@@ -130,20 +143,30 @@ export function formatLocalDateTime(
 /**
  * Relative time units
  */
-export type RelativeTimeUnit = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+export type RelativeTimeUnit =
+  | "second"
+  | "minute"
+  | "hour"
+  | "day"
+  | "week"
+  | "month"
+  | "year";
 
 /**
  * Relative time thresholds in seconds
  */
-const RELATIVE_TIME_THRESHOLDS: Array<{ unit: RelativeTimeUnit; seconds: number }> = [
-  { unit: 'year', seconds: 365.25 * 24 * 60 * 60 },
-  { unit: 'month', seconds: 30.44 * 24 * 60 * 60 },
-  { unit: 'week', seconds: 7 * 24 * 60 * 60 },
-  { unit: 'day', seconds: 24 * 60 * 60 },
-  { unit: 'hour', seconds: 60 * 60 },
-  { unit: 'minute', seconds: 60 },
-  { unit: 'second', seconds: 1 },
-]
+const RELATIVE_TIME_THRESHOLDS: Array<{
+  unit: RelativeTimeUnit;
+  seconds: number;
+}> = [
+  { unit: "year", seconds: 365.25 * 24 * 60 * 60 },
+  { unit: "month", seconds: 30.44 * 24 * 60 * 60 },
+  { unit: "week", seconds: 7 * 24 * 60 * 60 },
+  { unit: "day", seconds: 24 * 60 * 60 },
+  { unit: "hour", seconds: 60 * 60 },
+  { unit: "minute", seconds: 60 },
+  { unit: "second", seconds: 1 },
+];
 
 /**
  * Format relative time (e.g., "3 days ago", "in 2 hours").
@@ -153,60 +176,63 @@ export function formatRelativeTimeIntl(
   date: Date | number | string,
   locale: string = DEFAULT_LOCALE,
   options: {
-    baseDate?: Date
-    style?: 'long' | 'short' | 'narrow'
-    numeric?: 'always' | 'auto'
-  } = {}
+    baseDate?: Date;
+    style?: "long" | "short" | "narrow";
+    numeric?: "always" | "auto";
+  } = {},
 ): string {
-  const { baseDate = new Date(), style = 'long', numeric = 'auto' } = options
-  const dateObj = date instanceof Date ? date : new Date(date)
-  if (isNaN(dateObj.getTime())) return ''
+  const { baseDate = new Date(), style = "long", numeric = "auto" } = options;
+  const dateObj = date instanceof Date ? date : new Date(date);
+  if (isNaN(dateObj.getTime())) return "";
 
-  const diffSeconds = (dateObj.getTime() - baseDate.getTime()) / 1000
-  const bcp47 = resolveBcp47(locale)
+  const diffSeconds = (dateObj.getTime() - baseDate.getTime()) / 1000;
+  const bcp47 = resolveBcp47(locale);
 
   // Find the appropriate unit
-  const absDiff = Math.abs(diffSeconds)
-  let unit: RelativeTimeUnit = 'second'
-  let value = Math.round(diffSeconds)
+  const absDiff = Math.abs(diffSeconds);
+  let unit: RelativeTimeUnit = "second";
+  let value = Math.round(diffSeconds);
 
   for (const threshold of RELATIVE_TIME_THRESHOLDS) {
     if (absDiff >= threshold.seconds) {
-      unit = threshold.unit
-      value = Math.round(diffSeconds / threshold.seconds)
-      break
+      unit = threshold.unit;
+      value = Math.round(diffSeconds / threshold.seconds);
+      break;
     }
   }
 
   try {
-    const formatter = new Intl.RelativeTimeFormat(bcp47, { style, numeric })
-    return formatter.format(value, unit)
+    const formatter = new Intl.RelativeTimeFormat(bcp47, { style, numeric });
+    return formatter.format(value, unit);
   } catch {
     // Fallback
-    const absValue = Math.abs(value)
-    const unitStr = absValue === 1 ? unit : `${unit}s`
-    if (value < 0) return `${absValue} ${unitStr} ago`
-    if (value > 0) return `in ${absValue} ${unitStr}`
-    return 'now'
+    const absValue = Math.abs(value);
+    const unitStr = absValue === 1 ? unit : `${unit}s`;
+    if (value < 0) return `${absValue} ${unitStr} ago`;
+    if (value > 0) return `in ${absValue} ${unitStr}`;
+    return "now";
   }
 }
 
 /**
  * Get the most appropriate relative time unit for a diff in seconds.
  */
-export function getRelativeTimeUnit(diffSeconds: number): { unit: RelativeTimeUnit; value: number } {
-  const absDiff = Math.abs(diffSeconds)
+export function getRelativeTimeUnit(diffSeconds: number): {
+  unit: RelativeTimeUnit;
+  value: number;
+} {
+  const absDiff = Math.abs(diffSeconds);
 
   for (const threshold of RELATIVE_TIME_THRESHOLDS) {
     if (absDiff >= threshold.seconds) {
       return {
         unit: threshold.unit,
         value: Math.round(diffSeconds / threshold.seconds),
-      }
+      };
     }
   }
 
-  return { unit: 'second', value: Math.round(diffSeconds) }
+  return { unit: "second", value: Math.round(diffSeconds) };
 }
 
 // ─── Number Formatting ─────────────────────────────────────────────
@@ -217,14 +243,14 @@ export function getRelativeTimeUnit(diffSeconds: number): { unit: RelativeTimeUn
 export function formatLocalNumber(
   value: number,
   locale: string = DEFAULT_LOCALE,
-  options: Intl.NumberFormatOptions = {}
+  options: Intl.NumberFormatOptions = {},
 ): string {
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   try {
-    return new Intl.NumberFormat(bcp47, options).format(value)
+    return new Intl.NumberFormat(bcp47, options).format(value);
   } catch {
-    return value.toLocaleString()
+    return value.toLocaleString();
   }
 }
 
@@ -234,19 +260,19 @@ export function formatLocalNumber(
 export function formatLocalCurrency(
   value: number,
   locale: string = DEFAULT_LOCALE,
-  currency: string = 'USD',
-  options: Omit<Intl.NumberFormatOptions, 'style' | 'currency'> = {}
+  currency: string = "USD",
+  options: Omit<Intl.NumberFormatOptions, "style" | "currency"> = {},
 ): string {
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   try {
     return new Intl.NumberFormat(bcp47, {
-      style: 'currency',
+      style: "currency",
       currency,
       ...options,
-    }).format(value)
+    }).format(value);
   } catch {
-    return `${currency} ${value.toFixed(2)}`
+    return `${currency} ${value.toFixed(2)}`;
   }
 }
 
@@ -257,18 +283,18 @@ export function formatLocalCurrency(
 export function formatLocalPercent(
   value: number,
   locale: string = DEFAULT_LOCALE,
-  options: Omit<Intl.NumberFormatOptions, 'style'> = {}
+  options: Omit<Intl.NumberFormatOptions, "style"> = {},
 ): string {
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   try {
     return new Intl.NumberFormat(bcp47, {
-      style: 'percent',
+      style: "percent",
       maximumFractionDigits: 1,
       ...options,
-    }).format(value)
+    }).format(value);
   } catch {
-    return `${(value * 100).toFixed(1)}%`
+    return `${(value * 100).toFixed(1)}%`;
   }
 }
 
@@ -278,21 +304,22 @@ export function formatLocalPercent(
 export function formatLocalCompact(
   value: number,
   locale: string = DEFAULT_LOCALE,
-  options: { display?: 'short' | 'long' } = {}
+  options: { display?: "short" | "long" } = {},
 ): string {
-  const { display = 'short' } = options
-  const bcp47 = resolveBcp47(locale)
+  const { display = "short" } = options;
+  const bcp47 = resolveBcp47(locale);
 
   try {
     return new Intl.NumberFormat(bcp47, {
-      notation: 'compact',
+      notation: "compact",
       compactDisplay: display,
       maximumFractionDigits: 1,
-    }).format(value)
+    }).format(value);
   } catch {
-    if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
-    if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(1)}K`
-    return String(value)
+    if (Math.abs(value) >= 1_000_000)
+      return `${(value / 1_000_000).toFixed(1)}M`;
+    if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+    return String(value);
   }
 }
 
@@ -305,26 +332,29 @@ export function formatLocalCompact(
 export function formatLocalList(
   items: string[],
   locale: string = DEFAULT_LOCALE,
-  options: { type?: 'conjunction' | 'disjunction' | 'unit'; style?: 'long' | 'short' | 'narrow' } = {}
+  options: {
+    type?: "conjunction" | "disjunction" | "unit";
+    style?: "long" | "short" | "narrow";
+  } = {},
 ): string {
-  const { type = 'conjunction', style = 'long' } = options
-  const bcp47 = resolveBcp47(locale)
+  const { type = "conjunction", style = "long" } = options;
+  const bcp47 = resolveBcp47(locale);
 
-  if (items.length === 0) return ''
-  if (items.length === 1) return items[0]
+  if (items.length === 0) return "";
+  if (items.length === 1) return items[0];
 
   try {
-    return new Intl.ListFormat(bcp47, { type, style }).format(items)
+    return new Intl.ListFormat(bcp47, { type, style }).format(items);
   } catch {
     // Fallback
     if (items.length === 2) {
-      const joiner = type === 'disjunction' ? ' or ' : ' and '
-      return `${items[0]}${joiner}${items[1]}`
+      const joiner = type === "disjunction" ? " or " : " and ";
+      return `${items[0]}${joiner}${items[1]}`;
     }
-    const last = items[items.length - 1]
-    const rest = items.slice(0, -1).join(', ')
-    const joiner = type === 'disjunction' ? ', or ' : ', and '
-    return `${rest}${joiner}${last}`
+    const last = items[items.length - 1];
+    const rest = items.slice(0, -1).join(", ");
+    const joiner = type === "disjunction" ? ", or " : ", and ";
+    return `${rest}${joiner}${last}`;
   }
 }
 
@@ -337,20 +367,23 @@ export function formatLocalList(
  */
 export function getLanguageDisplayName(
   targetLocale: string,
-  displayLocale: string = DEFAULT_LOCALE
+  displayLocale: string = DEFAULT_LOCALE,
 ): string {
-  const bcp47 = resolveBcp47(displayLocale)
-  const targetBcp47 = resolveBcp47(targetLocale)
+  const bcp47 = resolveBcp47(displayLocale);
+  const targetBcp47 = resolveBcp47(targetLocale);
 
   try {
-    return new Intl.DisplayNames(bcp47, { type: 'language' }).of(targetBcp47) || targetLocale
+    return (
+      new Intl.DisplayNames(bcp47, { type: "language" }).of(targetBcp47) ||
+      targetLocale
+    );
   } catch {
     // Fallback to our locale config
-    const config = SUPPORTED_LOCALES[targetLocale]
+    const config = SUPPORTED_LOCALES[targetLocale];
     if (config) {
-      return displayLocale === targetLocale ? config.name : config.englishName
+      return displayLocale === targetLocale ? config.name : config.englishName;
     }
-    return targetLocale
+    return targetLocale;
   }
 }
 
@@ -359,14 +392,17 @@ export function getLanguageDisplayName(
  */
 export function getRegionDisplayName(
   regionCode: string,
-  locale: string = DEFAULT_LOCALE
+  locale: string = DEFAULT_LOCALE,
 ): string {
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   try {
-    return new Intl.DisplayNames(bcp47, { type: 'region' }).of(regionCode) || regionCode
+    return (
+      new Intl.DisplayNames(bcp47, { type: "region" }).of(regionCode) ||
+      regionCode
+    );
   } catch {
-    return regionCode
+    return regionCode;
   }
 }
 
@@ -375,14 +411,17 @@ export function getRegionDisplayName(
  */
 export function getCurrencyDisplayName(
   currencyCode: string,
-  locale: string = DEFAULT_LOCALE
+  locale: string = DEFAULT_LOCALE,
 ): string {
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   try {
-    return new Intl.DisplayNames(bcp47, { type: 'currency' }).of(currencyCode) || currencyCode
+    return (
+      new Intl.DisplayNames(bcp47, { type: "currency" }).of(currencyCode) ||
+      currencyCode
+    );
   } catch {
-    return currencyCode
+    return currencyCode;
   }
 }
 
@@ -395,14 +434,17 @@ export function localeCompare(
   a: string,
   b: string,
   locale: string = DEFAULT_LOCALE,
-  options: Intl.CollatorOptions = {}
+  options: Intl.CollatorOptions = {},
 ): number {
-  const bcp47 = resolveBcp47(locale)
+  const bcp47 = resolveBcp47(locale);
 
   try {
-    return new Intl.Collator(bcp47, { sensitivity: 'base', ...options }).compare(a, b)
+    return new Intl.Collator(bcp47, {
+      sensitivity: "base",
+      ...options,
+    }).compare(a, b);
   } catch {
-    return a.localeCompare(b)
+    return a.localeCompare(b);
   }
 }
 
@@ -412,9 +454,9 @@ export function localeCompare(
 export function localeSort(
   items: string[],
   locale: string = DEFAULT_LOCALE,
-  options: Intl.CollatorOptions = {}
+  options: Intl.CollatorOptions = {},
 ): string[] {
-  return [...items].sort((a, b) => localeCompare(a, b, locale, options))
+  return [...items].sort((a, b) => localeCompare(a, b, locale, options));
 }
 
 // ─── Byte/File Size Formatting ─────────────────────────────────────
@@ -425,26 +467,26 @@ export function localeSort(
 export function formatLocalBytes(
   bytes: number,
   locale: string = DEFAULT_LOCALE,
-  options: { decimals?: number; binary?: boolean } = {}
+  options: { decimals?: number; binary?: boolean } = {},
 ): string {
-  const { decimals = 1, binary = false } = options
+  const { decimals = 1, binary = false } = options;
 
-  if (bytes === 0) return '0 B'
+  if (bytes === 0) return "0 B";
 
-  const k = binary ? 1024 : 1000
+  const k = binary ? 1024 : 1000;
   const sizes = binary
-    ? ['B', 'KiB', 'MiB', 'GiB', 'TiB']
-    : ['B', 'KB', 'MB', 'GB', 'TB']
+    ? ["B", "KiB", "MiB", "GiB", "TiB"]
+    : ["B", "KB", "MB", "GB", "TB"];
 
-  const i = Math.floor(Math.log(Math.abs(bytes)) / Math.log(k))
-  const value = bytes / Math.pow(k, i)
+  const i = Math.floor(Math.log(Math.abs(bytes)) / Math.log(k));
+  const value = bytes / Math.pow(k, i);
 
   const formatted = formatLocalNumber(value, locale, {
     minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
-  })
+  });
 
-  return `${formatted} ${sizes[Math.min(i, sizes.length - 1)]}`
+  return `${formatted} ${sizes[Math.min(i, sizes.length - 1)]}`;
 }
 
 // ─── Duration Formatting ───────────────────────────────────────────
@@ -455,47 +497,48 @@ export function formatLocalBytes(
 export function formatLocalDuration(
   ms: number,
   locale: string = DEFAULT_LOCALE,
-  options: { style?: 'long' | 'short' | 'narrow'; maxUnits?: number } = {}
+  options: { style?: "long" | "short" | "narrow"; maxUnits?: number } = {},
 ): string {
-  const { style = 'long', maxUnits = 2 } = options
+  const { style = "long", maxUnits = 2 } = options;
 
-  const seconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
-  const parts: { value: number; unit: Intl.RelativeTimeFormatUnit }[] = []
+  const parts: { value: number; unit: Intl.RelativeTimeFormatUnit }[] = [];
 
-  if (days > 0) parts.push({ value: days, unit: 'day' })
-  if (hours % 24 > 0) parts.push({ value: hours % 24, unit: 'hour' })
-  if (minutes % 60 > 0) parts.push({ value: minutes % 60, unit: 'minute' })
-  if (seconds % 60 > 0 || parts.length === 0) parts.push({ value: seconds % 60, unit: 'second' })
+  if (days > 0) parts.push({ value: days, unit: "day" });
+  if (hours % 24 > 0) parts.push({ value: hours % 24, unit: "hour" });
+  if (minutes % 60 > 0) parts.push({ value: minutes % 60, unit: "minute" });
+  if (seconds % 60 > 0 || parts.length === 0)
+    parts.push({ value: seconds % 60, unit: "second" });
 
-  const limitedParts = parts.slice(0, maxUnits)
-  const bcp47 = resolveBcp47(locale)
+  const limitedParts = parts.slice(0, maxUnits);
+  const bcp47 = resolveBcp47(locale);
 
   try {
     const items = limitedParts.map(({ value, unit }) => {
       return new Intl.NumberFormat(bcp47, {
-        style: 'unit',
+        style: "unit",
         unit,
         unitDisplay: style,
-      }).format(value)
-    })
+      }).format(value);
+    });
 
-    return items.join(style === 'narrow' ? ' ' : ', ')
+    return items.join(style === "narrow" ? " " : ", ");
   } catch {
     // Fallback: short format
     return limitedParts
       .map(({ value, unit }) => {
         const abbr: Record<string, string> = {
-          day: 'd',
-          hour: 'h',
-          minute: 'm',
-          second: 's',
-        }
-        return `${value}${abbr[unit] || unit}`
+          day: "d",
+          hour: "h",
+          minute: "m",
+          second: "s",
+        };
+        return `${value}${abbr[unit] || unit}`;
       })
-      .join(' ')
+      .join(" ");
   }
 }

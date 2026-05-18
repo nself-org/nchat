@@ -4,95 +4,95 @@
  * Handles contact management, invites, and blocked users
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, USER_PROFILE_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT, USER_PROFILE_FRAGMENT } from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export type ContactRelationshipStatus =
-  | 'none'
-  | 'pending_sent'
-  | 'pending_received'
-  | 'accepted'
-  | 'blocked'
-  | 'blocked_by'
+  | "none"
+  | "pending_sent"
+  | "pending_received"
+  | "accepted"
+  | "blocked"
+  | "blocked_by";
 
 export type ContactDiscoveryMethod =
-  | 'phone'
-  | 'email'
-  | 'username'
-  | 'qr_code'
-  | 'invite_link'
-  | 'mutual_contact'
-  | 'channel_member'
+  | "phone"
+  | "email"
+  | "username"
+  | "qr_code"
+  | "invite_link"
+  | "mutual_contact"
+  | "channel_member";
 
 export type ContactInviteStatus =
-  | 'pending'
-  | 'accepted'
-  | 'rejected'
-  | 'expired'
-  | 'cancelled'
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "expired"
+  | "cancelled";
 
 export interface Contact {
-  id: string
-  userId: string
-  contactUserId: string
-  nickname?: string
-  notes?: string
-  isFavorite: boolean
-  discoveryMethod: ContactDiscoveryMethod
-  addedAt: string
-  updatedAt: string
+  id: string;
+  userId: string;
+  contactUserId: string;
+  nickname?: string;
+  notes?: string;
+  isFavorite: boolean;
+  discoveryMethod: ContactDiscoveryMethod;
+  addedAt: string;
+  updatedAt: string;
   contactUser: {
-    id: string
-    username: string
-    displayName: string
-    email?: string
-    avatarUrl?: string
-    bio?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    email?: string;
+    avatarUrl?: string;
+    bio?: string;
+  };
 }
 
 export interface ContactInvite {
-  id: string
-  senderId: string
-  recipientId?: string
-  recipientEmail?: string
-  recipientPhone?: string
-  code: string
-  message?: string
-  status: ContactInviteStatus
-  expiresAt: string
-  createdAt: string
-  respondedAt?: string
+  id: string;
+  senderId: string;
+  recipientId?: string;
+  recipientEmail?: string;
+  recipientPhone?: string;
+  code: string;
+  message?: string;
+  status: ContactInviteStatus;
+  expiresAt: string;
+  createdAt: string;
+  respondedAt?: string;
   sender: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
   recipient?: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
 }
 
 export interface BlockedContact {
-  id: string
-  userId: string
-  blockedUserId: string
-  reason?: string
-  blockedAt: string
+  id: string;
+  userId: string;
+  blockedUserId: string;
+  reason?: string;
+  blockedAt: string;
   blockedUser: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
 }
 
 // ============================================================================
@@ -115,7 +115,7 @@ export const CONTACT_FRAGMENT = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 export const CONTACT_INVITE_FRAGMENT = gql`
   fragment ContactInvite on nchat_contact_invites {
@@ -138,7 +138,7 @@ export const CONTACT_INVITE_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const BLOCKED_CONTACT_FRAGMENT = gql`
   fragment BlockedContact on nchat_blocked_contacts {
@@ -152,7 +152,7 @@ export const BLOCKED_CONTACT_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -178,7 +178,7 @@ export const GET_CONTACTS = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Get a single contact by ID
@@ -190,7 +190,7 @@ export const GET_CONTACT = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Check if user is a contact
@@ -209,7 +209,7 @@ export const CHECK_IS_CONTACT = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Get favorite contacts
@@ -224,7 +224,7 @@ export const GET_FAVORITE_CONTACTS = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Search contacts
@@ -247,7 +247,7 @@ export const SEARCH_CONTACTS = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Get mutual contacts between two users
@@ -268,7 +268,7 @@ export const GET_MUTUAL_CONTACTS = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Get sent invites
@@ -276,17 +276,14 @@ export const GET_MUTUAL_CONTACTS = gql`
 export const GET_SENT_INVITES = gql`
   query GetSentInvites($userId: uuid!, $status: String) {
     nchat_contact_invites(
-      where: {
-        sender_id: { _eq: $userId }
-        status: { _eq: $status }
-      }
+      where: { sender_id: { _eq: $userId }, status: { _eq: $status } }
       order_by: { created_at: desc }
     ) {
       ...ContactInvite
     }
   }
   ${CONTACT_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get received invites
@@ -294,17 +291,14 @@ export const GET_SENT_INVITES = gql`
 export const GET_RECEIVED_INVITES = gql`
   query GetReceivedInvites($userId: uuid!, $status: String) {
     nchat_contact_invites(
-      where: {
-        recipient_id: { _eq: $userId }
-        status: { _eq: $status }
-      }
+      where: { recipient_id: { _eq: $userId }, status: { _eq: $status } }
       order_by: { created_at: desc }
     ) {
       ...ContactInvite
     }
   }
   ${CONTACT_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get pending invites (both sent and received)
@@ -312,41 +306,32 @@ export const GET_RECEIVED_INVITES = gql`
 export const GET_PENDING_INVITES = gql`
   query GetPendingInvites($userId: uuid!) {
     sent: nchat_contact_invites(
-      where: {
-        sender_id: { _eq: $userId }
-        status: { _eq: "pending" }
-      }
+      where: { sender_id: { _eq: $userId }, status: { _eq: "pending" } }
       order_by: { created_at: desc }
     ) {
       ...ContactInvite
     }
     received: nchat_contact_invites(
-      where: {
-        recipient_id: { _eq: $userId }
-        status: { _eq: "pending" }
-      }
+      where: { recipient_id: { _eq: $userId }, status: { _eq: "pending" } }
       order_by: { created_at: desc }
     ) {
       ...ContactInvite
     }
   }
   ${CONTACT_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get invite by code
  */
 export const GET_INVITE_BY_CODE = gql`
   query GetInviteByCode($code: String!) {
-    nchat_contact_invites(
-      where: { code: { _eq: $code } }
-      limit: 1
-    ) {
+    nchat_contact_invites(where: { code: { _eq: $code } }, limit: 1) {
       ...ContactInvite
     }
   }
   ${CONTACT_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Get blocked contacts
@@ -361,7 +346,7 @@ export const GET_BLOCKED_CONTACTS = gql`
     }
   }
   ${BLOCKED_CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Check if user is blocked
@@ -380,7 +365,7 @@ export const CHECK_IS_BLOCKED = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Discover users by username or email
@@ -407,7 +392,7 @@ export const DISCOVER_USERS = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -442,7 +427,7 @@ export const ADD_CONTACT = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Remove a contact
@@ -453,7 +438,7 @@ export const REMOVE_CONTACT = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Update contact
@@ -478,7 +463,7 @@ export const UPDATE_CONTACT = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Toggle favorite status
@@ -493,7 +478,7 @@ export const TOGGLE_FAVORITE_CONTACT = gql`
       is_favorite
     }
   }
-`
+`;
 
 /**
  * Send a contact invite
@@ -524,7 +509,7 @@ export const SEND_CONTACT_INVITE = gql`
     }
   }
   ${CONTACT_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Accept a contact invite
@@ -543,7 +528,7 @@ export const ACCEPT_CONTACT_INVITE = gql`
     }
   }
   ${CONTACT_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Reject a contact invite
@@ -552,16 +537,13 @@ export const REJECT_CONTACT_INVITE = gql`
   mutation RejectContactInvite($inviteId: uuid!) {
     update_nchat_contact_invites_by_pk(
       pk_columns: { id: $inviteId }
-      _set: {
-        status: "rejected"
-        responded_at: "now()"
-      }
+      _set: { status: "rejected", responded_at: "now()" }
     ) {
       id
       status
     }
   }
-`
+`;
 
 /**
  * Cancel a sent invite
@@ -570,22 +552,23 @@ export const CANCEL_CONTACT_INVITE = gql`
   mutation CancelContactInvite($inviteId: uuid!) {
     update_nchat_contact_invites_by_pk(
       pk_columns: { id: $inviteId }
-      _set: {
-        status: "cancelled"
-        responded_at: "now()"
-      }
+      _set: { status: "cancelled", responded_at: "now()" }
     ) {
       id
       status
     }
   }
-`
+`;
 
 /**
  * Block a user
  */
 export const BLOCK_CONTACT = gql`
-  mutation BlockContact($userId: uuid!, $blockedUserId: uuid!, $reason: String) {
+  mutation BlockContact(
+    $userId: uuid!
+    $blockedUserId: uuid!
+    $reason: String
+  ) {
     insert_nchat_blocked_contacts_one(
       object: {
         user_id: $userId
@@ -614,8 +597,18 @@ export const BLOCK_CONTACT = gql`
     update_nchat_contact_invites(
       where: {
         _or: [
-          { _and: [{ sender_id: { _eq: $userId } }, { recipient_id: { _eq: $blockedUserId } }] }
-          { _and: [{ sender_id: { _eq: $blockedUserId } }, { recipient_id: { _eq: $userId } }] }
+          {
+            _and: [
+              { sender_id: { _eq: $userId } }
+              { recipient_id: { _eq: $blockedUserId } }
+            ]
+          }
+          {
+            _and: [
+              { sender_id: { _eq: $blockedUserId } }
+              { recipient_id: { _eq: $userId } }
+            ]
+          }
         ]
         status: { _eq: "pending" }
       }
@@ -625,7 +618,7 @@ export const BLOCK_CONTACT = gql`
     }
   }
   ${BLOCKED_CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Unblock a user
@@ -647,7 +640,7 @@ export const UNBLOCK_CONTACT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Sync contacts from device (batch operation)
@@ -671,7 +664,7 @@ export const SYNC_DEVICE_CONTACTS = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -690,7 +683,7 @@ export const CONTACTS_SUBSCRIPTION = gql`
     }
   }
   ${CONTACT_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to received invites
@@ -698,17 +691,14 @@ export const CONTACTS_SUBSCRIPTION = gql`
 export const RECEIVED_INVITES_SUBSCRIPTION = gql`
   subscription ReceivedInvitesSubscription($userId: uuid!) {
     nchat_contact_invites(
-      where: {
-        recipient_id: { _eq: $userId }
-        status: { _eq: "pending" }
-      }
+      where: { recipient_id: { _eq: $userId }, status: { _eq: "pending" } }
       order_by: { created_at: desc }
     ) {
       ...ContactInvite
     }
   }
   ${CONTACT_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to blocked contacts changes
@@ -723,4 +713,4 @@ export const BLOCKED_CONTACTS_SUBSCRIPTION = gql`
     }
   }
   ${BLOCKED_CONTACT_FRAGMENT}
-`
+`;

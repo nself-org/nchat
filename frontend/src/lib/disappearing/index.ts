@@ -5,7 +5,7 @@
  */
 
 // Types
-export * from './disappearing-types'
+export * from "./disappearing-types";
 
 // Settings management
 export {
@@ -26,7 +26,7 @@ export {
   isValidDuration,
   syncSettingsFromServer,
   syncSettingsToServer,
-} from './disappearing-settings'
+} from "./disappearing-settings";
 
 // Scheduler
 export {
@@ -35,7 +35,7 @@ export {
   createDisappearingData,
   markAsViewed,
   startBurnReading,
-} from './disappearing-scheduler'
+} from "./disappearing-scheduler";
 
 // Manager
 export {
@@ -44,7 +44,7 @@ export {
   initializeDisappearingManager,
   type DisappearingManagerCallbacks,
   type MessageWithDisappearing,
-} from './disappearing-manager'
+} from "./disappearing-manager";
 
 // Self-destruct
 export {
@@ -61,7 +61,7 @@ export {
   findExpiredMessages,
   type SelfDestructOptions,
   type DestructionResult,
-} from './self-destruct'
+} from "./self-destruct";
 
 // View once
 export {
@@ -82,4 +82,4 @@ export {
   type ViewOnceMediaInfo,
   type ViewOnceMessage,
   type ViewOnceState,
-} from './view-once'
+} from "./view-once";

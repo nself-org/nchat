@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-import type { JobsOptions } from 'bullmq'
+import type { JobsOptions } from "bullmq";
 
 // ============================================================================
 // Job Configuration Types
@@ -19,33 +19,36 @@ import type { JobsOptions } from 'bullmq'
  */
 export interface JobsServiceConfig {
   /** Redis connection URL */
-  redisUrl: string
+  redisUrl: string;
   /** Enable job processing (set false for client-only mode) */
-  enableWorker: boolean
+  enableWorker: boolean;
   /** Default job concurrency */
-  defaultConcurrency: number
+  defaultConcurrency: number;
   /** Default retry attempts */
-  defaultRetryAttempts: number
+  defaultRetryAttempts: number;
   /** Default retry delay in milliseconds */
-  defaultRetryDelay: number
+  defaultRetryDelay: number;
   /** Default job timeout in milliseconds */
-  defaultTimeout: number
+  defaultTimeout: number;
   /** Enable debug logging */
-  debug: boolean
+  debug: boolean;
 }
 
 /**
  * Default configuration values
  */
 export const DEFAULT_JOBS_CONFIG: JobsServiceConfig = {
-  redisUrl: process.env.JOBS_REDIS_URL || process.env.REDIS_URL || 'redis://localhost:6379',
+  redisUrl:
+    process.env.JOBS_REDIS_URL ||
+    process.env.REDIS_URL ||
+    "redis://localhost:6379",
   enableWorker: false, // Workers run in separate process
   defaultConcurrency: 5,
   defaultRetryAttempts: 3,
   defaultRetryDelay: 5000,
   defaultTimeout: 60000,
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 // ============================================================================
 // Job Status and Priority Types
@@ -55,18 +58,18 @@ export const DEFAULT_JOBS_CONFIG: JobsServiceConfig = {
  * Status of a job in the queue
  */
 export type JobStatus =
-  | 'waiting'
-  | 'active'
-  | 'completed'
-  | 'failed'
-  | 'delayed'
-  | 'stuck'
-  | 'paused'
+  | "waiting"
+  | "active"
+  | "completed"
+  | "failed"
+  | "delayed"
+  | "stuck"
+  | "paused";
 
 /**
  * Job priority levels
  */
-export type JobPriority = 'critical' | 'high' | 'normal' | 'low'
+export type JobPriority = "critical" | "high" | "normal" | "low";
 
 /**
  * Numeric values for priorities (BullMQ uses numbers, lower = higher priority)
@@ -76,7 +79,7 @@ export const JobPriorityValue: Record<JobPriority, number> = {
   high: 5,
   normal: 10,
   low: 20,
-}
+};
 
 // ============================================================================
 // nchat-Specific Job Types
@@ -86,20 +89,24 @@ export const JobPriorityValue: Record<JobPriority, number> = {
  * All job types supported by nchat
  */
 export type NchatJobType =
-  | 'scheduled-message'
-  | 'email-digest'
-  | 'cleanup-expired'
-  | 'index-search'
-  | 'process-file'
-  | 'send-notification'
-  | 'send-email'
-  | 'http-webhook'
-  | 'custom'
+  | "scheduled-message"
+  | "email-digest"
+  | "cleanup-expired"
+  | "index-search"
+  | "process-file"
+  | "send-notification"
+  | "send-email"
+  | "http-webhook"
+  | "custom";
 
 /**
  * Queue names for organizing jobs
  */
-export type QueueName = 'default' | 'high-priority' | 'low-priority' | 'scheduled'
+export type QueueName =
+  | "default"
+  | "high-priority"
+  | "low-priority"
+  | "scheduled";
 
 // ============================================================================
 // Job Payload Types
@@ -110,26 +117,26 @@ export type QueueName = 'default' | 'high-priority' | 'low-priority' | 'schedule
  */
 export interface ScheduledMessagePayload {
   /** Message ID from scheduled messages store */
-  scheduledMessageId: string
+  scheduledMessageId: string;
   /** Channel to send to */
-  channelId: string
+  channelId: string;
   /** User who scheduled the message */
-  userId: string
+  userId: string;
   /** Message content */
-  content: string
+  content: string;
   /** Optional thread parent ID */
-  threadId?: string
+  threadId?: string;
   /** Optional reply-to message ID */
-  replyToId?: string
+  replyToId?: string;
   /** Attachments to include */
   attachments?: Array<{
-    id: string
-    name: string
-    type: string
-    url: string
-  }>
+    id: string;
+    name: string;
+    type: string;
+    url: string;
+  }>;
   /** Mentioned user IDs */
-  mentions?: string[]
+  mentions?: string[];
 }
 
 /**
@@ -137,23 +144,23 @@ export interface ScheduledMessagePayload {
  */
 export interface EmailDigestPayload {
   /** User ID to send digest to */
-  userId: string
+  userId: string;
   /** User email address */
-  email: string
+  email: string;
   /** Digest type */
-  digestType: 'daily' | 'weekly'
+  digestType: "daily" | "weekly";
   /** Start of digest period (timestamp) */
-  periodStart: number
+  periodStart: number;
   /** End of digest period (timestamp) */
-  periodEnd: number
+  periodEnd: number;
   /** Channels to include in digest */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Include unread message count */
-  includeUnreadCount: boolean
+  includeUnreadCount: boolean;
   /** Include mentions */
-  includeMentions: boolean
+  includeMentions: boolean;
   /** Include thread replies */
-  includeThreadReplies: boolean
+  includeThreadReplies: boolean;
 }
 
 /**
@@ -162,20 +169,20 @@ export interface EmailDigestPayload {
 export interface CleanupExpiredPayload {
   /** Type of content to clean up */
   targetType:
-    | 'messages'
-    | 'attachments'
-    | 'sessions'
-    | 'drafts'
-    | 'scheduled_messages'
-    | 'job_results'
+    | "messages"
+    | "attachments"
+    | "sessions"
+    | "drafts"
+    | "scheduled_messages"
+    | "job_results";
   /** Clean items older than this (hours) */
-  olderThanHours?: number
+  olderThanHours?: number;
   /** Clean items older than this (days) */
-  olderThanDays?: number
+  olderThanDays?: number;
   /** Maximum items to delete per run */
-  batchSize?: number
+  batchSize?: number;
   /** Dry run (don't actually delete) */
-  dryRun?: boolean
+  dryRun?: boolean;
 }
 
 /**
@@ -183,15 +190,15 @@ export interface CleanupExpiredPayload {
  */
 export interface IndexSearchPayload {
   /** Type of indexing operation */
-  operation: 'index' | 'update' | 'delete' | 'reindex'
+  operation: "index" | "update" | "delete" | "reindex";
   /** Entity type to index */
-  entityType: 'message' | 'channel' | 'user' | 'file'
+  entityType: "message" | "channel" | "user" | "file";
   /** Entity IDs to process */
-  entityIds: string[]
+  entityIds: string[];
   /** Channel ID (for message indexing) */
-  channelId?: string
+  channelId?: string;
   /** Full reindex of index */
-  fullReindex?: boolean
+  fullReindex?: boolean;
 }
 
 /**
@@ -199,23 +206,28 @@ export interface IndexSearchPayload {
  */
 export interface ProcessFilePayload {
   /** File ID */
-  fileId: string
+  fileId: string;
   /** Storage URL */
-  fileUrl: string
+  fileUrl: string;
   /** File MIME type */
-  mimeType: string
+  mimeType: string;
   /** File size in bytes */
-  fileSize: number
+  fileSize: number;
   /** Processing operations to perform */
   operations: Array<
-    'thumbnail' | 'preview' | 'extract_text' | 'virus_scan' | 'compress' | 'transcode'
-  >
+    | "thumbnail"
+    | "preview"
+    | "extract_text"
+    | "virus_scan"
+    | "compress"
+    | "transcode"
+  >;
   /** User who uploaded the file */
-  userId: string
+  userId: string;
   /** Channel file was uploaded to */
-  channelId?: string
+  channelId?: string;
   /** Message file is attached to */
-  messageId?: string
+  messageId?: string;
 }
 
 /**
@@ -223,25 +235,25 @@ export interface ProcessFilePayload {
  */
 export interface SendNotificationPayload {
   /** Notification type */
-  notificationType: 'push' | 'email' | 'in-app' | 'sms'
+  notificationType: "push" | "email" | "in-app" | "sms";
   /** User IDs to notify */
-  userIds: string[]
+  userIds: string[];
   /** Notification title */
-  title: string
+  title: string;
   /** Notification body */
-  body: string
+  body: string;
   /** Deep link URL */
-  url?: string
+  url?: string;
   /** Notification icon URL */
-  iconUrl?: string
+  iconUrl?: string;
   /** Notification image URL */
-  imageUrl?: string
+  imageUrl?: string;
   /** Additional data payload */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
   /** Collapse key for grouping */
-  collapseKey?: string
+  collapseKey?: string;
   /** Time-to-live in seconds */
-  ttl?: number
+  ttl?: number;
 }
 
 /**
@@ -249,29 +261,29 @@ export interface SendNotificationPayload {
  */
 export interface SendEmailPayload {
   /** Recipient email addresses */
-  to: string | string[]
+  to: string | string[];
   /** Sender email (optional, uses default) */
-  from?: string
+  from?: string;
   /** Email subject */
-  subject: string
+  subject: string;
   /** Plain text body */
-  body: string
+  body: string;
   /** HTML body */
-  html?: string
+  html?: string;
   /** CC recipients */
-  cc?: string[]
+  cc?: string[];
   /** BCC recipients */
-  bcc?: string[]
+  bcc?: string[];
   /** Email attachments */
   attachments?: Array<{
-    filename: string
-    content: string | Buffer
-    contentType?: string
-  }>
+    filename: string;
+    content: string | Buffer;
+    contentType?: string;
+  }>;
   /** Email template ID */
-  templateId?: string
+  templateId?: string;
   /** Template variables */
-  templateVars?: Record<string, unknown>
+  templateVars?: Record<string, unknown>;
 }
 
 /**
@@ -279,21 +291,21 @@ export interface SendEmailPayload {
  */
 export interface HttpWebhookPayload {
   /** Webhook URL */
-  url: string
+  url: string;
   /** HTTP method */
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   /** Request headers */
-  headers?: Record<string, string>
+  headers?: Record<string, string>;
   /** Request body */
-  body?: unknown
+  body?: unknown;
   /** Request timeout in milliseconds */
-  timeout?: number
+  timeout?: number;
   /** HTTP status codes to retry on */
-  retryOnStatus?: number[]
+  retryOnStatus?: number[];
   /** Secret for signing payload */
-  secret?: string
+  secret?: string;
   /** Webhook event type */
-  eventType?: string
+  eventType?: string;
 }
 
 /**
@@ -301,9 +313,9 @@ export interface HttpWebhookPayload {
  */
 export interface CustomJobPayload {
   /** Action identifier */
-  action: string
+  action: string;
   /** Action data */
-  data: Record<string, unknown>
+  data: Record<string, unknown>;
 }
 
 /**
@@ -318,7 +330,7 @@ export type JobPayload =
   | SendNotificationPayload
   | SendEmailPayload
   | HttpWebhookPayload
-  | CustomJobPayload
+  | CustomJobPayload;
 
 // ============================================================================
 // Job Creation Options
@@ -329,27 +341,27 @@ export type JobPayload =
  */
 export interface CreateJobOptions {
   /** Queue to add job to */
-  queue?: QueueName
+  queue?: QueueName;
   /** Job priority */
-  priority?: JobPriority
+  priority?: JobPriority;
   /** Delay before processing (milliseconds) */
-  delay?: number
+  delay?: number;
   /** Maximum retry attempts */
-  maxRetries?: number
+  maxRetries?: number;
   /** Delay between retries (milliseconds) */
-  retryDelay?: number
+  retryDelay?: number;
   /** Job timeout (milliseconds) */
-  timeout?: number
+  timeout?: number;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
   /** Tags for filtering */
-  tags?: string[]
+  tags?: string[];
   /** Remove job after completion (seconds) */
-  removeOnComplete?: boolean | number
+  removeOnComplete?: boolean | number;
   /** Remove job after failure (seconds) */
-  removeOnFail?: boolean | number
+  removeOnFail?: boolean | number;
   /** Deduplication ID */
-  jobId?: string
+  jobId?: string;
 }
 
 /**
@@ -357,11 +369,11 @@ export interface CreateJobOptions {
  */
 export interface CreateJobData<T extends JobPayload = JobPayload> {
   /** Job type */
-  type: NchatJobType
+  type: NchatJobType;
   /** Job payload */
-  payload: T
+  payload: T;
   /** Creation options */
-  options: CreateJobOptions
+  options: CreateJobOptions;
 }
 
 // ============================================================================
@@ -373,49 +385,49 @@ export interface CreateJobData<T extends JobPayload = JobPayload> {
  */
 export interface JobRecord {
   /** Job ID */
-  id: string
+  id: string;
   /** BullMQ job ID */
-  bullmqId: string | null
+  bullmqId: string | null;
   /** Queue name */
-  queueName: string
+  queueName: string;
   /** Job type */
-  jobType: NchatJobType
+  jobType: NchatJobType;
   /** Priority */
-  priority: JobPriority
+  priority: JobPriority;
   /** Current status */
-  status: JobStatus
+  status: JobStatus;
   /** Job payload */
-  payload: JobPayload
+  payload: JobPayload;
   /** BullMQ options */
-  options: Partial<JobsOptions>
+  options: Partial<JobsOptions>;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Start timestamp */
-  startedAt: Date | null
+  startedAt: Date | null;
   /** Completion timestamp */
-  completedAt: Date | null
+  completedAt: Date | null;
   /** Failure timestamp */
-  failedAt: Date | null
+  failedAt: Date | null;
   /** Scheduled execution time */
-  scheduledFor: Date | null
+  scheduledFor: Date | null;
   /** Progress (0-100) */
-  progress: number
+  progress: number;
   /** Current retry count */
-  retryCount: number
+  retryCount: number;
   /** Maximum retries */
-  maxRetries: number
+  maxRetries: number;
   /** Retry delay */
-  retryDelay: number
+  retryDelay: number;
   /** Additional metadata */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
   /** Tags */
-  tags: string[]
+  tags: string[];
   /** Worker ID processing this job */
-  workerId: string | null
+  workerId: string | null;
   /** Process ID */
-  processId: number | null
+  processId: number | null;
   /** Last update timestamp */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
@@ -423,21 +435,21 @@ export interface JobRecord {
  */
 export interface JobResultRecord {
   /** Result ID */
-  id: string
+  id: string;
   /** Job ID */
-  jobId: string
+  jobId: string;
   /** Result data */
-  result: Record<string, unknown>
+  result: Record<string, unknown>;
   /** Processing duration (milliseconds) */
-  durationMs: number
+  durationMs: number;
   /** Memory usage (MB) */
-  memoryMb: number | null
+  memoryMb: number | null;
   /** CPU usage (percent) */
-  cpuPercent: number | null
+  cpuPercent: number | null;
   /** Additional metadata */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
@@ -445,29 +457,29 @@ export interface JobResultRecord {
  */
 export interface JobFailureRecord {
   /** Failure ID */
-  id: string
+  id: string;
   /** Job ID */
-  jobId: string
+  jobId: string;
   /** Error message */
-  errorMessage: string
+  errorMessage: string;
   /** Error stack trace */
-  errorStack: string | null
+  errorStack: string | null;
   /** Error code */
-  errorCode: string | null
+  errorCode: string | null;
   /** Attempt number */
-  attemptNumber: number
+  attemptNumber: number;
   /** Failure timestamp */
-  failedAt: Date
+  failedAt: Date;
   /** Worker ID */
-  workerId: string | null
+  workerId: string | null;
   /** Process ID */
-  processId: number | null
+  processId: number | null;
   /** Additional metadata */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
   /** Will retry */
-  willRetry: boolean
+  willRetry: boolean;
   /** Next retry timestamp */
-  retryAt: Date | null
+  retryAt: Date | null;
 }
 
 // ============================================================================
@@ -479,29 +491,29 @@ export interface JobFailureRecord {
  */
 export interface ScheduleOptions {
   /** Schedule name (unique identifier) */
-  name: string
+  name: string;
   /** Human-readable description */
-  description?: string
+  description?: string;
   /** Job type to create */
-  jobType: NchatJobType
+  jobType: NchatJobType;
   /** Queue to add jobs to */
-  queueName?: QueueName
+  queueName?: QueueName;
   /** Job payload */
-  payload: JobPayload
+  payload: JobPayload;
   /** Cron expression */
-  cronExpression: string
+  cronExpression: string;
   /** Timezone for cron */
-  timezone?: string
+  timezone?: string;
   /** Enable/disable schedule */
-  enabled?: boolean
+  enabled?: boolean;
   /** Maximum runs (null = unlimited) */
-  maxRuns?: number | null
+  maxRuns?: number | null;
   /** End date for schedule */
-  endDate?: Date | null
+  endDate?: Date | null;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
   /** Tags for filtering */
-  tags?: string[]
+  tags?: string[];
 }
 
 /**
@@ -509,53 +521,53 @@ export interface ScheduleOptions {
  */
 export interface ScheduleRecord {
   /** Schedule ID */
-  id: string
+  id: string;
   /** Schedule name */
-  name: string
+  name: string;
   /** Description */
-  description: string | null
+  description: string | null;
   /** Job type */
-  jobType: NchatJobType
+  jobType: NchatJobType;
   /** Queue name */
-  queueName: string
+  queueName: string;
   /** Job payload */
-  payload: JobPayload
+  payload: JobPayload;
   /** BullMQ options */
-  options: Partial<JobsOptions>
+  options: Partial<JobsOptions>;
   /** Cron expression */
-  cronExpression: string
+  cronExpression: string;
   /** Timezone */
-  timezone: string
+  timezone: string;
   /** Is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Last run timestamp */
-  lastRunAt: Date | null
+  lastRunAt: Date | null;
   /** Last created job ID */
-  lastJobId: string | null
+  lastJobId: string | null;
   /** Next run timestamp */
-  nextRunAt: Date | null
+  nextRunAt: Date | null;
   /** Total runs */
-  totalRuns: number
+  totalRuns: number;
   /** Successful runs */
-  successfulRuns: number
+  successfulRuns: number;
   /** Failed runs */
-  failedRuns: number
+  failedRuns: number;
   /** Maximum runs */
-  maxRuns: number | null
+  maxRuns: number | null;
   /** End date */
-  endDate: Date | null
+  endDate: Date | null;
   /** Additional metadata */
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown>;
   /** Tags */
-  tags: string[]
+  tags: string[];
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Update timestamp */
-  updatedAt: Date
+  updatedAt: Date;
   /** Created by user ID */
-  createdBy: string | null
+  createdBy: string | null;
   /** Updated by user ID */
-  updatedBy: string | null
+  updatedBy: string | null;
 }
 
 // ============================================================================
@@ -567,25 +579,25 @@ export interface ScheduleRecord {
  */
 export interface QueueStats {
   /** Queue name */
-  queueName: string
+  queueName: string;
   /** Waiting jobs */
-  waiting: number
+  waiting: number;
   /** Active jobs */
-  active: number
+  active: number;
   /** Completed jobs */
-  completed: number
+  completed: number;
   /** Failed jobs */
-  failed: number
+  failed: number;
   /** Delayed jobs */
-  delayed: number
+  delayed: number;
   /** Stuck jobs */
-  stuck: number
+  stuck: number;
   /** Total jobs */
-  total: number
+  total: number;
   /** Average duration (seconds) */
-  avgDurationSeconds: number | null
+  avgDurationSeconds: number | null;
   /** Last job timestamp */
-  lastJobAt: Date | null
+  lastJobAt: Date | null;
 }
 
 /**
@@ -593,21 +605,21 @@ export interface QueueStats {
  */
 export interface JobTypeStats {
   /** Job type */
-  jobType: NchatJobType
+  jobType: NchatJobType;
   /** Total jobs */
-  totalJobs: number
+  totalJobs: number;
   /** Completed jobs */
-  completed: number
+  completed: number;
   /** Failed jobs */
-  failed: number
+  failed: number;
   /** Success rate (0-1) */
-  successRate: number | null
+  successRate: number | null;
   /** Average duration (seconds) */
-  avgDurationSeconds: number | null
+  avgDurationSeconds: number | null;
   /** First job timestamp */
-  firstJobAt: Date | null
+  firstJobAt: Date | null;
   /** Last job timestamp */
-  lastJobAt: Date | null
+  lastJobAt: Date | null;
 }
 
 /**
@@ -615,19 +627,19 @@ export interface JobTypeStats {
  */
 export interface GlobalStats {
   /** Total jobs across all queues */
-  totalJobs: number
+  totalJobs: number;
   /** Waiting jobs */
-  waiting: number
+  waiting: number;
   /** Active jobs */
-  active: number
+  active: number;
   /** Completed jobs (24h) */
-  completed: number
+  completed: number;
   /** Failed jobs (24h) */
-  failed: number
+  failed: number;
   /** Per-queue stats */
-  queues: QueueStats[]
+  queues: QueueStats[];
   /** Per-job-type stats */
-  jobTypes: JobTypeStats[]
+  jobTypes: JobTypeStats[];
 }
 
 // ============================================================================
@@ -638,41 +650,41 @@ export interface GlobalStats {
  * Job event types
  */
 export type JobEventType =
-  | 'created'
-  | 'started'
-  | 'progress'
-  | 'completed'
-  | 'failed'
-  | 'retry'
-  | 'stalled'
-  | 'removed'
+  | "created"
+  | "started"
+  | "progress"
+  | "completed"
+  | "failed"
+  | "retry"
+  | "stalled"
+  | "removed";
 
 /**
  * Job event data
  */
 export interface JobEvent {
   /** Event type */
-  type: JobEventType
+  type: JobEventType;
   /** Job ID */
-  jobId: string
+  jobId: string;
   /** Queue name */
-  queueName: string
+  queueName: string;
   /** Job type */
-  jobType: NchatJobType
+  jobType: NchatJobType;
   /** Event data */
-  data?: unknown
+  data?: unknown;
   /** Error (for failed events) */
-  error?: string
+  error?: string;
   /** Progress (for progress events) */
-  progress?: number
+  progress?: number;
   /** Event timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
  * Job event listener
  */
-export type JobEventListener = (event: JobEvent) => void
+export type JobEventListener = (event: JobEvent) => void;
 
 // ============================================================================
 // Result Types
@@ -683,13 +695,13 @@ export type JobEventListener = (event: JobEvent) => void
  */
 export interface JobResult<T = unknown> {
   /** Success flag */
-  success: boolean
+  success: boolean;
   /** Result data */
-  data?: T
+  data?: T;
   /** Error message */
-  error?: string
+  error?: string;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -697,11 +709,11 @@ export interface JobResult<T = unknown> {
  */
 export interface ScheduledMessageResult {
   /** Created message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Sent timestamp */
-  sentAt: Date
+  sentAt: Date;
 }
 
 /**
@@ -709,11 +721,11 @@ export interface ScheduledMessageResult {
  */
 export interface EmailDigestResult {
   /** Email message ID */
-  messageId: string
+  messageId: string;
   /** Number of items included */
-  itemCount: number
+  itemCount: number;
   /** Recipient email */
-  sentTo: string
+  sentTo: string;
 }
 
 /**
@@ -721,13 +733,13 @@ export interface EmailDigestResult {
  */
 export interface CleanupResult {
   /** Items deleted */
-  deletedCount: number
+  deletedCount: number;
   /** Items skipped */
-  skippedCount: number
+  skippedCount: number;
   /** Bytes freed */
-  bytesFreed?: number
+  bytesFreed?: number;
   /** Deleted item IDs */
-  deletedIds?: string[]
+  deletedIds?: string[];
 }
 
 /**
@@ -735,11 +747,11 @@ export interface CleanupResult {
  */
 export interface IndexSearchResult {
   /** Documents indexed */
-  indexedCount: number
+  indexedCount: number;
   /** Documents failed */
-  failedCount: number
+  failedCount: number;
   /** Task IDs (for async indexing) */
-  taskIds?: number[]
+  taskIds?: number[];
 }
 
 /**
@@ -747,17 +759,17 @@ export interface IndexSearchResult {
  */
 export interface ProcessFileResult {
   /** Generated thumbnail URL */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** Generated preview URL */
-  previewUrl?: string
+  previewUrl?: string;
   /** Extracted text content */
-  extractedText?: string
+  extractedText?: string;
   /** Virus scan result */
-  virusScanPassed?: boolean
+  virusScanPassed?: boolean;
   /** Compressed file URL */
-  compressedUrl?: string
+  compressedUrl?: string;
   /** Transcoded file URL */
-  transcodedUrl?: string
+  transcodedUrl?: string;
 }
 
 /**
@@ -765,11 +777,11 @@ export interface ProcessFileResult {
  */
 export interface SendNotificationResult {
   /** Successfully sent count */
-  sentCount: number
+  sentCount: number;
   /** Failed count */
-  failedCount: number
+  failedCount: number;
   /** Notification IDs */
-  notificationIds: string[]
+  notificationIds: string[];
 }
 
 // ============================================================================
@@ -781,24 +793,24 @@ export interface SendNotificationResult {
  */
 export type JobProcessor<TPayload extends JobPayload, TResult> = (
   job: {
-    id: string
-    data: TPayload
-    progress: (value: number) => Promise<void>
-    log: (message: string) => void
-    attemptsMade: number
-    opts: Partial<JobsOptions>
+    id: string;
+    data: TPayload;
+    progress: (value: number) => Promise<void>;
+    log: (message: string) => void;
+    attemptsMade: number;
+    opts: Partial<JobsOptions>;
   },
-  token?: string
-) => Promise<JobResult<TResult>>
+  token?: string,
+) => Promise<JobResult<TResult>>;
 
 /**
  * Registered processor info
  */
 export interface RegisteredProcessor {
   /** Job type */
-  type: NchatJobType
+  type: NchatJobType;
   /** Processor function */
-  processor: JobProcessor<JobPayload, unknown>
+  processor: JobProcessor<JobPayload, unknown>;
   /** Concurrency for this processor */
-  concurrency?: number
+  concurrency?: number;
 }

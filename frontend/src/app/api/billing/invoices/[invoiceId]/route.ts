@@ -4,27 +4,30 @@
  * Get invoice details.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getStripePaymentService } from '@/services/billing/stripe-payment.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { getStripePaymentService } from "@/services/billing/stripe-payment.service";
+import { logger } from "@/lib/logger";
 
 interface RouteContext {
-  params: Promise<{ invoiceId: string }>
+  params: Promise<{ invoiceId: string }>;
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { invoiceId } = await context.params
+    const { invoiceId } = await context.params;
 
     if (!invoiceId) {
-      return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Invoice ID is required" },
+        { status: 400 },
+      );
     }
 
-    const paymentService = getStripePaymentService()
-    const invoice = await paymentService.getInvoice(invoiceId)
+    const paymentService = getStripePaymentService();
+    const invoice = await paymentService.getInvoice(invoiceId);
 
     if (!invoice) {
-      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -50,7 +53,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         periodEnd: invoice.periodEnd?.toISOString(),
         hostedInvoiceUrl: invoice.hostedInvoiceUrl,
         invoicePdf: invoice.invoicePdf,
-        lineItems: invoice.lineItems.map(item => ({
+        lineItems: invoice.lineItems.map((item) => ({
           id: item.id,
           description: item.description,
           amount: item.amount,
@@ -64,12 +67,15 @@ export async function GET(request: NextRequest, context: RouteContext) {
         })),
         metadata: invoice.metadata,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error getting invoice:', error)
+    logger.error("Error getting invoice:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: (error instanceof Error ? error.message : String(error)) },
-      { status: 500 }
-    )
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }

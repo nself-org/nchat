@@ -25,7 +25,7 @@ export {
   getServiceWorkerState,
   type ServiceWorkerConfig,
   type ServiceWorkerState,
-} from './register-sw'
+} from "./register-sw";
 
 // Push Notifications
 export {
@@ -49,4 +49,4 @@ export {
   type NotificationPermissionState,
   type PushNotificationState,
   type PushHandlers,
-} from './push-notifications'
+} from "./push-notifications";

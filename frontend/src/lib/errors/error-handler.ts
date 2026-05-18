@@ -5,8 +5,8 @@
  * and retry coordination.
  */
 
-import { toast } from '@/hooks/use-toast'
-import { captureError, addSentryBreadcrumb } from '@/lib/sentry-utils'
+import { toast } from "@/hooks/use-toast";
+import { captureError, addSentryBreadcrumb } from "@/lib/sentry-utils";
 import {
   AppError,
   ErrorCategory,
@@ -15,8 +15,8 @@ import {
   shouldReportError,
   isRetryableError,
   isAuthError,
-} from './error-types'
-import type { ErrorContext } from './error-types'
+} from "./error-types";
+import type { ErrorContext } from "./error-types";
 
 // ============================================================================
 // Error Handler Configuration
@@ -24,32 +24,32 @@ import type { ErrorContext } from './error-types'
 
 export interface ErrorHandlerOptions {
   // Display options
-  showToast?: boolean
-  toastDuration?: number
-  toastTitle?: string
-  toastDescription?: string
+  showToast?: boolean;
+  toastDuration?: number;
+  toastTitle?: string;
+  toastDescription?: string;
 
   // Reporting options
-  reportToSentry?: boolean
-  sentryTags?: Record<string, string>
-  sentryExtra?: Record<string, unknown>
+  reportToSentry?: boolean;
+  sentryTags?: Record<string, string>;
+  sentryExtra?: Record<string, unknown>;
 
   // Retry options
-  allowRetry?: boolean
-  onRetry?: () => void | Promise<void>
+  allowRetry?: boolean;
+  onRetry?: () => void | Promise<void>;
 
   // Additional actions
-  onAuthError?: () => void
-  redirectOnAuth?: boolean
+  onAuthError?: () => void;
+  redirectOnAuth?: boolean;
 
   // Context
-  context?: ErrorContext
+  context?: ErrorContext;
 }
 
 export interface ErrorHandlerResult {
-  error: AppError
-  handled: boolean
-  retried: boolean
+  error: AppError;
+  handled: boolean;
+  retried: boolean;
 }
 
 // ============================================================================
@@ -57,16 +57,19 @@ export interface ErrorHandlerResult {
 // ============================================================================
 
 class ErrorHandler {
-  private errorCount: Map<string, number> = new Map()
-  private errorTimestamps: Map<string, number[]> = new Map()
-  private readonly ERROR_WINDOW_MS = 60000 // 1 minute
-  private readonly MAX_ERRORS_PER_WINDOW = 10
+  private errorCount: Map<string, number> = new Map();
+  private errorTimestamps: Map<string, number[]> = new Map();
+  private readonly ERROR_WINDOW_MS = 60000; // 1 minute
+  private readonly MAX_ERRORS_PER_WINDOW = 10;
 
   /**
    * Handle an error with optional retry and user notification
    */
-  async handle(error: unknown, options: ErrorHandlerOptions = {}): Promise<ErrorHandlerResult> {
-    const appError = parseError(error)
+  async handle(
+    error: unknown,
+    options: ErrorHandlerOptions = {},
+  ): Promise<ErrorHandlerResult> {
+    const appError = parseError(error);
     const {
       showToast = true,
       toastDuration = 5000,
@@ -74,34 +77,34 @@ class ErrorHandler {
       allowRetry = isRetryableError(appError),
       redirectOnAuth = true,
       context,
-    } = options
+    } = options;
 
     // Merge contexts (create new object since context is readonly)
     if (context) {
-      const mergedContext = { ...appError.context, ...context }
-      Object.assign(appError, { context: mergedContext })
+      const mergedContext = { ...appError.context, ...context };
+      Object.assign(appError, { context: mergedContext });
     }
 
     // Track error frequency
-    this.trackError(appError)
+    this.trackError(appError);
 
     // Check if we're getting too many errors
     if (this.isErrorFlood(appError)) {
-      this.handleErrorFlood()
-      return { error: appError, handled: true, retried: false }
+      this.handleErrorFlood();
+      return { error: appError, handled: true, retried: false };
     }
 
     // Add breadcrumb
     addSentryBreadcrumb(
-      'error',
+      "error",
       appError.message,
       {
         category: appError.category,
         severity: appError.severity,
         userMessage: appError.userMessage,
       },
-      'error'
-    )
+      "error",
+    );
 
     // Report to Sentry
     if (reportToSentry) {
@@ -116,13 +119,13 @@ class ErrorHandler {
           ...options.sentryExtra,
         },
         level: this.getSentryLevel(appError.severity),
-      })
+      });
     }
 
     // Handle authentication errors
     if (isAuthError(appError)) {
-      this.handleAuthError(redirectOnAuth, options.onAuthError)
-      return { error: appError, handled: true, retried: false }
+      this.handleAuthError(redirectOnAuth, options.onAuthError);
+      return { error: appError, handled: true, retried: false };
     }
 
     // Show toast notification
@@ -133,10 +136,10 @@ class ErrorHandler {
         description: options.toastDescription,
         allowRetry,
         onRetry: options.onRetry,
-      })
+      });
     }
 
-    return { error: appError, handled: true, retried: false }
+    return { error: appError, handled: true, retried: false };
   }
 
   /**
@@ -145,27 +148,28 @@ class ErrorHandler {
   private showErrorToast(
     error: AppError,
     options: {
-      duration?: number
-      title?: string
-      description?: string
-      allowRetry?: boolean
-      onRetry?: () => void | Promise<void>
-    } = {}
+      duration?: number;
+      title?: string;
+      description?: string;
+      allowRetry?: boolean;
+      onRetry?: () => void | Promise<void>;
+    } = {},
   ) {
-    const { duration = 5000, allowRetry = false, onRetry } = options
+    const { duration = 5000, allowRetry = false, onRetry } = options;
 
     // Determine toast title based on error category
-    const title = options.title || this.getErrorTitle(error.category) || 'Error'
+    const title =
+      options.title || this.getErrorTitle(error.category) || "Error";
 
-    const description = options.description || error.userMessage
+    const description = options.description || error.userMessage;
 
     // Import toast from use-toast hook (returns object with toast function)
     // We can't use JSX in .ts files, so we use the action callback approach
     const toastConfig: Parameters<typeof toast>[0] = {
       title,
       description,
-      variant: 'destructive',
-    }
+      variant: "destructive",
+    };
 
     // Only add action if retry is enabled
     if (allowRetry && onRetry) {
@@ -176,7 +180,7 @@ class ErrorHandler {
       // and rely on ErrorToast component for retry actions
     }
 
-    toast(toastConfig)
+    toast(toastConfig);
   }
 
   /**
@@ -184,36 +188,39 @@ class ErrorHandler {
    */
   private getErrorTitle(category: ErrorCategory): string {
     const titles: Record<ErrorCategory, string> = {
-      [ErrorCategory.NETWORK]: 'Connection Error',
-      [ErrorCategory.AUTHENTICATION]: 'Authentication Required',
-      [ErrorCategory.AUTHORIZATION]: 'Permission Denied',
-      [ErrorCategory.VALIDATION]: 'Invalid Input',
-      [ErrorCategory.NOT_FOUND]: 'Not Found',
-      [ErrorCategory.RATE_LIMIT]: 'Rate Limit Exceeded',
-      [ErrorCategory.SERVER]: 'Server Error',
-      [ErrorCategory.CLIENT]: 'Request Error',
-      [ErrorCategory.GRAPHQL]: 'Data Error',
-      [ErrorCategory.UPLOAD]: 'Upload Failed',
-      [ErrorCategory.OFFLINE]: 'Offline',
-      [ErrorCategory.TIMEOUT]: 'Request Timeout',
-      [ErrorCategory.UNKNOWN]: 'Error',
-    }
-    return titles[category]
+      [ErrorCategory.NETWORK]: "Connection Error",
+      [ErrorCategory.AUTHENTICATION]: "Authentication Required",
+      [ErrorCategory.AUTHORIZATION]: "Permission Denied",
+      [ErrorCategory.VALIDATION]: "Invalid Input",
+      [ErrorCategory.NOT_FOUND]: "Not Found",
+      [ErrorCategory.RATE_LIMIT]: "Rate Limit Exceeded",
+      [ErrorCategory.SERVER]: "Server Error",
+      [ErrorCategory.CLIENT]: "Request Error",
+      [ErrorCategory.GRAPHQL]: "Data Error",
+      [ErrorCategory.UPLOAD]: "Upload Failed",
+      [ErrorCategory.OFFLINE]: "Offline",
+      [ErrorCategory.TIMEOUT]: "Request Timeout",
+      [ErrorCategory.UNKNOWN]: "Error",
+    };
+    return titles[category];
   }
 
   /**
    * Get Sentry severity level
    */
   private getSentryLevel(
-    severity: ErrorSeverity
-  ): 'fatal' | 'error' | 'warning' | 'info' | 'debug' {
-    const levels: Record<ErrorSeverity, 'fatal' | 'error' | 'warning' | 'info'> = {
-      [ErrorSeverity.CRITICAL]: 'fatal',
-      [ErrorSeverity.HIGH]: 'error',
-      [ErrorSeverity.MEDIUM]: 'warning',
-      [ErrorSeverity.LOW]: 'info',
-    }
-    return levels[severity]
+    severity: ErrorSeverity,
+  ): "fatal" | "error" | "warning" | "info" | "debug" {
+    const levels: Record<
+      ErrorSeverity,
+      "fatal" | "error" | "warning" | "info"
+    > = {
+      [ErrorSeverity.CRITICAL]: "fatal",
+      [ErrorSeverity.HIGH]: "error",
+      [ErrorSeverity.MEDIUM]: "warning",
+      [ErrorSeverity.LOW]: "info",
+    };
+    return levels[severity];
   }
 
   /**
@@ -221,29 +228,29 @@ class ErrorHandler {
    */
   private handleAuthError(redirect: boolean, onAuthError?: () => void) {
     // Clear auth state
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
 
     // Call custom handler
     if (onAuthError) {
-      onAuthError()
+      onAuthError();
     }
 
     // Redirect to login
-    if (redirect && typeof window !== 'undefined') {
+    if (redirect && typeof window !== "undefined") {
       // Show toast before redirect
       toast({
-        title: 'Session Expired',
-        description: 'Please log in again to continue.',
-        variant: 'destructive',
-      })
+        title: "Session Expired",
+        description: "Please log in again to continue.",
+        variant: "destructive",
+      });
 
       // Delay redirect to show toast
       setTimeout(() => {
-        window.location.href = '/auth/signin?reason=session_expired'
-      }, 1000)
+        window.location.href = "/auth/signin?reason=session_expired";
+      }, 1000);
     }
   }
 
@@ -251,29 +258,31 @@ class ErrorHandler {
    * Track error frequency
    */
   private trackError(error: AppError) {
-    const key = `${error.category}:${error.message}`
-    const now = Date.now()
+    const key = `${error.category}:${error.message}`;
+    const now = Date.now();
 
     // Increment error count
-    const count = (this.errorCount.get(key) || 0) + 1
-    this.errorCount.set(key, count)
+    const count = (this.errorCount.get(key) || 0) + 1;
+    this.errorCount.set(key, count);
 
     // Track timestamp
-    const timestamps = this.errorTimestamps.get(key) || []
-    timestamps.push(now)
+    const timestamps = this.errorTimestamps.get(key) || [];
+    timestamps.push(now);
 
     // Clean old timestamps
-    const recentTimestamps = timestamps.filter((ts) => now - ts < this.ERROR_WINDOW_MS)
-    this.errorTimestamps.set(key, recentTimestamps)
+    const recentTimestamps = timestamps.filter(
+      (ts) => now - ts < this.ERROR_WINDOW_MS,
+    );
+    this.errorTimestamps.set(key, recentTimestamps);
   }
 
   /**
    * Check if we're experiencing error flood
    */
   private isErrorFlood(error: AppError): boolean {
-    const key = `${error.category}:${error.message}`
-    const timestamps = this.errorTimestamps.get(key) || []
-    return timestamps.length > this.MAX_ERRORS_PER_WINDOW
+    const key = `${error.category}:${error.message}`;
+    const timestamps = this.errorTimestamps.get(key) || [];
+    return timestamps.length > this.MAX_ERRORS_PER_WINDOW;
   }
 
   /**
@@ -281,28 +290,29 @@ class ErrorHandler {
    */
   private handleErrorFlood() {
     toast({
-      title: 'Multiple Errors Detected',
-      description: 'Too many errors occurred. Please refresh the page or contact support.',
-      variant: 'destructive',
-    })
+      title: "Multiple Errors Detected",
+      description:
+        "Too many errors occurred. Please refresh the page or contact support.",
+      variant: "destructive",
+    });
 
     // Report flood to Sentry
-    captureError(new Error('Error flood detected'), {
-      tags: { type: 'error_flood' },
+    captureError(new Error("Error flood detected"), {
+      tags: { type: "error_flood" },
       extra: {
         errorCounts: Object.fromEntries(this.errorCount),
         errorTimestamps: Object.fromEntries(this.errorTimestamps),
       },
-      level: 'warning',
-    })
+      level: "warning",
+    });
   }
 
   /**
    * Clear error tracking data
    */
   clearTracking() {
-    this.errorCount.clear()
-    this.errorTimestamps.clear()
+    this.errorCount.clear();
+    this.errorTimestamps.clear();
   }
 
   /**
@@ -312,7 +322,7 @@ class ErrorHandler {
     return {
       errorCount: Object.fromEntries(this.errorCount),
       errorTimestamps: Object.fromEntries(this.errorTimestamps),
-    }
+    };
   }
 }
 
@@ -320,7 +330,7 @@ class ErrorHandler {
 // Singleton Instance
 // ============================================================================
 
-export const errorHandler = new ErrorHandler()
+export const errorHandler = new ErrorHandler();
 
 // ============================================================================
 // Convenience Functions
@@ -331,9 +341,9 @@ export const errorHandler = new ErrorHandler()
  */
 export async function handleError(
   error: unknown,
-  options?: ErrorHandlerOptions
+  options?: ErrorHandlerOptions,
 ): Promise<ErrorHandlerResult> {
-  return errorHandler.handle(error, options)
+  return errorHandler.handle(error, options);
 }
 
 /**
@@ -341,9 +351,9 @@ export async function handleError(
  */
 export async function handleErrorSilent(
   error: unknown,
-  context?: ErrorContext
+  context?: ErrorContext,
 ): Promise<ErrorHandlerResult> {
-  return errorHandler.handle(error, { showToast: false, context })
+  return errorHandler.handle(error, { showToast: false, context });
 }
 
 /**
@@ -352,13 +362,13 @@ export async function handleErrorSilent(
 export async function handleErrorWithRetry(
   error: unknown,
   onRetry: () => void | Promise<void>,
-  options?: Omit<ErrorHandlerOptions, 'onRetry' | 'allowRetry'>
+  options?: Omit<ErrorHandlerOptions, "onRetry" | "allowRetry">,
 ): Promise<ErrorHandlerResult> {
   return errorHandler.handle(error, {
     ...options,
     allowRetry: true,
     onRetry,
-  })
+  });
 }
 
 /**
@@ -367,9 +377,9 @@ export async function handleErrorWithRetry(
 export async function handleUploadError(
   error: unknown,
   file: File,
-  onRetry?: () => void | Promise<void>
+  onRetry?: () => void | Promise<void>,
 ): Promise<ErrorHandlerResult> {
-  const parsedError = parseError(error)
+  const parsedError = parseError(error);
   return errorHandler.handle(parsedError, {
     showToast: true,
     allowRetry: true,
@@ -382,10 +392,10 @@ export async function handleUploadError(
       },
     },
     sentryTags: {
-      feature: 'file-upload',
+      feature: "file-upload",
       fileType: file.type,
     },
-  })
+  });
 }
 
 /**
@@ -394,7 +404,7 @@ export async function handleUploadError(
 export async function handleGraphQLError(
   error: unknown,
   operation: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
 ): Promise<ErrorHandlerResult> {
   return errorHandler.handle(error, {
     showToast: true,
@@ -403,10 +413,10 @@ export async function handleGraphQLError(
       metadata: { variables },
     },
     sentryTags: {
-      feature: 'graphql',
+      feature: "graphql",
       operation,
     },
-  })
+  });
 }
 
 /**
@@ -414,16 +424,16 @@ export async function handleGraphQLError(
  */
 export async function handleNetworkError(
   error: unknown,
-  onRetry?: () => void | Promise<void>
+  onRetry?: () => void | Promise<void>,
 ): Promise<ErrorHandlerResult> {
   return errorHandler.handle(error, {
     showToast: true,
     allowRetry: true,
     onRetry,
     sentryTags: {
-      feature: 'network',
+      feature: "network",
     },
-  })
+  });
 }
 
 // ============================================================================
@@ -431,12 +441,15 @@ export async function handleNetworkError(
 // ============================================================================
 
 export interface ErrorBoundaryFallbackProps {
-  error: AppError
-  resetError: () => void
+  error: AppError;
+  resetError: () => void;
 }
 
-export function handleErrorBoundaryError(error: Error, errorInfo: React.ErrorInfo): AppError {
-  const appError = parseError(error)
+export function handleErrorBoundaryError(
+  error: Error,
+  errorInfo: React.ErrorInfo,
+): AppError {
+  const appError = parseError(error);
 
   // Add React error info to context (create new object since context is readonly)
   const mergedContext = {
@@ -445,21 +458,21 @@ export function handleErrorBoundaryError(error: Error, errorInfo: React.ErrorInf
       ...appError.context.metadata,
       componentStack: errorInfo.componentStack,
     },
-  }
-  Object.assign(appError, { context: mergedContext })
+  };
+  Object.assign(appError, { context: mergedContext });
 
   // Report to Sentry
   captureError(appError, {
     tags: {
-      type: 'react_error_boundary',
+      type: "react_error_boundary",
       category: appError.category,
     },
     extra: {
       ...appError.context,
       componentStack: errorInfo.componentStack,
     },
-    level: 'error',
-  })
+    level: "error",
+  });
 
-  return appError
+  return appError;
 }

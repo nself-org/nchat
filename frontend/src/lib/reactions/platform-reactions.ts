@@ -9,7 +9,7 @@
  * - Discord: Multiple reactions with animated emoji support
  */
 
-import type { TemplateId } from '@/templates/types'
+import type { TemplateId } from "@/templates/types";
 
 // ============================================================================
 // Reaction Mode Types
@@ -18,22 +18,22 @@ import type { TemplateId } from '@/templates/types'
 /**
  * Reaction mode determines how users can react to messages
  */
-export type ReactionMode = 'single' | 'multiple'
+export type ReactionMode = "single" | "multiple";
 
 /**
  * Emoji set restrictions for platforms like Signal
  */
-export type EmojiSetType = 'full' | 'limited' | 'custom'
+export type EmojiSetType = "full" | "limited" | "custom";
 
 /**
  * Animation support level
  */
-export type AnimationSupport = 'none' | 'static' | 'animated'
+export type AnimationSupport = "none" | "static" | "animated";
 
 /**
  * Reaction display style
  */
-export type ReactionDisplayStyle = 'inline' | 'floating' | 'hover' | 'bar'
+export type ReactionDisplayStyle = "inline" | "floating" | "hover" | "bar";
 
 // ============================================================================
 // Platform Reaction Configuration
@@ -44,77 +44,77 @@ export type ReactionDisplayStyle = 'inline' | 'floating' | 'hover' | 'bar'
  */
 export interface PlatformReactionConfig {
   /** Platform identifier */
-  platform: TemplateId
+  platform: TemplateId;
 
   /** How reactions work - single (replace) or multiple per user */
-  mode: ReactionMode
+  mode: ReactionMode;
 
   /** Emoji set restrictions */
-  emojiSet: EmojiSetType
+  emojiSet: EmojiSetType;
 
   /** Quick reactions shown in the reaction picker */
-  quickReactions: string[]
+  quickReactions: string[];
 
   /** Limited emoji set (if emojiSet is 'limited') */
-  allowedEmojis?: string[]
+  allowedEmojis?: string[];
 
   /** Support for custom workspace emojis */
-  customEmojis: boolean
+  customEmojis: boolean;
 
   /** Support for animated emojis */
-  animationSupport: AnimationSupport
+  animationSupport: AnimationSupport;
 
   /** Maximum reactions per message (0 = unlimited) */
-  maxReactionsPerMessage: number
+  maxReactionsPerMessage: number;
 
   /** Maximum reactions per user per message (only relevant for 'multiple' mode) */
-  maxReactionsPerUser: number
+  maxReactionsPerUser: number;
 
   /** Display style for reactions */
-  displayStyle: ReactionDisplayStyle
+  displayStyle: ReactionDisplayStyle;
 
   /** Show reaction count */
-  showCount: boolean
+  showCount: boolean;
 
   /** Show who reacted (on hover/tap) */
-  showReactors: boolean
+  showReactors: boolean;
 
   /** Maximum reactors to display in tooltip */
-  maxReactorsDisplay: number
+  maxReactorsDisplay: number;
 
   /** Allow anonymous reactions */
-  anonymousReactions: boolean
+  anonymousReactions: boolean;
 
   /** Reaction cooldown in milliseconds (anti-spam) */
-  cooldownMs: number
+  cooldownMs: number;
 
   /** Skin tone support */
-  skinToneSupport: boolean
+  skinToneSupport: boolean;
 
   /** Show skin tone selector */
-  showSkinTonePicker: boolean
+  showSkinTonePicker: boolean;
 
   /** Enable reaction sounds */
-  reactionSounds: boolean
+  reactionSounds: boolean;
 
   /** Enable reaction animations on add */
-  animateOnAdd: boolean
+  animateOnAdd: boolean;
 
   /** Features specific to this platform */
   features: {
     /** Double-tap to react with default emoji */
-    doubleTapReact: boolean
+    doubleTapReact: boolean;
     /** Long-press to open reaction picker */
-    longPressReact: boolean
+    longPressReact: boolean;
     /** Swipe to react */
-    swipeToReact: boolean
+    swipeToReact: boolean;
     /** Show reaction bar on hover */
-    hoverReactionBar: boolean
+    hoverReactionBar: boolean;
     /** Allow reaction on own messages */
-    reactToOwnMessages: boolean
+    reactToOwnMessages: boolean;
     /** Show "Add reaction" button */
-    showAddButton: boolean
-  }
+    showAddButton: boolean;
+  };
 }
 
 // ============================================================================
@@ -125,15 +125,15 @@ export interface PlatformReactionConfig {
  * Default/nchat platform configuration
  */
 export const defaultReactionConfig: PlatformReactionConfig = {
-  platform: 'default',
-  mode: 'multiple',
-  emojiSet: 'full',
-  quickReactions: ['👍', '❤️', '😂', '🎉', '🤔', '👀'],
+  platform: "default",
+  mode: "multiple",
+  emojiSet: "full",
+  quickReactions: ["👍", "❤️", "😂", "🎉", "🤔", "👀"],
   customEmojis: true,
-  animationSupport: 'animated',
+  animationSupport: "animated",
   maxReactionsPerMessage: 20,
   maxReactionsPerUser: 10,
-  displayStyle: 'inline',
+  displayStyle: "inline",
   showCount: true,
   showReactors: true,
   maxReactorsDisplay: 10,
@@ -151,7 +151,7 @@ export const defaultReactionConfig: PlatformReactionConfig = {
     reactToOwnMessages: true,
     showAddButton: true,
   },
-}
+};
 
 /**
  * WhatsApp-style reaction configuration
@@ -160,15 +160,15 @@ export const defaultReactionConfig: PlatformReactionConfig = {
  * - Double-tap to like
  */
 export const whatsappReactionConfig: PlatformReactionConfig = {
-  platform: 'whatsapp',
-  mode: 'single',
-  emojiSet: 'full',
-  quickReactions: ['👍', '❤️', '😂', '😮', '😢', '🙏'],
+  platform: "whatsapp",
+  mode: "single",
+  emojiSet: "full",
+  quickReactions: ["👍", "❤️", "😂", "😮", "😢", "🙏"],
   customEmojis: false,
-  animationSupport: 'static',
+  animationSupport: "static",
   maxReactionsPerMessage: 0, // Unlimited unique emojis
   maxReactionsPerUser: 1, // Single reaction per user
-  displayStyle: 'inline',
+  displayStyle: "inline",
   showCount: true,
   showReactors: true,
   maxReactorsDisplay: 20,
@@ -186,7 +186,7 @@ export const whatsappReactionConfig: PlatformReactionConfig = {
     reactToOwnMessages: true,
     showAddButton: true,
   },
-}
+};
 
 /**
  * Telegram-style reaction configuration
@@ -195,15 +195,15 @@ export const whatsappReactionConfig: PlatformReactionConfig = {
  * - Animated reactions
  */
 export const telegramReactionConfig: PlatformReactionConfig = {
-  platform: 'telegram',
-  mode: 'multiple',
-  emojiSet: 'full',
-  quickReactions: ['👍', '❤️', '🔥', '🎉', '😢', '👎', '🤔'],
+  platform: "telegram",
+  mode: "multiple",
+  emojiSet: "full",
+  quickReactions: ["👍", "❤️", "🔥", "🎉", "😢", "👎", "🤔"],
   customEmojis: true, // Premium feature
-  animationSupport: 'animated',
+  animationSupport: "animated",
   maxReactionsPerMessage: 0,
   maxReactionsPerUser: 3,
-  displayStyle: 'inline',
+  displayStyle: "inline",
   showCount: true,
   showReactors: true,
   maxReactorsDisplay: 50,
@@ -221,7 +221,7 @@ export const telegramReactionConfig: PlatformReactionConfig = {
     reactToOwnMessages: true,
     showAddButton: true,
   },
-}
+};
 
 /**
  * Signal-style reaction configuration
@@ -230,16 +230,16 @@ export const telegramReactionConfig: PlatformReactionConfig = {
  * - Privacy-focused
  */
 export const signalReactionConfig: PlatformReactionConfig = {
-  platform: 'default', // Signal uses default template as base
-  mode: 'single',
-  emojiSet: 'limited',
-  quickReactions: ['❤️', '👍', '👎', '😂', '😮', '😢', '😡'],
-  allowedEmojis: ['❤️', '👍', '👎', '😂', '😮', '😢', '😡'],
+  platform: "default", // Signal uses default template as base
+  mode: "single",
+  emojiSet: "limited",
+  quickReactions: ["❤️", "👍", "👎", "😂", "😮", "😢", "😡"],
+  allowedEmojis: ["❤️", "👍", "👎", "😂", "😮", "😢", "😡"],
   customEmojis: false,
-  animationSupport: 'none',
+  animationSupport: "none",
   maxReactionsPerMessage: 7, // Only 7 possible reactions
   maxReactionsPerUser: 1,
-  displayStyle: 'inline',
+  displayStyle: "inline",
   showCount: true,
   showReactors: true,
   maxReactorsDisplay: 5,
@@ -257,7 +257,7 @@ export const signalReactionConfig: PlatformReactionConfig = {
     reactToOwnMessages: true,
     showAddButton: true,
   },
-}
+};
 
 /**
  * Slack-style reaction configuration
@@ -266,15 +266,15 @@ export const signalReactionConfig: PlatformReactionConfig = {
  * - Reaction bar on hover
  */
 export const slackReactionConfig: PlatformReactionConfig = {
-  platform: 'slack',
-  mode: 'multiple',
-  emojiSet: 'full',
-  quickReactions: ['👍', '✅', '👀', '🎉', '❤️', '😂'],
+  platform: "slack",
+  mode: "multiple",
+  emojiSet: "full",
+  quickReactions: ["👍", "✅", "👀", "🎉", "❤️", "😂"],
   customEmojis: true,
-  animationSupport: 'animated',
+  animationSupport: "animated",
   maxReactionsPerMessage: 23, // Slack's actual limit
   maxReactionsPerUser: 23,
-  displayStyle: 'hover',
+  displayStyle: "hover",
   showCount: true,
   showReactors: true,
   maxReactorsDisplay: 50,
@@ -292,7 +292,7 @@ export const slackReactionConfig: PlatformReactionConfig = {
     reactToOwnMessages: true,
     showAddButton: true,
   },
-}
+};
 
 /**
  * Discord-style reaction configuration
@@ -301,15 +301,15 @@ export const slackReactionConfig: PlatformReactionConfig = {
  * - Custom server emojis
  */
 export const discordReactionConfig: PlatformReactionConfig = {
-  platform: 'discord',
-  mode: 'multiple',
-  emojiSet: 'full',
-  quickReactions: ['👍', '❤️', '😂', '😮', '😢', '😡'],
+  platform: "discord",
+  mode: "multiple",
+  emojiSet: "full",
+  quickReactions: ["👍", "❤️", "😂", "😮", "😢", "😡"],
   customEmojis: true,
-  animationSupport: 'animated',
+  animationSupport: "animated",
   maxReactionsPerMessage: 20,
   maxReactionsPerUser: 20,
-  displayStyle: 'hover',
+  displayStyle: "hover",
   showCount: true,
   showReactors: true,
   maxReactorsDisplay: 100,
@@ -327,7 +327,7 @@ export const discordReactionConfig: PlatformReactionConfig = {
     reactToOwnMessages: true,
     showAddButton: true,
   },
-}
+};
 
 // ============================================================================
 // Configuration Registry
@@ -336,19 +336,24 @@ export const discordReactionConfig: PlatformReactionConfig = {
 /**
  * Map of platform IDs to their reaction configurations
  */
-export const platformReactionConfigs: Record<TemplateId, PlatformReactionConfig> = {
+export const platformReactionConfigs: Record<
+  TemplateId,
+  PlatformReactionConfig
+> = {
   default: defaultReactionConfig,
   whatsapp: whatsappReactionConfig,
   telegram: telegramReactionConfig,
   slack: slackReactionConfig,
   discord: discordReactionConfig,
-}
+};
 
 /**
  * Get reaction configuration for a platform
  */
-export function getReactionConfig(platform: TemplateId): PlatformReactionConfig {
-  return platformReactionConfigs[platform] || defaultReactionConfig
+export function getReactionConfig(
+  platform: TemplateId,
+): PlatformReactionConfig {
+  return platformReactionConfigs[platform] || defaultReactionConfig;
 }
 
 /**
@@ -356,9 +361,9 @@ export function getReactionConfig(platform: TemplateId): PlatformReactionConfig 
  */
 export function createCustomReactionConfig(
   platform: TemplateId,
-  overrides: Partial<PlatformReactionConfig>
+  overrides: Partial<PlatformReactionConfig>,
 ): PlatformReactionConfig {
-  const baseConfig = getReactionConfig(platform)
+  const baseConfig = getReactionConfig(platform);
   return {
     ...baseConfig,
     ...overrides,
@@ -366,7 +371,7 @@ export function createCustomReactionConfig(
       ...baseConfig.features,
       ...(overrides.features || {}),
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -377,10 +382,10 @@ export function createCustomReactionConfig(
  * Check if a user can add a reaction based on platform config
  */
 export interface CanReactResult {
-  allowed: boolean
-  reason?: string
-  shouldReplace?: boolean // For single-mode platforms
-  existingEmoji?: string // The emoji that would be replaced
+  allowed: boolean;
+  reason?: string;
+  shouldReplace?: boolean; // For single-mode platforms
+  existingEmoji?: string; // The emoji that would be replaced
 }
 
 /**
@@ -390,54 +395,57 @@ export function canUserReact(
   config: PlatformReactionConfig,
   userReactions: string[], // Emojis the user has already reacted with
   targetEmoji: string,
-  totalReactionCount: number
+  totalReactionCount: number,
 ): CanReactResult {
   // Check if emoji is allowed (for limited sets)
-  if (config.emojiSet === 'limited' && config.allowedEmojis) {
+  if (config.emojiSet === "limited" && config.allowedEmojis) {
     if (!config.allowedEmojis.includes(targetEmoji)) {
       return {
         allowed: false,
-        reason: 'This emoji is not available for reactions',
-      }
+        reason: "This emoji is not available for reactions",
+      };
     }
   }
 
   // Check message reaction limit
-  if (config.maxReactionsPerMessage > 0 && totalReactionCount >= config.maxReactionsPerMessage) {
+  if (
+    config.maxReactionsPerMessage > 0 &&
+    totalReactionCount >= config.maxReactionsPerMessage
+  ) {
     // Allow if user is replacing their reaction
-    if (config.mode === 'single' && userReactions.length > 0) {
+    if (config.mode === "single" && userReactions.length > 0) {
       return {
         allowed: true,
         shouldReplace: true,
         existingEmoji: userReactions[0],
-      }
+      };
     }
     return {
       allowed: false,
       reason: `Maximum ${config.maxReactionsPerMessage} reactions per message`,
-    }
+    };
   }
 
   // Single reaction mode
-  if (config.mode === 'single') {
+  if (config.mode === "single") {
     if (userReactions.length > 0 && !userReactions.includes(targetEmoji)) {
       return {
         allowed: true,
         shouldReplace: true,
         existingEmoji: userReactions[0],
-      }
+      };
     }
     // Toggle off if same emoji
     if (userReactions.includes(targetEmoji)) {
-      return { allowed: true }
+      return { allowed: true };
     }
   }
 
   // Multiple reaction mode
-  if (config.mode === 'multiple') {
+  if (config.mode === "multiple") {
     // Already reacted with this emoji - will toggle off
     if (userReactions.includes(targetEmoji)) {
-      return { allowed: true }
+      return { allowed: true };
     }
 
     // Check user limit
@@ -448,25 +456,25 @@ export function canUserReact(
       return {
         allowed: false,
         reason: `Maximum ${config.maxReactionsPerUser} reactions per message`,
-      }
+      };
     }
   }
 
-  return { allowed: true }
+  return { allowed: true };
 }
 
 /**
  * Check if custom emojis are allowed
  */
 export function canUseCustomEmoji(config: PlatformReactionConfig): boolean {
-  return config.customEmojis
+  return config.customEmojis;
 }
 
 /**
  * Check if animated emojis are supported
  */
 export function supportsAnimatedEmoji(config: PlatformReactionConfig): boolean {
-  return config.animationSupport === 'animated'
+  return config.animationSupport === "animated";
 }
 
 // ============================================================================
@@ -477,17 +485,17 @@ export function supportsAnimatedEmoji(config: PlatformReactionConfig): boolean {
  * Reaction aggregate for display
  */
 export interface ReactionAggregate {
-  emoji: string
-  count: number
-  hasReacted: boolean
+  emoji: string;
+  count: number;
+  hasReacted: boolean;
   users: Array<{
-    id: string
-    name: string
-    avatarUrl?: string
-  }>
-  isAnimated?: boolean
-  isCustom?: boolean
-  customEmojiUrl?: string
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  }>;
+  isAnimated?: boolean;
+  isCustom?: boolean;
+  customEmojiUrl?: string;
 }
 
 /**
@@ -495,25 +503,27 @@ export interface ReactionAggregate {
  */
 export interface RenderReactionsOptions {
   /** Maximum reactions to display before collapsing */
-  maxDisplay?: number
+  maxDisplay?: number;
   /** Sort order */
-  sortBy?: 'count' | 'recent'
+  sortBy?: "count" | "recent";
   /** Show "+X more" indicator */
-  showOverflow?: boolean
+  showOverflow?: boolean;
   /** Group same emojis together */
-  groupByEmoji?: boolean
+  groupByEmoji?: boolean;
 }
 
 /**
  * Get display options based on platform config
  */
-export function getDisplayOptions(config: PlatformReactionConfig): RenderReactionsOptions {
+export function getDisplayOptions(
+  config: PlatformReactionConfig,
+): RenderReactionsOptions {
   return {
     maxDisplay: config.maxReactorsDisplay,
-    sortBy: 'count',
+    sortBy: "count",
     showOverflow: true,
     groupByEmoji: true,
-  }
+  };
 }
 
 /**
@@ -521,19 +531,19 @@ export function getDisplayOptions(config: PlatformReactionConfig): RenderReactio
  */
 export function sortReactions(
   reactions: ReactionAggregate[],
-  options: RenderReactionsOptions
+  options: RenderReactionsOptions,
 ): ReactionAggregate[] {
-  const sorted = [...reactions]
+  const sorted = [...reactions];
 
-  if (options.sortBy === 'count') {
-    sorted.sort((a, b) => b.count - a.count)
+  if (options.sortBy === "count") {
+    sorted.sort((a, b) => b.count - a.count);
   }
 
   if (options.maxDisplay && sorted.length > options.maxDisplay) {
-    return sorted.slice(0, options.maxDisplay)
+    return sorted.slice(0, options.maxDisplay);
   }
 
-  return sorted
+  return sorted;
 }
 
 // ============================================================================
@@ -545,17 +555,17 @@ export function sortReactions(
  */
 export interface ChannelReactionPermissions {
   /** Reactions enabled for this channel */
-  enabled: boolean
+  enabled: boolean;
   /** Restrict to specific emoji set */
-  restrictedEmojis?: string[]
+  restrictedEmojis?: string[];
   /** Only moderators can react */
-  moderatorOnly: boolean
+  moderatorOnly: boolean;
   /** Only channel members can react */
-  membersOnly: boolean
+  membersOnly: boolean;
   /** Cooldown override (in milliseconds) */
-  cooldownOverride?: number
+  cooldownOverride?: number;
   /** Anonymous reactions allowed */
-  anonymousAllowed: boolean
+  anonymousAllowed: boolean;
 }
 
 /**
@@ -566,28 +576,28 @@ export const defaultChannelPermissions: ChannelReactionPermissions = {
   moderatorOnly: false,
   membersOnly: false,
   anonymousAllowed: false,
-}
+};
 
 /**
  * Check if reactions are allowed in a channel
  */
 export function areReactionsAllowed(
   permissions: ChannelReactionPermissions,
-  userRole: 'guest' | 'member' | 'moderator' | 'admin' | 'owner'
+  userRole: "guest" | "member" | "moderator" | "admin" | "owner",
 ): boolean {
   if (!permissions.enabled) {
-    return false
+    return false;
   }
 
   if (permissions.moderatorOnly) {
-    return ['moderator', 'admin', 'owner'].includes(userRole)
+    return ["moderator", "admin", "owner"].includes(userRole);
   }
 
   if (permissions.membersOnly) {
-    return userRole !== 'guest'
+    return userRole !== "guest";
   }
 
-  return true
+  return true;
 }
 
 /**
@@ -595,15 +605,15 @@ export function areReactionsAllowed(
  */
 export function isEmojiAllowed(
   permissions: ChannelReactionPermissions,
-  emoji: string
+  emoji: string,
 ): boolean {
   if (!permissions.enabled) {
-    return false
+    return false;
   }
 
   if (permissions.restrictedEmojis && permissions.restrictedEmojis.length > 0) {
-    return permissions.restrictedEmojis.includes(emoji)
+    return permissions.restrictedEmojis.includes(emoji);
   }
 
-  return true
+  return true;
 }

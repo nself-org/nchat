@@ -4,25 +4,25 @@
  * Individual participant video tile with controls and status indicators.
  */
 
-'use client'
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react'
-import { Mic, MicOff, Pin, User } from 'lucide-react'
-import type { CallParticipant } from '@/stores/call-store'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import React, { useEffect, useRef, useState } from "react";
+import { Mic, MicOff, Pin, User } from "lucide-react";
+import type { CallParticipant } from "@/stores/call-store";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface VideoTileProps {
-  participant: CallParticipant
-  stream: MediaStream | null
-  isMain?: boolean
-  isPinned?: boolean
-  onPin?: () => void
-  style?: React.CSSProperties
+  participant: CallParticipant;
+  stream: MediaStream | null;
+  isMain?: boolean;
+  isPinned?: boolean;
+  onPin?: () => void;
+  style?: React.CSSProperties;
 }
 
 // =============================================================================
@@ -37,22 +37,22 @@ export function VideoTile({
   onPin,
   style,
 }: VideoTileProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [isHovered, setIsHovered] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Set video stream
   useEffect(() => {
     if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream
+      videoRef.current.srcObject = stream;
     }
-  }, [stream])
+  }, [stream]);
 
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-lg border-2 bg-gray-900',
-        participant.isSpeaking ? 'border-blue-500' : 'border-transparent',
-        isMain && 'border-4'
+        "relative overflow-hidden rounded-lg border-2 bg-gray-900",
+        participant.isSpeaking ? "border-blue-500" : "border-transparent",
+        isMain && "border-4",
       )}
       style={style}
       onMouseEnter={() => setIsHovered(true)}
@@ -85,9 +85,9 @@ export function VideoTile({
       {/* Overlay */}
       <div
         className={cn(
-          'absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent',
-          'transition-opacity duration-200',
-          isHovered ? 'opacity-100' : 'opacity-0'
+          "absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent",
+          "transition-opacity duration-200",
+          isHovered ? "opacity-100" : "opacity-0",
         )}
       />
 
@@ -98,7 +98,9 @@ export function VideoTile({
             <span className="text-sm font-medium text-white drop-shadow-md">
               {participant.name}
             </span>
-            {participant.isMuted && <MicOff className="h-4 w-4 text-red-500 drop-shadow-md" />}
+            {participant.isMuted && (
+              <MicOff className="h-4 w-4 text-red-500 drop-shadow-md" />
+            )}
           </div>
 
           {onPin && isHovered && (
@@ -108,7 +110,7 @@ export function VideoTile({
               className="h-6 w-6 bg-black/50 hover:bg-black/70"
               onClick={onPin}
             >
-              <Pin className={cn('h-3 w-3', isPinned && 'fill-current')} />
+              <Pin className={cn("h-3 w-3", isPinned && "fill-current")} />
             </Button>
           )}
         </div>
@@ -122,11 +124,11 @@ export function VideoTile({
       )}
 
       {/* Connection Status */}
-      {participant.connectionState !== 'connected' && (
+      {participant.connectionState !== "connected" && (
         <div className="absolute left-2 top-2 rounded bg-yellow-600 px-2 py-1 text-xs font-medium text-white">
           {participant.connectionState}...
         </div>
       )}
     </div>
-  )
+  );
 }

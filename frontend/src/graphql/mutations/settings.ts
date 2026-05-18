@@ -4,7 +4,7 @@
  * Mutations for updating user settings, preferences, and privacy options.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // Profile Settings
@@ -22,27 +22,33 @@ export const UPDATE_PROFILE = gql`
       updated_at
     }
   }
-`
+`;
 
 export const UPLOAD_AVATAR = gql`
   mutation UploadAvatar($userId: uuid!, $avatarUrl: String!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { avatar_url: $avatarUrl }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { avatar_url: $avatarUrl }
+    ) {
       id
       avatar_url
       updated_at
     }
   }
-`
+`;
 
 export const REMOVE_AVATAR = gql`
   mutation RemoveAvatar($userId: uuid!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { avatar_url: null }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { avatar_url: null }
+    ) {
       id
       avatar_url
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Account Settings
@@ -60,36 +66,50 @@ export const UPDATE_EMAIL = gql`
       updated_at
     }
   }
-`
+`;
 
 export const UPDATE_PASSWORD = gql`
-  mutation UpdatePassword($userId: uuid!, $oldPassword: String!, $newPassword: String!) {
-    changePassword(userId: $userId, oldPassword: $oldPassword, newPassword: $newPassword) {
+  mutation UpdatePassword(
+    $userId: uuid!
+    $oldPassword: String!
+    $newPassword: String!
+  ) {
+    changePassword(
+      userId: $userId
+      oldPassword: $oldPassword
+      newPassword: $newPassword
+    ) {
       success
       message
     }
   }
-`
+`;
 
 export const ENABLE_2FA = gql`
   mutation Enable2FA($userId: uuid!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { two_factor_enabled: true }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { two_factor_enabled: true }
+    ) {
       id
       two_factor_enabled
       updated_at
     }
   }
-`
+`;
 
 export const DISABLE_2FA = gql`
   mutation Disable2FA($userId: uuid!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { two_factor_enabled: false }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { two_factor_enabled: false }
+    ) {
       id
       two_factor_enabled
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_ACCOUNT = gql`
   mutation DeleteAccount($userId: uuid!) {
@@ -97,7 +117,7 @@ export const DELETE_ACCOUNT = gql`
       id
     }
   }
-`
+`;
 
 // ============================================================================
 // Notification Settings
@@ -114,12 +134,21 @@ export const UPDATE_NOTIFICATION_PREFERENCES = gql`
       updated_at
     }
   }
-`
+`;
 
 export const UPDATE_PUSH_SUBSCRIPTION = gql`
-  mutation UpdatePushSubscription($userId: uuid!, $endpoint: String!, $keys: jsonb!) {
+  mutation UpdatePushSubscription(
+    $userId: uuid!
+    $endpoint: String!
+    $keys: jsonb!
+  ) {
     insert_nchat_push_subscriptions_one(
-      object: { user_id: $userId, endpoint: $endpoint, keys: $keys, enabled: true }
+      object: {
+        user_id: $userId
+        endpoint: $endpoint
+        keys: $keys
+        enabled: true
+      }
       on_conflict: {
         constraint: push_subscriptions_user_id_endpoint_key
         update_columns: [keys, enabled, updated_at]
@@ -130,7 +159,7 @@ export const UPDATE_PUSH_SUBSCRIPTION = gql`
       enabled
     }
   }
-`
+`;
 
 export const DISABLE_PUSH_SUBSCRIPTION = gql`
   mutation DisablePushSubscription($userId: uuid!, $endpoint: String!) {
@@ -141,7 +170,7 @@ export const DISABLE_PUSH_SUBSCRIPTION = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Privacy Settings
@@ -149,13 +178,16 @@ export const DISABLE_PUSH_SUBSCRIPTION = gql`
 
 export const UPDATE_PRIVACY_SETTINGS = gql`
   mutation UpdatePrivacySettings($userId: uuid!, $settings: jsonb!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { privacy_settings: $settings }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { privacy_settings: $settings }
+    ) {
       id
       privacy_settings
       updated_at
     }
   }
-`
+`;
 
 export const UPDATE_BLOCKED_USERS = gql`
   mutation UpdateBlockedUsers($userId: uuid!, $blockedUserIds: jsonb!) {
@@ -168,7 +200,7 @@ export const UPDATE_BLOCKED_USERS = gql`
       updated_at
     }
   }
-`
+`;
 
 export const CLEAR_LOCATION_HISTORY = gql`
   mutation ClearLocationHistory($userId: uuid!) {
@@ -176,7 +208,7 @@ export const CLEAR_LOCATION_HISTORY = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Appearance Settings
@@ -184,13 +216,16 @@ export const CLEAR_LOCATION_HISTORY = gql`
 
 export const UPDATE_THEME_PREFERENCES = gql`
   mutation UpdateThemePreferences($userId: uuid!, $theme: jsonb!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { theme_preferences: $theme }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { theme_preferences: $theme }
+    ) {
       id
       theme_preferences
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Accessibility Settings
@@ -207,7 +242,7 @@ export const UPDATE_ACCESSIBILITY_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // OAuth Connections
@@ -238,7 +273,7 @@ export const CONNECT_OAUTH_PROVIDER = gql`
       connected_at
     }
   }
-`
+`;
 
 export const DISCONNECT_OAUTH_PROVIDER = gql`
   mutation DisconnectOAuthProvider($userId: uuid!, $provider: String!) {
@@ -248,53 +283,53 @@ export const DISCONNECT_OAUTH_PROVIDER = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
 export interface UpdateProfileInput {
-  display_name?: string
-  bio?: string
-  status?: string
-  timezone?: string
-  language?: string
+  display_name?: string;
+  bio?: string;
+  status?: string;
+  timezone?: string;
+  language?: string;
 }
 
 export interface NotificationPreferences {
-  email: boolean
-  push: boolean
-  desktop: boolean
-  mobile: boolean
-  sound: boolean
-  mentions: boolean
-  replies: boolean
-  reactions: boolean
-  direct_messages: boolean
-  channel_messages: boolean
+  email: boolean;
+  push: boolean;
+  desktop: boolean;
+  mobile: boolean;
+  sound: boolean;
+  mentions: boolean;
+  replies: boolean;
+  reactions: boolean;
+  direct_messages: boolean;
+  channel_messages: boolean;
 }
 
 export interface PrivacySettings {
-  profile_visibility: 'public' | 'members' | 'private'
-  last_seen_visibility: 'everyone' | 'contacts' | 'nobody'
-  read_receipts: boolean
-  typing_indicators: boolean
-  location_sharing: boolean
-  activity_status: boolean
+  profile_visibility: "public" | "members" | "private";
+  last_seen_visibility: "everyone" | "contacts" | "nobody";
+  read_receipts: boolean;
+  typing_indicators: boolean;
+  location_sharing: boolean;
+  activity_status: boolean;
 }
 
 export interface ThemePreferences {
-  mode: 'light' | 'dark' | 'system'
-  primary_color: string
-  font_size: 'small' | 'medium' | 'large'
-  compact_mode: boolean
+  mode: "light" | "dark" | "system";
+  primary_color: string;
+  font_size: "small" | "medium" | "large";
+  compact_mode: boolean;
 }
 
 export interface AccessibilitySettings {
-  high_contrast: boolean
-  reduce_motion: boolean
-  screen_reader_optimized: boolean
-  keyboard_shortcuts: boolean
-  font_size_override: number
+  high_contrast: boolean;
+  reduce_motion: boolean;
+  screen_reader_optimized: boolean;
+  keyboard_shortcuts: boolean;
+  font_size_override: number;
 }

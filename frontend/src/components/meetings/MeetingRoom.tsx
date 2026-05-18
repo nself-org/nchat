@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MeetingRoom - Meeting room placeholder component
@@ -6,19 +6,19 @@
  * Container for video/audio meeting room (actual WebRTC implementation would go here)
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Meeting, RoomState } from '@/lib/meetings/meeting-types'
-import { MeetingControls } from './MeetingControls'
-import { ParticipantGrid } from './ParticipantGrid'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Meeting, RoomState } from "@/lib/meetings/meeting-types";
+import { MeetingControls } from "./MeetingControls";
+import { ParticipantGrid } from "./ParticipantGrid";
 import {
   useMeetingStore,
   selectRoomState,
   selectLocalUser,
   selectRemoteParticipants,
-} from '@/stores/meeting-store'
+} from "@/stores/meeting-store";
 import {
   Video,
   Maximize,
@@ -29,16 +29,16 @@ import {
   X,
   Loader2,
   AlertCircle,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface MeetingRoomProps {
-  meeting: Meeting
-  onLeave?: () => void
-  onEnd?: () => void
+  meeting: Meeting;
+  onLeave?: () => void;
+  onEnd?: () => void;
 }
 
 // ============================================================================
@@ -46,46 +46,47 @@ interface MeetingRoomProps {
 // ============================================================================
 
 export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
-  const roomState = useMeetingStore(selectRoomState)
-  const localUser = useMeetingStore(selectLocalUser)
-  const remoteParticipants = useMeetingStore(selectRemoteParticipants)
-  const { setConnected, setConnectionError } = useMeetingStore()
+  const roomState = useMeetingStore(selectRoomState);
+  const localUser = useMeetingStore(selectLocalUser);
+  const remoteParticipants = useMeetingStore(selectRemoteParticipants);
+  const { setConnected, setConnectionError } = useMeetingStore();
 
-  const [isFullscreen, setIsFullscreen] = React.useState(false)
-  const [showChat, setShowChat] = React.useState(false)
-  const [showParticipants, setShowParticipants] = React.useState(false)
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const [showChat, setShowChat] = React.useState(false);
+  const [showParticipants, setShowParticipants] = React.useState(false);
 
-  const containerRef = React.useRef<HTMLDivElement>(null)
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Simulate connection (in real implementation, this would be WebRTC setup)
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      setConnected(true)
-    }, 2000)
+      setConnected(true);
+    }, 2000);
 
-    return () => clearTimeout(timer)
-  }, [setConnected])
+    return () => clearTimeout(timer);
+  }, [setConnected]);
 
   // Handle fullscreen
   const toggleFullscreen = React.useCallback(() => {
     if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen()
-      setIsFullscreen(true)
+      containerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
     } else {
-      document.exitFullscreen()
-      setIsFullscreen(false)
+      document.exitFullscreen();
+      setIsFullscreen(false);
     }
-  }, [])
+  }, []);
 
   // Listen for fullscreen changes
   React.useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+      setIsFullscreen(!!document.fullscreenElement);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // Connection states
   if (roomState?.isConnecting) {
@@ -95,7 +96,7 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
         <h2 className="mb-2 text-xl font-semibold">Joining meeting...</h2>
         <p className="text-gray-400">{meeting.title}</p>
       </div>
-    )
+    );
   }
 
   if (roomState?.connectionError) {
@@ -111,15 +112,15 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
           <Button onClick={() => setConnectionError(null)}>Retry</Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        'flex h-full flex-col bg-gray-900 text-white',
-        isFullscreen && 'fixed inset-0 z-50'
+        "flex h-full flex-col bg-gray-900 text-white",
+        isFullscreen && "fixed inset-0 z-50",
       )}
     >
       {/* Header */}
@@ -127,7 +128,7 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
         <div className="flex items-center gap-3">
           <Video className="h-5 w-5" />
           <h2 className="max-w-xs truncate font-semibold">{meeting.title}</h2>
-          {meeting.status === 'live' && (
+          {meeting.status === "live" && (
             <Badge className="animate-pulse bg-red-500 text-white">LIVE</Badge>
           )}
         </div>
@@ -135,7 +136,9 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
         <div className="flex items-center gap-2">
           {/* Timer */}
           <div className="text-sm text-gray-400">
-            <MeetingTimer startTime={meeting.actualStartAt || meeting.scheduledStartAt} />
+            <MeetingTimer
+              startTime={meeting.actualStartAt || meeting.scheduledStartAt}
+            />
           </div>
 
           {/* Toggle buttons */}
@@ -145,7 +148,9 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
             className="text-gray-400 hover:text-white"
             onClick={() => setShowChat(!showChat)}
           >
-            <MessageSquare className={cn('h-5 w-5', showChat && 'text-primary')} />
+            <MessageSquare
+              className={cn("h-5 w-5", showChat && "text-primary")}
+            />
           </Button>
           <Button
             variant="ghost"
@@ -153,7 +158,9 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
             className="text-gray-400 hover:text-white"
             onClick={() => setShowParticipants(!showParticipants)}
           >
-            <Users className={cn('h-5 w-5', showParticipants && 'text-primary')} />
+            <Users
+              className={cn("h-5 w-5", showParticipants && "text-primary")}
+            />
           </Button>
           <Button
             variant="ghost"
@@ -161,7 +168,11 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
             className="text-gray-400 hover:text-white"
             onClick={toggleFullscreen}
           >
-            {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+            {isFullscreen ? (
+              <Minimize className="h-5 w-5" />
+            ) : (
+              <Maximize className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
@@ -183,14 +194,16 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
           <div className="flex w-80 flex-col border-l border-gray-700">
             {/* Panel Header */}
             <div className="flex items-center justify-between border-b border-gray-700 px-4 py-2">
-              <h3 className="font-medium">{showChat ? 'Chat' : 'Participants'}</h3>
+              <h3 className="font-medium">
+                {showChat ? "Chat" : "Participants"}
+              </h3>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => {
-                  setShowChat(false)
-                  setShowParticipants(false)
+                  setShowChat(false);
+                  setShowParticipants(false);
                 }}
               >
                 <X className="h-4 w-4" />
@@ -210,7 +223,7 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
                       <div>
                         <p className="text-sm font-medium">You (Host)</p>
                         <p className="text-xs text-gray-400">
-                          {localUser?.isMuted ? 'Muted' : 'Unmuted'}
+                          {localUser?.isMuted ? "Muted" : "Unmuted"}
                         </p>
                       </div>
                     </div>
@@ -218,14 +231,19 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
 
                   {/* Remote participants */}
                   {remoteParticipants.map((p) => (
-                    <div key={p.peerId} className="rounded-lg bg-gray-800/50 p-2">
+                    <div
+                      key={p.peerId}
+                      className="rounded-lg bg-gray-800/50 p-2"
+                    >
                       <div className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-600 text-sm">
-                          {p.displayName?.charAt(0) || '?'}
+                          {p.displayName?.charAt(0) || "?"}
                         </div>
                         <div>
                           <p className="text-sm font-medium">{p.displayName}</p>
-                          <p className="text-xs text-gray-400">{p.isMuted ? 'Muted' : 'Unmuted'}</p>
+                          <p className="text-xs text-gray-400">
+                            {p.isMuted ? "Muted" : "Unmuted"}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -255,7 +273,7 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
       {/* Controls */}
       <MeetingControls meeting={meeting} onLeave={onLeave} onEnd={onEnd} />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -263,29 +281,29 @@ export function MeetingRoom({ meeting, onLeave, onEnd }: MeetingRoomProps) {
 // ============================================================================
 
 function MeetingTimer({ startTime }: { startTime: string }) {
-  const [elapsed, setElapsed] = React.useState('00:00:00')
+  const [elapsed, setElapsed] = React.useState("00:00:00");
 
   React.useEffect(() => {
-    const start = new Date(startTime).getTime()
+    const start = new Date(startTime).getTime();
 
     const updateTimer = () => {
-      const now = Date.now()
-      const diff = now - start
+      const now = Date.now();
+      const diff = now - start;
 
-      const hours = Math.floor(diff / (1000 * 60 * 60))
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
       setElapsed(
-        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-      )
-    }
+        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`,
+      );
+    };
 
-    updateTimer()
-    const interval = setInterval(updateTimer, 1000)
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
 
-    return () => clearInterval(interval)
-  }, [startTime])
+    return () => clearInterval(interval);
+  }, [startTime]);
 
-  return <span className="font-mono">{elapsed}</span>
+  return <span className="font-mono">{elapsed}</span>;
 }

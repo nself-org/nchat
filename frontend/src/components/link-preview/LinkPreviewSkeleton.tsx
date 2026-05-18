@@ -1,31 +1,33 @@
-'use client'
+"use client";
 
 /**
  * LinkPreviewSkeleton - Loading state for link previews
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface LinkPreviewSkeletonProps {
   /** Layout variant */
-  variant?: 'vertical' | 'horizontal' | 'compact'
+  variant?: "vertical" | "horizontal" | "compact";
   /** Show image placeholder */
-  showImage?: boolean
+  showImage?: boolean;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 export function LinkPreviewSkeleton({
-  variant = 'vertical',
+  variant = "vertical",
   showImage = true,
   className,
 }: LinkPreviewSkeletonProps) {
   // Vertical layout
-  if (variant === 'vertical') {
+  if (variant === "vertical") {
     return (
-      <div className={cn('overflow-hidden rounded-lg border bg-card', className)}>
+      <div
+        className={cn("overflow-hidden rounded-lg border bg-card", className)}
+      >
         {showImage && <Skeleton className="aspect-video w-full rounded-none" />}
         <div className="space-y-2 p-3">
           {/* Domain */}
@@ -41,14 +43,21 @@ export function LinkPreviewSkeleton({
           <Skeleton className="h-3 w-5/6" />
         </div>
       </div>
-    )
+    );
   }
 
   // Horizontal layout
-  if (variant === 'horizontal') {
+  if (variant === "horizontal") {
     return (
-      <div className={cn('flex overflow-hidden rounded-lg border bg-card', className)}>
-        {showImage && <Skeleton className="w-32 flex-shrink-0 rounded-none sm:w-40" />}
+      <div
+        className={cn(
+          "flex overflow-hidden rounded-lg border bg-card",
+          className,
+        )}
+      >
+        {showImage && (
+          <Skeleton className="w-32 flex-shrink-0 rounded-none sm:w-40" />
+        )}
         <div className="flex-1 space-y-2 p-3">
           {/* Domain */}
           <div className="flex items-center gap-1.5">
@@ -63,12 +72,17 @@ export function LinkPreviewSkeleton({
           <Skeleton className="h-3 w-5/6" />
         </div>
       </div>
-    )
+    );
   }
 
   // Compact layout
   return (
-    <div className={cn('flex items-center gap-3 rounded-lg border bg-card p-2', className)}>
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-lg border bg-card p-2",
+        className,
+      )}
+    >
       {showImage && <Skeleton className="h-12 w-12 flex-shrink-0 rounded" />}
       <div className="flex-1 space-y-1.5">
         <Skeleton className="h-4 w-3/4" />
@@ -76,7 +90,7 @@ export function LinkPreviewSkeleton({
       </div>
       <Skeleton className="h-4 w-4 flex-shrink-0 rounded" />
     </div>
-  )
+  );
 }
 
-export default LinkPreviewSkeleton
+export default LinkPreviewSkeleton;

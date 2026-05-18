@@ -1,41 +1,50 @@
-'use client'
+"use client";
 
-import { Suspense, type ComponentType, type ReactNode } from 'react'
-import { cn } from '@/lib/utils'
-import { CenteredSpinner } from './spinner'
+import { Suspense, type ComponentType, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { CenteredSpinner } from "./spinner";
 
 interface SuspenseWrapperProps {
   /** Fallback component or element to show while loading */
-  fallback?: ReactNode
+  fallback?: ReactNode;
   /** Children to render (typically lazy-loaded components) */
-  children: ReactNode
+  children: ReactNode;
   /** Additional CSS classes for the fallback container */
-  className?: string
+  className?: string;
 }
 
 /**
  * Suspense wrapper with default loading fallback
  * Use to wrap lazy-loaded components
  */
-export function SuspenseWrapper({ fallback, children, className }: SuspenseWrapperProps) {
+export function SuspenseWrapper({
+  fallback,
+  children,
+  className,
+}: SuspenseWrapperProps) {
   const defaultFallback = (
-    <div className={cn('flex h-full w-full items-center justify-center', className)}>
+    <div
+      className={cn(
+        "flex h-full w-full items-center justify-center",
+        className,
+      )}
+    >
       <CenteredSpinner text="Loading..." />
     </div>
-  )
+  );
 
-  return <Suspense fallback={fallback ?? defaultFallback}>{children}</Suspense>
+  return <Suspense fallback={fallback ?? defaultFallback}>{children}</Suspense>;
 }
 
 interface LazyComponentWrapperProps<P extends object> {
   /** The lazy-loaded component */
-  component: ComponentType<P>
+  component: ComponentType<P>;
   /** Props to pass to the component */
-  props?: P
+  props?: P;
   /** Custom fallback */
-  fallback?: ReactNode
+  fallback?: ReactNode;
   /** Container className */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -51,41 +60,45 @@ export function LazyComponentWrapper<P extends object>({
     <SuspenseWrapper fallback={fallback} className={className}>
       <Component {...props} />
     </SuspenseWrapper>
-  )
+  );
 }
 
 interface PageSuspenseProps {
   /** Page content */
-  children: ReactNode
+  children: ReactNode;
   /** Page-specific skeleton component */
-  skeleton?: ReactNode
+  skeleton?: ReactNode;
   /** Minimum height for the loading container */
-  minHeight?: string
+  minHeight?: string;
 }
 
 /**
  * Page-level suspense wrapper
  * Provides consistent loading experience for route segments
  */
-export function PageSuspense({ children, skeleton, minHeight = '100vh' }: PageSuspenseProps) {
+export function PageSuspense({
+  children,
+  skeleton,
+  minHeight = "100vh",
+}: PageSuspenseProps) {
   const fallback = skeleton ?? (
     <div className="flex items-center justify-center" style={{ minHeight }}>
       <CenteredSpinner size="xl" text="Loading page..." />
     </div>
-  )
+  );
 
-  return <Suspense fallback={fallback}>{children}</Suspense>
+  return <Suspense fallback={fallback}>{children}</Suspense>;
 }
 
 interface SectionSuspenseProps {
   /** Section content */
-  children: ReactNode
+  children: ReactNode;
   /** Section-specific skeleton */
-  skeleton?: ReactNode
+  skeleton?: ReactNode;
   /** Minimum height for the section */
-  minHeight?: string | number
+  minHeight?: string | number;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -98,25 +111,29 @@ export function SectionSuspense({
   minHeight = 200,
   className,
 }: SectionSuspenseProps) {
-  const heightStyle = typeof minHeight === 'number' ? `${minHeight}px` : minHeight
+  const heightStyle =
+    typeof minHeight === "number" ? `${minHeight}px` : minHeight;
 
   const fallback = skeleton ?? (
     <div
-      className={cn('bg-muted/30 flex items-center justify-center rounded-lg', className)}
+      className={cn(
+        "bg-muted/30 flex items-center justify-center rounded-lg",
+        className,
+      )}
       style={{ minHeight: heightStyle }}
     >
       <CenteredSpinner size="md" />
     </div>
-  )
+  );
 
-  return <Suspense fallback={fallback}>{children}</Suspense>
+  return <Suspense fallback={fallback}>{children}</Suspense>;
 }
 
 interface ModalSuspenseProps {
   /** Modal content */
-  children: ReactNode
+  children: ReactNode;
   /** Custom fallback */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 }
 
 /**
@@ -128,22 +145,22 @@ export function ModalSuspense({ children, fallback }: ModalSuspenseProps) {
     <div className="flex h-48 items-center justify-center">
       <CenteredSpinner size="lg" text="Loading..." />
     </div>
-  )
+  );
 
-  return <Suspense fallback={fallback ?? defaultFallback}>{children}</Suspense>
+  return <Suspense fallback={fallback ?? defaultFallback}>{children}</Suspense>;
 }
 
 interface ListSuspenseProps {
   /** List content */
-  children: ReactNode
+  children: ReactNode;
   /** Number of skeleton items to show */
-  skeletonCount?: number
+  skeletonCount?: number;
   /** Custom skeleton item renderer */
-  renderSkeletonItem?: (index: number) => ReactNode
+  renderSkeletonItem?: (index: number) => ReactNode;
   /** Gap between skeleton items */
-  gap?: number
+  gap?: number;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -158,29 +175,35 @@ export function ListSuspense({
   className,
 }: ListSuspenseProps) {
   const defaultSkeletonItem = (index: number) => (
-    <div key={index} className="h-12 w-full animate-pulse rounded-md bg-muted" />
-  )
+    <div
+      key={index}
+      className="h-12 w-full animate-pulse rounded-md bg-muted"
+    />
+  );
 
   const fallback = (
-    <div className={cn('flex flex-col', className)} style={{ gap: `${gap}px` }}>
+    <div className={cn("flex flex-col", className)} style={{ gap: `${gap}px` }}>
       {Array.from({ length: skeletonCount }).map((_, i) =>
-        renderSkeletonItem ? renderSkeletonItem(i) : defaultSkeletonItem(i)
+        renderSkeletonItem ? renderSkeletonItem(i) : defaultSkeletonItem(i),
       )}
     </div>
-  )
+  );
 
-  return <Suspense fallback={fallback}>{children}</Suspense>
+  return <Suspense fallback={fallback}>{children}</Suspense>;
 }
 
 /**
  * Higher-order component for adding suspense to lazy components
  */
-export function withSuspense<P extends object>(Component: ComponentType<P>, fallback?: ReactNode) {
+export function withSuspense<P extends object>(
+  Component: ComponentType<P>,
+  fallback?: ReactNode,
+) {
   return function SuspenseComponent(props: P) {
     return (
       <SuspenseWrapper fallback={fallback}>
         <Component {...props} />
       </SuspenseWrapper>
-    )
-  }
+    );
+  };
 }

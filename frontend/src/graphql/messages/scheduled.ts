@@ -5,87 +5,91 @@
  * Connects to the Hasura GraphQL backend via nchat_scheduled_message table.
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT } from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type ScheduledMessageStatus = 'pending' | 'sent' | 'failed' | 'cancelled'
+export type ScheduledMessageStatus =
+  | "pending"
+  | "sent"
+  | "failed"
+  | "cancelled";
 
 export interface ScheduledMessage {
-  id: string
-  userId: string
-  channelId: string
-  content: string
-  scheduledAt: Date
-  status: ScheduledMessageStatus
-  retryCount: number
-  maxRetries: number
-  threadId?: string
+  id: string;
+  userId: string;
+  channelId: string;
+  content: string;
+  scheduledAt: Date;
+  status: ScheduledMessageStatus;
+  retryCount: number;
+  maxRetries: number;
+  threadId?: string;
   attachments?: Array<{
-    id: string
-    name: string
-    type: string
-    url: string
-  }>
-  createdAt: Date
-  sentAt?: Date
-  errorMessage?: string
+    id: string;
+    name: string;
+    type: string;
+    url: string;
+  }>;
+  createdAt: Date;
+  sentAt?: Date;
+  errorMessage?: string;
   user?: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
   channel?: {
-    id: string
-    name: string
-    slug: string
-  }
+    id: string;
+    name: string;
+    slug: string;
+  };
 }
 
 export interface GetScheduledMessagesVariables {
-  userId: string
-  status?: ScheduledMessageStatus
-  channelId?: string
-  limit?: number
-  offset?: number
+  userId: string;
+  status?: ScheduledMessageStatus;
+  channelId?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetScheduledMessageVariables {
-  id: string
+  id: string;
 }
 
 export interface InsertScheduledMessageVariables {
-  userId: string
-  channelId: string
-  content: string
-  scheduledAt: string
-  threadId?: string
-  attachments?: unknown
-  maxRetries?: number
+  userId: string;
+  channelId: string;
+  content: string;
+  scheduledAt: string;
+  threadId?: string;
+  attachments?: unknown;
+  maxRetries?: number;
 }
 
 export interface UpdateScheduledMessageVariables {
-  id: string
-  content?: string
-  scheduledAt?: string
-  threadId?: string
-  attachments?: unknown
+  id: string;
+  content?: string;
+  scheduledAt?: string;
+  threadId?: string;
+  attachments?: unknown;
 }
 
 export interface DeleteScheduledMessageVariables {
-  id: string
+  id: string;
 }
 
 export interface UpdateScheduledMessageStatusVariables {
-  id: string
-  status: ScheduledMessageStatus
-  sentAt?: string
-  errorMessage?: string
-  retryCount?: number
+  id: string;
+  status: ScheduledMessageStatus;
+  sentAt?: string;
+  errorMessage?: string;
+  retryCount?: number;
 }
 
 // ============================================================================
@@ -117,7 +121,7 @@ export const SCHEDULED_MESSAGE_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const SCHEDULED_MESSAGE_BASIC_FRAGMENT = gql`
   fragment ScheduledMessageBasic on nchat_scheduled_message {
@@ -130,7 +134,7 @@ export const SCHEDULED_MESSAGE_BASIC_FRAGMENT = gql`
     retry_count
     created_at
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -172,7 +176,7 @@ export const GET_SCHEDULED_MESSAGES = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get a single scheduled message by ID
@@ -184,7 +188,7 @@ export const GET_SCHEDULED_MESSAGE = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get scheduled messages that are due for sending
@@ -193,7 +197,10 @@ export const GET_SCHEDULED_MESSAGE = gql`
 export const GET_DUE_SCHEDULED_MESSAGES = gql`
   query GetDueScheduledMessages($currentTime: timestamptz!, $limit: Int = 100) {
     nchat_scheduled_message(
-      where: { status: { _eq: "pending" }, scheduled_at: { _lte: $currentTime } }
+      where: {
+        status: { _eq: "pending" }
+        scheduled_at: { _lte: $currentTime }
+      }
       order_by: { scheduled_at: asc }
       limit: $limit
     ) {
@@ -201,7 +208,7 @@ export const GET_DUE_SCHEDULED_MESSAGES = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get scheduled messages count by status for a user
@@ -237,7 +244,7 @@ export const GET_SCHEDULED_MESSAGES_COUNT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -273,7 +280,7 @@ export const INSERT_SCHEDULED_MESSAGE = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Update a scheduled message (content, time, etc.)
@@ -300,19 +307,22 @@ export const UPDATE_SCHEDULED_MESSAGE = gql`
     }
   }
   ${SCHEDULED_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Cancel a scheduled message (set status to cancelled)
  */
 export const DELETE_SCHEDULED_MESSAGE = gql`
   mutation DeleteScheduledMessage($id: uuid!) {
-    update_nchat_scheduled_message_by_pk(pk_columns: { id: $id }, _set: { status: "cancelled" }) {
+    update_nchat_scheduled_message_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "cancelled" }
+    ) {
       id
       status
     }
   }
-`
+`;
 
 /**
  * Update scheduled message status (for job processing)
@@ -341,7 +351,7 @@ export const UPDATE_SCHEDULED_MESSAGE_STATUS = gql`
       retry_count
     }
   }
-`
+`;
 
 /**
  * Increment retry count for a scheduled message
@@ -359,7 +369,7 @@ export const INCREMENT_SCHEDULED_MESSAGE_RETRY = gql`
       error_message
     }
   }
-`
+`;
 
 /**
  * Hard delete a scheduled message (admin only)
@@ -370,7 +380,7 @@ export const HARD_DELETE_SCHEDULED_MESSAGE = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Bulk cancel scheduled messages
@@ -388,7 +398,7 @@ export const BULK_CANCEL_SCHEDULED_MESSAGES = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // TRANSFORM FUNCTIONS
@@ -397,7 +407,9 @@ export const BULK_CANCEL_SCHEDULED_MESSAGES = gql`
 /**
  * Transform GraphQL scheduled message data to ScheduledMessage type
  */
-export function transformScheduledMessage(data: Record<string, unknown>): ScheduledMessage {
+export function transformScheduledMessage(
+  data: Record<string, unknown>,
+): ScheduledMessage {
   return {
     id: data.id as string,
     userId: data.user_id as string,
@@ -408,41 +420,53 @@ export function transformScheduledMessage(data: Record<string, unknown>): Schedu
     retryCount: (data.retry_count as number) || 0,
     maxRetries: (data.max_retries as number) || 3,
     threadId: data.thread_id as string | undefined,
-    attachments: data.attachments as ScheduledMessage['attachments'],
+    attachments: data.attachments as ScheduledMessage["attachments"],
     createdAt: new Date(data.created_at as string),
     sentAt: data.sent_at ? new Date(data.sent_at as string) : undefined,
     errorMessage: data.error_message as string | undefined,
-    user: data.user ? transformUser(data.user as Record<string, unknown>) : undefined,
-    channel: data.channel ? transformChannel(data.channel as Record<string, unknown>) : undefined,
-  }
+    user: data.user
+      ? transformUser(data.user as Record<string, unknown>)
+      : undefined,
+    channel: data.channel
+      ? transformChannel(data.channel as Record<string, unknown>)
+      : undefined,
+  };
 }
 
 /**
  * Transform multiple scheduled messages
  */
-export function transformScheduledMessages(data: unknown[]): ScheduledMessage[] {
-  return data.map((m) => transformScheduledMessage(m as Record<string, unknown>))
+export function transformScheduledMessages(
+  data: unknown[],
+): ScheduledMessage[] {
+  return data.map((m) =>
+    transformScheduledMessage(m as Record<string, unknown>),
+  );
 }
 
 /**
  * Transform user data
  */
-function transformUser(data: Record<string, unknown>): ScheduledMessage['user'] {
+function transformUser(
+  data: Record<string, unknown>,
+): ScheduledMessage["user"] {
   return {
     id: data.id as string,
     username: data.username as string,
     displayName: (data.display_name as string) || (data.username as string),
     avatarUrl: data.avatar_url as string | undefined,
-  }
+  };
 }
 
 /**
  * Transform channel data
  */
-function transformChannel(data: Record<string, unknown>): ScheduledMessage['channel'] {
+function transformChannel(
+  data: Record<string, unknown>,
+): ScheduledMessage["channel"] {
   return {
     id: data.id as string,
     name: data.name as string,
     slug: data.slug as string,
-  }
+  };
 }

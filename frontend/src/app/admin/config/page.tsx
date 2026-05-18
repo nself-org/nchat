@@ -1,7 +1,13 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Settings, Wrench } from 'lucide-react'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Settings, Wrench } from "lucide-react";
 
 export default function ConfigPage() {
   return (
@@ -23,7 +29,8 @@ export default function ConfigPage() {
             Under Construction
           </CardTitle>
           <CardDescription>
-            The admin configuration interface is being rebuilt with improved functionality.
+            The admin configuration interface is being rebuilt with improved
+            functionality.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -31,28 +38,37 @@ export default function ConfigPage() {
             <p>In the meantime, you can configure your application using:</p>
             <ul className="ml-4 list-inside list-disc space-y-1">
               <li>
-                Environment variables in <code className="rounded bg-muted px-1">.env.local</code>
+                Environment variables in{" "}
+                <code className="rounded bg-muted px-1">.env.local</code>
               </li>
               <li>
-                Platform templates via{' '}
-                <code className="rounded bg-muted px-1">NEXT_PUBLIC_PLATFORM_TEMPLATE</code>
+                Platform templates via{" "}
+                <code className="rounded bg-muted px-1">
+                  NEXT_PUBLIC_PLATFORM_TEMPLATE
+                </code>
               </li>
               <li>
-                Feature flags via{' '}
-                <code className="rounded bg-muted px-1">NEXT_PUBLIC_FEATURE_*</code> variables
+                Feature flags via{" "}
+                <code className="rounded bg-muted px-1">
+                  NEXT_PUBLIC_FEATURE_*
+                </code>{" "}
+                variables
               </li>
               <li>
-                Theme customization via{' '}
-                <code className="rounded bg-muted px-1">NEXT_PUBLIC_THEME_*</code> variables
+                Theme customization via{" "}
+                <code className="rounded bg-muted px-1">
+                  NEXT_PUBLIC_THEME_*
+                </code>{" "}
+                variables
               </li>
             </ul>
             <p className="mt-4">
-              See <code className="rounded bg-muted px-1">.env.example</code> for a complete list of
-              configuration options.
+              See <code className="rounded bg-muted px-1">.env.example</code>{" "}
+              for a complete list of configuration options.
             </p>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

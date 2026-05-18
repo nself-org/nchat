@@ -5,17 +5,17 @@
  * POST /api/bots/templates/[id]/instantiate - Create bot from template
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedUser } from '@/lib/api/middleware'
-import { createLogger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { getAuthenticatedUser } from "@/lib/api/middleware";
+import { createLogger } from "@/lib/logger";
 import {
   allTemplates,
   getTemplate,
   getTemplatesByCategory,
   getFeaturedTemplates,
-} from '@/lib/bots/templates'
+} from "@/lib/bots/templates";
 
-const logger = createLogger('BotTemplatesAPI')
+const logger = createLogger("BotTemplatesAPI");
 
 /**
  * GET /api/bots/templates
@@ -23,21 +23,24 @@ const logger = createLogger('BotTemplatesAPI')
  */
 export async function GET(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request)
+    const user = await getAuthenticatedUser(request);
     if (!user) {
-      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
+      return NextResponse.json(
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const searchParams = request.nextUrl.searchParams
-    const category = searchParams.get('category')
-    const featured = searchParams.get('featured')
+    const searchParams = request.nextUrl.searchParams;
+    const category = searchParams.get("category");
+    const featured = searchParams.get("featured");
 
-    let templates: readonly (typeof allTemplates)[number][] = allTemplates
+    let templates: readonly (typeof allTemplates)[number][] = allTemplates;
 
-    if (featured === 'true') {
-      templates = getFeaturedTemplates()
+    if (featured === "true") {
+      templates = getFeaturedTemplates();
     } else if (category) {
-      templates = getTemplatesByCategory(category)
+      templates = getTemplatesByCategory(category);
     }
 
     // In production: Also query custom templates from database
@@ -45,28 +48,28 @@ export async function GET(request: NextRequest) {
     // WHERE ($1::text IS NULL OR category = $1)
     // AND ($2::boolean IS NULL OR is_featured = $2)
 
-    logger.info('Retrieved bot templates', {
+    logger.info("Retrieved bot templates", {
       count: templates.length,
       category,
       featured,
-    })
+    });
 
     return NextResponse.json({
       success: true,
       data: templates,
       count: templates.length,
-    })
+    });
   } catch (error) {
-    logger.error('Failed to retrieve bot templates', error as Error)
+    logger.error("Failed to retrieve bot templates", error as Error);
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to retrieve bot templates',
+        error: "Failed to retrieve bot templates",
         message: (error as Error).message,
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -76,26 +79,29 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request)
+    const user = await getAuthenticatedUser(request);
     if (!user) {
-      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
+      return NextResponse.json(
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate required fields
-    const requiredFields = ['id', 'name', 'description', 'category', 'code']
-    const missingFields = requiredFields.filter((field) => !body[field])
+    const requiredFields = ["id", "name", "description", "category", "code"];
+    const missingFields = requiredFields.filter((field) => !body[field]);
 
     if (missingFields.length > 0) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Missing required fields',
+          error: "Missing required fields",
           fields: missingFields,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     // In production: INSERT INTO nchat_bot_templates
@@ -112,31 +118,31 @@ export async function POST(request: NextRequest) {
       is_featured: body.is_featured || false,
       created_at: new Date(),
       updated_at: new Date(),
-    }
+    };
 
-    logger.info('Created custom template', {
+    logger.info("Created custom template", {
       templateId: template.id,
       name: template.name,
-    })
+    });
 
     return NextResponse.json(
       {
         success: true,
         data: template,
-        message: 'Template created successfully',
+        message: "Template created successfully",
       },
-      { status: 201 }
-    )
+      { status: 201 },
+    );
   } catch (error) {
-    logger.error('Failed to create template', error as Error)
+    logger.error("Failed to create template", error as Error);
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to create template',
+        error: "Failed to create template",
         message: (error as Error).message,
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

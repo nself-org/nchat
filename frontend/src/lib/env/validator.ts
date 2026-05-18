@@ -5,9 +5,9 @@
  * Provides type-safe access to environment variables.
  */
 
-import { z } from 'zod'
+import { z } from "zod";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Environment Schemas
@@ -18,7 +18,9 @@ import { logger } from '@/lib/logger'
  */
 const serverEnvSchema = z.object({
   // Node environment
-  NODE_ENV: z.enum(['development', 'test', 'production', 'staging']).default('development'),
+  NODE_ENV: z
+    .enum(["development", "test", "production", "staging"])
+    .default("development"),
 
   // Database
   DATABASE_URL: z.string().url().optional(),
@@ -68,21 +70,23 @@ const serverEnvSchema = z.object({
   // Monitoring
   SENTRY_DSN: z.string().url().optional(),
   SENTRY_AUTH_TOKEN: z.string().optional(),
-})
+});
 
 /**
  * Client-side (public) environment variables schema
  */
 const clientEnvSchema = z.object({
   // App configuration
-  NEXT_PUBLIC_APP_NAME: z.string().default('ɳChat'),
+  NEXT_PUBLIC_APP_NAME: z.string().default("ɳChat"),
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
-  NEXT_PUBLIC_ENV: z.enum(['development', 'staging', 'production', 'test']).default('development'),
+  NEXT_PUBLIC_ENV: z
+    .enum(["development", "staging", "production", "test"])
+    .default("development"),
 
   // Feature flags
-  NEXT_PUBLIC_USE_DEV_AUTH: z.enum(['true', 'false']).default('false'),
-  NEXT_PUBLIC_ENABLE_ANALYTICS: z.enum(['true', 'false']).default('false'),
-  NEXT_PUBLIC_ENABLE_SENTRY: z.enum(['true', 'false']).default('false'),
+  NEXT_PUBLIC_USE_DEV_AUTH: z.enum(["true", "false"]).default("false"),
+  NEXT_PUBLIC_ENABLE_ANALYTICS: z.enum(["true", "false"]).default("false"),
+  NEXT_PUBLIC_ENABLE_SENTRY: z.enum(["true", "false"]).default("false"),
 
   // API URLs
   NEXT_PUBLIC_GRAPHQL_URL: z.string().url().optional(),
@@ -111,26 +115,26 @@ const clientEnvSchema = z.object({
   NEXT_PUBLIC_MAX_FILE_SIZE: z.coerce.number().default(10485760), // 10MB
   NEXT_PUBLIC_MAX_MESSAGE_LENGTH: z.coerce.number().default(5000),
   NEXT_PUBLIC_SOCKET_RECONNECT_DELAY: z.coerce.number().default(1000),
-})
+});
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type ServerEnv = z.infer<typeof serverEnvSchema>
-export type ClientEnv = z.infer<typeof clientEnvSchema>
+export type ServerEnv = z.infer<typeof serverEnvSchema>;
+export type ClientEnv = z.infer<typeof clientEnvSchema>;
 
 export interface ValidationResult {
-  success: boolean
-  errors?: z.ZodError
-  env?: ServerEnv & ClientEnv
+  success: boolean;
+  errors?: z.ZodError;
+  env?: ServerEnv & ClientEnv;
 }
 
 export interface EnvStatus {
-  valid: boolean
-  missing: string[]
-  invalid: string[]
-  warnings: string[]
+  valid: boolean;
+  missing: string[];
+  invalid: string[];
+  warnings: string[];
 }
 
 // =============================================================================
@@ -142,19 +146,19 @@ export interface EnvStatus {
  */
 export function validateServerEnv(): ValidationResult {
   try {
-    const env = serverEnvSchema.parse(process.env)
+    const env = serverEnvSchema.parse(process.env);
     return {
       success: true,
       env: env as ServerEnv & ClientEnv,
-    }
+    };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
         success: false,
         errors: error,
-      }
+      };
     }
-    throw error
+    throw error;
   }
 }
 
@@ -163,19 +167,19 @@ export function validateServerEnv(): ValidationResult {
  */
 export function validateClientEnv(): ValidationResult {
   try {
-    const env = clientEnvSchema.parse(process.env)
+    const env = clientEnvSchema.parse(process.env);
     return {
       success: true,
       env: env as ServerEnv & ClientEnv,
-    }
+    };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
         success: false,
         errors: error,
-      }
+      };
     }
-    throw error
+    throw error;
   }
 }
 
@@ -183,25 +187,26 @@ export function validateClientEnv(): ValidationResult {
  * Validate all environment variables
  */
 export function validateEnv(): ValidationResult {
-  const isServer = typeof window === 'undefined'
+  const isServer = typeof window === "undefined";
 
   if (isServer) {
-    const serverResult = validateServerEnv()
-    const clientResult = validateClientEnv()
+    const serverResult = validateServerEnv();
+    const clientResult = validateClientEnv();
 
     if (!serverResult.success || !clientResult.success) {
       return {
         success: false,
         errors: serverResult.errors || clientResult.errors,
-      }
+      };
     }
 
     return {
       success: true,
-      env: { ...serverResult.env, ...clientResult.env } as ServerEnv & ClientEnv,
-    }
+      env: { ...serverResult.env, ...clientResult.env } as ServerEnv &
+        ClientEnv,
+    };
   } else {
-    return validateClientEnv()
+    return validateClientEnv();
   }
 }
 
@@ -209,7 +214,7 @@ export function validateEnv(): ValidationResult {
  * Get environment status with detailed information
  */
 export function getEnvStatus(): EnvStatus {
-  const result = validateEnv()
+  const result = validateEnv();
 
   if (result.success) {
     return {
@@ -217,31 +222,33 @@ export function getEnvStatus(): EnvStatus {
       missing: [],
       invalid: [],
       warnings: [],
-    }
+    };
   }
 
-  const missing: string[] = []
-  const invalid: string[] = []
+  const missing: string[] = [];
+  const invalid: string[] = [];
 
   if (result.errors) {
     for (const issue of result.errors.issues) {
-      const path = issue.path.join('.')
+      const path = issue.path.join(".");
 
-      if (issue.code === 'invalid_type' && issue.received === 'undefined') {
-        missing.push(path)
+      if (issue.code === "invalid_type" && issue.received === "undefined") {
+        missing.push(path);
       } else {
-        invalid.push(`${path}: ${issue.message}`)
+        invalid.push(`${path}: ${issue.message}`);
       }
     }
   }
 
   // Generate warnings for optional but recommended variables
-  const warnings: string[] = []
+  const warnings: string[] = [];
   if (!process.env.SENTRY_DSN) {
-    warnings.push('SENTRY_DSN not set - error tracking disabled')
+    warnings.push("SENTRY_DSN not set - error tracking disabled");
   }
   if (!process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID) {
-    warnings.push('NEXT_PUBLIC_GOOGLE_ANALYTICS_ID not set - analytics disabled')
+    warnings.push(
+      "NEXT_PUBLIC_GOOGLE_ANALYTICS_ID not set - analytics disabled",
+    );
   }
 
   return {
@@ -249,7 +256,7 @@ export function getEnvStatus(): EnvStatus {
     missing,
     invalid,
     warnings,
-  }
+  };
 }
 
 /**
@@ -258,37 +265,37 @@ export function getEnvStatus(): EnvStatus {
 export function formatEnvErrors(errors: z.ZodError): string {
   return errors.issues
     .map((issue) => {
-      const path = issue.path.join('.')
-      return `  - ${path}: ${issue.message}`
+      const path = issue.path.join(".");
+      return `  - ${path}: ${issue.message}`;
     })
-    .join('\n')
+    .join("\n");
 }
 
 /**
  * Log environment status
  */
 export function logEnvStatus(): void {
-  const status = getEnvStatus()
+  const status = getEnvStatus();
 
   if (status.valid) {
-    return
+    return;
   }
 
-  logger.error('❌ Environment validation failed:\n')
+  logger.error("❌ Environment validation failed:\n");
 
   if (status.missing.length > 0) {
-    logger.error('Missing variables:')
-    status.missing.forEach((v) => logger.error(`  - ${v}`))
+    logger.error("Missing variables:");
+    status.missing.forEach((v) => logger.error(`  - ${v}`));
   }
 
   if (status.invalid.length > 0) {
-    logger.error('\nInvalid variables:')
-    status.invalid.forEach((v) => logger.error(`  - ${v}`))
+    logger.error("\nInvalid variables:");
+    status.invalid.forEach((v) => logger.error(`  - ${v}`));
   }
 
   if (status.warnings.length > 0) {
-    logger.warn('\n⚠️  Warnings:')
-    status.warnings.forEach((w) => logger.warn(`  - ${w}`))
+    logger.warn("\n⚠️  Warnings:");
+    status.warnings.forEach((w) => logger.warn(`  - ${w}`));
   }
 }
 
@@ -300,42 +307,44 @@ export function logEnvStatus(): void {
  * Get validated environment variables (throws if invalid)
  */
 export function getEnv(): ServerEnv & ClientEnv {
-  const result = validateEnv()
+  const result = validateEnv();
 
   if (!result.success) {
-    const formatted = result.errors ? formatEnvErrors(result.errors) : 'Unknown error'
-    throw new Error(`Environment validation failed:\n${formatted}`)
+    const formatted = result.errors
+      ? formatEnvErrors(result.errors)
+      : "Unknown error";
+    throw new Error(`Environment validation failed:\n${formatted}`);
   }
 
-  return result.env!
+  return result.env!;
 }
 
 /**
  * Check if running in production
  */
 export function isProduction(): boolean {
-  return process.env.NODE_ENV === 'production'
+  return process.env.NODE_ENV === "production";
 }
 
 /**
  * Check if running in development
  */
 export function isDevelopment(): boolean {
-  return process.env.NODE_ENV === 'development'
+  return process.env.NODE_ENV === "development";
 }
 
 /**
  * Check if running in test
  */
 export function isTest(): boolean {
-  return process.env.NODE_ENV === 'test'
+  return process.env.NODE_ENV === "test";
 }
 
 /**
  * Check if on server side
  */
 export function isServer(): boolean {
-  return typeof window === 'undefined'
+  return typeof window === "undefined";
 }
 
 // =============================================================================
@@ -345,24 +354,26 @@ export function isServer(): boolean {
 /**
  * Initialize and validate environment on module load
  */
-if (process.env.NODE_ENV !== 'test') {
-  const result = validateEnv()
+if (process.env.NODE_ENV !== "test") {
+  const result = validateEnv();
 
   if (!result.success) {
-    logger.error('\n🔴 ENVIRONMENT VALIDATION FAILED\n')
-    logEnvStatus()
+    logger.error("\n🔴 ENVIRONMENT VALIDATION FAILED\n");
+    logEnvStatus();
 
     // Fail fast in production
     if (isProduction()) {
-      logger.error('\n❌ Cannot start application with invalid environment variables')
-      process.exit(1)
+      logger.error(
+        "\n❌ Cannot start application with invalid environment variables",
+      );
+      process.exit(1);
     }
   } else if (isDevelopment()) {
     // Log warnings in development
-    const status = getEnvStatus()
+    const status = getEnvStatus();
     if (status.warnings.length > 0) {
-      logger.warn('\n⚠️  Environment warnings:')
-      status.warnings.forEach((w) => logger.warn(`  - ${w}`))
+      logger.warn("\n⚠️  Environment warnings:");
+      status.warnings.forEach((w) => logger.warn(`  - ${w}`));
     }
   }
 }
@@ -380,4 +391,4 @@ export default {
   isTest,
   isServer,
   logStatus: logEnvStatus,
-}
+};

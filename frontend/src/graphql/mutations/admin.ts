@@ -5,7 +5,7 @@
  * and system administration.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 // ============================================================================
 // User Management Mutations
@@ -37,7 +37,7 @@ export const SUSPEND_USER = gql`
       email
     }
   }
-`
+`;
 
 export const UNSUSPEND_USER = gql`
   mutation UnsuspendUser($userId: uuid!) {
@@ -56,10 +56,15 @@ export const UNSUSPEND_USER = gql`
       username
     }
   }
-`
+`;
 
 export const BAN_USER = gql`
-  mutation BanUser($userId: uuid!, $reason: String!, $bannedBy: uuid!, $permanent: Boolean) {
+  mutation BanUser(
+    $userId: uuid!
+    $reason: String!
+    $bannedBy: uuid!
+    $permanent: Boolean
+  ) {
     insert_nchat_user_bans_one(
       object: {
         user_id: $userId
@@ -81,7 +86,7 @@ export const BAN_USER = gql`
       }
     }
   }
-`
+`;
 
 export const UNBAN_USER = gql`
   mutation UnbanUser($userId: uuid!) {
@@ -89,42 +94,56 @@ export const UNBAN_USER = gql`
       affected_rows
     }
   }
-`
+`;
 
 export const DELETE_USER = gql`
-  mutation DeleteUser($userId: uuid!, $deleteContent: Boolean, $anonymize: Boolean) {
+  mutation DeleteUser(
+    $userId: uuid!
+    $deleteContent: Boolean
+    $anonymize: Boolean
+  ) {
     delete_nchat_users_by_pk(id: $userId) {
       id
       username
       email
     }
   }
-`
+`;
 
 export const PROMOTE_USER = gql`
   mutation PromoteUser($userId: uuid!, $newRole: String!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { role: $newRole }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { role: $newRole }
+    ) {
       id
       username
       role
       updated_at
     }
   }
-`
+`;
 
 export const DEMOTE_USER = gql`
   mutation DemoteUser($userId: uuid!, $newRole: String!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { role: $newRole }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { role: $newRole }
+    ) {
       id
       username
       role
       updated_at
     }
   }
-`
+`;
 
 export const RESET_USER_PASSWORD = gql`
-  mutation ResetUserPassword($userId: uuid!, $newPassword: String, $sendEmail: Boolean) {
+  mutation ResetUserPassword(
+    $userId: uuid!
+    $newPassword: String
+    $sendEmail: Boolean
+  ) {
     update_nchat_users_by_pk(
       pk_columns: { id: $userId }
       _set: { password_reset_required: true, password_reset_at: "now()" }
@@ -135,10 +154,14 @@ export const RESET_USER_PASSWORD = gql`
       password_reset_required
     }
   }
-`
+`;
 
 export const IMPERSONATE_USER = gql`
-  mutation ImpersonateUser($adminId: uuid!, $targetUserId: uuid!, $reason: String) {
+  mutation ImpersonateUser(
+    $adminId: uuid!
+    $targetUserId: uuid!
+    $reason: String
+  ) {
     insert_nchat_impersonation_logs_one(
       object: {
         admin_id: $adminId
@@ -157,7 +180,7 @@ export const IMPERSONATE_USER = gql`
       }
     }
   }
-`
+`;
 
 export const END_IMPERSONATION = gql`
   mutation EndImpersonation($impersonationId: uuid!) {
@@ -169,7 +192,7 @@ export const END_IMPERSONATION = gql`
       ended_at
     }
   }
-`
+`;
 
 export const INVITE_USERS = gql`
   mutation InviteUsers($invites: [nchat_user_invites_insert_input!]!) {
@@ -184,14 +207,19 @@ export const INVITE_USERS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Role Management Mutations
 // ============================================================================
 
 export const CREATE_ROLE = gql`
-  mutation CreateRole($name: String!, $description: String, $permissions: jsonb!, $priority: Int) {
+  mutation CreateRole(
+    $name: String!
+    $description: String
+    $permissions: jsonb!
+    $priority: Int
+  ) {
     insert_nchat_roles_one(
       object: {
         name: $name
@@ -208,7 +236,7 @@ export const CREATE_ROLE = gql`
       created_at
     }
   }
-`
+`;
 
 export const UPDATE_ROLE = gql`
   mutation UpdateRole(
@@ -235,7 +263,7 @@ export const UPDATE_ROLE = gql`
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_ROLE = gql`
   mutation DeleteRole($roleId: uuid!) {
@@ -244,11 +272,14 @@ export const DELETE_ROLE = gql`
       name
     }
   }
-`
+`;
 
 export const ASSIGN_ROLE_TO_USER = gql`
   mutation AssignRoleToUser($userId: uuid!, $roleId: uuid!) {
-    update_nchat_users_by_pk(pk_columns: { id: $userId }, _set: { role_id: $roleId }) {
+    update_nchat_users_by_pk(
+      pk_columns: { id: $userId }
+      _set: { role_id: $roleId }
+    ) {
       id
       username
       role_id
@@ -259,7 +290,7 @@ export const ASSIGN_ROLE_TO_USER = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Moderation Mutations
@@ -290,10 +321,15 @@ export const DELETE_CONTENT = gql`
       created_at
     }
   }
-`
+`;
 
 export const WARN_USER = gql`
-  mutation WarnUser($userId: uuid!, $reason: String!, $warnedBy: uuid!, $severity: String) {
+  mutation WarnUser(
+    $userId: uuid!
+    $reason: String!
+    $warnedBy: uuid!
+    $severity: String
+  ) {
     insert_nchat_user_warnings_one(
       object: {
         user_id: $userId
@@ -314,7 +350,7 @@ export const WARN_USER = gql`
       }
     }
   }
-`
+`;
 
 export const RESOLVE_REPORT = gql`
   mutation ResolveReport(
@@ -340,10 +376,14 @@ export const RESOLVE_REPORT = gql`
       resolved_at
     }
   }
-`
+`;
 
 export const DISMISS_REPORT = gql`
-  mutation DismissReport($reportId: uuid!, $dismissedBy: uuid!, $reason: String) {
+  mutation DismissReport(
+    $reportId: uuid!
+    $dismissedBy: uuid!
+    $reason: String
+  ) {
     update_nchat_reports_by_pk(
       pk_columns: { id: $reportId }
       _set: {
@@ -358,13 +398,18 @@ export const DISMISS_REPORT = gql`
       dismissed_at
     }
   }
-`
+`;
 
 export const LOCK_CHANNEL = gql`
   mutation LockChannel($channelId: uuid!, $reason: String, $lockedBy: uuid!) {
     update_nchat_channels_by_pk(
       pk_columns: { id: $channelId }
-      _set: { is_locked: true, locked_at: "now()", locked_by: $lockedBy, lock_reason: $reason }
+      _set: {
+        is_locked: true
+        locked_at: "now()"
+        locked_by: $lockedBy
+        lock_reason: $reason
+      }
     ) {
       id
       name
@@ -373,20 +418,25 @@ export const LOCK_CHANNEL = gql`
       lock_reason
     }
   }
-`
+`;
 
 export const UNLOCK_CHANNEL = gql`
   mutation UnlockChannel($channelId: uuid!) {
     update_nchat_channels_by_pk(
       pk_columns: { id: $channelId }
-      _set: { is_locked: false, locked_at: null, locked_by: null, lock_reason: null }
+      _set: {
+        is_locked: false
+        locked_at: null
+        locked_by: null
+        lock_reason: null
+      }
     ) {
       id
       name
       is_locked
     }
   }
-`
+`;
 
 // ============================================================================
 // Audit Log Mutations
@@ -419,7 +469,7 @@ export const CREATE_AUDIT_LOG = gql`
       created_at
     }
   }
-`
+`;
 
 export const PURGE_OLD_AUDIT_LOGS = gql`
   mutation PurgeOldAuditLogs($before: timestamptz!) {
@@ -427,7 +477,7 @@ export const PURGE_OLD_AUDIT_LOGS = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // System Settings Mutations
@@ -437,14 +487,17 @@ export const UPDATE_SYSTEM_SETTINGS = gql`
   mutation UpdateSystemSettings($key: String!, $value: jsonb!) {
     insert_nchat_system_settings_one(
       object: { key: $key, value: $value, updated_at: "now()" }
-      on_conflict: { constraint: system_settings_key_key, update_columns: [value, updated_at] }
+      on_conflict: {
+        constraint: system_settings_key_key
+        update_columns: [value, updated_at]
+      }
     ) {
       key
       value
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_SYSTEM_SETTING = gql`
   mutation DeleteSystemSetting($key: String!) {
@@ -452,27 +505,34 @@ export const DELETE_SYSTEM_SETTING = gql`
       affected_rows
     }
   }
-`
+`;
 
 export const TOGGLE_FEATURE_FLAG = gql`
   mutation ToggleFeatureFlag($flagName: String!, $enabled: Boolean!) {
     insert_nchat_feature_flags_one(
       object: { name: $flagName, enabled: $enabled, updated_at: "now()" }
-      on_conflict: { constraint: feature_flags_name_key, update_columns: [enabled, updated_at] }
+      on_conflict: {
+        constraint: feature_flags_name_key
+        update_columns: [enabled, updated_at]
+      }
     ) {
       name
       enabled
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // Bulk Operations
 // ============================================================================
 
 export const BULK_SUSPEND_USERS = gql`
-  mutation BulkSuspendUsers($userIds: [uuid!]!, $reason: String!, $suspendedBy: uuid!) {
+  mutation BulkSuspendUsers(
+    $userIds: [uuid!]!
+    $reason: String!
+    $suspendedBy: uuid!
+  ) {
     update_nchat_users(
       where: { id: { _in: $userIds } }
       _set: {
@@ -490,7 +550,7 @@ export const BULK_SUSPEND_USERS = gql`
       }
     }
   }
-`
+`;
 
 export const BULK_DELETE_USERS = gql`
   mutation BulkDeleteUsers($userIds: [uuid!]!) {
@@ -498,11 +558,14 @@ export const BULK_DELETE_USERS = gql`
       affected_rows
     }
   }
-`
+`;
 
 export const BULK_ASSIGN_ROLE = gql`
   mutation BulkAssignRole($userIds: [uuid!]!, $roleId: uuid!) {
-    update_nchat_users(where: { id: { _in: $userIds } }, _set: { role_id: $roleId }) {
+    update_nchat_users(
+      where: { id: { _in: $userIds } }
+      _set: { role_id: $roleId }
+    ) {
       affected_rows
       returning {
         id
@@ -511,15 +574,17 @@ export const BULK_ASSIGN_ROLE = gql`
       }
     }
   }
-`
+`;
 
 export const BULK_DELETE_MESSAGES = gql`
   mutation BulkDeleteMessagesByUser($userId: uuid!, $channelId: uuid) {
-    delete_nchat_messages(where: { user_id: { _eq: $userId }, channel_id: { _eq: $channelId } }) {
+    delete_nchat_messages(
+      where: { user_id: { _eq: $userId }, channel_id: { _eq: $channelId } }
+    ) {
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // Analytics & Stats
@@ -532,17 +597,25 @@ export const REFRESH_STATS_CACHE = gql`
       refreshed_at
     }
   }
-`
+`;
 
 export const EXPORT_USER_DATA = gql`
-  mutation ExportUserData($userId: uuid!, $format: String!, $includeMessages: Boolean) {
-    export_user_data(userId: $userId, format: $format, includeMessages: $includeMessages) {
+  mutation ExportUserData(
+    $userId: uuid!
+    $format: String!
+    $includeMessages: Boolean
+  ) {
+    export_user_data(
+      userId: $userId
+      format: $format
+      includeMessages: $includeMessages
+    ) {
       export_id
       download_url
       expires_at
     }
   }
-`
+`;
 
 export const IMPORT_USERS = gql`
   mutation ImportUsers($users: jsonb!, $sendInvites: Boolean) {
@@ -552,7 +625,7 @@ export const IMPORT_USERS = gql`
       errors
     }
   }
-`
+`;
 
 // ============================================================================
 // Webhooks Management
@@ -567,7 +640,13 @@ export const CREATE_WEBHOOK = gql`
     $enabled: Boolean
   ) {
     insert_nchat_webhooks_one(
-      object: { name: $name, url: $url, events: $events, secret: $secret, enabled: $enabled }
+      object: {
+        name: $name
+        url: $url
+        events: $events
+        secret: $secret
+        enabled: $enabled
+      }
     ) {
       id
       name
@@ -577,7 +656,7 @@ export const CREATE_WEBHOOK = gql`
       created_at
     }
   }
-`
+`;
 
 export const UPDATE_WEBHOOK = gql`
   mutation UpdateWebhook(
@@ -590,7 +669,13 @@ export const UPDATE_WEBHOOK = gql`
   ) {
     update_nchat_webhooks_by_pk(
       pk_columns: { id: $webhookId }
-      _set: { name: $name, url: $url, events: $events, secret: $secret, enabled: $enabled }
+      _set: {
+        name: $name
+        url: $url
+        events: $events
+        secret: $secret
+        enabled: $enabled
+      }
     ) {
       id
       name
@@ -600,7 +685,7 @@ export const UPDATE_WEBHOOK = gql`
       updated_at
     }
   }
-`
+`;
 
 export const DELETE_WEBHOOK = gql`
   mutation DeleteWebhook($webhookId: uuid!) {
@@ -609,74 +694,74 @@ export const DELETE_WEBHOOK = gql`
       name
     }
   }
-`
+`;
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
 export interface SuspendUserInput {
-  userId: string
-  reason: string
-  suspendedUntil?: string
-  suspendedBy: string
+  userId: string;
+  reason: string;
+  suspendedUntil?: string;
+  suspendedBy: string;
 }
 
 export interface BanUserInput {
-  userId: string
-  reason: string
-  bannedBy: string
-  permanent?: boolean
+  userId: string;
+  reason: string;
+  bannedBy: string;
+  permanent?: boolean;
 }
 
 export interface DeleteUserInput {
-  userId: string
-  deleteContent?: boolean
-  anonymize?: boolean
+  userId: string;
+  deleteContent?: boolean;
+  anonymize?: boolean;
 }
 
 export interface RoleInput {
-  name: string
-  description?: string
-  permissions: Record<string, boolean>
-  priority?: number
+  name: string;
+  description?: string;
+  permissions: Record<string, boolean>;
+  priority?: number;
 }
 
 export interface WarnUserInput {
-  userId: string
-  reason: string
-  warnedBy: string
-  severity?: 'low' | 'medium' | 'high' | 'critical'
+  userId: string;
+  reason: string;
+  warnedBy: string;
+  severity?: "low" | "medium" | "high" | "critical";
 }
 
 export interface ResolveReportInput {
-  reportId: string
-  resolution: string
-  resolvedBy: string
-  actionTaken?: string
+  reportId: string;
+  resolution: string;
+  resolvedBy: string;
+  actionTaken?: string;
 }
 
 export interface AuditLogInput {
-  userId: string
-  action: string
-  resourceType?: string
-  resourceId?: string
-  details?: Record<string, unknown>
-  ipAddress?: string
-  userAgent?: string
+  userId: string;
+  action: string;
+  resourceType?: string;
+  resourceId?: string;
+  details?: Record<string, unknown>;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface WebhookInput {
-  name: string
-  url: string
-  events: string[]
-  secret?: string
-  enabled?: boolean
+  name: string;
+  url: string;
+  events: string[];
+  secret?: string;
+  enabled?: boolean;
 }
 
 export interface UserInviteInput {
-  email: string
-  role?: string
-  invited_by: string
-  expires_at?: string
+  email: string;
+  role?: string;
+  invited_by: string;
+  expires_at?: string;
 }

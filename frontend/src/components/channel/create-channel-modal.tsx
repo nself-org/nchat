@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useEffect } from 'react'
-import { Hash, Lock, Info, Users, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import * as React from "react";
+import { useState, useEffect } from "react";
+import { Hash, Lock, Info, Users, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -18,34 +18,38 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useChannelStore, type Channel, type ChannelCategory } from '@/stores/channel-store'
-import { useAuth } from '@/contexts/auth-context'
+} from "@/components/ui/select";
+import {
+  useChannelStore,
+  type Channel,
+  type ChannelCategory,
+} from "@/stores/channel-store";
+import { useAuth } from "@/contexts/auth-context";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CreateChannelModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  defaultCategoryId?: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  defaultCategoryId?: string;
 }
 
 interface UserOption {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl?: string
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
 }
 
 // ============================================================================
@@ -53,12 +57,12 @@ interface UserOption {
 // ============================================================================
 
 const mockUsers: UserOption[] = [
-  { id: '1', username: 'alice', displayName: 'Alice Johnson' },
-  { id: '2', username: 'bob', displayName: 'Bob Smith' },
-  { id: '3', username: 'charlie', displayName: 'Charlie Brown' },
-  { id: '4', username: 'diana', displayName: 'Diana Prince' },
-  { id: '5', username: 'eve', displayName: 'Eve Wilson' },
-]
+  { id: "1", username: "alice", displayName: "Alice Johnson" },
+  { id: "2", username: "bob", displayName: "Bob Smith" },
+  { id: "3", username: "charlie", displayName: "Charlie Brown" },
+  { id: "4", username: "diana", displayName: "Diana Prince" },
+  { id: "5", username: "eve", displayName: "Eve Wilson" },
+];
 
 // ============================================================================
 // Component
@@ -69,84 +73,87 @@ export function CreateChannelModal({
   onOpenChange,
   defaultCategoryId,
 }: CreateChannelModalProps) {
-  const { user } = useAuth()
-  const { categories, addChannel } = useChannelStore()
+  const { user } = useAuth();
+  const { categories, addChannel } = useChannelStore();
 
   // Form state
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [isPrivate, setIsPrivate] = useState(false)
-  const [categoryId, setCategoryId] = useState<string | undefined>(defaultCategoryId)
-  const [selectedMembers, setSelectedMembers] = useState<UserOption[]>([])
-  const [memberSearch, setMemberSearch] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [categoryId, setCategoryId] = useState<string | undefined>(
+    defaultCategoryId,
+  );
+  const [selectedMembers, setSelectedMembers] = useState<UserOption[]>([]);
+  const [memberSearch, setMemberSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Reset form when modal opens/closes
   useEffect(() => {
     if (open) {
-      setName('')
-      setDescription('')
-      setIsPrivate(false)
-      setCategoryId(defaultCategoryId)
-      setSelectedMembers([])
-      setMemberSearch('')
-      setError(null)
+      setName("");
+      setDescription("");
+      setIsPrivate(false);
+      setCategoryId(defaultCategoryId);
+      setSelectedMembers([]);
+      setMemberSearch("");
+      setError(null);
     }
-  }, [open, defaultCategoryId])
+  }, [open, defaultCategoryId]);
 
   // Filter users for member search
   const filteredUsers = React.useMemo(() => {
-    if (!memberSearch.trim()) return []
-    const query = memberSearch.toLowerCase()
+    if (!memberSearch.trim()) return [];
+    const query = memberSearch.toLowerCase();
     return mockUsers
       .filter(
         (u) =>
           !selectedMembers.some((m) => m.id === u.id) &&
-          (u.displayName.toLowerCase().includes(query) || u.username.toLowerCase().includes(query))
+          (u.displayName.toLowerCase().includes(query) ||
+            u.username.toLowerCase().includes(query)),
       )
-      .slice(0, 5)
-  }, [memberSearch, selectedMembers])
+      .slice(0, 5);
+  }, [memberSearch, selectedMembers]);
 
   const handleAddMember = (member: UserOption) => {
-    setSelectedMembers((prev) => [...prev, member])
-    setMemberSearch('')
-  }
+    setSelectedMembers((prev) => [...prev, member]);
+    setMemberSearch("");
+  };
 
   const handleRemoveMember = (memberId: string) => {
-    setSelectedMembers((prev) => prev.filter((m) => m.id !== memberId))
-  }
+    setSelectedMembers((prev) => prev.filter((m) => m.id !== memberId));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     if (!name.trim()) {
-      setError('Channel name is required')
-      return
+      setError("Channel name is required");
+      return;
     }
 
     // Generate slug from name
     const slug = name
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
 
     if (!slug) {
-      setError('Channel name must contain letters or numbers')
-      return
+      setError("Channel name must contain letters or numbers");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const newChannel: Channel = {
         id: `channel-${Date.now()}`,
         name: name.trim(),
         slug,
         description: description.trim() || null,
-        type: isPrivate ? 'private' : 'public',
+        type: isPrivate ? "private" : "public",
         categoryId: categoryId || null,
-        createdBy: user?.id || 'unknown',
+        createdBy: user?.id || "unknown",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         topic: null,
@@ -157,22 +164,22 @@ export function CreateChannelModal({
         memberCount: selectedMembers.length + 1, // Include creator
         lastMessageAt: null,
         lastMessagePreview: null,
-      }
+      };
 
-      addChannel(newChannel)
-      onOpenChange(false)
+      addChannel(newChannel);
+      onOpenChange(false);
     } catch (err) {
-      setError('Failed to create channel. Please try again.')
-      logger.error('Create channel error:', err)
+      setError("Failed to create channel. Please try again.");
+      logger.error("Create channel error:", err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const slugPreview = name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -188,8 +195,8 @@ export function CreateChannelModal({
               Create a channel
             </DialogTitle>
             <DialogDescription>
-              Channels are where your team communicates. They&apos;re best when organized around a
-              topic.
+              Channels are where your team communicates. They&apos;re best when
+              organized around a topic.
             </DialogDescription>
           </DialogHeader>
 
@@ -223,7 +230,7 @@ export function CreateChannelModal({
               </div>
               {name && (
                 <p className="text-xs text-muted-foreground">
-                  URL: /chat/channel/{slugPreview || 'channel-name'}
+                  URL: /chat/channel/{slugPreview || "channel-name"}
                 </p>
               )}
             </div>
@@ -231,7 +238,8 @@ export function CreateChannelModal({
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">
-                Description <span className="text-muted-foreground">(optional)</span>
+                Description{" "}
+                <span className="text-muted-foreground">(optional)</span>
               </Label>
               <Textarea
                 id="description"
@@ -248,8 +256,10 @@ export function CreateChannelModal({
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select
-                  value={categoryId || 'none'}
-                  onValueChange={(v) => setCategoryId(v === 'none' ? undefined : v)}
+                  value={categoryId || "none"}
+                  onValueChange={(v) =>
+                    setCategoryId(v === "none" ? undefined : v)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
@@ -327,7 +337,11 @@ export function CreateChannelModal({
                 {selectedMembers.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {selectedMembers.map((m) => (
-                      <Badge key={m.id} variant="secondary" className="gap-1 py-0.5 pl-1 pr-0.5">
+                      <Badge
+                        key={m.id}
+                        variant="secondary"
+                        className="gap-1 py-0.5 pl-1 pr-0.5"
+                      >
                         <Avatar className="h-4 w-4">
                           <AvatarImage src={m.avatarUrl} />
                           <AvatarFallback className="text-[8px]">
@@ -354,24 +368,28 @@ export function CreateChannelModal({
               <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <p>
                 {isPrivate
-                  ? 'Only people you add will be able to see this channel. You can always add more people later.'
-                  : 'Anyone in your workspace can view and join public channels.'}
+                  ? "Only people you add will be able to see this channel. You can always add more people later."
+                  : "Anyone in your workspace can view and join public channels."}
               </p>
             </div>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading || !name.trim()}>
-              {isLoading ? 'Creating...' : 'Create channel'}
+              {isLoading ? "Creating..." : "Create channel"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-CreateChannelModal.displayName = 'CreateChannelModal'
+CreateChannelModal.displayName = "CreateChannelModal";

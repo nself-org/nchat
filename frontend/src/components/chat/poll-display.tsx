@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Poll Display Component
@@ -6,16 +6,29 @@
  * Displays poll results, vote buttons, and real-time updates.
  */
 
-import { useState, useCallback, useEffect } from 'react'
-import { CheckCircle2, Circle, Clock, Lock, TrendingUp, Users, X } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useEffect } from "react";
+import {
+  CheckCircle2,
+  Circle,
+  Clock,
+  Lock,
+  TrendingUp,
+  Users,
+  X,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import {
   isPollActive,
   canVote,
@@ -30,15 +43,15 @@ import {
   formatPollSettings,
   type Poll,
   type PollOption,
-} from '@/lib/messages/polls'
+} from "@/lib/messages/polls";
 
 interface PollDisplayProps {
-  poll: Poll
-  currentUserId: string
-  onVote?: (pollId: string, optionIds: string[]) => Promise<void>
-  onClosePoll?: (pollId: string) => Promise<void>
-  onAddOption?: (pollId: string, optionText: string) => Promise<void>
-  className?: string
+  poll: Poll;
+  currentUserId: string;
+  onVote?: (pollId: string, optionIds: string[]) => Promise<void>;
+  onClosePoll?: (pollId: string) => Promise<void>;
+  onAddOption?: (pollId: string, optionText: string) => Promise<void>;
+  className?: string;
 }
 
 export function PollDisplay({
@@ -49,108 +62,114 @@ export function PollDisplay({
   onAddOption,
   className,
 }: PollDisplayProps) {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([])
-  const [isVoting, setIsVoting] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
-  const [timeRemaining, setTimeRemaining] = useState(getTimeRemaining(poll))
-  const [newOptionText, setNewOptionText] = useState('')
-  const [showAddOption, setShowAddOption] = useState(false)
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [isVoting, setIsVoting] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(getTimeRemaining(poll));
+  const [newOptionText, setNewOptionText] = useState("");
+  const [showAddOption, setShowAddOption] = useState(false);
 
-  const isActive = isPollActive(poll)
-  const userVotedOptions = getUserVotedOptions(poll, currentUserId)
-  const hasVoted = hasUserVoted(poll, currentUserId)
-  const canUserVote = canVote(poll, currentUserId, userVotedOptions)
-  const canUserClose = canClosePoll(poll, currentUserId)
-  const canUserAddOption = canAddOption(poll)
-  const winningOptions = getWinningOptions(poll)
+  const isActive = isPollActive(poll);
+  const userVotedOptions = getUserVotedOptions(poll, currentUserId);
+  const hasVoted = hasUserVoted(poll, currentUserId);
+  const canUserVote = canVote(poll, currentUserId, userVotedOptions);
+  const canUserClose = canClosePoll(poll, currentUserId);
+  const canUserAddOption = canAddOption(poll);
+  const winningOptions = getWinningOptions(poll);
 
   // Update time remaining every second
   useEffect(() => {
-    if (!poll.expiresAt || poll.status !== 'active') return
+    if (!poll.expiresAt || poll.status !== "active") return;
 
     const interval = setInterval(() => {
-      setTimeRemaining(getTimeRemaining(poll))
-    }, 1000)
+      setTimeRemaining(getTimeRemaining(poll));
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [poll])
+    return () => clearInterval(interval);
+  }, [poll]);
 
   // Initialize selected options with user's votes
   useEffect(() => {
     if (userVotedOptions.length > 0) {
-      setSelectedOptions(userVotedOptions)
+      setSelectedOptions(userVotedOptions);
     }
-  }, [userVotedOptions])
+  }, [userVotedOptions]);
 
   const handleToggleOption = useCallback(
     (optionId: string) => {
-      if (!isActive || !canUserVote) return
+      if (!isActive || !canUserVote) return;
 
       setSelectedOptions((prev) => {
         if (prev.includes(optionId)) {
-          return prev.filter((id) => id !== optionId)
+          return prev.filter((id) => id !== optionId);
         }
 
         if (!poll.allowMultiple) {
-          return [optionId]
+          return [optionId];
         }
 
         if (poll.maxChoices && prev.length >= poll.maxChoices) {
-          return prev
+          return prev;
         }
 
-        return [...prev, optionId]
-      })
+        return [...prev, optionId];
+      });
     },
-    [isActive, canUserVote, poll.allowMultiple, poll.maxChoices]
-  )
+    [isActive, canUserVote, poll.allowMultiple, poll.maxChoices],
+  );
 
   const handleVote = useCallback(async () => {
-    if (!onVote || selectedOptions.length === 0) return
+    if (!onVote || selectedOptions.length === 0) return;
 
-    setIsVoting(true)
+    setIsVoting(true);
     try {
-      await onVote(poll.id, selectedOptions)
+      await onVote(poll.id, selectedOptions);
     } finally {
-      setIsVoting(false)
+      setIsVoting(false);
     }
-  }, [onVote, poll.id, selectedOptions])
+  }, [onVote, poll.id, selectedOptions]);
 
   const handleClose = useCallback(async () => {
-    if (!onClosePoll) return
+    if (!onClosePoll) return;
 
-    setIsClosing(true)
+    setIsClosing(true);
     try {
-      await onClosePoll(poll.id)
+      await onClosePoll(poll.id);
     } finally {
-      setIsClosing(false)
+      setIsClosing(false);
     }
-  }, [onClosePoll, poll.id])
+  }, [onClosePoll, poll.id]);
 
   const handleAddOption = useCallback(async () => {
-    if (!onAddOption || !newOptionText.trim()) return
+    if (!onAddOption || !newOptionText.trim()) return;
 
     try {
-      await onAddOption(poll.id, newOptionText.trim())
-      setNewOptionText('')
-      setShowAddOption(false)
+      await onAddOption(poll.id, newOptionText.trim());
+      setNewOptionText("");
+      setShowAddOption(false);
     } catch (_error) {
       // Error handling
     }
-  }, [onAddOption, poll.id, newOptionText])
+  }, [onAddOption, poll.id, newOptionText]);
 
   const hasVoteChanged =
-    JSON.stringify(selectedOptions.sort()) !== JSON.stringify(userVotedOptions.sort())
+    JSON.stringify(selectedOptions.sort()) !==
+    JSON.stringify(userVotedOptions.sort());
 
   return (
-    <div className={cn('space-y-4 rounded-lg border bg-card p-4', className)}>
+    <div className={cn("space-y-4 rounded-lg border bg-card p-4", className)}>
       {/* Header */}
       <div className="space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
-            <h4 className="text-base font-semibold leading-tight">{poll.question}</h4>
+            <h4 className="text-base font-semibold leading-tight">
+              {poll.question}
+            </h4>
           </div>
-          <Badge variant={isActive ? 'default' : 'secondary'} className="shrink-0">
+          <Badge
+            variant={isActive ? "default" : "secondary"}
+            className="shrink-0"
+          >
             {getPollStatusText(poll)}
           </Badge>
         </div>
@@ -160,7 +179,7 @@ export function PollDisplay({
           <div className="flex items-center gap-1">
             <Users className="h-3 w-3" />
             <span>
-              {poll.totalVotes} {poll.totalVotes === 1 ? 'vote' : 'votes'}
+              {poll.totalVotes} {poll.totalVotes === 1 ? "vote" : "votes"}
             </span>
           </div>
           {poll.expiresAt && (
@@ -184,9 +203,9 @@ export function PollDisplay({
       <div className="space-y-2">
         <AnimatePresence mode="popLayout">
           {poll.options.map((option, index) => {
-            const isSelected = selectedOptions.includes(option.id)
-            const isWinning = winningOptions.some((w) => w.id === option.id)
-            const userVoted = userVotedOptions.includes(option.id)
+            const isSelected = selectedOptions.includes(option.id);
+            const isWinning = winningOptions.some((w) => w.id === option.id);
+            const userVoted = userVotedOptions.includes(option.id);
 
             return (
               <motion.div
@@ -201,19 +220,19 @@ export function PollDisplay({
                   onClick={() => handleToggleOption(option.id)}
                   disabled={!isActive || !canUserVote || isVoting}
                   className={cn(
-                    'relative w-full overflow-hidden rounded-md border p-3 text-left transition-all',
-                    'hover:border-primary/50 focus:ring-primary/50 focus:outline-none focus:ring-2',
-                    isSelected && 'bg-primary/5 border-primary',
-                    userVoted && !isActive && 'bg-primary/10',
-                    (!isActive || !canUserVote) && 'cursor-default',
-                    'group'
+                    "relative w-full overflow-hidden rounded-md border p-3 text-left transition-all",
+                    "hover:border-primary/50 focus:ring-primary/50 focus:outline-none focus:ring-2",
+                    isSelected && "bg-primary/5 border-primary",
+                    userVoted && !isActive && "bg-primary/10",
+                    (!isActive || !canUserVote) && "cursor-default",
+                    "group",
                   )}
                 >
                   {/* _Progress bar background */}
                   <div
                     className={cn(
-                      'from-primary/10 absolute inset-0 bg-gradient-to-r to-transparent transition-all duration-500',
-                      isWinning && poll.totalVotes > 0 && 'from-primary/20'
+                      "from-primary/10 absolute inset-0 bg-gradient-to-r to-transparent transition-all duration-500",
+                      isWinning && poll.totalVotes > 0 && "from-primary/20",
                     )}
                     style={{ width: `${option.percentage}%` }}
                   />
@@ -232,10 +251,10 @@ export function PollDisplay({
                         ) : (
                           <div
                             className={cn(
-                              'h-5 w-5 shrink-0 rounded-full border-2 transition-colors',
+                              "h-5 w-5 shrink-0 rounded-full border-2 transition-colors",
                               isSelected
-                                ? 'border-primary bg-primary'
-                                : 'group-hover:border-primary/50 border-muted-foreground'
+                                ? "border-primary bg-primary"
+                                : "group-hover:border-primary/50 border-muted-foreground",
                             )}
                           >
                             {isSelected && (
@@ -244,11 +263,15 @@ export function PollDisplay({
                           </div>
                         )
                       ) : (
-                        userVoted && <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
+                        userVoted && (
+                          <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
+                        )
                       )}
 
                       {/* Option text */}
-                      <span className="truncate font-medium">{option.text}</span>
+                      <span className="truncate font-medium">
+                        {option.text}
+                      </span>
                     </div>
 
                     {/* Vote count and percentage */}
@@ -256,7 +279,9 @@ export function PollDisplay({
                       {isWinning && poll.totalVotes > 0 && (
                         <TrendingUp className="h-4 w-4 text-primary" />
                       )}
-                      <span className="text-sm font-semibold">{option.percentage}%</span>
+                      <span className="text-sm font-semibold">
+                        {option.percentage}%
+                      </span>
                       {!poll.isAnonymous && option.votes > 0 && (
                         <TooltipProvider>
                           <Tooltip>
@@ -266,7 +291,8 @@ export function PollDisplay({
                               </Badge>
                             </TooltipTrigger>
                             <TooltipContent>
-                              {option.votes} {option.votes === 1 ? 'vote' : 'votes'}
+                              {option.votes}{" "}
+                              {option.votes === 1 ? "vote" : "votes"}
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -275,27 +301,32 @@ export function PollDisplay({
                   </div>
 
                   {/* Voter avatars (non-anonymous) */}
-                  {!poll.isAnonymous && option.voters && option.voters.length > 0 && (
-                    <div className="relative mt-2 flex items-center gap-1">
-                      <div className="flex -space-x-2">
-                        {option.voters.slice(0, 5).map((voterId, _idx) => (
-                          <Avatar key={voterId} className="h-6 w-6 border-2 border-background">
-                            <AvatarFallback className="text-xs">
-                              {voterId.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        ))}
+                  {!poll.isAnonymous &&
+                    option.voters &&
+                    option.voters.length > 0 && (
+                      <div className="relative mt-2 flex items-center gap-1">
+                        <div className="flex -space-x-2">
+                          {option.voters.slice(0, 5).map((voterId, _idx) => (
+                            <Avatar
+                              key={voterId}
+                              className="h-6 w-6 border-2 border-background"
+                            >
+                              <AvatarFallback className="text-xs">
+                                {voterId.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                          ))}
+                        </div>
+                        {option.voters.length > 5 && (
+                          <span className="ml-1 text-xs text-muted-foreground">
+                            +{option.voters.length - 5} more
+                          </span>
+                        )}
                       </div>
-                      {option.voters.length > 5 && (
-                        <span className="ml-1 text-xs text-muted-foreground">
-                          +{option.voters.length - 5} more
-                        </span>
-                      )}
-                    </div>
-                  )}
+                    )}
                 </button>
               </motion.div>
-            )
+            );
           })}
         </AnimatePresence>
 
@@ -309,21 +340,25 @@ export function PollDisplay({
                   placeholder="Add an option..."
                   value={newOptionText}
                   onChange={(e) => setNewOptionText(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddOption()}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddOption()}
                   className="flex-1 rounded-md border px-3 py-2 text-sm"
                   // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                   maxLength={100}
                 />
-                <Button size="sm" onClick={handleAddOption} disabled={!newOptionText.trim()}>
+                <Button
+                  size="sm"
+                  onClick={handleAddOption}
+                  disabled={!newOptionText.trim()}
+                >
                   Add
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => {
-                    setShowAddOption(false)
-                    setNewOptionText('')
+                    setShowAddOption(false);
+                    setNewOptionText("");
                   }}
                 >
                   <X className="h-4 w-4" />
@@ -348,15 +383,17 @@ export function PollDisplay({
         <div className="flex items-center justify-between gap-2 pt-2">
           <div className="text-xs text-muted-foreground">
             {poll.allowMultiple
-              ? `Select up to ${poll.maxChoices} option${poll.maxChoices !== 1 ? 's' : ''}`
-              : 'Select one option'}
+              ? `Select up to ${poll.maxChoices} option${poll.maxChoices !== 1 ? "s" : ""}`
+              : "Select one option"}
           </div>
           <Button
             onClick={handleVote}
-            disabled={!hasVoteChanged || selectedOptions.length === 0 || isVoting}
+            disabled={
+              !hasVoteChanged || selectedOptions.length === 0 || isVoting
+            }
             size="sm"
           >
-            {isVoting ? 'Voting...' : hasVoted ? 'Change Vote' : 'Vote'}
+            {isVoting ? "Voting..." : hasVoted ? "Change Vote" : "Vote"}
           </Button>
         </div>
       )}
@@ -370,7 +407,7 @@ export function PollDisplay({
           disabled={isClosing}
           className="w-full"
         >
-          {isClosing ? 'Closing...' : 'Close Poll'}
+          {isClosing ? "Closing..." : "Close Poll"}
         </Button>
       )}
 
@@ -381,9 +418,11 @@ export function PollDisplay({
             <p>Multiple options are tied for first place</p>
           ) : (
             <p>
-              <span className="font-semibold text-foreground">{winningOptions[0]?.text}</span> is
-              winning with {winningOptions[0]?.votes} vote
-              {winningOptions[0]?.votes !== 1 ? 's' : ''}
+              <span className="font-semibold text-foreground">
+                {winningOptions[0]?.text}
+              </span>{" "}
+              is winning with {winningOptions[0]?.votes} vote
+              {winningOptions[0]?.votes !== 1 ? "s" : ""}
             </p>
           )}
         </div>
@@ -402,5 +441,5 @@ export function PollDisplay({
         </div>
       )}
     </div>
-  )
+  );
 }

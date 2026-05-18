@@ -9,7 +9,7 @@
  * @version 1.0.0
  */
 
-import type { Currency } from '@/types/subscription.types'
+import type { Currency } from "@/types/subscription.types";
 import type {
   AnalyticsDateRange,
   AnalyticsSubscription,
@@ -28,13 +28,16 @@ import type {
   BillingReportMetadata,
   BillingReportType,
   DriftSeverity,
-} from '@/lib/billing/analytics-types'
-import { BillingAnalyticsError, BillingAnalyticsErrorCode } from '@/lib/billing/analytics-types'
-import { generateRevenueReport } from '@/lib/billing/revenue-analytics'
-import { generateChurnReport } from '@/lib/billing/churn-analytics'
-import { generateCustomerReport } from '@/lib/billing/customer-analytics'
-import { generateDriftReport } from '@/lib/billing/entitlement-drift'
-import { reconcile } from '@/lib/billing/finance-reconciliation'
+} from "@/lib/billing/analytics-types";
+import {
+  BillingAnalyticsError,
+  BillingAnalyticsErrorCode,
+} from "@/lib/billing/analytics-types";
+import { generateRevenueReport } from "@/lib/billing/revenue-analytics";
+import { generateChurnReport } from "@/lib/billing/churn-analytics";
+import { generateCustomerReport } from "@/lib/billing/customer-analytics";
+import { generateDriftReport } from "@/lib/billing/entitlement-drift";
+import { reconcile } from "@/lib/billing/finance-reconciliation";
 
 // ============================================================================
 // CSV Export Helpers
@@ -44,34 +47,39 @@ import { reconcile } from '@/lib/billing/finance-reconciliation'
  * Escape a value for CSV output.
  */
 function escapeCsvValue(value: unknown): string {
-  if (value === null || value === undefined) return ''
-  const str = String(value)
-  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-    return `"${str.replace(/"/g, '""')}"`
+  if (value === null || value === undefined) return "";
+  const str = String(value);
+  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+    return `"${str.replace(/"/g, '""')}"`;
   }
-  return str
+  return str;
 }
 
 /**
  * Convert an array of objects to CSV string.
  */
-export function toCsv(rows: Record<string, unknown>[], headers?: string[]): string {
-  if (rows.length === 0) return ''
+export function toCsv(
+  rows: Record<string, unknown>[],
+  headers?: string[],
+): string {
+  if (rows.length === 0) return "";
 
-  const keys = headers || Object.keys(rows[0])
-  const headerLine = keys.map(escapeCsvValue).join(',')
+  const keys = headers || Object.keys(rows[0]);
+  const headerLine = keys.map(escapeCsvValue).join(",");
   const dataLines = rows.map((row) =>
-    keys.map((key) => escapeCsvValue(row[key])).join(',')
-  )
+    keys.map((key) => escapeCsvValue(row[key])).join(","),
+  );
 
-  return [headerLine, ...dataLines].join('\n')
+  return [headerLine, ...dataLines].join("\n");
 }
 
 /**
  * Convert revenue report to CSV rows.
  */
-function revenueReportToCsvRows(report: RevenueAnalyticsReport): Record<string, unknown>[] {
-  const rows: Record<string, unknown>[] = []
+function revenueReportToCsvRows(
+  report: RevenueAnalyticsReport,
+): Record<string, unknown>[] {
+  const rows: Record<string, unknown>[] = [];
 
   // MRR time series
   for (const snapshot of report.mrrTimeSeries) {
@@ -89,17 +97,19 @@ function revenueReportToCsvRows(report: RevenueAnalyticsReport): Record<string, 
       professional_mrr: snapshot.byPlan.professional,
       enterprise_mrr: snapshot.byPlan.enterprise,
       custom_mrr: snapshot.byPlan.custom,
-    })
+    });
   }
 
-  return rows
+  return rows;
 }
 
 /**
  * Convert churn report to CSV rows.
  */
-function churnReportToCsvRows(report: ChurnAnalyticsReport): Record<string, unknown>[] {
-  const rows: Record<string, unknown>[] = []
+function churnReportToCsvRows(
+  report: ChurnAnalyticsReport,
+): Record<string, unknown>[] {
+  const rows: Record<string, unknown>[] = [];
 
   for (const metrics of report.churnTimeSeries) {
     rows.push({
@@ -111,17 +121,19 @@ function churnReportToCsvRows(report: ChurnAnalyticsReport): Record<string, unkn
       revenue_churn_rate: metrics.revenueChurnRate,
       net_revenue_churn_rate: metrics.netRevenueChurnRate,
       churned_mrr_cents: metrics.churnedMRR,
-    })
+    });
   }
 
-  return rows
+  return rows;
 }
 
 /**
  * Convert customer report to CSV rows.
  */
-function customerReportToCsvRows(report: CustomerAnalyticsReport): Record<string, unknown>[] {
-  const rows: Record<string, unknown>[] = []
+function customerReportToCsvRows(
+  report: CustomerAnalyticsReport,
+): Record<string, unknown>[] {
+  const rows: Record<string, unknown>[] = [];
 
   for (const arpu of report.arpuTimeSeries) {
     rows.push({
@@ -136,16 +148,18 @@ function customerReportToCsvRows(report: CustomerAnalyticsReport): Record<string
       monthly_arpu: arpu.byInterval.monthly,
       yearly_arpu: arpu.byInterval.yearly,
       trend_pct: arpu.trend,
-    })
+    });
   }
 
-  return rows
+  return rows;
 }
 
 /**
  * Convert drift report to CSV rows.
  */
-function driftReportToCsvRows(report: EntitlementDriftReport): Record<string, unknown>[] {
+function driftReportToCsvRows(
+  report: EntitlementDriftReport,
+): Record<string, unknown>[] {
   return report.driftEntries.map((entry) => ({
     workspace_id: entry.workspaceId,
     organization_id: entry.organizationId,
@@ -159,25 +173,27 @@ function driftReportToCsvRows(report: EntitlementDriftReport): Record<string, un
     severity: entry.severity,
     detected_at: entry.detectedAt.toISOString(),
     recommended_action: entry.recommendedAction,
-  }))
+  }));
 }
 
 /**
  * Convert reconciliation report to CSV rows.
  */
-function reconciliationToCsvRows(summary: ReconciliationSummary): Record<string, unknown>[] {
+function reconciliationToCsvRows(
+  summary: ReconciliationSummary,
+): Record<string, unknown>[] {
   return summary.matches.map((match) => ({
     match_id: match.id,
     status: match.status,
-    external_id: match.externalEntry?.externalId ?? '',
-    internal_id: match.internalEntry?.id ?? '',
-    external_amount_cents: match.externalEntry?.amount ?? '',
-    internal_amount_cents: match.internalEntry?.amount ?? '',
+    external_id: match.externalEntry?.externalId ?? "",
+    internal_id: match.internalEntry?.id ?? "",
+    external_amount_cents: match.externalEntry?.amount ?? "",
+    internal_amount_cents: match.internalEntry?.amount ?? "",
     discrepancy_cents: match.discrepancyAmount,
-    discrepancy_reason: match.discrepancyReason ?? '',
+    discrepancy_reason: match.discrepancyReason ?? "",
     within_tolerance: match.withinTolerance,
     resolved: match.resolved,
-  }))
+  }));
 }
 
 // ============================================================================
@@ -189,27 +205,27 @@ function reconciliationToCsvRows(summary: ReconciliationSummary): Record<string,
  */
 export interface BillingAnalyticsServiceConfig {
   /** Default currency */
-  currency: Currency
+  currency: Currency;
   /** Default churn rate for LTV calculations */
-  defaultChurnRate: number
+  defaultChurnRate: number;
   /** Risk threshold for at-risk detection */
-  riskThreshold: number
+  riskThreshold: number;
   /** Reconciliation tolerance in cents */
-  reconciliationTolerance: number
+  reconciliationTolerance: number;
   /** Minimum drift severity for alerts */
-  minDriftAlertSeverity: DriftSeverity
+  minDriftAlertSeverity: DriftSeverity;
 }
 
 /**
  * Default service configuration.
  */
 export const DEFAULT_ANALYTICS_CONFIG: BillingAnalyticsServiceConfig = {
-  currency: 'USD',
+  currency: "USD",
   defaultChurnRate: 5,
   riskThreshold: 20,
   reconciliationTolerance: 50,
-  minDriftAlertSeverity: 'minor',
-}
+  minDriftAlertSeverity: "minor",
+};
 
 /**
  * Billing Analytics Service.
@@ -217,10 +233,10 @@ export const DEFAULT_ANALYTICS_CONFIG: BillingAnalyticsServiceConfig = {
  * Orchestrates all billing analytics operations and report generation.
  */
 export class BillingAnalyticsService {
-  private config: BillingAnalyticsServiceConfig
+  private config: BillingAnalyticsServiceConfig;
 
   constructor(config: Partial<BillingAnalyticsServiceConfig> = {}) {
-    this.config = { ...DEFAULT_ANALYTICS_CONFIG, ...config }
+    this.config = { ...DEFAULT_ANALYTICS_CONFIG, ...config };
   }
 
   /**
@@ -229,10 +245,15 @@ export class BillingAnalyticsService {
   generateRevenueReport(
     subscriptions: AnalyticsSubscription[],
     payments: AnalyticsPayment[],
-    dateRange: AnalyticsDateRange
+    dateRange: AnalyticsDateRange,
   ): RevenueAnalyticsReport {
-    this.validateDateRange(dateRange)
-    return generateRevenueReport(subscriptions, payments, dateRange, this.config.currency)
+    this.validateDateRange(dateRange);
+    return generateRevenueReport(
+      subscriptions,
+      payments,
+      dateRange,
+      this.config.currency,
+    );
   }
 
   /**
@@ -240,10 +261,14 @@ export class BillingAnalyticsService {
    */
   generateChurnReport(
     subscriptions: AnalyticsSubscription[],
-    dateRange: AnalyticsDateRange
+    dateRange: AnalyticsDateRange,
   ): ChurnAnalyticsReport {
-    this.validateDateRange(dateRange)
-    return generateChurnReport(subscriptions, dateRange, this.config.riskThreshold)
+    this.validateDateRange(dateRange);
+    return generateChurnReport(
+      subscriptions,
+      dateRange,
+      this.config.riskThreshold,
+    );
   }
 
   /**
@@ -252,28 +277,28 @@ export class BillingAnalyticsService {
   generateCustomerReport(
     subscriptions: AnalyticsSubscription[],
     payments: AnalyticsPayment[],
-    dateRange: AnalyticsDateRange
+    dateRange: AnalyticsDateRange,
   ): CustomerAnalyticsReport {
-    this.validateDateRange(dateRange)
+    this.validateDateRange(dateRange);
     return generateCustomerReport(
       subscriptions,
       payments,
       dateRange,
-      this.config.defaultChurnRate
-    )
+      this.config.defaultChurnRate,
+    );
   }
 
   /**
    * Generate entitlement drift report.
    */
   generateDriftReport(
-    usageRecords: AnalyticsUsageRecord[]
+    usageRecords: AnalyticsUsageRecord[],
   ): EntitlementDriftReport {
     return generateDriftReport(
       usageRecords,
       undefined,
-      this.config.minDriftAlertSeverity
-    )
+      this.config.minDriftAlertSeverity,
+    );
   }
 
   /**
@@ -283,12 +308,12 @@ export class BillingAnalyticsService {
     externalEntries: LedgerEntry[],
     internalEntries: LedgerEntry[],
     dateRange: AnalyticsDateRange,
-    source: LedgerSource
+    source: LedgerSource,
   ): ReconciliationSummary {
-    this.validateDateRange(dateRange)
+    this.validateDateRange(dateRange);
     return reconcile(externalEntries, internalEntries, dateRange, source, {
       toleranceCents: this.config.reconciliationTolerance,
-    })
+    });
   }
 
   /**
@@ -301,18 +326,23 @@ export class BillingAnalyticsService {
     externalEntries: LedgerEntry[],
     internalEntries: LedgerEntry[],
     dateRange: AnalyticsDateRange,
-    source: LedgerSource = 'stripe'
+    source: LedgerSource = "stripe",
   ): ComprehensiveReport {
-    this.validateDateRange(dateRange)
+    this.validateDateRange(dateRange);
 
     return {
       revenue: this.generateRevenueReport(subscriptions, payments, dateRange),
       churn: this.generateChurnReport(subscriptions, dateRange),
       customer: this.generateCustomerReport(subscriptions, payments, dateRange),
       entitlementDrift: this.generateDriftReport(usageRecords),
-      reconciliation: this.reconcile(externalEntries, internalEntries, dateRange, source),
+      reconciliation: this.reconcile(
+        externalEntries,
+        internalEntries,
+        dateRange,
+        source,
+      ),
       generatedAt: new Date(),
-    }
+    };
   }
 
   /**
@@ -321,94 +351,99 @@ export class BillingAnalyticsService {
   generateReport(
     request: BillingReportRequest,
     data: {
-      subscriptions: AnalyticsSubscription[]
-      payments: AnalyticsPayment[]
-      usageRecords?: AnalyticsUsageRecord[]
-      externalEntries?: LedgerEntry[]
-      internalEntries?: LedgerEntry[]
-    }
+      subscriptions: AnalyticsSubscription[];
+      payments: AnalyticsPayment[];
+      usageRecords?: AnalyticsUsageRecord[];
+      externalEntries?: LedgerEntry[];
+      internalEntries?: LedgerEntry[];
+    },
   ): BillingReport {
-    const startTime = Date.now()
-    this.validateDateRange(request.dateRange)
+    const startTime = Date.now();
+    this.validateDateRange(request.dateRange);
 
-    let reportData: BillingReport['data']
-    let csvRows: Record<string, unknown>[] = []
+    let reportData: BillingReport["data"];
+    let csvRows: Record<string, unknown>[] = [];
 
     switch (request.type) {
-      case 'revenue':
+      case "revenue":
         reportData = this.generateRevenueReport(
           data.subscriptions,
           data.payments,
-          request.dateRange
-        )
-        csvRows = revenueReportToCsvRows(reportData as RevenueAnalyticsReport)
-        break
+          request.dateRange,
+        );
+        csvRows = revenueReportToCsvRows(reportData as RevenueAnalyticsReport);
+        break;
 
-      case 'churn':
-        reportData = this.generateChurnReport(data.subscriptions, request.dateRange)
-        csvRows = churnReportToCsvRows(reportData as ChurnAnalyticsReport)
-        break
+      case "churn":
+        reportData = this.generateChurnReport(
+          data.subscriptions,
+          request.dateRange,
+        );
+        csvRows = churnReportToCsvRows(reportData as ChurnAnalyticsReport);
+        break;
 
-      case 'customer':
+      case "customer":
         reportData = this.generateCustomerReport(
           data.subscriptions,
           data.payments,
-          request.dateRange
-        )
-        csvRows = customerReportToCsvRows(reportData as CustomerAnalyticsReport)
-        break
+          request.dateRange,
+        );
+        csvRows = customerReportToCsvRows(
+          reportData as CustomerAnalyticsReport,
+        );
+        break;
 
-      case 'entitlement_drift':
+      case "entitlement_drift":
         if (!data.usageRecords) {
           throw new BillingAnalyticsError(
             BillingAnalyticsErrorCode.INSUFFICIENT_DATA,
-            'Usage records are required for entitlement drift report'
-          )
+            "Usage records are required for entitlement drift report",
+          );
         }
-        reportData = this.generateDriftReport(data.usageRecords)
-        csvRows = driftReportToCsvRows(reportData as EntitlementDriftReport)
-        break
+        reportData = this.generateDriftReport(data.usageRecords);
+        csvRows = driftReportToCsvRows(reportData as EntitlementDriftReport);
+        break;
 
-      case 'reconciliation':
+      case "reconciliation":
         if (!data.externalEntries || !data.internalEntries) {
           throw new BillingAnalyticsError(
             BillingAnalyticsErrorCode.INSUFFICIENT_DATA,
-            'External and internal entries are required for reconciliation report'
-          )
+            "External and internal entries are required for reconciliation report",
+          );
         }
         reportData = this.reconcile(
           data.externalEntries,
           data.internalEntries,
           request.dateRange,
-          'stripe'
-        )
-        csvRows = reconciliationToCsvRows(reportData as ReconciliationSummary)
-        break
+          "stripe",
+        );
+        csvRows = reconciliationToCsvRows(reportData as ReconciliationSummary);
+        break;
 
-      case 'comprehensive':
+      case "comprehensive":
         reportData = this.generateComprehensiveReport(
           data.subscriptions,
           data.payments,
           data.usageRecords || [],
           data.externalEntries || [],
           data.internalEntries || [],
-          request.dateRange
-        )
+          request.dateRange,
+        );
         // For comprehensive CSV, use revenue time series
         csvRows = revenueReportToCsvRows(
-          (reportData as ComprehensiveReport).revenue
-        )
-        break
+          (reportData as ComprehensiveReport).revenue,
+        );
+        break;
 
       default:
         throw new BillingAnalyticsError(
           BillingAnalyticsErrorCode.INVALID_REPORT_TYPE,
-          `Invalid report type: ${request.type}`
-        )
+          `Invalid report type: ${request.type}`,
+        );
     }
 
-    const csv = request.format === 'csv' ? toCsv(csvRows) : null
-    const generationDuration = Date.now() - startTime
+    const csv = request.format === "csv" ? toCsv(csvRows) : null;
+    const generationDuration = Date.now() - startTime;
 
     const metadata: BillingReportMetadata = {
       id: `report-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
@@ -420,13 +455,13 @@ export class BillingAnalyticsService {
       rowCount: csvRows.length,
       fileSizeBytes: csv ? new TextEncoder().encode(csv).length : null,
       requestedBy: request.requestedBy,
-    }
+    };
 
     return {
       metadata,
       data: reportData,
       csv,
-    }
+    };
   }
 
   /**
@@ -436,8 +471,8 @@ export class BillingAnalyticsService {
     if (dateRange.startDate >= dateRange.endDate) {
       throw new BillingAnalyticsError(
         BillingAnalyticsErrorCode.INVALID_DATE_RANGE,
-        'Start date must be before end date'
-      )
+        "Start date must be before end date",
+      );
     }
   }
 }
@@ -446,32 +481,32 @@ export class BillingAnalyticsService {
 // Singleton Management
 // ============================================================================
 
-let serviceInstance: BillingAnalyticsService | null = null
+let serviceInstance: BillingAnalyticsService | null = null;
 
 /**
  * Get or create the billing analytics service singleton.
  */
 export function getBillingAnalyticsService(
-  config?: Partial<BillingAnalyticsServiceConfig>
+  config?: Partial<BillingAnalyticsServiceConfig>,
 ): BillingAnalyticsService {
   if (!serviceInstance) {
-    serviceInstance = new BillingAnalyticsService(config)
+    serviceInstance = new BillingAnalyticsService(config);
   }
-  return serviceInstance
+  return serviceInstance;
 }
 
 /**
  * Create a new billing analytics service (non-singleton).
  */
 export function createBillingAnalyticsService(
-  config?: Partial<BillingAnalyticsServiceConfig>
+  config?: Partial<BillingAnalyticsServiceConfig>,
 ): BillingAnalyticsService {
-  return new BillingAnalyticsService(config)
+  return new BillingAnalyticsService(config);
 }
 
 /**
  * Reset the singleton (for testing).
  */
 export function resetBillingAnalyticsService(): void {
-  serviceInstance = null
+  serviceInstance = null;
 }

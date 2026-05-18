@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SearchAnalytics - Admin dashboard for search analytics
@@ -12,7 +12,7 @@
  * - User search behavior
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -26,21 +26,27 @@ import {
   XCircle,
   Download,
   RefreshCw,
-} from 'lucide-react'
-import { format, subDays, startOfDay, endOfDay } from 'date-fns'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "lucide-react";
+import { format, subDays, startOfDay, endOfDay } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -49,7 +55,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 
 // ============================================================================
 // Types
@@ -57,44 +63,44 @@ import {
 
 export interface SearchAnalyticsProps {
   /** Time range for analytics */
-  timeRange?: 'day' | 'week' | 'month' | 'year'
+  timeRange?: "day" | "week" | "month" | "year";
   /** Callback when export is clicked */
-  onExport?: (data: SearchAnalyticsData) => void
+  onExport?: (data: SearchAnalyticsData) => void;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 interface SearchAnalyticsData {
   overview: {
-    totalSearches: number
-    uniqueUsers: number
-    avgSearchTime: number
-    successRate: number
-  }
+    totalSearches: number;
+    uniqueUsers: number;
+    avgSearchTime: number;
+    successRate: number;
+  };
   topSearches: Array<{
-    query: string
-    count: number
-    successRate: number
-    avgClickPosition: number
-  }>
+    query: string;
+    count: number;
+    successRate: number;
+    avgClickPosition: number;
+  }>;
   zeroResultSearches: Array<{
-    query: string
-    count: number
-    lastSearched: Date
-  }>
+    query: string;
+    count: number;
+    lastSearched: Date;
+  }>;
   searchTrends: Array<{
-    date: Date
-    searches: number
-    successfulSearches: number
-  }>
+    date: Date;
+    searches: number;
+    successfulSearches: number;
+  }>;
   userBehavior: {
-    avgQueriesPerUser: number
-    avgFiltersUsed: number
+    avgQueriesPerUser: number;
+    avgFiltersUsed: number;
     mostUsedFilters: Array<{
-      filter: string
-      count: number
-    }>
-  }
+      filter: string;
+      count: number;
+    }>;
+  };
 }
 
 // ============================================================================
@@ -102,7 +108,14 @@ interface SearchAnalyticsData {
 // ============================================================================
 
 const generateMockData = (timeRange: string): SearchAnalyticsData => {
-  const days = timeRange === 'day' ? 1 : timeRange === 'week' ? 7 : timeRange === 'month' ? 30 : 365
+  const days =
+    timeRange === "day"
+      ? 1
+      : timeRange === "week"
+        ? 7
+        : timeRange === "month"
+          ? 30
+          : 365;
 
   return {
     overview: {
@@ -113,16 +126,16 @@ const generateMockData = (timeRange: string): SearchAnalyticsData => {
     },
     topSearches: Array.from({ length: 10 }, (_, i) => ({
       query: [
-        'project update',
-        'meeting notes',
-        'design review',
-        'bug fix',
-        'deployment',
-        'user feedback',
-        'code review',
-        'documentation',
-        'roadmap',
-        'sprint planning',
+        "project update",
+        "meeting notes",
+        "design review",
+        "bug fix",
+        "deployment",
+        "user feedback",
+        "code review",
+        "documentation",
+        "roadmap",
+        "sprint planning",
       ][i],
       count: Math.floor(Math.random() * 500) + 100,
       successRate: Math.random() * 0.4 + 0.6,
@@ -130,90 +143,103 @@ const generateMockData = (timeRange: string): SearchAnalyticsData => {
     })),
     zeroResultSearches: Array.from({ length: 5 }, (_, i) => ({
       query: [
-        'obscure term',
-        'typo search',
-        'nonexistent feature',
-        'deleted channel',
-        'old project',
+        "obscure term",
+        "typo search",
+        "nonexistent feature",
+        "deleted channel",
+        "old project",
       ][i],
       count: Math.floor(Math.random() * 20) + 1,
       lastSearched: subDays(new Date(), Math.floor(Math.random() * days)),
     })),
     searchTrends: Array.from({ length: Math.min(days, 30) }, (_, i) => {
-      const total = Math.floor(Math.random() * 200) + 50
+      const total = Math.floor(Math.random() * 200) + 50;
       return {
         date: subDays(new Date(), days - i - 1),
         searches: total,
         successfulSearches: Math.floor(total * (Math.random() * 0.3 + 0.7)),
-      }
+      };
     }),
     userBehavior: {
       avgQueriesPerUser: Math.random() * 10 + 5,
       avgFiltersUsed: Math.random() * 2 + 1,
       mostUsedFilters: [
-        { filter: 'Date range', count: 450 },
-        { filter: 'From user', count: 320 },
-        { filter: 'In channel', count: 280 },
-        { filter: 'Has file', count: 150 },
-        { filter: 'Has link', count: 120 },
+        { filter: "Date range", count: 450 },
+        { filter: "From user", count: 320 },
+        { filter: "In channel", count: 280 },
+        { filter: "Has file", count: 150 },
+        { filter: "Has link", count: 120 },
       ],
     },
-  }
-}
+  };
+};
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
-export function SearchAnalytics({ timeRange = 'week', onExport, className }: SearchAnalyticsProps) {
-  const [selectedTimeRange, setSelectedTimeRange] = React.useState(timeRange)
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [data, setData] = React.useState<SearchAnalyticsData>(generateMockData(timeRange))
+export function SearchAnalytics({
+  timeRange = "week",
+  onExport,
+  className,
+}: SearchAnalyticsProps) {
+  const [selectedTimeRange, setSelectedTimeRange] = React.useState(timeRange);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [data, setData] = React.useState<SearchAnalyticsData>(
+    generateMockData(timeRange),
+  );
 
   // Reload data when time range changes
   React.useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(true);
     // Simulate API call
     setTimeout(() => {
-      setData(generateMockData(selectedTimeRange))
-      setIsLoading(false)
-    }, 500)
-  }, [selectedTimeRange])
+      setData(generateMockData(selectedTimeRange));
+      setIsLoading(false);
+    }, 500);
+  }, [selectedTimeRange]);
 
   const handleRefresh = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     setTimeout(() => {
-      setData(generateMockData(selectedTimeRange))
-      setIsLoading(false)
-    }, 500)
-  }
+      setData(generateMockData(selectedTimeRange));
+      setIsLoading(false);
+    }, 500);
+  };
 
   const handleExport = () => {
     if (onExport) {
-      onExport(data)
+      onExport(data);
     } else {
-      const dataStr = JSON.stringify(data, null, 2)
-      const dataBlob = new Blob([dataStr], { type: 'application/json' })
-      const url = URL.createObjectURL(dataBlob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `search-analytics-${format(new Date(), 'yyyy-MM-dd')}.json`
-      link.click()
-      URL.revokeObjectURL(url)
+      const dataStr = JSON.stringify(data, null, 2);
+      const dataBlob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `search-analytics-${format(new Date(), "yyyy-MM-dd")}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
     }
-  }
+  };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Search Analytics</h1>
-          <p className="text-muted-foreground">Monitor search performance and user behavior</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Search Analytics
+          </h1>
+          <p className="text-muted-foreground">
+            Monitor search performance and user behavior
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Select value={selectedTimeRange} onValueChange={(v: any) => setSelectedTimeRange(v)}>
+          <Select
+            value={selectedTimeRange}
+            onValueChange={(v: any) => setSelectedTimeRange(v)}
+          >
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -225,8 +251,13 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
             </SelectContent>
           </Select>
 
-          <Button variant="outline" size="icon" onClick={handleRefresh} disabled={isLoading}>
-            <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleRefresh}
+            disabled={isLoading}
+          >
+            <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
           </Button>
 
           <Button variant="outline" size="sm" onClick={handleExport}>
@@ -278,14 +309,16 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
           <Card>
             <CardHeader>
               <CardTitle>Search Trends</CardTitle>
-              <CardDescription>Search volume and success rate over time</CardDescription>
+              <CardDescription>
+                Search volume and success rate over time
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 {data.searchTrends.slice(-7).map((trend, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <span className="w-20 text-sm text-muted-foreground">
-                      {format(trend.date, 'MMM d')}
+                      {format(trend.date, "MMM d")}
                     </span>
                     <div className="flex-1">
                       <div className="relative h-8 overflow-hidden rounded-md bg-muted">
@@ -303,7 +336,9 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
                         />
                       </div>
                     </div>
-                    <span className="w-16 text-right text-sm">{trend.searches}</span>
+                    <span className="w-16 text-right text-sm">
+                      {trend.searches}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -332,15 +367,25 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
                 <TableBody>
                   {data.topSearches.map((search, index) => (
                     <TableRow key={index}>
-                      <TableCell className="font-medium">#{index + 1}</TableCell>
+                      <TableCell className="font-medium">
+                        #{index + 1}
+                      </TableCell>
                       <TableCell>{search.query}</TableCell>
-                      <TableCell className="text-right">{search.count}</TableCell>
                       <TableCell className="text-right">
-                        <Badge variant={search.successRate > 0.8 ? 'default' : 'secondary'}>
+                        {search.count}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge
+                          variant={
+                            search.successRate > 0.8 ? "default" : "secondary"
+                          }
+                        >
                           {Math.round(search.successRate * 100)}%
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">{search.avgClickPosition}</TableCell>
+                      <TableCell className="text-right">
+                        {search.avgClickPosition}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -371,10 +416,14 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
                 <TableBody>
                   {data.zeroResultSearches.map((search, index) => (
                     <TableRow key={index}>
-                      <TableCell className="font-medium">{search.query}</TableCell>
-                      <TableCell className="text-right">{search.count}</TableCell>
+                      <TableCell className="font-medium">
+                        {search.query}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {search.count}
+                      </TableCell>
                       <TableCell className="text-right text-muted-foreground">
-                        {format(search.lastSearched, 'MMM d, yyyy')}
+                        {format(search.lastSearched, "MMM d, yyyy")}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="sm">
@@ -399,7 +448,9 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Avg queries per user</span>
+                    <span className="text-sm text-muted-foreground">
+                      Avg queries per user
+                    </span>
                     <span className="text-2xl font-bold">
                       {data.userBehavior.avgQueriesPerUser.toFixed(1)}
                     </span>
@@ -407,7 +458,9 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Avg filters used</span>
+                    <span className="text-sm text-muted-foreground">
+                      Avg filters used
+                    </span>
                     <span className="text-2xl font-bold">
                       {data.userBehavior.avgFiltersUsed.toFixed(1)}
                     </span>
@@ -447,7 +500,7 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -455,13 +508,13 @@ export function SearchAnalytics({ timeRange = 'week', onExport, className }: Sea
 // ============================================================================
 
 interface OverviewCardProps {
-  title: string
-  value: string
-  icon: React.ElementType
+  title: string;
+  value: string;
+  icon: React.ElementType;
   trend?: {
-    value: number
-    isPositive: boolean
-  }
+    value: number;
+    isPositive: boolean;
+  };
 }
 
 function OverviewCard({ title, value, icon: Icon, trend }: OverviewCardProps) {
@@ -480,7 +533,9 @@ function OverviewCard({ title, value, icon: Icon, trend }: OverviewCardProps) {
             ) : (
               <TrendingDown className="h-3 w-3 text-red-500" />
             )}
-            <span className={trend.isPositive ? 'text-green-500' : 'text-red-500'}>
+            <span
+              className={trend.isPositive ? "text-green-500" : "text-red-500"}
+            >
               {trend.value}%
             </span>
             <span>from last period</span>
@@ -488,7 +543,7 @@ function OverviewCard({ title, value, icon: Icon, trend }: OverviewCardProps) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default SearchAnalytics
+export default SearchAnalytics;

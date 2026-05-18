@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const MESSAGE_FIELDS = gql`
   fragment MessageFields on nchat_messages {
@@ -15,7 +15,7 @@ export const MESSAGE_FIELDS = gql`
       avatar_url
     }
   }
-`
+`;
 
 export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
   ${MESSAGE_FIELDS}
@@ -28,7 +28,7 @@ export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
       ...MessageFields
     }
   }
-`
+`;
 
 export const NEW_MESSAGE_SUBSCRIPTION = gql`
   ${MESSAGE_FIELDS}
@@ -41,4 +41,4 @@ export const NEW_MESSAGE_SUBSCRIPTION = gql`
       ...MessageFields
     }
   }
-`
+`;

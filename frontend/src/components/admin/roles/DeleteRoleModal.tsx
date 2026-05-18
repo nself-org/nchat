@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,30 +10,30 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Role } from '@/lib/admin/roles/role-types'
-import { RoleBadge } from './RoleBadge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/alert-dialog";
+import { Role } from "@/lib/admin/roles/role-types";
+import { RoleBadge } from "./RoleBadge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { AlertTriangle, Users } from 'lucide-react'
+} from "@/components/ui/select";
+import { AlertTriangle, Users } from "lucide-react";
 
 interface DeleteRoleModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  role: Role | null
-  memberCount?: number
-  availableRoles?: Role[] // Roles to migrate members to
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  role: Role | null;
+  memberCount?: number;
+  availableRoles?: Role[]; // Roles to migrate members to
   onDelete: (
     roleId: string,
-    migrateToRoleId?: string
-  ) => Promise<{ success: boolean; errors: string[] }>
+    migrateToRoleId?: string,
+  ) => Promise<{ success: boolean; errors: string[] }>;
 }
 
 /**
@@ -47,51 +47,56 @@ export function DeleteRoleModal({
   availableRoles = [],
   onDelete,
 }: DeleteRoleModalProps) {
-  const [isDeleting, setIsDeleting] = React.useState(false)
-  const [confirmText, setConfirmText] = React.useState('')
-  const [migrateToRoleId, setMigrateToRoleId] = React.useState<string>('')
-  const [errors, setErrors] = React.useState<string[]>([])
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [confirmText, setConfirmText] = React.useState("");
+  const [migrateToRoleId, setMigrateToRoleId] = React.useState<string>("");
+  const [errors, setErrors] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     if (open) {
-      setConfirmText('')
-      setMigrateToRoleId('')
-      setErrors([])
+      setConfirmText("");
+      setMigrateToRoleId("");
+      setErrors([]);
     }
-  }, [open])
+  }, [open]);
 
-  if (!role) return null
+  if (!role) return null;
 
-  const isConfirmed = confirmText.toLowerCase() === role.name.toLowerCase()
-  const hasMembersToMigrate = memberCount > 0
-  const needsMigration = hasMembersToMigrate && !migrateToRoleId
+  const isConfirmed = confirmText.toLowerCase() === role.name.toLowerCase();
+  const hasMembersToMigrate = memberCount > 0;
+  const needsMigration = hasMembersToMigrate && !migrateToRoleId;
 
   const handleDelete = async () => {
-    if (!isConfirmed) return
+    if (!isConfirmed) return;
     if (needsMigration) {
-      setErrors(['Please select a role to migrate members to'])
-      return
+      setErrors(["Please select a role to migrate members to"]);
+      return;
     }
 
-    setIsDeleting(true)
-    setErrors([])
+    setIsDeleting(true);
+    setErrors([]);
 
     try {
-      const result = await onDelete(role.id, hasMembersToMigrate ? migrateToRoleId : undefined)
+      const result = await onDelete(
+        role.id,
+        hasMembersToMigrate ? migrateToRoleId : undefined,
+      );
 
       if (result.success) {
-        onOpenChange(false)
+        onOpenChange(false);
       } else {
-        setErrors(result.errors)
+        setErrors(result.errors);
       }
     } catch (error) {
-      setErrors(['An unexpected error occurred'])
+      setErrors(["An unexpected error occurred"]);
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
-  const filteredRoles = availableRoles.filter((r) => r.id !== role.id && !r.isBuiltIn)
+  const filteredRoles = availableRoles.filter(
+    (r) => r.id !== role.id && !r.isBuiltIn,
+  );
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -102,11 +107,21 @@ export function DeleteRoleModal({
             Delete Role
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-4">
-            <p>Are you sure you want to delete this role? This action cannot be undone.</p>
+            <p>
+              Are you sure you want to delete this role? This action cannot be
+              undone.
+            </p>
 
             <div className="flex items-center gap-3 rounded-lg border p-3">
-              <RoleBadge name={role.name} color={role.color} icon={role.icon} size="lg" />
-              {role.description && <span className="text-sm">{role.description}</span>}
+              <RoleBadge
+                name={role.name}
+                color={role.color}
+                icon={role.icon}
+                size="lg"
+              />
+              {role.description && (
+                <span className="text-sm">{role.description}</span>
+              )}
             </div>
 
             {/* Member migration */}
@@ -115,14 +130,18 @@ export function DeleteRoleModal({
                 <div className="flex items-center gap-2 text-amber-500">
                   <Users size={16} />
                   <span className="font-medium">
-                    {memberCount} member{memberCount !== 1 ? 's' : ''} will lose this role
+                    {memberCount} member{memberCount !== 1 ? "s" : ""} will lose
+                    this role
                   </span>
                 </div>
 
                 {filteredRoles.length > 0 && (
                   <div className="space-y-2">
                     <Label>Migrate members to another role (optional)</Label>
-                    <Select value={migrateToRoleId} onValueChange={setMigrateToRoleId}>
+                    <Select
+                      value={migrateToRoleId}
+                      onValueChange={setMigrateToRoleId}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a role..." />
                       </SelectTrigger>
@@ -152,7 +171,8 @@ export function DeleteRoleModal({
             {/* Confirmation input */}
             <div className="space-y-2">
               <Label htmlFor="confirm">
-                Type <strong className="text-foreground">{role.name}</strong> to confirm
+                Type <strong className="text-foreground">{role.name}</strong> to
+                confirm
               </Label>
               <Input
                 id="confirm"
@@ -182,12 +202,12 @@ export function DeleteRoleModal({
             disabled={!isConfirmed || isDeleting}
             className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
           >
-            {isDeleting ? 'Deleting...' : 'Delete Role'}
+            {isDeleting ? "Deleting..." : "Delete Role"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
 
-export default DeleteRoleModal
+export default DeleteRoleModal;

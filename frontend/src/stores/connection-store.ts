@@ -5,9 +5,9 @@
  * access to connection status throughout the application.
  */
 
-import { create } from 'zustand'
-import { devtools, subscribeWithSelector } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 import type {
   ConnectionState,
   NetworkQuality,
@@ -16,7 +16,7 @@ import type {
   ConnectionInfo,
   SocketConnectionState,
   RetryState,
-} from '@/lib/offline/offline-types'
+} from "@/lib/offline/offline-types";
 
 // =============================================================================
 // Types
@@ -24,77 +24,77 @@ import type {
 
 export interface ConnectionStoreState {
   // Network state
-  network: ConnectionInfo
+  network: ConnectionInfo;
 
   // Socket state
-  socket: SocketConnectionState
+  socket: SocketConnectionState;
 
   // Overall state
-  overallState: ConnectionState
-  canSendMessages: boolean
-  shouldShowOffline: boolean
+  overallState: ConnectionState;
+  canSendMessages: boolean;
+  shouldShowOffline: boolean;
 
   // Retry state
-  retry: RetryState
+  retry: RetryState;
 
   // UI state
-  showConnectionBanner: boolean
-  bannerDismissedUntil: Date | null
+  showConnectionBanner: boolean;
+  bannerDismissedUntil: Date | null;
 
   // Statistics
-  totalDisconnections: number
-  lastDisconnectionDuration: number | null
+  totalDisconnections: number;
+  lastDisconnectionDuration: number | null;
 }
 
 export interface ConnectionStoreActions {
   // Network actions
-  setNetworkInfo: (info: Partial<ConnectionInfo>) => void
-  setNetworkState: (state: ConnectionState) => void
-  setNetworkQuality: (quality: NetworkQuality) => void
+  setNetworkInfo: (info: Partial<ConnectionInfo>) => void;
+  setNetworkState: (state: ConnectionState) => void;
+  setNetworkQuality: (quality: NetworkQuality) => void;
 
   // Socket actions
-  setSocketState: (state: Partial<SocketConnectionState>) => void
-  setSocketConnected: (connected: boolean, socketId?: string | null) => void
-  incrementReconnectAttempts: () => void
-  resetReconnectAttempts: () => void
+  setSocketState: (state: Partial<SocketConnectionState>) => void;
+  setSocketConnected: (connected: boolean, socketId?: string | null) => void;
+  incrementReconnectAttempts: () => void;
+  resetReconnectAttempts: () => void;
 
   // Combined state actions
-  updateOverallState: () => void
+  updateOverallState: () => void;
 
   // Retry actions
-  setRetryState: (state: Partial<RetryState>) => void
-  resetRetryState: () => void
+  setRetryState: (state: Partial<RetryState>) => void;
+  resetRetryState: () => void;
 
   // UI actions
-  showBanner: () => void
-  hideBanner: () => void
-  dismissBannerTemporarily: (durationMs?: number) => void
+  showBanner: () => void;
+  hideBanner: () => void;
+  dismissBannerTemporarily: (durationMs?: number) => void;
 
   // Statistics
-  recordDisconnection: (durationMs?: number) => void
+  recordDisconnection: (durationMs?: number) => void;
 
   // Reset
-  reset: () => void
+  reset: () => void;
 }
 
-export type ConnectionStore = ConnectionStoreState & ConnectionStoreActions
+export type ConnectionStore = ConnectionStoreState & ConnectionStoreActions;
 
 // =============================================================================
 // Initial State
 // =============================================================================
 
 const initialNetworkInfo: ConnectionInfo = {
-  state: 'online',
-  quality: 'unknown',
-  type: 'unknown',
-  effectiveType: 'unknown',
+  state: "online",
+  quality: "unknown",
+  type: "unknown",
+  effectiveType: "unknown",
   downlink: null,
   rtt: null,
   saveData: false,
   lastOnline: null,
   lastOffline: null,
   offlineDuration: null,
-}
+};
 
 const initialSocketState: SocketConnectionState = {
   connected: false,
@@ -103,19 +103,19 @@ const initialSocketState: SocketConnectionState = {
   lastConnectedAt: null,
   lastDisconnectedAt: null,
   disconnectReason: null,
-}
+};
 
 const initialRetryState: RetryState = {
   attempt: 0,
   nextRetryAt: null,
   lastError: null,
   shouldRetry: true,
-}
+};
 
 const initialState: ConnectionStoreState = {
   network: initialNetworkInfo,
   socket: initialSocketState,
-  overallState: 'offline',
+  overallState: "offline",
   canSendMessages: false,
   shouldShowOffline: false,
   retry: initialRetryState,
@@ -123,7 +123,7 @@ const initialState: ConnectionStoreState = {
   bannerDismissedUntil: null,
   totalDisconnections: 0,
   lastDisconnectionDuration: null,
-}
+};
 
 // =============================================================================
 // Store
@@ -139,177 +139,181 @@ export const useConnectionStore = create<ConnectionStore>()(
         setNetworkInfo: (info) =>
           set(
             (state) => {
-              state.network = { ...state.network, ...info }
+              state.network = { ...state.network, ...info };
               // Update overall state
-              updateOverallStateInPlace(state)
+              updateOverallStateInPlace(state);
             },
             false,
-            'connection/setNetworkInfo'
+            "connection/setNetworkInfo",
           ),
 
         setNetworkState: (networkState) =>
           set(
             (state) => {
-              state.network.state = networkState
+              state.network.state = networkState;
 
-              if (networkState === 'online') {
-                state.network.lastOnline = new Date()
+              if (networkState === "online") {
+                state.network.lastOnline = new Date();
                 if (state.network.lastOffline) {
-                  state.network.offlineDuration = Date.now() - state.network.lastOffline.getTime()
+                  state.network.offlineDuration =
+                    Date.now() - state.network.lastOffline.getTime();
                 }
-              } else if (networkState === 'offline') {
-                state.network.lastOffline = new Date()
-                state.showConnectionBanner = true
+              } else if (networkState === "offline") {
+                state.network.lastOffline = new Date();
+                state.showConnectionBanner = true;
               }
 
-              updateOverallStateInPlace(state)
+              updateOverallStateInPlace(state);
             },
             false,
-            'connection/setNetworkState'
+            "connection/setNetworkState",
           ),
 
         setNetworkQuality: (quality) =>
           set(
             (state) => {
-              state.network.quality = quality
+              state.network.quality = quality;
             },
             false,
-            'connection/setNetworkQuality'
+            "connection/setNetworkQuality",
           ),
 
         // Socket actions
         setSocketState: (socketState) =>
           set(
             (state) => {
-              state.socket = { ...state.socket, ...socketState }
-              updateOverallStateInPlace(state)
+              state.socket = { ...state.socket, ...socketState };
+              updateOverallStateInPlace(state);
             },
             false,
-            'connection/setSocketState'
+            "connection/setSocketState",
           ),
 
         setSocketConnected: (connected, socketId = null) =>
           set(
             (state) => {
-              const wasConnected = state.socket.connected
+              const wasConnected = state.socket.connected;
 
-              state.socket.connected = connected
-              state.socket.socketId = connected ? socketId : null
+              state.socket.connected = connected;
+              state.socket.socketId = connected ? socketId : null;
 
               if (connected) {
-                state.socket.lastConnectedAt = new Date()
-                state.socket.reconnectAttempts = 0
-                state.showConnectionBanner = false
+                state.socket.lastConnectedAt = new Date();
+                state.socket.reconnectAttempts = 0;
+                state.showConnectionBanner = false;
               } else if (wasConnected) {
-                state.socket.lastDisconnectedAt = new Date()
-                state.showConnectionBanner = true
+                state.socket.lastDisconnectedAt = new Date();
+                state.showConnectionBanner = true;
               }
 
-              updateOverallStateInPlace(state)
+              updateOverallStateInPlace(state);
             },
             false,
-            'connection/setSocketConnected'
+            "connection/setSocketConnected",
           ),
 
         incrementReconnectAttempts: () =>
           set(
             (state) => {
-              state.socket.reconnectAttempts += 1
+              state.socket.reconnectAttempts += 1;
             },
             false,
-            'connection/incrementReconnectAttempts'
+            "connection/incrementReconnectAttempts",
           ),
 
         resetReconnectAttempts: () =>
           set(
             (state) => {
-              state.socket.reconnectAttempts = 0
+              state.socket.reconnectAttempts = 0;
             },
             false,
-            'connection/resetReconnectAttempts'
+            "connection/resetReconnectAttempts",
           ),
 
         // Combined state actions
         updateOverallState: () =>
           set(
             (state) => {
-              updateOverallStateInPlace(state)
+              updateOverallStateInPlace(state);
             },
             false,
-            'connection/updateOverallState'
+            "connection/updateOverallState",
           ),
 
         // Retry actions
         setRetryState: (retryState) =>
           set(
             (state) => {
-              state.retry = { ...state.retry, ...retryState }
+              state.retry = { ...state.retry, ...retryState };
             },
             false,
-            'connection/setRetryState'
+            "connection/setRetryState",
           ),
 
         resetRetryState: () =>
           set(
             (state) => {
-              state.retry = initialRetryState
+              state.retry = initialRetryState;
             },
             false,
-            'connection/resetRetryState'
+            "connection/resetRetryState",
           ),
 
         // UI actions
         showBanner: () =>
           set(
             (state) => {
-              const now = new Date()
-              if (!state.bannerDismissedUntil || now > state.bannerDismissedUntil) {
-                state.showConnectionBanner = true
+              const now = new Date();
+              if (
+                !state.bannerDismissedUntil ||
+                now > state.bannerDismissedUntil
+              ) {
+                state.showConnectionBanner = true;
               }
             },
             false,
-            'connection/showBanner'
+            "connection/showBanner",
           ),
 
         hideBanner: () =>
           set(
             (state) => {
-              state.showConnectionBanner = false
+              state.showConnectionBanner = false;
             },
             false,
-            'connection/hideBanner'
+            "connection/hideBanner",
           ),
 
         dismissBannerTemporarily: (durationMs = 60000) =>
           set(
             (state) => {
-              state.showConnectionBanner = false
-              state.bannerDismissedUntil = new Date(Date.now() + durationMs)
+              state.showConnectionBanner = false;
+              state.bannerDismissedUntil = new Date(Date.now() + durationMs);
             },
             false,
-            'connection/dismissBannerTemporarily'
+            "connection/dismissBannerTemporarily",
           ),
 
         // Statistics
         recordDisconnection: (durationMs) =>
           set(
             (state) => {
-              state.totalDisconnections += 1
+              state.totalDisconnections += 1;
               if (durationMs !== undefined) {
-                state.lastDisconnectionDuration = durationMs
+                state.lastDisconnectionDuration = durationMs;
               }
             },
             false,
-            'connection/recordDisconnection'
+            "connection/recordDisconnection",
           ),
 
         // Reset
-        reset: () => set(() => initialState, false, 'connection/reset'),
-      }))
+        reset: () => set(() => initialState, false, "connection/reset"),
+      })),
     ),
-    { name: 'connection-store' }
-  )
-)
+    { name: "connection-store" },
+  ),
+);
 
 // =============================================================================
 // Helper Functions
@@ -319,53 +323,62 @@ export const useConnectionStore = create<ConnectionStore>()(
  * Update overall state based on network and socket state
  */
 function updateOverallStateInPlace(state: ConnectionStoreState): void {
-  const { network, socket, retry } = state
+  const { network, socket, retry } = state;
 
   // Determine overall state
-  if (network.state === 'offline') {
-    state.overallState = 'offline'
+  if (network.state === "offline") {
+    state.overallState = "offline";
   } else if (!retry.shouldRetry && retry.lastError) {
     // Connection has failed and won't retry
-    state.overallState = 'error'
+    state.overallState = "error";
   } else if (socket.connected) {
-    state.overallState = 'online'
+    state.overallState = "online";
   } else if (socket.reconnectAttempts > 0) {
-    state.overallState = 'reconnecting'
-  } else if (network.state === 'connecting') {
-    state.overallState = 'connecting'
+    state.overallState = "reconnecting";
+  } else if (network.state === "connecting") {
+    state.overallState = "connecting";
   } else {
-    state.overallState = 'offline'
+    state.overallState = "offline";
   }
 
   // Update derived states
-  state.canSendMessages = socket.connected && network.state === 'online'
-  state.shouldShowOffline = state.overallState === 'offline' || state.overallState === 'error'
+  state.canSendMessages = socket.connected && network.state === "online";
+  state.shouldShowOffline =
+    state.overallState === "offline" || state.overallState === "error";
 }
 
 // =============================================================================
 // Selectors
 // =============================================================================
 
-export const selectNetworkInfo = (state: ConnectionStore) => state.network
-export const selectSocketState = (state: ConnectionStore) => state.socket
-export const selectOverallState = (state: ConnectionStore) => state.overallState
-export const selectCanSendMessages = (state: ConnectionStore) => state.canSendMessages
-export const selectShouldShowOffline = (state: ConnectionStore) => state.shouldShowOffline
-export const selectRetryState = (state: ConnectionStore) => state.retry
-export const selectShowConnectionBanner = (state: ConnectionStore) => state.showConnectionBanner
-export const selectNetworkQuality = (state: ConnectionStore) => state.network.quality
-export const selectIsOnline = (state: ConnectionStore) => state.overallState === 'online'
+export const selectNetworkInfo = (state: ConnectionStore) => state.network;
+export const selectSocketState = (state: ConnectionStore) => state.socket;
+export const selectOverallState = (state: ConnectionStore) =>
+  state.overallState;
+export const selectCanSendMessages = (state: ConnectionStore) =>
+  state.canSendMessages;
+export const selectShouldShowOffline = (state: ConnectionStore) =>
+  state.shouldShowOffline;
+export const selectRetryState = (state: ConnectionStore) => state.retry;
+export const selectShowConnectionBanner = (state: ConnectionStore) =>
+  state.showConnectionBanner;
+export const selectNetworkQuality = (state: ConnectionStore) =>
+  state.network.quality;
+export const selectIsOnline = (state: ConnectionStore) =>
+  state.overallState === "online";
 export const selectIsOffline = (state: ConnectionStore) =>
-  state.overallState === 'offline' || state.network.state === 'offline'
+  state.overallState === "offline" || state.network.state === "offline";
 export const selectIsReconnecting = (state: ConnectionStore) =>
-  state.overallState === 'reconnecting' || state.socket.reconnectAttempts > 0
-export const selectReconnectAttempts = (state: ConnectionStore) => state.socket.reconnectAttempts
-export const selectLastConnectedAt = (state: ConnectionStore) => state.socket.lastConnectedAt
+  state.overallState === "reconnecting" || state.socket.reconnectAttempts > 0;
+export const selectReconnectAttempts = (state: ConnectionStore) =>
+  state.socket.reconnectAttempts;
+export const selectLastConnectedAt = (state: ConnectionStore) =>
+  state.socket.lastConnectedAt;
 export const selectConnectionStats = (state: ConnectionStore) => ({
   totalDisconnections: state.totalDisconnections,
   lastDisconnectionDuration: state.lastDisconnectionDuration,
   reconnectAttempts: state.socket.reconnectAttempts,
-})
+});
 
 // =============================================================================
 // Hooks
@@ -376,27 +389,28 @@ export const selectConnectionStats = (state: ConnectionStore) => ({
  */
 export function useConnectionSummary() {
   return useConnectionStore((state) => ({
-    isOnline: state.overallState === 'online',
-    isOffline: state.overallState === 'offline' || state.network.state === 'offline',
-    isReconnecting: state.overallState === 'reconnecting',
+    isOnline: state.overallState === "online",
+    isOffline:
+      state.overallState === "offline" || state.network.state === "offline",
+    isReconnecting: state.overallState === "reconnecting",
     canSendMessages: state.canSendMessages,
     quality: state.network.quality,
     reconnectAttempts: state.socket.reconnectAttempts,
-  }))
+  }));
 }
 
 /**
  * Get network info
  */
 export function useNetworkInfo() {
-  return useConnectionStore((state) => state.network)
+  return useConnectionStore((state) => state.network);
 }
 
 /**
  * Get socket state
  */
 export function useSocketConnectionState() {
-  return useConnectionStore((state) => state.socket)
+  return useConnectionStore((state) => state.socket);
 }
 
-export default useConnectionStore
+export default useConnectionStore;

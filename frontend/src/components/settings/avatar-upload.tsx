@@ -1,128 +1,128 @@
-'use client'
+"use client";
 
-import { useState, useRef, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Camera, Trash2, Upload } from 'lucide-react'
+import { useState, useRef, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Camera, Trash2, Upload } from "lucide-react";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface AvatarUploadProps {
-  currentAvatarUrl?: string
-  fallback?: string
-  onUpload: (file: File) => Promise<void>
-  onRemove?: () => Promise<void>
-  size?: 'sm' | 'md' | 'lg' | 'xl'
-  className?: string
-  disabled?: boolean
+  currentAvatarUrl?: string;
+  fallback?: string;
+  onUpload: (file: File) => Promise<void>;
+  onRemove?: () => Promise<void>;
+  size?: "sm" | "md" | "lg" | "xl";
+  className?: string;
+  disabled?: boolean;
 }
 
 const sizeClasses = {
-  sm: 'h-16 w-16',
-  md: 'h-20 w-20',
-  lg: 'h-24 w-24',
-  xl: 'h-32 w-32',
-}
+  sm: "h-16 w-16",
+  md: "h-20 w-20",
+  lg: "h-24 w-24",
+  xl: "h-32 w-32",
+};
 
 const buttonSizeClasses = {
-  sm: 'h-6 w-6',
-  md: 'h-7 w-7',
-  lg: 'h-8 w-8',
-  xl: 'h-9 w-9',
-}
+  sm: "h-6 w-6",
+  md: "h-7 w-7",
+  lg: "h-8 w-8",
+  xl: "h-9 w-9",
+};
 
 const iconSizeClasses = {
-  sm: 'h-3 w-3',
-  md: 'h-3.5 w-3.5',
-  lg: 'h-4 w-4',
-  xl: 'h-4.5 w-4.5',
-}
+  sm: "h-3 w-3",
+  md: "h-3.5 w-3.5",
+  lg: "h-4 w-4",
+  xl: "h-4.5 w-4.5",
+};
 
 export function AvatarUpload({
   currentAvatarUrl,
-  fallback = '?',
+  fallback = "?",
   onUpload,
   onRemove,
-  size = 'lg',
+  size = "lg",
   className,
   disabled = false,
 }: AvatarUploadProps) {
-  const [isUploading, setIsUploading] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (!file) return
+      const file = e.target.files?.[0];
+      if (!file) return;
 
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please select an image file')
-        return
+      if (!file.type.startsWith("image/")) {
+        setError("Please select an image file");
+        return;
       }
 
       // Validate file size (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
-        setError('Image must be less than 2MB')
-        return
+        setError("Image must be less than 2MB");
+        return;
       }
 
-      setError(null)
-      setIsUploading(true)
+      setError(null);
+      setIsUploading(true);
 
       // Create preview
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        setPreviewUrl(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+        setPreviewUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
 
       try {
-        await onUpload(file)
+        await onUpload(file);
       } catch (err) {
-        setError('Failed to upload image')
-        setPreviewUrl(null)
-        logger.error('Avatar upload error:', err)
+        setError("Failed to upload image");
+        setPreviewUrl(null);
+        logger.error("Avatar upload error:", err);
       } finally {
-        setIsUploading(false)
+        setIsUploading(false);
         // Reset file input
         if (fileInputRef.current) {
-          fileInputRef.current.value = ''
+          fileInputRef.current.value = "";
         }
       }
     },
-    [onUpload]
-  )
+    [onUpload],
+  );
 
   const handleRemove = useCallback(async () => {
-    if (!onRemove) return
+    if (!onRemove) return;
 
-    setIsUploading(true)
+    setIsUploading(true);
     try {
-      await onRemove()
-      setPreviewUrl(null)
+      await onRemove();
+      setPreviewUrl(null);
     } catch (err) {
-      setError('Failed to remove image')
-      logger.error('Avatar remove error:', err)
+      setError("Failed to remove image");
+      logger.error("Avatar remove error:", err);
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }, [onRemove])
+  }, [onRemove]);
 
   const triggerFileSelect = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
-  const displayUrl = previewUrl || currentAvatarUrl
+  const displayUrl = previewUrl || currentAvatarUrl;
 
   return (
-    <div className={cn('flex items-center gap-4', className)}>
+    <div className={cn("flex items-center gap-4", className)}>
       {/* Avatar with overlay buttons */}
       <div className="group relative">
-        <Avatar className={cn(sizeClasses[size], 'border-2 border-muted')}>
+        <Avatar className={cn(sizeClasses[size], "border-2 border-muted")}>
           <AvatarImage src={displayUrl} alt="Avatar" />
           <AvatarFallback className="text-lg font-medium">
             {fallback.charAt(0).toUpperCase()}
@@ -136,8 +136,8 @@ export function AvatarUpload({
               type="button"
               onClick={triggerFileSelect}
               className={cn(
-                'flex items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/30',
-                buttonSizeClasses[size]
+                "flex items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/30",
+                buttonSizeClasses[size],
               )}
               disabled={isUploading}
               aria-label="Upload new avatar"
@@ -149,8 +149,8 @@ export function AvatarUpload({
                 type="button"
                 onClick={handleRemove}
                 className={cn(
-                  'flex items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-red-500/80',
-                  buttonSizeClasses[size]
+                  "flex items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-red-500/80",
+                  buttonSizeClasses[size],
                 )}
                 disabled={isUploading}
                 aria-label="Remove avatar"
@@ -184,7 +184,7 @@ export function AvatarUpload({
             disabled={disabled || isUploading}
           >
             <Upload className="mr-2 h-4 w-4" />
-            {isUploading ? 'Uploading...' : 'Upload Photo'}
+            {isUploading ? "Uploading..." : "Upload Photo"}
           </Button>
           {displayUrl && onRemove && (
             <Button
@@ -199,7 +199,9 @@ export function AvatarUpload({
             </Button>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">JPG, PNG, or GIF. Max 2MB.</p>
+        <p className="text-xs text-muted-foreground">
+          JPG, PNG, or GIF. Max 2MB.
+        </p>
         {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
 
@@ -214,5 +216,5 @@ export function AvatarUpload({
         aria-label="Upload profile picture"
       />
     </div>
-  )
+  );
 }

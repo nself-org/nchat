@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from "react";
 
 /**
  * Hook for checking if component is mounted
@@ -8,14 +8,14 @@ import { useState, useEffect, useRef, useCallback } from 'react'
  * @returns Boolean indicating if component is mounted
  */
 export function useIsMounted(): boolean {
-  const [isMounted, setIsMounted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true)
-    return () => setIsMounted(false)
-  }, [])
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
-  return isMounted
+  return isMounted;
 }
 
 /**
@@ -24,16 +24,16 @@ export function useIsMounted(): boolean {
  * @returns Function that returns current mounted state
  */
 export function useMountedRef(): () => boolean {
-  const mountedRef = useRef(false)
+  const mountedRef = useRef(false);
 
   useEffect(() => {
-    mountedRef.current = true
+    mountedRef.current = true;
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
+      mountedRef.current = false;
+    };
+  }, []);
 
-  return useCallback(() => mountedRef.current, [])
+  return useCallback(() => mountedRef.current, []);
 }
 
 /**
@@ -43,9 +43,9 @@ export function useMountedRef(): () => boolean {
  */
 export function useOnMount(callback: () => void | (() => void)): void {
   useEffect(() => {
-    return callback()
+    return callback();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 }
 
 /**
@@ -53,18 +53,18 @@ export function useOnMount(callback: () => void | (() => void)): void {
  * @param callback - Function to execute on unmount
  */
 export function useOnUnmount(callback: () => void): void {
-  const callbackRef = useRef(callback)
+  const callbackRef = useRef(callback);
 
   // Update ref on each render to use latest callback
   useEffect(() => {
-    callbackRef.current = callback
-  }, [callback])
+    callbackRef.current = callback;
+  }, [callback]);
 
   useEffect(() => {
     return () => {
-      callbackRef.current()
-    }
-  }, [])
+      callbackRef.current();
+    };
+  }, []);
 }
 
 /**
@@ -73,16 +73,16 @@ export function useOnUnmount(callback: () => void): void {
  * @returns Wrapped setState that checks mounted status
  */
 export function useSafeSetState<T>(
-  setState: React.Dispatch<React.SetStateAction<T>>
+  setState: React.Dispatch<React.SetStateAction<T>>,
 ): React.Dispatch<React.SetStateAction<T>> {
-  const isMounted = useMountedRef()
+  const isMounted = useMountedRef();
 
   return useCallback(
     (value: React.SetStateAction<T>) => {
       if (isMounted()) {
-        setState(value)
+        setState(value);
       }
     },
-    [isMounted, setState]
-  )
+    [isMounted, setState],
+  );
 }

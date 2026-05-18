@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Download,
   FileText,
@@ -11,29 +11,40 @@ import {
   Calendar,
   Package,
   HelpCircle,
-} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { useComplianceStore } from '@/stores/compliance-store'
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useComplianceStore } from "@/stores/compliance-store";
 import type {
   DataExportRequest as ExportRequest,
   ExportDataCategory,
   ExportFormat,
-} from '@/lib/compliance/compliance-types'
+} from "@/lib/compliance/compliance-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   EXPORT_CATEGORIES,
   EXPORT_FORMATS,
@@ -43,16 +54,16 @@ import {
   isExportDownloadable,
   formatFileSize,
   canRequestExport,
-} from '@/lib/compliance/data-export'
+} from "@/lib/compliance/data-export";
 
 interface ExportRequestCardProps {
-  request: ExportRequest
-  onDownload: (request: ExportRequest) => void
+  request: ExportRequest;
+  onDownload: (request: ExportRequest) => void;
 }
 
 function ExportRequestCard({ request, onDownload }: ExportRequestCardProps) {
-  const statusInfo = getExportStatusInfo(request.status)
-  const downloadable = isExportDownloadable(request)
+  const statusInfo = getExportStatusInfo(request.status);
+  const downloadable = isExportDownloadable(request);
 
   const StatusIcon = {
     pending: Clock,
@@ -61,7 +72,7 @@ function ExportRequestCard({ request, onDownload }: ExportRequestCardProps) {
     failed: AlertCircle,
     expired: Clock,
     cancelled: AlertCircle,
-  }[request.status]
+  }[request.status];
 
   return (
     <Card>
@@ -70,21 +81,25 @@ function ExportRequestCard({ request, onDownload }: ExportRequestCardProps) {
           <div className="flex items-start gap-4">
             <div
               className={`rounded-lg p-2 ${
-                request.status === 'completed'
-                  ? 'bg-green-100 text-green-600'
-                  : request.status === 'failed'
-                    ? 'bg-red-100 text-red-600'
-                    : 'bg-gray-100 text-gray-600'
+                request.status === "completed"
+                  ? "bg-green-100 text-green-600"
+                  : request.status === "failed"
+                    ? "bg-red-100 text-red-600"
+                    : "bg-gray-100 text-gray-600"
               }`}
             >
               <StatusIcon
-                className={`h-5 w-5 ${request.status === 'processing' ? 'animate-spin' : ''}`}
+                className={`h-5 w-5 ${request.status === "processing" ? "animate-spin" : ""}`}
               />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <p className="font-medium">Export Request</p>
-                <Badge variant={request.status === 'completed' ? 'default' : 'secondary'}>
+                <Badge
+                  variant={
+                    request.status === "completed" ? "default" : "secondary"
+                  }
+                >
                   {statusInfo.label}
                 </Badge>
               </div>
@@ -94,17 +109,18 @@ function ExportRequestCard({ request, onDownload }: ExportRequestCardProps) {
               <div className="mt-2 flex flex-wrap gap-2">
                 {request.categories.map((cat) => (
                   <Badge key={cat} variant="outline" className="text-xs">
-                    {EXPORT_CATEGORIES.find((c) => c.category === cat)?.label || cat}
+                    {EXPORT_CATEGORIES.find((c) => c.category === cat)?.label ||
+                      cat}
                   </Badge>
                 ))}
               </div>
-              {request.status === 'completed' && request.fileSize && (
+              {request.status === "completed" && request.fileSize && (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Size: {formatFileSize(request.fileSize)} | Downloads: {request.downloadCount}/
-                  {request.maxDownloads}
+                  Size: {formatFileSize(request.fileSize)} | Downloads:{" "}
+                  {request.downloadCount}/{request.maxDownloads}
                 </p>
               )}
-              {request.expiresAt && request.status === 'completed' && (
+              {request.expiresAt && request.status === "completed" && (
                 <p className="text-sm text-muted-foreground">
                   Expires: {new Date(request.expiresAt).toLocaleDateString()}
                 </p>
@@ -117,7 +133,7 @@ function ExportRequestCard({ request, onDownload }: ExportRequestCardProps) {
                 <Download className="mr-2 h-4 w-4" />
                 Download
               </Button>
-            ) : request.status === 'processing' ? (
+            ) : request.status === "processing" ? (
               <Button disabled>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Processing
@@ -125,57 +141,61 @@ function ExportRequestCard({ request, onDownload }: ExportRequestCardProps) {
             ) : null}
           </div>
         </div>
-        {!downloadable.downloadable && downloadable.reason && request.status === 'completed' && (
-          <p className="mt-3 text-sm text-red-600">{downloadable.reason}</p>
-        )}
+        {!downloadable.downloadable &&
+          downloadable.reason &&
+          request.status === "completed" && (
+            <p className="mt-3 text-sm text-red-600">{downloadable.reason}</p>
+          )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function DataExportRequest() {
-  const [selectedCategories, setSelectedCategories] = useState<ExportDataCategory[]>([])
-  const [format, setFormat] = useState<ExportFormat>('zip')
-  const [includeMetadata, setIncludeMetadata] = useState(true)
+  const [selectedCategories, setSelectedCategories] = useState<
+    ExportDataCategory[]
+  >([]);
+  const [format, setFormat] = useState<ExportFormat>("zip");
+  const [includeMetadata, setIncludeMetadata] = useState(true);
   const [dateRange, setDateRange] = useState<{
-    start: string
-    end: string
-  }>({ start: '', end: '' })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+    start: string;
+    end: string;
+  }>({ start: "", end: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { exportRequests, addExportRequest } = useComplianceStore()
+  const { exportRequests, addExportRequest } = useComplianceStore();
 
   // Mock user data - would come from auth context in real app
   const currentUser = {
-    id: 'user-123',
-    email: 'user@example.com',
-  }
+    id: "user-123",
+    email: "user@example.com",
+  };
 
-  const { allowed, reason } = canRequestExport(exportRequests, currentUser.id)
+  const { allowed, reason } = canRequestExport(exportRequests, currentUser.id);
 
   const handleCategoryToggle = (category: ExportDataCategory) => {
-    if (category === 'all') {
-      setSelectedCategories(selectedCategories.includes('all') ? [] : ['all'])
-      return
+    if (category === "all") {
+      setSelectedCategories(selectedCategories.includes("all") ? [] : ["all"]);
+      return;
     }
 
     setSelectedCategories((prev) => {
       // Remove 'all' if selecting specific categories
-      const withoutAll = prev.filter((c) => c !== 'all')
+      const withoutAll = prev.filter((c) => c !== "all");
       if (withoutAll.includes(category)) {
-        return withoutAll.filter((c) => c !== category)
+        return withoutAll.filter((c) => c !== category);
       }
-      return [...withoutAll, category]
-    })
-  }
+      return [...withoutAll, category];
+    });
+  };
 
   const handleSubmit = async () => {
     if (selectedCategories.length === 0) {
-      alert('Please select at least one data category to export')
-      return
+      alert("Please select at least one data category to export");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const request = createExportRequest(currentUser.id, currentUser.email, {
@@ -184,32 +204,34 @@ export function DataExportRequest() {
         includeMetadata,
         dateRangeStart: dateRange.start ? new Date(dateRange.start) : undefined,
         dateRangeEnd: dateRange.end ? new Date(dateRange.end) : undefined,
-      })
+      });
 
-      addExportRequest(request)
+      addExportRequest(request);
 
       // Reset form
-      setSelectedCategories([])
-      setDateRange({ start: '', end: '' })
+      setSelectedCategories([]);
+      setDateRange({ start: "", end: "" });
 
       alert(
-        'Your data export request has been submitted. You will be notified when it is ready for download.'
-      )
+        "Your data export request has been submitted. You will be notified when it is ready for download.",
+      );
     } catch (error) {
-      logger.error('Failed to submit export request:', error)
-      alert('Failed to submit export request. Please try again.')
+      logger.error("Failed to submit export request:", error);
+      alert("Failed to submit export request. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleDownload = (request: ExportRequest) => {
     if (request.downloadUrl) {
-      window.open(request.downloadUrl, '_blank')
+      window.open(request.downloadUrl, "_blank");
     }
-  }
+  };
 
-  const userRequests = exportRequests.filter((r) => r.userId === currentUser.id)
+  const userRequests = exportRequests.filter(
+    (r) => r.userId === currentUser.id,
+  );
 
   return (
     <div className="space-y-6">
@@ -232,8 +254,8 @@ export function DataExportRequest() {
             Request Data Export
           </CardTitle>
           <CardDescription>
-            Select the data categories you want to export. Processing typically takes{' '}
-            {EXPORT_PROCESSING_TIME_ESTIMATE}.
+            Select the data categories you want to export. Processing typically
+            takes {EXPORT_PROCESSING_TIME_ESTIMATE}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -268,8 +290,8 @@ export function DataExportRequest() {
                   htmlFor={`export-cat-${cat.category}`}
                   className={`flex cursor-pointer items-start space-x-3 rounded-lg border p-3 transition-colors ${
                     selectedCategories.includes(cat.category)
-                      ? 'bg-primary/5 border-primary'
-                      : 'hover:bg-muted/50'
+                      ? "bg-primary/5 border-primary"
+                      : "hover:bg-muted/50"
                   }`}
                 >
                   <Checkbox
@@ -278,8 +300,12 @@ export function DataExportRequest() {
                     onCheckedChange={() => handleCategoryToggle(cat.category)}
                   />
                   <div className="flex-1">
-                    <span className="cursor-pointer font-medium">{cat.label}</span>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{cat.description}</p>
+                    <span className="cursor-pointer font-medium">
+                      {cat.label}
+                    </span>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {cat.description}
+                    </p>
                   </div>
                 </label>
               ))}
@@ -289,7 +315,10 @@ export function DataExportRequest() {
           {/* Export Format */}
           <div className="space-y-2">
             <Label htmlFor="format">Export Format</Label>
-            <Select value={format} onValueChange={(v: ExportFormat) => setFormat(v)}>
+            <Select
+              value={format}
+              onValueChange={(v: ExportFormat) => setFormat(v)}
+            >
               <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue />
               </SelectTrigger>
@@ -314,25 +343,35 @@ export function DataExportRequest() {
             </div>
             <div className="flex gap-4">
               <div className="flex-1">
-                <Label htmlFor="start-date" className="text-xs text-muted-foreground">
+                <Label
+                  htmlFor="start-date"
+                  className="text-xs text-muted-foreground"
+                >
                   From
                 </Label>
                 <Input
                   id="start-date"
                   type="date"
                   value={dateRange.start}
-                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  onChange={(e) =>
+                    setDateRange({ ...dateRange, start: e.target.value })
+                  }
                 />
               </div>
               <div className="flex-1">
-                <Label htmlFor="end-date" className="text-xs text-muted-foreground">
+                <Label
+                  htmlFor="end-date"
+                  className="text-xs text-muted-foreground"
+                >
                   To
                 </Label>
                 <Input
                   id="end-date"
                   type="date"
                   value={dateRange.end}
-                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                  onChange={(e) =>
+                    setDateRange({ ...dateRange, end: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -346,7 +385,9 @@ export function DataExportRequest() {
             <Checkbox
               id="metadata"
               checked={includeMetadata}
-              onCheckedChange={(checked) => setIncludeMetadata(checked as boolean)}
+              onCheckedChange={(checked) =>
+                setIncludeMetadata(checked as boolean)
+              }
             />
             <Label htmlFor="metadata" className="text-sm">
               Include export metadata (timestamps, export ID, etc.)
@@ -356,7 +397,9 @@ export function DataExportRequest() {
           {/* Submit Button */}
           <Button
             onClick={handleSubmit}
-            disabled={!allowed || selectedCategories.length === 0 || isSubmitting}
+            disabled={
+              !allowed || selectedCategories.length === 0 || isSubmitting
+            }
             className="w-full sm:w-auto"
           >
             {isSubmitting ? (
@@ -380,9 +423,17 @@ export function DataExportRequest() {
           <h3 className="text-lg font-medium">Your Export Requests</h3>
           <div className="space-y-4">
             {userRequests
-              .sort((a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime())
+              .sort(
+                (a, b) =>
+                  new Date(b.requestedAt).getTime() -
+                  new Date(a.requestedAt).getTime(),
+              )
               .map((request) => (
-                <ExportRequestCard key={request.id} request={request} onDownload={handleDownload} />
+                <ExportRequestCard
+                  key={request.id}
+                  request={request}
+                  onDownload={handleDownload}
+                />
               ))}
           </div>
         </div>
@@ -398,17 +449,19 @@ export function DataExportRequest() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
-            Under GDPR Article 20, you have the right to receive your personal data in a structured,
-            commonly used, and machine-readable format.
+            Under GDPR Article 20, you have the right to receive your personal
+            data in a structured, commonly used, and machine-readable format.
           </p>
           <ul className="list-inside list-disc space-y-1">
             <li>Exports are available for download for 7 days</li>
             <li>Maximum 5 downloads per export</li>
             <li>You can request one export per day</li>
-            <li>Processing typically takes {EXPORT_PROCESSING_TIME_ESTIMATE}</li>
+            <li>
+              Processing typically takes {EXPORT_PROCESSING_TIME_ESTIMATE}
+            </li>
           </ul>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

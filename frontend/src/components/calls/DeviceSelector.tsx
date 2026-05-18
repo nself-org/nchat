@@ -5,11 +5,11 @@
  * during voice and video calls.
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Mic, Speaker, Video, ChevronDown, Check, Volume2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { Mic, Speaker, Video, ChevronDown, Check, Volume2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,53 +17,59 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface MediaDevice {
-  deviceId: string
-  label: string
-  kind: 'audioinput' | 'audiooutput' | 'videoinput'
+  deviceId: string;
+  label: string;
+  kind: "audioinput" | "audiooutput" | "videoinput";
 }
 
 export interface DeviceSelectorProps {
-  type: 'audioinput' | 'audiooutput' | 'videoinput'
-  devices: MediaDevice[]
-  selectedDeviceId?: string
-  onDeviceSelect: (deviceId: string) => void
-  disabled?: boolean
-  compact?: boolean
-  showLabel?: boolean
-  className?: string
+  type: "audioinput" | "audiooutput" | "videoinput";
+  devices: MediaDevice[];
+  selectedDeviceId?: string;
+  onDeviceSelect: (deviceId: string) => void;
+  disabled?: boolean;
+  compact?: boolean;
+  showLabel?: boolean;
+  className?: string;
 }
 
 // =============================================================================
 // Icon Component
 // =============================================================================
 
-function DeviceIcon({ type, className }: { type: DeviceSelectorProps['type']; className?: string }) {
+function DeviceIcon({
+  type,
+  className,
+}: {
+  type: DeviceSelectorProps["type"];
+  className?: string;
+}) {
   switch (type) {
-    case 'audioinput':
-      return <Mic className={className} />
-    case 'audiooutput':
-      return <Speaker className={className} />
-    case 'videoinput':
-      return <Video className={className} />
+    case "audioinput":
+      return <Mic className={className} />;
+    case "audiooutput":
+      return <Speaker className={className} />;
+    case "videoinput":
+      return <Video className={className} />;
   }
 }
 
-function getDeviceLabel(type: DeviceSelectorProps['type']): string {
+function getDeviceLabel(type: DeviceSelectorProps["type"]): string {
   switch (type) {
-    case 'audioinput':
-      return 'Microphone'
-    case 'audiooutput':
-      return 'Speaker'
-    case 'videoinput':
-      return 'Camera'
+    case "audioinput":
+      return "Microphone";
+    case "audiooutput":
+      return "Speaker";
+    case "videoinput":
+      return "Camera";
   }
 }
 
@@ -81,24 +87,24 @@ export function DeviceSelector({
   showLabel = true,
   className,
 }: DeviceSelectorProps) {
-  const selectedDevice = devices.find((d) => d.deviceId === selectedDeviceId)
-  const label = getDeviceLabel(type)
+  const selectedDevice = devices.find((d) => d.deviceId === selectedDeviceId);
+  const label = getDeviceLabel(type);
 
   // Use first device as default if none selected
-  const effectiveDeviceId = selectedDeviceId || devices[0]?.deviceId
+  const effectiveDeviceId = selectedDeviceId || devices[0]?.deviceId;
 
   if (devices.length === 0) {
     return (
       <Button
         variant="outline"
-        size={compact ? 'sm' : 'default'}
+        size={compact ? "sm" : "default"}
         disabled
-        className={cn('text-muted-foreground', className)}
+        className={cn("text-muted-foreground", className)}
       >
         <DeviceIcon type={type} className="h-4 w-4 mr-2" />
         No {label.toLowerCase()} found
       </Button>
-    )
+    );
   }
 
   return (
@@ -106,9 +112,9 @@ export function DeviceSelector({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size={compact ? 'sm' : 'default'}
+          size={compact ? "sm" : "default"}
           disabled={disabled || devices.length <= 1}
-          className={cn('justify-between', className)}
+          className={cn("justify-between", className)}
         >
           <span className="flex items-center gap-2">
             <DeviceIcon type={type} className="h-4 w-4" />
@@ -118,7 +124,9 @@ export function DeviceSelector({
               </span>
             )}
           </span>
-          {devices.length > 1 && <ChevronDown className="h-4 w-4 ml-2 opacity-50" />}
+          {devices.length > 1 && (
+            <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
+          )}
         </Button>
       </DropdownMenuTrigger>
 
@@ -143,7 +151,7 @@ export function DeviceSelector({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 // =============================================================================
@@ -151,19 +159,19 @@ export function DeviceSelector({
 // =============================================================================
 
 export interface CombinedDeviceSelectorProps {
-  audioInputDevices: MediaDevice[]
-  audioOutputDevices: MediaDevice[]
-  videoInputDevices?: MediaDevice[]
-  selectedAudioInput?: string
-  selectedAudioOutput?: string
-  selectedVideoInput?: string
-  onAudioInputSelect: (deviceId: string) => void
-  onAudioOutputSelect: (deviceId: string) => void
-  onVideoInputSelect?: (deviceId: string) => void
-  showVideo?: boolean
-  disabled?: boolean
-  layout?: 'horizontal' | 'vertical'
-  className?: string
+  audioInputDevices: MediaDevice[];
+  audioOutputDevices: MediaDevice[];
+  videoInputDevices?: MediaDevice[];
+  selectedAudioInput?: string;
+  selectedAudioOutput?: string;
+  selectedVideoInput?: string;
+  onAudioInputSelect: (deviceId: string) => void;
+  onAudioOutputSelect: (deviceId: string) => void;
+  onVideoInputSelect?: (deviceId: string) => void;
+  showVideo?: boolean;
+  disabled?: boolean;
+  layout?: "horizontal" | "vertical";
+  className?: string;
 }
 
 export function CombinedDeviceSelector({
@@ -178,15 +186,15 @@ export function CombinedDeviceSelector({
   onVideoInputSelect,
   showVideo = false,
   disabled = false,
-  layout = 'horizontal',
+  layout = "horizontal",
   className,
 }: CombinedDeviceSelectorProps) {
   return (
     <div
       className={cn(
-        'flex gap-2',
-        layout === 'vertical' ? 'flex-col' : 'flex-row flex-wrap',
-        className
+        "flex gap-2",
+        layout === "vertical" ? "flex-col" : "flex-row flex-wrap",
+        className,
       )}
     >
       <DeviceSelector
@@ -215,7 +223,7 @@ export function CombinedDeviceSelector({
         />
       )}
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -223,53 +231,53 @@ export function CombinedDeviceSelector({
 // =============================================================================
 
 export interface AudioLevelIndicatorProps {
-  level: number // 0-1
-  className?: string
-  variant?: 'bar' | 'dots' | 'meter'
-  size?: 'sm' | 'md' | 'lg'
+  level: number; // 0-1
+  className?: string;
+  variant?: "bar" | "dots" | "meter";
+  size?: "sm" | "md" | "lg";
 }
 
 export function AudioLevelIndicator({
   level,
   className,
-  variant = 'bar',
-  size = 'md',
+  variant = "bar",
+  size = "md",
 }: AudioLevelIndicatorProps) {
-  const normalizedLevel = Math.max(0, Math.min(1, level))
+  const normalizedLevel = Math.max(0, Math.min(1, level));
 
   const sizeClasses = {
-    sm: { bar: 'h-1', dot: 'h-1 w-1', meter: 'h-4 w-16' },
-    md: { bar: 'h-2', dot: 'h-2 w-2', meter: 'h-6 w-24' },
-    lg: { bar: 'h-3', dot: 'h-3 w-3', meter: 'h-8 w-32' },
-  }
+    sm: { bar: "h-1", dot: "h-1 w-1", meter: "h-4 w-16" },
+    md: { bar: "h-2", dot: "h-2 w-2", meter: "h-6 w-24" },
+    lg: { bar: "h-3", dot: "h-3 w-3", meter: "h-8 w-32" },
+  };
 
-  if (variant === 'dots') {
-    const dotCount = 5
-    const activeDots = Math.ceil(normalizedLevel * dotCount)
+  if (variant === "dots") {
+    const dotCount = 5;
+    const activeDots = Math.ceil(normalizedLevel * dotCount);
 
     return (
-      <div className={cn('flex items-center gap-1', className)}>
+      <div className={cn("flex items-center gap-1", className)}>
         {Array.from({ length: dotCount }).map((_, i) => (
           <div
             key={i}
             className={cn(
-              'rounded-full transition-colors',
+              "rounded-full transition-colors",
               sizeClasses[size].dot,
-              i < activeDots ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+              i < activeDots ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600",
             )}
           />
         ))}
       </div>
-    )
+    );
   }
 
-  if (variant === 'meter') {
+  if (variant === "meter") {
     return (
       <div
         className={cn(
-          'flex items-center gap-1 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden',
+          "flex items-center gap-1 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden",
           sizeClasses[size].meter,
-          className
+          className,
         )}
       >
         <div
@@ -277,27 +285,31 @@ export function AudioLevelIndicator({
           style={{ width: `${normalizedLevel * 100}%` }}
         />
       </div>
-    )
+    );
   }
 
   // Default: bar variant
   return (
     <div
       className={cn(
-        'w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden',
+        "w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden",
         sizeClasses[size].bar,
-        className
+        className,
       )}
     >
       <div
         className={cn(
-          'h-full rounded-full transition-all duration-75',
-          normalizedLevel > 0.8 ? 'bg-red-500' : normalizedLevel > 0.5 ? 'bg-yellow-500' : 'bg-green-500'
+          "h-full rounded-full transition-all duration-75",
+          normalizedLevel > 0.8
+            ? "bg-red-500"
+            : normalizedLevel > 0.5
+              ? "bg-yellow-500"
+              : "bg-green-500",
         )}
         style={{ width: `${normalizedLevel * 100}%` }}
       />
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -305,11 +317,11 @@ export function AudioLevelIndicator({
 // =============================================================================
 
 export interface AudioTestProps {
-  audioLevel: number
-  onTestMicrophone?: () => void
-  onTestSpeaker?: () => void
-  isTesting?: boolean
-  className?: string
+  audioLevel: number;
+  onTestMicrophone?: () => void;
+  onTestSpeaker?: () => void;
+  isTesting?: boolean;
+  className?: string;
 }
 
 export function AudioTest({
@@ -320,7 +332,7 @@ export function AudioTest({
   className,
 }: AudioTestProps) {
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Microphone Test */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -335,14 +347,14 @@ export function AudioTest({
               onClick={onTestMicrophone}
               disabled={isTesting}
             >
-              {isTesting ? 'Testing...' : 'Test'}
+              {isTesting ? "Testing..." : "Test"}
             </Button>
           )}
         </div>
         <div className="flex items-center gap-2">
           <AudioLevelIndicator level={audioLevel} variant="meter" />
           <span className="text-xs text-muted-foreground">
-            {audioLevel > 0 ? 'Detecting audio' : 'No audio detected'}
+            {audioLevel > 0 ? "Detecting audio" : "No audio detected"}
           </span>
         </div>
       </div>
@@ -362,7 +374,7 @@ export function AudioTest({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -370,18 +382,18 @@ export function AudioTest({
 // =============================================================================
 
 export interface DeviceSettingsProps {
-  audioInputDevices: MediaDevice[]
-  audioOutputDevices: MediaDevice[]
-  videoInputDevices: MediaDevice[]
-  selectedAudioInput?: string
-  selectedAudioOutput?: string
-  selectedVideoInput?: string
-  onAudioInputSelect: (deviceId: string) => void
-  onAudioOutputSelect: (deviceId: string) => void
-  onVideoInputSelect: (deviceId: string) => void
-  audioLevel: number
-  onTestSpeaker?: () => void
-  className?: string
+  audioInputDevices: MediaDevice[];
+  audioOutputDevices: MediaDevice[];
+  videoInputDevices: MediaDevice[];
+  selectedAudioInput?: string;
+  selectedAudioOutput?: string;
+  selectedVideoInput?: string;
+  onAudioInputSelect: (deviceId: string) => void;
+  onAudioOutputSelect: (deviceId: string) => void;
+  onVideoInputSelect: (deviceId: string) => void;
+  audioLevel: number;
+  onTestSpeaker?: () => void;
+  className?: string;
 }
 
 export function DeviceSettings({
@@ -399,7 +411,7 @@ export function DeviceSettings({
   className,
 }: DeviceSettingsProps) {
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Audio Input */}
       <div className="space-y-2">
         <label className="text-sm font-medium flex items-center gap-2">
@@ -453,5 +465,5 @@ export function DeviceSettings({
         </div>
       )}
     </div>
-  )
+  );
 }

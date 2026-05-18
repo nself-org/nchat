@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ActivityEmpty Component
@@ -6,13 +6,19 @@
  * Empty state for activity feed
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { getCategoryLabel } from '@/lib/activity/activity-filters'
-import type { ActivityEmptyProps, ActivityCategory } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { getCategoryLabel } from "@/lib/activity/activity-filters";
+import type {
+  ActivityEmptyProps,
+  ActivityCategory,
+} from "@/lib/activity/activity-types";
 
 // Empty state icons for different categories
-const categoryIcons: Record<ActivityCategory, React.FC<{ className?: string }>> = {
+const categoryIcons: Record<
+  ActivityCategory,
+  React.FC<{ className?: string }>
+> = {
   all: ({ className }) => (
     <svg
       className={className}
@@ -163,65 +169,72 @@ const categoryIcons: Record<ActivityCategory, React.FC<{ className?: string }>> 
       <line x1="6" y1="18" x2="6.01" y2="18" />
     </svg>
   ),
-}
+};
 
 // Default messages for different categories
-const defaultMessages: Record<ActivityCategory, { title: string; description: string }> = {
+const defaultMessages: Record<
+  ActivityCategory,
+  { title: string; description: string }
+> = {
   all: {
-    title: 'No activity yet',
+    title: "No activity yet",
     description: "When there's activity in your workspace, you'll see it here.",
   },
   mentions: {
-    title: 'No mentions yet',
-    description: 'When someone mentions you, it will appear here.',
+    title: "No mentions yet",
+    description: "When someone mentions you, it will appear here.",
   },
   threads: {
-    title: 'No thread activity',
-    description: 'Replies to your messages and threads you follow will show up here.',
+    title: "No thread activity",
+    description:
+      "Replies to your messages and threads you follow will show up here.",
   },
   reactions: {
-    title: 'No reactions yet',
+    title: "No reactions yet",
     description: "When someone reacts to your messages, you'll see it here.",
   },
   files: {
-    title: 'No files shared',
-    description: 'Files shared in conversations will appear here.',
+    title: "No files shared",
+    description: "Files shared in conversations will appear here.",
   },
   channels: {
-    title: 'No channel activity',
-    description: 'Channel updates and events will show up here.',
+    title: "No channel activity",
+    description: "Channel updates and events will show up here.",
   },
   members: {
-    title: 'No member activity',
+    title: "No member activity",
     description: "When people join or leave, you'll see it here.",
   },
   calls: {
-    title: 'No calls yet',
-    description: 'Call activity will appear here when calls are made.',
+    title: "No calls yet",
+    description: "Call activity will appear here when calls are made.",
   },
   tasks: {
-    title: 'No task activity',
-    description: 'Task updates and assignments will show up here.',
+    title: "No task activity",
+    description: "Task updates and assignments will show up here.",
   },
   integrations: {
-    title: 'No integration activity',
-    description: 'Events from connected apps will appear here.',
+    title: "No integration activity",
+    description: "Events from connected apps will appear here.",
   },
-}
+};
 
 export function ActivityEmpty({
-  category = 'all',
+  category = "all",
   className,
   title,
   description,
   showIcon = true,
 }: ActivityEmptyProps) {
-  const IconComponent = categoryIcons[category]
-  const defaultMessage = defaultMessages[category]
+  const IconComponent = categoryIcons[category];
+  const defaultMessage = defaultMessages[category];
 
   return (
     <div
-      className={cn('flex flex-col items-center justify-center px-4 py-12 text-center', className)}
+      className={cn(
+        "flex flex-col items-center justify-center px-4 py-12 text-center",
+        className,
+      )}
     >
       {showIcon && (
         <div className="mb-4 rounded-full bg-muted p-4">
@@ -233,7 +246,7 @@ export function ActivityEmpty({
         {description || defaultMessage.description}
       </p>
     </div>
-  )
+  );
 }
 
-export default ActivityEmpty
+export default ActivityEmpty;

@@ -1,136 +1,145 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import { X, RefreshCw, Info } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { skipWaiting, onServiceWorkerMessage } from '@/lib/pwa/register-sw'
+import { useState, useEffect, useCallback } from "react";
+import { X, RefreshCw, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { skipWaiting, onServiceWorkerMessage } from "@/lib/pwa/register-sw";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export interface UpdatePromptProps {
   /** Custom title for the prompt */
-  title?: string
+  title?: string;
   /** Custom description for the prompt */
-  description?: string
+  description?: string;
   /** Custom update button text */
-  updateText?: string
+  updateText?: string;
   /** Custom dismiss button text */
-  dismissText?: string
+  dismissText?: string;
   /** Whether to auto-reload after update */
-  autoReload?: boolean
+  autoReload?: boolean;
   /** Callback when update is applied */
-  onUpdate?: () => void
+  onUpdate?: () => void;
   /** Callback when prompt is dismissed */
-  onDismiss?: () => void
+  onDismiss?: () => void;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Position of the prompt */
-  position?: 'top' | 'bottom'
+  position?: "top" | "bottom";
 }
 
 export function UpdatePrompt({
-  title = 'Update available',
-  description = 'A new version of nChat is available. Update now for the latest features and improvements.',
-  updateText = 'Update now',
-  dismissText = 'Later',
+  title = "Update available",
+  description = "A new version of nChat is available. Update now for the latest features and improvements.",
+  updateText = "Update now",
+  dismissText = "Later",
   autoReload = true,
   onUpdate,
   onDismiss,
-  className = '',
-  position = 'bottom',
+  className = "",
+  position = "bottom",
 }: UpdatePromptProps) {
-  const [showPrompt, setShowPrompt] = useState(false)
-  const [isUpdating, setIsUpdating] = useState(false)
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Listen for update available message from service worker
   useEffect(() => {
     // Check if there's a waiting service worker on mount
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
         if (registration.waiting) {
-          setShowPrompt(true)
+          setShowPrompt(true);
         }
-      })
+      });
     }
 
     // Listen for update found
     const handleUpdateFound = () => {
-      if ('serviceWorker' in navigator) {
+      if ("serviceWorker" in navigator) {
         navigator.serviceWorker.ready.then((registration) => {
-          const newWorker = registration.installing
+          const newWorker = registration.installing;
 
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                setShowPrompt(true)
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                setShowPrompt(true);
               }
-            })
+            });
           }
-        })
+        });
       }
-    }
+    };
 
     // Listen for controller change (after update applied)
     const handleControllerChange = () => {
       if (isUpdating && autoReload) {
-        window.location.reload()
+        window.location.reload();
       }
-    }
+    };
 
-    navigator.serviceWorker?.addEventListener('controllerchange', handleControllerChange)
+    navigator.serviceWorker?.addEventListener(
+      "controllerchange",
+      handleControllerChange,
+    );
 
     // Check for updates periodically
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
-        registration.addEventListener('updatefound', handleUpdateFound)
-      })
+        registration.addEventListener("updatefound", handleUpdateFound);
+      });
     }
 
     return () => {
-      navigator.serviceWorker?.removeEventListener('controllerchange', handleControllerChange)
-    }
-  }, [autoReload, isUpdating])
+      navigator.serviceWorker?.removeEventListener(
+        "controllerchange",
+        handleControllerChange,
+      );
+    };
+  }, [autoReload, isUpdating]);
 
   // Listen for messages from service worker
   useEffect(() => {
-    const unsubscribe = onServiceWorkerMessage('UPDATE_AVAILABLE', () => {
-      setShowPrompt(true)
-    })
+    const unsubscribe = onServiceWorkerMessage("UPDATE_AVAILABLE", () => {
+      setShowPrompt(true);
+    });
 
-    return unsubscribe
-  }, [])
+    return unsubscribe;
+  }, []);
 
   const handleUpdate = useCallback(async () => {
-    setIsUpdating(true)
+    setIsUpdating(true);
 
     try {
       // Tell the waiting service worker to activate
-      await skipWaiting()
+      await skipWaiting();
 
-      onUpdate?.()
+      onUpdate?.();
 
       // If autoReload is false, hide the prompt
       if (!autoReload) {
-        setShowPrompt(false)
-        setIsUpdating(false)
+        setShowPrompt(false);
+        setIsUpdating(false);
       }
       // If autoReload is true, the page will reload when controllerchange fires
     } catch (error) {
-      logger.error('[PWA] Error updating service worker:', error)
-      setIsUpdating(false)
+      logger.error("[PWA] Error updating service worker:", error);
+      setIsUpdating(false);
     }
-  }, [autoReload, onUpdate])
+  }, [autoReload, onUpdate]);
 
   const handleDismiss = useCallback(() => {
-    setShowPrompt(false)
-    onDismiss?.()
-  }, [onDismiss])
+    setShowPrompt(false);
+    onDismiss?.();
+  }, [onDismiss]);
 
   if (!showPrompt) {
-    return null
+    return null;
   }
 
-  const positionClasses = position === 'top' ? 'top-4' : 'bottom-4'
+  const positionClasses = position === "top" ? "top-4" : "bottom-4";
 
   return (
     <div
@@ -184,8 +193,10 @@ export function UpdatePrompt({
               disabled={isUpdating}
               className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700"
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
-              {isUpdating ? 'Updating...' : updateText}
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isUpdating ? "animate-spin" : ""}`}
+              />
+              {isUpdating ? "Updating..." : updateText}
             </Button>
             <Button
               onClick={handleDismiss}
@@ -203,7 +214,7 @@ export function UpdatePrompt({
         @keyframes slide-in {
           from {
             opacity: 0;
-            transform: translateY(${position === 'top' ? '-20px' : '20px'});
+            transform: translateY(${position === "top" ? "-20px" : "20px"});
           }
           to {
             opacity: 1;
@@ -216,7 +227,7 @@ export function UpdatePrompt({
         }
       `}</style>
     </div>
-  )
+  );
 }
 
 /**
@@ -224,36 +235,39 @@ export function UpdatePrompt({
  */
 export function UpdateIndicator({
   onClick,
-  className = '',
+  className = "",
 }: {
-  onClick?: () => void
-  className?: string
+  onClick?: () => void;
+  className?: string;
 }) {
-  const [hasUpdate, setHasUpdate] = useState(false)
+  const [hasUpdate, setHasUpdate] = useState(false);
 
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
         if (registration.waiting) {
-          setHasUpdate(true)
+          setHasUpdate(true);
         }
 
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing
+        registration.addEventListener("updatefound", () => {
+          const newWorker = registration.installing;
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                setHasUpdate(true)
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                setHasUpdate(true);
               }
-            })
+            });
           }
-        })
-      })
+        });
+      });
     }
-  }, [])
+  }, []);
 
   if (!hasUpdate) {
-    return null
+    return null;
   }
 
   return (
@@ -265,7 +279,7 @@ export function UpdateIndicator({
       <RefreshCw className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
       <span className="absolute right-0 top-0 h-2 w-2 animate-pulse rounded-full bg-red-500" />
     </button>
-  )
+  );
 }
 
 /**
@@ -275,52 +289,55 @@ export function UpdateToast({
   onUpdate,
   onDismiss,
 }: {
-  onUpdate?: () => void
-  onDismiss?: () => void
+  onUpdate?: () => void;
+  onDismiss?: () => void;
 }) {
-  const [show, setShow] = useState(false)
-  const [updating, setUpdating] = useState(false)
+  const [show, setShow] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
         if (registration.waiting) {
-          setShow(true)
+          setShow(true);
         }
 
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing
+        registration.addEventListener("updatefound", () => {
+          const newWorker = registration.installing;
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                setShow(true)
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                setShow(true);
               }
-            })
+            });
           }
-        })
-      })
+        });
+      });
 
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (updating) {
-          window.location.reload()
+          window.location.reload();
         }
-      })
+      });
     }
-  }, [updating])
+  }, [updating]);
 
   const handleUpdate = async () => {
-    setUpdating(true)
-    await skipWaiting()
-    onUpdate?.()
-  }
+    setUpdating(true);
+    await skipWaiting();
+    onUpdate?.();
+  };
 
   const handleDismiss = () => {
-    setShow(false)
-    onDismiss?.()
-  }
+    setShow(false);
+    onDismiss?.();
+  };
 
   if (!show) {
-    return null
+    return null;
   }
 
   return (
@@ -332,7 +349,7 @@ export function UpdateToast({
           disabled={updating}
           className="text-sm font-medium text-indigo-400 hover:text-indigo-300 dark:text-indigo-600 dark:hover:text-indigo-700"
         >
-          {updating ? 'Updating...' : 'Update'}
+          {updating ? "Updating..." : "Update"}
         </button>
         <button
           onClick={handleDismiss}
@@ -342,7 +359,7 @@ export function UpdateToast({
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default UpdatePrompt
+export default UpdatePrompt;

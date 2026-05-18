@@ -1,12 +1,12 @@
-import Link from 'next/link'
-import { Github, Twitter, Linkedin } from 'lucide-react'
-import { useAppConfig } from '@/contexts/app-config-context'
+import Link from "next/link";
+import { Github, Twitter, Linkedin } from "lucide-react";
+import { useAppConfig } from "@/contexts/app-config-context";
 
 export function Footer() {
-  const { config } = useAppConfig()
-  const { branding, social, legal } = config
+  const { config } = useAppConfig();
+  const { branding, social, legal } = config;
 
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="border-t bg-gray-50 dark:bg-gray-900">
@@ -16,12 +16,18 @@ export function Footer() {
           <div className="md:col-span-1">
             <div className="mb-4 flex items-center space-x-2">
               {branding.logo && (
-                <img src={branding.logo} alt={branding.appName} className="h-6 w-auto" />
+                <img
+                  src={branding.logo}
+                  alt={branding.appName}
+                  className="h-6 w-auto"
+                />
               )}
               <span className="text-lg font-semibold">{branding.appName}</span>
             </div>
             {branding.tagline && (
-              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">{branding.tagline}</p>
+              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                {branding.tagline}
+              </p>
             )}
 
             {/* Social Links */}
@@ -64,7 +70,9 @@ export function Footer() {
 
           {/* Product Links */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Product</h3>
+            <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">
+              Product
+            </h3>
             <ul className="space-y-3">
               <li>
                 <Link
@@ -103,7 +111,9 @@ export function Footer() {
 
           {/* Support Links */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Support</h3>
+            <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">
+              Support
+            </h3>
             <ul className="space-y-3">
               <li>
                 <Link
@@ -136,7 +146,9 @@ export function Footer() {
 
           {/* Legal Links */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Legal</h3>
+            <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">
+              Legal
+            </h3>
             <ul className="space-y-3">
               {legal.privacyPolicyUrl && (
                 <li>
@@ -176,7 +188,8 @@ export function Footer() {
         <div className="mt-12 border-t border-gray-200 pt-8 dark:border-gray-700">
           <div className="flex flex-col items-center justify-between md:flex-row">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              © {currentYear} {branding.companyName || branding.appName}. All rights reserved.
+              © {currentYear} {branding.companyName || branding.appName}. All
+              rights reserved.
             </p>
 
             {branding.websiteUrl && (
@@ -193,5 +206,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

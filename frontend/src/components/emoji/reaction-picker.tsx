@@ -1,25 +1,30 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Plus } from 'lucide-react'
-import { EmojiClickData } from 'emoji-picker-react'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
-import { EmojiPicker } from './emoji-picker'
-import { cn } from '@/lib/utils'
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
+import { EmojiClickData } from "emoji-picker-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { EmojiPicker } from "./emoji-picker";
+import { cn } from "@/lib/utils";
 
 // Default quick reactions (can be customized)
-export const DEFAULT_QUICK_REACTIONS = ['👍', '❤️', '😂', '🎉', '🤔', '👀']
+export const DEFAULT_QUICK_REACTIONS = ["👍", "❤️", "😂", "🎉", "🤔", "👀"];
 
 export interface ReactionPickerProps {
-  onReactionSelect: (emoji: string) => void
-  quickReactions?: string[]
-  showFullPicker?: boolean
-  className?: string
-  disabled?: boolean
-  side?: 'top' | 'bottom' | 'left' | 'right'
-  align?: 'start' | 'center' | 'end'
+  onReactionSelect: (emoji: string) => void;
+  quickReactions?: string[];
+  showFullPicker?: boolean;
+  className?: string;
+  disabled?: boolean;
+  side?: "top" | "bottom" | "left" | "right";
+  align?: "start" | "center" | "end";
 }
 
 export function ReactionPicker({
@@ -28,27 +33,27 @@ export function ReactionPicker({
   showFullPicker = true,
   className,
   disabled = false,
-  side = 'top',
-  align = 'center',
+  side = "top",
+  align = "center",
 }: ReactionPickerProps) {
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  const [hoveredEmoji, setHoveredEmoji] = useState<string | null>(null)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [hoveredEmoji, setHoveredEmoji] = useState<string | null>(null);
 
   const handleQuickReaction = useCallback(
     (emoji: string) => {
-      if (disabled) return
-      onReactionSelect(emoji)
+      if (disabled) return;
+      onReactionSelect(emoji);
     },
-    [onReactionSelect, disabled]
-  )
+    [onReactionSelect, disabled],
+  );
 
   const handleEmojiSelect = useCallback(
     (emoji: string, _emojiData: EmojiClickData) => {
-      onReactionSelect(emoji)
-      setShowEmojiPicker(false)
+      onReactionSelect(emoji);
+      setShowEmojiPicker(false);
     },
-    [onReactionSelect]
-  )
+    [onReactionSelect],
+  );
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -56,10 +61,10 @@ export function ReactionPicker({
         initial={{ opacity: 0, scale: 0.95, y: 5 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 5 }}
-        transition={{ duration: 0.15, ease: 'easeOut' }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
         className={cn(
-          'flex items-center gap-0.5 rounded-full border bg-popover p-1 shadow-lg',
-          className
+          "flex items-center gap-0.5 rounded-full border bg-popover p-1 shadow-lg",
+          className,
         )}
       >
         {quickReactions.map((emoji) => (
@@ -74,10 +79,10 @@ export function ReactionPicker({
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
                 className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full transition-colors',
-                  'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
-                  'disabled:cursor-not-allowed disabled:opacity-50',
-                  hoveredEmoji === emoji && 'bg-accent'
+                  "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
+                  "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
+                  hoveredEmoji === emoji && "bg-accent",
                 )}
               >
                 <span className="text-lg">{emoji}</span>
@@ -121,13 +126,13 @@ export function ReactionPicker({
         )}
       </motion.div>
     </TooltipProvider>
-  )
+  );
 }
 
 // Hover-triggered reaction picker for messages
 export interface MessageReactionPickerProps extends ReactionPickerProps {
-  messageId: string
-  visible?: boolean
+  messageId: string;
+  visible?: boolean;
 }
 
 export function MessageReactionPicker({
@@ -150,15 +155,15 @@ export function MessageReactionPicker({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 // Compact inline reaction picker
 export interface InlineReactionPickerProps {
-  onReactionSelect: (emoji: string) => void
-  quickReactions?: string[]
-  className?: string
-  disabled?: boolean
+  onReactionSelect: (emoji: string) => void;
+  quickReactions?: string[];
+  className?: string;
+  disabled?: boolean;
 }
 
 export function InlineReactionPicker({
@@ -167,10 +172,10 @@ export function InlineReactionPicker({
   className,
   disabled = false,
 }: InlineReactionPickerProps) {
-  const [showMore, setShowMore] = useState(false)
+  const [showMore, setShowMore] = useState(false);
 
   return (
-    <div className={cn('flex items-center gap-1', className)}>
+    <div className={cn("flex items-center gap-1", className)}>
       {quickReactions.map((emoji) => (
         <button
           key={emoji}
@@ -178,8 +183,8 @@ export function InlineReactionPicker({
           onClick={() => onReactionSelect(emoji)}
           disabled={disabled}
           className={cn(
-            'rounded p-1 text-lg transition-colors hover:bg-accent',
-            'disabled:cursor-not-allowed disabled:opacity-50'
+            "rounded p-1 text-lg transition-colors hover:bg-accent",
+            "disabled:cursor-not-allowed disabled:opacity-50",
           )}
         >
           {emoji}
@@ -187,8 +192,8 @@ export function InlineReactionPicker({
       ))}
       <EmojiPicker
         onEmojiSelect={(emoji) => {
-          onReactionSelect(emoji)
-          setShowMore(false)
+          onReactionSelect(emoji);
+          setShowMore(false);
         }}
         open={showMore}
         onOpenChange={setShowMore}
@@ -203,5 +208,5 @@ export function InlineReactionPicker({
         </button>
       </EmojiPicker>
     </div>
-  )
+  );
 }

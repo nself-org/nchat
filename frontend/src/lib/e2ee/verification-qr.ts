@@ -7,8 +7,8 @@
  * - Handle verification protocol for QR code exchange
  */
 
-import { sha256 } from '@noble/hashes/sha256'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { sha256 } from "@noble/hashes/sha256";
+import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import {
   generateSafetyNumber,
   generateFingerprint,
@@ -19,27 +19,32 @@ import {
   FINGERPRINT_SIZE,
   type SafetyNumberInput,
   type MismatchResult,
-} from './safety-number'
-import { constantTimeEqual, bytesToBase64, base64ToBytes, stringToBytes } from './crypto'
+} from "./safety-number";
+import {
+  constantTimeEqual,
+  bytesToBase64,
+  base64ToBytes,
+  stringToBytes,
+} from "./crypto";
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 /** QR code data format version */
-export const QR_FORMAT_VERSION = 1
+export const QR_FORMAT_VERSION = 1;
 
 /** Maximum QR code data size in bytes */
-export const MAX_QR_DATA_SIZE = 512
+export const MAX_QR_DATA_SIZE = 512;
 
 /** QR code prefix for safety number verification */
-export const QR_PREFIX = 'nchat:verify:'
+export const QR_PREFIX = "nchat:verify:";
 
 /** QR code error correction level */
-export type QRErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
+export type QRErrorCorrectionLevel = "L" | "M" | "Q" | "H";
 
 /** Default error correction level (Medium) */
-export const DEFAULT_ERROR_CORRECTION: QRErrorCorrectionLevel = 'M'
+export const DEFAULT_ERROR_CORRECTION: QRErrorCorrectionLevel = "M";
 
 // ============================================================================
 // TYPES
@@ -50,19 +55,19 @@ export const DEFAULT_ERROR_CORRECTION: QRErrorCorrectionLevel = 'M'
  */
 export interface QRCodePayload {
   /** Format version */
-  version: number
+  version: number;
   /** Safety number version */
-  safetyNumberVersion: number
+  safetyNumberVersion: number;
   /** User ID of the QR code generator */
-  userId: string
+  userId: string;
   /** Device ID (optional for multi-device) */
-  deviceId?: string
+  deviceId?: string;
   /** Identity key fingerprint */
-  fingerprint: Uint8Array
+  fingerprint: Uint8Array;
   /** Timestamp of generation */
-  timestamp: number
+  timestamp: number;
   /** Checksum for data integrity */
-  checksum: Uint8Array
+  checksum: Uint8Array;
 }
 
 /**
@@ -70,13 +75,13 @@ export interface QRCodePayload {
  */
 export interface QRGenerationResult {
   /** Raw data string for QR code */
-  data: string
+  data: string;
   /** Parsed payload for reference */
-  payload: QRCodePayload
+  payload: QRCodePayload;
   /** Suggested QR code size in pixels */
-  suggestedSize: number
+  suggestedSize: number;
   /** Error correction level */
-  errorCorrection: QRErrorCorrectionLevel
+  errorCorrection: QRErrorCorrectionLevel;
 }
 
 /**
@@ -84,13 +89,13 @@ export interface QRGenerationResult {
  */
 export interface QRScanResult {
   /** Whether parsing was successful */
-  success: boolean
+  success: boolean;
   /** Parsed payload if successful */
-  payload?: QRCodePayload
+  payload?: QRCodePayload;
   /** Error message if parsing failed */
-  error?: string
+  error?: string;
   /** Whether data integrity check passed */
-  integrityValid?: boolean
+  integrityValid?: boolean;
 }
 
 /**
@@ -98,19 +103,19 @@ export interface QRScanResult {
  */
 export interface QRVerificationResult {
   /** Whether verification succeeded */
-  verified: boolean
+  verified: boolean;
   /** The peer's user ID from QR code */
-  peerUserId?: string
+  peerUserId?: string;
   /** The peer's device ID from QR code */
-  peerDeviceId?: string
+  peerDeviceId?: string;
   /** Matched safety number if verified */
-  safetyNumber?: string
+  safetyNumber?: string;
   /** Error or warning message */
-  message: string
+  message: string;
   /** Detailed mismatch information if failed */
-  mismatch?: MismatchResult
+  mismatch?: MismatchResult;
   /** Timestamp of scan */
-  scannedAt: number
+  scannedAt: number;
 }
 
 /**
@@ -118,15 +123,15 @@ export interface QRVerificationResult {
  */
 export interface ScannableFingerprintData {
   /** Binary data for QR code */
-  binaryData: Uint8Array
+  binaryData: Uint8Array;
   /** Base64 encoded string for text-based QR */
-  base64Data: string
+  base64Data: string;
   /** Version information */
-  version: number
+  version: number;
   /** Local user's fingerprint */
-  localFingerprint: Uint8Array
+  localFingerprint: Uint8Array;
   /** Peer's fingerprint (if known) */
-  peerFingerprint?: Uint8Array
+  peerFingerprint?: Uint8Array;
 }
 
 /**
@@ -134,11 +139,11 @@ export interface ScannableFingerprintData {
  */
 export interface QRGenerationOptions {
   /** Error correction level */
-  errorCorrection?: QRErrorCorrectionLevel
+  errorCorrection?: QRErrorCorrectionLevel;
   /** Include device ID */
-  includeDeviceId?: boolean
+  includeDeviceId?: boolean;
   /** Custom timestamp (for testing) */
-  timestamp?: number
+  timestamp?: number;
 }
 
 // ============================================================================
@@ -151,16 +156,20 @@ export interface QRGenerationOptions {
 export function generateQRCode(
   userId: string,
   identityKey: Uint8Array,
-  options: QRGenerationOptions = {}
+  options: QRGenerationOptions = {},
 ): QRGenerationResult {
   const {
     errorCorrection = DEFAULT_ERROR_CORRECTION,
     includeDeviceId = false,
     timestamp = Date.now(),
-  } = options
+  } = options;
 
   // Generate fingerprint from identity key
-  const fingerprint = generateFingerprint(identityKey, userId, SAFETY_NUMBER_VERSION)
+  const fingerprint = generateFingerprint(
+    identityKey,
+    userId,
+    SAFETY_NUMBER_VERSION,
+  );
 
   // Create payload
   const payload: QRCodePayload = {
@@ -170,30 +179,30 @@ export function generateQRCode(
     fingerprint,
     timestamp,
     checksum: new Uint8Array(0), // Will be computed
-  }
+  };
 
   // Serialize payload
-  const serialized = serializeQRPayload(payload)
+  const serialized = serializeQRPayload(payload);
 
   // Compute checksum
-  payload.checksum = sha256(serialized).slice(0, 8) // 8-byte checksum
+  payload.checksum = sha256(serialized).slice(0, 8); // 8-byte checksum
 
   // Re-serialize with checksum
-  const finalSerialized = serializeQRPayload(payload)
+  const finalSerialized = serializeQRPayload(payload);
 
   // Create QR data string
-  const base64Data = bytesToBase64(finalSerialized)
-  const data = `${QR_PREFIX}${base64Data}`
+  const base64Data = bytesToBase64(finalSerialized);
+  const data = `${QR_PREFIX}${base64Data}`;
 
   // Calculate suggested size based on data length
-  const suggestedSize = calculateSuggestedSize(data.length, errorCorrection)
+  const suggestedSize = calculateSuggestedSize(data.length, errorCorrection);
 
   return {
     data,
     payload,
     suggestedSize,
     errorCorrection,
-  }
+  };
 }
 
 /**
@@ -203,21 +212,33 @@ export function generateScannableData(
   localUserId: string,
   localIdentityKey: Uint8Array,
   peerUserId?: string,
-  peerIdentityKey?: Uint8Array
+  peerIdentityKey?: Uint8Array,
 ): ScannableFingerprintData {
-  const localFingerprint = generateFingerprint(localIdentityKey, localUserId, SAFETY_NUMBER_VERSION)
+  const localFingerprint = generateFingerprint(
+    localIdentityKey,
+    localUserId,
+    SAFETY_NUMBER_VERSION,
+  );
 
-  let peerFingerprint: Uint8Array | undefined
-  let binaryData: Uint8Array
+  let peerFingerprint: Uint8Array | undefined;
+  let binaryData: Uint8Array;
 
   if (peerUserId && peerIdentityKey) {
-    peerFingerprint = generateFingerprint(peerIdentityKey, peerUserId, SAFETY_NUMBER_VERSION)
-    binaryData = generateScannableFingerprint(localFingerprint, peerFingerprint, SAFETY_NUMBER_VERSION)
+    peerFingerprint = generateFingerprint(
+      peerIdentityKey,
+      peerUserId,
+      SAFETY_NUMBER_VERSION,
+    );
+    binaryData = generateScannableFingerprint(
+      localFingerprint,
+      peerFingerprint,
+      SAFETY_NUMBER_VERSION,
+    );
   } else {
     // Just local fingerprint
-    binaryData = new Uint8Array(1 + FINGERPRINT_SIZE)
-    binaryData[0] = SAFETY_NUMBER_VERSION
-    binaryData.set(localFingerprint, 1)
+    binaryData = new Uint8Array(1 + FINGERPRINT_SIZE);
+    binaryData[0] = SAFETY_NUMBER_VERSION;
+    binaryData.set(localFingerprint, 1);
   }
 
   return {
@@ -226,15 +247,17 @@ export function generateScannableData(
     version: SAFETY_NUMBER_VERSION,
     localFingerprint,
     peerFingerprint,
-  }
+  };
 }
 
 /**
  * Serialize QR payload to bytes
  */
 function serializeQRPayload(payload: QRCodePayload): Uint8Array {
-  const userIdBytes = stringToBytes(payload.userId)
-  const deviceIdBytes = payload.deviceId ? stringToBytes(payload.deviceId) : new Uint8Array(0)
+  const userIdBytes = stringToBytes(payload.userId);
+  const deviceIdBytes = payload.deviceId
+    ? stringToBytes(payload.deviceId)
+    : new Uint8Array(0);
 
   // Calculate total size
   const size =
@@ -246,80 +269,80 @@ function serializeQRPayload(payload: QRCodePayload): Uint8Array {
     deviceIdBytes.length +
     FINGERPRINT_SIZE + // fingerprint
     8 + // timestamp (64-bit)
-    payload.checksum.length
+    payload.checksum.length;
 
-  const data = new Uint8Array(size)
-  let offset = 0
+  const data = new Uint8Array(size);
+  let offset = 0;
 
   // Version
-  data[offset++] = payload.version
+  data[offset++] = payload.version;
 
   // Safety number version
-  data[offset++] = payload.safetyNumberVersion
+  data[offset++] = payload.safetyNumberVersion;
 
   // User ID (length-prefixed)
-  data[offset++] = userIdBytes.length
-  data.set(userIdBytes, offset)
-  offset += userIdBytes.length
+  data[offset++] = userIdBytes.length;
+  data.set(userIdBytes, offset);
+  offset += userIdBytes.length;
 
   // Device ID (length-prefixed)
-  data[offset++] = deviceIdBytes.length
-  data.set(deviceIdBytes, offset)
-  offset += deviceIdBytes.length
+  data[offset++] = deviceIdBytes.length;
+  data.set(deviceIdBytes, offset);
+  offset += deviceIdBytes.length;
 
   // Fingerprint
-  data.set(payload.fingerprint, offset)
-  offset += FINGERPRINT_SIZE
+  data.set(payload.fingerprint, offset);
+  offset += FINGERPRINT_SIZE;
 
   // Timestamp (8 bytes, big-endian)
-  const timestampView = new DataView(data.buffer, offset, 8)
-  timestampView.setBigUint64(0, BigInt(payload.timestamp), false)
-  offset += 8
+  const timestampView = new DataView(data.buffer, offset, 8);
+  timestampView.setBigUint64(0, BigInt(payload.timestamp), false);
+  offset += 8;
 
   // Checksum
-  data.set(payload.checksum, offset)
+  data.set(payload.checksum, offset);
 
-  return data
+  return data;
 }
 
 /**
  * Deserialize QR payload from bytes
  */
 function deserializeQRPayload(data: Uint8Array): QRCodePayload {
-  let offset = 0
+  let offset = 0;
 
   // Version
-  const version = data[offset++]
+  const version = data[offset++];
 
   // Safety number version
-  const safetyNumberVersion = data[offset++]
+  const safetyNumberVersion = data[offset++];
 
   // User ID
-  const userIdLength = data[offset++]
-  const userIdBytes = data.slice(offset, offset + userIdLength)
-  const userId = new TextDecoder().decode(userIdBytes)
-  offset += userIdLength
+  const userIdLength = data[offset++];
+  const userIdBytes = data.slice(offset, offset + userIdLength);
+  const userId = new TextDecoder().decode(userIdBytes);
+  offset += userIdLength;
 
   // Device ID
-  const deviceIdLength = data[offset++]
-  let deviceId: string | undefined
+  const deviceIdLength = data[offset++];
+  let deviceId: string | undefined;
   if (deviceIdLength > 0) {
-    const deviceIdBytes = data.slice(offset, offset + deviceIdLength)
-    deviceId = new TextDecoder().decode(deviceIdBytes)
-    offset += deviceIdLength
+    const deviceIdBytes = data.slice(offset, offset + deviceIdLength);
+    deviceId = new TextDecoder().decode(deviceIdBytes);
+    offset += deviceIdLength;
   }
 
   // Fingerprint
-  const fingerprint = data.slice(offset, offset + FINGERPRINT_SIZE)
-  offset += FINGERPRINT_SIZE
+  const fingerprint = data.slice(offset, offset + FINGERPRINT_SIZE);
+  offset += FINGERPRINT_SIZE;
 
   // Timestamp
-  const timestampView = new DataView(data.buffer, data.byteOffset + offset, 8)
-  const timestamp = Number(timestampView.getBigUint64(0, false))
-  offset += 8
+  const timestampView = new DataView(data.buffer, data.byteOffset + offset, 8);
+  const timestamp = Number(timestampView.getBigUint64(0, false));
+  offset += 8;
 
   // Checksum
-  const checksum = data.slice(offset)
+  const checksum = data.slice(offset);
 
   return {
     version,
@@ -329,32 +352,35 @@ function deserializeQRPayload(data: Uint8Array): QRCodePayload {
     fingerprint,
     timestamp,
     checksum,
-  }
+  };
 }
 
 /**
  * Calculate suggested QR code size based on data length
  */
-function calculateSuggestedSize(dataLength: number, errorCorrection: QRErrorCorrectionLevel): number {
+function calculateSuggestedSize(
+  dataLength: number,
+  errorCorrection: QRErrorCorrectionLevel,
+): number {
   // Base size calculations for different error correction levels
   const baseSizes: Record<QRErrorCorrectionLevel, number> = {
     L: 128,
     M: 160,
     Q: 192,
     H: 224,
-  }
+  };
 
-  const baseSize = baseSizes[errorCorrection]
+  const baseSize = baseSizes[errorCorrection];
 
   // Scale up for longer data
   if (dataLength > 200) {
-    return baseSize + 64
+    return baseSize + 64;
   }
   if (dataLength > 100) {
-    return baseSize + 32
+    return baseSize + 32;
   }
 
-  return baseSize
+  return baseSize;
 }
 
 // ============================================================================
@@ -370,72 +396,78 @@ export function parseQRCode(data: string): QRScanResult {
     if (!data.startsWith(QR_PREFIX)) {
       return {
         success: false,
-        error: 'Invalid QR code format: missing prefix',
-      }
+        error: "Invalid QR code format: missing prefix",
+      };
     }
 
     // Extract base64 data
-    const base64Data = data.slice(QR_PREFIX.length)
+    const base64Data = data.slice(QR_PREFIX.length);
     if (!base64Data) {
       return {
         success: false,
-        error: 'Invalid QR code format: empty data',
-      }
+        error: "Invalid QR code format: empty data",
+      };
     }
 
     // Decode base64
-    let binaryData: Uint8Array
+    let binaryData: Uint8Array;
     try {
-      binaryData = base64ToBytes(base64Data)
+      binaryData = base64ToBytes(base64Data);
     } catch {
       return {
         success: false,
-        error: 'Invalid QR code format: invalid base64 encoding',
-      }
+        error: "Invalid QR code format: invalid base64 encoding",
+      };
     }
 
     // Check minimum size
     if (binaryData.length < 1 + 1 + 1 + 1 + FINGERPRINT_SIZE + 8) {
       return {
         success: false,
-        error: 'Invalid QR code format: data too short',
-      }
+        error: "Invalid QR code format: data too short",
+      };
     }
 
     // Deserialize payload
-    const payload = deserializeQRPayload(binaryData)
+    const payload = deserializeQRPayload(binaryData);
 
     // Validate version
     if (payload.version !== QR_FORMAT_VERSION) {
       return {
         success: false,
         error: `Unsupported QR code version: ${payload.version}`,
-      }
+      };
     }
 
     // Verify checksum
-    const dataWithoutChecksum = binaryData.slice(0, binaryData.length - payload.checksum.length)
-    const expectedChecksum = sha256(dataWithoutChecksum).slice(0, 8)
-    const integrityValid = constantTimeEqual(payload.checksum, expectedChecksum)
+    const dataWithoutChecksum = binaryData.slice(
+      0,
+      binaryData.length - payload.checksum.length,
+    );
+    const expectedChecksum = sha256(dataWithoutChecksum).slice(0, 8);
+    const integrityValid = constantTimeEqual(
+      payload.checksum,
+      expectedChecksum,
+    );
 
     if (!integrityValid) {
       return {
         success: false,
-        error: 'QR code integrity check failed',
+        error: "QR code integrity check failed",
         integrityValid: false,
-      }
+      };
     }
 
     return {
       success: true,
       payload,
       integrityValid: true,
-    }
+    };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to parse QR code',
-    }
+      error: error instanceof Error ? error.message : "Failed to parse QR code",
+    };
   }
 }
 
@@ -443,40 +475,40 @@ export function parseQRCode(data: string): QRScanResult {
  * Parse raw base64 scannable fingerprint data
  */
 export function parseScannableData(base64Data: string): {
-  success: boolean
-  version?: number
-  fingerprints?: Uint8Array[]
-  error?: string
+  success: boolean;
+  version?: number;
+  fingerprints?: Uint8Array[];
+  error?: string;
 } {
   try {
-    const binaryData = base64ToBytes(base64Data)
+    const binaryData = base64ToBytes(base64Data);
 
     if (binaryData.length < 1) {
       return {
         success: false,
-        error: 'Data too short',
-      }
+        error: "Data too short",
+      };
     }
 
-    const version = binaryData[0]
-    const fingerprints: Uint8Array[] = []
+    const version = binaryData[0];
+    const fingerprints: Uint8Array[] = [];
 
-    let offset = 1
+    let offset = 1;
     while (offset + FINGERPRINT_SIZE <= binaryData.length) {
-      fingerprints.push(binaryData.slice(offset, offset + FINGERPRINT_SIZE))
-      offset += FINGERPRINT_SIZE
+      fingerprints.push(binaryData.slice(offset, offset + FINGERPRINT_SIZE));
+      offset += FINGERPRINT_SIZE;
     }
 
     return {
       success: true,
       version,
       fingerprints,
-    }
+    };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to parse data',
-    }
+      error: error instanceof Error ? error.message : "Failed to parse data",
+    };
   }
 }
 
@@ -491,20 +523,20 @@ export function verifyQRCode(
   scanResult: QRScanResult,
   localUserId: string,
   localIdentityKey: Uint8Array,
-  expectedPeerUserId?: string
+  expectedPeerUserId?: string,
 ): QRVerificationResult {
-  const scannedAt = Date.now()
+  const scannedAt = Date.now();
 
   // Check scan success
   if (!scanResult.success || !scanResult.payload) {
     return {
       verified: false,
-      message: scanResult.error || 'Failed to scan QR code',
+      message: scanResult.error || "Failed to scan QR code",
       scannedAt,
-    }
+    };
   }
 
-  const payload = scanResult.payload
+  const payload = scanResult.payload;
 
   // Check if user ID matches expected peer
   if (expectedPeerUserId && payload.userId !== expectedPeerUserId) {
@@ -513,7 +545,7 @@ export function verifyQRCode(
       peerUserId: payload.userId,
       message: `QR code is from different user: ${payload.userId}`,
       scannedAt,
-    }
+    };
   }
 
   // Reconstruct identity key from fingerprint is not possible
@@ -525,9 +557,9 @@ export function verifyQRCode(
     verified: true, // Indicates successful scan, not full verification
     peerUserId: payload.userId,
     peerDeviceId: payload.deviceId,
-    message: 'QR code scanned successfully. Manual verification required.',
+    message: "QR code scanned successfully. Manual verification required.",
     scannedAt,
-  }
+  };
 }
 
 /**
@@ -536,31 +568,31 @@ export function verifyQRCode(
 export function verifyScannedFingerprint(
   scannedFingerprint: Uint8Array,
   expectedIdentityKey: Uint8Array,
-  expectedUserId: string
+  expectedUserId: string,
 ): MismatchResult {
   const expectedFingerprint = generateFingerprint(
     expectedIdentityKey,
     expectedUserId,
-    SAFETY_NUMBER_VERSION
-  )
+    SAFETY_NUMBER_VERSION,
+  );
 
-  const matches = constantTimeEqual(scannedFingerprint, expectedFingerprint)
+  const matches = constantTimeEqual(scannedFingerprint, expectedFingerprint);
 
   if (matches) {
-    return { matches: true }
+    return { matches: true };
   }
 
   return {
     matches: false,
     expected: bytesToHex(expectedFingerprint),
     provided: bytesToHex(scannedFingerprint),
-    reason: 'Fingerprints do not match',
+    reason: "Fingerprints do not match",
     suggestions: [
-      'The QR code may be from a different device',
-      'The contact may have reinstalled the app',
-      'Try scanning again or verify using numeric comparison',
+      "The QR code may be from a different device",
+      "The contact may have reinstalled the app",
+      "Try scanning again or verify using numeric comparison",
     ],
-  }
+  };
 }
 
 /**
@@ -571,42 +603,42 @@ export function performMutualVerification(
   localUserId: string,
   localIdentityKey: Uint8Array,
   scannedPayload: QRCodePayload,
-  peerIdentityKey: Uint8Array
+  peerIdentityKey: Uint8Array,
 ): QRVerificationResult {
-  const scannedAt = Date.now()
+  const scannedAt = Date.now();
 
   // Generate expected fingerprint for the peer
   const expectedPeerFingerprint = generateFingerprint(
     peerIdentityKey,
     scannedPayload.userId,
-    scannedPayload.safetyNumberVersion
-  )
+    scannedPayload.safetyNumberVersion,
+  );
 
   // Compare fingerprints
   const fingerprintMatches = constantTimeEqual(
     scannedPayload.fingerprint,
-    expectedPeerFingerprint
-  )
+    expectedPeerFingerprint,
+  );
 
   if (!fingerprintMatches) {
     return {
       verified: false,
       peerUserId: scannedPayload.userId,
       peerDeviceId: scannedPayload.deviceId,
-      message: 'Identity fingerprint mismatch',
+      message: "Identity fingerprint mismatch",
       mismatch: {
         matches: false,
         expected: bytesToHex(expectedPeerFingerprint),
         provided: bytesToHex(scannedPayload.fingerprint),
-        reason: 'The scanned fingerprint does not match the expected identity',
+        reason: "The scanned fingerprint does not match the expected identity",
         suggestions: [
-          'Ensure you are scanning the correct contact\'s QR code',
-          'The contact may have a new device or reinstalled the app',
-          'Try verification again or use numeric comparison',
+          "Ensure you are scanning the correct contact's QR code",
+          "The contact may have a new device or reinstalled the app",
+          "Try verification again or use numeric comparison",
         ],
       },
       scannedAt,
-    }
+    };
   }
 
   // Generate safety number for reference
@@ -615,16 +647,16 @@ export function performMutualVerification(
     localUserId,
     peerIdentityKey,
     peerUserId: scannedPayload.userId,
-  })
+  });
 
   return {
     verified: true,
     peerUserId: scannedPayload.userId,
     peerDeviceId: scannedPayload.deviceId,
     safetyNumber: safetyNumberResult.raw,
-    message: 'Identity verified successfully via QR code',
+    message: "Identity verified successfully via QR code",
     scannedAt,
-  }
+  };
 }
 
 // ============================================================================
@@ -638,22 +670,22 @@ export function performMutualVerification(
  */
 export function generateQRCodeDataUrl(data: string): string {
   // Create a data URL that can be passed to a QR code library
-  return `data:text/plain;base64,${btoa(data)}`
+  return `data:text/plain;base64,${btoa(data)}`;
 }
 
 /**
  * Extract QR code data from data URL
  */
 export function parseQRCodeDataUrl(dataUrl: string): string | null {
-  const match = dataUrl.match(/^data:text\/plain;base64,(.+)$/)
+  const match = dataUrl.match(/^data:text\/plain;base64,(.+)$/);
   if (!match) {
-    return null
+    return null;
   }
 
   try {
-    return atob(match[1])
+    return atob(match[1]);
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -666,23 +698,23 @@ export function parseQRCodeDataUrl(dataUrl: string): string | null {
  */
 export function isValidQRCodeData(data: string): boolean {
   if (!data.startsWith(QR_PREFIX)) {
-    return false
+    return false;
   }
 
-  const base64Part = data.slice(QR_PREFIX.length)
+  const base64Part = data.slice(QR_PREFIX.length);
   if (!base64Part || base64Part.length < 20) {
-    return false
+    return false;
   }
 
   // Check for valid base64 characters
-  return /^[A-Za-z0-9+/]+=*$/.test(base64Part)
+  return /^[A-Za-z0-9+/]+=*$/.test(base64Part);
 }
 
 /**
  * Get QR code freshness (time since generation)
  */
 export function getQRCodeAge(payload: QRCodePayload): number {
-  return Date.now() - payload.timestamp
+  return Date.now() - payload.timestamp;
 }
 
 /**
@@ -690,21 +722,21 @@ export function getQRCodeAge(payload: QRCodePayload): number {
  */
 export function isQRCodeExpired(
   payload: QRCodePayload,
-  maxAgeMs: number = 24 * 60 * 60 * 1000 // 24 hours default
+  maxAgeMs: number = 24 * 60 * 60 * 1000, // 24 hours default
 ): boolean {
-  return getQRCodeAge(payload) > maxAgeMs
+  return getQRCodeAge(payload) > maxAgeMs;
 }
 
 /**
  * Create compact safety number for display in QR overlay
  */
 export function createCompactSafetyNumber(safetyNumber: string): string {
-  const parsed = parseSafetyNumber(safetyNumber)
+  const parsed = parseSafetyNumber(safetyNumber);
   // Return first and last 10 digits with ellipsis
   if (parsed.length <= 20) {
-    return parsed
+    return parsed;
   }
-  return `${parsed.slice(0, 10)}...${parsed.slice(-10)}`
+  return `${parsed.slice(0, 10)}...${parsed.slice(-10)}`;
 }
 
 // ============================================================================
@@ -738,6 +770,6 @@ export const verificationQR = {
   getQRCodeAge,
   isQRCodeExpired,
   createCompactSafetyNumber,
-}
+};
 
-export default verificationQR
+export default verificationQR;

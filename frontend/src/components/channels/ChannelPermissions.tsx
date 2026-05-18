@@ -1,43 +1,58 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import { Shield, Users, MessageSquare, FileText, Heart, AtSign, Link2, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import * as React from "react";
+import { useState } from "react";
+import {
+  Shield,
+  Users,
+  MessageSquare,
+  FileText,
+  Heart,
+  AtSign,
+  Link2,
+  Loader2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { Channel } from '@/stores/channel-store'
+} from "@/components/ui/select";
+import type { Channel } from "@/stores/channel-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelPermissionsProps {
-  channel: Channel
-  isAdmin?: boolean
-  onSave?: (permissions: ChannelPermissionSettings) => Promise<void>
-  className?: string
+  channel: Channel;
+  isAdmin?: boolean;
+  onSave?: (permissions: ChannelPermissionSettings) => Promise<void>;
+  className?: string;
 }
 
 export interface ChannelPermissionSettings {
-  whoCanPost: 'everyone' | 'members' | 'admins'
-  whoCanReact: 'everyone' | 'members' | 'admins'
-  whoCanThread: 'everyone' | 'members' | 'admins'
-  whoCanUpload: 'everyone' | 'members' | 'admins'
-  whoCanMention: 'everyone' | 'members' | 'admins'
-  whoCanInvite: 'everyone' | 'members' | 'admins'
-  allowGuests: boolean
-  slowMode: number | null
-  messageRetention: number | null
+  whoCanPost: "everyone" | "members" | "admins";
+  whoCanReact: "everyone" | "members" | "admins";
+  whoCanThread: "everyone" | "members" | "admins";
+  whoCanUpload: "everyone" | "members" | "admins";
+  whoCanMention: "everyone" | "members" | "admins";
+  whoCanInvite: "everyone" | "members" | "admins";
+  allowGuests: boolean;
+  slowMode: number | null;
+  messageRetention: number | null;
 }
 
 // ============================================================================
@@ -50,34 +65,37 @@ export function ChannelPermissions({
   onSave,
   className,
 }: ChannelPermissionsProps) {
-  const [isSaving, setIsSaving] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
   const [permissions, setPermissions] = useState<ChannelPermissionSettings>({
-    whoCanPost: 'everyone',
-    whoCanReact: 'everyone',
-    whoCanThread: 'everyone',
-    whoCanUpload: 'members',
-    whoCanMention: 'members',
-    whoCanInvite: 'admins',
-    allowGuests: channel.type === 'public',
+    whoCanPost: "everyone",
+    whoCanReact: "everyone",
+    whoCanThread: "everyone",
+    whoCanUpload: "members",
+    whoCanMention: "members",
+    whoCanInvite: "admins",
+    allowGuests: channel.type === "public",
     slowMode: null,
     messageRetention: null,
-  })
+  });
 
-  const handlePermissionChange = (key: keyof ChannelPermissionSettings, value: any) => {
-    setPermissions((prev) => ({ ...prev, [key]: value }))
-  }
+  const handlePermissionChange = (
+    key: keyof ChannelPermissionSettings,
+    value: any,
+  ) => {
+    setPermissions((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSave = async () => {
     try {
-      setIsSaving(true)
-      await onSave?.(permissions)
+      setIsSaving(true);
+      await onSave?.(permissions);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -95,7 +113,7 @@ export function ChannelPermissions({
             label="Who can send messages"
             description="Control who is allowed to post messages"
             value={permissions.whoCanPost}
-            onChange={(v) => handlePermissionChange('whoCanPost', v)}
+            onChange={(v) => handlePermissionChange("whoCanPost", v)}
             disabled={!isAdmin}
           />
 
@@ -105,7 +123,7 @@ export function ChannelPermissions({
             label="Who can add reactions"
             description="Control who can react to messages"
             value={permissions.whoCanReact}
-            onChange={(v) => handlePermissionChange('whoCanReact', v)}
+            onChange={(v) => handlePermissionChange("whoCanReact", v)}
             disabled={!isAdmin}
           />
 
@@ -115,7 +133,7 @@ export function ChannelPermissions({
             label="Who can start threads"
             description="Control who can create threaded replies"
             value={permissions.whoCanThread}
-            onChange={(v) => handlePermissionChange('whoCanThread', v)}
+            onChange={(v) => handlePermissionChange("whoCanThread", v)}
             disabled={!isAdmin}
           />
 
@@ -125,7 +143,7 @@ export function ChannelPermissions({
             label="Who can upload files"
             description="Control who can share files and images"
             value={permissions.whoCanUpload}
-            onChange={(v) => handlePermissionChange('whoCanUpload', v)}
+            onChange={(v) => handlePermissionChange("whoCanUpload", v)}
             disabled={!isAdmin}
           />
 
@@ -135,7 +153,7 @@ export function ChannelPermissions({
             label="Who can use @channel/@here"
             description="Control who can notify the entire channel"
             value={permissions.whoCanMention}
-            onChange={(v) => handlePermissionChange('whoCanMention', v)}
+            onChange={(v) => handlePermissionChange("whoCanMention", v)}
             disabled={!isAdmin}
           />
         </CardContent>
@@ -147,7 +165,9 @@ export function ChannelPermissions({
             <Users className="h-5 w-5" />
             Membership
           </CardTitle>
-          <CardDescription>Control who can join and invite others to this channel</CardDescription>
+          <CardDescription>
+            Control who can join and invite others to this channel
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Who can invite */}
@@ -156,7 +176,7 @@ export function ChannelPermissions({
             label="Who can invite members"
             description="Control who can add new members to this channel"
             value={permissions.whoCanInvite}
-            onChange={(v) => handlePermissionChange('whoCanInvite', v)}
+            onChange={(v) => handlePermissionChange("whoCanInvite", v)}
             disabled={!isAdmin}
           />
 
@@ -173,7 +193,9 @@ export function ChannelPermissions({
             </div>
             <Switch
               checked={permissions.allowGuests}
-              onCheckedChange={(checked) => handlePermissionChange('allowGuests', checked)}
+              onCheckedChange={(checked) =>
+                handlePermissionChange("allowGuests", checked)
+              }
               disabled={!isAdmin}
             />
           </div>
@@ -183,7 +205,9 @@ export function ChannelPermissions({
       <Card>
         <CardHeader>
           <CardTitle>Rate Limiting</CardTitle>
-          <CardDescription>Control message frequency and retention</CardDescription>
+          <CardDescription>
+            Control message frequency and retention
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Slow mode */}
@@ -195,9 +219,12 @@ export function ChannelPermissions({
               </p>
             </div>
             <Select
-              value={String(permissions.slowMode ?? 'off')}
+              value={String(permissions.slowMode ?? "off")}
               onValueChange={(v) =>
-                handlePermissionChange('slowMode', v === 'off' ? null : parseInt(v))
+                handlePermissionChange(
+                  "slowMode",
+                  v === "off" ? null : parseInt(v),
+                )
               }
               disabled={!isAdmin}
             >
@@ -224,9 +251,12 @@ export function ChannelPermissions({
               </p>
             </div>
             <Select
-              value={String(permissions.messageRetention ?? 'forever')}
+              value={String(permissions.messageRetention ?? "forever")}
               onValueChange={(v) =>
-                handlePermissionChange('messageRetention', v === 'forever' ? null : parseInt(v))
+                handlePermissionChange(
+                  "messageRetention",
+                  v === "forever" ? null : parseInt(v),
+                )
               }
               disabled={!isAdmin}
             >
@@ -254,7 +284,7 @@ export function ChannelPermissions({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -262,12 +292,12 @@ export function ChannelPermissions({
 // ============================================================================
 
 interface PermissionRowProps {
-  icon: React.ReactNode
-  label: string
-  description: string
-  value: 'everyone' | 'members' | 'admins'
-  onChange: (value: 'everyone' | 'members' | 'admins') => void
-  disabled?: boolean
+  icon: React.ReactNode;
+  label: string;
+  description: string;
+  value: "everyone" | "members" | "admins";
+  onChange: (value: "everyone" | "members" | "admins") => void;
+  disabled?: boolean;
 }
 
 function PermissionRow({
@@ -298,7 +328,7 @@ function PermissionRow({
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }
 
-ChannelPermissions.displayName = 'ChannelPermissions'
+ChannelPermissions.displayName = "ChannelPermissions";

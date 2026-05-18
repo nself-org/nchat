@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Card } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { useNotificationSettingsStore } from '@/stores/notification-settings-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useNotificationSettingsStore } from "@/stores/notification-settings-store";
 
 export interface DMNotificationSettingsPanelProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -16,11 +16,15 @@ export function DMNotificationSettingsPanel({
   className,
   ...props
 }: DMNotificationSettingsPanelProps) {
-  const dmSettings = useNotificationSettingsStore((state) => state.preferences.directMessages)
-  const updateDMSettings = useNotificationSettingsStore((state) => state.updateDMSettings)
+  const dmSettings = useNotificationSettingsStore(
+    (state) => state.preferences.directMessages,
+  );
+  const updateDMSettings = useNotificationSettingsStore(
+    (state) => state.updateDMSettings,
+  );
 
   return (
-    <div className={cn('space-y-6', className)} {...props}>
+    <div className={cn("space-y-6", className)} {...props}>
       {/* Master Toggle */}
       <Card className="p-4">
         <div className="flex items-center justify-between">
@@ -41,13 +45,20 @@ export function DMNotificationSettingsPanel({
       </Card>
 
       {/* Delivery Options */}
-      <Card className={cn('p-4', !dmSettings.enabled && 'pointer-events-none opacity-50')}>
+      <Card
+        className={cn(
+          "p-4",
+          !dmSettings.enabled && "pointer-events-none opacity-50",
+        )}
+      >
         <h3 className="mb-4 text-sm font-medium">Delivery Methods</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="dm-desktop">Desktop notifications</Label>
-              <p className="text-xs text-muted-foreground">Show desktop notification for new DMs</p>
+              <p className="text-xs text-muted-foreground">
+                Show desktop notification for new DMs
+              </p>
             </div>
             <Switch
               id="dm-desktop"
@@ -59,7 +70,9 @@ export function DMNotificationSettingsPanel({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="dm-mobile">Mobile push notifications</Label>
-              <p className="text-xs text-muted-foreground">Send push notification to mobile</p>
+              <p className="text-xs text-muted-foreground">
+                Send push notification to mobile
+              </p>
             </div>
             <Switch
               id="dm-mobile"
@@ -71,7 +84,9 @@ export function DMNotificationSettingsPanel({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="dm-email">Email notifications</Label>
-              <p className="text-xs text-muted-foreground">Send email for unread DMs</p>
+              <p className="text-xs text-muted-foreground">
+                Send email for unread DMs
+              </p>
             </div>
             <Switch
               id="dm-email"
@@ -83,7 +98,12 @@ export function DMNotificationSettingsPanel({
       </Card>
 
       {/* Display Options */}
-      <Card className={cn('p-4', !dmSettings.enabled && 'pointer-events-none opacity-50')}>
+      <Card
+        className={cn(
+          "p-4",
+          !dmSettings.enabled && "pointer-events-none opacity-50",
+        )}
+      >
         <h3 className="mb-4 text-sm font-medium">Display Options</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -96,14 +116,18 @@ export function DMNotificationSettingsPanel({
             <Switch
               id="dm-preview"
               checked={dmSettings.showPreview}
-              onCheckedChange={(showPreview) => updateDMSettings({ showPreview })}
+              onCheckedChange={(showPreview) =>
+                updateDMSettings({ showPreview })
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="dm-sound">Play sound</Label>
-              <p className="text-xs text-muted-foreground">Play a sound when receiving DMs</p>
+              <p className="text-xs text-muted-foreground">
+                Play a sound when receiving DMs
+              </p>
             </div>
             <Switch
               id="dm-sound"
@@ -115,7 +139,12 @@ export function DMNotificationSettingsPanel({
       </Card>
 
       {/* Quiet Hours Override */}
-      <Card className={cn('p-4', !dmSettings.enabled && 'pointer-events-none opacity-50')}>
+      <Card
+        className={cn(
+          "p-4",
+          !dmSettings.enabled && "pointer-events-none opacity-50",
+        )}
+      >
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="dm-quiet-hours" className="font-medium">
@@ -128,7 +157,9 @@ export function DMNotificationSettingsPanel({
           <Switch
             id="dm-quiet-hours"
             checked={dmSettings.allowDuringQuietHours}
-            onCheckedChange={(allowDuringQuietHours) => updateDMSettings({ allowDuringQuietHours })}
+            onCheckedChange={(allowDuringQuietHours) =>
+              updateDMSettings({ allowDuringQuietHours })
+            }
           />
         </div>
       </Card>
@@ -138,7 +169,8 @@ export function DMNotificationSettingsPanel({
         <Card className="p-4">
           <h3 className="mb-2 text-sm font-medium">Muted Conversations</h3>
           <p className="mb-3 text-xs text-muted-foreground">
-            You have {dmSettings.mutedConversations.length} muted conversation(s)
+            You have {dmSettings.mutedConversations.length} muted
+            conversation(s)
           </p>
           <p className="text-xs text-muted-foreground">
             Manage muted conversations from within each DM
@@ -146,9 +178,9 @@ export function DMNotificationSettingsPanel({
         </Card>
       )}
     </div>
-  )
+  );
 }
 
-DMNotificationSettingsPanel.displayName = 'DMNotificationSettingsPanel'
+DMNotificationSettingsPanel.displayName = "DMNotificationSettingsPanel";
 
-export default DMNotificationSettingsPanel
+export default DMNotificationSettingsPanel;

@@ -18,7 +18,7 @@ import type {
   AttachmentType,
   SubscriptionStatus,
   AuditAction,
-} from './enums'
+} from "./enums";
 
 // ============================================================================
 // Base Types
@@ -27,31 +27,31 @@ import type {
 /**
  * UUID string type for database identifiers.
  */
-export type UUID = string
+export type UUID = string;
 
 /**
  * ISO 8601 timestamp string.
  */
-export type Timestamp = string
+export type Timestamp = string;
 
 /**
  * PostgreSQL inet type for IP addresses.
  */
-export type InetAddress = string
+export type InetAddress = string;
 
 /**
  * JSON-serializable object type.
  */
-export type JsonObject = Record<string, unknown>
+export type JsonObject = Record<string, unknown>;
 
 /**
  * Common timestamp fields present on most tables.
  */
 export interface TimestampFields {
   /** Record creation timestamp */
-  created_at: Timestamp
+  created_at: Timestamp;
   /** Last update timestamp */
-  updated_at: Timestamp
+  updated_at: Timestamp;
 }
 
 /**
@@ -59,7 +59,7 @@ export interface TimestampFields {
  */
 export interface SoftDeleteFields {
   /** Deletion timestamp (null if not deleted) */
-  deleted_at: Timestamp | null
+  deleted_at: Timestamp | null;
 }
 
 // ============================================================================
@@ -72,31 +72,31 @@ export interface SoftDeleteFields {
  */
 export interface DbUser extends TimestampFields, SoftDeleteFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Unique email address */
-  email: string
+  email: string;
   /** Display name shown in UI */
-  display_name: string
+  display_name: string;
   /** Unique username (lowercase, alphanumeric) */
-  username: string | null
+  username: string | null;
   /** Avatar image URL */
-  avatar_url: string | null
+  avatar_url: string | null;
   /** Account status */
-  status: UserStatus
+  status: UserStatus;
   /** Email verification status */
-  email_verified: boolean
+  email_verified: boolean;
   /** Phone number */
-  phone: string | null
+  phone: string | null;
   /** Phone verification status */
-  phone_verified: boolean | null
+  phone_verified: boolean | null;
   /** Locale/language preference */
-  locale: string
+  locale: string;
   /** Timezone (IANA format) */
-  timezone: string
+  timezone: string;
   /** Additional metadata */
-  metadata: JsonObject
+  metadata: JsonObject;
   /** Last seen timestamp */
-  last_seen_at: Timestamp | null
+  last_seen_at: Timestamp | null;
 }
 
 /**
@@ -105,33 +105,33 @@ export interface DbUser extends TimestampFields, SoftDeleteFields {
  */
 export interface DbProfile extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** User bio/about text */
-  bio: string | null
+  bio: string | null;
   /** Job title */
-  title: string | null
+  title: string | null;
   /** Company name */
-  company: string | null
+  company: string | null;
   /** Location */
-  location: string | null
+  location: string | null;
   /** Website URL */
-  website: string | null
+  website: string | null;
   /** Social media links */
-  social_links: JsonObject
+  social_links: JsonObject;
   /** Pronouns */
-  pronouns: string | null
+  pronouns: string | null;
   /** Profile banner URL */
-  banner_url: string | null
+  banner_url: string | null;
   /** Theme preference (light/dark/system) */
-  theme_preference: string
+  theme_preference: string;
   /** Custom status message */
-  custom_status: string | null
+  custom_status: string | null;
   /** Custom status emoji */
-  custom_status_emoji: string | null
+  custom_status_emoji: string | null;
   /** Custom status expiration */
-  custom_status_expires_at: Timestamp | null
+  custom_status_expires_at: Timestamp | null;
 }
 
 /**
@@ -140,21 +140,21 @@ export interface DbProfile extends TimestampFields {
  */
 export interface DbPresence extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** Current presence status */
-  status: PresenceStatus
+  status: PresenceStatus;
   /** Custom presence message */
-  custom_message: string | null
+  custom_message: string | null;
   /** Last heartbeat timestamp */
-  last_heartbeat_at: Timestamp
+  last_heartbeat_at: Timestamp;
   /** Current channel being viewed */
-  current_channel_id: UUID | null
+  current_channel_id: UUID | null;
   /** Device information */
-  device_info: JsonObject
+  device_info: JsonObject;
   /** Mobile device flag */
-  is_mobile: boolean
+  is_mobile: boolean;
 }
 
 /**
@@ -163,63 +163,63 @@ export interface DbPresence extends TimestampFields {
  */
 export interface DbUserSettings extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
 
   // Notification Settings
   /** Master notification toggle */
-  notifications_enabled: boolean
+  notifications_enabled: boolean;
   /** Play notification sounds */
-  notification_sound: boolean
+  notification_sound: boolean;
   /** Desktop notifications */
-  notification_desktop: boolean
+  notification_desktop: boolean;
   /** Mobile push notifications */
-  notification_mobile: boolean
+  notification_mobile: boolean;
   /** Email notifications */
-  notification_email: boolean
+  notification_email: boolean;
   /** Email notification frequency */
-  notification_email_frequency: string
+  notification_email_frequency: string;
   /** Quiet hours enabled */
-  quiet_hours_enabled: boolean
+  quiet_hours_enabled: boolean;
   /** Quiet hours start time */
-  quiet_hours_start: string | null
+  quiet_hours_start: string | null;
   /** Quiet hours end time */
-  quiet_hours_end: string | null
+  quiet_hours_end: string | null;
 
   // Privacy Settings
   /** Show online status to others */
-  show_online_status: boolean
+  show_online_status: boolean;
   /** Show typing indicator */
-  show_typing_indicator: boolean
+  show_typing_indicator: boolean;
   /** Show read receipts */
-  read_receipts: boolean
+  read_receipts: boolean;
   /** Who can send DMs (everyone/contacts/none) */
-  allow_dm_from: string
+  allow_dm_from: string;
 
   // Display Settings
   /** Compact message display mode */
-  compact_mode: boolean
+  compact_mode: boolean;
   /** Theme (light/dark/system) */
-  theme: string
+  theme: string;
   /** Font size preference */
-  font_size: string
+  font_size: string;
   /** Message density preference */
-  message_density: string
+  message_density: string;
 
   // Keyboard Shortcuts
   /** Enable keyboard shortcuts */
-  keyboard_shortcuts_enabled: boolean
+  keyboard_shortcuts_enabled: boolean;
   /** Custom shortcut mappings */
-  custom_shortcuts: JsonObject
+  custom_shortcuts: JsonObject;
 
   // Accessibility
   /** Reduce motion/animations */
-  reduce_motion: boolean
+  reduce_motion: boolean;
   /** High contrast mode */
-  high_contrast: boolean
+  high_contrast: boolean;
   /** Screen reader optimizations */
-  screen_reader_mode: boolean
+  screen_reader_mode: boolean;
 }
 
 // ============================================================================
@@ -232,19 +232,19 @@ export interface DbUserSettings extends TimestampFields {
  */
 export interface DbCategory extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID | null
+  workspace_id: UUID | null;
   /** Category name */
-  name: string
+  name: string;
   /** Category description */
-  description: string | null
+  description: string | null;
   /** Display order position */
-  position: number
+  position: number;
   /** Collapsed state in sidebar */
-  is_collapsed: boolean
+  is_collapsed: boolean;
   /** Created by user */
-  created_by: UUID | null
+  created_by: UUID | null;
 }
 
 /**
@@ -253,53 +253,53 @@ export interface DbCategory extends TimestampFields {
  */
 export interface DbChannel extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID | null
+  workspace_id: UUID | null;
   /** Reference to category */
-  category_id: UUID | null
+  category_id: UUID | null;
   /** Channel name */
-  name: string
+  name: string;
   /** URL-friendly slug */
-  slug: string
+  slug: string;
   /** Channel description */
-  description: string | null
+  description: string | null;
   /** Channel topic (header display) */
-  topic: string | null
+  topic: string | null;
   /** Channel type */
-  type: ChannelType
+  type: ChannelType;
   /** Channel icon (emoji or URL) */
-  icon: string | null
+  icon: string | null;
   /** Theme color */
-  color: string | null
+  color: string | null;
   /** Display order position */
-  position: number | null
+  position: number | null;
   /** Default channel flag */
-  is_default: boolean
+  is_default: boolean;
   /** Archived flag */
-  is_archived: boolean
+  is_archived: boolean;
   /** Read-only flag */
-  is_readonly: boolean
+  is_readonly: boolean;
   /** NSFW/age-restricted flag */
-  is_nsfw: boolean
+  is_nsfw: boolean;
   /** Slow mode delay (seconds) */
-  slowmode_seconds: number
+  slowmode_seconds: number;
   /** Maximum member limit */
-  max_members: number | null
+  max_members: number | null;
   /** Current member count (cached) */
-  member_count: number
+  member_count: number;
   /** Total message count (cached) */
-  message_count: number
+  message_count: number;
   /** Last message timestamp */
-  last_message_at: Timestamp | null
+  last_message_at: Timestamp | null;
   /** Last message ID */
-  last_message_id: UUID | null
+  last_message_id: UUID | null;
   /** Message retention days */
-  retention_days: number | null
+  retention_days: number | null;
   /** Created by user */
-  created_by: UUID | null
+  created_by: UUID | null;
   /** Archive timestamp */
-  archived_at: Timestamp | null
+  archived_at: Timestamp | null;
 }
 
 /**
@@ -308,56 +308,56 @@ export interface DbChannel extends TimestampFields {
  */
 export interface DbChannelMember extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to channel */
-  channel_id: UUID
+  channel_id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** Member role in channel */
-  role: MemberRole
+  role: MemberRole;
   /** Custom nickname */
-  nickname: string | null
+  nickname: string | null;
 
   // Permission overrides (null = inherit)
   /** Can read messages */
-  can_read: boolean | null
+  can_read: boolean | null;
   /** Can send messages */
-  can_write: boolean | null
+  can_write: boolean | null;
   /** Can manage channel */
-  can_manage: boolean | null
+  can_manage: boolean | null;
   /** Can invite members */
-  can_invite: boolean | null
+  can_invite: boolean | null;
   /** Can pin messages */
-  can_pin: boolean | null
+  can_pin: boolean | null;
   /** Can delete any message */
-  can_delete_messages: boolean | null
+  can_delete_messages: boolean | null;
   /** Can mention @everyone */
-  can_mention_everyone: boolean | null
+  can_mention_everyone: boolean | null;
 
   // Status
   /** Muted flag */
-  is_muted: boolean
+  is_muted: boolean;
   /** Mute expiration */
-  muted_until: Timestamp | null
+  muted_until: Timestamp | null;
   /** Pinned/favorited flag */
-  is_pinned: boolean
+  is_pinned: boolean;
   /** Notification level */
-  notification_level: string
+  notification_level: string;
 
   // Read tracking
   /** Last read message ID */
-  last_read_message_id: UUID | null
+  last_read_message_id: UUID | null;
   /** Last read timestamp */
-  last_read_at: Timestamp | null
+  last_read_at: Timestamp | null;
   /** Unread message count */
-  unread_count: number
+  unread_count: number;
   /** Unread mention count */
-  mention_count: number
+  mention_count: number;
 
   /** Join timestamp */
-  joined_at: Timestamp
+  joined_at: Timestamp;
   /** Invited by user */
-  invited_by: UUID | null
+  invited_by: UUID | null;
 }
 
 // ============================================================================
@@ -370,65 +370,65 @@ export interface DbChannelMember extends TimestampFields {
  */
 export interface DbMessage extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to channel */
-  channel_id: UUID
+  channel_id: UUID;
   /** Reference to author */
-  user_id: UUID | null
+  user_id: UUID | null;
   /** Reference to thread */
-  thread_id: UUID | null
+  thread_id: UUID | null;
   /** Reference to parent message (reply) */
-  parent_message_id: UUID | null
+  parent_message_id: UUID | null;
 
   // Content
   /** Message content (markdown/plain) */
-  content: string | null
+  content: string | null;
   /** Rendered HTML content */
-  content_html: string | null
+  content_html: string | null;
   /** Plain text content */
-  content_plain: string | null
+  content_plain: string | null;
   /** Message type */
-  type: MessageType
+  type: MessageType;
   /** Additional metadata */
-  metadata: JsonObject
+  metadata: JsonObject;
 
   // Rich content
   /** Mentioned user IDs */
-  mentions: UUID[]
+  mentions: UUID[];
   /** Mentioned role names */
-  mentioned_roles: string[]
+  mentioned_roles: string[];
   /** Mentioned channel IDs */
-  mentioned_channels: UUID[]
+  mentioned_channels: UUID[];
   /** Embedded content (link previews, etc.) */
-  embeds: JsonObject[]
+  embeds: JsonObject[];
 
   // Status flags
   /** Edited flag */
-  is_edited: boolean
+  is_edited: boolean;
   /** Pinned flag */
-  is_pinned: boolean
+  is_pinned: boolean;
   /** Soft-deleted flag */
-  is_deleted: boolean
+  is_deleted: boolean;
   /** System message flag */
-  is_system: boolean
+  is_system: boolean;
 
   // Counts
   /** Reaction count (cached) */
-  reaction_count: number
+  reaction_count: number;
   /** Reply count (cached) */
-  reply_count: number
+  reply_count: number;
 
   // Scheduling
   /** Scheduled send time */
-  scheduled_at: Timestamp | null
+  scheduled_at: Timestamp | null;
   /** Published timestamp */
-  published_at: Timestamp | null
+  published_at: Timestamp | null;
 
   // Edit/delete tracking
   /** Edit timestamp */
-  edited_at: Timestamp | null
+  edited_at: Timestamp | null;
   /** Delete timestamp */
-  deleted_at: Timestamp | null
+  deleted_at: Timestamp | null;
 }
 
 /**
@@ -437,37 +437,37 @@ export interface DbMessage extends TimestampFields {
  */
 export interface DbThread extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to parent channel */
-  channel_id: UUID
+  channel_id: UUID;
   /** Reference to root message */
-  root_message_id: UUID
+  root_message_id: UUID;
   /** Thread name/title */
-  name: string | null
+  name: string | null;
 
   // Counts
   /** Message count in thread */
-  message_count: number
+  message_count: number;
   /** Participant count */
-  participant_count: number
+  participant_count: number;
 
   // Status
   /** Locked flag (no new replies) */
-  is_locked: boolean
+  is_locked: boolean;
   /** Archived flag */
-  is_archived: boolean
+  is_archived: boolean;
   /** Auto-archive duration (minutes) */
-  auto_archive_duration: number
+  auto_archive_duration: number;
 
   // Timestamps
   /** Last message timestamp */
-  last_message_at: Timestamp | null
+  last_message_at: Timestamp | null;
   /** Last message ID */
-  last_message_id: UUID | null
+  last_message_id: UUID | null;
   /** Archive timestamp */
-  archived_at: Timestamp | null
+  archived_at: Timestamp | null;
   /** Created by user */
-  created_by: UUID | null
+  created_by: UUID | null;
 }
 
 /**
@@ -476,21 +476,21 @@ export interface DbThread extends TimestampFields {
  */
 export interface DbThreadMember extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to thread */
-  thread_id: UUID
+  thread_id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** Last read message ID */
-  last_read_message_id: UUID | null
+  last_read_message_id: UUID | null;
   /** Last read timestamp */
-  last_read_at: Timestamp | null
+  last_read_at: Timestamp | null;
   /** Unread count */
-  unread_count: number
+  unread_count: number;
   /** Subscribed flag */
-  is_subscribed: boolean
+  is_subscribed: boolean;
   /** Join timestamp */
-  joined_at: Timestamp
+  joined_at: Timestamp;
 }
 
 /**
@@ -499,17 +499,17 @@ export interface DbThreadMember extends TimestampFields {
  */
 export interface DbReaction {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to message */
-  message_id: UUID
+  message_id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** Emoji character or shortcode */
-  emoji: string
+  emoji: string;
   /** Reference to custom emoji */
-  emoji_id: UUID | null
+  emoji_id: UUID | null;
   /** Creation timestamp */
-  created_at: Timestamp
+  created_at: Timestamp;
 }
 
 /**
@@ -518,19 +518,19 @@ export interface DbReaction {
  */
 export interface DbCustomEmoji {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID | null
+  workspace_id: UUID | null;
   /** Emoji name/shortcode */
-  name: string
+  name: string;
   /** Emoji image URL */
-  image_url: string
+  image_url: string;
   /** Animated flag */
-  animated: boolean
+  animated: boolean;
   /** Created by user */
-  created_by: UUID | null
+  created_by: UUID | null;
   /** Creation timestamp */
-  created_at: Timestamp
+  created_at: Timestamp;
 }
 
 // ============================================================================
@@ -543,56 +543,56 @@ export interface DbCustomEmoji {
  */
 export interface DbAttachment extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to message */
-  message_id: UUID | null
+  message_id: UUID | null;
   /** Reference to uploader */
-  user_id: UUID
+  user_id: UUID;
 
   // File info
   /** Generated filename */
-  filename: string
+  filename: string;
   /** Original filename */
-  original_filename: string
+  original_filename: string;
   /** Storage path */
-  file_path: string
+  file_path: string;
   /** Public URL */
-  url: string
+  url: string;
 
   // Metadata
   /** Attachment type */
-  type: AttachmentType
+  type: AttachmentType;
   /** MIME type */
-  mime_type: string
+  mime_type: string;
   /** File size in bytes */
-  size_bytes: number
+  size_bytes: number;
 
   // Dimensions (images/videos)
   /** Width in pixels */
-  width: number | null
+  width: number | null;
   /** Height in pixels */
-  height: number | null
+  height: number | null;
   /** Duration in seconds */
-  duration_seconds: number | null
+  duration_seconds: number | null;
 
   // Thumbnails
   /** Thumbnail URL */
-  thumbnail_url: string | null
+  thumbnail_url: string | null;
   /** Thumbnail width */
-  thumbnail_width: number | null
+  thumbnail_width: number | null;
   /** Thumbnail height */
-  thumbnail_height: number | null
+  thumbnail_height: number | null;
 
   // Processing
   /** Processing complete flag */
-  is_processed: boolean
+  is_processed: boolean;
   /** Processing error message */
-  processing_error: string | null
+  processing_error: string | null;
   /** BlurHash for placeholder */
-  blurhash: string | null
+  blurhash: string | null;
 
   /** Additional metadata */
-  metadata: JsonObject
+  metadata: JsonObject;
 }
 
 /**
@@ -601,59 +601,59 @@ export interface DbAttachment extends TimestampFields {
  */
 export interface DbMedia extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID | null
+  workspace_id: UUID | null;
   /** Reference to uploader */
-  user_id: UUID
+  user_id: UUID;
 
   // File info
   /** Generated filename */
-  filename: string
+  filename: string;
   /** Original filename */
-  original_filename: string
+  original_filename: string;
   /** Storage path */
-  file_path: string
+  file_path: string;
   /** Public URL */
-  url: string
+  url: string;
 
   // Metadata
   /** Media type */
-  type: AttachmentType
+  type: AttachmentType;
   /** MIME type */
-  mime_type: string
+  mime_type: string;
   /** File size in bytes */
-  size_bytes: number
+  size_bytes: number;
 
   // Dimensions
   /** Width in pixels */
-  width: number | null
+  width: number | null;
   /** Height in pixels */
-  height: number | null
+  height: number | null;
   /** Duration in seconds */
-  duration_seconds: number | null
+  duration_seconds: number | null;
 
   // Thumbnails
   /** Thumbnail URL */
-  thumbnail_url: string | null
+  thumbnail_url: string | null;
   /** BlurHash */
-  blurhash: string | null
+  blurhash: string | null;
 
   // Usage
   /** Reference count */
-  reference_count: number
+  reference_count: number;
   /** Last access timestamp */
-  last_accessed_at: Timestamp | null
+  last_accessed_at: Timestamp | null;
 
   // Metadata
   /** Alt text */
-  alt_text: string | null
+  alt_text: string | null;
   /** Description */
-  description: string | null
+  description: string | null;
   /** Tags */
-  tags: string[]
+  tags: string[];
   /** Additional metadata */
-  metadata: JsonObject
+  metadata: JsonObject;
 }
 
 // ============================================================================
@@ -666,54 +666,54 @@ export interface DbMedia extends TimestampFields {
  */
 export interface DbNotification {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to recipient */
-  user_id: UUID
+  user_id: UUID;
   /** Notification type */
-  type: NotificationType
+  type: NotificationType;
 
   // Source references
   /** Reference to channel */
-  channel_id: UUID | null
+  channel_id: UUID | null;
   /** Reference to message */
-  message_id: UUID | null
+  message_id: UUID | null;
   /** Reference to thread */
-  thread_id: UUID | null
+  thread_id: UUID | null;
   /** Reference to actor (who triggered) */
-  actor_id: UUID | null
+  actor_id: UUID | null;
 
   // Content
   /** Notification title */
-  title: string
+  title: string;
   /** Notification body */
-  body: string | null
+  body: string | null;
   /** Additional data */
-  data: JsonObject
+  data: JsonObject;
   /** Action URL */
-  action_url: string | null
+  action_url: string | null;
 
   // Status
   /** Read flag */
-  is_read: boolean
+  is_read: boolean;
   /** Read timestamp */
-  read_at: Timestamp | null
+  read_at: Timestamp | null;
   /** Seen flag */
-  is_seen: boolean
+  is_seen: boolean;
   /** Seen timestamp */
-  seen_at: Timestamp | null
+  seen_at: Timestamp | null;
 
   // Delivery
   /** Push sent flag */
-  push_sent: boolean
+  push_sent: boolean;
   /** Push sent timestamp */
-  push_sent_at: Timestamp | null
+  push_sent_at: Timestamp | null;
   /** Email sent flag */
-  email_sent: boolean
+  email_sent: boolean;
   /** Email sent timestamp */
-  email_sent_at: Timestamp | null
+  email_sent_at: Timestamp | null;
 
   /** Creation timestamp */
-  created_at: Timestamp
+  created_at: Timestamp;
 }
 
 /**
@@ -722,23 +722,23 @@ export interface DbNotification {
  */
 export interface DbPushSubscription extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** Push endpoint URL */
-  endpoint: string
+  endpoint: string;
   /** P256DH key */
-  p256dh: string
+  p256dh: string;
   /** Auth key */
-  auth: string
+  auth: string;
   /** User agent string */
-  user_agent: string | null
+  user_agent: string | null;
   /** Device type */
-  device_type: string | null
+  device_type: string | null;
   /** Active flag */
-  is_active: boolean
+  is_active: boolean;
   /** Last used timestamp */
-  last_used_at: Timestamp | null
+  last_used_at: Timestamp | null;
 }
 
 // ============================================================================
@@ -751,60 +751,60 @@ export interface DbPushSubscription extends TimestampFields {
  */
 export interface DbWorkspace extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Workspace name */
-  name: string
+  name: string;
   /** URL-friendly slug */
-  slug: string
+  slug: string;
   /** Workspace description */
-  description: string | null
+  description: string | null;
 
   // Branding
   /** Logo URL */
-  logo_url: string | null
+  logo_url: string | null;
   /** Icon URL */
-  icon_url: string | null
+  icon_url: string | null;
   /** Banner URL */
-  banner_url: string | null
+  banner_url: string | null;
   /** Primary brand color */
-  primary_color: string | null
+  primary_color: string | null;
 
   // Settings
   /** Public visibility */
-  is_public: boolean
+  is_public: boolean;
   /** Discoverable in search */
-  is_discoverable: boolean
+  is_discoverable: boolean;
   /** Allow member invites */
-  allow_invites: boolean
+  allow_invites: boolean;
   /** Require admin approval */
-  require_approval: boolean
+  require_approval: boolean;
   /** Default channel ID */
-  default_channel_id: UUID | null
+  default_channel_id: UUID | null;
 
   // Features
   /** Enabled features */
-  features: JsonObject
+  features: JsonObject;
 
   // Limits
   /** Maximum members */
-  max_members: number | null
+  max_members: number | null;
   /** Maximum channels */
-  max_channels: number | null
+  max_channels: number | null;
   /** Maximum storage bytes */
-  max_storage_bytes: number | null
+  max_storage_bytes: number | null;
 
   // Stats
   /** Member count (cached) */
-  member_count: number
+  member_count: number;
   /** Channel count (cached) */
-  channel_count: number
+  channel_count: number;
   /** Message count (cached) */
-  message_count: number
+  message_count: number;
   /** Storage used bytes */
-  storage_used_bytes: number
+  storage_used_bytes: number;
 
   /** Reference to owner */
-  owner_id: UUID | null
+  owner_id: UUID | null;
 }
 
 /**
@@ -813,32 +813,32 @@ export interface DbWorkspace extends TimestampFields {
  */
 export interface DbWorkspaceMember extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID
+  workspace_id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** Member role */
-  role: MemberRole
+  role: MemberRole;
   /** Custom nickname */
-  nickname: string | null
+  nickname: string | null;
 
   // Status
   /** Owner flag */
-  is_owner: boolean
+  is_owner: boolean;
   /** Banned flag */
-  is_banned: boolean
+  is_banned: boolean;
   /** Ban reason */
-  ban_reason: string | null
+  ban_reason: string | null;
   /** Ban timestamp */
-  banned_at: Timestamp | null
+  banned_at: Timestamp | null;
   /** Banned by user */
-  banned_by: UUID | null
+  banned_by: UUID | null;
 
   /** Join timestamp */
-  joined_at: Timestamp
+  joined_at: Timestamp;
   /** Invited by user */
-  invited_by: UUID | null
+  invited_by: UUID | null;
 }
 
 /**
@@ -847,35 +847,35 @@ export interface DbWorkspaceMember extends TimestampFields {
  */
 export interface DbWorkspaceInvite extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID
+  workspace_id: UUID;
   /** Unique invite code */
-  code: string
+  code: string;
 
   // Limits
   /** Maximum uses */
-  max_uses: number | null
+  max_uses: number | null;
   /** Current use count */
-  uses: number
+  uses: number;
   /** Expiration timestamp */
-  expires_at: Timestamp | null
+  expires_at: Timestamp | null;
 
   // Targeting
   /** Target email for private invite */
-  target_email: string | null
+  target_email: string | null;
   /** Role to assign */
-  target_role: MemberRole
+  target_role: MemberRole;
 
   // Tracking
   /** Created by user */
-  created_by: UUID | null
+  created_by: UUID | null;
   /** Revoked flag */
-  is_revoked: boolean
+  is_revoked: boolean;
   /** Revoke timestamp */
-  revoked_at: Timestamp | null
+  revoked_at: Timestamp | null;
   /** Revoked by user */
-  revoked_by: UUID | null
+  revoked_by: UUID | null;
 }
 
 // ============================================================================
@@ -888,32 +888,32 @@ export interface DbWorkspaceInvite extends TimestampFields {
  */
 export interface DbRole extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID | null
+  workspace_id: UUID | null;
   /** Role name */
-  name: string
+  name: string;
   /** Role description */
-  description: string | null
+  description: string | null;
   /** Theme color */
-  color: string | null
+  color: string | null;
   /** Icon */
-  icon: string | null
+  icon: string | null;
   /** Display order */
-  position: number
+  position: number;
 
   // Flags
   /** Default role flag */
-  is_default: boolean
+  is_default: boolean;
   /** System role flag (non-deletable) */
-  is_system: boolean
+  is_system: boolean;
   /** Mentionable flag */
-  is_mentionable: boolean
+  is_mentionable: boolean;
   /** Hoisted flag (show separately) */
-  is_hoisted: boolean
+  is_hoisted: boolean;
 
   /** Permissions bitmask */
-  permissions: number
+  permissions: number;
 }
 
 /**
@@ -922,19 +922,19 @@ export interface DbRole extends TimestampFields {
  */
 export interface DbUserRole {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** Reference to role */
-  role_id: UUID
+  role_id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID
+  workspace_id: UUID;
   /** Granted by user */
-  granted_by: UUID | null
+  granted_by: UUID | null;
   /** Grant timestamp */
-  granted_at: Timestamp
+  granted_at: Timestamp;
   /** Expiration timestamp */
-  expires_at: Timestamp | null
+  expires_at: Timestamp | null;
 }
 
 /**
@@ -943,17 +943,17 @@ export interface DbUserRole {
  */
 export interface DbPermission {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Permission name */
-  name: string
+  name: string;
   /** Permission description */
-  description: string | null
+  description: string | null;
   /** Permission category */
-  category: string
+  category: string;
   /** Bit position in bitmask */
-  bit_position: number
+  bit_position: number;
   /** Dangerous permission flag */
-  is_dangerous: boolean
+  is_dangerous: boolean;
 }
 
 // ============================================================================
@@ -966,42 +966,42 @@ export interface DbPermission {
  */
 export interface DbPlan extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Plan name */
-  name: string
+  name: string;
   /** URL-friendly slug */
-  slug: string
+  slug: string;
   /** Plan description */
-  description: string | null
+  description: string | null;
 
   // Pricing
   /** Monthly price in cents */
-  price_monthly_cents: number
+  price_monthly_cents: number;
   /** Yearly price in cents */
-  price_yearly_cents: number | null
+  price_yearly_cents: number | null;
   /** Currency code */
-  currency: string
+  currency: string;
 
   // Limits
   /** Maximum members */
-  max_members: number | null
+  max_members: number | null;
   /** Maximum channels */
-  max_channels: number | null
+  max_channels: number | null;
   /** Maximum storage bytes */
-  max_storage_bytes: number | null
+  max_storage_bytes: number | null;
   /** Maximum file size bytes */
-  max_file_size_bytes: number | null
+  max_file_size_bytes: number | null;
 
   /** Enabled features */
-  features: JsonObject
+  features: JsonObject;
 
   // Status
   /** Active flag */
-  is_active: boolean
+  is_active: boolean;
   /** Public visibility */
-  is_public: boolean
+  is_public: boolean;
   /** Sort order */
-  sort_order: number
+  sort_order: number;
 }
 
 /**
@@ -1010,32 +1010,32 @@ export interface DbPlan extends TimestampFields {
  */
 export interface DbSubscription extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID
+  workspace_id: UUID;
   /** Reference to plan */
-  plan_id: UUID
+  plan_id: UUID;
 
   /** Subscription status */
-  status: SubscriptionStatus
+  status: SubscriptionStatus;
 
   // Stripe
   /** Stripe subscription ID */
-  stripe_subscription_id: string | null
+  stripe_subscription_id: string | null;
   /** Stripe customer ID */
-  stripe_customer_id: string | null
+  stripe_customer_id: string | null;
 
   // Dates
   /** Trial end timestamp */
-  trial_ends_at: Timestamp | null
+  trial_ends_at: Timestamp | null;
   /** Current period start */
-  current_period_start: Timestamp | null
+  current_period_start: Timestamp | null;
   /** Current period end */
-  current_period_end: Timestamp | null
+  current_period_end: Timestamp | null;
   /** Cancellation timestamp */
-  canceled_at: Timestamp | null
+  canceled_at: Timestamp | null;
   /** End timestamp */
-  ended_at: Timestamp | null
+  ended_at: Timestamp | null;
 }
 
 /**
@@ -1044,40 +1044,40 @@ export interface DbSubscription extends TimestampFields {
  */
 export interface DbInvoice extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID
+  workspace_id: UUID;
   /** Reference to subscription */
-  subscription_id: UUID | null
+  subscription_id: UUID | null;
 
   /** Stripe invoice ID */
-  stripe_invoice_id: string | null
+  stripe_invoice_id: string | null;
 
   // Amounts
   /** Subtotal in cents */
-  amount_cents: number
+  amount_cents: number;
   /** Tax in cents */
-  tax_cents: number
+  tax_cents: number;
   /** Total in cents */
-  total_cents: number
+  total_cents: number;
   /** Currency code */
-  currency: string
+  currency: string;
 
   /** Invoice status */
-  status: string
+  status: string;
 
   // Dates
   /** Period start */
-  period_start: Timestamp | null
+  period_start: Timestamp | null;
   /** Period end */
-  period_end: Timestamp | null
+  period_end: Timestamp | null;
   /** Due date */
-  due_date: Timestamp | null
+  due_date: Timestamp | null;
   /** Payment timestamp */
-  paid_at: Timestamp | null
+  paid_at: Timestamp | null;
 
   /** Invoice PDF URL */
-  invoice_pdf_url: string | null
+  invoice_pdf_url: string | null;
 }
 
 // ============================================================================
@@ -1090,21 +1090,21 @@ export interface DbInvoice extends TimestampFields {
  */
 export interface DbBookmark {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
   /** Reference to bookmarked message */
-  message_id: UUID | null
+  message_id: UUID | null;
   /** Reference to bookmarked channel */
-  channel_id: UUID | null
+  channel_id: UUID | null;
   /** Note/comment */
-  note: string | null
+  note: string | null;
   /** Folder name */
-  folder: string | null
+  folder: string | null;
   /** Tags */
-  tags: string[]
+  tags: string[];
   /** Creation timestamp */
-  created_at: Timestamp
+  created_at: Timestamp;
 }
 
 /**
@@ -1113,15 +1113,15 @@ export interface DbBookmark {
  */
 export interface DbPinnedMessage {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to channel */
-  channel_id: UUID
+  channel_id: UUID;
   /** Reference to message */
-  message_id: UUID
+  message_id: UUID;
   /** Pinned by user */
-  pinned_by: UUID
+  pinned_by: UUID;
   /** Pin timestamp */
-  pinned_at: Timestamp
+  pinned_at: Timestamp;
 }
 
 /**
@@ -1130,32 +1130,32 @@ export interface DbPinnedMessage {
  */
 export interface DbSearchIndex {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Entity type (message, channel, user) */
-  entity_type: string
+  entity_type: string;
   /** Entity ID */
-  entity_id: UUID
+  entity_id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID | null
+  workspace_id: UUID | null;
   /** Reference to channel */
-  channel_id: UUID | null
+  channel_id: UUID | null;
   /** Reference to user */
-  user_id: UUID | null
+  user_id: UUID | null;
 
   /** Searchable title */
-  title: string | null
+  title: string | null;
   /** Searchable content */
-  content: string
+  content: string;
   /** PostgreSQL tsvector */
-  content_tsv: string | null
+  content_tsv: string | null;
 
   /** Additional metadata */
-  metadata: JsonObject
+  metadata: JsonObject;
 
   /** Index timestamp */
-  indexed_at: Timestamp
+  indexed_at: Timestamp;
   /** Last update timestamp */
-  updated_at: Timestamp
+  updated_at: Timestamp;
 }
 
 // ============================================================================
@@ -1168,43 +1168,43 @@ export interface DbSearchIndex {
  */
 export interface DbAuditLog {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID | null
+  workspace_id: UUID | null;
   /** Reference to actor user */
-  user_id: UUID | null
+  user_id: UUID | null;
 
   /** Audit action type */
-  action: AuditAction
+  action: AuditAction;
   /** Entity type (user, channel, message, etc.) */
-  entity_type: string
+  entity_type: string;
   /** Entity ID */
-  entity_id: UUID | null
+  entity_id: UUID | null;
 
   // Context
   /** Reference to channel */
-  channel_id: UUID | null
+  channel_id: UUID | null;
   /** Reference to target user */
-  target_user_id: UUID | null
+  target_user_id: UUID | null;
 
   // Changes
   /** Previous values */
-  old_values: JsonObject | null
+  old_values: JsonObject | null;
   /** New values */
-  new_values: JsonObject | null
+  new_values: JsonObject | null;
   /** Additional metadata */
-  metadata: JsonObject
+  metadata: JsonObject;
 
   // Request info
   /** Client IP address */
-  ip_address: InetAddress | null
+  ip_address: InetAddress | null;
   /** User agent string */
-  user_agent: string | null
+  user_agent: string | null;
   /** Request correlation ID */
-  request_id: string | null
+  request_id: string | null;
 
   /** Log timestamp */
-  created_at: Timestamp
+  created_at: Timestamp;
 }
 
 // ============================================================================
@@ -1217,31 +1217,31 @@ export interface DbAuditLog {
  */
 export interface DbIntegration extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID
+  workspace_id: UUID;
   /** Integration name */
-  name: string
+  name: string;
   /** Integration type (slack, github, etc.) */
-  type: string
+  type: string;
 
   /** Configuration */
-  config: JsonObject
+  config: JsonObject;
   /** Encrypted credentials */
-  credentials_encrypted: string | null
+  credentials_encrypted: string | null;
 
   // Status
   /** Enabled flag */
-  is_enabled: boolean
+  is_enabled: boolean;
   /** Last sync timestamp */
-  last_sync_at: Timestamp | null
+  last_sync_at: Timestamp | null;
   /** Last error message */
-  last_error: string | null
+  last_error: string | null;
   /** Error count */
-  error_count: number
+  error_count: number;
 
   /** Created by user */
-  created_by: UUID | null
+  created_by: UUID | null;
 }
 
 /**
@@ -1250,34 +1250,34 @@ export interface DbIntegration extends TimestampFields {
  */
 export interface DbWebhook extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID
+  workspace_id: UUID;
   /** Reference to channel (optional) */
-  channel_id: UUID | null
+  channel_id: UUID | null;
 
   /** Webhook name */
-  name: string
+  name: string;
   /** Destination URL */
-  url: string
+  url: string;
   /** Signing secret */
-  secret: string | null
+  secret: string | null;
 
   /** Event types to send */
-  events: string[]
+  events: string[];
 
   // Status
   /** Enabled flag */
-  is_enabled: boolean
+  is_enabled: boolean;
   /** Last trigger timestamp */
-  last_triggered_at: Timestamp | null
+  last_triggered_at: Timestamp | null;
   /** Last error message */
-  last_error: string | null
+  last_error: string | null;
   /** Failure count */
-  failure_count: number
+  failure_count: number;
 
   /** Created by user */
-  created_by: UUID | null
+  created_by: UUID | null;
 }
 
 /**
@@ -1286,33 +1286,33 @@ export interface DbWebhook extends TimestampFields {
  */
 export interface DbIncomingWebhook extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace */
-  workspace_id: UUID
+  workspace_id: UUID;
   /** Reference to target channel */
-  channel_id: UUID
+  channel_id: UUID;
 
   /** Webhook name */
-  name: string
+  name: string;
   /** Unique token */
-  token: string
+  token: string;
 
   // Customization
   /** Custom avatar URL */
-  avatar_url: string | null
+  avatar_url: string | null;
   /** Custom username */
-  username: string | null
+  username: string | null;
 
   // Status
   /** Enabled flag */
-  is_enabled: boolean
+  is_enabled: boolean;
   /** Last used timestamp */
-  last_used_at: Timestamp | null
+  last_used_at: Timestamp | null;
   /** Message count */
-  message_count: number
+  message_count: number;
 
   /** Created by user */
-  created_by: UUID | null
+  created_by: UUID | null;
 }
 
 // ============================================================================
@@ -1325,42 +1325,42 @@ export interface DbIncomingWebhook extends TimestampFields {
  */
 export interface DbBot extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to workspace (null = global) */
-  workspace_id: UUID | null
+  workspace_id: UUID | null;
   /** Reference to owner */
-  owner_id: UUID
+  owner_id: UUID;
 
   /** Bot name */
-  name: string
+  name: string;
   /** Unique username */
-  username: string
+  username: string;
   /** Bot description */
-  description: string | null
+  description: string | null;
   /** Avatar URL */
-  avatar_url: string | null
+  avatar_url: string | null;
 
   /** Token hash */
-  token_hash: string
+  token_hash: string;
 
   /** Permissions bitmask */
-  permissions: number
+  permissions: number;
 
   // Status
   /** Enabled flag */
-  is_enabled: boolean
+  is_enabled: boolean;
   /** Verified flag */
-  is_verified: boolean
+  is_verified: boolean;
   /** Public flag */
-  is_public: boolean
+  is_public: boolean;
 
   // Stats
   /** Install count */
-  install_count: number
+  install_count: number;
   /** Message count */
-  message_count: number
+  message_count: number;
   /** Last active timestamp */
-  last_active_at: Timestamp | null
+  last_active_at: Timestamp | null;
 }
 
 // ============================================================================
@@ -1373,38 +1373,38 @@ export interface DbBot extends TimestampFields {
  */
 export interface DbAppConfiguration extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Configuration key */
-  key: string
+  key: string;
 
   /** Setup state */
-  setup: JsonObject
+  setup: JsonObject;
   /** Owner info */
-  owner: JsonObject
+  owner: JsonObject;
   /** Branding settings */
-  branding: JsonObject
+  branding: JsonObject;
   /** Landing theme */
-  landing_theme: string
+  landing_theme: string;
   /** Homepage config */
-  homepage: JsonObject
+  homepage: JsonObject;
   /** Auth providers */
-  auth_providers: JsonObject
+  auth_providers: JsonObject;
   /** Auth permissions */
-  auth_permissions: JsonObject
+  auth_permissions: JsonObject;
   /** Feature flags */
-  features: JsonObject
+  features: JsonObject;
   /** Integration settings */
-  integrations: JsonObject
+  integrations: JsonObject;
   /** Moderation settings */
-  moderation: JsonObject
+  moderation: JsonObject;
   /** Theme settings */
-  theme: JsonObject
+  theme: JsonObject;
   /** SEO settings */
-  seo: JsonObject
+  seo: JsonObject;
   /** Legal settings */
-  legal: JsonObject
+  legal: JsonObject;
   /** Social links */
-  social: JsonObject
+  social: JsonObject;
 }
 
 // ============================================================================
@@ -1417,37 +1417,37 @@ export interface DbAppConfiguration extends TimestampFields {
  */
 export interface DbSession extends TimestampFields {
   /** Primary key - UUID */
-  id: UUID
+  id: UUID;
   /** Reference to user */
-  user_id: UUID
+  user_id: UUID;
 
   /** Token hash */
-  token_hash: string
+  token_hash: string;
   /** Refresh token hash */
-  refresh_token_hash: string | null
+  refresh_token_hash: string | null;
 
   // Device info
   /** User agent string */
-  user_agent: string | null
+  user_agent: string | null;
   /** IP address */
-  ip_address: InetAddress | null
+  ip_address: InetAddress | null;
   /** Device type */
-  device_type: string | null
+  device_type: string | null;
   /** Device name */
-  device_name: string | null
+  device_name: string | null;
   /** Operating system */
-  os: string | null
+  os: string | null;
   /** Browser */
-  browser: string | null
+  browser: string | null;
   /** Location (from IP) */
-  location: string | null
+  location: string | null;
 
   // Status
   /** Active flag */
-  is_active: boolean
+  is_active: boolean;
   /** Last active timestamp */
-  last_active_at: Timestamp
+  last_active_at: Timestamp;
 
   /** Expiration timestamp */
-  expires_at: Timestamp
+  expires_at: Timestamp;
 }

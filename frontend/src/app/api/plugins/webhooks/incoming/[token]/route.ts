@@ -7,30 +7,30 @@
  * post content into nChat channels.
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ token: string }> }
+  { params }: { params: Promise<{ token: string }> },
 ) {
   try {
-    const { token } = await params
+    const { token } = await params;
 
     if (!token) {
       return NextResponse.json(
-        { error: 'Webhook token is required' },
-        { status: 400 }
-      )
+        { error: "Webhook token is required" },
+        { status: 400 },
+      );
     }
 
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate minimal payload
     if (!body.content && !body.text && !body.embeds && !body.attachments) {
       return NextResponse.json(
-        { error: 'Request must include content, text, embeds, or attachments' },
-        { status: 400 }
-      )
+        { error: "Request must include content, text, embeds, or attachments" },
+        { status: 400 },
+      );
     }
 
     // In a real implementation, this would:
@@ -42,19 +42,19 @@ export async function POST(
 
     return NextResponse.json({
       ok: true,
-      message: 'Webhook received',
-    })
+      message: "Webhook received",
+    });
   } catch (error) {
     if (error instanceof SyntaxError) {
       return NextResponse.json(
-        { error: 'Invalid JSON payload' },
-        { status: 400 }
-      )
+        { error: "Invalid JSON payload" },
+        { status: 400 },
+      );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

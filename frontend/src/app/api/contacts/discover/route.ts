@@ -4,91 +4,99 @@
  * Privacy-preserving contact discovery with rate limiting
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 import {
   checkDiscoveryRateLimit,
   hashEmail,
   hashPhoneNumber,
   type DiscoveryResult,
-} from '@/services/contacts/contact.service'
+} from "@/services/contacts/contact.service";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DiscoveredUser {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl?: string
-  bio?: string
-  mutualContacts: number
-  isBlocked: boolean
-  relationshipStatus: 'none' | 'pending_sent' | 'pending_received' | 'accepted' | 'blocked'
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
+  bio?: string;
+  mutualContacts: number;
+  isBlocked: boolean;
+  relationshipStatus:
+    | "none"
+    | "pending_sent"
+    | "pending_received"
+    | "accepted"
+    | "blocked";
 }
 
 interface PrivacySettings {
-  allowSearchDiscovery: boolean
-  showInDirectory: boolean
-  allowContactRequests: 'everyone' | 'contacts_of_contacts' | 'nobody'
+  allowSearchDiscovery: boolean;
+  showInDirectory: boolean;
+  allowContactRequests: "everyone" | "contacts_of_contacts" | "nobody";
 }
 
 // Mock user database for demo
-const mockUsers = new Map<string, {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl?: string
-  bio?: string
-  email: string
-  emailHash: string
-  phoneHash?: string
-  phoneSalt?: string
-  privacySettings: PrivacySettings
-}>()
+const mockUsers = new Map<
+  string,
+  {
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+    bio?: string;
+    email: string;
+    emailHash: string;
+    phoneHash?: string;
+    phoneSalt?: string;
+    privacySettings: PrivacySettings;
+  }
+>();
 
 // Initialize some mock users
 function initMockUsers() {
-  if (mockUsers.size > 0) return
+  if (mockUsers.size > 0) return;
 
   const users = [
     {
-      id: 'user-1',
-      username: 'alice',
-      displayName: 'Alice Johnson',
-      email: 'alice@example.com',
-      bio: 'Software engineer',
-      avatarUrl: '/avatars/alice.jpg',
+      id: "user-1",
+      username: "alice",
+      displayName: "Alice Johnson",
+      email: "alice@example.com",
+      bio: "Software engineer",
+      avatarUrl: "/avatars/alice.jpg",
     },
     {
-      id: 'user-2',
-      username: 'bob',
-      displayName: 'Bob Smith',
-      email: 'bob@example.com',
-      bio: 'Product manager',
+      id: "user-2",
+      username: "bob",
+      displayName: "Bob Smith",
+      email: "bob@example.com",
+      bio: "Product manager",
     },
     {
-      id: 'user-3',
-      username: 'charlie',
-      displayName: 'Charlie Brown',
-      email: 'charlie@example.com',
-      bio: 'Designer',
+      id: "user-3",
+      username: "charlie",
+      displayName: "Charlie Brown",
+      email: "charlie@example.com",
+      bio: "Designer",
     },
     {
-      id: 'user-4',
-      username: 'diana',
-      displayName: 'Diana Prince',
-      email: 'diana@example.com',
-      bio: 'Marketing lead',
+      id: "user-4",
+      username: "diana",
+      displayName: "Diana Prince",
+      email: "diana@example.com",
+      bio: "Marketing lead",
     },
     {
-      id: 'user-5',
-      username: 'evan',
-      displayName: 'Evan Williams',
-      email: 'evan@example.com',
-      bio: 'Data scientist',
+      id: "user-5",
+      username: "evan",
+      displayName: "Evan Williams",
+      email: "evan@example.com",
+      bio: "Data scientist",
     },
-  ]
+  ];
 
   users.forEach((user) => {
     mockUsers.set(user.id, {
@@ -97,10 +105,10 @@ function initMockUsers() {
       privacySettings: {
         allowSearchDiscovery: true,
         showInDirectory: true,
-        allowContactRequests: 'everyone',
+        allowContactRequests: "everyone",
       },
-    })
-  })
+    });
+  });
 }
 
 // ============================================================================
@@ -109,78 +117,78 @@ function initMockUsers() {
 
 export async function GET(request: NextRequest) {
   try {
-    initMockUsers()
+    initMockUsers();
 
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-    const query = searchParams.get('query')
-    const method = searchParams.get('method') || 'username' // username, email, phone
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 50)
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+    const query = searchParams.get("query");
+    const method = searchParams.get("method") || "username"; // username, email, phone
+    const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50);
 
     if (!userId) {
       return NextResponse.json(
-        { error: 'userId is required' },
-        { status: 400 }
-      )
+        { error: "userId is required" },
+        { status: 400 },
+      );
     }
 
     // Check rate limit
-    const rateLimit = checkDiscoveryRateLimit(userId)
+    const rateLimit = checkDiscoveryRateLimit(userId);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
-          error: 'Rate limit exceeded',
+          error: "Rate limit exceeded",
           resetAt: rateLimit.resetAt,
           remaining: rateLimit.remaining,
         },
         {
           status: 429,
           headers: {
-            'X-RateLimit-Remaining': rateLimit.remaining.toString(),
-            'X-RateLimit-Reset': rateLimit.resetAt.toISOString(),
+            "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+            "X-RateLimit-Reset": rateLimit.resetAt.toISOString(),
           },
-        }
-      )
+        },
+      );
     }
 
     if (!query || query.length < 2) {
       return NextResponse.json(
-        { error: 'Query must be at least 2 characters' },
-        { status: 400 }
-      )
+        { error: "Query must be at least 2 characters" },
+        { status: 400 },
+      );
     }
 
-    const results: DiscoveredUser[] = []
-    const queryLower = query.toLowerCase()
+    const results: DiscoveredUser[] = [];
+    const queryLower = query.toLowerCase();
 
     mockUsers.forEach((user) => {
       // Skip self
-      if (user.id === userId) return
+      if (user.id === userId) return;
 
       // Check privacy settings
-      if (!user.privacySettings.allowSearchDiscovery) return
+      if (!user.privacySettings.allowSearchDiscovery) return;
 
       // Match based on method
-      let matches = false
+      let matches = false;
 
       switch (method) {
-        case 'username':
+        case "username":
           matches =
             user.username.toLowerCase().includes(queryLower) ||
-            user.displayName.toLowerCase().includes(queryLower)
-          break
-        case 'email':
+            user.displayName.toLowerCase().includes(queryLower);
+          break;
+        case "email":
           // For email discovery, we compare hashes for privacy
-          const queryHash = hashEmail(query)
-          matches = user.emailHash === queryHash
-          break
-        case 'phone':
+          const queryHash = hashEmail(query);
+          matches = user.emailHash === queryHash;
+          break;
+        case "phone":
           // Phone matching would compare hashed phone numbers
           if (user.phoneHash && user.phoneSalt) {
-            const { hash } = hashPhoneNumber(query, user.phoneSalt)
-            matches = user.phoneHash === hash
+            const { hash } = hashPhoneNumber(query, user.phoneSalt);
+            matches = user.phoneHash === hash;
           }
-          break
+          break;
       }
 
       if (matches) {
@@ -192,10 +200,10 @@ export async function GET(request: NextRequest) {
           bio: user.bio,
           mutualContacts: 0, // Would be calculated from actual contact data
           isBlocked: false, // Would be checked against block list
-          relationshipStatus: 'none',
-        })
+          relationshipStatus: "none",
+        });
       }
-    })
+    });
 
     return NextResponse.json({
       results: results.slice(0, limit),
@@ -204,13 +212,13 @@ export async function GET(request: NextRequest) {
         remaining: rateLimit.remaining,
         resetAt: rateLimit.resetAt,
       },
-    })
+    });
   } catch (error) {
-    console.error('Error discovering users:', error)
+    console.error("Error discovering users:", error);
     return NextResponse.json(
-      { error: 'Failed to discover users' },
-      { status: 500 }
-    )
+      { error: "Failed to discover users" },
+      { status: 500 },
+    );
   }
 }
 
@@ -220,50 +228,50 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    initMockUsers()
+    initMockUsers();
 
-    const body = await request.json()
-    const { userId, phoneHashes, emailHashes, phoneSalt } = body
+    const body = await request.json();
+    const { userId, phoneHashes, emailHashes, phoneSalt } = body;
 
     if (!userId) {
       return NextResponse.json(
-        { error: 'userId is required' },
-        { status: 400 }
-      )
+        { error: "userId is required" },
+        { status: 400 },
+      );
     }
 
     // Check rate limit (stricter for batch operations)
-    const rateLimit = checkDiscoveryRateLimit(`batch:${userId}`)
+    const rateLimit = checkDiscoveryRateLimit(`batch:${userId}`);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
-          error: 'Rate limit exceeded for batch discovery',
+          error: "Rate limit exceeded for batch discovery",
           resetAt: rateLimit.resetAt,
         },
-        { status: 429 }
-      )
+        { status: 429 },
+      );
     }
 
     // Limit batch sizes to prevent enumeration attacks
-    const MAX_BATCH_SIZE = 500
-    const phoneHashSet = new Set((phoneHashes || []).slice(0, MAX_BATCH_SIZE))
-    const emailHashSet = new Set((emailHashes || []).slice(0, MAX_BATCH_SIZE))
+    const MAX_BATCH_SIZE = 500;
+    const phoneHashSet = new Set((phoneHashes || []).slice(0, MAX_BATCH_SIZE));
+    const emailHashSet = new Set((emailHashes || []).slice(0, MAX_BATCH_SIZE));
 
-    const matched: DiscoveredUser[] = []
-    const matchedIds = new Set<string>()
+    const matched: DiscoveredUser[] = [];
+    const matchedIds = new Set<string>();
 
     mockUsers.forEach((user) => {
       // Skip self
-      if (user.id === userId) return
+      if (user.id === userId) return;
 
       // Check privacy settings
-      if (!user.privacySettings.allowSearchDiscovery) return
-      if (user.privacySettings.allowContactRequests === 'nobody') return
+      if (!user.privacySettings.allowSearchDiscovery) return;
+      if (user.privacySettings.allowContactRequests === "nobody") return;
 
       // Check email hash match
       if (emailHashSet.has(user.emailHash)) {
         if (!matchedIds.has(user.id)) {
-          matchedIds.add(user.id)
+          matchedIds.add(user.id);
           matched.push({
             id: user.id,
             username: user.username,
@@ -271,8 +279,8 @@ export async function POST(request: NextRequest) {
             avatarUrl: user.avatarUrl,
             mutualContacts: 0,
             isBlocked: false,
-            relationshipStatus: 'none',
-          })
+            relationshipStatus: "none",
+          });
         }
       }
 
@@ -280,7 +288,7 @@ export async function POST(request: NextRequest) {
       if (user.phoneHash && phoneSalt) {
         if (phoneHashSet.has(user.phoneHash)) {
           if (!matchedIds.has(user.id)) {
-            matchedIds.add(user.id)
+            matchedIds.add(user.id);
             matched.push({
               id: user.id,
               username: user.username,
@@ -288,12 +296,12 @@ export async function POST(request: NextRequest) {
               avatarUrl: user.avatarUrl,
               mutualContacts: 0,
               isBlocked: false,
-              relationshipStatus: 'none',
-            })
+              relationshipStatus: "none",
+            });
           }
         }
       }
-    })
+    });
 
     return NextResponse.json({
       matched,
@@ -303,12 +311,12 @@ export async function POST(request: NextRequest) {
         remaining: rateLimit.remaining,
         resetAt: rateLimit.resetAt,
       },
-    })
+    });
   } catch (error) {
-    console.error('Error in batch discovery:', error)
+    console.error("Error in batch discovery:", error);
     return NextResponse.json(
-      { error: 'Failed to process batch discovery' },
-      { status: 500 }
-    )
+      { error: "Failed to process batch discovery" },
+      { status: 500 },
+    );
   }
 }

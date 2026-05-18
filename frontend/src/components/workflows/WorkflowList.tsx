@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * WorkflowList - List of all workflows
@@ -6,41 +6,50 @@
  * Displays workflows in a grid or list view with filtering and sorting
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { WorkflowCard } from './WorkflowCard'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { WorkflowCard } from "./WorkflowCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Search, Plus, Grid3X3, List, SortAsc, Filter, MoreHorizontal, Loader2 } from 'lucide-react'
-import type { Workflow, WorkflowStatus } from '@/lib/workflows/workflow-types'
+} from "@/components/ui/dropdown-menu";
+import {
+  Search,
+  Plus,
+  Grid3X3,
+  List,
+  SortAsc,
+  Filter,
+  MoreHorizontal,
+  Loader2,
+} from "lucide-react";
+import type { Workflow, WorkflowStatus } from "@/lib/workflows/workflow-types";
 
 interface WorkflowListProps {
-  workflows: Workflow[]
-  isLoading?: boolean
-  onCreateNew?: () => void
-  onEdit?: (workflow: Workflow) => void
-  onDuplicate?: (workflow: Workflow) => void
-  onDelete?: (workflow: Workflow) => void
-  onToggleStatus?: (workflow: Workflow) => void
-  className?: string
+  workflows: Workflow[];
+  isLoading?: boolean;
+  onCreateNew?: () => void;
+  onEdit?: (workflow: Workflow) => void;
+  onDuplicate?: (workflow: Workflow) => void;
+  onDelete?: (workflow: Workflow) => void;
+  onToggleStatus?: (workflow: Workflow) => void;
+  className?: string;
 }
 
-type ViewMode = 'grid' | 'list'
-type SortBy = 'name' | 'updatedAt' | 'createdAt' | 'status'
-type SortOrder = 'asc' | 'desc'
+type ViewMode = "grid" | "list";
+type SortBy = "name" | "updatedAt" | "createdAt" | "status";
+type SortOrder = "asc" | "desc";
 
 export function WorkflowList({
   workflows,
@@ -52,83 +61,89 @@ export function WorkflowList({
   onToggleStatus,
   className,
 }: WorkflowListProps) {
-  const [viewMode, setViewMode] = React.useState<ViewMode>('grid')
-  const [searchQuery, setSearchQuery] = React.useState('')
-  const [statusFilter, setStatusFilter] = React.useState<WorkflowStatus | 'all'>('all')
-  const [categoryFilter, setCategoryFilter] = React.useState<string>('all')
-  const [sortBy, setSortBy] = React.useState<SortBy>('updatedAt')
-  const [sortOrder, setSortOrder] = React.useState<SortOrder>('desc')
+  const [viewMode, setViewMode] = React.useState<ViewMode>("grid");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<
+    WorkflowStatus | "all"
+  >("all");
+  const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
+  const [sortBy, setSortBy] = React.useState<SortBy>("updatedAt");
+  const [sortOrder, setSortOrder] = React.useState<SortOrder>("desc");
 
   // Get unique categories from workflows
   const categories = React.useMemo(() => {
-    const cats = new Set<string>()
+    const cats = new Set<string>();
     workflows.forEach((w) => {
-      if (w.settings.category) cats.add(w.settings.category)
-      if (w.metadata?.category) cats.add(w.metadata.category)
-    })
-    return Array.from(cats).sort()
-  }, [workflows])
+      if (w.settings.category) cats.add(w.settings.category);
+      if (w.metadata?.category) cats.add(w.metadata.category);
+    });
+    return Array.from(cats).sort();
+  }, [workflows]);
 
   // Filter and sort workflows
   const filteredWorkflows = React.useMemo(() => {
-    let result = [...workflows]
+    let result = [...workflows];
 
     // Search filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       result = result.filter(
         (w) =>
           w.name.toLowerCase().includes(query) ||
           w.description?.toLowerCase().includes(query) ||
-          w.settings.tags?.some((t) => t.toLowerCase().includes(query))
-      )
+          w.settings.tags?.some((t) => t.toLowerCase().includes(query)),
+      );
     }
 
     // Status filter
-    if (statusFilter !== 'all') {
-      result = result.filter((w) => w.status === statusFilter)
+    if (statusFilter !== "all") {
+      result = result.filter((w) => w.status === statusFilter);
     }
 
     // Category filter
-    if (categoryFilter !== 'all') {
+    if (categoryFilter !== "all") {
       result = result.filter(
-        (w) => w.settings.category === categoryFilter || w.metadata?.category === categoryFilter
-      )
+        (w) =>
+          w.settings.category === categoryFilter ||
+          w.metadata?.category === categoryFilter,
+      );
     }
 
     // Sort
     result.sort((a, b) => {
-      let comparison = 0
+      let comparison = 0;
       switch (sortBy) {
-        case 'name':
-          comparison = a.name.localeCompare(b.name)
-          break
-        case 'updatedAt':
-          comparison = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
-          break
-        case 'createdAt':
-          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          break
-        case 'status':
-          comparison = a.status.localeCompare(b.status)
-          break
+        case "name":
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case "updatedAt":
+          comparison =
+            new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+          break;
+        case "createdAt":
+          comparison =
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          break;
+        case "status":
+          comparison = a.status.localeCompare(b.status);
+          break;
       }
-      return sortOrder === 'asc' ? comparison : -comparison
-    })
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
 
-    return result
-  }, [workflows, searchQuery, statusFilter, categoryFilter, sortBy, sortOrder])
+    return result;
+  }, [workflows, searchQuery, statusFilter, categoryFilter, sortBy, sortOrder]);
 
   if (isLoading) {
     return (
-      <div className={cn('flex items-center justify-center py-12', className)}>
+      <div className={cn("flex items-center justify-center py-12", className)}>
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Workflows</h2>
@@ -156,7 +171,7 @@ export function WorkflowList({
         {/* Status filter */}
         <Select
           value={statusFilter}
-          onValueChange={(v) => setStatusFilter(v as WorkflowStatus | 'all')}
+          onValueChange={(v) => setStatusFilter(v as WorkflowStatus | "all")}
         >
           <SelectTrigger className="h-9 w-32">
             <SelectValue placeholder="Status" />
@@ -198,40 +213,40 @@ export function WorkflowList({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => {
-                setSortBy('updatedAt')
-                setSortOrder('desc')
+                setSortBy("updatedAt");
+                setSortOrder("desc");
               }}
             >
               Recently updated
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                setSortBy('createdAt')
-                setSortOrder('desc')
+                setSortBy("createdAt");
+                setSortOrder("desc");
               }}
             >
               Recently created
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                setSortBy('name')
-                setSortOrder('asc')
+                setSortBy("name");
+                setSortOrder("asc");
               }}
             >
               Name (A-Z)
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                setSortBy('name')
-                setSortOrder('desc')
+                setSortBy("name");
+                setSortOrder("desc");
               }}
             >
               Name (Z-A)
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                setSortBy('status')
-                setSortOrder('asc')
+                setSortBy("status");
+                setSortOrder("asc");
               }}
             >
               Status
@@ -242,18 +257,18 @@ export function WorkflowList({
         {/* View mode toggle */}
         <div className="flex items-center rounded-md border">
           <Button
-            variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+            variant={viewMode === "grid" ? "secondary" : "ghost"}
             size="sm"
             className="h-9 rounded-r-none"
-            onClick={() => setViewMode('grid')}
+            onClick={() => setViewMode("grid")}
           >
             <Grid3X3 className="h-4 w-4" />
           </Button>
           <Button
-            variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+            variant={viewMode === "list" ? "secondary" : "ghost"}
             size="sm"
             className="h-9 rounded-l-none"
-            onClick={() => setViewMode('list')}
+            onClick={() => setViewMode("list")}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -262,8 +277,10 @@ export function WorkflowList({
 
       {/* Results count */}
       <p className="text-sm text-muted-foreground">
-        {filteredWorkflows.length} workflow{filteredWorkflows.length !== 1 ? 's' : ''}
-        {(searchQuery || statusFilter !== 'all' || categoryFilter !== 'all') && ' found'}
+        {filteredWorkflows.length} workflow
+        {filteredWorkflows.length !== 1 ? "s" : ""}
+        {(searchQuery || statusFilter !== "all" || categoryFilter !== "all") &&
+          " found"}
       </p>
 
       {/* Workflow grid/list */}
@@ -277,7 +294,7 @@ export function WorkflowList({
             </Button>
           )}
         </div>
-      ) : viewMode === 'grid' ? (
+      ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredWorkflows.map((workflow) => (
             <WorkflowCard
@@ -306,7 +323,7 @@ export function WorkflowList({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default WorkflowList
+export default WorkflowList;

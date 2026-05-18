@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Image as ImageIcon,
   Play,
@@ -15,17 +15,17 @@ import {
   ChevronRight,
   ZoomIn,
   ZoomOut,
-} from 'lucide-react'
-import type { DirectMessage, DMMediaItem } from '@/lib/dm/dm-types'
-import { useDMStore, selectMediaItems } from '@/stores/dm-store'
+} from "lucide-react";
+import type { DirectMessage, DMMediaItem } from "@/lib/dm/dm-types";
+import { useDMStore, selectMediaItems } from "@/stores/dm-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DMMediaProps {
-  dm: DirectMessage
-  className?: string
+  dm: DirectMessage;
+  className?: string;
 }
 
 // ============================================================================
@@ -33,70 +33,76 @@ interface DMMediaProps {
 // ============================================================================
 
 export function DMMedia({ dm, className }: DMMediaProps) {
-  const mediaItems = useDMStore(selectMediaItems(dm.id))
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null)
+  const mediaItems = useDMStore(selectMediaItems(dm.id));
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
 
-  const selectedItem = selectedIndex !== null ? mediaItems[selectedIndex] : null
+  const selectedItem =
+    selectedIndex !== null ? mediaItems[selectedIndex] : null;
 
   const handlePrevious = () => {
     if (selectedIndex !== null && selectedIndex > 0) {
-      setSelectedIndex(selectedIndex - 1)
+      setSelectedIndex(selectedIndex - 1);
     }
-  }
+  };
 
   const handleNext = () => {
     if (selectedIndex !== null && selectedIndex < mediaItems.length - 1) {
-      setSelectedIndex(selectedIndex + 1)
+      setSelectedIndex(selectedIndex + 1);
     }
-  }
+  };
 
   const handleDownload = (item: DMMediaItem) => {
-    window.open(item.url, '_blank')
-  }
+    window.open(item.url, "_blank");
+  };
 
   // Keyboard navigation
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedIndex === null) return
+      if (selectedIndex === null) return;
 
-      if (e.key === 'ArrowLeft') {
-        handlePrevious()
-      } else if (e.key === 'ArrowRight') {
-        handleNext()
-      } else if (e.key === 'Escape') {
-        setSelectedIndex(null)
+      if (e.key === "ArrowLeft") {
+        handlePrevious();
+      } else if (e.key === "ArrowRight") {
+        handleNext();
+      } else if (e.key === "Escape") {
+        setSelectedIndex(null);
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedIndex])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedIndex]);
 
   if (isLoading) {
     return (
-      <div className={cn('grid grid-cols-3 gap-1', className)}>
+      <div className={cn("grid grid-cols-3 gap-1", className)}>
         {Array.from({ length: 9 }).map((_, i) => (
           <Skeleton key={i} className="aspect-square w-full" />
         ))}
       </div>
-    )
+    );
   }
 
   if (mediaItems.length === 0) {
     return (
-      <div className={cn('flex flex-col items-center justify-center py-12 text-center', className)}>
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center py-12 text-center",
+          className,
+        )}
+      >
         <ImageIcon className="text-muted-foreground/50 mb-4 h-12 w-12" />
         <h3 className="text-sm font-medium">No media</h3>
         <p className="mt-1 max-w-[200px] text-xs text-muted-foreground">
           Photos and videos shared in this conversation will appear here.
         </p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between px-1">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold">
           <ImageIcon className="h-4 w-4" />
@@ -107,7 +113,11 @@ export function DMMedia({ dm, className }: DMMediaProps) {
       <ScrollArea className="h-[400px]">
         <div className="grid grid-cols-3 gap-1">
           {mediaItems.map((item, index) => (
-            <MediaThumbnail key={item.id} item={item} onClick={() => setSelectedIndex(index)} />
+            <MediaThumbnail
+              key={item.id}
+              item={item}
+              onClick={() => setSelectedIndex(index)}
+            />
           ))}
         </div>
       </ScrollArea>
@@ -154,7 +164,7 @@ export function DMMedia({ dm, className }: DMMediaProps) {
             <div className="flex flex-1 items-center justify-center p-4">
               {selectedItem && (
                 <>
-                  {selectedItem.type === 'video' ? (
+                  {selectedItem.type === "video" ? (
                     <video
                       src={selectedItem.url}
                       controls
@@ -185,16 +195,17 @@ export function DMMedia({ dm, className }: DMMediaProps) {
                 <ChevronLeft className="h-6 w-6" />
               </Button>
             )}
-            {selectedIndex !== null && selectedIndex < mediaItems.length - 1 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full bg-black/50 text-white hover:bg-black/70"
-                onClick={handleNext}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-            )}
+            {selectedIndex !== null &&
+              selectedIndex < mediaItems.length - 1 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full bg-black/50 text-white hover:bg-black/70"
+                  onClick={handleNext}
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
+              )}
 
             {/* Footer with info */}
             {selectedItem && (
@@ -211,7 +222,7 @@ export function DMMedia({ dm, className }: DMMediaProps) {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -219,12 +230,12 @@ export function DMMedia({ dm, className }: DMMediaProps) {
 // ============================================================================
 
 interface MediaThumbnailProps {
-  item: DMMediaItem
-  onClick: () => void
+  item: DMMediaItem;
+  onClick: () => void;
 }
 
 function MediaThumbnail({ item, onClick }: MediaThumbnailProps) {
-  const isVideo = item.type === 'video'
+  const isVideo = item.type === "video";
 
   return (
     <button
@@ -253,7 +264,7 @@ function MediaThumbnail({ item, onClick }: MediaThumbnailProps) {
       {/* Hover overlay */}
       <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -261,9 +272,9 @@ function MediaThumbnail({ item, onClick }: MediaThumbnailProps) {
 // ============================================================================
 
 function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins}:${secs.toString().padStart(2, '0')}`
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-DMMedia.displayName = 'DMMedia'
+DMMedia.displayName = "DMMedia";

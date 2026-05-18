@@ -4,7 +4,7 @@
  * TypeScript type definitions for the pinned messages system.
  */
 
-import type { Message, MessageUser } from '@/types/message'
+import type { Message, MessageUser } from "@/types/message";
 
 // ============================================================================
 // Pin Types
@@ -13,20 +13,20 @@ import type { Message, MessageUser } from '@/types/message'
 /**
  * Who can pin messages in a channel.
  */
-export type PinPermission = 'admins-only' | 'moderators' | 'members' | 'anyone'
+export type PinPermission = "admins-only" | "moderators" | "members" | "anyone";
 
 /**
  * Pin configuration for a channel.
  */
 export interface PinConfig {
   /** Maximum number of pinned messages per channel */
-  maxPins: number
+  maxPins: number;
   /** Who can pin messages */
-  pinPermission: PinPermission
+  pinPermission: PinPermission;
   /** Whether to show pinned banner in channel header */
-  showBanner: boolean
+  showBanner: boolean;
   /** Whether to notify channel members when a message is pinned */
-  notifyOnPin: boolean
+  notifyOnPin: boolean;
 }
 
 /**
@@ -34,31 +34,31 @@ export interface PinConfig {
  */
 export const DEFAULT_PIN_CONFIG: PinConfig = {
   maxPins: 50,
-  pinPermission: 'moderators',
+  pinPermission: "moderators",
   showBanner: true,
   notifyOnPin: true,
-}
+};
 
 /**
  * Pinned message record.
  */
 export interface PinnedMessage {
   /** Unique pin ID */
-  id: string
+  id: string;
   /** ID of the pinned message */
-  messageId: string
+  messageId: string;
   /** Channel ID where the message is pinned */
-  channelId: string
+  channelId: string;
   /** User who pinned the message */
-  pinnedBy: MessageUser
+  pinnedBy: MessageUser;
   /** When the message was pinned */
-  pinnedAt: Date
+  pinnedAt: Date;
   /** The actual message content */
-  message: Message
+  message: Message;
   /** Optional note about why it was pinned */
-  note?: string
+  note?: string;
   /** Position in the pinned list (for ordering) */
-  position: number
+  position: number;
 }
 
 /**
@@ -66,11 +66,11 @@ export interface PinnedMessage {
  */
 export interface PinMessageInput {
   /** Message ID to pin */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Optional note */
-  note?: string
+  note?: string;
 }
 
 /**
@@ -78,10 +78,10 @@ export interface PinMessageInput {
  */
 export interface UnpinMessageInput {
   /** Pin ID or Message ID to unpin */
-  pinId?: string
-  messageId?: string
+  pinId?: string;
+  messageId?: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
 }
 
 /**
@@ -89,43 +89,43 @@ export interface UnpinMessageInput {
  */
 export interface ReorderPinsInput {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Array of pin IDs in new order */
-  pinIds: string[]
+  pinIds: string[];
 }
 
 /**
  * Pin action result.
  */
 export interface PinResult {
-  success: boolean
-  pinnedMessage?: PinnedMessage
-  error?: string
-  errorCode?: PinErrorCode
+  success: boolean;
+  pinnedMessage?: PinnedMessage;
+  error?: string;
+  errorCode?: PinErrorCode;
 }
 
 /**
  * Pin error codes.
  */
 export type PinErrorCode =
-  | 'PIN_LIMIT_REACHED'
-  | 'MESSAGE_ALREADY_PINNED'
-  | 'MESSAGE_NOT_FOUND'
-  | 'PERMISSION_DENIED'
-  | 'CHANNEL_NOT_FOUND'
-  | 'PIN_NOT_FOUND'
-  | 'UNKNOWN_ERROR'
+  | "PIN_LIMIT_REACHED"
+  | "MESSAGE_ALREADY_PINNED"
+  | "MESSAGE_NOT_FOUND"
+  | "PERMISSION_DENIED"
+  | "CHANNEL_NOT_FOUND"
+  | "PIN_NOT_FOUND"
+  | "UNKNOWN_ERROR";
 
 /**
  * Pin event for real-time updates.
  */
 export interface PinEvent {
-  type: 'pin_added' | 'pin_removed' | 'pins_reordered'
-  channelId: string
-  pinnedMessage?: PinnedMessage
-  messageId?: string
-  pinnedBy?: MessageUser
-  timestamp: Date
+  type: "pin_added" | "pin_removed" | "pins_reordered";
+  channelId: string;
+  pinnedMessage?: PinnedMessage;
+  messageId?: string;
+  pinnedBy?: MessageUser;
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -137,35 +137,35 @@ export interface PinEvent {
  */
 export interface PinFilters {
   /** Filter by user who pinned */
-  pinnedByUserId?: string
+  pinnedByUserId?: string;
   /** Filter by date range - from */
-  pinnedAfter?: Date
+  pinnedAfter?: Date;
   /** Filter by date range - to */
-  pinnedBefore?: Date
+  pinnedBefore?: Date;
   /** Filter by message type */
-  messageType?: string
+  messageType?: string;
   /** Search in message content */
-  searchQuery?: string
+  searchQuery?: string;
   /** Filter messages with attachments */
-  hasAttachments?: boolean
+  hasAttachments?: boolean;
 }
 
 /**
  * Sort options for pinned messages.
  */
-export type PinSortBy = 'pinnedAt' | 'messageDate' | 'position'
-export type PinSortOrder = 'asc' | 'desc'
+export type PinSortBy = "pinnedAt" | "messageDate" | "position";
+export type PinSortOrder = "asc" | "desc";
 
 /**
  * Pinned messages list options.
  */
 export interface PinListOptions {
-  channelId: string
-  filters?: PinFilters
-  sortBy?: PinSortBy
-  sortOrder?: PinSortOrder
-  limit?: number
-  offset?: number
+  channelId: string;
+  filters?: PinFilters;
+  sortBy?: PinSortBy;
+  sortOrder?: PinSortOrder;
+  limit?: number;
+  offset?: number;
 }
 
 // ============================================================================
@@ -177,15 +177,15 @@ export interface PinListOptions {
  */
 export interface ChannelPinStats {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Total number of pinned messages */
-  totalPins: number
+  totalPins: number;
   /** Maximum allowed pins */
-  maxPins: number
+  maxPins: number;
   /** Remaining pin slots */
-  remainingSlots: number
+  remainingSlots: number;
   /** Most recent pin date */
-  lastPinnedAt?: Date
+  lastPinnedAt?: Date;
   /** Users who have pinned messages */
-  pinnerCount: number
+  pinnerCount: number;
 }

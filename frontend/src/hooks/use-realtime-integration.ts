@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useRealtimeIntegration Hook
@@ -15,18 +15,18 @@
  * @version 1.0.0
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from "react";
 import {
   getRealtimeIntegration,
   type IntegrationStatus,
-} from '@/services/realtime/realtime-integration.service'
+} from "@/services/realtime/realtime-integration.service";
 import type {
   PresenceStatus,
   CustomStatus,
   UserPresence,
-} from '@/services/realtime/presence.service'
-import type { TypingUser } from '@/services/realtime/typing.service'
-import { logger } from '@/lib/logger'
+} from "@/services/realtime/presence.service";
+import type { TypingUser } from "@/services/realtime/typing.service";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -34,53 +34,61 @@ import { logger } from '@/lib/logger'
 
 export interface UseRealtimeIntegrationReturn {
   // Connection
-  isConnected: boolean
-  isAuthenticated: boolean
-  isOnline: boolean
-  status: IntegrationStatus
-  reconnect: () => Promise<void>
-  disconnect: () => void
+  isConnected: boolean;
+  isAuthenticated: boolean;
+  isOnline: boolean;
+  status: IntegrationStatus;
+  reconnect: () => Promise<void>;
+  disconnect: () => void;
 
   // Presence
   presence: {
-    setStatus: (status: PresenceStatus) => void
-    setCustomStatus: (status: CustomStatus | null) => void
-    getStatus: () => PresenceStatus
-    getCustomStatus: () => CustomStatus | null
-    subscribeToUsers: (userIds: string[]) => void
-    unsubscribeFromUsers: (userIds: string[]) => void
-    getPresence: (userId: string) => UserPresence | undefined
-  } | null
+    setStatus: (status: PresenceStatus) => void;
+    setCustomStatus: (status: CustomStatus | null) => void;
+    getStatus: () => PresenceStatus;
+    getCustomStatus: () => CustomStatus | null;
+    subscribeToUsers: (userIds: string[]) => void;
+    unsubscribeFromUsers: (userIds: string[]) => void;
+    getPresence: (userId: string) => UserPresence | undefined;
+  } | null;
 
   // Typing
   typing: {
-    startTyping: (channelId: string, threadId?: string) => void
-    stopTyping: (channelId?: string, threadId?: string) => void
-    handleInputChange: (channelId: string, value: string, threadId?: string) => void
-    getTypingUsers: (channelId: string, threadId?: string) => TypingUser[]
-    getTypingText: (channelId: string, threadId?: string) => string | null
-  } | null
+    startTyping: (channelId: string, threadId?: string) => void;
+    stopTyping: (channelId?: string, threadId?: string) => void;
+    handleInputChange: (
+      channelId: string,
+      value: string,
+      threadId?: string,
+    ) => void;
+    getTypingUsers: (channelId: string, threadId?: string) => TypingUser[];
+    getTypingText: (channelId: string, threadId?: string) => string | null;
+  } | null;
 
   // Delivery
   delivery: {
-    trackOutgoing: (clientMessageId: string, channelId: string, totalRecipients?: number) => void
-    acknowledgeRead: (messageId: string, channelId: string) => void
-    syncStatus: (messageIds: string[]) => Promise<void>
-  } | null
+    trackOutgoing: (
+      clientMessageId: string,
+      channelId: string,
+      totalRecipients?: number,
+    ) => void;
+    acknowledgeRead: (messageId: string, channelId: string) => void;
+    syncStatus: (messageIds: string[]) => Promise<void>;
+  } | null;
 
   // Offline Queue
   queue: {
     queueMessage: (message: {
-      channelId: string
-      content: string
-      type?: string
-      threadId?: string
-      mentions?: string[]
-    }) => void
-    getQueuedMessages: () => unknown[]
-    getQueueLength: () => number
-    clearQueue: () => void
-  } | null
+      channelId: string;
+      content: string;
+      type?: string;
+      threadId?: string;
+      mentions?: string[];
+    }) => void;
+    getQueuedMessages: () => unknown[];
+    getQueueLength: () => number;
+    clearQueue: () => void;
+  } | null;
 }
 
 // ============================================================================
@@ -122,248 +130,303 @@ export function useRealtimeIntegration(): UseRealtimeIntegrationReturn {
     deliveryReceiptsEnabled: false,
     offlineQueueEnabled: false,
     queuedMessageCount: 0,
-    connectionQuality: 'unknown',
+    connectionQuality: "unknown",
     reconnectAttempts: 0,
-  })
+  });
 
   // Subscribe to status changes
   useEffect(() => {
     try {
-      const integration = getRealtimeIntegration()
+      const integration = getRealtimeIntegration();
 
       if (!integration.initialized) {
-        return
+        return;
       }
 
-      const unsubscribe = integration.onStatusChange(setStatus)
+      const unsubscribe = integration.onStatusChange(setStatus);
 
       return () => {
-        unsubscribe()
-      }
+        unsubscribe();
+      };
     } catch (error) {
-      logger.debug('[useRealtimeIntegration] Integration not initialized yet')
-      return
+      logger.debug("[useRealtimeIntegration] Integration not initialized yet");
+      return;
     }
-  }, [])
+  }, []);
 
   // Connection methods
   const reconnect = useCallback(async () => {
     try {
-      const integration = getRealtimeIntegration()
-      await integration.reconnect()
+      const integration = getRealtimeIntegration();
+      await integration.reconnect();
     } catch (error) {
-      logger.error('[useRealtimeIntegration] Reconnect failed:', error)
-      throw error
+      logger.error("[useRealtimeIntegration] Reconnect failed:", error);
+      throw error;
     }
-  }, [])
+  }, []);
 
   const disconnect = useCallback(() => {
     try {
-      const integration = getRealtimeIntegration()
-      integration.disconnect()
+      const integration = getRealtimeIntegration();
+      integration.disconnect();
     } catch (error) {
-      logger.error('[useRealtimeIntegration] Disconnect failed:', error)
+      logger.error("[useRealtimeIntegration] Disconnect failed:", error);
     }
-  }, [])
+  }, []);
 
   // Presence methods
   const presence = status.presenceEnabled
     ? {
         setStatus: (presenceStatus: PresenceStatus) => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getPresence().setStatus(presenceStatus)
+            const integration = getRealtimeIntegration();
+            integration.getPresence().setStatus(presenceStatus);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] setStatus failed:', error)
+            logger.error("[useRealtimeIntegration] setStatus failed:", error);
           }
         },
         setCustomStatus: (customStatus: CustomStatus | null) => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getPresence().setCustomStatus(customStatus)
+            const integration = getRealtimeIntegration();
+            integration.getPresence().setCustomStatus(customStatus);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] setCustomStatus failed:', error)
+            logger.error(
+              "[useRealtimeIntegration] setCustomStatus failed:",
+              error,
+            );
           }
         },
         getStatus: () => {
           try {
-            const integration = getRealtimeIntegration()
-            return integration.getPresence().getStatus()
+            const integration = getRealtimeIntegration();
+            return integration.getPresence().getStatus();
           } catch (error) {
-            logger.error('[useRealtimeIntegration] getStatus failed:', error)
-            return 'offline' as PresenceStatus
+            logger.error("[useRealtimeIntegration] getStatus failed:", error);
+            return "offline" as PresenceStatus;
           }
         },
         getCustomStatus: () => {
           try {
-            const integration = getRealtimeIntegration()
-            return integration.getPresence().getCustomStatus()
+            const integration = getRealtimeIntegration();
+            return integration.getPresence().getCustomStatus();
           } catch (error) {
-            logger.error('[useRealtimeIntegration] getCustomStatus failed:', error)
-            return null
+            logger.error(
+              "[useRealtimeIntegration] getCustomStatus failed:",
+              error,
+            );
+            return null;
           }
         },
         subscribeToUsers: (userIds: string[]) => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getPresence().subscribeToUsers(userIds)
+            const integration = getRealtimeIntegration();
+            integration.getPresence().subscribeToUsers(userIds);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] subscribeToUsers failed:', error)
+            logger.error(
+              "[useRealtimeIntegration] subscribeToUsers failed:",
+              error,
+            );
           }
         },
         unsubscribeFromUsers: (userIds: string[]) => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getPresence().unsubscribeFromUsers(userIds)
+            const integration = getRealtimeIntegration();
+            integration.getPresence().unsubscribeFromUsers(userIds);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] unsubscribeFromUsers failed:', error)
+            logger.error(
+              "[useRealtimeIntegration] unsubscribeFromUsers failed:",
+              error,
+            );
           }
         },
         getPresence: (userId: string) => {
           try {
-            const integration = getRealtimeIntegration()
-            return integration.getPresence().getPresence(userId)
+            const integration = getRealtimeIntegration();
+            return integration.getPresence().getPresence(userId);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] getPresence failed:', error)
-            return undefined
+            logger.error("[useRealtimeIntegration] getPresence failed:", error);
+            return undefined;
           }
         },
       }
-    : null
+    : null;
 
   // Typing methods
   const typing = status.typingEnabled
     ? {
         startTyping: (channelId: string, threadId?: string) => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getTyping().startTyping(channelId, threadId)
+            const integration = getRealtimeIntegration();
+            integration.getTyping().startTyping(channelId, threadId);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] startTyping failed:', error)
+            logger.error("[useRealtimeIntegration] startTyping failed:", error);
           }
         },
         stopTyping: (channelId?: string, threadId?: string) => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getTyping().stopTyping(channelId, threadId)
+            const integration = getRealtimeIntegration();
+            integration.getTyping().stopTyping(channelId, threadId);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] stopTyping failed:', error)
+            logger.error("[useRealtimeIntegration] stopTyping failed:", error);
           }
         },
-        handleInputChange: (channelId: string, value: string, threadId?: string) => {
+        handleInputChange: (
+          channelId: string,
+          value: string,
+          threadId?: string,
+        ) => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getTyping().handleInputChange(channelId, value, threadId)
+            const integration = getRealtimeIntegration();
+            integration
+              .getTyping()
+              .handleInputChange(channelId, value, threadId);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] handleInputChange failed:', error)
+            logger.error(
+              "[useRealtimeIntegration] handleInputChange failed:",
+              error,
+            );
           }
         },
         getTypingUsers: (channelId: string, threadId?: string) => {
           try {
-            const integration = getRealtimeIntegration()
-            return integration.getTyping().getTypingUsers(channelId, threadId)
+            const integration = getRealtimeIntegration();
+            return integration.getTyping().getTypingUsers(channelId, threadId);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] getTypingUsers failed:', error)
-            return []
+            logger.error(
+              "[useRealtimeIntegration] getTypingUsers failed:",
+              error,
+            );
+            return [];
           }
         },
         getTypingText: (channelId: string, threadId?: string) => {
           try {
-            const integration = getRealtimeIntegration()
-            return integration.getTyping().getTypingText(channelId, threadId)
+            const integration = getRealtimeIntegration();
+            return integration.getTyping().getTypingText(channelId, threadId);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] getTypingText failed:', error)
-            return null
+            logger.error(
+              "[useRealtimeIntegration] getTypingText failed:",
+              error,
+            );
+            return null;
           }
         },
       }
-    : null
+    : null;
 
   // Delivery methods
   const delivery = status.deliveryReceiptsEnabled
     ? {
-        trackOutgoing: (clientMessageId: string, channelId: string, totalRecipients = 1) => {
+        trackOutgoing: (
+          clientMessageId: string,
+          channelId: string,
+          totalRecipients = 1,
+        ) => {
           try {
-            const integration = getRealtimeIntegration()
+            const integration = getRealtimeIntegration();
             integration
               .getDelivery()
-              .trackOutgoingMessage(clientMessageId, channelId, totalRecipients)
+              .trackOutgoingMessage(
+                clientMessageId,
+                channelId,
+                totalRecipients,
+              );
           } catch (error) {
-            logger.error('[useRealtimeIntegration] trackOutgoing failed:', error)
+            logger.error(
+              "[useRealtimeIntegration] trackOutgoing failed:",
+              error,
+            );
           }
         },
         acknowledgeRead: (messageId: string, channelId: string) => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getDelivery().acknowledgeRead(messageId, channelId)
+            const integration = getRealtimeIntegration();
+            integration.getDelivery().acknowledgeRead(messageId, channelId);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] acknowledgeRead failed:', error)
+            logger.error(
+              "[useRealtimeIntegration] acknowledgeRead failed:",
+              error,
+            );
           }
         },
         syncStatus: async (messageIds: string[]) => {
           try {
-            const integration = getRealtimeIntegration()
-            await integration.getDelivery().syncDeliveryStatus(messageIds)
+            const integration = getRealtimeIntegration();
+            await integration.getDelivery().syncDeliveryStatus(messageIds);
           } catch (error) {
-            logger.error('[useRealtimeIntegration] syncStatus failed:', error)
+            logger.error("[useRealtimeIntegration] syncStatus failed:", error);
           }
         },
       }
-    : null
+    : null;
 
   // Queue methods
   const queue = status.offlineQueueEnabled
     ? {
         queueMessage: (message: {
-          channelId: string
-          content: string
-          type?: string
-          threadId?: string
-          mentions?: string[]
+          channelId: string;
+          content: string;
+          type?: string;
+          threadId?: string;
+          mentions?: string[];
         }) => {
           try {
-            const integration = getRealtimeIntegration()
+            const integration = getRealtimeIntegration();
             integration.getOfflineQueue().queueMessage({
               ...message,
-              type: (message.type || 'text') as 'text' | 'file' | 'image' | 'voice' | 'system',
-            })
+              type: (message.type || "text") as
+                | "text"
+                | "file"
+                | "image"
+                | "voice"
+                | "system",
+            });
           } catch (error) {
-            logger.error('[useRealtimeIntegration] queueMessage failed:', error)
+            logger.error(
+              "[useRealtimeIntegration] queueMessage failed:",
+              error,
+            );
           }
         },
         getQueuedMessages: () => {
           try {
-            const integration = getRealtimeIntegration()
-            return integration.getOfflineQueue().getQueuedMessages()
+            const integration = getRealtimeIntegration();
+            return integration.getOfflineQueue().getQueuedMessages();
           } catch (error) {
-            logger.error('[useRealtimeIntegration] getQueuedMessages failed:', error)
-            return []
+            logger.error(
+              "[useRealtimeIntegration] getQueuedMessages failed:",
+              error,
+            );
+            return [];
           }
         },
         getQueueLength: () => {
           try {
-            const integration = getRealtimeIntegration()
-            return integration.getOfflineQueue().getQueueLength()
+            const integration = getRealtimeIntegration();
+            return integration.getOfflineQueue().getQueueLength();
           } catch (error) {
-            logger.error('[useRealtimeIntegration] getQueueLength failed:', error)
-            return 0
+            logger.error(
+              "[useRealtimeIntegration] getQueueLength failed:",
+              error,
+            );
+            return 0;
           }
         },
         clearQueue: () => {
           try {
-            const integration = getRealtimeIntegration()
-            integration.getOfflineQueue().clearQueue()
+            const integration = getRealtimeIntegration();
+            integration.getOfflineQueue().clearQueue();
           } catch (error) {
-            logger.error('[useRealtimeIntegration] clearQueue failed:', error)
+            logger.error("[useRealtimeIntegration] clearQueue failed:", error);
           }
         },
       }
-    : null
+    : null;
 
   return {
     isConnected: status.connected,
     isAuthenticated: status.authenticated,
-    isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
+    isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
     status,
     reconnect,
     disconnect,
@@ -371,7 +434,7 @@ export function useRealtimeIntegration(): UseRealtimeIntegrationReturn {
     typing,
     delivery,
     queue,
-  }
+  };
 }
 
-export default useRealtimeIntegration
+export default useRealtimeIntegration;

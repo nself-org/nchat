@@ -6,7 +6,12 @@
  * and desktop platforms.
  */
 
-import { Platform, detectPlatform, hasMediaDevicesAPI, isBrowser } from './platform-detector'
+import {
+  Platform,
+  detectPlatform,
+  hasMediaDevicesAPI,
+  isBrowser,
+} from "./platform-detector";
 
 // ============================================================================
 // Types
@@ -15,48 +20,48 @@ import { Platform, detectPlatform, hasMediaDevicesAPI, isBrowser } from './platf
 /**
  * Camera source type
  */
-export type CameraSource = 'camera' | 'photos' | 'prompt'
+export type CameraSource = "camera" | "photos" | "prompt";
 
 /**
  * Camera direction
  */
-export type CameraDirection = 'front' | 'rear' | 'user' | 'environment'
+export type CameraDirection = "front" | "rear" | "user" | "environment";
 
 /**
  * Image quality (0-100)
  */
-export type ImageQuality = number
+export type ImageQuality = number;
 
 /**
  * Result encoding type
  */
-export type CameraResultType = 'uri' | 'base64' | 'dataUrl' | 'blob'
+export type CameraResultType = "uri" | "base64" | "dataUrl" | "blob";
 
 /**
  * Camera options
  */
 export interface CameraOptions {
   /** Source: camera, photos, or prompt user */
-  source?: CameraSource
+  source?: CameraSource;
   /** Camera direction */
-  direction?: CameraDirection
+  direction?: CameraDirection;
   /** Image quality (0-100) */
-  quality?: ImageQuality
+  quality?: ImageQuality;
   /** Result type */
-  resultType?: CameraResultType
+  resultType?: CameraResultType;
   /** Maximum width */
-  width?: number
+  width?: number;
   /** Maximum height */
-  height?: number
+  height?: number;
   /** Allow editing after capture */
-  allowEditing?: boolean
+  allowEditing?: boolean;
   /** Save to gallery */
-  saveToGallery?: boolean
+  saveToGallery?: boolean;
   /** Prompt labels */
-  promptLabelHeader?: string
-  promptLabelCancel?: string
-  promptLabelPhoto?: string
-  promptLabelPicture?: string
+  promptLabelHeader?: string;
+  promptLabelCancel?: string;
+  promptLabelPhoto?: string;
+  promptLabelPicture?: string;
 }
 
 /**
@@ -64,42 +69,42 @@ export interface CameraOptions {
  */
 export interface CameraResult {
   /** Success indicator */
-  success: boolean
+  success: boolean;
   /** Data (URI, base64, or data URL) */
-  data?: string
+  data?: string;
   /** Blob data if resultType is blob */
-  blob?: Blob
+  blob?: Blob;
   /** MIME type */
-  format?: string
+  format?: string;
   /** Image width */
-  width?: number
+  width?: number;
   /** Image height */
-  height?: number
+  height?: number;
   /** Error if failed */
-  error?: Error
+  error?: Error;
   /** Whether the operation was cancelled */
-  cancelled?: boolean
+  cancelled?: boolean;
 }
 
 /**
  * Camera permission state
  */
-export type CameraPermission = 'granted' | 'denied' | 'prompt'
+export type CameraPermission = "granted" | "denied" | "prompt";
 
 /**
  * Camera adapter interface
  */
 export interface CameraAdapter {
   /** Check camera permission */
-  checkPermission(): Promise<CameraPermission>
+  checkPermission(): Promise<CameraPermission>;
   /** Request camera permission */
-  requestPermission(): Promise<CameraPermission>
+  requestPermission(): Promise<CameraPermission>;
   /** Take a photo */
-  takePicture(options?: CameraOptions): Promise<CameraResult>
+  takePicture(options?: CameraOptions): Promise<CameraResult>;
   /** Pick from gallery */
-  pickFromGallery(options?: CameraOptions): Promise<CameraResult>
+  pickFromGallery(options?: CameraOptions): Promise<CameraResult>;
   /** Check if camera is available */
-  isAvailable(): boolean
+  isAvailable(): boolean;
 }
 
 /**
@@ -109,33 +114,33 @@ interface CameraWindow extends Window {
   Capacitor?: {
     Plugins?: {
       Camera?: {
-        checkPermissions: () => Promise<{ camera: string; photos: string }>
+        checkPermissions: () => Promise<{ camera: string; photos: string }>;
         requestPermissions: (opts?: {
-          permissions: string[]
-        }) => Promise<{ camera: string; photos: string }>
+          permissions: string[];
+        }) => Promise<{ camera: string; photos: string }>;
         getPhoto: (opts: {
-          quality?: number
-          allowEditing?: boolean
-          resultType?: string
-          source?: string
-          direction?: string
-          width?: number
-          height?: number
-          saveToGallery?: boolean
-          promptLabelHeader?: string
-          promptLabelCancel?: string
-          promptLabelPhoto?: string
-          promptLabelPicture?: string
+          quality?: number;
+          allowEditing?: boolean;
+          resultType?: string;
+          source?: string;
+          direction?: string;
+          width?: number;
+          height?: number;
+          saveToGallery?: boolean;
+          promptLabelHeader?: string;
+          promptLabelCancel?: string;
+          promptLabelPhoto?: string;
+          promptLabelPicture?: string;
         }) => Promise<{
-          base64String?: string
-          dataUrl?: string
-          path?: string
-          webPath?: string
-          format: string
-        }>
-      }
-    }
-  }
+          base64String?: string;
+          dataUrl?: string;
+          path?: string;
+          webPath?: string;
+          format: string;
+        }>;
+      };
+    };
+  };
 }
 
 // ============================================================================
@@ -146,48 +151,50 @@ interface CameraWindow extends Window {
  * Web MediaDevices API camera adapter
  */
 export class WebCameraAdapter implements CameraAdapter {
-  private stream: MediaStream | null = null
+  private stream: MediaStream | null = null;
 
   isAvailable(): boolean {
-    return hasMediaDevicesAPI()
+    return hasMediaDevicesAPI();
   }
 
   async checkPermission(): Promise<CameraPermission> {
     if (!hasMediaDevicesAPI()) {
-      return 'denied'
+      return "denied";
     }
 
     try {
-      const result = await navigator.permissions.query({ name: 'camera' as PermissionName })
-      if (result.state === 'granted') return 'granted'
-      if (result.state === 'denied') return 'denied'
-      return 'prompt'
+      const result = await navigator.permissions.query({
+        name: "camera" as PermissionName,
+      });
+      if (result.state === "granted") return "granted";
+      if (result.state === "denied") return "denied";
+      return "prompt";
     } catch {
       // Firefox doesn't support camera permission query
-      return 'prompt'
+      return "prompt";
     }
   }
 
   async requestPermission(): Promise<CameraPermission> {
     if (!hasMediaDevicesAPI()) {
-      return 'denied'
+      return "denied";
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      stream.getTracks().forEach((track) => track.stop())
-      return 'granted'
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach((track) => track.stop());
+      return "granted";
     } catch (error) {
-      if ((error as Error).name === 'NotAllowedError') {
-        return 'denied'
+      if ((error as Error).name === "NotAllowedError") {
+        return "denied";
       }
-      return 'prompt'
+      return "prompt";
     }
   }
 
   async takePicture(options?: CameraOptions): Promise<CameraResult> {
     if (!hasMediaDevicesAPI()) {
-      return { success: false, error: new Error('Camera not available') }
+      return { success: false, error: new Error("Camera not available") };
     }
 
     try {
@@ -198,229 +205,232 @@ export class WebCameraAdapter implements CameraAdapter {
           width: options?.width ? { ideal: options.width } : undefined,
           height: options?.height ? { ideal: options.height } : undefined,
         },
-      }
+      };
 
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints)
+      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       // Create video element to capture frame
-      const video = document.createElement('video')
-      video.srcObject = this.stream
-      video.autoplay = true
-      video.playsInline = true
+      const video = document.createElement("video");
+      video.srcObject = this.stream;
+      video.autoplay = true;
+      video.playsInline = true;
 
       await new Promise<void>((resolve) => {
         video.onloadedmetadata = () => {
-          video.play()
-          resolve()
-        }
-      })
+          video.play();
+          resolve();
+        };
+      });
 
       // Wait a moment for the camera to adjust
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Capture frame to canvas
-      const canvas = document.createElement('canvas')
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
 
-      const ctx = canvas.getContext('2d')
+      const ctx = canvas.getContext("2d");
       if (!ctx) {
-        throw new Error('Failed to get canvas context')
+        throw new Error("Failed to get canvas context");
       }
 
-      ctx.drawImage(video, 0, 0)
+      ctx.drawImage(video, 0, 0);
 
       // Stop stream
-      this.stopStream()
+      this.stopStream();
 
       // Get result based on type
-      const quality = (options?.quality ?? 90) / 100
-      const format = 'image/jpeg'
+      const quality = (options?.quality ?? 90) / 100;
+      const format = "image/jpeg";
 
-      if (options?.resultType === 'blob') {
+      if (options?.resultType === "blob") {
         const blob = await new Promise<Blob | null>((resolve) => {
-          canvas.toBlob(resolve, format, quality)
-        })
+          canvas.toBlob(resolve, format, quality);
+        });
 
         if (!blob) {
-          throw new Error('Failed to create blob')
+          throw new Error("Failed to create blob");
         }
 
         return {
           success: true,
           blob,
-          format: 'jpeg',
+          format: "jpeg",
           width: canvas.width,
           height: canvas.height,
-        }
+        };
       }
 
-      const dataUrl = canvas.toDataURL(format, quality)
+      const dataUrl = canvas.toDataURL(format, quality);
 
-      if (options?.resultType === 'base64') {
-        const base64 = dataUrl.split(',')[1]
+      if (options?.resultType === "base64") {
+        const base64 = dataUrl.split(",")[1];
         return {
           success: true,
           data: base64,
-          format: 'jpeg',
+          format: "jpeg",
           width: canvas.width,
           height: canvas.height,
-        }
+        };
       }
 
       return {
         success: true,
         data: dataUrl,
-        format: 'jpeg',
+        format: "jpeg",
         width: canvas.width,
         height: canvas.height,
-      }
+      };
     } catch (error) {
-      this.stopStream()
+      this.stopStream();
 
-      if ((error as Error).name === 'NotAllowedError') {
-        return { success: false, cancelled: true }
+      if ((error as Error).name === "NotAllowedError") {
+        return { success: false, cancelled: true };
       }
 
       return {
         success: false,
         error: error instanceof Error ? error : new Error(String(error)),
-      }
+      };
     }
   }
 
   async pickFromGallery(options?: CameraOptions): Promise<CameraResult> {
     return new Promise((resolve) => {
-      const input = document.createElement('input')
-      input.type = 'file'
-      input.accept = 'image/*'
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
 
       input.onchange = async () => {
-        const file = input.files?.[0]
+        const file = input.files?.[0];
         if (!file) {
-          resolve({ success: false, cancelled: true })
-          return
+          resolve({ success: false, cancelled: true });
+          return;
         }
 
         try {
-          const result = await this.processImageFile(file, options)
-          resolve(result)
+          const result = await this.processImageFile(file, options);
+          resolve(result);
         } catch (error) {
           resolve({
             success: false,
             error: error instanceof Error ? error : new Error(String(error)),
-          })
+          });
         }
-      }
+      };
 
       input.oncancel = () => {
-        resolve({ success: false, cancelled: true })
-      }
+        resolve({ success: false, cancelled: true });
+      };
 
-      input.click()
-    })
+      input.click();
+    });
   }
 
-  private async processImageFile(file: File, options?: CameraOptions): Promise<CameraResult> {
+  private async processImageFile(
+    file: File,
+    options?: CameraOptions,
+  ): Promise<CameraResult> {
     return new Promise((resolve, reject) => {
-      const img = new Image()
+      const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas')
+        const canvas = document.createElement("canvas");
 
-        let width = img.width
-        let height = img.height
+        let width = img.width;
+        let height = img.height;
 
         // Scale if max dimensions specified
         if (options?.width && width > options.width) {
-          height = (height * options.width) / width
-          width = options.width
+          height = (height * options.width) / width;
+          width = options.width;
         }
         if (options?.height && height > options.height) {
-          width = (width * options.height) / height
-          height = options.height
+          width = (width * options.height) / height;
+          height = options.height;
         }
 
-        canvas.width = width
-        canvas.height = height
+        canvas.width = width;
+        canvas.height = height;
 
-        const ctx = canvas.getContext('2d')
+        const ctx = canvas.getContext("2d");
         if (!ctx) {
-          reject(new Error('Failed to get canvas context'))
-          return
+          reject(new Error("Failed to get canvas context"));
+          return;
         }
 
-        ctx.drawImage(img, 0, 0, width, height)
+        ctx.drawImage(img, 0, 0, width, height);
 
-        const quality = (options?.quality ?? 90) / 100
-        const format = 'image/jpeg'
+        const quality = (options?.quality ?? 90) / 100;
+        const format = "image/jpeg";
 
-        if (options?.resultType === 'blob') {
+        if (options?.resultType === "blob") {
           canvas.toBlob(
             (blob) => {
               if (!blob) {
-                reject(new Error('Failed to create blob'))
-                return
+                reject(new Error("Failed to create blob"));
+                return;
               }
               resolve({
                 success: true,
                 blob,
-                format: 'jpeg',
+                format: "jpeg",
                 width,
                 height,
-              })
+              });
             },
             format,
-            quality
-          )
-          return
+            quality,
+          );
+          return;
         }
 
-        const dataUrl = canvas.toDataURL(format, quality)
+        const dataUrl = canvas.toDataURL(format, quality);
 
-        if (options?.resultType === 'base64') {
+        if (options?.resultType === "base64") {
           resolve({
             success: true,
-            data: dataUrl.split(',')[1],
-            format: 'jpeg',
+            data: dataUrl.split(",")[1],
+            format: "jpeg",
             width,
             height,
-          })
-          return
+          });
+          return;
         }
 
         resolve({
           success: true,
           data: dataUrl,
-          format: 'jpeg',
+          format: "jpeg",
           width,
           height,
-        })
-      }
+        });
+      };
 
       img.onerror = () => {
-        reject(new Error('Failed to load image'))
-      }
+        reject(new Error("Failed to load image"));
+      };
 
-      img.src = URL.createObjectURL(file)
-    })
+      img.src = URL.createObjectURL(file);
+    });
   }
 
   private mapDirection(direction?: CameraDirection): string {
     switch (direction) {
-      case 'front':
-      case 'user':
-        return 'user'
-      case 'rear':
-      case 'environment':
+      case "front":
+      case "user":
+        return "user";
+      case "rear":
+      case "environment":
       default:
-        return 'environment'
+        return "environment";
     }
   }
 
   private stopStream(): void {
     if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop())
-      this.stream = null
+      this.stream.getTracks().forEach((track) => track.stop());
+      this.stream = null;
     }
   }
 }
@@ -434,52 +444,57 @@ export class WebCameraAdapter implements CameraAdapter {
  */
 export class CapacitorCameraAdapter implements CameraAdapter {
   private getCamera():
-    | NonNullable<NonNullable<CameraWindow['Capacitor']>['Plugins']>['Camera']
+    | NonNullable<NonNullable<CameraWindow["Capacitor"]>["Plugins"]>["Camera"]
     | null {
-    const win = typeof window !== 'undefined' ? (window as CameraWindow) : null
-    return win?.Capacitor?.Plugins?.Camera ?? null
+    const win = typeof window !== "undefined" ? (window as CameraWindow) : null;
+    return win?.Capacitor?.Plugins?.Camera ?? null;
   }
 
   isAvailable(): boolean {
-    return !!this.getCamera()
+    return !!this.getCamera();
   }
 
   async checkPermission(): Promise<CameraPermission> {
-    const Camera = this.getCamera()
+    const Camera = this.getCamera();
     if (!Camera) {
-      return 'denied'
+      return "denied";
     }
 
     try {
-      const { camera } = await Camera.checkPermissions()
-      if (camera === 'granted') return 'granted'
-      if (camera === 'denied') return 'denied'
-      return 'prompt'
+      const { camera } = await Camera.checkPermissions();
+      if (camera === "granted") return "granted";
+      if (camera === "denied") return "denied";
+      return "prompt";
     } catch {
-      return 'denied'
+      return "denied";
     }
   }
 
   async requestPermission(): Promise<CameraPermission> {
-    const Camera = this.getCamera()
+    const Camera = this.getCamera();
     if (!Camera) {
-      return 'denied'
+      return "denied";
     }
 
     try {
-      const { camera } = await Camera.requestPermissions({ permissions: ['camera'] })
-      if (camera === 'granted') return 'granted'
-      if (camera === 'denied') return 'denied'
-      return 'prompt'
+      const { camera } = await Camera.requestPermissions({
+        permissions: ["camera"],
+      });
+      if (camera === "granted") return "granted";
+      if (camera === "denied") return "denied";
+      return "prompt";
     } catch {
-      return 'denied'
+      return "denied";
     }
   }
 
   async takePicture(options?: CameraOptions): Promise<CameraResult> {
-    const Camera = this.getCamera()
+    const Camera = this.getCamera();
     if (!Camera) {
-      return { success: false, error: new Error('Capacitor Camera not available') }
+      return {
+        success: false,
+        error: new Error("Capacitor Camera not available"),
+      };
     }
 
     try {
@@ -487,7 +502,7 @@ export class CapacitorCameraAdapter implements CameraAdapter {
         quality: options?.quality ?? 90,
         allowEditing: options?.allowEditing ?? false,
         resultType: this.mapResultType(options?.resultType),
-        source: 'CAMERA',
+        source: "CAMERA",
         direction: this.mapDirection(options?.direction),
         width: options?.width,
         height: options?.height,
@@ -496,31 +511,34 @@ export class CapacitorCameraAdapter implements CameraAdapter {
         promptLabelCancel: options?.promptLabelCancel,
         promptLabelPhoto: options?.promptLabelPhoto,
         promptLabelPicture: options?.promptLabelPicture,
-      })
+      });
 
       return {
         success: true,
         data: result.dataUrl || result.base64String || result.webPath,
         format: result.format,
-      }
+      };
     } catch (error) {
       if (
-        (error as Error).message?.includes('cancelled') ||
-        (error as Error).message?.includes('canceled')
+        (error as Error).message?.includes("cancelled") ||
+        (error as Error).message?.includes("canceled")
       ) {
-        return { success: false, cancelled: true }
+        return { success: false, cancelled: true };
       }
       return {
         success: false,
         error: error instanceof Error ? error : new Error(String(error)),
-      }
+      };
     }
   }
 
   async pickFromGallery(options?: CameraOptions): Promise<CameraResult> {
-    const Camera = this.getCamera()
+    const Camera = this.getCamera();
     if (!Camera) {
-      return { success: false, error: new Error('Capacitor Camera not available') }
+      return {
+        success: false,
+        error: new Error("Capacitor Camera not available"),
+      };
     }
 
     try {
@@ -528,51 +546,51 @@ export class CapacitorCameraAdapter implements CameraAdapter {
         quality: options?.quality ?? 90,
         allowEditing: options?.allowEditing ?? false,
         resultType: this.mapResultType(options?.resultType),
-        source: 'PHOTOS',
+        source: "PHOTOS",
         width: options?.width,
         height: options?.height,
-      })
+      });
 
       return {
         success: true,
         data: result.dataUrl || result.base64String || result.webPath,
         format: result.format,
-      }
+      };
     } catch (error) {
       if (
-        (error as Error).message?.includes('cancelled') ||
-        (error as Error).message?.includes('canceled')
+        (error as Error).message?.includes("cancelled") ||
+        (error as Error).message?.includes("canceled")
       ) {
-        return { success: false, cancelled: true }
+        return { success: false, cancelled: true };
       }
       return {
         success: false,
         error: error instanceof Error ? error : new Error(String(error)),
-      }
+      };
     }
   }
 
   private mapResultType(type?: CameraResultType): string {
     switch (type) {
-      case 'base64':
-        return 'Base64'
-      case 'dataUrl':
-        return 'DataUrl'
-      case 'uri':
+      case "base64":
+        return "Base64";
+      case "dataUrl":
+        return "DataUrl";
+      case "uri":
       default:
-        return 'Uri'
+        return "Uri";
     }
   }
 
   private mapDirection(direction?: CameraDirection): string {
     switch (direction) {
-      case 'front':
-      case 'user':
-        return 'FRONT'
-      case 'rear':
-      case 'environment':
+      case "front":
+      case "user":
+        return "FRONT";
+      case "rear":
+      case "environment":
       default:
-        return 'REAR'
+        return "REAR";
     }
   }
 }
@@ -586,23 +604,23 @@ export class CapacitorCameraAdapter implements CameraAdapter {
  */
 export class NoopCameraAdapter implements CameraAdapter {
   isAvailable(): boolean {
-    return false
+    return false;
   }
 
   async checkPermission(): Promise<CameraPermission> {
-    return 'denied'
+    return "denied";
   }
 
   async requestPermission(): Promise<CameraPermission> {
-    return 'denied'
+    return "denied";
   }
 
   async takePicture(_options?: CameraOptions): Promise<CameraResult> {
-    return { success: false, error: new Error('Camera not available') }
+    return { success: false, error: new Error("Camera not available") };
   }
 
   async pickFromGallery(_options?: CameraOptions): Promise<CameraResult> {
-    return { success: false, error: new Error('Camera not available') }
+    return { success: false, error: new Error("Camera not available") };
   }
 }
 
@@ -613,19 +631,23 @@ export class NoopCameraAdapter implements CameraAdapter {
 /**
  * Detect the best camera backend for the current platform
  */
-export function detectCameraBackend(): 'web' | 'capacitor' | 'none' {
-  const platform = detectPlatform()
-  const win = typeof window !== 'undefined' ? (window as CameraWindow) : null
+export function detectCameraBackend(): "web" | "capacitor" | "none" {
+  const platform = detectPlatform();
+  const win = typeof window !== "undefined" ? (window as CameraWindow) : null;
 
   switch (platform) {
     case Platform.IOS:
     case Platform.ANDROID:
-      return win?.Capacitor?.Plugins?.Camera ? 'capacitor' : hasMediaDevicesAPI() ? 'web' : 'none'
+      return win?.Capacitor?.Plugins?.Camera
+        ? "capacitor"
+        : hasMediaDevicesAPI()
+          ? "web"
+          : "none";
     case Platform.ELECTRON:
     case Platform.TAURI:
     case Platform.WEB:
     default:
-      return hasMediaDevicesAPI() ? 'web' : 'none'
+      return hasMediaDevicesAPI() ? "web" : "none";
   }
 }
 
@@ -633,16 +655,16 @@ export function detectCameraBackend(): 'web' | 'capacitor' | 'none' {
  * Create a camera adapter for the current platform
  */
 export function createCameraAdapter(): CameraAdapter {
-  const backend = detectCameraBackend()
+  const backend = detectCameraBackend();
 
   switch (backend) {
-    case 'capacitor':
-      return new CapacitorCameraAdapter()
-    case 'web':
-      return new WebCameraAdapter()
-    case 'none':
+    case "capacitor":
+      return new CapacitorCameraAdapter();
+    case "web":
+      return new WebCameraAdapter();
+    case "none":
     default:
-      return new NoopCameraAdapter()
+      return new NoopCameraAdapter();
   }
 }
 
@@ -650,23 +672,23 @@ export function createCameraAdapter(): CameraAdapter {
 // Singleton Instance
 // ============================================================================
 
-let defaultAdapter: CameraAdapter | null = null
+let defaultAdapter: CameraAdapter | null = null;
 
 /**
  * Get the default camera adapter
  */
 export function getCameraAdapter(): CameraAdapter {
   if (!defaultAdapter) {
-    defaultAdapter = createCameraAdapter()
+    defaultAdapter = createCameraAdapter();
   }
-  return defaultAdapter
+  return defaultAdapter;
 }
 
 /**
  * Reset the default camera adapter
  */
 export function resetCameraAdapter(): void {
-  defaultAdapter = null
+  defaultAdapter = null;
 }
 
 // ============================================================================
@@ -677,28 +699,32 @@ export function resetCameraAdapter(): void {
  * Check camera permission
  */
 export async function checkCameraPermission(): Promise<CameraPermission> {
-  return getCameraAdapter().checkPermission()
+  return getCameraAdapter().checkPermission();
 }
 
 /**
  * Request camera permission
  */
 export async function requestCameraPermission(): Promise<CameraPermission> {
-  return getCameraAdapter().requestPermission()
+  return getCameraAdapter().requestPermission();
 }
 
 /**
  * Take a picture
  */
-export async function takePicture(options?: CameraOptions): Promise<CameraResult> {
-  return getCameraAdapter().takePicture(options)
+export async function takePicture(
+  options?: CameraOptions,
+): Promise<CameraResult> {
+  return getCameraAdapter().takePicture(options);
 }
 
 /**
  * Pick from gallery
  */
-export async function pickFromGallery(options?: CameraOptions): Promise<CameraResult> {
-  return getCameraAdapter().pickFromGallery(options)
+export async function pickFromGallery(
+  options?: CameraOptions,
+): Promise<CameraResult> {
+  return getCameraAdapter().pickFromGallery(options);
 }
 
 // ============================================================================
@@ -722,6 +748,6 @@ export const Camera = {
   requestPermission: requestCameraPermission,
   takePicture,
   pickFromGallery,
-}
+};
 
-export default Camera
+export default Camera;

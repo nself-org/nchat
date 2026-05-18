@@ -5,7 +5,7 @@
  * Returns 200 OK if alive, 503 Service Unavailable if dead (should restart).
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 export async function GET() {
   // Simple liveness check - just verify the process is running
@@ -20,8 +20,8 @@ export async function GET() {
     {
       status: 200,
       headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        "Cache-Control": "no-cache, no-store, must-revalidate",
       },
-    }
-  )
+    },
+  );
 }

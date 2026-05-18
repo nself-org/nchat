@@ -5,8 +5,8 @@
  * automatic invalidation on role changes and batch checking support.
  */
 
-import { type Permission, type Role } from '@/types/rbac'
-import { type PermissionResult } from './permission-builder'
+import { type Permission, type Role } from "@/types/rbac";
+import { type PermissionResult } from "./permission-builder";
 
 // ============================================================================
 // Types
@@ -16,61 +16,61 @@ import { type PermissionResult } from './permission-builder'
  * Cache key components
  */
 export interface CacheKey {
-  userId: string
-  permission: Permission
-  channelId?: string
-  resourceId?: string
+  userId: string;
+  permission: Permission;
+  channelId?: string;
+  resourceId?: string;
 }
 
 /**
  * Cache entry with metadata
  */
 export interface CacheEntry {
-  key: string
-  result: PermissionResult
-  createdAt: number
-  accessedAt: number
-  accessCount: number
+  key: string;
+  result: PermissionResult;
+  createdAt: number;
+  accessedAt: number;
+  accessCount: number;
 }
 
 /**
  * Cache statistics
  */
 export interface CacheStats {
-  size: number
-  maxSize: number
-  hits: number
-  misses: number
-  hitRate: number
-  evictions: number
-  invalidations: number
+  size: number;
+  maxSize: number;
+  hits: number;
+  misses: number;
+  hitRate: number;
+  evictions: number;
+  invalidations: number;
 }
 
 /**
  * Cache configuration
  */
 export interface CacheConfig {
-  maxSize: number
-  ttlMs: number
-  enableStats: boolean
+  maxSize: number;
+  ttlMs: number;
+  enableStats: boolean;
 }
 
 /**
  * Batch permission check request
  */
 export interface BatchPermissionRequest {
-  userId: string
-  permissions: Permission[]
-  channelId?: string
+  userId: string;
+  permissions: Permission[];
+  channelId?: string;
 }
 
 /**
  * Batch permission check result
  */
 export interface BatchPermissionResult {
-  results: Map<Permission, PermissionResult>
-  cached: number
-  computed: number
+  results: Map<Permission, PermissionResult>;
+  cached: number;
+  computed: number;
 }
 
 // ============================================================================
@@ -78,10 +78,10 @@ export interface BatchPermissionResult {
 // ============================================================================
 
 interface LRUNode {
-  key: string
-  entry: CacheEntry
-  prev: LRUNode | null
-  next: LRUNode | null
+  key: string;
+  entry: CacheEntry;
+  prev: LRUNode | null;
+  next: LRUNode | null;
 }
 
 // ============================================================================
@@ -92,35 +92,35 @@ interface LRUNode {
  * LRU Cache for permission check results
  */
 export class PermissionCache {
-  private cache: Map<string, LRUNode> = new Map()
-  private head: LRUNode | null = null
-  private tail: LRUNode | null = null
-  private config: CacheConfig
+  private cache: Map<string, LRUNode> = new Map();
+  private head: LRUNode | null = null;
+  private tail: LRUNode | null = null;
+  private config: CacheConfig;
   private stats: {
-    hits: number
-    misses: number
-    evictions: number
-    invalidations: number
-  }
+    hits: number;
+    misses: number;
+    evictions: number;
+    invalidations: number;
+  };
 
   // Invalidation subscriptions
-  private userInvalidationTags: Map<string, Set<string>> = new Map()
-  private roleInvalidationTags: Map<string, Set<string>> = new Map()
-  private channelInvalidationTags: Map<string, Set<string>> = new Map()
+  private userInvalidationTags: Map<string, Set<string>> = new Map();
+  private roleInvalidationTags: Map<string, Set<string>> = new Map();
+  private channelInvalidationTags: Map<string, Set<string>> = new Map();
 
   constructor(config?: Partial<CacheConfig>) {
     this.config = {
       maxSize: config?.maxSize ?? 1000,
       ttlMs: config?.ttlMs ?? 60000, // 1 minute default
       enableStats: config?.enableStats ?? true,
-    }
+    };
 
     this.stats = {
       hits: 0,
       misses: 0,
       evictions: 0,
       invalidations: 0,
-    }
+    };
   }
 
   // -------------------------------------------------------------------------
@@ -131,58 +131,58 @@ export class PermissionCache {
    * Get a cached permission result
    */
   get(key: CacheKey): PermissionResult | undefined {
-    const cacheKey = this.buildCacheKey(key)
-    const node = this.cache.get(cacheKey)
+    const cacheKey = this.buildCacheKey(key);
+    const node = this.cache.get(cacheKey);
 
     if (!node) {
       if (this.config.enableStats) {
-        this.stats.misses++
+        this.stats.misses++;
       }
-      return undefined
+      return undefined;
     }
 
     // Check TTL
     if (this.isExpired(node.entry)) {
-      this.remove(cacheKey)
+      this.remove(cacheKey);
       if (this.config.enableStats) {
-        this.stats.misses++
+        this.stats.misses++;
       }
-      return undefined
+      return undefined;
     }
 
     // Update access info
-    node.entry.accessedAt = Date.now()
-    node.entry.accessCount++
+    node.entry.accessedAt = Date.now();
+    node.entry.accessCount++;
 
     // Move to front (most recently used)
-    this.moveToFront(node)
+    this.moveToFront(node);
 
     if (this.config.enableStats) {
-      this.stats.hits++
+      this.stats.hits++;
     }
 
-    return node.entry.result
+    return node.entry.result;
   }
 
   /**
    * Set a cached permission result
    */
   set(key: CacheKey, result: PermissionResult): void {
-    const cacheKey = this.buildCacheKey(key)
+    const cacheKey = this.buildCacheKey(key);
 
     // Check if already exists
-    const existingNode = this.cache.get(cacheKey)
+    const existingNode = this.cache.get(cacheKey);
     if (existingNode) {
       // Update existing entry
-      existingNode.entry.result = result
-      existingNode.entry.accessedAt = Date.now()
-      this.moveToFront(existingNode)
-      return
+      existingNode.entry.result = result;
+      existingNode.entry.accessedAt = Date.now();
+      this.moveToFront(existingNode);
+      return;
     }
 
     // Evict if at capacity
     if (this.cache.size >= this.config.maxSize) {
-      this.evictLRU()
+      this.evictLRU();
     }
 
     // Create new entry
@@ -192,61 +192,61 @@ export class PermissionCache {
       createdAt: Date.now(),
       accessedAt: Date.now(),
       accessCount: 0,
-    }
+    };
 
     const node: LRUNode = {
       key: cacheKey,
       entry,
       prev: null,
       next: null,
-    }
+    };
 
     // Add to cache and front of list
-    this.cache.set(cacheKey, node)
-    this.addToFront(node)
+    this.cache.set(cacheKey, node);
+    this.addToFront(node);
 
     // Track invalidation tags
-    this.trackInvalidationTags(key, cacheKey)
+    this.trackInvalidationTags(key, cacheKey);
   }
 
   /**
    * Remove a specific entry
    */
   remove(cacheKey: string): boolean {
-    const node = this.cache.get(cacheKey)
-    if (!node) return false
+    const node = this.cache.get(cacheKey);
+    if (!node) return false;
 
-    this.removeNode(node)
-    this.cache.delete(cacheKey)
-    return true
+    this.removeNode(node);
+    this.cache.delete(cacheKey);
+    return true;
   }
 
   /**
    * Check if a key exists and is not expired
    */
   has(key: CacheKey): boolean {
-    const cacheKey = this.buildCacheKey(key)
-    const node = this.cache.get(cacheKey)
+    const cacheKey = this.buildCacheKey(key);
+    const node = this.cache.get(cacheKey);
 
-    if (!node) return false
+    if (!node) return false;
     if (this.isExpired(node.entry)) {
-      this.remove(cacheKey)
-      return false
+      this.remove(cacheKey);
+      return false;
     }
 
-    return true
+    return true;
   }
 
   /**
    * Clear the entire cache
    */
   clear(): void {
-    this.cache.clear()
-    this.head = null
-    this.tail = null
-    this.userInvalidationTags.clear()
-    this.roleInvalidationTags.clear()
-    this.channelInvalidationTags.clear()
+    this.cache.clear();
+    this.head = null;
+    this.tail = null;
+    this.userInvalidationTags.clear();
+    this.roleInvalidationTags.clear();
+    this.channelInvalidationTags.clear();
   }
 
   // -------------------------------------------------------------------------
@@ -257,70 +257,73 @@ export class PermissionCache {
    * Invalidate all cache entries for a user
    */
   invalidateUser(userId: string): number {
-    return this.invalidateByTag(this.userInvalidationTags, userId)
+    return this.invalidateByTag(this.userInvalidationTags, userId);
   }
 
   /**
    * Invalidate all cache entries for a role
    */
   invalidateRole(role: Role): number {
-    return this.invalidateByTag(this.roleInvalidationTags, role)
+    return this.invalidateByTag(this.roleInvalidationTags, role);
   }
 
   /**
    * Invalidate all cache entries for a channel
    */
   invalidateChannel(channelId: string): number {
-    return this.invalidateByTag(this.channelInvalidationTags, channelId)
+    return this.invalidateByTag(this.channelInvalidationTags, channelId);
   }
 
   /**
    * Invalidate entries matching a pattern
    */
   invalidatePattern(pattern: RegExp): number {
-    let count = 0
-    const keysToRemove: string[] = []
+    let count = 0;
+    const keysToRemove: string[] = [];
 
     this.cache.forEach((_, key) => {
       if (pattern.test(key)) {
-        keysToRemove.push(key)
+        keysToRemove.push(key);
       }
-    })
+    });
 
     keysToRemove.forEach((key) => {
       if (this.remove(key)) {
-        count++
+        count++;
       }
-    })
+    });
 
     if (this.config.enableStats) {
-      this.stats.invalidations += count
+      this.stats.invalidations += count;
     }
 
-    return count
+    return count;
   }
 
   /**
    * Invalidate entries by tag
    */
-  private invalidateByTag(tagMap: Map<string, Set<string>>, tag: string): number {
-    const keys = tagMap.get(tag)
-    if (!keys) return 0
+  private invalidateByTag(
+    tagMap: Map<string, Set<string>>,
+    tag: string,
+  ): number {
+    const keys = tagMap.get(tag);
+    if (!keys) return 0;
 
-    let count = 0
+    let count = 0;
     keys.forEach((key) => {
       if (this.remove(key)) {
-        count++
+        count++;
       }
-    })
+    });
 
-    tagMap.delete(tag)
+    tagMap.delete(tag);
 
     if (this.config.enableStats) {
-      this.stats.invalidations += count
+      this.stats.invalidations += count;
     }
 
-    return count
+    return count;
   }
 
   // -------------------------------------------------------------------------
@@ -331,41 +334,44 @@ export class PermissionCache {
    * Check multiple permissions in batch
    */
   getBatch(request: BatchPermissionRequest): BatchPermissionResult {
-    const results = new Map<Permission, PermissionResult>()
-    let cached = 0
-    let computed = 0
+    const results = new Map<Permission, PermissionResult>();
+    let cached = 0;
+    let computed = 0;
 
     for (const permission of request.permissions) {
       const key: CacheKey = {
         userId: request.userId,
         permission,
         channelId: request.channelId,
-      }
+      };
 
-      const result = this.get(key)
+      const result = this.get(key);
       if (result) {
-        results.set(permission, result)
-        cached++
+        results.set(permission, result);
+        cached++;
       } else {
-        computed++
+        computed++;
       }
     }
 
-    return { results, cached, computed }
+    return { results, cached, computed };
   }
 
   /**
    * Set multiple permission results in batch
    */
-  setBatch(request: BatchPermissionRequest, results: Map<Permission, PermissionResult>): void {
+  setBatch(
+    request: BatchPermissionRequest,
+    results: Map<Permission, PermissionResult>,
+  ): void {
     results.forEach((result, permission) => {
       const key: CacheKey = {
         userId: request.userId,
         permission,
         channelId: request.channelId,
-      }
-      this.set(key, result)
-    })
+      };
+      this.set(key, result);
+    });
   }
 
   // -------------------------------------------------------------------------
@@ -376,7 +382,7 @@ export class PermissionCache {
    * Get cache statistics
    */
   getStats(): CacheStats {
-    const totalRequests = this.stats.hits + this.stats.misses
+    const totalRequests = this.stats.hits + this.stats.misses;
     return {
       size: this.cache.size,
       maxSize: this.config.maxSize,
@@ -385,7 +391,7 @@ export class PermissionCache {
       hitRate: totalRequests > 0 ? this.stats.hits / totalRequests : 0,
       evictions: this.stats.evictions,
       invalidations: this.stats.invalidations,
-    }
+    };
   }
 
   /**
@@ -397,14 +403,14 @@ export class PermissionCache {
       misses: 0,
       evictions: 0,
       invalidations: 0,
-    }
+    };
   }
 
   /**
    * Get current cache size
    */
   get size(): number {
-    return this.cache.size
+    return this.cache.size;
   }
 
   // -------------------------------------------------------------------------
@@ -416,19 +422,19 @@ export class PermissionCache {
    */
   configure(config: Partial<CacheConfig>): void {
     if (config.maxSize !== undefined) {
-      this.config.maxSize = config.maxSize
+      this.config.maxSize = config.maxSize;
       // Evict if over new limit
       while (this.cache.size > this.config.maxSize) {
-        this.evictLRU()
+        this.evictLRU();
       }
     }
 
     if (config.ttlMs !== undefined) {
-      this.config.ttlMs = config.ttlMs
+      this.config.ttlMs = config.ttlMs;
     }
 
     if (config.enableStats !== undefined) {
-      this.config.enableStats = config.enableStats
+      this.config.enableStats = config.enableStats;
     }
   }
 
@@ -436,7 +442,7 @@ export class PermissionCache {
    * Get current configuration
    */
   getConfig(): CacheConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 
   // -------------------------------------------------------------------------
@@ -447,43 +453,43 @@ export class PermissionCache {
    * Build a cache key from components
    */
   buildCacheKey(key: CacheKey): string {
-    const parts = [key.userId, key.permission]
-    if (key.channelId) parts.push(`ch:${key.channelId}`)
-    if (key.resourceId) parts.push(`res:${key.resourceId}`)
-    return parts.join(':')
+    const parts = [key.userId, key.permission];
+    if (key.channelId) parts.push(`ch:${key.channelId}`);
+    if (key.resourceId) parts.push(`res:${key.resourceId}`);
+    return parts.join(":");
   }
 
   /**
    * Parse a cache key into components
    */
   parseCacheKey(cacheKey: string): CacheKey | null {
-    const parts = cacheKey.split(':')
-    if (parts.length < 2) return null
+    const parts = cacheKey.split(":");
+    if (parts.length < 2) return null;
 
     const result: CacheKey = {
       userId: parts[0],
       permission: parts[1] as Permission,
-    }
+    };
 
     // Process remaining parts in pairs (prefix:value)
     for (let i = 2; i < parts.length; i++) {
-      if (parts[i] === 'ch' && i + 1 < parts.length) {
-        result.channelId = parts[i + 1]
-        i++ // Skip the value part
-      } else if (parts[i] === 'res' && i + 1 < parts.length) {
-        result.resourceId = parts[i + 1]
-        i++ // Skip the value part
+      if (parts[i] === "ch" && i + 1 < parts.length) {
+        result.channelId = parts[i + 1];
+        i++; // Skip the value part
+      } else if (parts[i] === "res" && i + 1 < parts.length) {
+        result.resourceId = parts[i + 1];
+        i++; // Skip the value part
       }
     }
 
-    return result
+    return result;
   }
 
   /**
    * Check if an entry is expired
    */
   private isExpired(entry: CacheEntry): boolean {
-    return Date.now() - entry.createdAt > this.config.ttlMs
+    return Date.now() - entry.createdAt > this.config.ttlMs;
   }
 
   /**
@@ -492,16 +498,16 @@ export class PermissionCache {
   private trackInvalidationTags(key: CacheKey, cacheKey: string): void {
     // Track by user
     if (!this.userInvalidationTags.has(key.userId)) {
-      this.userInvalidationTags.set(key.userId, new Set())
+      this.userInvalidationTags.set(key.userId, new Set());
     }
-    this.userInvalidationTags.get(key.userId)!.add(cacheKey)
+    this.userInvalidationTags.get(key.userId)!.add(cacheKey);
 
     // Track by channel
     if (key.channelId) {
       if (!this.channelInvalidationTags.has(key.channelId)) {
-        this.channelInvalidationTags.set(key.channelId, new Set())
+        this.channelInvalidationTags.set(key.channelId, new Set());
       }
-      this.channelInvalidationTags.get(key.channelId)!.add(cacheKey)
+      this.channelInvalidationTags.get(key.channelId)!.add(cacheKey);
     }
   }
 
@@ -513,17 +519,17 @@ export class PermissionCache {
    * Add a node to the front of the list
    */
   private addToFront(node: LRUNode): void {
-    node.prev = null
-    node.next = this.head
+    node.prev = null;
+    node.next = this.head;
 
     if (this.head) {
-      this.head.prev = node
+      this.head.prev = node;
     }
 
-    this.head = node
+    this.head = node;
 
     if (!this.tail) {
-      this.tail = node
+      this.tail = node;
     }
   }
 
@@ -531,10 +537,10 @@ export class PermissionCache {
    * Move a node to the front of the list
    */
   private moveToFront(node: LRUNode): void {
-    if (node === this.head) return
+    if (node === this.head) return;
 
-    this.removeNode(node)
-    this.addToFront(node)
+    this.removeNode(node);
+    this.addToFront(node);
   }
 
   /**
@@ -542,15 +548,15 @@ export class PermissionCache {
    */
   private removeNode(node: LRUNode): void {
     if (node.prev) {
-      node.prev.next = node.next
+      node.prev.next = node.next;
     } else {
-      this.head = node.next
+      this.head = node.next;
     }
 
     if (node.next) {
-      node.next.prev = node.prev
+      node.next.prev = node.prev;
     } else {
-      this.tail = node.prev
+      this.tail = node.prev;
     }
   }
 
@@ -558,23 +564,23 @@ export class PermissionCache {
    * Evict the least recently used entry
    */
   private evictLRU(): void {
-    if (!this.tail) return
+    if (!this.tail) return;
 
-    const key = this.tail.key
-    this.removeNode(this.tail)
-    this.cache.delete(key)
+    const key = this.tail.key;
+    this.removeNode(this.tail);
+    this.cache.delete(key);
 
     // Clean up invalidation tags
-    const parsed = this.parseCacheKey(key)
+    const parsed = this.parseCacheKey(key);
     if (parsed) {
-      this.userInvalidationTags.get(parsed.userId)?.delete(key)
+      this.userInvalidationTags.get(parsed.userId)?.delete(key);
       if (parsed.channelId) {
-        this.channelInvalidationTags.get(parsed.channelId)?.delete(key)
+        this.channelInvalidationTags.get(parsed.channelId)?.delete(key);
       }
     }
 
     if (this.config.enableStats) {
-      this.stats.evictions++
+      this.stats.evictions++;
     }
   }
 
@@ -586,26 +592,26 @@ export class PermissionCache {
    * Get all cache entries (for debugging)
    */
   getAllEntries(): CacheEntry[] {
-    const entries: CacheEntry[] = []
-    let current = this.head
+    const entries: CacheEntry[] = [];
+    let current = this.head;
 
     while (current) {
-      entries.push(current.entry)
-      current = current.next
+      entries.push(current.entry);
+      current = current.next;
     }
 
-    return entries
+    return entries;
   }
 
   /**
    * Get entries as a map (for debugging)
    */
   toMap(): Map<string, CacheEntry> {
-    const map = new Map<string, CacheEntry>()
+    const map = new Map<string, CacheEntry>();
     this.cache.forEach((node, key) => {
-      map.set(key, node.entry)
-    })
-    return map
+      map.set(key, node.entry);
+    });
+    return map;
   }
 }
 
@@ -616,8 +622,10 @@ export class PermissionCache {
 /**
  * Create a new permission cache
  */
-export function createPermissionCache(config?: Partial<CacheConfig>): PermissionCache {
-  return new PermissionCache(config)
+export function createPermissionCache(
+  config?: Partial<CacheConfig>,
+): PermissionCache {
+  return new PermissionCache(config);
 }
 
 /**
@@ -628,7 +636,7 @@ export function createHighPerformanceCache(): PermissionCache {
     maxSize: 10000,
     ttlMs: 300000, // 5 minutes
     enableStats: true,
-  })
+  });
 }
 
 /**
@@ -639,7 +647,7 @@ export function createRealtimeCache(): PermissionCache {
     maxSize: 500,
     ttlMs: 5000, // 5 seconds
     enableStats: false,
-  })
+  });
 }
 
 // ============================================================================
@@ -651,20 +659,20 @@ export function createRealtimeCache(): PermissionCache {
  */
 export function withCache<T extends (key: CacheKey) => PermissionResult>(
   cache: PermissionCache,
-  checkFn: T
+  checkFn: T,
 ): T {
   return ((key: CacheKey): PermissionResult => {
     // Check cache first
-    const cached = cache.get(key)
+    const cached = cache.get(key);
     if (cached) {
-      return cached
+      return cached;
     }
 
     // Compute and cache
-    const result = checkFn(key)
-    cache.set(key, result)
-    return result
-  }) as T
+    const result = checkFn(key);
+    cache.set(key, result);
+    return result;
+  }) as T;
 }
 
 /**
@@ -672,27 +680,29 @@ export function withCache<T extends (key: CacheKey) => PermissionResult>(
  */
 export function withBatchCache(
   cache: PermissionCache,
-  checkFn: (key: CacheKey) => PermissionResult
+  checkFn: (key: CacheKey) => PermissionResult,
 ): (request: BatchPermissionRequest) => BatchPermissionResult {
   return (request: BatchPermissionRequest): BatchPermissionResult => {
     // Get cached results first
-    const batchResult = cache.getBatch(request)
+    const batchResult = cache.getBatch(request);
 
     // Compute missing permissions
-    const missingPermissions = request.permissions.filter((p) => !batchResult.results.has(p))
+    const missingPermissions = request.permissions.filter(
+      (p) => !batchResult.results.has(p),
+    );
 
     for (const permission of missingPermissions) {
       const key: CacheKey = {
         userId: request.userId,
         permission,
         channelId: request.channelId,
-      }
+      };
 
-      const result = checkFn(key)
-      batchResult.results.set(permission, result)
-      cache.set(key, result)
+      const result = checkFn(key);
+      batchResult.results.set(permission, result);
+      cache.set(key, result);
     }
 
-    return batchResult
-  }
+    return batchResult;
+  };
 }

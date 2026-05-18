@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Quick Remind Component
@@ -15,38 +15,49 @@
  * ```
  */
 
-import * as React from 'react'
-import { Clock, Sun, Sunrise, CalendarDays, Settings2, Timer } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import * as React from "react";
+import {
+  Clock,
+  Sun,
+  Sunrise,
+  CalendarDays,
+  Settings2,
+  Timer,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   getPresetReminderTimes,
   getTomorrowMorning,
   getTomorrowAfternoon,
   getNextWeek,
   formatFutureTime,
-} from '@/lib/reminders/reminder-store'
+} from "@/lib/reminders/reminder-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface QuickRemindProps {
-  onSelect: (date: Date) => void
-  onCustom?: () => void
-  triggerLabel?: string
-  showTrigger?: boolean
-  disabled?: boolean
-  className?: string
+  onSelect: (date: Date) => void;
+  onCustom?: () => void;
+  triggerLabel?: string;
+  showTrigger?: boolean;
+  disabled?: boolean;
+  className?: string;
 }
 
 export interface QuickRemindOption {
-  id: string
-  label: string
-  description: string
-  icon: React.ReactNode
-  getTime: () => Date
+  id: string;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  getTime: () => Date;
 }
 
 // ============================================================================
@@ -55,68 +66,68 @@ export interface QuickRemindOption {
 
 const QUICK_REMIND_OPTIONS: QuickRemindOption[] = [
   {
-    id: '20min',
-    label: 'In 20 minutes',
-    description: '',
+    id: "20min",
+    label: "In 20 minutes",
+    description: "",
     icon: <Timer className="h-4 w-4" />,
     getTime: () => new Date(Date.now() + 20 * 60 * 1000),
   },
   {
-    id: '1hour',
-    label: 'In 1 hour',
-    description: '',
+    id: "1hour",
+    label: "In 1 hour",
+    description: "",
     icon: <Clock className="h-4 w-4" />,
     getTime: () => new Date(Date.now() + 60 * 60 * 1000),
   },
   {
-    id: '3hours',
-    label: 'In 3 hours',
-    description: '',
+    id: "3hours",
+    label: "In 3 hours",
+    description: "",
     icon: <Clock className="h-4 w-4" />,
     getTime: () => new Date(Date.now() + 3 * 60 * 60 * 1000),
   },
   {
-    id: 'tomorrow-morning',
-    label: 'Tomorrow morning',
-    description: '9:00 AM',
+    id: "tomorrow-morning",
+    label: "Tomorrow morning",
+    description: "9:00 AM",
     icon: <Sunrise className="h-4 w-4" />,
     getTime: getTomorrowMorning,
   },
   {
-    id: 'tomorrow-afternoon',
-    label: 'Tomorrow afternoon',
-    description: '1:00 PM',
+    id: "tomorrow-afternoon",
+    label: "Tomorrow afternoon",
+    description: "1:00 PM",
     icon: <Sun className="h-4 w-4" />,
     getTime: getTomorrowAfternoon,
   },
   {
-    id: 'next-week',
-    label: 'Next week',
-    description: '',
+    id: "next-week",
+    label: "Next week",
+    description: "",
     icon: <CalendarDays className="h-4 w-4" />,
     getTime: getNextWeek,
   },
-]
+];
 
 // ============================================================================
 // Quick Remind Item
 // ============================================================================
 
 interface QuickRemindItemProps {
-  option: QuickRemindOption
-  onSelect: () => void
-  disabled?: boolean
+  option: QuickRemindOption;
+  onSelect: () => void;
+  disabled?: boolean;
 }
 
 function QuickRemindItem({ option, onSelect, disabled }: QuickRemindItemProps) {
-  const [description, setDescription] = React.useState(option.description)
+  const [description, setDescription] = React.useState(option.description);
 
   // Update description with actual time on mount
   React.useEffect(() => {
     if (!option.description) {
-      setDescription(formatFutureTime(option.getTime()))
+      setDescription(formatFutureTime(option.getTime()));
     }
-  }, [option])
+  }, [option]);
 
   return (
     <button
@@ -124,11 +135,11 @@ function QuickRemindItem({ option, onSelect, disabled }: QuickRemindItemProps) {
       onClick={onSelect}
       disabled={disabled}
       className={cn(
-        'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left',
-        'hover:text-accent-foreground hover:bg-accent',
-        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-        'disabled:cursor-not-allowed disabled:opacity-50',
-        'transition-colors'
+        "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left",
+        "hover:text-accent-foreground hover:bg-accent",
+        "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        "transition-colors",
       )}
     >
       <span className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
@@ -136,10 +147,14 @@ function QuickRemindItem({ option, onSelect, disabled }: QuickRemindItemProps) {
       </span>
       <div className="min-w-0 flex-1">
         <div className="text-sm font-medium">{option.label}</div>
-        {description && <div className="truncate text-xs text-muted-foreground">{description}</div>}
+        {description && (
+          <div className="truncate text-xs text-muted-foreground">
+            {description}
+          </div>
+        )}
       </div>
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -147,10 +162,10 @@ function QuickRemindItem({ option, onSelect, disabled }: QuickRemindItemProps) {
 // ============================================================================
 
 export interface QuickRemindMenuProps {
-  onSelect: (date: Date) => void
-  onCustom?: () => void
-  disabled?: boolean
-  className?: string
+  onSelect: (date: Date) => void;
+  onCustom?: () => void;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function QuickRemindMenu({
@@ -161,13 +176,13 @@ export function QuickRemindMenu({
 }: QuickRemindMenuProps) {
   const handleSelect = React.useCallback(
     (option: QuickRemindOption) => {
-      onSelect(option.getTime())
+      onSelect(option.getTime());
     },
-    [onSelect]
-  )
+    [onSelect],
+  );
 
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn("space-y-1", className)}>
       {QUICK_REMIND_OPTIONS.map((option) => (
         <QuickRemindItem
           key={option.id}
@@ -185,11 +200,11 @@ export function QuickRemindMenu({
             onClick={onCustom}
             disabled={disabled}
             className={cn(
-              'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left',
-              'hover:text-accent-foreground hover:bg-accent',
-              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-              'transition-colors'
+              "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left",
+              "hover:text-accent-foreground hover:bg-accent",
+              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+              "transition-colors",
             )}
           >
             <span className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full text-primary">
@@ -200,7 +215,7 @@ export function QuickRemindMenu({
         </>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -210,25 +225,25 @@ export function QuickRemindMenu({
 export function QuickRemind({
   onSelect,
   onCustom,
-  triggerLabel = 'Remind me',
+  triggerLabel = "Remind me",
   showTrigger = true,
   disabled = false,
   className,
 }: QuickRemindProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const handleSelect = React.useCallback(
     (date: Date) => {
-      onSelect(date)
-      setIsOpen(false)
+      onSelect(date);
+      setIsOpen(false);
     },
-    [onSelect]
-  )
+    [onSelect],
+  );
 
   const handleCustom = React.useCallback(() => {
-    setIsOpen(false)
-    onCustom?.()
-  }, [onCustom])
+    setIsOpen(false);
+    onCustom?.();
+  }, [onCustom]);
 
   if (!showTrigger) {
     return (
@@ -238,22 +253,31 @@ export function QuickRemind({
         disabled={disabled}
         className={className}
       />
-    )
+    );
   }
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" disabled={disabled} className={cn('gap-2', className)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          className={cn("gap-2", className)}
+        >
           <Clock className="h-4 w-4" />
           {triggerLabel}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-64 p-2" align="start">
-        <QuickRemindMenu onSelect={handleSelect} onCustom={handleCustom} disabled={disabled} />
+        <QuickRemindMenu
+          onSelect={handleSelect}
+          onCustom={handleCustom}
+          disabled={disabled}
+        />
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 // ============================================================================
@@ -261,11 +285,11 @@ export function QuickRemind({
 // ============================================================================
 
 export interface QuickRemindButtonsProps {
-  onSelect: (date: Date) => void
-  onCustom?: () => void
-  options?: QuickRemindOption[]
-  disabled?: boolean
-  className?: string
+  onSelect: (date: Date) => void;
+  onCustom?: () => void;
+  options?: QuickRemindOption[];
+  disabled?: boolean;
+  className?: string;
 }
 
 export function QuickRemindButtons({
@@ -276,7 +300,7 @@ export function QuickRemindButtons({
   className,
 }: QuickRemindButtonsProps) {
   return (
-    <div className={cn('flex flex-wrap gap-2', className)}>
+    <div className={cn("flex flex-wrap gap-2", className)}>
       {options.map((option) => (
         <Button
           key={option.id}
@@ -303,7 +327,7 @@ export function QuickRemindButtons({
         </Button>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -311,11 +335,11 @@ export function QuickRemindButtons({
 // ============================================================================
 
 export interface MessageQuickRemindProps {
-  messageId: string
-  onRemind: (date: Date) => void
-  onClose?: () => void
-  disabled?: boolean
-  className?: string
+  messageId: string;
+  onRemind: (date: Date) => void;
+  onClose?: () => void;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function MessageQuickRemind({
@@ -326,20 +350,20 @@ export function MessageQuickRemind({
 }: MessageQuickRemindProps) {
   const handleSelect = React.useCallback(
     (date: Date) => {
-      onRemind(date)
-      onClose?.()
+      onRemind(date);
+      onClose?.();
     },
-    [onRemind, onClose]
-  )
+    [onRemind, onClose],
+  );
 
   return (
-    <div className={cn('py-1', className)}>
+    <div className={cn("py-1", className)}>
       <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
         Remind me about this
       </div>
       <QuickRemindMenu onSelect={handleSelect} disabled={disabled} />
     </div>
-  )
+  );
 }
 
-export default QuickRemind
+export default QuickRemind;

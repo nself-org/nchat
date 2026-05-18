@@ -4,30 +4,30 @@
  * Sent when a user successfully changes their password.
  */
 
-import { Text, Section } from '@react-email/components'
-import * as React from 'react'
-import EmailButton from '../components/EmailButton'
-import EmailHeading from '../components/EmailHeading'
-import EmailLayout from '../components/EmailLayout'
+import { Text, Section } from "@react-email/components";
+import * as React from "react";
+import EmailButton from "../components/EmailButton";
+import EmailHeading from "../components/EmailHeading";
+import EmailLayout from "../components/EmailLayout";
 
 interface PasswordChangedEmailProps {
-  userName?: string
-  appName?: string
-  logoUrl?: string
-  supportUrl?: string
-  ipAddress?: string
-  timestamp?: Date
+  userName?: string;
+  appName?: string;
+  logoUrl?: string;
+  supportUrl?: string;
+  ipAddress?: string;
+  timestamp?: Date;
 }
 
 export default function PasswordChangedEmail({
   userName,
-  appName = 'nChat',
+  appName = "nChat",
   logoUrl,
-  supportUrl = 'http://localhost:3000/support',
+  supportUrl = "http://localhost:3000/support",
   ipAddress,
   timestamp = new Date(),
 }: PasswordChangedEmailProps) {
-  const previewText = `Your ${appName} password was changed`
+  const previewText = `Your ${appName} password was changed`;
 
   return (
     <EmailLayout preview={previewText} appName={appName} logoUrl={logoUrl}>
@@ -36,7 +36,8 @@ export default function PasswordChangedEmail({
       {userName && <Text style={paragraph}>Hi {userName},</Text>}
 
       <Text style={paragraph}>
-        This email confirms that your {appName} password was successfully changed.
+        This email confirms that your {appName} password was successfully
+        changed.
       </Text>
 
       <Section style={infoSection}>
@@ -51,8 +52,8 @@ export default function PasswordChangedEmail({
       </Section>
 
       <Text style={warningText}>
-        ⚠️ If you didn't make this change, your account may be compromised. Please contact our
-        support team immediately.
+        ⚠️ If you didn't make this change, your account may be compromised.
+        Please contact our support team immediately.
       </Text>
 
       <EmailButton href={supportUrl} variant="danger">
@@ -73,7 +74,7 @@ export default function PasswordChangedEmail({
         The {appName} Security Team
       </Text>
     </EmailLayout>
-  )
+  );
 }
 
 // ============================================================================
@@ -81,46 +82,46 @@ export default function PasswordChangedEmail({
 // ============================================================================
 
 const paragraph = {
-  fontSize: '16px',
-  lineHeight: '1.6',
-  color: '#334155',
-  margin: '0 0 16px',
-}
+  fontSize: "16px",
+  lineHeight: "1.6",
+  color: "#334155",
+  margin: "0 0 16px",
+};
 
 const infoSection = {
-  backgroundColor: '#f8fafc',
-  border: '1px solid #e2e8f0',
-  borderRadius: '8px',
-  padding: '16px',
-  margin: '16px 0',
-}
+  backgroundColor: "#f8fafc",
+  border: "1px solid #e2e8f0",
+  borderRadius: "8px",
+  padding: "16px",
+  margin: "16px 0",
+};
 
 const infoText = {
-  fontSize: '14px',
-  lineHeight: '1.5',
-  color: '#64748b',
-  margin: '0 0 8px',
-}
+  fontSize: "14px",
+  lineHeight: "1.5",
+  color: "#64748b",
+  margin: "0 0 8px",
+};
 
 const warningText = {
-  fontSize: '14px',
-  lineHeight: '1.5',
-  color: '#dc2626',
-  backgroundColor: '#fee2e2',
-  padding: '12px',
-  borderRadius: '6px',
-  margin: '16px 0',
-  borderLeft: '4px solid #dc2626',
-}
+  fontSize: "14px",
+  lineHeight: "1.5",
+  color: "#dc2626",
+  backgroundColor: "#fee2e2",
+  padding: "12px",
+  borderRadius: "6px",
+  margin: "16px 0",
+  borderLeft: "4px solid #dc2626",
+};
 
 const list = {
-  fontSize: '16px',
-  lineHeight: '1.6',
-  color: '#334155',
-  margin: '0 0 16px',
-  paddingLeft: '20px',
-}
+  fontSize: "16px",
+  lineHeight: "1.6",
+  color: "#334155",
+  margin: "0 0 16px",
+  paddingLeft: "20px",
+};
 
 const listItem = {
-  marginBottom: '8px',
-}
+  marginBottom: "8px",
+};

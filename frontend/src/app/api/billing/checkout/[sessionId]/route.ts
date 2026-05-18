@@ -5,27 +5,30 @@
  * Get checkout session status or expire a session.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getStripePaymentService } from '@/services/billing/stripe-payment.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { getStripePaymentService } from "@/services/billing/stripe-payment.service";
+import { logger } from "@/lib/logger";
 
 interface RouteContext {
-  params: Promise<{ sessionId: string }>
+  params: Promise<{ sessionId: string }>;
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { sessionId } = await context.params
+    const { sessionId } = await context.params;
 
     if (!sessionId) {
-      return NextResponse.json({ error: 'Session ID is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Session ID is required" },
+        { status: 400 },
+      );
     }
 
-    const paymentService = getStripePaymentService()
-    const session = await paymentService.getCheckoutSession(sessionId)
+    const paymentService = getStripePaymentService();
+    const session = await paymentService.getCheckoutSession(sessionId);
 
     if (!session) {
-      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+      return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -41,40 +44,49 @@ export async function GET(request: NextRequest, context: RouteContext) {
         expiresAt: session.expiresAt.toISOString(),
         metadata: session.metadata,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error getting checkout session:', error)
+    logger.error("Error getting checkout session:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: (error instanceof Error ? error.message : String(error)) },
-      { status: 500 }
-    )
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { sessionId } = await context.params
+    const { sessionId } = await context.params;
 
     if (!sessionId) {
-      return NextResponse.json({ error: 'Session ID is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Session ID is required" },
+        { status: 400 },
+      );
     }
 
-    const paymentService = getStripePaymentService()
-    const success = await paymentService.expireCheckoutSession(sessionId)
+    const paymentService = getStripePaymentService();
+    const success = await paymentService.expireCheckoutSession(sessionId);
 
     if (!success) {
       return NextResponse.json(
-        { error: 'Failed to expire session' },
-        { status: 400 }
-      )
+        { error: "Failed to expire session" },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ success: true, expired: true })
+    return NextResponse.json({ success: true, expired: true });
   } catch (error) {
-    logger.error('Error expiring checkout session:', error)
+    logger.error("Error expiring checkout session:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: (error instanceof Error ? error.message : String(error)) },
-      { status: 500 }
-    )
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }

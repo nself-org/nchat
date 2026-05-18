@@ -4,34 +4,33 @@
  * Shows active huddle in channel sidebar with quick join button.
  */
 
-'use client'
+"use client";
 
-import React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { useHuddle, type ActiveHuddle } from '@/hooks/use-huddle'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { useHuddle, type ActiveHuddle } from "@/hooks/use-huddle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
-  Headphones,
-  Users,
-  Monitor,
-  Mic,
-  Phone,
-} from 'lucide-react'
-import { formatHuddleDuration } from '@/services/calls/huddle.service'
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { Headphones, Users, Monitor, Mic, Phone } from "lucide-react";
+import { formatHuddleDuration } from "@/services/calls/huddle.service";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface ChannelHuddleIndicatorProps {
-  channelId: string
-  channelName?: string
-  isDM?: boolean
-  className?: string
-  variant?: 'compact' | 'expanded' | 'inline'
+  channelId: string;
+  channelName?: string;
+  isDM?: boolean;
+  className?: string;
+  variant?: "compact" | "expanded" | "inline";
 }
 
 // =============================================================================
@@ -43,7 +42,7 @@ export function ChannelHuddleIndicator({
   channelName,
   isDM = false,
   className,
-  variant = 'compact',
+  variant = "compact",
 }: ChannelHuddleIndicatorProps) {
   const {
     isInHuddle,
@@ -51,48 +50,51 @@ export function ChannelHuddleIndicator({
     getActiveHuddleForChannel,
     startHuddle,
     joinHuddle,
-  } = useHuddle()
+  } = useHuddle();
 
-  const activeHuddle = getActiveHuddleForChannel(channelId)
+  const activeHuddle = getActiveHuddleForChannel(channelId);
 
   // Check if we're in THIS channel's huddle
-  const isInThisHuddle = isInHuddle && huddleInfo?.channelId === channelId
+  const isInThisHuddle = isInHuddle && huddleInfo?.channelId === channelId;
 
   const handleStartOrJoin = async () => {
     if (activeHuddle) {
-      await joinHuddle(activeHuddle.id, channelId, { channelName, isDM })
+      await joinHuddle(activeHuddle.id, channelId, { channelName, isDM });
     } else {
-      await startHuddle(channelId, { channelName, isDM })
+      await startHuddle(channelId, { channelName, isDM });
     }
-  }
+  };
 
   // Inline variant - just shows headphones icon when active
-  if (variant === 'inline') {
+  if (variant === "inline") {
     return (
       <TooltipProvider>
-        <div className={cn('inline-flex items-center gap-1', className)}>
+        <div className={cn("inline-flex items-center gap-1", className)}>
           {activeHuddle ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   className={cn(
-                    'flex items-center gap-1 text-primary',
-                    isInThisHuddle && 'animate-pulse'
+                    "flex items-center gap-1 text-primary",
+                    isInThisHuddle && "animate-pulse",
                   )}
                   onClick={handleStartOrJoin}
                   disabled={isInThisHuddle}
                 >
                   <Headphones className="h-3.5 w-3.5" />
-                  <span className="text-xs">{activeHuddle.participantCount}</span>
+                  <span className="text-xs">
+                    {activeHuddle.participantCount}
+                  </span>
                 </button>
               </TooltipTrigger>
               <TooltipContent>
                 <div className="text-center">
                   <div className="font-medium">
-                    {isInThisHuddle ? 'In huddle' : 'Join huddle'}
+                    {isInThisHuddle ? "In huddle" : "Join huddle"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {activeHuddle.participantCount} participant{activeHuddle.participantCount !== 1 && 's'}
+                    {activeHuddle.participantCount} participant
+                    {activeHuddle.participantCount !== 1 && "s"}
                   </div>
                 </div>
               </TooltipContent>
@@ -113,11 +115,11 @@ export function ChannelHuddleIndicator({
           )}
         </div>
       </TooltipProvider>
-    )
+    );
   }
 
   // Compact variant - small indicator with avatars
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <TooltipProvider>
         <AnimatePresence>
@@ -127,16 +129,19 @@ export function ChannelHuddleIndicator({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               className={cn(
-                'flex items-center gap-2 px-2 py-1.5 rounded-md',
-                'bg-primary/10 border border-primary/20',
-                className
+                "flex items-center gap-2 px-2 py-1.5 rounded-md",
+                "bg-primary/10 border border-primary/20",
+                className,
               )}
             >
               <div className="flex items-center gap-1.5">
                 <Headphones className="h-3.5 w-3.5 text-primary" />
                 <div className="flex -space-x-1.5">
                   {activeHuddle.participants.slice(0, 3).map((p) => (
-                    <Avatar key={p.id} className="w-5 h-5 border border-background">
+                    <Avatar
+                      key={p.id}
+                      className="w-5 h-5 border border-background"
+                    >
                       <AvatarImage src={p.avatarUrl} alt={p.name} />
                       <AvatarFallback className="text-[8px]">
                         {p.name.charAt(0)}
@@ -174,7 +179,7 @@ export function ChannelHuddleIndicator({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={cn('h-7 px-2', className)}
+                  className={cn("h-7 px-2", className)}
                   onClick={handleStartOrJoin}
                   disabled={isInHuddle}
                 >
@@ -187,7 +192,7 @@ export function ChannelHuddleIndicator({
           )}
         </AnimatePresence>
       </TooltipProvider>
-    )
+    );
   }
 
   // Expanded variant - full card with details
@@ -200,8 +205,8 @@ export function ChannelHuddleIndicator({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className={cn(
-              'p-3 rounded-lg bg-primary/10 border border-primary/20',
-              className
+              "p-3 rounded-lg bg-primary/10 border border-primary/20",
+              className,
             )}
           >
             {/* Header */}
@@ -226,8 +231,8 @@ export function ChannelHuddleIndicator({
                     <TooltipTrigger asChild>
                       <Avatar
                         className={cn(
-                          'w-7 h-7 border-2 border-background',
-                          p.isSpeaking && !p.isMuted && 'ring-2 ring-green-500'
+                          "w-7 h-7 border-2 border-background",
+                          p.isSpeaking && !p.isMuted && "ring-2 ring-green-500",
                         )}
                       >
                         <AvatarImage src={p.avatarUrl} alt={p.name} />
@@ -239,7 +244,9 @@ export function ChannelHuddleIndicator({
                     <TooltipContent>
                       <div className="flex items-center gap-1">
                         <span>{p.name}</span>
-                        {p.isMuted && <Mic className="h-3 w-3 text-destructive" />}
+                        {p.isMuted && (
+                          <Mic className="h-3 w-3 text-destructive" />
+                        )}
                       </div>
                     </TooltipContent>
                   </Tooltip>
@@ -270,7 +277,7 @@ export function ChannelHuddleIndicator({
                 disabled={isInHuddle}
               >
                 <Phone className="h-4 w-4 mr-2" />
-                {isInHuddle ? 'Already in a huddle' : 'Join huddle'}
+                {isInHuddle ? "Already in a huddle" : "Join huddle"}
               </Button>
             )}
 
@@ -286,10 +293,10 @@ export function ChannelHuddleIndicator({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className={cn(
-              'p-3 rounded-lg border border-dashed border-muted-foreground/30',
-              'hover:border-primary/50 hover:bg-primary/5 transition-colors',
-              'cursor-pointer',
-              className
+              "p-3 rounded-lg border border-dashed border-muted-foreground/30",
+              "hover:border-primary/50 hover:bg-primary/5 transition-colors",
+              "cursor-pointer",
+              className,
             )}
             onClick={handleStartOrJoin}
           >
@@ -298,7 +305,8 @@ export function ChannelHuddleIndicator({
               <div className="text-sm text-center">
                 <span className="font-medium">Start a huddle</span>
                 <p className="text-xs mt-0.5">
-                  Talk with others in {isDM ? 'this conversation' : 'this channel'}
+                  Talk with others in{" "}
+                  {isDM ? "this conversation" : "this channel"}
                 </p>
               </div>
             </div>
@@ -306,7 +314,7 @@ export function ChannelHuddleIndicator({
         )}
       </AnimatePresence>
     </TooltipProvider>
-  )
+  );
 }
 
 // =============================================================================
@@ -314,20 +322,20 @@ export function ChannelHuddleIndicator({
 // =============================================================================
 
 export interface SidebarHuddleStatusProps {
-  channelId: string
-  className?: string
+  channelId: string;
+  className?: string;
 }
 
 export function SidebarHuddleStatus({
   channelId,
   className,
 }: SidebarHuddleStatusProps) {
-  const { getActiveHuddleForChannel, huddleInfo, isInHuddle } = useHuddle()
+  const { getActiveHuddleForChannel, huddleInfo, isInHuddle } = useHuddle();
 
-  const activeHuddle = getActiveHuddleForChannel(channelId)
-  const isInThisHuddle = isInHuddle && huddleInfo?.channelId === channelId
+  const activeHuddle = getActiveHuddleForChannel(channelId);
+  const isInThisHuddle = isInHuddle && huddleInfo?.channelId === channelId;
 
-  if (!activeHuddle) return null
+  if (!activeHuddle) return null;
 
   return (
     <TooltipProvider>
@@ -335,9 +343,9 @@ export function SidebarHuddleStatus({
         <TooltipTrigger asChild>
           <div
             className={cn(
-              'flex items-center gap-1',
-              isInThisHuddle ? 'text-primary' : 'text-muted-foreground',
-              className
+              "flex items-center gap-1",
+              isInThisHuddle ? "text-primary" : "text-muted-foreground",
+              className,
             )}
           >
             <Headphones className="h-3 w-3" />
@@ -353,7 +361,7 @@ export function SidebarHuddleStatus({
               {activeHuddle.participants
                 .slice(0, 3)
                 .map((p) => p.name)
-                .join(', ')}
+                .join(", ")}
               {activeHuddle.participantCount > 3 &&
                 ` +${activeHuddle.participantCount - 3} more`}
             </div>
@@ -361,7 +369,7 @@ export function SidebarHuddleStatus({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
-export default ChannelHuddleIndicator
+export default ChannelHuddleIndicator;

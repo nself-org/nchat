@@ -8,58 +8,58 @@
  * This implementation provides the client-side logic.
  */
 
-import * as mediasoupClient from 'mediasoup-client'
-import type { Device, types } from 'mediasoup-client'
+import * as mediasoupClient from "mediasoup-client";
+import type { Device, types } from "mediasoup-client";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // Re-export types from mediasoup-client for local use
-type Transport = types.Transport
-type Producer = types.Producer
-type Consumer = types.Consumer
+type Transport = types.Transport;
+type Producer = types.Producer;
+type Consumer = types.Consumer;
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface GroupCallConfig {
-  callId: string
-  userId: string
-  maxParticipants?: number
-  audioCodec?: 'opus' | 'pcmu' | 'pcma'
-  enableDtx?: boolean // Discontinuous Transmission for bandwidth savings
-  sfuUrl?: string
+  callId: string;
+  userId: string;
+  maxParticipants?: number;
+  audioCodec?: "opus" | "pcmu" | "pcma";
+  enableDtx?: boolean; // Discontinuous Transmission for bandwidth savings
+  sfuUrl?: string;
 }
 
 export interface ParticipantInfo {
-  id: string
-  name: string
-  avatarUrl?: string
-  isMuted: boolean
-  isSpeaking: boolean
-  audioLevel: number
-  joinedAt: number
-  producerId?: string
-  consumerId?: string
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  isMuted: boolean;
+  isSpeaking: boolean;
+  audioLevel: number;
+  joinedAt: number;
+  producerId?: string;
+  consumerId?: string;
 }
 
 export interface GroupCallStats {
-  participantCount: number
-  totalBytesReceived: number
-  totalBytesSent: number
-  avgPacketLoss: number
-  avgJitter: number
-  avgRtt: number
+  participantCount: number;
+  totalBytesReceived: number;
+  totalBytesSent: number;
+  avgPacketLoss: number;
+  avgJitter: number;
+  avgRtt: number;
 }
 
 export interface GroupCallManagerCallbacks {
-  onParticipantJoined?: (participant: ParticipantInfo) => void
-  onParticipantLeft?: (participantId: string) => void
-  onParticipantMuted?: (participantId: string, muted: boolean) => void
-  onParticipantSpeaking?: (participantId: string, speaking: boolean) => void
-  onAudioLevel?: (participantId: string, level: number) => void
-  onStatsUpdate?: (stats: GroupCallStats) => void
-  onError?: (error: Error) => void
+  onParticipantJoined?: (participant: ParticipantInfo) => void;
+  onParticipantLeft?: (participantId: string) => void;
+  onParticipantMuted?: (participantId: string, muted: boolean) => void;
+  onParticipantSpeaking?: (participantId: string, speaking: boolean) => void;
+  onAudioLevel?: (participantId: string, level: number) => void;
+  onStatsUpdate?: (stats: GroupCallStats) => void;
+  onError?: (error: Error) => void;
 }
 
 // =============================================================================
@@ -67,22 +67,22 @@ export interface GroupCallManagerCallbacks {
 // =============================================================================
 
 export class GroupCallManager {
-  private config: Required<GroupCallConfig>
-  private callbacks: GroupCallManagerCallbacks
+  private config: Required<GroupCallConfig>;
+  private callbacks: GroupCallManagerCallbacks;
 
   // Mediasoup
-  private device: Device | null = null
-  private sendTransport: Transport | null = null
-  private recvTransport: Transport | null = null
-  private audioProducer: Producer | null = null
-  private consumers: Map<string, Consumer> = new Map()
+  private device: Device | null = null;
+  private sendTransport: Transport | null = null;
+  private recvTransport: Transport | null = null;
+  private audioProducer: Producer | null = null;
+  private consumers: Map<string, Consumer> = new Map();
 
   // Participants
-  private participants: Map<string, ParticipantInfo> = new Map()
-  private localStream: MediaStream | null = null
+  private participants: Map<string, ParticipantInfo> = new Map();
+  private localStream: MediaStream | null = null;
 
   // Stats
-  private statsInterval: number | null = null
+  private statsInterval: number | null = null;
   private stats: GroupCallStats = {
     participantCount: 0,
     totalBytesReceived: 0,
@@ -90,17 +90,23 @@ export class GroupCallManager {
     avgPacketLoss: 0,
     avgJitter: 0,
     avgRtt: 0,
-  }
+  };
 
-  constructor(config: GroupCallConfig, callbacks: GroupCallManagerCallbacks = {}) {
+  constructor(
+    config: GroupCallConfig,
+    callbacks: GroupCallManagerCallbacks = {},
+  ) {
     this.config = {
       ...config,
       maxParticipants: config.maxParticipants ?? 50,
-      audioCodec: config.audioCodec ?? 'opus',
+      audioCodec: config.audioCodec ?? "opus",
       enableDtx: config.enableDtx ?? true,
-      sfuUrl: config.sfuUrl ?? process.env.NEXT_PUBLIC_SFU_URL ?? 'https://sfu.example.com',
-    }
-    this.callbacks = callbacks
+      sfuUrl:
+        config.sfuUrl ??
+        process.env.NEXT_PUBLIC_SFU_URL ??
+        "https://sfu.example.com",
+    };
+    this.callbacks = callbacks;
   }
 
   // ===========================================================================
@@ -112,26 +118,28 @@ export class GroupCallManager {
    */
   async initialize(localStream: MediaStream): Promise<void> {
     try {
-      this.localStream = localStream
+      this.localStream = localStream;
 
       // Create mediasoup device
-      this.device = new mediasoupClient.Device()
+      this.device = new mediasoupClient.Device();
 
       // Load device with RTP capabilities from server
-      const rtpCapabilities = await this.fetchRtpCapabilities()
-      await this.device.load({ routerRtpCapabilities: rtpCapabilities })
+      const rtpCapabilities = await this.fetchRtpCapabilities();
+      await this.device.load({ routerRtpCapabilities: rtpCapabilities });
 
       // Create transports
-      await this.createTransports()
+      await this.createTransports();
 
       // Start producing audio
-      await this.startProducing()
+      await this.startProducing();
 
       // Start stats monitoring
-      this.startStatsMonitoring()
+      this.startStatsMonitoring();
     } catch (error) {
-      this.callbacks.onError?.(error instanceof Error ? error : new Error(String(error)))
-      throw error
+      this.callbacks.onError?.(
+        error instanceof Error ? error : new Error(String(error)),
+      );
+      throw error;
     }
   }
 
@@ -141,19 +149,21 @@ export class GroupCallManager {
   private async fetchRtpCapabilities(): Promise<any> {
     try {
       const response = await fetch(`${this.config.sfuUrl}/rtp-capabilities`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch RTP capabilities')
+        throw new Error("Failed to fetch RTP capabilities");
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
       // Fallback to default capabilities for development
-      logger.warn('Using default RTP capabilities (production requires SFU server)')
-      return this.getDefaultRtpCapabilities()
+      logger.warn(
+        "Using default RTP capabilities (production requires SFU server)",
+      );
+      return this.getDefaultRtpCapabilities();
     }
   }
 
@@ -164,8 +174,8 @@ export class GroupCallManager {
     return {
       codecs: [
         {
-          kind: 'audio',
-          mimeType: 'audio/opus',
+          kind: "audio",
+          mimeType: "audio/opus",
           clockRate: 48000,
           channels: 2,
           parameters: {
@@ -177,12 +187,12 @@ export class GroupCallManager {
       ],
       headerExtensions: [
         {
-          kind: 'audio',
-          uri: 'urn:ietf:params:rtp-hdrext:ssrc-audio-level',
+          kind: "audio",
+          uri: "urn:ietf:params:rtp-hdrext:ssrc-audio-level",
           preferredId: 1,
         },
       ],
-    }
+    };
   }
 
   // ===========================================================================
@@ -193,81 +203,91 @@ export class GroupCallManager {
    * Create send and receive transports
    */
   private async createTransports(): Promise<void> {
-    if (!this.device) throw new Error('Device not initialized')
+    if (!this.device) throw new Error("Device not initialized");
 
     // Create send transport
-    const sendTransportParams = await this.requestTransport('send')
-    this.sendTransport = this.device.createSendTransport(sendTransportParams)
+    const sendTransportParams = await this.requestTransport("send");
+    this.sendTransport = this.device.createSendTransport(sendTransportParams);
 
     this.sendTransport.on(
-      'connect',
-      async ({ dtlsParameters }: any, callback: () => void, errback: (error: Error) => void) => {
+      "connect",
+      async (
+        { dtlsParameters }: any,
+        callback: () => void,
+        errback: (error: Error) => void,
+      ) => {
         try {
-          await this.connectTransport('send', dtlsParameters)
-          callback()
+          await this.connectTransport("send", dtlsParameters);
+          callback();
         } catch (error) {
-          errback(error instanceof Error ? error : new Error(String(error)))
+          errback(error instanceof Error ? error : new Error(String(error)));
         }
-      }
-    )
+      },
+    );
 
     this.sendTransport.on(
-      'produce',
+      "produce",
       async (
         { kind, rtpParameters }: any,
         callback: (params: { id: string }) => void,
-        errback: (error: Error) => void
+        errback: (error: Error) => void,
       ) => {
         try {
-          const { id } = await this.produce(kind, rtpParameters)
-          callback({ id })
+          const { id } = await this.produce(kind, rtpParameters);
+          callback({ id });
         } catch (error) {
-          errback(error instanceof Error ? error : new Error(String(error)))
+          errback(error instanceof Error ? error : new Error(String(error)));
         }
-      }
-    )
+      },
+    );
 
     // Create receive transport
-    const recvTransportParams = await this.requestTransport('recv')
-    this.recvTransport = this.device.createRecvTransport(recvTransportParams)
+    const recvTransportParams = await this.requestTransport("recv");
+    this.recvTransport = this.device.createRecvTransport(recvTransportParams);
 
     this.recvTransport.on(
-      'connect',
-      async ({ dtlsParameters }: any, callback: () => void, errback: (error: Error) => void) => {
+      "connect",
+      async (
+        { dtlsParameters }: any,
+        callback: () => void,
+        errback: (error: Error) => void,
+      ) => {
         try {
-          await this.connectTransport('recv', dtlsParameters)
-          callback()
+          await this.connectTransport("recv", dtlsParameters);
+          callback();
         } catch (error) {
-          errback(error instanceof Error ? error : new Error(String(error)))
+          errback(error instanceof Error ? error : new Error(String(error)));
         }
-      }
-    )
+      },
+    );
   }
 
   /**
    * Request transport from SFU server
    */
-  private async requestTransport(direction: 'send' | 'recv'): Promise<any> {
+  private async requestTransport(direction: "send" | "recv"): Promise<any> {
     try {
       const response = await fetch(`${this.config.sfuUrl}/transport/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           callId: this.config.callId,
           userId: this.config.userId,
           direction,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Failed to create ${direction} transport`)
+        throw new Error(`Failed to create ${direction} transport`);
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
       // Fallback for development
-      logger.warn(`Using mock ${direction} transport (production requires SFU server)`)
-      return this.getMockTransportParams()
+      logger.warn(
+        `Using mock ${direction} transport (production requires SFU server)`,
+      );
+      return this.getMockTransportParams();
     }
   }
 
@@ -284,41 +304,44 @@ export class GroupCallManager {
       },
       iceCandidates: [],
       dtlsParameters: {
-        role: 'auto',
+        role: "auto",
         fingerprints: [
           {
-            algorithm: 'sha-256',
+            algorithm: "sha-256",
             value: Array(32)
               .fill(0)
               .map(() =>
                 Math.floor(Math.random() * 256)
                   .toString(16)
-                  .padStart(2, '0')
+                  .padStart(2, "0"),
               )
-              .join(':'),
+              .join(":"),
           },
         ],
       },
-    }
+    };
   }
 
   /**
    * Connect transport
    */
-  private async connectTransport(direction: 'send' | 'recv', dtlsParameters: any): Promise<void> {
+  private async connectTransport(
+    direction: "send" | "recv",
+    dtlsParameters: any,
+  ): Promise<void> {
     try {
       await fetch(`${this.config.sfuUrl}/transport/connect`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           callId: this.config.callId,
           userId: this.config.userId,
           direction,
           dtlsParameters,
         }),
-      })
+      });
     } catch (error) {
-      logger.warn('Transport connect failed (development mode)')
+      logger.warn("Transport connect failed (development mode)");
     }
   }
 
@@ -331,12 +354,12 @@ export class GroupCallManager {
    */
   private async startProducing(): Promise<void> {
     if (!this.sendTransport || !this.localStream) {
-      throw new Error('Send transport or local stream not available')
+      throw new Error("Send transport or local stream not available");
     }
 
-    const audioTrack = this.localStream.getAudioTracks()[0]
+    const audioTrack = this.localStream.getAudioTracks()[0];
     if (!audioTrack) {
-      throw new Error('No audio track found')
+      throw new Error("No audio track found");
     }
 
     this.audioProducer = await this.sendTransport.produce({
@@ -347,85 +370,99 @@ export class GroupCallManager {
         opusFec: true,
         opusMaxPlaybackRate: 48000,
       },
-    })
+    });
 
-    this.audioProducer.on('transportclose', () => {
-      this.audioProducer = null
-    })
+    this.audioProducer.on("transportclose", () => {
+      this.audioProducer = null;
+    });
   }
 
   /**
    * Produce (notify server of new producer)
    */
-  private async produce(kind: string, rtpParameters: any): Promise<{ id: string }> {
+  private async produce(
+    kind: string,
+    rtpParameters: any,
+  ): Promise<{ id: string }> {
     try {
       const response = await fetch(`${this.config.sfuUrl}/produce`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           callId: this.config.callId,
           userId: this.config.userId,
           kind,
           rtpParameters,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to produce')
+        throw new Error("Failed to produce");
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
       // Mock for development
-      return { id: `producer-${Date.now()}` }
+      return { id: `producer-${Date.now()}` };
     }
   }
 
   /**
    * Start consuming from a participant
    */
-  async consumeParticipant(participantId: string, producerId: string): Promise<void> {
+  async consumeParticipant(
+    participantId: string,
+    producerId: string,
+  ): Promise<void> {
     if (!this.recvTransport || !this.device) {
-      throw new Error('Receive transport or device not available')
+      throw new Error("Receive transport or device not available");
     }
 
     try {
       // Get consumer parameters from server
-      const consumerParams = await this.requestConsume(participantId, producerId)
+      const consumerParams = await this.requestConsume(
+        participantId,
+        producerId,
+      );
 
       // Create consumer
-      const consumer = await this.recvTransport.consume(consumerParams)
+      const consumer = await this.recvTransport.consume(consumerParams);
 
       // Store consumer
-      this.consumers.set(participantId, consumer)
+      this.consumers.set(participantId, consumer);
 
       // Handle consumer events
-      consumer.on('transportclose', () => {
-        this.consumers.delete(participantId)
-      })
+      consumer.on("transportclose", () => {
+        this.consumers.delete(participantId);
+      });
 
       // Handle consumer pause/resume events for audio level tracking
-      consumer.observer.on('pause', () => {
+      consumer.observer.on("pause", () => {
         // Consumer paused - update participant mute state if needed
-      })
-      consumer.observer.on('resume', () => {
+      });
+      consumer.observer.on("resume", () => {
         // Consumer resumed - update participant mute state if needed
-      })
+      });
     } catch (error) {
-      this.callbacks.onError?.(error instanceof Error ? error : new Error(String(error)))
+      this.callbacks.onError?.(
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 
   /**
    * Request consume from server
    */
-  private async requestConsume(participantId: string, producerId: string): Promise<any> {
-    if (!this.device) throw new Error('Device not initialized')
+  private async requestConsume(
+    participantId: string,
+    producerId: string,
+  ): Promise<any> {
+    if (!this.device) throw new Error("Device not initialized");
 
     try {
       const response = await fetch(`${this.config.sfuUrl}/consume`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           callId: this.config.callId,
           userId: this.config.userId,
@@ -433,15 +470,15 @@ export class GroupCallManager {
           producerId,
           rtpCapabilities: this.device.rtpCapabilities,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to request consume')
+        throw new Error("Failed to request consume");
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -453,13 +490,13 @@ export class GroupCallManager {
    * Add participant
    */
   addParticipant(participant: ParticipantInfo): void {
-    this.participants.set(participant.id, participant)
-    this.stats.participantCount = this.participants.size
-    this.callbacks.onParticipantJoined?.(participant)
+    this.participants.set(participant.id, participant);
+    this.stats.participantCount = this.participants.size;
+    this.callbacks.onParticipantJoined?.(participant);
 
     // Start consuming if producer available
     if (participant.producerId) {
-      this.consumeParticipant(participant.id, participant.producerId)
+      this.consumeParticipant(participant.id, participant.producerId);
     }
   }
 
@@ -467,33 +504,39 @@ export class GroupCallManager {
    * Remove participant
    */
   removeParticipant(participantId: string): void {
-    this.participants.delete(participantId)
-    this.stats.participantCount = this.participants.size
+    this.participants.delete(participantId);
+    this.stats.participantCount = this.participants.size;
 
     // Stop consuming
-    const consumer = this.consumers.get(participantId)
+    const consumer = this.consumers.get(participantId);
     if (consumer) {
-      consumer.close()
-      this.consumers.delete(participantId)
+      consumer.close();
+      this.consumers.delete(participantId);
     }
 
-    this.callbacks.onParticipantLeft?.(participantId)
+    this.callbacks.onParticipantLeft?.(participantId);
   }
 
   /**
    * Update participant
    */
-  updateParticipant(participantId: string, updates: Partial<ParticipantInfo>): void {
-    const participant = this.participants.get(participantId)
+  updateParticipant(
+    participantId: string,
+    updates: Partial<ParticipantInfo>,
+  ): void {
+    const participant = this.participants.get(participantId);
     if (participant) {
-      Object.assign(participant, updates)
+      Object.assign(participant, updates);
 
-      if ('isMuted' in updates) {
-        this.callbacks.onParticipantMuted?.(participantId, updates.isMuted!)
+      if ("isMuted" in updates) {
+        this.callbacks.onParticipantMuted?.(participantId, updates.isMuted!);
       }
 
-      if ('isSpeaking' in updates) {
-        this.callbacks.onParticipantSpeaking?.(participantId, updates.isSpeaking!)
+      if ("isSpeaking" in updates) {
+        this.callbacks.onParticipantSpeaking?.(
+          participantId,
+          updates.isSpeaking!,
+        );
       }
     }
   }
@@ -502,14 +545,14 @@ export class GroupCallManager {
    * Get all participants
    */
   getParticipants(): ParticipantInfo[] {
-    return Array.from(this.participants.values())
+    return Array.from(this.participants.values());
   }
 
   /**
    * Get participant count
    */
   getParticipantCount(): number {
-    return this.participants.size
+    return this.participants.size;
   }
 
   // ===========================================================================
@@ -522,9 +565,9 @@ export class GroupCallManager {
   setMuted(muted: boolean): void {
     if (this.audioProducer) {
       if (muted) {
-        this.audioProducer.pause()
+        this.audioProducer.pause();
       } else {
-        this.audioProducer.resume()
+        this.audioProducer.resume();
       }
     }
   }
@@ -533,7 +576,7 @@ export class GroupCallManager {
    * Check if local audio is muted
    */
   isMuted(): boolean {
-    return this.audioProducer?.paused ?? true
+    return this.audioProducer?.paused ?? true;
   }
 
   // ===========================================================================
@@ -545,20 +588,20 @@ export class GroupCallManager {
    */
   private startStatsMonitoring(): void {
     this.statsInterval = window.setInterval(() => {
-      this.collectStats()
-    }, 5000) // Every 5 seconds
+      this.collectStats();
+    }, 5000); // Every 5 seconds
   }
 
   /**
    * Collect stats
    */
   private async collectStats(): Promise<void> {
-    if (!this.sendTransport && !this.recvTransport) return
+    if (!this.sendTransport && !this.recvTransport) return;
 
     try {
-      this.callbacks.onStatsUpdate?.(this.stats)
+      this.callbacks.onStatsUpdate?.(this.stats);
     } catch (error) {
-      logger.error('Failed to collect stats:', error)
+      logger.error("Failed to collect stats:", error);
     }
   }
 
@@ -572,33 +615,33 @@ export class GroupCallManager {
   cleanup(): void {
     // Stop stats monitoring
     if (this.statsInterval !== null) {
-      window.clearInterval(this.statsInterval)
-      this.statsInterval = null
+      window.clearInterval(this.statsInterval);
+      this.statsInterval = null;
     }
 
     // Close all consumers
-    this.consumers.forEach((consumer) => consumer.close())
-    this.consumers.clear()
+    this.consumers.forEach((consumer) => consumer.close());
+    this.consumers.clear();
 
     // Close producer
     if (this.audioProducer) {
-      this.audioProducer.close()
-      this.audioProducer = null
+      this.audioProducer.close();
+      this.audioProducer = null;
     }
 
     // Close transports
     if (this.sendTransport) {
-      this.sendTransport.close()
-      this.sendTransport = null
+      this.sendTransport.close();
+      this.sendTransport = null;
     }
 
     if (this.recvTransport) {
-      this.recvTransport.close()
-      this.recvTransport = null
+      this.recvTransport.close();
+      this.recvTransport = null;
     }
 
     // Clear participants
-    this.participants.clear()
+    this.participants.clear();
 
     // Reset stats
     this.stats = {
@@ -608,7 +651,7 @@ export class GroupCallManager {
       avgPacketLoss: 0,
       avgJitter: 0,
       avgRtt: 0,
-    }
+    };
   }
 }
 
@@ -618,7 +661,7 @@ export class GroupCallManager {
 
 export function createGroupCallManager(
   config: GroupCallConfig,
-  callbacks?: GroupCallManagerCallbacks
+  callbacks?: GroupCallManagerCallbacks,
 ): GroupCallManager {
-  return new GroupCallManager(config, callbacks)
+  return new GroupCallManager(config, callbacks);
 }

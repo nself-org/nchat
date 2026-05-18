@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Message Forward Modal
@@ -6,12 +6,20 @@
  * Allows users to forward messages to multiple channels with optional comment.
  */
 
-import { useState, useCallback, useMemo } from 'react'
-import { Search, Send, X, Hash, User, MessageSquare, Check } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useCallback, useMemo } from "react";
+import {
+  Search,
+  Send,
+  X,
+  Hash,
+  User,
+  MessageSquare,
+  Check,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -19,13 +27,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
 import {
   validateForwardRequest,
   getDestinationDisplayText,
@@ -39,20 +47,20 @@ import {
   type ForwardableMessage,
   type ForwardDestination,
   type ForwardingMode,
-} from '@/lib/messages/message-forwarding'
+} from "@/lib/messages/message-forwarding";
 
 interface MessageForwardModalProps {
-  isOpen: boolean
-  onClose: () => void
-  messages: ForwardableMessage[]
-  availableDestinations: ForwardDestination[]
-  recentDestinations?: ForwardDestination[]
+  isOpen: boolean;
+  onClose: () => void;
+  messages: ForwardableMessage[];
+  availableDestinations: ForwardDestination[];
+  recentDestinations?: ForwardDestination[];
   onForward: (
     messages: ForwardableMessage[],
     destinations: ForwardDestination[],
     mode: ForwardingMode,
-    comment?: string
-  ) => Promise<void>
+    comment?: string,
+  ) => Promise<void>;
 }
 
 export function MessageForwardModal({
@@ -63,82 +71,112 @@ export function MessageForwardModal({
   recentDestinations = [],
   onForward,
 }: MessageForwardModalProps) {
-  const [selectedDestinations, setSelectedDestinations] = useState<ForwardDestination[]>([])
-  const [forwardMode, setForwardMode] = useState<ForwardingMode>('forward')
-  const [comment, setComment] = useState('')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isForwarding, setIsForwarding] = useState(false)
-  const [errors, setErrors] = useState<string[]>([])
+  const [selectedDestinations, setSelectedDestinations] = useState<
+    ForwardDestination[]
+  >([]);
+  const [forwardMode, setForwardMode] = useState<ForwardingMode>("forward");
+  const [comment, setComment] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isForwarding, setIsForwarding] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
 
   const filteredDestinations = useMemo(() => {
-    return filterDestinations(availableDestinations, searchQuery)
-  }, [availableDestinations, searchQuery])
+    return filterDestinations(availableDestinations, searchQuery);
+  }, [availableDestinations, searchQuery]);
 
-  const handleToggleDestination = useCallback((destination: ForwardDestination) => {
-    setSelectedDestinations((prev) => {
-      if (isDestinationSelected(destination, prev)) {
-        return prev.filter((d) => !(d.type === destination.type && d.id === destination.id))
-      }
+  const handleToggleDestination = useCallback(
+    (destination: ForwardDestination) => {
+      setSelectedDestinations((prev) => {
+        if (isDestinationSelected(destination, prev)) {
+          return prev.filter(
+            (d) => !(d.type === destination.type && d.id === destination.id),
+          );
+        }
 
-      if (prev.length >= MAX_FORWARD_DESTINATIONS) {
-        return prev
-      }
+        if (prev.length >= MAX_FORWARD_DESTINATIONS) {
+          return prev;
+        }
 
-      return [...prev, destination]
-    })
-  }, [])
+        return [...prev, destination];
+      });
+    },
+    [],
+  );
 
-  const handleRemoveDestination = useCallback((destination: ForwardDestination) => {
-    setSelectedDestinations((prev) =>
-      prev.filter((d) => !(d.type === destination.type && d.id === destination.id))
-    )
-  }, [])
+  const handleRemoveDestination = useCallback(
+    (destination: ForwardDestination) => {
+      setSelectedDestinations((prev) =>
+        prev.filter(
+          (d) => !(d.type === destination.type && d.id === destination.id),
+        ),
+      );
+    },
+    [],
+  );
 
   const handleForward = useCallback(async () => {
-    const validation = validateForwardRequest(messages, selectedDestinations, comment)
+    const validation = validateForwardRequest(
+      messages,
+      selectedDestinations,
+      comment,
+    );
 
     if (!validation.valid) {
-      setErrors(validation.errors)
-      return
+      setErrors(validation.errors);
+      return;
     }
 
-    setErrors([])
-    setIsForwarding(true)
+    setErrors([]);
+    setIsForwarding(true);
 
     try {
-      await onForward(messages, selectedDestinations, forwardMode, comment || undefined)
-      handleReset()
-      onClose()
+      await onForward(
+        messages,
+        selectedDestinations,
+        forwardMode,
+        comment || undefined,
+      );
+      handleReset();
+      onClose();
     } catch (error) {
-      setErrors([error instanceof Error ? error.message : 'Failed to forward messages'])
+      setErrors([
+        error instanceof Error ? error.message : "Failed to forward messages",
+      ]);
     } finally {
-      setIsForwarding(false)
+      setIsForwarding(false);
     }
-  }, [messages, selectedDestinations, forwardMode, comment, onForward, onClose])
+  }, [
+    messages,
+    selectedDestinations,
+    forwardMode,
+    comment,
+    onForward,
+    onClose,
+  ]);
 
   const handleReset = useCallback(() => {
-    setSelectedDestinations([])
-    setForwardMode('forward')
-    setComment('')
-    setSearchQuery('')
-    setErrors([])
-  }, [])
+    setSelectedDestinations([]);
+    setForwardMode("forward");
+    setComment("");
+    setSearchQuery("");
+    setErrors([]);
+  }, []);
 
   const handleClose = useCallback(() => {
-    handleReset()
-    onClose()
-  }, [handleReset, onClose])
+    handleReset();
+    onClose();
+  }, [handleReset, onClose]);
 
-  const getDestinationIcon = (type: ForwardDestination['type']) => {
+  const getDestinationIcon = (type: ForwardDestination["type"]) => {
     switch (type) {
-      case 'channel':
-        return <Hash className="h-4 w-4" />
-      case 'user':
-        return <User className="h-4 w-4" />
-      case 'thread':
-        return <MessageSquare className="h-4 w-4" />
+      case "channel":
+        return <Hash className="h-4 w-4" />;
+      case "user":
+        return <User className="h-4 w-4" />;
+      case "thread":
+        return <MessageSquare className="h-4 w-4" />;
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
@@ -146,8 +184,8 @@ export function MessageForwardModal({
         <DialogHeader>
           <DialogTitle>Forward Messages</DialogTitle>
           <DialogDescription>
-            Forward {messages.length} message{messages.length !== 1 ? 's' : ''} to other channels or
-            users
+            Forward {messages.length} message{messages.length !== 1 ? "s" : ""}{" "}
+            to other channels or users
           </DialogDescription>
         </DialogHeader>
 
@@ -160,25 +198,33 @@ export function MessageForwardModal({
               onValueChange={(v) => setForwardMode(v as ForwardingMode)}
             >
               <div className="space-y-2">
-                {(['forward', 'copy', 'quote'] as ForwardingMode[]).map((mode) => (
-                  <label
-                    key={mode}
-                    htmlFor={mode}
-                    className={cn(
-                      'flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors',
-                      'hover:border-accent-foreground/20 hover:bg-accent',
-                      forwardMode === mode && 'bg-primary/5 border-primary'
-                    )}
-                  >
-                    <RadioGroupItem value={mode} id={mode} className="mt-0.5" />
-                    <div className="flex-1 space-y-1">
-                      <div className="font-medium">{getForwardModeDisplayText(mode)}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {getForwardModeDescription(mode)}
+                {(["forward", "copy", "quote"] as ForwardingMode[]).map(
+                  (mode) => (
+                    <label
+                      key={mode}
+                      htmlFor={mode}
+                      className={cn(
+                        "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
+                        "hover:border-accent-foreground/20 hover:bg-accent",
+                        forwardMode === mode && "bg-primary/5 border-primary",
+                      )}
+                    >
+                      <RadioGroupItem
+                        value={mode}
+                        id={mode}
+                        className="mt-0.5"
+                      />
+                      <div className="flex-1 space-y-1">
+                        <div className="font-medium">
+                          {getForwardModeDisplayText(mode)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {getForwardModeDescription(mode)}
+                        </div>
                       </div>
-                    </div>
-                  </label>
-                ))}
+                    </label>
+                  ),
+                )}
               </div>
             </RadioGroup>
           </div>
@@ -188,7 +234,8 @@ export function MessageForwardModal({
           {/* Destination Selection */}
           <div className="flex min-h-0 flex-1 flex-col space-y-3">
             <Label>
-              Select Destinations ({selectedDestinations.length}/{MAX_FORWARD_DESTINATIONS})
+              Select Destinations ({selectedDestinations.length}/
+              {MAX_FORWARD_DESTINATIONS})
             </Label>
 
             {/* Search */}
@@ -227,12 +274,17 @@ export function MessageForwardModal({
             )}
 
             {/* Recent Destinations */}
-            {recentDestinations.length > 0 && searchQuery === '' && (
+            {recentDestinations.length > 0 && searchQuery === "" && (
               <div className="space-y-2">
-                <div className="text-xs font-medium text-muted-foreground">Recent</div>
+                <div className="text-xs font-medium text-muted-foreground">
+                  Recent
+                </div>
                 <div className="space-y-1">
                   {recentDestinations.slice(0, 5).map((dest) => {
-                    const isSelected = isDestinationSelected(dest, selectedDestinations)
+                    const isSelected = isDestinationSelected(
+                      dest,
+                      selectedDestinations,
+                    );
 
                     return (
                       <button
@@ -240,21 +292,27 @@ export function MessageForwardModal({
                         type="button"
                         onClick={() => handleToggleDestination(dest)}
                         disabled={
-                          !isSelected && selectedDestinations.length >= MAX_FORWARD_DESTINATIONS
+                          !isSelected &&
+                          selectedDestinations.length >=
+                            MAX_FORWARD_DESTINATIONS
                         }
                         className={cn(
-                          'flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors',
-                          'hover:bg-accent',
-                          isSelected && 'bg-primary/10 hover:bg-primary/15'
+                          "flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors",
+                          "hover:bg-accent",
+                          isSelected && "bg-primary/10 hover:bg-primary/15",
                         )}
                       >
                         <div
                           className={cn(
-                            'flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors',
-                            isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'
+                            "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
+                            isSelected
+                              ? "border-primary bg-primary"
+                              : "border-muted-foreground",
                           )}
                         >
-                          {isSelected && <Check className="text-primary-foreground h-3 w-3" />}
+                          {isSelected && (
+                            <Check className="text-primary-foreground h-3 w-3" />
+                          )}
                         </div>
                         <div className="shrink-0 text-muted-foreground">
                           {getDestinationIcon(dest.type)}
@@ -272,7 +330,7 @@ export function MessageForwardModal({
                           </Badge>
                         )}
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -281,17 +339,20 @@ export function MessageForwardModal({
             {/* All Destinations */}
             <div className="flex min-h-0 flex-1 flex-col">
               <div className="mb-2 text-xs font-medium text-muted-foreground">
-                {searchQuery ? 'Search Results' : 'All Destinations'}
+                {searchQuery ? "Search Results" : "All Destinations"}
               </div>
               <ScrollArea className="-mr-4 flex-1 pr-4">
                 <div className="space-y-1">
                   {filteredDestinations.map((dest) => {
-                    const isSelected = isDestinationSelected(dest, selectedDestinations)
+                    const isSelected = isDestinationSelected(
+                      dest,
+                      selectedDestinations,
+                    );
                     const isRecent = recentDestinations.some(
-                      (r) => r.type === dest.type && r.id === dest.id
-                    )
+                      (r) => r.type === dest.type && r.id === dest.id,
+                    );
 
-                    if (isRecent && searchQuery === '') return null
+                    if (isRecent && searchQuery === "") return null;
 
                     return (
                       <button
@@ -299,24 +360,31 @@ export function MessageForwardModal({
                         type="button"
                         onClick={() => handleToggleDestination(dest)}
                         disabled={
-                          !isSelected && selectedDestinations.length >= MAX_FORWARD_DESTINATIONS
+                          !isSelected &&
+                          selectedDestinations.length >=
+                            MAX_FORWARD_DESTINATIONS
                         }
                         className={cn(
-                          'flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors',
-                          'hover:bg-accent',
-                          isSelected && 'bg-primary/10 hover:bg-primary/15',
+                          "flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors",
+                          "hover:bg-accent",
+                          isSelected && "bg-primary/10 hover:bg-primary/15",
                           !isSelected &&
-                            selectedDestinations.length >= MAX_FORWARD_DESTINATIONS &&
-                            'cursor-not-allowed opacity-50'
+                            selectedDestinations.length >=
+                              MAX_FORWARD_DESTINATIONS &&
+                            "cursor-not-allowed opacity-50",
                         )}
                       >
                         <div
                           className={cn(
-                            'flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors',
-                            isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'
+                            "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
+                            isSelected
+                              ? "border-primary bg-primary"
+                              : "border-muted-foreground",
                           )}
                         >
-                          {isSelected && <Check className="text-primary-foreground h-3 w-3" />}
+                          {isSelected && (
+                            <Check className="text-primary-foreground h-3 w-3" />
+                          )}
                         </div>
                         <div className="shrink-0 text-muted-foreground">
                           {getDestinationIcon(dest.type)}
@@ -334,7 +402,7 @@ export function MessageForwardModal({
                           </Badge>
                         )}
                       </button>
-                    )
+                    );
                   })}
                 </div>
                 {filteredDestinations.length === 0 && (
@@ -368,7 +436,11 @@ export function MessageForwardModal({
           {/* Summary */}
           {selectedDestinations.length > 0 && (
             <div className="rounded-lg bg-muted p-3 text-sm">
-              {getForwardSummary(messages.length, selectedDestinations.length, forwardMode)}
+              {getForwardSummary(
+                messages.length,
+                selectedDestinations.length,
+                forwardMode,
+              )}
             </div>
           )}
 
@@ -393,10 +465,10 @@ export function MessageForwardModal({
             disabled={isForwarding || selectedDestinations.length === 0}
           >
             <Send className="mr-2 h-4 w-4" />
-            {isForwarding ? 'Forwarding...' : 'Forward'}
+            {isForwarding ? "Forwarding..." : "Forward"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -13,36 +13,36 @@
 // =============================================================================
 
 export interface CacheEntry<T = unknown> {
-  data: T
-  timestamp: number
-  ttl: number
-  key: string
-  tags?: string[]
+  data: T;
+  timestamp: number;
+  ttl: number;
+  key: string;
+  tags?: string[];
 }
 
 export interface CacheOptions {
-  ttl?: number // Time to live in milliseconds
-  tags?: string[] // Tags for bulk invalidation
-  skipCache?: boolean // Skip cache for this request
-  forceRefresh?: boolean // Force cache refresh
+  ttl?: number; // Time to live in milliseconds
+  tags?: string[]; // Tags for bulk invalidation
+  skipCache?: boolean; // Skip cache for this request
+  forceRefresh?: boolean; // Force cache refresh
 }
 
 export interface CacheStats {
-  hits: number
-  misses: number
-  size: number
-  hitRate: number
+  hits: number;
+  misses: number;
+  size: number;
+  hitRate: number;
 }
 
-export type CacheKeyFunction = (...args: unknown[]) => string
+export type CacheKeyFunction = (...args: unknown[]) => string;
 
 // =============================================================================
 // Constants
 // =============================================================================
 
-const DEFAULT_TTL = 5 * 60 * 1000 // 5 minutes
-const MAX_CACHE_SIZE = 100 // Maximum number of entries
-const CLEANUP_INTERVAL = 60 * 1000 // Clean up every minute
+const DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_SIZE = 100; // Maximum number of entries
+const CLEANUP_INTERVAL = 60 * 1000; // Clean up every minute
 
 /**
  * TTL configuration for different data types
@@ -65,7 +65,7 @@ export const CACHE_TTL = {
 
   // Real-time data (no cache)
   NONE: 0,
-} as const
+} as const;
 
 // =============================================================================
 // Cache Manager
@@ -75,59 +75,59 @@ export const CACHE_TTL = {
  * In-memory cache manager for API responses
  */
 export class ApiCacheManager {
-  private cache: Map<string, CacheEntry> = new Map()
+  private cache: Map<string, CacheEntry> = new Map();
   private stats: CacheStats = {
     hits: 0,
     misses: 0,
     size: 0,
     hitRate: 0,
-  }
-  private cleanupTimer?: NodeJS.Timeout
+  };
+  private cleanupTimer?: NodeJS.Timeout;
 
   constructor() {
-    this.startCleanup()
+    this.startCleanup();
   }
 
   /**
    * Get value from cache
    */
   get<T = unknown>(key: string): T | null {
-    const entry = this.cache.get(key)
+    const entry = this.cache.get(key);
 
     if (!entry) {
-      this.stats.misses++
-      this.updateHitRate()
-      return null
+      this.stats.misses++;
+      this.updateHitRate();
+      return null;
     }
 
     // Check if expired
-    const now = Date.now()
-    const age = now - entry.timestamp
+    const now = Date.now();
+    const age = now - entry.timestamp;
 
     if (age > entry.ttl) {
-      this.cache.delete(key)
-      this.stats.misses++
-      this.updateHitRate()
-      return null
+      this.cache.delete(key);
+      this.stats.misses++;
+      this.updateHitRate();
+      return null;
     }
 
-    this.stats.hits++
-    this.updateHitRate()
-    return entry.data as T
+    this.stats.hits++;
+    this.updateHitRate();
+    return entry.data as T;
   }
 
   /**
    * Set value in cache
    */
   set<T = unknown>(key: string, data: T, options: CacheOptions = {}): void {
-    const ttl = options.ttl ?? DEFAULT_TTL
+    const ttl = options.ttl ?? DEFAULT_TTL;
 
     // Don't cache if TTL is 0
-    if (ttl === 0) return
+    if (ttl === 0) return;
 
     // Check cache size limit
     if (this.cache.size >= MAX_CACHE_SIZE) {
-      this.evictOldest()
+      this.evictOldest();
     }
 
     const entry: CacheEntry<T> = {
@@ -136,95 +136,95 @@ export class ApiCacheManager {
       ttl,
       key,
       tags: options.tags,
-    }
+    };
 
-    this.cache.set(key, entry)
-    this.stats.size = this.cache.size
+    this.cache.set(key, entry);
+    this.stats.size = this.cache.size;
   }
 
   /**
    * Check if key exists and is valid
    */
   has(key: string): boolean {
-    return this.get(key) !== null
+    return this.get(key) !== null;
   }
 
   /**
    * Delete specific cache entry
    */
   delete(key: string): boolean {
-    const deleted = this.cache.delete(key)
-    this.stats.size = this.cache.size
-    return deleted
+    const deleted = this.cache.delete(key);
+    this.stats.size = this.cache.size;
+    return deleted;
   }
 
   /**
    * Invalidate cache entries by tag
    */
   invalidateByTag(tag: string): number {
-    let count = 0
+    let count = 0;
 
     for (const [key, entry] of this.cache.entries()) {
       if (entry.tags?.includes(tag)) {
-        this.cache.delete(key)
-        count++
+        this.cache.delete(key);
+        count++;
       }
     }
 
-    this.stats.size = this.cache.size
-    return count
+    this.stats.size = this.cache.size;
+    return count;
   }
 
   /**
    * Invalidate multiple tags at once
    */
   invalidateTags(tags: string[]): number {
-    const tagSet = new Set(tags)
-    let count = 0
+    const tagSet = new Set(tags);
+    let count = 0;
 
     for (const [key, entry] of this.cache.entries()) {
       if (entry.tags?.some((tag) => tagSet.has(tag))) {
-        this.cache.delete(key)
-        count++
+        this.cache.delete(key);
+        count++;
       }
     }
 
-    this.stats.size = this.cache.size
-    return count
+    this.stats.size = this.cache.size;
+    return count;
   }
 
   /**
    * Clear all cache
    */
   clear(): void {
-    this.cache.clear()
+    this.cache.clear();
     this.stats = {
       hits: 0,
       misses: 0,
       size: 0,
       hitRate: 0,
-    }
+    };
   }
 
   /**
    * Get cache statistics
    */
   getStats(): CacheStats {
-    return { ...this.stats }
+    return { ...this.stats };
   }
 
   /**
    * Get all cache keys
    */
   keys(): string[] {
-    return Array.from(this.cache.keys())
+    return Array.from(this.cache.keys());
   }
 
   /**
    * Get cache size
    */
   size(): number {
-    return this.cache.size
+    return this.cache.size;
   }
 
   // -------------------------------------------------------------------------
@@ -235,18 +235,18 @@ export class ApiCacheManager {
    * Evict oldest cache entry
    */
   private evictOldest(): void {
-    let oldestKey: string | null = null
-    let oldestTime = Infinity
+    let oldestKey: string | null = null;
+    let oldestTime = Infinity;
 
     for (const [key, entry] of this.cache.entries()) {
       if (entry.timestamp < oldestTime) {
-        oldestTime = entry.timestamp
-        oldestKey = key
+        oldestTime = entry.timestamp;
+        oldestKey = key;
       }
     }
 
     if (oldestKey) {
-      this.cache.delete(oldestKey)
+      this.cache.delete(oldestKey);
     }
   }
 
@@ -254,40 +254,40 @@ export class ApiCacheManager {
    * Update hit rate
    */
   private updateHitRate(): void {
-    const total = this.stats.hits + this.stats.misses
-    this.stats.hitRate = total > 0 ? this.stats.hits / total : 0
+    const total = this.stats.hits + this.stats.misses;
+    this.stats.hitRate = total > 0 ? this.stats.hits / total : 0;
   }
 
   /**
    * Start cleanup timer
    */
   private startCleanup(): void {
-    if (typeof window === 'undefined') return // Server-side only
+    if (typeof window === "undefined") return; // Server-side only
 
     this.cleanupTimer = setInterval(() => {
-      this.cleanup()
-    }, CLEANUP_INTERVAL)
+      this.cleanup();
+    }, CLEANUP_INTERVAL);
   }
 
   /**
    * Clean up expired entries
    */
   private cleanup(): void {
-    const now = Date.now()
-    const keysToDelete: string[] = []
+    const now = Date.now();
+    const keysToDelete: string[] = [];
 
     for (const [key, entry] of this.cache.entries()) {
-      const age = now - entry.timestamp
+      const age = now - entry.timestamp;
       if (age > entry.ttl) {
-        keysToDelete.push(key)
+        keysToDelete.push(key);
       }
     }
 
     for (const key of keysToDelete) {
-      this.cache.delete(key)
+      this.cache.delete(key);
     }
 
-    this.stats.size = this.cache.size
+    this.stats.size = this.cache.size;
   }
 
   /**
@@ -295,10 +295,10 @@ export class ApiCacheManager {
    */
   destroy(): void {
     if (this.cleanupTimer) {
-      clearInterval(this.cleanupTimer)
-      this.cleanupTimer = undefined
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = undefined;
     }
-    this.clear()
+    this.clear();
   }
 }
 
@@ -306,16 +306,16 @@ export class ApiCacheManager {
 // Singleton Instance
 // =============================================================================
 
-let apiCacheInstance: ApiCacheManager | null = null
+let apiCacheInstance: ApiCacheManager | null = null;
 
 /**
  * Get singleton cache instance
  */
 export function getApiCache(): ApiCacheManager {
   if (!apiCacheInstance) {
-    apiCacheInstance = new ApiCacheManager()
+    apiCacheInstance = new ApiCacheManager();
   }
-  return apiCacheInstance
+  return apiCacheInstance;
 }
 
 /**
@@ -323,8 +323,8 @@ export function getApiCache(): ApiCacheManager {
  */
 export function resetApiCache(): void {
   if (apiCacheInstance) {
-    apiCacheInstance.destroy()
-    apiCacheInstance = null
+    apiCacheInstance.destroy();
+    apiCacheInstance = null;
   }
 }
 
@@ -336,21 +336,21 @@ export function resetApiCache(): void {
  * Generate cache key for user data
  */
 export function userCacheKey(userId: string, field?: string): string {
-  return field ? `user:${userId}:${field}` : `user:${userId}`
+  return field ? `user:${userId}:${field}` : `user:${userId}`;
 }
 
 /**
  * Generate cache key for channel data
  */
 export function channelCacheKey(channelId: string, field?: string): string {
-  return field ? `channel:${channelId}:${field}` : `channel:${channelId}`
+  return field ? `channel:${channelId}:${field}` : `channel:${channelId}`;
 }
 
 /**
  * Generate cache key for message data
  */
 export function messageCacheKey(messageId: string): string {
-  return `message:${messageId}`
+  return `message:${messageId}`;
 }
 
 /**
@@ -358,21 +358,25 @@ export function messageCacheKey(messageId: string): string {
  */
 export function channelMessagesCacheKey(
   channelId: string,
-  options?: { limit?: number; offset?: number }
+  options?: { limit?: number; offset?: number },
 ): string {
-  const params = options ? `:${options.limit ?? ''}:${options.offset ?? ''}` : ''
-  return `channel:${channelId}:messages${params}`
+  const params = options
+    ? `:${options.limit ?? ""}:${options.offset ?? ""}`
+    : "";
+  return `channel:${channelId}:messages${params}`;
 }
 
 /**
  * Generate cache key for user permissions
  */
 export function permissionsCacheKey(userId: string, resource?: string): string {
-  return resource ? `permissions:${userId}:${resource}` : `permissions:${userId}`
+  return resource
+    ? `permissions:${userId}:${resource}`
+    : `permissions:${userId}`;
 }
 
 // =============================================================================
 // Exports
 // =============================================================================
 
-export default getApiCache()
+export default getApiCache();

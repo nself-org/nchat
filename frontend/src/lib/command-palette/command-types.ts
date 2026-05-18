@@ -4,35 +4,35 @@
  * TypeScript type definitions for the command palette system
  */
 
-import { LucideIcon } from 'lucide-react'
+import { LucideIcon } from "lucide-react";
 
 // ============================================================================
 // Command Categories
 // ============================================================================
 
 export type CommandCategory =
-  | 'navigation'
-  | 'channel'
-  | 'dm'
-  | 'user'
-  | 'message'
-  | 'settings'
-  | 'action'
-  | 'search'
-  | 'create'
-  | 'recent'
+  | "navigation"
+  | "channel"
+  | "dm"
+  | "user"
+  | "message"
+  | "settings"
+  | "action"
+  | "search"
+  | "create"
+  | "recent";
 
 // ============================================================================
 // Command Priority
 // ============================================================================
 
-export type CommandPriority = 'high' | 'normal' | 'low'
+export type CommandPriority = "high" | "normal" | "low";
 
 // ============================================================================
 // Command Status
 // ============================================================================
 
-export type CommandStatus = 'ready' | 'loading' | 'disabled' | 'hidden'
+export type CommandStatus = "ready" | "loading" | "disabled" | "hidden";
 
 // ============================================================================
 // Command Shortcut
@@ -40,9 +40,9 @@ export type CommandStatus = 'ready' | 'loading' | 'disabled' | 'hidden'
 
 export interface CommandShortcut {
   /** Key combination (e.g., 'mod+k', 'shift+enter') */
-  keys: string
+  keys: string;
   /** Display label for the shortcut */
-  label?: string
+  label?: string;
 }
 
 // ============================================================================
@@ -51,31 +51,31 @@ export interface CommandShortcut {
 
 export interface BaseCommand {
   /** Unique identifier for the command */
-  id: string
+  id: string;
   /** Display name for the command */
-  name: string
+  name: string;
   /** Optional description */
-  description?: string
+  description?: string;
   /** Command category for grouping */
-  category: CommandCategory
+  category: CommandCategory;
   /** Icon component or icon name */
-  icon?: LucideIcon | string
+  icon?: LucideIcon | string;
   /** Keyboard shortcut */
-  shortcut?: CommandShortcut
+  shortcut?: CommandShortcut;
   /** Priority for sorting */
-  priority?: CommandPriority
+  priority?: CommandPriority;
   /** Current status */
-  status?: CommandStatus
+  status?: CommandStatus;
   /** Keywords for search matching */
-  keywords?: string[]
+  keywords?: string[];
   /** Parent command ID for nested commands */
-  parentId?: string
+  parentId?: string;
   /** Whether command requires confirmation */
-  requiresConfirmation?: boolean
+  requiresConfirmation?: boolean;
   /** Whether command is recently used */
-  isRecent?: boolean
+  isRecent?: boolean;
   /** Custom metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -84,9 +84,9 @@ export interface BaseCommand {
 
 export interface ExecutableCommand extends BaseCommand {
   /** Command execution handler */
-  execute: (context: CommandExecutionContext) => void | Promise<void>
+  execute: (context: CommandExecutionContext) => void | Promise<void>;
   /** Whether command can execute (for dynamic enabling/disabling) */
-  canExecute?: (context: CommandExecutionContext) => boolean
+  canExecute?: (context: CommandExecutionContext) => boolean;
 }
 
 // ============================================================================
@@ -94,14 +94,14 @@ export interface ExecutableCommand extends BaseCommand {
 // ============================================================================
 
 export interface ChannelCommandData extends BaseCommand {
-  category: 'channel'
-  channelId: string
-  channelName: string
-  channelType: 'public' | 'private' | 'direct' | 'group'
-  unreadCount?: number
-  memberCount?: number
-  isStarred?: boolean
-  isMuted?: boolean
+  category: "channel";
+  channelId: string;
+  channelName: string;
+  channelType: "public" | "private" | "direct" | "group";
+  unreadCount?: number;
+  memberCount?: number;
+  isStarred?: boolean;
+  isMuted?: boolean;
 }
 
 // ============================================================================
@@ -109,13 +109,13 @@ export interface ChannelCommandData extends BaseCommand {
 // ============================================================================
 
 export interface DMCommandData extends BaseCommand {
-  category: 'dm'
-  userId: string
-  userName: string
-  userDisplayName: string
-  avatarUrl?: string
-  presence?: 'online' | 'away' | 'dnd' | 'offline' | 'invisible'
-  unreadCount?: number
+  category: "dm";
+  userId: string;
+  userName: string;
+  userDisplayName: string;
+  avatarUrl?: string;
+  presence?: "online" | "away" | "dnd" | "offline" | "invisible";
+  unreadCount?: number;
 }
 
 // ============================================================================
@@ -123,13 +123,13 @@ export interface DMCommandData extends BaseCommand {
 // ============================================================================
 
 export interface UserCommandData extends BaseCommand {
-  category: 'user'
-  userId: string
-  userName: string
-  userDisplayName: string
-  avatarUrl?: string
-  role?: string
-  presence?: 'online' | 'away' | 'dnd' | 'offline' | 'invisible'
+  category: "user";
+  userId: string;
+  userName: string;
+  userDisplayName: string;
+  avatarUrl?: string;
+  role?: string;
+  presence?: "online" | "away" | "dnd" | "offline" | "invisible";
 }
 
 // ============================================================================
@@ -137,13 +137,13 @@ export interface UserCommandData extends BaseCommand {
 // ============================================================================
 
 export interface MessageCommandData extends BaseCommand {
-  category: 'message'
-  messageId: string
-  messagePreview: string
-  channelId: string
-  channelName: string
-  authorName: string
-  timestamp: Date
+  category: "message";
+  messageId: string;
+  messagePreview: string;
+  channelId: string;
+  channelName: string;
+  authorName: string;
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -151,9 +151,9 @@ export interface MessageCommandData extends BaseCommand {
 // ============================================================================
 
 export interface SettingsCommandData extends BaseCommand {
-  category: 'settings'
-  settingsPath: string
-  settingsSection?: string
+  category: "settings";
+  settingsPath: string;
+  settingsSection?: string;
 }
 
 // ============================================================================
@@ -161,9 +161,9 @@ export interface SettingsCommandData extends BaseCommand {
 // ============================================================================
 
 export interface ActionCommandData extends ExecutableCommand {
-  category: 'action'
+  category: "action";
   /** Whether action is destructive (e.g., sign out, delete) */
-  isDestructive?: boolean
+  isDestructive?: boolean;
 }
 
 // ============================================================================
@@ -171,9 +171,9 @@ export interface ActionCommandData extends ExecutableCommand {
 // ============================================================================
 
 export interface SearchCommandData extends BaseCommand {
-  category: 'search'
-  searchType: 'messages' | 'files' | 'users' | 'channels' | 'all'
-  searchQuery?: string
+  category: "search";
+  searchType: "messages" | "files" | "users" | "channels" | "all";
+  searchQuery?: string;
 }
 
 // ============================================================================
@@ -181,8 +181,8 @@ export interface SearchCommandData extends BaseCommand {
 // ============================================================================
 
 export interface CreateCommandData extends ExecutableCommand {
-  category: 'create'
-  createType: 'channel' | 'dm' | 'group'
+  category: "create";
+  createType: "channel" | "dm" | "group";
 }
 
 // ============================================================================
@@ -198,7 +198,7 @@ export type Command =
   | ActionCommandData
   | SearchCommandData
   | CreateCommandData
-  | ExecutableCommand
+  | ExecutableCommand;
 
 // ============================================================================
 // Command Execution Context Data
@@ -207,19 +207,19 @@ export type Command =
 export interface CommandExecutionContextData {
   /** Open a modal by type (accepts modal type and optional data) */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  openModal?: (...args: any[]) => void
+  openModal?: (...args: any[]) => void;
   /** Toggle theme between light and dark */
-  toggleTheme?: () => void
+  toggleTheme?: () => void;
   /** Mark all messages as read */
-  markAllAsRead?: () => void
+  markAllAsRead?: () => void;
   /** Toggle Do Not Disturb mode */
-  toggleDND?: () => void
+  toggleDND?: () => void;
   /** Toggle sidebar visibility */
-  toggleSidebar?: () => void
+  toggleSidebar?: () => void;
   /** Sign out the current user */
-  signOut?: () => void
+  signOut?: () => void;
   /** Additional custom data */
-  [key: string]: unknown
+  [key: string]: unknown;
 }
 
 // ============================================================================
@@ -228,17 +228,17 @@ export interface CommandExecutionContextData {
 
 export interface CommandExecutionContext {
   /** Close the command palette after execution */
-  closeCommandPalette: () => void
+  closeCommandPalette: () => void;
   /** Navigate to a route */
-  navigate: (path: string) => void
+  navigate: (path: string) => void;
   /** Current user ID */
-  currentUserId?: string
+  currentUserId?: string;
   /** Current channel ID */
-  currentChannelId?: string
+  currentChannelId?: string;
   /** Search query if any */
-  searchQuery?: string
+  searchQuery?: string;
   /** Additional context data */
-  data?: CommandExecutionContextData
+  data?: CommandExecutionContextData;
 }
 
 // ============================================================================
@@ -247,17 +247,17 @@ export interface CommandExecutionContext {
 
 export interface CommandSearchOptions {
   /** Maximum results to return */
-  limit?: number
+  limit?: number;
   /** Filter by categories */
-  categories?: CommandCategory[]
+  categories?: CommandCategory[];
   /** Include hidden commands */
-  includeHidden?: boolean
+  includeHidden?: boolean;
   /** Minimum score threshold (0-1) */
-  minScore?: number
+  minScore?: number;
   /** Include recent commands */
-  includeRecent?: boolean
+  includeRecent?: boolean;
   /** Custom scoring function */
-  customScorer?: (command: Command, query: string) => number
+  customScorer?: (command: Command, query: string) => number;
 }
 
 // ============================================================================
@@ -266,20 +266,20 @@ export interface CommandSearchOptions {
 
 export interface CommandSearchResult {
   /** The matched command */
-  command: Command
+  command: Command;
   /** Search score (0-1) */
-  score: number
+  score: number;
   /** Matched portions for highlighting */
-  matches?: CommandMatch[]
+  matches?: CommandMatch[];
 }
 
 export interface CommandMatch {
   /** Field that matched */
-  field: 'name' | 'description' | 'keywords'
+  field: "name" | "description" | "keywords";
   /** Start index of match */
-  start: number
+  start: number;
   /** End index of match */
-  end: number
+  end: number;
 }
 
 // ============================================================================
@@ -288,19 +288,19 @@ export interface CommandMatch {
 
 export interface CommandGroup {
   /** Group identifier */
-  id: string
+  id: string;
   /** Display name */
-  name: string
+  name: string;
   /** Icon for the group */
-  icon?: LucideIcon | string
+  icon?: LucideIcon | string;
   /** Commands in this group */
-  commands: Command[]
+  commands: Command[];
   /** Group priority for ordering */
-  priority?: number
+  priority?: number;
   /** Whether group is collapsible */
-  collapsible?: boolean
+  collapsible?: boolean;
   /** Whether group is collapsed by default */
-  defaultCollapsed?: boolean
+  defaultCollapsed?: boolean;
 }
 
 // ============================================================================
@@ -309,11 +309,11 @@ export interface CommandGroup {
 
 export interface CommandHistoryEntry {
   /** Command ID */
-  commandId: string
+  commandId: string;
   /** Timestamp of execution */
-  executedAt: Date
+  executedAt: Date;
   /** Execution count */
-  count: number
+  count: number;
 }
 
 // ============================================================================
@@ -322,13 +322,13 @@ export interface CommandHistoryEntry {
 
 export interface CommandRegistryOptions {
   /** Enable built-in commands */
-  enableBuiltIn?: boolean
+  enableBuiltIn?: boolean;
   /** Maximum recent commands to track */
-  maxRecentCommands?: number
+  maxRecentCommands?: number;
   /** Persist history to localStorage */
-  persistHistory?: boolean
+  persistHistory?: boolean;
   /** History storage key */
-  historyKey?: string
+  historyKey?: string;
 }
 
 // ============================================================================
@@ -337,23 +337,23 @@ export interface CommandRegistryOptions {
 
 export interface CommandPaletteState {
   /** Whether palette is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Current search query */
-  query: string
+  query: string;
   /** Active filter/mode */
-  mode: 'all' | 'channels' | 'dms' | 'users' | 'search' | 'actions'
+  mode: "all" | "channels" | "dms" | "users" | "search" | "actions";
   /** Selected command index */
-  selectedIndex: number
+  selectedIndex: number;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error message if any */
-  error: string | null
+  error: string | null;
   /** Filtered/searched commands */
-  filteredCommands: Command[]
+  filteredCommands: Command[];
   /** Recent commands */
-  recentCommands: Command[]
+  recentCommands: Command[];
   /** Whether showing recent view */
-  showRecent: boolean
+  showRecent: boolean;
 }
 
 // ============================================================================
@@ -362,37 +362,37 @@ export interface CommandPaletteState {
 
 export interface CommandPaletteActions {
   /** Open the command palette */
-  open: (mode?: CommandPaletteState['mode']) => void
+  open: (mode?: CommandPaletteState["mode"]) => void;
   /** Close the command palette */
-  close: () => void
+  close: () => void;
   /** Toggle the command palette */
-  toggle: () => void
+  toggle: () => void;
   /** Set search query */
-  setQuery: (query: string) => void
+  setQuery: (query: string) => void;
   /** Set mode/filter */
-  setMode: (mode: CommandPaletteState['mode']) => void
+  setMode: (mode: CommandPaletteState["mode"]) => void;
   /** Select next command */
-  selectNext: () => void
+  selectNext: () => void;
   /** Select previous command */
-  selectPrevious: () => void
+  selectPrevious: () => void;
   /** Select command at index */
-  selectIndex: (index: number) => void
+  selectIndex: (index: number) => void;
   /** Execute selected command */
-  executeSelected: (context: CommandExecutionContext) => void
+  executeSelected: (context: CommandExecutionContext) => void;
   /** Execute command by ID */
-  executeCommand: (commandId: string, context: CommandExecutionContext) => void
+  executeCommand: (commandId: string, context: CommandExecutionContext) => void;
   /** Add command to history */
-  addToHistory: (commandId: string) => void
+  addToHistory: (commandId: string) => void;
   /** Clear history */
-  clearHistory: () => void
+  clearHistory: () => void;
   /** Set filtered commands */
-  setFilteredCommands: (commands: Command[]) => void
+  setFilteredCommands: (commands: Command[]) => void;
   /** Set loading state */
-  setLoading: (loading: boolean) => void
+  setLoading: (loading: boolean) => void;
   /** Set error */
-  setError: (error: string | null) => void
+  setError: (error: string | null) => void;
   /** Reset state */
-  reset: () => void
+  reset: () => void;
 }
 
-export type CommandPaletteStore = CommandPaletteState & CommandPaletteActions
+export type CommandPaletteStore = CommandPaletteState & CommandPaletteActions;

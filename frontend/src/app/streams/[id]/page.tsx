@@ -5,39 +5,39 @@
  * Supports live chat, reactions, and viewer count.
  */
 
-'use client'
+"use client";
 
-import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { StreamPlayer } from '@/components/voice-video/StreamPlayer'
-import { useAuth } from '@/contexts/auth-context'
-import { logger } from '@/lib/logger'
-import { Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { getSocket, connect, on, off } from '@/lib/socket/client'
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { StreamPlayer } from "@/components/voice-video/StreamPlayer";
+import { useAuth } from "@/contexts/auth-context";
+import { logger } from "@/lib/logger";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { getSocket, connect, on, off } from "@/lib/socket/client";
 import type {
   StreamMetadata,
   StreamMessage,
   StreamReaction,
-} from '@/components/voice-video/StreamPlayer'
+} from "@/components/voice-video/StreamPlayer";
 
 // =============================================================================
 // Socket event payload types for streams
 // =============================================================================
 
 interface StreamViewerCountEvent {
-  streamId: string
-  count: number
+  streamId: string;
+  count: number;
 }
 
 interface StreamChatEvent {
-  id: string
-  streamId: string
-  userId: string
-  userName: string
-  userAvatarUrl?: string
-  message: string
-  timestamp: string
+  id: string;
+  streamId: string;
+  userId: string;
+  userName: string;
+  userAvatarUrl?: string;
+  message: string;
+  timestamp: string;
 }
 
 // =============================================================================
@@ -45,87 +45,92 @@ interface StreamChatEvent {
 // =============================================================================
 
 export default function StreamPage() {
-  const params = useParams()
-  const router = useRouter()
-  const { user } = useAuth()
-  const streamId = params.id as string
+  const params = useParams();
+  const router = useRouter();
+  const { user } = useAuth();
+  const streamId = params.id as string;
 
   // Local state
-  const [isLoading, setIsLoading] = useState(true)
-  const [streamMetadata, setStreamMetadata] = useState<StreamMetadata | null>(null)
-  const [streamUrl, setStreamUrl] = useState<string | null>(null)
-  const [messages, setMessages] = useState<StreamMessage[]>([])
+  const [isLoading, setIsLoading] = useState(true);
+  const [streamMetadata, setStreamMetadata] = useState<StreamMetadata | null>(
+    null,
+  );
+  const [streamUrl, setStreamUrl] = useState<string | null>(null);
+  const [messages, setMessages] = useState<StreamMessage[]>([]);
   const [reactions, setReactions] = useState<StreamReaction[]>([
-    { type: 'heart', count: 0 },
-    { type: 'thumbsup', count: 0 },
-    { type: 'smile', count: 0 },
-    { type: 'fire', count: 0 },
-    { type: 'clap', count: 0 },
-  ])
-  const [error, setError] = useState<string | null>(null)
+    { type: "heart", count: 0 },
+    { type: "thumbsup", count: 0 },
+    { type: "smile", count: 0 },
+    { type: "fire", count: 0 },
+    { type: "clap", count: 0 },
+  ]);
+  const [error, setError] = useState<string | null>(null);
 
   // Keep a stable ref to streamId for use in event callbacks
-  const streamIdRef = useRef(streamId)
-  streamIdRef.current = streamId
+  const streamIdRef = useRef(streamId);
+  streamIdRef.current = streamId;
 
   // Fetch stream metadata
   useEffect(() => {
-    if (!streamId) return
+    if (!streamId) return;
 
     const fetchStreamMetadata = async () => {
       try {
-        setIsLoading(true)
-        logger.info('[Stream Page] Fetching stream metadata', { streamId })
+        setIsLoading(true);
+        logger.info("[Stream Page] Fetching stream metadata", { streamId });
 
-        const response = await fetch(`/api/streams/${streamId}`)
+        const response = await fetch(`/api/streams/${streamId}`);
         if (!response.ok) {
-          throw new Error('Stream not found')
+          throw new Error("Stream not found");
         }
 
-        const data = await response.json()
-        setStreamMetadata(data.metadata)
-        setStreamUrl(data.streamUrl)
+        const data = await response.json();
+        setStreamMetadata(data.metadata);
+        setStreamUrl(data.streamUrl);
 
-        logger.info('[Stream Page] Stream metadata loaded', data)
+        logger.info("[Stream Page] Stream metadata loaded", data);
       } catch (error) {
-        logger.error('[Stream Page] Failed to fetch stream', error)
-        setError('Stream not found or unavailable')
-        toast.error('Failed to load stream')
+        logger.error("[Stream Page] Failed to fetch stream", error);
+        setError("Stream not found or unavailable");
+        toast.error("Failed to load stream");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchStreamMetadata()
-  }, [streamId])
+    fetchStreamMetadata();
+  }, [streamId]);
 
   // Subscribe to stream chat and viewer count via Socket.io
   useEffect(() => {
-    if (!streamId || !user) return
+    if (!streamId || !user) return;
 
     // Ensure socket is connected; connect() is a no-op when already connected.
-    connect()
+    connect();
 
-    const socket = getSocket()
+    const socket = getSocket();
     if (!socket) {
-      logger.warn('[Stream Page] Socket not available for stream subscription', { streamId })
-      return
+      logger.warn(
+        "[Stream Page] Socket not available for stream subscription",
+        { streamId },
+      );
+      return;
     }
 
     // Join the stream room so the server can send targeted events
-    socket.emit('channel:join', { channelId: streamId })
+    socket.emit("channel:join", { channelId: streamId });
 
     // Handler: viewer count updates broadcast by the realtime server
     const handleViewerCount = (data: StreamViewerCountEvent) => {
-      if (data.streamId !== streamIdRef.current) return
+      if (data.streamId !== streamIdRef.current) return;
       setStreamMetadata((prev) =>
-        prev ? { ...prev, viewerCount: data.count } : prev
-      )
-    }
+        prev ? { ...prev, viewerCount: data.count } : prev,
+      );
+    };
 
     // Handler: chat messages from other viewers
     const handleStreamChat = (data: StreamChatEvent) => {
-      if (data.streamId !== streamIdRef.current) return
+      if (data.streamId !== streamIdRef.current) return;
       const msg: StreamMessage = {
         id: data.id,
         userId: data.userId,
@@ -133,32 +138,36 @@ export default function StreamPage() {
         userAvatarUrl: data.userAvatarUrl,
         message: data.message,
         timestamp: new Date(data.timestamp),
-      }
-      setMessages((prev) => [...prev, msg])
-    }
+      };
+      setMessages((prev) => [...prev, msg]);
+    };
 
     // Attach listeners — the realtime server emits these on the stream room
-    on('stream:viewerCount' as never, handleViewerCount as never)
-    on('stream:chat' as never, handleStreamChat as never)
+    on("stream:viewerCount" as never, handleViewerCount as never);
+    on("stream:chat" as never, handleStreamChat as never);
 
-    logger.info('[Stream Page] Subscribed to stream updates via Socket.io', { streamId })
+    logger.info("[Stream Page] Subscribed to stream updates via Socket.io", {
+      streamId,
+    });
 
     return () => {
       // Leave the stream room and detach listeners on unmount
-      const s = getSocket()
+      const s = getSocket();
       if (s) {
-        s.emit('channel:leave', { channelId: streamId })
+        s.emit("channel:leave", { channelId: streamId });
       }
-      off('stream:viewerCount' as never, handleViewerCount as never)
-      off('stream:chat' as never, handleStreamChat as never)
-      logger.info('[Stream Page] Unsubscribed from stream updates', { streamId })
-    }
-  }, [streamId, user])
+      off("stream:viewerCount" as never, handleViewerCount as never);
+      off("stream:chat" as never, handleStreamChat as never);
+      logger.info("[Stream Page] Unsubscribed from stream updates", {
+        streamId,
+      });
+    };
+  }, [streamId, user]);
 
   // Handle send message
   const handleSendMessage = useCallback(
     async (message: string) => {
-      if (!user || !streamId) return
+      if (!user || !streamId) return;
 
       try {
         const newMessage: StreamMessage = {
@@ -168,104 +177,104 @@ export default function StreamPage() {
           userAvatarUrl: user.avatarUrl,
           message,
           timestamp: new Date(),
-        }
+        };
 
         // Optimistically add to local state
-        setMessages((prev) => [...prev, newMessage])
+        setMessages((prev) => [...prev, newMessage]);
 
         // Send to backend
         await fetch(`/api/streams/${streamId}/chat`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ message }),
-        })
+        });
 
-        logger.info('[Stream Page] Message sent', { message })
+        logger.info("[Stream Page] Message sent", { message });
       } catch (error) {
-        logger.error('[Stream Page] Failed to send message', error)
-        toast.error('Failed to send message')
+        logger.error("[Stream Page] Failed to send message", error);
+        toast.error("Failed to send message");
       }
     },
-    [user, streamId]
-  )
+    [user, streamId],
+  );
 
   // Handle reaction
   const handleReaction = useCallback(
-    async (type: StreamReaction['type']) => {
-      if (!streamId) return
+    async (type: StreamReaction["type"]) => {
+      if (!streamId) return;
 
       try {
         // Optimistically update local state
         setReactions((prev) =>
-          prev.map((r) => (r.type === type ? { ...r, count: r.count + 1 } : r))
-        )
+          prev.map((r) => (r.type === type ? { ...r, count: r.count + 1 } : r)),
+        );
 
         // Send to backend
         await fetch(`/api/streams/${streamId}/reactions`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ type }),
-        })
+        });
 
-        logger.info('[Stream Page] Reaction sent', { type })
+        logger.info("[Stream Page] Reaction sent", { type });
       } catch (error) {
-        logger.error('[Stream Page] Failed to send reaction', error)
+        logger.error("[Stream Page] Failed to send reaction", error);
         // Revert on error
         setReactions((prev) =>
-          prev.map((r) => (r.type === type ? { ...r, count: r.count - 1 } : r))
-        )
+          prev.map((r) => (r.type === type ? { ...r, count: r.count - 1 } : r)),
+        );
       }
     },
-    [streamId]
-  )
+    [streamId],
+  );
 
   // Handle follow
   const handleFollow = useCallback(async () => {
-    if (!user || !streamMetadata) return
+    if (!user || !streamMetadata) return;
 
     try {
       await fetch(`/api/users/${streamMetadata.streamer.id}/follow`, {
-        method: 'POST',
-      })
+        method: "POST",
+      });
 
-      toast.success(`Now following ${streamMetadata.streamer.name}`)
-      logger.info('[Stream Page] Followed streamer', {
+      toast.success(`Now following ${streamMetadata.streamer.name}`);
+      logger.info("[Stream Page] Followed streamer", {
         streamerId: streamMetadata.streamer.id,
-      })
+      });
     } catch (error) {
-      logger.error('[Stream Page] Failed to follow', error)
-      toast.error('Failed to follow streamer')
+      logger.error("[Stream Page] Failed to follow", error);
+      toast.error("Failed to follow streamer");
     }
-  }, [user, streamMetadata])
+  }, [user, streamMetadata]);
 
   // Handle share
   const handleShare = useCallback(async () => {
-    if (!streamMetadata) return
+    if (!streamMetadata) return;
 
     try {
-      const shareUrl = `${window.location.origin}/streams/${streamId}`
+      const shareUrl = `${window.location.origin}/streams/${streamId}`;
 
       if (navigator.share) {
         await navigator.share({
           title: streamMetadata.title,
           text: `Watch ${streamMetadata.streamer.name}'s live stream!`,
           url: shareUrl,
-        })
+        });
       } else {
         // Fallback: copy to clipboard
-        await navigator.clipboard.writeText(shareUrl)
-        toast.success('Stream link copied to clipboard')
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Stream link copied to clipboard");
       }
 
-      logger.info('[Stream Page] Stream shared')
+      logger.info("[Stream Page] Stream shared");
     } catch (error) {
-      logger.error('[Stream Page] Failed to share', error)
+      logger.error("[Stream Page] Failed to share", error);
     }
-  }, [streamId, streamMetadata])
+  }, [streamId, streamMetadata]);
 
   // Show loading state
   if (isLoading) {
@@ -276,7 +285,7 @@ export default function StreamPage() {
           <p className="text-lg text-white">Loading stream...</p>
         </div>
       </div>
-    )
+    );
   }
 
   // Show error state
@@ -285,16 +294,16 @@ export default function StreamPage() {
       <div className="flex h-screen w-full items-center justify-center bg-gray-900">
         <div className="flex flex-col items-center gap-4 text-center">
           <p className="text-lg text-red-500">Stream not available</p>
-          <p className="text-sm text-gray-400">{error || 'Stream not found'}</p>
+          <p className="text-sm text-gray-400">{error || "Stream not found"}</p>
           <button
-            onClick={() => router.push('/chat')}
+            onClick={() => router.push("/chat")}
             className="rounded-lg bg-white px-6 py-2 text-gray-900 hover:bg-gray-100"
           >
             Return to Chat
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -310,5 +319,5 @@ export default function StreamPage() {
         onShare={handleShare}
       />
     </div>
-  )
+  );
 }

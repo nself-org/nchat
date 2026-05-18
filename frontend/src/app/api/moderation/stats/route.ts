@@ -4,15 +4,15 @@
  * Provides dashboard analytics for moderation activity
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getApolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
-import { captureError } from '@/lib/sentry-utils'
+import { NextRequest, NextResponse } from "next/server";
+import { getApolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
+import { captureError } from "@/lib/sentry-utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const GET_MODERATION_STATS = gql`
   query GetModerationStats($startDate: timestamptz!, $endDate: timestamptz!) {
@@ -45,7 +45,9 @@ const GET_MODERATION_STATS = gql`
     }
 
     # Pending queue items
-    pending_items: nchat_moderation_queue_aggregate(where: { status: { _eq: "pending" } }) {
+    pending_items: nchat_moderation_queue_aggregate(
+      where: { status: { _eq: "pending" } }
+    ) {
       aggregate {
         count
       }
@@ -53,7 +55,10 @@ const GET_MODERATION_STATS = gql`
 
     # High priority items
     high_priority: nchat_moderation_queue_aggregate(
-      where: { status: { _eq: "pending" }, priority: { _in: ["high", "critical"] } }
+      where: {
+        status: { _eq: "pending" }
+        priority: { _in: ["high", "critical"] }
+      }
     ) {
       aggregate {
         count
@@ -79,28 +84,31 @@ const GET_MODERATION_STATS = gql`
 
     # Top moderators
     top_moderators: nchat_moderation_actions(
-      where: { created_at: { _gte: $startDate, _lte: $endDate }, is_automated: { _eq: false } }
+      where: {
+        created_at: { _gte: $startDate, _lte: $endDate }
+        is_automated: { _eq: false }
+      }
       distinct_on: moderator_id
       order_by: { moderator_id: desc }
     ) {
       moderator_id
     }
   }
-`
+`;
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url);
 
     // Date range parameters
-    const period = searchParams.get('period') || '7d' // 1d, 7d, 30d, 90d, all
-    const startDate = searchParams.get('startDate')
-    const endDate = searchParams.get('endDate')
+    const period = searchParams.get("period") || "7d"; // 1d, 7d, 30d, 90d, all
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
 
     // Calculate date range
-    const { start, end } = calculateDateRange(period, startDate, endDate)
+    const { start, end } = calculateDateRange(period, startDate, endDate);
 
-    const apolloClient = getApolloClient()
+    const apolloClient = getApolloClient();
 
     // Fetch data
     const result = await apolloClient.query({
@@ -109,19 +117,19 @@ export async function GET(request: NextRequest) {
         startDate: start.toISOString(),
         endDate: end.toISOString(),
       },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const data = result.data
+    const data = result.data;
 
     // Process queue stats
-    const queueStats = processQueueStats(data.queue_stats)
+    const queueStats = processQueueStats(data.queue_stats);
 
     // Process action stats
-    const actionStats = processActionStats(data.action_stats)
+    const actionStats = processActionStats(data.action_stats);
 
     // Process user violations
-    const topViolators = data.user_violations || []
+    const topViolators = data.user_violations || [];
 
     // Calculate moderation metrics
     const metrics = {
@@ -132,20 +140,30 @@ export async function GET(request: NextRequest) {
       automatedActions: actionStats.automatedCount,
       manualActions: actionStats.manualCount,
       avgResponseTime: calculateAvgResponseTime(data.queue_stats.nodes),
-      flaggedRate: calculateFlaggedRate(data.queue_stats.aggregate.count, period),
-    }
+      flaggedRate: calculateFlaggedRate(
+        data.queue_stats.aggregate.count,
+        period,
+      ),
+    };
 
     // Response time distribution
-    const responseTimeDistribution = calculateResponseTimeDistribution(data.queue_stats.nodes)
+    const responseTimeDistribution = calculateResponseTimeDistribution(
+      data.queue_stats.nodes,
+    );
 
     // Violation trends
-    const violationTrends = calculateViolationTrends(data.queue_stats.nodes, period)
+    const violationTrends = calculateViolationTrends(
+      data.queue_stats.nodes,
+      period,
+    );
 
     // Top categories
-    const topCategories = calculateTopCategories(data.queue_stats.nodes)
+    const topCategories = calculateTopCategories(data.queue_stats.nodes);
 
     // Auto-action effectiveness
-    const autoActionEffectiveness = calculateAutoActionEffectiveness(data.action_stats.nodes)
+    const autoActionEffectiveness = calculateAutoActionEffectiveness(
+      data.action_stats.nodes,
+    );
 
     return NextResponse.json({
       success: true,
@@ -162,20 +180,25 @@ export async function GET(request: NextRequest) {
       violationTrends,
       topCategories,
       autoActionEffectiveness,
-    })
+    });
   } catch (error) {
-    logger.error('Moderation stats error:', error)
+    logger.error("Moderation stats error:", error);
     captureError(error as Error, {
-      tags: { feature: 'moderation', endpoint: 'stats' },
-    })
+      tags: { feature: "moderation", endpoint: "stats" },
+    });
 
     return NextResponse.json(
       {
-        error: 'Failed to fetch moderation stats',
-        details: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to fetch moderation stats",
+        details:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -185,44 +208,44 @@ export async function GET(request: NextRequest) {
 function calculateDateRange(
   period: string,
   startDate?: string | null,
-  endDate?: string | null
+  endDate?: string | null,
 ): { start: Date; end: Date } {
-  const end = endDate ? new Date(endDate) : new Date()
+  const end = endDate ? new Date(endDate) : new Date();
 
-  let start: Date
+  let start: Date;
 
   if (startDate) {
-    start = new Date(startDate)
+    start = new Date(startDate);
   } else {
     switch (period) {
-      case '1d':
-        start = new Date(end.getTime() - 24 * 60 * 60 * 1000)
-        break
-      case '7d':
-        start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000)
-        break
-      case '30d':
-        start = new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000)
-        break
-      case '90d':
-        start = new Date(end.getTime() - 90 * 24 * 60 * 60 * 1000)
-        break
-      case 'all':
-        start = new Date(0) // Unix epoch
-        break
+      case "1d":
+        start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+        break;
+      case "7d":
+        start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case "30d":
+        start = new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case "90d":
+        start = new Date(end.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      case "all":
+        start = new Date(0); // Unix epoch
+        break;
       default:
-        start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000)
+        start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
     }
   }
 
-  return { start, end }
+  return { start, end };
 }
 
 /**
  * Process queue statistics
  */
 function processQueueStats(queueStats: any) {
-  const nodes = queueStats.nodes || []
+  const nodes = queueStats.nodes || [];
 
   const byStatus = {
     pending: 0,
@@ -230,14 +253,14 @@ function processQueueStats(queueStats: any) {
     approved: 0,
     rejected: 0,
     auto_resolved: 0,
-  }
+  };
 
   const byPriority = {
     low: 0,
     medium: 0,
     high: 0,
     critical: 0,
-  }
+  };
 
   const byAutoAction = {
     none: 0,
@@ -246,12 +269,13 @@ function processQueueStats(queueStats: any) {
     warned: 0,
     muted: 0,
     deleted: 0,
-  }
+  };
 
   for (const node of nodes) {
-    if (node.status) byStatus[node.status as keyof typeof byStatus]++
-    if (node.priority) byPriority[node.priority as keyof typeof byPriority]++
-    if (node.auto_action) byAutoAction[node.auto_action as keyof typeof byAutoAction]++
+    if (node.status) byStatus[node.status as keyof typeof byStatus]++;
+    if (node.priority) byPriority[node.priority as keyof typeof byPriority]++;
+    if (node.auto_action)
+      byAutoAction[node.auto_action as keyof typeof byAutoAction]++;
   }
 
   return {
@@ -259,14 +283,14 @@ function processQueueStats(queueStats: any) {
     byStatus,
     byPriority,
     byAutoAction,
-  }
+  };
 }
 
 /**
  * Process action statistics
  */
 function processActionStats(actionStats: any) {
-  const nodes = actionStats.nodes || []
+  const nodes = actionStats.nodes || [];
 
   const byType = {
     flagged: 0,
@@ -277,21 +301,21 @@ function processActionStats(actionStats: any) {
     muted: 0,
     banned: 0,
     appealed: 0,
-  }
+  };
 
-  let automatedCount = 0
-  let manualCount = 0
-  let aiCount = 0
-  let ruleBasedCount = 0
+  let automatedCount = 0;
+  let manualCount = 0;
+  let aiCount = 0;
+  let ruleBasedCount = 0;
 
   for (const node of nodes) {
-    if (node.action_type) byType[node.action_type as keyof typeof byType]++
+    if (node.action_type) byType[node.action_type as keyof typeof byType]++;
     if (node.is_automated) {
-      automatedCount++
-      if (node.automation_type === 'ai') aiCount++
-      else if (node.automation_type === 'rule_based') ruleBasedCount++
+      automatedCount++;
+      if (node.automation_type === "ai") aiCount++;
+      else if (node.automation_type === "rule_based") ruleBasedCount++;
     } else {
-      manualCount++
+      manualCount++;
     }
   }
 
@@ -302,7 +326,7 @@ function processActionStats(actionStats: any) {
     manualCount,
     aiCount,
     ruleBasedCount,
-  }
+  };
 }
 
 /**
@@ -310,7 +334,7 @@ function processActionStats(actionStats: any) {
  */
 function calculateAvgResponseTime(nodes: any[]): number {
   // Placeholder - would need reviewed_at and created_at timestamps
-  return 0
+  return 0;
 }
 
 /**
@@ -318,7 +342,7 @@ function calculateAvgResponseTime(nodes: any[]): number {
  */
 function calculateFlaggedRate(totalFlagged: number, period: string): number {
   // Placeholder - would need total message count
-  return 0
+  return 0;
 }
 
 /**
@@ -330,7 +354,7 @@ function calculateResponseTimeDistribution(nodes: any[]) {
     under6h: 0,
     under24h: 0,
     over24h: 0,
-  }
+  };
 }
 
 /**
@@ -342,14 +366,14 @@ function calculateViolationTrends(nodes: any[], period: string) {
     spam: [],
     profanity: [],
     nsfw: [],
-  }
+  };
 }
 
 /**
  * Calculate top violation categories
  */
 function calculateTopCategories(nodes: any[]) {
-  return []
+  return [];
 }
 
 /**
@@ -362,5 +386,5 @@ function calculateAutoActionEffectiveness(nodes: any[]) {
     falseNegativeRate: 0,
     precision: 0,
     recall: 0,
-  }
+  };
 }

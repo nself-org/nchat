@@ -4,11 +4,11 @@
  * React hook for using analytics in components
  */
 
-'use client'
+"use client";
 
-import { useEffect, useCallback } from 'react'
-import { analytics } from '@/lib/analytics/events'
-import { analyticsPrivacy } from '@/lib/analytics/privacy'
+import { useEffect, useCallback } from "react";
+import { analytics } from "@/lib/analytics/events";
+import { analyticsPrivacy } from "@/lib/analytics/privacy";
 import type {
   MessageSentEvent,
   SearchEvent,
@@ -16,61 +16,64 @@ import type {
   CallEvent,
   FileEvent,
   ErrorEvent,
-} from '@/lib/analytics/types'
+} from "@/lib/analytics/types";
 
 export function useAnalytics() {
   // Track screen view on mount
   useEffect(() => {
-    const path = window.location.pathname
-    const screenName = path.split('/').filter(Boolean).join('_') || 'home'
-    analytics.trackScreenView(screenName)
-  }, [])
+    const path = window.location.pathname;
+    const screenName = path.split("/").filter(Boolean).join("_") || "home";
+    analytics.trackScreenView(screenName);
+  }, []);
 
   // Event tracking functions
   const trackMessageSent = useCallback((event: MessageSentEvent) => {
-    return analytics.trackMessageSent(event)
-  }, [])
+    return analytics.trackMessageSent(event);
+  }, []);
 
   const trackSearch = useCallback((event: SearchEvent) => {
-    return analytics.trackSearch(event)
-  }, [])
+    return analytics.trackSearch(event);
+  }, []);
 
   const trackChannelCreated = useCallback((event: ChannelEvent) => {
-    return analytics.trackChannelCreated(event)
-  }, [])
+    return analytics.trackChannelCreated(event);
+  }, []);
 
   const trackChannelJoined = useCallback((event: ChannelEvent) => {
-    return analytics.trackChannelJoined(event)
-  }, [])
+    return analytics.trackChannelJoined(event);
+  }, []);
 
   const trackFileUploaded = useCallback((event: FileEvent) => {
-    return analytics.trackFileUploaded(event)
-  }, [])
+    return analytics.trackFileUploaded(event);
+  }, []);
 
   const trackCallStarted = useCallback((event: CallEvent) => {
-    return analytics.trackCallStarted(event)
-  }, [])
+    return analytics.trackCallStarted(event);
+  }, []);
 
   const trackError = useCallback((event: ErrorEvent) => {
-    return analytics.trackError(event)
-  }, [])
+    return analytics.trackError(event);
+  }, []);
 
-  const trackScreenView = useCallback((screenName: string, screenClass?: string) => {
-    return analytics.trackScreenView(screenName, screenClass)
-  }, [])
+  const trackScreenView = useCallback(
+    (screenName: string, screenClass?: string) => {
+      return analytics.trackScreenView(screenName, screenClass);
+    },
+    [],
+  );
 
   // Settings
   const isEnabled = useCallback(() => {
-    return analytics.isEnabled()
-  }, [])
+    return analytics.isEnabled();
+  }, []);
 
   const getConsent = useCallback(() => {
-    return analyticsPrivacy.getConsent()
-  }, [])
+    return analyticsPrivacy.getConsent();
+  }, []);
 
   const setConsent = useCallback((consent: any) => {
-    return analyticsPrivacy.setConsent(consent)
-  }, [])
+    return analyticsPrivacy.setConsent(consent);
+  }, []);
 
   return {
     // Event tracking
@@ -91,7 +94,7 @@ export function useAnalytics() {
     // Session data
     sessionData: analytics.getSessionData(),
     platform: analytics.getPlatform(),
-  }
+  };
 }
 
 /**
@@ -99,13 +102,13 @@ export function useAnalytics() {
  */
 export function usePerformanceTracking(screenName: string) {
   useEffect(() => {
-    const startTime = performance.now()
+    const startTime = performance.now();
 
     return () => {
-      const duration = performance.now() - startTime
-      analytics.trackScreenLoadTime(screenName, duration)
-    }
-  }, [screenName])
+      const duration = performance.now() - startTime;
+      analytics.trackScreenLoadTime(screenName, duration);
+    };
+  }, [screenName]);
 }
 
 /**
@@ -115,29 +118,32 @@ export function useErrorTracking() {
   useEffect(() => {
     const handleError = (event: globalThis.ErrorEvent) => {
       analytics.trackError({
-        error_type: event.error?.name || 'Error',
+        error_type: event.error?.name || "Error",
         error_message: event.message,
         error_stack: event.error?.stack,
         fatal: false,
         context: window.location.pathname,
-      })
-    }
+      });
+    };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       analytics.trackError({
-        error_type: 'UnhandledRejection',
+        error_type: "UnhandledRejection",
         error_message: String(event.reason),
         fatal: false,
         context: window.location.pathname,
-      })
-    }
+      });
+    };
 
-    window.addEventListener('error', handleError)
-    window.addEventListener('unhandledrejection', handleUnhandledRejection)
+    window.addEventListener("error", handleError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
     return () => {
-      window.removeEventListener('error', handleError)
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection)
-    }
-  }, [])
+      window.removeEventListener("error", handleError);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection,
+      );
+    };
+  }, []);
 }

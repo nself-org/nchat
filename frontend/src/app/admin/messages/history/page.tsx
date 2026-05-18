@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo } from "react";
 import {
   History,
   Filter,
@@ -12,18 +12,18 @@ import {
   User,
   MessageSquare,
   Hash,
-} from 'lucide-react'
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -31,127 +31,134 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Label } from '@/components/ui/label'
-import { StatsCard, StatsGrid } from '@/components/admin/stats-card'
-import { useAdminAccess } from '@/lib/admin/use-admin'
-import { formatRelativeTime } from '@/lib/date'
-import { EditHistory } from '@/components/message-history'
-import type { MessageEditHistory, AdminHistoryItem } from '@/lib/message-history'
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { StatsCard, StatsGrid } from "@/components/admin/stats-card";
+import { useAdminAccess } from "@/lib/admin/use-admin";
+import { formatRelativeTime } from "@/lib/date";
+import { EditHistory } from "@/components/message-history";
+import type {
+  MessageEditHistory,
+  AdminHistoryItem,
+} from "@/lib/message-history";
 
 // Mock data for demonstration
 const mockHistoryItems: AdminHistoryItem[] = [
   {
-    messageId: 'msg-1',
-    channel: { id: 'ch-1', name: 'general' },
+    messageId: "msg-1",
+    channel: { id: "ch-1", name: "general" },
     author: {
-      id: 'user-1',
-      username: 'alice',
-      displayName: 'Alice Johnson',
+      id: "user-1",
+      username: "alice",
+      displayName: "Alice Johnson",
       avatarUrl: undefined,
     },
-    contentPreview: 'Updated message content here...',
-    originalPreview: 'Original message content...',
+    contentPreview: "Updated message content here...",
+    originalPreview: "Original message content...",
     editCount: 5,
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     lastEditedAt: new Date(Date.now() - 30 * 60 * 1000),
     lastEditedBy: {
-      id: 'user-1',
-      username: 'alice',
-      displayName: 'Alice Johnson',
+      id: "user-1",
+      username: "alice",
+      displayName: "Alice Johnson",
     },
   },
   {
-    messageId: 'msg-2',
-    channel: { id: 'ch-2', name: 'engineering' },
+    messageId: "msg-2",
+    channel: { id: "ch-2", name: "engineering" },
     author: {
-      id: 'user-2',
-      username: 'bob',
-      displayName: 'Bob Smith',
+      id: "user-2",
+      username: "bob",
+      displayName: "Bob Smith",
       avatarUrl: undefined,
     },
-    contentPreview: 'Technical specification update...',
-    originalPreview: 'Initial technical specification...',
+    contentPreview: "Technical specification update...",
+    originalPreview: "Initial technical specification...",
     editCount: 12,
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
     lastEditedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
     lastEditedBy: {
-      id: 'user-3',
-      username: 'charlie',
-      displayName: 'Charlie Brown',
+      id: "user-3",
+      username: "charlie",
+      displayName: "Charlie Brown",
     },
   },
   {
-    messageId: 'msg-3',
-    channel: { id: 'ch-1', name: 'general' },
+    messageId: "msg-3",
+    channel: { id: "ch-1", name: "general" },
     author: {
-      id: 'user-3',
-      username: 'charlie',
-      displayName: 'Charlie Brown',
+      id: "user-3",
+      username: "charlie",
+      displayName: "Charlie Brown",
       avatarUrl: undefined,
     },
-    contentPreview: 'Meeting notes for Q4 planning...',
-    originalPreview: 'Draft meeting notes...',
+    contentPreview: "Meeting notes for Q4 planning...",
+    originalPreview: "Draft meeting notes...",
     editCount: 3,
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
     lastEditedAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
     lastEditedBy: {
-      id: 'user-3',
-      username: 'charlie',
-      displayName: 'Charlie Brown',
+      id: "user-3",
+      username: "charlie",
+      displayName: "Charlie Brown",
     },
   },
-]
+];
 
 // Mock history for modal
 const mockFullHistory: MessageEditHistory = {
-  messageId: 'msg-1',
-  channelId: 'ch-1',
-  currentContent: 'Updated message content here with more details...',
-  originalContent: 'Original message content that was posted initially.',
+  messageId: "msg-1",
+  channelId: "ch-1",
+  currentContent: "Updated message content here with more details...",
+  originalContent: "Original message content that was posted initially.",
   versions: [
     {
-      id: 'v1',
-      messageId: 'msg-1',
+      id: "v1",
+      messageId: "msg-1",
       versionNumber: 1,
-      content: 'Original message content that was posted initially.',
+      content: "Original message content that was posted initially.",
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       editedBy: {
-        id: 'user-1',
-        username: 'alice',
-        displayName: 'Alice Johnson',
+        id: "user-1",
+        username: "alice",
+        displayName: "Alice Johnson",
       },
       isOriginal: true,
       isCurrent: false,
     },
     {
-      id: 'v2',
-      messageId: 'msg-1',
+      id: "v2",
+      messageId: "msg-1",
       versionNumber: 2,
-      content: 'First edit - added some clarification.',
+      content: "First edit - added some clarification.",
       createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       editedBy: {
-        id: 'user-1',
-        username: 'alice',
-        displayName: 'Alice Johnson',
+        id: "user-1",
+        username: "alice",
+        displayName: "Alice Johnson",
       },
       isOriginal: false,
       isCurrent: false,
     },
     {
-      id: 'v3',
-      messageId: 'msg-1',
+      id: "v3",
+      messageId: "msg-1",
       versionNumber: 3,
-      content: 'Updated message content here with more details...',
+      content: "Updated message content here with more details...",
       createdAt: new Date(Date.now() - 30 * 60 * 1000),
       editedBy: {
-        id: 'user-1',
-        username: 'alice',
-        displayName: 'Alice Johnson',
+        id: "user-1",
+        username: "alice",
+        displayName: "Alice Johnson",
       },
       isOriginal: false,
       isCurrent: true,
@@ -159,101 +166,106 @@ const mockFullHistory: MessageEditHistory = {
   ],
   editCount: 2,
   author: {
-    id: 'user-1',
-    username: 'alice',
-    displayName: 'Alice Johnson',
+    id: "user-1",
+    username: "alice",
+    displayName: "Alice Johnson",
   },
   createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
   lastEditedAt: new Date(Date.now() - 30 * 60 * 1000),
   lastEditedBy: {
-    id: 'user-1',
-    username: 'alice',
-    displayName: 'Alice Johnson',
+    id: "user-1",
+    username: "alice",
+    displayName: "Alice Johnson",
   },
-}
+};
 
 export default function AdminMessageHistoryPage() {
-  const { canModerate, isAdmin } = useAdminAccess()
-  const [isLoading, setIsLoading] = useState(false)
-  const [items] = useState<AdminHistoryItem[]>(mockHistoryItems)
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [channelFilter, setChannelFilter] = useState<string>('all')
-  const [minEditsFilter, setMinEditsFilter] = useState<string>('1')
+  const { canModerate, isAdmin } = useAdminAccess();
+  const [isLoading, setIsLoading] = useState(false);
+  const [items] = useState<AdminHistoryItem[]>(mockHistoryItems);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [channelFilter, setChannelFilter] = useState<string>("all");
+  const [minEditsFilter, setMinEditsFilter] = useState<string>("1");
 
   // Modal state
-  const [viewingHistory, setViewingHistory] = useState<MessageEditHistory | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [viewingHistory, setViewingHistory] =
+    useState<MessageEditHistory | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filter items
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       if (
         searchQuery &&
-        !item.contentPreview.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !item.author.displayName.toLowerCase().includes(searchQuery.toLowerCase())
+        !item.contentPreview
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) &&
+        !item.author.displayName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
       ) {
-        return false
+        return false;
       }
-      if (channelFilter !== 'all' && item.channel.id !== channelFilter) {
-        return false
+      if (channelFilter !== "all" && item.channel.id !== channelFilter) {
+        return false;
       }
       if (item.editCount < parseInt(minEditsFilter)) {
-        return false
+        return false;
       }
-      return true
-    })
-  }, [items, searchQuery, channelFilter, minEditsFilter])
+      return true;
+    });
+  }, [items, searchQuery, channelFilter, minEditsFilter]);
 
   // Stats
   const stats = useMemo(() => {
-    const totalEdits = items.reduce((sum, item) => sum + item.editCount, 0)
-    const uniqueAuthors = new Set(items.map((item) => item.author.id)).size
-    const uniqueChannels = new Set(items.map((item) => item.channel.id)).size
+    const totalEdits = items.reduce((sum, item) => sum + item.editCount, 0);
+    const uniqueAuthors = new Set(items.map((item) => item.author.id)).size;
+    const uniqueChannels = new Set(items.map((item) => item.channel.id)).size;
     return {
       totalMessages: items.length,
       totalEdits,
       uniqueAuthors,
       uniqueChannels,
-    }
-  }, [items])
+    };
+  }, [items]);
 
   // Handlers
   const handleRefresh = () => {
-    setIsLoading(true)
-    setTimeout(() => setIsLoading(false), 1000)
-  }
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 1000);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(filteredItems.map((item) => item.messageId))
+      setSelectedIds(filteredItems.map((item) => item.messageId));
     } else {
-      setSelectedIds([])
+      setSelectedIds([]);
     }
-  }
+  };
 
   const handleSelectItem = (messageId: string, checked: boolean) => {
     if (checked) {
-      setSelectedIds([...selectedIds, messageId])
+      setSelectedIds([...selectedIds, messageId]);
     } else {
-      setSelectedIds(selectedIds.filter((id) => id !== messageId))
+      setSelectedIds(selectedIds.filter((id) => id !== messageId));
     }
-  }
+  };
 
   const handleViewHistory = (_item: AdminHistoryItem) => {
     // In production, fetch the full history based on _item.messageId
-    setViewingHistory(mockFullHistory)
-    setIsModalOpen(true)
-  }
+    setViewingHistory(mockFullHistory);
+    setIsModalOpen(true);
+  };
 
   const handleBulkDelete = async () => {
     // In production, call the API
-    setSelectedIds([])
-  }
+    setSelectedIds([]);
+  };
 
   const handleExport = () => {
     // In production, export data
-  }
+  };
 
   if (!canModerate) {
     return (
@@ -266,7 +278,7 @@ export default function AdminMessageHistoryPage() {
           </p>
         </div>
       </AdminLayout>
-    )
+    );
   }
 
   return (
@@ -288,8 +300,14 @@ export default function AdminMessageHistoryPage() {
               <Download className="mr-2 h-4 w-4" />
               Export
             </Button>
-            <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-              <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <Button
+              variant="outline"
+              onClick={handleRefresh}
+              disabled={isLoading}
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
               Refresh
             </Button>
           </div>
@@ -353,7 +371,10 @@ export default function AdminMessageHistoryPage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Minimum Edits</Label>
-                  <Select value={minEditsFilter} onValueChange={setMinEditsFilter}>
+                  <Select
+                    value={minEditsFilter}
+                    onValueChange={setMinEditsFilter}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -371,7 +392,12 @@ export default function AdminMessageHistoryPage() {
           </Popover>
 
           {selectedIds.length > 0 && isAdmin && (
-            <Button variant="destructive" size="sm" onClick={handleBulkDelete} className="gap-2">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleBulkDelete}
+              className="gap-2"
+            >
               <Trash2 className="h-4 w-4" />
               Clear Selected ({selectedIds.length})
             </Button>
@@ -387,7 +413,8 @@ export default function AdminMessageHistoryPage() {
                   <TableHead className="w-12">
                     <Checkbox
                       checked={
-                        selectedIds.length === filteredItems.length && filteredItems.length > 0
+                        selectedIds.length === filteredItems.length &&
+                        filteredItems.length > 0
                       }
                       onCheckedChange={handleSelectAll}
                     />
@@ -432,10 +459,15 @@ export default function AdminMessageHistoryPage() {
                 ))
               ) : filteredItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 7 : 6} className="h-24 text-center">
+                  <TableCell
+                    colSpan={isAdmin ? 7 : 6}
+                    className="h-24 text-center"
+                  >
                     <div className="flex flex-col items-center justify-center">
                       <History className="h-8 w-8 text-muted-foreground" />
-                      <p className="mt-2 text-muted-foreground">No edited messages found</p>
+                      <p className="mt-2 text-muted-foreground">
+                        No edited messages found
+                      </p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -454,7 +486,9 @@ export default function AdminMessageHistoryPage() {
                     )}
                     <TableCell>
                       <div className="max-w-xs">
-                        <p className="truncate font-medium">{item.contentPreview}</p>
+                        <p className="truncate font-medium">
+                          {item.contentPreview}
+                        </p>
                         <p className="truncate text-xs text-muted-foreground">
                           Original: {item.originalPreview}
                         </p>
@@ -463,12 +497,17 @@ export default function AdminMessageHistoryPage() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-6 w-6">
-                          <AvatarImage src={item.author.avatarUrl} alt={item.author.displayName} />
+                          <AvatarImage
+                            src={item.author.avatarUrl}
+                            alt={item.author.displayName}
+                          />
                           <AvatarFallback>
                             <User className="h-3 w-3" />
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">{item.author.displayName}</span>
+                        <span className="text-sm">
+                          {item.author.displayName}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -478,7 +517,11 @@ export default function AdminMessageHistoryPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant={item.editCount >= 5 ? 'destructive' : 'secondary'}>
+                      <Badge
+                        variant={
+                          item.editCount >= 5 ? "destructive" : "secondary"
+                        }
+                      >
                         {item.editCount}
                       </Badge>
                     </TableCell>
@@ -514,8 +557,8 @@ export default function AdminMessageHistoryPage() {
         <EditHistory
           isOpen={isModalOpen}
           onClose={() => {
-            setIsModalOpen(false)
-            setViewingHistory(null)
+            setIsModalOpen(false);
+            setViewingHistory(null);
           }}
           history={viewingHistory}
           canRestore={isAdmin}
@@ -525,5 +568,5 @@ export default function AdminMessageHistoryPage() {
         />
       </div>
     </AdminLayout>
-  )
+  );
 }

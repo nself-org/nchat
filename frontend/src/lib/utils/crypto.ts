@@ -7,14 +7,15 @@
  * Check if we're in a browser environment with Web Crypto
  */
 const hasWebCrypto =
-  typeof window !== 'undefined' &&
-  typeof window.crypto !== 'undefined' &&
-  typeof window.crypto.getRandomValues !== 'undefined'
+  typeof window !== "undefined" &&
+  typeof window.crypto !== "undefined" &&
+  typeof window.crypto.getRandomValues !== "undefined";
 
 /**
  * Check if we have SubtleCrypto available
  */
-const hasSubtleCrypto = hasWebCrypto && typeof window.crypto.subtle !== 'undefined'
+const hasSubtleCrypto =
+  hasWebCrypto && typeof window.crypto.subtle !== "undefined";
 
 /**
  * Generate a cryptographically secure random ID
@@ -28,32 +29,32 @@ const hasSubtleCrypto = hasWebCrypto && typeof window.crypto.subtle !== 'undefin
  */
 export function generateId(
   length: number = 21,
-  alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'
+  alphabet: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-",
 ): string {
   if (length <= 0) {
-    return ''
+    return "";
   }
 
-  const alphabetLength = alphabet.length
+  const alphabetLength = alphabet.length;
 
   if (hasWebCrypto) {
     // Use Web Crypto for secure random generation
-    const bytes = new Uint8Array(length)
-    crypto.getRandomValues(bytes)
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
 
-    let id = ''
+    let id = "";
     for (let i = 0; i < length; i++) {
-      id += alphabet[bytes[i] % alphabetLength]
+      id += alphabet[bytes[i] % alphabetLength];
     }
-    return id
+    return id;
   }
 
   // Fallback to Math.random (less secure, but works everywhere)
-  let id = ''
+  let id = "";
   for (let i = 0; i < length; i++) {
-    id += alphabet[Math.floor(Math.random() * alphabetLength)]
+    id += alphabet[Math.floor(Math.random() * alphabetLength)];
   }
-  return id
+  return id;
 }
 
 /**
@@ -63,29 +64,31 @@ export function generateId(
  * generateUUID() // '550e8400-e29b-41d4-a716-446655440000'
  */
 export function generateUUID(): string {
-  if (hasWebCrypto && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID()
+  if (hasWebCrypto && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
   }
 
   // Fallback implementation
-  const bytes = new Uint8Array(16)
+  const bytes = new Uint8Array(16);
 
   if (hasWebCrypto) {
-    crypto.getRandomValues(bytes)
+    crypto.getRandomValues(bytes);
   } else {
     // Math.random fallback
     for (let i = 0; i < 16; i++) {
-      bytes[i] = Math.floor(Math.random() * 256)
+      bytes[i] = Math.floor(Math.random() * 256);
     }
   }
 
   // Set version (4) and variant bits
-  bytes[6] = (bytes[6] & 0x0f) | 0x40
-  bytes[8] = (bytes[8] & 0x3f) | 0x80
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
 
-  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
+    "",
+  );
 
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 /**
@@ -97,7 +100,10 @@ export function generateUUID(): string {
  */
 export function generateShortId(length: number = 8): string {
   // Use a URL-safe alphabet (no special characters)
-  return generateId(length, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+  return generateId(
+    length,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+  );
 }
 
 /**
@@ -108,7 +114,7 @@ export function generateShortId(length: number = 8): string {
  * generateNumericId() // '847293'
  */
 export function generateNumericId(length: number = 6): string {
-  return generateId(length, '0123456789')
+  return generateId(length, "0123456789");
 }
 
 /**
@@ -122,39 +128,39 @@ export function generateNumericId(length: number = 6): string {
 export function randomString(
   length: number,
   options: {
-    uppercase?: boolean
-    lowercase?: boolean
-    numbers?: boolean
-    symbols?: boolean
-    customAlphabet?: string
-  } = {}
+    uppercase?: boolean;
+    lowercase?: boolean;
+    numbers?: boolean;
+    symbols?: boolean;
+    customAlphabet?: string;
+  } = {},
 ): string {
   const {
     uppercase = true,
     lowercase = true,
     numbers = true,
     symbols = false,
-    customAlphabet = '',
-  } = options
+    customAlphabet = "",
+  } = options;
 
-  let alphabet = customAlphabet
+  let alphabet = customAlphabet;
 
-  if (uppercase) alphabet += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  if (lowercase) alphabet += 'abcdefghijklmnopqrstuvwxyz'
-  if (numbers) alphabet += '0123456789'
-  if (symbols) alphabet += '!@#$%^&*()_+-=[]{}|;:,.<>?'
+  if (uppercase) alphabet += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  if (lowercase) alphabet += "abcdefghijklmnopqrstuvwxyz";
+  if (numbers) alphabet += "0123456789";
+  if (symbols) alphabet += "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
   if (alphabet.length === 0) {
-    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   }
 
-  return generateId(length, alphabet)
+  return generateId(length, alphabet);
 }
 
 /**
  * Hash algorithm options
  */
-export type HashAlgorithm = 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512'
+export type HashAlgorithm = "SHA-1" | "SHA-256" | "SHA-384" | "SHA-512";
 
 /**
  * Hash a string using Web Crypto API
@@ -167,19 +173,19 @@ export type HashAlgorithm = 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512'
  */
 export async function hashString(
   str: string,
-  algorithm: HashAlgorithm = 'SHA-256'
+  algorithm: HashAlgorithm = "SHA-256",
 ): Promise<string> {
   if (!hasSubtleCrypto) {
     // Fallback to a simple hash for non-crypto environments
-    return simpleHash(str)
+    return simpleHash(str);
   }
 
-  const encoder = new TextEncoder()
-  const data = encoder.encode(str)
-  const hashBuffer = await crypto.subtle.digest(algorithm, data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest(algorithm, data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
 
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 /**
@@ -188,20 +194,20 @@ export async function hashString(
  * @returns Hash string
  */
 export function simpleHash(str: string): string {
-  let hash = 0
+  let hash = 0;
 
   if (str.length === 0) {
-    return hash.toString(16)
+    return hash.toString(16);
   }
 
   for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32bit integer
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32bit integer
   }
 
   // Convert to positive hex string
-  return (hash >>> 0).toString(16).padStart(8, '0')
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 /**
@@ -214,28 +220,28 @@ export function simpleHash(str: string): string {
 export async function generateHMAC(
   message: string,
   secret: string,
-  algorithm: HashAlgorithm = 'SHA-256'
+  algorithm: HashAlgorithm = "SHA-256",
 ): Promise<string> {
   if (!hasSubtleCrypto) {
-    throw new Error('HMAC requires SubtleCrypto API')
+    throw new Error("HMAC requires SubtleCrypto API");
   }
 
-  const encoder = new TextEncoder()
-  const keyData = encoder.encode(secret)
-  const messageData = encoder.encode(message)
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const messageData = encoder.encode(message);
 
   const cryptoKey = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     keyData,
-    { name: 'HMAC', hash: algorithm },
+    { name: "HMAC", hash: algorithm },
     false,
-    ['sign']
-  )
+    ["sign"],
+  );
 
-  const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData)
-  const signatureArray = Array.from(new Uint8Array(signature))
+  const signature = await crypto.subtle.sign("HMAC", cryptoKey, messageData);
+  const signatureArray = Array.from(new Uint8Array(signature));
 
-  return signatureArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  return signatureArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 /**
@@ -250,10 +256,10 @@ export async function verifyHMAC(
   message: string,
   secret: string,
   signature: string,
-  algorithm: HashAlgorithm = 'SHA-256'
+  algorithm: HashAlgorithm = "SHA-256",
 ): Promise<boolean> {
-  const expectedSignature = await generateHMAC(message, secret, algorithm)
-  return constantTimeCompare(signature, expectedSignature)
+  const expectedSignature = await generateHMAC(message, secret, algorithm);
+  return constantTimeCompare(signature, expectedSignature);
 }
 
 /**
@@ -264,15 +270,15 @@ export async function verifyHMAC(
  */
 export function constantTimeCompare(a: string, b: string): boolean {
   if (a.length !== b.length) {
-    return false
+    return false;
   }
 
-  let result = 0
+  let result = 0;
   for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
   }
 
-  return result === 0
+  return result === 0;
 }
 
 /**
@@ -281,13 +287,13 @@ export function constantTimeCompare(a: string, b: string): boolean {
  * @returns Base64-encoded string
  */
 export function base64Encode(str: string): string {
-  if (typeof btoa === 'function') {
+  if (typeof btoa === "function") {
     // Browser
-    return btoa(unescape(encodeURIComponent(str)))
+    return btoa(unescape(encodeURIComponent(str)));
   }
 
   // Node.js fallback
-  return Buffer.from(str, 'utf-8').toString('base64')
+  return Buffer.from(str, "utf-8").toString("base64");
 }
 
 /**
@@ -296,13 +302,13 @@ export function base64Encode(str: string): string {
  * @returns Decoded string
  */
 export function base64Decode(base64: string): string {
-  if (typeof atob === 'function') {
+  if (typeof atob === "function") {
     // Browser
-    return decodeURIComponent(escape(atob(base64)))
+    return decodeURIComponent(escape(atob(base64)));
   }
 
   // Node.js fallback
-  return Buffer.from(base64, 'base64').toString('utf-8')
+  return Buffer.from(base64, "base64").toString("utf-8");
 }
 
 /**
@@ -311,7 +317,10 @@ export function base64Decode(base64: string): string {
  * @returns URL-safe base64-encoded string
  */
 export function base64UrlEncode(str: string): string {
-  return base64Encode(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  return base64Encode(str)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 /**
@@ -320,15 +329,15 @@ export function base64UrlEncode(str: string): string {
  * @returns Decoded string
  */
 export function base64UrlDecode(base64url: string): string {
-  let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/')
+  let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
 
   // Add padding if necessary
-  const padding = 4 - (base64.length % 4)
+  const padding = 4 - (base64.length % 4);
   if (padding !== 4) {
-    base64 += '='.repeat(padding)
+    base64 += "=".repeat(padding);
   }
 
-  return base64Decode(base64)
+  return base64Decode(base64);
 }
 
 /**
@@ -338,8 +347,8 @@ export function base64UrlDecode(base64url: string): string {
  */
 export function bufferToHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 /**
@@ -348,13 +357,13 @@ export function bufferToHex(buffer: ArrayBuffer): string {
  * @returns ArrayBuffer
  */
 export function hexToBuffer(hex: string): ArrayBuffer {
-  const bytes = new Uint8Array(hex.length / 2)
+  const bytes = new Uint8Array(hex.length / 2);
 
   for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16)
+    bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16);
   }
 
-  return bytes.buffer
+  return bytes.buffer;
 }
 
 /**
@@ -363,17 +372,17 @@ export function hexToBuffer(hex: string): ArrayBuffer {
  * @returns Uint8Array of random bytes
  */
 export function randomBytes(length: number): Uint8Array {
-  const bytes = new Uint8Array(length)
+  const bytes = new Uint8Array(length);
 
   if (hasWebCrypto) {
-    crypto.getRandomValues(bytes)
+    crypto.getRandomValues(bytes);
   } else {
     for (let i = 0; i < length; i++) {
-      bytes[i] = Math.floor(Math.random() * 256)
+      bytes[i] = Math.floor(Math.random() * 256);
     }
   }
 
-  return bytes
+  return bytes;
 }
 
 /**
@@ -382,10 +391,10 @@ export function randomBytes(length: number): Uint8Array {
  * @returns Secure token string
  */
 export function generateSecureToken(byteLength: number = 32): string {
-  const bytes = randomBytes(byteLength)
-  const base64 = btoa(String.fromCharCode(...bytes))
+  const bytes = randomBytes(byteLength);
+  const base64 = btoa(String.fromCharCode(...bytes));
 
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 /**
@@ -395,9 +404,12 @@ export function generateSecureToken(byteLength: number = 32): string {
  * @param salt - Salt to use (optional, will be prepended)
  * @returns Promise resolving to hashed password
  */
-export async function hashPassword(password: string, salt?: string): Promise<string> {
-  const saltedPassword = salt ? salt + password : password
-  return hashString(saltedPassword, 'SHA-256')
+export async function hashPassword(
+  password: string,
+  salt?: string,
+): Promise<string> {
+  const saltedPassword = salt ? salt + password : password;
+  return hashString(saltedPassword, "SHA-256");
 }
 
 /**
@@ -406,8 +418,8 @@ export async function hashPassword(password: string, salt?: string): Promise<str
  * @returns Promise resolving to fingerprint hash
  */
 export async function createFingerprint(...values: string[]): Promise<string> {
-  const combined = values.join('|')
-  return hashString(combined, 'SHA-256')
+  const combined = values.join("|");
+  return hashString(combined, "SHA-256");
 }
 
 /**
@@ -418,70 +430,71 @@ export async function createFingerprint(...values: string[]): Promise<string> {
  */
 export function generateSlugId(): string {
   const adjectives = [
-    'happy',
-    'quick',
-    'bright',
-    'calm',
-    'cool',
-    'warm',
-    'fresh',
-    'bold',
-    'swift',
-    'neat',
-    'fair',
-    'kind',
-    'wise',
-    'keen',
-    'pure',
-    'safe',
-  ]
+    "happy",
+    "quick",
+    "bright",
+    "calm",
+    "cool",
+    "warm",
+    "fresh",
+    "bold",
+    "swift",
+    "neat",
+    "fair",
+    "kind",
+    "wise",
+    "keen",
+    "pure",
+    "safe",
+  ];
 
   const colors = [
-    'red',
-    'blue',
-    'green',
-    'gold',
-    'pink',
-    'teal',
-    'cyan',
-    'lime',
-    'gray',
-    'rose',
-    'mint',
-    'plum',
-    'rust',
-    'sage',
-    'navy',
-    'jade',
-  ]
+    "red",
+    "blue",
+    "green",
+    "gold",
+    "pink",
+    "teal",
+    "cyan",
+    "lime",
+    "gray",
+    "rose",
+    "mint",
+    "plum",
+    "rust",
+    "sage",
+    "navy",
+    "jade",
+  ];
 
   const animals = [
-    'cat',
-    'dog',
-    'fox',
-    'owl',
-    'bee',
-    'ant',
-    'bat',
-    'elk',
-    'emu',
-    'jay',
-    'koi',
-    'lynx',
-    'newt',
-    'puma',
-    'seal',
-    'wolf',
-  ]
+    "cat",
+    "dog",
+    "fox",
+    "owl",
+    "bee",
+    "ant",
+    "bat",
+    "elk",
+    "emu",
+    "jay",
+    "koi",
+    "lynx",
+    "newt",
+    "puma",
+    "seal",
+    "wolf",
+  ];
 
-  const randomPick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
+  const randomPick = <T>(arr: T[]): T =>
+    arr[Math.floor(Math.random() * arr.length)];
 
-  const adjective = randomPick(adjectives)
-  const color = randomPick(colors)
-  const animal = randomPick(animals)
-  const suffix = generateId(4, 'abcdefghijklmnopqrstuvwxyz0123456789')
+  const adjective = randomPick(adjectives);
+  const color = randomPick(colors);
+  const animal = randomPick(animals);
+  const suffix = generateId(4, "abcdefghijklmnopqrstuvwxyz0123456789");
 
-  return `${adjective}-${color}-${animal}-${suffix}`
+  return `${adjective}-${color}-${animal}-${suffix}`;
 }
 
 /**
@@ -489,7 +502,7 @@ export function generateSlugId(): string {
  * @returns Whether Web Crypto is available
  */
 export function isCryptoAvailable(): boolean {
-  return hasWebCrypto
+  return hasWebCrypto;
 }
 
 /**
@@ -497,5 +510,5 @@ export function isCryptoAvailable(): boolean {
  * @returns Whether SubtleCrypto is available
  */
 export function isSubtleCryptoAvailable(): boolean {
-  return hasSubtleCrypto
+  return hasSubtleCrypto;
 }

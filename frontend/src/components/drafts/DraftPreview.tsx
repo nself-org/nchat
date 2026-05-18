@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * DraftPreview - Preview of draft content
@@ -6,12 +6,12 @@
  * Shows truncated draft content with metadata
  */
 
-import * as React from 'react'
-import { format, formatDistanceToNow } from 'date-fns'
-import { Paperclip, Reply, Hash, MessageSquare, User } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { Draft, DraftContextType } from '@/lib/drafts/draft-types'
-import { getDraftPreview } from '@/lib/drafts'
+import * as React from "react";
+import { format, formatDistanceToNow } from "date-fns";
+import { Paperclip, Reply, Hash, MessageSquare, User } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Draft, DraftContextType } from "@/lib/drafts/draft-types";
+import { getDraftPreview } from "@/lib/drafts";
 
 // ============================================================================
 // Types
@@ -19,23 +19,23 @@ import { getDraftPreview } from '@/lib/drafts'
 
 export interface DraftPreviewProps {
   /** The draft to preview */
-  draft: Draft
+  draft: Draft;
   /** Maximum content length (default: 100) */
-  maxLength?: number
+  maxLength?: number;
   /** Show timestamp */
-  showTimestamp?: boolean
+  showTimestamp?: boolean;
   /** Show context info */
-  showContext?: boolean
+  showContext?: boolean;
   /** Show attachment count */
-  showAttachments?: boolean
+  showAttachments?: boolean;
   /** Show reply indicator */
-  showReplyIndicator?: boolean
+  showReplyIndicator?: boolean;
   /** Timestamp format */
-  timestampFormat?: 'relative' | 'absolute' | 'both'
+  timestampFormat?: "relative" | "absolute" | "both";
   /** Context name resolver */
-  contextNameResolver?: (type: DraftContextType, id: string) => string
+  contextNameResolver?: (type: DraftContextType, id: string) => string;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -44,27 +44,27 @@ export interface DraftPreviewProps {
 
 function getContextIcon(type: DraftContextType) {
   switch (type) {
-    case 'channel':
-      return Hash
-    case 'thread':
-      return MessageSquare
-    case 'dm':
-      return User
+    case "channel":
+      return Hash;
+    case "thread":
+      return MessageSquare;
+    case "dm":
+      return User;
     default:
-      return Hash
+      return Hash;
   }
 }
 
 function getDefaultContextName(type: DraftContextType, id: string): string {
   switch (type) {
-    case 'channel':
-      return `#${id}`
-    case 'thread':
-      return `Thread`
-    case 'dm':
-      return `Direct message`
+    case "channel":
+      return `#${id}`;
+    case "thread":
+      return `Thread`;
+    case "dm":
+      return `Direct message`;
     default:
-      return id
+      return id;
   }
 }
 
@@ -79,35 +79,36 @@ export function DraftPreview({
   showContext = true,
   showAttachments = true,
   showReplyIndicator = true,
-  timestampFormat = 'relative',
+  timestampFormat = "relative",
   contextNameResolver,
   className,
 }: DraftPreviewProps) {
-  const preview = getDraftPreview(draft, maxLength)
-  const attachmentCount = draft.attachmentIds.length || draft.attachments?.length || 0
-  const isReply = draft.replyToMessageId !== null
-  const ContextIcon = getContextIcon(draft.contextType)
+  const preview = getDraftPreview(draft, maxLength);
+  const attachmentCount =
+    draft.attachmentIds.length || draft.attachments?.length || 0;
+  const isReply = draft.replyToMessageId !== null;
+  const ContextIcon = getContextIcon(draft.contextType);
   const contextName = contextNameResolver
     ? contextNameResolver(draft.contextType, draft.contextId)
-    : getDefaultContextName(draft.contextType, draft.contextId)
+    : getDefaultContextName(draft.contextType, draft.contextId);
 
   // Format timestamp
   const formatTimestamp = () => {
-    const date = new Date(draft.lastModified)
+    const date = new Date(draft.lastModified);
 
     switch (timestampFormat) {
-      case 'absolute':
-        return format(date, 'MMM d, h:mm a')
-      case 'both':
-        return `${format(date, 'MMM d')} (${formatDistanceToNow(date, { addSuffix: true })})`
-      case 'relative':
+      case "absolute":
+        return format(date, "MMM d, h:mm a");
+      case "both":
+        return `${format(date, "MMM d")} (${formatDistanceToNow(date, { addSuffix: true })})`;
+      case "relative":
       default:
-        return formatDistanceToNow(date, { addSuffix: true })
+        return formatDistanceToNow(date, { addSuffix: true });
     }
-  }
+  };
 
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn("space-y-1", className)}>
       {/* Context and metadata row */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {showContext && (
@@ -139,8 +140,8 @@ export function DraftPreview({
         {preview || (
           <span className="italic text-muted-foreground">
             {attachmentCount > 0
-              ? `${attachmentCount} attachment${attachmentCount > 1 ? 's' : ''}`
-              : 'Empty draft'}
+              ? `${attachmentCount} attachment${attachmentCount > 1 ? "s" : ""}`
+              : "Empty draft"}
           </span>
         )}
       </p>
@@ -153,7 +154,7 @@ export function DraftPreview({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -161,9 +162,9 @@ export function DraftPreview({
 // ============================================================================
 
 export interface DraftPreviewCompactProps {
-  draft: Draft
-  maxLength?: number
-  className?: string
+  draft: Draft;
+  maxLength?: number;
+  className?: string;
 }
 
 /**
@@ -174,20 +175,21 @@ export function DraftPreviewCompact({
   maxLength = 50,
   className,
 }: DraftPreviewCompactProps) {
-  const preview = getDraftPreview(draft, maxLength)
-  const attachmentCount = draft.attachmentIds.length || draft.attachments?.length || 0
+  const preview = getDraftPreview(draft, maxLength);
+  const attachmentCount =
+    draft.attachmentIds.length || draft.attachments?.length || 0;
 
   return (
-    <div className={cn('flex items-center gap-2 text-sm', className)}>
+    <div className={cn("flex items-center gap-2 text-sm", className)}>
       <span className="font-medium text-amber-500">Draft:</span>
       <span className="truncate text-muted-foreground">
         {preview ||
           (attachmentCount > 0
-            ? `${attachmentCount} attachment${attachmentCount > 1 ? 's' : ''}`
-            : 'Empty')}
+            ? `${attachmentCount} attachment${attachmentCount > 1 ? "s" : ""}`
+            : "Empty")}
       </span>
     </div>
-  )
+  );
 }
 
-export default DraftPreview
+export default DraftPreview;

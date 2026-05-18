@@ -3,21 +3,21 @@
  * Triggers polling of social accounts for new posts
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client'
-import { pollAllAccounts, manualImport } from '@/lib/social/poller'
+import { NextRequest, NextResponse } from "next/server";
+import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
+import { pollAllAccounts, manualImport } from "@/lib/social/poller";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 const apolloClient = new ApolloClient({
   link: new HttpLink({
     uri: process.env.NEXT_PUBLIC_GRAPHQL_URL,
     headers: {
-      'x-hasura-admin-secret': process.env.HASURA_ADMIN_SECRET || '',
+      "x-hasura-admin-secret": process.env.HASURA_ADMIN_SECRET || "",
     },
   }),
   cache: new InMemoryCache(),
-})
+});
 
 /**
  * POST /api/social/poll
@@ -25,17 +25,17 @@ const apolloClient = new ApolloClient({
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json().catch(() => ({}))
-    const accountId = body.accountId
+    const body = await request.json().catch(() => ({}));
+    const accountId = body.accountId;
 
-    let result
+    let result;
 
     if (accountId) {
       // Manual import for specific account
-      result = await manualImport(apolloClient, accountId)
+      result = await manualImport(apolloClient, accountId);
     } else {
       // Poll all active accounts
-      result = await pollAllAccounts(apolloClient)
+      result = await pollAllAccounts(apolloClient);
     }
 
     return NextResponse.json({
@@ -47,17 +47,17 @@ export async function POST(request: NextRequest) {
         posted: result.posted,
         errors: result.errors,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Social poll error:', error)
+    logger.error("Social poll error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to poll social accounts',
+        error: "Failed to poll social accounts",
         message: String(error),
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -68,10 +68,13 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     return NextResponse.json({
-      status: 'ready',
-      message: 'Social media polling service is running',
-    })
+      status: "ready",
+      message: "Social media polling service is running",
+    });
   } catch (error) {
-    return NextResponse.json({ status: 'error', message: String(error) }, { status: 500 })
+    return NextResponse.json(
+      { status: "error", message: String(error) },
+      { status: 500 },
+    );
   }
 }

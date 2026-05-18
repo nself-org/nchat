@@ -4,14 +4,14 @@
  * Provides unique request IDs for distributed tracing and log correlation.
  */
 
-import { NextRequest } from 'next/server'
-import { nanoid } from 'nanoid'
+import { NextRequest } from "next/server";
+import { nanoid } from "nanoid";
 
 /**
  * Generate a unique request ID
  */
 export function generateRequestId(): string {
-  return `req-${nanoid(12)}`
+  return `req-${nanoid(12)}`;
 }
 
 /**
@@ -20,14 +20,14 @@ export function generateRequestId(): string {
 export function getRequestId(req: NextRequest | Request): string {
   // Check if request already has an ID (from middleware or external source)
   const existingId =
-    req.headers.get('x-request-id') || req.headers.get('x-correlation-id')
+    req.headers.get("x-request-id") || req.headers.get("x-correlation-id");
 
   if (existingId) {
-    return existingId
+    return existingId;
   }
 
   // Generate new ID
-  return generateRequestId()
+  return generateRequestId();
 }
 
 /**
@@ -35,11 +35,11 @@ export function getRequestId(req: NextRequest | Request): string {
  */
 export function addRequestIdHeader(
   headers: Headers,
-  requestId?: string
+  requestId?: string,
 ): Headers {
-  const id = requestId || generateRequestId()
-  headers.set('x-request-id', id)
-  return headers
+  const id = requestId || generateRequestId();
+  headers.set("x-request-id", id);
+  return headers;
 }
 
 /**

@@ -58,16 +58,16 @@ User Request → API Route → Background Worker → DataExporter
 ### Creating an Export
 
 ```typescript
-import { DataExporter } from '@/lib/export'
-import { ApolloClient } from '@apollo/client'
+import { DataExporter } from "@/lib/export";
+import { ApolloClient } from "@apollo/client";
 
-const exporter = new DataExporter(apolloClient)
+const exporter = new DataExporter(apolloClient);
 
 const options: ExportOptions = {
-  scope: 'all_messages',
-  format: 'json',
-  fromDate: new Date('2024-01-01'),
-  toDate: new Date('2024-12-31'),
+  scope: "all_messages",
+  format: "json",
+  fromDate: new Date("2024-01-01"),
+  toDate: new Date("2024-12-31"),
   includeFiles: true,
   includeReactions: true,
   includeThreads: true,
@@ -75,13 +75,17 @@ const options: ExportOptions = {
   anonymize: false,
   includeUserData: true,
   includeChannelData: true,
-}
+};
 
-const data = await exporter.export(options, userId, (progress, processed, total) => {
-  console.log(`Progress: ${progress}% (${processed}/${total} items)`)
-})
+const data = await exporter.export(
+  options,
+  userId,
+  (progress, processed, total) => {
+    console.log(`Progress: ${progress}% (${processed}/${total} items)`);
+  },
+);
 
-console.log(data.metadata)
+console.log(data.metadata);
 ```
 
 ### API Endpoints
@@ -299,40 +303,40 @@ Track these metrics:
 ### Unit Tests
 
 ```typescript
-import { DataExporter } from '@/lib/export'
+import { DataExporter } from "@/lib/export";
 
-describe('DataExporter', () => {
-  it('should export messages with filters', async () => {
-    const exporter = new DataExporter(mockClient)
-    const data = await exporter.export(options, userId)
-    expect(data.messages).toHaveLength(100)
-  })
+describe("DataExporter", () => {
+  it("should export messages with filters", async () => {
+    const exporter = new DataExporter(mockClient);
+    const data = await exporter.export(options, userId);
+    expect(data.messages).toHaveLength(100);
+  });
 
-  it('should anonymize data when requested', async () => {
-    const options = { ...baseOptions, anonymize: true }
-    const data = await exporter.export(options, userId)
-    expect(data.messages[0].username).toMatch(/^User \d+$/)
-  })
-})
+  it("should anonymize data when requested", async () => {
+    const options = { ...baseOptions, anonymize: true };
+    const data = await exporter.export(options, userId);
+    expect(data.messages[0].username).toMatch(/^User \d+$/);
+  });
+});
 ```
 
 ### Integration Tests
 
 ```typescript
-describe('Export API', () => {
-  it('should create export request', async () => {
-    const response = await fetch('/api/export', {
-      method: 'POST',
+describe("Export API", () => {
+  it("should create export request", async () => {
+    const response = await fetch("/api/export", {
+      method: "POST",
       body: JSON.stringify({ options, userId }),
-    })
-    expect(response.status).toBe(200)
-  })
+    });
+    expect(response.status).toBe(200);
+  });
 
-  it('should download completed export', async () => {
-    const response = await fetch(`/api/export?id=${exportId}&action=download`)
-    expect(response.headers.get('Content-Type')).toBe('application/json')
-  })
-})
+  it("should download completed export", async () => {
+    const response = await fetch(`/api/export?id=${exportId}&action=download`);
+    expect(response.headers.get("Content-Type")).toBe("application/json");
+  });
+});
 ```
 
 ## Troubleshooting

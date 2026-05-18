@@ -11,12 +11,17 @@
       "name": "faq",
       "description": "Search the FAQ knowledge base",
       "aliases": ["ask", "help"],
-      "examples": ["/faq how to reset password", "/faq what is the refund policy"]
+      "examples": [
+        "/faq how to reset password",
+        "/faq what is the refund policy"
+      ]
     },
     {
       "name": "addfaq",
       "description": "Add a new FAQ to the knowledge base",
-      "examples": ["/addfaq \"How to reset password?\" \"Go to Settings > Reset\""]
+      "examples": [
+        "/addfaq \"How to reset password?\" \"Go to Settings > Reset\""
+      ]
     },
     {
       "name": "removefaq",

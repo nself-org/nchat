@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import { useParams, notFound } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { AppDetail } from '@/components/app-directory'
-import { getAppBySlug, getAppById } from '@/lib/app-directory/app-registry'
-import { Skeleton } from '@/components/ui/skeleton'
-import type { App } from '@/lib/app-directory/app-types'
+import { useParams, notFound } from "next/navigation";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { AppDetail } from "@/components/app-directory";
+import { getAppBySlug, getAppById } from "@/lib/app-directory/app-registry";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { App } from "@/lib/app-directory/app-types";
 
 export default function AppDetailPage() {
-  const params = useParams()
-  const [app, setApp] = useState<App | null>(null)
-  const [loading, setLoading] = useState(true)
+  const params = useParams();
+  const [app, setApp] = useState<App | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const id = params.id as string
+    const id = params.id as string;
 
     // Try to find app by slug first, then by ID
-    const foundApp = getAppBySlug(id) || getAppById(id)
+    const foundApp = getAppBySlug(id) || getAppById(id);
 
     if (foundApp) {
-      setApp(foundApp)
+      setApp(foundApp);
     }
-    setLoading(false)
-  }, [params.id])
+    setLoading(false);
+  }, [params.id]);
 
   if (loading) {
     return (
@@ -43,7 +43,7 @@ export default function AppDetailPage() {
           <Skeleton className="h-60 w-80 rounded-lg" />
         </div>
       </div>
-    )
+    );
   }
 
   if (!app) {
@@ -52,7 +52,8 @@ export default function AppDetailPage() {
         <div className="mb-4 text-6xl">404</div>
         <h1 className="mb-2 text-2xl font-bold">App Not Found</h1>
         <p className="mb-6 text-muted-foreground">
-          The app you&apos;re looking for doesn&apos;t exist or has been removed.
+          The app you&apos;re looking for doesn&apos;t exist or has been
+          removed.
         </p>
         <Link
           href="/apps"
@@ -61,12 +62,12 @@ export default function AppDetailPage() {
           Browse Apps
         </Link>
       </div>
-    )
+    );
   }
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       <AppDetail app={app} />
     </div>
-  )
+  );
 }

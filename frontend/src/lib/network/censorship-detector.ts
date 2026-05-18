@@ -16,9 +16,9 @@
  * @module lib/network/censorship-detector
  */
 
-import { EventEmitter } from 'events'
+import { EventEmitter } from "events";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Utility Functions
@@ -29,13 +29,13 @@ import { logger } from '@/lib/logger'
  * Provides compatibility for environments where createTimeoutSignal is not available.
  */
 function createTimeoutSignal(ms: number): AbortSignal {
-  if (typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal) {
-    return createTimeoutSignal(ms)
+  if (typeof AbortSignal !== "undefined" && "timeout" in AbortSignal) {
+    return createTimeoutSignal(ms);
   }
   // Fallback for environments without createTimeoutSignal
-  const controller = new AbortController()
-  setTimeout(() => controller.abort(), ms)
-  return controller.signal
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
 }
 
 // ============================================================================
@@ -46,33 +46,33 @@ function createTimeoutSignal(ms: number): AbortSignal {
  * Censorship type classification
  */
 export type CensorshipType =
-  | 'dns-poisoning'
-  | 'dns-blocking'
-  | 'tcp-rst'
-  | 'tcp-blocking'
-  | 'http-blocking'
-  | 'https-blocking'
-  | 'sni-filtering'
-  | 'dpi'
-  | 'ip-blocking'
-  | 'throttling'
-  | 'captive-portal'
-  | 'unknown'
+  | "dns-poisoning"
+  | "dns-blocking"
+  | "tcp-rst"
+  | "tcp-blocking"
+  | "http-blocking"
+  | "https-blocking"
+  | "sni-filtering"
+  | "dpi"
+  | "ip-blocking"
+  | "throttling"
+  | "captive-portal"
+  | "unknown";
 
 /**
  * Detection confidence level
  */
-export type ConfidenceLevel = 'low' | 'medium' | 'high' | 'certain'
+export type ConfidenceLevel = "low" | "medium" | "high" | "certain";
 
 /**
  * Network connectivity status
  */
 export enum NetworkStatus {
-  UNKNOWN = 'unknown',
-  CONNECTED = 'connected',
-  LIMITED = 'limited',
-  CENSORED = 'censored',
-  OFFLINE = 'offline',
+  UNKNOWN = "unknown",
+  CONNECTED = "connected",
+  LIMITED = "limited",
+  CENSORED = "censored",
+  OFFLINE = "offline",
 }
 
 /**
@@ -80,52 +80,52 @@ export enum NetworkStatus {
  */
 export interface ProbeResult {
   /** Probe identifier */
-  id: string
+  id: string;
   /** Probe type */
-  type: ProbeType
+  type: ProbeType;
   /** Target tested */
-  target: string
+  target: string;
   /** Whether probe succeeded */
-  success: boolean
+  success: boolean;
   /** Response time in milliseconds */
-  latency: number
+  latency: number;
   /** Error if failed */
-  error?: string
+  error?: string;
   /** HTTP status code (if applicable) */
-  statusCode?: number
+  statusCode?: number;
   /** Response headers (if applicable) */
-  headers?: Record<string, string>
+  headers?: Record<string, string>;
   /** Detected censorship indicators */
-  indicators: CensorshipIndicator[]
+  indicators: CensorshipIndicator[];
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
  * Probe type
  */
 export type ProbeType =
-  | 'dns-resolution'
-  | 'dns-over-https'
-  | 'tcp-connect'
-  | 'http-get'
-  | 'https-get'
-  | 'tls-handshake'
-  | 'websocket'
-  | 'ooni'
+  | "dns-resolution"
+  | "dns-over-https"
+  | "tcp-connect"
+  | "http-get"
+  | "https-get"
+  | "tls-handshake"
+  | "websocket"
+  | "ooni";
 
 /**
  * Censorship indicator
  */
 export interface CensorshipIndicator {
   /** Indicator type */
-  type: CensorshipType
+  type: CensorshipType;
   /** Confidence level */
-  confidence: ConfidenceLevel
+  confidence: ConfidenceLevel;
   /** Description */
-  description: string
+  description: string;
   /** Evidence data */
-  evidence?: unknown
+  evidence?: unknown;
 }
 
 /**
@@ -133,23 +133,23 @@ export interface CensorshipIndicator {
  */
 export interface DetectionResult {
   /** Overall network status */
-  status: NetworkStatus
+  status: NetworkStatus;
   /** Whether censorship is detected */
-  censored: boolean
+  censored: boolean;
   /** Types of censorship detected */
-  censorshipTypes: CensorshipType[]
+  censorshipTypes: CensorshipType[];
   /** Overall confidence level */
-  confidence: ConfidenceLevel
+  confidence: ConfidenceLevel;
   /** Detailed probe results */
-  probes: ProbeResult[]
+  probes: ProbeResult[];
   /** Recommended circumvention methods */
-  recommendations: CircumventionRecommendation[]
+  recommendations: CircumventionRecommendation[];
   /** Detection timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Detection duration in milliseconds */
-  duration: number
+  duration: number;
   /** Geographic context */
-  geoContext?: GeoContext
+  geoContext?: GeoContext;
 }
 
 /**
@@ -157,50 +157,50 @@ export interface DetectionResult {
  */
 export interface CircumventionRecommendation {
   /** Recommended method */
-  method: CircumventionMethod
+  method: CircumventionMethod;
   /** Priority (lower is better) */
-  priority: number
+  priority: number;
   /** Effectiveness rating (0-100) */
-  effectiveness: number
+  effectiveness: number;
   /** Description */
-  description: string
+  description: string;
   /** Configuration hints */
-  configHints?: Record<string, unknown>
+  configHints?: Record<string, unknown>;
 }
 
 /**
  * Circumvention method
  */
 export type CircumventionMethod =
-  | 'domain-fronting'
-  | 'obfs4'
-  | 'meek'
-  | 'snowflake'
-  | 'socks-proxy'
-  | 'http-proxy'
-  | 'vpn'
-  | 'dns-over-https'
-  | 'dns-over-tls'
-  | 'direct'
+  | "domain-fronting"
+  | "obfs4"
+  | "meek"
+  | "snowflake"
+  | "socks-proxy"
+  | "http-proxy"
+  | "vpn"
+  | "dns-over-https"
+  | "dns-over-tls"
+  | "direct";
 
 /**
  * Geographic context
  */
 export interface GeoContext {
   /** Country code */
-  countryCode?: string
+  countryCode?: string;
   /** Country name */
-  countryName?: string
+  countryName?: string;
   /** Region/state */
-  region?: string
+  region?: string;
   /** City */
-  city?: string
+  city?: string;
   /** ASN */
-  asn?: string
+  asn?: string;
   /** ISP name */
-  isp?: string
+  isp?: string;
   /** Known censorship level for this region */
-  knownCensorshipLevel?: 'low' | 'medium' | 'high' | 'severe'
+  knownCensorshipLevel?: "low" | "medium" | "high" | "severe";
 }
 
 /**
@@ -208,27 +208,27 @@ export interface GeoContext {
  */
 export interface CensorshipDetectorConfig {
   /** Enable detection */
-  enabled: boolean
+  enabled: boolean;
   /** Probe timeout in milliseconds */
-  probeTimeout: number
+  probeTimeout: number;
   /** Maximum concurrent probes */
-  maxConcurrentProbes: number
+  maxConcurrentProbes: number;
   /** Detection interval in milliseconds (0 = manual only) */
-  detectionInterval: number
+  detectionInterval: number;
   /** Primary endpoint to test */
-  primaryEndpoint: string
+  primaryEndpoint: string;
   /** Alternative endpoints to test */
-  alternativeEndpoints: string[]
+  alternativeEndpoints: string[];
   /** DNS servers for testing */
-  dnsServers: string[]
+  dnsServers: string[];
   /** DoH servers for comparison */
-  dohServers: string[]
+  dohServers: string[];
   /** Known good IPs for primary endpoint */
-  knownGoodIps?: string[]
+  knownGoodIps?: string[];
   /** Enable OONI probe integration */
-  ooniEnabled: boolean
+  ooniEnabled: boolean;
   /** Custom probes */
-  customProbes?: CustomProbe[]
+  customProbes?: CustomProbe[];
 }
 
 /**
@@ -236,42 +236,42 @@ export interface CensorshipDetectorConfig {
  */
 export interface CustomProbe {
   /** Probe identifier */
-  id: string
+  id: string;
   /** Probe name */
-  name: string
+  name: string;
   /** Probe type */
-  type: ProbeType
+  type: ProbeType;
   /** Target URL or address */
-  target: string
+  target: string;
   /** Expected response pattern (regex) */
-  expectedPattern?: string
+  expectedPattern?: string;
   /** Expected status codes */
-  expectedStatusCodes?: number[]
+  expectedStatusCodes?: number[];
   /** Timeout override */
-  timeout?: number
+  timeout?: number;
 }
 
 /**
  * Detector event types
  */
 export type DetectorEventType =
-  | 'detection-started'
-  | 'detection-completed'
-  | 'probe-completed'
-  | 'censorship-detected'
-  | 'network-status-changed'
-  | 'recommendation-updated'
+  | "detection-started"
+  | "detection-completed"
+  | "probe-completed"
+  | "censorship-detected"
+  | "network-status-changed"
+  | "recommendation-updated";
 
 /**
  * Detector event
  */
 export interface DetectorEvent {
   /** Event type */
-  type: DetectorEventType
+  type: DetectorEventType;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Event data */
-  data?: unknown
+  data?: unknown;
 }
 
 // ============================================================================
@@ -286,46 +286,61 @@ export const DEFAULT_DETECTOR_CONFIG: CensorshipDetectorConfig = {
   probeTimeout: 10000,
   maxConcurrentProbes: 5,
   detectionInterval: 0,
-  primaryEndpoint: '',
+  primaryEndpoint: "",
   alternativeEndpoints: [],
-  dnsServers: ['8.8.8.8', '1.1.1.1', '9.9.9.9'],
+  dnsServers: ["8.8.8.8", "1.1.1.1", "9.9.9.9"],
   dohServers: [
-    'https://dns.google/dns-query',
-    'https://cloudflare-dns.com/dns-query',
-    'https://dns.quad9.net/dns-query',
+    "https://dns.google/dns-query",
+    "https://cloudflare-dns.com/dns-query",
+    "https://dns.quad9.net/dns-query",
   ],
   ooniEnabled: false,
-}
+};
 
 /**
  * Known block page signatures
  */
 export const BLOCK_PAGE_SIGNATURES = [
   // ISP block pages
-  { pattern: /blocked|forbidden|censored|restricted/i, type: 'http-blocking' as CensorshipType },
-  { pattern: /access.{0,20}denied/i, type: 'http-blocking' as CensorshipType },
-  { pattern: /this.{0,20}(site|page).{0,20}(blocked|restricted)/i, type: 'http-blocking' as CensorshipType },
+  {
+    pattern: /blocked|forbidden|censored|restricted/i,
+    type: "http-blocking" as CensorshipType,
+  },
+  { pattern: /access.{0,20}denied/i, type: "http-blocking" as CensorshipType },
+  {
+    pattern: /this.{0,20}(site|page).{0,20}(blocked|restricted)/i,
+    type: "http-blocking" as CensorshipType,
+  },
   // Government block pages
-  { pattern: /government|ministry|authority/i, type: 'http-blocking' as CensorshipType },
-  { pattern: /illegal.{0,20}content/i, type: 'http-blocking' as CensorshipType },
+  {
+    pattern: /government|ministry|authority/i,
+    type: "http-blocking" as CensorshipType,
+  },
+  {
+    pattern: /illegal.{0,20}content/i,
+    type: "http-blocking" as CensorshipType,
+  },
   // Parental control/filtering
-  { pattern: /parental.{0,20}control/i, type: 'http-blocking' as CensorshipType },
-  { pattern: /content.{0,20}filter/i, type: 'http-blocking' as CensorshipType },
-]
+  {
+    pattern: /parental.{0,20}control/i,
+    type: "http-blocking" as CensorshipType,
+  },
+  { pattern: /content.{0,20}filter/i, type: "http-blocking" as CensorshipType },
+];
 
 /**
  * Known censorship DNS responses
  */
 export const CENSORSHIP_DNS_RESPONSES = [
-  '127.0.0.1',
-  '0.0.0.0',
-  '10.10.10.10',
-  '10.10.34.34',
-  '10.10.35.35',
-  '192.168.1.1',
-  '127.0.0.2',
-  '1.1.1.1', // Sometimes used as a block redirect
-]
+  "127.0.0.1",
+  "0.0.0.0",
+  "10.10.10.10",
+  "10.10.34.34",
+  "10.10.35.35",
+  "192.168.1.1",
+  "127.0.0.2",
+  "1.1.1.1", // Sometimes used as a block redirect
+];
 
 /**
  * Timeout error patterns
@@ -337,7 +352,7 @@ export const TIMEOUT_PATTERNS = [
   /ECONNRESET/,
   /ETIMEDOUT/,
   /ECONNREFUSED/,
-]
+];
 
 /**
  * TLS error patterns indicating SNI filtering
@@ -349,7 +364,7 @@ export const SNI_FILTER_PATTERNS = [
   /handshake/i,
   /ERR_SSL/,
   /ERR_CERT/,
-]
+];
 
 // ============================================================================
 // Censorship Detector
@@ -361,21 +376,21 @@ export const SNI_FILTER_PATTERNS = [
  * Detects network censorship and recommends circumvention methods
  */
 export class CensorshipDetector extends EventEmitter {
-  private _config: CensorshipDetectorConfig
-  private _lastResult?: DetectionResult
-  private _networkStatus: NetworkStatus = NetworkStatus.UNKNOWN
-  private _detectionTimer?: ReturnType<typeof setInterval>
-  private _isDetecting: boolean = false
+  private _config: CensorshipDetectorConfig;
+  private _lastResult?: DetectionResult;
+  private _networkStatus: NetworkStatus = NetworkStatus.UNKNOWN;
+  private _detectionTimer?: ReturnType<typeof setInterval>;
+  private _isDetecting: boolean = false;
 
   constructor(config?: Partial<CensorshipDetectorConfig>) {
-    super()
+    super();
     this._config = {
       ...DEFAULT_DETECTOR_CONFIG,
       ...config,
-    }
+    };
 
     if (this._config.detectionInterval > 0) {
-      this.startPeriodicDetection()
+      this.startPeriodicDetection();
     }
   }
 
@@ -383,19 +398,19 @@ export class CensorshipDetector extends EventEmitter {
    * Get current configuration
    */
   getConfig(): CensorshipDetectorConfig {
-    return { ...this._config }
+    return { ...this._config };
   }
 
   /**
    * Update configuration
    */
   updateConfig(config: Partial<CensorshipDetectorConfig>): void {
-    this._config = { ...this._config, ...config }
+    this._config = { ...this._config, ...config };
 
     if (this._config.detectionInterval > 0) {
-      this.startPeriodicDetection()
+      this.startPeriodicDetection();
     } else {
-      this.stopPeriodicDetection()
+      this.stopPeriodicDetection();
     }
   }
 
@@ -403,14 +418,14 @@ export class CensorshipDetector extends EventEmitter {
    * Get current network status
    */
   getNetworkStatus(): NetworkStatus {
-    return this._networkStatus
+    return this._networkStatus;
   }
 
   /**
    * Get last detection result
    */
   getLastResult(): DetectionResult | undefined {
-    return this._lastResult
+    return this._lastResult;
   }
 
   /**
@@ -418,28 +433,31 @@ export class CensorshipDetector extends EventEmitter {
    */
   async detect(): Promise<DetectionResult> {
     if (this._isDetecting) {
-      throw new Error('Detection already in progress')
+      throw new Error("Detection already in progress");
     }
 
-    this._isDetecting = true
-    const startTime = Date.now()
-    this.emitEvent('detection-started')
+    this._isDetecting = true;
+    const startTime = Date.now();
+    this.emitEvent("detection-started");
 
     try {
-      const probes: ProbeResult[] = []
+      const probes: ProbeResult[] = [];
 
       // Run all probes
-      const probeResults = await this.runAllProbes()
-      probes.push(...probeResults)
+      const probeResults = await this.runAllProbes();
+      probes.push(...probeResults);
 
       // Analyze results
-      const analysis = this.analyzeProbes(probes)
+      const analysis = this.analyzeProbes(probes);
 
       // Get geographic context
-      const geoContext = await this.getGeoContext()
+      const geoContext = await this.getGeoContext();
 
       // Generate recommendations
-      const recommendations = this.generateRecommendations(analysis, geoContext)
+      const recommendations = this.generateRecommendations(
+        analysis,
+        geoContext,
+      );
 
       // Build result
       const result: DetectionResult = {
@@ -452,19 +470,19 @@ export class CensorshipDetector extends EventEmitter {
         timestamp: new Date(),
         duration: Date.now() - startTime,
         geoContext,
-      }
+      };
 
-      this._lastResult = result
-      this.updateNetworkStatus(result.status)
-      this.emitEvent('detection-completed', result)
+      this._lastResult = result;
+      this.updateNetworkStatus(result.status);
+      this.emitEvent("detection-completed", result);
 
       if (result.censored) {
-        this.emitEvent('censorship-detected', result)
+        this.emitEvent("censorship-detected", result);
       }
 
-      return result
+      return result;
     } finally {
-      this._isDetecting = false
+      this._isDetecting = false;
     }
   }
 
@@ -474,11 +492,11 @@ export class CensorshipDetector extends EventEmitter {
   async quickCheck(): Promise<boolean> {
     try {
       const probe = await this.runHttpProbe(
-        this._config.primaryEndpoint || 'https://www.google.com'
-      )
-      return probe.success && probe.indicators.length === 0
+        this._config.primaryEndpoint || "https://www.google.com",
+      );
+      return probe.success && probe.indicators.length === 0;
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -486,27 +504,27 @@ export class CensorshipDetector extends EventEmitter {
    * Check if a specific domain is blocked
    */
   async isDomainBlocked(domain: string): Promise<{
-    blocked: boolean
-    indicators: CensorshipIndicator[]
+    blocked: boolean;
+    indicators: CensorshipIndicator[];
   }> {
-    const probes: ProbeResult[] = []
+    const probes: ProbeResult[] = [];
 
     // DNS probe
-    const dnsProbe = await this.runDnsProbe(domain)
-    probes.push(dnsProbe)
+    const dnsProbe = await this.runDnsProbe(domain);
+    probes.push(dnsProbe);
 
     // HTTP probe
     try {
-      const httpProbe = await this.runHttpProbe(`https://${domain}`)
-      probes.push(httpProbe)
+      const httpProbe = await this.runHttpProbe(`https://${domain}`);
+      probes.push(httpProbe);
     } catch {
       // HTTP probe failed, which is expected for blocked domains
     }
 
-    const indicators = probes.flatMap((p) => p.indicators)
-    const blocked = indicators.length > 0 || probes.every((p) => !p.success)
+    const indicators = probes.flatMap((p) => p.indicators);
+    const blocked = indicators.length > 0 || probes.every((p) => !p.success);
 
-    return { blocked, indicators }
+    return { blocked, indicators };
   }
 
   // ============================================================================
@@ -517,133 +535,142 @@ export class CensorshipDetector extends EventEmitter {
    * Run all configured probes
    */
   private async runAllProbes(): Promise<ProbeResult[]> {
-    const probes: Promise<ProbeResult>[] = []
+    const probes: Promise<ProbeResult>[] = [];
 
     // Primary endpoint probe
     if (this._config.primaryEndpoint) {
-      probes.push(this.runHttpProbe(this._config.primaryEndpoint))
+      probes.push(this.runHttpProbe(this._config.primaryEndpoint));
     }
 
     // Alternative endpoint probes
     for (const endpoint of this._config.alternativeEndpoints.slice(0, 3)) {
-      probes.push(this.runHttpProbe(endpoint))
+      probes.push(this.runHttpProbe(endpoint));
     }
 
     // DNS probes
     if (this._config.primaryEndpoint) {
       try {
-        const url = new URL(this._config.primaryEndpoint)
-        probes.push(this.runDnsProbe(url.hostname))
-        probes.push(this.runDohProbe(url.hostname))
+        const url = new URL(this._config.primaryEndpoint);
+        probes.push(this.runDnsProbe(url.hostname));
+        probes.push(this.runDohProbe(url.hostname));
       } catch {
         // Invalid URL, skip DNS probes
       }
     }
 
     // WebSocket probe if primary endpoint is a WebSocket
-    if (this._config.primaryEndpoint?.startsWith('ws')) {
-      probes.push(this.runWebSocketProbe(this._config.primaryEndpoint))
+    if (this._config.primaryEndpoint?.startsWith("ws")) {
+      probes.push(this.runWebSocketProbe(this._config.primaryEndpoint));
     }
 
     // Custom probes
     if (this._config.customProbes) {
       for (const customProbe of this._config.customProbes) {
-        probes.push(this.runCustomProbe(customProbe))
+        probes.push(this.runCustomProbe(customProbe));
       }
     }
 
     // Execute all probes with concurrency limit
-    const results: ProbeResult[] = []
-    const batches = this.batchArray(probes, this._config.maxConcurrentProbes)
+    const results: ProbeResult[] = [];
+    const batches = this.batchArray(probes, this._config.maxConcurrentProbes);
 
     for (const batch of batches) {
       const batchResults = await Promise.all(
-        batch.map((p) => p.catch((error) => this.createErrorProbeResult(error)))
-      )
-      results.push(...batchResults)
+        batch.map((p) =>
+          p.catch((error) => this.createErrorProbeResult(error)),
+        ),
+      );
+      results.push(...batchResults);
     }
 
-    return results
+    return results;
   }
 
   /**
    * Run HTTP/HTTPS probe
    */
   private async runHttpProbe(url: string): Promise<ProbeResult> {
-    const startTime = Date.now()
-    const indicators: CensorshipIndicator[] = []
-    const probeId = `http-${Date.now()}`
+    const startTime = Date.now();
+    const indicators: CensorshipIndicator[] = [];
+    const probeId = `http-${Date.now()}`;
 
     try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this._config.probeTimeout)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        this._config.probeTimeout,
+      );
 
       try {
         const response = await fetch(url, {
-          method: 'GET',
+          method: "GET",
           signal: controller.signal,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; CensorshipDetector/1.0)',
+            "User-Agent": "Mozilla/5.0 (compatible; CensorshipDetector/1.0)",
           },
-        })
+        });
 
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
 
-        const latency = Date.now() - startTime
-        const headers: Record<string, string> = {}
+        const latency = Date.now() - startTime;
+        const headers: Record<string, string> = {};
         response.headers.forEach((value, key) => {
-          headers[key] = value
-        })
+          headers[key] = value;
+        });
 
         // Check for censorship indicators
-        const responseText = await response.text()
+        const responseText = await response.text();
 
         // Check for block page signatures
         for (const signature of BLOCK_PAGE_SIGNATURES) {
           if (signature.pattern.test(responseText)) {
             indicators.push({
               type: signature.type,
-              confidence: 'high',
+              confidence: "high",
               description: `Block page detected: ${signature.pattern.source}`,
               evidence: { pattern: signature.pattern.source },
-            })
+            });
           }
         }
 
         // Check for unexpected redirects
         if (response.redirected) {
-          const redirectUrl = response.url
+          const redirectUrl = response.url;
           if (!redirectUrl.includes(new URL(url).hostname)) {
             indicators.push({
-              type: 'http-blocking',
-              confidence: 'medium',
-              description: 'Unexpected redirect detected',
+              type: "http-blocking",
+              confidence: "medium",
+              description: "Unexpected redirect detected",
               evidence: { originalUrl: url, redirectUrl },
-            })
+            });
           }
         }
 
         // Check for suspicious status codes
         if (response.status === 451) {
           indicators.push({
-            type: 'http-blocking',
-            confidence: 'certain',
-            description: 'HTTP 451 Unavailable For Legal Reasons',
-          })
+            type: "http-blocking",
+            confidence: "certain",
+            description: "HTTP 451 Unavailable For Legal Reasons",
+          });
         } else if (response.status === 403 || response.status === 410) {
           // Could be censorship or legitimate
           indicators.push({
-            type: 'http-blocking',
-            confidence: 'low',
+            type: "http-blocking",
+            confidence: "low",
             description: `HTTP ${response.status} response`,
-          })
+          });
         }
 
-        this.emitEvent('probe-completed', { id: probeId, success: true, latency })
+        this.emitEvent("probe-completed", {
+          id: probeId,
+          success: true,
+          latency,
+        });
 
         return {
           id: probeId,
-          type: url.startsWith('https') ? 'https-get' : 'http-get',
+          type: url.startsWith("https") ? "https-get" : "http-get",
           target: url,
           success: response.ok && indicators.length === 0,
           latency,
@@ -651,51 +678,56 @@ export class CensorshipDetector extends EventEmitter {
           headers,
           indicators,
           timestamp: new Date(),
-        }
+        };
       } finally {
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
       }
     } catch (error) {
-      const latency = Date.now() - startTime
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const latency = Date.now() - startTime;
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
 
       // Analyze error for censorship indicators
       if (TIMEOUT_PATTERNS.some((p) => p.test(errorMessage))) {
         indicators.push({
-          type: 'tcp-blocking',
-          confidence: 'medium',
-          description: 'Connection timeout - possible TCP blocking',
-        })
+          type: "tcp-blocking",
+          confidence: "medium",
+          description: "Connection timeout - possible TCP blocking",
+        });
       }
 
       if (SNI_FILTER_PATTERNS.some((p) => p.test(errorMessage))) {
         indicators.push({
-          type: 'sni-filtering',
-          confidence: 'medium',
-          description: 'TLS error - possible SNI filtering',
-        })
+          type: "sni-filtering",
+          confidence: "medium",
+          description: "TLS error - possible SNI filtering",
+        });
       }
 
-      if (errorMessage.includes('ECONNRESET')) {
+      if (errorMessage.includes("ECONNRESET")) {
         indicators.push({
-          type: 'tcp-rst',
-          confidence: 'high',
-          description: 'Connection reset - likely active censorship',
-        })
+          type: "tcp-rst",
+          confidence: "high",
+          description: "Connection reset - likely active censorship",
+        });
       }
 
-      this.emitEvent('probe-completed', { id: probeId, success: false, error: errorMessage })
+      this.emitEvent("probe-completed", {
+        id: probeId,
+        success: false,
+        error: errorMessage,
+      });
 
       return {
         id: probeId,
-        type: url.startsWith('https') ? 'https-get' : 'http-get',
+        type: url.startsWith("https") ? "https-get" : "http-get",
         target: url,
         success: false,
         latency,
         error: errorMessage,
         indicators,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -703,81 +735,87 @@ export class CensorshipDetector extends EventEmitter {
    * Run DNS probe (simulated in browser environment)
    */
   private async runDnsProbe(domain: string): Promise<ProbeResult> {
-    const startTime = Date.now()
-    const indicators: CensorshipIndicator[] = []
-    const probeId = `dns-${Date.now()}`
+    const startTime = Date.now();
+    const indicators: CensorshipIndicator[] = [];
+    const probeId = `dns-${Date.now()}`;
 
     // In browser environment, we can't do direct DNS queries
     // We'll use a DNS-over-HTTPS service to check DNS resolution
     try {
-      const dohUrl = `https://dns.google/resolve?name=${domain}&type=A`
+      const dohUrl = `https://dns.google/resolve?name=${domain}&type=A`;
 
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this._config.probeTimeout)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        this._config.probeTimeout,
+      );
 
       try {
         const response = await fetch(dohUrl, {
           signal: controller.signal,
           headers: {
-            Accept: 'application/dns-json',
+            Accept: "application/dns-json",
           },
-        })
+        });
 
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
-          throw new Error(`DoH request failed: ${response.status}`)
+          throw new Error(`DoH request failed: ${response.status}`);
         }
 
-        const data = await response.json()
-        const latency = Date.now() - startTime
+        const data = await response.json();
+        const latency = Date.now() - startTime;
 
         // Check for NXDOMAIN
         if (data.Status === 3) {
           indicators.push({
-            type: 'dns-blocking',
-            confidence: 'medium',
-            description: 'NXDOMAIN response - domain may be blocked',
-          })
+            type: "dns-blocking",
+            confidence: "medium",
+            description: "NXDOMAIN response - domain may be blocked",
+          });
         }
 
         // Check for poisoned responses
         if (data.Answer) {
           for (const answer of data.Answer) {
-            if (answer.type === 1 && CENSORSHIP_DNS_RESPONSES.includes(answer.data)) {
+            if (
+              answer.type === 1 &&
+              CENSORSHIP_DNS_RESPONSES.includes(answer.data)
+            ) {
               indicators.push({
-                type: 'dns-poisoning',
-                confidence: 'high',
+                type: "dns-poisoning",
+                confidence: "high",
                 description: `Suspicious DNS response: ${answer.data}`,
                 evidence: { ip: answer.data },
-              })
+              });
             }
           }
         }
 
         return {
           id: probeId,
-          type: 'dns-resolution',
+          type: "dns-resolution",
           target: domain,
           success: data.Status === 0 && indicators.length === 0,
           latency,
           indicators,
           timestamp: new Date(),
-        }
+        };
       } finally {
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
       }
     } catch (error) {
       return {
         id: probeId,
-        type: 'dns-resolution',
+        type: "dns-resolution",
         target: domain,
         success: false,
         latency: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         indicators,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -785,87 +823,96 @@ export class CensorshipDetector extends EventEmitter {
    * Run DNS-over-HTTPS probe for comparison
    */
   private async runDohProbe(domain: string): Promise<ProbeResult> {
-    const startTime = Date.now()
-    const indicators: CensorshipIndicator[] = []
-    const probeId = `doh-${Date.now()}`
+    const startTime = Date.now();
+    const indicators: CensorshipIndicator[] = [];
+    const probeId = `doh-${Date.now()}`;
 
-    const dohServer = this._config.dohServers[0]
+    const dohServer = this._config.dohServers[0];
 
     try {
-      const dohUrl = `${dohServer}?name=${domain}&type=A`
+      const dohUrl = `${dohServer}?name=${domain}&type=A`;
 
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this._config.probeTimeout)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        this._config.probeTimeout,
+      );
 
       try {
         const response = await fetch(dohUrl, {
           signal: controller.signal,
           headers: {
-            Accept: 'application/dns-json',
+            Accept: "application/dns-json",
           },
-        })
+        });
 
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
-          throw new Error(`DoH request failed: ${response.status}`)
+          throw new Error(`DoH request failed: ${response.status}`);
         }
 
-        const data = await response.json()
-        const latency = Date.now() - startTime
+        const data = await response.json();
+        const latency = Date.now() - startTime;
 
         // Compare with known good IPs if available
         if (this._config.knownGoodIps && data.Answer) {
-          const resolvedIps = data.Answer
-            .filter((a: { type: number }) => a.type === 1)
-            .map((a: { data: string }) => a.data)
+          const resolvedIps = data.Answer.filter(
+            (a: { type: number }) => a.type === 1,
+          ).map((a: { data: string }) => a.data);
 
-          const hasGoodIp = resolvedIps.some(
-            (ip: string) => this._config.knownGoodIps!.includes(ip)
-          )
+          const hasGoodIp = resolvedIps.some((ip: string) =>
+            this._config.knownGoodIps!.includes(ip),
+          );
 
           if (!hasGoodIp && resolvedIps.length > 0) {
             indicators.push({
-              type: 'dns-poisoning',
-              confidence: 'medium',
-              description: 'DoH resolved to different IPs than expected',
-              evidence: { expected: this._config.knownGoodIps, actual: resolvedIps },
-            })
+              type: "dns-poisoning",
+              confidence: "medium",
+              description: "DoH resolved to different IPs than expected",
+              evidence: {
+                expected: this._config.knownGoodIps,
+                actual: resolvedIps,
+              },
+            });
           }
         }
 
         return {
           id: probeId,
-          type: 'dns-over-https',
+          type: "dns-over-https",
           target: domain,
           success: true,
           latency,
           indicators,
           timestamp: new Date(),
-        }
+        };
       } finally {
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
       }
     } catch (error) {
       // DoH failure might indicate DoH itself is blocked
-      if (error instanceof Error && TIMEOUT_PATTERNS.some((p) => p.test(error.message))) {
+      if (
+        error instanceof Error &&
+        TIMEOUT_PATTERNS.some((p) => p.test(error.message))
+      ) {
         indicators.push({
-          type: 'dpi',
-          confidence: 'low',
-          description: 'DoH request failed - possible DPI blocking',
-        })
+          type: "dpi",
+          confidence: "low",
+          description: "DoH request failed - possible DPI blocking",
+        });
       }
 
       return {
         id: probeId,
-        type: 'dns-over-https',
+        type: "dns-over-https",
         target: domain,
         success: false,
         latency: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         indicators,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -873,78 +920,78 @@ export class CensorshipDetector extends EventEmitter {
    * Run WebSocket probe
    */
   private async runWebSocketProbe(url: string): Promise<ProbeResult> {
-    const startTime = Date.now()
-    const indicators: CensorshipIndicator[] = []
-    const probeId = `ws-${Date.now()}`
+    const startTime = Date.now();
+    const indicators: CensorshipIndicator[] = [];
+    const probeId = `ws-${Date.now()}`;
 
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
         indicators.push({
-          type: 'tcp-blocking',
-          confidence: 'medium',
-          description: 'WebSocket connection timeout',
-        })
+          type: "tcp-blocking",
+          confidence: "medium",
+          description: "WebSocket connection timeout",
+        });
         resolve({
           id: probeId,
-          type: 'websocket',
+          type: "websocket",
           target: url,
           success: false,
           latency: Date.now() - startTime,
-          error: 'Connection timeout',
+          error: "Connection timeout",
           indicators,
           timestamp: new Date(),
-        })
-      }, this._config.probeTimeout)
+        });
+      }, this._config.probeTimeout);
 
       try {
-        const ws = new WebSocket(url)
+        const ws = new WebSocket(url);
 
         ws.onopen = () => {
-          clearTimeout(timeout)
-          ws.close()
+          clearTimeout(timeout);
+          ws.close();
           resolve({
             id: probeId,
-            type: 'websocket',
+            type: "websocket",
             target: url,
             success: true,
             latency: Date.now() - startTime,
             indicators,
             timestamp: new Date(),
-          })
-        }
+          });
+        };
 
         ws.onerror = () => {
-          clearTimeout(timeout)
+          clearTimeout(timeout);
           indicators.push({
-            type: 'tcp-blocking',
-            confidence: 'medium',
-            description: 'WebSocket connection failed',
-          })
+            type: "tcp-blocking",
+            confidence: "medium",
+            description: "WebSocket connection failed",
+          });
           resolve({
             id: probeId,
-            type: 'websocket',
+            type: "websocket",
             target: url,
             success: false,
             latency: Date.now() - startTime,
-            error: 'WebSocket error',
+            error: "WebSocket error",
             indicators,
             timestamp: new Date(),
-          })
-        }
+          });
+        };
       } catch (error) {
-        clearTimeout(timeout)
+        clearTimeout(timeout);
         resolve({
           id: probeId,
-          type: 'websocket',
+          type: "websocket",
           target: url,
           success: false,
           latency: Date.now() - startTime,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
           indicators,
           timestamp: new Date(),
-        })
+        });
       }
-    })
+    });
   }
 
   /**
@@ -952,15 +999,15 @@ export class CensorshipDetector extends EventEmitter {
    */
   private async runCustomProbe(probe: CustomProbe): Promise<ProbeResult> {
     switch (probe.type) {
-      case 'http-get':
-      case 'https-get':
-        return this.runHttpProbe(probe.target)
-      case 'dns-resolution':
-        return this.runDnsProbe(probe.target)
-      case 'dns-over-https':
-        return this.runDohProbe(probe.target)
-      case 'websocket':
-        return this.runWebSocketProbe(probe.target)
+      case "http-get":
+      case "https-get":
+        return this.runHttpProbe(probe.target);
+      case "dns-resolution":
+        return this.runDnsProbe(probe.target);
+      case "dns-over-https":
+        return this.runDohProbe(probe.target);
+      case "websocket":
+        return this.runWebSocketProbe(probe.target);
       default:
         return {
           id: probe.id,
@@ -968,10 +1015,10 @@ export class CensorshipDetector extends EventEmitter {
           target: probe.target,
           success: false,
           latency: 0,
-          error: 'Unsupported probe type',
+          error: "Unsupported probe type",
           indicators: [],
           timestamp: new Date(),
-        }
+        };
     }
   }
 
@@ -981,14 +1028,14 @@ export class CensorshipDetector extends EventEmitter {
   private createErrorProbeResult(error: unknown): ProbeResult {
     return {
       id: `error-${Date.now()}`,
-      type: 'http-get',
-      target: 'unknown',
+      type: "http-get",
+      target: "unknown",
       success: false,
       latency: 0,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
       indicators: [],
       timestamp: new Date(),
-    }
+    };
   }
 
   // ============================================================================
@@ -999,49 +1046,54 @@ export class CensorshipDetector extends EventEmitter {
    * Analyze probe results
    */
   private analyzeProbes(probes: ProbeResult[]): {
-    status: NetworkStatus
-    censored: boolean
-    censorshipTypes: CensorshipType[]
-    confidence: ConfidenceLevel
+    status: NetworkStatus;
+    censored: boolean;
+    censorshipTypes: CensorshipType[];
+    confidence: ConfidenceLevel;
   } {
     if (probes.length === 0) {
       return {
         status: NetworkStatus.UNKNOWN,
         censored: false,
         censorshipTypes: [],
-        confidence: 'low',
-      }
+        confidence: "low",
+      };
     }
 
-    const allIndicators = probes.flatMap((p) => p.indicators)
-    const successfulProbes = probes.filter((p) => p.success)
-    const failedProbes = probes.filter((p) => !p.success)
+    const allIndicators = probes.flatMap((p) => p.indicators);
+    const successfulProbes = probes.filter((p) => p.success);
+    const failedProbes = probes.filter((p) => !p.success);
 
     // Determine network status
-    let status: NetworkStatus
+    let status: NetworkStatus;
     if (successfulProbes.length === 0) {
-      status = allIndicators.length > 0 ? NetworkStatus.CENSORED : NetworkStatus.OFFLINE
+      status =
+        allIndicators.length > 0
+          ? NetworkStatus.CENSORED
+          : NetworkStatus.OFFLINE;
     } else if (allIndicators.length > 0) {
-      status = NetworkStatus.CENSORED
+      status = NetworkStatus.CENSORED;
     } else if (failedProbes.length > successfulProbes.length) {
-      status = NetworkStatus.LIMITED
+      status = NetworkStatus.LIMITED;
     } else {
-      status = NetworkStatus.CONNECTED
+      status = NetworkStatus.CONNECTED;
     }
 
     // Collect unique censorship types
-    const censorshipTypes = [...new Set(allIndicators.map((i) => i.type))]
+    const censorshipTypes = [...new Set(allIndicators.map((i) => i.type))];
 
     // Determine overall confidence
-    let confidence: ConfidenceLevel = 'low'
-    if (allIndicators.some((i) => i.confidence === 'certain')) {
-      confidence = 'certain'
-    } else if (allIndicators.filter((i) => i.confidence === 'high').length >= 2) {
-      confidence = 'high'
-    } else if (allIndicators.some((i) => i.confidence === 'high')) {
-      confidence = 'medium'
+    let confidence: ConfidenceLevel = "low";
+    if (allIndicators.some((i) => i.confidence === "certain")) {
+      confidence = "certain";
+    } else if (
+      allIndicators.filter((i) => i.confidence === "high").length >= 2
+    ) {
+      confidence = "high";
+    } else if (allIndicators.some((i) => i.confidence === "high")) {
+      confidence = "medium";
     } else if (allIndicators.length > 0) {
-      confidence = 'low'
+      confidence = "low";
     }
 
     return {
@@ -1049,140 +1101,147 @@ export class CensorshipDetector extends EventEmitter {
       censored: censorshipTypes.length > 0,
       censorshipTypes,
       confidence,
-    }
+    };
   }
 
   /**
    * Generate circumvention recommendations
    */
   private generateRecommendations(
-    analysis: { censorshipTypes: CensorshipType[]; confidence: ConfidenceLevel },
-    geoContext?: GeoContext
+    analysis: {
+      censorshipTypes: CensorshipType[];
+      confidence: ConfidenceLevel;
+    },
+    geoContext?: GeoContext,
   ): CircumventionRecommendation[] {
-    const recommendations: CircumventionRecommendation[] = []
+    const recommendations: CircumventionRecommendation[] = [];
 
     if (analysis.censorshipTypes.length === 0) {
       // No censorship detected
       recommendations.push({
-        method: 'direct',
+        method: "direct",
         priority: 0,
         effectiveness: 100,
-        description: 'No circumvention needed - direct connection recommended',
-      })
-      return recommendations
+        description: "No circumvention needed - direct connection recommended",
+      });
+      return recommendations;
     }
 
     // SNI filtering detected - recommend domain fronting
     if (
-      analysis.censorshipTypes.includes('sni-filtering') ||
-      analysis.censorshipTypes.includes('https-blocking')
+      analysis.censorshipTypes.includes("sni-filtering") ||
+      analysis.censorshipTypes.includes("https-blocking")
     ) {
       recommendations.push({
-        method: 'domain-fronting',
+        method: "domain-fronting",
         priority: 1,
         effectiveness: 85,
-        description: 'Use domain fronting to bypass SNI-based filtering',
-        configHints: { preferCDN: 'cloudflare' },
-      })
+        description: "Use domain fronting to bypass SNI-based filtering",
+        configHints: { preferCDN: "cloudflare" },
+      });
 
       recommendations.push({
-        method: 'meek',
+        method: "meek",
         priority: 2,
         effectiveness: 80,
-        description: 'Use meek transport for high-censorship environments',
-      })
+        description: "Use meek transport for high-censorship environments",
+      });
     }
 
     // TCP/IP blocking detected - recommend obfs4 or snowflake
     if (
-      analysis.censorshipTypes.includes('tcp-blocking') ||
-      analysis.censorshipTypes.includes('tcp-rst') ||
-      analysis.censorshipTypes.includes('ip-blocking')
+      analysis.censorshipTypes.includes("tcp-blocking") ||
+      analysis.censorshipTypes.includes("tcp-rst") ||
+      analysis.censorshipTypes.includes("ip-blocking")
     ) {
       recommendations.push({
-        method: 'obfs4',
+        method: "obfs4",
         priority: 1,
         effectiveness: 90,
-        description: 'Use obfs4 bridges to bypass IP/TCP blocking',
-      })
+        description: "Use obfs4 bridges to bypass IP/TCP blocking",
+      });
 
       recommendations.push({
-        method: 'snowflake',
+        method: "snowflake",
         priority: 2,
         effectiveness: 75,
-        description: 'Use Snowflake for WebRTC-based circumvention',
-      })
+        description: "Use Snowflake for WebRTC-based circumvention",
+      });
     }
 
     // DNS blocking detected - recommend DoH/DoT
     if (
-      analysis.censorshipTypes.includes('dns-blocking') ||
-      analysis.censorshipTypes.includes('dns-poisoning')
+      analysis.censorshipTypes.includes("dns-blocking") ||
+      analysis.censorshipTypes.includes("dns-poisoning")
     ) {
       recommendations.push({
-        method: 'dns-over-https',
+        method: "dns-over-https",
         priority: 1,
         effectiveness: 95,
-        description: 'Use DNS-over-HTTPS to bypass DNS manipulation',
+        description: "Use DNS-over-HTTPS to bypass DNS manipulation",
         configHints: { servers: this._config.dohServers },
-      })
+      });
 
       recommendations.push({
-        method: 'dns-over-tls',
+        method: "dns-over-tls",
         priority: 2,
         effectiveness: 90,
-        description: 'Use DNS-over-TLS as an alternative to DoH',
-      })
+        description: "Use DNS-over-TLS as an alternative to DoH",
+      });
     }
 
     // DPI detected - recommend traffic obfuscation
-    if (analysis.censorshipTypes.includes('dpi')) {
+    if (analysis.censorshipTypes.includes("dpi")) {
       recommendations.push({
-        method: 'obfs4',
+        method: "obfs4",
         priority: 1,
         effectiveness: 85,
-        description: 'Use obfs4 to evade deep packet inspection',
-      })
+        description: "Use obfs4 to evade deep packet inspection",
+      });
 
       recommendations.push({
-        method: 'meek',
+        method: "meek",
         priority: 2,
         effectiveness: 80,
-        description: 'Use meek transport to disguise traffic as CDN requests',
-      })
+        description: "Use meek transport to disguise traffic as CDN requests",
+      });
     }
 
     // Generic fallbacks
-    if (recommendations.length === 0 || analysis.confidence === 'low') {
+    if (recommendations.length === 0 || analysis.confidence === "low") {
       recommendations.push({
-        method: 'socks-proxy',
+        method: "socks-proxy",
         priority: 5,
         effectiveness: 60,
-        description: 'Use a SOCKS5 proxy as a general fallback',
-      })
+        description: "Use a SOCKS5 proxy as a general fallback",
+      });
 
       recommendations.push({
-        method: 'vpn',
+        method: "vpn",
         priority: 6,
         effectiveness: 70,
-        description: 'Use a VPN for encrypted tunnel',
-      })
+        description: "Use a VPN for encrypted tunnel",
+      });
     }
 
     // Adjust based on geographic context
-    if (geoContext?.knownCensorshipLevel === 'severe') {
+    if (geoContext?.knownCensorshipLevel === "severe") {
       // Prioritize more robust methods
       recommendations.sort((a, b) => {
-        const severeMethods: CircumventionMethod[] = ['obfs4', 'meek', 'snowflake']
-        const aIsSevere = severeMethods.includes(a.method)
-        const bIsSevere = severeMethods.includes(b.method)
-        if (aIsSevere && !bIsSevere) return -1
-        if (!aIsSevere && bIsSevere) return 1
-        return a.priority - b.priority
-      })
+        const severeMethods: CircumventionMethod[] = [
+          "obfs4",
+          "meek",
+          "snowflake",
+        ];
+        const aIsSevere = severeMethods.includes(a.method);
+        const bIsSevere = severeMethods.includes(b.method);
+        if (aIsSevere && !bIsSevere) return -1;
+        if (!aIsSevere && bIsSevere) return 1;
+        return a.priority - b.priority;
+      });
     }
 
-    return recommendations.sort((a, b) => a.priority - b.priority)
+    return recommendations.sort((a, b) => a.priority - b.priority);
   }
 
   /**
@@ -1190,44 +1249,46 @@ export class CensorshipDetector extends EventEmitter {
    */
   private async getGeoContext(): Promise<GeoContext | undefined> {
     try {
-      const response = await fetch('https://ipinfo.io/json', {
+      const response = await fetch("https://ipinfo.io/json", {
         signal: createTimeoutSignal(5000),
-      })
+      });
 
       if (!response.ok) {
-        return undefined
+        return undefined;
       }
 
-      const data = await response.json()
+      const data = await response.json();
 
       return {
         countryCode: data.country,
         countryName: data.country,
         region: data.region,
         city: data.city,
-        asn: data.org?.split(' ')[0],
+        asn: data.org?.split(" ")[0],
         isp: data.org,
         knownCensorshipLevel: this.getCensorshipLevel(data.country),
-      }
+      };
     } catch {
-      return undefined
+      return undefined;
     }
   }
 
   /**
    * Get known censorship level for a country
    */
-  private getCensorshipLevel(countryCode?: string): 'low' | 'medium' | 'high' | 'severe' {
-    if (!countryCode) return 'low'
+  private getCensorshipLevel(
+    countryCode?: string,
+  ): "low" | "medium" | "high" | "severe" {
+    if (!countryCode) return "low";
 
-    const severeCensorship = ['CN', 'KP', 'IR', 'TM', 'ER']
-    const highCensorship = ['RU', 'SA', 'AE', 'BY', 'CU', 'SY', 'VN']
-    const mediumCensorship = ['TR', 'EG', 'PK', 'TH', 'ID', 'MY']
+    const severeCensorship = ["CN", "KP", "IR", "TM", "ER"];
+    const highCensorship = ["RU", "SA", "AE", "BY", "CU", "SY", "VN"];
+    const mediumCensorship = ["TR", "EG", "PK", "TH", "ID", "MY"];
 
-    if (severeCensorship.includes(countryCode)) return 'severe'
-    if (highCensorship.includes(countryCode)) return 'high'
-    if (mediumCensorship.includes(countryCode)) return 'medium'
-    return 'low'
+    if (severeCensorship.includes(countryCode)) return "severe";
+    if (highCensorship.includes(countryCode)) return "high";
+    if (mediumCensorship.includes(countryCode)) return "medium";
+    return "low";
   }
 
   // ============================================================================
@@ -1238,11 +1299,11 @@ export class CensorshipDetector extends EventEmitter {
    * Batch array into chunks
    */
   private batchArray<T>(array: T[], batchSize: number): T[][] {
-    const batches: T[][] = []
+    const batches: T[][] = [];
     for (let i = 0; i < array.length; i += batchSize) {
-      batches.push(array.slice(i, i + batchSize))
+      batches.push(array.slice(i, i + batchSize));
     }
-    return batches
+    return batches;
   }
 
   /**
@@ -1250,9 +1311,12 @@ export class CensorshipDetector extends EventEmitter {
    */
   private updateNetworkStatus(status: NetworkStatus): void {
     if (status !== this._networkStatus) {
-      const previousStatus = this._networkStatus
-      this._networkStatus = status
-      this.emitEvent('network-status-changed', { previousStatus, currentStatus: status })
+      const previousStatus = this._networkStatus;
+      this._networkStatus = status;
+      this.emitEvent("network-status-changed", {
+        previousStatus,
+        currentStatus: status,
+      });
     }
   }
 
@@ -1264,8 +1328,8 @@ export class CensorshipDetector extends EventEmitter {
       type,
       timestamp: new Date(),
       data,
-    }
-    this.emit(type, event)
+    };
+    this.emit(type, event);
   }
 
   // ============================================================================
@@ -1276,11 +1340,11 @@ export class CensorshipDetector extends EventEmitter {
    * Start periodic detection
    */
   private startPeriodicDetection(): void {
-    this.stopPeriodicDetection()
+    this.stopPeriodicDetection();
     this._detectionTimer = setInterval(
       () => this.detect().catch(() => {}),
-      this._config.detectionInterval
-    )
+      this._config.detectionInterval,
+    );
   }
 
   /**
@@ -1288,8 +1352,8 @@ export class CensorshipDetector extends EventEmitter {
    */
   private stopPeriodicDetection(): void {
     if (this._detectionTimer) {
-      clearInterval(this._detectionTimer)
-      this._detectionTimer = undefined
+      clearInterval(this._detectionTimer);
+      this._detectionTimer = undefined;
     }
   }
 
@@ -1297,7 +1361,7 @@ export class CensorshipDetector extends EventEmitter {
    * Dispose of the detector
    */
   dispose(): void {
-    this.stopPeriodicDetection()
+    this.stopPeriodicDetection();
   }
 }
 
@@ -1310,12 +1374,12 @@ export class CensorshipDetector extends EventEmitter {
  */
 export function createCensorshipDetector(
   primaryEndpoint: string,
-  options?: Partial<CensorshipDetectorConfig>
+  options?: Partial<CensorshipDetectorConfig>,
 ): CensorshipDetector {
   return new CensorshipDetector({
     primaryEndpoint,
     ...options,
-  })
+  });
 }
 
 /**
@@ -1328,7 +1392,7 @@ export function createQuickDetector(endpoint: string): CensorshipDetector {
     maxConcurrentProbes: 3,
     detectionInterval: 0,
     ooniEnabled: false,
-  })
+  });
 }
 
 /**
@@ -1336,7 +1400,7 @@ export function createQuickDetector(endpoint: string): CensorshipDetector {
  */
 export function createComprehensiveDetector(
   primaryEndpoint: string,
-  alternativeEndpoints: string[]
+  alternativeEndpoints: string[],
 ): CensorshipDetector {
   return new CensorshipDetector({
     primaryEndpoint,
@@ -1345,7 +1409,7 @@ export function createComprehensiveDetector(
     maxConcurrentProbes: 10,
     detectionInterval: 300000, // 5 minutes
     ooniEnabled: false,
-  })
+  });
 }
 
 // ============================================================================
@@ -1357,4 +1421,4 @@ export const CENSORSHIP_DETECTOR_CONSTANTS = {
   CENSORSHIP_DNS_RESPONSES,
   TIMEOUT_PATTERNS,
   SNI_FILTER_PATTERNS,
-} as const
+} as const;

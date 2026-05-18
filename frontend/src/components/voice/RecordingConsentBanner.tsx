@@ -17,14 +17,14 @@
  *   - See: https://nself.org/legal/recording-consent
  */
 
-import React from 'react'
+import React from "react";
 
 interface RecordingConsentBannerProps {
-  show: boolean
-  onAccept: () => void
-  onDecline: () => void
+  show: boolean;
+  onAccept: () => void;
+  onDecline: () => void;
   /** Optional: name of the person initiating the recording (for clarity) */
-  initiator?: string
+  initiator?: string;
 }
 
 export function RecordingConsentBanner({
@@ -33,7 +33,7 @@ export function RecordingConsentBanner({
   onDecline,
   initiator,
 }: RecordingConsentBannerProps) {
-  if (!show) return null
+  if (!show) return null;
 
   return (
     <div
@@ -54,8 +54,8 @@ export function RecordingConsentBanner({
         <p className="mb-2 text-center text-sm text-gray-400">
           {initiator
             ? `${initiator} has enabled call recording.`
-            : 'This session will be recorded.'}
-          {' '}You must consent before the call continues.
+            : "This session will be recorded."}{" "}
+          You must consent before the call continues.
         </p>
 
         <p className="mb-6 text-center text-xs text-gray-500">
@@ -67,7 +67,7 @@ export function RecordingConsentBanner({
           >
             Recording Consent Policy
           </a>
-          {' · '}
+          {" · "}
           <a
             href="https://nself.org/legal/privacy"
             target="_blank"
@@ -96,7 +96,7 @@ export function RecordingConsentBanner({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default RecordingConsentBanner
+export default RecordingConsentBanner;

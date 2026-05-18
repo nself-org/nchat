@@ -1,39 +1,45 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Sparkles, ChevronRight, RefreshCw, Lightbulb } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChannelCard } from './ChannelCard'
-import type { Channel } from '@/stores/channel-store'
+import * as React from "react";
+import { Sparkles, ChevronRight, RefreshCw, Lightbulb } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ChannelCard } from "./ChannelCard";
+import type { Channel } from "@/stores/channel-store";
 import {
   generateSuggestions,
   getSuggestionReasonText,
   type UserContext,
   type ChannelSuggestion,
-} from '@/lib/channels/channel-suggestions'
+} from "@/lib/channels/channel-suggestions";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ChannelSuggestionsProps {
-  channels: Channel[]
-  userContext: UserContext
-  joinedChannelIds?: Set<string>
-  limit?: number
-  showRefresh?: boolean
-  showViewAll?: boolean
-  layout?: 'scroll' | 'grid' | 'list'
-  onViewAll?: () => void
-  onRefresh?: () => void
-  onJoin?: (channelId: string) => void
-  onLeave?: (channelId: string) => void
-  onDismiss?: (channelId: string) => void
-  className?: string
+  channels: Channel[];
+  userContext: UserContext;
+  joinedChannelIds?: Set<string>;
+  limit?: number;
+  showRefresh?: boolean;
+  showViewAll?: boolean;
+  layout?: "scroll" | "grid" | "list";
+  onViewAll?: () => void;
+  onRefresh?: () => void;
+  onJoin?: (channelId: string) => void;
+  onLeave?: (channelId: string) => void;
+  onDismiss?: (channelId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -47,7 +53,7 @@ export function ChannelSuggestions({
   limit = 6,
   showRefresh = true,
   showViewAll = true,
-  layout = 'scroll',
+  layout = "scroll",
   onViewAll,
   onRefresh,
   onJoin,
@@ -55,51 +61,55 @@ export function ChannelSuggestions({
   onDismiss,
   className,
 }: ChannelSuggestionsProps) {
-  const [isRefreshing, setIsRefreshing] = React.useState(false)
-  const [dismissedIds, setDismissedIds] = React.useState<Set<string>>(new Set())
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [dismissedIds, setDismissedIds] = React.useState<Set<string>>(
+    new Set(),
+  );
 
   const suggestions = React.useMemo(() => {
     const allSuggestions = generateSuggestions(channels, userContext, {
       maxSuggestions: limit + dismissedIds.size,
       excludeJoined: true,
-    })
+    });
 
-    return allSuggestions.filter((s) => !dismissedIds.has(s.channel.id)).slice(0, limit)
-  }, [channels, userContext, limit, dismissedIds])
+    return allSuggestions
+      .filter((s) => !dismissedIds.has(s.channel.id))
+      .slice(0, limit);
+  }, [channels, userContext, limit, dismissedIds]);
 
   const handleRefresh = async () => {
-    setIsRefreshing(true)
-    setDismissedIds(new Set())
-    onRefresh?.()
+    setIsRefreshing(true);
+    setDismissedIds(new Set());
+    onRefresh?.();
     // Simulate refresh delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    setIsRefreshing(false)
-  }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setIsRefreshing(false);
+  };
 
   const handleDismiss = (channelId: string) => {
-    setDismissedIds((prev) => new Set([...prev, channelId]))
-    onDismiss?.(channelId)
-  }
+    setDismissedIds((prev) => new Set([...prev, channelId]));
+    onDismiss?.(channelId);
+  };
 
   if (suggestions.length === 0) {
     return (
-      <Card className={cn('', className)}>
+      <Card className={cn("", className)}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Sparkles className="h-5 w-5 text-purple-500" />
             Suggested for You
           </CardTitle>
           <CardDescription>
-            No suggestions available at the moment. Join some channels to get personalized
-            recommendations.
+            No suggestions available at the moment. Join some channels to get
+            personalized recommendations.
           </CardDescription>
         </CardHeader>
       </Card>
-    )
+    );
   }
 
   const renderChannels = () => {
-    if (layout === 'list') {
+    if (layout === "list") {
       return (
         <div className="space-y-3">
           {suggestions.map((suggestion) => (
@@ -128,10 +138,10 @@ export function ChannelSuggestions({
             </div>
           ))}
         </div>
-      )
+      );
     }
 
-    if (layout === 'grid') {
+    if (layout === "grid") {
       return (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {suggestions.map((suggestion) => (
@@ -160,7 +170,7 @@ export function ChannelSuggestions({
             </div>
           ))}
         </div>
-      )
+      );
     }
 
     // Default: scroll layout
@@ -168,7 +178,10 @@ export function ChannelSuggestions({
       <ScrollArea className="w-full">
         <div className="flex gap-4 pb-4">
           {suggestions.map((suggestion) => (
-            <div key={suggestion.channel.id} className="w-[300px] flex-shrink-0">
+            <div
+              key={suggestion.channel.id}
+              className="w-[300px] flex-shrink-0"
+            >
               <ChannelCard
                 channel={suggestion.channel}
                 isJoined={joinedChannelIds.has(suggestion.channel.id)}
@@ -195,11 +208,11 @@ export function ChannelSuggestions({
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-    )
-  }
+    );
+  };
 
   return (
-    <section className={cn('space-y-4', className)}>
+    <section className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-purple-500" />
@@ -210,8 +223,15 @@ export function ChannelSuggestions({
         </div>
         <div className="flex items-center gap-2">
           {showRefresh && (
-            <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
-              <RefreshCw className={cn('mr-1 h-4 w-4', isRefreshing && 'animate-spin')} />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw
+                className={cn("mr-1 h-4 w-4", isRefreshing && "animate-spin")}
+              />
               Refresh
             </Button>
           )}
@@ -226,7 +246,7 @@ export function ChannelSuggestions({
 
       {renderChannels()}
     </section>
-  )
+  );
 }
 
-ChannelSuggestions.displayName = 'ChannelSuggestions'
+ChannelSuggestions.displayName = "ChannelSuggestions";

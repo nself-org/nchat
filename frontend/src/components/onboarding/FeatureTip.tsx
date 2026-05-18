@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { X, Lightbulb, ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useState, useCallback } from "react";
+import { X, Lightbulb, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FeatureTipProps {
-  title: string
-  description: string
-  onDismiss?: () => void
-  onAction?: () => void
-  actionLabel?: string
-  variant?: 'default' | 'compact' | 'inline'
-  className?: string
+  title: string;
+  description: string;
+  onDismiss?: () => void;
+  onAction?: () => void;
+  actionLabel?: string;
+  variant?: "default" | "compact" | "inline";
+  className?: string;
 }
 
 export function FeatureTip({
@@ -19,26 +19,26 @@ export function FeatureTip({
   description,
   onDismiss,
   onAction,
-  actionLabel = 'Learn more',
-  variant = 'default',
+  actionLabel = "Learn more",
+  variant = "default",
   className,
 }: FeatureTipProps) {
-  const [isVisible, setIsVisible] = useState(true)
+  const [isVisible, setIsVisible] = useState(true);
 
   const handleDismiss = useCallback(() => {
-    setIsVisible(false)
-    setTimeout(() => onDismiss?.(), 200)
-  }, [onDismiss])
+    setIsVisible(false);
+    setTimeout(() => onDismiss?.(), 200);
+  }, [onDismiss]);
 
-  if (!isVisible) return null
+  if (!isVisible) return null;
 
-  if (variant === 'inline') {
+  if (variant === "inline") {
     return (
       <div
         className={cn(
-          'bg-primary/5 border-primary/20 flex items-start gap-3 rounded-lg border p-3',
-          'transition-all duration-200',
-          className
+          "bg-primary/5 border-primary/20 flex items-start gap-3 rounded-lg border p-3",
+          "transition-all duration-200",
+          className,
         )}
       >
         <Lightbulb className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
@@ -57,20 +57,22 @@ export function FeatureTip({
           </button>
         )}
       </div>
-    )
+    );
   }
 
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <div
         className={cn(
-          'flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20',
-          'transition-all duration-200',
-          className
+          "flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20",
+          "transition-all duration-200",
+          className,
         )}
       >
         <Lightbulb className="h-4 w-4 flex-shrink-0 text-amber-500" />
-        <span className="flex-1 text-sm text-amber-800 dark:text-amber-200">{title}</span>
+        <span className="flex-1 text-sm text-amber-800 dark:text-amber-200">
+          {title}
+        </span>
         {onAction && (
           <button
             type="button"
@@ -90,16 +92,16 @@ export function FeatureTip({
           </button>
         )}
       </div>
-    )
+    );
   }
 
   // Default variant
   return (
     <div
       className={cn(
-        'from-primary/10 to-primary/5 border-primary/20 rounded-xl border bg-gradient-to-r p-4',
-        'transition-all duration-200',
-        className
+        "from-primary/10 to-primary/5 border-primary/20 rounded-xl border bg-gradient-to-r p-4",
+        "transition-all duration-200",
+        className,
       )}
     >
       <div className="flex items-start gap-3">
@@ -108,7 +110,9 @@ export function FeatureTip({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h4 className="font-semibold text-zinc-900 dark:text-white">{title}</h4>
+            <h4 className="font-semibold text-zinc-900 dark:text-white">
+              {title}
+            </h4>
             {onDismiss && (
               <button
                 type="button"
@@ -119,7 +123,9 @@ export function FeatureTip({
               </button>
             )}
           </div>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{description}</p>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            {description}
+          </p>
           {onAction && (
             <button
               type="button"
@@ -133,5 +139,5 @@ export function FeatureTip({
         </div>
       </div>
     </div>
-  )
+  );
 }

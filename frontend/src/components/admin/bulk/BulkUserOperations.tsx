@@ -9,9 +9,9 @@
  * - CSV import/export
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Users,
   Upload,
@@ -24,23 +24,29 @@ import {
   X,
   CheckCircle,
   AlertCircle,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Checkbox } from '@/components/ui/checkbox'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -48,8 +54,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { toast } from 'sonner'
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 import {
   parseEmailList,
   validateEmails,
@@ -57,18 +63,18 @@ import {
   downloadCSV,
   parseCSV,
   BulkOperationProgress,
-} from '@/lib/admin/bulk-operations'
-import type { AdminUser } from '@/lib/admin/admin-store'
-import type { BulkOperation } from '@/lib/admin/bulk-operations'
+} from "@/lib/admin/bulk-operations";
+import type { AdminUser } from "@/lib/admin/admin-store";
+import type { BulkOperation } from "@/lib/admin/bulk-operations";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface BulkUserOperationsProps {
-  users: AdminUser[]
-  selectedUserIds: string[]
-  onOperationComplete?: () => void
+  users: AdminUser[];
+  selectedUserIds: string[];
+  onOperationComplete?: () => void;
 }
 
 // ============================================================================
@@ -80,11 +86,11 @@ export function BulkUserOperations({
   selectedUserIds,
   onOperationComplete,
 }: BulkUserOperationsProps) {
-  const [activeTab, setActiveTab] = useState('invite')
-  const [operation, setOperation] = useState<BulkOperation | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [activeTab, setActiveTab] = useState("invite");
+  const [operation, setOperation] = useState<BulkOperation | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const selectedUsers = users.filter((u) => selectedUserIds.includes(u.id))
+  const selectedUsers = users.filter((u) => selectedUserIds.includes(u.id));
 
   return (
     <Card>
@@ -128,7 +134,10 @@ export function BulkUserOperations({
           </TabsList>
 
           <TabsContent value="invite" className="space-y-4">
-            <BulkInviteTab onOperationStart={setOperation} onProcessingChange={setIsProcessing} />
+            <BulkInviteTab
+              onOperationStart={setOperation}
+              onProcessingChange={setIsProcessing}
+            />
           </TabsContent>
 
           <TabsContent value="suspend" className="space-y-4">
@@ -163,7 +172,7 @@ export function BulkUserOperations({
         {operation && <OperationProgress operation={operation} />}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -171,70 +180,81 @@ export function BulkUserOperations({
 // ============================================================================
 
 interface BulkInviteTabProps {
-  onOperationStart: (operation: BulkOperation) => void
-  onProcessingChange: (processing: boolean) => void
+  onOperationStart: (operation: BulkOperation) => void;
+  onProcessingChange: (processing: boolean) => void;
 }
 
-function BulkInviteTab({ onOperationStart, onProcessingChange }: BulkInviteTabProps) {
-  const [emailList, setEmailList] = useState('')
-  const [roleId, setRoleId] = useState('member')
-  const [sendWelcomeEmail, setSendWelcomeEmail] = useState(true)
-  const [customMessage, setCustomMessage] = useState('')
+function BulkInviteTab({
+  onOperationStart,
+  onProcessingChange,
+}: BulkInviteTabProps) {
+  const [emailList, setEmailList] = useState("");
+  const [roleId, setRoleId] = useState("member");
+  const [sendWelcomeEmail, setSendWelcomeEmail] = useState(true);
+  const [customMessage, setCustomMessage] = useState("");
 
   const handleInvite = async () => {
-    const emails = parseEmailList(emailList)
-    const { valid, invalid } = validateEmails(emails)
+    const emails = parseEmailList(emailList);
+    const { valid, invalid } = validateEmails(emails);
 
     if (invalid.length > 0) {
       toast.error(`${invalid.length} invalid email(s) found`, {
-        description: invalid.slice(0, 3).join(', ') + (invalid.length > 3 ? '...' : ''),
-      })
-      return
+        description:
+          invalid.slice(0, 3).join(", ") + (invalid.length > 3 ? "..." : ""),
+      });
+      return;
     }
 
     if (valid.length === 0) {
-      toast.error('No valid emails provided')
-      return
+      toast.error("No valid emails provided");
+      return;
     }
 
     const operation: BulkOperation = {
       id: crypto.randomUUID(),
-      type: 'user.invite',
-      status: 'pending',
+      type: "user.invite",
+      status: "pending",
       totalItems: valid.length,
       processedItems: 0,
       successCount: 0,
       failureCount: 0,
-      createdBy: 'current-user-id',
+      createdBy: "current-user-id",
       parameters: { emails: valid, roleId, sendWelcomeEmail, customMessage },
       errors: [],
-    }
+    };
 
-    onOperationStart(operation)
-    onProcessingChange(true)
+    onOperationStart(operation);
+    onProcessingChange(true);
 
     // Simulate bulk invite operation
-    const progress = new BulkOperationProgress(operation, onOperationStart)
-    progress.start()
+    const progress = new BulkOperationProgress(operation, onOperationStart);
+    progress.start();
 
     for (const email of valid) {
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Simulate success/failure
       if (Math.random() > 0.1) {
-        progress.incrementSuccess()
+        progress.incrementSuccess();
       } else {
-        progress.incrementFailure(email, email, 'Failed to send invitation email')
+        progress.incrementFailure(
+          email,
+          email,
+          "Failed to send invitation email",
+        );
       }
     }
 
-    progress.complete()
-    onProcessingChange(false)
+    progress.complete();
+    onProcessingChange(false);
 
     toast.success(`Invited ${operation.successCount} users`, {
-      description: operation.failureCount > 0 ? `${operation.failureCount} failed` : undefined,
-    })
-  }
+      description:
+        operation.failureCount > 0
+          ? `${operation.failureCount} failed`
+          : undefined,
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -280,7 +300,9 @@ function BulkInviteTab({ onOperationStart, onProcessingChange }: BulkInviteTabPr
 
       {sendWelcomeEmail && (
         <div>
-          <Label htmlFor="custom-message">Custom Welcome Message (Optional)</Label>
+          <Label htmlFor="custom-message">
+            Custom Welcome Message (Optional)
+          </Label>
           <Textarea
             id="custom-message"
             placeholder="Add a personal message to the welcome email..."
@@ -297,7 +319,7 @@ function BulkInviteTab({ onOperationStart, onProcessingChange }: BulkInviteTabPr
         Send Invitations
       </Button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -305,9 +327,9 @@ function BulkInviteTab({ onOperationStart, onProcessingChange }: BulkInviteTabPr
 // ============================================================================
 
 interface BulkSuspendTabProps {
-  selectedUsers: AdminUser[]
-  onOperationStart: (operation: BulkOperation) => void
-  onProcessingChange: (processing: boolean) => void
+  selectedUsers: AdminUser[];
+  onOperationStart: (operation: BulkOperation) => void;
+  onProcessingChange: (processing: boolean) => void;
 }
 
 function BulkSuspendTab({
@@ -315,54 +337,56 @@ function BulkSuspendTab({
   onOperationStart,
   onProcessingChange,
 }: BulkSuspendTabProps) {
-  const [reason, setReason] = useState('')
-  const [duration, setDuration] = useState<'7' | '30' | '90' | 'permanent'>('30')
-  const [notifyUsers, setNotifyUsers] = useState(true)
-  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [reason, setReason] = useState("");
+  const [duration, setDuration] = useState<"7" | "30" | "90" | "permanent">(
+    "30",
+  );
+  const [notifyUsers, setNotifyUsers] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleSuspend = async () => {
     if (!reason.trim()) {
-      toast.error('Please provide a reason for suspension')
-      return
+      toast.error("Please provide a reason for suspension");
+      return;
     }
 
-    setConfirmOpen(false)
+    setConfirmOpen(false);
 
     const operation: BulkOperation = {
       id: crypto.randomUUID(),
-      type: 'user.suspend',
-      status: 'pending',
+      type: "user.suspend",
+      status: "pending",
       totalItems: selectedUsers.length,
       processedItems: 0,
       successCount: 0,
       failureCount: 0,
-      createdBy: 'current-user-id',
+      createdBy: "current-user-id",
       parameters: {
         userIds: selectedUsers.map((u) => u.id),
         reason,
-        duration: duration === 'permanent' ? undefined : parseInt(duration),
+        duration: duration === "permanent" ? undefined : parseInt(duration),
         notifyUsers,
       },
       errors: [],
-    }
+    };
 
-    onOperationStart(operation)
-    onProcessingChange(true)
+    onOperationStart(operation);
+    onProcessingChange(true);
 
     // Simulate suspension
-    const progress = new BulkOperationProgress(operation, onOperationStart)
-    progress.start()
+    const progress = new BulkOperationProgress(operation, onOperationStart);
+    progress.start();
 
     for (const user of selectedUsers) {
-      await new Promise((resolve) => setTimeout(resolve, 300))
-      progress.incrementSuccess()
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      progress.incrementSuccess();
     }
 
-    progress.complete()
-    onProcessingChange(false)
+    progress.complete();
+    onProcessingChange(false);
 
-    toast.success(`Suspended ${operation.successCount} users`)
-  }
+    toast.success(`Suspended ${operation.successCount} users`);
+  };
 
   return (
     <div className="space-y-4">
@@ -370,7 +394,9 @@ function BulkSuspendTab({
         <div className="py-6 text-center text-muted-foreground">
           <UserX className="mx-auto mb-2 h-12 w-12 opacity-50" />
           <p>No users selected</p>
-          <p className="text-sm">Select users from the table to perform bulk suspension</p>
+          <p className="text-sm">
+            Select users from the table to perform bulk suspension
+          </p>
         </div>
       ) : (
         <>
@@ -388,7 +414,10 @@ function BulkSuspendTab({
 
           <div>
             <Label htmlFor="duration">Suspension Duration</Label>
-            <Select value={duration} onValueChange={(v) => setDuration(v as typeof duration)}>
+            <Select
+              value={duration}
+              onValueChange={(v) => setDuration(v as typeof duration)}
+            >
               <SelectTrigger id="duration" className="mt-1.5">
                 <SelectValue />
               </SelectTrigger>
@@ -413,7 +442,9 @@ function BulkSuspendTab({
           </div>
 
           <div className="rounded-lg bg-muted p-3">
-            <p className="mb-1 text-sm font-medium">Selected Users ({selectedUsers.length})</p>
+            <p className="mb-1 text-sm font-medium">
+              Selected Users ({selectedUsers.length})
+            </p>
             <div className="flex flex-wrap gap-1">
               {selectedUsers.slice(0, 5).map((user) => (
                 <Badge key={user.id} variant="secondary">
@@ -421,14 +452,21 @@ function BulkSuspendTab({
                 </Badge>
               ))}
               {selectedUsers.length > 5 && (
-                <Badge variant="outline">+{selectedUsers.length - 5} more</Badge>
+                <Badge variant="outline">
+                  +{selectedUsers.length - 5} more
+                </Badge>
               )}
             </div>
           </div>
 
-          <Button onClick={() => setConfirmOpen(true)} variant="destructive" className="w-full">
+          <Button
+            onClick={() => setConfirmOpen(true)}
+            variant="destructive"
+            className="w-full"
+          >
             <UserX className="mr-2 h-4 w-4" />
-            Suspend {selectedUsers.length} User{selectedUsers.length > 1 ? 's' : ''}
+            Suspend {selectedUsers.length} User
+            {selectedUsers.length > 1 ? "s" : ""}
           </Button>
 
           <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -437,9 +475,9 @@ function BulkSuspendTab({
                 <DialogTitle>Confirm Bulk Suspension</DialogTitle>
                 <DialogDescription>
                   Are you sure you want to suspend {selectedUsers.length} user
-                  {selectedUsers.length > 1 ? 's' : ''}?
-                  {duration === 'permanent'
-                    ? ' This will be a permanent suspension.'
+                  {selectedUsers.length > 1 ? "s" : ""}?
+                  {duration === "permanent"
+                    ? " This will be a permanent suspension."
                     : ` They will be suspended for ${duration} days.`}
                 </DialogDescription>
               </DialogHeader>
@@ -456,7 +494,7 @@ function BulkSuspendTab({
         </>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -464,9 +502,9 @@ function BulkSuspendTab({
 // ============================================================================
 
 interface BulkDeleteTabProps {
-  selectedUsers: AdminUser[]
-  onOperationStart: (operation: BulkOperation) => void
-  onProcessingChange: (processing: boolean) => void
+  selectedUsers: AdminUser[];
+  onOperationStart: (operation: BulkOperation) => void;
+  onProcessingChange: (processing: boolean) => void;
 }
 
 function BulkDeleteTab({
@@ -474,52 +512,52 @@ function BulkDeleteTab({
   onOperationStart,
   onProcessingChange,
 }: BulkDeleteTabProps) {
-  const [deleteMessages, setDeleteMessages] = useState(false)
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [confirmText, setConfirmText] = useState('')
+  const [deleteMessages, setDeleteMessages] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
 
   const handleDelete = async () => {
-    if (confirmText !== 'DELETE') {
-      toast.error('Please type DELETE to confirm')
-      return
+    if (confirmText !== "DELETE") {
+      toast.error("Please type DELETE to confirm");
+      return;
     }
 
-    setConfirmOpen(false)
-    setConfirmText('')
+    setConfirmOpen(false);
+    setConfirmText("");
 
     const operation: BulkOperation = {
       id: crypto.randomUUID(),
-      type: 'user.delete',
-      status: 'pending',
+      type: "user.delete",
+      status: "pending",
       totalItems: selectedUsers.length,
       processedItems: 0,
       successCount: 0,
       failureCount: 0,
-      createdBy: 'current-user-id',
+      createdBy: "current-user-id",
       parameters: {
         userIds: selectedUsers.map((u) => u.id),
         deleteMessages,
       },
       errors: [],
-    }
+    };
 
-    onOperationStart(operation)
-    onProcessingChange(true)
+    onOperationStart(operation);
+    onProcessingChange(true);
 
     // Simulate deletion
-    const progress = new BulkOperationProgress(operation, onOperationStart)
-    progress.start()
+    const progress = new BulkOperationProgress(operation, onOperationStart);
+    progress.start();
 
     for (const user of selectedUsers) {
-      await new Promise((resolve) => setTimeout(resolve, 400))
-      progress.incrementSuccess()
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      progress.incrementSuccess();
     }
 
-    progress.complete()
-    onProcessingChange(false)
+    progress.complete();
+    onProcessingChange(false);
 
-    toast.success(`Deleted ${operation.successCount} users`)
-  }
+    toast.success(`Deleted ${operation.successCount} users`);
+  };
 
   return (
     <div className="space-y-4">
@@ -527,7 +565,9 @@ function BulkDeleteTab({
         <div className="py-6 text-center text-muted-foreground">
           <Trash2 className="mx-auto mb-2 h-12 w-12 opacity-50" />
           <p>No users selected</p>
-          <p className="text-sm">Select users from the table to perform bulk deletion</p>
+          <p className="text-sm">
+            Select users from the table to perform bulk deletion
+          </p>
         </div>
       ) : (
         <>
@@ -535,10 +575,13 @@ function BulkDeleteTab({
             <div className="flex items-start gap-3">
               <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" />
               <div>
-                <p className="font-medium text-destructive">Warning: Permanent Action</p>
+                <p className="font-medium text-destructive">
+                  Warning: Permanent Action
+                </p>
                 <p className="text-destructive/90 mt-1 text-sm">
-                  Deleting users is permanent and cannot be undone. User accounts, profiles, and
-                  associated data will be permanently removed.
+                  Deleting users is permanent and cannot be undone. User
+                  accounts, profiles, and associated data will be permanently
+                  removed.
                 </p>
               </div>
             </div>
@@ -548,7 +591,9 @@ function BulkDeleteTab({
             <Checkbox
               id="delete-messages"
               checked={deleteMessages}
-              onCheckedChange={(checked) => setDeleteMessages(checked as boolean)}
+              onCheckedChange={(checked) =>
+                setDeleteMessages(checked as boolean)
+              }
             />
             <Label htmlFor="delete-messages" className="cursor-pointer">
               Also delete all messages from these users
@@ -556,7 +601,9 @@ function BulkDeleteTab({
           </div>
 
           <div className="rounded-lg bg-muted p-3">
-            <p className="mb-1 text-sm font-medium">Users to Delete ({selectedUsers.length})</p>
+            <p className="mb-1 text-sm font-medium">
+              Users to Delete ({selectedUsers.length})
+            </p>
             <div className="flex flex-wrap gap-1">
               {selectedUsers.slice(0, 5).map((user) => (
                 <Badge key={user.id} variant="secondary">
@@ -564,14 +611,21 @@ function BulkDeleteTab({
                 </Badge>
               ))}
               {selectedUsers.length > 5 && (
-                <Badge variant="outline">+{selectedUsers.length - 5} more</Badge>
+                <Badge variant="outline">
+                  +{selectedUsers.length - 5} more
+                </Badge>
               )}
             </div>
           </div>
 
-          <Button onClick={() => setConfirmOpen(true)} variant="destructive" className="w-full">
+          <Button
+            onClick={() => setConfirmOpen(true)}
+            variant="destructive"
+            className="w-full"
+          >
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete {selectedUsers.length} User{selectedUsers.length > 1 ? 's' : ''}
+            Delete {selectedUsers.length} User
+            {selectedUsers.length > 1 ? "s" : ""}
           </Button>
 
           <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -579,13 +633,16 @@ function BulkDeleteTab({
               <DialogHeader>
                 <DialogTitle>Confirm Bulk Deletion</DialogTitle>
                 <DialogDescription>
-                  This action cannot be undone. {selectedUsers.length} user account
-                  {selectedUsers.length > 1 ? 's' : ''} will be permanently deleted.
+                  This action cannot be undone. {selectedUsers.length} user
+                  account
+                  {selectedUsers.length > 1 ? "s" : ""} will be permanently
+                  deleted.
                 </DialogDescription>
               </DialogHeader>
               <div className="py-4">
                 <Label htmlFor="confirm-text">
-                  Type <span className="font-mono font-bold">DELETE</span> to confirm
+                  Type <span className="font-mono font-bold">DELETE</span> to
+                  confirm
                 </Label>
                 <Input
                   id="confirm-text"
@@ -602,7 +659,7 @@ function BulkDeleteTab({
                 <Button
                   variant="destructive"
                   onClick={handleDelete}
-                  disabled={confirmText !== 'DELETE'}
+                  disabled={confirmText !== "DELETE"}
                 >
                   Delete Permanently
                 </Button>
@@ -612,7 +669,7 @@ function BulkDeleteTab({
         </>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -620,9 +677,9 @@ function BulkDeleteTab({
 // ============================================================================
 
 interface BulkRoleAssignTabProps {
-  selectedUsers: AdminUser[]
-  onOperationStart: (operation: BulkOperation) => void
-  onProcessingChange: (processing: boolean) => void
+  selectedUsers: AdminUser[];
+  onOperationStart: (operation: BulkOperation) => void;
+  onProcessingChange: (processing: boolean) => void;
 }
 
 function BulkRoleAssignTab({
@@ -630,44 +687,44 @@ function BulkRoleAssignTab({
   onOperationStart,
   onProcessingChange,
 }: BulkRoleAssignTabProps) {
-  const [roleId, setRoleId] = useState('member')
-  const [notify, setNotify] = useState(true)
+  const [roleId, setRoleId] = useState("member");
+  const [notify, setNotify] = useState(true);
 
   const handleAssignRole = async () => {
     const operation: BulkOperation = {
       id: crypto.randomUUID(),
-      type: 'user.role.assign',
-      status: 'pending',
+      type: "user.role.assign",
+      status: "pending",
       totalItems: selectedUsers.length,
       processedItems: 0,
       successCount: 0,
       failureCount: 0,
-      createdBy: 'current-user-id',
+      createdBy: "current-user-id",
       parameters: {
         userIds: selectedUsers.map((u) => u.id),
         roleId,
         notify,
       },
       errors: [],
-    }
+    };
 
-    onOperationStart(operation)
-    onProcessingChange(true)
+    onOperationStart(operation);
+    onProcessingChange(true);
 
     // Simulate role assignment
-    const progress = new BulkOperationProgress(operation, onOperationStart)
-    progress.start()
+    const progress = new BulkOperationProgress(operation, onOperationStart);
+    progress.start();
 
     for (const user of selectedUsers) {
-      await new Promise((resolve) => setTimeout(resolve, 200))
-      progress.incrementSuccess()
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      progress.incrementSuccess();
     }
 
-    progress.complete()
-    onProcessingChange(false)
+    progress.complete();
+    onProcessingChange(false);
 
-    toast.success(`Updated roles for ${operation.successCount} users`)
-  }
+    toast.success(`Updated roles for ${operation.successCount} users`);
+  };
 
   return (
     <div className="space-y-4">
@@ -675,7 +732,9 @@ function BulkRoleAssignTab({
         <div className="py-6 text-center text-muted-foreground">
           <Shield className="mx-auto mb-2 h-12 w-12 opacity-50" />
           <p>No users selected</p>
-          <p className="text-sm">Select users from the table to assign roles in bulk</p>
+          <p className="text-sm">
+            Select users from the table to assign roles in bulk
+          </p>
         </div>
       ) : (
         <>
@@ -705,7 +764,9 @@ function BulkRoleAssignTab({
           </div>
 
           <div className="rounded-lg bg-muted p-3">
-            <p className="mb-1 text-sm font-medium">Selected Users ({selectedUsers.length})</p>
+            <p className="mb-1 text-sm font-medium">
+              Selected Users ({selectedUsers.length})
+            </p>
             <div className="flex flex-wrap gap-1">
               {selectedUsers.slice(0, 5).map((user) => (
                 <Badge key={user.id} variant="secondary">
@@ -713,19 +774,22 @@ function BulkRoleAssignTab({
                 </Badge>
               ))}
               {selectedUsers.length > 5 && (
-                <Badge variant="outline">+{selectedUsers.length - 5} more</Badge>
+                <Badge variant="outline">
+                  +{selectedUsers.length - 5} more
+                </Badge>
               )}
             </div>
           </div>
 
           <Button onClick={handleAssignRole} className="w-full">
             <Shield className="mr-2 h-4 w-4" />
-            Assign Role to {selectedUsers.length} User{selectedUsers.length > 1 ? 's' : ''}
+            Assign Role to {selectedUsers.length} User
+            {selectedUsers.length > 1 ? "s" : ""}
           </Button>
         </>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -733,27 +797,27 @@ function BulkRoleAssignTab({
 // ============================================================================
 
 interface ImportExportTabProps {
-  users: AdminUser[]
-  selectedUsers: AdminUser[]
+  users: AdminUser[];
+  selectedUsers: AdminUser[];
 }
 
 function ImportExportTab({ users, selectedUsers }: ImportExportTabProps) {
   const handleExportSelected = () => {
-    const usersToExport = selectedUsers.length > 0 ? selectedUsers : users
-    const csv = exportUsersToCSV(usersToExport)
-    const filename = `users-export-${new Date().toISOString().split('T')[0]}.csv`
-    downloadCSV(filename, csv)
-    toast.success(`Exported ${usersToExport.length} users to CSV`)
-  }
+    const usersToExport = selectedUsers.length > 0 ? selectedUsers : users;
+    const csv = exportUsersToCSV(usersToExport);
+    const filename = `users-export-${new Date().toISOString().split("T")[0]}.csv`;
+    downloadCSV(filename, csv);
+    toast.success(`Exported ${usersToExport.length} users to CSV`);
+  };
 
   const handleImport = async (file: File) => {
-    const text = await file.text()
-    const data = parseCSV(text)
+    const text = await file.text();
+    const data = parseCSV(text);
 
     // Validate and process import
-    toast.success(`Ready to import ${data.length} users`)
+    toast.success(`Ready to import ${data.length} users`);
     // In production, this would trigger the actual import process
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -769,7 +833,11 @@ function ImportExportTab({ users, selectedUsers }: ImportExportTabProps) {
           <CardContent>
             <Button onClick={handleExportSelected} className="w-full">
               <Download className="mr-2 h-4 w-4" />
-              Export {selectedUsers.length > 0 ? `${selectedUsers.length} Selected` : 'All'} Users
+              Export{" "}
+              {selectedUsers.length > 0
+                ? `${selectedUsers.length} Selected`
+                : "All"}{" "}
+              Users
             </Button>
           </CardContent>
         </Card>
@@ -787,15 +855,15 @@ function ImportExportTab({ users, selectedUsers }: ImportExportTabProps) {
               type="file"
               accept=".csv"
               onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) handleImport(file)
+                const file = e.target.files?.[0];
+                if (file) handleImport(file);
               }}
             />
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -803,30 +871,32 @@ function ImportExportTab({ users, selectedUsers }: ImportExportTabProps) {
 // ============================================================================
 
 interface OperationProgressProps {
-  operation: BulkOperation
+  operation: BulkOperation;
 }
 
 function OperationProgress({ operation }: OperationProgressProps) {
   const progress =
-    operation.totalItems > 0 ? (operation.processedItems / operation.totalItems) * 100 : 0
+    operation.totalItems > 0
+      ? (operation.processedItems / operation.totalItems) * 100
+      : 0;
 
   return (
     <div className="bg-muted/50 mt-6 rounded-lg border p-4">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {operation.status === 'completed' ? (
+          {operation.status === "completed" ? (
             <CheckCircle className="h-5 w-5 text-green-600" />
-          ) : operation.status === 'failed' ? (
+          ) : operation.status === "failed" ? (
             <AlertCircle className="h-5 w-5 text-destructive" />
           ) : (
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           )}
           <span className="font-medium">
-            {operation.status === 'completed'
-              ? 'Operation Completed'
-              : operation.status === 'failed'
-                ? 'Operation Failed'
-                : 'Processing...'}
+            {operation.status === "completed"
+              ? "Operation Completed"
+              : operation.status === "failed"
+                ? "Operation Failed"
+                : "Processing..."}
           </span>
         </div>
         <span className="text-sm text-muted-foreground">
@@ -849,5 +919,5 @@ function OperationProgress({ operation }: OperationProgressProps) {
         )}
       </div>
     </div>
-  )
+  );
 }

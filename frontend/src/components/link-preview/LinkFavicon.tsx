@@ -1,39 +1,44 @@
-'use client'
+"use client";
 
 /**
  * LinkFavicon - Displays site favicon for link previews
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 export interface LinkFaviconProps {
   /** Favicon URL */
-  src?: string
+  src?: string;
   /** Site name for alt text */
-  siteName?: string
+  siteName?: string;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 const sizeClasses = {
-  sm: 'w-4 h-4',
-  md: 'w-5 h-5',
-  lg: 'w-6 h-6',
-}
+  sm: "w-4 h-4",
+  md: "w-5 h-5",
+  lg: "w-6 h-6",
+};
 
-export function LinkFavicon({ src, siteName, size = 'md', className }: LinkFaviconProps) {
-  const [error, setError] = React.useState(false)
+export function LinkFavicon({
+  src,
+  siteName,
+  size = "md",
+  className,
+}: LinkFaviconProps) {
+  const [error, setError] = React.useState(false);
 
   if (!src || error) {
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-sm bg-muted',
+          "flex items-center justify-center rounded-sm bg-muted",
           sizeClasses[size],
-          className
+          className,
         )}
         aria-hidden="true"
       >
@@ -51,18 +56,18 @@ export function LinkFavicon({ src, siteName, size = 'md', className }: LinkFavic
           />
         </svg>
       </div>
-    )
+    );
   }
 
   return (
     <img
       src={src}
-      alt={siteName ? `${siteName} favicon` : 'Site favicon'}
-      className={cn('rounded-sm object-contain', sizeClasses[size], className)}
+      alt={siteName ? `${siteName} favicon` : "Site favicon"}
+      className={cn("rounded-sm object-contain", sizeClasses[size], className)}
       onError={() => setError(true)}
       loading="lazy"
     />
-  )
+  );
 }
 
-export default LinkFavicon
+export default LinkFavicon;

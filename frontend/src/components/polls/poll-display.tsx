@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useMemo, useState, useEffect, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   BarChart3,
   Clock,
@@ -15,36 +15,36 @@ import {
   RefreshCw,
   Plus,
   ChartPie,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
-import { usePoll, usePollActions } from '@/lib/polls/use-poll'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { usePoll, usePollActions } from "@/lib/polls/use-poll";
 import {
   getPollTimeRemaining,
   findWinningOptions,
   formatPollSettings,
-} from '@/lib/polls/poll-store'
-import { PollOption, PollOptionCompact } from './poll-option'
-import { PollVotersModal } from './poll-voters-modal'
-import { PollResults } from './poll-results'
+} from "@/lib/polls/poll-store";
+import { PollOption, PollOptionCompact } from "./poll-option";
+import { PollVotersModal } from "./poll-voters-modal";
+import { PollResults } from "./poll-results";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface PollDisplayProps {
-  pollId: string
-  compact?: boolean
-  showActions?: boolean
-  className?: string
+  pollId: string;
+  compact?: boolean;
+  showActions?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -67,7 +67,7 @@ function PollSkeleton() {
         <Skeleton className="h-12 w-full rounded-lg" />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -75,26 +75,28 @@ function PollSkeleton() {
 // ============================================================================
 
 function PollTimer({ pollId }: { pollId: string }) {
-  const { poll } = usePoll(pollId)
-  const [timeRemaining, setTimeRemaining] = useState(poll ? getPollTimeRemaining(poll) : null)
+  const { poll } = usePoll(pollId);
+  const [timeRemaining, setTimeRemaining] = useState(
+    poll ? getPollTimeRemaining(poll) : null,
+  );
 
   useEffect(() => {
-    if (!poll?.ends_at || poll.status === 'closed') {
-      setTimeRemaining(null)
-      return
+    if (!poll?.ends_at || poll.status === "closed") {
+      setTimeRemaining(null);
+      return;
     }
 
     const updateTimer = () => {
-      setTimeRemaining(getPollTimeRemaining(poll))
-    }
+      setTimeRemaining(getPollTimeRemaining(poll));
+    };
 
-    updateTimer()
-    const interval = setInterval(updateTimer, 1000)
-    return () => clearInterval(interval)
-  }, [poll])
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [poll]);
 
   if (!timeRemaining || timeRemaining.ended) {
-    return null
+    return null;
   }
 
   return (
@@ -102,7 +104,7 @@ function PollTimer({ pollId }: { pollId: string }) {
       <Clock className="h-3 w-3" />
       <span>{timeRemaining.text}</span>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -128,86 +130,94 @@ export function PollDisplay({
     unvote,
     isEnded,
     isVoting,
-  } = usePoll(pollId)
+  } = usePoll(pollId);
 
-  const { closePoll, reopenPoll, closing, reopening } = usePollActions(pollId)
+  const { closePoll, reopenPoll, closing, reopening } = usePollActions(pollId);
 
   const [showVotersModal, setShowVotersModal] = useState<{
-    optionId: string
-    optionText: string
-  } | null>(null)
+    optionId: string;
+    optionText: string;
+  } | null>(null);
 
-  const [showResultsModal, setShowResultsModal] = useState(false)
+  const [showResultsModal, setShowResultsModal] = useState(false);
 
-  const winningOptions = useMemo(() => (poll ? findWinningOptions(poll) : []), [poll])
+  const winningOptions = useMemo(
+    () => (poll ? findWinningOptions(poll) : []),
+    [poll],
+  );
 
   const settingsBadges = useMemo(
     () => (poll ? formatPollSettings(poll.settings) : []),
-    [poll?.settings]
-  )
+    [poll?.settings],
+  );
 
   const handleVote = useCallback(
     async (optionId: string) => {
       try {
-        await vote(optionId)
+        await vote(optionId);
       } catch (err) {
-        logger.error('Failed to vote:', err)
+        logger.error("Failed to vote:", err);
       }
     },
-    [vote]
-  )
+    [vote],
+  );
 
   const handleUnvote = useCallback(
     async (optionId: string) => {
       try {
-        await unvote(optionId)
+        await unvote(optionId);
       } catch (err) {
-        logger.error('Failed to unvote:', err)
+        logger.error("Failed to unvote:", err);
       }
     },
-    [unvote]
-  )
+    [unvote],
+  );
 
   const handleClosePoll = useCallback(async () => {
     try {
-      await closePoll()
+      await closePoll();
     } catch (err) {
-      logger.error('Failed to close poll:', err)
+      logger.error("Failed to close poll:", err);
     }
-  }, [closePoll])
+  }, [closePoll]);
 
   const handleReopenPoll = useCallback(async () => {
     try {
-      await reopenPoll()
+      await reopenPoll();
     } catch (err) {
-      logger.error('Failed to reopen poll:', err)
+      logger.error("Failed to reopen poll:", err);
     }
-  }, [reopenPoll])
+  }, [reopenPoll]);
 
   if (loading && !poll) {
-    return <PollSkeleton />
+    return <PollSkeleton />;
   }
 
   if (error) {
     return (
       <div className="bg-destructive/5 border-destructive/20 rounded-xl border p-4">
         <p className="text-sm text-destructive">Failed to load poll</p>
-        <Button variant="outline" size="sm" onClick={() => refetch()} className="mt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => refetch()}
+          className="mt-2"
+        >
           <RefreshCw className="mr-2 h-4 w-4" />
           Retry
         </Button>
       </div>
-    )
+    );
   }
 
   if (!poll) {
-    return null
+    return null;
   }
 
   // Compact variant for message previews
   if (compact) {
     return (
-      <div className={cn('bg-muted/30 rounded-lg border p-3', className)}>
+      <div className={cn("bg-muted/30 rounded-lg border p-3", className)}>
         <div className="mb-2 flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-primary" />
           <span className="truncate text-sm font-medium">{poll.question}</span>
@@ -219,7 +229,9 @@ export function PollDisplay({
               option={option}
               totalVotes={poll.total_votes}
               isSelected={votedOptions.includes(option.id)}
-              isWinner={winningOptions.some((w) => w.id === option.id) && isEnded}
+              isWinner={
+                winningOptions.some((w) => w.id === option.id) && isEnded
+              }
             />
           ))}
           {poll.options.length > 3 && (
@@ -237,26 +249,40 @@ export function PollDisplay({
           )}
         </div>
       </div>
-    )
+    );
   }
 
   // Full variant
   return (
     <>
-      <div className={cn('overflow-hidden rounded-xl border', isEnded && 'bg-muted/30', className)}>
+      <div
+        className={cn(
+          "overflow-hidden rounded-xl border",
+          isEnded && "bg-muted/30",
+          className,
+        )}
+      >
         {/* Header */}
         <div className="bg-muted/30 border-b p-4">
           <div className="flex items-start gap-3">
-            <div className={cn('rounded-lg p-2', isEnded ? 'bg-muted' : 'bg-primary/10')}>
+            <div
+              className={cn(
+                "rounded-lg p-2",
+                isEnded ? "bg-muted" : "bg-primary/10",
+              )}
+            >
               <BarChart3
-                className={cn('h-5 w-5', isEnded ? 'text-muted-foreground' : 'text-primary')}
+                className={cn(
+                  "h-5 w-5",
+                  isEnded ? "text-muted-foreground" : "text-primary",
+                )}
               />
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-base font-semibold">{poll.question}</h3>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className="text-sm text-muted-foreground">
-                  {poll.total_votes} vote{poll.total_votes !== 1 ? 's' : ''}
+                  {poll.total_votes} vote{poll.total_votes !== 1 ? "s" : ""}
                 </span>
                 {isEnded ? (
                   <Badge variant="secondary" className="text-xs">
@@ -290,7 +316,10 @@ export function PollDisplay({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {isEnded ? (
-                    <DropdownMenuItem onClick={handleReopenPoll} disabled={reopening}>
+                    <DropdownMenuItem
+                      onClick={handleReopenPoll}
+                      disabled={reopening}
+                    >
                       <RefreshCw className="mr-2 h-4 w-4" />
                       Reopen Poll
                     </DropdownMenuItem>
@@ -350,7 +379,11 @@ export function PollDisplay({
               onUnvote={() => handleUnvote(option.id)}
               onShowVoters={
                 !poll.settings.isAnonymous
-                  ? () => setShowVotersModal({ optionId: option.id, optionText: option.text })
+                  ? () =>
+                      setShowVotersModal({
+                        optionId: option.id,
+                        optionText: option.text,
+                      })
                   : undefined
               }
               pollStatus={poll.status}
@@ -359,7 +392,12 @@ export function PollDisplay({
 
           {/* Add option button (if allowed) */}
           {poll.settings.allowAddOptions && !isEnded && (
-            <Button variant="outline" size="sm" className="mt-2 w-full" onClick={() => {}}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2 w-full"
+              onClick={() => {}}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add Option
             </Button>
@@ -371,8 +409,8 @@ export function PollDisplay({
           <div className="px-4 pb-4">
             <p className="text-center text-xs text-muted-foreground">
               {poll.settings.allowMultipleVotes
-                ? 'Select one or more options'
-                : 'Select an option to vote'}
+                ? "Select one or more options"
+                : "Select an option to vote"}
             </p>
           </div>
         )}
@@ -383,7 +421,7 @@ export function PollDisplay({
               <CheckCircle2 className="h-4 w-4 text-green-500" />
               <span className="text-muted-foreground">Winner:</span>
               <span className="font-medium text-green-600 dark:text-green-400">
-                {winningOptions.map((o) => o.text).join(', ')}
+                {winningOptions.map((o) => o.text).join(", ")}
               </span>
             </div>
           </div>
@@ -403,10 +441,14 @@ export function PollDisplay({
 
       {/* Results Modal */}
       {showResultsModal && (
-        <PollResults pollId={pollId} open={showResultsModal} onOpenChange={setShowResultsModal} />
+        <PollResults
+          pollId={pollId}
+          open={showResultsModal}
+          onOpenChange={setShowResultsModal}
+        />
       )}
     </>
-  )
+  );
 }
 
-export default PollDisplay
+export default PollDisplay;

@@ -12,7 +12,7 @@ export {
   createEvidenceCollector,
   type EvidenceCollectorConfig,
   DEFAULT_COLLECTOR_CONFIG,
-} from './evidence-collector.service'
+} from "./evidence-collector.service";
 
 // Legal Hold
 export {
@@ -21,7 +21,7 @@ export {
   createLegalHoldService,
   type LegalHoldConfig,
   DEFAULT_LEGAL_HOLD_CONFIG,
-} from './legal-hold.service'
+} from "./legal-hold.service";
 
 // Evidence Export
 export {
@@ -30,4 +30,4 @@ export {
   createEvidenceExportService,
   type EvidenceExportConfig,
   DEFAULT_EXPORT_CONFIG,
-} from './evidence-export.service'
+} from "./evidence-export.service";

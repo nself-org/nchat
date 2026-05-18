@@ -18,14 +18,14 @@ import {
   type LockEventListener,
   type PlatformCapabilities,
   type LockPolicyMode,
-} from '@/lib/app-lock'
-import { logger } from '@/lib/logger'
+} from "@/lib/app-lock";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const LOG_PREFIX = '[AppLockService]'
+const LOG_PREFIX = "[AppLockService]";
 
 // ============================================================================
 // Types
@@ -34,26 +34,26 @@ const LOG_PREFIX = '[AppLockService]'
 /**
  * Lock screen mode for UI display
  */
-export type LockScreenMode = 'pin' | 'biometric' | 'both' | 'either' | 'none'
+export type LockScreenMode = "pin" | "biometric" | "both" | "either" | "none";
 
 /**
  * Lock service options
  */
 export interface AppLockServiceOptions {
   /** Auto-initialize on first access */
-  autoInitialize?: boolean
+  autoInitialize?: boolean;
   /** Default lock settings */
-  defaultSettings?: Partial<LockSettings>
+  defaultSettings?: Partial<LockSettings>;
 }
 
 /**
  * Setup lock result
  */
 export interface SetupLockResult {
-  success: boolean
-  error?: string
-  requiresPinSetup?: boolean
-  biometricAvailable?: boolean
+  success: boolean;
+  error?: string;
+  requiresPinSetup?: boolean;
+  biometricAvailable?: boolean;
 }
 
 // ============================================================================
@@ -70,37 +70,43 @@ export interface SetupLockResult {
  * - Event subscription
  */
 export class AppLockService {
-  private manager: AppLockManager | null = null
-  private initialized = false
-  private options: AppLockServiceOptions
-  private eventSubscriptions: Map<string, { type: LockEventType; listener: LockEventListener }> = new Map()
+  private manager: AppLockManager | null = null;
+  private initialized = false;
+  private options: AppLockServiceOptions;
+  private eventSubscriptions: Map<
+    string,
+    { type: LockEventType; listener: LockEventListener }
+  > = new Map();
 
   constructor(options: AppLockServiceOptions = {}) {
     this.options = {
       autoInitialize: true,
       ...options,
-    }
+    };
   }
 
   /**
    * Initialize the lock service
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return
+    if (this.initialized) return;
 
     try {
-      this.manager = await initializeAppLockManager()
+      this.manager = await initializeAppLockManager();
 
       // Apply default settings if provided
       if (this.options.defaultSettings) {
-        await this.manager.updateSettings(this.options.defaultSettings)
+        await this.manager.updateSettings(this.options.defaultSettings);
       }
 
-      this.initialized = true
-      logger.info(`${LOG_PREFIX} Initialized`)
+      this.initialized = true;
+      logger.info(`${LOG_PREFIX} Initialized`);
     } catch (error) {
-      logger.error(`${LOG_PREFIX} Initialization failed`, error instanceof Error ? error : new Error(String(error)))
-      throw error
+      logger.error(
+        `${LOG_PREFIX} Initialization failed`,
+        error instanceof Error ? error : new Error(String(error)),
+      );
+      throw error;
     }
   }
 
@@ -108,70 +114,70 @@ export class AppLockService {
    * Check if the service is initialized
    */
   isInitialized(): boolean {
-    return this.initialized && this.manager !== null
+    return this.initialized && this.manager !== null;
   }
 
   /**
    * Get the current lock state
    */
   async getState(): Promise<AppLockState> {
-    await this.ensureInitialized()
-    return this.manager!.getStateAsync()
+    await this.ensureInitialized();
+    return this.manager!.getStateAsync();
   }
 
   /**
    * Get platform capabilities
    */
   async getCapabilities(): Promise<PlatformCapabilities> {
-    await this.ensureInitialized()
-    return this.manager!.getCapabilities()
+    await this.ensureInitialized();
+    return this.manager!.getCapabilities();
   }
 
   /**
    * Check if the app is currently locked
    */
   async isLocked(): Promise<boolean> {
-    await this.ensureInitialized()
-    return this.manager!.isLocked()
+    await this.ensureInitialized();
+    return this.manager!.isLocked();
   }
 
   /**
    * Check if the user is locked out
    */
   async isLockedOut(): Promise<boolean> {
-    await this.ensureInitialized()
-    return this.manager!.isLockedOut()
+    await this.ensureInitialized();
+    return this.manager!.isLockedOut();
   }
 
   /**
    * Get remaining lockout time
    */
   async getLockoutRemaining(): Promise<number> {
-    await this.ensureInitialized()
-    return this.manager!.getRemainingLockoutTime()
+    await this.ensureInitialized();
+    return this.manager!.getRemainingLockoutTime();
   }
 
   /**
    * Determine the lock screen mode based on settings
    */
   async getLockScreenMode(): Promise<LockScreenMode> {
-    await this.ensureInitialized()
-    const state = await this.manager!.getStateAsync()
-    const settings = state.settings
+    await this.ensureInitialized();
+    const state = await this.manager!.getStateAsync();
+    const settings = state.settings;
 
     switch (settings.mode) {
-      case 'none':
-        return 'none'
-      case 'pin':
-        return 'pin'
-      case 'biometric':
-        return state.biometric.available ? 'biometric' : 'none'
-      case 'pin_or_biometric':
-        return state.biometric.available ? 'either' : 'pin'
-      case 'pin_and_biometric':
-        return state.biometric.available ? 'both' : 'pin'
+      case "none":
+        return "none";
+      case "pin":
+        return "pin";
+      case "biometric":
+        return state.biometric.available ? "biometric" : "none";
+      case "pin_or_biometric":
+        return state.biometric.available ? "either" : "pin";
+      case "pin_and_biometric":
+        return state.biometric.available ? "both" : "pin";
       default:
-        return 'none'
+        return "none";
     }
   }
 
@@ -179,26 +185,26 @@ export class AppLockService {
    * Check if biometrics can be used as fallback
    */
   async canUseBiometricFallback(): Promise<boolean> {
-    await this.ensureInitialized()
-    const state = await this.manager!.getStateAsync()
+    await this.ensureInitialized();
+    const state = await this.manager!.getStateAsync();
     return (
       state.biometric.available &&
-      (state.settings.mode === 'pin_or_biometric' ||
-       state.settings.mode === 'biometric')
-    )
+      (state.settings.mode === "pin_or_biometric" ||
+        state.settings.mode === "biometric")
+    );
   }
 
   /**
    * Check if PIN can be used as fallback
    */
   async canUsePinFallback(): Promise<boolean> {
-    await this.ensureInitialized()
-    const state = await this.manager!.getStateAsync()
+    await this.ensureInitialized();
+    const state = await this.manager!.getStateAsync();
     return (
       state.hasPinSet &&
-      (state.settings.mode === 'pin_or_biometric' ||
-       state.settings.mode === 'pin')
-    )
+      (state.settings.mode === "pin_or_biometric" ||
+        state.settings.mode === "pin")
+    );
   }
 
   // ============================================================================
@@ -209,70 +215,70 @@ export class AppLockService {
    * Lock the app
    */
   async lock(): Promise<LockResult> {
-    await this.ensureInitialized()
-    return this.manager!.lock()
+    await this.ensureInitialized();
+    return this.manager!.lock();
   }
 
   /**
    * Unlock with PIN
    */
   async unlockWithPin(pin: string): Promise<LockResult> {
-    await this.ensureInitialized()
-    return this.manager!.unlockWithPin(pin)
+    await this.ensureInitialized();
+    return this.manager!.unlockWithPin(pin);
   }
 
   /**
    * Unlock with biometric
    */
   async unlockWithBiometric(reason?: string): Promise<LockResult> {
-    await this.ensureInitialized()
-    return this.manager!.unlockWithBiometric(reason)
+    await this.ensureInitialized();
+    return this.manager!.unlockWithBiometric(reason);
   }
 
   /**
    * Attempt unlock with biometric, falling back to PIN if available
    */
   async unlockWithBiometricOrPin(pin?: string): Promise<LockResult> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     // Try biometric first
-    const biometricResult = await this.manager!.unlockWithBiometric()
+    const biometricResult = await this.manager!.unlockWithBiometric();
     if (biometricResult.success) {
-      return biometricResult
+      return biometricResult;
     }
 
     // If biometric failed and we have a PIN, try that
-    if (pin && biometricResult.errorCode === 'BIOMETRIC_CANCELLED') {
-      return this.manager!.unlockWithPin(pin)
+    if (pin && biometricResult.errorCode === "BIOMETRIC_CANCELLED") {
+      return this.manager!.unlockWithPin(pin);
     }
 
-    return biometricResult
+    return biometricResult;
   }
 
   /**
    * Quick unlock - uses the most appropriate method
    */
   async quickUnlock(): Promise<LockResult> {
-    await this.ensureInitialized()
-    const state = await this.manager!.getStateAsync()
+    await this.ensureInitialized();
+    const state = await this.manager!.getStateAsync();
 
     // If biometric is available and mode supports it, try biometric
     if (
       state.biometric.available &&
       state.biometric.enrolled &&
-      (state.settings.mode === 'biometric' ||
-       state.settings.mode === 'pin_or_biometric')
+      (state.settings.mode === "biometric" ||
+        state.settings.mode === "pin_or_biometric")
     ) {
-      return this.manager!.unlockWithBiometric()
+      return this.manager!.unlockWithBiometric();
     }
 
     // Otherwise, need PIN
     return {
       success: false,
       data: null,
-      error: 'PIN required for unlock',
-      errorCode: 'PIN_NOT_SET',
-    }
+      error: "PIN required for unlock",
+      errorCode: "PIN_NOT_SET",
+    };
   }
 
   // ============================================================================
@@ -283,90 +289,102 @@ export class AppLockService {
    * Get current settings
    */
   async getSettings(): Promise<LockSettings> {
-    await this.ensureInitialized()
-    return this.manager!.getSettings()
+    await this.ensureInitialized();
+    return this.manager!.getSettings();
   }
 
   /**
    * Update lock settings
    */
   async updateSettings(settings: Partial<LockSettings>): Promise<LockResult> {
-    await this.ensureInitialized()
-    return this.manager!.updateSettings(settings)
+    await this.ensureInitialized();
+    return this.manager!.updateSettings(settings);
   }
 
   /**
    * Enable lock with a specific mode
    */
   async enableLock(mode: LockPolicyMode): Promise<SetupLockResult> {
-    await this.ensureInitialized()
-    const state = await this.manager!.getStateAsync()
+    await this.ensureInitialized();
+    const state = await this.manager!.getStateAsync();
 
     // Check if PIN is required but not set
-    if ((mode === 'pin' || mode === 'pin_or_biometric' || mode === 'pin_and_biometric') &&
-        !state.hasPinSet) {
+    if (
+      (mode === "pin" ||
+        mode === "pin_or_biometric" ||
+        mode === "pin_and_biometric") &&
+      !state.hasPinSet
+    ) {
       return {
         success: false,
-        error: 'PIN must be set first',
+        error: "PIN must be set first",
         requiresPinSetup: true,
         biometricAvailable: state.biometric.available,
-      }
+      };
     }
 
     // Check if biometric is required but not available
-    if ((mode === 'biometric' || mode === 'pin_and_biometric') &&
-        !state.biometric.available) {
+    if (
+      (mode === "biometric" || mode === "pin_and_biometric") &&
+      !state.biometric.available
+    ) {
       return {
         success: false,
-        error: 'Biometric authentication is not available',
+        error: "Biometric authentication is not available",
         requiresPinSetup: false,
         biometricAvailable: false,
-      }
+      };
     }
 
-    const result = await this.manager!.updateSettings({ mode })
+    const result = await this.manager!.updateSettings({ mode });
     return {
       success: result.success,
       error: result.error ?? undefined,
       biometricAvailable: state.biometric.available,
-    }
+    };
   }
 
   /**
    * Disable lock
    */
   async disableLock(): Promise<LockResult> {
-    await this.ensureInitialized()
-    return this.manager!.updateSettings({ mode: 'none' })
+    await this.ensureInitialized();
+    return this.manager!.updateSettings({ mode: "none" });
   }
 
   /**
    * Enable idle timeout
    */
   async enableIdleTimeout(minutes: number = 5): Promise<LockResult> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
     return this.manager!.updateSettings({
       idleTimeout: {
         enabled: true,
         timeoutMinutes: minutes,
         warningSeconds: 30,
-        resetEvents: ['keypress', 'mousemove', 'mousedown', 'scroll', 'touchstart'],
+        resetEvents: [
+          "keypress",
+          "mousemove",
+          "mousedown",
+          "scroll",
+          "touchstart",
+        ],
       },
-    })
+    });
   }
 
   /**
    * Disable idle timeout
    */
   async disableIdleTimeout(): Promise<LockResult> {
-    await this.ensureInitialized()
-    const settings = this.manager!.getSettings()
+    await this.ensureInitialized();
+    const settings = this.manager!.getSettings();
     return this.manager!.updateSettings({
       idleTimeout: {
         ...settings.idleTimeout,
         enabled: false,
       },
-    })
+    });
   }
 
   // ============================================================================
@@ -377,32 +395,32 @@ export class AppLockService {
    * Check if PIN is set
    */
   async hasPinSet(): Promise<boolean> {
-    await this.ensureInitialized()
-    return this.manager!.hasPinSet()
+    await this.ensureInitialized();
+    return this.manager!.hasPinSet();
   }
 
   /**
    * Set up a new PIN
    */
   async setupPin(pin: string): Promise<LockResult> {
-    await this.ensureInitialized()
-    return this.manager!.setPin(pin)
+    await this.ensureInitialized();
+    return this.manager!.setPin(pin);
   }
 
   /**
    * Change the current PIN
    */
   async changePin(currentPin: string, newPin: string): Promise<LockResult> {
-    await this.ensureInitialized()
-    return this.manager!.changePin(currentPin, newPin)
+    await this.ensureInitialized();
+    return this.manager!.changePin(currentPin, newPin);
   }
 
   /**
    * Remove the PIN (requires verification)
    */
   async removePin(currentPin: string): Promise<LockResult> {
-    await this.ensureInitialized()
-    return this.manager!.removePin(currentPin)
+    await this.ensureInitialized();
+    return this.manager!.removePin(currentPin);
   }
 
   // ============================================================================
@@ -414,33 +432,33 @@ export class AppLockService {
    * @returns Unsubscribe function
    */
   subscribe(type: LockEventType, listener: LockEventListener): () => void {
-    const id = `${type}_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    const id = `${type}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
     if (this.manager) {
-      this.manager.addEventListener(type, listener)
+      this.manager.addEventListener(type, listener);
     }
 
-    this.eventSubscriptions.set(id, { type, listener })
+    this.eventSubscriptions.set(id, { type, listener });
 
     return () => {
       if (this.manager) {
-        this.manager.removeEventListener(type, listener)
+        this.manager.removeEventListener(type, listener);
       }
-      this.eventSubscriptions.delete(id)
-    }
+      this.eventSubscriptions.delete(id);
+    };
   }
 
   /**
    * Subscribe to all lock/unlock events
    */
   onLockStateChange(callback: (locked: boolean) => void): () => void {
-    const lockUnsub = this.subscribe('locked', () => callback(true))
-    const unlockUnsub = this.subscribe('unlocked', () => callback(false))
+    const lockUnsub = this.subscribe("locked", () => callback(true));
+    const unlockUnsub = this.subscribe("unlocked", () => callback(false));
 
     return () => {
-      lockUnsub()
-      unlockUnsub()
-    }
+      lockUnsub();
+      unlockUnsub();
+    };
   }
 
   /**
@@ -448,7 +466,7 @@ export class AppLockService {
    */
   resetActivity(): void {
     if (this.manager) {
-      this.manager.resetActivityTimer()
+      this.manager.resetActivityTimer();
     }
   }
 
@@ -463,16 +481,16 @@ export class AppLockService {
     // Unsubscribe all listeners
     if (this.manager) {
       this.eventSubscriptions.forEach(({ type, listener }) => {
-        this.manager!.removeEventListener(type, listener)
-      })
+        this.manager!.removeEventListener(type, listener);
+      });
     }
-    this.eventSubscriptions.clear()
+    this.eventSubscriptions.clear();
 
-    resetAppLockManager()
-    this.manager = null
-    this.initialized = false
+    resetAppLockManager();
+    this.manager = null;
+    this.initialized = false;
 
-    logger.info(`${LOG_PREFIX} Destroyed`)
+    logger.info(`${LOG_PREFIX} Destroyed`);
   }
 
   // ============================================================================
@@ -485,9 +503,9 @@ export class AppLockService {
   private async ensureInitialized(): Promise<void> {
     if (!this.initialized) {
       if (this.options.autoInitialize) {
-        await this.initialize()
+        await this.initialize();
       } else {
-        throw new Error('App lock service not initialized')
+        throw new Error("App lock service not initialized");
       }
     }
   }
@@ -497,16 +515,18 @@ export class AppLockService {
 // Singleton Instance
 // ============================================================================
 
-let appLockServiceInstance: AppLockService | null = null
+let appLockServiceInstance: AppLockService | null = null;
 
 /**
  * Get the singleton AppLockService instance
  */
-export function getAppLockService(options?: AppLockServiceOptions): AppLockService {
+export function getAppLockService(
+  options?: AppLockServiceOptions,
+): AppLockService {
   if (!appLockServiceInstance) {
-    appLockServiceInstance = new AppLockService(options)
+    appLockServiceInstance = new AppLockService(options);
   }
-  return appLockServiceInstance
+  return appLockServiceInstance;
 }
 
 /**
@@ -514,8 +534,8 @@ export function getAppLockService(options?: AppLockServiceOptions): AppLockServi
  */
 export function resetAppLockService(): void {
   if (appLockServiceInstance) {
-    appLockServiceInstance.destroy()
-    appLockServiceInstance = null
+    appLockServiceInstance.destroy();
+    appLockServiceInstance = null;
   }
 }
 
@@ -523,9 +543,9 @@ export function resetAppLockService(): void {
  * Initialize the app lock service singleton
  */
 export async function initializeAppLockService(
-  options?: AppLockServiceOptions
+  options?: AppLockServiceOptions,
 ): Promise<AppLockService> {
-  const service = getAppLockService(options)
-  await service.initialize()
-  return service
+  const service = getAppLockService(options);
+  await service.initialize();
+  return service;
 }

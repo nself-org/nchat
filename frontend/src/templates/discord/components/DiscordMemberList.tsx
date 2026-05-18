@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Discord Member List Component
@@ -9,36 +9,36 @@
 //
 // ===============================================================================
 
-import { cn } from '@/lib/utils'
-import { discordColors } from '../config'
+import { cn } from "@/lib/utils";
+import { discordColors } from "../config";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface DiscordMemberListProps {
-  roles?: DiscordRoleGroup[]
-  onMemberClick?: (memberId: string) => void
-  className?: string
+  roles?: DiscordRoleGroup[];
+  onMemberClick?: (memberId: string) => void;
+  className?: string;
 }
 
 export interface DiscordRoleGroup {
-  id: string
-  name: string
-  color?: string
-  members: DiscordMemberData[]
+  id: string;
+  name: string;
+  color?: string;
+  members: DiscordMemberData[];
 }
 
 export interface DiscordMemberData {
-  id: string
-  name: string
-  nickname?: string
-  avatar?: string
-  roleColor?: string
-  status: 'online' | 'idle' | 'dnd' | 'offline'
-  activity?: string
-  isBot?: boolean
-  isBoosting?: boolean
+  id: string;
+  name: string;
+  nickname?: string;
+  avatar?: string;
+  roleColor?: string;
+  status: "online" | "idle" | "dnd" | "offline";
+  activity?: string;
+  isBot?: boolean;
+  isBoosting?: boolean;
 }
 
 // -------------------------------------------------------------------------------
@@ -52,14 +52,17 @@ export function DiscordMemberList({
 }: DiscordMemberListProps) {
   return (
     <div
-      className={cn('flex h-full flex-col overflow-y-auto px-2 py-4', className)}
+      className={cn(
+        "flex h-full flex-col overflow-y-auto px-2 py-4",
+        className,
+      )}
       style={{ backgroundColor: discordColors.gray750 }}
     >
       {roles.map((role) => (
         <RoleGroup key={role.id} role={role} onMemberClick={onMemberClick} />
       ))}
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -70,10 +73,10 @@ function RoleGroup({
   role,
   onMemberClick,
 }: {
-  role: DiscordRoleGroup
-  onMemberClick?: (memberId: string) => void
+  role: DiscordRoleGroup;
+  onMemberClick?: (memberId: string) => void;
 }) {
-  if (role.members.length === 0) return null
+  if (role.members.length === 0) return null;
 
   return (
     <div className="mb-4">
@@ -90,41 +93,57 @@ function RoleGroup({
       {/* Members */}
       <div className="space-y-0.5">
         {role.members.map((member) => (
-          <MemberItem key={member.id} member={member} onClick={() => onMemberClick?.(member.id)} />
+          <MemberItem
+            key={member.id}
+            member={member}
+            onClick={() => onMemberClick?.(member.id)}
+          />
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-function MemberItem({ member, onClick }: { member: DiscordMemberData; onClick?: () => void }) {
+function MemberItem({
+  member,
+  onClick,
+}: {
+  member: DiscordMemberData;
+  onClick?: () => void;
+}) {
   const statusColors = {
     online: discordColors.statusOnline,
     idle: discordColors.statusIdle,
     dnd: discordColors.statusDnd,
     offline: discordColors.statusOffline,
-  }
+  };
 
-  const displayName = member.nickname || member.name
+  const displayName = member.nickname || member.name;
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-3 rounded px-2 py-1.5',
-        'group transition-colors hover:bg-[#35373C]',
-        member.status === 'offline' && 'opacity-40'
+        "flex w-full items-center gap-3 rounded px-2 py-1.5",
+        "group transition-colors hover:bg-[#35373C]",
+        member.status === "offline" && "opacity-40",
       )}
     >
       {/* Avatar with Status */}
       <div className="relative flex-shrink-0">
         <div className="h-8 w-8 overflow-hidden rounded-full">
           {member.avatar ? (
-            <img src={member.avatar} alt={displayName} className="h-full w-full object-cover" />
+            <img
+              src={member.avatar}
+              alt={displayName}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div
               className="flex h-full w-full items-center justify-center text-sm font-medium text-white"
-              style={{ backgroundColor: member.roleColor || discordColors.blurple }}
+              style={{
+                backgroundColor: member.roleColor || discordColors.blurple,
+              }}
             >
               {displayName[0]?.toUpperCase()}
             </div>
@@ -151,25 +170,33 @@ function MemberItem({ member, onClick }: { member: DiscordMemberData; onClick?: 
           {member.isBot && (
             <span
               className="rounded px-1 py-0.5 text-[10px] font-semibold uppercase"
-              style={{ backgroundColor: discordColors.blurple, color: 'white' }}
+              style={{ backgroundColor: discordColors.blurple, color: "white" }}
             >
               BOT
             </span>
           )}
           {member.isBoosting && <BoostIcon className="h-4 w-4" />}
         </div>
-        {member.activity && <div className="truncate text-xs text-gray-400">{member.activity}</div>}
+        {member.activity && (
+          <div className="truncate text-xs text-gray-400">
+            {member.activity}
+          </div>
+        )}
       </div>
     </button>
-  )
+  );
 }
 
 function BoostIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={cn('text-pink-400', className)}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={cn("text-pink-400", className)}
+    >
       <path d="M10.1 8.1V16.9C10.1 18.05 9.15 19 8 19C6.85 19 5.9 18.05 5.9 16.9V8.1C5.9 6.95 6.85 6 8 6C9.15 6 10.1 6.95 10.1 8.1ZM18.1 8.1V16.9C18.1 18.05 17.15 19 16 19C14.85 19 13.9 18.05 13.9 16.9V8.1C13.9 6.95 14.85 6 16 6C17.15 6 18.1 6.95 18.1 8.1Z" />
     </svg>
-  )
+  );
 }
 
-export default DiscordMemberList
+export default DiscordMemberList;

@@ -4,15 +4,15 @@
  * Modal for scheduling future voice chats with reminder options.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -20,20 +20,20 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Calendar, Clock, Users, Bell, Radio } from 'lucide-react'
-import type { ScheduleVoiceChatInput } from '@/types/voice-chat'
+} from "@/components/ui/dialog";
+import { Calendar, Clock, Users, Bell, Radio } from "lucide-react";
+import type { ScheduleVoiceChatInput } from "@/types/voice-chat";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface ScheduleVoiceChatModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  channelId: string
-  workspaceId: string
-  onSchedule: (input: ScheduleVoiceChatInput) => Promise<void>
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channelId: string;
+  workspaceId: string;
+  onSchedule: (input: ScheduleVoiceChatInput) => Promise<void>;
 }
 
 // =============================================================================
@@ -47,25 +47,25 @@ export function ScheduleVoiceChatModal({
   workspaceId,
   onSchedule,
 }: ScheduleVoiceChatModalProps) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [date, setDate] = useState('')
-  const [time, setTime] = useState('')
-  const [duration, setDuration] = useState('60')
-  const [autoStart, setAutoStart] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [duration, setDuration] = useState("60");
+  const [autoStart, setAutoStart] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!title.trim() || !date || !time) return
+    if (!title.trim() || !date || !time) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      const scheduledStart = new Date(`${date}T${time}`)
-      const durationMs = parseInt(duration) * 60 * 1000
-      const scheduledEnd = new Date(scheduledStart.getTime() + durationMs)
+      const scheduledStart = new Date(`${date}T${time}`);
+      const durationMs = parseInt(duration) * 60 * 1000;
+      const scheduledEnd = new Date(scheduledStart.getTime() + durationMs);
 
       await onSchedule({
         channelId,
@@ -75,26 +75,25 @@ export function ScheduleVoiceChatModal({
         scheduledStart,
         scheduledEnd,
         autoStart,
-      })
+      });
 
       // Reset form
-      setTitle('')
-      setDescription('')
-      setDate('')
-      setTime('')
-      setDuration('60')
-      setAutoStart(true)
+      setTitle("");
+      setDescription("");
+      setDate("");
+      setTime("");
+      setDuration("60");
+      setAutoStart(true);
 
-      onOpenChange(false)
+      onOpenChange(false);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const minDate = new Date().toISOString().split('T')[0]
-  const minTime = date === minDate
-    ? new Date().toTimeString().slice(0, 5)
-    : undefined
+  const minDate = new Date().toISOString().split("T")[0];
+  const minTime =
+    date === minDate ? new Date().toTimeString().slice(0, 5) : undefined;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -195,10 +194,7 @@ export function ScheduleVoiceChatModal({
                 </p>
               </div>
             </div>
-            <Switch
-              checked={autoStart}
-              onCheckedChange={setAutoStart}
-            />
+            <Switch checked={autoStart} onCheckedChange={setAutoStart} />
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -207,7 +203,8 @@ export function ScheduleVoiceChatModal({
               <div className="text-sm">
                 <p className="font-medium text-blue-900">Reminders</p>
                 <p className="text-blue-700">
-                  Participants will be notified 15 minutes and 1 hour before the voice chat starts.
+                  Participants will be notified 15 minutes and 1 hour before the
+                  voice chat starts.
                 </p>
               </div>
             </div>
@@ -222,13 +219,13 @@ export function ScheduleVoiceChatModal({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Scheduling...' : 'Schedule Voice Chat'}
+              {isSubmitting ? "Scheduling..." : "Schedule Voice Chat"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default ScheduleVoiceChatModal
+export default ScheduleVoiceChatModal;

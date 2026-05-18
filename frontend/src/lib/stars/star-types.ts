@@ -5,7 +5,7 @@
  * Stars provide quick access to important messages with color/priority support.
  */
 
-import type { Message, MessageUser } from '@/types/message'
+import type { Message, MessageUser } from "@/types/message";
 
 // ============================================================================
 // Star Color/Priority Types
@@ -14,24 +14,33 @@ import type { Message, MessageUser } from '@/types/message'
 /**
  * Available star colors for prioritization.
  */
-export type StarColor = 'yellow' | 'red' | 'green' | 'blue' | 'purple' | 'orange'
+export type StarColor =
+  | "yellow"
+  | "red"
+  | "green"
+  | "blue"
+  | "purple"
+  | "orange";
 
 /**
  * Star priority levels.
  */
-export type StarPriority = 'low' | 'medium' | 'high' | 'urgent'
+export type StarPriority = "low" | "medium" | "high" | "urgent";
 
 /**
  * Star color configuration.
  */
-export const STAR_COLORS: Record<StarColor, { hex: string; label: string; priority: StarPriority }> = {
-  yellow: { hex: '#FBBF24', label: 'Default', priority: 'medium' },
-  red: { hex: '#EF4444', label: 'Urgent', priority: 'urgent' },
-  orange: { hex: '#F97316', label: 'High Priority', priority: 'high' },
-  green: { hex: '#22C55E', label: 'Complete', priority: 'low' },
-  blue: { hex: '#3B82F6', label: 'Reference', priority: 'low' },
-  purple: { hex: '#A855F7', label: 'Important', priority: 'high' },
-}
+export const STAR_COLORS: Record<
+  StarColor,
+  { hex: string; label: string; priority: StarPriority }
+> = {
+  yellow: { hex: "#FBBF24", label: "Default", priority: "medium" },
+  red: { hex: "#EF4444", label: "Urgent", priority: "urgent" },
+  orange: { hex: "#F97316", label: "High Priority", priority: "high" },
+  green: { hex: "#22C55E", label: "Complete", priority: "low" },
+  blue: { hex: "#3B82F6", label: "Reference", priority: "low" },
+  purple: { hex: "#A855F7", label: "Important", priority: "high" },
+};
 
 /**
  * Priority order for sorting.
@@ -41,7 +50,7 @@ export const PRIORITY_ORDER: Record<StarPriority, number> = {
   high: 3,
   medium: 2,
   low: 1,
-}
+};
 
 // ============================================================================
 // Starred Message Types
@@ -52,27 +61,27 @@ export const PRIORITY_ORDER: Record<StarPriority, number> = {
  */
 export interface StarredMessage {
   /** Unique star ID */
-  id: string
+  id: string;
   /** User who starred the message */
-  userId: string
+  userId: string;
   /** ID of the starred message */
-  messageId: string
+  messageId: string;
   /** Channel ID where the message exists */
-  channelId: string
+  channelId: string;
   /** When the message was starred */
-  starredAt: Date
+  starredAt: Date;
   /** The actual message content */
-  message: Message
+  message: Message;
   /** Star color */
-  color: StarColor
+  color: StarColor;
   /** Star priority (derived from color or set manually) */
-  priority: StarPriority
+  priority: StarPriority;
   /** User's note about the starred message */
-  note?: string
+  note?: string;
   /** Whether this is a quick-access star (shows in sidebar) */
-  quickAccess: boolean
+  quickAccess: boolean;
   /** Category/label for organization */
-  category?: string
+  category?: string;
 }
 
 /**
@@ -80,19 +89,19 @@ export interface StarredMessage {
  */
 export interface StarMessageInput {
   /** Message ID to star */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Star color (default: yellow) */
-  color?: StarColor
+  color?: StarColor;
   /** Priority override */
-  priority?: StarPriority
+  priority?: StarPriority;
   /** Optional note */
-  note?: string
+  note?: string;
   /** Enable quick access */
-  quickAccess?: boolean
+  quickAccess?: boolean;
   /** Optional category */
-  category?: string
+  category?: string;
 }
 
 /**
@@ -100,17 +109,17 @@ export interface StarMessageInput {
  */
 export interface UpdateStarInput {
   /** Star ID */
-  starId: string
+  starId: string;
   /** Updated color */
-  color?: StarColor
+  color?: StarColor;
   /** Updated priority */
-  priority?: StarPriority
+  priority?: StarPriority;
   /** Updated note */
-  note?: string
+  note?: string;
   /** Updated quick access */
-  quickAccess?: boolean
+  quickAccess?: boolean;
   /** Updated category */
-  category?: string
+  category?: string;
 }
 
 /**
@@ -118,8 +127,8 @@ export interface UpdateStarInput {
  */
 export interface UnstarMessageInput {
   /** Star ID or message ID */
-  starId?: string
-  messageId?: string
+  starId?: string;
+  messageId?: string;
 }
 
 // ============================================================================
@@ -131,50 +140,55 @@ export interface UnstarMessageInput {
  */
 export interface StarFilters {
   /** Filter by channel */
-  channelId?: string
+  channelId?: string;
   /** Filter by color */
-  color?: StarColor
+  color?: StarColor;
   /** Filter by colors (multiple) */
-  colors?: StarColor[]
+  colors?: StarColor[];
   /** Filter by priority */
-  priority?: StarPriority
+  priority?: StarPriority;
   /** Filter by priorities (multiple) */
-  priorities?: StarPriority[]
+  priorities?: StarPriority[];
   /** Filter quick access only */
-  quickAccessOnly?: boolean
+  quickAccessOnly?: boolean;
   /** Filter by category */
-  category?: string
+  category?: string;
   /** Filter by date range - starred after */
-  starredAfter?: Date
+  starredAfter?: Date;
   /** Filter by date range - starred before */
-  starredBefore?: Date
+  starredBefore?: Date;
   /** Filter by message type */
-  messageType?: string
+  messageType?: string;
   /** Search query */
-  searchQuery?: string
+  searchQuery?: string;
   /** Filter messages with attachments */
-  hasAttachments?: boolean
+  hasAttachments?: boolean;
   /** Filter messages with notes */
-  hasNote?: boolean
+  hasNote?: boolean;
   /** Filter by message author */
-  authorUserId?: string
+  authorUserId?: string;
 }
 
 /**
  * Sort options for starred messages.
  */
-export type StarSortBy = 'starredAt' | 'messageDate' | 'priority' | 'channel' | 'color'
-export type StarSortOrder = 'asc' | 'desc'
+export type StarSortBy =
+  | "starredAt"
+  | "messageDate"
+  | "priority"
+  | "channel"
+  | "color";
+export type StarSortOrder = "asc" | "desc";
 
 /**
  * Starred messages list options.
  */
 export interface StarListOptions {
-  filters?: StarFilters
-  sortBy?: StarSortBy
-  sortOrder?: StarSortOrder
-  limit?: number
-  offset?: number
+  filters?: StarFilters;
+  sortBy?: StarSortBy;
+  sortOrder?: StarSortOrder;
+  limit?: number;
+  offset?: number;
 }
 
 // ============================================================================
@@ -186,19 +200,19 @@ export interface StarListOptions {
  */
 export interface StarStats {
   /** Total starred messages */
-  totalStarred: number
+  totalStarred: number;
   /** Count by color */
-  byColor: Record<StarColor, number>
+  byColor: Record<StarColor, number>;
   /** Count by priority */
-  byPriority: Record<StarPriority, number>
+  byPriority: Record<StarPriority, number>;
   /** Count by channel */
-  byChannel: Record<string, number>
+  byChannel: Record<string, number>;
   /** Quick access count */
-  quickAccessCount: number
+  quickAccessCount: number;
   /** Count by category */
-  byCategory: Record<string, number>
+  byCategory: Record<string, number>;
   /** Recent activity */
-  recentActivity: { date: Date; count: number }[]
+  recentActivity: { date: Date; count: number }[];
 }
 
 // ============================================================================
@@ -209,11 +223,11 @@ export interface StarStats {
  * Star event for real-time updates.
  */
 export interface StarEvent {
-  type: 'starred' | 'unstarred' | 'updated'
-  userId: string
-  starredMessage?: StarredMessage
-  messageId?: string
-  timestamp: Date
+  type: "starred" | "unstarred" | "updated";
+  userId: string;
+  starredMessage?: StarredMessage;
+  messageId?: string;
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -224,25 +238,25 @@ export interface StarEvent {
  * Predefined star categories.
  */
 export const DEFAULT_STAR_CATEGORIES = [
-  'follow-up',
-  'reference',
-  'action-item',
-  'idea',
-  'meeting',
-  'decision',
-  'question',
-  'announcement',
-] as const
+  "follow-up",
+  "reference",
+  "action-item",
+  "idea",
+  "meeting",
+  "decision",
+  "question",
+  "announcement",
+] as const;
 
-export type DefaultStarCategory = (typeof DEFAULT_STAR_CATEGORIES)[number]
+export type DefaultStarCategory = (typeof DEFAULT_STAR_CATEGORIES)[number];
 
 /**
  * Category configuration.
  */
 export interface StarCategory {
-  id: string
-  name: string
-  icon?: string
-  color?: string
-  isDefault?: boolean
+  id: string;
+  name: string;
+  icon?: string;
+  color?: string;
+  isDefault?: boolean;
 }

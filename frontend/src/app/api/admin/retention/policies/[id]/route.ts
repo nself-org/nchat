@@ -9,11 +9,11 @@
  * @version 1.0.0
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 import {
   getRetentionPolicyService,
   type UpdateRetentionPolicyInput,
-} from '@/services/retention'
+} from "@/services/retention";
 
 // ============================================================================
 // GET - Get policy by ID
@@ -21,32 +21,37 @@ import {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params
-    const service = getRetentionPolicyService()
+    const { id } = await params;
+    const service = getRetentionPolicyService();
 
     if (!service.initialized) {
-      await service.initialize()
+      await service.initialize();
     }
 
-    const policy = service.getPolicy(id)
+    const policy = service.getPolicy(id);
 
     if (!policy) {
       return NextResponse.json(
-        { success: false, error: 'Policy not found' },
-        { status: 404 }
-      )
+        { success: false, error: "Policy not found" },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json({ success: true, data: policy })
+    return NextResponse.json({ success: true, data: policy });
   } catch (error) {
-    const message = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error'
+    const message =
+      error instanceof Error
+        ? error instanceof Error
+          ? error.message
+          : String(error)
+        : "Unknown error";
     return NextResponse.json(
       { success: false, error: message },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -56,46 +61,52 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params
-    const service = getRetentionPolicyService()
+    const { id } = await params;
+    const service = getRetentionPolicyService();
 
     if (!service.initialized) {
-      await service.initialize()
+      await service.initialize();
     }
 
-    const body = await request.json()
-    const actorId = request.headers.get('x-user-id') || 'system'
+    const body = await request.json();
+    const actorId = request.headers.get("x-user-id") || "system";
 
-    const updates: UpdateRetentionPolicyInput = {}
+    const updates: UpdateRetentionPolicyInput = {};
 
-    if (body.name !== undefined) updates.name = body.name
-    if (body.description !== undefined) updates.description = body.description
-    if (body.status !== undefined) updates.status = body.status
-    if (body.rules !== undefined) updates.rules = body.rules
-    if (body.allowOverride !== undefined) updates.allowOverride = body.allowOverride
-    if (body.inheritable !== undefined) updates.inheritable = body.inheritable
-    if (body.priority !== undefined) updates.priority = body.priority
-    if (body.metadata !== undefined) updates.metadata = body.metadata
+    if (body.name !== undefined) updates.name = body.name;
+    if (body.description !== undefined) updates.description = body.description;
+    if (body.status !== undefined) updates.status = body.status;
+    if (body.rules !== undefined) updates.rules = body.rules;
+    if (body.allowOverride !== undefined)
+      updates.allowOverride = body.allowOverride;
+    if (body.inheritable !== undefined) updates.inheritable = body.inheritable;
+    if (body.priority !== undefined) updates.priority = body.priority;
+    if (body.metadata !== undefined) updates.metadata = body.metadata;
 
-    const result = await service.updatePolicy(id, updates, actorId)
+    const result = await service.updatePolicy(id, updates, actorId);
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: result.error === 'Policy not found' ? 404 : 400 }
-      )
+        { status: result.error === "Policy not found" ? 404 : 400 },
+      );
     }
 
-    return NextResponse.json({ success: true, data: result.data })
+    return NextResponse.json({ success: true, data: result.data });
   } catch (error) {
-    const message = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error'
+    const message =
+      error instanceof Error
+        ? error instanceof Error
+          ? error.message
+          : String(error)
+        : "Unknown error";
     return NextResponse.json(
       { success: false, error: message },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -105,32 +116,37 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params
-    const service = getRetentionPolicyService()
+    const { id } = await params;
+    const service = getRetentionPolicyService();
 
     if (!service.initialized) {
-      await service.initialize()
+      await service.initialize();
     }
 
-    const actorId = request.headers.get('x-user-id') || 'system'
-    const result = await service.deletePolicy(id, actorId)
+    const actorId = request.headers.get("x-user-id") || "system";
+    const result = await service.deletePolicy(id, actorId);
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: result.error === 'Policy not found' ? 404 : 400 }
-      )
+        { status: result.error === "Policy not found" ? 404 : 400 },
+      );
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true });
   } catch (error) {
-    const message = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error'
+    const message =
+      error instanceof Error
+        ? error instanceof Error
+          ? error.message
+          : String(error)
+        : "Unknown error";
     return NextResponse.json(
       { success: false, error: message },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

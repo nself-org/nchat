@@ -2,10 +2,10 @@
  * Hook for managing sticker packs (admin only)
  */
 
-import { useMutation, useApolloClient } from '@apollo/client'
-import { gql } from '@apollo/client'
-import { useAuth } from '@/contexts/auth-context'
-import { usePermission } from '@/hooks/use-permission'
+import { useMutation, useApolloClient } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useAuth } from "@/contexts/auth-context";
+import { usePermission } from "@/hooks/use-permission";
 
 // GraphQL mutations
 const CREATE_STICKER_PACK = gql`
@@ -34,7 +34,7 @@ const CREATE_STICKER_PACK = gql`
       created_at
     }
   }
-`
+`;
 
 const UPDATE_STICKER_PACK = gql`
   mutation UpdateStickerPack(
@@ -46,7 +46,12 @@ const UPDATE_STICKER_PACK = gql`
   ) {
     update_nchat_sticker_packs_by_pk(
       pk_columns: { id: $id }
-      _set: { name: $name, description: $description, icon_url: $icon_url, is_enabled: $is_enabled }
+      _set: {
+        name: $name
+        description: $description
+        icon_url: $icon_url
+        is_enabled: $is_enabled
+      }
     ) {
       id
       name
@@ -57,7 +62,7 @@ const UPDATE_STICKER_PACK = gql`
       updated_at
     }
   }
-`
+`;
 
 const DELETE_STICKER_PACK = gql`
   mutation DeleteStickerPack($id: uuid!) {
@@ -65,7 +70,7 @@ const DELETE_STICKER_PACK = gql`
       id
     }
   }
-`
+`;
 
 const ADD_STICKER_TO_PACK = gql`
   mutation AddStickerToPack(
@@ -95,10 +100,15 @@ const ADD_STICKER_TO_PACK = gql`
       created_at
     }
   }
-`
+`;
 
 const UPDATE_STICKER = gql`
-  mutation UpdateSticker($id: uuid!, $name: String, $slug: String, $keywords: [String!]) {
+  mutation UpdateSticker(
+    $id: uuid!
+    $name: String
+    $slug: String
+    $keywords: [String!]
+  ) {
     update_nchat_stickers_by_pk(
       pk_columns: { id: $id }
       _set: { name: $name, slug: $slug, keywords: $keywords }
@@ -110,7 +120,7 @@ const UPDATE_STICKER = gql`
       updated_at
     }
   }
-`
+`;
 
 const DELETE_STICKER = gql`
   mutation DeleteSticker($id: uuid!) {
@@ -118,64 +128,70 @@ const DELETE_STICKER = gql`
       id
     }
   }
-`
+`;
 
 export interface UseStickerPacksManagementResult {
   createPack: (input: {
-    name: string
-    slug: string
-    description?: string
-    icon_url?: string
-  }) => Promise<any>
+    name: string;
+    slug: string;
+    description?: string;
+    icon_url?: string;
+  }) => Promise<any>;
   updatePack: (
     id: string,
     input: Partial<{
-      name: string
-      description: string
-      icon_url: string
-      is_enabled: boolean
-    }>
-  ) => Promise<any>
-  deletePack: (id: string) => Promise<any>
+      name: string;
+      description: string;
+      icon_url: string;
+      is_enabled: boolean;
+    }>,
+  ) => Promise<any>;
+  deletePack: (id: string) => Promise<any>;
   addSticker: (input: {
-    pack_id: string
-    name: string
-    slug: string
-    file_url: string
-    thumbnail_url?: string
-    keywords?: string[]
-  }) => Promise<any>
+    pack_id: string;
+    name: string;
+    slug: string;
+    file_url: string;
+    thumbnail_url?: string;
+    keywords?: string[];
+  }) => Promise<any>;
   updateSticker: (
     id: string,
     input: Partial<{
-      name: string
-      slug: string
-      keywords: string[]
-    }>
-  ) => Promise<any>
-  deleteSticker: (id: string) => Promise<any>
-  isLoading: boolean
-  canManage: boolean
+      name: string;
+      slug: string;
+      keywords: string[];
+    }>,
+  ) => Promise<any>;
+  deleteSticker: (id: string) => Promise<any>;
+  isLoading: boolean;
+  canManage: boolean;
 }
 
 /**
  * Hook for managing sticker packs (admin/owner only)
  */
 export function useStickerPacksManagement(): UseStickerPacksManagementResult {
-  const { user } = useAuth()
-  const { hasPermission } = usePermission()
-  const apolloClient = useApolloClient()
+  const { user } = useAuth();
+  const { hasPermission } = usePermission();
+  const apolloClient = useApolloClient();
 
   // Check if user can manage sticker packs (owner or admin)
-  const canManage = user?.role === 'owner' || user?.role === 'admin'
+  const canManage = user?.role === "owner" || user?.role === "admin";
 
   // Mutations
-  const [createPackMutation, { loading: createLoading }] = useMutation(CREATE_STICKER_PACK)
-  const [updatePackMutation, { loading: updateLoading }] = useMutation(UPDATE_STICKER_PACK)
-  const [deletePackMutation, { loading: deleteLoading }] = useMutation(DELETE_STICKER_PACK)
-  const [addStickerMutation, { loading: addStickerLoading }] = useMutation(ADD_STICKER_TO_PACK)
-  const [updateStickerMutation, { loading: updateStickerLoading }] = useMutation(UPDATE_STICKER)
-  const [deleteStickerMutation, { loading: deleteStickerLoading }] = useMutation(DELETE_STICKER)
+  const [createPackMutation, { loading: createLoading }] =
+    useMutation(CREATE_STICKER_PACK);
+  const [updatePackMutation, { loading: updateLoading }] =
+    useMutation(UPDATE_STICKER_PACK);
+  const [deletePackMutation, { loading: deleteLoading }] =
+    useMutation(DELETE_STICKER_PACK);
+  const [addStickerMutation, { loading: addStickerLoading }] =
+    useMutation(ADD_STICKER_TO_PACK);
+  const [updateStickerMutation, { loading: updateStickerLoading }] =
+    useMutation(UPDATE_STICKER);
+  const [deleteStickerMutation, { loading: deleteStickerLoading }] =
+    useMutation(DELETE_STICKER);
 
   const isLoading =
     createLoading ||
@@ -183,101 +199,101 @@ export function useStickerPacksManagement(): UseStickerPacksManagementResult {
     deleteLoading ||
     addStickerLoading ||
     updateStickerLoading ||
-    deleteStickerLoading
+    deleteStickerLoading;
 
   // Invalidate cache after mutations
   const invalidateCache = () => {
     // Refetch sticker packs query after mutation
-    apolloClient.refetchQueries({ include: ['GetStickerPacks'] })
-  }
+    apolloClient.refetchQueries({ include: ["GetStickerPacks"] });
+  };
 
   const createPack = async (input: {
-    name: string
-    slug: string
-    description?: string
-    icon_url?: string
+    name: string;
+    slug: string;
+    description?: string;
+    icon_url?: string;
   }) => {
-    if (!canManage) throw new Error('Permission denied')
-    if (!user?.id) throw new Error('User not authenticated')
+    if (!canManage) throw new Error("Permission denied");
+    if (!user?.id) throw new Error("User not authenticated");
 
     const result = await createPackMutation({
       variables: { ...input, creator_id: user.id },
-    })
-    invalidateCache()
-    return result
-  }
+    });
+    invalidateCache();
+    return result;
+  };
 
   const updatePack = async (
     id: string,
     input: Partial<{
-      name: string
-      description: string
-      icon_url: string
-      is_enabled: boolean
-    }>
+      name: string;
+      description: string;
+      icon_url: string;
+      is_enabled: boolean;
+    }>,
   ) => {
-    if (!canManage) throw new Error('Permission denied')
+    if (!canManage) throw new Error("Permission denied");
 
     const result = await updatePackMutation({
       variables: { id, ...input },
-    })
-    invalidateCache()
-    return result
-  }
+    });
+    invalidateCache();
+    return result;
+  };
 
   const deletePack = async (id: string) => {
-    if (!canManage) throw new Error('Permission denied')
+    if (!canManage) throw new Error("Permission denied");
 
     const result = await deletePackMutation({
       variables: { id },
-    })
-    invalidateCache()
-    return result
-  }
+    });
+    invalidateCache();
+    return result;
+  };
 
   const addSticker = async (input: {
-    pack_id: string
-    name: string
-    slug: string
-    file_url: string
-    thumbnail_url?: string
-    keywords?: string[]
+    pack_id: string;
+    name: string;
+    slug: string;
+    file_url: string;
+    thumbnail_url?: string;
+    keywords?: string[];
   }) => {
-    if (!canManage) throw new Error('Permission denied')
+    if (!canManage) throw new Error("Permission denied");
 
     const result = await addStickerMutation({
       variables: input,
-    })
-    invalidateCache()
-    return result
-  }
+    });
+    invalidateCache();
+    return result;
+  };
 
   const updateSticker = async (
     id: string,
     input: Partial<{
-      name: string
-      slug: string
-      keywords: string[]
-    }>
+      name: string;
+      slug: string;
+      keywords: string[];
+    }>,
   ) => {
-    if (!canManage) throw new Error('Permission denied')
+    if (!canManage) throw new Error("Permission denied");
 
     const result = await updateStickerMutation({
       variables: { id, ...input },
-    })
-    invalidateCache()
-    return result
-  }
+    });
+    invalidateCache();
+    return result;
+  };
 
   const deleteSticker = async (id: string) => {
-    if (!canManage) throw new Error('Permission denied')
+    if (!canManage) throw new Error("Permission denied");
 
     const result = await deleteStickerMutation({
       variables: { id },
-    })
-    invalidateCache()
-    return result
-  }
+    });
+    invalidateCache();
+    return result;
+  };
 
   return {
     createPack,
@@ -288,5 +304,5 @@ export function useStickerPacksManagement(): UseStickerPacksManagementResult {
     deleteSticker,
     isLoading,
     canManage,
-  }
+  };
 }

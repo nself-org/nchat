@@ -13,7 +13,7 @@ export {
   getKnowledgeBaseService,
   createKnowledgeBaseService,
   resetKnowledgeBaseService,
-} from './knowledge-base.service'
+} from "./knowledge-base.service";
 
 // Re-export types from lib
 export type {
@@ -49,4 +49,4 @@ export type {
   // Event types
   KBEventType,
   KBEvent,
-} from '@/lib/knowledge/knowledge-types'
+} from "@/lib/knowledge/knowledge-types";

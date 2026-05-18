@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * GIF Picker Trigger Component
@@ -14,25 +14,34 @@
  * ```
  */
 
-import { useState, useCallback, memo } from 'react'
-import { Image, ImagePlay } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useFeature, FEATURES } from '@/lib/features'
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
-import { GifPicker } from './gif-picker'
-import type { Gif, GifPickerTriggerProps } from '@/types/gif'
+import { useState, useCallback, memo } from "react";
+import { Image, ImagePlay } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useFeature, FEATURES } from "@/lib/features";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { GifPicker } from "./gif-picker";
+import type { Gif, GifPickerTriggerProps } from "@/types/gif";
 
 // ============================================================================
 // Main GIF Picker Trigger Component
 // ============================================================================
 
 export interface GifPickerTriggerFullProps extends GifPickerTriggerProps {
-  onSelect: (gif: Gif) => void
-  side?: 'top' | 'bottom' | 'left' | 'right'
-  align?: 'start' | 'center' | 'end'
-  sideOffset?: number
+  onSelect: (gif: Gif) => void;
+  side?: "top" | "bottom" | "left" | "right";
+  align?: "start" | "center" | "end";
+  sideOffset?: number;
 }
 
 export const GifPickerTrigger = memo(function GifPickerTrigger({
@@ -41,55 +50,55 @@ export const GifPickerTrigger = memo(function GifPickerTrigger({
   onToggle,
   disabled = false,
   className,
-  tooltip = 'Add a GIF',
+  tooltip = "Add a GIF",
   children,
-  side = 'top',
-  align = 'start',
+  side = "top",
+  align = "start",
   sideOffset = 8,
 }: GifPickerTriggerFullProps) {
   // Feature flag check
-  const { enabled: gifPickerEnabled } = useFeature(FEATURES.GIF_PICKER)
+  const { enabled: gifPickerEnabled } = useFeature(FEATURES.GIF_PICKER);
 
   // Internal open state (if not controlled)
-  const [internalOpen, setInternalOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false);
 
   // Use controlled or internal state
-  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
 
   // Handle open change
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (controlledOpen === undefined) {
-        setInternalOpen(open)
+        setInternalOpen(open);
       }
       if (!open && onToggle) {
-        onToggle()
+        onToggle();
       }
     },
-    [controlledOpen, onToggle]
-  )
+    [controlledOpen, onToggle],
+  );
 
   // Handle toggle
   const handleToggle = useCallback(() => {
     if (controlledOpen === undefined) {
-      setInternalOpen((prev) => !prev)
+      setInternalOpen((prev) => !prev);
     } else {
-      onToggle?.()
+      onToggle?.();
     }
-  }, [controlledOpen, onToggle])
+  }, [controlledOpen, onToggle]);
 
   // Handle GIF selection
   const handleSelect = useCallback(
     (gif: Gif) => {
-      onSelect(gif)
-      handleOpenChange(false)
+      onSelect(gif);
+      handleOpenChange(false);
     },
-    [onSelect, handleOpenChange]
-  )
+    [onSelect, handleOpenChange],
+  );
 
   // Don't render if feature is disabled
   if (!gifPickerEnabled) {
-    return null
+    return null;
   }
 
   const triggerButton = children || (
@@ -99,17 +108,17 @@ export const GifPickerTrigger = memo(function GifPickerTrigger({
       size="icon"
       disabled={disabled}
       className={cn(
-        'h-8 w-8 rounded-lg',
-        'text-muted-foreground hover:text-foreground',
-        'hover:bg-accent',
-        isOpen && 'bg-accent text-foreground',
-        className
+        "h-8 w-8 rounded-lg",
+        "text-muted-foreground hover:text-foreground",
+        "hover:bg-accent",
+        isOpen && "bg-accent text-foreground",
+        className,
       )}
       aria-label={tooltip}
     >
       <GifIcon className="h-5 w-5" />
     </Button>
-  )
+  );
 
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
@@ -129,11 +138,14 @@ export const GifPickerTrigger = memo(function GifPickerTrigger({
         sideOffset={sideOffset}
         className="w-auto border-0 bg-transparent p-0 shadow-none"
       >
-        <GifPicker onSelect={handleSelect} onClose={() => handleOpenChange(false)} />
+        <GifPicker
+          onSelect={handleSelect}
+          onClose={() => handleOpenChange(false)}
+        />
       </PopoverContent>
     </Popover>
-  )
-})
+  );
+});
 
 // ============================================================================
 // GIF Icon Component
@@ -164,7 +176,7 @@ function GifIcon({ className }: { className?: string }) {
         GIF
       </text>
     </svg>
-  )
+  );
 }
 
 // ============================================================================
@@ -172,35 +184,35 @@ function GifIcon({ className }: { className?: string }) {
 // ============================================================================
 
 export interface GifButtonProps {
-  onSelect: (gif: Gif) => void
-  disabled?: boolean
-  className?: string
-  tooltip?: string
-  variant?: 'default' | 'ghost' | 'outline'
-  size?: 'default' | 'sm' | 'lg' | 'icon'
+  onSelect: (gif: Gif) => void;
+  disabled?: boolean;
+  className?: string;
+  tooltip?: string;
+  variant?: "default" | "ghost" | "outline";
+  size?: "default" | "sm" | "lg" | "icon";
 }
 
 export const GifButton = memo(function GifButton({
   onSelect,
   disabled = false,
   className,
-  tooltip = 'Add a GIF',
-  variant = 'ghost',
-  size = 'icon',
+  tooltip = "Add a GIF",
+  variant = "ghost",
+  size = "icon",
 }: GifButtonProps) {
-  const { enabled: gifPickerEnabled } = useFeature(FEATURES.GIF_PICKER)
-  const [open, setOpen] = useState(false)
+  const { enabled: gifPickerEnabled } = useFeature(FEATURES.GIF_PICKER);
+  const [open, setOpen] = useState(false);
 
   const handleSelect = useCallback(
     (gif: Gif) => {
-      onSelect(gif)
-      setOpen(false)
+      onSelect(gif);
+      setOpen(false);
     },
-    [onSelect]
-  )
+    [onSelect],
+  );
 
   if (!gifPickerEnabled) {
-    return null
+    return null;
   }
 
   return (
@@ -215,9 +227,9 @@ export const GifButton = memo(function GifButton({
                 size={size}
                 disabled={disabled}
                 className={cn(
-                  'text-muted-foreground hover:text-foreground',
-                  open && 'bg-accent text-foreground',
-                  className
+                  "text-muted-foreground hover:text-foreground",
+                  open && "bg-accent text-foreground",
+                  className,
                 )}
               >
                 <GifIcon className="h-5 w-5" />
@@ -239,19 +251,19 @@ export const GifButton = memo(function GifButton({
         <GifPicker onSelect={handleSelect} onClose={() => setOpen(false)} />
       </PopoverContent>
     </Popover>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Simple GIF Toggle (no popover, just a button)
 // ============================================================================
 
 export interface GifToggleProps {
-  active?: boolean
-  onClick?: () => void
-  disabled?: boolean
-  className?: string
-  tooltip?: string
+  active?: boolean;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+  tooltip?: string;
 }
 
 export const GifToggle = memo(function GifToggle({
@@ -259,12 +271,12 @@ export const GifToggle = memo(function GifToggle({
   onClick,
   disabled = false,
   className,
-  tooltip = 'GIFs',
+  tooltip = "GIFs",
 }: GifToggleProps) {
-  const { enabled: gifPickerEnabled } = useFeature(FEATURES.GIF_PICKER)
+  const { enabled: gifPickerEnabled } = useFeature(FEATURES.GIF_PICKER);
 
   if (!gifPickerEnabled) {
-    return null
+    return null;
   }
 
   return (
@@ -278,10 +290,10 @@ export const GifToggle = memo(function GifToggle({
             disabled={disabled}
             onClick={onClick}
             className={cn(
-              'h-8 w-8 rounded-lg',
-              'text-muted-foreground hover:text-foreground',
-              active && 'bg-accent text-foreground',
-              className
+              "h-8 w-8 rounded-lg",
+              "text-muted-foreground hover:text-foreground",
+              active && "bg-accent text-foreground",
+              className,
             )}
           >
             <GifIcon className="h-5 w-5" />
@@ -293,12 +305,12 @@ export const GifToggle = memo(function GifToggle({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export { GifIcon }
-export default GifPickerTrigger
+export { GifIcon };
+export default GifPickerTrigger;

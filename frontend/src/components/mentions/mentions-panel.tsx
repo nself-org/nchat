@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MentionsPanel - All mentions view component
@@ -12,13 +12,13 @@
  * ```
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Button } from '@/components/ui/button'
-import { useMentions } from '@/lib/mentions/use-mentions'
-import { MentionItem } from './mention-item'
-import type { Mention } from '@/lib/mentions/mention-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { useMentions } from "@/lib/mentions/use-mentions";
+import { MentionItem } from "./mention-item";
+import type { Mention } from "@/lib/mentions/mention-store";
 
 // ============================================================================
 // Types
@@ -26,17 +26,17 @@ import type { Mention } from '@/lib/mentions/mention-store'
 
 export interface MentionsPanelProps {
   /** Current user's ID */
-  userId: string
+  userId: string;
   /** Optional channel filter */
-  channelId?: string
+  channelId?: string;
   /** Panel width */
-  width?: number | string
+  width?: number | string;
   /** Panel height */
-  height?: number | string
+  height?: number | string;
   /** Additional className */
-  className?: string
+  className?: string;
   /** Called when panel should close */
-  onClose?: () => void
+  onClose?: () => void;
 }
 
 // ============================================================================
@@ -44,51 +44,51 @@ export interface MentionsPanelProps {
 // ============================================================================
 
 interface FilterTabsProps {
-  filter: 'all' | 'unread'
-  onFilterChange: (filter: 'all' | 'unread') => void
-  unreadCount: number
+  filter: "all" | "unread";
+  onFilterChange: (filter: "all" | "unread") => void;
+  unreadCount: number;
 }
 
 function FilterTabs({ filter, onFilterChange, unreadCount }: FilterTabsProps) {
   return (
     <div className="bg-muted/50 flex gap-1 rounded-lg p-1">
       <button
-        onClick={() => onFilterChange('all')}
+        onClick={() => onFilterChange("all")}
         className={cn(
-          'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-          filter === 'all'
-            ? 'bg-background text-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
+          "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+          filter === "all"
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         All
       </button>
       <button
-        onClick={() => onFilterChange('unread')}
+        onClick={() => onFilterChange("unread")}
         className={cn(
-          'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-          'flex items-center justify-center gap-1.5',
-          filter === 'unread'
-            ? 'bg-background text-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
+          "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+          "flex items-center justify-center gap-1.5",
+          filter === "unread"
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         Unread
         {unreadCount > 0 && (
           <span
             className={cn(
-              'rounded-full px-1.5 py-0.5 text-xs',
-              filter === 'unread'
-                ? 'text-primary-foreground bg-primary'
-                : 'bg-muted-foreground/20 text-muted-foreground'
+              "rounded-full px-1.5 py-0.5 text-xs",
+              filter === "unread"
+                ? "text-primary-foreground bg-primary"
+                : "bg-muted-foreground/20 text-muted-foreground",
             )}
           >
-            {unreadCount > 99 ? '99+' : unreadCount}
+            {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
       </button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -96,11 +96,11 @@ function FilterTabs({ filter, onFilterChange, unreadCount }: FilterTabsProps) {
 // ============================================================================
 
 interface EmptyStateProps {
-  filter: 'all' | 'unread'
+  filter: "all" | "unread";
 }
 
 function EmptyState({ filter }: EmptyStateProps) {
-  const isUnreadFilter = filter === 'unread'
+  const isUnreadFilter = filter === "unread";
 
   return (
     <div className="flex h-64 flex-col items-center justify-center px-4 text-center">
@@ -117,7 +117,7 @@ function EmptyState({ filter }: EmptyStateProps) {
         </svg>
       </div>
       <h3 className="mb-1 text-sm font-medium text-foreground">
-        {isUnreadFilter ? 'No unread mentions' : 'No mentions yet'}
+        {isUnreadFilter ? "No unread mentions" : "No mentions yet"}
       </h3>
       <p className="max-w-[240px] text-sm text-muted-foreground">
         {isUnreadFilter
@@ -125,7 +125,7 @@ function EmptyState({ filter }: EmptyStateProps) {
           : "When someone mentions you, you'll see it here."}
       </p>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -146,7 +146,7 @@ function LoadingState() {
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -154,8 +154,8 @@ function LoadingState() {
 // ============================================================================
 
 interface ErrorStateProps {
-  error: string
-  onRetry: () => void
+  error: string;
+  onRetry: () => void;
 }
 
 function ErrorState({ error, onRetry }: ErrorStateProps) {
@@ -174,13 +174,17 @@ function ErrorState({ error, onRetry }: ErrorStateProps) {
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
       </div>
-      <h3 className="mb-1 text-sm font-medium text-foreground">Failed to load mentions</h3>
-      <p className="mb-4 max-w-[240px] text-sm text-muted-foreground">{error}</p>
+      <h3 className="mb-1 text-sm font-medium text-foreground">
+        Failed to load mentions
+      </h3>
+      <p className="mb-4 max-w-[240px] text-sm text-muted-foreground">
+        {error}
+      </p>
       <Button variant="outline" size="sm" onClick={onRetry}>
         Try again
       </Button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -208,43 +212,49 @@ export function MentionsPanel({
     markAllAsRead,
     jumpToMention,
     isFeatureEnabled,
-  } = useMentions({ userId, channelId })
+  } = useMentions({ userId, channelId });
 
   // Get filtered mentions
   const displayedMentions = React.useMemo(() => {
-    return panelFilter === 'unread' ? unreadMentions : mentions
-  }, [panelFilter, unreadMentions, mentions])
+    return panelFilter === "unread" ? unreadMentions : mentions;
+  }, [panelFilter, unreadMentions, mentions]);
 
   // Handle jump to message
   const handleJumpToMessage = React.useCallback(
     (mention: Mention) => {
-      jumpToMention(mention)
-      onClose?.()
+      jumpToMention(mention);
+      onClose?.();
     },
-    [jumpToMention, onClose]
-  )
+    [jumpToMention, onClose],
+  );
 
   // Handle mark all as read
   const handleMarkAllAsRead = React.useCallback(async () => {
-    await markAllAsRead()
-  }, [markAllAsRead])
+    await markAllAsRead();
+  }, [markAllAsRead]);
 
   if (!isFeatureEnabled) {
     return (
       <div
-        className={cn('flex flex-col rounded-lg border bg-background shadow-lg', className)}
+        className={cn(
+          "flex flex-col rounded-lg border bg-background shadow-lg",
+          className,
+        )}
         style={{ width, height }}
       >
         <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
           Mentions feature is not enabled
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
-      className={cn('flex flex-col rounded-lg border bg-background shadow-lg', className)}
+      className={cn(
+        "flex flex-col rounded-lg border bg-background shadow-lg",
+        className,
+      )}
       style={{ width, height }}
     >
       {/* Header */}
@@ -264,7 +274,12 @@ export function MentionsPanel({
         </div>
         <div className="flex items-center gap-2">
           {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={handleMarkAllAsRead} className="h-8 text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleMarkAllAsRead}
+              className="h-8 text-xs"
+            >
               <svg
                 className="mr-1 h-4 w-4"
                 viewBox="0 0 24 24"
@@ -279,7 +294,12 @@ export function MentionsPanel({
             </Button>
           )}
           {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8"
+            >
               <svg
                 className="h-4 w-4"
                 viewBox="0 0 24 24"
@@ -297,7 +317,11 @@ export function MentionsPanel({
 
       {/* Filter tabs */}
       <div className="border-b p-3">
-        <FilterTabs filter={panelFilter} onFilterChange={setFilter} unreadCount={unreadCount} />
+        <FilterTabs
+          filter={panelFilter}
+          onFilterChange={setFilter}
+          unreadCount={unreadCount}
+        />
       </div>
 
       {/* Content */}
@@ -327,13 +351,13 @@ export function MentionsPanel({
         <div className="border-t p-3 text-center">
           <p className="text-xs text-muted-foreground">
             Showing {displayedMentions.length} mention
-            {displayedMentions.length !== 1 ? 's' : ''}
-            {panelFilter === 'unread' && ' (unread only)'}
+            {displayedMentions.length !== 1 ? "s" : ""}
+            {panelFilter === "unread" && " (unread only)"}
           </p>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -341,12 +365,12 @@ export function MentionsPanel({
 // ============================================================================
 
 export interface MentionsPanelInlineProps {
-  userId: string
-  channelId?: string
-  maxItems?: number
-  showViewAll?: boolean
-  onViewAll?: () => void
-  className?: string
+  userId: string;
+  channelId?: string;
+  maxItems?: number;
+  showViewAll?: boolean;
+  onViewAll?: () => void;
+  className?: string;
 }
 
 export function MentionsPanelInline({
@@ -357,25 +381,34 @@ export function MentionsPanelInline({
   onViewAll,
   className,
 }: MentionsPanelInlineProps) {
-  const { unreadMentions, unreadCount, jumpToMention, markAsRead, isFeatureEnabled } = useMentions({
+  const {
+    unreadMentions,
+    unreadCount,
+    jumpToMention,
+    markAsRead,
+    isFeatureEnabled,
+  } = useMentions({
     userId,
     channelId,
-  })
+  });
 
-  const displayedMentions = unreadMentions.slice(0, maxItems)
+  const displayedMentions = unreadMentions.slice(0, maxItems);
 
   if (!isFeatureEnabled || unreadCount === 0) {
-    return null
+    return null;
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between px-2">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Mentions ({unreadCount})
         </h3>
         {showViewAll && onViewAll && unreadCount > maxItems && (
-          <button onClick={onViewAll} className="text-xs text-primary hover:underline">
+          <button
+            onClick={onViewAll}
+            className="text-xs text-primary hover:underline"
+          >
             View all
           </button>
         )}
@@ -392,7 +425,7 @@ export function MentionsPanelInline({
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export default MentionsPanel
+export default MentionsPanel;

@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useState } from "react";
+import Link from "next/link";
 import {
   ArrowLeft,
   Mail,
@@ -20,17 +20,23 @@ import {
   UserCheck,
   Copy,
   ExternalLink,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,46 +44,54 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { UserActivity } from './UserActivity'
-import { UserSessions } from './UserSessions'
-import { UserDevices } from './UserDevices'
-import { useUserManagementStore } from '@/stores/user-management-store'
-import { getUserInitials, formatLastSeen } from '@/lib/admin/users/user-manager'
-import type { AdminUser } from '@/lib/admin/users/user-types'
+} from "@/components/ui/dropdown-menu";
+import { UserActivity } from "./UserActivity";
+import { UserSessions } from "./UserSessions";
+import { UserDevices } from "./UserDevices";
+import { useUserManagementStore } from "@/stores/user-management-store";
+import {
+  getUserInitials,
+  formatLastSeen,
+} from "@/lib/admin/users/user-manager";
+import type { AdminUser } from "@/lib/admin/users/user-types";
 
 interface UserDetailProps {
-  user: AdminUser
-  isEditing?: boolean
-  onSave?: (data: Partial<AdminUser>) => Promise<void>
-  onCancel?: () => void
+  user: AdminUser;
+  isEditing?: boolean;
+  onSave?: (data: Partial<AdminUser>) => Promise<void>;
+  onCancel?: () => void;
 }
 
 const roleColors: Record<string, string> = {
-  owner: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
-  admin: 'bg-red-500/10 text-red-600 border-red-500/20',
-  moderator: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  member: 'bg-green-500/10 text-green-600 border-green-500/20',
-  guest: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
-}
+  owner: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+  admin: "bg-red-500/10 text-red-600 border-red-500/20",
+  moderator: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  member: "bg-green-500/10 text-green-600 border-green-500/20",
+  guest: "bg-gray-500/10 text-gray-600 border-gray-500/20",
+};
 
 const statusColors: Record<string, string> = {
-  active: 'bg-green-500',
-  inactive: 'bg-gray-400',
-  banned: 'bg-red-500',
-}
+  active: "bg-green-500",
+  inactive: "bg-gray-400",
+  banned: "bg-red-500",
+};
 
-export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDetailProps) {
-  const [editMode, setEditMode] = useState(isEditing)
+export function UserDetail({
+  user,
+  isEditing = false,
+  onSave,
+  onCancel,
+}: UserDetailProps) {
+  const [editMode, setEditMode] = useState(isEditing);
   const [editedData, setEditedData] = useState({
     displayName: user.displayName,
     email: user.email,
-    bio: user.bio || '',
-    location: user.location || '',
-    website: user.website || '',
-    pronouns: user.pronouns || '',
-  })
-  const [isSaving, setIsSaving] = useState(false)
+    bio: user.bio || "",
+    location: user.location || "",
+    website: user.website || "",
+    pronouns: user.pronouns || "",
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const {
     selectedUserActivity,
@@ -88,44 +102,44 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
     openResetPasswordModal,
     openImpersonateModal,
     openDeleteConfirm,
-  } = useUserManagementStore()
+  } = useUserManagementStore();
 
-  const getUserStatus = (): 'active' | 'inactive' | 'banned' => {
-    if (user.isBanned) return 'banned'
-    if (!user.isActive) return 'inactive'
-    return 'active'
-  }
+  const getUserStatus = (): "active" | "inactive" | "banned" => {
+    if (user.isBanned) return "banned";
+    if (!user.isActive) return "inactive";
+    return "active";
+  };
 
-  const status = getUserStatus()
-  const isOwner = user.role.name === 'owner'
+  const status = getUserStatus();
+  const isOwner = user.role.name === "owner";
 
   const handleSave = async () => {
-    if (!onSave) return
-    setIsSaving(true)
+    if (!onSave) return;
+    setIsSaving(true);
     try {
-      await onSave(editedData)
-      setEditMode(false)
+      await onSave(editedData);
+      setEditMode(false);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleCancel = () => {
     setEditedData({
       displayName: user.displayName,
       email: user.email,
-      bio: user.bio || '',
-      location: user.location || '',
-      website: user.website || '',
-      pronouns: user.pronouns || '',
-    })
-    setEditMode(false)
-    onCancel?.()
-  }
+      bio: user.bio || "",
+      location: user.location || "",
+      website: user.website || "",
+      pronouns: user.pronouns || "",
+    });
+    setEditMode(false);
+    onCancel?.();
+  };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
+    navigator.clipboard.writeText(text);
+  };
 
   return (
     <div className="space-y-6">
@@ -138,17 +152,23 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
         </Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">User Details</h1>
-          <p className="text-muted-foreground">View and manage user account information</p>
+          <p className="text-muted-foreground">
+            View and manage user account information
+          </p>
         </div>
         <div className="flex gap-2">
           {editMode ? (
             <>
-              <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isSaving}
+              >
                 Cancel
               </Button>
               <Button onClick={handleSave} disabled={isSaving}>
                 <Save className="mr-2 h-4 w-4" />
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? "Saving..." : "Save Changes"}
               </Button>
             </>
           ) : (
@@ -163,21 +183,32 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuLabel>User Actions</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => openRoleChangeModal(user)} disabled={isOwner}>
+                  <DropdownMenuItem
+                    onClick={() => openRoleChangeModal(user)}
+                    disabled={isOwner}
+                  >
                     <Shield className="mr-2 h-4 w-4" />
                     Change Role
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => openResetPasswordModal(user)}>
+                  <DropdownMenuItem
+                    onClick={() => openResetPasswordModal(user)}
+                  >
                     <Key className="mr-2 h-4 w-4" />
                     Reset Password
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => openImpersonateModal(user)} disabled={isOwner}>
+                  <DropdownMenuItem
+                    onClick={() => openImpersonateModal(user)}
+                    disabled={isOwner}
+                  >
                     <UserCog className="mr-2 h-4 w-4" />
                     Impersonate
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  {status === 'banned' ? (
-                    <DropdownMenuItem onClick={() => openBanModal(user)} disabled={isOwner}>
+                  {status === "banned" ? (
+                    <DropdownMenuItem
+                      onClick={() => openBanModal(user)}
+                      disabled={isOwner}
+                    >
                       <UserCheck className="mr-2 h-4 w-4" />
                       Unban User
                     </DropdownMenuItem>
@@ -231,13 +262,18 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                 </Button>
               </CardDescription>
               <div className="mt-2 flex items-center gap-2">
-                <div className={cn('h-2 w-2 rounded-full', statusColors[status])} />
+                <div
+                  className={cn("h-2 w-2 rounded-full", statusColors[status])}
+                />
                 <span className="text-sm capitalize">{status}</span>
               </div>
               <div className="mt-2">
                 <Badge
                   variant="outline"
-                  className={cn('capitalize', roleColors[user.role.name.toLowerCase()])}
+                  className={cn(
+                    "capitalize",
+                    roleColors[user.role.name.toLowerCase()],
+                  )}
                 >
                   {user.role.name}
                 </Badge>
@@ -265,7 +301,9 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                <span>
+                  Joined {new Date(user.createdAt).toLocaleDateString()}
+                </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4 text-muted-foreground" />
@@ -286,7 +324,7 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-primary hover:underline"
                   >
-                    {user.website.replace(/^https?:\/\//, '')}
+                    {user.website.replace(/^https?:\/\//, "")}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
@@ -327,7 +365,10 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                         id="displayName"
                         value={editedData.displayName}
                         onChange={(e) =>
-                          setEditedData((prev) => ({ ...prev, displayName: e.target.value }))
+                          setEditedData((prev) => ({
+                            ...prev,
+                            displayName: e.target.value,
+                          }))
                         }
                       />
                     </div>
@@ -338,7 +379,10 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                         type="email"
                         value={editedData.email}
                         onChange={(e) =>
-                          setEditedData((prev) => ({ ...prev, email: e.target.value }))
+                          setEditedData((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
                         }
                       />
                     </div>
@@ -348,7 +392,10 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                         id="bio"
                         value={editedData.bio}
                         onChange={(e) =>
-                          setEditedData((prev) => ({ ...prev, bio: e.target.value }))
+                          setEditedData((prev) => ({
+                            ...prev,
+                            bio: e.target.value,
+                          }))
                         }
                         rows={3}
                       />
@@ -360,7 +407,10 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                           id="location"
                           value={editedData.location}
                           onChange={(e) =>
-                            setEditedData((prev) => ({ ...prev, location: e.target.value }))
+                            setEditedData((prev) => ({
+                              ...prev,
+                              location: e.target.value,
+                            }))
                           }
                         />
                       </div>
@@ -371,7 +421,10 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                           type="url"
                           value={editedData.website}
                           onChange={(e) =>
-                            setEditedData((prev) => ({ ...prev, website: e.target.value }))
+                            setEditedData((prev) => ({
+                              ...prev,
+                              website: e.target.value,
+                            }))
                           }
                         />
                       </div>
@@ -382,7 +435,10 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                         id="pronouns"
                         value={editedData.pronouns}
                         onChange={(e) =>
-                          setEditedData((prev) => ({ ...prev, pronouns: e.target.value }))
+                          setEditedData((prev) => ({
+                            ...prev,
+                            pronouns: e.target.value,
+                          }))
                         }
                         placeholder="e.g., they/them"
                       />
@@ -408,7 +464,9 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                   <Card>
                     <CardHeader className="pb-2">
                       <CardDescription>Channels</CardDescription>
-                      <CardTitle className="text-2xl">{user.channelsCount}</CardTitle>
+                      <CardTitle className="text-2xl">
+                        {user.channelsCount}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center text-xs text-muted-foreground">
@@ -421,7 +479,11 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                     <CardHeader className="pb-2">
                       <CardDescription>Active Sessions</CardDescription>
                       <CardTitle className="text-2xl">
-                        {selectedUserSessions.filter((s) => s.status === 'active').length}
+                        {
+                          selectedUserSessions.filter(
+                            (s) => s.status === "active",
+                          ).length
+                        }
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -435,7 +497,8 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
                       <CardDescription>Account Age</CardDescription>
                       <CardTitle className="text-2xl">
                         {Math.floor(
-                          (Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+                          (Date.now() - new Date(user.createdAt).getTime()) /
+                            (1000 * 60 * 60 * 24),
                         )}
                       </CardTitle>
                     </CardHeader>
@@ -452,7 +515,10 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
 
             {/* Activity Tab */}
             <TabsContent value="activity">
-              <UserActivity activities={selectedUserActivity} userId={user.id} />
+              <UserActivity
+                activities={selectedUserActivity}
+                userId={user.id}
+              />
             </TabsContent>
 
             {/* Sessions Tab */}
@@ -470,19 +536,24 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
               <Card>
                 <CardHeader>
                   <CardTitle>Moderation Actions</CardTitle>
-                  <CardDescription>Take action on this user account</CardDescription>
+                  <CardDescription>
+                    Take action on this user account
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex flex-wrap gap-2">
                     <Button
-                      variant={status === 'banned' ? 'default' : 'destructive'}
+                      variant={status === "banned" ? "default" : "destructive"}
                       onClick={() => openBanModal(user)}
                       disabled={isOwner}
                     >
                       <Ban className="mr-2 h-4 w-4" />
-                      {status === 'banned' ? 'Unban User' : 'Ban User'}
+                      {status === "banned" ? "Unban User" : "Ban User"}
                     </Button>
-                    <Button variant="outline" onClick={() => openResetPasswordModal(user)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => openResetPasswordModal(user)}
+                    >
                       <Key className="mr-2 h-4 w-4" />
                       Reset Password
                     </Button>
@@ -507,20 +578,25 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
               {user.isBanned && (
                 <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
                   <CardHeader>
-                    <CardTitle className="text-red-600">User is Banned</CardTitle>
+                    <CardTitle className="text-red-600">
+                      User is Banned
+                    </CardTitle>
                     <CardDescription>
-                      This user was banned{' '}
-                      {user.bannedAt && `on ${new Date(user.bannedAt).toLocaleDateString()}`}
+                      This user was banned{" "}
+                      {user.bannedAt &&
+                        `on ${new Date(user.bannedAt).toLocaleDateString()}`}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 text-sm">
                       <p>
-                        <strong>Reason:</strong> {user.banReason || 'No reason provided'}
+                        <strong>Reason:</strong>{" "}
+                        {user.banReason || "No reason provided"}
                       </p>
                       {user.bannedUntil && (
                         <p>
-                          <strong>Until:</strong> {new Date(user.bannedUntil).toLocaleString()}
+                          <strong>Until:</strong>{" "}
+                          {new Date(user.bannedUntil).toLocaleString()}
                         </p>
                       )}
                     </div>
@@ -532,7 +608,7 @@ export function UserDetail({ user, isEditing = false, onSave, onCancel }: UserDe
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default UserDetail
+export default UserDetail;

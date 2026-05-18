@@ -1,4 +1,4 @@
-import { SettingsSkeleton } from '@/components/loading/settings-skeleton'
+import { SettingsSkeleton } from "@/components/loading/settings-skeleton";
 
 /**
  * Settings page loading skeleton
@@ -9,5 +9,5 @@ export default function SettingsLoading() {
     <div className="h-screen bg-background">
       <SettingsSkeleton showNav sectionCount={3} />
     </div>
-  )
+  );
 }

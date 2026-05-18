@@ -15,17 +15,23 @@
 /**
  * Article publication status
  */
-export type ArticleStatus = 'draft' | 'published' | 'archived'
+export type ArticleStatus = "draft" | "published" | "archived";
 
 /**
  * Article visibility
  */
-export type ArticleVisibility = 'public' | 'internal' | 'restricted'
+export type ArticleVisibility = "public" | "internal" | "restricted";
 
 /**
  * Content type for articles
  */
-export type ArticleContentType = 'faq' | 'guide' | 'tutorial' | 'troubleshooting' | 'reference' | 'policy'
+export type ArticleContentType =
+  | "faq"
+  | "guide"
+  | "tutorial"
+  | "troubleshooting"
+  | "reference"
+  | "policy";
 
 // ============================================================================
 // CATEGORY TYPES
@@ -35,45 +41,45 @@ export type ArticleContentType = 'faq' | 'guide' | 'tutorial' | 'troubleshooting
  * Knowledge base category
  */
 export interface KBCategory {
-  id: string
-  name: string
-  slug: string
-  description?: string
-  icon?: string
-  parentId?: string
-  order: number
-  articleCount: number
-  isActive: boolean
-  metadata: Record<string, unknown>
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  parentId?: string;
+  order: number;
+  articleCount: number;
+  isActive: boolean;
+  metadata: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
  * Input for creating a category
  */
 export interface CreateCategoryInput {
-  name: string
-  slug?: string
-  description?: string
-  icon?: string
-  parentId?: string
-  order?: number
-  metadata?: Record<string, unknown>
+  name: string;
+  slug?: string;
+  description?: string;
+  icon?: string;
+  parentId?: string;
+  order?: number;
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Input for updating a category
  */
 export interface UpdateCategoryInput {
-  name?: string
-  slug?: string
-  description?: string
-  icon?: string
-  parentId?: string
-  order?: number
-  isActive?: boolean
-  metadata?: Record<string, unknown>
+  name?: string;
+  slug?: string;
+  description?: string;
+  icon?: string;
+  parentId?: string;
+  order?: number;
+  isActive?: boolean;
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -84,108 +90,108 @@ export interface UpdateCategoryInput {
  * Knowledge base article
  */
 export interface KBArticle {
-  id: string
+  id: string;
   /** URL-friendly identifier */
-  slug: string
+  slug: string;
   /** Article title */
-  title: string
+  title: string;
   /** Short summary for previews and search results */
-  excerpt: string
+  excerpt: string;
   /** Full article content (markdown/HTML) */
-  content: string
+  content: string;
   /** Plain text version for search indexing */
-  contentPlain: string
+  contentPlain: string;
   /** Article type */
-  contentType: ArticleContentType
+  contentType: ArticleContentType;
   /** Publication status */
-  status: ArticleStatus
+  status: ArticleStatus;
   /** Visibility level */
-  visibility: ArticleVisibility
+  visibility: ArticleVisibility;
   /** Category ID */
-  categoryId?: string
+  categoryId?: string;
   /** Category information (denormalized for convenience) */
-  category?: Pick<KBCategory, 'id' | 'name' | 'slug'>
+  category?: Pick<KBCategory, "id" | "name" | "slug">;
   /** Tags for categorization and search */
-  tags: string[]
+  tags: string[];
   /** Keywords for search optimization */
-  keywords: string[]
+  keywords: string[];
   /** Author information */
   author: {
-    id: string
-    name: string
-    avatarUrl?: string
-  }
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  };
   /** Related article IDs */
-  relatedArticleIds: string[]
+  relatedArticleIds: string[];
   /** Attachments (images, files) */
-  attachments: KBAttachment[]
+  attachments: KBAttachment[];
   /** Custom fields */
-  customFields: Record<string, unknown>
+  customFields: Record<string, unknown>;
   /** SEO metadata */
   seo?: {
-    title?: string
-    description?: string
-    canonicalUrl?: string
-  }
+    title?: string;
+    description?: string;
+    canonicalUrl?: string;
+  };
   /** Version number for tracking revisions */
-  version: number
+  version: number;
   /** Analytics */
-  analytics: KBArticleAnalytics
+  analytics: KBArticleAnalytics;
   /** Featured article flag */
-  isFeatured: boolean
+  isFeatured: boolean;
   /** Pinned to top flag */
-  isPinned: boolean
+  isPinned: boolean;
   /** Published timestamp */
-  publishedAt?: Date
+  publishedAt?: Date;
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last updated timestamp */
-  updatedAt: Date
+  updatedAt: Date;
   /** Last reviewed timestamp */
-  lastReviewedAt?: Date
+  lastReviewedAt?: Date;
   /** Created by */
-  createdBy: string
+  createdBy: string;
   /** Last updated by */
-  updatedBy: string
+  updatedBy: string;
 }
 
 /**
  * Article attachment
  */
 export interface KBAttachment {
-  id: string
-  name: string
-  url: string
-  size: number
-  mimeType: string
-  thumbnailUrl?: string
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  mimeType: string;
+  thumbnailUrl?: string;
 }
 
 /**
  * Article analytics
  */
 export interface KBArticleAnalytics {
-  viewCount: number
-  uniqueViewCount: number
-  helpfulCount: number
-  notHelpfulCount: number
-  searchAppearances: number
-  avgTimeOnPage: number
-  bounceRate: number
+  viewCount: number;
+  uniqueViewCount: number;
+  helpfulCount: number;
+  notHelpfulCount: number;
+  searchAppearances: number;
+  avgTimeOnPage: number;
+  bounceRate: number;
 }
 
 /**
  * Article version/revision
  */
 export interface KBArticleVersion {
-  id: string
-  articleId: string
-  version: number
-  title: string
-  content: string
-  changes: string
-  createdBy: string
-  createdAt: Date
+  id: string;
+  articleId: string;
+  version: number;
+  title: string;
+  content: string;
+  changes: string;
+  createdBy: string;
+  createdAt: Date;
 }
 
 // ============================================================================
@@ -196,52 +202,52 @@ export interface KBArticleVersion {
  * Input for creating an article
  */
 export interface CreateArticleInput {
-  slug?: string
-  title: string
-  excerpt: string
-  content: string
-  contentType?: ArticleContentType
-  status?: ArticleStatus
-  visibility?: ArticleVisibility
-  categoryId?: string
-  tags?: string[]
-  keywords?: string[]
-  relatedArticleIds?: string[]
-  attachments?: Omit<KBAttachment, 'id'>[]
-  customFields?: Record<string, unknown>
+  slug?: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  contentType?: ArticleContentType;
+  status?: ArticleStatus;
+  visibility?: ArticleVisibility;
+  categoryId?: string;
+  tags?: string[];
+  keywords?: string[];
+  relatedArticleIds?: string[];
+  attachments?: Omit<KBAttachment, "id">[];
+  customFields?: Record<string, unknown>;
   seo?: {
-    title?: string
-    description?: string
-    canonicalUrl?: string
-  }
-  isFeatured?: boolean
-  isPinned?: boolean
+    title?: string;
+    description?: string;
+    canonicalUrl?: string;
+  };
+  isFeatured?: boolean;
+  isPinned?: boolean;
 }
 
 /**
  * Input for updating an article
  */
 export interface UpdateArticleInput {
-  slug?: string
-  title?: string
-  excerpt?: string
-  content?: string
-  contentType?: ArticleContentType
-  status?: ArticleStatus
-  visibility?: ArticleVisibility
-  categoryId?: string
-  tags?: string[]
-  keywords?: string[]
-  relatedArticleIds?: string[]
-  attachments?: Omit<KBAttachment, 'id'>[]
-  customFields?: Record<string, unknown>
+  slug?: string;
+  title?: string;
+  excerpt?: string;
+  content?: string;
+  contentType?: ArticleContentType;
+  status?: ArticleStatus;
+  visibility?: ArticleVisibility;
+  categoryId?: string;
+  tags?: string[];
+  keywords?: string[];
+  relatedArticleIds?: string[];
+  attachments?: Omit<KBAttachment, "id">[];
+  customFields?: Record<string, unknown>;
   seo?: {
-    title?: string
-    description?: string
-    canonicalUrl?: string
-  }
-  isFeatured?: boolean
-  isPinned?: boolean
+    title?: string;
+    description?: string;
+    canonicalUrl?: string;
+  };
+  isFeatured?: boolean;
+  isPinned?: boolean;
 }
 
 // ============================================================================
@@ -252,55 +258,55 @@ export interface UpdateArticleInput {
  * Article search options
  */
 export interface ArticleSearchOptions {
-  query?: string
-  categoryId?: string
-  categoryIds?: string[]
-  tags?: string[]
-  contentType?: ArticleContentType | ArticleContentType[]
-  status?: ArticleStatus | ArticleStatus[]
-  visibility?: ArticleVisibility | ArticleVisibility[]
-  isFeatured?: boolean
-  isPinned?: boolean
-  authorId?: string
-  createdAfter?: Date
-  createdBefore?: Date
-  updatedAfter?: Date
-  updatedBefore?: Date
+  query?: string;
+  categoryId?: string;
+  categoryIds?: string[];
+  tags?: string[];
+  contentType?: ArticleContentType | ArticleContentType[];
+  status?: ArticleStatus | ArticleStatus[];
+  visibility?: ArticleVisibility | ArticleVisibility[];
+  isFeatured?: boolean;
+  isPinned?: boolean;
+  authorId?: string;
+  createdAfter?: Date;
+  createdBefore?: Date;
+  updatedAfter?: Date;
+  updatedBefore?: Date;
 }
 
 /**
  * Article list options
  */
 export interface ArticleListOptions {
-  limit?: number
-  offset?: number
-  sortBy?: 'createdAt' | 'updatedAt' | 'title' | 'viewCount' | 'helpfulCount'
-  sortOrder?: 'asc' | 'desc'
+  limit?: number;
+  offset?: number;
+  sortBy?: "createdAt" | "updatedAt" | "title" | "viewCount" | "helpfulCount";
+  sortOrder?: "asc" | "desc";
 }
 
 /**
  * Article list result
  */
 export interface ArticleListResult<T> {
-  items: T[]
-  totalCount: number
-  hasMore: boolean
-  offset: number
-  limit: number
+  items: T[];
+  totalCount: number;
+  hasMore: boolean;
+  offset: number;
+  limit: number;
 }
 
 /**
  * Search result with highlighting
  */
 export interface ArticleSearchResult {
-  article: KBArticle
-  score: number
+  article: KBArticle;
+  score: number;
   highlights?: {
-    title?: string
-    excerpt?: string
-    content?: string
-  }
-  matchedKeywords?: string[]
+    title?: string;
+    excerpt?: string;
+    content?: string;
+  };
+  matchedKeywords?: string[];
 }
 
 // ============================================================================
@@ -311,26 +317,26 @@ export interface ArticleSearchResult {
  * Article feedback
  */
 export interface ArticleFeedback {
-  id: string
-  articleId: string
-  isHelpful: boolean
-  comment?: string
-  userId?: string
-  sessionId?: string
-  metadata?: Record<string, unknown>
-  createdAt: Date
+  id: string;
+  articleId: string;
+  isHelpful: boolean;
+  comment?: string;
+  userId?: string;
+  sessionId?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
 }
 
 /**
  * Input for submitting feedback
  */
 export interface SubmitFeedbackInput {
-  articleId: string
-  isHelpful: boolean
-  comment?: string
-  userId?: string
-  sessionId?: string
-  metadata?: Record<string, unknown>
+  articleId: string;
+  isHelpful: boolean;
+  comment?: string;
+  userId?: string;
+  sessionId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -341,52 +347,52 @@ export interface SubmitFeedbackInput {
  * FAQ entry (simplified article for chatbot)
  */
 export interface FAQEntry {
-  id: string
-  question: string
-  answer: string
+  id: string;
+  question: string;
+  answer: string;
   /** Alternative phrasings of the question */
-  alternativeQuestions: string[]
+  alternativeQuestions: string[];
   /** Keywords for matching */
-  keywords: string[]
+  keywords: string[];
   /** Category */
-  category?: string
+  category?: string;
   /** Priority for display order */
-  priority: number
+  priority: number;
   /** Whether this FAQ is active */
-  isActive: boolean
+  isActive: boolean;
   /** Full article reference if available */
-  articleId?: string
+  articleId?: string;
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Updated timestamp */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
  * Input for creating an FAQ
  */
 export interface CreateFAQInput {
-  question: string
-  answer: string
-  alternativeQuestions?: string[]
-  keywords?: string[]
-  category?: string
-  priority?: number
-  articleId?: string
+  question: string;
+  answer: string;
+  alternativeQuestions?: string[];
+  keywords?: string[];
+  category?: string;
+  priority?: number;
+  articleId?: string;
 }
 
 /**
  * Input for updating an FAQ
  */
 export interface UpdateFAQInput {
-  question?: string
-  answer?: string
-  alternativeQuestions?: string[]
-  keywords?: string[]
-  category?: string
-  priority?: number
-  isActive?: boolean
-  articleId?: string
+  question?: string;
+  answer?: string;
+  alternativeQuestions?: string[];
+  keywords?: string[];
+  category?: string;
+  priority?: number;
+  isActive?: boolean;
+  articleId?: string;
 }
 
 // ============================================================================
@@ -398,56 +404,59 @@ export interface UpdateFAQInput {
  */
 export interface KBAnalytics {
   period: {
-    start: Date
-    end: Date
-  }
+    start: Date;
+    end: Date;
+  };
   summary: {
-    totalArticles: number
-    publishedArticles: number
-    draftArticles: number
-    archivedArticles: number
-    totalViews: number
-    uniqueViews: number
-    searchQueries: number
-    avgHelpfulRate: number
-  }
+    totalArticles: number;
+    publishedArticles: number;
+    draftArticles: number;
+    archivedArticles: number;
+    totalViews: number;
+    uniqueViews: number;
+    searchQueries: number;
+    avgHelpfulRate: number;
+  };
   topArticles: Array<{
-    articleId: string
-    title: string
-    viewCount: number
-    helpfulRate: number
-  }>
+    articleId: string;
+    title: string;
+    viewCount: number;
+    helpfulRate: number;
+  }>;
   topSearchQueries: Array<{
-    query: string
-    count: number
-    hasResults: boolean
-  }>
-  byCategory: Record<string, {
-    articleCount: number
-    viewCount: number
-    helpfulRate: number
-  }>
+    query: string;
+    count: number;
+    hasResults: boolean;
+  }>;
+  byCategory: Record<
+    string,
+    {
+      articleCount: number;
+      viewCount: number;
+      helpfulRate: number;
+    }
+  >;
   trends: Array<{
-    date: string
-    views: number
-    searches: number
-    helpful: number
-    notHelpful: number
-  }>
+    date: string;
+    views: number;
+    searches: number;
+    helpful: number;
+    notHelpful: number;
+  }>;
 }
 
 /**
  * Search analytics entry
  */
 export interface SearchAnalyticsEntry {
-  id: string
-  query: string
-  resultsCount: number
-  clickedArticleId?: string
-  position?: number
-  sessionId?: string
-  userId?: string
-  createdAt: Date
+  id: string;
+  query: string;
+  resultsCount: number;
+  clickedArticleId?: string;
+  position?: number;
+  sessionId?: string;
+  userId?: string;
+  createdAt: Date;
 }
 
 // ============================================================================
@@ -458,25 +467,25 @@ export interface SearchAnalyticsEntry {
  * Knowledge base event types
  */
 export type KBEventType =
-  | 'article.created'
-  | 'article.updated'
-  | 'article.published'
-  | 'article.archived'
-  | 'article.deleted'
-  | 'article.viewed'
-  | 'article.feedback'
-  | 'category.created'
-  | 'category.updated'
-  | 'category.deleted'
-  | 'search.performed'
+  | "article.created"
+  | "article.updated"
+  | "article.published"
+  | "article.archived"
+  | "article.deleted"
+  | "article.viewed"
+  | "article.feedback"
+  | "category.created"
+  | "category.updated"
+  | "category.deleted"
+  | "search.performed";
 
 /**
  * Knowledge base event
  */
 export interface KBEvent<T = unknown> {
-  type: KBEventType
-  articleId?: string
-  categoryId?: string
-  data: T
-  timestamp: Date
+  type: KBEventType;
+  articleId?: string;
+  categoryId?: string;
+  data: T;
+  timestamp: Date;
 }

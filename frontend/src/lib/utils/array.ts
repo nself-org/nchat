@@ -14,43 +14,45 @@
  */
 export function groupBy<T, K extends string | number>(
   array: T[],
-  keyOrFn: keyof T | ((item: T) => K)
+  keyOrFn: keyof T | ((item: T) => K),
 ): Record<K, T[]> {
   if (!array || !Array.isArray(array)) {
-    return {} as Record<K, T[]>
+    return {} as Record<K, T[]>;
   }
 
   const getKey =
-    typeof keyOrFn === 'function' ? keyOrFn : (item: T) => item[keyOrFn] as unknown as K
+    typeof keyOrFn === "function"
+      ? keyOrFn
+      : (item: T) => item[keyOrFn] as unknown as K;
 
   return array.reduce(
     (result, item) => {
-      const key = getKey(item)
+      const key = getKey(item);
       if (key !== undefined && key !== null) {
         if (!result[key]) {
-          result[key] = []
+          result[key] = [];
         }
-        result[key].push(item)
+        result[key].push(item);
       }
-      return result
+      return result;
     },
-    {} as Record<K, T[]>
-  )
+    {} as Record<K, T[]>,
+  );
 }
 
 /**
  * Sort direction
  */
-export type SortDirection = 'asc' | 'desc'
+export type SortDirection = "asc" | "desc";
 
 /**
  * Sort configuration
  */
 export interface SortConfig<T> {
   /** Key to sort by */
-  key: keyof T
+  key: keyof T;
   /** Sort direction (default: 'asc') */
-  direction?: SortDirection
+  direction?: SortDirection;
 }
 
 /**
@@ -67,49 +69,49 @@ export interface SortConfig<T> {
 export function sortBy<T>(
   array: T[],
   keyOrConfigs: keyof T | SortConfig<T> | (keyof T | SortConfig<T>)[],
-  direction: SortDirection = 'asc'
+  direction: SortDirection = "asc",
 ): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
   // Normalize to array of configs
   const configs: SortConfig<T>[] = (
     Array.isArray(keyOrConfigs) ? keyOrConfigs : [keyOrConfigs]
   ).map((item) => {
-    if (typeof item === 'object' && 'key' in item) {
-      return { direction: 'asc', ...item }
+    if (typeof item === "object" && "key" in item) {
+      return { direction: "asc", ...item };
     }
-    return { key: item as keyof T, direction }
-  })
+    return { key: item as keyof T, direction };
+  });
 
   return [...array].sort((a, b) => {
     for (const config of configs) {
-      const { key, direction: dir = 'asc' } = config
-      const aVal = a[key]
-      const bVal = b[key]
+      const { key, direction: dir = "asc" } = config;
+      const aVal = a[key];
+      const bVal = b[key];
 
       // Handle nullish values
-      if (aVal == null && bVal == null) continue
-      if (aVal == null) return dir === 'asc' ? 1 : -1
-      if (bVal == null) return dir === 'asc' ? -1 : 1
+      if (aVal == null && bVal == null) continue;
+      if (aVal == null) return dir === "asc" ? 1 : -1;
+      if (bVal == null) return dir === "asc" ? -1 : 1;
 
       // Compare values
-      let comparison = 0
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        comparison = aVal.localeCompare(bVal)
+      let comparison = 0;
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        comparison = aVal.localeCompare(bVal);
       } else if (aVal < bVal) {
-        comparison = -1
+        comparison = -1;
       } else if (aVal > bVal) {
-        comparison = 1
+        comparison = 1;
       }
 
       if (comparison !== 0) {
-        return dir === 'asc' ? comparison : -comparison
+        return dir === "asc" ? comparison : -comparison;
       }
     }
-    return 0
-  })
+    return 0;
+  });
 }
 
 /**
@@ -120,28 +122,32 @@ export function sortBy<T>(
  * @example
  * uniqueBy([{ id: 1 }, { id: 2 }, { id: 1 }], 'id') // [{ id: 1 }, { id: 2 }]
  */
-export function uniqueBy<T>(array: T[], keyOrFn?: keyof T | ((item: T) => unknown)): T[] {
+export function uniqueBy<T>(
+  array: T[],
+  keyOrFn?: keyof T | ((item: T) => unknown),
+): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
   // If no key provided, use Set for primitives or reference equality
   if (keyOrFn === undefined) {
-    return [...new Set(array)]
+    return [...new Set(array)];
   }
 
-  const getKey = typeof keyOrFn === 'function' ? keyOrFn : (item: T) => item[keyOrFn]
+  const getKey =
+    typeof keyOrFn === "function" ? keyOrFn : (item: T) => item[keyOrFn];
 
-  const seen = new Set<unknown>()
+  const seen = new Set<unknown>();
 
   return array.filter((item) => {
-    const key = getKey(item)
+    const key = getKey(item);
     if (seen.has(key)) {
-      return false
+      return false;
     }
-    seen.add(key)
-    return true
-  })
+    seen.add(key);
+    return true;
+  });
 }
 
 /**
@@ -154,14 +160,14 @@ export function uniqueBy<T>(array: T[], keyOrFn?: keyof T | ((item: T) => unknow
  */
 export function chunk<T>(array: T[], size: number): T[][] {
   if (!array || !Array.isArray(array) || size < 1) {
-    return []
+    return [];
   }
 
-  const result: T[][] = []
+  const result: T[][] = [];
   for (let i = 0; i < array.length; i += size) {
-    result.push(array.slice(i, i + size))
+    result.push(array.slice(i, i + size));
   }
-  return result
+  return result;
 }
 
 /**
@@ -175,22 +181,22 @@ export function chunk<T>(array: T[], size: number): T[][] {
  */
 export function move<T>(array: T[], fromIndex: number, toIndex: number): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
-  const len = array.length
+  const len = array.length;
   if (fromIndex < 0 || fromIndex >= len || toIndex < 0 || toIndex >= len) {
-    return [...array]
+    return [...array];
   }
 
   if (fromIndex === toIndex) {
-    return [...array]
+    return [...array];
   }
 
-  const result = [...array]
-  const [item] = result.splice(fromIndex, 1)
-  result.splice(toIndex, 0, item)
-  return result
+  const result = [...array];
+  const [item] = result.splice(fromIndex, 1);
+  result.splice(toIndex, 0, item);
+  return result;
 }
 
 /**
@@ -204,13 +210,13 @@ export function move<T>(array: T[], fromIndex: number, toIndex: number): T[] {
  */
 export function insertAt<T>(array: T[], index: number, item: T): T[] {
   if (!array || !Array.isArray(array)) {
-    return [item]
+    return [item];
   }
 
-  const result = [...array]
-  const insertIndex = Math.max(0, Math.min(index, result.length))
-  result.splice(insertIndex, 0, item)
-  return result
+  const result = [...array];
+  const insertIndex = Math.max(0, Math.min(index, result.length));
+  result.splice(insertIndex, 0, item);
+  return result;
 }
 
 /**
@@ -223,16 +229,16 @@ export function insertAt<T>(array: T[], index: number, item: T): T[] {
  */
 export function removeAt<T>(array: T[], index: number): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
   if (index < 0 || index >= array.length) {
-    return [...array]
+    return [...array];
   }
 
-  const result = [...array]
-  result.splice(index, 1)
-  return result
+  const result = [...array];
+  result.splice(index, 1);
+  return result;
 }
 
 /**
@@ -243,12 +249,15 @@ export function removeAt<T>(array: T[], index: number): T[] {
  * @example
  * removeWhere([1, 2, 3, 4], n => n % 2 === 0) // [1, 3]
  */
-export function removeWhere<T>(array: T[], predicate: (item: T) => boolean): T[] {
+export function removeWhere<T>(
+  array: T[],
+  predicate: (item: T) => boolean,
+): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
-  return array.filter((item) => !predicate(item))
+  return array.filter((item) => !predicate(item));
 }
 
 /**
@@ -261,19 +270,25 @@ export function removeWhere<T>(array: T[], predicate: (item: T) => boolean): T[]
  * updateAt([1, 2, 3], 1, 5) // [1, 5, 3]
  * updateAt([{ n: 1 }], 0, prev => ({ ...prev, n: 2 })) // [{ n: 2 }]
  */
-export function updateAt<T>(array: T[], index: number, updater: T | ((item: T) => T)): T[] {
+export function updateAt<T>(
+  array: T[],
+  index: number,
+  updater: T | ((item: T) => T),
+): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
   if (index < 0 || index >= array.length) {
-    return [...array]
+    return [...array];
   }
 
-  const result = [...array]
+  const result = [...array];
   result[index] =
-    typeof updater === 'function' ? (updater as (item: T) => T)(result[index]) : updater
-  return result
+    typeof updater === "function"
+      ? (updater as (item: T) => T)(result[index])
+      : updater;
+  return result;
 }
 
 /**
@@ -286,24 +301,24 @@ export function updateAt<T>(array: T[], index: number, updater: T | ((item: T) =
 export function updateWhere<T>(
   array: T[],
   predicate: (item: T) => boolean,
-  updater: Partial<T> | ((item: T) => T)
+  updater: Partial<T> | ((item: T) => T),
 ): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
-  const index = array.findIndex(predicate)
+  const index = array.findIndex(predicate);
   if (index === -1) {
-    return [...array]
+    return [...array];
   }
 
-  const result = [...array]
-  if (typeof updater === 'function') {
-    result[index] = updater(result[index])
+  const result = [...array];
+  if (typeof updater === "function") {
+    result[index] = updater(result[index]);
   } else {
-    result[index] = { ...result[index], ...updater }
+    result[index] = { ...result[index], ...updater };
   }
-  return result
+  return result;
 }
 
 /**
@@ -317,10 +332,10 @@ export function updateWhere<T>(
  */
 export function flatten<T>(array: unknown[], depth: number = 1): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
-  return array.flat(depth) as T[]
+  return array.flat(depth) as T[];
 }
 
 /**
@@ -331,9 +346,9 @@ export function flatten<T>(array: unknown[], depth: number = 1): T[] {
  */
 export function first<T>(array: T[], n: number = 1): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
-  return array.slice(0, n)
+  return array.slice(0, n);
 }
 
 /**
@@ -344,9 +359,9 @@ export function first<T>(array: T[], n: number = 1): T[] {
  */
 export function last<T>(array: T[], n: number = 1): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
-  return array.slice(-n)
+  return array.slice(-n);
 }
 
 /**
@@ -358,18 +373,23 @@ export function last<T>(array: T[], n: number = 1): T[] {
  * @example
  * intersection([1, 2, 3], [2, 3, 4]) // [2, 3]
  */
-export function intersection<T>(a: T[], b: T[], keyOrFn?: keyof T | ((item: T) => unknown)): T[] {
-  if (!a || !b) return []
+export function intersection<T>(
+  a: T[],
+  b: T[],
+  keyOrFn?: keyof T | ((item: T) => unknown),
+): T[] {
+  if (!a || !b) return [];
 
   if (!keyOrFn) {
-    const setB = new Set(b)
-    return a.filter((item) => setB.has(item))
+    const setB = new Set(b);
+    return a.filter((item) => setB.has(item));
   }
 
-  const getKey = typeof keyOrFn === 'function' ? keyOrFn : (item: T) => item[keyOrFn]
+  const getKey =
+    typeof keyOrFn === "function" ? keyOrFn : (item: T) => item[keyOrFn];
 
-  const keysB = new Set(b.map(getKey))
-  return a.filter((item) => keysB.has(getKey(item)))
+  const keysB = new Set(b.map(getKey));
+  return a.filter((item) => keysB.has(getKey(item)));
 }
 
 /**
@@ -381,19 +401,24 @@ export function intersection<T>(a: T[], b: T[], keyOrFn?: keyof T | ((item: T) =
  * @example
  * difference([1, 2, 3], [2, 3, 4]) // [1]
  */
-export function difference<T>(a: T[], b: T[], keyOrFn?: keyof T | ((item: T) => unknown)): T[] {
-  if (!a) return []
-  if (!b) return [...a]
+export function difference<T>(
+  a: T[],
+  b: T[],
+  keyOrFn?: keyof T | ((item: T) => unknown),
+): T[] {
+  if (!a) return [];
+  if (!b) return [...a];
 
   if (!keyOrFn) {
-    const setB = new Set(b)
-    return a.filter((item) => !setB.has(item))
+    const setB = new Set(b);
+    return a.filter((item) => !setB.has(item));
   }
 
-  const getKey = typeof keyOrFn === 'function' ? keyOrFn : (item: T) => item[keyOrFn]
+  const getKey =
+    typeof keyOrFn === "function" ? keyOrFn : (item: T) => item[keyOrFn];
 
-  const keysB = new Set(b.map(getKey))
-  return a.filter((item) => !keysB.has(getKey(item)))
+  const keysB = new Set(b.map(getKey));
+  return a.filter((item) => !keysB.has(getKey(item)));
 }
 
 /**
@@ -405,8 +430,12 @@ export function difference<T>(a: T[], b: T[], keyOrFn?: keyof T | ((item: T) => 
  * @example
  * union([1, 2], [2, 3]) // [1, 2, 3]
  */
-export function union<T>(a: T[], b: T[], keyOrFn?: keyof T | ((item: T) => unknown)): T[] {
-  return uniqueBy([...(a || []), ...(b || [])], keyOrFn)
+export function union<T>(
+  a: T[],
+  b: T[],
+  keyOrFn?: keyof T | ((item: T) => unknown),
+): T[] {
+  return uniqueBy([...(a || []), ...(b || [])], keyOrFn);
 }
 
 /**
@@ -418,15 +447,15 @@ export function union<T>(a: T[], b: T[], keyOrFn?: keyof T | ((item: T) => unkno
  */
 export function shuffle<T>(array: T[]): T[] {
   if (!array || !Array.isArray(array)) {
-    return []
+    return [];
   }
 
-  const result = [...array]
+  const result = [...array];
   for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
   }
-  return result
+  return result;
 }
 
 /**
@@ -436,9 +465,9 @@ export function shuffle<T>(array: T[]): T[] {
  */
 export function sample<T>(array: T[]): T | undefined {
   if (!array || array.length === 0) {
-    return undefined
+    return undefined;
   }
-  return array[Math.floor(Math.random() * array.length)]
+  return array[Math.floor(Math.random() * array.length)];
 }
 
 /**
@@ -449,9 +478,9 @@ export function sample<T>(array: T[]): T | undefined {
  */
 export function sampleN<T>(array: T[], n: number): T[] {
   if (!array || array.length === 0 || n < 1) {
-    return []
+    return [];
   }
-  return shuffle(array).slice(0, n)
+  return shuffle(array).slice(0, n);
 }
 
 /**
@@ -462,23 +491,26 @@ export function sampleN<T>(array: T[], n: number): T[] {
  * @example
  * partition([1, 2, 3, 4], n => n % 2 === 0) // [[2, 4], [1, 3]]
  */
-export function partition<T>(array: T[], predicate: (item: T) => boolean): [T[], T[]] {
+export function partition<T>(
+  array: T[],
+  predicate: (item: T) => boolean,
+): [T[], T[]] {
   if (!array || !Array.isArray(array)) {
-    return [[], []]
+    return [[], []];
   }
 
-  const truthy: T[] = []
-  const falsy: T[] = []
+  const truthy: T[] = [];
+  const falsy: T[] = [];
 
   for (const item of array) {
     if (predicate(item)) {
-      truthy.push(item)
+      truthy.push(item);
     } else {
-      falsy.push(item)
+      falsy.push(item);
     }
   }
 
-  return [truthy, falsy]
+  return [truthy, falsy];
 }
 
 /**
@@ -489,14 +521,14 @@ export function partition<T>(array: T[], predicate: (item: T) => boolean): [T[],
  */
 export function count<T>(array: T[], predicate?: (item: T) => boolean): number {
   if (!array || !Array.isArray(array)) {
-    return 0
+    return 0;
   }
 
   if (!predicate) {
-    return array.length
+    return array.length;
   }
 
-  return array.reduce((sum, item) => sum + (predicate(item) ? 1 : 0), 0)
+  return array.reduce((sum, item) => sum + (predicate(item) ? 1 : 0), 0);
 }
 
 /**
@@ -511,20 +543,20 @@ export function count<T>(array: T[], predicate?: (item: T) => boolean): number {
  */
 export function range(start: number, end: number, step: number = 1): number[] {
   if (step === 0) {
-    return []
+    return [];
   }
 
-  const result: number[] = []
+  const result: number[] = [];
   if (step > 0) {
     for (let i = start; i < end; i += step) {
-      result.push(i)
+      result.push(i);
     }
   } else {
     for (let i = start; i > end; i += step) {
-      result.push(i)
+      result.push(i);
     }
   }
-  return result
+  return result;
 }
 
 /**
@@ -535,16 +567,16 @@ export function range(start: number, end: number, step: number = 1): number[] {
  * zip([1, 2], ['a', 'b']) // [[1, 'a'], [2, 'b']]
  */
 export function zip<T extends unknown[][]>(...arrays: T): unknown[][] {
-  if (arrays.length === 0) return []
+  if (arrays.length === 0) return [];
 
-  const maxLength = Math.max(...arrays.map((a) => a.length))
-  const result: unknown[][] = []
+  const maxLength = Math.max(...arrays.map((a) => a.length));
+  const result: unknown[][] = [];
 
   for (let i = 0; i < maxLength; i++) {
-    result.push(arrays.map((a) => a[i]))
+    result.push(arrays.map((a) => a[i]));
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -553,11 +585,14 @@ export function zip<T extends unknown[][]>(...arrays: T): unknown[][] {
  * @param predicate - Function to match
  * @returns Index or -1 if not found
  */
-export function findIndex<T>(array: T[], predicate: (item: T) => boolean): number {
+export function findIndex<T>(
+  array: T[],
+  predicate: (item: T) => boolean,
+): number {
   if (!array || !Array.isArray(array)) {
-    return -1
+    return -1;
   }
-  return array.findIndex(predicate)
+  return array.findIndex(predicate);
 }
 
 /**
@@ -568,9 +603,9 @@ export function findIndex<T>(array: T[], predicate: (item: T) => boolean): numbe
  */
 export function every<T>(array: T[], predicate: (item: T) => boolean): boolean {
   if (!array || !Array.isArray(array)) {
-    return true
+    return true;
   }
-  return array.every(predicate)
+  return array.every(predicate);
 }
 
 /**
@@ -581,9 +616,9 @@ export function every<T>(array: T[], predicate: (item: T) => boolean): boolean {
  */
 export function some<T>(array: T[], predicate: (item: T) => boolean): boolean {
   if (!array || !Array.isArray(array)) {
-    return false
+    return false;
   }
-  return array.some(predicate)
+  return array.some(predicate);
 }
 
 /**
@@ -597,23 +632,25 @@ export function some<T>(array: T[], predicate: (item: T) => boolean): boolean {
  */
 export function toLookup<T, K extends string | number>(
   array: T[],
-  keyOrFn: keyof T | ((item: T) => K)
+  keyOrFn: keyof T | ((item: T) => K),
 ): Record<K, T> {
   if (!array || !Array.isArray(array)) {
-    return {} as Record<K, T>
+    return {} as Record<K, T>;
   }
 
   const getKey =
-    typeof keyOrFn === 'function' ? keyOrFn : (item: T) => item[keyOrFn] as unknown as K
+    typeof keyOrFn === "function"
+      ? keyOrFn
+      : (item: T) => item[keyOrFn] as unknown as K;
 
   return array.reduce(
     (result, item) => {
-      const key = getKey(item)
+      const key = getKey(item);
       if (key !== undefined && key !== null) {
-        result[key] = item
+        result[key] = item;
       }
-      return result
+      return result;
     },
-    {} as Record<K, T>
-  )
+    {} as Record<K, T>,
+  );
 }

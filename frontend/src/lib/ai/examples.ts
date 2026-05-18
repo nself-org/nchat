@@ -5,8 +5,8 @@
  * the AI-powered message summarization and smart search features.
  */
 
-import { getMessageSummarizer, type Message } from './message-summarizer'
-import { getSmartSearch, type SearchableMessage } from './smart-search'
+import { getMessageSummarizer, type Message } from "./message-summarizer";
+import { getSmartSearch, type SearchableMessage } from "./smart-search";
 
 // ============================================================================
 // EXAMPLE 1: Basic Message Summarization
@@ -15,34 +15,34 @@ import { getSmartSearch, type SearchableMessage } from './smart-search'
 export async function example1_BasicSummarization() {
   const messages: Message[] = [
     {
-      id: '1',
-      content: 'We need to fix the authentication bug before the release.',
-      userId: 'user1',
-      userName: 'Alice',
-      createdAt: new Date('2025-01-31T10:00:00Z'),
+      id: "1",
+      content: "We need to fix the authentication bug before the release.",
+      userId: "user1",
+      userName: "Alice",
+      createdAt: new Date("2025-01-31T10:00:00Z"),
     },
     {
-      id: '2',
-      content: 'I can work on that this afternoon.',
-      userId: 'user2',
-      userName: 'Bob',
-      createdAt: new Date('2025-01-31T10:05:00Z'),
+      id: "2",
+      content: "I can work on that this afternoon.",
+      userId: "user2",
+      userName: "Bob",
+      createdAt: new Date("2025-01-31T10:05:00Z"),
     },
     {
-      id: '3',
+      id: "3",
       content: "Great! I'll review the PR when it's ready.",
-      userId: 'user1',
-      userName: 'Alice',
-      createdAt: new Date('2025-01-31T10:10:00Z'),
+      userId: "user1",
+      userName: "Alice",
+      createdAt: new Date("2025-01-31T10:10:00Z"),
     },
-  ]
+  ];
 
-  const summarizer = getMessageSummarizer()
+  const summarizer = getMessageSummarizer();
 
   // Generate brief summary
   const summary = await summarizer.summarizeMessages(messages, {
-    style: 'brief',
-  })
+    style: "brief",
+  });
 
   // REMOVED: console.log('Brief Summary:', summary)
   // Output: "Discussion about fixing an authentication bug before release,
@@ -54,11 +54,11 @@ export async function example1_BasicSummarization() {
 // ============================================================================
 
 export async function example2_ChannelDigest() {
-  const messages: Message[] = [] // ... load channel messages
+  const messages: Message[] = []; // ... load channel messages
 
-  const summarizer = getMessageSummarizer()
+  const summarizer = getMessageSummarizer();
 
-  const digest = await summarizer.generateChannelDigest(messages)
+  const digest = await summarizer.generateChannelDigest(messages);
 
   // REMOVED: console.log('Channel Digest:', digest)
   /* Output:
@@ -85,11 +85,11 @@ export async function example2_ChannelDigest() {
 // ============================================================================
 
 export async function example3_ThreadSummary() {
-  const threadMessages: Message[] = [] // ... load thread messages
+  const threadMessages: Message[] = []; // ... load thread messages
 
-  const summarizer = getMessageSummarizer()
+  const summarizer = getMessageSummarizer();
 
-  const threadSummary = await summarizer.summarizeThread(threadMessages)
+  const threadSummary = await summarizer.summarizeThread(threadMessages);
 
   // REMOVED: console.log('Thread Summary:', threadSummary)
   /* Output:
@@ -111,11 +111,11 @@ export async function example3_ThreadSummary() {
 // ============================================================================
 
 export async function example4_CatchUpSummary() {
-  const missedMessages: Message[] = [] // ... load messages since last seen
+  const missedMessages: Message[] = []; // ... load messages since last seen
 
-  const summarizer = getMessageSummarizer()
+  const summarizer = getMessageSummarizer();
 
-  const catchUp = await summarizer.generateCatchUpSummary(missedMessages)
+  const catchUp = await summarizer.generateCatchUpSummary(missedMessages);
 
   // REMOVED: console.log('Catch-Up:', catchUp)
   /* Output:
@@ -134,16 +134,18 @@ export async function example4_CatchUpSummary() {
 // ============================================================================
 
 export async function example5_BasicSearch() {
-  const messages: SearchableMessage[] = [] // ... load all messages
+  const messages: SearchableMessage[] = []; // ... load all messages
 
-  const search = getSmartSearch()
+  const search = getSmartSearch();
 
-  const results = await search.search('authentication bug', messages, { limit: 10 })
+  const results = await search.search("authentication bug", messages, {
+    limit: 10,
+  });
 
   // REMOVED: console.log(`Found ${results.length} results`)
   results.forEach((result) => {
     // REMOVED: console.log(`- [${result.score.toFixed(2)}] ${result.message.content}`)
-  })
+  });
 }
 
 // ============================================================================
@@ -151,23 +153,23 @@ export async function example5_BasicSearch() {
 // ============================================================================
 
 export async function example6_AdvancedSearch() {
-  const messages: SearchableMessage[] = [] // ... load all messages
+  const messages: SearchableMessage[] = []; // ... load all messages
 
-  const search = getSmartSearch()
+  const search = getSmartSearch();
 
-  const results = await search.search('deployment issues', messages, {
+  const results = await search.search("deployment issues", messages, {
     limit: 20,
     threshold: 0.7, // Only return results with >70% similarity
     includeContext: true, // Include surrounding messages
     contextSize: 2, // 2 messages before/after
     filters: {
-      channelId: 'engineering',
-      dateFrom: new Date('2025-01-01'),
-      dateTo: new Date('2025-01-31'),
+      channelId: "engineering",
+      dateFrom: new Date("2025-01-01"),
+      dateTo: new Date("2025-01-31"),
       hasThread: true, // Only messages with threads
     },
-    rankBy: 'hybrid', // Balance relevance + recency
-  })
+    rankBy: "hybrid", // Balance relevance + recency
+  });
 
   results.forEach((result) => {
     // REMOVED: console.log('Message:', result.message.content)
@@ -176,7 +178,7 @@ export async function example6_AdvancedSearch() {
     // REMOVED: console.log('Highlights:', result.highlights)
     // REMOVED: console.log('Context Before:', result.context?.before)
     // REMOVED: console.log('Context After:', result.context?.after)
-  })
+  });
 }
 
 // ============================================================================
@@ -184,8 +186,8 @@ export async function example6_AdvancedSearch() {
 // ============================================================================
 
 export async function example7_CheckAvailability() {
-  const summarizer = getMessageSummarizer()
-  const search = getSmartSearch()
+  const summarizer = getMessageSummarizer();
+  const search = getSmartSearch();
 
   // REMOVED: console.log('AI Status:')
   // REMOVED: console.log('- Summarization:', {
@@ -199,8 +201,8 @@ export async function example7_CheckAvailability() {
   // })
 
   // Or use the status API endpoint
-  const response = await fetch('/api/ai/status')
-  const status = await response.json()
+  const response = await fetch("/api/ai/status");
+  const status = await response.json();
   // REMOVED: console.log('API Status:', status)
 }
 
@@ -210,17 +212,17 @@ export async function example7_CheckAvailability() {
 
 export async function example8_DailyDigest(channelId: string) {
   // Get messages from last 24 hours
-  const yesterday = new Date()
-  yesterday.setHours(yesterday.getHours() - 24)
+  const yesterday = new Date();
+  yesterday.setHours(yesterday.getHours() - 24);
 
-  const messages: Message[] = [] // ... fetch messages since yesterday
+  const messages: Message[] = []; // ... fetch messages since yesterday
 
   if (messages.length === 0) {
-    return 'No activity in the last 24 hours.'
+    return "No activity in the last 24 hours.";
   }
 
-  const summarizer = getMessageSummarizer()
-  const digest = await summarizer.generateChannelDigest(messages)
+  const summarizer = getMessageSummarizer();
+  const digest = await summarizer.generateChannelDigest(messages);
 
   // Format as email or notification
   const emailBody = `
@@ -229,7 +231,7 @@ export async function example8_DailyDigest(channelId: string) {
     ${digest.summary}
 
     ## Key Points
-    ${digest.keyPoints?.map((point) => `- ${point}`).join('\n')}
+    ${digest.keyPoints?.map((point) => `- ${point}`).join("\n")}
 
     ## Activity
     - ${digest.messageCount} messages
@@ -237,40 +239,43 @@ export async function example8_DailyDigest(channelId: string) {
     - ${digest.timeRange.end.getTime() - digest.timeRange.start.getTime()} hours of activity
 
     ## Topics Discussed
-    ${digest.topics?.map((topic) => `- ${topic}`).join('\n')}
-  `
+    ${digest.topics?.map((topic) => `- ${topic}`).join("\n")}
+  `;
 
-  return emailBody
+  return emailBody;
 }
 
 // ============================================================================
 // EXAMPLE 9: Search with Result Ranking
 // ============================================================================
 
-export async function example9_RankedSearch(query: string, messages: SearchableMessage[]) {
-  const search = getSmartSearch()
+export async function example9_RankedSearch(
+  query: string,
+  messages: SearchableMessage[],
+) {
+  const search = getSmartSearch();
 
   // Search with different ranking strategies
   const relevanceResults = await search.search(query, messages, {
-    rankBy: 'relevance',
+    rankBy: "relevance",
     limit: 10,
-  })
+  });
 
   const dateResults = await search.search(query, messages, {
-    rankBy: 'date',
+    rankBy: "date",
     limit: 10,
-  })
+  });
 
   const hybridResults = await search.search(query, messages, {
-    rankBy: 'hybrid',
+    rankBy: "hybrid",
     limit: 10,
-  })
+  });
 
   return {
     mostRelevant: relevanceResults[0],
     mostRecent: dateResults[0],
     balanced: hybridResults[0],
-  }
+  };
 }
 
 // ============================================================================
@@ -279,43 +284,43 @@ export async function example9_RankedSearch(query: string, messages: SearchableM
 
 export async function example10_APIUsage() {
   // Summarization API
-  const summarizeResponse = await fetch('/api/ai/summarize', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const summarizeResponse = await fetch("/api/ai/summarize", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       messages: [
         /* ... */
       ],
-      type: 'digest',
-      options: { style: 'detailed' },
+      type: "digest",
+      options: { style: "detailed" },
     }),
-  })
+  });
 
-  const summarizeResult = await summarizeResponse.json()
+  const summarizeResult = await summarizeResponse.json();
   // REMOVED: console.log('Summary:', summarizeResult.summary)
   // REMOVED: console.log('Provider:', summarizeResult.provider)
 
   // Search API
-  const searchResponse = await fetch('/api/ai/search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const searchResponse = await fetch("/api/ai/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      query: 'authentication bug',
+      query: "authentication bug",
       messages: [
         /* ... */
       ],
       options: { limit: 20 },
     }),
-  })
+  });
 
-  const searchResult = await searchResponse.json()
+  const searchResult = await searchResponse.json();
   // REMOVED: console.log('Results:', searchResult.results)
   // REMOVED: console.log('Count:', searchResult.count)
   // REMOVED: console.log('Semantic:', searchResult.isSemanticSearch)
 
   // Status API
-  const statusResponse = await fetch('/api/ai/status')
-  const status = await statusResponse.json()
+  const statusResponse = await fetch("/api/ai/status");
+  const status = await statusResponse.json();
   // REMOVED: console.log('AI Status:', status)
 }
 
@@ -324,10 +329,10 @@ export async function example10_APIUsage() {
 // ============================================================================
 
 export async function example11_ErrorHandling(messages: Message[]) {
-  const summarizer = getMessageSummarizer()
+  const summarizer = getMessageSummarizer();
 
   try {
-    const summary = await summarizer.summarizeMessages(messages)
+    const summary = await summarizer.summarizeMessages(messages);
     // REMOVED: console.log('AI Summary:', summary)
   } catch (error) {
     // Automatically falls back to local summarization
@@ -336,8 +341,8 @@ export async function example11_ErrorHandling(messages: Message[]) {
   }
 
   // Check provider to know if using AI or fallback
-  const provider = summarizer.getProvider()
-  if (provider === 'local') {
+  const provider = summarizer.getProvider();
+  if (provider === "local") {
     // REMOVED: console.log('Using basic summarization (no API key configured)')
   } else {
     // REMOVED: console.log(`Using AI provider: ${provider}`)
@@ -349,14 +354,14 @@ export async function example11_ErrorHandling(messages: Message[]) {
 // ============================================================================
 
 export async function example12_CacheManagement() {
-  const search = getSmartSearch()
+  const search = getSmartSearch();
 
   // Check cache stats
-  const stats = search.getCacheStats()
+  const stats = search.getCacheStats();
   // REMOVED: console.log(`Cache: ${stats.size}/${stats.maxSize} entries`)
 
   // Clear cache if needed (e.g., when switching contexts)
-  search.clearCache()
+  search.clearCache();
   // REMOVED: console.log('Cache cleared')
 
   // Cache is automatically managed with LRU eviction

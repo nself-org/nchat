@@ -1,37 +1,42 @@
-'use client'
+"use client";
 
-import { X, Edit, Reply, MessageSquare } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { renderPlainText } from './message-content'
-import type { Message, MessageUser } from '@/types/message'
+import { X, Edit, Reply, MessageSquare } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { renderPlainText } from "./message-content";
+import type { Message, MessageUser } from "@/types/message";
 
 interface ReplyPreviewProps {
-  message: Message
-  onClose: () => void
-  mode?: 'reply' | 'thread'
-  className?: string
+  message: Message;
+  onClose: () => void;
+  mode?: "reply" | "thread";
+  className?: string;
 }
 
 /**
  * Reply preview component
  * Shows above the message input when replying to a message
  */
-export function ReplyPreview({ message, onClose, mode = 'reply', className }: ReplyPreviewProps) {
-  const Icon = mode === 'thread' ? MessageSquare : Reply
+export function ReplyPreview({
+  message,
+  onClose,
+  mode = "reply",
+  className,
+}: ReplyPreviewProps) {
+  const Icon = mode === "thread" ? MessageSquare : Reply;
 
   return (
     <AnimatePresence>
       <motion.div
         initial={{ height: 0, opacity: 0 }}
-        animate={{ height: 'auto', opacity: 1 }}
+        animate={{ height: "auto", opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
         transition={{ duration: 0.15 }}
         className={cn(
-          'bg-muted/50 overflow-hidden border-b border-l-4 border-l-primary',
-          className
+          "bg-muted/50 overflow-hidden border-b border-l-4 border-l-primary",
+          className,
         )}
       >
         <div className="flex items-start gap-3 p-3">
@@ -44,7 +49,7 @@ export function ReplyPreview({ message, onClose, mode = 'reply', className }: Re
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 text-xs">
               <span className="font-medium text-primary">
-                {mode === 'thread' ? 'Replying in thread to' : 'Replying to'}
+                {mode === "thread" ? "Replying in thread to" : "Replying to"}
               </span>
               <span className="font-semibold">{message.user.displayName}</span>
             </div>
@@ -66,13 +71,13 @@ export function ReplyPreview({ message, onClose, mode = 'reply', className }: Re
         </div>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
 
 interface EditPreviewProps {
-  message: Message
-  onClose: () => void
-  className?: string
+  message: Message;
+  onClose: () => void;
+  className?: string;
 }
 
 /**
@@ -84,12 +89,12 @@ export function EditPreview({ message, onClose, className }: EditPreviewProps) {
     <AnimatePresence>
       <motion.div
         initial={{ height: 0, opacity: 0 }}
-        animate={{ height: 'auto', opacity: 1 }}
+        animate={{ height: "auto", opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
         transition={{ duration: 0.15 }}
         className={cn(
-          'overflow-hidden border-b border-l-4 border-l-amber-500 bg-amber-500/5',
-          className
+          "overflow-hidden border-b border-l-4 border-l-amber-500 bg-amber-500/5",
+          className,
         )}
       >
         <div className="flex items-start gap-3 p-3">
@@ -100,7 +105,9 @@ export function EditPreview({ message, onClose, className }: EditPreviewProps) {
 
           {/* Content */}
           <div className="min-w-0 flex-1">
-            <div className="text-xs font-medium text-amber-500">Editing message</div>
+            <div className="text-xs font-medium text-amber-500">
+              Editing message
+            </div>
             <p className="mt-0.5 truncate text-sm text-muted-foreground">
               {renderPlainText(message.content, 100)}
             </p>
@@ -120,12 +127,12 @@ export function EditPreview({ message, onClose, className }: EditPreviewProps) {
 
         {/* Hint */}
         <div className="bg-muted/30 border-t px-3 py-1.5 text-xs text-muted-foreground">
-          Press <kbd className="rounded bg-muted px-1">Escape</kbd> to cancel,{' '}
+          Press <kbd className="rounded bg-muted px-1">Escape</kbd> to cancel,{" "}
           <kbd className="rounded bg-muted px-1">Enter</kbd> to save
         </div>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
 
 /**
@@ -133,18 +140,22 @@ export function EditPreview({ message, onClose, className }: EditPreviewProps) {
  * Shows what message this is a reply to
  */
 interface InlineReplyIndicatorProps {
-  replyTo: Message
-  onClick?: () => void
-  className?: string
+  replyTo: Message;
+  onClick?: () => void;
+  className?: string;
 }
 
-export function InlineReplyIndicator({ replyTo, onClick, className }: InlineReplyIndicatorProps) {
+export function InlineReplyIndicator({
+  replyTo,
+  onClick,
+  className,
+}: InlineReplyIndicatorProps) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'group mb-1 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground',
-        className
+        "group mb-1 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground",
+        className,
       )}
     >
       {/* Reply line */}
@@ -155,31 +166,40 @@ export function InlineReplyIndicator({ replyTo, onClick, className }: InlineRepl
 
       {/* Author avatar */}
       <Avatar className="h-4 w-4">
-        <AvatarImage src={replyTo.user.avatarUrl} alt={replyTo.user.displayName} />
-        <AvatarFallback className="text-[8px]">{replyTo.user.displayName.charAt(0)}</AvatarFallback>
+        <AvatarImage
+          src={replyTo.user.avatarUrl}
+          alt={replyTo.user.displayName}
+        />
+        <AvatarFallback className="text-[8px]">
+          {replyTo.user.displayName.charAt(0)}
+        </AvatarFallback>
       </Avatar>
 
       {/* Author name */}
-      <span className="font-medium group-hover:underline">{replyTo.user.displayName}</span>
+      <span className="font-medium group-hover:underline">
+        {replyTo.user.displayName}
+      </span>
 
       {/* Preview text */}
-      <span className="truncate opacity-70">{renderPlainText(replyTo.content, 50)}</span>
+      <span className="truncate opacity-70">
+        {renderPlainText(replyTo.content, 50)}
+      </span>
     </button>
-  )
+  );
 }
 
 /**
  * Thread reply count banner
  */
 interface ThreadReplyBannerProps {
-  count: number
+  count: number;
   lastReply?: {
-    user: MessageUser
-    content: string
-    createdAt: Date
-  }
-  onClick?: () => void
-  className?: string
+    user: MessageUser;
+    content: string;
+    createdAt: Date;
+  };
+  onClick?: () => void;
+  className?: string;
 }
 
 export function ThreadReplyBanner({
@@ -192,20 +212,22 @@ export function ThreadReplyBanner({
     <button
       onClick={onClick}
       className={cn(
-        'bg-muted/30 hover:border-primary/20 hover:bg-muted/50 group mt-2 flex w-full items-center gap-2 rounded-md border border-transparent p-2 text-left transition-colors',
-        className
+        "bg-muted/30 hover:border-primary/20 hover:bg-muted/50 group mt-2 flex w-full items-center gap-2 rounded-md border border-transparent p-2 text-left transition-colors",
+        className,
       )}
     >
       <MessageSquare className="h-4 w-4 text-primary" />
 
       <span className="text-xs font-medium text-primary">
-        {count} {count === 1 ? 'reply' : 'replies'}
+        {count} {count === 1 ? "reply" : "replies"}
       </span>
 
       {lastReply && (
         <>
           <span className="text-xs text-muted-foreground">Last reply from</span>
-          <span className="text-xs font-medium">{lastReply.user.displayName}</span>
+          <span className="text-xs font-medium">
+            {lastReply.user.displayName}
+          </span>
         </>
       )}
 
@@ -213,5 +235,5 @@ export function ThreadReplyBanner({
         View thread
       </span>
     </button>
-  )
+  );
 }

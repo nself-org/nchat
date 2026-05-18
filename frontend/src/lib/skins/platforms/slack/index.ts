@@ -37,13 +37,13 @@ export {
   slackDarkShadows,
   slackDetailedSkin,
   slackVisualConfig,
-} from './visual'
+} from "./visual";
 
 export type {
   SlackExtendedColors,
   SlackShadows,
   SlackVisualConfig,
-} from './visual'
+} from "./visual";
 
 // ── Behavior ────────────────────────────────────────────────────────────
 export {
@@ -60,7 +60,7 @@ export {
   slackDetailedBehavior,
   slackExtendedBehavior,
   slackBehaviorConfig,
-} from './behavior'
+} from "./behavior";
 
 export type {
   SlackWorkspaceConfig,
@@ -75,7 +75,7 @@ export type {
   SlackDmConfig,
   SlackExtendedBehavior,
   SlackBehaviorConfig,
-} from './behavior'
+} from "./behavior";
 
 // ── Navigation ──────────────────────────────────────────────────────────
 export {
@@ -94,7 +94,7 @@ export {
   getSlackHeaderActionCount,
   getSlackHeaderActionById,
   getSlackDefaultSectionCount,
-} from './navigation'
+} from "./navigation";
 
 export type {
   SlackRailItem,
@@ -105,7 +105,7 @@ export type {
   SlackHeaderAction,
   SlackRailConfig,
   SlackNavigationConfig,
-} from './navigation'
+} from "./navigation";
 
 // ── Composer ────────────────────────────────────────────────────────────
 export {
@@ -128,7 +128,7 @@ export {
   getSlackAttachmentCount,
   getSlackFormattingButtonCount,
   getSlackBuiltInCommandCount,
-} from './composer'
+} from "./composer";
 
 export type {
   SlackFormattingButton,
@@ -140,7 +140,7 @@ export type {
   SlackScheduleConfig,
   SlackSendButtonConfig,
   SlackComposerConfig,
-} from './composer'
+} from "./composer";
 
 // ── Parity Checklist ────────────────────────────────────────────────────
 export {
@@ -151,7 +151,7 @@ export {
   getSlackParityItemById,
   verifySlackCriticalParity,
   getSlackCategoryParityPercentage,
-} from './parity-checklist'
+} from "./parity-checklist";
 
 export type {
   SlackParityPriority,
@@ -159,4 +159,4 @@ export type {
   SlackParityStatus,
   SlackParityChecklistItem,
   SlackParityChecklist,
-} from './parity-checklist'
+} from "./parity-checklist";

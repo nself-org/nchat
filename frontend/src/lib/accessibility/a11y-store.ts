@@ -1,63 +1,63 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-export type FontSize = 'small' | 'medium' | 'large' | 'extra-large'
-export type ContrastMode = 'normal' | 'high' | 'higher'
+export type FontSize = "small" | "medium" | "large" | "extra-large";
+export type ContrastMode = "normal" | "high" | "higher";
 
 export interface A11ySettings {
   /** Reduce motion for animations */
-  reduceMotion: boolean
+  reduceMotion: boolean;
   /** High contrast mode */
-  highContrast: boolean
+  highContrast: boolean;
   /** Contrast level when high contrast is enabled */
-  contrastMode: ContrastMode
+  contrastMode: ContrastMode;
   /** Font size preference */
-  fontSize: FontSize
+  fontSize: FontSize;
   /** Screen reader optimization mode */
-  screenReaderMode: boolean
+  screenReaderMode: boolean;
   /** Show focus indicators always (not just on keyboard focus) */
-  alwaysShowFocus: boolean
+  alwaysShowFocus: boolean;
   /** Reduce transparency effects */
-  reduceTransparency: boolean
+  reduceTransparency: boolean;
   /** Dyslexia-friendly font */
-  dyslexiaFont: boolean
+  dyslexiaFont: boolean;
   /** Larger click/touch targets */
-  largerTargets: boolean
+  largerTargets: boolean;
   /** Keyboard navigation hints */
-  showKeyboardHints: boolean
+  showKeyboardHints: boolean;
   /** Captions/subtitles preference */
-  preferCaptions: boolean
+  preferCaptions: boolean;
   /** Announce messages immediately (screen reader) */
-  announceMessages: boolean
+  announceMessages: boolean;
 }
 
 export interface A11yState extends A11ySettings {
   // Actions
-  setReduceMotion: (value: boolean) => void
-  setHighContrast: (value: boolean) => void
-  setContrastMode: (mode: ContrastMode) => void
-  setFontSize: (size: FontSize) => void
-  setScreenReaderMode: (value: boolean) => void
-  setAlwaysShowFocus: (value: boolean) => void
-  setReduceTransparency: (value: boolean) => void
-  setDyslexiaFont: (value: boolean) => void
-  setLargerTargets: (value: boolean) => void
-  setShowKeyboardHints: (value: boolean) => void
-  setPreferCaptions: (value: boolean) => void
-  setAnnounceMessages: (value: boolean) => void
+  setReduceMotion: (value: boolean) => void;
+  setHighContrast: (value: boolean) => void;
+  setContrastMode: (mode: ContrastMode) => void;
+  setFontSize: (size: FontSize) => void;
+  setScreenReaderMode: (value: boolean) => void;
+  setAlwaysShowFocus: (value: boolean) => void;
+  setReduceTransparency: (value: boolean) => void;
+  setDyslexiaFont: (value: boolean) => void;
+  setLargerTargets: (value: boolean) => void;
+  setShowKeyboardHints: (value: boolean) => void;
+  setPreferCaptions: (value: boolean) => void;
+  setAnnounceMessages: (value: boolean) => void;
   // Bulk actions
-  updateSettings: (settings: Partial<A11ySettings>) => void
-  resetSettings: () => void
+  updateSettings: (settings: Partial<A11ySettings>) => void;
+  resetSettings: () => void;
   // Computed
-  getFontSizeClass: () => string
-  getFontSizeValue: () => string
+  getFontSizeClass: () => string;
+  getFontSizeValue: () => string;
 }
 
 const defaultSettings: A11ySettings = {
   reduceMotion: false,
   highContrast: false,
-  contrastMode: 'normal',
-  fontSize: 'medium',
+  contrastMode: "normal",
+  fontSize: "medium",
   screenReaderMode: false,
   alwaysShowFocus: false,
   reduceTransparency: false,
@@ -66,21 +66,21 @@ const defaultSettings: A11ySettings = {
   showKeyboardHints: false,
   preferCaptions: false,
   announceMessages: true,
-}
+};
 
 const fontSizeClasses: Record<FontSize, string> = {
-  small: 'text-sm',
-  medium: 'text-base',
-  large: 'text-lg',
-  'extra-large': 'text-xl',
-}
+  small: "text-sm",
+  medium: "text-base",
+  large: "text-lg",
+  "extra-large": "text-xl",
+};
 
 const fontSizeValues: Record<FontSize, string> = {
-  small: '14px',
-  medium: '16px',
-  large: '18px',
-  'extra-large': '20px',
-}
+  small: "14px",
+  medium: "16px",
+  large: "18px",
+  "extra-large": "20px",
+};
 
 export const useA11yStore = create<A11yState>()(
   persist(
@@ -108,7 +108,7 @@ export const useA11yStore = create<A11yState>()(
       getFontSizeValue: () => fontSizeValues[get().fontSize],
     }),
     {
-      name: 'nchat-a11y-settings',
+      name: "nchat-a11y-settings",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         reduceMotion: state.reduceMotion,
@@ -124,57 +124,57 @@ export const useA11yStore = create<A11yState>()(
         preferCaptions: state.preferCaptions,
         announceMessages: state.announceMessages,
       }),
-    }
-  )
-)
+    },
+  ),
+);
 
 /**
  * Apply accessibility settings to the document
  */
 export function applyA11ySettings(settings: A11ySettings): void {
-  const root = document.documentElement
-  const body = document.body
+  const root = document.documentElement;
+  const body = document.body;
 
   // Reduce motion
   if (settings.reduceMotion) {
-    root.classList.add('reduce-motion')
-    root.style.setProperty('--animation-duration', '0.01ms')
-    root.style.setProperty('--transition-duration', '0.01ms')
+    root.classList.add("reduce-motion");
+    root.style.setProperty("--animation-duration", "0.01ms");
+    root.style.setProperty("--transition-duration", "0.01ms");
   } else {
-    root.classList.remove('reduce-motion')
-    root.style.removeProperty('--animation-duration')
-    root.style.removeProperty('--transition-duration')
+    root.classList.remove("reduce-motion");
+    root.style.removeProperty("--animation-duration");
+    root.style.removeProperty("--transition-duration");
   }
 
   // High contrast
-  root.classList.toggle('high-contrast', settings.highContrast)
-  root.setAttribute('data-contrast', settings.contrastMode)
+  root.classList.toggle("high-contrast", settings.highContrast);
+  root.setAttribute("data-contrast", settings.contrastMode);
 
   // Font size
-  root.style.setProperty('--base-font-size', fontSizeValues[settings.fontSize])
-  root.setAttribute('data-font-size', settings.fontSize)
+  root.style.setProperty("--base-font-size", fontSizeValues[settings.fontSize]);
+  root.setAttribute("data-font-size", settings.fontSize);
 
   // Screen reader mode
-  root.classList.toggle('screen-reader-mode', settings.screenReaderMode)
+  root.classList.toggle("screen-reader-mode", settings.screenReaderMode);
 
   // Always show focus
-  root.classList.toggle('always-show-focus', settings.alwaysShowFocus)
+  root.classList.toggle("always-show-focus", settings.alwaysShowFocus);
 
   // Reduce transparency
-  root.classList.toggle('reduce-transparency', settings.reduceTransparency)
+  root.classList.toggle("reduce-transparency", settings.reduceTransparency);
 
   // Dyslexia font
   if (settings.dyslexiaFont) {
-    body.classList.add('dyslexia-font')
+    body.classList.add("dyslexia-font");
   } else {
-    body.classList.remove('dyslexia-font')
+    body.classList.remove("dyslexia-font");
   }
 
   // Larger targets
-  root.classList.toggle('larger-targets', settings.largerTargets)
+  root.classList.toggle("larger-targets", settings.largerTargets);
 
   // Keyboard hints
-  root.classList.toggle('show-keyboard-hints', settings.showKeyboardHints)
+  root.classList.toggle("show-keyboard-hints", settings.showKeyboardHints);
 }
 
 /**
@@ -182,17 +182,17 @@ export function applyA11ySettings(settings: A11ySettings): void {
  */
 export function generateA11yCSSVariables(settings: A11ySettings): string {
   const vars: Record<string, string> = {
-    '--a11y-font-size': fontSizeValues[settings.fontSize],
-    '--a11y-motion-duration': settings.reduceMotion ? '0.01ms' : '200ms',
-    '--a11y-transition-duration': settings.reduceMotion ? '0.01ms' : '150ms',
-    '--a11y-focus-ring-width': settings.alwaysShowFocus ? '3px' : '2px',
-    '--a11y-target-size': settings.largerTargets ? '48px' : '40px',
-    '--a11y-min-target-size': settings.largerTargets ? '44px' : '36px',
-  }
+    "--a11y-font-size": fontSizeValues[settings.fontSize],
+    "--a11y-motion-duration": settings.reduceMotion ? "0.01ms" : "200ms",
+    "--a11y-transition-duration": settings.reduceMotion ? "0.01ms" : "150ms",
+    "--a11y-focus-ring-width": settings.alwaysShowFocus ? "3px" : "2px",
+    "--a11y-target-size": settings.largerTargets ? "48px" : "40px",
+    "--a11y-min-target-size": settings.largerTargets ? "44px" : "36px",
+  };
 
   return Object.entries(vars)
     .map(([key, value]) => `${key}: ${value};`)
-    .join('\n')
+    .join("\n");
 }
 
-export default useA11yStore
+export default useA11yStore;

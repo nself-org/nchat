@@ -15,35 +15,35 @@
  * Uses Web Crypto API for all cryptographic operations.
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** ECDSA curve for signing */
-const ECDSA_CURVE = 'P-256'
+const ECDSA_CURVE = "P-256";
 
 /** HKDF hash algorithm */
-const HKDF_HASH = 'SHA-256'
+const HKDF_HASH = "SHA-256";
 
 /** AES-GCM key length in bits */
-const AES_KEY_LENGTH = 256
+const AES_KEY_LENGTH = 256;
 
 /** AES-GCM IV length in bytes */
-const AES_IV_LENGTH = 12
+const AES_IV_LENGTH = 12;
 
 /** AES-GCM auth tag length in bits */
-const AES_TAG_LENGTH = 128
+const AES_TAG_LENGTH = 128;
 
 /** Maximum chain iterations before requiring rekey */
-const MAX_CHAIN_ITERATIONS = 2000
+const MAX_CHAIN_ITERATIONS = 2000;
 
 /** Sender key chain info */
-const SENDER_KEY_CHAIN_INFO = 'nchat-sender-key-chain-v1'
+const SENDER_KEY_CHAIN_INFO = "nchat-sender-key-chain-v1";
 
 /** Message key derivation info */
-const MESSAGE_KEY_INFO = 'nchat-sender-key-msg-v1'
+const MESSAGE_KEY_INFO = "nchat-sender-key-msg-v1";
 
 // ============================================================================
 // Types
@@ -54,13 +54,13 @@ const MESSAGE_KEY_INFO = 'nchat-sender-key-msg-v1'
  */
 export interface SenderKeySigningPair {
   /** Public key for signature verification */
-  publicKey: Uint8Array
+  publicKey: Uint8Array;
   /** Private key for signing */
-  privateKey: Uint8Array
+  privateKey: Uint8Array;
   /** CryptoKey for signing operations */
-  cryptoPrivateKey?: CryptoKey
+  cryptoPrivateKey?: CryptoKey;
   /** CryptoKey for verification operations */
-  cryptoPublicKey?: CryptoKey
+  cryptoPublicKey?: CryptoKey;
 }
 
 /**
@@ -68,23 +68,23 @@ export interface SenderKeySigningPair {
  */
 export interface SenderKeyState {
   /** Unique key ID for this sender key */
-  keyId: number
+  keyId: number;
   /** Chain key for deriving message keys */
-  chainKey: Uint8Array
+  chainKey: Uint8Array;
   /** Current chain iteration (message counter) */
-  chainIteration: number
+  chainIteration: number;
   /** Signing key pair for authentication */
-  signingKey: SenderKeySigningPair
+  signingKey: SenderKeySigningPair;
   /** Group ID this key belongs to */
-  groupId: string
+  groupId: string;
   /** User ID of the key owner */
-  userId: string
+  userId: string;
   /** Device ID of the key owner */
-  deviceId: string
+  deviceId: string;
   /** Creation timestamp */
-  createdAt: number
+  createdAt: number;
   /** Last used timestamp */
-  lastUsedAt: number
+  lastUsedAt: number;
 }
 
 /**
@@ -92,23 +92,23 @@ export interface SenderKeyState {
  */
 export interface SenderKeyDistributionMessage {
   /** Key ID */
-  keyId: number
+  keyId: number;
   /** Initial chain key (encrypted for recipient) */
-  chainKey: Uint8Array
+  chainKey: Uint8Array;
   /** Starting chain iteration */
-  chainIteration: number
+  chainIteration: number;
   /** Signing public key */
-  signingPublicKey: Uint8Array
+  signingPublicKey: Uint8Array;
   /** Group ID */
-  groupId: string
+  groupId: string;
   /** Sender user ID */
-  senderUserId: string
+  senderUserId: string;
   /** Sender device ID */
-  senderDeviceId: string
+  senderDeviceId: string;
   /** Creation timestamp */
-  timestamp: number
+  timestamp: number;
   /** Protocol version */
-  version: number
+  version: number;
 }
 
 /**
@@ -116,21 +116,21 @@ export interface SenderKeyDistributionMessage {
  */
 export interface SenderKeyEncryptedMessage {
   /** Key ID used for encryption */
-  keyId: number
+  keyId: number;
   /** Chain iteration (message number) */
-  chainIteration: number
+  chainIteration: number;
   /** Encrypted content */
-  ciphertext: Uint8Array
+  ciphertext: Uint8Array;
   /** Nonce/IV */
-  nonce: Uint8Array
+  nonce: Uint8Array;
   /** Signature for authentication */
-  signature: Uint8Array
+  signature: Uint8Array;
   /** Group ID */
-  groupId: string
+  groupId: string;
   /** Sender user ID */
-  senderUserId: string
+  senderUserId: string;
   /** Sender device ID */
-  senderDeviceId: string
+  senderDeviceId: string;
 }
 
 /**
@@ -138,56 +138,56 @@ export interface SenderKeyEncryptedMessage {
  */
 export interface StoredSenderKey {
   /** Key ID */
-  keyId: number
+  keyId: number;
   /** Current chain key */
-  chainKey: Uint8Array
+  chainKey: Uint8Array;
   /** Current chain iteration */
-  chainIteration: number
+  chainIteration: number;
   /** Signing public key for verification */
-  signingPublicKey: Uint8Array
+  signingPublicKey: Uint8Array;
   /** Skipped message keys for out-of-order delivery */
-  skippedMessageKeys: Map<number, Uint8Array>
+  skippedMessageKeys: Map<number, Uint8Array>;
   /** Group ID */
-  groupId: string
+  groupId: string;
   /** Sender user ID */
-  senderUserId: string
+  senderUserId: string;
   /** Sender device ID */
-  senderDeviceId: string
+  senderDeviceId: string;
   /** Received timestamp */
-  receivedAt: number
+  receivedAt: number;
 }
 
 /**
  * Serialized sender key state for storage
  */
 export interface SerializedSenderKeyState {
-  keyId: number
-  chainKey: string
-  chainIteration: number
+  keyId: number;
+  chainKey: string;
+  chainIteration: number;
   signingKey: {
-    publicKey: string
-    privateKey: string
-  }
-  groupId: string
-  userId: string
-  deviceId: string
-  createdAt: number
-  lastUsedAt: number
+    publicKey: string;
+    privateKey: string;
+  };
+  groupId: string;
+  userId: string;
+  deviceId: string;
+  createdAt: number;
+  lastUsedAt: number;
 }
 
 /**
  * Serialized stored sender key
  */
 export interface SerializedStoredSenderKey {
-  keyId: number
-  chainKey: string
-  chainIteration: number
-  signingPublicKey: string
-  skippedMessageKeys: Array<{ iteration: number; key: string }>
-  groupId: string
-  senderUserId: string
-  senderDeviceId: string
-  receivedAt: number
+  keyId: number;
+  chainKey: string;
+  chainIteration: number;
+  signingPublicKey: string;
+  skippedMessageKeys: Array<{ iteration: number; key: string }>;
+  groupId: string;
+  senderUserId: string;
+  senderDeviceId: string;
+  receivedAt: number;
 }
 
 // ============================================================================
@@ -198,61 +198,61 @@ export interface SerializedStoredSenderKey {
  * Converts ArrayBuffer to Uint8Array
  */
 function toUint8Array(buffer: ArrayBuffer): Uint8Array {
-  return new Uint8Array(buffer)
+  return new Uint8Array(buffer);
 }
 
 /**
  * Concatenates multiple Uint8Arrays
  */
 function concat(...arrays: Uint8Array[]): Uint8Array {
-  const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0)
-  const result = new Uint8Array(totalLength)
-  let offset = 0
+  const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
   for (const arr of arrays) {
-    result.set(arr, offset)
-    offset += arr.length
+    result.set(arr, offset);
+    offset += arr.length;
   }
-  return result
+  return result;
 }
 
 /**
  * Bytes to Base64
  */
 function bytesToBase64(bytes: Uint8Array): string {
-  let binary = ''
+  let binary = "";
   for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i])
+    binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary)
+  return btoa(binary);
 }
 
 /**
  * Base64 to bytes
  */
 function base64ToBytes(base64: string): Uint8Array {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
+    bytes[i] = binary.charCodeAt(i);
   }
-  return bytes
+  return bytes;
 }
 
 /**
  * Securely wipe data from memory
  */
 function secureWipe(data: Uint8Array): void {
-  crypto.getRandomValues(data)
-  data.fill(0)
+  crypto.getRandomValues(data);
+  data.fill(0);
 }
 
 /**
  * Generate a random key ID
  */
 function generateKeyId(): number {
-  const bytes = new Uint8Array(4)
-  crypto.getRandomValues(bytes)
-  return new DataView(bytes.buffer).getUint32(0, false)
+  const bytes = new Uint8Array(4);
+  crypto.getRandomValues(bytes);
+  return new DataView(bytes.buffer).getUint32(0, false);
 }
 
 // ============================================================================
@@ -265,50 +265,55 @@ function generateKeyId(): number {
 async function generateSigningKeyPair(): Promise<SenderKeySigningPair> {
   const keyPair = await crypto.subtle.generateKey(
     {
-      name: 'ECDSA',
+      name: "ECDSA",
       namedCurve: ECDSA_CURVE,
     },
     true,
-    ['sign', 'verify']
-  )
+    ["sign", "verify"],
+  );
 
-  const publicKeyRaw = await crypto.subtle.exportKey('raw', keyPair.publicKey)
-  const privateKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey)
+  const publicKeyRaw = await crypto.subtle.exportKey("raw", keyPair.publicKey);
+  const privateKeyJwk = await crypto.subtle.exportKey(
+    "jwk",
+    keyPair.privateKey,
+  );
 
-  const privateKeyD = privateKeyJwk.d
+  const privateKeyD = privateKeyJwk.d;
   if (!privateKeyD) {
-    throw new Error('Failed to export signing private key')
+    throw new Error("Failed to export signing private key");
   }
 
   // Decode base64url to bytes
-  let base64 = privateKeyD.replace(/-/g, '+').replace(/_/g, '/')
+  let base64 = privateKeyD.replace(/-/g, "+").replace(/_/g, "/");
   while (base64.length % 4) {
-    base64 += '='
+    base64 += "=";
   }
-  const privateKeyBytes = base64ToBytes(base64)
+  const privateKeyBytes = base64ToBytes(base64);
 
   return {
     publicKey: toUint8Array(publicKeyRaw),
     privateKey: privateKeyBytes,
     cryptoPrivateKey: keyPair.privateKey,
     cryptoPublicKey: keyPair.publicKey,
-  }
+  };
 }
 
 /**
  * Imports a signing public key
  */
-async function importSigningPublicKey(publicKeyBytes: Uint8Array): Promise<CryptoKey> {
+async function importSigningPublicKey(
+  publicKeyBytes: Uint8Array,
+): Promise<CryptoKey> {
   return crypto.subtle.importKey(
-    'raw',
+    "raw",
     publicKeyBytes as unknown as ArrayBuffer,
     {
-      name: 'ECDSA',
+      name: "ECDSA",
       namedCurve: ECDSA_CURVE,
     },
     true,
-    ['verify']
-  )
+    ["verify"],
+  );
 }
 
 /**
@@ -316,45 +321,57 @@ async function importSigningPublicKey(publicKeyBytes: Uint8Array): Promise<Crypt
  */
 async function importSigningPrivateKey(
   privateKeyBytes: Uint8Array,
-  publicKeyBytes: Uint8Array
+  publicKeyBytes: Uint8Array,
 ): Promise<CryptoKey> {
-  const d = bytesToBase64(privateKeyBytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-  const x = bytesToBase64(publicKeyBytes.slice(1, 33)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-  const y = bytesToBase64(publicKeyBytes.slice(33, 65)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  const d = bytesToBase64(privateKeyBytes)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  const x = bytesToBase64(publicKeyBytes.slice(1, 33))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  const y = bytesToBase64(publicKeyBytes.slice(33, 65))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 
   const jwk: JsonWebKey = {
-    kty: 'EC',
+    kty: "EC",
     crv: ECDSA_CURVE,
     d,
     x,
     y,
-  }
+  };
 
   return crypto.subtle.importKey(
-    'jwk',
+    "jwk",
     jwk,
     {
-      name: 'ECDSA',
+      name: "ECDSA",
       namedCurve: ECDSA_CURVE,
     },
     true,
-    ['sign']
-  )
+    ["sign"],
+  );
 }
 
 /**
  * Signs data with ECDSA
  */
-async function sign(data: Uint8Array, privateKey: CryptoKey): Promise<Uint8Array> {
+async function sign(
+  data: Uint8Array,
+  privateKey: CryptoKey,
+): Promise<Uint8Array> {
   const signature = await crypto.subtle.sign(
     {
-      name: 'ECDSA',
-      hash: 'SHA-256',
+      name: "ECDSA",
+      hash: "SHA-256",
     },
     privateKey,
-    data as unknown as ArrayBuffer
-  )
-  return toUint8Array(signature)
+    data as unknown as ArrayBuffer,
+  );
+  return toUint8Array(signature);
 }
 
 /**
@@ -363,46 +380,46 @@ async function sign(data: Uint8Array, privateKey: CryptoKey): Promise<Uint8Array
 async function verify(
   data: Uint8Array,
   signature: Uint8Array,
-  publicKey: CryptoKey
+  publicKey: CryptoKey,
 ): Promise<boolean> {
   return crypto.subtle.verify(
     {
-      name: 'ECDSA',
-      hash: 'SHA-256',
+      name: "ECDSA",
+      hash: "SHA-256",
     },
     publicKey,
     signature as unknown as ArrayBuffer,
-    data as unknown as ArrayBuffer
-  )
+    data as unknown as ArrayBuffer,
+  );
 }
 
 /**
  * Derives a message key from chain key using HMAC-based KDF
  */
 async function deriveMessageKey(chainKey: Uint8Array): Promise<{
-  newChainKey: Uint8Array
-  messageKey: Uint8Array
+  newChainKey: Uint8Array;
+  messageKey: Uint8Array;
 }> {
   // Import chain key for HMAC
   const key = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     chainKey as unknown as ArrayBuffer,
-    { name: 'HMAC', hash: 'SHA-256' },
+    { name: "HMAC", hash: "SHA-256" },
     false,
-    ['sign']
-  )
+    ["sign"],
+  );
 
   // Derive new chain key with constant 0x01
-  const chainConstant = new Uint8Array([0x01])
-  const newChainKeyBuf = await crypto.subtle.sign('HMAC', key, chainConstant)
-  const newChainKey = toUint8Array(newChainKeyBuf)
+  const chainConstant = new Uint8Array([0x01]);
+  const newChainKeyBuf = await crypto.subtle.sign("HMAC", key, chainConstant);
+  const newChainKey = toUint8Array(newChainKeyBuf);
 
   // Derive message key with constant 0x02
-  const messageConstant = new Uint8Array([0x02])
-  const messageKeyBuf = await crypto.subtle.sign('HMAC', key, messageConstant)
-  const messageKey = toUint8Array(messageKeyBuf)
+  const messageConstant = new Uint8Array([0x02]);
+  const messageKeyBuf = await crypto.subtle.sign("HMAC", key, messageConstant);
+  const messageKey = toUint8Array(messageKeyBuf);
 
-  return { newChainKey, messageKey }
+  return { newChainKey, messageKey };
 }
 
 /**
@@ -411,34 +428,34 @@ async function deriveMessageKey(chainKey: Uint8Array): Promise<{
 async function aesGcmEncrypt(
   plaintext: Uint8Array,
   key: Uint8Array,
-  associatedData?: Uint8Array
+  associatedData?: Uint8Array,
 ): Promise<{ ciphertext: Uint8Array; nonce: Uint8Array }> {
-  const nonce = new Uint8Array(AES_IV_LENGTH)
-  crypto.getRandomValues(nonce)
+  const nonce = new Uint8Array(AES_IV_LENGTH);
+  crypto.getRandomValues(nonce);
 
   const cryptoKey = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     key as unknown as ArrayBuffer,
-    { name: 'AES-GCM' },
+    { name: "AES-GCM" },
     false,
-    ['encrypt']
-  )
+    ["encrypt"],
+  );
 
   const encrypted = await crypto.subtle.encrypt(
     {
-      name: 'AES-GCM',
+      name: "AES-GCM",
       iv: nonce,
       tagLength: AES_TAG_LENGTH,
       additionalData: associatedData as unknown as ArrayBuffer,
     },
     cryptoKey,
-    plaintext as unknown as ArrayBuffer
-  )
+    plaintext as unknown as ArrayBuffer,
+  );
 
   return {
     ciphertext: toUint8Array(encrypted),
     nonce,
-  }
+  };
 }
 
 /**
@@ -448,28 +465,28 @@ async function aesGcmDecrypt(
   ciphertext: Uint8Array,
   key: Uint8Array,
   nonce: Uint8Array,
-  associatedData?: Uint8Array
+  associatedData?: Uint8Array,
 ): Promise<Uint8Array> {
   const cryptoKey = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     key as unknown as ArrayBuffer,
-    { name: 'AES-GCM' },
+    { name: "AES-GCM" },
     false,
-    ['decrypt']
-  )
+    ["decrypt"],
+  );
 
   const decrypted = await crypto.subtle.decrypt(
     {
-      name: 'AES-GCM',
+      name: "AES-GCM",
       iv: nonce as unknown as ArrayBuffer,
       tagLength: AES_TAG_LENGTH,
       additionalData: associatedData as unknown as ArrayBuffer,
     },
     cryptoKey,
-    ciphertext as unknown as ArrayBuffer
-  )
+    ciphertext as unknown as ArrayBuffer,
+  );
 
-  return toUint8Array(decrypted)
+  return toUint8Array(decrypted);
 }
 
 // ============================================================================
@@ -480,16 +497,20 @@ async function aesGcmDecrypt(
  * Manages sender key for outgoing group messages
  */
 export class SenderKey {
-  private state: SenderKeyState | null = null
+  private state: SenderKeyState | null = null;
 
   /**
    * Generates a new sender key for a group
    */
-  async generate(groupId: string, userId: string, deviceId: string): Promise<SenderKeyState> {
-    const keyId = generateKeyId()
-    const chainKey = new Uint8Array(32)
-    crypto.getRandomValues(chainKey)
-    const signingKey = await generateSigningKeyPair()
+  async generate(
+    groupId: string,
+    userId: string,
+    deviceId: string,
+  ): Promise<SenderKeyState> {
+    const keyId = generateKeyId();
+    const chainKey = new Uint8Array(32);
+    crypto.getRandomValues(chainKey);
+    const signingKey = await generateSigningKeyPair();
 
     this.state = {
       keyId,
@@ -501,33 +522,33 @@ export class SenderKey {
       deviceId,
       createdAt: Date.now(),
       lastUsedAt: Date.now(),
-    }
+    };
 
-    logger.debug('Sender key generated', { keyId, groupId, userId, deviceId })
+    logger.debug("Sender key generated", { keyId, groupId, userId, deviceId });
 
-    return this.state
+    return this.state;
   }
 
   /**
    * Gets the current sender key state
    */
   getState(): SenderKeyState | null {
-    return this.state
+    return this.state;
   }
 
   /**
    * Checks if sender key is initialized
    */
   isInitialized(): boolean {
-    return this.state !== null
+    return this.state !== null;
   }
 
   /**
    * Checks if rekey is needed (chain exhausted)
    */
   needsRekey(): boolean {
-    if (!this.state) return true
-    return this.state.chainIteration >= MAX_CHAIN_ITERATIONS
+    if (!this.state) return true;
+    return this.state.chainIteration >= MAX_CHAIN_ITERATIONS;
   }
 
   /**
@@ -535,7 +556,7 @@ export class SenderKey {
    */
   createDistributionMessage(): SenderKeyDistributionMessage {
     if (!this.state) {
-      throw new Error('Sender key not initialized')
+      throw new Error("Sender key not initialized");
     }
 
     return {
@@ -548,7 +569,7 @@ export class SenderKey {
       senderDeviceId: this.state.deviceId,
       timestamp: Date.now(),
       version: 1,
-    }
+    };
   }
 
   /**
@@ -556,39 +577,48 @@ export class SenderKey {
    */
   async encrypt(plaintext: Uint8Array): Promise<SenderKeyEncryptedMessage> {
     if (!this.state) {
-      throw new Error('Sender key not initialized')
+      throw new Error("Sender key not initialized");
     }
 
     if (this.needsRekey()) {
-      throw new Error('Sender key chain exhausted, rekey required')
+      throw new Error("Sender key chain exhausted, rekey required");
     }
 
     // Derive message key
-    const { newChainKey, messageKey } = await deriveMessageKey(this.state.chainKey)
+    const { newChainKey, messageKey } = await deriveMessageKey(
+      this.state.chainKey,
+    );
 
     // Create associated data
     const associatedData = new TextEncoder().encode(
-      `${this.state.groupId}:${this.state.userId}:${this.state.deviceId}:${this.state.keyId}:${this.state.chainIteration}`
-    )
+      `${this.state.groupId}:${this.state.userId}:${this.state.deviceId}:${this.state.keyId}:${this.state.chainIteration}`,
+    );
 
     // Encrypt plaintext
-    const { ciphertext, nonce } = await aesGcmEncrypt(plaintext, messageKey, associatedData)
+    const { ciphertext, nonce } = await aesGcmEncrypt(
+      plaintext,
+      messageKey,
+      associatedData,
+    );
 
     // Sign the ciphertext for authentication
     if (!this.state.signingKey.cryptoPrivateKey) {
       this.state.signingKey.cryptoPrivateKey = await importSigningPrivateKey(
         this.state.signingKey.privateKey,
-        this.state.signingKey.publicKey
-      )
+        this.state.signingKey.publicKey,
+      );
     }
 
     const dataToSign = concat(
       new Uint8Array(new Uint32Array([this.state.keyId]).buffer),
       new Uint8Array(new Uint32Array([this.state.chainIteration]).buffer),
       nonce,
-      ciphertext
-    )
-    const signature = await sign(dataToSign, this.state.signingKey.cryptoPrivateKey)
+      ciphertext,
+    );
+    const signature = await sign(
+      dataToSign,
+      this.state.signingKey.cryptoPrivateKey,
+    );
 
     const message: SenderKeyEncryptedMessage = {
       keyId: this.state.keyId,
@@ -599,30 +629,30 @@ export class SenderKey {
       groupId: this.state.groupId,
       senderUserId: this.state.userId,
       senderDeviceId: this.state.deviceId,
-    }
+    };
 
     // Update chain state
-    secureWipe(this.state.chainKey)
-    this.state.chainKey = newChainKey
-    this.state.chainIteration++
-    this.state.lastUsedAt = Date.now()
+    secureWipe(this.state.chainKey);
+    this.state.chainKey = newChainKey;
+    this.state.chainIteration++;
+    this.state.lastUsedAt = Date.now();
 
     // Wipe message key
-    secureWipe(messageKey)
+    secureWipe(messageKey);
 
-    logger.debug('Message encrypted with sender key', {
+    logger.debug("Message encrypted with sender key", {
       keyId: this.state.keyId,
       iteration: this.state.chainIteration - 1,
-    })
+    });
 
-    return message
+    return message;
   }
 
   /**
    * Serializes state for storage
    */
   serializeState(): SerializedSenderKeyState | null {
-    if (!this.state) return null
+    if (!this.state) return null;
 
     return {
       keyId: this.state.keyId,
@@ -637,15 +667,15 @@ export class SenderKey {
       deviceId: this.state.deviceId,
       createdAt: this.state.createdAt,
       lastUsedAt: this.state.lastUsedAt,
-    }
+    };
   }
 
   /**
    * Deserializes state from storage
    */
   async deserializeState(serialized: SerializedSenderKeyState): Promise<void> {
-    const publicKey = base64ToBytes(serialized.signingKey.publicKey)
-    const privateKey = base64ToBytes(serialized.signingKey.privateKey)
+    const publicKey = base64ToBytes(serialized.signingKey.publicKey);
+    const privateKey = base64ToBytes(serialized.signingKey.privateKey);
 
     this.state = {
       keyId: serialized.keyId,
@@ -662,9 +692,9 @@ export class SenderKey {
       deviceId: serialized.deviceId,
       createdAt: serialized.createdAt,
       lastUsedAt: serialized.lastUsedAt,
-    }
+    };
 
-    logger.debug('Sender key state deserialized', { keyId: this.state.keyId })
+    logger.debug("Sender key state deserialized", { keyId: this.state.keyId });
   }
 
   /**
@@ -672,11 +702,11 @@ export class SenderKey {
    */
   destroy(): void {
     if (this.state) {
-      secureWipe(this.state.chainKey)
-      secureWipe(this.state.signingKey.privateKey)
-      this.state = null
+      secureWipe(this.state.chainKey);
+      secureWipe(this.state.signingKey.privateKey);
+      this.state = null;
     }
-    logger.debug('Sender key destroyed')
+    logger.debug("Sender key destroyed");
   }
 }
 
@@ -688,31 +718,38 @@ export class SenderKey {
  * Manages received sender keys for decrypting group messages
  */
 export class SenderKeyReceiver {
-  private storedKeys: Map<string, StoredSenderKey> = new Map()
-  private maxSkippedKeys = 100
+  private storedKeys: Map<string, StoredSenderKey> = new Map();
+  private maxSkippedKeys = 100;
 
   /**
    * Gets the map key for a sender key
    */
-  private getMapKey(groupId: string, userId: string, deviceId: string, keyId: number): string {
-    return `${groupId}:${userId}:${deviceId}:${keyId}`
+  private getMapKey(
+    groupId: string,
+    userId: string,
+    deviceId: string,
+    keyId: number,
+  ): string {
+    return `${groupId}:${userId}:${deviceId}:${keyId}`;
   }
 
   /**
    * Processes a sender key distribution message
    */
-  async processSenderKeyDistribution(message: SenderKeyDistributionMessage): Promise<void> {
+  async processSenderKeyDistribution(
+    message: SenderKeyDistributionMessage,
+  ): Promise<void> {
     const mapKey = this.getMapKey(
       message.groupId,
       message.senderUserId,
       message.senderDeviceId,
-      message.keyId
-    )
+      message.keyId,
+    );
 
     // Check if we already have this key
     if (this.storedKeys.has(mapKey)) {
-      logger.debug('Sender key already stored', { keyId: message.keyId })
-      return
+      logger.debug("Sender key already stored", { keyId: message.keyId });
+      return;
     }
 
     const storedKey: StoredSenderKey = {
@@ -725,36 +762,41 @@ export class SenderKeyReceiver {
       senderUserId: message.senderUserId,
       senderDeviceId: message.senderDeviceId,
       receivedAt: Date.now(),
-    }
+    };
 
-    this.storedKeys.set(mapKey, storedKey)
+    this.storedKeys.set(mapKey, storedKey);
 
-    logger.debug('Sender key distribution processed', {
+    logger.debug("Sender key distribution processed", {
       keyId: message.keyId,
       groupId: message.groupId,
       senderUserId: message.senderUserId,
-    })
+    });
   }
 
   /**
    * Checks if we have a sender key for a specific sender
    */
-  hasSenderKey(groupId: string, userId: string, deviceId: string, keyId: number): boolean {
-    const mapKey = this.getMapKey(groupId, userId, deviceId, keyId)
-    return this.storedKeys.has(mapKey)
+  hasSenderKey(
+    groupId: string,
+    userId: string,
+    deviceId: string,
+    keyId: number,
+  ): boolean {
+    const mapKey = this.getMapKey(groupId, userId, deviceId, keyId);
+    return this.storedKeys.has(mapKey);
   }
 
   /**
    * Gets all stored sender keys for a group
    */
   getSenderKeysForGroup(groupId: string): StoredSenderKey[] {
-    const keys: StoredSenderKey[] = []
+    const keys: StoredSenderKey[] = [];
     for (const key of this.storedKeys.values()) {
       if (key.groupId === groupId) {
-        keys.push(key)
+        keys.push(key);
       }
     }
-    return keys
+    return keys;
   }
 
   /**
@@ -765,117 +807,130 @@ export class SenderKeyReceiver {
       message.groupId,
       message.senderUserId,
       message.senderDeviceId,
-      message.keyId
-    )
+      message.keyId,
+    );
 
-    const storedKey = this.storedKeys.get(mapKey)
+    const storedKey = this.storedKeys.get(mapKey);
     if (!storedKey) {
       throw new Error(
-        `Sender key not found for ${message.senderUserId}:${message.senderDeviceId} key ${message.keyId}`
-      )
+        `Sender key not found for ${message.senderUserId}:${message.senderDeviceId} key ${message.keyId}`,
+      );
     }
 
     // Verify signature first
-    const signingPublicKey = await importSigningPublicKey(storedKey.signingPublicKey)
+    const signingPublicKey = await importSigningPublicKey(
+      storedKey.signingPublicKey,
+    );
     const dataToVerify = concat(
       new Uint8Array(new Uint32Array([message.keyId]).buffer),
       new Uint8Array(new Uint32Array([message.chainIteration]).buffer),
       message.nonce,
-      message.ciphertext
-    )
+      message.ciphertext,
+    );
 
-    const isValid = await verify(dataToVerify, message.signature, signingPublicKey)
+    const isValid = await verify(
+      dataToVerify,
+      message.signature,
+      signingPublicKey,
+    );
     if (!isValid) {
-      throw new Error('Invalid sender key signature')
+      throw new Error("Invalid sender key signature");
     }
 
     // Check if we have a skipped message key
-    const skippedKey = storedKey.skippedMessageKeys.get(message.chainIteration)
+    const skippedKey = storedKey.skippedMessageKeys.get(message.chainIteration);
     if (skippedKey) {
       const associatedData = new TextEncoder().encode(
-        `${message.groupId}:${message.senderUserId}:${message.senderDeviceId}:${message.keyId}:${message.chainIteration}`
-      )
+        `${message.groupId}:${message.senderUserId}:${message.senderDeviceId}:${message.keyId}:${message.chainIteration}`,
+      );
 
       const plaintext = await aesGcmDecrypt(
         message.ciphertext,
         skippedKey,
         message.nonce,
-        associatedData
-      )
+        associatedData,
+      );
 
       // Remove used skipped key
-      storedKey.skippedMessageKeys.delete(message.chainIteration)
-      secureWipe(skippedKey)
+      storedKey.skippedMessageKeys.delete(message.chainIteration);
+      secureWipe(skippedKey);
 
-      return plaintext
+      return plaintext;
     }
 
     // Check if message is from the future
     if (message.chainIteration > storedKey.chainIteration) {
       // Skip to the message iteration
-      await this.skipToIteration(storedKey, message.chainIteration)
+      await this.skipToIteration(storedKey, message.chainIteration);
     } else if (message.chainIteration < storedKey.chainIteration) {
       throw new Error(
-        `Message iteration ${message.chainIteration} is behind current ${storedKey.chainIteration} and no skipped key found`
-      )
+        `Message iteration ${message.chainIteration} is behind current ${storedKey.chainIteration} and no skipped key found`,
+      );
     }
 
     // Derive message key
-    const { newChainKey, messageKey } = await deriveMessageKey(storedKey.chainKey)
+    const { newChainKey, messageKey } = await deriveMessageKey(
+      storedKey.chainKey,
+    );
 
     // Create associated data
     const associatedData = new TextEncoder().encode(
-      `${message.groupId}:${message.senderUserId}:${message.senderDeviceId}:${message.keyId}:${message.chainIteration}`
-    )
+      `${message.groupId}:${message.senderUserId}:${message.senderDeviceId}:${message.keyId}:${message.chainIteration}`,
+    );
 
     // Decrypt
     const plaintext = await aesGcmDecrypt(
       message.ciphertext,
       messageKey,
       message.nonce,
-      associatedData
-    )
+      associatedData,
+    );
 
     // Update chain state
-    secureWipe(storedKey.chainKey)
-    storedKey.chainKey = newChainKey
-    storedKey.chainIteration++
+    secureWipe(storedKey.chainKey);
+    storedKey.chainKey = newChainKey;
+    storedKey.chainIteration++;
 
     // Wipe message key
-    secureWipe(messageKey)
+    secureWipe(messageKey);
 
-    logger.debug('Message decrypted with sender key', {
+    logger.debug("Message decrypted with sender key", {
       keyId: message.keyId,
       iteration: message.chainIteration,
-    })
+    });
 
-    return plaintext
+    return plaintext;
   }
 
   /**
    * Skips to a specific chain iteration, storing skipped keys
    */
-  private async skipToIteration(storedKey: StoredSenderKey, targetIteration: number): Promise<void> {
-    const skipsNeeded = targetIteration - storedKey.chainIteration
+  private async skipToIteration(
+    storedKey: StoredSenderKey,
+    targetIteration: number,
+  ): Promise<void> {
+    const skipsNeeded = targetIteration - storedKey.chainIteration;
 
     if (skipsNeeded > this.maxSkippedKeys) {
-      throw new Error(`Too many skipped messages: ${skipsNeeded}`)
+      throw new Error(`Too many skipped messages: ${skipsNeeded}`);
     }
 
     while (storedKey.chainIteration < targetIteration) {
-      const { newChainKey, messageKey } = await deriveMessageKey(storedKey.chainKey)
+      const { newChainKey, messageKey } = await deriveMessageKey(
+        storedKey.chainKey,
+      );
 
       // Store skipped key
-      storedKey.skippedMessageKeys.set(storedKey.chainIteration, messageKey)
+      storedKey.skippedMessageKeys.set(storedKey.chainIteration, messageKey);
 
       // Update chain
-      secureWipe(storedKey.chainKey)
-      storedKey.chainKey = newChainKey
-      storedKey.chainIteration++
+      secureWipe(storedKey.chainKey);
+      storedKey.chainKey = newChainKey;
+      storedKey.chainIteration++;
     }
 
     // Trim old skipped keys if we have too many
-    this.trimSkippedKeys(storedKey)
+    this.trimSkippedKeys(storedKey);
   }
 
   /**
@@ -883,18 +938,23 @@ export class SenderKeyReceiver {
    */
   private trimSkippedKeys(storedKey: StoredSenderKey): void {
     if (storedKey.skippedMessageKeys.size <= this.maxSkippedKeys) {
-      return
+      return;
     }
 
     // Sort keys by iteration and remove oldest
-    const iterations = Array.from(storedKey.skippedMessageKeys.keys()).sort((a, b) => a - b)
-    const toRemove = iterations.slice(0, iterations.length - this.maxSkippedKeys)
+    const iterations = Array.from(storedKey.skippedMessageKeys.keys()).sort(
+      (a, b) => a - b,
+    );
+    const toRemove = iterations.slice(
+      0,
+      iterations.length - this.maxSkippedKeys,
+    );
 
     for (const iteration of toRemove) {
-      const key = storedKey.skippedMessageKeys.get(iteration)
+      const key = storedKey.skippedMessageKeys.get(iteration);
       if (key) {
-        secureWipe(key)
-        storedKey.skippedMessageKeys.delete(iteration)
+        secureWipe(key);
+        storedKey.skippedMessageKeys.delete(iteration);
       }
     }
   }
@@ -903,7 +963,7 @@ export class SenderKeyReceiver {
    * Removes all sender keys for a specific sender in a group
    */
   removeSenderKeys(groupId: string, userId: string, deviceId: string): void {
-    const keysToRemove: string[] = []
+    const keysToRemove: string[] = [];
 
     for (const [mapKey, storedKey] of this.storedKeys) {
       if (
@@ -911,54 +971,62 @@ export class SenderKeyReceiver {
         storedKey.senderUserId === userId &&
         storedKey.senderDeviceId === deviceId
       ) {
-        secureWipe(storedKey.chainKey)
+        secureWipe(storedKey.chainKey);
         for (const key of storedKey.skippedMessageKeys.values()) {
-          secureWipe(key)
+          secureWipe(key);
         }
-        keysToRemove.push(mapKey)
+        keysToRemove.push(mapKey);
       }
     }
 
     for (const mapKey of keysToRemove) {
-      this.storedKeys.delete(mapKey)
+      this.storedKeys.delete(mapKey);
     }
 
-    logger.debug('Sender keys removed', { groupId, userId, deviceId, count: keysToRemove.length })
+    logger.debug("Sender keys removed", {
+      groupId,
+      userId,
+      deviceId,
+      count: keysToRemove.length,
+    });
   }
 
   /**
    * Removes all sender keys for a group
    */
   removeGroupKeys(groupId: string): void {
-    const keysToRemove: string[] = []
+    const keysToRemove: string[] = [];
 
     for (const [mapKey, storedKey] of this.storedKeys) {
       if (storedKey.groupId === groupId) {
-        secureWipe(storedKey.chainKey)
+        secureWipe(storedKey.chainKey);
         for (const key of storedKey.skippedMessageKeys.values()) {
-          secureWipe(key)
+          secureWipe(key);
         }
-        keysToRemove.push(mapKey)
+        keysToRemove.push(mapKey);
       }
     }
 
     for (const mapKey of keysToRemove) {
-      this.storedKeys.delete(mapKey)
+      this.storedKeys.delete(mapKey);
     }
 
-    logger.debug('Group sender keys removed', { groupId, count: keysToRemove.length })
+    logger.debug("Group sender keys removed", {
+      groupId,
+      count: keysToRemove.length,
+    });
   }
 
   /**
    * Serializes all stored keys
    */
   serializeState(): SerializedStoredSenderKey[] {
-    const serialized: SerializedStoredSenderKey[] = []
+    const serialized: SerializedStoredSenderKey[] = [];
 
     for (const storedKey of this.storedKeys.values()) {
-      const skippedMessageKeys: Array<{ iteration: number; key: string }> = []
+      const skippedMessageKeys: Array<{ iteration: number; key: string }> = [];
       for (const [iteration, key] of storedKey.skippedMessageKeys) {
-        skippedMessageKeys.push({ iteration, key: bytesToBase64(key) })
+        skippedMessageKeys.push({ iteration, key: bytesToBase64(key) });
       }
 
       serialized.push({
@@ -971,22 +1039,22 @@ export class SenderKeyReceiver {
         senderUserId: storedKey.senderUserId,
         senderDeviceId: storedKey.senderDeviceId,
         receivedAt: storedKey.receivedAt,
-      })
+      });
     }
 
-    return serialized
+    return serialized;
   }
 
   /**
    * Deserializes stored keys
    */
   deserializeState(serialized: SerializedStoredSenderKey[]): void {
-    this.storedKeys.clear()
+    this.storedKeys.clear();
 
     for (const s of serialized) {
-      const skippedMessageKeys = new Map<number, Uint8Array>()
+      const skippedMessageKeys = new Map<number, Uint8Array>();
       for (const { iteration, key } of s.skippedMessageKeys) {
-        skippedMessageKeys.set(iteration, base64ToBytes(key))
+        skippedMessageKeys.set(iteration, base64ToBytes(key));
       }
 
       const storedKey: StoredSenderKey = {
@@ -999,13 +1067,20 @@ export class SenderKeyReceiver {
         senderUserId: s.senderUserId,
         senderDeviceId: s.senderDeviceId,
         receivedAt: s.receivedAt,
-      }
+      };
 
-      const mapKey = this.getMapKey(s.groupId, s.senderUserId, s.senderDeviceId, s.keyId)
-      this.storedKeys.set(mapKey, storedKey)
+      const mapKey = this.getMapKey(
+        s.groupId,
+        s.senderUserId,
+        s.senderDeviceId,
+        s.keyId,
+      );
+      this.storedKeys.set(mapKey, storedKey);
     }
 
-    logger.debug('Sender key receiver state deserialized', { keyCount: this.storedKeys.size })
+    logger.debug("Sender key receiver state deserialized", {
+      keyCount: this.storedKeys.size,
+    });
   }
 
   /**
@@ -1013,13 +1088,13 @@ export class SenderKeyReceiver {
    */
   destroy(): void {
     for (const storedKey of this.storedKeys.values()) {
-      secureWipe(storedKey.chainKey)
+      secureWipe(storedKey.chainKey);
       for (const key of storedKey.skippedMessageKeys.values()) {
-        secureWipe(key)
+        secureWipe(key);
       }
     }
-    this.storedKeys.clear()
-    logger.debug('Sender key receiver destroyed')
+    this.storedKeys.clear();
+    logger.debug("Sender key receiver destroyed");
   }
 }
 
@@ -1033,22 +1108,22 @@ export class SenderKeyReceiver {
 export async function createSenderKey(
   groupId: string,
   userId: string,
-  deviceId: string
+  deviceId: string,
 ): Promise<SenderKey> {
-  const senderKey = new SenderKey()
-  await senderKey.generate(groupId, userId, deviceId)
-  return senderKey
+  const senderKey = new SenderKey();
+  await senderKey.generate(groupId, userId, deviceId);
+  return senderKey;
 }
 
 /**
  * Creates a sender key receiver
  */
 export function createSenderKeyReceiver(): SenderKeyReceiver {
-  return new SenderKeyReceiver()
+  return new SenderKeyReceiver();
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export default SenderKey
+export default SenderKey;

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Screen Share Viewer Component
@@ -13,12 +13,12 @@
  * - Viewer controls
  */
 
-import * as React from 'react'
-import { useRef, useEffect, useState, useCallback, useMemo } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Slider } from '@/components/ui/slider'
+import * as React from "react";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,13 +28,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
 import {
   Monitor,
   Maximize,
@@ -56,8 +56,8 @@ import {
   Crosshair,
   Download,
   MousePointer,
-} from 'lucide-react'
-import type { ScreenFitMode, ScreenShare } from '@/lib/webrtc/screen-capture'
+} from "lucide-react";
+import type { ScreenFitMode, ScreenShare } from "@/lib/webrtc/screen-capture";
 
 // =============================================================================
 // Types
@@ -65,68 +65,68 @@ import type { ScreenFitMode, ScreenShare } from '@/lib/webrtc/screen-capture'
 
 export interface PresenterPointer {
   /** Normalized X position (0-1) */
-  x: number
+  x: number;
   /** Normalized Y position (0-1) */
-  y: number
+  y: number;
   /** Whether pointer is visible */
-  visible: boolean
+  visible: boolean;
   /** Pointer color */
-  color?: string
+  color?: string;
 }
 
 export interface ScreenShareViewerProps {
   /** Screen share data */
-  share: ScreenShare
+  share: ScreenShare;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Whether viewer is local user (has controls) */
-  isLocal?: boolean
+  isLocal?: boolean;
   /** Show presenter overlay */
-  showPresenterInfo?: boolean
+  showPresenterInfo?: boolean;
   /** Initial fit mode */
-  initialFitMode?: ScreenFitMode
+  initialFitMode?: ScreenFitMode;
   /** Initial zoom level (1 = 100%) */
-  initialZoom?: number
+  initialZoom?: number;
   /** Presenter pointer position (for follow mode) */
-  presenterPointer?: PresenterPointer
+  presenterPointer?: PresenterPointer;
   /** Whether to auto-follow presenter pointer */
-  followPresenter?: boolean
+  followPresenter?: boolean;
   /** Callback when viewer is closed */
-  onClose?: () => void
+  onClose?: () => void;
   /** Callback when stop sharing is clicked */
-  onStopSharing?: () => void
+  onStopSharing?: () => void;
   /** Callback when pause is toggled */
-  onPauseToggle?: () => void
+  onPauseToggle?: () => void;
   /** Callback when fit mode changes */
-  onFitModeChange?: (mode: ScreenFitMode) => void
+  onFitModeChange?: (mode: ScreenFitMode) => void;
   /** Callback when zoom changes */
-  onZoomChange?: (zoom: number) => void
+  onZoomChange?: (zoom: number) => void;
   /** Callback to open annotation mode */
-  onAnnotate?: () => void
+  onAnnotate?: () => void;
   /** Callback when follow presenter changes */
-  onFollowPresenterChange?: (follow: boolean) => void
+  onFollowPresenterChange?: (follow: boolean) => void;
 }
 
 const FIT_MODE_STYLES: Record<ScreenFitMode, string> = {
-  contain: 'object-contain',
-  cover: 'object-cover',
-  fill: 'object-fill',
-  none: 'object-none',
-}
+  contain: "object-contain",
+  cover: "object-cover",
+  fill: "object-fill",
+  none: "object-none",
+};
 
 const FIT_MODE_LABELS: Record<ScreenFitMode, string> = {
-  contain: 'Fit to window',
-  cover: 'Fill window',
-  fill: 'Stretch to fit',
-  none: 'Original size',
-}
+  contain: "Fit to window",
+  cover: "Fill window",
+  fill: "Stretch to fit",
+  none: "Original size",
+};
 
 const FIT_MODE_ICONS: Record<ScreenFitMode, React.ReactNode> = {
   contain: <RectangleHorizontal className="h-4 w-4" />,
   cover: <Maximize2 className="h-4 w-4" />,
   fill: <Square className="h-4 w-4" />,
   none: <Scan className="h-4 w-4" />,
-}
+};
 
 // =============================================================================
 // Component
@@ -137,7 +137,7 @@ export function ScreenShareViewer({
   className,
   isLocal = false,
   showPresenterInfo = true,
-  initialFitMode = 'contain',
+  initialFitMode = "contain",
   initialZoom = 1,
   presenterPointer,
   followPresenter: initialFollowPresenter = false,
@@ -149,25 +149,27 @@ export function ScreenShareViewer({
   onAnnotate,
   onFollowPresenterChange,
 }: ScreenShareViewerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isPiP, setIsPiP] = useState(false)
-  const [fitMode, setFitMode] = useState<ScreenFitMode>(initialFitMode)
-  const [isMuted, setIsMuted] = useState(false)
-  const [showControls, setShowControls] = useState(true)
-  const [videoError, setVideoError] = useState<string | null>(null)
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPiP, setIsPiP] = useState(false);
+  const [fitMode, setFitMode] = useState<ScreenFitMode>(initialFitMode);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Zoom state
-  const [zoom, setZoom] = useState(initialZoom)
-  const [followPresenter, setFollowPresenter] = useState(initialFollowPresenter)
+  const [zoom, setZoom] = useState(initialZoom);
+  const [followPresenter, setFollowPresenter] = useState(
+    initialFollowPresenter,
+  );
 
   // Drag state for panning
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
 
   // ==========================================================================
   // Attach stream to video element
@@ -175,10 +177,10 @@ export function ScreenShareViewer({
 
   useEffect(() => {
     if (videoRef.current && share.stream) {
-      videoRef.current.srcObject = share.stream
-      setVideoError(null)
+      videoRef.current.srcObject = share.stream;
+      setVideoError(null);
     }
-  }, [share.stream])
+  }, [share.stream]);
 
   // ==========================================================================
   // Auto-hide controls
@@ -186,32 +188,32 @@ export function ScreenShareViewer({
 
   const resetControlsTimeout = useCallback(() => {
     if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current)
+      clearTimeout(controlsTimeoutRef.current);
     }
-    setShowControls(true)
+    setShowControls(true);
     controlsTimeoutRef.current = setTimeout(() => {
-      setShowControls(false)
-    }, 3000)
-  }, [])
+      setShowControls(false);
+    }, 3000);
+  }, []);
 
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
-    const handleMouseMove = () => resetControlsTimeout()
-    const handleMouseLeave = () => setShowControls(false)
+    const handleMouseMove = () => resetControlsTimeout();
+    const handleMouseLeave = () => setShowControls(false);
 
-    container.addEventListener('mousemove', handleMouseMove)
-    container.addEventListener('mouseleave', handleMouseLeave)
+    container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      container.removeEventListener('mousemove', handleMouseMove)
-      container.removeEventListener('mouseleave', handleMouseLeave)
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", handleMouseLeave);
       if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
+        clearTimeout(controlsTimeoutRef.current);
       }
-    }
-  }, [resetControlsTimeout])
+    };
+  }, [resetControlsTimeout]);
 
   // ==========================================================================
   // Zoom handling
@@ -219,199 +221,205 @@ export function ScreenShareViewer({
 
   const handleZoomIn = useCallback(() => {
     setZoom((prev) => {
-      const newZoom = Math.min(prev + 0.25, 4)
-      onZoomChange?.(newZoom)
-      return newZoom
-    })
-  }, [onZoomChange])
+      const newZoom = Math.min(prev + 0.25, 4);
+      onZoomChange?.(newZoom);
+      return newZoom;
+    });
+  }, [onZoomChange]);
 
   const handleZoomOut = useCallback(() => {
     setZoom((prev) => {
-      const newZoom = Math.max(prev - 0.25, 0.25)
-      onZoomChange?.(newZoom)
-      return newZoom
-    })
-  }, [onZoomChange])
+      const newZoom = Math.max(prev - 0.25, 0.25);
+      onZoomChange?.(newZoom);
+      return newZoom;
+    });
+  }, [onZoomChange]);
 
   const handleZoomChange = useCallback(
     (value: number[]) => {
-      const newZoom = value[0]
-      setZoom(newZoom)
-      onZoomChange?.(newZoom)
+      const newZoom = value[0];
+      setZoom(newZoom);
+      onZoomChange?.(newZoom);
     },
-    [onZoomChange]
-  )
+    [onZoomChange],
+  );
 
   const handleResetZoom = useCallback(() => {
-    setZoom(1)
-    onZoomChange?.(1)
-  }, [onZoomChange])
+    setZoom(1);
+    onZoomChange?.(1);
+  }, [onZoomChange]);
 
   // Drag to pan when zoomed
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (zoom <= 1 || fitMode !== 'none') return
+      if (zoom <= 1 || fitMode !== "none") return;
 
-      setIsDragging(true)
-      setDragStart({ x: e.clientX, y: e.clientY })
+      setIsDragging(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
       setScrollStart({
         x: scrollContainerRef.current?.scrollLeft ?? 0,
         y: scrollContainerRef.current?.scrollTop ?? 0,
-      })
+      });
     },
-    [zoom, fitMode]
-  )
+    [zoom, fitMode],
+  );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!isDragging || !scrollContainerRef.current) return
+      if (!isDragging || !scrollContainerRef.current) return;
 
-      const dx = e.clientX - dragStart.x
-      const dy = e.clientY - dragStart.y
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
 
-      scrollContainerRef.current.scrollLeft = scrollStart.x - dx
-      scrollContainerRef.current.scrollTop = scrollStart.y - dy
+      scrollContainerRef.current.scrollLeft = scrollStart.x - dx;
+      scrollContainerRef.current.scrollTop = scrollStart.y - dy;
     },
-    [isDragging, dragStart, scrollStart]
-  )
+    [isDragging, dragStart, scrollStart],
+  );
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+    setIsDragging(false);
+  }, []);
 
   // Follow presenter pointer
   const handleToggleFollowPresenter = useCallback(() => {
     setFollowPresenter((prev) => {
-      const newFollow = !prev
-      onFollowPresenterChange?.(newFollow)
-      return newFollow
-    })
-  }, [onFollowPresenterChange])
+      const newFollow = !prev;
+      onFollowPresenterChange?.(newFollow);
+      return newFollow;
+    });
+  }, [onFollowPresenterChange]);
 
   // Auto-scroll to follow presenter pointer
   useEffect(() => {
-    if (!followPresenter || !presenterPointer?.visible || !scrollContainerRef.current) return
+    if (
+      !followPresenter ||
+      !presenterPointer?.visible ||
+      !scrollContainerRef.current
+    )
+      return;
 
-    const container = scrollContainerRef.current
-    const { x, y } = presenterPointer
+    const container = scrollContainerRef.current;
+    const { x, y } = presenterPointer;
 
     // Calculate target scroll position to center on pointer
-    const targetX = x * container.scrollWidth - container.clientWidth / 2
-    const targetY = y * container.scrollHeight - container.clientHeight / 2
+    const targetX = x * container.scrollWidth - container.clientWidth / 2;
+    const targetY = y * container.scrollHeight - container.clientHeight / 2;
 
     container.scrollTo({
       left: Math.max(0, targetX),
       top: Math.max(0, targetY),
-      behavior: 'smooth',
-    })
-  }, [followPresenter, presenterPointer])
+      behavior: "smooth",
+    });
+  }, [followPresenter, presenterPointer]);
 
   // Save snapshot functionality
   const handleSaveSnapshot = useCallback(() => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
-    const canvas = document.createElement('canvas')
-    canvas.width = videoRef.current.videoWidth
-    canvas.height = videoRef.current.videoHeight
+    const canvas = document.createElement("canvas");
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    ctx.drawImage(videoRef.current, 0, 0)
+    ctx.drawImage(videoRef.current, 0, 0);
 
-    const link = document.createElement('a')
-    link.download = `screen-share-${share.userName}-${Date.now()}.png`
-    link.href = canvas.toDataURL('image/png')
-    link.click()
-  }, [share.userName])
+    const link = document.createElement("a");
+    link.download = `screen-share-${share.userName}-${Date.now()}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }, [share.userName]);
 
   // Compute video style based on fit mode and zoom
   const videoStyle = useMemo(() => {
-    if (fitMode === 'none' && zoom !== 1) {
+    if (fitMode === "none" && zoom !== 1) {
       return {
         transform: `scale(${zoom})`,
-        transformOrigin: 'top left',
-        width: 'auto',
-        height: 'auto',
-      }
+        transformOrigin: "top left",
+        width: "auto",
+        height: "auto",
+      };
     }
-    return {}
-  }, [fitMode, zoom])
+    return {};
+  }, [fitMode, zoom]);
 
   // ==========================================================================
   // Fullscreen handling
   // ==========================================================================
 
   const toggleFullscreen = async () => {
-    if (!containerRef.current) return
+    if (!containerRef.current) return;
 
     try {
       if (!isFullscreen) {
-        await containerRef.current.requestFullscreen()
+        await containerRef.current.requestFullscreen();
       } else {
-        await document.exitFullscreen()
+        await document.exitFullscreen();
       }
     } catch (error) {
-      console.error('Fullscreen error:', error)
+      console.error("Fullscreen error:", error);
     }
-  }
+  };
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+      setIsFullscreen(!!document.fullscreenElement);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // ==========================================================================
   // Picture-in-Picture handling
   // ==========================================================================
 
   const togglePiP = async () => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
     try {
       if (!isPiP) {
-        await videoRef.current.requestPictureInPicture()
+        await videoRef.current.requestPictureInPicture();
       } else {
-        await document.exitPictureInPicture()
+        await document.exitPictureInPicture();
       }
     } catch (error) {
-      console.error('PiP error:', error)
+      console.error("PiP error:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
-    const handleEnterPiP = () => setIsPiP(true)
-    const handleLeavePiP = () => setIsPiP(false)
+    const handleEnterPiP = () => setIsPiP(true);
+    const handleLeavePiP = () => setIsPiP(false);
 
-    video.addEventListener('enterpictureinpicture', handleEnterPiP)
-    video.addEventListener('leavepictureinpicture', handleLeavePiP)
+    video.addEventListener("enterpictureinpicture", handleEnterPiP);
+    video.addEventListener("leavepictureinpicture", handleLeavePiP);
 
     return () => {
-      video.removeEventListener('enterpictureinpicture', handleEnterPiP)
-      video.removeEventListener('leavepictureinpicture', handleLeavePiP)
-    }
-  }, [])
+      video.removeEventListener("enterpictureinpicture", handleEnterPiP);
+      video.removeEventListener("leavepictureinpicture", handleLeavePiP);
+    };
+  }, []);
 
   const isPiPSupported =
-    typeof document !== 'undefined' && 'pictureInPictureEnabled' in document
+    typeof document !== "undefined" && "pictureInPictureEnabled" in document
       ? document.pictureInPictureEnabled
-      : false
+      : false;
 
   // ==========================================================================
   // Fit mode handling
   // ==========================================================================
 
   const handleFitModeChange = (mode: ScreenFitMode) => {
-    setFitMode(mode)
-    onFitModeChange?.(mode)
-  }
+    setFitMode(mode);
+    onFitModeChange?.(mode);
+  };
 
   // ==========================================================================
   // Audio handling
@@ -419,19 +427,19 @@ export function ScreenShareViewer({
 
   const toggleMute = () => {
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted
-      setIsMuted(!isMuted)
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
     }
-  }
+  };
 
   // ==========================================================================
   // Video error handling
   // ==========================================================================
 
   const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    console.error('Video error:', e)
-    setVideoError('Failed to load screen share')
-  }
+    console.error("Video error:", e);
+    setVideoError("Failed to load screen share");
+  };
 
   // ==========================================================================
   // Keyboard shortcuts
@@ -439,39 +447,43 @@ export function ScreenShareViewer({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      )
+        return;
 
       switch (e.key) {
-        case 'f':
-        case 'F':
-          e.preventDefault()
-          toggleFullscreen()
-          break
-        case 'p':
-        case 'P':
+        case "f":
+        case "F":
+          e.preventDefault();
+          toggleFullscreen();
+          break;
+        case "p":
+        case "P":
           if (isPiPSupported) {
-            e.preventDefault()
-            togglePiP()
+            e.preventDefault();
+            togglePiP();
           }
-          break
-        case 'm':
-        case 'M':
+          break;
+        case "m":
+        case "M":
           if (share.hasAudio) {
-            e.preventDefault()
-            toggleMute()
+            e.preventDefault();
+            toggleMute();
           }
-          break
-        case 'Escape':
+          break;
+        case "Escape":
           if (isFullscreen) {
-            document.exitFullscreen()
+            document.exitFullscreen();
           }
-          break
+          break;
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isPiPSupported, share.hasAudio, isFullscreen])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPiPSupported, share.hasAudio, isFullscreen]);
 
   // ==========================================================================
   // Render
@@ -481,18 +493,18 @@ export function ScreenShareViewer({
     <div
       ref={containerRef}
       className={cn(
-        'relative h-full w-full overflow-hidden bg-black',
-        isFullscreen && 'fixed inset-0 z-50',
-        className
+        "relative h-full w-full overflow-hidden bg-black",
+        isFullscreen && "fixed inset-0 z-50",
+        className,
       )}
     >
       {/* Video Container with Scroll for Zoom */}
       <div
         ref={scrollContainerRef}
         className={cn(
-          'h-full w-full overflow-auto',
-          zoom > 1 && fitMode === 'none' && 'cursor-grab',
-          isDragging && 'cursor-grabbing'
+          "h-full w-full overflow-auto",
+          zoom > 1 && fitMode === "none" && "cursor-grab",
+          isDragging && "cursor-grabbing",
         )}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -509,8 +521,8 @@ export function ScreenShareViewer({
               size="sm"
               onClick={() => {
                 if (videoRef.current && share.stream) {
-                  videoRef.current.srcObject = share.stream
-                  setVideoError(null)
+                  videoRef.current.srcObject = share.stream;
+                  setVideoError(null);
                 }
               }}
               className="mt-4"
@@ -527,7 +539,7 @@ export function ScreenShareViewer({
             muted={isMuted || !share.hasAudio}
             onError={handleVideoError}
             style={videoStyle}
-            className={cn('h-full w-full', FIT_MODE_STYLES[fitMode])}
+            className={cn("h-full w-full", FIT_MODE_STYLES[fitMode])}
           />
         )}
 
@@ -538,12 +550,12 @@ export function ScreenShareViewer({
             style={{
               left: `${presenterPointer.x * 100}%`,
               top: `${presenterPointer.y * 100}%`,
-              transform: 'translate(-50%, -50%)',
+              transform: "translate(-50%, -50%)",
             }}
           >
             <div
               className="h-6 w-6 animate-pulse rounded-full border-2 border-white shadow-lg"
-              style={{ backgroundColor: presenterPointer.color ?? '#ff0000' }}
+              style={{ backgroundColor: presenterPointer.color ?? "#ff0000" }}
             />
           </div>
         )}
@@ -556,7 +568,11 @@ export function ScreenShareViewer({
             <Pause className="mx-auto mb-4 h-16 w-16" />
             <p className="text-lg font-medium">Screen share paused</p>
             {isLocal && (
-              <Button variant="outline" onClick={onPauseToggle} className="mt-4">
+              <Button
+                variant="outline"
+                onClick={onPauseToggle}
+                className="mt-4"
+              >
                 <Play className="mr-2 h-4 w-4" />
                 Resume
               </Button>
@@ -568,8 +584,8 @@ export function ScreenShareViewer({
       {/* Controls Overlay */}
       <div
         className={cn(
-          'absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300',
-          showControls ? 'opacity-100' : 'pointer-events-none opacity-0'
+          "absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300",
+          showControls ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       >
         <div className="flex items-center justify-between">
@@ -580,11 +596,17 @@ export function ScreenShareViewer({
                 <Monitor className="mr-1 h-3 w-3" />
                 {share.userName} is presenting
               </Badge>
-              <Badge variant="outline" className="border-gray-600 text-gray-300">
+              <Badge
+                variant="outline"
+                className="border-gray-600 text-gray-300"
+              >
                 {share.type}
               </Badge>
               {share.hasAudio && (
-                <Badge variant="outline" className="border-gray-600 text-gray-300">
+                <Badge
+                  variant="outline"
+                  className="border-gray-600 text-gray-300"
+                >
                   <Volume2 className="mr-1 h-3 w-3" />
                   Audio
                 </Badge>
@@ -654,16 +676,20 @@ export function ScreenShareViewer({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant={followPresenter ? 'secondary' : 'ghost'}
+                      variant={followPresenter ? "secondary" : "ghost"}
                       size="icon"
                       onClick={handleToggleFollowPresenter}
-                      className={cn(!followPresenter && 'text-white hover:bg-white/20')}
+                      className={cn(
+                        !followPresenter && "text-white hover:bg-white/20",
+                      )}
                     >
                       <Crosshair className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {followPresenter ? 'Stop Following Presenter' : 'Follow Presenter'}
+                    {followPresenter
+                      ? "Stop Following Presenter"
+                      : "Follow Presenter"}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -679,9 +705,13 @@ export function ScreenShareViewer({
                 size="icon"
                 onClick={toggleMute}
                 className="text-white hover:bg-white/20"
-                title={isMuted ? 'Unmute (M)' : 'Mute (M)'}
+                title={isMuted ? "Unmute (M)" : "Mute (M)"}
               >
-                {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                {isMuted ? (
+                  <VolumeX className="h-5 w-5" />
+                ) : (
+                  <Volume2 className="h-5 w-5" />
+                )}
               </Button>
             )}
 
@@ -742,7 +772,9 @@ export function ScreenShareViewer({
                 >
                   {Object.entries(FIT_MODE_LABELS).map(([mode, label]) => (
                     <DropdownMenuRadioItem key={mode} value={mode}>
-                      <span className="mr-2">{FIT_MODE_ICONS[mode as ScreenFitMode]}</span>
+                      <span className="mr-2">
+                        {FIT_MODE_ICONS[mode as ScreenFitMode]}
+                      </span>
                       {label}
                     </DropdownMenuRadioItem>
                   ))}
@@ -757,9 +789,15 @@ export function ScreenShareViewer({
                 size="icon"
                 onClick={togglePiP}
                 className="text-white hover:bg-white/20"
-                title={isPiP ? 'Exit Picture-in-Picture (P)' : 'Picture-in-Picture (P)'}
+                title={
+                  isPiP
+                    ? "Exit Picture-in-Picture (P)"
+                    : "Picture-in-Picture (P)"
+                }
               >
-                <PictureInPicture2 className={cn('h-5 w-5', isPiP && 'text-blue-400')} />
+                <PictureInPicture2
+                  className={cn("h-5 w-5", isPiP && "text-blue-400")}
+                />
               </Button>
             )}
 
@@ -769,9 +807,13 @@ export function ScreenShareViewer({
               size="icon"
               onClick={toggleFullscreen}
               className="text-white hover:bg-white/20"
-              title={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
+              title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
             >
-              {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+              {isFullscreen ? (
+                <Minimize className="h-5 w-5" />
+              ) : (
+                <Maximize className="h-5 w-5" />
+              )}
             </Button>
 
             {/* Local controls */}
@@ -783,9 +825,13 @@ export function ScreenShareViewer({
                   size="icon"
                   onClick={onPauseToggle}
                   className="text-white hover:bg-white/20"
-                  title={share.isPaused ? 'Resume sharing' : 'Pause sharing'}
+                  title={share.isPaused ? "Resume sharing" : "Pause sharing"}
                 >
-                  {share.isPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+                  {share.isPaused ? (
+                    <Play className="h-5 w-5" />
+                  ) : (
+                    <Pause className="h-5 w-5" />
+                  )}
                 </Button>
 
                 {/* Stop sharing */}
@@ -815,11 +861,14 @@ export function ScreenShareViewer({
       {/* Top-right: Quality Badge */}
       <div
         className={cn(
-          'absolute right-4 top-4 transition-opacity duration-300',
-          showControls ? 'opacity-100' : 'opacity-0'
+          "absolute right-4 top-4 transition-opacity duration-300",
+          showControls ? "opacity-100" : "opacity-0",
         )}
       >
-        <Badge variant="outline" className="border-gray-600 bg-black/50 text-gray-300">
+        <Badge
+          variant="outline"
+          className="border-gray-600 bg-black/50 text-gray-300"
+        >
           {share.quality.toUpperCase()} @ {share.frameRate}fps
         </Badge>
       </div>
@@ -827,8 +876,8 @@ export function ScreenShareViewer({
       {/* Keyboard shortcuts hint */}
       {showControls && isFullscreen && (
         <div className="absolute left-4 top-4 text-xs text-gray-400">
-          <kbd className="rounded bg-gray-700 px-1">F</kbd> Fullscreen{' '}
-          <kbd className="ml-2 rounded bg-gray-700 px-1">P</kbd> PiP{' '}
+          <kbd className="rounded bg-gray-700 px-1">F</kbd> Fullscreen{" "}
+          <kbd className="ml-2 rounded bg-gray-700 px-1">P</kbd> PiP{" "}
           {share.hasAudio && (
             <>
               <kbd className="ml-2 rounded bg-gray-700 px-1">M</kbd> Mute
@@ -837,7 +886,7 @@ export function ScreenShareViewer({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default ScreenShareViewer
+export default ScreenShareViewer;

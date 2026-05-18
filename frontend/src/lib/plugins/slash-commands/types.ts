@@ -6,7 +6,7 @@
  * the user-facing slash command infrastructure.
  */
 
-import type { AppScope } from '../app-contract'
+import type { AppScope } from "../app-contract";
 
 // ============================================================================
 // USER ROLES
@@ -15,7 +15,7 @@ import type { AppScope } from '../app-contract'
 /**
  * User roles with hierarchical ordering.
  */
-export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+export type UserRole = "owner" | "admin" | "moderator" | "member" | "guest";
 
 /**
  * Numeric hierarchy for role comparison. Higher = more privileged.
@@ -26,13 +26,16 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
   moderator: 2,
   admin: 3,
   owner: 4,
-}
+};
 
 /**
  * Check whether a role meets a minimum role requirement.
  */
-export function meetsRoleRequirement(userRole: UserRole, minRole: UserRole): boolean {
-  return (ROLE_HIERARCHY[userRole] ?? 0) >= (ROLE_HIERARCHY[minRole] ?? 0)
+export function meetsRoleRequirement(
+  userRole: UserRole,
+  minRole: UserRole,
+): boolean {
+  return (ROLE_HIERARCHY[userRole] ?? 0) >= (ROLE_HIERARCHY[minRole] ?? 0);
 }
 
 // ============================================================================
@@ -42,39 +45,44 @@ export function meetsRoleRequirement(userRole: UserRole, minRole: UserRole): boo
 /**
  * Supported argument types for plugin commands.
  */
-export type PluginArgType = 'string' | 'number' | 'boolean' | 'user' | 'channel'
+export type PluginArgType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "user"
+  | "channel";
 
 /**
  * Runtime argument value (parsed from user input).
  */
-export type PluginArgValue = string | number | boolean | undefined
+export type PluginArgValue = string | number | boolean | undefined;
 
 /**
  * Schema definition for a single command argument.
  */
 export interface PluginArgSchema {
   /** Argument name (used as key in parsed output) */
-  name: string
+  name: string;
   /** Display description */
-  description: string
+  description: string;
   /** Argument type */
-  type: PluginArgType
+  type: PluginArgType;
   /** Whether this argument is required */
-  required: boolean
+  required: boolean;
   /** Default value when not provided */
-  default?: PluginArgValue
+  default?: PluginArgValue;
   /** Minimum value for numbers */
-  min?: number
+  min?: number;
   /** Maximum value for numbers */
-  max?: number
+  max?: number;
   /** Minimum length for strings */
-  minLength?: number
+  minLength?: number;
   /** Maximum length for strings */
-  maxLength?: number
+  maxLength?: number;
   /** Regex pattern for strings */
-  pattern?: string
+  pattern?: string;
   /** Allowed values (enum-style) */
-  choices?: string[]
+  choices?: string[];
 }
 
 // ============================================================================
@@ -84,40 +92,40 @@ export interface PluginArgSchema {
 /**
  * Channel types where a command may be used.
  */
-export type ChannelType = 'public' | 'private' | 'direct' | 'group'
+export type ChannelType = "public" | "private" | "direct" | "group";
 
 /**
  * Full plugin command definition.
  */
 export interface PluginCommand {
   /** Unique command ID (auto-generated) */
-  id: string
+  id: string;
   /** App ID that owns this command (empty for built-in) */
-  appId: string
+  appId: string;
   /** Command name (what the user types after /) */
-  name: string
+  name: string;
   /** Fully-qualified name (appId:name for app commands, plain name for built-in) */
-  qualifiedName: string
+  qualifiedName: string;
   /** Short description shown in autocomplete */
-  description: string
+  description: string;
   /** Detailed help text */
-  helpText?: string
+  helpText?: string;
   /** Usage example */
-  usage?: string
+  usage?: string;
   /** Argument schema */
-  args: PluginArgSchema[]
+  args: PluginArgSchema[];
   /** Required user role */
-  requiredRole: UserRole
+  requiredRole: UserRole;
   /** Required app scopes (only for app commands) */
-  requiredScopes: AppScope[]
+  requiredScopes: AppScope[];
   /** Allowed channel types */
-  allowedChannelTypes: ChannelType[]
+  allowedChannelTypes: ChannelType[];
   /** Whether command is a built-in system command */
-  isBuiltIn: boolean
+  isBuiltIn: boolean;
   /** Whether command is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Command handler function */
-  handler: CommandHandler
+  handler: CommandHandler;
 }
 
 // ============================================================================
@@ -130,25 +138,25 @@ export interface PluginCommand {
  */
 export interface CommandExecutionContext {
   /** User who invoked the command */
-  userId: string
+  userId: string;
   /** User's display name */
-  username: string
+  username: string;
   /** User's role */
-  userRole: UserRole
+  userRole: UserRole;
   /** Channel where command was invoked */
-  channelId: string
+  channelId: string;
   /** Channel type */
-  channelType: ChannelType
+  channelType: ChannelType;
   /** App ID (for app commands) */
-  appId?: string
+  appId?: string;
   /** Granted scopes (for app commands) */
-  grantedScopes: AppScope[]
+  grantedScopes: AppScope[];
   /** Parsed arguments keyed by name */
-  args: Record<string, PluginArgValue>
+  args: Record<string, PluginArgValue>;
   /** Raw input text */
-  rawInput: string
+  rawInput: string;
   /** Execution timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -158,28 +166,30 @@ export interface CommandExecutionContext {
 /**
  * Visibility modes for command responses.
  */
-export type ResponseVisibility = 'ephemeral' | 'channel' | 'none'
+export type ResponseVisibility = "ephemeral" | "channel" | "none";
 
 /**
  * Result returned by command handlers.
  */
 export interface CommandHandlerResult {
   /** Whether execution succeeded */
-  success: boolean
+  success: boolean;
   /** Response message */
-  message?: string
+  message?: string;
   /** Response visibility */
-  visibility?: ResponseVisibility
+  visibility?: ResponseVisibility;
   /** Arbitrary data payload */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
   /** Error message (when success = false) */
-  error?: string
+  error?: string;
 }
 
 /**
  * Command handler function signature.
  */
-export type CommandHandler = (ctx: CommandExecutionContext) => Promise<CommandHandlerResult>
+export type CommandHandler = (
+  ctx: CommandExecutionContext,
+) => Promise<CommandHandlerResult>;
 
 // ============================================================================
 // PARSE RESULT
@@ -190,23 +200,23 @@ export type CommandHandler = (ctx: CommandExecutionContext) => Promise<CommandHa
  */
 export interface ParseResult {
   /** Whether parsing succeeded */
-  success: boolean
+  success: boolean;
   /** Qualified command name (or raw trigger if not found) */
-  commandName: string
+  commandName: string;
   /** Whether the command uses a namespace prefix (e.g., myapp:cmd) */
-  isNamespaced: boolean
+  isNamespaced: boolean;
   /** App namespace (empty string for built-in) */
-  namespace: string
+  namespace: string;
   /** Bare command name without namespace */
-  bareName: string
+  bareName: string;
   /** Parsed argument values keyed by name */
-  args: Record<string, PluginArgValue>
+  args: Record<string, PluginArgValue>;
   /** Raw argument tokens */
-  rawArgs: string[]
+  rawArgs: string[];
   /** Raw input after the command trigger */
-  rawInput: string
+  rawInput: string;
   /** Parse errors */
-  errors: ParseError[]
+  errors: ParseError[];
 }
 
 /**
@@ -214,11 +224,16 @@ export interface ParseResult {
  */
 export interface ParseError {
   /** Error type */
-  type: 'missing_required' | 'invalid_type' | 'validation_failed' | 'unknown_argument' | 'parse_error'
+  type:
+    | "missing_required"
+    | "invalid_type"
+    | "validation_failed"
+    | "unknown_argument"
+    | "parse_error";
   /** Argument name that caused the error */
-  argument?: string
+  argument?: string;
   /** Human-readable message */
-  message: string
+  message: string;
 }
 
 // ============================================================================
@@ -230,11 +245,16 @@ export interface ParseError {
  */
 export interface PermissionCheckResult {
   /** Whether the user is allowed */
-  allowed: boolean
+  allowed: boolean;
   /** Denial reason (when allowed = false) */
-  reason?: string
+  reason?: string;
   /** Error code */
-  code?: 'ROLE_INSUFFICIENT' | 'SCOPE_INSUFFICIENT' | 'CHANNEL_DENIED' | 'COMMAND_DISABLED' | 'RATE_LIMITED'
+  code?:
+    | "ROLE_INSUFFICIENT"
+    | "SCOPE_INSUFFICIENT"
+    | "CHANNEL_DENIED"
+    | "COMMAND_DISABLED"
+    | "RATE_LIMITED";
 }
 
 // ============================================================================
@@ -246,11 +266,11 @@ export interface PermissionCheckResult {
  */
 export interface PluginCommandSuggestion {
   /** The command */
-  command: PluginCommand
+  command: PluginCommand;
   /** Match score (higher = better) */
-  score: number
+  score: number;
   /** Human-readable label (e.g., "/myapp:deploy") */
-  label: string
+  label: string;
 }
 
 // ============================================================================
@@ -263,13 +283,13 @@ export interface PluginCommandSuggestion {
  */
 export interface ExecutionResult {
   /** Whether the whole pipeline succeeded */
-  success: boolean
+  success: boolean;
   /** The handler's result (if execution was reached) */
-  handlerResult?: CommandHandlerResult
+  handlerResult?: CommandHandlerResult;
   /** Error message (if failed before or during execution) */
-  error?: string
+  error?: string;
   /** Error code */
-  code?: string
+  code?: string;
   /** How long execution took in ms */
-  durationMs: number
+  durationMs: number;
 }

@@ -5,33 +5,33 @@
  * Connects via WebSocket to the Hasura GraphQL backend.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   MESSAGE_FULL_FRAGMENT,
   MESSAGE_BASIC_FRAGMENT,
   USER_BASIC_FRAGMENT,
   REACTION_FRAGMENT,
-} from '../fragments'
+} from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface MessageSubscriptionVariables {
-  channelId: string
+  channelId: string;
 }
 
 export interface ThreadSubscriptionVariables {
-  threadId: string
+  threadId: string;
 }
 
 export interface TypingSubscriptionVariables {
-  channelId: string
+  channelId: string;
 }
 
 export interface ReactionsSubscriptionVariables {
-  messageId?: string
-  channelId?: string
+  messageId?: string;
+  channelId?: string;
 }
 
 // ============================================================================
@@ -57,13 +57,16 @@ export const MESSAGE_SUBSCRIPTION = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to all messages in a channel (for full sync)
  */
 export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
-  subscription ChannelMessagesSubscription($channelId: uuid!, $limit: Int = 50) {
+  subscription ChannelMessagesSubscription(
+    $channelId: uuid!
+    $limit: Int = 50
+  ) {
     nchat_messages(
       where: {
         channel_id: { _eq: $channelId }
@@ -77,7 +80,7 @@ export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to message updates (edits) in a channel
@@ -100,7 +103,7 @@ export const MESSAGE_UPDATED_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to message deletions in a channel
@@ -118,7 +121,7 @@ export const MESSAGE_DELETED_SUBSCRIPTION = gql`
       thread_id
     }
   }
-`
+`;
 
 /**
  * Subscribe to all message activity using Hasura streaming
@@ -171,7 +174,7 @@ export const MESSAGE_STREAM_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // THREAD SUBSCRIPTIONS
@@ -191,7 +194,7 @@ export const THREAD_MESSAGES_SUBSCRIPTION = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to thread updates (message count, last reply, etc.)
@@ -214,7 +217,7 @@ export const THREAD_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // REACTION SUBSCRIPTIONS
@@ -225,7 +228,10 @@ export const THREAD_SUBSCRIPTION = gql`
  */
 export const MESSAGE_REACTIONS_SUBSCRIPTION = gql`
   subscription MessageReactionsSubscription($messageId: uuid!) {
-    nchat_reactions(where: { message_id: { _eq: $messageId } }, order_by: { created_at: asc }) {
+    nchat_reactions(
+      where: { message_id: { _eq: $messageId } }
+      order_by: { created_at: asc }
+    ) {
       id
       emoji
       user_id
@@ -236,7 +242,7 @@ export const MESSAGE_REACTIONS_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to reaction changes in a channel (for all messages)
@@ -259,7 +265,7 @@ export const CHANNEL_REACTIONS_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // TYPING INDICATOR SUBSCRIPTIONS
@@ -288,7 +294,7 @@ export const TYPING_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to typing indicators in a thread
@@ -296,7 +302,10 @@ export const TYPING_SUBSCRIPTION = gql`
 export const THREAD_TYPING_SUBSCRIPTION = gql`
   subscription ThreadTypingSubscription($threadId: uuid!) {
     nchat_typing_indicators(
-      where: { thread_id: { _eq: $threadId }, started_at: { _gt: "now() - interval '5 seconds'" } }
+      where: {
+        thread_id: { _eq: $threadId }
+        started_at: { _gt: "now() - interval '5 seconds'" }
+      }
       order_by: { started_at: desc }
     ) {
       id
@@ -309,7 +318,7 @@ export const THREAD_TYPING_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // PINNED MESSAGES SUBSCRIPTION
@@ -342,7 +351,7 @@ export const PINNED_MESSAGES_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // READ STATE SUBSCRIPTION
@@ -365,4 +374,4 @@ export const READ_RECEIPTS_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;

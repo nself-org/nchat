@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MediaGrid - Grid layout for media items with infinite scroll
@@ -6,37 +6,43 @@
  * Supports grid, list, and masonry view modes with virtualization support.
  */
 
-import * as React from 'react'
-import { useCallback, useRef, useEffect } from 'react'
-import { useInView } from 'react-intersection-observer'
-import { cn } from '@/lib/utils'
-import { MediaItem as MediaItemType, MediaViewMode } from '@/lib/media/media-types'
-import { calculateGridLayout, GalleryLayoutConfig } from '@/lib/media/media-gallery'
-import { MediaItem } from './MediaItem'
-import { GalleryEmpty } from './GalleryEmpty'
-import { GalleryLoading } from './GalleryLoading'
+import * as React from "react";
+import { useCallback, useRef, useEffect } from "react";
+import { useInView } from "react-intersection-observer";
+import { cn } from "@/lib/utils";
+import {
+  MediaItem as MediaItemType,
+  MediaViewMode,
+} from "@/lib/media/media-types";
+import {
+  calculateGridLayout,
+  GalleryLayoutConfig,
+} from "@/lib/media/media-gallery";
+import { MediaItem } from "./MediaItem";
+import { GalleryEmpty } from "./GalleryEmpty";
+import { GalleryLoading } from "./GalleryLoading";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface MediaGridProps {
-  items: MediaItemType[]
-  viewMode?: MediaViewMode
-  isLoading?: boolean
-  isLoadingMore?: boolean
-  hasMore?: boolean
-  selectedItems?: Set<string>
-  isSelectMode?: boolean
-  showItemInfo?: boolean
-  onItemClick?: (item: MediaItemType) => void
-  onItemSelect?: (item: MediaItemType) => void
-  onItemDoubleClick?: (item: MediaItemType) => void
-  onLoadMore?: () => void
-  emptyMessage?: string
-  emptyDescription?: string
-  className?: string
-  gap?: number
+  items: MediaItemType[];
+  viewMode?: MediaViewMode;
+  isLoading?: boolean;
+  isLoadingMore?: boolean;
+  hasMore?: boolean;
+  selectedItems?: Set<string>;
+  isSelectMode?: boolean;
+  showItemInfo?: boolean;
+  onItemClick?: (item: MediaItemType) => void;
+  onItemSelect?: (item: MediaItemType) => void;
+  onItemDoubleClick?: (item: MediaItemType) => void;
+  onLoadMore?: () => void;
+  emptyMessage?: string;
+  emptyDescription?: string;
+  className?: string;
+  gap?: number;
 }
 
 // ============================================================================
@@ -45,7 +51,7 @@ export interface MediaGridProps {
 
 export function MediaGrid({
   items,
-  viewMode = 'grid',
+  viewMode = "grid",
   isLoading = false,
   isLoadingMore = false,
   hasMore = false,
@@ -61,94 +67,96 @@ export function MediaGrid({
   className,
   gap = 8,
 }: MediaGridProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [containerWidth, setContainerWidth] = React.useState(0)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = React.useState(0);
 
   // Infinite scroll trigger
   const { ref: loadMoreRef, inView } = useInView({
     threshold: 0,
-    rootMargin: '100px',
-  })
+    rootMargin: "100px",
+  });
 
   // Handle container resize
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        setContainerWidth(entry.contentRect.width)
+        setContainerWidth(entry.contentRect.width);
       }
-    })
+    });
 
-    resizeObserver.observe(container)
-    setContainerWidth(container.offsetWidth)
+    resizeObserver.observe(container);
+    setContainerWidth(container.offsetWidth);
 
-    return () => resizeObserver.disconnect()
-  }, [])
+    return () => resizeObserver.disconnect();
+  }, []);
 
   // Trigger load more when in view
   useEffect(() => {
     if (inView && hasMore && !isLoadingMore && onLoadMore) {
-      onLoadMore()
+      onLoadMore();
     }
-  }, [inView, hasMore, isLoadingMore, onLoadMore])
+  }, [inView, hasMore, isLoadingMore, onLoadMore]);
 
   // Calculate layout
   const layout: GalleryLayoutConfig = React.useMemo(() => {
-    return calculateGridLayout(containerWidth, viewMode, gap)
-  }, [containerWidth, viewMode, gap])
+    return calculateGridLayout(containerWidth, viewMode, gap);
+  }, [containerWidth, viewMode, gap]);
 
   // Handle item click
   const handleItemClick = useCallback(
     (item: MediaItemType) => {
-      onItemClick?.(item)
+      onItemClick?.(item);
     },
-    [onItemClick]
-  )
+    [onItemClick],
+  );
 
   // Handle item select
   const handleItemSelect = useCallback(
     (item: MediaItemType) => {
-      onItemSelect?.(item)
+      onItemSelect?.(item);
     },
-    [onItemSelect]
-  )
+    [onItemSelect],
+  );
 
   // Handle item double click
   const handleItemDoubleClick = useCallback(
     (item: MediaItemType) => {
-      onItemDoubleClick?.(item)
+      onItemDoubleClick?.(item);
     },
-    [onItemDoubleClick]
-  )
+    [onItemDoubleClick],
+  );
 
   // Show loading state
   if (isLoading && items.length === 0) {
-    return <GalleryLoading viewMode={viewMode} />
+    return <GalleryLoading viewMode={viewMode} />;
   }
 
   // Show empty state
   if (!isLoading && items.length === 0) {
-    return <GalleryEmpty message={emptyMessage} description={emptyDescription} />
+    return (
+      <GalleryEmpty message={emptyMessage} description={emptyDescription} />
+    );
   }
 
   // Grid view styles
   const gridStyles: React.CSSProperties =
-    viewMode === 'grid' || viewMode === 'masonry'
+    viewMode === "grid" || viewMode === "masonry"
       ? {
-          display: 'grid',
+          display: "grid",
           gridTemplateColumns: `repeat(${layout.columns}, 1fr)`,
           gap: `${gap}px`,
         }
       : {
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column",
           gap: `${gap}px`,
-        }
+        };
 
   return (
-    <div ref={containerRef} className={cn('w-full', className)}>
+    <div ref={containerRef} className={cn("w-full", className)}>
       {/* Items grid */}
       <div style={gridStyles}>
         {items.map((item) => (
@@ -187,7 +195,7 @@ export function MediaGrid({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default MediaGrid
+export default MediaGrid;

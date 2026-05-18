@@ -5,10 +5,10 @@
  * DELETE - Unsubscribe from push notifications
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Validation Schemas
@@ -21,19 +21,19 @@ const PushSubscriptionSchema = z.object({
     p256dh: z.string(),
     auth: z.string(),
   }),
-})
+});
 
 const SubscribeRequestSchema = z.object({
   userId: z.string(),
   subscription: PushSubscriptionSchema,
   deviceId: z.string().optional(),
-  platform: z.enum(['web', 'pwa', 'ios', 'android']).optional().default('web'),
+  platform: z.enum(["web", "pwa", "ios", "android"]).optional().default("web"),
   userAgent: z.string().optional(),
-})
+});
 
 const UnsubscribeRequestSchema = z.object({
   endpoint: z.string().url(),
-})
+});
 
 // =============================================================================
 // GraphQL Mutations
@@ -77,7 +77,7 @@ const UPSERT_PUSH_SUBSCRIPTION = `
       updated_at
     }
   }
-`
+`;
 
 const DEACTIVATE_PUSH_SUBSCRIPTION = `
   mutation DeactivatePushSubscription($endpoint: String!) {
@@ -88,7 +88,7 @@ const DEACTIVATE_PUSH_SUBSCRIPTION = `
       affected_rows
     }
   }
-`
+`;
 
 const DELETE_PUSH_SUBSCRIPTION = `
   mutation DeletePushSubscription($endpoint: String!) {
@@ -96,7 +96,7 @@ const DELETE_PUSH_SUBSCRIPTION = `
       affected_rows
     }
   }
-`
+`;
 
 const GET_USER_SUBSCRIPTIONS = `
   query GetUserPushSubscriptions($userId: uuid!) {
@@ -112,7 +112,7 @@ const GET_USER_SUBSCRIPTIONS = `
       updated_at
     }
   }
-`
+`;
 
 // =============================================================================
 // Helper Functions
@@ -121,40 +121,41 @@ const GET_USER_SUBSCRIPTIONS = `
 async function executeGraphQL<T = unknown>(
   query: string,
   variables: Record<string, unknown> = {},
-  authToken?: string
+  authToken?: string,
 ): Promise<{ data?: T; errors?: Array<{ message: string }> }> {
-  const hasuraUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
-  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET
+  const hasuraUrl =
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql";
+  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET;
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  }
+    "Content-Type": "application/json",
+  };
 
   if (hasuraAdminSecret) {
-    headers['x-hasura-admin-secret'] = hasuraAdminSecret
+    headers["x-hasura-admin-secret"] = hasuraAdminSecret;
   } else if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`
+    headers["Authorization"] = `Bearer ${authToken}`;
   }
 
   const response = await fetch(hasuraUrl, {
-    method: 'POST',
+    method: "POST",
     headers,
     body: JSON.stringify({ query, variables }),
-  })
+  });
 
   if (!response.ok) {
-    throw new Error(`GraphQL request failed: ${response.statusText}`)
+    throw new Error(`GraphQL request failed: ${response.statusText}`);
   }
 
-  return response.json()
+  return response.json();
 }
 
 function getAuthToken(request: NextRequest): string | undefined {
-  const authHeader = request.headers.get('Authorization')
-  if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.substring(7)
+  const authHeader = request.headers.get("Authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.substring(7);
   }
-  return undefined
+  return undefined;
 }
 
 /**
@@ -164,24 +165,24 @@ async function syncWithPlugin(
   userId: string,
   subscription: z.infer<typeof PushSubscriptionSchema>,
   deviceId?: string,
-  platform?: string
+  platform?: string,
 ): Promise<void> {
-  const pluginApiUrl = process.env.NOTIFICATIONS_API_URL
-  if (!pluginApiUrl) return
+  const pluginApiUrl = process.env.NOTIFICATIONS_API_URL;
+  if (!pluginApiUrl) return;
 
   try {
     await fetch(`${pluginApiUrl}/api/push/subscribe`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         user_id: userId,
         subscription,
         device_id: deviceId,
         platform,
       }),
-    })
+    });
   } catch (error) {
-    logger.warn('Failed to sync subscription with plugin:', { context: error })
+    logger.warn("Failed to sync subscription with plugin:", { context: error });
     // Non-critical, continue anyway
   }
 }
@@ -192,31 +193,35 @@ async function syncWithPlugin(
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const body = await request.json()
+    const authToken = getAuthToken(request);
+    const body = await request.json();
 
-    const parsed = SubscribeRequestSchema.safeParse(body)
+    const parsed = SubscribeRequestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid subscription data', details: parsed.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid subscription data",
+          details: parsed.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const { userId, subscription, deviceId, platform, userAgent } = parsed.data
+    const { userId, subscription, deviceId, platform, userAgent } = parsed.data;
 
     // Store in database
     const result = await executeGraphQL<{
       insert_nchat_push_subscriptions_one: {
-        id: string
-        user_id: string
-        endpoint: string
-        device_id: string | null
-        platform: string
-        active: boolean
-        created_at: string
-        updated_at: string
-      }
+        id: string;
+        user_id: string;
+        endpoint: string;
+        device_id: string | null;
+        platform: string;
+        active: boolean;
+        created_at: string;
+        updated_at: string;
+      };
     }>(
       UPSERT_PUSH_SUBSCRIPTION,
       {
@@ -231,20 +236,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         platform,
         userAgent,
       },
-      authToken
-    )
+      authToken,
+    );
 
     if (result.errors) {
       return NextResponse.json(
-        { success: false, error: 'Failed to save subscription', details: result.errors },
-        { status: 500 }
-      )
+        {
+          success: false,
+          error: "Failed to save subscription",
+          details: result.errors,
+        },
+        { status: 500 },
+      );
     }
 
     // Sync with notifications plugin
-    await syncWithPlugin(userId, subscription, deviceId, platform)
+    await syncWithPlugin(userId, subscription, deviceId, platform);
 
-    const savedSubscription = result.data?.insert_nchat_push_subscriptions_one
+    const savedSubscription = result.data?.insert_nchat_push_subscriptions_one;
 
     return NextResponse.json({
       success: true,
@@ -253,10 +262,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         endpoint: savedSubscription?.endpoint,
         active: savedSubscription?.active,
       },
-    })
+    });
   } catch (error) {
-    logger.error('POST /api/notifications/subscribe error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("POST /api/notifications/subscribe error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -266,30 +278,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('user_id')
+    const authToken = getAuthToken(request);
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("user_id");
 
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'user_id is required' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "user_id is required" },
+        { status: 400 },
+      );
     }
 
     const result = await executeGraphQL<{
       nchat_push_subscriptions: Array<{
-        id: string
-        endpoint: string
-        device_id: string | null
-        platform: string
-        created_at: string
-        updated_at: string
-      }>
-    }>(GET_USER_SUBSCRIPTIONS, { userId }, authToken)
+        id: string;
+        endpoint: string;
+        device_id: string | null;
+        platform: string;
+        created_at: string;
+        updated_at: string;
+      }>;
+    }>(GET_USER_SUBSCRIPTIONS, { userId }, authToken);
 
     if (result.errors) {
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch subscriptions', details: result.errors },
-        { status: 500 }
-      )
+        {
+          success: false,
+          error: "Failed to fetch subscriptions",
+          details: result.errors,
+        },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({
@@ -297,10 +316,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       data: {
         subscriptions: result.data?.nchat_push_subscriptions || [],
       },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/notifications/subscribe error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("GET /api/notifications/subscribe error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -310,40 +332,48 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const body = await request.json()
+    const authToken = getAuthToken(request);
+    const body = await request.json();
 
-    const parsed = UnsubscribeRequestSchema.safeParse(body)
+    const parsed = UnsubscribeRequestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid unsubscribe data', details: parsed.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid unsubscribe data",
+          details: parsed.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const { endpoint } = parsed.data
+    const { endpoint } = parsed.data;
 
     // Deactivate (soft delete) the subscription
     const result = await executeGraphQL<{
-      update_nchat_push_subscriptions: { affected_rows: number }
-    }>(DEACTIVATE_PUSH_SUBSCRIPTION, { endpoint }, authToken)
+      update_nchat_push_subscriptions: { affected_rows: number };
+    }>(DEACTIVATE_PUSH_SUBSCRIPTION, { endpoint }, authToken);
 
     if (result.errors) {
       return NextResponse.json(
-        { success: false, error: 'Failed to unsubscribe', details: result.errors },
-        { status: 500 }
-      )
+        {
+          success: false,
+          error: "Failed to unsubscribe",
+          details: result.errors,
+        },
+        { status: 500 },
+      );
     }
 
     // Also notify the plugin API
-    const pluginApiUrl = process.env.NOTIFICATIONS_API_URL
+    const pluginApiUrl = process.env.NOTIFICATIONS_API_URL;
     if (pluginApiUrl) {
       try {
         await fetch(`${pluginApiUrl}/api/push/unsubscribe`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ endpoint }),
-        })
+        });
       } catch {
         // Non-critical
       }
@@ -352,11 +382,15 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       success: true,
       data: {
-        affectedRows: result.data?.update_nchat_push_subscriptions?.affected_rows || 0,
+        affectedRows:
+          result.data?.update_nchat_push_subscriptions?.affected_rows || 0,
       },
-    })
+    });
   } catch (error) {
-    logger.error('DELETE /api/notifications/subscribe error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("DELETE /api/notifications/subscribe error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -9,20 +9,20 @@
  * of attempting a connection.
  */
 
-'use client'
+"use client";
 
-import React, { useEffect, useState, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { CallWindow } from '@/components/voice-video/CallWindow'
-import { CallNotification } from '@/components/voice-video/CallNotification'
-import { useCallStore } from '@/stores/call-store'
-import { useAuth } from '@/contexts/auth-context'
-import { getLiveKitClient, getLiveKitToken } from '@/lib/webrtc/livekit-client'
-import { nchatBundle } from '@/lib/features/bundle-detect'
-import { logger } from '@/lib/logger'
-import { Loader2, Video, ExternalLink } from 'lucide-react'
-import { toast } from 'sonner'
-import type { CallParticipant } from '@/components/voice-video/CallWindow'
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { CallWindow } from "@/components/voice-video/CallWindow";
+import { CallNotification } from "@/components/voice-video/CallNotification";
+import { useCallStore } from "@/stores/call-store";
+import { useAuth } from "@/contexts/auth-context";
+import { getLiveKitClient, getLiveKitToken } from "@/lib/webrtc/livekit-client";
+import { nchatBundle } from "@/lib/features/bundle-detect";
+import { logger } from "@/lib/logger";
+import { Loader2, Video, ExternalLink } from "lucide-react";
+import { toast } from "sonner";
+import type { CallParticipant } from "@/components/voice-video/CallWindow";
 
 // =============================================================================
 // Bundle upsell — shown when livekit plugin is not installed
@@ -35,10 +35,13 @@ function LiveKitBundleUpsell() {
         <div className="rounded-full bg-white/10 p-4">
           <Video className="h-10 w-10 text-white" />
         </div>
-        <h2 className="text-xl font-semibold text-white">Voice &amp; video calls</h2>
+        <h2 className="text-xl font-semibold text-white">
+          Voice &amp; video calls
+        </h2>
         <p className="text-sm text-gray-400">
-          Voice and video calls require the nChat bundle (livekit plugin). Install it with a Basic
-          license ($0.99/mo) to unlock calls, screen sharing, and recording.
+          Voice and video calls require the nChat bundle (livekit plugin).
+          Install it with a Basic license ($0.99/mo) to unlock calls, screen
+          sharing, and recording.
         </p>
         <a
           href="https://nself.org/pricing"
@@ -50,14 +53,14 @@ function LiveKitBundleUpsell() {
           <ExternalLink className="h-4 w-4" />
         </a>
         <p className="text-xs text-gray-500">
-          Already have a key?{' '}
+          Already have a key?{" "}
           <code className="rounded bg-white/10 px-1 py-0.5 font-mono text-xs">
             nself license set nself_pro_...
           </code>
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -65,10 +68,10 @@ function LiveKitBundleUpsell() {
 // =============================================================================
 
 export default function CallPage() {
-  const params = useParams()
-  const router = useRouter()
-  const { user } = useAuth()
-  const callId = params.id as string
+  const params = useParams();
+  const router = useRouter();
+  const { user } = useAuth();
+  const callId = params.id as string;
 
   // Store
   const {
@@ -80,40 +83,45 @@ export default function CallPage() {
     endCall,
     acceptCall,
     declineCall,
-  } = useCallStore()
+  } = useCallStore();
 
   // Get local media states from active call
-  const isLocalMuted = activeCall?.isLocalMuted || false
-  const isLocalVideoEnabled = activeCall?.isLocalVideoEnabled || false
-  const isScreenSharing = activeCall?.isLocalScreenSharing || false
+  const isLocalMuted = activeCall?.isLocalMuted || false;
+  const isLocalVideoEnabled = activeCall?.isLocalVideoEnabled || false;
+  const isScreenSharing = activeCall?.isLocalScreenSharing || false;
 
   // Local state
-  const [isConnecting, setIsConnecting] = useState(true)
-  const [connectionError, setConnectionError] = useState<string | null>(null)
-  const [callDuration, setCallDuration] = useState(0)
-  const [participants, setParticipants] = useState<CallParticipant[]>([])
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null)
-  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
+  const [isConnecting, setIsConnecting] = useState(true);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [callDuration, setCallDuration] = useState(0);
+  const [participants, setParticipants] = useState<CallParticipant[]>([]);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(
+    new Map(),
+  );
 
   // LiveKit client
-  const liveKitClient = getLiveKitClient()
+  const liveKitClient = getLiveKitClient();
 
   // Initialize call connection
   useEffect(() => {
-    if (!user || !callId) return
+    if (!user || !callId) return;
 
     const initializeCall = async () => {
       try {
-        setIsConnecting(true)
-        logger.info('[Call Page] Initializing call', { callId })
+        setIsConnecting(true);
+        logger.info("[Call Page] Initializing call", { callId });
 
         // Get LiveKit token from backend
-        const token = await getLiveKitToken(callId, user.displayName || user.email)
+        const token = await getLiveKitToken(
+          callId,
+          user.displayName || user.email,
+        );
 
         // Connect to room
         const room = await liveKitClient.connect(
           {
-            url: process.env.NEXT_PUBLIC_LIVEKIT_URL || 'ws://localhost:7880',
+            url: process.env.NEXT_PUBLIC_LIVEKIT_URL || "ws://localhost:7880",
             token,
             roomName: callId,
             identity: user.id,
@@ -121,139 +129,143 @@ export default function CallPage() {
           },
           {
             onConnectionStateChange: (state) => {
-              logger.info('[Call Page] Connection state changed', { state })
-              if (state === 'connected') {
-                setIsConnecting(false)
-              } else if (state === 'disconnected') {
-                handleEndCall()
+              logger.info("[Call Page] Connection state changed", { state });
+              if (state === "connected") {
+                setIsConnecting(false);
+              } else if (state === "disconnected") {
+                handleEndCall();
               }
             },
             onParticipantConnected: (participantId) => {
-              logger.info('[Call Page] Participant connected', { participantId })
-              toast.success('Participant joined the call')
+              logger.info("[Call Page] Participant connected", {
+                participantId,
+              });
+              toast.success("Participant joined the call");
             },
             onParticipantDisconnected: (participantId) => {
-              logger.info('[Call Page] Participant disconnected', { participantId })
-              toast.info('Participant left the call')
+              logger.info("[Call Page] Participant disconnected", {
+                participantId,
+              });
+              toast.info("Participant left the call");
             },
             onError: (error) => {
-              logger.error('[Call Page] LiveKit error', error)
-              setConnectionError(error.message)
-              toast.error('Call connection error')
+              logger.error("[Call Page] LiveKit error", error);
+              setConnectionError(error.message);
+              toast.error("Call connection error");
             },
-          }
-        )
+          },
+        );
 
         // Publish local tracks
-        const isVideoCall = activeCall?.type === 'video'
-        await liveKitClient.publishTracks(true, isVideoCall)
+        const isVideoCall = activeCall?.type === "video";
+        await liveKitClient.publishTracks(true, isVideoCall);
 
-        logger.info('[Call Page] Call initialized successfully')
+        logger.info("[Call Page] Call initialized successfully");
       } catch (error) {
-        logger.error('[Call Page] Failed to initialize call', error)
-        setConnectionError('Failed to connect to call')
-        toast.error('Failed to join call')
+        logger.error("[Call Page] Failed to initialize call", error);
+        setConnectionError("Failed to connect to call");
+        toast.error("Failed to join call");
       }
-    }
+    };
 
-    initializeCall()
+    initializeCall();
 
     return () => {
       // Cleanup on unmount
-      liveKitClient.disconnect()
-    }
-  }, [user, callId])
+      liveKitClient.disconnect();
+    };
+  }, [user, callId]);
 
   // Call duration timer
   useEffect(() => {
-    if (!activeCall || activeCall.state !== 'connected') return
+    if (!activeCall || activeCall.state !== "connected") return;
 
     const interval = setInterval(() => {
-      setCallDuration((prev) => prev + 1)
-    }, 1000)
+      setCallDuration((prev) => prev + 1);
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [activeCall])
+    return () => clearInterval(interval);
+  }, [activeCall]);
 
   // Handle toggle mute
   const handleToggleMute = useCallback(async () => {
     try {
-      await liveKitClient.toggleMicrophone()
-      toggleLocalMute()
+      await liveKitClient.toggleMicrophone();
+      toggleLocalMute();
     } catch (error) {
-      logger.error('[Call Page] Failed to toggle mute', error)
-      toast.error('Failed to toggle microphone')
+      logger.error("[Call Page] Failed to toggle mute", error);
+      toast.error("Failed to toggle microphone");
     }
-  }, [toggleLocalMute])
+  }, [toggleLocalMute]);
 
   // Handle toggle video
   const handleToggleVideo = useCallback(async () => {
     try {
-      await liveKitClient.toggleCamera()
-      toggleLocalVideo()
+      await liveKitClient.toggleCamera();
+      toggleLocalVideo();
     } catch (error) {
-      logger.error('[Call Page] Failed to toggle video', error)
-      toast.error('Failed to toggle camera')
+      logger.error("[Call Page] Failed to toggle video", error);
+      toast.error("Failed to toggle camera");
     }
-  }, [toggleLocalVideo])
+  }, [toggleLocalVideo]);
 
   // Handle toggle screen share
   const handleToggleScreenShare = useCallback(async () => {
     try {
       if (isScreenSharing) {
-        await liveKitClient.stopScreenShare()
-        setLocalScreenSharing(false)
+        await liveKitClient.stopScreenShare();
+        setLocalScreenSharing(false);
       } else {
-        await liveKitClient.startScreenShare()
-        setLocalScreenSharing(true)
+        await liveKitClient.startScreenShare();
+        setLocalScreenSharing(true);
       }
     } catch (error) {
-      logger.error('[Call Page] Failed to toggle screen share', error)
-      toast.error('Failed to toggle screen sharing')
+      logger.error("[Call Page] Failed to toggle screen share", error);
+      toast.error("Failed to toggle screen sharing");
     }
-  }, [isScreenSharing, setLocalScreenSharing])
+  }, [isScreenSharing, setLocalScreenSharing]);
 
   // Handle end call
   const handleEndCall = useCallback(() => {
-    logger.info('[Call Page] Ending call')
-    endCall()
-    liveKitClient.disconnect()
-    router.push('/chat')
-  }, [endCall, router])
+    logger.info("[Call Page] Ending call");
+    endCall();
+    liveKitClient.disconnect();
+    router.push("/chat");
+  }, [endCall, router]);
 
   // Handle switch camera (mobile)
   const handleSwitchCamera = useCallback(async () => {
     try {
-      await liveKitClient.switchCamera()
-      toast.success('Camera switched')
+      await liveKitClient.switchCamera();
+      toast.success("Camera switched");
     } catch (error) {
-      logger.error('[Call Page] Failed to switch camera', error)
-      toast.error('Failed to switch camera')
+      logger.error("[Call Page] Failed to switch camera", error);
+      toast.error("Failed to switch camera");
     }
-  }, [])
+  }, []);
 
   // Handle accept incoming call
   const handleAcceptIncoming = useCallback(
     (callId: string, withVideo: boolean) => {
-      acceptCall(callId)
+      acceptCall(callId);
       if (withVideo) {
-        handleToggleVideo()
+        handleToggleVideo();
       }
     },
-    [acceptCall, handleToggleVideo]
-  )
+    [acceptCall, handleToggleVideo],
+  );
 
   // Handle decline incoming call
   const handleDeclineIncoming = useCallback(
     (callId: string) => {
-      declineCall(callId)
+      declineCall(callId);
     },
-    [declineCall]
-  )
+    [declineCall],
+  );
 
   // Guard: livekit plugin must be installed (checked after all hooks)
   if (!nchatBundle.livekit) {
-    return <LiveKitBundleUpsell />
+    return <LiveKitBundleUpsell />;
   }
 
   // Show loading state
@@ -265,7 +277,7 @@ export default function CallPage() {
           <p className="text-lg text-white">Connecting to call...</p>
         </div>
       </div>
-    )
+    );
   }
 
   // Show error state
@@ -276,14 +288,14 @@ export default function CallPage() {
           <p className="text-lg text-red-500">Failed to connect to call</p>
           <p className="text-sm text-gray-400">{connectionError}</p>
           <button
-            onClick={() => router.push('/chat')}
+            onClick={() => router.push("/chat")}
             className="rounded-lg bg-white px-6 py-2 text-gray-900 hover:bg-gray-100"
           >
             Return to Chat
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   // Show call window
@@ -293,14 +305,14 @@ export default function CallPage() {
         <div className="flex flex-col items-center gap-4 text-center">
           <p className="text-lg text-white">No active call</p>
           <button
-            onClick={() => router.push('/chat')}
+            onClick={() => router.push("/chat")}
             className="rounded-lg bg-white px-6 py-2 text-gray-900 hover:bg-gray-100"
           >
             Return to Chat
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   const callWindowProps: any = {
@@ -309,12 +321,12 @@ export default function CallPage() {
     duration: callDuration,
     currentUserId: user.id,
     participants,
-    isAudioCall: activeCall.type === 'voice',
+    isAudioCall: activeCall.type === "voice",
     onToggleMute: handleToggleMute,
     onToggleVideo: handleToggleVideo,
     onToggleScreenShare: handleToggleScreenShare,
     onEndCall: handleEndCall,
-  }
+  };
 
   return (
     <>
@@ -341,5 +353,5 @@ export default function CallPage() {
         />
       )}
     </>
-  )
+  );
 }

@@ -1,17 +1,30 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Mail, MoreHorizontal, RefreshCw, Trash2, Clock, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { useState } from "react";
+import {
+  Mail,
+  MoreHorizontal,
+  RefreshCw,
+  Trash2,
+  Clock,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,50 +34,50 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { useUserManagementStore } from '@/stores/user-management-store'
+} from "@/components/ui/alert-dialog";
+import { useUserManagementStore } from "@/stores/user-management-store";
 import {
   getInviteStatusColor,
   formatInviteExpiration,
   isInviteExpired,
-} from '@/lib/admin/users/user-invite'
-import { getUserInitials } from '@/lib/admin/users/user-manager'
-import type { UserInvite } from '@/lib/admin/users/user-types'
+} from "@/lib/admin/users/user-invite";
+import { getUserInitials } from "@/lib/admin/users/user-manager";
+import type { UserInvite } from "@/lib/admin/users/user-types";
 
 export function PendingInvites() {
-  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false)
-  const [selectedInvite, setSelectedInvite] = useState<UserInvite | null>(null)
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [selectedInvite, setSelectedInvite] = useState<UserInvite | null>(null);
 
-  const { invites, updateInvite, removeInvite } = useUserManagementStore()
+  const { invites, updateInvite, removeInvite } = useUserManagementStore();
 
-  const pendingInvites = invites.filter((i) => i.status === 'pending')
+  const pendingInvites = invites.filter((i) => i.status === "pending");
 
   const handleResend = async (invite: UserInvite) => {
     // In production, call the API
-  }
+  };
 
   const handleRevoke = async () => {
-    if (!selectedInvite) return
+    if (!selectedInvite) return;
 
     // In production, call the API
     updateInvite(selectedInvite.id, {
-      status: 'revoked',
+      status: "revoked",
       revokedAt: new Date().toISOString(),
-    })
+    });
 
-    setRevokeDialogOpen(false)
-    setSelectedInvite(null)
-  }
+    setRevokeDialogOpen(false);
+    setSelectedInvite(null);
+  };
 
   const handleDelete = async (invite: UserInvite) => {
     // In production, call the API
-    removeInvite(invite.id)
-  }
+    removeInvite(invite.id);
+  };
 
   const openRevokeDialog = (invite: UserInvite) => {
-    setSelectedInvite(invite)
-    setRevokeDialogOpen(true)
-  }
+    setSelectedInvite(invite);
+    setRevokeDialogOpen(true);
+  };
 
   if (pendingInvites.length === 0) {
     return (
@@ -76,11 +89,13 @@ export function PendingInvites() {
         <CardContent>
           <div className="py-8 text-center text-muted-foreground">
             <Mail className="mx-auto h-12 w-12 opacity-50" />
-            <p className="mt-2">All invitations have been accepted or expired</p>
+            <p className="mt-2">
+              All invitations have been accepted or expired
+            </p>
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -88,12 +103,14 @@ export function PendingInvites() {
       <Card>
         <CardHeader>
           <CardTitle>Pending Invitations</CardTitle>
-          <CardDescription>Manage invitations that haven't been accepted yet</CardDescription>
+          <CardDescription>
+            Manage invitations that haven't been accepted yet
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {pendingInvites.map((invite) => {
-              const expired = isInviteExpired(invite.expiresAt)
+              const expired = isInviteExpired(invite.expiresAt);
 
               return (
                 <div
@@ -102,16 +119,20 @@ export function PendingInvites() {
                 >
                   <div className="flex items-center gap-4">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback>{invite.email.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>
+                        {invite.email.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium">{invite.email}</p>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Badge
                           variant="outline"
-                          className={getInviteStatusColor(expired ? 'expired' : 'pending')}
+                          className={getInviteStatusColor(
+                            expired ? "expired" : "pending",
+                          )}
                         >
-                          {expired ? 'Expired' : 'Pending'}
+                          {expired ? "Expired" : "Pending"}
                         </Badge>
                         <span>&middot;</span>
                         <Badge variant="outline" className="capitalize">
@@ -124,7 +145,7 @@ export function PendingInvites() {
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Invited by {invite.invitedBy.displayName} on{' '}
+                        Invited by {invite.invitedBy.displayName} on{" "}
                         {new Date(invite.createdAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -159,7 +180,7 @@ export function PendingInvites() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              )
+              );
             })}
           </div>
         </CardContent>
@@ -171,21 +192,24 @@ export function PendingInvites() {
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke Invitation</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to revoke the invitation for{' '}
-              <strong>{selectedInvite?.email}</strong>? They will no longer be able to join using
-              this invitation link.
+              Are you sure you want to revoke the invitation for{" "}
+              <strong>{selectedInvite?.email}</strong>? They will no longer be
+              able to join using this invitation link.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRevoke} className="bg-orange-600 hover:bg-orange-700">
+            <AlertDialogAction
+              onClick={handleRevoke}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
               Revoke Invitation
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
-export default PendingInvites
+export default PendingInvites;

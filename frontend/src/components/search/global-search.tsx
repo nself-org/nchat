@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * GlobalSearch Component
@@ -17,9 +17,9 @@
  * @module components/search/global-search
  */
 
-import * as React from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { Command } from 'cmdk'
+import * as React from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Command } from "cmdk";
 import {
   Search,
   X,
@@ -36,17 +36,17 @@ import {
   Link,
   Image,
   Pin,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useDebounce } from '@/hooks/use-debounce'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useDebounce } from "@/hooks/use-debounce";
 import {
   useSearchSuggestions,
   saveRecentSearch,
   type SearchSuggestion,
-} from '@/hooks/use-search-suggestions'
+} from "@/hooks/use-search-suggestions";
 
 // ============================================================================
 // Types
@@ -54,118 +54,135 @@ import {
 
 export interface GlobalSearchProps {
   /** Whether the search is open */
-  open?: boolean
+  open?: boolean;
   /** Callback when open state changes */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
   /** Callback when a result is selected */
-  onSelect?: (result: SearchResultItem) => void
+  onSelect?: (result: SearchResultItem) => void;
   /** Callback when navigating to a message */
-  onNavigateToMessage?: (messageId: string, channelId: string) => void
+  onNavigateToMessage?: (messageId: string, channelId: string) => void;
   /** Callback when navigating to a channel */
-  onNavigateToChannel?: (channelId: string) => void
+  onNavigateToChannel?: (channelId: string) => void;
   /** Callback when navigating to a user */
-  onNavigateToUser?: (userId: string) => void
+  onNavigateToUser?: (userId: string) => void;
   /** Callback when navigating to a file */
-  onNavigateToFile?: (fileId: string) => void
+  onNavigateToFile?: (fileId: string) => void;
   /** Placeholder text */
-  placeholder?: string
+  placeholder?: string;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 export interface SearchResultItem {
-  id: string
-  type: 'message' | 'file' | 'user' | 'channel'
-  title: string
-  subtitle?: string
-  content?: string
-  highlight?: string
-  metadata?: Record<string, unknown>
-  timestamp?: string
-  channelId?: string
-  channelName?: string
-  userId?: string
-  userName?: string
-  avatarUrl?: string
+  id: string;
+  type: "message" | "file" | "user" | "channel";
+  title: string;
+  subtitle?: string;
+  content?: string;
+  highlight?: string;
+  metadata?: Record<string, unknown>;
+  timestamp?: string;
+  channelId?: string;
+  channelName?: string;
+  userId?: string;
+  userName?: string;
+  avatarUrl?: string;
 }
 
-type SearchType = 'all' | 'messages' | 'files' | 'users' | 'channels'
+type SearchType = "all" | "messages" | "files" | "users" | "channels";
 
 interface SearchState {
-  query: string
-  type: SearchType
-  results: SearchResultItem[]
-  isLoading: boolean
-  error: string | null
+  query: string;
+  type: SearchType;
+  results: SearchResultItem[];
+  isLoading: boolean;
+  error: string | null;
   facets: {
-    messages: number
-    files: number
-    users: number
-    channels: number
-  }
+    messages: number;
+    files: number;
+    users: number;
+    channels: number;
+  };
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const SEARCH_TYPES: { value: SearchType; label: string; icon: React.ReactNode }[] = [
-  { value: 'all', label: 'All', icon: <Search className="h-4 w-4" /> },
-  { value: 'messages', label: 'Messages', icon: <MessageSquare className="h-4 w-4" /> },
-  { value: 'files', label: 'Files', icon: <FileText className="h-4 w-4" /> },
-  { value: 'users', label: 'People', icon: <User className="h-4 w-4" /> },
-  { value: 'channels', label: 'Channels', icon: <Hash className="h-4 w-4" /> },
-]
+const SEARCH_TYPES: {
+  value: SearchType;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  { value: "all", label: "All", icon: <Search className="h-4 w-4" /> },
+  {
+    value: "messages",
+    label: "Messages",
+    icon: <MessageSquare className="h-4 w-4" />,
+  },
+  { value: "files", label: "Files", icon: <FileText className="h-4 w-4" /> },
+  { value: "users", label: "People", icon: <User className="h-4 w-4" /> },
+  { value: "channels", label: "Channels", icon: <Hash className="h-4 w-4" /> },
+];
 
 const OPERATOR_HINTS = [
-  { text: 'from:username', description: 'Filter by sender' },
-  { text: 'in:channel', description: 'Filter by channel' },
-  { text: 'has:link', description: 'With links' },
-  { text: 'has:file', description: 'With files' },
-  { text: 'has:image', description: 'With images' },
-  { text: 'is:pinned', description: 'Pinned only' },
-  { text: 'before:YYYY-MM-DD', description: 'Before date' },
-  { text: 'after:YYYY-MM-DD', description: 'After date' },
-]
+  { text: "from:username", description: "Filter by sender" },
+  { text: "in:channel", description: "Filter by channel" },
+  { text: "has:link", description: "With links" },
+  { text: "has:file", description: "With files" },
+  { text: "has:image", description: "With images" },
+  { text: "is:pinned", description: "Pinned only" },
+  { text: "before:YYYY-MM-DD", description: "Before date" },
+  { text: "after:YYYY-MM-DD", description: "After date" },
+];
 
 // ============================================================================
 // Helper Components
 // ============================================================================
 
-function TypeIcon({ type }: { type: SearchResultItem['type'] }) {
+function TypeIcon({ type }: { type: SearchResultItem["type"] }) {
   switch (type) {
-    case 'message':
-      return <MessageSquare className="h-4 w-4 text-muted-foreground" />
-    case 'file':
-      return <FileText className="h-4 w-4 text-muted-foreground" />
-    case 'user':
-      return <User className="h-4 w-4 text-muted-foreground" />
-    case 'channel':
-      return <Hash className="h-4 w-4 text-muted-foreground" />
+    case "message":
+      return <MessageSquare className="h-4 w-4 text-muted-foreground" />;
+    case "file":
+      return <FileText className="h-4 w-4 text-muted-foreground" />;
+    case "user":
+      return <User className="h-4 w-4 text-muted-foreground" />;
+    case "channel":
+      return <Hash className="h-4 w-4 text-muted-foreground" />;
     default:
-      return <Search className="h-4 w-4 text-muted-foreground" />
+      return <Search className="h-4 w-4 text-muted-foreground" />;
   }
 }
 
-function HighlightedText({ text, className }: { text: string; className?: string }) {
+function HighlightedText({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
   // Parse HTML highlight tags
-  const parts = text.split(/(<mark>.*?<\/mark>)/g)
+  const parts = text.split(/(<mark>.*?<\/mark>)/g);
 
   return (
     <span className={className}>
       {parts.map((part, i) => {
-        if (part.startsWith('<mark>') && part.endsWith('</mark>')) {
-          const content = part.slice(6, -7)
+        if (part.startsWith("<mark>") && part.endsWith("</mark>")) {
+          const content = part.slice(6, -7);
           return (
-            <mark key={i} className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50">
+            <mark
+              key={i}
+              className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50"
+            >
               {content}
             </mark>
-          )
+          );
         }
-        return <span key={i}>{part}</span>
+        return <span key={i}>{part}</span>;
       })}
     </span>
-  )
+  );
 }
 
 function ResultItem({
@@ -173,25 +190,27 @@ function ResultItem({
   isSelected,
   onSelect,
 }: {
-  result: SearchResultItem
-  isSelected: boolean
-  onSelect: () => void
+  result: SearchResultItem;
+  isSelected: boolean;
+  onSelect: () => void;
 }) {
   return (
     <Command.Item
       value={result.id}
       onSelect={onSelect}
       className={cn(
-        'flex cursor-pointer items-start gap-3 px-4 py-3',
-        'data-[selected=true]:bg-accent',
-        'hover:bg-accent/50 transition-colors',
-        isSelected && 'bg-accent'
+        "flex cursor-pointer items-start gap-3 px-4 py-3",
+        "data-[selected=true]:bg-accent",
+        "hover:bg-accent/50 transition-colors",
+        isSelected && "bg-accent",
       )}
     >
-      {result.type === 'user' && result.avatarUrl ? (
+      {result.type === "user" && result.avatarUrl ? (
         <Avatar className="h-8 w-8 shrink-0">
           <AvatarImage src={result.avatarUrl} alt={result.title} />
-          <AvatarFallback>{result.title.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {result.title.charAt(0).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
       ) : (
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted">
@@ -202,17 +221,20 @@ function ResultItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-medium">{result.title}</span>
-          {result.type === 'channel' &&
+          {result.type === "channel" &&
             result.metadata &&
-            typeof result.metadata === 'object' &&
-            'isPrivate' in result.metadata &&
-            (result.metadata as unknown as { isPrivate?: boolean }).isPrivate && (
+            typeof result.metadata === "object" &&
+            "isPrivate" in result.metadata &&
+            (result.metadata as unknown as { isPrivate?: boolean })
+              .isPrivate && (
               <Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
             )}
         </div>
 
         {result.subtitle && (
-          <div className="truncate text-xs text-muted-foreground">{result.subtitle}</div>
+          <div className="truncate text-xs text-muted-foreground">
+            {result.subtitle}
+          </div>
         )}
 
         {result.highlight && (
@@ -222,7 +244,7 @@ function ResultItem({
           />
         )}
 
-        {result.channelName && result.type === 'message' && (
+        {result.channelName && result.type === "message" && (
           <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
             <Hash className="h-3 w-3" />
             <span>{result.channelName}</span>
@@ -238,7 +260,7 @@ function ResultItem({
 
       <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground opacity-0 group-data-[selected=true]:opacity-100" />
     </Command.Item>
-  )
+  );
 }
 
 function EmptyState({ query, type }: { query: string; type: SearchType }) {
@@ -246,7 +268,11 @@ function EmptyState({ query, type }: { query: string; type: SearchType }) {
     <div className="py-12 text-center">
       <Search className="text-muted-foreground/50 mx-auto mb-4 h-12 w-12" />
       <p className="text-sm text-muted-foreground">
-        {query ? <>No results found for &quot;{query}&quot;</> : <>Start typing to search</>}
+        {query ? (
+          <>No results found for &quot;{query}&quot;</>
+        ) : (
+          <>Start typing to search</>
+        )}
       </p>
       {!query && (
         <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -258,25 +284,25 @@ function EmptyState({ query, type }: { query: string; type: SearchType }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function RecentSearches({ onSelect }: { onSelect: (query: string) => void }) {
-  const [recentSearches, setRecentSearches] = React.useState<string[]>([])
+  const [recentSearches, setRecentSearches] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     try {
-      const stored = localStorage.getItem('nchat_recent_searches')
+      const stored = localStorage.getItem("nchat_recent_searches");
       if (stored) {
-        const recent = JSON.parse(stored) as Array<{ query: string }>
-        setRecentSearches(recent.slice(0, 5).map((r) => r.query))
+        const recent = JSON.parse(stored) as Array<{ query: string }>;
+        setRecentSearches(recent.slice(0, 5).map((r) => r.query));
       }
     } catch {
       // Ignore
     }
-  }, [])
+  }, []);
 
-  if (recentSearches.length === 0) return null
+  if (recentSearches.length === 0) return null;
 
   return (
     <Command.Group heading="Recent Searches">
@@ -292,7 +318,7 @@ function RecentSearches({ onSelect }: { onSelect: (query: string) => void }) {
         </Command.Item>
       ))}
     </Command.Group>
-  )
+  );
 }
 
 // ============================================================================
@@ -307,169 +333,176 @@ export function GlobalSearch({
   onNavigateToChannel,
   onNavigateToUser,
   onNavigateToFile,
-  placeholder = 'Search messages, files, people, channels...',
+  placeholder = "Search messages, files, people, channels...",
   className,
 }: GlobalSearchProps) {
-  const [isOpen, setIsOpen] = React.useState(controlledOpen ?? false)
+  const [isOpen, setIsOpen] = React.useState(controlledOpen ?? false);
   const [state, setState] = React.useState<SearchState>({
-    query: '',
-    type: 'all',
+    query: "",
+    type: "all",
     results: [],
     isLoading: false,
     error: null,
     facets: { messages: 0, files: 0, users: 0, channels: 0 },
-  })
+  });
 
-  const inputRef = React.useRef<HTMLInputElement>(null)
-  const debouncedQuery = useDebounce(state.query, 200)
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const debouncedQuery = useDebounce(state.query, 200);
 
   // Sync controlled state
   React.useEffect(() => {
     if (controlledOpen !== undefined) {
-      setIsOpen(controlledOpen)
+      setIsOpen(controlledOpen);
     }
-  }, [controlledOpen])
+  }, [controlledOpen]);
 
   // Keyboard shortcut
   useHotkeys(
-    'mod+k',
+    "mod+k",
     (e) => {
-      e.preventDefault()
-      const newOpen = !isOpen
-      setIsOpen(newOpen)
-      onOpenChange?.(newOpen)
+      e.preventDefault();
+      const newOpen = !isOpen;
+      setIsOpen(newOpen);
+      onOpenChange?.(newOpen);
     },
-    { enableOnFormTags: true }
-  )
+    { enableOnFormTags: true },
+  );
 
   // Focus input when opened
   React.useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 0)
+      setTimeout(() => inputRef.current?.focus(), 0);
     } else {
-      setState((s) => ({ ...s, query: '', results: [], error: null }))
+      setState((s) => ({ ...s, query: "", results: [], error: null }));
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   // Search effect
   React.useEffect(() => {
     if (!debouncedQuery || debouncedQuery.length < 2) {
-      setState((s) => ({ ...s, results: [], isLoading: false, error: null }))
-      return
+      setState((s) => ({ ...s, results: [], isLoading: false, error: null }));
+      return;
     }
 
     const search = async () => {
-      setState((s) => ({ ...s, isLoading: true, error: null }))
+      setState((s) => ({ ...s, isLoading: true, error: null }));
 
       try {
-        const types = state.type === 'all' ? undefined : [state.type]
-        const response = await fetch('/api/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const types = state.type === "all" ? undefined : [state.type];
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: debouncedQuery,
             types,
             limit: 20,
           }),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Search failed')
+          throw new Error("Search failed");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success && data.results) {
           const results: SearchResultItem[] = data.results.map((item: any) => ({
             id: item.id,
             type:
-              item.type === 'messages'
-                ? 'message'
-                : item.type === 'files'
-                  ? 'file'
-                  : item.type === 'users'
-                    ? 'user'
-                    : 'channel',
+              item.type === "messages"
+                ? "message"
+                : item.type === "files"
+                  ? "file"
+                  : item.type === "users"
+                    ? "user"
+                    : "channel",
             title: item.title,
             subtitle:
-              item.type === 'users'
+              item.type === "users"
                 ? `@${item.metadata?.username}`
-                : item.type === 'channels'
+                : item.type === "channels"
                   ? item.content
                   : undefined,
             content: item.content,
             highlight: item.highlight || item.snippet,
             metadata: item.metadata,
-            timestamp: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : undefined,
+            timestamp: item.createdAt
+              ? new Date(item.createdAt).toLocaleDateString()
+              : undefined,
             channelId: item.channelId,
             channelName: item.channelName,
             userId: item.userId,
             userName: item.userName,
             avatarUrl: item.avatarUrl,
-          }))
+          }));
 
           setState((s) => ({
             ...s,
             results,
             isLoading: false,
-            facets: data.totals || { messages: 0, files: 0, users: 0, channels: 0 },
-          }))
+            facets: data.totals || {
+              messages: 0,
+              files: 0,
+              users: 0,
+              channels: 0,
+            },
+          }));
         } else {
-          throw new Error(data.error || 'Search failed')
+          throw new Error(data.error || "Search failed");
         }
       } catch (error) {
         setState((s) => ({
           ...s,
           results: [],
           isLoading: false,
-          error: error instanceof Error ? error.message : 'Search failed',
-        }))
+          error: error instanceof Error ? error.message : "Search failed",
+        }));
       }
-    }
+    };
 
-    search()
-  }, [debouncedQuery, state.type])
+    search();
+  }, [debouncedQuery, state.type]);
 
   // Handle result selection
   const handleSelect = (result: SearchResultItem) => {
-    saveRecentSearch(state.query)
+    saveRecentSearch(state.query);
 
-    onSelect?.(result)
+    onSelect?.(result);
 
     switch (result.type) {
-      case 'message':
+      case "message":
         if (result.id && result.channelId) {
-          onNavigateToMessage?.(result.id, result.channelId)
+          onNavigateToMessage?.(result.id, result.channelId);
         }
-        break
-      case 'channel':
-        onNavigateToChannel?.(result.id)
-        break
-      case 'user':
-        onNavigateToUser?.(result.id)
-        break
-      case 'file':
-        onNavigateToFile?.(result.id)
-        break
+        break;
+      case "channel":
+        onNavigateToChannel?.(result.id);
+        break;
+      case "user":
+        onNavigateToUser?.(result.id);
+        break;
+      case "file":
+        onNavigateToFile?.(result.id);
+        break;
     }
 
-    setIsOpen(false)
-    onOpenChange?.(false)
-  }
+    setIsOpen(false);
+    onOpenChange?.(false);
+  };
 
   // Handle dialog open change
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open)
-    onOpenChange?.(open)
-  }
+    setIsOpen(open);
+    onOpenChange?.(open);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
         className={cn(
-          'max-w-2xl gap-0 overflow-hidden p-0',
-          '[&>button]:hidden', // Hide the default close button
-          className
+          "max-w-2xl gap-0 overflow-hidden p-0",
+          "[&>button]:hidden", // Hide the default close button
+          className,
         )}
       >
         <DialogTitle className="sr-only">Search</DialogTitle>
@@ -481,7 +514,9 @@ export function GlobalSearch({
             <Command.Input
               ref={inputRef}
               value={state.query}
-              onValueChange={(value) => setState((s) => ({ ...s, query: value }))}
+              onValueChange={(value) =>
+                setState((s) => ({ ...s, query: value }))
+              }
               placeholder={placeholder}
               className="flex h-12 w-full rounded-md bg-transparent px-2 py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
             />
@@ -490,7 +525,9 @@ export function GlobalSearch({
             )}
             {state.query && !state.isLoading && (
               <button
-                onClick={() => setState((s) => ({ ...s, query: '', results: [] }))}
+                onClick={() =>
+                  setState((s) => ({ ...s, query: "", results: [] }))
+                }
                 className="rounded p-1 hover:bg-muted"
               >
                 <X className="h-4 w-4 text-muted-foreground" />
@@ -503,21 +540,28 @@ export function GlobalSearch({
             {SEARCH_TYPES.map((searchType) => (
               <button
                 key={searchType.value}
-                onClick={() => setState((s) => ({ ...s, type: searchType.value }))}
+                onClick={() =>
+                  setState((s) => ({ ...s, type: searchType.value }))
+                }
                 className={cn(
-                  'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+                  "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
                   state.type === searchType.value
-                    ? 'text-primary-foreground bg-primary'
-                    : 'text-muted-foreground hover:bg-muted'
+                    ? "text-primary-foreground bg-primary"
+                    : "text-muted-foreground hover:bg-muted",
                 )}
               >
                 {searchType.icon}
                 <span>{searchType.label}</span>
                 {state.query &&
-                  searchType.value !== 'all' &&
-                  state.facets[searchType.value as keyof typeof state.facets] > 0 && (
+                  searchType.value !== "all" &&
+                  state.facets[searchType.value as keyof typeof state.facets] >
+                    0 && (
                     <Badge variant="secondary" className="h-4 px-1 text-[10px]">
-                      {state.facets[searchType.value as keyof typeof state.facets]}
+                      {
+                        state.facets[
+                          searchType.value as keyof typeof state.facets
+                        ]
+                      }
                     </Badge>
                   )}
               </button>
@@ -527,16 +571,23 @@ export function GlobalSearch({
           {/* Results */}
           <Command.List className="max-h-[400px] overflow-y-auto">
             {state.error && (
-              <div className="py-6 text-center text-sm text-destructive">{state.error}</div>
+              <div className="py-6 text-center text-sm text-destructive">
+                {state.error}
+              </div>
             )}
 
             {!state.query && !state.isLoading && (
-              <RecentSearches onSelect={(query) => setState((s) => ({ ...s, query }))} />
+              <RecentSearches
+                onSelect={(query) => setState((s) => ({ ...s, query }))}
+              />
             )}
 
-            {state.query && state.results.length === 0 && !state.isLoading && !state.error && (
-              <EmptyState query={state.query} type={state.type} />
-            )}
+            {state.query &&
+              state.results.length === 0 &&
+              !state.isLoading &&
+              !state.error && (
+                <EmptyState query={state.query} type={state.type} />
+              )}
 
             {state.results.length > 0 && (
               <Command.Group>
@@ -552,7 +603,7 @@ export function GlobalSearch({
             )}
 
             <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
-              {state.isLoading ? 'Searching...' : 'No results found.'}
+              {state.isLoading ? "Searching..." : "No results found."}
             </Command.Empty>
           </Command.List>
 
@@ -561,31 +612,40 @@ export function GlobalSearch({
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                  {typeof navigator !== 'undefined' && /Mac/.test(navigator.platform)
-                    ? '⌘'
-                    : 'Ctrl'}
+                  {typeof navigator !== "undefined" &&
+                  /Mac/.test(navigator.platform)
+                    ? "⌘"
+                    : "Ctrl"}
                 </kbd>
-                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
+                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                  K
+                </kbd>
                 <span className="ml-1">to search</span>
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">↑↓</kbd>
+                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                  ↑↓
+                </kbd>
                 <span className="ml-1">navigate</span>
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">↵</kbd>
+                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                  ↵
+                </kbd>
                 <span className="ml-1">select</span>
               </span>
             </div>
             <span className="flex items-center gap-1">
-              <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">Esc</kbd>
+              <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                Esc
+              </kbd>
               <span className="ml-1">close</span>
             </span>
           </div>
         </Command>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -593,11 +653,11 @@ export function GlobalSearch({
 // ============================================================================
 
 export function useGlobalSearch() {
-  const [isOpen, setIsOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  const open = React.useCallback(() => setIsOpen(true), [])
-  const close = React.useCallback(() => setIsOpen(false), [])
-  const toggle = React.useCallback(() => setIsOpen((prev) => !prev), [])
+  const open = React.useCallback(() => setIsOpen(true), []);
+  const close = React.useCallback(() => setIsOpen(false), []);
+  const toggle = React.useCallback(() => setIsOpen((prev) => !prev), []);
 
   return {
     isOpen,
@@ -605,7 +665,7 @@ export function useGlobalSearch() {
     open,
     close,
     toggle,
-  }
+  };
 }
 
-export default GlobalSearch
+export default GlobalSearch;

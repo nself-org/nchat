@@ -5,9 +5,9 @@
  * Ensures valid state transitions and provides type-safe state management.
  */
 
-import { EventEmitter } from 'events'
+import { EventEmitter } from "events";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
@@ -17,48 +17,48 @@ import { logger } from '@/lib/logger'
  * All possible call states in the lifecycle
  */
 export type CallState =
-  | 'idle' // No active call
-  | 'initiating' // Creating call (getting media, creating connection)
-  | 'ringing' // Calling recipient (waiting for answer)
-  | 'connecting' // WebRTC negotiation in progress
-  | 'connected' // Call is active
-  | 'reconnecting' // Network issue, attempting to reconnect
-  | 'held' // Call is on hold
-  | 'transferring' // Call is being transferred
-  | 'ending' // Hanging up (cleanup in progress)
-  | 'ended' // Call has ended
+  | "idle" // No active call
+  | "initiating" // Creating call (getting media, creating connection)
+  | "ringing" // Calling recipient (waiting for answer)
+  | "connecting" // WebRTC negotiation in progress
+  | "connected" // Call is active
+  | "reconnecting" // Network issue, attempting to reconnect
+  | "held" // Call is on hold
+  | "transferring" // Call is being transferred
+  | "ending" // Hanging up (cleanup in progress)
+  | "ended"; // Call has ended
 
 /**
  * Reason for call ending
  */
 export type CallEndReason =
-  | 'completed' // Normal hangup
-  | 'declined' // Recipient declined
-  | 'missed' // No answer
-  | 'busy' // Recipient busy
-  | 'timeout' // Connection timeout
-  | 'error' // Technical error
-  | 'network' // Network failure
-  | 'cancelled' // Caller cancelled
+  | "completed" // Normal hangup
+  | "declined" // Recipient declined
+  | "missed" // No answer
+  | "busy" // Recipient busy
+  | "timeout" // Connection timeout
+  | "error" // Technical error
+  | "network" // Network failure
+  | "cancelled"; // Caller cancelled
 
 /**
  * State transition event
  */
 export interface StateTransitionEvent {
-  from: CallState
-  to: CallState
-  timestamp: Date
-  reason?: string
-  metadata?: Record<string, any>
+  from: CallState;
+  to: CallState;
+  timestamp: Date;
+  reason?: string;
+  metadata?: Record<string, any>;
 }
 
 /**
  * State machine configuration
  */
 export interface StateMachineConfig {
-  initialState?: CallState
-  onTransition?: (event: StateTransitionEvent) => void
-  onInvalidTransition?: (from: CallState, to: CallState) => void
+  initialState?: CallState;
+  onTransition?: (event: StateTransitionEvent) => void;
+  onInvalidTransition?: (from: CallState, to: CallState) => void;
 }
 
 // =============================================================================
@@ -70,82 +70,86 @@ export interface StateMachineConfig {
  * Key: current state, Value: array of valid next states
  */
 const VALID_TRANSITIONS: Record<CallState, CallState[]> = {
-  idle: ['initiating'],
-  initiating: ['ringing', 'connecting', 'ending', 'ended'],
-  ringing: ['connecting', 'ending', 'ended'],
-  connecting: ['connected', 'ending', 'ended'],
-  connected: ['held', 'transferring', 'reconnecting', 'ending', 'ended'],
-  reconnecting: ['connected', 'ending', 'ended'],
-  held: ['connected', 'transferring', 'ending', 'ended'],
-  transferring: ['connected', 'ending', 'ended'],
-  ending: ['ended'],
-  ended: ['idle'],
-}
+  idle: ["initiating"],
+  initiating: ["ringing", "connecting", "ending", "ended"],
+  ringing: ["connecting", "ending", "ended"],
+  connecting: ["connected", "ending", "ended"],
+  connected: ["held", "transferring", "reconnecting", "ending", "ended"],
+  reconnecting: ["connected", "ending", "ended"],
+  held: ["connected", "transferring", "ending", "ended"],
+  transferring: ["connected", "ending", "ended"],
+  ending: ["ended"],
+  ended: ["idle"],
+};
 
 // =============================================================================
 // Call State Machine
 // =============================================================================
 
 export class CallStateMachine extends EventEmitter {
-  private currentState: CallState
-  private previousState: CallState | null = null
-  private history: StateTransitionEvent[] = []
-  private config: StateMachineConfig
+  private currentState: CallState;
+  private previousState: CallState | null = null;
+  private history: StateTransitionEvent[] = [];
+  private config: StateMachineConfig;
 
   constructor(config: StateMachineConfig = {}) {
-    super()
-    this.config = config
-    this.currentState = config.initialState || 'idle'
+    super();
+    this.config = config;
+    this.currentState = config.initialState || "idle";
   }
 
   /**
    * Get current state
    */
   getState(): CallState {
-    return this.currentState
+    return this.currentState;
   }
 
   /**
    * Get previous state
    */
   getPreviousState(): CallState | null {
-    return this.previousState
+    return this.previousState;
   }
 
   /**
    * Get state transition history
    */
   getHistory(): StateTransitionEvent[] {
-    return [...this.history]
+    return [...this.history];
   }
 
   /**
    * Check if transition is valid
    */
   canTransitionTo(targetState: CallState): boolean {
-    const validStates = VALID_TRANSITIONS[this.currentState] || []
-    return validStates.includes(targetState)
+    const validStates = VALID_TRANSITIONS[this.currentState] || [];
+    return validStates.includes(targetState);
   }
 
   /**
    * Transition to new state
    */
-  transition(targetState: CallState, reason?: string, metadata?: Record<string, any>): boolean {
+  transition(
+    targetState: CallState,
+    reason?: string,
+    metadata?: Record<string, any>,
+  ): boolean {
     // Check if transition is valid
     if (!this.canTransitionTo(targetState)) {
-      logger.warn(`Invalid transition: ${this.currentState} -> ${targetState}`)
+      logger.warn(`Invalid transition: ${this.currentState} -> ${targetState}`);
 
       // Notify invalid transition
       if (this.config.onInvalidTransition) {
-        this.config.onInvalidTransition(this.currentState, targetState)
+        this.config.onInvalidTransition(this.currentState, targetState);
       }
 
-      this.emit('invalid-transition', {
+      this.emit("invalid-transition", {
         from: this.currentState,
         to: targetState,
-      })
+      });
 
-      return false
+      return false;
     }
 
     // Create transition event
@@ -155,64 +159,64 @@ export class CallStateMachine extends EventEmitter {
       timestamp: new Date(),
       reason,
       metadata,
-    }
+    };
 
     // Update state
-    this.previousState = this.currentState
-    this.currentState = targetState
+    this.previousState = this.currentState;
+    this.currentState = targetState;
 
     // Record history
-    this.history.push(event)
+    this.history.push(event);
 
     // Notify listeners
     if (this.config.onTransition) {
-      this.config.onTransition(event)
+      this.config.onTransition(event);
     }
 
-    this.emit('transition', event)
-    this.emit('state-change', targetState, this.previousState)
-    this.emit(`enter:${targetState}`, event)
-    this.emit(`exit:${this.previousState}`, event)
+    this.emit("transition", event);
+    this.emit("state-change", targetState, this.previousState);
+    this.emit(`enter:${targetState}`, event);
+    this.emit(`exit:${this.previousState}`, event);
 
-    return true
+    return true;
   }
 
   /**
    * Reset state machine
    */
   reset(): void {
-    this.previousState = this.currentState
-    this.currentState = this.config.initialState || 'idle'
-    this.history = []
-    this.emit('reset')
+    this.previousState = this.currentState;
+    this.currentState = this.config.initialState || "idle";
+    this.history = [];
+    this.emit("reset");
   }
 
   /**
    * Check if in specific state
    */
   isState(state: CallState): boolean {
-    return this.currentState === state
+    return this.currentState === state;
   }
 
   /**
    * Check if in any of the given states
    */
   isAnyState(...states: CallState[]): boolean {
-    return states.includes(this.currentState)
+    return states.includes(this.currentState);
   }
 
   /**
    * Check if call is active (not idle or ended)
    */
   isActive(): boolean {
-    return !this.isAnyState('idle', 'ended')
+    return !this.isAnyState("idle", "ended");
   }
 
   /**
    * Check if call is in progress (connected or held)
    */
   isInProgress(): boolean {
-    return this.isAnyState('connected', 'held')
+    return this.isAnyState("connected", "held");
   }
 
   /**
@@ -220,62 +224,66 @@ export class CallStateMachine extends EventEmitter {
    */
   getStateDisplayName(): string {
     const displayNames: Record<CallState, string> = {
-      idle: 'Idle',
-      initiating: 'Starting call...',
-      ringing: 'Ringing...',
-      connecting: 'Connecting...',
-      connected: 'Connected',
-      reconnecting: 'Reconnecting...',
-      held: 'On Hold',
-      transferring: 'Transferring...',
-      ending: 'Ending call...',
-      ended: 'Ended',
-    }
-    return displayNames[this.currentState] || this.currentState
+      idle: "Idle",
+      initiating: "Starting call...",
+      ringing: "Ringing...",
+      connecting: "Connecting...",
+      connected: "Connected",
+      reconnecting: "Reconnecting...",
+      held: "On Hold",
+      transferring: "Transferring...",
+      ending: "Ending call...",
+      ended: "Ended",
+    };
+    return displayNames[this.currentState] || this.currentState;
   }
 
   /**
    * Get state duration (time in current state)
    */
   getCurrentStateDuration(): number {
-    const lastTransition = this.history[this.history.length - 1]
-    if (!lastTransition) return 0
+    const lastTransition = this.history[this.history.length - 1];
+    if (!lastTransition) return 0;
 
-    return Date.now() - lastTransition.timestamp.getTime()
+    return Date.now() - lastTransition.timestamp.getTime();
   }
 
   /**
    * Get total call duration (from initiation to now)
    */
   getTotalDuration(): number {
-    const firstTransition = this.history.find((t) => t.from === 'idle')
-    if (!firstTransition) return 0
+    const firstTransition = this.history.find((t) => t.from === "idle");
+    if (!firstTransition) return 0;
 
-    return Date.now() - firstTransition.timestamp.getTime()
+    return Date.now() - firstTransition.timestamp.getTime();
   }
 
   /**
    * Get connected duration (time spent in connected state)
    */
   getConnectedDuration(): number {
-    let duration = 0
-    let connectedStart: Date | null = null
+    let duration = 0;
+    let connectedStart: Date | null = null;
 
     for (const event of this.history) {
-      if (event.to === 'connected') {
-        connectedStart = event.timestamp
-      } else if (connectedStart && event.from === 'connected' && event.to !== 'held') {
-        duration += event.timestamp.getTime() - connectedStart.getTime()
-        connectedStart = null
+      if (event.to === "connected") {
+        connectedStart = event.timestamp;
+      } else if (
+        connectedStart &&
+        event.from === "connected" &&
+        event.to !== "held"
+      ) {
+        duration += event.timestamp.getTime() - connectedStart.getTime();
+        connectedStart = null;
       }
     }
 
     // Add current connected time if still connected
-    if (connectedStart && this.currentState === 'connected') {
-      duration += Date.now() - connectedStart.getTime()
+    if (connectedStart && this.currentState === "connected") {
+      duration += Date.now() - connectedStart.getTime();
     }
 
-    return duration
+    return duration;
   }
 }
 
@@ -286,8 +294,10 @@ export class CallStateMachine extends EventEmitter {
 /**
  * Create a new call state machine
  */
-export function createCallStateMachine(config?: StateMachineConfig): CallStateMachine {
-  return new CallStateMachine(config)
+export function createCallStateMachine(
+  config?: StateMachineConfig,
+): CallStateMachine {
+  return new CallStateMachine(config);
 }
 
 // =============================================================================
@@ -299,29 +309,29 @@ export function createCallStateMachine(config?: StateMachineConfig): CallStateMa
  */
 export function getAllStates(): CallState[] {
   return [
-    'idle',
-    'initiating',
-    'ringing',
-    'connecting',
-    'connected',
-    'reconnecting',
-    'held',
-    'transferring',
-    'ending',
-    'ended',
-  ]
+    "idle",
+    "initiating",
+    "ringing",
+    "connecting",
+    "connected",
+    "reconnecting",
+    "held",
+    "transferring",
+    "ending",
+    "ended",
+  ];
 }
 
 /**
  * Get valid transitions from a state
  */
 export function getValidTransitions(state: CallState): CallState[] {
-  return VALID_TRANSITIONS[state] || []
+  return VALID_TRANSITIONS[state] || [];
 }
 
 /**
  * Check if a transition is valid
  */
 export function isValidTransition(from: CallState, to: CallState): boolean {
-  return getValidTransitions(from).includes(to)
+  return getValidTransitions(from).includes(to);
 }

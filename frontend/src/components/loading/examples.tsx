@@ -5,9 +5,9 @@
  * This file is for reference/documentation only - not used in production
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Spinner,
   MessageSkeleton,
@@ -21,7 +21,7 @@ import {
   EmptyState,
   UploadProgress,
   StepProgress,
-} from '@/components/loading'
+} from "@/components/loading";
 
 // Example 1: Simple loading spinner
 export function Example1_BasicSpinner() {
@@ -31,7 +31,7 @@ export function Example1_BasicSpinner() {
       <Spinner size="md" />
       <Spinner size="lg" text="Loading..." />
     </div>
-  )
+  );
 }
 
 // Example 2: Skeleton screens for different content types
@@ -56,39 +56,43 @@ export function Example2_SkeletonScreens() {
         <ProfileSkeleton showCover showBio showStats />
       </div>
     </div>
-  )
+  );
 }
 
 // Example 3: Loading button states
 export function Example3_ButtonLoading() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = async () => {
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsLoading(false)
-  }
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsLoading(false);
+  };
 
   return (
     <div className="space-x-2">
-      <LoadingButton isLoading={isLoading} loadingText="Saving..." onClick={handleClick}>
+      <LoadingButton
+        isLoading={isLoading}
+        loadingText="Saving..."
+        onClick={handleClick}
+      >
         Save Changes
       </LoadingButton>
     </div>
-  )
+  );
 }
 
 // Example 4: Progress indicators
 export function Example4_ProgressIndicators() {
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useState(0);
 
   // Simulate progress
   useState(() => {
     const interval = setInterval(() => {
-      setProgress((prev) => (prev >= 100 ? 0 : prev + 10))
-    }, 500)
-    return () => clearInterval(interval)
-  })
+      setProgress((prev) => (prev >= 100 ? 0 : prev + 10));
+    }, 500);
+    return () => clearInterval(interval);
+  });
 
   return (
     <div className="space-y-6">
@@ -108,7 +112,7 @@ export function Example4_ProgressIndicators() {
       <div>
         <h3 className="mb-2 text-sm font-medium">Step Progress</h3>
         <StepProgress
-          steps={['Select', 'Configure', 'Review', 'Complete']}
+          steps={["Select", "Configure", "Review", "Complete"]}
           currentStep={Math.floor(progress / 25)}
         />
       </div>
@@ -120,16 +124,16 @@ export function Example4_ProgressIndicators() {
           fileName="document.pdf"
           fileSize="2.4 MB"
           progress={progress}
-          status={progress < 100 ? 'uploading' : 'success'}
+          status={progress < 100 ? "uploading" : "success"}
         />
       </div>
     </div>
-  )
+  );
 }
 
 // Example 5: Loading overlay
 export function Example5_LoadingOverlay() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <div className="relative h-64 rounded-lg border p-6">
@@ -152,29 +156,29 @@ export function Example5_LoadingOverlay() {
         blur
       />
     </div>
-  )
+  );
 }
 
 // Example 6: Data wrapper with loading states
 export function Example6_DataWrapper() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-  const [data, setData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [data, setData] = useState<any>(null);
 
   const loadData = async () => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setData({ name: 'John Doe', email: 'john@example.com' })
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setData({ name: "John Doe", email: "john@example.com" });
     } catch (err) {
-      setError(err as Error)
+      setError(err as Error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -191,7 +195,12 @@ export function Example6_DataWrapper() {
         error={error}
         onRetry={loadData}
         loadingSkeleton={<ProfileSkeleton />}
-        emptyState={<EmptyState title="No data" description="Click the button to load data" />}
+        emptyState={
+          <EmptyState
+            title="No data"
+            description="Click the button to load data"
+          />
+        }
       >
         {(data) => (
           <div className="rounded-lg border p-4">
@@ -201,28 +210,30 @@ export function Example6_DataWrapper() {
         )}
       </DataWrapper>
     </div>
-  )
+  );
 }
 
 // Example 7: Infinite scroll
 export function Example7_InfiniteScroll() {
-  const [items, setItems] = useState<number[]>(Array.from({ length: 10 }, (_, i) => i))
-  const [isLoading, setIsLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(true)
+  const [items, setItems] = useState<number[]>(
+    Array.from({ length: 10 }, (_, i) => i),
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const loadMore = async () => {
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const newItems = Array.from({ length: 10 }, (_, i) => items.length + i)
-    setItems([...items, ...newItems])
+    const newItems = Array.from({ length: 10 }, (_, i) => items.length + i);
+    setItems([...items, ...newItems]);
 
     if (items.length + newItems.length >= 50) {
-      setHasMore(false)
+      setHasMore(false);
     }
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   return (
     <div className="h-96 overflow-auto rounded-lg border p-4">
@@ -242,22 +253,22 @@ export function Example7_InfiniteScroll() {
         rootMargin="100px"
       />
     </div>
-  )
+  );
 }
 
 // Example 8: Multi-step form with loading
 export function Example8_MultiStepForm() {
-  const [currentStep, setCurrentStep] = useState(0)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const steps = ['Account', 'Profile', 'Preferences', 'Complete']
+  const steps = ["Account", "Profile", "Preferences", "Complete"];
 
   const handleNext = async () => {
-    setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
-    setIsSubmitting(false)
-  }
+    setIsSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    setIsSubmitting(false);
+  };
 
   return (
     <div className="space-y-6 rounded-lg border p-6">
@@ -288,11 +299,11 @@ export function Example8_MultiStepForm() {
           onClick={handleNext}
           disabled={currentStep === steps.length - 1}
         >
-          {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
+          {currentStep === steps.length - 1 ? "Complete" : "Next"}
         </LoadingButton>
       </div>
     </div>
-  )
+  );
 }
 
 // Example 9: Empty states
@@ -302,7 +313,12 @@ export function Example9_EmptyStates() {
       {/* No messages */}
       <EmptyState
         icon={
-          <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className="h-12 w-12"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -323,7 +339,12 @@ export function Example9_EmptyStates() {
       {/* No results */}
       <EmptyState
         icon={
-          <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className="h-12 w-12"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -336,48 +357,52 @@ export function Example9_EmptyStates() {
         description="Try adjusting your search terms"
       />
     </div>
-  )
+  );
 }
 
 // Example 10: Complete chat interface with all loading states
 export function Example10_CompleteChatExample() {
-  const [isLoadingMessages, setIsLoadingMessages] = useState(true)
-  const [messages, setMessages] = useState<any[]>([])
-  const [isSending, setIsSending] = useState(false)
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isSending, setIsSending] = useState(false);
 
   // Simulate loading messages
   useState(() => {
     setTimeout(() => {
       setMessages([
-        { id: 1, text: 'Hello!', user: 'Alice' },
-        { id: 2, text: 'Hi there!', user: 'Bob' },
-      ])
-      setIsLoadingMessages(false)
-    }, 2000)
-  })
+        { id: 1, text: "Hello!", user: "Alice" },
+        { id: 2, text: "Hi there!", user: "Bob" },
+      ]);
+      setIsLoadingMessages(false);
+    }, 2000);
+  });
 
   const handleSend = async (text: string) => {
-    setIsSending(true)
+    setIsSending(true);
 
     // Optimistically add message
     const tempMessage = {
-      id: 'temp-' + Date.now(),
+      id: "temp-" + Date.now(),
       text,
-      user: 'You',
+      user: "You",
       isPending: true,
-    }
-    setMessages([...messages, tempMessage])
+    };
+    setMessages([...messages, tempMessage]);
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Replace with real message
     setMessages((prev) =>
-      prev.map((m) => (m.id === tempMessage.id ? { ...m, id: Date.now(), isPending: false } : m))
-    )
+      prev.map((m) =>
+        m.id === tempMessage.id
+          ? { ...m, id: Date.now(), isPending: false }
+          : m,
+      ),
+    );
 
-    setIsSending(false)
-  }
+    setIsSending(false);
+  };
 
   return (
     <div className="flex h-[600px] flex-col rounded-lg border">
@@ -397,19 +422,24 @@ export function Example10_CompleteChatExample() {
         {isLoadingMessages ? (
           <MessageSkeleton count={5} showAvatar />
         ) : messages.length === 0 ? (
-          <EmptyState title="No messages yet" description="Be the first to say something!" />
+          <EmptyState
+            title="No messages yet"
+            description="Be the first to say something!"
+          />
         ) : (
           <div className="space-y-4">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-3 ${message.isPending ? 'opacity-50' : ''}`}
+                className={`flex gap-3 ${message.isPending ? "opacity-50" : ""}`}
               >
                 <div className="h-8 w-8 shrink-0 rounded-full bg-muted" />
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{message.user}</span>
-                    {message.isPending && <Spinner size="sm" className="ml-2" />}
+                    {message.isPending && (
+                      <Spinner size="sm" className="ml-2" />
+                    )}
                   </div>
                   <p className="text-sm">{message.text}</p>
                 </div>
@@ -427,16 +457,16 @@ export function Example10_CompleteChatExample() {
             placeholder="Type a message..."
             className="flex-1 rounded-lg border px-3 py-2 text-sm"
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.currentTarget.value) {
-                handleSend(e.currentTarget.value)
-                e.currentTarget.value = ''
+              if (e.key === "Enter" && e.currentTarget.value) {
+                handleSend(e.currentTarget.value);
+                e.currentTarget.value = "";
               }
             }}
           />
           <LoadingButton
             isLoading={isSending}
             loadingText="Sending..."
-            onClick={() => handleSend('Test message')}
+            onClick={() => handleSend("Test message")}
             disabled={isLoadingMessages}
           >
             Send
@@ -444,7 +474,7 @@ export function Example10_CompleteChatExample() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Export all examples
@@ -459,4 +489,4 @@ export const examples = {
   Example8_MultiStepForm,
   Example9_EmptyStates,
   Example10_CompleteChatExample,
-}
+};

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Scheduled Messages List Component
@@ -17,20 +17,24 @@
  * ```
  */
 
-import { useMemo, useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Badge } from '@/components/ui/badge'
+import { useMemo, useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+} from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   CalendarClock,
   Search,
@@ -41,97 +45,103 @@ import {
   Calendar,
   Inbox,
   RefreshCw,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { ScheduledMessageItem } from './scheduled-message-item'
-import { useScheduled } from '@/lib/scheduled/use-scheduled'
-import type { ScheduledMessage } from '@/graphql/scheduled'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ScheduledMessageItem } from "./scheduled-message-item";
+import { useScheduled } from "@/lib/scheduled/use-scheduled";
+import type { ScheduledMessage } from "@/graphql/scheduled";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ScheduledMessagesListProps {
-  userId: string
-  channelId?: string
-  onEdit?: (message: ScheduledMessage) => void
-  onScheduleNew?: () => void
-  maxHeight?: string | number
-  showHeader?: boolean
-  showSearch?: boolean
-  showGrouping?: boolean
-  className?: string
+  userId: string;
+  channelId?: string;
+  onEdit?: (message: ScheduledMessage) => void;
+  onScheduleNew?: () => void;
+  maxHeight?: string | number;
+  showHeader?: boolean;
+  showSearch?: boolean;
+  showGrouping?: boolean;
+  className?: string;
 }
 
-type GroupBy = 'channel' | 'date' | 'none'
-type SortBy = 'time-asc' | 'time-desc' | 'channel'
+type GroupBy = "channel" | "date" | "none";
+type SortBy = "time-asc" | "time-desc" | "channel";
 
 interface GroupedMessages {
-  key: string
-  label: string
-  icon?: React.ReactNode
-  messages: ScheduledMessage[]
-  isPrivate?: boolean
+  key: string;
+  label: string;
+  icon?: React.ReactNode;
+  messages: ScheduledMessage[];
+  isPrivate?: boolean;
 }
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-function groupMessagesByChannel(messages: ScheduledMessage[]): GroupedMessages[] {
-  const groups: Record<string, GroupedMessages> = {}
+function groupMessagesByChannel(
+  messages: ScheduledMessage[],
+): GroupedMessages[] {
+  const groups: Record<string, GroupedMessages> = {};
 
   for (const message of messages) {
-    const channelId = message.channel_id
-    const channelName = message.channel?.name || 'Unknown'
-    const isPrivate = message.channel?.is_private || false
+    const channelId = message.channel_id;
+    const channelName = message.channel?.name || "Unknown";
+    const isPrivate = message.channel?.is_private || false;
 
     if (!groups[channelId]) {
       groups[channelId] = {
         key: channelId,
         label: channelName,
-        icon: isPrivate ? <Lock className="h-4 w-4" /> : <Hash className="h-4 w-4" />,
+        icon: isPrivate ? (
+          <Lock className="h-4 w-4" />
+        ) : (
+          <Hash className="h-4 w-4" />
+        ),
         messages: [],
         isPrivate,
-      }
+      };
     }
 
-    groups[channelId].messages.push(message)
+    groups[channelId].messages.push(message);
   }
 
-  return Object.values(groups).sort((a, b) => a.label.localeCompare(b.label))
+  return Object.values(groups).sort((a, b) => a.label.localeCompare(b.label));
 }
 
 function groupMessagesByDate(messages: ScheduledMessage[]): GroupedMessages[] {
-  const groups: Record<string, GroupedMessages> = {}
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const groups: Record<string, GroupedMessages> = {};
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const nextWeek = new Date(today)
-  nextWeek.setDate(nextWeek.getDate() + 7)
+  const nextWeek = new Date(today);
+  nextWeek.setDate(nextWeek.getDate() + 7);
 
   for (const message of messages) {
-    const scheduledDate = new Date(message.scheduled_at)
-    scheduledDate.setHours(0, 0, 0, 0)
+    const scheduledDate = new Date(message.scheduled_at);
+    scheduledDate.setHours(0, 0, 0, 0);
 
-    let key: string
-    let label: string
+    let key: string;
+    let label: string;
 
     if (scheduledDate.getTime() === today.getTime()) {
-      key = 'today'
-      label = 'Today'
+      key = "today";
+      label = "Today";
     } else if (scheduledDate.getTime() === tomorrow.getTime()) {
-      key = 'tomorrow'
-      label = 'Tomorrow'
+      key = "tomorrow";
+      label = "Tomorrow";
     } else if (scheduledDate < nextWeek) {
-      key = 'this-week'
-      label = 'This Week'
+      key = "this-week";
+      label = "This Week";
     } else {
-      key = 'later'
-      label = 'Later'
+      key = "later";
+      label = "Later";
     }
 
     if (!groups[key]) {
@@ -140,43 +150,56 @@ function groupMessagesByDate(messages: ScheduledMessage[]): GroupedMessages[] {
         label,
         icon: <Calendar className="h-4 w-4" />,
         messages: [],
-      }
+      };
     }
 
-    groups[key].messages.push(message)
+    groups[key].messages.push(message);
   }
 
   // Sort groups in order: today, tomorrow, this week, later
-  const order = ['today', 'tomorrow', 'this-week', 'later']
-  return order.filter((key) => groups[key]).map((key) => groups[key])
+  const order = ["today", "tomorrow", "this-week", "later"];
+  return order.filter((key) => groups[key]).map((key) => groups[key]);
 }
 
-function filterMessages(messages: ScheduledMessage[], searchQuery: string): ScheduledMessage[] {
-  if (!searchQuery.trim()) return messages
+function filterMessages(
+  messages: ScheduledMessage[],
+  searchQuery: string,
+): ScheduledMessage[] {
+  if (!searchQuery.trim()) return messages;
 
-  const query = searchQuery.toLowerCase()
+  const query = searchQuery.toLowerCase();
   return messages.filter(
     (msg) =>
-      msg.content.toLowerCase().includes(query) || msg.channel?.name?.toLowerCase().includes(query)
-  )
+      msg.content.toLowerCase().includes(query) ||
+      msg.channel?.name?.toLowerCase().includes(query),
+  );
 }
 
-function sortMessages(messages: ScheduledMessage[], sortBy: SortBy): ScheduledMessage[] {
-  const sorted = [...messages]
+function sortMessages(
+  messages: ScheduledMessage[],
+  sortBy: SortBy,
+): ScheduledMessage[] {
+  const sorted = [...messages];
 
   switch (sortBy) {
-    case 'time-asc':
+    case "time-asc":
       return sorted.sort(
-        (a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()
-      )
-    case 'time-desc':
+        (a, b) =>
+          new Date(a.scheduled_at).getTime() -
+          new Date(b.scheduled_at).getTime(),
+      );
+    case "time-desc":
       return sorted.sort(
-        (a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime()
-      )
-    case 'channel':
-      return sorted.sort((a, b) => (a.channel?.name || '').localeCompare(b.channel?.name || ''))
+        (a, b) =>
+          new Date(b.scheduled_at).getTime() -
+          new Date(a.scheduled_at).getTime(),
+      );
+    case "channel":
+      return sorted.sort((a, b) =>
+        (a.channel?.name || "").localeCompare(b.channel?.name || ""),
+      );
     default:
-      return sorted
+      return sorted;
   }
 }
 
@@ -194,14 +217,18 @@ function ScheduledMessagesListSkeleton() {
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Empty State
 // ============================================================================
 
-function ScheduledMessagesEmpty({ onScheduleNew }: { onScheduleNew?: () => void }) {
+function ScheduledMessagesEmpty({
+  onScheduleNew,
+}: {
+  onScheduleNew?: () => void;
+}) {
   return (
     <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
@@ -209,8 +236,8 @@ function ScheduledMessagesEmpty({ onScheduleNew }: { onScheduleNew?: () => void 
       </div>
       <h3 className="mb-2 text-lg font-medium">No scheduled messages</h3>
       <p className="mb-4 max-w-sm text-sm text-muted-foreground">
-        You don&apos;t have any messages scheduled to be sent. Schedule a message to send it at a
-        specific time.
+        You don&apos;t have any messages scheduled to be sent. Schedule a
+        message to send it at a specific time.
       </p>
       {onScheduleNew && (
         <Button onClick={onScheduleNew}>
@@ -219,7 +246,7 @@ function ScheduledMessagesEmpty({ onScheduleNew }: { onScheduleNew?: () => void 
         </Button>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -227,12 +254,12 @@ function ScheduledMessagesEmpty({ onScheduleNew }: { onScheduleNew?: () => void 
 // ============================================================================
 
 interface MessageGroupProps {
-  group: GroupedMessages
-  onEdit?: (message: ScheduledMessage) => void
-  onCancel?: (id: string) => Promise<void>
-  onSendNow?: (id: string) => Promise<void>
-  processingIds: Set<string>
-  defaultExpanded?: boolean
+  group: GroupedMessages;
+  onEdit?: (message: ScheduledMessage) => void;
+  onCancel?: (id: string) => Promise<void>;
+  onSendNow?: (id: string) => Promise<void>;
+  processingIds: Set<string>;
+  defaultExpanded?: boolean;
 }
 
 function MessageGroup({
@@ -243,16 +270,16 @@ function MessageGroup({
   processingIds,
   defaultExpanded = true,
 }: MessageGroupProps) {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded)
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
     <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
       <CollapsibleTrigger asChild>
         <button
           className={cn(
-            'flex w-full items-center gap-2 rounded-lg p-2',
-            'text-left transition-colors hover:bg-accent',
-            'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+            "flex w-full items-center gap-2 rounded-lg p-2",
+            "text-left transition-colors hover:bg-accent",
+            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
           )}
         >
           {isExpanded ? (
@@ -283,7 +310,7 @@ function MessageGroup({
         </div>
       </CollapsibleContent>
     </Collapsible>
-  )
+  );
 }
 
 // ============================================================================
@@ -295,16 +322,16 @@ export function ScheduledMessagesList({
   channelId,
   onEdit,
   onScheduleNew,
-  maxHeight = '100%',
+  maxHeight = "100%",
   showHeader = true,
   showSearch = true,
   showGrouping = true,
   className,
 }: ScheduledMessagesListProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [groupBy, setGroupBy] = useState<GroupBy>('channel')
-  const [sortBy, setSortBy] = useState<SortBy>('time-asc')
-  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set())
+  const [searchQuery, setSearchQuery] = useState("");
+  const [groupBy, setGroupBy] = useState<GroupBy>("channel");
+  const [sortBy, setSortBy] = useState<SortBy>("time-asc");
+  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
 
   const {
     messages,
@@ -314,67 +341,67 @@ export function ScheduledMessagesList({
     sendNow,
     fetchScheduledMessages,
     isFeatureEnabled,
-  } = useScheduled({ userId, channelId, autoFetch: true })
+  } = useScheduled({ userId, channelId, autoFetch: true });
 
   // Filter and sort messages
   const processedMessages = useMemo(() => {
-    let result = messages.filter((msg) => msg.status === 'pending')
-    result = filterMessages(result, searchQuery)
-    result = sortMessages(result, sortBy)
-    return result
-  }, [messages, searchQuery, sortBy])
+    let result = messages.filter((msg) => msg.status === "pending");
+    result = filterMessages(result, searchQuery);
+    result = sortMessages(result, sortBy);
+    return result;
+  }, [messages, searchQuery, sortBy]);
 
   // Group messages
   const groupedMessages = useMemo(() => {
-    if (groupBy === 'none') {
-      return null
+    if (groupBy === "none") {
+      return null;
     }
-    if (groupBy === 'channel') {
-      return groupMessagesByChannel(processedMessages)
+    if (groupBy === "channel") {
+      return groupMessagesByChannel(processedMessages);
     }
-    return groupMessagesByDate(processedMessages)
-  }, [processedMessages, groupBy])
+    return groupMessagesByDate(processedMessages);
+  }, [processedMessages, groupBy]);
 
   // Handlers
   const handleCancel = useCallback(
     async (id: string) => {
-      setProcessingIds((prev) => new Set(prev).add(`cancel-${id}`))
+      setProcessingIds((prev) => new Set(prev).add(`cancel-${id}`));
       try {
-        await cancelScheduledMessage(id)
+        await cancelScheduledMessage(id);
       } finally {
         setProcessingIds((prev) => {
-          const next = new Set(prev)
-          next.delete(`cancel-${id}`)
-          return next
-        })
+          const next = new Set(prev);
+          next.delete(`cancel-${id}`);
+          return next;
+        });
       }
     },
-    [cancelScheduledMessage]
-  )
+    [cancelScheduledMessage],
+  );
 
   const handleSendNow = useCallback(
     async (id: string) => {
-      setProcessingIds((prev) => new Set(prev).add(`send-${id}`))
+      setProcessingIds((prev) => new Set(prev).add(`send-${id}`));
       try {
-        await sendNow(id)
+        await sendNow(id);
       } finally {
         setProcessingIds((prev) => {
-          const next = new Set(prev)
-          next.delete(`send-${id}`)
-          return next
-        })
+          const next = new Set(prev);
+          next.delete(`send-${id}`);
+          return next;
+        });
       }
     },
-    [sendNow]
-  )
+    [sendNow],
+  );
 
   // Feature not enabled
   if (!isFeatureEnabled) {
     return (
-      <div className={cn('p-4 text-center text-muted-foreground', className)}>
+      <div className={cn("p-4 text-center text-muted-foreground", className)}>
         Scheduled messages are not enabled.
       </div>
-    )
+    );
   }
 
   // Loading state
@@ -383,27 +410,32 @@ export function ScheduledMessagesList({
       <div className={className}>
         <ScheduledMessagesListSkeleton />
       </div>
-    )
+    );
   }
 
   // Error state
   if (error) {
     return (
-      <div className={cn('p-4', className)}>
+      <div className={cn("p-4", className)}>
         <div className="text-center text-destructive">
           <p className="text-sm">Failed to load scheduled messages</p>
           <p className="mt-1 text-xs text-muted-foreground">{error}</p>
-          <Button variant="outline" size="sm" onClick={fetchScheduledMessages} className="mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchScheduledMessages}
+            className="mt-4"
+          >
             <RefreshCw className="mr-2 h-4 w-4" />
             Retry
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex flex-col', className)}>
+    <div className={cn("flex flex-col", className)}>
       {/* Header */}
       {showHeader && (
         <div className="flex items-center justify-between border-b p-4">
@@ -438,7 +470,10 @@ export function ScheduledMessagesList({
           )}
           {showGrouping && (
             <div className="flex gap-2">
-              <Select value={groupBy} onValueChange={(v) => setGroupBy(v as GroupBy)}>
+              <Select
+                value={groupBy}
+                onValueChange={(v) => setGroupBy(v as GroupBy)}
+              >
                 <SelectTrigger className="w-[130px]">
                   <SelectValue placeholder="Group by" />
                 </SelectTrigger>
@@ -448,7 +483,10 @@ export function ScheduledMessagesList({
                   <SelectItem value="none">No Grouping</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortBy)}>
+              <Select
+                value={sortBy}
+                onValueChange={(v) => setSortBy(v as SortBy)}
+              >
                 <SelectTrigger className="w-[130px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -499,7 +537,7 @@ export function ScheduledMessagesList({
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
-export default ScheduledMessagesList
+export default ScheduledMessagesList;

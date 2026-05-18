@@ -4,18 +4,24 @@
  * Complete examples demonstrating all features of the editor and markdown system.
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useRef } from 'react'
-import type { JSONContent } from '@tiptap/core'
-import { RichEditor, type RichEditorRef } from './rich-editor'
-import { MarkdownRenderer, MarkdownPreview } from '@/lib/markdown'
-import { jsonToMarkdown, markdownToJson } from '@/lib/markdown'
-import type { MentionUser, MentionChannel } from './editor-extensions'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { useState, useRef } from "react";
+import type { JSONContent } from "@tiptap/core";
+import { RichEditor, type RichEditorRef } from "./rich-editor";
+import { MarkdownRenderer, MarkdownPreview } from "@/lib/markdown";
+import { jsonToMarkdown, markdownToJson } from "@/lib/markdown";
+import type { MentionUser, MentionChannel } from "./editor-extensions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 // ============================================================================
 // Sample Data
@@ -23,41 +29,41 @@ import { Button } from '@/components/ui/button'
 
 const sampleUsers: MentionUser[] = [
   {
-    id: '1',
-    username: 'alice',
-    displayName: 'Alice Johnson',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
-    presence: 'online',
+    id: "1",
+    username: "alice",
+    displayName: "Alice Johnson",
+    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
+    presence: "online",
   },
   {
-    id: '2',
-    username: 'bob',
-    displayName: 'Bob Smith',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
-    presence: 'away',
+    id: "2",
+    username: "bob",
+    displayName: "Bob Smith",
+    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
+    presence: "away",
   },
   {
-    id: '3',
-    username: 'charlie',
-    displayName: 'Charlie Brown',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie',
-    presence: 'dnd',
+    id: "3",
+    username: "charlie",
+    displayName: "Charlie Brown",
+    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
+    presence: "dnd",
   },
   {
-    id: '4',
-    username: 'diana',
-    displayName: 'Diana Prince',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Diana',
-    presence: 'offline',
+    id: "4",
+    username: "diana",
+    displayName: "Diana Prince",
+    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Diana",
+    presence: "offline",
   },
-]
+];
 
 const sampleChannels: MentionChannel[] = [
-  { id: '1', name: 'general', type: 'public', icon: '💬' },
-  { id: '2', name: 'random', type: 'public', icon: '🎲' },
-  { id: '3', name: 'dev-team', type: 'private', icon: '👨‍💻' },
-  { id: '4', name: 'announcements', type: 'public', icon: '📢' },
-]
+  { id: "1", name: "general", type: "public", icon: "💬" },
+  { id: "2", name: "random", type: "public", icon: "🎲" },
+  { id: "3", name: "dev-team", type: "private", icon: "👨‍💻" },
+  { id: "4", name: "announcements", type: "public", icon: "📢" },
+];
 
 const sampleMarkdown = `# Rich Text Editor Demo
 
@@ -113,26 +119,33 @@ Express yourself with emojis: :smile: :heart: :rocket:
 ---
 
 Try typing \`@\` to mention a user, \`#\` for channels, or \`:\` for emojis!
-`
+`;
 
 // ============================================================================
 // Example 1: Basic Editor
 // ============================================================================
 
 export function BasicEditorExample() {
-  const [messages, setMessages] = useState<Array<{ id: string; content: JSONContent }>>([])
-  const editorRef = useRef<RichEditorRef>(null)
+  const [messages, setMessages] = useState<
+    Array<{ id: string; content: JSONContent }>
+  >([]);
+  const editorRef = useRef<RichEditorRef>(null);
 
   const handleSubmit = (html: string, json: JSONContent) => {
-    setMessages((prev) => [...prev, { id: Date.now().toString(), content: json }])
-    editorRef.current?.clear()
-  }
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now().toString(), content: json },
+    ]);
+    editorRef.current?.clear();
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Basic Editor</CardTitle>
-        <CardDescription>Simple chat-style editor with message history</CardDescription>
+        <CardDescription>
+          Simple chat-style editor with message history
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Message history */}
@@ -146,7 +159,9 @@ export function BasicEditorExample() {
               <div key={msg.id} className="rounded-lg border p-3">
                 <MarkdownRenderer
                   content={msg.content}
-                  onMentionClick={(userId, username) => alert(`Clicked mention: @${username}`)}
+                  onMentionClick={(userId, username) =>
+                    alert(`Clicked mention: @${username}`)
+                  }
                   onChannelClick={(channelId, channelName) =>
                     alert(`Clicked channel: #${channelName}`)
                   }
@@ -168,7 +183,7 @@ export function BasicEditorExample() {
         />
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -176,19 +191,21 @@ export function BasicEditorExample() {
 // ============================================================================
 
 export function EditorWithPreviewExample() {
-  const [content, setContent] = useState<JSONContent>()
-  const [markdown, setMarkdown] = useState('')
+  const [content, setContent] = useState<JSONContent>();
+  const [markdown, setMarkdown] = useState("");
 
   const handleChange = (html: string, json: JSONContent) => {
-    setContent(json)
-    setMarkdown(jsonToMarkdown(json))
-  }
+    setContent(json);
+    setMarkdown(jsonToMarkdown(json));
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Editor with Live Preview</CardTitle>
-        <CardDescription>See your formatted content in real-time</CardDescription>
+        <CardDescription>
+          See your formatted content in real-time
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="editor">
@@ -222,13 +239,13 @@ export function EditorWithPreviewExample() {
 
           <TabsContent value="markdown" className="mt-4">
             <pre className="overflow-x-auto rounded-lg border bg-muted p-4">
-              <code>{markdown || '// Start typing to see markdown...'}</code>
+              <code>{markdown || "// Start typing to see markdown..."}</code>
             </pre>
           </TabsContent>
         </Tabs>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -236,38 +253,42 @@ export function EditorWithPreviewExample() {
 // ============================================================================
 
 export function MarkdownRendererExample() {
-  const [mode, setMode] = useState<'preview' | 'raw'>('preview')
-  const jsonContent = markdownToJson(sampleMarkdown)
+  const [mode, setMode] = useState<"preview" | "raw">("preview");
+  const jsonContent = markdownToJson(sampleMarkdown);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Markdown Renderer</CardTitle>
-        <CardDescription>Render markdown with full formatting support</CardDescription>
+        <CardDescription>
+          Render markdown with full formatting support
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
           <Button
-            variant={mode === 'preview' ? 'default' : 'outline'}
-            onClick={() => setMode('preview')}
+            variant={mode === "preview" ? "default" : "outline"}
+            onClick={() => setMode("preview")}
             size="sm"
           >
             Preview
           </Button>
           <Button
-            variant={mode === 'raw' ? 'default' : 'outline'}
-            onClick={() => setMode('raw')}
+            variant={mode === "raw" ? "default" : "outline"}
+            onClick={() => setMode("raw")}
             size="sm"
           >
             Raw Markdown
           </Button>
         </div>
 
-        {mode === 'preview' ? (
+        {mode === "preview" ? (
           <div className="rounded-lg border p-4">
             <MarkdownRenderer
               content={jsonContent}
-              onMentionClick={(userId, username) => alert(`Navigate to user: ${username}`)}
+              onMentionClick={(userId, username) =>
+                alert(`Navigate to user: ${username}`)
+              }
               onChannelClick={(channelId, channelName) =>
                 alert(`Navigate to channel: ${channelName}`)
               }
@@ -280,7 +301,7 @@ export function MarkdownRendererExample() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -288,19 +309,19 @@ export function MarkdownRendererExample() {
 // ============================================================================
 
 export function AllFeaturesExample() {
-  const editorRef = useRef<RichEditorRef>(null)
+  const editorRef = useRef<RichEditorRef>(null);
   const [output, setOutput] = useState<{
-    html: string
-    json: JSONContent
-    markdown: string
-    plainText: string
-    wordCount: number
-  } | null>(null)
+    html: string;
+    json: JSONContent;
+    markdown: string;
+    plainText: string;
+    wordCount: number;
+  } | null>(null);
 
   const handleSubmit = (html: string, json: JSONContent) => {
-    const markdown = jsonToMarkdown(json)
-    const plainText = editorRef.current?.getText() || ''
-    const wordCount = plainText.split(/\s+/).filter(Boolean).length
+    const markdown = jsonToMarkdown(json);
+    const plainText = editorRef.current?.getText() || "";
+    const wordCount = plainText.split(/\s+/).filter(Boolean).length;
 
     setOutput({
       html,
@@ -308,18 +329,18 @@ export function AllFeaturesExample() {
       markdown,
       plainText,
       wordCount,
-    })
-  }
+    });
+  };
 
   const loadSample = () => {
-    const json = markdownToJson(sampleMarkdown)
-    editorRef.current?.setJSONContent(json)
-  }
+    const json = markdownToJson(sampleMarkdown);
+    editorRef.current?.setJSONContent(json);
+  };
 
   const clearEditor = () => {
-    editorRef.current?.clear()
-    setOutput(null)
-  }
+    editorRef.current?.clear();
+    setOutput(null);
+  };
 
   return (
     <Card>
@@ -338,7 +359,11 @@ export function AllFeaturesExample() {
           <Button onClick={clearEditor} variant="outline" size="sm">
             Clear
           </Button>
-          <Button onClick={() => editorRef.current?.focus()} variant="outline" size="sm">
+          <Button
+            onClick={() => editorRef.current?.focus()}
+            variant="outline"
+            size="sm"
+          >
             Focus Editor
           </Button>
         </div>
@@ -398,20 +423,36 @@ export function AllFeaturesExample() {
               <TabsContent value="stats">
                 <div className="space-y-2 rounded-lg border p-4">
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Plain Text:</span>
-                    <span className="font-mono text-sm">{output.plainText.length} chars</span>
+                    <span className="text-sm text-muted-foreground">
+                      Plain Text:
+                    </span>
+                    <span className="font-mono text-sm">
+                      {output.plainText.length} chars
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Word Count:</span>
-                    <span className="font-mono text-sm">{output.wordCount} words</span>
+                    <span className="text-sm text-muted-foreground">
+                      Word Count:
+                    </span>
+                    <span className="font-mono text-sm">
+                      {output.wordCount} words
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Markdown Size:</span>
-                    <span className="font-mono text-sm">{output.markdown.length} chars</span>
+                    <span className="text-sm text-muted-foreground">
+                      Markdown Size:
+                    </span>
+                    <span className="font-mono text-sm">
+                      {output.markdown.length} chars
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">HTML Size:</span>
-                    <span className="font-mono text-sm">{output.html.length} chars</span>
+                    <span className="text-sm text-muted-foreground">
+                      HTML Size:
+                    </span>
+                    <span className="font-mono text-sm">
+                      {output.html.length} chars
+                    </span>
                   </div>
                 </div>
               </TabsContent>
@@ -420,7 +461,7 @@ export function AllFeaturesExample() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -432,7 +473,9 @@ export function KeyboardShortcutsExample() {
     <Card>
       <CardHeader>
         <CardTitle>Keyboard Shortcuts</CardTitle>
-        <CardDescription>All available keyboard shortcuts for the editor</CardDescription>
+        <CardDescription>
+          All available keyboard shortcuts for the editor
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -485,16 +528,24 @@ export function KeyboardShortcutsExample() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-function ShortcutRow({ shortcut, action }: { shortcut: string; action: string }) {
+function ShortcutRow({
+  shortcut,
+  action,
+}: {
+  shortcut: string;
+  action: string;
+}) {
   return (
     <div className="flex items-center justify-between py-1.5">
       <span className="text-sm text-muted-foreground">{action}</span>
-      <kbd className="rounded border bg-muted px-2 py-1 font-mono text-xs">{shortcut}</kbd>
+      <kbd className="rounded border bg-muted px-2 py-1 font-mono text-xs">
+        {shortcut}
+      </kbd>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -507,7 +558,8 @@ export default function EditorExamplesPage() {
       <div>
         <h1 className="mb-2 text-3xl font-bold">Rich Text Editor Examples</h1>
         <p className="text-muted-foreground">
-          Complete examples demonstrating all features of the TipTap editor and markdown system.
+          Complete examples demonstrating all features of the TipTap editor and
+          markdown system.
         </p>
       </div>
 
@@ -517,5 +569,5 @@ export default function EditorExamplesPage() {
       <AllFeaturesExample />
       <KeyboardShortcutsExample />
     </div>
-  )
+  );
 }

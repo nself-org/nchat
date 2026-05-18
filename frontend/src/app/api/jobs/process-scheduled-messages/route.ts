@@ -13,25 +13,25 @@
  * This endpoint should be called by a cron job or scheduler (e.g., Vercel Cron)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { apolloClient } from '@/lib/apollo-client'
-import { gql } from '@apollo/client'
-import { getScheduledMessageService } from '@/services/messages/scheduled.service'
-import { getMessageService } from '@/services/messages/message.service'
-import { logAuditEvent } from '@/lib/audit'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { getServerApolloClient } from "@/lib/apollo-client";
+import { gql } from "@apollo/client";
+import { getScheduledMessageService } from "@/services/messages/scheduled.service";
+import { getMessageService } from "@/services/messages/message.service";
+import { logAuditEvent } from "@/lib/audit";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
-export const maxDuration = 300 // 5 minutes for long-running job
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 300; // 5 minutes for long-running job
 
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-const BATCH_SIZE = 50 // Process 50 messages at a time
-const MAX_RETRY_COUNT = 3
-const CRON_SECRET = process.env.CRON_SECRET || 'change-me-in-production'
+const BATCH_SIZE = 50; // Process 50 messages at a time
+const MAX_RETRY_COUNT = 3;
+const CRON_SECRET = process.env.CRON_SECRET || "change-me-in-production";
 
 // ============================================================================
 // GRAPHQL OPERATIONS
@@ -72,10 +72,14 @@ const GET_DUE_SCHEDULED_MESSAGES = gql`
       }
     }
   }
-`
+`;
 
 const MARK_MESSAGE_AS_SENT = gql`
-  mutation MarkScheduledMessageAsSent($id: uuid!, $sentAt: timestamptz!, $messageId: uuid!) {
+  mutation MarkScheduledMessageAsSent(
+    $id: uuid!
+    $sentAt: timestamptz!
+    $messageId: uuid!
+  ) {
     update_nchat_scheduled_message_by_pk(
       pk_columns: { id: $id }
       _set: { is_sent: true, sent_at: $sentAt, sent_message_id: $messageId }
@@ -85,10 +89,14 @@ const MARK_MESSAGE_AS_SENT = gql`
       sent_at
     }
   }
-`
+`;
 
 const MARK_MESSAGE_AS_FAILED = gql`
-  mutation MarkScheduledMessageAsFailed($id: uuid!, $errorMessage: String!, $retryCount: Int!) {
+  mutation MarkScheduledMessageAsFailed(
+    $id: uuid!
+    $errorMessage: String!
+    $retryCount: Int!
+  ) {
     update_nchat_scheduled_message_by_pk(
       pk_columns: { id: $id }
       _set: { error_message: $errorMessage, retry_count: $retryCount }
@@ -98,7 +106,7 @@ const MARK_MESSAGE_AS_FAILED = gql`
       retry_count
     }
   }
-`
+`;
 
 const CREATE_RECURRING_MESSAGE = gql`
   mutation CreateRecurringScheduledMessage(
@@ -131,57 +139,57 @@ const CREATE_RECURRING_MESSAGE = gql`
       scheduled_for
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPERS
 // ============================================================================
 
 function validateCronAuth(request: NextRequest): boolean {
-  const authHeader = request.headers.get('authorization')
-  const cronAuth = request.headers.get('x-cron-auth')
+  const authHeader = request.headers.get("authorization");
+  const cronAuth = request.headers.get("x-cron-auth");
 
   if (authHeader === `Bearer ${CRON_SECRET}`) {
-    return true
+    return true;
   }
 
   if (cronAuth === CRON_SECRET) {
-    return true
+    return true;
   }
 
-  return false
+  return false;
 }
 
 function calculateNextOccurrence(
   currentDate: Date,
-  recurrence: Record<string, unknown>
+  recurrence: Record<string, unknown>,
 ): Date | null {
-  const { type, interval = 1, end_at } = recurrence
+  const { type, interval = 1, end_at } = recurrence;
 
   if (end_at && new Date(end_at as string) < currentDate) {
-    return null // Recurrence has ended
+    return null; // Recurrence has ended
   }
 
-  const next = new Date(currentDate)
+  const next = new Date(currentDate);
 
   switch (type) {
-    case 'daily':
-      next.setDate(next.getDate() + (interval as number))
-      break
-    case 'weekly':
-      next.setDate(next.getDate() + 7 * (interval as number))
-      break
-    case 'monthly':
-      next.setMonth(next.getMonth() + (interval as number))
-      break
-    case 'yearly':
-      next.setFullYear(next.getFullYear() + (interval as number))
-      break
+    case "daily":
+      next.setDate(next.getDate() + (interval as number));
+      break;
+    case "weekly":
+      next.setDate(next.getDate() + 7 * (interval as number));
+      break;
+    case "monthly":
+      next.setMonth(next.getMonth() + (interval as number));
+      break;
+    case "yearly":
+      next.setFullYear(next.getFullYear() + (interval as number));
+      break;
     default:
-      return null
+      return null;
   }
 
-  return next
+  return next;
 }
 
 // ============================================================================
@@ -190,59 +198,63 @@ function calculateNextOccurrence(
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('POST /api/jobs/process-scheduled-messages - Starting job')
+    logger.info("POST /api/jobs/process-scheduled-messages - Starting job");
 
     // Validate cron authentication
     if (!validateCronAuth(request)) {
-      logger.warn('Unauthorized cron job attempt')
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      logger.warn("Unauthorized cron job attempt");
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
-    const now = new Date().toISOString()
-    const messageService = getMessageService(apolloClient)
+    const now = new Date().toISOString();
+    const client = getServerApolloClient();
+    const messageService = getMessageService(client);
     const stats = {
       processed: 0,
       sent: 0,
       failed: 0,
       skipped: 0,
       recurring: 0,
-    }
+    };
 
     // Fetch due messages in batches
-    const { data, errors } = await apolloClient.query({
+    const { data, errors } = await client.query({
       query: GET_DUE_SCHEDULED_MESSAGES,
       variables: { now, limit: BATCH_SIZE },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (errors) {
-      throw new Error(errors[0].message)
+      throw new Error(errors[0].message);
     }
 
-    const dueMessages = data.nchat_scheduled_message || []
-    logger.info('Found due scheduled messages', { count: dueMessages.length })
+    const dueMessages = data.nchat_scheduled_message || [];
+    logger.info("Found due scheduled messages", { count: dueMessages.length });
 
     // Process each message
     for (const scheduledMsg of dueMessages) {
-      stats.processed++
+      stats.processed++;
 
       try {
         // Skip if channel is archived
         if (scheduledMsg.channel.is_archived) {
-          logger.warn('Skipping message for archived channel', {
+          logger.warn("Skipping message for archived channel", {
             scheduledMessageId: scheduledMsg.id,
             channelId: scheduledMsg.channel_id,
-          })
-          stats.skipped++
-          await apolloClient.mutate({
+          });
+          stats.skipped++;
+          await client.mutate({
             mutation: MARK_MESSAGE_AS_FAILED,
             variables: {
               id: scheduledMsg.id,
-              errorMessage: 'Channel is archived',
+              errorMessage: "Channel is archived",
               retryCount: scheduledMsg.retry_count + 1,
             },
-          })
-          continue
+          });
+          continue;
         }
 
         // Send the message
@@ -258,35 +270,35 @@ export async function POST(request: NextRequest) {
             originalScheduledFor: scheduledMsg.scheduled_for,
             scheduledMessageId: scheduledMsg.id,
           },
-        })
+        });
 
         if (!result.success || !result.data) {
-          throw new Error(result.error?.message || 'Failed to send message')
+          throw new Error(result.error?.message || "Failed to send message");
         }
 
-        const sentMessage = result.data
+        const sentMessage = result.data;
 
         // Mark as sent
-        await apolloClient.mutate({
+        await client.mutate({
           mutation: MARK_MESSAGE_AS_SENT,
           variables: {
             id: scheduledMsg.id,
             sentAt: new Date().toISOString(),
             messageId: sentMessage.id,
           },
-        })
+        });
 
-        stats.sent++
+        stats.sent++;
 
         // Handle recurring messages
         if (scheduledMsg.recurrence) {
           const nextOccurrence = calculateNextOccurrence(
             new Date(scheduledMsg.scheduled_for),
-            scheduledMsg.recurrence as Record<string, unknown>
-          )
+            scheduledMsg.recurrence as Record<string, unknown>,
+          );
 
           if (nextOccurrence) {
-            await apolloClient.mutate({
+            await client.mutate({
               mutation: CREATE_RECURRING_MESSAGE,
               variables: {
                 channelId: scheduledMsg.channel_id,
@@ -300,22 +312,22 @@ export async function POST(request: NextRequest) {
                 timezone: scheduledMsg.timezone,
                 recurrence: scheduledMsg.recurrence,
               },
-            })
+            });
 
-            stats.recurring++
-            logger.info('Created next recurring message', {
+            stats.recurring++;
+            logger.info("Created next recurring message", {
               originalId: scheduledMsg.id,
               nextOccurrence: nextOccurrence.toISOString(),
-            })
+            });
           }
         }
 
         // Log audit event
         await logAuditEvent({
-          action: 'send_scheduled',
+          action: "send_scheduled",
           actor: scheduledMsg.user_id,
-          category: 'message',
-          resource: { type: 'scheduled_message', id: scheduledMsg.id },
+          category: "message",
+          resource: { type: "scheduled_message", id: scheduledMsg.id },
           description: `Scheduled message sent to channel ${scheduledMsg.channel.name}`,
           metadata: {
             scheduledMessageId: scheduledMsg.id,
@@ -323,35 +335,43 @@ export async function POST(request: NextRequest) {
             scheduledFor: scheduledMsg.scheduled_for,
             sentAt: new Date().toISOString(),
           },
-        })
+        });
 
-        logger.info('Scheduled message sent successfully', {
+        logger.info("Scheduled message sent successfully", {
           scheduledMessageId: scheduledMsg.id,
           messageId: sentMessage.id,
           channelId: scheduledMsg.channel_id,
-        })
+        });
       } catch (error) {
-        stats.failed++
-        const errorMessage = error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error'
+        stats.failed++;
+        const errorMessage =
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error";
 
-        logger.error('Failed to send scheduled message', error as Error, {
+        logger.error("Failed to send scheduled message", error as Error, {
           scheduledMessageId: scheduledMsg.id,
           retryCount: scheduledMsg.retry_count,
-        })
+        });
 
         // Mark as failed and increment retry count
-        await apolloClient.mutate({
+        await client.mutate({
           mutation: MARK_MESSAGE_AS_FAILED,
           variables: {
             id: scheduledMsg.id,
             errorMessage,
             retryCount: scheduledMsg.retry_count + 1,
           },
-        })
+        });
       }
     }
 
-    logger.info('POST /api/jobs/process-scheduled-messages - Job completed', stats)
+    logger.info(
+      "POST /api/jobs/process-scheduled-messages - Job completed",
+      stats,
+    );
 
     return NextResponse.json({
       success: true,
@@ -360,17 +380,25 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString(),
         batchSize: BATCH_SIZE,
       },
-    })
+    });
   } catch (error) {
-    logger.error('POST /api/jobs/process-scheduled-messages - Error', error as Error)
+    logger.error(
+      "POST /api/jobs/process-scheduled-messages - Error",
+      error as Error,
+    );
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to process scheduled messages',
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to process scheduled messages",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -382,21 +410,25 @@ export async function GET(request: NextRequest) {
   try {
     // Validate auth
     if (!validateCronAuth(request)) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
-    const scheduledMessageService = getScheduledMessageService(apolloClient)
+    const client = getServerApolloClient();
+    const scheduledMessageService = getScheduledMessageService(client);
 
     // Get stats
     const pendingResult = await scheduledMessageService.getScheduledMessages({
-      userId: 'system',
+      userId: "system",
       isSent: false,
       limit: 1,
       offset: 0,
-    })
+    });
 
     // Query actual failed message count
-    const failedCountResult = await apolloClient.query({
+    const failedCountResult = await client.query({
       query: gql`
         query GetFailedScheduledMessageCount {
           nchat_scheduled_message_aggregate(
@@ -411,29 +443,38 @@ export async function GET(request: NextRequest) {
           }
         }
       `,
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
     const failedCount =
-      failedCountResult.data?.nchat_scheduled_message_aggregate?.aggregate?.count ?? 0
+      failedCountResult.data?.nchat_scheduled_message_aggregate?.aggregate
+        ?.count ?? 0;
 
     return NextResponse.json({
       success: true,
       data: {
-        status: 'healthy',
+        status: "healthy",
         pendingCount: pendingResult.data?.totalCount || 0,
         failedCount,
         lastRun: new Date().toISOString(),
       },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/jobs/process-scheduled-messages - Error', error as Error)
+    logger.error(
+      "GET /api/jobs/process-scheduled-messages - Error",
+      error as Error,
+    );
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to get job status',
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Failed to get job status",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

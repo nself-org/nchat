@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const CHANNEL_READ_STATUS_SUBSCRIPTION = gql`
   subscription ChannelReadStatus($channelId: uuid!) {
@@ -14,7 +14,7 @@ export const CHANNEL_READ_STATUS_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;
 
 export const USER_UNREAD_COUNTS_SUBSCRIPTION = gql`
   subscription UserUnreadCounts($userId: uuid!) {
@@ -32,4 +32,4 @@ export const USER_UNREAD_COUNTS_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;

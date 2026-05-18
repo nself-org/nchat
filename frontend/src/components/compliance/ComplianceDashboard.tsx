@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Shield,
   Clock,
@@ -13,25 +13,41 @@ import {
   Trash2,
   BarChart3,
   Settings,
-} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useComplianceStore, selectComplianceStats } from '@/stores/compliance-store'
-import type { ComplianceStandard } from '@/lib/compliance/compliance-types'
-import { getComplianceStandardInfo } from '@/lib/compliance/compliance-types'
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  useComplianceStore,
+  selectComplianceStats,
+} from "@/stores/compliance-store";
+import type { ComplianceStandard } from "@/lib/compliance/compliance-types";
+import { getComplianceStandardInfo } from "@/lib/compliance/compliance-types";
 
 interface StatCardProps {
-  title: string
-  value: string | number
-  description?: string
-  icon: React.ReactNode
-  trend?: 'up' | 'down' | 'neutral'
-  trendValue?: string
+  title: string;
+  value: string | number;
+  description?: string;
+  icon: React.ReactNode;
+  trend?: "up" | "down" | "neutral";
+  trendValue?: string;
 }
 
-function StatCard({ title, value, description, icon, trend, trendValue }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  description,
+  icon,
+  trend,
+  trendValue,
+}: StatCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -40,15 +56,17 @@ function StatCard({ title, value, description, icon, trend, trendValue }: StatCa
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        {description && (
+          <p className="text-xs text-muted-foreground">{description}</p>
+        )}
         {trend && trendValue && (
           <p
             className={`text-xs ${
-              trend === 'up'
-                ? 'text-green-600'
-                : trend === 'down'
-                  ? 'text-red-600'
-                  : 'text-muted-foreground'
+              trend === "up"
+                ? "text-green-600"
+                : trend === "down"
+                  ? "text-red-600"
+                  : "text-muted-foreground"
             }`}
           >
             {trendValue}
@@ -56,13 +74,13 @@ function StatCard({ title, value, description, icon, trend, trendValue }: StatCa
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 interface ComplianceBadgeDisplayProps {
-  standard: ComplianceStandard
-  certified: boolean
-  expirationDate?: Date
+  standard: ComplianceStandard;
+  certified: boolean;
+  expirationDate?: Date;
 }
 
 function ComplianceBadgeDisplay({
@@ -70,17 +88,23 @@ function ComplianceBadgeDisplay({
   certified,
   expirationDate,
 }: ComplianceBadgeDisplayProps) {
-  const info = getComplianceStandardInfo(standard)
+  const info = getComplianceStandardInfo(standard);
 
   return (
     <div className="flex items-center justify-between rounded-lg border p-4">
       <div className="flex items-center gap-3">
         <div
           className={`rounded-full p-2 ${
-            certified ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+            certified
+              ? "bg-green-100 text-green-600"
+              : "bg-gray-100 text-gray-400"
           }`}
         >
-          {certified ? <CheckCircle className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
+          {certified ? (
+            <CheckCircle className="h-5 w-5" />
+          ) : (
+            <Shield className="h-5 w-5" />
+          )}
         </div>
         <div>
           <p className="font-medium">{info.name}</p>
@@ -88,8 +112,8 @@ function ComplianceBadgeDisplay({
         </div>
       </div>
       <div className="text-right">
-        <Badge variant={certified ? 'default' : 'secondary'}>
-          {certified ? 'Certified' : 'Not Certified'}
+        <Badge variant={certified ? "default" : "secondary"}>
+          {certified ? "Certified" : "Not Certified"}
         </Badge>
         {certified && expirationDate && (
           <p className="mt-1 text-xs text-muted-foreground">
@@ -98,19 +122,27 @@ function ComplianceBadgeDisplay({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export function ComplianceDashboard() {
-  const [activeTab, setActiveTab] = useState('overview')
-  const stats = useComplianceStore(selectComplianceStats)
-  const { legalHolds, exportRequests, deletionRequests } = useComplianceStore()
+  const [activeTab, setActiveTab] = useState("overview");
+  const stats = useComplianceStore(selectComplianceStats);
+  const { legalHolds, exportRequests, deletionRequests } = useComplianceStore();
 
-  const activeLegalHolds = legalHolds.filter((h) => h.status === 'active')
-  const pendingExports = exportRequests.filter((r) => r.status === 'pending')
-  const pendingDeletions = deletionRequests.filter((r) => r.status === 'pending')
+  const activeLegalHolds = legalHolds.filter((h) => h.status === "active");
+  const pendingExports = exportRequests.filter((r) => r.status === "pending");
+  const pendingDeletions = deletionRequests.filter(
+    (r) => r.status === "pending",
+  );
 
-  const complianceStandards: ComplianceStandard[] = ['gdpr', 'ccpa', 'hipaa', 'soc2', 'iso27001']
+  const complianceStandards: ComplianceStandard[] = [
+    "gdpr",
+    "ccpa",
+    "hipaa",
+    "soc2",
+    "iso27001",
+  ];
 
   return (
     <div className="space-y-6">
@@ -145,7 +177,7 @@ export function ComplianceDashboard() {
             <div className="flex-1">
               <p className="font-medium text-yellow-800">Action Required</p>
               <p className="text-sm text-yellow-700">
-                You have {pendingExports.length} pending export request(s) and{' '}
+                You have {pendingExports.length} pending export request(s) and{" "}
                 {pendingDeletions.length} pending deletion request(s).
               </p>
             </div>
@@ -202,7 +234,9 @@ export function ComplianceDashboard() {
                   <BarChart3 className="h-5 w-5" />
                   Compliance Status
                 </CardTitle>
-                <CardDescription>Current compliance posture across regulations</CardDescription>
+                <CardDescription>
+                  Current compliance posture across regulations
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -211,7 +245,10 @@ export function ComplianceDashboard() {
                     <span className="font-medium">85%</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                    <div className="h-full rounded-full bg-green-500" style={{ width: '85%' }} />
+                    <div
+                      className="h-full rounded-full bg-green-500"
+                      style={{ width: "85%" }}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -220,7 +257,10 @@ export function ComplianceDashboard() {
                     <span className="font-medium">90%</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                    <div className="h-full rounded-full bg-green-500" style={{ width: '90%' }} />
+                    <div
+                      className="h-full rounded-full bg-green-500"
+                      style={{ width: "90%" }}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -229,7 +269,10 @@ export function ComplianceDashboard() {
                     <span className="font-medium">100%</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                    <div className="h-full rounded-full bg-green-500" style={{ width: '100%' }} />
+                    <div
+                      className="h-full rounded-full bg-green-500"
+                      style={{ width: "100%" }}
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -251,7 +294,9 @@ export function ComplianceDashboard() {
                       <Download className="h-3 w-3" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Data export requested</p>
+                      <p className="text-sm font-medium">
+                        Data export requested
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         user@example.com - 2 hours ago
                       </p>
@@ -262,8 +307,12 @@ export function ComplianceDashboard() {
                       <CheckCircle className="h-3 w-3" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Retention policy updated</p>
-                      <p className="text-xs text-muted-foreground">Messages policy - 5 hours ago</p>
+                      <p className="text-sm font-medium">
+                        Retention policy updated
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Messages policy - 5 hours ago
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -272,7 +321,9 @@ export function ComplianceDashboard() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">Legal hold created</p>
-                      <p className="text-xs text-muted-foreground">Matter #12345 - 1 day ago</p>
+                      <p className="text-xs text-muted-foreground">
+                        Matter #12345 - 1 day ago
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -280,7 +331,9 @@ export function ComplianceDashboard() {
                       <Trash2 className="h-3 w-3" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Deletion request completed</p>
+                      <p className="text-sm font-medium">
+                        Deletion request completed
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         former@example.com - 2 days ago
                       </p>
@@ -333,9 +386,9 @@ export function ComplianceDashboard() {
                 <ComplianceBadgeDisplay
                   key={standard}
                   standard={standard}
-                  certified={standard === 'gdpr' || standard === 'ccpa'}
+                  certified={standard === "gdpr" || standard === "ccpa"}
                   expirationDate={
-                    standard === 'gdpr'
+                    standard === "gdpr"
                       ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
                       : undefined
                   }
@@ -349,7 +402,9 @@ export function ComplianceDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Pending Requests</CardTitle>
-              <CardDescription>Data subject requests requiring action</CardDescription>
+              <CardDescription>
+                Data subject requests requiring action
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {pendingExports.length === 0 && pendingDeletions.length === 0 ? (
@@ -368,7 +423,9 @@ export function ComplianceDashboard() {
                         <Download className="h-5 w-5 text-blue-500" />
                         <div>
                           <p className="font-medium">Data Export Request</p>
-                          <p className="text-sm text-muted-foreground">{request.userEmail}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {request.userEmail}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -386,7 +443,9 @@ export function ComplianceDashboard() {
                         <Trash2 className="h-5 w-5 text-red-500" />
                         <div>
                           <p className="font-medium">Deletion Request</p>
-                          <p className="text-sm text-muted-foreground">{request.userEmail}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {request.userEmail}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -405,7 +464,9 @@ export function ComplianceDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Audit Log</CardTitle>
-              <CardDescription>Complete history of compliance-related actions</CardDescription>
+              <CardDescription>
+                Complete history of compliance-related actions
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="py-8 text-center text-muted-foreground">
@@ -420,5 +481,5 @@ export function ComplianceDashboard() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

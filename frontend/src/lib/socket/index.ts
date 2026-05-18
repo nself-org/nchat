@@ -70,7 +70,7 @@ export {
   // Types
   type ConnectionState,
   type TypedSocket,
-} from './client'
+} from "./client";
 
 // =============================================================================
 // Events
@@ -137,7 +137,7 @@ export {
   // Event interfaces
   type ServerToClientEvents,
   type ClientToServerEvents,
-} from './events'
+} from "./events";
 
 // =============================================================================
 // Hooks
@@ -150,7 +150,7 @@ export {
   useSocketEmit,
   type UseSocketOptions,
   type UseSocketReturn,
-} from './hooks/use-socket'
+} from "./hooks/use-socket";
 
 // Presence hooks
 export {
@@ -159,7 +159,7 @@ export {
   useUserPresence,
   type UsePresenceOptions,
   type UsePresenceReturn,
-} from './hooks/use-presence'
+} from "./hooks/use-presence";
 
 // Typing hooks
 export {
@@ -168,7 +168,7 @@ export {
   type TypingUser,
   type UseTypingOptions,
   type UseTypingReturn,
-} from './hooks/use-typing'
+} from "./hooks/use-typing";
 
 // Channel event hooks
 export {
@@ -179,7 +179,7 @@ export {
   type UseChannelEventsOptions,
   type UseChannelEventsReturn,
   type UseGlobalChannelEventsOptions,
-} from './hooks/use-channel-events'
+} from "./hooks/use-channel-events";
 
 // Notification hooks
 export {
@@ -189,7 +189,7 @@ export {
   type UseNotificationsOptions,
   type UseNotificationsReturn,
   type NotificationPreferences,
-} from './hooks/use-notifications'
+} from "./hooks/use-notifications";
 
 // Read receipt hooks
 export {
@@ -200,7 +200,7 @@ export {
   type UseReadReceiptsOptions,
   type UseReadReceiptsReturn,
   type UseUnreadMessagesOptions,
-} from './hooks/use-read-receipts'
+} from "./hooks/use-read-receipts";
 
 // =============================================================================
 // Providers
@@ -215,11 +215,11 @@ export {
   type SocketContextValue,
   type SocketProviderProps,
   type ConnectionStatusProps,
-} from './providers/socket-provider'
+} from "./providers/socket-provider";
 
 // =============================================================================
 // Default Export
 // =============================================================================
 
 // Re-export provider as default for convenient importing
-export { SocketProvider as default } from './providers/socket-provider'
+export { SocketProvider as default } from "./providers/socket-provider";

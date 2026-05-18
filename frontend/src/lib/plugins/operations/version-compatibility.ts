@@ -11,8 +11,8 @@ import type {
   VersionCompatibilityConfig,
   VersionCompatibilityRule,
   VersionIssue,
-} from './types'
-import { DEFAULT_VERSION_COMPATIBILITY_CONFIG } from './types'
+} from "./types";
+import { DEFAULT_VERSION_COMPATIBILITY_CONFIG } from "./types";
 
 // ============================================================================
 // ERRORS
@@ -21,10 +21,10 @@ import { DEFAULT_VERSION_COMPATIBILITY_CONFIG } from './types'
 export class VersionCompatibilityError extends Error {
   constructor(
     message: string,
-    public readonly code: string
+    public readonly code: string,
   ) {
-    super(message)
-    this.name = 'VersionCompatibilityError'
+    super(message);
+    this.name = "VersionCompatibilityError";
   }
 }
 
@@ -32,21 +32,21 @@ export class VersionCompatibilityError extends Error {
 // SEMVER PARSING
 // ============================================================================
 
-const SEMVER_REGEX = /^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.]+))?$/
+const SEMVER_REGEX = /^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.]+))?$/;
 
 /**
  * Parse a semver string into components.
  */
 export function parseSemVer(version: string): SemVer | null {
-  const match = version.match(SEMVER_REGEX)
-  if (!match) return null
+  const match = version.match(SEMVER_REGEX);
+  if (!match) return null;
 
   return {
     major: parseInt(match[1], 10),
     minor: parseInt(match[2], 10),
     patch: parseInt(match[3], 10),
     prerelease: match[4] || null,
-  }
+  };
 }
 
 /**
@@ -54,35 +54,39 @@ export function parseSemVer(version: string): SemVer | null {
  * Returns -1 if a < b, 0 if a == b, 1 if a > b.
  */
 export function compareSemVer(a: SemVer, b: SemVer): number {
-  if (a.major !== b.major) return a.major > b.major ? 1 : -1
-  if (a.minor !== b.minor) return a.minor > b.minor ? 1 : -1
-  if (a.patch !== b.patch) return a.patch > b.patch ? 1 : -1
+  if (a.major !== b.major) return a.major > b.major ? 1 : -1;
+  if (a.minor !== b.minor) return a.minor > b.minor ? 1 : -1;
+  if (a.patch !== b.patch) return a.patch > b.patch ? 1 : -1;
 
   // Prerelease versions have lower precedence
-  if (a.prerelease && !b.prerelease) return -1
-  if (!a.prerelease && b.prerelease) return 1
+  if (a.prerelease && !b.prerelease) return -1;
+  if (!a.prerelease && b.prerelease) return 1;
   if (a.prerelease && b.prerelease) {
-    return a.prerelease < b.prerelease ? -1 : a.prerelease > b.prerelease ? 1 : 0
+    return a.prerelease < b.prerelease
+      ? -1
+      : a.prerelease > b.prerelease
+        ? 1
+        : 0;
   }
 
-  return 0
+  return 0;
 }
 
 /**
  * Compare two semver version strings.
  */
 export function compareVersionStrings(a: string, b: string): number {
-  const parsedA = parseSemVer(a)
-  const parsedB = parseSemVer(b)
+  const parsedA = parseSemVer(a);
+  const parsedB = parseSemVer(b);
 
   if (!parsedA || !parsedB) {
     throw new VersionCompatibilityError(
       `Invalid semver: ${!parsedA ? a : b}`,
-      'INVALID_SEMVER'
-    )
+      "INVALID_SEMVER",
+    );
   }
 
-  return compareSemVer(parsedA, parsedB)
+  return compareSemVer(parsedA, parsedB);
 }
 
 /**
@@ -91,40 +95,46 @@ export function compareVersionStrings(a: string, b: string): number {
 export function isVersionInRange(
   version: string,
   minVersion: string,
-  maxVersion: string
+  maxVersion: string,
 ): boolean {
-  const parsed = parseSemVer(version)
-  const parsedMin = parseSemVer(minVersion)
-  const parsedMax = parseSemVer(maxVersion)
+  const parsed = parseSemVer(version);
+  const parsedMin = parseSemVer(minVersion);
+  const parsedMax = parseSemVer(maxVersion);
 
-  if (!parsed || !parsedMin || !parsedMax) return false
+  if (!parsed || !parsedMin || !parsedMax) return false;
 
-  return compareSemVer(parsed, parsedMin) >= 0 && compareSemVer(parsed, parsedMax) <= 0
+  return (
+    compareSemVer(parsed, parsedMin) >= 0 &&
+    compareSemVer(parsed, parsedMax) <= 0
+  );
 }
 
 /**
  * Check if two versions have the same major version.
  */
 export function isSameMajor(a: string, b: string): boolean {
-  const parsedA = parseSemVer(a)
-  const parsedB = parseSemVer(b)
-  if (!parsedA || !parsedB) return false
-  return parsedA.major === parsedB.major
+  const parsedA = parseSemVer(a);
+  const parsedB = parseSemVer(b);
+  if (!parsedA || !parsedB) return false;
+  return parsedA.major === parsedB.major;
 }
 
 /**
  * Check if version a is compatible with version b (same major, a.minor >= b.minor).
  */
-export function isCompatible(pluginVersion: string, platformVersion: string): boolean {
-  const plugin = parseSemVer(pluginVersion)
-  const platform = parseSemVer(platformVersion)
-  if (!plugin || !platform) return false
+export function isCompatible(
+  pluginVersion: string,
+  platformVersion: string,
+): boolean {
+  const plugin = parseSemVer(pluginVersion);
+  const platform = parseSemVer(platformVersion);
+  if (!plugin || !platform) return false;
 
   // Same major version is required
-  if (plugin.major !== platform.major) return false
+  if (plugin.major !== platform.major) return false;
 
   // Plugin minor can be <= platform minor for backward compat
-  return true
+  return true;
 }
 
 // ============================================================================
@@ -132,11 +142,11 @@ export function isCompatible(pluginVersion: string, platformVersion: string): bo
 // ============================================================================
 
 interface DeprecationEntry {
-  pluginId: string
-  version: string
-  message: string
-  deprecatedAt: string
-  removalVersion: string | null
+  pluginId: string;
+  version: string;
+  message: string;
+  deprecatedAt: string;
+  removalVersion: string | null;
 }
 
 // ============================================================================
@@ -144,17 +154,17 @@ interface DeprecationEntry {
 // ============================================================================
 
 export class VersionCompatibilityChecker {
-  private config: VersionCompatibilityConfig
-  private rules: Map<string, VersionCompatibilityRule[]> = new Map()
-  private deprecations: DeprecationEntry[] = []
-  private knownVersions: Map<string, string[]> = new Map()
+  private config: VersionCompatibilityConfig;
+  private rules: Map<string, VersionCompatibilityRule[]> = new Map();
+  private deprecations: DeprecationEntry[] = [];
+  private knownVersions: Map<string, string[]> = new Map();
 
   constructor(config?: Partial<VersionCompatibilityConfig>) {
-    this.config = { ...DEFAULT_VERSION_COMPATIBILITY_CONFIG, ...config }
+    this.config = { ...DEFAULT_VERSION_COMPATIBILITY_CONFIG, ...config };
 
     // Load initial rules from config
     for (const rule of this.config.rules) {
-      this.addRule(rule)
+      this.addRule(rule);
     }
   }
 
@@ -166,34 +176,34 @@ export class VersionCompatibilityChecker {
    * Add a compatibility rule.
    */
   addRule(rule: VersionCompatibilityRule): void {
-    const rules = this.rules.get(rule.pluginId) || []
-    rules.push(rule)
-    this.rules.set(rule.pluginId, rules)
+    const rules = this.rules.get(rule.pluginId) || [];
+    rules.push(rule);
+    this.rules.set(rule.pluginId, rules);
   }
 
   /**
    * Remove all rules for a plugin.
    */
   removeRules(pluginId: string): boolean {
-    return this.rules.delete(pluginId)
+    return this.rules.delete(pluginId);
   }
 
   /**
    * Get rules for a plugin.
    */
   getRules(pluginId: string): VersionCompatibilityRule[] {
-    return this.rules.get(pluginId) || []
+    return this.rules.get(pluginId) || [];
   }
 
   /**
    * Get all rules.
    */
   getAllRules(): VersionCompatibilityRule[] {
-    const allRules: VersionCompatibilityRule[] = []
+    const allRules: VersionCompatibilityRule[] = [];
     for (const rules of this.rules.values()) {
-      allRules.push(...rules)
+      allRules.push(...rules);
     }
-    return allRules
+    return allRules;
   }
 
   // ==========================================================================
@@ -207,7 +217,7 @@ export class VersionCompatibilityChecker {
     pluginId: string,
     version: string,
     message: string,
-    removalVersion?: string
+    removalVersion?: string,
   ): void {
     this.deprecations.push({
       pluginId,
@@ -215,7 +225,7 @@ export class VersionCompatibilityChecker {
       message,
       deprecatedAt: new Date().toISOString(),
       removalVersion: removalVersion || null,
-    })
+    });
   }
 
   /**
@@ -225,12 +235,12 @@ export class VersionCompatibilityChecker {
     return this.deprecations
       .filter((d) => d.pluginId === pluginId && d.version === version)
       .map((d) => {
-        let msg = d.message
+        let msg = d.message;
         if (d.removalVersion) {
-          msg += ` (will be removed in ${d.removalVersion})`
+          msg += ` (will be removed in ${d.removalVersion})`;
         }
-        return msg
-      })
+        return msg;
+      });
   }
 
   // ==========================================================================
@@ -241,41 +251,41 @@ export class VersionCompatibilityChecker {
    * Register known versions for a plugin (for upgrade suggestions).
    */
   registerKnownVersions(pluginId: string, versions: string[]): void {
-    this.knownVersions.set(pluginId, [...versions].sort(compareVersionStrings))
+    this.knownVersions.set(pluginId, [...versions].sort(compareVersionStrings));
   }
 
   /**
    * Get the latest known version for a plugin.
    */
   getLatestVersion(pluginId: string): string | null {
-    const versions = this.knownVersions.get(pluginId)
-    if (!versions || versions.length === 0) return null
-    return versions[versions.length - 1]
+    const versions = this.knownVersions.get(pluginId);
+    if (!versions || versions.length === 0) return null;
+    return versions[versions.length - 1];
   }
 
   /**
    * Get a suggested compatible version for a plugin.
    */
   getSuggestedVersion(pluginId: string): string | null {
-    const versions = this.knownVersions.get(pluginId)
-    if (!versions || versions.length === 0) return null
+    const versions = this.knownVersions.get(pluginId);
+    if (!versions || versions.length === 0) return null;
 
-    const platformSemver = parseSemVer(this.config.platformVersion)
-    if (!platformSemver) return null
+    const platformSemver = parseSemVer(this.config.platformVersion);
+    if (!platformSemver) return null;
 
     // Find the latest version that is compatible
     for (let i = versions.length - 1; i >= 0; i--) {
-      const ver = parseSemVer(versions[i])
-      if (!ver) continue
+      const ver = parseSemVer(versions[i]);
+      if (!ver) continue;
 
       // Same major version, not prerelease (unless allowed)
       if (ver.major === platformSemver.major) {
-        if (ver.prerelease && !this.config.allowPrerelease) continue
-        return versions[i]
+        if (ver.prerelease && !this.config.allowPrerelease) continue;
+        return versions[i];
       }
     }
 
-    return null
+    return null;
   }
 
   // ==========================================================================
@@ -287,95 +297,113 @@ export class VersionCompatibilityChecker {
    */
   checkCompatibility(
     pluginId: string,
-    pluginVersion: string
+    pluginVersion: string,
   ): VersionCompatibilityResult {
-    const issues: VersionIssue[] = []
-    const deprecationWarnings = this.getDeprecations(pluginId, pluginVersion)
+    const issues: VersionIssue[] = [];
+    const deprecationWarnings = this.getDeprecations(pluginId, pluginVersion);
 
     // Parse plugin version
-    const parsedPlugin = parseSemVer(pluginVersion)
+    const parsedPlugin = parseSemVer(pluginVersion);
     if (!parsedPlugin) {
       issues.push({
-        severity: 'error',
+        severity: "error",
         message: `Invalid plugin version: "${pluginVersion}" is not valid semver`,
-        field: 'pluginVersion',
-      })
-      return this.buildResult(pluginId, pluginVersion, false, issues, deprecationWarnings)
+        field: "pluginVersion",
+      });
+      return this.buildResult(
+        pluginId,
+        pluginVersion,
+        false,
+        issues,
+        deprecationWarnings,
+      );
     }
 
     // Parse platform version
-    const parsedPlatform = parseSemVer(this.config.platformVersion)
+    const parsedPlatform = parseSemVer(this.config.platformVersion);
     if (!parsedPlatform) {
       issues.push({
-        severity: 'error',
+        severity: "error",
         message: `Invalid platform version: "${this.config.platformVersion}" is not valid semver`,
-        field: 'platformVersion',
-      })
-      return this.buildResult(pluginId, pluginVersion, false, issues, deprecationWarnings)
+        field: "platformVersion",
+      });
+      return this.buildResult(
+        pluginId,
+        pluginVersion,
+        false,
+        issues,
+        deprecationWarnings,
+      );
     }
 
     // Check prerelease
     if (parsedPlugin.prerelease && !this.config.allowPrerelease) {
       issues.push({
-        severity: 'warning',
+        severity: "warning",
         message: `Plugin version "${pluginVersion}" is a prerelease version`,
-        field: 'prerelease',
-      })
+        field: "prerelease",
+      });
     }
 
     // Check major version compatibility
     if (parsedPlugin.major !== parsedPlatform.major) {
       issues.push({
-        severity: 'error',
+        severity: "error",
         message: `Major version mismatch: plugin v${parsedPlugin.major}.x.x is not compatible with platform v${parsedPlatform.major}.x.x`,
-        field: 'majorVersion',
-      })
+        field: "majorVersion",
+      });
     }
 
     // Check plugin-specific rules
-    const pluginRules = this.rules.get(pluginId) || []
+    const pluginRules = this.rules.get(pluginId) || [];
     for (const rule of pluginRules) {
       if (!isVersionInRange(pluginVersion, rule.minVersion, rule.maxVersion)) {
         issues.push({
-          severity: 'error',
+          severity: "error",
           message: `Version "${pluginVersion}" outside allowed range [${rule.minVersion}, ${rule.maxVersion}]: ${rule.description}`,
-          field: 'versionRange',
-        })
+          field: "versionRange",
+        });
       }
 
       if (parsedPlugin.prerelease && !rule.allowPrerelease) {
         issues.push({
-          severity: 'warning',
+          severity: "warning",
           message: `Prerelease versions not allowed by rule: ${rule.description}`,
-          field: 'prerelease',
-        })
+          field: "prerelease",
+        });
       }
     }
 
     // Add deprecation warnings
     for (const dep of deprecationWarnings) {
       issues.push({
-        severity: 'warning',
+        severity: "warning",
         message: dep,
-        field: 'deprecation',
-      })
+        field: "deprecation",
+      });
     }
 
-    const hasErrors = issues.some((i) => i.severity === 'error')
-    return this.buildResult(pluginId, pluginVersion, !hasErrors, issues, deprecationWarnings)
+    const hasErrors = issues.some((i) => i.severity === "error");
+    return this.buildResult(
+      pluginId,
+      pluginVersion,
+      !hasErrors,
+      issues,
+      deprecationWarnings,
+    );
   }
 
   /**
    * Check compatibility of multiple plugins at once.
    */
   checkBulkCompatibility(
-    plugins: Array<{ pluginId: string; version: string }>
+    plugins: Array<{ pluginId: string; version: string }>,
   ): Map<string, VersionCompatibilityResult> {
-    const results = new Map<string, VersionCompatibilityResult>()
+    const results = new Map<string, VersionCompatibilityResult>();
     for (const { pluginId, version } of plugins) {
-      results.set(pluginId, this.checkCompatibility(pluginId, version))
+      results.set(pluginId, this.checkCompatibility(pluginId, version));
     }
-    return results
+    return results;
   }
 
   /**
@@ -384,52 +412,52 @@ export class VersionCompatibilityChecker {
   isUpgradeSafe(
     pluginId: string,
     fromVersion: string,
-    toVersion: string
+    toVersion: string,
   ): { safe: boolean; issues: VersionIssue[] } {
-    const issues: VersionIssue[] = []
+    const issues: VersionIssue[] = [];
 
-    const from = parseSemVer(fromVersion)
-    const to = parseSemVer(toVersion)
+    const from = parseSemVer(fromVersion);
+    const to = parseSemVer(toVersion);
 
     if (!from || !to) {
       issues.push({
-        severity: 'error',
+        severity: "error",
         message: `Invalid version: ${!from ? fromVersion : toVersion}`,
-        field: 'version',
-      })
-      return { safe: false, issues }
+        field: "version",
+      });
+      return { safe: false, issues };
     }
 
     // Downgrade check
     if (compareSemVer(to, from) < 0) {
       issues.push({
-        severity: 'warning',
+        severity: "warning",
         message: `Downgrading from ${fromVersion} to ${toVersion}`,
-        field: 'downgrade',
-      })
+        field: "downgrade",
+      });
     }
 
     // Major version change is risky
     if (from.major !== to.major) {
       issues.push({
-        severity: 'error',
+        severity: "error",
         message: `Major version change (${from.major} -> ${to.major}) may introduce breaking changes`,
-        field: 'majorVersion',
-      })
+        field: "majorVersion",
+      });
     }
 
     // Check compatibility of target version
-    const compatResult = this.checkCompatibility(pluginId, toVersion)
+    const compatResult = this.checkCompatibility(pluginId, toVersion);
     if (!compatResult.compatible) {
       issues.push({
-        severity: 'error',
+        severity: "error",
         message: `Target version ${toVersion} is not compatible with the platform`,
-        field: 'compatibility',
-      })
+        field: "compatibility",
+      });
     }
 
-    const hasErrors = issues.some((i) => i.severity === 'error')
-    return { safe: !hasErrors, issues }
+    const hasErrors = issues.some((i) => i.severity === "error");
+    return { safe: !hasErrors, issues };
   }
 
   // ==========================================================================
@@ -440,7 +468,7 @@ export class VersionCompatibilityChecker {
    * Get the current platform version.
    */
   getPlatformVersion(): string {
-    return this.config.platformVersion
+    return this.config.platformVersion;
   }
 
   /**
@@ -450,19 +478,19 @@ export class VersionCompatibilityChecker {
     if (!parseSemVer(version)) {
       throw new VersionCompatibilityError(
         `Invalid platform version: "${version}"`,
-        'INVALID_SEMVER'
-      )
+        "INVALID_SEMVER",
+      );
     }
-    this.config.platformVersion = version
+    this.config.platformVersion = version;
   }
 
   /**
    * Clear all rules, deprecations, and known versions.
    */
   clear(): void {
-    this.rules.clear()
-    this.deprecations = []
-    this.knownVersions.clear()
+    this.rules.clear();
+    this.deprecations = [];
+    this.knownVersions.clear();
   }
 
   // ==========================================================================
@@ -474,7 +502,7 @@ export class VersionCompatibilityChecker {
     pluginVersion: string,
     compatible: boolean,
     issues: VersionIssue[],
-    deprecations: string[]
+    deprecations: string[],
   ): VersionCompatibilityResult {
     return {
       compatible,
@@ -484,6 +512,6 @@ export class VersionCompatibilityChecker {
       issues,
       deprecations,
       suggestedVersion: compatible ? null : this.getSuggestedVersion(pluginId),
-    }
+    };
   }
 }

@@ -1,59 +1,68 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import { Globe, Image as ImageIcon, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { useWhiteLabelStore } from '@/stores/white-label-store'
-import { FaviconPreview } from './FaviconPreview'
-import { LogoUploader } from './LogoUploader'
-import type { GeneratedFavicon } from '@/lib/white-label/favicon-generator'
+import { useState, useEffect, useCallback } from "react";
+import { Globe, Image as ImageIcon, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useWhiteLabelStore } from "@/stores/white-label-store";
+import { FaviconPreview } from "./FaviconPreview";
+import { LogoUploader } from "./LogoUploader";
+import type { GeneratedFavicon } from "@/lib/white-label/favicon-generator";
 
 interface Step3FaviconGeneratorProps {
-  onValidChange?: (isValid: boolean) => void
-  className?: string
+  onValidChange?: (isValid: boolean) => void;
+  className?: string;
 }
 
-export function Step3FaviconGenerator({ onValidChange, className }: Step3FaviconGeneratorProps) {
-  const { config, updateFavicon, setGeneratedFavicons, setPreviewFavicon, markStepComplete } =
-    useWhiteLabelStore()
+export function Step3FaviconGenerator({
+  onValidChange,
+  className,
+}: Step3FaviconGeneratorProps) {
+  const {
+    config,
+    updateFavicon,
+    setGeneratedFavicons,
+    setPreviewFavicon,
+    markStepComplete,
+  } = useWhiteLabelStore();
 
   const [faviconSource, setFaviconSource] = useState<string | undefined>(
-    config.favicon.original || config.logo.original
-  )
-  const [useCustomSource, setUseCustomSource] = useState(false)
+    config.favicon.original || config.logo.original,
+  );
+  const [useCustomSource, setUseCustomSource] = useState(false);
 
   // Auto-select logo as source if available
   useEffect(() => {
     if (!useCustomSource && config.logo.original && !config.favicon.original) {
-      setFaviconSource(config.logo.original)
+      setFaviconSource(config.logo.original);
     }
-  }, [config.logo.original, config.favicon.original, useCustomSource])
+  }, [config.logo.original, config.favicon.original, useCustomSource]);
 
   const handleFaviconsGenerated = useCallback(
     (favicons: GeneratedFavicon[]) => {
-      setGeneratedFavicons(favicons)
+      setGeneratedFavicons(favicons);
 
       // Store favicon sizes
-      const sizes: Record<string, string> = {}
+      const sizes: Record<string, string> = {};
       for (const favicon of favicons) {
-        const sizeKey = `${favicon.size}x${favicon.size}` as keyof typeof config.favicon.sizes
-        sizes[sizeKey] = favicon.dataUrl
+        const sizeKey =
+          `${favicon.size}x${favicon.size}` as keyof typeof config.favicon.sizes;
+        sizes[sizeKey] = favicon.dataUrl;
       }
 
       updateFavicon({
         original: faviconSource,
         sizes: sizes as typeof config.favicon.sizes,
-      })
+      });
 
       // Update preview favicon
-      const favicon32 = favicons.find((f) => f.size === 32)
+      const favicon32 = favicons.find((f) => f.size === 32);
       if (favicon32) {
-        setPreviewFavicon(favicon32.dataUrl)
+        setPreviewFavicon(favicon32.dataUrl);
       }
 
-      markStepComplete('favicon')
-      onValidChange?.(true)
+      markStepComplete("favicon");
+      onValidChange?.(true);
     },
     [
       faviconSource,
@@ -62,40 +71,43 @@ export function Step3FaviconGenerator({ onValidChange, className }: Step3Favicon
       setPreviewFavicon,
       markStepComplete,
       onValidChange,
-    ]
-  )
+    ],
+  );
 
   const handleCustomSourceUpload = useCallback(
     (dataUrl: string | null) => {
       if (dataUrl) {
-        setFaviconSource(dataUrl)
-        updateFavicon({ original: dataUrl })
-        setUseCustomSource(true)
+        setFaviconSource(dataUrl);
+        updateFavicon({ original: dataUrl });
+        setUseCustomSource(true);
       } else {
-        setFaviconSource(config.logo.original)
-        setUseCustomSource(false)
+        setFaviconSource(config.logo.original);
+        setUseCustomSource(false);
       }
     },
-    [config.logo.original, updateFavicon]
-  )
+    [config.logo.original, updateFavicon],
+  );
 
   const handleUseLogo = useCallback(() => {
     if (config.logo.original) {
-      setFaviconSource(config.logo.original)
-      setUseCustomSource(false)
+      setFaviconSource(config.logo.original);
+      setUseCustomSource(false);
     }
-  }, [config.logo.original])
+  }, [config.logo.original]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div className="text-center">
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg">
           <Globe className="h-6 w-6 text-white" />
         </div>
-        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">Favicon Generator</h2>
+        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">
+          Favicon Generator
+        </h2>
         <p className="mx-auto max-w-md text-zinc-600 dark:text-zinc-400">
-          Generate favicons for all platforms from your logo or upload a custom icon.
+          Generate favicons for all platforms from your logo or upload a custom
+          icon.
         </p>
       </div>
 
@@ -112,10 +124,10 @@ export function Step3FaviconGenerator({ onValidChange, className }: Step3Favicon
                 type="button"
                 onClick={handleUseLogo}
                 className={cn(
-                  'flex flex-col items-center rounded-xl border-2 p-4 transition-all',
+                  "flex flex-col items-center rounded-xl border-2 p-4 transition-all",
                   !useCustomSource
-                    ? 'dark:bg-sky-900/20 border-sky-500 bg-sky-50'
-                    : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                    ? "dark:bg-sky-900/20 border-sky-500 bg-sky-50"
+                    : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
                 )}
               >
                 <img
@@ -132,10 +144,10 @@ export function Step3FaviconGenerator({ onValidChange, className }: Step3Favicon
                 type="button"
                 onClick={() => setUseCustomSource(true)}
                 className={cn(
-                  'flex flex-col items-center rounded-xl border-2 p-4 transition-all',
+                  "flex flex-col items-center rounded-xl border-2 p-4 transition-all",
                   useCustomSource
-                    ? 'dark:bg-sky-900/20 border-sky-500 bg-sky-50'
-                    : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                    ? "dark:bg-sky-900/20 border-sky-500 bg-sky-50"
+                    : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600",
                 )}
               >
                 <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
@@ -201,5 +213,5 @@ export function Step3FaviconGenerator({ onValidChange, className }: Step3Favicon
         </div>
       </div>
     </div>
-  )
+  );
 }

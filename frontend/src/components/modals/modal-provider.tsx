@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback } from "react";
 import {
   useModalStore,
   selectModals,
@@ -13,16 +13,16 @@ import {
   type ProfileModalProps as StoreProfileProps,
   type SettingsModalProps as StoreSettingsProps,
   type CustomModalProps,
-} from '@/lib/modals/modal-store'
+} from "@/lib/modals/modal-store";
 
-import { ConfirmModal } from './confirm-modal'
-import { AlertModal } from './alert-modal'
-import { PromptModal } from './prompt-modal'
-import { ImageLightbox } from './image-lightbox'
-import { VideoModal } from './video-modal'
-import { ProfileModal, type ProfileUser } from './profile-modal'
-import { SettingsModal, type SettingsSection } from './settings-modal'
-import { BaseModal, ModalBody } from './base-modal'
+import { ConfirmModal } from "./confirm-modal";
+import { AlertModal } from "./alert-modal";
+import { PromptModal } from "./prompt-modal";
+import { ImageLightbox } from "./image-lightbox";
+import { VideoModal } from "./video-modal";
+import { ProfileModal, type ProfileUser } from "./profile-modal";
+import { SettingsModal, type SettingsSection } from "./settings-modal";
+import { BaseModal, ModalBody } from "./base-modal";
 
 /**
  * ModalProvider - Renders all modals from the modal store
@@ -52,50 +52,51 @@ import { BaseModal, ModalBody } from './base-modal'
  * ```
  */
 export function ModalProvider() {
-  const modals = useModalStore(selectModals)
-  const closeModal = useModalStore((state) => state.closeModal)
-  const closeTopModal = useModalStore((state) => state.closeTopModal)
-  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen)
+  const modals = useModalStore(selectModals);
+  const closeModal = useModalStore((state) => state.closeModal);
+  const closeTopModal = useModalStore((state) => state.closeTopModal);
+  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
 
   // Handle global Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isAnyModalOpen) {
+      if (e.key === "Escape" && isAnyModalOpen) {
         // Let the top modal handle Escape first
         // If it doesn't prevent default, close it
-        closeTopModal()
+        closeTopModal();
       }
-    }
+    };
 
     // Use capture to handle before individual modals
-    document.addEventListener('keydown', handleEscape, { capture: false })
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [isAnyModalOpen, closeTopModal])
+    document.addEventListener("keydown", handleEscape, { capture: false });
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isAnyModalOpen, closeTopModal]);
 
   // Body scroll lock when modals are open
   useEffect(() => {
     if (isAnyModalOpen) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-      document.body.style.overflow = 'hidden'
-      document.body.style.paddingRight = `${scrollbarWidth}px`
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
     } else {
-      document.body.style.overflow = ''
-      document.body.style.paddingRight = ''
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     }
 
     return () => {
-      document.body.style.overflow = ''
-      document.body.style.paddingRight = ''
-    }
-  }, [isAnyModalOpen])
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, [isAnyModalOpen]);
 
   const renderModal = useCallback(
     (modal: ModalConfig) => {
-      const handleClose = () => closeModal(modal.id)
+      const handleClose = () => closeModal(modal.id);
 
       switch (modal.type) {
-        case 'confirm': {
-          const props = modal.props as unknown as StoreConfirmProps
+        case "confirm": {
+          const props = modal.props as unknown as StoreConfirmProps;
           return (
             <ConfirmModal
               key={modal.id}
@@ -107,16 +108,16 @@ export function ModalProvider() {
               cancelText={props.cancelText}
               variant={props.variant}
               onConfirm={async () => {
-                await props.onConfirm()
+                await props.onConfirm();
               }}
               onCancel={props.onCancel}
               loading={props.loading}
             />
-          )
+          );
         }
 
-        case 'alert': {
-          const props = modal.props as unknown as StoreAlertProps
+        case "alert": {
+          const props = modal.props as unknown as StoreAlertProps;
           return (
             <AlertModal
               key={modal.id}
@@ -128,11 +129,11 @@ export function ModalProvider() {
               buttonText={props.buttonText}
               onClose={props.onClose}
             />
-          )
+          );
         }
 
-        case 'prompt': {
-          const props = modal.props as unknown as StorePromptProps
+        case "prompt": {
+          const props = modal.props as unknown as StorePromptProps;
           return (
             <PromptModal
               key={modal.id}
@@ -147,15 +148,15 @@ export function ModalProvider() {
               submitText={props.submitText}
               cancelText={props.cancelText}
               onSubmit={async (value) => {
-                await props.onSubmit(value)
+                await props.onSubmit(value);
               }}
               onCancel={props.onCancel}
             />
-          )
+          );
         }
 
-        case 'image-lightbox': {
-          const props = modal.props as unknown as StoreImageLightboxProps
+        case "image-lightbox": {
+          const props = modal.props as unknown as StoreImageLightboxProps;
           return (
             <ImageLightbox
               key={modal.id}
@@ -165,11 +166,11 @@ export function ModalProvider() {
               initialIndex={props.initialIndex}
               onDownload={props.onDownload}
             />
-          )
+          );
         }
 
-        case 'video': {
-          const props = modal.props as unknown as StoreVideoProps
+        case "video": {
+          const props = modal.props as unknown as StoreVideoProps;
           return (
             <VideoModal
               key={modal.id}
@@ -183,11 +184,11 @@ export function ModalProvider() {
               loop={props.loop}
               onEnded={props.onEnded}
             />
-          )
+          );
         }
 
-        case 'profile': {
-          const props = modal.props as unknown as StoreProfileProps
+        case "profile": {
+          const props = modal.props as unknown as StoreProfileProps;
           return (
             <ProfileModal
               key={modal.id}
@@ -200,29 +201,31 @@ export function ModalProvider() {
               onBlockUser={props.onBlockUser}
               onViewFullProfile={props.onViewFullProfile}
             />
-          )
+          );
         }
 
-        case 'settings': {
-          const props = modal.props as unknown as StoreSettingsProps
+        case "settings": {
+          const props = modal.props as unknown as StoreSettingsProps;
           return (
             <SettingsModal
               key={modal.id}
               open={true}
               onOpenChange={(open) => !open && handleClose()}
               title={props.title}
-              sections={props.section ? [{ settings: [] }] : ([] as SettingsSection[])}
+              sections={
+                props.section ? [{ settings: [] }] : ([] as SettingsSection[])
+              }
               initialValues={{}}
               onSave={async (values) => {
-                await props.onSave?.(values)
+                await props.onSave?.(values);
               }}
               onCancel={props.onCancel}
             />
-          )
+          );
         }
 
-        case 'custom': {
-          const props = modal.props as unknown as CustomModalProps
+        case "custom": {
+          const props = modal.props as unknown as CustomModalProps;
           return (
             <BaseModal
               key={modal.id}
@@ -240,23 +243,25 @@ export function ModalProvider() {
                     </h2>
                   )}
                   {props.description && (
-                    <p className="text-sm text-muted-foreground">{props.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {props.description}
+                    </p>
                   )}
                 </div>
               )}
               <ModalBody>{props.content}</ModalBody>
             </BaseModal>
-          )
+          );
         }
 
         default:
-          return null
+          return null;
       }
     },
-    [closeModal]
-  )
+    [closeModal],
+  );
 
-  return <>{modals.map(renderModal)}</>
+  return <>{modals.map(renderModal)}</>;
 }
 
 /**
@@ -266,5 +271,5 @@ export function ModalProvider() {
 export function useModalProviderMounted(): boolean {
   // The provider is mounted if the store is accessible
   // This is always true once the store is initialized
-  return true
+  return true;
 }

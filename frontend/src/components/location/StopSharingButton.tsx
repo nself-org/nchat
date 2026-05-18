@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { MapPinOff, Loader2, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { MapPinOff, Loader2, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,8 +13,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -22,19 +22,19 @@ import { cn } from '@/lib/utils'
 
 interface StopSharingButtonProps {
   /** Callback when stop is confirmed */
-  onStop: () => void | Promise<void>
+  onStop: () => void | Promise<void>;
   /** Whether to show confirmation dialog */
-  confirmStop?: boolean
+  confirmStop?: boolean;
   /** Button variant */
-  variant?: 'default' | 'outline' | 'ghost' | 'destructive'
+  variant?: "default" | "outline" | "ghost" | "destructive";
   /** Button size */
-  size?: 'sm' | 'default' | 'lg'
+  size?: "sm" | "default" | "lg";
   /** Button text */
-  children?: React.ReactNode
+  children?: React.ReactNode;
   /** Whether the button is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -49,24 +49,24 @@ interface StopSharingButtonProps {
 export function StopSharingButton({
   onStop,
   confirmStop = true,
-  variant = 'destructive',
-  size = 'default',
+  variant = "destructive",
+  size = "default",
   children,
   disabled = false,
   className,
 }: StopSharingButtonProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleStop = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await onStop()
+      await onStop();
     } finally {
-      setIsLoading(false)
-      setIsOpen(false)
+      setIsLoading(false);
+      setIsOpen(false);
     }
-  }
+  };
 
   const buttonContent = (
     <>
@@ -75,9 +75,9 @@ export function StopSharingButton({
       ) : (
         <MapPinOff className="mr-2 h-4 w-4" />
       )}
-      {children || 'Stop Sharing'}
+      {children || "Stop Sharing"}
     </>
-  )
+  );
 
   if (!confirmStop) {
     return (
@@ -90,7 +90,7 @@ export function StopSharingButton({
       >
         {buttonContent}
       </Button>
-    )
+    );
   }
 
   return (
@@ -112,8 +112,8 @@ export function StopSharingButton({
             Stop Sharing Location?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            This will stop sharing your live location with everyone who can see it. You can start
-            sharing again at any time.
+            This will stop sharing your live location with everyone who can see
+            it. You can start sharing again at any time.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -129,13 +129,13 @@ export function StopSharingButton({
                 Stopping...
               </>
             ) : (
-              'Stop Sharing'
+              "Stop Sharing"
             )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -144,9 +144,9 @@ export function StopSharingButton({
 
 interface InlineStopButtonProps {
   /** Callback when stop is clicked */
-  onStop: () => void
+  onStop: () => void;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -157,14 +157,14 @@ export function InlineStopButton({ onStop, className }: InlineStopButtonProps) {
     <button
       onClick={onStop}
       className={cn(
-        'bg-destructive/10 hover:bg-destructive/20 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-destructive transition-colors',
-        className
+        "bg-destructive/10 hover:bg-destructive/20 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-destructive transition-colors",
+        className,
       )}
     >
       <MapPinOff className="h-3 w-3" />
       Stop
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -173,42 +173,46 @@ export function InlineStopButton({ onStop, className }: InlineStopButtonProps) {
 
 interface IconStopButtonProps {
   /** Callback when stop is clicked */
-  onStop: () => void
+  onStop: () => void;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 /**
  * Icon-only stop button.
  */
-export function IconStopButton({ onStop, size = 'md', className }: IconStopButtonProps) {
+export function IconStopButton({
+  onStop,
+  size = "md",
+  className,
+}: IconStopButtonProps) {
   const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-8 w-8',
-    lg: 'h-10 w-10',
-  }
+    sm: "h-6 w-6",
+    md: "h-8 w-8",
+    lg: "h-10 w-10",
+  };
 
   const iconSizes = {
-    sm: 'h-3 w-3',
-    md: 'h-4 w-4',
-    lg: 'h-5 w-5',
-  }
+    sm: "h-3 w-3",
+    md: "h-4 w-4",
+    lg: "h-5 w-5",
+  };
 
   return (
     <button
       onClick={onStop}
       className={cn(
-        'flex items-center justify-center rounded-full bg-destructive text-white transition-transform hover:scale-105 active:scale-95',
+        "flex items-center justify-center rounded-full bg-destructive text-white transition-transform hover:scale-105 active:scale-95",
         sizeClasses[size],
-        className
+        className,
       )}
       title="Stop sharing location"
     >
       <MapPinOff className={iconSizes[size]} />
     </button>
-  )
+  );
 }
 
-export default StopSharingButton
+export default StopSharingButton;

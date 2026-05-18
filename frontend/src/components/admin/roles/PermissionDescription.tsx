@@ -1,22 +1,22 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Permission } from '@/lib/admin/roles/role-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Permission } from "@/lib/admin/roles/role-types";
 import {
   PERMISSIONS,
   PERMISSION_CATEGORIES,
   isDangerousPermission,
   requiresAdmin,
-} from '@/lib/admin/roles/permission-types'
-import * as Icons from 'lucide-react'
-import { AlertTriangle, Shield } from 'lucide-react'
+} from "@/lib/admin/roles/permission-types";
+import * as Icons from "lucide-react";
+import { AlertTriangle, Shield } from "lucide-react";
 
 interface PermissionDescriptionProps {
-  permission: Permission
-  showCategory?: boolean
-  showWarnings?: boolean
-  className?: string
+  permission: Permission;
+  showCategory?: boolean;
+  showWarnings?: boolean;
+  className?: string;
 }
 
 /**
@@ -28,17 +28,19 @@ export function PermissionDescription({
   showWarnings = true,
   className,
 }: PermissionDescriptionProps) {
-  const permDef = PERMISSIONS[permission]
-  if (!permDef) return null
+  const permDef = PERMISSIONS[permission];
+  if (!permDef) return null;
 
-  const categoryDef = PERMISSION_CATEGORIES[permDef.category]
-  const isDangerous = isDangerousPermission(permission)
-  const needsAdmin = requiresAdmin(permission)
+  const categoryDef = PERMISSION_CATEGORIES[permDef.category];
+  const isDangerous = isDangerousPermission(permission);
+  const needsAdmin = requiresAdmin(permission);
 
-  const CategoryIcon = Icons[categoryDef.icon as keyof typeof Icons] as React.ElementType
+  const CategoryIcon = Icons[
+    categoryDef.icon as keyof typeof Icons
+  ] as React.ElementType;
 
   return (
-    <div className={cn('rounded-lg border p-4', className)}>
+    <div className={cn("rounded-lg border p-4", className)}>
       <div className="flex items-start gap-3">
         {/* Category icon */}
         {showCategory && CategoryIcon && (
@@ -70,7 +72,9 @@ export function PermissionDescription({
 
           {/* Category */}
           {showCategory && (
-            <div className="text-xs text-muted-foreground">Category: {categoryDef.name}</div>
+            <div className="text-xs text-muted-foreground">
+              Category: {categoryDef.name}
+            </div>
           )}
 
           {/* Warnings */}
@@ -80,7 +84,8 @@ export function PermissionDescription({
               <div>
                 <p className="font-medium">This is a sensitive permission</p>
                 <p className="text-xs opacity-90">
-                  Granting this permission gives significant control. Only assign to trusted users.
+                  Granting this permission gives significant control. Only
+                  assign to trusted users.
                 </p>
               </div>
             </div>
@@ -88,29 +93,29 @@ export function PermissionDescription({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
  * PermissionDescriptionInline - Inline description for tooltips
  */
 interface PermissionDescriptionInlineProps {
-  permission: Permission
-  className?: string
+  permission: Permission;
+  className?: string;
 }
 
 export function PermissionDescriptionInline({
   permission,
   className,
 }: PermissionDescriptionInlineProps) {
-  const permDef = PERMISSIONS[permission]
-  if (!permDef) return null
+  const permDef = PERMISSIONS[permission];
+  if (!permDef) return null;
 
-  const isDangerous = isDangerousPermission(permission)
-  const needsAdmin = requiresAdmin(permission)
+  const isDangerous = isDangerousPermission(permission);
+  const needsAdmin = requiresAdmin(permission);
 
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn("space-y-1", className)}>
       <div className="flex items-center gap-2">
         <span className="font-medium">{permDef.name}</span>
         {isDangerous && <AlertTriangle className="h-3 w-3 text-amber-500" />}
@@ -118,17 +123,17 @@ export function PermissionDescriptionInline({
       </div>
       <p className="text-xs text-muted-foreground">{permDef.description}</p>
     </div>
-  )
+  );
 }
 
 /**
  * PermissionList - List of permission descriptions
  */
 interface PermissionListProps {
-  permissions: Permission[]
-  showDescriptions?: boolean
-  compact?: boolean
-  className?: string
+  permissions: Permission[];
+  showDescriptions?: boolean;
+  compact?: boolean;
+  className?: string;
 }
 
 export function PermissionList({
@@ -138,37 +143,44 @@ export function PermissionList({
   className,
 }: PermissionListProps) {
   if (permissions.length === 0) {
-    return <div className="text-sm text-muted-foreground">No permissions</div>
+    return <div className="text-sm text-muted-foreground">No permissions</div>;
   }
 
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn("space-y-1", className)}>
       {permissions.map((permission) => {
-        const permDef = PERMISSIONS[permission]
-        if (!permDef) return null
+        const permDef = PERMISSIONS[permission];
+        if (!permDef) return null;
 
-        const isDangerous = isDangerousPermission(permission)
+        const isDangerous = isDangerousPermission(permission);
 
         return (
           <div
             key={permission}
-            className={cn('flex items-center gap-2', compact ? 'text-xs' : 'text-sm')}
+            className={cn(
+              "flex items-center gap-2",
+              compact ? "text-xs" : "text-sm",
+            )}
           >
             <div
               className={cn(
-                'h-1.5 w-1.5 rounded-full',
-                isDangerous ? 'bg-amber-500' : 'bg-primary'
+                "h-1.5 w-1.5 rounded-full",
+                isDangerous ? "bg-amber-500" : "bg-primary",
               )}
             />
-            <span className={isDangerous ? 'text-amber-500' : undefined}>{permDef.name}</span>
+            <span className={isDangerous ? "text-amber-500" : undefined}>
+              {permDef.name}
+            </span>
             {showDescriptions && (
-              <span className="text-muted-foreground">- {permDef.description}</span>
+              <span className="text-muted-foreground">
+                - {permDef.description}
+              </span>
             )}
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
-export default PermissionDescription
+export default PermissionDescription;

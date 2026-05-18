@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * LinkPreview - Main link preview component
@@ -6,20 +6,20 @@
  * Handles fetching, rendering, and managing link previews
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { useLinkPreview } from '@/hooks/useLinkPreview'
-import { LinkCard } from './LinkCard'
-import { LinkPreviewSkeleton } from './LinkPreviewSkeleton'
-import { LinkPreviewError } from './LinkPreviewError'
-import { RemovePreviewButton } from './RemovePreviewButton'
-import { TwitterPreview } from './TwitterPreview'
-import { YouTubePreview } from './YouTubePreview'
-import { GitHubPreview } from './GitHubPreview'
-import { SpotifyPreview } from './SpotifyPreview'
-import { CodePreview } from './CodePreview'
-import { ImagePreview } from './ImagePreview'
-import { VideoPreview } from './VideoPreview'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { useLinkPreview } from "@/hooks/useLinkPreview";
+import { LinkCard } from "./LinkCard";
+import { LinkPreviewSkeleton } from "./LinkPreviewSkeleton";
+import { LinkPreviewError } from "./LinkPreviewError";
+import { RemovePreviewButton } from "./RemovePreviewButton";
+import { TwitterPreview } from "./TwitterPreview";
+import { YouTubePreview } from "./YouTubePreview";
+import { GitHubPreview } from "./GitHubPreview";
+import { SpotifyPreview } from "./SpotifyPreview";
+import { CodePreview } from "./CodePreview";
+import { ImagePreview } from "./ImagePreview";
+import { VideoPreview } from "./VideoPreview";
 import {
   isTwitterPreview,
   isYouTubePreview,
@@ -29,40 +29,40 @@ import {
   isCodePreview,
   isImagePreview,
   isVideoPreview,
-} from '@/lib/link-preview'
-import type { LinkPreviewData } from '@/lib/link-preview'
+} from "@/lib/link-preview";
+import type { LinkPreviewData } from "@/lib/link-preview";
 
 export interface LinkPreviewProps {
   /** URL to preview */
-  url: string
+  url: string;
   /** Message ID for tracking removed previews */
-  messageId?: string
+  messageId?: string;
   /** Layout variant */
-  variant?: 'vertical' | 'horizontal' | 'compact' | 'auto'
+  variant?: "vertical" | "horizontal" | "compact" | "auto";
   /** Show remove button */
-  showRemoveButton?: boolean
+  showRemoveButton?: boolean;
   /** Auto-fetch preview on mount */
-  autoFetch?: boolean
+  autoFetch?: boolean;
   /** Show image in preview */
-  showImage?: boolean
+  showImage?: boolean;
   /** Show description in preview */
-  showDescription?: boolean
+  showDescription?: boolean;
   /** Maximum image height */
-  maxImageHeight?: number
+  maxImageHeight?: number;
   /** Callback when preview is loaded */
-  onLoad?: (data: LinkPreviewData) => void
+  onLoad?: (data: LinkPreviewData) => void;
   /** Callback when preview fails to load */
-  onError?: (error: string) => void
+  onError?: (error: string) => void;
   /** Callback when preview is removed */
-  onRemove?: () => void
+  onRemove?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 export function LinkPreview({
   url,
-  messageId = 'default',
-  variant = 'auto',
+  messageId = "default",
+  variant = "auto",
   showRemoveButton = true,
   autoFetch = true,
   showImage = true,
@@ -73,47 +73,56 @@ export function LinkPreview({
   onRemove,
   className,
 }: LinkPreviewProps) {
-  const { preview, isLoading, error, isRemoved, remove, restore, refresh } = useLinkPreview(url, {
-    autoFetch,
-    messageId,
-    onLoad,
-    onError,
-  })
+  const { preview, isLoading, error, isRemoved, remove, restore, refresh } =
+    useLinkPreview(url, {
+      autoFetch,
+      messageId,
+      onLoad,
+      onError,
+    });
 
   // Don't render if removed
   if (isRemoved) {
-    return null
+    return null;
   }
 
   // Handle remove
   const handleRemove = () => {
-    remove()
-    onRemove?.()
-  }
+    remove();
+    onRemove?.();
+  };
 
   // Loading state
   if (isLoading && !preview) {
     return (
       <LinkPreviewSkeleton
-        variant={variant === 'auto' ? 'vertical' : variant}
+        variant={variant === "auto" ? "vertical" : variant}
         showImage={showImage}
         className={className}
       />
-    )
+    );
   }
 
   // Error state
   if (error && !preview) {
-    return <LinkPreviewError url={url} error={error} onRetry={refresh} className={className} />
+    return (
+      <LinkPreviewError
+        url={url}
+        error={error}
+        onRetry={refresh}
+        className={className}
+      />
+    );
   }
 
   // No preview data
   if (!preview) {
-    return null
+    return null;
   }
 
   // Determine actual variant
-  const actualVariant = variant === 'auto' ? (preview.image ? 'vertical' : 'compact') : variant
+  const actualVariant =
+    variant === "auto" ? (preview.image ? "vertical" : "compact") : variant;
 
   // Render specialized preview components based on type
   const renderSpecializedPreview = () => {
@@ -123,7 +132,7 @@ export function LinkPreview({
         <TwitterPreview data={preview} className={className}>
           {showRemoveButton && <RemovePreviewButton onClick={handleRemove} />}
         </TwitterPreview>
-      )
+      );
     }
 
     // YouTube
@@ -132,7 +141,7 @@ export function LinkPreview({
         <YouTubePreview data={preview} className={className}>
           {showRemoveButton && <RemovePreviewButton onClick={handleRemove} />}
         </YouTubePreview>
-      )
+      );
     }
 
     // GitHub
@@ -141,7 +150,7 @@ export function LinkPreview({
         <GitHubPreview data={preview} className={className}>
           {showRemoveButton && <RemovePreviewButton onClick={handleRemove} />}
         </GitHubPreview>
-      )
+      );
     }
 
     // Spotify
@@ -150,7 +159,7 @@ export function LinkPreview({
         <SpotifyPreview data={preview} className={className}>
           {showRemoveButton && <RemovePreviewButton onClick={handleRemove} />}
         </SpotifyPreview>
-      )
+      );
     }
 
     // Code (Gist, CodePen, etc.)
@@ -159,16 +168,20 @@ export function LinkPreview({
         <CodePreview data={preview} className={className}>
           {showRemoveButton && <RemovePreviewButton onClick={handleRemove} />}
         </CodePreview>
-      )
+      );
     }
 
     // Direct image
     if (isImagePreview(preview)) {
       return (
-        <ImagePreview data={preview} maxHeight={maxImageHeight} className={className}>
+        <ImagePreview
+          data={preview}
+          maxHeight={maxImageHeight}
+          className={className}
+        >
           {showRemoveButton && <RemovePreviewButton onClick={handleRemove} />}
         </ImagePreview>
-      )
+      );
     }
 
     // Direct video
@@ -177,17 +190,17 @@ export function LinkPreview({
         <VideoPreview data={preview} className={className}>
           {showRemoveButton && <RemovePreviewButton onClick={handleRemove} />}
         </VideoPreview>
-      )
+      );
     }
 
     // Default card layout
-    return null
-  }
+    return null;
+  };
 
   // Try specialized preview first
-  const specializedPreview = renderSpecializedPreview()
+  const specializedPreview = renderSpecializedPreview();
   if (specializedPreview) {
-    return specializedPreview
+    return specializedPreview;
   }
 
   // Default card layout
@@ -202,7 +215,7 @@ export function LinkPreview({
     >
       {showRemoveButton && <RemovePreviewButton onClick={handleRemove} />}
     </LinkCard>
-  )
+  );
 }
 
-export default LinkPreview
+export default LinkPreview;

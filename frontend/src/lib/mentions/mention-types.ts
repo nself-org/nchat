@@ -15,29 +15,29 @@
 /**
  * Types of mentions supported in the system
  */
-export type MentionType = 'user' | 'channel' | 'everyone' | 'here' | 'role'
+export type MentionType = "user" | "channel" | "everyone" | "here" | "role";
 
 /**
  * Character triggers for different mention types
  */
 export const MENTION_TRIGGERS = {
-  user: '@',
-  channel: '#',
-  everyone: '@everyone',
-  here: '@here',
-  role: '@',
-} as const
+  user: "@",
+  channel: "#",
+  everyone: "@everyone",
+  here: "@here",
+  role: "@",
+} as const;
 
 /**
  * Special group mention identifiers
  */
 export const SPECIAL_MENTIONS = {
-  everyone: 'everyone',
-  here: 'here',
-  channel: 'channel',
-} as const
+  everyone: "everyone",
+  here: "here",
+  channel: "channel",
+} as const;
 
-export type SpecialMentionType = keyof typeof SPECIAL_MENTIONS
+export type SpecialMentionType = keyof typeof SPECIAL_MENTIONS;
 
 // ============================================================================
 // User Mention Types
@@ -47,23 +47,23 @@ export type SpecialMentionType = keyof typeof SPECIAL_MENTIONS
  * User data for mention autocomplete
  */
 export interface MentionableUser {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl: string | null
-  presence?: 'online' | 'away' | 'dnd' | 'offline'
-  role?: string
-  isBot?: boolean
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  presence?: "online" | "away" | "dnd" | "offline";
+  role?: string;
+  isBot?: boolean;
 }
 
 /**
  * User mention data stored in a message
  */
 export interface UserMentionData {
-  type: 'user'
-  userId: string
-  username: string
-  displayName: string
+  type: "user";
+  userId: string;
+  username: string;
+  displayName: string;
 }
 
 // ============================================================================
@@ -74,23 +74,23 @@ export interface UserMentionData {
  * Channel data for mention autocomplete
  */
 export interface MentionableChannel {
-  id: string
-  name: string
-  slug: string
-  type: 'public' | 'private' | 'direct' | 'group'
-  icon?: string | null
-  description?: string | null
-  isArchived?: boolean
+  id: string;
+  name: string;
+  slug: string;
+  type: "public" | "private" | "direct" | "group";
+  icon?: string | null;
+  description?: string | null;
+  isArchived?: boolean;
 }
 
 /**
  * Channel mention data stored in a message
  */
 export interface ChannelMentionData {
-  type: 'channel'
-  channelId: string
-  channelName: string
-  channelSlug: string
+  type: "channel";
+  channelId: string;
+  channelName: string;
+  channelSlug: string;
 }
 
 // ============================================================================
@@ -101,18 +101,18 @@ export interface ChannelMentionData {
  * Group mention data (@everyone, @here, @channel)
  */
 export interface GroupMentionData {
-  type: 'everyone' | 'here' | 'channel'
+  type: "everyone" | "here" | "channel";
 }
 
 /**
  * Information about a group mention
  */
 export interface GroupMentionInfo {
-  type: SpecialMentionType
-  label: string
-  description: string
-  icon: string
-  affectsCount: 'all' | 'online' | 'channel'
+  type: SpecialMentionType;
+  label: string;
+  description: string;
+  icon: string;
+  affectsCount: "all" | "online" | "channel";
 }
 
 /**
@@ -120,27 +120,27 @@ export interface GroupMentionInfo {
  */
 export const GROUP_MENTIONS: Record<SpecialMentionType, GroupMentionInfo> = {
   everyone: {
-    type: 'everyone',
-    label: '@everyone',
-    description: 'Notify all members in this workspace',
-    icon: 'users',
-    affectsCount: 'all',
+    type: "everyone",
+    label: "@everyone",
+    description: "Notify all members in this workspace",
+    icon: "users",
+    affectsCount: "all",
   },
   here: {
-    type: 'here',
-    label: '@here',
-    description: 'Notify online members only',
-    icon: 'radio',
-    affectsCount: 'online',
+    type: "here",
+    label: "@here",
+    description: "Notify online members only",
+    icon: "radio",
+    affectsCount: "online",
   },
   channel: {
-    type: 'channel',
-    label: '@channel',
-    description: 'Notify all members in this channel',
-    icon: 'hash',
-    affectsCount: 'channel',
+    type: "channel",
+    label: "@channel",
+    description: "Notify all members in this channel",
+    icon: "hash",
+    affectsCount: "channel",
   },
-}
+};
 
 // ============================================================================
 // Role Mention Types
@@ -150,19 +150,19 @@ export const GROUP_MENTIONS: Record<SpecialMentionType, GroupMentionInfo> = {
  * Role data for mention autocomplete
  */
 export interface MentionableRole {
-  id: string
-  name: string
-  color?: string
-  memberCount: number
+  id: string;
+  name: string;
+  color?: string;
+  memberCount: number;
 }
 
 /**
  * Role mention data stored in a message
  */
 export interface RoleMentionData {
-  type: 'role'
-  roleId: string
-  roleName: string
+  type: "role";
+  roleId: string;
+  roleName: string;
 }
 
 // ============================================================================
@@ -174,17 +174,21 @@ export interface RoleMentionData {
  */
 export interface ParsedMention {
   /** The type of mention */
-  type: MentionType
+  type: MentionType;
   /** The raw text matched (e.g., "@john" or "#general") */
-  raw: string
+  raw: string;
   /** The extracted identifier (e.g., "john" or "general") */
-  identifier: string
+  identifier: string;
   /** Start position in the text */
-  start: number
+  start: number;
   /** End position in the text */
-  end: number
+  end: number;
   /** Resolved data (user, channel, etc.) - may be undefined if unresolved */
-  data?: UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData
+  data?:
+    | UserMentionData
+    | ChannelMentionData
+    | GroupMentionData
+    | RoleMentionData;
 }
 
 /**
@@ -192,19 +196,19 @@ export interface ParsedMention {
  */
 export interface ParsedMentionResult {
   /** All mentions found in the content */
-  mentions: ParsedMention[]
+  mentions: ParsedMention[];
   /** User IDs mentioned */
-  userIds: string[]
+  userIds: string[];
   /** Channel IDs mentioned */
-  channelIds: string[]
+  channelIds: string[];
   /** Role IDs mentioned */
-  roleIds: string[]
+  roleIds: string[];
   /** Whether @everyone was used */
-  hasEveryone: boolean
+  hasEveryone: boolean;
   /** Whether @here was used */
-  hasHere: boolean
+  hasHere: boolean;
   /** Whether @channel was used */
-  hasChannel: boolean
+  hasChannel: boolean;
 }
 
 // ============================================================================
@@ -214,21 +218,25 @@ export interface ParsedMentionResult {
 /**
  * Types of suggestions that can be shown in autocomplete
  */
-export type SuggestionType = 'user' | 'channel' | 'group' | 'role'
+export type SuggestionType = "user" | "channel" | "group" | "role";
 
 /**
  * A suggestion item for the autocomplete dropdown
  */
 export interface MentionSuggestion {
-  type: SuggestionType
-  id: string
-  label: string
-  sublabel?: string
-  icon?: string
-  avatarUrl?: string
-  color?: string
-  presence?: 'online' | 'away' | 'dnd' | 'offline'
-  data: MentionableUser | MentionableChannel | GroupMentionInfo | MentionableRole
+  type: SuggestionType;
+  id: string;
+  label: string;
+  sublabel?: string;
+  icon?: string;
+  avatarUrl?: string;
+  color?: string;
+  presence?: "online" | "away" | "dnd" | "offline";
+  data:
+    | MentionableUser
+    | MentionableChannel
+    | GroupMentionInfo
+    | MentionableRole;
 }
 
 // ============================================================================
@@ -239,21 +247,21 @@ export interface MentionSuggestion {
  * A mention notification
  */
 export interface MentionNotification {
-  id: string
-  mentionId: string
-  messageId: string
-  channelId: string
-  channelName: string
-  channelSlug: string
-  senderUserId: string
-  senderUsername: string
-  senderDisplayName: string
-  senderAvatarUrl: string | null
-  mentionType: MentionType
-  messagePreview: string
-  isRead: boolean
-  readAt: string | null
-  createdAt: string
+  id: string;
+  mentionId: string;
+  messageId: string;
+  channelId: string;
+  channelName: string;
+  channelSlug: string;
+  senderUserId: string;
+  senderUsername: string;
+  senderDisplayName: string;
+  senderAvatarUrl: string | null;
+  mentionType: MentionType;
+  messagePreview: string;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string;
 }
 
 // ============================================================================
@@ -265,21 +273,21 @@ export interface MentionNotification {
  */
 export interface MentionPreferences {
   /** Whether to receive notifications for direct mentions */
-  notifyOnMention: boolean
+  notifyOnMention: boolean;
   /** Whether to receive notifications for @everyone */
-  notifyOnEveryone: boolean
+  notifyOnEveryone: boolean;
   /** Whether to receive notifications for @here */
-  notifyOnHere: boolean
+  notifyOnHere: boolean;
   /** Whether to receive notifications for @channel */
-  notifyOnChannel: boolean
+  notifyOnChannel: boolean;
   /** Whether to highlight mentions in messages */
-  highlightMentions: boolean
+  highlightMentions: boolean;
   /** Custom highlight color for mentions (CSS color) */
-  highlightColor?: string
+  highlightColor?: string;
   /** Sound for mention notifications */
-  mentionSound: 'default' | 'subtle' | 'none'
+  mentionSound: "default" | "subtle" | "none";
   /** Whether to show mention badge in sidebar */
-  showMentionBadge: boolean
+  showMentionBadge: boolean;
 }
 
 /**
@@ -292,26 +300,26 @@ export const DEFAULT_MENTION_PREFERENCES: MentionPreferences = {
   notifyOnChannel: true,
   highlightMentions: true,
   highlightColor: undefined,
-  mentionSound: 'default',
+  mentionSound: "default",
   showMentionBadge: true,
-}
+};
 
 /**
  * Channel-level mention settings (admin controlled)
  */
 export interface ChannelMentionSettings {
   /** Whether @everyone is allowed in this channel */
-  allowEveryone: boolean
+  allowEveryone: boolean;
   /** Whether @here is allowed in this channel */
-  allowHere: boolean
+  allowHere: boolean;
   /** Whether @channel is allowed in this channel */
-  allowChannel: boolean
+  allowChannel: boolean;
   /** Minimum role required to use @everyone */
-  everyoneMinRole: 'owner' | 'admin' | 'moderator' | 'member'
+  everyoneMinRole: "owner" | "admin" | "moderator" | "member";
   /** Minimum role required to use @here */
-  hereMinRole: 'owner' | 'admin' | 'moderator' | 'member'
+  hereMinRole: "owner" | "admin" | "moderator" | "member";
   /** Minimum role required to use @channel */
-  channelMinRole: 'owner' | 'admin' | 'moderator' | 'member'
+  channelMinRole: "owner" | "admin" | "moderator" | "member";
 }
 
 /**
@@ -321,10 +329,10 @@ export const DEFAULT_CHANNEL_MENTION_SETTINGS: ChannelMentionSettings = {
   allowEveryone: true,
   allowHere: true,
   allowChannel: true,
-  everyoneMinRole: 'admin',
-  hereMinRole: 'moderator',
-  channelMinRole: 'moderator',
-}
+  everyoneMinRole: "admin",
+  hereMinRole: "moderator",
+  channelMinRole: "moderator",
+};
 
 // ============================================================================
 // Mention Permission Types
@@ -334,12 +342,12 @@ export const DEFAULT_CHANNEL_MENTION_SETTINGS: ChannelMentionSettings = {
  * Permissions for using different mention types
  */
 export interface MentionPermissions {
-  canMentionUsers: boolean
-  canMentionChannels: boolean
-  canMentionEveryone: boolean
-  canMentionHere: boolean
-  canMentionChannel: boolean
-  canMentionRoles: boolean
+  canMentionUsers: boolean;
+  canMentionChannels: boolean;
+  canMentionEveryone: boolean;
+  canMentionHere: boolean;
+  canMentionChannel: boolean;
+  canMentionRoles: boolean;
 }
 
 /**
@@ -352,7 +360,7 @@ export const DEFAULT_MENTION_PERMISSIONS: MentionPermissions = {
   canMentionHere: false,
   canMentionChannel: false,
   canMentionRoles: false,
-}
+};
 
 // ============================================================================
 // Autocomplete State Types
@@ -363,21 +371,21 @@ export const DEFAULT_MENTION_PERMISSIONS: MentionPermissions = {
  */
 export interface MentionAutocompleteState {
   /** Whether the autocomplete is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Current search query */
-  query: string
+  query: string;
   /** Current trigger character ('@' or '#') */
-  trigger: '@' | '#' | null
+  trigger: "@" | "#" | null;
   /** Current suggestions */
-  suggestions: MentionSuggestion[]
+  suggestions: MentionSuggestion[];
   /** Currently selected index */
-  selectedIndex: number
+  selectedIndex: number;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error message */
-  error: string | null
+  error: string | null;
   /** Position for the popup */
-  position: { top: number; left: number } | null
+  position: { top: number; left: number } | null;
 }
 
 /**
@@ -385,14 +393,14 @@ export interface MentionAutocompleteState {
  */
 export const INITIAL_AUTOCOMPLETE_STATE: MentionAutocompleteState = {
   isOpen: false,
-  query: '',
+  query: "",
   trigger: null,
   suggestions: [],
   selectedIndex: 0,
   isLoading: false,
   error: null,
   position: null,
-}
+};
 
 // ============================================================================
 // Mention Render Types
@@ -401,18 +409,22 @@ export const INITIAL_AUTOCOMPLETE_STATE: MentionAutocompleteState = {
 /**
  * Render mode for mentions in messages
  */
-export type MentionRenderMode = 'chip' | 'inline' | 'link'
+export type MentionRenderMode = "chip" | "inline" | "link";
 
 /**
  * Props for rendering a mention
  */
 export interface MentionRenderProps {
-  type: MentionType
-  data: UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData
-  mode: MentionRenderMode
-  isCurrentUser: boolean
-  onClick?: () => void
-  className?: string
+  type: MentionType;
+  data:
+    | UserMentionData
+    | ChannelMentionData
+    | GroupMentionData
+    | RoleMentionData;
+  mode: MentionRenderMode;
+  isCurrentUser: boolean;
+  onClick?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -423,42 +435,60 @@ export interface MentionRenderProps {
  * Check if a mention is a user mention
  */
 export function isUserMention(
-  data: UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData
+  data:
+    | UserMentionData
+    | ChannelMentionData
+    | GroupMentionData
+    | RoleMentionData,
 ): data is UserMentionData {
-  return data.type === 'user'
+  return data.type === "user";
 }
 
 /**
  * Check if a mention is a channel mention
  */
 export function isChannelMention(
-  data: UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData
+  data:
+    | UserMentionData
+    | ChannelMentionData
+    | GroupMentionData
+    | RoleMentionData,
 ): data is ChannelMentionData {
-  return data.type === 'channel'
+  return data.type === "channel";
 }
 
 /**
  * Check if a mention is a group mention
  */
 export function isGroupMention(
-  data: UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData
+  data:
+    | UserMentionData
+    | ChannelMentionData
+    | GroupMentionData
+    | RoleMentionData,
 ): data is GroupMentionData {
-  return data.type === 'everyone' || data.type === 'here' || data.type === 'channel'
+  return (
+    data.type === "everyone" || data.type === "here" || data.type === "channel"
+  );
 }
 
 /**
  * Check if a mention is a role mention
  */
 export function isRoleMention(
-  data: UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData
+  data:
+    | UserMentionData
+    | ChannelMentionData
+    | GroupMentionData
+    | RoleMentionData,
 ): data is RoleMentionData {
-  return data.type === 'role'
+  return data.type === "role";
 }
 
 /**
  * Check if a string is a special mention
  */
 export function isSpecialMention(text: string): boolean {
-  const lower = text.toLowerCase()
-  return lower === 'everyone' || lower === 'here' || lower === 'channel'
+  const lower = text.toLowerCase();
+  return lower === "everyone" || lower === "here" || lower === "channel";
 }

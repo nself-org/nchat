@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +22,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   MoreVertical,
   Archive,
@@ -32,23 +32,23 @@ import {
   Volume2,
   Bell,
   Clock,
-} from 'lucide-react'
-import type { DirectMessage } from '@/lib/dm/dm-types'
-import { getMutePresets } from '@/lib/dm'
-import { useDMStore } from '@/stores/dm-store'
+} from "lucide-react";
+import type { DirectMessage } from "@/lib/dm/dm-types";
+import { getMutePresets } from "@/lib/dm";
+import { useDMStore } from "@/stores/dm-store";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DMActionsProps {
-  dm: DirectMessage
-  onArchive?: () => void
-  onUnarchive?: () => void
-  onDelete?: () => void
-  onMute?: (until?: string | null) => void
-  onUnmute?: () => void
-  className?: string
+  dm: DirectMessage;
+  onArchive?: () => void;
+  onUnarchive?: () => void;
+  onDelete?: () => void;
+  onMute?: (until?: string | null) => void;
+  onUnmute?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -64,61 +64,72 @@ export function DMActions({
   onUnmute,
   className,
 }: DMActionsProps) {
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
-  const { mutedDMs, archivedDMs, setDMMuted, archiveDM, unarchiveDM, removeDM } = useDMStore()
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const {
+    mutedDMs,
+    archivedDMs,
+    setDMMuted,
+    archiveDM,
+    unarchiveDM,
+    removeDM,
+  } = useDMStore();
 
-  const isMuted = mutedDMs.has(dm.id)
-  const isArchived = archivedDMs.has(dm.id)
-  const mutePresets = getMutePresets()
+  const isMuted = mutedDMs.has(dm.id);
+  const isArchived = archivedDMs.has(dm.id);
+  const mutePresets = getMutePresets();
 
   const handleArchive = () => {
-    archiveDM(dm.id)
-    onArchive?.()
-  }
+    archiveDM(dm.id);
+    onArchive?.();
+  };
 
   const handleUnarchive = () => {
-    unarchiveDM(dm.id)
-    onUnarchive?.()
-  }
+    unarchiveDM(dm.id);
+    onUnarchive?.();
+  };
 
   const handleDelete = () => {
-    removeDM(dm.id)
-    onDelete?.()
-    setShowDeleteDialog(false)
-  }
+    removeDM(dm.id);
+    onDelete?.();
+    setShowDeleteDialog(false);
+  };
 
   const handleMute = (preset: { duration: number | null; unit?: string }) => {
-    let muteUntil: string | null = null
+    let muteUntil: string | null = null;
     if (preset.duration !== null) {
-      const now = new Date()
-      let ms = preset.duration
+      const now = new Date();
+      let ms = preset.duration;
       switch (preset.unit) {
-        case 'minutes':
-          ms *= 60 * 1000
-          break
-        case 'hours':
-          ms *= 60 * 60 * 1000
-          break
-        case 'days':
-          ms *= 24 * 60 * 60 * 1000
-          break
+        case "minutes":
+          ms *= 60 * 1000;
+          break;
+        case "hours":
+          ms *= 60 * 60 * 1000;
+          break;
+        case "days":
+          ms *= 24 * 60 * 60 * 1000;
+          break;
       }
-      muteUntil = new Date(now.getTime() + ms).toISOString()
+      muteUntil = new Date(now.getTime() + ms).toISOString();
     }
-    setDMMuted(dm.id, true, muteUntil)
-    onMute?.(muteUntil)
-  }
+    setDMMuted(dm.id, true, muteUntil);
+    onMute?.(muteUntil);
+  };
 
   const handleUnmute = () => {
-    setDMMuted(dm.id, false, null)
-    onUnmute?.()
-  }
+    setDMMuted(dm.id, false, null);
+    onUnmute?.();
+  };
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className={cn('h-8 w-8', className)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-8 w-8", className)}
+          >
             <MoreVertical className="h-4 w-4" />
             <span className="sr-only">Actions</span>
           </Button>
@@ -138,7 +149,10 @@ export function DMActions({
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="w-48">
                 {mutePresets.map((preset) => (
-                  <DropdownMenuItem key={preset.label} onClick={() => handleMute(preset.value)}>
+                  <DropdownMenuItem
+                    key={preset.label}
+                    onClick={() => handleMute(preset.value)}
+                  >
                     <Clock className="mr-2 h-4 w-4" />
                     {preset.label}
                   </DropdownMenuItem>
@@ -181,8 +195,8 @@ export function DMActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete all messages in this conversation. This action cannot be
-              undone.
+              This will permanently delete all messages in this conversation.
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -197,7 +211,7 @@ export function DMActions({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
 // ============================================================================
@@ -211,26 +225,31 @@ export function ArchiveDMButton({
   onUnarchive,
   className,
 }: {
-  dmId: string
-  isArchived: boolean
-  onArchive?: () => void
-  onUnarchive?: () => void
-  className?: string
+  dmId: string;
+  isArchived: boolean;
+  onArchive?: () => void;
+  onUnarchive?: () => void;
+  className?: string;
 }) {
-  const { archiveDM, unarchiveDM } = useDMStore()
+  const { archiveDM, unarchiveDM } = useDMStore();
 
   const handleClick = () => {
     if (isArchived) {
-      unarchiveDM(dmId)
-      onUnarchive?.()
+      unarchiveDM(dmId);
+      onUnarchive?.();
     } else {
-      archiveDM(dmId)
-      onArchive?.()
+      archiveDM(dmId);
+      onArchive?.();
     }
-  }
+  };
 
   return (
-    <Button variant="outline" size="sm" className={className} onClick={handleClick}>
+    <Button
+      variant="outline"
+      size="sm"
+      className={className}
+      onClick={handleClick}
+    >
       {isArchived ? (
         <>
           <ArchiveRestore className="mr-2 h-4 w-4" />
@@ -243,7 +262,7 @@ export function ArchiveDMButton({
         </>
       )}
     </Button>
-  )
+  );
 }
 
 export function DeleteDMButton({
@@ -251,18 +270,18 @@ export function DeleteDMButton({
   onDelete,
   className,
 }: {
-  dmId: string
-  onDelete?: () => void
-  className?: string
+  dmId: string;
+  onDelete?: () => void;
+  className?: string;
 }) {
-  const [showDialog, setShowDialog] = React.useState(false)
-  const { removeDM } = useDMStore()
+  const [showDialog, setShowDialog] = React.useState(false);
+  const { removeDM } = useDMStore();
 
   const handleDelete = () => {
-    removeDM(dmId)
-    onDelete?.()
-    setShowDialog(false)
-  }
+    removeDM(dmId);
+    onDelete?.();
+    setShowDialog(false);
+  };
 
   return (
     <>
@@ -281,7 +300,8 @@ export function DeleteDMButton({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete all messages. This action cannot be undone.
+              This will permanently delete all messages. This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -296,7 +316,7 @@ export function DeleteDMButton({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
 export function MuteDMButton({
@@ -306,25 +326,30 @@ export function MuteDMButton({
   onUnmute,
   className,
 }: {
-  dmId: string
-  isMuted: boolean
-  onMute?: () => void
-  onUnmute?: () => void
-  className?: string
+  dmId: string;
+  isMuted: boolean;
+  onMute?: () => void;
+  onUnmute?: () => void;
+  className?: string;
 }) {
-  const { toggleMuteDM } = useDMStore()
+  const { toggleMuteDM } = useDMStore();
 
   const handleClick = () => {
-    toggleMuteDM(dmId)
+    toggleMuteDM(dmId);
     if (isMuted) {
-      onUnmute?.()
+      onUnmute?.();
     } else {
-      onMute?.()
+      onMute?.();
     }
-  }
+  };
 
   return (
-    <Button variant="outline" size="sm" className={className} onClick={handleClick}>
+    <Button
+      variant="outline"
+      size="sm"
+      className={className}
+      onClick={handleClick}
+    >
       {isMuted ? (
         <>
           <Volume2 className="mr-2 h-4 w-4" />
@@ -337,10 +362,10 @@ export function MuteDMButton({
         </>
       )}
     </Button>
-  )
+  );
 }
 
-DMActions.displayName = 'DMActions'
-ArchiveDMButton.displayName = 'ArchiveDMButton'
-DeleteDMButton.displayName = 'DeleteDMButton'
-MuteDMButton.displayName = 'MuteDMButton'
+DMActions.displayName = "DMActions";
+ArchiveDMButton.displayName = "ArchiveDMButton";
+DeleteDMButton.displayName = "DeleteDMButton";
+MuteDMButton.displayName = "MuteDMButton";

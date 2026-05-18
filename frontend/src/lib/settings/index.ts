@@ -3,13 +3,13 @@
  */
 
 // Types
-export * from './settings-types'
+export * from "./settings-types";
 
 // Defaults
-export * from './settings-defaults'
+export * from "./settings-defaults";
 
 // Schema
-export * from './settings-schema'
+export * from "./settings-schema";
 
 // Manager
 export {
@@ -20,7 +20,7 @@ export {
   updateSetting,
   resetSettings,
   subscribeToSettings,
-} from './settings-manager'
+} from "./settings-manager";
 
 // Export/Import
 export {
@@ -31,7 +31,7 @@ export {
   importSettingsFromFile,
   previewImport,
   getSettingsDiff,
-} from './settings-export'
+} from "./settings-export";
 
 // Sync
 export {
@@ -46,4 +46,4 @@ export {
   subscribeToSyncStatus,
   type SyncStatus,
   type SyncResult,
-} from './settings-sync'
+} from "./settings-sync";

@@ -11,10 +11,10 @@
  * - Keyboard shortcuts
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useCallback, useRef, useEffect } from 'react'
+import * as React from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   Play,
   Pause,
@@ -28,16 +28,16 @@ import {
   SkipForward,
   Settings,
   Loader2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { formatDuration } from '@/lib/upload/file-utils'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { formatDuration } from "@/lib/upload/file-utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 
 // ============================================================================
 // Types
@@ -45,45 +45,45 @@ import {
 
 export interface VideoPlayerProps {
   /** Video source URL */
-  src: string
+  src: string;
   /** Poster image URL */
-  poster?: string
+  poster?: string;
   /** Video title */
-  title?: string
+  title?: string;
   /** Video MIME type */
-  mimeType?: string
+  mimeType?: string;
   /** Auto play video */
-  autoPlay?: boolean
+  autoPlay?: boolean;
   /** Loop video */
-  loop?: boolean
+  loop?: boolean;
   /** Muted by default */
-  muted?: boolean
+  muted?: boolean;
   /** Show controls */
-  controls?: boolean
+  controls?: boolean;
   /** Enable download button */
-  enableDownload?: boolean
+  enableDownload?: boolean;
   /** Enable fullscreen */
-  enableFullscreen?: boolean
+  enableFullscreen?: boolean;
   /** Enable playback speed control */
-  enablePlaybackSpeed?: boolean
+  enablePlaybackSpeed?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Callback when video ends */
-  onEnded?: () => void
+  onEnded?: () => void;
   /** Callback when video starts playing */
-  onPlay?: () => void
+  onPlay?: () => void;
   /** Callback when video is paused */
-  onPause?: () => void
+  onPause?: () => void;
   /** Callback when error occurs */
-  onError?: (error: MediaError | null) => void
+  onError?: (error: MediaError | null) => void;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2]
-const SKIP_SECONDS = 10
+const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
+const SKIP_SECONDS = 10;
 
 // ============================================================================
 // Component
@@ -107,239 +107,249 @@ export function VideoPlayer({
   onPause,
   onError,
 }: VideoPlayerProps) {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(muted)
-  const [volume, setVolume] = useState(1)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [buffered, setBuffered] = useState(0)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [playbackSpeed, setPlaybackSpeed] = useState(1)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
-  const [showControls, setShowControls] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(muted);
+  const [volume, setVolume] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [buffered, setBuffered] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [showControls, setShowControls] = useState(true);
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const progressRef = useRef<HTMLDivElement>(null)
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Hide controls after inactivity
   const showControlsTemporarily = useCallback(() => {
-    setShowControls(true)
+    setShowControls(true);
     if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current)
+      clearTimeout(controlsTimeoutRef.current);
     }
     if (isPlaying) {
       controlsTimeoutRef.current = setTimeout(() => {
-        setShowControls(false)
-      }, 3000)
+        setShowControls(false);
+      }, 3000);
     }
-  }, [isPlaying])
+  }, [isPlaying]);
 
   // Video event handlers
   const handleLoadedMetadata = useCallback(() => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration)
-      setIsLoading(false)
+      setDuration(videoRef.current.duration);
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime)
+      setCurrentTime(videoRef.current.currentTime);
     }
-  }, [])
+  }, []);
 
   const handleProgress = useCallback(() => {
     if (videoRef.current && videoRef.current.buffered.length > 0) {
-      const bufferedEnd = videoRef.current.buffered.end(videoRef.current.buffered.length - 1)
-      setBuffered((bufferedEnd / videoRef.current.duration) * 100)
+      const bufferedEnd = videoRef.current.buffered.end(
+        videoRef.current.buffered.length - 1,
+      );
+      setBuffered((bufferedEnd / videoRef.current.duration) * 100);
     }
-  }, [])
+  }, []);
 
   const handlePlay = useCallback(() => {
-    setIsPlaying(true)
-    onPlay?.()
-  }, [onPlay])
+    setIsPlaying(true);
+    onPlay?.();
+  }, [onPlay]);
 
   const handlePause = useCallback(() => {
-    setIsPlaying(false)
-    onPause?.()
-  }, [onPause])
+    setIsPlaying(false);
+    onPause?.();
+  }, [onPause]);
 
   const handleEnded = useCallback(() => {
-    setIsPlaying(false)
-    onEnded?.()
-  }, [onEnded])
+    setIsPlaying(false);
+    onEnded?.();
+  }, [onEnded]);
 
   const handleError = useCallback(() => {
-    setHasError(true)
-    setIsLoading(false)
-    onError?.(videoRef.current?.error ?? null)
-  }, [onError])
+    setHasError(true);
+    setIsLoading(false);
+    onError?.(videoRef.current?.error ?? null);
+  }, [onError]);
 
   const handleWaiting = useCallback(() => {
-    setIsLoading(true)
-  }, [])
+    setIsLoading(true);
+  }, []);
 
   const handleCanPlay = useCallback(() => {
-    setIsLoading(false)
-  }, [])
+    setIsLoading(false);
+  }, []);
 
   // Control handlers
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
       if (isPlaying) {
-        videoRef.current.pause()
+        videoRef.current.pause();
       } else {
-        videoRef.current.play()
+        videoRef.current.play();
       }
     }
-  }, [isPlaying])
+  }, [isPlaying]);
 
   const toggleMute = useCallback(() => {
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted
-      setIsMuted(!isMuted)
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
     }
-  }, [isMuted])
+  }, [isMuted]);
 
-  const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value)
-    if (videoRef.current) {
-      videoRef.current.volume = newVolume
-      setVolume(newVolume)
-      setIsMuted(newVolume === 0)
-    }
-  }, [])
+  const handleVolumeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newVolume = parseFloat(e.target.value);
+      if (videoRef.current) {
+        videoRef.current.volume = newVolume;
+        setVolume(newVolume);
+        setIsMuted(newVolume === 0);
+      }
+    },
+    [],
+  );
 
   const handleSeek = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (progressRef.current && videoRef.current) {
-        const rect = progressRef.current.getBoundingClientRect()
-        const percent = (e.clientX - rect.left) / rect.width
-        videoRef.current.currentTime = percent * duration
+        const rect = progressRef.current.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        videoRef.current.currentTime = percent * duration;
       }
     },
-    [duration]
-  )
+    [duration],
+  );
 
   const skip = useCallback(
     (seconds: number) => {
       if (videoRef.current) {
         videoRef.current.currentTime = Math.max(
           0,
-          Math.min(videoRef.current.currentTime + seconds, duration)
-        )
+          Math.min(videoRef.current.currentTime + seconds, duration),
+        );
       }
     },
-    [duration]
-  )
+    [duration],
+  );
 
   const handlePlaybackSpeedChange = useCallback((speed: number) => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = speed
-      setPlaybackSpeed(speed)
+      videoRef.current.playbackRate = speed;
+      setPlaybackSpeed(speed);
     }
-  }, [])
+  }, []);
 
   const toggleFullscreen = useCallback(async () => {
-    if (!containerRef.current) return
+    if (!containerRef.current) return;
 
     try {
       if (isFullscreen) {
-        await document.exitFullscreen()
+        await document.exitFullscreen();
       } else {
-        await containerRef.current.requestFullscreen()
+        await containerRef.current.requestFullscreen();
       }
     } catch {
       // Fullscreen not supported
     }
-  }, [isFullscreen])
+  }, [isFullscreen]);
 
   const handleDownload = useCallback(() => {
-    const a = document.createElement('a')
-    a.href = src
-    a.download = title || 'video'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-  }, [src, title])
+    const a = document.createElement("a");
+    a.href = src;
+    a.download = title || "video";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, [src, title]);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!containerRef.current?.contains(document.activeElement)) return
+      if (!containerRef.current?.contains(document.activeElement)) return;
 
       switch (e.key) {
-        case ' ':
-        case 'k':
-          e.preventDefault()
-          togglePlay()
-          break
-        case 'ArrowLeft':
-          e.preventDefault()
-          skip(-SKIP_SECONDS)
-          break
-        case 'ArrowRight':
-          e.preventDefault()
-          skip(SKIP_SECONDS)
-          break
-        case 'ArrowUp':
-          e.preventDefault()
+        case " ":
+        case "k":
+          e.preventDefault();
+          togglePlay();
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          skip(-SKIP_SECONDS);
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          skip(SKIP_SECONDS);
+          break;
+        case "ArrowUp":
+          e.preventDefault();
           if (videoRef.current) {
-            const newVol = Math.min(1, volume + 0.1)
-            videoRef.current.volume = newVol
-            setVolume(newVol)
+            const newVol = Math.min(1, volume + 0.1);
+            videoRef.current.volume = newVol;
+            setVolume(newVol);
           }
-          break
-        case 'ArrowDown':
-          e.preventDefault()
+          break;
+        case "ArrowDown":
+          e.preventDefault();
           if (videoRef.current) {
-            const newVol = Math.max(0, volume - 0.1)
-            videoRef.current.volume = newVol
-            setVolume(newVol)
+            const newVol = Math.max(0, volume - 0.1);
+            videoRef.current.volume = newVol;
+            setVolume(newVol);
           }
-          break
-        case 'm':
-          toggleMute()
-          break
-        case 'f':
-          toggleFullscreen()
-          break
+          break;
+        case "m":
+          toggleMute();
+          break;
+        case "f":
+          toggleFullscreen();
+          break;
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [togglePlay, skip, volume, toggleMute, toggleFullscreen])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [togglePlay, skip, volume, toggleMute, toggleFullscreen]);
 
   // Fullscreen change listener
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+      setIsFullscreen(!!document.fullscreenElement);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // Volume icon
-  const VolumeIcon = isMuted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2
+  const VolumeIcon =
+    isMuted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
 
   // Progress percentage
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
-  const progressPercentRounded = Math.round(progressPercent)
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const progressPercentRounded = Math.round(progressPercent);
 
   return (
     <div
       ref={containerRef}
-      className={cn('group relative overflow-hidden rounded-lg bg-black', className)}
+      className={cn(
+        "group relative overflow-hidden rounded-lg bg-black",
+        className,
+      )}
       onMouseMove={showControlsTemporarily}
       onMouseLeave={() => isPlaying && setShowControls(false)}
       role="region"
-      aria-label={title || 'Video player'}
+      aria-label={title || "Video player"}
     >
       {/* Video Element */}
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
@@ -398,8 +408,8 @@ export function VideoPlayer({
       {controls && (
         <div
           className={cn(
-            'absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-12 transition-opacity',
-            showControls ? 'opacity-100' : 'opacity-0'
+            "absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-12 transition-opacity",
+            showControls ? "opacity-100" : "opacity-0",
           )}
         >
           {/* Progress Bar */}
@@ -408,8 +418,8 @@ export function VideoPlayer({
             className="group/progress relative mb-3 h-1 cursor-pointer rounded-full bg-white/30"
             onClick={handleSeek}
             onKeyDown={(e) => {
-              if (e.key === 'ArrowLeft') skip(-SKIP_SECONDS)
-              if (e.key === 'ArrowRight') skip(SKIP_SECONDS)
+              if (e.key === "ArrowLeft") skip(-SKIP_SECONDS);
+              if (e.key === "ArrowRight") skip(SKIP_SECONDS);
             }}
             role="slider"
             aria-label="Video progress"
@@ -431,7 +441,7 @@ export function VideoPlayer({
             {/* Thumb */}
             <div
               className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white opacity-0 transition-opacity group-hover/progress:opacity-100"
-              style={{ left: `${progressPercent}%`, marginLeft: '-6px' }}
+              style={{ left: `${progressPercent}%`, marginLeft: "-6px" }}
             />
           </div>
 
@@ -445,7 +455,11 @@ export function VideoPlayer({
                 className="h-8 w-8 text-white hover:bg-white/20"
                 onClick={togglePlay}
               >
-                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                {isPlaying ? (
+                  <Pause className="h-5 w-5" />
+                ) : (
+                  <Play className="h-5 w-5" />
+                )}
               </Button>
 
               {/* Skip Backward */}
@@ -513,7 +527,7 @@ export function VideoPlayer({
                       <DropdownMenuItem
                         key={speed}
                         onClick={() => handlePlaybackSpeedChange(speed)}
-                        className={cn(speed === playbackSpeed && 'bg-accent')}
+                        className={cn(speed === playbackSpeed && "bg-accent")}
                       >
                         {speed}x
                       </DropdownMenuItem>
@@ -561,7 +575,7 @@ export function VideoPlayer({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -570,15 +584,15 @@ export function VideoPlayer({
 
 export interface CompactVideoPlayerProps {
   /** Video source URL */
-  src: string
+  src: string;
   /** Poster image URL */
-  poster?: string
+  poster?: string;
   /** Video title */
-  title?: string
+  title?: string;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Callback when clicked */
-  onClick?: () => void
+  onClick?: () => void;
 }
 
 export function CompactVideoPlayer({
@@ -588,30 +602,33 @@ export function CompactVideoPlayer({
   className,
   onClick,
 }: CompactVideoPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [duration, setDuration] = useState(0)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     if (videoRef.current) {
       const handleMetadata = () => {
         if (videoRef.current) {
-          setDuration(videoRef.current.duration)
+          setDuration(videoRef.current.duration);
         }
-      }
-      videoRef.current.addEventListener('loadedmetadata', handleMetadata)
+      };
+      videoRef.current.addEventListener("loadedmetadata", handleMetadata);
       return () => {
-        videoRef.current?.removeEventListener('loadedmetadata', handleMetadata)
-      }
+        videoRef.current?.removeEventListener("loadedmetadata", handleMetadata);
+      };
     }
-  }, [])
+  }, []);
 
   return (
     <div
-      className={cn('group relative cursor-pointer overflow-hidden rounded-lg bg-black', className)}
+      className={cn(
+        "group relative cursor-pointer overflow-hidden rounded-lg bg-black",
+        className,
+      )}
       onClick={onClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && onClick?.()}
+      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
     >
       <video
         ref={videoRef}
@@ -643,7 +660,7 @@ export function CompactVideoPlayer({
         </span>
       )}
     </div>
-  )
+  );
 }
 
-export default VideoPlayer
+export default VideoPlayer;

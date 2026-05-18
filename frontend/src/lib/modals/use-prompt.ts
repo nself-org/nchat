@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import { useCallback, useRef } from 'react'
-import { useModalStore } from './modal-store'
+import { useCallback, useRef } from "react";
+import { useModalStore } from "./modal-store";
 
 export interface PromptOptions {
-  title: string
-  message?: string
-  placeholder?: string
-  defaultValue?: string
-  inputType?: 'text' | 'email' | 'password' | 'number' | 'textarea'
-  validation?: (value: string) => string | null
-  submitText?: string
-  cancelText?: string
-  required?: boolean
-  minLength?: number
-  maxLength?: number
+  title: string;
+  message?: string;
+  placeholder?: string;
+  defaultValue?: string;
+  inputType?: "text" | "email" | "password" | "number" | "textarea";
+  validation?: (value: string) => string | null;
+  submitText?: string;
+  cancelText?: string;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
 }
 
 export interface UsePromptReturn {
@@ -44,7 +44,7 @@ export interface UsePromptReturn {
    * }
    * ```
    */
-  prompt: (options: PromptOptions) => Promise<string | null>
+  prompt: (options: PromptOptions) => Promise<string | null>;
 }
 
 /**
@@ -52,66 +52,66 @@ export interface UsePromptReturn {
  * Returns the entered value if submitted, null if cancelled.
  */
 export function usePrompt(): UsePromptReturn {
-  const openModal = useModalStore((state) => state.openModal)
-  const closeModal = useModalStore((state) => state.closeModal)
+  const openModal = useModalStore((state) => state.openModal);
+  const closeModal = useModalStore((state) => state.closeModal);
 
   // Use ref to store the resolve function for the current prompt
-  const resolveRef = useRef<((value: string | null) => void) | null>(null)
-  const modalIdRef = useRef<string | null>(null)
+  const resolveRef = useRef<((value: string | null) => void) | null>(null);
+  const modalIdRef = useRef<string | null>(null);
 
   const prompt = useCallback(
     (options: PromptOptions): Promise<string | null> => {
       return new Promise((resolve) => {
         // Store the resolve function
-        resolveRef.current = resolve
+        resolveRef.current = resolve;
 
         // Build validation function
         const validate = (value: string): string | null => {
           if (options.required && !value.trim()) {
-            return 'This field is required'
+            return "This field is required";
           }
           if (options.minLength && value.length < options.minLength) {
-            return `Must be at least ${options.minLength} characters`
+            return `Must be at least ${options.minLength} characters`;
           }
           if (options.maxLength && value.length > options.maxLength) {
-            return `Must be no more than ${options.maxLength} characters`
+            return `Must be no more than ${options.maxLength} characters`;
           }
           if (options.validation) {
-            return options.validation(value)
+            return options.validation(value);
           }
-          return null
-        }
+          return null;
+        };
 
         // Open the prompt modal
         const modalId = openModal(
-          'prompt',
+          "prompt",
           {
             title: options.title,
             message: options.message,
             placeholder: options.placeholder,
-            defaultValue: options.defaultValue ?? '',
-            inputType: options.inputType ?? 'text',
+            defaultValue: options.defaultValue ?? "",
+            inputType: options.inputType ?? "text",
             validation: validate,
-            submitText: options.submitText ?? 'Submit',
-            cancelText: options.cancelText ?? 'Cancel',
+            submitText: options.submitText ?? "Submit",
+            cancelText: options.cancelText ?? "Cancel",
             onSubmit: (value: string) => {
               if (resolveRef.current) {
-                resolveRef.current(value)
-                resolveRef.current = null
+                resolveRef.current(value);
+                resolveRef.current = null;
               }
               if (modalIdRef.current) {
-                closeModal(modalIdRef.current)
-                modalIdRef.current = null
+                closeModal(modalIdRef.current);
+                modalIdRef.current = null;
               }
             },
             onCancel: () => {
               if (resolveRef.current) {
-                resolveRef.current(null)
-                resolveRef.current = null
+                resolveRef.current(null);
+                resolveRef.current = null;
               }
               if (modalIdRef.current) {
-                closeModal(modalIdRef.current)
-                modalIdRef.current = null
+                closeModal(modalIdRef.current);
+                modalIdRef.current = null;
               }
             },
           },
@@ -119,58 +119,62 @@ export function usePrompt(): UsePromptReturn {
             onClose: () => {
               // If modal is closed without explicit submit/cancel, treat as cancel
               if (resolveRef.current) {
-                resolveRef.current(null)
-                resolveRef.current = null
+                resolveRef.current(null);
+                resolveRef.current = null;
               }
-              modalIdRef.current = null
+              modalIdRef.current = null;
             },
-          }
-        )
+          },
+        );
 
-        modalIdRef.current = modalId
-      })
+        modalIdRef.current = modalId;
+      });
     },
-    [openModal, closeModal]
-  )
+    [openModal, closeModal],
+  );
 
-  return { prompt }
+  return { prompt };
 }
 
 /**
  * Convenience hook for rename operations
  */
 export function useRenamePrompt() {
-  const { prompt } = usePrompt()
+  const { prompt } = usePrompt();
 
   const promptRename = useCallback(
-    (currentName: string, itemType = 'item'): Promise<string | null> => {
+    (currentName: string, itemType = "item"): Promise<string | null> => {
       return prompt({
         title: `Rename ${itemType}`,
         message: `Enter a new name for this ${itemType}`,
-        placeholder: 'New name',
+        placeholder: "New name",
         defaultValue: currentName,
         required: true,
         minLength: 1,
         maxLength: 100,
-        submitText: 'Rename',
-      })
+        submitText: "Rename",
+      });
     },
-    [prompt]
-  )
+    [prompt],
+  );
 
-  return { promptRename }
+  return { promptRename };
 }
 
 /**
  * Convenience hook for creating new items with a name
  */
 export function useCreatePrompt() {
-  const { prompt } = usePrompt()
+  const { prompt } = usePrompt();
 
   const promptCreate = useCallback(
     (
-      itemType = 'item',
-      options?: { placeholder?: string; minLength?: number; maxLength?: number }
+      itemType = "item",
+      options?: {
+        placeholder?: string;
+        minLength?: number;
+        maxLength?: number;
+      },
     ): Promise<string | null> => {
       return prompt({
         title: `Create ${itemType}`,
@@ -179,37 +183,37 @@ export function useCreatePrompt() {
         required: true,
         minLength: options?.minLength ?? 1,
         maxLength: options?.maxLength ?? 100,
-        submitText: 'Create',
-      })
+        submitText: "Create",
+      });
     },
-    [prompt]
-  )
+    [prompt],
+  );
 
-  return { promptCreate }
+  return { promptCreate };
 }
 
 /**
  * Convenience hook for password/secret input
  */
 export function usePasswordPrompt() {
-  const { prompt } = usePrompt()
+  const { prompt } = usePrompt();
 
   const promptPassword = useCallback(
     (
-      title = 'Enter password',
-      options?: { message?: string; placeholder?: string }
+      title = "Enter password",
+      options?: { message?: string; placeholder?: string },
     ): Promise<string | null> => {
       return prompt({
         title,
         message: options?.message,
-        placeholder: options?.placeholder ?? 'Password',
-        inputType: 'password',
+        placeholder: options?.placeholder ?? "Password",
+        inputType: "password",
         required: true,
-        submitText: 'Submit',
-      })
+        submitText: "Submit",
+      });
     },
-    [prompt]
-  )
+    [prompt],
+  );
 
-  return { promptPassword }
+  return { promptPassword };
 }

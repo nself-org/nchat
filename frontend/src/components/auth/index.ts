@@ -5,7 +5,13 @@
  */
 
 // Auth Guard - requires authentication
-export { AuthGuard, GuestGuard, useAuthGuard, useGuestGuard, withAuthGuard } from './auth-guard'
+export {
+  AuthGuard,
+  GuestGuard,
+  useAuthGuard,
+  useGuestGuard,
+  withAuthGuard,
+} from "./auth-guard";
 
 // Role Guard - requires specific roles
 export {
@@ -16,7 +22,7 @@ export {
   OwnerGuard,
   useRoleGuard,
   withRoleGuard,
-} from './role-guard'
+} from "./role-guard";
 
 // Setup Guard - manages setup wizard flow
 export {
@@ -25,7 +31,7 @@ export {
   RequireSetupIncomplete,
   useSetupStatus,
   useRequiresSetup,
-} from './setup-guard'
+} from "./setup-guard";
 
 // Default export for convenience
-export { AuthGuard as default } from './auth-guard'
+export { AuthGuard as default } from "./auth-guard";

@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import { Star, ThumbsUp, Flag, MessageSquare } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Textarea } from '@/components/ui/textarea'
+import * as React from "react";
+import { useState } from "react";
+import { Star, ThumbsUp, Flag, MessageSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   getRatingsForApp,
   getRatingPercentage,
@@ -23,42 +23,45 @@ import {
   formatRatingCount,
   getRatingQuality,
   type AppRating,
-} from '@/lib/app-directory/app-ratings'
-import type { AppStats, RatingDistribution } from '@/lib/app-directory/app-types'
+} from "@/lib/app-directory/app-ratings";
+import type {
+  AppStats,
+  RatingDistribution,
+} from "@/lib/app-directory/app-types";
 
 interface AppRatingsProps {
-  appId: string
-  stats: AppStats
-  className?: string
+  appId: string;
+  stats: AppStats;
+  className?: string;
 }
 
 export function AppRatings({ appId, stats, className }: AppRatingsProps) {
-  const [sortBy, setSortBy] = useState<'recent' | 'helpful' | 'rating_high' | 'rating_low'>(
-    'helpful'
-  )
-  const [filterStar, setFilterStar] = useState<number | null>(null)
-  const [showWriteReview, setShowWriteReview] = useState(false)
+  const [sortBy, setSortBy] = useState<
+    "recent" | "helpful" | "rating_high" | "rating_low"
+  >("helpful");
+  const [filterStar, setFilterStar] = useState<number | null>(null);
+  const [showWriteReview, setShowWriteReview] = useState(false);
 
   // Get ratings for this app
-  const allRatings = getRatingsForApp(appId)
+  const allRatings = getRatingsForApp(appId);
   const filteredRatings = filterStar
     ? allRatings.filter((r) => Math.round(r.rating) === filterStar)
-    : allRatings
-  const sortedRatings = sortRatings(filteredRatings, sortBy)
+    : allRatings;
+  const sortedRatings = sortRatings(filteredRatings, sortBy);
 
   // Calculate distribution
-  const distribution: RatingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  const distribution: RatingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
   allRatings.forEach((r) => {
-    const rounded = Math.round(r.rating) as 1 | 2 | 3 | 4 | 5
+    const rounded = Math.round(r.rating) as 1 | 2 | 3 | 4 | 5;
     if (rounded >= 1 && rounded <= 5) {
-      distribution[rounded]++
+      distribution[rounded]++;
     }
-  })
+  });
 
-  const quality = getRatingQuality(stats.rating)
+  const quality = getRatingQuality(stats.rating);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Rating Summary */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Overall Rating */}
@@ -66,9 +69,13 @@ export function AppRatings({ appId, stats, className }: AppRatingsProps) {
           <CardContent className="p-6">
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <div className="text-5xl font-bold">{stats.rating.toFixed(1)}</div>
+                <div className="text-5xl font-bold">
+                  {stats.rating.toFixed(1)}
+                </div>
                 <StarRating rating={stats.rating} size="lg" />
-                <p className={cn('mt-1 text-sm', quality.color)}>{quality.label}</p>
+                <p className={cn("mt-1 text-sm", quality.color)}>
+                  {quality.label}
+                </p>
               </div>
               <div className="flex-1">
                 <p className="mb-2 text-sm text-muted-foreground">
@@ -77,23 +84,33 @@ export function AppRatings({ appId, stats, className }: AppRatingsProps) {
                 {/* Rating Distribution Bars */}
                 <div className="space-y-1">
                   {[5, 4, 3, 2, 1].map((star) => {
-                    const percentage = getRatingPercentage(distribution, star as 1 | 2 | 3 | 4 | 5)
-                    const count = distribution[star as 1 | 2 | 3 | 4 | 5]
+                    const percentage = getRatingPercentage(
+                      distribution,
+                      star as 1 | 2 | 3 | 4 | 5,
+                    );
+                    const count = distribution[star as 1 | 2 | 3 | 4 | 5];
                     return (
                       <button
                         key={star}
                         className="group flex w-full items-center gap-2"
-                        onClick={() => setFilterStar(filterStar === star ? null : star)}
+                        onClick={() =>
+                          setFilterStar(filterStar === star ? null : star)
+                        }
                       >
                         <span className="w-6 text-xs">{star}</span>
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                         <Progress
                           value={percentage}
-                          className={cn('h-2 flex-1', filterStar === star && 'ring-2 ring-primary')}
+                          className={cn(
+                            "h-2 flex-1",
+                            filterStar === star && "ring-2 ring-primary",
+                          )}
                         />
-                        <span className="w-8 text-xs text-muted-foreground">{count}</span>
+                        <span className="w-8 text-xs text-muted-foreground">
+                          {count}
+                        </span>
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -113,9 +130,13 @@ export function AppRatings({ appId, stats, className }: AppRatingsProps) {
             ) : (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Share your experience with this app to help others make a decision.
+                  Share your experience with this app to help others make a
+                  decision.
                 </p>
-                <Button onClick={() => setShowWriteReview(true)} className="w-full">
+                <Button
+                  onClick={() => setShowWriteReview(true)}
+                  className="w-full"
+                >
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Write a Review
                 </Button>
@@ -141,7 +162,10 @@ export function AppRatings({ appId, stats, className }: AppRatingsProps) {
               </Button>
             )}
           </h3>
-          <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+          <Select
+            value={sortBy}
+            onValueChange={(v) => setSortBy(v as typeof sortBy)}
+          >
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
@@ -170,52 +194,62 @@ export function AppRatings({ appId, stats, className }: AppRatingsProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // Star Rating Display
 interface StarRatingProps {
-  rating: number
-  size?: 'sm' | 'md' | 'lg'
-  showValue?: boolean
+  rating: number;
+  size?: "sm" | "md" | "lg";
+  showValue?: boolean;
 }
 
-export function StarRating({ rating, size = 'md', showValue = false }: StarRatingProps) {
+export function StarRating({
+  rating,
+  size = "md",
+  showValue = false,
+}: StarRatingProps) {
   const sizeClasses = {
-    sm: 'w-3 h-3',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5',
-  }
+    sm: "w-3 h-3",
+    md: "w-4 h-4",
+    lg: "w-5 h-5",
+  };
 
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => {
-        const filled = star <= Math.floor(rating)
-        const partial = !filled && star <= rating
+        const filled = star <= Math.floor(rating);
+        const partial = !filled && star <= rating;
         return (
           <Star
             key={star}
             className={cn(
               sizeClasses[size],
-              filled ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground',
-              partial && 'text-yellow-400'
+              filled
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-muted-foreground",
+              partial && "text-yellow-400",
             )}
           />
-        )
+        );
       })}
-      {showValue && <span className="ml-1 text-sm text-muted-foreground">{rating.toFixed(1)}</span>}
+      {showValue && (
+        <span className="ml-1 text-sm text-muted-foreground">
+          {rating.toFixed(1)}
+        </span>
+      )}
     </div>
-  )
+  );
 }
 
 // Interactive Star Rating Input
 interface StarRatingInputProps {
-  value: number
-  onChange: (value: number) => void
+  value: number;
+  onChange: (value: number) => void;
 }
 
 function StarRatingInput({ value, onChange }: StarRatingInputProps) {
-  const [hover, setHover] = useState(0)
+  const [hover, setHover] = useState(0);
 
   return (
     <div className="flex gap-1">
@@ -230,31 +264,33 @@ function StarRatingInput({ value, onChange }: StarRatingInputProps) {
         >
           <Star
             className={cn(
-              'h-8 w-8 transition-colors',
-              (hover || value) >= star ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'
+              "h-8 w-8 transition-colors",
+              (hover || value) >= star
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-muted-foreground",
             )}
           />
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 // Write Review Form
 interface WriteReviewFormProps {
-  onCancel: () => void
-  onSubmit: () => void
+  onCancel: () => void;
+  onSubmit: () => void;
 }
 
 function WriteReviewForm({ onCancel, onSubmit }: WriteReviewFormProps) {
-  const [rating, setRating] = useState(0)
-  const [review, setReview] = useState('')
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // In a real app, this would submit to the server
-    onSubmit()
-  }
+    onSubmit();
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -263,7 +299,10 @@ function WriteReviewForm({ onCancel, onSubmit }: WriteReviewFormProps) {
         <StarRatingInput value={rating} onChange={setRating} />
       </div>
       <div>
-        <label htmlFor="review-textarea" className="mb-2 block text-sm font-medium">
+        <label
+          htmlFor="review-textarea"
+          className="mb-2 block text-sm font-medium"
+        >
           Your Review (optional)
         </label>
         <Textarea
@@ -283,24 +322,24 @@ function WriteReviewForm({ onCancel, onSubmit }: WriteReviewFormProps) {
         </Button>
       </div>
     </form>
-  )
+  );
 }
 
 // Single Review Card
 interface ReviewCardProps {
-  rating: AppRating
+  rating: AppRating;
 }
 
 function ReviewCard({ rating }: ReviewCardProps) {
-  const [helpfulClicked, setHelpfulClicked] = useState(false)
+  const [helpfulClicked, setHelpfulClicked] = useState(false);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
     <Card>
@@ -321,13 +360,19 @@ function ReviewCard({ rating }: ReviewCardProps) {
               <StarRating rating={rating.rating} size="sm" />
             </div>
 
-            {rating.review && <p className="mb-3 text-sm text-muted-foreground">{rating.review}</p>}
+            {rating.review && (
+              <p className="mb-3 text-sm text-muted-foreground">
+                {rating.review}
+              </p>
+            )}
 
             {/* Developer Response */}
             {rating.developerResponse && (
               <div className="bg-muted/50 mb-3 rounded-lg p-3">
                 <p className="mb-1 text-xs font-medium">Developer Response</p>
-                <p className="text-sm text-muted-foreground">{rating.developerResponse.response}</p>
+                <p className="text-sm text-muted-foreground">
+                  {rating.developerResponse.response}
+                </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {formatDate(rating.developerResponse.respondedAt)}
                 </p>
@@ -339,13 +384,17 @@ function ReviewCard({ rating }: ReviewCardProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn('h-8 gap-1', helpfulClicked && 'text-primary')}
+                className={cn("h-8 gap-1", helpfulClicked && "text-primary")}
                 onClick={() => setHelpfulClicked(!helpfulClicked)}
               >
                 <ThumbsUp className="h-3 w-3" />
                 Helpful ({rating.helpful + (helpfulClicked ? 1 : 0)})
               </Button>
-              <Button variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1 text-muted-foreground"
+              >
                 <Flag className="h-3 w-3" />
                 Report
               </Button>
@@ -354,5 +403,5 @@ function ReviewCard({ rating }: ReviewCardProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

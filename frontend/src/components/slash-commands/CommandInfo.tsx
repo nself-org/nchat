@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
 /**
  * CommandInfo - Name, description, usage configuration
  */
 
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { commandCategories } from '@/lib/slash-commands/built-in-commands'
-import type { CommandCategory } from '@/lib/slash-commands/command-types'
+} from "@/components/ui/select";
+import { commandCategories } from "@/lib/slash-commands/built-in-commands";
+import type { CommandCategory } from "@/lib/slash-commands/command-types";
 import {
   HelpCircle,
   Hash,
@@ -27,27 +27,27 @@ import {
   Plug,
   Sparkles,
   Grid,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandInfoProps {
-  name?: string
-  description?: string
-  helpText?: string
-  usage?: string
-  category?: CommandCategory
-  icon?: string
+  name?: string;
+  description?: string;
+  helpText?: string;
+  usage?: string;
+  category?: CommandCategory;
+  icon?: string;
   onChange: (updates: {
-    name?: string
-    description?: string
-    helpText?: string
-    usage?: string
-    category?: CommandCategory
-    icon?: string
-  }) => void
+    name?: string;
+    description?: string;
+    helpText?: string;
+    usage?: string;
+    category?: CommandCategory;
+    icon?: string;
+  }) => void;
 }
 
 // ============================================================================
@@ -55,29 +55,29 @@ interface CommandInfoProps {
 // ============================================================================
 
 const iconOptions = [
-  { value: 'Grid', label: 'Grid', icon: Grid },
-  { value: 'Hash', label: 'Hash', icon: Hash },
-  { value: 'User', label: 'User', icon: User },
-  { value: 'MessageSquare', label: 'Message', icon: MessageSquare },
-  { value: 'Shield', label: 'Shield', icon: Shield },
-  { value: 'Smile', label: 'Smile', icon: Smile },
-  { value: 'Wrench', label: 'Tool', icon: Wrench },
-  { value: 'Plug', label: 'Plug', icon: Plug },
-  { value: 'Sparkles', label: 'Sparkles', icon: Sparkles },
-  { value: 'HelpCircle', label: 'Help', icon: HelpCircle },
-]
+  { value: "Grid", label: "Grid", icon: Grid },
+  { value: "Hash", label: "Hash", icon: Hash },
+  { value: "User", label: "User", icon: User },
+  { value: "MessageSquare", label: "Message", icon: MessageSquare },
+  { value: "Shield", label: "Shield", icon: Shield },
+  { value: "Smile", label: "Smile", icon: Smile },
+  { value: "Wrench", label: "Tool", icon: Wrench },
+  { value: "Plug", label: "Plug", icon: Plug },
+  { value: "Sparkles", label: "Sparkles", icon: Sparkles },
+  { value: "HelpCircle", label: "Help", icon: HelpCircle },
+];
 
 // ============================================================================
 // Component
 // ============================================================================
 
 export function CommandInfo({
-  name = '',
-  description = '',
-  helpText = '',
-  usage = '',
-  category = 'custom',
-  icon = '',
+  name = "",
+  description = "",
+  helpText = "",
+  usage = "",
+  category = "custom",
+  icon = "",
   onChange,
 }: CommandInfoProps) {
   return (
@@ -122,7 +122,9 @@ export function CommandInfo({
           placeholder="Detailed explanation of how to use this command..."
           rows={3}
         />
-        <p className="text-xs text-muted-foreground">Shown when user types /help [command]</p>
+        <p className="text-xs text-muted-foreground">
+          Shown when user types /help [command]
+        </p>
       </div>
 
       {/* Usage */}
@@ -136,7 +138,8 @@ export function CommandInfo({
           className="font-mono text-sm"
         />
         <p className="text-xs text-muted-foreground">
-          Example syntax shown in help. Use &lt;required&gt; and [optional] for arguments.
+          Example syntax shown in help. Use &lt;required&gt; and [optional] for
+          arguments.
         </p>
       </div>
 
@@ -147,7 +150,9 @@ export function CommandInfo({
           <Label>Category</Label>
           <Select
             value={category}
-            onValueChange={(value) => onChange({ category: value as CommandCategory })}
+            onValueChange={(value) =>
+              onChange({ category: value as CommandCategory })
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Select category" />
@@ -170,14 +175,21 @@ export function CommandInfo({
         {/* Icon */}
         <div className="space-y-2">
           <Label>Icon</Label>
-          <Select value={icon} onValueChange={(value) => onChange({ icon: value })}>
+          <Select
+            value={icon}
+            onValueChange={(value) => onChange({ icon: value })}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select icon">
                 {icon && (
                   <div className="flex items-center gap-2">
                     {(() => {
-                      const IconComponent = iconOptions.find((i) => i.value === icon)?.icon
-                      return IconComponent ? <IconComponent className="h-4 w-4" /> : null
+                      const IconComponent = iconOptions.find(
+                        (i) => i.value === icon,
+                      )?.icon;
+                      return IconComponent ? (
+                        <IconComponent className="h-4 w-4" />
+                      ) : null;
                     })()}
                     <span>{icon}</span>
                   </div>
@@ -195,11 +207,13 @@ export function CommandInfo({
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">Icon shown next to command in list</p>
+          <p className="text-xs text-muted-foreground">
+            Icon shown next to command in list
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default CommandInfo
+export default CommandInfo;

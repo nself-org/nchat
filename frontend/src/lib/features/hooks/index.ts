@@ -20,4 +20,4 @@ export {
   // Computed hooks
   useEnabledFeatureCount,
   useFeaturePattern,
-} from './use-feature'
+} from "./use-feature";

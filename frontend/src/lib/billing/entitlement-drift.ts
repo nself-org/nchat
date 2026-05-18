@@ -8,8 +8,8 @@
  * @version 1.0.0
  */
 
-import type { PlanTier } from '@/types/subscription.types'
-import { PLAN_LIMITS } from './plan-config'
+import type { PlanTier } from "@/types/subscription.types";
+import { PLAN_LIMITS } from "./plan-config";
 import type {
   AnalyticsUsageRecord,
   EntitlementDriftEntry,
@@ -17,7 +17,7 @@ import type {
   DriftDirection,
   DriftAlert,
   EntitlementDriftReport,
-} from './analytics-types'
+} from "./analytics-types";
 
 // ============================================================================
 // Drift Severity Thresholds
@@ -27,21 +27,21 @@ import type {
  * Thresholds for drift severity classification (percentage over limit).
  */
 export const DRIFT_SEVERITY_THRESHOLDS = {
-  minor: 5,    // 5% over limit
+  minor: 5, // 5% over limit
   moderate: 15, // 15% over limit
-  severe: 30,   // 30% over limit
+  severe: 30, // 30% over limit
   critical: 50, // 50% over limit
-} as const
+} as const;
 
 /**
  * Thresholds for under-usage severity (percentage of limit used).
  */
 export const UNDER_USAGE_THRESHOLDS = {
-  minor: 50,    // Using less than 50% of limit
+  minor: 50, // Using less than 50% of limit
   moderate: 25, // Using less than 25% of limit
-  severe: 10,   // Using less than 10% of limit
-  critical: 5,  // Using less than 5% of limit
-} as const
+  severe: 10, // Using less than 10% of limit
+  critical: 5, // Using less than 5% of limit
+} as const;
 
 // ============================================================================
 // Drift Detection
@@ -50,23 +50,27 @@ export const UNDER_USAGE_THRESHOLDS = {
 /**
  * Classify drift severity for over-usage.
  */
-export function classifyOverUsageSeverity(driftPercentage: number): DriftSeverity {
-  if (driftPercentage >= DRIFT_SEVERITY_THRESHOLDS.critical) return 'critical'
-  if (driftPercentage >= DRIFT_SEVERITY_THRESHOLDS.severe) return 'severe'
-  if (driftPercentage >= DRIFT_SEVERITY_THRESHOLDS.moderate) return 'moderate'
-  if (driftPercentage >= DRIFT_SEVERITY_THRESHOLDS.minor) return 'minor'
-  return 'none'
+export function classifyOverUsageSeverity(
+  driftPercentage: number,
+): DriftSeverity {
+  if (driftPercentage >= DRIFT_SEVERITY_THRESHOLDS.critical) return "critical";
+  if (driftPercentage >= DRIFT_SEVERITY_THRESHOLDS.severe) return "severe";
+  if (driftPercentage >= DRIFT_SEVERITY_THRESHOLDS.moderate) return "moderate";
+  if (driftPercentage >= DRIFT_SEVERITY_THRESHOLDS.minor) return "minor";
+  return "none";
 }
 
 /**
  * Classify drift severity for under-usage.
  */
-export function classifyUnderUsageSeverity(usagePercentage: number): DriftSeverity {
-  if (usagePercentage <= UNDER_USAGE_THRESHOLDS.critical) return 'critical'
-  if (usagePercentage <= UNDER_USAGE_THRESHOLDS.severe) return 'severe'
-  if (usagePercentage <= UNDER_USAGE_THRESHOLDS.moderate) return 'moderate'
-  if (usagePercentage <= UNDER_USAGE_THRESHOLDS.minor) return 'minor'
-  return 'none'
+export function classifyUnderUsageSeverity(
+  usagePercentage: number,
+): DriftSeverity {
+  if (usagePercentage <= UNDER_USAGE_THRESHOLDS.critical) return "critical";
+  if (usagePercentage <= UNDER_USAGE_THRESHOLDS.severe) return "severe";
+  if (usagePercentage <= UNDER_USAGE_THRESHOLDS.moderate) return "moderate";
+  if (usagePercentage <= UNDER_USAGE_THRESHOLDS.minor) return "minor";
+  return "none";
 }
 
 /**
@@ -74,25 +78,25 @@ export function classifyUnderUsageSeverity(usagePercentage: number): DriftSeveri
  */
 export function getPlanLimitForResource(
   plan: PlanTier,
-  resource: string
+  resource: string,
 ): number | null {
-  const limits = PLAN_LIMITS[plan]
-  if (!limits) return null
+  const limits = PLAN_LIMITS[plan];
+  if (!limits) return null;
 
   const resourceMap: Record<string, keyof typeof limits> = {
-    members: 'maxMembers',
-    channels: 'maxChannels',
-    storage: 'maxStorageBytes',
-    file_size: 'maxFileSizeBytes',
-    api_calls: 'maxApiCallsPerMonth',
-    call_participants: 'maxCallParticipants',
-    stream_duration: 'maxStreamDurationMinutes',
-  }
+    members: "maxMembers",
+    channels: "maxChannels",
+    storage: "maxStorageBytes",
+    file_size: "maxFileSizeBytes",
+    api_calls: "maxApiCallsPerMonth",
+    call_participants: "maxCallParticipants",
+    stream_duration: "maxStreamDurationMinutes",
+  };
 
-  const key = resourceMap[resource]
-  if (!key) return null
+  const key = resourceMap[resource];
+  if (!key) return null;
 
-  return limits[key]
+  return limits[key];
 }
 
 /**
@@ -102,39 +106,39 @@ export function getRecommendedAction(
   direction: DriftDirection,
   severity: DriftSeverity,
   resource: string,
-  plan: PlanTier
+  plan: PlanTier,
 ): string {
-  if (direction === 'none' || severity === 'none') {
-    return 'No action required'
+  if (direction === "none" || severity === "none") {
+    return "No action required";
   }
 
-  if (direction === 'over') {
+  if (direction === "over") {
     switch (severity) {
-      case 'critical':
-        return `Critical: ${resource} usage exceeds ${plan} plan limit by >50%. Immediate upgrade required or enforce hard limits.`
-      case 'severe':
-        return `Severe: ${resource} usage significantly exceeds ${plan} plan limit. Recommend upgrade or usage review.`
-      case 'moderate':
-        return `Moderate: ${resource} usage exceeds ${plan} plan limit. Consider upgrading to a higher tier.`
-      case 'minor':
-        return `Minor: ${resource} usage slightly exceeds ${plan} plan limit. Monitor and consider upgrade.`
+      case "critical":
+        return `Critical: ${resource} usage exceeds ${plan} plan limit by >50%. Immediate upgrade required or enforce hard limits.`;
+      case "severe":
+        return `Severe: ${resource} usage significantly exceeds ${plan} plan limit. Recommend upgrade or usage review.`;
+      case "moderate":
+        return `Moderate: ${resource} usage exceeds ${plan} plan limit. Consider upgrading to a higher tier.`;
+      case "minor":
+        return `Minor: ${resource} usage slightly exceeds ${plan} plan limit. Monitor and consider upgrade.`;
       default:
-        return 'Monitor usage'
+        return "Monitor usage";
     }
   }
 
   // Under-usage
   switch (severity) {
-    case 'critical':
-      return `Critical under-usage: Using <5% of ${resource} allocation on ${plan} plan. Customer may be disengaged or on wrong plan.`
-    case 'severe':
-      return `Severe under-usage: Using <10% of ${resource} allocation. High risk of downgrade or churn.`
-    case 'moderate':
-      return `Moderate under-usage: Using <25% of ${resource} allocation. May benefit from engagement outreach.`
-    case 'minor':
-      return `Minor under-usage: Using <50% of ${resource} allocation. Encourage feature adoption.`
+    case "critical":
+      return `Critical under-usage: Using <5% of ${resource} allocation on ${plan} plan. Customer may be disengaged or on wrong plan.`;
+    case "severe":
+      return `Severe under-usage: Using <10% of ${resource} allocation. High risk of downgrade or churn.`;
+    case "moderate":
+      return `Moderate under-usage: Using <25% of ${resource} allocation. May benefit from engagement outreach.`;
+    case "minor":
+      return `Minor under-usage: Using <50% of ${resource} allocation. Encourage feature adoption.`;
     default:
-      return 'No action required'
+      return "No action required";
   }
 }
 
@@ -143,12 +147,13 @@ export function getRecommendedAction(
  */
 export function detectDrift(
   record: AnalyticsUsageRecord,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): EntitlementDriftEntry | null {
-  const planLimit = record.planLimit ?? getPlanLimitForResource(record.plan, record.resource)
+  const planLimit =
+    record.planLimit ?? getPlanLimitForResource(record.plan, record.resource);
 
   // If limit is null (unlimited), no drift possible
-  if (planLimit === null) return null
+  if (planLimit === null) return null;
 
   // Zero limit means the resource is not available
   if (planLimit === 0 && record.currentUsage > 0) {
@@ -159,24 +164,30 @@ export function detectDrift(
       resource: record.resource,
       currentUsage: record.currentUsage,
       planLimit,
-      direction: 'over',
+      direction: "over",
       driftAmount: record.currentUsage,
       driftPercentage: 100,
-      severity: 'critical',
+      severity: "critical",
       detectedAt: now,
-      recommendedAction: getRecommendedAction('over', 'critical', record.resource, record.plan),
-    }
+      recommendedAction: getRecommendedAction(
+        "over",
+        "critical",
+        record.resource,
+        record.plan,
+      ),
+    };
   }
 
-  if (planLimit <= 0) return null
+  if (planLimit <= 0) return null;
 
-  const usagePercentage = (record.currentUsage / planLimit) * 100
+  const usagePercentage = (record.currentUsage / planLimit) * 100;
 
   if (record.currentUsage > planLimit) {
     // Over-usage
-    const driftAmount = record.currentUsage - planLimit
-    const driftPercentage = Math.round(((record.currentUsage - planLimit) / planLimit) * 10000) / 100
-    const severity = classifyOverUsageSeverity(driftPercentage)
+    const driftAmount = record.currentUsage - planLimit;
+    const driftPercentage =
+      Math.round(((record.currentUsage - planLimit) / planLimit) * 10000) / 100;
+    const severity = classifyOverUsageSeverity(driftPercentage);
 
     return {
       workspaceId: record.workspaceId,
@@ -185,20 +196,27 @@ export function detectDrift(
       resource: record.resource,
       currentUsage: record.currentUsage,
       planLimit,
-      direction: 'over',
+      direction: "over",
       driftAmount,
       driftPercentage,
       severity,
       detectedAt: now,
-      recommendedAction: getRecommendedAction('over', severity, record.resource, record.plan),
-    }
+      recommendedAction: getRecommendedAction(
+        "over",
+        severity,
+        record.resource,
+        record.plan,
+      ),
+    };
   }
 
   if (usagePercentage < UNDER_USAGE_THRESHOLDS.minor) {
     // Under-usage
-    const driftAmount = planLimit - record.currentUsage
-    const driftPercentage = -Math.round(((planLimit - record.currentUsage) / planLimit) * 10000) / 100
-    const severity = classifyUnderUsageSeverity(usagePercentage)
+    const driftAmount = planLimit - record.currentUsage;
+    const driftPercentage =
+      -Math.round(((planLimit - record.currentUsage) / planLimit) * 10000) /
+      100;
+    const severity = classifyUnderUsageSeverity(usagePercentage);
 
     return {
       workspaceId: record.workspaceId,
@@ -207,17 +225,22 @@ export function detectDrift(
       resource: record.resource,
       currentUsage: record.currentUsage,
       planLimit,
-      direction: 'under',
+      direction: "under",
       driftAmount,
       driftPercentage,
       severity,
       detectedAt: now,
-      recommendedAction: getRecommendedAction('under', severity, record.resource, record.plan),
-    }
+      recommendedAction: getRecommendedAction(
+        "under",
+        severity,
+        record.resource,
+        record.plan,
+      ),
+    };
   }
 
   // Within normal range
-  return null
+  return null;
 }
 
 /**
@@ -225,14 +248,14 @@ export function detectDrift(
  */
 export function detectAllDrift(
   records: AnalyticsUsageRecord[],
-  now: Date = new Date()
+  now: Date = new Date(),
 ): EntitlementDriftEntry[] {
-  const entries: EntitlementDriftEntry[] = []
+  const entries: EntitlementDriftEntry[] = [];
 
   for (const record of records) {
-    const drift = detectDrift(record, now)
+    const drift = detectDrift(record, now);
     if (drift) {
-      entries.push(drift)
+      entries.push(drift);
     }
   }
 
@@ -243,9 +266,11 @@ export function detectAllDrift(
     moderate: 2,
     minor: 3,
     none: 4,
-  }
+  };
 
-  return entries.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity])
+  return entries.sort(
+    (a, b) => severityOrder[a.severity] - severityOrder[b.severity],
+  );
 }
 
 // ============================================================================
@@ -258,42 +283,44 @@ export function detectAllDrift(
  */
 export function estimateRevenueImpact(
   driftEntries: EntitlementDriftEntry[],
-  overagePricePerUnit: Record<string, number> = {}
+  overagePricePerUnit: Record<string, number> = {},
 ): number {
   const defaultPricePerUnit: Record<string, number> = {
-    members: 500,        // $5.00 per extra member
-    channels: 200,       // $2.00 per extra channel
-    storage: 50,         // $0.50 per extra GB
-    api_calls: 1,        // $0.01 per extra API call
+    members: 500, // $5.00 per extra member
+    channels: 200, // $2.00 per extra channel
+    storage: 50, // $0.50 per extra GB
+    api_calls: 1, // $0.01 per extra API call
     call_participants: 300, // $3.00 per extra participant
     stream_duration: 10, // $0.10 per extra minute
-  }
+  };
 
-  let totalImpact = 0
+  let totalImpact = 0;
 
   for (const entry of driftEntries) {
-    if (entry.direction === 'over') {
+    if (entry.direction === "over") {
       const pricePerUnit =
-        overagePricePerUnit[entry.resource] ?? defaultPricePerUnit[entry.resource] ?? 0
-      totalImpact += entry.driftAmount * pricePerUnit
+        overagePricePerUnit[entry.resource] ??
+        defaultPricePerUnit[entry.resource] ??
+        0;
+      totalImpact += entry.driftAmount * pricePerUnit;
     }
   }
 
-  return totalImpact
+  return totalImpact;
 }
 
 // ============================================================================
 // Alert Generation
 // ============================================================================
 
-let alertCounter = 0
+let alertCounter = 0;
 
 /**
  * Generate alerts from drift entries.
  */
 export function generateDriftAlerts(
   driftEntries: EntitlementDriftEntry[],
-  minSeverity: DriftSeverity = 'minor'
+  minSeverity: DriftSeverity = "minor",
 ): DriftAlert[] {
   const severityOrder: Record<DriftSeverity, number> = {
     none: 0,
@@ -301,9 +328,9 @@ export function generateDriftAlerts(
     moderate: 2,
     severe: 3,
     critical: 4,
-  }
+  };
 
-  const minOrder = severityOrder[minSeverity]
+  const minOrder = severityOrder[minSeverity];
 
   return driftEntries
     .filter((entry) => severityOrder[entry.severity] >= minOrder)
@@ -314,14 +341,14 @@ export function generateDriftAlerts(
       acknowledgedBy: null,
       acknowledgedAt: null,
       createdAt: entry.detectedAt,
-    }))
+    }));
 }
 
 /**
  * Reset alert counter (for testing).
  */
 export function resetAlertCounter(): void {
-  alertCounter = 0
+  alertCounter = 0;
 }
 
 // ============================================================================
@@ -334,15 +361,15 @@ export function resetAlertCounter(): void {
 export function generateDriftReport(
   usageRecords: AnalyticsUsageRecord[],
   overagePricing?: Record<string, number>,
-  minAlertSeverity: DriftSeverity = 'minor'
+  minAlertSeverity: DriftSeverity = "minor",
 ): EntitlementDriftReport {
-  const now = new Date()
-  const driftEntries = detectAllDrift(usageRecords, now)
-  const activeAlerts = generateDriftAlerts(driftEntries, minAlertSeverity)
+  const now = new Date();
+  const driftEntries = detectAllDrift(usageRecords, now);
+  const activeAlerts = generateDriftAlerts(driftEntries, minAlertSeverity);
 
   // Unique workspaces analyzed
-  const uniqueWorkspaces = new Set(usageRecords.map((r) => r.workspaceId))
-  const workspacesWithDrift = new Set(driftEntries.map((e) => e.workspaceId))
+  const uniqueWorkspaces = new Set(usageRecords.map((r) => r.workspaceId));
+  const workspacesWithDrift = new Set(driftEntries.map((e) => e.workspaceId));
 
   // Summary by severity
   const bySeverity: Record<DriftSeverity, number> = {
@@ -351,18 +378,21 @@ export function generateDriftReport(
     moderate: 0,
     severe: 0,
     critical: 0,
-  }
+  };
   for (const entry of driftEntries) {
-    bySeverity[entry.severity]++
+    bySeverity[entry.severity]++;
   }
 
   // Summary by resource
-  const byResource: Record<string, number> = {}
+  const byResource: Record<string, number> = {};
   for (const entry of driftEntries) {
-    byResource[entry.resource] = (byResource[entry.resource] || 0) + 1
+    byResource[entry.resource] = (byResource[entry.resource] || 0) + 1;
   }
 
-  const estimatedRevenueImpact = estimateRevenueImpact(driftEntries, overagePricing)
+  const estimatedRevenueImpact = estimateRevenueImpact(
+    driftEntries,
+    overagePricing,
+  );
 
   return {
     analysisDate: now,
@@ -374,5 +404,5 @@ export function generateDriftReport(
     byResource,
     estimatedRevenueImpact,
     generatedAt: now,
-  }
+  };
 }

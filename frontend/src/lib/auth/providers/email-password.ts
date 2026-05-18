@@ -8,8 +8,8 @@
  * - Password strength validation
  */
 
-import { nhost } from '@/lib/nhost'
-import { logger } from '@/lib/logger'
+import { nhost } from "@/lib/nhost";
+import { logger } from "@/lib/logger";
 import {
   AuthProvider,
   AuthProviderType,
@@ -17,7 +17,7 @@ import {
   AuthError,
   EmailPasswordCredentials,
   EmailProviderConfig,
-} from './types'
+} from "./types";
 
 // ============================================================================
 // Configuration
@@ -25,9 +25,9 @@ import {
 
 export const defaultEmailConfig: EmailProviderConfig = {
   enabled: true,
-  name: 'email',
-  displayName: 'Email & Password',
-  icon: 'mail',
+  name: "email",
+  displayName: "Email & Password",
+  icon: "mail",
   order: 1,
   requireVerification: true,
   allowSignup: true,
@@ -36,63 +36,65 @@ export const defaultEmailConfig: EmailProviderConfig = {
   requireLowercase: true,
   requireNumbers: true,
   requireSpecialChars: false,
-}
+};
 
 // ============================================================================
 // Password Validation
 // ============================================================================
 
 export interface PasswordValidationResult {
-  valid: boolean
-  errors: string[]
-  strength: 'weak' | 'fair' | 'good' | 'strong'
+  valid: boolean;
+  errors: string[];
+  strength: "weak" | "fair" | "good" | "strong";
 }
 
 export function validatePassword(
   password: string,
-  config: EmailProviderConfig = defaultEmailConfig
+  config: EmailProviderConfig = defaultEmailConfig,
 ): PasswordValidationResult {
-  const errors: string[] = []
+  const errors: string[] = [];
 
   if (password.length < config.minPasswordLength) {
-    errors.push(`Password must be at least ${config.minPasswordLength} characters`)
+    errors.push(
+      `Password must be at least ${config.minPasswordLength} characters`,
+    );
   }
 
   if (config.requireUppercase && !/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter')
+    errors.push("Password must contain at least one uppercase letter");
   }
 
   if (config.requireLowercase && !/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter')
+    errors.push("Password must contain at least one lowercase letter");
   }
 
   if (config.requireNumbers && !/[0-9]/.test(password)) {
-    errors.push('Password must contain at least one number')
+    errors.push("Password must contain at least one number");
   }
 
   if (config.requireSpecialChars && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.push('Password must contain at least one special character')
+    errors.push("Password must contain at least one special character");
   }
 
   // Calculate strength
-  let strengthScore = 0
-  if (password.length >= 8) strengthScore++
-  if (password.length >= 12) strengthScore++
-  if (/[A-Z]/.test(password)) strengthScore++
-  if (/[a-z]/.test(password)) strengthScore++
-  if (/[0-9]/.test(password)) strengthScore++
-  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strengthScore++
+  let strengthScore = 0;
+  if (password.length >= 8) strengthScore++;
+  if (password.length >= 12) strengthScore++;
+  if (/[A-Z]/.test(password)) strengthScore++;
+  if (/[a-z]/.test(password)) strengthScore++;
+  if (/[0-9]/.test(password)) strengthScore++;
+  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strengthScore++;
 
-  let strength: 'weak' | 'fair' | 'good' | 'strong' = 'weak'
-  if (strengthScore >= 5) strength = 'strong'
-  else if (strengthScore >= 4) strength = 'good'
-  else if (strengthScore >= 3) strength = 'fair'
+  let strength: "weak" | "fair" | "good" | "strong" = "weak";
+  if (strengthScore >= 5) strength = "strong";
+  else if (strengthScore >= 4) strength = "good";
+  else if (strengthScore >= 3) strength = "fair";
 
   return {
     valid: errors.length === 0,
     errors,
     strength,
-  }
+  };
 }
 
 // ============================================================================
@@ -100,8 +102,8 @@ export function validatePassword(
 // ============================================================================
 
 export function validateEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 // ============================================================================
@@ -109,63 +111,65 @@ export function validateEmail(email: string): boolean {
 // ============================================================================
 
 export class EmailPasswordProvider implements AuthProvider {
-  type: AuthProviderType = 'email'
-  name = 'Email & Password'
-  private config: EmailProviderConfig
+  type: AuthProviderType = "email";
+  name = "Email & Password";
+  private config: EmailProviderConfig;
 
   constructor(config: Partial<EmailProviderConfig> = {}) {
-    this.config = { ...defaultEmailConfig, ...config }
+    this.config = { ...defaultEmailConfig, ...config };
   }
 
   isConfigured(): boolean {
-    return this.config.enabled
+    return this.config.enabled;
   }
 
-  async authenticate(credentials?: EmailPasswordCredentials): Promise<AuthResult> {
-    if (!credentials || credentials.type !== 'email') {
+  async authenticate(
+    credentials?: EmailPasswordCredentials,
+  ): Promise<AuthResult> {
+    if (!credentials || credentials.type !== "email") {
       return {
         success: false,
         error: {
-          code: 'invalid_credentials',
-          message: 'Email and password are required',
+          code: "invalid_credentials",
+          message: "Email and password are required",
         },
-      }
+      };
     }
 
-    const { email, password } = credentials
+    const { email, password } = credentials;
 
     // Validate email format
     if (!validateEmail(email)) {
       return {
         success: false,
         error: {
-          code: 'invalid_email',
-          message: 'Please enter a valid email address',
+          code: "invalid_email",
+          message: "Please enter a valid email address",
         },
-      }
+      };
     }
 
     try {
       const { session, error } = await nhost.auth.signIn({
         email,
         password,
-      })
+      });
 
       if (error) {
         return {
           success: false,
           error: this.mapNhostError(error),
-        }
+        };
       }
 
       if (!session) {
         return {
           success: false,
           error: {
-            code: 'no_session',
-            message: 'Failed to create session',
+            code: "no_session",
+            message: "Failed to create session",
           },
-        }
+        };
       }
 
       return {
@@ -180,19 +184,19 @@ export class EmailPasswordProvider implements AuthProvider {
             displayName: session.user.displayName ?? undefined,
             avatarUrl: session.user.avatarUrl ?? undefined,
             emailVerified: session.user.emailVerified,
-            provider: 'email',
+            provider: "email",
           },
         },
-      }
+      };
     } catch (err) {
-      logger.error('EmailPasswordProvider.authenticate error:', err)
+      logger.error("EmailPasswordProvider.authenticate error:", err);
       return {
         success: false,
         error: {
-          code: 'unknown_error',
-          message: 'An unexpected error occurred',
+          code: "unknown_error",
+          message: "An unexpected error occurred",
         },
-      }
+      };
     }
   }
 
@@ -200,18 +204,18 @@ export class EmailPasswordProvider implements AuthProvider {
     email: string,
     password: string,
     options?: {
-      displayName?: string
-      metadata?: Record<string, unknown>
-    }
+      displayName?: string;
+      metadata?: Record<string, unknown>;
+    },
   ): Promise<AuthResult> {
     if (!this.config.allowSignup) {
       return {
         success: false,
         error: {
-          code: 'signup_disabled',
-          message: 'Sign up is currently disabled',
+          code: "signup_disabled",
+          message: "Sign up is currently disabled",
         },
-      }
+      };
     }
 
     // Validate email
@@ -219,23 +223,23 @@ export class EmailPasswordProvider implements AuthProvider {
       return {
         success: false,
         error: {
-          code: 'invalid_email',
-          message: 'Please enter a valid email address',
+          code: "invalid_email",
+          message: "Please enter a valid email address",
         },
-      }
+      };
     }
 
     // Validate password
-    const passwordValidation = validatePassword(password, this.config)
+    const passwordValidation = validatePassword(password, this.config);
     if (!passwordValidation.valid) {
       return {
         success: false,
         error: {
-          code: 'weak_password',
+          code: "weak_password",
           message: passwordValidation.errors[0],
           details: { errors: passwordValidation.errors },
         },
-      }
+      };
     }
 
     try {
@@ -246,13 +250,13 @@ export class EmailPasswordProvider implements AuthProvider {
           displayName: options?.displayName,
           metadata: options?.metadata,
         },
-      })
+      });
 
       if (error) {
         return {
           success: false,
           error: this.mapNhostError(error),
-        }
+        };
       }
 
       // If email verification is required and no session, user needs to verify
@@ -261,19 +265,19 @@ export class EmailPasswordProvider implements AuthProvider {
           success: true,
           requiresVerification: true,
           user: {
-            id: '',
+            id: "",
             email,
-            provider: 'email',
+            provider: "email",
             emailVerified: false,
           },
-        }
+        };
       }
 
       if (!session) {
         return {
           success: true,
           requiresVerification: true,
-        }
+        };
       }
 
       return {
@@ -288,183 +292,190 @@ export class EmailPasswordProvider implements AuthProvider {
             displayName: session.user.displayName ?? undefined,
             avatarUrl: session.user.avatarUrl ?? undefined,
             emailVerified: session.user.emailVerified,
-            provider: 'email',
+            provider: "email",
           },
         },
-      }
+      };
     } catch (err) {
-      logger.error('EmailPasswordProvider.signUp error:', err)
+      logger.error("EmailPasswordProvider.signUp error:", err);
       return {
         success: false,
         error: {
-          code: 'unknown_error',
-          message: 'An unexpected error occurred during sign up',
+          code: "unknown_error",
+          message: "An unexpected error occurred during sign up",
         },
-      }
+      };
     }
   }
 
-  async resetPassword(email: string): Promise<{ success: boolean; error?: AuthError }> {
+  async resetPassword(
+    email: string,
+  ): Promise<{ success: boolean; error?: AuthError }> {
     if (!validateEmail(email)) {
       return {
         success: false,
         error: {
-          code: 'invalid_email',
-          message: 'Please enter a valid email address',
+          code: "invalid_email",
+          message: "Please enter a valid email address",
         },
-      }
+      };
     }
 
     try {
       const { error } = await nhost.auth.resetPassword({
         email,
-      })
+      });
 
       if (error) {
         return {
           success: false,
           error: this.mapNhostError(error),
-        }
+        };
       }
 
-      return { success: true }
+      return { success: true };
     } catch (err) {
-      logger.error('EmailPasswordProvider.resetPassword error:', err)
+      logger.error("EmailPasswordProvider.resetPassword error:", err);
       return {
         success: false,
         error: {
-          code: 'unknown_error',
-          message: 'Failed to send password reset email',
+          code: "unknown_error",
+          message: "Failed to send password reset email",
         },
-      }
+      };
     }
   }
 
   async changePassword(
     newPassword: string,
-    ticket?: string
+    ticket?: string,
   ): Promise<{ success: boolean; error?: AuthError }> {
-    const passwordValidation = validatePassword(newPassword, this.config)
+    const passwordValidation = validatePassword(newPassword, this.config);
     if (!passwordValidation.valid) {
       return {
         success: false,
         error: {
-          code: 'weak_password',
+          code: "weak_password",
           message: passwordValidation.errors[0],
           details: { errors: passwordValidation.errors },
         },
-      }
+      };
     }
 
     try {
       const { error } = await nhost.auth.changePassword({
         newPassword,
         ticket,
-      })
+      });
 
       if (error) {
         return {
           success: false,
           error: this.mapNhostError(error),
-        }
+        };
       }
 
-      return { success: true }
+      return { success: true };
     } catch (err) {
-      logger.error('EmailPasswordProvider.changePassword error:', err)
+      logger.error("EmailPasswordProvider.changePassword error:", err);
       return {
         success: false,
         error: {
-          code: 'unknown_error',
-          message: 'Failed to change password',
+          code: "unknown_error",
+          message: "Failed to change password",
         },
-      }
+      };
     }
   }
 
-  async sendVerificationEmail(email: string): Promise<{ success: boolean; error?: AuthError }> {
+  async sendVerificationEmail(
+    email: string,
+  ): Promise<{ success: boolean; error?: AuthError }> {
     try {
       const { error } = await nhost.auth.sendVerificationEmail({
         email,
-      })
+      });
 
       if (error) {
         return {
           success: false,
           error: this.mapNhostError(error),
-        }
+        };
       }
 
-      return { success: true }
+      return { success: true };
     } catch (err) {
-      logger.error('EmailPasswordProvider.sendVerificationEmail error:', err)
+      logger.error("EmailPasswordProvider.sendVerificationEmail error:", err);
       return {
         success: false,
         error: {
-          code: 'unknown_error',
-          message: 'Failed to send verification email',
+          code: "unknown_error",
+          message: "Failed to send verification email",
         },
-      }
+      };
     }
   }
 
-  private mapNhostError(error: { message: string; status?: number }): AuthError {
-    const message = error.message.toLowerCase()
+  private mapNhostError(error: {
+    message: string;
+    status?: number;
+  }): AuthError {
+    const message = error.message.toLowerCase();
 
-    if (message.includes('invalid') || message.includes('incorrect')) {
+    if (message.includes("invalid") || message.includes("incorrect")) {
       return {
-        code: 'invalid_credentials',
-        message: 'Invalid email or password',
-      }
+        code: "invalid_credentials",
+        message: "Invalid email or password",
+      };
     }
 
-    if (message.includes('already') || message.includes('exists')) {
+    if (message.includes("already") || message.includes("exists")) {
       return {
-        code: 'email_exists',
-        message: 'An account with this email already exists',
-      }
+        code: "email_exists",
+        message: "An account with this email already exists",
+      };
     }
 
-    if (message.includes('not found') || message.includes("doesn't exist")) {
+    if (message.includes("not found") || message.includes("doesn't exist")) {
       return {
-        code: 'user_not_found',
-        message: 'No account found with this email',
-      }
+        code: "user_not_found",
+        message: "No account found with this email",
+      };
     }
 
-    if (message.includes('disabled') || message.includes('blocked')) {
+    if (message.includes("disabled") || message.includes("blocked")) {
       return {
-        code: 'account_disabled',
-        message: 'This account has been disabled',
-      }
+        code: "account_disabled",
+        message: "This account has been disabled",
+      };
     }
 
-    if (message.includes('verify') || message.includes('unverified')) {
+    if (message.includes("verify") || message.includes("unverified")) {
       return {
-        code: 'email_not_verified',
-        message: 'Please verify your email address',
-      }
+        code: "email_not_verified",
+        message: "Please verify your email address",
+      };
     }
 
-    if (message.includes('rate') || message.includes('limit')) {
+    if (message.includes("rate") || message.includes("limit")) {
       return {
-        code: 'rate_limited',
-        message: 'Too many attempts. Please try again later',
-      }
+        code: "rate_limited",
+        message: "Too many attempts. Please try again later",
+      };
     }
 
     return {
-      code: 'auth_error',
+      code: "auth_error",
       message: error.message,
-    }
+    };
   }
 
   getConfig(): EmailProviderConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 
   updateConfig(config: Partial<EmailProviderConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
   }
 }
 
@@ -472,4 +483,4 @@ export class EmailPasswordProvider implements AuthProvider {
 // Export singleton instance
 // ============================================================================
 
-export const emailPasswordProvider = new EmailPasswordProvider()
+export const emailPasswordProvider = new EmailPasswordProvider();

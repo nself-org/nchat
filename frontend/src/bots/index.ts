@@ -16,20 +16,24 @@
  */
 
 // Import bot factories and manifests locally for use in registerAllBots and manifests object
-import createHelloBot, { manifest as helloBotManifest } from './hello-bot'
-import createPollBot, { manifest as pollBotManifest } from './poll-bot'
-import createReminderBot, { manifest as reminderBotManifest } from './reminder-bot'
-import createWelcomeBot, { manifest as welcomeBotManifest } from './welcome-bot'
-import { getRuntime } from '@/lib/bots'
+import createHelloBot, { manifest as helloBotManifest } from "./hello-bot";
+import createPollBot, { manifest as pollBotManifest } from "./poll-bot";
+import createReminderBot, {
+  manifest as reminderBotManifest,
+} from "./reminder-bot";
+import createWelcomeBot, {
+  manifest as welcomeBotManifest,
+} from "./welcome-bot";
+import { getRuntime } from "@/lib/bots";
 
 // Re-export bot factories and manifests
-export { createHelloBot, helloBotManifest }
-export { createPollBot, pollBotManifest }
-export { createReminderBot, reminderBotManifest }
-export { createWelcomeBot, welcomeBotManifest }
+export { createHelloBot, helloBotManifest };
+export { createPollBot, pollBotManifest };
+export { createReminderBot, reminderBotManifest };
+export { createWelcomeBot, welcomeBotManifest };
 
 // Hello Bot - additional exports
-export { helloCommand, waveCommand, goodbyeCommand } from './hello-bot'
+export { helloCommand, waveCommand, goodbyeCommand } from "./hello-bot";
 
 // Poll Bot - additional exports
 export {
@@ -41,7 +45,7 @@ export {
   getPoll,
   registerVote,
   formatPollResults,
-} from './poll-bot'
+} from "./poll-bot";
 
 // Reminder Bot - additional exports
 export {
@@ -59,7 +63,7 @@ export {
   buildReminderMessage,
   formatReminderList,
   getStats as getReminderStats,
-} from './reminder-bot'
+} from "./reminder-bot";
 
 // Welcome Bot - additional exports
 export {
@@ -72,19 +76,24 @@ export {
   formatStats as formatWelcomeStats,
   handleUserJoin,
   handleUserLeave,
-} from './welcome-bot'
+} from "./welcome-bot";
 
 /**
  * Register all example bots with the runtime
  */
 export function registerAllBots() {
-  const runtime = getRuntime()
+  const runtime = getRuntime();
 
-  const bots = [createHelloBot(), createPollBot(), createReminderBot(), createWelcomeBot()]
+  const bots = [
+    createHelloBot(),
+    createPollBot(),
+    createReminderBot(),
+    createWelcomeBot(),
+  ];
 
-  runtime.startAll()
+  runtime.startAll();
 
-  return bots
+  return bots;
 }
 
 /**
@@ -95,4 +104,4 @@ export const manifests = {
   poll: pollBotManifest,
   reminder: reminderBotManifest,
   welcome: welcomeBotManifest,
-}
+};

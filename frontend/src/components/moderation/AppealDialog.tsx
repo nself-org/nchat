@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
 /**
  * Appeal Dialog Component
  * Allows users to appeal moderation actions
  */
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,29 +13,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
-import { Scale, Loader2, Plus, X } from 'lucide-react'
-import { toast } from 'sonner'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Scale, Loader2, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface AppealDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  actionId: string
-  penaltyId?: string
-  userId: string
-  userName?: string
-  actionType: string
-  onAppealSubmitted?: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  actionId: string;
+  penaltyId?: string;
+  userId: string;
+  userName?: string;
+  actionType: string;
+  onAppealSubmitted?: () => void;
 }
 
 interface Evidence {
-  type: 'text' | 'link' | 'screenshot'
-  content: string
-  description: string
+  type: "text" | "link" | "screenshot";
+  content: string;
+  description: string;
 }
 
 export function AppealDialog({
@@ -48,46 +48,46 @@ export function AppealDialog({
   actionType,
   onAppealSubmitted,
 }: AppealDialogProps) {
-  const [reason, setReason] = useState('')
-  const [evidence, setEvidence] = useState<Evidence[]>([])
-  const [newEvidenceLink, setNewEvidenceLink] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [reason, setReason] = useState("");
+  const [evidence, setEvidence] = useState<Evidence[]>([]);
+  const [newEvidenceLink, setNewEvidenceLink] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddEvidence = () => {
-    if (!newEvidenceLink.trim()) return
+    if (!newEvidenceLink.trim()) return;
 
     setEvidence([
       ...evidence,
       {
-        type: 'link',
+        type: "link",
         content: newEvidenceLink.trim(),
-        description: 'Supporting evidence',
+        description: "Supporting evidence",
       },
-    ])
-    setNewEvidenceLink('')
-  }
+    ]);
+    setNewEvidenceLink("");
+  };
 
   const handleRemoveEvidence = (index: number) => {
-    setEvidence(evidence.filter((_, i) => i !== index))
-  }
+    setEvidence(evidence.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
-      toast.error('Please provide a reason for your appeal')
-      return
+      toast.error("Please provide a reason for your appeal");
+      return;
     }
 
     if (reason.trim().length < 50) {
-      toast.error('Please provide more detail (at least 50 characters)')
-      return
+      toast.error("Please provide more detail (at least 50 characters)");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/moderation/appeals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/moderation/appeals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           userName,
@@ -96,25 +96,25 @@ export function AppealDialog({
           reason: reason.trim(),
           evidence: evidence.length > 0 ? evidence : undefined,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        toast.success('Appeal submitted successfully')
-        setReason('')
-        setEvidence([])
-        onOpenChange(false)
-        onAppealSubmitted?.()
+        toast.success("Appeal submitted successfully");
+        setReason("");
+        setEvidence([]);
+        onOpenChange(false);
+        onAppealSubmitted?.();
       } else {
-        toast.error(data.error || 'Failed to submit appeal')
+        toast.error(data.error || "Failed to submit appeal");
       }
     } catch (error) {
-      toast.error('Failed to submit appeal')
+      toast.error("Failed to submit appeal");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -125,7 +125,8 @@ export function AppealDialog({
             Appeal Moderation Action
           </DialogTitle>
           <DialogDescription>
-            Submit an appeal for the {actionType} action. A moderator will review your appeal.
+            Submit an appeal for the {actionType} action. A moderator will
+            review your appeal.
           </DialogDescription>
         </DialogHeader>
 
@@ -162,9 +163,14 @@ export function AppealDialog({
                 placeholder="Add a link to evidence..."
                 value={newEvidenceLink}
                 onChange={(e) => setNewEvidenceLink(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddEvidence()}
+                onKeyDown={(e) => e.key === "Enter" && handleAddEvidence()}
               />
-              <Button type="button" variant="outline" size="icon" onClick={handleAddEvidence}>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleAddEvidence}
+              >
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
@@ -194,7 +200,11 @@ export function AppealDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
           <Button
@@ -207,5 +217,5 @@ export function AppealDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

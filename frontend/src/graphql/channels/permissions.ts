@@ -3,7 +3,7 @@
  * Phase 6: Tasks 60-65
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const PERMISSION_OVERRIDE_FRAGMENT = gql`
   fragment PermissionOverrideFragment on nchat_channel_permission_overrides {
@@ -17,16 +17,18 @@ export const PERMISSION_OVERRIDE_FRAGMENT = gql`
     created_by
     expires_at
   }
-`
+`;
 
 export const GET_CHANNEL_PERMISSIONS = gql`
   ${PERMISSION_OVERRIDE_FRAGMENT}
   query GetChannelPermissions($channel_id: uuid!) {
-    nchat_channel_permission_overrides(where: { channel_id: { _eq: $channel_id } }) {
+    nchat_channel_permission_overrides(
+      where: { channel_id: { _eq: $channel_id } }
+    ) {
       ...PermissionOverrideFragment
     }
   }
-`
+`;
 
 export const CREATE_PERMISSION_OVERRIDE = gql`
   ${PERMISSION_OVERRIDE_FRAGMENT}
@@ -55,7 +57,7 @@ export const CREATE_PERMISSION_OVERRIDE = gql`
       ...PermissionOverrideFragment
     }
   }
-`
+`;
 
 export const DELETE_PERMISSION_OVERRIDE = gql`
   mutation DeletePermissionOverride($id: uuid!) {
@@ -63,4 +65,4 @@ export const DELETE_PERMISSION_OVERRIDE = gql`
       id
     }
   }
-`
+`;

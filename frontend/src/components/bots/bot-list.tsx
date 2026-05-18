@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Bot,
   CheckCircle,
@@ -9,18 +9,18 @@ import {
   Trash2,
   ExternalLink,
   Hash,
-} from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -28,25 +28,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Skeleton } from '@/components/ui/skeleton'
-import { BotPermissionsSummary } from './bot-permissions'
-import { cn } from '@/lib/utils'
-import type { Bot as BotType, BotInstallation } from '@/graphql/bots'
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BotPermissionsSummary } from "./bot-permissions";
+import { cn } from "@/lib/utils";
+import type { Bot as BotType, BotInstallation } from "@/graphql/bots";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface BotListProps {
-  bots: BotInstallation[]
-  loading?: boolean
-  onConfigure?: (bot: BotType) => void
-  onRemove?: (botId: string, channelId?: string) => void
-  onViewDetails?: (bot: BotType) => void
-  showChannels?: boolean
-  emptyMessage?: string
-  className?: string
+  bots: BotInstallation[];
+  loading?: boolean;
+  onConfigure?: (bot: BotType) => void;
+  onRemove?: (botId: string, channelId?: string) => void;
+  onViewDetails?: (bot: BotType) => void;
+  showChannels?: boolean;
+  emptyMessage?: string;
+  className?: string;
 }
 
 // ============================================================================
@@ -55,33 +55,33 @@ export interface BotListProps {
 
 function getBotStatusColor(status: string): string {
   switch (status) {
-    case 'active':
-      return 'bg-green-500'
-    case 'inactive':
-      return 'bg-gray-400'
-    case 'suspended':
-      return 'bg-red-500'
-    case 'pending':
-      return 'bg-amber-500'
+    case "active":
+      return "bg-green-500";
+    case "inactive":
+      return "bg-gray-400";
+    case "suspended":
+      return "bg-red-500";
+    case "pending":
+      return "bg-amber-500";
     default:
-      return 'bg-gray-400'
+      return "bg-gray-400";
   }
 }
 
 function getBotStatusBadgeVariant(
-  status: string
-): 'default' | 'secondary' | 'destructive' | 'outline' {
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
-    case 'active':
-      return 'default'
-    case 'inactive':
-      return 'secondary'
-    case 'suspended':
-      return 'destructive'
-    case 'pending':
-      return 'outline'
+    case "active":
+      return "default";
+    case "inactive":
+      return "secondary";
+    case "suspended":
+      return "destructive";
+    case "pending":
+      return "outline";
     default:
-      return 'secondary'
+      return "secondary";
   }
 }
 
@@ -96,27 +96,27 @@ export function BotList({
   onRemove,
   onViewDetails,
   showChannels = true,
-  emptyMessage = 'No bots installed',
+  emptyMessage = "No bots installed",
   className,
 }: BotListProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredBots = bots.filter((installation) => {
-    if (!searchQuery) return true
-    const bot = installation.bot
-    if (!bot) return false
+    if (!searchQuery) return true;
+    const bot = installation.bot;
+    if (!bot) return false;
     return (
       bot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       bot.description.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })
+    );
+  });
 
   if (loading) {
-    return <BotListSkeleton />
+    return <BotListSkeleton />;
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {bots.length > 5 && (
         <div className="flex items-center gap-4">
           <Input
@@ -132,7 +132,9 @@ export function BotList({
       )}
 
       {filteredBots.length === 0 ? (
-        <EmptyState message={searchQuery ? 'No bots match your search' : emptyMessage} />
+        <EmptyState
+          message={searchQuery ? "No bots match your search" : emptyMessage}
+        />
       ) : (
         <div className="rounded-lg border">
           <Table>
@@ -147,8 +149,8 @@ export function BotList({
             </TableHeader>
             <TableBody>
               {filteredBots.map((installation) => {
-                const bot = installation.bot
-                if (!bot) return null
+                const bot = installation.bot;
+                if (!bot) return null;
 
                 return (
                   <TableRow key={installation.id}>
@@ -159,9 +161,12 @@ export function BotList({
                         tabIndex={0}
                         onClick={() => onViewDetails?.(bot)}
                         onKeyDown={(e) => {
-                          if (onViewDetails && (e.key === 'Enter' || e.key === ' ')) {
-                            e.preventDefault()
-                            onViewDetails(bot)
+                          if (
+                            onViewDetails &&
+                            (e.key === "Enter" || e.key === " ")
+                          ) {
+                            e.preventDefault();
+                            onViewDetails(bot);
                           }
                         }}
                       >
@@ -174,7 +179,9 @@ export function BotList({
                         <div>
                           <div className="flex items-center gap-1.5">
                             <span className="font-medium">{bot.name}</span>
-                            {bot.verified && <CheckCircle className="h-3.5 w-3.5 text-primary" />}
+                            {bot.verified && (
+                              <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                            )}
                           </div>
                           <p className="line-clamp-1 text-sm text-muted-foreground">
                             {bot.description}
@@ -187,16 +194,19 @@ export function BotList({
                       <Badge variant={getBotStatusBadgeVariant(bot.status)}>
                         <span
                           className={cn(
-                            'mr-1.5 h-2 w-2 rounded-full',
-                            getBotStatusColor(bot.status)
+                            "mr-1.5 h-2 w-2 rounded-full",
+                            getBotStatusColor(bot.status),
                           )}
                         />
-                        {bot.status.charAt(0).toUpperCase() + bot.status.slice(1)}
+                        {bot.status.charAt(0).toUpperCase() +
+                          bot.status.slice(1)}
                       </Badge>
                     </TableCell>
 
                     <TableCell>
-                      <BotPermissionsSummary permissions={installation.permissions} />
+                      <BotPermissionsSummary
+                        permissions={installation.permissions}
+                      />
                     </TableCell>
 
                     {showChannels && (
@@ -207,7 +217,9 @@ export function BotList({
                             <span>{installation.channel.name}</span>
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">All channels</span>
+                          <span className="text-sm text-muted-foreground">
+                            All channels
+                          </span>
                         )}
                       </TableCell>
                     )}
@@ -215,7 +227,11 @@ export function BotList({
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Open menu</span>
                           </Button>
@@ -225,14 +241,18 @@ export function BotList({
                             <Settings className="mr-2 h-4 w-4" />
                             Configure
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onViewDetails?.(bot)}>
+                          <DropdownMenuItem
+                            onClick={() => onViewDetails?.(bot)}
+                          >
                             <ExternalLink className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
-                            onClick={() => onRemove?.(bot.id, installation.channelId)}
+                            onClick={() =>
+                              onRemove?.(bot.id, installation.channelId)
+                            }
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Remove
@@ -241,14 +261,14 @@ export function BotList({
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                )
+                );
               })}
             </TableBody>
           </Table>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -263,10 +283,11 @@ function EmptyState({ message }: { message: string }) {
       </div>
       <h3 className="mb-1 font-medium">{message}</h3>
       <p className="max-w-sm text-sm text-muted-foreground">
-        Add bots to automate tasks, integrate with other services, and enhance your workspace.
+        Add bots to automate tasks, integrate with other services, and enhance
+        your workspace.
       </p>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -315,7 +336,7 @@ function BotListSkeleton() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -328,12 +349,14 @@ export function BotListCards({
   onConfigure,
   onRemove,
   onViewDetails,
-  emptyMessage = 'No bots installed',
+  emptyMessage = "No bots installed",
   className,
-}: Omit<BotListProps, 'showChannels'>) {
+}: Omit<BotListProps, "showChannels">) {
   if (loading) {
     return (
-      <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-3', className)}>
+      <div
+        className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-3", className)}
+      >
         {[1, 2, 3].map((i) => (
           <div key={i} className="space-y-3 rounded-lg border p-4">
             <div className="flex items-center gap-3">
@@ -351,21 +374,24 @@ export function BotListCards({
           </div>
         ))}
       </div>
-    )
+    );
   }
 
   if (bots.length === 0) {
-    return <EmptyState message={emptyMessage} />
+    return <EmptyState message={emptyMessage} />;
   }
 
   return (
-    <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-3', className)}>
+    <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-3", className)}>
       {bots.map((installation) => {
-        const bot = installation.bot
-        if (!bot) return null
+        const bot = installation.bot;
+        if (!bot) return null;
 
         return (
-          <div key={installation.id} className="space-y-3 rounded-lg border bg-card p-4">
+          <div
+            key={installation.id}
+            className="space-y-3 rounded-lg border bg-card p-4"
+          >
             <div className="flex items-start justify-between">
               <div
                 className="flex cursor-pointer items-center gap-3"
@@ -373,9 +399,9 @@ export function BotListCards({
                 tabIndex={0}
                 onClick={() => onViewDetails?.(bot)}
                 onKeyDown={(e) => {
-                  if (onViewDetails && (e.key === 'Enter' || e.key === ' ')) {
-                    e.preventDefault()
-                    onViewDetails(bot)
+                  if (onViewDetails && (e.key === "Enter" || e.key === " ")) {
+                    e.preventDefault();
+                    onViewDetails(bot);
                   }
                 }}
               >
@@ -388,9 +414,14 @@ export function BotListCards({
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span className="font-medium">{bot.name}</span>
-                    {bot.verified && <CheckCircle className="h-3.5 w-3.5 text-primary" />}
+                    {bot.verified && (
+                      <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                    )}
                   </div>
-                  <Badge variant={getBotStatusBadgeVariant(bot.status)} className="mt-1">
+                  <Badge
+                    variant={getBotStatusBadgeVariant(bot.status)}
+                    className="mt-1"
+                  >
                     {bot.status}
                   </Badge>
                 </div>
@@ -418,17 +449,23 @@ export function BotListCards({
               </DropdownMenu>
             </div>
 
-            <p className="line-clamp-2 text-sm text-muted-foreground">{bot.description}</p>
+            <p className="line-clamp-2 text-sm text-muted-foreground">
+              {bot.description}
+            </p>
 
             <div className="flex items-center justify-between border-t pt-2">
               <BotPermissionsSummary permissions={installation.permissions} />
-              <Button variant="outline" size="sm" onClick={() => onConfigure?.(bot)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onConfigure?.(bot)}
+              >
                 Configure
               </Button>
             </div>
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

@@ -32,76 +32,76 @@ src/emails/
 ### Send Welcome Email
 
 ```typescript
-import { sendWelcomeEmail } from '@/lib/email/templates'
+import { sendWelcomeEmail } from "@/lib/email/templates";
 
 await sendWelcomeEmail(
-  { email: 'user@example.com', name: 'Alice' },
+  { email: "user@example.com", name: "Alice" },
   {
-    userName: 'Alice',
-    loginUrl: 'https://app.example.com/login',
-  }
-)
+    userName: "Alice",
+    loginUrl: "https://app.example.com/login",
+  },
+);
 ```
 
 ### Send Password Reset
 
 ```typescript
-import { sendPasswordReset } from '@/lib/email/templates'
+import { sendPasswordReset } from "@/lib/email/templates";
 
 await sendPasswordReset(
-  { email: 'user@example.com' },
+  { email: "user@example.com" },
   {
-    resetUrl: 'https://app.example.com/reset?token=xyz',
+    resetUrl: "https://app.example.com/reset?token=xyz",
     expiresInMinutes: 60,
     ipAddress: request.ip,
-    userAgent: request.headers['user-agent'],
+    userAgent: request.headers["user-agent"],
   },
-  { priority: 'urgent' } // Send immediately
-)
+  { priority: "urgent" }, // Send immediately
+);
 ```
 
 ### Send Notification with Delay
 
 ```typescript
-import { sendMentionNotification } from '@/lib/email/templates'
+import { sendMentionNotification } from "@/lib/email/templates";
 
 // Wait 5 minutes before sending (prevent spam)
 await sendMentionNotification(
-  { email: 'user@example.com', name: 'Alice' },
+  { email: "user@example.com", name: "Alice" },
   {
-    userName: 'Alice',
-    mentionedBy: { name: 'Bob', avatarUrl: '...' },
-    channel: { name: 'general', type: 'public' },
-    messagePreview: '@Alice check this out!',
-    messageUrl: 'https://app.com/chat/general/msg123',
+    userName: "Alice",
+    mentionedBy: { name: "Bob", avatarUrl: "..." },
+    channel: { name: "general", type: "public" },
+    messagePreview: "@Alice check this out!",
+    messageUrl: "https://app.com/chat/general/msg123",
     timestamp: new Date(),
   },
-  { delay: 300000 } // 5 minutes
-)
+  { delay: 300000 }, // 5 minutes
+);
 ```
 
 ### Send Custom Email
 
 ```typescript
-import { getEmailSender, renderEmailTemplate } from '@/lib/email/sender'
-import MyCustomTemplate from '@/emails/templates/my-custom-template'
-import React from 'react'
+import { getEmailSender, renderEmailTemplate } from "@/lib/email/sender";
+import MyCustomTemplate from "@/emails/templates/my-custom-template";
+import React from "react";
 
 const component = React.createElement(MyCustomTemplate, {
-  userName: 'Alice',
-  customData: 'Hello!',
-})
+  userName: "Alice",
+  customData: "Hello!",
+});
 
-const { html, text } = await renderEmailTemplate(component)
+const { html, text } = await renderEmailTemplate(component);
 
-const sender = getEmailSender()
+const sender = getEmailSender();
 await sender.send({
-  to: { email: 'user@example.com', name: 'Alice' },
-  subject: 'My Custom Email',
+  to: { email: "user@example.com", name: "Alice" },
+  subject: "My Custom Email",
   html,
   text,
-  tags: ['custom'],
-})
+  tags: ["custom"],
+});
 ```
 
 ## Configuration
@@ -143,13 +143,13 @@ RESEND_API_KEY=re_xxxxxxxxxxxxx
 ### Set Branding
 
 ```typescript
-import { setEmailBranding } from '@/lib/email/templates'
+import { setEmailBranding } from "@/lib/email/templates";
 
 setEmailBranding({
-  appName: 'My App',
-  logoUrl: 'https://example.com/logo.png',
-  supportEmail: 'support@example.com',
-})
+  appName: "My App",
+  logoUrl: "https://example.com/logo.png",
+  supportEmail: "support@example.com",
+});
 ```
 
 ## Email Queue
@@ -157,28 +157,28 @@ setEmailBranding({
 ### Queue Management
 
 ```typescript
-import { getEmailSender } from '@/lib/email/sender'
+import { getEmailSender } from "@/lib/email/sender";
 
-const sender = getEmailSender()
+const sender = getEmailSender();
 
 // Queue an email
 const emailId = await sender.queue(
   {
-    to: { email: 'user@example.com' },
-    subject: 'Test',
-    html: '<p>Hello</p>',
+    to: { email: "user@example.com" },
+    subject: "Test",
+    html: "<p>Hello</p>",
   },
-  'custom',
-  { priority: 'high', maxAttempts: 5 }
-)
+  "custom",
+  { priority: "high", maxAttempts: 5 },
+);
 
 // Get queue status
-const status = sender.getQueueStatus()
-console.log(status)
+const status = sender.getQueueStatus();
+console.log(status);
 // { total: 10, pending: 5, sending: 2, failed: 1 }
 
 // Get queue length
-const length = sender.getQueueLength()
+const length = sender.getQueueLength();
 ```
 
 ### Priority Levels
@@ -206,18 +206,18 @@ All available email types:
 
 ```typescript
 type EmailType =
-  | 'welcome'
-  | 'email-verification'
-  | 'password-reset'
-  | 'password-changed'
-  | 'new-login'
-  | 'mention-notification'
-  | 'dm-notification'
-  | 'digest'
-  | 'security-alert'
-  | 'account-deleted'
-  | 'team-invite'
-  | 'custom'
+  | "welcome"
+  | "email-verification"
+  | "password-reset"
+  | "password-changed"
+  | "new-login"
+  | "mention-notification"
+  | "dm-notification"
+  | "digest"
+  | "security-alert"
+  | "account-deleted"
+  | "team-invite"
+  | "custom";
 ```
 
 ## Template Functions
@@ -263,11 +263,11 @@ SMTP_SECURE=false
 ### Test Email Configuration
 
 ```typescript
-import { verifyEmailConfig } from '@/lib/email/templates'
+import { verifyEmailConfig } from "@/lib/email/templates";
 
-const isValid = await verifyEmailConfig()
+const isValid = await verifyEmailConfig();
 if (isValid) {
-  console.log('Email configuration is working!')
+  console.log("Email configuration is working!");
 }
 ```
 
@@ -371,30 +371,30 @@ SELECT cleanup_old_digest_items();
 
 ```typescript
 // 1. Verify configuration
-const valid = await verifyEmailConfig()
-console.log('Config valid:', valid)
+const valid = await verifyEmailConfig();
+console.log("Config valid:", valid);
 
 // 2. Check queue
-import { getEmailQueueStatus } from '@/lib/email/templates'
-const status = getEmailQueueStatus()
-console.log('Queue status:', status)
+import { getEmailQueueStatus } from "@/lib/email/templates";
+const status = getEmailQueueStatus();
+console.log("Queue status:", status);
 
 // 3. Send test email
 await sendWelcomeEmail(
-  { email: 'your@email.com' },
-  { userName: 'Test', loginUrl: 'http://localhost:3000' }
-)
+  { email: "your@email.com" },
+  { userName: "Test", loginUrl: "http://localhost:3000" },
+);
 ```
 
 ### Queue stuck
 
 ```typescript
 // Get sender instance and check status
-import { getEmailSender } from '@/lib/email/sender'
-const sender = getEmailSender()
+import { getEmailSender } from "@/lib/email/sender";
+const sender = getEmailSender();
 
-console.log('Queue length:', sender.getQueueLength())
-console.log('Status:', sender.getQueueStatus())
+console.log("Queue length:", sender.getQueueLength());
+console.log("Status:", sender.getQueueStatus());
 ```
 
 ### Gmail errors

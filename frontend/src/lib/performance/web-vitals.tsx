@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Web Vitals Tracking
@@ -7,45 +7,45 @@
  * Integrates with analytics services (GA, Sentry, custom).
  */
 
-import { useEffect } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
-import { onCLS, onINP, onFCP, onLCP, onTTFB, type Metric } from 'web-vitals'
+import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { onCLS, onINP, onFCP, onLCP, onTTFB, type Metric } from "web-vitals";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface WebVitalMetric {
-  name: string
-  value: number
-  rating: 'good' | 'needs-improvement' | 'poor'
-  delta: number
-  id: string
+  name: string;
+  value: number;
+  rating: "good" | "needs-improvement" | "poor";
+  delta: number;
+  id: string;
   navigationType:
-    | 'navigate'
-    | 'reload'
-    | 'back-forward'
-    | 'back-forward-cache'
-    | 'prerender'
-    | 'restore'
-  entries: PerformanceEntry[]
-  route?: string
-  category?: string
+    | "navigate"
+    | "reload"
+    | "back-forward"
+    | "back-forward-cache"
+    | "prerender"
+    | "restore";
+  entries: PerformanceEntry[];
+  route?: string;
+  category?: string;
 }
 
-export type AnalyticsProvider = 'console' | 'ga4' | 'sentry' | 'custom'
+export type AnalyticsProvider = "console" | "ga4" | "sentry" | "custom";
 
 export interface WebVitalsConfig {
   /** Enable Web Vitals tracking */
-  enabled: boolean
+  enabled: boolean;
   /** Analytics providers to send data to */
-  providers: AnalyticsProvider[]
+  providers: AnalyticsProvider[];
   /** Sample rate (0-1, default 1 = 100%) */
-  sampleRate?: number
+  sampleRate?: number;
   /** Debug mode - logs to console */
-  debug?: boolean
+  debug?: boolean;
   /** Custom event handler */
-  onMetric?: (metric: WebVitalMetric) => void
+  onMetric?: (metric: WebVitalMetric) => void;
 }
 
 // =============================================================================
@@ -53,11 +53,11 @@ export interface WebVitalsConfig {
 // =============================================================================
 
 const DEFAULT_CONFIG: WebVitalsConfig = {
-  enabled: process.env.NODE_ENV === 'production',
-  providers: ['console'],
+  enabled: process.env.NODE_ENV === "production",
+  providers: ["console"],
   sampleRate: 1,
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 // =============================================================================
 // Metric Handlers
@@ -82,17 +82,17 @@ function sendToConsole(metric: WebVitalMetric) {
  * Send metric to Google Analytics 4
  */
 function sendToGA4(metric: WebVitalMetric) {
-  if (typeof window !== 'undefined' && 'gtag' in window) {
+  if (typeof window !== "undefined" && "gtag" in window) {
     // @ts-ignore - gtag types
-    window.gtag('event', metric.name, {
+    window.gtag("event", metric.name, {
       value: Math.round(metric.value),
       metric_id: metric.id,
       metric_value: metric.value,
       metric_delta: Math.round(metric.delta),
       metric_rating: metric.rating,
       page_path: metric.route,
-      event_category: 'Web Vitals',
-    })
+      event_category: "Web Vitals",
+    });
   }
 }
 
@@ -100,15 +100,15 @@ function sendToGA4(metric: WebVitalMetric) {
  * Send metric to Sentry
  */
 function sendToSentry(metric: WebVitalMetric) {
-  if (typeof window !== 'undefined' && 'Sentry' in window) {
+  if (typeof window !== "undefined" && "Sentry" in window) {
     // @ts-ignore - Sentry types
     window.Sentry?.captureMessage(`Web Vital: ${metric.name}`, {
       level:
-        metric.rating === 'good'
-          ? 'info'
-          : metric.rating === 'needs-improvement'
-            ? 'warning'
-            : 'error',
+        metric.rating === "good"
+          ? "info"
+          : metric.rating === "needs-improvement"
+            ? "warning"
+            : "error",
       tags: {
         web_vital: metric.name,
         rating: metric.rating,
@@ -119,7 +119,7 @@ function sendToSentry(metric: WebVitalMetric) {
         delta: metric.delta,
         id: metric.id,
       },
-    })
+    });
   }
 }
 
@@ -129,26 +129,26 @@ function sendToSentry(metric: WebVitalMetric) {
 function handleMetric(metric: WebVitalMetric, config: WebVitalsConfig) {
   // Sample rate check
   if (Math.random() > (config.sampleRate ?? 1)) {
-    return
+    return;
   }
 
   // Send to each configured provider
   config.providers.forEach((provider) => {
     switch (provider) {
-      case 'console':
-        sendToConsole(metric)
-        break
-      case 'ga4':
-        sendToGA4(metric)
-        break
-      case 'sentry':
-        sendToSentry(metric)
-        break
-      case 'custom':
-        config.onMetric?.(metric)
-        break
+      case "console":
+        sendToConsole(metric);
+        break;
+      case "ga4":
+        sendToGA4(metric);
+        break;
+      case "sentry":
+        sendToSentry(metric);
+        break;
+      case "custom":
+        config.onMetric?.(metric);
+        break;
     }
-  })
+  });
 }
 
 // =============================================================================
@@ -158,51 +158,65 @@ function handleMetric(metric: WebVitalMetric, config: WebVitalsConfig) {
 /**
  * Track custom performance metric
  */
-export function trackCustomMetric(name: string, value: number, metadata?: Record<string, any>) {
+export function trackCustomMetric(
+  name: string,
+  value: number,
+  metadata?: Record<string, any>,
+) {
   const metric: WebVitalMetric = {
     name,
     value,
-    rating: 'good', // Custom metrics don't have automatic ratings
+    rating: "good", // Custom metrics don't have automatic ratings
     delta: value,
     id: `custom-${Date.now()}`,
-    navigationType: 'navigate',
+    navigationType: "navigate",
     entries: [], // Custom metrics don't have associated performance entries
-    route: typeof window !== 'undefined' ? window.location.pathname : undefined,
-  }
+    route: typeof window !== "undefined" ? window.location.pathname : undefined,
+  };
 
   handleMetric(metric, {
     ...DEFAULT_CONFIG,
     ...metadata,
-  })
+  });
 }
 
 /**
  * Measure time to interactive for custom features
  */
-export function measureTimeToInteractive(featureName: string, startTime: number) {
-  const duration = performance.now() - startTime
+export function measureTimeToInteractive(
+  featureName: string,
+  startTime: number,
+) {
+  const duration = performance.now() - startTime;
   trackCustomMetric(`tti_${featureName}`, duration, {
-    category: 'Time to Interactive',
-  })
+    category: "Time to Interactive",
+  });
 }
 
 /**
  * Track API call performance
  */
-export function trackAPICall(endpoint: string, duration: number, success: boolean) {
-  trackCustomMetric(`api_${success ? 'success' : 'error'}`, duration, {
-    category: 'API Performance',
+export function trackAPICall(
+  endpoint: string,
+  duration: number,
+  success: boolean,
+) {
+  trackCustomMetric(`api_${success ? "success" : "error"}`, duration, {
+    category: "API Performance",
     endpoint,
-  })
+  });
 }
 
 /**
  * Track component render time
  */
-export function trackComponentRender(componentName: string, renderTime: number) {
+export function trackComponentRender(
+  componentName: string,
+  renderTime: number,
+) {
   trackCustomMetric(`render_${componentName}`, renderTime, {
-    category: 'Component Performance',
-  })
+    category: "Component Performance",
+  });
 }
 
 // =============================================================================
@@ -213,35 +227,37 @@ export function trackComponentRender(componentName: string, renderTime: number) 
  * Track page navigation performance
  */
 export function useWebVitalsTracking(config: Partial<WebVitalsConfig> = {}) {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const fullConfig = { ...DEFAULT_CONFIG, ...config }
+    const fullConfig = { ...DEFAULT_CONFIG, ...config };
 
     if (!fullConfig.enabled) {
-      return
+      return;
     }
 
-    const route = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '')
+    const route =
+      pathname +
+      (searchParams?.toString() ? `?${searchParams.toString()}` : "");
 
     // Track Core Web Vitals with route context
     const metricHandler = (metric: Metric) => {
       const enrichedMetric: WebVitalMetric = {
         ...metric,
         route,
-        category: 'Core Web Vitals',
-      }
-      handleMetric(enrichedMetric, fullConfig)
-    }
+        category: "Core Web Vitals",
+      };
+      handleMetric(enrichedMetric, fullConfig);
+    };
 
     // Register all Core Web Vitals
-    onCLS(metricHandler)
-    onINP(metricHandler)
-    onFCP(metricHandler)
-    onLCP(metricHandler)
-    onTTFB(metricHandler)
-  }, [pathname, searchParams, config])
+    onCLS(metricHandler);
+    onINP(metricHandler);
+    onFCP(metricHandler);
+    onLCP(metricHandler);
+    onTTFB(metricHandler);
+  }, [pathname, searchParams, config]);
 }
 
 // =============================================================================
@@ -252,8 +268,8 @@ export function useWebVitalsTracking(config: Partial<WebVitalsConfig> = {}) {
  * Start observing custom performance metrics
  */
 export function startPerformanceObserver() {
-  if (typeof window === 'undefined' || !('PerformanceObserver' in window)) {
-    return
+  if (typeof window === "undefined" || !("PerformanceObserver" in window)) {
+    return;
   }
 
   // Observe long tasks (> 50ms)
@@ -261,14 +277,14 @@ export function startPerformanceObserver() {
     const longTaskObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         if (entry.duration > 50) {
-          trackCustomMetric('long_task', entry.duration, {
-            category: 'Performance Issues',
+          trackCustomMetric("long_task", entry.duration, {
+            category: "Performance Issues",
             name: entry.name,
-          })
+          });
         }
       }
-    })
-    longTaskObserver.observe({ entryTypes: ['longtask'] })
+    });
+    longTaskObserver.observe({ entryTypes: ["longtask"] });
   } catch (e) {
     // Long task API not supported
   }
@@ -279,17 +295,17 @@ export function startPerformanceObserver() {
       for (const entry of list.getEntries()) {
         // Layout shift entries have hadRecentInput and value properties
         const layoutShiftEntry = entry as PerformanceEntry & {
-          hadRecentInput?: boolean
-          value?: number
-        }
-        if (layoutShiftEntry.hadRecentInput) continue
+          hadRecentInput?: boolean;
+          value?: number;
+        };
+        if (layoutShiftEntry.hadRecentInput) continue;
 
-        trackCustomMetric('layout_shift', layoutShiftEntry.value ?? 0, {
-          category: 'Layout Stability',
-        })
+        trackCustomMetric("layout_shift", layoutShiftEntry.value ?? 0, {
+          category: "Layout Stability",
+        });
       }
-    })
-    layoutShiftObserver.observe({ entryTypes: ['layout-shift'] })
+    });
+    layoutShiftObserver.observe({ entryTypes: ["layout-shift"] });
   } catch (e) {
     // Layout shift API not supported
   }
@@ -299,19 +315,19 @@ export function startPerformanceObserver() {
     const resourceObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         // @ts-ignore - Resource timing
-        const resource = entry as PerformanceResourceTiming
+        const resource = entry as PerformanceResourceTiming;
 
         // Track slow resources (> 1s)
         if (resource.duration > 1000) {
-          trackCustomMetric('slow_resource', resource.duration, {
-            category: 'Resource Loading',
+          trackCustomMetric("slow_resource", resource.duration, {
+            category: "Resource Loading",
             url: resource.name,
             type: resource.initiatorType,
-          })
+          });
         }
       }
-    })
-    resourceObserver.observe({ entryTypes: ['resource'] })
+    });
+    resourceObserver.observe({ entryTypes: ["resource"] });
   } catch (e) {
     // Resource timing not supported
   }
@@ -326,13 +342,13 @@ export function startPerformanceObserver() {
  * Add this to your root layout to enable automatic tracking
  */
 export function WebVitalsTracker(props: Partial<WebVitalsConfig> = {}) {
-  useWebVitalsTracking(props)
+  useWebVitalsTracking(props);
 
   useEffect(() => {
-    startPerformanceObserver()
-  }, [])
+    startPerformanceObserver();
+  }, []);
 
-  return null
+  return null;
 }
 
 // =============================================================================
@@ -343,15 +359,17 @@ export function WebVitalsTracker(props: Partial<WebVitalsConfig> = {}) {
  * Get current navigation timing metrics
  */
 export function getNavigationMetrics() {
-  if (typeof window === 'undefined' || !window.performance) {
-    return null
+  if (typeof window === "undefined" || !window.performance) {
+    return null;
   }
 
-  const timing = performance.timing
-  const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+  const timing = performance.timing;
+  const navigation = performance.getEntriesByType(
+    "navigation",
+  )[0] as PerformanceNavigationTiming;
 
   if (!navigation) {
-    return null
+    return null;
   }
 
   return {
@@ -362,7 +380,8 @@ export function getNavigationMetrics() {
     domParsing: navigation.domContentLoadedEventEnd - navigation.responseEnd,
 
     // Resource loading
-    resourceLoading: navigation.loadEventStart - navigation.domContentLoadedEventEnd,
+    resourceLoading:
+      navigation.loadEventStart - navigation.domContentLoadedEventEnd,
 
     // Total page load
     totalLoad: navigation.loadEventEnd - navigation.fetchStart,
@@ -375,18 +394,18 @@ export function getNavigationMetrics() {
 
     // Server response
     response: navigation.responseEnd - navigation.requestStart,
-  }
+  };
 }
 
 /**
  * Export metrics for external use
  */
 export function getPerformanceReport() {
-  const metrics = getNavigationMetrics()
+  const metrics = getNavigationMetrics();
 
   return {
     navigation: metrics,
-    memory: 'memory' in performance ? (performance as any).memory : null,
+    memory: "memory" in performance ? (performance as any).memory : null,
     timestamp: Date.now(),
-  }
+  };
 }

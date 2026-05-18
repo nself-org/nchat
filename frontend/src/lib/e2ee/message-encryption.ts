@@ -3,30 +3,30 @@
  * Helper functions to integrate E2EE into message sending/receiving
  */
 
-import { getE2EEManager } from './index'
-import type { ApolloClient } from '@apollo/client'
-import { crypto } from './crypto'
+import { getE2EEManager } from "./index";
+import type { ApolloClient } from "@apollo/client";
+import { crypto } from "./crypto";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface EncryptedMessagePayload {
-  isEncrypted: boolean
-  encryptedContent?: Uint8Array
-  messageType?: 'PreKey' | 'Normal'
-  senderDeviceId?: string
-  plainContent?: string
+  isEncrypted: boolean;
+  encryptedContent?: Uint8Array;
+  messageType?: "PreKey" | "Normal";
+  senderDeviceId?: string;
+  plainContent?: string;
 }
 
 export interface MessageEncryptionOptions {
-  userId: string // Sender's user ID
-  recipientUserId: string
-  recipientDeviceId?: string
-  channelId?: string
-  isDirectMessage: boolean
+  userId: string; // Sender's user ID
+  recipientUserId: string;
+  recipientDeviceId?: string;
+  channelId?: string;
+  isDirectMessage: boolean;
 }
 
 // ============================================================================
@@ -40,16 +40,16 @@ export interface MessageEncryptionOptions {
 export async function encryptMessageForSending(
   plaintext: string,
   options: MessageEncryptionOptions,
-  apolloClient: ApolloClient<any>
+  apolloClient: ApolloClient<any>,
 ): Promise<EncryptedMessagePayload> {
-  const e2eeManager = getE2EEManager(apolloClient, options.userId)
+  const e2eeManager = getE2EEManager(apolloClient, options.userId);
 
   // Check if E2EE is initialized
   if (!e2eeManager.isInitialized()) {
     return {
       isEncrypted: false,
       plainContent: plaintext,
-    }
+    };
   }
 
   // Only encrypt DMs and private channels
@@ -57,38 +57,43 @@ export async function encryptMessageForSending(
     return {
       isEncrypted: false,
       plainContent: plaintext,
-    }
+    };
   }
 
   try {
     // Get recipient device ID (default to first device)
     const deviceId =
-      options.recipientDeviceId || (await getDefaultDeviceId(options.recipientUserId, apolloClient))
+      options.recipientDeviceId ||
+      (await getDefaultDeviceId(options.recipientUserId, apolloClient));
 
     if (!deviceId) {
-      logger.warn('No device ID found for recipient, sending unencrypted')
+      logger.warn("No device ID found for recipient, sending unencrypted");
       return {
         isEncrypted: false,
         plainContent: plaintext,
-      }
+      };
     }
 
     // Encrypt message
-    const result = await e2eeManager.encryptMessage(plaintext, options.recipientUserId, deviceId)
+    const result = await e2eeManager.encryptMessage(
+      plaintext,
+      options.recipientUserId,
+      deviceId,
+    );
 
     return {
       isEncrypted: true,
       encryptedContent: result.encryptedPayload,
       messageType: result.type,
       senderDeviceId: result.deviceId,
-    }
+    };
   } catch (error) {
-    logger.error('Message encryption error:', error)
+    logger.error("Message encryption error:", error);
     // Fallback to unencrypted
     return {
       isEncrypted: false,
       plainContent: plaintext,
-    }
+    };
   }
 }
 
@@ -97,16 +102,16 @@ export async function encryptMessageForSending(
  */
 export async function decryptReceivedMessage(
   encryptedPayload: Uint8Array,
-  messageType: 'PreKey' | 'Normal',
+  messageType: "PreKey" | "Normal",
   recipientUserId: string,
   senderUserId: string,
   senderDeviceId: string,
-  apolloClient: ApolloClient<any>
+  apolloClient: ApolloClient<any>,
 ): Promise<string> {
-  const e2eeManager = getE2EEManager(apolloClient, recipientUserId)
+  const e2eeManager = getE2EEManager(apolloClient, recipientUserId);
 
   if (!e2eeManager.isInitialized()) {
-    throw new Error('E2EE not initialized')
+    throw new Error("E2EE not initialized");
   }
 
   try {
@@ -114,11 +119,11 @@ export async function decryptReceivedMessage(
       encryptedPayload,
       messageType,
       senderUserId,
-      senderDeviceId
-    )
+      senderDeviceId,
+    );
   } catch (error) {
-    logger.error('Message decryption error:', error)
-    throw new Error('Failed to decrypt message')
+    logger.error("Message decryption error:", error);
+    throw new Error("Failed to decrypt message");
   }
 }
 
@@ -127,26 +132,26 @@ export async function decryptReceivedMessage(
  * Converts encrypted payload to storable format
  */
 export function prepareMessageForStorage(payload: EncryptedMessagePayload): {
-  content: string
-  is_encrypted: boolean
-  encrypted_payload?: number[]
-  sender_device_id?: string
-  encryption_version?: number
+  content: string;
+  is_encrypted: boolean;
+  encrypted_payload?: number[];
+  sender_device_id?: string;
+  encryption_version?: number;
 } {
   if (!payload.isEncrypted || !payload.encryptedContent) {
     return {
-      content: payload.plainContent || '',
+      content: payload.plainContent || "",
       is_encrypted: false,
-    }
+    };
   }
 
   return {
-    content: '[Encrypted Message]', // Placeholder for indexing
+    content: "[Encrypted Message]", // Placeholder for indexing
     is_encrypted: true,
     encrypted_payload: Array.from(payload.encryptedContent),
     sender_device_id: payload.senderDeviceId,
     encryption_version: 1, // Signal Protocol version
-  }
+  };
 }
 
 /**
@@ -155,28 +160,28 @@ export function prepareMessageForStorage(payload: EncryptedMessagePayload): {
  */
 export async function extractMessageContent(
   message: {
-    content: string
-    is_encrypted: boolean
-    encrypted_payload?: number[]
-    sender_device_id?: string
-    sender_user_id: string
-    recipient_user_id: string
+    content: string;
+    is_encrypted: boolean;
+    encrypted_payload?: number[];
+    sender_device_id?: string;
+    sender_user_id: string;
+    recipient_user_id: string;
   },
-  apolloClient: ApolloClient<any>
+  apolloClient: ApolloClient<any>,
 ): Promise<string> {
   if (!message.is_encrypted) {
-    return message.content
+    return message.content;
   }
 
   if (!message.encrypted_payload || !message.sender_device_id) {
-    return '[Encrypted message - unable to decrypt]'
+    return "[Encrypted message - unable to decrypt]";
   }
 
   try {
-    const encryptedPayload = new Uint8Array(message.encrypted_payload)
+    const encryptedPayload = new Uint8Array(message.encrypted_payload);
     // Message type should be stored in nchat_messages.encryption_metadata
     // For now, default to 'Normal' (PreKey messages are only for initial session setup)
-    const messageType: 'PreKey' | 'Normal' = 'Normal'
+    const messageType: "PreKey" | "Normal" = "Normal";
 
     return await decryptReceivedMessage(
       encryptedPayload,
@@ -184,11 +189,11 @@ export async function extractMessageContent(
       message.recipient_user_id,
       message.sender_user_id,
       message.sender_device_id,
-      apolloClient
-    )
+      apolloClient,
+    );
   } catch (error) {
-    logger.error('Failed to extract message content:', error)
-    return '[Encrypted message - decryption failed]'
+    logger.error("Failed to extract message content:", error);
+    return "[Encrypted message - decryption failed]";
   }
 }
 
@@ -201,10 +206,10 @@ export async function extractMessageContent(
  */
 async function getDefaultDeviceId(
   userId: string,
-  apolloClient: ApolloClient<any>
+  apolloClient: ApolloClient<any>,
 ): Promise<string | null> {
   try {
-    const { gql } = await import('@apollo/client')
+    const { gql } = await import("@apollo/client");
 
     const GET_USER_DEVICES = gql`
       query GetUserDevices($userId: uuid!) {
@@ -216,22 +221,22 @@ async function getDefaultDeviceId(
           device_id
         }
       }
-    `
+    `;
 
     const { data } = await apolloClient.query({
       query: GET_USER_DEVICES,
       variables: { userId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
     if (data.nchat_identity_keys.length > 0) {
-      return data.nchat_identity_keys[0].device_id
+      return data.nchat_identity_keys[0].device_id;
     }
 
-    return null
+    return null;
   } catch (error) {
-    logger.error('Error getting default device ID:', error)
-    return null
+    logger.error("Error getting default device ID:", error);
+    return null;
   }
 }
 
@@ -239,22 +244,25 @@ async function getDefaultDeviceId(
  * Check if a channel should use E2EE
  */
 export function shouldEncryptChannel(channel: {
-  is_private: boolean
-  is_direct_message: boolean
+  is_private: boolean;
+  is_direct_message: boolean;
 }): boolean {
   // Encrypt DMs and private channels
-  return channel.is_direct_message || channel.is_private
+  return channel.is_direct_message || channel.is_private;
 }
 
 /**
  * Generate encryption badge text
  */
-export function getEncryptionBadgeText(isEncrypted: boolean, isVerified: boolean): string {
+export function getEncryptionBadgeText(
+  isEncrypted: boolean,
+  isVerified: boolean,
+): string {
   if (!isEncrypted) {
-    return 'Not encrypted'
+    return "Not encrypted";
   }
 
-  return isVerified ? 'Verified E2EE' : 'End-to-end encrypted'
+  return isVerified ? "Verified E2EE" : "End-to-end encrypted";
 }
 
 // ============================================================================
@@ -270,9 +278,9 @@ export async function encryptMessagesForGroup(
   senderUserId: string,
   recipientUserIds: string[],
   channelId: string,
-  apolloClient: ApolloClient<any>
+  apolloClient: ApolloClient<any>,
 ): Promise<Map<string, EncryptedMessagePayload>> {
-  const results = new Map<string, EncryptedMessagePayload>()
+  const results = new Map<string, EncryptedMessagePayload>();
 
   // For now, encrypt individually (inefficient but functional)
 
@@ -286,21 +294,21 @@ export async function encryptMessagesForGroup(
           channelId,
           isDirectMessage: false,
         },
-        apolloClient
-      )
+        apolloClient,
+      );
 
-      results.set(userId, payload)
+      results.set(userId, payload);
     } catch (error) {
-      logger.error(`Failed to encrypt for user ${userId}:`, error)
+      logger.error(`Failed to encrypt for user ${userId}:`, error);
       // Store unencrypted fallback
       results.set(userId, {
         isEncrypted: false,
         plainContent: plaintext,
-      })
+      });
     }
   }
 
-  return results
+  return results;
 }
 
 /**
@@ -308,29 +316,29 @@ export async function encryptMessagesForGroup(
  */
 export async function decryptMessagesBatch(
   messages: Array<{
-    id: string
-    content: string
-    is_encrypted: boolean
-    encrypted_payload?: number[]
-    sender_device_id?: string
-    sender_user_id: string
-    recipient_user_id: string
+    id: string;
+    content: string;
+    is_encrypted: boolean;
+    encrypted_payload?: number[];
+    sender_device_id?: string;
+    sender_user_id: string;
+    recipient_user_id: string;
   }>,
-  apolloClient: ApolloClient<any>
+  apolloClient: ApolloClient<any>,
 ): Promise<Map<string, string>> {
-  const results = new Map<string, string>()
+  const results = new Map<string, string>();
 
   for (const message of messages) {
     try {
-      const content = await extractMessageContent(message, apolloClient)
-      results.set(message.id, content)
+      const content = await extractMessageContent(message, apolloClient);
+      results.set(message.id, content);
     } catch (error) {
-      logger.error(`Failed to decrypt message ${message.id}:`, error)
-      results.set(message.id, '[Decryption failed]')
+      logger.error(`Failed to decrypt message ${message.id}:`, error);
+      results.set(message.id, "[Decryption failed]");
     }
   }
 
-  return results
+  return results;
 }
 
 // ============================================================================
@@ -346,4 +354,4 @@ export default {
   getEncryptionBadgeText,
   encryptMessagesForGroup,
   decryptMessagesBatch,
-}
+};

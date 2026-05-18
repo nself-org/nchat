@@ -16,7 +16,7 @@
 /**
  * Scope levels for retention policies (from most general to most specific)
  */
-export type RetentionScope = 'global' | 'workspace' | 'channel' | 'user'
+export type RetentionScope = "global" | "workspace" | "channel" | "user";
 
 /**
  * Priority order for scope resolution (higher number = higher priority)
@@ -26,32 +26,32 @@ export const SCOPE_PRIORITY: Record<RetentionScope, number> = {
   workspace: 1,
   channel: 2,
   user: 3,
-}
+};
 
 /**
  * Content types that can have retention policies
  */
 export type RetentionContentType =
-  | 'messages'
-  | 'attachments'
-  | 'threads'
-  | 'reactions'
-  | 'read_receipts'
-  | 'drafts'
-  | 'audit_logs'
+  | "messages"
+  | "attachments"
+  | "threads"
+  | "reactions"
+  | "read_receipts"
+  | "drafts"
+  | "audit_logs";
 
 /**
  * All content types for iteration
  */
 export const ALL_CONTENT_TYPES: RetentionContentType[] = [
-  'messages',
-  'attachments',
-  'threads',
-  'reactions',
-  'read_receipts',
-  'drafts',
-  'audit_logs',
-]
+  "messages",
+  "attachments",
+  "threads",
+  "reactions",
+  "read_receipts",
+  "drafts",
+  "audit_logs",
+];
 
 // ============================================================================
 // RETENTION ACTION TYPES
@@ -60,23 +60,27 @@ export const ALL_CONTENT_TYPES: RetentionContentType[] = [
 /**
  * Action to take when retention period expires
  */
-export type RetentionAction = 'delete' | 'archive' | 'archive_then_delete'
+export type RetentionAction = "delete" | "archive" | "archive_then_delete";
 
 /**
  * Status of a retention policy
  */
-export type RetentionPolicyStatus = 'active' | 'inactive' | 'pending' | 'suspended'
+export type RetentionPolicyStatus =
+  | "active"
+  | "inactive"
+  | "pending"
+  | "suspended";
 
 /**
  * Status of a retention job execution
  */
 export type RetentionJobStatus =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'cancelled'
-  | 'paused'
+  | "pending"
+  | "running"
+  | "completed"
+  | "failed"
+  | "cancelled"
+  | "paused";
 
 // ============================================================================
 // RETENTION PERIOD TYPES
@@ -85,16 +89,16 @@ export type RetentionJobStatus =
 /**
  * Time unit for retention periods
  */
-export type RetentionTimeUnit = 'hours' | 'days' | 'weeks' | 'months' | 'years'
+export type RetentionTimeUnit = "hours" | "days" | "weeks" | "months" | "years";
 
 /**
  * Retention period configuration
  */
 export interface RetentionPeriod {
   /** Number of time units */
-  value: number
+  value: number;
   /** Unit of time */
-  unit: RetentionTimeUnit
+  unit: RetentionTimeUnit;
 }
 
 /**
@@ -102,36 +106,36 @@ export interface RetentionPeriod {
  */
 export interface GracePeriod {
   /** Whether grace period is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Grace period duration */
-  duration: RetentionPeriod
+  duration: RetentionPeriod;
   /** Whether content is recoverable during grace period */
-  recoverable: boolean
+  recoverable: boolean;
 }
 
 /**
  * Convert retention period to milliseconds
  */
 export function periodToMilliseconds(period: RetentionPeriod): number {
-  const HOUR_MS = 60 * 60 * 1000
-  const DAY_MS = 24 * HOUR_MS
-  const WEEK_MS = 7 * DAY_MS
-  const MONTH_MS = 30 * DAY_MS // Approximation
-  const YEAR_MS = 365 * DAY_MS // Approximation
+  const HOUR_MS = 60 * 60 * 1000;
+  const DAY_MS = 24 * HOUR_MS;
+  const WEEK_MS = 7 * DAY_MS;
+  const MONTH_MS = 30 * DAY_MS; // Approximation
+  const YEAR_MS = 365 * DAY_MS; // Approximation
 
   switch (period.unit) {
-    case 'hours':
-      return period.value * HOUR_MS
-    case 'days':
-      return period.value * DAY_MS
-    case 'weeks':
-      return period.value * WEEK_MS
-    case 'months':
-      return period.value * MONTH_MS
-    case 'years':
-      return period.value * YEAR_MS
+    case "hours":
+      return period.value * HOUR_MS;
+    case "days":
+      return period.value * DAY_MS;
+    case "weeks":
+      return period.value * WEEK_MS;
+    case "months":
+      return period.value * MONTH_MS;
+    case "years":
+      return period.value * YEAR_MS;
     default:
-      return period.value * DAY_MS
+      return period.value * DAY_MS;
   }
 }
 
@@ -140,17 +144,17 @@ export function periodToMilliseconds(period: RetentionPeriod): number {
  */
 export function calculateExpirationDate(
   fromDate: Date,
-  period: RetentionPeriod
+  period: RetentionPeriod,
 ): Date {
-  return new Date(fromDate.getTime() + periodToMilliseconds(period))
+  return new Date(fromDate.getTime() + periodToMilliseconds(period));
 }
 
 /**
  * Check if a date has passed the retention period
  */
 export function isExpired(date: Date, period: RetentionPeriod): boolean {
-  const expirationDate = calculateExpirationDate(date, period)
-  return new Date() > expirationDate
+  const expirationDate = calculateExpirationDate(date, period);
+  return new Date() > expirationDate;
 }
 
 // ============================================================================
@@ -160,24 +164,24 @@ export function isExpired(date: Date, period: RetentionPeriod): boolean {
 /**
  * Legal hold status
  */
-export type LegalHoldStatus = 'active' | 'released' | 'expired'
+export type LegalHoldStatus = "active" | "released" | "expired";
 
 /**
  * Legal hold scope - what content is covered
  */
 export interface LegalHoldScope {
   /** Specific user IDs (empty = all users) */
-  userIds: string[]
+  userIds: string[];
   /** Specific channel IDs (empty = all channels) */
-  channelIds: string[]
+  channelIds: string[];
   /** Specific workspace IDs (empty = all workspaces) */
-  workspaceIds: string[]
+  workspaceIds: string[];
   /** Content types covered */
-  contentTypes: RetentionContentType[]
+  contentTypes: RetentionContentType[];
   /** Date range start */
-  startDate?: Date
+  startDate?: Date;
   /** Date range end */
-  endDate?: Date
+  endDate?: Date;
 }
 
 /**
@@ -185,55 +189,55 @@ export interface LegalHoldScope {
  */
 export interface LegalHold {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Name/title of the legal hold */
-  name: string
+  name: string;
   /** Description of the legal hold */
-  description: string
+  description: string;
   /** Matter/case reference number */
-  matterReference: string
+  matterReference: string;
   /** Legal hold scope */
-  scope: LegalHoldScope
+  scope: LegalHoldScope;
   /** Current status */
-  status: LegalHoldStatus
+  status: LegalHoldStatus;
   /** User who created the hold */
-  createdBy: string
+  createdBy: string;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last update timestamp */
-  updatedAt: Date
+  updatedAt: Date;
   /** When the hold was released (if applicable) */
-  releasedAt?: Date
+  releasedAt?: Date;
   /** User who released the hold */
-  releasedBy?: string
+  releasedBy?: string;
   /** Expiration date (if set) */
-  expiresAt?: Date
+  expiresAt?: Date;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Input for creating a legal hold
  */
 export interface CreateLegalHoldInput {
-  name: string
-  description: string
-  matterReference: string
-  scope: LegalHoldScope
-  expiresAt?: Date
-  metadata?: Record<string, unknown>
+  name: string;
+  description: string;
+  matterReference: string;
+  scope: LegalHoldScope;
+  expiresAt?: Date;
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Input for updating a legal hold
  */
 export interface UpdateLegalHoldInput {
-  name?: string
-  description?: string
-  matterReference?: string
-  scope?: Partial<LegalHoldScope>
-  expiresAt?: Date
-  metadata?: Record<string, unknown>
+  name?: string;
+  description?: string;
+  matterReference?: string;
+  scope?: Partial<LegalHoldScope>;
+  expiresAt?: Date;
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -245,17 +249,17 @@ export interface UpdateLegalHoldInput {
  */
 export interface RetentionRule {
   /** Content type this rule applies to */
-  contentType: RetentionContentType
+  contentType: RetentionContentType;
   /** Whether this rule is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Retention period */
-  period: RetentionPeriod
+  period: RetentionPeriod;
   /** Action to take when period expires */
-  action: RetentionAction
+  action: RetentionAction;
   /** Grace period configuration */
-  gracePeriod?: GracePeriod
+  gracePeriod?: GracePeriod;
   /** Archive destination (if action includes archival) */
-  archiveDestination?: string
+  archiveDestination?: string;
 }
 
 /**
@@ -263,66 +267,66 @@ export interface RetentionRule {
  */
 export interface RetentionPolicy {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Policy name */
-  name: string
+  name: string;
   /** Policy description */
-  description: string
+  description: string;
   /** Policy scope */
-  scope: RetentionScope
+  scope: RetentionScope;
   /** Target ID based on scope (workspace_id, channel_id, user_id, or null for global) */
-  targetId: string | null
+  targetId: string | null;
   /** Policy status */
-  status: RetentionPolicyStatus
+  status: RetentionPolicyStatus;
   /** Retention rules by content type */
-  rules: RetentionRule[]
+  rules: RetentionRule[];
   /** Whether this policy can be overridden by more specific policies */
-  allowOverride: boolean
+  allowOverride: boolean;
   /** Whether child scopes inherit this policy */
-  inheritable: boolean
+  inheritable: boolean;
   /** Priority within the same scope level */
-  priority: number
+  priority: number;
   /** User who created the policy */
-  createdBy: string
+  createdBy: string;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last update timestamp */
-  updatedAt: Date
+  updatedAt: Date;
   /** Last execution timestamp */
-  lastExecutedAt?: Date
+  lastExecutedAt?: Date;
   /** Next scheduled execution */
-  nextExecutionAt?: Date
+  nextExecutionAt?: Date;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Input for creating a retention policy
  */
 export interface CreateRetentionPolicyInput {
-  name: string
-  description?: string
-  scope: RetentionScope
-  targetId?: string
-  rules: RetentionRule[]
-  allowOverride?: boolean
-  inheritable?: boolean
-  priority?: number
-  metadata?: Record<string, unknown>
+  name: string;
+  description?: string;
+  scope: RetentionScope;
+  targetId?: string;
+  rules: RetentionRule[];
+  allowOverride?: boolean;
+  inheritable?: boolean;
+  priority?: number;
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Input for updating a retention policy
  */
 export interface UpdateRetentionPolicyInput {
-  name?: string
-  description?: string
-  status?: RetentionPolicyStatus
-  rules?: RetentionRule[]
-  allowOverride?: boolean
-  inheritable?: boolean
-  priority?: number
-  metadata?: Record<string, unknown>
+  name?: string;
+  description?: string;
+  status?: RetentionPolicyStatus;
+  rules?: RetentionRule[];
+  allowOverride?: boolean;
+  inheritable?: boolean;
+  priority?: number;
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -334,15 +338,15 @@ export interface UpdateRetentionPolicyInput {
  */
 export interface ResolvedRetentionPolicy {
   /** The effective rules after inheritance/override resolution */
-  effectiveRules: Map<RetentionContentType, RetentionRule>
+  effectiveRules: Map<RetentionContentType, RetentionRule>;
   /** Source policy IDs that contributed to the resolution */
-  sourcePolicies: string[]
+  sourcePolicies: string[];
   /** Any active legal holds that prevent deletion */
-  activeLegalHolds: string[]
+  activeLegalHolds: string[];
   /** Whether deletion is blocked by legal holds */
-  deletionBlocked: boolean
+  deletionBlocked: boolean;
   /** The most specific scope level */
-  effectiveScope: RetentionScope
+  effectiveScope: RetentionScope;
 }
 
 /**
@@ -350,13 +354,13 @@ export interface ResolvedRetentionPolicy {
  */
 export interface RetentionResolutionContext {
   /** Target user ID (for user-specific policies) */
-  userId?: string
+  userId?: string;
   /** Target channel ID */
-  channelId?: string
+  channelId?: string;
   /** Target workspace ID */
-  workspaceId?: string
+  workspaceId?: string;
   /** Content type to resolve for */
-  contentType?: RetentionContentType
+  contentType?: RetentionContentType;
 }
 
 // ============================================================================
@@ -368,29 +372,29 @@ export interface RetentionResolutionContext {
  */
 export interface RetentionCandidate {
   /** Item ID */
-  id: string
+  id: string;
   /** Content type */
-  contentType: RetentionContentType
+  contentType: RetentionContentType;
   /** Creation date */
-  createdAt: Date
+  createdAt: Date;
   /** Expiration date based on policy */
-  expiresAt: Date
+  expiresAt: Date;
   /** Whether in grace period */
-  inGracePeriod: boolean
+  inGracePeriod: boolean;
   /** Grace period end (if applicable) */
-  gracePeriodEndsAt?: Date
+  gracePeriodEndsAt?: Date;
   /** Policy ID that applies */
-  policyId: string
+  policyId: string;
   /** Action to take */
-  action: RetentionAction
+  action: RetentionAction;
   /** Related IDs (channel, user, etc.) */
-  channelId?: string
-  userId?: string
-  workspaceId?: string
+  channelId?: string;
+  userId?: string;
+  workspaceId?: string;
   /** Whether blocked by legal hold */
-  blockedByLegalHold: boolean
+  blockedByLegalHold: boolean;
   /** Legal hold IDs blocking this item */
-  blockingLegalHolds: string[]
+  blockingLegalHolds: string[];
 }
 
 /**
@@ -398,35 +402,35 @@ export interface RetentionCandidate {
  */
 export interface RetentionJob {
   /** Job ID */
-  id: string
+  id: string;
   /** Policy ID being executed */
-  policyId: string
+  policyId: string;
   /** Job status */
-  status: RetentionJobStatus
+  status: RetentionJobStatus;
   /** Start timestamp */
-  startedAt?: Date
+  startedAt?: Date;
   /** Completion timestamp */
-  completedAt?: Date
+  completedAt?: Date;
   /** Items processed count */
-  itemsProcessed: number
+  itemsProcessed: number;
   /** Items deleted count */
-  itemsDeleted: number
+  itemsDeleted: number;
   /** Items archived count */
-  itemsArchived: number
+  itemsArchived: number;
   /** Items skipped (legal hold, etc.) */
-  itemsSkipped: number
+  itemsSkipped: number;
   /** Items failed */
-  itemsFailed: number
+  itemsFailed: number;
   /** Error messages */
-  errors: RetentionJobError[]
+  errors: RetentionJobError[];
   /** Current batch number */
-  currentBatch: number
+  currentBatch: number;
   /** Total batches */
-  totalBatches: number
+  totalBatches: number;
   /** Progress percentage (0-100) */
-  progress: number
+  progress: number;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -434,17 +438,17 @@ export interface RetentionJob {
  */
 export interface RetentionJobError {
   /** Error timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Item ID that failed */
-  itemId?: string
+  itemId?: string;
   /** Content type */
-  contentType?: RetentionContentType
+  contentType?: RetentionContentType;
   /** Error message */
-  message: string
+  message: string;
   /** Error code */
-  code?: string
+  code?: string;
   /** Whether the job should continue */
-  recoverable: boolean
+  recoverable: boolean;
 }
 
 /**
@@ -452,29 +456,29 @@ export interface RetentionJobError {
  */
 export interface RetentionJobResult {
   /** Job ID */
-  jobId: string
+  jobId: string;
   /** Success flag */
-  success: boolean
+  success: boolean;
   /** Items processed */
-  itemsProcessed: number
+  itemsProcessed: number;
   /** Items deleted */
-  itemsDeleted: number
+  itemsDeleted: number;
   /** Items archived */
-  itemsArchived: number
+  itemsArchived: number;
   /** Items skipped */
-  itemsSkipped: number
+  itemsSkipped: number;
   /** Items failed */
-  itemsFailed: number
+  itemsFailed: number;
   /** Execution duration in milliseconds */
-  durationMs: number
+  durationMs: number;
   /** Errors encountered */
-  errors: RetentionJobError[]
+  errors: RetentionJobError[];
   /** Affected entity IDs by type */
   affectedEntities: {
-    channels: string[]
-    users: string[]
-    workspaces: string[]
-  }
+    channels: string[];
+    users: string[];
+    workspaces: string[];
+  };
 }
 
 // ============================================================================
@@ -486,35 +490,35 @@ export interface RetentionJobResult {
  */
 export interface ArchivedContent {
   /** Archive ID */
-  id: string
+  id: string;
   /** Original content ID */
-  originalId: string
+  originalId: string;
   /** Content type */
-  contentType: RetentionContentType
+  contentType: RetentionContentType;
   /** Archived data (serialized) */
-  data: string
+  data: string;
   /** Original creation date */
-  originalCreatedAt: Date
+  originalCreatedAt: Date;
   /** Archive date */
-  archivedAt: Date
+  archivedAt: Date;
   /** Policy ID that triggered archival */
-  policyId: string
+  policyId: string;
   /** Retention job ID */
-  jobId: string
+  jobId: string;
   /** Storage location/path */
-  storageLocation: string
+  storageLocation: string;
   /** Checksum for integrity verification */
-  checksum: string
+  checksum: string;
   /** Compressed size in bytes */
-  sizeBytes: number
+  sizeBytes: number;
   /** Related entity IDs */
-  channelId?: string
-  userId?: string
-  workspaceId?: string
+  channelId?: string;
+  userId?: string;
+  workspaceId?: string;
   /** When this archive can be deleted */
-  deleteAfter?: Date
+  deleteAfter?: Date;
   /** Metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -522,19 +526,19 @@ export interface ArchivedContent {
  */
 export interface ArchiveStorageConfig {
   /** Storage type */
-  type: 'database' | 's3' | 'gcs' | 'azure' | 'local'
+  type: "database" | "s3" | "gcs" | "azure" | "local";
   /** Connection/path details */
-  connection: string
+  connection: string;
   /** Whether to compress archives */
-  compress: boolean
+  compress: boolean;
   /** Compression algorithm */
-  compressionAlgorithm?: 'gzip' | 'lz4' | 'zstd'
+  compressionAlgorithm?: "gzip" | "lz4" | "zstd";
   /** Whether to encrypt archives */
-  encrypt: boolean
+  encrypt: boolean;
   /** Encryption key ID (if using KMS) */
-  encryptionKeyId?: string
+  encryptionKeyId?: string;
   /** Retention period for archives (before final deletion) */
-  archiveRetentionPeriod?: RetentionPeriod
+  archiveRetentionPeriod?: RetentionPeriod;
 }
 
 // ============================================================================
@@ -545,50 +549,50 @@ export interface ArchiveStorageConfig {
  * Retention audit event type
  */
 export type RetentionAuditEventType =
-  | 'policy_created'
-  | 'policy_updated'
-  | 'policy_deleted'
-  | 'policy_activated'
-  | 'policy_deactivated'
-  | 'job_started'
-  | 'job_completed'
-  | 'job_failed'
-  | 'item_deleted'
-  | 'item_archived'
-  | 'item_restored'
-  | 'legal_hold_created'
-  | 'legal_hold_updated'
-  | 'legal_hold_released'
-  | 'deletion_blocked'
+  | "policy_created"
+  | "policy_updated"
+  | "policy_deleted"
+  | "policy_activated"
+  | "policy_deactivated"
+  | "job_started"
+  | "job_completed"
+  | "job_failed"
+  | "item_deleted"
+  | "item_archived"
+  | "item_restored"
+  | "legal_hold_created"
+  | "legal_hold_updated"
+  | "legal_hold_released"
+  | "deletion_blocked";
 
 /**
  * Retention audit log entry
  */
 export interface RetentionAuditEntry {
   /** Entry ID */
-  id: string
+  id: string;
   /** Event type */
-  eventType: RetentionAuditEventType
+  eventType: RetentionAuditEventType;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Actor user ID */
-  actorId: string
+  actorId: string;
   /** Policy ID (if applicable) */
-  policyId?: string
+  policyId?: string;
   /** Job ID (if applicable) */
-  jobId?: string
+  jobId?: string;
   /** Legal hold ID (if applicable) */
-  legalHoldId?: string
+  legalHoldId?: string;
   /** Affected item ID */
-  itemId?: string
+  itemId?: string;
   /** Content type */
-  contentType?: RetentionContentType
+  contentType?: RetentionContentType;
   /** Event details */
-  details: Record<string, unknown>
+  details: Record<string, unknown>;
   /** IP address */
-  ipAddress?: string
+  ipAddress?: string;
   /** User agent */
-  userAgent?: string
+  userAgent?: string;
 }
 
 // ============================================================================
@@ -600,37 +604,37 @@ export interface RetentionAuditEntry {
  */
 export interface RetentionStats {
   /** Total items subject to retention */
-  totalItems: number
+  totalItems: number;
   /** Items pending deletion */
-  pendingDeletion: number
+  pendingDeletion: number;
   /** Items in grace period */
-  inGracePeriod: number
+  inGracePeriod: number;
   /** Items blocked by legal hold */
-  blockedByLegalHold: number
+  blockedByLegalHold: number;
   /** Items deleted (last 30 days) */
-  deletedLast30Days: number
+  deletedLast30Days: number;
   /** Items archived (last 30 days) */
-  archivedLast30Days: number
+  archivedLast30Days: number;
   /** Storage freed (bytes, last 30 days) */
-  storageFreeBytes: number
+  storageFreeBytes: number;
   /** Breakdown by content type */
   byContentType: Record<
     RetentionContentType,
     {
-      total: number
-      pendingDeletion: number
-      deleted: number
-      archived: number
+      total: number;
+      pendingDeletion: number;
+      deleted: number;
+      archived: number;
     }
-  >
+  >;
   /** Active policies count */
-  activePolicies: number
+  activePolicies: number;
   /** Active legal holds count */
-  activeLegalHolds: number
+  activeLegalHolds: number;
   /** Last job execution */
-  lastJobAt?: Date
+  lastJobAt?: Date;
   /** Next scheduled job */
-  nextJobAt?: Date
+  nextJobAt?: Date;
 }
 
 // ============================================================================
@@ -642,54 +646,54 @@ export interface RetentionStats {
  */
 export interface RetentionConfig {
   /** Whether retention is enabled globally */
-  enabled: boolean
+  enabled: boolean;
   /** Default retention period (if no policy applies) */
-  defaultPeriod: RetentionPeriod
+  defaultPeriod: RetentionPeriod;
   /** Default action */
-  defaultAction: RetentionAction
+  defaultAction: RetentionAction;
   /** Default grace period */
-  defaultGracePeriod: GracePeriod
+  defaultGracePeriod: GracePeriod;
   /** Archive storage configuration */
-  archiveStorage: ArchiveStorageConfig
+  archiveStorage: ArchiveStorageConfig;
   /** Job execution settings */
   jobSettings: {
     /** Batch size for processing */
-    batchSize: number
+    batchSize: number;
     /** Maximum concurrent jobs */
-    maxConcurrentJobs: number
+    maxConcurrentJobs: number;
     /** Delay between batches (ms) */
-    batchDelayMs: number
+    batchDelayMs: number;
     /** Maximum retries for failed items */
-    maxRetries: number
+    maxRetries: number;
     /** Retry delay (ms) */
-    retryDelayMs: number
-  }
+    retryDelayMs: number;
+  };
   /** Schedule settings */
   scheduleSettings: {
     /** Cron expression for scheduled runs */
-    cronExpression: string
+    cronExpression: string;
     /** Timezone */
-    timezone: string
+    timezone: string;
     /** Whether to run during maintenance windows only */
-    maintenanceWindowOnly: boolean
+    maintenanceWindowOnly: boolean;
     /** Maintenance window start hour (0-23) */
-    maintenanceWindowStart?: number
+    maintenanceWindowStart?: number;
     /** Maintenance window end hour (0-23) */
-    maintenanceWindowEnd?: number
-  }
+    maintenanceWindowEnd?: number;
+  };
   /** Notification settings */
   notifications: {
     /** Notify admins before large deletions */
-    notifyBeforeLargeDeletion: boolean
+    notifyBeforeLargeDeletion: boolean;
     /** Threshold for "large" deletion */
-    largeDeletionThreshold: number
+    largeDeletionThreshold: number;
     /** Lead time before large deletion (hours) */
-    notificationLeadTimeHours: number
+    notificationLeadTimeHours: number;
     /** Notify on job failures */
-    notifyOnJobFailure: boolean
+    notifyOnJobFailure: boolean;
     /** Email addresses for notifications */
-    notificationEmails: string[]
-  }
+    notificationEmails: string[];
+  };
 }
 
 /**
@@ -697,18 +701,18 @@ export interface RetentionConfig {
  */
 export const DEFAULT_RETENTION_CONFIG: RetentionConfig = {
   enabled: true,
-  defaultPeriod: { value: 365, unit: 'days' },
-  defaultAction: 'delete',
+  defaultPeriod: { value: 365, unit: "days" },
+  defaultAction: "delete",
   defaultGracePeriod: {
     enabled: true,
-    duration: { value: 30, unit: 'days' },
+    duration: { value: 30, unit: "days" },
     recoverable: true,
   },
   archiveStorage: {
-    type: 'database',
-    connection: 'default',
+    type: "database",
+    connection: "default",
     compress: true,
-    compressionAlgorithm: 'gzip',
+    compressionAlgorithm: "gzip",
     encrypt: true,
   },
   jobSettings: {
@@ -719,8 +723,8 @@ export const DEFAULT_RETENTION_CONFIG: RetentionConfig = {
     retryDelayMs: 5000,
   },
   scheduleSettings: {
-    cronExpression: '0 3 * * *', // 3 AM daily
-    timezone: 'UTC',
+    cronExpression: "0 3 * * *", // 3 AM daily
+    timezone: "UTC",
     maintenanceWindowOnly: false,
   },
   notifications: {
@@ -730,7 +734,7 @@ export const DEFAULT_RETENTION_CONFIG: RetentionConfig = {
     notifyOnJobFailure: true,
     notificationEmails: [],
   },
-}
+};
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -739,18 +743,20 @@ export const DEFAULT_RETENTION_CONFIG: RetentionConfig = {
 /**
  * Create a default retention rule for a content type
  */
-export function createDefaultRule(contentType: RetentionContentType): RetentionRule {
+export function createDefaultRule(
+  contentType: RetentionContentType,
+): RetentionRule {
   return {
     contentType,
     enabled: true,
-    period: { value: 365, unit: 'days' },
-    action: 'delete',
+    period: { value: 365, unit: "days" },
+    action: "delete",
     gracePeriod: {
       enabled: true,
-      duration: { value: 30, unit: 'days' },
+      duration: { value: 30, unit: "days" },
       recoverable: true,
     },
-  }
+  };
 }
 
 /**
@@ -758,7 +764,7 @@ export function createDefaultRule(contentType: RetentionContentType): RetentionR
  */
 export function createUniformRules(
   period: RetentionPeriod,
-  action: RetentionAction = 'delete'
+  action: RetentionAction = "delete",
 ): RetentionRule[] {
   return ALL_CONTENT_TYPES.map((contentType) => ({
     contentType,
@@ -767,42 +773,42 @@ export function createUniformRules(
     action,
     gracePeriod: {
       enabled: true,
-      duration: { value: 30, unit: 'days' },
+      duration: { value: 30, unit: "days" },
       recoverable: true,
     },
-  }))
+  }));
 }
 
 /**
  * Format a retention period for display
  */
 export function formatRetentionPeriod(period: RetentionPeriod): string {
-  const value = period.value
-  const unit = period.unit
+  const value = period.value;
+  const unit = period.unit;
 
   if (value === 1) {
     // Singular form
-    return `1 ${unit.slice(0, -1)}`
+    return `1 ${unit.slice(0, -1)}`;
   }
 
-  return `${value} ${unit}`
+  return `${value} ${unit}`;
 }
 
 /**
  * Parse a retention period from a string (e.g., "30 days", "1 year")
  */
 export function parseRetentionPeriod(str: string): RetentionPeriod | null {
-  const match = str.match(/^(\d+)\s*(hour|day|week|month|year)s?$/i)
-  if (!match) return null
+  const match = str.match(/^(\d+)\s*(hour|day|week|month|year)s?$/i);
+  if (!match) return null;
 
-  const value = parseInt(match[1], 10)
-  const unit = match[2].toLowerCase() + 's' as RetentionTimeUnit
+  const value = parseInt(match[1], 10);
+  const unit = (match[2].toLowerCase() + "s") as RetentionTimeUnit;
 
-  if (!['hours', 'days', 'weeks', 'months', 'years'].includes(unit)) {
-    return null
+  if (!["hours", "days", "weeks", "months", "years"].includes(unit)) {
+    return null;
   }
 
-  return { value, unit }
+  return { value, unit };
 }
 
 /**
@@ -811,22 +817,22 @@ export function parseRetentionPeriod(str: string): RetentionPeriod | null {
 export function isItemCoveredByLegalHold(
   hold: LegalHold,
   item: {
-    userId?: string
-    channelId?: string
-    workspaceId?: string
-    contentType: RetentionContentType
-    createdAt: Date
-  }
+    userId?: string;
+    channelId?: string;
+    workspaceId?: string;
+    contentType: RetentionContentType;
+    createdAt: Date;
+  },
 ): boolean {
   // Check status
-  if (hold.status !== 'active') return false
+  if (hold.status !== "active") return false;
 
   // Check content type
   if (
     hold.scope.contentTypes.length > 0 &&
     !hold.scope.contentTypes.includes(item.contentType)
   ) {
-    return false
+    return false;
   }
 
   // Check user scope
@@ -835,7 +841,7 @@ export function isItemCoveredByLegalHold(
     item.userId &&
     !hold.scope.userIds.includes(item.userId)
   ) {
-    return false
+    return false;
   }
 
   // Check channel scope
@@ -844,7 +850,7 @@ export function isItemCoveredByLegalHold(
     item.channelId &&
     !hold.scope.channelIds.includes(item.channelId)
   ) {
-    return false
+    return false;
   }
 
   // Check workspace scope
@@ -853,26 +859,26 @@ export function isItemCoveredByLegalHold(
     item.workspaceId &&
     !hold.scope.workspaceIds.includes(item.workspaceId)
   ) {
-    return false
+    return false;
   }
 
   // Check date range
   if (hold.scope.startDate && item.createdAt < hold.scope.startDate) {
-    return false
+    return false;
   }
 
   if (hold.scope.endDate && item.createdAt > hold.scope.endDate) {
-    return false
+    return false;
   }
 
-  return true
+  return true;
 }
 
 /**
  * Generate a unique ID for retention entities
  */
 export function generateRetentionId(prefix: string): string {
-  const timestamp = Date.now().toString(36)
-  const random = Math.random().toString(36).substring(2, 10)
-  return `${prefix}_${timestamp}_${random}`
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 10);
+  return `${prefix}_${timestamp}_${random}`;
 }

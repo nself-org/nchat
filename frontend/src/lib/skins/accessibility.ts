@@ -18,8 +18,8 @@
  * @version 1.0.0
  */
 
-import type { VisualSkin, SkinColorPalette } from './types'
-import { nchatSkin } from './visual-skins'
+import type { VisualSkin, SkinColorPalette } from "./types";
+import { nchatSkin } from "./visual-skins";
 
 // ============================================================================
 // CONTRAST COMPUTATION
@@ -29,24 +29,26 @@ import { nchatSkin } from './visual-skins'
  * Parse a hex color string to an { r, g, b } object.
  * Supports #RGB, #RRGGBB, and #RRGGBBAA formats.
  */
-export function parseHexColor(hex: string): { r: number; g: number; b: number } | null {
-  const clean = hex.replace('#', '')
-  let r: number, g: number, b: number
+export function parseHexColor(
+  hex: string,
+): { r: number; g: number; b: number } | null {
+  const clean = hex.replace("#", "");
+  let r: number, g: number, b: number;
 
   if (clean.length === 3) {
-    r = parseInt(clean[0] + clean[0], 16)
-    g = parseInt(clean[1] + clean[1], 16)
-    b = parseInt(clean[2] + clean[2], 16)
+    r = parseInt(clean[0] + clean[0], 16);
+    g = parseInt(clean[1] + clean[1], 16);
+    b = parseInt(clean[2] + clean[2], 16);
   } else if (clean.length === 6 || clean.length === 8) {
-    r = parseInt(clean.slice(0, 2), 16)
-    g = parseInt(clean.slice(2, 4), 16)
-    b = parseInt(clean.slice(4, 6), 16)
+    r = parseInt(clean.slice(0, 2), 16);
+    g = parseInt(clean.slice(2, 4), 16);
+    b = parseInt(clean.slice(4, 6), 16);
   } else {
-    return null
+    return null;
   }
 
-  if (isNaN(r) || isNaN(g) || isNaN(b)) return null
-  return { r, g, b }
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return null;
+  return { r, g, b };
 }
 
 /**
@@ -54,19 +56,19 @@ export function parseHexColor(hex: string): { r: number; g: number; b: number } 
  * @see https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
  */
 export function relativeLuminance(hex: string): number {
-  const color = parseHexColor(hex)
-  if (!color) return 0
+  const color = parseHexColor(hex);
+  if (!color) return 0;
 
   const toLinear = (c: number): number => {
-    const s = c / 255
-    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
-  }
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
 
-  const r = toLinear(color.r)
-  const g = toLinear(color.g)
-  const b = toLinear(color.b)
+  const r = toLinear(color.r);
+  const g = toLinear(color.g);
+  const b = toLinear(color.b);
 
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
 /**
@@ -74,11 +76,11 @@ export function relativeLuminance(hex: string): number {
  * Returns a value between 1 and 21.
  */
 export function contrastRatio(color1: string, color2: string): number {
-  const l1 = relativeLuminance(color1)
-  const l2 = relativeLuminance(color2)
-  const lighter = Math.max(l1, l2)
-  const darker = Math.min(l1, l2)
-  return (lighter + 0.05) / (darker + 0.05)
+  const l1 = relativeLuminance(color1);
+  const l2 = relativeLuminance(color2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
 }
 
 /**
@@ -87,15 +89,15 @@ export function contrastRatio(color1: string, color2: string): number {
 export function meetsContrastRequirement(
   foreground: string,
   background: string,
-  level: 'AA' | 'AAA' = 'AA',
-  isLargeText: boolean = false
+  level: "AA" | "AAA" = "AA",
+  isLargeText: boolean = false,
 ): boolean {
-  const ratio = contrastRatio(foreground, background)
-  if (level === 'AAA') {
-    return isLargeText ? ratio >= 4.5 : ratio >= 7
+  const ratio = contrastRatio(foreground, background);
+  if (level === "AAA") {
+    return isLargeText ? ratio >= 4.5 : ratio >= 7;
   }
   // AA
-  return isLargeText ? ratio >= 3 : ratio >= 4.5
+  return isLargeText ? ratio >= 3 : ratio >= 4.5;
 }
 
 // ============================================================================
@@ -104,73 +106,75 @@ export function meetsContrastRequirement(
 
 export interface FocusRingStyle {
   /** Outline width */
-  width: string
+  width: string;
   /** Outline offset from the element */
-  offset: string
+  offset: string;
   /** Outline color */
-  color: string
+  color: string;
   /** Outline style */
-  style: string
+  style: string;
   /** Full CSS outline shorthand */
-  outline: string
+  outline: string;
   /** Box-shadow alternative for rounded elements */
-  boxShadow: string
+  boxShadow: string;
 }
 
 export interface FocusRingTokens {
   /** Default visible focus ring */
-  default: FocusRingStyle
+  default: FocusRingStyle;
   /** Inset focus ring (for filled containers) */
-  inset: FocusRingStyle
+  inset: FocusRingStyle;
   /** Error-state focus ring */
-  error: FocusRingStyle
+  error: FocusRingStyle;
   /** High contrast focus ring */
-  highContrast: FocusRingStyle
+  highContrast: FocusRingStyle;
 }
 
-export function buildFocusRingTokens(colors: SkinColorPalette): FocusRingTokens {
+export function buildFocusRingTokens(
+  colors: SkinColorPalette,
+): FocusRingTokens {
   const defaultRing: FocusRingStyle = {
-    width: '2px',
-    offset: '2px',
+    width: "2px",
+    offset: "2px",
     color: colors.primary,
-    style: 'solid',
+    style: "solid",
     outline: `2px solid ${colors.primary}`,
     boxShadow: `0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary}`,
-  }
+  };
 
   const insetRing: FocusRingStyle = {
-    width: '2px',
-    offset: '-2px',
+    width: "2px",
+    offset: "-2px",
     color: colors.primary,
-    style: 'solid',
+    style: "solid",
     outline: `2px solid ${colors.primary}`,
     boxShadow: `inset 0 0 0 2px ${colors.primary}`,
-  }
+  };
 
   const errorRing: FocusRingStyle = {
-    width: '2px',
-    offset: '2px',
+    width: "2px",
+    offset: "2px",
     color: colors.error,
-    style: 'solid',
+    style: "solid",
     outline: `2px solid ${colors.error}`,
     boxShadow: `0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.error}`,
-  }
+  };
 
   const highContrastRing: FocusRingStyle = {
-    width: '3px',
-    offset: '2px',
+    width: "3px",
+    offset: "2px",
     color: colors.text,
-    style: 'solid',
+    style: "solid",
     outline: `3px solid ${colors.text}`,
     boxShadow: `0 0 0 2px ${colors.background}, 0 0 0 5px ${colors.text}`,
-  }
+  };
 
   return {
     default: defaultRing,
     inset: insetRing,
     error: errorRing,
     highContrast: highContrastRing,
-  }
+  };
 }
 
 // ============================================================================
@@ -179,37 +183,37 @@ export function buildFocusRingTokens(colors: SkinColorPalette): FocusRingTokens 
 
 export interface HighContrastOverrides {
   /** Forced background for surfaces */
-  background: string
+  background: string;
   /** Forced text color */
-  text: string
+  text: string;
   /** Forced border color */
-  border: string
+  border: string;
   /** Forced link color */
-  link: string
+  link: string;
   /** Forced button background */
-  buttonBg: string
+  buttonBg: string;
   /** Forced button text */
-  buttonText: string
+  buttonText: string;
   /** Minimum border width */
-  borderWidth: string
+  borderWidth: string;
   /** Whether to show underlines on all links */
-  underlineLinks: boolean
+  underlineLinks: boolean;
 }
 
 export function buildHighContrastOverrides(
   colors: SkinColorPalette,
-  isDarkMode: boolean
+  isDarkMode: boolean,
 ): HighContrastOverrides {
   return {
-    background: isDarkMode ? '#000000' : '#FFFFFF',
-    text: isDarkMode ? '#FFFFFF' : '#000000',
-    border: isDarkMode ? '#FFFFFF' : '#000000',
+    background: isDarkMode ? "#000000" : "#FFFFFF",
+    text: isDarkMode ? "#FFFFFF" : "#000000",
+    border: isDarkMode ? "#FFFFFF" : "#000000",
     link: colors.primary,
-    buttonBg: isDarkMode ? '#FFFFFF' : '#000000',
-    buttonText: isDarkMode ? '#000000' : '#FFFFFF',
-    borderWidth: '2px',
+    buttonBg: isDarkMode ? "#FFFFFF" : "#000000",
+    buttonText: isDarkMode ? "#000000" : "#FFFFFF",
+    borderWidth: "2px",
     underlineLinks: true,
-  }
+  };
 }
 
 // ============================================================================
@@ -218,25 +222,25 @@ export function buildHighContrastOverrides(
 
 export interface TouchTargetTokens {
   /** WCAG 2.5.8 minimum (AAA) */
-  minimumSize: string
+  minimumSize: string;
   /** WCAG 2.5.5 enhanced minimum */
-  enhancedSize: string
+  enhancedSize: string;
   /** Comfortable interaction size */
-  comfortableSize: string
+  comfortableSize: string;
   /** Minimum spacing between adjacent targets */
-  minimumGap: string
+  minimumGap: string;
   /** Minimum hit area for inline actions */
-  inlineActionSize: string
+  inlineActionSize: string;
 }
 
 export function buildTouchTargetTokens(): TouchTargetTokens {
   return {
-    minimumSize: '44px',
-    enhancedSize: '48px',
-    comfortableSize: '48px',
-    minimumGap: '8px',
-    inlineActionSize: '32px',
-  }
+    minimumSize: "44px",
+    enhancedSize: "48px",
+    comfortableSize: "48px",
+    minimumGap: "8px",
+    inlineActionSize: "32px",
+  };
 }
 
 // ============================================================================
@@ -244,15 +248,15 @@ export function buildTouchTargetTokens(): TouchTargetTokens {
 // ============================================================================
 
 export interface ScreenReaderOnlyStyle {
-  position: string
-  width: string
-  height: string
-  padding: string
-  margin: string
-  overflow: string
-  clip: string
-  whiteSpace: string
-  borderWidth: string
+  position: string;
+  width: string;
+  height: string;
+  padding: string;
+  margin: string;
+  overflow: string;
+  clip: string;
+  whiteSpace: string;
+  borderWidth: string;
 }
 
 /**
@@ -261,16 +265,16 @@ export interface ScreenReaderOnlyStyle {
  */
 export function getScreenReaderOnlyStyle(): ScreenReaderOnlyStyle {
   return {
-    position: 'absolute',
-    width: '1px',
-    height: '1px',
-    padding: '0',
-    margin: '-1px',
-    overflow: 'hidden',
-    clip: 'rect(0, 0, 0, 0)',
-    whiteSpace: 'nowrap',
-    borderWidth: '0',
-  }
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: "0",
+    margin: "-1px",
+    overflow: "hidden",
+    clip: "rect(0, 0, 0, 0)",
+    whiteSpace: "nowrap",
+    borderWidth: "0",
+  };
 }
 
 /**
@@ -278,15 +282,15 @@ export function getScreenReaderOnlyStyle(): ScreenReaderOnlyStyle {
  */
 export function getScreenReaderFocusableStyle(): Record<string, string> {
   return {
-    position: 'static',
-    width: 'auto',
-    height: 'auto',
-    padding: '0',
-    margin: '0',
-    overflow: 'visible',
-    clip: 'auto',
-    whiteSpace: 'normal',
-  }
+    position: "static",
+    width: "auto",
+    height: "auto",
+    padding: "0",
+    margin: "0",
+    overflow: "visible",
+    clip: "auto",
+    whiteSpace: "normal",
+  };
 }
 
 // ============================================================================
@@ -296,37 +300,37 @@ export function getScreenReaderFocusableStyle(): Record<string, string> {
 export interface KeyboardNavigationTokens {
   /** Skip link styles */
   skipLink: {
-    background: string
-    color: string
-    padding: string
-    fontSize: string
-    zIndex: number
-  }
+    background: string;
+    color: string;
+    padding: string;
+    fontSize: string;
+    zIndex: number;
+  };
   /** Focus trap indicator */
   focusTrapIndicator: {
-    borderColor: string
-    borderWidth: string
-    borderStyle: string
-  }
+    borderColor: string;
+    borderWidth: string;
+    borderStyle: string;
+  };
 }
 
 export function buildKeyboardNavigationTokens(
-  colors: SkinColorPalette
+  colors: SkinColorPalette,
 ): KeyboardNavigationTokens {
   return {
     skipLink: {
       background: colors.buttonPrimaryBg,
       color: colors.buttonPrimaryText,
-      padding: '8px 16px',
-      fontSize: '14px',
+      padding: "8px 16px",
+      fontSize: "14px",
       zIndex: 9999,
     },
     focusTrapIndicator: {
       borderColor: colors.primary,
-      borderWidth: '2px',
-      borderStyle: 'dashed',
+      borderWidth: "2px",
+      borderStyle: "dashed",
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -334,19 +338,19 @@ export function buildKeyboardNavigationTokens(
 // ============================================================================
 
 export interface AccessibilityTokens {
-  focusRings: FocusRingTokens
-  highContrast: HighContrastOverrides
-  touchTargets: TouchTargetTokens
-  screenReaderOnly: ScreenReaderOnlyStyle
-  screenReaderFocusable: Record<string, string>
-  keyboardNav: KeyboardNavigationTokens
+  focusRings: FocusRingTokens;
+  highContrast: HighContrastOverrides;
+  touchTargets: TouchTargetTokens;
+  screenReaderOnly: ScreenReaderOnlyStyle;
+  screenReaderFocusable: Record<string, string>;
+  keyboardNav: KeyboardNavigationTokens;
   /** Pre-computed contrast ratios for key color pairs */
   contrastRatios: {
-    textOnBackground: number
-    textOnSurface: number
-    primaryOnBackground: number
-    buttonPrimaryTextOnBg: number
-  }
+    textOnBackground: number;
+    textOnSurface: number;
+    primaryOnBackground: number;
+    buttonPrimaryTextOnBg: number;
+  };
 }
 
 /**
@@ -358,9 +362,9 @@ export interface AccessibilityTokens {
  */
 export function getAccessibilityTokens(
   skin: VisualSkin = nchatSkin,
-  isDarkMode: boolean = false
+  isDarkMode: boolean = false,
 ): AccessibilityTokens {
-  const colors = isDarkMode ? skin.darkMode.colors : skin.colors
+  const colors = isDarkMode ? skin.darkMode.colors : skin.colors;
 
   return {
     focusRings: buildFocusRingTokens(colors),
@@ -375,8 +379,8 @@ export function getAccessibilityTokens(
       primaryOnBackground: contrastRatio(colors.primary, colors.background),
       buttonPrimaryTextOnBg: contrastRatio(
         colors.buttonPrimaryText,
-        colors.buttonPrimaryBg
+        colors.buttonPrimaryBg,
       ),
     },
-  }
+  };
 }

@@ -14,7 +14,7 @@
  * trigger re-provisioning of Kyber pre-keys on next login.
  */
 
-import * as SignalClient from '@signalapp/libsignal-client'
+import * as SignalClient from "@signalapp/libsignal-client";
 
 // ============================================================================
 // Storage adapter interface
@@ -25,36 +25,36 @@ import * as SignalClient from '@signalapp/libsignal-client'
  * on native platforms without changing the store logic.
  */
 export interface StorageAdapter {
-  getItem(key: string): string | null | Promise<string | null>
-  setItem(key: string, value: string): void | Promise<void>
-  removeItem(key: string): void | Promise<void>
+  getItem(key: string): string | null | Promise<string | null>;
+  setItem(key: string, value: string): void | Promise<void>;
+  removeItem(key: string): void | Promise<void>;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const STORE_PREFIX = 'nchat_kyber_prekey_'
-const INDEX_KEY = 'nchat_kyber_prekey_index'
-const PROVISIONING_FLAG_KEY = 'kyber_needs_provisioning'
-const STORE_VERSION_KEY = 'nchat_kyber_store_version'
-const CURRENT_VERSION = '1'
+const STORE_PREFIX = "nchat_kyber_prekey_";
+const INDEX_KEY = "nchat_kyber_prekey_index";
+const PROVISIONING_FLAG_KEY = "kyber_needs_provisioning";
+const STORE_VERSION_KEY = "nchat_kyber_store_version";
+const CURRENT_VERSION = "1";
 
 // ============================================================================
 // PersistentKyberPreKeyStore
 // ============================================================================
 
 export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
-  private storage: StorageAdapter
+  private storage: StorageAdapter;
 
   constructor(storage?: StorageAdapter) {
-    super()
+    super();
     this.storage =
       storage ??
-      (typeof localStorage !== 'undefined'
+      (typeof localStorage !== "undefined"
         ? (localStorage as StorageAdapter)
-        : new MemoryStorageAdapter())
-    this._maybeWriteMigrationFlag()
+        : new MemoryStorageAdapter());
+    this._maybeWriteMigrationFlag();
   }
 
   /**
@@ -71,22 +71,22 @@ export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
     // localStorage.getItem also returns string|null synchronously.
     // If the adapter is async-only, skip (flag won't be set, which is safe —
     // async adapters are new installations that don't need migration).
-    const versionRaw = this.storage.getItem(STORE_VERSION_KEY)
-    if (typeof versionRaw !== 'string' && versionRaw !== null) {
+    const versionRaw = this.storage.getItem(STORE_VERSION_KEY);
+    if (typeof versionRaw !== "string" && versionRaw !== null) {
       // Async adapter (Promise returned) — skip sync migration check.
-      return
+      return;
     }
-    const version = versionRaw as string | null
+    const version = versionRaw as string | null;
     if (version === null) {
       // First time this store runs on this device/adapter.
-      const existingIndexRaw = this.storage.getItem(INDEX_KEY)
+      const existingIndexRaw = this.storage.getItem(INDEX_KEY);
       const existingIndex =
-        typeof existingIndexRaw === 'string' ? existingIndexRaw : null
+        typeof existingIndexRaw === "string" ? existingIndexRaw : null;
       if (existingIndex !== null) {
         // Keys existed in a prior session — flag for re-provisioning.
-        this.storage.setItem(PROVISIONING_FLAG_KEY, 'true')
+        this.storage.setItem(PROVISIONING_FLAG_KEY, "true");
       }
-      this.storage.setItem(STORE_VERSION_KEY, CURRENT_VERSION)
+      this.storage.setItem(STORE_VERSION_KEY, CURRENT_VERSION);
     }
   }
 
@@ -96,33 +96,35 @@ export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
 
   async saveKyberPreKey(
     kyberPreKeyId: number,
-    record: SignalClient.KyberPreKeyRecord
+    record: SignalClient.KyberPreKeyRecord,
   ): Promise<void> {
-    const key = `${STORE_PREFIX}${kyberPreKeyId}`
-    const serialized = Buffer.from(record.serialize()).toString('base64')
-    await this.storage.setItem(key, serialized)
-    await this._addToIndex(kyberPreKeyId)
+    const key = `${STORE_PREFIX}${kyberPreKeyId}`;
+    const serialized = Buffer.from(record.serialize()).toString("base64");
+    await this.storage.setItem(key, serialized);
+    await this._addToIndex(kyberPreKeyId);
   }
 
-  async getKyberPreKey(kyberPreKeyId: number): Promise<SignalClient.KyberPreKeyRecord> {
-    const key = `${STORE_PREFIX}${kyberPreKeyId}`
-    const data = await this.storage.getItem(key)
+  async getKyberPreKey(
+    kyberPreKeyId: number,
+  ): Promise<SignalClient.KyberPreKeyRecord> {
+    const key = `${STORE_PREFIX}${kyberPreKeyId}`;
+    const data = await this.storage.getItem(key);
     if (!data) {
-      throw new Error(`KyberPreKey ${kyberPreKeyId} not found`)
+      throw new Error(`KyberPreKey ${kyberPreKeyId} not found`);
     }
-    const bytes = Buffer.from(data, 'base64')
-    return SignalClient.KyberPreKeyRecord.deserialize(bytes)
+    const bytes = Buffer.from(data, "base64");
+    return SignalClient.KyberPreKeyRecord.deserialize(bytes);
   }
 
   async markKyberPreKeyUsed(
     kyberPreKeyId: number,
     _signedPreKeyId: number,
-    _baseKey: SignalClient.PublicKey
+    _baseKey: SignalClient.PublicKey,
   ): Promise<void> {
     // One-time pre-key semantics: remove after use.
-    const key = `${STORE_PREFIX}${kyberPreKeyId}`
-    await this.storage.removeItem(key)
-    await this._removeFromIndex(kyberPreKeyId)
+    const key = `${STORE_PREFIX}${kyberPreKeyId}`;
+    await this.storage.removeItem(key);
+    await this._removeFromIndex(kyberPreKeyId);
   }
 
   // --------------------------------------------------------------------------
@@ -133,9 +135,9 @@ export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
    * Returns true if a key with the given ID exists in storage.
    */
   async containsKyberPreKey(kyberPreKeyId: number): Promise<boolean> {
-    const key = `${STORE_PREFIX}${kyberPreKeyId}`
-    const data = await this.storage.getItem(key)
-    return data !== null
+    const key = `${STORE_PREFIX}${kyberPreKeyId}`;
+    const data = await this.storage.getItem(key);
+    return data !== null;
   }
 
   /**
@@ -143,21 +145,21 @@ export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
    * re-provisioning flows where we want to purge without a session context).
    */
   async removeKyberPreKey(kyberPreKeyId: number): Promise<void> {
-    const key = `${STORE_PREFIX}${kyberPreKeyId}`
-    await this.storage.removeItem(key)
-    await this._removeFromIndex(kyberPreKeyId)
+    const key = `${STORE_PREFIX}${kyberPreKeyId}`;
+    await this.storage.removeItem(key);
+    await this._removeFromIndex(kyberPreKeyId);
   }
 
   /**
    * Returns all stored Kyber pre-key IDs.
    */
   async getAllKeyIds(): Promise<number[]> {
-    const raw = await this.storage.getItem(INDEX_KEY)
-    if (!raw) return []
+    const raw = await this.storage.getItem(INDEX_KEY);
+    if (!raw) return [];
     try {
-      return JSON.parse(raw) as number[]
+      return JSON.parse(raw) as number[];
     } catch {
-      return []
+      return [];
     }
   }
 
@@ -167,20 +169,20 @@ export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
    * (they don't need migration).
    */
   needsProvisioning(): boolean {
-    const raw = this.storage.getItem(PROVISIONING_FLAG_KEY)
+    const raw = this.storage.getItem(PROVISIONING_FLAG_KEY);
     // Only trust synchronous (string | null) results.
-    if (typeof raw === 'string') return raw === 'true'
-    return false
+    if (typeof raw === "string") return raw === "true";
+    return false;
   }
 
   /**
    * Clear the provisioning flag after re-provisioning completes.
    */
   clearProvisioningFlag(): void {
-    const result = this.storage.removeItem(PROVISIONING_FLAG_KEY)
+    const result = this.storage.removeItem(PROVISIONING_FLAG_KEY);
     // If the adapter is async, fire-and-forget is acceptable here.
     if (result instanceof Promise) {
-      result.catch(() => undefined)
+      result.catch(() => undefined);
     }
   }
 
@@ -189,11 +191,11 @@ export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
    * Used in re-provisioning and account wipe flows.
    */
   async clear(): Promise<void> {
-    const ids = await this.getAllKeyIds()
+    const ids = await this.getAllKeyIds();
     for (const id of ids) {
-      await this.storage.removeItem(`${STORE_PREFIX}${id}`)
+      await this.storage.removeItem(`${STORE_PREFIX}${id}`);
     }
-    await this.storage.removeItem(INDEX_KEY)
+    await this.storage.removeItem(INDEX_KEY);
   }
 
   // --------------------------------------------------------------------------
@@ -201,19 +203,18 @@ export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
   // --------------------------------------------------------------------------
 
   private async _addToIndex(id: number): Promise<void> {
-    const ids = await this.getAllKeyIds()
+    const ids = await this.getAllKeyIds();
     if (!ids.includes(id)) {
-      ids.push(id)
-      await this.storage.setItem(INDEX_KEY, JSON.stringify(ids))
+      ids.push(id);
+      await this.storage.setItem(INDEX_KEY, JSON.stringify(ids));
     }
   }
 
   private async _removeFromIndex(id: number): Promise<void> {
-    const ids = await this.getAllKeyIds()
-    const updated = ids.filter((i) => i !== id)
-    await this.storage.setItem(INDEX_KEY, JSON.stringify(updated))
+    const ids = await this.getAllKeyIds();
+    const updated = ids.filter((i) => i !== id);
+    await this.storage.setItem(INDEX_KEY, JSON.stringify(updated));
   }
-
 }
 
 // ============================================================================
@@ -225,27 +226,27 @@ export class PersistentKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
  * that pass their own adapter). NOT suitable for production persistence.
  */
 export class MemoryStorageAdapter implements StorageAdapter {
-  private _data: Map<string, string> = new Map()
+  private _data: Map<string, string> = new Map();
 
   getItem(key: string): string | null {
-    return this._data.get(key) ?? null
+    return this._data.get(key) ?? null;
   }
 
   setItem(key: string, value: string): void {
-    this._data.set(key, value)
+    this._data.set(key, value);
   }
 
   removeItem(key: string): void {
-    this._data.delete(key)
+    this._data.delete(key);
   }
 
   /** Test helper — wipe all data. */
   clear(): void {
-    this._data.clear()
+    this._data.clear();
   }
 
   get size(): number {
-    return this._data.size
+    return this._data.size;
   }
 }
 
@@ -257,6 +258,8 @@ export class MemoryStorageAdapter implements StorageAdapter {
  * Create a PersistentKyberPreKeyStore with the default platform storage.
  * Pass a custom StorageAdapter in tests or on native platforms.
  */
-export function createKyberPreKeyStore(storage?: StorageAdapter): PersistentKyberPreKeyStore {
-  return new PersistentKyberPreKeyStore(storage)
+export function createKyberPreKeyStore(
+  storage?: StorageAdapter,
+): PersistentKyberPreKeyStore {
+  return new PersistentKyberPreKeyStore(storage);
 }

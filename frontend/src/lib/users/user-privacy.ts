@@ -5,35 +5,35 @@
  * blocked users, and contact management.
  */
 
-import { type UserProfile } from '@/stores/user-store'
+import { type UserProfile } from "@/stores/user-store";
 import {
   type ProfileVisibilitySettings,
   type VisibilityLevel,
   type ActivityVisibility,
-} from '@/components/users/ProfileVisibility'
+} from "@/components/users/ProfileVisibility";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface BlockedUser {
-  userId: string
-  blockedAt: Date
-  reason?: string
+  userId: string;
+  blockedAt: Date;
+  reason?: string;
 }
 
 export interface Contact {
-  userId: string
-  addedAt: Date
-  nickname?: string
-  notes?: string
+  userId: string;
+  addedAt: Date;
+  nickname?: string;
+  notes?: string;
 }
 
 export interface PrivacySettings extends ProfileVisibilitySettings {
-  allowDirectMessages: 'everyone' | 'contacts' | 'nobody'
-  allowMentions: 'everyone' | 'contacts' | 'nobody'
-  allowSearchDiscovery: boolean
-  showInDirectory: boolean
+  allowDirectMessages: "everyone" | "contacts" | "nobody";
+  allowMentions: "everyone" | "contacts" | "nobody";
+  allowSearchDiscovery: boolean;
+  showInDirectory: boolean;
 }
 
 // ============================================================================
@@ -41,17 +41,17 @@ export interface PrivacySettings extends ProfileVisibilitySettings {
 // ============================================================================
 
 export const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
-  email: 'contacts',
-  phone: 'private',
-  location: 'public',
-  timezone: 'public',
-  lastSeen: 'everyone',
-  onlineStatus: 'everyone',
-  allowDirectMessages: 'everyone',
-  allowMentions: 'everyone',
+  email: "contacts",
+  phone: "private",
+  location: "public",
+  timezone: "public",
+  lastSeen: "everyone",
+  onlineStatus: "everyone",
+  allowDirectMessages: "everyone",
+  allowMentions: "everyone",
   allowSearchDiscovery: true,
   showInDirectory: true,
-}
+};
 
 // ============================================================================
 // Visibility Functions
@@ -65,56 +65,67 @@ export function canSeeField(
   targetUser: UserProfile,
   field: keyof ProfileVisibilitySettings,
   visibilitySettings: ProfileVisibilitySettings,
-  contacts: Contact[]
+  contacts: Contact[],
 ): boolean {
   // User can always see their own fields
-  if (viewerUserId === targetUser.id) return true
+  if (viewerUserId === targetUser.id) return true;
 
-  const visibility = visibilitySettings[field]
+  const visibility = visibilitySettings[field];
 
   // Handle contact-based visibility
-  if (visibility === 'contacts' || (visibility as ActivityVisibility) === 'contacts') {
-    return isContact(viewerUserId, contacts)
+  if (
+    visibility === "contacts" ||
+    (visibility as ActivityVisibility) === "contacts"
+  ) {
+    return isContact(viewerUserId, contacts);
   }
 
   // Handle public/everyone visibility
-  if (visibility === 'public' || (visibility as ActivityVisibility) === 'everyone') {
-    return true
+  if (
+    visibility === "public" ||
+    (visibility as ActivityVisibility) === "everyone"
+  ) {
+    return true;
   }
 
   // Handle private/nobody visibility
-  return false
+  return false;
 }
 
 /**
  * Check if a user is in the contacts list
  */
 export function isContact(userId: string, contacts: Contact[]): boolean {
-  return contacts.some((contact) => contact.userId === userId)
+  return contacts.some((contact) => contact.userId === userId);
 }
 
 /**
  * Check if a user is blocked
  */
-export function isBlocked(userId: string, blockedUsers: BlockedUser[]): boolean {
-  return blockedUsers.some((blocked) => blocked.userId === userId)
+export function isBlocked(
+  userId: string,
+  blockedUsers: BlockedUser[],
+): boolean {
+  return blockedUsers.some((blocked) => blocked.userId === userId);
 }
 
 /**
  * Get visibility level display text
  */
-export function getVisibilityLabel(level: VisibilityLevel | ActivityVisibility): string {
+export function getVisibilityLabel(
+  level: VisibilityLevel | ActivityVisibility,
+): string {
   switch (level) {
-    case 'public':
-    case 'everyone':
-      return 'Everyone'
-    case 'contacts':
-      return 'Contacts only'
-    case 'private':
-    case 'nobody':
-      return 'Only you'
+    case "public":
+    case "everyone":
+      return "Everyone";
+    case "contacts":
+      return "Contacts only";
+    case "private":
+    case "nobody":
+      return "Only you";
     default:
-      return 'Unknown'
+      return "Unknown";
   }
 }
 
@@ -128,10 +139,10 @@ export function getVisibilityLabel(level: VisibilityLevel | ActivityVisibility):
 export function addContact(
   userId: string,
   contacts: Contact[],
-  options?: { nickname?: string; notes?: string }
+  options?: { nickname?: string; notes?: string },
 ): Contact[] {
   if (isContact(userId, contacts)) {
-    return contacts
+    return contacts;
   }
 
   return [
@@ -142,14 +153,14 @@ export function addContact(
       nickname: options?.nickname,
       notes: options?.notes,
     },
-  ]
+  ];
 }
 
 /**
  * Remove a user from contacts
  */
 export function removeContact(userId: string, contacts: Contact[]): Contact[] {
-  return contacts.filter((contact) => contact.userId !== userId)
+  return contacts.filter((contact) => contact.userId !== userId);
 }
 
 /**
@@ -158,18 +169,21 @@ export function removeContact(userId: string, contacts: Contact[]): Contact[] {
 export function updateContact(
   userId: string,
   contacts: Contact[],
-  updates: { nickname?: string; notes?: string }
+  updates: { nickname?: string; notes?: string },
 ): Contact[] {
   return contacts.map((contact) =>
-    contact.userId === userId ? { ...contact, ...updates } : contact
-  )
+    contact.userId === userId ? { ...contact, ...updates } : contact,
+  );
 }
 
 /**
  * Get contact by user ID
  */
-export function getContact(userId: string, contacts: Contact[]): Contact | undefined {
-  return contacts.find((contact) => contact.userId === userId)
+export function getContact(
+  userId: string,
+  contacts: Contact[],
+): Contact | undefined {
+  return contacts.find((contact) => contact.userId === userId);
 }
 
 // ============================================================================
@@ -182,10 +196,10 @@ export function getContact(userId: string, contacts: Contact[]): Contact | undef
 export function blockUser(
   userId: string,
   blockedUsers: BlockedUser[],
-  reason?: string
+  reason?: string,
 ): BlockedUser[] {
   if (isBlocked(userId, blockedUsers)) {
-    return blockedUsers
+    return blockedUsers;
   }
 
   return [
@@ -195,14 +209,17 @@ export function blockUser(
       blockedAt: new Date(),
       reason,
     },
-  ]
+  ];
 }
 
 /**
  * Unblock a user
  */
-export function unblockUser(userId: string, blockedUsers: BlockedUser[]): BlockedUser[] {
-  return blockedUsers.filter((blocked) => blocked.userId !== userId)
+export function unblockUser(
+  userId: string,
+  blockedUsers: BlockedUser[],
+): BlockedUser[] {
+  return blockedUsers.filter((blocked) => blocked.userId !== userId);
 }
 
 /**
@@ -210,9 +227,9 @@ export function unblockUser(userId: string, blockedUsers: BlockedUser[]): Blocke
  */
 export function getBlockedUser(
   userId: string,
-  blockedUsers: BlockedUser[]
+  blockedUsers: BlockedUser[],
 ): BlockedUser | undefined {
-  return blockedUsers.find((blocked) => blocked.userId === userId)
+  return blockedUsers.find((blocked) => blocked.userId === userId);
 }
 
 // ============================================================================
@@ -227,31 +244,34 @@ export function canSendDirectMessage(
   recipientUserId: string,
   recipientSettings: PrivacySettings,
   recipientBlockedUsers: BlockedUser[],
-  recipientContacts: Contact[]
+  recipientContacts: Contact[],
 ): { allowed: boolean; reason?: string } {
   // Check if sender is blocked
   if (isBlocked(senderUserId, recipientBlockedUsers)) {
-    return { allowed: false, reason: 'You are blocked by this user' }
+    return { allowed: false, reason: "You are blocked by this user" };
   }
 
   // Check DM settings
   switch (recipientSettings.allowDirectMessages) {
-    case 'nobody':
-      return { allowed: false, reason: 'This user does not accept direct messages' }
-    case 'contacts':
+    case "nobody":
+      return {
+        allowed: false,
+        reason: "This user does not accept direct messages",
+      };
+    case "contacts":
       if (!isContact(senderUserId, recipientContacts)) {
         return {
           allowed: false,
-          reason: 'This user only accepts messages from contacts',
-        }
+          reason: "This user only accepts messages from contacts",
+        };
       }
-      break
-    case 'everyone':
+      break;
+    case "everyone":
     default:
-      break
+      break;
   }
 
-  return { allowed: true }
+  return { allowed: true };
 }
 
 /**
@@ -262,20 +282,20 @@ export function canMention(
   targetUserId: string,
   targetSettings: PrivacySettings,
   targetBlockedUsers: BlockedUser[],
-  targetContacts: Contact[]
+  targetContacts: Contact[],
 ): boolean {
   if (isBlocked(mentionerUserId, targetBlockedUsers)) {
-    return false
+    return false;
   }
 
   switch (targetSettings.allowMentions) {
-    case 'nobody':
-      return false
-    case 'contacts':
-      return isContact(mentionerUserId, targetContacts)
-    case 'everyone':
+    case "nobody":
+      return false;
+    case "contacts":
+      return isContact(mentionerUserId, targetContacts);
+    case "everyone":
     default:
-      return true
+      return true;
   }
 }
 
@@ -284,12 +304,12 @@ export function canMention(
  */
 export function filterVisibleInDirectory<T extends { id: string }>(
   users: T[],
-  privacySettingsMap: Map<string, PrivacySettings>
+  privacySettingsMap: Map<string, PrivacySettings>,
 ): T[] {
   return users.filter((user) => {
-    const settings = privacySettingsMap.get(user.id)
-    return settings?.showInDirectory !== false
-  })
+    const settings = privacySettingsMap.get(user.id);
+    return settings?.showInDirectory !== false;
+  });
 }
 
 /**
@@ -297,30 +317,30 @@ export function filterVisibleInDirectory<T extends { id: string }>(
  */
 export function filterSearchable<T extends { id: string }>(
   users: T[],
-  privacySettingsMap: Map<string, PrivacySettings>
+  privacySettingsMap: Map<string, PrivacySettings>,
 ): T[] {
   return users.filter((user) => {
-    const settings = privacySettingsMap.get(user.id)
-    return settings?.allowSearchDiscovery !== false
-  })
+    const settings = privacySettingsMap.get(user.id);
+    return settings?.allowSearchDiscovery !== false;
+  });
 }
 
 // ============================================================================
 // Storage Functions
 // ============================================================================
 
-const PRIVACY_STORAGE_KEY = 'nchat-privacy-settings'
-const CONTACTS_STORAGE_KEY = 'nchat-contacts'
-const BLOCKED_STORAGE_KEY = 'nchat-blocked-users'
+const PRIVACY_STORAGE_KEY = "nchat-privacy-settings";
+const CONTACTS_STORAGE_KEY = "nchat-contacts";
+const BLOCKED_STORAGE_KEY = "nchat-blocked-users";
 
 /**
  * Save privacy settings to localStorage
  */
 export function savePrivacySettings(settings: PrivacySettings): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   try {
-    localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(settings))
+    localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(settings));
   } catch {
     // Ignore storage errors
   }
@@ -330,15 +350,15 @@ export function savePrivacySettings(settings: PrivacySettings): void {
  * Load privacy settings from localStorage
  */
 export function loadPrivacySettings(): PrivacySettings {
-  if (typeof window === 'undefined') return DEFAULT_PRIVACY_SETTINGS
+  if (typeof window === "undefined") return DEFAULT_PRIVACY_SETTINGS;
 
   try {
-    const stored = localStorage.getItem(PRIVACY_STORAGE_KEY)
+    const stored = localStorage.getItem(PRIVACY_STORAGE_KEY);
     return stored
       ? { ...DEFAULT_PRIVACY_SETTINGS, ...JSON.parse(stored) }
-      : DEFAULT_PRIVACY_SETTINGS
+      : DEFAULT_PRIVACY_SETTINGS;
   } catch {
-    return DEFAULT_PRIVACY_SETTINGS
+    return DEFAULT_PRIVACY_SETTINGS;
   }
 }
 
@@ -346,10 +366,10 @@ export function loadPrivacySettings(): PrivacySettings {
  * Save contacts to localStorage
  */
 export function saveContacts(contacts: Contact[]): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   try {
-    localStorage.setItem(CONTACTS_STORAGE_KEY, JSON.stringify(contacts))
+    localStorage.setItem(CONTACTS_STORAGE_KEY, JSON.stringify(contacts));
   } catch {
     // Ignore storage errors
   }
@@ -359,20 +379,20 @@ export function saveContacts(contacts: Contact[]): void {
  * Load contacts from localStorage
  */
 export function loadContacts(): Contact[] {
-  if (typeof window === 'undefined') return []
+  if (typeof window === "undefined") return [];
 
   try {
-    const stored = localStorage.getItem(CONTACTS_STORAGE_KEY)
-    if (!stored) return []
+    const stored = localStorage.getItem(CONTACTS_STORAGE_KEY);
+    if (!stored) return [];
 
-    const parsed = JSON.parse(stored)
+    const parsed = JSON.parse(stored);
     // Convert date strings back to Date objects
     return parsed.map((contact: Contact & { addedAt: string }) => ({
       ...contact,
       addedAt: new Date(contact.addedAt),
-    }))
+    }));
   } catch {
-    return []
+    return [];
   }
 }
 
@@ -380,10 +400,10 @@ export function loadContacts(): Contact[] {
  * Save blocked users to localStorage
  */
 export function saveBlockedUsers(blockedUsers: BlockedUser[]): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   try {
-    localStorage.setItem(BLOCKED_STORAGE_KEY, JSON.stringify(blockedUsers))
+    localStorage.setItem(BLOCKED_STORAGE_KEY, JSON.stringify(blockedUsers));
   } catch {
     // Ignore storage errors
   }
@@ -393,19 +413,19 @@ export function saveBlockedUsers(blockedUsers: BlockedUser[]): void {
  * Load blocked users from localStorage
  */
 export function loadBlockedUsers(): BlockedUser[] {
-  if (typeof window === 'undefined') return []
+  if (typeof window === "undefined") return [];
 
   try {
-    const stored = localStorage.getItem(BLOCKED_STORAGE_KEY)
-    if (!stored) return []
+    const stored = localStorage.getItem(BLOCKED_STORAGE_KEY);
+    if (!stored) return [];
 
-    const parsed = JSON.parse(stored)
+    const parsed = JSON.parse(stored);
     // Convert date strings back to Date objects
     return parsed.map((blocked: BlockedUser & { blockedAt: string }) => ({
       ...blocked,
       blockedAt: new Date(blocked.blockedAt),
-    }))
+    }));
   } catch {
-    return []
+    return [];
   }
 }

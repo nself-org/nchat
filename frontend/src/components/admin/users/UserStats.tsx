@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, UserPlus, UserMinus, Shield } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, UserPlus, UserMinus, Shield } from "lucide-react";
 
 interface UserStatsProps {
-  totalUsers?: number
-  activeUsers?: number
-  newUsersThisWeek?: number
-  bannedUsers?: number
+  totalUsers?: number;
+  activeUsers?: number;
+  newUsersThisWeek?: number;
+  bannedUsers?: number;
 }
 
 /**
@@ -21,30 +21,30 @@ export function UserStats({
 }: UserStatsProps) {
   const stats = [
     {
-      title: 'Total Users',
+      title: "Total Users",
       value: totalUsers,
       icon: Users,
-      description: 'Total registered users',
+      description: "Total registered users",
     },
     {
-      title: 'Active Users',
+      title: "Active Users",
       value: activeUsers,
       icon: UserPlus,
-      description: 'Active in last 30 days',
+      description: "Active in last 30 days",
     },
     {
-      title: 'New This Week',
+      title: "New This Week",
       value: newUsersThisWeek,
       icon: UserPlus,
-      description: 'Joined in the last 7 days',
+      description: "Joined in the last 7 days",
     },
     {
-      title: 'Banned Users',
+      title: "Banned Users",
       value: bannedUsers,
       icon: Shield,
-      description: 'Currently banned',
+      description: "Currently banned",
     },
-  ]
+  ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -61,7 +61,7 @@ export function UserStats({
         </Card>
       ))}
     </div>
-  )
+  );
 }
 
-export default UserStats
+export default UserStats;

@@ -8,13 +8,13 @@
  */
 export interface DateFormatOptions {
   /** Use relative time (e.g., "5 minutes ago") */
-  relative?: boolean
+  relative?: boolean;
   /** Include time in the output */
-  includeTime?: boolean
+  includeTime?: boolean;
   /** Date format style */
-  style?: 'short' | 'medium' | 'long' | 'full'
+  style?: "short" | "medium" | "long" | "full";
   /** Locale for formatting */
-  locale?: string
+  locale?: string;
 }
 
 /**
@@ -28,7 +28,7 @@ const TIME_UNITS = {
   hour: 3600000,
   minute: 60000,
   second: 1000,
-} as const
+} as const;
 
 /**
  * Format a date with relative or absolute formatting
@@ -40,27 +40,36 @@ const TIME_UNITS = {
  * formatDate(new Date(), { relative: true }) // "just now"
  * formatDate(new Date('2024-01-15'), { style: 'long' }) // "January 15, 2024"
  */
-export function formatDate(date: Date | string | number, options: DateFormatOptions = {}): string {
-  const { relative = false, includeTime = false, style = 'medium', locale = 'en-US' } = options
+export function formatDate(
+  date: Date | string | number,
+  options: DateFormatOptions = {},
+): string {
+  const {
+    relative = false,
+    includeTime = false,
+    style = "medium",
+    locale = "en-US",
+  } = options;
 
-  const d = date instanceof Date ? date : new Date(date)
+  const d = date instanceof Date ? date : new Date(date);
 
   if (isNaN(d.getTime())) {
-    return 'Invalid date'
+    return "Invalid date";
   }
 
   if (relative) {
-    return formatRelativeTime(d, locale)
+    return formatRelativeTime(d, locale);
   }
 
-  const dateStyle = style === 'short' ? 'short' : style === 'long' ? 'long' : 'medium'
+  const dateStyle =
+    style === "short" ? "short" : style === "long" ? "long" : "medium";
 
   const formatOptions: Intl.DateTimeFormatOptions = {
     dateStyle,
-    ...(includeTime && { timeStyle: 'short' }),
-  }
+    ...(includeTime && { timeStyle: "short" }),
+  };
 
-  return new Intl.DateTimeFormat(locale, formatOptions).format(d)
+  return new Intl.DateTimeFormat(locale, formatOptions).format(d);
 }
 
 /**
@@ -69,33 +78,35 @@ export function formatDate(date: Date | string | number, options: DateFormatOpti
  * @param locale - Locale for formatting
  * @returns Relative time string
  */
-function formatRelativeTime(date: Date, locale: string = 'en-US'): string {
-  const now = Date.now()
-  const diff = now - date.getTime()
-  const absDiff = Math.abs(diff)
+function formatRelativeTime(date: Date, locale: string = "en-US"): string {
+  const now = Date.now();
+  const diff = now - date.getTime();
+  const absDiff = Math.abs(diff);
 
   // Just now (within 10 seconds)
   if (absDiff < 10000) {
-    return 'just now'
+    return "just now";
   }
 
   // Find the appropriate unit
   for (const [unit, ms] of Object.entries(TIME_UNITS)) {
-    if (absDiff >= ms || unit === 'second') {
-      const value = Math.round(diff / ms)
+    if (absDiff >= ms || unit === "second") {
+      const value = Math.round(diff / ms);
       try {
-        const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
-        return rtf.format(-value, unit as Intl.RelativeTimeFormatUnit)
+        const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+        return rtf.format(-value, unit as Intl.RelativeTimeFormatUnit);
       } catch {
         // Fallback for environments without RelativeTimeFormat
-        const absValue = Math.abs(value)
-        const unitName = absValue === 1 ? unit : `${unit}s`
-        return value > 0 ? `${absValue} ${unitName} ago` : `in ${absValue} ${unitName}`
+        const absValue = Math.abs(value);
+        const unitName = absValue === 1 ? unit : `${unit}s`;
+        return value > 0
+          ? `${absValue} ${unitName} ago`
+          : `in ${absValue} ${unitName}`;
       }
     }
   }
 
-  return 'just now'
+  return "just now";
 }
 
 /**
@@ -109,30 +120,30 @@ function formatRelativeTime(date: Date, locale: string = 'en-US'): string {
  */
 export function formatTime(
   date: Date | string | number,
-  options: { hour12?: boolean; showSeconds?: boolean; locale?: string } = {}
+  options: { hour12?: boolean; showSeconds?: boolean; locale?: string } = {},
 ): string {
-  const { hour12 = true, showSeconds = false, locale = 'en-US' } = options
+  const { hour12 = true, showSeconds = false, locale = "en-US" } = options;
 
-  const d = date instanceof Date ? date : new Date(date)
+  const d = date instanceof Date ? date : new Date(date);
 
   if (isNaN(d.getTime())) {
-    return 'Invalid time'
+    return "Invalid time";
   }
 
   const formatOptions: Intl.DateTimeFormatOptions = {
-    hour: 'numeric',
-    minute: '2-digit',
-    ...(showSeconds && { second: '2-digit' }),
+    hour: "numeric",
+    minute: "2-digit",
+    ...(showSeconds && { second: "2-digit" }),
     hour12,
-  }
+  };
 
-  return new Intl.DateTimeFormat(locale, formatOptions).format(d)
+  return new Intl.DateTimeFormat(locale, formatOptions).format(d);
 }
 
 /**
  * File size units
  */
-const FILE_SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'] as const
+const FILE_SIZE_UNITS = ["B", "KB", "MB", "GB", "TB", "PB"] as const;
 
 /**
  * Format file size in human-readable format
@@ -145,21 +156,22 @@ const FILE_SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'] as const
  * formatFileSize(1073741824) // "1 GB"
  */
 export function formatFileSize(bytes: number, decimals: number = 0): string {
-  if (bytes === 0) return '0 B'
-  if (bytes < 0) return 'Invalid size'
+  if (bytes === 0) return "0 B";
+  if (bytes < 0) return "Invalid size";
 
-  const k = 1024
-  const dm = Math.max(0, decimals)
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  const unitIndex = Math.min(i, FILE_SIZE_UNITS.length - 1)
+  const k = 1024;
+  const dm = Math.max(0, decimals);
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const unitIndex = Math.min(i, FILE_SIZE_UNITS.length - 1);
 
-  const size = bytes / Math.pow(k, unitIndex)
-  const formatted = size.toFixed(dm)
+  const size = bytes / Math.pow(k, unitIndex);
+  const formatted = size.toFixed(dm);
 
   // Remove trailing zeros if decimals > 0
-  const cleanNumber = decimals > 0 ? parseFloat(formatted).toString() : formatted
+  const cleanNumber =
+    decimals > 0 ? parseFloat(formatted).toString() : formatted;
 
-  return `${cleanNumber} ${FILE_SIZE_UNITS[unitIndex]}`
+  return `${cleanNumber} ${FILE_SIZE_UNITS[unitIndex]}`;
 }
 
 /**
@@ -175,42 +187,50 @@ export function formatFileSize(bytes: number, decimals: number = 0): string {
 export function formatDuration(
   seconds: number,
   options: {
-    isMs?: boolean
-    verbose?: boolean
-    showSeconds?: boolean
-    padHours?: boolean
-  } = {}
+    isMs?: boolean;
+    verbose?: boolean;
+    showSeconds?: boolean;
+    padHours?: boolean;
+  } = {},
 ): string {
-  const { isMs = false, verbose = false, showSeconds = true, padHours = false } = options
+  const {
+    isMs = false,
+    verbose = false,
+    showSeconds = true,
+    padHours = false,
+  } = options;
 
-  let totalSeconds = isMs ? Math.floor(seconds / 1000) : Math.floor(seconds)
+  let totalSeconds = isMs ? Math.floor(seconds / 1000) : Math.floor(seconds);
 
   if (totalSeconds < 0) {
-    return 'Invalid duration'
+    return "Invalid duration";
   }
 
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const secs = totalSeconds % 60
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
 
   if (verbose) {
-    const parts: string[] = []
-    if (hours > 0) parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`)
-    if (minutes > 0) parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`)
+    const parts: string[] = [];
+    if (hours > 0) parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
+    if (minutes > 0)
+      parts.push(`${minutes} ${minutes === 1 ? "minute" : "minutes"}`);
     if (showSeconds && secs > 0 && hours === 0) {
-      parts.push(`${secs} ${secs === 1 ? 'second' : 'seconds'}`)
+      parts.push(`${secs} ${secs === 1 ? "second" : "seconds"}`);
     }
-    return parts.length > 0 ? parts.join(', ') : '0 seconds'
+    return parts.length > 0 ? parts.join(", ") : "0 seconds";
   }
 
-  const pad = (n: number) => n.toString().padStart(2, '0')
+  const pad = (n: number) => n.toString().padStart(2, "0");
 
   if (hours > 0) {
-    const hourStr = padHours ? pad(hours) : hours.toString()
-    return showSeconds ? `${hourStr}:${pad(minutes)}:${pad(secs)}` : `${hourStr}:${pad(minutes)}`
+    const hourStr = padHours ? pad(hours) : hours.toString();
+    return showSeconds
+      ? `${hourStr}:${pad(minutes)}:${pad(secs)}`
+      : `${hourStr}:${pad(minutes)}`;
   }
 
-  return showSeconds ? `${minutes}:${pad(secs)}` : `${minutes} min`
+  return showSeconds ? `${minutes}:${pad(secs)}` : `${minutes} min`;
 }
 
 /**
@@ -226,40 +246,40 @@ export function formatDuration(
 export function formatNumber(
   num: number,
   options: {
-    decimals?: number
-    abbreviate?: boolean
-    locale?: string
-  } = {}
+    decimals?: number;
+    abbreviate?: boolean;
+    locale?: string;
+  } = {},
 ): string {
-  const { decimals = 0, abbreviate = true, locale = 'en-US' } = options
+  const { decimals = 0, abbreviate = true, locale = "en-US" } = options;
 
-  if (isNaN(num)) return 'NaN'
-  if (!isFinite(num)) return num > 0 ? '∞' : '-∞'
+  if (isNaN(num)) return "NaN";
+  if (!isFinite(num)) return num > 0 ? "∞" : "-∞";
 
   if (!abbreviate || Math.abs(num) < 1000) {
     return new Intl.NumberFormat(locale, {
       maximumFractionDigits: decimals,
-    }).format(num)
+    }).format(num);
   }
 
   const suffixes = [
-    { value: 1e12, suffix: 'T' },
-    { value: 1e9, suffix: 'B' },
-    { value: 1e6, suffix: 'M' },
-    { value: 1e3, suffix: 'K' },
-  ]
+    { value: 1e12, suffix: "T" },
+    { value: 1e9, suffix: "B" },
+    { value: 1e6, suffix: "M" },
+    { value: 1e3, suffix: "K" },
+  ];
 
-  const absNum = Math.abs(num)
+  const absNum = Math.abs(num);
   for (const { value, suffix } of suffixes) {
     if (absNum >= value) {
-      const formatted = (num / value).toFixed(decimals)
+      const formatted = (num / value).toFixed(decimals);
       // Remove trailing zeros
-      const clean = parseFloat(formatted).toString()
-      return `${clean}${suffix}`
+      const clean = parseFloat(formatted).toString();
+      return `${clean}${suffix}`;
     }
   }
 
-  return num.toString()
+  return num.toString();
 }
 
 /**
@@ -274,50 +294,50 @@ export function formatNumber(
  */
 export function formatUserName(
   user: {
-    firstName?: string | null
-    lastName?: string | null
-    displayName?: string | null
-    username?: string | null
-    email?: string | null
+    firstName?: string | null;
+    lastName?: string | null;
+    displayName?: string | null;
+    username?: string | null;
+    email?: string | null;
   },
   options: {
-    fallback?: string
-    maxLength?: number
-    showInitials?: boolean
-  } = {}
+    fallback?: string;
+    maxLength?: number;
+    showInitials?: boolean;
+  } = {},
 ): string {
-  const { fallback = 'Anonymous', maxLength, showInitials = false } = options
+  const { fallback = "Anonymous", maxLength, showInitials = false } = options;
 
-  let name = ''
+  let name = "";
 
   // Priority: displayName > firstName + lastName > username > email prefix
   if (user.displayName) {
-    name = user.displayName
+    name = user.displayName;
   } else if (user.firstName || user.lastName) {
-    name = [user.firstName, user.lastName].filter(Boolean).join(' ')
+    name = [user.firstName, user.lastName].filter(Boolean).join(" ");
   } else if (user.username) {
-    name = user.username
+    name = user.username;
   } else if (user.email) {
-    name = user.email.split('@')[0]
+    name = user.email.split("@")[0];
   }
 
   if (!name) {
-    return fallback
+    return fallback;
   }
 
   if (showInitials) {
-    const parts = name.split(/\s+/)
+    const parts = name.split(/\s+/);
     return parts
-      .map((p) => p[0]?.toUpperCase() || '')
+      .map((p) => p[0]?.toUpperCase() || "")
       .slice(0, 2)
-      .join('')
+      .join("");
   }
 
   if (maxLength && name.length > maxLength) {
-    return name.slice(0, maxLength - 1) + '…'
+    return name.slice(0, maxLength - 1) + "…";
   }
 
-  return name
+  return name;
 }
 
 /**
@@ -330,33 +350,35 @@ export function formatUserName(
  * formatMessageTime(lastWeek) // "Mon at 2:30 PM"
  */
 export function formatMessageTime(date: Date | string | number): string {
-  const d = date instanceof Date ? date : new Date(date)
+  const d = date instanceof Date ? date : new Date(date);
 
   if (isNaN(d.getTime())) {
-    return 'Invalid time'
+    return "Invalid time";
   }
 
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const yesterday = new Date(today.getTime() - 86400000)
-  const weekAgo = new Date(today.getTime() - 604800000)
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const weekAgo = new Date(today.getTime() - 604800000);
 
-  const time = formatTime(d)
+  const time = formatTime(d);
 
   if (d >= today) {
-    return time
+    return time;
   }
 
   if (d >= yesterday) {
-    return `Yesterday at ${time}`
+    return `Yesterday at ${time}`;
   }
 
   if (d >= weekAgo) {
-    const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d)
-    return `${dayName} at ${time}`
+    const dayName = new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+    }).format(d);
+    return `${dayName} at ${time}`;
   }
 
-  return formatDate(d, { includeTime: true, style: 'short' })
+  return formatDate(d, { includeTime: true, style: "short" });
 }
 
 /**
@@ -371,16 +393,16 @@ export function formatMessageTime(date: Date | string | number): string {
 export function formatPercentage(
   value: number,
   options: {
-    isWhole?: boolean
-    decimals?: number
-    showSign?: boolean
-  } = {}
+    isWhole?: boolean;
+    decimals?: number;
+    showSign?: boolean;
+  } = {},
 ): string {
-  const { isWhole = false, decimals = 0, showSign = false } = options
+  const { isWhole = false, decimals = 0, showSign = false } = options;
 
-  const percentage = isWhole ? value : value * 100
-  const formatted = percentage.toFixed(decimals)
-  const sign = showSign && percentage > 0 ? '+' : ''
+  const percentage = isWhole ? value : value * 100;
+  const formatted = percentage.toFixed(decimals);
+  const sign = showSign && percentage > 0 ? "+" : "";
 
-  return `${sign}${formatted}%`
+  return `${sign}${formatted}%`;
 }

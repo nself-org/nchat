@@ -45,7 +45,7 @@ export {
   type ParsedKey,
   type ParsedChord,
   type FormatKeyComboOptions,
-} from './key-parser'
+} from "./key-parser";
 
 // Shortcut Registry
 export {
@@ -57,7 +57,7 @@ export {
   type ShortcutDefinition,
   type ShortcutRegistrationOptions,
   type ShortcutConflict,
-} from './shortcut-registry'
+} from "./shortcut-registry";
 
 // Presets
 export {
@@ -77,7 +77,7 @@ export {
   type ShortcutPreset,
   type PresetShortcut,
   type UserShortcutOverrides,
-} from './presets'
+} from "./presets";
 
 // Shortcut Manager
 export {
@@ -87,7 +87,7 @@ export {
   destroyGlobalShortcutManager,
   type ShortcutManagerOptions,
   type ShortcutEventResult,
-} from './shortcut-manager'
+} from "./shortcut-manager";
 
 // Keymap Types
 export {
@@ -104,4 +104,4 @@ export {
   type KeymapSection,
   type KeymapEntry,
   type KeymapSearchResult,
-} from './keymap-types'
+} from "./keymap-types";

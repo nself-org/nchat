@@ -5,7 +5,7 @@
  * Supports comprehensive activity monitoring and regulatory compliance.
  */
 
-import type { UserBasicInfo } from './user'
+import type { UserBasicInfo } from "./user";
 
 // ============================================================================
 // Audit Action Types
@@ -15,177 +15,177 @@ import type { UserBasicInfo } from './user'
  * Audit action categories.
  */
 export type AuditActionCategory =
-  | 'authentication'
-  | 'user_management'
-  | 'channel_management'
-  | 'message_management'
-  | 'moderation'
-  | 'settings'
-  | 'billing'
-  | 'integration'
-  | 'security'
+  | "authentication"
+  | "user_management"
+  | "channel_management"
+  | "message_management"
+  | "moderation"
+  | "settings"
+  | "billing"
+  | "integration"
+  | "security";
 
 /**
  * Authentication actions.
  */
 export type AuthenticationAction =
-  | 'login'
-  | 'logout'
-  | 'login_failed'
-  | 'password_changed'
-  | 'password_reset_requested'
-  | 'password_reset_completed'
-  | 'mfa_enabled'
-  | 'mfa_disabled'
-  | 'mfa_verified'
-  | 'mfa_failed'
-  | 'session_created'
-  | 'session_revoked'
-  | 'api_key_created'
-  | 'api_key_revoked'
+  | "login"
+  | "logout"
+  | "login_failed"
+  | "password_changed"
+  | "password_reset_requested"
+  | "password_reset_completed"
+  | "mfa_enabled"
+  | "mfa_disabled"
+  | "mfa_verified"
+  | "mfa_failed"
+  | "session_created"
+  | "session_revoked"
+  | "api_key_created"
+  | "api_key_revoked";
 
 /**
  * User management actions.
  */
 export type UserManagementAction =
-  | 'user_created'
-  | 'user_updated'
-  | 'user_deleted'
-  | 'user_activated'
-  | 'user_deactivated'
-  | 'user_suspended'
-  | 'user_unsuspended'
-  | 'role_assigned'
-  | 'role_removed'
-  | 'permission_granted'
-  | 'permission_revoked'
-  | 'profile_updated'
-  | 'avatar_changed'
-  | 'email_changed'
-  | 'email_verified'
+  | "user_created"
+  | "user_updated"
+  | "user_deleted"
+  | "user_activated"
+  | "user_deactivated"
+  | "user_suspended"
+  | "user_unsuspended"
+  | "role_assigned"
+  | "role_removed"
+  | "permission_granted"
+  | "permission_revoked"
+  | "profile_updated"
+  | "avatar_changed"
+  | "email_changed"
+  | "email_verified";
 
 /**
  * Channel management actions.
  */
 export type ChannelManagementAction =
-  | 'channel_created'
-  | 'channel_updated'
-  | 'channel_deleted'
-  | 'channel_archived'
-  | 'channel_unarchived'
-  | 'member_added'
-  | 'member_removed'
-  | 'member_role_changed'
-  | 'member_invited'
-  | 'invite_accepted'
-  | 'invite_rejected'
-  | 'invite_expired'
-  | 'category_created'
-  | 'category_updated'
-  | 'category_deleted'
+  | "channel_created"
+  | "channel_updated"
+  | "channel_deleted"
+  | "channel_archived"
+  | "channel_unarchived"
+  | "member_added"
+  | "member_removed"
+  | "member_role_changed"
+  | "member_invited"
+  | "invite_accepted"
+  | "invite_rejected"
+  | "invite_expired"
+  | "category_created"
+  | "category_updated"
+  | "category_deleted";
 
 /**
  * Message management actions.
  */
 export type MessageManagementAction =
-  | 'message_sent'
-  | 'message_edited'
-  | 'message_deleted'
-  | 'message_restored'
-  | 'message_pinned'
-  | 'message_unpinned'
-  | 'reaction_added'
-  | 'reaction_removed'
-  | 'thread_created'
-  | 'thread_archived'
-  | 'thread_locked'
-  | 'thread_unlocked'
-  | 'file_uploaded'
-  | 'file_deleted'
+  | "message_sent"
+  | "message_edited"
+  | "message_deleted"
+  | "message_restored"
+  | "message_pinned"
+  | "message_unpinned"
+  | "reaction_added"
+  | "reaction_removed"
+  | "thread_created"
+  | "thread_archived"
+  | "thread_locked"
+  | "thread_unlocked"
+  | "file_uploaded"
+  | "file_deleted";
 
 /**
  * Moderation actions.
  */
 export type ModerationAction =
-  | 'user_warned'
-  | 'user_mute'
-  | 'user_muted'
-  | 'user_unmuted'
-  | 'user_kicked'
-  | 'user_banned'
-  | 'user_unbanned'
-  | 'user_shadowbanned'
-  | 'message_flagged'
-  | 'message_hidden'
-  | 'content_flagged'
-  | 'content_deleted'
-  | 'content_hidden'
-  | 'content_reported'
-  | 'report_resolved'
-  | 'filter_triggered'
-  | 'spam_detected'
-  | 'rate_limit_applied'
-  | 'moderation_action_reversed'
+  | "user_warned"
+  | "user_mute"
+  | "user_muted"
+  | "user_unmuted"
+  | "user_kicked"
+  | "user_banned"
+  | "user_unbanned"
+  | "user_shadowbanned"
+  | "message_flagged"
+  | "message_hidden"
+  | "content_flagged"
+  | "content_deleted"
+  | "content_hidden"
+  | "content_reported"
+  | "report_resolved"
+  | "filter_triggered"
+  | "spam_detected"
+  | "rate_limit_applied"
+  | "moderation_action_reversed";
 
 /**
  * Settings actions.
  */
 export type SettingsAction =
-  | 'workspace_settings_updated'
-  | 'notification_settings_updated'
-  | 'privacy_settings_updated'
-  | 'theme_changed'
-  | 'branding_updated'
-  | 'feature_enabled'
-  | 'feature_disabled'
-  | 'export_requested'
-  | 'export_completed'
-  | 'data_deleted'
+  | "workspace_settings_updated"
+  | "notification_settings_updated"
+  | "privacy_settings_updated"
+  | "theme_changed"
+  | "branding_updated"
+  | "feature_enabled"
+  | "feature_disabled"
+  | "export_requested"
+  | "export_completed"
+  | "data_deleted";
 
 /**
  * Billing actions.
  */
 export type BillingAction =
-  | 'plan_changed'
-  | 'subscription_created'
-  | 'subscription_canceled'
-  | 'subscription_renewed'
-  | 'payment_method_added'
-  | 'payment_method_removed'
-  | 'payment_succeeded'
-  | 'payment_failed'
-  | 'invoice_generated'
-  | 'refund_issued'
+  | "plan_changed"
+  | "subscription_created"
+  | "subscription_canceled"
+  | "subscription_renewed"
+  | "payment_method_added"
+  | "payment_method_removed"
+  | "payment_succeeded"
+  | "payment_failed"
+  | "invoice_generated"
+  | "refund_issued";
 
 /**
  * Integration actions.
  */
 export type IntegrationAction =
-  | 'integration_connected'
-  | 'integration_disconnected'
-  | 'integration_configured'
-  | 'webhook_created'
-  | 'webhook_deleted'
-  | 'webhook_triggered'
-  | 'bot_installed'
-  | 'bot_uninstalled'
-  | 'bot_authorized'
-  | 'api_called'
+  | "integration_connected"
+  | "integration_disconnected"
+  | "integration_configured"
+  | "webhook_created"
+  | "webhook_deleted"
+  | "webhook_triggered"
+  | "bot_installed"
+  | "bot_uninstalled"
+  | "bot_authorized"
+  | "api_called";
 
 /**
  * Security actions.
  */
 export type SecurityAction =
-  | 'suspicious_activity_detected'
-  | 'ip_blocked'
-  | 'ip_unblocked'
-  | 'account_locked'
-  | 'account_unlocked'
-  | 'data_accessed'
-  | 'permission_escalation_attempt'
-  | 'invalid_token_used'
-  | 'rate_limit_exceeded'
-  | 'security_alert_triggered'
+  | "suspicious_activity_detected"
+  | "ip_blocked"
+  | "ip_unblocked"
+  | "account_locked"
+  | "account_unlocked"
+  | "data_accessed"
+  | "permission_escalation_attempt"
+  | "invalid_token_used"
+  | "rate_limit_exceeded"
+  | "security_alert_triggered";
 
 /**
  * All audit actions union type.
@@ -199,7 +199,7 @@ export type AuditAction =
   | SettingsAction
   | BillingAction
   | IntegrationAction
-  | SecurityAction
+  | SecurityAction;
 
 // ============================================================================
 // Audit Log Types
@@ -208,121 +208,121 @@ export type AuditAction =
 /**
  * Audit log severity levels.
  */
-export type AuditSeverity = 'low' | 'medium' | 'high' | 'critical'
+export type AuditSeverity = "low" | "medium" | "high" | "critical";
 
 /**
  * Audit log entry.
  */
 export interface AuditLog {
   /** Unique audit log identifier */
-  id: string
+  id: string;
   /** Workspace ID (null for system-wide) */
-  workspaceId: string | null
+  workspaceId: string | null;
 
   // Action details
   /** Action performed */
-  action: AuditAction
+  action: AuditAction;
   /** Action category */
-  category: AuditActionCategory
+  category: AuditActionCategory;
   /** Severity level */
-  severity: AuditSeverity
+  severity: AuditSeverity;
 
   // Actor information
   /** User who performed the action */
-  actorId: string | null
+  actorId: string | null;
   /** Actor details (cached) */
-  actor: UserBasicInfo | null
+  actor: UserBasicInfo | null;
   /** Actor type */
-  actorType: 'user' | 'system' | 'bot' | 'api' | 'webhook'
+  actorType: "user" | "system" | "bot" | "api" | "webhook";
 
   // Target information
   /** Entity type affected */
-  entityType: AuditEntityType
+  entityType: AuditEntityType;
   /** Entity ID affected */
-  entityId: string | null
+  entityId: string | null;
   /** Target user ID (if applicable) */
-  targetUserId: string | null
+  targetUserId: string | null;
   /** Target user details (cached) */
-  targetUser: UserBasicInfo | null
+  targetUser: UserBasicInfo | null;
   /** Channel ID (if applicable) */
-  channelId: string | null
+  channelId: string | null;
 
   // Change details
   /** Previous values (for updates) */
-  previousValues: Record<string, unknown> | null
+  previousValues: Record<string, unknown> | null;
   /** New values (for creates/updates) */
-  newValues: Record<string, unknown> | null
+  newValues: Record<string, unknown> | null;
   /** Change summary */
-  changeSummary: string | null
+  changeSummary: string | null;
 
   // Additional context
   /** Human-readable description */
-  description: string
+  description: string;
   /** Additional metadata */
-  metadata: AuditMetadata
+  metadata: AuditMetadata;
 
   // Request information
   /** Client IP address */
-  ipAddress: string | null
+  ipAddress: string | null;
   /** User agent string */
-  userAgent: string | null
+  userAgent: string | null;
   /** Geolocation (from IP) */
-  location: AuditLocation | null
+  location: AuditLocation | null;
   /** Request correlation ID */
-  requestId: string | null
+  requestId: string | null;
   /** Session ID */
-  sessionId: string | null
+  sessionId: string | null;
 
   // Status
   /** Action result */
-  result: 'success' | 'failure' | 'partial'
+  result: "success" | "failure" | "partial";
   /** Error message (if failed) */
-  errorMessage: string | null
+  errorMessage: string | null;
 
   /** Log creation timestamp */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
  * Audit entity types.
  */
 export type AuditEntityType =
-  | 'user'
-  | 'workspace'
-  | 'channel'
-  | 'message'
-  | 'thread'
-  | 'role'
-  | 'permission'
-  | 'integration'
-  | 'webhook'
-  | 'bot'
-  | 'subscription'
-  | 'invoice'
-  | 'settings'
-  | 'file'
-  | 'api_key'
-  | 'session'
-  | 'report'
+  | "user"
+  | "workspace"
+  | "channel"
+  | "message"
+  | "thread"
+  | "role"
+  | "permission"
+  | "integration"
+  | "webhook"
+  | "bot"
+  | "subscription"
+  | "invoice"
+  | "settings"
+  | "file"
+  | "api_key"
+  | "session"
+  | "report";
 
 /**
  * Audit metadata.
  */
 export interface AuditMetadata {
   /** Device type */
-  deviceType?: 'desktop' | 'mobile' | 'tablet' | 'api'
+  deviceType?: "desktop" | "mobile" | "tablet" | "api";
   /** Browser name */
-  browser?: string
+  browser?: string;
   /** Operating system */
-  os?: string
+  os?: string;
   /** API version (for API calls) */
-  apiVersion?: string
+  apiVersion?: string;
   /** Integration name (for integration events) */
-  integrationName?: string
+  integrationName?: string;
   /** Bot name (for bot events) */
-  botName?: string
+  botName?: string;
   /** Additional context */
-  [key: string]: unknown
+  [key: string]: unknown;
 }
 
 /**
@@ -330,19 +330,19 @@ export interface AuditMetadata {
  */
 export interface AuditLocation {
   /** Country code (ISO 3166-1 alpha-2) */
-  country: string | null
+  country: string | null;
   /** Country name */
-  countryName: string | null
+  countryName: string | null;
   /** Region/state */
-  region: string | null
+  region: string | null;
   /** City */
-  city: string | null
+  city: string | null;
   /** Latitude */
-  latitude: number | null
+  latitude: number | null;
   /** Longitude */
-  longitude: number | null
+  longitude: number | null;
   /** Timezone */
-  timezone: string | null
+  timezone: string | null;
 }
 
 // ============================================================================
@@ -354,33 +354,33 @@ export interface AuditLocation {
  */
 export interface AuditLogFilter {
   /** Filter by workspace ID */
-  workspaceId?: string
+  workspaceId?: string;
   /** Filter by actions */
-  actions?: AuditAction[]
+  actions?: AuditAction[];
   /** Filter by categories */
-  categories?: AuditActionCategory[]
+  categories?: AuditActionCategory[];
   /** Filter by severity levels */
-  severities?: AuditSeverity[]
+  severities?: AuditSeverity[];
   /** Filter by actor ID */
-  actorId?: string
+  actorId?: string;
   /** Filter by target user ID */
-  targetUserId?: string
+  targetUserId?: string;
   /** Filter by entity type */
-  entityType?: AuditEntityType
+  entityType?: AuditEntityType;
   /** Filter by entity ID */
-  entityId?: string
+  entityId?: string;
   /** Filter by channel ID */
-  channelId?: string
+  channelId?: string;
   /** Filter by result */
-  result?: 'success' | 'failure' | 'partial'
+  result?: "success" | "failure" | "partial";
   /** Filter by date range start */
-  dateFrom?: Date
+  dateFrom?: Date;
   /** Filter by date range end */
-  dateTo?: Date
+  dateTo?: Date;
   /** Filter by IP address */
-  ipAddress?: string
+  ipAddress?: string;
   /** Search in description */
-  search?: string
+  search?: string;
 }
 
 /**
@@ -388,9 +388,9 @@ export interface AuditLogFilter {
  */
 export interface AuditLogSortOptions {
   /** Sort field */
-  sortBy: 'createdAt' | 'severity' | 'action' | 'category'
+  sortBy: "createdAt" | "severity" | "action" | "category";
   /** Sort direction */
-  sortOrder: 'asc' | 'desc'
+  sortOrder: "asc" | "desc";
 }
 
 /**
@@ -398,16 +398,16 @@ export interface AuditLogSortOptions {
  */
 export interface AuditLogSearchResult {
   /** Audit logs */
-  logs: AuditLog[]
+  logs: AuditLog[];
   /** Total count */
-  totalCount: number
+  totalCount: number;
   /** Page info */
   pageInfo: {
-    hasNextPage: boolean
-    hasPreviousPage: boolean
-    startCursor: string | null
-    endCursor: string | null
-  }
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    startCursor: string | null;
+    endCursor: string | null;
+  };
 }
 
 // ============================================================================
@@ -419,41 +419,41 @@ export interface AuditLogSearchResult {
  */
 export interface AuditStatistics {
   /** Workspace ID */
-  workspaceId: string | null
+  workspaceId: string | null;
   /** Time range */
   timeRange: {
-    start: Date
-    end: Date
-  }
+    start: Date;
+    end: Date;
+  };
   /** Total events */
-  totalEvents: number
+  totalEvents: number;
   /** Events by category */
-  byCategory: Record<AuditActionCategory, number>
+  byCategory: Record<AuditActionCategory, number>;
   /** Events by severity */
-  bySeverity: Record<AuditSeverity, number>
+  bySeverity: Record<AuditSeverity, number>;
   /** Events by result */
   byResult: {
-    success: number
-    failure: number
-    partial: number
-  }
+    success: number;
+    failure: number;
+    partial: number;
+  };
   /** Top actors */
   topActors: Array<{
-    actor: UserBasicInfo | null
-    eventCount: number
-  }>
+    actor: UserBasicInfo | null;
+    eventCount: number;
+  }>;
   /** Most common actions */
   topActions: Array<{
-    action: AuditAction
-    count: number
-  }>
+    action: AuditAction;
+    count: number;
+  }>;
   /** Events by day */
   eventsByDay: Array<{
-    date: string
-    count: number
-  }>
+    date: string;
+    count: number;
+  }>;
   /** Security incidents */
-  securityIncidents: number
+  securityIncidents: number;
 }
 
 /**
@@ -461,30 +461,30 @@ export interface AuditStatistics {
  */
 export interface UserActivitySummary {
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Time range */
   timeRange: {
-    start: Date
-    end: Date
-  }
+    start: Date;
+    end: Date;
+  };
   /** Total actions */
-  totalActions: number
+  totalActions: number;
   /** Actions by category */
-  actionsByCategory: Record<AuditActionCategory, number>
+  actionsByCategory: Record<AuditActionCategory, number>;
   /** Login count */
-  loginCount: number
+  loginCount: number;
   /** Last login */
-  lastLogin: Date | null
+  lastLogin: Date | null;
   /** Unique IPs used */
-  uniqueIps: string[]
+  uniqueIps: string[];
   /** Unique devices */
-  uniqueDevices: string[]
+  uniqueDevices: string[];
   /** Failed login attempts */
-  failedLoginAttempts: number
+  failedLoginAttempts: number;
   /** Security alerts */
-  securityAlerts: number
+  securityAlerts: number;
 }
 
 // ============================================================================
@@ -494,29 +494,29 @@ export interface UserActivitySummary {
 /**
  * Audit export format.
  */
-export type AuditExportFormat = 'json' | 'csv' | 'pdf'
+export type AuditExportFormat = "json" | "csv" | "pdf";
 
 /**
  * Audit export request.
  */
 export interface AuditExportRequest {
   /** Export format */
-  format: AuditExportFormat
+  format: AuditExportFormat;
   /** Filter criteria */
-  filter: AuditLogFilter
+  filter: AuditLogFilter;
   /** Fields to include */
-  fields?: (keyof AuditLog)[]
+  fields?: (keyof AuditLog)[];
   /** Include metadata */
-  includeMetadata?: boolean
+  includeMetadata?: boolean;
   /** Date range required */
   dateRange: {
-    start: Date
-    end: Date
-  }
+    start: Date;
+    end: Date;
+  };
   /** Delivery method */
-  delivery: 'download' | 'email'
+  delivery: "download" | "email";
   /** Email address (if delivery === 'email') */
-  email?: string
+  email?: string;
 }
 
 /**
@@ -524,27 +524,27 @@ export interface AuditExportRequest {
  */
 export interface AuditExportStatus {
   /** Export ID */
-  id: string
+  id: string;
   /** Request details */
-  request: AuditExportRequest
+  request: AuditExportRequest;
   /** Status */
-  status: 'pending' | 'processing' | 'completed' | 'failed'
+  status: "pending" | "processing" | "completed" | "failed";
   /** Progress percentage */
-  progress: number
+  progress: number;
   /** Total records */
-  totalRecords: number
+  totalRecords: number;
   /** Processed records */
-  processedRecords: number
+  processedRecords: number;
   /** Download URL (when completed) */
-  downloadUrl: string | null
+  downloadUrl: string | null;
   /** Error message (if failed) */
-  errorMessage: string | null
+  errorMessage: string | null;
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Completed timestamp */
-  completedAt: Date | null
+  completedAt: Date | null;
   /** Expires at */
-  expiresAt: Date | null
+  expiresAt: Date | null;
 }
 
 // ============================================================================
@@ -556,35 +556,35 @@ export interface AuditExportStatus {
  */
 export interface SecurityEvent {
   /** Event ID */
-  id: string
+  id: string;
   /** Event type */
-  type: SecurityAction
+  type: SecurityAction;
   /** Severity */
-  severity: AuditSeverity
+  severity: AuditSeverity;
   /** Description */
-  description: string
+  description: string;
   /** User ID (if known) */
-  userId: string | null
+  userId: string | null;
   /** User details */
-  user: UserBasicInfo | null
+  user: UserBasicInfo | null;
   /** IP address */
-  ipAddress: string | null
+  ipAddress: string | null;
   /** Location */
-  location: AuditLocation | null
+  location: AuditLocation | null;
   /** Threat indicators */
-  indicators: SecurityIndicator[]
+  indicators: SecurityIndicator[];
   /** Recommended actions */
-  recommendations: string[]
+  recommendations: string[];
   /** Is resolved */
-  isResolved: boolean
+  isResolved: boolean;
   /** Resolution notes */
-  resolutionNotes: string | null
+  resolutionNotes: string | null;
   /** Resolved by */
-  resolvedBy: string | null
+  resolvedBy: string | null;
   /** Resolved at */
-  resolvedAt: Date | null
+  resolvedAt: Date | null;
   /** Created at */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
@@ -592,13 +592,13 @@ export interface SecurityEvent {
  */
 export interface SecurityIndicator {
   /** Indicator type */
-  type: 'ip' | 'user_agent' | 'behavior' | 'pattern' | 'location'
+  type: "ip" | "user_agent" | "behavior" | "pattern" | "location";
   /** Indicator value */
-  value: string
+  value: string;
   /** Confidence score (0-100) */
-  confidence: number
+  confidence: number;
   /** Description */
-  description: string
+  description: string;
 }
 
 // ============================================================================
@@ -610,26 +610,26 @@ export interface SecurityIndicator {
  */
 export function getActionCategory(action: AuditAction): AuditActionCategory {
   const categoryMap: Record<string, AuditActionCategory> = {
-    login: 'authentication',
-    logout: 'authentication',
-    login_failed: 'authentication',
-    password_changed: 'authentication',
-    mfa_enabled: 'authentication',
-    user_created: 'user_management',
-    user_updated: 'user_management',
-    channel_created: 'channel_management',
-    channel_updated: 'channel_management',
-    message_sent: 'message_management',
-    message_deleted: 'message_management',
-    user_banned: 'moderation',
-    user_muted: 'moderation',
-    workspace_settings_updated: 'settings',
-    plan_changed: 'billing',
-    integration_connected: 'integration',
-    suspicious_activity_detected: 'security',
-  }
+    login: "authentication",
+    logout: "authentication",
+    login_failed: "authentication",
+    password_changed: "authentication",
+    mfa_enabled: "authentication",
+    user_created: "user_management",
+    user_updated: "user_management",
+    channel_created: "channel_management",
+    channel_updated: "channel_management",
+    message_sent: "message_management",
+    message_deleted: "message_management",
+    user_banned: "moderation",
+    user_muted: "moderation",
+    workspace_settings_updated: "settings",
+    plan_changed: "billing",
+    integration_connected: "integration",
+    suspicious_activity_detected: "security",
+  };
 
-  return categoryMap[action] || 'security'
+  return categoryMap[action] || "security";
 }
 
 /**
@@ -637,12 +637,12 @@ export function getActionCategory(action: AuditAction): AuditActionCategory {
  */
 export function getSeverityLabel(severity: AuditSeverity): string {
   const labels: Record<AuditSeverity, string> = {
-    low: 'Low',
-    medium: 'Medium',
-    high: 'High',
-    critical: 'Critical',
-  }
-  return labels[severity]
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+    critical: "Critical",
+  };
+  return labels[severity];
 }
 
 /**
@@ -650,37 +650,37 @@ export function getSeverityLabel(severity: AuditSeverity): string {
  */
 export function getSeverityColor(severity: AuditSeverity): string {
   const colors: Record<AuditSeverity, string> = {
-    low: 'gray',
-    medium: 'yellow',
-    high: 'orange',
-    critical: 'red',
-  }
-  return colors[severity]
+    low: "gray",
+    medium: "yellow",
+    high: "orange",
+    critical: "red",
+  };
+  return colors[severity];
 }
 
 /**
  * Format audit log for display.
  */
 export function formatAuditDescription(log: AuditLog): string {
-  const actor = log.actor?.displayName || log.actorId || 'System'
-  const target = log.targetUser?.displayName || log.entityId || ''
+  const actor = log.actor?.displayName || log.actorId || "System";
+  const target = log.targetUser?.displayName || log.entityId || "";
 
   // Build description based on action
   switch (log.action) {
-    case 'login':
-      return `${actor} logged in`
-    case 'logout':
-      return `${actor} logged out`
-    case 'user_created':
-      return `${actor} created user ${target}`
-    case 'user_banned':
-      return `${actor} banned ${target}`
-    case 'channel_created':
-      return `${actor} created a new channel`
-    case 'message_deleted':
-      return `${actor} deleted a message`
+    case "login":
+      return `${actor} logged in`;
+    case "logout":
+      return `${actor} logged out`;
+    case "user_created":
+      return `${actor} created user ${target}`;
+    case "user_banned":
+      return `${actor} banned ${target}`;
+    case "channel_created":
+      return `${actor} created a new channel`;
+    case "message_deleted":
+      return `${actor} deleted a message`;
     default:
-      return log.description
+      return log.description;
   }
 }
 
@@ -689,16 +689,16 @@ export function formatAuditDescription(log: AuditLog): string {
  */
 export function isSecuritySensitive(action: AuditAction): boolean {
   const sensitiveActions: AuditAction[] = [
-    'login_failed',
-    'password_changed',
-    'password_reset_requested',
-    'mfa_disabled',
-    'user_banned',
-    'user_suspended',
-    'permission_escalation_attempt',
-    'invalid_token_used',
-    'suspicious_activity_detected',
-    'security_alert_triggered',
-  ]
-  return sensitiveActions.includes(action)
+    "login_failed",
+    "password_changed",
+    "password_reset_requested",
+    "mfa_disabled",
+    "user_banned",
+    "user_suspended",
+    "permission_escalation_attempt",
+    "invalid_token_used",
+    "suspicious_activity_detected",
+    "security_alert_triggered",
+  ];
+  return sensitiveActions.includes(action);
 }

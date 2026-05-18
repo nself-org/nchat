@@ -5,29 +5,29 @@
  * and optimizing database access patterns.
  */
 
-import { ApolloClient, gql, DocumentNode } from '@apollo/client'
+import { ApolloClient, gql, DocumentNode } from "@apollo/client";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface BatchedQuery {
-  id: string
-  query: DocumentNode
-  variables?: Record<string, any>
-  resolve: (data: any) => void
-  reject: (error: any) => void
+  id: string;
+  query: DocumentNode;
+  variables?: Record<string, any>;
+  resolve: (data: any) => void;
+  reject: (error: any) => void;
 }
 
 interface DataLoaderOptions {
   /** Maximum batch size */
-  maxBatchSize?: number
+  maxBatchSize?: number;
   /** Batch window in milliseconds */
-  batchWindowMs?: number
+  batchWindowMs?: number;
   /** Cache results */
-  cache?: boolean
+  cache?: boolean;
   /** Cache TTL in milliseconds */
-  cacheTTL?: number
+  cacheTTL?: number;
 }
 
 // =============================================================================
@@ -38,23 +38,26 @@ interface DataLoaderOptions {
  * Batches multiple GraphQL queries into a single request
  */
 export class QueryBatcher {
-  private queue: BatchedQuery[] = []
-  private batchTimer: NodeJS.Timeout | null = null
-  private readonly batchWindowMs: number
-  private readonly maxBatchSize: number
+  private queue: BatchedQuery[] = [];
+  private batchTimer: NodeJS.Timeout | null = null;
+  private readonly batchWindowMs: number;
+  private readonly maxBatchSize: number;
 
   constructor(
     private client: ApolloClient<any>,
-    options: DataLoaderOptions = {}
+    options: DataLoaderOptions = {},
   ) {
-    this.batchWindowMs = options.batchWindowMs ?? 10
-    this.maxBatchSize = options.maxBatchSize ?? 50
+    this.batchWindowMs = options.batchWindowMs ?? 10;
+    this.maxBatchSize = options.maxBatchSize ?? 50;
   }
 
   /**
    * Add query to batch
    */
-  async query<T = any>(query: DocumentNode, variables?: Record<string, any>): Promise<T> {
+  async query<T = any>(
+    query: DocumentNode,
+    variables?: Record<string, any>,
+  ): Promise<T> {
     return new Promise((resolve, reject) => {
       this.queue.push({
         id: Math.random().toString(36).substring(7),
@@ -62,18 +65,18 @@ export class QueryBatcher {
         variables,
         resolve,
         reject,
-      })
+      });
 
       // Start batch timer if not already running
       if (!this.batchTimer) {
-        this.batchTimer = setTimeout(() => this.flush(), this.batchWindowMs)
+        this.batchTimer = setTimeout(() => this.flush(), this.batchWindowMs);
       }
 
       // Flush immediately if max batch size reached
       if (this.queue.length >= this.maxBatchSize) {
-        this.flush()
+        this.flush();
       }
-    })
+    });
   }
 
   /**
@@ -81,35 +84,35 @@ export class QueryBatcher {
    */
   private async flush() {
     if (this.batchTimer) {
-      clearTimeout(this.batchTimer)
-      this.batchTimer = null
+      clearTimeout(this.batchTimer);
+      this.batchTimer = null;
     }
 
     if (this.queue.length === 0) {
-      return
+      return;
     }
 
-    const batch = this.queue.splice(0, this.maxBatchSize)
+    const batch = this.queue.splice(0, this.maxBatchSize);
 
     // Execute all queries in parallel
     const results = await Promise.allSettled(
       batch.map(({ query, variables }) =>
-        this.client.query({ query, variables, fetchPolicy: 'network-only' })
-      )
-    )
+        this.client.query({ query, variables, fetchPolicy: "network-only" }),
+      ),
+    );
 
     // Resolve/reject promises
     results.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
-        batch[index].resolve(result.value.data)
+      if (result.status === "fulfilled") {
+        batch[index].resolve(result.value.data);
       } else {
-        batch[index].reject(result.reason)
+        batch[index].reject(result.reason);
       }
-    })
+    });
 
     // If there are more queries, flush again
     if (this.queue.length > 0) {
-      setTimeout(() => this.flush(), 0)
+      setTimeout(() => this.flush(), 0);
     }
   }
 }
@@ -123,24 +126,24 @@ export class QueryBatcher {
  */
 export class DataLoader<K, V> {
   private queue: Array<{
-    key: K
-    resolve: (value: V) => void
-    reject: (error: any) => void
-  }> = []
-  private cache = new Map<string, { value: V; timestamp: number }>()
-  private batchTimer: NodeJS.Timeout | null = null
-  private readonly options: Required<DataLoaderOptions>
+    key: K;
+    resolve: (value: V) => void;
+    reject: (error: any) => void;
+  }> = [];
+  private cache = new Map<string, { value: V; timestamp: number }>();
+  private batchTimer: NodeJS.Timeout | null = null;
+  private readonly options: Required<DataLoaderOptions>;
 
   constructor(
     private batchLoadFn: (keys: K[]) => Promise<V[]>,
-    options: DataLoaderOptions = {}
+    options: DataLoaderOptions = {},
   ) {
     this.options = {
       maxBatchSize: options.maxBatchSize ?? 100,
       batchWindowMs: options.batchWindowMs ?? 10,
       cache: options.cache ?? true,
       cacheTTL: options.cacheTTL ?? 60000, // 1 minute default
-    }
+    };
   }
 
   /**
@@ -149,32 +152,35 @@ export class DataLoader<K, V> {
   async load(key: K): Promise<V> {
     // Check cache
     if (this.options.cache) {
-      const cached = this.getCached(key)
+      const cached = this.getCached(key);
       if (cached !== null) {
-        return cached
+        return cached;
       }
     }
 
     return new Promise((resolve, reject) => {
-      this.queue.push({ key, resolve, reject })
+      this.queue.push({ key, resolve, reject });
 
       // Start batch timer
       if (!this.batchTimer) {
-        this.batchTimer = setTimeout(() => this.flush(), this.options.batchWindowMs)
+        this.batchTimer = setTimeout(
+          () => this.flush(),
+          this.options.batchWindowMs,
+        );
       }
 
       // Flush if max batch size reached
       if (this.queue.length >= this.options.maxBatchSize) {
-        this.flush()
+        this.flush();
       }
-    })
+    });
   }
 
   /**
    * Load multiple items (batched)
    */
   async loadMany(keys: K[]): Promise<V[]> {
-    return Promise.all(keys.map((key) => this.load(key)))
+    return Promise.all(keys.map((key) => this.load(key)));
   }
 
   /**
@@ -182,9 +188,9 @@ export class DataLoader<K, V> {
    */
   clearCache(key?: K) {
     if (key) {
-      this.cache.delete(this.getCacheKey(key))
+      this.cache.delete(this.getCacheKey(key));
     } else {
-      this.cache.clear()
+      this.cache.clear();
     }
   }
 
@@ -193,65 +199,65 @@ export class DataLoader<K, V> {
    */
   private async flush() {
     if (this.batchTimer) {
-      clearTimeout(this.batchTimer)
-      this.batchTimer = null
+      clearTimeout(this.batchTimer);
+      this.batchTimer = null;
     }
 
     if (this.queue.length === 0) {
-      return
+      return;
     }
 
-    const batch = this.queue.splice(0, this.options.maxBatchSize)
-    const keys = batch.map((item) => item.key)
+    const batch = this.queue.splice(0, this.options.maxBatchSize);
+    const keys = batch.map((item) => item.key);
 
     try {
-      const results = await this.batchLoadFn(keys)
+      const results = await this.batchLoadFn(keys);
 
       // Cache and resolve results
       results.forEach((result, index) => {
-        const key = keys[index]
+        const key = keys[index];
         if (this.options.cache) {
-          this.setCached(key, result)
+          this.setCached(key, result);
         }
-        batch[index].resolve(result)
-      })
+        batch[index].resolve(result);
+      });
     } catch (error) {
       // Reject all promises on error
-      batch.forEach((item) => item.reject(error))
+      batch.forEach((item) => item.reject(error));
     }
 
     // Continue flushing if more items in queue
     if (this.queue.length > 0) {
-      setTimeout(() => this.flush(), 0)
+      setTimeout(() => this.flush(), 0);
     }
   }
 
   private getCacheKey(key: K): string {
-    return JSON.stringify(key)
+    return JSON.stringify(key);
   }
 
   private getCached(key: K): V | null {
-    const cacheKey = this.getCacheKey(key)
-    const cached = this.cache.get(cacheKey)
+    const cacheKey = this.getCacheKey(key);
+    const cached = this.cache.get(cacheKey);
 
     if (!cached) {
-      return null
+      return null;
     }
 
     // Check TTL
     if (Date.now() - cached.timestamp > this.options.cacheTTL) {
-      this.cache.delete(cacheKey)
-      return null
+      this.cache.delete(cacheKey);
+      return null;
     }
 
-    return cached.value
+    return cached.value;
   }
 
   private setCached(key: K, value: V) {
     this.cache.set(this.getCacheKey(key), {
       value,
       timestamp: Date.now(),
-    })
+    });
   }
 }
 
@@ -280,14 +286,14 @@ export function createUserLoader(client: ApolloClient<any>) {
           }
         `,
         variables: { ids: userIds },
-      })
+      });
 
       // Map results back to input order
-      const userMap = new Map(data.nchat_users.map((u: any) => [u.id, u]))
-      return userIds.map((id) => userMap.get(id) || null)
+      const userMap = new Map(data.nchat_users.map((u: any) => [u.id, u]));
+      return userIds.map((id) => userMap.get(id) || null);
     },
-    { cacheTTL: 30000 } // 30 seconds
-  )
+    { cacheTTL: 30000 }, // 30 seconds
+  );
 }
 
 /**
@@ -312,13 +318,15 @@ export function createChannelLoader(client: ApolloClient<any>) {
           }
         `,
         variables: { ids: channelIds },
-      })
+      });
 
-      const channelMap = new Map(data.nchat_channels.map((c: any) => [c.id, c]))
-      return channelIds.map((id) => channelMap.get(id) || null)
+      const channelMap = new Map(
+        data.nchat_channels.map((c: any) => [c.id, c]),
+      );
+      return channelIds.map((id) => channelMap.get(id) || null);
     },
-    { cacheTTL: 60000 } // 1 minute
-  )
+    { cacheTTL: 60000 }, // 1 minute
+  );
 }
 
 /**
@@ -343,13 +351,15 @@ export function createMessageLoader(client: ApolloClient<any>) {
           }
         `,
         variables: { ids: messageIds },
-      })
+      });
 
-      const messageMap = new Map(data.nchat_messages.map((m: any) => [m.id, m]))
-      return messageIds.map((id) => messageMap.get(id) || null)
+      const messageMap = new Map(
+        data.nchat_messages.map((m: any) => [m.id, m]),
+      );
+      return messageIds.map((id) => messageMap.get(id) || null);
     },
-    { cacheTTL: 10000 } // 10 seconds (messages change frequently)
-  )
+    { cacheTTL: 10000 }, // 10 seconds (messages change frequently)
+  );
 }
 
 // =============================================================================
@@ -410,20 +420,23 @@ export const OPTIMIZED_FRAGMENTS = {
       last_message_at
     }
   `,
-}
+};
 
 /**
  * Create paginated query with cursor
  */
-export function createPaginatedQuery(baseQuery: DocumentNode, limit: number = 50) {
+export function createPaginatedQuery(
+  baseQuery: DocumentNode,
+  limit: number = 50,
+) {
   return {
     query: baseQuery,
     variables: {
       limit,
       offset: 0,
     },
-    fetchPolicy: 'network-only' as const,
-  }
+    fetchPolicy: "network-only" as const,
+  };
 }
 
 /**
@@ -460,7 +473,7 @@ export async function prefetchCriticalData(client: ApolloClient<any>) {
         }
       `,
     }),
-  ]
+  ];
 
-  await Promise.allSettled(queries)
+  await Promise.allSettled(queries);
 }

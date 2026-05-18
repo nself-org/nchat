@@ -1,25 +1,31 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Wifi, WifiOff, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useSocket } from '@/hooks/use-socket'
-import { useToast } from '@/hooks/use-toast'
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useSocket } from "@/hooks/use-socket";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Connection quality levels
  */
-type ConnectionQuality = 'excellent' | 'good' | 'poor' | 'offline'
+type ConnectionQuality = "excellent" | "good" | "poor" | "offline";
 
 /**
  * Get connection quality based on latency
  */
 function getConnectionQuality(latency: number): ConnectionQuality {
-  if (latency === 0) return 'offline'
-  if (latency < 100) return 'excellent'
-  if (latency < 300) return 'good'
-  return 'poor'
+  if (latency === 0) return "offline";
+  if (latency < 100) return "excellent";
+  if (latency < 300) return "good";
+  return "poor";
 }
 
 /**
@@ -27,15 +33,15 @@ function getConnectionQuality(latency: number): ConnectionQuality {
  */
 export interface ConnectionStatusProps {
   /** Whether to show the indicator */
-  show?: boolean
+  show?: boolean;
   /** Position of the indicator */
-  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   /** Show detailed stats */
-  showStats?: boolean
+  showStats?: boolean;
   /** Compact mode */
-  compact?: boolean
+  compact?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -44,20 +50,20 @@ export interface ConnectionStatusProps {
  */
 export function ConnectionStatus({
   show = true,
-  position = 'top-right',
+  position = "top-right",
   showStats = false,
   compact = false,
   className,
 }: ConnectionStatusProps) {
-  const { isConnected, socketId } = useSocket()
-  const { toast } = useToast()
+  const { isConnected, socketId } = useSocket();
+  const { toast } = useToast();
 
-  const [reconnectAttempts, setReconnectAttempts] = useState(0)
-  const [latency, setLatency] = useState(0)
-  const [wasConnected, setWasConnected] = useState(false)
-  const [showIndicator, setShowIndicator] = useState(false)
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const [latency, setLatency] = useState(0);
+  const [wasConnected, setWasConnected] = useState(false);
+  const [showIndicator, setShowIndicator] = useState(false);
 
-  const quality = getConnectionQuality(latency)
+  const quality = getConnectionQuality(latency);
 
   // Track connection changes
   useEffect(() => {
@@ -65,59 +71,59 @@ export function ConnectionStatus({
       if (wasConnected && reconnectAttempts > 0) {
         // Reconnected after disconnect
         toast({
-          title: 'Reconnected',
-          description: 'Connection restored successfully',
-          variant: 'default',
-        })
-        setReconnectAttempts(0)
+          title: "Reconnected",
+          description: "Connection restored successfully",
+          variant: "default",
+        });
+        setReconnectAttempts(0);
       }
-      setWasConnected(true)
+      setWasConnected(true);
 
       // Hide indicator after 3 seconds when connected
-      const timer = setTimeout(() => setShowIndicator(false), 3000)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => setShowIndicator(false), 3000);
+      return () => clearTimeout(timer);
     } else {
-      setShowIndicator(true)
+      setShowIndicator(true);
       if (wasConnected) {
         // Disconnected
         toast({
-          title: 'Connection lost',
-          description: 'Attempting to reconnect...',
-          variant: 'destructive',
-        })
-        setReconnectAttempts((prev) => prev + 1)
+          title: "Connection lost",
+          description: "Attempting to reconnect...",
+          variant: "destructive",
+        });
+        setReconnectAttempts((prev) => prev + 1);
       }
     }
-  }, [isConnected, wasConnected, reconnectAttempts, toast])
+  }, [isConnected, wasConnected, reconnectAttempts, toast]);
 
   // Measure latency with ping/pong
   useEffect(() => {
     if (!isConnected) {
-      setLatency(0)
-      return
+      setLatency(0);
+      return;
     }
 
     const interval = setInterval(() => {
-      const start = Date.now()
+      const start = Date.now();
       // In a real implementation, you'd use socket.emit('ping') and measure response time
       // For now, we'll simulate it
-      setLatency(Math.random() * 200) // 0-200ms simulated latency
-    }, 5000)
+      setLatency(Math.random() * 200); // 0-200ms simulated latency
+    }, 5000);
 
-    return () => clearInterval(interval)
-  }, [isConnected])
+    return () => clearInterval(interval);
+  }, [isConnected]);
 
   // Don't render if hidden or not shown
   if (!show && !showIndicator) {
-    return null
+    return null;
   }
 
   const positionClasses = {
-    'top-left': 'top-4 left-4',
-    'top-right': 'top-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'bottom-right': 'bottom-4 right-4',
-  }
+    "top-left": "top-4 left-4",
+    "top-right": "top-4 right-4",
+    "bottom-left": "bottom-4 left-4",
+    "bottom-right": "bottom-4 right-4",
+  };
 
   return (
     <AnimatePresence>
@@ -126,22 +132,24 @@ export function ConnectionStatus({
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className={cn('fixed z-50', positionClasses[position], className)}
+          className={cn("fixed z-50", positionClasses[position], className)}
         >
           <div
             className={cn(
-              'bg-background/95 flex items-center gap-2 rounded-lg border shadow-lg backdrop-blur',
-              compact ? 'px-2 py-1' : 'px-3 py-2'
+              "bg-background/95 flex items-center gap-2 rounded-lg border shadow-lg backdrop-blur",
+              compact ? "px-2 py-1" : "px-3 py-2",
             )}
           >
             {/* Connection icon */}
             <div className="relative">
               {isConnected ? (
-                quality === 'excellent' || quality === 'good' ? (
+                quality === "excellent" || quality === "good" ? (
                   <Wifi
                     className={cn(
-                      'h-4 w-4',
-                      quality === 'excellent' ? 'text-green-500' : 'text-yellow-500'
+                      "h-4 w-4",
+                      quality === "excellent"
+                        ? "text-green-500"
+                        : "text-yellow-500",
                     )}
                   />
                 ) : (
@@ -154,7 +162,7 @@ export function ConnectionStatus({
               )}
 
               {/* Pulse animation for poor connection */}
-              {isConnected && quality === 'poor' && (
+              {isConnected && quality === "poor" && (
                 <span className="absolute inset-0 animate-ping">
                   <AlertCircle className="h-4 w-4 text-orange-500 opacity-75" />
                 </span>
@@ -166,25 +174,25 @@ export function ConnectionStatus({
               <div className="flex flex-col">
                 <span
                   className={cn(
-                    'text-xs font-medium',
+                    "text-xs font-medium",
                     isConnected
-                      ? quality === 'excellent'
-                        ? 'text-green-600 dark:text-green-400'
-                        : quality === 'good'
-                          ? 'text-yellow-600 dark:text-yellow-400'
-                          : 'text-orange-600 dark:text-orange-400'
-                      : 'text-destructive'
+                      ? quality === "excellent"
+                        ? "text-green-600 dark:text-green-400"
+                        : quality === "good"
+                          ? "text-yellow-600 dark:text-yellow-400"
+                          : "text-orange-600 dark:text-orange-400"
+                      : "text-destructive",
                   )}
                 >
                   {isConnected
-                    ? quality === 'excellent'
-                      ? 'Connected'
-                      : quality === 'good'
-                        ? 'Connected (slow)'
-                        : 'Connected (poor)'
+                    ? quality === "excellent"
+                      ? "Connected"
+                      : quality === "good"
+                        ? "Connected (slow)"
+                        : "Connected (poor)"
                     : reconnectAttempts > 0
                       ? `Reconnecting... (${reconnectAttempts})`
-                      : 'Offline'}
+                      : "Offline"}
                 </span>
 
                 {/* Stats */}
@@ -200,7 +208,7 @@ export function ConnectionStatus({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 /**
@@ -210,44 +218,44 @@ export function InlineConnectionStatus({
   showLabel = true,
   className,
 }: {
-  showLabel?: boolean
-  className?: string
+  showLabel?: boolean;
+  className?: string;
 }) {
-  const { isConnected } = useSocket()
-  const [latency, setLatency] = useState(0)
+  const { isConnected } = useSocket();
+  const [latency, setLatency] = useState(0);
 
-  const quality = getConnectionQuality(latency)
+  const quality = getConnectionQuality(latency);
 
   useEffect(() => {
     if (!isConnected) {
-      setLatency(0)
-      return
+      setLatency(0);
+      return;
     }
 
     const interval = setInterval(() => {
-      setLatency(Math.random() * 200)
-    }, 5000)
+      setLatency(Math.random() * 200);
+    }, 5000);
 
-    return () => clearInterval(interval)
-  }, [isConnected])
+    return () => clearInterval(interval);
+  }, [isConnected]);
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       {/* Status dot */}
       <div className="relative">
         <div
           className={cn(
-            'h-2 w-2 rounded-full',
+            "h-2 w-2 rounded-full",
             isConnected
-              ? quality === 'excellent'
-                ? 'bg-green-500'
-                : quality === 'good'
-                  ? 'bg-yellow-500'
-                  : 'bg-orange-500'
-              : 'bg-gray-400'
+              ? quality === "excellent"
+                ? "bg-green-500"
+                : quality === "good"
+                  ? "bg-yellow-500"
+                  : "bg-orange-500"
+              : "bg-gray-400",
           )}
         />
-        {isConnected && quality === 'excellent' && (
+        {isConnected && quality === "excellent" && (
           <div className="absolute inset-0 h-2 w-2 animate-ping rounded-full bg-green-500 opacity-75" />
         )}
       </div>
@@ -256,114 +264,119 @@ export function InlineConnectionStatus({
       {showLabel && (
         <span className="text-xs text-muted-foreground">
           {isConnected
-            ? quality === 'excellent'
-              ? 'Online'
-              : quality === 'good'
-                ? 'Slow'
-                : 'Poor'
-            : 'Offline'}
+            ? quality === "excellent"
+              ? "Online"
+              : quality === "good"
+                ? "Slow"
+                : "Poor"
+            : "Offline"}
         </span>
       )}
     </div>
-  )
+  );
 }
 
 /**
  * Connection quality indicator (simple colored bar)
  */
 export function ConnectionQualityBar({ className }: { className?: string }) {
-  const { isConnected } = useSocket()
-  const [latency, setLatency] = useState(0)
+  const { isConnected } = useSocket();
+  const [latency, setLatency] = useState(0);
 
-  const quality = getConnectionQuality(latency)
+  const quality = getConnectionQuality(latency);
 
   useEffect(() => {
     if (!isConnected) {
-      setLatency(0)
-      return
+      setLatency(0);
+      return;
     }
 
     const interval = setInterval(() => {
-      setLatency(Math.random() * 200)
-    }, 5000)
+      setLatency(Math.random() * 200);
+    }, 5000);
 
-    return () => clearInterval(interval)
-  }, [isConnected])
+    return () => clearInterval(interval);
+  }, [isConnected]);
 
   if (!isConnected) {
-    return null
+    return null;
   }
 
   return (
-    <div className={cn('flex gap-0.5', className)}>
+    <div className={cn("flex gap-0.5", className)}>
       {[1, 2, 3, 4].map((bar) => (
         <div
           key={bar}
           className={cn(
-            'h-3 w-1 rounded-full transition-colors',
-            quality === 'excellent'
-              ? 'bg-green-500'
-              : quality === 'good'
+            "h-3 w-1 rounded-full transition-colors",
+            quality === "excellent"
+              ? "bg-green-500"
+              : quality === "good"
                 ? bar <= 3
-                  ? 'bg-yellow-500'
-                  : 'bg-gray-300 dark:bg-gray-700'
+                  ? "bg-yellow-500"
+                  : "bg-gray-300 dark:bg-gray-700"
                 : bar <= 2
-                  ? 'bg-orange-500'
-                  : 'bg-gray-300 dark:bg-gray-700'
+                  ? "bg-orange-500"
+                  : "bg-gray-300 dark:bg-gray-700",
           )}
         />
       ))}
     </div>
-  )
+  );
 }
 
 /**
  * Full connection status card (for settings/debug)
  */
 export function ConnectionStatusCard({ className }: { className?: string }) {
-  const { isConnected, socketId } = useSocket()
-  const [latency, setLatency] = useState(0)
-  const [uptime, setUptime] = useState(0)
+  const { isConnected, socketId } = useSocket();
+  const [latency, setLatency] = useState(0);
+  const [uptime, setUptime] = useState(0);
 
-  const quality = getConnectionQuality(latency)
+  const quality = getConnectionQuality(latency);
 
   useEffect(() => {
     if (!isConnected) {
-      setLatency(0)
-      setUptime(0)
-      return
+      setLatency(0);
+      setUptime(0);
+      return;
     }
 
     const latencyInterval = setInterval(() => {
-      setLatency(Math.random() * 200)
-    }, 5000)
+      setLatency(Math.random() * 200);
+    }, 5000);
 
     const uptimeInterval = setInterval(() => {
-      setUptime((prev) => prev + 1)
-    }, 1000)
+      setUptime((prev) => prev + 1);
+    }, 1000);
 
     return () => {
-      clearInterval(latencyInterval)
-      clearInterval(uptimeInterval)
-    }
-  }, [isConnected])
+      clearInterval(latencyInterval);
+      clearInterval(uptimeInterval);
+    };
+  }, [isConnected]);
 
   const formatUptime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
 
     if (hours > 0) {
-      return `${hours}h ${minutes}m ${secs}s`
+      return `${hours}h ${minutes}m ${secs}s`;
     }
     if (minutes > 0) {
-      return `${minutes}m ${secs}s`
+      return `${minutes}m ${secs}s`;
     }
-    return `${secs}s`
-  }
+    return `${secs}s`;
+  };
 
   return (
-    <div className={cn('rounded-lg border bg-card p-4 text-card-foreground', className)}>
+    <div
+      className={cn(
+        "rounded-lg border bg-card p-4 text-card-foreground",
+        className,
+      )}
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium">Connection Status</h3>
         {isConnected ? (
@@ -378,11 +391,13 @@ export function ConnectionStatusCard({ className }: { className?: string }) {
           <span className="text-muted-foreground">Status</span>
           <span
             className={cn(
-              'font-medium',
-              isConnected ? 'text-green-600 dark:text-green-400' : 'text-destructive'
+              "font-medium",
+              isConnected
+                ? "text-green-600 dark:text-green-400"
+                : "text-destructive",
             )}
           >
-            {isConnected ? 'Connected' : 'Disconnected'}
+            {isConnected ? "Connected" : "Disconnected"}
           </span>
         </div>
 
@@ -418,5 +433,5 @@ export function ConnectionStatusCard({ className }: { className?: string }) {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,77 +1,77 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import type { NotificationType } from '@/stores/notification-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import type { NotificationType } from "@/stores/notification-store";
 
 // Get initials from name
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((part) => part[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 // Type color mapping for accent
 const typeAccentColors: Record<NotificationType, string> = {
-  mention: 'border-l-yellow-500',
-  direct_message: 'border-l-blue-500',
-  thread_reply: 'border-l-purple-500',
-  reaction: 'border-l-pink-500',
-  channel_invite: 'border-l-green-500',
-  channel_update: 'border-l-cyan-500',
-  system: 'border-l-gray-500',
-  announcement: 'border-l-orange-500',
-}
+  mention: "border-l-yellow-500",
+  direct_message: "border-l-blue-500",
+  thread_reply: "border-l-purple-500",
+  reaction: "border-l-pink-500",
+  channel_invite: "border-l-green-500",
+  channel_update: "border-l-cyan-500",
+  system: "border-l-gray-500",
+  announcement: "border-l-orange-500",
+};
 
 export interface NotificationToastProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Notification data
    */
   notification: {
-    id: string
-    type: NotificationType
-    title: string
-    body: string
+    id: string;
+    type: NotificationType;
+    title: string;
+    body: string;
     actor?: {
-      name: string
-      avatarUrl?: string
-    }
-    channelName?: string
-  }
+      name: string;
+      avatarUrl?: string;
+    };
+    channelName?: string;
+  };
 
   /**
    * Duration in milliseconds before auto-dismiss
    * Set to 0 to disable auto-dismiss
    * @default 5000
    */
-  duration?: number
+  duration?: number;
 
   /**
    * Callback when toast is closed
    */
-  onClose?: () => void
+  onClose?: () => void;
 
   /**
    * Callback when toast is clicked
    */
-  onClick?: () => void
+  onClick?: () => void;
 
   /**
    * Whether to show the close button
    * @default true
    */
-  showClose?: boolean
+  showClose?: boolean;
 
   /**
    * Whether toast is visible (for animation control)
    * @default true
    */
-  visible?: boolean
+  visible?: boolean;
 }
 
 /**
@@ -90,80 +90,83 @@ export function NotificationToast({
   className,
   ...props
 }: NotificationToastProps) {
-  const [isExiting, setIsExiting] = React.useState(false)
-  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
-  const startTimeRef = React.useRef<number>(Date.now())
-  const remainingRef = React.useRef<number>(duration)
+  const [isExiting, setIsExiting] = React.useState(false);
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = React.useRef<number>(Date.now());
+  const remainingRef = React.useRef<number>(duration);
 
   // Handle close with exit animation
   const handleClose = React.useCallback(() => {
-    setIsExiting(true)
+    setIsExiting(true);
     setTimeout(() => {
-      onClose?.()
-    }, 200) // Match animation duration
-  }, [onClose])
+      onClose?.();
+    }, 200); // Match animation duration
+  }, [onClose]);
 
   // Handle click
   const handleClick = React.useCallback(() => {
-    onClick?.()
-    handleClose()
-  }, [onClick, handleClose])
+    onClick?.();
+    handleClose();
+  }, [onClick, handleClose]);
 
   // Auto-dismiss timer
   React.useEffect(() => {
     if (duration > 0 && visible && !isExiting) {
-      startTimeRef.current = Date.now()
+      startTimeRef.current = Date.now();
 
       timeoutRef.current = setTimeout(() => {
-        handleClose()
-      }, remainingRef.current)
+        handleClose();
+      }, remainingRef.current);
 
       return () => {
         if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
+          clearTimeout(timeoutRef.current);
         }
-      }
+      };
     }
-  }, [duration, visible, isExiting, handleClose])
+  }, [duration, visible, isExiting, handleClose]);
 
   // Pause timer on hover
   const handleMouseEnter = React.useCallback(() => {
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      remainingRef.current -= Date.now() - startTimeRef.current
+      clearTimeout(timeoutRef.current);
+      remainingRef.current -= Date.now() - startTimeRef.current;
     }
-  }, [])
+  }, []);
 
   // Resume timer on mouse leave
   const handleMouseLeave = React.useCallback(() => {
     if (duration > 0 && remainingRef.current > 0) {
-      startTimeRef.current = Date.now()
+      startTimeRef.current = Date.now();
       timeoutRef.current = setTimeout(() => {
-        handleClose()
-      }, remainingRef.current)
+        handleClose();
+      }, remainingRef.current);
     }
-  }, [duration, handleClose])
+  }, [duration, handleClose]);
 
-  const accentColor = typeAccentColors[notification.type] || typeAccentColors.system
+  const accentColor =
+    typeAccentColors[notification.type] || typeAccentColors.system;
 
   return (
     <div
       className={cn(
-        'w-[360px] overflow-hidden rounded-lg border border-border bg-background shadow-lg',
-        'border-l-4',
+        "w-[360px] overflow-hidden rounded-lg border border-border bg-background shadow-lg",
+        "border-l-4",
         accentColor,
-        'transform transition-all duration-200 ease-out',
-        visible && !isExiting ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
-        'cursor-pointer',
-        className
+        "transform transition-all duration-200 ease-out",
+        visible && !isExiting
+          ? "translate-x-0 opacity-100"
+          : "translate-x-full opacity-0",
+        "cursor-pointer",
+        className,
       )}
       role="button"
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          handleClick()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
         }
       }}
       onMouseEnter={handleMouseEnter}
@@ -176,8 +179,13 @@ export function NotificationToast({
           {/* Avatar */}
           {notification.actor && (
             <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarImage src={notification.actor.avatarUrl} alt={notification.actor.name} />
-              <AvatarFallback>{getInitials(notification.actor.name)}</AvatarFallback>
+              <AvatarImage
+                src={notification.actor.avatarUrl}
+                alt={notification.actor.name}
+              />
+              <AvatarFallback>
+                {getInitials(notification.actor.name)}
+              </AvatarFallback>
             </Avatar>
           )}
 
@@ -185,7 +193,9 @@ export function NotificationToast({
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">{notification.title}</p>
+                <p className="truncate text-sm font-medium text-foreground">
+                  {notification.title}
+                </p>
                 <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
                   {notification.body}
                 </p>
@@ -203,8 +213,8 @@ export function NotificationToast({
                   size="icon"
                   className="-mr-2 -mt-1 h-6 w-6 flex-shrink-0"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    handleClose()
+                    e.stopPropagation();
+                    handleClose();
                   }}
                   aria-label="Close notification"
                 >
@@ -215,7 +225,11 @@ export function NotificationToast({
                     stroke="currentColor"
                     strokeWidth={2}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </Button>
               )}
@@ -230,7 +244,7 @@ export function NotificationToast({
           <div
             className="h-full bg-primary transition-all duration-100 ease-linear"
             style={{
-              width: '100%',
+              width: "100%",
               animation: `shrink ${duration}ms linear forwards`,
             }}
           />
@@ -248,16 +262,16 @@ export function NotificationToast({
         }
       `}</style>
     </div>
-  )
+  );
 }
 
 /**
  * NotificationToastContainer - Container for managing multiple toasts
  */
 export interface ToastItem {
-  id: string
-  notification: NotificationToastProps['notification']
-  duration?: number
+  id: string;
+  notification: NotificationToastProps["notification"];
+  duration?: number;
 }
 
 export interface NotificationToastContainerProps {
@@ -265,53 +279,53 @@ export interface NotificationToastContainerProps {
    * Position of the toast container
    * @default 'top-right'
    */
-  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
   /**
    * Maximum number of toasts to show
    * @default 5
    */
-  maxToasts?: number
+  maxToasts?: number;
 
   /**
    * Toasts to display
    */
-  toasts: ToastItem[]
+  toasts: ToastItem[];
 
   /**
    * Callback when a toast is dismissed
    */
-  onDismiss: (id: string) => void
+  onDismiss: (id: string) => void;
 
   /**
    * Callback when a toast is clicked
    */
-  onToastClick?: (id: string) => void
+  onToastClick?: (id: string) => void;
 }
 
 const positionClasses = {
-  'top-left': 'top-4 left-4',
-  'top-right': 'top-4 right-4',
-  'bottom-left': 'bottom-4 left-4',
-  'bottom-right': 'bottom-4 right-4',
-}
+  "top-left": "top-4 left-4",
+  "top-right": "top-4 right-4",
+  "bottom-left": "bottom-4 left-4",
+  "bottom-right": "bottom-4 right-4",
+};
 
 export function NotificationToastContainer({
-  position = 'top-right',
+  position = "top-right",
   maxToasts = 5,
   toasts,
   onDismiss,
   onToastClick,
 }: NotificationToastContainerProps) {
-  const visibleToasts = toasts.slice(0, maxToasts)
-  const isBottom = position.startsWith('bottom')
+  const visibleToasts = toasts.slice(0, maxToasts);
+  const isBottom = position.startsWith("bottom");
 
   return (
     <div
       className={cn(
-        'pointer-events-none fixed z-50 flex flex-col gap-2',
+        "pointer-events-none fixed z-50 flex flex-col gap-2",
         positionClasses[position],
-        isBottom && 'flex-col-reverse'
+        isBottom && "flex-col-reverse",
       )}
       aria-live="polite"
       aria-label="Notifications"
@@ -327,10 +341,10 @@ export function NotificationToastContainer({
         </div>
       ))}
     </div>
-  )
+  );
 }
 
-NotificationToast.displayName = 'NotificationToast'
-NotificationToastContainer.displayName = 'NotificationToastContainer'
+NotificationToast.displayName = "NotificationToast";
+NotificationToastContainer.displayName = "NotificationToastContainer";
 
-export default NotificationToast
+export default NotificationToast;

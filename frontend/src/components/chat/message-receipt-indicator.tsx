@@ -8,10 +8,10 @@
  * @version 1.0.0
  */
 
-'use client'
+"use client";
 
-import { useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Check,
   CheckCheck,
@@ -23,15 +23,15 @@ import {
   CheckCircle2,
   Eye,
   AlertTriangle,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
 import {
   type PlatformPreset,
   type DeliveryStatus,
@@ -39,7 +39,7 @@ import {
   getPlatformConfig,
   getDeliveryStatusIcon,
   getDeliveryStatusColor,
-} from '@/lib/presence/platform-presence'
+} from "@/lib/presence/platform-presence";
 
 // ============================================================================
 // TYPES
@@ -47,53 +47,53 @@ import {
 
 export interface MessageReceiptIndicatorProps {
   /** Delivery status */
-  status: DeliveryStatus
+  status: DeliveryStatus;
 
   /** Platform preset for styling */
-  platform?: PlatformPreset
+  platform?: PlatformPreset;
 
   /** Custom configuration */
-  config?: PlatformPresenceConfig
+  config?: PlatformPresenceConfig;
 
   /** Size of the indicator */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
 
   /** Whether to animate status changes */
-  animated?: boolean
+  animated?: boolean;
 
   /** Show tooltip on hover */
-  showTooltip?: boolean
+  showTooltip?: boolean;
 
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 export interface GroupReceiptIndicatorProps {
   /** Delivery status */
-  status: DeliveryStatus
+  status: DeliveryStatus;
 
   /** Users who have read the message */
   readBy: Array<{
-    userId: string
-    userName: string
-    userAvatar?: string
-    readAt: Date
-  }>
+    userId: string;
+    userName: string;
+    userAvatar?: string;
+    readAt: Date;
+  }>;
 
   /** Total recipients */
-  totalRecipients: number
+  totalRecipients: number;
 
   /** Platform preset for styling */
-  platform?: PlatformPreset
+  platform?: PlatformPreset;
 
   /** Max avatars to show */
-  maxAvatars?: number
+  maxAvatars?: number;
 
   /** Whether to show "Seen by X" text */
-  showSeenByText?: boolean
+  showSeenByText?: boolean;
 
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -103,34 +103,34 @@ export interface GroupReceiptIndicatorProps {
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   clock: Clock,
   check: Check,
-  'check-check': CheckCheck,
-  'alert-circle': AlertCircle,
-  'x-circle': XCircle,
+  "check-check": CheckCheck,
+  "alert-circle": AlertCircle,
+  "x-circle": XCircle,
   circle: Circle,
-  'circle-check': CheckCircle,
-  'circle-check-filled': CheckCircle2,
+  "circle-check": CheckCircle,
+  "circle-check-filled": CheckCircle2,
   eye: Eye,
-  'alert-triangle': AlertTriangle,
+  "alert-triangle": AlertTriangle,
   x: XCircle,
-}
+};
 
 const sizeClasses = {
-  sm: 'h-3 w-3',
-  md: 'h-4 w-4',
-  lg: 'h-5 w-5',
-}
+  sm: "h-3 w-3",
+  md: "h-4 w-4",
+  lg: "h-5 w-5",
+};
 
 // ============================================================================
 // STATUS LABELS
 // ============================================================================
 
 const statusLabels: Record<DeliveryStatus, string> = {
-  pending: 'Sending...',
-  sent: 'Sent',
-  delivered: 'Delivered',
-  read: 'Read',
-  failed: 'Failed to send',
-}
+  pending: "Sending...",
+  sent: "Sent",
+  delivered: "Delivered",
+  read: "Read",
+  failed: "Failed to send",
+};
 
 // ============================================================================
 // SINGLE MESSAGE INDICATOR
@@ -143,48 +143,52 @@ const statusLabels: Record<DeliveryStatus, string> = {
  */
 export function MessageReceiptIndicator({
   status,
-  platform = 'default',
+  platform = "default",
   config: customConfig,
-  size = 'sm',
+  size = "sm",
   animated = true,
   showTooltip = true,
   className,
 }: MessageReceiptIndicatorProps) {
   const config = useMemo(() => {
-    return customConfig ?? getPlatformConfig(platform)
-  }, [customConfig, platform])
+    return customConfig ?? getPlatformConfig(platform);
+  }, [customConfig, platform]);
 
   // Don't render if receipts are disabled
   if (!config.receipts.enabled) {
-    return null
+    return null;
   }
 
   // Don't show delivery status if platform doesn't support it
-  if (!config.receipts.showDeliveryStatus && status !== 'read' && status !== 'failed') {
-    return null
+  if (
+    !config.receipts.showDeliveryStatus &&
+    status !== "read" &&
+    status !== "failed"
+  ) {
+    return null;
   }
 
   // Don't show read status if platform doesn't support it
-  if (!config.receipts.showReadStatus && status === 'read') {
-    return null
+  if (!config.receipts.showReadStatus && status === "read") {
+    return null;
   }
 
-  const iconName = getDeliveryStatusIcon(status, config)
-  const color = getDeliveryStatusColor(status, config)
-  const Icon = iconMap[iconName] ?? Check
+  const iconName = getDeliveryStatusIcon(status, config);
+  const color = getDeliveryStatusColor(status, config);
+  const Icon = iconMap[iconName] ?? Check;
 
   const indicator = (
     <motion.span
       initial={animated ? { scale: 0.8, opacity: 0 } : undefined}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.15 }}
-      className={cn('inline-flex items-center', className)}
+      className={cn("inline-flex items-center", className)}
       style={{ color }}
       aria-label={statusLabels[status]}
     >
       <Icon className={cn(sizeClasses[size])} />
     </motion.span>
-  )
+  );
 
   if (showTooltip) {
     return (
@@ -196,10 +200,10 @@ export function MessageReceiptIndicator({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
+    );
   }
 
-  return indicator
+  return indicator;
 }
 
 // ============================================================================
@@ -215,54 +219,54 @@ export function GroupReceiptIndicator({
   status,
   readBy,
   totalRecipients,
-  platform = 'default',
+  platform = "default",
   maxAvatars,
   showSeenByText = true,
   className,
 }: GroupReceiptIndicatorProps) {
-  const config = useMemo(() => getPlatformConfig(platform), [platform])
+  const config = useMemo(() => getPlatformConfig(platform), [platform]);
 
   // Don't render if platform doesn't support group receipts
   if (!config.receipts.groupReceipts) {
-    return null
+    return null;
   }
 
   // Don't render if no one has read
   if (readBy.length === 0) {
-    return status !== 'read' ? (
+    return status !== "read" ? (
       <MessageReceiptIndicator status={status} platform={platform} size="sm" />
-    ) : null
+    ) : null;
   }
 
-  const effectiveMaxAvatars = maxAvatars ?? config.receipts.maxReadersDisplayed
-  const displayedReaders = readBy.slice(0, effectiveMaxAvatars)
-  const remainingCount = Math.max(0, readBy.length - effectiveMaxAvatars)
-  const allRead = readBy.length >= totalRecipients
+  const effectiveMaxAvatars = maxAvatars ?? config.receipts.maxReadersDisplayed;
+  const displayedReaders = readBy.slice(0, effectiveMaxAvatars);
+  const remainingCount = Math.max(0, readBy.length - effectiveMaxAvatars);
+  const allRead = readBy.length >= totalRecipients;
 
   // Format "Seen by" text
   const getSeenByLabel = () => {
     if (!showSeenByText || !config.receipts.style.showSeenByText) {
-      return null
+      return null;
     }
 
     if (allRead) {
-      return 'Seen by everyone'
+      return "Seen by everyone";
     }
 
-    const names = displayedReaders.map((r) => r.userName)
+    const names = displayedReaders.map((r) => r.userName);
     if (names.length === 1) {
-      return `Seen by ${names[0]}`
+      return `Seen by ${names[0]}`;
     }
 
     if (remainingCount === 0) {
-      return `Seen by ${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
+      return `Seen by ${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
     }
 
-    return `Seen by ${names.join(', ')} and ${remainingCount} other${remainingCount > 1 ? 's' : ''}`
-  }
+    return `Seen by ${names.join(", ")} and ${remainingCount} other${remainingCount > 1 ? "s" : ""}`;
+  };
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       {/* Reader avatars */}
       {config.receipts.style.showReaderAvatars && effectiveMaxAvatars > 0 && (
         <div className="flex -space-x-1.5">
@@ -279,7 +283,10 @@ export function GroupReceiptIndicator({
                   <Tooltip delayDuration={200}>
                     <TooltipTrigger asChild>
                       <Avatar className="h-4 w-4 border border-background">
-                        <AvatarImage src={reader.userAvatar} alt={reader.userName} />
+                        <AvatarImage
+                          src={reader.userAvatar}
+                          alt={reader.userName}
+                        />
                         <AvatarFallback className="text-[8px]">
                           {reader.userName.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -289,8 +296,8 @@ export function GroupReceiptIndicator({
                       <p>{reader.userName}</p>
                       <p className="text-muted-foreground">
                         {reader.readAt.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </p>
                     </TooltipContent>
@@ -309,13 +316,15 @@ export function GroupReceiptIndicator({
 
       {/* Seen by text */}
       {getSeenByLabel() && (
-        <span className="text-[10px] text-muted-foreground">{getSeenByLabel()}</span>
+        <span className="text-[10px] text-muted-foreground">
+          {getSeenByLabel()}
+        </span>
       )}
 
       {/* All read indicator */}
       {allRead && <CheckCheck className="h-3 w-3 text-green-500" />}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -333,8 +342,8 @@ export function WhatsAppReceiptIndicator({
   status,
   className,
 }: {
-  status: DeliveryStatus
-  className?: string
+  status: DeliveryStatus;
+  className?: string;
 }) {
   return (
     <MessageReceiptIndicator
@@ -343,7 +352,7 @@ export function WhatsAppReceiptIndicator({
       size="sm"
       className={className}
     />
-  )
+  );
 }
 
 /**
@@ -358,12 +367,12 @@ export function TelegramReceiptIndicator({
   isGroupChat = false,
   className,
 }: {
-  status: DeliveryStatus
-  isGroupChat?: boolean
-  className?: string
+  status: DeliveryStatus;
+  isGroupChat?: boolean;
+  className?: string;
 }) {
   // Telegram doesn't show read receipts in groups
-  if (isGroupChat && status === 'read') {
+  if (isGroupChat && status === "read") {
     return (
       <MessageReceiptIndicator
         status="delivered"
@@ -371,7 +380,7 @@ export function TelegramReceiptIndicator({
         size="sm"
         className={className}
       />
-    )
+    );
   }
 
   return (
@@ -381,7 +390,7 @@ export function TelegramReceiptIndicator({
       size="sm"
       className={className}
     />
-  )
+  );
 }
 
 /**
@@ -394,8 +403,8 @@ export function SignalReceiptIndicator({
   status,
   className,
 }: {
-  status: DeliveryStatus
-  className?: string
+  status: DeliveryStatus;
+  className?: string;
 }) {
   return (
     <MessageReceiptIndicator
@@ -404,7 +413,7 @@ export function SignalReceiptIndicator({
       size="sm"
       className={className}
     />
-  )
+  );
 }
 
 /**
@@ -418,16 +427,16 @@ export function SlackReceiptIndicator({
   className,
 }: {
   readBy: Array<{
-    userId: string
-    userName: string
-    userAvatar?: string
-    readAt: Date
-  }>
-  totalRecipients: number
-  className?: string
+    userId: string;
+    userName: string;
+    userAvatar?: string;
+    readAt: Date;
+  }>;
+  totalRecipients: number;
+  className?: string;
 }) {
   if (readBy.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -438,7 +447,7 @@ export function SlackReceiptIndicator({
       platform="slack"
       className={className}
     />
-  )
+  );
 }
 
 /**
@@ -452,29 +461,29 @@ export function DiscordReceiptIndicator({
   isDM = false,
   className,
 }: {
-  status: DeliveryStatus
-  isDM?: boolean
-  className?: string
+  status: DeliveryStatus;
+  isDM?: boolean;
+  className?: string;
 }) {
   // Discord only shows receipts in DMs
   if (!isDM) {
-    return null
+    return null;
   }
 
   // Only show for failed status in DMs
-  if (status === 'failed') {
+  if (status === "failed") {
     return (
-      <span className={cn('text-destructive', className)}>
+      <span className={cn("text-destructive", className)}>
         <XCircle className="h-3 w-3" />
       </span>
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
 // ============================================================================
 // EXPORTS
 // ============================================================================
 
-export default MessageReceiptIndicator
+export default MessageReceiptIndicator;

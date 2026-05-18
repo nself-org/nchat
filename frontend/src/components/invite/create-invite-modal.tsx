@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CreateInviteModal Component - Create channel or workspace invite links
@@ -7,7 +7,7 @@
  * and instant link/QR code generation.
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,19 +15,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Link2,
   Clock,
@@ -39,17 +39,17 @@ import {
   Copy,
   QrCode as QrCodeIcon,
   AlertCircle,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   useInvite,
   EXPIRATION_OPTIONS,
   MAX_USES_OPTIONS,
   type CreateInviteOptions,
   type InviteType,
-} from '@/lib/invite'
-import { InviteLinkDisplay } from './invite-link-display'
-import { QRCode } from './qr-code'
+} from "@/lib/invite";
+import { InviteLinkDisplay } from "./invite-link-display";
+import { QRCode } from "./qr-code";
 
 // ============================================================================
 // Types
@@ -57,19 +57,19 @@ import { QRCode } from './qr-code'
 
 export interface CreateInviteModalProps {
   /** Whether the modal is open */
-  open: boolean
+  open: boolean;
   /** Called when the modal open state changes */
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void;
   /** Type of invite to create */
-  type?: InviteType
+  type?: InviteType;
   /** Channel ID (required for channel invites) */
-  channelId?: string
+  channelId?: string;
   /** Channel name (for display) */
-  channelName?: string
+  channelName?: string;
   /** Channel is private */
-  channelIsPrivate?: boolean
+  channelIsPrivate?: boolean;
   /** Called after invite is created */
-  onInviteCreated?: (code: string, link: string) => void
+  onInviteCreated?: (code: string, link: string) => void;
 }
 
 // ============================================================================
@@ -79,16 +79,16 @@ export interface CreateInviteModalProps {
 export function CreateInviteModal({
   open,
   onOpenChange,
-  type = 'channel',
+  type = "channel",
   channelId,
   channelName,
   channelIsPrivate = false,
   onInviteCreated,
 }: CreateInviteModalProps) {
   // Form state
-  const [expirationOption, setExpirationOption] = useState('7d')
-  const [maxUsesOption, setMaxUsesOption] = useState<string>('none')
-  const [activeTab, setActiveTab] = useState<'settings' | 'link'>('settings')
+  const [expirationOption, setExpirationOption] = useState("7d");
+  const [maxUsesOption, setMaxUsesOption] = useState<string>("none");
+  const [activeTab, setActiveTab] = useState<"settings" | "link">("settings");
 
   // Hook
   const {
@@ -100,64 +100,72 @@ export function CreateInviteModal({
     copyInviteLink,
   } = useInvite({
     onCreateSuccess: (invite) => {
-      setActiveTab('link')
-      onInviteCreated?.(invite.code, invite.link)
+      setActiveTab("link");
+      onInviteCreated?.(invite.code, invite.link);
     },
-  })
+  });
 
   // Reset form when modal opens
   useEffect(() => {
     if (open) {
-      setExpirationOption('7d')
-      setMaxUsesOption('none')
-      setActiveTab('settings')
-      clearCreatedInvite()
+      setExpirationOption("7d");
+      setMaxUsesOption("none");
+      setActiveTab("settings");
+      clearCreatedInvite();
     }
-  }, [open, clearCreatedInvite])
+  }, [open, clearCreatedInvite]);
 
   // Parse max uses value
   const getMaxUsesValue = useCallback((option: string): number | null => {
-    if (option === 'none') return null
-    const preset = MAX_USES_OPTIONS.find((o) => o.value?.toString() === option)
-    return preset?.value ?? null
-  }, [])
+    if (option === "none") return null;
+    const preset = MAX_USES_OPTIONS.find((o) => o.value?.toString() === option);
+    return preset?.value ?? null;
+  }, []);
 
   // Handle create
   const handleCreate = useCallback(async () => {
     const options: CreateInviteOptions = {
       type,
-      channelId: type === 'channel' ? channelId : null,
+      channelId: type === "channel" ? channelId : null,
       channelName,
       expirationOption,
       maxUses: getMaxUsesValue(maxUsesOption),
-    }
+    };
 
-    await createInvite(options)
-  }, [type, channelId, channelName, expirationOption, maxUsesOption, createInvite, getMaxUsesValue])
+    await createInvite(options);
+  }, [
+    type,
+    channelId,
+    channelName,
+    expirationOption,
+    maxUsesOption,
+    createInvite,
+    getMaxUsesValue,
+  ]);
 
   // Handle copy
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
   const handleCopy = useCallback(async () => {
     if (createdInvite) {
-      const success = await copyInviteLink(createdInvite.code)
+      const success = await copyInviteLink(createdInvite.code);
       if (success) {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
     }
-  }, [createdInvite, copyInviteLink])
+  }, [createdInvite, copyInviteLink]);
 
   // Get expiration label
   const getExpirationLabel = useCallback((value: string) => {
-    return EXPIRATION_OPTIONS.find((o) => o.value === value)?.label || value
-  }, [])
+    return EXPIRATION_OPTIONS.find((o) => o.value === value)?.label || value;
+  }, []);
 
   // Get max uses label
   const getMaxUsesLabel = useCallback((value: string) => {
-    if (value === 'none') return 'No limit'
-    const preset = MAX_USES_OPTIONS.find((o) => o.value?.toString() === value)
-    return preset?.label || value
-  }, [])
+    if (value === "none") return "No limit";
+    const preset = MAX_USES_OPTIONS.find((o) => o.value?.toString() === value);
+    return preset?.label || value;
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -168,30 +176,33 @@ export function CreateInviteModal({
             Create Invite Link
           </DialogTitle>
           <DialogDescription>
-            {type === 'channel' ? (
+            {type === "channel" ? (
               <>
-                Create an invite link for{' '}
+                Create an invite link for{" "}
                 <span className="font-medium">
                   {channelIsPrivate ? (
                     <span className="inline-flex items-center gap-1">
                       <Hash className="h-3.5 w-3.5" />
-                      {channelName || 'this channel'}
+                      {channelName || "this channel"}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1">
                       <Hash className="h-3.5 w-3.5" />
-                      {channelName || 'this channel'}
+                      {channelName || "this channel"}
                     </span>
                   )}
                 </span>
               </>
             ) : (
-              'Create an invite link to your workspace'
+              "Create an invite link to your workspace"
             )}
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'settings' | 'link')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as "settings" | "link")}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="settings" disabled={!!createdInvite}>
               Settings
@@ -236,17 +247,26 @@ export function CreateInviteModal({
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <Label>Maximum uses</Label>
               </div>
-              <Select value={maxUsesOption} onValueChange={setMaxUsesOption} disabled={isCreating}>
+              <Select
+                value={maxUsesOption}
+                onValueChange={setMaxUsesOption}
+                disabled={isCreating}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select max uses" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No limit</SelectItem>
-                  {MAX_USES_OPTIONS.filter((o) => o.value !== null).map((option) => (
-                    <SelectItem key={option.value!.toString()} value={option.value!.toString()}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
+                  {MAX_USES_OPTIONS.filter((o) => o.value !== null).map(
+                    (option) => (
+                      <SelectItem
+                        key={option.value!.toString()}
+                        value={option.value!.toString()}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
@@ -266,13 +286,13 @@ export function CreateInviteModal({
                   <Users className="mr-1 h-3 w-3" />
                   {getMaxUsesLabel(maxUsesOption)}
                 </Badge>
-                {type === 'channel' && (
+                {type === "channel" && (
                   <Badge variant="secondary">
                     <Hash className="mr-1 h-3 w-3" />
-                    {channelName || 'Channel'}
+                    {channelName || "Channel"}
                   </Badge>
                 )}
-                {type === 'workspace' && (
+                {type === "workspace" && (
                   <Badge variant="secondary">
                     <Globe className="mr-1 h-3 w-3" />
                     Workspace
@@ -286,8 +306,12 @@ export function CreateInviteModal({
               <div className="bg-destructive/10 border-destructive/20 flex items-start gap-3 rounded-xl border p-4">
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
                 <div>
-                  <p className="text-sm font-medium text-destructive">Failed to create invite</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{createError}</p>
+                  <p className="text-sm font-medium text-destructive">
+                    Failed to create invite
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {createError}
+                  </p>
                 </div>
               </div>
             )}
@@ -301,7 +325,9 @@ export function CreateInviteModal({
                 <div className="flex items-start gap-3 rounded-xl border border-green-500/20 bg-green-500/10 p-4">
                   <Check className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
                   <div>
-                    <p className="text-sm font-medium text-green-600">Invite link created!</p>
+                    <p className="text-sm font-medium text-green-600">
+                      Invite link created!
+                    </p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Share this link with others to invite them
                     </p>
@@ -322,7 +348,7 @@ export function CreateInviteModal({
                     channelIsPrivate: false,
                     channelMembersCount: 0,
                     workspaceName: null,
-                    creatorName: '',
+                    creatorName: "",
                     creatorAvatarUrl: null,
                     maxUses: createdInvite.maxUses,
                     useCount: 0,
@@ -339,9 +365,13 @@ export function CreateInviteModal({
         </Tabs>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          {activeTab === 'settings' && (
+          {activeTab === "settings" && (
             <>
-              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isCreating}>
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isCreating}
+              >
                 Cancel
               </Button>
               <Button onClick={handleCreate} disabled={isCreating}>
@@ -359,13 +389,13 @@ export function CreateInviteModal({
               </Button>
             </>
           )}
-          {activeTab === 'link' && createdInvite && (
+          {activeTab === "link" && createdInvite && (
             <>
               <Button
                 variant="outline"
                 onClick={() => {
-                  setActiveTab('settings')
-                  clearCreatedInvite()
+                  setActiveTab("settings");
+                  clearCreatedInvite();
                 }}
               >
                 Create Another
@@ -388,7 +418,7 @@ export function CreateInviteModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default CreateInviteModal
+export default CreateInviteModal;

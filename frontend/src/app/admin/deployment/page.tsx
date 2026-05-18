@@ -1,11 +1,14 @@
-import { Metadata } from 'next'
-import { VercelDeployButton, DeploymentStatusChecker } from '@/components/admin/deployment'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Metadata } from "next";
+import {
+  VercelDeployButton,
+  DeploymentStatusChecker,
+} from "@/components/admin/deployment";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const metadata: Metadata = {
-  title: 'Deployment | Admin',
-  description: 'Deploy and monitor your nchat instance',
-}
+  title: "Deployment | Admin",
+  description: "Deploy and monitor your nchat instance",
+};
 
 export default function DeploymentPage() {
   return (
@@ -32,5 +35,5 @@ export default function DeploymentPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

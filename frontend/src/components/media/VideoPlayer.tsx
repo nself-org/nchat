@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * VideoPlayer - Custom video player component with controls
@@ -6,13 +6,13 @@
  * Features play/pause, seek, volume, fullscreen, and playback rate.
  */
 
-import * as React from 'react'
-import { useCallback, useRef, useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { MediaItem } from '@/lib/media/media-types'
-import { formatDuration } from '@/lib/media/media-manager'
-import { Button } from '@/components/ui/button'
-import { Slider } from '@radix-ui/react-slider'
+import * as React from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { MediaItem } from "@/lib/media/media-types";
+import { formatDuration } from "@/lib/media/media-manager";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@radix-ui/react-slider";
 import {
   Play,
   Pause,
@@ -24,46 +24,46 @@ import {
   SkipForward,
   Settings,
   Download,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface VideoPlayerProps {
-  item: MediaItem
-  isPlaying?: boolean
-  currentTime?: number
-  volume?: number
-  isMuted?: boolean
-  playbackRate?: number
-  isFullscreen?: boolean
-  autoPlay?: boolean
-  showControls?: boolean
-  onPlayChange?: (isPlaying: boolean) => void
-  onTimeChange?: (time: number) => void
-  onVolumeChange?: (volume: number) => void
-  onMutedChange?: (isMuted: boolean) => void
-  onPlaybackRateChange?: (rate: number) => void
-  onFullscreenChange?: (isFullscreen: boolean) => void
-  onDurationChange?: (duration: number) => void
-  onEnded?: () => void
-  onDownload?: () => void
-  className?: string
+  item: MediaItem;
+  isPlaying?: boolean;
+  currentTime?: number;
+  volume?: number;
+  isMuted?: boolean;
+  playbackRate?: number;
+  isFullscreen?: boolean;
+  autoPlay?: boolean;
+  showControls?: boolean;
+  onPlayChange?: (isPlaying: boolean) => void;
+  onTimeChange?: (time: number) => void;
+  onVolumeChange?: (volume: number) => void;
+  onMutedChange?: (isMuted: boolean) => void;
+  onPlaybackRateChange?: (rate: number) => void;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
+  onDurationChange?: (duration: number) => void;
+  onEnded?: () => void;
+  onDownload?: () => void;
+  className?: string;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-const SEEK_STEP = 10 // seconds
+const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+const SEEK_STEP = 10; // seconds
 
 // ============================================================================
 // Component
@@ -90,163 +90,163 @@ export function VideoPlayer({
   onDownload,
   className,
 }: VideoPlayerProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [duration, setDuration] = useState(0)
-  const [isBuffering, setIsBuffering] = useState(false)
-  const [showControlsOverlay, setShowControlsOverlay] = useState(true)
-  const hideControlsTimer = useRef<NodeJS.Timeout | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [duration, setDuration] = useState(0);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [showControlsOverlay, setShowControlsOverlay] = useState(true);
+  const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Sync video element with props
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
     if (isPlaying && video.paused) {
-      video.play().catch(() => {})
+      video.play().catch(() => {});
     } else if (!isPlaying && !video.paused) {
-      video.pause()
+      video.pause();
     }
-  }, [isPlaying])
+  }, [isPlaying]);
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-    video.volume = isMuted ? 0 : volume
-  }, [volume, isMuted])
+    const video = videoRef.current;
+    if (!video) return;
+    video.volume = isMuted ? 0 : volume;
+  }, [volume, isMuted]);
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-    video.playbackRate = playbackRate
-  }, [playbackRate])
+    const video = videoRef.current;
+    if (!video) return;
+    video.playbackRate = playbackRate;
+  }, [playbackRate]);
 
   // Handle play/pause
   const togglePlay = useCallback(() => {
-    onPlayChange?.(!isPlaying)
-  }, [isPlaying, onPlayChange])
+    onPlayChange?.(!isPlaying);
+  }, [isPlaying, onPlayChange]);
 
   // Handle seek
   const handleSeek = useCallback(
     (value: number[]) => {
-      const video = videoRef.current
-      if (!video) return
-      const time = value[0]
-      video.currentTime = time
-      onTimeChange?.(time)
+      const video = videoRef.current;
+      if (!video) return;
+      const time = value[0];
+      video.currentTime = time;
+      onTimeChange?.(time);
     },
-    [onTimeChange]
-  )
+    [onTimeChange],
+  );
 
   const seekForward = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
-    const newTime = Math.min(video.currentTime + SEEK_STEP, duration)
-    video.currentTime = newTime
-    onTimeChange?.(newTime)
-  }, [duration, onTimeChange])
+    const video = videoRef.current;
+    if (!video) return;
+    const newTime = Math.min(video.currentTime + SEEK_STEP, duration);
+    video.currentTime = newTime;
+    onTimeChange?.(newTime);
+  }, [duration, onTimeChange]);
 
   const seekBackward = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
-    const newTime = Math.max(video.currentTime - SEEK_STEP, 0)
-    video.currentTime = newTime
-    onTimeChange?.(newTime)
-  }, [onTimeChange])
+    const video = videoRef.current;
+    if (!video) return;
+    const newTime = Math.max(video.currentTime - SEEK_STEP, 0);
+    video.currentTime = newTime;
+    onTimeChange?.(newTime);
+  }, [onTimeChange]);
 
   // Handle volume
   const handleVolumeChange = useCallback(
     (value: number[]) => {
-      const newVolume = value[0]
-      onVolumeChange?.(newVolume)
+      const newVolume = value[0];
+      onVolumeChange?.(newVolume);
       if (newVolume > 0 && isMuted) {
-        onMutedChange?.(false)
+        onMutedChange?.(false);
       }
     },
-    [isMuted, onVolumeChange, onMutedChange]
-  )
+    [isMuted, onVolumeChange, onMutedChange],
+  );
 
   const toggleMute = useCallback(() => {
-    onMutedChange?.(!isMuted)
-  }, [isMuted, onMutedChange])
+    onMutedChange?.(!isMuted);
+  }, [isMuted, onMutedChange]);
 
   // Handle fullscreen
   const toggleFullscreen = useCallback(() => {
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
     if (!document.fullscreenElement) {
-      container.requestFullscreen?.()
-      onFullscreenChange?.(true)
+      container.requestFullscreen?.();
+      onFullscreenChange?.(true);
     } else {
-      document.exitFullscreen?.()
-      onFullscreenChange?.(false)
+      document.exitFullscreen?.();
+      onFullscreenChange?.(false);
     }
-  }, [onFullscreenChange])
+  }, [onFullscreenChange]);
 
   // Handle playback rate
   const handlePlaybackRateChange = useCallback(
     (rate: number) => {
-      onPlaybackRateChange?.(rate)
+      onPlaybackRateChange?.(rate);
     },
-    [onPlaybackRateChange]
-  )
+    [onPlaybackRateChange],
+  );
 
   // Video event handlers
   const handleLoadedMetadata = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
-    setDuration(video.duration)
-    onDurationChange?.(video.duration)
-  }, [onDurationChange])
+    const video = videoRef.current;
+    if (!video) return;
+    setDuration(video.duration);
+    onDurationChange?.(video.duration);
+  }, [onDurationChange]);
 
   const handleTimeUpdate = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
-    onTimeChange?.(video.currentTime)
-  }, [onTimeChange])
+    const video = videoRef.current;
+    if (!video) return;
+    onTimeChange?.(video.currentTime);
+  }, [onTimeChange]);
 
   const handleEnded = useCallback(() => {
-    onPlayChange?.(false)
-    onEnded?.()
-  }, [onPlayChange, onEnded])
+    onPlayChange?.(false);
+    onEnded?.();
+  }, [onPlayChange, onEnded]);
 
   const handleWaiting = useCallback(() => {
-    setIsBuffering(true)
-  }, [])
+    setIsBuffering(true);
+  }, []);
 
   const handlePlaying = useCallback(() => {
-    setIsBuffering(false)
-  }, [])
+    setIsBuffering(false);
+  }, []);
 
   // Show/hide controls on mouse movement
   const handleMouseMove = useCallback(() => {
-    setShowControlsOverlay(true)
+    setShowControlsOverlay(true);
     if (hideControlsTimer.current) {
-      clearTimeout(hideControlsTimer.current)
+      clearTimeout(hideControlsTimer.current);
     }
     if (isPlaying) {
       hideControlsTimer.current = setTimeout(() => {
-        setShowControlsOverlay(false)
-      }, 3000)
+        setShowControlsOverlay(false);
+      }, 3000);
     }
-  }, [isPlaying])
+  }, [isPlaying]);
 
   // Cleanup timer
   useEffect(() => {
     return () => {
       if (hideControlsTimer.current) {
-        clearTimeout(hideControlsTimer.current)
+        clearTimeout(hideControlsTimer.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        'group relative flex h-full w-full items-center justify-center bg-black',
-        className
+        "group relative flex h-full w-full items-center justify-center bg-black",
+        className,
       )}
       onMouseMove={handleMouseMove}
     >
@@ -290,13 +290,17 @@ export function VideoPlayer({
       {showControls && (
         <div
           className={cn(
-            'absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity',
-            showControlsOverlay || !isPlaying ? 'opacity-100' : 'pointer-events-none opacity-0'
+            "absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity",
+            showControlsOverlay || !isPlaying
+              ? "opacity-100"
+              : "pointer-events-none opacity-0",
           )}
         >
           {/* Progress bar */}
           <div className="mb-3 flex items-center gap-2">
-            <span className="min-w-[45px] text-xs text-white">{formatDuration(currentTime)}</span>
+            <span className="min-w-[45px] text-xs text-white">
+              {formatDuration(currentTime)}
+            </span>
             <div className="relative flex-1">
               <Slider
                 value={[currentTime]}
@@ -328,7 +332,11 @@ export function VideoPlayer({
                 className="h-8 w-8 text-white hover:bg-white/20"
                 onClick={togglePlay}
               >
-                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                {isPlaying ? (
+                  <Pause className="h-5 w-5" />
+                ) : (
+                  <Play className="h-5 w-5" />
+                )}
               </Button>
 
               {/* Skip back */}
@@ -401,7 +409,7 @@ export function VideoPlayer({
                     <DropdownMenuItem
                       key={rate}
                       onClick={() => handlePlaybackRateChange(rate)}
-                      className={cn(rate === playbackRate && 'bg-accent')}
+                      className={cn(rate === playbackRate && "bg-accent")}
                     >
                       {rate}x
                     </DropdownMenuItem>
@@ -428,14 +436,18 @@ export function VideoPlayer({
                 className="h-8 w-8 text-white hover:bg-white/20"
                 onClick={toggleFullscreen}
               >
-                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                {isFullscreen ? (
+                  <Minimize className="h-4 w-4" />
+                ) : (
+                  <Maximize className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default VideoPlayer
+export default VideoPlayer;

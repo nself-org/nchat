@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * PlatformReactions Component
@@ -7,31 +7,31 @@
  * the configured platform style (WhatsApp, Telegram, Slack, Discord, etc.)
  */
 
-import { useState, useCallback, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Smile } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { useState, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Smile } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
+} from "@/components/ui/popover";
 import {
   useReactionMode,
   useReactionPicker,
   type UseReactionModeOptions,
-} from '@/hooks/use-reaction-mode'
+} from "@/hooks/use-reaction-mode";
 import type {
   ReactionAggregate,
   PlatformReactionConfig,
-} from '@/lib/reactions/platform-reactions'
+} from "@/lib/reactions/platform-reactions";
 
 // ============================================================================
 // Types
@@ -39,23 +39,23 @@ import type {
 
 export interface PlatformReactionsProps {
   /** Message ID for the reactions */
-  messageId: string
+  messageId: string;
   /** Current reactions on the message */
-  reactions: ReactionAggregate[]
+  reactions: ReactionAggregate[];
   /** Platform configuration options */
-  options?: UseReactionModeOptions
+  options?: UseReactionModeOptions;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Compact mode for dense layouts */
-  compact?: boolean
+  compact?: boolean;
   /** Show add reaction button */
-  showAddButton?: boolean
+  showAddButton?: boolean;
   /** Callback when reaction is added */
-  onReactionAdd?: (emoji: string, messageId: string) => Promise<void>
+  onReactionAdd?: (emoji: string, messageId: string) => Promise<void>;
   /** Callback when reaction is removed */
-  onReactionRemove?: (emoji: string, messageId: string) => Promise<void>
+  onReactionRemove?: (emoji: string, messageId: string) => Promise<void>;
   /** Read-only mode (no interactions) */
-  readOnly?: boolean
+  readOnly?: boolean;
 }
 
 // ============================================================================
@@ -68,17 +68,17 @@ const reactionVariants = {
   exit: { scale: 0, opacity: 0 },
   hover: { scale: 1.1 },
   tap: { scale: 0.95 },
-}
+};
 
 const burstVariants = {
   initial: { scale: 0.8, opacity: 0 },
   animate: {
     scale: [0.8, 1.2, 1],
     opacity: 1,
-    transition: { duration: 0.3, ease: 'easeOut' },
+    transition: { duration: 0.3, ease: "easeOut" },
   },
   exit: { scale: 0, opacity: 0, transition: { duration: 0.15 } },
-}
+};
 
 // ============================================================================
 // Main Component
@@ -110,46 +110,52 @@ export function PlatformReactions({
     ...options,
     onReactionAdd,
     onReactionRemove,
-  })
+  });
 
   const picker = useReactionPicker({
     onSelect: (emoji) => {
       if (!readOnly) {
-        toggleReaction(emoji, messageId, reactions)
+        toggleReaction(emoji, messageId, reactions);
       }
     },
-  })
+  });
 
-  const userReactions = useMemo(() => getUserReactions(reactions), [getUserReactions, reactions])
+  const userReactions = useMemo(
+    () => getUserReactions(reactions),
+    [getUserReactions, reactions],
+  );
 
   // Sort reactions based on config - must be before early return
   const sortedReactions = useMemo(() => {
-    return [...reactions].sort((a, b) => b.count - a.count)
-  }, [reactions])
+    return [...reactions].sort((a, b) => b.count - a.count);
+  }, [reactions]);
 
   const handleReactionClick = useCallback(
     async (emoji: string) => {
-      if (readOnly) return
-      const totalCount = reactions.reduce((sum, r) => sum + r.count, 0)
-      const check = canReact(emoji, userReactions, totalCount)
+      if (readOnly) return;
+      const totalCount = reactions.reduce((sum, r) => sum + r.count, 0);
+      const check = canReact(emoji, userReactions, totalCount);
       if (check.allowed) {
-        await toggleReaction(emoji, messageId, reactions)
+        await toggleReaction(emoji, messageId, reactions);
       }
     },
-    [readOnly, reactions, canReact, userReactions, toggleReaction, messageId]
-  )
+    [readOnly, reactions, canReact, userReactions, toggleReaction, messageId],
+  );
 
   // Don't render anything if no reactions and no add button
-  if (reactions.length === 0 && (!showAddButton || !reactionsEnabled || readOnly)) {
-    return null
+  if (
+    reactions.length === 0 &&
+    (!showAddButton || !reactionsEnabled || readOnly)
+  ) {
+    return null;
   }
 
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center gap-1',
-        compact && 'gap-0.5',
-        className
+        "flex flex-wrap items-center gap-1",
+        compact && "gap-0.5",
+        className,
       )}
     >
       <AnimatePresence mode="popLayout">
@@ -159,7 +165,7 @@ export function PlatformReactions({
             reaction={reaction}
             config={config}
             compact={compact}
-            animateOnAdd={animationSupport !== 'none'}
+            animateOnAdd={animationSupport !== "none"}
             onClick={() => handleReactionClick(reaction.emoji)}
             disabled={readOnly}
           />
@@ -171,15 +177,17 @@ export function PlatformReactions({
         <ReactionPickerButton
           messageId={messageId}
           quickReactions={quickReactions}
-          showFullPicker={config.emojiSet !== 'limited'}
+          showFullPicker={config.emojiSet !== "limited"}
           onSelect={(emoji) => handleReactionClick(emoji)}
           compact={compact}
           isOpen={picker.isOpen && picker.targetMessageId === messageId}
-          onOpenChange={(open) => (open ? picker.open(messageId) : picker.close())}
+          onOpenChange={(open) =>
+            open ? picker.open(messageId) : picker.close()
+          }
         />
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -187,12 +195,12 @@ export function PlatformReactions({
 // ============================================================================
 
 interface ReactionPillProps {
-  reaction: ReactionAggregate
-  config: PlatformReactionConfig
-  compact?: boolean
-  animateOnAdd?: boolean
-  onClick?: () => void
-  disabled?: boolean
+  reaction: ReactionAggregate;
+  config: PlatformReactionConfig;
+  compact?: boolean;
+  animateOnAdd?: boolean;
+  onClick?: () => void;
+  disabled?: boolean;
 }
 
 function ReactionPill({
@@ -203,29 +211,31 @@ function ReactionPill({
   onClick,
   disabled = false,
 }: ReactionPillProps) {
-  const [isHovering, setIsHovering] = useState(false)
+  const [isHovering, setIsHovering] = useState(false);
 
   const pillClasses = cn(
-    'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors',
-    'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
+    "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors",
+    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
     reaction.hasReacted
-      ? 'border-primary/50 bg-primary/10 hover:bg-primary/20'
-      : 'border-border bg-muted/50 hover:bg-muted',
-    compact && 'px-1.5 py-0',
-    disabled && 'cursor-default opacity-60'
-  )
+      ? "border-primary/50 bg-primary/10 hover:bg-primary/20"
+      : "border-border bg-muted/50 hover:bg-muted",
+    compact && "px-1.5 py-0",
+    disabled && "cursor-default opacity-60",
+  );
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Tooltip open={isHovering && reaction.users.length > 0 && config.showReactors}>
+      <Tooltip
+        open={isHovering && reaction.users.length > 0 && config.showReactors}
+      >
         <TooltipTrigger asChild>
           <motion.button
             variants={animateOnAdd ? burstVariants : reactionVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            whileHover={disabled ? undefined : 'hover'}
-            whileTap={disabled ? undefined : 'tap'}
+            whileHover={disabled ? undefined : "hover"}
+            whileTap={disabled ? undefined : "tap"}
             onClick={disabled ? undefined : onClick}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
@@ -244,8 +254,10 @@ function ReactionPill({
             {config.showCount && (
               <span
                 className={cn(
-                  'font-medium tabular-nums',
-                  reaction.hasReacted ? 'text-primary' : 'text-muted-foreground'
+                  "font-medium tabular-nums",
+                  reaction.hasReacted
+                    ? "text-primary"
+                    : "text-muted-foreground",
                 )}
               >
                 {reaction.count}
@@ -254,11 +266,14 @@ function ReactionPill({
           </motion.button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[220px]">
-          <ReactionTooltip reaction={reaction} maxDisplay={config.maxReactorsDisplay} />
+          <ReactionTooltip
+            reaction={reaction}
+            maxDisplay={config.maxReactorsDisplay}
+          />
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
 // ============================================================================
@@ -266,11 +281,11 @@ function ReactionPill({
 // ============================================================================
 
 interface ReactionEmojiProps {
-  emoji: string
-  isCustom?: boolean
-  customUrl?: string
-  isAnimated?: boolean
-  compact?: boolean
+  emoji: string;
+  isCustom?: boolean;
+  customUrl?: string;
+  isAnimated?: boolean;
+  compact?: boolean;
 }
 
 function ReactionEmoji({
@@ -285,17 +300,17 @@ function ReactionEmoji({
       <img
         src={customUrl}
         alt={emoji}
-        className={cn('h-4 w-4 object-contain', compact && 'h-3 w-3')}
+        className={cn("h-4 w-4 object-contain", compact && "h-3 w-3")}
         loading="lazy"
       />
-    )
+    );
   }
 
   return (
-    <span className={cn('text-sm leading-none', compact && 'text-xs')}>
+    <span className={cn("text-sm leading-none", compact && "text-xs")}>
       {emoji}
     </span>
-  )
+  );
 }
 
 // ============================================================================
@@ -303,37 +318,35 @@ function ReactionEmoji({
 // ============================================================================
 
 interface ReactionTooltipProps {
-  reaction: ReactionAggregate
-  maxDisplay?: number
+  reaction: ReactionAggregate;
+  maxDisplay?: number;
 }
 
 function ReactionTooltip({ reaction, maxDisplay = 10 }: ReactionTooltipProps) {
-  const displayUsers = reaction.users.slice(0, maxDisplay)
-  const remaining = reaction.users.length - maxDisplay
+  const displayUsers = reaction.users.slice(0, maxDisplay);
+  const remaining = reaction.users.length - maxDisplay;
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1.5 font-medium">
         <span>{reaction.emoji}</span>
         <span className="text-muted-foreground">
-          {reaction.count} {reaction.count === 1 ? 'reaction' : 'reactions'}
+          {reaction.count} {reaction.count === 1 ? "reaction" : "reactions"}
         </span>
       </div>
       <div className="text-xs text-muted-foreground">
         {displayUsers.map((user, i) => (
           <span key={user.id}>
             {user.name}
-            {i < displayUsers.length - 1 && ', '}
+            {i < displayUsers.length - 1 && ", "}
           </span>
         ))}
         {remaining > 0 && (
-          <span className="text-muted-foreground">
-            {' '}and {remaining} more
-          </span>
+          <span className="text-muted-foreground"> and {remaining} more</span>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -341,13 +354,13 @@ function ReactionTooltip({ reaction, maxDisplay = 10 }: ReactionTooltipProps) {
 // ============================================================================
 
 interface ReactionPickerButtonProps {
-  messageId: string
-  quickReactions: string[]
-  showFullPicker?: boolean
-  onSelect: (emoji: string) => void
-  compact?: boolean
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
+  messageId: string;
+  quickReactions: string[];
+  showFullPicker?: boolean;
+  onSelect: (emoji: string) => void;
+  compact?: boolean;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 function ReactionPickerButton({
@@ -366,15 +379,15 @@ function ReactionPickerButton({
           variant="ghost"
           size="sm"
           className={cn(
-            'h-6 w-6 rounded-full p-0 hover:bg-muted',
-            compact && 'h-5 w-5'
+            "h-6 w-6 rounded-full p-0 hover:bg-muted",
+            compact && "h-5 w-5",
           )}
           aria-label="Add reaction"
         >
           {showFullPicker ? (
-            <Plus className={cn('h-3.5 w-3.5', compact && 'h-3 w-3')} />
+            <Plus className={cn("h-3.5 w-3.5", compact && "h-3 w-3")} />
           ) : (
-            <Smile className={cn('h-3.5 w-3.5', compact && 'h-3 w-3')} />
+            <Smile className={cn("h-3.5 w-3.5", compact && "h-3 w-3")} />
           )}
         </Button>
       </PopoverTrigger>
@@ -387,18 +400,18 @@ function ReactionPickerButton({
         <QuickReactionBar
           quickReactions={quickReactions}
           onSelect={(emoji) => {
-            onSelect(emoji)
-            onOpenChange(false)
+            onSelect(emoji);
+            onOpenChange(false);
           }}
           showMoreButton={showFullPicker}
           onMoreClick={() => {
             // Full emoji picker opens via the parent popover re-rendering with expanded view
-            onOpenChange(false)
+            onOpenChange(false);
           }}
         />
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 // ============================================================================
@@ -406,11 +419,11 @@ function ReactionPickerButton({
 // ============================================================================
 
 interface QuickReactionBarProps {
-  quickReactions: string[]
-  onSelect: (emoji: string) => void
-  showMoreButton?: boolean
-  onMoreClick?: () => void
-  className?: string
+  quickReactions: string[];
+  onSelect: (emoji: string) => void;
+  showMoreButton?: boolean;
+  onMoreClick?: () => void;
+  className?: string;
 }
 
 export function QuickReactionBar({
@@ -421,7 +434,7 @@ export function QuickReactionBar({
   className,
 }: QuickReactionBarProps) {
   return (
-    <div className={cn('flex items-center gap-0.5', className)}>
+    <div className={cn("flex items-center gap-0.5", className)}>
       {quickReactions.map((emoji) => (
         <motion.button
           key={emoji}
@@ -430,8 +443,8 @@ export function QuickReactionBar({
           whileHover={{ scale: 1.2 }}
           whileTap={{ scale: 0.9 }}
           className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-md transition-colors',
-            'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring'
+            "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
+            "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring",
           )}
         >
           <span className="text-lg">{emoji}</span>
@@ -451,7 +464,7 @@ export function QuickReactionBar({
         </>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -459,11 +472,11 @@ export function QuickReactionBar({
 // ============================================================================
 
 interface HoverReactionBarProps {
-  messageId: string
-  quickReactions: string[]
-  onSelect: (emoji: string) => void
-  visible?: boolean
-  className?: string
+  messageId: string;
+  quickReactions: string[];
+  onSelect: (emoji: string) => void;
+  visible?: boolean;
+  className?: string;
 }
 
 export function HoverReactionBar({
@@ -480,10 +493,10 @@ export function HoverReactionBar({
           initial={{ opacity: 0, y: 5, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 5, scale: 0.95 }}
-          transition={{ duration: 0.15, ease: 'easeOut' }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
           className={cn(
-            'absolute -top-10 right-0 z-10 flex items-center gap-0.5 rounded-lg border bg-popover p-1 shadow-lg',
-            className
+            "absolute -top-10 right-0 z-10 flex items-center gap-0.5 rounded-lg border bg-popover p-1 shadow-lg",
+            className,
           )}
           data-message-id={messageId}
         >
@@ -500,17 +513,13 @@ export function HoverReactionBar({
             </motion.button>
           ))}
           <div className="mx-0.5 h-4 w-px bg-border" />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 rounded-md p-0"
-          >
+          <Button variant="ghost" size="sm" className="h-7 w-7 rounded-md p-0">
             <Smile className="h-4 w-4" />
           </Button>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 // ============================================================================
@@ -521,17 +530,18 @@ function getReactionAriaLabel(reaction: ReactionAggregate): string {
   const userText = reaction.users
     .slice(0, 3)
     .map((u) => u.name)
-    .join(', ')
-  const remaining = reaction.users.length - 3
-  const usersLabel = remaining > 0 ? `${userText} and ${remaining} more` : userText
+    .join(", ");
+  const remaining = reaction.users.length - 3;
+  const usersLabel =
+    remaining > 0 ? `${userText} and ${remaining} more` : userText;
 
   return `${reaction.emoji} reaction by ${usersLabel}. ${reaction.count} ${
-    reaction.count === 1 ? 'reaction' : 'reactions'
-  }. ${reaction.hasReacted ? 'You reacted.' : ''}`
+    reaction.count === 1 ? "reaction" : "reactions"
+  }. ${reaction.hasReacted ? "You reacted." : ""}`;
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export default PlatformReactions
+export default PlatformReactions;

@@ -1,4 +1,4 @@
-import { ErrorPage } from '@/components/error/error-page'
+import { ErrorPage } from "@/components/error/error-page";
 
 /**
  * Next.js 404 page.
@@ -14,5 +14,5 @@ export default function NotFound() {
       showBackButton={true}
       showRetryButton={false}
     />
-  )
+  );
 }

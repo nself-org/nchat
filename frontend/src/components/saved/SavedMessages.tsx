@@ -1,35 +1,35 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { X, Bookmark, Download, Settings } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import * as React from "react";
+import { X, Bookmark, Download, Settings } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from '@/components/ui/sheet'
-import { useSavedStore, selectAllCollections } from '@/stores/saved-store'
-import type { SavedMessage, SavedCollection } from '@/lib/saved'
-import { SavedMessageList } from './SavedMessageList'
-import { SavedFilters } from './SavedFilters'
-import { CollectionList } from './CollectionList'
-import { CreateCollection } from './CreateCollection'
-import { AddToCollection } from './AddToCollection'
+} from "@/components/ui/sheet";
+import { useSavedStore, selectAllCollections } from "@/stores/saved-store";
+import type { SavedMessage, SavedCollection } from "@/lib/saved";
+import { SavedMessageList } from "./SavedMessageList";
+import { SavedFilters } from "./SavedFilters";
+import { CollectionList } from "./CollectionList";
+import { CreateCollection } from "./CreateCollection";
+import { AddToCollection } from "./AddToCollection";
 
 export interface SavedMessagesProps {
   /** Callback to navigate to message */
-  onJumpToMessage?: (messageId: string, channelId: string) => void
+  onJumpToMessage?: (messageId: string, channelId: string) => void;
   /** Callback when export is clicked */
-  onExport?: () => void
+  onExport?: () => void;
   /** Callback when settings is clicked */
-  onOpenSettings?: () => void
+  onOpenSettings?: () => void;
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -75,46 +75,51 @@ export function SavedMessages({
     closeCreateCollection,
     isCreateCollectionOpen,
     addCollection,
-  } = useSavedStore()
+  } = useSavedStore();
 
-  const allCollections = useSavedStore(selectAllCollections)
-  const savedMessages = getFilteredSavedMessages()
-  const stats = getSavedStats()
-  const availableTags = getAllTags()
+  const allCollections = useSavedStore(selectAllCollections);
+  const savedMessages = getFilteredSavedMessages();
+  const stats = getSavedStats();
+  const availableTags = getAllTags();
 
-  const selectedSaved = selectedSavedId ? getSavedMessage(selectedSavedId) : undefined
+  const selectedSaved = selectedSavedId
+    ? getSavedMessage(selectedSavedId)
+    : undefined;
 
   const handleUnsave = (saved: SavedMessage) => {
-    removeSavedMessage(saved.id)
-  }
+    removeSavedMessage(saved.id);
+  };
 
   const handleToggleStar = (saved: SavedMessage) => {
-    toggleStar(saved.id)
-  }
+    toggleStar(saved.id);
+  };
 
   const handleAddToCollection = (saved: SavedMessage) => {
-    openAddToCollection(saved.id)
-  }
+    openAddToCollection(saved.id);
+  };
 
-  const handleSortChange = (newSortBy: typeof sortBy, newSortOrder: typeof sortOrder) => {
-    setSortBy(newSortBy)
-    setSortOrder(newSortOrder)
-  }
+  const handleSortChange = (
+    newSortBy: typeof sortBy,
+    newSortOrder: typeof sortOrder,
+  ) => {
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+  };
 
   const handleCollectionSave = () => {
     // Handled by the store
-    closeAddToCollection()
-  }
+    closeAddToCollection();
+  };
 
   const handleCreateCollection = (data: {
-    name: string
-    description?: string
-    icon?: string
-    color?: string
+    name: string;
+    description?: string;
+    icon?: string;
+    color?: string;
   }) => {
     const newCollection: SavedCollection = {
       id: crypto.randomUUID(),
-      userId: '', // Would come from auth
+      userId: "", // Would come from auth
       name: data.name,
       description: data.description,
       icon: data.icon,
@@ -124,15 +129,18 @@ export function SavedMessages({
       updatedAt: new Date(),
       position: allCollections.length,
       isShared: false,
-    }
-    addCollection(newCollection)
-    closeCreateCollection()
-  }
+    };
+    addCollection(newCollection);
+    closeCreateCollection();
+  };
 
   return (
     <>
       <Sheet open={isPanelOpen} onOpenChange={(open) => !open && closePanel()}>
-        <SheetContent side="right" className={cn('w-full p-0 sm:w-[500px] sm:max-w-lg', className)}>
+        <SheetContent
+          side="right"
+          className={cn("w-full p-0 sm:w-[500px] sm:max-w-lg", className)}
+        >
           <SheetHeader className="border-b px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -141,18 +149,33 @@ export function SavedMessages({
               </div>
               <div className="flex items-center gap-1">
                 {onExport && (
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onExport}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={onExport}
+                  >
                     <Download className="h-4 w-4" />
                     <span className="sr-only">Export</span>
                   </Button>
                 )}
                 {onOpenSettings && (
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onOpenSettings}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={onOpenSettings}
+                  >
                     <Settings className="h-4 w-4" />
                     <span className="sr-only">Settings</span>
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={closePanel}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={closePanel}
+                >
                   <X className="h-4 w-4" />
                   <span className="sr-only">Close</span>
                 </Button>
@@ -187,7 +210,8 @@ export function SavedMessages({
                     onCreate={openCreateCollection}
                     compact
                     uncategorizedCount={
-                      savedMessages.filter((m) => m.collectionIds.length === 0).length
+                      savedMessages.filter((m) => m.collectionIds.length === 0)
+                        .length
                     }
                   />
                 </div>
@@ -214,8 +238,8 @@ export function SavedMessages({
                     <SavedMessageList
                       savedMessages={savedMessages}
                       onJumpToMessage={(messageId, channelId) => {
-                        onJumpToMessage?.(messageId, channelId)
-                        closePanel()
+                        onJumpToMessage?.(messageId, channelId);
+                        closePanel();
                       }}
                       onUnsave={handleUnsave}
                       onToggleStar={handleToggleStar}
@@ -254,18 +278,18 @@ export function SavedMessages({
         collections={allCollections}
         selectedIds={selectedSaved?.collectionIds ?? []}
         onSelectionChange={(ids) => {
-          if (!selectedSavedId) return
+          if (!selectedSavedId) return;
           // Update collection membership
-          const current = selectedSaved?.collectionIds ?? []
-          const toAdd = ids.filter((id) => !current.includes(id))
-          const toRemove = current.filter((id) => !ids.includes(id))
+          const current = selectedSaved?.collectionIds ?? [];
+          const toAdd = ids.filter((id) => !current.includes(id));
+          const toRemove = current.filter((id) => !ids.includes(id));
 
-          toAdd.forEach((cid) => addToCollection(selectedSavedId, cid))
-          toRemove.forEach((cid) => removeFromCollection(selectedSavedId, cid))
+          toAdd.forEach((cid) => addToCollection(selectedSavedId, cid));
+          toRemove.forEach((cid) => removeFromCollection(selectedSavedId, cid));
         }}
         onSave={handleCollectionSave}
         onCreateCollection={openCreateCollection}
       />
     </>
-  )
+  );
 }

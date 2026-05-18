@@ -1,20 +1,24 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { type AppConfig, authProviderDescriptions } from '@/config/app-config'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { Shield, CheckCircle } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { type AppConfig, authProviderDescriptions } from "@/config/app-config";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Shield, CheckCircle } from "lucide-react";
 
 interface AuthMethodsStepProps {
-  config: AppConfig
-  onUpdate: (updates: Partial<AppConfig>) => void
-  onValidate: (isValid: boolean) => void
+  config: AppConfig;
+  onUpdate: (updates: Partial<AppConfig>) => void;
+  onValidate: (isValid: boolean) => void;
 }
 
-export function AuthMethodsStep({ config, onUpdate, onValidate }: AuthMethodsStepProps) {
-  const [authProviders, setAuthProviders] = useState(config.authProviders)
+export function AuthMethodsStep({
+  config,
+  onUpdate,
+  onValidate,
+}: AuthMethodsStepProps) {
+  const [authProviders, setAuthProviders] = useState(config.authProviders);
 
   useEffect(() => {
     // At least one auth provider must be enabled
@@ -24,17 +28,26 @@ export function AuthMethodsStep({ config, onUpdate, onValidate }: AuthMethodsSte
       authProviders.google ||
       authProviders.github ||
       authProviders.facebook ||
-      (authProviders.idme && authProviders.idme.enabled)
-    onValidate(hasProvider)
-  }, [authProviders, onValidate])
+      (authProviders.idme && authProviders.idme.enabled);
+    onValidate(hasProvider);
+  }, [authProviders, onValidate]);
 
-  const handleProviderToggle = (provider: keyof typeof authProviders, enabled: boolean) => {
-    const updated = { ...authProviders, [provider]: enabled }
-    setAuthProviders(updated)
-    onUpdate({ authProviders: updated })
-  }
+  const handleProviderToggle = (
+    provider: keyof typeof authProviders,
+    enabled: boolean,
+  ) => {
+    const updated = { ...authProviders, [provider]: enabled };
+    setAuthProviders(updated);
+    onUpdate({ authProviders: updated });
+  };
 
-  const popularProviders = ['emailPassword', 'magicLinks', 'google', 'github', 'facebook']
+  const popularProviders = [
+    "emailPassword",
+    "magicLinks",
+    "google",
+    "github",
+    "facebook",
+  ];
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -58,7 +71,8 @@ export function AuthMethodsStep({ config, onUpdate, onValidate }: AuthMethodsSte
 
           <div className="space-y-4">
             {popularProviders.map((provider) => {
-              const isEnabled = authProviders[provider as keyof typeof authProviders]
+              const isEnabled =
+                authProviders[provider as keyof typeof authProviders];
 
               return (
                 <div
@@ -67,20 +81,27 @@ export function AuthMethodsStep({ config, onUpdate, onValidate }: AuthMethodsSte
                 >
                   <div>
                     <div className="font-medium capitalize text-zinc-900 dark:text-white">
-                      {provider.replace(/([A-Z])/g, ' $1').trim()}
+                      {provider.replace(/([A-Z])/g, " $1").trim()}
                     </div>
                     <div className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {authProviderDescriptions[provider as keyof typeof authProviderDescriptions]}
+                      {
+                        authProviderDescriptions[
+                          provider as keyof typeof authProviderDescriptions
+                        ]
+                      }
                     </div>
                   </div>
                   <Switch
                     checked={Boolean(isEnabled)}
                     onCheckedChange={(checked) =>
-                      handleProviderToggle(provider as keyof typeof authProviders, checked)
+                      handleProviderToggle(
+                        provider as keyof typeof authProviders,
+                        checked,
+                      )
                     }
                   />
                 </div>
-              )
+              );
             })}
           </div>
         </div>
@@ -93,7 +114,9 @@ export function AuthMethodsStep({ config, onUpdate, onValidate }: AuthMethodsSte
           <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
             <div className="mb-3 flex items-center justify-between">
               <div>
-                <div className="font-medium text-zinc-900 dark:text-white">ID.me Verification</div>
+                <div className="font-medium text-zinc-900 dark:text-white">
+                  ID.me Verification
+                </div>
                 <div className="text-sm text-zinc-600 dark:text-zinc-400">
                   Military, police, and government personnel verification
                 </div>
@@ -101,7 +124,10 @@ export function AuthMethodsStep({ config, onUpdate, onValidate }: AuthMethodsSte
               <Switch
                 checked={authProviders.idme.enabled}
                 onCheckedChange={(checked) =>
-                  handleProviderToggle('idme', { ...authProviders.idme, enabled: checked } as any)
+                  handleProviderToggle("idme", {
+                    ...authProviders.idme,
+                    enabled: checked,
+                  } as any)
                 }
               />
             </div>
@@ -113,24 +139,31 @@ export function AuthMethodsStep({ config, onUpdate, onValidate }: AuthMethodsSte
                 </Label>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   {[
-                    { key: 'allowMilitary', label: 'Military Personnel' },
-                    { key: 'allowPolice', label: 'Police Officers' },
-                    { key: 'allowFirstResponders', label: 'First Responders' },
-                    { key: 'allowGovernment', label: 'Government Workers' },
+                    { key: "allowMilitary", label: "Military Personnel" },
+                    { key: "allowPolice", label: "Police Officers" },
+                    { key: "allowFirstResponders", label: "First Responders" },
+                    { key: "allowGovernment", label: "Government Workers" },
                   ].map(({ key, label }) => (
-                    <div key={key} className="flex items-center justify-between">
-                      <span className="text-zinc-700 dark:text-zinc-300">{label}</span>
+                    <div
+                      key={key}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="text-zinc-700 dark:text-zinc-300">
+                        {label}
+                      </span>
                       <Switch
                         checked={
-                          authProviders.idme[key as keyof typeof authProviders.idme] as boolean
+                          authProviders.idme[
+                            key as keyof typeof authProviders.idme
+                          ] as boolean
                         }
                         onCheckedChange={(checked) => {
                           const updated = {
                             ...authProviders,
                             idme: { ...authProviders.idme, [key]: checked },
-                          }
-                          setAuthProviders(updated)
-                          onUpdate({ authProviders: updated })
+                          };
+                          setAuthProviders(updated);
+                          onUpdate({ authProviders: updated });
                         }}
                       />
                     </div>
@@ -158,5 +191,5 @@ export function AuthMethodsStep({ config, onUpdate, onValidate }: AuthMethodsSte
         </div>
       </div>
     </div>
-  )
+  );
 }

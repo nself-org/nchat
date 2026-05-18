@@ -23,7 +23,7 @@ export {
   getCurrentUserGroups,
   getTotalUnreadCount,
   getTotalMentionCount,
-} from '@/lib/demo/sample-data'
+} from "@/lib/demo/sample-data";
 
 export type {
   DemoUser,
@@ -32,29 +32,34 @@ export type {
   DemoReaction,
   DemoFile,
   TemplateBranding,
-} from '@/lib/demo/sample-data'
+} from "@/lib/demo/sample-data";
 
 // -------------------------------------------------------------------------------
 // Template-specific data transformers
 // -------------------------------------------------------------------------------
 
-import { demoUsers, demoChannels, demoMessages, getDemoUser } from '@/lib/demo/sample-data'
-import type { TemplateId } from '@/templates/types'
+import {
+  demoUsers,
+  demoChannels,
+  demoMessages,
+  getDemoUser,
+} from "@/lib/demo/sample-data";
+import type { TemplateId } from "@/templates/types";
 
 /**
  * Transform demo channels to Slack format
  */
 export function getSlackChannels() {
   return demoChannels
-    .filter((c) => c.type === 'public' || c.type === 'private')
+    .filter((c) => c.type === "public" || c.type === "private")
     .map((channel) => ({
       id: channel.id,
       name: channel.name,
-      isPrivate: channel.type === 'private',
+      isPrivate: channel.type === "private",
       unreadCount: channel.unreadCount,
       mentionCount: channel.mentionCount,
       isMuted: channel.isMuted,
-    }))
+    }));
 }
 
 /**
@@ -62,18 +67,19 @@ export function getSlackChannels() {
  */
 export function getSlackDMs() {
   return demoChannels
-    .filter((c) => c.type === 'direct')
+    .filter((c) => c.type === "direct")
     .map((dm) => {
-      const otherUserId = dm.memberIds.find((id) => id !== 'user-7') || 'user-1'
-      const user = getDemoUser(otherUserId)
+      const otherUserId =
+        dm.memberIds.find((id) => id !== "user-7") || "user-1";
+      const user = getDemoUser(otherUserId);
       return {
         id: dm.id,
         name: user?.displayName || dm.name,
         avatarUrl: user?.avatar,
-        status: user?.status || 'offline',
+        status: user?.status || "offline",
         unreadCount: dm.unreadCount,
-      }
-    })
+      };
+    });
 }
 
 /**
@@ -83,11 +89,11 @@ export function getSlackMessages(channelId: string) {
   return demoMessages
     .filter((m) => m.channelId === channelId && !m.threadId)
     .map((message) => {
-      const user = getDemoUser(message.userId)
+      const user = getDemoUser(message.userId);
       return {
         id: message.id,
         userId: message.userId,
-        userName: user?.displayName || 'Unknown',
+        userName: user?.displayName || "Unknown",
         userAvatar: user?.avatar,
         content: message.content,
         timestamp: message.createdAt,
@@ -96,7 +102,7 @@ export function getSlackMessages(channelId: string) {
         reactions: message.reactions?.map((r) => ({
           emoji: r.emoji,
           count: r.count,
-          hasReacted: r.userIds.includes('user-7'),
+          hasReacted: r.userIds.includes("user-7"),
         })),
         threadCount: message.threadCount,
         attachments: message.attachments?.map((f) => ({
@@ -104,8 +110,8 @@ export function getSlackMessages(channelId: string) {
           url: f.url,
           name: f.name,
         })),
-      }
-    })
+      };
+    });
 }
 
 /**
@@ -114,20 +120,20 @@ export function getSlackMessages(channelId: string) {
 export function getDiscordServers() {
   return [
     {
-      id: 'server-1',
-      name: 'nchat Community',
+      id: "server-1",
+      name: "nchat Community",
       icon: undefined,
       unreadCount: 5,
       mentionCount: 2,
     },
     {
-      id: 'server-2',
-      name: 'Developer Hub',
+      id: "server-2",
+      name: "Developer Hub",
       icon: undefined,
       unreadCount: 0,
       mentionCount: 0,
     },
-  ]
+  ];
 }
 
 /**
@@ -136,27 +142,37 @@ export function getDiscordServers() {
 export function getDiscordCategories() {
   return [
     {
-      id: 'cat-1',
-      name: 'Text Channels',
+      id: "cat-1",
+      name: "Text Channels",
       channels: demoChannels
-        .filter((c) => c.type === 'public')
+        .filter((c) => c.type === "public")
         .map((channel) => ({
           id: channel.id,
           name: channel.name,
-          type: 'text' as const,
+          type: "text" as const,
           unreadCount: channel.unreadCount,
           mentionCount: channel.mentionCount,
         })),
     },
     {
-      id: 'cat-2',
-      name: 'Voice Channels',
+      id: "cat-2",
+      name: "Voice Channels",
       channels: [
-        { id: 'voice-1', name: 'General', type: 'voice' as const, connectedUsers: 3 },
-        { id: 'voice-2', name: 'Gaming', type: 'voice' as const, connectedUsers: 0 },
+        {
+          id: "voice-1",
+          name: "General",
+          type: "voice" as const,
+          connectedUsers: 3,
+        },
+        {
+          id: "voice-2",
+          name: "Gaming",
+          type: "voice" as const,
+          connectedUsers: 0,
+        },
       ],
     },
-  ]
+  ];
 }
 
 /**
@@ -164,24 +180,25 @@ export function getDiscordCategories() {
  */
 export function getDiscordMembers() {
   const roleColors: Record<string, string> = {
-    owner: '#E91E63',
-    admin: '#F44336',
-    moderator: '#9C27B0',
-    member: '#2196F3',
-    guest: '#607D8B',
-  }
+    owner: "#E91E63",
+    admin: "#F44336",
+    moderator: "#9C27B0",
+    member: "#2196F3",
+    guest: "#607D8B",
+  };
 
   const roles = [
-    { id: 'role-admins', name: 'Admins', color: roleColors.admin },
-    { id: 'role-members', name: 'Members', color: roleColors.member },
-  ]
+    { id: "role-admins", name: "Admins", color: roleColors.admin },
+    { id: "role-members", name: "Members", color: roleColors.member },
+  ];
 
   return roles.map((role) => ({
     ...role,
     members: demoUsers
       .filter((u) => {
-        if (role.id === 'role-admins') return u.role === 'owner' || u.role === 'admin'
-        return u.role === 'member' || u.role === 'guest'
+        if (role.id === "role-admins")
+          return u.role === "owner" || u.role === "admin";
+        return u.role === "member" || u.role === "guest";
       })
       .map((user) => ({
         id: user.id,
@@ -192,7 +209,7 @@ export function getDiscordMembers() {
         status: user.status,
         isBot: false,
       })),
-  }))
+  }));
 }
 
 /**
@@ -200,28 +217,31 @@ export function getDiscordMembers() {
  */
 export function getTelegramChats() {
   return demoChannels.map((channel) => {
-    const lastMessage = demoMessages.find((m) => m.channelId === channel.id)
-    const lastMessageUser = lastMessage ? getDemoUser(lastMessage.userId) : null
+    const lastMessage = demoMessages.find((m) => m.channelId === channel.id);
+    const lastMessageUser = lastMessage
+      ? getDemoUser(lastMessage.userId)
+      : null;
 
     return {
       id: channel.id,
       name: channel.name,
       avatar: undefined,
-      type: channel.type === 'direct' ? ('private' as const) : ('group' as const),
+      type:
+        channel.type === "direct" ? ("private" as const) : ("group" as const),
       lastMessage: lastMessage
         ? {
             content: lastMessage.content.slice(0, 50),
             senderName: lastMessageUser?.displayName,
-            isOwn: lastMessage.userId === 'user-7',
+            isOwn: lastMessage.userId === "user-7",
             time: lastMessage.createdAt,
-            status: 'read' as const,
+            status: "read" as const,
           }
         : undefined,
       unreadCount: channel.unreadCount,
       isPinned: channel.isPinned,
       isMuted: channel.isMuted,
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -229,27 +249,30 @@ export function getTelegramChats() {
  */
 export function getWhatsAppChats() {
   return demoChannels.map((channel) => {
-    const lastMessage = demoMessages.find((m) => m.channelId === channel.id)
-    const lastMessageUser = lastMessage ? getDemoUser(lastMessage.userId) : null
+    const lastMessage = demoMessages.find((m) => m.channelId === channel.id);
+    const lastMessageUser = lastMessage
+      ? getDemoUser(lastMessage.userId)
+      : null;
 
     return {
       id: channel.id,
       name: channel.name,
       avatar: undefined,
-      type: channel.type === 'direct' ? ('private' as const) : ('group' as const),
+      type:
+        channel.type === "direct" ? ("private" as const) : ("group" as const),
       lastMessage: lastMessage
         ? {
             content: lastMessage.content.slice(0, 50),
-            type: 'text' as const,
+            type: "text" as const,
             senderName: lastMessageUser?.displayName,
-            isOwn: lastMessage.userId === 'user-7',
+            isOwn: lastMessage.userId === "user-7",
             time: lastMessage.createdAt,
-            status: 'read' as const,
+            status: "read" as const,
           }
         : undefined,
       unreadCount: channel.unreadCount,
       isPinned: channel.isPinned,
       isMuted: channel.isMuted,
-    }
-  })
+    };
+  });
 }

@@ -14,13 +14,13 @@
  */
 export interface APIResponse<T = unknown> {
   /** Whether the request was successful */
-  success: boolean
+  success: boolean;
   /** Response data */
-  data?: T
+  data?: T;
   /** Error information (if failed) */
-  error?: APIError
+  error?: APIError;
   /** Response metadata */
-  meta?: APIResponseMeta
+  meta?: APIResponseMeta;
 }
 
 /**
@@ -28,33 +28,33 @@ export interface APIResponse<T = unknown> {
  */
 export interface APIResponseMeta {
   /** Request ID for tracing */
-  requestId: string
+  requestId: string;
   /** Server timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Response time in milliseconds */
-  responseTime?: number
+  responseTime?: number;
   /** API version */
-  apiVersion?: string
+  apiVersion?: string;
   /** Deprecation warning */
-  deprecationWarning?: string
+  deprecationWarning?: string;
 }
 
 /**
  * Successful API response.
  */
 export interface APISuccessResponse<T> extends APIResponse<T> {
-  success: true
-  data: T
-  error?: never
+  success: true;
+  data: T;
+  error?: never;
 }
 
 /**
  * Failed API response.
  */
 export interface APIErrorResponse extends APIResponse<never> {
-  success: false
-  data?: never
-  error: APIError
+  success: false;
+  data?: never;
+  error: APIError;
 }
 
 // ============================================================================
@@ -66,56 +66,56 @@ export interface APIErrorResponse extends APIResponse<never> {
  */
 export type APIErrorCode =
   // Client errors (4xx)
-  | 'BAD_REQUEST'
-  | 'UNAUTHORIZED'
-  | 'FORBIDDEN'
-  | 'NOT_FOUND'
-  | 'METHOD_NOT_ALLOWED'
-  | 'CONFLICT'
-  | 'GONE'
-  | 'UNPROCESSABLE_ENTITY'
-  | 'TOO_MANY_REQUESTS'
+  | "BAD_REQUEST"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NOT_FOUND"
+  | "METHOD_NOT_ALLOWED"
+  | "CONFLICT"
+  | "GONE"
+  | "UNPROCESSABLE_ENTITY"
+  | "TOO_MANY_REQUESTS"
   // Server errors (5xx)
-  | 'INTERNAL_ERROR'
-  | 'NOT_IMPLEMENTED'
-  | 'SERVICE_UNAVAILABLE'
-  | 'GATEWAY_TIMEOUT'
+  | "INTERNAL_ERROR"
+  | "NOT_IMPLEMENTED"
+  | "SERVICE_UNAVAILABLE"
+  | "GATEWAY_TIMEOUT"
   // Custom errors
-  | 'VALIDATION_ERROR'
-  | 'AUTHENTICATION_ERROR'
-  | 'AUTHORIZATION_ERROR'
-  | 'RATE_LIMIT_ERROR'
-  | 'RESOURCE_EXHAUSTED'
-  | 'INVALID_INPUT'
-  | 'DUPLICATE_ENTRY'
-  | 'DEPENDENCY_ERROR'
-  | 'NETWORK_ERROR'
-  | 'TIMEOUT_ERROR'
-  | 'UNKNOWN_ERROR'
+  | "VALIDATION_ERROR"
+  | "AUTHENTICATION_ERROR"
+  | "AUTHORIZATION_ERROR"
+  | "RATE_LIMIT_ERROR"
+  | "RESOURCE_EXHAUSTED"
+  | "INVALID_INPUT"
+  | "DUPLICATE_ENTRY"
+  | "DEPENDENCY_ERROR"
+  | "NETWORK_ERROR"
+  | "TIMEOUT_ERROR"
+  | "UNKNOWN_ERROR";
 
 /**
  * API error structure.
  */
 export interface APIError {
   /** Error code */
-  code: APIErrorCode
+  code: APIErrorCode;
   /** HTTP status code */
-  status: number
+  status: number;
   /** Human-readable error message */
-  message: string
+  message: string;
   /** Detailed error description */
-  details?: string
+  details?: string;
   /** Field-specific validation errors */
-  fieldErrors?: APIFieldError[]
+  fieldErrors?: APIFieldError[];
   /** Error stack trace (dev only) */
-  stack?: string
+  stack?: string;
   /** Correlation ID for debugging */
-  correlationId?: string
+  correlationId?: string;
   /** Retry information */
   retry?: {
-    retryable: boolean
-    retryAfter?: number // seconds
-  }
+    retryable: boolean;
+    retryAfter?: number; // seconds
+  };
 }
 
 /**
@@ -123,33 +123,33 @@ export interface APIError {
  */
 export interface APIFieldError {
   /** Field name/path */
-  field: string
+  field: string;
   /** Error message */
-  message: string
+  message: string;
   /** Error code */
-  code?: string
+  code?: string;
   /** Invalid value (sanitized) */
-  value?: unknown
+  value?: unknown;
 }
 
 /**
  * HTTP status code to error code mapping.
  */
 export const HTTPStatusToErrorCode: Record<number, APIErrorCode> = {
-  400: 'BAD_REQUEST',
-  401: 'UNAUTHORIZED',
-  403: 'FORBIDDEN',
-  404: 'NOT_FOUND',
-  405: 'METHOD_NOT_ALLOWED',
-  409: 'CONFLICT',
-  410: 'GONE',
-  422: 'UNPROCESSABLE_ENTITY',
-  429: 'TOO_MANY_REQUESTS',
-  500: 'INTERNAL_ERROR',
-  501: 'NOT_IMPLEMENTED',
-  503: 'SERVICE_UNAVAILABLE',
-  504: 'GATEWAY_TIMEOUT',
-}
+  400: "BAD_REQUEST",
+  401: "UNAUTHORIZED",
+  403: "FORBIDDEN",
+  404: "NOT_FOUND",
+  405: "METHOD_NOT_ALLOWED",
+  409: "CONFLICT",
+  410: "GONE",
+  422: "UNPROCESSABLE_ENTITY",
+  429: "TOO_MANY_REQUESTS",
+  500: "INTERNAL_ERROR",
+  501: "NOT_IMPLEMENTED",
+  503: "SERVICE_UNAVAILABLE",
+  504: "GATEWAY_TIMEOUT",
+};
 
 // ============================================================================
 // Pagination Types
@@ -160,13 +160,13 @@ export const HTTPStatusToErrorCode: Record<number, APIErrorCode> = {
  */
 export interface PaginationInput {
   /** Page number (1-based) */
-  page?: number
+  page?: number;
   /** Items per page */
-  perPage?: number
+  perPage?: number;
   /** Cursor for cursor-based pagination */
-  cursor?: string
+  cursor?: string;
   /** Cursor direction */
-  cursorDirection?: 'forward' | 'backward'
+  cursorDirection?: "forward" | "backward";
 }
 
 /**
@@ -174,21 +174,21 @@ export interface PaginationInput {
  */
 export interface PaginationMeta {
   /** Current page number */
-  page: number
+  page: number;
   /** Items per page */
-  perPage: number
+  perPage: number;
   /** Total items count */
-  totalCount: number
+  totalCount: number;
   /** Total pages count */
-  totalPages: number
+  totalPages: number;
   /** Has next page */
-  hasNextPage: boolean
+  hasNextPage: boolean;
   /** Has previous page */
-  hasPreviousPage: boolean
+  hasPreviousPage: boolean;
   /** Next page cursor */
-  nextCursor?: string
+  nextCursor?: string;
   /** Previous page cursor */
-  previousCursor?: string
+  previousCursor?: string;
 }
 
 /**
@@ -196,9 +196,9 @@ export interface PaginationMeta {
  */
 export interface PaginatedResponse<T> {
   /** Data items */
-  items: T[]
+  items: T[];
   /** Pagination metadata */
-  pagination: PaginationMeta
+  pagination: PaginationMeta;
 }
 
 /**
@@ -206,13 +206,13 @@ export interface PaginatedResponse<T> {
  */
 export interface CursorPaginationInfo {
   /** Start cursor */
-  startCursor?: string
+  startCursor?: string;
   /** End cursor */
-  endCursor?: string
+  endCursor?: string;
   /** Has next page */
-  hasNextPage: boolean
+  hasNextPage: boolean;
   /** Has previous page */
-  hasPreviousPage: boolean
+  hasPreviousPage: boolean;
 }
 
 /**
@@ -220,11 +220,11 @@ export interface CursorPaginationInfo {
  */
 export interface Connection<T> {
   /** Edges containing nodes */
-  edges: Edge<T>[]
+  edges: Edge<T>[];
   /** Pagination info */
-  pageInfo: CursorPaginationInfo
+  pageInfo: CursorPaginationInfo;
   /** Total count */
-  totalCount?: number
+  totalCount?: number;
 }
 
 /**
@@ -232,9 +232,9 @@ export interface Connection<T> {
  */
 export interface Edge<T> {
   /** The node */
-  node: T
+  node: T;
   /** Cursor for this node */
-  cursor: string
+  cursor: string;
 }
 
 // ============================================================================
@@ -246,39 +246,39 @@ export interface Edge<T> {
  */
 export interface SortInput {
   /** Field to sort by */
-  field: string
+  field: string;
   /** Sort direction */
-  direction: 'ASC' | 'DESC'
+  direction: "ASC" | "DESC";
 }
 
 /**
  * Filter operator types.
  */
 export type FilterOperator =
-  | 'eq'
-  | 'ne'
-  | 'gt'
-  | 'gte'
-  | 'lt'
-  | 'lte'
-  | 'in'
-  | 'nin'
-  | 'contains'
-  | 'startsWith'
-  | 'endsWith'
-  | 'isNull'
-  | 'isNotNull'
+  | "eq"
+  | "ne"
+  | "gt"
+  | "gte"
+  | "lt"
+  | "lte"
+  | "in"
+  | "nin"
+  | "contains"
+  | "startsWith"
+  | "endsWith"
+  | "isNull"
+  | "isNotNull";
 
 /**
  * Filter condition.
  */
 export interface FilterCondition {
   /** Field name */
-  field: string
+  field: string;
   /** Operator */
-  operator: FilterOperator
+  operator: FilterOperator;
   /** Value to compare */
-  value: unknown
+  value: unknown;
 }
 
 /**
@@ -286,9 +286,9 @@ export interface FilterCondition {
  */
 export interface FilterGroup {
   /** Logic operator */
-  logic: 'AND' | 'OR'
+  logic: "AND" | "OR";
   /** Conditions */
-  conditions: (FilterCondition | FilterGroup)[]
+  conditions: (FilterCondition | FilterGroup)[];
 }
 
 // ============================================================================
@@ -298,18 +298,18 @@ export interface FilterGroup {
 /**
  * GraphQL operation types.
  */
-export type GraphQLOperationType = 'query' | 'mutation' | 'subscription'
+export type GraphQLOperationType = "query" | "mutation" | "subscription";
 
 /**
  * GraphQL request.
  */
 export interface GraphQLRequest {
   /** Operation name */
-  operationName?: string
+  operationName?: string;
   /** Query/mutation string */
-  query: string
+  query: string;
   /** Variables */
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>;
 }
 
 /**
@@ -317,11 +317,11 @@ export interface GraphQLRequest {
  */
 export interface GraphQLResponse<T = unknown> {
   /** Response data */
-  data?: T
+  data?: T;
   /** GraphQL errors */
-  errors?: GraphQLError[]
+  errors?: GraphQLError[];
   /** Extensions */
-  extensions?: Record<string, unknown>
+  extensions?: Record<string, unknown>;
 }
 
 /**
@@ -329,19 +329,19 @@ export interface GraphQLResponse<T = unknown> {
  */
 export interface GraphQLError {
   /** Error message */
-  message: string
+  message: string;
   /** Error locations in query */
-  locations?: GraphQLErrorLocation[]
+  locations?: GraphQLErrorLocation[];
   /** Path to error */
-  path?: (string | number)[]
+  path?: (string | number)[];
   /** Error extensions */
   extensions?: {
-    code?: string
+    code?: string;
     exception?: {
-      stacktrace?: string[]
-    }
-    [key: string]: unknown
-  }
+      stacktrace?: string[];
+    };
+    [key: string]: unknown;
+  };
 }
 
 /**
@@ -349,9 +349,9 @@ export interface GraphQLError {
  */
 export interface GraphQLErrorLocation {
   /** Line number */
-  line: number
+  line: number;
   /** Column number */
-  column: number
+  column: number;
 }
 
 /**
@@ -359,16 +359,16 @@ export interface GraphQLErrorLocation {
  */
 export interface HasuraErrorExtensions {
   /** Hasura error code */
-  code: string
+  code: string;
   /** Path to the field */
-  path: string
+  path: string;
   /** Internal error info */
   internal?: {
     error: {
-      message: string
-      status_code: number
-    }
-  }
+      message: string;
+      status_code: number;
+    };
+  };
 }
 
 /**
@@ -376,15 +376,15 @@ export interface HasuraErrorExtensions {
  */
 export interface GraphQLSubscriptionOptions {
   /** Reconnect on error */
-  reconnect?: boolean
+  reconnect?: boolean;
   /** Reconnect attempts */
-  reconnectAttempts?: number
+  reconnectAttempts?: number;
   /** Reconnect interval (ms) */
-  reconnectInterval?: number
+  reconnectInterval?: number;
   /** Connection timeout (ms) */
-  connectionTimeout?: number
+  connectionTimeout?: number;
   /** Lazy connection (connect on first subscription) */
-  lazy?: boolean
+  lazy?: boolean;
 }
 
 // ============================================================================
@@ -396,13 +396,13 @@ export interface GraphQLSubscriptionOptions {
  */
 export interface RequestHeaders {
   /** Authorization header */
-  Authorization?: string
+  Authorization?: string;
   /** Content type */
-  'Content-Type'?: string
+  "Content-Type"?: string;
   /** Accept header */
-  Accept?: string
+  Accept?: string;
   /** Custom headers */
-  [key: string]: string | undefined
+  [key: string]: string | undefined;
 }
 
 /**
@@ -410,21 +410,21 @@ export interface RequestHeaders {
  */
 export interface RequestOptions {
   /** HTTP method */
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   /** Request headers */
-  headers?: RequestHeaders
+  headers?: RequestHeaders;
   /** Request body */
-  body?: unknown
+  body?: unknown;
   /** Request timeout in ms */
-  timeout?: number
+  timeout?: number;
   /** Abort signal */
-  signal?: AbortSignal
+  signal?: AbortSignal;
   /** Cache mode */
-  cache?: RequestCache
+  cache?: RequestCache;
   /** Credentials mode */
-  credentials?: RequestCredentials
+  credentials?: RequestCredentials;
   /** Retry options */
-  retry?: RetryOptions
+  retry?: RetryOptions;
 }
 
 /**
@@ -432,17 +432,17 @@ export interface RequestOptions {
  */
 export interface RetryOptions {
   /** Maximum retry attempts */
-  maxAttempts: number
+  maxAttempts: number;
   /** Initial delay in ms */
-  initialDelay: number
+  initialDelay: number;
   /** Maximum delay in ms */
-  maxDelay: number
+  maxDelay: number;
   /** Backoff multiplier */
-  backoffMultiplier: number
+  backoffMultiplier: number;
   /** Status codes to retry on */
-  retryOnStatus?: number[]
+  retryOnStatus?: number[];
   /** Custom retry condition */
-  retryCondition?: (error: APIError) => boolean
+  retryCondition?: (error: APIError) => boolean;
 }
 
 /**
@@ -454,7 +454,7 @@ export const DefaultRetryOptions: RetryOptions = {
   maxDelay: 10000,
   backoffMultiplier: 2,
   retryOnStatus: [408, 429, 500, 502, 503, 504],
-}
+};
 
 // ============================================================================
 // Rate Limiting Types
@@ -465,24 +465,24 @@ export const DefaultRetryOptions: RetryOptions = {
  */
 export interface RateLimitInfo {
   /** Maximum requests allowed */
-  limit: number
+  limit: number;
   /** Remaining requests */
-  remaining: number
+  remaining: number;
   /** Reset timestamp */
-  reset: Date
+  reset: Date;
   /** Time until reset in seconds */
-  retryAfter?: number
+  retryAfter?: number;
 }
 
 /**
  * Rate limit headers.
  */
 export const RateLimitHeaders = {
-  LIMIT: 'X-RateLimit-Limit',
-  REMAINING: 'X-RateLimit-Remaining',
-  RESET: 'X-RateLimit-Reset',
-  RETRY_AFTER: 'Retry-After',
-} as const
+  LIMIT: "X-RateLimit-Limit",
+  REMAINING: "X-RateLimit-Remaining",
+  RESET: "X-RateLimit-Reset",
+  RETRY_AFTER: "Retry-After",
+} as const;
 
 // ============================================================================
 // API Client Types
@@ -493,19 +493,23 @@ export const RateLimitHeaders = {
  */
 export interface APIClientConfig {
   /** Base URL */
-  baseUrl: string
+  baseUrl: string;
   /** Default headers */
-  headers?: RequestHeaders
+  headers?: RequestHeaders;
   /** Default timeout in ms */
-  timeout?: number
+  timeout?: number;
   /** Retry options */
-  retry?: RetryOptions
+  retry?: RetryOptions;
   /** Request interceptor */
-  requestInterceptor?: (config: RequestOptions) => RequestOptions | Promise<RequestOptions>
+  requestInterceptor?: (
+    config: RequestOptions,
+  ) => RequestOptions | Promise<RequestOptions>;
   /** Response interceptor */
-  responseInterceptor?: <T>(response: APIResponse<T>) => APIResponse<T> | Promise<APIResponse<T>>
+  responseInterceptor?: <T>(
+    response: APIResponse<T>,
+  ) => APIResponse<T> | Promise<APIResponse<T>>;
   /** Error interceptor */
-  errorInterceptor?: (error: APIError) => APIError | Promise<APIError>
+  errorInterceptor?: (error: APIError) => APIError | Promise<APIError>;
 }
 
 /**
@@ -513,13 +517,13 @@ export interface APIClientConfig {
  */
 export interface APIEndpoint<TInput = unknown, TOutput = unknown> {
   /** HTTP method */
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   /** URL path (can include params like :id) */
-  path: string
+  path: string;
   /** Input type marker */
-  _input?: TInput
+  _input?: TInput;
   /** Output type marker */
-  _output?: TOutput
+  _output?: TOutput;
 }
 
 // ============================================================================
@@ -530,39 +534,48 @@ export interface APIEndpoint<TInput = unknown, TOutput = unknown> {
  * Make all properties in T optional recursively.
  */
 export type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
-}
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
 
 /**
  * Extract the data type from an API response.
  */
-export type ExtractAPIData<T> = T extends APIResponse<infer U> ? U : never
+export type ExtractAPIData<T> = T extends APIResponse<infer U> ? U : never;
 
 /**
  * Extract the item type from a paginated response.
  */
-export type ExtractPaginatedItem<T> = T extends PaginatedResponse<infer U> ? U : never
+export type ExtractPaginatedItem<T> =
+  T extends PaginatedResponse<infer U> ? U : never;
 
 /**
  * Type guard for successful API response.
  */
-export function isAPISuccess<T>(response: APIResponse<T>): response is APISuccessResponse<T> {
-  return response.success === true
+export function isAPISuccess<T>(
+  response: APIResponse<T>,
+): response is APISuccessResponse<T> {
+  return response.success === true;
 }
 
 /**
  * Type guard for error API response.
  */
-export function isAPIError(response: APIResponse): response is APIErrorResponse {
-  return response.success === false
+export function isAPIError(
+  response: APIResponse,
+): response is APIErrorResponse {
+  return response.success === false;
 }
 
 /**
  * Create an API error from an HTTP response.
  */
-export function createAPIError(status: number, message: string, details?: string): APIError {
+export function createAPIError(
+  status: number,
+  message: string,
+  details?: string,
+): APIError {
   return {
-    code: HTTPStatusToErrorCode[status] || 'UNKNOWN_ERROR',
+    code: HTTPStatusToErrorCode[status] || "UNKNOWN_ERROR",
     status,
     message,
     details,
@@ -570,17 +583,20 @@ export function createAPIError(status: number, message: string, details?: string
       retryable: [408, 429, 500, 502, 503, 504].includes(status),
       retryAfter: status === 429 ? 60 : undefined,
     },
-  }
+  };
 }
 
 /**
  * Build pagination params for URL.
  */
-export function buildPaginationParams(pagination: PaginationInput): URLSearchParams {
-  const params = new URLSearchParams()
-  if (pagination.page) params.set('page', String(pagination.page))
-  if (pagination.perPage) params.set('perPage', String(pagination.perPage))
-  if (pagination.cursor) params.set('cursor', pagination.cursor)
-  if (pagination.cursorDirection) params.set('cursorDirection', pagination.cursorDirection)
-  return params
+export function buildPaginationParams(
+  pagination: PaginationInput,
+): URLSearchParams {
+  const params = new URLSearchParams();
+  if (pagination.page) params.set("page", String(pagination.page));
+  if (pagination.perPage) params.set("perPage", String(pagination.perPage));
+  if (pagination.cursor) params.set("cursor", pagination.cursor);
+  if (pagination.cursorDirection)
+    params.set("cursorDirection", pagination.cursorDirection);
+  return params;
 }

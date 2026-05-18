@@ -17,7 +17,7 @@
  * @module lib/network/domain-fronting
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Utility Functions
@@ -28,13 +28,13 @@ import { logger } from '@/lib/logger'
  * Provides compatibility for environments where createTimeoutSignal is not available.
  */
 function createTimeoutSignal(ms: number): AbortSignal {
-  if (typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal) {
-    return createTimeoutSignal(ms)
+  if (typeof AbortSignal !== "undefined" && "timeout" in AbortSignal) {
+    return createTimeoutSignal(ms);
   }
   // Fallback for environments without createTimeoutSignal
-  const controller = new AbortController()
-  setTimeout(() => controller.abort(), ms)
-  return controller.signal
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
 }
 
 // ============================================================================
@@ -45,52 +45,52 @@ function createTimeoutSignal(ms: number): AbortSignal {
  * CDN provider identifier
  */
 export type CDNProvider =
-  | 'cloudflare'
-  | 'fastly'
-  | 'cloudfront'
-  | 'akamai'
-  | 'azure-cdn'
-  | 'google-cloud-cdn'
-  | 'custom'
+  | "cloudflare"
+  | "fastly"
+  | "cloudfront"
+  | "akamai"
+  | "azure-cdn"
+  | "google-cloud-cdn"
+  | "custom";
 
 /**
  * Domain fronting strategy
  */
 export type FrontingStrategy =
-  | 'sni-host-split'
-  | 'host-header-only'
-  | 'reflector'
-  | 'meek'
-  | 'custom'
+  | "sni-host-split"
+  | "host-header-only"
+  | "reflector"
+  | "meek"
+  | "custom";
 
 /**
  * CDN endpoint configuration
  */
 export interface CDNEndpoint {
   /** Unique identifier */
-  id: string
+  id: string;
   /** CDN provider */
-  provider: CDNProvider
+  provider: CDNProvider;
   /** Front domain (the domain visible in SNI) */
-  frontDomain: string
+  frontDomain: string;
   /** Host header value (the actual destination) */
-  hostHeader: string
+  hostHeader: string;
   /** Path prefix for requests */
-  pathPrefix: string
+  pathPrefix: string;
   /** Whether endpoint is currently enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Priority for endpoint selection */
-  priority: number
+  priority: number;
   /** Endpoint health status */
-  healthy: boolean
+  healthy: boolean;
   /** Last health check time */
-  lastHealthCheck?: Date
+  lastHealthCheck?: Date;
   /** Average latency in milliseconds */
-  averageLatency?: number
+  averageLatency?: number;
   /** Custom headers to include */
-  customHeaders?: Record<string, string>
+  customHeaders?: Record<string, string>;
   /** Geographic region (for geo-aware routing) */
-  region?: string
+  region?: string;
 }
 
 /**
@@ -98,19 +98,19 @@ export interface CDNEndpoint {
  */
 export interface DomainFrontingConfig {
   /** Whether domain fronting is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Default fronting strategy */
-  strategy: FrontingStrategy
+  strategy: FrontingStrategy;
   /** List of CDN endpoints */
-  endpoints: CDNEndpoint[]
+  endpoints: CDNEndpoint[];
   /** Reflector configuration */
-  reflector?: ReflectorConfig
+  reflector?: ReflectorConfig;
   /** Request obfuscation options */
-  obfuscation: FrontingObfuscation
+  obfuscation: FrontingObfuscation;
   /** Health check configuration */
-  healthCheck: FrontingHealthCheck
+  healthCheck: FrontingHealthCheck;
   /** Fallback behavior */
-  fallback: FrontingFallback
+  fallback: FrontingFallback;
 }
 
 /**
@@ -118,15 +118,15 @@ export interface DomainFrontingConfig {
  */
 export interface ReflectorConfig {
   /** Reflector URL */
-  url: string
+  url: string;
   /** Shared secret for reflector authentication */
-  secret: string
+  secret: string;
   /** Maximum request size in bytes */
-  maxRequestSize: number
+  maxRequestSize: number;
   /** Request timeout in milliseconds */
-  timeout: number
+  timeout: number;
   /** Whether to use padding */
-  usePadding: boolean
+  usePadding: boolean;
 }
 
 /**
@@ -134,19 +134,19 @@ export interface ReflectorConfig {
  */
 export interface FrontingObfuscation {
   /** Add random URL path segments */
-  randomPath: boolean
+  randomPath: boolean;
   /** Add random query parameters */
-  randomQuery: boolean
+  randomQuery: boolean;
   /** Minimum padding size in bytes */
-  minPadding: number
+  minPadding: number;
   /** Maximum padding size in bytes */
-  maxPadding: number
+  maxPadding: number;
   /** Disguise content type */
-  contentTypeDisguise?: 'image/jpeg' | 'text/html' | 'application/javascript'
+  contentTypeDisguise?: "image/jpeg" | "text/html" | "application/javascript";
   /** Add timing jitter to requests */
-  timingJitter: boolean
+  timingJitter: boolean;
   /** Maximum jitter in milliseconds */
-  maxJitterMs: number
+  maxJitterMs: number;
 }
 
 /**
@@ -154,15 +154,15 @@ export interface FrontingObfuscation {
  */
 export interface FrontingHealthCheck {
   /** Enable health checks */
-  enabled: boolean
+  enabled: boolean;
   /** Health check interval in milliseconds */
-  interval: number
+  interval: number;
   /** Health check timeout in milliseconds */
-  timeout: number
+  timeout: number;
   /** Number of failures before marking endpoint unhealthy */
-  failureThreshold: number
+  failureThreshold: number;
   /** Number of successes before marking endpoint healthy */
-  successThreshold: number
+  successThreshold: number;
 }
 
 /**
@@ -170,13 +170,13 @@ export interface FrontingHealthCheck {
  */
 export interface FrontingFallback {
   /** Enable automatic fallback to direct connection */
-  enableDirectFallback: boolean
+  enableDirectFallback: boolean;
   /** Maximum time to wait before fallback in milliseconds */
-  fallbackTimeout: number
+  fallbackTimeout: number;
   /** Endpoints to try before giving up */
-  maxEndpointAttempts: number
+  maxEndpointAttempts: number;
   /** Whether to cache successful endpoints */
-  cacheSuccessfulEndpoint: boolean
+  cacheSuccessfulEndpoint: boolean;
 }
 
 /**
@@ -184,15 +184,15 @@ export interface FrontingFallback {
  */
 export interface FrontedRequest {
   /** HTTP method */
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   /** Request path */
-  path: string
+  path: string;
   /** Request body */
-  body?: ArrayBuffer | string
+  body?: ArrayBuffer | string;
   /** Additional headers */
-  headers?: Record<string, string>
+  headers?: Record<string, string>;
   /** Request timeout in milliseconds */
-  timeout?: number
+  timeout?: number;
 }
 
 /**
@@ -200,17 +200,17 @@ export interface FrontedRequest {
  */
 export interface FrontedResponse {
   /** HTTP status code */
-  status: number
+  status: number;
   /** Response headers */
-  headers: Record<string, string>
+  headers: Record<string, string>;
   /** Response body */
-  body: ArrayBuffer | string
+  body: ArrayBuffer | string;
   /** Endpoint used for the request */
-  endpoint: CDNEndpoint
+  endpoint: CDNEndpoint;
   /** Request latency in milliseconds */
-  latency: number
+  latency: number;
   /** Whether this was a fallback request */
-  wasFallback: boolean
+  wasFallback: boolean;
 }
 
 /**
@@ -218,17 +218,17 @@ export interface FrontedResponse {
  */
 export interface EndpointTestResult {
   /** Endpoint tested */
-  endpoint: CDNEndpoint
+  endpoint: CDNEndpoint;
   /** Whether test was successful */
-  success: boolean
+  success: boolean;
   /** Test latency in milliseconds */
-  latency: number
+  latency: number;
   /** Error message if failed */
-  error?: string
+  error?: string;
   /** Response status code */
-  statusCode?: number
+  statusCode?: number;
   /** Headers received */
-  headers?: Record<string, string>
+  headers?: Record<string, string>;
 }
 
 /**
@@ -236,23 +236,23 @@ export interface EndpointTestResult {
  */
 export interface DomainFrontingMetrics {
   /** Total requests made */
-  totalRequests: number
+  totalRequests: number;
   /** Successful requests */
-  successfulRequests: number
+  successfulRequests: number;
   /** Failed requests */
-  failedRequests: number
+  failedRequests: number;
   /** Fallback requests */
-  fallbackRequests: number
+  fallbackRequests: number;
   /** Average latency in milliseconds */
-  averageLatency: number
+  averageLatency: number;
   /** Bytes sent through fronting */
-  bytesSent: number
+  bytesSent: number;
   /** Bytes received through fronting */
-  bytesReceived: number
+  bytesReceived: number;
   /** Endpoint usage counts */
-  endpointUsage: Map<string, number>
+  endpointUsage: Map<string, number>;
   /** Last request timestamp */
-  lastRequestTime?: Date
+  lastRequestTime?: Date;
 }
 
 // ============================================================================
@@ -264,7 +264,7 @@ export interface DomainFrontingMetrics {
  */
 export const DEFAULT_DOMAIN_FRONTING_CONFIG: DomainFrontingConfig = {
   enabled: false,
-  strategy: 'sni-host-split',
+  strategy: "sni-host-split",
   endpoints: [],
   obfuscation: {
     randomPath: true,
@@ -287,47 +287,37 @@ export const DEFAULT_DOMAIN_FRONTING_CONFIG: DomainFrontingConfig = {
     maxEndpointAttempts: 3,
     cacheSuccessfulEndpoint: true,
   },
-}
+};
 
 /**
  * Known CDN domains that can be used for fronting
  */
 export const KNOWN_CDN_DOMAINS: Record<CDNProvider, string[]> = {
   cloudflare: [
-    'cdnjs.cloudflare.com',
-    'ajax.cloudflare.com',
-    'cdn.jsdelivr.net', // Uses Cloudflare
+    "cdnjs.cloudflare.com",
+    "ajax.cloudflare.com",
+    "cdn.jsdelivr.net", // Uses Cloudflare
   ],
-  fastly: [
-    'global.fastly.net',
-    'dualstack.github.map.fastly.net',
-  ],
+  fastly: ["global.fastly.net", "dualstack.github.map.fastly.net"],
   cloudfront: [
-    'd111111abcdef8.cloudfront.net',
-    'd1234567890abc.cloudfront.net',
+    "d111111abcdef8.cloudfront.net",
+    "d1234567890abc.cloudfront.net",
   ],
-  akamai: [
-    'a248.e.akamai.net',
-    'e673.dscb.akamaiedge.net',
-  ],
-  'azure-cdn': [
-    'azureedge.net',
-  ],
-  'google-cloud-cdn': [
-    'storage.googleapis.com',
-  ],
+  akamai: ["a248.e.akamai.net", "e673.dscb.akamaiedge.net"],
+  "azure-cdn": ["azureedge.net"],
+  "google-cloud-cdn": ["storage.googleapis.com"],
   custom: [],
-}
+};
 
 /**
  * User agents for request disguise
  */
 export const DISGUISE_USER_AGENTS = [
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15',
-]
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+];
 
 // ============================================================================
 // Domain Fronting Client
@@ -339,11 +329,11 @@ export const DISGUISE_USER_AGENTS = [
  * Handles domain-fronted requests through CDN infrastructure
  */
 export class DomainFrontingClient {
-  private _config: DomainFrontingConfig
-  private _metrics: DomainFrontingMetrics
-  private _healthCheckTimer?: ReturnType<typeof setInterval>
-  private _cachedEndpoint?: CDNEndpoint
-  private _endpointFailures: Map<string, number> = new Map()
+  private _config: DomainFrontingConfig;
+  private _metrics: DomainFrontingMetrics;
+  private _healthCheckTimer?: ReturnType<typeof setInterval>;
+  private _cachedEndpoint?: CDNEndpoint;
+  private _endpointFailures: Map<string, number> = new Map();
 
   constructor(config?: Partial<DomainFrontingConfig>) {
     this._config = {
@@ -361,12 +351,12 @@ export class DomainFrontingClient {
         ...DEFAULT_DOMAIN_FRONTING_CONFIG.fallback,
         ...config?.fallback,
       },
-    }
+    };
 
-    this._metrics = this.initializeMetrics()
+    this._metrics = this.initializeMetrics();
 
     if (this._config.healthCheck.enabled) {
-      this.startHealthChecks()
+      this.startHealthChecks();
     }
   }
 
@@ -383,14 +373,14 @@ export class DomainFrontingClient {
       bytesSent: 0,
       bytesReceived: 0,
       endpointUsage: new Map(),
-    }
+    };
   }
 
   /**
    * Get current configuration
    */
   getConfig(): DomainFrontingConfig {
-    return { ...this._config }
+    return { ...this._config };
   }
 
   /**
@@ -400,22 +390,24 @@ export class DomainFrontingClient {
     this._config = {
       ...this._config,
       ...config,
-    }
+    };
   }
 
   /**
    * Add an endpoint
    */
   addEndpoint(endpoint: CDNEndpoint): void {
-    this._config.endpoints.push(endpoint)
-    this._config.endpoints.sort((a, b) => a.priority - b.priority)
+    this._config.endpoints.push(endpoint);
+    this._config.endpoints.sort((a, b) => a.priority - b.priority);
   }
 
   /**
    * Remove an endpoint
    */
   removeEndpoint(endpointId: string): void {
-    this._config.endpoints = this._config.endpoints.filter((e) => e.id !== endpointId)
+    this._config.endpoints = this._config.endpoints.filter(
+      (e) => e.id !== endpointId,
+    );
   }
 
   /**
@@ -427,10 +419,10 @@ export class DomainFrontingClient {
       .sort((a, b) => {
         // Sort by priority first, then by average latency
         if (a.priority !== b.priority) {
-          return a.priority - b.priority
+          return a.priority - b.priority;
         }
-        return (a.averageLatency || Infinity) - (b.averageLatency || Infinity)
-      })
+        return (a.averageLatency || Infinity) - (b.averageLatency || Infinity);
+      });
   }
 
   /**
@@ -439,23 +431,23 @@ export class DomainFrontingClient {
   selectEndpoint(): CDNEndpoint | undefined {
     // Use cached endpoint if available and still healthy
     if (this._cachedEndpoint && this._cachedEndpoint.healthy) {
-      return this._cachedEndpoint
+      return this._cachedEndpoint;
     }
 
-    const healthyEndpoints = this.getHealthyEndpoints()
+    const healthyEndpoints = this.getHealthyEndpoints();
     if (healthyEndpoints.length === 0) {
-      return undefined
+      return undefined;
     }
 
     // Select the first (best) endpoint
-    const selected = healthyEndpoints[0]
+    const selected = healthyEndpoints[0];
 
     // Cache if enabled
     if (this._config.fallback.cacheSuccessfulEndpoint) {
-      this._cachedEndpoint = selected
+      this._cachedEndpoint = selected;
     }
 
-    return selected
+    return selected;
   }
 
   /**
@@ -463,52 +455,54 @@ export class DomainFrontingClient {
    */
   async request(request: FrontedRequest): Promise<FrontedResponse> {
     if (!this._config.enabled) {
-      throw new Error('Domain fronting is not enabled')
+      throw new Error("Domain fronting is not enabled");
     }
 
-    this._metrics.totalRequests++
-    this._metrics.lastRequestTime = new Date()
+    this._metrics.totalRequests++;
+    this._metrics.lastRequestTime = new Date();
 
-    let lastError: Error | undefined
-    let attemptCount = 0
-    const maxAttempts = this._config.fallback.maxEndpointAttempts
+    let lastError: Error | undefined;
+    let attemptCount = 0;
+    const maxAttempts = this._config.fallback.maxEndpointAttempts;
 
     while (attemptCount < maxAttempts) {
-      const endpoint = this.selectEndpoint()
+      const endpoint = this.selectEndpoint();
       if (!endpoint) {
-        throw new Error('No healthy endpoints available')
+        throw new Error("No healthy endpoints available");
       }
 
       try {
-        const response = await this.executeRequest(request, endpoint)
+        const response = await this.executeRequest(request, endpoint);
 
         // Update metrics
-        this._metrics.successfulRequests++
-        this.updateEndpointUsage(endpoint.id)
+        this._metrics.successfulRequests++;
+        this.updateEndpointUsage(endpoint.id);
 
         // Clear failure count on success
-        this._endpointFailures.delete(endpoint.id)
+        this._endpointFailures.delete(endpoint.id);
 
-        return response
+        return response;
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Unknown error')
+        lastError = error instanceof Error ? error : new Error("Unknown error");
 
         // Track failures
-        const failures = (this._endpointFailures.get(endpoint.id) || 0) + 1
-        this._endpointFailures.set(endpoint.id, failures)
+        const failures = (this._endpointFailures.get(endpoint.id) || 0) + 1;
+        this._endpointFailures.set(endpoint.id, failures);
 
         // Mark endpoint as unhealthy if too many failures
         if (failures >= this._config.healthCheck.failureThreshold) {
-          endpoint.healthy = false
+          endpoint.healthy = false;
         }
 
-        attemptCount++
+        attemptCount++;
       }
     }
 
-    this._metrics.failedRequests++
+    this._metrics.failedRequests++;
 
-    throw new Error(`All endpoints failed after ${attemptCount} attempts: ${lastError?.message}`)
+    throw new Error(
+      `All endpoints failed after ${attemptCount} attempts: ${lastError?.message}`,
+    );
   }
 
   /**
@@ -516,53 +510,53 @@ export class DomainFrontingClient {
    */
   private async executeRequest(
     request: FrontedRequest,
-    endpoint: CDNEndpoint
+    endpoint: CDNEndpoint,
   ): Promise<FrontedResponse> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     // Apply timing jitter
     if (this._config.obfuscation.timingJitter) {
-      const jitter = Math.random() * this._config.obfuscation.maxJitterMs
-      await new Promise((resolve) => setTimeout(resolve, jitter))
+      const jitter = Math.random() * this._config.obfuscation.maxJitterMs;
+      await new Promise((resolve) => setTimeout(resolve, jitter));
     }
 
     // Build the fronted URL
-    const url = this.buildFrontedUrl(request, endpoint)
+    const url = this.buildFrontedUrl(request, endpoint);
 
     // Build headers
-    const headers = this.buildFrontedHeaders(request, endpoint)
+    const headers = this.buildFrontedHeaders(request, endpoint);
 
     // Prepare body with optional padding
-    const body = this.prepareBody(request.body)
+    const body = this.prepareBody(request.body);
 
     // Execute request
     const response = await fetch(url, {
       method: request.method,
       headers,
-      body: request.method !== 'GET' ? body : undefined,
+      body: request.method !== "GET" ? body : undefined,
       signal: createTimeoutSignal(request.timeout || 30000),
-    })
+    });
 
-    const latency = Date.now() - startTime
+    const latency = Date.now() - startTime;
 
     // Update endpoint latency
-    this.updateEndpointLatency(endpoint, latency)
+    this.updateEndpointLatency(endpoint, latency);
 
     // Parse response
-    const responseBody = await response.arrayBuffer()
+    const responseBody = await response.arrayBuffer();
 
     // Update metrics
-    this._metrics.bytesReceived += responseBody.byteLength
+    this._metrics.bytesReceived += responseBody.byteLength;
     if (body) {
-      const bodySize = typeof body === 'string' ? body.length : body.byteLength
-      this._metrics.bytesSent += bodySize
+      const bodySize = typeof body === "string" ? body.length : body.byteLength;
+      this._metrics.bytesSent += bodySize;
     }
 
     // Extract response headers
-    const responseHeaders: Record<string, string> = {}
+    const responseHeaders: Record<string, string> = {};
     response.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
+      responseHeaders[key] = value;
+    });
 
     return {
       status: response.status,
@@ -571,30 +565,33 @@ export class DomainFrontingClient {
       endpoint,
       latency,
       wasFallback: false,
-    }
+    };
   }
 
   /**
    * Build the fronted URL
    */
-  private buildFrontedUrl(request: FrontedRequest, endpoint: CDNEndpoint): string {
-    let path = endpoint.pathPrefix + request.path
+  private buildFrontedUrl(
+    request: FrontedRequest,
+    endpoint: CDNEndpoint,
+  ): string {
+    let path = endpoint.pathPrefix + request.path;
 
     // Add random path segments if enabled
     if (this._config.obfuscation.randomPath) {
-      const randomSegment = this.generateRandomString(8)
-      path = `/${randomSegment}${path}`
+      const randomSegment = this.generateRandomString(8);
+      path = `/${randomSegment}${path}`;
     }
 
     // Add random query parameters if enabled
     if (this._config.obfuscation.randomQuery) {
-      const separator = path.includes('?') ? '&' : '?'
-      const randomParam = `_=${this.generateRandomString(12)}`
-      path += `${separator}${randomParam}`
+      const separator = path.includes("?") ? "&" : "?";
+      const randomParam = `_=${this.generateRandomString(12)}`;
+      path += `${separator}${randomParam}`;
     }
 
     // Use HTTPS for the front domain
-    return `https://${endpoint.frontDomain}${path}`
+    return `https://${endpoint.frontDomain}${path}`;
   }
 
   /**
@@ -602,84 +599,90 @@ export class DomainFrontingClient {
    */
   private buildFrontedHeaders(
     request: FrontedRequest,
-    endpoint: CDNEndpoint
+    endpoint: CDNEndpoint,
   ): Record<string, string> {
     const headers: Record<string, string> = {
       Host: endpoint.hostHeader,
-      'User-Agent': this.getRandomUserAgent(),
-      Accept: '*/*',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Cache-Control': 'no-cache',
+      "User-Agent": this.getRandomUserAgent(),
+      Accept: "*/*",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Cache-Control": "no-cache",
       ...endpoint.customHeaders,
       ...request.headers,
-    }
+    };
 
     // Apply content type disguise if configured
     if (this._config.obfuscation.contentTypeDisguise) {
-      headers['Content-Type'] = this._config.obfuscation.contentTypeDisguise
+      headers["Content-Type"] = this._config.obfuscation.contentTypeDisguise;
     }
 
-    return headers
+    return headers;
   }
 
   /**
    * Prepare request body with optional padding
    */
-  private prepareBody(body?: ArrayBuffer | string): ArrayBuffer | string | undefined {
-    if (!body) return undefined
+  private prepareBody(
+    body?: ArrayBuffer | string,
+  ): ArrayBuffer | string | undefined {
+    if (!body) return undefined;
 
-    const { minPadding, maxPadding } = this._config.obfuscation
+    const { minPadding, maxPadding } = this._config.obfuscation;
     if (minPadding === 0 && maxPadding === 0) {
-      return body
+      return body;
     }
 
-    const paddingSize = minPadding + Math.floor(Math.random() * (maxPadding - minPadding))
-    const padding = new Uint8Array(paddingSize)
-    crypto.getRandomValues(padding)
+    const paddingSize =
+      minPadding + Math.floor(Math.random() * (maxPadding - minPadding));
+    const padding = new Uint8Array(paddingSize);
+    crypto.getRandomValues(padding);
 
-    if (typeof body === 'string') {
-      const encoder = new TextEncoder()
-      const bodyBytes = encoder.encode(body)
-      const combined = new Uint8Array(4 + bodyBytes.length + paddingSize)
-      const view = new DataView(combined.buffer)
-      view.setUint32(0, bodyBytes.length, false)
-      combined.set(bodyBytes, 4)
-      combined.set(padding, 4 + bodyBytes.length)
-      return combined.buffer
+    if (typeof body === "string") {
+      const encoder = new TextEncoder();
+      const bodyBytes = encoder.encode(body);
+      const combined = new Uint8Array(4 + bodyBytes.length + paddingSize);
+      const view = new DataView(combined.buffer);
+      view.setUint32(0, bodyBytes.length, false);
+      combined.set(bodyBytes, 4);
+      combined.set(padding, 4 + bodyBytes.length);
+      return combined.buffer;
     }
 
-    const bodyBytes = new Uint8Array(body)
-    const combined = new Uint8Array(4 + bodyBytes.length + paddingSize)
-    const view = new DataView(combined.buffer)
-    view.setUint32(0, bodyBytes.length, false)
-    combined.set(bodyBytes, 4)
-    combined.set(padding, 4 + bodyBytes.length)
-    return combined.buffer
+    const bodyBytes = new Uint8Array(body);
+    const combined = new Uint8Array(4 + bodyBytes.length + paddingSize);
+    const view = new DataView(combined.buffer);
+    view.setUint32(0, bodyBytes.length, false);
+    combined.set(bodyBytes, 4);
+    combined.set(padding, 4 + bodyBytes.length);
+    return combined.buffer;
   }
 
   /**
    * Get a random user agent
    */
   private getRandomUserAgent(): string {
-    return DISGUISE_USER_AGENTS[Math.floor(Math.random() * DISGUISE_USER_AGENTS.length)]
+    return DISGUISE_USER_AGENTS[
+      Math.floor(Math.random() * DISGUISE_USER_AGENTS.length)
+    ];
   }
 
   /**
    * Generate a random string
    */
   private generateRandomString(length: number): string {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    const array = new Uint8Array(length)
-    crypto.getRandomValues(array)
-    return Array.from(array, (x) => chars[x % chars.length]).join('')
+    const chars =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    return Array.from(array, (x) => chars[x % chars.length]).join("");
   }
 
   /**
    * Update endpoint usage metrics
    */
   private updateEndpointUsage(endpointId: string): void {
-    const current = this._metrics.endpointUsage.get(endpointId) || 0
-    this._metrics.endpointUsage.set(endpointId, current + 1)
+    const current = this._metrics.endpointUsage.get(endpointId) || 0;
+    this._metrics.endpointUsage.set(endpointId, current + 1);
   }
 
   /**
@@ -687,28 +690,28 @@ export class DomainFrontingClient {
    */
   private updateEndpointLatency(endpoint: CDNEndpoint, latency: number): void {
     if (endpoint.averageLatency === undefined) {
-      endpoint.averageLatency = latency
+      endpoint.averageLatency = latency;
     } else {
       // Exponential moving average
-      endpoint.averageLatency = endpoint.averageLatency * 0.8 + latency * 0.2
+      endpoint.averageLatency = endpoint.averageLatency * 0.8 + latency * 0.2;
     }
 
     // Update overall average
     this._metrics.averageLatency =
       this._metrics.averageLatency === 0
         ? latency
-        : this._metrics.averageLatency * 0.9 + latency * 0.1
+        : this._metrics.averageLatency * 0.9 + latency * 0.1;
   }
 
   /**
    * Start health checks
    */
   private startHealthChecks(): void {
-    this.stopHealthChecks()
+    this.stopHealthChecks();
     this._healthCheckTimer = setInterval(
       () => this.performHealthChecks(),
-      this._config.healthCheck.interval
-    )
+      this._config.healthCheck.interval,
+    );
   }
 
   /**
@@ -716,8 +719,8 @@ export class DomainFrontingClient {
    */
   private stopHealthChecks(): void {
     if (this._healthCheckTimer) {
-      clearInterval(this._healthCheckTimer)
-      this._healthCheckTimer = undefined
+      clearInterval(this._healthCheckTimer);
+      this._healthCheckTimer = undefined;
     }
   }
 
@@ -725,8 +728,10 @@ export class DomainFrontingClient {
    * Perform health checks on all endpoints
    */
   async performHealthChecks(): Promise<void> {
-    const checks = this._config.endpoints.map((endpoint) => this.checkEndpointHealth(endpoint))
-    await Promise.all(checks)
+    const checks = this._config.endpoints.map((endpoint) =>
+      this.checkEndpointHealth(endpoint),
+    );
+    await Promise.all(checks);
   }
 
   /**
@@ -734,31 +739,31 @@ export class DomainFrontingClient {
    */
   private async checkEndpointHealth(endpoint: CDNEndpoint): Promise<void> {
     try {
-      const startTime = Date.now()
-      const url = `https://${endpoint.frontDomain}${endpoint.pathPrefix}/health`
+      const startTime = Date.now();
+      const url = `https://${endpoint.frontDomain}${endpoint.pathPrefix}/health`;
 
       const response = await fetch(url, {
-        method: 'HEAD',
+        method: "HEAD",
         headers: {
           Host: endpoint.hostHeader,
-          'User-Agent': this.getRandomUserAgent(),
+          "User-Agent": this.getRandomUserAgent(),
         },
         signal: createTimeoutSignal(this._config.healthCheck.timeout),
-      })
+      });
 
-      const latency = Date.now() - startTime
-      endpoint.lastHealthCheck = new Date()
+      const latency = Date.now() - startTime;
+      endpoint.lastHealthCheck = new Date();
 
       if (response.ok || response.status === 404) {
         // 404 is acceptable - we just care that the CDN responds
-        endpoint.healthy = true
-        this.updateEndpointLatency(endpoint, latency)
+        endpoint.healthy = true;
+        this.updateEndpointLatency(endpoint, latency);
       } else {
-        endpoint.healthy = false
+        endpoint.healthy = false;
       }
     } catch {
-      endpoint.healthy = false
-      endpoint.lastHealthCheck = new Date()
+      endpoint.healthy = false;
+      endpoint.lastHealthCheck = new Date();
     }
   }
 
@@ -766,25 +771,25 @@ export class DomainFrontingClient {
    * Test an endpoint
    */
   async testEndpoint(endpoint: CDNEndpoint): Promise<EndpointTestResult> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const url = `https://${endpoint.frontDomain}${endpoint.pathPrefix}/`
+      const url = `https://${endpoint.frontDomain}${endpoint.pathPrefix}/`;
 
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
           Host: endpoint.hostHeader,
-          'User-Agent': this.getRandomUserAgent(),
+          "User-Agent": this.getRandomUserAgent(),
         },
         signal: createTimeoutSignal(10000),
-      })
+      });
 
-      const latency = Date.now() - startTime
-      const headers: Record<string, string> = {}
+      const latency = Date.now() - startTime;
+      const headers: Record<string, string> = {};
       response.headers.forEach((value, key) => {
-        headers[key] = value
-      })
+        headers[key] = value;
+      });
 
       return {
         endpoint,
@@ -792,14 +797,14 @@ export class DomainFrontingClient {
         latency,
         statusCode: response.status,
         headers,
-      }
+      };
     } catch (error) {
       return {
         endpoint,
         success: false,
         latency: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -807,31 +812,33 @@ export class DomainFrontingClient {
    * Test all endpoints
    */
   async testAllEndpoints(): Promise<EndpointTestResult[]> {
-    const tests = this._config.endpoints.map((endpoint) => this.testEndpoint(endpoint))
-    return Promise.all(tests)
+    const tests = this._config.endpoints.map((endpoint) =>
+      this.testEndpoint(endpoint),
+    );
+    return Promise.all(tests);
   }
 
   /**
    * Get metrics
    */
   getMetrics(): DomainFrontingMetrics {
-    return { ...this._metrics }
+    return { ...this._metrics };
   }
 
   /**
    * Reset metrics
    */
   resetMetrics(): void {
-    this._metrics = this.initializeMetrics()
+    this._metrics = this.initializeMetrics();
   }
 
   /**
    * Dispose of the client
    */
   dispose(): void {
-    this.stopHealthChecks()
-    this._cachedEndpoint = undefined
-    this._endpointFailures.clear()
+    this.stopHealthChecks();
+    this._cachedEndpoint = undefined;
+    this._endpointFailures.clear();
   }
 }
 
@@ -843,26 +850,26 @@ export class DomainFrontingClient {
  * Create a CDN endpoint configuration
  */
 export function createCDNEndpoint(options: {
-  provider: CDNProvider
-  frontDomain: string
-  hostHeader: string
-  pathPrefix?: string
-  priority?: number
-  region?: string
-  customHeaders?: Record<string, string>
+  provider: CDNProvider;
+  frontDomain: string;
+  hostHeader: string;
+  pathPrefix?: string;
+  priority?: number;
+  region?: string;
+  customHeaders?: Record<string, string>;
 }): CDNEndpoint {
   return {
     id: `endpoint-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
     provider: options.provider,
     frontDomain: options.frontDomain,
     hostHeader: options.hostHeader,
-    pathPrefix: options.pathPrefix || '',
+    pathPrefix: options.pathPrefix || "",
     enabled: true,
     priority: options.priority ?? 0,
     healthy: true,
     region: options.region,
     customHeaders: options.customHeaders,
-  }
+  };
 }
 
 /**
@@ -871,16 +878,16 @@ export function createCDNEndpoint(options: {
 export function createCloudflareEndpoint(
   frontDomain: string,
   hostHeader: string,
-  options?: Partial<CDNEndpoint>
+  options?: Partial<CDNEndpoint>,
 ): CDNEndpoint {
   return {
     ...createCDNEndpoint({
-      provider: 'cloudflare',
+      provider: "cloudflare",
       frontDomain,
       hostHeader,
     }),
     ...options,
-  }
+  };
 }
 
 /**
@@ -889,27 +896,27 @@ export function createCloudflareEndpoint(
 export function createCloudFrontEndpoint(
   distributionId: string,
   hostHeader: string,
-  options?: Partial<CDNEndpoint>
+  options?: Partial<CDNEndpoint>,
 ): CDNEndpoint {
   return {
     ...createCDNEndpoint({
-      provider: 'cloudfront',
+      provider: "cloudfront",
       frontDomain: `${distributionId}.cloudfront.net`,
       hostHeader,
     }),
     ...options,
-  }
+  };
 }
 
 /**
  * Create a reflector configuration
  */
 export function createReflectorConfig(options: {
-  url: string
-  secret: string
-  maxRequestSize?: number
-  timeout?: number
-  usePadding?: boolean
+  url: string;
+  secret: string;
+  maxRequestSize?: number;
+  timeout?: number;
+  usePadding?: boolean;
 }): ReflectorConfig {
   return {
     url: options.url,
@@ -917,7 +924,7 @@ export function createReflectorConfig(options: {
     maxRequestSize: options.maxRequestSize ?? 1024 * 1024, // 1MB default
     timeout: options.timeout ?? 30000,
     usePadding: options.usePadding ?? true,
-  }
+  };
 }
 
 /**
@@ -925,13 +932,13 @@ export function createReflectorConfig(options: {
  */
 export function createDomainFrontingClient(
   endpoints: CDNEndpoint[],
-  options?: Partial<DomainFrontingConfig>
+  options?: Partial<DomainFrontingConfig>,
 ): DomainFrontingClient {
   return new DomainFrontingClient({
     enabled: true,
     endpoints,
     ...options,
-  })
+  });
 }
 
 // ============================================================================
@@ -942,87 +949,92 @@ export function createDomainFrontingClient(
  * Validate a domain fronting configuration
  */
 export function validateDomainFrontingConfig(config: DomainFrontingConfig): {
-  valid: boolean
-  errors: string[]
-  warnings: string[]
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
 } {
-  const errors: string[] = []
-  const warnings: string[] = []
+  const errors: string[] = [];
+  const warnings: string[] = [];
 
   if (config.enabled && config.endpoints.length === 0) {
-    errors.push('Domain fronting is enabled but no endpoints are configured')
+    errors.push("Domain fronting is enabled but no endpoints are configured");
   }
 
-  const enabledEndpoints = config.endpoints.filter((e) => e.enabled)
+  const enabledEndpoints = config.endpoints.filter((e) => e.enabled);
   if (config.enabled && enabledEndpoints.length === 0) {
-    errors.push('No enabled endpoints available')
+    errors.push("No enabled endpoints available");
   }
 
   if (enabledEndpoints.length === 1) {
-    warnings.push('Only one endpoint configured. Consider adding backup endpoints.')
+    warnings.push(
+      "Only one endpoint configured. Consider adding backup endpoints.",
+    );
   }
 
   for (const endpoint of config.endpoints) {
     if (!endpoint.frontDomain) {
-      errors.push(`Endpoint ${endpoint.id} is missing front domain`)
+      errors.push(`Endpoint ${endpoint.id} is missing front domain`);
     }
     if (!endpoint.hostHeader) {
-      errors.push(`Endpoint ${endpoint.id} is missing host header`)
+      errors.push(`Endpoint ${endpoint.id} is missing host header`);
     }
   }
 
   if (config.obfuscation.maxPadding > 4096) {
-    warnings.push('Large padding size may impact performance')
+    warnings.push("Large padding size may impact performance");
   }
 
   if (config.healthCheck.interval < 10000) {
-    warnings.push('Health check interval is very short. This may generate excessive traffic.')
+    warnings.push(
+      "Health check interval is very short. This may generate excessive traffic.",
+    );
   }
 
   return {
     valid: errors.length === 0,
     errors,
     warnings,
-  }
+  };
 }
 
 /**
  * Validate an endpoint configuration
  */
 export function validateEndpoint(endpoint: CDNEndpoint): {
-  valid: boolean
-  errors: string[]
+  valid: boolean;
+  errors: string[];
 } {
-  const errors: string[] = []
+  const errors: string[] = [];
 
   if (!endpoint.frontDomain) {
-    errors.push('Front domain is required')
+    errors.push("Front domain is required");
   }
 
   if (!endpoint.hostHeader) {
-    errors.push('Host header is required')
+    errors.push("Host header is required");
   }
 
   if (endpoint.frontDomain && !isValidDomain(endpoint.frontDomain)) {
-    errors.push('Front domain is not a valid domain')
+    errors.push("Front domain is not a valid domain");
   }
 
   if (endpoint.hostHeader && !isValidDomain(endpoint.hostHeader)) {
-    errors.push('Host header is not a valid domain')
+    errors.push("Host header is not a valid domain");
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  }
+  };
 }
 
 /**
  * Check if a string is a valid domain
  */
 function isValidDomain(domain: string): boolean {
-  const domainRegex = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/
-  return domainRegex.test(domain)
+  const domainRegex =
+    /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+  return domainRegex.test(domain);
 }
 
 // ============================================================================
@@ -1036,4 +1048,4 @@ export const DOMAIN_FRONTING_CONSTANTS = {
   DEFAULT_HEALTH_CHECK_INTERVAL: 60000,
   DEFAULT_HEALTH_CHECK_TIMEOUT: 10000,
   DEFAULT_FALLBACK_TIMEOUT: 30000,
-} as const
+} as const;

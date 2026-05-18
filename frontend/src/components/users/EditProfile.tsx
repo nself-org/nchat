@@ -1,56 +1,62 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { type ExtendedUserProfile, type SocialLink } from './UserCard'
-import { AvatarUpload } from './AvatarUpload'
-import { CoverPhotoUpload } from './CoverPhotoUpload'
-import { ProfileFields, type ProfileFieldDefinition } from './ProfileFields'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { type ExtendedUserProfile, type SocialLink } from "./UserCard";
+import { AvatarUpload } from "./AvatarUpload";
+import { CoverPhotoUpload } from "./CoverPhotoUpload";
+import { ProfileFields, type ProfileFieldDefinition } from "./ProfileFields";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { Save, X, Plus, Trash2 } from 'lucide-react'
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Save, X, Plus, Trash2 } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface EditProfileData {
-  displayName: string
-  username: string
-  pronouns: string
-  title: string
-  department: string
-  team: string
-  bio: string
-  location: string
-  timezone: string
-  website: string
-  phone: string
-  socialLinks: SocialLink[]
-  customFields: Record<string, string | boolean>
+  displayName: string;
+  username: string;
+  pronouns: string;
+  title: string;
+  department: string;
+  team: string;
+  bio: string;
+  location: string;
+  timezone: string;
+  website: string;
+  phone: string;
+  socialLinks: SocialLink[];
+  customFields: Record<string, string | boolean>;
 }
 
 export interface EditProfileProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: ExtendedUserProfile
-  customFieldDefinitions?: ProfileFieldDefinition[]
-  onSave: (data: EditProfileData) => Promise<void>
-  onCancel: () => void
-  onAvatarUpload: (file: File) => Promise<string>
-  onCoverUpload: (file: File) => Promise<string>
-  onAvatarRemove?: () => Promise<void>
-  onCoverRemove?: () => Promise<void>
-  isLoading?: boolean
+  user: ExtendedUserProfile;
+  customFieldDefinitions?: ProfileFieldDefinition[];
+  onSave: (data: EditProfileData) => Promise<void>;
+  onCancel: () => void;
+  onAvatarUpload: (file: File) => Promise<string>;
+  onCoverUpload: (file: File) => Promise<string>;
+  onAvatarRemove?: () => Promise<void>;
+  onCoverRemove?: () => Promise<void>;
+  isLoading?: boolean;
 }
 
 // ============================================================================
@@ -58,24 +64,24 @@ export interface EditProfileProps extends React.HTMLAttributes<HTMLDivElement> {
 // ============================================================================
 
 const PRONOUNS_OPTIONS = [
-  { value: '', label: 'Prefer not to say' },
-  { value: 'he/him', label: 'He/Him' },
-  { value: 'she/her', label: 'She/Her' },
-  { value: 'they/them', label: 'They/Them' },
-  { value: 'ze/zir', label: 'Ze/Zir' },
-  { value: 'custom', label: 'Custom' },
-]
+  { value: "", label: "Prefer not to say" },
+  { value: "he/him", label: "He/Him" },
+  { value: "she/her", label: "She/Her" },
+  { value: "they/them", label: "They/Them" },
+  { value: "ze/zir", label: "Ze/Zir" },
+  { value: "custom", label: "Custom" },
+];
 
 const SOCIAL_PLATFORMS = [
-  'Twitter',
-  'LinkedIn',
-  'GitHub',
-  'Instagram',
-  'Facebook',
-  'YouTube',
-  'Website',
-  'Other',
-]
+  "Twitter",
+  "LinkedIn",
+  "GitHub",
+  "Instagram",
+  "Facebook",
+  "YouTube",
+  "Website",
+  "Other",
+];
 
 // ============================================================================
 // Component
@@ -96,111 +102,123 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
       isLoading = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [formData, setFormData] = React.useState<EditProfileData>({
-      displayName: user.displayName || '',
-      username: user.username || '',
-      pronouns: user.pronouns || '',
-      title: user.title || '',
-      department: user.department || '',
-      team: user.team || '',
-      bio: user.bio || '',
-      location: user.location || '',
-      timezone: user.timezone || '',
-      website: user.website || '',
-      phone: user.phone || '',
+      displayName: user.displayName || "",
+      username: user.username || "",
+      pronouns: user.pronouns || "",
+      title: user.title || "",
+      department: user.department || "",
+      team: user.team || "",
+      bio: user.bio || "",
+      location: user.location || "",
+      timezone: user.timezone || "",
+      website: user.website || "",
+      phone: user.phone || "",
       socialLinks: user.socialLinks || [],
       customFields: {},
-    })
-    const [customPronouns, setCustomPronouns] = React.useState('')
-    const [isSaving, setIsSaving] = React.useState(false)
-    const [errors, setErrors] = React.useState<Record<string, string>>({})
+    });
+    const [customPronouns, setCustomPronouns] = React.useState("");
+    const [isSaving, setIsSaving] = React.useState(false);
+    const [errors, setErrors] = React.useState<Record<string, string>>({});
 
-    const handleChange = (field: keyof EditProfileData, value: string | SocialLink[]) => {
-      setFormData((prev) => ({ ...prev, [field]: value }))
+    const handleChange = (
+      field: keyof EditProfileData,
+      value: string | SocialLink[],
+    ) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
       // Clear error when field is edited
       if (errors[field]) {
         setErrors((prev) => {
-          const next = { ...prev }
-          delete next[field]
-          return next
-        })
+          const next = { ...prev };
+          delete next[field];
+          return next;
+        });
       }
-    }
+    };
 
     const handleAddSocialLink = () => {
       setFormData((prev) => ({
         ...prev,
-        socialLinks: [...prev.socialLinks, { platform: '', url: '' }],
-      }))
-    }
+        socialLinks: [...prev.socialLinks, { platform: "", url: "" }],
+      }));
+    };
 
-    const handleUpdateSocialLink = (index: number, field: 'platform' | 'url', value: string) => {
+    const handleUpdateSocialLink = (
+      index: number,
+      field: "platform" | "url",
+      value: string,
+    ) => {
       setFormData((prev) => ({
         ...prev,
         socialLinks: prev.socialLinks.map((link, i) =>
-          i === index ? { ...link, [field]: value } : link
+          i === index ? { ...link, [field]: value } : link,
         ),
-      }))
-    }
+      }));
+    };
 
     const handleRemoveSocialLink = (index: number) => {
       setFormData((prev) => ({
         ...prev,
         socialLinks: prev.socialLinks.filter((_, i) => i !== index),
-      }))
-    }
+      }));
+    };
 
     const validate = (): boolean => {
-      const newErrors: Record<string, string> = {}
+      const newErrors: Record<string, string> = {};
 
       if (!formData.displayName.trim()) {
-        newErrors.displayName = 'Display name is required'
+        newErrors.displayName = "Display name is required";
       }
 
       if (!formData.username.trim()) {
-        newErrors.username = 'Username is required'
+        newErrors.username = "Username is required";
       } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-        newErrors.username = 'Username can only contain letters, numbers, and underscores'
+        newErrors.username =
+          "Username can only contain letters, numbers, and underscores";
       }
 
       if (formData.bio.length > 500) {
-        newErrors.bio = 'Bio must be 500 characters or less'
+        newErrors.bio = "Bio must be 500 characters or less";
       }
 
       if (formData.website && !/^https?:\/\/.+/.test(formData.website)) {
-        newErrors.website = 'Please enter a valid URL starting with http:// or https://'
+        newErrors.website =
+          "Please enter a valid URL starting with http:// or https://";
       }
 
-      setErrors(newErrors)
-      return Object.keys(newErrors).length === 0
-    }
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault()
-      if (!validate()) return
+      e.preventDefault();
+      if (!validate()) return;
 
-      setIsSaving(true)
+      setIsSaving(true);
       try {
         const dataToSave = {
           ...formData,
-          pronouns: formData.pronouns === 'custom' ? customPronouns : formData.pronouns,
-        }
-        await onSave(dataToSave)
+          pronouns:
+            formData.pronouns === "custom" ? customPronouns : formData.pronouns,
+        };
+        await onSave(dataToSave);
       } finally {
-        setIsSaving(false)
+        setIsSaving(false);
       }
-    }
+    };
 
     return (
-      <div ref={ref} className={cn('space-y-6', className)} {...props}>
+      <div ref={ref} className={cn("space-y-6", className)} {...props}>
         <form onSubmit={handleSubmit}>
           {/* Cover and Avatar */}
           <Card>
             <CardHeader>
               <CardTitle>Profile Photos</CardTitle>
-              <CardDescription>Upload a profile picture and cover photo</CardDescription>
+              <CardDescription>
+                Upload a profile picture and cover photo
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <CoverPhotoUpload
@@ -234,13 +252,17 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                   <Input
                     id="displayName"
                     value={formData.displayName}
-                    onChange={(e) => handleChange('displayName', e.target.value)}
+                    onChange={(e) =>
+                      handleChange("displayName", e.target.value)
+                    }
                     placeholder="Your display name"
                     disabled={isLoading}
-                    className={errors.displayName ? 'border-destructive' : ''}
+                    className={errors.displayName ? "border-destructive" : ""}
                   />
                   {errors.displayName && (
-                    <p className="text-xs text-destructive">{errors.displayName}</p>
+                    <p className="text-xs text-destructive">
+                      {errors.displayName}
+                    </p>
                   )}
                 </div>
 
@@ -253,13 +275,17 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                     <Input
                       id="username"
                       value={formData.username}
-                      onChange={(e) => handleChange('username', e.target.value)}
+                      onChange={(e) => handleChange("username", e.target.value)}
                       placeholder="username"
                       disabled={isLoading}
-                      className={errors.username ? 'border-destructive' : ''}
+                      className={errors.username ? "border-destructive" : ""}
                     />
                   </div>
-                  {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
+                  {errors.username && (
+                    <p className="text-xs text-destructive">
+                      {errors.username}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -267,7 +293,7 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                 <Label htmlFor="pronouns">Pronouns</Label>
                 <Select
                   value={formData.pronouns}
-                  onValueChange={(value) => handleChange('pronouns', value)}
+                  onValueChange={(value) => handleChange("pronouns", value)}
                   disabled={isLoading}
                 >
                   <SelectTrigger id="pronouns">
@@ -281,7 +307,7 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                     ))}
                   </SelectContent>
                 </Select>
-                {formData.pronouns === 'custom' && (
+                {formData.pronouns === "custom" && (
                   <Input
                     value={customPronouns}
                     onChange={(e) => setCustomPronouns(e.target.value)}
@@ -297,14 +323,14 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                 <Textarea
                   id="bio"
                   value={formData.bio}
-                  onChange={(e) => handleChange('bio', e.target.value)}
+                  onChange={(e) => handleChange("bio", e.target.value)}
                   placeholder="Tell others about yourself..."
                   rows={4}
                   disabled={isLoading}
-                  className={errors.bio ? 'border-destructive' : ''}
+                  className={errors.bio ? "border-destructive" : ""}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{errors.bio || 'Max 500 characters'}</span>
+                  <span>{errors.bio || "Max 500 characters"}</span>
                   <span>{formData.bio.length}/500</span>
                 </div>
               </div>
@@ -323,7 +349,7 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => handleChange('title', e.target.value)}
+                  onChange={(e) => handleChange("title", e.target.value)}
                   placeholder="e.g., Software Engineer"
                   disabled={isLoading}
                 />
@@ -335,7 +361,7 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                   <Input
                     id="department"
                     value={formData.department}
-                    onChange={(e) => handleChange('department', e.target.value)}
+                    onChange={(e) => handleChange("department", e.target.value)}
                     placeholder="e.g., Engineering"
                     disabled={isLoading}
                   />
@@ -346,7 +372,7 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                   <Input
                     id="team"
                     value={formData.team}
-                    onChange={(e) => handleChange('team', e.target.value)}
+                    onChange={(e) => handleChange("team", e.target.value)}
                     placeholder="e.g., Platform"
                     disabled={isLoading}
                   />
@@ -368,7 +394,7 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                   <Input
                     id="location"
                     value={formData.location}
-                    onChange={(e) => handleChange('location', e.target.value)}
+                    onChange={(e) => handleChange("location", e.target.value)}
                     placeholder="e.g., San Francisco, CA"
                     disabled={isLoading}
                   />
@@ -379,7 +405,7 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                   <Input
                     id="timezone"
                     value={formData.timezone}
-                    onChange={(e) => handleChange('timezone', e.target.value)}
+                    onChange={(e) => handleChange("timezone", e.target.value)}
                     placeholder="e.g., America/Los_Angeles"
                     disabled={isLoading}
                   />
@@ -393,7 +419,7 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                     id="phone"
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => handleChange('phone', e.target.value)}
+                    onChange={(e) => handleChange("phone", e.target.value)}
                     placeholder="e.g., +1 (555) 123-4567"
                     disabled={isLoading}
                   />
@@ -405,12 +431,14 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                     id="website"
                     type="url"
                     value={formData.website}
-                    onChange={(e) => handleChange('website', e.target.value)}
+                    onChange={(e) => handleChange("website", e.target.value)}
                     placeholder="https://yourwebsite.com"
                     disabled={isLoading}
-                    className={errors.website ? 'border-destructive' : ''}
+                    className={errors.website ? "border-destructive" : ""}
                   />
-                  {errors.website && <p className="text-xs text-destructive">{errors.website}</p>}
+                  {errors.website && (
+                    <p className="text-xs text-destructive">{errors.website}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -427,7 +455,9 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                 <div key={index} className="flex items-center gap-3">
                   <Select
                     value={link.platform}
-                    onValueChange={(value) => handleUpdateSocialLink(index, 'platform', value)}
+                    onValueChange={(value) =>
+                      handleUpdateSocialLink(index, "platform", value)
+                    }
                     disabled={isLoading}
                   >
                     <SelectTrigger className="w-[140px]">
@@ -443,7 +473,9 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
                   </Select>
                   <Input
                     value={link.url}
-                    onChange={(e) => handleUpdateSocialLink(index, 'url', e.target.value)}
+                    onChange={(e) =>
+                      handleUpdateSocialLink(index, "url", e.target.value)
+                    }
                     placeholder="https://..."
                     disabled={isLoading}
                     className="flex-1"
@@ -498,20 +530,25 @@ const EditProfile = React.forwardRef<HTMLDivElement, EditProfileProps>(
 
           {/* Action buttons */}
           <div className="flex items-center justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSaving}
+            >
               <X className="mr-2 h-4 w-4" />
               Cancel
             </Button>
             <Button type="submit" disabled={isSaving || isLoading}>
               <Save className="mr-2 h-4 w-4" />
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </form>
       </div>
-    )
-  }
-)
-EditProfile.displayName = 'EditProfile'
+    );
+  },
+);
+EditProfile.displayName = "EditProfile";
 
-export { EditProfile }
+export { EditProfile };

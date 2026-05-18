@@ -28,7 +28,7 @@ export {
   ConnectedForwardModal,
   type ForwardMessageModalProps,
   type ConnectedForwardModalProps,
-} from './forward-message-modal'
+} from "./forward-message-modal";
 
 // Destination components
 export {
@@ -36,16 +36,16 @@ export {
   ForwardDestinationItemSkeleton,
   type ForwardDestinationItemProps,
   type ForwardDestinationItemSkeletonProps,
-} from './forward-destination-item'
+} from "./forward-destination-item";
 
 export {
   ForwardDestinationList,
   ForwardDestinationListSkeleton,
   type ForwardDestinationListProps,
-} from './forward-destination-list'
+} from "./forward-destination-list";
 
 // Preview components
-export { ForwardPreview, type ForwardPreviewProps } from './forward-preview'
+export { ForwardPreview, type ForwardPreviewProps } from "./forward-preview";
 
 // Forwarded message display
 export {
@@ -59,4 +59,4 @@ export {
   type ForwardedMessageUser,
   type ForwardedMessageChannel,
   type ForwardedMessageAttachment,
-} from './forwarded-message'
+} from "./forwarded-message";

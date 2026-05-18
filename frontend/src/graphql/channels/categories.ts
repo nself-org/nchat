@@ -15,65 +15,65 @@
  *   - updated_at (timestamptz)
  */
 
-import { gql } from '@apollo/client'
-import { CHANNEL_FULL_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import { CHANNEL_FULL_FRAGMENT } from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface Category {
-  id: string
-  workspaceId?: string | null
-  name: string
-  description?: string | null
-  position: number
-  isCollapsed: boolean
-  createdAt: string
-  updatedAt: string
+  id: string;
+  workspaceId?: string | null;
+  name: string;
+  description?: string | null;
+  position: number;
+  isCollapsed: boolean;
+  createdAt: string;
+  updatedAt: string;
   channels?: Array<{
-    id: string
-    name: string
-    slug: string
-    type: string
-    position: number
-  }>
+    id: string;
+    name: string;
+    slug: string;
+    type: string;
+    position: number;
+  }>;
 }
 
 export interface GetCategoriesVariables {
-  workspaceId?: string
-  limit?: number
-  offset?: number
+  workspaceId?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetCategoryVariables {
-  id: string
+  id: string;
 }
 
 export interface CreateCategoryInput {
-  name: string
-  description?: string | null
-  workspaceId?: string | null
-  position?: number
-  isCollapsed?: boolean
+  name: string;
+  description?: string | null;
+  workspaceId?: string | null;
+  position?: number;
+  isCollapsed?: boolean;
 }
 
 export interface UpdateCategoryInput {
-  name?: string
-  description?: string | null
-  position?: number
-  isCollapsed?: boolean
+  name?: string;
+  description?: string | null;
+  position?: number;
+  isCollapsed?: boolean;
 }
 
 export interface CategoryPositionUpdate {
-  id: string
-  position: number
+  id: string;
+  position: number;
 }
 
 export interface MoveChannelInput {
-  channelId: string
-  categoryId: string | null
-  position: number
+  channelId: string;
+  categoryId: string | null;
+  position: number;
 }
 
 // ============================================================================
@@ -91,7 +91,7 @@ export const CATEGORY_BASIC_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 export const CATEGORY_WITH_CHANNELS_FRAGMENT = gql`
   fragment CategoryWithChannels on nchat_categories {
@@ -108,7 +108,7 @@ export const CATEGORY_WITH_CHANNELS_FRAGMENT = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERY OPERATIONS
@@ -121,7 +121,10 @@ export const GET_CATEGORIES = gql`
   query GetCategories($workspaceId: uuid, $limit: Int = 50, $offset: Int = 0) {
     nchat_categories(
       where: {
-        _or: [{ workspace_id: { _eq: $workspaceId } }, { workspace_id: { _is_null: true } }]
+        _or: [
+          { workspace_id: { _eq: $workspaceId } }
+          { workspace_id: { _is_null: true } }
+        ]
       }
       order_by: { position: asc }
       limit: $limit
@@ -131,7 +134,10 @@ export const GET_CATEGORIES = gql`
     }
     nchat_categories_aggregate(
       where: {
-        _or: [{ workspace_id: { _eq: $workspaceId } }, { workspace_id: { _is_null: true } }]
+        _or: [
+          { workspace_id: { _eq: $workspaceId } }
+          { workspace_id: { _is_null: true } }
+        ]
       }
     ) {
       aggregate {
@@ -140,16 +146,22 @@ export const GET_CATEGORIES = gql`
     }
   }
   ${CATEGORY_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get categories with their channels
  */
 export const GET_CATEGORIES_WITH_CHANNELS = gql`
-  query GetCategoriesWithChannels($workspaceId: uuid, $includeArchived: Boolean = false) {
+  query GetCategoriesWithChannels(
+    $workspaceId: uuid
+    $includeArchived: Boolean = false
+  ) {
     nchat_categories(
       where: {
-        _or: [{ workspace_id: { _eq: $workspaceId } }, { workspace_id: { _is_null: true } }]
+        _or: [
+          { workspace_id: { _eq: $workspaceId } }
+          { workspace_id: { _is_null: true } }
+        ]
       }
       order_by: { position: asc }
     ) {
@@ -161,13 +173,16 @@ export const GET_CATEGORIES_WITH_CHANNELS = gql`
       is_collapsed
       created_at
       updated_at
-      channels(where: { is_archived: { _eq: $includeArchived } }, order_by: { position: asc }) {
+      channels(
+        where: { is_archived: { _eq: $includeArchived } }
+        order_by: { position: asc }
+      ) {
         ...ChannelFull
       }
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get a single category by ID
@@ -183,7 +198,7 @@ export const GET_CATEGORY = gql`
   }
   ${CATEGORY_BASIC_FRAGMENT}
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get the maximum position for new category ordering
@@ -192,7 +207,10 @@ export const GET_MAX_CATEGORY_POSITION = gql`
   query GetMaxCategoryPosition($workspaceId: uuid) {
     nchat_categories_aggregate(
       where: {
-        _or: [{ workspace_id: { _eq: $workspaceId } }, { workspace_id: { _is_null: true } }]
+        _or: [
+          { workspace_id: { _eq: $workspaceId } }
+          { workspace_id: { _is_null: true } }
+        ]
       }
     ) {
       aggregate {
@@ -202,7 +220,7 @@ export const GET_MAX_CATEGORY_POSITION = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATION OPERATIONS
@@ -232,7 +250,7 @@ export const INSERT_CATEGORY = gql`
     }
   }
   ${CATEGORY_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Update a category
@@ -259,7 +277,7 @@ export const UPDATE_CATEGORY = gql`
     }
   }
   ${CATEGORY_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Delete a category and move its channels to uncategorized
@@ -282,7 +300,7 @@ export const DELETE_CATEGORY = gql`
       name
     }
   }
-`
+`;
 
 /**
  * Bulk update category positions for reordering
@@ -297,7 +315,7 @@ export const REORDER_CATEGORIES = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Toggle category collapsed state
@@ -313,16 +331,24 @@ export const TOGGLE_CATEGORY_COLLAPSED = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Move a channel to a category
  */
 export const MOVE_CHANNEL_TO_CATEGORY = gql`
-  mutation MoveChannelToCategory($channelId: uuid!, $categoryId: uuid, $position: Int!) {
+  mutation MoveChannelToCategory(
+    $channelId: uuid!
+    $categoryId: uuid
+    $position: Int!
+  ) {
     update_nchat_channels_by_pk(
       pk_columns: { id: $channelId }
-      _set: { category_id: $categoryId, position: $position, updated_at: "now()" }
+      _set: {
+        category_id: $categoryId
+        position: $position
+        updated_at: "now()"
+      }
     ) {
       id
       name
@@ -331,7 +357,7 @@ export const MOVE_CHANNEL_TO_CATEGORY = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Bulk update channel positions within a category
@@ -347,4 +373,4 @@ export const REORDER_CHANNELS_IN_CATEGORY = gql`
       }
     }
   }
-`
+`;

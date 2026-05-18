@@ -4,39 +4,45 @@
  * Get upcoming invoice preview.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { getStripePaymentService } from '@/services/billing/stripe-payment.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { getStripePaymentService } from "@/services/billing/stripe-payment.service";
+import { logger } from "@/lib/logger";
 
 const upcomingInvoiceSchema = z.object({
   customerId: z.string().min(1),
   subscriptionId: z.string().optional(),
-})
+});
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url);
     const params = {
-      customerId: searchParams.get('customerId') || '',
-      subscriptionId: searchParams.get('subscriptionId') || undefined,
-    }
+      customerId: searchParams.get("customerId") || "",
+      subscriptionId: searchParams.get("subscriptionId") || undefined,
+    };
 
-    const validation = upcomingInvoiceSchema.safeParse(params)
+    const validation = upcomingInvoiceSchema.safeParse(params);
     if (!validation.success) {
       return NextResponse.json(
-        { error: 'Invalid request', details: validation.error.errors },
-        { status: 400 }
-      )
+        { error: "Invalid request", details: validation.error.errors },
+        { status: 400 },
+      );
     }
 
-    const { customerId, subscriptionId } = validation.data
+    const { customerId, subscriptionId } = validation.data;
 
-    const paymentService = getStripePaymentService()
-    const invoice = await paymentService.getUpcomingInvoice(customerId, subscriptionId)
+    const paymentService = getStripePaymentService();
+    const invoice = await paymentService.getUpcomingInvoice(
+      customerId,
+      subscriptionId,
+    );
 
     if (!invoice) {
-      return NextResponse.json({ error: 'No upcoming invoice found' }, { status: 404 })
+      return NextResponse.json(
+        { error: "No upcoming invoice found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -53,7 +59,7 @@ export async function GET(request: NextRequest) {
         tax: invoice.tax,
         periodStart: invoice.periodStart?.toISOString(),
         periodEnd: invoice.periodEnd?.toISOString(),
-        lineItems: invoice.lineItems.map(item => ({
+        lineItems: invoice.lineItems.map((item) => ({
           id: item.id,
           description: item.description,
           amount: item.amount,
@@ -66,12 +72,15 @@ export async function GET(request: NextRequest) {
           type: item.type,
         })),
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error getting upcoming invoice:', error)
+    logger.error("Error getting upcoming invoice:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: (error instanceof Error ? error.message : String(error)) },
-      { status: 500 }
-    )
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }

@@ -31,7 +31,10 @@
     {
       "name": "recurring",
       "description": "Create a recurring message",
-      "examples": ["/recurring 1d \"Daily standup!\"", "/recurring 1w \"Weekly sync!\" #team"]
+      "examples": [
+        "/recurring 1d \"Daily standup!\"",
+        "/recurring 1w \"Weekly sync!\" #team"
+      ]
     },
     {
       "name": "recurringtasks",

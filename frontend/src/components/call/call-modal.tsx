@@ -5,44 +5,54 @@
  * and call controls.
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Dialog, DialogContent, DialogPortal, DialogOverlay } from '@/components/ui/dialog'
-import { CallControls, formatCallDuration } from './call-controls'
-import { CallParticipants, type Participant } from './call-participants'
-import { CallStats, type CallStatsData } from './call-stats'
-import { ScreenSharePanel } from './screen-share-panel'
-import { cn } from '@/lib/utils'
-import { Maximize2, Minimize2, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogPortal,
+  DialogOverlay,
+} from "@/components/ui/dialog";
+import { CallControls, formatCallDuration } from "./call-controls";
+import { CallParticipants, type Participant } from "./call-participants";
+import { CallStats, type CallStatsData } from "./call-stats";
+import { ScreenSharePanel } from "./screen-share-panel";
+import { cn } from "@/lib/utils";
+import { Maximize2, Minimize2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface CallModalProps {
-  open: boolean
-  onOpenChange?: (open: boolean) => void
-  callType: 'voice' | 'video'
-  callState: 'initiating' | 'ringing' | 'connecting' | 'connected' | 'reconnecting'
-  callDuration: number
-  participants: Participant[]
-  localStream?: MediaStream
-  isMuted: boolean
-  isVideoEnabled: boolean
-  isScreenSharing: boolean
-  onToggleMute: () => void
-  onToggleVideo: () => void
-  onToggleScreenShare: () => void
-  onEndCall: () => void
-  onOpenSettings?: () => void
-  callStats?: CallStatsData
-  isMinimized?: boolean
-  onToggleMinimize?: () => void
-  currentUserId?: string
-  currentUserName?: string
-  className?: string
+  open: boolean;
+  onOpenChange?: (open: boolean) => void;
+  callType: "voice" | "video";
+  callState:
+    | "initiating"
+    | "ringing"
+    | "connecting"
+    | "connected"
+    | "reconnecting";
+  callDuration: number;
+  participants: Participant[];
+  localStream?: MediaStream;
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  isScreenSharing: boolean;
+  onToggleMute: () => void;
+  onToggleVideo: () => void;
+  onToggleScreenShare: () => void;
+  onEndCall: () => void;
+  onOpenSettings?: () => void;
+  callStats?: CallStatsData;
+  isMinimized?: boolean;
+  onToggleMinimize?: () => void;
+  currentUserId?: string;
+  currentUserName?: string;
+  className?: string;
 }
 
 // =============================================================================
@@ -68,36 +78,36 @@ export function CallModal({
   callStats,
   isMinimized = false,
   onToggleMinimize,
-  currentUserId = 'current-user',
-  currentUserName = 'You',
+  currentUserId = "current-user",
+  currentUserName = "You",
   className,
 }: CallModalProps) {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const [showStats, setShowStats] = React.useState(false)
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [showStats, setShowStats] = React.useState(false);
 
   // Display local stream
   React.useEffect(() => {
     if (videoRef.current && localStream && isVideoEnabled) {
-      videoRef.current.srcObject = localStream
+      videoRef.current.srcObject = localStream;
     }
-  }, [localStream, isVideoEnabled])
+  }, [localStream, isVideoEnabled]);
 
   const getCallStateLabel = () => {
     switch (callState) {
-      case 'initiating':
-        return 'Initiating call...'
-      case 'ringing':
-        return 'Ringing...'
-      case 'connecting':
-        return 'Connecting...'
-      case 'reconnecting':
-        return 'Reconnecting...'
-      case 'connected':
-        return formatCallDuration(callDuration)
+      case "initiating":
+        return "Initiating call...";
+      case "ringing":
+        return "Ringing...";
+      case "connecting":
+        return "Connecting...";
+      case "reconnecting":
+        return "Reconnecting...";
+      case "connected":
+        return formatCallDuration(callDuration);
       default:
-        return ''
+        return "";
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -105,11 +115,11 @@ export function CallModal({
         <DialogOverlay className="bg-black/90" />
         <DialogContent
           className={cn(
-            'fixed inset-0 h-screen w-screen max-w-none rounded-none border-0 p-0',
-            'bg-gradient-to-br from-gray-900 to-gray-950',
-            'flex flex-col',
-            isMinimized && 'bottom-4 bottom-auto right-4 top-auto h-auto w-96',
-            className
+            "fixed inset-0 h-screen w-screen max-w-none rounded-none border-0 p-0",
+            "bg-gradient-to-br from-gray-900 to-gray-950",
+            "flex flex-col",
+            isMinimized && "bottom-4 bottom-auto right-4 top-auto h-auto w-96",
+            className,
           )}
           aria-describedby={undefined}
         >
@@ -119,15 +129,17 @@ export function CallModal({
               <div className="flex items-center gap-2">
                 <div
                   className={cn(
-                    'h-2 w-2 rounded-full',
-                    callState === 'connected'
-                      ? 'animate-pulse bg-green-500'
-                      : callState === 'reconnecting'
-                        ? 'animate-pulse bg-yellow-500'
-                        : 'bg-gray-500'
+                    "h-2 w-2 rounded-full",
+                    callState === "connected"
+                      ? "animate-pulse bg-green-500"
+                      : callState === "reconnecting"
+                        ? "animate-pulse bg-yellow-500"
+                        : "bg-gray-500",
                   )}
                 />
-                <span className="text-sm font-medium text-white">{getCallStateLabel()}</span>
+                <span className="text-sm font-medium text-white">
+                  {getCallStateLabel()}
+                </span>
               </div>
             </div>
 
@@ -188,7 +200,7 @@ export function CallModal({
             ) : (
               <>
                 {/* Local Video Preview (Picture-in-Picture) */}
-                {callType === 'video' && isVideoEnabled && localStream && (
+                {callType === "video" && isVideoEnabled && localStream && (
                   <div className="absolute right-4 top-4 z-10 h-36 w-48 overflow-hidden rounded-lg border-2 border-white/20 shadow-xl">
                     <video
                       ref={videoRef}
@@ -222,7 +234,7 @@ export function CallModal({
               onToggleScreenShare={onToggleScreenShare}
               onEndCall={onEndCall}
               onOpenSettings={onOpenSettings}
-              showVideoControls={callType === 'video'}
+              showVideoControls={callType === "video"}
               showScreenShareControls
               variant="floating"
               className="justify-center"
@@ -231,25 +243,25 @@ export function CallModal({
         </DialogContent>
       </DialogPortal>
     </Dialog>
-  )
+  );
 }
 
-CallModal.displayName = 'CallModal'
+CallModal.displayName = "CallModal";
 
 // =============================================================================
 // Minimized Call View
 // =============================================================================
 
 export interface MinimizedCallProps {
-  callType: 'voice' | 'video'
-  callDuration: number
-  participantName: string
-  participantAvatar?: string
-  isMuted: boolean
-  onToggleMute: () => void
-  onEndCall: () => void
-  onExpand: () => void
-  className?: string
+  callType: "voice" | "video";
+  callDuration: number;
+  participantName: string;
+  participantAvatar?: string;
+  isMuted: boolean;
+  onToggleMute: () => void;
+  onEndCall: () => void;
+  onExpand: () => void;
+  className?: string;
 }
 
 export function MinimizedCall({
@@ -266,9 +278,9 @@ export function MinimizedCall({
   return (
     <div
       className={cn(
-        'fixed bottom-4 right-4 w-80 rounded-xl border bg-card shadow-2xl',
-        'flex flex-col gap-3 p-4',
-        className
+        "fixed bottom-4 right-4 w-80 rounded-xl border bg-card shadow-2xl",
+        "flex flex-col gap-3 p-4",
+        className,
       )}
     >
       <button
@@ -283,12 +295,16 @@ export function MinimizedCall({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-sm font-medium">{participantName.slice(0, 2).toUpperCase()}</span>
+            <span className="text-sm font-medium">
+              {participantName.slice(0, 2).toUpperCase()}
+            </span>
           )}
         </div>
         <div className="flex-1 text-left">
           <p className="text-sm font-medium">{participantName}</p>
-          <p className="text-xs text-muted-foreground">{formatCallDuration(callDuration)}</p>
+          <p className="text-xs text-muted-foreground">
+            {formatCallDuration(callDuration)}
+          </p>
         </div>
         <Maximize2 className="h-4 w-4 text-muted-foreground" />
       </button>
@@ -304,7 +320,7 @@ export function MinimizedCall({
         />
       </div>
     </div>
-  )
+  );
 }
 
-MinimizedCall.displayName = 'MinimizedCall'
+MinimizedCall.displayName = "MinimizedCall";

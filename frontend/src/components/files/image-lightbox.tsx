@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   X,
   ChevronLeft,
@@ -11,11 +11,16 @@ import {
   Download,
   Maximize2,
   Minimize2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import type { FileAttachmentData } from './file-attachment'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { FileAttachmentData } from "./file-attachment";
 
 // ============================================================================
 // TYPES
@@ -23,36 +28,36 @@ import type { FileAttachmentData } from './file-attachment'
 
 export interface ImageLightboxProps {
   /** Images to display */
-  images: FileAttachmentData[]
+  images: FileAttachmentData[];
   /** Currently selected image index */
-  initialIndex?: number
+  initialIndex?: number;
   /** Whether the lightbox is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Callback when lightbox should close */
-  onClose: () => void
+  onClose: () => void;
   /** Callback when image changes */
-  onImageChange?: (index: number) => void
+  onImageChange?: (index: number) => void;
   /** Show image counter */
-  showCounter?: boolean
+  showCounter?: boolean;
   /** Show thumbnails */
-  showThumbnails?: boolean
+  showThumbnails?: boolean;
   /** Enable zoom */
-  enableZoom?: boolean
+  enableZoom?: boolean;
   /** Enable rotation */
-  enableRotation?: boolean
+  enableRotation?: boolean;
   /** Enable download */
-  enableDownload?: boolean
+  enableDownload?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-const MIN_ZOOM = 0.5
-const MAX_ZOOM = 4
-const ZOOM_STEP = 0.25
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 4;
+const ZOOM_STEP = 0.25;
 
 // ============================================================================
 // COMPONENT
@@ -86,174 +91,174 @@ export function ImageLightbox({
   className,
 }: ImageLightboxProps) {
   // State
-  const [currentIndex, setCurrentIndex] = React.useState(initialIndex)
-  const [zoom, setZoom] = React.useState(1)
-  const [rotation, setRotation] = React.useState(0)
-  const [position, setPosition] = React.useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = React.useState(false)
-  const [dragStart, setDragStart] = React.useState({ x: 0, y: 0 })
-  const [isFullscreen, setIsFullscreen] = React.useState(false)
+  const [currentIndex, setCurrentIndex] = React.useState(initialIndex);
+  const [zoom, setZoom] = React.useState(1);
+  const [rotation, setRotation] = React.useState(0);
+  const [position, setPosition] = React.useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragStart, setDragStart] = React.useState({ x: 0, y: 0 });
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
 
-  const containerRef = React.useRef<HTMLDivElement>(null)
-  const imageRef = React.useRef<HTMLImageElement>(null)
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const imageRef = React.useRef<HTMLImageElement>(null);
 
   // Current image
-  const currentImage = images[currentIndex]
+  const currentImage = images[currentIndex];
 
   // Reset state when image changes
   React.useEffect(() => {
-    setZoom(1)
-    setRotation(0)
-    setPosition({ x: 0, y: 0 })
-  }, [currentIndex])
+    setZoom(1);
+    setRotation(0);
+    setPosition({ x: 0, y: 0 });
+  }, [currentIndex]);
 
   // Sync with initialIndex
   React.useEffect(() => {
-    setCurrentIndex(initialIndex)
-  }, [initialIndex])
+    setCurrentIndex(initialIndex);
+  }, [initialIndex]);
 
   // Handle keyboard events
   React.useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'Escape':
-          onClose()
-          break
-        case 'ArrowLeft':
-          handlePrevious()
-          break
-        case 'ArrowRight':
-          handleNext()
-          break
-        case '+':
-        case '=':
-          if (enableZoom) handleZoomIn()
-          break
-        case '-':
-          if (enableZoom) handleZoomOut()
-          break
-        case '0':
-          if (enableZoom) resetZoom()
-          break
-        case 'r':
-          if (enableRotation) handleRotate()
-          break
+        case "Escape":
+          onClose();
+          break;
+        case "ArrowLeft":
+          handlePrevious();
+          break;
+        case "ArrowRight":
+          handleNext();
+          break;
+        case "+":
+        case "=":
+          if (enableZoom) handleZoomIn();
+          break;
+        case "-":
+          if (enableZoom) handleZoomOut();
+          break;
+        case "0":
+          if (enableZoom) resetZoom();
+          break;
+        case "r":
+          if (enableRotation) handleRotate();
+          break;
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, currentIndex, images.length, enableZoom, enableRotation])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, currentIndex, images.length, enableZoom, enableRotation]);
 
   // Handle body scroll lock
   React.useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = ''
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   // Navigation
   const handlePrevious = () => {
-    const newIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1
-    setCurrentIndex(newIndex)
-    onImageChange?.(newIndex)
-  }
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1;
+    setCurrentIndex(newIndex);
+    onImageChange?.(newIndex);
+  };
 
   const handleNext = () => {
-    const newIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0
-    setCurrentIndex(newIndex)
-    onImageChange?.(newIndex)
-  }
+    const newIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0;
+    setCurrentIndex(newIndex);
+    onImageChange?.(newIndex);
+  };
 
   // Zoom
   const handleZoomIn = () => {
-    setZoom((z) => Math.min(z + ZOOM_STEP, MAX_ZOOM))
-  }
+    setZoom((z) => Math.min(z + ZOOM_STEP, MAX_ZOOM));
+  };
 
   const handleZoomOut = () => {
-    setZoom((z) => Math.max(z - ZOOM_STEP, MIN_ZOOM))
-  }
+    setZoom((z) => Math.max(z - ZOOM_STEP, MIN_ZOOM));
+  };
 
   const resetZoom = () => {
-    setZoom(1)
-    setPosition({ x: 0, y: 0 })
-  }
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  };
 
   // Rotation
   const handleRotate = () => {
-    setRotation((r) => (r + 90) % 360)
-  }
+    setRotation((r) => (r + 90) % 360);
+  };
 
   // Download
   const handleDownload = () => {
-    if (!currentImage) return
-    const link = document.createElement('a')
-    link.href = currentImage.url
-    link.download = currentImage.name
-    link.target = '_blank'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    if (!currentImage) return;
+    const link = document.createElement("a");
+    link.href = currentImage.url;
+    link.download = currentImage.name;
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Fullscreen
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen()
-      setIsFullscreen(true)
+      containerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
     } else {
-      document.exitFullscreen()
-      setIsFullscreen(false)
+      document.exitFullscreen();
+      setIsFullscreen(false);
     }
-  }
+  };
 
   // Handle mouse wheel zoom
   const handleWheel = (e: React.WheelEvent) => {
-    if (!enableZoom) return
-    e.preventDefault()
-    const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
-    setZoom((z) => Math.min(Math.max(z + delta, MIN_ZOOM), MAX_ZOOM))
-  }
+    if (!enableZoom) return;
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+    setZoom((z) => Math.min(Math.max(z + delta, MIN_ZOOM), MAX_ZOOM));
+  };
 
   // Handle drag to pan
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (zoom <= 1) return
-    setIsDragging(true)
-    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y })
-  }
+    if (zoom <= 1) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return
+    if (!isDragging) return;
     setPosition({
       x: e.clientX - dragStart.x,
       y: e.clientY - dragStart.y,
-    })
-  }
+    });
+  };
 
   const handleMouseUp = () => {
-    setIsDragging(false)
-  }
+    setIsDragging(false);
+  };
 
   // Handle backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      onClose()
+      onClose();
     }
-  }
+  };
 
-  if (!isOpen || !currentImage) return null
+  if (!isOpen || !currentImage) return null;
 
   return (
     <div
       ref={containerRef}
-      className={cn('fixed inset-0 z-50 flex flex-col bg-black/95', className)}
+      className={cn("fixed inset-0 z-50 flex flex-col bg-black/95", className)}
       onWheel={handleWheel}
     >
       {/* Header */}
@@ -265,7 +270,9 @@ export function ImageLightbox({
               {currentIndex + 1} / {images.length}
             </span>
           )}
-          <span className="max-w-[300px] truncate text-sm text-white/70">{currentImage.name}</span>
+          <span className="max-w-[300px] truncate text-sm text-white/70">
+            {currentImage.name}
+          </span>
         </div>
 
         {/* Right: Controls */}
@@ -378,11 +385,13 @@ export function ImageLightbox({
                   ) : (
                     <Maximize2 className="h-4 w-4" />
                   )}
-                  <span className="sr-only">{isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</span>
+                  <span className="sr-only">
+                    {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                  </span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</p>
+                <p>{isFullscreen ? "Exit fullscreen" : "Fullscreen"}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -417,13 +426,15 @@ export function ImageLightbox({
         aria-label={`Image ${currentIndex + 1} of ${images.length}: ${currentImage.name}`}
         onClick={handleBackdropClick}
         onKeyDown={(e) => {
-          if (e.key === 'Escape') onClose()
+          if (e.key === "Escape") onClose();
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        style={{ cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
+        style={{
+          cursor: zoom > 1 ? (isDragging ? "grabbing" : "grab") : "default",
+        }}
       >
         {/* Image */}
         <img
@@ -471,14 +482,14 @@ export function ImageLightbox({
             <button
               key={image.id}
               onClick={() => {
-                setCurrentIndex(index)
-                onImageChange?.(index)
+                setCurrentIndex(index);
+                onImageChange?.(index);
               }}
               className={cn(
-                'h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border-2 transition-all',
+                "h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border-2 transition-all",
                 index === currentIndex
-                  ? 'border-white'
-                  : 'border-transparent opacity-50 hover:opacity-100'
+                  ? "border-white"
+                  : "border-transparent opacity-50 hover:opacity-100",
               )}
             >
               <img
@@ -491,34 +502,34 @@ export function ImageLightbox({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /**
  * Hook for managing lightbox state
  */
 export function useLightbox(images: FileAttachmentData[]) {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [initialIndex, setInitialIndex] = React.useState(0)
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [initialIndex, setInitialIndex] = React.useState(0);
 
   const open = React.useCallback((index: number = 0) => {
-    setInitialIndex(index)
-    setIsOpen(true)
-  }, [])
+    setInitialIndex(index);
+    setIsOpen(true);
+  }, []);
 
   const close = React.useCallback(() => {
-    setIsOpen(false)
-  }, [])
+    setIsOpen(false);
+  }, []);
 
   const openImage = React.useCallback(
     (imageId: string) => {
-      const index = images.findIndex((img) => img.id === imageId)
+      const index = images.findIndex((img) => img.id === imageId);
       if (index !== -1) {
-        open(index)
+        open(index);
       }
     },
-    [images, open]
-  )
+    [images, open],
+  );
 
   return {
     isOpen,
@@ -526,5 +537,5 @@ export function useLightbox(images: FileAttachmentData[]) {
     open,
     close,
     openImage,
-  }
+  };
 }

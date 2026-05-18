@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useAuth } from '@/contexts/auth-context'
+import { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/contexts/auth-context";
 import {
   ArrowLeft,
   Mail,
@@ -15,64 +15,86 @@ import {
   Ban,
   AlertTriangle,
   Save,
-} from 'lucide-react'
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { RoleSelect, UserRole, RoleBadge } from '@/components/admin/role-select'
-import { BanDialog, BanDialogUser } from '@/components/admin/ban-dialog'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import {
+  RoleSelect,
+  UserRole,
+  RoleBadge,
+} from "@/components/admin/role-select";
+import { BanDialog, BanDialogUser } from "@/components/admin/ban-dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 // Mock user data
 const mockUserData: {
-  id: string
-  username: string
-  displayName: string
-  email: string
-  role: UserRole
-  status: 'active' | 'inactive' | 'banned'
-  avatarUrl: string
-  bio: string
-  createdAt: string
-  lastSeenAt: string
-  channelMemberships: { id: string; name: string; role: 'admin' | 'member' }[]
-  activityHistory: { id: string; action: string; timestamp: string }[]
+  id: string;
+  username: string;
+  displayName: string;
+  email: string;
+  role: UserRole;
+  status: "active" | "inactive" | "banned";
+  avatarUrl: string;
+  bio: string;
+  createdAt: string;
+  lastSeenAt: string;
+  channelMemberships: { id: string; name: string; role: "admin" | "member" }[];
+  activityHistory: { id: string; action: string; timestamp: string }[];
   stats: {
-    messagesSent: number
-    channelsJoined: number
-    reactionsGiven: number
-    daysActive: number
-  }
-  warnings: { id: string; reason: string; date: string; issuedBy: string }[]
+    messagesSent: number;
+    channelsJoined: number;
+    reactionsGiven: number;
+    daysActive: number;
+  };
+  warnings: { id: string; reason: string; date: string; issuedBy: string }[];
 } = {
-  id: '4',
-  username: 'alice',
-  displayName: 'Alice Johnson',
-  email: 'alice@nself.org',
-  role: 'member',
-  status: 'active',
-  avatarUrl: '',
-  bio: 'Software engineer and coffee enthusiast',
-  createdAt: '2024-01-15T00:00:00Z',
-  lastSeenAt: '2024-01-22T09:15:00Z',
+  id: "4",
+  username: "alice",
+  displayName: "Alice Johnson",
+  email: "alice@nself.org",
+  role: "member",
+  status: "active",
+  avatarUrl: "",
+  bio: "Software engineer and coffee enthusiast",
+  createdAt: "2024-01-15T00:00:00Z",
+  lastSeenAt: "2024-01-22T09:15:00Z",
   channelMemberships: [
-    { id: '1', name: 'general', role: 'member' },
-    { id: '2', name: 'random', role: 'member' },
-    { id: '3', name: 'engineering', role: 'admin' },
+    { id: "1", name: "general", role: "member" },
+    { id: "2", name: "random", role: "member" },
+    { id: "3", name: "engineering", role: "admin" },
   ],
   activityHistory: [
-    { id: '1', action: 'Sent message in #general', timestamp: '2024-01-22T09:15:00Z' },
-    { id: '2', action: 'Joined #engineering', timestamp: '2024-01-21T14:30:00Z' },
-    { id: '3', action: 'Updated profile', timestamp: '2024-01-20T11:00:00Z' },
-    { id: '4', action: 'Sent message in #random', timestamp: '2024-01-19T16:45:00Z' },
-    { id: '5', action: 'Created account', timestamp: '2024-01-15T00:00:00Z' },
+    {
+      id: "1",
+      action: "Sent message in #general",
+      timestamp: "2024-01-22T09:15:00Z",
+    },
+    {
+      id: "2",
+      action: "Joined #engineering",
+      timestamp: "2024-01-21T14:30:00Z",
+    },
+    { id: "3", action: "Updated profile", timestamp: "2024-01-20T11:00:00Z" },
+    {
+      id: "4",
+      action: "Sent message in #random",
+      timestamp: "2024-01-19T16:45:00Z",
+    },
+    { id: "5", action: "Created account", timestamp: "2024-01-15T00:00:00Z" },
   ],
   stats: {
     messagesSent: 234,
@@ -80,37 +102,45 @@ const mockUserData: {
     reactionsGiven: 56,
     daysActive: 7,
   },
-  warnings: [] as { id: string; reason: string; date: string; issuedBy: string }[],
-}
+  warnings: [] as {
+    id: string;
+    reason: string;
+    date: string;
+    issuedBy: string;
+  }[],
+};
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 export default function UserDetailPage({ params }: PageProps) {
-  const { id } = use(params)
-  const { user: currentUser, loading } = useAuth()
-  const router = useRouter()
-  const [userData, setUserData] = useState(mockUserData)
-  const [isEditing, setIsEditing] = useState(false)
+  const { id } = use(params);
+  const { user: currentUser, loading } = useAuth();
+  const router = useRouter();
+  const [userData, setUserData] = useState(mockUserData);
+  const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({
     displayName: userData.displayName,
     email: userData.email,
-    bio: userData.bio || '',
+    bio: userData.bio || "",
     role: userData.role,
-  })
-  const [banDialogOpen, setBanDialogOpen] = useState(false)
-  const [warningText, setWarningText] = useState('')
+  });
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
+  const [warningText, setWarningText] = useState("");
 
   useEffect(() => {
-    if (!loading && (!currentUser || !['owner', 'admin'].includes(currentUser.role))) {
-      router.push('/chat')
+    if (
+      !loading &&
+      (!currentUser || !["owner", "admin"].includes(currentUser.role))
+    ) {
+      router.push("/chat");
     }
-  }, [currentUser, loading, router])
+  }, [currentUser, loading, router]);
 
   useEffect(() => {
     // In production, fetch user data based on id
-  }, [id])
+  }, [id]);
 
   const handleSave = async () => {
     // In production, this would call an API
@@ -120,39 +150,43 @@ export default function UserDetailPage({ params }: PageProps) {
       email: editedData.email,
       bio: editedData.bio,
       role: editedData.role,
-    }))
-    setIsEditing(false)
-  }
+    }));
+    setIsEditing(false);
+  };
 
   const handleBanConfirm = async (data: {
-    userId: string
-    reason: string
-    duration: string
-    notifyUser: boolean
+    userId: string;
+    reason: string;
+    duration: string;
+    notifyUser: boolean;
   }) => {
     setUserData((prev) => ({
       ...prev,
-      status: prev.status === 'banned' ? 'active' : 'banned',
-    }))
-  }
+      status: prev.status === "banned" ? "active" : "banned",
+    }));
+  };
 
   const handleAddWarning = async () => {
-    if (!warningText.trim()) return
+    if (!warningText.trim()) return;
     const newWarning = {
       id: Date.now().toString(),
       reason: warningText,
       date: new Date().toISOString(),
-      issuedBy: currentUser?.displayName || 'Admin',
-    }
+      issuedBy: currentUser?.displayName || "Admin",
+    };
     setUserData((prev) => ({
       ...prev,
       warnings: [...prev.warnings, newWarning],
-    }))
-    setWarningText('')
-  }
+    }));
+    setWarningText("");
+  };
 
-  if (loading || !currentUser || !['owner', 'admin'].includes(currentUser.role)) {
-    return null
+  if (
+    loading ||
+    !currentUser ||
+    !["owner", "admin"].includes(currentUser.role)
+  ) {
+    return null;
   }
 
   const banDialogUser: BanDialogUser = {
@@ -162,13 +196,13 @@ export default function UserDetailPage({ params }: PageProps) {
     email: userData.email,
     avatarUrl: userData.avatarUrl,
     status: userData.status,
-  }
+  };
 
   const statusColors = {
-    active: 'bg-green-500',
-    inactive: 'bg-gray-400',
-    banned: 'bg-red-500',
-  }
+    active: "bg-green-500",
+    inactive: "bg-gray-400",
+    banned: "bg-red-500",
+  };
 
   return (
     <AdminLayout>
@@ -182,7 +216,9 @@ export default function UserDetailPage({ params }: PageProps) {
           </Link>
           <div className="flex-1">
             <h1 className="text-3xl font-bold">User Details</h1>
-            <p className="text-muted-foreground">View and manage user account information</p>
+            <p className="text-muted-foreground">
+              View and manage user account information
+            </p>
           </div>
           <div className="flex gap-2">
             {isEditing ? (
@@ -200,11 +236,13 @@ export default function UserDetailPage({ params }: PageProps) {
                 <Button
                   variant="outline"
                   onClick={() => setBanDialogOpen(true)}
-                  disabled={userData.role === 'owner'}
-                  className={userData.status === 'banned' ? '' : 'text-orange-600'}
+                  disabled={userData.role === "owner"}
+                  className={
+                    userData.status === "banned" ? "" : "text-orange-600"
+                  }
                 >
                   <Ban className="mr-2 h-4 w-4" />
-                  {userData.status === 'banned' ? 'Unban' : 'Ban User'}
+                  {userData.status === "banned" ? "Unban" : "Ban User"}
                 </Button>
                 <Button onClick={() => setIsEditing(true)}>Edit User</Button>
               </>
@@ -226,7 +264,12 @@ export default function UserDetailPage({ params }: PageProps) {
                 <CardTitle className="mt-4">{userData.displayName}</CardTitle>
                 <CardDescription>@{userData.username}</CardDescription>
                 <div className="mt-2 flex items-center gap-2">
-                  <div className={cn('h-2 w-2 rounded-full', statusColors[userData.status])} />
+                  <div
+                    className={cn(
+                      "h-2 w-2 rounded-full",
+                      statusColors[userData.status],
+                    )}
+                  />
                   <span className="text-sm capitalize">{userData.status}</span>
                 </div>
                 <div className="mt-2">
@@ -242,19 +285,25 @@ export default function UserDetailPage({ params }: PageProps) {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Joined {new Date(userData.createdAt).toLocaleDateString()}</span>
+                  <span>
+                    Joined {new Date(userData.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span>
-                    Last seen{' '}
-                    {userData.lastSeenAt ? new Date(userData.lastSeenAt).toLocaleString() : 'Never'}
+                    Last seen{" "}
+                    {userData.lastSeenAt
+                      ? new Date(userData.lastSeenAt).toLocaleString()
+                      : "Never"}
                   </span>
                 </div>
                 {userData.bio && (
                   <>
                     <Separator />
-                    <p className="text-sm text-muted-foreground">{userData.bio}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {userData.bio}
+                    </p>
                   </>
                 )}
               </div>
@@ -300,7 +349,10 @@ export default function UserDetailPage({ params }: PageProps) {
                           type="email"
                           value={editedData.email}
                           onChange={(e) =>
-                            setEditedData((prev) => ({ ...prev, email: e.target.value }))
+                            setEditedData((prev) => ({
+                              ...prev,
+                              email: e.target.value,
+                            }))
                           }
                         />
                       </div>
@@ -310,7 +362,10 @@ export default function UserDetailPage({ params }: PageProps) {
                           id="bio"
                           value={editedData.bio}
                           onChange={(e) =>
-                            setEditedData((prev) => ({ ...prev, bio: e.target.value }))
+                            setEditedData((prev) => ({
+                              ...prev,
+                              bio: e.target.value,
+                            }))
                           }
                           rows={3}
                         />
@@ -319,9 +374,13 @@ export default function UserDetailPage({ params }: PageProps) {
                         <Label>Role</Label>
                         <RoleSelect
                           value={editedData.role}
-                          onChange={(role) => setEditedData((prev) => ({ ...prev, role }))}
+                          onChange={(role) =>
+                            setEditedData((prev) => ({ ...prev, role }))
+                          }
                           disabledRoles={
-                            currentUser.role === 'admin' ? ['owner', 'admin'] : ['owner']
+                            currentUser.role === "admin"
+                              ? ["owner", "admin"]
+                              : ["owner"]
                           }
                         />
                       </div>
@@ -332,7 +391,9 @@ export default function UserDetailPage({ params }: PageProps) {
                     <Card>
                       <CardHeader className="pb-2">
                         <CardDescription>Messages Sent</CardDescription>
-                        <CardTitle className="text-2xl">{userData.stats.messagesSent}</CardTitle>
+                        <CardTitle className="text-2xl">
+                          {userData.stats.messagesSent}
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="flex items-center text-xs text-muted-foreground">
@@ -344,7 +405,9 @@ export default function UserDetailPage({ params }: PageProps) {
                     <Card>
                       <CardHeader className="pb-2">
                         <CardDescription>Channels</CardDescription>
-                        <CardTitle className="text-2xl">{userData.stats.channelsJoined}</CardTitle>
+                        <CardTitle className="text-2xl">
+                          {userData.stats.channelsJoined}
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="flex items-center text-xs text-muted-foreground">
@@ -356,7 +419,9 @@ export default function UserDetailPage({ params }: PageProps) {
                     <Card>
                       <CardHeader className="pb-2">
                         <CardDescription>Reactions</CardDescription>
-                        <CardTitle className="text-2xl">{userData.stats.reactionsGiven}</CardTitle>
+                        <CardTitle className="text-2xl">
+                          {userData.stats.reactionsGiven}
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="flex items-center text-xs text-muted-foreground">
@@ -367,7 +432,9 @@ export default function UserDetailPage({ params }: PageProps) {
                     <Card>
                       <CardHeader className="pb-2">
                         <CardDescription>Active Days</CardDescription>
-                        <CardTitle className="text-2xl">{userData.stats.daysActive}</CardTitle>
+                        <CardTitle className="text-2xl">
+                          {userData.stats.daysActive}
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="flex items-center text-xs text-muted-foreground">
@@ -385,7 +452,9 @@ export default function UserDetailPage({ params }: PageProps) {
                 <Card>
                   <CardHeader>
                     <CardTitle>Channel Memberships</CardTitle>
-                    <CardDescription>Channels this user is a member of</CardDescription>
+                    <CardDescription>
+                      Channels this user is a member of
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -414,7 +483,9 @@ export default function UserDetailPage({ params }: PageProps) {
                 <Card>
                   <CardHeader>
                     <CardTitle>Activity History</CardTitle>
-                    <CardDescription>Recent actions by this user</CardDescription>
+                    <CardDescription>
+                      Recent actions by this user
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -452,7 +523,10 @@ export default function UserDetailPage({ params }: PageProps) {
                         value={warningText}
                         onChange={(e) => setWarningText(e.target.value)}
                       />
-                      <Button onClick={handleAddWarning} disabled={!warningText.trim()}>
+                      <Button
+                        onClick={handleAddWarning}
+                        disabled={!warningText.trim()}
+                      >
                         <AlertTriangle className="mr-2 h-4 w-4" />
                         Add Warning
                       </Button>
@@ -468,9 +542,11 @@ export default function UserDetailPage({ params }: PageProps) {
                             key={warning.id}
                             className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-950"
                           >
-                            <p className="text-sm font-medium">{warning.reason}</p>
+                            <p className="text-sm font-medium">
+                              {warning.reason}
+                            </p>
                             <p className="text-xs text-muted-foreground">
-                              Issued by {warning.issuedBy} on{' '}
+                              Issued by {warning.issuedBy} on{" "}
                               {new Date(warning.date).toLocaleDateString()}
                             </p>
                           </div>
@@ -483,18 +559,22 @@ export default function UserDetailPage({ params }: PageProps) {
                 <Card>
                   <CardHeader>
                     <CardTitle>Ban Options</CardTitle>
-                    <CardDescription>Manage user access to the workspace</CardDescription>
+                    <CardDescription>
+                      Manage user access to the workspace
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Button
-                      variant={userData.status === 'banned' ? 'default' : 'destructive'}
+                      variant={
+                        userData.status === "banned" ? "default" : "destructive"
+                      }
                       onClick={() => setBanDialogOpen(true)}
-                      disabled={userData.role === 'owner'}
+                      disabled={userData.role === "owner"}
                     >
                       <Ban className="mr-2 h-4 w-4" />
-                      {userData.status === 'banned' ? 'Unban User' : 'Ban User'}
+                      {userData.status === "banned" ? "Unban User" : "Ban User"}
                     </Button>
-                    {userData.role === 'owner' && (
+                    {userData.role === "owner" && (
                       <p className="mt-2 text-sm text-muted-foreground">
                         The workspace owner cannot be banned.
                       </p>
@@ -515,5 +595,5 @@ export default function UserDetailPage({ params }: PageProps) {
         />
       </div>
     </AdminLayout>
-  )
+  );
 }

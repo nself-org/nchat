@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Video Embed Component
@@ -15,9 +15,9 @@
  * ```
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import type { ParsedVideoUrl } from '@/lib/embeds/embed-patterns'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import type { ParsedVideoUrl } from "@/lib/embeds/embed-patterns";
 
 // ============================================================================
 // TYPES
@@ -27,68 +27,68 @@ export interface VideoEmbedProps {
   /**
    * The video URL
    */
-  url: string
+  url: string;
 
   /**
    * Parsed URL data
    */
-  parsed?: ParsedVideoUrl
+  parsed?: ParsedVideoUrl;
 
   /**
    * Video title/alt text
    */
-  title?: string
+  title?: string;
 
   /**
    * Poster/thumbnail image URL
    */
-  poster?: string
+  poster?: string;
 
   /**
    * Maximum width for the preview
    * @default 480
    */
-  maxWidth?: number
+  maxWidth?: number;
 
   /**
    * Maximum height for the preview
    * @default 360
    */
-  maxHeight?: number
+  maxHeight?: number;
 
   /**
    * Whether to autoplay when visible
    * @default false
    */
-  autoPlay?: boolean
+  autoPlay?: boolean;
 
   /**
    * Whether to loop the video
    * @default false
    */
-  loop?: boolean
+  loop?: boolean;
 
   /**
    * Whether to mute the video initially
    * @default false
    */
-  muted?: boolean
+  muted?: boolean;
 
   /**
    * Whether to show the close button
    * @default true
    */
-  showCloseButton?: boolean
+  showCloseButton?: boolean;
 
   /**
    * Callback when close button is clicked
    */
-  onClose?: () => void
+  onClose?: () => void;
 
   /**
    * Additional CSS classes
    */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -98,7 +98,7 @@ export interface VideoEmbedProps {
 export function VideoEmbed({
   url,
   parsed,
-  title = 'Video',
+  title = "Video",
   poster,
   maxWidth = 480,
   maxHeight = 360,
@@ -109,102 +109,102 @@ export function VideoEmbed({
   onClose,
   className,
 }: VideoEmbedProps) {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const [isPlaying, setIsPlaying] = React.useState(false)
-  const [showControls, setShowControls] = React.useState(false)
-  const [error, setError] = React.useState(false)
-  const [duration, setDuration] = React.useState<number | null>(null)
-  const [currentTime, setCurrentTime] = React.useState(0)
-  const [isLoading, setIsLoading] = React.useState(true)
-  const [isFullscreen, setIsFullscreen] = React.useState(false)
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [showControls, setShowControls] = React.useState(false);
+  const [error, setError] = React.useState(false);
+  const [duration, setDuration] = React.useState<number | null>(null);
+  const [currentTime, setCurrentTime] = React.useState(0);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
 
   // File info
-  const extension = parsed?.extension || getExtensionFromUrl(url)
-  const filename = getFilenameFromUrl(url)
+  const extension = parsed?.extension || getExtensionFromUrl(url);
+  const filename = getFilenameFromUrl(url);
 
   const handlePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
-        videoRef.current.pause()
+        videoRef.current.pause();
       } else {
-        videoRef.current.play()
+        videoRef.current.play();
       }
     }
-  }
+  };
 
   const handleVideoPlay = () => {
-    setIsPlaying(true)
-    setShowControls(true)
-  }
+    setIsPlaying(true);
+    setShowControls(true);
+  };
 
   const handleVideoPause = () => {
-    setIsPlaying(false)
-  }
+    setIsPlaying(false);
+  };
 
   const handleVideoLoadedMetadata = () => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration)
-      setIsLoading(false)
+      setDuration(videoRef.current.duration);
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleVideoTimeUpdate = () => {
     if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime)
+      setCurrentTime(videoRef.current.currentTime);
     }
-  }
+  };
 
   const handleVideoError = () => {
-    setError(true)
-    setIsLoading(false)
-  }
+    setError(true);
+    setIsLoading(false);
+  };
 
   const handleVideoEnded = () => {
-    setIsPlaying(false)
+    setIsPlaying(false);
     if (videoRef.current) {
-      videoRef.current.currentTime = 0
+      videoRef.current.currentTime = 0;
     }
-  }
+  };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current || !duration) return
+    if (!videoRef.current || !duration) return;
 
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const percentage = x / rect.width
-    videoRef.current.currentTime = percentage * duration
-  }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    videoRef.current.currentTime = percentage * duration;
+  };
 
   const toggleFullscreen = () => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
     if (!document.fullscreenElement) {
       videoRef.current
         .requestFullscreen()
         .then(() => {
-          setIsFullscreen(true)
+          setIsFullscreen(true);
         })
         .catch(() => {
           // Fullscreen not supported
-        })
+        });
     } else {
       document.exitFullscreen().then(() => {
-        setIsFullscreen(false)
-      })
+        setIsFullscreen(false);
+      });
     }
-  }
+  };
 
   // Handle fullscreen change
   React.useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+      setIsFullscreen(!!document.fullscreenElement);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange)
-    }
-  }, [])
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
   if (error) {
     return (
@@ -215,14 +215,14 @@ export function VideoEmbed({
         onClose={onClose}
         className={className}
       />
-    )
+    );
   }
 
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-lg border border-border bg-black',
-        className
+        "group relative overflow-hidden rounded-lg border border-border bg-black",
+        className,
       )}
       style={{
         maxWidth,
@@ -236,10 +236,10 @@ export function VideoEmbed({
         <button
           onClick={onClose}
           className={cn(
-            'absolute right-2 top-2 z-20',
-            'rounded-full bg-black/50 p-1 backdrop-blur-sm',
-            'opacity-0 transition-opacity group-hover:opacity-100',
-            'hover:bg-black/70'
+            "absolute right-2 top-2 z-20",
+            "rounded-full bg-black/50 p-1 backdrop-blur-sm",
+            "opacity-0 transition-opacity group-hover:opacity-100",
+            "hover:bg-black/70",
           )}
           aria-label="Remove video"
         >
@@ -284,17 +284,17 @@ export function VideoEmbed({
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              handlePlay()
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handlePlay();
             }
           }}
           aria-label="Play video"
         >
           <div
             className={cn(
-              'rounded-full bg-white/90 p-4 shadow-lg',
-              'transform transition-transform group-hover:scale-110'
+              "rounded-full bg-white/90 p-4 shadow-lg",
+              "transform transition-transform group-hover:scale-110",
             )}
           >
             <PlayIcon className="h-8 w-8 text-black" />
@@ -320,10 +320,10 @@ export function VideoEmbed({
       {showControls && isPlaying && (
         <div
           className={cn(
-            'absolute bottom-0 left-0 right-0 z-10',
-            'bg-gradient-to-t from-black/80 via-black/50 to-transparent',
-            'p-3 transition-opacity',
-            isPlaying ? 'opacity-100' : 'opacity-0'
+            "absolute bottom-0 left-0 right-0 z-10",
+            "bg-gradient-to-t from-black/80 via-black/50 to-transparent",
+            "p-3 transition-opacity",
+            isPlaying ? "opacity-100" : "opacity-0",
           )}
         >
           {/* Progress bar */}
@@ -343,7 +343,7 @@ export function VideoEmbed({
               className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white shadow-md"
               style={{
                 left: `${duration ? (currentTime / duration) * 100 : 0}%`,
-                transform: 'translate(-50%, -50%)',
+                transform: "translate(-50%, -50%)",
               }}
             />
           </div>
@@ -354,7 +354,7 @@ export function VideoEmbed({
               <button
                 onClick={handlePlay}
                 className="rounded-full p-1 transition-colors hover:bg-white/20"
-                aria-label={isPlaying ? 'Pause' : 'Play'}
+                aria-label={isPlaying ? "Pause" : "Play"}
               >
                 {isPlaying ? (
                   <PauseIcon className="h-5 w-5 text-white" />
@@ -374,7 +374,7 @@ export function VideoEmbed({
               <button
                 onClick={toggleFullscreen}
                 className="rounded-full p-1 transition-colors hover:bg-white/20"
-                aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
               >
                 {isFullscreen ? (
                   <MinimizeIcon className="h-5 w-5 text-white" />
@@ -387,7 +387,7 @@ export function VideoEmbed({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -395,11 +395,11 @@ export function VideoEmbed({
 // ============================================================================
 
 interface VideoEmbedErrorProps {
-  url: string
-  filename: string
-  showCloseButton?: boolean
-  onClose?: () => void
-  className?: string
+  url: string;
+  filename: string;
+  showCloseButton?: boolean;
+  onClose?: () => void;
+  className?: string;
 }
 
 function VideoEmbedError({
@@ -410,38 +410,38 @@ function VideoEmbedError({
   className,
 }: VideoEmbedErrorProps) {
   const handleClick = () => {
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div
       className={cn(
-        'group relative flex items-center gap-3 rounded-lg border border-border bg-card p-3',
-        'hover:bg-muted/50 cursor-pointer transition-colors',
-        'max-w-sm',
-        className
+        "group relative flex items-center gap-3 rounded-lg border border-border bg-card p-3",
+        "hover:bg-muted/50 cursor-pointer transition-colors",
+        "max-w-sm",
+        className,
       )}
       onClick={handleClick}
       role="link"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          handleClick()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
         }
       }}
     >
       {showCloseButton && onClose && (
         <button
           onClick={(e) => {
-            e.stopPropagation()
-            onClose()
+            e.stopPropagation();
+            onClose();
           }}
           className={cn(
-            'absolute right-2 top-2 z-10',
-            'bg-background/80 rounded-full p-1',
-            'opacity-0 transition-opacity group-hover:opacity-100',
-            'hover:bg-background'
+            "absolute right-2 top-2 z-10",
+            "bg-background/80 rounded-full p-1",
+            "opacity-0 transition-opacity group-hover:opacity-100",
+            "hover:bg-background",
           )}
           aria-label="Remove"
         >
@@ -453,12 +453,14 @@ function VideoEmbedError({
         <VideoIcon className="h-5 w-5 text-muted-foreground" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">{filename}</p>
+        <p className="truncate text-sm font-medium text-foreground">
+          {filename}
+        </p>
         <p className="text-xs text-muted-foreground">Failed to load video</p>
       </div>
       <ExternalLinkIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -466,9 +468,9 @@ function VideoEmbedError({
 // ============================================================================
 
 export interface VideoEmbedSkeletonProps {
-  maxWidth?: number
-  maxHeight?: number
-  className?: string
+  maxWidth?: number;
+  maxHeight?: number;
+  className?: string;
 }
 
 export function VideoEmbedSkeleton({
@@ -479,8 +481,8 @@ export function VideoEmbedSkeleton({
   return (
     <div
       className={cn(
-        'animate-pulse overflow-hidden rounded-lg border border-border bg-black',
-        className
+        "animate-pulse overflow-hidden rounded-lg border border-border bg-black",
+        className,
       )}
       style={{
         width: maxWidth,
@@ -493,7 +495,7 @@ export function VideoEmbedSkeleton({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -501,14 +503,14 @@ export function VideoEmbedSkeleton({
 // ============================================================================
 
 export interface VideoEmbedCompactProps {
-  url: string
-  title?: string
-  poster?: string
-  duration?: number
-  showCloseButton?: boolean
-  onClose?: () => void
-  onClick?: () => void
-  className?: string
+  url: string;
+  title?: string;
+  poster?: string;
+  duration?: number;
+  showCloseButton?: boolean;
+  onClose?: () => void;
+  onClick?: () => void;
+  className?: string;
 }
 
 export function VideoEmbedCompact({
@@ -523,29 +525,29 @@ export function VideoEmbedCompact({
 }: VideoEmbedCompactProps) {
   const handleClick = () => {
     if (onClick) {
-      onClick()
+      onClick();
     } else {
-      window.open(url, '_blank', 'noopener,noreferrer')
+      window.open(url, "_blank", "noopener,noreferrer");
     }
-  }
+  };
 
-  const filename = title || getFilenameFromUrl(url)
+  const filename = title || getFilenameFromUrl(url);
 
   return (
     <div
       className={cn(
-        'group relative flex items-center gap-3 rounded-lg border border-border bg-card p-2',
-        'hover:bg-muted/50 cursor-pointer transition-colors',
-        'max-w-md',
-        className
+        "group relative flex items-center gap-3 rounded-lg border border-border bg-card p-2",
+        "hover:bg-muted/50 cursor-pointer transition-colors",
+        "max-w-md",
+        className,
       )}
       onClick={handleClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          handleClick()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
         }
       }}
     >
@@ -574,7 +576,9 @@ export function VideoEmbedCompact({
 
       {/* Info */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">{filename}</p>
+        <p className="truncate text-sm font-medium text-foreground">
+          {filename}
+        </p>
         <p className="text-xs text-muted-foreground">Video</p>
       </div>
 
@@ -582,13 +586,13 @@ export function VideoEmbedCompact({
       {showCloseButton && onClose && (
         <button
           onClick={(e) => {
-            e.stopPropagation()
-            onClose()
+            e.stopPropagation();
+            onClose();
           }}
           className={cn(
-            'rounded-full p-1',
-            'opacity-0 transition-opacity group-hover:opacity-100',
-            'hover:bg-muted'
+            "rounded-full p-1",
+            "opacity-0 transition-opacity group-hover:opacity-100",
+            "hover:bg-muted",
           )}
           aria-label="Remove"
         >
@@ -596,7 +600,7 @@ export function VideoEmbedCompact({
         </button>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -604,35 +608,35 @@ export function VideoEmbedCompact({
 // ============================================================================
 
 function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = Math.floor(seconds % 60)
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
 
-  return `${minutes}:${secs.toString().padStart(2, '0')}`
+  return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
 function getFilenameFromUrl(url: string): string {
   try {
-    const urlObj = new URL(url)
-    const pathname = urlObj.pathname
-    const filename = pathname.split('/').pop() || 'video'
-    return decodeURIComponent(filename)
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const filename = pathname.split("/").pop() || "video";
+    return decodeURIComponent(filename);
   } catch {
-    return 'video'
+    return "video";
   }
 }
 
 function getExtensionFromUrl(url: string): string {
-  const filename = getFilenameFromUrl(url)
-  const parts = filename.split('.')
+  const filename = getFilenameFromUrl(url);
+  const parts = filename.split(".");
   if (parts.length > 1) {
-    return parts.pop()?.toLowerCase() || ''
+    return parts.pop()?.toLowerCase() || "";
   }
-  return ''
+  return "";
 }
 
 // ============================================================================
@@ -654,7 +658,7 @@ function VideoIcon({ className }: { className?: string }) {
         d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
       />
     </svg>
-  )
+  );
 }
 
 function PlayIcon({ className }: { className?: string }) {
@@ -662,7 +666,7 @@ function PlayIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
       <path d="M8 5v14l11-7z" />
     </svg>
-  )
+  );
 }
 
 function PauseIcon({ className }: { className?: string }) {
@@ -670,7 +674,7 @@ function PauseIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
       <path d="M6 4h4v16H6zM14 4h4v16h-4z" />
     </svg>
-  )
+  );
 }
 
 function CloseIcon({ className }: { className?: string }) {
@@ -682,9 +686,13 @@ function CloseIcon({ className }: { className?: string }) {
       stroke="currentColor"
       strokeWidth={2}
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 18L18 6M6 6l12 12"
+      />
     </svg>
-  )
+  );
 }
 
 function FullscreenIcon({ className }: { className?: string }) {
@@ -702,7 +710,7 @@ function FullscreenIcon({ className }: { className?: string }) {
         d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
       />
     </svg>
-  )
+  );
 }
 
 function MinimizeIcon({ className }: { className?: string }) {
@@ -720,7 +728,7 @@ function MinimizeIcon({ className }: { className?: string }) {
         d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"
       />
     </svg>
-  )
+  );
 }
 
 function ExternalLinkIcon({ className }: { className?: string }) {
@@ -738,7 +746,7 @@ function ExternalLinkIcon({ className }: { className?: string }) {
         d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
       />
     </svg>
-  )
+  );
 }
 
-export default VideoEmbed
+export default VideoEmbed;

@@ -1,15 +1,24 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Hash,
   Lock,
@@ -22,62 +31,65 @@ import {
   Search,
   MoreHorizontal,
   Megaphone,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type ChannelType = 'public' | 'private' | 'direct' | 'group'
+export type ChannelType = "public" | "private" | "direct" | "group";
 
 export interface SidebarChannel {
-  id: string
-  name: string
-  slug: string
-  type: ChannelType
-  unreadCount?: number
-  hasUnreadMentions?: boolean
-  isMuted?: boolean
-  isArchived?: boolean
-  emoji?: string
+  id: string;
+  name: string;
+  slug: string;
+  type: ChannelType;
+  unreadCount?: number;
+  hasUnreadMentions?: boolean;
+  isMuted?: boolean;
+  isArchived?: boolean;
+  emoji?: string;
 }
 
 export interface DirectMessage {
-  id: string
-  name: string
-  avatarUrl?: string
-  presence: 'online' | 'away' | 'dnd' | 'offline'
-  unreadCount?: number
-  hasUnreadMentions?: boolean
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  presence: "online" | "away" | "dnd" | "offline";
+  unreadCount?: number;
+  hasUnreadMentions?: boolean;
 }
 
 export interface SidebarSection {
-  id: string
-  title: string
-  channels: SidebarChannel[]
-  collapsed?: boolean
+  id: string;
+  title: string;
+  channels: SidebarChannel[];
+  collapsed?: boolean;
 }
 
 export interface SidebarNavProps {
-  sections?: SidebarSection[]
-  directMessages?: DirectMessage[]
-  onCreateChannel?: () => void
-  onCreateDM?: () => void
-  onOpenSearch?: () => void
-  onOpenSettings?: () => void
-  onSectionToggle?: (sectionId: string, collapsed: boolean) => void
-  onChannelAction?: (channelId: string, action: 'mute' | 'leave' | 'settings') => void
-  loading?: boolean
-  collapsed?: boolean
-  onCollapsedChange?: (collapsed: boolean) => void
-  className?: string
+  sections?: SidebarSection[];
+  directMessages?: DirectMessage[];
+  onCreateChannel?: () => void;
+  onCreateDM?: () => void;
+  onOpenSearch?: () => void;
+  onOpenSettings?: () => void;
+  onSectionToggle?: (sectionId: string, collapsed: boolean) => void;
+  onChannelAction?: (
+    channelId: string,
+    action: "mute" | "leave" | "settings",
+  ) => void;
+  loading?: boolean;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -99,27 +111,33 @@ function SidebarNavSkeleton() {
         <Skeleton className="h-8 w-full" />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Channel Icon
 // ============================================================================
 
-function ChannelIcon({ channel, className }: { channel: SidebarChannel; className?: string }) {
+function ChannelIcon({
+  channel,
+  className,
+}: {
+  channel: SidebarChannel;
+  className?: string;
+}) {
   if (channel.emoji) {
-    return <span className={cn('text-sm', className)}>{channel.emoji}</span>
+    return <span className={cn("text-sm", className)}>{channel.emoji}</span>;
   }
 
-  if (channel.name === 'announcements') {
-    return <Megaphone className={cn('h-4 w-4', className)} />
+  if (channel.name === "announcements") {
+    return <Megaphone className={cn("h-4 w-4", className)} />;
   }
 
-  if (channel.type === 'private') {
-    return <Lock className={cn('h-4 w-4', className)} />
+  if (channel.type === "private") {
+    return <Lock className={cn("h-4 w-4", className)} />;
   }
 
-  return <Hash className={cn('h-4 w-4', className)} />
+  return <Hash className={cn("h-4 w-4", className)} />;
 }
 
 // ============================================================================
@@ -127,42 +145,42 @@ function ChannelIcon({ channel, className }: { channel: SidebarChannel; classNam
 // ============================================================================
 
 interface ChannelItemProps {
-  channel: SidebarChannel
-  isActive: boolean
-  onAction?: (action: 'mute' | 'leave' | 'settings') => void
+  channel: SidebarChannel;
+  isActive: boolean;
+  onAction?: (action: "mute" | "leave" | "settings") => void;
 }
 
 function ChannelItem({ channel, isActive, onAction }: ChannelItemProps) {
-  const hasUnread = (channel.unreadCount ?? 0) > 0
+  const hasUnread = (channel.unreadCount ?? 0) > 0;
 
   return (
     <div className="group relative flex items-center">
       <Link
         href={`/chat/channel/${channel.slug}`}
         className={cn(
-          'flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-          'hover:text-accent-foreground text-muted-foreground hover:bg-accent',
-          isActive && 'text-accent-foreground bg-accent font-medium',
-          hasUnread && !channel.isMuted && 'font-semibold text-foreground',
-          channel.isMuted && 'opacity-60'
+          "flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+          "hover:text-accent-foreground text-muted-foreground hover:bg-accent",
+          isActive && "text-accent-foreground bg-accent font-medium",
+          hasUnread && !channel.isMuted && "font-semibold text-foreground",
+          channel.isMuted && "opacity-60",
         )}
         data-testid={`channel-item-${channel.id}`}
       >
         <ChannelIcon
           channel={channel}
           className={cn(
-            'flex-shrink-0 text-muted-foreground',
-            isActive && 'text-accent-foreground'
+            "flex-shrink-0 text-muted-foreground",
+            isActive && "text-accent-foreground",
           )}
         />
         <span className="flex-1 truncate">{channel.name}</span>
         {hasUnread && (
           <span
             className={cn(
-              'ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-medium',
+              "ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-medium",
               channel.hasUnreadMentions
-                ? 'bg-destructive text-destructive-foreground'
-                : 'text-primary-foreground bg-primary'
+                ? "bg-destructive text-destructive-foreground"
+                : "text-primary-foreground bg-primary",
             )}
             data-testid={`channel-unread-${channel.id}`}
           >
@@ -184,19 +202,24 @@ function ChannelItem({ channel, isActive, onAction }: ChannelItemProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={() => onAction('mute')}>
-              {channel.isMuted ? 'Unmute' : 'Mute'}
+            <DropdownMenuItem onClick={() => onAction("mute")}>
+              {channel.isMuted ? "Unmute" : "Mute"}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAction('settings')}>Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAction("settings")}>
+              Settings
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onAction('leave')} className="text-destructive">
+            <DropdownMenuItem
+              onClick={() => onAction("leave")}
+              className="text-destructive"
+            >
               Leave Channel
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -204,40 +227,42 @@ function ChannelItem({ channel, isActive, onAction }: ChannelItemProps) {
 // ============================================================================
 
 interface DMItemProps {
-  dm: DirectMessage
-  isActive: boolean
+  dm: DirectMessage;
+  isActive: boolean;
 }
 
 function DMItem({ dm, isActive }: DMItemProps) {
-  const hasUnread = (dm.unreadCount ?? 0) > 0
+  const hasUnread = (dm.unreadCount ?? 0) > 0;
 
   const presenceColor = {
-    online: 'bg-green-500',
-    away: 'bg-yellow-500',
-    dnd: 'bg-red-500',
-    offline: 'bg-gray-400',
-  }[dm.presence]
+    online: "bg-green-500",
+    away: "bg-yellow-500",
+    dnd: "bg-red-500",
+    offline: "bg-gray-400",
+  }[dm.presence];
 
   return (
     <Link
       href={`/chat/dm/${dm.id}`}
       className={cn(
-        'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-        'hover:text-accent-foreground text-muted-foreground hover:bg-accent',
-        isActive && 'text-accent-foreground bg-accent font-medium',
-        hasUnread && 'font-semibold text-foreground'
+        "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+        "hover:text-accent-foreground text-muted-foreground hover:bg-accent",
+        isActive && "text-accent-foreground bg-accent font-medium",
+        hasUnread && "font-semibold text-foreground",
       )}
       data-testid={`dm-item-${dm.id}`}
     >
       <div className="relative flex-shrink-0">
         <Avatar className="h-6 w-6">
           <AvatarImage src={dm.avatarUrl} alt={dm.name} />
-          <AvatarFallback className="text-xs">{dm.name.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarFallback className="text-xs">
+            {dm.name.charAt(0).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <span
           className={cn(
-            'absolute bottom-0 right-0 h-2 w-2 rounded-full ring-2 ring-background',
-            presenceColor
+            "absolute bottom-0 right-0 h-2 w-2 rounded-full ring-2 ring-background",
+            presenceColor,
           )}
           data-testid={`dm-presence-${dm.id}`}
         />
@@ -246,10 +271,10 @@ function DMItem({ dm, isActive }: DMItemProps) {
       {hasUnread && (
         <span
           className={cn(
-            'ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-medium',
+            "ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-medium",
             dm.hasUnreadMentions
-              ? 'bg-destructive text-destructive-foreground'
-              : 'text-primary-foreground bg-primary'
+              ? "bg-destructive text-destructive-foreground"
+              : "text-primary-foreground bg-primary",
           )}
           data-testid={`dm-unread-${dm.id}`}
         >
@@ -257,7 +282,7 @@ function DMItem({ dm, isActive }: DMItemProps) {
         </span>
       )}
     </Link>
-  )
+  );
 }
 
 // ============================================================================
@@ -265,21 +290,30 @@ function DMItem({ dm, isActive }: DMItemProps) {
 // ============================================================================
 
 interface SectionHeaderProps {
-  title: string
-  collapsed: boolean
-  onToggle: () => void
-  onAdd?: () => void
+  title: string;
+  collapsed: boolean;
+  onToggle: () => void;
+  onAdd?: () => void;
 }
 
-function SectionHeader({ title, collapsed, onToggle, onAdd }: SectionHeaderProps) {
+function SectionHeader({
+  title,
+  collapsed,
+  onToggle,
+  onAdd,
+}: SectionHeaderProps) {
   return (
     <div className="flex items-center justify-between px-2 py-1">
       <CollapsibleTrigger
         onClick={onToggle}
         className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
-        data-testid={`section-toggle-${title.toLowerCase().replace(/\s+/g, '-')}`}
+        data-testid={`section-toggle-${title.toLowerCase().replace(/\s+/g, "-")}`}
       >
-        {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        {collapsed ? (
+          <ChevronRight className="h-3 w-3" />
+        ) : (
+          <ChevronDown className="h-3 w-3" />
+        )}
         {title}
       </CollapsibleTrigger>
       {onAdd && (
@@ -291,7 +325,7 @@ function SectionHeader({ title, collapsed, onToggle, onAdd }: SectionHeaderProps
                 size="icon"
                 className="h-5 w-5"
                 onClick={onAdd}
-                data-testid={`section-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                data-testid={`section-add-${title.toLowerCase().replace(/\s+/g, "-")}`}
               >
                 <Plus className="h-3 w-3" />
               </Button>
@@ -303,7 +337,7 @@ function SectionHeader({ title, collapsed, onToggle, onAdd }: SectionHeaderProps
         </TooltipProvider>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -324,39 +358,39 @@ export function SidebarNav({
   onCollapsedChange,
   className,
 }: SidebarNavProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
   const [collapsedSections, setCollapsedSections] = React.useState<Set<string>>(
-    new Set(sections.filter((s) => s.collapsed).map((s) => s.id))
-  )
-  const [dmCollapsed, setDmCollapsed] = React.useState(false)
+    new Set(sections.filter((s) => s.collapsed).map((s) => s.id)),
+  );
+  const [dmCollapsed, setDmCollapsed] = React.useState(false);
 
   const handleSectionToggle = (sectionId: string) => {
-    const newCollapsed = new Set(collapsedSections)
-    const isNowCollapsed = !newCollapsed.has(sectionId)
+    const newCollapsed = new Set(collapsedSections);
+    const isNowCollapsed = !newCollapsed.has(sectionId);
 
     if (isNowCollapsed) {
-      newCollapsed.add(sectionId)
+      newCollapsed.add(sectionId);
     } else {
-      newCollapsed.delete(sectionId)
+      newCollapsed.delete(sectionId);
     }
 
-    setCollapsedSections(newCollapsed)
-    onSectionToggle?.(sectionId, isNowCollapsed)
-  }
+    setCollapsedSections(newCollapsed);
+    onSectionToggle?.(sectionId, isNowCollapsed);
+  };
 
   if (loading) {
     return (
-      <nav className={cn('flex flex-col', className)}>
+      <nav className={cn("flex flex-col", className)}>
         <SidebarNavSkeleton />
       </nav>
-    )
+    );
   }
 
   // Collapsed view (icons only)
   if (isCollapsed) {
     return (
       <nav
-        className={cn('flex flex-col items-center gap-2 py-4', className)}
+        className={cn("flex flex-col items-center gap-2 py-4", className)}
         data-testid="sidebar-nav-collapsed"
       >
         <TooltipProvider delayDuration={300}>
@@ -422,11 +456,14 @@ export function SidebarNav({
           )}
         </TooltipProvider>
       </nav>
-    )
+    );
   }
 
   return (
-    <nav className={cn('flex h-full flex-col', className)} data-testid="sidebar-nav">
+    <nav
+      className={cn("flex h-full flex-col", className)}
+      data-testid="sidebar-nav"
+    >
       {/* Quick Actions */}
       <div className="flex items-center gap-1 border-b p-2">
         {onOpenSearch && (
@@ -466,7 +503,9 @@ export function SidebarNav({
                     channel={channel}
                     isActive={pathname === `/chat/channel/${channel.slug}`}
                     onAction={
-                      onChannelAction ? (action) => onChannelAction(channel.id, action) : undefined
+                      onChannelAction
+                        ? (action) => onChannelAction(channel.id, action)
+                        : undefined
                     }
                   />
                 ))}
@@ -490,7 +529,11 @@ export function SidebarNav({
               />
               <CollapsibleContent className="space-y-0.5">
                 {directMessages.map((dm) => (
-                  <DMItem key={dm.id} dm={dm} isActive={pathname === `/chat/dm/${dm.id}`} />
+                  <DMItem
+                    key={dm.id}
+                    dm={dm}
+                    isActive={pathname === `/chat/dm/${dm.id}`}
+                  />
                 ))}
               </CollapsibleContent>
             </Collapsible>
@@ -500,7 +543,9 @@ export function SidebarNav({
           {sections.length === 0 && directMessages.length === 0 && (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Users className="mb-2 h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">No channels or DMs yet</p>
+              <p className="text-sm text-muted-foreground">
+                No channels or DMs yet
+              </p>
               {onCreateChannel && (
                 <Button
                   variant="outline"
@@ -534,7 +579,7 @@ export function SidebarNav({
         </div>
       )}
     </nav>
-  )
+  );
 }
 
-export { SidebarNavSkeleton, ChannelItem, DMItem }
+export { SidebarNavSkeleton, ChannelItem, DMItem };

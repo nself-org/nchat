@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 import {
   MapPin,
   Loader2,
@@ -12,10 +12,10 @@ import {
   Train,
   TreePine,
   Star,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { logger } from '@/lib/logger'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import {
   type Coordinates,
   type Place,
@@ -23,7 +23,7 @@ import {
   searchNearbyPlaces,
   formatDistanceForUI,
   getPlaceCategoryName,
-} from '@/lib/location'
+} from "@/lib/location";
 
 // ============================================================================
 // Types
@@ -31,17 +31,17 @@ import {
 
 interface NearbyPlacesProps {
   /** Current coordinates to search from */
-  coordinates: Coordinates
+  coordinates: Coordinates;
   /** Search radius in meters */
-  radius?: number
+  radius?: number;
   /** Maximum number of results */
-  limit?: number
+  limit?: number;
   /** Callback when a place is selected */
-  onPlaceSelect?: (place: Place) => void
+  onPlaceSelect?: (place: Place) => void;
   /** Whether to show category filter */
-  showFilter?: boolean
+  showFilter?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -68,16 +68,16 @@ const categoryIcons: Record<PlaceCategory, typeof MapPin> = {
   bank: Building,
   atm: MapPin,
   other: MapPin,
-}
+};
 
 const categoryFilters: PlaceCategory[] = [
-  'restaurant',
-  'cafe',
-  'store',
-  'transit',
-  'park',
-  'hospital',
-]
+  "restaurant",
+  "cafe",
+  "store",
+  "transit",
+  "park",
+  "hospital",
+];
 
 // ============================================================================
 // Nearby Places Component
@@ -96,41 +96,42 @@ export function NearbyPlaces({
   showFilter = true,
   className,
 }: NearbyPlacesProps) {
-  const [places, setPlaces] = useState<Place[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState<PlaceCategory | null>(null)
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<PlaceCategory | null>(null);
 
   useEffect(() => {
     const fetchPlaces = async () => {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
         const results = await searchNearbyPlaces(coordinates, {
           radius,
           limit,
           category: selectedCategory || undefined,
-        })
-        setPlaces(results)
+        });
+        setPlaces(results);
       } catch (err) {
-        setError('Failed to load nearby places')
-        logger.error('Failed to fetch nearby places:', err)
+        setError("Failed to load nearby places");
+        logger.error("Failed to fetch nearby places:", err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchPlaces()
-  }, [coordinates, radius, limit, selectedCategory])
+    fetchPlaces();
+  }, [coordinates, radius, limit, selectedCategory]);
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn("space-y-3", className)}>
       {/* Category Filter */}
       {showFilter && (
         <div className="flex flex-wrap gap-1.5">
           <Button
-            variant={selectedCategory === null ? 'secondary' : 'ghost'}
+            variant={selectedCategory === null ? "secondary" : "ghost"}
             size="sm"
             className="h-7 text-xs"
             onClick={() => setSelectedCategory(null)}
@@ -138,11 +139,11 @@ export function NearbyPlaces({
             All
           </Button>
           {categoryFilters.map((category) => {
-            const Icon = categoryIcons[category]
+            const Icon = categoryIcons[category];
             return (
               <Button
                 key={category}
-                variant={selectedCategory === category ? 'secondary' : 'ghost'}
+                variant={selectedCategory === category ? "secondary" : "ghost"}
                 size="sm"
                 className="h-7 text-xs"
                 onClick={() => setSelectedCategory(category)}
@@ -150,7 +151,7 @@ export function NearbyPlaces({
                 <Icon className="mr-1 h-3 w-3" />
                 {getPlaceCategoryName(category)}
               </Button>
-            )
+            );
           })}
         </div>
       )}
@@ -173,7 +174,9 @@ export function NearbyPlaces({
       {!isLoading && !error && places.length === 0 && (
         <div className="py-8 text-center">
           <MapPin className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">No places found nearby</p>
+          <p className="text-sm text-muted-foreground">
+            No places found nearby
+          </p>
         </div>
       )}
 
@@ -181,12 +184,16 @@ export function NearbyPlaces({
       {!isLoading && !error && places.length > 0 && (
         <div className="space-y-1">
           {places.map((place) => (
-            <PlaceItem key={place.id} place={place} onClick={() => onPlaceSelect?.(place)} />
+            <PlaceItem
+              key={place.id}
+              place={place}
+              onClick={() => onPlaceSelect?.(place)}
+            />
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -194,22 +201,22 @@ export function NearbyPlaces({
 // ============================================================================
 
 interface PlaceItemProps {
-  place: Place
-  onClick?: () => void
-  className?: string
+  place: Place;
+  onClick?: () => void;
+  className?: string;
 }
 
 /**
  * Individual place list item.
  */
 export function PlaceItem({ place, onClick, className }: PlaceItemProps) {
-  const Icon = place.category ? categoryIcons[place.category] : MapPin
+  const Icon = place.category ? categoryIcons[place.category] : MapPin;
 
   return (
     <button
       className={cn(
-        'flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-muted',
-        className
+        "flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-muted",
+        className,
       )}
       onClick={onClick}
     >
@@ -229,25 +236,36 @@ export function PlaceItem({ place, onClick, className }: PlaceItemProps) {
             </div>
           )}
         </div>
-        <p className="truncate text-xs text-muted-foreground">{place.address}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {place.address}
+        </p>
         {place.category && (
-          <p className="text-xs text-muted-foreground">{getPlaceCategoryName(place.category)}</p>
+          <p className="text-xs text-muted-foreground">
+            {getPlaceCategoryName(place.category)}
+          </p>
         )}
       </div>
 
       {/* Distance */}
       {place.distance !== undefined && (
         <div className="text-right">
-          <p className="text-sm font-medium">{formatDistanceForUI(place.distance)}</p>
+          <p className="text-sm font-medium">
+            {formatDistanceForUI(place.distance)}
+          </p>
           {place.isOpen !== undefined && (
-            <p className={cn('text-xs', place.isOpen ? 'text-green-600' : 'text-muted-foreground')}>
-              {place.isOpen ? 'Open' : 'Closed'}
+            <p
+              className={cn(
+                "text-xs",
+                place.isOpen ? "text-green-600" : "text-muted-foreground",
+              )}
+            >
+              {place.isOpen ? "Open" : "Closed"}
             </p>
           )}
         </div>
       )}
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -255,22 +273,22 @@ export function PlaceItem({ place, onClick, className }: PlaceItemProps) {
 // ============================================================================
 
 interface PlaceCardProps {
-  place: Place
-  onClick?: () => void
-  className?: string
+  place: Place;
+  onClick?: () => void;
+  className?: string;
 }
 
 /**
  * Compact place card for grid display.
  */
 export function PlaceCard({ place, onClick, className }: PlaceCardProps) {
-  const Icon = place.category ? categoryIcons[place.category] : MapPin
+  const Icon = place.category ? categoryIcons[place.category] : MapPin;
 
   return (
     <button
       className={cn(
-        'flex flex-col items-center rounded-lg border p-3 text-center transition-colors hover:bg-muted',
-        className
+        "flex flex-col items-center rounded-lg border p-3 text-center transition-colors hover:bg-muted",
+        className,
       )}
       onClick={onClick}
     >
@@ -279,10 +297,12 @@ export function PlaceCard({ place, onClick, className }: PlaceCardProps) {
       </div>
       <p className="mb-0.5 truncate text-sm font-medium">{place.name}</p>
       {place.distance !== undefined && (
-        <p className="text-xs text-muted-foreground">{formatDistanceForUI(place.distance)}</p>
+        <p className="text-xs text-muted-foreground">
+          {formatDistanceForUI(place.distance)}
+        </p>
       )}
     </button>
-  )
+  );
 }
 
-export default NearbyPlaces
+export default NearbyPlaces;

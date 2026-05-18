@@ -5,8 +5,8 @@
  * Supports incoming webhooks (for posting messages) and outgoing webhooks (for events).
  */
 
-import type { UserBasicInfo } from './user'
-import type { Message } from './message'
+import type { UserBasicInfo } from "./user";
+import type { Message } from "./message";
 
 // ============================================================================
 // Webhook Type Definitions
@@ -15,50 +15,55 @@ import type { Message } from './message'
 /**
  * Webhook directions.
  */
-export type WebhookDirection = 'incoming' | 'outgoing'
+export type WebhookDirection = "incoming" | "outgoing";
 
 /**
  * Webhook status.
  */
-export type WebhookStatus = 'active' | 'paused' | 'disabled' | 'error'
+export type WebhookStatus = "active" | "paused" | "disabled" | "error";
 
 /**
  * Webhook event types (for outgoing webhooks).
  */
 export type WebhookEventType =
   // Message events
-  | 'message.created'
-  | 'message.updated'
-  | 'message.deleted'
-  | 'message.pinned'
-  | 'message.unpinned'
+  | "message.created"
+  | "message.updated"
+  | "message.deleted"
+  | "message.pinned"
+  | "message.unpinned"
   // Reaction events
-  | 'reaction.added'
-  | 'reaction.removed'
+  | "reaction.added"
+  | "reaction.removed"
   // Channel events
-  | 'channel.created'
-  | 'channel.updated'
-  | 'channel.deleted'
-  | 'channel.archived'
+  | "channel.created"
+  | "channel.updated"
+  | "channel.deleted"
+  | "channel.archived"
   // Member events
-  | 'member.joined'
-  | 'member.left'
-  | 'member.updated'
+  | "member.joined"
+  | "member.left"
+  | "member.updated"
   // User events
-  | 'user.created'
-  | 'user.updated'
-  | 'user.deactivated'
+  | "user.created"
+  | "user.updated"
+  | "user.deactivated"
   // Thread events
-  | 'thread.created'
-  | 'thread.updated'
+  | "thread.created"
+  | "thread.updated"
   // File events
-  | 'file.uploaded'
-  | 'file.deleted'
+  | "file.uploaded"
+  | "file.deleted";
 
 /**
  * Webhook authentication methods.
  */
-export type WebhookAuthMethod = 'none' | 'token' | 'basic' | 'signature' | 'oauth2'
+export type WebhookAuthMethod =
+  | "none"
+  | "token"
+  | "basic"
+  | "signature"
+  | "oauth2";
 
 // ============================================================================
 // Main Webhook Interface
@@ -69,81 +74,81 @@ export type WebhookAuthMethod = 'none' | 'token' | 'basic' | 'signature' | 'oaut
  */
 export interface Webhook {
   /** Unique webhook ID */
-  id: string
+  id: string;
   /** Webhook name */
-  name: string
+  name: string;
   /** Webhook description */
-  description?: string
+  description?: string;
   /** Webhook direction */
-  direction: WebhookDirection
+  direction: WebhookDirection;
   /** Current status */
-  status: WebhookStatus
+  status: WebhookStatus;
   /** Target URL (for outgoing) or endpoint URL (for incoming) */
-  url: string
+  url: string;
   /** Secret token for signing/verification */
-  secret?: string
+  secret?: string;
   /** Channel ID (required for incoming webhooks) */
-  channelId?: string
+  channelId?: string;
   /** Events to trigger on (for outgoing webhooks) */
-  events?: WebhookEventType[]
+  events?: WebhookEventType[];
   /** Filter configuration */
-  filters?: WebhookFilters
+  filters?: WebhookFilters;
   /** Authentication configuration */
-  auth?: WebhookAuth
+  auth?: WebhookAuth;
   /** Custom HTTP headers */
-  headers?: Record<string, string>
+  headers?: Record<string, string>;
   /** Avatar URL (for incoming webhooks) */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Default username (for incoming webhooks) */
-  defaultUsername?: string
+  defaultUsername?: string;
   /** Who created the webhook */
-  createdBy: string
+  createdBy: string;
   /** Creator info */
-  creator?: UserBasicInfo
+  creator?: UserBasicInfo;
   /** When webhook was created */
-  createdAt: Date
+  createdAt: Date;
   /** When webhook was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** When webhook was last triggered */
-  lastTriggeredAt?: Date
+  lastTriggeredAt?: Date;
   /** Total delivery count */
-  deliveryCount: number
+  deliveryCount: number;
   /** Failed delivery count */
-  failedDeliveryCount: number
+  failedDeliveryCount: number;
   /** Recent delivery success rate */
-  successRate?: number
+  successRate?: number;
   /** Rate limiting configuration */
-  rateLimit?: WebhookRateLimit
+  rateLimit?: WebhookRateLimit;
   /** Retry configuration */
-  retryConfig?: WebhookRetryConfig
+  retryConfig?: WebhookRetryConfig;
 }
 
 /**
  * Incoming webhook (for posting messages).
  */
-export interface IncomingWebhook extends Omit<Webhook, 'direction' | 'events'> {
-  direction: 'incoming'
+export interface IncomingWebhook extends Omit<Webhook, "direction" | "events"> {
+  direction: "incoming";
   /** Channel ID to post to */
-  channelId: string
+  channelId: string;
   /** Thread ID to post to (optional) */
-  threadId?: string
+  threadId?: string;
   /** Webhook token for authentication */
-  token: string
+  token: string;
   /** Full webhook URL for posting */
-  webhookUrl: string
+  webhookUrl: string;
 }
 
 /**
  * Outgoing webhook (for receiving events).
  */
-export interface OutgoingWebhook extends Omit<Webhook, 'direction'> {
-  direction: 'outgoing'
+export interface OutgoingWebhook extends Omit<Webhook, "direction"> {
+  direction: "outgoing";
   /** Events to subscribe to */
-  events: WebhookEventType[]
+  events: WebhookEventType[];
   /** Filter by channel IDs */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Filter by user IDs */
-  userIds?: string[]
+  userIds?: string[];
 }
 
 // ============================================================================
@@ -155,17 +160,17 @@ export interface OutgoingWebhook extends Omit<Webhook, 'direction'> {
  */
 export interface WebhookFilters {
   /** Filter by channel IDs */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Filter by user IDs */
-  userIds?: string[]
+  userIds?: string[];
   /** Filter by message content pattern */
-  contentPattern?: string
+  contentPattern?: string;
   /** Filter by mentions */
-  hasMentions?: boolean
+  hasMentions?: boolean;
   /** Filter by attachments */
-  hasAttachments?: boolean
+  hasAttachments?: boolean;
   /** Exclude bot messages */
-  excludeBots?: boolean
+  excludeBots?: boolean;
 }
 
 /**
@@ -173,24 +178,24 @@ export interface WebhookFilters {
  */
 export interface WebhookAuth {
   /** Authentication method */
-  method: WebhookAuthMethod
+  method: WebhookAuthMethod;
   /** Auth token (for token auth) */
-  token?: string
+  token?: string;
   /** Username (for basic auth) */
-  username?: string
+  username?: string;
   /** Password (for basic auth) */
-  password?: string
+  password?: string;
   /** OAuth2 configuration */
   oauth2?: {
-    clientId: string
-    clientSecret: string
-    tokenUrl: string
-    scope?: string
-  }
+    clientId: string;
+    clientSecret: string;
+    tokenUrl: string;
+    scope?: string;
+  };
   /** Signature header name */
-  signatureHeader?: string
+  signatureHeader?: string;
   /** Signature algorithm */
-  signatureAlgorithm?: 'sha256' | 'sha512'
+  signatureAlgorithm?: "sha256" | "sha512";
 }
 
 /**
@@ -198,11 +203,11 @@ export interface WebhookAuth {
  */
 export interface WebhookRateLimit {
   /** Requests per window */
-  requests: number
+  requests: number;
   /** Window duration in seconds */
-  windowSeconds: number
+  windowSeconds: number;
   /** Burst limit */
-  burst?: number
+  burst?: number;
 }
 
 /**
@@ -210,17 +215,17 @@ export interface WebhookRateLimit {
  */
 export interface WebhookRetryConfig {
   /** Enable retries */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum retry attempts */
-  maxAttempts: number
+  maxAttempts: number;
   /** Initial delay in seconds */
-  initialDelay: number
+  initialDelay: number;
   /** Maximum delay in seconds */
-  maxDelay: number
+  maxDelay: number;
   /** Backoff multiplier */
-  backoffMultiplier: number
+  backoffMultiplier: number;
   /** HTTP status codes to retry on */
-  retryOnStatus: number[]
+  retryOnStatus: number[];
 }
 
 /**
@@ -233,7 +238,7 @@ export const DefaultWebhookRetryConfig: WebhookRetryConfig = {
   maxDelay: 60,
   backoffMultiplier: 2,
   retryOnStatus: [408, 429, 500, 502, 503, 504],
-}
+};
 
 // ============================================================================
 // Webhook Payload Types
@@ -244,15 +249,15 @@ export const DefaultWebhookRetryConfig: WebhookRetryConfig = {
  */
 export interface WebhookPayloadBase {
   /** Payload ID */
-  id: string
+  id: string;
   /** Event type */
-  event: WebhookEventType
+  event: WebhookEventType;
   /** Webhook ID */
-  webhookId: string
+  webhookId: string;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Payload version */
-  version: string
+  version: string;
 }
 
 /**
@@ -260,82 +265,86 @@ export interface WebhookPayloadBase {
  */
 export interface MessageEventPayload extends WebhookPayloadBase {
   event:
-    | 'message.created'
-    | 'message.updated'
-    | 'message.deleted'
-    | 'message.pinned'
-    | 'message.unpinned'
+    | "message.created"
+    | "message.updated"
+    | "message.deleted"
+    | "message.pinned"
+    | "message.unpinned";
   data: {
-    message: Message
-    channel: { id: string; name: string; type: string }
-    previousMessage?: Message // For updates
-  }
+    message: Message;
+    channel: { id: string; name: string; type: string };
+    previousMessage?: Message; // For updates
+  };
 }
 
 /**
  * Reaction event payload.
  */
 export interface ReactionEventPayload extends WebhookPayloadBase {
-  event: 'reaction.added' | 'reaction.removed'
+  event: "reaction.added" | "reaction.removed";
   data: {
-    messageId: string
-    channelId: string
-    emoji: string
-    user: UserBasicInfo
-  }
+    messageId: string;
+    channelId: string;
+    emoji: string;
+    user: UserBasicInfo;
+  };
 }
 
 /**
  * Channel event payload.
  */
 export interface ChannelEventPayload extends WebhookPayloadBase {
-  event: 'channel.created' | 'channel.updated' | 'channel.deleted' | 'channel.archived'
+  event:
+    | "channel.created"
+    | "channel.updated"
+    | "channel.deleted"
+    | "channel.archived";
   data: {
-    channel: { id: string; name: string; type: string; description?: string }
-    actor: UserBasicInfo
-    previousChannel?: { name: string; description?: string } // For updates
-  }
+    channel: { id: string; name: string; type: string; description?: string };
+    actor: UserBasicInfo;
+    previousChannel?: { name: string; description?: string }; // For updates
+  };
 }
 
 /**
  * Member event payload.
  */
 export interface MemberEventPayload extends WebhookPayloadBase {
-  event: 'member.joined' | 'member.left' | 'member.updated'
+  event: "member.joined" | "member.left" | "member.updated";
   data: {
-    user: UserBasicInfo
-    channel: { id: string; name: string }
-    actor?: UserBasicInfo // Who added/removed them
-  }
+    user: UserBasicInfo;
+    channel: { id: string; name: string };
+    actor?: UserBasicInfo; // Who added/removed them
+  };
 }
 
 /**
  * User event payload.
  */
 export interface UserEventPayload extends WebhookPayloadBase {
-  event: 'user.created' | 'user.updated' | 'user.deactivated'
+  event: "user.created" | "user.updated" | "user.deactivated";
   data: {
-    user: UserBasicInfo
-    previousUser?: Partial<UserBasicInfo> // For updates
-  }
+    user: UserBasicInfo;
+    previousUser?: Partial<UserBasicInfo>; // For updates
+  };
 }
 
 /**
  * File event payload.
  */
 export interface FileEventPayload extends WebhookPayloadBase {
-  event: 'file.uploaded' | 'file.deleted'
+  event: "file.uploaded" | "file.deleted";
   data: {
     file: {
-      id: string
-      name: string
-      type: string
-      size: number
-      url?: string
-    }
-    message?: { id: string; channelId: string }
-    user: UserBasicInfo
-  }
+      id: string;
+      name: string;
+      type: string;
+      size: number;
+      url?: string;
+    };
+    message?: { id: string; channelId: string };
+    user: UserBasicInfo;
+  };
 }
 
 /**
@@ -347,24 +356,24 @@ export type WebhookPayload =
   | ChannelEventPayload
   | MemberEventPayload
   | UserEventPayload
-  | FileEventPayload
+  | FileEventPayload;
 
 /**
  * Incoming webhook message payload.
  */
 export interface IncomingWebhookPayload {
   /** Message content */
-  content?: string
+  content?: string;
   /** Username override */
-  username?: string
+  username?: string;
   /** Avatar URL override */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Attachments */
-  attachments?: IncomingWebhookAttachment[]
+  attachments?: IncomingWebhookAttachment[];
   /** Embeds */
-  embeds?: IncomingWebhookEmbed[]
+  embeds?: IncomingWebhookEmbed[];
   /** Thread ID to reply in */
-  threadId?: string
+  threadId?: string;
 }
 
 /**
@@ -372,11 +381,11 @@ export interface IncomingWebhookPayload {
  */
 export interface IncomingWebhookAttachment {
   /** Attachment URL */
-  url: string
+  url: string;
   /** Filename */
-  filename?: string
+  filename?: string;
   /** Content type */
-  contentType?: string
+  contentType?: string;
 }
 
 /**
@@ -384,25 +393,25 @@ export interface IncomingWebhookAttachment {
  */
 export interface IncomingWebhookEmbed {
   /** Embed title */
-  title?: string
+  title?: string;
   /** Embed description */
-  description?: string
+  description?: string;
   /** Embed URL */
-  url?: string
+  url?: string;
   /** Embed color (hex) */
-  color?: string
+  color?: string;
   /** Thumbnail image */
-  thumbnail?: { url: string }
+  thumbnail?: { url: string };
   /** Main image */
-  image?: { url: string }
+  image?: { url: string };
   /** Footer text */
-  footer?: { text: string; iconUrl?: string }
+  footer?: { text: string; iconUrl?: string };
   /** Author info */
-  author?: { name: string; url?: string; iconUrl?: string }
+  author?: { name: string; url?: string; iconUrl?: string };
   /** Fields */
-  fields?: { name: string; value: string; inline?: boolean }[]
+  fields?: { name: string; value: string; inline?: boolean }[];
   /** Timestamp */
-  timestamp?: Date
+  timestamp?: Date;
 }
 
 // ============================================================================
@@ -412,50 +421,54 @@ export interface IncomingWebhookEmbed {
 /**
  * Webhook delivery status.
  */
-export type WebhookDeliveryStatus = 'pending' | 'success' | 'failed' | 'retrying'
+export type WebhookDeliveryStatus =
+  | "pending"
+  | "success"
+  | "failed"
+  | "retrying";
 
 /**
  * Webhook delivery record.
  */
 export interface WebhookDelivery {
   /** Delivery ID */
-  id: string
+  id: string;
   /** Webhook ID */
-  webhookId: string
+  webhookId: string;
   /** Event type */
-  event: WebhookEventType
+  event: WebhookEventType;
   /** Delivery status */
-  status: WebhookDeliveryStatus
+  status: WebhookDeliveryStatus;
   /** Request details */
   request: {
-    url: string
-    method: string
-    headers: Record<string, string>
-    body: string
-  }
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body: string;
+  };
   /** Response details (if received) */
   response?: {
-    status: number
-    statusText: string
-    headers: Record<string, string>
-    body?: string
-  }
+    status: number;
+    statusText: string;
+    headers: Record<string, string>;
+    body?: string;
+  };
   /** Error message (if failed) */
-  error?: string
+  error?: string;
   /** Attempt number */
-  attempt: number
+  attempt: number;
   /** Max attempts */
-  maxAttempts: number
+  maxAttempts: number;
   /** When delivery was queued */
-  queuedAt: Date
+  queuedAt: Date;
   /** When delivery started */
-  startedAt?: Date
+  startedAt?: Date;
   /** When delivery completed */
-  completedAt?: Date
+  completedAt?: Date;
   /** Duration in milliseconds */
-  durationMs?: number
+  durationMs?: number;
   /** Next retry time (if retrying) */
-  nextRetryAt?: Date
+  nextRetryAt?: Date;
 }
 
 /**
@@ -463,17 +476,17 @@ export interface WebhookDelivery {
  */
 export interface WebhookDeliverySummary {
   /** Total deliveries */
-  total: number
+  total: number;
   /** Successful deliveries */
-  success: number
+  success: number;
   /** Failed deliveries */
-  failed: number
+  failed: number;
   /** Pending deliveries */
-  pending: number
+  pending: number;
   /** Success rate percentage */
-  successRate: number
+  successRate: number;
   /** Average response time in ms */
-  avgResponseTime: number
+  avgResponseTime: number;
 }
 
 // ============================================================================
@@ -484,44 +497,44 @@ export interface WebhookDeliverySummary {
  * Input for creating an incoming webhook.
  */
 export interface CreateIncomingWebhookInput {
-  name: string
-  description?: string
-  channelId: string
-  avatarUrl?: string
-  defaultUsername?: string
+  name: string;
+  description?: string;
+  channelId: string;
+  avatarUrl?: string;
+  defaultUsername?: string;
 }
 
 /**
  * Input for creating an outgoing webhook.
  */
 export interface CreateOutgoingWebhookInput {
-  name: string
-  description?: string
-  url: string
-  events: WebhookEventType[]
-  filters?: WebhookFilters
-  auth?: WebhookAuth
-  headers?: Record<string, string>
-  retryConfig?: WebhookRetryConfig
-  rateLimit?: WebhookRateLimit
+  name: string;
+  description?: string;
+  url: string;
+  events: WebhookEventType[];
+  filters?: WebhookFilters;
+  auth?: WebhookAuth;
+  headers?: Record<string, string>;
+  retryConfig?: WebhookRetryConfig;
+  rateLimit?: WebhookRateLimit;
 }
 
 /**
  * Input for updating a webhook.
  */
 export interface UpdateWebhookInput {
-  name?: string
-  description?: string
-  url?: string
-  status?: WebhookStatus
-  events?: WebhookEventType[]
-  filters?: WebhookFilters
-  auth?: WebhookAuth
-  headers?: Record<string, string>
-  avatarUrl?: string
-  defaultUsername?: string
-  retryConfig?: WebhookRetryConfig
-  rateLimit?: WebhookRateLimit
+  name?: string;
+  description?: string;
+  url?: string;
+  status?: WebhookStatus;
+  events?: WebhookEventType[];
+  filters?: WebhookFilters;
+  auth?: WebhookAuth;
+  headers?: Record<string, string>;
+  avatarUrl?: string;
+  defaultUsername?: string;
+  retryConfig?: WebhookRetryConfig;
+  rateLimit?: WebhookRateLimit;
 }
 
 // ============================================================================
@@ -532,18 +545,18 @@ export interface UpdateWebhookInput {
  * Webhook created event.
  */
 export interface WebhookCreatedEvent {
-  webhook: Webhook
-  createdBy: UserBasicInfo
-  timestamp: Date
+  webhook: Webhook;
+  createdBy: UserBasicInfo;
+  timestamp: Date;
 }
 
 /**
  * Webhook delivery event.
  */
 export interface WebhookDeliveryEvent {
-  webhookId: string
-  delivery: WebhookDelivery
-  timestamp: Date
+  webhookId: string;
+  delivery: WebhookDelivery;
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -557,29 +570,33 @@ export interface WebhookDeliveryEvent {
 export async function generateWebhookSignature(
   payload: string,
   secret: string,
-  algorithm: 'sha256' | 'sha512' = 'sha256'
+  algorithm: "sha256" | "sha512" = "sha256",
 ): Promise<string> {
-  const encoder = new TextEncoder()
-  const hashAlgorithm = algorithm === 'sha512' ? 'SHA-512' : 'SHA-256'
+  const encoder = new TextEncoder();
+  const hashAlgorithm = algorithm === "sha512" ? "SHA-512" : "SHA-256";
 
   // Import the secret as a crypto key
   const key = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     encoder.encode(secret),
-    { name: 'HMAC', hash: hashAlgorithm },
+    { name: "HMAC", hash: hashAlgorithm },
     false,
-    ['sign']
-  )
+    ["sign"],
+  );
 
   // Sign the payload
-  const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload))
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(payload),
+  );
 
   // Convert to hex string
   const signatureHex = Array.from(new Uint8Array(signatureBuffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 
-  return `${algorithm}=${signatureHex}`
+  return `${algorithm}=${signatureHex}`;
 }
 
 /**
@@ -591,45 +608,53 @@ export async function verifyWebhookSignature(
   signature: string,
   secret: string,
   options?: {
-    algorithm?: 'sha256' | 'sha512'
-    timestampHeader?: string
-    maxAgeSeconds?: number
-  }
+    algorithm?: "sha256" | "sha512";
+    timestampHeader?: string;
+    maxAgeSeconds?: number;
+  },
 ): Promise<boolean> {
-  const { algorithm = 'sha256', timestampHeader, maxAgeSeconds = 300 } = options || {}
+  const {
+    algorithm = "sha256",
+    timestampHeader,
+    maxAgeSeconds = 300,
+  } = options || {};
 
   // Validate timestamp if provided (replay attack prevention)
   if (timestampHeader) {
-    const timestamp = parseInt(timestampHeader, 10)
+    const timestamp = parseInt(timestampHeader, 10);
     if (isNaN(timestamp)) {
-      return false
+      return false;
     }
-    const now = Math.floor(Date.now() / 1000)
+    const now = Math.floor(Date.now() / 1000);
     if (Math.abs(now - timestamp) > maxAgeSeconds) {
-      return false
+      return false;
     }
   }
 
   // Check signature format
-  const prefix = `${algorithm}=`
+  const prefix = `${algorithm}=`;
   if (!signature.startsWith(prefix)) {
-    return false
+    return false;
   }
 
   // Generate expected signature
-  const expectedSignature = await generateWebhookSignature(payload, secret, algorithm)
+  const expectedSignature = await generateWebhookSignature(
+    payload,
+    secret,
+    algorithm,
+  );
 
   // Constant-time comparison to prevent timing attacks
   if (signature.length !== expectedSignature.length) {
-    return false
+    return false;
   }
 
-  let result = 0
+  let result = 0;
   for (let i = 0; i < signature.length; i++) {
-    result |= signature.charCodeAt(i) ^ expectedSignature.charCodeAt(i)
+    result |= signature.charCodeAt(i) ^ expectedSignature.charCodeAt(i);
   }
 
-  return result === 0
+  return result === 0;
 }
 
 /**
@@ -639,21 +664,21 @@ export async function verifyWebhookSignature(
 export function generateWebhookSignatureSync(
   payload: string,
   secret: string,
-  algorithm: 'sha256' | 'sha512' = 'sha256'
+  algorithm: "sha256" | "sha512" = "sha256",
 ): string {
   // Use Node.js crypto if available
   try {
     // Dynamic import check for Node.js environment
-    const nodeCrypto = require('crypto')
-    const hmac = nodeCrypto.createHmac(algorithm, secret)
-    hmac.update(payload)
-    return `${algorithm}=${hmac.digest('hex')}`
+    const nodeCrypto = require("crypto");
+    const hmac = nodeCrypto.createHmac(algorithm, secret);
+    hmac.update(payload);
+    return `${algorithm}=${hmac.digest("hex")}`;
   } catch {
     // Fallback: throw error indicating async version should be used
     throw new Error(
-      'Synchronous signature generation requires Node.js crypto module. ' +
-        'Use generateWebhookSignature() for browser environments.'
-    )
+      "Synchronous signature generation requires Node.js crypto module. " +
+        "Use generateWebhookSignature() for browser environments.",
+    );
   }
 }
 
@@ -665,46 +690,54 @@ export function verifyWebhookSignatureSync(
   signature: string,
   secret: string,
   options?: {
-    algorithm?: 'sha256' | 'sha512'
-    timestampHeader?: string
-    maxAgeSeconds?: number
-  }
+    algorithm?: "sha256" | "sha512";
+    timestampHeader?: string;
+    maxAgeSeconds?: number;
+  },
 ): boolean {
-  const { algorithm = 'sha256', timestampHeader, maxAgeSeconds = 300 } = options || {}
+  const {
+    algorithm = "sha256",
+    timestampHeader,
+    maxAgeSeconds = 300,
+  } = options || {};
 
   // Validate timestamp if provided (replay attack prevention)
   if (timestampHeader) {
-    const timestamp = parseInt(timestampHeader, 10)
+    const timestamp = parseInt(timestampHeader, 10);
     if (isNaN(timestamp)) {
-      return false
+      return false;
     }
-    const now = Math.floor(Date.now() / 1000)
+    const now = Math.floor(Date.now() / 1000);
     if (Math.abs(now - timestamp) > maxAgeSeconds) {
-      return false
+      return false;
     }
   }
 
   // Check signature format
-  const prefix = `${algorithm}=`
+  const prefix = `${algorithm}=`;
   if (!signature.startsWith(prefix)) {
-    return false
+    return false;
   }
 
   try {
     // Use Node.js crypto for verification
-    const nodeCrypto = require('crypto')
-    const expectedSignature = generateWebhookSignatureSync(payload, secret, algorithm)
+    const nodeCrypto = require("crypto");
+    const expectedSignature = generateWebhookSignatureSync(
+      payload,
+      secret,
+      algorithm,
+    );
 
     // Use timingSafeEqual for constant-time comparison
     return nodeCrypto.timingSafeEqual(
       Buffer.from(signature),
-      Buffer.from(expectedSignature)
-    )
+      Buffer.from(expectedSignature),
+    );
   } catch {
     throw new Error(
-      'Synchronous signature verification requires Node.js crypto module. ' +
-        'Use verifyWebhookSignature() for browser environments.'
-    )
+      "Synchronous signature verification requires Node.js crypto module. " +
+        "Use verifyWebhookSignature() for browser environments.",
+    );
   }
 }
 
@@ -712,7 +745,7 @@ export function verifyWebhookSignatureSync(
  * Get event category from event type.
  */
 export function getEventCategory(event: WebhookEventType): string {
-  return event.split('.')[0]
+  return event.split(".")[0];
 }
 
 /**
@@ -720,12 +753,12 @@ export function getEventCategory(event: WebhookEventType): string {
  */
 export function formatWebhookUrl(url: string): string {
   try {
-    const urlObj = new URL(url)
-    if (urlObj.searchParams.has('token')) {
-      urlObj.searchParams.set('token', '***')
+    const urlObj = new URL(url);
+    if (urlObj.searchParams.has("token")) {
+      urlObj.searchParams.set("token", "***");
     }
-    return urlObj.toString()
+    return urlObj.toString();
   } catch {
-    return url
+    return url;
   }
 }

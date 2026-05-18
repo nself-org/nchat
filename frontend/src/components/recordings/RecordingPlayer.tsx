@@ -9,18 +9,18 @@
  * - Download button
  */
 
-'use client'
+"use client";
 
-import React, { useRef, useState, useEffect, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Play,
   Pause,
@@ -33,19 +33,23 @@ import {
   SkipBack,
   SkipForward,
   AlertTriangle,
-} from 'lucide-react'
-import type { Recording, RecordingVariant, RedactionSegment } from '@/services/recordings/types'
+} from "lucide-react";
+import type {
+  Recording,
+  RecordingVariant,
+  RedactionSegment,
+} from "@/services/recordings/types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface RecordingPlayerProps {
-  recording: Recording
-  downloadUrl?: string
-  onDownload?: () => void
-  onTimeUpdate?: (currentTime: number) => void
-  className?: string
+  recording: Recording;
+  downloadUrl?: string;
+  onDownload?: () => void;
+  onTimeUpdate?: (currentTime: number) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -59,239 +63,254 @@ export function RecordingPlayer({
   onTimeUpdate,
   className,
 }: RecordingPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const progressRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
 
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(recording.durationSeconds || 0)
-  const [volume, setVolume] = useState(1)
-  const [selectedQuality, setSelectedQuality] = useState<string>(recording.quality)
-  const [showControls, setShowControls] = useState(true)
-  const [hoveredTime, setHoveredTime] = useState<number | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(recording.durationSeconds || 0);
+  const [volume, setVolume] = useState(1);
+  const [selectedQuality, setSelectedQuality] = useState<string>(
+    recording.quality,
+  );
+  const [showControls, setShowControls] = useState(true);
+  const [hoveredTime, setHoveredTime] = useState<number | null>(null);
 
-  const controlsTimeoutRef = useRef<NodeJS.Timeout>(undefined)
+  const controlsTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   // Available quality options
   const qualityOptions = [
-    { value: recording.quality, label: recording.quality, url: recording.fileUrl },
+    {
+      value: recording.quality,
+      label: recording.quality,
+      url: recording.fileUrl,
+    },
     ...recording.variants.map((v) => ({
       value: v.quality,
       label: v.quality,
       url: v.fileUrl,
     })),
-  ]
+  ];
 
   // Get current video URL based on selected quality
-  const currentUrl = selectedQuality === recording.quality
-    ? recording.fileUrl
-    : recording.variants.find((v) => v.quality === selectedQuality)?.fileUrl
+  const currentUrl =
+    selectedQuality === recording.quality
+      ? recording.fileUrl
+      : recording.variants.find((v) => v.quality === selectedQuality)?.fileUrl;
 
   // Format time
   const formatTime = useCallback((seconds: number): string => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = Math.floor(seconds % 60)
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
 
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`
-  }, [])
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
+  }, []);
 
   // Handle play/pause
   const togglePlay = useCallback(() => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
     if (isPlaying) {
-      videoRef.current.pause()
+      videoRef.current.pause();
     } else {
-      videoRef.current.play()
+      videoRef.current.play();
     }
-    setIsPlaying(!isPlaying)
-  }, [isPlaying])
+    setIsPlaying(!isPlaying);
+  }, [isPlaying]);
 
   // Handle mute
   const toggleMute = useCallback(() => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
-    videoRef.current.muted = !isMuted
-    setIsMuted(!isMuted)
-  }, [isMuted])
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  }, [isMuted]);
 
   // Handle fullscreen
   const toggleFullscreen = useCallback(() => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
     if (!document.fullscreenElement) {
-      videoRef.current.parentElement?.requestFullscreen()
-      setIsFullscreen(true)
+      videoRef.current.parentElement?.requestFullscreen();
+      setIsFullscreen(true);
     } else {
-      document.exitFullscreen()
-      setIsFullscreen(false)
+      document.exitFullscreen();
+      setIsFullscreen(false);
     }
-  }, [])
+  }, []);
 
   // Handle seek
-  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current || !progressRef.current) return
+  const handleSeek = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!videoRef.current || !progressRef.current) return;
 
-    const rect = progressRef.current.getBoundingClientRect()
-    const percent = (e.clientX - rect.left) / rect.width
-    const newTime = percent * duration
+      const rect = progressRef.current.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      const newTime = percent * duration;
 
-    videoRef.current.currentTime = newTime
-    setCurrentTime(newTime)
-  }, [duration])
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    },
+    [duration],
+  );
 
   // Handle progress hover
-  const handleProgressHover = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressRef.current) return
+  const handleProgressHover = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!progressRef.current) return;
 
-    const rect = progressRef.current.getBoundingClientRect()
-    const percent = (e.clientX - rect.left) / rect.width
-    setHoveredTime(percent * duration)
-  }, [duration])
+      const rect = progressRef.current.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      setHoveredTime(percent * duration);
+    },
+    [duration],
+  );
 
   // Skip forward/backward
-  const skip = useCallback((seconds: number) => {
-    if (!videoRef.current) return
+  const skip = useCallback(
+    (seconds: number) => {
+      if (!videoRef.current) return;
 
-    const newTime = Math.max(0, Math.min(duration, currentTime + seconds))
-    videoRef.current.currentTime = newTime
-    setCurrentTime(newTime)
-  }, [currentTime, duration])
+      const newTime = Math.max(0, Math.min(duration, currentTime + seconds));
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    },
+    [currentTime, duration],
+  );
 
   // Handle volume change
-  const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef.current) return
+  const handleVolumeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!videoRef.current) return;
 
-    const newVolume = parseFloat(e.target.value)
-    videoRef.current.volume = newVolume
-    setVolume(newVolume)
-    setIsMuted(newVolume === 0)
-  }, [])
+      const newVolume = parseFloat(e.target.value);
+      videoRef.current.volume = newVolume;
+      setVolume(newVolume);
+      setIsMuted(newVolume === 0);
+    },
+    [],
+  );
 
   // Handle quality change
   const handleQualityChange = useCallback((quality: string) => {
-    if (!videoRef.current) return
+    if (!videoRef.current) return;
 
-    const savedTime = videoRef.current.currentTime
-    const wasPlaying = !videoRef.current.paused
+    const savedTime = videoRef.current.currentTime;
+    const wasPlaying = !videoRef.current.paused;
 
-    setSelectedQuality(quality)
+    setSelectedQuality(quality);
 
     // Wait for source change, then restore position
     setTimeout(() => {
       if (videoRef.current) {
-        videoRef.current.currentTime = savedTime
+        videoRef.current.currentTime = savedTime;
         if (wasPlaying) {
-          videoRef.current.play()
+          videoRef.current.play();
         }
       }
-    }, 100)
-  }, [])
+    }, 100);
+  }, []);
 
   // Hide controls after inactivity
   useEffect(() => {
     const hideControls = () => {
       if (isPlaying) {
         controlsTimeoutRef.current = setTimeout(() => {
-          setShowControls(false)
-        }, 3000)
+          setShowControls(false);
+        }, 3000);
       }
-    }
+    };
 
     const showControlsHandler = () => {
-      setShowControls(true)
+      setShowControls(true);
       if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
+        clearTimeout(controlsTimeoutRef.current);
       }
-      hideControls()
-    }
+      hideControls();
+    };
 
-    const container = videoRef.current?.parentElement
-    container?.addEventListener('mousemove', showControlsHandler)
-    container?.addEventListener('touchstart', showControlsHandler)
+    const container = videoRef.current?.parentElement;
+    container?.addEventListener("mousemove", showControlsHandler);
+    container?.addEventListener("touchstart", showControlsHandler);
 
     return () => {
-      container?.removeEventListener('mousemove', showControlsHandler)
-      container?.removeEventListener('touchstart', showControlsHandler)
+      container?.removeEventListener("mousemove", showControlsHandler);
+      container?.removeEventListener("touchstart", showControlsHandler);
       if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
+        clearTimeout(controlsTimeoutRef.current);
       }
-    }
-  }, [isPlaying])
+    };
+  }, [isPlaying]);
 
   // Video event handlers
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime)
-      onTimeUpdate?.(video.currentTime)
-    }
+      setCurrentTime(video.currentTime);
+      onTimeUpdate?.(video.currentTime);
+    };
 
     const handleDurationChange = () => {
-      setDuration(video.duration || recording.durationSeconds || 0)
-    }
+      setDuration(video.duration || recording.durationSeconds || 0);
+    };
 
-    const handlePlay = () => setIsPlaying(true)
-    const handlePause = () => setIsPlaying(false)
-    const handleEnded = () => setIsPlaying(false)
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => setIsPlaying(false);
 
-    video.addEventListener('timeupdate', handleTimeUpdate)
-    video.addEventListener('durationchange', handleDurationChange)
-    video.addEventListener('play', handlePlay)
-    video.addEventListener('pause', handlePause)
-    video.addEventListener('ended', handleEnded)
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("durationchange", handleDurationChange);
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", handleEnded);
 
     return () => {
-      video.removeEventListener('timeupdate', handleTimeUpdate)
-      video.removeEventListener('durationchange', handleDurationChange)
-      video.removeEventListener('play', handlePlay)
-      video.removeEventListener('pause', handlePause)
-      video.removeEventListener('ended', handleEnded)
-    }
-  }, [recording.durationSeconds, onTimeUpdate])
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("durationchange", handleDurationChange);
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", handleEnded);
+    };
+  }, [recording.durationSeconds, onTimeUpdate]);
 
   // Check if current time is in a redacted segment
   const isInRedactedSegment = useCallback(
     (time: number): RedactionSegment | null => {
       return (
         recording.redactions.find(
-          (r) => r.applied && time >= r.startSeconds && time <= r.endSeconds
+          (r) => r.applied && time >= r.startSeconds && time <= r.endSeconds,
         ) || null
-      )
+      );
     },
-    [recording.redactions]
-  )
+    [recording.redactions],
+  );
 
-  const currentRedaction = isInRedactedSegment(currentTime)
+  const currentRedaction = isInRedactedSegment(currentTime);
 
   return (
     <div
       className={cn(
-        'relative bg-black rounded-lg overflow-hidden group',
-        className
+        "relative bg-black rounded-lg overflow-hidden group",
+        className,
       )}
     >
       {/* Video Element */}
-      {recording.format === 'audio_only' ? (
+      {recording.format === "audio_only" ? (
         <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
           <div className="text-center text-white">
             <Volume2 className="w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium">Audio Recording</p>
             <p className="text-sm opacity-70">{formatTime(duration)}</p>
           </div>
-          <audio
-            ref={videoRef as any}
-            src={currentUrl}
-            preload="metadata"
-          />
+          <audio ref={videoRef as any} src={currentUrl} preload="metadata" />
         </div>
       ) : (
         <video
@@ -318,8 +337,8 @@ export function RecordingPlayer({
       {/* Controls Overlay */}
       <div
         className={cn(
-          'absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-300',
-          showControls ? 'opacity-100' : 'opacity-0'
+          "absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-300",
+          showControls ? "opacity-100" : "opacity-0",
         )}
       >
         {/* Center Play Button */}
@@ -353,7 +372,7 @@ export function RecordingPlayer({
             {/* Buffered Progress */}
             <div
               className="absolute top-0 left-0 h-full bg-white/30 rounded-full -z-10"
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
             />
 
             {/* Redaction Markers */}
@@ -459,7 +478,10 @@ export function RecordingPlayer({
             <div className="flex items-center gap-2">
               {/* Quality Selector */}
               {qualityOptions.length > 1 && (
-                <Select value={selectedQuality} onValueChange={handleQualityChange}>
+                <Select
+                  value={selectedQuality}
+                  onValueChange={handleQualityChange}
+                >
                   <SelectTrigger className="w-20 h-8 text-white border-white/30 bg-transparent">
                     <SelectValue />
                   </SelectTrigger>
@@ -503,7 +525,7 @@ export function RecordingPlayer({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default RecordingPlayer
+export default RecordingPlayer;

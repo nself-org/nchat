@@ -5,14 +5,14 @@
  * reporting, appeals, and compliance features.
  */
 
-'use client'
+"use client";
 
-import { ComprehensiveModerationDashboard } from '@/components/moderation/ComprehensiveModerationDashboard'
+import { ComprehensiveModerationDashboard } from "@/components/moderation/ComprehensiveModerationDashboard";
 
 export default function ComprehensiveModerationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <ComprehensiveModerationDashboard />
     </div>
-  )
+  );
 }

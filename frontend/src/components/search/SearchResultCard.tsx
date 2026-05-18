@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SearchResultCard - Individual search result card with highlighting and actions
@@ -13,7 +13,7 @@
  * - Relevance score display
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   MessageSquare,
   Hash,
@@ -29,20 +29,20 @@ import {
   MoreVertical,
   Pin,
   Star,
-} from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { formatDistanceToNow, format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { MessageSearchResult } from '@/stores/search-store'
+} from "@/components/ui/dropdown-menu";
+import type { MessageSearchResult } from "@/stores/search-store";
 
 // ============================================================================
 // Types
@@ -50,25 +50,25 @@ import type { MessageSearchResult } from '@/stores/search-store'
 
 export interface SearchResultCardProps {
   /** Search result data */
-  result: MessageSearchResult
+  result: MessageSearchResult;
   /** Search query for highlighting */
-  query?: string
+  query?: string;
   /** Whether to show context */
-  showContext?: boolean
+  showContext?: boolean;
   /** Number of context messages to show */
-  contextSize?: number
+  contextSize?: number;
   /** Whether the result is bookmarked */
-  isBookmarked?: boolean
+  isBookmarked?: boolean;
   /** Callback when card is clicked */
-  onClick?: (result: MessageSearchResult) => void
+  onClick?: (result: MessageSearchResult) => void;
   /** Callback when jump to message is clicked */
-  onJumpToMessage?: (result: MessageSearchResult) => void
+  onJumpToMessage?: (result: MessageSearchResult) => void;
   /** Callback when share is clicked */
-  onShare?: (result: MessageSearchResult) => void
+  onShare?: (result: MessageSearchResult) => void;
   /** Callback when bookmark is toggled */
-  onToggleBookmark?: (result: MessageSearchResult) => void
+  onToggleBookmark?: (result: MessageSearchResult) => void;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -77,7 +77,7 @@ export interface SearchResultCardProps {
 
 export function SearchResultCard({
   result,
-  query = '',
+  query = "",
   showContext = true,
   contextSize = 1,
   isBookmarked = false,
@@ -87,65 +87,68 @@ export function SearchResultCard({
   onToggleBookmark,
   className,
 }: SearchResultCardProps) {
-  const [isHovered, setIsHovered] = React.useState(false)
+  const [isHovered, setIsHovered] = React.useState(false);
 
   // Highlight search terms in text
   const highlightText = (text: string, searchQuery: string) => {
-    if (!searchQuery) return text
+    if (!searchQuery) return text;
 
-    const terms = searchQuery.split(' ').filter(Boolean)
-    const regex = new RegExp(`(${terms.join('|')})`, 'gi')
-    const parts = text.split(regex)
+    const terms = searchQuery.split(" ").filter(Boolean);
+    const regex = new RegExp(`(${terms.join("|")})`, "gi");
+    const parts = text.split(regex);
 
     return (
       <>
         {parts.map((part, index) =>
           regex.test(part) ? (
-            <mark key={index} className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50">
+            <mark
+              key={index}
+              className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50"
+            >
               {part}
             </mark>
           ) : (
             <span key={index}>{part}</span>
-          )
+          ),
         )}
       </>
-    )
-  }
+    );
+  };
 
   const handleCardClick = () => {
-    onClick?.(result)
-  }
+    onClick?.(result);
+  };
 
   const handleJumpClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onJumpToMessage?.(result)
-  }
+    e.stopPropagation();
+    onJumpToMessage?.(result);
+  };
 
   const handleShareClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onShare?.(result)
-  }
+    e.stopPropagation();
+    onShare?.(result);
+  };
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onToggleBookmark?.(result)
-  }
+    e.stopPropagation();
+    onToggleBookmark?.(result);
+  };
 
   return (
     <div
       className={cn(
-        'group relative rounded-lg border bg-card p-4 transition-all',
-        'hover:border-primary/50 hover:shadow-md',
-        'cursor-pointer',
-        className
+        "group relative rounded-lg border bg-card p-4 transition-all",
+        "hover:border-primary/50 hover:shadow-md",
+        "cursor-pointer",
+        className,
       )}
       role="button"
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          handleCardClick()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleCardClick();
         }
       }}
       onMouseEnter={() => setIsHovered(true)}
@@ -157,12 +160,18 @@ export function SearchResultCard({
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <Avatar className="h-8 w-8 shrink-0">
             <AvatarImage src={result.authorAvatar || undefined} />
-            <AvatarFallback>{result.authorName[0]?.toUpperCase()}</AvatarFallback>
+            <AvatarFallback>
+              {result.authorName[0]?.toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="truncate text-sm font-medium">{result.authorName}</span>
-              {result.isPinned && <Pin className="h-3 w-3 shrink-0 text-primary" />}
+              <span className="truncate text-sm font-medium">
+                {result.authorName}
+              </span>
+              {result.isPinned && (
+                <Pin className="h-3 w-3 shrink-0 text-primary" />
+              )}
               {result.isStarred && (
                 <Star className="h-3 w-3 shrink-0 fill-yellow-500 text-yellow-500" />
               )}
@@ -172,7 +181,7 @@ export function SearchResultCard({
               <span className="truncate">{result.channelName}</span>
               <ChevronRight className="h-3 w-3 shrink-0" />
               <Clock className="h-3 w-3 shrink-0" />
-              <span title={format(result.timestamp, 'PPpp')}>
+              <span title={format(result.timestamp, "PPpp")}>
                 {formatDistanceToNow(result.timestamp, { addSuffix: true })}
               </span>
             </div>
@@ -188,8 +197,8 @@ export function SearchResultCard({
           {/* Quick Actions (visible on hover) */}
           <div
             className={cn(
-              'flex items-center gap-1 transition-opacity',
-              isHovered ? 'opacity-100' : 'opacity-0'
+              "flex items-center gap-1 transition-opacity",
+              isHovered ? "opacity-100" : "opacity-0",
             )}
           >
             <Button
@@ -213,9 +222,9 @@ export function SearchResultCard({
             <Button
               variant="ghost"
               size="icon"
-              className={cn('h-7 w-7', isBookmarked && 'text-primary')}
+              className={cn("h-7 w-7", isBookmarked && "text-primary")}
               onClick={handleBookmarkClick}
-              title={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+              title={isBookmarked ? "Remove bookmark" : "Bookmark"}
             >
               {isBookmarked ? (
                 <BookmarkCheck className="h-3.5 w-3.5" />
@@ -242,7 +251,7 @@ export function SearchResultCard({
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleBookmarkClick}>
                   <Bookmark className="mr-2 h-4 w-4" />
-                  {isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+                  {isBookmarked ? "Remove bookmark" : "Bookmark"}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
@@ -262,7 +271,9 @@ export function SearchResultCard({
       {/* Content */}
       <div className="space-y-2">
         {/* Main Message Content */}
-        <div className="text-sm leading-relaxed">{highlightText(result.content, query)}</div>
+        <div className="text-sm leading-relaxed">
+          {highlightText(result.content, query)}
+        </div>
 
         {/* Attachments */}
         {result.hasAttachments && (
@@ -278,7 +289,9 @@ export function SearchResultCard({
         {result.threadId && (
           <div className="flex items-center gap-2 rounded-md border border-dashed p-2">
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Part of a thread</span>
+            <span className="text-xs text-muted-foreground">
+              Part of a thread
+            </span>
           </div>
         )}
 
@@ -286,7 +299,11 @@ export function SearchResultCard({
         {result.reactions && result.reactions.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {result.reactions.slice(0, 5).map((reaction, index) => (
-              <Badge key={index} variant="secondary" className="h-6 gap-1 px-2 text-xs">
+              <Badge
+                key={index}
+                variant="secondary"
+                className="h-6 gap-1 px-2 text-xs"
+              >
                 {reaction.emoji} {reaction.count}
               </Badge>
             ))}
@@ -303,17 +320,19 @@ export function SearchResultCard({
           <div className="space-y-1 border-l-2 border-muted pl-3 text-xs text-muted-foreground">
             <div className="font-medium">Context</div>
             <div className="space-y-0.5">
-              {result.highlights.slice(0, contextSize).map((highlight, index) => (
-                <div key={index} className="line-clamp-1">
-                  {highlight}
-                </div>
-              ))}
+              {result.highlights
+                .slice(0, contextSize)
+                .map((highlight, index) => (
+                  <div key={index} className="line-clamp-1">
+                    {highlight}
+                  </div>
+                ))}
             </div>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -322,45 +341,48 @@ export function SearchResultCard({
 
 export interface CompactSearchResultCardProps extends Omit<
   SearchResultCardProps,
-  'showContext' | 'contextSize'
+  "showContext" | "contextSize"
 > {}
 
 export function CompactSearchResultCard({
   result,
-  query = '',
+  query = "",
   onClick,
   className,
 }: CompactSearchResultCardProps) {
   const highlightText = (text: string, searchQuery: string) => {
-    if (!searchQuery) return text
+    if (!searchQuery) return text;
 
-    const terms = searchQuery.split(' ').filter(Boolean)
-    const regex = new RegExp(`(${terms.join('|')})`, 'gi')
-    const parts = text.split(regex)
+    const terms = searchQuery.split(" ").filter(Boolean);
+    const regex = new RegExp(`(${terms.join("|")})`, "gi");
+    const parts = text.split(regex);
 
     return (
       <>
         {parts.map((part, index) =>
           regex.test(part) ? (
-            <mark key={index} className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50">
+            <mark
+              key={index}
+              className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50"
+            >
               {part}
             </mark>
           ) : (
             <span key={index}>{part}</span>
-          )
+          ),
         )}
       </>
-    )
-  }
+    );
+  };
 
   return (
     <button
       type="button"
       onClick={() => onClick?.(result)}
       className={cn(
-        'flex w-full items-start gap-3 rounded-md p-3 text-left',
-        'transition-colors hover:bg-accent',
-        className
+        "flex w-full items-start gap-3 rounded-md p-3 text-left",
+        "transition-colors hover:bg-accent",
+        className,
       )}
     >
       <Avatar className="h-8 w-8 shrink-0">
@@ -370,7 +392,9 @@ export function CompactSearchResultCard({
 
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{result.authorName}</span>
+          <span className="truncate text-sm font-medium">
+            {result.authorName}
+          </span>
           <span className="shrink-0 text-xs text-muted-foreground">
             {formatDistanceToNow(result.timestamp, { addSuffix: true })}
           </span>
@@ -396,7 +420,7 @@ export function CompactSearchResultCard({
         {Math.round(result.score * 100)}%
       </Badge>
     </button>
-  )
+  );
 }
 
-export default SearchResultCard
+export default SearchResultCard;

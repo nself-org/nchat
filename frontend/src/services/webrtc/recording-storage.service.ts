@@ -8,70 +8,72 @@
  * - Handling webhook callbacks from LiveKit
  */
 
-import { nhost } from '@/lib/nhost.server'
-import { getStorageConfig } from '@/services/files/config'
-import { logger } from '@/lib/logger'
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { GetObjectCommand } from '@aws-sdk/client-s3'
+import { nhost } from "@/lib/nhost.server";
+import { getStorageConfig } from "@/services/files/config";
+import { logger } from "@/lib/logger";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 
 export interface RecordingFile {
-  id: string
-  filename: string
-  size: number
-  duration: number
-  format: 'mp4' | 'webm'
-  resolution: '720p' | '1080p' | '4k'
-  thumbnailUrl?: string
+  id: string;
+  filename: string;
+  size: number;
+  duration: number;
+  format: "mp4" | "webm";
+  resolution: "720p" | "1080p" | "4k";
+  thumbnailUrl?: string;
 }
 
 export interface RecordingEgressData {
-  egressId: string
-  roomName: string
+  egressId: string;
+  roomName: string;
   result: {
     file?: {
-      filename: string
-      size: string // in bytes as string from LiveKit
-    }
-  }
-  status: string
-  createdAt: number
+      filename: string;
+      size: string; // in bytes as string from LiveKit
+    };
+  };
+  status: string;
+  createdAt: number;
 }
 
 export interface RecordingCompletionPayload {
-  egressId: string
-  roomName: string
-  status: 'EGRESS_COMPLETE' | 'EGRESS_FAILED'
+  egressId: string;
+  roomName: string;
+  status: "EGRESS_COMPLETE" | "EGRESS_FAILED";
   result?: {
     file?: {
-      filename: string
-    }
-  }
-  error?: string
+      filename: string;
+    };
+  };
+  error?: string;
 }
 
 export class RecordingStorageService {
-  private s3Client: S3Client
-  private storageConfig: ReturnType<typeof getStorageConfig>
+  private s3Client: S3Client;
+  private storageConfig: ReturnType<typeof getStorageConfig>;
 
   constructor() {
-    this.storageConfig = getStorageConfig()
+    this.storageConfig = getStorageConfig();
     this.s3Client = new S3Client({
       endpoint: this.storageConfig.endpoint,
-      region: this.storageConfig.region || 'us-east-1',
+      region: this.storageConfig.region || "us-east-1",
       credentials: {
-        accessKeyId: this.storageConfig.accessKey || '',
-        secretAccessKey: this.storageConfig.secretKey || '',
+        accessKeyId: this.storageConfig.accessKey || "",
+        secretAccessKey: this.storageConfig.secretKey || "",
       },
-      forcePathStyle: this.storageConfig.provider === 'minio',
-    })
+      forcePathStyle: this.storageConfig.provider === "minio",
+    });
   }
 
   /**
    * Process completed recording from LiveKit egress webhook
    * Called when LiveKit finishes recording
    */
-  async processCompletedRecording(payload: RecordingCompletionPayload): Promise<void> {
+  async processCompletedRecording(
+    payload: RecordingCompletionPayload,
+  ): Promise<void> {
     try {
       // Find the recording by egress ID
       const { data, error } = await nhost.graphql.request(
@@ -93,20 +95,22 @@ export class RecordingStorageService {
             }
           }
         `,
-        { egressId: payload.egressId }
-      )
+        { egressId: payload.egressId },
+      );
 
       if (error || !data?.nchat_call_recordings?.[0]) {
-        logger.warn('Recording not found for egress', { egressId: payload.egressId })
-        return
+        logger.warn("Recording not found for egress", {
+          egressId: payload.egressId,
+        });
+        return;
       }
 
-      const recording = data.nchat_call_recordings[0]
+      const recording = data.nchat_call_recordings[0];
 
       // Handle success case
-      if (payload.status === 'EGRESS_COMPLETE' && payload.result?.file) {
-        const filename = payload.result.file.filename
-        const fileUrl = `${process.env.NEXT_PUBLIC_STORAGE_URL || ''}/files/${filename}`
+      if (payload.status === "EGRESS_COMPLETE" && payload.result?.file) {
+        const filename = payload.result.file.filename;
+        const fileUrl = `${process.env.NEXT_PUBLIC_STORAGE_URL || ""}/files/${filename}`;
 
         // Update recording with file info
         await nhost.graphql.request(
@@ -130,15 +134,15 @@ export class RecordingStorageService {
           {
             id: recording.id,
             fileUrl,
-            status: 'completed',
-          }
-        )
+            status: "completed",
+          },
+        );
 
-        logger.info('Recording processing completed', {
+        logger.info("Recording processing completed", {
           recordingId: recording.id,
           callId: recording.call_id,
           fileUrl,
-        })
+        });
       } else {
         // Handle failure case
         await nhost.graphql.request(
@@ -159,18 +163,18 @@ export class RecordingStorageService {
           `,
           {
             id: recording.id,
-            error: payload.error || 'Recording processing failed',
-          }
-        )
+            error: payload.error || "Recording processing failed",
+          },
+        );
 
-        logger.error('Recording processing failed', {
+        logger.error("Recording processing failed", {
           recordingId: recording.id,
           egressId: payload.egressId,
           error: payload.error,
-        })
+        });
       }
     } catch (error) {
-      logger.error('Error processing recording completion webhook:', error)
+      logger.error("Error processing recording completion webhook:", error);
     }
   }
 
@@ -180,12 +184,13 @@ export class RecordingStorageService {
   async getRecordingDownloadUrl(
     recordingId: string,
     userId: string,
-    expirySeconds: number = 3600
+    expirySeconds: number = 3600,
   ): Promise<string | null> {
     try {
       // Verify user has access to recording
-      const { data: recordingData, error: recordingError } = await nhost.graphql.request(
-        `
+      const { data: recordingData, error: recordingError } =
+        await nhost.graphql.request(
+          `
           query GetRecordingForDownload($id: uuid!) {
             nchat_call_recordings_by_pk(id: $id) {
               id
@@ -203,41 +208,45 @@ export class RecordingStorageService {
             }
           }
         `,
-        { id: recordingId }
-      )
+          { id: recordingId },
+        );
 
       if (recordingError || !recordingData?.nchat_call_recordings_by_pk) {
-        return null
+        return null;
       }
 
-      const recording = recordingData.nchat_call_recordings_by_pk
-      const call = recording.call
+      const recording = recordingData.nchat_call_recordings_by_pk;
+      const call = recording.call;
 
       // Check access: initiator, participant, or recorded by same user
-      const isInitiator = call?.initiator_id === userId
-      const isParticipant = call?.participants?.some((p: any) => p.user_id === userId)
-      const isRecorder = recording.recorded_by === userId
+      const isInitiator = call?.initiator_id === userId;
+      const isParticipant = call?.participants?.some(
+        (p: any) => p.user_id === userId,
+      );
+      const isRecorder = recording.recorded_by === userId;
 
       if (!isInitiator && !isParticipant && !isRecorder) {
-        return null
+        return null;
       }
 
       // Generate signed URL if file path exists
       if (recording.file_path) {
         const command = new GetObjectCommand({
-          Bucket: this.storageConfig.bucket || 'recordings',
+          Bucket: this.storageConfig.bucket || "recordings",
           Key: recording.file_path,
           ResponseContentDisposition: 'attachment; filename="recording.mp4"',
-        })
+        });
 
-        const url = await getSignedUrl(this.s3Client, command, { expiresIn: expirySeconds })
-        return url
+        const url = await getSignedUrl(this.s3Client, command, {
+          expiresIn: expirySeconds,
+        });
+        return url;
       }
 
-      return recording.file_url || null
+      return recording.file_url || null;
     } catch (error) {
-      logger.error('Error generating recording download URL:', error)
-      return null
+      logger.error("Error generating recording download URL:", error);
+      return null;
     }
   }
 
@@ -268,17 +277,17 @@ export class RecordingStorageService {
             }
           }
         `,
-        { id: recordingId }
-      )
+        { id: recordingId },
+      );
 
       if (error || !data?.nchat_call_recordings_by_pk) {
-        return null
+        return null;
       }
 
-      return data.nchat_call_recordings_by_pk
+      return data.nchat_call_recordings_by_pk;
     } catch (error) {
-      logger.error('Error fetching recording metadata:', error)
-      return null
+      logger.error("Error fetching recording metadata:", error);
+      return null;
     }
   }
 
@@ -288,8 +297,9 @@ export class RecordingStorageService {
   async deleteRecording(recordingId: string, userId: string): Promise<boolean> {
     try {
       // Verify user has permission
-      const { data: recordingData, error: recordingError } = await nhost.graphql.request(
-        `
+      const { data: recordingData, error: recordingError } =
+        await nhost.graphql.request(
+          `
           query GetRecordingForDelete($id: uuid!) {
             nchat_call_recordings_by_pk(id: $id) {
               id
@@ -301,31 +311,33 @@ export class RecordingStorageService {
             }
           }
         `,
-        { id: recordingId }
-      )
+          { id: recordingId },
+        );
 
       if (recordingError || !recordingData?.nchat_call_recordings_by_pk) {
-        return false
+        return false;
       }
 
-      const recording = recordingData.nchat_call_recordings_by_pk
-      const isRecorder = recording.recorded_by === userId
-      const isInitiator = recording.call?.initiator_id === userId
+      const recording = recordingData.nchat_call_recordings_by_pk;
+      const isRecorder = recording.recorded_by === userId;
+      const isInitiator = recording.call?.initiator_id === userId;
 
       if (!isRecorder && !isInitiator) {
-        return false
+        return false;
       }
 
       // Delete from storage if file exists
       if (recording.file_path) {
         try {
           const command = new DeleteObjectCommand({
-            Bucket: this.storageConfig.bucket || 'recordings',
+            Bucket: this.storageConfig.bucket || "recordings",
             Key: recording.file_path,
-          })
-          await this.s3Client.send(command)
+          });
+          await this.s3Client.send(command);
         } catch (storageError) {
-          logger.warn('Failed to delete recording file from storage:', { error: String(storageError) })
+          logger.warn("Failed to delete recording file from storage:", {
+            error: String(storageError),
+          });
           // Continue to delete DB record anyway
         }
       }
@@ -339,19 +351,19 @@ export class RecordingStorageService {
             }
           }
         `,
-        { id: recordingId }
-      )
+        { id: recordingId },
+      );
 
       if (deleteError) {
-        logger.error('Failed to delete recording from database:', deleteError)
-        return false
+        logger.error("Failed to delete recording from database:", deleteError);
+        return false;
       }
 
-      logger.info('Recording deleted', { recordingId })
-      return true
+      logger.info("Recording deleted", { recordingId });
+      return true;
     } catch (error) {
-      logger.error('Error deleting recording:', error)
-      return false
+      logger.error("Error deleting recording:", error);
+      return false;
     }
   }
 
@@ -360,8 +372,8 @@ export class RecordingStorageService {
    */
   async archiveOldRecordings(daysOld: number = 90): Promise<number> {
     try {
-      const cutoffDate = new Date()
-      cutoffDate.setDate(cutoffDate.getDate() - daysOld)
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysOld);
 
       const { data, error } = await nhost.graphql.request(
         `
@@ -376,15 +388,15 @@ export class RecordingStorageService {
             }
           }
         `,
-        { cutoffDate: cutoffDate.toISOString() }
-      )
+        { cutoffDate: cutoffDate.toISOString() },
+      );
 
       if (error || !data?.nchat_call_recordings) {
-        return 0
+        return 0;
       }
 
       // Update all old recordings to archived status
-      const archivedCount = data.nchat_call_recordings.length
+      const archivedCount = data.nchat_call_recordings.length;
 
       if (archivedCount > 0) {
         await nhost.graphql.request(
@@ -401,31 +413,31 @@ export class RecordingStorageService {
               }
             }
           `,
-          { cutoffDate: cutoffDate.toISOString() }
-        )
+          { cutoffDate: cutoffDate.toISOString() },
+        );
 
-        logger.info('Archived old recordings', { count: archivedCount })
+        logger.info("Archived old recordings", { count: archivedCount });
       }
 
-      return archivedCount
+      return archivedCount;
     } catch (error) {
-      logger.error('Error archiving old recordings:', error)
-      return 0
+      logger.error("Error archiving old recordings:", error);
+      return 0;
     }
   }
 }
 
 // Singleton instance
-let recordingStorageService: RecordingStorageService | null = null
+let recordingStorageService: RecordingStorageService | null = null;
 
 /**
  * Get Recording Storage Service instance
  */
 export function getRecordingStorageService(): RecordingStorageService {
   if (!recordingStorageService) {
-    recordingStorageService = new RecordingStorageService()
+    recordingStorageService = new RecordingStorageService();
   }
-  return recordingStorageService
+  return recordingStorageService;
 }
 
-export default RecordingStorageService
+export default RecordingStorageService;

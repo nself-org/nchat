@@ -1,36 +1,36 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { X, Pin, Settings } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import * as React from "react";
+import { X, Pin, Settings } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from '@/components/ui/sheet'
-import { usePinnedStore } from '@/stores/pinned-store'
-import type { PinnedMessage, PinFilters } from '@/lib/pinned'
-import { PinnedMessageList } from './PinnedMessageList'
-import { PinnedFilters } from './PinnedFilters'
-import { UnpinConfirm } from './UnpinConfirm'
+} from "@/components/ui/sheet";
+import { usePinnedStore } from "@/stores/pinned-store";
+import type { PinnedMessage, PinFilters } from "@/lib/pinned";
+import { PinnedMessageList } from "./PinnedMessageList";
+import { PinnedFilters } from "./PinnedFilters";
+import { UnpinConfirm } from "./UnpinConfirm";
 
 export interface PinnedMessagesProps {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Channel name for display */
-  channelName?: string
+  channelName?: string;
   /** Callback to navigate to message */
-  onJumpToMessage?: (messageId: string, channelId: string) => void
+  onJumpToMessage?: (messageId: string, channelId: string) => void;
   /** Whether user can manage pins */
-  canManagePins?: boolean
+  canManagePins?: boolean;
   /** Callback when settings is clicked */
-  onOpenSettings?: () => void
+  onOpenSettings?: () => void;
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -38,7 +38,7 @@ export interface PinnedMessagesProps {
  */
 export function PinnedMessages({
   channelId,
-  channelName = 'Channel',
+  channelName = "Channel",
   onJumpToMessage,
   canManagePins = true,
   onOpenSettings,
@@ -63,30 +63,36 @@ export function PinnedMessages({
     pinToUnpin,
     removePinnedMessage,
     isUnpinning,
-  } = usePinnedStore()
+  } = usePinnedStore();
 
-  const pins = getFilteredPinnedMessages(channelId)
-  const stats = getChannelPinStats(channelId)
+  const pins = getFilteredPinnedMessages(channelId);
+  const stats = getChannelPinStats(channelId);
 
   const handleUnpin = (pin: PinnedMessage) => {
-    openUnpinConfirm(pin)
-  }
+    openUnpinConfirm(pin);
+  };
 
   const confirmUnpin = async (pin: PinnedMessage) => {
     // In real app, would call GraphQL mutation here
-    removePinnedMessage(channelId, pin.messageId)
-    closeUnpinConfirm()
-  }
+    removePinnedMessage(channelId, pin.messageId);
+    closeUnpinConfirm();
+  };
 
-  const handleSortChange = (newSortBy: typeof sortBy, newSortOrder: typeof sortOrder) => {
-    setSortBy(newSortBy)
-    setSortOrder(newSortOrder)
-  }
+  const handleSortChange = (
+    newSortBy: typeof sortBy,
+    newSortOrder: typeof sortOrder,
+  ) => {
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+  };
 
   return (
     <>
       <Sheet open={isPanelOpen} onOpenChange={(open) => !open && closePanel()}>
-        <SheetContent side="right" className={cn('w-full p-0 sm:w-[440px] sm:max-w-md', className)}>
+        <SheetContent
+          side="right"
+          className={cn("w-full p-0 sm:w-[440px] sm:max-w-md", className)}
+        >
           <SheetHeader className="border-b px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -95,12 +101,22 @@ export function PinnedMessages({
               </div>
               <div className="flex items-center gap-1">
                 {canManagePins && onOpenSettings && (
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onOpenSettings}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={onOpenSettings}
+                  >
                     <Settings className="h-4 w-4" />
                     <span className="sr-only">Pin settings</span>
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={closePanel}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={closePanel}
+                >
                   <X className="h-4 w-4" />
                   <span className="sr-only">Close</span>
                 </Button>
@@ -110,7 +126,7 @@ export function PinnedMessages({
               {stats.totalPins} pinned in #{channelName}
               {stats.remainingSlots > 0 && (
                 <span className="text-muted-foreground">
-                  {' '}
+                  {" "}
                   ({stats.remainingSlots} slots remaining)
                 </span>
               )}
@@ -132,8 +148,8 @@ export function PinnedMessages({
             <PinnedMessageList
               pins={pins}
               onJumpToMessage={(messageId, cId) => {
-                onJumpToMessage?.(messageId, cId)
-                closePanel()
+                onJumpToMessage?.(messageId, cId);
+                closePanel();
               }}
               onUnpin={handleUnpin}
               canUnpin={canManagePins}
@@ -151,5 +167,5 @@ export function PinnedMessages({
         isLoading={isUnpinning}
       />
     </>
-  )
+  );
 }

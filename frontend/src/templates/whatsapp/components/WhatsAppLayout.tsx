@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // WhatsApp Layout Component
@@ -9,31 +9,35 @@
 //
 // ===============================================================================
 
-import { ReactNode } from 'react'
-import { cn } from '@/lib/utils'
-import { WHATSAPP_COLORS } from '../config'
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { WHATSAPP_COLORS } from "../config";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface WhatsAppLayoutProps {
-  children: ReactNode
-  chatList?: ReactNode
-  className?: string
+  children: ReactNode;
+  chatList?: ReactNode;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
 // Component
 // -------------------------------------------------------------------------------
 
-export function WhatsAppLayout({ children, chatList, className }: WhatsAppLayoutProps) {
+export function WhatsAppLayout({
+  children,
+  chatList,
+  className,
+}: WhatsAppLayoutProps) {
   return (
     <div
       className={cn(
-        'whatsapp-template flex h-screen w-screen overflow-hidden',
-        'bg-[#111B21]',
-        className
+        "whatsapp-template flex h-screen w-screen overflow-hidden",
+        "bg-[#111B21]",
+        className,
       )}
       style={{
         fontFamily:
@@ -62,7 +66,7 @@ export function WhatsAppLayout({ children, chatList, className }: WhatsAppLayout
         {children}
       </main>
     </div>
-  )
+  );
 }
 
-export default WhatsAppLayout
+export default WhatsAppLayout;

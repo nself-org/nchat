@@ -9,23 +9,23 @@
  * - PATCH /api/settings - Partial update with merge logic
  */
 
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import { apolloClient } from '@/lib/apollo-client'
+import { NextRequest } from "next/server";
+import { z } from "zod";
+import { apolloClient } from "@/lib/apollo-client";
 import {
   withAuth,
   withRateLimit,
   withErrorHandler,
   compose,
   type AuthenticatedRequest,
-} from '@/lib/api/middleware'
+} from "@/lib/api/middleware";
 import {
   successResponse,
   errorResponse,
   badRequestResponse,
   notFoundResponse,
   validationErrorResponse,
-} from '@/lib/api/response'
+} from "@/lib/api/response";
 import {
   GET_USER_SETTINGS,
   UPDATE_USER_SETTINGS,
@@ -37,20 +37,20 @@ import {
   type UpsertUserSettingsResponse,
   type MergeUserSettingsResponse,
   type UserSettings,
-} from '@/graphql/settings'
-import { INSERT_AUDIT_LOG } from '@/graphql/audit/audit-mutations'
+} from "@/graphql/settings";
+import { INSERT_AUDIT_LOG } from "@/graphql/audit/audit-mutations";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Validation Schemas
 // ============================================================================
 
 const themeSettingsSchema = z.object({
-  mode: z.enum(['dark', 'light', 'system']),
+  mode: z.enum(["dark", "light", "system"]),
   preset: z.string().optional(),
   accentColor: z.string().optional(),
-})
+});
 
 const notificationSettingsSchema = z.object({
   sound: z.boolean(),
@@ -58,7 +58,7 @@ const notificationSettingsSchema = z.object({
   desktop: z.boolean(),
   desktopPreview: z.boolean(),
   email: z.boolean(),
-  emailDigest: z.enum(['instant', 'daily', 'weekly', 'never']),
+  emailDigest: z.enum(["instant", "daily", "weekly", "never"]),
   mentions: z.boolean(),
   directMessages: z.boolean(),
   channelMessages: z.boolean(),
@@ -68,35 +68,35 @@ const notificationSettingsSchema = z.object({
   quietHoursStart: z.string().regex(/^\d{2}:\d{2}$/),
   quietHoursEnd: z.string().regex(/^\d{2}:\d{2}$/),
   quietHoursTimezone: z.string(),
-})
+});
 
 const privacySettingsSchema = z.object({
   onlineStatusVisible: z.boolean(),
   lastSeenVisible: z.boolean(),
   readReceipts: z.boolean(),
   typingIndicators: z.boolean(),
-  profileVisible: z.enum(['everyone', 'contacts', 'nobody']),
+  profileVisible: z.enum(["everyone", "contacts", "nobody"]),
   activityStatus: z.boolean(),
-})
+});
 
 const accessibilitySettingsSchema = z.object({
-  fontSize: z.enum(['small', 'medium', 'large', 'extra-large']),
+  fontSize: z.enum(["small", "medium", "large", "extra-large"]),
   reducedMotion: z.boolean(),
   highContrast: z.boolean(),
   screenReaderOptimized: z.boolean(),
   keyboardNavigation: z.boolean(),
   focusIndicators: z.boolean(),
-  colorBlindMode: z.enum(['none', 'protanopia', 'deuteranopia', 'tritanopia']),
-})
+  colorBlindMode: z.enum(["none", "protanopia", "deuteranopia", "tritanopia"]),
+});
 
 const localeSettingsSchema = z.object({
   language: z.string().min(2).max(10),
   timezone: z.string(),
-  dateFormat: z.enum(['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD']),
-  timeFormat: z.enum(['12h', '24h']),
+  dateFormat: z.enum(["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]),
+  timeFormat: z.enum(["12h", "24h"]),
   firstDayOfWeek: z.union([z.literal(0), z.literal(1), z.literal(6)]),
   numberFormat: z.string(),
-})
+});
 
 const keyboardShortcutSettingsSchema = z.object({
   enabled: z.boolean(),
@@ -111,7 +111,7 @@ const keyboardShortcutSettingsSchema = z.object({
   prevChannel: z.string(),
   toggleMute: z.string(),
   uploadFile: z.string(),
-})
+});
 
 const userSettingsSchema = z.object({
   theme: themeSettingsSchema,
@@ -127,7 +127,7 @@ const userSettingsSchema = z.object({
       schemaVersion: z.number().optional(),
     })
     .optional(),
-})
+});
 
 // Partial schema for PATCH requests
 const partialUserSettingsSchema = z.object({
@@ -144,7 +144,7 @@ const partialUserSettingsSchema = z.object({
       schemaVersion: z.number().optional(),
     })
     .optional(),
-})
+});
 
 // ============================================================================
 // Audit Logging Helper
@@ -155,19 +155,19 @@ async function logSettingsChange(
   action: string,
   previousSettings: UserSettings | null,
   newSettings: UserSettings | Partial<UserSettings>,
-  ipAddress?: string
+  ipAddress?: string,
 ): Promise<void> {
   try {
     await apolloClient.mutate({
       mutation: INSERT_AUDIT_LOG,
       variables: {
         object: {
-          category: 'settings',
+          category: "settings",
           action,
-          severity: 'info',
+          severity: "info",
           actor_id: userId,
-          actor_type: 'user',
-          resource_type: 'user_settings',
+          actor_type: "user",
+          resource_type: "user_settings",
           resource_id: userId,
           resource_previous_value: previousSettings,
           resource_new_value: newSettings,
@@ -176,10 +176,10 @@ async function logSettingsChange(
           ip_address: ipAddress,
         },
       },
-    })
+    });
   } catch (error) {
     // Don't fail the request if audit logging fails
-    logger.error('[Settings API] Failed to log audit entry:', error)
+    logger.error("[Settings API] Failed to log audit entry:", error);
   }
 }
 
@@ -188,16 +188,16 @@ async function logSettingsChange(
 // ============================================================================
 
 async function getSettingsHandler(request: AuthenticatedRequest) {
-  const { user } = request
+  const { user } = request;
 
   try {
     const { data } = await apolloClient.query<GetUserSettingsResponse>({
       query: GET_USER_SETTINGS,
       variables: { userId: user.id },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const settings = data?.nchat_user_settings_by_pk
+    const settings = data?.nchat_user_settings_by_pk;
 
     if (!settings) {
       // Return default settings if none exist
@@ -205,7 +205,7 @@ async function getSettingsHandler(request: AuthenticatedRequest) {
         settings: DEFAULT_USER_SETTINGS,
         version: 0,
         isDefault: true,
-      })
+      });
     }
 
     return successResponse({
@@ -213,10 +213,14 @@ async function getSettingsHandler(request: AuthenticatedRequest) {
       version: settings.version,
       updatedAt: settings.updated_at,
       isDefault: false,
-    })
+    });
   } catch (error) {
-    logger.error('[Settings API] Error fetching settings:', error)
-    return errorResponse('Failed to fetch settings', 'SETTINGS_FETCH_ERROR', 500)
+    logger.error("[Settings API] Error fetching settings:", error);
+    return errorResponse(
+      "Failed to fetch settings",
+      "SETTINGS_FETCH_ERROR",
+      500,
+    );
   }
 }
 
@@ -225,41 +229,43 @@ async function getSettingsHandler(request: AuthenticatedRequest) {
 // ============================================================================
 
 async function postSettingsHandler(request: AuthenticatedRequest) {
-  const { user } = request
+  const { user } = request;
 
   // Parse and validate request body
-  let body: unknown
+  let body: unknown;
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    return badRequestResponse('Invalid JSON body')
+    return badRequestResponse("Invalid JSON body");
   }
 
-  const validationResult = userSettingsSchema.safeParse(body)
+  const validationResult = userSettingsSchema.safeParse(body);
   if (!validationResult.success) {
-    const errors: Record<string, string[]> = {}
+    const errors: Record<string, string[]> = {};
     for (const error of validationResult.error.errors) {
-      const path = error.path.join('.')
+      const path = error.path.join(".");
       if (!errors[path]) {
-        errors[path] = []
+        errors[path] = [];
       }
-      errors[path].push((error instanceof Error ? error.message : String(error)))
+      errors[path].push(error instanceof Error ? error.message : String(error));
     }
-    return validationErrorResponse(errors)
+    return validationErrorResponse(errors);
   }
 
-  const newSettings = validationResult.data as UserSettings
+  const newSettings = validationResult.data as UserSettings;
 
   try {
     // Get current settings for audit log
-    const { data: currentData } = await apolloClient.query<GetUserSettingsResponse>({
-      query: GET_USER_SETTINGS,
-      variables: { userId: user.id },
-      fetchPolicy: 'network-only',
-    })
+    const { data: currentData } =
+      await apolloClient.query<GetUserSettingsResponse>({
+        query: GET_USER_SETTINGS,
+        variables: { userId: user.id },
+        fetchPolicy: "network-only",
+      });
 
-    const previousSettings = currentData?.nchat_user_settings_by_pk?.settings || null
-    const currentVersion = currentData?.nchat_user_settings_by_pk?.version || 0
+    const previousSettings =
+      currentData?.nchat_user_settings_by_pk?.settings || null;
+    const currentVersion = currentData?.nchat_user_settings_by_pk?.version || 0;
 
     // Upsert settings
     const { data } = await apolloClient.mutate<UpsertUserSettingsResponse>({
@@ -269,29 +275,39 @@ async function postSettingsHandler(request: AuthenticatedRequest) {
         settings: newSettings,
         version: currentVersion + 1,
       },
-    })
+    });
 
-    const result = data?.insert_nchat_user_settings_one
+    const result = data?.insert_nchat_user_settings_one;
 
     if (!result) {
-      return errorResponse('Failed to save settings', 'SETTINGS_SAVE_ERROR', 500)
+      return errorResponse(
+        "Failed to save settings",
+        "SETTINGS_SAVE_ERROR",
+        500,
+      );
     }
 
     // Log to audit trail
     const clientIp =
-      request.headers.get('x-forwarded-for')?.split(',')[0] ||
-      request.headers.get('x-real-ip') ||
-      undefined
-    await logSettingsChange(user.id, 'update', previousSettings, newSettings, clientIp)
+      request.headers.get("x-forwarded-for")?.split(",")[0] ||
+      request.headers.get("x-real-ip") ||
+      undefined;
+    await logSettingsChange(
+      user.id,
+      "update",
+      previousSettings,
+      newSettings,
+      clientIp,
+    );
 
     return successResponse({
       settings: result.settings,
       version: result.version,
       updatedAt: result.updated_at,
-    })
+    });
   } catch (error) {
-    logger.error('[Settings API] Error saving settings:', error)
-    return errorResponse('Failed to save settings', 'SETTINGS_SAVE_ERROR', 500)
+    logger.error("[Settings API] Error saving settings:", error);
+    return errorResponse("Failed to save settings", "SETTINGS_SAVE_ERROR", 500);
   }
 }
 
@@ -300,50 +316,51 @@ async function postSettingsHandler(request: AuthenticatedRequest) {
 // ============================================================================
 
 async function patchSettingsHandler(request: AuthenticatedRequest) {
-  const { user } = request
+  const { user } = request;
 
   // Parse and validate request body
-  let body: unknown
+  let body: unknown;
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    return badRequestResponse('Invalid JSON body')
+    return badRequestResponse("Invalid JSON body");
   }
 
-  const validationResult = partialUserSettingsSchema.safeParse(body)
+  const validationResult = partialUserSettingsSchema.safeParse(body);
   if (!validationResult.success) {
-    const errors: Record<string, string[]> = {}
+    const errors: Record<string, string[]> = {};
     for (const error of validationResult.error.errors) {
-      const path = error.path.join('.')
+      const path = error.path.join(".");
       if (!errors[path]) {
-        errors[path] = []
+        errors[path] = [];
       }
-      errors[path].push((error instanceof Error ? error.message : String(error)))
+      errors[path].push(error instanceof Error ? error.message : String(error));
     }
-    return validationErrorResponse(errors)
+    return validationErrorResponse(errors);
   }
 
-  const partialSettings = validationResult.data as Partial<UserSettings>
+  const partialSettings = validationResult.data as Partial<UserSettings>;
 
   // Check if there's anything to update
   if (Object.keys(partialSettings).length === 0) {
-    return badRequestResponse('No settings provided')
+    return badRequestResponse("No settings provided");
   }
 
   try {
     // Get current settings
-    const { data: currentData } = await apolloClient.query<GetUserSettingsResponse>({
-      query: GET_USER_SETTINGS,
-      variables: { userId: user.id },
-      fetchPolicy: 'network-only',
-    })
+    const { data: currentData } =
+      await apolloClient.query<GetUserSettingsResponse>({
+        query: GET_USER_SETTINGS,
+        variables: { userId: user.id },
+        fetchPolicy: "network-only",
+      });
 
     const currentSettings =
-      currentData?.nchat_user_settings_by_pk?.settings || DEFAULT_USER_SETTINGS
-    const currentVersion = currentData?.nchat_user_settings_by_pk?.version || 0
+      currentData?.nchat_user_settings_by_pk?.settings || DEFAULT_USER_SETTINGS;
+    const currentVersion = currentData?.nchat_user_settings_by_pk?.version || 0;
 
     // Deep merge settings
-    const mergedSettings = deepMergeSettings(currentSettings, partialSettings)
+    const mergedSettings = deepMergeSettings(currentSettings, partialSettings);
 
     // Update settings
     const { data } = await apolloClient.mutate<UpdateUserSettingsResponse>({
@@ -352,42 +369,57 @@ async function patchSettingsHandler(request: AuthenticatedRequest) {
         userId: user.id,
         settings: mergedSettings,
       },
-    })
+    });
 
-    let result = data?.update_nchat_user_settings_by_pk
+    let result = data?.update_nchat_user_settings_by_pk;
 
     // If no existing record, create one
     if (!result && !currentData?.nchat_user_settings_by_pk) {
-      const { data: upsertData } = await apolloClient.mutate<UpsertUserSettingsResponse>({
-        mutation: UPSERT_USER_SETTINGS,
-        variables: {
-          userId: user.id,
-          settings: mergedSettings,
-          version: 1,
-        },
-      })
-      result = upsertData?.insert_nchat_user_settings_one || null
+      const { data: upsertData } =
+        await apolloClient.mutate<UpsertUserSettingsResponse>({
+          mutation: UPSERT_USER_SETTINGS,
+          variables: {
+            userId: user.id,
+            settings: mergedSettings,
+            version: 1,
+          },
+        });
+      result = upsertData?.insert_nchat_user_settings_one || null;
     }
 
     if (!result) {
-      return errorResponse('Failed to update settings', 'SETTINGS_UPDATE_ERROR', 500)
+      return errorResponse(
+        "Failed to update settings",
+        "SETTINGS_UPDATE_ERROR",
+        500,
+      );
     }
 
     // Log to audit trail
     const clientIp =
-      request.headers.get('x-forwarded-for')?.split(',')[0] ||
-      request.headers.get('x-real-ip') ||
-      undefined
-    await logSettingsChange(user.id, 'partial_update', currentSettings, partialSettings, clientIp)
+      request.headers.get("x-forwarded-for")?.split(",")[0] ||
+      request.headers.get("x-real-ip") ||
+      undefined;
+    await logSettingsChange(
+      user.id,
+      "partial_update",
+      currentSettings,
+      partialSettings,
+      clientIp,
+    );
 
     return successResponse({
       settings: result.settings,
       version: result.version,
       updatedAt: result.updated_at,
-    })
+    });
   } catch (error) {
-    logger.error('[Settings API] Error updating settings:', error)
-    return errorResponse('Failed to update settings', 'SETTINGS_UPDATE_ERROR', 500)
+    logger.error("[Settings API] Error updating settings:", error);
+    return errorResponse(
+      "Failed to update settings",
+      "SETTINGS_UPDATE_ERROR",
+      500,
+    );
   }
 }
 
@@ -398,21 +430,27 @@ async function patchSettingsHandler(request: AuthenticatedRequest) {
 /**
  * Deep merge settings objects
  */
-function deepMergeSettings(current: UserSettings, partial: Partial<UserSettings>): UserSettings {
-  const result = { ...current }
+function deepMergeSettings(
+  current: UserSettings,
+  partial: Partial<UserSettings>,
+): UserSettings {
+  const result = { ...current };
 
   for (const key of Object.keys(partial) as (keyof UserSettings)[]) {
-    if (key === '_meta') {
-      result._meta = { ...current._meta, ...partial._meta }
+    if (key === "_meta") {
+      result._meta = { ...current._meta, ...partial._meta };
     } else if (partial[key] !== undefined) {
-      const resultAny = result as unknown as Record<string, unknown>
-      const currentAny = current as unknown as Record<string, unknown>
-      const partialAny = partial as unknown as Record<string, unknown>
-      resultAny[key] = { ...currentAny[key] as object, ...partialAny[key] as object }
+      const resultAny = result as unknown as Record<string, unknown>;
+      const currentAny = current as unknown as Record<string, unknown>;
+      const partialAny = partial as unknown as Record<string, unknown>;
+      resultAny[key] = {
+        ...(currentAny[key] as object),
+        ...(partialAny[key] as object),
+      };
     }
   }
 
-  return result
+  return result;
 }
 
 // ============================================================================
@@ -423,22 +461,22 @@ function deepMergeSettings(current: UserSettings, partial: Partial<UserSettings>
 const rateLimitOptions = {
   limit: 60,
   window: 60,
-}
+};
 
 export const GET = compose(
   withErrorHandler,
   withRateLimit(rateLimitOptions),
-  withAuth
-)(getSettingsHandler)
+  withAuth,
+)(getSettingsHandler);
 
 export const POST = compose(
   withErrorHandler,
   withRateLimit(rateLimitOptions),
-  withAuth
-)(postSettingsHandler)
+  withAuth,
+)(postSettingsHandler);
 
 export const PATCH = compose(
   withErrorHandler,
   withRateLimit(rateLimitOptions),
-  withAuth
-)(patchSettingsHandler)
+  withAuth,
+)(patchSettingsHandler);

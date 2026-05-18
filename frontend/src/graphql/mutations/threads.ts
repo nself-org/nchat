@@ -9,8 +9,12 @@
  * - Thread read state
  */
 
-import { gql } from '@apollo/client'
-import { THREAD_FRAGMENT, MESSAGE_FULL_FRAGMENT, USER_BASIC_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import {
+  THREAD_FRAGMENT,
+  MESSAGE_FULL_FRAGMENT,
+  USER_BASIC_FRAGMENT,
+} from "../fragments";
 
 // ============================================================================
 // MUTATIONS
@@ -35,7 +39,14 @@ export const CREATE_THREAD = gql`
         last_reply_at: "now()"
         participants: { data: [{ user_id: $userId }] }
         messages: {
-          data: [{ channel_id: $channelId, user_id: $userId, content: $content, type: "text" }]
+          data: [
+            {
+              channel_id: $channelId
+              user_id: $userId
+              content: $content
+              type: "text"
+            }
+          ]
         }
       }
     ) {
@@ -47,7 +58,7 @@ export const CREATE_THREAD = gql`
   }
   ${THREAD_FRAGMENT}
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Reply to an existing thread
@@ -94,7 +105,7 @@ export const REPLY_TO_THREAD = gql`
     }
   }
   ${MESSAGE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Join a thread (follow for notifications)
@@ -102,7 +113,11 @@ export const REPLY_TO_THREAD = gql`
 export const JOIN_THREAD = gql`
   mutation JoinThread($threadId: uuid!, $userId: uuid!) {
     insert_nchat_thread_participants_one(
-      object: { thread_id: $threadId, user_id: $userId, notifications_enabled: true }
+      object: {
+        thread_id: $threadId
+        user_id: $userId
+        notifications_enabled: true
+      }
       on_conflict: {
         constraint: nchat_thread_participants_thread_id_user_id_key
         update_columns: [notifications_enabled]
@@ -115,7 +130,7 @@ export const JOIN_THREAD = gql`
       notifications_enabled
     }
   }
-`
+`;
 
 /**
  * Leave a thread (unfollow)
@@ -128,13 +143,17 @@ export const LEAVE_THREAD = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Update thread notification settings
  */
 export const UPDATE_THREAD_NOTIFICATIONS = gql`
-  mutation UpdateThreadNotifications($threadId: uuid!, $userId: uuid!, $enabled: Boolean!) {
+  mutation UpdateThreadNotifications(
+    $threadId: uuid!
+    $userId: uuid!
+    $enabled: Boolean!
+  ) {
     update_nchat_thread_participants(
       where: { thread_id: { _eq: $threadId }, user_id: { _eq: $userId } }
       _set: { notifications_enabled: $enabled }
@@ -146,7 +165,7 @@ export const UPDATE_THREAD_NOTIFICATIONS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Mark thread as read
@@ -164,7 +183,7 @@ export const MARK_THREAD_READ = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Mark all threads as read for a user
@@ -178,7 +197,7 @@ export const MARK_ALL_THREADS_READ = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Delete a thread (admin only)
@@ -198,7 +217,7 @@ export const DELETE_THREAD = gql`
       id
     }
   }
-`
+`;
 
 /**
  * Archive a thread
@@ -214,7 +233,7 @@ export const ARCHIVE_THREAD = gql`
       archived_at
     }
   }
-`
+`;
 
 /**
  * Unarchive a thread
@@ -230,7 +249,7 @@ export const UNARCHIVE_THREAD = gql`
       archived_at
     }
   }
-`
+`;
 
 /**
  * Lock a thread (prevent new replies)
@@ -246,7 +265,7 @@ export const LOCK_THREAD = gql`
       locked_at
     }
   }
-`
+`;
 
 /**
  * Unlock a thread
@@ -262,7 +281,7 @@ export const UNLOCK_THREAD = gql`
       locked_at
     }
   }
-`
+`;
 
 /**
  * Add users to a thread
@@ -270,7 +289,13 @@ export const UNLOCK_THREAD = gql`
 export const ADD_THREAD_PARTICIPANTS = gql`
   mutation AddThreadParticipants($threadId: uuid!, $userIds: [uuid!]!) {
     insert_nchat_thread_participants(
-      objects: [{ thread_id: $threadId, user_id: { _in: $userIds }, notifications_enabled: true }]
+      objects: [
+        {
+          thread_id: $threadId
+          user_id: { _in: $userIds }
+          notifications_enabled: true
+        }
+      ]
       on_conflict: {
         constraint: nchat_thread_participants_thread_id_user_id_key
         update_columns: []
@@ -286,7 +311,7 @@ export const ADD_THREAD_PARTICIPANTS = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Remove users from a thread
@@ -299,4 +324,4 @@ export const REMOVE_THREAD_PARTICIPANTS = gql`
       affected_rows
     }
   }
-`
+`;

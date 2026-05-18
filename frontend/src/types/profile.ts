@@ -24,26 +24,26 @@
  */
 export interface ProfilePhoto {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Full-size image URL */
-  url: string
+  url: string;
   /** Thumbnail URL (150x150) */
-  thumbnailUrl: string
+  thumbnailUrl: string;
   /** Medium size URL (400x400) */
-  mediumUrl: string
+  mediumUrl: string;
   /** Original uploaded filename */
-  originalFilename?: string
+  originalFilename?: string;
   /** File size in bytes */
-  size: number
+  size: number;
   /** Image dimensions */
   dimensions: {
-    width: number
-    height: number
-  }
+    width: number;
+    height: number;
+  };
   /** When the photo was uploaded */
-  createdAt: Date
+  createdAt: Date;
   /** Whether this is the current profile photo */
-  isCurrent: boolean
+  isCurrent: boolean;
 }
 
 /**
@@ -51,35 +51,35 @@ export interface ProfilePhoto {
  */
 export interface ProfileVideo {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Video URL */
-  url: string
+  url: string;
   /** Video thumbnail URL */
-  thumbnailUrl: string
+  thumbnailUrl: string;
   /** Duration in seconds (max 10 seconds) */
-  duration: number
+  duration: number;
   /** File size in bytes */
-  size: number
+  size: number;
   /** When the video was uploaded */
-  createdAt: Date
+  createdAt: Date;
   /** Whether this is the current profile video */
-  isCurrent: boolean
+  isCurrent: boolean;
 }
 
 /**
  * Photo upload options with crop data
  */
 export interface PhotoUploadOptions {
-  file: File
+  file: File;
   /** Crop data for the image */
   crop?: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
   /** Optional rotation in degrees */
-  rotation?: number
+  rotation?: number;
 }
 
 // ============================================================================
@@ -110,18 +110,18 @@ export const PROFILE_LIMITS = {
   phone: 20,
   /** Pronouns length */
   pronouns: 50,
-} as const
+} as const;
 
 /**
  * Bio/about information
  */
 export interface ProfileBio {
   /** Bio text */
-  text: string
+  text: string;
   /** Character count */
-  length: number
+  length: number;
   /** When the bio was last updated */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 // ============================================================================
@@ -133,13 +133,13 @@ export interface ProfileBio {
  */
 export interface UsernameValidation {
   /** Is the username valid format */
-  valid: boolean
+  valid: boolean;
   /** Is the username available */
-  available?: boolean
+  available?: boolean;
   /** Error message if invalid */
-  error?: string
+  error?: string;
   /** Suggestions if taken */
-  suggestions?: string[]
+  suggestions?: string[];
 }
 
 /**
@@ -147,13 +147,13 @@ export interface UsernameValidation {
  */
 export interface UsernameChangeRecord {
   /** Previous username */
-  previousUsername: string
+  previousUsername: string;
   /** New username */
-  newUsername: string
+  newUsername: string;
   /** When the change occurred */
-  changedAt: Date
+  changedAt: Date;
   /** IP address of the change (for security) */
-  ipAddress?: string
+  ipAddress?: string;
 }
 
 /**
@@ -174,34 +174,34 @@ export const USERNAME_RULES = {
   maxConsecutiveUnderscores: 1,
   /** Reserved usernames that cannot be used */
   reserved: [
-    'admin',
-    'administrator',
-    'root',
-    'system',
-    'nchat',
-    'nself',
-    'support',
-    'help',
-    'mod',
-    'moderator',
-    'owner',
-    'staff',
-    'team',
-    'official',
-    'bot',
-    'api',
-    'null',
-    'undefined',
-    'anonymous',
-    'everyone',
-    'here',
-    'channel',
-    'group',
-    'all',
+    "admin",
+    "administrator",
+    "root",
+    "system",
+    "nchat",
+    "nself",
+    "support",
+    "help",
+    "mod",
+    "moderator",
+    "owner",
+    "staff",
+    "team",
+    "official",
+    "bot",
+    "api",
+    "null",
+    "undefined",
+    "anonymous",
+    "everyone",
+    "here",
+    "channel",
+    "group",
+    "all",
   ],
   /** Username change cooldown in days */
   changeCooldownDays: 30,
-} as const
+} as const;
 
 // ============================================================================
 // Privacy Types
@@ -210,58 +210,58 @@ export const USERNAME_RULES = {
 /**
  * Privacy visibility levels
  */
-export type PrivacyVisibility = 'everyone' | 'contacts' | 'nobody'
+export type PrivacyVisibility = "everyone" | "contacts" | "nobody";
 
 /**
  * Account privacy settings
  */
 export interface ProfilePrivacySettings {
   /** Online/offline visibility */
-  onlineStatus: PrivacyVisibility
+  onlineStatus: PrivacyVisibility;
   /** Last seen visibility */
-  lastSeen: PrivacyVisibility
+  lastSeen: PrivacyVisibility;
   /** Profile photo visibility */
-  profilePhoto: PrivacyVisibility
+  profilePhoto: PrivacyVisibility;
   /** Bio visibility */
-  bio: PrivacyVisibility
+  bio: PrivacyVisibility;
   /** Phone number visibility (if shared) */
-  phone: PrivacyVisibility
+  phone: PrivacyVisibility;
   /** Who can add to groups */
-  addToGroups: PrivacyVisibility
+  addToGroups: PrivacyVisibility;
   /** Who can call */
-  calls: PrivacyVisibility
+  calls: PrivacyVisibility;
   /** Who can forward messages (with link to profile) */
-  forwardedMessages: PrivacyVisibility
+  forwardedMessages: PrivacyVisibility;
   /** Read receipts */
-  readReceipts: boolean
+  readReceipts: boolean;
   /** Typing indicator */
-  typingIndicator: boolean
+  typingIndicator: boolean;
   /** Profile searchable by username */
-  searchableByUsername: boolean
+  searchableByUsername: boolean;
   /** Profile searchable by email (if permitted) */
-  searchableByEmail: boolean
+  searchableByEmail: boolean;
   /** Show email on profile */
-  showEmail: boolean
+  showEmail: boolean;
 }
 
 /**
  * Default privacy settings
  */
 export const DEFAULT_PRIVACY_SETTINGS: ProfilePrivacySettings = {
-  onlineStatus: 'everyone',
-  lastSeen: 'everyone',
-  profilePhoto: 'everyone',
-  bio: 'everyone',
-  phone: 'contacts',
-  addToGroups: 'everyone',
-  calls: 'everyone',
-  forwardedMessages: 'everyone',
+  onlineStatus: "everyone",
+  lastSeen: "everyone",
+  profilePhoto: "everyone",
+  bio: "everyone",
+  phone: "contacts",
+  addToGroups: "everyone",
+  calls: "everyone",
+  forwardedMessages: "everyone",
   readReceipts: true,
   typingIndicator: true,
   searchableByUsername: true,
   searchableByEmail: false,
   showEmail: false,
-}
+};
 
 // ============================================================================
 // Profile Discovery Types
@@ -272,13 +272,13 @@ export const DEFAULT_PRIVACY_SETTINGS: ProfilePrivacySettings = {
  */
 export interface ProfileQRCode {
   /** QR code data URL (base64 encoded image) */
-  dataUrl: string
+  dataUrl: string;
   /** Deep link URL encoded in QR */
-  deepLink: string
+  deepLink: string;
   /** When the QR code expires (for security) */
-  expiresAt?: Date
+  expiresAt?: Date;
   /** QR code style/theme */
-  style?: 'default' | 'minimal' | 'branded'
+  style?: "default" | "minimal" | "branded";
 }
 
 /**
@@ -286,23 +286,23 @@ export interface ProfileQRCode {
  */
 export interface ProfileSearchResult {
   /** User ID */
-  id: string
+  id: string;
   /** Username */
-  username: string
+  username: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Avatar URL (if visible) */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Bio snippet (if visible) */
-  bioSnippet?: string
+  bioSnippet?: string;
   /** Whether the user is verified */
-  isVerified?: boolean
+  isVerified?: boolean;
   /** Match score (for relevance sorting) */
-  matchScore?: number
+  matchScore?: number;
   /** Whether already in contacts */
-  isContact?: boolean
+  isContact?: boolean;
   /** Mutual connections count */
-  mutualConnections?: number
+  mutualConnections?: number;
 }
 
 // ============================================================================
@@ -314,108 +314,108 @@ export interface ProfileSearchResult {
  */
 export interface UserProfileFull {
   /** User ID */
-  id: string
+  id: string;
   /** Username (unique, lowercase) */
-  username: string
+  username: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Email address */
-  email: string
+  email: string;
   /** Whether email is verified */
-  emailVerified: boolean
+  emailVerified: boolean;
   /** Phone number (optional) */
-  phone?: string
+  phone?: string;
   /** Whether phone is verified */
-  phoneVerified?: boolean
+  phoneVerified?: boolean;
   /** Current profile photo */
-  photo?: ProfilePhoto
+  photo?: ProfilePhoto;
   /** Profile photo history */
-  photoHistory?: ProfilePhoto[]
+  photoHistory?: ProfilePhoto[];
   /** Current profile video */
-  video?: ProfileVideo
+  video?: ProfileVideo;
   /** Bio/about text */
-  bio?: string
+  bio?: string;
   /** Status text */
-  status?: string
+  status?: string;
   /** Status emoji */
-  statusEmoji?: string
+  statusEmoji?: string;
   /** Status expiration */
-  statusExpiresAt?: Date
+  statusExpiresAt?: Date;
   /** Location */
-  location?: string
+  location?: string;
   /** Website URL */
-  website?: string
+  website?: string;
   /** Job title */
-  jobTitle?: string
+  jobTitle?: string;
   /** Department */
-  department?: string
+  department?: string;
   /** Organization */
-  organization?: string
+  organization?: string;
   /** Pronouns */
-  pronouns?: string
+  pronouns?: string;
   /** Timezone (IANA format) */
-  timezone?: string
+  timezone?: string;
   /** Preferred language (ISO 639-1) */
-  language?: string
+  language?: string;
   /** User role */
-  role: 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+  role: "owner" | "admin" | "moderator" | "member" | "guest";
   /** Whether the account is verified */
-  isVerified?: boolean
+  isVerified?: boolean;
   /** Whether this is a bot account */
-  isBot?: boolean
+  isBot?: boolean;
   /** When the account was created */
-  createdAt: Date
+  createdAt: Date;
   /** When the profile was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** Last seen timestamp (if visible) */
-  lastSeenAt?: Date
+  lastSeenAt?: Date;
   /** Last username change */
-  lastUsernameChange?: Date
+  lastUsernameChange?: Date;
   /** Privacy settings */
-  privacySettings?: ProfilePrivacySettings
+  privacySettings?: ProfilePrivacySettings;
   /** Social links */
   socialLinks?: {
-    twitter?: string
-    linkedin?: string
-    github?: string
-    discord?: string
-    instagram?: string
-    facebook?: string
-    youtube?: string
-    twitch?: string
-    custom?: { label: string; url: string }[]
-  }
+    twitter?: string;
+    linkedin?: string;
+    github?: string;
+    discord?: string;
+    instagram?: string;
+    facebook?: string;
+    youtube?: string;
+    twitch?: string;
+    custom?: { label: string; url: string }[];
+  };
   /** Banner/cover image URL */
-  bannerUrl?: string
+  bannerUrl?: string;
 }
 
 /**
  * Profile update input
  */
 export interface UpdateProfileInput {
-  displayName?: string
-  username?: string
-  bio?: string
-  location?: string
-  website?: string
-  phone?: string
-  jobTitle?: string
-  department?: string
-  organization?: string
-  pronouns?: string
-  timezone?: string
-  language?: string
-  socialLinks?: UserProfileFull['socialLinks']
+  displayName?: string;
+  username?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  phone?: string;
+  jobTitle?: string;
+  department?: string;
+  organization?: string;
+  pronouns?: string;
+  timezone?: string;
+  language?: string;
+  socialLinks?: UserProfileFull["socialLinks"];
 }
 
 /**
  * Profile update result
  */
 export interface UpdateProfileResult {
-  success: boolean
-  profile?: UserProfileFull
-  error?: string
-  fieldErrors?: Record<string, string>
+  success: boolean;
+  profile?: UserProfileFull;
+  error?: string;
+  fieldErrors?: Record<string, string>;
 }
 
 // ============================================================================
@@ -426,36 +426,36 @@ export interface UpdateProfileResult {
  * Profile API response
  */
 export interface ProfileApiResponse {
-  success: boolean
+  success: boolean;
   data?: {
-    profile?: UserProfileFull
-    photos?: ProfilePhoto[]
-    video?: ProfileVideo
-    qrCode?: ProfileQRCode
-    privacySettings?: ProfilePrivacySettings
-    usernameValidation?: UsernameValidation
-    searchResults?: ProfileSearchResult[]
-  }
-  error?: string
-  errorCode?: string
+    profile?: UserProfileFull;
+    photos?: ProfilePhoto[];
+    video?: ProfileVideo;
+    qrCode?: ProfileQRCode;
+    privacySettings?: ProfilePrivacySettings;
+    usernameValidation?: UsernameValidation;
+    searchResults?: ProfileSearchResult[];
+  };
+  error?: string;
+  errorCode?: string;
 }
 
 /**
  * Profile photo upload response
  */
 export interface PhotoUploadResponse {
-  success: boolean
-  photo?: ProfilePhoto
-  error?: string
+  success: boolean;
+  photo?: ProfilePhoto;
+  error?: string;
 }
 
 /**
  * Username change response
  */
 export interface UsernameChangeResponse {
-  success: boolean
-  newUsername?: string
-  previousUsername?: string
-  cooldownEndsAt?: Date
-  error?: string
+  success: boolean;
+  newUsername?: string;
+  previousUsername?: string;
+  cooldownEndsAt?: Date;
+  error?: string;
 }

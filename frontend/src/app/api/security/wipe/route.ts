@@ -8,30 +8,33 @@
  * DELETE /api/security/wipe - Cancel a pending wipe
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import {
   createWipeService,
   type SessionKillRequest,
   type DeviceWipeRequest,
-} from '@/services/security/wipe.service'
-import { createSessionWipeManager, type WipeConfig } from '@/lib/security/session-wipe'
+} from "@/services/security/wipe.service";
+import {
+  createSessionWipeManager,
+  type WipeConfig,
+} from "@/lib/security/session-wipe";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface WipeRequestBody {
-  type: 'session' | 'device' | 'remote'
-  sessionId?: string
-  deviceId?: string
-  reason: string
-  config?: Partial<WipeConfig>
-  token?: string
+  type: "session" | "device" | "remote";
+  sessionId?: string;
+  deviceId?: string;
+  reason: string;
+  config?: Partial<WipeConfig>;
+  token?: string;
 }
 
 interface CancelWipeBody {
-  wipeId: string
+  wipeId: string;
 }
 
 // ============================================================================
@@ -40,111 +43,111 @@ interface CancelWipeBody {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as WipeRequestBody
+    const body = (await request.json()) as WipeRequestBody;
 
     // Validate request
     if (!body.type) {
       return NextResponse.json(
-        { error: 'Wipe type is required' },
-        { status: 400 }
-      )
+        { error: "Wipe type is required" },
+        { status: 400 },
+      );
     }
 
     if (!body.reason) {
       return NextResponse.json(
-        { error: 'Reason is required' },
-        { status: 400 }
-      )
+        { error: "Reason is required" },
+        { status: 400 },
+      );
     }
 
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
-    let result
+    let result;
 
     switch (body.type) {
-      case 'session':
+      case "session":
         if (!body.sessionId) {
           return NextResponse.json(
-            { error: 'Session ID is required for session wipe' },
-            { status: 400 }
-          )
+            { error: "Session ID is required for session wipe" },
+            { status: 400 },
+          );
         }
 
         const sessionRequest: SessionKillRequest = {
           sessionId: body.sessionId,
           reason: body.reason,
           preserveEvidence: body.config?.preserveEvidence ?? true,
-        }
+        };
 
-        result = await wipeService.killSession(sessionRequest)
+        result = await wipeService.killSession(sessionRequest);
 
-        logger.security('Session wipe requested via API', {
+        logger.security("Session wipe requested via API", {
           sessionId: body.sessionId,
           success: result.success,
-        })
+        });
 
-        break
+        break;
 
-      case 'device':
+      case "device":
         if (!body.deviceId) {
           return NextResponse.json(
-            { error: 'Device ID is required for device wipe' },
-            { status: 400 }
-          )
+            { error: "Device ID is required for device wipe" },
+            { status: 400 },
+          );
         }
 
         const deviceRequest: DeviceWipeRequest = {
           deviceId: body.deviceId,
           reason: body.reason,
           config: body.config,
-        }
+        };
 
-        result = await wipeService.wipeDevice(deviceRequest)
+        result = await wipeService.wipeDevice(deviceRequest);
 
-        logger.security('Device wipe requested via API', {
+        logger.security("Device wipe requested via API", {
           deviceId: body.deviceId,
           success: result.success,
-        })
+        });
 
-        break
+        break;
 
-      case 'remote':
+      case "remote":
         if (!body.deviceId) {
           return NextResponse.json(
-            { error: 'Device ID is required for remote wipe' },
-            { status: 400 }
-          )
+            { error: "Device ID is required for remote wipe" },
+            { status: 400 },
+          );
         }
 
         if (!body.token) {
           return NextResponse.json(
-            { error: 'Token is required for remote wipe' },
-            { status: 400 }
-          )
+            { error: "Token is required for remote wipe" },
+            { status: 400 },
+          );
         }
 
         result = await wipeService.executeRemoteWipe(
           body.deviceId,
           body.token,
-          body.config
-        )
+          body.config,
+        );
 
-        logger.security('Remote wipe executed via API', {
+        logger.security("Remote wipe executed via API", {
           deviceId: body.deviceId,
           success: result.success,
-        })
+        });
 
-        break
+        break;
 
       default:
         return NextResponse.json(
-          { error: 'Invalid wipe type' },
-          { status: 400 }
-        )
+          { error: "Invalid wipe type" },
+          { status: 400 },
+        );
     }
 
-    wipeService.destroy()
+    wipeService.destroy();
 
     return NextResponse.json({
       success: result.success,
@@ -155,14 +158,14 @@ export async function POST(request: NextRequest) {
       dataWiped: result.dataWiped,
       error: result.error,
       completedAt: result.completedAt,
-    })
+    });
   } catch (error) {
-    logger.error('Wipe API error', error)
+    logger.error("Wipe API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -172,36 +175,36 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const wipeId = searchParams.get('wipeId')
+    const { searchParams } = new URL(request.url);
+    const wipeId = searchParams.get("wipeId");
 
-    const wipeManager = createSessionWipeManager()
-    await wipeManager.initialize()
+    const wipeManager = createSessionWipeManager();
+    await wipeManager.initialize();
 
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
     if (wipeId) {
       // Get specific wipe verification
-      const verification = await wipeService.verifyWipe(wipeId)
+      const verification = await wipeService.verifyWipe(wipeId);
 
-      wipeManager.destroy()
-      wipeService.destroy()
+      wipeManager.destroy();
+      wipeService.destroy();
 
       return NextResponse.json({
         wipeId,
         verification,
-      })
+      });
     }
 
     // Get general wipe status
-    const state = wipeService.getState()
-    const evidence = await wipeService.getWipeEvidence()
-    const proofs = await wipeService.getKeyDestructionProofs()
-    const pendingWipes = wipeService.getPendingWipes()
+    const state = wipeService.getState();
+    const evidence = await wipeService.getWipeEvidence();
+    const proofs = await wipeService.getKeyDestructionProofs();
+    const pendingWipes = wipeService.getPendingWipes();
 
-    wipeManager.destroy()
-    wipeService.destroy()
+    wipeManager.destroy();
+    wipeService.destroy();
 
     return NextResponse.json({
       state: {
@@ -214,14 +217,14 @@ export async function GET(request: NextRequest) {
       evidenceCount: evidence.length,
       proofsCount: proofs.length,
       recentEvidence: evidence.slice(-5),
-    })
+    });
   } catch (error) {
-    logger.error('Wipe status API error', error)
+    logger.error("Wipe status API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -231,42 +234,42 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const body = (await request.json()) as CancelWipeBody
+    const body = (await request.json()) as CancelWipeBody;
 
     if (!body.wipeId) {
       return NextResponse.json(
-        { error: 'Wipe ID is required' },
-        { status: 400 }
-      )
+        { error: "Wipe ID is required" },
+        { status: 400 },
+      );
     }
 
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
-    const cancelled = await wipeService.cancelRemoteWipe(body.wipeId)
+    const cancelled = await wipeService.cancelRemoteWipe(body.wipeId);
 
-    wipeService.destroy()
+    wipeService.destroy();
 
     if (cancelled) {
-      logger.info('Pending wipe cancelled via API', { wipeId: body.wipeId })
+      logger.info("Pending wipe cancelled via API", { wipeId: body.wipeId });
 
       return NextResponse.json({
         success: true,
         wipeId: body.wipeId,
-        message: 'Wipe cancelled successfully',
-      })
+        message: "Wipe cancelled successfully",
+      });
     }
 
     return NextResponse.json(
-      { error: 'Wipe not found or already processed' },
-      { status: 404 }
-    )
+      { error: "Wipe not found or already processed" },
+      { status: 404 },
+    );
   } catch (error) {
-    logger.error('Cancel wipe API error', error)
+    logger.error("Cancel wipe API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

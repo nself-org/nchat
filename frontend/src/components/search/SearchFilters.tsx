@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * SearchFilters Component
@@ -6,28 +6,28 @@
  * Advanced search filters for date range, channel, user, file type
  */
 
-import React from 'react'
-import { Calendar, User, Hash, FileType, X } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Button } from '@/components/ui/button'
+import React from "react";
+import { Calendar, User, Hash, FileType, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 
 export interface SearchFiltersProps {
-  filters: Record<string, unknown>
-  onChange: (filters: Record<string, unknown>) => void
+  filters: Record<string, unknown>;
+  onChange: (filters: Record<string, unknown>) => void;
 }
 
 export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
   const updateFilter = (key: string, value: unknown) => {
-    onChange({ ...filters, [key]: value })
-  }
+    onChange({ ...filters, [key]: value });
+  };
 
   const clearFilters = () => {
-    onChange({})
-  }
+    onChange({});
+  };
 
-  const hasActiveFilters = Object.keys(filters).length > 0
+  const hasActiveFilters = Object.keys(filters).length > 0;
 
   return (
     <div className="space-y-4">
@@ -56,8 +56,8 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
           <Input
             id="dateFrom"
             type="date"
-            value={(filters.dateFrom as string) || ''}
-            onChange={(e) => updateFilter('dateFrom', e.target.value)}
+            value={(filters.dateFrom as string) || ""}
+            onChange={(e) => updateFilter("dateFrom", e.target.value)}
             className="h-8 text-xs"
           />
         </div>
@@ -70,15 +70,18 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
           <Input
             id="dateTo"
             type="date"
-            value={(filters.dateTo as string) || ''}
-            onChange={(e) => updateFilter('dateTo', e.target.value)}
+            value={(filters.dateTo as string) || ""}
+            onChange={(e) => updateFilter("dateTo", e.target.value)}
             className="h-8 text-xs"
           />
         </div>
 
         {/* Channel Filter */}
         <div className="space-y-2">
-          <Label htmlFor="channelIds" className="flex items-center gap-1 text-xs">
+          <Label
+            htmlFor="channelIds"
+            className="flex items-center gap-1 text-xs"
+          >
             <Hash className="h-3 w-3" />
             Channels
           </Label>
@@ -86,14 +89,14 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
             id="channelIds"
             type="text"
             placeholder="channel-id-1, channel-id-2"
-            value={(filters.channelIds as string[])?.join(', ') || ''}
+            value={(filters.channelIds as string[])?.join(", ") || ""}
             onChange={(e) =>
               updateFilter(
-                'channelIds',
+                "channelIds",
                 e.target.value
-                  .split(',')
+                  .split(",")
                   .map((s) => s.trim())
-                  .filter(Boolean)
+                  .filter(Boolean),
               )
             }
             className="h-8 text-xs"
@@ -113,14 +116,14 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
             id="userIds"
             type="text"
             placeholder="user-id-1, user-id-2"
-            value={(filters.userIds as string[])?.join(', ') || ''}
+            value={(filters.userIds as string[])?.join(", ") || ""}
             onChange={(e) =>
               updateFilter(
-                'userIds',
+                "userIds",
                 e.target.value
-                  .split(',')
+                  .split(",")
                   .map((s) => s.trim())
-                  .filter(Boolean)
+                  .filter(Boolean),
               )
             }
             className="h-8 text-xs"
@@ -142,7 +145,7 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
             <Checkbox
               id="hasLink"
               checked={(filters.hasLink as boolean) || false}
-              onCheckedChange={(checked) => updateFilter('hasLink', checked)}
+              onCheckedChange={(checked) => updateFilter("hasLink", checked)}
             />
             <label
               htmlFor="hasLink"
@@ -156,7 +159,7 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
             <Checkbox
               id="hasFile"
               checked={(filters.hasFile as boolean) || false}
-              onCheckedChange={(checked) => updateFilter('hasFile', checked)}
+              onCheckedChange={(checked) => updateFilter("hasFile", checked)}
             />
             <label
               htmlFor="hasFile"
@@ -170,7 +173,7 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
             <Checkbox
               id="hasImage"
               checked={(filters.hasImage as boolean) || false}
-              onCheckedChange={(checked) => updateFilter('hasImage', checked)}
+              onCheckedChange={(checked) => updateFilter("hasImage", checked)}
             />
             <label
               htmlFor="hasImage"
@@ -184,7 +187,7 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
             <Checkbox
               id="isPinned"
               checked={(filters.isPinned as boolean) || false}
-              onCheckedChange={(checked) => updateFilter('isPinned', checked)}
+              onCheckedChange={(checked) => updateFilter("isPinned", checked)}
             />
             <label
               htmlFor="isPinned"
@@ -198,7 +201,7 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
             <Checkbox
               id="isStarred"
               checked={(filters.isStarred as boolean) || false}
-              onCheckedChange={(checked) => updateFilter('isStarred', checked)}
+              onCheckedChange={(checked) => updateFilter("isStarred", checked)}
             />
             <label
               htmlFor="isStarred"
@@ -218,8 +221,8 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
         <div className="flex gap-2">
           <select
             id="sortBy"
-            value={(filters.sortBy as string) || 'relevance'}
-            onChange={(e) => updateFilter('sortBy', e.target.value)}
+            value={(filters.sortBy as string) || "relevance"}
+            onChange={(e) => updateFilter("sortBy", e.target.value)}
             className="flex h-8 w-full rounded-md border border-input bg-background px-3 py-1 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <option value="relevance">Relevance</option>
@@ -228,8 +231,8 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
 
           <select
             id="sortOrder"
-            value={(filters.sortOrder as string) || 'desc'}
-            onChange={(e) => updateFilter('sortOrder', e.target.value)}
+            value={(filters.sortOrder as string) || "desc"}
+            onChange={(e) => updateFilter("sortOrder", e.target.value)}
             className="flex h-8 w-32 rounded-md border border-input bg-background px-3 py-1 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <option value="desc">Descending</option>
@@ -238,7 +241,7 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default SearchFilters
+export default SearchFilters;

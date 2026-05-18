@@ -8,25 +8,25 @@
  */
 export interface ParsedUrl {
   /** Full URL string */
-  href: string
+  href: string;
   /** Protocol (e.g., 'https:') */
-  protocol: string
+  protocol: string;
   /** Host including port (e.g., 'example.com:8080') */
-  host: string
+  host: string;
   /** Hostname without port (e.g., 'example.com') */
-  hostname: string
+  hostname: string;
   /** Port number or empty string */
-  port: string
+  port: string;
   /** Path (e.g., '/path/to/page') */
-  pathname: string
+  pathname: string;
   /** Search string including ? (e.g., '?foo=bar') */
-  search: string
+  search: string;
   /** Hash including # (e.g., '#section') */
-  hash: string
+  hash: string;
   /** Origin (e.g., 'https://example.com:8080') */
-  origin: string
+  origin: string;
   /** Query parameters as object */
-  params: Record<string, string>
+  params: Record<string, string>;
 }
 
 /**
@@ -40,12 +40,12 @@ export interface ParsedUrl {
  */
 export function parseUrl(url: string, base?: string): ParsedUrl | null {
   try {
-    const parsed = new URL(url, base)
+    const parsed = new URL(url, base);
 
-    const params: Record<string, string> = {}
+    const params: Record<string, string> = {};
     parsed.searchParams.forEach((value, key) => {
-      params[key] = value
-    })
+      params[key] = value;
+    });
 
     return {
       href: parsed.href,
@@ -58,9 +58,9 @@ export function parseUrl(url: string, base?: string): ParsedUrl | null {
       hash: parsed.hash,
       origin: parsed.origin,
       params,
-    }
+    };
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -69,15 +69,15 @@ export function parseUrl(url: string, base?: string): ParsedUrl | null {
  */
 export interface BuildUrlOptions {
   /** Base URL */
-  base?: string
+  base?: string;
   /** Path segments to join */
-  path?: string | string[]
+  path?: string | string[];
   /** Query parameters */
-  params?: Record<string, string | number | boolean | undefined | null>
+  params?: Record<string, string | number | boolean | undefined | null>;
   /** Hash/fragment */
-  hash?: string
+  hash?: string;
   /** Remove trailing slash (default: false) */
-  removeTrailingSlash?: boolean
+  removeTrailingSlash?: boolean;
 }
 
 /**
@@ -93,57 +93,63 @@ export interface BuildUrlOptions {
  * // 'https://api.example.com/users/123?include=profile&active=true'
  */
 export function buildUrl(options: BuildUrlOptions): string {
-  const { base = '', path, params, hash, removeTrailingSlash = false } = options
+  const {
+    base = "",
+    path,
+    params,
+    hash,
+    removeTrailingSlash = false,
+  } = options;
 
-  let url = base
+  let url = base;
 
   // Add path segments
   if (path) {
-    const segments = Array.isArray(path) ? path : [path]
+    const segments = Array.isArray(path) ? path : [path];
     const cleanSegments = segments
-      .map((s) => s.replace(/^\/+|\/+$/g, '')) // Remove leading/trailing slashes
-      .filter(Boolean)
+      .map((s) => s.replace(/^\/+|\/+$/g, "")) // Remove leading/trailing slashes
+      .filter(Boolean);
 
     if (cleanSegments.length > 0) {
-      url = url.replace(/\/+$/, '') // Remove trailing slash from base
-      url += '/' + cleanSegments.join('/')
+      url = url.replace(/\/+$/, ""); // Remove trailing slash from base
+      url += "/" + cleanSegments.join("/");
     }
   }
 
   // Add query parameters
   if (params && Object.keys(params).length > 0) {
-    const searchParams = new URLSearchParams()
+    const searchParams = new URLSearchParams();
 
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null) {
-        searchParams.append(key, String(value))
+        searchParams.append(key, String(value));
       }
     }
 
-    const queryString = searchParams.toString()
+    const queryString = searchParams.toString();
     if (queryString) {
-      url += (url.includes('?') ? '&' : '?') + queryString
+      url += (url.includes("?") ? "&" : "?") + queryString;
     }
   }
 
   // Add hash
   if (hash) {
-    const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash
+    const cleanHash = hash.startsWith("#") ? hash.slice(1) : hash;
     if (cleanHash) {
-      url += '#' + cleanHash
+      url += "#" + cleanHash;
     }
   }
 
   // Remove trailing slash if requested
   if (removeTrailingSlash) {
     // Don't remove if it's just the origin
-    const urlObj = parseUrl(url)
-    if (urlObj && urlObj.pathname !== '/') {
-      url = url.replace(/\/+(\?|#|$)/, '$1')
+    const urlObj = parseUrl(url);
+    if (urlObj && urlObj.pathname !== "/") {
+      url = url.replace(/\/+(\?|#|$)/, "$1");
     }
   }
 
-  return url
+  return url;
 }
 
 /**
@@ -155,25 +161,25 @@ export function buildUrl(options: BuildUrlOptions): string {
  * // { foo: 'bar', baz: 'qux' }
  */
 export function getQueryParams(url?: string): Record<string, string> {
-  let searchString: string
+  let searchString: string;
 
   if (url) {
-    const parsed = parseUrl(url)
-    searchString = parsed?.search || ''
-  } else if (typeof window !== 'undefined') {
-    searchString = window.location.search
+    const parsed = parseUrl(url);
+    searchString = parsed?.search || "";
+  } else if (typeof window !== "undefined") {
+    searchString = window.location.search;
   } else {
-    return {}
+    return {};
   }
 
-  const params: Record<string, string> = {}
-  const searchParams = new URLSearchParams(searchString)
+  const params: Record<string, string> = {};
+  const searchParams = new URLSearchParams(searchString);
 
   searchParams.forEach((value, key) => {
-    params[key] = value
-  })
+    params[key] = value;
+  });
 
-  return params
+  return params;
 }
 
 /**
@@ -183,8 +189,8 @@ export function getQueryParams(url?: string): Record<string, string> {
  * @returns Parameter value or null
  */
 export function getQueryParam(key: string, url?: string): string | null {
-  const params = getQueryParams(url)
-  return params[key] ?? null
+  const params = getQueryParams(url);
+  return params[key] ?? null;
 }
 
 /**
@@ -197,28 +203,28 @@ export function getQueryParam(key: string, url?: string): string | null {
 export function setQueryParams(
   url: string,
   params: Record<string, string | number | boolean | undefined | null>,
-  replace: boolean = false
+  replace: boolean = false,
 ): string {
-  const parsed = parseUrl(url)
-  if (!parsed) return url
+  const parsed = parseUrl(url);
+  if (!parsed) return url;
 
-  const existingParams = replace ? {} : parsed.params
-  const newParams = { ...existingParams }
+  const existingParams = replace ? {} : parsed.params;
+  const newParams = { ...existingParams };
 
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === null) {
-      delete newParams[key]
+      delete newParams[key];
     } else {
-      newParams[key] = String(value)
+      newParams[key] = String(value);
     }
   }
 
-  const baseUrl = parsed.href.split('?')[0].split('#')[0]
+  const baseUrl = parsed.href.split("?")[0].split("#")[0];
   return buildUrl({
     base: baseUrl,
     params: newParams,
     hash: parsed.hash.slice(1),
-  })
+  });
 }
 
 /**
@@ -228,22 +234,22 @@ export function setQueryParams(
  * @returns URL without specified parameters
  */
 export function removeQueryParams(url: string, keys?: string[]): string {
-  const parsed = parseUrl(url)
-  if (!parsed) return url
+  const parsed = parseUrl(url);
+  if (!parsed) return url;
 
-  const baseUrl = parsed.href.split('?')[0].split('#')[0]
+  const baseUrl = parsed.href.split("?")[0].split("#")[0];
 
   if (!keys) {
     // Remove all params
-    return baseUrl + (parsed.hash || '')
+    return baseUrl + (parsed.hash || "");
   }
 
-  const keysToRemove = new Set(keys)
-  const filteredParams: Record<string, string> = {}
+  const keysToRemove = new Set(keys);
+  const filteredParams: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(parsed.params)) {
     if (!keysToRemove.has(key)) {
-      filteredParams[key] = value
+      filteredParams[key] = value;
     }
   }
 
@@ -251,7 +257,7 @@ export function removeQueryParams(url: string, keys?: string[]): string {
     base: baseUrl,
     params: filteredParams,
     hash: parsed.hash.slice(1),
-  })
+  });
 }
 
 /**
@@ -265,24 +271,26 @@ export function removeQueryParams(url: string, keys?: string[]): string {
  * isExternalUrl('https://example.com', 'https://example.com') // false
  */
 export function isExternalUrl(url: string, currentOrigin?: string): boolean {
-  if (!url) return false
+  if (!url) return false;
 
   // Relative URLs are internal
-  if (url.startsWith('/') || url.startsWith('#') || url.startsWith('.')) {
-    return false
+  if (url.startsWith("/") || url.startsWith("#") || url.startsWith(".")) {
+    return false;
   }
 
   // Protocol-relative URLs need parsing
-  const origin = currentOrigin || (typeof window !== 'undefined' ? window.location.origin : '')
+  const origin =
+    currentOrigin ||
+    (typeof window !== "undefined" ? window.location.origin : "");
 
-  const parsed = parseUrl(url, origin)
-  if (!parsed) return false
+  const parsed = parseUrl(url, origin);
+  if (!parsed) return false;
 
   // Compare origins
-  const current = parseUrl(origin)
-  if (!current) return true // If we can't parse current, assume external
+  const current = parseUrl(origin);
+  if (!current) return true; // If we can't parse current, assume external
 
-  return parsed.origin !== current.origin
+  return parsed.origin !== current.origin;
 }
 
 /**
@@ -291,8 +299,8 @@ export function isExternalUrl(url: string, currentOrigin?: string): boolean {
  * @returns Whether the URL is absolute
  */
 export function isAbsoluteUrl(url: string): boolean {
-  if (!url) return false
-  return /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)
+  if (!url) return false;
+  return /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url);
 }
 
 /**
@@ -301,7 +309,7 @@ export function isAbsoluteUrl(url: string): boolean {
  * @returns Whether the URL is valid
  */
 export function isValidUrl(url: string): boolean {
-  return parseUrl(url) !== null
+  return parseUrl(url) !== null;
 }
 
 /**
@@ -313,29 +321,32 @@ export function isValidUrl(url: string): boolean {
  * getUrlDomain('https://www.example.com/path') // 'www.example.com'
  * getUrlDomain('https://www.example.com/path', false) // 'example.com'
  */
-export function getUrlDomain(url: string, includeSubdomain: boolean = true): string | null {
-  const parsed = parseUrl(url)
-  if (!parsed) return null
+export function getUrlDomain(
+  url: string,
+  includeSubdomain: boolean = true,
+): string | null {
+  const parsed = parseUrl(url);
+  if (!parsed) return null;
 
   if (includeSubdomain) {
-    return parsed.hostname
+    return parsed.hostname;
   }
 
   // Extract root domain
-  const parts = parsed.hostname.split('.')
+  const parts = parsed.hostname.split(".");
   if (parts.length <= 2) {
-    return parsed.hostname
+    return parsed.hostname;
   }
 
   // Handle common TLDs like .co.uk
-  const commonSuffixes = ['co', 'com', 'org', 'net', 'edu', 'gov']
-  const secondLast = parts[parts.length - 2]
+  const commonSuffixes = ["co", "com", "org", "net", "edu", "gov"];
+  const secondLast = parts[parts.length - 2];
 
   if (commonSuffixes.includes(secondLast) && parts.length > 2) {
-    return parts.slice(-3).join('.')
+    return parts.slice(-3).join(".");
   }
 
-  return parts.slice(-2).join('.')
+  return parts.slice(-2).join(".");
 }
 
 /**
@@ -344,18 +355,18 @@ export function getUrlDomain(url: string, includeSubdomain: boolean = true): str
  * @returns File extension (without dot) or null
  */
 export function getUrlExtension(url: string): string | null {
-  const parsed = parseUrl(url)
-  if (!parsed) return null
+  const parsed = parseUrl(url);
+  if (!parsed) return null;
 
-  const pathname = parsed.pathname
-  const lastDot = pathname.lastIndexOf('.')
-  const lastSlash = pathname.lastIndexOf('/')
+  const pathname = parsed.pathname;
+  const lastDot = pathname.lastIndexOf(".");
+  const lastSlash = pathname.lastIndexOf("/");
 
   if (lastDot > lastSlash && lastDot < pathname.length - 1) {
-    return pathname.slice(lastDot + 1).toLowerCase()
+    return pathname.slice(lastDot + 1).toLowerCase();
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -370,20 +381,20 @@ export function joinPath(...segments: string[]): string {
   return segments
     .filter(Boolean)
     .map((segment, index) => {
-      let s = segment
+      let s = segment;
 
       // Remove trailing slashes (except for first segment's leading slash)
-      s = s.replace(/\/+$/, '')
+      s = s.replace(/\/+$/, "");
 
       // Remove leading slashes (except for first segment)
       if (index > 0) {
-        s = s.replace(/^\/+/, '')
+        s = s.replace(/^\/+/, "");
       }
 
-      return s
+      return s;
     })
     .filter(Boolean)
-    .join('/')
+    .join("/");
 }
 
 /**
@@ -393,20 +404,20 @@ export function joinPath(...segments: string[]): string {
  */
 export function normalizePath(path: string): string {
   // Handle empty path
-  if (!path) return '/'
+  if (!path) return "/";
 
   // Ensure leading slash
-  let normalized = path.startsWith('/') ? path : '/' + path
+  let normalized = path.startsWith("/") ? path : "/" + path;
 
   // Remove multiple consecutive slashes
-  normalized = normalized.replace(/\/+/g, '/')
+  normalized = normalized.replace(/\/+/g, "/");
 
   // Remove trailing slash (except for root)
-  if (normalized.length > 1 && normalized.endsWith('/')) {
-    normalized = normalized.slice(0, -1)
+  if (normalized.length > 1 && normalized.endsWith("/")) {
+    normalized = normalized.slice(0, -1);
   }
 
-  return normalized
+  return normalized;
 }
 
 /**
@@ -417,8 +428,8 @@ export function normalizePath(path: string): string {
 export function encodeUrlComponent(str: string): string {
   return encodeURIComponent(str).replace(
     /[!'()*]/g,
-    (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase()
-  )
+    (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase(),
+  );
 }
 
 /**
@@ -428,9 +439,9 @@ export function encodeUrlComponent(str: string): string {
  */
 export function decodeUrlComponent(str: string): string {
   try {
-    return decodeURIComponent(str)
+    return decodeURIComponent(str);
   } catch {
-    return str
+    return str;
   }
 }
 
@@ -442,12 +453,12 @@ export function decodeUrlComponent(str: string): string {
 export function toUrlSlug(text: string): string {
   return text
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
     .trim()
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Remove multiple hyphens
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-"); // Remove multiple hyphens
 }
 
 /**
@@ -457,9 +468,9 @@ export function toUrlSlug(text: string): string {
  * @returns URL with updated hash
  */
 export function setUrlHash(url: string, hash: string): string {
-  const baseUrl = url.split('#')[0]
-  const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash
-  return cleanHash ? `${baseUrl}#${cleanHash}` : baseUrl
+  const baseUrl = url.split("#")[0];
+  const cleanHash = hash.startsWith("#") ? hash.slice(1) : hash;
+  return cleanHash ? `${baseUrl}#${cleanHash}` : baseUrl;
 }
 
 /**
@@ -468,8 +479,8 @@ export function setUrlHash(url: string, hash: string): string {
  * @returns Hash value (without #) or empty string
  */
 export function getUrlHash(url: string): string {
-  const hashIndex = url.indexOf('#')
-  return hashIndex >= 0 ? url.slice(hashIndex + 1) : ''
+  const hashIndex = url.indexOf("#");
+  return hashIndex >= 0 ? url.slice(hashIndex + 1) : "";
 }
 
 /**
@@ -480,23 +491,23 @@ export function getUrlHash(url: string): string {
  */
 export function isSameUrl(url1: string, url2: string): boolean {
   const normalize = (url: string) => {
-    const parsed = parseUrl(url)
-    if (!parsed) return url
+    const parsed = parseUrl(url);
+    if (!parsed) return url;
 
-    let normalized = parsed.origin + parsed.pathname
+    let normalized = parsed.origin + parsed.pathname;
     if (parsed.search) {
       // Sort search params for comparison
-      const params = new URLSearchParams(parsed.search)
-      params.sort()
-      const sortedSearch = params.toString()
+      const params = new URLSearchParams(parsed.search);
+      params.sort();
+      const sortedSearch = params.toString();
       if (sortedSearch) {
-        normalized += '?' + sortedSearch
+        normalized += "?" + sortedSearch;
       }
     }
-    return normalized.replace(/\/$/, '')
-  }
+    return normalized.replace(/\/$/, "");
+  };
 
-  return normalize(url1) === normalize(url2)
+  return normalize(url1) === normalize(url2);
 }
 
 /**
@@ -508,12 +519,12 @@ export function isSameUrl(url1: string, url2: string): boolean {
 export function addUtmParams(
   url: string,
   utm: {
-    source?: string
-    medium?: string
-    campaign?: string
-    term?: string
-    content?: string
-  }
+    source?: string;
+    medium?: string;
+    campaign?: string;
+    term?: string;
+    content?: string;
+  },
 ): string {
   const params: Record<string, string | undefined> = {
     utm_source: utm.source,
@@ -521,9 +532,9 @@ export function addUtmParams(
     utm_campaign: utm.campaign,
     utm_term: utm.term,
     utm_content: utm.content,
-  }
+  };
 
-  return setQueryParams(url, params)
+  return setQueryParams(url, params);
 }
 
 /**
@@ -537,8 +548,10 @@ export function addUtmParams(
  */
 export function matchUrlPattern(url: string, pattern: string): boolean {
   // Escape special regex characters except *
-  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*')
+  const escaped = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\*/g, "[^/]*");
 
-  const regex = new RegExp(`^${escaped}$`)
-  return regex.test(url)
+  const regex = new RegExp(`^${escaped}$`);
+  return regex.test(url);
 }

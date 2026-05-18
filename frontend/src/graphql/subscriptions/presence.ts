@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const USER_PRESENCE_SUBSCRIPTION = gql`
   subscription UserPresence($userIds: [uuid!]!) {
@@ -10,7 +10,7 @@ export const USER_PRESENCE_SUBSCRIPTION = gql`
       custom_status_emoji
     }
   }
-`
+`;
 
 export const CHANNEL_PRESENCE_SUBSCRIPTION = gql`
   subscription ChannelPresence($channelId: uuid!) {
@@ -27,4 +27,4 @@ export const CHANNEL_PRESENCE_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;

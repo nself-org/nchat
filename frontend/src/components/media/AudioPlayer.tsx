@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * AudioPlayer - Custom audio player component with waveform
@@ -6,52 +6,61 @@
  * Features play/pause, seek, volume, and playback rate controls.
  */
 
-import * as React from 'react'
-import { useCallback, useRef, useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { MediaItem } from '@/lib/media/media-types'
-import { formatDuration } from '@/lib/media/media-manager'
-import { Button } from '@/components/ui/button'
-import { Slider } from '@radix-ui/react-slider'
-import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Download, Music } from 'lucide-react'
+import * as React from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { MediaItem } from "@/lib/media/media-types";
+import { formatDuration } from "@/lib/media/media-manager";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@radix-ui/react-slider";
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  SkipBack,
+  SkipForward,
+  Download,
+  Music,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface AudioPlayerProps {
-  item: MediaItem
-  isPlaying?: boolean
-  currentTime?: number
-  volume?: number
-  isMuted?: boolean
-  playbackRate?: number
-  autoPlay?: boolean
-  showWaveform?: boolean
-  compact?: boolean
-  onPlayChange?: (isPlaying: boolean) => void
-  onTimeChange?: (time: number) => void
-  onVolumeChange?: (volume: number) => void
-  onMutedChange?: (isMuted: boolean) => void
-  onPlaybackRateChange?: (rate: number) => void
-  onDurationChange?: (duration: number) => void
-  onEnded?: () => void
-  onDownload?: () => void
-  className?: string
+  item: MediaItem;
+  isPlaying?: boolean;
+  currentTime?: number;
+  volume?: number;
+  isMuted?: boolean;
+  playbackRate?: number;
+  autoPlay?: boolean;
+  showWaveform?: boolean;
+  compact?: boolean;
+  onPlayChange?: (isPlaying: boolean) => void;
+  onTimeChange?: (time: number) => void;
+  onVolumeChange?: (volume: number) => void;
+  onMutedChange?: (isMuted: boolean) => void;
+  onPlaybackRateChange?: (rate: number) => void;
+  onDurationChange?: (duration: number) => void;
+  onEnded?: () => void;
+  onDownload?: () => void;
+  className?: string;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2]
-const SEEK_STEP = 10 // seconds
+const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
+const SEEK_STEP = 10; // seconds
 
 // ============================================================================
 // Component
@@ -77,115 +86,120 @@ export function AudioPlayer({
   onDownload,
   className,
 }: AudioPlayerProps) {
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const [duration, setDuration] = useState(0)
-  const [isLoaded, setIsLoaded] = useState(false)
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [duration, setDuration] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Sync audio element with props
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
+    const audio = audioRef.current;
+    if (!audio) return;
 
     if (isPlaying && audio.paused) {
-      audio.play().catch(() => {})
+      audio.play().catch(() => {});
     } else if (!isPlaying && !audio.paused) {
-      audio.pause()
+      audio.pause();
     }
-  }, [isPlaying])
+  }, [isPlaying]);
 
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    audio.volume = isMuted ? 0 : volume
-  }, [volume, isMuted])
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = isMuted ? 0 : volume;
+  }, [volume, isMuted]);
 
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    audio.playbackRate = playbackRate
-  }, [playbackRate])
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.playbackRate = playbackRate;
+  }, [playbackRate]);
 
   // Handle play/pause
   const togglePlay = useCallback(() => {
-    onPlayChange?.(!isPlaying)
-  }, [isPlaying, onPlayChange])
+    onPlayChange?.(!isPlaying);
+  }, [isPlaying, onPlayChange]);
 
   // Handle seek
   const handleSeek = useCallback(
     (value: number[]) => {
-      const audio = audioRef.current
-      if (!audio) return
-      const time = value[0]
-      audio.currentTime = time
-      onTimeChange?.(time)
+      const audio = audioRef.current;
+      if (!audio) return;
+      const time = value[0];
+      audio.currentTime = time;
+      onTimeChange?.(time);
     },
-    [onTimeChange]
-  )
+    [onTimeChange],
+  );
 
   const seekForward = useCallback(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    const newTime = Math.min(audio.currentTime + SEEK_STEP, duration)
-    audio.currentTime = newTime
-    onTimeChange?.(newTime)
-  }, [duration, onTimeChange])
+    const audio = audioRef.current;
+    if (!audio) return;
+    const newTime = Math.min(audio.currentTime + SEEK_STEP, duration);
+    audio.currentTime = newTime;
+    onTimeChange?.(newTime);
+  }, [duration, onTimeChange]);
 
   const seekBackward = useCallback(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    const newTime = Math.max(audio.currentTime - SEEK_STEP, 0)
-    audio.currentTime = newTime
-    onTimeChange?.(newTime)
-  }, [onTimeChange])
+    const audio = audioRef.current;
+    if (!audio) return;
+    const newTime = Math.max(audio.currentTime - SEEK_STEP, 0);
+    audio.currentTime = newTime;
+    onTimeChange?.(newTime);
+  }, [onTimeChange]);
 
   // Handle volume
   const handleVolumeChange = useCallback(
     (value: number[]) => {
-      const newVolume = value[0]
-      onVolumeChange?.(newVolume)
+      const newVolume = value[0];
+      onVolumeChange?.(newVolume);
       if (newVolume > 0 && isMuted) {
-        onMutedChange?.(false)
+        onMutedChange?.(false);
       }
     },
-    [isMuted, onVolumeChange, onMutedChange]
-  )
+    [isMuted, onVolumeChange, onMutedChange],
+  );
 
   const toggleMute = useCallback(() => {
-    onMutedChange?.(!isMuted)
-  }, [isMuted, onMutedChange])
+    onMutedChange?.(!isMuted);
+  }, [isMuted, onMutedChange]);
 
   // Handle playback rate
   const handlePlaybackRateChange = useCallback(
     (rate: number) => {
-      onPlaybackRateChange?.(rate)
+      onPlaybackRateChange?.(rate);
     },
-    [onPlaybackRateChange]
-  )
+    [onPlaybackRateChange],
+  );
 
   // Audio event handlers
   const handleLoadedMetadata = useCallback(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    setDuration(audio.duration)
-    setIsLoaded(true)
-    onDurationChange?.(audio.duration)
-  }, [onDurationChange])
+    const audio = audioRef.current;
+    if (!audio) return;
+    setDuration(audio.duration);
+    setIsLoaded(true);
+    onDurationChange?.(audio.duration);
+  }, [onDurationChange]);
 
   const handleTimeUpdate = useCallback(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    onTimeChange?.(audio.currentTime)
-  }, [onTimeChange])
+    const audio = audioRef.current;
+    if (!audio) return;
+    onTimeChange?.(audio.currentTime);
+  }, [onTimeChange]);
 
   const handleEnded = useCallback(() => {
-    onPlayChange?.(false)
-    onEnded?.()
-  }, [onPlayChange, onEnded])
+    onPlayChange?.(false);
+    onEnded?.();
+  }, [onPlayChange, onEnded]);
 
   // Compact mode
   if (compact) {
     return (
-      <div className={cn('flex items-center gap-2 rounded-lg border bg-card p-2', className)}>
+      <div
+        className={cn(
+          "flex items-center gap-2 rounded-lg border bg-card p-2",
+          className,
+        )}
+      >
         <audio
           ref={audioRef}
           src={item.url}
@@ -197,8 +211,17 @@ export function AudioPlayer({
           <track kind="captions" src="" label="Captions" default />
         </audio>
 
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={togglePlay}>
-          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={togglePlay}
+        >
+          {isPlaying ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4" />
+          )}
         </Button>
 
         <div className="flex-1">
@@ -222,13 +245,16 @@ export function AudioPlayer({
           {formatDuration(currentTime)} / {formatDuration(duration)}
         </span>
       </div>
-    )
+    );
   }
 
   // Full mode
   return (
     <div
-      className={cn('flex flex-col items-center gap-4 rounded-xl border bg-card p-6', className)}
+      className={cn(
+        "flex flex-col items-center gap-4 rounded-xl border bg-card p-6",
+        className,
+      )}
     >
       <audio
         ref={audioRef}
@@ -249,7 +275,9 @@ export function AudioPlayer({
       {/* Title */}
       <div className="text-center">
         <h3 className="font-semibold">{item.fileName}</h3>
-        <p className="text-sm text-muted-foreground">{item.uploadedBy.displayName}</p>
+        <p className="text-sm text-muted-foreground">
+          {item.uploadedBy.displayName}
+        </p>
       </div>
 
       {/* Progress bar */}
@@ -282,7 +310,12 @@ export function AudioPlayer({
 
       {/* Control buttons */}
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="h-10 w-10" onClick={seekBackward}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10"
+          onClick={seekBackward}
+        >
           <SkipBack className="h-5 w-5" />
         </Button>
 
@@ -292,10 +325,19 @@ export function AudioPlayer({
           className="h-14 w-14 rounded-full"
           onClick={togglePlay}
         >
-          {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="ml-1 h-6 w-6" />}
+          {isPlaying ? (
+            <Pause className="h-6 w-6" />
+          ) : (
+            <Play className="ml-1 h-6 w-6" />
+          )}
         </Button>
 
-        <Button variant="ghost" size="icon" className="h-10 w-10" onClick={seekForward}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10"
+          onClick={seekForward}
+        >
           <SkipForward className="h-5 w-5" />
         </Button>
       </div>
@@ -303,7 +345,12 @@ export function AudioPlayer({
       {/* Volume and settings */}
       <div className="flex w-full items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMute}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={toggleMute}
+          >
             {isMuted || volume === 0 ? (
               <VolumeX className="h-4 w-4" />
             ) : (
@@ -341,7 +388,7 @@ export function AudioPlayer({
                 <DropdownMenuItem
                   key={rate}
                   onClick={() => handlePlaybackRateChange(rate)}
-                  className={cn(rate === playbackRate && 'bg-accent')}
+                  className={cn(rate === playbackRate && "bg-accent")}
                 >
                   {rate}x
                 </DropdownMenuItem>
@@ -351,14 +398,19 @@ export function AudioPlayer({
 
           {/* Download */}
           {onDownload && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onDownload}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={onDownload}
+            >
               <Download className="h-4 w-4" />
             </Button>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default AudioPlayer
+export default AudioPlayer;

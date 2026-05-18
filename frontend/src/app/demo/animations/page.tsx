@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useState, Suspense } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, Suspense } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   messageEntry,
   reactionBurst,
@@ -15,30 +15,50 @@ import {
   staggerContainer,
   staggerItem,
   skeletonPulse,
-} from '@/lib/animations'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollReveal, StaggeredScrollReveal, FadeInOnScroll } from '@/components/ui/scroll-reveal'
-import { PullToRefresh } from '@/components/ui/pull-to-refresh'
-import { MessageListSkeleton, ChatLayoutSkeleton } from '@/components/ui/loading-skeletons'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { ThumbsUp, Heart, Sparkles, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+} from "@/lib/animations";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ScrollReveal,
+  StaggeredScrollReveal,
+  FadeInOnScroll,
+} from "@/components/ui/scroll-reveal";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import {
+  MessageListSkeleton,
+  ChatLayoutSkeleton,
+} from "@/components/ui/loading-skeletons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+  ThumbsUp,
+  Heart,
+  Sparkles,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+} from "lucide-react";
 
 function AnimationsDemoContent() {
-  const [showModal, setShowModal] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [inputError, setInputError] = useState(false)
-  const [inputSuccess, setInputSuccess] = useState(false)
-  const [messageCount, setMessageCount] = useState(3)
-  const [refreshing, setRefreshing] = useState(false)
+  const [showModal, setShowModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [inputError, setInputError] = useState(false);
+  const [inputSuccess, setInputSuccess] = useState(false);
+  const [messageCount, setMessageCount] = useState(3);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
-    setRefreshing(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setRefreshing(false)
-  }
+    setRefreshing(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setRefreshing(false);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,12 +84,20 @@ function AnimationsDemoContent() {
           <Card>
             <CardHeader>
               <CardTitle>Message Animations</CardTitle>
-              <CardDescription>Slide in with fade effect - used for new messages</CardDescription>
+              <CardDescription>
+                Slide in with fade effect - used for new messages
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button onClick={() => setMessageCount(messageCount + 1)}>Add Message</Button>
+              <Button onClick={() => setMessageCount(messageCount + 1)}>
+                Add Message
+              </Button>
 
-              <motion.div variants={staggerContainer} initial="initial" animate="animate">
+              <motion.div
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
                 <AnimatePresence mode="popLayout">
                   {Array.from({ length: messageCount }).map((_, i) => (
                     <motion.div
@@ -100,7 +128,9 @@ function AnimationsDemoContent() {
           <Card>
             <CardHeader>
               <CardTitle>Reaction Animations</CardTitle>
-              <CardDescription>Burst effect for emoji reactions</CardDescription>
+              <CardDescription>
+                Burst effect for emoji reactions
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -146,7 +176,9 @@ function AnimationsDemoContent() {
           <Card>
             <CardHeader>
               <CardTitle>Button Animations</CardTitle>
-              <CardDescription>Tactile press feedback with scale</CardDescription>
+              <CardDescription>
+                Tactile press feedback with scale
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-3">
               <Button animated>Primary</Button>
@@ -171,21 +203,29 @@ function AnimationsDemoContent() {
           <Card>
             <CardHeader>
               <CardTitle>Form Validation Animations</CardTitle>
-              <CardDescription>Shake on error, checkmark on success</CardDescription>
+              <CardDescription>
+                Shake on error, checkmark on success
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
-                <Button onClick={() => setInputError(!inputError)} variant="outline">
+                <Button
+                  onClick={() => setInputError(!inputError)}
+                  variant="outline"
+                >
                   Toggle Error
                 </Button>
-                <Button onClick={() => setInputSuccess(!inputSuccess)} variant="outline">
+                <Button
+                  onClick={() => setInputSuccess(!inputSuccess)}
+                  variant="outline"
+                >
                   Toggle Success
                 </Button>
               </div>
 
               <Input
                 placeholder="Enter something..."
-                error={inputError ? 'This field is required' : undefined}
+                error={inputError ? "This field is required" : undefined}
                 success={inputSuccess}
               />
 
@@ -243,9 +283,12 @@ function AnimationsDemoContent() {
                       exit="exit"
                       className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border bg-background p-6 shadow-lg"
                     >
-                      <h2 className="mb-2 text-xl font-semibold">Modal Title</h2>
+                      <h2 className="mb-2 text-xl font-semibold">
+                        Modal Title
+                      </h2>
                       <p className="mb-4 text-muted-foreground">
-                        This modal demonstrates smooth entry and exit animations.
+                        This modal demonstrates smooth entry and exit
+                        animations.
                       </p>
                       <Button onClick={() => setShowModal(false)}>Close</Button>
                     </motion.div>
@@ -266,8 +309,8 @@ function AnimationsDemoContent() {
             <CardContent>
               <Button
                 onClick={() => {
-                  setShowToast(true)
-                  setTimeout(() => setShowToast(false), 3000)
+                  setShowToast(true);
+                  setTimeout(() => setShowToast(false), 3000);
                 }}
               >
                 Show Toast
@@ -340,7 +383,9 @@ function AnimationsDemoContent() {
           <Card>
             <CardHeader>
               <CardTitle>Loading Skeletons</CardTitle>
-              <CardDescription>Animated placeholders while loading</CardDescription>
+              <CardDescription>
+                Animated placeholders while loading
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <MessageListSkeleton count={5} />
@@ -382,14 +427,18 @@ function AnimationsDemoContent() {
           <Card>
             <CardHeader>
               <CardTitle>Staggered Scroll Reveal</CardTitle>
-              <CardDescription>Items reveal sequentially as you scroll</CardDescription>
+              <CardDescription>
+                Items reveal sequentially as you scroll
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-4xl font-bold text-primary">1</div>
                   <div className="mt-2 font-semibold">First Item</div>
-                  <div className="text-sm text-muted-foreground">This appears first</div>
+                  <div className="text-sm text-muted-foreground">
+                    This appears first
+                  </div>
                 </CardContent>
               </Card>
 
@@ -397,7 +446,9 @@ function AnimationsDemoContent() {
                 <CardContent className="pt-6">
                   <div className="text-4xl font-bold text-primary">2</div>
                   <div className="mt-2 font-semibold">Second Item</div>
-                  <div className="text-sm text-muted-foreground">This appears second</div>
+                  <div className="text-sm text-muted-foreground">
+                    This appears second
+                  </div>
                 </CardContent>
               </Card>
 
@@ -405,7 +456,9 @@ function AnimationsDemoContent() {
                 <CardContent className="pt-6">
                   <div className="text-4xl font-bold text-primary">3</div>
                   <div className="mt-2 font-semibold">Third Item</div>
-                  <div className="text-sm text-muted-foreground">This appears third</div>
+                  <div className="text-sm text-muted-foreground">
+                    This appears third
+                  </div>
                 </CardContent>
               </Card>
             </CardContent>
@@ -413,7 +466,7 @@ function AnimationsDemoContent() {
         </StaggeredScrollReveal>
       </div>
     </div>
-  )
+  );
 }
 
 export default function AnimationsDemo() {
@@ -427,5 +480,5 @@ export default function AnimationsDemo() {
     >
       <AnimationsDemoContent />
     </Suspense>
-  )
+  );
 }

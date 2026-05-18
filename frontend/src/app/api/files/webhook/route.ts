@@ -4,24 +4,24 @@
  * POST /api/files/webhook - Receive processing completion webhooks
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
-import { getProcessingConfig } from '@/services/files/config'
+import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
+import { getProcessingConfig } from "@/services/files/config";
 import type {
   ProcessingWebhookPayload,
   ThumbnailRecord,
   FileRecord,
   ProcessingStatus,
-} from '@/services/files/types'
-import { logger } from '@/lib/logger'
+} from "@/services/files/types";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Mock Database (replace with real database queries)
 // ============================================================================
 
 // These should be imported from a shared location
-const fileStore = new Map<string, FileRecord>()
-const thumbnailStore = new Map<string, ThumbnailRecord[]>()
+const fileStore = new Map<string, FileRecord>();
+const thumbnailStore = new Map<string, ThumbnailRecord[]>();
 
 // ============================================================================
 // POST - Receive processing webhook
@@ -29,44 +29,54 @@ const thumbnailStore = new Map<string, ThumbnailRecord[]>()
 
 export async function POST(request: NextRequest) {
   try {
-    const signature = request.headers.get('x-signature') || ''
-    const body = await request.text()
+    const signature = request.headers.get("x-signature") || "";
+    const body = await request.text();
 
     // Verify webhook signature
-    const processingConfig = getProcessingConfig()
+    const processingConfig = getProcessingConfig();
 
     if (processingConfig.webhookSecret) {
-      const isValid = verifySignature(body, signature, processingConfig.webhookSecret)
+      const isValid = verifySignature(
+        body,
+        signature,
+        processingConfig.webhookSecret,
+      );
 
       if (!isValid) {
-        logger.error('Invalid webhook signature')
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+        logger.error("Invalid webhook signature");
+        return NextResponse.json(
+          { error: "Invalid signature" },
+          { status: 401 },
+        );
       }
     }
 
     // Parse payload
-    const payload: ProcessingWebhookPayload = JSON.parse(body)
+    const payload: ProcessingWebhookPayload = JSON.parse(body);
 
     // REMOVED: console.log(`Processing webhook: ${payload.event} for file ${payload.fileId}`)
 
     // Handle different events
     switch (payload.event) {
-      case 'job.completed':
-        await handleJobCompleted(payload)
-        break
+      case "job.completed":
+        await handleJobCompleted(payload);
+        break;
 
-      case 'job.failed':
-        await handleJobFailed(payload)
-        break
+      case "job.failed":
+        await handleJobFailed(payload);
+        break;
 
       default:
-        logger.warn(`Unknown webhook event: ${payload.event}`)
+        logger.warn(`Unknown webhook event: ${payload.event}`);
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true });
   } catch (error) {
-    logger.error('Webhook processing error:', error)
-    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
+    logger.error("Webhook processing error:", error);
+    return NextResponse.json(
+      { error: "Webhook processing failed" },
+      { status: 500 },
+    );
   }
 }
 
@@ -77,94 +87,101 @@ export async function POST(request: NextRequest) {
 /**
  * Handle job completed event
  */
-async function handleJobCompleted(payload: ProcessingWebhookPayload): Promise<void> {
-  const { fileId, thumbnails, metadata, scan, optimization, durationMs } = payload
+async function handleJobCompleted(
+  payload: ProcessingWebhookPayload,
+): Promise<void> {
+  const { fileId, thumbnails, metadata, scan, optimization, durationMs } =
+    payload;
 
   // Get or create file record
-  let file = fileStore.get(fileId)
+  let file = fileStore.get(fileId);
 
   if (file) {
     // Update processing status
-    file.processingStatus = 'completed'
+    file.processingStatus = "completed";
 
     // Store additional processing results
     const fileWithMetadata = file as FileRecord & {
-      fileMetadata?: unknown
-      scanResult?: unknown
-      optimizationResult?: unknown
-      processingDurationMs?: number
-    }
+      fileMetadata?: unknown;
+      scanResult?: unknown;
+      optimizationResult?: unknown;
+      processingDurationMs?: number;
+    };
 
     if (metadata) {
-      fileWithMetadata.fileMetadata = metadata
+      fileWithMetadata.fileMetadata = metadata;
     }
 
     if (scan) {
-      fileWithMetadata.scanResult = scan
+      fileWithMetadata.scanResult = scan;
 
       // If virus detected, mark file appropriately
       if (!scan.isClean) {
-        logger.warn(`Virus detected in file ${fileId}: ${scan.threatNames.join(', ')}`)
+        logger.warn(
+          `Virus detected in file ${fileId}: ${scan.threatNames.join(", ")}`,
+        );
         // Could quarantine or delete the file here
       }
     }
 
     if (optimization) {
-      fileWithMetadata.optimizationResult = optimization
+      fileWithMetadata.optimizationResult = optimization;
       // REMOVED: console.log(
       //   `File ${fileId} optimized: saved ${optimization.savingsBytes} bytes (${optimization.savingsPercent}%)`
       // )
     }
 
     if (durationMs) {
-      fileWithMetadata.processingDurationMs = durationMs
+      fileWithMetadata.processingDurationMs = durationMs;
     }
 
-    fileStore.set(fileId, file)
+    fileStore.set(fileId, file);
   }
 
   // Store thumbnails
   if (thumbnails && thumbnails.length > 0) {
-    thumbnailStore.set(fileId, thumbnails)
+    thumbnailStore.set(fileId, thumbnails);
     // REMOVED: console.log(`Stored ${thumbnails.length} thumbnails for file ${fileId}`)
   }
 
   // Emit real-time update if using WebSockets
   // This would notify clients that the file is ready
-  await emitFileUpdate(fileId, 'processing_complete', {
-    status: 'completed',
+  await emitFileUpdate(fileId, "processing_complete", {
+    status: "completed",
     thumbnails: thumbnails?.length || 0,
     hasMetadata: !!metadata,
     hasScan: !!scan,
     isClean: scan?.isClean ?? true,
-  })
+  });
 }
 
 /**
  * Handle job failed event
  */
-async function handleJobFailed(payload: ProcessingWebhookPayload): Promise<void> {
-  const { fileId, error } = payload
+async function handleJobFailed(
+  payload: ProcessingWebhookPayload,
+): Promise<void> {
+  const { fileId, error } = payload;
 
   // Update file record
-  const file = fileStore.get(fileId)
+  const file = fileStore.get(fileId);
 
   if (file) {
-    file.processingStatus = 'failed'
+    file.processingStatus = "failed";
 
-    const fileWithError = file as FileRecord & { processingError?: string }
-    fileWithError.processingError = error
+    const fileWithError = file as FileRecord & { processingError?: string };
+    fileWithError.processingError = error;
 
-    fileStore.set(fileId, file)
+    fileStore.set(fileId, file);
   }
 
-  logger.error(`Processing failed for file ${fileId}: ${error}`)
+  logger.error(`Processing failed for file ${fileId}: ${error}`);
 
   // Emit real-time update
-  await emitFileUpdate(fileId, 'processing_failed', {
-    status: 'failed',
+  await emitFileUpdate(fileId, "processing_failed", {
+    status: "failed",
     error,
-  })
+  });
 }
 
 // ============================================================================
@@ -174,20 +191,27 @@ async function handleJobFailed(payload: ProcessingWebhookPayload): Promise<void>
 /**
  * Verify HMAC-SHA256 signature
  */
-function verifySignature(payload: string, signature: string, secret: string): boolean {
-  const computed = crypto.createHmac('sha256', secret).update(payload).digest('hex')
+function verifySignature(
+  payload: string,
+  signature: string,
+  secret: string,
+): boolean {
+  const computed = crypto
+    .createHmac("sha256", secret)
+    .update(payload)
+    .digest("hex");
 
   // Constant-time comparison
   if (signature.length !== computed.length) {
-    return false
+    return false;
   }
 
-  let result = 0
+  let result = 0;
   for (let i = 0; i < signature.length; i++) {
-    result |= signature.charCodeAt(i) ^ computed.charCodeAt(i)
+    result |= signature.charCodeAt(i) ^ computed.charCodeAt(i);
   }
 
-  return result === 0
+  return result === 0;
 }
 
 /**
@@ -196,7 +220,7 @@ function verifySignature(payload: string, signature: string, secret: string): bo
 async function emitFileUpdate(
   fileId: string,
   event: string,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): Promise<void> {
   // This would notify connected clients about file updates
   // For now, just log
@@ -219,8 +243,8 @@ async function emitFileUpdate(
 
 export async function GET() {
   return NextResponse.json({
-    status: 'ok',
-    endpoint: '/api/files/webhook',
-    accepts: ['job.completed', 'job.failed'],
-  })
+    status: "ok",
+    endpoint: "/api/files/webhook",
+    accepts: ["job.completed", "job.failed"],
+  });
 }

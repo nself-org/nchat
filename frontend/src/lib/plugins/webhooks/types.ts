@@ -21,9 +21,9 @@ export type {
   IncomingWebhookPayload,
   IncomingWebhookAttachment,
   IncomingWebhookEmbed,
-} from '@/types/webhook'
+} from "@/types/webhook";
 
-export { DefaultWebhookRetryConfig } from '@/types/webhook'
+export { DefaultWebhookRetryConfig } from "@/types/webhook";
 
 // ============================================================================
 // WEBHOOK REGISTRATION
@@ -35,49 +35,49 @@ export { DefaultWebhookRetryConfig } from '@/types/webhook'
  */
 export interface WebhookRegistration {
   /** Unique webhook ID */
-  id: string
+  id: string;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Optional description */
-  description?: string
+  description?: string;
   /** Webhook direction */
-  direction: 'incoming' | 'outgoing'
+  direction: "incoming" | "outgoing";
   /** Current status */
-  status: 'active' | 'paused' | 'disabled' | 'error'
+  status: "active" | "paused" | "disabled" | "error";
   /** Target URL (outgoing) or generated endpoint (incoming) */
-  url: string
+  url: string;
   /** Secret for HMAC signature verification */
-  secret: string
+  secret: string;
   /** Channel ID (required for incoming webhooks) */
-  channelId?: string
+  channelId?: string;
   /** Events to subscribe to (outgoing webhooks) */
-  events?: string[]
+  events?: string[];
   /** Event filters */
-  filters?: WebhookEventFilter
+  filters?: WebhookEventFilter;
   /** Custom HTTP headers for outgoing requests */
-  headers?: Record<string, string>
+  headers?: Record<string, string>;
   /** Avatar URL (incoming webhooks) */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Default username (incoming webhooks) */
-  defaultUsername?: string
+  defaultUsername?: string;
   /** Token for incoming webhook authentication */
-  token?: string
+  token?: string;
   /** Who created this webhook */
-  createdBy: string
+  createdBy: string;
   /** Creation timestamp (ISO 8601) */
-  createdAt: string
+  createdAt: string;
   /** Last update timestamp (ISO 8601) */
-  updatedAt: string
+  updatedAt: string;
   /** Last triggered timestamp (ISO 8601) */
-  lastTriggeredAt?: string
+  lastTriggeredAt?: string;
   /** Total delivery count */
-  deliveryCount: number
+  deliveryCount: number;
   /** Failed delivery count */
-  failedDeliveryCount: number
+  failedDeliveryCount: number;
   /** Retry configuration */
-  retryConfig: WebhookRetryOptions
+  retryConfig: WebhookRetryOptions;
   /** Rate limit configuration */
-  rateLimit?: WebhookRateLimitConfig
+  rateLimit?: WebhookRateLimitConfig;
 }
 
 // ============================================================================
@@ -89,17 +89,17 @@ export interface WebhookRegistration {
  */
 export interface WebhookEventFilter {
   /** Filter by channel IDs */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Filter by user IDs */
-  userIds?: string[]
+  userIds?: string[];
   /** Filter by content pattern (regex) */
-  contentPattern?: string
+  contentPattern?: string;
   /** Only events with mentions */
-  hasMentions?: boolean
+  hasMentions?: boolean;
   /** Only events with attachments */
-  hasAttachments?: boolean
+  hasAttachments?: boolean;
   /** Exclude bot-generated events */
-  excludeBots?: boolean
+  excludeBots?: boolean;
 }
 
 // ============================================================================
@@ -111,17 +111,17 @@ export interface WebhookEventFilter {
  */
 export interface WebhookRetryOptions {
   /** Whether retries are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maximum number of retry attempts */
-  maxAttempts: number
+  maxAttempts: number;
   /** Initial delay in milliseconds */
-  initialDelayMs: number
+  initialDelayMs: number;
   /** Maximum delay in milliseconds */
-  maxDelayMs: number
+  maxDelayMs: number;
   /** Backoff multiplier (exponential) */
-  backoffMultiplier: number
+  backoffMultiplier: number;
   /** HTTP status codes that trigger a retry */
-  retryableStatusCodes: number[]
+  retryableStatusCodes: number[];
 }
 
 /**
@@ -134,7 +134,7 @@ export const DEFAULT_RETRY_OPTIONS: WebhookRetryOptions = {
   maxDelayMs: 300_000, // 5 minutes
   backoffMultiplier: 2,
   retryableStatusCodes: [408, 429, 500, 502, 503, 504],
-}
+};
 
 // ============================================================================
 // RATE LIMITING
@@ -145,11 +145,11 @@ export const DEFAULT_RETRY_OPTIONS: WebhookRetryOptions = {
  */
 export interface WebhookRateLimitConfig {
   /** Maximum requests per window */
-  maxRequests: number
+  maxRequests: number;
   /** Window duration in seconds */
-  windowSeconds: number
+  windowSeconds: number;
   /** Burst allowance above base rate */
-  burstAllowance?: number
+  burstAllowance?: number;
 }
 
 /**
@@ -159,7 +159,7 @@ export const DEFAULT_INCOMING_RATE_LIMIT: WebhookRateLimitConfig = {
   maxRequests: 60,
   windowSeconds: 60,
   burstAllowance: 10,
-}
+};
 
 // ============================================================================
 // DELIVERY TRACKING
@@ -170,19 +170,19 @@ export const DEFAULT_INCOMING_RATE_LIMIT: WebhookRateLimitConfig = {
  */
 export interface DeliveryAttempt {
   /** Attempt number (1-based) */
-  attemptNumber: number
+  attemptNumber: number;
   /** When this attempt started (ISO 8601) */
-  startedAt: string
+  startedAt: string;
   /** When this attempt completed (ISO 8601) */
-  completedAt?: string
+  completedAt?: string;
   /** HTTP status code (if a response was received) */
-  statusCode?: number
+  statusCode?: number;
   /** Response body (truncated if large) */
-  responseBody?: string
+  responseBody?: string;
   /** Error message (if failed) */
-  error?: string
+  error?: string;
   /** Duration in milliseconds */
-  durationMs?: number
+  durationMs?: number;
 }
 
 /**
@@ -190,35 +190,41 @@ export interface DeliveryAttempt {
  */
 export interface WebhookDeliveryRecord {
   /** Unique delivery ID */
-  id: string
+  id: string;
   /** Webhook ID */
-  webhookId: string
+  webhookId: string;
   /** Event type */
-  event: string
+  event: string;
   /** Current delivery status */
-  status: 'pending' | 'delivering' | 'delivered' | 'retrying' | 'failed' | 'dead_letter'
+  status:
+    | "pending"
+    | "delivering"
+    | "delivered"
+    | "retrying"
+    | "failed"
+    | "dead_letter";
   /** Payload that was sent */
-  payload: string
+  payload: string;
   /** Signature sent with the payload */
-  signature: string
+  signature: string;
   /** Request URL */
-  url: string
+  url: string;
   /** Request headers */
-  headers: Record<string, string>
+  headers: Record<string, string>;
   /** Delivery attempts */
-  attempts: DeliveryAttempt[]
+  attempts: DeliveryAttempt[];
   /** Current attempt number */
-  currentAttempt: number
+  currentAttempt: number;
   /** Maximum attempts */
-  maxAttempts: number
+  maxAttempts: number;
   /** When the delivery was created (ISO 8601) */
-  createdAt: string
+  createdAt: string;
   /** When the delivery completed or was moved to dead letter (ISO 8601) */
-  completedAt?: string
+  completedAt?: string;
   /** Next retry time (ISO 8601) */
-  nextRetryAt?: string
+  nextRetryAt?: string;
   /** Idempotency key for dedup */
-  idempotencyKey: string
+  idempotencyKey: string;
 }
 
 // ============================================================================
@@ -230,17 +236,17 @@ export interface WebhookDeliveryRecord {
  */
 export interface DeadLetterEntry {
   /** Dead letter entry ID */
-  id: string
+  id: string;
   /** Original delivery record */
-  delivery: WebhookDeliveryRecord
+  delivery: WebhookDeliveryRecord;
   /** Reason for dead-lettering */
-  reason: string
+  reason: string;
   /** When it was dead-lettered (ISO 8601) */
-  deadLetteredAt: string
+  deadLetteredAt: string;
   /** Whether it has been manually replayed */
-  replayed: boolean
+  replayed: boolean;
   /** Replay attempt timestamp (ISO 8601) */
-  replayedAt?: string
+  replayedAt?: string;
 }
 
 // ============================================================================
@@ -250,18 +256,18 @@ export interface DeadLetterEntry {
 /**
  * Circuit breaker state for webhook endpoints.
  */
-export type CircuitBreakerState = 'closed' | 'open' | 'half_open'
+export type CircuitBreakerState = "closed" | "open" | "half_open";
 
 /**
  * Circuit breaker configuration.
  */
 export interface CircuitBreakerConfig {
   /** Number of failures before opening the circuit */
-  failureThreshold: number
+  failureThreshold: number;
   /** Time in ms before moving from open to half-open */
-  resetTimeoutMs: number
+  resetTimeoutMs: number;
   /** Number of successes in half-open before closing */
-  successThreshold: number
+  successThreshold: number;
 }
 
 /**
@@ -271,18 +277,18 @@ export const DEFAULT_CIRCUIT_BREAKER_CONFIG: CircuitBreakerConfig = {
   failureThreshold: 5,
   resetTimeoutMs: 60_000, // 1 minute
   successThreshold: 2,
-}
+};
 
 /**
  * Circuit breaker status tracking.
  */
 export interface CircuitBreakerStatus {
-  state: CircuitBreakerState
-  failureCount: number
-  successCount: number
-  lastFailureAt?: string
-  lastSuccessAt?: string
-  nextAttemptAt?: string
+  state: CircuitBreakerState;
+  failureCount: number;
+  successCount: number;
+  lastFailureAt?: string;
+  lastSuccessAt?: string;
+  nextAttemptAt?: string;
 }
 
 // ============================================================================
@@ -292,16 +298,16 @@ export interface CircuitBreakerStatus {
 /**
  * Supported signature algorithms.
  */
-export type SignatureAlgorithm = 'sha256' | 'sha512'
+export type SignatureAlgorithm = "sha256" | "sha512";
 
 /**
  * Signature verification result.
  */
 export interface SignatureVerificationResult {
   /** Whether the signature is valid */
-  valid: boolean
+  valid: boolean;
   /** Error message if invalid */
-  error?: string
+  error?: string;
 }
 
 /**
@@ -309,9 +315,9 @@ export interface SignatureVerificationResult {
  */
 export interface ReplayProtectionResult {
   /** Whether the request is allowed (not a replay) */
-  allowed: boolean
+  allowed: boolean;
   /** Reason if blocked */
-  reason?: string
+  reason?: string;
 }
 
 // ============================================================================
@@ -323,13 +329,13 @@ export interface ReplayProtectionResult {
  */
 export interface IncomingWebhookResult {
   /** Whether the request was accepted */
-  accepted: boolean
+  accepted: boolean;
   /** Message ID if a message was created */
-  messageId?: string
+  messageId?: string;
   /** Error message if rejected */
-  error?: string
+  error?: string;
   /** HTTP status code to return */
-  statusCode: number
+  statusCode: number;
 }
 
 /**
@@ -337,15 +343,15 @@ export interface IncomingWebhookResult {
  */
 export interface IncomingWebhookRequest {
   /** Webhook token from URL */
-  token: string
+  token: string;
   /** Request body */
-  body: unknown
+  body: unknown;
   /** Request headers */
-  headers: Record<string, string>
+  headers: Record<string, string>;
   /** Source IP address */
-  sourceIp?: string
+  sourceIp?: string;
   /** Request timestamp */
-  timestamp: number
+  timestamp: number;
 }
 
 // ============================================================================
@@ -356,42 +362,42 @@ export interface IncomingWebhookRequest {
  * Input for creating an incoming webhook.
  */
 export interface CreateIncomingWebhookInput {
-  name: string
-  description?: string
-  channelId: string
-  avatarUrl?: string
-  defaultUsername?: string
+  name: string;
+  description?: string;
+  channelId: string;
+  avatarUrl?: string;
+  defaultUsername?: string;
 }
 
 /**
  * Input for creating an outgoing webhook.
  */
 export interface CreateOutgoingWebhookInput {
-  name: string
-  description?: string
-  url: string
-  events: string[]
-  filters?: WebhookEventFilter
-  headers?: Record<string, string>
-  retryConfig?: Partial<WebhookRetryOptions>
-  rateLimit?: WebhookRateLimitConfig
+  name: string;
+  description?: string;
+  url: string;
+  events: string[];
+  filters?: WebhookEventFilter;
+  headers?: Record<string, string>;
+  retryConfig?: Partial<WebhookRetryOptions>;
+  rateLimit?: WebhookRateLimitConfig;
 }
 
 /**
  * Input for updating a webhook.
  */
 export interface UpdateWebhookInput {
-  name?: string
-  description?: string
-  url?: string
-  status?: 'active' | 'paused' | 'disabled'
-  events?: string[]
-  filters?: WebhookEventFilter
-  headers?: Record<string, string>
-  avatarUrl?: string
-  defaultUsername?: string
-  retryConfig?: Partial<WebhookRetryOptions>
-  rateLimit?: WebhookRateLimitConfig
+  name?: string;
+  description?: string;
+  url?: string;
+  status?: "active" | "paused" | "disabled";
+  events?: string[];
+  filters?: WebhookEventFilter;
+  headers?: Record<string, string>;
+  avatarUrl?: string;
+  defaultUsername?: string;
+  retryConfig?: Partial<WebhookRetryOptions>;
+  rateLimit?: WebhookRateLimitConfig;
 }
 
 // ============================================================================
@@ -403,17 +409,17 @@ export interface UpdateWebhookInput {
  */
 export interface WebhookEventPayload {
   /** Unique payload ID */
-  id: string
+  id: string;
   /** Event type (e.g., 'message.created') */
-  event: string
+  event: string;
   /** Webhook ID */
-  webhookId: string
+  webhookId: string;
   /** Timestamp (ISO 8601) */
-  timestamp: string
+  timestamp: string;
   /** Payload version */
-  version: string
+  version: string;
   /** Idempotency key for dedup */
-  idempotencyKey: string
+  idempotencyKey: string;
   /** Event data */
-  data: Record<string, unknown>
+  data: Record<string, unknown>;
 }

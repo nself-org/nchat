@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-import type { PlanTier } from '@/types/subscription.types'
+import type { PlanTier } from "@/types/subscription.types";
 
 // ============================================================================
 // Risk & Enforcement Types
@@ -17,28 +17,28 @@ import type { PlanTier } from '@/types/subscription.types'
 /**
  * Risk assessment levels.
  */
-export type RiskLevel = 'low' | 'medium' | 'high' | 'critical'
+export type RiskLevel = "low" | "medium" | "high" | "critical";
 
 /**
  * Enforcement actions the system can take in response to abuse.
  */
 export type EnforcementAction =
-  | 'none'
-  | 'warn'
-  | 'throttle'
-  | 'require_verification'
-  | 'suspend'
-  | 'block'
+  | "none"
+  | "warn"
+  | "throttle"
+  | "require_verification"
+  | "suspend"
+  | "block";
 
 /**
  * Abuse signal categories.
  */
-export type AbuseCategory = 'sharing' | 'seat_abuse' | 'payment_abuse'
+export type AbuseCategory = "sharing" | "seat_abuse" | "payment_abuse";
 
 /**
  * Appeal status for disputed enforcement actions.
  */
-export type AppealStatus = 'pending' | 'under_review' | 'approved' | 'denied'
+export type AppealStatus = "pending" | "under_review" | "approved" | "denied";
 
 // ============================================================================
 // Abuse Signal Types
@@ -49,27 +49,27 @@ export type AppealStatus = 'pending' | 'under_review' | 'approved' | 'denied'
  */
 export interface AbuseSignal {
   /** Unique signal identifier */
-  id: string
+  id: string;
   /** Category of abuse */
-  category: AbuseCategory
+  category: AbuseCategory;
   /** Specific indicator type */
-  indicatorType: string
+  indicatorType: string;
   /** Risk level of this signal */
-  riskLevel: RiskLevel
+  riskLevel: RiskLevel;
   /** Confidence score (0-1) */
-  confidence: number
+  confidence: number;
   /** Human-readable description */
-  description: string
+  description: string;
   /** Associated account / subscription ID */
-  accountId: string
+  accountId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** When the signal was detected */
-  detectedAt: number
+  detectedAt: number;
   /** Raw evidence data */
-  evidence: Record<string, unknown>
+  evidence: Record<string, unknown>;
   /** Whether this was later marked as false positive */
-  isFalsePositive: boolean
+  isFalsePositive: boolean;
 }
 
 // ============================================================================
@@ -80,68 +80,84 @@ export interface AbuseSignal {
  * Sharing indicator types.
  */
 export type SharingIndicatorType =
-  | 'concurrent_sessions'
-  | 'device_fingerprint_mismatch'
-  | 'ip_pattern_anomaly'
-  | 'geographic_impossibility'
+  | "concurrent_sessions"
+  | "device_fingerprint_mismatch"
+  | "ip_pattern_anomaly"
+  | "geographic_impossibility";
 
 /**
  * Device fingerprint data.
  */
 export interface DeviceFingerprint {
-  userAgent: string
-  screenResolution: string
-  timezone: string
-  language: string
-  platform: string
+  userAgent: string;
+  screenResolution: string;
+  timezone: string;
+  language: string;
+  platform: string;
   /** Hash of the combined fingerprint for quick comparison */
-  hash: string
+  hash: string;
 }
 
 /**
  * Session record for tracking concurrent access.
  */
 export interface SessionRecord {
-  sessionId: string
-  userId: string
-  subscriptionId: string
-  deviceFingerprint: DeviceFingerprint
-  ipAddress: string
-  latitude?: number
-  longitude?: number
-  city?: string
-  country?: string
-  startedAt: number
-  lastActiveAt: number
-  isActive: boolean
+  sessionId: string;
+  userId: string;
+  subscriptionId: string;
+  deviceFingerprint: DeviceFingerprint;
+  ipAddress: string;
+  latitude?: number;
+  longitude?: number;
+  city?: string;
+  country?: string;
+  startedAt: number;
+  lastActiveAt: number;
+  isActive: boolean;
 }
 
 /**
  * Sharing analysis result.
  */
 export interface SharingAnalysis {
-  subscriptionId: string
-  userId: string
-  signals: AbuseSignal[]
-  concurrentSessionCount: number
-  uniqueDeviceCount: number
-  uniqueIpCount: number
-  geographicAnomalies: GeographicAnomaly[]
-  overallRisk: RiskLevel
-  recommendedAction: EnforcementAction
+  subscriptionId: string;
+  userId: string;
+  signals: AbuseSignal[];
+  concurrentSessionCount: number;
+  uniqueDeviceCount: number;
+  uniqueIpCount: number;
+  geographicAnomalies: GeographicAnomaly[];
+  overallRisk: RiskLevel;
+  recommendedAction: EnforcementAction;
 }
 
 /**
  * A detected geographic impossibility.
  */
 export interface GeographicAnomaly {
-  session1: { sessionId: string; ip: string; city: string; country: string; lat: number; lng: number; time: number }
-  session2: { sessionId: string; ip: string; city: string; country: string; lat: number; lng: number; time: number }
-  distanceKm: number
-  timeDifferenceMinutes: number
-  requiredSpeedKmh: number
-  maxPlausibleSpeedKmh: number
-  isImpossible: boolean
+  session1: {
+    sessionId: string;
+    ip: string;
+    city: string;
+    country: string;
+    lat: number;
+    lng: number;
+    time: number;
+  };
+  session2: {
+    sessionId: string;
+    ip: string;
+    city: string;
+    country: string;
+    lat: number;
+    lng: number;
+    time: number;
+  };
+  distanceKm: number;
+  timeDifferenceMinutes: number;
+  requiredSpeedKmh: number;
+  maxPlausibleSpeedKmh: number;
+  isImpossible: boolean;
 }
 
 /**
@@ -149,21 +165,21 @@ export interface GeographicAnomaly {
  */
 export interface AntiSharingConfig {
   /** Maximum concurrent sessions allowed */
-  maxConcurrentSessions: number
+  maxConcurrentSessions: number;
   /** Maximum unique devices per rolling window */
-  maxUniqueDevices: number
+  maxUniqueDevices: number;
   /** Rolling window for device counting (ms) */
-  deviceWindowMs: number
+  deviceWindowMs: number;
   /** Maximum distinct IPs in rolling window */
-  maxDistinctIps: number
+  maxDistinctIps: number;
   /** Rolling window for IP counting (ms) */
-  ipWindowMs: number
+  ipWindowMs: number;
   /** Maximum plausible travel speed (km/h) for geographic checks */
-  maxPlausibleSpeedKmh: number
+  maxPlausibleSpeedKmh: number;
   /** Grace period before enforcement (ms) */
-  gracePeriodMs: number
+  gracePeriodMs: number;
   /** Minimum confidence to raise signal */
-  minConfidence: number
+  minConfidence: number;
 }
 
 // ============================================================================
@@ -174,91 +190,91 @@ export interface AntiSharingConfig {
  * Seat abuse indicator types.
  */
 export type SeatAbuseIndicatorType =
-  | 'ghost_seat'
-  | 'seat_sharing'
-  | 'seat_hopping'
+  | "ghost_seat"
+  | "seat_sharing"
+  | "seat_hopping";
 
 /**
  * Seat assignment record.
  */
 export interface SeatAssignment {
-  seatId: string
-  userId: string
-  subscriptionId: string
-  workspaceId: string
-  assignedAt: number
-  lastActiveAt: number
-  isActive: boolean
+  seatId: string;
+  userId: string;
+  subscriptionId: string;
+  workspaceId: string;
+  assignedAt: number;
+  lastActiveAt: number;
+  isActive: boolean;
   /** Devices used on this seat */
-  devices: DeviceFingerprint[]
+  devices: DeviceFingerprint[];
   /** IPs used on this seat */
-  ipAddresses: string[]
+  ipAddresses: string[];
   /** Locations used on this seat */
-  locations: Array<{ city: string; country: string }>
+  locations: Array<{ city: string; country: string }>;
 }
 
 /**
  * Seat reassignment event.
  */
 export interface SeatReassignment {
-  seatId: string
-  previousUserId: string
-  newUserId: string
-  reassignedAt: number
-  reassignedBy: string
-  reason?: string
+  seatId: string;
+  previousUserId: string;
+  newUserId: string;
+  reassignedAt: number;
+  reassignedBy: string;
+  reason?: string;
 }
 
 /**
  * Seat utilization score.
  */
 export interface SeatUtilizationScore {
-  seatId: string
-  userId: string
-  subscriptionId: string
+  seatId: string;
+  userId: string;
+  subscriptionId: string;
   /** 0-100 utilization score */
-  score: number
+  score: number;
   /** Days since last activity */
-  daysSinceLastActive: number
+  daysSinceLastActive: number;
   /** Number of active days in the evaluation window */
-  activeDaysInWindow: number
+  activeDaysInWindow: number;
   /** Total days in the evaluation window */
-  totalDaysInWindow: number
+  totalDaysInWindow: number;
   /** Number of distinct devices used */
-  deviceCount: number
+  deviceCount: number;
   /** Number of distinct locations */
-  locationCount: number
+  locationCount: number;
   /** Classification */
-  classification: 'active' | 'low_usage' | 'ghost' | 'shared'
+  classification: "active" | "low_usage" | "ghost" | "shared";
 }
 
 /**
  * Seat abuse analysis result.
  */
 export interface SeatAbuseAnalysis {
-  subscriptionId: string
-  workspaceId: string
-  totalSeats: number
-  activeSeats: number
-  ghostSeats: SeatUtilizationScore[]
-  sharedSeats: SeatUtilizationScore[]
-  hoppingSeats: string[]
-  signals: AbuseSignal[]
-  overallRisk: RiskLevel
-  recommendedAction: EnforcementAction
-  deprovisioningRecommendations: DeprovisioningRecommendation[]
+  subscriptionId: string;
+  workspaceId: string;
+  totalSeats: number;
+  activeSeats: number;
+  ghostSeats: SeatUtilizationScore[];
+  sharedSeats: SeatUtilizationScore[];
+  hoppingSeats: string[];
+  signals: AbuseSignal[];
+  overallRisk: RiskLevel;
+  recommendedAction: EnforcementAction;
+  deprovisioningRecommendations: DeprovisioningRecommendation[];
 }
 
 /**
  * Recommendation to deprovision an underused seat.
  */
 export interface DeprovisioningRecommendation {
-  seatId: string
-  userId: string
-  reason: string
-  daysSinceLastActive: number
-  utilizationScore: number
-  estimatedSavingsPerMonth: number
+  seatId: string;
+  userId: string;
+  reason: string;
+  daysSinceLastActive: number;
+  utilizationScore: number;
+  estimatedSavingsPerMonth: number;
 }
 
 /**
@@ -266,21 +282,21 @@ export interface DeprovisioningRecommendation {
  */
 export interface SeatAbuseConfig {
   /** Days of inactivity before a seat is considered ghost */
-  ghostSeatThresholdDays: number
+  ghostSeatThresholdDays: number;
   /** Max devices per seat before flagging sharing */
-  maxDevicesPerSeat: number
+  maxDevicesPerSeat: number;
   /** Max unique IPs per seat in window */
-  maxIpsPerSeat: number
+  maxIpsPerSeat: number;
   /** Rolling window for IP/device checks (ms) */
-  windowMs: number
+  windowMs: number;
   /** Max reassignments per seat in rolling window before flagging hopping */
-  maxReassignmentsPerWindow: number
+  maxReassignmentsPerWindow: number;
   /** Rolling window for reassignment counting (ms) */
-  reassignmentWindowMs: number
+  reassignmentWindowMs: number;
   /** Utilization score below which seat is flagged */
-  lowUtilizationThreshold: number
+  lowUtilizationThreshold: number;
   /** Cost per seat per month in cents (for savings calculation) */
-  costPerSeatCents: number
+  costPerSeatCents: number;
 }
 
 // ============================================================================
@@ -291,96 +307,96 @@ export interface SeatAbuseConfig {
  * Payment abuse indicator types.
  */
 export type PaymentAbuseIndicatorType =
-  | 'card_testing'
-  | 'velocity_exceeded'
-  | 'bin_country_mismatch'
-  | 'disposable_card'
-  | 'refund_abuse'
-  | 'chargeback_risk'
-  | 'amount_anomaly'
+  | "card_testing"
+  | "velocity_exceeded"
+  | "bin_country_mismatch"
+  | "disposable_card"
+  | "refund_abuse"
+  | "chargeback_risk"
+  | "amount_anomaly";
 
 /**
  * Card metadata for heuristic analysis.
  */
 export interface CardMetadata {
-  last4: string
-  brand: string
-  country: string
-  fingerprint: string
-  fundingType: 'credit' | 'debit' | 'prepaid' | 'unknown'
-  issuingBank?: string
-  bin: string
+  last4: string;
+  brand: string;
+  country: string;
+  fingerprint: string;
+  fundingType: "credit" | "debit" | "prepaid" | "unknown";
+  issuingBank?: string;
+  bin: string;
 }
 
 /**
  * Payment event for heuristic analysis.
  */
 export interface PaymentEvent {
-  id: string
-  userId: string
-  subscriptionId: string
-  workspaceId: string
-  amount: number
-  currency: string
-  card: CardMetadata
-  ipAddress: string
-  userCountry: string
-  timestamp: number
-  status: 'succeeded' | 'failed' | 'refunded' | 'disputed'
-  failureReason?: string
-  isRefund: boolean
-  refundReason?: string
+  id: string;
+  userId: string;
+  subscriptionId: string;
+  workspaceId: string;
+  amount: number;
+  currency: string;
+  card: CardMetadata;
+  ipAddress: string;
+  userCountry: string;
+  timestamp: number;
+  status: "succeeded" | "failed" | "refunded" | "disputed";
+  failureReason?: string;
+  isRefund: boolean;
+  refundReason?: string;
 }
 
 /**
  * Refund history for an account.
  */
 export interface RefundHistory {
-  userId: string
-  totalRefunds: number
-  totalRefundAmount: number
-  refundRate: number
-  recentRefunds: PaymentEvent[]
-  refundReasons: Record<string, number>
+  userId: string;
+  totalRefunds: number;
+  totalRefundAmount: number;
+  refundRate: number;
+  recentRefunds: PaymentEvent[];
+  refundReasons: Record<string, number>;
 }
 
 /**
  * Chargeback risk assessment.
  */
 export interface ChargebackRiskScore {
-  userId: string
-  score: number
-  riskLevel: RiskLevel
-  factors: ChargebackRiskFactor[]
-  recommendation: string
+  userId: string;
+  score: number;
+  riskLevel: RiskLevel;
+  factors: ChargebackRiskFactor[];
+  recommendation: string;
 }
 
 /**
  * Individual chargeback risk factor.
  */
 export interface ChargebackRiskFactor {
-  name: string
-  weight: number
-  value: number
-  contribution: number
-  description: string
+  name: string;
+  weight: number;
+  value: number;
+  contribution: number;
+  description: string;
 }
 
 /**
  * Payment abuse analysis result.
  */
 export interface PaymentAbuseAnalysis {
-  userId: string
-  workspaceId: string
-  signals: AbuseSignal[]
-  cardTestingDetected: boolean
-  velocityExceeded: boolean
-  binMismatchDetected: boolean
-  disposableCardDetected: boolean
-  refundAbuseDetected: boolean
-  chargebackRisk: ChargebackRiskScore
-  overallRisk: RiskLevel
-  recommendedAction: EnforcementAction
+  userId: string;
+  workspaceId: string;
+  signals: AbuseSignal[];
+  cardTestingDetected: boolean;
+  velocityExceeded: boolean;
+  binMismatchDetected: boolean;
+  disposableCardDetected: boolean;
+  refundAbuseDetected: boolean;
+  chargebackRisk: ChargebackRiskScore;
+  overallRisk: RiskLevel;
+  recommendedAction: EnforcementAction;
 }
 
 /**
@@ -388,29 +404,29 @@ export interface PaymentAbuseAnalysis {
  */
 export interface PaymentHeuristicsConfig {
   /** Max failed payment attempts in window before flagging card testing */
-  maxFailedAttemptsInWindow: number
+  maxFailedAttemptsInWindow: number;
   /** Window for card testing detection (ms) */
-  cardTestingWindowMs: number
+  cardTestingWindowMs: number;
   /** Max small-amount charges in window (card testing pattern) */
-  maxSmallChargesInWindow: number
+  maxSmallChargesInWindow: number;
   /** Amount threshold for "small charge" (cents) */
-  smallChargeThreshold: number
+  smallChargeThreshold: number;
   /** Max payment attempts per hour */
-  maxAttemptsPerHour: number
+  maxAttemptsPerHour: number;
   /** Max payment attempts per day */
-  maxAttemptsPerDay: number
+  maxAttemptsPerDay: number;
   /** Whether to flag BIN country mismatches */
-  flagBinCountryMismatch: boolean
+  flagBinCountryMismatch: boolean;
   /** Whether to flag prepaid/virtual cards */
-  flagPrepaidCards: boolean
+  flagPrepaidCards: boolean;
   /** Refund rate threshold (0-1) above which refund abuse is flagged */
-  refundRateThreshold: number
+  refundRateThreshold: number;
   /** Min refunds to consider for refund rate */
-  minRefundsForRate: number
+  minRefundsForRate: number;
   /** Chargeback risk score threshold (0-100) */
-  chargebackRiskThreshold: number
+  chargebackRiskThreshold: number;
   /** Expected amount ranges per plan tier */
-  expectedAmountRanges: Record<string, { min: number; max: number }>
+  expectedAmountRanges: Record<string, { min: number; max: number }>;
 }
 
 // ============================================================================
@@ -422,69 +438,69 @@ export interface PaymentHeuristicsConfig {
  */
 export interface AbuseReport {
   /** Unique report identifier */
-  id: string
+  id: string;
   /** Account under review */
-  accountId: string
+  accountId: string;
   /** Subscription ID */
-  subscriptionId: string
+  subscriptionId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Plan tier */
-  planTier: PlanTier
+  planTier: PlanTier;
   /** When the report was generated */
-  generatedAt: number
+  generatedAt: number;
   /** Aggregated risk score (0-100) */
-  riskScore: number
+  riskScore: number;
   /** Overall risk level */
-  riskLevel: RiskLevel
+  riskLevel: RiskLevel;
   /** All detected signals */
-  signals: AbuseSignal[]
+  signals: AbuseSignal[];
   /** Sharing analysis (if applicable) */
-  sharingAnalysis: SharingAnalysis | null
+  sharingAnalysis: SharingAnalysis | null;
   /** Seat abuse analysis (if applicable) */
-  seatAnalysis: SeatAbuseAnalysis | null
+  seatAnalysis: SeatAbuseAnalysis | null;
   /** Payment abuse analysis (if applicable) */
-  paymentAnalysis: PaymentAbuseAnalysis | null
+  paymentAnalysis: PaymentAbuseAnalysis | null;
   /** Recommended enforcement action */
-  recommendedAction: EnforcementAction
+  recommendedAction: EnforcementAction;
   /** Whether action was auto-applied */
-  actionApplied: boolean
+  actionApplied: boolean;
   /** Action that was applied (if any) */
-  appliedAction: EnforcementAction | null
+  appliedAction: EnforcementAction | null;
   /** Appeal (if any) */
-  appeal: AbuseAppeal | null
+  appeal: AbuseAppeal | null;
   /** Audit trail */
-  auditTrail: AbuseAuditEntry[]
+  auditTrail: AbuseAuditEntry[];
 }
 
 /**
  * An appeal against an enforcement action.
  */
 export interface AbuseAppeal {
-  id: string
-  reportId: string
-  accountId: string
-  status: AppealStatus
-  reason: string
-  evidence?: string
-  submittedAt: number
-  reviewedAt?: number
-  reviewedBy?: string
-  resolution?: string
-  restoredAccess: boolean
+  id: string;
+  reportId: string;
+  accountId: string;
+  status: AppealStatus;
+  reason: string;
+  evidence?: string;
+  submittedAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
+  resolution?: string;
+  restoredAccess: boolean;
 }
 
 /**
  * Audit trail entry for abuse enforcement.
  */
 export interface AbuseAuditEntry {
-  id: string
-  reportId: string
-  action: string
-  actor: string
-  actorType: 'system' | 'admin' | 'user'
-  timestamp: number
-  details: Record<string, unknown>
+  id: string;
+  reportId: string;
+  action: string;
+  actor: string;
+  actorType: "system" | "admin" | "user";
+  timestamp: number;
+  details: Record<string, unknown>;
 }
 
 /**
@@ -492,30 +508,30 @@ export interface AbuseAuditEntry {
  */
 export interface AbuseEngineConfig {
   /** Whether the engine is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Per-plan tier configurations */
-  planConfigs: Partial<Record<PlanTier, PlanAbuseConfig>>
+  planConfigs: Partial<Record<PlanTier, PlanAbuseConfig>>;
   /** Default config for plans not explicitly configured */
-  defaultConfig: PlanAbuseConfig
+  defaultConfig: PlanAbuseConfig;
   /** Risk score thresholds for each level */
-  riskThresholds: RiskThresholds
+  riskThresholds: RiskThresholds;
   /** Automated enforcement actions per risk level */
-  enforcementPolicy: Record<RiskLevel, EnforcementAction>
+  enforcementPolicy: Record<RiskLevel, EnforcementAction>;
   /** Whether to auto-apply enforcement actions */
-  autoEnforce: boolean
+  autoEnforce: boolean;
   /** Categories to enable */
-  enabledCategories: AbuseCategory[]
+  enabledCategories: AbuseCategory[];
   /** Global cooldown between repeated enforcement on same account (ms) */
-  enforcementCooldownMs: number
+  enforcementCooldownMs: number;
 }
 
 /**
  * Plan-specific abuse configuration.
  */
 export interface PlanAbuseConfig {
-  sharing: AntiSharingConfig
-  seatAbuse: SeatAbuseConfig
-  paymentHeuristics: PaymentHeuristicsConfig
+  sharing: AntiSharingConfig;
+  seatAbuse: SeatAbuseConfig;
+  paymentHeuristics: PaymentHeuristicsConfig;
 }
 
 /**
@@ -523,11 +539,11 @@ export interface PlanAbuseConfig {
  */
 export interface RiskThresholds {
   /** Score at or below which risk is "low" */
-  low: number
+  low: number;
   /** Score at or below which risk is "medium" */
-  medium: number
+  medium: number;
   /** Score at or below which risk is "high" */
-  high: number
+  high: number;
   /** Score above "high" is "critical" */
 }
 
@@ -535,13 +551,13 @@ export interface RiskThresholds {
  * Batch scan result for periodic audits.
  */
 export interface BatchScanResult {
-  scannedAt: number
-  totalAccounts: number
-  accountsScanned: number
-  reportsGenerated: AbuseReport[]
-  riskDistribution: Record<RiskLevel, number>
-  actionsApplied: number
-  errors: Array<{ accountId: string; error: string }>
+  scannedAt: number;
+  totalAccounts: number;
+  accountsScanned: number;
+  reportsGenerated: AbuseReport[];
+  riskDistribution: Record<RiskLevel, number>;
+  actionsApplied: number;
+  errors: Array<{ accountId: string; error: string }>;
 }
 
 // ============================================================================
@@ -557,7 +573,7 @@ export const DEFAULT_ANTI_SHARING_CONFIG: AntiSharingConfig = {
   maxPlausibleSpeedKmh: 900, // roughly max commercial flight speed
   gracePeriodMs: 15 * 60 * 1000, // 15 minutes
   minConfidence: 0.6,
-}
+};
 
 export const DEFAULT_SEAT_ABUSE_CONFIG: SeatAbuseConfig = {
   ghostSeatThresholdDays: 30,
@@ -568,7 +584,7 @@ export const DEFAULT_SEAT_ABUSE_CONFIG: SeatAbuseConfig = {
   reassignmentWindowMs: 7 * 24 * 60 * 60 * 1000, // 7 days
   lowUtilizationThreshold: 20,
   costPerSeatCents: 1500, // $15/seat/month
-}
+};
 
 export const DEFAULT_PAYMENT_HEURISTICS_CONFIG: PaymentHeuristicsConfig = {
   maxFailedAttemptsInWindow: 5,
@@ -589,38 +605,47 @@ export const DEFAULT_PAYMENT_HEURISTICS_CONFIG: PaymentHeuristicsConfig = {
     enterprise: { min: 10000, max: 500000 },
     custom: { min: 0, max: 1000000 },
   },
-}
+};
 
 export const DEFAULT_RISK_THRESHOLDS: RiskThresholds = {
   low: 25,
   medium: 50,
   high: 75,
   // critical is > 75
-}
+};
 
-export const DEFAULT_ENFORCEMENT_POLICY: Record<RiskLevel, EnforcementAction> = {
-  low: 'none',
-  medium: 'warn',
-  high: 'throttle',
-  critical: 'suspend',
-}
+export const DEFAULT_ENFORCEMENT_POLICY: Record<RiskLevel, EnforcementAction> =
+  {
+    low: "none",
+    medium: "warn",
+    high: "throttle",
+    critical: "suspend",
+  };
 
 export const DEFAULT_PLAN_ABUSE_CONFIG: PlanAbuseConfig = {
   sharing: DEFAULT_ANTI_SHARING_CONFIG,
   seatAbuse: DEFAULT_SEAT_ABUSE_CONFIG,
   paymentHeuristics: DEFAULT_PAYMENT_HEURISTICS_CONFIG,
-}
+};
 
 export const DEFAULT_ABUSE_ENGINE_CONFIG: AbuseEngineConfig = {
   enabled: true,
   planConfigs: {
     free: {
-      sharing: { ...DEFAULT_ANTI_SHARING_CONFIG, maxConcurrentSessions: 1, maxUniqueDevices: 2 },
+      sharing: {
+        ...DEFAULT_ANTI_SHARING_CONFIG,
+        maxConcurrentSessions: 1,
+        maxUniqueDevices: 2,
+      },
       seatAbuse: { ...DEFAULT_SEAT_ABUSE_CONFIG, ghostSeatThresholdDays: 14 },
       paymentHeuristics: DEFAULT_PAYMENT_HEURISTICS_CONFIG,
     },
     enterprise: {
-      sharing: { ...DEFAULT_ANTI_SHARING_CONFIG, maxConcurrentSessions: 10, maxUniqueDevices: 20 },
+      sharing: {
+        ...DEFAULT_ANTI_SHARING_CONFIG,
+        maxConcurrentSessions: 10,
+        maxUniqueDevices: 20,
+      },
       seatAbuse: { ...DEFAULT_SEAT_ABUSE_CONFIG, ghostSeatThresholdDays: 60 },
       paymentHeuristics: DEFAULT_PAYMENT_HEURISTICS_CONFIG,
     },
@@ -629,6 +654,6 @@ export const DEFAULT_ABUSE_ENGINE_CONFIG: AbuseEngineConfig = {
   riskThresholds: DEFAULT_RISK_THRESHOLDS,
   enforcementPolicy: DEFAULT_ENFORCEMENT_POLICY,
   autoEnforce: true,
-  enabledCategories: ['sharing', 'seat_abuse', 'payment_abuse'],
+  enabledCategories: ["sharing", "seat_abuse", "payment_abuse"],
   enforcementCooldownMs: 60 * 60 * 1000, // 1 hour
-}
+};

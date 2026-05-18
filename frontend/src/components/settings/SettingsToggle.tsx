@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Sparkles } from 'lucide-react'
+import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles } from "lucide-react";
 
 interface SettingsToggleProps {
-  id: string
-  label: string
-  description?: string
-  checked: boolean
-  onCheckedChange: (checked: boolean) => void
-  disabled?: boolean
-  premium?: boolean
-  className?: string
+  id: string;
+  label: string;
+  description?: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  premium?: boolean;
+  className?: string;
 }
 
 /**
@@ -33,9 +33,9 @@ export function SettingsToggle({
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-4 py-3',
-        disabled && 'opacity-60',
-        className
+        "flex items-center justify-between gap-4 py-3",
+        disabled && "opacity-60",
+        className,
       )}
     >
       <div className="flex-1 space-y-0.5">
@@ -43,8 +43,8 @@ export function SettingsToggle({
           <Label
             htmlFor={id}
             className={cn(
-              'text-sm font-medium',
-              disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+              "text-sm font-medium",
+              disabled ? "cursor-not-allowed" : "cursor-pointer",
             )}
           >
             {label}
@@ -56,7 +56,9 @@ export function SettingsToggle({
             </Badge>
           )}
         </div>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
       </div>
       <Switch
         id={id}
@@ -66,5 +68,5 @@ export function SettingsToggle({
         aria-describedby={description ? `${id}-description` : undefined}
       />
     </div>
-  )
+  );
 }

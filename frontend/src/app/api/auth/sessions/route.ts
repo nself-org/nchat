@@ -14,29 +14,29 @@
  * - Old session IDs invalidated immediately
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { randomBytes } from 'crypto'
-import { sessionManager } from '@/lib/auth/session-manager'
-import type { Session, SessionLocation } from '@/lib/security/session-store'
+import { NextRequest, NextResponse } from "next/server";
+import { randomBytes } from "crypto";
+import { sessionManager } from "@/lib/auth/session-manager";
+import type { Session, SessionLocation } from "@/lib/security/session-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types for Device Listing
 // ============================================================================
 
 interface DeviceInfo {
-  id: string
-  name: string
-  type: 'mobile' | 'tablet' | 'desktop'
-  platform: 'web' | 'ios' | 'android' | 'electron' | 'tauri'
-  browser?: string
-  os: string
-  lastActive: string
-  isCurrent: boolean
-  ipAddress?: string
-  location?: SessionLocation
-  trusted: boolean
+  id: string;
+  name: string;
+  type: "mobile" | "tablet" | "desktop";
+  platform: "web" | "ios" | "android" | "electron" | "tauri";
+  browser?: string;
+  os: string;
+  lastActive: string;
+  isCurrent: boolean;
+  ipAddress?: string;
+  location?: SessionLocation;
+  trusted: boolean;
 }
 
 // ============================================================================
@@ -44,8 +44,8 @@ interface DeviceInfo {
 // ============================================================================
 
 function sessionToDeviceInfo(session: Session): DeviceInfo {
-  const deviceType = getDeviceType(session.device)
-  const platform = getPlatformFromOS(session.os)
+  const deviceType = getDeviceType(session.device);
+  const platform = getPlatformFromOS(session.os);
 
   return {
     id: session.id,
@@ -59,27 +59,34 @@ function sessionToDeviceInfo(session: Session): DeviceInfo {
     ipAddress: session.ipAddress,
     location: session.location,
     trusted: true, // Would be determined by device trust status in production
-  }
+  };
 }
 
-function getDeviceType(device: string): 'mobile' | 'tablet' | 'desktop' {
-  const lower = device.toLowerCase()
-  if (lower.includes('mobile') || lower.includes('phone')) return 'mobile'
-  if (lower.includes('tablet') || lower.includes('ipad')) return 'tablet'
-  return 'desktop'
+function getDeviceType(device: string): "mobile" | "tablet" | "desktop" {
+  const lower = device.toLowerCase();
+  if (lower.includes("mobile") || lower.includes("phone")) return "mobile";
+  if (lower.includes("tablet") || lower.includes("ipad")) return "tablet";
+  return "desktop";
 }
 
-function getPlatformFromOS(os: string): 'web' | 'ios' | 'android' | 'electron' | 'tauri' {
-  const lower = os.toLowerCase()
-  if (lower.includes('ios') || lower.includes('iphone') || lower.includes('ipad')) return 'ios'
-  if (lower.includes('android')) return 'android'
-  return 'web'
+function getPlatformFromOS(
+  os: string,
+): "web" | "ios" | "android" | "electron" | "tauri" {
+  const lower = os.toLowerCase();
+  if (
+    lower.includes("ios") ||
+    lower.includes("iphone") ||
+    lower.includes("ipad")
+  )
+    return "ios";
+  if (lower.includes("android")) return "android";
+  return "web";
 }
 
 function generateNewSessionId(): string {
-  const timestamp = Date.now().toString(36)
-  const randomPart = randomBytes(8).toString('hex')
-  return `sess_${timestamp}_${randomPart}`
+  const timestamp = Date.now().toString(36);
+  const randomPart = randomBytes(8).toString("hex");
+  return `sess_${timestamp}_${randomPart}`;
 }
 
 // ============================================================================
@@ -88,21 +95,21 @@ function generateNewSessionId(): string {
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId')
-    const format = searchParams.get('format') || 'sessions' // 'sessions' or 'devices'
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get("userId");
+    const format = searchParams.get("format") || "sessions"; // 'sessions' or 'devices'
 
     if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 })
+      return NextResponse.json({ error: "User ID required" }, { status: 400 });
     }
 
     // Fetch sessions from database via GraphQL
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'}`,
+      `${process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql"}`,
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           query: `
@@ -127,39 +134,42 @@ export async function GET(request: NextRequest) {
           `,
           variables: { userId },
         }),
-      }
-    )
+      },
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch sessions from GraphQL')
+      throw new Error("Failed to fetch sessions from GraphQL");
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     // Validate sessions and filter expired ones
-    const sessions = data.data?.nchat_user_sessions || []
+    const sessions = data.data?.nchat_user_sessions || [];
     const validSessions = sessions.filter((session: Session) => {
-      return sessionManager.validateSession(session).valid
-    })
+      return sessionManager.validateSession(session).valid;
+    });
 
     // Return device format if requested
-    if (format === 'devices') {
-      const devices = validSessions.map(sessionToDeviceInfo)
+    if (format === "devices") {
+      const devices = validSessions.map(sessionToDeviceInfo);
       return NextResponse.json({
         devices,
         total: devices.length,
         currentDevice: devices.find((d: DeviceInfo) => d.isCurrent) || null,
-      })
+      });
     }
 
     // Return sessions format (default)
     return NextResponse.json({
       sessions: validSessions,
       total: validSessions.length,
-    })
+    });
   } catch (error) {
-    logger.error('Error fetching sessions:', error)
-    return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 })
+    logger.error("Error fetching sessions:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch sessions" },
+      { status: 500 },
+    );
   }
 }
 
@@ -169,27 +179,28 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { userId, currentSessionId, reason } = body
+    const body = await request.json();
+    const { userId, currentSessionId, reason } = body;
 
     if (!userId || !currentSessionId) {
       return NextResponse.json(
-        { error: 'User ID and current session ID required' },
-        { status: 400 }
-      )
+        { error: "User ID and current session ID required" },
+        { status: 400 },
+      );
     }
 
     // Generate new session ID
-    const newSessionId = generateNewSessionId()
-    const now = new Date().toISOString()
+    const newSessionId = generateNewSessionId();
+    const now = new Date().toISOString();
 
     // Update session in database with new ID (atomic operation)
-    const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
+    const graphqlUrl =
+      process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql";
 
     // First, get the current session data
     const getResponse = await fetch(graphqlUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
           query GetSession($sessionId: uuid!) {
@@ -209,23 +220,26 @@ export async function PUT(request: NextRequest) {
         `,
         variables: { sessionId: currentSessionId },
       }),
-    })
+    });
 
     if (!getResponse.ok) {
-      throw new Error('Failed to fetch current session')
+      throw new Error("Failed to fetch current session");
     }
 
-    const getData = await getResponse.json()
-    const currentSession = getData.data?.nchat_user_sessions_by_pk
+    const getData = await getResponse.json();
+    const currentSession = getData.data?.nchat_user_sessions_by_pk;
 
     if (!currentSession || currentSession.user_id !== userId) {
-      return NextResponse.json({ error: 'Session not found or unauthorized' }, { status: 404 })
+      return NextResponse.json(
+        { error: "Session not found or unauthorized" },
+        { status: 404 },
+      );
     }
 
     // Delete old session and create new one (atomic via transaction in production)
     const rotateResponse = await fetch(graphqlUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
           mutation RotateSession(
@@ -267,21 +281,21 @@ export async function PUT(request: NextRequest) {
           },
         },
       }),
-    })
+    });
 
     if (!rotateResponse.ok) {
-      throw new Error('Failed to rotate session ID')
+      throw new Error("Failed to rotate session ID");
     }
 
-    const rotateData = await rotateResponse.json()
-    const newSession = rotateData.data?.insert_nchat_user_sessions_one
+    const rotateData = await rotateResponse.json();
+    const newSession = rotateData.data?.insert_nchat_user_sessions_one;
 
-    logger.info('Session ID rotated for anti-session-fixation', {
+    logger.info("Session ID rotated for anti-session-fixation", {
       userId,
-      oldSessionId: currentSessionId.slice(0, 8) + '...',
-      newSessionId: newSessionId.slice(0, 8) + '...',
-      reason: reason || 'scheduled_rotation',
-    })
+      oldSessionId: currentSessionId.slice(0, 8) + "...",
+      newSessionId: newSessionId.slice(0, 8) + "...",
+      reason: reason || "scheduled_rotation",
+    });
 
     return NextResponse.json({
       success: true,
@@ -289,10 +303,13 @@ export async function PUT(request: NextRequest) {
       oldSessionId: currentSessionId,
       newSessionId,
       rotatedAt: now,
-    })
+    });
   } catch (error) {
-    logger.error('Error rotating session ID:', error)
-    return NextResponse.json({ error: 'Failed to rotate session ID' }, { status: 500 })
+    logger.error("Error rotating session ID:", error);
+    return NextResponse.json(
+      { error: "Failed to rotate session ID" },
+      { status: 500 },
+    );
   }
 }
 
@@ -302,24 +319,35 @@ export async function PUT(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { userId, rememberMe, deviceFingerprint, ipAddress, invalidatePreviousSession } = body
+    const body = await request.json();
+    const {
+      userId,
+      rememberMe,
+      deviceFingerprint,
+      ipAddress,
+      invalidatePreviousSession,
+    } = body;
 
     if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 })
+      return NextResponse.json({ error: "User ID required" }, { status: 400 });
     }
 
     if (!ipAddress) {
-      return NextResponse.json({ error: 'IP address required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "IP address required" },
+        { status: 400 },
+      );
     }
 
     // ANTI-SESSION-FIXATION: Optionally invalidate any previous session for this device
     if (invalidatePreviousSession && deviceFingerprint?.hash) {
       try {
-        const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
+        const graphqlUrl =
+          process.env.NEXT_PUBLIC_GRAPHQL_URL ||
+          "http://localhost:8080/v1/graphql";
         await fetch(graphqlUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: `
               mutation InvalidatePreviousSessions($userId: uuid!, $deviceHash: String!) {
@@ -338,28 +366,30 @@ export async function POST(request: NextRequest) {
               deviceHash: deviceFingerprint.hash,
             },
           }),
-        })
+        });
       } catch (error) {
-        logger.warn('Failed to invalidate previous sessions:', { context: String(error) })
+        logger.warn("Failed to invalidate previous sessions:", {
+          context: String(error),
+        });
         // Continue with session creation even if invalidation fails
       }
     }
 
     // Get location from IP (using a geolocation service)
-    let location = undefined
+    let location = undefined;
     try {
-      const geoResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`)
+      const geoResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`);
       if (geoResponse.ok) {
-        const geoData = await geoResponse.json()
+        const geoData = await geoResponse.json();
         location = {
           city: geoData.city,
           country: geoData.country_name,
           region: geoData.region,
           countryCode: geoData.country_code,
-        }
+        };
       }
     } catch (error) {
-      logger.warn('Failed to get geolocation:', { context: error })
+      logger.warn("Failed to get geolocation:", { context: error });
     }
 
     // Create session
@@ -369,15 +399,15 @@ export async function POST(request: NextRequest) {
       deviceFingerprint,
       location,
       ipAddress,
-    })
+    });
 
     // In production, save to database via GraphQL
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'}`,
+      `${process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql"}`,
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           query: `
@@ -413,23 +443,23 @@ export async function POST(request: NextRequest) {
             },
           },
         }),
-      }
-    )
+      },
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to save session to database')
+      throw new Error("Failed to save session to database");
     }
 
-    const data = await response.json()
-    const createdSession = data.data?.insert_nchat_user_sessions_one
+    const data = await response.json();
+    const createdSession = data.data?.insert_nchat_user_sessions_one;
 
     // Check for suspicious activity
     const previousSessionsResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'}`,
+      `${process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql"}`,
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           query: `
@@ -456,24 +486,30 @@ export async function POST(request: NextRequest) {
             currentSessionId: session.id,
           },
         }),
-      }
-    )
+      },
+    );
 
-    let suspiciousActivity = null
+    let suspiciousActivity = null;
     if (previousSessionsResponse.ok) {
-      const previousData = await previousSessionsResponse.json()
-      const previousSessions = previousData.data?.nchat_user_sessions || []
+      const previousData = await previousSessionsResponse.json();
+      const previousSessions = previousData.data?.nchat_user_sessions || [];
 
-      suspiciousActivity = sessionManager.detectSuspiciousActivity(session, previousSessions)
+      suspiciousActivity = sessionManager.detectSuspiciousActivity(
+        session,
+        previousSessions,
+      );
     }
 
     return NextResponse.json({
       session: createdSession || session,
       suspiciousActivity,
-    })
+    });
   } catch (error) {
-    logger.error('Error creating session:', error)
-    return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
+    logger.error("Error creating session:", error);
+    return NextResponse.json(
+      { error: "Failed to create session" },
+      { status: 500 },
+    );
   }
 }
 
@@ -483,29 +519,32 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const sessionId = searchParams.get('sessionId')
-    const userId = searchParams.get('userId')
-    const revokeAll = searchParams.get('revokeAll') === 'true'
+    const searchParams = request.nextUrl.searchParams;
+    const sessionId = searchParams.get("sessionId");
+    const userId = searchParams.get("userId");
+    const revokeAll = searchParams.get("revokeAll") === "true";
 
     if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 })
+      return NextResponse.json({ error: "User ID required" }, { status: 400 });
     }
 
     if (revokeAll) {
       // Revoke all other sessions (keep current)
-      const currentSessionId = searchParams.get('currentSessionId')
+      const currentSessionId = searchParams.get("currentSessionId");
 
       if (!currentSessionId) {
-        return NextResponse.json({ error: 'Current session ID required' }, { status: 400 })
+        return NextResponse.json(
+          { error: "Current session ID required" },
+          { status: 400 },
+        );
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'}`,
+        `${process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql"}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             query: `
@@ -525,32 +564,36 @@ export async function DELETE(request: NextRequest) {
               currentSessionId,
             },
           }),
-        }
-      )
+        },
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to revoke sessions')
+        throw new Error("Failed to revoke sessions");
       }
 
-      const data = await response.json()
-      const affectedRows = data.data?.delete_nchat_user_sessions?.affected_rows || 0
+      const data = await response.json();
+      const affectedRows =
+        data.data?.delete_nchat_user_sessions?.affected_rows || 0;
 
       return NextResponse.json({
         success: true,
         revokedCount: affectedRows,
-      })
+      });
     } else {
       // Revoke single session
       if (!sessionId) {
-        return NextResponse.json({ error: 'Session ID required' }, { status: 400 })
+        return NextResponse.json(
+          { error: "Session ID required" },
+          { status: 400 },
+        );
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'}`,
+        `${process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql"}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             query: `
@@ -564,20 +607,23 @@ export async function DELETE(request: NextRequest) {
               sessionId,
             },
           }),
-        }
-      )
+        },
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to revoke session')
+        throw new Error("Failed to revoke session");
       }
 
       return NextResponse.json({
         success: true,
         revokedSessionId: sessionId,
-      })
+      });
     }
   } catch (error) {
-    logger.error('Error revoking session:', error)
-    return NextResponse.json({ error: 'Failed to revoke session' }, { status: 500 })
+    logger.error("Error revoking session:", error);
+    return NextResponse.json(
+      { error: "Failed to revoke session" },
+      { status: 500 },
+    );
   }
 }

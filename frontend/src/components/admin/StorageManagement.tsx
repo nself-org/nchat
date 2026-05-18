@@ -1,24 +1,30 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +34,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   HardDrive,
   Users,
@@ -53,8 +59,8 @@ import {
   Settings,
   ArrowUpCircle,
   RefreshCw,
-} from 'lucide-react'
-import { StatsCard, StatsGrid } from './stats-card'
+} from "lucide-react";
+import { StatsCard, StatsGrid } from "./stats-card";
 import {
   formatBytes,
   getQuotaStatus,
@@ -65,21 +71,23 @@ import {
   type QuotaWarning,
   type CleanupPolicy,
   type StorageTier,
-} from '@/lib/storage/quota-manager'
-import { cn } from '@/lib/utils'
+} from "@/lib/storage/quota-manager";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface StorageManagementProps {
-  className?: string
+  className?: string;
 }
 
 export function StorageManagement({ className }: StorageManagementProps) {
-  const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState<StorageStats | null>(null)
-  const [teamQuota, setTeamQuota] = useState<StorageQuota | null>(null)
-  const [breakdown, setBreakdown] = useState<StorageUsageBreakdown | null>(null)
-  const [warnings, setWarnings] = useState<QuotaWarning[]>([])
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<StorageStats | null>(null);
+  const [teamQuota, setTeamQuota] = useState<StorageQuota | null>(null);
+  const [breakdown, setBreakdown] = useState<StorageUsageBreakdown | null>(
+    null,
+  );
+  const [warnings, setWarnings] = useState<QuotaWarning[]>([]);
   const [cleanupPolicy, setCleanupPolicy] = useState<CleanupPolicy>({
     enabled: false,
     deleteOlderThan: 90,
@@ -87,118 +95,128 @@ export function StorageManagement({ className }: StorageManagementProps) {
     archiveMessagesOlderThan: 180,
     deleteCacheOlderThan: 7,
     maintainFreeSpace: 20,
-  })
-  const [selectedTier, setSelectedTier] = useState<string>('free')
-  const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false)
-  const [optimizeLoading, setOptimizeLoading] = useState(false)
+  });
+  const [selectedTier, setSelectedTier] = useState<string>("free");
+  const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
+  const [optimizeLoading, setOptimizeLoading] = useState(false);
 
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   const loadData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       // Load statistics
-      const statsRes = await fetch('/api/storage?action=stats')
-      const statsData = await statsRes.json()
-      setStats(statsData)
+      const statsRes = await fetch("/api/storage?action=stats");
+      const statsData = await statsRes.json();
+      setStats(statsData);
 
       // Load team quota (using placeholder team ID)
-      const quotaRes = await fetch('/api/storage?action=quota&entityId=team-1&entityType=team')
-      const quotaData = await quotaRes.json()
-      setTeamQuota(quotaData)
+      const quotaRes = await fetch(
+        "/api/storage?action=quota&entityId=team-1&entityType=team",
+      );
+      const quotaData = await quotaRes.json();
+      setTeamQuota(quotaData);
 
       // Load usage breakdown
       const breakdownRes = await fetch(
-        '/api/storage?action=breakdown&entityId=team-1&entityType=team'
-      )
-      const breakdownData = await breakdownRes.json()
-      setBreakdown(breakdownData)
+        "/api/storage?action=breakdown&entityId=team-1&entityType=team",
+      );
+      const breakdownData = await breakdownRes.json();
+      setBreakdown(breakdownData);
 
       // Load warnings
       const warningsRes = await fetch(
-        '/api/storage?action=warnings&entityId=team-1&entityType=team'
-      )
-      const warningsData = await warningsRes.json()
-      setWarnings(warningsData)
+        "/api/storage?action=warnings&entityId=team-1&entityType=team",
+      );
+      const warningsData = await warningsRes.json();
+      setWarnings(warningsData);
     } catch (error) {
-      logger.error('Failed to load storage data:', error)
+      logger.error("Failed to load storage data:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleOptimizeStorage = async () => {
-    setOptimizeLoading(true)
+    setOptimizeLoading(true);
     try {
-      const res = await fetch('/api/storage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/storage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'optimize',
-          entityId: 'team-1',
-          entityType: 'team',
+          action: "optimize",
+          entityId: "team-1",
+          entityType: "team",
         }),
-      })
-      await res.json()
-      await loadData()
+      });
+      await res.json();
+      await loadData();
     } catch (error) {
-      logger.error('Failed to optimize storage:', error)
+      logger.error("Failed to optimize storage:", error);
     } finally {
-      setOptimizeLoading(false)
+      setOptimizeLoading(false);
     }
-  }
+  };
 
   const handleApplyCleanup = async () => {
     try {
-      const res = await fetch('/api/storage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/storage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'cleanup',
-          entityId: 'team-1',
-          entityType: 'team',
+          action: "cleanup",
+          entityId: "team-1",
+          entityType: "team",
           policy: cleanupPolicy,
         }),
-      })
-      await res.json()
-      setCleanupDialogOpen(false)
-      await loadData()
+      });
+      await res.json();
+      setCleanupDialogOpen(false);
+      await loadData();
     } catch (error) {
-      logger.error('Failed to apply cleanup:', error)
+      logger.error("Failed to apply cleanup:", error);
     }
-  }
+  };
 
   const handleAcknowledgeWarning = async (warningId: string) => {
     try {
-      await fetch('/api/storage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/storage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'acknowledge-warning',
+          action: "acknowledge-warning",
           warningId,
         }),
-      })
-      await loadData()
+      });
+      await loadData();
     } catch (error) {
-      logger.error('Failed to acknowledge warning:', error)
+      logger.error("Failed to acknowledge warning:", error);
     }
-  }
+  };
 
-  const quotaStatus = teamQuota ? getQuotaStatus(teamQuota.used, teamQuota.limit) : 'ok'
+  const quotaStatus = teamQuota
+    ? getQuotaStatus(teamQuota.used, teamQuota.limit)
+    : "ok";
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Storage Management</h2>
-          <p className="text-muted-foreground">Monitor and manage your team's storage usage</p>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Storage Management
+          </h2>
+          <p className="text-muted-foreground">
+            Monitor and manage your team's storage usage
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={loadData} disabled={loading}>
-            <RefreshCw className={cn('mr-2 h-4 w-4', loading && 'animate-spin')} />
+            <RefreshCw
+              className={cn("mr-2 h-4 w-4", loading && "animate-spin")}
+            />
             Refresh
           </Button>
           <Button onClick={handleOptimizeStorage} disabled={optimizeLoading}>
@@ -214,12 +232,12 @@ export function StorageManagement({ className }: StorageManagementProps) {
           {warnings.map((warning) => (
             <Alert
               key={warning.id}
-              variant={warning.type === 'exceeded' ? 'destructive' : 'default'}
+              variant={warning.type === "exceeded" ? "destructive" : "default"}
               className={cn(
-                warning.type === 'critical' &&
-                  'border-orange-500 bg-orange-50 text-orange-900 dark:bg-orange-950 dark:text-orange-200',
-                warning.type === 'approaching' &&
-                  'border-yellow-500 bg-yellow-50 text-yellow-900 dark:bg-yellow-950 dark:text-yellow-200'
+                warning.type === "critical" &&
+                  "border-orange-500 bg-orange-50 text-orange-900 dark:bg-orange-950 dark:text-orange-200",
+                warning.type === "approaching" &&
+                  "border-yellow-500 bg-yellow-50 text-yellow-900 dark:bg-yellow-950 dark:text-yellow-200",
               )}
             >
               <AlertTriangle className="h-4 w-4" />
@@ -256,7 +274,7 @@ export function StorageManagement({ className }: StorageManagementProps) {
             icon={Database}
             trend={{
               value: 12,
-              label: 'vs last month',
+              label: "vs last month",
               isPositive: false,
             }}
           />
@@ -303,35 +321,44 @@ export function StorageManagement({ className }: StorageManagementProps) {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Used</span>
                     <span className="font-medium">
-                      {formatBytes(teamQuota.used)} / {formatBytes(teamQuota.limit)}
+                      {formatBytes(teamQuota.used)} /{" "}
+                      {formatBytes(teamQuota.limit)}
                     </span>
                   </div>
                   <Progress
                     value={teamQuota.percentage}
                     className={cn(
-                      'h-2',
-                      quotaStatus === 'exceeded' && '[&>*]:bg-red-500',
-                      quotaStatus === 'critical' && '[&>*]:bg-orange-500',
-                      quotaStatus === 'warning' && '[&>*]:bg-yellow-500'
+                      "h-2",
+                      quotaStatus === "exceeded" && "[&>*]:bg-red-500",
+                      quotaStatus === "critical" && "[&>*]:bg-orange-500",
+                      quotaStatus === "warning" && "[&>*]:bg-yellow-500",
                     )}
                   />
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{teamQuota.percentage}% used</span>
                     <Badge
                       variant={
-                        quotaStatus === 'exceeded'
-                          ? 'destructive'
-                          : quotaStatus === 'critical'
-                            ? 'default'
-                            : quotaStatus === 'warning'
-                              ? 'default'
-                              : 'secondary'
+                        quotaStatus === "exceeded"
+                          ? "destructive"
+                          : quotaStatus === "critical"
+                            ? "default"
+                            : quotaStatus === "warning"
+                              ? "default"
+                              : "secondary"
                       }
                     >
-                      {quotaStatus === 'ok' && <CheckCircle2 className="mr-1 h-3 w-3" />}
-                      {quotaStatus === 'warning' && <AlertTriangle className="mr-1 h-3 w-3" />}
-                      {quotaStatus === 'critical' && <AlertTriangle className="mr-1 h-3 w-3" />}
-                      {quotaStatus === 'exceeded' && <XCircle className="mr-1 h-3 w-3" />}
+                      {quotaStatus === "ok" && (
+                        <CheckCircle2 className="mr-1 h-3 w-3" />
+                      )}
+                      {quotaStatus === "warning" && (
+                        <AlertTriangle className="mr-1 h-3 w-3" />
+                      )}
+                      {quotaStatus === "critical" && (
+                        <AlertTriangle className="mr-1 h-3 w-3" />
+                      )}
+                      {quotaStatus === "exceeded" && (
+                        <XCircle className="mr-1 h-3 w-3" />
+                      )}
                       {quotaStatus.toUpperCase()}
                     </Badge>
                   </div>
@@ -341,8 +368,8 @@ export function StorageManagement({ className }: StorageManagementProps) {
                   <Alert>
                     <Calendar className="h-4 w-4" />
                     <AlertDescription>
-                      At current growth rate, storage will be full in approximately{' '}
-                      <strong>{stats.daysUntilFull}</strong> days
+                      At current growth rate, storage will be full in
+                      approximately <strong>{stats.daysUntilFull}</strong> days
                     </AlertDescription>
                   </Alert>
                 )}
@@ -389,62 +416,66 @@ export function StorageManagement({ className }: StorageManagementProps) {
               <Card>
                 <CardHeader>
                   <CardTitle>Storage by Type</CardTitle>
-                  <CardDescription>Breakdown of storage usage by file type</CardDescription>
+                  <CardDescription>
+                    Breakdown of storage usage by file type
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {[
                       {
-                        type: 'Messages',
+                        type: "Messages",
                         size: breakdown.byType.messages,
                         icon: FileText,
-                        color: 'bg-blue-500',
+                        color: "bg-blue-500",
                       },
                       {
-                        type: 'Images',
+                        type: "Images",
                         size: breakdown.byType.images,
                         icon: Image,
-                        color: 'bg-purple-500',
+                        color: "bg-purple-500",
                       },
                       {
-                        type: 'Videos',
+                        type: "Videos",
                         size: breakdown.byType.videos,
                         icon: Video,
-                        color: 'bg-red-500',
+                        color: "bg-red-500",
                       },
                       {
-                        type: 'Audio',
+                        type: "Audio",
                         size: breakdown.byType.audio,
                         icon: Music,
-                        color: 'bg-green-500',
+                        color: "bg-green-500",
                       },
                       {
-                        type: 'Documents',
+                        type: "Documents",
                         size: breakdown.byType.documents,
                         icon: File,
-                        color: 'bg-orange-500',
+                        color: "bg-orange-500",
                       },
                       {
-                        type: 'Archives',
+                        type: "Archives",
                         size: breakdown.byType.archives,
                         icon: Archive,
-                        color: 'bg-yellow-500',
+                        color: "bg-yellow-500",
                       },
                       {
-                        type: 'Code',
+                        type: "Code",
                         size: breakdown.byType.code,
                         icon: Code,
-                        color: 'bg-pink-500',
+                        color: "bg-pink-500",
                       },
                       {
-                        type: 'Cache',
+                        type: "Cache",
                         size: breakdown.byType.cache,
                         icon: Database,
-                        color: 'bg-gray-500',
+                        color: "bg-gray-500",
                       },
                     ].map(({ type, size, icon: Icon, color }) => {
                       const percentage =
-                        breakdown.total > 0 ? Math.round((size / breakdown.total) * 100) : 0
+                        breakdown.total > 0
+                          ? Math.round((size / breakdown.total) * 100)
+                          : 0;
                       return (
                         <div key={type} className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
@@ -458,12 +489,12 @@ export function StorageManagement({ className }: StorageManagementProps) {
                           </div>
                           <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
                             <div
-                              className={cn('h-full transition-all', color)}
+                              className={cn("h-full transition-all", color)}
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </CardContent>
@@ -473,7 +504,9 @@ export function StorageManagement({ className }: StorageManagementProps) {
               <Card>
                 <CardHeader>
                   <CardTitle>Largest Files</CardTitle>
-                  <CardDescription>Files taking up the most space</CardDescription>
+                  <CardDescription>
+                    Files taking up the most space
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[300px]">
@@ -487,12 +520,15 @@ export function StorageManagement({ className }: StorageManagementProps) {
                             <div className="flex-1 space-y-1">
                               <p className="text-sm font-medium">{file.name}</p>
                               <p className="text-xs text-muted-foreground">
-                                Uploaded {new Date(file.uploadedAt).toLocaleDateString()} by{' '}
-                                {file.uploadedBy}
+                                Uploaded{" "}
+                                {new Date(file.uploadedAt).toLocaleDateString()}{" "}
+                                by {file.uploadedBy}
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm font-medium">{formatBytes(file.size)}</p>
+                              <p className="text-sm font-medium">
+                                {formatBytes(file.size)}
+                              </p>
                               <Button variant="ghost" size="sm">
                                 <Trash2 className="h-3 w-3" />
                               </Button>
@@ -547,12 +583,16 @@ export function StorageManagement({ className }: StorageManagementProps) {
           <Card>
             <CardHeader>
               <CardTitle>Cleanup Policy</CardTitle>
-              <CardDescription>Configure automatic storage cleanup</CardDescription>
+              <CardDescription>
+                Configure automatic storage cleanup
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="cleanup-enabled">Enable Automatic Cleanup</Label>
+                  <Label htmlFor="cleanup-enabled">
+                    Enable Automatic Cleanup
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Automatically clean up old files and data
                   </p>
@@ -570,11 +610,13 @@ export function StorageManagement({ className }: StorageManagementProps) {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="delete-files">Delete files older than (days)</Label>
+                  <Label htmlFor="delete-files">
+                    Delete files older than (days)
+                  </Label>
                   <Input
                     id="delete-files"
                     type="number"
-                    value={cleanupPolicy.deleteOlderThan || ''}
+                    value={cleanupPolicy.deleteOlderThan || ""}
                     onChange={(e) =>
                       setCleanupPolicy({
                         ...cleanupPolicy,
@@ -586,15 +628,18 @@ export function StorageManagement({ className }: StorageManagementProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="compress-images">Compress images older than (days)</Label>
+                  <Label htmlFor="compress-images">
+                    Compress images older than (days)
+                  </Label>
                   <Input
                     id="compress-images"
                     type="number"
-                    value={cleanupPolicy.compressImagesOlderThan || ''}
+                    value={cleanupPolicy.compressImagesOlderThan || ""}
                     onChange={(e) =>
                       setCleanupPolicy({
                         ...cleanupPolicy,
-                        compressImagesOlderThan: parseInt(e.target.value) || undefined,
+                        compressImagesOlderThan:
+                          parseInt(e.target.value) || undefined,
                       })
                     }
                     disabled={!cleanupPolicy.enabled}
@@ -602,15 +647,18 @@ export function StorageManagement({ className }: StorageManagementProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="archive-messages">Archive messages older than (days)</Label>
+                  <Label htmlFor="archive-messages">
+                    Archive messages older than (days)
+                  </Label>
                   <Input
                     id="archive-messages"
                     type="number"
-                    value={cleanupPolicy.archiveMessagesOlderThan || ''}
+                    value={cleanupPolicy.archiveMessagesOlderThan || ""}
                     onChange={(e) =>
                       setCleanupPolicy({
                         ...cleanupPolicy,
-                        archiveMessagesOlderThan: parseInt(e.target.value) || undefined,
+                        archiveMessagesOlderThan:
+                          parseInt(e.target.value) || undefined,
                       })
                     }
                     disabled={!cleanupPolicy.enabled}
@@ -618,15 +666,18 @@ export function StorageManagement({ className }: StorageManagementProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="delete-cache">Delete cache older than (days)</Label>
+                  <Label htmlFor="delete-cache">
+                    Delete cache older than (days)
+                  </Label>
                   <Input
                     id="delete-cache"
                     type="number"
-                    value={cleanupPolicy.deleteCacheOlderThan || ''}
+                    value={cleanupPolicy.deleteCacheOlderThan || ""}
                     onChange={(e) =>
                       setCleanupPolicy({
                         ...cleanupPolicy,
-                        deleteCacheOlderThan: parseInt(e.target.value) || undefined,
+                        deleteCacheOlderThan:
+                          parseInt(e.target.value) || undefined,
                       })
                     }
                     disabled={!cleanupPolicy.enabled}
@@ -640,11 +691,12 @@ export function StorageManagement({ className }: StorageManagementProps) {
                     type="number"
                     min="0"
                     max="100"
-                    value={cleanupPolicy.maintainFreeSpace || ''}
+                    value={cleanupPolicy.maintainFreeSpace || ""}
                     onChange={(e) =>
                       setCleanupPolicy({
                         ...cleanupPolicy,
-                        maintainFreeSpace: parseInt(e.target.value) || undefined,
+                        maintainFreeSpace:
+                          parseInt(e.target.value) || undefined,
                       })
                     }
                     disabled={!cleanupPolicy.enabled}
@@ -652,7 +704,10 @@ export function StorageManagement({ className }: StorageManagementProps) {
                 </div>
               </div>
 
-              <Button onClick={() => setCleanupDialogOpen(true)} disabled={!cleanupPolicy.enabled}>
+              <Button
+                onClick={() => setCleanupDialogOpen(true)}
+                disabled={!cleanupPolicy.enabled}
+              >
                 Apply Cleanup Policy
               </Button>
             </CardContent>
@@ -664,7 +719,9 @@ export function StorageManagement({ className }: StorageManagementProps) {
           <Card>
             <CardHeader>
               <CardTitle>Storage Plans</CardTitle>
-              <CardDescription>Upgrade your storage to get more space</CardDescription>
+              <CardDescription>
+                Upgrade your storage to get more space
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -672,8 +729,8 @@ export function StorageManagement({ className }: StorageManagementProps) {
                   <Card
                     key={tier.id}
                     className={cn(
-                      'relative cursor-pointer transition-all hover:border-primary',
-                      selectedTier === tier.id && 'border-primary shadow-md'
+                      "relative cursor-pointer transition-all hover:border-primary",
+                      selectedTier === tier.id && "border-primary shadow-md",
                     )}
                     onClick={() => setSelectedTier(tier.id)}
                   >
@@ -687,7 +744,9 @@ export function StorageManagement({ className }: StorageManagementProps) {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="text-sm font-medium">{formatBytes(tier.limit)}</div>
+                      <div className="text-sm font-medium">
+                        {formatBytes(tier.limit)}
+                      </div>
                       <ul className="space-y-2 text-sm text-muted-foreground">
                         {tier.features.map((feature, index) => (
                           <li key={index} className="flex items-start gap-2">
@@ -696,7 +755,7 @@ export function StorageManagement({ className }: StorageManagementProps) {
                           </li>
                         ))}
                       </ul>
-                      {selectedTier === tier.id && tier.id !== 'free' && (
+                      {selectedTier === tier.id && tier.id !== "free" && (
                         <Button className="w-full">
                           <ArrowUpCircle className="mr-2 h-4 w-4" />
                           Upgrade Now
@@ -717,16 +776,18 @@ export function StorageManagement({ className }: StorageManagementProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Apply Cleanup Policy?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will delete old files and data according to the policy settings. This action
-              cannot be undone.
+              This will delete old files and data according to the policy
+              settings. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleApplyCleanup}>Apply Cleanup</AlertDialogAction>
+            <AlertDialogAction onClick={handleApplyCleanup}>
+              Apply Cleanup
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

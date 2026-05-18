@@ -3,10 +3,10 @@
  * Pure console logging without Sentry to avoid build issues
  */
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export interface LogContext {
-  [key: string]: unknown
+  [key: string]: unknown;
 }
 
 /**
@@ -14,11 +14,11 @@ export interface LogContext {
  */
 class Logger {
   private get isProduction(): boolean {
-    return process.env.NODE_ENV === 'production'
+    return process.env.NODE_ENV === "production";
   }
 
   private get isDevelopment(): boolean {
-    return process.env.NODE_ENV === 'development'
+    return process.env.NODE_ENV === "development";
   }
 
   /**
@@ -35,7 +35,7 @@ class Logger {
    */
   info(message: string, context?: LogContext): void {
     if (this.isDevelopment) {
-      console.info(`[INFO] ${message}`, context || '')
+      console.info(`[INFO] ${message}`, context || "");
     }
   }
 
@@ -43,15 +43,15 @@ class Logger {
    * Warning logging
    */
   warn(message: string, context?: LogContext): void {
-    console.warn(`[WARN] ${message}`, context || '')
+    console.warn(`[WARN] ${message}`, context || "");
   }
 
   /**
    * Error logging
    */
   error(message: string, error?: Error | unknown, context?: LogContext): void {
-    const errorObj = error instanceof Error ? error : new Error(String(error))
-    console.error(`[ERROR] ${message}`, errorObj, context || '')
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    console.error(`[ERROR] ${message}`, errorObj, context || "");
   }
 
   /**
@@ -62,8 +62,8 @@ class Logger {
       ...context,
       operation,
       duration,
-      type: 'performance',
-    })
+      type: "performance",
+    });
   }
 
   /**
@@ -72,11 +72,11 @@ class Logger {
   security(event: string, context?: LogContext): void {
     const securityContext = {
       ...context,
-      type: 'security',
+      type: "security",
       timestamp: Date.now(),
-    }
+    };
 
-    console.warn(`[SECURITY] ${event}`, securityContext)
+    console.warn(`[SECURITY] ${event}`, securityContext);
   }
 
   /**
@@ -87,11 +87,11 @@ class Logger {
       ...context,
       userId,
       action,
-      type: 'audit',
+      type: "audit",
       timestamp: Date.now(),
-    }
+    };
 
-    this.info(`AUDIT: ${action}`, auditContext)
+    this.info(`AUDIT: ${action}`, auditContext);
   }
 
   /**
@@ -99,18 +99,18 @@ class Logger {
    */
   log(level: LogLevel, message: string, context?: LogContext): void {
     switch (level) {
-      case 'debug':
-        this.debug(message, context)
-        break
-      case 'info':
-        this.info(message, context)
-        break
-      case 'warn':
-        this.warn(message, context)
-        break
-      case 'error':
-        this.error(message, undefined, context)
-        break
+      case "debug":
+        this.debug(message, context);
+        break;
+      case "info":
+        this.info(message, context);
+        break;
+      case "warn":
+        this.warn(message, context);
+        break;
+      case "error":
+        this.error(message, undefined, context);
+        break;
     }
   }
 
@@ -118,7 +118,7 @@ class Logger {
    * Create a scoped logger with a prefix
    */
   scope(prefix: string): ScopedLogger {
-    return new ScopedLogger(this, prefix)
+    return new ScopedLogger(this, prefix);
   }
 }
 
@@ -128,52 +128,52 @@ class Logger {
 class ScopedLogger {
   constructor(
     private logger: Logger,
-    private prefix: string
+    private prefix: string,
   ) {}
 
   debug(message: string, context?: LogContext): void {
-    this.logger.debug(`[${this.prefix}] ${message}`, context)
+    this.logger.debug(`[${this.prefix}] ${message}`, context);
   }
 
   info(message: string, context?: LogContext): void {
-    this.logger.info(`[${this.prefix}] ${message}`, context)
+    this.logger.info(`[${this.prefix}] ${message}`, context);
   }
 
   warn(message: string, context?: LogContext): void {
-    this.logger.warn(`[${this.prefix}] ${message}`, context)
+    this.logger.warn(`[${this.prefix}] ${message}`, context);
   }
 
   error(message: string, error?: Error | unknown, context?: LogContext): void {
-    this.logger.error(`[${this.prefix}] ${message}`, error, context)
+    this.logger.error(`[${this.prefix}] ${message}`, error, context);
   }
 
   log(level: LogLevel, message: string, context?: LogContext): void {
-    this.logger.log(level, `[${this.prefix}] ${message}`, context)
+    this.logger.log(level, `[${this.prefix}] ${message}`, context);
   }
 
   perf(operation: string, duration: number, context?: LogContext): void {
-    this.logger.perf(`[${this.prefix}] ${operation}`, duration, context)
+    this.logger.perf(`[${this.prefix}] ${operation}`, duration, context);
   }
 
   security(event: string, context?: LogContext): void {
-    this.logger.security(`[${this.prefix}] ${event}`, context)
+    this.logger.security(`[${this.prefix}] ${event}`, context);
   }
 
   audit(action: string, userId: string, context?: LogContext): void {
-    this.logger.audit(`[${this.prefix}] ${action}`, userId, context)
+    this.logger.audit(`[${this.prefix}] ${action}`, userId, context);
   }
 }
 
 /**
  * Default logger instance
  */
-export const logger = new Logger()
+export const logger = new Logger();
 
 /**
  * Create a scoped logger for a specific module
  */
 export function createLogger(scope: string): ScopedLogger {
-  return logger.scope(scope)
+  return logger.scope(scope);
 }
 
-export default logger
+export default logger;

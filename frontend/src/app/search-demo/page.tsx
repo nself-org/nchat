@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Search Demo Page
@@ -6,49 +6,64 @@
  * Demonstrates all Smart Search UI v0.7.0 components
  */
 
-import * as React from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { SearchResultCard, SearchHistory, AdvancedSearchBuilder } from '@/components/search'
-import { SavedSearches } from '@/components/search/SavedSearches'
-import { DateRangePicker } from '@/components/ui/date-range-picker'
-import { SearchAnalytics } from '@/components/admin/search/SearchAnalytics'
-import type { MessageSearchResult } from '@/stores/search-store'
-import type { DateRange } from '@/components/ui/date-range-picker'
+import * as React from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  SearchResultCard,
+  SearchHistory,
+  AdvancedSearchBuilder,
+} from "@/components/search";
+import { SavedSearches } from "@/components/search/SavedSearches";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { SearchAnalytics } from "@/components/admin/search/SearchAnalytics";
+import type { MessageSearchResult } from "@/stores/search-store";
+import type { DateRange } from "@/components/ui/date-range-picker";
 
 // Mock data
 const mockResult: MessageSearchResult = {
-  id: '1',
-  type: 'message',
+  id: "1",
+  type: "message",
   score: 0.95,
-  highlights: ['Found a relevant result', 'This matches your query'],
-  channelId: 'general',
-  channelName: 'general',
-  authorId: 'user1',
-  authorName: 'Alice Johnson',
+  highlights: ["Found a relevant result", "This matches your query"],
+  channelId: "general",
+  channelName: "general",
+  authorId: "user1",
+  authorName: "Alice Johnson",
   authorAvatar: null,
   content:
-    'Here is the project update you were looking for. We have completed the main features and are ready for testing.',
+    "Here is the project update you were looking for. We have completed the main features and are ready for testing.",
   timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
   threadId: null,
   isPinned: false,
   isStarred: true,
   reactions: [
-    { emoji: '👍', count: 5 },
-    { emoji: '🎉', count: 3 },
+    { emoji: "👍", count: 5 },
+    { emoji: "🎉", count: 3 },
   ],
   hasAttachments: true,
-}
+};
 
 export default function SearchDemoPage() {
-  const [dateRange, setDateRange] = React.useState<DateRange>({ from: null, to: null })
-  const [query, setQuery] = React.useState('')
+  const [dateRange, setDateRange] = React.useState<DateRange>({
+    from: null,
+    to: null,
+  });
+  const [query, setQuery] = React.useState("");
 
   return (
     <div className="container mx-auto space-y-6 p-6">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">Smart Search UI Demo</h1>
+        <h1 className="text-4xl font-bold tracking-tight">
+          Smart Search UI Demo
+        </h1>
         <p className="text-muted-foreground">
           Demonstration of all Smart Search UI v0.7.0 components
         </p>
@@ -71,7 +86,8 @@ export default function SearchDemoPage() {
             <CardHeader>
               <CardTitle>SearchResultCard</CardTitle>
               <CardDescription>
-                Enhanced search result card with highlighting, metadata, and quick actions
+                Enhanced search result card with highlighting, metadata, and
+                quick actions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -95,16 +111,19 @@ export default function SearchDemoPage() {
                 showContext={true}
                 contextSize={2}
                 isBookmarked={false}
-                onClick={(result) => console.log('Clicked:', result)}
-                onJumpToMessage={(result) => console.log('Jump to:', result)}
-                onShare={(result) => console.log('Share:', result)}
-                onToggleBookmark={(result) => console.log('Bookmark:', result)}
+                onClick={(result) => console.log("Clicked:", result)}
+                onJumpToMessage={(result) => console.log("Jump to:", result)}
+                onShare={(result) => console.log("Share:", result)}
+                onToggleBookmark={(result) => console.log("Bookmark:", result)}
               />
 
               <div className="rounded-lg border bg-muted p-4">
                 <h4 className="mb-2 font-medium">Features:</h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>✓ Search term highlighting (try typing "project" or "update")</li>
+                  <li>
+                    ✓ Search term highlighting (try typing "project" or
+                    "update")
+                  </li>
                   <li>✓ Author avatar with fallback</li>
                   <li>✓ Channel and timestamp metadata</li>
                   <li>✓ Relevance score badge (95%)</li>
@@ -130,8 +149,8 @@ export default function SearchDemoPage() {
             <CardContent>
               <SearchHistory
                 maxItems={10}
-                onSelect={(search) => console.log('Run search:', search)}
-                onExport={(searches) => console.log('Export:', searches)}
+                onSelect={(search) => console.log("Run search:", search)}
+                onExport={(searches) => console.log("Export:", searches)}
               />
 
               <div className="mt-4 rounded-lg border bg-muted p-4">
@@ -162,9 +181,9 @@ export default function SearchDemoPage() {
             <CardContent>
               <div className="h-[500px]">
                 <SavedSearches
-                  onSelect={(search) => console.log('Load search:', search)}
-                  onExport={(searches) => console.log('Export:', searches)}
-                  onImport={(searches) => console.log('Import:', searches)}
+                  onSelect={(search) => console.log("Load search:", search)}
+                  onExport={(searches) => console.log("Export:", searches)}
+                  onImport={(searches) => console.log("Import:", searches)}
                 />
               </div>
 
@@ -190,7 +209,8 @@ export default function SearchDemoPage() {
             <CardHeader>
               <CardTitle>AdvancedSearchBuilder</CardTitle>
               <CardDescription>
-                Visual query builder with boolean operators and field-specific search
+                Visual query builder with boolean operators and field-specific
+                search
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -199,7 +219,7 @@ export default function SearchDemoPage() {
                   // REMOVED: console.log('Query:', query)
                   // REMOVED: console.log('Parts:', parts)
                 }}
-                onSearch={(query) => console.log('Execute search:', query)}
+                onSearch={(query) => console.log("Execute search:", query)}
               />
 
               <div className="mt-4 rounded-lg border bg-muted p-4">
@@ -237,7 +257,7 @@ export default function SearchDemoPage() {
                   aria-labelledby="date-range-label"
                   value={dateRange}
                   onChange={(range) => {
-                    setDateRange(range)
+                    setDateRange(range);
                     // REMOVED: console.log('Date range:', range)
                   }}
                   showPresets={true}
@@ -247,9 +267,13 @@ export default function SearchDemoPage() {
               {dateRange.from && (
                 <div className="rounded-lg border bg-muted p-4">
                   <h4 className="mb-2 font-medium">Selected Range:</h4>
-                  <p className="text-sm">From: {dateRange.from.toLocaleDateString()}</p>
+                  <p className="text-sm">
+                    From: {dateRange.from.toLocaleDateString()}
+                  </p>
                   {dateRange.to && (
-                    <p className="text-sm">To: {dateRange.to.toLocaleDateString()}</p>
+                    <p className="text-sm">
+                      To: {dateRange.to.toLocaleDateString()}
+                    </p>
                   )}
                 </div>
               )}
@@ -282,13 +306,15 @@ export default function SearchDemoPage() {
             <CardContent>
               <SearchAnalytics
                 timeRange="week"
-                onExport={(data) => console.log('Export analytics:', data)}
+                onExport={(data) => console.log("Export analytics:", data)}
               />
 
               <div className="mt-4 rounded-lg border bg-muted p-4">
                 <h4 className="mb-2 font-medium">Features:</h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>✓ Overview metrics (searches, users, time, success rate)</li>
+                  <li>
+                    ✓ Overview metrics (searches, users, time, success rate)
+                  </li>
                   <li>✓ Top searches with success rates</li>
                   <li>✓ Zero-result searches tracking</li>
                   <li>✓ Search trends visualization</li>
@@ -350,5 +376,5 @@ export default function SearchDemoPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

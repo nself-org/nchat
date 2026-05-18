@@ -8,7 +8,7 @@
  * Reference platforms: Slack Workflow Builder, Discord AutoMod, Zapier.
  */
 
-import type { AppScope, AppEventType } from '../app-contract'
+import type { AppScope, AppEventType } from "../app-contract";
 
 // ============================================================================
 // WORKFLOW DEFINITION
@@ -19,33 +19,33 @@ import type { AppScope, AppEventType } from '../app-contract'
  */
 export interface WorkflowDefinition {
   /** Unique workflow ID */
-  id: string
+  id: string;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Description of what this workflow does */
-  description: string
+  description: string;
   /** Workflow version (semver) */
-  version: string
+  version: string;
   /** Whether the workflow is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** The trigger that starts this workflow */
-  trigger: WorkflowTrigger
+  trigger: WorkflowTrigger;
   /** Ordered list of steps to execute */
-  steps: WorkflowStep[]
+  steps: WorkflowStep[];
   /** Input variables defined for this workflow */
-  inputSchema: WorkflowVariable[]
+  inputSchema: WorkflowVariable[];
   /** Global workflow settings */
-  settings: WorkflowSettings
+  settings: WorkflowSettings;
   /** Required scopes for this workflow */
-  requiredScopes: AppScope[]
+  requiredScopes: AppScope[];
   /** Tags for organization */
-  tags: string[]
+  tags: string[];
   /** Who created this workflow */
-  createdBy: string
+  createdBy: string;
   /** When created */
-  createdAt: string
+  createdAt: string;
   /** When last updated */
-  updatedAt: string
+  updatedAt: string;
 }
 
 /**
@@ -53,19 +53,19 @@ export interface WorkflowDefinition {
  */
 export interface WorkflowSettings {
   /** Maximum execution time in ms (default: 300000 = 5 min) */
-  maxExecutionTimeMs: number
+  maxExecutionTimeMs: number;
   /** Maximum retry attempts per step (default: 3) */
-  maxRetryAttempts: number
+  maxRetryAttempts: number;
   /** Whether to continue on step failure (default: false) */
-  continueOnFailure: boolean
+  continueOnFailure: boolean;
   /** Timezone for schedule triggers (default: 'UTC') */
-  timezone: string
+  timezone: string;
   /** Whether to log step inputs/outputs (default: true) */
-  auditInputsOutputs: boolean
+  auditInputsOutputs: boolean;
   /** Concurrency limit: max parallel executions (default: 1) */
-  maxConcurrentExecutions: number
+  maxConcurrentExecutions: number;
   /** Whether this workflow requires approval to execute (default: false) */
-  requiresApproval: boolean
+  requiresApproval: boolean;
 }
 
 /**
@@ -75,26 +75,26 @@ export const DEFAULT_WORKFLOW_SETTINGS: WorkflowSettings = {
   maxExecutionTimeMs: 300000,
   maxRetryAttempts: 3,
   continueOnFailure: false,
-  timezone: 'UTC',
+  timezone: "UTC",
   auditInputsOutputs: true,
   maxConcurrentExecutions: 1,
   requiresApproval: false,
-}
+};
 
 /**
  * Variable definition for workflow inputs.
  */
 export interface WorkflowVariable {
   /** Variable name */
-  name: string
+  name: string;
   /** Variable type */
-  type: 'string' | 'number' | 'boolean' | 'object' | 'array'
+  type: "string" | "number" | "boolean" | "object" | "array";
   /** Whether the variable is required */
-  required: boolean
+  required: boolean;
   /** Default value */
-  defaultValue?: unknown
+  defaultValue?: unknown;
   /** Human-readable description */
-  description?: string
+  description?: string;
 }
 
 // ============================================================================
@@ -108,73 +108,73 @@ export type WorkflowTrigger =
   | EventTrigger
   | ScheduleTrigger
   | WebhookTrigger
-  | ManualTrigger
+  | ManualTrigger;
 
 /**
  * Base trigger interface.
  */
 export interface BaseTrigger {
   /** Trigger type discriminator */
-  type: TriggerType
+  type: TriggerType;
   /** Optional filter conditions */
-  conditions?: TriggerCondition[]
+  conditions?: TriggerCondition[];
 }
 
 /**
  * Trigger type discriminator.
  */
-export type TriggerType = 'event' | 'schedule' | 'webhook' | 'manual'
+export type TriggerType = "event" | "schedule" | "webhook" | "manual";
 
 /**
  * Event-based trigger: fires when a platform event occurs.
  */
 export interface EventTrigger extends BaseTrigger {
-  type: 'event'
+  type: "event";
   /** The event type to listen for */
-  eventType: AppEventType
+  eventType: AppEventType;
   /** Optional channel filter */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Optional user filter */
-  userIds?: string[]
+  userIds?: string[];
 }
 
 /**
  * Schedule-based trigger: fires on a cron schedule.
  */
 export interface ScheduleTrigger extends BaseTrigger {
-  type: 'schedule'
+  type: "schedule";
   /** Cron expression (5 or 6 fields) */
-  cronExpression: string
+  cronExpression: string;
   /** Timezone (IANA timezone name) */
-  timezone: string
+  timezone: string;
   /** Start date (ISO 8601) - schedule is not active before this */
-  startDate?: string
+  startDate?: string;
   /** End date (ISO 8601) - schedule is not active after this */
-  endDate?: string
+  endDate?: string;
 }
 
 /**
  * Webhook-based trigger: fires when an external HTTP request is received.
  */
 export interface WebhookTrigger extends BaseTrigger {
-  type: 'webhook'
+  type: "webhook";
   /** Expected HMAC secret for validation (optional) */
-  secret?: string
+  secret?: string;
   /** HTTP methods to accept */
-  methods: ('GET' | 'POST' | 'PUT')[]
+  methods: ("GET" | "POST" | "PUT")[];
   /** Expected content type */
-  contentType?: string
+  contentType?: string;
 }
 
 /**
  * Manual trigger: fired by a user via UI or API.
  */
 export interface ManualTrigger extends BaseTrigger {
-  type: 'manual'
+  type: "manual";
   /** Users allowed to trigger this workflow */
-  allowedUserIds?: string[]
+  allowedUserIds?: string[];
   /** Roles allowed to trigger this workflow */
-  allowedRoles?: string[]
+  allowedRoles?: string[];
 }
 
 /**
@@ -182,30 +182,30 @@ export interface ManualTrigger extends BaseTrigger {
  */
 export interface TriggerCondition {
   /** Field to evaluate (dot-separated path into trigger data) */
-  field: string
+  field: string;
   /** Comparison operator */
-  operator: ConditionOperator
+  operator: ConditionOperator;
   /** Value to compare against */
-  value: unknown
+  value: unknown;
 }
 
 /**
  * Supported comparison operators.
  */
 export type ConditionOperator =
-  | 'equals'
-  | 'not_equals'
-  | 'contains'
-  | 'not_contains'
-  | 'greater_than'
-  | 'less_than'
-  | 'greater_than_or_equal'
-  | 'less_than_or_equal'
-  | 'in'
-  | 'not_in'
-  | 'matches_regex'
-  | 'exists'
-  | 'not_exists'
+  | "equals"
+  | "not_equals"
+  | "contains"
+  | "not_contains"
+  | "greater_than"
+  | "less_than"
+  | "greater_than_or_equal"
+  | "less_than_or_equal"
+  | "in"
+  | "not_in"
+  | "matches_regex"
+  | "exists"
+  | "not_exists";
 
 // ============================================================================
 // STEPS
@@ -216,50 +216,56 @@ export type ConditionOperator =
  */
 export interface WorkflowStep {
   /** Unique step ID within the workflow */
-  id: string
+  id: string;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Step type */
-  type: StepType
+  type: StepType;
   /** The action to perform */
-  action: WorkflowAction
+  action: WorkflowAction;
   /** Step-specific settings */
-  settings: StepSettings
+  settings: StepSettings;
   /** Conditions that must be true for this step to execute */
-  conditions?: TriggerCondition[]
+  conditions?: TriggerCondition[];
   /** Input mapping: map workflow/step variables to action inputs */
-  inputMapping?: Record<string, string>
+  inputMapping?: Record<string, string>;
   /** Output key: where to store this step's output in the execution context */
-  outputKey?: string
+  outputKey?: string;
   /** Steps that must complete before this step (dependency graph) */
-  dependsOn?: string[]
+  dependsOn?: string[];
 }
 
 /**
  * Step type.
  */
-export type StepType = 'action' | 'condition' | 'approval' | 'delay' | 'parallel' | 'loop'
+export type StepType =
+  | "action"
+  | "condition"
+  | "approval"
+  | "delay"
+  | "parallel"
+  | "loop";
 
 /**
  * Per-step settings.
  */
 export interface StepSettings {
   /** Maximum retry attempts for this step */
-  retryAttempts: number
+  retryAttempts: number;
   /** Retry backoff strategy */
-  retryBackoff: 'fixed' | 'linear' | 'exponential'
+  retryBackoff: "fixed" | "linear" | "exponential";
   /** Initial retry delay in ms */
-  retryDelayMs: number
+  retryDelayMs: number;
   /** Maximum retry delay in ms */
-  maxRetryDelayMs: number
+  maxRetryDelayMs: number;
   /** Step timeout in ms */
-  timeoutMs: number
+  timeoutMs: number;
   /** Whether to skip this step on failure (vs failing the workflow) */
-  skipOnFailure: boolean
+  skipOnFailure: boolean;
   /** Whether this step is idempotent (safe to retry) */
-  idempotent: boolean
+  idempotent: boolean;
   /** Idempotency key expression (for dedup) */
-  idempotencyKey?: string
+  idempotencyKey?: string;
 }
 
 /**
@@ -267,13 +273,13 @@ export interface StepSettings {
  */
 export const DEFAULT_STEP_SETTINGS: StepSettings = {
   retryAttempts: 3,
-  retryBackoff: 'exponential',
+  retryBackoff: "exponential",
   retryDelayMs: 1000,
   maxRetryDelayMs: 60000,
   timeoutMs: 30000,
   skipOnFailure: false,
   idempotent: true,
-}
+};
 
 // ============================================================================
 // ACTIONS
@@ -293,81 +299,81 @@ export type WorkflowAction =
   | ParallelAction
   | LoopAction
   | ChannelAction
-  | UserAction
+  | UserAction;
 
 /**
  * Base action interface.
  */
 export interface BaseAction {
-  type: ActionType
+  type: ActionType;
 }
 
 /**
  * All action types.
  */
 export type ActionType =
-  | 'send_message'
-  | 'http_request'
-  | 'transform_data'
-  | 'conditional_branch'
-  | 'approval'
-  | 'delay'
-  | 'set_variable'
-  | 'parallel'
-  | 'loop'
-  | 'channel_action'
-  | 'user_action'
+  | "send_message"
+  | "http_request"
+  | "transform_data"
+  | "conditional_branch"
+  | "approval"
+  | "delay"
+  | "set_variable"
+  | "parallel"
+  | "loop"
+  | "channel_action"
+  | "user_action";
 
 /**
  * Send a message to a channel or user.
  */
 export interface SendMessageAction extends BaseAction {
-  type: 'send_message'
+  type: "send_message";
   /** Target channel ID (can reference variable) */
-  channelId: string
+  channelId: string;
   /** Message content (supports template interpolation) */
-  content: string
+  content: string;
   /** Optional thread ID to reply to */
-  threadId?: string
+  threadId?: string;
 }
 
 /**
  * Make an HTTP request to an external service.
  */
 export interface HttpRequestAction extends BaseAction {
-  type: 'http_request'
+  type: "http_request";
   /** URL (supports template interpolation) */
-  url: string
+  url: string;
   /** HTTP method */
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   /** Request headers */
-  headers?: Record<string, string>
+  headers?: Record<string, string>;
   /** Request body (for POST/PUT/PATCH) */
-  body?: unknown
+  body?: unknown;
   /** Expected response format */
-  responseFormat?: 'json' | 'text'
+  responseFormat?: "json" | "text";
 }
 
 /**
  * Transform data using a mapping expression.
  */
 export interface TransformDataAction extends BaseAction {
-  type: 'transform_data'
+  type: "transform_data";
   /** Input expression (dot-path or template) */
-  input: string
+  input: string;
   /** Transform expression (JavaScript-like) */
-  transform: string
+  transform: string;
 }
 
 /**
  * Branch based on conditions.
  */
 export interface ConditionalBranchAction extends BaseAction {
-  type: 'conditional_branch'
+  type: "conditional_branch";
   /** Branches to evaluate (first matching branch is taken) */
-  branches: ConditionalBranch[]
+  branches: ConditionalBranch[];
   /** Default steps if no branch matches */
-  defaultSteps?: string[]
+  defaultSteps?: string[];
 }
 
 /**
@@ -375,110 +381,115 @@ export interface ConditionalBranchAction extends BaseAction {
  */
 export interface ConditionalBranch {
   /** Branch name for logging */
-  name: string
+  name: string;
   /** Conditions to evaluate */
-  conditions: TriggerCondition[]
+  conditions: TriggerCondition[];
   /** Step IDs to jump to if conditions match */
-  targetSteps: string[]
+  targetSteps: string[];
 }
 
 /**
  * Request human approval.
  */
 export interface ApprovalAction extends BaseAction {
-  type: 'approval'
+  type: "approval";
   /** Users who can approve */
-  approverIds: string[]
+  approverIds: string[];
   /** Approval message */
-  message: string
+  message: string;
   /** Timeout in ms before auto-rejection */
-  timeoutMs: number
+  timeoutMs: number;
   /** Minimum approvals required (default: 1) */
-  minApprovals: number
+  minApprovals: number;
   /** Channel to post approval request to */
-  notificationChannelId?: string
+  notificationChannelId?: string;
   /** Escalation user IDs if timeout */
-  escalationUserIds?: string[]
+  escalationUserIds?: string[];
 }
 
 /**
  * Delay execution for a specified duration.
  */
 export interface DelayAction extends BaseAction {
-  type: 'delay'
+  type: "delay";
   /** Delay in ms */
-  durationMs: number
+  durationMs: number;
 }
 
 /**
  * Set a workflow variable.
  */
 export interface SetVariableAction extends BaseAction {
-  type: 'set_variable'
+  type: "set_variable";
   /** Variable name */
-  variableName: string
+  variableName: string;
   /** Value (supports template interpolation) */
-  value: unknown
+  value: unknown;
 }
 
 /**
  * Execute multiple step groups in parallel.
  */
 export interface ParallelAction extends BaseAction {
-  type: 'parallel'
+  type: "parallel";
   /** Arrays of step IDs to execute in parallel */
-  branches: string[][]
+  branches: string[][];
   /** Whether to wait for all branches (true) or first to complete (false) */
-  waitForAll: boolean
+  waitForAll: boolean;
 }
 
 /**
  * Loop over a collection.
  */
 export interface LoopAction extends BaseAction {
-  type: 'loop'
+  type: "loop";
   /** Expression resolving to an array to iterate over */
-  collection: string
+  collection: string;
   /** Variable name for the current item */
-  itemVariable: string
+  itemVariable: string;
   /** Variable name for the current index */
-  indexVariable: string
+  indexVariable: string;
   /** Step IDs to execute for each item */
-  bodySteps: string[]
+  bodySteps: string[];
   /** Maximum iterations (safety guard) */
-  maxIterations: number
+  maxIterations: number;
 }
 
 /**
  * Channel-related action.
  */
 export interface ChannelAction extends BaseAction {
-  type: 'channel_action'
+  type: "channel_action";
   /** Sub-action */
-  subAction: 'create' | 'archive' | 'add_member' | 'remove_member' | 'update_topic'
+  subAction:
+    | "create"
+    | "archive"
+    | "add_member"
+    | "remove_member"
+    | "update_topic";
   /** Target channel ID (for non-create actions) */
-  channelId?: string
+  channelId?: string;
   /** Channel name (for create) */
-  channelName?: string
+  channelName?: string;
   /** User ID (for member actions) */
-  userId?: string
+  userId?: string;
   /** Topic (for update_topic) */
-  topic?: string
+  topic?: string;
 }
 
 /**
  * User-related action.
  */
 export interface UserAction extends BaseAction {
-  type: 'user_action'
+  type: "user_action";
   /** Sub-action */
-  subAction: 'assign_role' | 'send_dm' | 'notify'
+  subAction: "assign_role" | "send_dm" | "notify";
   /** Target user ID */
-  userId: string
+  userId: string;
   /** Role (for assign_role) */
-  role?: string
+  role?: string;
   /** Message (for send_dm/notify) */
-  message?: string
+  message?: string;
 }
 
 // ============================================================================
@@ -490,58 +501,58 @@ export interface UserAction extends BaseAction {
  */
 export interface WorkflowRun {
   /** Unique run ID */
-  id: string
+  id: string;
   /** Workflow definition ID */
-  workflowId: string
+  workflowId: string;
   /** Workflow version at execution time */
-  workflowVersion: string
+  workflowVersion: string;
   /** Current run status */
-  status: WorkflowRunStatus
+  status: WorkflowRunStatus;
   /** What triggered this run */
-  triggeredBy: RunTriggerInfo
+  triggeredBy: RunTriggerInfo;
   /** Execution context (variables, step outputs) */
-  context: WorkflowExecutionContext
+  context: WorkflowExecutionContext;
   /** Step execution records */
-  stepResults: StepExecutionRecord[]
+  stepResults: StepExecutionRecord[];
   /** When execution started */
-  startedAt: string
+  startedAt: string;
   /** When execution completed/failed */
-  completedAt?: string
+  completedAt?: string;
   /** Error information (if failed) */
-  error?: WorkflowError
+  error?: WorkflowError;
   /** Retry count for the overall run */
-  retryCount: number
+  retryCount: number;
   /** Maximum retries for the overall run */
-  maxRetries: number
+  maxRetries: number;
 }
 
 /**
  * Run status.
  */
 export type WorkflowRunStatus =
-  | 'pending'
-  | 'running'
-  | 'paused'
-  | 'waiting_approval'
-  | 'completed'
-  | 'failed'
-  | 'cancelled'
-  | 'timed_out'
-  | 'retrying'
+  | "pending"
+  | "running"
+  | "paused"
+  | "waiting_approval"
+  | "completed"
+  | "failed"
+  | "cancelled"
+  | "timed_out"
+  | "retrying";
 
 /**
  * Information about what triggered a run.
  */
 export interface RunTriggerInfo {
-  type: TriggerType
+  type: TriggerType;
   /** User who triggered (for manual triggers) */
-  userId?: string
+  userId?: string;
   /** Event data (for event triggers) */
-  eventData?: Record<string, unknown>
+  eventData?: Record<string, unknown>;
   /** Schedule info (for schedule triggers) */
-  scheduledTime?: string
+  scheduledTime?: string;
   /** Webhook request data */
-  webhookData?: Record<string, unknown>
+  webhookData?: Record<string, unknown>;
 }
 
 /**
@@ -549,13 +560,13 @@ export interface RunTriggerInfo {
  */
 export interface WorkflowExecutionContext {
   /** Workflow input variables */
-  inputs: Record<string, unknown>
+  inputs: Record<string, unknown>;
   /** Step outputs (keyed by step outputKey) */
-  stepOutputs: Record<string, unknown>
+  stepOutputs: Record<string, unknown>;
   /** Workflow-level variables (mutable during execution) */
-  variables: Record<string, unknown>
+  variables: Record<string, unknown>;
   /** Trigger data */
-  triggerData: Record<string, unknown>
+  triggerData: Record<string, unknown>;
 }
 
 /**
@@ -563,59 +574,59 @@ export interface WorkflowExecutionContext {
  */
 export interface StepExecutionRecord {
   /** Step ID */
-  stepId: string
+  stepId: string;
   /** Step name */
-  stepName: string
+  stepName: string;
   /** Step status */
-  status: StepExecutionStatus
+  status: StepExecutionStatus;
   /** When step started */
-  startedAt: string
+  startedAt: string;
   /** When step completed */
-  completedAt?: string
+  completedAt?: string;
   /** Duration in ms */
-  durationMs?: number
+  durationMs?: number;
   /** Step input (if audit enabled) */
-  input?: Record<string, unknown>
+  input?: Record<string, unknown>;
   /** Step output */
-  output?: unknown
+  output?: unknown;
   /** Error information */
-  error?: WorkflowError
+  error?: WorkflowError;
   /** Retry count for this step */
-  retryCount: number
+  retryCount: number;
   /** Whether the step was skipped */
-  skipped: boolean
+  skipped: boolean;
   /** Skip reason */
-  skipReason?: string
+  skipReason?: string;
 }
 
 /**
  * Step execution status.
  */
 export type StepExecutionStatus =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'skipped'
-  | 'retrying'
-  | 'waiting_approval'
-  | 'timed_out'
-  | 'cancelled'
+  | "pending"
+  | "running"
+  | "completed"
+  | "failed"
+  | "skipped"
+  | "retrying"
+  | "waiting_approval"
+  | "timed_out"
+  | "cancelled";
 
 /**
  * Workflow error details.
  */
 export interface WorkflowError {
   /** Error code */
-  code: string
+  code: string;
   /** Error message */
-  message: string
+  message: string;
   /** Step where the error occurred */
-  stepId?: string
+  stepId?: string;
   /** Stack trace (if available) */
-  stack?: string
+  stack?: string;
   /** Whether the error is retryable */
-  retryable: boolean
+  retryable: boolean;
 }
 
 // ============================================================================
@@ -627,33 +638,33 @@ export interface WorkflowError {
  */
 export interface ApprovalRequest {
   /** Unique approval request ID */
-  id: string
+  id: string;
   /** Workflow run ID */
-  runId: string
+  runId: string;
   /** Step ID that requires approval */
-  stepId: string
+  stepId: string;
   /** Approval message */
-  message: string
+  message: string;
   /** Users who can approve */
-  approverIds: string[]
+  approverIds: string[];
   /** Minimum approvals required */
-  minApprovals: number
+  minApprovals: number;
   /** Current approval count */
-  currentApprovals: number
+  currentApprovals: number;
   /** Current rejection count */
-  currentRejections: number
+  currentRejections: number;
   /** Individual responses */
-  responses: ApprovalResponse[]
+  responses: ApprovalResponse[];
   /** Status */
-  status: ApprovalStatus
+  status: ApprovalStatus;
   /** When created */
-  createdAt: string
+  createdAt: string;
   /** When the request expires */
-  expiresAt: string
+  expiresAt: string;
   /** Escalation user IDs */
-  escalationUserIds: string[]
+  escalationUserIds: string[];
   /** Whether escalation has been triggered */
-  escalated: boolean
+  escalated: boolean;
 }
 
 /**
@@ -661,24 +672,24 @@ export interface ApprovalRequest {
  */
 export interface ApprovalResponse {
   /** User who responded */
-  userId: string
+  userId: string;
   /** Whether approved or rejected */
-  decision: 'approved' | 'rejected'
+  decision: "approved" | "rejected";
   /** Optional comment */
-  comment?: string
+  comment?: string;
   /** When responded */
-  respondedAt: string
+  respondedAt: string;
 }
 
 /**
  * Approval request status.
  */
 export type ApprovalStatus =
-  | 'pending'
-  | 'approved'
-  | 'rejected'
-  | 'expired'
-  | 'escalated'
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "expired"
+  | "escalated";
 
 // ============================================================================
 // SCHEDULING
@@ -689,27 +700,27 @@ export type ApprovalStatus =
  */
 export interface ScheduledExecution {
   /** Schedule ID */
-  id: string
+  id: string;
   /** Workflow ID */
-  workflowId: string
+  workflowId: string;
   /** Cron expression */
-  cronExpression: string
+  cronExpression: string;
   /** Timezone */
-  timezone: string
+  timezone: string;
   /** When the next execution is planned */
-  nextRunAt: string
+  nextRunAt: string;
   /** When the last execution occurred */
-  lastRunAt?: string
+  lastRunAt?: string;
   /** Last run result */
-  lastRunStatus?: WorkflowRunStatus
+  lastRunStatus?: WorkflowRunStatus;
   /** Whether this schedule is active */
-  active: boolean
+  active: boolean;
   /** When created */
-  createdAt: string
+  createdAt: string;
   /** Start date constraint */
-  startDate?: string
+  startDate?: string;
   /** End date constraint */
-  endDate?: string
+  endDate?: string;
 }
 
 // ============================================================================
@@ -720,55 +731,55 @@ export interface ScheduledExecution {
  * Audit event types for workflow automation.
  */
 export type WorkflowAuditEventType =
-  | 'workflow.created'
-  | 'workflow.updated'
-  | 'workflow.deleted'
-  | 'workflow.enabled'
-  | 'workflow.disabled'
-  | 'workflow.run_started'
-  | 'workflow.run_completed'
-  | 'workflow.run_failed'
-  | 'workflow.run_cancelled'
-  | 'workflow.run_retried'
-  | 'workflow.step_started'
-  | 'workflow.step_completed'
-  | 'workflow.step_failed'
-  | 'workflow.step_skipped'
-  | 'workflow.step_retried'
-  | 'workflow.approval_requested'
-  | 'workflow.approval_granted'
-  | 'workflow.approval_rejected'
-  | 'workflow.approval_expired'
-  | 'workflow.approval_escalated'
-  | 'workflow.schedule_created'
-  | 'workflow.schedule_updated'
-  | 'workflow.schedule_deleted'
-  | 'workflow.schedule_fired'
+  | "workflow.created"
+  | "workflow.updated"
+  | "workflow.deleted"
+  | "workflow.enabled"
+  | "workflow.disabled"
+  | "workflow.run_started"
+  | "workflow.run_completed"
+  | "workflow.run_failed"
+  | "workflow.run_cancelled"
+  | "workflow.run_retried"
+  | "workflow.step_started"
+  | "workflow.step_completed"
+  | "workflow.step_failed"
+  | "workflow.step_skipped"
+  | "workflow.step_retried"
+  | "workflow.approval_requested"
+  | "workflow.approval_granted"
+  | "workflow.approval_rejected"
+  | "workflow.approval_expired"
+  | "workflow.approval_escalated"
+  | "workflow.schedule_created"
+  | "workflow.schedule_updated"
+  | "workflow.schedule_deleted"
+  | "workflow.schedule_fired";
 
 /**
  * Audit log entry for workflow events.
  */
 export interface WorkflowAuditEntry {
   /** Entry ID */
-  id: string
+  id: string;
   /** Event type */
-  eventType: WorkflowAuditEventType
+  eventType: WorkflowAuditEventType;
   /** Workflow ID */
-  workflowId: string
+  workflowId: string;
   /** Run ID (if applicable) */
-  runId?: string
+  runId?: string;
   /** Step ID (if applicable) */
-  stepId?: string
+  stepId?: string;
   /** Who triggered the event */
-  actorId: string
+  actorId: string;
   /** Timestamp */
-  timestamp: string
+  timestamp: string;
   /** Human-readable description */
-  description: string
+  description: string;
   /** Event-specific data */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
   /** Duration (for completed events) */
-  durationMs?: number
+  durationMs?: number;
 }
 
 // ============================================================================
@@ -779,17 +790,17 @@ export interface WorkflowAuditEntry {
  * Validation result for a workflow definition.
  */
 export interface WorkflowValidationResult {
-  valid: boolean
-  errors: WorkflowValidationError[]
+  valid: boolean;
+  errors: WorkflowValidationError[];
 }
 
 /**
  * A single validation error.
  */
 export interface WorkflowValidationError {
-  field: string
-  message: string
-  severity: 'error' | 'warning'
+  field: string;
+  message: string;
+  severity: "error" | "warning";
 }
 
 // ============================================================================
@@ -797,37 +808,37 @@ export interface WorkflowValidationError {
 // ============================================================================
 
 /** Maximum steps per workflow */
-export const MAX_WORKFLOW_STEPS = 50
+export const MAX_WORKFLOW_STEPS = 50;
 
 /** Maximum workflow name length */
-export const MAX_WORKFLOW_NAME_LENGTH = 128
+export const MAX_WORKFLOW_NAME_LENGTH = 128;
 
 /** Maximum workflow description length */
-export const MAX_WORKFLOW_DESCRIPTION_LENGTH = 2000
+export const MAX_WORKFLOW_DESCRIPTION_LENGTH = 2000;
 
 /** Maximum tags per workflow */
-export const MAX_WORKFLOW_TAGS = 20
+export const MAX_WORKFLOW_TAGS = 20;
 
 /** Maximum branches in a conditional */
-export const MAX_CONDITIONAL_BRANCHES = 10
+export const MAX_CONDITIONAL_BRANCHES = 10;
 
 /** Maximum parallel branches */
-export const MAX_PARALLEL_BRANCHES = 10
+export const MAX_PARALLEL_BRANCHES = 10;
 
 /** Maximum loop iterations */
-export const MAX_LOOP_ITERATIONS = 1000
+export const MAX_LOOP_ITERATIONS = 1000;
 
 /** Maximum approval timeout (24 hours) */
-export const MAX_APPROVAL_TIMEOUT_MS = 86400000
+export const MAX_APPROVAL_TIMEOUT_MS = 86400000;
 
 /** Maximum delay action duration (1 hour) */
-export const MAX_DELAY_DURATION_MS = 3600000
+export const MAX_DELAY_DURATION_MS = 3600000;
 
 /** Maximum concurrent executions per workflow */
-export const MAX_CONCURRENT_EXECUTIONS = 10
+export const MAX_CONCURRENT_EXECUTIONS = 10;
 
 /** Workflow name regex */
-export const WORKFLOW_NAME_REGEX = /^[a-zA-Z][a-zA-Z0-9 _-]{0,127}$/
+export const WORKFLOW_NAME_REGEX = /^[a-zA-Z][a-zA-Z0-9 _-]{0,127}$/;
 
 /** Cron expression regex (5 fields: min hour dom month dow) */
-export const CRON_REGEX = /^(\S+\s+){4}\S+$/
+export const CRON_REGEX = /^(\S+\s+){4}\S+$/;

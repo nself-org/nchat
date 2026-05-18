@@ -3,72 +3,72 @@
  * Handles all moderation actions with audit trail
  */
 
-import type { ApolloClient } from '@apollo/client'
-import { gql } from '@apollo/client'
+import type { ApolloClient } from "@apollo/client";
+import { gql } from "@apollo/client";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export type ModerationActionType =
-  | 'flag'
-  | 'hide'
-  | 'delete'
-  | 'warn'
-  | 'mute'
-  | 'unmute'
-  | 'ban'
-  | 'unban'
-  | 'shadowban'
-  | 'approve'
-  | 'reject'
-  | 'edit'
-  | 'restore'
+  | "flag"
+  | "hide"
+  | "delete"
+  | "warn"
+  | "mute"
+  | "unmute"
+  | "ban"
+  | "unban"
+  | "shadowban"
+  | "approve"
+  | "reject"
+  | "edit"
+  | "restore";
 
 export interface ModerationAction {
-  id: string
-  actionType: ModerationActionType
-  targetType: 'message' | 'user' | 'channel' | 'file' | 'profile'
-  targetId: string
-  targetUserId: string
-  moderatorId: string
-  moderatorRole: string
-  reason: string
-  isAutomated: boolean
-  automationType?: 'ai' | 'rule_based' | 'manual'
-  duration?: number // Duration in minutes for temporary actions
-  expiresAt?: Date
-  metadata?: Record<string, any>
-  reversible: boolean
-  reversedBy?: string
-  reversedAt?: Date
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  actionType: ModerationActionType;
+  targetType: "message" | "user" | "channel" | "file" | "profile";
+  targetId: string;
+  targetUserId: string;
+  moderatorId: string;
+  moderatorRole: string;
+  reason: string;
+  isAutomated: boolean;
+  automationType?: "ai" | "rule_based" | "manual";
+  duration?: number; // Duration in minutes for temporary actions
+  expiresAt?: Date;
+  metadata?: Record<string, any>;
+  reversible: boolean;
+  reversedBy?: string;
+  reversedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ActionResult {
-  success: boolean
-  actionId?: string
-  error?: string
-  affectedItems?: string[]
+  success: boolean;
+  actionId?: string;
+  error?: string;
+  affectedItems?: string[];
 }
 
 export interface BulkActionResult {
-  success: boolean
-  successCount: number
-  failureCount: number
-  results: ActionResult[]
-  errors: string[]
+  success: boolean;
+  successCount: number;
+  failureCount: number;
+  results: ActionResult[];
+  errors: string[];
 }
 
 export interface ActionAuditLog {
-  actionId: string
-  action: ModerationAction
-  before?: any
-  after?: any
+  actionId: string;
+  action: ModerationAction;
+  before?: any;
+  after?: any;
   impact: {
-    usersAffected: number
-    messagesAffected: number
-    channelsAffected: number
-  }
+    usersAffected: number;
+    messagesAffected: number;
+    channelsAffected: number;
+  };
 }
 
 // GraphQL mutations
@@ -80,10 +80,14 @@ const CREATE_ACTION = gql`
       created_at
     }
   }
-`
+`;
 
 const UPDATE_MESSAGE_VISIBILITY = gql`
-  mutation UpdateMessageVisibility($messageId: uuid!, $isHidden: Boolean!, $hiddenReason: String) {
+  mutation UpdateMessageVisibility(
+    $messageId: uuid!
+    $isHidden: Boolean!
+    $hiddenReason: String
+  ) {
     update_nchat_messages_by_pk(
       pk_columns: { id: $messageId }
       _set: { is_hidden: $isHidden, hidden_reason: $hiddenReason }
@@ -92,7 +96,7 @@ const UPDATE_MESSAGE_VISIBILITY = gql`
       is_hidden
     }
   }
-`
+`;
 
 const DELETE_MESSAGE = gql`
   mutation DeleteMessage($messageId: uuid!) {
@@ -104,7 +108,7 @@ const DELETE_MESSAGE = gql`
       is_deleted
     }
   }
-`
+`;
 
 const MUTE_USER = gql`
   mutation MuteUser($userId: uuid!, $mutedUntil: timestamptz, $reason: String) {
@@ -117,7 +121,7 @@ const MUTE_USER = gql`
       muted_until
     }
   }
-`
+`;
 
 const UNMUTE_USER = gql`
   mutation UnmuteUser($userId: uuid!) {
@@ -129,7 +133,7 @@ const UNMUTE_USER = gql`
       is_muted
     }
   }
-`
+`;
 
 const BAN_USER = gql`
   mutation BanUser($userId: uuid!, $bannedUntil: timestamptz, $reason: String) {
@@ -142,7 +146,7 @@ const BAN_USER = gql`
       banned_until
     }
   }
-`
+`;
 
 const UNBAN_USER = gql`
   mutation UnbanUser($userId: uuid!) {
@@ -154,71 +158,76 @@ const UNBAN_USER = gql`
       is_banned
     }
   }
-`
+`;
 
 const WARN_USER = gql`
   mutation WarnUser($userId: uuid!, $reason: String!) {
-    insert_nchat_user_warnings_one(object: { user_id: $userId, reason: $reason }) {
+    insert_nchat_user_warnings_one(
+      object: { user_id: $userId, reason: $reason }
+    ) {
       id
       created_at
     }
   }
-`
+`;
 
 const GET_USER_WARNINGS = gql`
   query GetUserWarnings($userId: uuid!) {
-    nchat_user_warnings(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {
+    nchat_user_warnings(
+      where: { user_id: { _eq: $userId } }
+      order_by: { created_at: desc }
+    ) {
       id
       reason
       created_at
       moderator_id
     }
   }
-`
+`;
 
 export class ModerationActions {
-  private apolloClient: ApolloClient<any>
-  private auditLog: ActionAuditLog[] = []
+  private apolloClient: ApolloClient<any>;
+  private auditLog: ActionAuditLog[] = [];
 
   constructor(apolloClient: ApolloClient<any>) {
-    this.apolloClient = apolloClient
+    this.apolloClient = apolloClient;
   }
 
   /**
    * Flag content for review
    */
   async flagContent(
-    targetType: ModerationAction['targetType'],
+    targetType: ModerationAction["targetType"],
     targetId: string,
     targetUserId: string,
     moderatorId: string,
     reason: string,
-    isAutomated: boolean = false
+    isAutomated: boolean = false,
   ): Promise<ActionResult> {
     try {
       const result = await this.createAction({
-        actionType: 'flag',
+        actionType: "flag",
         targetType,
         targetId,
         targetUserId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated,
-        automationType: isAutomated ? 'ai' : 'manual',
+        automationType: isAutomated ? "ai" : "manual",
         reversible: true,
-      })
+      });
 
       return {
         success: true,
         actionId: result.data?.insert_nchat_moderation_actions_one?.id,
-      }
+      };
     } catch (error) {
-      logger.error('Flag content error:', error)
+      logger.error("Flag content error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -226,30 +235,30 @@ export class ModerationActions {
    * Hide content
    */
   async hideContent(
-    targetType: ModerationAction['targetType'],
+    targetType: ModerationAction["targetType"],
     targetId: string,
     targetUserId: string,
     moderatorId: string,
     reason: string,
-    isAutomated: boolean = false
+    isAutomated: boolean = false,
   ): Promise<ActionResult> {
     try {
       // Create action record
       const actionResult = await this.createAction({
-        actionType: 'hide',
+        actionType: "hide",
         targetType,
         targetId,
         targetUserId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated,
-        automationType: isAutomated ? 'ai' : 'manual',
+        automationType: isAutomated ? "ai" : "manual",
         reversible: true,
-      })
+      });
 
       // Update content visibility
-      if (targetType === 'message') {
+      if (targetType === "message") {
         await this.apolloClient.mutate({
           mutation: UPDATE_MESSAGE_VISIBILITY,
           variables: {
@@ -257,20 +266,20 @@ export class ModerationActions {
             isHidden: true,
             hiddenReason: reason,
           },
-        })
+        });
       }
 
       return {
         success: true,
         actionId: actionResult.data?.insert_nchat_moderation_actions_one?.id,
         affectedItems: [targetId],
-      }
+      };
     } catch (error) {
-      logger.error('Hide content error:', error)
+      logger.error("Hide content error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -278,47 +287,47 @@ export class ModerationActions {
    * Delete content
    */
   async deleteContent(
-    targetType: ModerationAction['targetType'],
+    targetType: ModerationAction["targetType"],
     targetId: string,
     targetUserId: string,
     moderatorId: string,
     reason: string,
-    isAutomated: boolean = false
+    isAutomated: boolean = false,
   ): Promise<ActionResult> {
     try {
       // Create action record
       const actionResult = await this.createAction({
-        actionType: 'delete',
+        actionType: "delete",
         targetType,
         targetId,
         targetUserId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated,
-        automationType: isAutomated ? 'ai' : 'manual',
+        automationType: isAutomated ? "ai" : "manual",
         reversible: false, // Deletion is permanent
-      })
+      });
 
       // Delete content
-      if (targetType === 'message') {
+      if (targetType === "message") {
         await this.apolloClient.mutate({
           mutation: DELETE_MESSAGE,
           variables: { messageId: targetId },
-        })
+        });
       }
 
       return {
         success: true,
         actionId: actionResult.data?.insert_nchat_moderation_actions_one?.id,
         affectedItems: [targetId],
-      }
+      };
     } catch (error) {
-      logger.error('Delete content error:', error)
+      logger.error("Delete content error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -329,39 +338,39 @@ export class ModerationActions {
     userId: string,
     moderatorId: string,
     reason: string,
-    isAutomated: boolean = false
+    isAutomated: boolean = false,
   ): Promise<ActionResult> {
     try {
       // Create warning
       await this.apolloClient.mutate({
         mutation: WARN_USER,
         variables: { userId, reason },
-      })
+      });
 
       // Create action record
       const actionResult = await this.createAction({
-        actionType: 'warn',
-        targetType: 'user',
+        actionType: "warn",
+        targetType: "user",
         targetId: userId,
         targetUserId: userId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated,
-        automationType: isAutomated ? 'ai' : 'manual',
+        automationType: isAutomated ? "ai" : "manual",
         reversible: false,
-      })
+      });
 
       return {
         success: true,
         actionId: actionResult.data?.insert_nchat_moderation_actions_one?.id,
-      }
+      };
     } catch (error) {
-      logger.error('Warn user error:', error)
+      logger.error("Warn user error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -373,12 +382,12 @@ export class ModerationActions {
     moderatorId: string,
     reason: string,
     durationMinutes?: number,
-    isAutomated: boolean = false
+    isAutomated: boolean = false,
   ): Promise<ActionResult> {
     try {
       const expiresAt = durationMinutes
         ? new Date(Date.now() + durationMinutes * 60 * 1000)
-        : undefined
+        : undefined;
 
       // Mute user
       await this.apolloClient.mutate({
@@ -388,71 +397,75 @@ export class ModerationActions {
           mutedUntil: expiresAt?.toISOString(),
           reason,
         },
-      })
+      });
 
       // Create action record
       const actionResult = await this.createAction({
-        actionType: 'mute',
-        targetType: 'user',
+        actionType: "mute",
+        targetType: "user",
         targetId: userId,
         targetUserId: userId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated,
-        automationType: isAutomated ? 'ai' : 'manual',
+        automationType: isAutomated ? "ai" : "manual",
         duration: durationMinutes,
         expiresAt,
         reversible: true,
-      })
+      });
 
       return {
         success: true,
         actionId: actionResult.data?.insert_nchat_moderation_actions_one?.id,
-      }
+      };
     } catch (error) {
-      logger.error('Mute user error:', error)
+      logger.error("Mute user error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
   /**
    * Unmute user
    */
-  async unmuteUser(userId: string, moderatorId: string, reason: string): Promise<ActionResult> {
+  async unmuteUser(
+    userId: string,
+    moderatorId: string,
+    reason: string,
+  ): Promise<ActionResult> {
     try {
       // Unmute user
       await this.apolloClient.mutate({
         mutation: UNMUTE_USER,
         variables: { userId },
-      })
+      });
 
       // Create action record
       const actionResult = await this.createAction({
-        actionType: 'unmute',
-        targetType: 'user',
+        actionType: "unmute",
+        targetType: "user",
         targetId: userId,
         targetUserId: userId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated: false,
         reversible: false,
-      })
+      });
 
       return {
         success: true,
         actionId: actionResult.data?.insert_nchat_moderation_actions_one?.id,
-      }
+      };
     } catch (error) {
-      logger.error('Unmute user error:', error)
+      logger.error("Unmute user error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -464,12 +477,12 @@ export class ModerationActions {
     moderatorId: string,
     reason: string,
     durationMinutes?: number,
-    isAutomated: boolean = false
+    isAutomated: boolean = false,
   ): Promise<ActionResult> {
     try {
       const expiresAt = durationMinutes
         ? new Date(Date.now() + durationMinutes * 60 * 1000)
-        : undefined
+        : undefined;
 
       // Ban user
       await this.apolloClient.mutate({
@@ -479,71 +492,75 @@ export class ModerationActions {
           bannedUntil: expiresAt?.toISOString(),
           reason,
         },
-      })
+      });
 
       // Create action record
       const actionResult = await this.createAction({
-        actionType: 'ban',
-        targetType: 'user',
+        actionType: "ban",
+        targetType: "user",
         targetId: userId,
         targetUserId: userId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated,
-        automationType: isAutomated ? 'ai' : 'manual',
+        automationType: isAutomated ? "ai" : "manual",
         duration: durationMinutes,
         expiresAt,
         reversible: true,
-      })
+      });
 
       return {
         success: true,
         actionId: actionResult.data?.insert_nchat_moderation_actions_one?.id,
-      }
+      };
     } catch (error) {
-      logger.error('Ban user error:', error)
+      logger.error("Ban user error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
   /**
    * Unban user
    */
-  async unbanUser(userId: string, moderatorId: string, reason: string): Promise<ActionResult> {
+  async unbanUser(
+    userId: string,
+    moderatorId: string,
+    reason: string,
+  ): Promise<ActionResult> {
     try {
       // Unban user
       await this.apolloClient.mutate({
         mutation: UNBAN_USER,
         variables: { userId },
-      })
+      });
 
       // Create action record
       const actionResult = await this.createAction({
-        actionType: 'unban',
-        targetType: 'user',
+        actionType: "unban",
+        targetType: "user",
         targetId: userId,
         targetUserId: userId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated: false,
         reversible: false,
-      })
+      });
 
       return {
         success: true,
         actionId: actionResult.data?.insert_nchat_moderation_actions_one?.id,
-      }
+      };
     } catch (error) {
-      logger.error('Unban user error:', error)
+      logger.error("Unban user error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -551,28 +568,28 @@ export class ModerationActions {
    * Approve content (remove from moderation queue)
    */
   async approveContent(
-    targetType: ModerationAction['targetType'],
+    targetType: ModerationAction["targetType"],
     targetId: string,
     targetUserId: string,
     moderatorId: string,
-    reason: string
+    reason: string,
   ): Promise<ActionResult> {
     try {
       // Create action record
       const actionResult = await this.createAction({
-        actionType: 'approve',
+        actionType: "approve",
         targetType,
         targetId,
         targetUserId,
         moderatorId,
-        moderatorRole: 'system',
+        moderatorRole: "system",
         reason,
         isAutomated: false,
         reversible: false,
-      })
+      });
 
       // If content was hidden, restore it
-      if (targetType === 'message') {
+      if (targetType === "message") {
         await this.apolloClient.mutate({
           mutation: UPDATE_MESSAGE_VISIBILITY,
           variables: {
@@ -580,19 +597,19 @@ export class ModerationActions {
             isHidden: false,
             hiddenReason: null,
           },
-        })
+        });
       }
 
       return {
         success: true,
         actionId: actionResult.data?.insert_nchat_moderation_actions_one?.id,
-      }
+      };
     } catch (error) {
-      logger.error('Approve content error:', error)
+      logger.error("Approve content error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -602,97 +619,98 @@ export class ModerationActions {
   async bulkAction(
     actionType: ModerationActionType,
     targets: Array<{
-      targetType: ModerationAction['targetType']
-      targetId: string
-      targetUserId: string
+      targetType: ModerationAction["targetType"];
+      targetId: string;
+      targetUserId: string;
     }>,
     moderatorId: string,
     reason: string,
     options?: {
-      duration?: number
-      isAutomated?: boolean
-    }
+      duration?: number;
+      isAutomated?: boolean;
+    },
   ): Promise<BulkActionResult> {
-    const results: ActionResult[] = []
-    const errors: string[] = []
-    let successCount = 0
-    let failureCount = 0
+    const results: ActionResult[] = [];
+    const errors: string[] = [];
+    let successCount = 0;
+    let failureCount = 0;
 
     for (const target of targets) {
       try {
-        let result: ActionResult
+        let result: ActionResult;
 
         switch (actionType) {
-          case 'flag':
+          case "flag":
             result = await this.flagContent(
               target.targetType,
               target.targetId,
               target.targetUserId,
               moderatorId,
               reason,
-              options?.isAutomated
-            )
-            break
-          case 'hide':
+              options?.isAutomated,
+            );
+            break;
+          case "hide":
             result = await this.hideContent(
               target.targetType,
               target.targetId,
               target.targetUserId,
               moderatorId,
               reason,
-              options?.isAutomated
-            )
-            break
-          case 'delete':
+              options?.isAutomated,
+            );
+            break;
+          case "delete":
             result = await this.deleteContent(
               target.targetType,
               target.targetId,
               target.targetUserId,
               moderatorId,
               reason,
-              options?.isAutomated
-            )
-            break
-          case 'mute':
+              options?.isAutomated,
+            );
+            break;
+          case "mute":
             result = await this.muteUser(
               target.targetUserId,
               moderatorId,
               reason,
               options?.duration,
-              options?.isAutomated
-            )
-            break
-          case 'ban':
+              options?.isAutomated,
+            );
+            break;
+          case "ban":
             result = await this.banUser(
               target.targetUserId,
               moderatorId,
               reason,
               options?.duration,
-              options?.isAutomated
-            )
-            break
+              options?.isAutomated,
+            );
+            break;
           default:
             result = {
               success: false,
               error: `Unsupported bulk action: ${actionType}`,
-            }
+            };
         }
 
-        results.push(result)
+        results.push(result);
 
         if (result.success) {
-          successCount++
+          successCount++;
         } else {
-          failureCount++
+          failureCount++;
           if (result.error) {
-            errors.push(result.error)
+            errors.push(result.error);
           }
         }
       } catch (error) {
-        failureCount++
-        const errorMsg = error instanceof Error ? error.message : 'Unknown error'
-        errors.push(errorMsg)
-        results.push({ success: false, error: errorMsg })
+        failureCount++;
+        const errorMsg =
+          error instanceof Error ? error.message : "Unknown error";
+        errors.push(errorMsg);
+        results.push({ success: false, error: errorMsg });
       }
     }
 
@@ -702,7 +720,7 @@ export class ModerationActions {
       failureCount,
       results,
       errors,
-    }
+    };
   }
 
   /**
@@ -712,17 +730,17 @@ export class ModerationActions {
     const result = await this.apolloClient.query({
       query: GET_USER_WARNINGS,
       variables: { userId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    return result.data?.nchat_user_warnings || []
+    return result.data?.nchat_user_warnings || [];
   }
 
   /**
    * Get action audit log
    */
   getAuditLog(): ActionAuditLog[] {
-    return [...this.auditLog]
+    return [...this.auditLog];
   }
 
   /**
@@ -738,16 +756,16 @@ export class ModerationActions {
       moderator_role: action.moderatorRole,
       reason: action.reason,
       is_automated: action.isAutomated || false,
-      automation_type: action.automationType || 'manual',
+      automation_type: action.automationType || "manual",
       duration: action.duration,
       expires_at: action.expiresAt?.toISOString(),
       reversible: action.reversible !== false,
       metadata: action.metadata || {},
-    }
+    };
 
     return this.apolloClient.mutate({
       mutation: CREATE_ACTION,
       variables: { input },
-    })
+    });
   }
 }

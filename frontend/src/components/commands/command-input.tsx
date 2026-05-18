@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * CommandInput Component
@@ -18,12 +18,12 @@
  * ```
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import type { SlashCommand, CommandArg } from '@/lib/commands'
-import type { ParsedCommand, ArgSuggestion } from '@/lib/commands'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import type { SlashCommand, CommandArg } from "@/lib/commands";
+import type { ParsedCommand, ArgSuggestion } from "@/lib/commands";
 
 // ============================================================================
 // Types
@@ -31,44 +31,44 @@ import type { ParsedCommand, ArgSuggestion } from '@/lib/commands'
 
 export interface CommandInputProps {
   /** The command being entered */
-  command: SlashCommand
+  command: SlashCommand;
   /** Current input value */
-  value: string
+  value: string;
   /** Callback when value changes */
-  onChange: (value: string) => void
+  onChange: (value: string) => void;
   /** Callback when command is submitted */
-  onSubmit: (value: string) => void
+  onSubmit: (value: string) => void;
   /** Callback when input is cancelled */
-  onCancel: () => void
+  onCancel: () => void;
   /** Parsed command for validation feedback */
-  parsedCommand?: ParsedCommand
+  parsedCommand?: ParsedCommand;
   /** Whether the input is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Placeholder text */
-  placeholder?: string
+  placeholder?: string;
   /** Auto focus on mount */
-  autoFocus?: boolean
+  autoFocus?: boolean;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 export interface ArgumentInputProps {
   /** The argument definition */
-  arg: CommandArg
+  arg: CommandArg;
   /** Current value */
-  value: string
+  value: string;
   /** Callback when value changes */
-  onChange: (value: string) => void
+  onChange: (value: string) => void;
   /** Whether the argument has an error */
-  hasError?: boolean
+  hasError?: boolean;
   /** Error message */
-  errorMessage?: string
+  errorMessage?: string;
   /** Suggestions for the argument */
-  suggestions?: ArgSuggestion[]
+  suggestions?: ArgSuggestion[];
   /** Callback when suggestion is selected */
-  onSuggestionSelect?: (suggestion: ArgSuggestion) => void
+  onSuggestionSelect?: (suggestion: ArgSuggestion) => void;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -85,53 +85,53 @@ export function ArgumentInput({
   onSuggestionSelect,
   className,
 }: ArgumentInputProps) {
-  const [showSuggestions, setShowSuggestions] = React.useState(false)
-  const inputRef = React.useRef<HTMLInputElement>(null)
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFocus = () => {
     if (suggestions.length > 0) {
-      setShowSuggestions(true)
+      setShowSuggestions(true);
     }
-  }
+  };
 
   const handleBlur = () => {
     // Delay to allow click on suggestion
-    setTimeout(() => setShowSuggestions(false), 200)
-  }
+    setTimeout(() => setShowSuggestions(false), 200);
+  };
 
   const handleSuggestionClick = (suggestion: ArgSuggestion) => {
-    onChange(suggestion.value)
-    onSuggestionSelect?.(suggestion)
-    setShowSuggestions(false)
-    inputRef.current?.focus()
-  }
+    onChange(suggestion.value);
+    onSuggestionSelect?.(suggestion);
+    setShowSuggestions(false);
+    inputRef.current?.focus();
+  };
 
   // Get input type based on argument type
   const getInputType = (): string => {
     switch (arg.type) {
-      case 'emoji':
-        return 'text'
+      case "emoji":
+        return "text";
       default:
-        return 'text'
+        return "text";
     }
-  }
+  };
 
   // Get prefix based on argument type
   const getPrefix = (): string | null => {
     switch (arg.type) {
-      case 'user':
-        return '@'
-      case 'channel':
-        return '#'
+      case "user":
+        return "@";
+      case "channel":
+        return "#";
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  const prefix = getPrefix()
+  const prefix = getPrefix();
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn("relative", className)}>
       <label className="mb-1 block text-xs font-medium text-muted-foreground">
         {arg.name}
         {arg.required && <span className="ml-0.5 text-destructive">*</span>}
@@ -152,13 +152,15 @@ export function ArgumentInput({
           onBlur={handleBlur}
           placeholder={arg.placeholder || arg.description}
           className={cn(
-            prefix && 'pl-7',
-            hasError && 'border-destructive focus-visible:ring-destructive'
+            prefix && "pl-7",
+            hasError && "border-destructive focus-visible:ring-destructive",
           )}
         />
       </div>
 
-      {hasError && errorMessage && <p className="mt-1 text-xs text-destructive">{errorMessage}</p>}
+      {hasError && errorMessage && (
+        <p className="mt-1 text-xs text-destructive">{errorMessage}</p>
+      )}
 
       {arg.description && !hasError && (
         <p className="mt-1 text-xs text-muted-foreground">{arg.description}</p>
@@ -172,23 +174,25 @@ export function ArgumentInput({
               key={index}
               type="button"
               className={cn(
-                'w-full px-3 py-2 text-left text-sm hover:bg-accent',
-                'flex items-center justify-between',
-                index === 0 && 'rounded-t-md',
-                index === suggestions.length - 1 && 'rounded-b-md'
+                "w-full px-3 py-2 text-left text-sm hover:bg-accent",
+                "flex items-center justify-between",
+                index === 0 && "rounded-t-md",
+                index === suggestions.length - 1 && "rounded-b-md",
               )}
               onClick={() => handleSuggestionClick(suggestion)}
             >
               <span className="font-medium">{suggestion.label}</span>
               {suggestion.description && (
-                <span className="text-xs text-muted-foreground">{suggestion.description}</span>
+                <span className="text-xs text-muted-foreground">
+                  {suggestion.description}
+                </span>
               )}
             </button>
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -196,32 +200,36 @@ export function ArgumentInput({
 // ============================================================================
 
 interface SuggestionChipsProps {
-  suggestions: ArgSuggestion[]
-  onSelect: (suggestion: ArgSuggestion) => void
-  className?: string
+  suggestions: ArgSuggestion[];
+  onSelect: (suggestion: ArgSuggestion) => void;
+  className?: string;
 }
 
-function SuggestionChips({ suggestions, onSelect, className }: SuggestionChipsProps) {
-  if (suggestions.length === 0) return null
+function SuggestionChips({
+  suggestions,
+  onSelect,
+  className,
+}: SuggestionChipsProps) {
+  if (suggestions.length === 0) return null;
 
   return (
-    <div className={cn('flex flex-wrap gap-1.5', className)}>
+    <div className={cn("flex flex-wrap gap-1.5", className)}>
       {suggestions.map((suggestion, index) => (
         <button
           key={index}
           type="button"
           onClick={() => onSelect(suggestion)}
           className={cn(
-            'inline-flex items-center rounded-md px-2 py-1 text-xs',
-            'hover:bg-muted/80 bg-muted text-muted-foreground',
-            'transition-colors'
+            "inline-flex items-center rounded-md px-2 py-1 text-xs",
+            "hover:bg-muted/80 bg-muted text-muted-foreground",
+            "transition-colors",
           )}
         >
           {suggestion.label}
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -240,91 +248,95 @@ export function CommandInput({
   autoFocus = true,
   className,
 }: CommandInputProps) {
-  const inputRef = React.useRef<HTMLInputElement>(null)
-  const [localValue, setLocalValue] = React.useState(value)
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [localValue, setLocalValue] = React.useState(value);
 
   // Sync local value with prop
   React.useEffect(() => {
-    setLocalValue(value)
-  }, [value])
+    setLocalValue(value);
+  }, [value]);
 
   // Auto focus on mount
   React.useEffect(() => {
     if (autoFocus && inputRef.current) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }, [autoFocus])
+  }, [autoFocus]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value
-    setLocalValue(newValue)
-    onChange(newValue)
-  }
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    onChange(newValue);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      const fullCommand = `/${command.name} ${localValue}`.trim()
-      onSubmit(fullCommand)
-    } else if (e.key === 'Escape') {
-      e.preventDefault()
-      onCancel()
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const fullCommand = `/${command.name} ${localValue}`.trim();
+      onSubmit(fullCommand);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onCancel();
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const fullCommand = `/${command.name} ${localValue}`.trim()
-    onSubmit(fullCommand)
-  }
+    e.preventDefault();
+    const fullCommand = `/${command.name} ${localValue}`.trim();
+    onSubmit(fullCommand);
+  };
 
   // Get validation errors
-  const errors = parsedCommand?.errors || []
-  const hasErrors = errors.length > 0
+  const errors = parsedCommand?.errors || [];
+  const hasErrors = errors.length > 0;
 
   // Build placeholder from command args
   const buildPlaceholder = (): string => {
-    if (placeholder) return placeholder
-    if (command.args.length === 0) return ''
+    if (placeholder) return placeholder;
+    if (command.args.length === 0) return "";
 
-    return command.args.map((arg) => (arg.required ? `<${arg.name}>` : `[${arg.name}]`)).join(' ')
-  }
+    return command.args
+      .map((arg) => (arg.required ? `<${arg.name}>` : `[${arg.name}]`))
+      .join(" ");
+  };
 
   // Get quick suggestions based on first argument
   const getQuickSuggestions = (): ArgSuggestion[] => {
-    if (command.args.length === 0 || localValue.trim()) return []
+    if (command.args.length === 0 || localValue.trim()) return [];
 
-    const firstArg = command.args[0]
+    const firstArg = command.args[0];
     switch (firstArg.type) {
-      case 'duration':
+      case "duration":
         return [
-          { value: '15m', label: '15 min', type: 'duration' },
-          { value: '30m', label: '30 min', type: 'duration' },
-          { value: '1h', label: '1 hour', type: 'duration' },
-          { value: '2h', label: '2 hours', type: 'duration' },
-        ]
-      case 'emoji':
+          { value: "15m", label: "15 min", type: "duration" },
+          { value: "30m", label: "30 min", type: "duration" },
+          { value: "1h", label: "1 hour", type: "duration" },
+          { value: "2h", label: "2 hours", type: "duration" },
+        ];
+      case "emoji":
         return [
-          { value: ':coffee:', label: 'Coffee', type: 'emoji' },
-          { value: ':palm_tree:', label: 'Vacation', type: 'emoji' },
-          { value: ':house:', label: 'WFH', type: 'emoji' },
-        ]
+          { value: ":coffee:", label: "Coffee", type: "emoji" },
+          { value: ":palm_tree:", label: "Vacation", type: "emoji" },
+          { value: ":house:", label: "WFH", type: "emoji" },
+        ];
       default:
-        return []
+        return [];
     }
-  }
+  };
 
-  const quickSuggestions = getQuickSuggestions()
+  const quickSuggestions = getQuickSuggestions();
 
   return (
-    <form onSubmit={handleSubmit} className={cn('space-y-3', className)}>
+    <form onSubmit={handleSubmit} className={cn("space-y-3", className)}>
       {/* Command Header */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1.5 rounded-md bg-muted px-2 py-1">
           <span className="text-muted-foreground">/</span>
           <span className="text-sm font-medium">{command.name}</span>
         </div>
-        <span className="text-sm text-muted-foreground">{command.description}</span>
+        <span className="text-sm text-muted-foreground">
+          {command.description}
+        </span>
       </div>
 
       {/* Main Input */}
@@ -337,15 +349,17 @@ export function CommandInput({
             onKeyDown={handleKeyDown}
             placeholder={buildPlaceholder()}
             disabled={disabled}
-            className={cn(hasErrors && 'border-destructive focus-visible:ring-destructive')}
+            className={cn(
+              hasErrors && "border-destructive focus-visible:ring-destructive",
+            )}
           />
 
           {/* Quick Suggestions */}
           <SuggestionChips
             suggestions={quickSuggestions}
             onSelect={(suggestion) => {
-              setLocalValue(suggestion.value)
-              onChange(suggestion.value)
+              setLocalValue(suggestion.value);
+              onChange(suggestion.value);
             }}
           />
 
@@ -361,7 +375,9 @@ export function CommandInput({
           )}
 
           {/* Usage Hint */}
-          <p className="font-mono text-xs text-muted-foreground">Usage: {command.usage}</p>
+          <p className="font-mono text-xs text-muted-foreground">
+            Usage: {command.usage}
+          </p>
         </div>
       )}
 
@@ -373,13 +389,15 @@ export function CommandInput({
         <Button
           type="submit"
           size="sm"
-          disabled={disabled || (hasErrors && command.args.some((a) => a.required))}
+          disabled={
+            disabled || (hasErrors && command.args.some((a) => a.required))
+          }
         >
-          {command.args.length === 0 ? 'Execute' : 'Send'}
+          {command.args.length === 0 ? "Execute" : "Send"}
         </Button>
       </div>
     </form>
-  )
+  );
 }
 
 // ============================================================================
@@ -388,17 +406,17 @@ export function CommandInput({
 
 export interface InlineCommandInputProps {
   /** Current full input value (including /) */
-  value: string
+  value: string;
   /** Callback when value changes */
-  onChange: (value: string) => void
+  onChange: (value: string) => void;
   /** Callback when command is submitted */
-  onSubmit: (value: string) => void
+  onSubmit: (value: string) => void;
   /** Callback when input is cancelled (Escape) */
-  onCancel: () => void
+  onCancel: () => void;
   /** Parsed command for validation */
-  parsedCommand?: ParsedCommand
+  parsedCommand?: ParsedCommand;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 export function InlineCommandInput({
@@ -410,29 +428,29 @@ export function InlineCommandInput({
   className,
 }: InlineCommandInputProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      onSubmit(value)
-    } else if (e.key === 'Escape') {
-      e.preventDefault()
-      onCancel()
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSubmit(value);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onCancel();
     }
-  }
+  };
 
-  const errors = parsedCommand?.errors || []
-  const hasErrors = errors.length > 0
+  const errors = parsedCommand?.errors || [];
+  const hasErrors = errors.length > 0;
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn("relative", className)}>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         className={cn(
-          'max-h-[200px] min-h-[44px] w-full resize-none px-3 py-2',
-          'bg-transparent text-foreground placeholder:text-muted-foreground',
-          'focus:outline-none',
-          hasErrors && 'text-destructive'
+          "max-h-[200px] min-h-[44px] w-full resize-none px-3 py-2",
+          "bg-transparent text-foreground placeholder:text-muted-foreground",
+          "focus:outline-none",
+          hasErrors && "text-destructive",
         )}
         placeholder="Type a command..."
       />
@@ -451,7 +469,7 @@ export function InlineCommandInput({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default CommandInput
+export default CommandInput;

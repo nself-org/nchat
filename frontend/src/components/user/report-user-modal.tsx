@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ReportUserModal - Modal for reporting a user
@@ -7,7 +7,7 @@
  * and attach evidence/screenshots for their report.
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,19 +15,31 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useReportStore, REPORT_REASONS, type ReportReason } from '@/lib/moderation/report-store'
-import { useMutation } from '@apollo/client'
-import { REPORT_USER } from '@/graphql/moderation'
-import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@/lib/utils'
-import { Flag, Loader2, CheckCircle2, Upload, X, ImageIcon, AlertTriangle } from 'lucide-react'
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  useReportStore,
+  REPORT_REASONS,
+  type ReportReason,
+} from "@/lib/moderation/report-store";
+import { useMutation } from "@apollo/client";
+import { REPORT_USER } from "@/graphql/moderation";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
+import {
+  Flag,
+  Loader2,
+  CheckCircle2,
+  Upload,
+  X,
+  ImageIcon,
+  AlertTriangle,
+} from "lucide-react";
 
 // ============================================================================
 // Types
@@ -35,20 +47,20 @@ import { Flag, Loader2, CheckCircle2, Upload, X, ImageIcon, AlertTriangle } from
 
 export interface ReportUserModalProps {
   /** Whether the modal is open (controlled mode) */
-  open?: boolean
+  open?: boolean;
   /** Callback when open state changes (controlled mode) */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
   /** User to report (optional, uses store state if not provided) */
   user?: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
   /** Callback after successful report submission */
-  onReported?: () => void
+  onReported?: () => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -57,11 +69,11 @@ export interface ReportUserModalProps {
 
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 // ============================================================================
@@ -75,7 +87,7 @@ export function ReportUserModal({
   onReported,
   className,
 }: ReportUserModalProps) {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser } = useAuth();
   const {
     reportUserModalOpen,
     reportUserTarget,
@@ -87,101 +99,102 @@ export function ReportUserModal({
     setSubmitError,
     setSubmitSuccess,
     resetFormState,
-  } = useReportStore()
+  } = useReportStore();
 
   // Form state
-  const [selectedReason, setSelectedReason] = React.useState<ReportReason | null>(null)
-  const [details, setDetails] = React.useState('')
-  const [evidenceUrls, setEvidenceUrls] = React.useState<string[]>([])
-  const [isUploading, setIsUploading] = React.useState(false)
+  const [selectedReason, setSelectedReason] =
+    React.useState<ReportReason | null>(null);
+  const [details, setDetails] = React.useState("");
+  const [evidenceUrls, setEvidenceUrls] = React.useState<string[]>([]);
+  const [isUploading, setIsUploading] = React.useState(false);
 
   // File input ref
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // GraphQL mutation
-  const [reportUserMutation] = useMutation(REPORT_USER)
+  const [reportUserMutation] = useMutation(REPORT_USER);
 
   // Determine target user and open state
-  const targetUser = propUser || reportUserTarget
-  const isOpen = open ?? reportUserModalOpen
+  const targetUser = propUser || reportUserTarget;
+  const isOpen = open ?? reportUserModalOpen;
 
   // Reset form when modal opens
   React.useEffect(() => {
     if (isOpen) {
-      setSelectedReason(null)
-      setDetails('')
-      setEvidenceUrls([])
-      resetFormState()
+      setSelectedReason(null);
+      setDetails("");
+      setEvidenceUrls([]);
+      resetFormState();
     }
-  }, [isOpen, resetFormState])
+  }, [isOpen, resetFormState]);
 
   // Handle close
   const handleOpenChange = React.useCallback(
     (newOpen: boolean) => {
       if (!newOpen) {
         if (onOpenChange) {
-          onOpenChange(false)
+          onOpenChange(false);
         } else {
-          closeReportUserModal()
+          closeReportUserModal();
         }
       }
     },
-    [onOpenChange, closeReportUserModal]
-  )
+    [onOpenChange, closeReportUserModal],
+  );
 
   // Handle file upload (simulated - would connect to storage service in production)
   const handleFileSelect = React.useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files
-      if (!files || files.length === 0) return
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
 
-      setIsUploading(true)
+      setIsUploading(true);
       try {
         // In production, upload files to storage and get URLs
         // For now, we'll use object URLs as placeholders
-        const newUrls: string[] = []
+        const newUrls: string[] = [];
         for (const file of Array.from(files)) {
           // Validate file type
-          if (!file.type.startsWith('image/')) {
-            setSubmitError('Only image files are allowed')
-            continue
+          if (!file.type.startsWith("image/")) {
+            setSubmitError("Only image files are allowed");
+            continue;
           }
           // Validate file size (max 5MB)
           if (file.size > 5 * 1024 * 1024) {
-            setSubmitError('File size must be less than 5MB')
-            continue
+            setSubmitError("File size must be less than 5MB");
+            continue;
           }
           // Create object URL (in production, upload to storage)
-          newUrls.push(URL.createObjectURL(file))
+          newUrls.push(URL.createObjectURL(file));
         }
-        setEvidenceUrls((prev) => [...prev, ...newUrls].slice(0, 5)) // Max 5 images
+        setEvidenceUrls((prev) => [...prev, ...newUrls].slice(0, 5)); // Max 5 images
       } finally {
-        setIsUploading(false)
+        setIsUploading(false);
         if (fileInputRef.current) {
-          fileInputRef.current.value = ''
+          fileInputRef.current.value = "";
         }
       }
     },
-    [setSubmitError]
-  )
+    [setSubmitError],
+  );
 
   // Remove evidence image
   const handleRemoveEvidence = React.useCallback((index: number) => {
-    setEvidenceUrls((prev) => prev.filter((_, i) => i !== index))
-  }, [])
+    setEvidenceUrls((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   // Handle form submission
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent) => {
-      e.preventDefault()
+      e.preventDefault();
 
       if (!targetUser || !currentUser?.id || !selectedReason) {
-        setSubmitError('Please select a reason for the report')
-        return
+        setSubmitError("Please select a reason for the report");
+        return;
       }
 
-      setSubmitting(true)
-      setSubmitError(null)
+      setSubmitting(true);
+      setSubmitError(null);
 
       try {
         await reportUserMutation({
@@ -192,20 +205,21 @@ export function ReportUserModal({
             details: details.trim() || null,
             evidenceUrls: evidenceUrls.length > 0 ? evidenceUrls : null,
           },
-        })
+        });
 
-        setSubmitSuccess(true)
-        onReported?.()
+        setSubmitSuccess(true);
+        onReported?.();
 
         // Close modal after a short delay to show success state
         setTimeout(() => {
-          handleOpenChange(false)
-        }, 2000)
+          handleOpenChange(false);
+        }, 2000);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to submit report'
-        setSubmitError(errorMessage)
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to submit report";
+        setSubmitError(errorMessage);
       } finally {
-        setSubmitting(false)
+        setSubmitting(false);
       }
     },
     [
@@ -220,14 +234,14 @@ export function ReportUserModal({
       setSubmitSuccess,
       onReported,
       handleOpenChange,
-    ]
-  )
+    ],
+  );
 
-  if (!targetUser) return null
+  if (!targetUser) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className={cn('sm:max-w-lg', className)}>
+      <DialogContent className={cn("sm:max-w-lg", className)}>
         {submitSuccess ? (
           // Success state
           <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -236,8 +250,8 @@ export function ReportUserModal({
             </div>
             <h3 className="mb-2 text-lg font-semibold">Report Submitted</h3>
             <p className="max-w-xs text-sm text-muted-foreground">
-              Thank you for helping keep our community safe. We will review your report and take
-              appropriate action.
+              Thank you for helping keep our community safe. We will review your
+              report and take appropriate action.
             </p>
           </div>
         ) : (
@@ -258,37 +272,56 @@ export function ReportUserModal({
               {/* User being reported */}
               <div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={targetUser.avatarUrl} alt={targetUser.displayName} />
-                  <AvatarFallback>{getInitials(targetUser.displayName)}</AvatarFallback>
+                  <AvatarImage
+                    src={targetUser.avatarUrl}
+                    alt={targetUser.displayName}
+                  />
+                  <AvatarFallback>
+                    {getInitials(targetUser.displayName)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{targetUser.displayName}</p>
-                  <p className="truncate text-sm text-muted-foreground">@{targetUser.username}</p>
+                  <p className="truncate font-medium">
+                    {targetUser.displayName}
+                  </p>
+                  <p className="truncate text-sm text-muted-foreground">
+                    @{targetUser.username}
+                  </p>
                 </div>
               </div>
 
               {/* Reason selection */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">
-                  Why are you reporting this user? <span className="text-destructive">*</span>
+                  Why are you reporting this user?{" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <ScrollArea className="h-[200px] pr-4">
                   <RadioGroup
-                    value={selectedReason || ''}
-                    onValueChange={(value) => setSelectedReason(value as ReportReason)}
+                    value={selectedReason || ""}
+                    onValueChange={(value) =>
+                      setSelectedReason(value as ReportReason)
+                    }
                   >
                     {REPORT_REASONS.map((reason) => (
                       <div
                         key={reason.value}
                         className={cn(
-                          'flex cursor-pointer items-start space-x-3 rounded-lg border p-3 transition-colors',
+                          "flex cursor-pointer items-start space-x-3 rounded-lg border p-3 transition-colors",
                           selectedReason === reason.value
-                            ? 'bg-primary/5 border-primary'
-                            : 'hover:bg-muted/50 border-transparent'
+                            ? "bg-primary/5 border-primary"
+                            : "hover:bg-muted/50 border-transparent",
                         )}
                       >
-                        <RadioGroupItem value={reason.value} id={reason.value} className="mt-0.5" />
-                        <Label htmlFor={reason.value} className="flex-1 cursor-pointer">
+                        <RadioGroupItem
+                          value={reason.value}
+                          id={reason.value}
+                          className="mt-0.5"
+                        />
+                        <Label
+                          htmlFor={reason.value}
+                          className="flex-1 cursor-pointer"
+                        >
                           <span className="font-medium">{reason.label}</span>
                           <p className="mt-0.5 text-xs text-muted-foreground">
                             {reason.description}
@@ -314,12 +347,16 @@ export function ReportUserModal({
                   maxLength={1000}
                   className="resize-none"
                 />
-                <p className="text-right text-xs text-muted-foreground">{details.length}/1000</p>
+                <p className="text-right text-xs text-muted-foreground">
+                  {details.length}/1000
+                </p>
               </div>
 
               {/* Evidence upload */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium">Evidence / Screenshots (optional)</Label>
+                <Label className="text-sm font-medium">
+                  Evidence / Screenshots (optional)
+                </Label>
                 <div className="flex flex-wrap gap-2">
                   {evidenceUrls.map((url, index) => (
                     <div
@@ -352,7 +389,9 @@ export function ReportUserModal({
                       ) : (
                         <>
                           <Upload className="h-4 w-4 text-muted-foreground" />
-                          <span className="mt-1 text-[10px] text-muted-foreground">Add</span>
+                          <span className="mt-1 text-[10px] text-muted-foreground">
+                            Add
+                          </span>
                         </>
                       )}
                     </button>
@@ -412,7 +451,7 @@ export function ReportUserModal({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default ReportUserModal
+export default ReportUserModal;

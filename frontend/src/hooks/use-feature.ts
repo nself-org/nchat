@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * React Hook for Feature Flags
@@ -24,10 +24,10 @@
  * ```
  */
 
-import { useMemo } from 'react'
-import { useAppConfig } from '@/contexts/app-config-context'
-import { featureService } from '@/lib/features/feature-service'
-import type { FeatureFlags, FeatureCategory } from '@/config/feature-flags'
+import { useMemo } from "react";
+import { useAppConfig } from "@/contexts/app-config-context";
+import { featureService } from "@/lib/features/feature-service";
+import type { FeatureFlags, FeatureCategory } from "@/config/feature-flags";
 
 /**
  * Return type for the useFeature hook
@@ -40,12 +40,15 @@ export interface UseFeatureReturn {
    * @param feature - Optional specific feature within the category
    * @returns boolean indicating if the feature/category is enabled
    */
-  isEnabled: <C extends FeatureCategory>(category: C, feature?: keyof FeatureFlags[C]) => boolean
+  isEnabled: <C extends FeatureCategory>(
+    category: C,
+    feature?: keyof FeatureFlags[C],
+  ) => boolean;
 
   /**
    * The complete feature flags object
    */
-  flags: FeatureFlags
+  flags: FeatureFlags;
 }
 
 /**
@@ -73,20 +76,22 @@ export interface UseFeatureReturn {
  * ```
  */
 export function useFeature(): UseFeatureReturn {
-  const { config } = useAppConfig()
+  const { config } = useAppConfig();
 
   // Sync feature flags from config if available
   useMemo(() => {
     if (config?.features) {
-      featureService.setFlags(config.features as Partial<FeatureFlags>)
+      featureService.setFlags(config.features as Partial<FeatureFlags>);
     }
-  }, [config?.features])
+  }, [config?.features]);
 
   return {
-    isEnabled: <C extends FeatureCategory>(category: C, feature?: keyof FeatureFlags[C]) =>
-      featureService.isEnabled(category, feature),
+    isEnabled: <C extends FeatureCategory>(
+      category: C,
+      feature?: keyof FeatureFlags[C],
+    ) => featureService.isEnabled(category, feature),
     flags: featureService.getFlags(),
-  }
+  };
 }
 
 /**
@@ -108,10 +113,10 @@ export function useFeature(): UseFeatureReturn {
  */
 export function useFeatureEnabled<C extends FeatureCategory>(
   category: C,
-  feature?: keyof FeatureFlags[C]
+  feature?: keyof FeatureFlags[C],
 ): boolean {
-  const { isEnabled } = useFeature()
-  return isEnabled(category, feature)
+  const { isEnabled } = useFeature();
+  return isEnabled(category, feature);
 }
 
 /**
@@ -134,9 +139,11 @@ export function useFeatureEnabled<C extends FeatureCategory>(
  * }
  * ```
  */
-export function useCategoryFlags<C extends FeatureCategory>(category: C): FeatureFlags[C] {
-  const { flags } = useFeature()
-  return flags[category]
+export function useCategoryFlags<C extends FeatureCategory>(
+  category: C,
+): FeatureFlags[C] {
+  const { flags } = useFeature();
+  return flags[category];
 }
 
 /**
@@ -159,12 +166,12 @@ export function useCategoryFlags<C extends FeatureCategory>(category: C): Featur
  * ```
  */
 export function useAllFeaturesEnabled(
-  features: Array<[FeatureCategory, string | undefined]>
+  features: Array<[FeatureCategory, string | undefined]>,
 ): boolean {
-  const { isEnabled } = useFeature()
+  const { isEnabled } = useFeature();
   return features.every(([category, feature]) =>
-    isEnabled(category, feature as keyof FeatureFlags[typeof category])
-  )
+    isEnabled(category, feature as keyof FeatureFlags[typeof category]),
+  );
 }
 
 /**
@@ -188,10 +195,10 @@ export function useAllFeaturesEnabled(
  * ```
  */
 export function useAnyFeatureEnabled(
-  features: Array<[FeatureCategory, string | undefined]>
+  features: Array<[FeatureCategory, string | undefined]>,
 ): boolean {
-  const { isEnabled } = useFeature()
+  const { isEnabled } = useFeature();
   return features.some(([category, feature]) =>
-    isEnabled(category, feature as keyof FeatureFlags[typeof category])
-  )
+    isEnabled(category, feature as keyof FeatureFlags[typeof category]),
+  );
 }

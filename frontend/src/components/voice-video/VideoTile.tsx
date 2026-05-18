@@ -13,9 +13,9 @@
  * - Hover actions menu
  */
 
-'use client'
+"use client";
 
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState } from "react";
 import {
   Mic,
   MicOff,
@@ -27,18 +27,18 @@ import {
   MonitorUp,
   Volume2,
   VolumeX,
-} from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 // =============================================================================
 // Types
@@ -46,35 +46,35 @@ import { cn } from '@/lib/utils'
 
 export interface VideoTileProps {
   /** Participant ID */
-  participantId: string
+  participantId: string;
   /** Participant name */
-  name: string
+  name: string;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Video stream */
-  stream: MediaStream | null
+  stream: MediaStream | null;
   /** Is audio muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Is video off */
-  isVideoOff: boolean
+  isVideoOff: boolean;
   /** Is screen sharing */
-  isScreenSharing: boolean
+  isScreenSharing: boolean;
   /** Is currently speaking */
-  isSpeaking: boolean
+  isSpeaking: boolean;
   /** Is this the local user */
-  isLocal?: boolean
+  isLocal?: boolean;
   /** Is this tile pinned */
-  isPinned?: boolean
+  isPinned?: boolean;
   /** Connection quality */
-  connectionQuality?: 'excellent' | 'good' | 'fair' | 'poor'
+  connectionQuality?: "excellent" | "good" | "fair" | "poor";
   /** Current user is host */
-  isHost?: boolean
+  isHost?: boolean;
   /** Callbacks */
-  onPin?: (participantId: string) => void
-  onMute?: (participantId: string) => void
-  onRemove?: (participantId: string) => void
+  onPin?: (participantId: string) => void;
+  onMute?: (participantId: string) => void;
+  onRemove?: (participantId: string) => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // =============================================================================
@@ -92,56 +92,56 @@ export function VideoTile({
   isSpeaking,
   isLocal = false,
   isPinned = false,
-  connectionQuality = 'good',
+  connectionQuality = "good",
   isHost = false,
   onPin,
   onMute,
   onRemove,
   className,
 }: VideoTileProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [showControls, setShowControls] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [showControls, setShowControls] = useState(false);
 
   // Attach stream to video element
   useEffect(() => {
     if (videoRef.current && stream && !isVideoOff) {
-      videoRef.current.srcObject = stream
+      videoRef.current.srcObject = stream;
     }
-  }, [stream, isVideoOff])
+  }, [stream, isVideoOff]);
 
   // Get initials for avatar fallback
   const getInitials = (name: string): string => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   // Get connection quality color
   const getQualityColor = (): string => {
     switch (connectionQuality) {
-      case 'excellent':
-        return 'text-green-500'
-      case 'good':
-        return 'text-blue-500'
-      case 'fair':
-        return 'text-yellow-500'
-      case 'poor':
-        return 'text-red-500'
+      case "excellent":
+        return "text-green-500";
+      case "good":
+        return "text-blue-500";
+      case "fair":
+        return "text-yellow-500";
+      case "poor":
+        return "text-red-500";
       default:
-        return 'text-gray-500'
+        return "text-gray-500";
     }
-  }
+  };
 
   return (
     <div
       className={cn(
-        'group relative aspect-video overflow-hidden rounded-lg bg-gray-900',
-        isSpeaking && 'ring-4 ring-green-500',
-        isPinned && 'ring-4 ring-blue-500',
-        className
+        "group relative aspect-video overflow-hidden rounded-lg bg-gray-900",
+        isSpeaking && "ring-4 ring-green-500",
+        isPinned && "ring-4 ring-blue-500",
+        className,
       )}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
@@ -178,13 +178,16 @@ export function VideoTile({
             variant="secondary"
             className="flex items-center gap-1 bg-black/60 backdrop-blur-sm"
           >
-            <Signal className={cn('h-3 w-3', getQualityColor())} />
+            <Signal className={cn("h-3 w-3", getQualityColor())} />
           </Badge>
         )}
 
         {/* Screen sharing indicator */}
         {isScreenSharing && (
-          <Badge variant="secondary" className="bg-blue-600/80 text-white backdrop-blur-sm">
+          <Badge
+            variant="secondary"
+            className="bg-blue-600/80 text-white backdrop-blur-sm"
+          >
             <MonitorUp className="mr-1 h-3 w-3" />
             Sharing
           </Badge>
@@ -192,7 +195,10 @@ export function VideoTile({
 
         {/* Pinned indicator */}
         {isPinned && (
-          <Badge variant="secondary" className="bg-blue-600/80 text-white backdrop-blur-sm">
+          <Badge
+            variant="secondary"
+            className="bg-blue-600/80 text-white backdrop-blur-sm"
+          >
             <Pin className="h-3 w-3" />
           </Badge>
         )}
@@ -208,7 +214,11 @@ export function VideoTile({
               onClick={() => onPin(participantId)}
               className="h-8 w-8 bg-black/60 backdrop-blur-sm hover:bg-black/80"
             >
-              {isPinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+              {isPinned ? (
+                <PinOff className="h-4 w-4" />
+              ) : (
+                <Pin className="h-4 w-4" />
+              )}
             </Button>
           )}
 
@@ -263,7 +273,7 @@ export function VideoTile({
           {/* Name */}
           <span className="text-sm font-medium text-white drop-shadow-lg">
             {name}
-            {isLocal && ' (You)'}
+            {isLocal && " (You)"}
           </span>
 
           {/* Muted indicator */}
@@ -291,5 +301,5 @@ export function VideoTile({
         )}
       </div>
     </div>
-  )
+  );
 }

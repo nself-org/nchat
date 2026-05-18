@@ -1,8 +1,11 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_CHANNELS = gql`
   query GetChannels {
-    nchat_channels(where: { is_archived: { _eq: false } }, order_by: { position: asc, name: asc }) {
+    nchat_channels(
+      where: { is_archived: { _eq: false } }
+      order_by: { position: asc, name: asc }
+    ) {
       id
       name
       slug
@@ -23,7 +26,7 @@ export const GET_CHANNELS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_CHANNEL_BY_SLUG = gql`
   query GetChannelBySlug($slug: String!) {
@@ -55,7 +58,7 @@ export const GET_CHANNEL_BY_SLUG = gql`
       }
     }
   }
-`
+`;
 
 export const GET_USER_CHANNELS = gql`
   query GetUserChannels($userId: uuid!) {
@@ -72,4 +75,4 @@ export const GET_USER_CHANNELS = gql`
       notifications_enabled
     }
   }
-`
+`;

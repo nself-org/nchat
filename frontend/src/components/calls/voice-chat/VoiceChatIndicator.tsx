@@ -4,30 +4,30 @@
  * Shows voice chat status in a group/channel, allowing quick join.
  */
 
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { Radio, Users, Mic, Circle } from 'lucide-react'
-import type { VoiceChat } from '@/types/voice-chat'
+} from "@/components/ui/tooltip";
+import { Radio, Users, Mic, Circle } from "lucide-react";
+import type { VoiceChat } from "@/types/voice-chat";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface VoiceChatIndicatorProps {
-  voiceChat: VoiceChat | null
-  isInVoiceChat: boolean
-  onJoin: () => void
-  onOpen: () => void
-  className?: string
-  variant?: 'compact' | 'full'
+  voiceChat: VoiceChat | null;
+  isInVoiceChat: boolean;
+  onJoin: () => void;
+  onOpen: () => void;
+  className?: string;
+  variant?: "compact" | "full";
 }
 
 // =============================================================================
@@ -40,13 +40,13 @@ export function VoiceChatIndicator({
   onJoin,
   onOpen,
   className,
-  variant = 'full',
+  variant = "full",
 }: VoiceChatIndicatorProps) {
-  if (!voiceChat || voiceChat.status !== 'live') {
-    return null
+  if (!voiceChat || voiceChat.status !== "live") {
+    return null;
   }
 
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <TooltipProvider>
         <Tooltip>
@@ -55,8 +55,8 @@ export function VoiceChatIndicator({
               variant="ghost"
               size="sm"
               className={cn(
-                'gap-1.5 text-green-600 hover:text-green-700 hover:bg-green-100',
-                className
+                "gap-1.5 text-green-600 hover:text-green-700 hover:bg-green-100",
+                className,
               )}
               onClick={isInVoiceChat ? onOpen : onJoin}
             >
@@ -80,14 +80,14 @@ export function VoiceChatIndicator({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
+    );
   }
 
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg',
-        className
+        "flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg",
+        className,
       )}
     >
       <div className="flex items-center gap-3">
@@ -126,17 +126,15 @@ export function VoiceChatIndicator({
       </div>
 
       <Button
-        variant={isInVoiceChat ? 'secondary' : 'default'}
+        variant={isInVoiceChat ? "secondary" : "default"}
         size="sm"
-        className={cn(
-          !isInVoiceChat && 'bg-green-600 hover:bg-green-700'
-        )}
+        className={cn(!isInVoiceChat && "bg-green-600 hover:bg-green-700")}
         onClick={isInVoiceChat ? onOpen : onJoin}
       >
-        {isInVoiceChat ? 'Open' : 'Join'}
+        {isInVoiceChat ? "Open" : "Join"}
       </Button>
     </div>
-  )
+  );
 }
 
-export default VoiceChatIndicator
+export default VoiceChatIndicator;

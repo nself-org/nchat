@@ -8,8 +8,8 @@
  * @version 1.0.0
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT } from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -18,70 +18,70 @@ import { USER_BASIC_FRAGMENT } from '../fragments'
 /**
  * Receipt status enum
  */
-export type ReceiptStatus = 'sent' | 'delivered' | 'read'
+export type ReceiptStatus = "sent" | "delivered" | "read";
 
 /**
  * Individual delivery receipt
  */
 export interface DeliveryReceipt {
-  id: string
-  messageId: string
-  userId: string
-  status: ReceiptStatus
-  deliveredAt: Date | null
-  readAt: Date | null
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  messageId: string;
+  userId: string;
+  status: ReceiptStatus;
+  deliveredAt: Date | null;
+  readAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
   user?: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
 }
 
 /**
  * Aggregated receipt summary for a message
  */
 export interface ReceiptSummary {
-  messageId: string
-  totalRecipients: number
-  deliveredCount: number
-  readCount: number
-  receipts: DeliveryReceipt[]
+  messageId: string;
+  totalRecipients: number;
+  deliveredCount: number;
+  readCount: number;
+  receipts: DeliveryReceipt[];
 }
 
 /**
  * Variables for receipt queries
  */
 export interface GetReceiptsVariables {
-  messageId: string
+  messageId: string;
 }
 
 export interface MarkDeliveredVariables {
-  messageId: string
-  userId: string
+  messageId: string;
+  userId: string;
 }
 
 export interface MarkReadVariables {
-  messageId: string
-  userId: string
+  messageId: string;
+  userId: string;
 }
 
 export interface GetUnreadCountVariables {
-  channelId: string
-  userId: string
+  channelId: string;
+  userId: string;
 }
 
 export interface MarkChannelReadVariables {
-  channelId: string
-  userId: string
+  channelId: string;
+  userId: string;
 }
 
 export interface ReceiptSubscriptionVariables {
-  messageId?: string
-  channelId?: string
-  userId?: string
+  messageId?: string;
+  channelId?: string;
+  userId?: string;
 }
 
 // ============================================================================
@@ -106,7 +106,7 @@ export const DELIVERY_RECEIPT_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -123,13 +123,18 @@ export const GET_MESSAGE_RECEIPTS = gql`
     ) {
       ...DeliveryReceipt
     }
-    nchat_message_receipts_aggregate(where: { message_id: { _eq: $messageId } }) {
+    nchat_message_receipts_aggregate(
+      where: { message_id: { _eq: $messageId } }
+    ) {
       aggregate {
         count
       }
     }
     delivered: nchat_message_receipts_aggregate(
-      where: { message_id: { _eq: $messageId }, status: { _in: ["delivered", "read"] } }
+      where: {
+        message_id: { _eq: $messageId }
+        status: { _in: ["delivered", "read"] }
+      }
     ) {
       aggregate {
         count
@@ -144,7 +149,7 @@ export const GET_MESSAGE_RECEIPTS = gql`
     }
   }
   ${DELIVERY_RECEIPT_FRAGMENT}
-`
+`;
 
 /**
  * Get receipt status for a specific user and message
@@ -159,7 +164,7 @@ export const GET_USER_RECEIPT = gql`
     }
   }
   ${DELIVERY_RECEIPT_FRAGMENT}
-`
+`;
 
 /**
  * Get unread message count for a channel
@@ -171,7 +176,9 @@ export const GET_UNREAD_MESSAGE_COUNT = gql`
         channel_id: { _eq: $channelId }
         is_deleted: { _eq: false }
         user_id: { _neq: $userId }
-        _not: { receipts: { user_id: { _eq: $userId }, status: { _eq: "read" } } }
+        _not: {
+          receipts: { user_id: { _eq: $userId }, status: { _eq: "read" } }
+        }
       }
     ) {
       aggregate {
@@ -179,7 +186,7 @@ export const GET_UNREAD_MESSAGE_COUNT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get receipts for multiple messages (batch query)
@@ -194,7 +201,7 @@ export const GET_MESSAGES_RECEIPTS = gql`
     }
   }
   ${DELIVERY_RECEIPT_FRAGMENT}
-`
+`;
 
 /**
  * Get read status for channel members (who has read the latest message)
@@ -211,7 +218,7 @@ export const GET_CHANNEL_READ_STATUS = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -240,7 +247,7 @@ export const MARK_MESSAGE_DELIVERED = gql`
     }
   }
   ${DELIVERY_RECEIPT_FRAGMENT}
-`
+`;
 
 /**
  * Mark a message as read (via receipt)
@@ -265,13 +272,15 @@ export const MARK_RECEIPT_READ = gql`
     }
   }
   ${DELIVERY_RECEIPT_FRAGMENT}
-`
+`;
 
 /**
  * Bulk mark messages as delivered
  */
 export const BULK_MARK_DELIVERED = gql`
-  mutation BulkMarkDelivered($objects: [nchat_message_receipts_insert_input!]!) {
+  mutation BulkMarkDelivered(
+    $objects: [nchat_message_receipts_insert_input!]!
+  ) {
     insert_nchat_message_receipts(
       objects: $objects
       on_conflict: {
@@ -288,7 +297,7 @@ export const BULK_MARK_DELIVERED = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Mark all messages in a channel as read for a user
@@ -320,17 +329,22 @@ export const MARK_CHANNEL_READ = gql`
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Create initial sent receipt when message is created
  * This is typically called by the message service when sending
  */
 export const CREATE_SENT_RECEIPTS = gql`
-  mutation CreateSentReceipts($objects: [nchat_message_receipts_insert_input!]!) {
+  mutation CreateSentReceipts(
+    $objects: [nchat_message_receipts_insert_input!]!
+  ) {
     insert_nchat_message_receipts(
       objects: $objects
-      on_conflict: { constraint: nchat_message_receipts_message_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_message_receipts_message_id_user_id_key
+        update_columns: []
+      }
     ) {
       affected_rows
       returning {
@@ -341,7 +355,7 @@ export const CREATE_SENT_RECEIPTS = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -360,7 +374,7 @@ export const MESSAGE_RECEIPTS_SUBSCRIPTION = gql`
     }
   }
   ${DELIVERY_RECEIPT_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to receipt updates for messages in a channel
@@ -381,7 +395,7 @@ export const CHANNEL_RECEIPTS_SUBSCRIPTION = gql`
     }
   }
   ${DELIVERY_RECEIPT_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to receipt updates for the current user
@@ -390,7 +404,10 @@ export const CHANNEL_RECEIPTS_SUBSCRIPTION = gql`
 export const USER_SENT_RECEIPTS_SUBSCRIPTION = gql`
   subscription UserSentReceiptsSubscription($userId: uuid!) {
     nchat_message_receipts(
-      where: { message: { user_id: { _eq: $userId } }, user_id: { _neq: $userId } }
+      where: {
+        message: { user_id: { _eq: $userId } }
+        user_id: { _neq: $userId }
+      }
       order_by: { updated_at: desc }
       limit: 50
     ) {
@@ -403,7 +420,7 @@ export const USER_SENT_RECEIPTS_SUBSCRIPTION = gql`
     }
   }
   ${DELIVERY_RECEIPT_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to read status changes using streaming
@@ -428,7 +445,7 @@ export const RECEIPT_STREAM_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // TRANSFORM FUNCTIONS
@@ -437,13 +454,17 @@ export const RECEIPT_STREAM_SUBSCRIPTION = gql`
 /**
  * Transform raw GraphQL receipt data to DeliveryReceipt
  */
-export function transformReceipt(data: Record<string, unknown>): DeliveryReceipt {
+export function transformReceipt(
+  data: Record<string, unknown>,
+): DeliveryReceipt {
   return {
     id: data.id as string,
     messageId: data.message_id as string,
     userId: data.user_id as string,
     status: data.status as ReceiptStatus,
-    deliveredAt: data.delivered_at ? new Date(data.delivered_at as string) : null,
+    deliveredAt: data.delivered_at
+      ? new Date(data.delivered_at as string)
+      : null,
     readAt: data.read_at ? new Date(data.read_at as string) : null,
     createdAt: new Date(data.created_at as string),
     updatedAt: new Date(data.updated_at as string),
@@ -454,17 +475,19 @@ export function transformReceipt(data: Record<string, unknown>): DeliveryReceipt
           displayName:
             ((data.user as Record<string, unknown>).display_name as string) ||
             ((data.user as Record<string, unknown>).username as string),
-          avatarUrl: (data.user as Record<string, unknown>).avatar_url as string | undefined,
+          avatarUrl: (data.user as Record<string, unknown>).avatar_url as
+            | string
+            | undefined,
         }
       : undefined,
-  }
+  };
 }
 
 /**
  * Transform array of receipts
  */
 export function transformReceipts(data: unknown[]): DeliveryReceipt[] {
-  return data.map((r) => transformReceipt(r as Record<string, unknown>))
+  return data.map((r) => transformReceipt(r as Record<string, unknown>));
 }
 
 /**
@@ -475,7 +498,7 @@ export function buildReceiptSummary(
   receipts: DeliveryReceipt[],
   totalCount: number,
   deliveredCount: number,
-  readCount: number
+  readCount: number,
 ): ReceiptSummary {
   return {
     messageId,
@@ -483,7 +506,7 @@ export function buildReceiptSummary(
     deliveredCount,
     readCount,
     receipts,
-  }
+  };
 }
 
 /**
@@ -491,9 +514,9 @@ export function buildReceiptSummary(
  * Priority: read > delivered > sent
  */
 export function getHighestStatus(receipts: DeliveryReceipt[]): ReceiptStatus {
-  if (receipts.some((r) => r.status === 'read')) return 'read'
-  if (receipts.some((r) => r.status === 'delivered')) return 'delivered'
-  return 'sent'
+  if (receipts.some((r) => r.status === "read")) return "read";
+  if (receipts.some((r) => r.status === "delivered")) return "delivered";
+  return "sent";
 }
 
 /**
@@ -503,39 +526,39 @@ export function formatReceiptStatus(
   status: ReceiptStatus,
   deliveredCount?: number,
   readCount?: number,
-  totalRecipients?: number
+  totalRecipients?: number,
 ): string {
   if (totalRecipients === undefined) {
     switch (status) {
-      case 'read':
-        return 'Read'
-      case 'delivered':
-        return 'Delivered'
-      case 'sent':
+      case "read":
+        return "Read";
+      case "delivered":
+        return "Delivered";
+      case "sent":
       default:
-        return 'Sent'
+        return "Sent";
     }
   }
 
   // Group message format
-  const delivered = deliveredCount || 0
-  const read = readCount || 0
+  const delivered = deliveredCount || 0;
+  const read = readCount || 0;
 
   if (read === totalRecipients) {
-    return `Read by all (${read})`
+    return `Read by all (${read})`;
   }
 
   if (read > 0 && delivered > 0) {
-    return `Delivered: ${delivered}, Read: ${read}`
+    return `Delivered: ${delivered}, Read: ${read}`;
   }
 
   if (delivered === totalRecipients) {
-    return `Delivered to all (${delivered})`
+    return `Delivered to all (${delivered})`;
   }
 
   if (delivered > 0) {
-    return `Delivered to ${delivered} of ${totalRecipients}`
+    return `Delivered to ${delivered} of ${totalRecipients}`;
   }
 
-  return 'Sent'
+  return "Sent";
 }

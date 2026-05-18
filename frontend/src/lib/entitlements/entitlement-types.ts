@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-import type { PlanTier } from '@/types/subscription.types'
+import type { PlanTier } from "@/types/subscription.types";
 
 // ============================================================================
 // Core Entitlement Types
@@ -22,42 +22,46 @@ import type { PlanTier } from '@/types/subscription.types'
  * - tier: Plan tier requirement (e.g., requires 'professional' or higher)
  * - custom: Complex entitlement evaluated by custom gate
  */
-export type EntitlementValueType = 'boolean' | 'numeric' | 'tier' | 'custom'
+export type EntitlementValueType = "boolean" | "numeric" | "tier" | "custom";
 
 /**
  * Scope level for entitlement inheritance.
  * Inheritance flows: organization -> workspace -> channel -> user
  */
-export type EntitlementScope = 'organization' | 'workspace' | 'channel' | 'user'
+export type EntitlementScope =
+  | "organization"
+  | "workspace"
+  | "channel"
+  | "user";
 
 /**
  * Source of an entitlement.
  */
 export type EntitlementSource =
-  | 'plan' // From subscription plan
-  | 'addon' // From purchased add-on
-  | 'grant' // Manually granted (override)
-  | 'trial' // Trial period
-  | 'promotion' // Promotional offer
-  | 'inherited' // Inherited from parent scope
-  | 'default' // Default value
+  | "plan" // From subscription plan
+  | "addon" // From purchased add-on
+  | "grant" // Manually granted (override)
+  | "trial" // Trial period
+  | "promotion" // Promotional offer
+  | "inherited" // Inherited from parent scope
+  | "default"; // Default value
 
 /**
  * Category of entitlement for organization.
  */
 export type EntitlementCategory =
-  | 'messaging' // Message-related features
-  | 'channels' // Channel-related features
-  | 'calls' // Voice/video call features
-  | 'storage' // File storage features
-  | 'integrations' // Third-party integrations
-  | 'security' // Security features
-  | 'admin' // Admin/management features
-  | 'api' // API access features
-  | 'support' // Support features
-  | 'branding' // Branding/customization features
-  | 'analytics' // Analytics features
-  | 'compliance' // Compliance features
+  | "messaging" // Message-related features
+  | "channels" // Channel-related features
+  | "calls" // Voice/video call features
+  | "storage" // File storage features
+  | "integrations" // Third-party integrations
+  | "security" // Security features
+  | "admin" // Admin/management features
+  | "api" // API access features
+  | "support" // Support features
+  | "branding" // Branding/customization features
+  | "analytics" // Analytics features
+  | "compliance"; // Compliance features
 
 // ============================================================================
 // Entitlement Definition Types
@@ -68,72 +72,72 @@ export type EntitlementCategory =
  */
 export interface EntitlementDefinitionBase {
   /** Unique entitlement key (e.g., 'feature.video_calls') */
-  key: string
+  key: string;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Description */
-  description: string
+  description: string;
   /** Category for grouping */
-  category: EntitlementCategory
+  category: EntitlementCategory;
   /** Value type */
-  valueType: EntitlementValueType
+  valueType: EntitlementValueType;
   /** Whether this can be overridden at lower scopes */
-  inheritable: boolean
+  inheritable: boolean;
   /** Whether this can be explicitly granted/revoked */
-  grantable: boolean
+  grantable: boolean;
   /** Custom gate function name (for valueType === 'custom') */
-  gateFn?: string
+  gateFn?: string;
   /** Metadata for UI rendering */
   metadata?: {
-    icon?: string
-    sortOrder?: number
-    planBadge?: boolean
-    upgradePrompt?: string
-  }
+    icon?: string;
+    sortOrder?: number;
+    planBadge?: boolean;
+    upgradePrompt?: string;
+  };
 }
 
 /**
  * Boolean entitlement definition.
  */
 export interface BooleanEntitlementDefinition extends EntitlementDefinitionBase {
-  valueType: 'boolean'
-  defaultValue: boolean
+  valueType: "boolean";
+  defaultValue: boolean;
 }
 
 /**
  * Numeric entitlement definition.
  */
 export interface NumericEntitlementDefinition extends EntitlementDefinitionBase {
-  valueType: 'numeric'
-  defaultValue: number
+  valueType: "numeric";
+  defaultValue: number;
   /** null means unlimited */
-  maxValue: number | null
+  maxValue: number | null;
   /** Unit for display (e.g., 'members', 'GB', 'minutes') */
-  unit: string
+  unit: string;
   /** Whether null means unlimited */
-  unlimitedValue?: number | null
+  unlimitedValue?: number | null;
 }
 
 /**
  * Tier-based entitlement definition.
  */
 export interface TierEntitlementDefinition extends EntitlementDefinitionBase {
-  valueType: 'tier'
+  valueType: "tier";
   /** Minimum tier required */
-  minimumTier: PlanTier
+  minimumTier: PlanTier;
   /** Tier hierarchy for comparison */
-  tierOrder: readonly PlanTier[]
+  tierOrder: readonly PlanTier[];
 }
 
 /**
  * Custom entitlement definition.
  */
 export interface CustomEntitlementDefinition extends EntitlementDefinitionBase {
-  valueType: 'custom'
+  valueType: "custom";
   /** Gate function name for evaluation */
-  gateFn: string
+  gateFn: string;
   /** Additional gate parameters */
-  gateParams?: Record<string, unknown>
+  gateParams?: Record<string, unknown>;
 }
 
 /**
@@ -143,7 +147,7 @@ export type EntitlementDefinition =
   | BooleanEntitlementDefinition
   | NumericEntitlementDefinition
   | TierEntitlementDefinition
-  | CustomEntitlementDefinition
+  | CustomEntitlementDefinition;
 
 // ============================================================================
 // Entitlement Value Types
@@ -154,30 +158,30 @@ export type EntitlementDefinition =
  */
 export interface EntitlementValue {
   /** Entitlement key */
-  key: string
+  key: string;
   /** Value type */
-  valueType: EntitlementValueType
+  valueType: EntitlementValueType;
   /** Resolved value */
-  value: boolean | number | PlanTier | unknown
+  value: boolean | number | PlanTier | unknown;
   /** Whether access is granted */
-  granted: boolean
+  granted: boolean;
   /** Source of this value */
-  source: EntitlementSource
+  source: EntitlementSource;
   /** Scope where this was resolved */
-  scope: EntitlementScope
+  scope: EntitlementScope;
   /** Entity ID at this scope */
-  entityId: string
+  entityId: string;
   /** Parent entity ID (if inherited) */
-  inheritedFrom?: string
+  inheritedFrom?: string;
   /** Expiration timestamp (if temporary) */
-  expiresAt?: Date
+  expiresAt?: Date;
   /** Usage tracking (for numeric entitlements) */
   usage?: {
-    current: number
-    limit: number | null
-    remaining: number | null
-    percentage: number | null
-  }
+    current: number;
+    limit: number | null;
+    remaining: number | null;
+    percentage: number | null;
+  };
 }
 
 /**
@@ -185,57 +189,57 @@ export interface EntitlementValue {
  */
 export interface EntitlementGrant {
   /** Unique grant ID */
-  id: string
+  id: string;
   /** Entitlement key */
-  entitlementKey: string
+  entitlementKey: string;
   /** Target scope */
-  scope: EntitlementScope
+  scope: EntitlementScope;
   /** Target entity ID */
-  entityId: string
+  entityId: string;
   /** Grant source */
-  source: EntitlementSource
+  source: EntitlementSource;
   /** Grant value (depends on valueType) */
-  value: boolean | number | PlanTier | unknown
+  value: boolean | number | PlanTier | unknown;
   /** Override priority (higher wins) */
-  priority: number
+  priority: number;
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Updated timestamp */
-  updatedAt: Date
+  updatedAt: Date;
   /** Expiration timestamp */
-  expiresAt?: Date
+  expiresAt?: Date;
   /** Who granted this */
-  grantedBy?: string
+  grantedBy?: string;
   /** Reason for grant */
-  reason?: string
+  reason?: string;
   /** Whether this grant is active */
-  active: boolean
+  active: boolean;
 }
 
 /**
  * Input for creating an entitlement grant.
  */
 export interface CreateEntitlementGrantInput {
-  entitlementKey: string
-  scope: EntitlementScope
-  entityId: string
-  source?: EntitlementSource
-  value: boolean | number | PlanTier | unknown
-  priority?: number
-  expiresAt?: Date
-  grantedBy?: string
-  reason?: string
+  entitlementKey: string;
+  scope: EntitlementScope;
+  entityId: string;
+  source?: EntitlementSource;
+  value: boolean | number | PlanTier | unknown;
+  priority?: number;
+  expiresAt?: Date;
+  grantedBy?: string;
+  reason?: string;
 }
 
 /**
  * Input for updating an entitlement grant.
  */
 export interface UpdateEntitlementGrantInput {
-  value?: boolean | number | PlanTier | unknown
-  priority?: number
-  expiresAt?: Date | null
-  active?: boolean
-  reason?: string
+  value?: boolean | number | PlanTier | unknown;
+  priority?: number;
+  expiresAt?: Date | null;
+  active?: boolean;
+  reason?: string;
 }
 
 // ============================================================================
@@ -247,19 +251,19 @@ export interface UpdateEntitlementGrantInput {
  */
 export interface EntitlementContext {
   /** User ID */
-  userId: string
+  userId: string;
   /** User's role in current scope */
-  userRole?: string
+  userRole?: string;
   /** Organization ID */
-  organizationId?: string
+  organizationId?: string;
   /** Workspace ID */
-  workspaceId?: string
+  workspaceId?: string;
   /** Channel ID */
-  channelId?: string
+  channelId?: string;
   /** Current plan tier */
-  planTier: PlanTier
+  planTier: PlanTier;
   /** Additional context data */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -267,68 +271,68 @@ export interface EntitlementContext {
  */
 export interface EntitlementEvaluationResult {
   /** Entitlement key */
-  key: string
+  key: string;
   /** Whether access is granted */
-  granted: boolean
+  granted: boolean;
   /** Resolved value */
-  value: boolean | number | PlanTier | unknown
+  value: boolean | number | PlanTier | unknown;
   /** Value type */
-  valueType: EntitlementValueType
+  valueType: EntitlementValueType;
   /** Source of the final value */
-  source: EntitlementSource
+  source: EntitlementSource;
   /** Scope where resolved */
-  scope: EntitlementScope
+  scope: EntitlementScope;
   /** Entity ID at scope */
-  entityId: string
+  entityId: string;
   /** Resolution chain (for debugging) */
-  resolutionChain?: EntitlementResolutionStep[]
+  resolutionChain?: EntitlementResolutionStep[];
   /** Reason for denial (if !granted) */
-  denialReason?: string
+  denialReason?: string;
   /** Suggested upgrade tier (if applicable) */
-  upgradeRequired?: PlanTier
+  upgradeRequired?: PlanTier;
   /** Usage information (for numeric) */
   usage?: {
-    current: number
-    limit: number | null
-    remaining: number | null
-    percentage: number | null
-    warning: 'none' | 'approaching' | 'critical' | 'exceeded'
-  }
+    current: number;
+    limit: number | null;
+    remaining: number | null;
+    percentage: number | null;
+    warning: "none" | "approaching" | "critical" | "exceeded";
+  };
 }
 
 /**
  * Step in entitlement resolution chain.
  */
 export interface EntitlementResolutionStep {
-  scope: EntitlementScope
-  entityId: string
-  source: EntitlementSource
-  value: boolean | number | PlanTier | unknown
-  applied: boolean
-  reason: string
+  scope: EntitlementScope;
+  entityId: string;
+  source: EntitlementSource;
+  value: boolean | number | PlanTier | unknown;
+  applied: boolean;
+  reason: string;
 }
 
 /**
  * Batch evaluation request.
  */
 export interface BatchEvaluationRequest {
-  context: EntitlementContext
-  entitlementKeys: string[]
+  context: EntitlementContext;
+  entitlementKeys: string[];
   /** Include resolution chain for debugging */
-  includeResolutionChain?: boolean
+  includeResolutionChain?: boolean;
 }
 
 /**
  * Batch evaluation response.
  */
 export interface BatchEvaluationResponse {
-  results: Record<string, EntitlementEvaluationResult>
+  results: Record<string, EntitlementEvaluationResult>;
   /** Any errors during evaluation */
-  errors?: Record<string, string>
+  errors?: Record<string, string>;
   /** Evaluation timestamp */
-  evaluatedAt: Date
+  evaluatedAt: Date;
   /** Cache TTL in seconds */
-  cacheTtl: number
+  cacheTtl: number;
 }
 
 // ============================================================================
@@ -341,31 +345,31 @@ export interface BatchEvaluationResponse {
 export type GateFn = (
   context: EntitlementContext,
   definition: CustomEntitlementDefinition,
-  currentValue: unknown
-) => Promise<GateResult>
+  currentValue: unknown,
+) => Promise<GateResult>;
 
 /**
  * Result from a custom gate.
  */
 export interface GateResult {
   /** Whether the gate allows access */
-  allowed: boolean
+  allowed: boolean;
   /** Resolved value */
-  value?: unknown
+  value?: unknown;
   /** Reason for decision */
-  reason?: string
+  reason?: string;
   /** Additional data */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Gate registration.
  */
 export interface GateRegistration {
-  name: string
-  fn: GateFn
-  description: string
-  requiredParams?: string[]
+  name: string;
+  fn: GateFn;
+  description: string;
+  requiredParams?: string[];
 }
 
 // ============================================================================
@@ -377,43 +381,43 @@ export interface GateRegistration {
  */
 export interface InheritanceRule {
   /** Source scope */
-  from: EntitlementScope
+  from: EntitlementScope;
   /** Target scope */
-  to: EntitlementScope
+  to: EntitlementScope;
   /** How to combine values when inheriting */
-  combineStrategy: InheritanceCombineStrategy
+  combineStrategy: InheritanceCombineStrategy;
   /** Whether child can override */
-  allowOverride: boolean
+  allowOverride: boolean;
   /** Filter entitlements by category */
-  categoryFilter?: EntitlementCategory[]
+  categoryFilter?: EntitlementCategory[];
 }
 
 /**
  * Strategy for combining inherited values.
  */
 export type InheritanceCombineStrategy =
-  | 'replace' // Child value replaces parent
-  | 'merge' // Merge values (for objects)
-  | 'most_permissive' // Take most permissive value
-  | 'least_permissive' // Take least permissive value
-  | 'sum' // Sum numeric values
-  | 'min' // Take minimum numeric value
-  | 'max' // Take maximum numeric value
+  | "replace" // Child value replaces parent
+  | "merge" // Merge values (for objects)
+  | "most_permissive" // Take most permissive value
+  | "least_permissive" // Take least permissive value
+  | "sum" // Sum numeric values
+  | "min" // Take minimum numeric value
+  | "max"; // Take maximum numeric value
 
 /**
  * Inheritance chain for an entity.
  */
 export interface InheritanceChain {
   /** Target scope */
-  scope: EntitlementScope
+  scope: EntitlementScope;
   /** Target entity ID */
-  entityId: string
+  entityId: string;
   /** Chain of parent entities */
   chain: Array<{
-    scope: EntitlementScope
-    entityId: string
-    planTier?: PlanTier
-  }>
+    scope: EntitlementScope;
+    entityId: string;
+    planTier?: PlanTier;
+  }>;
 }
 
 // ============================================================================
@@ -424,20 +428,20 @@ export interface InheritanceChain {
  * Cache key for entitlement lookups.
  */
 export interface EntitlementCacheKey {
-  entitlementKey: string
-  scope: EntitlementScope
-  entityId: string
+  entitlementKey: string;
+  scope: EntitlementScope;
+  entityId: string;
 }
 
 /**
  * Cached entitlement value.
  */
 export interface CachedEntitlement {
-  key: EntitlementCacheKey
-  result: EntitlementEvaluationResult
-  cachedAt: Date
-  expiresAt: Date
-  hitCount: number
+  key: EntitlementCacheKey;
+  result: EntitlementEvaluationResult;
+  cachedAt: Date;
+  expiresAt: Date;
+  hitCount: number;
 }
 
 /**
@@ -445,15 +449,15 @@ export interface CachedEntitlement {
  */
 export interface EntitlementCacheConfig {
   /** TTL in seconds */
-  ttl: number
+  ttl: number;
   /** Maximum cache size */
-  maxSize: number
+  maxSize: number;
   /** Enable cache */
-  enabled: boolean
+  enabled: boolean;
   /** Warm cache on startup */
-  warmOnStartup: boolean
+  warmOnStartup: boolean;
   /** Cache namespace prefix */
-  namespace: string
+  namespace: string;
 }
 
 // ============================================================================
@@ -464,29 +468,29 @@ export interface EntitlementCacheConfig {
  * Entitlement event types.
  */
 export type EntitlementEventType =
-  | 'entitlement.evaluated'
-  | 'entitlement.granted'
-  | 'entitlement.revoked'
-  | 'entitlement.expired'
-  | 'entitlement.limit_approaching'
-  | 'entitlement.limit_exceeded'
-  | 'entitlement.cache_hit'
-  | 'entitlement.cache_miss'
-  | 'entitlement.inheritance_resolved'
+  | "entitlement.evaluated"
+  | "entitlement.granted"
+  | "entitlement.revoked"
+  | "entitlement.expired"
+  | "entitlement.limit_approaching"
+  | "entitlement.limit_exceeded"
+  | "entitlement.cache_hit"
+  | "entitlement.cache_miss"
+  | "entitlement.inheritance_resolved";
 
 /**
  * Entitlement event.
  */
 export interface EntitlementEvent {
-  type: EntitlementEventType
-  entitlementKey: string
-  scope: EntitlementScope
-  entityId: string
-  userId?: string
-  value?: unknown
-  previousValue?: unknown
-  timestamp: Date
-  metadata?: Record<string, unknown>
+  type: EntitlementEventType;
+  entitlementKey: string;
+  scope: EntitlementScope;
+  entityId: string;
+  userId?: string;
+  value?: unknown;
+  previousValue?: unknown;
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -497,17 +501,17 @@ export interface EntitlementEvent {
  * Entitlement error codes.
  */
 export enum EntitlementErrorCode {
-  NOT_FOUND = 'ENTITLEMENT_NOT_FOUND',
-  INVALID_VALUE = 'INVALID_ENTITLEMENT_VALUE',
-  PERMISSION_DENIED = 'ENTITLEMENT_PERMISSION_DENIED',
-  LIMIT_EXCEEDED = 'ENTITLEMENT_LIMIT_EXCEEDED',
-  INVALID_GRANT = 'INVALID_GRANT',
-  GRANT_EXPIRED = 'GRANT_EXPIRED',
-  GATE_ERROR = 'GATE_EVALUATION_ERROR',
-  INHERITANCE_ERROR = 'INHERITANCE_RESOLUTION_ERROR',
-  CACHE_ERROR = 'CACHE_ERROR',
-  INVALID_CONTEXT = 'INVALID_CONTEXT',
-  UNKNOWN_ERROR = 'UNKNOWN_ENTITLEMENT_ERROR',
+  NOT_FOUND = "ENTITLEMENT_NOT_FOUND",
+  INVALID_VALUE = "INVALID_ENTITLEMENT_VALUE",
+  PERMISSION_DENIED = "ENTITLEMENT_PERMISSION_DENIED",
+  LIMIT_EXCEEDED = "ENTITLEMENT_LIMIT_EXCEEDED",
+  INVALID_GRANT = "INVALID_GRANT",
+  GRANT_EXPIRED = "GRANT_EXPIRED",
+  GATE_ERROR = "GATE_EVALUATION_ERROR",
+  INHERITANCE_ERROR = "INHERITANCE_RESOLUTION_ERROR",
+  CACHE_ERROR = "CACHE_ERROR",
+  INVALID_CONTEXT = "INVALID_CONTEXT",
+  UNKNOWN_ERROR = "UNKNOWN_ENTITLEMENT_ERROR",
 }
 
 /**
@@ -518,10 +522,10 @@ export class EntitlementError extends Error {
     public readonly code: EntitlementErrorCode,
     message: string,
     public readonly entitlementKey?: string,
-    public readonly metadata?: Record<string, unknown>
+    public readonly metadata?: Record<string, unknown>,
   ) {
-    super(message)
-    this.name = 'EntitlementError'
+    super(message);
+    this.name = "EntitlementError";
   }
 }
 
@@ -533,22 +537,22 @@ export class EntitlementError extends Error {
  * Scope hierarchy from highest to lowest.
  */
 export const SCOPE_HIERARCHY: readonly EntitlementScope[] = [
-  'organization',
-  'workspace',
-  'channel',
-  'user',
-] as const
+  "organization",
+  "workspace",
+  "channel",
+  "user",
+] as const;
 
 /**
  * Plan tier hierarchy from lowest to highest.
  */
 export const PLAN_TIER_HIERARCHY: readonly PlanTier[] = [
-  'free',
-  'starter',
-  'professional',
-  'enterprise',
-  'custom',
-] as const
+  "free",
+  "starter",
+  "professional",
+  "enterprise",
+  "custom",
+] as const;
 
 /**
  * Default cache configuration.
@@ -558,39 +562,39 @@ export const DEFAULT_CACHE_CONFIG: EntitlementCacheConfig = {
   maxSize: 10000,
   enabled: true,
   warmOnStartup: false,
-  namespace: 'entitlements',
-}
+  namespace: "entitlements",
+};
 
 /**
  * Default inheritance rules.
  */
 export const DEFAULT_INHERITANCE_RULES: readonly InheritanceRule[] = [
   {
-    from: 'organization',
-    to: 'workspace',
-    combineStrategy: 'least_permissive',
+    from: "organization",
+    to: "workspace",
+    combineStrategy: "least_permissive",
     allowOverride: true,
   },
   {
-    from: 'workspace',
-    to: 'channel',
-    combineStrategy: 'least_permissive',
+    from: "workspace",
+    to: "channel",
+    combineStrategy: "least_permissive",
     allowOverride: true,
   },
   {
-    from: 'workspace',
-    to: 'user',
-    combineStrategy: 'most_permissive',
+    from: "workspace",
+    to: "user",
+    combineStrategy: "most_permissive",
     allowOverride: true,
   },
   {
-    from: 'channel',
-    to: 'user',
-    combineStrategy: 'least_permissive',
+    from: "channel",
+    to: "user",
+    combineStrategy: "least_permissive",
     allowOverride: false,
-    categoryFilter: ['messaging', 'channels'],
+    categoryFilter: ["messaging", "channels"],
   },
-] as const
+] as const;
 
 // ============================================================================
 // Utility Types
@@ -606,26 +610,26 @@ export type ExtractEntitlementValue<T extends EntitlementDefinition> =
       ? number
       : T extends TierEntitlementDefinition
         ? PlanTier
-        : unknown
+        : unknown;
 
 /**
  * Map of entitlement keys to their values.
  */
-export type EntitlementMap = Record<string, EntitlementValue>
+export type EntitlementMap = Record<string, EntitlementValue>;
 
 /**
  * Partial entitlement context for client-side use.
  */
 export type PartialEntitlementContext = Partial<EntitlementContext> &
-  Pick<EntitlementContext, 'userId' | 'planTier'>
+  Pick<EntitlementContext, "userId" | "planTier">;
 
 /**
  * Serialized entitlement for transport.
  */
 export interface SerializedEntitlement {
-  key: string
-  granted: boolean
-  value: unknown
-  source: EntitlementSource
-  expiresAt?: string
+  key: string;
+  granted: boolean;
+  value: unknown;
+  source: EntitlementSource;
+  expiresAt?: string;
 }

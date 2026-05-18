@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Set Reminder Modal Component
@@ -19,7 +19,7 @@
  * ```
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Bell,
   Calendar,
@@ -31,14 +31,14 @@ import {
   MessageSquare,
   Repeat,
   X,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -46,18 +46,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ReminderTimePicker } from './reminder-time-picker'
-import { QuickRemindMenu } from './quick-remind'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ReminderTimePicker } from "./reminder-time-picker";
+import { QuickRemindMenu } from "./quick-remind";
 import {
   useReminderStore,
   type ReminderDraft,
@@ -65,35 +65,35 @@ import {
   getDefaultReminderTime,
   formatFutureTime,
   getCommonTimezones,
-} from '@/lib/reminders/reminder-store'
-import { useReminders } from '@/lib/reminders/use-reminders'
-import { formatMessageTime } from '@/lib/date'
-import type { Reminder, RecurrenceRule } from '@/graphql/reminders'
+} from "@/lib/reminders/reminder-store";
+import { useReminders } from "@/lib/reminders/use-reminders";
+import { formatMessageTime } from "@/lib/date";
+import type { Reminder, RecurrenceRule } from "@/graphql/reminders";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SetReminderModalProps {
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  userId: string
-  messageId?: string
-  channelId?: string
-  initialContent?: string
-  editingReminder?: Reminder | null
-  onSuccess?: (reminder: Reminder) => void
-  onCancel?: () => void
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  userId: string;
+  messageId?: string;
+  channelId?: string;
+  initialContent?: string;
+  editingReminder?: Reminder | null;
+  onSuccess?: (reminder: Reminder) => void;
+  onCancel?: () => void;
 }
 
-type ReminderType = 'message' | 'custom' | 'followup'
+type ReminderType = "message" | "custom" | "followup";
 
 interface RecurrenceOption {
-  value: RecurrenceRule['frequency']
-  label: string
-  description: string
+  value: RecurrenceRule["frequency"];
+  label: string;
+  description: string;
 }
 
 // ============================================================================
@@ -101,29 +101,29 @@ interface RecurrenceOption {
 // ============================================================================
 
 const RECURRENCE_OPTIONS: RecurrenceOption[] = [
-  { value: 'daily', label: 'Daily', description: 'Repeat every day' },
-  { value: 'weekly', label: 'Weekly', description: 'Repeat every week' },
-  { value: 'monthly', label: 'Monthly', description: 'Repeat every month' },
-  { value: 'yearly', label: 'Yearly', description: 'Repeat every year' },
-]
+  { value: "daily", label: "Daily", description: "Repeat every day" },
+  { value: "weekly", label: "Weekly", description: "Repeat every week" },
+  { value: "monthly", label: "Monthly", description: "Repeat every month" },
+  { value: "yearly", label: "Yearly", description: "Repeat every year" },
+];
 
 // ============================================================================
 // Sub-components
 // ============================================================================
 
 interface MessagePreviewProps {
-  messageId: string
-  content?: string
+  messageId: string;
+  content?: string;
   author?: {
-    username: string
-    display_name?: string
-    avatar_url?: string
-  }
-  timestamp?: string
+    username: string;
+    display_name?: string;
+    avatar_url?: string;
+  };
+  timestamp?: string;
 }
 
 function MessagePreview({ content, author, timestamp }: MessagePreviewProps) {
-  if (!content) return null
+  if (!content) return null;
 
   return (
     <div className="bg-muted/50 rounded-lg border p-3">
@@ -145,50 +145,68 @@ function MessagePreview({ content, author, timestamp }: MessagePreviewProps) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             {author && (
-              <span className="text-sm font-medium">{author.display_name || author.username}</span>
+              <span className="text-sm font-medium">
+                {author.display_name || author.username}
+              </span>
             )}
             {timestamp && (
-              <span className="text-xs text-muted-foreground">{formatMessageTime(timestamp)}</span>
+              <span className="text-xs text-muted-foreground">
+                {formatMessageTime(timestamp)}
+              </span>
             )}
           </div>
-          <p className="line-clamp-2 text-sm text-muted-foreground">{content}</p>
+          <p className="line-clamp-2 text-sm text-muted-foreground">
+            {content}
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface ReminderPreviewProps {
-  draft: ReminderDraft
-  type: ReminderType
+  draft: ReminderDraft;
+  type: ReminderType;
 }
 
 function ReminderPreview({ draft, type }: ReminderPreviewProps) {
-  const isPast = draft.remindAt < new Date()
+  const isPast = draft.remindAt < new Date();
 
   return (
     <div
       className={cn(
-        'rounded-lg border p-4',
-        isPast ? 'bg-destructive/5 border-destructive' : 'bg-muted/50'
+        "rounded-lg border p-4",
+        isPast ? "bg-destructive/5 border-destructive" : "bg-muted/50",
       )}
     >
       <div className="flex items-start gap-3">
         <div
           className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-full',
-            isPast ? 'bg-destructive/10' : 'bg-primary/10'
+            "flex h-10 w-10 items-center justify-center rounded-full",
+            isPast ? "bg-destructive/10" : "bg-primary/10",
           )}
         >
-          <Bell className={cn('h-5 w-5', isPast ? 'text-destructive' : 'text-primary')} />
+          <Bell
+            className={cn(
+              "h-5 w-5",
+              isPast ? "text-destructive" : "text-primary",
+            )}
+          />
         </div>
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="line-clamp-2 font-medium">{draft.content || 'No content'}</p>
+          <p className="line-clamp-2 font-medium">
+            {draft.content || "No content"}
+          </p>
           {draft.note && (
-            <p className="line-clamp-1 text-sm text-muted-foreground">Note: {draft.note}</p>
+            <p className="line-clamp-1 text-sm text-muted-foreground">
+              Note: {draft.note}
+            </p>
           )}
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <Badge variant={isPast ? 'destructive' : 'secondary'} className="gap-1">
+            <Badge
+              variant={isPast ? "destructive" : "secondary"}
+              className="gap-1"
+            >
               <Clock className="h-3 w-3" />
               {formatFutureTime(draft.remindAt)}
             </Badge>
@@ -199,12 +217,12 @@ function ReminderPreview({ draft, type }: ReminderPreviewProps) {
               </Badge>
             )}
             <Badge variant="outline" className="gap-1">
-              {type === 'message' ? (
+              {type === "message" ? (
                 <MessageSquare className="h-3 w-3" />
               ) : (
                 <Bell className="h-3 w-3" />
               )}
-              {type === 'message' ? 'Message' : 'Custom'}
+              {type === "message" ? "Message" : "Custom"}
             </Badge>
           </div>
         </div>
@@ -215,7 +233,7 @@ function ReminderPreview({ draft, type }: ReminderPreviewProps) {
         </p>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -241,23 +259,24 @@ export function SetReminderModal({
     closeModal,
     setDraft,
     updateDraft,
-  } = useReminderStore()
+  } = useReminderStore();
 
   // Determine if controlled or uncontrolled
-  const isControlled = controlledOpen !== undefined
-  const open = isControlled ? controlledOpen : isModalOpen
-  const onOpenChange = isControlled ? controlledOnOpenChange : closeModal
-  const editing = editingReminder ?? storeEditingReminder
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : isModalOpen;
+  const onOpenChange = isControlled ? controlledOnOpenChange : closeModal;
+  const editing = editingReminder ?? storeEditingReminder;
 
   // API hooks
-  const { createReminder, updateReminder, isCreating, isUpdating } = useReminders({ userId })
+  const { createReminder, updateReminder, isCreating, isUpdating } =
+    useReminders({ userId });
 
   // Local state
-  const [activeTab, setActiveTab] = React.useState<'quick' | 'custom'>('quick')
+  const [activeTab, setActiveTab] = React.useState<"quick" | "custom">("quick");
   const [reminderType, setReminderType] = React.useState<ReminderType>(
-    messageId ? 'message' : 'custom'
-  )
-  const [showRecurrence, setShowRecurrence] = React.useState(false)
+    messageId ? "message" : "custom",
+  );
+  const [showRecurrence, setShowRecurrence] = React.useState(false);
 
   // Initialize draft when modal opens
   React.useEffect(() => {
@@ -265,15 +284,15 @@ export function SetReminderModal({
       const initialDraft: ReminderDraft = {
         messageId: messageId,
         channelId: channelId,
-        content: initialContent || (messageId ? 'Reminder for message' : ''),
+        content: initialContent || (messageId ? "Reminder for message" : ""),
         remindAt: getDefaultReminderTime(),
         timezone: getUserTimezone(),
-        type: messageId ? 'message' : 'custom',
+        type: messageId ? "message" : "custom",
         isRecurring: false,
-      }
-      setDraft(initialDraft)
+      };
+      setDraft(initialDraft);
     }
-  }, [open, draft, messageId, channelId, initialContent, setDraft])
+  }, [open, draft, messageId, channelId, initialContent, setDraft]);
 
   // Initialize from editing reminder
   React.useEffect(() => {
@@ -288,76 +307,77 @@ export function SetReminderModal({
         type: editing.type as ReminderType,
         isRecurring: editing.is_recurring,
         recurrenceRule: editing.recurrence_rule,
-      })
-      setReminderType(editing.type as ReminderType)
-      setShowRecurrence(editing.is_recurring)
-      setActiveTab('custom')
+      });
+      setReminderType(editing.type as ReminderType);
+      setShowRecurrence(editing.is_recurring);
+      setActiveTab("custom");
     }
-  }, [editing, setDraft])
+  }, [editing, setDraft]);
 
   // Handle quick time selection
   const handleQuickSelect = React.useCallback(
     (date: Date) => {
-      updateDraft({ remindAt: date })
-      setActiveTab('custom') // Show preview
+      updateDraft({ remindAt: date });
+      setActiveTab("custom"); // Show preview
     },
-    [updateDraft]
-  )
+    [updateDraft],
+  );
 
   // Handle form submission
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent) => {
-      e.preventDefault()
+      e.preventDefault();
 
-      if (!draft) return
+      if (!draft) return;
 
       // Validate
       if (!draft.content.trim()) {
-        return
+        return;
       }
 
       if (draft.remindAt < new Date()) {
-        return
+        return;
       }
 
       try {
-        let result: Reminder | null = null
+        let result: Reminder | null = null;
 
         if (editing) {
-          result = await updateReminder(editing.id, draft)
+          result = await updateReminder(editing.id, draft);
         } else {
-          result = await createReminder(draft)
+          result = await createReminder(draft);
         }
 
         if (result) {
-          onSuccess?.(result)
-          onOpenChange?.(false)
+          onSuccess?.(result);
+          onOpenChange?.(false);
         }
       } catch (error) {
         // Error is handled by the hook
-        logger.error('Failed to save reminder:', error)
+        logger.error("Failed to save reminder:", error);
       }
     },
-    [draft, editing, createReminder, updateReminder, onSuccess, onOpenChange]
-  )
+    [draft, editing, createReminder, updateReminder, onSuccess, onOpenChange],
+  );
 
   // Handle cancel
   const handleCancel = React.useCallback(() => {
-    onCancel?.()
-    onOpenChange?.(false)
-  }, [onCancel, onOpenChange])
+    onCancel?.();
+    onOpenChange?.(false);
+  }, [onCancel, onOpenChange]);
 
   // Current draft or default
   const currentDraft = draft || {
-    content: '',
+    content: "",
     remindAt: getDefaultReminderTime(),
     timezone: getUserTimezone(),
-    type: 'custom' as ReminderType,
+    type: "custom" as ReminderType,
     isRecurring: false,
-  }
+  };
 
-  const isValid = currentDraft.content.trim() && currentDraft.remindAt > new Date()
-  const isLoading = isCreating || isUpdating
+  const isValid =
+    currentDraft.content.trim() && currentDraft.remindAt > new Date();
+  const isLoading = isCreating || isUpdating;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -365,16 +385,20 @@ export function SetReminderModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            {editing ? 'Edit Reminder' : 'Set Reminder'}
+            {editing ? "Edit Reminder" : "Set Reminder"}
           </DialogTitle>
           <DialogDescription>
-            {editing ? 'Update your reminder details' : 'Choose when you want to be reminded'}
+            {editing
+              ? "Update your reminder details"
+              : "Choose when you want to be reminded"}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Message Preview (for message reminders) */}
-          {messageId && <MessagePreview messageId={messageId} content={initialContent} />}
+          {messageId && (
+            <MessagePreview messageId={messageId} content={initialContent} />
+          )}
 
           {/* Reminder Type Selection */}
           {!messageId && (
@@ -383,11 +407,11 @@ export function SetReminderModal({
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant={reminderType === 'custom' ? 'default' : 'outline'}
+                  variant={reminderType === "custom" ? "default" : "outline"}
                   size="sm"
                   onClick={() => {
-                    setReminderType('custom')
-                    updateDraft({ type: 'custom' })
+                    setReminderType("custom");
+                    updateDraft({ type: "custom" });
                   }}
                 >
                   <Bell className="mr-2 h-4 w-4" />
@@ -395,11 +419,11 @@ export function SetReminderModal({
                 </Button>
                 <Button
                   type="button"
-                  variant={reminderType === 'followup' ? 'default' : 'outline'}
+                  variant={reminderType === "followup" ? "default" : "outline"}
                   size="sm"
                   onClick={() => {
-                    setReminderType('followup')
-                    updateDraft({ type: 'followup' })
+                    setReminderType("followup");
+                    updateDraft({ type: "followup" });
                   }}
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
@@ -412,11 +436,17 @@ export function SetReminderModal({
           {/* Content */}
           <div className="space-y-2">
             <Label htmlFor="reminder-content">
-              {messageId ? 'Reminder Note (optional)' : 'What do you want to remember?'}
+              {messageId
+                ? "Reminder Note (optional)"
+                : "What do you want to remember?"}
             </Label>
             <Textarea
               id="reminder-content"
-              placeholder={messageId ? 'Add a note to this reminder...' : 'Enter your reminder...'}
+              placeholder={
+                messageId
+                  ? "Add a note to this reminder..."
+                  : "Enter your reminder..."
+              }
               value={currentDraft.content}
               onChange={(e) => updateDraft({ content: e.target.value })}
               rows={3}
@@ -431,14 +461,17 @@ export function SetReminderModal({
               <Input
                 id="reminder-note"
                 placeholder="Add context or details..."
-                value={currentDraft.note || ''}
+                value={currentDraft.note || ""}
                 onChange={(e) => updateDraft({ note: e.target.value })}
               />
             </div>
           )}
 
           {/* Time Selection */}
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'quick' | 'custom')}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as "quick" | "custom")}
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="quick">Quick Select</TabsTrigger>
               <TabsTrigger value="custom">Custom Time</TabsTrigger>
@@ -447,7 +480,7 @@ export function SetReminderModal({
             <TabsContent value="quick" className="mt-4">
               <QuickRemindMenu
                 onSelect={handleQuickSelect}
-                onCustom={() => setActiveTab('custom')}
+                onCustom={() => setActiveTab("custom")}
               />
             </TabsContent>
 
@@ -468,14 +501,16 @@ export function SetReminderModal({
                 <Label htmlFor="recurring-switch" className="cursor-pointer">
                   Recurring Reminder
                 </Label>
-                <p className="text-xs text-muted-foreground">Repeat this reminder on a schedule</p>
+                <p className="text-xs text-muted-foreground">
+                  Repeat this reminder on a schedule
+                </p>
               </div>
               <Switch
                 id="recurring-switch"
                 checked={showRecurrence}
                 onCheckedChange={(checked) => {
-                  setShowRecurrence(checked)
-                  updateDraft({ isRecurring: checked })
+                  setShowRecurrence(checked);
+                  updateDraft({ isRecurring: checked });
                 }}
               />
             </div>
@@ -485,12 +520,12 @@ export function SetReminderModal({
                 <div className="space-y-2">
                   <Label>Repeat</Label>
                   <Select
-                    value={currentDraft.recurrenceRule?.frequency || 'daily'}
+                    value={currentDraft.recurrenceRule?.frequency || "daily"}
                     onValueChange={(value) =>
                       updateDraft({
                         recurrenceRule: {
                           ...currentDraft.recurrenceRule,
-                          frequency: value as RecurrenceRule['frequency'],
+                          frequency: value as RecurrenceRule["frequency"],
                           interval: currentDraft.recurrenceRule?.interval || 1,
                         },
                       })
@@ -527,7 +562,8 @@ export function SetReminderModal({
                         updateDraft({
                           recurrenceRule: {
                             ...currentDraft.recurrenceRule,
-                            frequency: currentDraft.recurrenceRule?.frequency || 'daily',
+                            frequency:
+                              currentDraft.recurrenceRule?.frequency || "daily",
                             interval: parseInt(e.target.value) || 1,
                           },
                         })
@@ -535,13 +571,13 @@ export function SetReminderModal({
                       className="w-20"
                     />
                     <span className="text-sm text-muted-foreground">
-                      {currentDraft.recurrenceRule?.frequency === 'daily'
-                        ? 'day(s)'
-                        : currentDraft.recurrenceRule?.frequency === 'weekly'
-                          ? 'week(s)'
-                          : currentDraft.recurrenceRule?.frequency === 'monthly'
-                            ? 'month(s)'
-                            : 'year(s)'}
+                      {currentDraft.recurrenceRule?.frequency === "daily"
+                        ? "day(s)"
+                        : currentDraft.recurrenceRule?.frequency === "weekly"
+                          ? "week(s)"
+                          : currentDraft.recurrenceRule?.frequency === "monthly"
+                            ? "month(s)"
+                            : "year(s)"}
                     </span>
                   </div>
                 </div>
@@ -557,19 +593,24 @@ export function SetReminderModal({
 
           {/* Actions */}
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={!isValid || isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {editing ? 'Saving...' : 'Creating...'}
+                  {editing ? "Saving..." : "Creating..."}
                 </>
               ) : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  {editing ? 'Save Changes' : 'Set Reminder'}
+                  {editing ? "Save Changes" : "Set Reminder"}
                 </>
               )}
             </Button>
@@ -577,7 +618,7 @@ export function SetReminderModal({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default SetReminderModal
+export default SetReminderModal;

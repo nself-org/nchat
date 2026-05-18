@@ -8,20 +8,20 @@
  * DELETE /api/security/panic/duress-pin - Remove duress PIN
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
-import { createWipeService } from '@/services/security/wipe.service'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { createWipeService } from "@/services/security/wipe.service";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface SetDuressPinBody {
-  pin: string
+  pin: string;
 }
 
 interface CheckDuressPinBody {
-  pin: string
+  pin: string;
 }
 
 // ============================================================================
@@ -30,58 +30,57 @@ interface CheckDuressPinBody {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as SetDuressPinBody | CheckDuressPinBody
+    const body = (await request.json()) as
+      | SetDuressPinBody
+      | CheckDuressPinBody;
 
     if (!body.pin) {
-      return NextResponse.json(
-        { error: 'PIN is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "PIN is required" }, { status: 400 });
     }
 
     // Validate PIN format (4-8 digits)
     if (!/^\d{4,8}$/.test(body.pin)) {
       return NextResponse.json(
-        { error: 'PIN must be 4-8 digits' },
-        { status: 400 }
-      )
+        { error: "PIN must be 4-8 digits" },
+        { status: 400 },
+      );
     }
 
-    const { searchParams } = new URL(request.url)
-    const action = searchParams.get('action')
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get("action");
 
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
-    if (action === 'check') {
+    if (action === "check") {
       // Check if the provided PIN is the duress PIN
-      const isDuressPin = await wipeService.checkDuressPin(body.pin)
+      const isDuressPin = await wipeService.checkDuressPin(body.pin);
 
-      wipeService.destroy()
+      wipeService.destroy();
 
       return NextResponse.json({
         isDuressPin,
-      })
+      });
     }
 
     // Set the duress PIN
-    await wipeService.setDuressPin(body.pin)
+    await wipeService.setDuressPin(body.pin);
 
-    wipeService.destroy()
+    wipeService.destroy();
 
-    logger.security('Duress PIN set via API')
+    logger.security("Duress PIN set via API");
 
     return NextResponse.json({
       success: true,
-      message: 'Duress PIN set successfully',
-    })
+      message: "Duress PIN set successfully",
+    });
   } catch (error) {
-    logger.error('Duress PIN API error', error)
+    logger.error("Duress PIN API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -91,24 +90,24 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
-    const status = await wipeService.getPanicStatus()
+    const status = await wipeService.getPanicStatus();
 
-    wipeService.destroy()
+    wipeService.destroy();
 
     return NextResponse.json({
       enabled: status.config.duressPin.enabled,
       hasPin: status.config.duressPin.pinHash !== null,
-    })
+    });
   } catch (error) {
-    logger.error('Duress PIN status API error', error)
+    logger.error("Duress PIN status API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -118,25 +117,25 @@ export async function GET() {
 
 export async function DELETE() {
   try {
-    const wipeService = createWipeService()
-    await wipeService.initialize()
+    const wipeService = createWipeService();
+    await wipeService.initialize();
 
-    await wipeService.removeDuressPin()
+    await wipeService.removeDuressPin();
 
-    wipeService.destroy()
+    wipeService.destroy();
 
-    logger.security('Duress PIN removed via API')
+    logger.security("Duress PIN removed via API");
 
     return NextResponse.json({
       success: true,
-      message: 'Duress PIN removed',
-    })
+      message: "Duress PIN removed",
+    });
   } catch (error) {
-    logger.error('Duress PIN removal API error', error)
+    logger.error("Duress PIN removal API error", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -11,12 +11,12 @@
  * ```
  */
 
-import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
-import type { SlashCommand } from './commands'
-import type { CommandResult, CommandEffect } from './command-executor'
-import type { ParsedCommand } from './command-parser'
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import type { SlashCommand } from "./commands";
+import type { CommandResult, CommandEffect } from "./command-executor";
+import type { ParsedCommand } from "./command-parser";
 
 // ============================================================================
 // Types
@@ -25,19 +25,19 @@ import type { ParsedCommand } from './command-parser'
 /**
  * Custom command definition (from integrations/bots)
  */
-export interface CustomCommand extends Omit<SlashCommand, 'category'> {
+export interface CustomCommand extends Omit<SlashCommand, "category"> {
   /** Category is always 'custom' for custom commands */
-  category: 'custom'
+  category: "custom";
   /** Source of the custom command */
-  source: 'integration' | 'bot' | 'user'
+  source: "integration" | "bot" | "user";
   /** Integration/bot ID that provided the command */
-  sourceId: string
+  sourceId: string;
   /** API endpoint to call for this command */
-  endpoint?: string
+  endpoint?: string;
   /** Whether the command is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** When the command was added */
-  createdAt: number
+  createdAt: number;
 }
 
 /**
@@ -45,17 +45,17 @@ export interface CustomCommand extends Omit<SlashCommand, 'category'> {
  */
 export interface CommandHistoryEntry {
   /** Unique ID for the history entry */
-  id: string
+  id: string;
   /** The full command string as entered */
-  commandString: string
+  commandString: string;
   /** The command name */
-  commandName: string
+  commandName: string;
   /** When the command was executed */
-  executedAt: number
+  executedAt: number;
   /** Whether the execution was successful */
-  success: boolean
+  success: boolean;
   /** Channel/context where the command was executed */
-  channelId?: string
+  channelId?: string;
 }
 
 /**
@@ -63,15 +63,15 @@ export interface CommandHistoryEntry {
  */
 export interface PendingEffect {
   /** Unique ID for the pending effect */
-  id: string
+  id: string;
   /** The command that generated this effect */
-  commandName: string
+  commandName: string;
   /** The effect to execute */
-  effect: CommandEffect
+  effect: CommandEffect;
   /** When to execute (for delayed effects like reminders) */
-  executeAt?: number
+  executeAt?: number;
   /** Whether the effect has been executed */
-  executed: boolean
+  executed: boolean;
 }
 
 /**
@@ -79,13 +79,13 @@ export interface PendingEffect {
  */
 export interface CommandMenuState {
   /** Whether the command menu is open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Current filter/search query */
-  filter: string
+  filter: string;
   /** Currently selected command index */
-  selectedIndex: number
+  selectedIndex: number;
   /** Input position where "/" was typed */
-  triggerPosition: number
+  triggerPosition: number;
 }
 
 /**
@@ -93,13 +93,13 @@ export interface CommandMenuState {
  */
 export interface CommandPreviewState {
   /** Whether preview is visible */
-  isVisible: boolean
+  isVisible: boolean;
   /** The parsed command being previewed */
-  parsedCommand: ParsedCommand | null
+  parsedCommand: ParsedCommand | null;
   /** The preview result */
-  result: CommandResult | null
+  result: CommandResult | null;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
 }
 
 // ============================================================================
@@ -108,76 +108,76 @@ export interface CommandPreviewState {
 
 export interface CommandState {
   // Command Menu
-  menu: CommandMenuState
+  menu: CommandMenuState;
 
   // Preview
-  preview: CommandPreviewState
+  preview: CommandPreviewState;
 
   // History
-  history: CommandHistoryEntry[]
-  maxHistoryLength: number
+  history: CommandHistoryEntry[];
+  maxHistoryLength: number;
 
   // Favorites
-  favorites: string[]
+  favorites: string[];
 
   // Custom Commands
-  customCommands: CustomCommand[]
+  customCommands: CustomCommand[];
 
   // Pending Effects
-  pendingEffects: PendingEffect[]
+  pendingEffects: PendingEffect[];
 
   // Execution State
-  isExecuting: boolean
-  lastError: string | null
+  isExecuting: boolean;
+  lastError: string | null;
 }
 
 export interface CommandActions {
   // Menu Actions
-  openMenu: (triggerPosition?: number) => void
-  closeMenu: () => void
-  setFilter: (filter: string) => void
-  setSelectedIndex: (index: number) => void
-  moveSelection: (direction: 'up' | 'down') => void
+  openMenu: (triggerPosition?: number) => void;
+  closeMenu: () => void;
+  setFilter: (filter: string) => void;
+  setSelectedIndex: (index: number) => void;
+  moveSelection: (direction: "up" | "down") => void;
 
   // Preview Actions
-  showPreview: (parsedCommand: ParsedCommand, result: CommandResult) => void
-  hidePreview: () => void
-  setPreviewLoading: (loading: boolean) => void
+  showPreview: (parsedCommand: ParsedCommand, result: CommandResult) => void;
+  hidePreview: () => void;
+  setPreviewLoading: (loading: boolean) => void;
 
   // History Actions
-  addToHistory: (entry: Omit<CommandHistoryEntry, 'id'>) => void
-  clearHistory: () => void
-  removeFromHistory: (id: string) => void
-  getRecentCommands: (limit?: number) => CommandHistoryEntry[]
+  addToHistory: (entry: Omit<CommandHistoryEntry, "id">) => void;
+  clearHistory: () => void;
+  removeFromHistory: (id: string) => void;
+  getRecentCommands: (limit?: number) => CommandHistoryEntry[];
 
   // Favorites Actions
-  addFavorite: (commandName: string) => void
-  removeFavorite: (commandName: string) => void
-  toggleFavorite: (commandName: string) => void
-  isFavorite: (commandName: string) => boolean
+  addFavorite: (commandName: string) => void;
+  removeFavorite: (commandName: string) => void;
+  toggleFavorite: (commandName: string) => void;
+  isFavorite: (commandName: string) => boolean;
 
   // Custom Commands Actions
-  addCustomCommand: (command: Omit<CustomCommand, 'createdAt'>) => void
-  removeCustomCommand: (name: string) => void
-  updateCustomCommand: (name: string, updates: Partial<CustomCommand>) => void
-  toggleCustomCommand: (name: string) => void
-  getCustomCommand: (name: string) => CustomCommand | undefined
+  addCustomCommand: (command: Omit<CustomCommand, "createdAt">) => void;
+  removeCustomCommand: (name: string) => void;
+  updateCustomCommand: (name: string, updates: Partial<CustomCommand>) => void;
+  toggleCustomCommand: (name: string) => void;
+  getCustomCommand: (name: string) => CustomCommand | undefined;
 
   // Effect Actions
-  addPendingEffect: (effect: Omit<PendingEffect, 'id' | 'executed'>) => void
-  markEffectExecuted: (id: string) => void
-  removePendingEffect: (id: string) => void
-  getReadyEffects: () => PendingEffect[]
+  addPendingEffect: (effect: Omit<PendingEffect, "id" | "executed">) => void;
+  markEffectExecuted: (id: string) => void;
+  removePendingEffect: (id: string) => void;
+  getReadyEffects: () => PendingEffect[];
 
   // Execution Actions
-  setExecuting: (executing: boolean) => void
-  setError: (error: string | null) => void
+  setExecuting: (executing: boolean) => void;
+  setError: (error: string | null) => void;
 
   // Reset
-  reset: () => void
+  reset: () => void;
 }
 
-export type CommandStore = CommandState & CommandActions
+export type CommandStore = CommandState & CommandActions;
 
 // ============================================================================
 // Initial State
@@ -186,7 +186,7 @@ export type CommandStore = CommandState & CommandActions
 const initialState: CommandState = {
   menu: {
     isOpen: false,
-    filter: '',
+    filter: "",
     selectedIndex: 0,
     triggerPosition: 0,
   },
@@ -203,7 +203,7 @@ const initialState: CommandState = {
   pendingEffects: [],
   isExecuting: false,
   lastError: null,
-}
+};
 
 // ============================================================================
 // Store
@@ -221,57 +221,60 @@ export const useCommandStore = create<CommandStore>()(
         openMenu: (triggerPosition = 0) =>
           set(
             (state) => {
-              state.menu.isOpen = true
-              state.menu.filter = ''
-              state.menu.selectedIndex = 0
-              state.menu.triggerPosition = triggerPosition
+              state.menu.isOpen = true;
+              state.menu.filter = "";
+              state.menu.selectedIndex = 0;
+              state.menu.triggerPosition = triggerPosition;
             },
             false,
-            'command/openMenu'
+            "command/openMenu",
           ),
 
         closeMenu: () =>
           set(
             (state) => {
-              state.menu.isOpen = false
-              state.menu.filter = ''
-              state.menu.selectedIndex = 0
+              state.menu.isOpen = false;
+              state.menu.filter = "";
+              state.menu.selectedIndex = 0;
             },
             false,
-            'command/closeMenu'
+            "command/closeMenu",
           ),
 
         setFilter: (filter) =>
           set(
             (state) => {
-              state.menu.filter = filter
-              state.menu.selectedIndex = 0
+              state.menu.filter = filter;
+              state.menu.selectedIndex = 0;
             },
             false,
-            'command/setFilter'
+            "command/setFilter",
           ),
 
         setSelectedIndex: (index) =>
           set(
             (state) => {
-              state.menu.selectedIndex = index
+              state.menu.selectedIndex = index;
             },
             false,
-            'command/setSelectedIndex'
+            "command/setSelectedIndex",
           ),
 
         moveSelection: (direction) =>
           set(
             (state) => {
               // This will be updated by the component based on filtered list length
-              if (direction === 'up') {
-                state.menu.selectedIndex = Math.max(0, state.menu.selectedIndex - 1)
+              if (direction === "up") {
+                state.menu.selectedIndex = Math.max(
+                  0,
+                  state.menu.selectedIndex - 1,
+                );
               } else {
-                state.menu.selectedIndex += 1
+                state.menu.selectedIndex += 1;
               }
             },
             false,
-            'command/moveSelection'
+            "command/moveSelection",
           ),
 
         // -----------------------------------------------------------------------
@@ -280,34 +283,34 @@ export const useCommandStore = create<CommandStore>()(
         showPreview: (parsedCommand, result) =>
           set(
             (state) => {
-              state.preview.isVisible = true
-              state.preview.parsedCommand = parsedCommand
-              state.preview.result = result
-              state.preview.isLoading = false
+              state.preview.isVisible = true;
+              state.preview.parsedCommand = parsedCommand;
+              state.preview.result = result;
+              state.preview.isLoading = false;
             },
             false,
-            'command/showPreview'
+            "command/showPreview",
           ),
 
         hidePreview: () =>
           set(
             (state) => {
-              state.preview.isVisible = false
-              state.preview.parsedCommand = null
-              state.preview.result = null
-              state.preview.isLoading = false
+              state.preview.isVisible = false;
+              state.preview.parsedCommand = null;
+              state.preview.result = null;
+              state.preview.isLoading = false;
             },
             false,
-            'command/hidePreview'
+            "command/hidePreview",
           ),
 
         setPreviewLoading: (loading) =>
           set(
             (state) => {
-              state.preview.isLoading = loading
+              state.preview.isLoading = loading;
             },
             false,
-            'command/setPreviewLoading'
+            "command/setPreviewLoading",
           ),
 
         // -----------------------------------------------------------------------
@@ -319,37 +322,37 @@ export const useCommandStore = create<CommandStore>()(
               const newEntry: CommandHistoryEntry = {
                 ...entry,
                 id: `cmd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              }
-              state.history.unshift(newEntry)
+              };
+              state.history.unshift(newEntry);
               // Trim history to max length
               if (state.history.length > state.maxHistoryLength) {
-                state.history = state.history.slice(0, state.maxHistoryLength)
+                state.history = state.history.slice(0, state.maxHistoryLength);
               }
             },
             false,
-            'command/addToHistory'
+            "command/addToHistory",
           ),
 
         clearHistory: () =>
           set(
             (state) => {
-              state.history = []
+              state.history = [];
             },
             false,
-            'command/clearHistory'
+            "command/clearHistory",
           ),
 
         removeFromHistory: (id) =>
           set(
             (state) => {
-              state.history = state.history.filter((h) => h.id !== id)
+              state.history = state.history.filter((h) => h.id !== id);
             },
             false,
-            'command/removeFromHistory'
+            "command/removeFromHistory",
           ),
 
         getRecentCommands: (limit = 10) => {
-          return get().history.slice(0, limit)
+          return get().history.slice(0, limit);
         },
 
         // -----------------------------------------------------------------------
@@ -359,38 +362,40 @@ export const useCommandStore = create<CommandStore>()(
           set(
             (state) => {
               if (!state.favorites.includes(commandName)) {
-                state.favorites.push(commandName)
+                state.favorites.push(commandName);
               }
             },
             false,
-            'command/addFavorite'
+            "command/addFavorite",
           ),
 
         removeFavorite: (commandName) =>
           set(
             (state) => {
-              state.favorites = state.favorites.filter((f) => f !== commandName)
+              state.favorites = state.favorites.filter(
+                (f) => f !== commandName,
+              );
             },
             false,
-            'command/removeFavorite'
+            "command/removeFavorite",
           ),
 
         toggleFavorite: (commandName) =>
           set(
             (state) => {
-              const index = state.favorites.indexOf(commandName)
+              const index = state.favorites.indexOf(commandName);
               if (index === -1) {
-                state.favorites.push(commandName)
+                state.favorites.push(commandName);
               } else {
-                state.favorites.splice(index, 1)
+                state.favorites.splice(index, 1);
               }
             },
             false,
-            'command/toggleFavorite'
+            "command/toggleFavorite",
           ),
 
         isFavorite: (commandName) => {
-          return get().favorites.includes(commandName)
+          return get().favorites.includes(commandName);
         },
 
         // -----------------------------------------------------------------------
@@ -399,56 +404,65 @@ export const useCommandStore = create<CommandStore>()(
         addCustomCommand: (command) =>
           set(
             (state) => {
-              const existing = state.customCommands.find((c) => c.name === command.name)
+              const existing = state.customCommands.find(
+                (c) => c.name === command.name,
+              );
               if (!existing) {
                 state.customCommands.push({
                   ...command,
                   createdAt: Date.now(),
-                })
+                });
               }
             },
             false,
-            'command/addCustomCommand'
+            "command/addCustomCommand",
           ),
 
         removeCustomCommand: (name) =>
           set(
             (state) => {
-              state.customCommands = state.customCommands.filter((c) => c.name !== name)
+              state.customCommands = state.customCommands.filter(
+                (c) => c.name !== name,
+              );
             },
             false,
-            'command/removeCustomCommand'
+            "command/removeCustomCommand",
           ),
 
         updateCustomCommand: (name, updates) =>
           set(
             (state) => {
-              const index = state.customCommands.findIndex((c) => c.name === name)
+              const index = state.customCommands.findIndex(
+                (c) => c.name === name,
+              );
               if (index !== -1) {
                 state.customCommands[index] = {
                   ...state.customCommands[index],
                   ...updates,
-                }
+                };
               }
             },
             false,
-            'command/updateCustomCommand'
+            "command/updateCustomCommand",
           ),
 
         toggleCustomCommand: (name) =>
           set(
             (state) => {
-              const index = state.customCommands.findIndex((c) => c.name === name)
+              const index = state.customCommands.findIndex(
+                (c) => c.name === name,
+              );
               if (index !== -1) {
-                state.customCommands[index].enabled = !state.customCommands[index].enabled
+                state.customCommands[index].enabled =
+                  !state.customCommands[index].enabled;
               }
             },
             false,
-            'command/toggleCustomCommand'
+            "command/toggleCustomCommand",
           ),
 
         getCustomCommand: (name) => {
-          return get().customCommands.find((c) => c.name === name)
+          return get().customCommands.find((c) => c.name === name);
         },
 
         // -----------------------------------------------------------------------
@@ -461,38 +475,40 @@ export const useCommandStore = create<CommandStore>()(
                 ...effect,
                 id: `effect_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 executed: false,
-              })
+              });
             },
             false,
-            'command/addPendingEffect'
+            "command/addPendingEffect",
           ),
 
         markEffectExecuted: (id) =>
           set(
             (state) => {
-              const effect = state.pendingEffects.find((e) => e.id === id)
+              const effect = state.pendingEffects.find((e) => e.id === id);
               if (effect) {
-                effect.executed = true
+                effect.executed = true;
               }
             },
             false,
-            'command/markEffectExecuted'
+            "command/markEffectExecuted",
           ),
 
         removePendingEffect: (id) =>
           set(
             (state) => {
-              state.pendingEffects = state.pendingEffects.filter((e) => e.id !== id)
+              state.pendingEffects = state.pendingEffects.filter(
+                (e) => e.id !== id,
+              );
             },
             false,
-            'command/removePendingEffect'
+            "command/removePendingEffect",
           ),
 
         getReadyEffects: () => {
-          const now = Date.now()
+          const now = Date.now();
           return get().pendingEffects.filter(
-            (e) => !e.executed && (!e.executeAt || e.executeAt <= now)
-          )
+            (e) => !e.executed && (!e.executeAt || e.executeAt <= now),
+          );
         },
 
         // -----------------------------------------------------------------------
@@ -501,19 +517,19 @@ export const useCommandStore = create<CommandStore>()(
         setExecuting: (executing) =>
           set(
             (state) => {
-              state.isExecuting = executing
+              state.isExecuting = executing;
             },
             false,
-            'command/setExecuting'
+            "command/setExecuting",
           ),
 
         setError: (error) =>
           set(
             (state) => {
-              state.lastError = error
+              state.lastError = error;
             },
             false,
-            'command/setError'
+            "command/setError",
           ),
 
         // -----------------------------------------------------------------------
@@ -529,63 +545,67 @@ export const useCommandStore = create<CommandStore>()(
               customCommands: get().customCommands,
             }),
             false,
-            'command/reset'
+            "command/reset",
           ),
       })),
       {
-        name: 'nchat-commands',
+        name: "nchat-commands",
         partialize: (state) => ({
           history: state.history,
           favorites: state.favorites,
           customCommands: state.customCommands,
         }),
-      }
+      },
     ),
-    { name: 'command-store' }
-  )
-)
+    { name: "command-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectMenuState = (state: CommandStore) => state.menu
+export const selectMenuState = (state: CommandStore) => state.menu;
 
-export const selectIsMenuOpen = (state: CommandStore) => state.menu.isOpen
+export const selectIsMenuOpen = (state: CommandStore) => state.menu.isOpen;
 
-export const selectMenuFilter = (state: CommandStore) => state.menu.filter
+export const selectMenuFilter = (state: CommandStore) => state.menu.filter;
 
-export const selectSelectedIndex = (state: CommandStore) => state.menu.selectedIndex
+export const selectSelectedIndex = (state: CommandStore) =>
+  state.menu.selectedIndex;
 
-export const selectPreviewState = (state: CommandStore) => state.preview
+export const selectPreviewState = (state: CommandStore) => state.preview;
 
-export const selectIsPreviewVisible = (state: CommandStore) => state.preview.isVisible
+export const selectIsPreviewVisible = (state: CommandStore) =>
+  state.preview.isVisible;
 
-export const selectHistory = (state: CommandStore) => state.history
+export const selectHistory = (state: CommandStore) => state.history;
 
-export const selectFavorites = (state: CommandStore) => state.favorites
+export const selectFavorites = (state: CommandStore) => state.favorites;
 
-export const selectCustomCommands = (state: CommandStore) => state.customCommands
+export const selectCustomCommands = (state: CommandStore) =>
+  state.customCommands;
 
 export const selectEnabledCustomCommands = (state: CommandStore) =>
-  state.customCommands.filter((c) => c.enabled)
+  state.customCommands.filter((c) => c.enabled);
 
-export const selectIsExecuting = (state: CommandStore) => state.isExecuting
+export const selectIsExecuting = (state: CommandStore) => state.isExecuting;
 
-export const selectLastError = (state: CommandStore) => state.lastError
+export const selectLastError = (state: CommandStore) => state.lastError;
 
 export const selectRecentCommandNames = (state: CommandStore) => {
-  const seen = new Set<string>()
+  const seen = new Set<string>();
   return state.history
     .filter((h) => h.success)
     .map((h) => h.commandName)
     .filter((name) => {
-      if (seen.has(name)) return false
-      seen.add(name)
-      return true
+      if (seen.has(name)) return false;
+      seen.add(name);
+      return true;
     })
-    .slice(0, 5)
-}
+    .slice(0, 5);
+};
 
-export const selectCommandUsageCount = (state: CommandStore) => (commandName: string) =>
-  state.history.filter((h) => h.commandName === commandName).length
+export const selectCommandUsageCount =
+  (state: CommandStore) => (commandName: string) =>
+    state.history.filter((h) => h.commandName === commandName).length;

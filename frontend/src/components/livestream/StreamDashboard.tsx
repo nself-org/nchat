@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Stream Dashboard Component
@@ -9,23 +9,23 @@
  * @module components/livestream/StreamDashboard
  */
 
-import * as React from 'react'
-import { useState, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
+import * as React from "react";
+import { useState, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Radio,
   Users,
@@ -42,30 +42,30 @@ import {
   StopCircle,
   Copy,
   RefreshCw,
-} from 'lucide-react'
+} from "lucide-react";
 import type {
   Stream,
   RealTimeAnalytics,
   ChatMode,
   AutoModConfig,
-} from '@/services/livestream/types'
+} from "@/services/livestream/types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface StreamDashboardProps {
-  stream: Stream
-  analytics: RealTimeAnalytics
-  isLive: boolean
-  onStartStream: () => Promise<void>
-  onEndStream: () => Promise<void>
-  onUpdateStream: (updates: Partial<Stream>) => Promise<void>
-  onRegenerateKey: () => Promise<string>
-  onSetChatMode: (mode: ChatMode) => Promise<void>
-  onSetSlowMode: (seconds: number) => Promise<void>
-  onUpdateAutoMod: (config: Partial<AutoModConfig>) => Promise<void>
-  className?: string
+  stream: Stream;
+  analytics: RealTimeAnalytics;
+  isLive: boolean;
+  onStartStream: () => Promise<void>;
+  onEndStream: () => Promise<void>;
+  onUpdateStream: (updates: Partial<Stream>) => Promise<void>;
+  onRegenerateKey: () => Promise<string>;
+  onSetChatMode: (mode: ChatMode) => Promise<void>;
+  onSetSlowMode: (seconds: number) => Promise<void>;
+  onUpdateAutoMod: (config: Partial<AutoModConfig>) => Promise<void>;
+  className?: string;
 }
 
 // ============================================================================
@@ -85,59 +85,63 @@ export function StreamDashboard({
   onUpdateAutoMod,
   className,
 }: StreamDashboardProps) {
-  const [isStarting, setIsStarting] = useState(false)
-  const [isEnding, setIsEnding] = useState(false)
-  const [showStreamKey, setShowStreamKey] = useState(false)
-  const [activeTab, setActiveTab] = useState('overview')
+  const [isStarting, setIsStarting] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
+  const [showStreamKey, setShowStreamKey] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   // ==========================================================================
   // Handlers
   // ==========================================================================
 
   const handleStartStream = useCallback(async () => {
-    setIsStarting(true)
+    setIsStarting(true);
     try {
-      await onStartStream()
+      await onStartStream();
     } finally {
-      setIsStarting(false)
+      setIsStarting(false);
     }
-  }, [onStartStream])
+  }, [onStartStream]);
 
   const handleEndStream = useCallback(async () => {
-    if (!confirm('Are you sure you want to end the stream?')) return
+    if (!confirm("Are you sure you want to end the stream?")) return;
 
-    setIsEnding(true)
+    setIsEnding(true);
     try {
-      await onEndStream()
+      await onEndStream();
     } finally {
-      setIsEnding(false)
+      setIsEnding(false);
     }
-  }, [onEndStream])
+  }, [onEndStream]);
 
   const handleCopyStreamKey = useCallback(() => {
-    navigator.clipboard.writeText(stream.streamKey)
-  }, [stream.streamKey])
+    navigator.clipboard.writeText(stream.streamKey);
+  }, [stream.streamKey]);
 
   const handleRegenerateKey = useCallback(async () => {
-    if (!confirm('Regenerating the stream key will invalidate the current one. Continue?')) {
-      return
+    if (
+      !confirm(
+        "Regenerating the stream key will invalidate the current one. Continue?",
+      )
+    ) {
+      return;
     }
-    await onRegenerateKey()
-  }, [onRegenerateKey])
+    await onRegenerateKey();
+  }, [onRegenerateKey]);
 
   const formatDuration = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // ==========================================================================
   // Render
   // ==========================================================================
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Stream Status Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -160,12 +164,12 @@ export function StreamDashboard({
               disabled={isEnding}
             >
               <StopCircle className="h-4 w-4 mr-2" />
-              {isEnding ? 'Ending...' : 'End Stream'}
+              {isEnding ? "Ending..." : "End Stream"}
             </Button>
           ) : (
             <Button onClick={handleStartStream} disabled={isStarting}>
               <Radio className="h-4 w-4 mr-2" />
-              {isStarting ? 'Starting...' : 'Go Live'}
+              {isStarting ? "Starting..." : "Go Live"}
             </Button>
           )}
         </div>
@@ -188,7 +192,7 @@ export function StreamDashboard({
               ) : (
                 <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />
               )}
-              {analytics.viewerDelta >= 0 ? '+' : ''}
+              {analytics.viewerDelta >= 0 ? "+" : ""}
               {analytics.viewerDelta} from last minute
             </p>
           </CardContent>
@@ -231,7 +235,9 @@ export function StreamDashboard({
             <div className="text-2xl font-bold">
               {analytics.reactionsPerMinute}
             </div>
-            <p className="text-xs text-muted-foreground">reactions per minute</p>
+            <p className="text-xs text-muted-foreground">
+              reactions per minute
+            </p>
           </CardContent>
         </Card>
 
@@ -279,7 +285,9 @@ export function StreamDashboard({
                   <Label>Stream Key</Label>
                   <div className="flex gap-2 mt-1">
                     <code className="flex-1 p-2 bg-muted rounded text-sm font-mono">
-                      {showStreamKey ? stream.streamKey : '************************'}
+                      {showStreamKey
+                        ? stream.streamKey
+                        : "************************"}
                     </code>
                     <Button
                       variant="outline"
@@ -288,10 +296,18 @@ export function StreamDashboard({
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="icon" onClick={handleCopyStreamKey}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleCopyStreamKey}
+                    >
                       <Copy className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="icon" onClick={handleRegenerateKey}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleRegenerateKey}
+                    >
                       <RefreshCw className="h-4 w-4" />
                     </Button>
                   </div>
@@ -307,11 +323,15 @@ export function StreamDashboard({
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label>Resolution</Label>
-                    <p className="text-sm font-medium">{stream.maxResolution}</p>
+                    <p className="text-sm font-medium">
+                      {stream.maxResolution}
+                    </p>
                   </div>
                   <div>
                     <Label>Bitrate</Label>
-                    <p className="text-sm font-medium">{stream.bitrateKbps} kbps</p>
+                    <p className="text-sm font-medium">
+                      {stream.bitrateKbps} kbps
+                    </p>
                   </div>
                   <div>
                     <Label>FPS</Label>
@@ -334,10 +354,12 @@ export function StreamDashboard({
                       {stream.startedAt
                         ? formatDuration(
                             Math.floor(
-                              (Date.now() - new Date(stream.startedAt).getTime()) / 1000
-                            )
+                              (Date.now() -
+                                new Date(stream.startedAt).getTime()) /
+                                1000,
+                            ),
                           )
-                        : '00:00:00'}
+                        : "00:00:00"}
                     </p>
                   </div>
                   <div>
@@ -366,7 +388,9 @@ export function StreamDashboard({
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <Video className="h-4 w-4" />
-                    <span className="text-sm">Recording: {stream.isRecorded ? 'On' : 'Off'}</span>
+                    <span className="text-sm">
+                      Recording: {stream.isRecorded ? "On" : "Off"}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -394,7 +418,9 @@ export function StreamDashboard({
                     <SelectContent>
                       <SelectItem value="open">Open</SelectItem>
                       <SelectItem value="followers">Followers Only</SelectItem>
-                      <SelectItem value="subscribers">Subscribers Only</SelectItem>
+                      <SelectItem value="subscribers">
+                        Subscribers Only
+                      </SelectItem>
                       <SelectItem value="disabled">Disabled</SelectItem>
                     </SelectContent>
                   </Select>
@@ -496,7 +522,7 @@ export function StreamDashboard({
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
-export default StreamDashboard
+export default StreamDashboard;

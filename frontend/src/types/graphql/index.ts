@@ -15,7 +15,7 @@ export type {
   OrderBy,
   WhereComparison,
   BoolExp,
-} from './operations.types'
+} from "./operations.types";
 
 // ============================================================================
 // Entity Types
@@ -39,7 +39,7 @@ export type {
   GqlReaction,
   // Notification types
   GqlNotification,
-} from './operations.types'
+} from "./operations.types";
 
 // ============================================================================
 // Query Types
@@ -64,7 +64,7 @@ export type {
   // Notification queries
   GetNotificationsVars,
   GetNotificationsResult,
-} from './operations.types'
+} from "./operations.types";
 
 // ============================================================================
 // Mutation Types
@@ -92,7 +92,7 @@ export type {
   // Presence mutations
   UpdatePresenceVars,
   UpdatePresenceResult,
-} from './operations.types'
+} from "./operations.types";
 
 // ============================================================================
 // Subscription Types
@@ -111,4 +111,4 @@ export type {
   ChannelMembersSubscriptionResult,
   ReactionsSubscriptionVars,
   ReactionsSubscriptionResult,
-} from './operations.types'
+} from "./operations.types";

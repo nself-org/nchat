@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { type AppConfig } from '@/config/app-config'
-import { EnhancedInput } from '@/components/ui/enhanced-input'
-import { Button } from '@/components/ui/button'
-import { IconGeneratorModal } from '@/components/setup/icon-generator-modal'
-import { LogoGeneratorModal } from '@/components/setup/logo-generator-modal'
+import { useState, useEffect, useRef } from "react";
+import { type AppConfig } from "@/config/app-config";
+import { EnhancedInput } from "@/components/ui/enhanced-input";
+import { Button } from "@/components/ui/button";
+import { IconGeneratorModal } from "@/components/setup/icon-generator-modal";
+import { LogoGeneratorModal } from "@/components/setup/logo-generator-modal";
 import {
   Type,
   Image,
@@ -17,213 +17,229 @@ import {
   Sparkles,
   Wand2,
   RotateCcw,
-} from 'lucide-react'
-import { defaultAppConfig } from '@/config/app-config'
+} from "lucide-react";
+import { defaultAppConfig } from "@/config/app-config";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface BrandingStepProps {
-  config: AppConfig
-  onUpdate: (updates: Partial<AppConfig>) => void
-  onValidate: (isValid: boolean) => void
+  config: AppConfig;
+  onUpdate: (updates: Partial<AppConfig>) => void;
+  onValidate: (isValid: boolean) => void;
 }
 
-export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps) {
+export function BrandingStep({
+  config,
+  onUpdate,
+  onValidate,
+}: BrandingStepProps) {
   const [formData, setFormData] = useState({
-    appName: config.branding.appName || '',
-    tagline: config.branding.tagline || '',
-    logo: config.branding.logo || '',
-    favicon: config.branding.favicon || '',
-    companyName: config.branding.companyName || config.owner.company || '',
-    websiteUrl: config.branding.websiteUrl || '',
+    appName: config.branding.appName || "",
+    tagline: config.branding.tagline || "",
+    logo: config.branding.logo || "",
+    favicon: config.branding.favicon || "",
+    companyName: config.branding.companyName || config.owner.company || "",
+    websiteUrl: config.branding.websiteUrl || "",
     logoScale: config.branding.logoScale || 1.0,
-  })
+  });
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [uploadedLogo, setUploadedLogo] = useState<string | null>(null)
-  const [uploadedIcon, setUploadedIcon] = useState<string | null>(null)
-  const [iconSvg, setIconSvg] = useState<string | null>(null)
-  const [logoSvg, setLogoSvg] = useState<string | null>(null)
-  const [showIconGenerator, setShowIconGenerator] = useState(false)
-  const [showLogoGenerator, setShowLogoGenerator] = useState(false)
-  const logoInputRef = useRef<HTMLInputElement>(null)
-  const iconInputRef = useRef<HTMLInputElement>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
+  const [uploadedIcon, setUploadedIcon] = useState<string | null>(null);
+  const [iconSvg, setIconSvg] = useState<string | null>(null);
+  const [logoSvg, setLogoSvg] = useState<string | null>(null);
+  const [showIconGenerator, setShowIconGenerator] = useState(false);
+  const [showLogoGenerator, setShowLogoGenerator] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const iconInputRef = useRef<HTMLInputElement>(null);
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!formData.appName.trim()) {
-      newErrors.appName = 'App name is required'
+      newErrors.appName = "App name is required";
     } else if (formData.appName.length < 2) {
-      newErrors.appName = 'App name must be at least 2 characters'
+      newErrors.appName = "App name must be at least 2 characters";
     }
 
     if (!uploadedIcon && !formData.favicon) {
-      newErrors.icon = 'Icon is required'
+      newErrors.icon = "Icon is required";
     }
 
     if (formData.websiteUrl && !/^https?:\/\/.+/.test(formData.websiteUrl)) {
-      newErrors.websiteUrl = 'Website URL must start with http:// or https://'
+      newErrors.websiteUrl = "Website URL must start with http:// or https://";
     }
 
-    setErrors(newErrors)
-    const isValid = Object.keys(newErrors).length === 0
-    onValidate(isValid)
-    return isValid
-  }
+    setErrors(newErrors);
+    const isValid = Object.keys(newErrors).length === 0;
+    onValidate(isValid);
+    return isValid;
+  };
 
   useEffect(() => {
-    validateForm()
-  }, [formData, uploadedIcon, uploadedLogo])
+    validateForm();
+  }, [formData, uploadedIcon, uploadedLogo]);
 
-  const handleChange = (field: keyof typeof formData, value: string | number) => {
-    const updated = { ...formData, [field]: value }
-    setFormData(updated)
+  const handleChange = (
+    field: keyof typeof formData,
+    value: string | number,
+  ) => {
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
 
     onUpdate({
       branding: updated,
-    })
-  }
+    });
+  };
 
   const handleResetToDefaults = () => {
     const defaults = {
       appName: defaultAppConfig.branding.appName,
-      tagline: defaultAppConfig.branding.tagline || '',
-      logo: defaultAppConfig.branding.logo || '',
-      favicon: defaultAppConfig.branding.favicon || '',
-      companyName: defaultAppConfig.branding.companyName || '',
-      websiteUrl: defaultAppConfig.branding.websiteUrl || '',
+      tagline: defaultAppConfig.branding.tagline || "",
+      logo: defaultAppConfig.branding.logo || "",
+      favicon: defaultAppConfig.branding.favicon || "",
+      companyName: defaultAppConfig.branding.companyName || "",
+      websiteUrl: defaultAppConfig.branding.websiteUrl || "",
       logoScale: defaultAppConfig.branding.logoScale || 1.0,
-    }
-    setFormData(defaults)
-    setUploadedLogo(null)
-    setUploadedIcon(null)
-    setIconSvg(null)
-    setLogoSvg(null)
-    if (logoInputRef.current) logoInputRef.current.value = ''
-    if (iconInputRef.current) iconInputRef.current.value = ''
+    };
+    setFormData(defaults);
+    setUploadedLogo(null);
+    setUploadedIcon(null);
+    setIconSvg(null);
+    setLogoSvg(null);
+    if (logoInputRef.current) logoInputRef.current.value = "";
+    if (iconInputRef.current) iconInputRef.current.value = "";
 
     onUpdate({
       branding: defaults,
-    })
-  }
+    });
+  };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'icon') => {
-    const file = event.target.files?.[0]
+  const handleImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: "logo" | "icon",
+  ) => {
+    const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result as string
-        if (type === 'logo') {
-          setUploadedLogo(result)
-          handleChange('logo', result)
+        const result = reader.result as string;
+        if (type === "logo") {
+          setUploadedLogo(result);
+          handleChange("logo", result);
         } else {
-          setUploadedIcon(result)
-          handleChange('favicon', result)
+          setUploadedIcon(result);
+          handleChange("favicon", result);
         }
-      }
-      reader.readAsDataURL(file)
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
-  const removeImage = (type: 'logo' | 'icon') => {
-    if (type === 'logo') {
-      setUploadedLogo(null)
-      setLogoSvg(null)
-      handleChange('logo', '')
-      if (logoInputRef.current) logoInputRef.current.value = ''
+  const removeImage = (type: "logo" | "icon") => {
+    if (type === "logo") {
+      setUploadedLogo(null);
+      setLogoSvg(null);
+      handleChange("logo", "");
+      if (logoInputRef.current) logoInputRef.current.value = "";
     } else {
-      setUploadedIcon(null)
-      setIconSvg(null)
-      handleChange('favicon', '')
-      if (iconInputRef.current) iconInputRef.current.value = ''
+      setUploadedIcon(null);
+      setIconSvg(null);
+      handleChange("favicon", "");
+      if (iconInputRef.current) iconInputRef.current.value = "";
       // Reset favicon to default
-      updateFavicon('/favicon.ico')
+      updateFavicon("/favicon.ico");
     }
-  }
+  };
 
   const updateFavicon = (url: string) => {
-    let faviconLink = document.querySelector('link[rel="icon"]') as HTMLLinkElement
+    let faviconLink = document.querySelector(
+      'link[rel="icon"]',
+    ) as HTMLLinkElement;
     if (!faviconLink) {
-      faviconLink = document.createElement('link')
-      faviconLink.rel = 'icon'
-      document.head.appendChild(faviconLink)
+      faviconLink = document.createElement("link");
+      faviconLink.rel = "icon";
+      document.head.appendChild(faviconLink);
     }
-    faviconLink.href = url
-  }
+    faviconLink.href = url;
+  };
 
-  const handleGeneratedIcon = (dataUrl: string, svgString?: string, variants?: any) => {
-    setUploadedIcon(dataUrl)
-    setIconSvg(svgString || null)
-    handleChange('favicon', dataUrl)
+  const handleGeneratedIcon = (
+    dataUrl: string,
+    svgString?: string,
+    variants?: any,
+  ) => {
+    setUploadedIcon(dataUrl);
+    setIconSvg(svgString || null);
+    handleChange("favicon", dataUrl);
 
     // Save SVG to public directory
     if (svgString) {
-      fetch('/api/save-svg', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      fetch("/api/save-svg", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           svg: svgString,
-          filename: 'icon.svg',
+          filename: "icon.svg",
         }),
-      }).catch(console.error)
+      }).catch(console.error);
     }
 
     // Save variants if provided
     if (variants) {
       if (variants.lightSvg) {
-        fetch('/api/save-svg', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/save-svg", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             svg: variants.lightSvg,
-            filename: 'icon-light.svg',
+            filename: "icon-light.svg",
           }),
-        }).catch(console.error)
+        }).catch(console.error);
       }
       if (variants.darkSvg) {
-        fetch('/api/save-svg', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/save-svg", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             svg: variants.darkSvg,
-            filename: 'icon-dark.svg',
+            filename: "icon-dark.svg",
           }),
-        }).catch(console.error)
+        }).catch(console.error);
       }
     }
 
     // Update favicon immediately
-    updateFavicon(dataUrl)
-  }
+    updateFavicon(dataUrl);
+  };
 
   const handleGeneratedLogo = (dataUrl: string, svgString?: string) => {
-    setUploadedLogo(dataUrl)
-    setLogoSvg(svgString || null)
-    handleChange('logo', dataUrl)
+    setUploadedLogo(dataUrl);
+    setLogoSvg(svgString || null);
+    handleChange("logo", dataUrl);
 
     // Save SVG to public directory
     if (svgString) {
-      fetch('/api/save-svg', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      fetch("/api/save-svg", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           svg: svgString,
-          filename: 'logo.svg',
+          filename: "logo.svg",
         }),
-      }).catch(console.error)
+      }).catch(console.error);
     }
-  }
+  };
 
   // Initialize uploaded images from config if they exist
   useEffect(() => {
     if (config.branding.logo) {
-      setUploadedLogo(config.branding.logo)
+      setUploadedLogo(config.branding.logo);
     }
     if (config.branding.favicon) {
-      setUploadedIcon(config.branding.favicon)
+      setUploadedIcon(config.branding.favicon);
     }
-  }, [])
+  }, []);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -231,9 +247,12 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
         <div className="shadow-glow mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00D4FF] to-[#0EA5E9]">
           <Type className="h-6 w-6 text-zinc-900" />
         </div>
-        <h2 className="mb-3 text-2xl font-bold text-zinc-900 dark:text-white">App Branding</h2>
+        <h2 className="mb-3 text-2xl font-bold text-zinc-900 dark:text-white">
+          App Branding
+        </h2>
         <p className="mx-auto max-w-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
-          Define your app's identity. This is how your platform will appear to users.
+          Define your app's identity. This is how your platform will appear to
+          users.
         </p>
       </div>
 
@@ -244,7 +263,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
             label="App Name *"
             icon={<Type className="h-4 w-4" />}
             value={formData.appName}
-            onChange={(e) => handleChange('appName', e.target.value)}
+            onChange={(e) => handleChange("appName", e.target.value)}
             error={errors.appName}
           />
         </div>
@@ -255,7 +274,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
             label="Tagline/Description"
             icon={<Lightbulb className="h-4 w-4" />}
             value={formData.tagline}
-            onChange={(e) => handleChange('tagline', e.target.value)}
+            onChange={(e) => handleChange("tagline", e.target.value)}
           />
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             A short description that appears under your app name
@@ -266,13 +285,15 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
           {/* Icon/Favicon Upload - Required */}
           <div>
             <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Icon *{' '}
+              Icon *{" "}
               <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
                 (Required)
               </span>
             </label>
             {errors.icon && (
-              <p className="mb-2 text-sm text-red-600 dark:text-red-400">{errors.icon}</p>
+              <p className="mb-2 text-sm text-red-600 dark:text-red-400">
+                {errors.icon}
+              </p>
             )}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="md:col-span-1">
@@ -284,7 +305,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                       className="mx-auto max-h-20 object-contain"
                     />
                     <button
-                      onClick={() => removeImage('icon')}
+                      onClick={() => removeImage("icon")}
                       className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
                     >
                       <X className="h-3 w-3" />
@@ -297,9 +318,9 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                       tabIndex={0}
                       onClick={() => iconInputRef.current?.click()}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          iconInputRef.current?.click()
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          iconInputRef.current?.click();
                         }
                       }}
                       className="cursor-pointer rounded-xl border-2 border-dashed border-sky-300 p-6 text-center transition-colors hover:border-sky-400 dark:border-sky-600 dark:hover:border-sky-500"
@@ -317,7 +338,9 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                         <span className="w-full border-t border-zinc-300 dark:border-zinc-600" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-900">or</span>
+                        <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-900">
+                          or
+                        </span>
                       </div>
                     </div>
                     <Button
@@ -335,7 +358,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                   ref={iconInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'icon')}
+                  onChange={(e) => handleImageUpload(e, "icon")}
                   className="hidden"
                 />
               </div>
@@ -347,8 +370,8 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                   <li>As the app icon on mobile devices</li>
                 </ul>
                 <p className="text-xs">
-                  Upload a square image for best results. We'll automatically generate different
-                  sizes.
+                  Upload a square image for best results. We'll automatically
+                  generate different sizes.
                 </p>
               </div>
             </div>
@@ -357,7 +380,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
           {/* Logo Upload - Optional */}
           <div>
             <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Logo{' '}
+              Logo{" "}
               <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
                 (Optional)
               </span>
@@ -372,7 +395,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                       className="mx-auto max-h-20 object-contain"
                     />
                     <button
-                      onClick={() => removeImage('logo')}
+                      onClick={() => removeImage("logo")}
                       className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
                     >
                       <X className="h-3 w-3" />
@@ -385,9 +408,9 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                       tabIndex={0}
                       onClick={() => logoInputRef.current?.click()}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          logoInputRef.current?.click()
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          logoInputRef.current?.click();
                         }
                       }}
                       className="cursor-pointer rounded-xl border-2 border-dashed border-zinc-300 p-6 text-center transition-colors hover:border-sky-400 dark:border-zinc-600 dark:hover:border-sky-500"
@@ -405,7 +428,9 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                         <span className="w-full border-t border-zinc-300 dark:border-zinc-600" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-900">or</span>
+                        <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-900">
+                          or
+                        </span>
                       </div>
                     </div>
                     <Button
@@ -423,7 +448,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                   ref={logoInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'logo')}
+                  onChange={(e) => handleImageUpload(e, "logo")}
                   className="hidden"
                 />
               </div>
@@ -458,7 +483,9 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                     max="2"
                     step="0.1"
                     value={formData.logoScale}
-                    onChange={(e) => handleChange('logoScale', parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      handleChange("logoScale", parseFloat(e.target.value))
+                    }
                     className="h-2 flex-1 cursor-pointer appearance-none rounded-xl bg-zinc-200 dark:bg-zinc-700 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-sky-500 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-sky-500"
                   />
                   <span className="text-xs text-zinc-500">200%</span>
@@ -481,7 +508,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
               label="Company Name"
               icon={<Building className="h-4 w-4" />}
               value={formData.companyName}
-              onChange={(e) => handleChange('companyName', e.target.value)}
+              onChange={(e) => handleChange("companyName", e.target.value)}
             />
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
               Used in footer and legal pages
@@ -494,7 +521,7 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
               label="Website URL"
               icon={<Globe className="h-4 w-4" />}
               value={formData.websiteUrl}
-              onChange={(e) => handleChange('websiteUrl', e.target.value)}
+              onChange={(e) => handleChange("websiteUrl", e.target.value)}
               error={errors.websiteUrl}
             />
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
@@ -509,7 +536,9 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
               <Type className="h-4 w-4 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="mb-2 font-semibold text-sky-900 dark:text-sky-100">Live Preview</h3>
+              <h3 className="mb-2 font-semibold text-sky-900 dark:text-sky-100">
+                Live Preview
+              </h3>
               <div className="rounded-xl border border-sky-200 bg-white p-4 dark:border-sky-700 dark:bg-zinc-800">
                 <div className="flex items-center gap-3">
                   {uploadedLogo ? (
@@ -524,10 +553,14 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
                     // If no logo, show icon + text name
                     <>
                       {uploadedIcon && (
-                        <img src={uploadedIcon} alt="Icon" className="h-6 w-6 object-contain" />
+                        <img
+                          src={uploadedIcon}
+                          alt="Icon"
+                          className="h-6 w-6 object-contain"
+                        />
                       )}
                       <div className="text-lg font-semibold text-zinc-900 dark:text-white">
-                        {formData.appName || 'Your App Name'}
+                        {formData.appName || "Your App Name"}
                       </div>
                     </>
                   )}
@@ -583,5 +616,5 @@ export function BrandingStep({ config, onUpdate, onValidate }: BrandingStepProps
         iconSvg={iconSvg}
       />
     </div>
-  )
+  );
 }

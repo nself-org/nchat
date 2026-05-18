@@ -8,9 +8,13 @@
  * @version 1.0.0
  */
 
-import type { PlanTier, PlanFeatures } from '@/types/subscription.types'
-import type { EntitlementCategory, EntitlementScope, EntitlementSource } from '@/lib/entitlements/entitlement-types'
-import type { PlanLimits } from './plan-config'
+import type { PlanTier, PlanFeatures } from "@/types/subscription.types";
+import type {
+  EntitlementCategory,
+  EntitlementScope,
+  EntitlementSource,
+} from "@/lib/entitlements/entitlement-types";
+import type { PlanLimits } from "./plan-config";
 
 // ============================================================================
 // Core Paywall Types
@@ -20,51 +24,51 @@ import type { PlanLimits } from './plan-config'
  * Type of paywall restriction.
  */
 export type PaywallType =
-  | 'feature' // Binary feature access
-  | 'limit' // Numeric limit exceeded
-  | 'tier' // Plan tier requirement
-  | 'role' // Role-based restriction
-  | 'channel' // Channel-specific restriction
-  | 'time' // Time-based restriction
-  | 'custom' // Custom gate restriction
+  | "feature" // Binary feature access
+  | "limit" // Numeric limit exceeded
+  | "tier" // Plan tier requirement
+  | "role" // Role-based restriction
+  | "channel" // Channel-specific restriction
+  | "time" // Time-based restriction
+  | "custom"; // Custom gate restriction
 
 /**
  * Action being performed that requires entitlement check.
  */
 export type PaywallAction =
-  | 'view' // View/read content
-  | 'create' // Create new resource
-  | 'update' // Update existing resource
-  | 'delete' // Delete resource
-  | 'execute' // Execute action (e.g., start call)
-  | 'access' // Access feature/area
-  | 'export' // Export data
-  | 'configure' // Configure settings
+  | "view" // View/read content
+  | "create" // Create new resource
+  | "update" // Update existing resource
+  | "delete" // Delete resource
+  | "execute" // Execute action (e.g., start call)
+  | "access" // Access feature/area
+  | "export" // Export data
+  | "configure"; // Configure settings
 
 /**
  * Result of a paywall check.
  */
 export interface PaywallCheckResult {
   /** Whether access is allowed */
-  allowed: boolean
+  allowed: boolean;
   /** Type of restriction if denied */
-  type?: PaywallType
+  type?: PaywallType;
   /** Reason for denial */
-  reason?: string
+  reason?: string;
   /** Denial code for programmatic handling */
-  code?: PaywallDenialCode
+  code?: PaywallDenialCode;
   /** Current plan tier */
-  currentPlan: PlanTier
+  currentPlan: PlanTier;
   /** Required plan tier for access */
-  requiredPlan?: PlanTier
+  requiredPlan?: PlanTier;
   /** Upgrade path information */
-  upgrade?: PaywallUpgradeInfo
+  upgrade?: PaywallUpgradeInfo;
   /** Resource usage information (for limits) */
-  usage?: PaywallUsageInfo
+  usage?: PaywallUsageInfo;
   /** Time remaining for time-based restrictions */
-  timeRemaining?: number
+  timeRemaining?: number;
   /** Additional metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -72,35 +76,35 @@ export interface PaywallCheckResult {
  */
 export enum PaywallDenialCode {
   // Feature restrictions
-  FEATURE_NOT_AVAILABLE = 'FEATURE_NOT_AVAILABLE',
-  FEATURE_DISABLED = 'FEATURE_DISABLED',
+  FEATURE_NOT_AVAILABLE = "FEATURE_NOT_AVAILABLE",
+  FEATURE_DISABLED = "FEATURE_DISABLED",
 
   // Limit restrictions
-  LIMIT_EXCEEDED = 'LIMIT_EXCEEDED',
-  LIMIT_APPROACHING = 'LIMIT_APPROACHING',
-  QUOTA_EXHAUSTED = 'QUOTA_EXHAUSTED',
+  LIMIT_EXCEEDED = "LIMIT_EXCEEDED",
+  LIMIT_APPROACHING = "LIMIT_APPROACHING",
+  QUOTA_EXHAUSTED = "QUOTA_EXHAUSTED",
 
   // Tier restrictions
-  TIER_REQUIRED = 'TIER_REQUIRED',
-  TIER_INSUFFICIENT = 'TIER_INSUFFICIENT',
+  TIER_REQUIRED = "TIER_REQUIRED",
+  TIER_INSUFFICIENT = "TIER_INSUFFICIENT",
 
   // Role restrictions
-  ROLE_REQUIRED = 'ROLE_REQUIRED',
-  ROLE_INSUFFICIENT = 'ROLE_INSUFFICIENT',
+  ROLE_REQUIRED = "ROLE_REQUIRED",
+  ROLE_INSUFFICIENT = "ROLE_INSUFFICIENT",
 
   // Channel restrictions
-  CHANNEL_RESTRICTED = 'CHANNEL_RESTRICTED',
-  CHANNEL_PREMIUM = 'CHANNEL_PREMIUM',
+  CHANNEL_RESTRICTED = "CHANNEL_RESTRICTED",
+  CHANNEL_PREMIUM = "CHANNEL_PREMIUM",
 
   // Time restrictions
-  TRIAL_EXPIRED = 'TRIAL_EXPIRED',
-  SUBSCRIPTION_EXPIRED = 'SUBSCRIPTION_EXPIRED',
-  OUTSIDE_ALLOWED_HOURS = 'OUTSIDE_ALLOWED_HOURS',
+  TRIAL_EXPIRED = "TRIAL_EXPIRED",
+  SUBSCRIPTION_EXPIRED = "SUBSCRIPTION_EXPIRED",
+  OUTSIDE_ALLOWED_HOURS = "OUTSIDE_ALLOWED_HOURS",
 
   // General
-  ACCESS_DENIED = 'ACCESS_DENIED',
-  UPGRADE_REQUIRED = 'UPGRADE_REQUIRED',
-  PAYMENT_REQUIRED = 'PAYMENT_REQUIRED',
+  ACCESS_DENIED = "ACCESS_DENIED",
+  UPGRADE_REQUIRED = "UPGRADE_REQUIRED",
+  PAYMENT_REQUIRED = "PAYMENT_REQUIRED",
 }
 
 /**
@@ -108,25 +112,25 @@ export enum PaywallDenialCode {
  */
 export interface PaywallUpgradeInfo {
   /** Target plan for upgrade */
-  targetPlan: PlanTier
+  targetPlan: PlanTier;
   /** Target plan name */
-  planName: string
+  planName: string;
   /** Monthly price in cents */
-  monthlyPrice: number
+  monthlyPrice: number;
   /** Yearly price in cents */
-  yearlyPrice: number | null
+  yearlyPrice: number | null;
   /** Features gained by upgrading */
-  featuresGained: string[]
+  featuresGained: string[];
   /** Limits increased by upgrading */
-  limitsIncreased: PaywallLimitIncrease[]
+  limitsIncreased: PaywallLimitIncrease[];
   /** Upgrade URL */
-  upgradeUrl: string
+  upgradeUrl: string;
   /** Promotional message */
-  promoMessage?: string
+  promoMessage?: string;
   /** Trial available for target plan */
-  trialAvailable?: boolean
+  trialAvailable?: boolean;
   /** Trial duration in days */
-  trialDays?: number
+  trialDays?: number;
 }
 
 /**
@@ -134,15 +138,15 @@ export interface PaywallUpgradeInfo {
  */
 export interface PaywallLimitIncrease {
   /** Limit name */
-  name: string
+  name: string;
   /** Limit key */
-  key: keyof PlanLimits
+  key: keyof PlanLimits;
   /** Current limit value */
-  currentValue: number | null
+  currentValue: number | null;
   /** New limit value */
-  newValue: number | null
+  newValue: number | null;
   /** Display unit */
-  unit: string
+  unit: string;
 }
 
 /**
@@ -150,19 +154,19 @@ export interface PaywallLimitIncrease {
  */
 export interface PaywallUsageInfo {
   /** Current usage */
-  current: number
+  current: number;
   /** Limit value (null = unlimited) */
-  limit: number | null
+  limit: number | null;
   /** Remaining quota */
-  remaining: number | null
+  remaining: number | null;
   /** Usage percentage (0-100) */
-  percentage: number | null
+  percentage: number | null;
   /** Warning level */
-  warningLevel: 'none' | 'low' | 'medium' | 'high' | 'critical'
+  warningLevel: "none" | "low" | "medium" | "high" | "critical";
   /** Unit for display */
-  unit: string
+  unit: string;
   /** Reset date for periodic limits */
-  resetDate?: Date
+  resetDate?: Date;
 }
 
 // ============================================================================
@@ -174,120 +178,120 @@ export interface PaywallUsageInfo {
  */
 export interface PaywallConfigBase {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Display name */
-  name: string
+  name: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Paywall type */
-  type: PaywallType
+  type: PaywallType;
   /** Action being restricted */
-  action: PaywallAction
+  action: PaywallAction;
   /** Whether this paywall is active */
-  enabled: boolean
+  enabled: boolean;
   /** Priority for multiple paywalls (higher = checked first) */
-  priority: number
+  priority: number;
   /** Custom error message */
-  errorMessage?: string
+  errorMessage?: string;
   /** Custom upgrade message */
-  upgradeMessage?: string
+  upgradeMessage?: string;
   /** Skip for specific roles */
-  bypassRoles?: string[]
+  bypassRoles?: string[];
   /** Skip for specific user IDs */
-  bypassUserIds?: string[]
+  bypassUserIds?: string[];
   /** Metadata for UI rendering */
-  uiConfig?: PaywallUIConfig
+  uiConfig?: PaywallUIConfig;
 }
 
 /**
  * Feature-based paywall configuration.
  */
 export interface FeaturePaywallConfig extends PaywallConfigBase {
-  type: 'feature'
+  type: "feature";
   /** Feature key from PlanFeatures */
-  feature: keyof PlanFeatures
+  feature: keyof PlanFeatures;
   /** Entitlement key override */
-  entitlementKey?: string
+  entitlementKey?: string;
 }
 
 /**
  * Limit-based paywall configuration.
  */
 export interface LimitPaywallConfig extends PaywallConfigBase {
-  type: 'limit'
+  type: "limit";
   /** Limit key from PlanLimits */
-  limit: keyof PlanLimits
+  limit: keyof PlanLimits;
   /** Entitlement key override */
-  entitlementKey?: string
+  entitlementKey?: string;
   /** Show warning before limit is reached */
-  warningThreshold?: number
+  warningThreshold?: number;
   /** Block when threshold reached (vs warn) */
-  hardLimit?: boolean
+  hardLimit?: boolean;
   /** Custom limit check function name */
-  customCheck?: string
+  customCheck?: string;
 }
 
 /**
  * Tier-based paywall configuration.
  */
 export interface TierPaywallConfig extends PaywallConfigBase {
-  type: 'tier'
+  type: "tier";
   /** Minimum required tier */
-  minimumTier: PlanTier
+  minimumTier: PlanTier;
   /** Allow custom tier */
-  allowCustom?: boolean
+  allowCustom?: boolean;
 }
 
 /**
  * Role-based paywall configuration.
  */
 export interface RolePaywallConfig extends PaywallConfigBase {
-  type: 'role'
+  type: "role";
   /** Required roles (any match) */
-  allowedRoles?: string[]
+  allowedRoles?: string[];
   /** Denied roles (any match blocks) */
-  deniedRoles?: string[]
+  deniedRoles?: string[];
 }
 
 /**
  * Channel-based paywall configuration.
  */
 export interface ChannelPaywallConfig extends PaywallConfigBase {
-  type: 'channel'
+  type: "channel";
   /** Channel types that require premium */
-  premiumChannelTypes?: string[]
+  premiumChannelTypes?: string[];
   /** Specific channel IDs that are premium */
-  premiumChannelIds?: string[]
+  premiumChannelIds?: string[];
   /** Feature required for channel access */
-  requiredFeature?: keyof PlanFeatures
+  requiredFeature?: keyof PlanFeatures;
 }
 
 /**
  * Time-based paywall configuration.
  */
 export interface TimePaywallConfig extends PaywallConfigBase {
-  type: 'time'
+  type: "time";
   /** Require active subscription */
-  requireActiveSubscription?: boolean
+  requireActiveSubscription?: boolean;
   /** Require active trial */
-  requireTrial?: boolean
+  requireTrial?: boolean;
   /** Allowed hours (24h format) */
-  allowedHours?: { start: number; end: number }
+  allowedHours?: { start: number; end: number };
   /** Allowed days of week (0-6, Sunday = 0) */
-  allowedDays?: number[]
+  allowedDays?: number[];
   /** Timezone for time checks */
-  timezone?: string
+  timezone?: string;
 }
 
 /**
  * Custom gate paywall configuration.
  */
 export interface CustomPaywallConfig extends PaywallConfigBase {
-  type: 'custom'
+  type: "custom";
   /** Gate function name */
-  gateFn: string
+  gateFn: string;
   /** Gate parameters */
-  gateParams?: Record<string, unknown>
+  gateParams?: Record<string, unknown>;
 }
 
 /**
@@ -300,7 +304,7 @@ export type PaywallConfig =
   | RolePaywallConfig
   | ChannelPaywallConfig
   | TimePaywallConfig
-  | CustomPaywallConfig
+  | CustomPaywallConfig;
 
 // ============================================================================
 // UI Configuration Types
@@ -311,75 +315,75 @@ export type PaywallConfig =
  */
 export interface PaywallUIConfig {
   /** Show inline badge/indicator */
-  showBadge?: boolean
+  showBadge?: boolean;
   /** Badge text */
-  badgeText?: string
+  badgeText?: string;
   /** Badge variant */
-  badgeVariant?: 'default' | 'premium' | 'enterprise' | 'locked'
+  badgeVariant?: "default" | "premium" | "enterprise" | "locked";
   /** Show upgrade modal on access */
-  showUpgradeModal?: boolean
+  showUpgradeModal?: boolean;
   /** Show inline upgrade prompt */
-  showInlinePrompt?: boolean
+  showInlinePrompt?: boolean;
   /** Show tooltip on hover */
-  showTooltip?: boolean
+  showTooltip?: boolean;
   /** Tooltip text */
-  tooltipText?: string
+  tooltipText?: string;
   /** Custom icon */
-  icon?: string
+  icon?: string;
   /** Blur/dim content behind paywall */
-  blurContent?: boolean
+  blurContent?: boolean;
   /** Show preview with paywall overlay */
-  showPreview?: boolean
+  showPreview?: boolean;
   /** Preview percentage (0-100) */
-  previewPercentage?: number
+  previewPercentage?: number;
   /** CTA button text */
-  ctaText?: string
+  ctaText?: string;
   /** CTA button variant */
-  ctaVariant?: 'default' | 'primary' | 'secondary' | 'destructive'
+  ctaVariant?: "default" | "primary" | "secondary" | "destructive";
 }
 
 /**
  * Paywall display mode.
  */
 export type PaywallDisplayMode =
-  | 'hidden' // Completely hide the feature
-  | 'disabled' // Show but disabled with tooltip
-  | 'locked' // Show with lock icon/overlay
-  | 'blurred' // Show blurred preview
-  | 'modal' // Show upgrade modal on access
-  | 'inline' // Show inline upgrade prompt
-  | 'toast' // Show toast notification
+  | "hidden" // Completely hide the feature
+  | "disabled" // Show but disabled with tooltip
+  | "locked" // Show with lock icon/overlay
+  | "blurred" // Show blurred preview
+  | "modal" // Show upgrade modal on access
+  | "inline" // Show inline upgrade prompt
+  | "toast"; // Show toast notification
 
 /**
  * Paywall prompt configuration.
  */
 export interface PaywallPromptConfig {
   /** Display mode */
-  mode: PaywallDisplayMode
+  mode: PaywallDisplayMode;
   /** Modal/prompt title */
-  title: string
+  title: string;
   /** Modal/prompt description */
-  description: string
+  description: string;
   /** Primary CTA */
   primaryCta: {
-    text: string
-    action: 'upgrade' | 'trial' | 'contact' | 'custom'
-    url?: string
-  }
+    text: string;
+    action: "upgrade" | "trial" | "contact" | "custom";
+    url?: string;
+  };
   /** Secondary CTA */
   secondaryCta?: {
-    text: string
-    action: 'dismiss' | 'learn_more' | 'custom'
-    url?: string
-  }
+    text: string;
+    action: "dismiss" | "learn_more" | "custom";
+    url?: string;
+  };
   /** Show feature comparison */
-  showComparison?: boolean
+  showComparison?: boolean;
   /** Show pricing */
-  showPricing?: boolean
+  showPricing?: boolean;
   /** Image/illustration URL */
-  imageUrl?: string
+  imageUrl?: string;
   /** Video URL */
-  videoUrl?: string
+  videoUrl?: string;
 }
 
 // ============================================================================
@@ -391,22 +395,24 @@ export interface PaywallPromptConfig {
  */
 export interface PaywallRoutePattern {
   /** Route pattern (supports wildcards) */
-  pattern: string
+  pattern: string;
   /** HTTP methods to match */
-  methods?: ('GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE')[]
+  methods?: ("GET" | "POST" | "PUT" | "PATCH" | "DELETE")[];
   /** Paywall configuration */
-  config: PaywallConfig
+  config: PaywallConfig;
 }
 
 /**
  * Route paywall map for API protection.
  */
-export type PaywallRouteMap = Record<string, PaywallConfig | PaywallConfig[]>
+export type PaywallRouteMap = Record<string, PaywallConfig | PaywallConfig[]>;
 
 /**
  * Dynamic paywall check function type.
  */
-export type PaywallCheckFn = (context: PaywallContext) => Promise<PaywallCheckResult>
+export type PaywallCheckFn = (
+  context: PaywallContext,
+) => Promise<PaywallCheckResult>;
 
 // ============================================================================
 // Context Types
@@ -417,39 +423,39 @@ export type PaywallCheckFn = (context: PaywallContext) => Promise<PaywallCheckRe
  */
 export interface PaywallContext {
   /** User ID */
-  userId: string
+  userId: string;
   /** User's role */
-  userRole?: string
+  userRole?: string;
   /** Organization ID */
-  organizationId?: string
+  organizationId?: string;
   /** Workspace ID */
-  workspaceId?: string
+  workspaceId?: string;
   /** Channel ID */
-  channelId?: string
+  channelId?: string;
   /** Current plan tier */
-  planTier: PlanTier
+  planTier: PlanTier;
   /** Subscription status */
-  subscriptionStatus?: string
+  subscriptionStatus?: string;
   /** Is in trial */
-  isInTrial?: boolean
+  isInTrial?: boolean;
   /** Trial end date */
-  trialEndsAt?: Date
+  trialEndsAt?: Date;
   /** Action being performed */
-  action?: PaywallAction
+  action?: PaywallAction;
   /** Resource type */
-  resourceType?: string
+  resourceType?: string;
   /** Resource ID */
-  resourceId?: string
+  resourceId?: string;
   /** Request metadata */
   requestMetadata?: {
-    path: string
-    method: string
-    headers?: Record<string, string>
-    query?: Record<string, string>
-    body?: unknown
-  }
+    path: string;
+    method: string;
+    headers?: Record<string, string>;
+    query?: Record<string, string>;
+    body?: unknown;
+  };
   /** Additional context */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -457,18 +463,18 @@ export interface PaywallContext {
  */
 export interface PaywallEnforcementOptions {
   /** Skip cache */
-  bypassCache?: boolean
+  bypassCache?: boolean;
   /** Include full upgrade info */
-  includeUpgradeInfo?: boolean
+  includeUpgradeInfo?: boolean;
   /** Include usage details */
-  includeUsageInfo?: boolean
+  includeUsageInfo?: boolean;
   /** Custom error handler */
-  onDenied?: (result: PaywallCheckResult) => void
+  onDenied?: (result: PaywallCheckResult) => void;
   /** Logging options */
   logging?: {
-    enabled?: boolean
-    level?: 'debug' | 'info' | 'warn' | 'error'
-  }
+    enabled?: boolean;
+    level?: "debug" | "info" | "warn" | "error";
+  };
 }
 
 // ============================================================================
@@ -479,33 +485,33 @@ export interface PaywallEnforcementOptions {
  * Paywall event types.
  */
 export type PaywallEventType =
-  | 'paywall.checked'
-  | 'paywall.allowed'
-  | 'paywall.denied'
-  | 'paywall.bypassed'
-  | 'paywall.upgrade_shown'
-  | 'paywall.upgrade_clicked'
-  | 'paywall.upgrade_completed'
-  | 'paywall.limit_warning'
+  | "paywall.checked"
+  | "paywall.allowed"
+  | "paywall.denied"
+  | "paywall.bypassed"
+  | "paywall.upgrade_shown"
+  | "paywall.upgrade_clicked"
+  | "paywall.upgrade_completed"
+  | "paywall.limit_warning";
 
 /**
  * Paywall event.
  */
 export interface PaywallEvent {
   /** Event type */
-  type: PaywallEventType
+  type: PaywallEventType;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** User ID */
-  userId: string
+  userId: string;
   /** Paywall ID */
-  paywallId?: string
+  paywallId?: string;
   /** Paywall type */
-  paywallType?: PaywallType
+  paywallType?: PaywallType;
   /** Check result */
-  result?: PaywallCheckResult
+  result?: PaywallCheckResult;
   /** Additional data */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
 }
 
 /**
@@ -513,25 +519,25 @@ export interface PaywallEvent {
  */
 export interface PaywallAnalytics {
   /** Total checks */
-  totalChecks: number
+  totalChecks: number;
   /** Allowed count */
-  allowedCount: number
+  allowedCount: number;
   /** Denied count */
-  deniedCount: number
+  deniedCount: number;
   /** Bypassed count */
-  bypassedCount: number
+  bypassedCount: number;
   /** Upgrade shown count */
-  upgradeShownCount: number
+  upgradeShownCount: number;
   /** Upgrade click rate */
-  upgradeClickRate: number
+  upgradeClickRate: number;
   /** Conversion rate */
-  conversionRate: number
+  conversionRate: number;
   /** By paywall type */
-  byType: Record<PaywallType, { allowed: number; denied: number }>
+  byType: Record<PaywallType, { allowed: number; denied: number }>;
   /** By plan */
-  byPlan: Record<PlanTier, { allowed: number; denied: number }>
+  byPlan: Record<PlanTier, { allowed: number; denied: number }>;
   /** Top denied features */
-  topDeniedFeatures: Array<{ feature: string; count: number }>
+  topDeniedFeatures: Array<{ feature: string; count: number }>;
 }
 
 // ============================================================================
@@ -542,12 +548,12 @@ export interface PaywallAnalytics {
  * Paywall error codes.
  */
 export enum PaywallErrorCode {
-  INVALID_CONFIG = 'PAYWALL_INVALID_CONFIG',
-  MISSING_CONTEXT = 'PAYWALL_MISSING_CONTEXT',
-  EVALUATION_FAILED = 'PAYWALL_EVALUATION_FAILED',
-  GATE_NOT_FOUND = 'PAYWALL_GATE_NOT_FOUND',
-  GATE_ERROR = 'PAYWALL_GATE_ERROR',
-  UNKNOWN_ERROR = 'PAYWALL_UNKNOWN_ERROR',
+  INVALID_CONFIG = "PAYWALL_INVALID_CONFIG",
+  MISSING_CONTEXT = "PAYWALL_MISSING_CONTEXT",
+  EVALUATION_FAILED = "PAYWALL_EVALUATION_FAILED",
+  GATE_NOT_FOUND = "PAYWALL_GATE_NOT_FOUND",
+  GATE_ERROR = "PAYWALL_GATE_ERROR",
+  UNKNOWN_ERROR = "PAYWALL_UNKNOWN_ERROR",
 }
 
 /**
@@ -558,10 +564,10 @@ export class PaywallError extends Error {
     public readonly code: PaywallErrorCode,
     message: string,
     public readonly paywallId?: string,
-    public readonly metadata?: Record<string, unknown>
+    public readonly metadata?: Record<string, unknown>,
   ) {
-    super(message)
-    this.name = 'PaywallError'
+    super(message);
+    this.name = "PaywallError";
   }
 }
 
@@ -573,34 +579,34 @@ export class PaywallError extends Error {
  * Paywall API error response.
  */
 export interface PaywallErrorResponse {
-  error: 'paywall_error' | 'upgrade_required' | 'limit_exceeded'
-  code: PaywallDenialCode
-  message: string
-  currentPlan: PlanTier
-  requiredPlan?: PlanTier
+  error: "paywall_error" | "upgrade_required" | "limit_exceeded";
+  code: PaywallDenialCode;
+  message: string;
+  currentPlan: PlanTier;
+  requiredPlan?: PlanTier;
   upgrade?: {
-    planName: string
-    monthlyPrice: number
-    yearlyPrice: number | null
-    upgradeUrl: string
-    trialAvailable: boolean
-    trialDays?: number
-  }
+    planName: string;
+    monthlyPrice: number;
+    yearlyPrice: number | null;
+    upgradeUrl: string;
+    trialAvailable: boolean;
+    trialDays?: number;
+  };
   usage?: {
-    current: number
-    limit: number | null
-    remaining: number | null
-    percentage: number | null
-    unit: string
-  }
+    current: number;
+    limit: number | null;
+    remaining: number | null;
+    percentage: number | null;
+    unit: string;
+  };
 }
 
 /**
  * Paywall check API response.
  */
 export interface PaywallCheckResponse {
-  allowed: boolean
-  result?: PaywallCheckResult
+  allowed: boolean;
+  result?: PaywallCheckResult;
 }
 
 // ============================================================================
@@ -610,7 +616,7 @@ export interface PaywallCheckResponse {
 /**
  * Default bypass roles (admin can bypass all paywalls).
  */
-export const DEFAULT_BYPASS_ROLES: string[] = ['admin', 'owner', 'superadmin']
+export const DEFAULT_BYPASS_ROLES: string[] = ["admin", "owner", "superadmin"];
 
 /**
  * Usage warning thresholds.
@@ -620,7 +626,7 @@ export const USAGE_WARNING_THRESHOLDS = {
   medium: 75,
   high: 90,
   critical: 95,
-} as const
+} as const;
 
 /**
  * Default UI configurations per paywall type.
@@ -628,40 +634,40 @@ export const USAGE_WARNING_THRESHOLDS = {
 export const DEFAULT_UI_CONFIGS: Record<PaywallType, PaywallUIConfig> = {
   feature: {
     showBadge: true,
-    badgeVariant: 'premium',
+    badgeVariant: "premium",
     showUpgradeModal: true,
     showTooltip: true,
-    ctaText: 'Upgrade',
-    ctaVariant: 'primary',
+    ctaText: "Upgrade",
+    ctaVariant: "primary",
   },
   limit: {
     showBadge: true,
-    badgeVariant: 'default',
+    badgeVariant: "default",
     showInlinePrompt: true,
     showTooltip: true,
-    ctaText: 'Increase Limit',
-    ctaVariant: 'secondary',
+    ctaText: "Increase Limit",
+    ctaVariant: "secondary",
   },
   tier: {
     showBadge: true,
-    badgeVariant: 'enterprise',
+    badgeVariant: "enterprise",
     showUpgradeModal: true,
     blurContent: true,
-    ctaText: 'Upgrade Plan',
-    ctaVariant: 'primary',
+    ctaText: "Upgrade Plan",
+    ctaVariant: "primary",
   },
   role: {
     showBadge: false,
     showTooltip: true,
-    tooltipText: 'Contact an admin for access',
+    tooltipText: "Contact an admin for access",
   },
   channel: {
     showBadge: true,
-    badgeVariant: 'locked',
+    badgeVariant: "locked",
     showPreview: true,
     previewPercentage: 20,
-    ctaText: 'Unlock Channel',
-    ctaVariant: 'primary',
+    ctaText: "Unlock Channel",
+    ctaVariant: "primary",
   },
   time: {
     showBadge: false,
@@ -671,60 +677,62 @@ export const DEFAULT_UI_CONFIGS: Record<PaywallType, PaywallUIConfig> = {
     showBadge: false,
     showUpgradeModal: false,
   },
-}
+};
 
 /**
  * Plan tier display names.
  */
 export const PLAN_TIER_NAMES: Record<PlanTier, string> = {
-  free: 'Free',
-  starter: 'Starter',
-  professional: 'Professional',
-  enterprise: 'Enterprise',
-  custom: 'Custom',
-}
+  free: "Free",
+  starter: "Starter",
+  professional: "Professional",
+  enterprise: "Enterprise",
+  custom: "Custom",
+};
 
 /**
  * Feature display names for upgrade prompts.
  */
-export const FEATURE_DISPLAY_NAMES: Partial<Record<keyof PlanFeatures, string>> = {
-  voiceMessages: 'Voice Messages',
-  videoCalls: 'Video Calls',
-  screenSharing: 'Screen Sharing',
-  customEmoji: 'Custom Emoji',
-  webhooks: 'Webhooks',
-  integrations: 'Integrations',
-  apiAccess: 'API Access',
-  sso: 'SSO / SAML',
-  auditLogs: 'Audit Logs',
-  adminDashboard: 'Admin Dashboard',
-  prioritySupport: 'Priority Support',
-  customBranding: 'Custom Branding',
-  dataExport: 'Data Export',
-}
+export const FEATURE_DISPLAY_NAMES: Partial<
+  Record<keyof PlanFeatures, string>
+> = {
+  voiceMessages: "Voice Messages",
+  videoCalls: "Video Calls",
+  screenSharing: "Screen Sharing",
+  customEmoji: "Custom Emoji",
+  webhooks: "Webhooks",
+  integrations: "Integrations",
+  apiAccess: "API Access",
+  sso: "SSO / SAML",
+  auditLogs: "Audit Logs",
+  adminDashboard: "Admin Dashboard",
+  prioritySupport: "Priority Support",
+  customBranding: "Custom Branding",
+  dataExport: "Data Export",
+};
 
 /**
  * Limit display names for upgrade prompts.
  */
 export const LIMIT_DISPLAY_NAMES: Record<keyof PlanLimits, string> = {
-  maxMembers: 'Team Members',
-  maxChannels: 'Channels',
-  maxStorageBytes: 'Storage',
-  maxFileSizeBytes: 'File Size',
-  maxApiCallsPerMonth: 'API Calls',
-  maxCallParticipants: 'Call Participants',
-  maxStreamDurationMinutes: 'Stream Duration',
-}
+  maxMembers: "Team Members",
+  maxChannels: "Channels",
+  maxStorageBytes: "Storage",
+  maxFileSizeBytes: "File Size",
+  maxApiCallsPerMonth: "API Calls",
+  maxCallParticipants: "Call Participants",
+  maxStreamDurationMinutes: "Stream Duration",
+};
 
 /**
  * Limit units for display.
  */
 export const LIMIT_UNITS: Record<keyof PlanLimits, string> = {
-  maxMembers: 'members',
-  maxChannels: 'channels',
-  maxStorageBytes: 'GB',
-  maxFileSizeBytes: 'MB',
-  maxApiCallsPerMonth: 'calls/month',
-  maxCallParticipants: 'participants',
-  maxStreamDurationMinutes: 'minutes',
-}
+  maxMembers: "members",
+  maxChannels: "channels",
+  maxStorageBytes: "GB",
+  maxFileSizeBytes: "MB",
+  maxApiCallsPerMonth: "calls/month",
+  maxCallParticipants: "participants",
+  maxStreamDurationMinutes: "minutes",
+};

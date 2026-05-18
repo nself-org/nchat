@@ -4,41 +4,41 @@
  * Sent when a login occurs from a new device or location.
  */
 
-import { Text, Section } from '@react-email/components'
-import * as React from 'react'
-import EmailButton from '../components/EmailButton'
-import EmailHeading from '../components/EmailHeading'
-import EmailLayout from '../components/EmailLayout'
+import { Text, Section } from "@react-email/components";
+import * as React from "react";
+import EmailButton from "../components/EmailButton";
+import EmailHeading from "../components/EmailHeading";
+import EmailLayout from "../components/EmailLayout";
 
 interface NewLoginEmailProps {
-  userName?: string
-  appName?: string
-  logoUrl?: string
-  securityUrl?: string
+  userName?: string;
+  appName?: string;
+  logoUrl?: string;
+  securityUrl?: string;
   deviceInfo?: {
-    browser?: string
-    os?: string
-    device?: string
-  }
+    browser?: string;
+    os?: string;
+    device?: string;
+  };
   location?: {
-    city?: string
-    country?: string
-  }
-  ipAddress?: string
-  timestamp?: Date
+    city?: string;
+    country?: string;
+  };
+  ipAddress?: string;
+  timestamp?: Date;
 }
 
 export default function NewLoginEmail({
   userName,
-  appName = 'nChat',
+  appName = "nChat",
   logoUrl,
-  securityUrl = 'http://localhost:3000/settings/security',
+  securityUrl = "http://localhost:3000/settings/security",
   deviceInfo,
   location,
   ipAddress,
   timestamp = new Date(),
 }: NewLoginEmailProps) {
-  const previewText = `New login to your ${appName} account`
+  const previewText = `New login to your ${appName} account`;
 
   return (
     <EmailLayout preview={previewText} appName={appName} logoUrl={logoUrl}>
@@ -47,8 +47,8 @@ export default function NewLoginEmail({
       {userName && <Text style={paragraph}>Hi {userName},</Text>}
 
       <Text style={paragraph}>
-        We detected a new login to your {appName} account. If this was you, you can safely ignore
-        this email.
+        We detected a new login to your {appName} account. If this was you, you
+        can safely ignore this email.
       </Text>
 
       <Section style={infoSection}>
@@ -90,8 +90,8 @@ export default function NewLoginEmail({
       </Section>
 
       <Text style={warningText}>
-        ⚠️ If this wasn't you, your account may be compromised. Please secure your account
-        immediately.
+        ⚠️ If this wasn't you, your account may be compromised. Please secure
+        your account immediately.
       </Text>
 
       <EmailButton href={securityUrl} variant="danger">
@@ -103,7 +103,9 @@ export default function NewLoginEmail({
       <ul style={list}>
         <li style={listItem}>Change your password immediately</li>
         <li style={listItem}>Enable two-factor authentication</li>
-        <li style={listItem}>Review active sessions and sign out unknown devices</li>
+        <li style={listItem}>
+          Review active sessions and sign out unknown devices
+        </li>
         <li style={listItem}>Check your recent account activity</li>
       </ul>
 
@@ -113,7 +115,7 @@ export default function NewLoginEmail({
         The {appName} Security Team
       </Text>
     </EmailLayout>
-  )
+  );
 }
 
 // ============================================================================
@@ -121,46 +123,46 @@ export default function NewLoginEmail({
 // ============================================================================
 
 const paragraph = {
-  fontSize: '16px',
-  lineHeight: '1.6',
-  color: '#334155',
-  margin: '0 0 16px',
-}
+  fontSize: "16px",
+  lineHeight: "1.6",
+  color: "#334155",
+  margin: "0 0 16px",
+};
 
 const infoSection = {
-  backgroundColor: '#f8fafc',
-  border: '1px solid #e2e8f0',
-  borderRadius: '8px',
-  padding: '16px',
-  margin: '16px 0',
-}
+  backgroundColor: "#f8fafc",
+  border: "1px solid #e2e8f0",
+  borderRadius: "8px",
+  padding: "16px",
+  margin: "16px 0",
+};
 
 const infoText = {
-  fontSize: '14px',
-  lineHeight: '1.5',
-  color: '#64748b',
-  margin: '0 0 8px',
-}
+  fontSize: "14px",
+  lineHeight: "1.5",
+  color: "#64748b",
+  margin: "0 0 8px",
+};
 
 const warningText = {
-  fontSize: '14px',
-  lineHeight: '1.5',
-  color: '#dc2626',
-  backgroundColor: '#fee2e2',
-  padding: '12px',
-  borderRadius: '6px',
-  margin: '16px 0',
-  borderLeft: '4px solid #dc2626',
-}
+  fontSize: "14px",
+  lineHeight: "1.5",
+  color: "#dc2626",
+  backgroundColor: "#fee2e2",
+  padding: "12px",
+  borderRadius: "6px",
+  margin: "16px 0",
+  borderLeft: "4px solid #dc2626",
+};
 
 const list = {
-  fontSize: '16px',
-  lineHeight: '1.6',
-  color: '#334155',
-  margin: '0 0 16px',
-  paddingLeft: '20px',
-}
+  fontSize: "16px",
+  lineHeight: "1.6",
+  color: "#334155",
+  margin: "0 0 16px",
+  paddingLeft: "20px",
+};
 
 const listItem = {
-  marginBottom: '8px',
-}
+  marginBottom: "8px",
+};

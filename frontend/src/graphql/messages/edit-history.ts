@@ -5,110 +5,110 @@
  * The nchat_message_edits table stores all versions of edited messages.
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT } from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface MessageEdit {
-  id: string
-  messageId: string
-  editorId: string
+  id: string;
+  messageId: string;
+  editorId: string;
   editor: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
-  previousContent: string
-  newContent: string
-  editedAt: Date
-  changeSummary?: string
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+  previousContent: string;
+  newContent: string;
+  editedAt: Date;
+  changeSummary?: string;
 }
 
 export interface GetEditHistoryVariables {
-  messageId: string
-  limit?: number
-  offset?: number
+  messageId: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetEditHistoryResult {
   nchat_message_edits: Array<{
-    id: string
-    message_id: string
-    editor_id: string
-    previous_content: string
-    new_content: string
-    edited_at: string
-    change_summary: string | null
+    id: string;
+    message_id: string;
+    editor_id: string;
+    previous_content: string;
+    new_content: string;
+    edited_at: string;
+    change_summary: string | null;
     editor: {
-      id: string
-      username: string
-      display_name: string
-      avatar_url: string | null
-    }
-  }>
+      id: string;
+      username: string;
+      display_name: string;
+      avatar_url: string | null;
+    };
+  }>;
   nchat_message_edits_aggregate: {
     aggregate: {
-      count: number
-    }
-  }
+      count: number;
+    };
+  };
 }
 
 export interface InsertMessageEditVariables {
-  messageId: string
-  editorId: string
-  previousContent: string
-  newContent: string
-  changeSummary?: string
+  messageId: string;
+  editorId: string;
+  previousContent: string;
+  newContent: string;
+  changeSummary?: string;
 }
 
 export interface InsertMessageEditResult {
   insert_nchat_message_edits_one: {
-    id: string
-    message_id: string
-    editor_id: string
-    previous_content: string
-    new_content: string
-    edited_at: string
-    change_summary: string | null
+    id: string;
+    message_id: string;
+    editor_id: string;
+    previous_content: string;
+    new_content: string;
+    edited_at: string;
+    change_summary: string | null;
     editor: {
-      id: string
-      username: string
-      display_name: string
-      avatar_url: string | null
-    }
-  }
+      id: string;
+      username: string;
+      display_name: string;
+      avatar_url: string | null;
+    };
+  };
 }
 
 export interface GetEditByIdVariables {
-  editId: string
+  editId: string;
 }
 
 export interface GetEditByIdResult {
   nchat_message_edits_by_pk: {
-    id: string
-    message_id: string
-    editor_id: string
-    previous_content: string
-    new_content: string
-    edited_at: string
-    change_summary: string | null
+    id: string;
+    message_id: string;
+    editor_id: string;
+    previous_content: string;
+    new_content: string;
+    edited_at: string;
+    change_summary: string | null;
     message: {
-      id: string
-      user_id: string
-      channel_id: string
-      content: string
-    }
+      id: string;
+      user_id: string;
+      channel_id: string;
+      content: string;
+    };
     editor: {
-      id: string
-      username: string
-      display_name: string
-      avatar_url: string | null
-    }
-  } | null
+      id: string;
+      username: string;
+      display_name: string;
+      avatar_url: string | null;
+    };
+  } | null;
 }
 
 // ============================================================================
@@ -131,7 +131,7 @@ export const MESSAGE_EDIT_FRAGMENT = gql`
       avatar_url
     }
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -142,7 +142,11 @@ export const MESSAGE_EDIT_FRAGMENT = gql`
  * Returns all edits ordered by most recent first
  */
 export const GET_MESSAGE_EDIT_HISTORY = gql`
-  query GetMessageEditHistory($messageId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetMessageEditHistory(
+    $messageId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_message_edits(
       where: { message_id: { _eq: $messageId } }
       order_by: { edited_at: desc }
@@ -158,7 +162,7 @@ export const GET_MESSAGE_EDIT_HISTORY = gql`
     }
   }
   ${MESSAGE_EDIT_FRAGMENT}
-`
+`;
 
 /**
  * Get a specific edit by ID
@@ -177,7 +181,7 @@ export const GET_MESSAGE_EDIT_BY_ID = gql`
     }
   }
   ${MESSAGE_EDIT_FRAGMENT}
-`
+`;
 
 /**
  * Get the most recent edit for a message
@@ -193,7 +197,7 @@ export const GET_LATEST_MESSAGE_EDIT = gql`
     }
   }
   ${MESSAGE_EDIT_FRAGMENT}
-`
+`;
 
 /**
  * Get edit count for a message
@@ -206,13 +210,17 @@ export const GET_MESSAGE_EDIT_COUNT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get edits made by a specific user
  */
 export const GET_USER_EDIT_HISTORY = gql`
-  query GetUserEditHistory($editorId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetUserEditHistory(
+    $editorId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_message_edits(
       where: { editor_id: { _eq: $editorId } }
       order_by: { edited_at: desc }
@@ -233,7 +241,7 @@ export const GET_USER_EDIT_HISTORY = gql`
     }
   }
   ${MESSAGE_EDIT_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -264,7 +272,7 @@ export const INSERT_MESSAGE_EDIT = gql`
     }
   }
   ${MESSAGE_EDIT_FRAGMENT}
-`
+`;
 
 /**
  * Delete edit history for a message
@@ -276,7 +284,7 @@ export const DELETE_MESSAGE_EDIT_HISTORY = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -286,7 +294,7 @@ export const DELETE_MESSAGE_EDIT_HISTORY = gql`
  * Transform GraphQL edit data to MessageEdit type
  */
 export function transformMessageEdit(
-  data: GetEditHistoryResult['nchat_message_edits'][0]
+  data: GetEditHistoryResult["nchat_message_edits"][0],
 ): MessageEdit {
   return {
     id: data.id,
@@ -302,52 +310,58 @@ export function transformMessageEdit(
       displayName: data.editor.display_name || data.editor.username,
       avatarUrl: data.editor.avatar_url || undefined,
     },
-  }
+  };
 }
 
 /**
  * Transform array of edits
  */
 export function transformMessageEdits(
-  data: GetEditHistoryResult['nchat_message_edits']
+  data: GetEditHistoryResult["nchat_message_edits"],
 ): MessageEdit[] {
-  return data.map(transformMessageEdit)
+  return data.map(transformMessageEdit);
 }
 
 /**
  * Generate a simple change summary based on content diff
  */
-export function generateChangeSummary(previousContent: string, newContent: string): string {
-  const prevLength = previousContent.length
-  const newLength = newContent.length
-  const diff = newLength - prevLength
+export function generateChangeSummary(
+  previousContent: string,
+  newContent: string,
+): string {
+  const prevLength = previousContent.length;
+  const newLength = newContent.length;
+  const diff = newLength - prevLength;
 
   if (diff === 0) {
-    return 'Content modified (same length)'
+    return "Content modified (same length)";
   } else if (diff > 0) {
-    return `Added ${diff} characters`
+    return `Added ${diff} characters`;
   } else {
-    return `Removed ${Math.abs(diff)} characters`
+    return `Removed ${Math.abs(diff)} characters`;
   }
 }
 
 /**
  * Calculate the percentage of content that changed
  */
-export function calculateChangePercentage(previousContent: string, newContent: string): number {
-  const maxLength = Math.max(previousContent.length, newContent.length)
-  if (maxLength === 0) return 0
+export function calculateChangePercentage(
+  previousContent: string,
+  newContent: string,
+): number {
+  const maxLength = Math.max(previousContent.length, newContent.length);
+  if (maxLength === 0) return 0;
 
   // Simple Levenshtein-like approximation based on character differences
-  let commonChars = 0
-  const shorterLength = Math.min(previousContent.length, newContent.length)
+  let commonChars = 0;
+  const shorterLength = Math.min(previousContent.length, newContent.length);
 
   for (let i = 0; i < shorterLength; i++) {
     if (previousContent[i] === newContent[i]) {
-      commonChars++
+      commonChars++;
     }
   }
 
-  const unchanged = commonChars / maxLength
-  return Math.round((1 - unchanged) * 100)
+  const unchanged = commonChars / maxLength;
+  return Math.round((1 - unchanged) * 100);
 }

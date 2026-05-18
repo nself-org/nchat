@@ -9,8 +9,12 @@ import {
   type ShortcutDefinition,
   type ShortcutCategory,
   type ShortcutContext,
-} from './shortcut-registry'
-import { formatKeyCombo, formatChordSequence, type FormatKeyComboOptions } from './key-parser'
+} from "./shortcut-registry";
+import {
+  formatKeyCombo,
+  formatChordSequence,
+  type FormatKeyComboOptions,
+} from "./key-parser";
 
 // ============================================================================
 // Types
@@ -19,45 +23,45 @@ import { formatKeyCombo, formatChordSequence, type FormatKeyComboOptions } from 
 /** A section in the keymap display, grouping shortcuts by category */
 export interface KeymapSection {
   /** The category for this section */
-  category: ShortcutCategory
+  category: ShortcutCategory;
   /** Human-readable section title */
-  title: string
+  title: string;
   /** Optional section description */
-  description?: string
+  description?: string;
   /** Shortcuts in this section */
-  shortcuts: KeymapEntry[]
+  shortcuts: KeymapEntry[];
 }
 
 /** A single entry in the keymap, with formatted display data */
 export interface KeymapEntry {
   /** Shortcut ID */
-  id: string
+  id: string;
   /** Key combination string (raw) */
-  keys: string
+  keys: string;
   /** Formatted key combination for display */
-  displayKeys: string
+  displayKeys: string;
   /** Human-readable description */
-  description: string
+  description: string;
   /** Category */
-  category: ShortcutCategory
+  category: ShortcutCategory;
   /** Context */
-  context: ShortcutContext
+  context: ShortcutContext;
   /** Whether this shortcut is currently enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Whether the keys have been customized from preset defaults */
-  isCustomized: boolean
+  isCustomized: boolean;
   /** The preset this belongs to */
-  preset?: string
+  preset?: string;
 }
 
 /** Result from searching shortcuts */
 export interface KeymapSearchResult {
   /** The matching entry */
-  entry: KeymapEntry
+  entry: KeymapEntry;
   /** The field that matched (id, description, keys, category) */
-  matchField: 'id' | 'description' | 'keys' | 'category' | 'context'
+  matchField: "id" | "description" | "keys" | "category" | "context";
   /** Relevance score (higher is more relevant) */
-  score: number
+  score: number;
 }
 
 // ============================================================================
@@ -65,35 +69,35 @@ export interface KeymapSearchResult {
 // ============================================================================
 
 const CATEGORY_TITLES: Record<ShortcutCategory, string> = {
-  navigation: 'Navigation',
-  messaging: 'Messaging',
-  formatting: 'Formatting',
-  media: 'Media & Files',
-  calls: 'Calls & Voice',
-  admin: 'Administration & UI',
-  custom: 'Custom',
-}
+  navigation: "Navigation",
+  messaging: "Messaging",
+  formatting: "Formatting",
+  media: "Media & Files",
+  calls: "Calls & Voice",
+  admin: "Administration & UI",
+  custom: "Custom",
+};
 
 const CATEGORY_DESCRIPTIONS: Record<ShortcutCategory, string> = {
-  navigation: 'Navigate between channels, chats, and views.',
-  messaging: 'Send, edit, reply, and manage messages.',
-  formatting: 'Format text with bold, italic, code, and more.',
-  media: 'Upload files, open emoji and GIF pickers.',
-  calls: 'Start, manage, and control voice and video calls.',
-  admin: 'Application settings, sidebar toggles, and admin features.',
-  custom: 'User-defined custom shortcuts.',
-}
+  navigation: "Navigate between channels, chats, and views.",
+  messaging: "Send, edit, reply, and manage messages.",
+  formatting: "Format text with bold, italic, code, and more.",
+  media: "Upload files, open emoji and GIF pickers.",
+  calls: "Start, manage, and control voice and video calls.",
+  admin: "Application settings, sidebar toggles, and admin features.",
+  custom: "User-defined custom shortcuts.",
+};
 
 /** All categories in display order */
 export const CATEGORY_ORDER: ShortcutCategory[] = [
-  'navigation',
-  'messaging',
-  'formatting',
-  'media',
-  'calls',
-  'admin',
-  'custom',
-]
+  "navigation",
+  "messaging",
+  "formatting",
+  "media",
+  "calls",
+  "admin",
+  "custom",
+];
 
 // ============================================================================
 // Keymap Building
@@ -110,7 +114,7 @@ export const CATEGORY_ORDER: ShortcutCategory[] = [
 export function buildKeymapEntries(
   definitions: ShortcutDefinition[],
   options: FormatKeyComboOptions = {},
-  customizedIds: Set<string> = new Set()
+  customizedIds: Set<string> = new Set(),
 ): KeymapEntry[] {
   return definitions.map((def) => ({
     id: def.id,
@@ -122,7 +126,7 @@ export function buildKeymapEntries(
     enabled: def.enabled,
     isCustomized: customizedIds.has(def.id),
     preset: def.preset,
-  }))
+  }));
 }
 
 /**
@@ -136,25 +140,25 @@ export function buildKeymapEntries(
 export function getKeymap(
   definitions: ShortcutDefinition[],
   options: FormatKeyComboOptions = {},
-  customizedIds: Set<string> = new Set()
+  customizedIds: Set<string> = new Set(),
 ): KeymapSection[] {
-  const entries = buildKeymapEntries(definitions, options, customizedIds)
+  const entries = buildKeymapEntries(definitions, options, customizedIds);
 
-  const sections: KeymapSection[] = []
+  const sections: KeymapSection[] = [];
 
   for (const category of CATEGORY_ORDER) {
-    const sectionEntries = entries.filter((e) => e.category === category)
-    if (sectionEntries.length === 0) continue
+    const sectionEntries = entries.filter((e) => e.category === category);
+    if (sectionEntries.length === 0) continue;
 
     sections.push({
       category,
       title: CATEGORY_TITLES[category],
       description: CATEGORY_DESCRIPTIONS[category],
       shortcuts: sectionEntries,
-    })
+    });
   }
 
-  return sections
+  return sections;
 }
 
 // ============================================================================
@@ -171,76 +175,80 @@ export function getKeymap(
  */
 export function searchShortcuts(
   entries: KeymapEntry[],
-  query: string
+  query: string,
 ): KeymapSearchResult[] {
   if (!query || query.trim().length === 0) {
-    return entries.map((e) => ({ entry: e, matchField: 'description' as const, score: 0 }))
+    return entries.map((e) => ({
+      entry: e,
+      matchField: "description" as const,
+      score: 0,
+    }));
   }
 
-  const q = query.toLowerCase().trim()
-  const results: KeymapSearchResult[] = []
+  const q = query.toLowerCase().trim();
+  const results: KeymapSearchResult[] = [];
 
   for (const entry of entries) {
-    let bestScore = 0
-    let bestField: KeymapSearchResult['matchField'] = 'description'
+    let bestScore = 0;
+    let bestField: KeymapSearchResult["matchField"] = "description";
 
     // Exact ID match (highest score)
     if (entry.id.toLowerCase().includes(q)) {
-      const score = entry.id.toLowerCase() === q ? 100 : 80
+      const score = entry.id.toLowerCase() === q ? 100 : 80;
       if (score > bestScore) {
-        bestScore = score
-        bestField = 'id'
+        bestScore = score;
+        bestField = "id";
       }
     }
 
     // Description match
-    const descLower = entry.description.toLowerCase()
+    const descLower = entry.description.toLowerCase();
     if (descLower.includes(q)) {
-      const score = descLower.startsWith(q) ? 70 : 50
+      const score = descLower.startsWith(q) ? 70 : 50;
       if (score > bestScore) {
-        bestScore = score
-        bestField = 'description'
+        bestScore = score;
+        bestField = "description";
       }
     }
 
     // Keys match
-    const keysLower = entry.keys.toLowerCase()
-    const displayKeysLower = entry.displayKeys.toLowerCase()
+    const keysLower = entry.keys.toLowerCase();
+    const displayKeysLower = entry.displayKeys.toLowerCase();
     if (keysLower.includes(q) || displayKeysLower.includes(q)) {
-      const score = keysLower === q || displayKeysLower === q ? 90 : 60
+      const score = keysLower === q || displayKeysLower === q ? 90 : 60;
       if (score > bestScore) {
-        bestScore = score
-        bestField = 'keys'
+        bestScore = score;
+        bestField = "keys";
       }
     }
 
     // Category match
     if (entry.category.toLowerCase().includes(q)) {
-      const score = 30
+      const score = 30;
       if (score > bestScore) {
-        bestScore = score
-        bestField = 'category'
+        bestScore = score;
+        bestField = "category";
       }
     }
 
     // Context match
     if (entry.context.toLowerCase().includes(q)) {
-      const score = 20
+      const score = 20;
       if (score > bestScore) {
-        bestScore = score
-        bestField = 'context'
+        bestScore = score;
+        bestField = "context";
       }
     }
 
     if (bestScore > 0) {
-      results.push({ entry, matchField: bestField, score: bestScore })
+      results.push({ entry, matchField: bestField, score: bestScore });
     }
   }
 
   // Sort by score descending
-  results.sort((a, b) => b.score - a.score)
+  results.sort((a, b) => b.score - a.score);
 
-  return results
+  return results;
 }
 
 // ============================================================================
@@ -256,12 +264,12 @@ export function searchShortcuts(
  */
 export function exportKeymap(
   sections: KeymapSection[],
-  format: 'json' | 'markdown'
+  format: "json" | "markdown",
 ): string {
-  if (format === 'json') {
-    return exportKeymapJson(sections)
+  if (format === "json") {
+    return exportKeymapJson(sections);
   }
-  return exportKeymapMarkdown(sections)
+  return exportKeymapMarkdown(sections);
 }
 
 function exportKeymapJson(sections: KeymapSection[]): string {
@@ -277,32 +285,34 @@ function exportKeymapJson(sections: KeymapSection[]): string {
       context: s.context,
       enabled: s.enabled,
     })),
-  }))
-  return JSON.stringify(data, null, 2)
+  }));
+  return JSON.stringify(data, null, 2);
 }
 
 function exportKeymapMarkdown(sections: KeymapSection[]): string {
-  const lines: string[] = ['# Keyboard Shortcuts', '']
+  const lines: string[] = ["# Keyboard Shortcuts", ""];
 
   for (const section of sections) {
-    lines.push(`## ${section.title}`)
+    lines.push(`## ${section.title}`);
     if (section.description) {
-      lines.push(`${section.description}`)
+      lines.push(`${section.description}`);
     }
-    lines.push('')
-    lines.push('| Shortcut | Description | Context |')
-    lines.push('| --- | --- | --- |')
+    lines.push("");
+    lines.push("| Shortcut | Description | Context |");
+    lines.push("| --- | --- | --- |");
 
     for (const shortcut of section.shortcuts) {
-      if (!shortcut.enabled) continue
-      const keysDisplay = `\`${shortcut.displayKeys}\``
-      lines.push(`| ${keysDisplay} | ${shortcut.description} | ${shortcut.context} |`)
+      if (!shortcut.enabled) continue;
+      const keysDisplay = `\`${shortcut.displayKeys}\``;
+      lines.push(
+        `| ${keysDisplay} | ${shortcut.description} | ${shortcut.context} |`,
+      );
     }
 
-    lines.push('')
+    lines.push("");
   }
 
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 // ============================================================================
@@ -313,14 +323,14 @@ function exportKeymapMarkdown(sections: KeymapSection[]): string {
  * Get the title for a shortcut category.
  */
 export function getCategoryTitle(category: ShortcutCategory): string {
-  return CATEGORY_TITLES[category] || category
+  return CATEGORY_TITLES[category] || category;
 }
 
 /**
  * Get the description for a shortcut category.
  */
 export function getCategoryDescription(category: ShortcutCategory): string {
-  return CATEGORY_DESCRIPTIONS[category] || ''
+  return CATEGORY_DESCRIPTIONS[category] || "";
 }
 
 /**
@@ -328,23 +338,23 @@ export function getCategoryDescription(category: ShortcutCategory): string {
  */
 export function filterEntriesByContext(
   entries: KeymapEntry[],
-  context: ShortcutContext
+  context: ShortcutContext,
 ): KeymapEntry[] {
-  return entries.filter((e) => e.context === context || e.context === 'global')
+  return entries.filter((e) => e.context === context || e.context === "global");
 }
 
 /**
  * Filter keymap entries to only enabled ones.
  */
 export function filterEnabledEntries(entries: KeymapEntry[]): KeymapEntry[] {
-  return entries.filter((e) => e.enabled)
+  return entries.filter((e) => e.enabled);
 }
 
 /**
  * Get a summary of shortcuts count by category.
  */
 export function getKeymapSummary(
-  entries: KeymapEntry[]
+  entries: KeymapEntry[],
 ): Record<ShortcutCategory, number> {
   const summary: Record<ShortcutCategory, number> = {
     navigation: 0,
@@ -354,11 +364,11 @@ export function getKeymapSummary(
     calls: 0,
     admin: 0,
     custom: 0,
-  }
+  };
 
   for (const entry of entries) {
-    summary[entry.category]++
+    summary[entry.category]++;
   }
 
-  return summary
+  return summary;
 }

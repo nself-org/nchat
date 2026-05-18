@@ -3,9 +3,9 @@
  * Displays user engagement metrics
  */
 
-'use client'
+"use client";
 
-import { useUserAnalytics } from '@/hooks/use-analytics-plugin'
+import { useUserAnalytics } from "@/hooks/use-analytics-plugin";
 import {
   Table,
   TableBody,
@@ -13,17 +13,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+} from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface UserAnalyticsTableProps {
-  period?: string
-  limit?: number
+  period?: string;
+  limit?: number;
 }
 
-export function UserAnalyticsTable({ period = '7d', limit = 10 }: UserAnalyticsTableProps) {
-  const { users, isLoading, error } = useUserAnalytics({ period, limit })
+export function UserAnalyticsTable({
+  period = "7d",
+  limit = 10,
+}: UserAnalyticsTableProps) {
+  const { users, isLoading, error } = useUserAnalytics({ period, limit });
 
   if (isLoading) {
     return (
@@ -36,7 +45,7 @@ export function UserAnalyticsTable({ period = '7d', limit = 10 }: UserAnalyticsT
           <div className="h-64 animate-pulse rounded bg-muted" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error) {
@@ -44,17 +53,19 @@ export function UserAnalyticsTable({ period = '7d', limit = 10 }: UserAnalyticsT
       <Card className="border-destructive">
         <CardHeader>
           <CardTitle>Error Loading User Analytics</CardTitle>
-          <CardDescription>Failed to load user analytics. Please try again later.</CardDescription>
+          <CardDescription>
+            Failed to load user analytics. Please try again later.
+          </CardDescription>
         </CardHeader>
       </Card>
-    )
+    );
   }
 
   const getEngagementBadge = (score: number) => {
-    if (score >= 80) return <Badge variant="default">High</Badge>
-    if (score >= 50) return <Badge variant="secondary">Medium</Badge>
-    return <Badge variant="outline">Low</Badge>
-  }
+    if (score >= 80) return <Badge variant="default">High</Badge>;
+    if (score >= 50) return <Badge variant="secondary">Medium</Badge>;
+    return <Badge variant="outline">Low</Badge>;
+  };
 
   return (
     <Card>
@@ -78,7 +89,10 @@ export function UserAnalyticsTable({ period = '7d', limit = 10 }: UserAnalyticsT
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="text-center text-muted-foreground"
+                >
                   No user data available
                 </TableCell>
               </TableRow>
@@ -88,15 +102,23 @@ export function UserAnalyticsTable({ period = '7d', limit = 10 }: UserAnalyticsT
                   <TableCell>
                     <div>
                       <div className="font-medium">{user.displayName}</div>
-                      <div className="text-sm text-muted-foreground">{user.email}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {user.email}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">{user.messageCount}</TableCell>
-                  <TableCell className="text-right">{user.channelCount}</TableCell>
+                  <TableCell className="text-right">
+                    {user.messageCount}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {user.channelCount}
+                  </TableCell>
                   <TableCell className="text-right">
                     {getEngagementBadge(user.engagementScore)}
                   </TableCell>
-                  <TableCell>{new Date(user.lastActive).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(user.lastActive).toLocaleDateString()}
+                  </TableCell>
                 </TableRow>
               ))
             )}
@@ -104,5 +126,5 @@ export function UserAnalyticsTable({ period = '7d', limit = 10 }: UserAnalyticsT
         </Table>
       </CardContent>
     </Card>
-  )
+  );
 }

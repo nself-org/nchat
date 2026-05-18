@@ -15,17 +15,17 @@
  */
 export interface RateLimitConfig {
   /** Maximum requests allowed in the window */
-  maxRequests: number
+  maxRequests: number;
   /** Time window in seconds */
-  windowSeconds: number
+  windowSeconds: number;
   /** Additional burst allowance for peak traffic */
-  burst?: number
+  burst?: number;
   /** Custom key prefix for storage */
-  keyPrefix?: string
+  keyPrefix?: string;
   /** Skip rate limiting for certain conditions */
-  skip?: (identifier: string, metadata?: RateLimitMetadata) => boolean
+  skip?: (identifier: string, metadata?: RateLimitMetadata) => boolean;
   /** Cost multiplier for this endpoint (default: 1) */
-  cost?: number
+  cost?: number;
 }
 
 /**
@@ -33,17 +33,17 @@ export interface RateLimitConfig {
  */
 export interface RateLimitResult {
   /** Whether the request is allowed */
-  allowed: boolean
+  allowed: boolean;
   /** Remaining requests in the current window */
-  remaining: number
+  remaining: number;
   /** Unix timestamp (seconds) when the limit resets */
-  reset: number
+  reset: number;
   /** Total limit for the window */
-  limit: number
+  limit: number;
   /** Seconds to wait before retrying (if rate limited) */
-  retryAfter?: number
+  retryAfter?: number;
   /** Current request count in window */
-  current: number
+  current: number;
 }
 
 /**
@@ -51,15 +51,15 @@ export interface RateLimitResult {
  */
 export interface RateLimitEntry {
   /** Current request count */
-  count: number
+  count: number;
   /** Unix timestamp (ms) when the window resets */
-  resetAt: number
+  resetAt: number;
   /** Timestamps of requests for sliding window */
-  requests: number[]
+  requests: number[];
   /** First request timestamp */
-  firstRequest?: number
+  firstRequest?: number;
   /** Last request timestamp */
-  lastRequest?: number
+  lastRequest?: number;
 }
 
 /**
@@ -67,21 +67,21 @@ export interface RateLimitEntry {
  */
 export interface RateLimitMetadata {
   /** User ID if authenticated */
-  userId?: string
+  userId?: string;
   /** User role for tier-based limits */
-  userRole?: UserTier
+  userRole?: UserTier;
   /** IP address */
-  ip?: string
+  ip?: string;
   /** Request path */
-  path?: string
+  path?: string;
   /** HTTP method */
-  method?: string
+  method?: string;
   /** API key if present */
-  apiKey?: string
+  apiKey?: string;
   /** Tenant ID for multi-tenant setups */
-  tenantId?: string
+  tenantId?: string;
   /** Additional custom metadata */
-  custom?: Record<string, unknown>
+  custom?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -91,18 +91,24 @@ export interface RateLimitMetadata {
 /**
  * User subscription/role tiers for rate limit multipliers
  */
-export type UserTier = 'guest' | 'member' | 'premium' | 'enterprise' | 'admin' | 'internal'
+export type UserTier =
+  | "guest"
+  | "member"
+  | "premium"
+  | "enterprise"
+  | "admin"
+  | "internal";
 
 /**
  * Tier-specific rate limit multipliers
  */
 export interface TierMultipliers {
-  guest: number
-  member: number
-  premium: number
-  enterprise: number
-  admin: number
-  internal: number
+  guest: number;
+  member: number;
+  premium: number;
+  enterprise: number;
+  admin: number;
+  internal: number;
 }
 
 /**
@@ -115,7 +121,7 @@ export const DEFAULT_TIER_MULTIPLIERS: TierMultipliers = {
   enterprise: 5.0, // 500% of base limit
   admin: 10.0, // 1000% of base limit
   internal: 100.0, // Effectively unlimited
-}
+};
 
 // ============================================================================
 // Store Interface
@@ -131,7 +137,7 @@ export interface RateLimitStore {
    * @param config Rate limit configuration
    * @returns Rate limit result
    */
-  check(key: string, config: RateLimitConfig): Promise<RateLimitResult>
+  check(key: string, config: RateLimitConfig): Promise<RateLimitResult>;
 
   /**
    * Get current status without incrementing
@@ -139,35 +145,35 @@ export interface RateLimitStore {
    * @param config Rate limit configuration
    * @returns Current rate limit status
    */
-  status(key: string, config: RateLimitConfig): Promise<RateLimitResult>
+  status(key: string, config: RateLimitConfig): Promise<RateLimitResult>;
 
   /**
    * Reset rate limit for a key
    * @param key Unique identifier to reset
    */
-  reset(key: string): Promise<void>
+  reset(key: string): Promise<void>;
 
   /**
    * Decrement the counter (for refunds/corrections)
    * @param key Unique identifier
    * @param amount Amount to decrement (default: 1)
    */
-  decrement(key: string, amount?: number): Promise<void>
+  decrement(key: string, amount?: number): Promise<void>;
 
   /**
    * Clear all rate limits (for testing)
    */
-  clear(): Promise<void>
+  clear(): Promise<void>;
 
   /**
    * Check if the store is healthy/connected
    */
-  isHealthy(): Promise<boolean>
+  isHealthy(): Promise<boolean>;
 
   /**
    * Get store name for debugging
    */
-  getName(): string
+  getName(): string;
 }
 
 // ============================================================================
@@ -178,26 +184,26 @@ export interface RateLimitStore {
  * Predefined endpoint categories for rate limiting
  */
 export type EndpointCategory =
-  | 'auth'
-  | 'auth_sensitive'
-  | 'messages'
-  | 'messages_create'
-  | 'file_upload'
-  | 'search'
-  | 'api_general'
-  | 'graphql'
-  | 'websocket'
-  | 'admin'
-  | 'webhook'
-  | 'bot'
-  | 'ai'
-  | 'export'
+  | "auth"
+  | "auth_sensitive"
+  | "messages"
+  | "messages_create"
+  | "file_upload"
+  | "search"
+  | "api_general"
+  | "graphql"
+  | "websocket"
+  | "admin"
+  | "webhook"
+  | "bot"
+  | "ai"
+  | "export";
 
 /**
  * Rate limit configurations by category
  */
 export interface CategoryConfigs {
-  [category: string]: RateLimitConfig
+  [category: string]: RateLimitConfig;
 }
 
 // ============================================================================
@@ -209,15 +215,15 @@ export interface CategoryConfigs {
  */
 export interface PenaltyBoxEntry {
   /** Identifier (IP or user ID) */
-  identifier: string
+  identifier: string;
   /** Reason for blocking */
-  reason: string
+  reason: string;
   /** Unix timestamp when block expires */
-  expiresAt: number
+  expiresAt: number;
   /** Number of violations that led to this block */
-  violations: number
+  violations: number;
   /** When the block was created */
-  createdAt: number
+  createdAt: number;
 }
 
 // ============================================================================
@@ -229,25 +235,25 @@ export interface PenaltyBoxEntry {
  */
 export interface RateLimitExceededEvent {
   /** Identifier that was rate limited */
-  identifier: string
+  identifier: string;
   /** Endpoint or category */
-  endpoint: string
+  endpoint: string;
   /** Current limit */
-  limit: number
+  limit: number;
   /** Current request count */
-  current: number
+  current: number;
   /** When the limit resets */
-  resetAt: number
+  resetAt: number;
   /** Request metadata */
-  metadata?: RateLimitMetadata
+  metadata?: RateLimitMetadata;
   /** Timestamp of the event */
-  timestamp: number
+  timestamp: number;
 }
 
 /**
  * Event emitted when an identifier is added to penalty box
  */
 export interface PenaltyBoxAddedEvent {
-  entry: PenaltyBoxEntry
-  timestamp: number
+  entry: PenaltyBoxEntry;
+  timestamp: number;
 }

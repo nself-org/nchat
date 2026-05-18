@@ -22,45 +22,45 @@ import type {
   DEFAULT_GROUP_SETTINGS,
   EntityStatus,
   EntityVisibility,
-} from '@/types/entities'
+} from "@/types/entities";
 
 import {
   canUpgradeToSupergroup,
   canDowngradeToGroup,
   validateMemberCount,
   ValidationResult,
-} from './entity-validators'
+} from "./entity-validators";
 
 // =============================================================================
 // CONVERSION RESULT TYPES
 // =============================================================================
 
 export interface ConversionResult<T extends ChatEntity> {
-  success: boolean
-  entity: T | null
-  errors: string[]
-  warnings: string[]
-  migrationLog: MigrationLogEntry[]
+  success: boolean;
+  entity: T | null;
+  errors: string[];
+  warnings: string[];
+  migrationLog: MigrationLogEntry[];
 }
 
 export interface MigrationLogEntry {
-  timestamp: string
-  action: string
-  details: Record<string, unknown>
+  timestamp: string;
+  action: string;
+  details: Record<string, unknown>;
 }
 
 export interface ConversionOptions {
   /** Preserve original entity in archived state */
-  preserveOriginal: boolean
+  preserveOriginal: boolean;
 
   /** Notify all members about the conversion */
-  notifyMembers: boolean
+  notifyMembers: boolean;
 
   /** Migration reason for audit log */
-  reason?: string
+  reason?: string;
 
   /** User ID performing the conversion */
-  performedBy: string
+  performedBy: string;
 }
 
 // =============================================================================
@@ -72,51 +72,57 @@ export interface ConversionOptions {
  */
 export function upgradeGroupToSupergroup(
   group: GroupEntity,
-  options: ConversionOptions
+  options: ConversionOptions,
 ): ConversionResult<SupergroupEntity> {
-  const log: MigrationLogEntry[] = []
-  const warnings: string[] = []
-  const now = new Date().toISOString()
+  const log: MigrationLogEntry[] = [];
+  const warnings: string[] = [];
+  const now = new Date().toISOString();
 
   // Log start
   log.push({
     timestamp: now,
-    action: 'UPGRADE_STARTED',
-    details: { groupId: group.id, groupName: group.name, performedBy: options.performedBy },
-  })
+    action: "UPGRADE_STARTED",
+    details: {
+      groupId: group.id,
+      groupName: group.name,
+      performedBy: options.performedBy,
+    },
+  });
 
   // Validate
-  const validation = canUpgradeToSupergroup(group)
+  const validation = canUpgradeToSupergroup(group);
   if (!validation.valid) {
     log.push({
       timestamp: now,
-      action: 'UPGRADE_FAILED',
-      details: { reason: 'validation_failed', errors: validation.errors },
-    })
+      action: "UPGRADE_FAILED",
+      details: { reason: "validation_failed", errors: validation.errors },
+    });
     return {
       success: false,
       entity: null,
       errors: validation.errors,
       warnings: [],
       migrationLog: log,
-    }
+    };
   }
 
   // Map group settings to supergroup settings
-  const supergroupSettings: SupergroupSettings = mapGroupToSupergroupSettings(group.groupSettings)
+  const supergroupSettings: SupergroupSettings = mapGroupToSupergroupSettings(
+    group.groupSettings,
+  );
 
   // Build the supergroup entity
   const supergroup: SupergroupEntity = {
     // Base entity fields
     id: group.id, // Keep same ID for continuity
-    type: 'supergroup',
+    type: "supergroup",
     name: group.name,
     slug: group.slug,
     description: group.description,
     avatarUrl: group.avatarUrl,
     bannerUrl: group.bannerUrl,
     visibility: group.visibility as EntityVisibility,
-    status: 'active' as EntityStatus,
+    status: "active" as EntityStatus,
     ownerId: group.ownerId,
     workspaceId: group.workspaceId,
     memberCount: group.memberCount,
@@ -133,7 +139,7 @@ export function upgradeGroupToSupergroup(
     },
     metadata: {
       ...group.metadata,
-      upgradedFrom: 'group',
+      upgradedFrom: "group",
       upgradeDate: now,
       upgradeReason: options.reason,
     },
@@ -142,7 +148,7 @@ export function upgradeGroupToSupergroup(
     supergroupSettings,
     username: null, // Can be set later
     joinLink: group.joinLink,
-    admins: group.adminIds.map(adminId => ({
+    admins: group.adminIds.map((adminId) => ({
       userId: adminId,
       title: null,
       addedBy: group.ownerId,
@@ -154,22 +160,24 @@ export function upgradeGroupToSupergroup(
     lastMessage: group.lastMessage,
     upgradedFromGroupId: group.id,
     upgradedAt: now,
-  }
+  };
 
   // Add warnings for features that behave differently
   if (group.memberCount > 200) {
-    warnings.push('Read receipts and typing indicators are disabled for large supergroups')
+    warnings.push(
+      "Read receipts and typing indicators are disabled for large supergroups",
+    );
   }
 
   log.push({
     timestamp: now,
-    action: 'UPGRADE_COMPLETED',
+    action: "UPGRADE_COMPLETED",
     details: {
       newEntityId: supergroup.id,
       memberCount: supergroup.memberCount,
       adminCount: supergroup.admins.length,
     },
-  })
+  });
 
   return {
     success: true,
@@ -177,20 +185,22 @@ export function upgradeGroupToSupergroup(
     errors: [],
     warnings,
     migrationLog: log,
-  }
+  };
 }
 
 /**
  * Map group settings to supergroup settings
  */
-function mapGroupToSupergroupSettings(groupSettings: GroupSettings): SupergroupSettings {
+function mapGroupToSupergroupSettings(
+  groupSettings: GroupSettings,
+): SupergroupSettings {
   return {
     slowModeSeconds: 0,
-    restrictedMode: groupSettings.sendMessagesPermission === 'admins',
+    restrictedMode: groupSettings.sendMessagesPermission === "admins",
     hideMemberList: false,
     approvalRequired: groupSettings.approvalRequired,
     forumMode: false,
-    invitePermission: groupSettings.membersCanShareLink ? 'everyone' : 'admins',
+    invitePermission: groupSettings.membersCanShareLink ? "everyone" : "admins",
     antiSpam: {
       enabled: true,
       deleteSpam: true,
@@ -204,7 +214,7 @@ function mapGroupToSupergroupSettings(groupSettings: GroupSettings): SupergroupS
       pollsDisabled: false,
       linksDisabled: false,
     },
-  }
+  };
 }
 
 /**
@@ -221,7 +231,7 @@ function getDefaultAdminPermissions() {
     manageTopics: false,
     manageVideoChats: true,
     anonymous: false,
-  }
+  };
 }
 
 // =============================================================================
@@ -234,50 +244,52 @@ function getDefaultAdminPermissions() {
  */
 export function downgradeSupergrouplToGroup(
   supergroup: SupergroupEntity,
-  options: ConversionOptions
+  options: ConversionOptions,
 ): ConversionResult<GroupEntity> {
-  const log: MigrationLogEntry[] = []
-  const warnings: string[] = []
-  const now = new Date().toISOString()
+  const log: MigrationLogEntry[] = [];
+  const warnings: string[] = [];
+  const now = new Date().toISOString();
 
   log.push({
     timestamp: now,
-    action: 'DOWNGRADE_STARTED',
+    action: "DOWNGRADE_STARTED",
     details: { supergroupId: supergroup.id, performedBy: options.performedBy },
-  })
+  });
 
   // Validate
-  const validation = canDowngradeToGroup(supergroup)
+  const validation = canDowngradeToGroup(supergroup);
   if (!validation.valid) {
     log.push({
       timestamp: now,
-      action: 'DOWNGRADE_FAILED',
-      details: { reason: 'validation_failed', errors: validation.errors },
-    })
+      action: "DOWNGRADE_FAILED",
+      details: { reason: "validation_failed", errors: validation.errors },
+    });
     return {
       success: false,
       entity: null,
       errors: validation.errors,
       warnings: [],
       migrationLog: log,
-    }
+    };
   }
 
   // Map supergroup settings to group settings
-  const groupSettings: GroupSettings = mapSupergroupToGroupSettings(supergroup.supergroupSettings)
+  const groupSettings: GroupSettings = mapSupergroupToGroupSettings(
+    supergroup.supergroupSettings,
+  );
 
   // Build the group entity
   const group: GroupEntity = {
     // Base entity fields
     id: supergroup.id,
-    type: 'group',
+    type: "group",
     name: supergroup.name,
     slug: supergroup.slug,
     description: supergroup.description,
     avatarUrl: supergroup.avatarUrl,
     bannerUrl: supergroup.bannerUrl,
     visibility: supergroup.visibility,
-    status: 'active',
+    status: "active",
     ownerId: supergroup.ownerId,
     workspaceId: supergroup.workspaceId,
     memberCount: supergroup.memberCount,
@@ -293,7 +305,7 @@ export function downgradeSupergrouplToGroup(
     },
     metadata: {
       ...supergroup.metadata,
-      downgradedFrom: 'supergroup',
+      downgradedFrom: "supergroup",
       downgradeDate: now,
       downgradeReason: options.reason,
     },
@@ -303,30 +315,34 @@ export function downgradeSupergrouplToGroup(
     joinLink: supergroup.joinLink,
     joinLinkExpiresAt: null,
     lastMessage: supergroup.lastMessage,
-    adminIds: supergroup.admins.map(a => a.userId),
+    adminIds: supergroup.admins.map((a) => a.userId),
     pinnedMessageIds: supergroup.pinnedMessageIds.slice(0, 50), // Limit to group max
     canUpgradeToSupergroup: true,
-  }
+  };
 
   // Warnings for lost features
   if (supergroup.supergroupSettings.forumMode) {
-    warnings.push('Forum mode topics will be converted to regular threads')
+    warnings.push("Forum mode topics will be converted to regular threads");
   }
 
   if (supergroup.admins.length > 10) {
-    warnings.push(`Admin count (${supergroup.admins.length}) exceeds group limit. Only first 10 will be retained as admins.`)
-    group.adminIds = group.adminIds.slice(0, 10)
+    warnings.push(
+      `Admin count (${supergroup.admins.length}) exceeds group limit. Only first 10 will be retained as admins.`,
+    );
+    group.adminIds = group.adminIds.slice(0, 10);
   }
 
   if (supergroup.pinnedMessageIds.length > 50) {
-    warnings.push(`Pinned messages (${supergroup.pinnedMessageIds.length}) exceed group limit. Only first 50 will be retained.`)
+    warnings.push(
+      `Pinned messages (${supergroup.pinnedMessageIds.length}) exceed group limit. Only first 50 will be retained.`,
+    );
   }
 
   log.push({
     timestamp: now,
-    action: 'DOWNGRADE_COMPLETED',
+    action: "DOWNGRADE_COMPLETED",
     details: { newEntityId: group.id },
-  })
+  });
 
   return {
     success: true,
@@ -334,21 +350,26 @@ export function downgradeSupergrouplToGroup(
     errors: [],
     warnings,
     migrationLog: log,
-  }
+  };
 }
 
 /**
  * Map supergroup settings to group settings
  */
-function mapSupergroupToGroupSettings(supergroupSettings: SupergroupSettings): GroupSettings {
+function mapSupergroupToGroupSettings(
+  supergroupSettings: SupergroupSettings,
+): GroupSettings {
   return {
-    sendMessagesPermission: supergroupSettings.restrictedMode ? 'admins' : 'everyone',
-    addMembersPermission: supergroupSettings.invitePermission === 'admins' ? 'admins' : 'everyone',
-    changeInfoPermission: 'admins',
-    pinMessagesPermission: 'admins',
-    membersCanShareLink: supergroupSettings.invitePermission === 'everyone',
+    sendMessagesPermission: supergroupSettings.restrictedMode
+      ? "admins"
+      : "everyone",
+    addMembersPermission:
+      supergroupSettings.invitePermission === "admins" ? "admins" : "everyone",
+    changeInfoPermission: "admins",
+    pinMessagesPermission: "admins",
+    membersCanShareLink: supergroupSettings.invitePermission === "everyone",
     approvalRequired: supergroupSettings.approvalRequired,
-  }
+  };
 }
 
 // =============================================================================
@@ -356,9 +377,9 @@ function mapSupergroupToGroupSettings(supergroupSettings: SupergroupSettings): G
 // =============================================================================
 
 export interface DMToGroupInput {
-  dm: DirectMessageEntity
-  groupName: string
-  additionalParticipantIds?: string[]
+  dm: DirectMessageEntity;
+  groupName: string;
+  additionalParticipantIds?: string[];
 }
 
 /**
@@ -366,69 +387,72 @@ export interface DMToGroupInput {
  */
 export function convertDMToGroup(
   input: DMToGroupInput,
-  options: ConversionOptions
+  options: ConversionOptions,
 ): ConversionResult<GroupEntity> {
-  const log: MigrationLogEntry[] = []
-  const warnings: string[] = []
-  const now = new Date().toISOString()
+  const log: MigrationLogEntry[] = [];
+  const warnings: string[] = [];
+  const now = new Date().toISOString();
 
   log.push({
     timestamp: now,
-    action: 'DM_TO_GROUP_STARTED',
+    action: "DM_TO_GROUP_STARTED",
     details: { dmId: input.dm.id, performedBy: options.performedBy },
-  })
+  });
 
   // Combine participants
   const allParticipantIds = new Set<string>([
     ...input.dm.participantIds,
     ...(input.additionalParticipantIds || []),
-  ])
+  ]);
 
   // Validate participant count
-  const validation = validateMemberCount('group', allParticipantIds.size)
+  const validation = validateMemberCount("group", allParticipantIds.size);
   if (!validation.valid) {
     log.push({
       timestamp: now,
-      action: 'DM_TO_GROUP_FAILED',
-      details: { reason: 'validation_failed', errors: validation.errors },
-    })
+      action: "DM_TO_GROUP_FAILED",
+      details: { reason: "validation_failed", errors: validation.errors },
+    });
     return {
       success: false,
       entity: null,
       errors: validation.errors,
       warnings: [],
       migrationLog: log,
-    }
+    };
   }
 
   // Need at least 3 participants for a group (more than DM)
   if (allParticipantIds.size < 3) {
-    const error = 'Need at least 3 participants to create a group from a DM'
+    const error = "Need at least 3 participants to create a group from a DM";
     log.push({
       timestamp: now,
-      action: 'DM_TO_GROUP_FAILED',
-      details: { reason: 'insufficient_participants', count: allParticipantIds.size },
-    })
+      action: "DM_TO_GROUP_FAILED",
+      details: {
+        reason: "insufficient_participants",
+        count: allParticipantIds.size,
+      },
+    });
     return {
       success: false,
       entity: null,
       errors: [error],
       warnings: [],
       migrationLog: log,
-    }
+    };
   }
 
   // Create new group
   const group: GroupEntity = {
     id: `group-${Date.now()}`, // New ID since DM continues to exist
-    type: 'group',
+    type: "group",
     name: input.groupName,
-    slug: input.groupName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    slug: input.groupName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     description: null,
     avatarUrl: null,
     bannerUrl: null,
-    visibility: 'private',
-    status: 'active',
+    visibility: "private",
+    status: "active",
     ownerId: options.performedBy, // Creator becomes owner
     workspaceId: input.dm.workspaceId,
     memberCount: allParticipantIds.size,
@@ -439,10 +463,10 @@ export function convertDMToGroup(
       muteNewMembers: false,
       minAccountAgeDays: 0,
       isNsfw: false,
-      defaultNotificationLevel: 'all',
-      whoCanSendMessages: 'everyone',
-      whoCanAddMembers: 'everyone',
-      whoCanEditInfo: 'admins',
+      defaultNotificationLevel: "all",
+      whoCanSendMessages: "everyone",
+      whoCanAddMembers: "everyone",
+      whoCanEditInfo: "admins",
       messageRetentionDays: 0,
       showMemberList: true,
     },
@@ -452,10 +476,10 @@ export function convertDMToGroup(
       createdAt: now,
     },
     groupSettings: {
-      sendMessagesPermission: 'everyone',
-      addMembersPermission: 'everyone',
-      changeInfoPermission: 'admins',
-      pinMessagesPermission: 'admins',
+      sendMessagesPermission: "everyone",
+      addMembersPermission: "everyone",
+      changeInfoPermission: "admins",
+      pinMessagesPermission: "admins",
       membersCanShareLink: true,
       approvalRequired: false,
     },
@@ -465,15 +489,15 @@ export function convertDMToGroup(
     adminIds: [options.performedBy],
     pinnedMessageIds: [],
     canUpgradeToSupergroup: true,
-  }
+  };
 
-  warnings.push('DM history is not transferred to the new group')
+  warnings.push("DM history is not transferred to the new group");
 
   log.push({
     timestamp: now,
-    action: 'DM_TO_GROUP_COMPLETED',
+    action: "DM_TO_GROUP_COMPLETED",
     details: { newGroupId: group.id, memberCount: group.memberCount },
-  })
+  });
 
   return {
     success: true,
@@ -481,7 +505,7 @@ export function convertDMToGroup(
     errors: [],
     warnings,
     migrationLog: log,
-  }
+  };
 }
 
 // =============================================================================
@@ -493,41 +517,41 @@ export function convertDMToGroup(
  */
 export function canConvertTo(
   entity: ChatEntity,
-  targetType: ChatEntityType
+  targetType: ChatEntityType,
 ): ValidationResult {
-  const errors: string[] = []
+  const errors: string[] = [];
 
   // DM can only become a group
-  if (entity.type === 'dm') {
-    if (targetType !== 'group') {
-      errors.push('Direct messages can only be converted to groups')
+  if (entity.type === "dm") {
+    if (targetType !== "group") {
+      errors.push("Direct messages can only be converted to groups");
     }
   }
 
   // Group can only become a supergroup
-  if (entity.type === 'group') {
-    if (targetType !== 'supergroup') {
-      errors.push('Groups can only be upgraded to supergroups')
+  if (entity.type === "group") {
+    if (targetType !== "supergroup") {
+      errors.push("Groups can only be upgraded to supergroups");
     }
   }
 
   // Supergroup can become a group (with conditions) or stay supergroup
-  if (entity.type === 'supergroup') {
-    if (targetType !== 'group') {
-      errors.push('Supergroups can only be downgraded to groups')
+  if (entity.type === "supergroup") {
+    if (targetType !== "group") {
+      errors.push("Supergroups can only be downgraded to groups");
     }
   }
 
   // Communities and channels cannot be converted
-  if (entity.type === 'community') {
-    errors.push('Communities cannot be converted to other types')
+  if (entity.type === "community") {
+    errors.push("Communities cannot be converted to other types");
   }
 
-  if (entity.type === 'channel') {
-    errors.push('Channels cannot be converted to other types')
+  if (entity.type === "channel") {
+    errors.push("Channels cannot be converted to other types");
   }
 
-  return { valid: errors.length === 0, errors }
+  return { valid: errors.length === 0, errors };
 }
 
 /**
@@ -535,14 +559,14 @@ export function canConvertTo(
  */
 export function getConversionTargets(entity: ChatEntity): ChatEntityType[] {
   switch (entity.type) {
-    case 'dm':
-      return ['group']
-    case 'group':
-      return ['supergroup']
-    case 'supergroup':
-      return ['group']
+    case "dm":
+      return ["group"];
+    case "group":
+      return ["supergroup"];
+    case "supergroup":
+      return ["group"];
     default:
-      return []
+      return [];
   }
 }
 
@@ -550,19 +574,19 @@ export function getConversionTargets(entity: ChatEntity): ChatEntityType[] {
  * Get recommended conversion based on entity state
  */
 export function getConversionRecommendation(entity: ChatEntity): {
-  recommended: boolean
-  targetType: ChatEntityType | null
-  reason: string | null
+  recommended: boolean;
+  targetType: ChatEntityType | null;
+  reason: string | null;
 } {
-  if (entity.type === 'group') {
-    const group = entity as GroupEntity
+  if (entity.type === "group") {
+    const group = entity as GroupEntity;
     // Recommend upgrade if approaching member limit
     if (group.memberCount > 200) {
       return {
         recommended: true,
-        targetType: 'supergroup',
+        targetType: "supergroup",
         reason: `Group has ${group.memberCount} members. Upgrade to supergroup for higher limits and better moderation tools.`,
-      }
+      };
     }
   }
 
@@ -570,5 +594,5 @@ export function getConversionRecommendation(entity: ChatEntity): {
     recommended: false,
     targetType: null,
     reason: null,
-  }
+  };
 }

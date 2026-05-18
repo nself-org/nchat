@@ -1,18 +1,23 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useEffect, useState } from 'react'
-import { useA11yStore, applyA11ySettings, FontSize, ContrastMode } from '@/lib/accessibility'
-import { useReducedMotion } from '@/lib/accessibility/use-reduced-motion'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { useEffect, useState } from "react";
+import {
+  useA11yStore,
+  applyA11ySettings,
+  FontSize,
+  ContrastMode,
+} from "@/lib/accessibility";
+import { useReducedMotion } from "@/lib/accessibility/use-reduced-motion";
+import { cn } from "@/lib/utils";
 
 interface SettingToggleProps {
-  id: string
-  label: string
-  description: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-  disabled?: boolean
+  id: string;
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
 }
 
 function SettingToggle({
@@ -29,13 +34,16 @@ function SettingToggle({
         <label
           htmlFor={id}
           className={cn(
-            'block text-sm font-medium',
-            disabled ? 'text-muted-foreground' : 'text-foreground'
+            "block text-sm font-medium",
+            disabled ? "text-muted-foreground" : "text-foreground",
           )}
         >
           {label}
         </label>
-        <p id={`${id}-description`} className="mt-1 text-sm text-muted-foreground">
+        <p
+          id={`${id}-description`}
+          className="mt-1 text-sm text-muted-foreground"
+        >
           {description}
         </p>
       </div>
@@ -47,42 +55,52 @@ function SettingToggle({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={cn(
-          'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent',
-          'transition-colors duration-200 ease-in-out',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          checked ? 'bg-primary' : 'bg-muted'
+          "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent",
+          "transition-colors duration-200 ease-in-out",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          checked ? "bg-primary" : "bg-muted",
         )}
       >
         <span
           aria-hidden="true"
           className={cn(
-            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-background shadow-lg ring-0',
-            'transition duration-200 ease-in-out',
-            checked ? 'translate-x-5' : 'translate-x-0'
+            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-background shadow-lg ring-0",
+            "transition duration-200 ease-in-out",
+            checked ? "translate-x-5" : "translate-x-0",
           )}
         />
       </button>
     </div>
-  )
+  );
 }
 
 interface SettingSelectProps {
-  id: string
-  label: string
-  description: string
-  value: string
-  options: { value: string; label: string }[]
-  onChange: (value: string) => void
+  id: string;
+  label: string;
+  description: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
 }
 
-function SettingSelect({ id, label, description, value, options, onChange }: SettingSelectProps) {
+function SettingSelect({
+  id,
+  label,
+  description,
+  value,
+  options,
+  onChange,
+}: SettingSelectProps) {
   return (
     <div className="py-4">
       <label htmlFor={id} className="block text-sm font-medium text-foreground">
         {label}
       </label>
-      <p id={`${id}-description`} className="mt-1 text-sm text-muted-foreground">
+      <p
+        id={`${id}-description`}
+        className="mt-1 text-sm text-muted-foreground"
+      >
         {description}
       </p>
       <select
@@ -91,9 +109,9 @@ function SettingSelect({ id, label, description, value, options, onChange }: Set
         onChange={(e) => onChange(e.target.value)}
         aria-describedby={`${id}-description`}
         className={cn(
-          'mt-2 block w-full rounded-md border border-input bg-background px-3 py-2',
-          'text-sm text-foreground shadow-sm',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+          "mt-2 block w-full rounded-md border border-input bg-background px-3 py-2",
+          "text-sm text-foreground shadow-sm",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         )}
       >
         {options.map((option) => (
@@ -103,7 +121,7 @@ function SettingSelect({ id, label, description, value, options, onChange }: Set
         ))}
       </select>
     </div>
-  )
+  );
 }
 
 function KeyboardHint({ keys, action }: { keys: string[]; action: string }) {
@@ -115,23 +133,25 @@ function KeyboardHint({ keys, action }: { keys: string[]; action: string }) {
           <React.Fragment key={key}>
             <kbd
               className={cn(
-                'inline-flex h-6 min-w-[24px] items-center justify-center rounded border',
-                'border-border bg-muted px-1.5 text-xs font-medium text-muted-foreground'
+                "inline-flex h-6 min-w-[24px] items-center justify-center rounded border",
+                "border-border bg-muted px-1.5 text-xs font-medium text-muted-foreground",
               )}
             >
               {key}
             </kbd>
-            {index < keys.length - 1 && <span className="text-muted-foreground">+</span>}
+            {index < keys.length - 1 && (
+              <span className="text-muted-foreground">+</span>
+            )}
           </React.Fragment>
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 export default function AccessibilitySettingsPage() {
-  const [mounted, setMounted] = useState(false)
-  const systemReducedMotion = useReducedMotion()
+  const [mounted, setMounted] = useState(false);
+  const systemReducedMotion = useReducedMotion();
   const {
     reduceMotion,
     highContrast,
@@ -158,12 +178,12 @@ export default function AccessibilitySettingsPage() {
     setPreferCaptions,
     setAnnounceMessages,
     resetSettings,
-  } = useA11yStore()
+  } = useA11yStore();
 
   // Apply settings on change
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (mounted) {
@@ -180,7 +200,7 @@ export default function AccessibilitySettingsPage() {
         showKeyboardHints,
         preferCaptions,
         announceMessages,
-      })
+      });
     }
   }, [
     mounted,
@@ -196,43 +216,48 @@ export default function AccessibilitySettingsPage() {
     showKeyboardHints,
     preferCaptions,
     announceMessages,
-  ])
+  ]);
 
   if (!mounted) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
-    )
+    );
   }
 
   const fontSizeOptions = [
-    { value: 'small', label: 'Small (14px)' },
-    { value: 'medium', label: 'Medium (16px) - Default' },
-    { value: 'large', label: 'Large (18px)' },
-    { value: 'extra-large', label: 'Extra Large (20px)' },
-  ]
+    { value: "small", label: "Small (14px)" },
+    { value: "medium", label: "Medium (16px) - Default" },
+    { value: "large", label: "Large (18px)" },
+    { value: "extra-large", label: "Extra Large (20px)" },
+  ];
 
   const contrastOptions = [
-    { value: 'normal', label: 'Normal' },
-    { value: 'high', label: 'High' },
-    { value: 'higher', label: 'Higher' },
-  ]
+    { value: "normal", label: "Normal" },
+    { value: "high", label: "High" },
+    { value: "higher", label: "Higher" },
+  ];
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <header className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground">Accessibility Settings</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          Accessibility Settings
+        </h1>
         <p className="mt-2 text-muted-foreground">
-          Customize nchat to better suit your needs. These settings help make the application more
-          accessible and comfortable to use.
+          Customize nchat to better suit your needs. These settings help make
+          the application more accessible and comfortable to use.
         </p>
       </header>
 
       <main>
         {/* Visual Settings */}
         <section aria-labelledby="visual-settings-heading" className="mb-8">
-          <h2 id="visual-settings-heading" className="mb-4 text-lg font-semibold text-foreground">
+          <h2
+            id="visual-settings-heading"
+            className="mb-4 text-lg font-semibold text-foreground"
+          >
             Visual
           </h2>
           <div className="divide-y divide-border rounded-lg border border-border bg-card p-4">
@@ -284,7 +309,10 @@ export default function AccessibilitySettingsPage() {
 
         {/* Motion Settings */}
         <section aria-labelledby="motion-settings-heading" className="mb-8">
-          <h2 id="motion-settings-heading" className="mb-4 text-lg font-semibold text-foreground">
+          <h2
+            id="motion-settings-heading"
+            className="mb-4 text-lg font-semibold text-foreground"
+          >
             Motion
           </h2>
           <div className="divide-y divide-border rounded-lg border border-border bg-card p-4">
@@ -293,8 +321,8 @@ export default function AccessibilitySettingsPage() {
               label="Reduce Motion"
               description={
                 systemReducedMotion
-                  ? 'Your system prefers reduced motion. This setting is enabled automatically.'
-                  : 'Minimize animations and transitions throughout the application.'
+                  ? "Your system prefers reduced motion. This setting is enabled automatically."
+                  : "Minimize animations and transitions throughout the application."
               }
               checked={reduceMotion || systemReducedMotion}
               onChange={setReduceMotion}
@@ -303,15 +331,18 @@ export default function AccessibilitySettingsPage() {
           </div>
           {systemReducedMotion && (
             <p className="mt-2 text-sm text-muted-foreground">
-              Note: Your operating system is set to reduce motion. This preference is being
-              respected automatically.
+              Note: Your operating system is set to reduce motion. This
+              preference is being respected automatically.
             </p>
           )}
         </section>
 
         {/* Focus & Navigation */}
         <section aria-labelledby="focus-settings-heading" className="mb-8">
-          <h2 id="focus-settings-heading" className="mb-4 text-lg font-semibold text-foreground">
+          <h2
+            id="focus-settings-heading"
+            className="mb-4 text-lg font-semibold text-foreground"
+          >
             Focus & Navigation
           </h2>
           <div className="divide-y divide-border rounded-lg border border-border bg-card p-4">
@@ -343,7 +374,10 @@ export default function AccessibilitySettingsPage() {
 
         {/* Screen Reader Settings */}
         <section aria-labelledby="screen-reader-heading" className="mb-8">
-          <h2 id="screen-reader-heading" className="mb-4 text-lg font-semibold text-foreground">
+          <h2
+            id="screen-reader-heading"
+            className="mb-4 text-lg font-semibold text-foreground"
+          >
             Screen Reader
           </h2>
           <div className="divide-y divide-border rounded-lg border border-border bg-card p-4">
@@ -386,17 +420,29 @@ export default function AccessibilitySettingsPage() {
               Common keyboard shortcuts for navigating nchat:
             </p>
             <div className="divide-y divide-border">
-              <KeyboardHint keys={['Tab']} action="Move to next element" />
-              <KeyboardHint keys={['Shift', 'Tab']} action="Move to previous element" />
-              <KeyboardHint keys={['Enter']} action="Activate button or link" />
-              <KeyboardHint keys={['Space']} action="Toggle checkbox or button" />
-              <KeyboardHint keys={['Esc']} action="Close modal or cancel action" />
-              <KeyboardHint keys={['Arrow Up']} action="Previous item in list" />
-              <KeyboardHint keys={['Arrow Down']} action="Next item in list" />
-              <KeyboardHint keys={['Home']} action="Go to first item" />
-              <KeyboardHint keys={['End']} action="Go to last item" />
-              <KeyboardHint keys={['Cmd', 'K']} action="Open command palette" />
-              <KeyboardHint keys={['Cmd', '/']} action="Toggle sidebar" />
+              <KeyboardHint keys={["Tab"]} action="Move to next element" />
+              <KeyboardHint
+                keys={["Shift", "Tab"]}
+                action="Move to previous element"
+              />
+              <KeyboardHint keys={["Enter"]} action="Activate button or link" />
+              <KeyboardHint
+                keys={["Space"]}
+                action="Toggle checkbox or button"
+              />
+              <KeyboardHint
+                keys={["Esc"]}
+                action="Close modal or cancel action"
+              />
+              <KeyboardHint
+                keys={["Arrow Up"]}
+                action="Previous item in list"
+              />
+              <KeyboardHint keys={["Arrow Down"]} action="Next item in list" />
+              <KeyboardHint keys={["Home"]} action="Go to first item" />
+              <KeyboardHint keys={["End"]} action="Go to last item" />
+              <KeyboardHint keys={["Cmd", "K"]} action="Open command palette" />
+              <KeyboardHint keys={["Cmd", "/"]} action="Toggle sidebar" />
             </div>
           </div>
         </section>
@@ -405,23 +451,29 @@ export default function AccessibilitySettingsPage() {
         <section className="border-t border-border pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-medium text-foreground">Reset Settings</h3>
+              <h3 className="text-sm font-medium text-foreground">
+                Reset Settings
+              </h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 Restore all accessibility settings to their defaults.
               </p>
             </div>
             <button
               onClick={() => {
-                if (confirm('Are you sure you want to reset all accessibility settings?')) {
-                  resetSettings()
+                if (
+                  confirm(
+                    "Are you sure you want to reset all accessibility settings?",
+                  )
+                ) {
+                  resetSettings();
                 }
               }}
               className={cn(
-                'rounded-md border border-destructive bg-background px-4 py-2',
-                'text-sm font-medium text-destructive',
-                'hover:bg-destructive hover:text-destructive-foreground',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'transition-colors'
+                "rounded-md border border-destructive bg-background px-4 py-2",
+                "text-sm font-medium text-destructive",
+                "hover:bg-destructive hover:text-destructive-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                "transition-colors",
               )}
             >
               Reset to Defaults
@@ -434,7 +486,8 @@ export default function AccessibilitySettingsPage() {
       <footer className="bg-muted/50 mt-12 rounded-lg p-4">
         <h2 className="text-sm font-medium text-foreground">Need Help?</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          If you encounter any accessibility issues or have suggestions for improvement, please{' '}
+          If you encounter any accessibility issues or have suggestions for
+          improvement, please{" "}
           <a
             href="mailto:support@nself.org"
             className="text-primary underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -445,5 +498,5 @@ export default function AccessibilitySettingsPage() {
         </p>
       </footer>
     </div>
-  )
+  );
 }

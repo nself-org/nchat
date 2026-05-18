@@ -14,7 +14,7 @@ export {
   getTicketService,
   createTicketService,
   resetTicketService,
-} from './ticket.service'
+} from "./ticket.service";
 
 // Escalation Service
 export {
@@ -22,7 +22,7 @@ export {
   getEscalationService,
   createEscalationService,
   resetEscalationService,
-} from './escalation.service'
+} from "./escalation.service";
 
 // Ticket History Service
 export {
@@ -30,7 +30,7 @@ export {
   getTicketHistoryService,
   createTicketHistoryService,
   resetTicketHistoryService,
-} from './ticket-history.service'
+} from "./ticket-history.service";
 
 // Re-export types from lib
 export type {
@@ -85,4 +85,4 @@ export type {
   TicketEvent,
   // Analytics types
   TicketAnalytics,
-} from '@/lib/tickets/ticket-types'
+} from "@/lib/tickets/ticket-types";

@@ -8,10 +8,10 @@
  * - Support for different file categories
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useCallback, useRef } from 'react'
+import * as React from "react";
+import { useCallback, useRef } from "react";
 import {
   Paperclip,
   Image as ImageIcon,
@@ -21,44 +21,50 @@ import {
   File,
   FolderArchive,
   Plus,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type FileCategory = 'all' | 'images' | 'videos' | 'audio' | 'documents' | 'archives'
+export type FileCategory =
+  | "all"
+  | "images"
+  | "videos"
+  | "audio"
+  | "documents"
+  | "archives";
 
 export interface FileUploadButtonProps {
   /** Callback when files are selected */
-  onFilesSelected: (files: File[]) => void
+  onFilesSelected: (files: File[]) => void;
   /** Allow multiple files */
-  multiple?: boolean
+  multiple?: boolean;
   /** Whether the button is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Show dropdown menu for file types */
-  showMenu?: boolean
+  showMenu?: boolean;
   /** Default file category */
-  defaultCategory?: FileCategory
+  defaultCategory?: FileCategory;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Button variant */
-  variant?: 'default' | 'outline' | 'ghost' | 'secondary'
+  variant?: "default" | "outline" | "ghost" | "secondary";
   /** Button size */
-  size?: 'default' | 'sm' | 'lg' | 'icon'
+  size?: "default" | "sm" | "lg" | "icon";
   /** Custom trigger content */
-  children?: React.ReactNode
+  children?: React.ReactNode;
   /** Tooltip text */
-  tooltip?: string
+  tooltip?: string;
 }
 
 // ============================================================================
@@ -70,36 +76,36 @@ const FILE_CATEGORIES: Record<
   { accept: string; label: string; icon: React.ReactNode }
 > = {
   all: {
-    accept: '*/*',
-    label: 'All Files',
+    accept: "*/*",
+    label: "All Files",
     icon: <File className="h-4 w-4" />,
   },
   images: {
-    accept: 'image/*',
-    label: 'Images',
+    accept: "image/*",
+    label: "Images",
     icon: <ImageIcon className="h-4 w-4" />,
   },
   videos: {
-    accept: 'video/*',
-    label: 'Videos',
+    accept: "video/*",
+    label: "Videos",
     icon: <FileVideo className="h-4 w-4" />,
   },
   audio: {
-    accept: 'audio/*',
-    label: 'Audio',
+    accept: "audio/*",
+    label: "Audio",
     icon: <FileAudio className="h-4 w-4" />,
   },
   documents: {
-    accept: '.pdf,.doc,.docx,.txt,.md,.xls,.xlsx,.ppt,.pptx,.csv',
-    label: 'Documents',
+    accept: ".pdf,.doc,.docx,.txt,.md,.xls,.xlsx,.ppt,.pptx,.csv",
+    label: "Documents",
     icon: <FileText className="h-4 w-4" />,
   },
   archives: {
-    accept: '.zip,.rar,.7z,.tar,.gz',
-    label: 'Archives',
+    accept: ".zip,.rar,.7z,.tar,.gz",
+    label: "Archives",
     icon: <FolderArchive className="h-4 w-4" />,
   },
-}
+};
 
 // ============================================================================
 // Component
@@ -110,51 +116,51 @@ export function FileUploadButton({
   multiple = true,
   disabled = false,
   showMenu = false,
-  defaultCategory = 'all',
+  defaultCategory = "all",
   className,
-  variant = 'ghost',
-  size = 'icon',
+  variant = "ghost",
+  size = "icon",
   children,
   tooltip,
 }: FileUploadButtonProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const currentCategoryRef = useRef<FileCategory>(defaultCategory)
+  const inputRef = useRef<HTMLInputElement>(null);
+  const currentCategoryRef = useRef<FileCategory>(defaultCategory);
 
   // Handle file selection
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { files } = e.target
+      const { files } = e.target;
       if (files && files.length > 0) {
-        onFilesSelected(Array.from(files))
+        onFilesSelected(Array.from(files));
       }
       // Reset input so same file can be selected again
-      e.target.value = ''
+      e.target.value = "";
     },
-    [onFilesSelected]
-  )
+    [onFilesSelected],
+  );
 
   // Open file picker with category
   const openFilePicker = useCallback(
     (category: FileCategory = defaultCategory) => {
       if (inputRef.current && !disabled) {
-        currentCategoryRef.current = category
-        inputRef.current.accept = FILE_CATEGORIES[category].accept
-        inputRef.current.click()
+        currentCategoryRef.current = category;
+        inputRef.current.accept = FILE_CATEGORIES[category].accept;
+        inputRef.current.click();
       }
     },
-    [defaultCategory, disabled]
-  )
+    [defaultCategory, disabled],
+  );
 
   // Handle menu item click
   const handleMenuItemClick = useCallback(
     (category: FileCategory) => {
-      openFilePicker(category)
+      openFilePicker(category);
     },
-    [openFilePicker]
-  )
+    [openFilePicker],
+  );
 
   // Render button content
-  const buttonContent = children || <Paperclip className="h-4 w-4" />
+  const buttonContent = children || <Paperclip className="h-4 w-4" />;
 
   // Simple button without menu
   if (!showMenu) {
@@ -177,12 +183,12 @@ export function FileUploadButton({
           onClick={() => openFilePicker()}
           className={className}
           title={tooltip}
-          aria-label={tooltip || 'Attach files'}
+          aria-label={tooltip || "Attach files"}
         >
           {buttonContent}
         </Button>
       </>
-    )
+    );
   }
 
   // Button with dropdown menu
@@ -203,43 +209,43 @@ export function FileUploadButton({
             variant={variant}
             size={size}
             disabled={disabled}
-            className={cn('gap-1', className)}
-            aria-label={tooltip || 'Attach files'}
+            className={cn("gap-1", className)}
+            aria-label={tooltip || "Attach files"}
           >
             {buttonContent}
-            {size !== 'icon' && <Plus className="h-3 w-3" />}
+            {size !== "icon" && <Plus className="h-3 w-3" />}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-48">
-          <DropdownMenuItem onClick={() => handleMenuItemClick('images')}>
+          <DropdownMenuItem onClick={() => handleMenuItemClick("images")}>
             <ImageIcon className="mr-2 h-4 w-4 text-blue-500" />
             <span>Images</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleMenuItemClick('videos')}>
+          <DropdownMenuItem onClick={() => handleMenuItemClick("videos")}>
             <FileVideo className="mr-2 h-4 w-4 text-purple-500" />
             <span>Videos</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleMenuItemClick('audio')}>
+          <DropdownMenuItem onClick={() => handleMenuItemClick("audio")}>
             <FileAudio className="mr-2 h-4 w-4 text-green-500" />
             <span>Audio</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleMenuItemClick('documents')}>
+          <DropdownMenuItem onClick={() => handleMenuItemClick("documents")}>
             <FileText className="mr-2 h-4 w-4 text-orange-500" />
             <span>Documents</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleMenuItemClick('archives')}>
+          <DropdownMenuItem onClick={() => handleMenuItemClick("archives")}>
             <FolderArchive className="mr-2 h-4 w-4 text-yellow-500" />
             <span>Archives</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => handleMenuItemClick('all')}>
+          <DropdownMenuItem onClick={() => handleMenuItemClick("all")}>
             <File className="mr-2 h-4 w-4 text-gray-500" />
             <span>All Files</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
-  )
+  );
 }
 
 // ============================================================================
@@ -248,17 +254,17 @@ export function FileUploadButton({
 
 export interface CompactUploadButtonProps {
   /** Callback when files are selected */
-  onFilesSelected: (files: File[]) => void
+  onFilesSelected: (files: File[]) => void;
   /** Allow multiple files */
-  multiple?: boolean
+  multiple?: boolean;
   /** Whether the button is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Accept file types */
-  accept?: string
+  accept?: string;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Label text */
-  label?: string
+  label?: string;
 }
 
 export function CompactUploadButton({
@@ -267,20 +273,20 @@ export function CompactUploadButton({
   disabled = false,
   accept,
   className,
-  label = 'Attach',
+  label = "Attach",
 }: CompactUploadButtonProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { files } = e.target
+      const { files } = e.target;
       if (files && files.length > 0) {
-        onFilesSelected(Array.from(files))
+        onFilesSelected(Array.from(files));
       }
-      e.target.value = ''
+      e.target.value = "";
     },
-    [onFilesSelected]
-  )
+    [onFilesSelected],
+  );
 
   return (
     <>
@@ -298,16 +304,16 @@ export function CompactUploadButton({
         onClick={() => inputRef.current?.click()}
         disabled={disabled}
         className={cn(
-          'inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground',
-          disabled && 'cursor-not-allowed opacity-50',
-          className
+          "inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground",
+          disabled && "cursor-not-allowed opacity-50",
+          className,
         )}
       >
         <Paperclip className="h-4 w-4" />
         <span>{label}</span>
       </button>
     </>
-  )
+  );
 }
 
 // ============================================================================
@@ -316,17 +322,17 @@ export function CompactUploadButton({
 
 export interface IconUploadButtonProps {
   /** Callback when files are selected */
-  onFilesSelected: (files: File[]) => void
+  onFilesSelected: (files: File[]) => void;
   /** Allow multiple files */
-  multiple?: boolean
+  multiple?: boolean;
   /** Whether the button is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Accept file types */
-  accept?: string
+  accept?: string;
   /** Custom class name */
-  className?: string
+  className?: string;
   /** Icon size */
-  iconSize?: number
+  iconSize?: number;
 }
 
 export function IconUploadButton({
@@ -337,18 +343,18 @@ export function IconUploadButton({
   className,
   iconSize = 20,
 }: IconUploadButtonProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { files } = e.target
+      const { files } = e.target;
       if (files && files.length > 0) {
-        onFilesSelected(Array.from(files))
+        onFilesSelected(Array.from(files));
       }
-      e.target.value = ''
+      e.target.value = "";
     },
-    [onFilesSelected]
-  )
+    [onFilesSelected],
+  );
 
   return (
     <>
@@ -366,16 +372,16 @@ export function IconUploadButton({
         onClick={() => inputRef.current?.click()}
         disabled={disabled}
         className={cn(
-          'rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-          disabled && 'cursor-not-allowed opacity-50',
-          className
+          "rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+          disabled && "cursor-not-allowed opacity-50",
+          className,
         )}
         aria-label="Attach files"
       >
         <Paperclip style={{ width: iconSize, height: iconSize }} />
       </button>
     </>
-  )
+  );
 }
 
-export default FileUploadButton
+export default FileUploadButton;

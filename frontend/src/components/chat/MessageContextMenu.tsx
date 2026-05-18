@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Message Context Menu
@@ -15,7 +15,7 @@
  * - View details/history
  */
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Copy,
   Link2,
@@ -39,7 +39,7 @@ import {
   Share2,
   Eye,
   EyeOff,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -54,25 +54,29 @@ import {
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
   ContextMenuLabel,
-} from '@/components/ui/context-menu'
-import type { Message, MessageAction, MessageActionPermissions } from '@/types/message'
+} from "@/components/ui/context-menu";
+import type {
+  Message,
+  MessageAction,
+  MessageActionPermissions,
+} from "@/types/message";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface MessageContextMenuProps {
-  children: React.ReactNode
-  message: Message
-  permissions: MessageActionPermissions
-  onAction: (action: MessageAction, data?: unknown) => void
-  className?: string
+  children: React.ReactNode;
+  message: Message;
+  permissions: MessageActionPermissions;
+  onAction: (action: MessageAction, data?: unknown) => void;
+  className?: string;
   /** Show advanced options */
-  showAdvanced?: boolean
+  showAdvanced?: boolean;
   /** Enable selection mode */
-  onEnterSelectionMode?: () => void
+  onEnterSelectionMode?: () => void;
   /** Current selection state */
-  isSelected?: boolean
+  isSelected?: boolean;
 }
 
 // ============================================================================
@@ -80,46 +84,46 @@ interface MessageContextMenuProps {
 // ============================================================================
 
 const QUICK_REACTIONS = [
-  { emoji: '👍', name: 'thumbs_up' },
-  { emoji: '❤️', name: 'heart' },
-  { emoji: '😂', name: 'joy' },
-  { emoji: '🎉', name: 'tada' },
-  { emoji: '👀', name: 'eyes' },
-  { emoji: '🔥', name: 'fire' },
-]
+  { emoji: "👍", name: "thumbs_up" },
+  { emoji: "❤️", name: "heart" },
+  { emoji: "😂", name: "joy" },
+  { emoji: "🎉", name: "tada" },
+  { emoji: "👀", name: "eyes" },
+  { emoji: "🔥", name: "fire" },
+];
 
 const REACTION_CATEGORIES = {
   emotions: [
-    { emoji: '😀', name: 'smile' },
-    { emoji: '😂', name: 'joy' },
-    { emoji: '😍', name: 'heart_eyes' },
-    { emoji: '🤔', name: 'thinking' },
-    { emoji: '😢', name: 'cry' },
-    { emoji: '😎', name: 'sunglasses' },
-    { emoji: '🤩', name: 'star_struck' },
-    { emoji: '😱', name: 'scream' },
+    { emoji: "😀", name: "smile" },
+    { emoji: "😂", name: "joy" },
+    { emoji: "😍", name: "heart_eyes" },
+    { emoji: "🤔", name: "thinking" },
+    { emoji: "😢", name: "cry" },
+    { emoji: "😎", name: "sunglasses" },
+    { emoji: "🤩", name: "star_struck" },
+    { emoji: "😱", name: "scream" },
   ],
   gestures: [
-    { emoji: '👍', name: 'thumbs_up' },
-    { emoji: '👎', name: 'thumbs_down' },
-    { emoji: '👏', name: 'clap' },
-    { emoji: '👋', name: 'wave' },
-    { emoji: '🙏', name: 'pray' },
-    { emoji: '💪', name: 'muscle' },
-    { emoji: '✌️', name: 'victory' },
-    { emoji: '🤝', name: 'handshake' },
+    { emoji: "👍", name: "thumbs_up" },
+    { emoji: "👎", name: "thumbs_down" },
+    { emoji: "👏", name: "clap" },
+    { emoji: "👋", name: "wave" },
+    { emoji: "🙏", name: "pray" },
+    { emoji: "💪", name: "muscle" },
+    { emoji: "✌️", name: "victory" },
+    { emoji: "🤝", name: "handshake" },
   ],
   symbols: [
-    { emoji: '❤️', name: 'heart' },
-    { emoji: '🔥', name: 'fire' },
-    { emoji: '⭐', name: 'star' },
-    { emoji: '👀', name: 'eyes' },
-    { emoji: '🎉', name: 'tada' },
-    { emoji: '🚀', name: 'rocket' },
-    { emoji: '✅', name: 'check' },
-    { emoji: '❌', name: 'x' },
+    { emoji: "❤️", name: "heart" },
+    { emoji: "🔥", name: "fire" },
+    { emoji: "⭐", name: "star" },
+    { emoji: "👀", name: "eyes" },
+    { emoji: "🎉", name: "tada" },
+    { emoji: "🚀", name: "rocket" },
+    { emoji: "✅", name: "check" },
+    { emoji: "❌", name: "x" },
   ],
-}
+};
 
 // ============================================================================
 // Component
@@ -135,27 +139,27 @@ export function MessageContextMenu({
   onEnterSelectionMode,
   isSelected = false,
 }: MessageContextMenuProps) {
-  const [remindTime, setRemindTime] = useState<string>('30m')
+  const [remindTime, setRemindTime] = useState<string>("30m");
 
   // Handlers
   const handleCopyText = () => {
-    navigator.clipboard.writeText(message.content)
-    onAction('copy')
-  }
+    navigator.clipboard.writeText(message.content);
+    onAction("copy");
+  };
 
   const handleCopyLink = () => {
-    const url = `${window.location.origin}/chat/${message.channelId}?message=${message.id}`
-    navigator.clipboard.writeText(url)
-    onAction('copy-link')
-  }
+    const url = `${window.location.origin}/chat/${message.channelId}?message=${message.id}`;
+    navigator.clipboard.writeText(url);
+    onAction("copy-link");
+  };
 
   const handleReact = (emoji: string) => {
-    onAction('react', { emoji })
-  }
+    onAction("react", { emoji });
+  };
 
   const handleRemindMe = (time: string) => {
-    onAction('mark-unread') // For now, mark as unread
-  }
+    onAction("mark-unread"); // For now, mark as unread
+  };
 
   return (
     <ContextMenu>
@@ -200,7 +204,7 @@ export function MessageContextMenu({
 
         {/* Reply Actions */}
         {permissions.canReply && (
-          <ContextMenuItem onClick={() => onAction('reply')}>
+          <ContextMenuItem onClick={() => onAction("reply")}>
             <Reply className="mr-2 h-4 w-4" />
             Reply
             <ContextMenuShortcut>R</ContextMenuShortcut>
@@ -208,7 +212,7 @@ export function MessageContextMenu({
         )}
 
         {permissions.canThread && (
-          <ContextMenuItem onClick={() => onAction('thread')}>
+          <ContextMenuItem onClick={() => onAction("thread")}>
             <MessageSquare className="mr-2 h-4 w-4" />
             Reply in thread
             <ContextMenuShortcut>T</ContextMenuShortcut>
@@ -275,7 +279,7 @@ export function MessageContextMenu({
 
         {/* Message Management */}
         {permissions.canEdit && (
-          <ContextMenuItem onClick={() => onAction('edit')}>
+          <ContextMenuItem onClick={() => onAction("edit")}>
             <Edit className="mr-2 h-4 w-4" />
             Edit message
             <ContextMenuShortcut>E</ContextMenuShortcut>
@@ -284,7 +288,9 @@ export function MessageContextMenu({
 
         {/* Pin / Unpin */}
         {permissions.canPin && (
-          <ContextMenuItem onClick={() => onAction(message.isPinned ? 'unpin' : 'pin')}>
+          <ContextMenuItem
+            onClick={() => onAction(message.isPinned ? "unpin" : "pin")}
+          >
             {message.isPinned ? (
               <>
                 <PinOff className="mr-2 h-4 w-4" />
@@ -304,7 +310,9 @@ export function MessageContextMenu({
         {/* Bookmark */}
         {permissions.canBookmark && (
           <ContextMenuItem
-            onClick={() => onAction(message.isBookmarked ? 'unbookmark' : 'bookmark')}
+            onClick={() =>
+              onAction(message.isBookmarked ? "unbookmark" : "bookmark")
+            }
           >
             {message.isBookmarked ? (
               <>
@@ -324,7 +332,7 @@ export function MessageContextMenu({
 
         {/* Forward */}
         {permissions.canForward && (
-          <ContextMenuItem onClick={() => onAction('forward')}>
+          <ContextMenuItem onClick={() => onAction("forward")}>
             <Forward className="mr-2 h-4 w-4" />
             Forward message
             <ContextMenuShortcut>⌘F</ContextMenuShortcut>
@@ -339,7 +347,7 @@ export function MessageContextMenu({
               Share
             </ContextMenuSubTrigger>
             <ContextMenuSubContent>
-              <ContextMenuItem onClick={() => onAction('forward')}>
+              <ContextMenuItem onClick={() => onAction("forward")}>
                 <Forward className="mr-2 h-4 w-4" />
                 Forward to channel
               </ContextMenuItem>
@@ -362,7 +370,7 @@ export function MessageContextMenu({
 
             {/* Mark as unread */}
             {permissions.canMarkUnread && (
-              <ContextMenuItem onClick={() => onAction('mark-unread')}>
+              <ContextMenuItem onClick={() => onAction("mark-unread")}>
                 <MailOpen className="mr-2 h-4 w-4" />
                 Mark as unread
                 <ContextMenuShortcut>U</ContextMenuShortcut>
@@ -377,25 +385,37 @@ export function MessageContextMenu({
                   Remind me
                 </ContextMenuSubTrigger>
                 <ContextMenuSubContent>
-                  <ContextMenuRadioGroup value={remindTime} onValueChange={setRemindTime}>
-                    <ContextMenuRadioItem value="30m" onClick={() => handleRemindMe('30m')}>
+                  <ContextMenuRadioGroup
+                    value={remindTime}
+                    onValueChange={setRemindTime}
+                  >
+                    <ContextMenuRadioItem
+                      value="30m"
+                      onClick={() => handleRemindMe("30m")}
+                    >
                       In 30 minutes
                     </ContextMenuRadioItem>
-                    <ContextMenuRadioItem value="1h" onClick={() => handleRemindMe('1h')}>
+                    <ContextMenuRadioItem
+                      value="1h"
+                      onClick={() => handleRemindMe("1h")}
+                    >
                       In 1 hour
                     </ContextMenuRadioItem>
-                    <ContextMenuRadioItem value="3h" onClick={() => handleRemindMe('3h')}>
+                    <ContextMenuRadioItem
+                      value="3h"
+                      onClick={() => handleRemindMe("3h")}
+                    >
                       In 3 hours
                     </ContextMenuRadioItem>
                     <ContextMenuRadioItem
                       value="tomorrow"
-                      onClick={() => handleRemindMe('tomorrow')}
+                      onClick={() => handleRemindMe("tomorrow")}
                     >
                       Tomorrow
                     </ContextMenuRadioItem>
                     <ContextMenuRadioItem
                       value="next-week"
-                      onClick={() => handleRemindMe('next-week')}
+                      onClick={() => handleRemindMe("next-week")}
                     >
                       Next week
                     </ContextMenuRadioItem>
@@ -435,11 +455,13 @@ export function MessageContextMenu({
                 <ContextMenuSeparator />
                 <div className="px-2 py-2 text-xs text-muted-foreground">
                   <div>
-                    <strong>Sent:</strong> {new Date(message.createdAt).toLocaleString()}
+                    <strong>Sent:</strong>{" "}
+                    {new Date(message.createdAt).toLocaleString()}
                   </div>
                   {message.isEdited && message.editedAt && (
                     <div>
-                      <strong>Edited:</strong> {new Date(message.editedAt).toLocaleString()}
+                      <strong>Edited:</strong>{" "}
+                      {new Date(message.editedAt).toLocaleString()}
                     </div>
                   )}
                 </div>
@@ -453,18 +475,22 @@ export function MessageContextMenu({
           <>
             <ContextMenuSeparator />
             <ContextMenuItem onClick={onEnterSelectionMode}>
-              <ContextMenuCheckboxItem checked={isSelected}>Select message</ContextMenuCheckboxItem>
+              <ContextMenuCheckboxItem checked={isSelected}>
+                Select message
+              </ContextMenuCheckboxItem>
             </ContextMenuItem>
           </>
         )}
 
         {/* Destructive Actions */}
-        {(permissions.canReport || permissions.canDelete) && <ContextMenuSeparator />}
+        {(permissions.canReport || permissions.canDelete) && (
+          <ContextMenuSeparator />
+        )}
 
         {/* Report */}
         {permissions.canReport && (
           <ContextMenuItem
-            onClick={() => onAction('report')}
+            onClick={() => onAction("report")}
             className="text-amber-600 focus:bg-amber-50 focus:text-amber-600 dark:text-amber-500 dark:focus:bg-amber-950"
           >
             <Flag className="mr-2 h-4 w-4" />
@@ -475,7 +501,7 @@ export function MessageContextMenu({
         {/* Delete */}
         {permissions.canDelete && (
           <ContextMenuItem
-            onClick={() => onAction('delete')}
+            onClick={() => onAction("delete")}
             className="focus:bg-destructive/10 text-destructive focus:text-destructive"
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -485,7 +511,7 @@ export function MessageContextMenu({
         )}
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }
 
 // ============================================================================
@@ -498,7 +524,7 @@ export function SimpleMessageContextMenu({
   permissions,
   onAction,
   className,
-}: Omit<MessageContextMenuProps, 'showAdvanced' | 'onEnterSelectionMode'>) {
+}: Omit<MessageContextMenuProps, "showAdvanced" | "onEnterSelectionMode">) {
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild className={className}>
@@ -507,14 +533,14 @@ export function SimpleMessageContextMenu({
 
       <ContextMenuContent className="w-56">
         {permissions.canReply && (
-          <ContextMenuItem onClick={() => onAction('reply')}>
+          <ContextMenuItem onClick={() => onAction("reply")}>
             <Reply className="mr-2 h-4 w-4" />
             Reply
           </ContextMenuItem>
         )}
 
         {permissions.canThread && (
-          <ContextMenuItem onClick={() => onAction('thread')}>
+          <ContextMenuItem onClick={() => onAction("thread")}>
             <MessageSquare className="mr-2 h-4 w-4" />
             Reply in thread
           </ContextMenuItem>
@@ -524,8 +550,8 @@ export function SimpleMessageContextMenu({
 
         <ContextMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(message.content)
-            onAction('copy')
+            navigator.clipboard.writeText(message.content);
+            onAction("copy");
           }}
         >
           <Copy className="mr-2 h-4 w-4" />
@@ -533,7 +559,7 @@ export function SimpleMessageContextMenu({
         </ContextMenuItem>
 
         {permissions.canEdit && (
-          <ContextMenuItem onClick={() => onAction('edit')}>
+          <ContextMenuItem onClick={() => onAction("edit")}>
             <Edit className="mr-2 h-4 w-4" />
             Edit
           </ContextMenuItem>
@@ -542,7 +568,10 @@ export function SimpleMessageContextMenu({
         {permissions.canDelete && (
           <>
             <ContextMenuSeparator />
-            <ContextMenuItem onClick={() => onAction('delete')} className="text-destructive">
+            <ContextMenuItem
+              onClick={() => onAction("delete")}
+              className="text-destructive"
+            >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </ContextMenuItem>
@@ -550,5 +579,5 @@ export function SimpleMessageContextMenu({
         )}
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }

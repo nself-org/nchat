@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Voice Recorder Hook
@@ -7,7 +7,7 @@
  * real-time waveform visualization, and duration tracking.
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   AudioRecorder,
   type RecordingState,
@@ -17,84 +17,88 @@ import {
   requestMicrophonePermission,
   isRecordingSupported,
   createAudioFile,
-} from './audio-recorder'
+} from "./audio-recorder";
 import {
   RealtimeWaveformAnalyzer,
   type RealtimeWaveformData,
   type WaveformAnalyzerOptions,
-} from './waveform-analyzer'
+} from "./waveform-analyzer";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export type MicrophonePermission = 'granted' | 'denied' | 'prompt' | 'unavailable'
+export type MicrophonePermission =
+  | "granted"
+  | "denied"
+  | "prompt"
+  | "unavailable";
 
 export interface VoiceRecorderState {
   /** Current recording state */
-  recordingState: RecordingState
+  recordingState: RecordingState;
   /** Whether currently recording */
-  isRecording: boolean
+  isRecording: boolean;
   /** Whether recording is paused */
-  isPaused: boolean
+  isPaused: boolean;
   /** Current recording duration in seconds */
-  duration: number
+  duration: number;
   /** Formatted duration string (MM:SS) */
-  formattedDuration: string
+  formattedDuration: string;
   /** Real-time waveform data for visualization */
-  waveformData: RealtimeWaveformData | null
+  waveformData: RealtimeWaveformData | null;
   /** The recorded audio blob (available after stopping) */
-  audioBlob: Blob | null
+  audioBlob: Blob | null;
   /** URL for audio preview (available after stopping) */
-  audioUrl: string | null
+  audioUrl: string | null;
   /** Audio file ready for upload */
-  audioFile: File | null
+  audioFile: File | null;
   /** Current error (if any) */
-  error: AudioRecorderError | null
+  error: AudioRecorderError | null;
   /** Microphone permission state */
-  permission: MicrophonePermission
+  permission: MicrophonePermission;
   /** Whether browser supports audio recording */
-  isSupported: boolean
+  isSupported: boolean;
 }
 
 export interface VoiceRecorderActions {
   /** Start recording */
-  startRecording: () => Promise<void>
+  startRecording: () => Promise<void>;
   /** Stop recording and get the audio blob */
-  stopRecording: () => Promise<Blob | null>
+  stopRecording: () => Promise<Blob | null>;
   /** Pause recording */
-  pauseRecording: () => void
+  pauseRecording: () => void;
   /** Resume recording */
-  resumeRecording: () => void
+  resumeRecording: () => void;
   /** Cancel recording and discard data */
-  cancelRecording: () => void
+  cancelRecording: () => void;
   /** Clear the recorded audio and reset state */
-  clearRecording: () => void
+  clearRecording: () => void;
   /** Request microphone permission */
-  requestPermission: () => Promise<boolean>
+  requestPermission: () => Promise<boolean>;
   /** Clear the current error */
-  clearError: () => void
+  clearError: () => void;
 }
 
-export type UseVoiceRecorderReturn = VoiceRecorderState & VoiceRecorderActions
+export type UseVoiceRecorderReturn = VoiceRecorderState & VoiceRecorderActions;
 
 export interface UseVoiceRecorderOptions {
   /** Recorder options */
-  recorderOptions?: RecorderOptions
+  recorderOptions?: RecorderOptions;
   /** Waveform analyzer options */
-  waveformOptions?: WaveformAnalyzerOptions
+  waveformOptions?: WaveformAnalyzerOptions;
   /** Maximum recording duration in seconds (0 for unlimited) */
-  maxDuration?: number
+  maxDuration?: number;
   /** Callback when recording starts */
-  onStart?: () => void
+  onStart?: () => void;
   /** Callback when recording stops */
-  onStop?: (blob: Blob, duration: number) => void
+  onStop?: (blob: Blob, duration: number) => void;
   /** Callback when an error occurs */
-  onError?: (error: AudioRecorderError) => void
+  onError?: (error: AudioRecorderError) => void;
   /** Callback for real-time waveform updates */
-  onWaveformUpdate?: (data: RealtimeWaveformData) => void
+  onWaveformUpdate?: (data: RealtimeWaveformData) => void;
   /** Callback when max duration is reached */
-  onMaxDurationReached?: () => void
+  onMaxDurationReached?: () => void;
 }
 
 // ============================================================================
@@ -105,9 +109,9 @@ export interface UseVoiceRecorderOptions {
  * Format duration in seconds to MM:SS string
  */
 export function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }
 
 // ============================================================================
@@ -148,7 +152,9 @@ export function formatDuration(seconds: number): string {
  * }
  * ```
  */
-export function useVoiceRecorder(options: UseVoiceRecorderOptions = {}): UseVoiceRecorderReturn {
+export function useVoiceRecorder(
+  options: UseVoiceRecorderOptions = {},
+): UseVoiceRecorderReturn {
   const {
     recorderOptions,
     waveformOptions,
@@ -158,229 +164,242 @@ export function useVoiceRecorder(options: UseVoiceRecorderOptions = {}): UseVoic
     onError,
     onWaveformUpdate,
     onMaxDurationReached,
-  } = options
+  } = options;
 
   // State
-  const [recordingState, setRecordingState] = useState<RecordingState>('inactive')
-  const [duration, setDuration] = useState(0)
-  const [waveformData, setWaveformData] = useState<RealtimeWaveformData | null>(null)
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
-  const [audioUrl, setAudioUrl] = useState<string | null>(null)
-  const [audioFile, setAudioFile] = useState<File | null>(null)
-  const [error, setError] = useState<AudioRecorderError | null>(null)
-  const [permission, setPermission] = useState<MicrophonePermission>('prompt')
-  const [isSupported, setIsSupported] = useState(true)
+  const [recordingState, setRecordingState] =
+    useState<RecordingState>("inactive");
+  const [duration, setDuration] = useState(0);
+  const [waveformData, setWaveformData] = useState<RealtimeWaveformData | null>(
+    null,
+  );
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [error, setError] = useState<AudioRecorderError | null>(null);
+  const [permission, setPermission] = useState<MicrophonePermission>("prompt");
+  const [isSupported, setIsSupported] = useState(true);
 
   // Refs
-  const recorderRef = useRef<AudioRecorder | null>(null)
-  const analyzerRef = useRef<RealtimeWaveformAnalyzer | null>(null)
-  const maxDurationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const recorderRef = useRef<AudioRecorder | null>(null);
+  const analyzerRef = useRef<RealtimeWaveformAnalyzer | null>(null);
+  const maxDurationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   // Check support and permission on mount
   useEffect(() => {
-    setIsSupported(isRecordingSupported())
+    setIsSupported(isRecordingSupported());
 
     checkMicrophonePermission().then((result) => {
-      setPermission(result.state)
-    })
-  }, [])
+      setPermission(result.state);
+    });
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      cleanupRecording()
-    }
-  }, [])
+      cleanupRecording();
+    };
+  }, []);
 
   // Handle max duration
   useEffect(() => {
-    if (maxDuration > 0 && recordingState === 'recording') {
+    if (maxDuration > 0 && recordingState === "recording") {
       // Clear existing timeout
       if (maxDurationTimeoutRef.current) {
-        clearTimeout(maxDurationTimeoutRef.current)
+        clearTimeout(maxDurationTimeoutRef.current);
       }
 
       // Calculate remaining time
-      const remainingTime = (maxDuration - duration) * 1000
+      const remainingTime = (maxDuration - duration) * 1000;
 
       if (remainingTime > 0) {
         maxDurationTimeoutRef.current = setTimeout(() => {
-          onMaxDurationReached?.()
-          stopRecording()
-        }, remainingTime)
+          onMaxDurationReached?.();
+          stopRecording();
+        }, remainingTime);
       }
     }
 
     return () => {
       if (maxDurationTimeoutRef.current) {
-        clearTimeout(maxDurationTimeoutRef.current)
+        clearTimeout(maxDurationTimeoutRef.current);
       }
-    }
-  }, [maxDuration, recordingState, duration])
+    };
+  }, [maxDuration, recordingState, duration]);
 
   const cleanupRecording = useCallback(() => {
     // Stop analyzer
     if (analyzerRef.current) {
-      analyzerRef.current.stop()
-      analyzerRef.current = null
+      analyzerRef.current.stop();
+      analyzerRef.current = null;
     }
 
     // Cancel recorder
     if (recorderRef.current) {
-      recorderRef.current.cancel()
-      recorderRef.current = null
+      recorderRef.current.cancel();
+      recorderRef.current = null;
     }
 
     // Clear max duration timeout
     if (maxDurationTimeoutRef.current) {
-      clearTimeout(maxDurationTimeoutRef.current)
-      maxDurationTimeoutRef.current = null
+      clearTimeout(maxDurationTimeoutRef.current);
+      maxDurationTimeoutRef.current = null;
     }
 
     // Revoke audio URL
     if (audioUrl) {
-      URL.revokeObjectURL(audioUrl)
+      URL.revokeObjectURL(audioUrl);
     }
-  }, [audioUrl])
+  }, [audioUrl]);
 
   const handleError = useCallback(
     (err: AudioRecorderError) => {
-      setError(err)
-      setRecordingState('inactive')
-      cleanupRecording()
-      onError?.(err)
+      setError(err);
+      setRecordingState("inactive");
+      cleanupRecording();
+      onError?.(err);
     },
-    [cleanupRecording, onError]
-  )
+    [cleanupRecording, onError],
+  );
 
   // ============================================================================
   // Actions
   // ============================================================================
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
-    const granted = await requestMicrophonePermission()
-    setPermission(granted ? 'granted' : 'denied')
-    return granted
-  }, [])
+    const granted = await requestMicrophonePermission();
+    setPermission(granted ? "granted" : "denied");
+    return granted;
+  }, []);
 
   const startRecording = useCallback(async () => {
     // Clear any previous state
-    setError(null)
-    setAudioBlob(null)
-    setAudioFile(null)
+    setError(null);
+    setAudioBlob(null);
+    setAudioFile(null);
 
     if (audioUrl) {
-      URL.revokeObjectURL(audioUrl)
-      setAudioUrl(null)
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
     }
 
     // Create recorder
     const recorder = new AudioRecorder(
       {
         onStart: () => {
-          setRecordingState('recording')
-          onStart?.()
+          setRecordingState("recording");
+          onStart?.();
         },
         onStop: (blob, dur) => {
-          setAudioBlob(blob)
-          setAudioUrl(URL.createObjectURL(blob))
-          setAudioFile(createAudioFile(blob))
-          setRecordingState('stopped')
+          setAudioBlob(blob);
+          setAudioUrl(URL.createObjectURL(blob));
+          setAudioFile(createAudioFile(blob));
+          setRecordingState("stopped");
 
           // Stop analyzer
           if (analyzerRef.current) {
-            analyzerRef.current.stop()
-            analyzerRef.current = null
+            analyzerRef.current.stop();
+            analyzerRef.current = null;
           }
 
-          onStop?.(blob, dur)
+          onStop?.(blob, dur);
         },
         onPause: () => {
-          setRecordingState('paused')
+          setRecordingState("paused");
         },
         onResume: () => {
-          setRecordingState('recording')
+          setRecordingState("recording");
         },
         onError: handleError,
         onDurationUpdate: (dur) => {
-          setDuration(dur)
+          setDuration(dur);
         },
       },
-      recorderOptions
-    )
+      recorderOptions,
+    );
 
-    recorderRef.current = recorder
+    recorderRef.current = recorder;
 
     // Start recording
-    await recorder.start()
+    await recorder.start();
 
     // Set up waveform analyzer if recording started successfully
-    const stream = recorder.getAudioStream()
+    const stream = recorder.getAudioStream();
     if (stream && recorder.isRecording) {
-      const analyzer = new RealtimeWaveformAnalyzer(stream, waveformOptions)
+      const analyzer = new RealtimeWaveformAnalyzer(stream, waveformOptions);
 
       analyzer.onUpdate((data) => {
-        setWaveformData(data)
-        onWaveformUpdate?.(data)
-      })
+        setWaveformData(data);
+        onWaveformUpdate?.(data);
+      });
 
-      await analyzer.start()
-      analyzerRef.current = analyzer
+      await analyzer.start();
+      analyzerRef.current = analyzer;
     }
-  }, [audioUrl, recorderOptions, waveformOptions, handleError, onStart, onStop, onWaveformUpdate])
+  }, [
+    audioUrl,
+    recorderOptions,
+    waveformOptions,
+    handleError,
+    onStart,
+    onStop,
+    onWaveformUpdate,
+  ]);
 
   const stopRecording = useCallback(async (): Promise<Blob | null> => {
     if (!recorderRef.current) {
-      return null
+      return null;
     }
 
     // Stop analyzer first
     if (analyzerRef.current) {
-      analyzerRef.current.stop()
-      analyzerRef.current = null
+      analyzerRef.current.stop();
+      analyzerRef.current = null;
     }
 
     // Stop recorder
-    const blob = await recorderRef.current.stop()
-    recorderRef.current = null
+    const blob = await recorderRef.current.stop();
+    recorderRef.current = null;
 
-    return blob
-  }, [])
+    return blob;
+  }, []);
 
   const pauseRecording = useCallback(() => {
-    recorderRef.current?.pause()
-  }, [])
+    recorderRef.current?.pause();
+  }, []);
 
   const resumeRecording = useCallback(() => {
-    recorderRef.current?.resume()
-  }, [])
+    recorderRef.current?.resume();
+  }, []);
 
   const cancelRecording = useCallback(() => {
-    cleanupRecording()
-    setRecordingState('inactive')
-    setDuration(0)
-    setWaveformData(null)
-    setAudioBlob(null)
-    setAudioUrl(null)
-    setAudioFile(null)
-  }, [cleanupRecording])
+    cleanupRecording();
+    setRecordingState("inactive");
+    setDuration(0);
+    setWaveformData(null);
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setAudioFile(null);
+  }, [cleanupRecording]);
 
   const clearRecording = useCallback(() => {
     if (audioUrl) {
-      URL.revokeObjectURL(audioUrl)
+      URL.revokeObjectURL(audioUrl);
     }
 
-    setAudioBlob(null)
-    setAudioUrl(null)
-    setAudioFile(null)
-    setRecordingState('inactive')
-    setDuration(0)
-    setWaveformData(null)
-  }, [audioUrl])
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setAudioFile(null);
+    setRecordingState("inactive");
+    setDuration(0);
+    setWaveformData(null);
+  }, [audioUrl]);
 
   const clearError = useCallback(() => {
-    setError(null)
-  }, [])
+    setError(null);
+  }, []);
 
   // ============================================================================
   // Return
@@ -389,8 +408,8 @@ export function useVoiceRecorder(options: UseVoiceRecorderOptions = {}): UseVoic
   return {
     // State
     recordingState,
-    isRecording: recordingState === 'recording',
-    isPaused: recordingState === 'paused',
+    isRecording: recordingState === "recording",
+    isPaused: recordingState === "paused",
     duration,
     formattedDuration: formatDuration(duration),
     waveformData,
@@ -410,7 +429,7 @@ export function useVoiceRecorder(options: UseVoiceRecorderOptions = {}): UseVoic
     clearRecording,
     requestPermission,
     clearError,
-  }
+  };
 }
 
-export default useVoiceRecorder
+export default useVoiceRecorder;

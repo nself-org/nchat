@@ -20,14 +20,14 @@ Real-time status dashboard for all nself backend services.
 **Usage**:
 
 ```tsx
-import { BackendStatus } from '@/components/admin/backend/BackendStatus'
+import { BackendStatus } from "@/components/admin/backend/BackendStatus";
 
 export default function AdminDashboard() {
   return (
     <div>
       <BackendStatus />
     </div>
-  )
+  );
 }
 ```
 
@@ -37,21 +37,21 @@ To make this component functional in production, create an API endpoint that exe
 
 ```typescript
 // app/api/admin/backend/status/route.ts
-import { exec } from 'child_process'
-import { promisify } from 'util'
+import { exec } from "child_process";
+import { promisify } from "util";
 
-const execAsync = promisify(exec)
+const execAsync = promisify(exec);
 
 export async function GET() {
   try {
     // Execute: nself status --json
-    const { stdout } = await execAsync('cd .backend && nself status --json')
-    const status = JSON.parse(stdout)
+    const { stdout } = await execAsync("cd .backend && nself status --json");
+    const status = JSON.parse(stdout);
 
-    return Response.json(status)
+    return Response.json(status);
   } catch (error) {
-    console.error('Failed to get backend status:', error)
-    return Response.json({ error: 'Failed to get status' }, { status: 500 })
+    console.error("Failed to get backend status:", error);
+    return Response.json({ error: "Failed to get status" }, { status: 500 });
   }
 }
 ```
@@ -61,16 +61,16 @@ Then update the component to call this API:
 ```typescript
 const fetchServiceStatus = async () => {
   try {
-    const response = await fetch('/api/admin/backend/status')
-    const data = await response.json()
-    setServices(data.services)
-    setLastUpdate(new Date())
-    setLoading(false)
+    const response = await fetch("/api/admin/backend/status");
+    const data = await response.json();
+    setServices(data.services);
+    setLastUpdate(new Date());
+    setLoading(false);
   } catch (error) {
-    console.error('Failed to fetch service status:', error)
-    setLoading(false)
+    console.error("Failed to fetch service status:", error);
+    setLoading(false);
   }
-}
+};
 ```
 
 ---
@@ -92,14 +92,14 @@ Database management interface for migrations, backups, and operations.
 **Usage**:
 
 ```tsx
-import { DatabaseManager } from '@/components/admin/backend/DatabaseManager'
+import { DatabaseManager } from "@/components/admin/backend/DatabaseManager";
 
 export default function AdminDatabase() {
   return (
     <div>
       <DatabaseManager />
     </div>
-  )
+  );
 }
 ```
 
@@ -109,37 +109,41 @@ Create API endpoints for database operations:
 
 ```typescript
 // app/api/admin/backend/database/migrate/route.ts
-import { exec } from 'child_process'
-import { promisify } from 'util'
+import { exec } from "child_process";
+import { promisify } from "util";
 
-const execAsync = promisify(exec)
+const execAsync = promisify(exec);
 
 export async function POST() {
   try {
     // Execute: nself db migrate up
-    const { stdout, stderr } = await execAsync('cd .backend && nself db migrate up')
+    const { stdout, stderr } = await execAsync(
+      "cd .backend && nself db migrate up",
+    );
 
     return Response.json({
       success: true,
       output: stdout,
       error: stderr,
-    })
+    });
   } catch (error) {
-    console.error('Failed to run migrations:', error)
-    return Response.json({ error: 'Migration failed' }, { status: 500 })
+    console.error("Failed to run migrations:", error);
+    return Response.json({ error: "Migration failed" }, { status: 500 });
   }
 }
 
 // GET endpoint for migration status
 export async function GET() {
   try {
-    const { stdout } = await execAsync('cd .backend && nself db migrate status --json')
-    const status = JSON.parse(stdout)
+    const { stdout } = await execAsync(
+      "cd .backend && nself db migrate status --json",
+    );
+    const status = JSON.parse(stdout);
 
-    return Response.json(status)
+    return Response.json(status);
   } catch (error) {
-    console.error('Failed to get migration status:', error)
-    return Response.json({ error: 'Failed to get status' }, { status: 500 })
+    console.error("Failed to get migration status:", error);
+    return Response.json({ error: "Failed to get status" }, { status: 500 });
   }
 }
 ```
@@ -148,13 +152,13 @@ export async function GET() {
 // app/api/admin/backend/database/backup/route.ts
 export async function POST() {
   try {
-    const { stdout } = await execAsync('cd .backend && nself db backup --json')
-    const result = JSON.parse(stdout)
+    const { stdout } = await execAsync("cd .backend && nself db backup --json");
+    const result = JSON.parse(stdout);
 
-    return Response.json(result)
+    return Response.json(result);
   } catch (error) {
-    console.error('Failed to create backup:', error)
-    return Response.json({ error: 'Backup failed' }, { status: 500 })
+    console.error("Failed to create backup:", error);
+    return Response.json({ error: "Backup failed" }, { status: 500 });
   }
 }
 ```
@@ -200,12 +204,12 @@ Update admin navigation to include backend management:
 ```typescript
 // components/layout/AdminNav.tsx
 const navItems = [
-  { label: 'Dashboard', href: '/admin' },
-  { label: 'Backend', href: '/admin/backend' },
-  { label: 'Database', href: '/admin/backend/database' },
-  { label: 'Users', href: '/admin/users' },
+  { label: "Dashboard", href: "/admin" },
+  { label: "Backend", href: "/admin/backend" },
+  { label: "Database", href: "/admin/backend/database" },
+  { label: "Users", href: "/admin/users" },
   // ...
-]
+];
 ```
 
 ### 3. Implement API Endpoints
@@ -237,18 +241,18 @@ Ensure only admins can access these endpoints:
 
 ```typescript
 // middleware.ts
-import { getServerSession } from 'next-auth'
+import { getServerSession } from "next-auth";
 
 export async function middleware(request: Request) {
-  if (request.url.includes('/api/admin/backend')) {
-    const session = await getServerSession()
+  if (request.url.includes("/api/admin/backend")) {
+    const session = await getServerSession();
 
-    if (!session || session.user.role !== 'admin') {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session || session.user.role !== "admin") {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 ```
 
@@ -259,33 +263,35 @@ Use WebSockets or Server-Sent Events for real-time updates:
 ```typescript
 // app/api/admin/backend/stream/route.ts
 export async function GET() {
-  const encoder = new TextEncoder()
+  const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
     async start(controller) {
       // Stream service status updates every 5 seconds
       const interval = setInterval(async () => {
         try {
-          const { stdout } = await execAsync('cd .backend && nself status --json')
-          const data = `data: ${stdout}\n\n`
-          controller.enqueue(encoder.encode(data))
+          const { stdout } = await execAsync(
+            "cd .backend && nself status --json",
+          );
+          const data = `data: ${stdout}\n\n`;
+          controller.enqueue(encoder.encode(data));
         } catch (error) {
-          controller.error(error)
+          controller.error(error);
         }
-      }, 5000)
+      }, 5000);
 
       // Cleanup
-      return () => clearInterval(interval)
+      return () => clearInterval(interval);
     },
-  })
+  });
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
     },
-  })
+  });
 }
 ```
 

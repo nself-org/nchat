@@ -4,16 +4,16 @@
  * API methods for managing users.
  */
 
-import { BaseResource } from './base'
-import type { User, PaginatedResult, ListOptions, UUID } from '../types'
+import { BaseResource } from "./base";
+import type { User, PaginatedResult, ListOptions, UUID } from "../types";
 
 /**
  * Update User Options
  */
 export interface UpdateUserOptions {
-  displayName?: string
-  avatarUrl?: string
-  status?: string
+  displayName?: string;
+  avatarUrl?: string;
+  status?: string;
 }
 
 /**
@@ -36,72 +36,79 @@ export class UsersResource extends BaseResource {
    * Get the current authenticated user
    */
   async me(): Promise<User> {
-    return this._get<User>('/api/users/me')
+    return this._get<User>("/api/users/me");
   }
 
   /**
    * Get a user by ID
    */
   async get(userId: UUID): Promise<User> {
-    return this._get<User>(`/api/users/${userId}`)
+    return this._get<User>(`/api/users/${userId}`);
   }
 
   /**
    * List all users
    */
   async list(options?: ListOptions): Promise<PaginatedResult<User>> {
-    return this._get<PaginatedResult<User>>('/api/users', options)
+    return this._get<PaginatedResult<User>>("/api/users", options);
   }
 
   /**
    * Update current user profile
    */
   async update(options: UpdateUserOptions): Promise<User> {
-    return this._patch<User>('/api/users/me', options)
+    return this._patch<User>("/api/users/me", options);
   }
 
   /**
    * Search users
    */
-  async search(query: string, options?: ListOptions): Promise<PaginatedResult<User>> {
-    return this._get<PaginatedResult<User>>('/api/users/search', {
+  async search(
+    query: string,
+    options?: ListOptions,
+  ): Promise<PaginatedResult<User>> {
+    return this._get<PaginatedResult<User>>("/api/users/search", {
       q: query,
       ...options,
-    })
+    });
   }
 
   /**
    * Get user presence status
    */
-  async getPresence(userId: UUID): Promise<{ isOnline: boolean; lastSeenAt?: string }> {
-    return this._get<{ isOnline: boolean; lastSeenAt?: string }>(`/api/users/${userId}/presence`)
+  async getPresence(
+    userId: UUID,
+  ): Promise<{ isOnline: boolean; lastSeenAt?: string }> {
+    return this._get<{ isOnline: boolean; lastSeenAt?: string }>(
+      `/api/users/${userId}/presence`,
+    );
   }
 
   /**
    * Update user presence
    */
-  async updatePresence(status: 'online' | 'away' | 'offline'): Promise<void> {
-    return this._post<void>('/api/users/me/presence', { status })
+  async updatePresence(status: "online" | "away" | "offline"): Promise<void> {
+    return this._post<void>("/api/users/me/presence", { status });
   }
 
   /**
    * Block a user
    */
   async block(userId: UUID): Promise<void> {
-    return this._post<void>(`/api/users/${userId}/block`)
+    return this._post<void>(`/api/users/${userId}/block`);
   }
 
   /**
    * Unblock a user
    */
   async unblock(userId: UUID): Promise<void> {
-    return this._delete<void>(`/api/users/${userId}/block`)
+    return this._delete<void>(`/api/users/${userId}/block`);
   }
 
   /**
    * Get blocked users
    */
   async getBlocked(options?: ListOptions): Promise<PaginatedResult<User>> {
-    return this._get<PaginatedResult<User>>('/api/users/me/blocked', options)
+    return this._get<PaginatedResult<User>>("/api/users/me/blocked", options);
   }
 }

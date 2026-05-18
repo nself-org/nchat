@@ -1,13 +1,22 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useEffect } from 'react'
-import { Hash, Lock, Trash2, Archive, Bell, BellOff, Users, Shield } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
+import * as React from "react";
+import { useState, useEffect } from "react";
+import {
+  Hash,
+  Lock,
+  Trash2,
+  Archive,
+  Bell,
+  BellOff,
+  Users,
+  Shield,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -15,15 +24,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,95 +43,102 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { useChannelStore, type Channel } from '@/stores/channel-store'
-import { useUIStore } from '@/stores/ui-store'
-import { useAuth } from '@/contexts/auth-context'
+} from "@/components/ui/alert-dialog";
+import { useChannelStore, type Channel } from "@/stores/channel-store";
+import { useUIStore } from "@/stores/ui-store";
+import { useAuth } from "@/contexts/auth-context";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChannelSettingsModalProps {
-  open: boolean
-  channelId: string
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  channelId: string;
+  onOpenChange: (open: boolean) => void;
 }
 
-type NotificationSetting = 'all' | 'mentions' | 'none'
-type PostPermission = 'everyone' | 'admins' | 'owner'
+type NotificationSetting = "all" | "mentions" | "none";
+type PostPermission = "everyone" | "admins" | "owner";
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelSettingsModalProps) {
-  const { user } = useAuth()
-  const isOwner = user?.role === 'owner'
-  const isAdmin = user?.role === 'owner' || user?.role === 'admin'
+export function ChannelSettingsModal({
+  open,
+  channelId,
+  onOpenChange,
+}: ChannelSettingsModalProps) {
+  const { user } = useAuth();
+  const isOwner = user?.role === "owner";
+  const isAdmin = user?.role === "owner" || user?.role === "admin";
 
-  const { channels, updateChannel, archiveChannel, removeChannel } = useChannelStore()
-  const channel = channels.get(channelId)
+  const { channels, updateChannel, archiveChannel, removeChannel } =
+    useChannelStore();
+  const channel = channels.get(channelId);
 
   // Form state
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [topic, setTopic] = useState('')
-  const [isPrivate, setIsPrivate] = useState(false)
-  const [notifications, setNotifications] = useState<NotificationSetting>('all')
-  const [postPermission, setPostPermission] = useState<PostPermission>('everyone')
-  const [isLoading, setIsLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState('general')
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [topic, setTopic] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [notifications, setNotifications] =
+    useState<NotificationSetting>("all");
+  const [postPermission, setPostPermission] =
+    useState<PostPermission>("everyone");
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("general");
 
   // Initialize form when channel changes
   useEffect(() => {
     if (channel) {
-      setName(channel.name)
-      setDescription(channel.description || '')
-      setTopic(channel.topic || '')
-      setIsPrivate(channel.type === 'private')
+      setName(channel.name);
+      setDescription(channel.description || "");
+      setTopic(channel.topic || "");
+      setIsPrivate(channel.type === "private");
     }
-  }, [channel])
+  }, [channel]);
 
   const handleSave = async () => {
-    if (!channel) return
+    if (!channel) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       updateChannel(channelId, {
         name: name.trim(),
         description: description.trim() || null,
         topic: topic.trim() || null,
-        type: isPrivate ? 'private' : 'public',
-      })
-      onOpenChange(false)
+        type: isPrivate ? "private" : "public",
+      });
+      onOpenChange(false);
     } catch (error) {
-      logger.error('Failed to update channel:', error)
+      logger.error("Failed to update channel:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleArchive = () => {
-    archiveChannel(channelId)
-    onOpenChange(false)
-  }
+    archiveChannel(channelId);
+    onOpenChange(false);
+  };
 
   const handleDelete = () => {
-    removeChannel(channelId)
-    onOpenChange(false)
-  }
+    removeChannel(channelId);
+    onOpenChange(false);
+  };
 
   if (!channel) {
-    return null
+    return null;
   }
 
   const slugPreview = name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -136,7 +152,9 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
             )}
             Channel Settings
           </DialogTitle>
-          <DialogDescription>Manage settings for #{channel.name}</DialogDescription>
+          <DialogDescription>
+            Manage settings for #{channel.name}
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -160,7 +178,7 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
               />
               {name && (
                 <p className="text-xs text-muted-foreground">
-                  URL: /chat/channel/{slugPreview || 'channel-name'}
+                  URL: /chat/channel/{slugPreview || "channel-name"}
                 </p>
               )}
             </div>
@@ -176,7 +194,9 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
                 rows={2}
                 maxLength={250}
               />
-              <p className="text-xs text-muted-foreground">{description.length}/250 characters</p>
+              <p className="text-xs text-muted-foreground">
+                {description.length}/250 characters
+              </p>
             </div>
 
             {/* Topic */}
@@ -189,7 +209,9 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
                 placeholder="Current topic of discussion"
                 maxLength={250}
               />
-              <p className="text-xs text-muted-foreground">Shown in the channel header</p>
+              <p className="text-xs text-muted-foreground">
+                Shown in the channel header
+              </p>
             </div>
 
             {/* Privacy */}
@@ -214,7 +236,9 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
               <Label>Notification preference</Label>
               <Select
                 value={notifications}
-                onValueChange={(v) => setNotifications(v as NotificationSetting)}
+                onValueChange={(v) =>
+                  setNotifications(v as NotificationSetting)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -241,9 +265,12 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                {notifications === 'all' && 'You will be notified of all new messages'}
-                {notifications === 'mentions' && 'You will only be notified when mentioned'}
-                {notifications === 'none' && 'You will not receive any notifications'}
+                {notifications === "all" &&
+                  "You will be notified of all new messages"}
+                {notifications === "mentions" &&
+                  "You will only be notified when mentioned"}
+                {notifications === "none" &&
+                  "You will not receive any notifications"}
               </p>
             </div>
           </TabsContent>
@@ -256,7 +283,9 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
                   <Label>Who can post messages</Label>
                   <Select
                     value={postPermission}
-                    onValueChange={(v) => setPostPermission(v as PostPermission)}
+                    onValueChange={(v) =>
+                      setPostPermission(v as PostPermission)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -300,14 +329,16 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
                       <AlertDialogHeader>
                         <AlertDialogTitle>Archive channel?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Members will no longer be able to send messages in #{channel.name}. The
-                          channel and its messages will still be visible. You can unarchive it
-                          later.
+                          Members will no longer be able to send messages in #
+                          {channel.name}. The channel and its messages will
+                          still be visible. You can unarchive it later.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleArchive}>Archive</AlertDialogAction>
+                        <AlertDialogAction onClick={handleArchive}>
+                          Archive
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -328,8 +359,8 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete channel?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will permanently delete #{channel.name} and all of its messages.
-                            This action cannot be undone.
+                            This will permanently delete #{channel.name} and all
+                            of its messages. This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -361,12 +392,12 @@ export function ChannelSettingsModal({ open, channelId, onOpenChange }: ChannelS
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={isLoading || !name.trim()}>
-            {isLoading ? 'Saving...' : 'Save changes'}
+            {isLoading ? "Saving..." : "Save changes"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-ChannelSettingsModal.displayName = 'ChannelSettingsModal'
+ChannelSettingsModal.displayName = "ChannelSettingsModal";

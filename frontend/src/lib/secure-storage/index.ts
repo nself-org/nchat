@@ -47,33 +47,37 @@ export type {
   AndroidKeystoreBridge,
   AndroidKeystoreOptions,
   DesktopKeychainBridge,
-} from './types'
+} from "./types";
 
 // Error class
-export { SecureStorageError, DEFAULT_SERVICE, MAX_ITEM_SIZE } from './types'
+export { SecureStorageError, DEFAULT_SERVICE, MAX_ITEM_SIZE } from "./types";
 
 // Platform-specific implementations
-export { iOSKeychainStorage, createiOSKeychainStorage, isiOSKeychainAvailable } from './keychain-ios'
+export {
+  iOSKeychainStorage,
+  createiOSKeychainStorage,
+  isiOSKeychainAvailable,
+} from "./keychain-ios";
 export {
   AndroidKeystoreStorage,
   createAndroidKeystoreStorage,
   isAndroidKeystoreAvailable,
-} from './keystore-android'
+} from "./keystore-android";
 export {
   macOSKeychainStorage,
   createmacOSKeychainStorage,
   ismacOSKeychainAvailable,
-} from './keychain-macos'
+} from "./keychain-macos";
 export {
   WindowsCredentialManagerStorage,
   createWindowsCredentialManagerStorage,
   isWindowsCredentialManagerAvailable,
-} from './credential-manager-windows'
+} from "./credential-manager-windows";
 export {
   EncryptedFallbackStorage,
   createEncryptedFallbackStorage,
   isEncryptedFallbackAvailable,
-} from './encrypted-fallback'
+} from "./encrypted-fallback";
 
 // Main exports
 export {
@@ -83,4 +87,4 @@ export {
   initializeSecureStorage,
   createSecureStorageManager,
   detectOperatingSystem,
-} from './secure-storage-manager'
+} from "./secure-storage-manager";

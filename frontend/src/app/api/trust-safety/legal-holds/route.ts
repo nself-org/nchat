@@ -5,35 +5,37 @@
  * GET /api/trust-safety/legal-holds - List legal holds
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 import {
   getLegalHoldService,
   getEvidenceCollector,
-} from '@/services/trust-safety'
+} from "@/services/trust-safety";
 
-const collector = getEvidenceCollector()
-const legalHoldService = getLegalHoldService(undefined, collector)
+const collector = getEvidenceCollector();
+const legalHoldService = getLegalHoldService(undefined, collector);
 
 /**
  * POST - Create a new legal hold
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate required fields
-    const requiredFields = ['name', 'description', 'scope', 'criteria']
+    const requiredFields = ["name", "description", "scope", "criteria"];
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json(
           { success: false, error: `Missing required field: ${field}` },
-          { status: 400 }
-        )
+          { status: 400 },
+        );
       }
     }
 
-    const requestedBy = body.requestedBy || request.headers.get('x-user-id') || 'system'
-    const requestedByRole = body.requestedByRole || request.headers.get('x-user-role') || 'system'
+    const requestedBy =
+      body.requestedBy || request.headers.get("x-user-id") || "system";
+    const requestedByRole =
+      body.requestedByRole || request.headers.get("x-user-role") || "system";
 
     const result = await legalHoldService.create({
       name: body.name,
@@ -42,18 +44,20 @@ export async function POST(request: NextRequest) {
       criteria: body.criteria,
       requestedBy,
       requestedByRole,
-      effectiveFrom: body.effectiveFrom ? new Date(body.effectiveFrom) : undefined,
+      effectiveFrom: body.effectiveFrom
+        ? new Date(body.effectiveFrom)
+        : undefined,
       expiresAt: body.expiresAt ? new Date(body.expiresAt) : undefined,
       caseReference: body.caseReference,
       legalMatterId: body.legalMatterId,
       legalContact: body.legalContact,
-    })
+    });
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     return NextResponse.json({
@@ -68,13 +72,13 @@ export async function POST(request: NextRequest) {
         evidenceCount: result.hold.evidenceCount,
         createdAt: result.hold.createdAt,
       },
-    })
+    });
   } catch (error) {
-    console.error('Legal hold creation error:', error)
+    console.error("Legal hold creation error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create legal hold' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to create legal hold" },
+      { status: 500 },
+    );
   }
 }
 
@@ -83,36 +87,36 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url);
 
-    const filters: Parameters<typeof legalHoldService.getAll>[0] = {}
+    const filters: Parameters<typeof legalHoldService.getAll>[0] = {};
 
-    const status = searchParams.get('status')
+    const status = searchParams.get("status");
     if (status) {
-      filters.status = status.split(',') as any
+      filters.status = status.split(",") as any;
     }
 
-    const scope = searchParams.get('scope')
+    const scope = searchParams.get("scope");
     if (scope) {
-      filters.scope = scope as any
+      filters.scope = scope as any;
     }
 
-    const requestedBy = searchParams.get('requestedBy')
+    const requestedBy = searchParams.get("requestedBy");
     if (requestedBy) {
-      filters.requestedBy = requestedBy
+      filters.requestedBy = requestedBy;
     }
 
-    const caseReference = searchParams.get('caseReference')
+    const caseReference = searchParams.get("caseReference");
     if (caseReference) {
-      filters.caseReference = caseReference
+      filters.caseReference = caseReference;
     }
 
-    const includeExpired = searchParams.get('includeExpired')
+    const includeExpired = searchParams.get("includeExpired");
     if (includeExpired !== null) {
-      filters.includeExpired = includeExpired === 'true'
+      filters.includeExpired = includeExpired === "true";
     }
 
-    const holds = legalHoldService.getAll(filters)
+    const holds = legalHoldService.getAll(filters);
 
     return NextResponse.json({
       success: true,
@@ -132,12 +136,12 @@ export async function GET(request: NextRequest) {
         createdAt: h.createdAt,
         updatedAt: h.updatedAt,
       })),
-    })
+    });
   } catch (error) {
-    console.error('Legal holds list error:', error)
+    console.error("Legal holds list error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to list legal holds' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to list legal holds" },
+      { status: 500 },
+    );
   }
 }

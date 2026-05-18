@@ -4,81 +4,92 @@
  * Handles user blocking, reporting, and muting functionality
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, CHANNEL_BASIC_FRAGMENT, MESSAGE_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import {
+  USER_BASIC_FRAGMENT,
+  CHANNEL_BASIC_FRAGMENT,
+  MESSAGE_BASIC_FRAGMENT,
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export type ReportReason =
-  | 'spam'
-  | 'harassment'
-  | 'hate_speech'
-  | 'violence'
-  | 'nudity'
-  | 'misinformation'
-  | 'impersonation'
-  | 'copyright'
-  | 'other'
+  | "spam"
+  | "harassment"
+  | "hate_speech"
+  | "violence"
+  | "nudity"
+  | "misinformation"
+  | "impersonation"
+  | "copyright"
+  | "other";
 
-export type ReportStatus = 'pending' | 'reviewed' | 'resolved' | 'dismissed'
+export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
 
-export type MuteDuration = '15m' | '1h' | '4h' | '24h' | '7d' | '30d' | 'permanent'
+export type MuteDuration =
+  | "15m"
+  | "1h"
+  | "4h"
+  | "24h"
+  | "7d"
+  | "30d"
+  | "permanent";
 
 export interface BlockUserVariables {
-  userId: string
-  blockedUserId: string
+  userId: string;
+  blockedUserId: string;
 }
 
 export interface UnblockUserVariables {
-  userId: string
-  blockedUserId: string
+  userId: string;
+  blockedUserId: string;
 }
 
 export interface GetBlockedUsersVariables {
-  userId: string
+  userId: string;
 }
 
 export interface ReportUserVariables {
-  reporterId: string
-  reportedUserId: string
-  reason: ReportReason
-  details?: string
-  evidenceUrls?: string[]
+  reporterId: string;
+  reportedUserId: string;
+  reason: ReportReason;
+  details?: string;
+  evidenceUrls?: string[];
 }
 
 export interface ReportMessageVariables {
-  reporterId: string
-  messageId: string
-  reason: ReportReason
-  details?: string
+  reporterId: string;
+  messageId: string;
+  reason: ReportReason;
+  details?: string;
 }
 
 export interface MuteUserVariables {
-  userId: string
-  mutedByUserId: string
-  channelId?: string
-  duration: MuteDuration
-  reason?: string
+  userId: string;
+  mutedByUserId: string;
+  channelId?: string;
+  duration: MuteDuration;
+  reason?: string;
 }
 
 export interface UnmuteUserVariables {
-  muteId: string
+  muteId: string;
 }
 
 export interface GetReportsVariables {
-  status?: ReportStatus
-  type?: 'user' | 'message'
-  limit?: number
-  offset?: number
+  status?: ReportStatus;
+  type?: "user" | "message";
+  limit?: number;
+  offset?: number;
 }
 
 export interface ResolveReportVariables {
-  reportId: string
-  moderatorId: string
-  resolution: 'resolved' | 'dismissed'
-  notes?: string
+  reportId: string;
+  moderatorId: string;
+  resolution: "resolved" | "dismissed";
+  notes?: string;
 }
 
 // ============================================================================
@@ -96,7 +107,7 @@ export const BLOCKED_USER_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const USER_REPORT_FRAGMENT = gql`
   fragment UserReport on nchat_user_reports {
@@ -121,7 +132,7 @@ export const USER_REPORT_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const MESSAGE_REPORT_FRAGMENT = gql`
   fragment MessageReport on nchat_message_reports {
@@ -150,7 +161,7 @@ export const MESSAGE_REPORT_FRAGMENT = gql`
   ${USER_BASIC_FRAGMENT}
   ${MESSAGE_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 export const USER_MUTE_FRAGMENT = gql`
   fragment UserMute on nchat_user_mutes {
@@ -174,7 +185,7 @@ export const USER_MUTE_FRAGMENT = gql`
   }
   ${USER_BASIC_FRAGMENT}
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -185,12 +196,15 @@ export const USER_MUTE_FRAGMENT = gql`
  */
 export const GET_BLOCKED_USERS = gql`
   query GetBlockedUsers($userId: uuid!) {
-    nchat_blocked_users(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {
+    nchat_blocked_users(
+      where: { user_id: { _eq: $userId } }
+      order_by: { created_at: desc }
+    ) {
       ...BlockedUser
     }
   }
   ${BLOCKED_USER_FRAGMENT}
-`
+`;
 
 /**
  * Check if a specific user is blocked
@@ -198,13 +212,18 @@ export const GET_BLOCKED_USERS = gql`
 export const CHECK_USER_BLOCKED = gql`
   query CheckUserBlocked($userId: uuid!, $blockedUserId: uuid!) {
     nchat_blocked_users(
-      where: { _and: [{ user_id: { _eq: $userId } }, { blocked_user_id: { _eq: $blockedUserId } }] }
+      where: {
+        _and: [
+          { user_id: { _eq: $userId } }
+          { blocked_user_id: { _eq: $blockedUserId } }
+        ]
+      }
       limit: 1
     ) {
       id
     }
   }
-`
+`;
 
 /**
  * Get all blocked user IDs (for filtering)
@@ -215,7 +234,7 @@ export const GET_BLOCKED_USER_IDS = gql`
       blocked_user_id
     }
   }
-`
+`;
 
 /**
  * Get user reports (admin only)
@@ -237,7 +256,7 @@ export const GET_USER_REPORTS = gql`
     }
   }
   ${USER_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get message reports (admin only)
@@ -259,13 +278,17 @@ export const GET_MESSAGE_REPORTS = gql`
     }
   }
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get all reports (combined user and message reports for admin)
  */
 export const GET_REPORTS_ADMIN = gql`
-  query GetReportsAdmin($status: String = "pending", $limit: Int = 50, $offset: Int = 0) {
+  query GetReportsAdmin(
+    $status: String = "pending"
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     user_reports: nchat_user_reports(
       where: { status: { _eq: $status } }
       order_by: { created_at: desc }
@@ -282,12 +305,16 @@ export const GET_REPORTS_ADMIN = gql`
     ) {
       ...MessageReport
     }
-    user_reports_count: nchat_user_reports_aggregate(where: { status: { _eq: $status } }) {
+    user_reports_count: nchat_user_reports_aggregate(
+      where: { status: { _eq: $status } }
+    ) {
       aggregate {
         count
       }
     }
-    message_reports_count: nchat_message_reports_aggregate(where: { status: { _eq: $status } }) {
+    message_reports_count: nchat_message_reports_aggregate(
+      where: { status: { _eq: $status } }
+    ) {
       aggregate {
         count
       }
@@ -295,7 +322,7 @@ export const GET_REPORTS_ADMIN = gql`
   }
   ${USER_REPORT_FRAGMENT}
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Get active mutes for a user
@@ -305,7 +332,10 @@ export const GET_USER_MUTES = gql`
     nchat_user_mutes(
       where: {
         user_id: { _eq: $userId }
-        _or: [{ muted_until: { _gt: "now()" } }, { muted_until: { _is_null: true } }]
+        _or: [
+          { muted_until: { _gt: "now()" } }
+          { muted_until: { _is_null: true } }
+        ]
       }
       order_by: { muted_at: desc }
     ) {
@@ -313,7 +343,7 @@ export const GET_USER_MUTES = gql`
     }
   }
   ${USER_MUTE_FRAGMENT}
-`
+`;
 
 /**
  * Check if user is muted in a channel or globally
@@ -324,7 +354,14 @@ export const CHECK_USER_MUTED = gql`
       where: {
         user_id: { _eq: $userId }
         _or: [{ is_global: { _eq: true } }, { channel_id: { _eq: $channelId } }]
-        _and: [{ _or: [{ muted_until: { _gt: "now()" } }, { muted_until: { _is_null: true } }] }]
+        _and: [
+          {
+            _or: [
+              { muted_until: { _gt: "now()" } }
+              { muted_until: { _is_null: true } }
+            ]
+          }
+        ]
       }
       limit: 1
     ) {
@@ -333,7 +370,7 @@ export const CHECK_USER_MUTED = gql`
       is_global
     }
   }
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -355,7 +392,7 @@ export const BLOCK_USER = gql`
     }
   }
   ${BLOCKED_USER_FRAGMENT}
-`
+`;
 
 /**
  * Unblock a user
@@ -363,7 +400,12 @@ export const BLOCK_USER = gql`
 export const UNBLOCK_USER = gql`
   mutation UnblockUser($userId: uuid!, $blockedUserId: uuid!) {
     delete_nchat_blocked_users(
-      where: { _and: [{ user_id: { _eq: $userId } }, { blocked_user_id: { _eq: $blockedUserId } }] }
+      where: {
+        _and: [
+          { user_id: { _eq: $userId } }
+          { blocked_user_id: { _eq: $blockedUserId } }
+        ]
+      }
     ) {
       affected_rows
       returning {
@@ -372,7 +414,7 @@ export const UNBLOCK_USER = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Report a user
@@ -399,7 +441,7 @@ export const REPORT_USER = gql`
     }
   }
   ${USER_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Report a message
@@ -424,7 +466,7 @@ export const REPORT_MESSAGE = gql`
     }
   }
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Resolve a user report (admin/moderator only)
@@ -449,7 +491,7 @@ export const RESOLVE_USER_REPORT = gql`
     }
   }
   ${USER_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Resolve a message report (admin/moderator only)
@@ -474,7 +516,7 @@ export const RESOLVE_MESSAGE_REPORT = gql`
     }
   }
   ${MESSAGE_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Mute a user (moderator only)
@@ -503,7 +545,7 @@ export const MUTE_USER = gql`
     }
   }
   ${USER_MUTE_FRAGMENT}
-`
+`;
 
 /**
  * Unmute a user
@@ -515,17 +557,24 @@ export const UNMUTE_USER = gql`
       user_id
     }
   }
-`
+`;
 
 /**
  * Unmute a user in a specific channel or globally
  */
 export const UNMUTE_USER_BY_CONTEXT = gql`
-  mutation UnmuteUserByContext($userId: uuid!, $channelId: uuid, $isGlobal: Boolean) {
+  mutation UnmuteUserByContext(
+    $userId: uuid!
+    $channelId: uuid
+    $isGlobal: Boolean
+  ) {
     delete_nchat_user_mutes(
       where: {
         user_id: { _eq: $userId }
-        _or: [{ channel_id: { _eq: $channelId } }, { is_global: { _eq: $isGlobal } }]
+        _or: [
+          { channel_id: { _eq: $channelId } }
+          { is_global: { _eq: $isGlobal } }
+        ]
       }
     ) {
       affected_rows
@@ -534,7 +583,7 @@ export const UNMUTE_USER_BY_CONTEXT = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -545,12 +594,15 @@ export const UNMUTE_USER_BY_CONTEXT = gql`
  */
 export const BLOCKED_USERS_SUBSCRIPTION = gql`
   subscription BlockedUsersSubscription($userId: uuid!) {
-    nchat_blocked_users(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {
+    nchat_blocked_users(
+      where: { user_id: { _eq: $userId } }
+      order_by: { created_at: desc }
+    ) {
       ...BlockedUser
     }
   }
   ${BLOCKED_USER_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to new reports (admin only)
@@ -566,7 +618,7 @@ export const REPORTS_SUBSCRIPTION = gql`
     }
   }
   ${USER_REPORT_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to user mutes
@@ -576,11 +628,14 @@ export const USER_MUTES_SUBSCRIPTION = gql`
     nchat_user_mutes(
       where: {
         user_id: { _eq: $userId }
-        _or: [{ muted_until: { _gt: "now()" } }, { muted_until: { _is_null: true } }]
+        _or: [
+          { muted_until: { _gt: "now()" } }
+          { muted_until: { _is_null: true } }
+        ]
       }
     ) {
       ...UserMute
     }
   }
   ${USER_MUTE_FRAGMENT}
-`
+`;

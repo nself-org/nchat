@@ -9,7 +9,7 @@ export {
   resetNotificationService,
   type SendOptions,
   type NotificationServiceOptions,
-} from './notification.service'
+} from "./notification.service";
 
 // Preference Service
 export {
@@ -19,7 +19,7 @@ export {
   type PreferenceServiceOptions,
   type UpdateChannelPreferenceOptions,
   type UpdateQuietHoursOptions,
-} from './preference.service'
+} from "./preference.service";
 
 // Template Service
 export {
@@ -30,7 +30,7 @@ export {
   NCHAT_TEMPLATES,
   type TemplateServiceOptions,
   type RenderedTemplate,
-} from './template.service'
+} from "./template.service";
 
 // Event Dispatcher
 export {
@@ -40,4 +40,4 @@ export {
   type EventDispatcherOptions,
   type EventHandler,
   type EventSubscription,
-} from './event-dispatcher'
+} from "./event-dispatcher";

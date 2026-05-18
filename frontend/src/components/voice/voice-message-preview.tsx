@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Voice Message Preview Component
@@ -7,15 +7,15 @@
  * with play, delete, send, and re-record options.
  */
 
-import { useEffect, useState, useCallback, memo } from 'react'
-import { motion } from 'framer-motion'
-import { Play, Pause, Send, Trash2, RefreshCw, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useVoicePlayer, generateWaveform, formatDuration } from '@/lib/voice'
-import { WaveformVisualizer } from './waveform-visualizer'
+import { useEffect, useState, useCallback, memo } from "react";
+import { motion } from "framer-motion";
+import { Play, Pause, Send, Trash2, RefreshCw, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useVoicePlayer, generateWaveform, formatDuration } from "@/lib/voice";
+import { WaveformVisualizer } from "./waveform-visualizer";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // TYPES
@@ -23,29 +23,29 @@ import { logger } from '@/lib/logger'
 
 export interface VoiceMessagePreviewProps {
   /** Audio URL for preview */
-  audioUrl: string
+  audioUrl: string;
   /** Audio blob for reference */
-  audioBlob?: Blob
+  audioBlob?: Blob;
   /** Recording duration in seconds */
-  duration: number
+  duration: number;
   /** Callback when send is clicked */
-  onSend?: () => void | Promise<void>
+  onSend?: () => void | Promise<void>;
   /** Callback when delete is clicked */
-  onDelete?: () => void
+  onDelete?: () => void;
   /** Callback when re-record is clicked */
-  onReRecord?: () => void
+  onReRecord?: () => void;
   /** Whether send is in progress */
-  isSending?: boolean
+  isSending?: boolean;
   /** Whether to auto-play on mount */
-  autoPlay?: boolean
+  autoPlay?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
   /** Layout variant */
-  variant?: 'default' | 'compact' | 'card'
+  variant?: "default" | "compact" | "card";
   /** Title text */
-  title?: string
+  title?: string;
   /** Show re-record button */
-  showReRecord?: boolean
+  showReRecord?: boolean;
 }
 
 // ============================================================================
@@ -62,12 +62,12 @@ export const VoiceMessagePreview = memo(function VoiceMessagePreview({
   isSending = false,
   autoPlay = false,
   className,
-  variant = 'default',
-  title = 'Voice message preview',
+  variant = "default",
+  title = "Voice message preview",
   showReRecord = true,
 }: VoiceMessagePreviewProps) {
-  const [waveform, setWaveform] = useState<number[] | null>(null)
-  const [isLoadingWaveform, setIsLoadingWaveform] = useState(true)
+  const [waveform, setWaveform] = useState<number[] | null>(null);
+  const [isLoadingWaveform, setIsLoadingWaveform] = useState(true);
 
   const {
     isPlaying,
@@ -84,48 +84,48 @@ export const VoiceMessagePreview = memo(function VoiceMessagePreview({
     onEnd: () => {
       // Auto-stop when playback ends
     },
-  })
+  });
 
   // Generate waveform from audio
   useEffect(() => {
     const generateWaveformData = async () => {
-      setIsLoadingWaveform(true)
+      setIsLoadingWaveform(true);
       try {
-        const source = audioBlob || audioUrl
-        const data = await generateWaveform(source, 60)
-        setWaveform(data.amplitudes)
+        const source = audioBlob || audioUrl;
+        const data = await generateWaveform(source, 60);
+        setWaveform(data.amplitudes);
       } catch (error) {
-        logger.error('Failed to generate waveform:', error)
+        logger.error("Failed to generate waveform:", error);
         // Use default bars
-        setWaveform(new Array(60).fill(0.5))
+        setWaveform(new Array(60).fill(0.5));
       } finally {
-        setIsLoadingWaveform(false)
+        setIsLoadingWaveform(false);
       }
-    }
+    };
 
-    generateWaveformData()
-  }, [audioUrl, audioBlob])
+    generateWaveformData();
+  }, [audioUrl, audioBlob]);
 
   // Handle send
   const handleSend = useCallback(async () => {
-    if (isSending || !onSend) return
-    stop() // Stop playback before sending
-    await onSend()
-  }, [isSending, onSend, stop])
+    if (isSending || !onSend) return;
+    stop(); // Stop playback before sending
+    await onSend();
+  }, [isSending, onSend, stop]);
 
   // Handle delete
   const handleDelete = useCallback(() => {
-    stop() // Stop playback before deleting
-    onDelete?.()
-  }, [stop, onDelete])
+    stop(); // Stop playback before deleting
+    onDelete?.();
+  }, [stop, onDelete]);
 
   // Handle re-record
   const handleReRecord = useCallback(() => {
-    stop() // Stop playback before re-recording
-    onReRecord?.()
-  }, [stop, onReRecord])
+    stop(); // Stop playback before re-recording
+    onReRecord?.();
+  }, [stop, onReRecord]);
 
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <CompactPreview
         isPlaying={isPlaying}
@@ -143,10 +143,10 @@ export const VoiceMessagePreview = memo(function VoiceMessagePreview({
         onDelete={handleDelete}
         className={className}
       />
-    )
+    );
   }
 
-  if (variant === 'card') {
+  if (variant === "card") {
     return (
       <CardPreview
         title={title}
@@ -166,7 +166,7 @@ export const VoiceMessagePreview = memo(function VoiceMessagePreview({
         onReRecord={showReRecord ? handleReRecord : undefined}
         className={className}
       />
-    )
+    );
   }
 
   // Default variant
@@ -175,7 +175,10 @@ export const VoiceMessagePreview = memo(function VoiceMessagePreview({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
-      className={cn('flex flex-col gap-4 rounded-lg border bg-card p-4', className)}
+      className={cn(
+        "flex flex-col gap-4 rounded-lg border bg-card p-4",
+        className,
+      )}
     >
       {/* Title */}
       <div className="flex items-center justify-between">
@@ -208,7 +211,9 @@ export const VoiceMessagePreview = memo(function VoiceMessagePreview({
       {/* Playback time */}
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span className="font-mono tabular-nums">{formattedCurrentTime}</span>
-        <span className="font-mono tabular-nums">{formatDuration(duration)}</span>
+        <span className="font-mono tabular-nums">
+          {formatDuration(duration)}
+        </span>
       </div>
 
       {/* Controls */}
@@ -265,32 +270,36 @@ export const VoiceMessagePreview = memo(function VoiceMessagePreview({
           disabled={isSending || !onSend}
           className="h-10 w-10 rounded-full"
         >
-          {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {isSending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
         </Button>
       </div>
     </motion.div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // COMPACT VARIANT
 // ============================================================================
 
 interface CompactPreviewProps {
-  isPlaying: boolean
-  isLoading: boolean
-  progress: number
-  formattedCurrentTime: string
-  duration: number
-  waveform: number[] | null
-  isLoadingWaveform: boolean
-  isReady: boolean
-  isSending: boolean
-  togglePlay: () => void
-  seekByPercentage: (percentage: number) => void
-  onSend?: () => void
-  onDelete?: () => void
-  className?: string
+  isPlaying: boolean;
+  isLoading: boolean;
+  progress: number;
+  formattedCurrentTime: string;
+  duration: number;
+  waveform: number[] | null;
+  isLoadingWaveform: boolean;
+  isReady: boolean;
+  isSending: boolean;
+  togglePlay: () => void;
+  seekByPercentage: (percentage: number) => void;
+  onSend?: () => void;
+  onDelete?: () => void;
+  className?: string;
 }
 
 const CompactPreview = memo(function CompactPreview({
@@ -314,7 +323,10 @@ const CompactPreview = memo(function CompactPreview({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className={cn('flex items-center gap-2 rounded-full border bg-card px-3 py-2', className)}
+      className={cn(
+        "flex items-center gap-2 rounded-full border bg-card px-3 py-2",
+        className,
+      )}
     >
       {/* Delete button */}
       <Button
@@ -373,33 +385,37 @@ const CompactPreview = memo(function CompactPreview({
         disabled={isSending || !onSend}
         className="h-8 w-8 rounded-full"
       >
-        {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        {isSending ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Send className="h-4 w-4" />
+        )}
       </Button>
     </motion.div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // CARD VARIANT
 // ============================================================================
 
 interface CardPreviewProps {
-  title: string
-  isPlaying: boolean
-  isLoading: boolean
-  progress: number
-  formattedCurrentTime: string
-  duration: number
-  waveform: number[] | null
-  isLoadingWaveform: boolean
-  isReady: boolean
-  isSending: boolean
-  togglePlay: () => void
-  seekByPercentage: (percentage: number) => void
-  onSend?: () => void
-  onDelete?: () => void
-  onReRecord?: () => void
-  className?: string
+  title: string;
+  isPlaying: boolean;
+  isLoading: boolean;
+  progress: number;
+  formattedCurrentTime: string;
+  duration: number;
+  waveform: number[] | null;
+  isLoadingWaveform: boolean;
+  isReady: boolean;
+  isSending: boolean;
+  togglePlay: () => void;
+  seekByPercentage: (percentage: number) => void;
+  onSend?: () => void;
+  onDelete?: () => void;
+  onReRecord?: () => void;
+  className?: string;
 }
 
 const CardPreview = memo(function CardPreview({
@@ -425,7 +441,10 @@ const CardPreview = memo(function CardPreview({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className={cn('overflow-hidden rounded-xl border bg-card shadow-lg', className)}
+      className={cn(
+        "overflow-hidden rounded-xl border bg-card shadow-lg",
+        className,
+      )}
     >
       {/* Header */}
       <div className="flex items-center justify-between border-b px-4 py-3">
@@ -435,7 +454,9 @@ const CardPreview = memo(function CardPreview({
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
           </span>
-          <span className="ml-1 font-mono text-sm tabular-nums">{formatDuration(duration)}</span>
+          <span className="ml-1 font-mono text-sm tabular-nums">
+            {formatDuration(duration)}
+          </span>
         </div>
       </div>
 
@@ -464,7 +485,9 @@ const CardPreview = memo(function CardPreview({
         {/* Time display */}
         <div className="mt-2 flex items-center justify-between px-1 text-xs text-muted-foreground">
           <span className="font-mono tabular-nums">{formattedCurrentTime}</span>
-          <span className="font-mono tabular-nums">{formatDuration(duration)}</span>
+          <span className="font-mono tabular-nums">
+            {formatDuration(duration)}
+          </span>
         </div>
       </div>
 
@@ -484,7 +507,12 @@ const CardPreview = memo(function CardPreview({
           </Button>
 
           {onReRecord && (
-            <Button variant="ghost" size="sm" onClick={onReRecord} disabled={isSending}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onReRecord}
+              disabled={isSending}
+            >
               <RefreshCw className="mr-1.5 h-4 w-4" />
               Re-record
             </Button>
@@ -509,7 +537,11 @@ const CardPreview = memo(function CardPreview({
             )}
           </Button>
 
-          <Button onClick={onSend} disabled={isSending || !onSend} className="gap-1.5">
+          <Button
+            onClick={onSend}
+            disabled={isSending || !onSend}
+            className="gap-1.5"
+          >
             {isSending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -522,7 +554,7 @@ const CardPreview = memo(function CardPreview({
         </div>
       </div>
     </motion.div>
-  )
-})
+  );
+});
 
-export default VoiceMessagePreview
+export default VoiceMessagePreview;

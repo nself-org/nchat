@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ConditionStep - Condition configuration component
@@ -6,51 +6,61 @@
  * Configures branching conditions
  */
 
-import * as React from 'react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Plus, Trash2 } from 'lucide-react'
+} from "@/components/ui/select";
+import { Plus, Trash2 } from "lucide-react";
 import type {
   ConditionStep as ConditionStepType,
   Condition,
   ConditionOperator,
   ConditionLogic,
-} from '@/lib/workflows/workflow-types'
-import { conditionOperators, createCondition } from '@/lib/workflows/workflow-conditions'
+} from "@/lib/workflows/workflow-types";
+import {
+  conditionOperators,
+  createCondition,
+} from "@/lib/workflows/workflow-conditions";
 
 interface ConditionStepPropertiesProps {
-  step: ConditionStepType
-  onUpdate: (config: Record<string, unknown>) => void
+  step: ConditionStepType;
+  onUpdate: (config: Record<string, unknown>) => void;
 }
 
-export function ConditionStepProperties({ step, onUpdate }: ConditionStepPropertiesProps) {
-  const config = step.config
+export function ConditionStepProperties({
+  step,
+  onUpdate,
+}: ConditionStepPropertiesProps) {
+  const config = step.config;
 
   const handleAddCondition = () => {
-    const newCondition = createCondition('', 'equals', '')
+    const newCondition = createCondition("", "equals", "");
     onUpdate({
       conditions: [...(config.conditions || []), newCondition],
-    })
-  }
+    });
+  };
 
-  const handleUpdateCondition = (index: number, updates: Partial<Condition>) => {
-    const newConditions = [...(config.conditions || [])]
-    newConditions[index] = { ...newConditions[index], ...updates } as Condition
-    onUpdate({ conditions: newConditions })
-  }
+  const handleUpdateCondition = (
+    index: number,
+    updates: Partial<Condition>,
+  ) => {
+    const newConditions = [...(config.conditions || [])];
+    newConditions[index] = { ...newConditions[index], ...updates } as Condition;
+    onUpdate({ conditions: newConditions });
+  };
 
   const handleDeleteCondition = (index: number) => {
-    const newConditions = config.conditions?.filter((_, i) => i !== index) || []
-    onUpdate({ conditions: newConditions })
-  }
+    const newConditions =
+      config.conditions?.filter((_, i) => i !== index) || [];
+    onUpdate({ conditions: newConditions });
+  };
 
   return (
     <div className="space-y-3">
@@ -59,13 +69,17 @@ export function ConditionStepProperties({ step, onUpdate }: ConditionStepPropert
         <Label className="text-xs">Logic</Label>
         <Select
           value={config.logic}
-          onValueChange={(value) => onUpdate({ logic: value as ConditionLogic })}
+          onValueChange={(value) =>
+            onUpdate({ logic: value as ConditionLogic })
+          }
         >
           <SelectTrigger className="mt-1 h-8 text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="and">AND - All conditions must be true</SelectItem>
+            <SelectItem value="and">
+              AND - All conditions must be true
+            </SelectItem>
             <SelectItem value="or">OR - Any condition can be true</SelectItem>
           </SelectContent>
         </Select>
@@ -75,7 +89,12 @@ export function ConditionStepProperties({ step, onUpdate }: ConditionStepPropert
       <div className="border-t pt-2">
         <div className="mb-2 flex items-center justify-between">
           <Label className="text-xs">Conditions</Label>
-          <Button variant="ghost" size="sm" className="h-6" onClick={handleAddCondition}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6"
+            onClick={handleAddCondition}
+          >
             <Plus className="mr-1 h-3 w-3" />
             Add
           </Button>
@@ -91,7 +110,7 @@ export function ConditionStepProperties({ step, onUpdate }: ConditionStepPropert
           <div className="space-y-2">
             {config.conditions.map((condition, index) => {
               // Type guard - only handle simple conditions, not groups
-              if ('conditions' in condition) return null
+              if ("conditions" in condition) return null;
 
               return (
                 <React.Fragment key={condition.id}>
@@ -102,11 +121,13 @@ export function ConditionStepProperties({ step, onUpdate }: ConditionStepPropert
                   )}
                   <ConditionEditor
                     condition={condition as Condition}
-                    onUpdate={(updates) => handleUpdateCondition(index, updates)}
+                    onUpdate={(updates) =>
+                      handleUpdateCondition(index, updates)
+                    }
                     onDelete={() => handleDeleteCondition(index)}
                   />
                 </React.Fragment>
-              )
+              );
             })}
           </div>
         )}
@@ -121,7 +142,7 @@ export function ConditionStepProperties({ step, onUpdate }: ConditionStepPropert
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 // Condition editor component
@@ -130,17 +151,19 @@ function ConditionEditor({
   onUpdate,
   onDelete,
 }: {
-  condition: Condition
-  onUpdate: (updates: Partial<Condition>) => void
-  onDelete: () => void
+  condition: Condition;
+  onUpdate: (updates: Partial<Condition>) => void;
+  onDelete: () => void;
 }) {
-  const operatorOptions = Object.entries(conditionOperators).map(([key, info]) => ({
-    value: key as ConditionOperator,
-    label: info.label,
-  }))
+  const operatorOptions = Object.entries(conditionOperators).map(
+    ([key, info]) => ({
+      value: key as ConditionOperator,
+      label: info.label,
+    }),
+  );
 
-  const selectedOperator = conditionOperators[condition.operator]
-  const showValue = selectedOperator?.valueRequired !== false
+  const selectedOperator = conditionOperators[condition.operator];
+  const showValue = selectedOperator?.valueRequired !== false;
 
   return (
     <div className="bg-muted/30 space-y-2 rounded border p-2">
@@ -162,7 +185,9 @@ function ConditionEditor({
             <Label className="text-[10px]">Operator</Label>
             <select
               value={condition.operator}
-              onChange={(e) => onUpdate({ operator: e.target.value as ConditionOperator })}
+              onChange={(e) =>
+                onUpdate({ operator: e.target.value as ConditionOperator })
+              }
               className="h-6 w-full rounded border bg-background text-xs"
             >
               {operatorOptions.map((op) => (
@@ -178,7 +203,7 @@ function ConditionEditor({
             <div>
               <Label className="text-[10px]">Value</Label>
               <Input
-                value={String(condition.value || '')}
+                value={String(condition.value || "")}
                 onChange={(e) => onUpdate({ value: e.target.value })}
                 className="h-6 text-xs"
                 placeholder="Compare value"
@@ -197,7 +222,7 @@ function ConditionEditor({
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
-export default ConditionStepProperties
+export default ConditionStepProperties;

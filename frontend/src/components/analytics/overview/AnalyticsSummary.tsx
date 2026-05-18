@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
 /**
  * AnalyticsSummary - Key metrics summary grid
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   MessageSquare,
   Users,
@@ -15,33 +15,33 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { useAnalyticsStore } from '@/stores/analytics-store'
-import type { MetricValue } from '@/lib/analytics/analytics-types'
+import { useAnalyticsStore } from "@/stores/analytics-store";
+import type { MetricValue } from "@/lib/analytics/analytics-types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface SummaryCardProps {
-  title: string
-  value: number | string
-  change?: number
-  changePercent?: number
-  trend?: 'up' | 'down' | 'stable'
-  icon: React.ReactNode
-  description?: string
-  isLoading?: boolean
-  className?: string
+  title: string;
+  value: number | string;
+  change?: number;
+  changePercent?: number;
+  trend?: "up" | "down" | "stable";
+  icon: React.ReactNode;
+  description?: string;
+  isLoading?: boolean;
+  className?: string;
 }
 
 interface AnalyticsSummaryProps {
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -50,39 +50,39 @@ interface AnalyticsSummaryProps {
 
 function formatNumber(value: number): string {
   if (value >= 1000000) {
-    return `${(value / 1000000).toFixed(1)}M`
+    return `${(value / 1000000).toFixed(1)}M`;
   }
   if (value >= 1000) {
-    return `${(value / 1000).toFixed(1)}K`
+    return `${(value / 1000).toFixed(1)}K`;
   }
-  return value.toLocaleString()
+  return value.toLocaleString();
 }
 
 function formatPercentChange(value: number): string {
-  const sign = value >= 0 ? '+' : ''
-  return `${sign}${value.toFixed(1)}%`
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%`;
 }
 
-function getTrendIcon(trend: 'up' | 'down' | 'stable' | undefined) {
+function getTrendIcon(trend: "up" | "down" | "stable" | undefined) {
   switch (trend) {
-    case 'up':
-      return <TrendingUp className="h-4 w-4 text-green-500" />
-    case 'down':
-      return <TrendingDown className="h-4 w-4 text-red-500" />
-    case 'stable':
+    case "up":
+      return <TrendingUp className="h-4 w-4 text-green-500" />;
+    case "down":
+      return <TrendingDown className="h-4 w-4 text-red-500" />;
+    case "stable":
     default:
-      return <Minus className="h-4 w-4 text-muted-foreground" />
+      return <Minus className="h-4 w-4 text-muted-foreground" />;
   }
 }
 
-function getTrendColor(trend: 'up' | 'down' | 'stable' | undefined): string {
+function getTrendColor(trend: "up" | "down" | "stable" | undefined): string {
   switch (trend) {
-    case 'up':
-      return 'text-green-600'
-    case 'down':
-      return 'text-red-600'
+    case "up":
+      return "text-green-600";
+    case "down":
+      return "text-red-600";
     default:
-      return 'text-muted-foreground'
+      return "text-muted-foreground";
   }
 }
 
@@ -113,33 +113,37 @@ function SummaryCard({
           <Skeleton className="h-4 w-32" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
         <div className="text-muted-foreground">{icon}</div>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
-          {typeof value === 'number' ? formatNumber(value) : value}
+          {typeof value === "number" ? formatNumber(value) : value}
         </div>
         <div className="flex items-center gap-2 text-xs">
           {changePercent !== undefined && (
             <>
               {getTrendIcon(trend)}
-              <span className={cn('font-medium', getTrendColor(trend))}>
+              <span className={cn("font-medium", getTrendColor(trend))}>
                 {formatPercentChange(changePercent)}
               </span>
             </>
           )}
-          {description && <span className="text-muted-foreground">{description}</span>}
+          {description && (
+            <span className="text-muted-foreground">{description}</span>
+          )}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -147,17 +151,17 @@ function SummaryCard({
 // ============================================================================
 
 export function AnalyticsSummary({ className }: AnalyticsSummaryProps) {
-  const { summary, isLoading, activeUsers } = useAnalyticsStore()
+  const { summary, isLoading, activeUsers } = useAnalyticsStore();
 
   const getMetricProps = (metric: MetricValue | undefined) => ({
     value: metric?.value ?? 0,
     change: metric?.change,
     changePercent: metric?.changePercent,
     trend: metric?.trend,
-  })
+  });
 
   return (
-    <div className={cn('grid gap-4 md:grid-cols-2 lg:grid-cols-4', className)}>
+    <div className={cn("grid gap-4 md:grid-cols-2 lg:grid-cols-4", className)}>
       {/* Total Messages */}
       <SummaryCard
         title="Total Messages"
@@ -230,7 +234,7 @@ export function AnalyticsSummary({ className }: AnalyticsSummaryProps) {
         isLoading={isLoading}
       />
     </div>
-  )
+  );
 }
 
-export default AnalyticsSummary
+export default AnalyticsSummary;

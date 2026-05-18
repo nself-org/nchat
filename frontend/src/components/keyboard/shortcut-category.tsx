@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ShortcutCategory Component
@@ -7,51 +7,58 @@
  * Supports collapsible sections and category-level actions.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ShortcutItem, ShortcutItemCompact, ShortcutItemProps } from './shortcut-item'
-import { ShortcutCategory as ShortcutCategoryType, ShortcutKey } from '@/lib/keyboard/shortcuts'
-import { ChevronDown, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import {
+  ShortcutItem,
+  ShortcutItemCompact,
+  ShortcutItemProps,
+} from "./shortcut-item";
+import {
+  ShortcutCategory as ShortcutCategoryType,
+  ShortcutKey,
+} from "@/lib/keyboard/shortcuts";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ShortcutData {
-  id: ShortcutKey
-  label: string
-  keys: string
-  description?: string
-  isCustomized?: boolean
-  isEnabled?: boolean
+  id: ShortcutKey;
+  label: string;
+  keys: string;
+  description?: string;
+  isCustomized?: boolean;
+  isEnabled?: boolean;
 }
 
 export interface ShortcutCategoryProps {
   /** Category name/title */
-  name: ShortcutCategoryType | string
+  name: ShortcutCategoryType | string;
   /** Description of the category */
-  description?: string
+  description?: string;
   /** Shortcuts in this category */
-  shortcuts: ShortcutData[]
+  shortcuts: ShortcutData[];
   /** Whether the category is collapsible */
-  collapsible?: boolean
+  collapsible?: boolean;
   /** Whether the category is initially collapsed */
-  defaultCollapsed?: boolean
+  defaultCollapsed?: boolean;
   /** Whether to show in compact mode */
-  compact?: boolean
+  compact?: boolean;
   /** Allow customization of shortcuts */
-  allowCustomize?: boolean
+  allowCustomize?: boolean;
   /** Callback when a shortcut edit is requested */
-  onEditShortcut?: (id: ShortcutKey) => void
+  onEditShortcut?: (id: ShortcutKey) => void;
   /** Callback when a shortcut reset is requested */
-  onResetShortcut?: (id: ShortcutKey) => void
+  onResetShortcut?: (id: ShortcutKey) => void;
   /** Callback when a shortcut toggle is requested */
-  onToggleShortcut?: (id: ShortcutKey, enabled: boolean) => void
+  onToggleShortcut?: (id: ShortcutKey, enabled: boolean) => void;
   /** Icon to display next to category name */
-  icon?: React.ReactNode
+  icon?: React.ReactNode;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -60,7 +67,12 @@ export interface ShortcutCategoryProps {
 
 const categoryIcons: Record<ShortcutCategoryType, React.ReactNode> = {
   Navigation: (
-    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -70,7 +82,12 @@ const categoryIcons: Record<ShortcutCategoryType, React.ReactNode> = {
     </svg>
   ),
   Messages: (
-    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -80,7 +97,12 @@ const categoryIcons: Record<ShortcutCategoryType, React.ReactNode> = {
     </svg>
   ),
   Formatting: (
-    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -90,7 +112,12 @@ const categoryIcons: Record<ShortcutCategoryType, React.ReactNode> = {
     </svg>
   ),
   UI: (
-    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -100,7 +127,12 @@ const categoryIcons: Record<ShortcutCategoryType, React.ReactNode> = {
     </svg>
   ),
   Actions: (
-    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -109,7 +141,7 @@ const categoryIcons: Record<ShortcutCategoryType, React.ReactNode> = {
       />
     </svg>
   ),
-}
+};
 
 // ============================================================================
 // ShortcutCategory Component
@@ -143,31 +175,35 @@ export function ShortcutCategory({
   icon,
   className,
 }: ShortcutCategoryProps) {
-  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed)
+  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
 
   // Get default icon for known categories
-  const categoryIcon = icon || categoryIcons[name as ShortcutCategoryType] || null
+  const categoryIcon =
+    icon || categoryIcons[name as ShortcutCategoryType] || null;
 
-  const enabledCount = shortcuts.filter((s) => s.isEnabled !== false).length
-  const customizedCount = shortcuts.filter((s) => s.isCustomized).length
+  const enabledCount = shortcuts.filter((s) => s.isEnabled !== false).length;
+  const customizedCount = shortcuts.filter((s) => s.isCustomized).length;
 
   return (
-    <div className={cn('mb-6', className)}>
+    <div className={cn("mb-6", className)}>
       {/* Category Header */}
       <div
-        className={cn('mb-3 flex items-center gap-2', collapsible && 'cursor-pointer select-none')}
+        className={cn(
+          "mb-3 flex items-center gap-2",
+          collapsible && "cursor-pointer select-none",
+        )}
         onClick={collapsible ? () => setIsCollapsed(!isCollapsed) : undefined}
         onKeyDown={
           collapsible
             ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  setIsCollapsed(!isCollapsed)
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setIsCollapsed(!isCollapsed);
                 }
               }
             : undefined
         }
-        role={collapsible ? 'button' : undefined}
+        role={collapsible ? "button" : undefined}
         tabIndex={collapsible ? 0 : undefined}
       >
         {collapsible && (
@@ -180,7 +216,9 @@ export function ShortcutCategory({
           </span>
         )}
 
-        {categoryIcon && <span className="text-muted-foreground">{categoryIcon}</span>}
+        {categoryIcon && (
+          <span className="text-muted-foreground">{categoryIcon}</span>
+        )}
 
         <h3 className="text-sm font-semibold text-foreground">{name}</h3>
 
@@ -189,7 +227,9 @@ export function ShortcutCategory({
         </span>
 
         {customizedCount > 0 && (
-          <span className="text-xs text-primary">{customizedCount} customized</span>
+          <span className="text-xs text-primary">
+            {customizedCount} customized
+          </span>
         )}
       </div>
 
@@ -202,7 +242,11 @@ export function ShortcutCategory({
         <div className="space-y-1">
           {shortcuts.map((shortcut) =>
             compact ? (
-              <ShortcutItemCompact key={shortcut.id} label={shortcut.label} keys={shortcut.keys} />
+              <ShortcutItemCompact
+                key={shortcut.id}
+                label={shortcut.label}
+                keys={shortcut.keys}
+              />
             ) : (
               <ShortcutItem
                 key={shortcut.id}
@@ -217,16 +261,18 @@ export function ShortcutCategory({
                 onReset={onResetShortcut}
                 onToggle={onToggleShortcut}
               />
-            )
+            ),
           )}
 
           {shortcuts.length === 0 && (
-            <p className="px-3 py-2 text-sm text-muted-foreground">No shortcuts in this category</p>
+            <p className="px-3 py-2 text-sm text-muted-foreground">
+              No shortcuts in this category
+            </p>
           )}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -235,23 +281,23 @@ export function ShortcutCategory({
 
 export interface ShortcutCategoryListProps {
   /** Shortcuts grouped by category */
-  categories: Record<ShortcutCategoryType | string, ShortcutData[]>
+  categories: Record<ShortcutCategoryType | string, ShortcutData[]>;
   /** Order of categories to display */
-  categoryOrder?: (ShortcutCategoryType | string)[]
+  categoryOrder?: (ShortcutCategoryType | string)[];
   /** Whether categories are collapsible */
-  collapsible?: boolean
+  collapsible?: boolean;
   /** Whether to show in compact mode */
-  compact?: boolean
+  compact?: boolean;
   /** Allow customization of shortcuts */
-  allowCustomize?: boolean
+  allowCustomize?: boolean;
   /** Callback when a shortcut edit is requested */
-  onEditShortcut?: (id: ShortcutKey) => void
+  onEditShortcut?: (id: ShortcutKey) => void;
   /** Callback when a shortcut reset is requested */
-  onResetShortcut?: (id: ShortcutKey) => void
+  onResetShortcut?: (id: ShortcutKey) => void;
   /** Callback when a shortcut toggle is requested */
-  onToggleShortcut?: (id: ShortcutKey, enabled: boolean) => void
+  onToggleShortcut?: (id: ShortcutKey, enabled: boolean) => void;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -269,25 +315,27 @@ export function ShortcutCategoryList({
   className,
 }: ShortcutCategoryListProps) {
   const defaultOrder: ShortcutCategoryType[] = [
-    'Navigation',
-    'Messages',
-    'Formatting',
-    'UI',
-    'Actions',
-  ]
+    "Navigation",
+    "Messages",
+    "Formatting",
+    "UI",
+    "Actions",
+  ];
 
-  const order = categoryOrder || defaultOrder
+  const order = categoryOrder || defaultOrder;
 
   // Get categories in order, then any remaining
   const orderedCategories = [
     ...order.filter((cat) => categories[cat]?.length > 0),
     ...Object.keys(categories).filter(
-      (cat) => !order.includes(cat as ShortcutCategoryType) && categories[cat]?.length > 0
+      (cat) =>
+        !order.includes(cat as ShortcutCategoryType) &&
+        categories[cat]?.length > 0,
     ),
-  ]
+  ];
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {orderedCategories.map((categoryName) => (
         <ShortcutCategory
           key={categoryName}
@@ -302,11 +350,11 @@ export function ShortcutCategoryList({
         />
       ))}
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export default ShortcutCategory
+export default ShortcutCategory;

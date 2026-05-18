@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_MESSAGES = gql`
   query GetMessages($channelId: uuid!, $limit: Int = 50, $offset: Int = 0) {
@@ -46,7 +46,7 @@ export const GET_MESSAGES = gql`
       }
     }
   }
-`
+`;
 
 export const MESSAGE_SUBSCRIPTION = gql`
   subscription MessageSubscription($channelId: uuid!) {
@@ -81,4 +81,4 @@ export const MESSAGE_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;

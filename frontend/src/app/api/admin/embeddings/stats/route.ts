@@ -6,12 +6,12 @@
  * GET /api/admin/embeddings/stats
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { gql } from '@apollo/client'
-import { apolloClient } from '@/lib/apollo-client'
-import { vectorStore } from '@/lib/database/vector-store'
+import { NextRequest, NextResponse } from "next/server";
+import { gql } from "@apollo/client";
+import { apolloClient } from "@/lib/apollo-client";
+import { vectorStore } from "@/lib/database/vector-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 const GET_EMBEDDING_STATS = gql`
   query GetEmbeddingStats($fromDate: date!, $toDate: date!) {
@@ -30,27 +30,33 @@ const GET_EMBEDDING_STATS = gql`
       error_count
     }
   }
-`
+`;
 
 const GET_QUEUE_STATS = gql`
   query GetQueueStats {
-    pending: nchat_embedding_queue_aggregate(where: { claimed_at: { _is_null: true } }) {
+    pending: nchat_embedding_queue_aggregate(
+      where: { claimed_at: { _is_null: true } }
+    ) {
       aggregate {
         count
       }
     }
-    claimed: nchat_embedding_queue_aggregate(where: { claimed_at: { _is_null: false } }) {
+    claimed: nchat_embedding_queue_aggregate(
+      where: { claimed_at: { _is_null: false } }
+    ) {
       aggregate {
         count
       }
     }
-    failed: nchat_embedding_queue_aggregate(where: { retry_count: { _gte: 3 } }) {
+    failed: nchat_embedding_queue_aggregate(
+      where: { retry_count: { _gte: 3 } }
+    ) {
       aggregate {
         count
       }
     }
   }
-`
+`;
 
 const GET_CACHE_STATS = gql`
   query GetCacheStats {
@@ -70,65 +76,72 @@ const GET_CACHE_STATS = gql`
       }
     }
   }
-`
+`;
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const days = parseInt(searchParams.get('days') || '30')
+    const { searchParams } = new URL(request.url);
+    const days = parseInt(searchParams.get("days") || "30");
 
     // Calculate date range
-    const toDate = new Date().toISOString().split('T')[0]
-    const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const toDate = new Date().toISOString().split("T")[0];
+    const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0];
 
     // Fetch all stats in parallel
-    const [coverageResult, indexHealthResult, statsResult, queueStatsResult, cacheStatsResult] =
-      await Promise.all([
-        vectorStore.getCoverage(),
-        vectorStore.getIndexHealth(),
-        apolloClient.query({
-          query: GET_EMBEDDING_STATS,
-          variables: { fromDate, toDate },
-          fetchPolicy: 'network-only',
-        }),
-        apolloClient.query({
-          query: GET_QUEUE_STATS,
-          fetchPolicy: 'network-only',
-        }),
-        apolloClient.query({
-          query: GET_CACHE_STATS,
-          fetchPolicy: 'network-only',
-        }),
-      ])
+    const [
+      coverageResult,
+      indexHealthResult,
+      statsResult,
+      queueStatsResult,
+      cacheStatsResult,
+    ] = await Promise.all([
+      vectorStore.getCoverage(),
+      vectorStore.getIndexHealth(),
+      apolloClient.query({
+        query: GET_EMBEDDING_STATS,
+        variables: { fromDate, toDate },
+        fetchPolicy: "network-only",
+      }),
+      apolloClient.query({
+        query: GET_QUEUE_STATS,
+        fetchPolicy: "network-only",
+      }),
+      apolloClient.query({
+        query: GET_CACHE_STATS,
+        fetchPolicy: "network-only",
+      }),
+    ]);
 
     // Process coverage stats
-    const coverage = coverageResult
+    const coverage = coverageResult;
 
     // Process index health
-    const indexHealth = indexHealthResult
+    const indexHealth = indexHealthResult;
 
     // Process daily stats
-    const dailyStats = statsResult.data.nchat_embedding_stats
+    const dailyStats = statsResult.data.nchat_embedding_stats;
 
     // Calculate totals from daily stats
     const totals = dailyStats.reduce(
       (
         acc: {
-          totalEmbeddings: number
-          totalTokens: number
-          totalCost: number
-          cacheHits: number
-          cacheMisses: number
-          errors: number
+          totalEmbeddings: number;
+          totalTokens: number;
+          totalCost: number;
+          cacheHits: number;
+          cacheMisses: number;
+          errors: number;
         },
         day: {
-          total_embeddings: number
-          total_tokens: number
-          estimated_cost: string
-          cache_hit_count: number
-          cache_miss_count: number
-          error_count: number
-        }
+          total_embeddings: number;
+          total_tokens: number;
+          estimated_cost: string;
+          cache_hit_count: number;
+          cache_miss_count: number;
+          error_count: number;
+        },
       ) => ({
         totalEmbeddings: acc.totalEmbeddings + day.total_embeddings,
         totalTokens: acc.totalTokens + day.total_tokens,
@@ -144,21 +157,21 @@ export async function GET(request: NextRequest) {
         cacheHits: 0,
         cacheMisses: 0,
         errors: 0,
-      }
-    )
+      },
+    );
 
     // Calculate cache hit rate
     const cacheHitRate =
       totals.cacheHits + totals.cacheMisses > 0
         ? (totals.cacheHits / (totals.cacheHits + totals.cacheMisses)) * 100
-        : 0
+        : 0;
 
     // Process queue stats
     const queueStats = {
       pending: queueStatsResult.data.pending.aggregate.count,
       processing: queueStatsResult.data.claimed.aggregate.count,
       failed: queueStatsResult.data.failed.aggregate.count,
-    }
+    };
 
     // Process cache stats
     const cacheStats = {
@@ -169,10 +182,10 @@ export async function GET(request: NextRequest) {
         cacheStatsResult.data.total.aggregate.count > 0
           ? Math.floor(
               (cacheStatsResult.data.total.aggregate.sum.usage_count || 0) /
-                cacheStatsResult.data.total.aggregate.count
+                cacheStatsResult.data.total.aggregate.count,
             )
           : 0,
-    }
+    };
 
     // Return comprehensive stats
     return NextResponse.json({
@@ -195,7 +208,9 @@ export async function GET(request: NextRequest) {
         totalTokens: totals.totalTokens,
         totalCost: totals.totalCost.toFixed(4),
         avgCostPerEmbedding:
-          totals.totalEmbeddings > 0 ? (totals.totalCost / totals.totalEmbeddings).toFixed(6) : 0,
+          totals.totalEmbeddings > 0
+            ? (totals.totalCost / totals.totalEmbeddings).toFixed(6)
+            : 0,
         cacheHitRate: cacheHitRate.toFixed(2),
         errorRate:
           totals.totalEmbeddings > 0
@@ -205,15 +220,20 @@ export async function GET(request: NextRequest) {
       queue: queueStats,
       cache: cacheStats,
       dailyStats: dailyStats.slice(0, 30), // Last 30 days
-    })
+    });
   } catch (error) {
-    logger.error('Get embedding stats API error:', error)
+    logger.error("Get embedding stats API error:", error);
 
     return NextResponse.json(
       {
-        error: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Failed to get embedding stats',
+        error:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Failed to get embedding stats",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

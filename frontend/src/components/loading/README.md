@@ -287,14 +287,14 @@ import { ProgressBar, CircularProgress, StepProgress } from '@/components/loadin
 Specialized upload progress indicator.
 
 ```tsx
-import { UploadProgress } from '@/components/loading'
-;<UploadProgress
+import { UploadProgress } from "@/components/loading";
+<UploadProgress
   fileName="document.pdf"
   fileSize="2.4 MB"
   progress={45}
   status="uploading"
   onCancel={() => cancelUpload()}
-/>
+/>;
 ```
 
 ## Suspense Helpers
@@ -304,19 +304,22 @@ import { UploadProgress } from '@/components/loading'
 Type-safe lazy loading utilities.
 
 ```tsx
-import { lazyLoad, lazyLoadWithRetry, preloadComponent } from '@/lib/loading'
+import { lazyLoad, lazyLoadWithRetry, preloadComponent } from "@/lib/loading";
 
 // Basic lazy load
-const ChatView = lazyLoad(() => import('@/components/chat/ChatView'), 'ChatView')
+const ChatView = lazyLoad(
+  () => import("@/components/chat/ChatView"),
+  "ChatView",
+);
 
 // With retry
-const HeavyComponent = lazyLoadWithRetry(() => import('./HeavyComponent'), {
+const HeavyComponent = lazyLoadWithRetry(() => import("./HeavyComponent"), {
   maxRetries: 3,
   retryDelay: 1000,
-})
+});
 
 // Preload before needed
-preloadComponent(ChatView)
+preloadComponent(ChatView);
 ```
 
 ### Suspense Wrappers
@@ -388,15 +391,15 @@ function UserProfile({ userId }) {
 Unified loading state management.
 
 ```tsx
-import { LoadingState } from '@/components/loading'
-;<LoadingState
+import { LoadingState } from "@/components/loading";
+<LoadingState
   state={loadingState} // 'idle' | 'loading' | 'success' | 'error'
   loadingContent={<Skeleton />}
   errorContent={<ErrorMessage />}
   successContent={<YourContent />}
   error={error}
   onRetry={handleRetry}
-/>
+/>;
 ```
 
 ### Data Wrapper
@@ -431,13 +434,13 @@ import { DataWrapper, ListWrapper } from '@/components/loading'
 ### Empty States
 
 ```tsx
-import { EmptyState } from '@/components/loading'
-;<EmptyState
+import { EmptyState } from "@/components/loading";
+<EmptyState
   icon={<InboxIcon className="h-12 w-12" />}
   title="No messages yet"
   description="Start a conversation to see messages here"
   action={<Button onClick={handleStartChat}>Start Chat</Button>}
-/>
+/>;
 ```
 
 ## Optimistic Updates
@@ -447,32 +450,35 @@ import { EmptyState } from '@/components/loading'
 Manage optimistic UI updates.
 
 ```tsx
-import { useOptimistic } from '@/lib/loading'
+import { useOptimistic } from "@/lib/loading";
 
 function MessageList() {
-  const [{ data: messages, isPending }, updateMessages] = useOptimistic(initialMessages)
+  const [{ data: messages, isPending }, updateMessages] =
+    useOptimistic(initialMessages);
 
   const sendMessage = async (text: string) => {
     // Optimistically add message
     updateMessages((prev) => [
       ...prev,
       {
-        id: 'temp-' + Date.now(),
+        id: "temp-" + Date.now(),
         text,
         isPending: true,
       },
-    ])
+    ]);
 
     try {
       // Send to server
-      const result = await api.sendMessage(text)
+      const result = await api.sendMessage(text);
       // Update with real message
-      updateMessages((prev) => prev.map((m) => (m.id === 'temp-' + Date.now() ? result : m)))
+      updateMessages((prev) =>
+        prev.map((m) => (m.id === "temp-" + Date.now() ? result : m)),
+      );
     } catch (error) {
       // Revert on error
-      revert()
+      revert();
     }
-  }
+  };
 
   return (
     <div>
@@ -480,7 +486,7 @@ function MessageList() {
         <Message key={msg.id} message={msg} isPending={msg.isPending} />
       ))}
     </div>
-  )
+  );
 }
 ```
 
@@ -489,37 +495,43 @@ function MessageList() {
 Optimistic operations on lists.
 
 ```tsx
-import { useOptimisticList } from '@/lib/loading'
+import { useOptimisticList } from "@/lib/loading";
 
 function TodoList() {
-  const { list, addOptimistic, updateOptimistic, removeOptimistic, confirmUpdate, isPending } =
-    useOptimisticList(initialTodos)
+  const {
+    list,
+    addOptimistic,
+    updateOptimistic,
+    removeOptimistic,
+    confirmUpdate,
+    isPending,
+  } = useOptimisticList(initialTodos);
 
   const addTodo = async (text: string) => {
-    const tempId = 'temp-' + Date.now()
+    const tempId = "temp-" + Date.now();
 
     // Add optimistically
-    addOptimistic({ id: tempId, text, completed: false })
+    addOptimistic({ id: tempId, text, completed: false });
 
     try {
       // Create on server
-      const newTodo = await api.createTodo(text)
+      const newTodo = await api.createTodo(text);
       // Confirm with real ID
-      confirmUpdate(tempId)
+      confirmUpdate(tempId);
     } catch (error) {
-      revertItem(tempId)
+      revertItem(tempId);
     }
-  }
+  };
 
   return (
     <ul>
       {list.map((todo) => (
-        <li key={todo.id} className={isPending(todo.id) ? 'opacity-50' : ''}>
+        <li key={todo.id} className={isPending(todo.id) ? "opacity-50" : ""}>
           {todo.text}
         </li>
       ))}
     </ul>
-  )
+  );
 }
 ```
 
@@ -628,13 +640,13 @@ Avoid over-rendering skeletons:
 
 ```tsx
 // Good: Single wrapper
-;<SkeletonWrapper isLoading={isLoading} skeleton={<Skeleton />}>
+<SkeletonWrapper isLoading={isLoading} skeleton={<Skeleton />}>
   <Content />
-</SkeletonWrapper>
+</SkeletonWrapper>;
 
 // Bad: Conditional rendering (re-mounts)
 {
-  isLoading ? <Skeleton /> : <Content />
+  isLoading ? <Skeleton /> : <Content />;
 }
 ```
 
@@ -726,15 +738,15 @@ function ChatMessages({ channelId }: { channelId: string }) {
 All components are fully typed with TypeScript:
 
 ```tsx
-import type { SpinnerProps, LoadingStateType } from '@/components/loading'
+import type { SpinnerProps, LoadingStateType } from "@/components/loading";
 
 const spinnerProps: SpinnerProps = {
-  size: 'lg',
-  color: 'primary',
-  text: 'Loading...',
-}
+  size: "lg",
+  color: "primary",
+  text: "Loading...",
+};
 
-const state: LoadingStateType = 'loading'
+const state: LoadingStateType = "loading";
 ```
 
 ## Testing
@@ -742,11 +754,11 @@ const state: LoadingStateType = 'loading'
 Test loading states easily:
 
 ```tsx
-import { render, screen } from '@testing-library/react'
-import { MessageSkeleton } from '@/components/loading'
+import { render, screen } from "@testing-library/react";
+import { MessageSkeleton } from "@/components/loading";
 
-test('renders message skeleton', () => {
-  render(<MessageSkeleton count={3} />)
-  expect(screen.getAllByRole('status')).toHaveLength(3)
-})
+test("renders message skeleton", () => {
+  render(<MessageSkeleton count={3} />);
+  expect(screen.getAllByRole("status")).toHaveLength(3);
+});
 ```

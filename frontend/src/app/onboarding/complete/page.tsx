@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { gql, useMutation } from '@apollo/client'
-import { CompletionStep } from '@/components/onboarding'
-import { useOnboardingStore } from '@/stores/onboarding-store'
-import { useAuth } from '@/contexts/auth-context'
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { gql, useMutation } from "@apollo/client";
+import { CompletionStep } from "@/components/onboarding";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import { useAuth } from "@/contexts/auth-context";
 
 // ============================================================================
 // GraphQL
@@ -25,46 +25,52 @@ const COMPLETE_ONBOARDING = gql`
       }
     }
   }
-`
+`;
 
 // ============================================================================
 // Page
 // ============================================================================
 
 export default function OnboardingCompletePage() {
-  const router = useRouter()
-  const { user, loading, isAuthenticated } = useAuth()
-  const { onboarding, profileData, selectedChannels, teamInvitations, initialize, completeStep } =
-    useOnboardingStore()
+  const router = useRouter();
+  const { user, loading, isAuthenticated } = useAuth();
+  const {
+    onboarding,
+    profileData,
+    selectedChannels,
+    teamInvitations,
+    initialize,
+    completeStep,
+  } = useOnboardingStore();
 
-  const [completeOnboarding] = useMutation(COMPLETE_ONBOARDING)
+  const [completeOnboarding] = useMutation(COMPLETE_ONBOARDING);
 
   // Redirect unauthenticated visitors to login before completion page can load.
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.replace('/login?redirect=/onboarding/complete')
+      router.replace("/login?redirect=/onboarding/complete");
     }
-  }, [loading, isAuthenticated, router])
+  }, [loading, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!user?.id) return
-    initialize(user.id)
-  }, [user?.id, initialize])
+    if (!user?.id) return;
+    initialize(user.id);
+  }, [user?.id, initialize]);
 
   const handleComplete = async () => {
     // Advance local store state
-    completeStep()
+    completeStep();
 
     // Persist completion to DB so the onboarding gate knows this user is done
     if (user?.id) {
       await completeOnboarding({ variables: { userId: user.id } }).catch(() => {
         // Non-fatal: local store is the source of truth for routing;
         // DB write will be retried next time the store syncs.
-      })
+      });
     }
 
-    router.push('/chat')
-  }
+    router.push("/chat");
+  };
 
   // Guard render during auth resolution.
   if (loading || !isAuthenticated || !user?.id) {
@@ -72,7 +78,7 @@ export default function OnboardingCompletePage() {
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-sm text-zinc-400">
         Loading…
       </div>
-    )
+    );
   }
 
   return (
@@ -87,5 +93,5 @@ export default function OnboardingCompletePage() {
         />
       </div>
     </div>
-  )
+  );
 }

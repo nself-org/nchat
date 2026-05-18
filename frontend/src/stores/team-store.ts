@@ -3,9 +3,9 @@
  * Zustand store for team/workspace management
  */
 
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 import type {
   Team,
@@ -16,7 +16,7 @@ import type {
   BillingInfo,
   UsageStatistics,
   TeamExportResult,
-} from '@/lib/team/team-types'
+} from "@/lib/team/team-types";
 
 // ============================================================================
 // State Interface
@@ -24,45 +24,45 @@ import type {
 
 export interface TeamState {
   // Team data
-  team: Team | null
-  settings: TeamSettings | null
-  isLoadingTeam: boolean
+  team: Team | null;
+  settings: TeamSettings | null;
+  isLoadingTeam: boolean;
 
   // Members
-  members: TeamMember[]
-  membersTotal: number
-  isLoadingMembers: boolean
+  members: TeamMember[];
+  membersTotal: number;
+  isLoadingMembers: boolean;
 
   // Invitations
-  invitations: TeamInvitation[]
-  invitationsTotal: number
-  isLoadingInvitations: boolean
+  invitations: TeamInvitation[];
+  invitationsTotal: number;
+  isLoadingInvitations: boolean;
 
   // Invite Links
-  inviteLinks: InviteLink[]
-  isLoadingInviteLinks: boolean
+  inviteLinks: InviteLink[];
+  isLoadingInviteLinks: boolean;
 
   // Billing
-  billing: BillingInfo | null
-  usage: UsageStatistics | null
-  isLoadingBilling: boolean
+  billing: BillingInfo | null;
+  usage: UsageStatistics | null;
+  isLoadingBilling: boolean;
 
   // Export
-  exportRequests: TeamExportResult[]
-  isLoadingExport: boolean
+  exportRequests: TeamExportResult[];
+  isLoadingExport: boolean;
 
   // UI state
-  selectedMemberId: string | null
-  selectedInvitationId: string | null
+  selectedMemberId: string | null;
+  selectedInvitationId: string | null;
 
   // Modals
-  inviteModalOpen: boolean
-  inviteModalMode: 'email' | 'link' | 'bulk'
-  transferOwnershipModalOpen: boolean
-  deleteTeamModalOpen: boolean
-  exportDataModalOpen: boolean
-  changePlanModalOpen: boolean
-  paymentMethodModalOpen: boolean
+  inviteModalOpen: boolean;
+  inviteModalMode: "email" | "link" | "bulk";
+  transferOwnershipModalOpen: boolean;
+  deleteTeamModalOpen: boolean;
+  exportDataModalOpen: boolean;
+  changePlanModalOpen: boolean;
+  paymentMethodModalOpen: boolean;
 }
 
 // ============================================================================
@@ -71,64 +71,70 @@ export interface TeamState {
 
 export interface TeamActions {
   // Team actions
-  setTeam: (team: Team | null) => void
-  setSettings: (settings: TeamSettings | null) => void
-  setLoadingTeam: (loading: boolean) => void
-  updateTeamData: (updates: Partial<Team>) => void
+  setTeam: (team: Team | null) => void;
+  setSettings: (settings: TeamSettings | null) => void;
+  setLoadingTeam: (loading: boolean) => void;
+  updateTeamData: (updates: Partial<Team>) => void;
 
   // Members actions
-  setMembers: (members: TeamMember[], total: number) => void
-  setLoadingMembers: (loading: boolean) => void
-  addMember: (member: TeamMember) => void
-  updateMember: (userId: string, updates: Partial<TeamMember>) => void
-  removeMember: (userId: string) => void
-  setSelectedMemberId: (userId: string | null) => void
+  setMembers: (members: TeamMember[], total: number) => void;
+  setLoadingMembers: (loading: boolean) => void;
+  addMember: (member: TeamMember) => void;
+  updateMember: (userId: string, updates: Partial<TeamMember>) => void;
+  removeMember: (userId: string) => void;
+  setSelectedMemberId: (userId: string | null) => void;
 
   // Invitations actions
-  setInvitations: (invitations: TeamInvitation[], total: number) => void
-  setLoadingInvitations: (loading: boolean) => void
-  addInvitation: (invitation: TeamInvitation) => void
-  updateInvitation: (invitationId: string, updates: Partial<TeamInvitation>) => void
-  removeInvitation: (invitationId: string) => void
-  setSelectedInvitationId: (invitationId: string | null) => void
+  setInvitations: (invitations: TeamInvitation[], total: number) => void;
+  setLoadingInvitations: (loading: boolean) => void;
+  addInvitation: (invitation: TeamInvitation) => void;
+  updateInvitation: (
+    invitationId: string,
+    updates: Partial<TeamInvitation>,
+  ) => void;
+  removeInvitation: (invitationId: string) => void;
+  setSelectedInvitationId: (invitationId: string | null) => void;
 
   // Invite Links actions
-  setInviteLinks: (links: InviteLink[]) => void
-  setLoadingInviteLinks: (loading: boolean) => void
-  addInviteLink: (link: InviteLink) => void
-  updateInviteLink: (linkId: string, updates: Partial<InviteLink>) => void
-  removeInviteLink: (linkId: string) => void
+  setInviteLinks: (links: InviteLink[]) => void;
+  setLoadingInviteLinks: (loading: boolean) => void;
+  addInviteLink: (link: InviteLink) => void;
+  updateInviteLink: (linkId: string, updates: Partial<InviteLink>) => void;
+  removeInviteLink: (linkId: string) => void;
 
   // Billing actions
-  setBilling: (billing: BillingInfo | null) => void
-  setUsage: (usage: UsageStatistics | null) => void
-  setLoadingBilling: (loading: boolean) => void
+  setBilling: (billing: BillingInfo | null) => void;
+  setUsage: (usage: UsageStatistics | null) => void;
+  setLoadingBilling: (loading: boolean) => void;
 
   // Export actions
-  setExportRequests: (requests: TeamExportResult[]) => void
-  addExportRequest: (request: TeamExportResult) => void
-  updateExportRequest: (requestId: string, updates: Partial<TeamExportResult>) => void
-  setLoadingExport: (loading: boolean) => void
+  setExportRequests: (requests: TeamExportResult[]) => void;
+  addExportRequest: (request: TeamExportResult) => void;
+  updateExportRequest: (
+    requestId: string,
+    updates: Partial<TeamExportResult>,
+  ) => void;
+  setLoadingExport: (loading: boolean) => void;
 
   // Modal actions
-  openInviteModal: (mode: 'email' | 'link' | 'bulk') => void
-  closeInviteModal: () => void
-  openTransferOwnershipModal: () => void
-  closeTransferOwnershipModal: () => void
-  openDeleteTeamModal: () => void
-  closeDeleteTeamModal: () => void
-  openExportDataModal: () => void
-  closeExportDataModal: () => void
-  openChangePlanModal: () => void
-  closeChangePlanModal: () => void
-  openPaymentMethodModal: () => void
-  closePaymentMethodModal: () => void
+  openInviteModal: (mode: "email" | "link" | "bulk") => void;
+  closeInviteModal: () => void;
+  openTransferOwnershipModal: () => void;
+  closeTransferOwnershipModal: () => void;
+  openDeleteTeamModal: () => void;
+  closeDeleteTeamModal: () => void;
+  openExportDataModal: () => void;
+  closeExportDataModal: () => void;
+  openChangePlanModal: () => void;
+  closeChangePlanModal: () => void;
+  openPaymentMethodModal: () => void;
+  closePaymentMethodModal: () => void;
 
   // Utility
-  reset: () => void
+  reset: () => void;
 }
 
-export type TeamStore = TeamState & TeamActions
+export type TeamStore = TeamState & TeamActions;
 
 // ============================================================================
 // Initial State
@@ -169,13 +175,13 @@ const initialState: TeamState = {
 
   // Modals
   inviteModalOpen: false,
-  inviteModalMode: 'email',
+  inviteModalMode: "email",
   transferOwnershipModalOpen: false,
   deleteTeamModalOpen: false,
   exportDataModalOpen: false,
   changePlanModalOpen: false,
   paymentMethodModalOpen: false,
-}
+};
 
 // ============================================================================
 // Store
@@ -192,39 +198,39 @@ export const useTeamStore = create<TeamStore>()(
       setTeam: (team) =>
         set(
           (state) => {
-            state.team = team
+            state.team = team;
           },
           false,
-          'team/setTeam'
+          "team/setTeam",
         ),
 
       setSettings: (settings) =>
         set(
           (state) => {
-            state.settings = settings
+            state.settings = settings;
           },
           false,
-          'team/setSettings'
+          "team/setSettings",
         ),
 
       setLoadingTeam: (loading) =>
         set(
           (state) => {
-            state.isLoadingTeam = loading
+            state.isLoadingTeam = loading;
           },
           false,
-          'team/setLoadingTeam'
+          "team/setLoadingTeam",
         ),
 
       updateTeamData: (updates) =>
         set(
           (state) => {
             if (state.team) {
-              state.team = { ...state.team, ...updates }
+              state.team = { ...state.team, ...updates };
             }
           },
           false,
-          'team/updateTeamData'
+          "team/updateTeamData",
         ),
 
       // ========================================
@@ -233,61 +239,61 @@ export const useTeamStore = create<TeamStore>()(
       setMembers: (members, total) =>
         set(
           (state) => {
-            state.members = members
-            state.membersTotal = total
+            state.members = members;
+            state.membersTotal = total;
           },
           false,
-          'team/setMembers'
+          "team/setMembers",
         ),
 
       setLoadingMembers: (loading) =>
         set(
           (state) => {
-            state.isLoadingMembers = loading
+            state.isLoadingMembers = loading;
           },
           false,
-          'team/setLoadingMembers'
+          "team/setLoadingMembers",
         ),
 
       addMember: (member) =>
         set(
           (state) => {
-            state.members = [member, ...state.members]
-            state.membersTotal += 1
+            state.members = [member, ...state.members];
+            state.membersTotal += 1;
           },
           false,
-          'team/addMember'
+          "team/addMember",
         ),
 
       updateMember: (userId, updates) =>
         set(
           (state) => {
-            const index = state.members.findIndex((m) => m.userId === userId)
+            const index = state.members.findIndex((m) => m.userId === userId);
             if (index !== -1) {
-              state.members[index] = { ...state.members[index], ...updates }
+              state.members[index] = { ...state.members[index], ...updates };
             }
           },
           false,
-          'team/updateMember'
+          "team/updateMember",
         ),
 
       removeMember: (userId) =>
         set(
           (state) => {
-            state.members = state.members.filter((m) => m.userId !== userId)
-            state.membersTotal -= 1
+            state.members = state.members.filter((m) => m.userId !== userId);
+            state.membersTotal -= 1;
           },
           false,
-          'team/removeMember'
+          "team/removeMember",
         ),
 
       setSelectedMemberId: (userId) =>
         set(
           (state) => {
-            state.selectedMemberId = userId
+            state.selectedMemberId = userId;
           },
           false,
-          'team/setSelectedMemberId'
+          "team/setSelectedMemberId",
         ),
 
       // ========================================
@@ -296,61 +302,68 @@ export const useTeamStore = create<TeamStore>()(
       setInvitations: (invitations, total) =>
         set(
           (state) => {
-            state.invitations = invitations
-            state.invitationsTotal = total
+            state.invitations = invitations;
+            state.invitationsTotal = total;
           },
           false,
-          'team/setInvitations'
+          "team/setInvitations",
         ),
 
       setLoadingInvitations: (loading) =>
         set(
           (state) => {
-            state.isLoadingInvitations = loading
+            state.isLoadingInvitations = loading;
           },
           false,
-          'team/setLoadingInvitations'
+          "team/setLoadingInvitations",
         ),
 
       addInvitation: (invitation) =>
         set(
           (state) => {
-            state.invitations = [invitation, ...state.invitations]
-            state.invitationsTotal += 1
+            state.invitations = [invitation, ...state.invitations];
+            state.invitationsTotal += 1;
           },
           false,
-          'team/addInvitation'
+          "team/addInvitation",
         ),
 
       updateInvitation: (invitationId, updates) =>
         set(
           (state) => {
-            const index = state.invitations.findIndex((i) => i.id === invitationId)
+            const index = state.invitations.findIndex(
+              (i) => i.id === invitationId,
+            );
             if (index !== -1) {
-              state.invitations[index] = { ...state.invitations[index], ...updates }
+              state.invitations[index] = {
+                ...state.invitations[index],
+                ...updates,
+              };
             }
           },
           false,
-          'team/updateInvitation'
+          "team/updateInvitation",
         ),
 
       removeInvitation: (invitationId) =>
         set(
           (state) => {
-            state.invitations = state.invitations.filter((i) => i.id !== invitationId)
-            state.invitationsTotal -= 1
+            state.invitations = state.invitations.filter(
+              (i) => i.id !== invitationId,
+            );
+            state.invitationsTotal -= 1;
           },
           false,
-          'team/removeInvitation'
+          "team/removeInvitation",
         ),
 
       setSelectedInvitationId: (invitationId) =>
         set(
           (state) => {
-            state.selectedInvitationId = invitationId
+            state.selectedInvitationId = invitationId;
           },
           false,
-          'team/setSelectedInvitationId'
+          "team/setSelectedInvitationId",
         ),
 
       // ========================================
@@ -359,49 +372,54 @@ export const useTeamStore = create<TeamStore>()(
       setInviteLinks: (links) =>
         set(
           (state) => {
-            state.inviteLinks = links
+            state.inviteLinks = links;
           },
           false,
-          'team/setInviteLinks'
+          "team/setInviteLinks",
         ),
 
       setLoadingInviteLinks: (loading) =>
         set(
           (state) => {
-            state.isLoadingInviteLinks = loading
+            state.isLoadingInviteLinks = loading;
           },
           false,
-          'team/setLoadingInviteLinks'
+          "team/setLoadingInviteLinks",
         ),
 
       addInviteLink: (link) =>
         set(
           (state) => {
-            state.inviteLinks = [link, ...state.inviteLinks]
+            state.inviteLinks = [link, ...state.inviteLinks];
           },
           false,
-          'team/addInviteLink'
+          "team/addInviteLink",
         ),
 
       updateInviteLink: (linkId, updates) =>
         set(
           (state) => {
-            const index = state.inviteLinks.findIndex((l) => l.id === linkId)
+            const index = state.inviteLinks.findIndex((l) => l.id === linkId);
             if (index !== -1) {
-              state.inviteLinks[index] = { ...state.inviteLinks[index], ...updates }
+              state.inviteLinks[index] = {
+                ...state.inviteLinks[index],
+                ...updates,
+              };
             }
           },
           false,
-          'team/updateInviteLink'
+          "team/updateInviteLink",
         ),
 
       removeInviteLink: (linkId) =>
         set(
           (state) => {
-            state.inviteLinks = state.inviteLinks.filter((l) => l.id !== linkId)
+            state.inviteLinks = state.inviteLinks.filter(
+              (l) => l.id !== linkId,
+            );
           },
           false,
-          'team/removeInviteLink'
+          "team/removeInviteLink",
         ),
 
       // ========================================
@@ -410,28 +428,28 @@ export const useTeamStore = create<TeamStore>()(
       setBilling: (billing) =>
         set(
           (state) => {
-            state.billing = billing
+            state.billing = billing;
           },
           false,
-          'team/setBilling'
+          "team/setBilling",
         ),
 
       setUsage: (usage) =>
         set(
           (state) => {
-            state.usage = usage
+            state.usage = usage;
           },
           false,
-          'team/setUsage'
+          "team/setUsage",
         ),
 
       setLoadingBilling: (loading) =>
         set(
           (state) => {
-            state.isLoadingBilling = loading
+            state.isLoadingBilling = loading;
           },
           false,
-          'team/setLoadingBilling'
+          "team/setLoadingBilling",
         ),
 
       // ========================================
@@ -440,40 +458,45 @@ export const useTeamStore = create<TeamStore>()(
       setExportRequests: (requests) =>
         set(
           (state) => {
-            state.exportRequests = requests
+            state.exportRequests = requests;
           },
           false,
-          'team/setExportRequests'
+          "team/setExportRequests",
         ),
 
       addExportRequest: (request) =>
         set(
           (state) => {
-            state.exportRequests = [request, ...state.exportRequests]
+            state.exportRequests = [request, ...state.exportRequests];
           },
           false,
-          'team/addExportRequest'
+          "team/addExportRequest",
         ),
 
       updateExportRequest: (requestId, updates) =>
         set(
           (state) => {
-            const index = state.exportRequests.findIndex((r) => r.id === requestId)
+            const index = state.exportRequests.findIndex(
+              (r) => r.id === requestId,
+            );
             if (index !== -1) {
-              state.exportRequests[index] = { ...state.exportRequests[index], ...updates }
+              state.exportRequests[index] = {
+                ...state.exportRequests[index],
+                ...updates,
+              };
             }
           },
           false,
-          'team/updateExportRequest'
+          "team/updateExportRequest",
         ),
 
       setLoadingExport: (loading) =>
         set(
           (state) => {
-            state.isLoadingExport = loading
+            state.isLoadingExport = loading;
           },
           false,
-          'team/setLoadingExport'
+          "team/setLoadingExport",
         ),
 
       // ========================================
@@ -482,138 +505,140 @@ export const useTeamStore = create<TeamStore>()(
       openInviteModal: (mode) =>
         set(
           (state) => {
-            state.inviteModalOpen = true
-            state.inviteModalMode = mode
+            state.inviteModalOpen = true;
+            state.inviteModalMode = mode;
           },
           false,
-          'team/openInviteModal'
+          "team/openInviteModal",
         ),
 
       closeInviteModal: () =>
         set(
           (state) => {
-            state.inviteModalOpen = false
+            state.inviteModalOpen = false;
           },
           false,
-          'team/closeInviteModal'
+          "team/closeInviteModal",
         ),
 
       openTransferOwnershipModal: () =>
         set(
           (state) => {
-            state.transferOwnershipModalOpen = true
+            state.transferOwnershipModalOpen = true;
           },
           false,
-          'team/openTransferOwnershipModal'
+          "team/openTransferOwnershipModal",
         ),
 
       closeTransferOwnershipModal: () =>
         set(
           (state) => {
-            state.transferOwnershipModalOpen = false
+            state.transferOwnershipModalOpen = false;
           },
           false,
-          'team/closeTransferOwnershipModal'
+          "team/closeTransferOwnershipModal",
         ),
 
       openDeleteTeamModal: () =>
         set(
           (state) => {
-            state.deleteTeamModalOpen = true
+            state.deleteTeamModalOpen = true;
           },
           false,
-          'team/openDeleteTeamModal'
+          "team/openDeleteTeamModal",
         ),
 
       closeDeleteTeamModal: () =>
         set(
           (state) => {
-            state.deleteTeamModalOpen = false
+            state.deleteTeamModalOpen = false;
           },
           false,
-          'team/closeDeleteTeamModal'
+          "team/closeDeleteTeamModal",
         ),
 
       openExportDataModal: () =>
         set(
           (state) => {
-            state.exportDataModalOpen = true
+            state.exportDataModalOpen = true;
           },
           false,
-          'team/openExportDataModal'
+          "team/openExportDataModal",
         ),
 
       closeExportDataModal: () =>
         set(
           (state) => {
-            state.exportDataModalOpen = false
+            state.exportDataModalOpen = false;
           },
           false,
-          'team/closeExportDataModal'
+          "team/closeExportDataModal",
         ),
 
       openChangePlanModal: () =>
         set(
           (state) => {
-            state.changePlanModalOpen = true
+            state.changePlanModalOpen = true;
           },
           false,
-          'team/openChangePlanModal'
+          "team/openChangePlanModal",
         ),
 
       closeChangePlanModal: () =>
         set(
           (state) => {
-            state.changePlanModalOpen = false
+            state.changePlanModalOpen = false;
           },
           false,
-          'team/closeChangePlanModal'
+          "team/closeChangePlanModal",
         ),
 
       openPaymentMethodModal: () =>
         set(
           (state) => {
-            state.paymentMethodModalOpen = true
+            state.paymentMethodModalOpen = true;
           },
           false,
-          'team/openPaymentMethodModal'
+          "team/openPaymentMethodModal",
         ),
 
       closePaymentMethodModal: () =>
         set(
           (state) => {
-            state.paymentMethodModalOpen = false
+            state.paymentMethodModalOpen = false;
           },
           false,
-          'team/closePaymentMethodModal'
+          "team/closePaymentMethodModal",
         ),
 
       // ========================================
       // Utility
       // ========================================
-      reset: () => set(() => initialState, false, 'team/reset'),
+      reset: () => set(() => initialState, false, "team/reset"),
     })),
-    { name: 'team-store' }
-  )
-)
+    { name: "team-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectTeam = (state: TeamStore) => state.team
-export const selectSettings = (state: TeamStore) => state.settings
-export const selectIsLoadingTeam = (state: TeamStore) => state.isLoadingTeam
+export const selectTeam = (state: TeamStore) => state.team;
+export const selectSettings = (state: TeamStore) => state.settings;
+export const selectIsLoadingTeam = (state: TeamStore) => state.isLoadingTeam;
 
-export const selectMembers = (state: TeamStore) => state.members
-export const selectMembersTotal = (state: TeamStore) => state.membersTotal
-export const selectIsLoadingMembers = (state: TeamStore) => state.isLoadingMembers
+export const selectMembers = (state: TeamStore) => state.members;
+export const selectMembersTotal = (state: TeamStore) => state.membersTotal;
+export const selectIsLoadingMembers = (state: TeamStore) =>
+  state.isLoadingMembers;
 
-export const selectInvitations = (state: TeamStore) => state.invitations
-export const selectInvitationsTotal = (state: TeamStore) => state.invitationsTotal
-export const selectInviteLinks = (state: TeamStore) => state.inviteLinks
+export const selectInvitations = (state: TeamStore) => state.invitations;
+export const selectInvitationsTotal = (state: TeamStore) =>
+  state.invitationsTotal;
+export const selectInviteLinks = (state: TeamStore) => state.inviteLinks;
 
-export const selectBilling = (state: TeamStore) => state.billing
-export const selectUsage = (state: TeamStore) => state.usage
+export const selectBilling = (state: TeamStore) => state.billing;
+export const selectUsage = (state: TeamStore) => state.usage;
 
-export const selectExportRequests = (state: TeamStore) => state.exportRequests
+export const selectExportRequests = (state: TeamStore) => state.exportRequests;

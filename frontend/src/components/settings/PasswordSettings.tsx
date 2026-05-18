@@ -1,78 +1,80 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { SettingsSection } from './settings-section'
-import { SettingsRow } from './settings-row'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Check, AlertCircle, Eye, EyeOff } from 'lucide-react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Progress } from '@/components/ui/progress'
-import { cn } from '@/lib/utils'
+import { useState } from "react";
+import { SettingsSection } from "./settings-section";
+import { SettingsRow } from "./settings-row";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Check, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 interface PasswordSettingsProps {
-  className?: string
+  className?: string;
 }
 
 /**
  * PasswordSettings - Change password
  */
 export function PasswordSettings({ className }: PasswordSettingsProps) {
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const passwordStrength = calculatePasswordStrength(newPassword)
+  const passwordStrength = calculatePasswordStrength(newPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    setSuccess(false)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
 
     try {
       // Validation
       if (!currentPassword) {
-        throw new Error('Please enter your current password')
+        throw new Error("Please enter your current password");
       }
 
       if (newPassword.length < 8) {
-        throw new Error('New password must be at least 8 characters')
+        throw new Error("New password must be at least 8 characters");
       }
 
       if (newPassword !== confirmPassword) {
-        throw new Error('Passwords do not match')
+        throw new Error("Passwords do not match");
       }
 
       if (passwordStrength.score < 2) {
-        throw new Error('Please choose a stronger password')
+        throw new Error("Please choose a stronger password");
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      setSuccess(true)
-      setCurrentPassword('')
-      setNewPassword('')
-      setConfirmPassword('')
-      setTimeout(() => setSuccess(false), 5000)
+      setSuccess(true);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update password')
+      setError(
+        err instanceof Error ? err.message : "Failed to update password",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const canSubmit =
     currentPassword &&
     newPassword &&
     confirmPassword &&
     newPassword === confirmPassword &&
-    newPassword.length >= 8
+    newPassword.length >= 8;
 
   return (
     <SettingsSection
@@ -95,11 +97,15 @@ export function PasswordSettings({ className }: PasswordSettingsProps) {
           </Alert>
         )}
 
-        <SettingsRow label="Current password" htmlFor="current-password" vertical>
+        <SettingsRow
+          label="Current password"
+          htmlFor="current-password"
+          vertical
+        >
           <div className="relative">
             <Input
               id="current-password"
-              type={showCurrentPassword ? 'text' : 'password'}
+              type={showCurrentPassword ? "text" : "password"}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="Enter current password"
@@ -133,7 +139,7 @@ export function PasswordSettings({ className }: PasswordSettingsProps) {
             <div className="relative">
               <Input
                 id="new-password"
-                type={showNewPassword ? 'text' : 'password'}
+                type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Enter new password"
@@ -161,20 +167,22 @@ export function PasswordSettings({ className }: PasswordSettingsProps) {
                 <Progress
                   value={(passwordStrength.score / 4) * 100}
                   className={cn(
-                    'h-1',
-                    passwordStrength.score === 0 && '[&>div]:bg-destructive',
-                    passwordStrength.score === 1 && '[&>div]:bg-orange-500',
-                    passwordStrength.score === 2 && '[&>div]:bg-yellow-500',
-                    passwordStrength.score === 3 && '[&>div]:bg-lime-500',
-                    passwordStrength.score === 4 && '[&>div]:bg-green-500'
+                    "h-1",
+                    passwordStrength.score === 0 && "[&>div]:bg-destructive",
+                    passwordStrength.score === 1 && "[&>div]:bg-orange-500",
+                    passwordStrength.score === 2 && "[&>div]:bg-yellow-500",
+                    passwordStrength.score === 3 && "[&>div]:bg-lime-500",
+                    passwordStrength.score === 4 && "[&>div]:bg-green-500",
                   )}
                 />
                 <p
                   className={cn(
-                    'text-xs',
-                    passwordStrength.score <= 1 && 'text-destructive',
-                    passwordStrength.score === 2 && 'text-yellow-600 dark:text-yellow-400',
-                    passwordStrength.score >= 3 && 'text-green-600 dark:text-green-400'
+                    "text-xs",
+                    passwordStrength.score <= 1 && "text-destructive",
+                    passwordStrength.score === 2 &&
+                      "text-yellow-600 dark:text-yellow-400",
+                    passwordStrength.score >= 3 &&
+                      "text-green-600 dark:text-green-400",
                   )}
                 >
                   {passwordStrength.label}
@@ -184,7 +192,11 @@ export function PasswordSettings({ className }: PasswordSettingsProps) {
           </div>
         </SettingsRow>
 
-        <SettingsRow label="Confirm new password" htmlFor="confirm-password" vertical>
+        <SettingsRow
+          label="Confirm new password"
+          htmlFor="confirm-password"
+          vertical
+        >
           <Input
             id="confirm-password"
             type="password"
@@ -195,49 +207,51 @@ export function PasswordSettings({ className }: PasswordSettingsProps) {
             autoComplete="new-password"
           />
           {confirmPassword && newPassword !== confirmPassword && (
-            <p className="mt-1 text-xs text-destructive">Passwords do not match</p>
+            <p className="mt-1 text-xs text-destructive">
+              Passwords do not match
+            </p>
           )}
         </SettingsRow>
 
         <div className="flex items-center gap-4">
           <Button type="submit" disabled={loading || !canSubmit}>
-            {loading ? 'Updating...' : 'Update Password'}
+            {loading ? "Updating..." : "Update Password"}
           </Button>
         </div>
       </form>
     </SettingsSection>
-  )
+  );
 }
 
 /**
  * Calculate password strength
  */
 function calculatePasswordStrength(password: string): {
-  score: number
-  label: string
+  score: number;
+  label: string;
 } {
   if (!password) {
-    return { score: 0, label: '' }
+    return { score: 0, label: "" };
   }
 
-  let score = 0
+  let score = 0;
 
   // Length checks
-  if (password.length >= 8) score++
-  if (password.length >= 12) score++
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
 
   // Character variety checks
-  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++
-  if (/\d/.test(password)) score++
-  if (/[^a-zA-Z0-9]/.test(password)) score++
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^a-zA-Z0-9]/.test(password)) score++;
 
   // Cap at 4
-  score = Math.min(score, 4)
+  score = Math.min(score, 4);
 
-  const labels = ['Very weak', 'Weak', 'Fair', 'Strong', 'Very strong']
+  const labels = ["Very weak", "Weak", "Fair", "Strong", "Very strong"];
 
   return {
     score,
     label: labels[score],
-  }
+  };
 }

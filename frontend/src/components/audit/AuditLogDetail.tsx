@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * AuditLogDetail - Modal component for viewing audit log entry details
@@ -23,12 +23,12 @@ import {
   Server,
   Copy,
   ExternalLink,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -37,15 +37,19 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 
-import type { AuditLogEntry, AuditCategory, AuditSeverity } from '@/lib/audit/audit-types'
+import type {
+  AuditLogEntry,
+  AuditCategory,
+  AuditSeverity,
+} from "@/lib/audit/audit-types";
 import {
   formatTimestamp,
   getCategoryBadgeClass,
   getSeverityBadgeClass,
-} from '@/lib/audit/audit-formatter'
-import { getActionDisplayName } from '@/lib/audit/audit-events'
+} from "@/lib/audit/audit-formatter";
+import { getActionDisplayName } from "@/lib/audit/audit-events";
 
 // ============================================================================
 // Icons
@@ -61,23 +65,23 @@ const categoryIcons: Record<AuditCategory, React.ReactNode> = {
   admin: <Shield className="h-5 w-5" />,
   security: <Lock className="h-5 w-5" />,
   integration: <Puzzle className="h-5 w-5" />,
-}
+};
 
 const severityIcons: Record<AuditSeverity, React.ReactNode> = {
   info: <Info className="h-5 w-5" />,
   warning: <AlertTriangle className="h-5 w-5" />,
   error: <XCircle className="h-5 w-5" />,
   critical: <AlertOctagon className="h-5 w-5" />,
-}
+};
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AuditLogDetailProps {
-  entry: AuditLogEntry | null
-  open: boolean
-  onClose: () => void
+  entry: AuditLogEntry | null;
+  open: boolean;
+  onClose: () => void;
 }
 
 // ============================================================================
@@ -85,25 +89,33 @@ interface AuditLogDetailProps {
 // ============================================================================
 
 export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
-  if (!entry) return null
+  if (!entry) return null;
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
+    navigator.clipboard.writeText(text);
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-3">
-            <div className={cn('rounded-lg p-2', getCategoryBadgeClass(entry.category))}>
+            <div
+              className={cn(
+                "rounded-lg p-2",
+                getCategoryBadgeClass(entry.category),
+              )}
+            >
               {categoryIcons[entry.category]}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 {getActionDisplayName(entry.action)}
                 {entry.success ? (
-                  <Badge variant="outline" className="bg-green-100 text-green-800">
+                  <Badge
+                    variant="outline"
+                    className="bg-green-100 text-green-800"
+                  >
                     <Check className="mr-1 h-3 w-3" />
                     Success
                   </Badge>
@@ -115,7 +127,7 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
                 )}
               </div>
               <p className="text-sm font-normal text-muted-foreground">
-                {formatTimestamp(entry.timestamp, 'long')}
+                {formatTimestamp(entry.timestamp, "long")}
               </p>
             </div>
           </AlertDialogTitle>
@@ -124,7 +136,9 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
         <div className="space-y-6 py-4">
           {/* Description */}
           <div>
-            <h4 className="mb-2 text-sm font-medium text-muted-foreground">Description</h4>
+            <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+              Description
+            </h4>
             <p className="text-sm">{entry.description}</p>
             {entry.errorMessage && (
               <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
@@ -137,11 +151,17 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
 
           {/* Actor */}
           <div>
-            <h4 className="mb-2 text-sm font-medium text-muted-foreground">Actor</h4>
+            <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+              Actor
+            </h4>
             <div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
               <Avatar className="h-10 w-10">
                 <AvatarFallback>
-                  {(entry.actor.displayName || entry.actor.username || entry.actor.id)
+                  {(
+                    entry.actor.displayName ||
+                    entry.actor.username ||
+                    entry.actor.id
+                  )
                     .charAt(0)
                     .toUpperCase()}
                 </AvatarFallback>
@@ -149,14 +169,18 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">
-                    {entry.actor.displayName || entry.actor.username || 'Unknown'}
+                    {entry.actor.displayName ||
+                      entry.actor.username ||
+                      "Unknown"}
                   </span>
                   <Badge variant="outline" className="capitalize">
                     {entry.actor.type}
                   </Badge>
                 </div>
                 {entry.actor.email && (
-                  <p className="text-sm text-muted-foreground">{entry.actor.email}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {entry.actor.email}
+                  </p>
                 )}
                 <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="font-mono">{entry.actor.id}</span>
@@ -176,16 +200,22 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
           {/* Resource */}
           {entry.resource && (
             <div>
-              <h4 className="mb-2 text-sm font-medium text-muted-foreground">Resource</h4>
+              <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                Resource
+              </h4>
               <div className="bg-muted/50 rounded-lg p-3">
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-muted-foreground">Type:</span>
-                    <span className="ml-2 capitalize">{entry.resource.type}</span>
+                    <span className="ml-2 capitalize">
+                      {entry.resource.type}
+                    </span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">ID:</span>
-                    <span className="ml-2 font-mono text-xs">{entry.resource.id}</span>
+                    <span className="ml-2 font-mono text-xs">
+                      {entry.resource.id}
+                    </span>
                   </div>
                   {entry.resource.name && (
                     <div className="col-span-2">
@@ -196,7 +226,9 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
                 </div>
                 {entry.resource.previousValue !== undefined && (
                   <div className="mt-3 border-t pt-3">
-                    <span className="text-xs text-muted-foreground">Previous Value:</span>
+                    <span className="text-xs text-muted-foreground">
+                      Previous Value:
+                    </span>
                     <pre className="mt-1 overflow-x-auto rounded bg-muted p-2 text-xs">
                       {JSON.stringify(entry.resource.previousValue, null, 2)}
                     </pre>
@@ -204,7 +236,9 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
                 )}
                 {entry.resource.newValue !== undefined && (
                   <div className="mt-3">
-                    <span className="text-xs text-muted-foreground">New Value:</span>
+                    <span className="text-xs text-muted-foreground">
+                      New Value:
+                    </span>
                     <pre className="mt-1 overflow-x-auto rounded bg-muted p-2 text-xs">
                       {JSON.stringify(entry.resource.newValue, null, 2)}
                     </pre>
@@ -217,7 +251,9 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
           {/* Target */}
           {entry.target && (
             <div>
-              <h4 className="mb-2 text-sm font-medium text-muted-foreground">Target</h4>
+              <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                Target
+              </h4>
               <div className="bg-muted/50 rounded-lg p-3">
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
@@ -226,7 +262,9 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
                   </div>
                   <div>
                     <span className="text-muted-foreground">ID:</span>
-                    <span className="ml-2 font-mono text-xs">{entry.target.id}</span>
+                    <span className="ml-2 font-mono text-xs">
+                      {entry.target.id}
+                    </span>
                   </div>
                   {entry.target.name && (
                     <div className="col-span-2">
@@ -243,15 +281,23 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
           <div className="grid grid-cols-2 gap-4">
             {/* Category & Severity */}
             <div>
-              <h4 className="mb-2 text-sm font-medium text-muted-foreground">Category</h4>
-              <Badge className={cn('gap-1', getCategoryBadgeClass(entry.category))}>
+              <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                Category
+              </h4>
+              <Badge
+                className={cn("gap-1", getCategoryBadgeClass(entry.category))}
+              >
                 {categoryIcons[entry.category]}
                 {entry.category}
               </Badge>
             </div>
             <div>
-              <h4 className="mb-2 text-sm font-medium text-muted-foreground">Severity</h4>
-              <Badge className={cn('gap-1', getSeverityBadgeClass(entry.severity))}>
+              <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                Severity
+              </h4>
+              <Badge
+                className={cn("gap-1", getSeverityBadgeClass(entry.severity))}
+              >
                 {severityIcons[entry.severity]}
                 {entry.severity}
               </Badge>
@@ -274,9 +320,13 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
                   Location
                 </h4>
                 <p className="text-sm">
-                  {[entry.geoLocation.city, entry.geoLocation.region, entry.geoLocation.country]
+                  {[
+                    entry.geoLocation.city,
+                    entry.geoLocation.region,
+                    entry.geoLocation.country,
+                  ]
                     .filter(Boolean)
-                    .join(', ')}
+                    .join(", ")}
                 </p>
               </div>
             )}
@@ -289,7 +339,9 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
                   Request ID
                 </h4>
                 <div className="flex items-center gap-1">
-                  <p className="truncate font-mono text-xs">{entry.requestId}</p>
+                  <p className="truncate font-mono text-xs">
+                    {entry.requestId}
+                  </p>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -310,7 +362,9 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
                   Correlation ID
                 </h4>
                 <div className="flex items-center gap-1">
-                  <p className="truncate font-mono text-xs">{entry.correlationId}</p>
+                  <p className="truncate font-mono text-xs">
+                    {entry.correlationId}
+                  </p>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -341,7 +395,9 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <span>Entry ID:</span>
-                <code className="rounded bg-muted px-1.5 py-0.5">{entry.id}</code>
+                <code className="rounded bg-muted px-1.5 py-0.5">
+                  {entry.id}
+                </code>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -353,7 +409,7 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                {formatTimestamp(entry.timestamp, 'relative')}
+                {formatTimestamp(entry.timestamp, "relative")}
               </div>
             </div>
           </div>
@@ -361,12 +417,15 @@ export function AuditLogDetail({ entry, open, onClose }: AuditLogDetailProps) {
 
         <AlertDialogFooter>
           <AlertDialogCancel>Close</AlertDialogCancel>
-          <Button variant="outline" onClick={() => copyToClipboard(JSON.stringify(entry, null, 2))}>
+          <Button
+            variant="outline"
+            onClick={() => copyToClipboard(JSON.stringify(entry, null, 2))}
+          >
             <Copy className="mr-2 h-4 w-4" />
             Copy JSON
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

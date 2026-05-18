@@ -4,16 +4,16 @@
  * Create an idempotent checkout session for subscription or one-time payment.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { getStripePaymentService } from '@/services/billing/stripe-payment.service'
-import type { PlanTier, BillingInterval } from '@/types/subscription.types'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { getStripePaymentService } from "@/services/billing/stripe-payment.service";
+import type { PlanTier, BillingInterval } from "@/types/subscription.types";
+import { logger } from "@/lib/logger";
 
 const createCheckoutSchema = z.object({
   workspaceId: z.string().min(1),
-  plan: z.enum(['free', 'starter', 'professional', 'enterprise', 'custom']),
-  interval: z.enum(['monthly', 'yearly']),
+  plan: z.enum(["free", "starter", "professional", "enterprise", "custom"]),
+  interval: z.enum(["monthly", "yearly"]),
   customerEmail: z.string().email().optional(),
   customerId: z.string().optional(),
   successUrl: z.string().url(),
@@ -24,18 +24,18 @@ const createCheckoutSchema = z.object({
   allowPromotionCodes: z.boolean().optional(),
   idempotencyKey: z.string().optional(),
   metadata: z.record(z.string()).optional(),
-})
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const validation = createCheckoutSchema.safeParse(body)
+    const body = await request.json();
+    const validation = createCheckoutSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: 'Invalid request', details: validation.error.errors },
-        { status: 400 }
-      )
+        { error: "Invalid request", details: validation.error.errors },
+        { status: 400 },
+      );
     }
 
     const {
@@ -52,25 +52,25 @@ export async function POST(request: NextRequest) {
       allowPromotionCodes,
       idempotencyKey,
       metadata,
-    } = validation.data
+    } = validation.data;
 
     // Don't allow checkout for free plan
-    if (plan === 'free') {
+    if (plan === "free") {
       return NextResponse.json(
-        { error: 'Free plan does not require checkout' },
-        { status: 400 }
-      )
+        { error: "Free plan does not require checkout" },
+        { status: 400 },
+      );
     }
 
     // Don't allow checkout for custom plan via API
-    if (plan === 'custom') {
+    if (plan === "custom") {
       return NextResponse.json(
-        { error: 'Custom plans require sales contact' },
-        { status: 400 }
-      )
+        { error: "Custom plans require sales contact" },
+        { status: 400 },
+      );
     }
 
-    const paymentService = getStripePaymentService()
+    const paymentService = getStripePaymentService();
 
     const result = await paymentService.createCheckoutSession(
       {
@@ -87,19 +87,19 @@ export async function POST(request: NextRequest) {
         allowPromotionCodes,
         metadata,
       },
-      idempotencyKey
-    )
+      idempotencyKey,
+    );
 
     if (!result.success) {
-      logger.error('Failed to create checkout session', {
+      logger.error("Failed to create checkout session", {
         error: result.error,
         workspaceId,
         plan,
-      })
+      });
       return NextResponse.json(
-        { error: result.error?.message || 'Failed to create checkout session' },
-        { status: 400 }
-      )
+        { error: result.error?.message || "Failed to create checkout session" },
+        { status: 400 },
+      );
     }
 
     return NextResponse.json({
@@ -109,12 +109,15 @@ export async function POST(request: NextRequest) {
       expiresAt: result.data!.expiresAt.toISOString(),
       wasReplay: result.wasReplay,
       idempotencyKey: result.idempotencyKey,
-    })
+    });
   } catch (error) {
-    logger.error('Error creating checkout session:', error)
+    logger.error("Error creating checkout session:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: (error instanceof Error ? error.message : String(error)) },
-      { status: 500 }
-    )
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }

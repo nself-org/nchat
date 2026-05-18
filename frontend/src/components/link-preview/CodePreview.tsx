@@ -1,35 +1,40 @@
-'use client'
+"use client";
 
 /**
  * CodePreview - Code snippet/gist preview (GitHub Gist, CodePen, CodeSandbox)
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import type { CodePreviewData } from '@/lib/link-preview'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import type { CodePreviewData } from "@/lib/link-preview";
 
 export interface CodePreviewProps {
   /** Code preview data */
-  data: CodePreviewData
+  data: CodePreviewData;
   /** Show embed iframe */
-  showEmbed?: boolean
+  showEmbed?: boolean;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Children (for action buttons) */
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
-export function CodePreview({ data, showEmbed = false, className, children }: CodePreviewProps) {
+export function CodePreview({
+  data,
+  showEmbed = false,
+  className,
+  children,
+}: CodePreviewProps) {
   const handleClick = () => {
-    window.open(data.url, '_blank', 'noopener,noreferrer')
-  }
+    window.open(data.url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm',
-        'hover:border-primary/50 transition-all duration-200 hover:shadow-md',
-        className
+        "group relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
+        "hover:border-primary/50 transition-all duration-200 hover:shadow-md",
+        className,
       )}
     >
       {/* Header */}
@@ -46,7 +51,7 @@ export function CodePreview({ data, showEmbed = false, className, children }: Co
             <polyline points="8 6 2 12 8 18" />
           </svg>
         </div>
-        <span className="text-sm font-medium">{data.siteName || 'Code'}</span>
+        <span className="text-sm font-medium">{data.siteName || "Code"}</span>
       </div>
 
       {/* Content */}
@@ -56,9 +61,9 @@ export function CodePreview({ data, showEmbed = false, className, children }: Co
         role="link"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleClick()
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
           }
         }}
       >
@@ -66,15 +71,19 @@ export function CodePreview({ data, showEmbed = false, className, children }: Co
           {data.image && (
             <img
               src={data.image}
-              alt={data.title || 'Code preview'}
+              alt={data.title || "Code preview"}
               className="h-16 w-24 flex-shrink-0 rounded object-cover"
               loading="lazy"
             />
           )}
           <div className="min-w-0 flex-1">
-            {data.title && <p className="truncate text-sm font-semibold">{data.title}</p>}
+            {data.title && (
+              <p className="truncate text-sm font-semibold">{data.title}</p>
+            )}
             {data.description && (
-              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{data.description}</p>
+              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                {data.description}
+              </p>
             )}
           </div>
         </div>
@@ -87,7 +96,7 @@ export function CodePreview({ data, showEmbed = false, className, children }: Co
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default CodePreview
+export default CodePreview;

@@ -8,8 +8,8 @@
  * @version 1.0.0
  */
 
-import Stripe from 'stripe'
-import { v4 as uuidv4 } from 'uuid'
+import Stripe from "stripe";
+import { v4 as uuidv4 } from "uuid";
 import {
   STRIPE_API_VERSION,
   type CreateCheckoutSessionInput,
@@ -45,10 +45,14 @@ import {
   type StripeOperationResult,
   StripePaymentError,
   StripeErrorCode,
-} from '@/lib/billing/stripe-types'
-import { STRIPE_PRICE_IDS, PLAN_PRICING } from '@/lib/billing/plan-config'
-import type { PlanTier, BillingInterval, Currency } from '@/types/subscription.types'
-import { logger } from '@/lib/logger'
+} from "@/lib/billing/stripe-types";
+import { STRIPE_PRICE_IDS, PLAN_PRICING } from "@/lib/billing/plan-config";
+import type {
+  PlanTier,
+  BillingInterval,
+  Currency,
+} from "@/types/subscription.types";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -62,25 +66,25 @@ export interface StripePaymentServiceConfig {
    * TTL for idempotency cache entries.
    * Default: 24 hours
    */
-  idempotencyCacheTTL: number
+  idempotencyCacheTTL: number;
 
   /**
    * Enable operation logging.
    * Default: true
    */
-  enableLogging: boolean
+  enableLogging: boolean;
 
   /**
    * Maximum retries for API calls.
    * Default: 3
    */
-  maxRetries: number
+  maxRetries: number;
 
   /**
    * Retry delay in milliseconds.
    * Default: 1000
    */
-  retryDelay: number
+  retryDelay: number;
 }
 
 /**
@@ -91,7 +95,7 @@ const DEFAULT_CONFIG: StripePaymentServiceConfig = {
   enableLogging: true,
   maxRetries: 3,
   retryDelay: 1000,
-}
+};
 
 // ============================================================================
 // In-Memory Stores (Replace with Redis/DB in production)
@@ -100,12 +104,12 @@ const DEFAULT_CONFIG: StripePaymentServiceConfig = {
 /**
  * Idempotency cache for operations.
  */
-const idempotencyCache = new Map<string, IdempotencyCacheEntry>()
+const idempotencyCache = new Map<string, IdempotencyCacheEntry>();
 
 /**
  * Checkout session cache for deduplication.
  */
-const checkoutSessionCache = new Map<string, CheckoutSessionResult>()
+const checkoutSessionCache = new Map<string, CheckoutSessionResult>();
 
 // ============================================================================
 // Stripe Payment Service
@@ -115,24 +119,24 @@ const checkoutSessionCache = new Map<string, CheckoutSessionResult>()
  * Stripe Payment Service for comprehensive payment operations.
  */
 export class StripePaymentService {
-  private stripe: Stripe
-  private config: StripePaymentServiceConfig
+  private stripe: Stripe;
+  private config: StripePaymentServiceConfig;
 
   constructor(config?: Partial<StripePaymentServiceConfig>) {
-    const apiKey = process.env.STRIPE_SECRET_KEY
+    const apiKey = process.env.STRIPE_SECRET_KEY;
     if (!apiKey) {
       throw new StripePaymentError(
         StripeErrorCode.MISSING_API_KEY,
-        'STRIPE_SECRET_KEY is not configured'
-      )
+        "STRIPE_SECRET_KEY is not configured",
+      );
     }
 
     this.stripe = new Stripe(apiKey, {
       apiVersion: STRIPE_API_VERSION,
       typescript: true,
-    })
+    });
 
-    this.config = { ...DEFAULT_CONFIG, ...config }
+    this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
   // ==========================================================================
@@ -144,12 +148,13 @@ export class StripePaymentService {
    */
   async createCheckoutSession(
     input: CreateCheckoutSessionInput,
-    idempotencyKey?: string
+    idempotencyKey?: string,
   ): Promise<IdempotentOperationResult<CheckoutSessionResult>> {
-    const key = idempotencyKey || this.generateIdempotencyKey('checkout', input)
+    const key =
+      idempotencyKey || this.generateIdempotencyKey("checkout", input);
 
     // Check cache for existing result
-    const cached = this.getCachedResult<CheckoutSessionResult>(key)
+    const cached = this.getCachedResult<CheckoutSessionResult>(key);
     if (cached) {
       return {
         success: true,
@@ -157,23 +162,23 @@ export class StripePaymentService {
         idempotencyKey: key,
         wasReplay: true,
         cachedAt: cached.createdAt,
-      }
+      };
     }
 
     try {
       // Get price ID for the plan
-      const priceId = this.getPriceId(input.plan, input.interval)
+      const priceId = this.getPriceId(input.plan, input.interval);
       if (!priceId) {
         throw new StripePaymentError(
           StripeErrorCode.PRICE_NOT_CONFIGURED,
-          `Price ID not configured for plan: ${input.plan}/${input.interval}`
-        )
+          `Price ID not configured for plan: ${input.plan}/${input.interval}`,
+        );
       }
 
       // Build checkout session params
       const params: Stripe.Checkout.SessionCreateParams = {
-        mode: input.mode || 'subscription',
-        payment_method_types: ['card'],
+        mode: input.mode || "subscription",
+        payment_method_types: ["card"],
         line_items: [
           {
             price: priceId,
@@ -190,17 +195,17 @@ export class StripePaymentService {
           ...input.metadata,
         },
         allow_promotion_codes: input.allowPromotionCodes ?? false,
-      }
+      };
 
       // Add customer if provided
       if (input.customerId) {
-        params.customer = input.customerId
+        params.customer = input.customerId;
       } else if (input.customerEmail) {
-        params.customer_email = input.customerEmail
+        params.customer_email = input.customerEmail;
       }
 
       // Add trial period for subscriptions
-      if (input.mode !== 'payment' && input.trialDays && input.trialDays > 0) {
+      if (input.mode !== "payment" && input.trialDays && input.trialDays > 0) {
         params.subscription_data = {
           trial_period_days: input.trialDays,
           metadata: {
@@ -208,7 +213,7 @@ export class StripePaymentService {
             plan: input.plan,
             interval: input.interval,
           },
-        }
+        };
       }
 
       // Add promotion code if provided
@@ -217,16 +222,16 @@ export class StripePaymentService {
           code: input.promotionCode,
           active: true,
           limit: 1,
-        })
+        });
         if (promotions.data.length > 0) {
-          params.discounts = [{ promotion_code: promotions.data[0].id }]
+          params.discounts = [{ promotion_code: promotions.data[0].id }];
         }
       }
 
       // Create checkout session
       const session = await this.stripe.checkout.sessions.create(params, {
         idempotencyKey: key,
-      })
+      });
 
       const result: CheckoutSessionResult = {
         sessionId: session.id,
@@ -239,34 +244,41 @@ export class StripePaymentService {
         currency: session.currency,
         expiresAt: new Date(session.expires_at * 1000),
         metadata: session.metadata || {},
-      }
+      };
 
       // Cache the result
-      this.cacheResult(key, 'create_checkout_session', { success: true, data: result, idempotencyKey: key, wasReplay: false })
+      this.cacheResult(key, "create_checkout_session", {
+        success: true,
+        data: result,
+        idempotencyKey: key,
+        wasReplay: false,
+      });
 
       return {
         success: true,
         data: result,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     } catch (error) {
-      const paymentError = this.handleStripeError(error)
+      const paymentError = this.handleStripeError(error);
       return {
         success: false,
         error: paymentError,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     }
   }
 
   /**
    * Retrieve checkout session status.
    */
-  async getCheckoutSession(sessionId: string): Promise<CheckoutSessionResult | null> {
+  async getCheckoutSession(
+    sessionId: string,
+  ): Promise<CheckoutSessionResult | null> {
     try {
-      const session = await this.stripe.checkout.sessions.retrieve(sessionId)
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId);
       return {
         sessionId: session.id,
         url: session.url,
@@ -278,10 +290,10 @@ export class StripePaymentService {
         currency: session.currency,
         expiresAt: new Date(session.expires_at * 1000),
         metadata: session.metadata || {},
-      }
+      };
     } catch (error) {
-      logger.error('Failed to retrieve checkout session', { sessionId, error })
-      return null
+      logger.error("Failed to retrieve checkout session", { sessionId, error });
+      return null;
     }
   }
 
@@ -290,11 +302,11 @@ export class StripePaymentService {
    */
   async expireCheckoutSession(sessionId: string): Promise<boolean> {
     try {
-      await this.stripe.checkout.sessions.expire(sessionId)
-      return true
+      await this.stripe.checkout.sessions.expire(sessionId);
+      return true;
     } catch (error) {
-      logger.error('Failed to expire checkout session', { sessionId, error })
-      return false
+      logger.error("Failed to expire checkout session", { sessionId, error });
+      return false;
     }
   }
 
@@ -307,12 +319,13 @@ export class StripePaymentService {
    */
   async createPaymentIntent(
     input: CreatePaymentIntentInput,
-    idempotencyKey?: string
+    idempotencyKey?: string,
   ): Promise<IdempotentOperationResult<PaymentIntentResult>> {
-    const key = idempotencyKey || this.generateIdempotencyKey('payment_intent', input)
+    const key =
+      idempotencyKey || this.generateIdempotencyKey("payment_intent", input);
 
     // Check cache
-    const cached = this.getCachedResult<PaymentIntentResult>(key)
+    const cached = this.getCachedResult<PaymentIntentResult>(key);
     if (cached) {
       return {
         success: true,
@@ -320,7 +333,7 @@ export class StripePaymentService {
         idempotencyKey: key,
         wasReplay: true,
         cachedAt: cached.createdAt,
-      }
+      };
     }
 
     try {
@@ -329,26 +342,26 @@ export class StripePaymentService {
         currency: input.currency.toLowerCase(),
         description: input.description,
         metadata: input.metadata || {},
-        capture_method: input.captureMethod || 'automatic',
-        confirmation_method: input.confirmationMethod || 'automatic',
+        capture_method: input.captureMethod || "automatic",
+        confirmation_method: input.confirmationMethod || "automatic",
         receipt_email: input.receiptEmail,
-      }
+      };
 
       if (input.customerId) {
-        params.customer = input.customerId
+        params.customer = input.customerId;
       }
 
       if (input.paymentMethodId) {
-        params.payment_method = input.paymentMethodId
+        params.payment_method = input.paymentMethodId;
       }
 
       if (input.setupFutureUsage) {
-        params.setup_future_usage = input.setupFutureUsage
+        params.setup_future_usage = input.setupFutureUsage;
       }
 
       const paymentIntent = await this.stripe.paymentIntents.create(params, {
         idempotencyKey: key,
-      })
+      });
 
       const result: PaymentIntentResult = {
         id: paymentIntent.id,
@@ -360,24 +373,29 @@ export class StripePaymentService {
         paymentMethodId: paymentIntent.payment_method as string | null,
         createdAt: new Date(paymentIntent.created * 1000),
         metadata: paymentIntent.metadata || {},
-      }
+      };
 
-      this.cacheResult(key, 'create_payment_intent', { success: true, data: result, idempotencyKey: key, wasReplay: false })
+      this.cacheResult(key, "create_payment_intent", {
+        success: true,
+        data: result,
+        idempotencyKey: key,
+        wasReplay: false,
+      });
 
       return {
         success: true,
         data: result,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     } catch (error) {
-      const paymentError = this.handleStripeError(error)
+      const paymentError = this.handleStripeError(error);
       return {
         success: false,
         error: paymentError,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     }
   }
 
@@ -385,25 +403,25 @@ export class StripePaymentService {
    * Confirm a payment intent.
    */
   async confirmPaymentIntent(
-    input: ConfirmPaymentIntentInput
+    input: ConfirmPaymentIntentInput,
   ): Promise<StripeOperationResult<PaymentIntentResult>> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const params: Stripe.PaymentIntentConfirmParams = {}
+      const params: Stripe.PaymentIntentConfirmParams = {};
 
       if (input.paymentMethodId) {
-        params.payment_method = input.paymentMethodId
+        params.payment_method = input.paymentMethodId;
       }
 
       if (input.returnUrl) {
-        params.return_url = input.returnUrl
+        params.return_url = input.returnUrl;
       }
 
       const paymentIntent = await this.stripe.paymentIntents.confirm(
         input.paymentIntentId,
-        params
-      )
+        params,
+      );
 
       const result: PaymentIntentResult = {
         id: paymentIntent.id,
@@ -415,23 +433,23 @@ export class StripePaymentService {
         paymentMethodId: paymentIntent.payment_method as string | null,
         createdAt: new Date(paymentIntent.created * 1000),
         metadata: paymentIntent.metadata || {},
-      }
+      };
 
       return {
         success: true,
         data: result,
-        operation: 'confirm_payment_intent',
+        operation: "confirm_payment_intent",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'confirm_payment_intent',
+        operation: "confirm_payment_intent",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -439,21 +457,21 @@ export class StripePaymentService {
    * Capture a payment intent.
    */
   async capturePaymentIntent(
-    input: CapturePaymentIntentInput
+    input: CapturePaymentIntentInput,
   ): Promise<StripeOperationResult<PaymentIntentResult>> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const params: Stripe.PaymentIntentCaptureParams = {}
+      const params: Stripe.PaymentIntentCaptureParams = {};
 
       if (input.amountToCapture !== undefined) {
-        params.amount_to_capture = input.amountToCapture
+        params.amount_to_capture = input.amountToCapture;
       }
 
       const paymentIntent = await this.stripe.paymentIntents.capture(
         input.paymentIntentId,
-        params
-      )
+        params,
+      );
 
       const result: PaymentIntentResult = {
         id: paymentIntent.id,
@@ -465,23 +483,23 @@ export class StripePaymentService {
         paymentMethodId: paymentIntent.payment_method as string | null,
         createdAt: new Date(paymentIntent.created * 1000),
         metadata: paymentIntent.metadata || {},
-      }
+      };
 
       return {
         success: true,
         data: result,
-        operation: 'capture_payment_intent',
+        operation: "capture_payment_intent",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'capture_payment_intent',
+        operation: "capture_payment_intent",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -490,11 +508,14 @@ export class StripePaymentService {
    */
   async cancelPaymentIntent(paymentIntentId: string): Promise<boolean> {
     try {
-      await this.stripe.paymentIntents.cancel(paymentIntentId)
-      return true
+      await this.stripe.paymentIntents.cancel(paymentIntentId);
+      return true;
     } catch (error) {
-      logger.error('Failed to cancel payment intent', { paymentIntentId, error })
-      return false
+      logger.error("Failed to cancel payment intent", {
+        paymentIntentId,
+        error,
+      });
+      return false;
     }
   }
 
@@ -507,12 +528,12 @@ export class StripePaymentService {
    */
   async createRefund(
     input: CreateRefundInput,
-    idempotencyKey?: string
+    idempotencyKey?: string,
   ): Promise<IdempotentOperationResult<RefundResult>> {
-    const key = idempotencyKey || this.generateIdempotencyKey('refund', input)
+    const key = idempotencyKey || this.generateIdempotencyKey("refund", input);
 
     // Check cache
-    const cached = this.getCachedResult<RefundResult>(key)
+    const cached = this.getCachedResult<RefundResult>(key);
     if (cached) {
       return {
         success: true,
@@ -520,48 +541,48 @@ export class StripePaymentService {
         idempotencyKey: key,
         wasReplay: true,
         cachedAt: cached.createdAt,
-      }
+      };
     }
 
     try {
       const params: Stripe.RefundCreateParams = {
         metadata: input.metadata || {},
-      }
+      };
 
       if (input.paymentIntentId) {
-        params.payment_intent = input.paymentIntentId
+        params.payment_intent = input.paymentIntentId;
       } else if (input.chargeId) {
-        params.charge = input.chargeId
+        params.charge = input.chargeId;
       } else {
         throw new StripePaymentError(
           StripeErrorCode.INVALID_REQUEST,
-          'Either paymentIntentId or chargeId is required'
-        )
+          "Either paymentIntentId or chargeId is required",
+        );
       }
 
       if (input.amount !== undefined) {
-        params.amount = input.amount
+        params.amount = input.amount;
       }
 
       if (input.reason) {
-        params.reason = input.reason as Stripe.RefundCreateParams.Reason
+        params.reason = input.reason as Stripe.RefundCreateParams.Reason;
       }
 
       if (input.reverseTransfer !== undefined) {
-        params.reverse_transfer = input.reverseTransfer
+        params.reverse_transfer = input.reverseTransfer;
       }
 
       if (input.refundApplicationFee !== undefined) {
-        params.refund_application_fee = input.refundApplicationFee
+        params.refund_application_fee = input.refundApplicationFee;
       }
 
       if (input.instructionsEmail) {
-        params.instructions_email = input.instructionsEmail
+        params.instructions_email = input.instructionsEmail;
       }
 
       const refund = await this.stripe.refunds.create(params, {
         idempotencyKey: key,
-      })
+      });
 
       const result: RefundResult = {
         id: refund.id,
@@ -574,47 +595,54 @@ export class StripePaymentService {
         createdAt: new Date(refund.created * 1000),
         metadata: refund.metadata || {},
         failureReason: refund.failure_reason || null,
-      }
+      };
 
-      this.cacheResult(key, 'create_refund', { success: true, data: result, idempotencyKey: key, wasReplay: false })
+      this.cacheResult(key, "create_refund", {
+        success: true,
+        data: result,
+        idempotencyKey: key,
+        wasReplay: false,
+      });
 
       return {
         success: true,
         data: result,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     } catch (error) {
-      const paymentError = this.handleStripeError(error)
+      const paymentError = this.handleStripeError(error);
       return {
         success: false,
         error: paymentError,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     }
   }
 
   /**
    * Create multiple refunds in a batch.
    */
-  async createBulkRefunds(request: BulkRefundRequest): Promise<BulkRefundResult> {
-    const succeeded: RefundResult[] = []
-    const failed: Array<{ input: CreateRefundInput; error: string }> = []
+  async createBulkRefunds(
+    request: BulkRefundRequest,
+  ): Promise<BulkRefundResult> {
+    const succeeded: RefundResult[] = [];
+    const failed: Array<{ input: CreateRefundInput; error: string }> = [];
 
     for (const refundInput of request.refunds) {
-      const result = await this.createRefund(refundInput)
+      const result = await this.createRefund(refundInput);
 
       if (result.success && result.data) {
-        succeeded.push(result.data)
+        succeeded.push(result.data);
       } else {
         failed.push({
           input: refundInput,
-          error: result.error?.message || 'Unknown error',
-        })
+          error: result.error?.message || "Unknown error",
+        });
 
         if (request.stopOnError) {
-          break
+          break;
         }
       }
     }
@@ -624,7 +652,7 @@ export class StripePaymentService {
       failed,
       totalSucceeded: succeeded.length,
       totalFailed: failed.length,
-    }
+    };
   }
 
   /**
@@ -632,7 +660,7 @@ export class StripePaymentService {
    */
   async getRefund(refundId: string): Promise<RefundResult | null> {
     try {
-      const refund = await this.stripe.refunds.retrieve(refundId)
+      const refund = await this.stripe.refunds.retrieve(refundId);
       return {
         id: refund.id,
         amount: refund.amount,
@@ -644,10 +672,10 @@ export class StripePaymentService {
         createdAt: new Date(refund.created * 1000),
         metadata: refund.metadata || {},
         failureReason: refund.failure_reason || null,
-      }
+      };
     } catch (error) {
-      logger.error('Failed to retrieve refund', { refundId, error })
-      return null
+      logger.error("Failed to retrieve refund", { refundId, error });
+      return null;
     }
   }
 
@@ -660,12 +688,12 @@ export class StripePaymentService {
    */
   async createInvoice(
     input: CreateInvoiceInput,
-    idempotencyKey?: string
+    idempotencyKey?: string,
   ): Promise<IdempotentOperationResult<InvoiceResult>> {
-    const key = idempotencyKey || this.generateIdempotencyKey('invoice', input)
+    const key = idempotencyKey || this.generateIdempotencyKey("invoice", input);
 
     // Check cache
-    const cached = this.getCachedResult<InvoiceResult>(key)
+    const cached = this.getCachedResult<InvoiceResult>(key);
     if (cached) {
       return {
         success: true,
@@ -673,57 +701,64 @@ export class StripePaymentService {
         idempotencyKey: key,
         wasReplay: true,
         cachedAt: cached.createdAt,
-      }
+      };
     }
 
     try {
       const params: Stripe.InvoiceCreateParams = {
         customer: input.customerId,
         auto_advance: input.autoAdvance ?? true,
-        collection_method: input.collectionMethod || 'charge_automatically',
+        collection_method: input.collectionMethod || "charge_automatically",
         description: input.description,
         metadata: input.metadata || {},
         statement_descriptor: input.statementDescriptor,
         footer: input.footer,
-      }
+      };
 
       if (input.subscriptionId) {
-        params.subscription = input.subscriptionId
+        params.subscription = input.subscriptionId;
       }
 
       if (input.daysUntilDue !== undefined) {
-        params.days_until_due = input.daysUntilDue
+        params.days_until_due = input.daysUntilDue;
       }
 
       const invoice = await this.stripe.invoices.create(params, {
         idempotencyKey: key,
-      })
+      });
 
-      const result = this.mapInvoiceToResult(invoice)
-      this.cacheResult(key, 'create_invoice', { success: true, data: result, idempotencyKey: key, wasReplay: false })
+      const result = this.mapInvoiceToResult(invoice);
+      this.cacheResult(key, "create_invoice", {
+        success: true,
+        data: result,
+        idempotencyKey: key,
+        wasReplay: false,
+      });
 
       return {
         success: true,
         data: result,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     } catch (error) {
-      const paymentError = this.handleStripeError(error)
+      const paymentError = this.handleStripeError(error);
       return {
         success: false,
         error: paymentError,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     }
   }
 
   /**
    * Add an item to an invoice.
    */
-  async addInvoiceItem(input: AddInvoiceItemInput): Promise<StripeOperationResult<string>> {
-    const startTime = Date.now()
+  async addInvoiceItem(
+    input: AddInvoiceItemInput,
+  ): Promise<StripeOperationResult<string>> {
+    const startTime = Date.now();
 
     try {
       const params: Stripe.InvoiceItemCreateParams = {
@@ -731,143 +766,152 @@ export class StripePaymentService {
         description: input.description,
         metadata: input.metadata || {},
         discountable: input.discountable ?? true,
-      }
+      };
 
       if (input.invoiceId) {
-        params.invoice = input.invoiceId
+        params.invoice = input.invoiceId;
       }
 
       if (input.amount !== undefined && input.currency) {
-        params.amount = input.amount
-        params.currency = input.currency.toLowerCase()
+        params.amount = input.amount;
+        params.currency = input.currency.toLowerCase();
       } else if (input.priceId) {
         // In Stripe v18+, use pricing.price instead of price directly
-        params.pricing = { price: input.priceId }
+        params.pricing = { price: input.priceId };
         if (input.quantity !== undefined) {
-          params.quantity = input.quantity
+          params.quantity = input.quantity;
         }
       }
 
       if (input.period) {
-        params.period = input.period
+        params.period = input.period;
       }
 
       if (input.taxRates && input.taxRates.length > 0) {
-        params.tax_rates = input.taxRates
+        params.tax_rates = input.taxRates;
       }
 
-      const invoiceItem = await this.stripe.invoiceItems.create(params)
+      const invoiceItem = await this.stripe.invoiceItems.create(params);
 
       return {
         success: true,
         data: invoiceItem.id,
-        operation: 'create_invoice',
+        operation: "create_invoice",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'create_invoice',
+        operation: "create_invoice",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
   /**
    * Finalize an invoice.
    */
-  async finalizeInvoice(input: FinalizeInvoiceInput): Promise<StripeOperationResult<InvoiceResult>> {
-    const startTime = Date.now()
+  async finalizeInvoice(
+    input: FinalizeInvoiceInput,
+  ): Promise<StripeOperationResult<InvoiceResult>> {
+    const startTime = Date.now();
 
     try {
       const params: Stripe.InvoiceFinalizeInvoiceParams = {
         auto_advance: input.autoAdvance ?? true,
-      }
+      };
 
-      const invoice = await this.stripe.invoices.finalizeInvoice(input.invoiceId, params)
+      const invoice = await this.stripe.invoices.finalizeInvoice(
+        input.invoiceId,
+        params,
+      );
 
       return {
         success: true,
         data: this.mapInvoiceToResult(invoice),
-        operation: 'finalize_invoice',
+        operation: "finalize_invoice",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'finalize_invoice',
+        operation: "finalize_invoice",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
   /**
    * Pay an invoice.
    */
-  async payInvoice(input: PayInvoiceInput): Promise<StripeOperationResult<InvoiceResult>> {
-    const startTime = Date.now()
+  async payInvoice(
+    input: PayInvoiceInput,
+  ): Promise<StripeOperationResult<InvoiceResult>> {
+    const startTime = Date.now();
 
     try {
-      const params: Stripe.InvoicePayParams = {}
+      const params: Stripe.InvoicePayParams = {};
 
       if (input.paymentMethodId) {
-        params.payment_method = input.paymentMethodId
+        params.payment_method = input.paymentMethodId;
       }
 
       if (input.source) {
-        params.source = input.source
+        params.source = input.source;
       }
 
-      const invoice = await this.stripe.invoices.pay(input.invoiceId, params)
+      const invoice = await this.stripe.invoices.pay(input.invoiceId, params);
 
       return {
         success: true,
         data: this.mapInvoiceToResult(invoice),
-        operation: 'pay_invoice',
+        operation: "pay_invoice",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'pay_invoice',
+        operation: "pay_invoice",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
   /**
    * Void an invoice.
    */
-  async voidInvoice(input: VoidInvoiceInput): Promise<StripeOperationResult<InvoiceResult>> {
-    const startTime = Date.now()
+  async voidInvoice(
+    input: VoidInvoiceInput,
+  ): Promise<StripeOperationResult<InvoiceResult>> {
+    const startTime = Date.now();
 
     try {
-      const invoice = await this.stripe.invoices.voidInvoice(input.invoiceId)
+      const invoice = await this.stripe.invoices.voidInvoice(input.invoiceId);
 
       return {
         success: true,
         data: this.mapInvoiceToResult(invoice),
-        operation: 'void_invoice',
+        operation: "void_invoice",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'void_invoice',
+        operation: "void_invoice",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -877,12 +921,12 @@ export class StripePaymentService {
   async getInvoice(invoiceId: string): Promise<InvoiceResult | null> {
     try {
       const invoice = await this.stripe.invoices.retrieve(invoiceId, {
-        expand: ['lines'],
-      })
-      return this.mapInvoiceToResult(invoice)
+        expand: ["lines"],
+      });
+      return this.mapInvoiceToResult(invoice);
     } catch (error) {
-      logger.error('Failed to retrieve invoice', { invoiceId, error })
-      return null
+      logger.error("Failed to retrieve invoice", { invoiceId, error });
+      return null;
     }
   }
 
@@ -891,28 +935,28 @@ export class StripePaymentService {
    */
   async listInvoices(
     customerId: string,
-    options?: { limit?: number; startingAfter?: string; status?: string }
+    options?: { limit?: number; startingAfter?: string; status?: string },
   ): Promise<InvoiceResult[]> {
     try {
       const params: Stripe.InvoiceListParams = {
         customer: customerId,
         limit: options?.limit || 10,
-        expand: ['data.lines'],
-      }
+        expand: ["data.lines"],
+      };
 
       if (options?.startingAfter) {
-        params.starting_after = options.startingAfter
+        params.starting_after = options.startingAfter;
       }
 
       if (options?.status) {
-        params.status = options.status as any
+        params.status = options.status as any;
       }
 
-      const invoices = await this.stripe.invoices.list(params)
-      return invoices.data.map(this.mapInvoiceToResult.bind(this))
+      const invoices = await this.stripe.invoices.list(params);
+      return invoices.data.map(this.mapInvoiceToResult.bind(this));
     } catch (error) {
-      logger.error('Failed to list invoices', { customerId, error })
-      return []
+      logger.error("Failed to list invoices", { customerId, error });
+      return [];
     }
   }
 
@@ -921,23 +965,27 @@ export class StripePaymentService {
    */
   async getUpcomingInvoice(
     customerId: string,
-    subscriptionId?: string
+    subscriptionId?: string,
   ): Promise<InvoiceResult | null> {
     try {
       const params: Stripe.InvoiceCreatePreviewParams = {
         customer: customerId,
-      }
+      };
 
       if (subscriptionId) {
-        params.subscription = subscriptionId
+        params.subscription = subscriptionId;
       }
 
       // In Stripe v18+, use createPreview instead of retrieveUpcoming
-      const invoice = await this.stripe.invoices.createPreview(params)
-      return this.mapInvoiceToResult(invoice)
+      const invoice = await this.stripe.invoices.createPreview(params);
+      return this.mapInvoiceToResult(invoice);
     } catch (error) {
-      logger.error('Failed to retrieve upcoming invoice', { customerId, subscriptionId, error })
-      return null
+      logger.error("Failed to retrieve upcoming invoice", {
+        customerId,
+        subscriptionId,
+        error,
+      });
+      return null;
     }
   }
 
@@ -950,12 +998,14 @@ export class StripePaymentService {
    */
   async createCustomer(
     input: CreateCustomerInput,
-    idempotencyKey?: string
+    idempotencyKey?: string,
   ): Promise<IdempotentOperationResult<CustomerResult>> {
-    const key = idempotencyKey || this.generateIdempotencyKey('customer', { email: input.email })
+    const key =
+      idempotencyKey ||
+      this.generateIdempotencyKey("customer", { email: input.email });
 
     // Check cache
-    const cached = this.getCachedResult<CustomerResult>(key)
+    const cached = this.getCachedResult<CustomerResult>(key);
     if (cached) {
       return {
         success: true,
@@ -963,7 +1013,7 @@ export class StripePaymentService {
         idempotencyKey: key,
         wasReplay: true,
         cachedAt: cached.createdAt,
-      }
+      };
     }
 
     try {
@@ -972,51 +1022,57 @@ export class StripePaymentService {
         name: input.name,
         description: input.description,
         metadata: input.metadata || {},
-      }
+      };
 
       if (input.paymentMethodId) {
-        params.payment_method = input.paymentMethodId
+        params.payment_method = input.paymentMethodId;
       }
 
       if (input.invoiceSettings) {
         params.invoice_settings = {
           default_payment_method: input.invoiceSettings.defaultPaymentMethod,
           footer: input.invoiceSettings.footer,
-        }
+        };
       }
 
       const customer = await this.stripe.customers.create(params, {
         idempotencyKey: key,
-      })
+      });
 
       const result: CustomerResult = {
         id: customer.id,
         email: customer.email ?? null,
         name: customer.name ?? null,
         description: customer.description ?? null,
-        defaultPaymentMethodId: customer.invoice_settings?.default_payment_method as string | null,
+        defaultPaymentMethodId: customer.invoice_settings
+          ?.default_payment_method as string | null,
         balance: customer.balance,
         currency: customer.currency ?? null,
         createdAt: new Date(customer.created * 1000),
         metadata: (customer.metadata as Record<string, string>) || {},
-      }
+      };
 
-      this.cacheResult(key, 'create_customer', { success: true, data: result, idempotencyKey: key, wasReplay: false })
+      this.cacheResult(key, "create_customer", {
+        success: true,
+        data: result,
+        idempotencyKey: key,
+        wasReplay: false,
+      });
 
       return {
         success: true,
         data: result,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     } catch (error) {
-      const paymentError = this.handleStripeError(error)
+      const paymentError = this.handleStripeError(error);
       return {
         success: false,
         error: paymentError,
         idempotencyKey: key,
         wasReplay: false,
-      }
+      };
     }
   }
 
@@ -1025,60 +1081,61 @@ export class StripePaymentService {
    */
   async updateCustomer(
     customerId: string,
-    input: UpdateCustomerInput
+    input: UpdateCustomerInput,
   ): Promise<StripeOperationResult<CustomerResult>> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const params: Stripe.CustomerUpdateParams = {}
+      const params: Stripe.CustomerUpdateParams = {};
 
       if (input.email !== undefined) {
-        params.email = input.email
+        params.email = input.email;
       }
       if (input.name !== undefined) {
-        params.name = input.name
+        params.name = input.name;
       }
       if (input.description !== undefined) {
-        params.description = input.description
+        params.description = input.description;
       }
       if (input.metadata) {
-        params.metadata = input.metadata
+        params.metadata = input.metadata;
       }
       if (input.defaultPaymentMethodId !== undefined) {
         params.invoice_settings = {
           default_payment_method: input.defaultPaymentMethodId,
-        }
+        };
       }
 
-      const customer = await this.stripe.customers.update(customerId, params)
+      const customer = await this.stripe.customers.update(customerId, params);
 
       const result: CustomerResult = {
         id: customer.id,
         email: customer.email ?? null,
         name: customer.name ?? null,
         description: customer.description ?? null,
-        defaultPaymentMethodId: customer.invoice_settings?.default_payment_method as string | null,
+        defaultPaymentMethodId: customer.invoice_settings
+          ?.default_payment_method as string | null,
         balance: customer.balance,
         currency: customer.currency ?? null,
         createdAt: new Date(customer.created * 1000),
         metadata: (customer.metadata as Record<string, string>) || {},
-      }
+      };
 
       return {
         success: true,
         data: result,
-        operation: 'update_customer',
+        operation: "update_customer",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'update_customer',
+        operation: "update_customer",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -1087,29 +1144,30 @@ export class StripePaymentService {
    */
   async getCustomer(customerId: string): Promise<CustomerResult | null> {
     try {
-      const response = await this.stripe.customers.retrieve(customerId)
+      const response = await this.stripe.customers.retrieve(customerId);
 
       if (response.deleted) {
-        return null
+        return null;
       }
 
       // Type assertion after deleted check
-      const customer = response as Stripe.Customer
+      const customer = response as Stripe.Customer;
 
       return {
         id: customer.id,
         email: customer.email ?? null,
         name: customer.name ?? null,
         description: customer.description ?? null,
-        defaultPaymentMethodId: customer.invoice_settings?.default_payment_method as string | null,
+        defaultPaymentMethodId: customer.invoice_settings
+          ?.default_payment_method as string | null,
         balance: customer.balance,
         currency: customer.currency ?? null,
         createdAt: new Date(customer.created * 1000),
         metadata: (customer.metadata as Record<string, string>) || {},
-      }
+      };
     } catch (error) {
-      logger.error('Failed to retrieve customer', { customerId, error })
-      return null
+      logger.error("Failed to retrieve customer", { customerId, error });
+      return null;
     }
   }
 
@@ -1121,31 +1179,31 @@ export class StripePaymentService {
    * Attach a payment method to a customer.
    */
   async attachPaymentMethod(
-    input: AttachPaymentMethodInput
+    input: AttachPaymentMethodInput,
   ): Promise<StripeOperationResult<PaymentMethodDetails>> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
       const paymentMethod = await this.stripe.paymentMethods.attach(
         input.paymentMethodId,
-        { customer: input.customerId }
-      )
+        { customer: input.customerId },
+      );
 
       return {
         success: true,
         data: this.mapPaymentMethodToDetails(paymentMethod),
-        operation: 'attach_payment_method',
+        operation: "attach_payment_method",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'attach_payment_method',
+        operation: "attach_payment_method",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -1153,28 +1211,30 @@ export class StripePaymentService {
    * Detach a payment method from a customer.
    */
   async detachPaymentMethod(
-    input: DetachPaymentMethodInput
+    input: DetachPaymentMethodInput,
   ): Promise<StripeOperationResult<PaymentMethodDetails>> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const paymentMethod = await this.stripe.paymentMethods.detach(input.paymentMethodId)
+      const paymentMethod = await this.stripe.paymentMethods.detach(
+        input.paymentMethodId,
+      );
 
       return {
         success: true,
         data: this.mapPaymentMethodToDetails(paymentMethod),
-        operation: 'detach_payment_method',
+        operation: "detach_payment_method",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: this.handleStripeError(error),
-        operation: 'detach_payment_method',
+        operation: "detach_payment_method",
         duration: Date.now() - startTime,
         timestamp: new Date(),
-      }
+      };
     }
   }
 
@@ -1183,18 +1243,18 @@ export class StripePaymentService {
    */
   async listPaymentMethods(
     customerId: string,
-    type: string = 'card'
+    type: string = "card",
   ): Promise<PaymentMethodDetails[]> {
     try {
       const paymentMethods = await this.stripe.paymentMethods.list({
         customer: customerId,
         type: type as any,
-      })
+      });
 
-      return paymentMethods.data.map(this.mapPaymentMethodToDetails.bind(this))
+      return paymentMethods.data.map(this.mapPaymentMethodToDetails.bind(this));
     } catch (error) {
-      logger.error('Failed to list payment methods', { customerId, error })
-      return []
+      logger.error("Failed to list payment methods", { customerId, error });
+      return [];
     }
   }
 
@@ -1206,9 +1266,9 @@ export class StripePaymentService {
    * Generate a reconciliation report.
    */
   async generateReconciliationReport(
-    request: ReconciliationRequest
+    request: ReconciliationRequest,
   ): Promise<ReconciliationReport> {
-    const entries: ReconciliationEntry[] = []
+    const entries: ReconciliationEntry[] = [];
 
     try {
       // List all charges in the period
@@ -1218,27 +1278,27 @@ export class StripePaymentService {
           lte: Math.floor(request.endDate.getTime() / 1000),
         },
         limit: 100,
-      })
+      });
 
-      let totalStripeAmount = 0
+      let totalStripeAmount = 0;
 
       for (const charge of charges.data) {
-        if (!charge.paid) continue
+        if (!charge.paid) continue;
 
-        totalStripeAmount += charge.amount
+        totalStripeAmount += charge.amount;
 
         const entry: ReconciliationEntry = {
           id: uuidv4(),
-          stripePaymentIntentId: charge.payment_intent as string || '',
+          stripePaymentIntentId: (charge.payment_intent as string) || "",
           stripeChargeId: charge.id,
           subscriptionId: null, // Would be looked up from database
           // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
-          invoiceId: charge.invoice as string || null,
-          customerId: charge.customer as string || '',
+          invoiceId: (charge.invoice as string) || null,
+          customerId: (charge.customer as string) || "",
           workspaceId: charge.metadata?.workspace_id || null,
           amount: charge.amount,
           currency: charge.currency,
-          status: charge.refunded ? 'refunded' : 'matched',
+          status: charge.refunded ? "refunded" : "matched",
           stripeCreatedAt: new Date(charge.created * 1000),
           reconciledAt: new Date(),
           discrepancy: null,
@@ -1247,14 +1307,16 @@ export class StripePaymentService {
             description: charge.description,
             receiptUrl: charge.receipt_url,
           },
-        }
+        };
 
-        entries.push(entry)
+        entries.push(entry);
       }
 
-      const matchedCount = entries.filter(e => e.status === 'matched').length
-      const unmatchedCount = entries.filter(e => e.status === 'unmatched').length
-      const partialCount = entries.filter(e => e.status === 'partial').length
+      const matchedCount = entries.filter((e) => e.status === "matched").length;
+      const unmatchedCount = entries.filter(
+        (e) => e.status === "unmatched",
+      ).length;
+      const partialCount = entries.filter((e) => e.status === "partial").length;
 
       return {
         periodStart: request.startDate,
@@ -1268,10 +1330,13 @@ export class StripePaymentService {
         netDiscrepancy: 0,
         entries,
         generatedAt: new Date(),
-      }
+      };
     } catch (error) {
-      logger.error('Failed to generate reconciliation report', { error, request })
-      throw this.handleStripeError(error)
+      logger.error("Failed to generate reconciliation report", {
+        error,
+        request,
+      });
+      throw this.handleStripeError(error);
     }
   }
 
@@ -1282,32 +1347,35 @@ export class StripePaymentService {
   /**
    * Get price ID for a plan and interval.
    */
-  private getPriceId(plan: PlanTier, interval: BillingInterval): string | undefined {
-    const prices = STRIPE_PRICE_IDS[plan]
-    return interval === 'monthly' ? prices?.monthly : prices?.yearly
+  private getPriceId(
+    plan: PlanTier,
+    interval: BillingInterval,
+  ): string | undefined {
+    const prices = STRIPE_PRICE_IDS[plan];
+    return interval === "monthly" ? prices?.monthly : prices?.yearly;
   }
 
   /**
    * Generate an idempotency key.
    */
   private generateIdempotencyKey(prefix: string, data: unknown): string {
-    const timestamp = Date.now()
-    const dataHash = this.hashData(data)
-    return `${prefix}_${dataHash}_${timestamp}`
+    const timestamp = Date.now();
+    const dataHash = this.hashData(data);
+    return `${prefix}_${dataHash}_${timestamp}`;
   }
 
   /**
    * Simple hash function for idempotency keys.
    */
   private hashData(data: unknown): string {
-    const str = JSON.stringify(data)
-    let hash = 0
+    const str = JSON.stringify(data);
+    let hash = 0;
     for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i)
-      hash = (hash << 5) - hash + char
-      hash = hash & hash
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
     }
-    return Math.abs(hash).toString(16)
+    return Math.abs(hash).toString(16);
   }
 
   /**
@@ -1316,7 +1384,7 @@ export class StripePaymentService {
   private cacheResult<T>(
     key: string,
     operation: StripeOperation,
-    result: IdempotentOperationResult<T>
+    result: IdempotentOperationResult<T>,
   ): void {
     const entry: IdempotencyCacheEntry<T> = {
       key,
@@ -1325,50 +1393,53 @@ export class StripePaymentService {
       createdAt: new Date(),
       expiresAt: new Date(Date.now() + this.config.idempotencyCacheTTL),
       metadata: {},
-    }
-    idempotencyCache.set(key, entry as IdempotencyCacheEntry)
+    };
+    idempotencyCache.set(key, entry as IdempotencyCacheEntry);
   }
 
   /**
    * Get cached result.
    */
   private getCachedResult<T>(key: string): IdempotencyCacheEntry<T> | null {
-    const entry = idempotencyCache.get(key)
+    const entry = idempotencyCache.get(key);
 
     if (!entry) {
-      return null
+      return null;
     }
 
     // Check if expired
     if (entry.expiresAt.getTime() < Date.now()) {
-      idempotencyCache.delete(key)
-      return null
+      idempotencyCache.delete(key);
+      return null;
     }
 
-    return entry as IdempotencyCacheEntry<T>
+    return entry as IdempotencyCacheEntry<T>;
   }
 
   /**
    * Map Stripe invoice to result type.
    */
   private mapInvoiceToResult(invoice: Stripe.Invoice): InvoiceResult {
-    const lineItems: StripeInvoiceLineItem[] = invoice.lines?.data?.map(line => ({
-      id: line.id,
-      description: line.description,
-      amount: line.amount,
-      currency: line.currency,
-      quantity: line.quantity,
-      // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
-      unitAmount: line.price?.unit_amount || null,
-      periodStart: line.period?.start ? new Date(line.period.start * 1000) : null,
-      periodEnd: line.period?.end ? new Date(line.period.end * 1000) : null,
-      // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
-      priceId: line.price?.id || null,
-      // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
-      proration: line.proration,
-      // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
-      type: line.type as any,
-    })) || []
+    const lineItems: StripeInvoiceLineItem[] =
+      invoice.lines?.data?.map((line) => ({
+        id: line.id,
+        description: line.description,
+        amount: line.amount,
+        currency: line.currency,
+        quantity: line.quantity,
+        // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
+        unitAmount: line.price?.unit_amount || null,
+        periodStart: line.period?.start
+          ? new Date(line.period.start * 1000)
+          : null,
+        periodEnd: line.period?.end ? new Date(line.period.end * 1000) : null,
+        // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
+        priceId: line.price?.id || null,
+        // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
+        proration: line.proration,
+        // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
+        type: line.type as any,
+      })) || [];
 
     return {
       // @ts-expect-error Stripe API type definitions mismatch — works correctly at runtime
@@ -1392,40 +1463,50 @@ export class StripePaymentService {
         ? new Date(invoice.status_transitions.paid_at * 1000)
         : null,
       createdAt: new Date(invoice.created * 1000),
-      periodStart: invoice.period_start ? new Date(invoice.period_start * 1000) : null,
-      periodEnd: invoice.period_end ? new Date(invoice.period_end * 1000) : null,
+      periodStart: invoice.period_start
+        ? new Date(invoice.period_start * 1000)
+        : null,
+      periodEnd: invoice.period_end
+        ? new Date(invoice.period_end * 1000)
+        : null,
       hostedInvoiceUrl: invoice.hosted_invoice_url ?? null,
       invoicePdf: invoice.invoice_pdf ?? null,
       lineItems,
       metadata: invoice.metadata || {},
-    }
+    };
   }
 
   /**
    * Map Stripe payment method to details type.
    */
-  private mapPaymentMethodToDetails(paymentMethod: Stripe.PaymentMethod): PaymentMethodDetails {
+  private mapPaymentMethodToDetails(
+    paymentMethod: Stripe.PaymentMethod,
+  ): PaymentMethodDetails {
     return {
       id: paymentMethod.id,
       type: paymentMethod.type as any,
       customerId: paymentMethod.customer as string | null,
       billingEmail: paymentMethod.billing_details?.email || null,
-      card: paymentMethod.card ? {
-        brand: paymentMethod.card.brand as any,
-        last4: paymentMethod.card.last4,
-        expMonth: paymentMethod.card.exp_month,
-        expYear: paymentMethod.card.exp_year,
-        funding: paymentMethod.card.funding,
-        country: paymentMethod.card.country,
-      } : undefined,
-      usBankAccount: paymentMethod.us_bank_account ? {
-        bankName: paymentMethod.us_bank_account.bank_name || null,
-        last4: paymentMethod.us_bank_account.last4 || '',
-        accountType: paymentMethod.us_bank_account.account_type,
-        routingNumber: paymentMethod.us_bank_account.routing_number || null,
-      } : undefined,
+      card: paymentMethod.card
+        ? {
+            brand: paymentMethod.card.brand as any,
+            last4: paymentMethod.card.last4,
+            expMonth: paymentMethod.card.exp_month,
+            expYear: paymentMethod.card.exp_year,
+            funding: paymentMethod.card.funding,
+            country: paymentMethod.card.country,
+          }
+        : undefined,
+      usBankAccount: paymentMethod.us_bank_account
+        ? {
+            bankName: paymentMethod.us_bank_account.bank_name || null,
+            last4: paymentMethod.us_bank_account.last4 || "",
+            accountType: paymentMethod.us_bank_account.account_type,
+            routingNumber: paymentMethod.us_bank_account.routing_number || null,
+          }
+        : undefined,
       createdAt: new Date(paymentMethod.created * 1000),
-    }
+    };
   }
 
   /**
@@ -1433,90 +1514,90 @@ export class StripePaymentService {
    */
   private handleStripeError(error: unknown): StripePaymentError {
     if (error instanceof Stripe.errors.StripeError) {
-      const stripeError = error as Stripe.errors.StripeError
+      const stripeError = error as Stripe.errors.StripeError;
 
       // Map Stripe error codes to our error codes
-      let code = StripeErrorCode.UNKNOWN_ERROR
+      let code = StripeErrorCode.UNKNOWN_ERROR;
 
       switch (stripeError.type) {
-        case 'StripeCardError':
+        case "StripeCardError":
           switch (stripeError.code) {
-            case 'card_declined':
-              code = StripeErrorCode.CARD_DECLINED
-              break
-            case 'expired_card':
-              code = StripeErrorCode.CARD_EXPIRED
-              break
-            case 'incorrect_cvc':
-              code = StripeErrorCode.INCORRECT_CVC
-              break
-            case 'incorrect_number':
-              code = StripeErrorCode.INCORRECT_NUMBER
-              break
-            case 'insufficient_funds':
-              code = StripeErrorCode.INSUFFICIENT_FUNDS
-              break
+            case "card_declined":
+              code = StripeErrorCode.CARD_DECLINED;
+              break;
+            case "expired_card":
+              code = StripeErrorCode.CARD_EXPIRED;
+              break;
+            case "incorrect_cvc":
+              code = StripeErrorCode.INCORRECT_CVC;
+              break;
+            case "incorrect_number":
+              code = StripeErrorCode.INCORRECT_NUMBER;
+              break;
+            case "insufficient_funds":
+              code = StripeErrorCode.INSUFFICIENT_FUNDS;
+              break;
             default:
-              code = StripeErrorCode.PAYMENT_FAILED
+              code = StripeErrorCode.PAYMENT_FAILED;
           }
-          break
-        case 'StripeInvalidRequestError':
-          code = StripeErrorCode.INVALID_REQUEST
-          break
-        case 'StripeAPIError':
-          code = StripeErrorCode.API_CONNECTION_ERROR
-          break
-        case 'StripeConnectionError':
-          code = StripeErrorCode.API_CONNECTION_ERROR
-          break
-        case 'StripeAuthenticationError':
-          code = StripeErrorCode.AUTHENTICATION_FAILED
-          break
-        case 'StripeRateLimitError':
-          code = StripeErrorCode.RATE_LIMIT_EXCEEDED
-          break
-        case 'StripeIdempotencyError':
-          code = StripeErrorCode.IDEMPOTENCY_KEY_IN_USE
-          break
+          break;
+        case "StripeInvalidRequestError":
+          code = StripeErrorCode.INVALID_REQUEST;
+          break;
+        case "StripeAPIError":
+          code = StripeErrorCode.API_CONNECTION_ERROR;
+          break;
+        case "StripeConnectionError":
+          code = StripeErrorCode.API_CONNECTION_ERROR;
+          break;
+        case "StripeAuthenticationError":
+          code = StripeErrorCode.AUTHENTICATION_FAILED;
+          break;
+        case "StripeRateLimitError":
+          code = StripeErrorCode.RATE_LIMIT_EXCEEDED;
+          break;
+        case "StripeIdempotencyError":
+          code = StripeErrorCode.IDEMPOTENCY_KEY_IN_USE;
+          break;
       }
 
-      return new StripePaymentError(code, stripeError.message, stripeError)
+      return new StripePaymentError(code, stripeError.message, stripeError);
     }
 
     if (error instanceof StripePaymentError) {
-      return error
+      return error;
     }
 
     return new StripePaymentError(
       StripeErrorCode.UNKNOWN_ERROR,
-      error instanceof Error ? error.message : 'Unknown error',
-      error
-    )
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+    );
   }
 
   /**
    * Clear idempotency cache (for testing).
    */
   clearCache(): void {
-    idempotencyCache.clear()
-    checkoutSessionCache.clear()
+    idempotencyCache.clear();
+    checkoutSessionCache.clear();
   }
 
   /**
    * Cleanup expired cache entries.
    */
   cleanupExpiredEntries(): number {
-    const now = Date.now()
-    let cleaned = 0
+    const now = Date.now();
+    let cleaned = 0;
 
     for (const [key, entry] of idempotencyCache.entries()) {
       if (entry.expiresAt.getTime() < now) {
-        idempotencyCache.delete(key)
-        cleaned++
+        idempotencyCache.delete(key);
+        cleaned++;
       }
     }
 
-    return cleaned
+    return cleaned;
   }
 }
 
@@ -1524,25 +1605,25 @@ export class StripePaymentService {
 // Singleton Instance
 // ============================================================================
 
-let stripePaymentService: StripePaymentService | null = null
+let stripePaymentService: StripePaymentService | null = null;
 
 /**
  * Get the Stripe payment service singleton.
  */
 export function getStripePaymentService(): StripePaymentService {
   if (!stripePaymentService) {
-    stripePaymentService = new StripePaymentService()
+    stripePaymentService = new StripePaymentService();
   }
-  return stripePaymentService
+  return stripePaymentService;
 }
 
 /**
  * Create a new Stripe payment service with custom config.
  */
 export function createStripePaymentService(
-  config?: Partial<StripePaymentServiceConfig>
+  config?: Partial<StripePaymentServiceConfig>,
 ): StripePaymentService {
-  return new StripePaymentService(config)
+  return new StripePaymentService(config);
 }
 
 /**
@@ -1550,7 +1631,7 @@ export function createStripePaymentService(
  */
 export function resetStripePaymentService(): void {
   if (stripePaymentService) {
-    stripePaymentService.clearCache()
+    stripePaymentService.clearCache();
   }
-  stripePaymentService = null
+  stripePaymentService = null;
 }

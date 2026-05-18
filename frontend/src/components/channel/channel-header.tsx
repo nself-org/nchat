@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Hash,
   Lock,
@@ -17,33 +17,42 @@ import {
   MoreHorizontal,
   ChevronDown,
   Info,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { useChannelStore, selectActiveChannel, type Channel } from '@/stores/channel-store'
-import { useUIStore } from '@/stores/ui-store'
-import { useAuth } from '@/contexts/auth-context'
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  useChannelStore,
+  selectActiveChannel,
+  type Channel,
+} from "@/stores/channel-store";
+import { useUIStore } from "@/stores/ui-store";
+import { useAuth } from "@/contexts/auth-context";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChannelHeaderProps {
-  className?: string
-  onSearchClick?: () => void
-  onPinnedClick?: () => void
-  onMembersClick?: () => void
-  onSettingsClick?: () => void
-  onInfoClick?: () => void
+  className?: string;
+  onSearchClick?: () => void;
+  onPinnedClick?: () => void;
+  onMembersClick?: () => void;
+  onSettingsClick?: () => void;
+  onInfoClick?: () => void;
 }
 
 // ============================================================================
@@ -51,24 +60,28 @@ interface ChannelHeaderProps {
 // ============================================================================
 
 function ChannelIcon({ channel }: { channel: Channel }) {
-  const isDM = channel.type === 'direct' || channel.type === 'group'
+  const isDM = channel.type === "direct" || channel.type === "group";
 
   if (isDM) {
     return (
       <Avatar className="h-6 w-6">
-        <AvatarImage src={channel.otherUserAvatar} alt={channel.otherUserName} />
+        <AvatarImage
+          src={channel.otherUserAvatar}
+          alt={channel.otherUserName}
+        />
         <AvatarFallback className="text-xs">
-          {channel.otherUserName?.charAt(0).toUpperCase() || channel.name.charAt(0).toUpperCase()}
+          {channel.otherUserName?.charAt(0).toUpperCase() ||
+            channel.name.charAt(0).toUpperCase()}
         </AvatarFallback>
       </Avatar>
-    )
+    );
   }
 
-  return channel.type === 'private' ? (
+  return channel.type === "private" ? (
     <Lock className="h-5 w-5 text-muted-foreground" />
   ) : (
     <Hash className="h-5 w-5 text-muted-foreground" />
-  )
+  );
 }
 
 // ============================================================================
@@ -83,64 +96,69 @@ export function ChannelHeader({
   onSettingsClick,
   onInfoClick,
 }: ChannelHeaderProps) {
-  const { user } = useAuth()
-  const isAdmin = user?.role === 'owner' || user?.role === 'admin'
+  const { user } = useAuth();
+  const isAdmin = user?.role === "owner" || user?.role === "admin";
 
   // Store state
-  const channel = useChannelStore(selectActiveChannel)
-  const { starredChannels, mutedChannels, toggleStarChannel, toggleMuteChannel } = useChannelStore()
-  const { toggleMembersPanel, membersPanelOpen, openModal } = useUIStore()
+  const channel = useChannelStore(selectActiveChannel);
+  const {
+    starredChannels,
+    mutedChannels,
+    toggleStarChannel,
+    toggleMuteChannel,
+  } = useChannelStore();
+  const { toggleMembersPanel, membersPanelOpen, openModal } = useUIStore();
 
   if (!channel) {
     return (
-      <div className={cn('flex h-14 items-center border-b px-4', className)}>
+      <div className={cn("flex h-14 items-center border-b px-4", className)}>
         <span className="text-muted-foreground">Select a channel</span>
       </div>
-    )
+    );
   }
 
-  const isStarred = starredChannels.has(channel.id)
-  const isMuted = mutedChannels.has(channel.id)
-  const isDM = channel.type === 'direct' || channel.type === 'group'
+  const isStarred = starredChannels.has(channel.id);
+  const isMuted = mutedChannels.has(channel.id);
+  const isDM = channel.type === "direct" || channel.type === "group";
 
   const handleStarToggle = () => {
-    toggleStarChannel(channel.id)
-  }
+    toggleStarChannel(channel.id);
+  };
 
   const handleMuteToggle = () => {
-    toggleMuteChannel(channel.id)
-  }
+    toggleMuteChannel(channel.id);
+  };
 
   const handleMembersClick = () => {
     if (onMembersClick) {
-      onMembersClick()
+      onMembersClick();
     } else {
-      toggleMembersPanel()
+      toggleMembersPanel();
     }
-  }
+  };
 
   const handleSettingsClick = () => {
     if (onSettingsClick) {
-      onSettingsClick()
+      onSettingsClick();
     } else {
-      openModal('channel-settings', { channelId: channel.id })
+      openModal("channel-settings", { channelId: channel.id });
     }
-  }
+  };
 
   const handleInfoClick = () => {
     if (onInfoClick) {
-      onInfoClick()
+      onInfoClick();
     } else {
-      toggleMembersPanel()
+      toggleMembersPanel();
     }
-  }
+  };
 
   return (
     <TooltipProvider delayDuration={300}>
       <div
         className={cn(
-          'flex h-14 items-center justify-between border-b bg-background px-4',
-          className
+          "flex h-14 items-center justify-between border-b bg-background px-4",
+          className,
         )}
       >
         {/* Left Section - Channel Info */}
@@ -155,7 +173,9 @@ export function ChannelHeader({
               {isStarred && (
                 <Star className="h-4 w-4 flex-shrink-0 fill-yellow-500 text-yellow-500" />
               )}
-              {isMuted && <BellOff className="h-4 w-4 flex-shrink-0 text-muted-foreground" />}
+              {isMuted && (
+                <BellOff className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+              )}
             </div>
 
             {/* Topic/Description */}
@@ -230,8 +250,8 @@ export function ChannelHeader({
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    'gap-1.5 text-muted-foreground hover:text-foreground',
-                    membersPanelOpen && 'text-accent-foreground bg-accent'
+                    "gap-1.5 text-muted-foreground hover:text-foreground",
+                    membersPanelOpen && "text-accent-foreground bg-accent",
                   )}
                   onClick={handleMembersClick}
                 >
@@ -248,7 +268,12 @@ export function ChannelHeader({
           {/* Search in Channel */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onSearchClick}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onSearchClick}
+              >
                 <Search className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -260,7 +285,12 @@ export function ChannelHeader({
           {/* Pinned Messages */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onPinnedClick}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onPinnedClick}
+              >
                 <Pin className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -274,7 +304,12 @@ export function ChannelHeader({
             <>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled
+                  >
                     <Phone className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -285,7 +320,12 @@ export function ChannelHeader({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled
+                  >
                     <Video className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -353,7 +393,7 @@ export function ChannelHeader({
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }
 
-ChannelHeader.displayName = 'ChannelHeader'
+ChannelHeader.displayName = "ChannelHeader";

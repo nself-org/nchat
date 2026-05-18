@@ -5,10 +5,10 @@
  * video tiles, audio indicators, and role badges.
  */
 
-'use client'
+"use client";
 
-import { useMemo, useRef, useEffect } from 'react'
-import { cn } from '@/lib/utils'
+import { useMemo, useRef, useEffect } from "react";
+import { cn } from "@/lib/utils";
 import {
   Mic,
   MicOff,
@@ -19,38 +19,42 @@ import {
   Eye,
   MoreVertical,
   VideoOff,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import type { GroupCallParticipant, ParticipantRole, LayoutType } from '@/services/calls/group-call.service'
+import type {
+  GroupCallParticipant,
+  ParticipantRole,
+  LayoutType,
+} from "@/services/calls/group-call.service";
 
 export interface ParticipantGridProps {
-  participants: GroupCallParticipant[]
-  localParticipantId: string
-  localStream: MediaStream | null
-  getParticipantStream: (participantId: string) => MediaStream | undefined
-  layout: LayoutType
-  activeSpeakerId: string | null
-  pinnedParticipantId: string | null
-  canManageParticipants: boolean
+  participants: GroupCallParticipant[];
+  localParticipantId: string;
+  localStream: MediaStream | null;
+  getParticipantStream: (participantId: string) => MediaStream | undefined;
+  layout: LayoutType;
+  activeSpeakerId: string | null;
+  pinnedParticipantId: string | null;
+  canManageParticipants: boolean;
 
   // Actions
-  onPinParticipant?: (participantId: string) => void
-  onUnpinParticipant?: () => void
-  onMuteParticipant?: (participantId: string) => void
-  onRemoveParticipant?: (participantId: string) => void
-  onSetRole?: (participantId: string, role: ParticipantRole) => void
-  onLowerHand?: (participantId: string) => void
+  onPinParticipant?: (participantId: string) => void;
+  onUnpinParticipant?: () => void;
+  onMuteParticipant?: (participantId: string) => void;
+  onRemoveParticipant?: (participantId: string) => void;
+  onSetRole?: (participantId: string, role: ParticipantRole) => void;
+  onLowerHand?: (participantId: string) => void;
 
-  className?: string
+  className?: string;
 }
 
 function VideoTile({
@@ -66,58 +70,58 @@ function VideoTile({
   onRemove,
   onSetRole,
   onLowerHand,
-  size = 'medium',
+  size = "medium",
 }: {
-  participant: GroupCallParticipant
-  stream: MediaStream | null | undefined
-  isLocal: boolean
-  isActiveSpeaker: boolean
-  isPinned: boolean
-  canManage: boolean
-  onPin?: () => void
-  onUnpin?: () => void
-  onMute?: () => void
-  onRemove?: () => void
-  onSetRole?: (role: ParticipantRole) => void
-  onLowerHand?: () => void
-  size?: 'small' | 'medium' | 'large' | 'full'
+  participant: GroupCallParticipant;
+  stream: MediaStream | null | undefined;
+  isLocal: boolean;
+  isActiveSpeaker: boolean;
+  isPinned: boolean;
+  canManage: boolean;
+  onPin?: () => void;
+  onUnpin?: () => void;
+  onMute?: () => void;
+  onRemove?: () => void;
+  onSetRole?: (role: ParticipantRole) => void;
+  onLowerHand?: () => void;
+  size?: "small" | "medium" | "large" | "full";
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream
+      videoRef.current.srcObject = stream;
     }
-  }, [stream])
+  }, [stream]);
 
   const sizeClasses = {
-    small: 'h-32 w-48',
-    medium: 'h-48 w-64',
-    large: 'h-64 w-80',
-    full: 'h-full w-full',
-  }
+    small: "h-32 w-48",
+    medium: "h-48 w-64",
+    large: "h-64 w-80",
+    full: "h-full w-full",
+  };
 
   const roleIcon = {
     host: <Crown className="h-3 w-3" />,
-    'co-host': <Shield className="h-3 w-3" />,
+    "co-host": <Shield className="h-3 w-3" />,
     participant: null,
     viewer: <Eye className="h-3 w-3" />,
-  }
+  };
 
   const roleBadgeColor = {
-    host: 'bg-yellow-500',
-    'co-host': 'bg-blue-500',
-    participant: 'bg-gray-500',
-    viewer: 'bg-gray-600',
-  }
+    host: "bg-yellow-500",
+    "co-host": "bg-blue-500",
+    participant: "bg-gray-500",
+    viewer: "bg-gray-600",
+  };
 
   return (
     <div
       className={cn(
-        'relative rounded-lg overflow-hidden bg-gray-800 group',
+        "relative rounded-lg overflow-hidden bg-gray-800 group",
         sizeClasses[size],
-        isActiveSpeaker && 'ring-2 ring-green-500',
-        isPinned && 'ring-2 ring-blue-500'
+        isActiveSpeaker && "ring-2 ring-green-500",
+        isPinned && "ring-2 ring-blue-500",
       )}
     >
       {/* Video or Avatar */}
@@ -157,8 +161,8 @@ function VideoTile({
           {roleIcon[participant.role] && (
             <div
               className={cn(
-                'flex items-center justify-center h-5 w-5 rounded-full',
-                roleBadgeColor[participant.role]
+                "flex items-center justify-center h-5 w-5 rounded-full",
+                roleBadgeColor[participant.role],
               )}
             >
               {roleIcon[participant.role]}
@@ -168,7 +172,7 @@ function VideoTile({
           {/* Name */}
           <span className="text-white text-sm font-medium truncate">
             {participant.name}
-            {isLocal && ' (You)'}
+            {isLocal && " (You)"}
           </span>
 
           {/* Hand raised indicator */}
@@ -190,8 +194,8 @@ function VideoTile({
           {/* Mute indicator */}
           <div
             className={cn(
-              'p-1.5 rounded-full',
-              participant.isMuted ? 'bg-red-500' : 'bg-green-500'
+              "p-1.5 rounded-full",
+              participant.isMuted ? "bg-red-500" : "bg-green-500",
             )}
           >
             {participant.isMuted ? (
@@ -255,15 +259,15 @@ function VideoTile({
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => onSetRole?.('co-host')}>
+                  <DropdownMenuItem onClick={() => onSetRole?.("co-host")}>
                     <Shield className="h-4 w-4 mr-2" />
                     Make co-host
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onSetRole?.('participant')}>
+                  <DropdownMenuItem onClick={() => onSetRole?.("participant")}>
                     <Mic className="h-4 w-4 mr-2" />
                     Make participant
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onSetRole?.('viewer')}>
+                  <DropdownMenuItem onClick={() => onSetRole?.("viewer")}>
                     <Eye className="h-4 w-4 mr-2" />
                     Make viewer
                   </DropdownMenuItem>
@@ -278,7 +282,7 @@ function VideoTile({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export function ParticipantGrid({
@@ -300,91 +304,91 @@ export function ParticipantGrid({
 }: ParticipantGridProps) {
   // Determine grid layout based on participant count and layout type
   const gridConfig = useMemo(() => {
-    const count = participants.length
+    const count = participants.length;
 
-    if (layout === 'speaker') {
+    if (layout === "speaker") {
       // Speaker view: active speaker large, others small
       return {
         columns: 1,
-        mainSize: 'full' as const,
+        mainSize: "full" as const,
         showThumbnails: true,
-      }
+      };
     }
 
-    if (layout === 'spotlight') {
+    if (layout === "spotlight") {
       // Spotlight: spotlighted large, others in strip
       return {
         columns: 1,
-        mainSize: 'full' as const,
+        mainSize: "full" as const,
         showThumbnails: true,
-      }
+      };
     }
 
-    if (layout === 'sidebar') {
+    if (layout === "sidebar") {
       // Sidebar: pinned/speaker main, sidebar for others
       return {
         columns: 1,
-        mainSize: 'full' as const,
+        mainSize: "full" as const,
         showThumbnails: true,
-      }
+      };
     }
 
     // Grid layout
-    if (count <= 1) return { columns: 1, mainSize: 'large' as const }
-    if (count <= 4) return { columns: 2, mainSize: 'large' as const }
-    if (count <= 9) return { columns: 3, mainSize: 'medium' as const }
-    if (count <= 16) return { columns: 4, mainSize: 'medium' as const }
-    return { columns: 5, mainSize: 'small' as const }
-  }, [participants.length, layout])
+    if (count <= 1) return { columns: 1, mainSize: "large" as const };
+    if (count <= 4) return { columns: 2, mainSize: "large" as const };
+    if (count <= 9) return { columns: 3, mainSize: "medium" as const };
+    if (count <= 16) return { columns: 4, mainSize: "medium" as const };
+    return { columns: 5, mainSize: "small" as const };
+  }, [participants.length, layout]);
 
   // Sort participants based on layout
   const sortedParticipants = useMemo(() => {
-    const sorted = [...participants]
+    const sorted = [...participants];
 
-    if (layout === 'speaker') {
+    if (layout === "speaker") {
       // Active speaker first
       return sorted.sort((a, b) => {
-        if (a.id === activeSpeakerId) return -1
-        if (b.id === activeSpeakerId) return 1
-        return b.audioLevel - a.audioLevel
-      })
+        if (a.id === activeSpeakerId) return -1;
+        if (b.id === activeSpeakerId) return 1;
+        return b.audioLevel - a.audioLevel;
+      });
     }
 
-    if (layout === 'spotlight') {
+    if (layout === "spotlight") {
       // Spotlighted first
       return sorted.sort((a, b) => {
-        if (a.isSpotlight && !b.isSpotlight) return -1
-        if (!a.isSpotlight && b.isSpotlight) return 1
-        return 0
-      })
+        if (a.isSpotlight && !b.isSpotlight) return -1;
+        if (!a.isSpotlight && b.isSpotlight) return 1;
+        return 0;
+      });
     }
 
-    if (layout === 'sidebar') {
+    if (layout === "sidebar") {
       // Pinned first, then speaker
       return sorted.sort((a, b) => {
-        if (a.isPinned && !b.isPinned) return -1
-        if (!a.isPinned && b.isPinned) return 1
-        if (a.id === activeSpeakerId) return -1
-        if (b.id === activeSpeakerId) return 1
-        return 0
-      })
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        if (a.id === activeSpeakerId) return -1;
+        if (b.id === activeSpeakerId) return 1;
+        return 0;
+      });
     }
 
     // Grid: pinned first, then by join time
     return sorted.sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1
-      if (!a.isPinned && b.isPinned) return 1
-      return a.joinedAt.getTime() - b.joinedAt.getTime()
-    })
-  }, [participants, layout, activeSpeakerId])
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return a.joinedAt.getTime() - b.joinedAt.getTime();
+    });
+  }, [participants, layout, activeSpeakerId]);
 
   // Render based on layout type
-  if (layout === 'speaker' || layout === 'spotlight' || layout === 'sidebar') {
-    const mainParticipant = sortedParticipants[0]
-    const thumbnailParticipants = sortedParticipants.slice(1)
+  if (layout === "speaker" || layout === "spotlight" || layout === "sidebar") {
+    const mainParticipant = sortedParticipants[0];
+    const thumbnailParticipants = sortedParticipants.slice(1);
 
     return (
-      <div className={cn('flex flex-col h-full', className)}>
+      <div className={cn("flex flex-col h-full", className)}>
         {/* Main view */}
         <div className="flex-1 p-4">
           {mainParticipant && (
@@ -438,16 +442,13 @@ export function ParticipantGrid({
           </div>
         )}
       </div>
-    )
+    );
   }
 
   // Grid layout
   return (
     <div
-      className={cn(
-        'grid gap-2 p-4 h-full place-items-center',
-        className
-      )}
+      className={cn("grid gap-2 p-4 h-full place-items-center", className)}
       style={{
         gridTemplateColumns: `repeat(${gridConfig.columns}, minmax(0, 1fr))`,
       }}
@@ -475,5 +476,5 @@ export function ParticipantGrid({
         />
       ))}
     </div>
-  )
+  );
 }

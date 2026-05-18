@@ -1,24 +1,25 @@
-'use client'
+"use client";
 
-import { SettingsSection } from './settings-section'
-import { SettingsToggle } from './SettingsToggle'
-import { useSettingsStore } from '@/stores/settings-store'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Info } from 'lucide-react'
+import { SettingsSection } from "./settings-section";
+import { SettingsToggle } from "./SettingsToggle";
+import { useSettingsStore } from "@/stores/settings-store";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 interface AnimationSettingsProps {
-  className?: string
+  className?: string;
 }
 
 /**
  * AnimationSettings - Control animations and motion
  */
 export function AnimationSettings({ className }: AnimationSettingsProps) {
-  const { settings, updateAppearance } = useSettingsStore()
+  const { settings, updateAppearance } = useSettingsStore();
 
   // Check for system preference
   const prefersReducedMotion =
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   return (
     <SettingsSection
@@ -30,7 +31,8 @@ export function AnimationSettings({ className }: AnimationSettingsProps) {
         <Alert className="mb-4">
           <Info className="h-4 w-4" />
           <AlertDescription>
-            Your system is set to reduce motion. These settings will be automatically applied.
+            Your system is set to reduce motion. These settings will be
+            automatically applied.
           </AlertDescription>
         </Alert>
       )}
@@ -40,7 +42,9 @@ export function AnimationSettings({ className }: AnimationSettingsProps) {
         label="Enable animations"
         description="Show transitions and animations throughout the app"
         checked={settings.appearance.animationsEnabled}
-        onCheckedChange={(checked) => updateAppearance({ animationsEnabled: checked })}
+        onCheckedChange={(checked) =>
+          updateAppearance({ animationsEnabled: checked })
+        }
         disabled={prefersReducedMotion}
       />
 
@@ -49,7 +53,9 @@ export function AnimationSettings({ className }: AnimationSettingsProps) {
         label="Reduce motion"
         description="Minimize or eliminate motion for accessibility"
         checked={settings.appearance.reduceMotion || prefersReducedMotion}
-        onCheckedChange={(checked) => updateAppearance({ reduceMotion: checked })}
+        onCheckedChange={(checked) =>
+          updateAppearance({ reduceMotion: checked })
+        }
         disabled={prefersReducedMotion}
       />
 
@@ -58,8 +64,10 @@ export function AnimationSettings({ className }: AnimationSettingsProps) {
         label="Reduce transparency"
         description="Reduce background blur and transparency effects"
         checked={settings.appearance.reduceTransparency}
-        onCheckedChange={(checked) => updateAppearance({ reduceTransparency: checked })}
+        onCheckedChange={(checked) =>
+          updateAppearance({ reduceTransparency: checked })
+        }
       />
     </SettingsSection>
-  )
+  );
 }

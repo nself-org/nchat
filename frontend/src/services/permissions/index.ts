@@ -18,7 +18,7 @@ export {
   createPermissionEngine,
   createHighPerformanceEngine,
   createRealtimeEngine,
-} from './permission-engine'
+} from "./permission-engine";
 
 // Core types
 export type {
@@ -28,10 +28,10 @@ export type {
   InheritanceLevel,
   PlatformPreset,
   PermissionState,
-} from './permission-engine'
+} from "./permission-engine";
 
 // Role types
-export type { Role, RoleComparison } from './permission-engine'
+export type { Role, RoleComparison } from "./permission-engine";
 
 // Override types
 export type {
@@ -39,7 +39,7 @@ export type {
   WorkspacePermissions,
   CategoryPermissions,
   ChannelPermissions,
-} from './permission-engine'
+} from "./permission-engine";
 
 // Context and result types
 export type {
@@ -47,7 +47,7 @@ export type {
   PermissionResult,
   PermissionChainLink,
   EffectivePermissions,
-} from './permission-engine'
+} from "./permission-engine";
 
 // Simulation types
 export type {
@@ -55,7 +55,7 @@ export type {
   HypotheticalChange,
   PolicySimulationResult,
   PermissionDiff,
-} from './permission-engine'
+} from "./permission-engine";
 
 // Audit types
-export type { PermissionAuditEntry } from './permission-engine'
+export type { PermissionAuditEntry } from "./permission-engine";

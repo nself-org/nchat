@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ConnectionSettings - Connection preferences component
@@ -6,21 +6,21 @@
  * Allows users to configure connection and offline settings.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Button } from '@/components/ui/button'
-import { useOfflineStore } from '@/stores/offline-store'
-import { useOfflineCache, useOfflineSync } from '@/hooks/useOfflineCache'
-import { SyncStatus } from './SyncStatus'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { useOfflineStore } from "@/stores/offline-store";
+import { useOfflineCache, useOfflineSync } from "@/hooks/useOfflineCache";
+import { SyncStatus } from "./SyncStatus";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface ConnectionSettingsProps {
-  className?: string
+  className?: string;
 }
 
 // =============================================================================
@@ -28,28 +28,29 @@ export interface ConnectionSettingsProps {
 // =============================================================================
 
 export function ConnectionSettings({ className }: ConnectionSettingsProps) {
-  const { settings, updateSettings, cacheStats, cacheEnabled } = useOfflineStore()
-  const { clearAll, runCleanup, refreshStats } = useOfflineCache()
-  const { sync } = useOfflineSync()
-  const [isClearing, setIsClearing] = React.useState(false)
+  const { settings, updateSettings, cacheStats, cacheEnabled } =
+    useOfflineStore();
+  const { clearAll, runCleanup, refreshStats } = useOfflineCache();
+  const { sync } = useOfflineSync();
+  const [isClearing, setIsClearing] = React.useState(false);
 
   const handleClearCache = async () => {
-    setIsClearing(true)
+    setIsClearing(true);
     try {
-      await clearAll()
+      await clearAll();
     } finally {
-      setIsClearing(false)
+      setIsClearing(false);
     }
-  }
+  };
 
   const formatSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-    return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-  }
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Sync Status */}
       <div className="space-y-2">
         <h3 className="text-sm font-medium">Sync Status</h3>
@@ -93,12 +94,16 @@ export function ConnectionSettings({ className }: ConnectionSettingsProps) {
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="auto-sync">Auto sync</Label>
-            <p className="text-xs text-muted-foreground">Automatically sync data when connected</p>
+            <p className="text-xs text-muted-foreground">
+              Automatically sync data when connected
+            </p>
           </div>
           <Switch
             id="auto-sync"
             checked={settings.autoSyncEnabled}
-            onCheckedChange={(checked) => updateSettings({ autoSyncEnabled: checked })}
+            onCheckedChange={(checked) =>
+              updateSettings({ autoSyncEnabled: checked })
+            }
           />
         </div>
 
@@ -106,12 +111,16 @@ export function ConnectionSettings({ className }: ConnectionSettingsProps) {
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="background-sync">Background sync</Label>
-            <p className="text-xs text-muted-foreground">Sync data in the background</p>
+            <p className="text-xs text-muted-foreground">
+              Sync data in the background
+            </p>
           </div>
           <Switch
             id="background-sync"
             checked={settings.backgroundSyncEnabled}
-            onCheckedChange={(checked) => updateSettings({ backgroundSyncEnabled: checked })}
+            onCheckedChange={(checked) =>
+              updateSettings({ backgroundSyncEnabled: checked })
+            }
           />
         </div>
 
@@ -119,12 +128,16 @@ export function ConnectionSettings({ className }: ConnectionSettingsProps) {
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="offline-indicator">Show offline indicator</Label>
-            <p className="text-xs text-muted-foreground">Display indicator when offline</p>
+            <p className="text-xs text-muted-foreground">
+              Display indicator when offline
+            </p>
           </div>
           <Switch
             id="offline-indicator"
             checked={settings.showOfflineIndicator}
-            onCheckedChange={(checked) => updateSettings({ showOfflineIndicator: checked })}
+            onCheckedChange={(checked) =>
+              updateSettings({ showOfflineIndicator: checked })
+            }
           />
         </div>
       </div>
@@ -133,8 +146,18 @@ export function ConnectionSettings({ className }: ConnectionSettingsProps) {
       <div className="space-y-2">
         <h3 className="text-sm font-medium">Cache Management</h3>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => sync()} className="flex-1">
-            <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => sync()}
+            className="flex-1"
+          >
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -144,8 +167,18 @@ export function ConnectionSettings({ className }: ConnectionSettingsProps) {
             </svg>
             Sync Now
           </Button>
-          <Button variant="outline" size="sm" onClick={runCleanup} className="flex-1">
-            <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={runCleanup}
+            className="flex-1"
+          >
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -165,7 +198,11 @@ export function ConnectionSettings({ className }: ConnectionSettingsProps) {
         >
           {isClearing ? (
             <>
-              <svg className="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <svg
+                className="mr-2 h-4 w-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
                 <circle
                   className="opacity-25"
                   cx="12"
@@ -184,7 +221,12 @@ export function ConnectionSettings({ className }: ConnectionSettingsProps) {
             </>
           ) : (
             <>
-              <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="mr-2 h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -198,7 +240,7 @@ export function ConnectionSettings({ className }: ConnectionSettingsProps) {
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
-export default ConnectionSettings
+export default ConnectionSettings;

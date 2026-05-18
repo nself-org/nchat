@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   FilePreviewItem,
   CompactFilePreviewItem,
   type FilePreviewItemProps,
-} from './file-preview-item'
-import type { UploadStatus } from './upload-progress'
+} from "./file-preview-item";
+import type { UploadStatus } from "./upload-progress";
 
 // ============================================================================
 // TYPES
@@ -16,46 +16,46 @@ import type { UploadStatus } from './upload-progress'
 
 export interface FileUploadState {
   /** Unique identifier */
-  id: string
+  id: string;
   /** The file object */
-  file: File
+  file: File;
   /** Upload progress (0-100) */
-  progress: number
+  progress: number;
   /** Upload status */
-  status: UploadStatus
+  status: UploadStatus;
   /** Error message (when status is 'error') */
-  errorMessage?: string
+  errorMessage?: string;
   /** Uploaded file URL (when status is 'completed') */
-  url?: string
+  url?: string;
 }
 
 export interface FilePreviewListProps {
   /** List of files with upload state */
-  files: FileUploadState[]
+  files: FileUploadState[];
   /** Layout variant */
-  variant?: 'list' | 'grid' | 'compact' | 'horizontal'
+  variant?: "list" | "grid" | "compact" | "horizontal";
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Maximum height before scrolling */
-  maxHeight?: number | string
+  maxHeight?: number | string;
   /** Show thumbnails for images */
-  showThumbnails?: boolean
+  showThumbnails?: boolean;
   /** Show file details */
-  showDetails?: boolean
+  showDetails?: boolean;
   /** Show progress bars */
-  showProgress?: boolean
+  showProgress?: boolean;
   /** Empty state message */
-  emptyMessage?: string
+  emptyMessage?: string;
   /** Remove file callback */
-  onRemove?: (id: string) => void
+  onRemove?: (id: string) => void;
   /** Retry upload callback */
-  onRetry?: (id: string) => void
+  onRetry?: (id: string) => void;
   /** Cancel upload callback */
-  onCancel?: (id: string) => void
+  onCancel?: (id: string) => void;
   /** Preview file callback */
-  onPreview?: (id: string) => void
+  onPreview?: (id: string) => void;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -77,8 +77,8 @@ export interface FilePreviewListProps {
  */
 export function FilePreviewList({
   files,
-  variant = 'list',
-  size = 'md',
+  variant = "list",
+  size = "md",
   maxHeight,
   showThumbnails = true,
   showDetails = true,
@@ -92,7 +92,7 @@ export function FilePreviewList({
 }: FilePreviewListProps) {
   // Don't render if no files and no empty message
   if (files.length === 0 && !emptyMessage) {
-    return null
+    return null;
   }
 
   // Render empty state
@@ -100,29 +100,29 @@ export function FilePreviewList({
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-lg border border-dashed p-8 text-center text-muted-foreground',
-          className
+          "flex items-center justify-center rounded-lg border border-dashed p-8 text-center text-muted-foreground",
+          className,
         )}
       >
         <p className="text-sm">{emptyMessage}</p>
       </div>
-    )
+    );
   }
 
   // Get layout classes based on variant
   const getLayoutClasses = () => {
     switch (variant) {
-      case 'grid':
-        return 'grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4'
-      case 'compact':
-        return 'flex flex-wrap gap-2'
-      case 'horizontal':
-        return 'flex gap-3'
-      case 'list':
+      case "grid":
+        return "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4";
+      case "compact":
+        return "flex flex-wrap gap-2";
+      case "horizontal":
+        return "flex gap-3";
+      case "list":
       default:
-        return 'flex flex-col gap-2'
+        return "flex flex-col gap-2";
     }
-  }
+  };
 
   // Render file item based on variant
   const renderFileItem = (fileState: FileUploadState) => {
@@ -137,9 +137,9 @@ export function FilePreviewList({
       onRetry: onRetry ? () => onRetry(fileState.id) : undefined,
       onCancel: onCancel ? () => onCancel(fileState.id) : undefined,
       onPreview: onPreview ? () => onPreview(fileState.id) : undefined,
-    }
+    };
 
-    if (variant === 'compact') {
+    if (variant === "compact") {
       return (
         <CompactFilePreviewItem
           key={fileState.id}
@@ -148,7 +148,7 @@ export function FilePreviewList({
           status={fileState.status}
           onRemove={onRemove ? () => onRemove(fileState.id) : undefined}
         />
-      )
+      );
     }
 
     return (
@@ -159,48 +159,51 @@ export function FilePreviewList({
         showDetails={showDetails}
         showProgress={showProgress}
       />
-    )
-  }
+    );
+  };
 
   // Horizontal variant with horizontal scroll
-  if (variant === 'horizontal') {
+  if (variant === "horizontal") {
     return (
-      <ScrollArea className={cn('w-full', className)}>
+      <ScrollArea className={cn("w-full", className)}>
         <div className={getLayoutClasses()}>{files.map(renderFileItem)}</div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-    )
+    );
   }
 
   // Other variants with optional vertical scroll
-  const content = <div className={getLayoutClasses()}>{files.map(renderFileItem)}</div>
+  const content = (
+    <div className={getLayoutClasses()}>{files.map(renderFileItem)}</div>
+  );
 
   if (maxHeight) {
     return (
-      <ScrollArea className={cn('w-full', className)} style={{ maxHeight }}>
+      <ScrollArea className={cn("w-full", className)} style={{ maxHeight }}>
         {content}
       </ScrollArea>
-    )
+    );
   }
 
-  return <div className={className}>{content}</div>
+  return <div className={className}>{content}</div>;
 }
 
 /**
  * Get summary statistics for file list
  */
 export function getFileListStats(files: FileUploadState[]) {
-  const total = files.length
-  const pending = files.filter((f) => f.status === 'pending').length
-  const uploading = files.filter((f) => f.status === 'uploading').length
-  const completed = files.filter((f) => f.status === 'completed').length
-  const failed = files.filter((f) => f.status === 'error').length
-  const totalSize = files.reduce((sum, f) => sum + f.file.size, 0)
+  const total = files.length;
+  const pending = files.filter((f) => f.status === "pending").length;
+  const uploading = files.filter((f) => f.status === "uploading").length;
+  const completed = files.filter((f) => f.status === "completed").length;
+  const failed = files.filter((f) => f.status === "error").length;
+  const totalSize = files.reduce((sum, f) => sum + f.file.size, 0);
   const uploadedSize = files
-    .filter((f) => f.status === 'completed')
-    .reduce((sum, f) => sum + f.file.size, 0)
+    .filter((f) => f.status === "completed")
+    .reduce((sum, f) => sum + f.file.size, 0);
 
-  const overallProgress = total > 0 ? files.reduce((sum, f) => sum + f.progress, 0) / total : 0
+  const overallProgress =
+    total > 0 ? files.reduce((sum, f) => sum + f.progress, 0) / total : 0;
 
   return {
     total,
@@ -214,7 +217,7 @@ export function getFileListStats(files: FileUploadState[]) {
     isComplete: completed === total,
     hasErrors: failed > 0,
     isUploading: uploading > 0,
-  }
+  };
 }
 
 /**
@@ -222,42 +225,49 @@ export function getFileListStats(files: FileUploadState[]) {
  */
 export interface FilePreviewListHeaderProps {
   /** Files state */
-  files: FileUploadState[]
+  files: FileUploadState[];
   /** Title */
-  title?: string
+  title?: string;
   /** Show stats */
-  showStats?: boolean
+  showStats?: boolean;
   /** Clear all callback */
-  onClearAll?: () => void
+  onClearAll?: () => void;
   /** Retry all failed callback */
-  onRetryFailed?: () => void
+  onRetryFailed?: () => void;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 export function FilePreviewListHeader({
   files,
-  title = 'Files',
+  title = "Files",
   showStats = true,
   onClearAll,
   onRetryFailed,
   className,
 }: FilePreviewListHeaderProps) {
-  const stats = getFileListStats(files)
+  const stats = getFileListStats(files);
 
   if (files.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <div className={cn('flex items-center justify-between border-b pb-2', className)}>
+    <div
+      className={cn(
+        "flex items-center justify-between border-b pb-2",
+        className,
+      )}
+    >
       <div className="flex items-center gap-2">
         <h4 className="text-sm font-medium">{title}</h4>
         {showStats && (
           <span className="text-xs text-muted-foreground">
             {stats.completed}/{stats.total}
             {stats.hasErrors && (
-              <span className="ml-1 text-destructive">({stats.failed} failed)</span>
+              <span className="ml-1 text-destructive">
+                ({stats.failed} failed)
+              </span>
             )}
           </span>
         )}
@@ -266,7 +276,10 @@ export function FilePreviewListHeader({
       <div className="flex items-center gap-2">
         {/* Retry failed button */}
         {stats.hasErrors && onRetryFailed && (
-          <button onClick={onRetryFailed} className="text-xs text-primary hover:underline">
+          <button
+            onClick={onRetryFailed}
+            className="text-xs text-primary hover:underline"
+          >
             Retry failed
           </button>
         )}
@@ -282,5 +295,5 @@ export function FilePreviewListHeader({
         )}
       </div>
     </div>
-  )
+  );
 }

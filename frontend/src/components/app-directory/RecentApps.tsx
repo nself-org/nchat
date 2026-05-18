@@ -1,32 +1,35 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import Link from 'next/link'
-import { ArrowRight, Clock } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useAppDirectoryStore, selectRecentApps } from '@/stores/app-directory-store'
-import { getRecentApps } from '@/lib/app-directory/app-registry'
-import { AppCard } from './AppCard'
+import * as React from "react";
+import Link from "next/link";
+import { ArrowRight, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  useAppDirectoryStore,
+  selectRecentApps,
+} from "@/stores/app-directory-store";
+import { getRecentApps } from "@/lib/app-directory/app-registry";
+import { AppCard } from "./AppCard";
 
 interface RecentAppsProps {
-  className?: string
-  limit?: number
+  className?: string;
+  limit?: number;
 }
 
 export function RecentApps({ className, limit = 8 }: RecentAppsProps) {
-  const recentApps = useAppDirectoryStore(selectRecentApps)
+  const recentApps = useAppDirectoryStore(selectRecentApps);
 
   // Fall back to registry if store is empty
-  const apps = recentApps.length > 0 ? recentApps : getRecentApps(limit)
-  const displayApps = apps.slice(0, limit)
+  const apps = recentApps.length > 0 ? recentApps : getRecentApps(limit);
+  const displayApps = apps.slice(0, limit);
 
   if (displayApps.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <section className={cn('space-y-4', className)}>
+    <section className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-blue-500" />
@@ -48,5 +51,5 @@ export function RecentApps({ className, limit = 8 }: RecentAppsProps) {
         ))}
       </div>
     </section>
-  )
+  );
 }

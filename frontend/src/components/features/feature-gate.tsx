@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * FeatureGate Component
@@ -29,9 +29,9 @@
  * ```
  */
 
-import { type ReactNode } from 'react'
-import { useFeature } from '@/hooks/use-feature'
-import type { FeatureCategory, FeatureFlags } from '@/config/feature-flags'
+import { type ReactNode } from "react";
+import { useFeature } from "@/hooks/use-feature";
+import type { FeatureCategory, FeatureFlags } from "@/config/feature-flags";
 
 /**
  * Props for the FeatureGate component
@@ -40,24 +40,24 @@ export interface FeatureGateProps<C extends FeatureCategory> {
   /**
    * Content to render when the feature is enabled
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * The feature category to check
    */
-  category: C
+  category: C;
 
   /**
    * Optional specific feature within the category.
    * If not provided, checks if the category itself is enabled.
    */
-  feature?: keyof FeatureFlags[C]
+  feature?: keyof FeatureFlags[C];
 
   /**
    * Content to render when the feature is disabled
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 }
 
 /**
@@ -107,13 +107,13 @@ export function FeatureGate<C extends FeatureCategory>({
   feature,
   fallback = null,
 }: FeatureGateProps<C>): ReactNode {
-  const { isEnabled } = useFeature()
+  const { isEnabled } = useFeature();
 
   if (!isEnabled(category, feature)) {
-    return <>{fallback}</>
+    return <>{fallback}</>;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
@@ -123,23 +123,23 @@ export interface FeatureGateInvertedProps<C extends FeatureCategory> {
   /**
    * Content to render when the feature is DISABLED
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * The feature category to check
    */
-  category: C
+  category: C;
 
   /**
    * Optional specific feature within the category
    */
-  feature?: keyof FeatureFlags[C]
+  feature?: keyof FeatureFlags[C];
 
   /**
    * Content to render when the feature is ENABLED
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 }
 
 /**
@@ -160,13 +160,13 @@ export function FeatureGateInverted<C extends FeatureCategory>({
   feature,
   fallback = null,
 }: FeatureGateInvertedProps<C>): ReactNode {
-  const { isEnabled } = useFeature()
+  const { isEnabled } = useFeature();
 
   if (isEnabled(category, feature)) {
-    return <>{fallback}</>
+    return <>{fallback}</>;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
@@ -176,18 +176,18 @@ export interface FeatureGateAnyProps {
   /**
    * Content to render when ANY of the features are enabled
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * Array of [category, feature?] tuples to check
    */
-  features: Array<[FeatureCategory, string | undefined]>
+  features: Array<[FeatureCategory, string | undefined]>;
 
   /**
    * Content to render when ALL features are disabled
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 }
 
 /**
@@ -211,17 +211,17 @@ export function FeatureGateAny({
   features,
   fallback = null,
 }: FeatureGateAnyProps): ReactNode {
-  const { isEnabled } = useFeature()
+  const { isEnabled } = useFeature();
 
   const anyEnabled = features.some(([category, feature]) =>
-    isEnabled(category, feature as keyof FeatureFlags[typeof category])
-  )
+    isEnabled(category, feature as keyof FeatureFlags[typeof category]),
+  );
 
   if (!anyEnabled) {
-    return <>{fallback}</>
+    return <>{fallback}</>;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
@@ -231,18 +231,18 @@ export interface FeatureGateAllProps {
   /**
    * Content to render when ALL features are enabled
    */
-  children: ReactNode
+  children: ReactNode;
 
   /**
    * Array of [category, feature?] tuples to check
    */
-  features: Array<[FeatureCategory, string | undefined]>
+  features: Array<[FeatureCategory, string | undefined]>;
 
   /**
    * Content to render when ANY feature is disabled
    * @default null
    */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 }
 
 /**
@@ -266,17 +266,17 @@ export function FeatureGateAll({
   features,
   fallback = null,
 }: FeatureGateAllProps): ReactNode {
-  const { isEnabled } = useFeature()
+  const { isEnabled } = useFeature();
 
   const allEnabled = features.every(([category, feature]) =>
-    isEnabled(category, feature as keyof FeatureFlags[typeof category])
-  )
+    isEnabled(category, feature as keyof FeatureFlags[typeof category]),
+  );
 
   if (!allEnabled) {
-    return <>{fallback}</>
+    return <>{fallback}</>;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
@@ -303,23 +303,24 @@ export function withFeatureGate<P extends object, C extends FeatureCategory>(
   WrappedComponent: React.ComponentType<P>,
   category: C,
   feature?: keyof FeatureFlags[C],
-  FallbackComponent?: React.ComponentType<P>
+  FallbackComponent?: React.ComponentType<P>,
 ): React.FC<P> {
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  const displayName =
+    WrappedComponent.displayName || WrappedComponent.name || "Component";
 
   const FeatureGatedComponent: React.FC<P> = (props) => {
-    const { isEnabled } = useFeature()
+    const { isEnabled } = useFeature();
 
     if (!isEnabled(category, feature)) {
-      return FallbackComponent ? <FallbackComponent {...props} /> : null
+      return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
 
-    return <WrappedComponent {...props} />
-  }
+    return <WrappedComponent {...props} />;
+  };
 
-  FeatureGatedComponent.displayName = `FeatureGated(${displayName})`
+  FeatureGatedComponent.displayName = `FeatureGated(${displayName})`;
 
-  return FeatureGatedComponent
+  return FeatureGatedComponent;
 }
 
-export default FeatureGate
+export default FeatureGate;

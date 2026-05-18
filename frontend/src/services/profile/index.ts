@@ -14,4 +14,4 @@ export {
   validateWebsite,
   validatePhone,
   validateProfileInput,
-} from './profile.service'
+} from "./profile.service";

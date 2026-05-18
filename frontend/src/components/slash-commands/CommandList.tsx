@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
 /**
  * CommandList - List all custom commands
  */
 
-import { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Plus,
@@ -19,39 +19,45 @@ import {
   Copy,
   Power,
   PowerOff,
-} from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { CommandCard } from './CommandCard'
-import { useSlashCommandsStore, selectFilteredCommands } from '@/stores/slash-commands-store'
-import { commandCategories } from '@/lib/slash-commands/built-in-commands'
-import type { CommandCategory, SlashCommand } from '@/lib/slash-commands/command-types'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dropdown-menu";
+import { CommandCard } from "./CommandCard";
+import {
+  useSlashCommandsStore,
+  selectFilteredCommands,
+} from "@/stores/slash-commands-store";
+import { commandCategories } from "@/lib/slash-commands/built-in-commands";
+import type {
+  CommandCategory,
+  SlashCommand,
+} from "@/lib/slash-commands/command-types";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandListProps {
-  onCreateNew?: () => void
-  onEdit?: (id: string) => void
-  onDelete?: (id: string) => void
-  showBuiltIn?: boolean
+  onCreateNew?: () => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  showBuiltIn?: boolean;
 }
 
 // ============================================================================
@@ -64,8 +70,8 @@ export function CommandList({
   onDelete,
   showBuiltIn = true,
 }: CommandListProps) {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [sortBy, setSortBy] = useState<'name' | 'trigger' | 'category'>('name')
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState<"name" | "trigger" | "category">("name");
 
   const {
     searchQuery,
@@ -75,64 +81,64 @@ export function CommandList({
     enableCommand,
     disableCommand,
     removeCommand,
-  } = useSlashCommandsStore()
+  } = useSlashCommandsStore();
 
-  const filteredCommands = useSlashCommandsStore(selectFilteredCommands)
+  const filteredCommands = useSlashCommandsStore(selectFilteredCommands);
 
   // Filter and sort commands
   const displayCommands = useMemo(() => {
-    let commands = filteredCommands
+    let commands = filteredCommands;
 
     // Filter by built-in status
     if (!showBuiltIn) {
-      commands = commands.filter((c) => !c.isBuiltIn)
+      commands = commands.filter((c) => !c.isBuiltIn);
     }
 
     // Sort
     return commands.sort((a, b) => {
       switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name)
-        case 'trigger':
-          return a.trigger.localeCompare(b.trigger)
-        case 'category':
-          return (a.category || '').localeCompare(b.category || '')
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "trigger":
+          return a.trigger.localeCompare(b.trigger);
+        case "category":
+          return (a.category || "").localeCompare(b.category || "");
         default:
-          return 0
+          return 0;
       }
-    })
-  }, [filteredCommands, showBuiltIn, sortBy])
+    });
+  }, [filteredCommands, showBuiltIn, sortBy]);
 
   // Group by category for list view
   const groupedCommands = useMemo(() => {
-    if (selectedCategory !== 'all') {
-      return { [selectedCategory]: displayCommands }
+    if (selectedCategory !== "all") {
+      return { [selectedCategory]: displayCommands };
     }
 
     return displayCommands.reduce(
       (acc, cmd) => {
-        const cat = cmd.category || 'custom'
-        if (!acc[cat]) acc[cat] = []
-        acc[cat].push(cmd)
-        return acc
+        const cat = cmd.category || "custom";
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(cmd);
+        return acc;
       },
-      {} as Record<string, SlashCommand[]>
-    )
-  }, [displayCommands, selectedCategory])
+      {} as Record<string, SlashCommand[]>,
+    );
+  }, [displayCommands, selectedCategory]);
 
   const handleToggleEnabled = (command: SlashCommand) => {
     if (command.isEnabled) {
-      disableCommand(command.id)
+      disableCommand(command.id);
     } else {
-      enableCommand(command.id)
+      enableCommand(command.id);
     }
-  }
+  };
 
   const handleDelete = (command: SlashCommand) => {
-    if (command.isBuiltIn) return
-    removeCommand(command.id)
-    onDelete?.(command.id)
-  }
+    if (command.isBuiltIn) return;
+    removeCommand(command.id);
+    onDelete?.(command.id);
+  };
 
   return (
     <div className="space-y-6">
@@ -141,7 +147,8 @@ export function CommandList({
         <div>
           <h2 className="text-xl font-bold">Commands</h2>
           <p className="text-sm text-muted-foreground">
-            {displayCommands.length} command{displayCommands.length !== 1 ? 's' : ''} available
+            {displayCommands.length} command
+            {displayCommands.length !== 1 ? "s" : ""} available
           </p>
         </div>
         {onCreateNew && (
@@ -168,7 +175,9 @@ export function CommandList({
         {/* Category Filter */}
         <Select
           value={selectedCategory}
-          onValueChange={(value) => setSelectedCategory(value as CommandCategory | 'all')}
+          onValueChange={(value) =>
+            setSelectedCategory(value as CommandCategory | "all")
+          }
         >
           <SelectTrigger className="w-[180px]">
             <Filter className="mr-2 h-4 w-4" />
@@ -185,7 +194,10 @@ export function CommandList({
         </Select>
 
         {/* Sort */}
-        <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+        <Select
+          value={sortBy}
+          onValueChange={(value) => setSortBy(value as typeof sortBy)}
+        >
           <SelectTrigger className="w-[140px]">
             <SortAsc className="mr-2 h-4 w-4" />
             <SelectValue />
@@ -202,16 +214,22 @@ export function CommandList({
           <Button
             variant="ghost"
             size="icon"
-            className={cn('rounded-none rounded-l-lg', viewMode === 'grid' && 'bg-muted')}
-            onClick={() => setViewMode('grid')}
+            className={cn(
+              "rounded-none rounded-l-lg",
+              viewMode === "grid" && "bg-muted",
+            )}
+            onClick={() => setViewMode("grid")}
           >
             <Grid className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className={cn('rounded-none rounded-r-lg', viewMode === 'list' && 'bg-muted')}
-            onClick={() => setViewMode('list')}
+            className={cn(
+              "rounded-none rounded-r-lg",
+              viewMode === "list" && "bg-muted",
+            )}
+            onClick={() => setViewMode("list")}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -224,7 +242,9 @@ export function CommandList({
           <Search className="mx-auto h-12 w-12 text-muted-foreground" />
           <h3 className="mt-4 text-lg font-medium">No commands found</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            {searchQuery ? 'Try a different search term' : 'Create your first custom command'}
+            {searchQuery
+              ? "Try a different search term"
+              : "Create your first custom command"}
           </p>
           {onCreateNew && !searchQuery && (
             <Button onClick={onCreateNew} className="mt-4">
@@ -236,7 +256,7 @@ export function CommandList({
       )}
 
       {/* Grid View */}
-      {viewMode === 'grid' && displayCommands.length > 0 && (
+      {viewMode === "grid" && displayCommands.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence>
             {displayCommands.map((command) => (
@@ -260,13 +280,14 @@ export function CommandList({
       )}
 
       {/* List View */}
-      {viewMode === 'list' && displayCommands.length > 0 && (
+      {viewMode === "list" && displayCommands.length > 0 && (
         <div className="space-y-6">
           {Object.entries(groupedCommands).map(([category, commands]) => (
             <div key={category}>
               <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Badge variant="outline">
-                  {commandCategories[category as keyof typeof commandCategories]?.name || category}
+                  {commandCategories[category as keyof typeof commandCategories]
+                    ?.name || category}
                 </Badge>
                 <span>{commands.length}</span>
               </h3>
@@ -275,14 +296,16 @@ export function CommandList({
                   <div
                     key={command.id}
                     className={cn(
-                      'flex items-center gap-4 p-4',
-                      index !== commands.length - 1 && 'border-b'
+                      "flex items-center gap-4 p-4",
+                      index !== commands.length - 1 && "border-b",
                     )}
                   >
                     {/* Command Info */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <code className="font-mono text-sm text-primary">/{command.trigger}</code>
+                        <code className="font-mono text-sm text-primary">
+                          /{command.trigger}
+                        </code>
                         {!command.isEnabled && (
                           <Badge variant="secondary" className="text-xs">
                             Disabled
@@ -309,7 +332,9 @@ export function CommandList({
                       <DropdownMenuContent align="end">
                         {!command.isBuiltIn && (
                           <>
-                            <DropdownMenuItem onClick={() => onEdit?.(command.id)}>
+                            <DropdownMenuItem
+                              onClick={() => onEdit?.(command.id)}
+                            >
                               <Edit className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
@@ -320,7 +345,9 @@ export function CommandList({
                             <DropdownMenuSeparator />
                           </>
                         )}
-                        <DropdownMenuItem onClick={() => handleToggleEnabled(command)}>
+                        <DropdownMenuItem
+                          onClick={() => handleToggleEnabled(command)}
+                        >
                           {command.isEnabled ? (
                             <>
                               <PowerOff className="mr-2 h-4 w-4" />
@@ -355,7 +382,7 @@ export function CommandList({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default CommandList
+export default CommandList;

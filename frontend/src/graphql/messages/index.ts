@@ -5,25 +5,25 @@
  */
 
 // Queries
-export * from './queries'
+export * from "./queries";
 
 // Mutations
-export * from './mutations'
+export * from "./mutations";
 
 // Subscriptions
-export * from './subscriptions'
+export * from "./subscriptions";
 
 // Edit History
-export * from './edit-history'
+export * from "./edit-history";
 
 // Link Previews
-export * from './link-previews'
+export * from "./link-previews";
 
 // Scheduled Messages
-export * from './scheduled'
+export * from "./scheduled";
 
 // Ephemeral Messages (TTL)
-export * from './ephemeral'
+export * from "./ephemeral";
 
 // Delivery Receipts
-export * from './receipts'
+export * from "./receipts";

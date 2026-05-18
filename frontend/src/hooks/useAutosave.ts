@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useAutosave Hook - Auto-save functionality with status tracking
@@ -6,10 +6,10 @@
  * Provides debounced auto-save with visual feedback
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useDraftsStore, selectAutoSaveState } from '@/stores/drafts-store'
-import type { AutoSaveStatus } from '@/lib/drafts/draft-types'
-import { formatLastSaveTime, getAutoSaveStatusText } from '@/lib/drafts'
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDraftsStore, selectAutoSaveState } from "@/stores/drafts-store";
+import type { AutoSaveStatus } from "@/lib/drafts/draft-types";
+import { formatLastSaveTime, getAutoSaveStatusText } from "@/lib/drafts";
 
 // ============================================================================
 // Types
@@ -17,51 +17,51 @@ import { formatLastSaveTime, getAutoSaveStatusText } from '@/lib/drafts'
 
 export interface UseAutosaveOptions {
   /** Debounce delay in ms (default: 500) */
-  debounceMs?: number
+  debounceMs?: number;
   /** Minimum content length to trigger save (default: 1) */
-  minContentLength?: number
+  minContentLength?: number;
   /** Callback when save starts */
-  onSaveStart?: () => void
+  onSaveStart?: () => void;
   /** Callback when save completes */
-  onSaveComplete?: () => void
+  onSaveComplete?: () => void;
   /** Callback when save fails */
-  onSaveError?: (error: string) => void
+  onSaveError?: (error: string) => void;
   /** Enable/disable auto-save (default: true) */
-  enabled?: boolean
+  enabled?: boolean;
 }
 
 export interface UseAutosaveReturn {
   /** Current auto-save status */
-  status: AutoSaveStatus
+  status: AutoSaveStatus;
   /** Whether currently saving */
-  isSaving: boolean
+  isSaving: boolean;
   /** Whether there was an error */
-  hasError: boolean
+  hasError: boolean;
   /** Error message if any */
-  error: string | null
+  error: string | null;
   /** Last save timestamp */
-  lastSaveTime: number | null
+  lastSaveTime: number | null;
   /** Formatted last save time */
-  lastSaveTimeFormatted: string
+  lastSaveTimeFormatted: string;
   /** Human-readable status text */
-  statusText: string
+  statusText: string;
   /** Whether auto-save is enabled */
-  isEnabled: boolean
+  isEnabled: boolean;
   /** Whether there are pending changes */
-  hasPendingChanges: boolean
+  hasPendingChanges: boolean;
 
   /** Schedule a save (debounced) */
-  scheduleSave: (content: string) => void
+  scheduleSave: (content: string) => void;
   /** Save immediately (bypass debounce) */
-  saveNow: () => Promise<void>
+  saveNow: () => Promise<void>;
   /** Cancel pending save */
-  cancelSave: () => void
+  cancelSave: () => void;
   /** Enable auto-save */
-  enable: () => void
+  enable: () => void;
   /** Disable auto-save */
-  disable: () => void
+  disable: () => void;
   /** Toggle auto-save */
-  toggle: () => void
+  toggle: () => void;
 }
 
 // ============================================================================
@@ -77,123 +77,138 @@ export function useAutosave({
   enabled = true,
 }: UseAutosaveOptions = {}): UseAutosaveReturn {
   // Local state for pending changes
-  const [hasPendingChanges, setHasPendingChanges] = useState(false)
-  const [localEnabled, setLocalEnabled] = useState(enabled)
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
+  const [localEnabled, setLocalEnabled] = useState(enabled);
 
   // Refs for debouncing
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pendingContentRef = useRef<string>('')
-  const saveCallbackRef = useRef<((content: string) => Promise<void>) | null>(null)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingContentRef = useRef<string>("");
+  const saveCallbackRef = useRef<((content: string) => Promise<void>) | null>(
+    null,
+  );
 
   // Store state
-  const autoSaveState = useDraftsStore(selectAutoSaveState)
-  const setAutoSaveEnabled = useDraftsStore((state) => state.setAutoSaveEnabled)
-  const setAutoSaveDebounce = useDraftsStore((state) => state.setAutoSaveDebounce)
+  const autoSaveState = useDraftsStore(selectAutoSaveState);
+  const setAutoSaveEnabled = useDraftsStore(
+    (state) => state.setAutoSaveEnabled,
+  );
+  const setAutoSaveDebounce = useDraftsStore(
+    (state) => state.setAutoSaveDebounce,
+  );
 
   // Sync with store
   useEffect(() => {
-    setAutoSaveEnabled(localEnabled)
-  }, [localEnabled, setAutoSaveEnabled])
+    setAutoSaveEnabled(localEnabled);
+  }, [localEnabled, setAutoSaveEnabled]);
 
   useEffect(() => {
-    setAutoSaveDebounce(debounceMs)
-  }, [debounceMs, setAutoSaveDebounce])
+    setAutoSaveDebounce(debounceMs);
+  }, [debounceMs, setAutoSaveDebounce]);
 
   // Track status changes for callbacks
   useEffect(() => {
-    if (autoSaveState.status === 'saving') {
-      onSaveStart?.()
-    } else if (autoSaveState.status === 'saved') {
-      onSaveComplete?.()
-      setHasPendingChanges(false)
-    } else if (autoSaveState.status === 'error' && autoSaveState.error) {
-      onSaveError?.(autoSaveState.error)
+    if (autoSaveState.status === "saving") {
+      onSaveStart?.();
+    } else if (autoSaveState.status === "saved") {
+      onSaveComplete?.();
+      setHasPendingChanges(false);
+    } else if (autoSaveState.status === "error" && autoSaveState.error) {
+      onSaveError?.(autoSaveState.error);
     }
-  }, [autoSaveState.status, autoSaveState.error, onSaveStart, onSaveComplete, onSaveError])
+  }, [
+    autoSaveState.status,
+    autoSaveState.error,
+    onSaveStart,
+    onSaveComplete,
+    onSaveError,
+  ]);
 
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Set save callback
-  const setSaveCallback = useCallback((callback: (content: string) => Promise<void>) => {
-    saveCallbackRef.current = callback
-  }, [])
+  const setSaveCallback = useCallback(
+    (callback: (content: string) => Promise<void>) => {
+      saveCallbackRef.current = callback;
+    },
+    [],
+  );
 
   // Schedule save with debounce
   const scheduleSave = useCallback(
     (content: string) => {
-      if (!localEnabled) return
-      if (content.length < minContentLength) return
+      if (!localEnabled) return;
+      if (content.length < minContentLength) return;
 
-      pendingContentRef.current = content
-      setHasPendingChanges(true)
+      pendingContentRef.current = content;
+      setHasPendingChanges(true);
 
       // Clear existing timer
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current);
       }
 
       // Schedule new save
       debounceTimerRef.current = setTimeout(async () => {
         if (saveCallbackRef.current) {
-          await saveCallbackRef.current(pendingContentRef.current)
+          await saveCallbackRef.current(pendingContentRef.current);
         }
-        setHasPendingChanges(false)
-      }, debounceMs)
+        setHasPendingChanges(false);
+      }, debounceMs);
     },
-    [localEnabled, minContentLength, debounceMs]
-  )
+    [localEnabled, minContentLength, debounceMs],
+  );
 
   // Save immediately
   const saveNow = useCallback(async () => {
     // Cancel any pending debounced save
     if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-      debounceTimerRef.current = null
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
     }
 
     if (saveCallbackRef.current && pendingContentRef.current) {
-      await saveCallbackRef.current(pendingContentRef.current)
+      await saveCallbackRef.current(pendingContentRef.current);
     }
 
-    setHasPendingChanges(false)
-  }, [])
+    setHasPendingChanges(false);
+  }, []);
 
   // Cancel pending save
   const cancelSave = useCallback(() => {
     if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-      debounceTimerRef.current = null
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
     }
-    setHasPendingChanges(false)
-  }, [])
+    setHasPendingChanges(false);
+  }, []);
 
   // Enable auto-save
   const enable = useCallback(() => {
-    setLocalEnabled(true)
-  }, [])
+    setLocalEnabled(true);
+  }, []);
 
   // Disable auto-save
   const disable = useCallback(() => {
-    setLocalEnabled(false)
-    cancelSave()
-  }, [cancelSave])
+    setLocalEnabled(false);
+    cancelSave();
+  }, [cancelSave]);
 
   // Toggle auto-save
   const toggle = useCallback(() => {
-    setLocalEnabled((prev) => !prev)
-  }, [])
+    setLocalEnabled((prev) => !prev);
+  }, []);
 
   return {
     status: autoSaveState.status,
-    isSaving: autoSaveState.status === 'saving',
-    hasError: autoSaveState.status === 'error',
+    isSaving: autoSaveState.status === "saving",
+    hasError: autoSaveState.status === "error",
     error: autoSaveState.error,
     lastSaveTime: autoSaveState.lastSaveTime,
     lastSaveTimeFormatted: formatLastSaveTime(autoSaveState.lastSaveTime),
@@ -211,7 +226,7 @@ export function useAutosave({
     enable,
     disable,
     toggle,
-  }
+  };
 }
 
 // ============================================================================
@@ -220,13 +235,13 @@ export function useAutosave({
 
 export interface UseContextAutosaveOptions {
   /** Context key for the draft */
-  contextKey: string
+  contextKey: string;
   /** Save function */
-  saveFn: (content: string) => Promise<void>
+  saveFn: (content: string) => Promise<void>;
   /** Debounce delay in ms */
-  debounceMs?: number
+  debounceMs?: number;
   /** Enable auto-save */
-  enabled?: boolean
+  enabled?: boolean;
 }
 
 /**
@@ -238,68 +253,68 @@ export function useContextAutosave({
   debounceMs = 500,
   enabled = true,
 }: UseContextAutosaveOptions) {
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [isPending, setIsPending] = useState(false)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   // Cleanup on unmount or context change
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current);
       }
-    }
-  }, [contextKey])
+    };
+  }, [contextKey]);
 
   const scheduleSave = useCallback(
     (content: string) => {
-      if (!enabled) return
+      if (!enabled) return;
 
-      setIsPending(true)
+      setIsPending(true);
 
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current);
       }
 
       debounceTimerRef.current = setTimeout(async () => {
         try {
-          await saveFn(content)
+          await saveFn(content);
         } finally {
-          setIsPending(false)
+          setIsPending(false);
         }
-      }, debounceMs)
+      }, debounceMs);
     },
-    [enabled, debounceMs, saveFn]
-  )
+    [enabled, debounceMs, saveFn],
+  );
 
   const saveNow = useCallback(
     async (content: string) => {
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-        debounceTimerRef.current = null
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
       }
 
-      setIsPending(true)
+      setIsPending(true);
       try {
-        await saveFn(content)
+        await saveFn(content);
       } finally {
-        setIsPending(false)
+        setIsPending(false);
       }
     },
-    [saveFn]
-  )
+    [saveFn],
+  );
 
   const cancel = useCallback(() => {
     if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-      debounceTimerRef.current = null
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
     }
-    setIsPending(false)
-  }, [])
+    setIsPending(false);
+  }, []);
 
   return {
     scheduleSave,
     saveNow,
     cancel,
     isPending,
-  }
+  };
 }

@@ -1,38 +1,43 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { ChevronDown, ChevronUp, User, RotateCcw } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { formatMessageTime, formatMessageTimeTooltip } from '@/lib/date'
-import type { MessageVersion, VersionDiff } from '@/lib/message-history'
-import { DiffPreview, DiffStatsBar } from './EditDiff'
+import { useState } from "react";
+import { ChevronDown, ChevronUp, User, RotateCcw } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { formatMessageTime, formatMessageTimeTooltip } from "@/lib/date";
+import type { MessageVersion, VersionDiff } from "@/lib/message-history";
+import { DiffPreview, DiffStatsBar } from "./EditDiff";
 
 export interface EditHistoryItemProps {
   /** The version to display */
-  version: MessageVersion
+  version: MessageVersion;
   /** The diff from the previous version (if any) */
-  diff?: VersionDiff | null
+  diff?: VersionDiff | null;
   /** Whether the item is selected */
-  isSelected?: boolean
+  isSelected?: boolean;
   /** Click handler for selection */
-  onSelect?: () => void
+  onSelect?: () => void;
   /** Handler for restore action */
-  onRestore?: () => void
+  onRestore?: () => void;
   /** Whether restore is allowed */
-  canRestore?: boolean
+  canRestore?: boolean;
   /** Whether to show full content */
-  showFullContent?: boolean
+  showFullContent?: boolean;
   /** Whether this is the first item (newest) */
-  isFirst?: boolean
+  isFirst?: boolean;
   /** Whether this is the last item (oldest) */
-  isLast?: boolean
+  isLast?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -51,35 +56,40 @@ export function EditHistoryItem({
   isLast = false,
   className,
 }: EditHistoryItemProps) {
-  const [isExpanded, setIsExpanded] = useState(showFullContent)
+  const [isExpanded, setIsExpanded] = useState(showFullContent);
 
-  const { editedBy, createdAt, content, versionNumber, isOriginal, isCurrent } = version
+  const { editedBy, createdAt, content, versionNumber, isOriginal, isCurrent } =
+    version;
 
   return (
     <div
       className={cn(
-        'relative rounded-lg border bg-card p-4 transition-colors',
-        isSelected && 'bg-primary/5 border-primary',
-        onSelect && 'hover:border-primary/50 cursor-pointer',
-        className
+        "relative rounded-lg border bg-card p-4 transition-colors",
+        isSelected && "bg-primary/5 border-primary",
+        onSelect && "hover:border-primary/50 cursor-pointer",
+        className,
       )}
       onClick={onSelect}
       onKeyDown={
         onSelect
           ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onSelect()
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelect();
               }
             }
           : undefined
       }
-      role={onSelect ? 'button' : undefined}
+      role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
     >
       {/* Timeline connector */}
-      {!isFirst && <div className="absolute -top-4 left-6 h-4 w-0.5 bg-border" />}
-      {!isLast && <div className="absolute -bottom-4 left-6 h-4 w-0.5 bg-border" />}
+      {!isFirst && (
+        <div className="absolute -top-4 left-6 h-4 w-0.5 bg-border" />
+      )}
+      {!isLast && (
+        <div className="absolute -bottom-4 left-6 h-4 w-0.5 bg-border" />
+      )}
 
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
@@ -100,7 +110,9 @@ export function EditHistoryItem({
                       {formatMessageTime(createdAt)}
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent>{formatMessageTimeTooltip(createdAt)}</TooltipContent>
+                  <TooltipContent>
+                    {formatMessageTimeTooltip(createdAt)}
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
@@ -129,8 +141,8 @@ export function EditHistoryItem({
                     variant="ghost"
                     size="sm"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onRestore()
+                      e.stopPropagation();
+                      onRestore();
                     }}
                     className="h-8 w-8 p-0"
                   >
@@ -145,12 +157,16 @@ export function EditHistoryItem({
             variant="ghost"
             size="sm"
             onClick={(e) => {
-              e.stopPropagation()
-              setIsExpanded(!isExpanded)
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
             }}
             className="h-8 w-8 p-0"
           >
-            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
@@ -160,7 +176,10 @@ export function EditHistoryItem({
         <div className="mt-3">
           <DiffPreview diff={diff} maxChars={100} />
           <div className="mt-2">
-            <DiffStatsBar charsAdded={diff.charsAdded} charsRemoved={diff.charsRemoved} />
+            <DiffStatsBar
+              charsAdded={diff.charsAdded}
+              charsRemoved={diff.charsRemoved}
+            />
           </div>
         </div>
       )}
@@ -170,21 +189,26 @@ export function EditHistoryItem({
         {isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
             <div className="mt-4 space-y-3">
               <div className="bg-muted/30 rounded-md border p-3">
-                <pre className="whitespace-pre-wrap font-mono text-sm">{content}</pre>
+                <pre className="whitespace-pre-wrap font-mono text-sm">
+                  {content}
+                </pre>
               </div>
               {diff && (
                 <div>
                   <p className="mb-2 text-sm font-medium text-muted-foreground">
                     Changes from previous version:
                   </p>
-                  <DiffStatsBar charsAdded={diff.charsAdded} charsRemoved={diff.charsRemoved} />
+                  <DiffStatsBar
+                    charsAdded={diff.charsAdded}
+                    charsRemoved={diff.charsRemoved}
+                  />
                 </div>
               )}
             </div>
@@ -192,7 +216,7 @@ export function EditHistoryItem({
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 /**
@@ -200,7 +224,7 @@ export function EditHistoryItem({
  */
 export function EditHistoryItemSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('rounded-lg border bg-card p-4', className)}>
+    <div className={cn("rounded-lg border bg-card p-4", className)}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
@@ -216,17 +240,17 @@ export function EditHistoryItemSkeleton({ className }: { className?: string }) {
         <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
  * Compact version for timeline views.
  */
 export interface CompactHistoryItemProps {
-  version: MessageVersion
-  isSelected?: boolean
-  onClick?: () => void
-  className?: string
+  version: MessageVersion;
+  isSelected?: boolean;
+  onClick?: () => void;
+  className?: string;
 }
 
 export function CompactHistoryItem({
@@ -235,16 +259,16 @@ export function CompactHistoryItem({
   onClick,
   className,
 }: CompactHistoryItemProps) {
-  const { editedBy, createdAt, versionNumber, isOriginal, isCurrent } = version
+  const { editedBy, createdAt, versionNumber, isOriginal, isCurrent } = version;
 
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors',
-        isSelected ? 'bg-primary/10 text-primary' : 'hover:bg-muted',
-        className
+        "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors",
+        isSelected ? "bg-primary/10 text-primary" : "hover:bg-muted",
+        className,
       )}
     >
       <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
@@ -252,12 +276,18 @@ export function CompactHistoryItem({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{editedBy.displayName}</span>
-          {isOriginal && <span className="text-xs text-muted-foreground">(original)</span>}
+          <span className="truncate text-sm font-medium">
+            {editedBy.displayName}
+          </span>
+          {isOriginal && (
+            <span className="text-xs text-muted-foreground">(original)</span>
+          )}
           {isCurrent && <span className="text-xs text-primary">(current)</span>}
         </div>
-        <span className="text-xs text-muted-foreground">{formatMessageTime(createdAt)}</span>
+        <span className="text-xs text-muted-foreground">
+          {formatMessageTime(createdAt)}
+        </span>
       </div>
     </button>
-  )
+  );
 }

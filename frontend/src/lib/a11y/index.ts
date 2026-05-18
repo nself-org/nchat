@@ -34,7 +34,7 @@ export {
   getErrorMessage,
   getSuccessMessage,
   liveRegionManager,
-} from './screen-reader'
+} from "./screen-reader";
 
 // Keyboard Navigation utilities
 export {
@@ -57,7 +57,7 @@ export {
   isFocused,
   containsFocus,
   getFocusedElement,
-} from './keyboard-nav'
+} from "./keyboard-nav";
 
 // Contrast utilities
 export {
@@ -82,12 +82,16 @@ export {
   simulateDeuteranopia,
   simulateTritanopia,
   simulateMonochromacy,
-} from './contrast'
+} from "./contrast";
 
 // Type exports
-export type { FocusableElement, NavigationOptions, RovingTabIndexOptions } from './keyboard-nav'
+export type {
+  FocusableElement,
+  NavigationOptions,
+  RovingTabIndexOptions,
+} from "./keyboard-nav";
 
-export type { RGB, HSL, ContrastLevel, ContrastResult } from './contrast'
+export type { RGB, HSL, ContrastLevel, ContrastResult } from "./contrast";
 
 // Chat-specific accessibility
 export {
@@ -131,7 +135,7 @@ export {
   getMessageAriaAttributes,
   getChannelAriaAttributes,
   getMessagePoliteness,
-} from './chat-accessibility'
+} from "./chat-accessibility";
 
 export type {
   Message,
@@ -140,4 +144,4 @@ export type {
   Thread,
   TypingUser,
   KeyboardShortcut,
-} from './chat-accessibility'
+} from "./chat-accessibility";

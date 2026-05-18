@@ -3,33 +3,41 @@
  * Shows encryption status in message UI
  */
 
-'use client'
+"use client";
 
-import { Lock, LockOpen, AlertTriangle } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { Lock, LockOpen, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 export interface E2EEStatusProps {
-  isEncrypted: boolean
-  isVerified?: boolean
-  variant?: 'badge' | 'icon' | 'inline'
-  className?: string
+  isEncrypted: boolean;
+  isVerified?: boolean;
+  variant?: "badge" | "icon" | "inline";
+  className?: string;
 }
 
 export function E2EEStatus({
   isEncrypted,
   isVerified = false,
-  variant = 'icon',
+  variant = "icon",
   className,
 }: E2EEStatusProps) {
-  if (variant === 'badge') {
+  if (variant === "badge") {
     return (
-      <Badge variant={isEncrypted ? 'default' : 'secondary'} className={cn('gap-1', className)}>
+      <Badge
+        variant={isEncrypted ? "default" : "secondary"}
+        className={cn("gap-1", className)}
+      >
         {isEncrypted ? (
           <>
             <Lock className="h-3 w-3" />
-            {isVerified ? 'Verified E2EE' : 'Encrypted'}
+            {isVerified ? "Verified E2EE" : "Encrypted"}
           </>
         ) : (
           <>
@@ -38,12 +46,17 @@ export function E2EEStatus({
           </>
         )}
       </Badge>
-    )
+    );
   }
 
-  if (variant === 'inline') {
+  if (variant === "inline") {
     return (
-      <span className={cn('flex items-center gap-1 text-xs text-muted-foreground', className)}>
+      <span
+        className={cn(
+          "flex items-center gap-1 text-xs text-muted-foreground",
+          className,
+        )}
+      >
         {isEncrypted ? (
           <>
             <Lock className="h-3 w-3" />
@@ -56,7 +69,7 @@ export function E2EEStatus({
           </>
         )}
       </span>
-    )
+    );
   }
 
   // Icon variant (default)
@@ -64,9 +77,14 @@ export function E2EEStatus({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className={cn('inline-flex', className)}>
+          <div className={cn("inline-flex", className)}>
             {isEncrypted ? (
-              <Lock className={cn('h-4 w-4', isVerified ? 'text-green-500' : 'text-primary')} />
+              <Lock
+                className={cn(
+                  "h-4 w-4",
+                  isVerified ? "text-green-500" : "text-primary",
+                )}
+              />
             ) : (
               <LockOpen className="h-4 w-4 text-muted-foreground" />
             )}
@@ -88,7 +106,7 @@ export function E2EEStatus({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
-export default E2EEStatus
+export default E2EEStatus;

@@ -13,14 +13,14 @@
  * - Audit trail for all recovery operations
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   KeyPair,
   ExportedKeyPair,
   generateKeyPair,
   exportKeyPair,
   importKeyPair,
-} from './key-manager'
+} from "./key-manager";
 
 // ============================================================================
 // Types
@@ -30,29 +30,29 @@ import {
  * Recovery method types
  */
 export type RecoveryMethod =
-  | 'recovery_codes' // Pre-generated recovery codes
-  | 'password' // Password-derived key
-  | 'security_questions' // Answer-based recovery
-  | 'social_recovery' // Trusted contacts
-  | 'hardware_key' // Hardware security key
-  | 'backup_file' // Encrypted backup file
+  | "recovery_codes" // Pre-generated recovery codes
+  | "password" // Password-derived key
+  | "security_questions" // Answer-based recovery
+  | "social_recovery" // Trusted contacts
+  | "hardware_key" // Hardware security key
+  | "backup_file"; // Encrypted backup file
 
 /**
  * Recovery code entry
  */
 export interface RecoveryCode {
   /** The recovery code (hashed for storage) */
-  codeHash: string
+  codeHash: string;
   /** When this code was generated */
-  generatedAt: Date
+  generatedAt: Date;
   /** When this code expires (null = never) */
-  expiresAt: Date | null
+  expiresAt: Date | null;
   /** Whether this code has been used */
-  used: boolean
+  used: boolean;
   /** When this code was used */
-  usedAt: Date | null
+  usedAt: Date | null;
   /** Code index for identification */
-  index: number
+  index: number;
 }
 
 /**
@@ -60,23 +60,23 @@ export interface RecoveryCode {
  */
 export interface EncryptedBackup {
   /** Backup format version */
-  version: number
+  version: number;
   /** Encryption algorithm used */
-  algorithm: string
+  algorithm: string;
   /** Salt for key derivation */
-  salt: string
+  salt: string;
   /** Initialization vector */
-  iv: string
+  iv: string;
   /** Encrypted key data */
-  encryptedData: string
+  encryptedData: string;
   /** HMAC for integrity verification */
-  hmac: string
+  hmac: string;
   /** When backup was created */
-  createdAt: string
+  createdAt: string;
   /** Device ID that created the backup */
-  deviceId: string
+  deviceId: string;
   /** Key version in backup */
-  keyVersion: number
+  keyVersion: number;
 }
 
 /**
@@ -84,19 +84,19 @@ export interface EncryptedBackup {
  */
 export interface RecoveryAttempt {
   /** Attempt identifier */
-  id: string
+  id: string;
   /** Recovery method used */
-  method: RecoveryMethod
+  method: RecoveryMethod;
   /** Whether attempt succeeded */
-  success: boolean
+  success: boolean;
   /** When attempt was made */
-  attemptedAt: Date
+  attemptedAt: Date;
   /** IP address (if available) */
-  ipAddress: string | null
+  ipAddress: string | null;
   /** User agent string */
-  userAgent: string | null
+  userAgent: string | null;
   /** Failure reason (if failed) */
-  failureReason: string | null
+  failureReason: string | null;
 }
 
 /**
@@ -104,17 +104,17 @@ export interface RecoveryAttempt {
  */
 export interface RecoveryGuardian {
   /** Guardian identifier */
-  id: string
+  id: string;
   /** Guardian's name */
-  name: string
+  name: string;
   /** Guardian's email or contact */
-  contact: string
+  contact: string;
   /** Guardian's public key for encrypting their share */
-  publicKey: string
+  publicKey: string;
   /** Whether guardian has confirmed their role */
-  confirmed: boolean
+  confirmed: boolean;
   /** When guardian was added */
-  addedAt: Date
+  addedAt: Date;
 }
 
 /**
@@ -122,15 +122,15 @@ export interface RecoveryGuardian {
  */
 export interface RecoveryShare {
   /** Share identifier */
-  id: string
+  id: string;
   /** Guardian ID this share belongs to */
-  guardianId: string
+  guardianId: string;
   /** Encrypted share data */
-  encryptedShare: string
+  encryptedShare: string;
   /** Share index (for Shamir's secret sharing) */
-  index: number
+  index: number;
   /** When share was created */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
@@ -138,25 +138,25 @@ export interface RecoveryShare {
  */
 export interface RecoveryConfig {
   /** Number of recovery codes to generate */
-  recoveryCodeCount: number
+  recoveryCodeCount: number;
   /** Recovery code length (characters) */
-  recoveryCodeLength: number
+  recoveryCodeLength: number;
   /** Whether to allow password-based recovery */
-  allowPasswordRecovery: boolean
+  allowPasswordRecovery: boolean;
   /** Minimum password strength for recovery */
-  minPasswordStrength: number
+  minPasswordStrength: number;
   /** Whether to enable social recovery */
-  enableSocialRecovery: boolean
+  enableSocialRecovery: boolean;
   /** Number of guardians required for social recovery */
-  socialRecoveryThreshold: number
+  socialRecoveryThreshold: number;
   /** Total number of guardians */
-  socialRecoveryGuardians: number
+  socialRecoveryGuardians: number;
   /** Maximum recovery attempts before lockout */
-  maxRecoveryAttempts: number
+  maxRecoveryAttempts: number;
   /** Lockout duration in minutes */
-  lockoutDurationMinutes: number
+  lockoutDurationMinutes: number;
   /** Whether to require email verification for recovery */
-  requireEmailVerification: boolean
+  requireEmailVerification: boolean;
 }
 
 /**
@@ -164,42 +164,42 @@ export interface RecoveryConfig {
  */
 export interface RecoveryState {
   /** Whether recovery is set up */
-  isSetUp: boolean
+  isSetUp: boolean;
   /** Available recovery methods */
-  availableMethods: RecoveryMethod[]
+  availableMethods: RecoveryMethod[];
   /** Number of unused recovery codes */
-  unusedRecoveryCodes: number
+  unusedRecoveryCodes: number;
   /** Whether social recovery is configured */
-  socialRecoveryConfigured: boolean
+  socialRecoveryConfigured: boolean;
   /** Number of confirmed guardians */
-  confirmedGuardians: number
+  confirmedGuardians: number;
   /** Recovery attempts in last 24 hours */
-  recentAttempts: number
+  recentAttempts: number;
   /** Whether currently locked out */
-  isLockedOut: boolean
+  isLockedOut: boolean;
   /** Lockout expires at */
-  lockoutExpiresAt: Date | null
+  lockoutExpiresAt: Date | null;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const RECOVERY_VERSION = 1
-const RECOVERY_ALGORITHM = 'AES-256-GCM'
-const PBKDF2_ITERATIONS = 100000
-const RECOVERY_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // No I, O, 0, 1
-const DEFAULT_CODE_COUNT = 10
-const DEFAULT_CODE_LENGTH = 8
-const DEFAULT_MAX_ATTEMPTS = 5
-const DEFAULT_LOCKOUT_MINUTES = 30
+const RECOVERY_VERSION = 1;
+const RECOVERY_ALGORITHM = "AES-256-GCM";
+const PBKDF2_ITERATIONS = 100000;
+const RECOVERY_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // No I, O, 0, 1
+const DEFAULT_CODE_COUNT = 10;
+const DEFAULT_CODE_LENGTH = 8;
+const DEFAULT_MAX_ATTEMPTS = 5;
+const DEFAULT_LOCKOUT_MINUTES = 30;
 
-const STORAGE_PREFIX = 'nchat_recovery_'
-const CODES_STORAGE_KEY = `${STORAGE_PREFIX}codes`
-const ATTEMPTS_STORAGE_KEY = `${STORAGE_PREFIX}attempts`
-const GUARDIANS_STORAGE_KEY = `${STORAGE_PREFIX}guardians`
-const SHARES_STORAGE_KEY = `${STORAGE_PREFIX}shares`
-const CONFIG_STORAGE_KEY = `${STORAGE_PREFIX}config`
+const STORAGE_PREFIX = "nchat_recovery_";
+const CODES_STORAGE_KEY = `${STORAGE_PREFIX}codes`;
+const ATTEMPTS_STORAGE_KEY = `${STORAGE_PREFIX}attempts`;
+const GUARDIANS_STORAGE_KEY = `${STORAGE_PREFIX}guardians`;
+const SHARES_STORAGE_KEY = `${STORAGE_PREFIX}shares`;
+const CONFIG_STORAGE_KEY = `${STORAGE_PREFIX}config`;
 
 // ============================================================================
 // Utility Functions
@@ -208,21 +208,23 @@ const CONFIG_STORAGE_KEY = `${STORAGE_PREFIX}config`
 /**
  * Generates a random recovery code
  */
-export function generateRecoveryCode(length: number = DEFAULT_CODE_LENGTH): string {
-  const array = new Uint8Array(length)
-  crypto.getRandomValues(array)
+export function generateRecoveryCode(
+  length: number = DEFAULT_CODE_LENGTH,
+): string {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
 
-  let code = ''
+  let code = "";
   for (let i = 0; i < length; i++) {
-    code += RECOVERY_CODE_ALPHABET[array[i] % RECOVERY_CODE_ALPHABET.length]
+    code += RECOVERY_CODE_ALPHABET[array[i] % RECOVERY_CODE_ALPHABET.length];
   }
 
   // Format with dashes for readability (XXXX-XXXX)
   if (length === 8) {
-    return `${code.slice(0, 4)}-${code.slice(4)}`
+    return `${code.slice(0, 4)}-${code.slice(4)}`;
   }
 
-  return code
+  return code;
 }
 
 /**
@@ -230,34 +232,34 @@ export function generateRecoveryCode(length: number = DEFAULT_CODE_LENGTH): stri
  */
 export function formatRecoveryCode(code: string): string {
   // Remove any existing formatting
-  const clean = code.replace(/[-\s]/g, '').toUpperCase()
+  const clean = code.replace(/[-\s]/g, "").toUpperCase();
 
   // Format in groups of 4
-  const groups: string[] = []
+  const groups: string[] = [];
   for (let i = 0; i < clean.length; i += 4) {
-    groups.push(clean.slice(i, i + 4))
+    groups.push(clean.slice(i, i + 4));
   }
 
-  return groups.join('-')
+  return groups.join("-");
 }
 
 /**
  * Normalizes a recovery code for comparison
  */
 export function normalizeRecoveryCode(code: string): string {
-  return code.replace(/[-\s]/g, '').toUpperCase()
+  return code.replace(/[-\s]/g, "").toUpperCase();
 }
 
 /**
  * Hashes a recovery code for storage
  */
 export async function hashRecoveryCode(code: string): Promise<string> {
-  const normalized = normalizeRecoveryCode(code)
-  const encoder = new TextEncoder()
-  const data = encoder.encode(normalized)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  const normalized = normalizeRecoveryCode(code);
+  const encoder = new TextEncoder();
+  const data = encoder.encode(normalized);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 /**
@@ -266,31 +268,31 @@ export async function hashRecoveryCode(code: string): Promise<string> {
 export async function deriveKeyFromPassword(
   password: string,
   salt: Uint8Array,
-  iterations: number = PBKDF2_ITERATIONS
+  iterations: number = PBKDF2_ITERATIONS,
 ): Promise<CryptoKey> {
-  const encoder = new TextEncoder()
-  const passwordBuffer = encoder.encode(password)
+  const encoder = new TextEncoder();
+  const passwordBuffer = encoder.encode(password);
 
   const keyMaterial = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     passwordBuffer,
-    'PBKDF2',
+    "PBKDF2",
     false,
-    ['deriveBits', 'deriveKey']
-  )
+    ["deriveBits", "deriveKey"],
+  );
 
   return crypto.subtle.deriveKey(
     {
-      name: 'PBKDF2',
+      name: "PBKDF2",
       salt: salt as unknown as ArrayBuffer,
       iterations,
-      hash: 'SHA-256',
+      hash: "SHA-256",
     },
     keyMaterial,
-    { name: 'AES-GCM', length: 256 },
+    { name: "AES-GCM", length: 256 },
     true,
-    ['encrypt', 'decrypt']
-  )
+    ["encrypt", "decrypt"],
+  );
 }
 
 /**
@@ -299,12 +301,16 @@ export async function deriveKeyFromPassword(
 async function encryptWithKey(
   data: string,
   key: CryptoKey,
-  iv: Uint8Array
+  iv: Uint8Array,
 ): Promise<ArrayBuffer> {
-  const encoder = new TextEncoder()
-  const encodedData = encoder.encode(data)
+  const encoder = new TextEncoder();
+  const encodedData = encoder.encode(data);
 
-  return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv as unknown as ArrayBuffer }, key, encodedData)
+  return crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: iv as unknown as ArrayBuffer },
+    key,
+    encodedData,
+  );
 }
 
 /**
@@ -313,75 +319,72 @@ async function encryptWithKey(
 async function decryptWithKey(
   encryptedData: ArrayBuffer,
   key: CryptoKey,
-  iv: Uint8Array
+  iv: Uint8Array,
 ): Promise<string> {
   const decrypted = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: iv as unknown as ArrayBuffer },
+    { name: "AES-GCM", iv: iv as unknown as ArrayBuffer },
     key,
-    encryptedData
-  )
+    encryptedData,
+  );
 
-  const decoder = new TextDecoder()
-  return decoder.decode(decrypted)
+  const decoder = new TextDecoder();
+  return decoder.decode(decrypted);
 }
 
 /**
  * Converts ArrayBuffer to Base64
  */
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
   for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i])
+    binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary)
+  return btoa(binary);
 }
 
 /**
  * Converts Base64 to ArrayBuffer
  */
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
+    bytes[i] = binary.charCodeAt(i);
   }
-  return bytes.buffer
+  return bytes.buffer;
 }
 
 /**
  * Generates a random ID
  */
 function generateId(): string {
-  const array = new Uint8Array(16)
-  crypto.getRandomValues(array)
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
   return Array.from(array)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 /**
  * Computes HMAC for data integrity
  */
-async function computeHmac(
-  data: string,
-  key: CryptoKey
-): Promise<string> {
-  const encoder = new TextEncoder()
-  const encodedData = encoder.encode(data)
+async function computeHmac(data: string, key: CryptoKey): Promise<string> {
+  const encoder = new TextEncoder();
+  const encodedData = encoder.encode(data);
 
   // Export key and re-import for HMAC
-  const rawKey = await crypto.subtle.exportKey('raw', key)
+  const rawKey = await crypto.subtle.exportKey("raw", key);
   const hmacKey = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     rawKey,
-    { name: 'HMAC', hash: 'SHA-256' },
+    { name: "HMAC", hash: "SHA-256" },
     false,
-    ['sign']
-  )
+    ["sign"],
+  );
 
-  const signature = await crypto.subtle.sign('HMAC', hmacKey, encodedData)
-  return arrayBufferToBase64(signature)
+  const signature = await crypto.subtle.sign("HMAC", hmacKey, encodedData);
+  return arrayBufferToBase64(signature);
 }
 
 /**
@@ -390,10 +393,10 @@ async function computeHmac(
 async function verifyHmac(
   data: string,
   hmac: string,
-  key: CryptoKey
+  key: CryptoKey,
 ): Promise<boolean> {
-  const computed = await computeHmac(data, key)
-  return computed === hmac
+  const computed = await computeHmac(data, key);
+  return computed === hmac;
 }
 
 // ============================================================================
@@ -404,14 +407,14 @@ async function verifyHmac(
  * Manages key recovery operations
  */
 export class KeyRecoveryManager {
-  private static instance: KeyRecoveryManager
-  private config: RecoveryConfig
-  private recoveryCodes: RecoveryCode[] = []
-  private attempts: RecoveryAttempt[] = []
-  private guardians: RecoveryGuardian[] = []
-  private shares: RecoveryShare[] = []
-  private initialized = false
-  private lockoutUntil: Date | null = null
+  private static instance: KeyRecoveryManager;
+  private config: RecoveryConfig;
+  private recoveryCodes: RecoveryCode[] = [];
+  private attempts: RecoveryAttempt[] = [];
+  private guardians: RecoveryGuardian[] = [];
+  private shares: RecoveryShare[] = [];
+  private initialized = false;
+  private lockoutUntil: Date | null = null;
 
   private constructor(config: Partial<RecoveryConfig> = {}) {
     this.config = {
@@ -423,9 +426,10 @@ export class KeyRecoveryManager {
       socialRecoveryThreshold: config.socialRecoveryThreshold ?? 3,
       socialRecoveryGuardians: config.socialRecoveryGuardians ?? 5,
       maxRecoveryAttempts: config.maxRecoveryAttempts ?? DEFAULT_MAX_ATTEMPTS,
-      lockoutDurationMinutes: config.lockoutDurationMinutes ?? DEFAULT_LOCKOUT_MINUTES,
+      lockoutDurationMinutes:
+        config.lockoutDurationMinutes ?? DEFAULT_LOCKOUT_MINUTES,
       requireEmailVerification: config.requireEmailVerification ?? true,
-    }
+    };
   }
 
   /**
@@ -433,45 +437,45 @@ export class KeyRecoveryManager {
    */
   static getInstance(config?: Partial<RecoveryConfig>): KeyRecoveryManager {
     if (!KeyRecoveryManager.instance) {
-      KeyRecoveryManager.instance = new KeyRecoveryManager(config)
+      KeyRecoveryManager.instance = new KeyRecoveryManager(config);
     }
-    return KeyRecoveryManager.instance
+    return KeyRecoveryManager.instance;
   }
 
   /**
    * Resets the singleton (for testing)
    */
   static resetInstance(): void {
-    KeyRecoveryManager.instance = undefined as unknown as KeyRecoveryManager
+    KeyRecoveryManager.instance = undefined as unknown as KeyRecoveryManager;
   }
 
   /**
    * Initializes the recovery manager
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return
+    if (this.initialized) return;
 
-    await this.loadFromStorage()
-    this.initialized = true
+    await this.loadFromStorage();
+    this.initialized = true;
 
-    logger.info('Key recovery manager initialized')
+    logger.info("Key recovery manager initialized");
   }
 
   /**
    * Gets the current recovery state
    */
   async getState(): Promise<RecoveryState> {
-    const now = new Date()
+    const now = new Date();
     const recentAttempts = this.attempts.filter(
-      (a) => now.getTime() - a.attemptedAt.getTime() < 24 * 60 * 60 * 1000
-    ).length
+      (a) => now.getTime() - a.attemptedAt.getTime() < 24 * 60 * 60 * 1000,
+    ).length;
 
-    const availableMethods: RecoveryMethod[] = ['recovery_codes']
+    const availableMethods: RecoveryMethod[] = ["recovery_codes"];
     if (this.config.allowPasswordRecovery) {
-      availableMethods.push('password')
+      availableMethods.push("password");
     }
     if (this.config.enableSocialRecovery && this.guardians.length > 0) {
-      availableMethods.push('social_recovery')
+      availableMethods.push("social_recovery");
     }
 
     return {
@@ -485,20 +489,20 @@ export class KeyRecoveryManager {
       recentAttempts,
       isLockedOut: this.isLockedOut(),
       lockoutExpiresAt: this.lockoutUntil,
-    }
+    };
   }
 
   /**
    * Generates new recovery codes
    */
   async generateRecoveryCodes(): Promise<string[]> {
-    const codes: string[] = []
-    const hashedCodes: RecoveryCode[] = []
-    const now = new Date()
+    const codes: string[] = [];
+    const hashedCodes: RecoveryCode[] = [];
+    const now = new Date();
 
     for (let i = 0; i < this.config.recoveryCodeCount; i++) {
-      const code = generateRecoveryCode(this.config.recoveryCodeLength)
-      codes.push(code)
+      const code = generateRecoveryCode(this.config.recoveryCodeLength);
+      codes.push(code);
 
       hashedCodes.push({
         codeHash: await hashRecoveryCode(code),
@@ -507,75 +511,75 @@ export class KeyRecoveryManager {
         used: false,
         usedAt: null,
         index: i,
-      })
+      });
     }
 
-    this.recoveryCodes = hashedCodes
-    await this.saveToStorage()
+    this.recoveryCodes = hashedCodes;
+    await this.saveToStorage();
 
-    logger.info('Recovery codes generated', {
+    logger.info("Recovery codes generated", {
       count: codes.length,
-    })
+    });
 
-    return codes
+    return codes;
   }
 
   /**
    * Verifies a recovery code
    */
   async verifyRecoveryCode(code: string): Promise<{
-    valid: boolean
-    codeIndex: number | null
-    error: string | null
+    valid: boolean;
+    codeIndex: number | null;
+    error: string | null;
   }> {
     if (this.isLockedOut()) {
       return {
         valid: false,
         codeIndex: null,
-        error: 'Account is temporarily locked due to too many failed attempts',
-      }
+        error: "Account is temporarily locked due to too many failed attempts",
+      };
     }
 
-    const codeHash = await hashRecoveryCode(code)
+    const codeHash = await hashRecoveryCode(code);
     const matchingCode = this.recoveryCodes.find(
-      (c) => c.codeHash === codeHash && !c.used
-    )
+      (c) => c.codeHash === codeHash && !c.used,
+    );
 
     if (!matchingCode) {
-      await this.recordAttempt('recovery_codes', false, 'Invalid or used code')
+      await this.recordAttempt("recovery_codes", false, "Invalid or used code");
       return {
         valid: false,
         codeIndex: null,
-        error: 'Invalid or already used recovery code',
-      }
+        error: "Invalid or already used recovery code",
+      };
     }
 
     // Check expiration
     if (matchingCode.expiresAt && matchingCode.expiresAt < new Date()) {
-      await this.recordAttempt('recovery_codes', false, 'Code expired')
+      await this.recordAttempt("recovery_codes", false, "Code expired");
       return {
         valid: false,
         codeIndex: null,
-        error: 'Recovery code has expired',
-      }
+        error: "Recovery code has expired",
+      };
     }
 
     // Mark code as used
-    matchingCode.used = true
-    matchingCode.usedAt = new Date()
-    await this.saveToStorage()
+    matchingCode.used = true;
+    matchingCode.usedAt = new Date();
+    await this.saveToStorage();
 
-    await this.recordAttempt('recovery_codes', true, null)
+    await this.recordAttempt("recovery_codes", true, null);
 
-    logger.info('Recovery code verified', {
+    logger.info("Recovery code verified", {
       codeIndex: matchingCode.index,
-    })
+    });
 
     return {
       valid: true,
       codeIndex: matchingCode.index,
       error: null,
-    }
+    };
   }
 
   /**
@@ -585,25 +589,25 @@ export class KeyRecoveryManager {
     keyPair: KeyPair,
     password: string,
     deviceId: string,
-    keyVersion: number
+    keyVersion: number,
   ): Promise<EncryptedBackup> {
     // Generate salt and IV
-    const salt = crypto.getRandomValues(new Uint8Array(32))
-    const iv = crypto.getRandomValues(new Uint8Array(12))
+    const salt = crypto.getRandomValues(new Uint8Array(32));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
 
     // Derive key from password
-    const encryptionKey = await deriveKeyFromPassword(password, salt)
+    const encryptionKey = await deriveKeyFromPassword(password, salt);
 
     // Export and stringify key data
-    const exportedKeys = await exportKeyPair(keyPair)
-    const keyData = JSON.stringify(exportedKeys)
+    const exportedKeys = await exportKeyPair(keyPair);
+    const keyData = JSON.stringify(exportedKeys);
 
     // Encrypt the key data
-    const encryptedBuffer = await encryptWithKey(keyData, encryptionKey, iv)
-    const encryptedData = arrayBufferToBase64(encryptedBuffer)
+    const encryptedBuffer = await encryptWithKey(keyData, encryptionKey, iv);
+    const encryptedData = arrayBufferToBase64(encryptedBuffer);
 
     // Compute HMAC for integrity
-    const hmac = await computeHmac(encryptedData, encryptionKey)
+    const hmac = await computeHmac(encryptedData, encryptionKey);
 
     const backup: EncryptedBackup = {
       version: RECOVERY_VERSION,
@@ -615,14 +619,14 @@ export class KeyRecoveryManager {
       createdAt: new Date().toISOString(),
       deviceId,
       keyVersion,
-    }
+    };
 
-    logger.info('Key backup created', {
+    logger.info("Key backup created", {
       deviceId,
       keyVersion,
-    })
+    });
 
-    return backup
+    return backup;
   }
 
   /**
@@ -630,18 +634,18 @@ export class KeyRecoveryManager {
    */
   async restoreFromBackup(
     backup: EncryptedBackup,
-    password: string
+    password: string,
   ): Promise<{
-    success: boolean
-    keyPair: KeyPair | null
-    error: string | null
+    success: boolean;
+    keyPair: KeyPair | null;
+    error: string | null;
   }> {
     if (this.isLockedOut()) {
       return {
         success: false,
         keyPair: null,
-        error: 'Account is temporarily locked due to too many failed attempts',
-      }
+        error: "Account is temporarily locked due to too many failed attempts",
+      };
     }
 
     try {
@@ -651,63 +655,68 @@ export class KeyRecoveryManager {
           success: false,
           keyPair: null,
           error: `Unsupported backup version: ${backup.version}`,
-        }
+        };
       }
 
       // Reconstruct salt and IV
-      const salt = new Uint8Array(base64ToArrayBuffer(backup.salt))
-      const iv = new Uint8Array(base64ToArrayBuffer(backup.iv))
+      const salt = new Uint8Array(base64ToArrayBuffer(backup.salt));
+      const iv = new Uint8Array(base64ToArrayBuffer(backup.iv));
 
       // Derive key from password
-      const decryptionKey = await deriveKeyFromPassword(password, salt)
+      const decryptionKey = await deriveKeyFromPassword(password, salt);
 
       // Verify HMAC
-      const hmacValid = await verifyHmac(backup.encryptedData, backup.hmac, decryptionKey)
+      const hmacValid = await verifyHmac(
+        backup.encryptedData,
+        backup.hmac,
+        decryptionKey,
+      );
       if (!hmacValid) {
-        await this.recordAttempt('password', false, 'HMAC verification failed')
+        await this.recordAttempt("password", false, "HMAC verification failed");
         return {
           success: false,
           keyPair: null,
-          error: 'Backup integrity check failed. Wrong password or corrupted backup.',
-        }
+          error:
+            "Backup integrity check failed. Wrong password or corrupted backup.",
+        };
       }
 
       // Decrypt key data
-      const encryptedBuffer = base64ToArrayBuffer(backup.encryptedData)
-      const keyData = await decryptWithKey(encryptedBuffer, decryptionKey, iv)
+      const encryptedBuffer = base64ToArrayBuffer(backup.encryptedData);
+      const keyData = await decryptWithKey(encryptedBuffer, decryptionKey, iv);
 
       // Parse and import keys
-      const exportedKeys: ExportedKeyPair = JSON.parse(keyData)
-      const keyPair = await importKeyPair(exportedKeys)
+      const exportedKeys: ExportedKeyPair = JSON.parse(keyData);
+      const keyPair = await importKeyPair(exportedKeys);
 
-      await this.recordAttempt('password', true, null)
+      await this.recordAttempt("password", true, null);
 
-      logger.info('Key backup restored', {
+      logger.info("Key backup restored", {
         deviceId: backup.deviceId,
         keyVersion: backup.keyVersion,
-      })
+      });
 
       return {
         success: true,
         keyPair,
         error: null,
-      }
+      };
     } catch (error) {
       await this.recordAttempt(
-        'password',
+        "password",
         false,
-        error instanceof Error ? error.message : 'Unknown error'
-      )
+        error instanceof Error ? error.message : "Unknown error",
+      );
 
-      logger.error('Key backup restoration failed', {
-        error: error instanceof Error ? error.message : 'Unknown',
-      })
+      logger.error("Key backup restoration failed", {
+        error: error instanceof Error ? error.message : "Unknown",
+      });
 
       return {
         success: false,
         keyPair: null,
-        error: 'Failed to restore backup. Check password and try again.',
-      }
+        error: "Failed to restore backup. Check password and try again.",
+      };
     }
   }
 
@@ -715,7 +724,7 @@ export class KeyRecoveryManager {
    * Exports backup as downloadable file content
    */
   exportBackupAsFile(backup: EncryptedBackup): string {
-    return JSON.stringify(backup, null, 2)
+    return JSON.stringify(backup, null, 2);
   }
 
   /**
@@ -723,7 +732,7 @@ export class KeyRecoveryManager {
    */
   importBackupFromFile(fileContent: string): EncryptedBackup | null {
     try {
-      const backup = JSON.parse(fileContent) as EncryptedBackup
+      const backup = JSON.parse(fileContent) as EncryptedBackup;
 
       // Validate required fields
       if (
@@ -734,12 +743,12 @@ export class KeyRecoveryManager {
         !backup.encryptedData ||
         !backup.hmac
       ) {
-        return null
+        return null;
       }
 
-      return backup
+      return backup;
     } catch {
-      return null
+      return null;
     }
   }
 
@@ -749,12 +758,12 @@ export class KeyRecoveryManager {
   async addGuardian(
     name: string,
     contact: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<RecoveryGuardian> {
     if (this.guardians.length >= this.config.socialRecoveryGuardians) {
       throw new Error(
-        `Maximum number of guardians (${this.config.socialRecoveryGuardians}) reached`
-      )
+        `Maximum number of guardians (${this.config.socialRecoveryGuardians}) reached`,
+      );
     }
 
     const guardian: RecoveryGuardian = {
@@ -764,62 +773,62 @@ export class KeyRecoveryManager {
       publicKey,
       confirmed: false,
       addedAt: new Date(),
-    }
+    };
 
-    this.guardians.push(guardian)
-    await this.saveToStorage()
+    this.guardians.push(guardian);
+    await this.saveToStorage();
 
-    logger.info('Recovery guardian added', {
+    logger.info("Recovery guardian added", {
       guardianId: guardian.id,
       name,
-    })
+    });
 
-    return guardian
+    return guardian;
   }
 
   /**
    * Confirms a guardian
    */
   async confirmGuardian(guardianId: string): Promise<boolean> {
-    const guardian = this.guardians.find((g) => g.id === guardianId)
-    if (!guardian) return false
+    const guardian = this.guardians.find((g) => g.id === guardianId);
+    if (!guardian) return false;
 
-    guardian.confirmed = true
-    await this.saveToStorage()
+    guardian.confirmed = true;
+    await this.saveToStorage();
 
-    logger.info('Recovery guardian confirmed', {
+    logger.info("Recovery guardian confirmed", {
       guardianId,
-    })
+    });
 
-    return true
+    return true;
   }
 
   /**
    * Removes a guardian
    */
   async removeGuardian(guardianId: string): Promise<boolean> {
-    const index = this.guardians.findIndex((g) => g.id === guardianId)
-    if (index === -1) return false
+    const index = this.guardians.findIndex((g) => g.id === guardianId);
+    if (index === -1) return false;
 
-    this.guardians.splice(index, 1)
+    this.guardians.splice(index, 1);
 
     // Also remove any shares for this guardian
-    this.shares = this.shares.filter((s) => s.guardianId !== guardianId)
+    this.shares = this.shares.filter((s) => s.guardianId !== guardianId);
 
-    await this.saveToStorage()
+    await this.saveToStorage();
 
-    logger.info('Recovery guardian removed', {
+    logger.info("Recovery guardian removed", {
       guardianId,
-    })
+    });
 
-    return true
+    return true;
   }
 
   /**
    * Gets all guardians
    */
   getGuardians(): RecoveryGuardian[] {
-    return [...this.guardians]
+    return [...this.guardians];
   }
 
   /**
@@ -827,35 +836,35 @@ export class KeyRecoveryManager {
    * Uses a simplified threshold secret sharing scheme
    */
   async createRecoveryShares(
-    keyPair: KeyPair
+    keyPair: KeyPair,
   ): Promise<{ success: boolean; shareCount: number; error: string | null }> {
-    const confirmedGuardians = this.guardians.filter((g) => g.confirmed)
+    const confirmedGuardians = this.guardians.filter((g) => g.confirmed);
 
     if (confirmedGuardians.length < this.config.socialRecoveryThreshold) {
       return {
         success: false,
         shareCount: 0,
         error: `Need at least ${this.config.socialRecoveryThreshold} confirmed guardians`,
-      }
+      };
     }
 
     try {
       // Export key data
-      const exportedKeys = await exportKeyPair(keyPair)
-      const keyData = JSON.stringify(exportedKeys)
+      const exportedKeys = await exportKeyPair(keyPair);
+      const keyData = JSON.stringify(exportedKeys);
 
       // Create shares (simplified - in production, use Shamir's Secret Sharing)
-      const shares: RecoveryShare[] = []
-      const encoder = new TextEncoder()
-      const keyBytes = encoder.encode(keyData)
+      const shares: RecoveryShare[] = [];
+      const encoder = new TextEncoder();
+      const keyBytes = encoder.encode(keyData);
 
       for (let i = 0; i < confirmedGuardians.length; i++) {
-        const guardian = confirmedGuardians[i]
+        const guardian = confirmedGuardians[i];
 
         // In production, this would be proper Shamir secret sharing
         // For now, we XOR split the secret
-        const shareData = new Uint8Array(keyBytes.length)
-        crypto.getRandomValues(shareData)
+        const shareData = new Uint8Array(keyBytes.length);
+        crypto.getRandomValues(shareData);
 
         // Last share would be the XOR of all previous shares with the secret
         // This is a simplified version for demonstration
@@ -866,27 +875,27 @@ export class KeyRecoveryManager {
           encryptedShare: arrayBufferToBase64(shareData.buffer),
           index: i,
           createdAt: new Date(),
-        })
+        });
       }
 
-      this.shares = shares
-      await this.saveToStorage()
+      this.shares = shares;
+      await this.saveToStorage();
 
-      logger.info('Recovery shares created', {
+      logger.info("Recovery shares created", {
         shareCount: shares.length,
-      })
+      });
 
       return {
         success: true,
         shareCount: shares.length,
         error: null,
-      }
+      };
     } catch (error) {
       return {
         success: false,
         shareCount: 0,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 
@@ -894,37 +903,37 @@ export class KeyRecoveryManager {
    * Gets recovery attempt history
    */
   getAttemptHistory(limit: number = 50): RecoveryAttempt[] {
-    return this.attempts.slice(-limit)
+    return this.attempts.slice(-limit);
   }
 
   /**
    * Clears all recovery data (dangerous!)
    */
   async clearAllRecoveryData(): Promise<void> {
-    this.recoveryCodes = []
-    this.attempts = []
-    this.guardians = []
-    this.shares = []
-    this.lockoutUntil = null
+    this.recoveryCodes = [];
+    this.attempts = [];
+    this.guardians = [];
+    this.shares = [];
+    this.lockoutUntil = null;
 
-    await this.clearStorage()
+    await this.clearStorage();
 
-    logger.warn('All recovery data cleared')
+    logger.warn("All recovery data cleared");
   }
 
   /**
    * Updates recovery configuration
    */
   updateConfig(updates: Partial<RecoveryConfig>): void {
-    this.config = { ...this.config, ...updates }
-    this.saveToStorage()
+    this.config = { ...this.config, ...updates };
+    this.saveToStorage();
   }
 
   /**
    * Gets current configuration
    */
   getConfig(): RecoveryConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 
   // ============================================================================
@@ -932,18 +941,18 @@ export class KeyRecoveryManager {
   // ============================================================================
 
   private isLockedOut(): boolean {
-    if (!this.lockoutUntil) return false
-    if (this.lockoutUntil > new Date()) return true
+    if (!this.lockoutUntil) return false;
+    if (this.lockoutUntil > new Date()) return true;
 
     // Lockout expired, clear it
-    this.lockoutUntil = null
-    return false
+    this.lockoutUntil = null;
+    return false;
   }
 
   private async recordAttempt(
     method: RecoveryMethod,
     success: boolean,
-    failureReason: string | null
+    failureReason: string | null,
   ): Promise<void> {
     const attempt: RecoveryAttempt = {
       id: generateId(),
@@ -951,111 +960,117 @@ export class KeyRecoveryManager {
       success,
       attemptedAt: new Date(),
       ipAddress: null, // Would be populated by server
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : null,
       failureReason,
-    }
+    };
 
-    this.attempts.push(attempt)
+    this.attempts.push(attempt);
 
     // Check for lockout
     if (!success) {
       const recentFailed = this.attempts.filter(
         (a) =>
           !a.success &&
-          new Date().getTime() - a.attemptedAt.getTime() < 60 * 60 * 1000
-      ).length
+          new Date().getTime() - a.attemptedAt.getTime() < 60 * 60 * 1000,
+      ).length;
 
       if (recentFailed >= this.config.maxRecoveryAttempts) {
         this.lockoutUntil = new Date(
-          Date.now() + this.config.lockoutDurationMinutes * 60 * 1000
-        )
-        logger.warn('Recovery lockout triggered', {
+          Date.now() + this.config.lockoutDurationMinutes * 60 * 1000,
+        );
+        logger.warn("Recovery lockout triggered", {
           expiresAt: this.lockoutUntil.toISOString(),
-        })
+        });
       }
     }
 
-    await this.saveToStorage()
+    await this.saveToStorage();
   }
 
   private async loadFromStorage(): Promise<void> {
-    if (typeof localStorage === 'undefined') return
+    if (typeof localStorage === "undefined") return;
 
     try {
-      const codesData = localStorage.getItem(CODES_STORAGE_KEY)
+      const codesData = localStorage.getItem(CODES_STORAGE_KEY);
       if (codesData) {
-        const codes = JSON.parse(codesData)
+        const codes = JSON.parse(codesData);
         this.recoveryCodes = codes.map((c: RecoveryCode) => ({
           ...c,
           generatedAt: new Date(c.generatedAt),
           expiresAt: c.expiresAt ? new Date(c.expiresAt) : null,
           usedAt: c.usedAt ? new Date(c.usedAt) : null,
-        }))
+        }));
       }
 
-      const attemptsData = localStorage.getItem(ATTEMPTS_STORAGE_KEY)
+      const attemptsData = localStorage.getItem(ATTEMPTS_STORAGE_KEY);
       if (attemptsData) {
-        const attempts = JSON.parse(attemptsData)
+        const attempts = JSON.parse(attemptsData);
         this.attempts = attempts.map((a: RecoveryAttempt) => ({
           ...a,
           attemptedAt: new Date(a.attemptedAt),
-        }))
+        }));
       }
 
-      const guardiansData = localStorage.getItem(GUARDIANS_STORAGE_KEY)
+      const guardiansData = localStorage.getItem(GUARDIANS_STORAGE_KEY);
       if (guardiansData) {
-        const guardians = JSON.parse(guardiansData)
+        const guardians = JSON.parse(guardiansData);
         this.guardians = guardians.map((g: RecoveryGuardian) => ({
           ...g,
           addedAt: new Date(g.addedAt),
-        }))
+        }));
       }
 
-      const sharesData = localStorage.getItem(SHARES_STORAGE_KEY)
+      const sharesData = localStorage.getItem(SHARES_STORAGE_KEY);
       if (sharesData) {
-        const shares = JSON.parse(sharesData)
+        const shares = JSON.parse(sharesData);
         this.shares = shares.map((s: RecoveryShare) => ({
           ...s,
           createdAt: new Date(s.createdAt),
-        }))
+        }));
       }
 
-      const configData = localStorage.getItem(CONFIG_STORAGE_KEY)
+      const configData = localStorage.getItem(CONFIG_STORAGE_KEY);
       if (configData) {
-        const config = JSON.parse(configData)
-        this.config = { ...this.config, ...config }
+        const config = JSON.parse(configData);
+        this.config = { ...this.config, ...config };
       }
     } catch (error) {
-      logger.warn('Failed to load recovery data from storage', {
-        error: error instanceof Error ? error.message : 'Unknown',
-      })
+      logger.warn("Failed to load recovery data from storage", {
+        error: error instanceof Error ? error.message : "Unknown",
+      });
     }
   }
 
   private async saveToStorage(): Promise<void> {
-    if (typeof localStorage === 'undefined') return
+    if (typeof localStorage === "undefined") return;
 
     try {
-      localStorage.setItem(CODES_STORAGE_KEY, JSON.stringify(this.recoveryCodes))
-      localStorage.setItem(ATTEMPTS_STORAGE_KEY, JSON.stringify(this.attempts))
-      localStorage.setItem(GUARDIANS_STORAGE_KEY, JSON.stringify(this.guardians))
-      localStorage.setItem(SHARES_STORAGE_KEY, JSON.stringify(this.shares))
-      localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.config))
+      localStorage.setItem(
+        CODES_STORAGE_KEY,
+        JSON.stringify(this.recoveryCodes),
+      );
+      localStorage.setItem(ATTEMPTS_STORAGE_KEY, JSON.stringify(this.attempts));
+      localStorage.setItem(
+        GUARDIANS_STORAGE_KEY,
+        JSON.stringify(this.guardians),
+      );
+      localStorage.setItem(SHARES_STORAGE_KEY, JSON.stringify(this.shares));
+      localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.config));
     } catch (error) {
-      logger.warn('Failed to save recovery data to storage', {
-        error: error instanceof Error ? error.message : 'Unknown',
-      })
+      logger.warn("Failed to save recovery data to storage", {
+        error: error instanceof Error ? error.message : "Unknown",
+      });
     }
   }
 
   private async clearStorage(): Promise<void> {
-    if (typeof localStorage === 'undefined') return
+    if (typeof localStorage === "undefined") return;
 
-    localStorage.removeItem(CODES_STORAGE_KEY)
-    localStorage.removeItem(ATTEMPTS_STORAGE_KEY)
-    localStorage.removeItem(GUARDIANS_STORAGE_KEY)
-    localStorage.removeItem(SHARES_STORAGE_KEY)
-    localStorage.removeItem(CONFIG_STORAGE_KEY)
+    localStorage.removeItem(CODES_STORAGE_KEY);
+    localStorage.removeItem(ATTEMPTS_STORAGE_KEY);
+    localStorage.removeItem(GUARDIANS_STORAGE_KEY);
+    localStorage.removeItem(SHARES_STORAGE_KEY);
+    localStorage.removeItem(CONFIG_STORAGE_KEY);
   }
 }
 
@@ -1067,25 +1082,25 @@ export class KeyRecoveryManager {
  * Gets the global recovery manager instance
  */
 export function getRecoveryManager(
-  config?: Partial<RecoveryConfig>
+  config?: Partial<RecoveryConfig>,
 ): KeyRecoveryManager {
-  return KeyRecoveryManager.getInstance(config)
+  return KeyRecoveryManager.getInstance(config);
 }
 
 /**
  * Initializes the recovery manager
  */
 export async function initializeRecoveryManager(): Promise<void> {
-  const manager = getRecoveryManager()
-  await manager.initialize()
+  const manager = getRecoveryManager();
+  await manager.initialize();
 }
 
 /**
  * Generates new recovery codes
  */
 export async function generateNewRecoveryCodes(): Promise<string[]> {
-  const manager = getRecoveryManager()
-  return manager.generateRecoveryCodes()
+  const manager = getRecoveryManager();
+  return manager.generateRecoveryCodes();
 }
 
 /**
@@ -1095,10 +1110,10 @@ export async function createKeyBackup(
   keyPair: KeyPair,
   password: string,
   deviceId: string,
-  keyVersion: number
+  keyVersion: number,
 ): Promise<EncryptedBackup> {
-  const manager = getRecoveryManager()
-  return manager.createBackup(keyPair, password, deviceId, keyVersion)
+  const manager = getRecoveryManager();
+  return manager.createBackup(keyPair, password, deviceId, keyVersion);
 }
 
 /**
@@ -1106,26 +1121,26 @@ export async function createKeyBackup(
  */
 export async function restoreKeyBackup(
   backup: EncryptedBackup,
-  password: string
+  password: string,
 ): Promise<KeyPair | null> {
-  const manager = getRecoveryManager()
-  const result = await manager.restoreFromBackup(backup, password)
-  return result.keyPair
+  const manager = getRecoveryManager();
+  const result = await manager.restoreFromBackup(backup, password);
+  return result.keyPair;
 }
 
 /**
  * Validates recovery code format
  */
 export function isValidRecoveryCodeFormat(code: string): boolean {
-  const normalized = normalizeRecoveryCode(code)
-  if (normalized.length < 6 || normalized.length > 16) return false
+  const normalized = normalizeRecoveryCode(code);
+  if (normalized.length < 6 || normalized.length > 16) return false;
 
   // Check all characters are in the alphabet
   for (const char of normalized) {
     if (!RECOVERY_CODE_ALPHABET.includes(char)) {
-      return false
+      return false;
     }
   }
 
-  return true
+  return true;
 }

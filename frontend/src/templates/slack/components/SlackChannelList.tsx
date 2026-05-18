@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Slack Channel List Component
@@ -9,34 +9,41 @@
 //
 // ===============================================================================
 
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { slackColors } from '../config'
-import { Hash, Lock, ChevronDown, ChevronRight, Plus, Globe } from 'lucide-react'
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { slackColors } from "../config";
+import {
+  Hash,
+  Lock,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Globe,
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface SlackChannelListProps {
-  channels?: SlackChannelData[]
-  activeChannelId?: string
-  onChannelSelect?: (channelId: string) => void
-  onAddChannel?: () => void
-  title?: string
-  collapsible?: boolean
-  defaultCollapsed?: boolean
-  className?: string
+  channels?: SlackChannelData[];
+  activeChannelId?: string;
+  onChannelSelect?: (channelId: string) => void;
+  onAddChannel?: () => void;
+  title?: string;
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
+  className?: string;
 }
 
 export interface SlackChannelData {
-  id: string
-  name: string
-  type: 'public' | 'private' | 'shared'
-  unreadCount?: number
-  mentionCount?: number
-  isMuted?: boolean
-  isStarred?: boolean
+  id: string;
+  name: string;
+  type: "public" | "private" | "shared";
+  unreadCount?: number;
+  mentionCount?: number;
+  isMuted?: boolean;
+  isStarred?: boolean;
 }
 
 // -------------------------------------------------------------------------------
@@ -48,21 +55,21 @@ export function SlackChannelList({
   activeChannelId,
   onChannelSelect,
   onAddChannel,
-  title = 'Channels',
+  title = "Channels",
   collapsible = true,
   defaultCollapsed = false,
   className,
 }: SlackChannelListProps) {
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
   const handleToggle = () => {
     if (collapsible) {
-      setIsCollapsed(!isCollapsed)
+      setIsCollapsed(!isCollapsed);
     }
-  }
+  };
 
   return (
-    <div className={cn('select-none', className)}>
+    <div className={cn("select-none", className)}>
       {/* Section Header */}
       <div className="flex items-center justify-between px-4 py-1">
         <button
@@ -101,7 +108,7 @@ export function SlackChannelList({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -113,29 +120,29 @@ function ChannelItem({
   isActive,
   onClick,
 }: {
-  channel: SlackChannelData
-  isActive: boolean
-  onClick: () => void
+  channel: SlackChannelData;
+  isActive: boolean;
+  onClick: () => void;
 }) {
-  const hasUnread = !channel.isMuted && (channel.unreadCount ?? 0) > 0
-  const hasMention = !channel.isMuted && (channel.mentionCount ?? 0) > 0
+  const hasUnread = !channel.isMuted && (channel.unreadCount ?? 0) > 0;
+  const hasMention = !channel.isMuted && (channel.mentionCount ?? 0) > 0;
 
   const Icon = {
     public: Hash,
     private: Lock,
     shared: Globe,
-  }[channel.type]
+  }[channel.type];
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-2 px-4 py-1 text-sm transition-colors',
+        "flex w-full items-center gap-2 px-4 py-1 text-sm transition-colors",
         isActive
-          ? 'bg-[#1264A3] text-white'
+          ? "bg-[#1264A3] text-white"
           : hasUnread
-            ? 'font-medium text-white hover:bg-white/10'
-            : 'text-white/70 hover:bg-white/10 hover:text-white'
+            ? "font-medium text-white hover:bg-white/10"
+            : "text-white/70 hover:bg-white/10 hover:text-white",
       )}
     >
       <Icon className="h-4 w-4 flex-shrink-0 opacity-80" />
@@ -152,12 +159,16 @@ function ChannelItem({
       )}
 
       {/* Unread Dot (when no mentions) */}
-      {hasUnread && !hasMention && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-white" />}
+      {hasUnread && !hasMention && (
+        <span className="h-2 w-2 flex-shrink-0 rounded-full bg-white" />
+      )}
 
       {/* Muted Indicator */}
-      {channel.isMuted && <span className="flex-shrink-0 text-xs text-white/40">muted</span>}
+      {channel.isMuted && (
+        <span className="flex-shrink-0 text-xs text-white/40">muted</span>
+      )}
     </button>
-  )
+  );
 }
 
-export default SlackChannelList
+export default SlackChannelList;

@@ -7,11 +7,11 @@
  * @module lib/security/csrf
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { randomBytes, createHmac } from 'crypto'
-import { ApiError } from '@/lib/api/middleware'
+import { NextRequest, NextResponse } from "next/server";
+import { randomBytes, createHmac } from "crypto";
+import { ApiError } from "@/lib/api/middleware";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Configuration
@@ -26,32 +26,40 @@ import { logger } from '@/lib/logger'
  */
 function getCsrfSecret(): string {
   // Skip validation during build if requested
-  if (process.env.SKIP_ENV_VALIDATION === 'true') {
-    return 'build-time-placeholder-secret'
+  if (process.env.SKIP_ENV_VALIDATION === "true") {
+    return "build-time-placeholder-secret";
   }
 
-  const csrfSecret = process.env.CSRF_SECRET
+  const csrfSecret = process.env.CSRF_SECRET;
 
   // Production validation
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     if (!csrfSecret) {
-      throw new Error('FATAL: CSRF_SECRET environment variable must be set in production')
+      throw new Error(
+        "FATAL: CSRF_SECRET environment variable must be set in production",
+      );
     }
     if (csrfSecret.length < 32) {
-      throw new Error('FATAL: CSRF_SECRET must be at least 32 characters in production')
+      throw new Error(
+        "FATAL: CSRF_SECRET must be at least 32 characters in production",
+      );
     }
   }
 
   // Development warnings
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     if (!csrfSecret) {
-      logger.warn('WARNING: CSRF_SECRET not set - using development-only default')
+      logger.warn(
+        "WARNING: CSRF_SECRET not set - using development-only default",
+      );
     } else if (csrfSecret.length < 32) {
-      logger.warn('WARNING: CSRF_SECRET is too short - use at least 32 characters')
+      logger.warn(
+        "WARNING: CSRF_SECRET is too short - use at least 32 characters",
+      );
     }
   }
 
-  return csrfSecret || 'dev-only-insecure-change-in-production'
+  return csrfSecret || "dev-only-insecure-change-in-production";
 }
 
 const CSRF_CONFIG = {
@@ -59,19 +67,19 @@ const CSRF_CONFIG = {
   TOKEN_LENGTH: 32,
 
   // Cookie name for CSRF token
-  COOKIE_NAME: 'nchat-csrf-token',
+  COOKIE_NAME: "nchat-csrf-token",
 
   // Header name for CSRF token
-  HEADER_NAME: 'X-CSRF-Token',
+  HEADER_NAME: "X-CSRF-Token",
 
   // Token expiry (24 hours)
   TOKEN_EXPIRY: 24 * 60 * 60 * 1000,
 
   // Secret for HMAC signing - lazily evaluated
   get SECRET() {
-    return getCsrfSecret()
+    return getCsrfSecret();
   },
-} as const
+} as const;
 
 // ============================================================================
 // Token Generation
@@ -83,7 +91,7 @@ const CSRF_CONFIG = {
  * @returns Hex-encoded random token
  */
 export function generateCsrfToken(): string {
-  return randomBytes(CSRF_CONFIG.TOKEN_LENGTH).toString('hex')
+  return randomBytes(CSRF_CONFIG.TOKEN_LENGTH).toString("hex");
 }
 
 /**
@@ -93,9 +101,11 @@ export function generateCsrfToken(): string {
  * @returns Signed token (token:signature)
  */
 function signToken(token: string): string {
-  const signature = createHmac('sha256', CSRF_CONFIG.SECRET).update(token).digest('hex')
+  const signature = createHmac("sha256", CSRF_CONFIG.SECRET)
+    .update(token)
+    .digest("hex");
 
-  return `${token}:${signature}`
+  return `${token}:${signature}`;
 }
 
 /**
@@ -105,22 +115,24 @@ function signToken(token: string): string {
  * @returns Original token if valid, null otherwise
  */
 function verifyToken(signedToken: string): string | null {
-  const parts = signedToken.split(':')
+  const parts = signedToken.split(":");
 
   if (parts.length !== 2) {
-    return null
+    return null;
   }
 
-  const [token, signature] = parts
+  const [token, signature] = parts;
 
-  const expectedSignature = createHmac('sha256', CSRF_CONFIG.SECRET).update(token).digest('hex')
+  const expectedSignature = createHmac("sha256", CSRF_CONFIG.SECRET)
+    .update(token)
+    .digest("hex");
 
   // Constant-time comparison to prevent timing attacks
   if (!timingSafeEqual(signature, expectedSignature)) {
-    return null
+    return null;
   }
 
-  return token
+  return token;
 }
 
 /**
@@ -132,15 +144,15 @@ function verifyToken(signedToken: string): string | null {
  */
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) {
-    return false
+    return false;
   }
 
-  let result = 0
+  let result = 0;
   for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
   }
 
-  return result === 0
+  return result === 0;
 }
 
 // ============================================================================
@@ -157,22 +169,22 @@ function timingSafeEqual(a: string, b: string): boolean {
  */
 export function getCsrfToken(request: NextRequest): string | null {
   // Check header first
-  const headerToken = request.headers.get(CSRF_CONFIG.HEADER_NAME)
+  const headerToken = request.headers.get(CSRF_CONFIG.HEADER_NAME);
 
   if (headerToken) {
-    const verified = verifyToken(headerToken)
-    if (verified) return verified
+    const verified = verifyToken(headerToken);
+    if (verified) return verified;
   }
 
   // Check cookie (use optional chaining: cookies may be undefined in test environments)
-  const cookieToken = request.cookies?.get(CSRF_CONFIG.COOKIE_NAME)?.value
+  const cookieToken = request.cookies?.get(CSRF_CONFIG.COOKIE_NAME)?.value;
 
   if (cookieToken) {
-    const verified = verifyToken(cookieToken)
-    if (verified) return verified
+    const verified = verifyToken(cookieToken);
+    if (verified) return verified;
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -183,18 +195,18 @@ export function getCsrfToken(request: NextRequest): string | null {
  * @returns The token that was set
  */
 export function setCsrfToken(response: NextResponse, token?: string): string {
-  const csrfToken = token || generateCsrfToken()
-  const signedToken = signToken(csrfToken)
+  const csrfToken = token || generateCsrfToken();
+  const signedToken = signToken(csrfToken);
 
   response.cookies.set(CSRF_CONFIG.COOKIE_NAME, signedToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     maxAge: CSRF_CONFIG.TOKEN_EXPIRY / 1000, // Convert to seconds
-    path: '/',
-  })
+    path: "/",
+  });
 
-  return csrfToken
+  return csrfToken;
 }
 
 /**
@@ -205,37 +217,40 @@ export function setCsrfToken(response: NextResponse, token?: string): string {
  */
 export function validateCsrfToken(request: NextRequest): boolean {
   // Skip CSRF validation for safe methods
-  if (['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
-    return true
+  if (["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    return true;
   }
 
   // Skip in development mode (optional)
-  if (process.env.NODE_ENV === 'development' && process.env.SKIP_CSRF === 'true') {
-    return true
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.SKIP_CSRF === "true"
+  ) {
+    return true;
   }
 
   // Get token from request
-  const requestToken = getCsrfToken(request)
+  const requestToken = getCsrfToken(request);
 
   if (!requestToken) {
-    return false
+    return false;
   }
 
   // Get token from cookie
-  const cookieToken = request.cookies.get(CSRF_CONFIG.COOKIE_NAME)?.value
+  const cookieToken = request.cookies.get(CSRF_CONFIG.COOKIE_NAME)?.value;
 
   if (!cookieToken) {
-    return false
+    return false;
   }
 
-  const verifiedCookieToken = verifyToken(cookieToken)
+  const verifiedCookieToken = verifyToken(cookieToken);
 
   if (!verifiedCookieToken) {
-    return false
+    return false;
   }
 
   // Double-submit cookie: tokens must match
-  return requestToken === verifiedCookieToken
+  return requestToken === verifiedCookieToken;
 }
 
 /**
@@ -253,25 +268,32 @@ export function validateCsrfToken(request: NextRequest): boolean {
  * ```
  */
 export function withCsrfProtection(
-  handler: (request: NextRequest, context: any) => Promise<NextResponse> | NextResponse
+  handler: (
+    request: NextRequest,
+    context: any,
+  ) => Promise<NextResponse> | NextResponse,
 ): (request: NextRequest, context: any) => Promise<NextResponse> {
   return async (request, context) => {
     // Validate CSRF token
     if (!validateCsrfToken(request)) {
-      throw new ApiError('Invalid or missing CSRF token', 'CSRF_VALIDATION_FAILED', 403)
+      throw new ApiError(
+        "Invalid or missing CSRF token",
+        "CSRF_VALIDATION_FAILED",
+        403,
+      );
     }
 
     // Call handler (await to handle both sync and async handlers)
-    const response = await handler(request, context)
+    const response = await handler(request, context);
 
     // Ensure CSRF token is set in response
-    const existingToken = getCsrfToken(request)
+    const existingToken = getCsrfToken(request);
     if (!existingToken) {
-      setCsrfToken(response)
+      setCsrfToken(response);
     }
 
-    return response
-  }
+    return response;
+  };
 }
 
 /**
@@ -291,18 +313,18 @@ export function withCsrfProtection(
  * ```
  */
 export function getCsrfTokenForClient(request: NextRequest): {
-  token: string
-  headerName: string
-  cookieName: string
+  token: string;
+  headerName: string;
+  cookieName: string;
 } {
-  const existingToken = getCsrfToken(request)
-  const token = existingToken || generateCsrfToken()
+  const existingToken = getCsrfToken(request);
+  const token = existingToken || generateCsrfToken();
 
   return {
     token,
     headerName: CSRF_CONFIG.HEADER_NAME,
     cookieName: CSRF_CONFIG.COOKIE_NAME,
-  }
+  };
 }
 
 // ============================================================================
@@ -316,5 +338,5 @@ export function getCsrfConfig() {
   return {
     headerName: CSRF_CONFIG.HEADER_NAME,
     cookieName: CSRF_CONFIG.COOKIE_NAME,
-  }
+  };
 }

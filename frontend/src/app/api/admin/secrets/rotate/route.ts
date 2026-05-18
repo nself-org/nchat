@@ -235,7 +235,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       {
         success: false,
         error: "Failed to rotate secret",
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : "Unknown error",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
       { status: 500 },
     );
@@ -293,7 +298,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       {
         success: false,
         error: "Failed to get rotation status",
-        message: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : "Unknown error",
+        message:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
       { status: 500 },
     );

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   Eye,
   EyeOff,
@@ -12,82 +12,89 @@ import {
   Shield,
   Save,
   Loader2,
-} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useComplianceStore } from '@/stores/compliance-store'
-import type { PrivacySettings as PrivacySettingsType } from '@/lib/compliance/compliance-types'
-import { logger } from '@/lib/logger'
+} from "@/components/ui/select";
+import { useComplianceStore } from "@/stores/compliance-store";
+import type { PrivacySettings as PrivacySettingsType } from "@/lib/compliance/compliance-types";
+import { logger } from "@/lib/logger";
 import {
   createDefaultPrivacySettings,
   PROFILE_VISIBILITY_OPTIONS,
   DIRECT_MESSAGE_OPTIONS,
   PRIVACY_SETTING_CATEGORIES,
   calculatePrivacyScore,
-} from '@/lib/compliance/privacy-policy'
+} from "@/lib/compliance/privacy-policy";
 
 export function PrivacySettings() {
-  const [isSaving, setIsSaving] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
-  const { privacySettings, setPrivacySettings, updatePrivacySettings } = useComplianceStore()
+  const { privacySettings, setPrivacySettings, updatePrivacySettings } =
+    useComplianceStore();
 
   // Initialize settings if not present
   useEffect(() => {
     if (!privacySettings) {
-      setPrivacySettings(createDefaultPrivacySettings('user-123'))
+      setPrivacySettings(createDefaultPrivacySettings("user-123"));
     }
-  }, [privacySettings, setPrivacySettings])
+  }, [privacySettings, setPrivacySettings]);
 
-  const settings = privacySettings || createDefaultPrivacySettings('user-123')
-  const privacyScore = calculatePrivacyScore(settings)
+  const settings = privacySettings || createDefaultPrivacySettings("user-123");
+  const privacyScore = calculatePrivacyScore(settings);
 
   const handleToggle = (key: keyof PrivacySettingsType, value: boolean) => {
-    updatePrivacySettings({ [key]: value })
-    setHasChanges(true)
-  }
+    updatePrivacySettings({ [key]: value });
+    setHasChanges(true);
+  };
 
   const handleSelect = (key: keyof PrivacySettingsType, value: string) => {
-    updatePrivacySettings({ [key]: value })
-    setHasChanges(true)
-  }
+    updatePrivacySettings({ [key]: value });
+    setHasChanges(true);
+  };
 
   const handleSave = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
     try {
       // API call would go here
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setHasChanges(false)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setHasChanges(false);
     } catch (error) {
-      logger.error('Failed to save privacy settings:', error)
+      logger.error("Failed to save privacy settings:", error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const getPrivacyLevelColor = (level: string) => {
     switch (level) {
-      case 'maximum':
-        return 'text-green-600'
-      case 'high':
-        return 'text-green-500'
-      case 'medium':
-        return 'text-yellow-500'
-      case 'low':
-        return 'text-red-500'
+      case "maximum":
+        return "text-green-600";
+      case "high":
+        return "text-green-500";
+      case "medium":
+        return "text-yellow-500";
+      case "low":
+        return "text-red-500";
       default:
-        return 'text-gray-500'
+        return "text-gray-500";
     }
-  }
+  };
 
   const categoryIcons: Record<string, React.ReactNode> = {
     profile: <User className="h-5 w-5" />,
@@ -96,7 +103,7 @@ export function PrivacySettings() {
     invitations: <Bell className="h-5 w-5" />,
     data: <BarChart2 className="h-5 w-5" />,
     communications: <Bell className="h-5 w-5" />,
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -133,14 +140,16 @@ export function PrivacySettings() {
             <div className="flex items-center gap-4">
               <div
                 className={`rounded-full p-3 ${
-                  privacyScore.level === 'maximum' || privacyScore.level === 'high'
-                    ? 'bg-green-100'
-                    : privacyScore.level === 'medium'
-                      ? 'bg-yellow-100'
-                      : 'bg-red-100'
+                  privacyScore.level === "maximum" ||
+                  privacyScore.level === "high"
+                    ? "bg-green-100"
+                    : privacyScore.level === "medium"
+                      ? "bg-yellow-100"
+                      : "bg-red-100"
                 }`}
               >
-                {privacyScore.level === 'maximum' || privacyScore.level === 'high' ? (
+                {privacyScore.level === "maximum" ||
+                privacyScore.level === "high" ? (
                   <EyeOff className="h-6 w-6 text-green-600" />
                 ) : (
                   <Eye className="h-6 w-6 text-yellow-600" />
@@ -148,14 +157,18 @@ export function PrivacySettings() {
               </div>
               <div>
                 <p className="font-medium">Privacy Score</p>
-                <p className={`text-2xl font-bold ${getPrivacyLevelColor(privacyScore.level)}`}>
+                <p
+                  className={`text-2xl font-bold ${getPrivacyLevelColor(privacyScore.level)}`}
+                >
                   {privacyScore.score}%
                 </p>
               </div>
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Privacy Level</p>
-              <p className={`font-medium capitalize ${getPrivacyLevelColor(privacyScore.level)}`}>
+              <p
+                className={`font-medium capitalize ${getPrivacyLevelColor(privacyScore.level)}`}
+              >
                 {privacyScore.level}
               </p>
             </div>
@@ -188,34 +201,47 @@ export function PrivacySettings() {
           </CardHeader>
           <CardContent className="space-y-4">
             {category.settings.map((setting) => {
-              const value = settings[setting.key as keyof PrivacySettingsType]
+              const value = settings[setting.key as keyof PrivacySettingsType];
 
-              if (setting.type === 'boolean') {
+              if (setting.type === "boolean") {
                 return (
-                  <div key={setting.key} className="flex items-center justify-between py-2">
+                  <div
+                    key={setting.key}
+                    className="flex items-center justify-between py-2"
+                  >
                     <div className="space-y-0.5">
                       <Label className="text-base">{setting.name}</Label>
-                      <p className="text-sm text-muted-foreground">{setting.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {setting.description}
+                      </p>
                     </div>
                     <Switch
                       checked={value as boolean}
                       onCheckedChange={(checked) =>
-                        handleToggle(setting.key as keyof PrivacySettingsType, checked)
+                        handleToggle(
+                          setting.key as keyof PrivacySettingsType,
+                          checked,
+                        )
                       }
                     />
                   </div>
-                )
+                );
               }
 
-              if (setting.type === 'select' && setting.options) {
+              if (setting.type === "select" && setting.options) {
                 return (
                   <div key={setting.key} className="space-y-2">
                     <Label>{setting.name}</Label>
-                    <p className="text-sm text-muted-foreground">{setting.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {setting.description}
+                    </p>
                     <Select
                       value={value as string}
                       onValueChange={(v) =>
-                        handleSelect(setting.key as keyof PrivacySettingsType, v)
+                        handleSelect(
+                          setting.key as keyof PrivacySettingsType,
+                          v,
+                        )
                       }
                     >
                       <SelectTrigger className="w-full sm:w-[250px]">
@@ -230,14 +256,14 @@ export function PrivacySettings() {
                       </SelectContent>
                     </Select>
                   </div>
-                )
+                );
               }
 
-              return null
+              return null;
             })}
           </CardContent>
         </Card>
       ))}
     </div>
-  )
+  );
 }

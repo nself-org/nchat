@@ -12,9 +12,9 @@ export {
   PageErrorBoundary,
   SectionErrorBoundary,
   ComponentErrorBoundary,
-} from './ErrorBoundary'
+} from "./ErrorBoundary";
 
-export type { ErrorBoundaryProps, ErrorFallbackProps } from './ErrorBoundary'
+export type { ErrorBoundaryProps, ErrorFallbackProps } from "./ErrorBoundary";
 
 // Error Toasts
 export {
@@ -32,6 +32,6 @@ export {
   showNotFoundErrorToast,
   showRateLimitErrorToast,
   useErrorToast,
-} from './ErrorToast'
+} from "./ErrorToast";
 
-export type { ErrorToastOptions, UseErrorToastOptions } from './ErrorToast'
+export type { ErrorToastOptions, UseErrorToastOptions } from "./ErrorToast";

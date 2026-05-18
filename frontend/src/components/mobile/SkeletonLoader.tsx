@@ -1,33 +1,33 @@
-'use client'
+"use client";
 
-import { memo } from 'react'
-import { cn } from '@/lib/utils'
+import { memo } from "react";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SkeletonProps {
-  className?: string
-  animate?: boolean
-  variant?: 'default' | 'pulse' | 'wave'
+  className?: string;
+  animate?: boolean;
+  variant?: "default" | "pulse" | "wave";
 }
 
 export interface SkeletonLoaderProps {
   type:
-    | 'message'
-    | 'channel'
-    | 'user'
-    | 'image'
-    | 'video'
-    | 'list'
-    | 'card'
-    | 'text'
-    | 'avatar'
-    | 'custom'
-  count?: number
-  className?: string
-  animate?: boolean
+    | "message"
+    | "channel"
+    | "user"
+    | "image"
+    | "video"
+    | "list"
+    | "card"
+    | "text"
+    | "avatar"
+    | "custom";
+  count?: number;
+  className?: string;
+  animate?: boolean;
 }
 
 // ============================================================================
@@ -40,22 +40,22 @@ export interface SkeletonLoaderProps {
 export const Skeleton = memo(function Skeleton({
   className,
   animate = true,
-  variant = 'pulse',
+  variant = "pulse",
 }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'rounded-md bg-muted',
-        animate && variant === 'pulse' && 'animate-pulse',
+        "rounded-md bg-muted",
+        animate && variant === "pulse" && "animate-pulse",
         animate &&
-          variant === 'wave' &&
-          'via-muted-foreground/10 animate-shimmer bg-gradient-to-r from-muted to-muted bg-[length:200%_100%]',
-        className
+          variant === "wave" &&
+          "via-muted-foreground/10 animate-shimmer bg-gradient-to-r from-muted to-muted bg-[length:200%_100%]",
+        className,
       )}
       aria-hidden="true"
     />
-  )
-})
+  );
+});
 
 // ============================================================================
 // Specialized Skeleton Loaders
@@ -68,13 +68,16 @@ export const MessageSkeleton = memo(function MessageSkeleton({
   count = 1,
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type'>) {
+}: Omit<SkeletonLoaderProps, "type">) {
   return (
-    <div className={cn('space-y-4 p-4', className)}>
+    <div className={cn("space-y-4 p-4", className)}>
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className="flex gap-3">
           {/* Avatar */}
-          <Skeleton className="h-9 w-9 shrink-0 rounded-full" animate={animate} />
+          <Skeleton
+            className="h-9 w-9 shrink-0 rounded-full"
+            animate={animate}
+          />
 
           {/* Content */}
           <div className="flex-1 space-y-2">
@@ -87,20 +90,26 @@ export const MessageSkeleton = memo(function MessageSkeleton({
             {/* Message content */}
             <Skeleton
               className={cn(
-                'h-4',
-                index % 3 === 0 ? 'w-3/4' : index % 3 === 1 ? 'w-full' : 'w-1/2'
+                "h-4",
+                index % 3 === 0
+                  ? "w-3/4"
+                  : index % 3 === 1
+                    ? "w-full"
+                    : "w-1/2",
               )}
               animate={animate}
             />
 
             {/* Additional line for some messages */}
-            {index % 2 === 0 && <Skeleton className="h-4 w-2/3" animate={animate} />}
+            {index % 2 === 0 && (
+              <Skeleton className="h-4 w-2/3" animate={animate} />
+            )}
           </div>
         </div>
       ))}
     </div>
-  )
-})
+  );
+});
 
 /**
  * Channel skeleton loader
@@ -109,9 +118,9 @@ export const ChannelSkeleton = memo(function ChannelSkeleton({
   count = 5,
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type'>) {
+}: Omit<SkeletonLoaderProps, "type">) {
   return (
-    <div className={cn('space-y-1 p-2', className)}>
+    <div className={cn("space-y-1 p-2", className)}>
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className="flex items-center gap-3 rounded-lg p-3">
           {/* Icon/Avatar */}
@@ -124,12 +133,14 @@ export const ChannelSkeleton = memo(function ChannelSkeleton({
           </div>
 
           {/* Badge */}
-          {index % 3 === 0 && <Skeleton className="h-5 w-5 rounded-full" animate={animate} />}
+          {index % 3 === 0 && (
+            <Skeleton className="h-5 w-5 rounded-full" animate={animate} />
+          )}
         </div>
       ))}
     </div>
-  )
-})
+  );
+});
 
 /**
  * User list skeleton loader
@@ -138,13 +149,16 @@ export const UserSkeleton = memo(function UserSkeleton({
   count = 5,
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type'>) {
+}: Omit<SkeletonLoaderProps, "type">) {
   return (
-    <div className={cn('space-y-2 p-2', className)}>
+    <div className={cn("space-y-2 p-2", className)}>
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className="flex items-center gap-3 p-2">
           {/* Avatar */}
-          <Skeleton className="h-10 w-10 shrink-0 rounded-full" animate={animate} />
+          <Skeleton
+            className="h-10 w-10 shrink-0 rounded-full"
+            animate={animate}
+          />
 
           {/* Content */}
           <div className="flex-1 space-y-1.5">
@@ -157,8 +171,8 @@ export const UserSkeleton = memo(function UserSkeleton({
         </div>
       ))}
     </div>
-  )
-})
+  );
+});
 
 /**
  * Image skeleton loader
@@ -166,9 +180,9 @@ export const UserSkeleton = memo(function UserSkeleton({
 export const ImageSkeleton = memo(function ImageSkeleton({
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type' | 'count'>) {
+}: Omit<SkeletonLoaderProps, "type" | "count">) {
   return (
-    <div className={cn('relative overflow-hidden', className)}>
+    <div className={cn("relative overflow-hidden", className)}>
       <Skeleton className="aspect-video w-full" animate={animate} />
 
       {/* Loading indicator overlay */}
@@ -178,8 +192,8 @@ export const ImageSkeleton = memo(function ImageSkeleton({
         </div>
       </div>
     </div>
-  )
-})
+  );
+});
 
 /**
  * Video skeleton loader
@@ -187,9 +201,9 @@ export const ImageSkeleton = memo(function ImageSkeleton({
 export const VideoSkeleton = memo(function VideoSkeleton({
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type' | 'count'>) {
+}: Omit<SkeletonLoaderProps, "type" | "count">) {
   return (
-    <div className={cn('relative overflow-hidden', className)}>
+    <div className={cn("relative overflow-hidden", className)}>
       <Skeleton className="aspect-video w-full" animate={animate} />
 
       {/* Play button overlay */}
@@ -204,8 +218,8 @@ export const VideoSkeleton = memo(function VideoSkeleton({
         <Skeleton className="h-8 w-8 rounded-md" animate={animate} />
       </div>
     </div>
-  )
-})
+  );
+});
 
 /**
  * List item skeleton loader
@@ -214,12 +228,15 @@ export const ListSkeleton = memo(function ListSkeleton({
   count = 5,
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type'>) {
+}: Omit<SkeletonLoaderProps, "type">) {
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className="flex items-center gap-3 p-3">
-          <Skeleton className="h-12 w-12 shrink-0 rounded-md" animate={animate} />
+          <Skeleton
+            className="h-12 w-12 shrink-0 rounded-md"
+            animate={animate}
+          />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-3/4" animate={animate} />
             <Skeleton className="h-3 w-1/2" animate={animate} />
@@ -227,8 +244,8 @@ export const ListSkeleton = memo(function ListSkeleton({
         </div>
       ))}
     </div>
-  )
-})
+  );
+});
 
 /**
  * Card skeleton loader
@@ -237,11 +254,14 @@ export const CardSkeleton = memo(function CardSkeleton({
   count = 1,
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type'>) {
+}: Omit<SkeletonLoaderProps, "type">) {
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="overflow-hidden rounded-lg border bg-card p-4">
+        <div
+          key={index}
+          className="overflow-hidden rounded-lg border bg-card p-4"
+        >
           {/* Header */}
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -255,7 +275,10 @@ export const CardSkeleton = memo(function CardSkeleton({
           </div>
 
           {/* Image */}
-          <Skeleton className="mb-4 aspect-video w-full rounded-md" animate={animate} />
+          <Skeleton
+            className="mb-4 aspect-video w-full rounded-md"
+            animate={animate}
+          />
 
           {/* Content */}
           <div className="space-y-2">
@@ -273,8 +296,8 @@ export const CardSkeleton = memo(function CardSkeleton({
         </div>
       ))}
     </div>
-  )
-})
+  );
+});
 
 /**
  * Text skeleton loader
@@ -283,19 +306,19 @@ export const TextSkeleton = memo(function TextSkeleton({
   count = 3,
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type'>) {
+}: Omit<SkeletonLoaderProps, "type">) {
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {Array.from({ length: count }).map((_, index) => (
         <Skeleton
           key={index}
-          className={cn('h-4', index === count - 1 ? 'w-3/4' : 'w-full')}
+          className={cn("h-4", index === count - 1 ? "w-3/4" : "w-full")}
           animate={animate}
         />
       ))}
     </div>
-  )
-})
+  );
+});
 
 /**
  * Avatar skeleton loader
@@ -303,9 +326,14 @@ export const TextSkeleton = memo(function TextSkeleton({
 export const AvatarSkeleton = memo(function AvatarSkeleton({
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type' | 'count'>) {
-  return <Skeleton className={cn('h-10 w-10 rounded-full', className)} animate={animate} />
-})
+}: Omit<SkeletonLoaderProps, "type" | "count">) {
+  return (
+    <Skeleton
+      className={cn("h-10 w-10 rounded-full", className)}
+      animate={animate}
+    />
+  );
+});
 
 // ============================================================================
 // Universal Skeleton Loader
@@ -328,31 +356,31 @@ export const SkeletonLoader = memo(function SkeletonLoader({
   className,
   animate = true,
 }: SkeletonLoaderProps) {
-  const props = { count, className, animate }
+  const props = { count, className, animate };
 
   switch (type) {
-    case 'message':
-      return <MessageSkeleton {...props} />
-    case 'channel':
-      return <ChannelSkeleton {...props} />
-    case 'user':
-      return <UserSkeleton {...props} />
-    case 'image':
-      return <ImageSkeleton className={className} animate={animate} />
-    case 'video':
-      return <VideoSkeleton className={className} animate={animate} />
-    case 'list':
-      return <ListSkeleton {...props} />
-    case 'card':
-      return <CardSkeleton {...props} />
-    case 'text':
-      return <TextSkeleton {...props} />
-    case 'avatar':
-      return <AvatarSkeleton className={className} animate={animate} />
+    case "message":
+      return <MessageSkeleton {...props} />;
+    case "channel":
+      return <ChannelSkeleton {...props} />;
+    case "user":
+      return <UserSkeleton {...props} />;
+    case "image":
+      return <ImageSkeleton className={className} animate={animate} />;
+    case "video":
+      return <VideoSkeleton className={className} animate={animate} />;
+    case "list":
+      return <ListSkeleton {...props} />;
+    case "card":
+      return <CardSkeleton {...props} />;
+    case "text":
+      return <TextSkeleton {...props} />;
+    case "avatar":
+      return <AvatarSkeleton className={className} animate={animate} />;
     default:
-      return <Skeleton className={className} animate={animate} />
+      return <Skeleton className={className} animate={animate} />;
   }
-})
+});
 
 // ============================================================================
 // Inline Skeletons
@@ -364,9 +392,14 @@ export const SkeletonLoader = memo(function SkeletonLoader({
 export const ButtonSkeleton = memo(function ButtonSkeleton({
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type' | 'count'>) {
-  return <Skeleton className={cn('h-10 w-24 rounded-md', className)} animate={animate} />
-})
+}: Omit<SkeletonLoaderProps, "type" | "count">) {
+  return (
+    <Skeleton
+      className={cn("h-10 w-24 rounded-md", className)}
+      animate={animate}
+    />
+  );
+});
 
 /**
  * Inline skeleton for input
@@ -374,9 +407,14 @@ export const ButtonSkeleton = memo(function ButtonSkeleton({
 export const InputSkeleton = memo(function InputSkeleton({
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type' | 'count'>) {
-  return <Skeleton className={cn('h-10 w-full rounded-md', className)} animate={animate} />
-})
+}: Omit<SkeletonLoaderProps, "type" | "count">) {
+  return (
+    <Skeleton
+      className={cn("h-10 w-full rounded-md", className)}
+      animate={animate}
+    />
+  );
+});
 
 /**
  * Inline skeleton for badge
@@ -384,8 +422,13 @@ export const InputSkeleton = memo(function InputSkeleton({
 export const BadgeSkeleton = memo(function BadgeSkeleton({
   className,
   animate = true,
-}: Omit<SkeletonLoaderProps, 'type' | 'count'>) {
-  return <Skeleton className={cn('h-5 w-16 rounded-full', className)} animate={animate} />
-})
+}: Omit<SkeletonLoaderProps, "type" | "count">) {
+  return (
+    <Skeleton
+      className={cn("h-5 w-16 rounded-full", className)}
+      animate={animate}
+    />
+  );
+});
 
-export default SkeletonLoader
+export default SkeletonLoader;

@@ -5,48 +5,48 @@
  * SECURITY: PIN hash is NEVER transmitted to server, only stored locally
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const PBKDF2_ITERATIONS = 100000
-const HASH_LENGTH = 32 // 256 bits
-const SALT_LENGTH = 16 // 128 bits
+const PBKDF2_ITERATIONS = 100000;
+const HASH_LENGTH = 32; // 256 bits
+const SALT_LENGTH = 16; // 128 bits
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface PinSettings {
-  pinHash: string
-  pinSalt: string
-  lockOnClose: boolean
-  lockOnBackground: boolean
-  lockTimeoutMinutes: 0 | 5 | 15 | 30 | 60
-  biometricEnabled: boolean
-  createdAt: string
-  lastChangedAt: string
+  pinHash: string;
+  pinSalt: string;
+  lockOnClose: boolean;
+  lockOnBackground: boolean;
+  lockTimeoutMinutes: 0 | 5 | 15 | 30 | 60;
+  biometricEnabled: boolean;
+  createdAt: string;
+  lastChangedAt: string;
 }
 
 export interface PinAttempt {
-  id: string
-  userId: string
-  success: boolean
-  attemptTime: string
-  ipAddress?: string
-  device?: string
-  browser?: string
-  os?: string
-  failureReason?: string
+  id: string;
+  userId: string;
+  success: boolean;
+  attemptTime: string;
+  ipAddress?: string;
+  device?: string;
+  browser?: string;
+  os?: string;
+  failureReason?: string;
 }
 
 export interface LockoutStatus {
-  isLocked: boolean
-  lockedUntil: string | null
-  failedAttempts: number
-  lockoutDurationMinutes: number
+  isLocked: boolean;
+  lockedUntil: string | null;
+  failedAttempts: number;
+  lockoutDurationMinutes: number;
 }
 
 // ============================================================================
@@ -57,40 +57,45 @@ export interface LockoutStatus {
  * Validate PIN format (4-6 digits)
  */
 export function isValidPinFormat(pin: string): boolean {
-  return /^\d{4,6}$/.test(pin)
+  return /^\d{4,6}$/.test(pin);
 }
 
 /**
  * Get PIN strength indicator
  */
 export function getPinStrength(pin: string): {
-  strength: 'weak' | 'medium' | 'strong'
-  message: string
+  strength: "weak" | "medium" | "strong";
+  message: string;
 } {
   if (pin.length < 4) {
-    return { strength: 'weak', message: 'PIN must be 4-6 digits' }
+    return { strength: "weak", message: "PIN must be 4-6 digits" };
   }
 
   // Check for sequential patterns (1234, 4321)
   const hasSequential =
-    /(?:0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210)/.test(pin)
+    /(?:0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210)/.test(
+      pin,
+    );
 
   // Check for repeating digits (1111, 2222)
-  const hasRepeating = /^(\d)\1+$/.test(pin)
+  const hasRepeating = /^(\d)\1+$/.test(pin);
 
   // Check for common patterns
-  const commonPins = ['1234', '0000', '1111', '1212', '1004', '2000']
-  const isCommon = commonPins.includes(pin)
+  const commonPins = ["1234", "0000", "1111", "1212", "1004", "2000"];
+  const isCommon = commonPins.includes(pin);
 
   if (pin.length === 4 || hasSequential || hasRepeating || isCommon) {
-    return { strength: 'weak', message: 'Avoid common patterns like 1234 or 1111' }
+    return {
+      strength: "weak",
+      message: "Avoid common patterns like 1234 or 1111",
+    };
   }
 
   if (pin.length === 5) {
-    return { strength: 'medium', message: 'Good PIN strength' }
+    return { strength: "medium", message: "Good PIN strength" };
   }
 
-  return { strength: 'strong', message: 'Strong PIN' }
+  return { strength: "strong", message: "Strong PIN" };
 }
 
 // ============================================================================
@@ -101,27 +106,31 @@ export function getPinStrength(pin: string): {
  * Generate random salt for PIN hashing
  */
 export function generateSalt(): string {
-  const buffer = new Uint8Array(SALT_LENGTH)
-  crypto.getRandomValues(buffer)
-  return Array.from(buffer, (byte) => byte.toString(16).padStart(2, '0')).join('')
+  const buffer = new Uint8Array(SALT_LENGTH);
+  crypto.getRandomValues(buffer);
+  return Array.from(buffer, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 /**
  * Convert hex string to Uint8Array
  */
 function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2)
+  const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16)
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
   }
-  return bytes
+  return bytes;
 }
 
 /**
  * Convert Uint8Array to hex string
  */
 function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 /**
@@ -131,42 +140,49 @@ function bytesToHex(bytes: Uint8Array): string {
  * @param salt - Hex-encoded salt (optional, generates new one if not provided)
  * @returns Object with hash and salt (both hex-encoded)
  */
-export async function hashPin(pin: string, salt?: string): Promise<{ hash: string; salt: string }> {
+export async function hashPin(
+  pin: string,
+  salt?: string,
+): Promise<{ hash: string; salt: string }> {
   // Validate PIN format
   if (!isValidPinFormat(pin)) {
-    throw new Error('PIN must be 4-6 digits')
+    throw new Error("PIN must be 4-6 digits");
   }
 
   // Generate or use provided salt
-  const pinSalt = salt || generateSalt()
-  const saltBytes = hexToBytes(pinSalt)
+  const pinSalt = salt || generateSalt();
+  const saltBytes = hexToBytes(pinSalt);
 
   // Convert PIN to Uint8Array
-  const encoder = new TextEncoder()
-  const pinBytes = encoder.encode(pin)
+  const encoder = new TextEncoder();
+  const pinBytes = encoder.encode(pin);
 
   // Import key material
-  const keyMaterial = await crypto.subtle.importKey('raw', pinBytes, { name: 'PBKDF2' }, false, [
-    'deriveBits',
-  ])
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    pinBytes,
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"],
+  );
 
   // Derive key using PBKDF2
   const hashBuffer = await crypto.subtle.deriveBits(
     {
-      name: 'PBKDF2',
+      name: "PBKDF2",
       salt: saltBytes as BufferSource,
       iterations: PBKDF2_ITERATIONS,
-      hash: 'SHA-256',
+      hash: "SHA-256",
     },
     keyMaterial,
-    HASH_LENGTH * 8
-  )
+    HASH_LENGTH * 8,
+  );
 
   // Convert to hex
-  const hashBytes = new Uint8Array(hashBuffer)
-  const hash = bytesToHex(hashBytes)
+  const hashBytes = new Uint8Array(hashBuffer);
+  const hash = bytesToHex(hashBytes);
 
-  return { hash, salt: pinSalt }
+  return { hash, salt: pinSalt };
 }
 
 /**
@@ -180,16 +196,16 @@ export async function hashPin(pin: string, salt?: string): Promise<{ hash: strin
 export async function verifyPin(
   pin: string,
   storedHash: string,
-  storedSalt: string
+  storedSalt: string,
 ): Promise<boolean> {
   try {
     // Hash the provided PIN with the stored salt
-    const { hash } = await hashPin(pin, storedSalt)
+    const { hash } = await hashPin(pin, storedSalt);
 
     // Constant-time comparison to prevent timing attacks
-    return hash === storedHash
+    return hash === storedHash;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -197,17 +213,17 @@ export async function verifyPin(
 // PIN Storage (LocalStorage)
 // ============================================================================
 
-const PIN_STORAGE_KEY = 'nself_chat_pin_settings'
+const PIN_STORAGE_KEY = "nself_chat_pin_settings";
 
 /**
  * Store PIN settings in localStorage
  */
 export function storePinSettings(settings: PinSettings): void {
   try {
-    localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(settings))
+    localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(settings));
   } catch (error) {
-    logger.error('Failed to store PIN settings:', error)
-    throw new Error('Failed to store PIN settings')
+    logger.error("Failed to store PIN settings:", error);
+    throw new Error("Failed to store PIN settings");
   }
 }
 
@@ -216,21 +232,21 @@ export function storePinSettings(settings: PinSettings): void {
  */
 export function loadPinSettings(): PinSettings | null {
   try {
-    const stored = localStorage.getItem(PIN_STORAGE_KEY)
-    if (!stored) return null
+    const stored = localStorage.getItem(PIN_STORAGE_KEY);
+    if (!stored) return null;
 
-    const settings = JSON.parse(stored) as PinSettings
+    const settings = JSON.parse(stored) as PinSettings;
 
     // Validate required fields
     if (!settings.pinHash || !settings.pinSalt) {
-      logger.warn('Invalid PIN settings in localStorage')
-      return null
+      logger.warn("Invalid PIN settings in localStorage");
+      return null;
     }
 
-    return settings
+    return settings;
   } catch (error) {
-    logger.error('Failed to load PIN settings:', error)
-    return null
+    logger.error("Failed to load PIN settings:", error);
+    return null;
   }
 }
 
@@ -239,9 +255,9 @@ export function loadPinSettings(): PinSettings | null {
  */
 export function clearPinSettings(): void {
   try {
-    localStorage.removeItem(PIN_STORAGE_KEY)
+    localStorage.removeItem(PIN_STORAGE_KEY);
   } catch (error) {
-    logger.error('Failed to clear PIN settings:', error)
+    logger.error("Failed to clear PIN settings:", error);
   }
 }
 
@@ -249,41 +265,44 @@ export function clearPinSettings(): void {
  * Check if PIN is configured
  */
 export function hasPinConfigured(): boolean {
-  return loadPinSettings() !== null
+  return loadPinSettings() !== null;
 }
 
 // ============================================================================
 // PIN Attempt Tracking
 // ============================================================================
 
-const ATTEMPTS_STORAGE_KEY = 'nself_chat_pin_attempts'
-const MAX_STORED_ATTEMPTS = 20
+const ATTEMPTS_STORAGE_KEY = "nself_chat_pin_attempts";
+const MAX_STORED_ATTEMPTS = 20;
 
 interface StoredAttempt {
-  timestamp: number
-  success: boolean
-  failureReason?: string
+  timestamp: number;
+  success: boolean;
+  failureReason?: string;
 }
 
 /**
  * Record PIN attempt locally (for UI feedback)
  */
-export function recordLocalPinAttempt(success: boolean, failureReason?: string): void {
+export function recordLocalPinAttempt(
+  success: boolean,
+  failureReason?: string,
+): void {
   try {
-    const stored = localStorage.getItem(ATTEMPTS_STORAGE_KEY)
-    const attempts: StoredAttempt[] = stored ? JSON.parse(stored) : []
+    const stored = localStorage.getItem(ATTEMPTS_STORAGE_KEY);
+    const attempts: StoredAttempt[] = stored ? JSON.parse(stored) : [];
 
     attempts.unshift({
       timestamp: Date.now(),
       success,
       failureReason,
-    })
+    });
 
     // Keep only recent attempts
-    const recentAttempts = attempts.slice(0, MAX_STORED_ATTEMPTS)
-    localStorage.setItem(ATTEMPTS_STORAGE_KEY, JSON.stringify(recentAttempts))
+    const recentAttempts = attempts.slice(0, MAX_STORED_ATTEMPTS);
+    localStorage.setItem(ATTEMPTS_STORAGE_KEY, JSON.stringify(recentAttempts));
   } catch (error) {
-    logger.error('Failed to record PIN attempt:', error)
+    logger.error("Failed to record PIN attempt:", error);
   }
 }
 
@@ -292,15 +311,17 @@ export function recordLocalPinAttempt(success: boolean, failureReason?: string):
  */
 export function getRecentFailedAttempts(minutes: number = 15): StoredAttempt[] {
   try {
-    const stored = localStorage.getItem(ATTEMPTS_STORAGE_KEY)
-    if (!stored) return []
+    const stored = localStorage.getItem(ATTEMPTS_STORAGE_KEY);
+    if (!stored) return [];
 
-    const attempts: StoredAttempt[] = JSON.parse(stored)
-    const cutoff = Date.now() - minutes * 60 * 1000
+    const attempts: StoredAttempt[] = JSON.parse(stored);
+    const cutoff = Date.now() - minutes * 60 * 1000;
 
-    return attempts.filter((attempt) => !attempt.success && attempt.timestamp > cutoff)
+    return attempts.filter(
+      (attempt) => !attempt.success && attempt.timestamp > cutoff,
+    );
   } catch {
-    return []
+    return [];
   }
 }
 
@@ -309,9 +330,9 @@ export function getRecentFailedAttempts(minutes: number = 15): StoredAttempt[] {
  */
 export function clearAttemptHistory(): void {
   try {
-    localStorage.removeItem(ATTEMPTS_STORAGE_KEY)
+    localStorage.removeItem(ATTEMPTS_STORAGE_KEY);
   } catch (error) {
-    logger.error('Failed to clear attempt history:', error)
+    logger.error("Failed to clear attempt history:", error);
   }
 }
 
@@ -319,26 +340,27 @@ export function clearAttemptHistory(): void {
  * Check if user is locked out due to failed attempts
  */
 export function checkLocalLockout(): {
-  isLocked: boolean
-  remainingMinutes: number
-  failedAttempts: number
+  isLocked: boolean;
+  remainingMinutes: number;
+  failedAttempts: number;
 } {
-  const LOCKOUT_THRESHOLD = 5
-  const LOCKOUT_DURATION_MINUTES = 30
+  const LOCKOUT_THRESHOLD = 5;
+  const LOCKOUT_DURATION_MINUTES = 30;
 
-  const recentFailed = getRecentFailedAttempts(15)
+  const recentFailed = getRecentFailedAttempts(15);
 
   if (recentFailed.length >= LOCKOUT_THRESHOLD) {
-    const oldestFailure = recentFailed[recentFailed.length - 1]
-    const lockoutEnd = oldestFailure.timestamp + LOCKOUT_DURATION_MINUTES * 60 * 1000
-    const now = Date.now()
+    const oldestFailure = recentFailed[recentFailed.length - 1];
+    const lockoutEnd =
+      oldestFailure.timestamp + LOCKOUT_DURATION_MINUTES * 60 * 1000;
+    const now = Date.now();
 
     if (now < lockoutEnd) {
       return {
         isLocked: true,
         remainingMinutes: Math.ceil((lockoutEnd - now) / (60 * 1000)),
         failedAttempts: recentFailed.length,
-      }
+      };
     }
   }
 
@@ -346,7 +368,7 @@ export function checkLocalLockout(): {
     isLocked: false,
     remainingMinutes: 0,
     failedAttempts: recentFailed.length,
-  }
+  };
 }
 
 // ============================================================================
@@ -354,9 +376,9 @@ export function checkLocalLockout(): {
 // ============================================================================
 
 export interface PinSetupResult {
-  success: boolean
-  error?: string
-  settings?: PinSettings
+  success: boolean;
+  error?: string;
+  settings?: PinSettings;
 }
 
 /**
@@ -366,31 +388,31 @@ export async function setupPin(
   pin: string,
   confirmPin: string,
   options: {
-    lockOnClose?: boolean
-    lockOnBackground?: boolean
-    lockTimeoutMinutes?: 0 | 5 | 15 | 30 | 60
-    biometricEnabled?: boolean
-  } = {}
+    lockOnClose?: boolean;
+    lockOnBackground?: boolean;
+    lockTimeoutMinutes?: 0 | 5 | 15 | 30 | 60;
+    biometricEnabled?: boolean;
+  } = {},
 ): Promise<PinSetupResult> {
   try {
     // Validate PIN format
     if (!isValidPinFormat(pin)) {
-      return { success: false, error: 'PIN must be 4-6 digits' }
+      return { success: false, error: "PIN must be 4-6 digits" };
     }
 
     // Check PIN strength
-    const strength = getPinStrength(pin)
-    if (strength.strength === 'weak') {
-      return { success: false, error: strength.message }
+    const strength = getPinStrength(pin);
+    if (strength.strength === "weak") {
+      return { success: false, error: strength.message };
     }
 
     // Confirm PIN matches
     if (pin !== confirmPin) {
-      return { success: false, error: 'PINs do not match' }
+      return { success: false, error: "PINs do not match" };
     }
 
     // Hash PIN
-    const { hash, salt } = await hashPin(pin)
+    const { hash, salt } = await hashPin(pin);
 
     // Create settings
     const settings: PinSettings = {
@@ -402,15 +424,15 @@ export async function setupPin(
       biometricEnabled: options.biometricEnabled ?? false,
       createdAt: new Date().toISOString(),
       lastChangedAt: new Date().toISOString(),
-    }
+    };
 
     // Store settings
-    storePinSettings(settings)
+    storePinSettings(settings);
 
-    return { success: true, settings }
+    return { success: true, settings };
   } catch (error) {
-    logger.error('PIN setup failed:', error)
-    return { success: false, error: 'Failed to setup PIN' }
+    logger.error("PIN setup failed:", error);
+    return { success: false, error: "Failed to setup PIN" };
   }
 }
 
@@ -420,20 +442,24 @@ export async function setupPin(
 export async function changePin(
   currentPin: string,
   newPin: string,
-  confirmNewPin: string
+  confirmNewPin: string,
 ): Promise<PinSetupResult> {
   try {
     // Load existing settings
-    const existingSettings = loadPinSettings()
+    const existingSettings = loadPinSettings();
     if (!existingSettings) {
-      return { success: false, error: 'No PIN configured' }
+      return { success: false, error: "No PIN configured" };
     }
 
     // Verify current PIN
-    const isValid = await verifyPin(currentPin, existingSettings.pinHash, existingSettings.pinSalt)
+    const isValid = await verifyPin(
+      currentPin,
+      existingSettings.pinHash,
+      existingSettings.pinSalt,
+    );
 
     if (!isValid) {
-      return { success: false, error: 'Current PIN is incorrect' }
+      return { success: false, error: "Current PIN is incorrect" };
     }
 
     // Setup new PIN with existing options
@@ -442,10 +468,10 @@ export async function changePin(
       lockOnBackground: existingSettings.lockOnBackground,
       lockTimeoutMinutes: existingSettings.lockTimeoutMinutes,
       biometricEnabled: existingSettings.biometricEnabled,
-    })
+    });
   } catch (error) {
-    logger.error('PIN change failed:', error)
-    return { success: false, error: 'Failed to change PIN' }
+    logger.error("PIN change failed:", error);
+    return { success: false, error: "Failed to change PIN" };
   }
 }
 
@@ -453,24 +479,24 @@ export async function changePin(
  * Update PIN settings (without changing PIN)
  */
 export function updatePinSettings(
-  updates: Partial<Omit<PinSettings, 'pinHash' | 'pinSalt' | 'createdAt'>>
+  updates: Partial<Omit<PinSettings, "pinHash" | "pinSalt" | "createdAt">>,
 ): boolean {
   try {
-    const existingSettings = loadPinSettings()
+    const existingSettings = loadPinSettings();
     if (!existingSettings) {
-      throw new Error('No PIN configured')
+      throw new Error("No PIN configured");
     }
 
     const updatedSettings: PinSettings = {
       ...existingSettings,
       ...updates,
-    }
+    };
 
-    storePinSettings(updatedSettings)
-    return true
+    storePinSettings(updatedSettings);
+    return true;
   } catch (error) {
-    logger.error('Failed to update PIN settings:', error)
-    return false
+    logger.error("Failed to update PIN settings:", error);
+    return false;
   }
 }
 
@@ -479,19 +505,23 @@ export function updatePinSettings(
  */
 export async function disablePin(currentPin: string): Promise<boolean> {
   try {
-    const settings = loadPinSettings()
-    if (!settings) return true // Already disabled
+    const settings = loadPinSettings();
+    if (!settings) return true; // Already disabled
 
     // Verify PIN before disabling
-    const isValid = await verifyPin(currentPin, settings.pinHash, settings.pinSalt)
+    const isValid = await verifyPin(
+      currentPin,
+      settings.pinHash,
+      settings.pinSalt,
+    );
     if (!isValid) {
-      return false
+      return false;
     }
 
-    clearPinSettings()
-    clearAttemptHistory()
-    return true
+    clearPinSettings();
+    clearAttemptHistory();
+    return true;
   } catch {
-    return false
+    return false;
   }
 }

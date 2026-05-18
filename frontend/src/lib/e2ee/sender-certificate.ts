@@ -18,36 +18,36 @@
  * - Revocation support via server key rotation
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 import {
   type SenderCertificate,
   SEALED_SENDER_VERSION,
   serializeCertificate,
   deserializeCertificate,
   validateCertificateStructure,
-} from './sealed-sender'
+} from "./sealed-sender";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** Default certificate validity duration (24 hours) */
-export const DEFAULT_CERTIFICATE_VALIDITY_MS = 24 * 60 * 60 * 1000
+export const DEFAULT_CERTIFICATE_VALIDITY_MS = 24 * 60 * 60 * 1000;
 
 /** Maximum certificate validity (7 days) */
-export const MAX_CERTIFICATE_VALIDITY_MS = 7 * 24 * 60 * 60 * 1000
+export const MAX_CERTIFICATE_VALIDITY_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Minimum certificate validity (1 hour) */
-export const MIN_CERTIFICATE_VALIDITY_MS = 60 * 60 * 1000
+export const MIN_CERTIFICATE_VALIDITY_MS = 60 * 60 * 1000;
 
 /** Certificate renewal threshold (renew if less than this time remaining) */
-export const CERTIFICATE_RENEWAL_THRESHOLD_MS = 4 * 60 * 60 * 1000
+export const CERTIFICATE_RENEWAL_THRESHOLD_MS = 4 * 60 * 60 * 1000;
 
 /** ECDSA curve for signing */
-const ECDSA_CURVE = 'P-256'
+const ECDSA_CURVE = "P-256";
 
 /** Signature hash algorithm */
-const SIGNATURE_HASH = 'SHA-256'
+const SIGNATURE_HASH = "SHA-256";
 
 // ============================================================================
 // Types
@@ -58,17 +58,17 @@ const SIGNATURE_HASH = 'SHA-256'
  */
 export interface ServerSigningKeyPair {
   /** Key ID for tracking key rotation */
-  keyId: number
+  keyId: number;
   /** Private key for signing */
-  privateKey: CryptoKey
+  privateKey: CryptoKey;
   /** Public key for verification */
-  publicKey: CryptoKey
+  publicKey: CryptoKey;
   /** Public key bytes for distribution */
-  publicKeyBytes: Uint8Array
+  publicKeyBytes: Uint8Array;
   /** When this key was created */
-  createdAt: Date
+  createdAt: Date;
   /** When this key expires */
-  expiresAt: Date
+  expiresAt: Date;
 }
 
 /**
@@ -76,15 +76,15 @@ export interface ServerSigningKeyPair {
  */
 export interface CertificateRequest {
   /** User ID requesting certificate */
-  userId: string
+  userId: string;
   /** Device ID */
-  deviceId: string
+  deviceId: string;
   /** Identity public key */
-  identityKey: Uint8Array
+  identityKey: Uint8Array;
   /** Requested validity period in milliseconds */
-  validityMs?: number
+  validityMs?: number;
   /** Authentication token proving identity */
-  authToken?: string
+  authToken?: string;
 }
 
 /**
@@ -92,11 +92,11 @@ export interface CertificateRequest {
  */
 export interface CertificateResponse {
   /** The issued certificate */
-  certificate: SenderCertificate
+  certificate: SenderCertificate;
   /** Server's signing key ID */
-  serverKeyId: number
+  serverKeyId: number;
   /** Server's public key for verification */
-  serverPublicKey: Uint8Array
+  serverPublicKey: Uint8Array;
 }
 
 /**
@@ -104,15 +104,15 @@ export interface CertificateResponse {
  */
 export interface CertificateValidationResult {
   /** Whether the certificate is valid */
-  valid: boolean
+  valid: boolean;
   /** Validation errors if any */
-  errors: string[]
+  errors: string[];
   /** Whether the certificate is expired */
-  expired: boolean
+  expired: boolean;
   /** Whether the certificate needs renewal */
-  needsRenewal: boolean
+  needsRenewal: boolean;
   /** Remaining validity in milliseconds */
-  remainingValidityMs: number
+  remainingValidityMs: number;
 }
 
 /**
@@ -120,11 +120,11 @@ export interface CertificateValidationResult {
  */
 export interface CertificateStore {
   /** Current certificate */
-  certificate: SenderCertificate | null
+  certificate: SenderCertificate | null;
   /** Server public keys for verification */
-  serverPublicKeys: Map<number, Uint8Array>
+  serverPublicKeys: Map<number, Uint8Array>;
   /** Last refresh timestamp */
-  lastRefreshAt: Date | null
+  lastRefreshAt: Date | null;
 }
 
 // ============================================================================
@@ -135,37 +135,37 @@ export interface CertificateStore {
  * Concatenates multiple Uint8Arrays
  */
 function concat(...arrays: Uint8Array[]): Uint8Array {
-  const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0)
-  const result = new Uint8Array(totalLength)
-  let offset = 0
+  const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
   for (const arr of arrays) {
-    result.set(arr, offset)
-    offset += arr.length
+    result.set(arr, offset);
+    offset += arr.length;
   }
-  return result
+  return result;
 }
 
 /**
  * Converts bytes to Base64
  */
 function bytesToBase64(bytes: Uint8Array): string {
-  let binary = ''
+  let binary = "";
   for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i])
+    binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary)
+  return btoa(binary);
 }
 
 /**
  * Converts Base64 to bytes
  */
 function base64ToBytes(base64: string): Uint8Array {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
+    bytes[i] = binary.charCodeAt(i);
   }
-  return bytes
+  return bytes;
 }
 
 // ============================================================================
@@ -177,20 +177,20 @@ function base64ToBytes(base64: string): Uint8Array {
  */
 export async function generateServerSigningKeyPair(
   keyId: number,
-  validityMs: number = MAX_CERTIFICATE_VALIDITY_MS
+  validityMs: number = MAX_CERTIFICATE_VALIDITY_MS,
 ): Promise<ServerSigningKeyPair> {
   const keyPair = await crypto.subtle.generateKey(
-    { name: 'ECDSA', namedCurve: ECDSA_CURVE },
+    { name: "ECDSA", namedCurve: ECDSA_CURVE },
     true,
-    ['sign', 'verify']
-  )
+    ["sign", "verify"],
+  );
 
-  const publicKeyRaw = await crypto.subtle.exportKey('raw', keyPair.publicKey)
+  const publicKeyRaw = await crypto.subtle.exportKey("raw", keyPair.publicKey);
 
-  const now = new Date()
-  const expiresAt = new Date(now.getTime() + validityMs)
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + validityMs);
 
-  logger.info('Generated new server signing key pair', { keyId, expiresAt })
+  logger.info("Generated new server signing key pair", { keyId, expiresAt });
 
   return {
     keyId,
@@ -199,33 +199,35 @@ export async function generateServerSigningKeyPair(
     publicKeyBytes: new Uint8Array(publicKeyRaw),
     createdAt: now,
     expiresAt,
-  }
+  };
 }
 
 /**
  * Exports server public key for distribution
  */
 export async function exportServerPublicKey(
-  keyPair: ServerSigningKeyPair
+  keyPair: ServerSigningKeyPair,
 ): Promise<{ keyId: number; publicKey: string; expiresAt: number }> {
   return {
     keyId: keyPair.keyId,
     publicKey: bytesToBase64(keyPair.publicKeyBytes),
     expiresAt: keyPair.expiresAt.getTime(),
-  }
+  };
 }
 
 /**
  * Imports server public key for verification
  */
-export async function importServerPublicKey(publicKeyBytes: Uint8Array): Promise<CryptoKey> {
+export async function importServerPublicKey(
+  publicKeyBytes: Uint8Array,
+): Promise<CryptoKey> {
   return crypto.subtle.importKey(
-    'raw',
+    "raw",
     publicKeyBytes as unknown as ArrayBuffer,
-    { name: 'ECDSA', namedCurve: ECDSA_CURVE },
+    { name: "ECDSA", namedCurve: ECDSA_CURVE },
     true,
-    ['verify']
-  )
+    ["verify"],
+  );
 }
 
 // ============================================================================
@@ -239,26 +241,32 @@ function createCertificateSigningContent(
   userId: string,
   deviceId: string,
   identityKey: Uint8Array,
-  expiresAt: number
+  expiresAt: number,
 ): Uint8Array {
-  const encoder = new TextEncoder()
-  const userIdBytes = encoder.encode(userId)
-  const deviceIdBytes = encoder.encode(deviceId)
+  const encoder = new TextEncoder();
+  const userIdBytes = encoder.encode(userId);
+  const deviceIdBytes = encoder.encode(deviceId);
 
   // Format: version(1) + userIdLen(2) + userId + deviceIdLen(2) + deviceId
   //         + identityKey + expiresAt(8)
-  const expiresAtView = new DataView(new ArrayBuffer(8))
-  expiresAtView.setBigUint64(0, BigInt(expiresAt), false)
+  const expiresAtView = new DataView(new ArrayBuffer(8));
+  expiresAtView.setBigUint64(0, BigInt(expiresAt), false);
 
   return concat(
     new Uint8Array([SEALED_SENDER_VERSION]),
-    new Uint8Array([(userIdBytes.length >> 8) & 0xff, userIdBytes.length & 0xff]),
+    new Uint8Array([
+      (userIdBytes.length >> 8) & 0xff,
+      userIdBytes.length & 0xff,
+    ]),
     userIdBytes,
-    new Uint8Array([(deviceIdBytes.length >> 8) & 0xff, deviceIdBytes.length & 0xff]),
+    new Uint8Array([
+      (deviceIdBytes.length >> 8) & 0xff,
+      deviceIdBytes.length & 0xff,
+    ]),
     deviceIdBytes,
     identityKey,
-    new Uint8Array(expiresAtView.buffer)
-  )
+    new Uint8Array(expiresAtView.buffer),
+  );
 }
 
 /**
@@ -266,50 +274,53 @@ function createCertificateSigningContent(
  */
 export async function issueCertificate(
   request: CertificateRequest,
-  serverKeyPair: ServerSigningKeyPair
+  serverKeyPair: ServerSigningKeyPair,
 ): Promise<SenderCertificate> {
   // Validate request
   if (!request.userId || request.userId.length === 0) {
-    throw new Error('Invalid user ID')
+    throw new Error("Invalid user ID");
   }
 
   if (!request.deviceId || request.deviceId.length === 0) {
-    throw new Error('Invalid device ID')
+    throw new Error("Invalid device ID");
   }
 
   if (!request.identityKey || request.identityKey.length !== 65) {
-    throw new Error('Invalid identity key')
+    throw new Error("Invalid identity key");
   }
 
   // Calculate validity period
   const validityMs = Math.min(
-    Math.max(request.validityMs ?? DEFAULT_CERTIFICATE_VALIDITY_MS, MIN_CERTIFICATE_VALIDITY_MS),
-    MAX_CERTIFICATE_VALIDITY_MS
-  )
+    Math.max(
+      request.validityMs ?? DEFAULT_CERTIFICATE_VALIDITY_MS,
+      MIN_CERTIFICATE_VALIDITY_MS,
+    ),
+    MAX_CERTIFICATE_VALIDITY_MS,
+  );
 
-  const expiresAt = Date.now() + validityMs
+  const expiresAt = Date.now() + validityMs;
 
   // Create content to sign
   const signingContent = createCertificateSigningContent(
     request.userId,
     request.deviceId,
     request.identityKey,
-    expiresAt
-  )
+    expiresAt,
+  );
 
   // Sign the content
   const signature = await crypto.subtle.sign(
-    { name: 'ECDSA', hash: SIGNATURE_HASH },
+    { name: "ECDSA", hash: SIGNATURE_HASH },
     serverKeyPair.privateKey,
-    signingContent as unknown as ArrayBuffer
-  )
+    signingContent as unknown as ArrayBuffer,
+  );
 
-  logger.info('Certificate issued', {
+  logger.info("Certificate issued", {
     userId: request.userId,
     deviceId: request.deviceId,
     expiresAt: new Date(expiresAt).toISOString(),
     serverKeyId: serverKeyPair.keyId,
-  })
+  });
 
   return {
     version: SEALED_SENDER_VERSION,
@@ -319,7 +330,7 @@ export async function issueCertificate(
     expiresAt,
     signature: new Uint8Array(signature),
     serverKeyId: serverKeyPair.keyId,
-  }
+  };
 }
 
 /**
@@ -327,35 +338,35 @@ export async function issueCertificate(
  */
 export async function verifyCertificateSignature(
   certificate: SenderCertificate,
-  serverPublicKey: Uint8Array | CryptoKey
+  serverPublicKey: Uint8Array | CryptoKey,
 ): Promise<boolean> {
   try {
     // Import server public key if needed
     const publicKey =
       serverPublicKey instanceof Uint8Array
         ? await importServerPublicKey(serverPublicKey)
-        : serverPublicKey
+        : serverPublicKey;
 
     // Recreate the signing content
     const signingContent = createCertificateSigningContent(
       certificate.senderUserId,
       certificate.senderDeviceId,
       certificate.senderIdentityKey,
-      certificate.expiresAt
-    )
+      certificate.expiresAt,
+    );
 
     // Verify signature
     const isValid = await crypto.subtle.verify(
-      { name: 'ECDSA', hash: SIGNATURE_HASH },
+      { name: "ECDSA", hash: SIGNATURE_HASH },
       publicKey,
       certificate.signature as unknown as ArrayBuffer,
-      signingContent as unknown as ArrayBuffer
-    )
+      signingContent as unknown as ArrayBuffer,
+    );
 
-    return isValid
+    return isValid;
   } catch (error) {
-    logger.error('Certificate signature verification failed', { error })
-    return false
+    logger.error("Certificate signature verification failed", { error });
+    return false;
   }
 }
 
@@ -371,32 +382,35 @@ export async function validateCertificate(
   serverPublicKey: Uint8Array | CryptoKey,
   options?: {
     /** Current time for testing */
-    now?: number
+    now?: number;
     /** Whether to allow expired certificates (for testing) */
-    allowExpired?: boolean
-  }
+    allowExpired?: boolean;
+  },
 ): Promise<CertificateValidationResult> {
-  const now = options?.now ?? Date.now()
-  const errors: string[] = []
+  const now = options?.now ?? Date.now();
+  const errors: string[] = [];
 
   // Structure validation
-  const structureErrors = validateCertificateStructure(certificate)
-  errors.push(...structureErrors)
+  const structureErrors = validateCertificateStructure(certificate);
+  errors.push(...structureErrors);
 
   // Expiration check
-  const expired = certificate.expiresAt < now
-  const remainingValidityMs = Math.max(0, certificate.expiresAt - now)
-  const needsRenewal = remainingValidityMs < CERTIFICATE_RENEWAL_THRESHOLD_MS
+  const expired = certificate.expiresAt < now;
+  const remainingValidityMs = Math.max(0, certificate.expiresAt - now);
+  const needsRenewal = remainingValidityMs < CERTIFICATE_RENEWAL_THRESHOLD_MS;
 
   if (expired && !options?.allowExpired) {
-    errors.push('Certificate has expired')
+    errors.push("Certificate has expired");
   }
 
   // Signature verification
   if (structureErrors.length === 0) {
-    const signatureValid = await verifyCertificateSignature(certificate, serverPublicKey)
+    const signatureValid = await verifyCertificateSignature(
+      certificate,
+      serverPublicKey,
+    );
     if (!signatureValid) {
-      errors.push('Invalid certificate signature')
+      errors.push("Invalid certificate signature");
     }
   }
 
@@ -406,7 +420,7 @@ export async function validateCertificate(
     expired,
     needsRenewal,
     remainingValidityMs,
-  }
+  };
 }
 
 /**
@@ -414,16 +428,16 @@ export async function validateCertificate(
  */
 export function shouldRenewCertificate(
   certificate: SenderCertificate | null,
-  now?: number
+  now?: number,
 ): boolean {
   if (!certificate) {
-    return true
+    return true;
   }
 
-  const currentTime = now ?? Date.now()
-  const remainingMs = certificate.expiresAt - currentTime
+  const currentTime = now ?? Date.now();
+  const remainingMs = certificate.expiresAt - currentTime;
 
-  return remainingMs < CERTIFICATE_RENEWAL_THRESHOLD_MS
+  return remainingMs < CERTIFICATE_RENEWAL_THRESHOLD_MS;
 }
 
 // ============================================================================
@@ -434,59 +448,60 @@ export function shouldRenewCertificate(
  * Client-side certificate manager
  */
 export class SenderCertificateManager {
-  private certificate: SenderCertificate | null = null
-  private serverPublicKeys: Map<number, Uint8Array> = new Map()
-  private refreshCallback: ((request: CertificateRequest) => Promise<CertificateResponse>) | null =
-    null
-  private userId: string
-  private deviceId: string
-  private identityKey: Uint8Array
-  private lastRefreshAt: Date | null = null
+  private certificate: SenderCertificate | null = null;
+  private serverPublicKeys: Map<number, Uint8Array> = new Map();
+  private refreshCallback:
+    | ((request: CertificateRequest) => Promise<CertificateResponse>)
+    | null = null;
+  private userId: string;
+  private deviceId: string;
+  private identityKey: Uint8Array;
+  private lastRefreshAt: Date | null = null;
 
   constructor(userId: string, deviceId: string, identityKey: Uint8Array) {
-    this.userId = userId
-    this.deviceId = deviceId
-    this.identityKey = identityKey
+    this.userId = userId;
+    this.deviceId = deviceId;
+    this.identityKey = identityKey;
   }
 
   /**
    * Sets the callback for refreshing certificates
    */
   setRefreshCallback(
-    callback: (request: CertificateRequest) => Promise<CertificateResponse>
+    callback: (request: CertificateRequest) => Promise<CertificateResponse>,
   ): void {
-    this.refreshCallback = callback
+    this.refreshCallback = callback;
   }
 
   /**
    * Adds a server public key for verification
    */
   addServerPublicKey(keyId: number, publicKey: Uint8Array): void {
-    this.serverPublicKeys.set(keyId, publicKey)
-    logger.debug('Added server public key', { keyId })
+    this.serverPublicKeys.set(keyId, publicKey);
+    logger.debug("Added server public key", { keyId });
   }
 
   /**
    * Removes a server public key (for revocation)
    */
   removeServerPublicKey(keyId: number): void {
-    this.serverPublicKeys.delete(keyId)
-    logger.debug('Removed server public key', { keyId })
+    this.serverPublicKeys.delete(keyId);
+    logger.debug("Removed server public key", { keyId });
   }
 
   /**
    * Gets the current certificate
    */
   getCertificate(): SenderCertificate | null {
-    return this.certificate
+    return this.certificate;
   }
 
   /**
    * Sets the current certificate
    */
   setCertificate(certificate: SenderCertificate): void {
-    this.certificate = certificate
-    this.lastRefreshAt = new Date()
+    this.certificate = certificate;
+    this.lastRefreshAt = new Date();
   }
 
   /**
@@ -495,14 +510,14 @@ export class SenderCertificateManager {
   async getValidCertificate(): Promise<SenderCertificate> {
     // Check if we need to refresh
     if (shouldRenewCertificate(this.certificate)) {
-      await this.refreshCertificate()
+      await this.refreshCertificate();
     }
 
     if (!this.certificate) {
-      throw new Error('No valid certificate available')
+      throw new Error("No valid certificate available");
     }
 
-    return this.certificate
+    return this.certificate;
   }
 
   /**
@@ -510,7 +525,7 @@ export class SenderCertificateManager {
    */
   async refreshCertificate(): Promise<void> {
     if (!this.refreshCallback) {
-      throw new Error('No refresh callback configured')
+      throw new Error("No refresh callback configured");
     }
 
     try {
@@ -518,38 +533,47 @@ export class SenderCertificateManager {
         userId: this.userId,
         deviceId: this.deviceId,
         identityKey: this.identityKey,
-      }
+      };
 
-      const response = await this.refreshCallback(request)
+      const response = await this.refreshCallback(request);
 
       // Add the server's public key if we don't have it
       if (!this.serverPublicKeys.has(response.serverKeyId)) {
-        this.serverPublicKeys.set(response.serverKeyId, response.serverPublicKey)
+        this.serverPublicKeys.set(
+          response.serverKeyId,
+          response.serverPublicKey,
+        );
       }
 
       // Validate the new certificate
-      const validation = await this.validateCertificateInternal(response.certificate)
+      const validation = await this.validateCertificateInternal(
+        response.certificate,
+      );
       if (!validation.valid) {
-        throw new Error(`Invalid certificate from server: ${validation.errors.join(', ')}`)
+        throw new Error(
+          `Invalid certificate from server: ${validation.errors.join(", ")}`,
+        );
       }
 
-      this.certificate = response.certificate
-      this.lastRefreshAt = new Date()
+      this.certificate = response.certificate;
+      this.lastRefreshAt = new Date();
 
-      logger.info('Certificate refreshed', {
+      logger.info("Certificate refreshed", {
         expiresAt: new Date(this.certificate.expiresAt).toISOString(),
-      })
+      });
     } catch (error) {
-      logger.error('Failed to refresh certificate', { error })
-      throw error
+      logger.error("Failed to refresh certificate", { error });
+      throw error;
     }
   }
 
   /**
    * Validates a certificate using stored server keys
    */
-  async validateCertificateInternal(certificate: SenderCertificate): Promise<CertificateValidationResult> {
-    const serverPublicKey = this.serverPublicKeys.get(certificate.serverKeyId)
+  async validateCertificateInternal(
+    certificate: SenderCertificate,
+  ): Promise<CertificateValidationResult> {
+    const serverPublicKey = this.serverPublicKeys.get(certificate.serverKeyId);
     if (!serverPublicKey) {
       return {
         valid: false,
@@ -557,18 +581,18 @@ export class SenderCertificateManager {
         expired: false,
         needsRenewal: false,
         remainingValidityMs: 0,
-      }
+      };
     }
 
-    return validateCertificate(certificate, serverPublicKey)
+    return validateCertificate(certificate, serverPublicKey);
   }
 
   /**
    * Verifies a received certificate
    */
   async verifyCertificate(certificate: SenderCertificate): Promise<boolean> {
-    const validation = await this.validateCertificateInternal(certificate)
-    return validation.valid
+    const validation = await this.validateCertificateInternal(certificate);
+    return validation.valid;
   }
 
   /**
@@ -579,25 +603,25 @@ export class SenderCertificateManager {
       certificate: this.certificate,
       serverPublicKeys: new Map(this.serverPublicKeys),
       lastRefreshAt: this.lastRefreshAt,
-    }
+    };
   }
 
   /**
    * Restores from persisted state
    */
   restoreState(state: CertificateStore): void {
-    this.certificate = state.certificate
-    this.serverPublicKeys = new Map(state.serverPublicKeys)
-    this.lastRefreshAt = state.lastRefreshAt
+    this.certificate = state.certificate;
+    this.serverPublicKeys = new Map(state.serverPublicKeys);
+    this.lastRefreshAt = state.lastRefreshAt;
   }
 
   /**
    * Clears all state
    */
   clear(): void {
-    this.certificate = null
-    this.serverPublicKeys.clear()
-    this.lastRefreshAt = null
+    this.certificate = null;
+    this.serverPublicKeys.clear();
+    this.lastRefreshAt = null;
   }
 }
 
@@ -611,9 +635,9 @@ export class SenderCertificateManager {
 export function createSenderCertificateManager(
   userId: string,
   deviceId: string,
-  identityKey: Uint8Array
+  identityKey: Uint8Array,
 ): SenderCertificateManager {
-  return new SenderCertificateManager(userId, deviceId, identityKey)
+  return new SenderCertificateManager(userId, deviceId, identityKey);
 }
 
 // ============================================================================
@@ -624,16 +648,16 @@ export function createSenderCertificateManager(
  * Exports a certificate to Base64 for transport
  */
 export function certificateToBase64(certificate: SenderCertificate): string {
-  const bytes = serializeCertificate(certificate)
-  return bytesToBase64(bytes)
+  const bytes = serializeCertificate(certificate);
+  return bytesToBase64(bytes);
 }
 
 /**
  * Imports a certificate from Base64
  */
 export function certificateFromBase64(base64: string): SenderCertificate {
-  const bytes = base64ToBytes(base64)
-  return deserializeCertificate(bytes)
+  const bytes = base64ToBytes(base64);
+  return deserializeCertificate(bytes);
 }
 
 // ============================================================================
@@ -665,6 +689,6 @@ export const senderCertificate = {
   MAX_CERTIFICATE_VALIDITY_MS,
   MIN_CERTIFICATE_VALIDITY_MS,
   CERTIFICATE_RENEWAL_THRESHOLD_MS,
-}
+};
 
-export default senderCertificate
+export default senderCertificate;

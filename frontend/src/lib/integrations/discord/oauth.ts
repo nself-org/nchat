@@ -5,107 +5,113 @@
  * authorization URL generation, token exchange, and token refresh.
  */
 
-import { DISCORD_AUTH_URL, DISCORD_TOKEN_URL, DISCORD_DEFAULT_SCOPES } from './discord-client'
+import {
+  DISCORD_AUTH_URL,
+  DISCORD_TOKEN_URL,
+  DISCORD_DEFAULT_SCOPES,
+} from "./discord-client";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface DiscordOAuthConfig {
-  clientId: string
-  clientSecret: string
-  redirectUri: string
-  scopes?: string[]
-  botPermissions?: string
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  scopes?: string[];
+  botPermissions?: string;
 }
 
 export interface DiscordOAuthState {
-  nonce: string
-  returnUrl?: string
-  workspaceId?: string
-  userId?: string
+  nonce: string;
+  returnUrl?: string;
+  workspaceId?: string;
+  userId?: string;
 }
 
 export interface DiscordOAuthResult {
-  accessToken: string
-  refreshToken: string
-  expiresIn: number
-  tokenType: string
-  scope: string
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  tokenType: string;
+  scope: string;
 }
 
 export interface DiscordOAuthError {
-  error: string
-  errorDescription?: string
+  error: string;
+  errorDescription?: string;
 }
 
 // ============================================================================
 // OAuth State Management
 // ============================================================================
 
-const OAUTH_STATE_KEY = 'discord_oauth_state'
-const OAUTH_STATE_TTL = 10 * 60 * 1000 // 10 minutes
+const OAUTH_STATE_KEY = "discord_oauth_state";
+const OAUTH_STATE_TTL = 10 * 60 * 1000; // 10 minutes
 
 /**
  * Generate a cryptographically secure random state value
  */
 export function generateOAuthState(): string {
-  const array = new Uint8Array(32)
-  crypto.getRandomValues(array)
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
   return Array.from(array)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 /**
  * Store OAuth state in session storage
  */
 export function storeOAuthState(state: DiscordOAuthState): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
   const stateData = {
     ...state,
     expiresAt: Date.now() + OAUTH_STATE_TTL,
-  }
+  };
 
-  sessionStorage.setItem(OAUTH_STATE_KEY, JSON.stringify(stateData))
+  sessionStorage.setItem(OAUTH_STATE_KEY, JSON.stringify(stateData));
 }
 
 /**
  * Retrieve and validate OAuth state from session storage
  */
 export function retrieveOAuthState(nonce: string): DiscordOAuthState | null {
-  if (typeof window === 'undefined') return null
+  if (typeof window === "undefined") return null;
 
-  const stored = sessionStorage.getItem(OAUTH_STATE_KEY)
-  if (!stored) return null
+  const stored = sessionStorage.getItem(OAUTH_STATE_KEY);
+  if (!stored) return null;
 
   try {
-    const stateData = JSON.parse(stored) as DiscordOAuthState & { expiresAt: number }
+    const stateData = JSON.parse(stored) as DiscordOAuthState & {
+      expiresAt: number;
+    };
 
     // Check expiration
     if (Date.now() > stateData.expiresAt) {
-      sessionStorage.removeItem(OAUTH_STATE_KEY)
-      return null
+      sessionStorage.removeItem(OAUTH_STATE_KEY);
+      return null;
     }
 
     // Validate nonce
     if (stateData.nonce !== nonce) {
-      return null
+      return null;
     }
 
     // Clean up
-    sessionStorage.removeItem(OAUTH_STATE_KEY)
+    sessionStorage.removeItem(OAUTH_STATE_KEY);
 
     return {
       nonce: stateData.nonce,
       returnUrl: stateData.returnUrl,
       workspaceId: stateData.workspaceId,
       userId: stateData.userId,
-    }
+    };
   } catch {
-    sessionStorage.removeItem(OAUTH_STATE_KEY)
-    return null
+    sessionStorage.removeItem(OAUTH_STATE_KEY);
+    return null;
   }
 }
 
@@ -113,8 +119,8 @@ export function retrieveOAuthState(nonce: string): DiscordOAuthState | null {
  * Clear OAuth state from session storage
  */
 export function clearOAuthState(): void {
-  if (typeof window === 'undefined') return
-  sessionStorage.removeItem(OAUTH_STATE_KEY)
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(OAUTH_STATE_KEY);
 }
 
 // ============================================================================
@@ -127,41 +133,44 @@ export function clearOAuthState(): void {
 export function buildDiscordAuthUrl(
   config: DiscordOAuthConfig,
   options?: {
-    state?: string
-    prompt?: 'consent' | 'none'
-    guildId?: string
-    disableGuildSelect?: boolean
-  }
+    state?: string;
+    prompt?: "consent" | "none";
+    guildId?: string;
+    disableGuildSelect?: boolean;
+  },
 ): string {
-  const url = new URL(DISCORD_AUTH_URL)
+  const url = new URL(DISCORD_AUTH_URL);
 
-  url.searchParams.set('client_id', config.clientId)
-  url.searchParams.set('redirect_uri', config.redirectUri)
-  url.searchParams.set('response_type', 'code')
-  url.searchParams.set('scope', (config.scopes || DISCORD_DEFAULT_SCOPES).join(' '))
+  url.searchParams.set("client_id", config.clientId);
+  url.searchParams.set("redirect_uri", config.redirectUri);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set(
+    "scope",
+    (config.scopes || DISCORD_DEFAULT_SCOPES).join(" "),
+  );
 
   if (options?.state) {
-    url.searchParams.set('state', options.state)
+    url.searchParams.set("state", options.state);
   }
 
   if (options?.prompt) {
-    url.searchParams.set('prompt', options.prompt)
+    url.searchParams.set("prompt", options.prompt);
   }
 
   // Bot permissions (for adding bot to server)
   if (config.botPermissions) {
-    url.searchParams.set('permissions', config.botPermissions)
+    url.searchParams.set("permissions", config.botPermissions);
   }
 
   // Pre-select a guild
   if (options?.guildId) {
-    url.searchParams.set('guild_id', options.guildId)
+    url.searchParams.set("guild_id", options.guildId);
     if (options?.disableGuildSelect) {
-      url.searchParams.set('disable_guild_select', 'true')
+      url.searchParams.set("disable_guild_select", "true");
     }
   }
 
-  return url.toString()
+  return url.toString();
 }
 
 /**
@@ -170,26 +179,29 @@ export function buildDiscordAuthUrl(
 export function buildBotInviteUrl(
   clientId: string,
   options?: {
-    permissions?: string
-    guildId?: string
-    scopes?: string[]
-  }
+    permissions?: string;
+    guildId?: string;
+    scopes?: string[];
+  },
 ): string {
-  const url = new URL(DISCORD_AUTH_URL)
+  const url = new URL(DISCORD_AUTH_URL);
 
-  url.searchParams.set('client_id', clientId)
-  url.searchParams.set('scope', (options?.scopes || ['bot', 'applications.commands']).join(' '))
+  url.searchParams.set("client_id", clientId);
+  url.searchParams.set(
+    "scope",
+    (options?.scopes || ["bot", "applications.commands"]).join(" "),
+  );
 
   if (options?.permissions) {
-    url.searchParams.set('permissions', options.permissions)
+    url.searchParams.set("permissions", options.permissions);
   }
 
   if (options?.guildId) {
-    url.searchParams.set('guild_id', options.guildId)
-    url.searchParams.set('disable_guild_select', 'true')
+    url.searchParams.set("guild_id", options.guildId);
+    url.searchParams.set("disable_guild_select", "true");
   }
 
-  return url.toString()
+  return url.toString();
 }
 
 /**
@@ -199,32 +211,32 @@ export function buildBotInviteUrl(
 export function initiateDiscordOAuth(
   config: DiscordOAuthConfig,
   options?: {
-    returnUrl?: string
-    workspaceId?: string
-    userId?: string
-    guildId?: string
-  }
+    returnUrl?: string;
+    workspaceId?: string;
+    userId?: string;
+    guildId?: string;
+  },
 ): {
-  authUrl: string
-  state: string
+  authUrl: string;
+  state: string;
 } {
-  const nonce = generateOAuthState()
+  const nonce = generateOAuthState();
 
   const state: DiscordOAuthState = {
     nonce,
     returnUrl: options?.returnUrl,
     workspaceId: options?.workspaceId,
     userId: options?.userId,
-  }
+  };
 
-  storeOAuthState(state)
+  storeOAuthState(state);
 
   const authUrl = buildDiscordAuthUrl(config, {
     state: nonce,
     guildId: options?.guildId,
-  })
+  });
 
-  return { authUrl, state: nonce }
+  return { authUrl, state: nonce };
 }
 
 // ============================================================================
@@ -236,39 +248,42 @@ export function initiateDiscordOAuth(
  */
 export async function exchangeCodeForToken(
   config: DiscordOAuthConfig,
-  code: string
+  code: string,
 ): Promise<DiscordOAuthResult> {
   const response = await fetch(DISCORD_TOKEN_URL, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({
       client_id: config.clientId,
       client_secret: config.clientSecret,
       code,
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       redirect_uri: config.redirectUri,
     }),
-  })
+  });
 
-  const data = await response.json()
+  const data = await response.json();
 
   if (data.error) {
-    throw new DiscordOAuthException(data.error, data.error_description)
+    throw new DiscordOAuthException(data.error, data.error_description);
   }
 
   if (!data.access_token) {
-    throw new DiscordOAuthException('invalid_response', 'No access token in response')
+    throw new DiscordOAuthException(
+      "invalid_response",
+      "No access token in response",
+    );
   }
 
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
     expiresIn: data.expires_in,
-    tokenType: data.token_type || 'Bearer',
-    scope: data.scope || '',
-  }
+    tokenType: data.token_type || "Bearer",
+    scope: data.scope || "",
+  };
 }
 
 /**
@@ -276,54 +291,57 @@ export async function exchangeCodeForToken(
  */
 export async function refreshAccessToken(
   config: DiscordOAuthConfig,
-  refreshToken: string
+  refreshToken: string,
 ): Promise<DiscordOAuthResult> {
   const response = await fetch(DISCORD_TOKEN_URL, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({
       client_id: config.clientId,
       client_secret: config.clientSecret,
-      grant_type: 'refresh_token',
+      grant_type: "refresh_token",
       refresh_token: refreshToken,
     }),
-  })
+  });
 
-  const data = await response.json()
+  const data = await response.json();
 
   if (data.error) {
-    throw new DiscordOAuthException(data.error, data.error_description)
+    throw new DiscordOAuthException(data.error, data.error_description);
   }
 
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
     expiresIn: data.expires_in,
-    tokenType: data.token_type || 'Bearer',
-    scope: data.scope || '',
-  }
+    tokenType: data.token_type || "Bearer",
+    scope: data.scope || "",
+  };
 }
 
 /**
  * Revoke access token
  */
-export async function revokeToken(config: DiscordOAuthConfig, token: string): Promise<void> {
-  const response = await fetch('https://discord.com/api/oauth2/token/revoke', {
-    method: 'POST',
+export async function revokeToken(
+  config: DiscordOAuthConfig,
+  token: string,
+): Promise<void> {
+  const response = await fetch("https://discord.com/api/oauth2/token/revoke", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({
       client_id: config.clientId,
       client_secret: config.clientSecret,
       token,
     }),
-  })
+  });
 
   if (!response.ok) {
-    throw new DiscordOAuthException('revoke_failed', 'Failed to revoke token')
+    throw new DiscordOAuthException("revoke_failed", "Failed to revoke token");
   }
 }
 
@@ -334,51 +352,58 @@ export async function revokeToken(config: DiscordOAuthConfig, token: string): Pr
 export async function handleDiscordOAuthCallback(
   config: DiscordOAuthConfig,
   callbackParams: {
-    code?: string
-    state?: string
-    error?: string
-    errorDescription?: string
-    guildId?: string
-  }
+    code?: string;
+    state?: string;
+    error?: string;
+    errorDescription?: string;
+    guildId?: string;
+  },
 ): Promise<{
-  result: DiscordOAuthResult
-  state: DiscordOAuthState
-  guildId?: string
+  result: DiscordOAuthResult;
+  state: DiscordOAuthState;
+  guildId?: string;
 }> {
   // Check for error response from Discord
   if (callbackParams.error) {
     throw new DiscordOAuthException(
       callbackParams.error,
-      callbackParams.errorDescription || getDiscordErrorDescription(callbackParams.error)
-    )
+      callbackParams.errorDescription ||
+        getDiscordErrorDescription(callbackParams.error),
+    );
   }
 
   // Validate required parameters
   if (!callbackParams.code) {
-    throw new DiscordOAuthException('missing_code', 'Authorization code is missing')
+    throw new DiscordOAuthException(
+      "missing_code",
+      "Authorization code is missing",
+    );
   }
 
   if (!callbackParams.state) {
-    throw new DiscordOAuthException('missing_state', 'State parameter is missing')
+    throw new DiscordOAuthException(
+      "missing_state",
+      "State parameter is missing",
+    );
   }
 
   // Validate state
-  const state = retrieveOAuthState(callbackParams.state)
+  const state = retrieveOAuthState(callbackParams.state);
   if (!state) {
     throw new DiscordOAuthException(
-      'invalid_state',
-      'Invalid or expired state parameter. Please try again.'
-    )
+      "invalid_state",
+      "Invalid or expired state parameter. Please try again.",
+    );
   }
 
   // Exchange code for token
-  const result = await exchangeCodeForToken(config, callbackParams.code)
+  const result = await exchangeCodeForToken(config, callbackParams.code);
 
   return {
     result,
     state,
     guildId: callbackParams.guildId,
-  }
+  };
 }
 
 // ============================================================================
@@ -386,21 +411,21 @@ export async function handleDiscordOAuthCallback(
 // ============================================================================
 
 export class DiscordOAuthException extends Error {
-  public readonly error: string
-  public readonly errorDescription?: string
+  public readonly error: string;
+  public readonly errorDescription?: string;
 
   constructor(error: string, errorDescription?: string) {
-    super(errorDescription || error)
-    this.name = 'DiscordOAuthException'
-    this.error = error
-    this.errorDescription = errorDescription
+    super(errorDescription || error);
+    this.name = "DiscordOAuthException";
+    this.error = error;
+    this.errorDescription = errorDescription;
   }
 
   toJSON(): DiscordOAuthError {
     return {
       error: this.error,
       errorDescription: this.errorDescription,
-    }
+    };
   }
 }
 
@@ -411,8 +436,10 @@ export class DiscordOAuthException extends Error {
 /**
  * Check if an error is a Discord OAuth exception
  */
-export function isDiscordOAuthError(error: unknown): error is DiscordOAuthException {
-  return error instanceof DiscordOAuthException
+export function isDiscordOAuthError(
+  error: unknown,
+): error is DiscordOAuthException {
+  return error instanceof DiscordOAuthException;
 }
 
 /**
@@ -420,47 +447,53 @@ export function isDiscordOAuthError(error: unknown): error is DiscordOAuthExcept
  */
 export function getDiscordErrorDescription(error: string): string {
   const errorDescriptions: Record<string, string> = {
-    access_denied: 'The user denied the authorization request',
-    invalid_client: 'Invalid client ID or client secret',
-    invalid_grant: 'The authorization code is invalid or expired',
-    invalid_request: 'The request is missing required parameters',
-    invalid_scope: 'One or more scopes are invalid',
-    unauthorized_client: 'The client is not authorized for this grant type',
-    unsupported_grant_type: 'The grant type is not supported',
-    unsupported_response_type: 'The response type is not supported',
-  }
+    access_denied: "The user denied the authorization request",
+    invalid_client: "Invalid client ID or client secret",
+    invalid_grant: "The authorization code is invalid or expired",
+    invalid_request: "The request is missing required parameters",
+    invalid_scope: "One or more scopes are invalid",
+    unauthorized_client: "The client is not authorized for this grant type",
+    unsupported_grant_type: "The grant type is not supported",
+    unsupported_response_type: "The response type is not supported",
+  };
 
-  return errorDescriptions[error] || `Discord error: ${error}`
+  return errorDescriptions[error] || `Discord error: ${error}`;
 }
 
 /**
  * Parse OAuth scopes from scope string
  */
 export function parseScopes(scopeString: string): string[] {
-  return scopeString.split(/\s+/).filter(Boolean)
+  return scopeString.split(/\s+/).filter(Boolean);
 }
 
 /**
  * Check if token has required scopes
  */
-export function hasRequiredScopes(tokenScopes: string, requiredScopes: string[]): boolean {
-  const scopes = parseScopes(tokenScopes)
-  return requiredScopes.every((required) => scopes.includes(required))
+export function hasRequiredScopes(
+  tokenScopes: string,
+  requiredScopes: string[],
+): boolean {
+  const scopes = parseScopes(tokenScopes);
+  return requiredScopes.every((required) => scopes.includes(required));
 }
 
 /**
  * Calculate token expiry timestamp
  */
 export function calculateTokenExpiry(expiresIn: number): Date {
-  return new Date(Date.now() + expiresIn * 1000)
+  return new Date(Date.now() + expiresIn * 1000);
 }
 
 /**
  * Check if token is expired or about to expire
  */
-export function isTokenExpired(expiresAt: Date, bufferSeconds: number = 300): boolean {
-  const bufferMs = bufferSeconds * 1000
-  return Date.now() >= expiresAt.getTime() - bufferMs
+export function isTokenExpired(
+  expiresAt: Date,
+  bufferSeconds: number = 300,
+): boolean {
+  const bufferMs = bufferSeconds * 1000;
+  return Date.now() >= expiresAt.getTime() - bufferMs;
 }
 
 /**
@@ -509,15 +542,15 @@ export function calculatePermissions(permissions: string[]): string {
     SEND_MESSAGES_IN_THREADS: 1n << 38n,
     USE_EMBEDDED_ACTIVITIES: 1n << 39n,
     MODERATE_MEMBERS: 1n << 40n,
-  }
+  };
 
-  let result = 0n
+  let result = 0n;
   for (const perm of permissions) {
-    const flag = permissionFlags[perm.toUpperCase()]
+    const flag = permissionFlags[perm.toUpperCase()];
     if (flag) {
-      result |= flag
+      result |= flag;
     }
   }
 
-  return result.toString()
+  return result.toString();
 }

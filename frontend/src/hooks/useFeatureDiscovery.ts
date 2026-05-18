@@ -4,9 +4,13 @@
  * Provides easy access to feature tips, pro tips, and what's new
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useOnboardingStore } from '@/stores/onboarding-store'
-import type { FeatureId, FeatureTip, WhatsNewItem } from '@/lib/onboarding/onboarding-types'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import type {
+  FeatureId,
+  FeatureTip,
+  WhatsNewItem,
+} from "@/lib/onboarding/onboarding-types";
 import {
   featureTips,
   getNextTipToShow,
@@ -16,57 +20,57 @@ import {
   getUnseenWhatsNewItems,
   type ProTip,
   type KeyboardShortcutTip,
-} from '@/lib/onboarding/feature-discovery'
+} from "@/lib/onboarding/feature-discovery";
 
 interface UseFeatureDiscoveryOptions {
   /**
    * User ID for initializing feature discovery
    */
-  userId?: string
+  userId?: string;
   /**
    * Auto-initialize on mount
    */
-  autoInit?: boolean
+  autoInit?: boolean;
   /**
    * Maximum tips to show per session
    */
-  maxTipsPerSession?: number
+  maxTipsPerSession?: number;
 }
 
 interface UseFeatureDiscoveryReturn {
   // Feature Tips
-  nextTip: FeatureTip | null
-  getTipsForFeature: (featureId: FeatureId) => FeatureTip[]
-  showTip: (tipId: string) => void
-  dismissTip: (tipId: string) => void
-  isFeatureDiscovered: (featureId: FeatureId) => boolean
-  discoverFeature: (featureId: FeatureId) => void
+  nextTip: FeatureTip | null;
+  getTipsForFeature: (featureId: FeatureId) => FeatureTip[];
+  showTip: (tipId: string) => void;
+  dismissTip: (tipId: string) => void;
+  isFeatureDiscovered: (featureId: FeatureId) => boolean;
+  discoverFeature: (featureId: FeatureId) => void;
 
   // Pro Tips
-  currentProTip: ProTip | null
-  refreshProTip: () => void
-  dismissProTip: () => void
+  currentProTip: ProTip | null;
+  refreshProTip: () => void;
+  dismissProTip: () => void;
 
   // Keyboard Shortcuts
-  currentShortcutTip: KeyboardShortcutTip | null
-  refreshShortcutTip: () => void
-  dismissShortcutTip: () => void
+  currentShortcutTip: KeyboardShortcutTip | null;
+  refreshShortcutTip: () => void;
+  dismissShortcutTip: () => void;
 
   // What's New
-  unseenWhatsNew: WhatsNewItem[]
-  hasUnseenWhatsNew: boolean
-  seeWhatsNewItem: (itemId: string) => void
-  seeAllWhatsNew: () => void
-  dismissWhatsNew: (days?: number) => void
-  openWhatsNewModal: () => void
-  closeWhatsNewModal: () => void
-  isWhatsNewModalOpen: boolean
+  unseenWhatsNew: WhatsNewItem[];
+  hasUnseenWhatsNew: boolean;
+  seeWhatsNewItem: (itemId: string) => void;
+  seeAllWhatsNew: () => void;
+  dismissWhatsNew: (days?: number) => void;
+  openWhatsNewModal: () => void;
+  closeWhatsNewModal: () => void;
+  isWhatsNewModalOpen: boolean;
 }
 
 export function useFeatureDiscovery(
-  options: UseFeatureDiscoveryOptions = {}
+  options: UseFeatureDiscoveryOptions = {},
 ): UseFeatureDiscoveryReturn {
-  const { userId, autoInit = true, maxTipsPerSession = 3 } = options
+  const { userId, autoInit = true, maxTipsPerSession = 3 } = options;
 
   const {
     featureDiscovery,
@@ -82,141 +86,160 @@ export function useFeatureDiscovery(
     dismissWhatsNewModal,
     openWhatsNewModal: storeOpenWhatsNewModal,
     closeWhatsNewModal: storeCloseWhatsNewModal,
-  } = useOnboardingStore()
+  } = useOnboardingStore();
 
   // Local state for session tips
-  const [sessionTipsShown, setSessionTipsShown] = useState(0)
-  const [seenProTipIds, setSeenProTipIds] = useState<string[]>([])
-  const [seenShortcutIds, setSeenShortcutIds] = useState<string[]>([])
-  const [currentProTip, setCurrentProTip] = useState<ProTip | null>(null)
-  const [currentShortcutTip, setCurrentShortcutTip] = useState<KeyboardShortcutTip | null>(null)
+  const [sessionTipsShown, setSessionTipsShown] = useState(0);
+  const [seenProTipIds, setSeenProTipIds] = useState<string[]>([]);
+  const [seenShortcutIds, setSeenShortcutIds] = useState<string[]>([]);
+  const [currentProTip, setCurrentProTip] = useState<ProTip | null>(null);
+  const [currentShortcutTip, setCurrentShortcutTip] =
+    useState<KeyboardShortcutTip | null>(null);
 
   // Initialize on mount
   useEffect(() => {
     if (autoInit && userId) {
-      initialize(userId)
+      initialize(userId);
     }
-  }, [autoInit, userId, initialize])
+  }, [autoInit, userId, initialize]);
 
   // Initialize pro tip
   useEffect(() => {
     if (featureDiscoveryConfig.showProTips && !currentProTip) {
-      setCurrentProTip(getRandomProTip(seenProTipIds))
+      setCurrentProTip(getRandomProTip(seenProTipIds));
     }
-  }, [featureDiscoveryConfig.showProTips, seenProTipIds, currentProTip])
+  }, [featureDiscoveryConfig.showProTips, seenProTipIds, currentProTip]);
 
   // Initialize shortcut tip
   useEffect(() => {
-    if (featureDiscoveryConfig.showKeyboardShortcutTips && !currentShortcutTip) {
-      setCurrentShortcutTip(getRandomShortcutTip(seenShortcutIds))
+    if (
+      featureDiscoveryConfig.showKeyboardShortcutTips &&
+      !currentShortcutTip
+    ) {
+      setCurrentShortcutTip(getRandomShortcutTip(seenShortcutIds));
     }
-  }, [featureDiscoveryConfig.showKeyboardShortcutTips, seenShortcutIds, currentShortcutTip])
+  }, [
+    featureDiscoveryConfig.showKeyboardShortcutTips,
+    seenShortcutIds,
+    currentShortcutTip,
+  ]);
 
   // Computed: next tip to show
   const nextTip = useMemo(() => {
     if (!featureDiscovery || sessionTipsShown >= maxTipsPerSession) {
-      return null
+      return null;
     }
-    return getNextTipToShow(featureDiscovery, featureDiscoveryConfig)
-  }, [featureDiscovery, featureDiscoveryConfig, sessionTipsShown, maxTipsPerSession])
+    return getNextTipToShow(featureDiscovery, featureDiscoveryConfig);
+  }, [
+    featureDiscovery,
+    featureDiscoveryConfig,
+    sessionTipsShown,
+    maxTipsPerSession,
+  ]);
 
   // Computed: unseen what's new items
   const unseenWhatsNew = useMemo(() => {
-    return getUnseenWhatsNewItems(whatsNew)
-  }, [whatsNew])
+    return getUnseenWhatsNewItems(whatsNew);
+  }, [whatsNew]);
 
   // Feature Tips Actions
   const showTip = useCallback(
     (tipId: string) => {
-      seeTip(tipId)
-      setSessionTipsShown((prev) => prev + 1)
+      seeTip(tipId);
+      setSessionTipsShown((prev) => prev + 1);
     },
-    [seeTip]
-  )
+    [seeTip],
+  );
 
   const dismissTipAction = useCallback(
     (tipId: string) => {
-      dismissFeatureTip(tipId)
+      dismissFeatureTip(tipId);
     },
-    [dismissFeatureTip]
-  )
+    [dismissFeatureTip],
+  );
 
   const isFeatureDiscoveredCheck = useCallback(
     (featureId: FeatureId): boolean => {
-      return featureDiscovery?.discoveredFeatures.includes(featureId) ?? false
+      return featureDiscovery?.discoveredFeatures.includes(featureId) ?? false;
     },
-    [featureDiscovery?.discoveredFeatures]
-  )
+    [featureDiscovery?.discoveredFeatures],
+  );
 
   const discoverFeatureAction = useCallback(
     (featureId: FeatureId) => {
-      storeDiscoverFeature(featureId)
+      storeDiscoverFeature(featureId);
     },
-    [storeDiscoverFeature]
-  )
+    [storeDiscoverFeature],
+  );
 
-  const getTipsForFeatureAction = useCallback((featureId: FeatureId): FeatureTip[] => {
-    return getTipsForFeature(featureId)
-  }, [])
+  const getTipsForFeatureAction = useCallback(
+    (featureId: FeatureId): FeatureTip[] => {
+      return getTipsForFeature(featureId);
+    },
+    [],
+  );
 
   // Pro Tips Actions
   const refreshProTip = useCallback(() => {
     if (currentProTip) {
-      setSeenProTipIds((prev) => [...prev, currentProTip.id])
+      setSeenProTipIds((prev) => [...prev, currentProTip.id]);
     }
-    const newTip = getRandomProTip([...seenProTipIds, currentProTip?.id ?? ''])
-    setCurrentProTip(newTip)
-  }, [currentProTip, seenProTipIds])
+    const newTip = getRandomProTip([...seenProTipIds, currentProTip?.id ?? ""]);
+    setCurrentProTip(newTip);
+  }, [currentProTip, seenProTipIds]);
 
   const dismissProTip = useCallback(() => {
     if (currentProTip) {
-      setSeenProTipIds((prev) => [...prev, currentProTip.id])
+      setSeenProTipIds((prev) => [...prev, currentProTip.id]);
     }
-    setCurrentProTip(null)
-  }, [currentProTip])
+    setCurrentProTip(null);
+  }, [currentProTip]);
 
   // Keyboard Shortcut Tips Actions
   const refreshShortcutTip = useCallback(() => {
     if (currentShortcutTip) {
-      setSeenShortcutIds((prev) => [...prev, currentShortcutTip.id])
+      setSeenShortcutIds((prev) => [...prev, currentShortcutTip.id]);
     }
-    const newTip = getRandomShortcutTip([...seenShortcutIds, currentShortcutTip?.id ?? ''])
-    setCurrentShortcutTip(newTip)
-  }, [currentShortcutTip, seenShortcutIds])
+    const newTip = getRandomShortcutTip([
+      ...seenShortcutIds,
+      currentShortcutTip?.id ?? "",
+    ]);
+    setCurrentShortcutTip(newTip);
+  }, [currentShortcutTip, seenShortcutIds]);
 
   const dismissShortcutTip = useCallback(() => {
     if (currentShortcutTip) {
-      setSeenShortcutIds((prev) => [...prev, currentShortcutTip.id])
+      setSeenShortcutIds((prev) => [...prev, currentShortcutTip.id]);
     }
-    setCurrentShortcutTip(null)
-  }, [currentShortcutTip])
+    setCurrentShortcutTip(null);
+  }, [currentShortcutTip]);
 
   // What's New Actions
   const seeWhatsNewItem = useCallback(
     (itemId: string) => {
-      storeSeeWhatsNewItem(itemId)
+      storeSeeWhatsNewItem(itemId);
     },
-    [storeSeeWhatsNewItem]
-  )
+    [storeSeeWhatsNewItem],
+  );
 
   const seeAllWhatsNew = useCallback(() => {
-    storeSeeAllWhatsNew()
-  }, [storeSeeAllWhatsNew])
+    storeSeeAllWhatsNew();
+  }, [storeSeeAllWhatsNew]);
 
   const dismissWhatsNew = useCallback(
     (days?: number) => {
-      dismissWhatsNewModal(days)
+      dismissWhatsNewModal(days);
     },
-    [dismissWhatsNewModal]
-  )
+    [dismissWhatsNewModal],
+  );
 
   const openWhatsNewModal = useCallback(() => {
-    storeOpenWhatsNewModal()
-  }, [storeOpenWhatsNewModal])
+    storeOpenWhatsNewModal();
+  }, [storeOpenWhatsNewModal]);
 
   const closeWhatsNewModal = useCallback(() => {
-    storeCloseWhatsNewModal()
-  }, [storeCloseWhatsNewModal])
+    storeCloseWhatsNewModal();
+  }, [storeCloseWhatsNewModal]);
 
   return {
     // Feature Tips
@@ -246,39 +269,40 @@ export function useFeatureDiscovery(
     openWhatsNewModal,
     closeWhatsNewModal,
     isWhatsNewModalOpen: whatsNewModalOpen,
-  }
+  };
 }
 
 /**
  * Hook for tracking when a feature is first used
  */
 export function useFeatureUsageTracking(featureId: FeatureId) {
-  const { discoverFeature: storeDiscoverFeature } = useOnboardingStore()
+  const { discoverFeature: storeDiscoverFeature } = useOnboardingStore();
 
   const trackUsage = useCallback(() => {
-    storeDiscoverFeature(featureId)
-  }, [featureId, storeDiscoverFeature])
+    storeDiscoverFeature(featureId);
+  }, [featureId, storeDiscoverFeature]);
 
-  return trackUsage
+  return trackUsage;
 }
 
 /**
  * Hook to get tip for a specific feature
  */
 export function useFeatureTip(featureId: FeatureId): FeatureTip | null {
-  const { featureDiscovery, featureDiscoveryConfig } = useOnboardingStore()
+  const { featureDiscovery, featureDiscoveryConfig } = useOnboardingStore();
 
-  if (!featureDiscoveryConfig.enabled) return null
+  if (!featureDiscoveryConfig.enabled) return null;
 
-  const tips = getTipsForFeature(featureId)
-  if (tips.length === 0) return null
+  const tips = getTipsForFeature(featureId);
+  if (tips.length === 0) return null;
 
   // Find first non-dismissed, non-seen (if showOnce) tip
   return (
     tips.find((tip) => {
-      if (featureDiscovery?.dismissedTips.includes(tip.id)) return false
-      if (tip.showOnce && featureDiscovery?.seenTips.includes(tip.id)) return false
-      return true
+      if (featureDiscovery?.dismissedTips.includes(tip.id)) return false;
+      if (tip.showOnce && featureDiscovery?.seenTips.includes(tip.id))
+        return false;
+      return true;
     }) ?? null
-  )
+  );
 }

@@ -1,63 +1,64 @@
-'use client'
+"use client";
 
 /**
  * YouTubePreview - YouTube video preview/embed
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { getYouTubeEmbedUrl } from '@/lib/link-preview'
-import type { YouTubeVideoData } from '@/lib/link-preview'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { getYouTubeEmbedUrl } from "@/lib/link-preview";
+import type { YouTubeVideoData } from "@/lib/link-preview";
 
 export interface YouTubePreviewProps {
   /** YouTube video data */
-  data: YouTubeVideoData
+  data: YouTubeVideoData;
   /** Show embed player instead of thumbnail */
-  showEmbed?: boolean
+  showEmbed?: boolean;
   /** Aspect ratio */
-  aspectRatio?: '16/9' | '4/3'
+  aspectRatio?: "16/9" | "4/3";
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Children (for action buttons) */
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export function YouTubePreview({
   data,
   showEmbed = false,
-  aspectRatio = '16/9',
+  aspectRatio = "16/9",
   className,
   children,
 }: YouTubePreviewProps) {
-  const [isPlaying, setIsPlaying] = React.useState(showEmbed)
+  const [isPlaying, setIsPlaying] = React.useState(showEmbed);
 
   const handlePlay = () => {
-    setIsPlaying(true)
-  }
+    setIsPlaying(true);
+  };
 
   const handleClick = () => {
     if (!isPlaying) {
-      window.open(data.url, '_blank', 'noopener,noreferrer')
+      window.open(data.url, "_blank", "noopener,noreferrer");
     }
-  }
+  };
 
-  const embedUrl = getYouTubeEmbedUrl(data.videoId)
-  const thumbnailUrl = data.image || `https://i.ytimg.com/vi/${data.videoId}/hqdefault.jpg`
+  const embedUrl = getYouTubeEmbedUrl(data.videoId);
+  const thumbnailUrl =
+    data.image || `https://i.ytimg.com/vi/${data.videoId}/hqdefault.jpg`;
 
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm',
-        'transition-all duration-200 hover:border-red-500/50 hover:shadow-md',
-        className
+        "group relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
+        "transition-all duration-200 hover:border-red-500/50 hover:shadow-md",
+        className,
       )}
     >
       {/* Video container */}
       <div
         className={cn(
-          'relative bg-black',
-          aspectRatio === '16/9' && 'aspect-video',
-          aspectRatio === '4/3' && 'aspect-[4/3]'
+          "relative bg-black",
+          aspectRatio === "16/9" && "aspect-video",
+          aspectRatio === "4/3" && "aspect-[4/3]",
         )}
       >
         {isPlaying ? (
@@ -66,13 +67,13 @@ export function YouTubePreview({
             className="absolute inset-0 h-full w-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            title={data.title || 'YouTube video'}
+            title={data.title || "YouTube video"}
           />
         ) : (
           <>
             <img
               src={thumbnailUrl}
-              alt={data.title || 'YouTube video thumbnail'}
+              alt={data.title || "YouTube video thumbnail"}
               className="absolute inset-0 h-full w-full object-cover"
               loading="lazy"
             />
@@ -85,7 +86,11 @@ export function YouTubePreview({
               aria-label="Play video"
             >
               <div className="flex h-12 w-16 items-center justify-center rounded-lg bg-red-600 transition-colors hover:bg-red-700">
-                <svg className="ml-1 h-8 w-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  className="ml-1 h-8 w-8 text-white"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
@@ -115,15 +120,17 @@ export function YouTubePreview({
         role="link"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleClick()
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
           }
         }}
       >
         {/* Title */}
         {data.title && (
-          <h3 className="line-clamp-2 text-sm font-semibold leading-tight">{data.title}</h3>
+          <h3 className="line-clamp-2 text-sm font-semibold leading-tight">
+            {data.title}
+          </h3>
         )}
 
         {/* Channel info */}
@@ -138,14 +145,18 @@ export function YouTubePreview({
           )}
           <div className="min-w-0 flex-1">
             {data.channelName && (
-              <p className="truncate text-xs text-muted-foreground">{data.channelName}</p>
+              <p className="truncate text-xs text-muted-foreground">
+                {data.channelName}
+              </p>
             )}
           </div>
         </div>
 
         {/* Stats */}
         <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-          {data.viewCount !== undefined && <span>{data.viewCount.toLocaleString()} views</span>}
+          {data.viewCount !== undefined && (
+            <span>{data.viewCount.toLocaleString()} views</span>
+          )}
           {data.publishedAt && (
             <>
               <span className="text-muted-foreground/50">-</span>
@@ -156,13 +167,19 @@ export function YouTubePreview({
 
         {/* Description */}
         {data.description && (
-          <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{data.description}</p>
+          <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
+            {data.description}
+          </p>
         )}
       </div>
 
       {/* YouTube branding */}
       <div className="absolute left-2 top-2 flex items-center gap-1 rounded bg-black/60 px-2 py-1 backdrop-blur-sm">
-        <svg className="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          className="h-4 w-4 text-red-500"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
         </svg>
         <span className="text-xs font-medium text-white">YouTube</span>
@@ -175,28 +192,28 @@ export function YouTubePreview({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // Helper to format relative time
 function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
 
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
-  const months = Math.floor(days / 30)
-  const years = Math.floor(days / 365)
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
 
-  if (years > 0) return `${years} year${years > 1 ? 's' : ''} ago`
-  if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`
-  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`
-  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
-  return 'just now'
+  if (years > 0) return `${years} year${years > 1 ? "s" : ""} ago`;
+  if (months > 0) return `${months} month${months > 1 ? "s" : ""} ago`;
+  if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
+  if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  return "just now";
 }
 
-export default YouTubePreview
+export default YouTubePreview;

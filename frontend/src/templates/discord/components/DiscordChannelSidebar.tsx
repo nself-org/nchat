@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Discord Channel Sidebar Component
@@ -9,9 +9,9 @@
 //
 // ===============================================================================
 
-import { useState, ReactNode } from 'react'
-import { cn } from '@/lib/utils'
-import { discordColors, discordLayout } from '../config'
+import { useState, ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { discordColors, discordLayout } from "../config";
 import {
   ChevronDown,
   ChevronRight,
@@ -23,49 +23,49 @@ import {
   MicOff,
   Headphones,
   VolumeX,
-} from 'lucide-react'
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface DiscordChannelSidebarProps {
-  serverName?: string
-  categories?: DiscordCategoryData[]
-  activeChannelId?: string
-  onChannelSelect?: (channelId: string) => void
-  currentUser?: DiscordCurrentUser
-  onMuteToggle?: () => void
-  onDeafenToggle?: () => void
-  onSettingsClick?: () => void
-  className?: string
+  serverName?: string;
+  categories?: DiscordCategoryData[];
+  activeChannelId?: string;
+  onChannelSelect?: (channelId: string) => void;
+  currentUser?: DiscordCurrentUser;
+  onMuteToggle?: () => void;
+  onDeafenToggle?: () => void;
+  onSettingsClick?: () => void;
+  className?: string;
 }
 
 export interface DiscordCategoryData {
-  id: string
-  name: string
-  channels: DiscordChannelData[]
-  isCollapsed?: boolean
+  id: string;
+  name: string;
+  channels: DiscordChannelData[];
+  isCollapsed?: boolean;
 }
 
 export interface DiscordChannelData {
-  id: string
-  name: string
-  type: 'text' | 'voice' | 'announcement' | 'stage' | 'forum'
-  unreadCount?: number
-  mentionCount?: number
-  isPrivate?: boolean
-  connectedUsers?: number
+  id: string;
+  name: string;
+  type: "text" | "voice" | "announcement" | "stage" | "forum";
+  unreadCount?: number;
+  mentionCount?: number;
+  isPrivate?: boolean;
+  connectedUsers?: number;
 }
 
 export interface DiscordCurrentUser {
-  id: string
-  name: string
-  discriminator?: string
-  avatar?: string
-  status: 'online' | 'idle' | 'dnd' | 'offline'
-  isMuted?: boolean
-  isDeafened?: boolean
+  id: string;
+  name: string;
+  discriminator?: string;
+  avatar?: string;
+  status: "online" | "idle" | "dnd" | "offline";
+  isMuted?: boolean;
+  isDeafened?: boolean;
 }
 
 // -------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ export interface DiscordCurrentUser {
 // -------------------------------------------------------------------------------
 
 export function DiscordChannelSidebar({
-  serverName = 'Server',
+  serverName = "Server",
   categories = [],
   activeChannelId,
   onChannelSelect,
@@ -83,23 +83,25 @@ export function DiscordChannelSidebar({
   onSettingsClick,
   className,
 }: DiscordChannelSidebarProps) {
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set())
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
+    new Set(),
+  );
 
   const toggleCategory = (categoryId: string) => {
     setCollapsedCategories((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(categoryId)) {
-        next.delete(categoryId)
+        next.delete(categoryId);
       } else {
-        next.add(categoryId)
+        next.add(categoryId);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   return (
     <div
-      className={cn('flex h-full flex-col', className)}
+      className={cn("flex h-full flex-col", className)}
       style={{ backgroundColor: discordColors.gray750 }}
     >
       {/* Server Header */}
@@ -135,7 +137,7 @@ export function DiscordChannelSidebar({
         />
       )}
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -149,11 +151,11 @@ function Category({
   activeChannelId,
   onChannelSelect,
 }: {
-  category: DiscordCategoryData
-  isCollapsed: boolean
-  onToggle: () => void
-  activeChannelId?: string
-  onChannelSelect?: (channelId: string) => void
+  category: DiscordCategoryData;
+  isCollapsed: boolean;
+  onToggle: () => void;
+  activeChannelId?: string;
+  onChannelSelect?: (channelId: string) => void;
 }) {
   return (
     <div className="mb-4">
@@ -162,7 +164,11 @@ function Category({
         onClick={onToggle}
         className="mb-1 flex w-full items-center gap-1 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400 transition-colors hover:text-gray-200"
       >
-        {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        {isCollapsed ? (
+          <ChevronRight className="h-3 w-3" />
+        ) : (
+          <ChevronDown className="h-3 w-3" />
+        )}
         <span>{category.name}</span>
         <button className="ml-auto rounded p-1 hover:bg-white/10">
           <Plus className="h-3 w-3" />
@@ -183,7 +189,7 @@ function Category({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function ChannelItem({
@@ -191,31 +197,33 @@ function ChannelItem({
   isActive,
   onClick,
 }: {
-  channel: DiscordChannelData
-  isActive: boolean
-  onClick: () => void
+  channel: DiscordChannelData;
+  isActive: boolean;
+  onClick: () => void;
 }) {
-  const hasUnread = (channel.unreadCount ?? 0) > 0
-  const hasMention = (channel.mentionCount ?? 0) > 0
-  const isVoice = channel.type === 'voice'
+  const hasUnread = (channel.unreadCount ?? 0) > 0;
+  const hasMention = (channel.mentionCount ?? 0) > 0;
+  const isVoice = channel.type === "voice";
 
-  const Icon = isVoice ? Volume2 : Hash
+  const Icon = isVoice ? Volume2 : Hash;
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-1.5 rounded px-2 py-1.5',
-        'text-sm transition-colors',
+        "flex w-full items-center gap-1.5 rounded px-2 py-1.5",
+        "text-sm transition-colors",
         isActive
-          ? 'bg-[#404249] text-white'
+          ? "bg-[#404249] text-white"
           : hasUnread
-            ? 'text-white hover:bg-[#35373C]'
-            : 'text-gray-400 hover:bg-[#35373C] hover:text-gray-200'
+            ? "text-white hover:bg-[#35373C]"
+            : "text-gray-400 hover:bg-[#35373C] hover:text-gray-200",
       )}
     >
       <Icon className="h-5 w-5 flex-shrink-0 opacity-60" />
-      <span className={cn('flex-1 truncate text-left', hasUnread && 'font-medium')}>
+      <span
+        className={cn("flex-1 truncate text-left", hasUnread && "font-medium")}
+      >
         {channel.name}
       </span>
 
@@ -234,7 +242,7 @@ function ChannelItem({
         </span>
       )}
     </button>
-  )
+  );
 }
 
 function UserPanel({
@@ -243,17 +251,17 @@ function UserPanel({
   onDeafenToggle,
   onSettingsClick,
 }: {
-  user: DiscordCurrentUser
-  onMuteToggle?: () => void
-  onDeafenToggle?: () => void
-  onSettingsClick?: () => void
+  user: DiscordCurrentUser;
+  onMuteToggle?: () => void;
+  onDeafenToggle?: () => void;
+  onSettingsClick?: () => void;
 }) {
   const statusColors = {
     online: discordColors.statusOnline,
     idle: discordColors.statusIdle,
     dnd: discordColors.statusDnd,
     offline: discordColors.statusOffline,
-  }
+  };
 
   return (
     <div
@@ -264,7 +272,11 @@ function UserPanel({
       <div className="relative">
         <div className="h-8 w-8 overflow-hidden rounded-full">
           {user.avatar ? (
-            <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div
               className="flex h-full w-full items-center justify-center font-medium text-white"
@@ -285,9 +297,11 @@ function UserPanel({
 
       {/* Name */}
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium text-white">{user.name}</div>
+        <div className="truncate text-sm font-medium text-white">
+          {user.name}
+        </div>
         <div className="truncate text-xs text-gray-400">
-          {user.discriminator ? `#${user.discriminator}` : 'Online'}
+          {user.discriminator ? `#${user.discriminator}` : "Online"}
         </div>
       </div>
 
@@ -296,20 +310,28 @@ function UserPanel({
         <button
           onClick={onMuteToggle}
           className={cn(
-            'rounded p-1.5 hover:bg-[#35373C]',
-            user.isMuted ? 'text-red-400' : 'text-gray-400'
+            "rounded p-1.5 hover:bg-[#35373C]",
+            user.isMuted ? "text-red-400" : "text-gray-400",
           )}
         >
-          {user.isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+          {user.isMuted ? (
+            <MicOff className="h-5 w-5" />
+          ) : (
+            <Mic className="h-5 w-5" />
+          )}
         </button>
         <button
           onClick={onDeafenToggle}
           className={cn(
-            'rounded p-1.5 hover:bg-[#35373C]',
-            user.isDeafened ? 'text-red-400' : 'text-gray-400'
+            "rounded p-1.5 hover:bg-[#35373C]",
+            user.isDeafened ? "text-red-400" : "text-gray-400",
           )}
         >
-          {user.isDeafened ? <VolumeX className="h-5 w-5" /> : <Headphones className="h-5 w-5" />}
+          {user.isDeafened ? (
+            <VolumeX className="h-5 w-5" />
+          ) : (
+            <Headphones className="h-5 w-5" />
+          )}
         </button>
         <button
           onClick={onSettingsClick}
@@ -319,7 +341,7 @@ function UserPanel({
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default DiscordChannelSidebar
+export default DiscordChannelSidebar;

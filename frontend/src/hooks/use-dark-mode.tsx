@@ -1,34 +1,34 @@
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback } from 'react'
-import { useLocalStorage } from './use-local-storage'
+import { useEffect, useState, useCallback } from "react";
+import { useLocalStorage } from "./use-local-storage";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type ColorScheme = 'light' | 'dark' | 'system'
+export type ColorScheme = "light" | "dark" | "system";
 
 export interface UseDarkModeOptions {
-  defaultValue?: ColorScheme
-  storageKey?: string
-  onChange?: (isDark: boolean) => void
+  defaultValue?: ColorScheme;
+  storageKey?: string;
+  onChange?: (isDark: boolean) => void;
 }
 
 export interface UseDarkModeReturn {
-  isDark: boolean
-  colorScheme: ColorScheme
-  setColorScheme: (scheme: ColorScheme) => void
-  toggle: () => void
-  systemPreference: 'light' | 'dark'
+  isDark: boolean;
+  colorScheme: ColorScheme;
+  setColorScheme: (scheme: ColorScheme) => void;
+  toggle: () => void;
+  systemPreference: "light" | "dark";
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const STORAGE_KEY = 'nchat-color-scheme'
-const MEDIA_QUERY = '(prefers-color-scheme: dark)'
+const STORAGE_KEY = "nchat-color-scheme";
+const MEDIA_QUERY = "(prefers-color-scheme: dark)";
 
 // ============================================================================
 // Hook
@@ -57,82 +57,95 @@ const MEDIA_QUERY = '(prefers-color-scheme: dark)'
  * <button onClick={() => setColorScheme('system')}>System</button>
  * ```
  */
-export function useDarkMode(options: UseDarkModeOptions = {}): UseDarkModeReturn {
-  const { defaultValue = 'system', storageKey = STORAGE_KEY, onChange } = options
+export function useDarkMode(
+  options: UseDarkModeOptions = {},
+): UseDarkModeReturn {
+  const {
+    defaultValue = "system",
+    storageKey = STORAGE_KEY,
+    onChange,
+  } = options;
 
   // Get system preference
-  const [systemPreference, setSystemPreference] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light'
-    return window.matchMedia(MEDIA_QUERY).matches ? 'dark' : 'light'
-  })
+  const [systemPreference, setSystemPreference] = useState<"light" | "dark">(
+    () => {
+      if (typeof window === "undefined") return "light";
+      return window.matchMedia(MEDIA_QUERY).matches ? "dark" : "light";
+    },
+  );
 
   // Get user preference (with localStorage)
-  const [colorScheme, setStoredColorScheme] = useLocalStorage<ColorScheme>(storageKey, defaultValue)
+  const [colorScheme, setStoredColorScheme] = useLocalStorage<ColorScheme>(
+    storageKey,
+    defaultValue,
+  );
 
   // Calculate effective dark mode state
-  const isDark = colorScheme === 'dark' || (colorScheme === 'system' && systemPreference === 'dark')
+  const isDark =
+    colorScheme === "dark" ||
+    (colorScheme === "system" && systemPreference === "dark");
 
   // Update color scheme
   const setColorScheme = useCallback(
     (scheme: ColorScheme) => {
-      setStoredColorScheme(scheme)
+      setStoredColorScheme(scheme);
     },
-    [setStoredColorScheme]
-  )
+    [setStoredColorScheme],
+  );
 
   // Toggle dark mode
   const toggle = useCallback(() => {
-    setColorScheme(isDark ? 'light' : 'dark')
-  }, [isDark, setColorScheme])
+    setColorScheme(isDark ? "light" : "dark");
+  }, [isDark, setColorScheme]);
 
   // Listen for system preference changes
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
-    const mediaQuery = window.matchMedia(MEDIA_QUERY)
+    const mediaQuery = window.matchMedia(MEDIA_QUERY);
 
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      setSystemPreference(e.matches ? 'dark' : 'light')
-    }
+      setSystemPreference(e.matches ? "dark" : "light");
+    };
 
     // Initial check
-    handleChange(mediaQuery)
+    handleChange(mediaQuery);
 
     // Add listener (supports both old and new API)
     if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange)
+      mediaQuery.addEventListener("change", handleChange);
     } else {
       // Fallback for older browsers
-      mediaQuery.addListener(handleChange)
+      mediaQuery.addListener(handleChange);
     }
 
     return () => {
       if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener('change', handleChange)
+        mediaQuery.removeEventListener("change", handleChange);
       } else {
-        mediaQuery.removeListener(handleChange)
+        mediaQuery.removeListener(handleChange);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Apply dark mode class to document
   useEffect(() => {
-    if (typeof document === 'undefined') return
+    if (typeof document === "undefined") return;
 
-    const root = document.documentElement
+    const root = document.documentElement;
 
     // Remove both classes first
-    root.classList.remove('light', 'dark')
+    root.classList.remove("light", "dark");
 
     // Add appropriate class
-    root.classList.add(isDark ? 'dark' : 'light')
+    root.classList.add(isDark ? "dark" : "light");
 
     // Update color-scheme CSS property for native browser elements
-    root.style.colorScheme = isDark ? 'dark' : 'light'
+    root.style.colorScheme = isDark ? "dark" : "light";
 
     // Call onChange callback
-    onChange?.(isDark)
-  }, [isDark, onChange])
+    onChange?.(isDark);
+  }, [isDark, onChange]);
 
   return {
     isDark,
@@ -140,24 +153,26 @@ export function useDarkMode(options: UseDarkModeOptions = {}): UseDarkModeReturn
     setColorScheme,
     toggle,
     systemPreference,
-  }
+  };
 }
 
 // ============================================================================
 // React Context Version (Optional)
 // ============================================================================
 
-import { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext, ReactNode } from "react";
 
 interface DarkModeContextValue extends UseDarkModeReturn {
   // Additional context-specific values can go here
 }
 
-const DarkModeContext = createContext<DarkModeContextValue | undefined>(undefined)
+const DarkModeContext = createContext<DarkModeContextValue | undefined>(
+  undefined,
+);
 
 export interface DarkModeProviderProps {
-  children: ReactNode
-  options?: UseDarkModeOptions
+  children: ReactNode;
+  options?: UseDarkModeOptions;
 }
 
 /**
@@ -165,9 +180,13 @@ export interface DarkModeProviderProps {
  * Wraps app with dark mode context
  */
 export function DarkModeProvider({ children, options }: DarkModeProviderProps) {
-  const darkMode = useDarkMode(options)
+  const darkMode = useDarkMode(options);
 
-  return <DarkModeContext.Provider value={darkMode}>{children}</DarkModeContext.Provider>
+  return (
+    <DarkModeContext.Provider value={darkMode}>
+      {children}
+    </DarkModeContext.Provider>
+  );
 }
 
 /**
@@ -175,9 +194,9 @@ export function DarkModeProvider({ children, options }: DarkModeProviderProps) {
  * Must be used within DarkModeProvider
  */
 export function useDarkModeContext(): DarkModeContextValue {
-  const context = useContext(DarkModeContext)
+  const context = useContext(DarkModeContext);
   if (!context) {
-    throw new Error('useDarkModeContext must be used within DarkModeProvider')
+    throw new Error("useDarkModeContext must be used within DarkModeProvider");
   }
-  return context
+  return context;
 }

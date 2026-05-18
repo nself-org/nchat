@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useMemo } from 'react'
-import { Search, X, Check, Loader2, UserPlus } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { useState, useMemo } from "react";
+import { Search, X, Check, Loader2, UserPlus } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -11,36 +11,36 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import type { DirectMessage } from '@/lib/dm/dm-types'
-import { canAddToGroup, canInviteToGroup } from '@/lib/dm'
-import { useDMStore } from '@/stores/dm-store'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import type { DirectMessage } from "@/lib/dm/dm-types";
+import { canAddToGroup, canInviteToGroup } from "@/lib/dm";
+import { useDMStore } from "@/stores/dm-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface User {
-  id: string
-  username: string
-  displayName: string
-  avatarUrl: string | null
-  status: string
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  status: string;
 }
 
 interface AddToGroupDMProps {
-  dm: DirectMessage
-  currentUserId: string
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onMembersAdded?: (userIds: string[]) => void
+  dm: DirectMessage;
+  currentUserId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onMembersAdded?: (userIds: string[]) => void;
 }
 
 // ============================================================================
@@ -54,91 +54,105 @@ export function AddToGroupDM({
   onOpenChange,
   onMembersAdded,
 }: AddToGroupDMProps) {
-  const { addParticipant } = useDMStore()
+  const { addParticipant } = useDMStore();
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Check if current user can invite
-  const canInvite = canInviteToGroup(dm, currentUserId)
+  const canInvite = canInviteToGroup(dm, currentUserId);
 
   // Get existing member IDs
-  const existingMemberIds = new Set(dm.participants.map((p) => p.userId))
+  const existingMemberIds = new Set(dm.participants.map((p) => p.userId));
 
   // Mock users (replace with actual user fetch)
   const mockUsers: User[] = [
     {
-      id: 'user-2',
-      username: 'alice',
-      displayName: 'Alice Johnson',
+      id: "user-2",
+      username: "alice",
+      displayName: "Alice Johnson",
       avatarUrl: null,
-      status: 'online',
-    },
-    { id: 'user-3', username: 'bob', displayName: 'Bob Smith', avatarUrl: null, status: 'away' },
-    {
-      id: 'user-4',
-      username: 'charlie',
-      displayName: 'Charlie Brown',
-      avatarUrl: null,
-      status: 'offline',
+      status: "online",
     },
     {
-      id: 'user-5',
-      username: 'diana',
-      displayName: 'Diana Prince',
+      id: "user-3",
+      username: "bob",
+      displayName: "Bob Smith",
       avatarUrl: null,
-      status: 'online',
-    },
-    { id: 'user-6', username: 'eve', displayName: 'Eve Wilson', avatarUrl: null, status: 'busy' },
-    {
-      id: 'user-7',
-      username: 'frank',
-      displayName: 'Frank Miller',
-      avatarUrl: null,
-      status: 'online',
+      status: "away",
     },
     {
-      id: 'user-8',
-      username: 'grace',
-      displayName: 'Grace Lee',
+      id: "user-4",
+      username: "charlie",
+      displayName: "Charlie Brown",
       avatarUrl: null,
-      status: 'offline',
+      status: "offline",
     },
-  ].filter((u) => !existingMemberIds.has(u.id))
+    {
+      id: "user-5",
+      username: "diana",
+      displayName: "Diana Prince",
+      avatarUrl: null,
+      status: "online",
+    },
+    {
+      id: "user-6",
+      username: "eve",
+      displayName: "Eve Wilson",
+      avatarUrl: null,
+      status: "busy",
+    },
+    {
+      id: "user-7",
+      username: "frank",
+      displayName: "Frank Miller",
+      avatarUrl: null,
+      status: "online",
+    },
+    {
+      id: "user-8",
+      username: "grace",
+      displayName: "Grace Lee",
+      avatarUrl: null,
+      status: "offline",
+    },
+  ].filter((u) => !existingMemberIds.has(u.id));
 
   const filteredUsers = useMemo(() => {
-    const query = searchQuery.toLowerCase().trim()
-    if (!query) return mockUsers
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return mockUsers;
     return mockUsers.filter(
       (user) =>
         user.displayName.toLowerCase().includes(query) ||
-        user.username.toLowerCase().includes(query)
-    )
-  }, [searchQuery, mockUsers])
+        user.username.toLowerCase().includes(query),
+    );
+  }, [searchQuery, mockUsers]);
 
-  const selectedUsers = mockUsers.filter((u) => selectedUserIds.includes(u.id))
+  const selectedUsers = mockUsers.filter((u) => selectedUserIds.includes(u.id));
 
   const handleClose = () => {
-    setSearchQuery('')
-    setSelectedUserIds([])
-    onOpenChange(false)
-  }
+    setSearchQuery("");
+    setSelectedUserIds([]);
+    onOpenChange(false);
+  };
 
   const toggleUserSelection = (userId: string) => {
     setSelectedUserIds((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
-    )
-  }
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId],
+    );
+  };
 
   const handleAdd = async () => {
-    if (selectedUserIds.length === 0) return
+    if (selectedUserIds.length === 0) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // Add each selected user to the group
       for (const userId of selectedUserIds) {
-        const user = mockUsers.find((u) => u.id === userId)
+        const user = mockUsers.find((u) => u.id === userId);
         if (user) {
           addParticipant(dm.id, {
             id: `p-${userId}`,
@@ -147,34 +161,34 @@ export function AddToGroupDM({
             joinedAt: new Date().toISOString(),
             lastReadAt: null,
             lastReadMessageId: null,
-            notificationSetting: 'all',
+            notificationSetting: "all",
             isMuted: false,
             mutedUntil: null,
-            role: 'member',
+            role: "member",
             user: {
               id: user.id,
               username: user.username,
               displayName: user.displayName,
               avatarUrl: user.avatarUrl,
-              status: user.status as 'online' | 'away' | 'busy' | 'offline',
+              status: user.status as "online" | "away" | "busy" | "offline",
               statusEmoji: null,
               lastSeenAt: null,
             },
-          })
+          });
         }
       }
 
-      onMembersAdded?.(selectedUserIds)
-      handleClose()
+      onMembersAdded?.(selectedUserIds);
+      handleClose();
     } catch (error) {
-      logger.error('Failed to add members:', error)
+      logger.error("Failed to add members:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!canInvite) {
-    return null
+    return null;
   }
 
   return (
@@ -182,7 +196,9 @@ export function AddToGroupDM({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Members</DialogTitle>
-          <DialogDescription>Add people to {dm.name || 'this group'}.</DialogDescription>
+          <DialogDescription>
+            Add people to {dm.name || "this group"}.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Selected Users */}
@@ -220,32 +236,40 @@ export function AddToGroupDM({
           <div className="space-y-1">
             {filteredUsers.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                {mockUsers.length === 0 ? 'No more people to add' : 'No users found'}
+                {mockUsers.length === 0
+                  ? "No more people to add"
+                  : "No users found"}
               </p>
             ) : (
               filteredUsers.map((user) => {
-                const isSelected = selectedUserIds.includes(user.id)
-                const addResult = canAddToGroup(dm, user.id)
+                const isSelected = selectedUserIds.includes(user.id);
+                const addResult = canAddToGroup(dm, user.id);
 
                 return (
                   <button
                     key={user.id}
-                    onClick={() => addResult.allowed && toggleUserSelection(user.id)}
+                    onClick={() =>
+                      addResult.allowed && toggleUserSelection(user.id)
+                    }
                     disabled={!addResult.allowed}
                     className={cn(
-                      'flex w-full items-center gap-3 rounded-md px-2 py-2 transition-colors',
-                      'hover:text-accent-foreground hover:bg-accent',
-                      'disabled:cursor-not-allowed disabled:opacity-50',
-                      isSelected && 'bg-accent'
+                      "flex w-full items-center gap-3 rounded-md px-2 py-2 transition-colors",
+                      "hover:text-accent-foreground hover:bg-accent",
+                      "disabled:cursor-not-allowed disabled:opacity-50",
+                      isSelected && "bg-accent",
                     )}
                   >
                     <Avatar className="h-9 w-9">
                       <AvatarImage src={user.avatarUrl || undefined} />
-                      <AvatarFallback>{user.displayName.charAt(0)}</AvatarFallback>
+                      <AvatarFallback>
+                        {user.displayName.charAt(0)}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 text-left">
                       <p className="text-sm font-medium">{user.displayName}</p>
-                      <p className="text-xs text-muted-foreground">@{user.username}</p>
+                      <p className="text-xs text-muted-foreground">
+                        @{user.username}
+                      </p>
                     </div>
                     {isSelected && (
                       <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary">
@@ -253,7 +277,7 @@ export function AddToGroupDM({
                       </div>
                     )}
                   </button>
-                )
+                );
               })
             )}
           </div>
@@ -263,7 +287,10 @@ export function AddToGroupDM({
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button onClick={handleAdd} disabled={selectedUserIds.length === 0 || isLoading}>
+          <Button
+            onClick={handleAdd}
+            disabled={selectedUserIds.length === 0 || isLoading}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -279,7 +306,7 @@ export function AddToGroupDM({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-AddToGroupDM.displayName = 'AddToGroupDM'
+AddToGroupDM.displayName = "AddToGroupDM";

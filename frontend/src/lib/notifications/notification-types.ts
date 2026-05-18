@@ -12,40 +12,53 @@
  * Types of notifications that can be sent
  */
 export type NotificationType =
-  | 'mention'
-  | 'direct_message'
-  | 'thread_reply'
-  | 'reaction'
-  | 'channel_invite'
-  | 'channel_update'
-  | 'system'
-  | 'announcement'
-  | 'keyword'
+  | "mention"
+  | "direct_message"
+  | "thread_reply"
+  | "reaction"
+  | "channel_invite"
+  | "channel_update"
+  | "system"
+  | "announcement"
+  | "keyword";
 
 /**
  * Priority levels for notifications
  */
-export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent'
+export type NotificationPriority = "low" | "normal" | "high" | "urgent";
 
 /**
  * Notification levels for channels
  */
-export type ChannelNotificationLevel = 'all' | 'mentions' | 'nothing' | 'custom'
+export type ChannelNotificationLevel =
+  | "all"
+  | "mentions"
+  | "nothing"
+  | "custom";
 
 /**
  * Email digest frequency options
  */
-export type EmailDigestFrequency = 'instant' | 'hourly' | 'daily' | 'weekly' | 'never'
+export type EmailDigestFrequency =
+  | "instant"
+  | "hourly"
+  | "daily"
+  | "weekly"
+  | "never";
 
 /**
  * Delivery methods for notifications
  */
-export type NotificationDeliveryMethod = 'desktop' | 'mobile' | 'email' | 'in_app'
+export type NotificationDeliveryMethod =
+  | "desktop"
+  | "mobile"
+  | "email"
+  | "in_app";
 
 /**
  * Day of week (0 = Sunday, 6 = Saturday)
  */
-export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
+export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 // ============================================================================
 // Quiet Hours / Do Not Disturb
@@ -56,9 +69,9 @@ export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
  */
 export interface TimeRange {
   /** Start time in HH:mm format */
-  startTime: string
+  startTime: string;
   /** End time in HH:mm format */
-  endTime: string
+  endTime: string;
 }
 
 /**
@@ -66,32 +79,32 @@ export interface TimeRange {
  */
 export interface QuietHoursSchedule {
   /** Whether quiet hours are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Start time in HH:mm format */
-  startTime: string
+  startTime: string;
   /** End time in HH:mm format */
-  endTime: string
+  endTime: string;
   /** Days of the week when quiet hours apply (0-6, Sunday-Saturday) */
-  days: DayOfWeek[]
+  days: DayOfWeek[];
   /** Whether to allow @mentions to break through quiet hours */
-  allowMentionsBreakthrough: boolean
+  allowMentionsBreakthrough: boolean;
   /** Whether to apply quiet hours on weekends */
-  enableOnWeekends: boolean
+  enableOnWeekends: boolean;
   /** Whether to automatically set status to DND during quiet hours */
-  autoSetStatus: boolean
+  autoSetStatus: boolean;
   /** Custom status message during quiet hours */
-  customStatusMessage?: string
+  customStatusMessage?: string;
   /** Timezone for the schedule */
-  timezone: string
+  timezone: string;
 }
 
 /**
  * Weekend-specific quiet hours settings
  */
 export interface WeekendQuietHours {
-  enabled: boolean
-  startTime: string
-  endTime: string
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
 }
 
 // ============================================================================
@@ -103,34 +116,34 @@ export interface WeekendQuietHours {
  */
 export interface NotificationSoundSettings {
   /** Whether sounds are enabled globally */
-  enabled: boolean
+  enabled: boolean;
   /** Global volume (0-100) */
-  volume: number
+  volume: number;
   /** Default notification sound identifier */
-  defaultSound: string
+  defaultSound: string;
   /** Sound for mentions */
-  mentionSound: string
+  mentionSound: string;
   /** Sound for direct messages */
-  dmSound: string
+  dmSound: string;
   /** Sound for thread replies */
-  threadSound: string
+  threadSound: string;
   /** Sound for reactions */
-  reactionSound: string
+  reactionSound: string;
   /** Whether to play sounds when window is focused */
-  playWhenFocused: boolean
+  playWhenFocused: boolean;
   /** Custom sound URL (user uploaded) */
-  customSoundUrl?: string
+  customSoundUrl?: string;
 }
 
 /**
  * Available notification sounds
  */
 export interface NotificationSound {
-  id: string
-  name: string
-  url: string
-  category: 'default' | 'custom' | 'system'
-  duration: number // in milliseconds
+  id: string;
+  name: string;
+  url: string;
+  category: "default" | "custom" | "system";
+  duration: number; // in milliseconds
 }
 
 // ============================================================================
@@ -141,33 +154,33 @@ export interface NotificationSound {
  * Keyword alert configuration
  */
 export interface KeywordNotification {
-  id: string
+  id: string;
   /** The keyword or phrase to match */
-  keyword: string
+  keyword: string;
   /** Whether matching is case-sensitive */
-  caseSensitive: boolean
+  caseSensitive: boolean;
   /** Whether to match whole words only */
-  wholeWord: boolean
+  wholeWord: boolean;
   /** Whether this keyword alert is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Highlight color for matched keywords */
-  highlightColor?: string
+  highlightColor?: string;
   /** Custom sound for this keyword */
-  soundId?: string
+  soundId?: string;
   /** Channels where this keyword is active (empty = all channels) */
-  channelIds: string[]
+  channelIds: string[];
   /** When this keyword was created */
-  createdAt: string
+  createdAt: string;
 }
 
 /**
  * Keyword match result
  */
 export interface KeywordMatch {
-  keyword: string
-  matchedText: string
-  position: number
-  length: number
+  keyword: string;
+  matchedText: string;
+  position: number;
+  length: number;
 }
 
 // ============================================================================
@@ -178,49 +191,49 @@ export interface KeywordMatch {
  * Per-channel notification settings
  */
 export interface ChannelNotificationSetting {
-  channelId: string
-  channelName?: string
-  channelType?: 'public' | 'private' | 'dm'
+  channelId: string;
+  channelName?: string;
+  channelType?: "public" | "private" | "dm";
   /** Notification level for this channel */
-  level: ChannelNotificationLevel
+  level: ChannelNotificationLevel;
   /** When channel is muted until (ISO date string, null = not muted) */
-  muteUntil?: string | null
+  muteUntil?: string | null;
   /** Whether to override global settings */
-  overrideGlobal: boolean
+  overrideGlobal: boolean;
   /** Custom sound for this channel */
-  customSound?: string
+  customSound?: string;
   /** Whether to show desktop notifications for this channel */
-  desktopEnabled?: boolean
+  desktopEnabled?: boolean;
   /** Whether to show mobile push for this channel */
-  mobileEnabled?: boolean
+  mobileEnabled?: boolean;
   /** Whether to show email notifications for this channel */
-  emailEnabled?: boolean
+  emailEnabled?: boolean;
   /** Custom keywords active in this channel */
-  activeKeywords?: string[]
+  activeKeywords?: string[];
 }
 
 /**
  * Mute duration options
  */
 export interface MuteDuration {
-  value: string
-  label: string
-  minutes: number
+  value: string;
+  label: string;
+  minutes: number;
 }
 
 /**
  * Predefined mute durations
  */
 export const MUTE_DURATIONS: MuteDuration[] = [
-  { value: '15m', label: '15 minutes', minutes: 15 },
-  { value: '1h', label: '1 hour', minutes: 60 },
-  { value: '2h', label: '2 hours', minutes: 120 },
-  { value: '4h', label: '4 hours', minutes: 240 },
-  { value: '8h', label: '8 hours', minutes: 480 },
-  { value: '24h', label: '24 hours', minutes: 1440 },
-  { value: '1w', label: '1 week', minutes: 10080 },
-  { value: 'forever', label: 'Until I turn it back on', minutes: Infinity },
-]
+  { value: "15m", label: "15 minutes", minutes: 15 },
+  { value: "1h", label: "1 hour", minutes: 60 },
+  { value: "2h", label: "2 hours", minutes: 120 },
+  { value: "4h", label: "4 hours", minutes: 240 },
+  { value: "8h", label: "8 hours", minutes: 480 },
+  { value: "24h", label: "24 hours", minutes: 1440 },
+  { value: "1w", label: "1 week", minutes: 10080 },
+  { value: "forever", label: "Until I turn it back on", minutes: Infinity },
+];
 
 // ============================================================================
 // DM-Specific Settings
@@ -231,23 +244,23 @@ export const MUTE_DURATIONS: MuteDuration[] = [
  */
 export interface DMNotificationSettings {
   /** Whether to receive DM notifications */
-  enabled: boolean
+  enabled: boolean;
   /** Whether to show desktop notifications for DMs */
-  desktop: boolean
+  desktop: boolean;
   /** Whether to show mobile push for DMs */
-  mobile: boolean
+  mobile: boolean;
   /** Whether to receive email notifications for DMs */
-  email: boolean
+  email: boolean;
   /** Whether to show message preview */
-  showPreview: boolean
+  showPreview: boolean;
   /** Whether to play sound for DMs */
-  playSound: boolean
+  playSound: boolean;
   /** Custom sound for DMs */
-  customSound?: string
+  customSound?: string;
   /** Whether to allow DMs during quiet hours */
-  allowDuringQuietHours: boolean
+  allowDuringQuietHours: boolean;
   /** Muted conversations */
-  mutedConversations: string[]
+  mutedConversations: string[];
 }
 
 // ============================================================================
@@ -259,29 +272,29 @@ export interface DMNotificationSettings {
  */
 export interface MentionSettings {
   /** Whether mention notifications are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Notify on @username mentions */
-  notifyOnUserMention: boolean
+  notifyOnUserMention: boolean;
   /** Notify on @here mentions */
-  notifyOnHere: boolean
+  notifyOnHere: boolean;
   /** Notify on @channel mentions */
-  notifyOnChannel: boolean
+  notifyOnChannel: boolean;
   /** Notify on @everyone mentions */
-  notifyOnEveryone: boolean
+  notifyOnEveryone: boolean;
   /** Whether to show desktop notification for mentions */
-  desktop: boolean
+  desktop: boolean;
   /** Whether to show mobile push for mentions */
-  mobile: boolean
+  mobile: boolean;
   /** Whether to send email for mentions */
-  email: boolean
+  email: boolean;
   /** Whether mentions can break through quiet hours */
-  breakThroughQuietHours: boolean
+  breakThroughQuietHours: boolean;
   /** Custom sound for mentions */
-  customSound?: string
+  customSound?: string;
   /** Highlight mentions in messages */
-  highlightInMessages: boolean
+  highlightInMessages: boolean;
   /** Badge mentions on channel */
-  showBadge: boolean
+  showBadge: boolean;
 }
 
 // ============================================================================
@@ -293,27 +306,27 @@ export interface MentionSettings {
  */
 export interface PushNotificationSettings {
   /** Whether push notifications are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Device token for push notifications */
-  deviceToken?: string
+  deviceToken?: string;
   /** Platform (ios, android, web) */
-  platform?: 'ios' | 'android' | 'web'
+  platform?: "ios" | "android" | "web";
   /** Device ID */
-  deviceId?: string
+  deviceId?: string;
   /** Whether to show message preview in push */
-  showPreview: boolean
+  showPreview: boolean;
   /** Whether to play sound */
-  playSound: boolean
+  playSound: boolean;
   /** Whether to vibrate */
-  vibrate: boolean
+  vibrate: boolean;
   /** LED color for Android */
-  ledColor?: string
+  ledColor?: string;
   /** Priority level */
-  priority: 'low' | 'normal' | 'high'
+  priority: "low" | "normal" | "high";
   /** Whether to group notifications */
-  groupNotifications: boolean
+  groupNotifications: boolean;
   /** Whether to show as heads-up notification */
-  headsUp: boolean
+  headsUp: boolean;
 }
 
 // ============================================================================
@@ -325,27 +338,27 @@ export interface PushNotificationSettings {
  */
 export interface DesktopNotificationSettings {
   /** Whether desktop notifications are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Browser permission status */
-  permission: NotificationPermission | 'default'
+  permission: NotificationPermission | "default";
   /** Whether to show message preview */
-  showPreview: boolean
+  showPreview: boolean;
   /** Whether to show sender avatar */
-  showAvatar: boolean
+  showAvatar: boolean;
   /** Whether to play sound */
-  playSound: boolean
+  playSound: boolean;
   /** Duration to show notification (ms, 0 = system default) */
-  duration: number
+  duration: number;
   /** Position on screen */
-  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   /** Whether to require user interaction to dismiss */
-  requireInteraction: boolean
+  requireInteraction: boolean;
   /** Whether to show even when window is focused */
-  showWhenFocused: boolean
+  showWhenFocused: boolean;
   /** Stack multiple notifications */
-  stackNotifications: boolean
+  stackNotifications: boolean;
   /** Maximum stacked notifications */
-  maxStacked: number
+  maxStacked: number;
 }
 
 // ============================================================================
@@ -357,25 +370,25 @@ export interface DesktopNotificationSettings {
  */
 export interface EmailNotificationSettings {
   /** Whether email notifications are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Email address for notifications */
-  email?: string
+  email?: string;
   /** Digest frequency */
-  digestFrequency: EmailDigestFrequency
+  digestFrequency: EmailDigestFrequency;
   /** Include activity summary in digest */
-  includeActivitySummary: boolean
+  includeActivitySummary: boolean;
   /** Include message previews */
-  includePreview: boolean
+  includePreview: boolean;
   /** Include unread count */
-  includeUnreadCount: boolean
+  includeUnreadCount: boolean;
   /** Notification types to include in email */
-  enabledTypes: NotificationType[]
+  enabledTypes: NotificationType[];
   /** Time to send daily/weekly digest (HH:mm) */
-  digestTime: string
+  digestTime: string;
   /** Day for weekly digest (0-6) */
-  weeklyDigestDay: DayOfWeek
+  weeklyDigestDay: DayOfWeek;
   /** Whether to send immediate email for urgent notifications */
-  urgentImmediate: boolean
+  urgentImmediate: boolean;
 }
 
 // ============================================================================
@@ -385,33 +398,39 @@ export interface EmailNotificationSettings {
 /**
  * Filter tab options
  */
-export type NotificationFilterTab = 'all' | 'mentions' | 'threads' | 'reactions' | 'dms' | 'unread'
+export type NotificationFilterTab =
+  | "all"
+  | "mentions"
+  | "threads"
+  | "reactions"
+  | "dms"
+  | "unread";
 
 /**
  * Notification filter configuration
  */
 export interface NotificationFilter {
-  id: string
-  name: string
-  description?: string
+  id: string;
+  name: string;
+  description?: string;
   /** Filter by notification types */
-  types?: NotificationType[]
+  types?: NotificationType[];
   /** Filter by channels */
-  channelIds?: string[]
+  channelIds?: string[];
   /** Filter by users */
-  userIds?: string[]
+  userIds?: string[];
   /** Filter by read status */
-  unreadOnly?: boolean
+  unreadOnly?: boolean;
   /** Filter by priority */
-  priorities?: NotificationPriority[]
+  priorities?: NotificationPriority[];
   /** Filter by date range */
   dateRange?: {
-    from?: string
-    to?: string
-  }
+    from?: string;
+    to?: string;
+  };
   /** Sort order */
-  sortBy?: 'date' | 'priority' | 'type'
-  sortDirection?: 'asc' | 'desc'
+  sortBy?: "date" | "priority" | "type";
+  sortDirection?: "asc" | "desc";
 }
 
 // ============================================================================
@@ -422,37 +441,37 @@ export interface NotificationFilter {
  * Notification history entry
  */
 export interface NotificationHistoryEntry {
-  id: string
-  type: NotificationType
-  priority: NotificationPriority
-  title: string
-  body: string
+  id: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  title: string;
+  body: string;
   actor?: {
-    id: string
-    name: string
-    avatarUrl?: string
-  }
-  channelId?: string
-  channelName?: string
-  messageId?: string
-  threadId?: string
-  isRead: boolean
-  isArchived: boolean
-  createdAt: string
-  readAt?: string
-  deliveredVia: NotificationDeliveryMethod[]
-  actionUrl?: string
-  metadata?: Record<string, unknown>
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  };
+  channelId?: string;
+  channelName?: string;
+  messageId?: string;
+  threadId?: string;
+  isRead: boolean;
+  isArchived: boolean;
+  createdAt: string;
+  readAt?: string;
+  deliveredVia: NotificationDeliveryMethod[];
+  actionUrl?: string;
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Notification history query options
  */
 export interface NotificationHistoryQueryOptions {
-  limit?: number
-  offset?: number
-  filter?: NotificationFilter
-  includeArchived?: boolean
+  limit?: number;
+  offset?: number;
+  filter?: NotificationFilter;
+  includeArchived?: boolean;
 }
 
 // ============================================================================
@@ -464,48 +483,48 @@ export interface NotificationHistoryQueryOptions {
  */
 export interface NotificationPreferences {
   // Global toggles
-  globalEnabled: boolean
+  globalEnabled: boolean;
 
   // Desktop settings
-  desktop: DesktopNotificationSettings
+  desktop: DesktopNotificationSettings;
 
   // Mobile push settings
-  push: PushNotificationSettings
+  push: PushNotificationSettings;
 
   // Email settings
-  email: EmailNotificationSettings
+  email: EmailNotificationSettings;
 
   // Sound settings
-  sound: NotificationSoundSettings
+  sound: NotificationSoundSettings;
 
   // Quiet hours
-  quietHours: QuietHoursSchedule
-  weekendQuietHours?: WeekendQuietHours
+  quietHours: QuietHoursSchedule;
+  weekendQuietHours?: WeekendQuietHours;
 
   // Type-specific settings
-  mentions: MentionSettings
-  directMessages: DMNotificationSettings
-  threadReplies: boolean
-  reactions: boolean
-  channelInvites: boolean
-  channelUpdates: boolean
-  announcements: boolean
+  mentions: MentionSettings;
+  directMessages: DMNotificationSettings;
+  threadReplies: boolean;
+  reactions: boolean;
+  channelInvites: boolean;
+  channelUpdates: boolean;
+  announcements: boolean;
 
   // Keywords
-  keywords: KeywordNotification[]
+  keywords: KeywordNotification[];
 
   // Per-channel settings
-  channelSettings: Record<string, ChannelNotificationSetting>
+  channelSettings: Record<string, ChannelNotificationSetting>;
 
   // Filters
-  savedFilters: NotificationFilter[]
+  savedFilters: NotificationFilter[];
 
   // Preview and display
-  showSenderName: boolean
-  showMessagePreview: boolean
+  showSenderName: boolean;
+  showMessagePreview: boolean;
 
   // Timestamps
-  lastUpdated: string
+  lastUpdated: string;
 }
 
 // ============================================================================
@@ -514,61 +533,61 @@ export interface NotificationPreferences {
 
 export const DEFAULT_QUIET_HOURS: QuietHoursSchedule = {
   enabled: false,
-  startTime: '22:00',
-  endTime: '08:00',
+  startTime: "22:00",
+  endTime: "08:00",
   days: [0, 1, 2, 3, 4, 5, 6] as DayOfWeek[],
   allowMentionsBreakthrough: true,
   enableOnWeekends: true,
   autoSetStatus: false,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-}
+};
 
 export const DEFAULT_SOUND_SETTINGS: NotificationSoundSettings = {
   enabled: true,
   volume: 80,
-  defaultSound: 'default',
-  mentionSound: 'mention',
-  dmSound: 'dm',
-  threadSound: 'thread',
-  reactionSound: 'reaction',
+  defaultSound: "default",
+  mentionSound: "mention",
+  dmSound: "dm",
+  threadSound: "thread",
+  reactionSound: "reaction",
   playWhenFocused: false,
-}
+};
 
 export const DEFAULT_DESKTOP_SETTINGS: DesktopNotificationSettings = {
   enabled: true,
-  permission: 'default',
+  permission: "default",
   showPreview: true,
   showAvatar: true,
   playSound: true,
   duration: 5000,
-  position: 'top-right',
+  position: "top-right",
   requireInteraction: false,
   showWhenFocused: false,
   stackNotifications: true,
   maxStacked: 5,
-}
+};
 
 export const DEFAULT_PUSH_SETTINGS: PushNotificationSettings = {
   enabled: true,
   showPreview: true,
   playSound: true,
   vibrate: true,
-  priority: 'normal',
+  priority: "normal",
   groupNotifications: true,
   headsUp: true,
-}
+};
 
 export const DEFAULT_EMAIL_SETTINGS: EmailNotificationSettings = {
   enabled: false,
-  digestFrequency: 'daily',
+  digestFrequency: "daily",
   includeActivitySummary: true,
   includePreview: true,
   includeUnreadCount: true,
-  enabledTypes: ['mention', 'direct_message'],
-  digestTime: '09:00',
+  enabledTypes: ["mention", "direct_message"],
+  digestTime: "09:00",
   weeklyDigestDay: 1,
   urgentImmediate: true,
-}
+};
 
 export const DEFAULT_MENTION_SETTINGS: MentionSettings = {
   enabled: true,
@@ -582,7 +601,7 @@ export const DEFAULT_MENTION_SETTINGS: MentionSettings = {
   breakThroughQuietHours: true,
   highlightInMessages: true,
   showBadge: true,
-}
+};
 
 export const DEFAULT_DM_SETTINGS: DMNotificationSettings = {
   enabled: true,
@@ -593,7 +612,7 @@ export const DEFAULT_DM_SETTINGS: DMNotificationSettings = {
   playSound: true,
   allowDuringQuietHours: false,
   mutedConversations: [],
-}
+};
 
 export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   globalEnabled: true,
@@ -615,4 +634,4 @@ export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   showSenderName: true,
   showMessagePreview: true,
   lastUpdated: new Date().toISOString(),
-}
+};

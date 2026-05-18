@@ -1,51 +1,58 @@
-import { MessageCircle, Users, Shield, Zap, Search, FileImage } from 'lucide-react'
-import { useAppConfig } from '@/contexts/app-config-context'
+import {
+  MessageCircle,
+  Users,
+  Shield,
+  Zap,
+  Search,
+  FileImage,
+} from "lucide-react";
+import { useAppConfig } from "@/contexts/app-config-context";
 
 export function FeaturesSection() {
-  const { config } = useAppConfig()
-  const { features } = config
+  const { config } = useAppConfig();
+  const { features } = config;
 
   const availableFeatures = [
     {
-      name: 'Real-time Messaging',
-      description: 'Instant messaging with typing indicators and read receipts',
+      name: "Real-time Messaging",
+      description: "Instant messaging with typing indicators and read receipts",
       icon: MessageCircle,
       enabled: true,
     },
     {
-      name: 'Public & Private Channels',
-      description: 'Organize conversations with public and private channels',
+      name: "Public & Private Channels",
+      description: "Organize conversations with public and private channels",
       icon: Users,
       enabled: features.publicChannels || features.privateChannels,
     },
     {
-      name: 'File Sharing',
-      description: 'Share documents, images, and files with your team',
+      name: "File Sharing",
+      description: "Share documents, images, and files with your team",
       icon: FileImage,
       enabled: features.fileUploads,
     },
     {
-      name: 'Message Threads',
-      description: 'Keep discussions organized with threaded conversations',
+      name: "Message Threads",
+      description: "Keep discussions organized with threaded conversations",
       icon: MessageCircle,
       enabled: features.threads,
     },
     {
-      name: 'Powerful Search',
-      description: 'Find messages, files, and conversations instantly',
+      name: "Powerful Search",
+      description: "Find messages, files, and conversations instantly",
       icon: Search,
       enabled: features.search,
     },
     {
-      name: 'Secure & Private',
-      description: 'Enterprise-grade security with role-based permissions',
+      name: "Secure & Private",
+      description: "Enterprise-grade security with role-based permissions",
       icon: Shield,
       enabled: true,
     },
-  ].filter((feature) => feature.enabled)
+  ].filter((feature) => feature.enabled);
 
   if (availableFeatures.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -56,7 +63,8 @@ export function FeaturesSection() {
             Everything you need to stay connected
           </h2>
           <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-            Powerful features designed to help teams communicate and collaborate effectively.
+            Powerful features designed to help teams communicate and collaborate
+            effectively.
           </p>
         </div>
 
@@ -65,7 +73,10 @@ export function FeaturesSection() {
             {availableFeatures.map((feature) => (
               <div key={feature.name} className="flex flex-col">
                 <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                  <feature.icon className="h-6 w-6 text-white" aria-hidden="true" />
+                  <feature.icon
+                    className="h-6 w-6 text-white"
+                    aria-hidden="true"
+                  />
                 </div>
                 <h3 className="text-lg font-semibold leading-8 tracking-tight text-gray-900 dark:text-white">
                   {feature.name}
@@ -79,5 +90,5 @@ export function FeaturesSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

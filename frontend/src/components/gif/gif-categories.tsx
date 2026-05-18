@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * GIF Categories Component
@@ -15,7 +15,7 @@
  * ```
  */
 
-import { memo, useCallback } from 'react'
+import { memo, useCallback } from "react";
 import {
   Smile,
   Film,
@@ -30,16 +30,19 @@ import {
   Sparkles,
   Star,
   Loader2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
-import type { GifCategory, GifCategoriesProps } from '@/types/gif'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { GifCategory, GifCategoriesProps } from "@/types/gif";
 
 // ============================================================================
 // Category Icons Mapping
 // ============================================================================
 
-const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const CATEGORY_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   reactions: Smile,
   entertainment: Film,
   sports: Trophy,
@@ -54,14 +57,16 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
   celebrities: Star,
   // Fallback
   default: Sparkles,
-}
+};
 
 /**
  * Get icon component for a category
  */
-function getCategoryIcon(categoryId: string): React.ComponentType<{ className?: string }> {
-  const normalizedId = categoryId.toLowerCase().replace(/[^a-z]/g, '')
-  return CATEGORY_ICONS[normalizedId] || CATEGORY_ICONS.default
+function getCategoryIcon(
+  categoryId: string,
+): React.ComponentType<{ className?: string }> {
+  const normalizedId = categoryId.toLowerCase().replace(/[^a-z]/g, "");
+  return CATEGORY_ICONS[normalizedId] || CATEGORY_ICONS.default;
 }
 
 // ============================================================================
@@ -69,26 +74,29 @@ function getCategoryIcon(categoryId: string): React.ComponentType<{ className?: 
 // ============================================================================
 
 interface CategoryCardProps {
-  category: GifCategory
-  onClick: (category: GifCategory) => void
+  category: GifCategory;
+  onClick: (category: GifCategory) => void;
 }
 
-const CategoryCard = memo(function CategoryCard({ category, onClick }: CategoryCardProps) {
-  const Icon = getCategoryIcon(category.id)
+const CategoryCard = memo(function CategoryCard({
+  category,
+  onClick,
+}: CategoryCardProps) {
+  const Icon = getCategoryIcon(category.id);
 
   const handleClick = useCallback(() => {
-    onClick(category)
-  }, [category, onClick])
+    onClick(category);
+  }, [category, onClick]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        onClick(category)
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onClick(category);
       }
     },
-    [category, onClick]
-  )
+    [category, onClick],
+  );
 
   return (
     <button
@@ -96,23 +104,23 @@ const CategoryCard = memo(function CategoryCard({ category, onClick }: CategoryC
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'relative flex flex-col items-center justify-center',
-        'rounded-xl p-3',
-        'bg-muted/30 hover:bg-muted/50',
-        'border border-transparent hover:border-border',
-        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
-        'transition-all duration-200',
-        'group cursor-pointer',
-        'min-h-[80px]'
+        "relative flex flex-col items-center justify-center",
+        "rounded-xl p-3",
+        "bg-muted/30 hover:bg-muted/50",
+        "border border-transparent hover:border-border",
+        "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+        "transition-all duration-200",
+        "group cursor-pointer",
+        "min-h-[80px]",
       )}
     >
       {/* Preview GIF (if available) */}
       {category.previewGif && (
         <div
           className={cn(
-            'absolute inset-0 overflow-hidden rounded-xl',
-            'opacity-0 group-hover:opacity-30',
-            'transition-opacity duration-300'
+            "absolute inset-0 overflow-hidden rounded-xl",
+            "opacity-0 group-hover:opacity-30",
+            "transition-opacity duration-300",
           )}
         >
           <img
@@ -127,10 +135,10 @@ const CategoryCard = memo(function CategoryCard({ category, onClick }: CategoryC
       {/* Icon */}
       <div
         className={cn(
-          'relative z-10',
-          'rounded-full p-2',
-          'bg-primary/10 group-hover:bg-primary/20',
-          'transition-colors duration-200'
+          "relative z-10",
+          "rounded-full p-2",
+          "bg-primary/10 group-hover:bg-primary/20",
+          "transition-colors duration-200",
         )}
       >
         <Icon className="h-5 w-5 text-primary" />
@@ -139,16 +147,16 @@ const CategoryCard = memo(function CategoryCard({ category, onClick }: CategoryC
       {/* Label */}
       <span
         className={cn(
-          'relative z-10 mt-2',
-          'text-xs font-medium text-foreground',
-          'max-w-full truncate px-1'
+          "relative z-10 mt-2",
+          "text-xs font-medium text-foreground",
+          "max-w-full truncate px-1",
         )}
       >
         {category.name}
       </span>
     </button>
-  )
-})
+  );
+});
 
 // ============================================================================
 // GIF Categories Grid
@@ -162,39 +170,48 @@ export const GifCategories = memo(function GifCategories({
 }: GifCategoriesProps) {
   const handleSelect = useCallback(
     (category: GifCategory) => {
-      onSelect(category)
+      onSelect(category);
     },
-    [onSelect]
-  )
+    [onSelect],
+  );
 
   // Loading state
   if (loading) {
     return (
-      <div className={cn('grid grid-cols-3 gap-2', className)}>
+      <div className={cn("grid grid-cols-3 gap-2", className)}>
         {Array.from({ length: 9 }).map((_, i) => (
           <CategoryCardSkeleton key={i} />
         ))}
       </div>
-    )
+    );
   }
 
   // Empty state
   if (categories.length === 0) {
     return (
-      <div className={cn('flex flex-col items-center justify-center py-8 text-center', className)}>
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center py-8 text-center",
+          className,
+        )}
+      >
         <p className="text-sm text-muted-foreground">No categories available</p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('grid grid-cols-3 gap-2', className)}>
+    <div className={cn("grid grid-cols-3 gap-2", className)}>
       {categories.map((category) => (
-        <CategoryCard key={category.id} category={category} onClick={handleSelect} />
+        <CategoryCard
+          key={category.id}
+          category={category}
+          onClick={handleSelect}
+        />
       ))}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Category Card Skeleton
@@ -204,16 +221,16 @@ function CategoryCardSkeleton() {
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center',
-        'rounded-xl p-3',
-        'bg-muted/30',
-        'min-h-[80px]'
+        "flex flex-col items-center justify-center",
+        "rounded-xl p-3",
+        "bg-muted/30",
+        "min-h-[80px]",
       )}
     >
       <Skeleton className="h-9 w-9 rounded-full" />
       <Skeleton className="mt-2 h-3 w-16 rounded" />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -221,10 +238,10 @@ function CategoryCardSkeleton() {
 // ============================================================================
 
 export interface GifCategoryPillsProps {
-  categories: GifCategory[]
-  selectedCategory?: string | null
-  onSelect: (category: GifCategory) => void
-  className?: string
+  categories: GifCategory[];
+  selectedCategory?: string | null;
+  onSelect: (category: GifCategory) => void;
+  className?: string;
 }
 
 export const GifCategoryPills = memo(function GifCategoryPills({
@@ -236,65 +253,70 @@ export const GifCategoryPills = memo(function GifCategoryPills({
   return (
     <div
       className={cn(
-        'flex items-center gap-1.5 overflow-x-auto',
-        '-mx-1 px-1 py-1',
-        'scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent',
-        className
+        "flex items-center gap-1.5 overflow-x-auto",
+        "-mx-1 px-1 py-1",
+        "scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent",
+        className,
       )}
     >
       {categories.slice(0, 10).map((category) => {
-        const isSelected = selectedCategory === category.id
+        const isSelected = selectedCategory === category.id;
         return (
           <button
             key={category.id}
             type="button"
             onClick={() => onSelect(category)}
             className={cn(
-              'flex-shrink-0 rounded-full px-3 py-1.5',
-              'whitespace-nowrap text-xs font-medium',
-              'transition-colors duration-200',
-              'focus:outline-none focus:ring-2 focus:ring-ring',
+              "flex-shrink-0 rounded-full px-3 py-1.5",
+              "whitespace-nowrap text-xs font-medium",
+              "transition-colors duration-200",
+              "focus:outline-none focus:ring-2 focus:ring-ring",
               isSelected
-                ? 'text-primary-foreground bg-primary'
-                : 'bg-muted/50 text-foreground hover:bg-muted'
+                ? "text-primary-foreground bg-primary"
+                : "bg-muted/50 text-foreground hover:bg-muted",
             )}
           >
             {category.name}
           </button>
-        )
+        );
       })}
     </div>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Popular Categories (Static list for quick access)
 // ============================================================================
 
 export interface PopularCategoriesProps {
-  onSelect: (query: string) => void
-  className?: string
+  onSelect: (query: string) => void;
+  className?: string;
 }
 
 const POPULAR_SEARCHES = [
-  { emoji: '👋', label: 'Hello', query: 'hello wave' },
-  { emoji: '😂', label: 'Funny', query: 'funny laugh' },
-  { emoji: '👍', label: 'Thumbs Up', query: 'thumbs up' },
-  { emoji: '🎉', label: 'Celebrate', query: 'celebrate party' },
-  { emoji: '😭', label: 'Crying', query: 'crying sad' },
-  { emoji: '🔥', label: 'Fire', query: 'fire hot' },
-  { emoji: '😍', label: 'Love', query: 'love heart' },
-  { emoji: '👏', label: 'Clap', query: 'clapping applause' },
-  { emoji: '🤔', label: 'Thinking', query: 'thinking hmm' },
-  { emoji: '🙄', label: 'Eye Roll', query: 'eye roll annoyed' },
-  { emoji: '💪', label: 'Strong', query: 'strong muscles' },
-  { emoji: '🤦', label: 'Facepalm', query: 'facepalm' },
-]
+  { emoji: "👋", label: "Hello", query: "hello wave" },
+  { emoji: "😂", label: "Funny", query: "funny laugh" },
+  { emoji: "👍", label: "Thumbs Up", query: "thumbs up" },
+  { emoji: "🎉", label: "Celebrate", query: "celebrate party" },
+  { emoji: "😭", label: "Crying", query: "crying sad" },
+  { emoji: "🔥", label: "Fire", query: "fire hot" },
+  { emoji: "😍", label: "Love", query: "love heart" },
+  { emoji: "👏", label: "Clap", query: "clapping applause" },
+  { emoji: "🤔", label: "Thinking", query: "thinking hmm" },
+  { emoji: "🙄", label: "Eye Roll", query: "eye roll annoyed" },
+  { emoji: "💪", label: "Strong", query: "strong muscles" },
+  { emoji: "🤦", label: "Facepalm", query: "facepalm" },
+];
 
-export function PopularCategories({ onSelect, className }: PopularCategoriesProps) {
+export function PopularCategories({
+  onSelect,
+  className,
+}: PopularCategoriesProps) {
   return (
-    <div className={cn('space-y-2', className)}>
-      <span className="px-1 text-xs font-medium text-muted-foreground">Popular Searches</span>
+    <div className={cn("space-y-2", className)}>
+      <span className="px-1 text-xs font-medium text-muted-foreground">
+        Popular Searches
+      </span>
       <div className="grid grid-cols-4 gap-1.5">
         {POPULAR_SEARCHES.map((item) => (
           <button
@@ -302,11 +324,11 @@ export function PopularCategories({ onSelect, className }: PopularCategoriesProp
             type="button"
             onClick={() => onSelect(item.query)}
             className={cn(
-              'flex flex-col items-center justify-center',
-              'rounded-lg p-2',
-              'bg-muted/30 hover:bg-muted/50',
-              'transition-colors duration-200',
-              'focus:outline-none focus:ring-2 focus:ring-ring'
+              "flex flex-col items-center justify-center",
+              "rounded-lg p-2",
+              "bg-muted/30 hover:bg-muted/50",
+              "transition-colors duration-200",
+              "focus:outline-none focus:ring-2 focus:ring-ring",
             )}
           >
             <span className="text-lg">{item.emoji}</span>
@@ -317,7 +339,7 @@ export function PopularCategories({ onSelect, className }: PopularCategoriesProp
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export default GifCategories
+export default GifCategories;

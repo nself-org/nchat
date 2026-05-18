@@ -8,7 +8,7 @@
  */
 
 // Token Gate Types
-export * from './token-gate-types'
+export * from "./token-gate-types";
 
 // Token Gate Verifier
 export {
@@ -41,4 +41,4 @@ export {
   decodeUint256,
   decodeString,
   rpcCall,
-} from './token-gate-verifier'
+} from "./token-gate-verifier";

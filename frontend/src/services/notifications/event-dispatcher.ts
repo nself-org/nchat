@@ -9,9 +9,12 @@ import {
   ChatNotificationEvent,
   NotificationChannel,
   SendNotificationResponse,
-} from '@/types/notifications'
-import { getNotificationService, NotificationService } from './notification.service'
-import { getPreferenceService, PreferenceService } from './preference.service'
+} from "@/types/notifications";
+import {
+  getNotificationService,
+  NotificationService,
+} from "./notification.service";
+import { getPreferenceService, PreferenceService } from "./preference.service";
 
 // =============================================================================
 // Types
@@ -21,38 +24,43 @@ export interface EventDispatcherOptions {
   /**
    * Notification service instance (optional, will create default if not provided)
    */
-  notificationService?: NotificationService
+  notificationService?: NotificationService;
 
   /**
    * Preference service instance (optional, will create default if not provided)
    */
-  preferenceService?: PreferenceService
+  preferenceService?: PreferenceService;
 
   /**
    * Whether to check user preferences before sending
    */
-  checkPreferences?: boolean
+  checkPreferences?: boolean;
 
   /**
    * Callback when a notification is sent
    */
-  onNotificationSent?: (event: ChatNotificationEvent, results: SendNotificationResponse[]) => void
+  onNotificationSent?: (
+    event: ChatNotificationEvent,
+    results: SendNotificationResponse[],
+  ) => void;
 
   /**
    * Callback when an error occurs
    */
-  onError?: (event: ChatNotificationEvent, error: Error) => void
+  onError?: (event: ChatNotificationEvent, error: Error) => void;
 
   /**
    * Whether to enable debug logging
    */
-  debug?: boolean
+  debug?: boolean;
 }
 
-export type EventHandler = (event: ChatNotificationEvent) => Promise<void> | void
+export type EventHandler = (
+  event: ChatNotificationEvent,
+) => Promise<void> | void;
 
 export interface EventSubscription {
-  unsubscribe: () => void
+  unsubscribe: () => void;
 }
 
 // =============================================================================
@@ -60,35 +68,39 @@ export interface EventSubscription {
 // =============================================================================
 
 export class NotificationEventDispatcher {
-  private notificationService: NotificationService
-  private preferenceService: PreferenceService
-  private options: EventDispatcherOptions
-  private eventHandlers: Map<ChatEventType, Set<EventHandler>> = new Map()
-  private globalHandlers: Set<EventHandler> = new Set()
-  private isProcessing = false
-  private eventQueue: ChatNotificationEvent[] = []
+  private notificationService: NotificationService;
+  private preferenceService: PreferenceService;
+  private options: EventDispatcherOptions;
+  private eventHandlers: Map<ChatEventType, Set<EventHandler>> = new Map();
+  private globalHandlers: Set<EventHandler> = new Set();
+  private isProcessing = false;
+  private eventQueue: ChatNotificationEvent[] = [];
 
   constructor(options: EventDispatcherOptions = {}) {
-    this.options = options
-    this.notificationService = options.notificationService || getNotificationService()
-    this.preferenceService = options.preferenceService || getPreferenceService()
+    this.options = options;
+    this.notificationService =
+      options.notificationService || getNotificationService();
+    this.preferenceService =
+      options.preferenceService || getPreferenceService();
   }
 
   /**
    * Dispatch a chat event to send notifications
    */
-  async dispatch(event: ChatNotificationEvent): Promise<SendNotificationResponse[]> {
+  async dispatch(
+    event: ChatNotificationEvent,
+  ): Promise<SendNotificationResponse[]> {
     try {
-      this.log(`Dispatching event: ${event.type}`, event)
+      this.log(`Dispatching event: ${event.type}`, event);
 
       // Add to queue and process
-      this.eventQueue.push(event)
-      return await this.processQueue(event)
+      this.eventQueue.push(event);
+      return await this.processQueue(event);
     } catch (error) {
-      const err = error instanceof Error ? error : new Error('Unknown error')
-      this.options.onError?.(event, err)
-      this.log(`Error dispatching event: ${err.message}`)
-      return [{ success: false, error: err.message }]
+      const err = error instanceof Error ? error : new Error("Unknown error");
+      this.options.onError?.(event, err);
+      this.log(`Error dispatching event: ${err.message}`);
+      return [{ success: false, error: err.message }];
     }
   }
 
@@ -96,89 +108,92 @@ export class NotificationEventDispatcher {
    * Process the event queue
    */
   private async processQueue(
-    currentEvent: ChatNotificationEvent
+    currentEvent: ChatNotificationEvent,
   ): Promise<SendNotificationResponse[]> {
     // Prevent concurrent processing
     if (this.isProcessing) {
-      return [{ success: true, message: 'Event queued' }]
+      return [{ success: true, message: "Event queued" }];
     }
 
-    this.isProcessing = true
-    const results: SendNotificationResponse[] = []
+    this.isProcessing = true;
+    const results: SendNotificationResponse[] = [];
 
     try {
       while (this.eventQueue.length > 0) {
-        const event = this.eventQueue.shift()
-        if (!event) continue
+        const event = this.eventQueue.shift();
+        if (!event) continue;
 
         // Call event-specific handlers
-        const handlers = this.eventHandlers.get(event.type)
+        const handlers = this.eventHandlers.get(event.type);
         if (handlers) {
           for (const handler of handlers) {
-            await handler(event)
+            await handler(event);
           }
         }
 
         // Call global handlers
         for (const handler of this.globalHandlers) {
-          await handler(event)
+          await handler(event);
         }
 
         // Check preferences if enabled
         if (this.options.checkPreferences !== false) {
-          const canReceive = await this.checkUserPreferences(event)
+          const canReceive = await this.checkUserPreferences(event);
           if (!canReceive) {
-            this.log(`User opted out of ${event.type} notifications`)
-            continue
+            this.log(`User opted out of ${event.type} notifications`);
+            continue;
           }
         }
 
         // Send notifications via notification service
-        const notificationResults = await this.notificationService.processChatEvent(event)
-        results.push(...notificationResults)
+        const notificationResults =
+          await this.notificationService.processChatEvent(event);
+        results.push(...notificationResults);
 
         // Notify callback
         if (event === currentEvent) {
-          this.options.onNotificationSent?.(event, notificationResults)
+          this.options.onNotificationSent?.(event, notificationResults);
         }
       }
     } finally {
-      this.isProcessing = false
+      this.isProcessing = false;
     }
 
-    return results
+    return results;
   }
 
   /**
    * Check if user preferences allow this notification
    */
-  private async checkUserPreferences(event: ChatNotificationEvent): Promise<boolean> {
+  private async checkUserPreferences(
+    event: ChatNotificationEvent,
+  ): Promise<boolean> {
     try {
       // Get the notification category for this event type
-      const category = this.getEventCategory(event.type)
+      const category = this.getEventCategory(event.type);
 
       // Check push preferences (most common channel)
       const canReceivePush = await this.preferenceService.canReceive(
         event.target.user_id,
-        'push',
-        category
-      )
+        "push",
+        category,
+      );
 
       if (canReceivePush) {
-        return true
+        return true;
       }
 
       // Check email preferences as fallback
       const canReceiveEmail = await this.preferenceService.canReceive(
         event.target.user_id,
-        'email',
-        category
-      )
+        "email",
+        category,
+      );
 
-      return canReceiveEmail
+      return canReceiveEmail;
     } catch (error) {
       // On error, allow the notification (preferences service handles defaults)
-      return true
+      return true;
     }
   }
 
@@ -186,22 +201,25 @@ export class NotificationEventDispatcher {
    * Get notification category for event type
    */
   private getEventCategory(
-    eventType: ChatEventType
-  ): 'transactional' | 'marketing' | 'system' | 'alert' {
-    const categoryMap: Record<ChatEventType, 'transactional' | 'marketing' | 'system' | 'alert'> = {
-      'message.new': 'transactional',
-      'message.mention': 'transactional',
-      'message.reaction': 'transactional',
-      'thread.reply': 'transactional',
-      'dm.new': 'transactional',
-      'channel.invite': 'transactional',
-      'channel.join': 'system',
-      'channel.leave': 'system',
-      'reminder.due': 'alert',
-      'announcement.new': 'system',
-    }
+    eventType: ChatEventType,
+  ): "transactional" | "marketing" | "system" | "alert" {
+    const categoryMap: Record<
+      ChatEventType,
+      "transactional" | "marketing" | "system" | "alert"
+    > = {
+      "message.new": "transactional",
+      "message.mention": "transactional",
+      "message.reaction": "transactional",
+      "thread.reply": "transactional",
+      "dm.new": "transactional",
+      "channel.invite": "transactional",
+      "channel.join": "system",
+      "channel.leave": "system",
+      "reminder.due": "alert",
+      "announcement.new": "system",
+    };
 
-    return categoryMap[eventType] || 'transactional'
+    return categoryMap[eventType] || "transactional";
   }
 
   /**
@@ -209,43 +227,43 @@ export class NotificationEventDispatcher {
    */
   on(eventType: ChatEventType, handler: EventHandler): EventSubscription {
     if (!this.eventHandlers.has(eventType)) {
-      this.eventHandlers.set(eventType, new Set())
+      this.eventHandlers.set(eventType, new Set());
     }
-    this.eventHandlers.get(eventType)!.add(handler)
+    this.eventHandlers.get(eventType)!.add(handler);
 
     return {
       unsubscribe: () => {
-        this.eventHandlers.get(eventType)?.delete(handler)
+        this.eventHandlers.get(eventType)?.delete(handler);
       },
-    }
+    };
   }
 
   /**
    * Subscribe to all events
    */
   onAll(handler: EventHandler): EventSubscription {
-    this.globalHandlers.add(handler)
+    this.globalHandlers.add(handler);
 
     return {
       unsubscribe: () => {
-        this.globalHandlers.delete(handler)
+        this.globalHandlers.delete(handler);
       },
-    }
+    };
   }
 
   /**
    * Remove all handlers for an event type
    */
   off(eventType: ChatEventType): void {
-    this.eventHandlers.delete(eventType)
+    this.eventHandlers.delete(eventType);
   }
 
   /**
    * Remove all handlers
    */
   offAll(): void {
-    this.eventHandlers.clear()
-    this.globalHandlers.clear()
+    this.eventHandlers.clear();
+    this.globalHandlers.clear();
   }
 
   // ==========================================================================
@@ -256,20 +274,20 @@ export class NotificationEventDispatcher {
    * Dispatch new message notification
    */
   async notifyNewMessage(options: {
-    actorId: string
-    actorName: string
-    actorAvatar?: string
-    targetUserId: string
-    targetEmail?: string
-    targetPushToken?: string
-    channelId: string
-    channelName: string
-    messageId: string
-    messagePreview: string
-    actionUrl: string
+    actorId: string;
+    actorName: string;
+    actorAvatar?: string;
+    targetUserId: string;
+    targetEmail?: string;
+    targetPushToken?: string;
+    channelId: string;
+    channelName: string;
+    messageId: string;
+    messagePreview: string;
+    actionUrl: string;
   }): Promise<SendNotificationResponse[]> {
     return this.dispatch({
-      type: 'message.new',
+      type: "message.new",
       timestamp: new Date().toISOString(),
       actor: {
         id: options.actorId,
@@ -288,27 +306,27 @@ export class NotificationEventDispatcher {
         message_preview: options.messagePreview,
         action_url: options.actionUrl,
       },
-    })
+    });
   }
 
   /**
    * Dispatch mention notification
    */
   async notifyMention(options: {
-    actorId: string
-    actorName: string
-    actorAvatar?: string
-    targetUserId: string
-    targetEmail?: string
-    targetPushToken?: string
-    channelId: string
-    channelName: string
-    messageId: string
-    messagePreview: string
-    actionUrl: string
+    actorId: string;
+    actorName: string;
+    actorAvatar?: string;
+    targetUserId: string;
+    targetEmail?: string;
+    targetPushToken?: string;
+    channelId: string;
+    channelName: string;
+    messageId: string;
+    messagePreview: string;
+    actionUrl: string;
   }): Promise<SendNotificationResponse[]> {
     return this.dispatch({
-      type: 'message.mention',
+      type: "message.mention",
       timestamp: new Date().toISOString(),
       actor: {
         id: options.actorId,
@@ -327,28 +345,28 @@ export class NotificationEventDispatcher {
         message_preview: options.messagePreview,
         action_url: options.actionUrl,
       },
-    })
+    });
   }
 
   /**
    * Dispatch thread reply notification
    */
   async notifyThreadReply(options: {
-    actorId: string
-    actorName: string
-    actorAvatar?: string
-    targetUserId: string
-    targetEmail?: string
-    targetPushToken?: string
-    channelId: string
-    channelName: string
-    threadId: string
-    messageId: string
-    messagePreview: string
-    actionUrl: string
+    actorId: string;
+    actorName: string;
+    actorAvatar?: string;
+    targetUserId: string;
+    targetEmail?: string;
+    targetPushToken?: string;
+    channelId: string;
+    channelName: string;
+    threadId: string;
+    messageId: string;
+    messagePreview: string;
+    actionUrl: string;
   }): Promise<SendNotificationResponse[]> {
     return this.dispatch({
-      type: 'thread.reply',
+      type: "thread.reply",
       timestamp: new Date().toISOString(),
       actor: {
         id: options.actorId,
@@ -368,25 +386,25 @@ export class NotificationEventDispatcher {
         message_preview: options.messagePreview,
         action_url: options.actionUrl,
       },
-    })
+    });
   }
 
   /**
    * Dispatch direct message notification
    */
   async notifyDirectMessage(options: {
-    actorId: string
-    actorName: string
-    actorAvatar?: string
-    targetUserId: string
-    targetEmail?: string
-    targetPushToken?: string
-    messageId: string
-    messagePreview: string
-    actionUrl: string
+    actorId: string;
+    actorName: string;
+    actorAvatar?: string;
+    targetUserId: string;
+    targetEmail?: string;
+    targetPushToken?: string;
+    messageId: string;
+    messagePreview: string;
+    actionUrl: string;
   }): Promise<SendNotificationResponse[]> {
     return this.dispatch({
-      type: 'dm.new',
+      type: "dm.new",
       timestamp: new Date().toISOString(),
       actor: {
         id: options.actorId,
@@ -403,25 +421,25 @@ export class NotificationEventDispatcher {
         message_preview: options.messagePreview,
         action_url: options.actionUrl,
       },
-    })
+    });
   }
 
   /**
    * Dispatch channel invite notification
    */
   async notifyChannelInvite(options: {
-    actorId: string
-    actorName: string
-    actorAvatar?: string
-    targetUserId: string
-    targetEmail?: string
-    targetPushToken?: string
-    channelId: string
-    channelName: string
-    actionUrl: string
+    actorId: string;
+    actorName: string;
+    actorAvatar?: string;
+    targetUserId: string;
+    targetEmail?: string;
+    targetPushToken?: string;
+    channelId: string;
+    channelName: string;
+    actionUrl: string;
   }): Promise<SendNotificationResponse[]> {
     return this.dispatch({
-      type: 'channel.invite',
+      type: "channel.invite",
       timestamp: new Date().toISOString(),
       actor: {
         id: options.actorId,
@@ -438,26 +456,26 @@ export class NotificationEventDispatcher {
         channel_name: options.channelName,
         action_url: options.actionUrl,
       },
-    })
+    });
   }
 
   /**
    * Dispatch reminder notification
    */
   async notifyReminder(options: {
-    targetUserId: string
-    targetEmail?: string
-    targetPushToken?: string
-    reminderTitle: string
-    reminderDescription?: string
-    actionUrl: string
+    targetUserId: string;
+    targetEmail?: string;
+    targetPushToken?: string;
+    reminderTitle: string;
+    reminderDescription?: string;
+    actionUrl: string;
   }): Promise<SendNotificationResponse[]> {
     return this.dispatch({
-      type: 'reminder.due',
+      type: "reminder.due",
       timestamp: new Date().toISOString(),
       actor: {
-        id: 'system',
-        name: 'Reminder',
+        id: "system",
+        name: "Reminder",
       },
       target: {
         user_id: options.targetUserId,
@@ -469,7 +487,7 @@ export class NotificationEventDispatcher {
         reminder_description: options.reminderDescription,
         action_url: options.actionUrl,
       },
-    })
+    });
   }
 
   /**
@@ -486,18 +504,18 @@ export class NotificationEventDispatcher {
 // Singleton Instance
 // =============================================================================
 
-let eventDispatcherInstance: NotificationEventDispatcher | null = null
+let eventDispatcherInstance: NotificationEventDispatcher | null = null;
 
 export function getNotificationEventDispatcher(
-  options?: EventDispatcherOptions
+  options?: EventDispatcherOptions,
 ): NotificationEventDispatcher {
   if (!eventDispatcherInstance) {
-    eventDispatcherInstance = new NotificationEventDispatcher(options)
+    eventDispatcherInstance = new NotificationEventDispatcher(options);
   }
-  return eventDispatcherInstance
+  return eventDispatcherInstance;
 }
 
 export function resetNotificationEventDispatcher(): void {
-  eventDispatcherInstance?.offAll()
-  eventDispatcherInstance = null
+  eventDispatcherInstance?.offAll();
+  eventDispatcherInstance = null;
 }

@@ -9,67 +9,74 @@
 // Types
 // =============================================================================
 
-export type AnnotationTool = 'pen' | 'arrow' | 'line' | 'rectangle' | 'circle' | 'text' | 'eraser'
+export type AnnotationTool =
+  | "pen"
+  | "arrow"
+  | "line"
+  | "rectangle"
+  | "circle"
+  | "text"
+  | "eraser";
 
-export type AnnotationColor = string
+export type AnnotationColor = string;
 
 export interface Point {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 export interface AnnotationBase {
-  id: string
-  tool: AnnotationTool
-  color: AnnotationColor
-  strokeWidth: number
-  userId: string
-  userName: string
-  createdAt: number
+  id: string;
+  tool: AnnotationTool;
+  color: AnnotationColor;
+  strokeWidth: number;
+  userId: string;
+  userName: string;
+  createdAt: number;
 }
 
 export interface PenAnnotation extends AnnotationBase {
-  tool: 'pen'
-  points: Point[]
+  tool: "pen";
+  points: Point[];
 }
 
 export interface ArrowAnnotation extends AnnotationBase {
-  tool: 'arrow'
-  start: Point
-  end: Point
+  tool: "arrow";
+  start: Point;
+  end: Point;
 }
 
 export interface LineAnnotation extends AnnotationBase {
-  tool: 'line'
-  start: Point
-  end: Point
+  tool: "line";
+  start: Point;
+  end: Point;
 }
 
 export interface RectangleAnnotation extends AnnotationBase {
-  tool: 'rectangle'
-  start: Point
-  end: Point
-  filled: boolean
+  tool: "rectangle";
+  start: Point;
+  end: Point;
+  filled: boolean;
 }
 
 export interface CircleAnnotation extends AnnotationBase {
-  tool: 'circle'
-  center: Point
-  radius: number
-  filled: boolean
+  tool: "circle";
+  center: Point;
+  radius: number;
+  filled: boolean;
 }
 
 export interface TextAnnotation extends AnnotationBase {
-  tool: 'text'
-  position: Point
-  text: string
-  fontSize: number
-  fontFamily: string
+  tool: "text";
+  position: Point;
+  text: string;
+  fontSize: number;
+  fontFamily: string;
 }
 
 export interface EraserAnnotation extends AnnotationBase {
-  tool: 'eraser'
-  points: Point[]
+  tool: "eraser";
+  points: Point[];
 }
 
 export type Annotation =
@@ -79,25 +86,25 @@ export type Annotation =
   | RectangleAnnotation
   | CircleAnnotation
   | TextAnnotation
-  | EraserAnnotation
+  | EraserAnnotation;
 
 export interface AnnotatorOptions {
-  canvas: HTMLCanvasElement
-  userId: string
-  userName: string
-  onAnnotationAdded?: (annotation: Annotation) => void
-  onAnnotationsCleared?: () => void
-  onUndo?: () => void
-  onRedo?: () => void
+  canvas: HTMLCanvasElement;
+  userId: string;
+  userName: string;
+  onAnnotationAdded?: (annotation: Annotation) => void;
+  onAnnotationsCleared?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
 }
 
 export interface DrawingState {
-  tool: AnnotationTool
-  color: AnnotationColor
-  strokeWidth: number
-  fontSize: number
-  fontFamily: string
-  filled: boolean
+  tool: AnnotationTool;
+  color: AnnotationColor;
+  strokeWidth: number;
+  fontSize: number;
+  fontFamily: string;
+  filled: boolean;
 }
 
 // =============================================================================
@@ -105,68 +112,68 @@ export interface DrawingState {
 // =============================================================================
 
 const DEFAULT_COLORS = [
-  '#FF0000', // Red
-  '#00FF00', // Green
-  '#0000FF', // Blue
-  '#FFFF00', // Yellow
-  '#FF00FF', // Magenta
-  '#00FFFF', // Cyan
-  '#FFFFFF', // White
-  '#000000', // Black
-  '#FFA500', // Orange
-  '#800080', // Purple
-]
+  "#FF0000", // Red
+  "#00FF00", // Green
+  "#0000FF", // Blue
+  "#FFFF00", // Yellow
+  "#FF00FF", // Magenta
+  "#00FFFF", // Cyan
+  "#FFFFFF", // White
+  "#000000", // Black
+  "#FFA500", // Orange
+  "#800080", // Purple
+];
 
-const DEFAULT_STROKE_WIDTHS = [2, 4, 6, 8, 12, 16]
+const DEFAULT_STROKE_WIDTHS = [2, 4, 6, 8, 12, 16];
 
-const DEFAULT_FONT_SIZES = [12, 16, 20, 24, 32, 48]
+const DEFAULT_FONT_SIZES = [12, 16, 20, 24, 32, 48];
 
 // =============================================================================
 // Screen Annotator
 // =============================================================================
 
 export class ScreenAnnotator {
-  private canvas: HTMLCanvasElement
-  private ctx: CanvasRenderingContext2D
-  private annotations: Annotation[] = []
-  private undoStack: Annotation[] = []
-  private currentAnnotation: Annotation | null = null
-  private isDrawing = false
-  private userId: string
-  private userName: string
+  private canvas: HTMLCanvasElement;
+  private ctx: CanvasRenderingContext2D;
+  private annotations: Annotation[] = [];
+  private undoStack: Annotation[] = [];
+  private currentAnnotation: Annotation | null = null;
+  private isDrawing = false;
+  private userId: string;
+  private userName: string;
   private callbacks: {
-    onAnnotationAdded?: (annotation: Annotation) => void
-    onAnnotationsCleared?: () => void
-    onUndo?: () => void
-    onRedo?: () => void
-  }
+    onAnnotationAdded?: (annotation: Annotation) => void;
+    onAnnotationsCleared?: () => void;
+    onUndo?: () => void;
+    onRedo?: () => void;
+  };
 
   // Drawing state
   private state: DrawingState = {
-    tool: 'pen',
+    tool: "pen",
     color: DEFAULT_COLORS[0],
     strokeWidth: 4,
     fontSize: 20,
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "Arial, sans-serif",
     filled: false,
-  }
+  };
 
   constructor(options: AnnotatorOptions) {
-    const { canvas, userId, userName, ...callbacks } = options
+    const { canvas, userId, userName, ...callbacks } = options;
 
-    this.canvas = canvas
-    this.userId = userId
-    this.userName = userName
-    this.callbacks = callbacks
+    this.canvas = canvas;
+    this.userId = userId;
+    this.userName = userName;
+    this.callbacks = callbacks;
 
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext("2d");
     if (!ctx) {
-      throw new Error('Failed to get canvas 2D context')
+      throw new Error("Failed to get canvas 2D context");
     }
-    this.ctx = ctx
+    this.ctx = ctx;
 
-    this.setupCanvas()
-    this.attachEventListeners()
+    this.setupCanvas();
+    this.attachEventListeners();
   }
 
   /**
@@ -174,184 +181,184 @@ export class ScreenAnnotator {
    */
   private setupCanvas(): void {
     // Make canvas transparent
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Set default styles
-    this.ctx.lineCap = 'round'
-    this.ctx.lineJoin = 'round'
+    this.ctx.lineCap = "round";
+    this.ctx.lineJoin = "round";
   }
 
   /**
    * Attach event listeners
    */
   private attachEventListeners(): void {
-    this.canvas.addEventListener('mousedown', this.handleMouseDown)
-    this.canvas.addEventListener('mousemove', this.handleMouseMove)
-    this.canvas.addEventListener('mouseup', this.handleMouseUp)
-    this.canvas.addEventListener('mouseleave', this.handleMouseLeave)
+    this.canvas.addEventListener("mousedown", this.handleMouseDown);
+    this.canvas.addEventListener("mousemove", this.handleMouseMove);
+    this.canvas.addEventListener("mouseup", this.handleMouseUp);
+    this.canvas.addEventListener("mouseleave", this.handleMouseLeave);
 
     // Touch events
-    this.canvas.addEventListener('touchstart', this.handleTouchStart)
-    this.canvas.addEventListener('touchmove', this.handleTouchMove)
-    this.canvas.addEventListener('touchend', this.handleTouchEnd)
+    this.canvas.addEventListener("touchstart", this.handleTouchStart);
+    this.canvas.addEventListener("touchmove", this.handleTouchMove);
+    this.canvas.addEventListener("touchend", this.handleTouchEnd);
   }
 
   /**
    * Detach event listeners
    */
   private detachEventListeners(): void {
-    this.canvas.removeEventListener('mousedown', this.handleMouseDown)
-    this.canvas.removeEventListener('mousemove', this.handleMouseMove)
-    this.canvas.removeEventListener('mouseup', this.handleMouseUp)
-    this.canvas.removeEventListener('mouseleave', this.handleMouseLeave)
+    this.canvas.removeEventListener("mousedown", this.handleMouseDown);
+    this.canvas.removeEventListener("mousemove", this.handleMouseMove);
+    this.canvas.removeEventListener("mouseup", this.handleMouseUp);
+    this.canvas.removeEventListener("mouseleave", this.handleMouseLeave);
 
-    this.canvas.removeEventListener('touchstart', this.handleTouchStart)
-    this.canvas.removeEventListener('touchmove', this.handleTouchMove)
-    this.canvas.removeEventListener('touchend', this.handleTouchEnd)
+    this.canvas.removeEventListener("touchstart", this.handleTouchStart);
+    this.canvas.removeEventListener("touchmove", this.handleTouchMove);
+    this.canvas.removeEventListener("touchend", this.handleTouchEnd);
   }
 
   /**
    * Get point from mouse event
    */
   private getPointFromEvent(event: MouseEvent | Touch): Point {
-    const rect = this.canvas.getBoundingClientRect()
+    const rect = this.canvas.getBoundingClientRect();
     return {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
-    }
+    };
   }
 
   /**
    * Handle mouse down
    */
   private handleMouseDown = (event: MouseEvent): void => {
-    event.preventDefault()
-    this.startDrawing(this.getPointFromEvent(event))
-  }
+    event.preventDefault();
+    this.startDrawing(this.getPointFromEvent(event));
+  };
 
   /**
    * Handle mouse move
    */
   private handleMouseMove = (event: MouseEvent): void => {
-    event.preventDefault()
+    event.preventDefault();
     if (this.isDrawing) {
-      this.continueDrawing(this.getPointFromEvent(event))
+      this.continueDrawing(this.getPointFromEvent(event));
     }
-  }
+  };
 
   /**
    * Handle mouse up
    */
   private handleMouseUp = (event: MouseEvent): void => {
-    event.preventDefault()
-    this.endDrawing()
-  }
+    event.preventDefault();
+    this.endDrawing();
+  };
 
   /**
    * Handle mouse leave
    */
   private handleMouseLeave = (): void => {
     if (this.isDrawing) {
-      this.endDrawing()
+      this.endDrawing();
     }
-  }
+  };
 
   /**
    * Handle touch start
    */
   private handleTouchStart = (event: TouchEvent): void => {
-    event.preventDefault()
+    event.preventDefault();
     if (event.touches.length === 1) {
-      this.startDrawing(this.getPointFromEvent(event.touches[0]))
+      this.startDrawing(this.getPointFromEvent(event.touches[0]));
     }
-  }
+  };
 
   /**
    * Handle touch move
    */
   private handleTouchMove = (event: TouchEvent): void => {
-    event.preventDefault()
+    event.preventDefault();
     if (event.touches.length === 1 && this.isDrawing) {
-      this.continueDrawing(this.getPointFromEvent(event.touches[0]))
+      this.continueDrawing(this.getPointFromEvent(event.touches[0]));
     }
-  }
+  };
 
   /**
    * Handle touch end
    */
   private handleTouchEnd = (event: TouchEvent): void => {
-    event.preventDefault()
-    this.endDrawing()
-  }
+    event.preventDefault();
+    this.endDrawing();
+  };
 
   /**
    * Start drawing
    */
   private startDrawing(point: Point): void {
-    this.isDrawing = true
+    this.isDrawing = true;
 
-    const base: Omit<AnnotationBase, 'tool'> = {
+    const base: Omit<AnnotationBase, "tool"> = {
       id: `annotation-${Date.now()}-${Math.random()}`,
       color: this.state.color,
       strokeWidth: this.state.strokeWidth,
       userId: this.userId,
       userName: this.userName,
       createdAt: Date.now(),
-    }
+    };
 
     switch (this.state.tool) {
-      case 'pen':
+      case "pen":
         this.currentAnnotation = {
           ...base,
-          tool: 'pen',
+          tool: "pen",
           points: [point],
-        }
-        break
+        };
+        break;
 
-      case 'arrow':
-      case 'line':
+      case "arrow":
+      case "line":
         this.currentAnnotation = {
           ...base,
           tool: this.state.tool,
           start: point,
           end: point,
-        }
-        break
+        };
+        break;
 
-      case 'rectangle':
+      case "rectangle":
         this.currentAnnotation = {
           ...base,
-          tool: 'rectangle',
+          tool: "rectangle",
           start: point,
           end: point,
           filled: this.state.filled,
-        }
-        break
+        };
+        break;
 
-      case 'circle':
+      case "circle":
         this.currentAnnotation = {
           ...base,
-          tool: 'circle',
+          tool: "circle",
           center: point,
           radius: 0,
           filled: this.state.filled,
-        }
-        break
+        };
+        break;
 
-      case 'text':
+      case "text":
         // Text tool requires user input
-        this.handleTextInput(point)
-        this.isDrawing = false
-        break
+        this.handleTextInput(point);
+        this.isDrawing = false;
+        break;
 
-      case 'eraser':
+      case "eraser":
         this.currentAnnotation = {
           ...base,
-          tool: 'eraser',
+          tool: "eraser",
           points: [point],
-        }
-        this.handleEraser(point)
-        break
+        };
+        this.handleEraser(point);
+        break;
     }
   }
 
@@ -359,66 +366,66 @@ export class ScreenAnnotator {
    * Continue drawing
    */
   private continueDrawing(point: Point): void {
-    if (!this.currentAnnotation) return
+    if (!this.currentAnnotation) return;
 
     switch (this.currentAnnotation.tool) {
-      case 'pen':
-        this.currentAnnotation.points.push(point)
-        break
+      case "pen":
+        this.currentAnnotation.points.push(point);
+        break;
 
-      case 'arrow':
-      case 'line':
-        this.currentAnnotation.end = point
-        break
+      case "arrow":
+      case "line":
+        this.currentAnnotation.end = point;
+        break;
 
-      case 'rectangle':
-        this.currentAnnotation.end = point
-        break
+      case "rectangle":
+        this.currentAnnotation.end = point;
+        break;
 
-      case 'circle': {
-        const dx = point.x - this.currentAnnotation.center.x
-        const dy = point.y - this.currentAnnotation.center.y
-        this.currentAnnotation.radius = Math.sqrt(dx * dx + dy * dy)
-        break
+      case "circle": {
+        const dx = point.x - this.currentAnnotation.center.x;
+        const dy = point.y - this.currentAnnotation.center.y;
+        this.currentAnnotation.radius = Math.sqrt(dx * dx + dy * dy);
+        break;
       }
 
-      case 'eraser':
-        this.currentAnnotation.points.push(point)
-        this.handleEraser(point)
-        break
+      case "eraser":
+        this.currentAnnotation.points.push(point);
+        this.handleEraser(point);
+        break;
     }
 
-    this.redraw()
+    this.redraw();
   }
 
   /**
    * End drawing
    */
   private endDrawing(): void {
-    if (!this.isDrawing) return
+    if (!this.isDrawing) return;
 
-    this.isDrawing = false
+    this.isDrawing = false;
 
-    if (this.currentAnnotation && this.currentAnnotation.tool !== 'eraser') {
-      this.annotations.push(this.currentAnnotation)
-      this.undoStack = [] // Clear redo stack on new annotation
-      this.callbacks.onAnnotationAdded?.(this.currentAnnotation)
+    if (this.currentAnnotation && this.currentAnnotation.tool !== "eraser") {
+      this.annotations.push(this.currentAnnotation);
+      this.undoStack = []; // Clear redo stack on new annotation
+      this.callbacks.onAnnotationAdded?.(this.currentAnnotation);
     }
 
-    this.currentAnnotation = null
-    this.redraw()
+    this.currentAnnotation = null;
+    this.redraw();
   }
 
   /**
    * Handle text input
    */
   private handleTextInput(position: Point): void {
-    const text = prompt('Enter text:')
-    if (!text) return
+    const text = prompt("Enter text:");
+    if (!text) return;
 
     const annotation: TextAnnotation = {
       id: `annotation-${Date.now()}-${Math.random()}`,
-      tool: 'text',
+      tool: "text",
       color: this.state.color,
       strokeWidth: this.state.strokeWidth,
       userId: this.userId,
@@ -428,73 +435,83 @@ export class ScreenAnnotator {
       text,
       fontSize: this.state.fontSize,
       fontFamily: this.state.fontFamily,
-    }
+    };
 
-    this.annotations.push(annotation)
-    this.undoStack = []
-    this.callbacks.onAnnotationAdded?.(annotation)
-    this.redraw()
+    this.annotations.push(annotation);
+    this.undoStack = [];
+    this.callbacks.onAnnotationAdded?.(annotation);
+    this.redraw();
   }
 
   /**
    * Handle eraser
    */
   private handleEraser(point: Point): void {
-    const eraserRadius = this.state.strokeWidth * 2
+    const eraserRadius = this.state.strokeWidth * 2;
 
     // Find annotations to remove
-    const toRemove: string[] = []
+    const toRemove: string[] = [];
 
     for (const annotation of this.annotations) {
       if (this.isPointNearAnnotation(point, annotation, eraserRadius)) {
-        toRemove.push(annotation.id)
+        toRemove.push(annotation.id);
       }
     }
 
     // Remove annotations
     if (toRemove.length > 0) {
-      this.annotations = this.annotations.filter((a) => !toRemove.includes(a.id))
-      this.redraw()
+      this.annotations = this.annotations.filter(
+        (a) => !toRemove.includes(a.id),
+      );
+      this.redraw();
     }
   }
 
   /**
    * Check if point is near annotation
    */
-  private isPointNearAnnotation(point: Point, annotation: Annotation, radius: number): boolean {
+  private isPointNearAnnotation(
+    point: Point,
+    annotation: Annotation,
+    radius: number,
+  ): boolean {
     switch (annotation.tool) {
-      case 'pen':
-        return annotation.points.some((p) => this.distance(point, p) < radius)
+      case "pen":
+        return annotation.points.some((p) => this.distance(point, p) < radius);
 
-      case 'arrow':
-      case 'line':
+      case "arrow":
+      case "line":
         return (
           this.distance(point, annotation.start) < radius ||
           this.distance(point, annotation.end) < radius
-        )
+        );
 
-      case 'rectangle': {
-        const { start, end } = annotation
-        const minX = Math.min(start.x, end.x)
-        const maxX = Math.max(start.x, end.x)
-        const minY = Math.min(start.y, end.y)
-        const maxY = Math.max(start.y, end.y)
+      case "rectangle": {
+        const { start, end } = annotation;
+        const minX = Math.min(start.x, end.x);
+        const maxX = Math.max(start.x, end.x);
+        const minY = Math.min(start.y, end.y);
+        const maxY = Math.max(start.y, end.y);
         return (
           point.x >= minX - radius &&
           point.x <= maxX + radius &&
           point.y >= minY - radius &&
           point.y <= maxY + radius
-        )
+        );
       }
 
-      case 'circle':
-        return Math.abs(this.distance(point, annotation.center) - annotation.radius) < radius
+      case "circle":
+        return (
+          Math.abs(
+            this.distance(point, annotation.center) - annotation.radius,
+          ) < radius
+        );
 
-      case 'text':
-        return this.distance(point, annotation.position) < radius
+      case "text":
+        return this.distance(point, annotation.position) < radius;
 
       default:
-        return false
+        return false;
     }
   }
 
@@ -502,9 +519,9 @@ export class ScreenAnnotator {
    * Calculate distance between two points
    */
   private distance(p1: Point, p2: Point): number {
-    const dx = p2.x - p1.x
-    const dy = p2.y - p1.y
-    return Math.sqrt(dx * dx + dy * dy)
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    return Math.sqrt(dx * dx + dy * dy);
   }
 
   /**
@@ -512,14 +529,14 @@ export class ScreenAnnotator {
    */
   private redraw(): void {
     // Clear canvas
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Draw all saved annotations
-    this.annotations.forEach((annotation) => this.drawAnnotation(annotation))
+    this.annotations.forEach((annotation) => this.drawAnnotation(annotation));
 
     // Draw current annotation if drawing
     if (this.currentAnnotation && this.isDrawing) {
-      this.drawAnnotation(this.currentAnnotation)
+      this.drawAnnotation(this.currentAnnotation);
     }
   }
 
@@ -527,34 +544,34 @@ export class ScreenAnnotator {
    * Draw annotation
    */
   private drawAnnotation(annotation: Annotation): void {
-    this.ctx.strokeStyle = annotation.color
-    this.ctx.fillStyle = annotation.color
-    this.ctx.lineWidth = annotation.strokeWidth
+    this.ctx.strokeStyle = annotation.color;
+    this.ctx.fillStyle = annotation.color;
+    this.ctx.lineWidth = annotation.strokeWidth;
 
     switch (annotation.tool) {
-      case 'pen':
-        this.drawPen(annotation)
-        break
+      case "pen":
+        this.drawPen(annotation);
+        break;
 
-      case 'arrow':
-        this.drawArrow(annotation)
-        break
+      case "arrow":
+        this.drawArrow(annotation);
+        break;
 
-      case 'line':
-        this.drawLine(annotation)
-        break
+      case "line":
+        this.drawLine(annotation);
+        break;
 
-      case 'rectangle':
-        this.drawRectangle(annotation)
-        break
+      case "rectangle":
+        this.drawRectangle(annotation);
+        break;
 
-      case 'circle':
-        this.drawCircle(annotation)
-        break
+      case "circle":
+        this.drawCircle(annotation);
+        break;
 
-      case 'text':
-        this.drawText(annotation)
-        break
+      case "text":
+        this.drawText(annotation);
+        break;
     }
   }
 
@@ -562,69 +579,69 @@ export class ScreenAnnotator {
    * Draw pen stroke
    */
   private drawPen(annotation: PenAnnotation): void {
-    if (annotation.points.length < 2) return
+    if (annotation.points.length < 2) return;
 
-    this.ctx.beginPath()
-    this.ctx.moveTo(annotation.points[0].x, annotation.points[0].y)
+    this.ctx.beginPath();
+    this.ctx.moveTo(annotation.points[0].x, annotation.points[0].y);
 
     for (let i = 1; i < annotation.points.length; i++) {
-      this.ctx.lineTo(annotation.points[i].x, annotation.points[i].y)
+      this.ctx.lineTo(annotation.points[i].x, annotation.points[i].y);
     }
 
-    this.ctx.stroke()
+    this.ctx.stroke();
   }
 
   /**
    * Draw arrow
    */
   private drawArrow(annotation: ArrowAnnotation): void {
-    const { start, end } = annotation
-    const headLength = 15
-    const angle = Math.atan2(end.y - start.y, end.x - start.x)
+    const { start, end } = annotation;
+    const headLength = 15;
+    const angle = Math.atan2(end.y - start.y, end.x - start.x);
 
     // Draw line
-    this.ctx.beginPath()
-    this.ctx.moveTo(start.x, start.y)
-    this.ctx.lineTo(end.x, end.y)
-    this.ctx.stroke()
+    this.ctx.beginPath();
+    this.ctx.moveTo(start.x, start.y);
+    this.ctx.lineTo(end.x, end.y);
+    this.ctx.stroke();
 
     // Draw arrowhead
-    this.ctx.beginPath()
-    this.ctx.moveTo(end.x, end.y)
+    this.ctx.beginPath();
+    this.ctx.moveTo(end.x, end.y);
     this.ctx.lineTo(
       end.x - headLength * Math.cos(angle - Math.PI / 6),
-      end.y - headLength * Math.sin(angle - Math.PI / 6)
-    )
-    this.ctx.moveTo(end.x, end.y)
+      end.y - headLength * Math.sin(angle - Math.PI / 6),
+    );
+    this.ctx.moveTo(end.x, end.y);
     this.ctx.lineTo(
       end.x - headLength * Math.cos(angle + Math.PI / 6),
-      end.y - headLength * Math.sin(angle + Math.PI / 6)
-    )
-    this.ctx.stroke()
+      end.y - headLength * Math.sin(angle + Math.PI / 6),
+    );
+    this.ctx.stroke();
   }
 
   /**
    * Draw line
    */
   private drawLine(annotation: LineAnnotation): void {
-    this.ctx.beginPath()
-    this.ctx.moveTo(annotation.start.x, annotation.start.y)
-    this.ctx.lineTo(annotation.end.x, annotation.end.y)
-    this.ctx.stroke()
+    this.ctx.beginPath();
+    this.ctx.moveTo(annotation.start.x, annotation.start.y);
+    this.ctx.lineTo(annotation.end.x, annotation.end.y);
+    this.ctx.stroke();
   }
 
   /**
    * Draw rectangle
    */
   private drawRectangle(annotation: RectangleAnnotation): void {
-    const { start, end, filled } = annotation
-    const width = end.x - start.x
-    const height = end.y - start.y
+    const { start, end, filled } = annotation;
+    const width = end.x - start.x;
+    const height = end.y - start.y;
 
     if (filled) {
-      this.ctx.fillRect(start.x, start.y, width, height)
+      this.ctx.fillRect(start.x, start.y, width, height);
     } else {
-      this.ctx.strokeRect(start.x, start.y, width, height)
+      this.ctx.strokeRect(start.x, start.y, width, height);
     }
   }
 
@@ -632,15 +649,15 @@ export class ScreenAnnotator {
    * Draw circle
    */
   private drawCircle(annotation: CircleAnnotation): void {
-    const { center, radius, filled } = annotation
+    const { center, radius, filled } = annotation;
 
-    this.ctx.beginPath()
-    this.ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI)
+    this.ctx.beginPath();
+    this.ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
 
     if (filled) {
-      this.ctx.fill()
+      this.ctx.fill();
     } else {
-      this.ctx.stroke()
+      this.ctx.stroke();
     }
   }
 
@@ -648,113 +665,117 @@ export class ScreenAnnotator {
    * Draw text
    */
   private drawText(annotation: TextAnnotation): void {
-    this.ctx.font = `${annotation.fontSize}px ${annotation.fontFamily}`
-    this.ctx.fillText(annotation.text, annotation.position.x, annotation.position.y)
+    this.ctx.font = `${annotation.fontSize}px ${annotation.fontFamily}`;
+    this.ctx.fillText(
+      annotation.text,
+      annotation.position.x,
+      annotation.position.y,
+    );
   }
 
   /**
    * Set tool
    */
   setTool(tool: AnnotationTool): void {
-    this.state.tool = tool
+    this.state.tool = tool;
   }
 
   /**
    * Set color
    */
   setColor(color: AnnotationColor): void {
-    this.state.color = color
+    this.state.color = color;
   }
 
   /**
    * Set stroke width
    */
   setStrokeWidth(width: number): void {
-    this.state.strokeWidth = width
+    this.state.strokeWidth = width;
   }
 
   /**
    * Set font size
    */
   setFontSize(size: number): void {
-    this.state.fontSize = size
+    this.state.fontSize = size;
   }
 
   /**
    * Set filled mode
    */
   setFilled(filled: boolean): void {
-    this.state.filled = filled
+    this.state.filled = filled;
   }
 
   /**
    * Get current state
    */
   getState(): DrawingState {
-    return { ...this.state }
+    return { ...this.state };
   }
 
   /**
    * Undo last annotation
    */
   undo(): void {
-    if (this.annotations.length === 0) return
+    if (this.annotations.length === 0) return;
 
-    const annotation = this.annotations.pop()!
-    this.undoStack.push(annotation)
+    const annotation = this.annotations.pop()!;
+    this.undoStack.push(annotation);
     if (this.callbacks.onUndo) {
-      this.callbacks.onUndo()
+      this.callbacks.onUndo();
     }
-    this.redraw()
+    this.redraw();
   }
 
   /**
    * Redo last undone annotation
    */
   redo(): void {
-    if (this.undoStack.length === 0) return
+    if (this.undoStack.length === 0) return;
 
-    const annotation = this.undoStack.pop()!
-    this.annotations.push(annotation)
+    const annotation = this.undoStack.pop()!;
+    this.annotations.push(annotation);
     if (this.callbacks.onRedo) {
-      this.callbacks.onRedo()
+      this.callbacks.onRedo();
     }
-    this.redraw()
+    this.redraw();
   }
 
   /**
    * Clear all annotations
    */
   clear(): void {
-    this.annotations = []
-    this.undoStack = []
+    this.annotations = [];
+    this.undoStack = [];
     if (this.callbacks.onAnnotationsCleared) {
-      this.callbacks.onAnnotationsCleared()
+      this.callbacks.onAnnotationsCleared();
     }
-    this.redraw()
+    this.redraw();
   }
 
   /**
    * Add remote annotation
    */
   addRemoteAnnotation(annotation: Annotation): void {
-    this.annotations.push(annotation)
-    this.redraw()
+    this.annotations.push(annotation);
+    this.redraw();
   }
 
   /**
    * Get all annotations
    */
   getAnnotations(): Annotation[] {
-    return [...this.annotations]
+    return [...this.annotations];
   }
 
   /**
    * Cleanup
    */
   cleanup(): void {
-    this.detachEventListeners()
-    this.clear()
+    this.detachEventListeners();
+    this.clear();
   }
 }
 
@@ -762,12 +783,14 @@ export class ScreenAnnotator {
 // Factory Function
 // =============================================================================
 
-export function createScreenAnnotator(options: AnnotatorOptions): ScreenAnnotator {
-  return new ScreenAnnotator(options)
+export function createScreenAnnotator(
+  options: AnnotatorOptions,
+): ScreenAnnotator {
+  return new ScreenAnnotator(options);
 }
 
 // =============================================================================
 // Exports
 // =============================================================================
 
-export { DEFAULT_COLORS, DEFAULT_STROKE_WIDTHS, DEFAULT_FONT_SIZES }
+export { DEFAULT_COLORS, DEFAULT_STROKE_WIDTHS, DEFAULT_FONT_SIZES };

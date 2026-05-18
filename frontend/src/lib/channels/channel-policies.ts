@@ -7,7 +7,7 @@
  * Phase 6: Task 63 - Channel governance and templates
  */
 
-import type { ChannelType } from '@/types/channel'
+import type { ChannelType } from "@/types/channel";
 
 // =============================================================================
 // TYPES
@@ -18,48 +18,48 @@ import type { ChannelType } from '@/types/channel'
  */
 export interface ChannelNamingPolicy {
   /** Enforce lowercase names */
-  forceLowercase: boolean
+  forceLowercase: boolean;
   /** Allow only alphanumeric and hyphens */
-  alphanumericOnly: boolean
+  alphanumericOnly: boolean;
   /** Minimum name length */
-  minLength: number
+  minLength: number;
   /** Maximum name length */
-  maxLength: number
+  maxLength: number;
   /** Reserved names that cannot be used */
-  reservedNames: string[]
+  reservedNames: string[];
   /** Prefix requirements (e.g., "team-", "proj-") */
-  requiredPrefix?: string
+  requiredPrefix?: string;
   /** Suffix requirements */
-  requiredSuffix?: string
+  requiredSuffix?: string;
   /** Regex pattern for custom validation */
-  customPattern?: string
+  customPattern?: string;
   /** Allow unicode characters */
-  allowUnicode: boolean
+  allowUnicode: boolean;
   /** Allow numbers at start */
-  allowNumbersAtStart: boolean
+  allowNumbersAtStart: boolean;
   /** Block profanity in names */
-  blockProfanity: boolean
+  blockProfanity: boolean;
 }
 
 /**
  * Validation result
  */
 export interface ChannelNameValidationResult {
-  valid: boolean
-  errors: string[]
-  warnings: string[]
-  sanitizedName?: string
-  suggestions?: string[]
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  sanitizedName?: string;
+  suggestions?: string[];
 }
 
 /**
  * Slug generation options
  */
 export interface SlugGenerationOptions {
-  maxLength?: number
-  separator?: string
-  preserveCase?: boolean
-  transliterate?: boolean
+  maxLength?: number;
+  separator?: string;
+  preserveCase?: boolean;
+  transliterate?: boolean;
 }
 
 // =============================================================================
@@ -70,76 +70,76 @@ export interface SlugGenerationOptions {
  * Default reserved channel names
  */
 export const RESERVED_CHANNEL_NAMES = [
-  'admin',
-  'administrator',
-  'system',
-  'bot',
-  'help',
-  'support',
-  'mod',
-  'moderator',
-  'owner',
-  'staff',
-  'team',
-  'api',
-  'webhook',
-  'null',
-  'undefined',
-  'true',
-  'false',
-  'channel',
-  'channels',
-  'user',
-  'users',
-  'message',
-  'messages',
-  'settings',
-  'config',
-  'configuration',
-  'root',
-  'master',
-  'main',
-  'default',
-  'all',
-  'everyone',
-  'here',
-  'channel-create',
-  'channel-delete',
-  'workspace',
-  'login',
-  'logout',
-  'signup',
-  'register',
-  'forgot-password',
-  'reset-password',
-  'verify',
-  'auth',
-  'oauth',
-  'sso',
-] as const
+  "admin",
+  "administrator",
+  "system",
+  "bot",
+  "help",
+  "support",
+  "mod",
+  "moderator",
+  "owner",
+  "staff",
+  "team",
+  "api",
+  "webhook",
+  "null",
+  "undefined",
+  "true",
+  "false",
+  "channel",
+  "channels",
+  "user",
+  "users",
+  "message",
+  "messages",
+  "settings",
+  "config",
+  "configuration",
+  "root",
+  "master",
+  "main",
+  "default",
+  "all",
+  "everyone",
+  "here",
+  "channel-create",
+  "channel-delete",
+  "workspace",
+  "login",
+  "logout",
+  "signup",
+  "register",
+  "forgot-password",
+  "reset-password",
+  "verify",
+  "auth",
+  "oauth",
+  "sso",
+] as const;
 
 /**
  * Basic profanity list (can be extended)
  */
 export const PROFANITY_WORDS = new Set([
-  'fuck',
-  'shit',
-  'damn',
-  'ass',
-  'bitch',
-  'crap',
-  'piss',
-  'dick',
-  'cock',
-  'pussy',
-  'bastard',
-  'slut',
-  'whore',
-  'cunt',
-  'nigger',
-  'faggot',
-  'retard',
-])
+  "fuck",
+  "shit",
+  "damn",
+  "ass",
+  "bitch",
+  "crap",
+  "piss",
+  "dick",
+  "cock",
+  "pussy",
+  "bastard",
+  "slut",
+  "whore",
+  "cunt",
+  "nigger",
+  "faggot",
+  "retard",
+]);
 
 /**
  * Default naming policy
@@ -153,7 +153,7 @@ export const DEFAULT_NAMING_POLICY: ChannelNamingPolicy = {
   allowUnicode: false,
   allowNumbersAtStart: false,
   blockProfanity: true,
-}
+};
 
 /**
  * Strict naming policy (for enterprise)
@@ -167,7 +167,7 @@ export const STRICT_NAMING_POLICY: ChannelNamingPolicy = {
   allowUnicode: false,
   allowNumbersAtStart: false,
   blockProfanity: true,
-}
+};
 
 /**
  * Relaxed naming policy (for casual use)
@@ -177,11 +177,11 @@ export const RELAXED_NAMING_POLICY: ChannelNamingPolicy = {
   alphanumericOnly: false,
   minLength: 1,
   maxLength: 100,
-  reservedNames: ['admin', 'system', 'bot'],
+  reservedNames: ["admin", "system", "bot"],
   allowUnicode: true,
   allowNumbersAtStart: true,
   blockProfanity: true,
-}
+};
 
 // =============================================================================
 // VALIDATION FUNCTIONS
@@ -192,71 +192,74 @@ export const RELAXED_NAMING_POLICY: ChannelNamingPolicy = {
  */
 export function validateChannelName(
   name: string,
-  policy: ChannelNamingPolicy = DEFAULT_NAMING_POLICY
+  policy: ChannelNamingPolicy = DEFAULT_NAMING_POLICY,
 ): ChannelNameValidationResult {
-  const errors: string[] = []
-  const warnings: string[] = []
-  let sanitizedName = name.trim()
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  let sanitizedName = name.trim();
 
   // Handle empty name
   if (!sanitizedName) {
     return {
       valid: false,
-      errors: ['Channel name is required'],
+      errors: ["Channel name is required"],
       warnings: [],
-    }
+    };
   }
 
   // Apply lowercase if required
   if (policy.forceLowercase) {
-    sanitizedName = sanitizedName.toLowerCase()
+    sanitizedName = sanitizedName.toLowerCase();
   }
 
   // Check length
   if (sanitizedName.length < policy.minLength) {
-    errors.push(`Name must be at least ${policy.minLength} characters`)
+    errors.push(`Name must be at least ${policy.minLength} characters`);
   }
   if (sanitizedName.length > policy.maxLength) {
-    errors.push(`Name must be at most ${policy.maxLength} characters`)
+    errors.push(`Name must be at most ${policy.maxLength} characters`);
   }
 
   // Check alphanumeric
   if (policy.alphanumericOnly) {
     const alphanumericPattern = policy.allowUnicode
       ? /^[\p{L}\p{N}-]+$/u
-      : /^[a-z0-9-]+$/i
+      : /^[a-z0-9-]+$/i;
     if (!alphanumericPattern.test(sanitizedName)) {
-      errors.push('Name can only contain letters, numbers, and hyphens')
+      errors.push("Name can only contain letters, numbers, and hyphens");
     }
   }
 
   // Check for numbers at start
   if (!policy.allowNumbersAtStart && /^[0-9]/.test(sanitizedName)) {
-    errors.push('Name cannot start with a number')
+    errors.push("Name cannot start with a number");
   }
 
   // Check reserved names
-  const lowerName = sanitizedName.toLowerCase()
+  const lowerName = sanitizedName.toLowerCase();
   if (policy.reservedNames.map((n) => n.toLowerCase()).includes(lowerName)) {
-    errors.push(`"${sanitizedName}" is a reserved name and cannot be used`)
+    errors.push(`"${sanitizedName}" is a reserved name and cannot be used`);
   }
 
   // Check prefix requirement
-  if (policy.requiredPrefix && !sanitizedName.startsWith(policy.requiredPrefix)) {
-    warnings.push(`Name should start with "${policy.requiredPrefix}"`)
+  if (
+    policy.requiredPrefix &&
+    !sanitizedName.startsWith(policy.requiredPrefix)
+  ) {
+    warnings.push(`Name should start with "${policy.requiredPrefix}"`);
   }
 
   // Check suffix requirement
   if (policy.requiredSuffix && !sanitizedName.endsWith(policy.requiredSuffix)) {
-    warnings.push(`Name should end with "${policy.requiredSuffix}"`)
+    warnings.push(`Name should end with "${policy.requiredSuffix}"`);
   }
 
   // Check custom pattern
   if (policy.customPattern) {
     try {
-      const customRegex = new RegExp(policy.customPattern)
+      const customRegex = new RegExp(policy.customPattern);
       if (!customRegex.test(sanitizedName)) {
-        errors.push('Name does not match required pattern')
+        errors.push("Name does not match required pattern");
       }
     } catch {
       // Invalid regex pattern in policy
@@ -265,34 +268,34 @@ export function validateChannelName(
 
   // Check profanity
   if (policy.blockProfanity) {
-    const nameParts = sanitizedName.toLowerCase().split(/[-_\s]/)
+    const nameParts = sanitizedName.toLowerCase().split(/[-_\s]/);
     for (const part of nameParts) {
       if (PROFANITY_WORDS.has(part)) {
-        errors.push('Name contains inappropriate language')
-        break
+        errors.push("Name contains inappropriate language");
+        break;
       }
     }
   }
 
   // Check for consecutive hyphens
-  if (sanitizedName.includes('--')) {
-    warnings.push('Name should not contain consecutive hyphens')
+  if (sanitizedName.includes("--")) {
+    warnings.push("Name should not contain consecutive hyphens");
   }
 
   // Check for leading/trailing hyphens
-  if (sanitizedName.startsWith('-') || sanitizedName.endsWith('-')) {
-    warnings.push('Name should not start or end with a hyphen')
+  if (sanitizedName.startsWith("-") || sanitizedName.endsWith("-")) {
+    warnings.push("Name should not start or end with a hyphen");
   }
 
   // Check for spaces (if alphanumeric only)
-  if (policy.alphanumericOnly && sanitizedName.includes(' ')) {
-    errors.push('Name cannot contain spaces')
+  if (policy.alphanumericOnly && sanitizedName.includes(" ")) {
+    errors.push("Name cannot contain spaces");
   }
 
   // Generate suggestions if invalid
-  let suggestions: string[] | undefined
+  let suggestions: string[] | undefined;
   if (errors.length > 0) {
-    suggestions = generateNameSuggestions(name, policy)
+    suggestions = generateNameSuggestions(name, policy);
   }
 
   return {
@@ -301,7 +304,7 @@ export function validateChannelName(
     warnings,
     sanitizedName: errors.length === 0 ? sanitizedName : undefined,
     suggestions,
-  }
+  };
 }
 
 /**
@@ -309,41 +312,46 @@ export function validateChannelName(
  */
 export function generateNameSuggestions(
   name: string,
-  policy: ChannelNamingPolicy = DEFAULT_NAMING_POLICY
+  policy: ChannelNamingPolicy = DEFAULT_NAMING_POLICY,
 ): string[] {
-  const suggestions: string[] = []
-  let base = name.trim()
+  const suggestions: string[] = [];
+  let base = name.trim();
 
   // Apply transformations
   if (policy.forceLowercase) {
-    base = base.toLowerCase()
+    base = base.toLowerCase();
   }
 
   if (policy.alphanumericOnly) {
     base = base
-      .replace(/[^a-z0-9\s-]/gi, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
+      .replace(/[^a-z0-9\s-]/gi, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
   }
 
-  base = base.replace(/^-+|-+$/g, '').substring(0, policy.maxLength)
+  base = base.replace(/^-+|-+$/g, "").substring(0, policy.maxLength);
 
-  if (base.length >= policy.minLength && !policy.reservedNames.includes(base.toLowerCase())) {
-    suggestions.push(base)
+  if (
+    base.length >= policy.minLength &&
+    !policy.reservedNames.includes(base.toLowerCase())
+  ) {
+    suggestions.push(base);
   }
 
   // Add variations
-  const withNumber = `${base}-1`
+  const withNumber = `${base}-1`;
   if (withNumber.length <= policy.maxLength) {
-    suggestions.push(withNumber)
+    suggestions.push(withNumber);
   }
 
-  const withPrefix = policy.requiredPrefix ? `${policy.requiredPrefix}${base}` : null
+  const withPrefix = policy.requiredPrefix
+    ? `${policy.requiredPrefix}${base}`
+    : null;
   if (withPrefix && withPrefix.length <= policy.maxLength) {
-    suggestions.push(withPrefix)
+    suggestions.push(withPrefix);
   }
 
-  return suggestions.filter((s, i, arr) => arr.indexOf(s) === i).slice(0, 3)
+  return suggestions.filter((s, i, arr) => arr.indexOf(s) === i).slice(0, 3);
 }
 
 /**
@@ -351,40 +359,45 @@ export function generateNameSuggestions(
  */
 export function sanitizeChannelName(
   name: string,
-  policy: ChannelNamingPolicy = DEFAULT_NAMING_POLICY
+  policy: ChannelNamingPolicy = DEFAULT_NAMING_POLICY,
 ): string {
-  let sanitized = name.trim()
+  let sanitized = name.trim();
 
   if (policy.forceLowercase) {
-    sanitized = sanitized.toLowerCase()
+    sanitized = sanitized.toLowerCase();
   }
 
   if (policy.alphanumericOnly) {
     sanitized = sanitized
-      .replace(/[^a-z0-9\s-]/gi, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
+      .replace(/[^a-z0-9\s-]/gi, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
   }
 
-  sanitized = sanitized.replace(/^-+|-+$/g, '').substring(0, policy.maxLength)
+  sanitized = sanitized.replace(/^-+|-+$/g, "").substring(0, policy.maxLength);
 
-  return sanitized
+  return sanitized;
 }
 
 /**
  * Check if a name is reserved
  */
-export function isReservedName(name: string, additionalReserved: string[] = []): boolean {
-  const allReserved = [...RESERVED_CHANNEL_NAMES, ...additionalReserved].map((n) => n.toLowerCase())
-  return allReserved.includes(name.toLowerCase())
+export function isReservedName(
+  name: string,
+  additionalReserved: string[] = [],
+): boolean {
+  const allReserved = [...RESERVED_CHANNEL_NAMES, ...additionalReserved].map(
+    (n) => n.toLowerCase(),
+  );
+  return allReserved.includes(name.toLowerCase());
 }
 
 /**
  * Check if a name contains profanity
  */
 export function containsProfanity(name: string): boolean {
-  const parts = name.toLowerCase().split(/[-_\s]/)
-  return parts.some((part) => PROFANITY_WORDS.has(part))
+  const parts = name.toLowerCase().split(/[-_\s]/);
+  return parts.some((part) => PROFANITY_WORDS.has(part));
 }
 
 // =============================================================================
@@ -396,29 +409,25 @@ export function containsProfanity(name: string): boolean {
  */
 export function generateChannelSlug(
   name: string,
-  options: SlugGenerationOptions = {}
+  options: SlugGenerationOptions = {},
 ): string {
-  const {
-    maxLength = 80,
-    separator = '-',
-    preserveCase = false,
-  } = options
+  const { maxLength = 80, separator = "-", preserveCase = false } = options;
 
-  let slug = name.trim()
+  let slug = name.trim();
 
   // Lowercase unless preserving case
   if (!preserveCase) {
-    slug = slug.toLowerCase()
+    slug = slug.toLowerCase();
   }
 
   // Replace spaces and special chars with separator
   slug = slug
     .replace(/[^a-z0-9]+/gi, separator)
-    .replace(new RegExp(`${separator}+`, 'g'), separator)
-    .replace(new RegExp(`^${separator}|${separator}$`, 'g'), '')
+    .replace(new RegExp(`${separator}+`, "g"), separator)
+    .replace(new RegExp(`^${separator}|${separator}$`, "g"), "");
 
   // Truncate to max length
-  return slug.substring(0, maxLength)
+  return slug.substring(0, maxLength);
 }
 
 /**
@@ -427,23 +436,23 @@ export function generateChannelSlug(
 export function generateUniqueSlug(
   name: string,
   existingSlugs: string[],
-  options: SlugGenerationOptions = {}
+  options: SlugGenerationOptions = {},
 ): string {
-  let slug = generateChannelSlug(name, options)
+  let slug = generateChannelSlug(name, options);
 
   if (!existingSlugs.includes(slug)) {
-    return slug
+    return slug;
   }
 
   // Add number suffix to make unique
-  let counter = 1
-  let uniqueSlug = `${slug}-${counter}`
+  let counter = 1;
+  let uniqueSlug = `${slug}-${counter}`;
   while (existingSlugs.includes(uniqueSlug)) {
-    counter++
-    uniqueSlug = `${slug}-${counter}`
+    counter++;
+    uniqueSlug = `${slug}-${counter}`;
   }
 
-  return uniqueSlug
+  return uniqueSlug;
 }
 
 /**
@@ -452,25 +461,25 @@ export function generateUniqueSlug(
 export function isValidSlug(slug: string): boolean {
   // Must be lowercase alphanumeric with hyphens
   if (!/^[a-z0-9-]+$/.test(slug)) {
-    return false
+    return false;
   }
 
   // No consecutive hyphens
-  if (slug.includes('--')) {
-    return false
+  if (slug.includes("--")) {
+    return false;
   }
 
   // No leading/trailing hyphens
-  if (slug.startsWith('-') || slug.endsWith('-')) {
-    return false
+  if (slug.startsWith("-") || slug.endsWith("-")) {
+    return false;
   }
 
   // Reasonable length
   if (slug.length < 1 || slug.length > 100) {
-    return false
+    return false;
   }
 
-  return true
+  return true;
 }
 
 // =============================================================================
@@ -480,21 +489,23 @@ export function isValidSlug(slug: string): boolean {
 /**
  * Get naming policy for a specific channel type
  */
-export function getPolicyForChannelType(type: ChannelType): ChannelNamingPolicy {
+export function getPolicyForChannelType(
+  type: ChannelType,
+): ChannelNamingPolicy {
   switch (type) {
-    case 'direct':
-    case 'group_dm':
+    case "direct":
+    case "group_dm":
       // DMs don't need naming validation
-      return RELAXED_NAMING_POLICY
-    case 'private':
+      return RELAXED_NAMING_POLICY;
+    case "private":
       // Private channels can be slightly more relaxed
       return {
         ...DEFAULT_NAMING_POLICY,
         minLength: 1,
-      }
-    case 'public':
+      };
+    case "public":
     default:
-      return DEFAULT_NAMING_POLICY
+      return DEFAULT_NAMING_POLICY;
   }
 }
 
@@ -504,17 +515,19 @@ export function getPolicyForChannelType(type: ChannelType): ChannelNamingPolicy 
 export function checkNameUniqueness(
   name: string,
   existingNames: string[],
-  caseInsensitive: boolean = true
+  caseInsensitive: boolean = true,
 ): { unique: boolean; conflictsWith?: string } {
-  const normalizedName = caseInsensitive ? name.toLowerCase() : name
-  const normalizedExisting = existingNames.map((n) => (caseInsensitive ? n.toLowerCase() : n))
+  const normalizedName = caseInsensitive ? name.toLowerCase() : name;
+  const normalizedExisting = existingNames.map((n) =>
+    caseInsensitive ? n.toLowerCase() : n,
+  );
 
-  const index = normalizedExisting.indexOf(normalizedName)
+  const index = normalizedExisting.indexOf(normalizedName);
   if (index === -1) {
-    return { unique: true }
+    return { unique: true };
   }
 
-  return { unique: false, conflictsWith: existingNames[index] }
+  return { unique: false, conflictsWith: existingNames[index] };
 }
 
 // =============================================================================
@@ -539,28 +552,28 @@ export const NAMING_PATTERNS = {
   SUPPORT_PREFIX: /^support-[a-z0-9-]+$/,
   /** Year prefix: 2024-q1-planning */
   YEAR_PREFIX: /^20[0-9]{2}-[a-z0-9-]+$/,
-} as const
+} as const;
 
 /**
  * Check if a name matches a pattern
  */
 export function matchesPattern(name: string, pattern: RegExp): boolean {
-  return pattern.test(name.toLowerCase())
+  return pattern.test(name.toLowerCase());
 }
 
 /**
  * Extract pattern type from a name
  */
 export function detectNamingPattern(name: string): string | null {
-  const lowerName = name.toLowerCase()
+  const lowerName = name.toLowerCase();
 
   for (const [patternName, pattern] of Object.entries(NAMING_PATTERNS)) {
     if (pattern.test(lowerName)) {
-      return patternName
+      return patternName;
     }
   }
 
-  return null
+  return null;
 }
 
 // =============================================================================
@@ -570,16 +583,19 @@ export function detectNamingPattern(name: string): string | null {
 /**
  * Format a channel name for display (with # prefix)
  */
-export function formatChannelName(name: string, includeHash: boolean = true): string {
-  return includeHash ? `#${name}` : name
+export function formatChannelName(
+  name: string,
+  includeHash: boolean = true,
+): string {
+  return includeHash ? `#${name}` : name;
 }
 
 /**
  * Parse a channel mention to get the name
  */
 export function parseChannelMention(mention: string): string | null {
-  const match = mention.match(/^#?([a-z0-9-]+)$/i)
-  return match ? match[1] : null
+  const match = mention.match(/^#?([a-z0-9-]+)$/i);
+  return match ? match[1] : null;
 }
 
 /**
@@ -587,9 +603,9 @@ export function parseChannelMention(mention: string): string | null {
  */
 export function displayNameToChannelName(
   displayName: string,
-  policy: ChannelNamingPolicy = DEFAULT_NAMING_POLICY
+  policy: ChannelNamingPolicy = DEFAULT_NAMING_POLICY,
 ): string {
-  return sanitizeChannelName(displayName, policy)
+  return sanitizeChannelName(displayName, policy);
 }
 
 /**
@@ -597,7 +613,7 @@ export function displayNameToChannelName(
  */
 export function slugToDisplayName(slug: string): string {
   return slug
-    .split('-')
+    .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+    .join(" ");
 }

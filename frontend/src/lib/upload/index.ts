@@ -5,17 +5,21 @@
  */
 
 // Upload Service
-export { UploadService, getUploadService, createUploadService } from './upload-service'
+export {
+  UploadService,
+  getUploadService,
+  createUploadService,
+} from "./upload-service";
 export type {
   UploadConfig,
   PresignedUrlResponse,
   UploadResult,
   UploadProgressCallback,
   UploadOptions,
-} from './upload-service'
+} from "./upload-service";
 
 // Upload Hook
-export { useUpload, useFileInput } from './use-upload'
+export { useUpload, useFileInput } from "./use-upload";
 export type {
   UseUploadOptions,
   UploadState,
@@ -23,7 +27,7 @@ export type {
   UseUploadReturn,
   UseFileInputOptions,
   UseFileInputReturn,
-} from './use-upload'
+} from "./use-upload";
 
 // File Utilities
 export {
@@ -86,11 +90,11 @@ export {
   isVideo,
   isAudio,
   isDocument,
-} from './file-utils'
+} from "./file-utils";
 
 export type {
   FileValidationResult,
   FileValidationOptions,
   MediaDimensions,
   ThumbnailOptions,
-} from './file-utils'
+} from "./file-utils";

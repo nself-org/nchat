@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Import Data Component
@@ -9,7 +9,7 @@
  * - Field mapping, validation, and error handling
  */
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback } from "react";
 import {
   Upload,
   AlertCircle,
@@ -19,27 +19,27 @@ import {
   MessageSquare,
   Users,
   Hash,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 
-import { SlackImporter } from '@/lib/import/slack-importer'
-import { DiscordImporter } from '@/lib/import/discord-importer'
-import { GenericImporter } from '@/lib/import/generic-importer'
+import { SlackImporter } from "@/lib/import/slack-importer";
+import { DiscordImporter } from "@/lib/import/discord-importer";
+import { GenericImporter } from "@/lib/import/generic-importer";
 import type {
   ImportSource,
   ImportOptions,
@@ -47,15 +47,21 @@ import type {
   ImportStats,
   ImportError,
   ImportWarning,
-} from '@/lib/import/types'
-import { logger } from '@/lib/logger'
+} from "@/lib/import/types";
+import { logger } from "@/lib/logger";
 
-type WizardStep = 'source' | 'upload' | 'options' | 'preview' | 'importing' | 'completed'
+type WizardStep =
+  | "source"
+  | "upload"
+  | "options"
+  | "preview"
+  | "importing"
+  | "completed";
 
 export default function ImportData() {
-  const [step, setStep] = useState<WizardStep>('source')
-  const [source, setSource] = useState<ImportSource>('slack')
-  const [file, setFile] = useState<File | null>(null)
+  const [step, setStep] = useState<WizardStep>("source");
+  const [source, setSource] = useState<ImportSource>("slack");
+  const [file, setFile] = useState<File | null>(null);
   const [options, setOptions] = useState<ImportOptions>({
     importUsers: true,
     importChannels: true,
@@ -65,102 +71,105 @@ export default function ImportData() {
     importThreads: true,
     preserveIds: false,
     overwriteExisting: false,
-  })
-  const [progress, setProgress] = useState<ImportProgressType | null>(null)
-  const [stats, setStats] = useState<ImportStats | null>(null)
+  });
+  const [progress, setProgress] = useState<ImportProgressType | null>(null);
+  const [stats, setStats] = useState<ImportStats | null>(null);
   const [importer, setImporter] = useState<
     SlackImporter | DiscordImporter | GenericImporter | null
-  >(null)
+  >(null);
 
   // Handle file selection
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile) {
-      setFile(selectedFile)
-    }
-  }, [])
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0];
+      if (selectedFile) {
+        setFile(selectedFile);
+      }
+    },
+    [],
+  );
 
   // Start import process
   const startImport = useCallback(async () => {
-    if (!file) return
+    if (!file) return;
 
-    setStep('importing')
+    setStep("importing");
 
     try {
-      let importerInstance: SlackImporter | DiscordImporter | GenericImporter
+      let importerInstance: SlackImporter | DiscordImporter | GenericImporter;
 
       // Create appropriate importer
-      if (source === 'slack') {
-        importerInstance = new SlackImporter(options)
-        const slackData = await importerInstance.parseSlackExport(file)
-        setImporter(importerInstance)
+      if (source === "slack") {
+        importerInstance = new SlackImporter(options);
+        const slackData = await importerInstance.parseSlackExport(file);
+        setImporter(importerInstance);
 
         const result = await importerInstance.import(slackData, (prog) => {
-          setProgress(prog)
-        })
+          setProgress(prog);
+        });
 
-        setStats(result.stats)
-        setStep('completed')
-      } else if (source === 'discord') {
-        importerInstance = new DiscordImporter(options)
-        const discordData = await importerInstance.parseDiscordExport(file)
-        setImporter(importerInstance)
+        setStats(result.stats);
+        setStep("completed");
+      } else if (source === "discord") {
+        importerInstance = new DiscordImporter(options);
+        const discordData = await importerInstance.parseDiscordExport(file);
+        setImporter(importerInstance);
 
         const result = await importerInstance.import(discordData, (prog) => {
-          setProgress(prog)
-        })
+          setProgress(prog);
+        });
 
-        setStats(result.stats)
-        setStep('completed')
-      } else if (source === 'csv') {
-        importerInstance = new GenericImporter(options)
-        const genericData = await importerInstance.parseCSV(file)
-        setImporter(importerInstance)
-
-        const result = await importerInstance.import(genericData, (prog) => {
-          setProgress(prog)
-        })
-
-        setStats(result.stats)
-        setStep('completed')
-      } else if (source === 'json') {
-        importerInstance = new GenericImporter(options)
-        const genericData = await importerInstance.parseJSON(file)
-        setImporter(importerInstance)
+        setStats(result.stats);
+        setStep("completed");
+      } else if (source === "csv") {
+        importerInstance = new GenericImporter(options);
+        const genericData = await importerInstance.parseCSV(file);
+        setImporter(importerInstance);
 
         const result = await importerInstance.import(genericData, (prog) => {
-          setProgress(prog)
-        })
+          setProgress(prog);
+        });
 
-        setStats(result.stats)
-        setStep('completed')
+        setStats(result.stats);
+        setStep("completed");
+      } else if (source === "json") {
+        importerInstance = new GenericImporter(options);
+        const genericData = await importerInstance.parseJSON(file);
+        setImporter(importerInstance);
+
+        const result = await importerInstance.import(genericData, (prog) => {
+          setProgress(prog);
+        });
+
+        setStats(result.stats);
+        setStep("completed");
       }
     } catch (error) {
-      logger.error('Import failed:', error)
-      setStep('upload')
+      logger.error("Import failed:", error);
+      setStep("upload");
     }
-  }, [file, source, options])
+  }, [file, source, options]);
 
   // Cancel import
   const cancelImport = useCallback(() => {
     if (importer) {
-      importer.cancel()
+      importer.cancel();
     }
-    setStep('source')
-    setFile(null)
-    setProgress(null)
-    setStats(null)
-    setImporter(null)
-  }, [importer])
+    setStep("source");
+    setFile(null);
+    setProgress(null);
+    setStats(null);
+    setImporter(null);
+  }, [importer]);
 
   // Reset wizard
   const resetWizard = useCallback(() => {
-    setStep('source')
-    setFile(null)
-    setProgress(null)
-    setStats(null)
-    setImporter(null)
-  }, [])
+    setStep("source");
+    setFile(null);
+    setProgress(null);
+    setStats(null);
+    setImporter(null);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -174,21 +183,21 @@ export default function ImportData() {
       {/* Wizard Steps Indicator */}
       <div className="flex items-center justify-between">
         {[
-          { id: 'source', label: 'Source' },
-          { id: 'upload', label: 'Upload' },
-          { id: 'options', label: 'Options' },
-          { id: 'importing', label: 'Import' },
-          { id: 'completed', label: 'Complete' },
+          { id: "source", label: "Source" },
+          { id: "upload", label: "Upload" },
+          { id: "options", label: "Options" },
+          { id: "importing", label: "Import" },
+          { id: "completed", label: "Complete" },
         ].map((s, i, arr) => (
           <React.Fragment key={s.id}>
             <div className="flex flex-col items-center">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
                   step === s.id
-                    ? 'text-primary-foreground border-primary bg-primary'
+                    ? "text-primary-foreground border-primary bg-primary"
                     : getStepIndex(step) > i
-                      ? 'text-primary-foreground border-primary bg-primary'
-                      : 'border-muted bg-background text-muted-foreground'
+                      ? "text-primary-foreground border-primary bg-primary"
+                      : "border-muted bg-background text-muted-foreground"
                 }`}
               >
                 {getStepIndex(step) > i ? (
@@ -202,7 +211,7 @@ export default function ImportData() {
             {i < arr.length - 1 && (
               <div
                 className={`mx-2 h-0.5 flex-1 ${
-                  getStepIndex(step) > i ? 'bg-primary' : 'bg-muted'
+                  getStepIndex(step) > i ? "bg-primary" : "bg-muted"
                 }`}
               />
             )}
@@ -211,10 +220,13 @@ export default function ImportData() {
       </div>
 
       {/* Step 1: Select Source */}
-      {step === 'source' && (
+      {step === "source" && (
         <Card className="p-6">
           <h3 className="mb-4 text-lg font-semibold">Select Import Source</h3>
-          <Tabs value={source} onValueChange={(v) => setSource(v as ImportSource)}>
+          <Tabs
+            value={source}
+            onValueChange={(v) => setSource(v as ImportSource)}
+          >
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="slack">Slack</TabsTrigger>
               <TabsTrigger value="discord">Discord</TabsTrigger>
@@ -225,7 +237,9 @@ export default function ImportData() {
             <TabsContent value="slack" className="space-y-4">
               <Alert>
                 <AlertDescription>
-                  <h4 className="mb-2 font-semibold">How to export from Slack:</h4>
+                  <h4 className="mb-2 font-semibold">
+                    How to export from Slack:
+                  </h4>
                   <ol className="list-inside list-decimal space-y-1 text-sm">
                     <li>Go to Slack workspace settings</li>
                     <li>Navigate to Import/Export Data</li>
@@ -235,13 +249,15 @@ export default function ImportData() {
                   </ol>
                 </AlertDescription>
               </Alert>
-              <Button onClick={() => setStep('upload')}>Continue</Button>
+              <Button onClick={() => setStep("upload")}>Continue</Button>
             </TabsContent>
 
             <TabsContent value="discord" className="space-y-4">
               <Alert>
                 <AlertDescription>
-                  <h4 className="mb-2 font-semibold">How to export from Discord:</h4>
+                  <h4 className="mb-2 font-semibold">
+                    How to export from Discord:
+                  </h4>
                   <ol className="list-inside list-decimal space-y-1 text-sm">
                     <li>Use DiscordChatExporter tool</li>
                     <li>Select your server and channels</li>
@@ -261,30 +277,37 @@ export default function ImportData() {
                   </div>
                 </AlertDescription>
               </Alert>
-              <Button onClick={() => setStep('upload')}>Continue</Button>
+              <Button onClick={() => setStep("upload")}>Continue</Button>
             </TabsContent>
 
             <TabsContent value="csv" className="space-y-4">
               <Alert>
                 <AlertDescription>
-                  <h4 className="mb-2 font-semibold">CSV Format Requirements:</h4>
+                  <h4 className="mb-2 font-semibold">
+                    CSV Format Requirements:
+                  </h4>
                   <p className="mb-2 text-sm">
-                    Your CSV should include columns for users, channels, or messages.
+                    Your CSV should include columns for users, channels, or
+                    messages.
                   </p>
                   <p className="text-sm">
-                    Common columns: id, email, username, name, channel_id, content, created_at
+                    Common columns: id, email, username, name, channel_id,
+                    content, created_at
                   </p>
                 </AlertDescription>
               </Alert>
-              <Button onClick={() => setStep('upload')}>Continue</Button>
+              <Button onClick={() => setStep("upload")}>Continue</Button>
             </TabsContent>
 
             <TabsContent value="json" className="space-y-4">
               <Alert>
                 <AlertDescription>
-                  <h4 className="mb-2 font-semibold">JSON Format Requirements:</h4>
+                  <h4 className="mb-2 font-semibold">
+                    JSON Format Requirements:
+                  </h4>
                   <p className="mb-2 text-sm">
-                    Your JSON should contain arrays of users, channels, or messages.
+                    Your JSON should contain arrays of users, channels, or
+                    messages.
                   </p>
                   <pre className="mt-2 rounded bg-muted p-2 text-xs">
                     {`{
@@ -295,14 +318,14 @@ export default function ImportData() {
                   </pre>
                 </AlertDescription>
               </Alert>
-              <Button onClick={() => setStep('upload')}>Continue</Button>
+              <Button onClick={() => setStep("upload")}>Continue</Button>
             </TabsContent>
           </Tabs>
         </Card>
       )}
 
       {/* Step 2: Upload File */}
-      {step === 'upload' && (
+      {step === "upload" && (
         <Card className="p-6">
           <h3 className="mb-4 text-lg font-semibold">Upload File</h3>
 
@@ -312,27 +335,38 @@ export default function ImportData() {
               id="file-upload"
               className="hidden"
               onChange={handleFileChange}
-              accept={source === 'csv' ? '.csv' : source === 'json' ? '.json' : '.zip,.json'}
+              accept={
+                source === "csv"
+                  ? ".csv"
+                  : source === "json"
+                    ? ".json"
+                    : ".zip,.json"
+              }
             />
             <label htmlFor="file-upload" className="cursor-pointer">
               <Upload className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg font-medium">
-                {file ? file.name : 'Click to upload or drag and drop'}
+                {file ? file.name : "Click to upload or drag and drop"}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                {source === 'csv' && 'CSV files only'}
-                {source === 'json' && 'JSON files only'}
-                {(source === 'slack' || source === 'discord') && 'ZIP or JSON files'}
+                {source === "csv" && "CSV files only"}
+                {source === "json" && "JSON files only"}
+                {(source === "slack" || source === "discord") &&
+                  "ZIP or JSON files"}
               </p>
-              {file && <Badge className="mt-4">{(file.size / 1024 / 1024).toFixed(2)} MB</Badge>}
+              {file && (
+                <Badge className="mt-4">
+                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                </Badge>
+              )}
             </label>
           </div>
 
           <div className="mt-6 flex gap-2">
-            <Button variant="outline" onClick={() => setStep('source')}>
+            <Button variant="outline" onClick={() => setStep("source")}>
               Back
             </Button>
-            <Button onClick={() => setStep('options')} disabled={!file}>
+            <Button onClick={() => setStep("options")} disabled={!file}>
               Continue
             </Button>
           </div>
@@ -340,7 +374,7 @@ export default function ImportData() {
       )}
 
       {/* Step 3: Import Options */}
-      {step === 'options' && (
+      {step === "options" && (
         <Card className="p-6">
           <h3 className="mb-4 text-lg font-semibold">Import Options</h3>
 
@@ -356,7 +390,9 @@ export default function ImportData() {
                   <Switch
                     id="import-users"
                     checked={options.importUsers}
-                    onCheckedChange={(checked) => setOptions({ ...options, importUsers: checked })}
+                    onCheckedChange={(checked) =>
+                      setOptions({ ...options, importUsers: checked })
+                    }
                   />
                 </div>
 
@@ -396,7 +432,9 @@ export default function ImportData() {
                   <Switch
                     id="import-files"
                     checked={options.importFiles}
-                    onCheckedChange={(checked) => setOptions({ ...options, importFiles: checked })}
+                    onCheckedChange={(checked) =>
+                      setOptions({ ...options, importFiles: checked })
+                    }
                   />
                 </div>
               </div>
@@ -444,7 +482,7 @@ export default function ImportData() {
           </div>
 
           <div className="mt-6 flex gap-2">
-            <Button variant="outline" onClick={() => setStep('upload')}>
+            <Button variant="outline" onClick={() => setStep("upload")}>
               Back
             </Button>
             <Button onClick={startImport}>Start Import</Button>
@@ -453,7 +491,7 @@ export default function ImportData() {
       )}
 
       {/* Step 4: Importing */}
-      {step === 'importing' && progress && (
+      {step === "importing" && progress && (
         <Card className="p-6">
           <h3 className="mb-4 text-lg font-semibold">Importing Data</h3>
 
@@ -461,8 +499,12 @@ export default function ImportData() {
             {/* Overall Progress */}
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-medium">{progress.currentStep}</span>
-                <span className="text-sm text-muted-foreground">{progress.progress}%</span>
+                <span className="text-sm font-medium">
+                  {progress.currentStep}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {progress.progress}%
+                </span>
               </div>
               <Progress value={progress.progress} />
             </div>
@@ -475,8 +517,9 @@ export default function ImportData() {
             {/* Items Progress */}
             {progress.itemsTotal > 0 && (
               <div className="text-sm">
-                <span className="font-medium">{progress.itemsProcessed}</span> of{' '}
-                <span className="font-medium">{progress.itemsTotal}</span> items processed
+                <span className="font-medium">{progress.itemsProcessed}</span>{" "}
+                of <span className="font-medium">{progress.itemsTotal}</span>{" "}
+                items processed
               </div>
             )}
 
@@ -485,7 +528,9 @@ export default function ImportData() {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="font-medium">{progress.warnings.length} warning(s)</div>
+                  <div className="font-medium">
+                    {progress.warnings.length} warning(s)
+                  </div>
                   <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto text-sm">
                     {progress.warnings.slice(-5).map((warning, i) => (
                       <li key={i}>• {warning.message}</li>
@@ -500,7 +545,9 @@ export default function ImportData() {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="font-medium">{progress.errors.length} error(s)</div>
+                  <div className="font-medium">
+                    {progress.errors.length} error(s)
+                  </div>
                   <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto text-sm">
                     {progress.errors.slice(-5).map((error, i) => (
                       <li key={i}>• {error.message}</li>
@@ -518,7 +565,7 @@ export default function ImportData() {
       )}
 
       {/* Step 5: Completed */}
-      {step === 'completed' && stats && (
+      {step === "completed" && stats && (
         <Card className="p-6">
           <div className="mb-6 flex items-center gap-2">
             <CheckCircle className="h-6 w-6 text-green-500" />
@@ -581,7 +628,11 @@ export default function ImportData() {
                     {progress.errors.map((error, i) => (
                       <li key={i} className="ml-4">
                         • {error.message}
-                        {error.details && <div className="ml-2 mt-1 text-xs">{error.details}</div>}
+                        {error.details && (
+                          <div className="ml-2 mt-1 text-xs">
+                            {error.details}
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -594,7 +645,7 @@ export default function ImportData() {
         </Card>
       )}
     </div>
-  )
+  );
 }
 
 // Helper component for stats display
@@ -604,14 +655,16 @@ function StatsCard({
   skipped,
   failed,
 }: {
-  label: string
-  imported: number
-  skipped: number
-  failed: number
+  label: string;
+  imported: number;
+  skipped: number;
+  failed: number;
 }) {
   return (
     <div className="rounded-lg border p-4">
-      <div className="mb-2 text-sm font-medium text-muted-foreground">{label}</div>
+      <div className="mb-2 text-sm font-medium text-muted-foreground">
+        {label}
+      </div>
       <div className="space-y-1">
         <div className="flex items-center justify-between">
           <span className="text-sm">Imported</span>
@@ -631,11 +684,17 @@ function StatsCard({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // Helper to get step index
 function getStepIndex(step: WizardStep): number {
-  const steps: WizardStep[] = ['source', 'upload', 'options', 'importing', 'completed']
-  return steps.indexOf(step)
+  const steps: WizardStep[] = [
+    "source",
+    "upload",
+    "options",
+    "importing",
+    "completed",
+  ];
+  return steps.indexOf(step);
 }

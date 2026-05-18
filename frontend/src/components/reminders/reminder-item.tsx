@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Reminder Item Component
@@ -17,7 +17,7 @@
  * ```
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Bell,
   Check,
@@ -30,40 +30,44 @@ import {
   Trash2,
   User,
   AlarmClock,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { formatFutureTime } from '@/lib/reminders/reminder-store'
-import { formatMessageTime, formatMessageTimeTooltip } from '@/lib/date'
-import type { Reminder } from '@/graphql/reminders'
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatFutureTime } from "@/lib/reminders/reminder-store";
+import { formatMessageTime, formatMessageTimeTooltip } from "@/lib/date";
+import type { Reminder } from "@/graphql/reminders";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ReminderItemProps {
-  reminder: Reminder
-  onComplete?: (id: string) => void
-  onEdit?: (reminder: Reminder) => void
-  onDelete?: (id: string) => void
-  onSnooze?: (id: string) => void
-  onDismiss?: (id: string) => void
-  onClick?: (reminder: Reminder) => void
-  isLoading?: boolean
-  variant?: 'default' | 'compact' | 'notification'
-  showChannel?: boolean
-  showActions?: boolean
-  className?: string
+  reminder: Reminder;
+  onComplete?: (id: string) => void;
+  onEdit?: (reminder: Reminder) => void;
+  onDelete?: (id: string) => void;
+  onSnooze?: (id: string) => void;
+  onDismiss?: (id: string) => void;
+  onClick?: (reminder: Reminder) => void;
+  isLoading?: boolean;
+  variant?: "default" | "compact" | "notification";
+  showChannel?: boolean;
+  showActions?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -71,46 +75,55 @@ export interface ReminderItemProps {
 // ============================================================================
 
 interface ReminderContentPreviewProps {
-  reminder: Reminder
-  maxLength?: number
+  reminder: Reminder;
+  maxLength?: number;
 }
 
-function ReminderContentPreview({ reminder, maxLength = 100 }: ReminderContentPreviewProps) {
-  const content = reminder.content
-  const truncated = content.length > maxLength ? `${content.slice(0, maxLength)}...` : content
+function ReminderContentPreview({
+  reminder,
+  maxLength = 100,
+}: ReminderContentPreviewProps) {
+  const content = reminder.content;
+  const truncated =
+    content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
 
   return (
     <div className="space-y-1">
       <p className="line-clamp-2 text-sm font-medium">{truncated}</p>
       {reminder.note && (
-        <p className="line-clamp-1 text-xs text-muted-foreground">Note: {reminder.note}</p>
+        <p className="line-clamp-1 text-xs text-muted-foreground">
+          Note: {reminder.note}
+        </p>
       )}
     </div>
-  )
+  );
 }
 
 interface ReminderTimeDisplayProps {
-  reminder: Reminder
-  showRelative?: boolean
+  reminder: Reminder;
+  showRelative?: boolean;
 }
 
-function ReminderTimeDisplay({ reminder, showRelative = true }: ReminderTimeDisplayProps) {
-  const remindAt = new Date(reminder.remind_at)
-  const now = new Date()
-  const isPast = remindAt < now
-  const isDue = isPast && reminder.status === 'pending'
+function ReminderTimeDisplay({
+  reminder,
+  showRelative = true,
+}: ReminderTimeDisplayProps) {
+  const remindAt = new Date(reminder.remind_at);
+  const now = new Date();
+  const isPast = remindAt < now;
+  const isDue = isPast && reminder.status === "pending";
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <div
           className={cn(
-            'flex items-center gap-1.5 text-xs',
+            "flex items-center gap-1.5 text-xs",
             isDue
-              ? 'font-medium text-destructive'
+              ? "font-medium text-destructive"
               : isPast
-                ? 'text-muted-foreground'
-                : 'text-muted-foreground'
+                ? "text-muted-foreground"
+                : "text-muted-foreground",
           )}
         >
           {isDue ? (
@@ -128,15 +141,17 @@ function ReminderTimeDisplay({ reminder, showRelative = true }: ReminderTimeDisp
       <TooltipContent>
         <p>{formatMessageTimeTooltip(remindAt)}</p>
         {reminder.timezone && (
-          <p className="mt-1 text-xs text-muted-foreground">Timezone: {reminder.timezone}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Timezone: {reminder.timezone}
+          </p>
         )}
       </TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 interface ReminderChannelBadgeProps {
-  reminder: Reminder
+  reminder: Reminder;
 }
 
 function ReminderChannelBadge({ reminder }: ReminderChannelBadgeProps) {
@@ -146,7 +161,7 @@ function ReminderChannelBadge({ reminder }: ReminderChannelBadgeProps) {
         <Hash className="h-3 w-3" />
         {reminder.message.channel.name}
       </Badge>
-    )
+    );
   }
 
   if (reminder.channel) {
@@ -155,52 +170,52 @@ function ReminderChannelBadge({ reminder }: ReminderChannelBadgeProps) {
         <Hash className="h-3 w-3" />
         {reminder.channel.name}
       </Badge>
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
 interface ReminderTypeBadgeProps {
-  type: Reminder['type']
+  type: Reminder["type"];
 }
 
 function ReminderTypeBadge({ type }: ReminderTypeBadgeProps) {
   const config = {
-    message: { label: 'Message', icon: MessageSquare },
-    custom: { label: 'Custom', icon: Bell },
-    followup: { label: 'Follow-up', icon: User },
-  }
+    message: { label: "Message", icon: MessageSquare },
+    custom: { label: "Custom", icon: Bell },
+    followup: { label: "Follow-up", icon: User },
+  };
 
-  const { label, icon: Icon } = config[type] || config.custom
+  const { label, icon: Icon } = config[type] || config.custom;
 
   return (
     <Badge variant="outline" className="gap-1 text-xs font-normal">
       <Icon className="h-3 w-3" />
       {label}
     </Badge>
-  )
+  );
 }
 
 interface ReminderStatusBadgeProps {
-  status: Reminder['status']
+  status: Reminder["status"];
 }
 
 function ReminderStatusBadge({ status }: ReminderStatusBadgeProps) {
   const config = {
-    pending: { label: 'Pending', variant: 'default' as const },
-    completed: { label: 'Completed', variant: 'secondary' as const },
-    dismissed: { label: 'Dismissed', variant: 'outline' as const },
-    snoozed: { label: 'Snoozed', variant: 'secondary' as const },
-  }
+    pending: { label: "Pending", variant: "default" as const },
+    completed: { label: "Completed", variant: "secondary" as const },
+    dismissed: { label: "Dismissed", variant: "outline" as const },
+    snoozed: { label: "Snoozed", variant: "secondary" as const },
+  };
 
-  const { label, variant } = config[status] || config.pending
+  const { label, variant } = config[status] || config.pending;
 
   return (
     <Badge variant={variant} className="text-xs">
       {label}
     </Badge>
-  )
+  );
 }
 
 // ============================================================================
@@ -219,31 +234,31 @@ function DefaultReminderItem({
   showActions = true,
   className,
 }: ReminderItemProps) {
-  const isPending = reminder.status === 'pending'
-  const isCompleted = reminder.status === 'completed'
+  const isPending = reminder.status === "pending";
+  const isCompleted = reminder.status === "completed";
 
   const interactiveProps = onClick
     ? {
         onClick: () => onClick(reminder),
         onKeyDown: (e: React.KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onClick(reminder)
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick(reminder);
           }
         },
-        role: 'button' as const,
+        role: "button" as const,
         tabIndex: 0,
       }
-    : {}
+    : {};
 
   return (
     <div
       className={cn(
-        'group relative flex items-start gap-4 rounded-lg border p-4 transition-colors',
-        isPending && 'hover:border-primary/50 hover:bg-accent/50',
-        isCompleted && 'opacity-75',
-        onClick && 'cursor-pointer',
-        className
+        "group relative flex items-start gap-4 rounded-lg border p-4 transition-colors",
+        isPending && "hover:border-primary/50 hover:bg-accent/50",
+        isCompleted && "opacity-75",
+        onClick && "cursor-pointer",
+        className,
       )}
       {...interactiveProps}
     >
@@ -252,16 +267,16 @@ function DefaultReminderItem({
         {isPending && onComplete ? (
           <button
             onClick={(e) => {
-              e.stopPropagation()
-              onComplete(reminder.id)
+              e.stopPropagation();
+              onComplete(reminder.id);
             }}
             disabled={isLoading}
             className={cn(
-              'border-muted-foreground/50 flex h-5 w-5 items-center justify-center rounded-full border-2',
-              'hover:bg-primary/10 hover:border-primary',
-              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-              'transition-colors'
+              "border-muted-foreground/50 flex h-5 w-5 items-center justify-center rounded-full border-2",
+              "hover:bg-primary/10 hover:border-primary",
+              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+              "transition-colors",
             )}
           >
             <Check className="h-3 w-3 text-transparent group-hover:text-primary" />
@@ -269,8 +284,8 @@ function DefaultReminderItem({
         ) : (
           <div
             className={cn(
-              'flex h-5 w-5 items-center justify-center rounded-full',
-              isCompleted ? 'bg-primary' : 'bg-muted'
+              "flex h-5 w-5 items-center justify-center rounded-full",
+              isCompleted ? "bg-primary" : "bg-muted",
             )}
           >
             {isCompleted ? (
@@ -313,17 +328,21 @@ function DefaultReminderItem({
               <Avatar className="h-4 w-4">
                 <AvatarImage src={reminder.message.user.avatar_url} />
                 <AvatarFallback className="text-[8px]">
-                  {reminder.message.user.display_name?.[0] || reminder.message.user.username[0]}
+                  {reminder.message.user.display_name?.[0] ||
+                    reminder.message.user.username[0]}
                 </AvatarFallback>
               </Avatar>
               <span className="text-xs font-medium">
-                {reminder.message.user.display_name || reminder.message.user.username}
+                {reminder.message.user.display_name ||
+                  reminder.message.user.username}
               </span>
               <span className="text-xs text-muted-foreground">
                 {formatMessageTime(reminder.message.created_at)}
               </span>
             </div>
-            <p className="line-clamp-2 text-xs text-muted-foreground">{reminder.message.content}</p>
+            <p className="line-clamp-2 text-xs text-muted-foreground">
+              {reminder.message.content}
+            </p>
           </div>
         )}
       </div>
@@ -347,8 +366,8 @@ function DefaultReminderItem({
               {onEdit && (
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onEdit(reminder)
+                    e.stopPropagation();
+                    onEdit(reminder);
                   }}
                 >
                   <Edit2 className="mr-2 h-4 w-4" />
@@ -358,8 +377,8 @@ function DefaultReminderItem({
               {onSnooze && (
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onSnooze(reminder.id)
+                    e.stopPropagation();
+                    onSnooze(reminder.id);
                   }}
                 >
                   <Clock className="mr-2 h-4 w-4" />
@@ -369,8 +388,8 @@ function DefaultReminderItem({
               {onComplete && (
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onComplete(reminder.id)
+                    e.stopPropagation();
+                    onComplete(reminder.id);
                   }}
                 >
                   <Check className="mr-2 h-4 w-4" />
@@ -382,8 +401,8 @@ function DefaultReminderItem({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onDelete(reminder.id)
+                      e.stopPropagation();
+                      onDelete(reminder.id);
                     }}
                     className="text-destructive focus:text-destructive"
                   >
@@ -397,7 +416,7 @@ function DefaultReminderItem({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -413,26 +432,26 @@ function CompactReminderItem({
   isLoading,
   className,
 }: ReminderItemProps) {
-  const isPending = reminder.status === 'pending'
+  const isPending = reminder.status === "pending";
 
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-md px-3 py-2 transition-colors',
-        'hover:bg-accent',
-        onClick && 'cursor-pointer',
-        className
+        "flex items-center gap-3 rounded-md px-3 py-2 transition-colors",
+        "hover:bg-accent",
+        onClick && "cursor-pointer",
+        className,
       )}
       {...(onClick
         ? {
             onClick: () => onClick(reminder),
             onKeyDown: (e: React.KeyboardEvent) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onClick(reminder)
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick(reminder);
               }
             },
-            role: 'button' as const,
+            role: "button" as const,
             tabIndex: 0,
           }
         : {})}
@@ -441,15 +460,15 @@ function CompactReminderItem({
       {isPending && onComplete && (
         <button
           onClick={(e) => {
-            e.stopPropagation()
-            onComplete(reminder.id)
+            e.stopPropagation();
+            onComplete(reminder.id);
           }}
           disabled={isLoading}
           aria-label="Mark reminder as complete"
           className={cn(
-            'border-muted-foreground/50 flex h-4 w-4 items-center justify-center rounded border',
-            'hover:bg-primary/10 hover:border-primary',
-            'disabled:cursor-not-allowed disabled:opacity-50'
+            "border-muted-foreground/50 flex h-4 w-4 items-center justify-center rounded border",
+            "hover:bg-primary/10 hover:border-primary",
+            "disabled:cursor-not-allowed disabled:opacity-50",
           )}
         >
           <Check className="h-2.5 w-2.5 text-transparent hover:text-primary" />
@@ -475,8 +494,8 @@ function CompactReminderItem({
               size="icon"
               className="h-6 w-6"
               onClick={(e) => {
-                e.stopPropagation()
-                onEdit(reminder)
+                e.stopPropagation();
+                onEdit(reminder);
               }}
             >
               <Edit2 className="h-3 w-3" />
@@ -488,8 +507,8 @@ function CompactReminderItem({
               size="icon"
               className="h-6 w-6 text-destructive hover:text-destructive"
               onClick={(e) => {
-                e.stopPropagation()
-                onDelete(reminder.id)
+                e.stopPropagation();
+                onDelete(reminder.id);
               }}
             >
               <Trash2 className="h-3 w-3" />
@@ -498,7 +517,7 @@ function CompactReminderItem({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -516,20 +535,20 @@ function NotificationReminderItem({
   return (
     <div
       className={cn(
-        'flex items-start gap-3 rounded-lg border bg-background p-3',
-        onClick && 'hover:bg-accent/50 cursor-pointer',
-        className
+        "flex items-start gap-3 rounded-lg border bg-background p-3",
+        onClick && "hover:bg-accent/50 cursor-pointer",
+        className,
       )}
       {...(onClick
         ? {
             onClick: () => onClick(reminder),
             onKeyDown: (e: React.KeyboardEvent) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onClick(reminder)
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick(reminder);
               }
             },
-            role: 'button' as const,
+            role: "button" as const,
             tabIndex: 0,
           }
         : {})}
@@ -549,8 +568,8 @@ function NotificationReminderItem({
             variant="ghost"
             size="sm"
             onClick={(e) => {
-              e.stopPropagation()
-              onComplete(reminder.id)
+              e.stopPropagation();
+              onComplete(reminder.id);
             }}
           >
             <Check className="h-4 w-4" />
@@ -561,8 +580,8 @@ function NotificationReminderItem({
             variant="ghost"
             size="sm"
             onClick={(e) => {
-              e.stopPropagation()
-              onSnooze(reminder.id)
+              e.stopPropagation();
+              onSnooze(reminder.id);
             }}
           >
             <Clock className="h-4 w-4" />
@@ -573,8 +592,8 @@ function NotificationReminderItem({
             variant="ghost"
             size="sm"
             onClick={(e) => {
-              e.stopPropagation()
-              onDismiss(reminder.id)
+              e.stopPropagation();
+              onDismiss(reminder.id);
             }}
           >
             <Trash2 className="h-4 w-4" />
@@ -582,22 +601,25 @@ function NotificationReminderItem({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
-export function ReminderItem({ variant = 'default', ...props }: ReminderItemProps) {
+export function ReminderItem({
+  variant = "default",
+  ...props
+}: ReminderItemProps) {
   switch (variant) {
-    case 'compact':
-      return <CompactReminderItem {...props} />
-    case 'notification':
-      return <NotificationReminderItem {...props} />
+    case "compact":
+      return <CompactReminderItem {...props} />;
+    case "notification":
+      return <NotificationReminderItem {...props} />;
     default:
-      return <DefaultReminderItem {...props} />
+      return <DefaultReminderItem {...props} />;
   }
 }
 
-export default ReminderItem
+export default ReminderItem;

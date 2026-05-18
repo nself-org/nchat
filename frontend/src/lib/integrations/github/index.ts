@@ -24,7 +24,7 @@ export {
   parseGitHubUrl,
   unfurlGitHubUrl,
   type GitHubClientConfig,
-} from './github-client'
+} from "./github-client";
 
 // Export OAuth
 export {
@@ -46,7 +46,7 @@ export {
   type GitHubOAuthState,
   type GitHubOAuthResult,
   type GitHubOAuthError,
-} from './oauth'
+} from "./oauth";
 
 // Export formatter
 export {
@@ -56,7 +56,7 @@ export {
   type NotificationIcon,
   type NotificationColor,
   type NotificationMetadata,
-} from './formatter'
+} from "./formatter";
 
 // Export types
 export type {
@@ -82,4 +82,4 @@ export type {
   GitHubRepoNotificationSettings,
   GitHubUnfurlResult,
   GitHubIntegrationConfig,
-} from './types'
+} from "./types";

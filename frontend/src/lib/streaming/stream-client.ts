@@ -7,31 +7,31 @@
  * @module lib/streaming/stream-client
  */
 
-import type { StreamQuality, StreamQualityMetrics } from './stream-types'
+import type { StreamQuality, StreamQualityMetrics } from "./stream-types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface StreamClientConfig {
-  streamId: string
-  streamKey: string
-  ingestUrl: string
-  userId: string
-  onConnectionStateChange?: (state: RTCPeerConnectionState) => void
-  onError?: (error: StreamClientError) => void
-  onQualityMetrics?: (metrics: StreamQualityMetrics) => void
+  streamId: string;
+  streamKey: string;
+  ingestUrl: string;
+  userId: string;
+  onConnectionStateChange?: (state: RTCPeerConnectionState) => void;
+  onError?: (error: StreamClientError) => void;
+  onQualityMetrics?: (metrics: StreamQualityMetrics) => void;
 }
 
 export interface StreamClientError {
-  code: string
-  message: string
-  recoverable: boolean
+  code: string;
+  message: string;
+  recoverable: boolean;
 }
 
 export interface MediaConstraints {
-  video: MediaTrackConstraints
-  audio: MediaTrackConstraints
+  video: MediaTrackConstraints;
+  audio: MediaTrackConstraints;
 }
 
 // ============================================================================
@@ -39,22 +39,22 @@ export interface MediaConstraints {
 // ============================================================================
 
 const VIDEO_CONSTRAINTS: Record<StreamQuality, MediaTrackConstraints> = {
-  '1080p': {
+  "1080p": {
     width: { ideal: 1920 },
     height: { ideal: 1080 },
     frameRate: { ideal: 30 },
   },
-  '720p': {
+  "720p": {
     width: { ideal: 1280 },
     height: { ideal: 720 },
     frameRate: { ideal: 30 },
   },
-  '480p': {
+  "480p": {
     width: { ideal: 854 },
     height: { ideal: 480 },
     frameRate: { ideal: 30 },
   },
-  '360p': {
+  "360p": {
     width: { ideal: 640 },
     height: { ideal: 360 },
     frameRate: { ideal: 24 },
@@ -64,7 +64,7 @@ const VIDEO_CONSTRAINTS: Record<StreamQuality, MediaTrackConstraints> = {
     height: { ideal: 720 },
     frameRate: { ideal: 30 },
   },
-}
+};
 
 const AUDIO_CONSTRAINTS: MediaTrackConstraints = {
   echoCancellation: true,
@@ -72,29 +72,32 @@ const AUDIO_CONSTRAINTS: MediaTrackConstraints = {
   autoGainControl: true,
   sampleRate: 48000,
   channelCount: 2,
-}
+};
 
 const PEER_CONNECTION_CONFIG: RTCConfiguration = {
-  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+  ],
   iceCandidatePoolSize: 10,
-}
+};
 
 // ============================================================================
 // Stream Client Manager
 // ============================================================================
 
 export class StreamClient {
-  private config: StreamClientConfig
-  private peerConnection: RTCPeerConnection | null = null
-  private localStream: MediaStream | null = null
-  private statsInterval: number | null = null
-  private metricsInterval: number | null = null
-  private qualityLevel: StreamQuality = '720p'
-  private isConnecting: boolean = false
-  private isConnected: boolean = false
+  private config: StreamClientConfig;
+  private peerConnection: RTCPeerConnection | null = null;
+  private localStream: MediaStream | null = null;
+  private statsInterval: number | null = null;
+  private metricsInterval: number | null = null;
+  private qualityLevel: StreamQuality = "720p";
+  private isConnecting: boolean = false;
+  private isConnected: boolean = false;
 
   constructor(config: StreamClientConfig) {
-    this.config = config
+    this.config = config;
   }
 
   // ==========================================================================
@@ -104,38 +107,40 @@ export class StreamClient {
   /**
    * Start broadcasting stream
    */
-  public async startBroadcast(quality: StreamQuality = '720p'): Promise<MediaStream> {
+  public async startBroadcast(
+    quality: StreamQuality = "720p",
+  ): Promise<MediaStream> {
     if (this.isConnecting || this.isConnected) {
-      throw new Error('Already broadcasting')
+      throw new Error("Already broadcasting");
     }
 
-    this.isConnecting = true
-    this.qualityLevel = quality
+    this.isConnecting = true;
+    this.qualityLevel = quality;
 
     try {
       // Get media devices
-      this.localStream = await this.getUserMedia(quality)
+      this.localStream = await this.getUserMedia(quality);
 
       // Create peer connection
-      await this.createPeerConnection()
+      await this.createPeerConnection();
 
       // Add tracks to peer connection
-      this.addTracksToConnection()
+      this.addTracksToConnection();
 
       // Create and send offer
-      await this.createAndSendOffer()
+      await this.createAndSendOffer();
 
-      this.isConnecting = false
-      this.isConnected = true
+      this.isConnecting = false;
+      this.isConnected = true;
 
       // Start metrics reporting
-      this.startMetricsReporting()
+      this.startMetricsReporting();
 
-      return this.localStream
+      return this.localStream;
     } catch (error) {
-      this.isConnecting = false
-      this.handleError('BROADCAST_START_FAILED', error as Error)
-      throw error
+      this.isConnecting = false;
+      this.handleError("BROADCAST_START_FAILED", error as Error);
+      throw error;
     }
   }
 
@@ -143,10 +148,10 @@ export class StreamClient {
    * Stop broadcasting
    */
   public stopBroadcast(): void {
-    this.stopMetricsReporting()
-    this.closePeerConnection()
-    this.stopLocalStream()
-    this.isConnected = false
+    this.stopMetricsReporting();
+    this.closePeerConnection();
+    this.stopLocalStream();
+    this.isConnected = false;
   }
 
   // ==========================================================================
@@ -160,13 +165,13 @@ export class StreamClient {
     const constraints: MediaConstraints = {
       video: VIDEO_CONSTRAINTS[quality],
       audio: AUDIO_CONSTRAINTS,
-    }
+    };
 
     try {
-      return await navigator.mediaDevices.getUserMedia(constraints)
+      return await navigator.mediaDevices.getUserMedia(constraints);
     } catch (error) {
-      this.handleError('MEDIA_ACCESS_DENIED', error as Error)
-      throw error
+      this.handleError("MEDIA_ACCESS_DENIED", error as Error);
+      throw error;
     }
   }
 
@@ -174,37 +179,39 @@ export class StreamClient {
    * Switch camera
    */
   public async switchCamera(deviceId: string): Promise<void> {
-    if (!this.localStream) return
+    if (!this.localStream) return;
 
-    const videoTrack = this.localStream.getVideoTracks()[0]
-    if (!videoTrack) return
+    const videoTrack = this.localStream.getVideoTracks()[0];
+    if (!videoTrack) return;
 
     try {
       const constraints: MediaTrackConstraints = {
         ...VIDEO_CONSTRAINTS[this.qualityLevel],
         deviceId: { exact: deviceId },
-      }
+      };
 
       const newStream = await navigator.mediaDevices.getUserMedia({
         video: constraints,
-      })
+      });
 
-      const newTrack = newStream.getVideoTracks()[0]
+      const newTrack = newStream.getVideoTracks()[0];
 
       // Replace track in peer connection
-      const sender = this.peerConnection?.getSenders().find((s) => s.track?.kind === 'video')
+      const sender = this.peerConnection
+        ?.getSenders()
+        .find((s) => s.track?.kind === "video");
 
       if (sender) {
-        await sender.replaceTrack(newTrack)
+        await sender.replaceTrack(newTrack);
       }
 
       // Replace track in local stream
-      videoTrack.stop()
-      this.localStream.removeTrack(videoTrack)
-      this.localStream.addTrack(newTrack)
+      videoTrack.stop();
+      this.localStream.removeTrack(videoTrack);
+      this.localStream.addTrack(newTrack);
     } catch (error) {
-      this.handleError('CAMERA_SWITCH_FAILED', error as Error)
-      throw error
+      this.handleError("CAMERA_SWITCH_FAILED", error as Error);
+      throw error;
     }
   }
 
@@ -212,37 +219,39 @@ export class StreamClient {
    * Switch microphone
    */
   public async switchMicrophone(deviceId: string): Promise<void> {
-    if (!this.localStream) return
+    if (!this.localStream) return;
 
-    const audioTrack = this.localStream.getAudioTracks()[0]
-    if (!audioTrack) return
+    const audioTrack = this.localStream.getAudioTracks()[0];
+    if (!audioTrack) return;
 
     try {
       const constraints: MediaTrackConstraints = {
         ...AUDIO_CONSTRAINTS,
         deviceId: { exact: deviceId },
-      }
+      };
 
       const newStream = await navigator.mediaDevices.getUserMedia({
         audio: constraints,
-      })
+      });
 
-      const newTrack = newStream.getAudioTracks()[0]
+      const newTrack = newStream.getAudioTracks()[0];
 
       // Replace track in peer connection
-      const sender = this.peerConnection?.getSenders().find((s) => s.track?.kind === 'audio')
+      const sender = this.peerConnection
+        ?.getSenders()
+        .find((s) => s.track?.kind === "audio");
 
       if (sender) {
-        await sender.replaceTrack(newTrack)
+        await sender.replaceTrack(newTrack);
       }
 
       // Replace track in local stream
-      audioTrack.stop()
-      this.localStream.removeTrack(audioTrack)
-      this.localStream.addTrack(newTrack)
+      audioTrack.stop();
+      this.localStream.removeTrack(audioTrack);
+      this.localStream.addTrack(newTrack);
     } catch (error) {
-      this.handleError('MICROPHONE_SWITCH_FAILED', error as Error)
-      throw error
+      this.handleError("MICROPHONE_SWITCH_FAILED", error as Error);
+      throw error;
     }
   }
 
@@ -250,18 +259,18 @@ export class StreamClient {
    * Change video quality
    */
   public async changeQuality(quality: StreamQuality): Promise<void> {
-    if (!this.localStream) return
+    if (!this.localStream) return;
 
-    this.qualityLevel = quality
+    this.qualityLevel = quality;
 
-    const videoTrack = this.localStream.getVideoTracks()[0]
-    if (!videoTrack) return
+    const videoTrack = this.localStream.getVideoTracks()[0];
+    if (!videoTrack) return;
 
     try {
-      await videoTrack.applyConstraints(VIDEO_CONSTRAINTS[quality])
+      await videoTrack.applyConstraints(VIDEO_CONSTRAINTS[quality]);
     } catch (error) {
-      this.handleError('QUALITY_CHANGE_FAILED', error as Error)
-      throw error
+      this.handleError("QUALITY_CHANGE_FAILED", error as Error);
+      throw error;
     }
   }
 
@@ -269,11 +278,11 @@ export class StreamClient {
    * Toggle camera on/off
    */
   public toggleVideo(enabled: boolean): void {
-    if (!this.localStream) return
+    if (!this.localStream) return;
 
-    const videoTrack = this.localStream.getVideoTracks()[0]
+    const videoTrack = this.localStream.getVideoTracks()[0];
     if (videoTrack) {
-      videoTrack.enabled = enabled
+      videoTrack.enabled = enabled;
     }
   }
 
@@ -281,11 +290,11 @@ export class StreamClient {
    * Toggle microphone on/off
    */
   public toggleAudio(enabled: boolean): void {
-    if (!this.localStream) return
+    if (!this.localStream) return;
 
-    const audioTrack = this.localStream.getAudioTracks()[0]
+    const audioTrack = this.localStream.getAudioTracks()[0];
     if (audioTrack) {
-      audioTrack.enabled = enabled
+      audioTrack.enabled = enabled;
     }
   }
 
@@ -294,8 +303,8 @@ export class StreamClient {
    */
   private stopLocalStream(): void {
     if (this.localStream) {
-      this.localStream.getTracks().forEach((track) => track.stop())
-      this.localStream = null
+      this.localStream.getTracks().forEach((track) => track.stop());
+      this.localStream = null;
     }
   }
 
@@ -307,75 +316,82 @@ export class StreamClient {
    * Create peer connection
    */
   private async createPeerConnection(): Promise<void> {
-    this.peerConnection = new RTCPeerConnection(PEER_CONNECTION_CONFIG)
+    this.peerConnection = new RTCPeerConnection(PEER_CONNECTION_CONFIG);
 
     // Connection state change handler
     this.peerConnection.onconnectionstatechange = () => {
-      const state = this.peerConnection?.connectionState
+      const state = this.peerConnection?.connectionState;
       if (state) {
-        this.config.onConnectionStateChange?.(state)
+        this.config.onConnectionStateChange?.(state);
 
-        if (state === 'failed' || state === 'disconnected') {
-          this.handleError('CONNECTION_FAILED', new Error(`Connection ${state}`))
+        if (state === "failed" || state === "disconnected") {
+          this.handleError(
+            "CONNECTION_FAILED",
+            new Error(`Connection ${state}`),
+          );
         }
       }
-    }
+    };
 
     // ICE candidate handler
     this.peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
-        this.sendIceCandidate(event.candidate)
+        this.sendIceCandidate(event.candidate);
       }
-    }
+    };
 
     // Start monitoring stats
-    this.startStatsMonitoring()
+    this.startStatsMonitoring();
   }
 
   /**
    * Add tracks to peer connection
    */
   private addTracksToConnection(): void {
-    if (!this.localStream || !this.peerConnection) return
+    if (!this.localStream || !this.peerConnection) return;
 
     this.localStream.getTracks().forEach((track) => {
-      this.peerConnection?.addTrack(track, this.localStream!)
-    })
+      this.peerConnection?.addTrack(track, this.localStream!);
+    });
   }
 
   /**
    * Create and send SDP offer
    */
   private async createAndSendOffer(): Promise<void> {
-    if (!this.peerConnection) return
+    if (!this.peerConnection) return;
 
     const offer = await this.peerConnection.createOffer({
       offerToReceiveAudio: false,
       offerToReceiveVideo: false,
-    })
+    });
 
-    await this.peerConnection.setLocalDescription(offer)
+    await this.peerConnection.setLocalDescription(offer);
 
     // Send offer to signaling server
-    await this.sendOffer(offer)
+    await this.sendOffer(offer);
   }
 
   /**
    * Handle SDP answer from server
    */
   public async handleAnswer(answer: RTCSessionDescriptionInit): Promise<void> {
-    if (!this.peerConnection) return
+    if (!this.peerConnection) return;
 
-    await this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
+    await this.peerConnection.setRemoteDescription(
+      new RTCSessionDescription(answer),
+    );
   }
 
   /**
    * Handle ICE candidate from server
    */
-  public async handleIceCandidate(candidate: RTCIceCandidateInit): Promise<void> {
-    if (!this.peerConnection) return
+  public async handleIceCandidate(
+    candidate: RTCIceCandidateInit,
+  ): Promise<void> {
+    if (!this.peerConnection) return;
 
-    await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+    await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
   }
 
   /**
@@ -383,13 +399,13 @@ export class StreamClient {
    */
   private closePeerConnection(): void {
     if (this.statsInterval) {
-      window.clearInterval(this.statsInterval)
-      this.statsInterval = null
+      window.clearInterval(this.statsInterval);
+      this.statsInterval = null;
     }
 
     if (this.peerConnection) {
-      this.peerConnection.close()
-      this.peerConnection = null
+      this.peerConnection.close();
+      this.peerConnection = null;
     }
   }
 
@@ -410,25 +426,25 @@ export class StreamClient {
    */
   private startStatsMonitoring(): void {
     this.statsInterval = window.setInterval(async () => {
-      await this.collectStats()
-    }, 1000) // Collect every second
+      await this.collectStats();
+    }, 1000); // Collect every second
   }
 
   /**
    * Collect WebRTC statistics
    */
   private async collectStats(): Promise<void> {
-    if (!this.peerConnection) return
+    if (!this.peerConnection) return;
 
-    const stats = await this.peerConnection.getStats()
+    const stats = await this.peerConnection.getStats();
 
     // Process stats (extract bitrate, FPS, etc.)
     // This is a simplified version
     stats.forEach((report) => {
-      if (report.type === 'outbound-rtp' && report.kind === 'video') {
+      if (report.type === "outbound-rtp" && report.kind === "video") {
         // Video stats available here
       }
-    })
+    });
   }
 
   /**
@@ -436,12 +452,12 @@ export class StreamClient {
    */
   private startMetricsReporting(): void {
     this.metricsInterval = window.setInterval(async () => {
-      const metrics = await this.getQualityMetrics()
+      const metrics = await this.getQualityMetrics();
       if (metrics) {
-        this.config.onQualityMetrics?.(metrics)
-        await this.reportMetrics(metrics)
+        this.config.onQualityMetrics?.(metrics);
+        await this.reportMetrics(metrics);
       }
-    }, 5000) // Report every 5 seconds
+    }, 5000); // Report every 5 seconds
   }
 
   /**
@@ -449,8 +465,8 @@ export class StreamClient {
    */
   private stopMetricsReporting(): void {
     if (this.metricsInterval) {
-      window.clearInterval(this.metricsInterval)
-      this.metricsInterval = null
+      window.clearInterval(this.metricsInterval);
+      this.metricsInterval = null;
     }
   }
 
@@ -458,9 +474,9 @@ export class StreamClient {
    * Get current quality metrics
    */
   private async getQualityMetrics(): Promise<StreamQualityMetrics | null> {
-    if (!this.peerConnection) return null
+    if (!this.peerConnection) return null;
 
-    const stats = await this.peerConnection.getStats()
+    const stats = await this.peerConnection.getStats();
 
     // Extract metrics from stats
     // This is a simplified placeholder
@@ -478,7 +494,7 @@ export class StreamClient {
       latencyMs: 0,
       packetLossPercent: 0,
       healthScore: 100,
-    }
+    };
   }
 
   /**
@@ -495,9 +511,9 @@ export class StreamClient {
       code,
       message: error.message,
       recoverable: false,
-    }
+    };
 
-    this.config.onError?.(streamError)
+    this.config.onError?.(streamError);
   }
 
   // ==========================================================================
@@ -505,19 +521,19 @@ export class StreamClient {
   // ==========================================================================
 
   public get stream(): MediaStream | null {
-    return this.localStream
+    return this.localStream;
   }
 
   public get quality(): StreamQuality {
-    return this.qualityLevel
+    return this.qualityLevel;
   }
 
   public get connectionState(): RTCPeerConnectionState | null {
-    return this.peerConnection?.connectionState ?? null
+    return this.peerConnection?.connectionState ?? null;
   }
 
   public get connected(): boolean {
-    return this.isConnected
+    return this.isConnected;
   }
 }
 
@@ -529,5 +545,5 @@ export class StreamClient {
  * Create stream client instance
  */
 export function createStreamClient(config: StreamClientConfig): StreamClient {
-  return new StreamClient(config)
+  return new StreamClient(config);
 }

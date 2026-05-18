@@ -13,12 +13,23 @@ import type {
   MediaViewMode,
   MediaType,
   MediaPagination,
-} from './media-types'
-import type { PlatformPreset, PlatformLimits } from './media-parity'
-import { PLATFORM_PRESETS, getFileCategory } from './media-parity'
-import { filterMediaItems, sortMediaItems, groupByDate, groupByType, groupBySender } from './media-gallery'
-import { searchMedia, searchWithFilters, type SearchResult, type SearchOptions } from './media-search'
-import type { Album, AlbumType, AlbumSortBy } from './albums'
+} from "./media-types";
+import type { PlatformPreset, PlatformLimits } from "./media-parity";
+import { PLATFORM_PRESETS, getFileCategory } from "./media-parity";
+import {
+  filterMediaItems,
+  sortMediaItems,
+  groupByDate,
+  groupByType,
+  groupBySender,
+} from "./media-gallery";
+import {
+  searchMedia,
+  searchWithFilters,
+  type SearchResult,
+  type SearchOptions,
+} from "./media-search";
+import type { Album, AlbumType, AlbumSortBy } from "./albums";
 import {
   createAlbum,
   createAutoAlbums,
@@ -27,123 +38,130 @@ import {
   getAlbumStats,
   mergeAlbums,
   getAlbumCoverCandidates,
-} from './albums'
-import type { DocumentPreviewConfig, DocumentPreviewResult } from './document-preview'
-import { getDocumentPreviewConfig, canPreviewDocument, getPreviewCapabilities } from './document-preview'
+} from "./albums";
+import type {
+  DocumentPreviewConfig,
+  DocumentPreviewResult,
+} from "./document-preview";
+import {
+  getDocumentPreviewConfig,
+  canPreviewDocument,
+  getPreviewCapabilities,
+} from "./document-preview";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type BrowserTab = 'media' | 'documents' | 'links' | 'albums'
+export type BrowserTab = "media" | "documents" | "links" | "albums";
 
-export type GroupingMode = 'none' | 'date' | 'type' | 'sender' | 'channel'
+export type GroupingMode = "none" | "date" | "type" | "sender" | "channel";
 
 export interface MediaBrowserConfig {
   /** Active platform preset for behavior/limits */
-  platform: PlatformPreset
+  platform: PlatformPreset;
   /** Whether user has premium tier */
-  isPremium: boolean
+  isPremium: boolean;
   /** Default view mode */
-  defaultViewMode: MediaViewMode
+  defaultViewMode: MediaViewMode;
   /** Default tab */
-  defaultTab: BrowserTab
+  defaultTab: BrowserTab;
   /** Default grouping */
-  defaultGrouping: GroupingMode
+  defaultGrouping: GroupingMode;
   /** Items per page */
-  pageSize: number
+  pageSize: number;
   /** Enable album features */
-  albumsEnabled: boolean
+  albumsEnabled: boolean;
   /** Enable document preview */
-  documentPreviewEnabled: boolean
+  documentPreviewEnabled: boolean;
   /** Enable media search */
-  searchEnabled: boolean
+  searchEnabled: boolean;
   /** Enable multi-select */
-  multiSelectEnabled: boolean
+  multiSelectEnabled: boolean;
   /** Maximum selection count */
-  maxSelection: number
+  maxSelection: number;
   /** Thumbnail size for grid view */
-  thumbnailSize: 'small' | 'medium' | 'large'
+  thumbnailSize: "small" | "medium" | "large";
   /** Show file info overlay on hover */
-  showInfoOverlay: boolean
+  showInfoOverlay: boolean;
   /** Enable keyboard navigation */
-  keyboardNavigation: boolean
+  keyboardNavigation: boolean;
   /** Auto-play video previews on hover */
-  autoPlayPreviews: boolean
+  autoPlayPreviews: boolean;
 }
 
 export interface MediaBrowserState {
   /** Current active tab */
-  activeTab: BrowserTab
+  activeTab: BrowserTab;
   /** Current view mode */
-  viewMode: MediaViewMode
+  viewMode: MediaViewMode;
   /** Current grouping mode */
-  grouping: GroupingMode
+  grouping: GroupingMode;
   /** Current filters */
-  filters: MediaFilters
+  filters: MediaFilters;
   /** Current sorting */
-  sorting: MediaSorting
+  sorting: MediaSorting;
   /** Current pagination */
-  pagination: MediaPagination
+  pagination: MediaPagination;
   /** Selected item IDs */
-  selectedIds: Set<string>
+  selectedIds: Set<string>;
   /** Whether multi-select is active */
-  isSelecting: boolean
+  isSelecting: boolean;
   /** Currently focused item ID */
-  focusedItemId: string | null
+  focusedItemId: string | null;
   /** Search query */
-  searchQuery: string
+  searchQuery: string;
   /** Whether search results are being shown */
-  isSearchActive: boolean
+  isSearchActive: boolean;
   /** Currently open album ID */
-  openAlbumId: string | null
+  openAlbumId: string | null;
   /** Error state */
-  error: string | null
+  error: string | null;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
 }
 
 export interface BrowseResult {
-  items: MediaItem[]
-  groups: Map<string, MediaItem[]> | null
-  totalCount: number
-  filteredCount: number
-  pagination: MediaPagination
+  items: MediaItem[];
+  groups: Map<string, MediaItem[]> | null;
+  totalCount: number;
+  filteredCount: number;
+  pagination: MediaPagination;
 }
 
 export interface MediaBrowserStats {
-  totalItems: number
-  totalSize: number
-  byType: Record<MediaType, number>
-  byChannel: Map<string, number>
-  bySender: Map<string, number>
-  albumCount: number
-  dateRange: { earliest: Date | null; latest: Date | null }
+  totalItems: number;
+  totalSize: number;
+  byType: Record<MediaType, number>;
+  byChannel: Map<string, number>;
+  bySender: Map<string, number>;
+  albumCount: number;
+  dateRange: { earliest: Date | null; latest: Date | null };
 }
 
 export interface PlatformBehavior {
   /** Platform display name */
-  name: string
+  name: string;
   /** Maximum attachments per message */
-  maxAttachments: number
+  maxAttachments: number;
   /** Whether to auto-compress images */
-  autoCompress: boolean
+  autoCompress: boolean;
   /** Whether to strip EXIF data */
-  stripExif: boolean
+  stripExif: boolean;
   /** Supported media types for preview */
-  previewableTypes: MediaType[]
+  previewableTypes: MediaType[];
   /** Grid column count (responsive breakpoints) */
-  gridColumns: { mobile: number; tablet: number; desktop: number }
+  gridColumns: { mobile: number; tablet: number; desktop: number };
   /** Thumbnail quality setting */
-  thumbnailQuality: number
+  thumbnailQuality: number;
   /** Whether albums are supported */
-  albumsSupported: boolean
+  albumsSupported: boolean;
   /** Whether document preview is supported */
-  documentPreviewSupported: boolean
+  documentPreviewSupported: boolean;
   /** Maximum gallery items to display at once */
-  maxGalleryItems: number
+  maxGalleryItems: number;
   /** Message attachment layout style */
-  attachmentLayout: 'grid' | 'stacked' | 'carousel'
+  attachmentLayout: "grid" | "stacked" | "carousel";
 }
 
 // ============================================================================
@@ -151,35 +169,35 @@ export interface PlatformBehavior {
 // ============================================================================
 
 export const DEFAULT_BROWSER_CONFIG: MediaBrowserConfig = {
-  platform: 'default',
+  platform: "default",
   isPremium: false,
-  defaultViewMode: 'grid',
-  defaultTab: 'media',
-  defaultGrouping: 'none',
+  defaultViewMode: "grid",
+  defaultTab: "media",
+  defaultGrouping: "none",
   pageSize: 50,
   albumsEnabled: true,
   documentPreviewEnabled: true,
   searchEnabled: true,
   multiSelectEnabled: true,
   maxSelection: 100,
-  thumbnailSize: 'medium',
+  thumbnailSize: "medium",
   showInfoOverlay: true,
   keyboardNavigation: true,
   autoPlayPreviews: true,
-}
+};
 
 export const DEFAULT_BROWSER_STATE: MediaBrowserState = {
-  activeTab: 'media',
-  viewMode: 'grid',
-  grouping: 'none',
+  activeTab: "media",
+  viewMode: "grid",
+  grouping: "none",
   filters: {
-    type: 'all',
-    searchQuery: '',
+    type: "all",
+    searchQuery: "",
     dateRange: { start: null, end: null },
   },
   sorting: {
-    sortBy: 'date_desc',
-    direction: 'desc',
+    sortBy: "date_desc",
+    direction: "desc",
   },
   pagination: {
     page: 1,
@@ -192,18 +210,18 @@ export const DEFAULT_BROWSER_STATE: MediaBrowserState = {
   selectedIds: new Set(),
   isSelecting: false,
   focusedItemId: null,
-  searchQuery: '',
+  searchQuery: "",
   isSearchActive: false,
   openAlbumId: null,
   error: null,
   isLoading: false,
-}
+};
 
-export const THUMBNAIL_SIZES: Record<'small' | 'medium' | 'large', number> = {
+export const THUMBNAIL_SIZES: Record<"small" | "medium" | "large", number> = {
   small: 100,
   medium: 200,
   large: 400,
-}
+};
 
 // ============================================================================
 // Platform Behavior Configuration
@@ -211,71 +229,71 @@ export const THUMBNAIL_SIZES: Record<'small' | 'medium' | 'large', number> = {
 
 export const PLATFORM_BEHAVIORS: Record<PlatformPreset, PlatformBehavior> = {
   whatsapp: {
-    name: 'WhatsApp',
+    name: "WhatsApp",
     maxAttachments: 30,
     autoCompress: true,
     stripExif: true,
-    previewableTypes: ['image', 'video', 'audio', 'document'],
+    previewableTypes: ["image", "video", "audio", "document"],
     gridColumns: { mobile: 2, tablet: 3, desktop: 4 },
     thumbnailQuality: 0.7,
     albumsSupported: false,
     documentPreviewSupported: true,
     maxGalleryItems: 30,
-    attachmentLayout: 'grid',
+    attachmentLayout: "grid",
   },
   telegram: {
-    name: 'Telegram',
+    name: "Telegram",
     maxAttachments: 10,
     autoCompress: false,
     stripExif: false,
-    previewableTypes: ['image', 'video', 'audio', 'document'],
+    previewableTypes: ["image", "video", "audio", "document"],
     gridColumns: { mobile: 3, tablet: 4, desktop: 5 },
     thumbnailQuality: 0.85,
     albumsSupported: true,
     documentPreviewSupported: true,
     maxGalleryItems: 100,
-    attachmentLayout: 'grid',
+    attachmentLayout: "grid",
   },
   discord: {
-    name: 'Discord',
+    name: "Discord",
     maxAttachments: 10,
     autoCompress: false,
     stripExif: false,
-    previewableTypes: ['image', 'video', 'audio'],
+    previewableTypes: ["image", "video", "audio"],
     gridColumns: { mobile: 2, tablet: 3, desktop: 4 },
     thumbnailQuality: 0.85,
     albumsSupported: false,
     documentPreviewSupported: false,
     maxGalleryItems: 50,
-    attachmentLayout: 'stacked',
+    attachmentLayout: "stacked",
   },
   slack: {
-    name: 'Slack',
+    name: "Slack",
     maxAttachments: 10,
     autoCompress: false,
     stripExif: false,
-    previewableTypes: ['image', 'video', 'audio', 'document'],
+    previewableTypes: ["image", "video", "audio", "document"],
     gridColumns: { mobile: 2, tablet: 3, desktop: 5 },
     thumbnailQuality: 0.85,
     albumsSupported: true,
     documentPreviewSupported: true,
     maxGalleryItems: 100,
-    attachmentLayout: 'stacked',
+    attachmentLayout: "stacked",
   },
   default: {
-    name: 'Default',
+    name: "Default",
     maxAttachments: 10,
     autoCompress: true,
     stripExif: true,
-    previewableTypes: ['image', 'video', 'audio', 'document'],
+    previewableTypes: ["image", "video", "audio", "document"],
     gridColumns: { mobile: 2, tablet: 4, desktop: 6 },
     thumbnailQuality: 0.85,
     albumsSupported: true,
     documentPreviewSupported: true,
     maxGalleryItems: 100,
-    attachmentLayout: 'grid',
+    attachmentLayout: "grid",
   },
-}
+};
 
 // ============================================================================
 // Core Browser Functions
@@ -285,14 +303,17 @@ export const PLATFORM_BEHAVIORS: Record<PlatformPreset, PlatformBehavior> = {
  * Get platform behavior configuration
  */
 export function getPlatformBehavior(preset: PlatformPreset): PlatformBehavior {
-  return PLATFORM_BEHAVIORS[preset] || PLATFORM_BEHAVIORS.default
+  return PLATFORM_BEHAVIORS[preset] || PLATFORM_BEHAVIORS.default;
 }
 
 /**
  * Get platform limits
  */
-export function getPlatformLimits(preset: PlatformPreset, isPremium: boolean = false): PlatformLimits {
-  const limits = PLATFORM_PRESETS[preset]
+export function getPlatformLimits(
+  preset: PlatformPreset,
+  isPremium: boolean = false,
+): PlatformLimits {
+  const limits = PLATFORM_PRESETS[preset];
   if (isPremium && limits.premium) {
     return {
       ...limits,
@@ -300,9 +321,9 @@ export function getPlatformLimits(preset: PlatformPreset, isPremium: boolean = f
       maxImageSize: limits.premium.maxImageSize,
       maxAudioSize: limits.premium.maxAudioSize,
       maxFileSize: limits.premium.maxFileSize,
-    }
+    };
   }
-  return limits
+  return limits;
 }
 
 /**
@@ -310,9 +331,9 @@ export function getPlatformLimits(preset: PlatformPreset, isPremium: boolean = f
  */
 export function createBrowserConfig(
   preset: PlatformPreset,
-  overrides?: Partial<MediaBrowserConfig>
+  overrides?: Partial<MediaBrowserConfig>,
 ): MediaBrowserConfig {
-  const behavior = getPlatformBehavior(preset)
+  const behavior = getPlatformBehavior(preset);
 
   return {
     ...DEFAULT_BROWSER_CONFIG,
@@ -320,13 +341,15 @@ export function createBrowserConfig(
     albumsEnabled: behavior.albumsSupported,
     documentPreviewEnabled: behavior.documentPreviewSupported,
     ...overrides,
-  }
+  };
 }
 
 /**
  * Create initial browser state from config
  */
-export function createBrowserState(config: MediaBrowserConfig): MediaBrowserState {
+export function createBrowserState(
+  config: MediaBrowserConfig,
+): MediaBrowserState {
   return {
     ...DEFAULT_BROWSER_STATE,
     activeTab: config.defaultTab,
@@ -336,7 +359,7 @@ export function createBrowserState(config: MediaBrowserConfig): MediaBrowserStat
       ...DEFAULT_BROWSER_STATE.pagination,
       limit: config.pageSize,
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -349,36 +372,36 @@ export function createBrowserState(config: MediaBrowserConfig): MediaBrowserStat
 export function browseMedia(
   items: MediaItem[],
   state: MediaBrowserState,
-  config: MediaBrowserConfig
+  config: MediaBrowserConfig,
 ): BrowseResult {
   // Apply tab-based type filter
-  let filtered = applyTabFilter(items, state.activeTab)
+  let filtered = applyTabFilter(items, state.activeTab);
 
   // Apply user filters
-  filtered = filterMediaItems(filtered, state.filters)
+  filtered = filterMediaItems(filtered, state.filters);
 
   // Apply search if active
   if (state.isSearchActive && state.searchQuery.trim()) {
-    const searchResults = searchMedia(filtered, state.searchQuery)
-    filtered = searchResults.map((r) => r.item)
+    const searchResults = searchMedia(filtered, state.searchQuery);
+    filtered = searchResults.map((r) => r.item);
   }
 
-  const filteredCount = filtered.length
+  const filteredCount = filtered.length;
 
   // Apply sorting
-  const sorted = sortMediaItems(filtered, state.sorting)
+  const sorted = sortMediaItems(filtered, state.sorting);
 
   // Apply grouping
-  let groups: Map<string, MediaItem[]> | null = null
-  if (state.grouping !== 'none') {
-    groups = applyGrouping(sorted, state.grouping)
+  let groups: Map<string, MediaItem[]> | null = null;
+  if (state.grouping !== "none") {
+    groups = applyGrouping(sorted, state.grouping);
   }
 
   // Apply pagination
-  const totalPages = Math.ceil(sorted.length / state.pagination.limit)
-  const startIndex = (state.pagination.page - 1) * state.pagination.limit
-  const endIndex = startIndex + state.pagination.limit
-  const paginatedItems = sorted.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(sorted.length / state.pagination.limit);
+  const startIndex = (state.pagination.page - 1) * state.pagination.limit;
+  const endIndex = startIndex + state.pagination.limit;
+  const paginatedItems = sorted.slice(startIndex, endIndex);
 
   const pagination: MediaPagination = {
     page: state.pagination.page,
@@ -386,8 +409,11 @@ export function browseMedia(
     total: sorted.length,
     totalPages,
     hasMore: state.pagination.page < totalPages,
-    cursor: paginatedItems.length > 0 ? paginatedItems[paginatedItems.length - 1].id : null,
-  }
+    cursor:
+      paginatedItems.length > 0
+        ? paginatedItems[paginatedItems.length - 1].id
+        : null,
+  };
 
   return {
     items: paginatedItems,
@@ -395,31 +421,36 @@ export function browseMedia(
     totalCount: items.length,
     filteredCount,
     pagination,
-  }
+  };
 }
 
 /**
  * Apply tab-based type filtering
  */
-export function applyTabFilter(items: MediaItem[], tab: BrowserTab): MediaItem[] {
+export function applyTabFilter(
+  items: MediaItem[],
+  tab: BrowserTab,
+): MediaItem[] {
   switch (tab) {
-    case 'media':
+    case "media":
       return items.filter((item) =>
-        ['image', 'video', 'audio'].includes(item.fileType)
-      )
-    case 'documents':
+        ["image", "video", "audio"].includes(item.fileType),
+      );
+    case "documents":
       return items.filter((item) =>
-        ['document', 'archive', 'other'].includes(item.fileType)
-      )
-    case 'links':
+        ["document", "archive", "other"].includes(item.fileType),
+      );
+    case "links":
       // Links would typically be extracted from message content
       // For now, filter items that have URLs in their metadata
-      return items.filter((item) => item.url && item.metadata?.['isLink'] === true)
-    case 'albums':
+      return items.filter(
+        (item) => item.url && item.metadata?.["isLink"] === true,
+      );
+    case "albums":
       // Albums tab shows all items (albums are displayed separately)
-      return items
+      return items;
     default:
-      return items
+      return items;
   }
 }
 
@@ -428,40 +459,40 @@ export function applyTabFilter(items: MediaItem[], tab: BrowserTab): MediaItem[]
  */
 export function applyGrouping(
   items: MediaItem[],
-  mode: GroupingMode
+  mode: GroupingMode,
 ): Map<string, MediaItem[]> {
   switch (mode) {
-    case 'date':
-      return groupByDate(items)
-    case 'type': {
-      const typeGroups = groupByType(items)
-      const result = new Map<string, MediaItem[]>()
+    case "date":
+      return groupByDate(items);
+    case "type": {
+      const typeGroups = groupByType(items);
+      const result = new Map<string, MediaItem[]>();
       for (const [type, typeItems] of typeGroups) {
-        result.set(type, typeItems)
+        result.set(type, typeItems);
       }
-      return result
+      return result;
     }
-    case 'sender': {
-      const senderGroups = groupBySender(items)
-      const result = new Map<string, MediaItem[]>()
+    case "sender": {
+      const senderGroups = groupBySender(items);
+      const result = new Map<string, MediaItem[]>();
       for (const [userId, group] of senderGroups) {
-        result.set(group.user.displayName || userId, group.items)
+        result.set(group.user.displayName || userId, group.items);
       }
-      return result
+      return result;
     }
-    case 'channel': {
-      const groups = new Map<string, MediaItem[]>()
+    case "channel": {
+      const groups = new Map<string, MediaItem[]>();
       for (const item of items) {
-        const key = item.channelName || item.channelId || 'Unknown Channel'
+        const key = item.channelName || item.channelId || "Unknown Channel";
         if (!groups.has(key)) {
-          groups.set(key, [])
+          groups.set(key, []);
         }
-        groups.get(key)!.push(item)
+        groups.get(key)!.push(item);
       }
-      return groups
+      return groups;
     }
     default:
-      return new Map()
+      return new Map();
   }
 }
 
@@ -476,13 +507,13 @@ export function browserSearch(
   items: MediaItem[],
   query: string,
   state: MediaBrowserState,
-  options?: SearchOptions
+  options?: SearchOptions,
 ): SearchResult[] {
   // First apply tab filter
-  const tabFiltered = applyTabFilter(items, state.activeTab)
+  const tabFiltered = applyTabFilter(items, state.activeTab);
 
   // Then search with filters
-  return searchWithFilters(tabFiltered, query, state.filters, options)
+  return searchWithFilters(tabFiltered, query, state.filters, options);
 }
 
 /**
@@ -490,9 +521,9 @@ export function browserSearch(
  */
 export function searchByMediaType(
   items: MediaItem[],
-  types: MediaType[]
+  types: MediaType[],
 ): MediaItem[] {
-  return items.filter((item) => types.includes(item.fileType))
+  return items.filter((item) => types.includes(item.fileType));
 }
 
 /**
@@ -501,12 +532,12 @@ export function searchByMediaType(
 export function searchByDateRange(
   items: MediaItem[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): MediaItem[] {
   return items.filter((item) => {
-    const date = new Date(item.createdAt)
-    return date >= startDate && date <= endDate
-  })
+    const date = new Date(item.createdAt);
+    return date >= startDate && date <= endDate;
+  });
 }
 
 /**
@@ -514,9 +545,9 @@ export function searchByDateRange(
  */
 export function searchBySender(
   items: MediaItem[],
-  userId: string
+  userId: string,
 ): MediaItem[] {
-  return items.filter((item) => item.uploadedBy.id === userId)
+  return items.filter((item) => item.uploadedBy.id === userId);
 }
 
 /**
@@ -524,9 +555,9 @@ export function searchBySender(
  */
 export function searchByChannel(
   items: MediaItem[],
-  channelId: string
+  channelId: string,
 ): MediaItem[] {
-  return items.filter((item) => item.channelId === channelId)
+  return items.filter((item) => item.channelId === channelId);
 }
 
 /**
@@ -534,12 +565,14 @@ export function searchByChannel(
  */
 export function searchByExtension(
   items: MediaItem[],
-  extensions: string[]
+  extensions: string[],
 ): MediaItem[] {
-  const normalizedExtensions = extensions.map((e) => e.toLowerCase().replace(/^\./, ''))
+  const normalizedExtensions = extensions.map((e) =>
+    e.toLowerCase().replace(/^\./, ""),
+  );
   return items.filter((item) =>
-    normalizedExtensions.includes(item.fileExtension.toLowerCase())
-  )
+    normalizedExtensions.includes(item.fileExtension.toLowerCase()),
+  );
 }
 
 /**
@@ -548,13 +581,13 @@ export function searchByExtension(
 export function searchBySizeRange(
   items: MediaItem[],
   minSize?: number,
-  maxSize?: number
+  maxSize?: number,
 ): MediaItem[] {
   return items.filter((item) => {
-    if (minSize !== undefined && item.fileSize < minSize) return false
-    if (maxSize !== undefined && item.fileSize > maxSize) return false
-    return true
-  })
+    if (minSize !== undefined && item.fileSize < minSize) return false;
+    if (maxSize !== undefined && item.fileSize > maxSize) return false;
+    return true;
+  });
 }
 
 // ============================================================================
@@ -567,17 +600,17 @@ export function searchBySizeRange(
 export function toggleItemSelection(
   state: MediaBrowserState,
   itemId: string,
-  maxSelection: number
+  maxSelection: number,
 ): Set<string> {
-  const newSelected = new Set(state.selectedIds)
+  const newSelected = new Set(state.selectedIds);
 
   if (newSelected.has(itemId)) {
-    newSelected.delete(itemId)
+    newSelected.delete(itemId);
   } else if (newSelected.size < maxSelection) {
-    newSelected.add(itemId)
+    newSelected.add(itemId);
   }
 
-  return newSelected
+  return newSelected;
 }
 
 /**
@@ -587,36 +620,36 @@ export function selectItemRange(
   items: MediaItem[],
   fromId: string,
   toId: string,
-  existing: Set<string>
+  existing: Set<string>,
 ): Set<string> {
-  const fromIndex = items.findIndex((i) => i.id === fromId)
-  const toIndex = items.findIndex((i) => i.id === toId)
+  const fromIndex = items.findIndex((i) => i.id === fromId);
+  const toIndex = items.findIndex((i) => i.id === toId);
 
-  if (fromIndex === -1 || toIndex === -1) return existing
+  if (fromIndex === -1 || toIndex === -1) return existing;
 
-  const start = Math.min(fromIndex, toIndex)
-  const end = Math.max(fromIndex, toIndex)
+  const start = Math.min(fromIndex, toIndex);
+  const end = Math.max(fromIndex, toIndex);
 
-  const newSelected = new Set(existing)
+  const newSelected = new Set(existing);
   for (let i = start; i <= end; i++) {
-    newSelected.add(items[i].id)
+    newSelected.add(items[i].id);
   }
 
-  return newSelected
+  return newSelected;
 }
 
 /**
  * Select all visible items
  */
 export function selectAllItems(items: MediaItem[]): Set<string> {
-  return new Set(items.map((item) => item.id))
+  return new Set(items.map((item) => item.id));
 }
 
 /**
  * Clear all selections
  */
 export function clearSelection(): Set<string> {
-  return new Set()
+  return new Set();
 }
 
 /**
@@ -624,9 +657,9 @@ export function clearSelection(): Set<string> {
  */
 export function getSelectedItems(
   items: MediaItem[],
-  selectedIds: Set<string>
+  selectedIds: Set<string>,
 ): MediaItem[] {
-  return items.filter((item) => selectedIds.has(item.id))
+  return items.filter((item) => selectedIds.has(item.id));
 }
 
 // ============================================================================
@@ -641,16 +674,16 @@ export function createAlbumFromSelection(
   selectedIds: Set<string>,
   name: string,
   userId: string,
-  channelId?: string
+  channelId?: string,
 ): Album {
-  const selectedItems = items.filter((i) => selectedIds.has(i.id))
+  const selectedItems = items.filter((i) => selectedIds.has(i.id));
   return createAlbum({
     name,
-    type: 'custom',
+    type: "custom",
     itemIds: selectedItems.map((i) => i.id),
     createdBy: userId,
     channelId,
-  })
+  });
 }
 
 /**
@@ -658,38 +691,32 @@ export function createAlbumFromSelection(
  */
 export function generateAutoAlbums(
   items: MediaItem[],
-  channelId?: string
+  channelId?: string,
 ): Album[] {
-  return createAutoAlbums(items, channelId)
+  return createAutoAlbums(items, channelId);
 }
 
 /**
  * Get items belonging to an album
  */
-export function getAlbumItems(
-  items: MediaItem[],
-  album: Album
-): MediaItem[] {
-  const idSet = new Set(album.itemIds)
-  return items.filter((item) => idSet.has(item.id))
+export function getAlbumItems(items: MediaItem[], album: Album): MediaItem[] {
+  const idSet = new Set(album.itemIds);
+  return items.filter((item) => idSet.has(item.id));
 }
 
 /**
  * Add items to album
  */
-export function addItemsToAlbum(
-  album: Album,
-  itemIds: string[]
-): Album {
-  const existingIds = new Set(album.itemIds)
-  const newIds = itemIds.filter((id) => !existingIds.has(id))
+export function addItemsToAlbum(album: Album, itemIds: string[]): Album {
+  const existingIds = new Set(album.itemIds);
+  const newIds = itemIds.filter((id) => !existingIds.has(id));
 
   return {
     ...album,
     itemIds: [...album.itemIds, ...newIds],
     itemCount: album.itemCount + newIds.length,
     updatedAt: new Date(),
-  }
+  };
 }
 
 /**
@@ -697,18 +724,20 @@ export function addItemsToAlbum(
  */
 export function removeItemsFromAlbum(
   album: Album,
-  itemIdsToRemove: string[]
+  itemIdsToRemove: string[],
 ): Album {
-  const removeSet = new Set(itemIdsToRemove)
-  const remaining = album.itemIds.filter((id) => !removeSet.has(id))
+  const removeSet = new Set(itemIdsToRemove);
+  const remaining = album.itemIds.filter((id) => !removeSet.has(id));
 
   return {
     ...album,
     itemIds: remaining,
     itemCount: remaining.length,
-    coverItemId: removeSet.has(album.coverItemId || '') ? remaining[0] || null : album.coverItemId,
+    coverItemId: removeSet.has(album.coverItemId || "")
+      ? remaining[0] || null
+      : album.coverItemId,
     updatedAt: new Date(),
-  }
+  };
 }
 
 // ============================================================================
@@ -720,7 +749,7 @@ export function removeItemsFromAlbum(
  */
 export function getBrowserStats(
   items: MediaItem[],
-  albums: Album[]
+  albums: Album[],
 ): MediaBrowserStats {
   const byType: Record<MediaType, number> = {
     image: 0,
@@ -729,28 +758,28 @@ export function getBrowserStats(
     document: 0,
     archive: 0,
     other: 0,
-  }
+  };
 
-  const byChannel = new Map<string, number>()
-  const bySender = new Map<string, number>()
+  const byChannel = new Map<string, number>();
+  const bySender = new Map<string, number>();
 
-  let totalSize = 0
-  let earliest: Date | null = null
-  let latest: Date | null = null
+  let totalSize = 0;
+  let earliest: Date | null = null;
+  let latest: Date | null = null;
 
   for (const item of items) {
-    byType[item.fileType]++
-    totalSize += item.fileSize
+    byType[item.fileType]++;
+    totalSize += item.fileSize;
 
-    const channel = item.channelId || 'unknown'
-    byChannel.set(channel, (byChannel.get(channel) || 0) + 1)
+    const channel = item.channelId || "unknown";
+    byChannel.set(channel, (byChannel.get(channel) || 0) + 1);
 
-    const sender = item.uploadedBy.id
-    bySender.set(sender, (bySender.get(sender) || 0) + 1)
+    const sender = item.uploadedBy.id;
+    bySender.set(sender, (bySender.get(sender) || 0) + 1);
 
-    const date = new Date(item.createdAt)
-    if (!earliest || date < earliest) earliest = date
-    if (!latest || date > latest) latest = date
+    const date = new Date(item.createdAt);
+    if (!earliest || date < earliest) earliest = date;
+    if (!latest || date > latest) latest = date;
   }
 
   return {
@@ -761,30 +790,37 @@ export function getBrowserStats(
     bySender,
     albumCount: albums.length,
     dateRange: { earliest, latest },
-  }
+  };
 }
 
 /**
  * Get summary text for current browse state
  */
-export function getBrowseSummary(result: BrowseResult, state: MediaBrowserState): string {
-  const parts: string[] = []
+export function getBrowseSummary(
+  result: BrowseResult,
+  state: MediaBrowserState,
+): string {
+  const parts: string[] = [];
 
   if (state.isSearchActive && state.searchQuery) {
-    parts.push(`Search: "${state.searchQuery}"`)
+    parts.push(`Search: "${state.searchQuery}"`);
   }
 
-  parts.push(`${result.filteredCount} item${result.filteredCount !== 1 ? 's' : ''}`)
+  parts.push(
+    `${result.filteredCount} item${result.filteredCount !== 1 ? "s" : ""}`,
+  );
 
   if (result.filteredCount !== result.totalCount) {
-    parts.push(`(${result.totalCount} total)`)
+    parts.push(`(${result.totalCount} total)`);
   }
 
   if (state.pagination.totalPages > 1) {
-    parts.push(`Page ${state.pagination.page} of ${result.pagination.totalPages}`)
+    parts.push(
+      `Page ${state.pagination.page} of ${result.pagination.totalPages}`,
+    );
   }
 
-  return parts.join(' - ')
+  return parts.join(" - ");
 }
 
 // ============================================================================
@@ -796,34 +832,37 @@ export function getBrowseSummary(result: BrowseResult, state: MediaBrowserState)
  */
 export function getGridColumns(
   platform: PlatformPreset,
-  viewport: 'mobile' | 'tablet' | 'desktop'
+  viewport: "mobile" | "tablet" | "desktop",
 ): number {
-  const behavior = getPlatformBehavior(platform)
-  return behavior.gridColumns[viewport]
+  const behavior = getPlatformBehavior(platform);
+  return behavior.gridColumns[viewport];
 }
 
 /**
  * Get thumbnail size in pixels
  */
-export function getThumbnailSize(size: 'small' | 'medium' | 'large'): number {
-  return THUMBNAIL_SIZES[size]
+export function getThumbnailSize(size: "small" | "medium" | "large"): number {
+  return THUMBNAIL_SIZES[size];
 }
 
 /**
  * Check if view mode is available for the current tab
  */
-export function isViewModeAvailable(viewMode: MediaViewMode, tab: BrowserTab): boolean {
+export function isViewModeAvailable(
+  viewMode: MediaViewMode,
+  tab: BrowserTab,
+): boolean {
   switch (tab) {
-    case 'media':
-      return true // All modes available for media
-    case 'documents':
-      return viewMode === 'list' || viewMode === 'grid' // List preferred for documents
-    case 'links':
-      return viewMode === 'list' // Links always list view
-    case 'albums':
-      return viewMode === 'grid' || viewMode === 'masonry' // Albums are visual
+    case "media":
+      return true; // All modes available for media
+    case "documents":
+      return viewMode === "list" || viewMode === "grid"; // List preferred for documents
+    case "links":
+      return viewMode === "list"; // Links always list view
+    case "albums":
+      return viewMode === "grid" || viewMode === "masonry"; // Albums are visual
     default:
-      return true
+      return true;
   }
 }
 
@@ -832,16 +871,16 @@ export function isViewModeAvailable(viewMode: MediaViewMode, tab: BrowserTab): b
  */
 export function getRecommendedViewMode(tab: BrowserTab): MediaViewMode {
   switch (tab) {
-    case 'media':
-      return 'grid'
-    case 'documents':
-      return 'list'
-    case 'links':
-      return 'list'
-    case 'albums':
-      return 'grid'
+    case "media":
+      return "grid";
+    case "documents":
+      return "list";
+    case "links":
+      return "list";
+    case "albums":
+      return "grid";
     default:
-      return 'grid'
+      return "grid";
   }
 }
 
@@ -855,35 +894,35 @@ export function getRecommendedViewMode(tab: BrowserTab): MediaViewMode {
 export function getNextFocusedItem(
   items: MediaItem[],
   currentId: string | null,
-  direction: 'up' | 'down' | 'left' | 'right',
-  columns: number
+  direction: "up" | "down" | "left" | "right",
+  columns: number,
 ): string | null {
-  if (items.length === 0) return null
-  if (!currentId) return items[0]?.id || null
+  if (items.length === 0) return null;
+  if (!currentId) return items[0]?.id || null;
 
-  const currentIndex = items.findIndex((i) => i.id === currentId)
-  if (currentIndex === -1) return items[0]?.id || null
+  const currentIndex = items.findIndex((i) => i.id === currentId);
+  if (currentIndex === -1) return items[0]?.id || null;
 
-  let nextIndex: number
+  let nextIndex: number;
 
   switch (direction) {
-    case 'left':
-      nextIndex = Math.max(0, currentIndex - 1)
-      break
-    case 'right':
-      nextIndex = Math.min(items.length - 1, currentIndex + 1)
-      break
-    case 'up':
-      nextIndex = Math.max(0, currentIndex - columns)
-      break
-    case 'down':
-      nextIndex = Math.min(items.length - 1, currentIndex + columns)
-      break
+    case "left":
+      nextIndex = Math.max(0, currentIndex - 1);
+      break;
+    case "right":
+      nextIndex = Math.min(items.length - 1, currentIndex + 1);
+      break;
+    case "up":
+      nextIndex = Math.max(0, currentIndex - columns);
+      break;
+    case "down":
+      nextIndex = Math.min(items.length - 1, currentIndex + columns);
+      break;
     default:
-      nextIndex = currentIndex
+      nextIndex = currentIndex;
   }
 
-  return items[nextIndex]?.id || null
+  return items[nextIndex]?.id || null;
 }
 
 // ============================================================================
@@ -895,49 +934,49 @@ export function getNextFocusedItem(
  */
 export function isTypePreviewable(
   mimeType: string,
-  platform: PlatformPreset
+  platform: PlatformPreset,
 ): boolean {
-  const behavior = getPlatformBehavior(platform)
-  const category = getFileCategory(mimeType) as MediaType
-  return behavior.previewableTypes.includes(category)
+  const behavior = getPlatformBehavior(platform);
+  const category = getFileCategory(mimeType) as MediaType;
+  return behavior.previewableTypes.includes(category);
 }
 
 /**
  * Get attachment layout style for platform
  */
 export function getAttachmentLayout(
-  platform: PlatformPreset
-): 'grid' | 'stacked' | 'carousel' {
-  return getPlatformBehavior(platform).attachmentLayout
+  platform: PlatformPreset,
+): "grid" | "stacked" | "carousel" {
+  return getPlatformBehavior(platform).attachmentLayout;
 }
 
 /**
  * Get maximum gallery items for platform
  */
 export function getMaxGalleryItems(platform: PlatformPreset): number {
-  return getPlatformBehavior(platform).maxGalleryItems
+  return getPlatformBehavior(platform).maxGalleryItems;
 }
 
 /**
  * Check if feature is available on platform
  */
 export function isFeatureAvailable(
-  feature: 'albums' | 'documentPreview' | 'autoCompress' | 'stripExif',
-  platform: PlatformPreset
+  feature: "albums" | "documentPreview" | "autoCompress" | "stripExif",
+  platform: PlatformPreset,
 ): boolean {
-  const behavior = getPlatformBehavior(platform)
+  const behavior = getPlatformBehavior(platform);
 
   switch (feature) {
-    case 'albums':
-      return behavior.albumsSupported
-    case 'documentPreview':
-      return behavior.documentPreviewSupported
-    case 'autoCompress':
-      return behavior.autoCompress
-    case 'stripExif':
-      return behavior.stripExif
+    case "albums":
+      return behavior.albumsSupported;
+    case "documentPreview":
+      return behavior.documentPreviewSupported;
+    case "autoCompress":
+      return behavior.autoCompress;
+    case "stripExif":
+      return behavior.stripExif;
     default:
-      return false
+      return false;
   }
 }
 
@@ -953,14 +992,17 @@ export {
   getAlbumStats,
   mergeAlbums,
   getAlbumCoverCandidates,
-} from './albums'
+} from "./albums";
 
-export type { Album, AlbumType, AlbumSortBy } from './albums'
+export type { Album, AlbumType, AlbumSortBy } from "./albums";
 
 export {
   getDocumentPreviewConfig,
   canPreviewDocument,
   getPreviewCapabilities,
-} from './document-preview'
+} from "./document-preview";
 
-export type { DocumentPreviewConfig, DocumentPreviewResult } from './document-preview'
+export type {
+  DocumentPreviewConfig,
+  DocumentPreviewResult,
+} from "./document-preview";

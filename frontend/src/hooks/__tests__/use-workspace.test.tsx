@@ -13,16 +13,16 @@
  */
 
 // Mock apollo-client BEFORE importing hooks
-jest.mock('@/lib/apollo-client', () => ({
+jest.mock("@/lib/apollo-client", () => ({
   apolloClient: {
     query: jest.fn(),
     mutate: jest.fn(),
     watchQuery: jest.fn(),
   },
-}))
+}));
 
 // Mock services
-jest.mock('@/services/workspaces', () => ({
+jest.mock("@/services/workspaces", () => ({
   createWorkspaceService: jest.fn(() => ({
     getWorkspace: jest.fn(),
     getWorkspaces: jest.fn(),
@@ -42,40 +42,40 @@ jest.mock('@/services/workspaces', () => ({
     updateMessageRetention: jest.fn(),
     deactivateMember: jest.fn(),
   })),
-}))
+}));
 
-import { renderHook, act, waitFor } from '@testing-library/react'
-import { MockedProvider, MockedResponse } from '@apollo/client/testing'
-import React from 'react'
+import { renderHook, act, waitFor } from "@testing-library/react";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import React from "react";
 
 // Mock dependencies
-jest.mock('@/contexts/auth-context', () => ({
+jest.mock("@/contexts/auth-context", () => ({
   useAuth: () => ({
-    user: { id: 'user-1', email: 'test@example.com' },
+    user: { id: "user-1", email: "test@example.com" },
     isAuthenticated: true,
   }),
-}))
+}));
 
-jest.mock('@/hooks/use-toast', () => ({
+jest.mock("@/hooks/use-toast", () => ({
   useToast: () => ({
     toast: jest.fn(),
   }),
-}))
+}));
 
-jest.mock('@/lib/logger', () => ({
+jest.mock("@/lib/logger", () => ({
   logger: {
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
   },
-}))
+}));
 
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
   }),
-}))
+}));
 
 // Mock localStorage
 const localStorageMock = {
@@ -83,70 +83,70 @@ const localStorageMock = {
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
-}
-Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+};
+Object.defineProperty(window, "localStorage", { value: localStorageMock });
 
 // Mock fetch
-global.fetch = jest.fn()
+global.fetch = jest.fn();
 
 // ============================================================================
 // TEST DATA
 // ============================================================================
 
 const mockWorkspace = {
-  id: 'ws-1',
-  name: 'Test Workspace',
-  slug: 'test-workspace',
-  description: 'A test workspace',
+  id: "ws-1",
+  name: "Test Workspace",
+  slug: "test-workspace",
+  description: "A test workspace",
   icon_url: null,
   banner_url: null,
-  owner_id: 'user-1',
-  default_channel_id: 'ch-1',
+  owner_id: "user-1",
+  default_channel_id: "ch-1",
   member_count: 5,
   settings: {
-    verificationLevel: 'none',
-    defaultNotifications: 'all',
-    explicitContentFilter: 'disabled',
+    verificationLevel: "none",
+    defaultNotifications: "all",
+    explicitContentFilter: "disabled",
     require2FA: false,
     discoverable: false,
     allowInvites: true,
   },
-  created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-01-02T00:00:00Z',
+  created_at: "2024-01-01T00:00:00Z",
+  updated_at: "2024-01-02T00:00:00Z",
   owner: {
-    id: 'user-1',
-    username: 'testuser',
-    display_name: 'Test User',
+    id: "user-1",
+    username: "testuser",
+    display_name: "Test User",
     avatar_url: null,
   },
-}
+};
 
 const mockMember = {
-  id: 'member-1',
-  workspace_id: 'ws-1',
-  user_id: 'user-1',
-  role: 'owner',
-  joined_at: '2024-01-01T00:00:00Z',
+  id: "member-1",
+  workspace_id: "ws-1",
+  user_id: "user-1",
+  role: "owner",
+  joined_at: "2024-01-01T00:00:00Z",
   nickname: null,
   user: {
-    id: 'user-1',
-    username: 'testuser',
-    display_name: 'Test User',
-    email: 'test@example.com',
+    id: "user-1",
+    username: "testuser",
+    display_name: "Test User",
+    email: "test@example.com",
     avatar_url: null,
   },
-}
+};
 
 const mockInvite = {
-  id: 'inv-1',
-  workspace_id: 'ws-1',
-  code: 'ABC123',
+  id: "inv-1",
+  workspace_id: "ws-1",
+  code: "ABC123",
   uses: 0,
   max_uses: null,
   expires_at: null,
-  created_by: 'user-1',
-  created_at: '2024-01-01T00:00:00Z',
-}
+  created_by: "user-1",
+  created_at: "2024-01-01T00:00:00Z",
+};
 
 // ============================================================================
 // HOOK IMPORT (delayed to allow mocks to take effect)
@@ -165,9 +165,15 @@ import {
   useWorkspaceSettings,
   useWorkspaceAnalytics,
   useWorkspaceDetails,
-} from '../use-workspace'
+} from "../use-workspace";
 
-import { GET_WORKSPACES, GET_WORKSPACE, GET_WORKSPACE_MEMBERS, GET_WORKSPACE_INVITES, GET_WORKSPACE_STATS } from '@/graphql/workspaces/queries'
+import {
+  GET_WORKSPACES,
+  GET_WORKSPACE,
+  GET_WORKSPACE_MEMBERS,
+  GET_WORKSPACE_INVITES,
+  GET_WORKSPACE_STATS,
+} from "@/graphql/workspaces/queries";
 
 // ============================================================================
 // TEST WRAPPER
@@ -179,25 +185,25 @@ function createWrapper(mocks: MockedResponse[] = []) {
       <MockedProvider mocks={mocks} addTypename={false}>
         {children}
       </MockedProvider>
-    )
-  }
+    );
+  };
 }
 
 // ============================================================================
 // TESTS: useWorkspaces
 // ============================================================================
 
-describe('useWorkspaces', () => {
+describe("useWorkspaces", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+  });
 
-  it('should return empty array when loading', () => {
+  it("should return empty array when loading", () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACES,
-          variables: { userId: 'user-1', limit: 50, offset: 0 },
+          variables: { userId: "user-1", limit: 50, offset: 0 },
         },
         result: {
           data: {
@@ -206,31 +212,31 @@ describe('useWorkspaces', () => {
           },
         },
       },
-    ]
+    ];
 
     const { result } = renderHook(() => useWorkspaces(), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
-    expect(result.current.workspaces).toEqual([])
-    expect(result.current.loading).toBe(true)
-  })
+    expect(result.current.workspaces).toEqual([]);
+    expect(result.current.loading).toBe(true);
+  });
 
   // Skip: MockedProvider doesn't properly return data with cache-and-network fetchPolicy
-  it.skip('should return workspaces after loading', async () => {
+  it.skip("should return workspaces after loading", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACES,
-          variables: { userId: 'user-1', limit: 50, offset: 0 },
+          variables: { userId: "user-1", limit: 50, offset: 0 },
         },
         result: {
           data: {
             nchat_workspace_members: [
               {
                 workspace: mockWorkspace,
-                role: 'owner',
-                joined_at: '2024-01-01T00:00:00Z',
+                role: "owner",
+                joined_at: "2024-01-01T00:00:00Z",
                 nickname: null,
               },
             ],
@@ -238,28 +244,31 @@ describe('useWorkspaces', () => {
           },
         },
       },
-    ]
+    ];
 
     const { result } = renderHook(() => useWorkspaces(), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     // Wait for data to be available (cache-and-network may set loading false before data)
-    await waitFor(() => {
-      expect(result.current.workspaces.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(result.current.workspaces.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
 
-    expect(result.current.workspaces).toHaveLength(1)
-    expect(result.current.workspaces[0].workspace.name).toBe('Test Workspace')
-    expect(result.current.workspaces[0].role).toBe('owner')
-  })
+    expect(result.current.workspaces).toHaveLength(1);
+    expect(result.current.workspaces[0].workspace.name).toBe("Test Workspace");
+    expect(result.current.workspaces[0].role).toBe("owner");
+  });
 
-  it('should handle pagination options', async () => {
+  it("should handle pagination options", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACES,
-          variables: { userId: 'user-1', limit: 10, offset: 5 },
+          variables: { userId: "user-1", limit: 10, offset: 5 },
         },
         result: {
           data: {
@@ -268,41 +277,44 @@ describe('useWorkspaces', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspaces({ limit: 10, offset: 5 }), {
-      wrapper: createWrapper(mocks),
-    })
+    const { result } = renderHook(
+      () => useWorkspaces({ limit: 10, offset: 5 }),
+      {
+        wrapper: createWrapper(mocks),
+      },
+    );
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
+      expect(result.current.loading).toBe(false);
+    });
 
-    expect(result.current.hasMore).toBe(true)
-    expect(result.current.total).toBe(20)
-  })
-})
+    expect(result.current.hasMore).toBe(true);
+    expect(result.current.total).toBe(20);
+  });
+});
 
 // ============================================================================
 // TESTS: useWorkspace
 // ============================================================================
 
-describe('useWorkspace', () => {
-  it('should return null when no workspaceId provided', () => {
+describe("useWorkspace", () => {
+  it("should return null when no workspaceId provided", () => {
     const { result } = renderHook(() => useWorkspace(null), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    expect(result.current.workspace).toBeNull()
-  })
+    expect(result.current.workspace).toBeNull();
+  });
 
   // Skip: MockedProvider doesn't properly return data with cache-and-network fetchPolicy
-  it.skip('should fetch workspace by ID', async () => {
+  it.skip("should fetch workspace by ID", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE,
-          variables: { id: 'ws-1' },
+          variables: { id: "ws-1" },
         },
         result: {
           data: {
@@ -310,27 +322,30 @@ describe('useWorkspace', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspace('ws-1'), {
+    const { result } = renderHook(() => useWorkspace("ws-1"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     // Wait for workspace data to be available
-    await waitFor(() => {
-      expect(result.current.workspace).not.toBeNull()
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(result.current.workspace).not.toBeNull();
+      },
+      { timeout: 3000 },
+    );
 
-    expect(result.current.workspace?.name).toBe('Test Workspace')
-    expect(result.current.workspace?.ownerId).toBe('user-1')
-  })
+    expect(result.current.workspace?.name).toBe("Test Workspace");
+    expect(result.current.workspace?.ownerId).toBe("user-1");
+  });
 
-  it('should return null for non-existent workspace', async () => {
+  it("should return null for non-existent workspace", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE,
-          variables: { id: 'non-existent' },
+          variables: { id: "non-existent" },
         },
         result: {
           data: {
@@ -338,40 +353,45 @@ describe('useWorkspace', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspace('non-existent'), {
+    const { result } = renderHook(() => useWorkspace("non-existent"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
+      expect(result.current.loading).toBe(false);
+    });
 
-    expect(result.current.workspace).toBeNull()
-  })
-})
+    expect(result.current.workspace).toBeNull();
+  });
+});
 
 // ============================================================================
 // TESTS: useWorkspaceMembers
 // ============================================================================
 
-describe('useWorkspaceMembers', () => {
-  it('should return empty array when no workspaceId', () => {
+describe("useWorkspaceMembers", () => {
+  it("should return empty array when no workspaceId", () => {
     const { result } = renderHook(() => useWorkspaceMembers(null), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    expect(result.current.members).toEqual([])
-  })
+    expect(result.current.members).toEqual([]);
+  });
 
   // Skip: MockedProvider doesn't properly return data with cache-and-network fetchPolicy
-  it.skip('should fetch workspace members', async () => {
+  it.skip("should fetch workspace members", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE_MEMBERS,
-          variables: { workspaceId: 'ws-1', role: undefined, limit: 50, offset: 0 },
+          variables: {
+            workspaceId: "ws-1",
+            role: undefined,
+            limit: 50,
+            offset: 0,
+          },
         },
         result: {
           data: {
@@ -380,28 +400,36 @@ describe('useWorkspaceMembers', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspaceMembers('ws-1'), {
+    const { result } = renderHook(() => useWorkspaceMembers("ws-1"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     // Wait for members data to be available
-    await waitFor(() => {
-      expect(result.current.members.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(result.current.members.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
 
-    expect(result.current.members).toHaveLength(1)
-    expect(result.current.members[0].role).toBe('owner')
-    expect(result.current.members[0].user?.displayName).toBe('Test User')
-  })
+    expect(result.current.members).toHaveLength(1);
+    expect(result.current.members[0].role).toBe("owner");
+    expect(result.current.members[0].user?.displayName).toBe("Test User");
+  });
 
-  it('should filter by role', async () => {
+  it("should filter by role", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE_MEMBERS,
-          variables: { workspaceId: 'ws-1', role: 'admin', limit: 50, offset: 0 },
+          variables: {
+            workspaceId: "ws-1",
+            role: "admin",
+            limit: 50,
+            offset: 0,
+          },
         },
         result: {
           data: {
@@ -410,41 +438,41 @@ describe('useWorkspaceMembers', () => {
           },
         },
       },
-    ]
+    ];
 
     const { result } = renderHook(
-      () => useWorkspaceMembers('ws-1', { role: 'admin' }),
-      { wrapper: createWrapper(mocks) }
-    )
+      () => useWorkspaceMembers("ws-1", { role: "admin" }),
+      { wrapper: createWrapper(mocks) },
+    );
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
+      expect(result.current.loading).toBe(false);
+    });
 
-    expect(result.current.members).toHaveLength(0)
-  })
-})
+    expect(result.current.members).toHaveLength(0);
+  });
+});
 
 // ============================================================================
 // TESTS: useWorkspaceInvites
 // ============================================================================
 
-describe('useWorkspaceInvites', () => {
-  it('should return empty array when no workspaceId', () => {
+describe("useWorkspaceInvites", () => {
+  it("should return empty array when no workspaceId", () => {
     const { result } = renderHook(() => useWorkspaceInvites(null), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    expect(result.current.invites).toEqual([])
-  })
+    expect(result.current.invites).toEqual([]);
+  });
 
   // Skip: MockedProvider doesn't properly return data with cache-and-network fetchPolicy
-  it.skip('should fetch workspace invites', async () => {
+  it.skip("should fetch workspace invites", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE_INVITES,
-          variables: { workspaceId: 'ws-1', limit: 50, offset: 0 },
+          variables: { workspaceId: "ws-1", limit: 50, offset: 0 },
         },
         result: {
           data: {
@@ -453,48 +481,51 @@ describe('useWorkspaceInvites', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspaceInvites('ws-1'), {
+    const { result } = renderHook(() => useWorkspaceInvites("ws-1"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     // Wait for invites data to be available
-    await waitFor(() => {
-      expect(result.current.invites.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(result.current.invites.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
 
-    expect(result.current.invites).toHaveLength(1)
-    expect(result.current.invites[0].code).toBe('ABC123')
-  })
-})
+    expect(result.current.invites).toHaveLength(1);
+    expect(result.current.invites[0].code).toBe("ABC123");
+  });
+});
 
 // ============================================================================
 // TESTS: useWorkspaceStats
 // ============================================================================
 
-describe('useWorkspaceStats', () => {
-  it('should return null when no workspaceId', () => {
+describe("useWorkspaceStats", () => {
+  it("should return null when no workspaceId", () => {
     const { result } = renderHook(() => useWorkspaceStats(null), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    expect(result.current.stats).toBeNull()
-  })
+    expect(result.current.stats).toBeNull();
+  });
 
-  it('should fetch workspace stats', async () => {
+  it("should fetch workspace stats", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE_STATS,
-          variables: { workspaceId: 'ws-1' },
+          variables: { workspaceId: "ws-1" },
         },
         result: {
           data: {
             nchat_workspaces_by_pk: {
-              id: 'ws-1',
+              id: "ws-1",
               member_count: 10,
-              created_at: '2024-01-01T00:00:00Z',
+              created_at: "2024-01-01T00:00:00Z",
               members_aggregate: { aggregate: { count: 10 } },
               channels_aggregate: { aggregate: { count: 5 } },
               online_members: { aggregate: { count: 3 } },
@@ -502,326 +533,347 @@ describe('useWorkspaceStats', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspaceStats('ws-1'), {
+    const { result } = renderHook(() => useWorkspaceStats("ws-1"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
+      expect(result.current.loading).toBe(false);
+    });
 
-    expect(result.current.stats).not.toBeNull()
-    expect(result.current.stats?.memberCount).toBe(10)
-    expect(result.current.stats?.channelCount).toBe(5)
-    expect(result.current.stats?.onlineMembers).toBe(3)
-  })
-})
+    expect(result.current.stats).not.toBeNull();
+    expect(result.current.stats?.memberCount).toBe(10);
+    expect(result.current.stats?.channelCount).toBe(5);
+    expect(result.current.stats?.onlineMembers).toBe(3);
+  });
+});
 
 // ============================================================================
 // TESTS: useWorkspaceMutations
 // ============================================================================
 
-describe('useWorkspaceMutations', () => {
+describe("useWorkspaceMutations", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(global.fetch as jest.Mock).mockReset()
-  })
+    jest.clearAllMocks();
+    (global.fetch as jest.Mock).mockReset();
+  });
 
-  it('should create workspace successfully', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should create workspace successfully", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        workspace: { id: 'ws-new', name: 'New Workspace', slug: 'new-workspace' },
+        workspace: {
+          id: "ws-new",
+          name: "New Workspace",
+          slug: "new-workspace",
+        },
       }),
-    })
+    });
 
     const { result } = renderHook(() => useWorkspaceMutations(), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let workspace
+    let workspace;
     await act(async () => {
-      workspace = await result.current.createWorkspace({ name: 'New Workspace' })
-    })
+      workspace = await result.current.createWorkspace({
+        name: "New Workspace",
+      });
+    });
 
-    expect(workspace).not.toBeNull()
-    expect(global.fetch).toHaveBeenCalledWith('/api/workspaces', expect.any(Object))
-  })
+    expect(workspace).not.toBeNull();
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/workspaces",
+      expect.any(Object),
+    );
+  });
 
-  it('should handle create workspace error', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should handle create workspace error", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       json: async () => ({
-        error: { message: 'Workspace already exists' },
+        error: { message: "Workspace already exists" },
       }),
-    })
+    });
 
     const { result } = renderHook(() => useWorkspaceMutations(), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let workspace
+    let workspace;
     await act(async () => {
-      workspace = await result.current.createWorkspace({ name: 'Existing' })
-    })
+      workspace = await result.current.createWorkspace({ name: "Existing" });
+    });
 
-    expect(workspace).toBeNull()
-  })
+    expect(workspace).toBeNull();
+  });
 
-  it('should update workspace successfully', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should update workspace successfully", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        workspace: { id: 'ws-1', name: 'Updated Workspace' },
+        workspace: { id: "ws-1", name: "Updated Workspace" },
       }),
-    })
+    });
 
     const { result } = renderHook(() => useWorkspaceMutations(), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let workspace
+    let workspace;
     await act(async () => {
-      workspace = await result.current.updateWorkspace('ws-1', { name: 'Updated Workspace' })
-    })
+      workspace = await result.current.updateWorkspace("ws-1", {
+        name: "Updated Workspace",
+      });
+    });
 
-    expect(workspace).not.toBeNull()
-    expect(global.fetch).toHaveBeenCalledWith('/api/workspaces/ws-1', expect.any(Object))
-  })
+    expect(workspace).not.toBeNull();
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/workspaces/ws-1",
+      expect.any(Object),
+    );
+  });
 
-  it('should delete workspace successfully', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should delete workspace successfully", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({}),
-    })
+    });
 
     const { result } = renderHook(() => useWorkspaceMutations(), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let success
+    let success;
     await act(async () => {
-      success = await result.current.deleteWorkspace('ws-1')
-    })
+      success = await result.current.deleteWorkspace("ws-1");
+    });
 
-    expect(success).toBe(true)
-    expect(global.fetch).toHaveBeenCalledWith('/api/workspaces/ws-1', expect.objectContaining({
-      method: 'DELETE',
-    }))
-  })
+    expect(success).toBe(true);
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/workspaces/ws-1",
+      expect.objectContaining({
+        method: "DELETE",
+      }),
+    );
+  });
 
-  it('should set loading state during operations', async () => {
-    ;(global.fetch as jest.Mock).mockImplementation(() =>
-      new Promise((resolve) =>
-        setTimeout(() => resolve({ ok: true, json: async () => ({ workspace: {} }) }), 100)
-      )
-    )
+  it("should set loading state during operations", async () => {
+    (global.fetch as jest.Mock).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () => resolve({ ok: true, json: async () => ({ workspace: {} }) }),
+            100,
+          ),
+        ),
+    );
 
     const { result } = renderHook(() => useWorkspaceMutations(), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    expect(result.current.isCreating).toBe(false)
+    expect(result.current.isCreating).toBe(false);
 
     act(() => {
-      result.current.createWorkspace({ name: 'Test' })
-    })
+      result.current.createWorkspace({ name: "Test" });
+    });
 
-    expect(result.current.isCreating).toBe(true)
+    expect(result.current.isCreating).toBe(true);
 
     await waitFor(() => {
-      expect(result.current.isCreating).toBe(false)
-    })
-  })
-})
+      expect(result.current.isCreating).toBe(false);
+    });
+  });
+});
 
 // ============================================================================
 // TESTS: useMemberManagement
 // ============================================================================
 
-describe('useMemberManagement', () => {
+describe("useMemberManagement", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(global.fetch as jest.Mock).mockReset()
-  })
+    jest.clearAllMocks();
+    (global.fetch as jest.Mock).mockReset();
+  });
 
-  it('should add member successfully', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should add member successfully", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        member: { id: 'member-new', role: 'member' },
+        member: { id: "member-new", role: "member" },
       }),
-    })
+    });
 
-    const { result } = renderHook(() => useMemberManagement('ws-1'), {
+    const { result } = renderHook(() => useMemberManagement("ws-1"), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let member
+    let member;
     await act(async () => {
-      member = await result.current.addMember('user-2', 'member')
-    })
+      member = await result.current.addMember("user-2", "member");
+    });
 
-    expect(member).not.toBeNull()
+    expect(member).not.toBeNull();
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/workspaces/ws-1/members',
-      expect.objectContaining({ method: 'POST' })
-    )
-  })
+      "/api/workspaces/ws-1/members",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
 
-  it('should remove member successfully', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should remove member successfully", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({}),
-    })
+    });
 
-    const { result } = renderHook(() => useMemberManagement('ws-1'), {
+    const { result } = renderHook(() => useMemberManagement("ws-1"), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let success
+    let success;
     await act(async () => {
-      success = await result.current.removeMember('user-2')
-    })
+      success = await result.current.removeMember("user-2");
+    });
 
-    expect(success).toBe(true)
+    expect(success).toBe(true);
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/workspaces/ws-1/members',
-      expect.objectContaining({ method: 'DELETE' })
-    )
-  })
+      "/api/workspaces/ws-1/members",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
 
-  it('should update member role', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should update member role", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        member: { id: 'member-1', role: 'admin' },
+        member: { id: "member-1", role: "admin" },
       }),
-    })
+    });
 
-    const { result } = renderHook(() => useMemberManagement('ws-1'), {
+    const { result } = renderHook(() => useMemberManagement("ws-1"), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let member
+    let member;
     await act(async () => {
-      member = await result.current.updateMemberRole('user-2', 'admin')
-    })
+      member = await result.current.updateMemberRole("user-2", "admin");
+    });
 
-    expect(member).not.toBeNull()
+    expect(member).not.toBeNull();
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/workspaces/ws-1/members',
-      expect.objectContaining({ method: 'PATCH' })
-    )
-  })
+      "/api/workspaces/ws-1/members",
+      expect.objectContaining({ method: "PATCH" }),
+    );
+  });
 
-  it('should create invite successfully', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should create invite successfully", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        invite: { code: 'NEW123' },
-        inviteUrl: 'http://example.com/invite/NEW123',
+        invite: { code: "NEW123" },
+        inviteUrl: "http://example.com/invite/NEW123",
       }),
-    })
+    });
 
-    const { result } = renderHook(() => useMemberManagement('ws-1'), {
+    const { result } = renderHook(() => useMemberManagement("ws-1"), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let invite
+    let invite;
     await act(async () => {
-      invite = await result.current.createInvite({ expiresIn: '7d' })
-    })
+      invite = await result.current.createInvite({ expiresIn: "7d" });
+    });
 
-    expect(invite).not.toBeNull()
-    expect(invite?.code).toBe('NEW123')
-    expect(invite?.url).toBe('http://example.com/invite/NEW123')
-  })
+    expect(invite).not.toBeNull();
+    expect(invite?.code).toBe("NEW123");
+    expect(invite?.url).toBe("http://example.com/invite/NEW123");
+  });
 
-  it('should join workspace via invite', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should join workspace via invite", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        member: { id: 'member-new' },
-        workspace: { name: 'Joined Workspace' },
+        member: { id: "member-new" },
+        workspace: { name: "Joined Workspace" },
       }),
-    })
+    });
 
-    const { result } = renderHook(() => useMemberManagement('ws-1'), {
+    const { result } = renderHook(() => useMemberManagement("ws-1"), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let member
+    let member;
     await act(async () => {
-      member = await result.current.joinWorkspace('ABC123')
-    })
+      member = await result.current.joinWorkspace("ABC123");
+    });
 
-    expect(member).not.toBeNull()
+    expect(member).not.toBeNull();
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/workspaces/join',
-      expect.objectContaining({ method: 'POST' })
-    )
-  })
+      "/api/workspaces/join",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
 
-  it('should return null when no workspaceId for add', async () => {
+  it("should return null when no workspaceId for add", async () => {
     const { result } = renderHook(() => useMemberManagement(null), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let member
+    let member;
     await act(async () => {
-      member = await result.current.addMember('user-2')
-    })
+      member = await result.current.addMember("user-2");
+    });
 
-    expect(member).toBeNull()
-    expect(global.fetch).not.toHaveBeenCalled()
-  })
-})
+    expect(member).toBeNull();
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+});
 
 // ============================================================================
 // TESTS: useOwnershipTransfer
 // ============================================================================
 
-describe('useOwnershipTransfer', () => {
-  it('should return failure when no workspaceId', async () => {
+describe("useOwnershipTransfer", () => {
+  it("should return failure when no workspaceId", async () => {
     const { result } = renderHook(() => useOwnershipTransfer(null), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let transferResult
+    let transferResult;
     await act(async () => {
-      transferResult = await result.current.initiateTransfer('user-2')
-    })
+      transferResult = await result.current.initiateTransfer("user-2");
+    });
 
-    expect(transferResult.success).toBe(false)
-  })
+    expect(transferResult.success).toBe(false);
+  });
 
-  it('should set isTransferring during transfer', async () => {
-    const { result } = renderHook(() => useOwnershipTransfer('ws-1'), {
+  it("should set isTransferring during transfer", async () => {
+    const { result } = renderHook(() => useOwnershipTransfer("ws-1"), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    expect(result.current.isTransferring).toBe(false)
-  })
-})
+    expect(result.current.isTransferring).toBe(false);
+  });
+});
 
 // ============================================================================
 // TESTS: useWorkspaceSwitcher
 // ============================================================================
 
-describe('useWorkspaceSwitcher', () => {
+describe("useWorkspaceSwitcher", () => {
   beforeEach(() => {
-    localStorageMock.getItem.mockReturnValue(null)
-  })
+    localStorageMock.getItem.mockReturnValue(null);
+  });
 
-  it('should initialize with null currentWorkspace when no workspaces', async () => {
+  it("should initialize with null currentWorkspace when no workspaces", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACES,
-          variables: { userId: 'user-1', limit: 50, offset: 0 },
+          variables: { userId: "user-1", limit: 50, offset: 0 },
         },
         result: {
           data: {
@@ -830,34 +882,34 @@ describe('useWorkspaceSwitcher', () => {
           },
         },
       },
-    ]
+    ];
 
     const { result } = renderHook(() => useWorkspaceSwitcher(), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
+      expect(result.current.loading).toBe(false);
+    });
 
-    expect(result.current.currentWorkspace).toBeNull()
-    expect(result.current.workspaces).toEqual([])
-  })
+    expect(result.current.currentWorkspace).toBeNull();
+    expect(result.current.workspaces).toEqual([]);
+  });
 
-  it('should return workspaces from hook', async () => {
+  it("should return workspaces from hook", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACES,
-          variables: { userId: 'user-1', limit: 50, offset: 0 },
+          variables: { userId: "user-1", limit: 50, offset: 0 },
         },
         result: {
           data: {
             nchat_workspace_members: [
               {
                 workspace: mockWorkspace,
-                role: 'owner',
-                joined_at: '2024-01-01T00:00:00Z',
+                role: "owner",
+                joined_at: "2024-01-01T00:00:00Z",
                 nickname: null,
               },
             ],
@@ -865,92 +917,92 @@ describe('useWorkspaceSwitcher', () => {
           },
         },
       },
-    ]
+    ];
 
     const { result } = renderHook(() => useWorkspaceSwitcher(), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
+      expect(result.current.loading).toBe(false);
+    });
 
-    expect(result.current.workspaces).toHaveLength(1)
-  })
-})
+    expect(result.current.workspaces).toHaveLength(1);
+  });
+});
 
 // ============================================================================
 // TESTS: useWorkspaceAnalytics
 // ============================================================================
 
-describe('useWorkspaceAnalytics', () => {
-  it('should not fetch when no workspaceId', async () => {
+describe("useWorkspaceAnalytics", () => {
+  it("should not fetch when no workspaceId", async () => {
     const { result } = renderHook(() => useWorkspaceAnalytics(null), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    expect(result.current.analytics).toBeNull()
-    expect(result.current.isLoading).toBe(false)
-  })
+    expect(result.current.analytics).toBeNull();
+    expect(result.current.isLoading).toBe(false);
+  });
 
-  it('should set loading state during fetch', () => {
-    const { result } = renderHook(() => useWorkspaceAnalytics('ws-1'), {
+  it("should set loading state during fetch", () => {
+    const { result } = renderHook(() => useWorkspaceAnalytics("ws-1"), {
       wrapper: createWrapper([]),
-    })
+    });
 
     // Initial state should be loading
-    expect(result.current.isLoading).toBe(true)
-  })
+    expect(result.current.isLoading).toBe(true);
+  });
 
-  it('should handle different periods', () => {
+  it("should handle different periods", () => {
     const { result: dayResult } = renderHook(
-      () => useWorkspaceAnalytics('ws-1', 'day'),
-      { wrapper: createWrapper([]) }
-    )
+      () => useWorkspaceAnalytics("ws-1", "day"),
+      { wrapper: createWrapper([]) },
+    );
 
     const { result: weekResult } = renderHook(
-      () => useWorkspaceAnalytics('ws-1', 'week'),
-      { wrapper: createWrapper([]) }
-    )
+      () => useWorkspaceAnalytics("ws-1", "week"),
+      { wrapper: createWrapper([]) },
+    );
 
     const { result: monthResult } = renderHook(
-      () => useWorkspaceAnalytics('ws-1', 'month'),
-      { wrapper: createWrapper([]) }
-    )
+      () => useWorkspaceAnalytics("ws-1", "month"),
+      { wrapper: createWrapper([]) },
+    );
 
     const { result: yearResult } = renderHook(
-      () => useWorkspaceAnalytics('ws-1', 'year'),
-      { wrapper: createWrapper([]) }
-    )
+      () => useWorkspaceAnalytics("ws-1", "year"),
+      { wrapper: createWrapper([]) },
+    );
 
     // All should start loading
-    expect(dayResult.current.isLoading).toBe(true)
-    expect(weekResult.current.isLoading).toBe(true)
-    expect(monthResult.current.isLoading).toBe(true)
-    expect(yearResult.current.isLoading).toBe(true)
-  })
-})
+    expect(dayResult.current.isLoading).toBe(true);
+    expect(weekResult.current.isLoading).toBe(true);
+    expect(monthResult.current.isLoading).toBe(true);
+    expect(yearResult.current.isLoading).toBe(true);
+  });
+});
 
 // ============================================================================
 // TESTS: useWorkspaceDetails (combined hook)
 // ============================================================================
 
-describe('useWorkspaceDetails', () => {
-  it('should return null workspace when no workspaceId', () => {
+describe("useWorkspaceDetails", () => {
+  it("should return null workspace when no workspaceId", () => {
     const { result } = renderHook(() => useWorkspaceDetails(null), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    expect(result.current.workspace).toBeNull()
-  })
+    expect(result.current.workspace).toBeNull();
+  });
 
   // Skip: Uses subscription which MockedProvider doesn't handle well
-  it.skip('should return combined operations', async () => {
+  it.skip("should return combined operations", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE,
-          variables: { id: 'ws-1' },
+          variables: { id: "ws-1" },
         },
         result: {
           data: {
@@ -961,14 +1013,14 @@ describe('useWorkspaceDetails', () => {
       {
         request: {
           query: GET_WORKSPACE_STATS,
-          variables: { workspaceId: 'ws-1' },
+          variables: { workspaceId: "ws-1" },
         },
         result: {
           data: {
             nchat_workspaces_by_pk: {
-              id: 'ws-1',
+              id: "ws-1",
               member_count: 5,
-              created_at: '2024-01-01T00:00:00Z',
+              created_at: "2024-01-01T00:00:00Z",
               members_aggregate: { aggregate: { count: 5 } },
               channels_aggregate: { aggregate: { count: 3 } },
               online_members: { aggregate: { count: 2 } },
@@ -976,76 +1028,78 @@ describe('useWorkspaceDetails', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspaceDetails('ws-1'), {
+    const { result } = renderHook(() => useWorkspaceDetails("ws-1"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
+      expect(result.current.loading).toBe(false);
+    });
 
     // Should have workspace data
-    expect(result.current.workspace).not.toBeNull()
+    expect(result.current.workspace).not.toBeNull();
 
     // Should have mutation functions
-    expect(typeof result.current.createWorkspace).toBe('function')
-    expect(typeof result.current.updateWorkspace).toBe('function')
-    expect(typeof result.current.deleteWorkspace).toBe('function')
+    expect(typeof result.current.createWorkspace).toBe("function");
+    expect(typeof result.current.updateWorkspace).toBe("function");
+    expect(typeof result.current.deleteWorkspace).toBe("function");
 
     // Should have member management functions
-    expect(typeof result.current.addMember).toBe('function')
-    expect(typeof result.current.removeMember).toBe('function')
-    expect(typeof result.current.createInvite).toBe('function')
-  })
-})
+    expect(typeof result.current.addMember).toBe("function");
+    expect(typeof result.current.removeMember).toBe("function");
+    expect(typeof result.current.createInvite).toBe("function");
+  });
+});
 
 // ============================================================================
 // EDGE CASES AND ERROR HANDLING
 // ============================================================================
 
-describe('Error Handling', () => {
+describe("Error Handling", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(global.fetch as jest.Mock).mockReset()
-  })
+    jest.clearAllMocks();
+    (global.fetch as jest.Mock).mockReset();
+  });
 
-  it('should handle network errors gracefully', async () => {
-    ;(global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
+  it("should handle network errors gracefully", async () => {
+    (global.fetch as jest.Mock).mockRejectedValueOnce(
+      new Error("Network error"),
+    );
 
     const { result } = renderHook(() => useWorkspaceMutations(), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let workspace
+    let workspace;
     await act(async () => {
-      workspace = await result.current.createWorkspace({ name: 'Test' })
-    })
+      workspace = await result.current.createWorkspace({ name: "Test" });
+    });
 
-    expect(workspace).toBeNull()
-  })
+    expect(workspace).toBeNull();
+  });
 
-  it('should handle API errors with error messages', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+  it("should handle API errors with error messages", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       json: async () => ({
-        error: { message: 'Custom error message' },
+        error: { message: "Custom error message" },
       }),
-    })
+    });
 
     const { result } = renderHook(() => useWorkspaceMutations(), {
       wrapper: createWrapper([]),
-    })
+    });
 
-    let workspace
+    let workspace;
     await act(async () => {
-      workspace = await result.current.createWorkspace({ name: 'Test' })
-    })
+      workspace = await result.current.createWorkspace({ name: "Test" });
+    });
 
-    expect(workspace).toBeNull()
-  })
-})
+    expect(workspace).toBeNull();
+  });
+});
 
 // ============================================================================
 // DATA TRANSFORMATION TESTS
@@ -1054,97 +1108,105 @@ describe('Error Handling', () => {
 // Note: These tests are skipped because MockedProvider with cache-and-network fetchPolicy
 // doesn't properly return mock data in tests. The transformation functions are tested
 // indirectly through the service tests and work correctly in the actual application.
-describe('Data Transformation', () => {
+describe("Data Transformation", () => {
   // Skip: MockedProvider doesn't handle cache-and-network fetchPolicy properly
-  it.skip('should transform workspace data correctly', async () => {
+  it.skip("should transform workspace data correctly", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE,
-          variables: { id: 'ws-1' },
+          variables: { id: "ws-1" },
         },
         result: {
           data: {
             nchat_workspaces_by_pk: {
-              id: 'ws-1',
-              name: 'Test Workspace',
-              slug: 'test-workspace',
-              description: 'Description',
-              icon_url: 'https://example.com/icon.png',
-              banner_url: 'https://example.com/banner.png',
-              owner_id: 'user-1',
-              default_channel_id: 'ch-1',
+              id: "ws-1",
+              name: "Test Workspace",
+              slug: "test-workspace",
+              description: "Description",
+              icon_url: "https://example.com/icon.png",
+              banner_url: "https://example.com/banner.png",
+              owner_id: "user-1",
+              default_channel_id: "ch-1",
               member_count: 10,
               settings: { allowInvites: true },
-              created_at: '2024-01-01T00:00:00Z',
-              updated_at: '2024-01-02T00:00:00Z',
+              created_at: "2024-01-01T00:00:00Z",
+              updated_at: "2024-01-02T00:00:00Z",
               owner: {
-                id: 'user-1',
-                username: 'owner',
-                display_name: 'Owner',
+                id: "user-1",
+                username: "owner",
+                display_name: "Owner",
                 avatar_url: null,
               },
               default_channel: {
-                id: 'ch-1',
-                name: 'general',
-                slug: 'general',
+                id: "ch-1",
+                name: "general",
+                slug: "general",
               },
             },
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspace('ws-1'), {
+    const { result } = renderHook(() => useWorkspace("ws-1"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     // Wait for data to be available (cache-and-network may resolve loading before data)
-    await waitFor(() => {
-      expect(result.current.workspace).not.toBeNull()
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(result.current.workspace).not.toBeNull();
+      },
+      { timeout: 3000 },
+    );
 
-    const workspace = result.current.workspace
-    expect(workspace?.id).toBe('ws-1')
-    expect(workspace?.name).toBe('Test Workspace')
-    expect(workspace?.slug).toBe('test-workspace')
-    expect(workspace?.description).toBe('Description')
-    expect(workspace?.iconUrl).toBe('https://example.com/icon.png')
-    expect(workspace?.bannerUrl).toBe('https://example.com/banner.png')
-    expect(workspace?.ownerId).toBe('user-1')
-    expect(workspace?.defaultChannelId).toBe('ch-1')
-    expect(workspace?.memberCount).toBe(10)
-    expect(workspace?.owner?.displayName).toBe('Owner')
-    expect(workspace?.defaultChannel?.name).toBe('general')
-  })
+    const workspace = result.current.workspace;
+    expect(workspace?.id).toBe("ws-1");
+    expect(workspace?.name).toBe("Test Workspace");
+    expect(workspace?.slug).toBe("test-workspace");
+    expect(workspace?.description).toBe("Description");
+    expect(workspace?.iconUrl).toBe("https://example.com/icon.png");
+    expect(workspace?.bannerUrl).toBe("https://example.com/banner.png");
+    expect(workspace?.ownerId).toBe("user-1");
+    expect(workspace?.defaultChannelId).toBe("ch-1");
+    expect(workspace?.memberCount).toBe(10);
+    expect(workspace?.owner?.displayName).toBe("Owner");
+    expect(workspace?.defaultChannel?.name).toBe("general");
+  });
 
   // Skip: MockedProvider doesn't handle cache-and-network fetchPolicy properly
-  it.skip('should transform member data correctly', async () => {
+  it.skip("should transform member data correctly", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE_MEMBERS,
-          variables: { workspaceId: 'ws-1', role: undefined, limit: 50, offset: 0 },
+          variables: {
+            workspaceId: "ws-1",
+            role: undefined,
+            limit: 50,
+            offset: 0,
+          },
         },
         result: {
           data: {
             nchat_workspace_members: [
               {
-                id: 'member-1',
-                workspace_id: 'ws-1',
-                user_id: 'user-1',
-                role: 'owner',
-                joined_at: '2024-01-01T00:00:00Z',
-                nickname: 'Owner Nick',
+                id: "member-1",
+                workspace_id: "ws-1",
+                user_id: "user-1",
+                role: "owner",
+                joined_at: "2024-01-01T00:00:00Z",
+                nickname: "Owner Nick",
                 user: {
-                  id: 'user-1',
-                  username: 'owner',
-                  display_name: 'Owner Name',
-                  email: 'owner@example.com',
-                  avatar_url: 'https://example.com/avatar.png',
-                  bio: 'Bio text',
-                  status: 'online',
-                  created_at: '2023-01-01T00:00:00Z',
+                  id: "user-1",
+                  username: "owner",
+                  display_name: "Owner Name",
+                  email: "owner@example.com",
+                  avatar_url: "https://example.com/avatar.png",
+                  bio: "Bio text",
+                  status: "online",
+                  created_at: "2023-01-01T00:00:00Z",
                 },
               },
             ],
@@ -1152,53 +1214,56 @@ describe('Data Transformation', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspaceMembers('ws-1'), {
+    const { result } = renderHook(() => useWorkspaceMembers("ws-1"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     // Wait for members data to be available
-    await waitFor(() => {
-      expect(result.current.members.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(result.current.members.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
 
-    const member = result.current.members[0]
-    expect(member).not.toBeUndefined()
-    expect(member.id).toBe('member-1')
-    expect(member.workspaceId).toBe('ws-1')
-    expect(member.userId).toBe('user-1')
-    expect(member.role).toBe('owner')
-    expect(member.nickname).toBe('Owner Nick')
-    expect(member.user?.displayName).toBe('Owner Name')
-    expect(member.user?.email).toBe('owner@example.com')
-    expect(member.user?.avatarUrl).toBe('https://example.com/avatar.png')
-  })
+    const member = result.current.members[0];
+    expect(member).not.toBeUndefined();
+    expect(member.id).toBe("member-1");
+    expect(member.workspaceId).toBe("ws-1");
+    expect(member.userId).toBe("user-1");
+    expect(member.role).toBe("owner");
+    expect(member.nickname).toBe("Owner Nick");
+    expect(member.user?.displayName).toBe("Owner Name");
+    expect(member.user?.email).toBe("owner@example.com");
+    expect(member.user?.avatarUrl).toBe("https://example.com/avatar.png");
+  });
 
   // Skip: MockedProvider doesn't handle cache-and-network fetchPolicy properly
-  it.skip('should transform invite data correctly', async () => {
+  it.skip("should transform invite data correctly", async () => {
     const mocks: MockedResponse[] = [
       {
         request: {
           query: GET_WORKSPACE_INVITES,
-          variables: { workspaceId: 'ws-1', limit: 50, offset: 0 },
+          variables: { workspaceId: "ws-1", limit: 50, offset: 0 },
         },
         result: {
           data: {
             nchat_workspace_invites: [
               {
-                id: 'inv-1',
-                workspace_id: 'ws-1',
-                code: 'ABC123',
+                id: "inv-1",
+                workspace_id: "ws-1",
+                code: "ABC123",
                 uses: 5,
                 max_uses: 10,
-                expires_at: '2024-12-31T23:59:59Z',
-                created_by: 'user-1',
-                created_at: '2024-01-01T00:00:00Z',
+                expires_at: "2024-12-31T23:59:59Z",
+                created_by: "user-1",
+                created_at: "2024-01-01T00:00:00Z",
                 creator: {
-                  id: 'user-1',
-                  username: 'creator',
-                  display_name: 'Creator Name',
+                  id: "user-1",
+                  username: "creator",
+                  display_name: "Creator Name",
                   avatar_url: null,
                 },
               },
@@ -1207,25 +1272,28 @@ describe('Data Transformation', () => {
           },
         },
       },
-    ]
+    ];
 
-    const { result } = renderHook(() => useWorkspaceInvites('ws-1'), {
+    const { result } = renderHook(() => useWorkspaceInvites("ws-1"), {
       wrapper: createWrapper(mocks),
-    })
+    });
 
     // Wait for invites data to be available
-    await waitFor(() => {
-      expect(result.current.invites.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(result.current.invites.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
 
-    const invite = result.current.invites[0]
-    expect(invite).not.toBeUndefined()
-    expect(invite.id).toBe('inv-1')
-    expect(invite.workspaceId).toBe('ws-1')
-    expect(invite.code).toBe('ABC123')
-    expect(invite.uses).toBe(5)
-    expect(invite.maxUses).toBe(10)
-    expect(invite.expiresAt).toBe('2024-12-31T23:59:59Z')
-    expect(invite.creator?.displayName).toBe('Creator Name')
-  })
-})
+    const invite = result.current.invites[0];
+    expect(invite).not.toBeUndefined();
+    expect(invite.id).toBe("inv-1");
+    expect(invite.workspaceId).toBe("ws-1");
+    expect(invite.code).toBe("ABC123");
+    expect(invite.uses).toBe(5);
+    expect(invite.maxUses).toBe(10);
+    expect(invite.expiresAt).toBe("2024-12-31T23:59:59Z");
+    expect(invite.creator?.displayName).toBe("Creator Name");
+  });
+});

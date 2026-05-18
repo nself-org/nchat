@@ -4,12 +4,12 @@
  * and imports them to configured channels
  */
 
-import { TwitterClient } from './twitter-client'
-import { InstagramClient } from './instagram-client'
-import { LinkedInClient } from './linkedin-client'
-import { decryptToken, encryptToken } from './encryption'
-import { matchesFilters } from './filters'
-import { createSocialEmbed, formatAsMessageContent } from './embed-formatter'
+import { TwitterClient } from "./twitter-client";
+import { InstagramClient } from "./instagram-client";
+import { LinkedInClient } from "./linkedin-client";
+import { decryptToken, encryptToken } from "./encryption";
+import { matchesFilters } from "./filters";
+import { createSocialEmbed, formatAsMessageContent } from "./embed-formatter";
 import type {
   SocialAccount,
   SocialPost,
@@ -17,11 +17,11 @@ import type {
   SocialAPIClient,
   ImportResult,
   SocialPlatform,
-} from './types'
-import { logger } from '@/lib/logger'
+} from "./types";
+import { logger } from "@/lib/logger";
 
 // Platform clients (lazy loaded to avoid build-time errors if credentials not configured)
-let _clients: Record<SocialPlatform, SocialAPIClient> | null = null
+let _clients: Record<SocialPlatform, SocialAPIClient> | null = null;
 
 function getClients(): Record<SocialPlatform, SocialAPIClient> {
   if (!_clients) {
@@ -29,54 +29,56 @@ function getClients(): Record<SocialPlatform, SocialAPIClient> {
       twitter: new TwitterClient(),
       instagram: new InstagramClient(),
       linkedin: new LinkedInClient(),
-    }
+    };
   }
-  return _clients
+  return _clients;
 }
 
 /**
  * Poll all active social accounts for new posts
  */
-export async function pollAllAccounts(apolloClient: any): Promise<ImportResult> {
+export async function pollAllAccounts(
+  apolloClient: any,
+): Promise<ImportResult> {
   const result: ImportResult = {
     fetched: 0,
     imported: 0,
     filtered: 0,
     posted: 0,
     errors: [],
-  }
+  };
 
   try {
     // Get all active accounts
     const { data } = await apolloClient.query({
       query: GET_ACTIVE_SOCIAL_ACCOUNTS,
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const accounts: SocialAccount[] = data?.nchat_social_accounts || []
+    const accounts: SocialAccount[] = data?.nchat_social_accounts || [];
 
     // Poll each account
     for (const account of accounts) {
       try {
-        const accountResult = await pollAccount(apolloClient, account)
-        result.fetched += accountResult.fetched
-        result.imported += accountResult.imported
-        result.filtered += accountResult.filtered
-        result.posted += accountResult.posted
-        result.errors.push(...accountResult.errors)
+        const accountResult = await pollAccount(apolloClient, account);
+        result.fetched += accountResult.fetched;
+        result.imported += accountResult.imported;
+        result.filtered += accountResult.filtered;
+        result.posted += accountResult.posted;
+        result.errors.push(...accountResult.errors);
       } catch (error) {
-        const errorMsg = `Failed to poll ${account.platform} account ${account.account_name}: ${error}`
-        logger.error(errorMsg)
-        result.errors.push(errorMsg)
+        const errorMsg = `Failed to poll ${account.platform} account ${account.account_name}: ${error}`;
+        logger.error(errorMsg);
+        result.errors.push(errorMsg);
       }
     }
 
-    return result
+    return result;
   } catch (error) {
-    const errorMsg = `Failed to poll social accounts: ${error}`
-    logger.error(errorMsg)
-    result.errors.push(errorMsg)
-    return result
+    const errorMsg = `Failed to poll social accounts: ${error}`;
+    logger.error(errorMsg);
+    result.errors.push(errorMsg);
+    return result;
   }
 }
 
@@ -85,7 +87,7 @@ export async function pollAllAccounts(apolloClient: any): Promise<ImportResult> 
  */
 export async function pollAccount(
   apolloClient: any,
-  account: SocialAccount
+  account: SocialAccount,
 ): Promise<ImportResult> {
   const result: ImportResult = {
     fetched: 0,
@@ -93,103 +95,119 @@ export async function pollAccount(
     filtered: 0,
     posted: 0,
     errors: [],
-  }
+  };
 
   // Create import log
-  const logId = await createImportLog(apolloClient, account.id, 'scheduled')
+  const logId = await createImportLog(apolloClient, account.id, "scheduled");
 
   try {
     // Get client for this platform
-    const clients = getClients()
-    const client = clients[account.platform]
+    const clients = getClients();
+    const client = clients[account.platform];
     if (!client) {
-      throw new Error(`No client for platform: ${account.platform}`)
+      throw new Error(`No client for platform: ${account.platform}`);
     }
 
     // Decrypt access token
     if (!account.access_token_encrypted) {
-      throw new Error('Account has no access token')
+      throw new Error("Account has no access token");
     }
-    const accessToken = decryptToken(account.access_token_encrypted)
+    const accessToken = decryptToken(account.access_token_encrypted);
 
     // Get last poll time to fetch only new posts
-    const sinceId = await getLastPostId(apolloClient, account.id)
+    const sinceId = await getLastPostId(apolloClient, account.id);
 
     // Fetch recent posts
-    const posts = await client.getRecentPosts(accessToken, account.account_id, sinceId)
-    result.fetched = posts.length
+    const posts = await client.getRecentPosts(
+      accessToken,
+      account.account_id,
+      sinceId,
+    );
+    result.fetched = posts.length;
 
     if (posts.length === 0) {
-      await updateImportLog(apolloClient, logId, result, 'completed')
-      await updateLastPollTime(apolloClient, account.id)
-      return result
+      await updateImportLog(apolloClient, logId, result, "completed");
+      await updateLastPollTime(apolloClient, account.id);
+      return result;
     }
 
     // Get integrations for this account
-    const integrations = await getAccountIntegrations(apolloClient, account.id)
+    const integrations = await getAccountIntegrations(apolloClient, account.id);
 
     // Process each post
     for (const post of posts) {
       try {
         // Save post to database
-        const savedPost = await savePost(apolloClient, account.id, post)
-        result.imported++
+        const savedPost = await savePost(apolloClient, account.id, post);
+        result.imported++;
 
         // Check if any integrations match this post
         for (const integration of integrations) {
-          if (!integration.auto_post) continue
+          if (!integration.auto_post) continue;
 
           // Check filters
           if (!matchesFilters(savedPost, integration)) {
-            result.filtered++
-            continue
+            result.filtered++;
+            continue;
           }
 
           // Post to channel
-          await postToChannel(apolloClient, savedPost, integration, account.platform)
-          result.posted++
+          await postToChannel(
+            apolloClient,
+            savedPost,
+            integration,
+            account.platform,
+          );
+          result.posted++;
 
           // Mark post as posted
-          await markPostAsPosted(apolloClient, savedPost.id, integration.channel_id)
+          await markPostAsPosted(
+            apolloClient,
+            savedPost.id,
+            integration.channel_id,
+          );
         }
       } catch (error) {
-        const errorMsg = `Failed to process post ${post.post_id}: ${error}`
-        logger.error(errorMsg)
-        result.errors.push(errorMsg)
+        const errorMsg = `Failed to process post ${post.post_id}: ${error}`;
+        logger.error(errorMsg);
+        result.errors.push(errorMsg);
       }
     }
 
     // Update import log
-    await updateImportLog(apolloClient, logId, result, 'completed')
+    await updateImportLog(apolloClient, logId, result, "completed");
 
     // Update last poll time
-    await updateLastPollTime(apolloClient, account.id)
+    await updateLastPollTime(apolloClient, account.id);
 
-    return result
+    return result;
   } catch (error) {
-    const errorMsg = `Poll failed: ${error}`
-    logger.error(errorMsg)
-    result.errors.push(errorMsg)
-    await updateImportLog(apolloClient, logId, result, 'failed')
-    throw error
+    const errorMsg = `Poll failed: ${error}`;
+    logger.error(errorMsg);
+    result.errors.push(errorMsg);
+    await updateImportLog(apolloClient, logId, result, "failed");
+    throw error;
   }
 }
 
 /**
  * Manually trigger import for an account
  */
-export async function manualImport(apolloClient: any, accountId: string): Promise<ImportResult> {
+export async function manualImport(
+  apolloClient: any,
+  accountId: string,
+): Promise<ImportResult> {
   const { data } = await apolloClient.query({
     query: GET_SOCIAL_ACCOUNT,
     variables: { id: accountId },
-  })
+  });
 
-  const account = data?.nchat_social_accounts_by_pk
+  const account = data?.nchat_social_accounts_by_pk;
   if (!account) {
-    throw new Error('Account not found')
+    throw new Error("Account not found");
   }
 
-  return pollAccount(apolloClient, account)
+  return pollAccount(apolloClient, account);
 }
 
 // GraphQL Queries and Mutations
@@ -207,7 +225,7 @@ const GET_ACTIVE_SOCIAL_ACCOUNTS = `
       last_poll_time
     }
   }
-`
+`;
 
 const GET_SOCIAL_ACCOUNT = `
   query GetSocialAccount($id: uuid!) {
@@ -223,7 +241,7 @@ const GET_SOCIAL_ACCOUNT = `
       is_active
     }
   }
-`
+`;
 
 const GET_ACCOUNT_INTEGRATIONS = `
   query GetAccountIntegrations($accountId: uuid!) {
@@ -243,7 +261,7 @@ const GET_ACCOUNT_INTEGRATIONS = `
       min_engagement
     }
   }
-`
+`;
 
 const GET_LAST_POST_ID = `
   query GetLastPostId($accountId: uuid!) {
@@ -255,7 +273,7 @@ const GET_LAST_POST_ID = `
       post_id
     }
   }
-`
+`;
 
 const SAVE_POST = `
   mutation SavePost($post: nchat_social_posts_insert_input!) {
@@ -281,7 +299,7 @@ const SAVE_POST = `
       post_url
     }
   }
-`
+`;
 
 const POST_TO_CHANNEL = `
   mutation PostToChannel($message: nchat_messages_insert_input!) {
@@ -290,7 +308,7 @@ const POST_TO_CHANNEL = `
       created_at
     }
   }
-`
+`;
 
 const MARK_POST_AS_POSTED = `
   mutation MarkPostAsPosted($postId: uuid!, $channelId: uuid!) {
@@ -304,7 +322,7 @@ const MARK_POST_AS_POSTED = `
       id
     }
   }
-`
+`;
 
 const CREATE_IMPORT_LOG = `
   mutation CreateImportLog($accountId: uuid!, $importType: String!) {
@@ -318,7 +336,7 @@ const CREATE_IMPORT_LOG = `
       id
     }
   }
-`
+`;
 
 const UPDATE_IMPORT_LOG = `
   mutation UpdateImportLog(
@@ -345,7 +363,7 @@ const UPDATE_IMPORT_LOG = `
       id
     }
   }
-`
+`;
 
 const UPDATE_LAST_POLL_TIME = `
   mutation UpdateLastPollTime($accountId: uuid!) {
@@ -356,37 +374,40 @@ const UPDATE_LAST_POLL_TIME = `
       id
     }
   }
-`
+`;
 
 // Helper functions
 
 async function getAccountIntegrations(
   apolloClient: any,
-  accountId: string
+  accountId: string,
 ): Promise<SocialIntegration[]> {
   const { data } = await apolloClient.query({
     query: GET_ACCOUNT_INTEGRATIONS,
     variables: { accountId },
-    fetchPolicy: 'network-only',
-  })
+    fetchPolicy: "network-only",
+  });
 
-  return data?.nchat_social_integrations || []
+  return data?.nchat_social_integrations || [];
 }
 
-async function getLastPostId(apolloClient: any, accountId: string): Promise<string | undefined> {
+async function getLastPostId(
+  apolloClient: any,
+  accountId: string,
+): Promise<string | undefined> {
   const { data } = await apolloClient.query({
     query: GET_LAST_POST_ID,
     variables: { accountId },
-    fetchPolicy: 'network-only',
-  })
+    fetchPolicy: "network-only",
+  });
 
-  return data?.nchat_social_posts?.[0]?.post_id
+  return data?.nchat_social_posts?.[0]?.post_id;
 }
 
 async function savePost(
   apolloClient: any,
   accountId: string,
-  post: SocialPost
+  post: SocialPost,
 ): Promise<SocialPost> {
   const { data } = await apolloClient.mutate({
     mutation: SAVE_POST,
@@ -396,19 +417,19 @@ async function savePost(
         account_id: accountId,
       },
     },
-  })
+  });
 
-  return data?.insert_nchat_social_posts_one
+  return data?.insert_nchat_social_posts_one;
 }
 
 async function postToChannel(
   apolloClient: any,
   post: SocialPost,
   integration: SocialIntegration,
-  platform: SocialPlatform
+  platform: SocialPlatform,
 ): Promise<void> {
-  const embed = createSocialEmbed(post, platform)
-  const messageContent = formatAsMessageContent(embed)
+  const embed = createSocialEmbed(post, platform);
+  const messageContent = formatAsMessageContent(embed);
 
   await apolloClient.mutate({
     mutation: POST_TO_CHANNEL,
@@ -417,41 +438,41 @@ async function postToChannel(
         channel_id: integration.channel_id,
         user_id: null, // System message
         content: JSON.stringify(messageContent),
-        type: 'social_embed',
+        type: "social_embed",
       },
     },
-  })
+  });
 }
 
 async function markPostAsPosted(
   apolloClient: any,
   postId: string,
-  channelId: string
+  channelId: string,
 ): Promise<void> {
   await apolloClient.mutate({
     mutation: MARK_POST_AS_POSTED,
     variables: { postId, channelId },
-  })
+  });
 }
 
 async function createImportLog(
   apolloClient: any,
   accountId: string,
-  importType: string
+  importType: string,
 ): Promise<string> {
   const { data } = await apolloClient.mutate({
     mutation: CREATE_IMPORT_LOG,
     variables: { accountId, importType },
-  })
+  });
 
-  return data?.insert_nchat_social_import_logs_one?.id
+  return data?.insert_nchat_social_import_logs_one?.id;
 }
 
 async function updateImportLog(
   apolloClient: any,
   logId: string,
   result: ImportResult,
-  status: string
+  status: string,
 ): Promise<void> {
   await apolloClient.mutate({
     mutation: UPDATE_IMPORT_LOG,
@@ -464,12 +485,15 @@ async function updateImportLog(
       errors: result.errors,
       status,
     },
-  })
+  });
 }
 
-async function updateLastPollTime(apolloClient: any, accountId: string): Promise<void> {
+async function updateLastPollTime(
+  apolloClient: any,
+  accountId: string,
+): Promise<void> {
   await apolloClient.mutate({
     mutation: UPDATE_LAST_POLL_TIME,
     variables: { accountId },
-  })
+  });
 }

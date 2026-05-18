@@ -1,46 +1,52 @@
-'use client'
+"use client";
 
 /**
  * AnalyticsDashboard - Main analytics dashboard component
  */
 
-import * as React from 'react'
+import * as React from "react";
 
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { AlertCircle } from 'lucide-react'
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
-import { useAnalyticsStore } from '@/stores/analytics-store'
+import { useAnalyticsStore } from "@/stores/analytics-store";
 
 // Overview Components
-import { AnalyticsHeader } from './AnalyticsHeader'
-import { AnalyticsSummary } from './AnalyticsSummary'
-import { AnalyticsCards } from './AnalyticsCards'
+import { AnalyticsHeader } from "./AnalyticsHeader";
+import { AnalyticsSummary } from "./AnalyticsSummary";
+import { AnalyticsCards } from "./AnalyticsCards";
 
 // Chart Components
-import { MessageVolumeChart } from '../charts/MessageVolumeChart'
-import { ActiveUsersChart } from '../charts/ActiveUsersChart'
-import { ChannelActivityChart } from '../charts/ChannelActivityChart'
-import { ReactionChart } from '../charts/ReactionChart'
-import { PeakHoursChart } from '../charts/PeakHoursChart'
-import { GrowthChart } from '../charts/GrowthChart'
+import { MessageVolumeChart } from "../charts/MessageVolumeChart";
+import { ActiveUsersChart } from "../charts/ActiveUsersChart";
+import { ChannelActivityChart } from "../charts/ChannelActivityChart";
+import { ReactionChart } from "../charts/ReactionChart";
+import { PeakHoursChart } from "../charts/PeakHoursChart";
+import { GrowthChart } from "../charts/GrowthChart";
 
 // Table Components
-import { TopChannelsTable } from '../tables/TopChannelsTable'
-import { TopUsersTable } from '../tables/TopUsersTable'
-import { TopMessagesTable } from '../tables/TopMessagesTable'
+import { TopChannelsTable } from "../tables/TopChannelsTable";
+import { TopUsersTable } from "../tables/TopUsersTable";
+import { TopMessagesTable } from "../tables/TopMessagesTable";
 
 // Export Components
-import { AnalyticsExport } from '../export/AnalyticsExport'
+import { AnalyticsExport } from "../export/AnalyticsExport";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AnalyticsDashboardProps {
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -48,21 +54,25 @@ interface AnalyticsDashboardProps {
 // ============================================================================
 
 export function AnalyticsDashboard({ className }: AnalyticsDashboardProps) {
-  const { isLoading, error, dashboardData, fetchDashboardData, clearError } = useAnalyticsStore()
+  const { isLoading, error, dashboardData, fetchDashboardData, clearError } =
+    useAnalyticsStore();
 
-  const [showExport, setShowExport] = React.useState(false)
+  const [showExport, setShowExport] = React.useState(false);
 
   // Fetch data on mount
   React.useEffect(() => {
     if (!dashboardData) {
-      fetchDashboardData()
+      fetchDashboardData();
     }
-  }, [dashboardData, fetchDashboardData])
+  }, [dashboardData, fetchDashboardData]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Header */}
-      <AnalyticsHeader title="Analytics Dashboard" onExport={() => setShowExport(true)} />
+      <AnalyticsHeader
+        title="Analytics Dashboard"
+        onExport={() => setShowExport(true)}
+      />
 
       {/* Error Alert */}
       {error && (
@@ -71,7 +81,10 @@ export function AnalyticsDashboard({ className }: AnalyticsDashboardProps) {
           <AlertTitle>Error</AlertTitle>
           <AlertDescription className="flex items-center justify-between">
             <span>{error}</span>
-            <button onClick={clearError} className="text-sm underline hover:no-underline">
+            <button
+              onClick={clearError}
+              className="text-sm underline hover:no-underline"
+            >
               Dismiss
             </button>
           </AlertDescription>
@@ -97,7 +110,9 @@ export function AnalyticsDashboard({ className }: AnalyticsDashboardProps) {
             <Card className="col-span-full">
               <CardHeader>
                 <CardTitle>Message Volume</CardTitle>
-                <CardDescription>Messages sent over time across all channels</CardDescription>
+                <CardDescription>
+                  Messages sent over time across all channels
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <MessageVolumeChart height={300} />
@@ -138,7 +153,9 @@ export function AnalyticsDashboard({ className }: AnalyticsDashboardProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Channel Activity</CardTitle>
-                <CardDescription>Most active channels by message count</CardDescription>
+                <CardDescription>
+                  Most active channels by message count
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChannelActivityChart height={300} />
@@ -176,7 +193,9 @@ export function AnalyticsDashboard({ className }: AnalyticsDashboardProps) {
             <Card className="col-span-full">
               <CardHeader>
                 <CardTitle>Most Active Users</CardTitle>
-                <CardDescription>Users with the highest engagement</CardDescription>
+                <CardDescription>
+                  Users with the highest engagement
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <TopUsersTable limit={10} />
@@ -187,7 +206,9 @@ export function AnalyticsDashboard({ className }: AnalyticsDashboardProps) {
             <Card>
               <CardHeader>
                 <CardTitle>User Activity Trends</CardTitle>
-                <CardDescription>Daily, weekly, monthly active users</CardDescription>
+                <CardDescription>
+                  Daily, weekly, monthly active users
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ActiveUsersChart height={250} variant="detailed" />
@@ -250,12 +271,12 @@ export function AnalyticsDashboard({ className }: AnalyticsDashboardProps) {
       {showExport && (
         <AnalyticsExport
           onExport={(format) => {
-            setShowExport(false)
+            setShowExport(false);
           }}
         />
       )}
     </div>
-  )
+  );
 }
 
-export default AnalyticsDashboard
+export default AnalyticsDashboard;

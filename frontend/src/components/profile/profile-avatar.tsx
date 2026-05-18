@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Profile Avatar Component
@@ -9,11 +9,11 @@
  * @version 1.0.0
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Camera, Loader2, Trash2, User } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Camera, Loader2, Trash2, User } from "lucide-react";
 
 // ============================================================================
 // Types
@@ -21,25 +21,25 @@ import { Camera, Loader2, Trash2, User } from 'lucide-react'
 
 export interface ProfileAvatarProps {
   /** Image URL */
-  src?: string | null
+  src?: string | null;
   /** Display name for initials fallback */
-  name?: string
+  name?: string;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
   /** Show edit button overlay */
-  editable?: boolean
+  editable?: boolean;
   /** Loading state for upload */
-  isUploading?: boolean
+  isUploading?: boolean;
   /** Called when user wants to upload new photo */
-  onUpload?: () => void
+  onUpload?: () => void;
   /** Called when user wants to delete photo */
-  onDelete?: () => void
+  onDelete?: () => void;
   /** Show online indicator */
-  showOnlineIndicator?: boolean
+  showOnlineIndicator?: boolean;
   /** Online status */
-  isOnline?: boolean
+  isOnline?: boolean;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -50,50 +50,50 @@ export interface ProfileAvatarProps {
  * Get initials from name
  */
 function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/)
+  const parts = name.trim().split(/\s+/);
   if (parts.length === 1) {
-    return parts[0].substring(0, 2).toUpperCase()
+    return parts[0].substring(0, 2).toUpperCase();
   }
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 /**
  * Get size classes for avatar
  */
-function getSizeClasses(size: ProfileAvatarProps['size']) {
+function getSizeClasses(size: ProfileAvatarProps["size"]) {
   switch (size) {
-    case 'sm':
-      return 'h-8 w-8 text-xs'
-    case 'md':
-      return 'h-10 w-10 text-sm'
-    case 'lg':
-      return 'h-16 w-16 text-lg'
-    case 'xl':
-      return 'h-24 w-24 text-2xl'
-    case '2xl':
-      return 'h-32 w-32 text-3xl'
+    case "sm":
+      return "h-8 w-8 text-xs";
+    case "md":
+      return "h-10 w-10 text-sm";
+    case "lg":
+      return "h-16 w-16 text-lg";
+    case "xl":
+      return "h-24 w-24 text-2xl";
+    case "2xl":
+      return "h-32 w-32 text-3xl";
     default:
-      return 'h-10 w-10 text-sm'
+      return "h-10 w-10 text-sm";
   }
 }
 
 /**
  * Get online indicator size
  */
-function getIndicatorSize(size: ProfileAvatarProps['size']) {
+function getIndicatorSize(size: ProfileAvatarProps["size"]) {
   switch (size) {
-    case 'sm':
-      return 'h-2 w-2 border'
-    case 'md':
-      return 'h-2.5 w-2.5 border'
-    case 'lg':
-      return 'h-3 w-3 border-2'
-    case 'xl':
-      return 'h-4 w-4 border-2'
-    case '2xl':
-      return 'h-5 w-5 border-2'
+    case "sm":
+      return "h-2 w-2 border";
+    case "md":
+      return "h-2.5 w-2.5 border";
+    case "lg":
+      return "h-3 w-3 border-2";
+    case "xl":
+      return "h-4 w-4 border-2";
+    case "2xl":
+      return "h-5 w-5 border-2";
     default:
-      return 'h-2.5 w-2.5 border'
+      return "h-2.5 w-2.5 border";
   }
 }
 
@@ -103,8 +103,8 @@ function getIndicatorSize(size: ProfileAvatarProps['size']) {
 
 export function ProfileAvatar({
   src,
-  name = 'User',
-  size = 'md',
+  name = "User",
+  size = "md",
   editable = false,
   isUploading = false,
   onUpload,
@@ -113,31 +113,31 @@ export function ProfileAvatar({
   isOnline = false,
   className,
 }: ProfileAvatarProps) {
-  const [showActions, setShowActions] = React.useState(false)
-  const sizeClasses = getSizeClasses(size)
-  const indicatorSize = getIndicatorSize(size)
-  const initials = getInitials(name)
+  const [showActions, setShowActions] = React.useState(false);
+  const sizeClasses = getSizeClasses(size);
+  const indicatorSize = getIndicatorSize(size);
+  const initials = getInitials(name);
 
   const handleMouseEnter = () => {
-    if (editable) setShowActions(true)
-  }
+    if (editable) setShowActions(true);
+  };
 
   const handleMouseLeave = () => {
-    if (editable) setShowActions(false)
-  }
+    if (editable) setShowActions(false);
+  };
 
   return (
     <div
-      className={cn('relative inline-block', className)}
+      className={cn("relative inline-block", className)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       data-testid="profile-avatar"
     >
-      <Avatar className={cn(sizeClasses, 'relative')}>
+      <Avatar className={cn(sizeClasses, "relative")}>
         <AvatarImage src={src || undefined} alt={name} />
         <AvatarFallback
           className={cn(
-            'bg-gradient-to-br from-primary/80 to-primary text-primary-foreground font-medium'
+            "bg-gradient-to-br from-primary/80 to-primary text-primary-foreground font-medium",
           )}
         >
           {initials || <User className="h-1/2 w-1/2" />}
@@ -148,11 +148,11 @@ export function ProfileAvatar({
       {showOnlineIndicator && (
         <span
           className={cn(
-            'absolute bottom-0 right-0 rounded-full border-background',
+            "absolute bottom-0 right-0 rounded-full border-background",
             indicatorSize,
-            isOnline ? 'bg-green-500' : 'bg-gray-400'
+            isOnline ? "bg-green-500" : "bg-gray-400",
           )}
-          data-testid={`online-indicator-${isOnline ? 'online' : 'offline'}`}
+          data-testid={`online-indicator-${isOnline ? "online" : "offline"}`}
         />
       )}
 
@@ -160,8 +160,8 @@ export function ProfileAvatar({
       {editable && (showActions || isUploading) && (
         <div
           className={cn(
-            'absolute inset-0 flex items-center justify-center rounded-full bg-black/50 transition-opacity',
-            isUploading ? 'opacity-100' : 'opacity-0 hover:opacity-100'
+            "absolute inset-0 flex items-center justify-center rounded-full bg-black/50 transition-opacity",
+            isUploading ? "opacity-100" : "opacity-0 hover:opacity-100",
           )}
         >
           {isUploading ? (
@@ -195,7 +195,7 @@ export function ProfileAvatar({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default ProfileAvatar
+export default ProfileAvatar;

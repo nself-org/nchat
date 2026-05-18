@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * React Hook for Mentions
@@ -24,10 +24,15 @@
  * ```
  */
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useMutation, useQuery, useSubscription } from '@apollo/client'
-import { useRouter } from 'next/navigation'
-import { useMentionStore, normalizeMention, type Mention, type MentionType } from './mention-store'
+import { useCallback, useEffect, useMemo } from "react";
+import { useMutation, useQuery, useSubscription } from "@apollo/client";
+import { useRouter } from "next/navigation";
+import {
+  useMentionStore,
+  normalizeMention,
+  type Mention,
+  type MentionType,
+} from "./mention-store";
 import {
   GET_MENTIONS,
   GET_UNREAD_MENTIONS_COUNT,
@@ -38,9 +43,9 @@ import {
   MARK_ALL_MENTIONS_READ,
   MENTION_SUBSCRIPTION,
   UNREAD_MENTIONS_COUNT_SUBSCRIPTION,
-} from '@/graphql/mentions'
-import { useFeatureEnabled } from '@/lib/features/hooks/use-feature'
-import { FEATURES } from '@/lib/features/feature-flags'
+} from "@/graphql/mentions";
+import { useFeatureEnabled } from "@/lib/features/hooks/use-feature";
+import { FEATURES } from "@/lib/features/feature-flags";
 
 // ============================================================================
 // Types
@@ -48,93 +53,93 @@ import { FEATURES } from '@/lib/features/feature-flags'
 
 export interface UseMentionsOptions {
   /** The current user's ID */
-  userId: string
+  userId: string;
   /** Optional channel ID to filter mentions */
-  channelId?: string
+  channelId?: string;
   /** Whether to auto-fetch mentions on mount */
-  autoFetch?: boolean
+  autoFetch?: boolean;
   /** Whether to subscribe to real-time updates */
-  subscribe?: boolean
+  subscribe?: boolean;
   /** Number of mentions to fetch */
-  limit?: number
+  limit?: number;
 }
 
 export interface MentionableUser {
-  id: string
-  username: string
-  display_name: string
-  avatar_url: string | null
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
   presence?: {
-    status: 'online' | 'away' | 'busy' | 'offline'
-  }
-  role?: string
+    status: "online" | "away" | "busy" | "offline";
+  };
+  role?: string;
 }
 
 export interface GroupMentionPermissions {
-  canMentionHere: boolean
-  canMentionChannel: boolean
-  canMentionEveryone: boolean
+  canMentionHere: boolean;
+  canMentionChannel: boolean;
+  canMentionEveryone: boolean;
 }
 
 export interface UseMentionsReturn {
   // Data
-  mentions: Mention[]
-  unreadMentions: Mention[]
-  unreadCount: number
-  isFeatureEnabled: boolean
+  mentions: Mention[];
+  unreadMentions: Mention[];
+  unreadCount: number;
+  isFeatureEnabled: boolean;
 
   // Loading states
-  isLoading: boolean
-  isFetching: boolean
-  isMarkingRead: boolean
+  isLoading: boolean;
+  isFetching: boolean;
+  isMarkingRead: boolean;
 
   // Error state
-  error: string | null
+  error: string | null;
 
   // Panel controls
-  isPanelOpen: boolean
-  panelFilter: 'all' | 'unread'
-  openPanel: () => void
-  closePanel: () => void
-  togglePanel: () => void
-  setFilter: (filter: 'all' | 'unread') => void
+  isPanelOpen: boolean;
+  panelFilter: "all" | "unread";
+  openPanel: () => void;
+  closePanel: () => void;
+  togglePanel: () => void;
+  setFilter: (filter: "all" | "unread") => void;
 
   // Actions
-  fetchMentions: () => Promise<void>
-  markAsRead: (mentionId: string) => Promise<void>
-  markMultipleAsRead: (mentionIds: string[]) => Promise<void>
-  markAllAsRead: () => Promise<void>
-  jumpToMention: (mention: Mention) => void
+  fetchMentions: () => Promise<void>;
+  markAsRead: (mentionId: string) => Promise<void>;
+  markMultipleAsRead: (mentionIds: string[]) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+  jumpToMention: (mention: Mention) => void;
 
   // Utilities
-  getMentionById: (mentionId: string) => Mention | undefined
-  getMentionsByChannel: (channelId: string) => Mention[]
+  getMentionById: (mentionId: string) => Mention | undefined;
+  getMentionsByChannel: (channelId: string) => Mention[];
 }
 
 export interface UseMentionAutocompleteOptions {
   /** The search query */
-  query: string
+  query: string;
   /** Optional channel ID to prioritize channel members */
-  channelId?: string
+  channelId?: string;
   /** Maximum number of results */
-  limit?: number
+  limit?: number;
 }
 
 export interface UseMentionAutocompleteReturn {
-  users: MentionableUser[]
-  isLoading: boolean
-  error: string | null
+  users: MentionableUser[];
+  isLoading: boolean;
+  error: string | null;
 }
 
 export interface UseMentionPermissionsOptions {
-  userId: string
-  channelId: string
+  userId: string;
+  channelId: string;
 }
 
 export interface UseMentionPermissionsReturn {
-  permissions: GroupMentionPermissions
-  isLoading: boolean
-  canUseGroupMention: (type: MentionType) => boolean
+  permissions: GroupMentionPermissions;
+  isLoading: boolean;
+  canUseGroupMention: (type: MentionType) => boolean;
 }
 
 // ============================================================================
@@ -148,8 +153,8 @@ export function useMentions({
   subscribe = true,
   limit = 50,
 }: UseMentionsOptions): UseMentionsReturn {
-  const router = useRouter()
-  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_MENTIONS)
+  const router = useRouter();
+  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_MENTIONS);
 
   // Store state
   const {
@@ -173,7 +178,7 @@ export function useMentions({
     getUnreadMentions,
     getAllMentions,
     getUnreadCount,
-  } = useMentionStore()
+  } = useMentionStore();
 
   // GraphQL queries and mutations
   const {
@@ -188,106 +193,126 @@ export function useMentions({
       unreadOnly: false,
     },
     skip: !isFeatureEnabled || !autoFetch,
-    fetchPolicy: 'cache-and-network',
-  })
+    fetchPolicy: "cache-and-network",
+  });
 
-  const [markMentionReadMutation, { loading: markReadLoading }] = useMutation(MARK_MENTION_READ)
-  const [markMentionsReadMutation] = useMutation(MARK_MENTIONS_READ)
-  const [markAllMentionsReadMutation] = useMutation(MARK_ALL_MENTIONS_READ)
+  const [markMentionReadMutation, { loading: markReadLoading }] =
+    useMutation(MARK_MENTION_READ);
+  const [markMentionsReadMutation] = useMutation(MARK_MENTIONS_READ);
+  const [markAllMentionsReadMutation] = useMutation(MARK_ALL_MENTIONS_READ);
 
   // Subscription for new mentions
   const { data: subscriptionData } = useSubscription(MENTION_SUBSCRIPTION, {
     variables: { userId },
     skip: !isFeatureEnabled || !subscribe,
-  })
+  });
 
   // Sync query data to store
   useEffect(() => {
     if (mentionsData?.nchat_mentions) {
-      const normalizedMentions = mentionsData.nchat_mentions.map(normalizeMention)
-      setMentions(normalizedMentions)
+      const normalizedMentions =
+        mentionsData.nchat_mentions.map(normalizeMention);
+      setMentions(normalizedMentions);
     }
-  }, [mentionsData, setMentions])
+  }, [mentionsData, setMentions]);
 
   // Handle new mentions from subscription
   useEffect(() => {
     if (subscriptionData?.nchat_mentions?.[0]) {
-      const newMention = normalizeMention(subscriptionData.nchat_mentions[0])
+      const newMention = normalizeMention(subscriptionData.nchat_mentions[0]);
       // Only add if not already in store
       if (!getMention(newMention.id)) {
-        addMention(newMention)
+        addMention(newMention);
       }
     }
-  }, [subscriptionData, getMention, addMention])
+  }, [subscriptionData, getMention, addMention]);
 
   // Sync loading state
   useEffect(() => {
-    setLoading(queryLoading)
-  }, [queryLoading, setLoading])
+    setLoading(queryLoading);
+  }, [queryLoading, setLoading]);
 
   // Memoized values
-  const mentions = useMemo(() => getAllMentions(), [mentionsMap])
-  const unreadMentions = useMemo(() => getUnreadMentions(), [mentionsMap])
-  const unreadCount = useMemo(() => getUnreadCount(), [mentionsMap])
+  const mentions = useMemo(() => getAllMentions(), [mentionsMap]);
+  const unreadMentions = useMemo(() => getUnreadMentions(), [mentionsMap]);
+  const unreadCount = useMemo(() => getUnreadCount(), [mentionsMap]);
 
   // Actions
   const fetchMentions = useCallback(async () => {
-    if (!isFeatureEnabled) return
-    setLoading(true)
-    setError(null)
+    if (!isFeatureEnabled) return;
+    setLoading(true);
+    setError(null);
     try {
-      await refetch()
+      await refetch();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch mentions')
+      setError(err instanceof Error ? err.message : "Failed to fetch mentions");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [isFeatureEnabled, refetch, setLoading, setError])
+  }, [isFeatureEnabled, refetch, setLoading, setError]);
 
   const markAsRead = useCallback(
     async (mentionId: string) => {
-      if (!isFeatureEnabled) return
+      if (!isFeatureEnabled) return;
 
       // Optimistic update
-      storeMarkAsRead(mentionId)
+      storeMarkAsRead(mentionId);
 
       try {
         await markMentionReadMutation({
           variables: { mentionId },
-        })
+        });
       } catch (err) {
         // Revert on error - would need to refetch
-        setError(err instanceof Error ? err.message : 'Failed to mark mention as read')
-        await fetchMentions()
+        setError(
+          err instanceof Error ? err.message : "Failed to mark mention as read",
+        );
+        await fetchMentions();
       }
     },
-    [isFeatureEnabled, markMentionReadMutation, storeMarkAsRead, setError, fetchMentions]
-  )
+    [
+      isFeatureEnabled,
+      markMentionReadMutation,
+      storeMarkAsRead,
+      setError,
+      fetchMentions,
+    ],
+  );
 
   const markMultipleAsRead = useCallback(
     async (mentionIds: string[]) => {
-      if (!isFeatureEnabled || mentionIds.length === 0) return
+      if (!isFeatureEnabled || mentionIds.length === 0) return;
 
       // Optimistic update
-      storeMarkMultipleAsRead(mentionIds)
+      storeMarkMultipleAsRead(mentionIds);
 
       try {
         await markMentionsReadMutation({
           variables: { mentionIds },
-        })
+        });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to mark mentions as read')
-        await fetchMentions()
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to mark mentions as read",
+        );
+        await fetchMentions();
       }
     },
-    [isFeatureEnabled, markMentionsReadMutation, storeMarkMultipleAsRead, setError, fetchMentions]
-  )
+    [
+      isFeatureEnabled,
+      markMentionsReadMutation,
+      storeMarkMultipleAsRead,
+      setError,
+      fetchMentions,
+    ],
+  );
 
   const markAllAsRead = useCallback(async () => {
-    if (!isFeatureEnabled) return
+    if (!isFeatureEnabled) return;
 
     // Optimistic update
-    storeMarkAllAsRead()
+    storeMarkAllAsRead();
 
     try {
       await markAllMentionsReadMutation({
@@ -295,10 +320,14 @@ export function useMentions({
           userId,
           channelId: channelId || null,
         },
-      })
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to mark all mentions as read')
-      await fetchMentions()
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to mark all mentions as read",
+      );
+      await fetchMentions();
     }
   }, [
     isFeatureEnabled,
@@ -308,27 +337,27 @@ export function useMentions({
     storeMarkAllAsRead,
     setError,
     fetchMentions,
-  ])
+  ]);
 
   const jumpToMention = useCallback(
     (mention: Mention) => {
       // Navigate to the channel and message
-      const channel = mention.message.channel
-      const messageId = mention.message.id
+      const channel = mention.message.channel;
+      const messageId = mention.message.id;
 
       // Mark as read when jumping
       if (!mention.is_read) {
-        markAsRead(mention.id)
+        markAsRead(mention.id);
       }
 
       // Close the panel
-      closePanel()
+      closePanel();
 
       // Navigate to the message
-      router.push(`/chat/${channel.slug}?message=${messageId}`)
+      router.push(`/chat/${channel.slug}?message=${messageId}`);
     },
-    [markAsRead, closePanel, router]
-  )
+    [markAsRead, closePanel, router],
+  );
 
   return {
     // Data
@@ -363,7 +392,7 @@ export function useMentions({
     // Utilities
     getMentionById: getMention,
     getMentionsByChannel,
-  }
+  };
 }
 
 // ============================================================================
@@ -378,7 +407,7 @@ export function useMentionAutocomplete({
   channelId,
   limit = 10,
 }: UseMentionAutocompleteOptions): UseMentionAutocompleteReturn {
-  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_MENTIONS)
+  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_MENTIONS);
 
   const { data, loading, error } = useQuery(SEARCH_MENTIONABLE_USERS, {
     variables: {
@@ -387,39 +416,39 @@ export function useMentionAutocomplete({
       limit,
     },
     skip: !isFeatureEnabled || query.length < 1,
-    fetchPolicy: 'cache-first',
-  })
+    fetchPolicy: "cache-first",
+  });
 
   // Combine and deduplicate channel members and all users
   const users = useMemo(() => {
-    if (!data) return []
+    if (!data) return [];
 
-    const channelMembers: MentionableUser[] = data.channel_members || []
-    const allUsers: MentionableUser[] = data.all_users || []
+    const channelMembers: MentionableUser[] = data.channel_members || [];
+    const allUsers: MentionableUser[] = data.all_users || [];
 
     // Create a map to deduplicate
-    const userMap = new Map<string, MentionableUser>()
+    const userMap = new Map<string, MentionableUser>();
 
     // Add channel members first (they have priority)
     for (const user of channelMembers) {
-      userMap.set(user.id, user)
+      userMap.set(user.id, user);
     }
 
     // Add remaining users
     for (const user of allUsers) {
       if (!userMap.has(user.id)) {
-        userMap.set(user.id, user)
+        userMap.set(user.id, user);
       }
     }
 
-    return Array.from(userMap.values()).slice(0, limit)
-  }, [data, limit])
+    return Array.from(userMap.values()).slice(0, limit);
+  }, [data, limit]);
 
   return {
     users,
     isLoading: loading,
     error: error?.message || null,
-  }
+  };
 }
 
 // ============================================================================
@@ -433,13 +462,13 @@ export function useMentionPermissions({
   userId,
   channelId,
 }: UseMentionPermissionsOptions): UseMentionPermissionsReturn {
-  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_MENTIONS)
+  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_MENTIONS);
 
   const { data, loading } = useQuery(GET_MENTION_PERMISSIONS, {
     variables: { channelId, userId },
     skip: !isFeatureEnabled || !channelId,
-    fetchPolicy: 'cache-first',
-  })
+    fetchPolicy: "cache-first",
+  });
 
   const permissions = useMemo((): GroupMentionPermissions => {
     if (!data?.nchat_channel_members?.[0]) {
@@ -447,50 +476,52 @@ export function useMentionPermissions({
         canMentionHere: false,
         canMentionChannel: false,
         canMentionEveryone: false,
-      }
+      };
     }
 
-    const membership = data.nchat_channel_members[0]
-    const role = membership.role
-    const channelSettings = membership.channel?.settings || {}
+    const membership = data.nchat_channel_members[0];
+    const role = membership.role;
+    const channelSettings = membership.channel?.settings || {};
 
     // Default permission rules based on role
-    const isAdmin = role === 'admin' || role === 'owner'
-    const isModerator = role === 'moderator'
+    const isAdmin = role === "admin" || role === "owner";
+    const isModerator = role === "moderator";
 
     // Check channel-specific settings
-    const mentionSettings = channelSettings.mentions || {}
+    const mentionSettings = channelSettings.mentions || {};
 
     return {
-      canMentionHere: mentionSettings.allowHere !== false && (isAdmin || isModerator || true),
-      canMentionChannel: mentionSettings.allowChannel !== false && (isAdmin || isModerator),
+      canMentionHere:
+        mentionSettings.allowHere !== false && (isAdmin || isModerator || true),
+      canMentionChannel:
+        mentionSettings.allowChannel !== false && (isAdmin || isModerator),
       canMentionEveryone: mentionSettings.allowEveryone !== false && isAdmin,
-    }
-  }, [data])
+    };
+  }, [data]);
 
   const canUseGroupMention = useCallback(
     (type: MentionType): boolean => {
-      if (!isFeatureEnabled) return false
+      if (!isFeatureEnabled) return false;
 
       switch (type) {
-        case 'here':
-          return permissions.canMentionHere
-        case 'channel':
-          return permissions.canMentionChannel
-        case 'everyone':
-          return permissions.canMentionEveryone
+        case "here":
+          return permissions.canMentionHere;
+        case "channel":
+          return permissions.canMentionChannel;
+        case "everyone":
+          return permissions.canMentionEveryone;
         default:
-          return true
+          return true;
       }
     },
-    [isFeatureEnabled, permissions]
-  )
+    [isFeatureEnabled, permissions],
+  );
 
   return {
     permissions,
     isLoading: loading,
     canUseGroupMention,
-  }
+  };
 }
 
 // ============================================================================
@@ -501,40 +532,45 @@ export function useMentionPermissions({
  * Hook to get and subscribe to unread mentions count
  */
 export function useUnreadMentionsCount(userId: string): {
-  count: number
-  isLoading: boolean
+  count: number;
+  isLoading: boolean;
 } {
-  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_MENTIONS)
-  const { getUnreadCount } = useMentionStore()
+  const isFeatureEnabled = useFeatureEnabled(FEATURES.MESSAGES_MENTIONS);
+  const { getUnreadCount } = useMentionStore();
 
   const { data, loading } = useQuery(GET_UNREAD_MENTIONS_COUNT, {
     variables: { userId },
     skip: !isFeatureEnabled,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: "cache-and-network",
     pollInterval: 30000, // Poll every 30 seconds as fallback
-  })
+  });
 
   // Subscribe to real-time count updates
-  const { data: subscriptionData } = useSubscription(UNREAD_MENTIONS_COUNT_SUBSCRIPTION, {
-    variables: { userId },
-    skip: !isFeatureEnabled,
-  })
+  const { data: subscriptionData } = useSubscription(
+    UNREAD_MENTIONS_COUNT_SUBSCRIPTION,
+    {
+      variables: { userId },
+      skip: !isFeatureEnabled,
+    },
+  );
 
   const count = useMemo(() => {
     // Prefer subscription data, then query data, then store data
-    if (subscriptionData?.nchat_mentions_aggregate?.aggregate?.count !== undefined) {
-      return subscriptionData.nchat_mentions_aggregate.aggregate.count
+    if (
+      subscriptionData?.nchat_mentions_aggregate?.aggregate?.count !== undefined
+    ) {
+      return subscriptionData.nchat_mentions_aggregate.aggregate.count;
     }
     if (data?.nchat_mentions_aggregate?.aggregate?.count !== undefined) {
-      return data.nchat_mentions_aggregate.aggregate.count
+      return data.nchat_mentions_aggregate.aggregate.count;
     }
-    return getUnreadCount()
-  }, [data, subscriptionData, getUnreadCount])
+    return getUnreadCount();
+  }, [data, subscriptionData, getUnreadCount]);
 
   return {
     count,
     isLoading: loading,
-  }
+  };
 }
 
 // ============================================================================
@@ -544,45 +580,45 @@ export function useUnreadMentionsCount(userId: string): {
 /**
  * Regular expression to match @mentions in text
  */
-export const MENTION_REGEX = /@(\w+|here|channel|everyone)/g
+export const MENTION_REGEX = /@(\w+|here|channel|everyone)/g;
 
 /**
  * Parse mentions from message content
  */
 export function parseMentions(
-  content: string
+  content: string,
 ): Array<{ text: string; start: number; end: number }> {
-  const mentions: Array<{ text: string; start: number; end: number }> = []
-  let match
+  const mentions: Array<{ text: string; start: number; end: number }> = [];
+  let match;
 
   while ((match = MENTION_REGEX.exec(content)) !== null) {
     mentions.push({
       text: match[1],
       start: match.index,
       end: match.index + match[0].length,
-    })
+    });
   }
 
-  return mentions
+  return mentions;
 }
 
 /**
  * Get mention type from mention text
  */
 export function getMentionType(mentionText: string): MentionType {
-  const lowerText = mentionText.toLowerCase()
-  if (lowerText === 'here') return 'here'
-  if (lowerText === 'channel') return 'channel'
-  if (lowerText === 'everyone') return 'everyone'
-  return 'user'
+  const lowerText = mentionText.toLowerCase();
+  if (lowerText === "here") return "here";
+  if (lowerText === "channel") return "channel";
+  if (lowerText === "everyone") return "everyone";
+  return "user";
 }
 
 /**
  * Check if text is a special group mention
  */
 export function isSpecialMention(text: string): boolean {
-  const lower = text.toLowerCase()
-  return lower === 'here' || lower === 'channel' || lower === 'everyone'
+  const lower = text.toLowerCase();
+  return lower === "here" || lower === "channel" || lower === "everyone";
 }
 
 /**
@@ -590,13 +626,13 @@ export function isSpecialMention(text: string): boolean {
  */
 export function formatMention(type: MentionType, username?: string): string {
   switch (type) {
-    case 'here':
-      return '@here'
-    case 'channel':
-      return '@channel'
-    case 'everyone':
-      return '@everyone'
+    case "here":
+      return "@here";
+    case "channel":
+      return "@channel";
+    case "everyone":
+      return "@everyone";
     default:
-      return username ? `@${username}` : '@unknown'
+      return username ? `@${username}` : "@unknown";
   }
 }

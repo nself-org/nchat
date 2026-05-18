@@ -4,5 +4,5 @@
  * Exports for the starred messages system.
  */
 
-export * from './star-types'
-export * from './star-manager'
+export * from "./star-types";
+export * from "./star-manager";

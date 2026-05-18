@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * React Hook for URL Unfurling
@@ -28,11 +28,16 @@
  * ```
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { unfurlUrl, type UnfurlData, type UnfurlResult, getCached } from './unfurl-service'
-import { detectEmbedType, type EmbedType } from './embed-patterns'
-import { useFeatureEnabled } from '@/lib/features/hooks/use-feature'
-import { FEATURES } from '@/lib/features/feature-flags'
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  unfurlUrl,
+  type UnfurlData,
+  type UnfurlResult,
+  getCached,
+} from "./unfurl-service";
+import { detectEmbedType, type EmbedType } from "./embed-patterns";
+import { useFeatureEnabled } from "@/lib/features/hooks/use-feature";
+import { FEATURES } from "@/lib/features/feature-flags";
 
 // ============================================================================
 // TYPES
@@ -43,78 +48,78 @@ export interface UseUnfurlOptions {
    * Whether to skip the cache and always fetch fresh data
    * @default false
    */
-  skipCache?: boolean
+  skipCache?: boolean;
 
   /**
    * Custom cache TTL in milliseconds
    * @default 3600000 (1 hour)
    */
-  cacheTtl?: number
+  cacheTtl?: number;
 
   /**
    * Whether to automatically fetch on mount
    * @default true
    */
-  autoFetch?: boolean
+  autoFetch?: boolean;
 
   /**
    * Delay before fetching (useful for debouncing)
    * @default 0
    */
-  delay?: number
+  delay?: number;
 
   /**
    * Whether to respect the feature flag
    * @default true
    */
-  respectFeatureFlag?: boolean
+  respectFeatureFlag?: boolean;
 
   /**
    * Callback when unfurl succeeds
    */
-  onSuccess?: (data: UnfurlData) => void
+  onSuccess?: (data: UnfurlData) => void;
 
   /**
    * Callback when unfurl fails
    */
-  onError?: (error: string) => void
+  onError?: (error: string) => void;
 }
 
 export interface UseUnfurlReturn {
   /**
    * The unfurled data, if available
    */
-  data: UnfurlData | null
+  data: UnfurlData | null;
 
   /**
    * Whether a fetch is in progress
    */
-  loading: boolean
+  loading: boolean;
 
   /**
    * Error message, if any
    */
-  error: string | null
+  error: string | null;
 
   /**
    * Whether the data was served from cache
    */
-  cached: boolean
+  cached: boolean;
 
   /**
    * The detected embed type for this URL
    */
-  embedType: EmbedType
+  embedType: EmbedType;
 
   /**
    * Manually trigger a refetch
    */
-  refetch: () => Promise<void>
+  refetch: () => Promise<void>;
 
   /**
    * Clear the current data and error
    */
-  reset: () => void
+  reset: () => void;
 }
 
 // ============================================================================
@@ -126,7 +131,7 @@ export interface UseUnfurlReturn {
  */
 export function useUnfurl(
   url: string | null | undefined,
-  options: UseUnfurlOptions = {}
+  options: UseUnfurlOptions = {},
 ): UseUnfurlReturn {
   const {
     skipCache = false,
@@ -136,128 +141,131 @@ export function useUnfurl(
     respectFeatureFlag = true,
     onSuccess,
     onError,
-  } = options
+  } = options;
 
-  const [data, setData] = useState<UnfurlData | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [cached, setCached] = useState(false)
+  const [data, setData] = useState<UnfurlData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [cached, setCached] = useState(false);
 
   // Check feature flag
-  const linkPreviewsEnabled = useFeatureEnabled(FEATURES.MESSAGES_LINK_PREVIEWS)
-  const isEnabled = !respectFeatureFlag || linkPreviewsEnabled
+  const linkPreviewsEnabled = useFeatureEnabled(
+    FEATURES.MESSAGES_LINK_PREVIEWS,
+  );
+  const isEnabled = !respectFeatureFlag || linkPreviewsEnabled;
 
   // Detect embed type
-  const embedType = url ? detectEmbedType(url) : 'generic'
+  const embedType = url ? detectEmbedType(url) : "generic";
 
   // Track if component is mounted
-  const mountedRef = useRef(true)
+  const mountedRef = useRef(true);
 
   // Track the current URL being fetched to avoid race conditions
-  const currentUrlRef = useRef<string | null>(null)
+  const currentUrlRef = useRef<string | null>(null);
 
   /**
    * Fetch unfurl data for the URL
    */
   const fetchData = useCallback(async () => {
     if (!url || !isEnabled) {
-      setData(null)
-      setError(null)
-      setLoading(false)
-      return
+      setData(null);
+      setError(null);
+      setLoading(false);
+      return;
     }
 
     // Update current URL
-    currentUrlRef.current = url
+    currentUrlRef.current = url;
 
     // Check cache first (synchronously)
     if (!skipCache) {
-      const cachedData = getCached(url)
+      const cachedData = getCached(url);
       if (cachedData) {
         if (mountedRef.current && currentUrlRef.current === url) {
-          setData(cachedData)
-          setCached(true)
-          setError(null)
-          setLoading(false)
-          onSuccess?.(cachedData)
+          setData(cachedData);
+          setCached(true);
+          setError(null);
+          setLoading(false);
+          onSuccess?.(cachedData);
         }
-        return
+        return;
       }
     }
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const result = await unfurlUrl(url, { skipCache, cacheTtl })
+      const result = await unfurlUrl(url, { skipCache, cacheTtl });
 
       // Only update state if still mounted and URL hasn't changed
       if (!mountedRef.current || currentUrlRef.current !== url) {
-        return
+        return;
       }
 
       if (result.success) {
-        setData(result.data)
-        setCached(result.cached)
-        setError(null)
-        onSuccess?.(result.data)
+        setData(result.data);
+        setCached(result.cached);
+        setError(null);
+        onSuccess?.(result.data);
       } else {
-        setData(null)
-        setCached(false)
-        setError(result.error)
-        onError?.(result.error)
+        setData(null);
+        setCached(false);
+        setError(result.error);
+        onError?.(result.error);
       }
     } catch (err) {
       if (mountedRef.current && currentUrlRef.current === url) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-        setData(null)
-        setCached(false)
-        setError(errorMessage)
-        onError?.(errorMessage)
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
+        setData(null);
+        setCached(false);
+        setError(errorMessage);
+        onError?.(errorMessage);
       }
     } finally {
       if (mountedRef.current && currentUrlRef.current === url) {
-        setLoading(false)
+        setLoading(false);
       }
     }
-  }, [url, skipCache, cacheTtl, isEnabled, onSuccess, onError])
+  }, [url, skipCache, cacheTtl, isEnabled, onSuccess, onError]);
 
   /**
    * Refetch data
    */
   const refetch = useCallback(async () => {
-    await fetchData()
-  }, [fetchData])
+    await fetchData();
+  }, [fetchData]);
 
   /**
    * Reset state
    */
   const reset = useCallback(() => {
-    setData(null)
-    setError(null)
-    setLoading(false)
-    setCached(false)
-  }, [])
+    setData(null);
+    setError(null);
+    setLoading(false);
+    setCached(false);
+  }, []);
 
   // Auto-fetch on URL change
   useEffect(() => {
-    if (!autoFetch) return
+    if (!autoFetch) return;
 
     if (delay > 0) {
-      const timer = setTimeout(fetchData, delay)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(fetchData, delay);
+      return () => clearTimeout(timer);
     }
 
-    fetchData()
-  }, [url, autoFetch, delay, fetchData])
+    fetchData();
+  }, [url, autoFetch, delay, fetchData]);
 
   // Track mounted state
   useEffect(() => {
-    mountedRef.current = true
+    mountedRef.current = true;
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
+      mountedRef.current = false;
+    };
+  }, []);
 
   return {
     data,
@@ -267,7 +275,7 @@ export function useUnfurl(
     embedType,
     refetch,
     reset,
-  }
+  };
 }
 
 // ============================================================================
@@ -278,27 +286,27 @@ export interface UseUnfurlBatchReturn {
   /**
    * Map of URL to unfurl data
    */
-  results: Map<string, UnfurlData | null>
+  results: Map<string, UnfurlData | null>;
 
   /**
    * Whether any URL is still loading
    */
-  loading: boolean
+  loading: boolean;
 
   /**
    * Map of URL to error message
    */
-  errors: Map<string, string>
+  errors: Map<string, string>;
 
   /**
    * Refetch all URLs
    */
-  refetchAll: () => Promise<void>
+  refetchAll: () => Promise<void>;
 
   /**
    * Refetch a specific URL
    */
-  refetch: (url: string) => Promise<void>
+  refetch: (url: string) => Promise<void>;
 }
 
 /**
@@ -306,7 +314,7 @@ export interface UseUnfurlBatchReturn {
  */
 export function useUnfurlBatch(
   urls: string[],
-  options: Omit<UseUnfurlOptions, 'onSuccess' | 'onError'> = {}
+  options: Omit<UseUnfurlOptions, "onSuccess" | "onError"> = {},
 ): UseUnfurlBatchReturn {
   const {
     skipCache = false,
@@ -314,124 +322,131 @@ export function useUnfurlBatch(
     autoFetch = true,
     delay = 0,
     respectFeatureFlag = true,
-  } = options
+  } = options;
 
-  const [results, setResults] = useState<Map<string, UnfurlData | null>>(new Map())
-  const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<Map<string, string>>(new Map())
+  const [results, setResults] = useState<Map<string, UnfurlData | null>>(
+    new Map(),
+  );
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Map<string, string>>(new Map());
 
   // Check feature flag
-  const linkPreviewsEnabled = useFeatureEnabled(FEATURES.MESSAGES_LINK_PREVIEWS)
-  const isEnabled = !respectFeatureFlag || linkPreviewsEnabled
+  const linkPreviewsEnabled = useFeatureEnabled(
+    FEATURES.MESSAGES_LINK_PREVIEWS,
+  );
+  const isEnabled = !respectFeatureFlag || linkPreviewsEnabled;
 
-  const mountedRef = useRef(true)
+  const mountedRef = useRef(true);
 
   /**
    * Fetch all URLs
    */
   const fetchAll = useCallback(async () => {
     if (!isEnabled || urls.length === 0) {
-      setResults(new Map())
-      setErrors(new Map())
-      setLoading(false)
-      return
+      setResults(new Map());
+      setErrors(new Map());
+      setLoading(false);
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
-    const newResults = new Map<string, UnfurlData | null>()
-    const newErrors = new Map<string, string>()
+    const newResults = new Map<string, UnfurlData | null>();
+    const newErrors = new Map<string, string>();
 
     // Fetch all URLs in parallel (with some concurrency limit)
-    const concurrency = 3
+    const concurrency = 3;
     for (let i = 0; i < urls.length; i += concurrency) {
-      const batch = urls.slice(i, i + concurrency)
+      const batch = urls.slice(i, i + concurrency);
 
       await Promise.all(
         batch.map(async (url) => {
           try {
-            const result = await unfurlUrl(url, { skipCache, cacheTtl })
+            const result = await unfurlUrl(url, { skipCache, cacheTtl });
             if (result.success) {
-              newResults.set(url, result.data)
+              newResults.set(url, result.data);
             } else {
-              newResults.set(url, null)
-              newErrors.set(url, result.error)
+              newResults.set(url, null);
+              newErrors.set(url, result.error);
             }
           } catch (err) {
-            newResults.set(url, null)
-            newErrors.set(url, err instanceof Error ? err.message : 'Unknown error')
+            newResults.set(url, null);
+            newErrors.set(
+              url,
+              err instanceof Error ? err.message : "Unknown error",
+            );
           }
-        })
-      )
+        }),
+      );
     }
 
     if (mountedRef.current) {
-      setResults(newResults)
-      setErrors(newErrors)
-      setLoading(false)
+      setResults(newResults);
+      setErrors(newErrors);
+      setLoading(false);
     }
-  }, [urls, skipCache, cacheTtl, isEnabled])
+  }, [urls, skipCache, cacheTtl, isEnabled]);
 
   /**
    * Refetch a specific URL
    */
   const refetch = useCallback(
     async (url: string) => {
-      if (!isEnabled) return
+      if (!isEnabled) return;
 
       try {
-        const result = await unfurlUrl(url, { skipCache: true, cacheTtl })
+        const result = await unfurlUrl(url, { skipCache: true, cacheTtl });
         if (mountedRef.current) {
           setResults((prev) => {
-            const next = new Map(prev)
-            next.set(url, result.success ? result.data : null)
-            return next
-          })
+            const next = new Map(prev);
+            next.set(url, result.success ? result.data : null);
+            return next;
+          });
           if (!result.success) {
             setErrors((prev) => {
-              const next = new Map(prev)
-              next.set(url, result.error)
-              return next
-            })
+              const next = new Map(prev);
+              next.set(url, result.error);
+              return next;
+            });
           }
         }
       } catch (err) {
         if (mountedRef.current) {
           setResults((prev) => {
-            const next = new Map(prev)
-            next.set(url, null)
-            return next
-          })
+            const next = new Map(prev);
+            next.set(url, null);
+            return next;
+          });
           setErrors((prev) => {
-            const next = new Map(prev)
-            next.set(url, err instanceof Error ? err.message : 'Unknown error')
-            return next
-          })
+            const next = new Map(prev);
+            next.set(url, err instanceof Error ? err.message : "Unknown error");
+            return next;
+          });
         }
       }
     },
-    [cacheTtl, isEnabled]
-  )
+    [cacheTtl, isEnabled],
+  );
 
   // Auto-fetch on URLs change
   useEffect(() => {
-    if (!autoFetch) return
+    if (!autoFetch) return;
 
     if (delay > 0) {
-      const timer = setTimeout(fetchAll, delay)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(fetchAll, delay);
+      return () => clearTimeout(timer);
     }
 
-    fetchAll()
-  }, [urls.join(','), autoFetch, delay, fetchAll])
+    fetchAll();
+  }, [urls.join(","), autoFetch, delay, fetchAll]);
 
   // Track mounted state
   useEffect(() => {
-    mountedRef.current = true
+    mountedRef.current = true;
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
+      mountedRef.current = false;
+    };
+  }, []);
 
   return {
     results,
@@ -439,7 +454,7 @@ export function useUnfurlBatch(
     errors,
     refetchAll: fetchAll,
     refetch,
-  }
+  };
 }
 
 // ============================================================================
@@ -450,14 +465,24 @@ export function useUnfurlBatch(
  * Hook that returns a function to unfurl URLs on demand
  * Useful when you want to control when unfurling happens
  */
-export function useLazyUnfurl(options: Omit<UseUnfurlOptions, 'autoFetch'> = {}) {
-  const { skipCache = false, cacheTtl, respectFeatureFlag = true, onSuccess, onError } = options
+export function useLazyUnfurl(
+  options: Omit<UseUnfurlOptions, "autoFetch"> = {},
+) {
+  const {
+    skipCache = false,
+    cacheTtl,
+    respectFeatureFlag = true,
+    onSuccess,
+    onError,
+  } = options;
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   // Check feature flag
-  const linkPreviewsEnabled = useFeatureEnabled(FEATURES.MESSAGES_LINK_PREVIEWS)
-  const isEnabled = !respectFeatureFlag || linkPreviewsEnabled
+  const linkPreviewsEnabled = useFeatureEnabled(
+    FEATURES.MESSAGES_LINK_PREVIEWS,
+  );
+  const isEnabled = !respectFeatureFlag || linkPreviewsEnabled;
 
   /**
    * Unfurl a URL on demand
@@ -467,43 +492,43 @@ export function useLazyUnfurl(options: Omit<UseUnfurlOptions, 'autoFetch'> = {})
       if (!isEnabled) {
         return {
           success: false,
-          error: 'Link previews are disabled',
-          errorCode: 'FEATURE_DISABLED',
-        }
+          error: "Link previews are disabled",
+          errorCode: "FEATURE_DISABLED",
+        };
       }
 
-      setLoading(true)
+      setLoading(true);
 
       try {
-        const result = await unfurlUrl(url, { skipCache, cacheTtl })
+        const result = await unfurlUrl(url, { skipCache, cacheTtl });
 
         if (result.success) {
-          onSuccess?.(result.data)
+          onSuccess?.(result.data);
         } else {
-          onError?.(result.error)
+          onError?.(result.error);
         }
 
-        return result
+        return result;
       } catch (err) {
-        const error = err instanceof Error ? err.message : 'Unknown error'
-        onError?.(error)
+        const error = err instanceof Error ? err.message : "Unknown error";
+        onError?.(error);
         return {
           success: false,
           error,
-          errorCode: 'UNKNOWN_ERROR',
-        }
+          errorCode: "UNKNOWN_ERROR",
+        };
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
-    [skipCache, cacheTtl, isEnabled, onSuccess, onError]
-  )
+    [skipCache, cacheTtl, isEnabled, onSuccess, onError],
+  );
 
   return {
     unfurl,
     loading,
     isEnabled,
-  }
+  };
 }
 
 // ============================================================================
@@ -514,16 +539,18 @@ export function useLazyUnfurl(options: Omit<UseUnfurlOptions, 'autoFetch'> = {})
  * Hook to check if a URL is previewable
  */
 export function useIsPreviewable(url: string | null | undefined): boolean {
-  const linkPreviewsEnabled = useFeatureEnabled(FEATURES.MESSAGES_LINK_PREVIEWS)
+  const linkPreviewsEnabled = useFeatureEnabled(
+    FEATURES.MESSAGES_LINK_PREVIEWS,
+  );
 
-  if (!url || !linkPreviewsEnabled) return false
+  if (!url || !linkPreviewsEnabled) return false;
 
   // Check if URL is valid
   try {
-    new URL(url)
-    return true
+    new URL(url);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -531,5 +558,5 @@ export function useIsPreviewable(url: string | null | undefined): boolean {
  * Hook to get the embed type for a URL
  */
 export function useEmbedType(url: string | null | undefined): EmbedType {
-  return url ? detectEmbedType(url) : 'generic'
+  return url ? detectEmbedType(url) : "generic";
 }

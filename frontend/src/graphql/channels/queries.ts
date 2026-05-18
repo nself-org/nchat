@@ -5,57 +5,57 @@
  * Connects to the Hasura GraphQL backend with nchat_channels and nchat_channel_members tables.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   CHANNEL_BASIC_FRAGMENT,
   CHANNEL_FULL_FRAGMENT,
   CHANNEL_MEMBER_FRAGMENT,
   USER_BASIC_FRAGMENT,
-} from '../fragments'
+} from "../fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface GetChannelsVariables {
-  workspaceId?: string
-  type?: 'public' | 'private' | 'direct' | 'group' | 'announcement'
-  includeArchived?: boolean
-  limit?: number
-  offset?: number
+  workspaceId?: string;
+  type?: "public" | "private" | "direct" | "group" | "announcement";
+  includeArchived?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetChannelByIdVariables {
-  id: string
+  id: string;
 }
 
 export interface GetChannelBySlugVariables {
-  slug: string
-  workspaceId?: string
+  slug: string;
+  workspaceId?: string;
 }
 
 export interface GetChannelMembersVariables {
-  channelId: string
-  limit?: number
-  offset?: number
+  channelId: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetUserChannelsVariables {
-  userId: string
-  types?: string[]
-  includeArchived?: boolean
+  userId: string;
+  types?: string[];
+  includeArchived?: boolean;
 }
 
 export interface CheckMembershipVariables {
-  channelId: string
-  userId: string
+  channelId: string;
+  userId: string;
 }
 
 export interface SearchChannelsVariables {
-  searchQuery: string
-  type?: string
-  limit?: number
-  offset?: number
+  searchQuery: string;
+  type?: string;
+  limit?: number;
+  offset?: number;
 }
 
 // ============================================================================
@@ -79,7 +79,11 @@ export const GET_CHANNELS = gql`
           { _or: [{ type: { _eq: $type } }, { type: { _is_null: false } }] }
         ]
       }
-      order_by: [{ category_id: asc_nulls_last }, { position: asc }, { name: asc }]
+      order_by: [
+        { category_id: asc_nulls_last }
+        { position: asc }
+        { name: asc }
+      ]
       limit: $limit
       offset: $offset
     ) {
@@ -99,7 +103,7 @@ export const GET_CHANNELS = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get all public channels (discoverable channels)
@@ -108,20 +112,26 @@ export const GET_PUBLIC_CHANNELS = gql`
   query GetPublicChannels($limit: Int = 50, $offset: Int = 0) {
     nchat_channels(
       where: { type: { _eq: "public" }, is_archived: { _eq: false } }
-      order_by: [{ member_count: desc }, { last_message_at: desc_nulls_last }, { name: asc }]
+      order_by: [
+        { member_count: desc }
+        { last_message_at: desc_nulls_last }
+        { name: asc }
+      ]
       limit: $limit
       offset: $offset
     ) {
       ...ChannelFull
     }
-    nchat_channels_aggregate(where: { type: { _eq: "public" }, is_archived: { _eq: false } }) {
+    nchat_channels_aggregate(
+      where: { type: { _eq: "public" }, is_archived: { _eq: false } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get channels grouped by category
@@ -134,19 +144,25 @@ export const GET_CHANNELS_BY_CATEGORY = gql`
       description
       position
       is_collapsed
-      channels(where: { is_archived: { _eq: $includeArchived } }, order_by: { position: asc }) {
+      channels(
+        where: { is_archived: { _eq: $includeArchived } }
+        order_by: { position: asc }
+      ) {
         ...ChannelFull
       }
     }
     uncategorized: nchat_channels(
-      where: { category_id: { _is_null: true }, is_archived: { _eq: $includeArchived } }
+      where: {
+        category_id: { _is_null: true }
+        is_archived: { _eq: $includeArchived }
+      }
       order_by: { position: asc }
     ) {
       ...ChannelFull
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // SINGLE CHANNEL QUERIES
@@ -179,7 +195,7 @@ export const GET_CHANNEL_BY_ID = gql`
   ${CHANNEL_FULL_FRAGMENT}
   ${CHANNEL_MEMBER_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get a single channel by slug
@@ -189,7 +205,10 @@ export const GET_CHANNEL_BY_SLUG = gql`
     nchat_channels(
       where: {
         slug: { _eq: $slug }
-        _or: [{ workspace_id: { _eq: $workspaceId } }, { workspace_id: { _is_null: true } }]
+        _or: [
+          { workspace_id: { _eq: $workspaceId } }
+          { workspace_id: { _is_null: true } }
+        ]
       }
       limit: 1
     ) {
@@ -214,7 +233,7 @@ export const GET_CHANNEL_BY_SLUG = gql`
   ${CHANNEL_FULL_FRAGMENT}
   ${CHANNEL_MEMBER_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // CHANNEL MEMBERS QUERIES
@@ -224,7 +243,11 @@ export const GET_CHANNEL_BY_SLUG = gql`
  * Get channel members with pagination
  */
 export const GET_CHANNEL_MEMBERS = gql`
-  query GetChannelMembers($channelId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetChannelMembers(
+    $channelId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_channel_members(
       where: { channel_id: { _eq: $channelId } }
       order_by: [{ role: asc }, { joined_at: asc }]
@@ -233,14 +256,16 @@ export const GET_CHANNEL_MEMBERS = gql`
     ) {
       ...ChannelMember
     }
-    nchat_channel_members_aggregate(where: { channel_id: { _eq: $channelId } }) {
+    nchat_channel_members_aggregate(
+      where: { channel_id: { _eq: $channelId } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Get channel members by role
@@ -255,7 +280,7 @@ export const GET_CHANNEL_MEMBERS_BY_ROLE = gql`
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Get channel admins (owner, admin, moderator)
@@ -263,14 +288,17 @@ export const GET_CHANNEL_MEMBERS_BY_ROLE = gql`
 export const GET_CHANNEL_ADMINS = gql`
   query GetChannelAdmins($channelId: uuid!) {
     nchat_channel_members(
-      where: { channel_id: { _eq: $channelId }, role: { _in: ["owner", "admin", "moderator"] } }
+      where: {
+        channel_id: { _eq: $channelId }
+        role: { _in: ["owner", "admin", "moderator"] }
+      }
       order_by: { role: asc }
     ) {
       ...ChannelMember
     }
   }
   ${CHANNEL_MEMBER_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // USER CHANNEL QUERIES
@@ -282,8 +310,14 @@ export const GET_CHANNEL_ADMINS = gql`
 export const GET_USER_CHANNELS = gql`
   query GetUserChannels($userId: uuid!, $includeArchived: Boolean = false) {
     nchat_channel_members(
-      where: { user_id: { _eq: $userId }, channel: { is_archived: { _eq: $includeArchived } } }
-      order_by: [{ is_pinned: desc }, { channel: { last_message_at: desc_nulls_last } }]
+      where: {
+        user_id: { _eq: $userId }
+        channel: { is_archived: { _eq: $includeArchived } }
+      }
+      order_by: [
+        { is_pinned: desc }
+        { channel: { last_message_at: desc_nulls_last } }
+      ]
     ) {
       channel {
         ...ChannelFull
@@ -314,7 +348,7 @@ export const GET_USER_CHANNELS = gql`
   }
   ${CHANNEL_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get direct message channels for a user
@@ -324,7 +358,10 @@ export const GET_USER_DM_CHANNELS = gql`
     nchat_channel_members(
       where: {
         user_id: { _eq: $userId }
-        channel: { type: { _in: ["direct", "group"] }, is_archived: { _eq: false } }
+        channel: {
+          type: { _in: ["direct", "group"] }
+          is_archived: { _eq: false }
+        }
       }
       order_by: { channel: { last_message_at: desc_nulls_last } }
     ) {
@@ -357,7 +394,7 @@ export const GET_USER_DM_CHANNELS = gql`
   }
   ${CHANNEL_FULL_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get channels user has unread messages in
@@ -381,7 +418,7 @@ export const GET_USER_UNREAD_CHANNELS = gql`
     }
   }
   ${CHANNEL_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MEMBERSHIP QUERIES
@@ -407,7 +444,7 @@ export const CHECK_CHANNEL_MEMBERSHIP = gql`
       is_muted
     }
   }
-`
+`;
 
 /**
  * Get user's membership details for a channel
@@ -441,7 +478,7 @@ export const GET_USER_CHANNEL_MEMBERSHIP = gql`
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // SEARCH QUERIES
@@ -451,7 +488,12 @@ export const GET_USER_CHANNEL_MEMBERSHIP = gql`
  * Search channels by name or description
  */
 export const SEARCH_CHANNELS = gql`
-  query SearchChannels($searchQuery: String!, $type: String, $limit: Int = 20, $offset: Int = 0) {
+  query SearchChannels(
+    $searchQuery: String!
+    $type: String
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_channels(
       where: {
         _and: [
@@ -492,13 +534,17 @@ export const SEARCH_CHANNELS = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get channels for discovery (public channels user is not a member of)
  */
 export const GET_DISCOVERABLE_CHANNELS = gql`
-  query GetDiscoverableChannels($userId: uuid!, $limit: Int = 20, $offset: Int = 0) {
+  query GetDiscoverableChannels(
+    $userId: uuid!
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_channels(
       where: {
         type: { _eq: "public" }
@@ -513,7 +559,7 @@ export const GET_DISCOVERABLE_CHANNELS = gql`
     }
   }
   ${CHANNEL_FULL_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // STATS QUERIES
@@ -547,7 +593,7 @@ export const GET_CHANNEL_STATS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Get channel activity (for analytics)
@@ -562,11 +608,13 @@ export const GET_CHANNEL_ACTIVITY = gql`
           count
         }
       }
-      active_members: members_aggregate(where: { last_read_at: { _gte: $since } }) {
+      active_members: members_aggregate(
+        where: { last_read_at: { _gte: $since } }
+      ) {
         aggregate {
           count
         }
       }
     }
   }
-`
+`;

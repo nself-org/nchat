@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ReportModal - Universal reporting modal for users, messages, and channels
@@ -8,7 +8,7 @@
  * priority calculation and duplicate detection.
  */
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,18 +16,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 import {
   Flag,
   Loader2,
@@ -43,64 +43,67 @@ import {
   Shield,
   FileText,
   Image as ImageIcon,
-} from 'lucide-react'
-import { DEFAULT_REPORT_CATEGORIES, type ReportCategory } from '@/lib/moderation/report-system'
+} from "lucide-react";
+import {
+  DEFAULT_REPORT_CATEGORIES,
+  type ReportCategory,
+} from "@/lib/moderation/report-system";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type ReportTargetType = 'user' | 'message' | 'channel'
+export type ReportTargetType = "user" | "message" | "channel";
 
 export interface ReportTarget {
-  type: ReportTargetType
-  id: string
-  name: string
+  type: ReportTargetType;
+  id: string;
+  name: string;
   // User-specific
-  username?: string
-  avatarUrl?: string
+  username?: string;
+  avatarUrl?: string;
   // Message-specific
-  content?: string
-  channelId?: string
-  channelName?: string
-  createdAt?: string
-  userId?: string
+  content?: string;
+  channelId?: string;
+  channelName?: string;
+  createdAt?: string;
+  userId?: string;
   // Channel-specific
-  description?: string
-  memberCount?: number
+  description?: string;
+  memberCount?: number;
 }
 
 export interface ReportEvidence {
-  type: 'screenshot' | 'link' | 'text' | 'file'
-  content: string
-  description?: string
+  type: "screenshot" | "link" | "text" | "file";
+  content: string;
+  description?: string;
 }
 
 export interface ReportFormData {
-  categoryId: string
-  description: string
-  evidence: ReportEvidence[]
+  categoryId: string;
+  description: string;
+  evidence: ReportEvidence[];
 }
 
 export interface ReportModalProps {
   /** Whether the modal is open (controlled mode) */
-  open?: boolean
+  open?: boolean;
   /** Callback when open state changes (controlled mode) */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
   /** Target to report */
-  target?: ReportTarget
+  target?: ReportTarget;
   /** Current user ID (reporter) */
-  reporterId: string
+  reporterId: string;
   /** Current user name */
-  reporterName?: string
+  reporterName?: string;
   /** Callback after successful report submission */
-  onSubmit?: (reportId: string) => void
+  onSubmit?: (reportId: string) => void;
   /** Custom categories (overrides default) */
-  categories?: ReportCategory[]
+  categories?: ReportCategory[];
   /** Maximum evidence items */
-  maxEvidence?: number
+  maxEvidence?: number;
   /** Additional class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -109,50 +112,50 @@ export interface ReportModalProps {
 
 function getInitials(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 function formatTimestamp(dateString: string): string {
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function truncateContent(content: string, maxLength: number = 200): string {
-  if (content.length <= maxLength) return content
-  return content.slice(0, maxLength).trim() + '...'
+  if (content.length <= maxLength) return content;
+  return content.slice(0, maxLength).trim() + "...";
 }
 
 function getTargetIcon(type: ReportTargetType) {
   switch (type) {
-    case 'user':
-      return User
-    case 'message':
-      return MessageSquare
-    case 'channel':
-      return Hash
+    case "user":
+      return User;
+    case "message":
+      return MessageSquare;
+    case "channel":
+      return Hash;
   }
 }
 
 function getCategoryIcon(categoryId: string) {
   switch (categoryId) {
-    case 'spam':
-      return AlertTriangle
-    case 'harassment':
-    case 'hate-speech':
-      return Shield
-    case 'inappropriate-content':
-      return ImageIcon
+    case "spam":
+      return AlertTriangle;
+    case "harassment":
+    case "hate-speech":
+      return Shield;
+    case "inappropriate-content":
+      return ImageIcon;
     default:
-      return Flag
+      return Flag;
   }
 }
 
@@ -161,11 +164,11 @@ function getCategoryIcon(categoryId: string) {
 // ============================================================================
 
 interface TargetPreviewProps {
-  target: ReportTarget
+  target: ReportTarget;
 }
 
 function TargetPreview({ target }: TargetPreviewProps) {
-  const TargetIcon = getTargetIcon(target.type)
+  const TargetIcon = getTargetIcon(target.type);
 
   return (
     <div className="bg-muted/50 space-y-3 rounded-lg border p-4">
@@ -174,7 +177,7 @@ function TargetPreview({ target }: TargetPreviewProps) {
         <span className="capitalize">{target.type} Report</span>
       </div>
 
-      {target.type === 'user' && (
+      {target.type === "user" && (
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={target.avatarUrl} alt={target.name} />
@@ -183,13 +186,15 @@ function TargetPreview({ target }: TargetPreviewProps) {
           <div>
             <div className="font-medium">{target.name}</div>
             {target.username && (
-              <div className="text-sm text-muted-foreground">@{target.username}</div>
+              <div className="text-sm text-muted-foreground">
+                @{target.username}
+              </div>
             )}
           </div>
         </div>
       )}
 
-      {target.type === 'message' && (
+      {target.type === "message" && (
         <div className="space-y-2">
           {target.channelName && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -214,22 +219,26 @@ function TargetPreview({ target }: TargetPreviewProps) {
         </div>
       )}
 
-      {target.type === 'channel' && (
+      {target.type === "channel" && (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Hash className="h-5 w-5" />
             <span className="text-lg font-medium">{target.name}</span>
           </div>
           {target.description && (
-            <p className="text-sm text-muted-foreground">{target.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {target.description}
+            </p>
           )}
           {target.memberCount !== undefined && (
-            <div className="text-xs text-muted-foreground">{target.memberCount} members</div>
+            <div className="text-xs text-muted-foreground">
+              {target.memberCount} members
+            </div>
           )}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -237,33 +246,37 @@ function TargetPreview({ target }: TargetPreviewProps) {
 // ============================================================================
 
 interface EvidenceItemProps {
-  evidence: ReportEvidence
-  index: number
-  onRemove: () => void
+  evidence: ReportEvidence;
+  index: number;
+  onRemove: () => void;
 }
 
 function EvidenceItem({ evidence, index, onRemove }: EvidenceItemProps) {
   const getIcon = () => {
     switch (evidence.type) {
-      case 'screenshot':
-        return <ImageIcon className="h-4 w-4" />
-      case 'link':
-        return <Link2 className="h-4 w-4" />
-      case 'file':
-        return <Upload className="h-4 w-4" />
-      case 'text':
-        return <FileText className="h-4 w-4" />
+      case "screenshot":
+        return <ImageIcon className="h-4 w-4" />;
+      case "link":
+        return <Link2 className="h-4 w-4" />;
+      case "file":
+        return <Upload className="h-4 w-4" />;
+      case "text":
+        return <FileText className="h-4 w-4" />;
     }
-  }
+  };
 
   return (
     <div className="bg-muted/50 flex items-start gap-2 rounded-lg border p-3">
       <div className="mt-0.5 flex-shrink-0">{getIcon()}</div>
       <div className="min-w-0 flex-1 space-y-1">
         <div className="text-sm font-medium capitalize">{evidence.type}</div>
-        <div className="break-all text-xs text-muted-foreground">{evidence.content}</div>
+        <div className="break-all text-xs text-muted-foreground">
+          {evidence.content}
+        </div>
         {evidence.description && (
-          <div className="text-xs italic text-muted-foreground">{evidence.description}</div>
+          <div className="text-xs italic text-muted-foreground">
+            {evidence.description}
+          </div>
         )}
       </div>
       <Button
@@ -276,7 +289,7 @@ function EvidenceItem({ evidence, index, onRemove }: EvidenceItemProps) {
         <X className="h-3 w-3" />
       </Button>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -295,131 +308,151 @@ export function ReportModal({
   className,
 }: ReportModalProps) {
   // Form state
-  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null)
-  const [description, setDescription] = React.useState('')
-  const [evidence, setEvidence] = React.useState<ReportEvidence[]>([])
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [submitError, setSubmitError] = React.useState<string | null>(null)
-  const [submitSuccess, setSubmitSuccess] = React.useState(false)
+  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
+    null,
+  );
+  const [description, setDescription] = React.useState("");
+  const [evidence, setEvidence] = React.useState<ReportEvidence[]>([]);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = React.useState(false);
 
   // Evidence form state
-  const [showEvidenceForm, setShowEvidenceForm] = React.useState(false)
-  const [evidenceType, setEvidenceType] = React.useState<ReportEvidence['type']>('link')
-  const [evidenceContent, setEvidenceContent] = React.useState('')
-  const [evidenceDescription, setEvidenceDescription] = React.useState('')
+  const [showEvidenceForm, setShowEvidenceForm] = React.useState(false);
+  const [evidenceType, setEvidenceType] =
+    React.useState<ReportEvidence["type"]>("link");
+  const [evidenceContent, setEvidenceContent] = React.useState("");
+  const [evidenceDescription, setEvidenceDescription] = React.useState("");
 
   // Filter enabled categories
-  const enabledCategories = categories.filter((c) => c.enabled)
+  const enabledCategories = categories.filter((c) => c.enabled);
 
   // Get selected category
-  const category = selectedCategory ? categories.find((c) => c.id === selectedCategory) : null
+  const category = selectedCategory
+    ? categories.find((c) => c.id === selectedCategory)
+    : null;
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
     if (open) {
-      setSelectedCategory(null)
-      setDescription('')
-      setEvidence([])
-      setIsSubmitting(false)
-      setSubmitError(null)
-      setSubmitSuccess(false)
-      setShowEvidenceForm(false)
+      setSelectedCategory(null);
+      setDescription("");
+      setEvidence([]);
+      setIsSubmitting(false);
+      setSubmitError(null);
+      setSubmitSuccess(false);
+      setShowEvidenceForm(false);
     }
-  }, [open])
+  }, [open]);
 
   // Handle close
   const handleOpenChange = React.useCallback(
     (newOpen: boolean) => {
       if (!isSubmitting) {
-        onOpenChange?.(newOpen)
+        onOpenChange?.(newOpen);
       }
     },
-    [isSubmitting, onOpenChange]
-  )
+    [isSubmitting, onOpenChange],
+  );
 
   // Add evidence
   const handleAddEvidence = React.useCallback(() => {
     if (!evidenceContent.trim()) {
-      return
+      return;
     }
 
     if (evidence.length >= maxEvidence) {
-      setSubmitError(`Maximum ${maxEvidence} evidence items allowed`)
-      return
+      setSubmitError(`Maximum ${maxEvidence} evidence items allowed`);
+      return;
     }
 
     const newEvidence: ReportEvidence = {
       type: evidenceType,
       content: evidenceContent.trim(),
       description: evidenceDescription.trim() || undefined,
-    }
+    };
 
-    setEvidence((prev) => [...prev, newEvidence])
-    setEvidenceContent('')
-    setEvidenceDescription('')
-    setShowEvidenceForm(false)
-    setSubmitError(null)
-  }, [evidenceType, evidenceContent, evidenceDescription, evidence.length, maxEvidence])
+    setEvidence((prev) => [...prev, newEvidence]);
+    setEvidenceContent("");
+    setEvidenceDescription("");
+    setShowEvidenceForm(false);
+    setSubmitError(null);
+  }, [
+    evidenceType,
+    evidenceContent,
+    evidenceDescription,
+    evidence.length,
+    maxEvidence,
+  ]);
 
   // Remove evidence
   const handleRemoveEvidence = React.useCallback((index: number) => {
-    setEvidence((prev) => prev.filter((_, i) => i !== index))
-  }, [])
+    setEvidence((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   // Handle form submission
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent) => {
-      e.preventDefault()
+      e.preventDefault();
 
       if (!target || !selectedCategory) {
-        setSubmitError('Please select a reason for the report')
-        return
+        setSubmitError("Please select a reason for the report");
+        return;
       }
 
       if (!description.trim()) {
-        setSubmitError('Please provide a description')
-        return
+        setSubmitError("Please provide a description");
+        return;
       }
 
       // Check if evidence is required
       if (category?.requiresEvidence && evidence.length === 0) {
-        setSubmitError('This category requires at least one piece of evidence')
-        return
+        setSubmitError("This category requires at least one piece of evidence");
+        return;
       }
 
-      setIsSubmitting(true)
-      setSubmitError(null)
+      setIsSubmitting(true);
+      setSubmitError(null);
 
       try {
         // In a real implementation, this would call an API endpoint
         // For now, we'll simulate the submission
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
         // Generate report ID
-        const reportId = `report-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        const reportId = `report-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-        setSubmitSuccess(true)
-        onSubmit?.(reportId)
+        setSubmitSuccess(true);
+        onSubmit?.(reportId);
 
         // Close modal after a short delay to show success state
         setTimeout(() => {
-          handleOpenChange(false)
-        }, 2000)
+          handleOpenChange(false);
+        }, 2000);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to submit report'
-        setSubmitError(errorMessage)
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to submit report";
+        setSubmitError(errorMessage);
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
-    [target, selectedCategory, description, evidence, category, onSubmit, handleOpenChange]
-  )
+    [
+      target,
+      selectedCategory,
+      description,
+      evidence,
+      category,
+      onSubmit,
+      handleOpenChange,
+    ],
+  );
 
-  if (!target) return null
+  if (!target) return null;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className={cn('max-h-[90vh] sm:max-w-2xl', className)}>
+      <DialogContent className={cn("max-h-[90vh] sm:max-w-2xl", className)}>
         {submitSuccess ? (
           // Success state
           <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -428,14 +461,17 @@ export function ReportModal({
             </div>
             <h3 className="mb-3 text-2xl font-semibold">Report Submitted</h3>
             <p className="max-w-md text-muted-foreground">
-              Thank you for reporting this {target.type}. Our moderation team will review it and
-              take appropriate action. You will be notified of the outcome.
+              Thank you for reporting this {target.type}. Our moderation team
+              will review it and take appropriate action. You will be notified
+              of the outcome.
             </p>
             <Alert className="mt-6 max-w-md">
               <Shield className="h-4 w-4" />
               <AlertDescription>
-                Your report has been assigned priority:{' '}
-                <span className="font-medium capitalize">{category?.priority || 'normal'}</span>
+                Your report has been assigned priority:{" "}
+                <span className="font-medium capitalize">
+                  {category?.priority || "normal"}
+                </span>
               </AlertDescription>
             </Alert>
           </div>
@@ -447,8 +483,12 @@ export function ReportModal({
                   <Flag className="h-6 w-6 text-destructive" />
                 </div>
                 <div>
-                  <DialogTitle className="text-xl">Report {target.type}</DialogTitle>
-                  <DialogDescription>Help keep our community safe</DialogDescription>
+                  <DialogTitle className="text-xl">
+                    Report {target.type}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Help keep our community safe
+                  </DialogDescription>
                 </div>
               </div>
             </DialogHeader>
@@ -466,21 +506,24 @@ export function ReportModal({
                 {/* Category selection */}
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">
-                    Why are you reporting this {target.type}?{' '}
+                    Why are you reporting this {target.type}?{" "}
                     <span className="text-destructive">*</span>
                   </Label>
-                  <RadioGroup value={selectedCategory || ''} onValueChange={setSelectedCategory}>
+                  <RadioGroup
+                    value={selectedCategory || ""}
+                    onValueChange={setSelectedCategory}
+                  >
                     <div className="space-y-2">
                       {enabledCategories.map((cat) => {
-                        const CategoryIcon = getCategoryIcon(cat.id)
+                        const CategoryIcon = getCategoryIcon(cat.id);
                         return (
                           <div
                             key={cat.id}
                             className={cn(
-                              'flex cursor-pointer items-start space-x-3 rounded-lg border p-4 transition-all',
+                              "flex cursor-pointer items-start space-x-3 rounded-lg border p-4 transition-all",
                               selectedCategory === cat.id
-                                ? 'bg-primary/5 border-primary shadow-sm'
-                                : 'hover:bg-muted/50 border-transparent'
+                                ? "bg-primary/5 border-primary shadow-sm"
+                                : "hover:bg-muted/50 border-transparent",
                             )}
                           >
                             <RadioGroupItem
@@ -488,17 +531,20 @@ export function ReportModal({
                               id={`category-${cat.id}`}
                               className="mt-1"
                             />
-                            <Label htmlFor={`category-${cat.id}`} className="flex-1 cursor-pointer">
+                            <Label
+                              htmlFor={`category-${cat.id}`}
+                              className="flex-1 cursor-pointer"
+                            >
                               <div className="mb-1 flex items-center gap-2">
                                 <CategoryIcon className="h-4 w-4" />
                                 <span className="font-medium">{cat.name}</span>
                                 <Badge
                                   variant={
-                                    cat.priority === 'urgent'
-                                      ? 'destructive'
-                                      : cat.priority === 'high'
-                                        ? 'default'
-                                        : 'secondary'
+                                    cat.priority === "urgent"
+                                      ? "destructive"
+                                      : cat.priority === "high"
+                                        ? "default"
+                                        : "secondary"
                                   }
                                   className="text-xs"
                                 >
@@ -510,10 +556,12 @@ export function ReportModal({
                                   </Badge>
                                 )}
                               </div>
-                              <p className="text-sm text-muted-foreground">{cat.description}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {cat.description}
+                              </p>
                             </Label>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </RadioGroup>
@@ -546,8 +594,10 @@ export function ReportModal({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">
-                      Evidence{' '}
-                      {category?.requiresEvidence && <span className="text-destructive">*</span>}
+                      Evidence{" "}
+                      {category?.requiresEvidence && (
+                        <span className="text-destructive">*</span>
+                      )}
                     </Label>
                     {evidence.length < maxEvidence && !showEvidenceForm && (
                       <Button
@@ -583,7 +633,9 @@ export function ReportModal({
                         <Label className="text-xs">Evidence Type</Label>
                         <RadioGroup
                           value={evidenceType}
-                          onValueChange={(v) => setEvidenceType(v as ReportEvidence['type'])}
+                          onValueChange={(v) =>
+                            setEvidenceType(v as ReportEvidence["type"])
+                          }
                           className="flex gap-4"
                         >
                           <div className="flex items-center space-x-2">
@@ -593,7 +645,10 @@ export function ReportModal({
                             </Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="screenshot" id="ev-screenshot" />
+                            <RadioGroupItem
+                              value="screenshot"
+                              id="ev-screenshot"
+                            />
                             <Label htmlFor="ev-screenshot" className="text-sm">
                               Screenshot
                             </Label>
@@ -611,11 +666,11 @@ export function ReportModal({
                         <Label className="text-xs">Content</Label>
                         <Input
                           placeholder={
-                            evidenceType === 'link'
-                              ? 'https://example.com/...'
-                              : evidenceType === 'screenshot'
-                                ? 'Screenshot URL or description'
-                                : 'Evidence details'
+                            evidenceType === "link"
+                              ? "https://example.com/..."
+                              : evidenceType === "screenshot"
+                                ? "Screenshot URL or description"
+                                : "Evidence details"
                           }
                           value={evidenceContent}
                           onChange={(e) => setEvidenceContent(e.target.value)}
@@ -623,11 +678,15 @@ export function ReportModal({
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-xs">Description (Optional)</Label>
+                        <Label className="text-xs">
+                          Description (Optional)
+                        </Label>
                         <Input
                           placeholder="Additional context..."
                           value={evidenceDescription}
-                          onChange={(e) => setEvidenceDescription(e.target.value)}
+                          onChange={(e) =>
+                            setEvidenceDescription(e.target.value)
+                          }
                         />
                       </div>
 
@@ -645,9 +704,9 @@ export function ReportModal({
                           variant="ghost"
                           size="sm"
                           onClick={() => {
-                            setShowEvidenceForm(false)
-                            setEvidenceContent('')
-                            setEvidenceDescription('')
+                            setShowEvidenceForm(false);
+                            setEvidenceContent("");
+                            setEvidenceDescription("");
                           }}
                         >
                           Cancel
@@ -674,8 +733,8 @@ export function ReportModal({
                   <Alert>
                     <Shield className="h-4 w-4" />
                     <AlertDescription>
-                      This report will be automatically escalated to administrators for immediate
-                      review.
+                      This report will be automatically escalated to
+                      administrators for immediate review.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -694,7 +753,9 @@ export function ReportModal({
               <Button
                 type="submit"
                 variant="destructive"
-                disabled={isSubmitting || !selectedCategory || !description.trim()}
+                disabled={
+                  isSubmitting || !selectedCategory || !description.trim()
+                }
               >
                 {isSubmitting ? (
                   <>
@@ -713,7 +774,7 @@ export function ReportModal({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default ReportModal
+export default ReportModal;

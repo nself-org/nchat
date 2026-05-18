@@ -3,10 +3,10 @@
  * Complete UI for safety number verification with QR scanning and manual comparison
  */
 
-'use client'
+"use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { QRCodeSVG } from 'qrcode.react'
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import {
   Check,
   Copy,
@@ -26,7 +26,7 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,24 +34,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import { useToast } from '@/hooks/use-toast'
-import { cn } from '@/lib/utils'
-import { logger } from '@/lib/logger'
-import type { TrustLevel, VerificationMethod, VerificationRecord, IdentityKeyChange } from '@/lib/e2ee/safety-number'
+} from "@/components/ui/collapsible";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { logger } from "@/lib/logger";
+import type {
+  TrustLevel,
+  VerificationMethod,
+  VerificationRecord,
+  IdentityKeyChange,
+} from "@/lib/e2ee/safety-number";
 
 // ============================================================================
 // TYPES
@@ -59,40 +64,43 @@ import type { TrustLevel, VerificationMethod, VerificationRecord, IdentityKeyCha
 
 export interface SafetyNumberDialogProps {
   /** Whether the dialog is open */
-  open: boolean
+  open: boolean;
   /** Callback when dialog should close */
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void;
   /** Current user's ID */
-  localUserId: string
+  localUserId: string;
   /** Peer's user ID */
-  peerUserId: string
+  peerUserId: string;
   /** Peer's display name */
-  peerDisplayName: string
+  peerDisplayName: string;
   /** Peer's avatar URL */
-  peerAvatarUrl?: string
+  peerAvatarUrl?: string;
   /** Initial tab to show */
-  initialTab?: 'number' | 'qr' | 'scan' | 'history'
+  initialTab?: "number" | "qr" | "scan" | "history";
   /** Callback when verification status changes */
-  onVerificationChange?: (verified: boolean, method?: VerificationMethod) => void
+  onVerificationChange?: (
+    verified: boolean,
+    method?: VerificationMethod,
+  ) => void;
   /** Callback when key change is acknowledged */
-  onKeyChangeAcknowledged?: () => void
+  onKeyChangeAcknowledged?: () => void;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 interface VerificationState {
-  loading: boolean
-  safetyNumber: string
-  formattedSafetyNumber: string
-  displayGrid: string[][]
-  qrCodeData: string
-  isVerified: boolean
-  verifiedAt: string | null
-  verificationMethod: VerificationMethod | null
-  trustLevel: TrustLevel
-  hasKeyChanged: boolean
-  keyChangeHistory: IdentityKeyChange[]
-  verificationHistory: VerificationRecord[]
+  loading: boolean;
+  safetyNumber: string;
+  formattedSafetyNumber: string;
+  displayGrid: string[][];
+  qrCodeData: string;
+  isVerified: boolean;
+  verifiedAt: string | null;
+  verificationMethod: VerificationMethod | null;
+  trustLevel: TrustLevel;
+  hasKeyChanged: boolean;
+  keyChangeHistory: IdentityKeyChange[];
+  verificationHistory: VerificationRecord[];
 }
 
 // ============================================================================
@@ -106,60 +114,60 @@ export function SafetyNumberDialog({
   peerUserId,
   peerDisplayName,
   peerAvatarUrl,
-  initialTab = 'number',
+  initialTab = "number",
   onVerificationChange,
   onKeyChangeAcknowledged,
   className,
 }: SafetyNumberDialogProps) {
-  const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState(initialTab)
-  const [copied, setCopied] = useState(false)
-  const [verifying, setVerifying] = useState(false)
-  const [showHistory, setShowHistory] = useState(false)
-  const [manualInput, setManualInput] = useState('')
-  const [notes, setNotes] = useState('')
-  const [scannerActive, setScannerActive] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [copied, setCopied] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [manualInput, setManualInput] = useState("");
+  const [notes, setNotes] = useState("");
+  const [scannerActive, setScannerActive] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const [state, setState] = useState<VerificationState>({
     loading: true,
-    safetyNumber: '',
-    formattedSafetyNumber: '',
+    safetyNumber: "",
+    formattedSafetyNumber: "",
     displayGrid: [[], []],
-    qrCodeData: '',
+    qrCodeData: "",
     isVerified: false,
     verifiedAt: null,
     verificationMethod: null,
-    trustLevel: 'unknown',
+    trustLevel: "unknown",
     hasKeyChanged: false,
     keyChangeHistory: [],
     verificationHistory: [],
-  })
+  });
 
   // Load verification state on mount
   useEffect(() => {
     if (open) {
-      loadVerificationState()
+      loadVerificationState();
     }
     return () => {
-      stopScanner()
-    }
-  }, [open, peerUserId])
+      stopScanner();
+    };
+  }, [open, peerUserId]);
 
   const loadVerificationState = useCallback(async () => {
     try {
-      setState(prev => ({ ...prev, loading: true }))
+      setState((prev) => ({ ...prev, loading: true }));
 
       const response = await fetch(`/api/e2ee/verification/${peerUserId}`, {
-        method: 'GET',
-      })
+        method: "GET",
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to load verification state')
+        throw new Error("Failed to load verification state");
       }
 
-      const data = await response.json()
+      const data = await response.json();
 
       setState({
         loading: false,
@@ -170,221 +178,244 @@ export function SafetyNumberDialog({
         isVerified: data.isVerified,
         verifiedAt: data.verifiedAt,
         verificationMethod: data.verificationMethod,
-        trustLevel: data.trustLevel || 'unknown',
+        trustLevel: data.trustLevel || "unknown",
         hasKeyChanged: data.hasKeyChanged || false,
         keyChangeHistory: data.keyChangeHistory || [],
         verificationHistory: data.verificationHistory || [],
-      })
+      });
     } catch (error) {
-      logger.error('Failed to load verification state:', error)
+      logger.error("Failed to load verification state:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load safety number information',
-        variant: 'destructive',
-      })
-      setState(prev => ({ ...prev, loading: false }))
+        title: "Error",
+        description: "Failed to load safety number information",
+        variant: "destructive",
+      });
+      setState((prev) => ({ ...prev, loading: false }));
     }
-  }, [peerUserId, toast])
+  }, [peerUserId, toast]);
 
   const handleVerify = async (method: VerificationMethod) => {
     try {
-      setVerifying(true)
+      setVerifying(true);
 
-      const safetyNumber = method === 'numeric_comparison' ? manualInput : state.safetyNumber
+      const safetyNumber =
+        method === "numeric_comparison" ? manualInput : state.safetyNumber;
 
-      const response = await fetch(`/api/e2ee/verification/${peerUserId}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          safetyNumber,
-          method,
-          notes: notes || undefined,
-        }),
-      })
+      const response = await fetch(
+        `/api/e2ee/verification/${peerUserId}/verify`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            safetyNumber,
+            method,
+            notes: notes || undefined,
+          }),
+        },
+      );
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Verification failed')
+        const error = await response.json();
+        throw new Error(error.message || "Verification failed");
       }
 
       toast({
-        title: 'Verified',
+        title: "Verified",
         description: `Safety number verified for ${peerDisplayName}`,
-      })
+      });
 
-      onVerificationChange?.(true, method)
-      await loadVerificationState()
+      onVerificationChange?.(true, method);
+      await loadVerificationState();
     } catch (error) {
-      logger.error('Verification failed:', error)
+      logger.error("Verification failed:", error);
       toast({
-        title: 'Verification Failed',
-        description: error instanceof Error ? error.message : 'Please try again',
-        variant: 'destructive',
-      })
+        title: "Verification Failed",
+        description:
+          error instanceof Error ? error.message : "Please try again",
+        variant: "destructive",
+      });
     } finally {
-      setVerifying(false)
+      setVerifying(false);
     }
-  }
+  };
 
   const handleUnverify = async () => {
     try {
-      setVerifying(true)
+      setVerifying(true);
 
-      const response = await fetch(`/api/e2ee/verification/${peerUserId}/verify`, {
-        method: 'DELETE',
-      })
+      const response = await fetch(
+        `/api/e2ee/verification/${peerUserId}/verify`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to remove verification')
+        throw new Error("Failed to remove verification");
       }
 
       toast({
-        title: 'Verification Removed',
+        title: "Verification Removed",
         description: `Safety number unverified for ${peerDisplayName}`,
-      })
+      });
 
-      onVerificationChange?.(false)
-      await loadVerificationState()
+      onVerificationChange?.(false);
+      await loadVerificationState();
     } catch (error) {
-      logger.error('Failed to unverify:', error)
+      logger.error("Failed to unverify:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to remove verification',
-        variant: 'destructive',
-      })
+        title: "Error",
+        description: "Failed to remove verification",
+        variant: "destructive",
+      });
     } finally {
-      setVerifying(false)
+      setVerifying(false);
     }
-  }
+  };
 
   const handleAcknowledgeKeyChange = async () => {
     try {
-      await fetch(`/api/e2ee/verification/${peerUserId}/acknowledge-key-change`, {
-        method: 'POST',
-      })
+      await fetch(
+        `/api/e2ee/verification/${peerUserId}/acknowledge-key-change`,
+        {
+          method: "POST",
+        },
+      );
 
-      onKeyChangeAcknowledged?.()
-      await loadVerificationState()
+      onKeyChangeAcknowledged?.();
+      await loadVerificationState();
     } catch (error) {
-      logger.error('Failed to acknowledge key change:', error)
+      logger.error("Failed to acknowledge key change:", error);
     }
-  }
+  };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(state.formattedSafetyNumber)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    navigator.clipboard.writeText(state.formattedSafetyNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
     toast({
-      title: 'Copied',
-      description: 'Safety number copied to clipboard',
-    })
-  }
+      title: "Copied",
+      description: "Safety number copied to clipboard",
+    });
+  };
 
   const startScanner = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      })
+        video: { facingMode: "environment" },
+      });
 
-      streamRef.current = stream
+      streamRef.current = stream;
       if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        await videoRef.current.play()
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
       }
 
-      setScannerActive(true)
+      setScannerActive(true);
     } catch (error) {
-      logger.error('Failed to start camera:', error)
+      logger.error("Failed to start camera:", error);
       toast({
-        title: 'Camera Error',
-        description: 'Failed to access camera for QR scanning',
-        variant: 'destructive',
-      })
+        title: "Camera Error",
+        description: "Failed to access camera for QR scanning",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const stopScanner = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
-      streamRef.current = null
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
     }
     if (videoRef.current) {
-      videoRef.current.srcObject = null
+      videoRef.current.srcObject = null;
     }
-    setScannerActive(false)
-  }
+    setScannerActive(false);
+  };
 
   const handleQRScanned = async (data: string) => {
     try {
-      stopScanner()
+      stopScanner();
 
-      const response = await fetch(`/api/e2ee/verification/${peerUserId}/scan`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrData: data }),
-      })
+      const response = await fetch(
+        `/api/e2ee/verification/${peerUserId}/scan`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ qrData: data }),
+        },
+      );
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'QR verification failed')
+        const error = await response.json();
+        throw new Error(error.message || "QR verification failed");
       }
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (result.verified) {
         toast({
-          title: 'Verified',
-          description: 'QR code verification successful',
-        })
-        onVerificationChange?.(true, 'qr_code_scan')
-        await loadVerificationState()
+          title: "Verified",
+          description: "QR code verification successful",
+        });
+        onVerificationChange?.(true, "qr_code_scan");
+        await loadVerificationState();
       } else {
         toast({
-          title: 'Verification Failed',
-          description: result.message || 'QR code does not match',
-          variant: 'destructive',
-        })
+          title: "Verification Failed",
+          description: result.message || "QR code does not match",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      logger.error('QR scan failed:', error)
+      logger.error("QR scan failed:", error);
       toast({
-        title: 'Scan Failed',
-        description: error instanceof Error ? error.message : 'Please try again',
-        variant: 'destructive',
-      })
+        title: "Scan Failed",
+        description:
+          error instanceof Error ? error.message : "Please try again",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const getTrustIcon = (trustLevel: TrustLevel) => {
     switch (trustLevel) {
-      case 'verified':
-        return <ShieldCheck className="h-5 w-5 text-green-500" />
-      case 'unverified':
-        return <ShieldAlert className="h-5 w-5 text-yellow-500" />
-      case 'compromised':
-        return <ShieldAlert className="h-5 w-5 text-red-500" />
+      case "verified":
+        return <ShieldCheck className="h-5 w-5 text-green-500" />;
+      case "unverified":
+        return <ShieldAlert className="h-5 w-5 text-yellow-500" />;
+      case "compromised":
+        return <ShieldAlert className="h-5 w-5 text-red-500" />;
       default:
-        return <Shield className="h-5 w-5 text-gray-400" />
+        return <Shield className="h-5 w-5 text-gray-400" />;
     }
-  }
+  };
 
   const getTrustBadge = (trustLevel: TrustLevel) => {
     switch (trustLevel) {
-      case 'verified':
-        return <Badge variant="default" className="bg-green-500">Verified</Badge>
-      case 'unverified':
-        return <Badge variant="default" className="bg-yellow-500">Key Changed</Badge>
-      case 'compromised':
-        return <Badge variant="destructive">Compromised</Badge>
+      case "verified":
+        return (
+          <Badge variant="default" className="bg-green-500">
+            Verified
+          </Badge>
+        );
+      case "unverified":
+        return (
+          <Badge variant="default" className="bg-yellow-500">
+            Key Changed
+          </Badge>
+        );
+      case "compromised":
+        return <Badge variant="destructive">Compromised</Badge>;
       default:
-        return <Badge variant="secondary">Not Verified</Badge>
+        return <Badge variant="secondary">Not Verified</Badge>;
     }
-  }
+  };
 
   if (state.loading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={cn('max-w-2xl', className)}>
+        <DialogContent className={cn("max-w-2xl", className)}>
           <DialogHeader>
             <DialogTitle>Loading Safety Number...</DialogTitle>
           </DialogHeader>
@@ -393,12 +424,14 @@ export function SafetyNumberDialog({
           </div>
         </DialogContent>
       </Dialog>
-    )
+    );
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-2xl max-h-[90vh] overflow-y-auto', className)}>
+      <DialogContent
+        className={cn("max-w-2xl max-h-[90vh] overflow-y-auto", className)}
+      >
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -417,7 +450,7 @@ export function SafetyNumberDialog({
         </DialogHeader>
 
         {/* Key Change Warning */}
-        {state.hasKeyChanged && state.trustLevel === 'unverified' && (
+        {state.hasKeyChanged && state.trustLevel === "unverified" && (
           <Alert variant="destructive" className="mt-4">
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Security Alert: Identity Key Changed</AlertTitle>
@@ -428,7 +461,9 @@ export function SafetyNumberDialog({
               <ul className="list-disc list-inside text-sm">
                 <li>They reinstalled the app</li>
                 <li>They switched to a new device</li>
-                <li>Someone may be impersonating them (unlikely but possible)</li>
+                <li>
+                  Someone may be impersonating them (unlikely but possible)
+                </li>
               </ul>
               <div className="mt-3 flex gap-2">
                 <Button
@@ -438,10 +473,7 @@ export function SafetyNumberDialog({
                 >
                   I Understand
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={() => setActiveTab('number')}
-                >
+                <Button size="sm" onClick={() => setActiveTab("number")}>
                   Verify New Key
                 </Button>
               </div>
@@ -455,29 +487,27 @@ export function SafetyNumberDialog({
             <CheckCircle2 className="h-4 w-4 text-green-600" />
             <AlertTitle className="text-green-800">Verified</AlertTitle>
             <AlertDescription className="text-green-700">
-              You verified this safety number on{' '}
+              You verified this safety number on{" "}
               {new Date(state.verifiedAt!).toLocaleDateString()}
               {state.verificationMethod && (
-                <> via {state.verificationMethod.replace(/_/g, ' ')}</>
+                <> via {state.verificationMethod.replace(/_/g, " ")}</>
               )}
             </AlertDescription>
           </Alert>
         )}
 
-        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as typeof activeTab)} className="mt-4">
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => setActiveTab(val as typeof activeTab)}
+          className="mt-4"
+        >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="number">
               <span className="hidden sm:inline">Safety </span>Number
             </TabsTrigger>
-            <TabsTrigger value="qr">
-              QR Code
-            </TabsTrigger>
-            <TabsTrigger value="scan">
-              Scan
-            </TabsTrigger>
-            <TabsTrigger value="history">
-              History
-            </TabsTrigger>
+            <TabsTrigger value="qr">QR Code</TabsTrigger>
+            <TabsTrigger value="scan">Scan</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
           {/* Safety Number Tab */}
@@ -487,7 +517,10 @@ export function SafetyNumberDialog({
               <div className="relative">
                 <div className="bg-muted rounded-lg p-4 font-mono text-lg text-center select-all">
                   {state.displayGrid.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex justify-center gap-4 mb-2">
+                    <div
+                      key={rowIndex}
+                      className="flex justify-center gap-4 mb-2"
+                    >
                       {row.map((group, groupIndex) => (
                         <span key={groupIndex} className="tracking-wider">
                           {group}
@@ -516,8 +549,14 @@ export function SafetyNumberDialog({
             <div className="space-y-3">
               <h4 className="font-medium">How to verify:</h4>
               <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                <li>Contact {peerDisplayName} through another channel (call, video, in person)</li>
-                <li>Compare the numbers above - they should be identical on both devices</li>
+                <li>
+                  Contact {peerDisplayName} through another channel (call,
+                  video, in person)
+                </li>
+                <li>
+                  Compare the numbers above - they should be identical on both
+                  devices
+                </li>
                 <li>If they match, click "Mark as Verified" below</li>
               </ol>
             </div>
@@ -525,19 +564,25 @@ export function SafetyNumberDialog({
             <Separator />
 
             <div className="space-y-2">
-              <Label htmlFor="manual-compare">Or enter their safety number to compare:</Label>
+              <Label htmlFor="manual-compare">
+                Or enter their safety number to compare:
+              </Label>
               <div className="flex gap-2">
                 <Input
                   id="manual-compare"
                   placeholder="Enter 60-digit safety number"
                   value={manualInput}
-                  onChange={(e) => setManualInput(e.target.value.replace(/[^0-9\s]/g, ''))}
+                  onChange={(e) =>
+                    setManualInput(e.target.value.replace(/[^0-9\s]/g, ""))
+                  }
                   className="font-mono"
                 />
                 <Button
                   variant="secondary"
-                  disabled={manualInput.replace(/\s/g, '').length !== 60 || verifying}
-                  onClick={() => handleVerify('numeric_comparison')}
+                  disabled={
+                    manualInput.replace(/\s/g, "").length !== 60 || verifying
+                  }
+                  onClick={() => handleVerify("numeric_comparison")}
                 >
                   Compare
                 </Button>
@@ -557,16 +602,16 @@ export function SafetyNumberDialog({
                 />
               </div>
               <p className="text-sm text-muted-foreground text-center max-w-sm">
-                Have {peerDisplayName} scan this code with their device
-                to verify your encryption keys match.
+                Have {peerDisplayName} scan this code with their device to
+                verify your encryption keys match.
               </p>
             </div>
 
             <Alert>
               <Smartphone className="h-4 w-4" />
               <AlertDescription>
-                Both parties should scan each other's codes.
-                If both scans succeed, verification is complete.
+                Both parties should scan each other's codes. If both scans
+                succeed, verification is complete.
               </AlertDescription>
             </Alert>
           </TabsContent>
@@ -606,14 +651,16 @@ export function SafetyNumberDialog({
             <Alert>
               <QrCodeIcon className="h-4 w-4" />
               <AlertDescription>
-                Point your camera at {peerDisplayName}'s QR code to verify their identity.
+                Point your camera at {peerDisplayName}'s QR code to verify their
+                identity.
               </AlertDescription>
             </Alert>
           </TabsContent>
 
           {/* History Tab */}
           <TabsContent value="history" className="space-y-4 mt-4">
-            {state.verificationHistory.length === 0 && state.keyChangeHistory.length === 0 ? (
+            {state.verificationHistory.length === 0 &&
+            state.keyChangeHistory.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No verification history yet</p>
@@ -623,7 +670,10 @@ export function SafetyNumberDialog({
                 {state.keyChangeHistory.length > 0 && (
                   <Collapsible open={showHistory} onOpenChange={setShowHistory}>
                     <CollapsibleTrigger asChild>
-                      <Button variant="ghost" className="w-full justify-between">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-between"
+                      >
                         <span className="flex items-center gap-2">
                           <AlertCircle className="h-4 w-4 text-yellow-500" />
                           Key Changes ({state.keyChangeHistory.length})
@@ -650,7 +700,10 @@ export function SafetyNumberDialog({
                           <p>
                             Identity key changed
                             {change.wasVerified && (
-                              <span className="text-yellow-600"> (was verified)</span>
+                              <span className="text-yellow-600">
+                                {" "}
+                                (was verified)
+                              </span>
                             )}
                           </p>
                         </div>
@@ -675,16 +728,18 @@ export function SafetyNumberDialog({
                       <div
                         key={index}
                         className={cn(
-                          'p-3 rounded-lg text-sm',
-                          record.isValid ? 'bg-green-50' : 'bg-muted'
+                          "p-3 rounded-lg text-sm",
+                          record.isValid ? "bg-green-50" : "bg-muted",
                         )}
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-medium">
-                            {record.method.replace(/_/g, ' ')}
+                            {record.method.replace(/_/g, " ")}
                           </span>
-                          <Badge variant={record.isValid ? 'default' : 'secondary'}>
-                            {record.isValid ? 'Active' : 'Superseded'}
+                          <Badge
+                            variant={record.isValid ? "default" : "secondary"}
+                          >
+                            {record.isValid ? "Active" : "Superseded"}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
@@ -692,7 +747,9 @@ export function SafetyNumberDialog({
                           {new Date(record.verifiedAt).toLocaleString()}
                         </div>
                         {record.notes && (
-                          <p className="mt-1 text-muted-foreground">{record.notes}</p>
+                          <p className="mt-1 text-muted-foreground">
+                            {record.notes}
+                          </p>
                         )}
                       </div>
                     ))
@@ -704,7 +761,7 @@ export function SafetyNumberDialog({
         </Tabs>
 
         {/* Optional Notes */}
-        {!state.isVerified && activeTab !== 'history' && (
+        {!state.isVerified && activeTab !== "history" && (
           <div className="space-y-2 mt-4">
             <Label htmlFor="notes">Notes (optional)</Label>
             <Textarea
@@ -727,11 +784,15 @@ export function SafetyNumberDialog({
               onClick={handleUnverify}
               disabled={verifying}
             >
-              {verifying ? 'Processing...' : 'Remove Verification'}
+              {verifying ? "Processing..." : "Remove Verification"}
             </Button>
           ) : (
             <Button
-              onClick={() => handleVerify(activeTab === 'qr' ? 'qr_code_scan' : 'numeric_comparison')}
+              onClick={() =>
+                handleVerify(
+                  activeTab === "qr" ? "qr_code_scan" : "numeric_comparison",
+                )
+              }
               disabled={verifying}
             >
               {verifying ? (
@@ -752,15 +813,19 @@ export function SafetyNumberDialog({
         {/* Information Section */}
         <Collapsible className="mt-4">
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-full text-muted-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-muted-foreground"
+            >
               <span>What is a safety number?</span>
               <ChevronDown className="h-4 w-4 ml-2" />
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2 p-4 bg-muted rounded-lg text-sm space-y-2">
             <p>
-              A safety number is a unique fingerprint derived from your encryption
-              keys and {peerDisplayName}'s encryption keys.
+              A safety number is a unique fingerprint derived from your
+              encryption keys and {peerDisplayName}'s encryption keys.
             </p>
             <p>
               If this number matches on both devices, you can be confident that
@@ -775,7 +840,7 @@ export function SafetyNumberDialog({
         </Collapsible>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default SafetyNumberDialog
+export default SafetyNumberDialog;

@@ -5,15 +5,19 @@
  * Provides timezone-aware cron evaluation and next-run calculation.
  */
 
-import { generateId } from '../app-lifecycle'
+import { generateId } from "../app-lifecycle";
 import type {
   WorkflowDefinition,
   ScheduledExecution,
   WorkflowRunStatus,
   WorkflowAuditEntry,
   WorkflowAuditEventType,
-} from './types'
-import { getNextCronTime, matchesCron, parseCronExpression } from './trigger-engine'
+} from "./types";
+import {
+  getNextCronTime,
+  matchesCron,
+  parseCronExpression,
+} from "./trigger-engine";
 
 // ============================================================================
 // SCHEDULER STORE
@@ -23,45 +27,45 @@ import { getNextCronTime, matchesCron, parseCronExpression } from './trigger-eng
  * In-memory store for scheduled executions.
  */
 export class ScheduleStore {
-  private schedules: Map<string, ScheduledExecution> = new Map()
+  private schedules: Map<string, ScheduledExecution> = new Map();
 
   get(id: string): ScheduledExecution | undefined {
-    return this.schedules.get(id)
+    return this.schedules.get(id);
   }
 
   getByWorkflowId(workflowId: string): ScheduledExecution | undefined {
     for (const schedule of this.schedules.values()) {
       if (schedule.workflowId === workflowId) {
-        return schedule
+        return schedule;
       }
     }
-    return undefined
+    return undefined;
   }
 
   list(filter?: {
-    active?: boolean
-    workflowId?: string
+    active?: boolean;
+    workflowId?: string;
   }): ScheduledExecution[] {
-    let schedules = Array.from(this.schedules.values())
+    let schedules = Array.from(this.schedules.values());
     if (filter?.active !== undefined) {
-      schedules = schedules.filter(s => s.active === filter.active)
+      schedules = schedules.filter((s) => s.active === filter.active);
     }
     if (filter?.workflowId) {
-      schedules = schedules.filter(s => s.workflowId === filter.workflowId)
+      schedules = schedules.filter((s) => s.workflowId === filter.workflowId);
     }
-    return schedules
+    return schedules;
   }
 
   save(schedule: ScheduledExecution): void {
-    this.schedules.set(schedule.id, schedule)
+    this.schedules.set(schedule.id, schedule);
   }
 
   delete(id: string): boolean {
-    return this.schedules.delete(id)
+    return this.schedules.delete(id);
   }
 
   clear(): void {
-    this.schedules.clear()
+    this.schedules.clear();
   }
 }
 
@@ -71,31 +75,31 @@ export class ScheduleStore {
 
 export interface SchedulerConfig {
   /** Custom time function (for testing) */
-  nowFn?: () => Date
+  nowFn?: () => Date;
   /** Tick interval in ms (how often to check schedules, default: 60000) */
-  tickIntervalMs: number
+  tickIntervalMs: number;
 }
 
 const DEFAULT_SCHEDULER_CONFIG: SchedulerConfig = {
   tickIntervalMs: 60000,
-}
+};
 
 /**
  * Workflow scheduler. Manages cron-based schedule evaluation
  * and next-run calculation.
  */
 export class WorkflowScheduler {
-  private store: ScheduleStore
-  private config: SchedulerConfig
-  private auditLog: WorkflowAuditEntry[] = []
-  private tickInterval: ReturnType<typeof setInterval> | null = null
+  private store: ScheduleStore;
+  private config: SchedulerConfig;
+  private auditLog: WorkflowAuditEntry[] = [];
+  private tickInterval: ReturnType<typeof setInterval> | null = null;
 
   /** Callback when a schedule fires - the consumer should start the workflow run */
-  onScheduleFired?: (schedule: ScheduledExecution) => void
+  onScheduleFired?: (schedule: ScheduledExecution) => void;
 
   constructor(store?: ScheduleStore, config?: Partial<SchedulerConfig>) {
-    this.store = store ?? new ScheduleStore()
-    this.config = { ...DEFAULT_SCHEDULER_CONFIG, ...config }
+    this.store = store ?? new ScheduleStore();
+    this.config = { ...DEFAULT_SCHEDULER_CONFIG, ...config };
   }
 
   // ==========================================================================
@@ -106,115 +110,135 @@ export class WorkflowScheduler {
    * Create a schedule from a workflow definition.
    */
   createSchedule(workflow: WorkflowDefinition): ScheduledExecution {
-    if (workflow.trigger.type !== 'schedule') {
+    if (workflow.trigger.type !== "schedule") {
       throw new SchedulerError(
-        'Workflow trigger is not a schedule trigger',
-        'INVALID_TRIGGER_TYPE'
-      )
+        "Workflow trigger is not a schedule trigger",
+        "INVALID_TRIGGER_TYPE",
+      );
     }
 
-    const trigger = workflow.trigger
-    const cronFields = parseCronExpression(trigger.cronExpression)
+    const trigger = workflow.trigger;
+    const cronFields = parseCronExpression(trigger.cronExpression);
     if (!cronFields) {
       throw new SchedulerError(
         `Invalid cron expression: ${trigger.cronExpression}`,
-        'INVALID_CRON'
-      )
+        "INVALID_CRON",
+      );
     }
 
     // Check for existing schedule for this workflow
-    const existing = this.store.getByWorkflowId(workflow.id)
+    const existing = this.store.getByWorkflowId(workflow.id);
     if (existing) {
       // Update existing
-      existing.cronExpression = trigger.cronExpression
-      existing.timezone = trigger.timezone
-      existing.startDate = trigger.startDate
-      existing.endDate = trigger.endDate
-      existing.active = workflow.enabled
+      existing.cronExpression = trigger.cronExpression;
+      existing.timezone = trigger.timezone;
+      existing.startDate = trigger.startDate;
+      existing.endDate = trigger.endDate;
+      existing.active = workflow.enabled;
 
-      const nextRun = getNextCronTime(trigger.cronExpression, this.now(), trigger.timezone)
+      const nextRun = getNextCronTime(
+        trigger.cronExpression,
+        this.now(),
+        trigger.timezone,
+      );
       if (nextRun) {
-        existing.nextRunAt = nextRun.toISOString()
+        existing.nextRunAt = nextRun.toISOString();
       }
 
-      this.store.save(existing)
-      this.audit('workflow.schedule_updated', workflow.id, 'system', {
+      this.store.save(existing);
+      this.audit("workflow.schedule_updated", workflow.id, "system", {
         cronExpression: trigger.cronExpression,
         timezone: trigger.timezone,
-      })
-      return existing
+      });
+      return existing;
     }
 
-    const now = this.now()
-    const nextRun = getNextCronTime(trigger.cronExpression, now, trigger.timezone)
+    const now = this.now();
+    const nextRun = getNextCronTime(
+      trigger.cronExpression,
+      now,
+      trigger.timezone,
+    );
 
     const schedule: ScheduledExecution = {
-      id: generateId('sched'),
+      id: generateId("sched"),
       workflowId: workflow.id,
       cronExpression: trigger.cronExpression,
       timezone: trigger.timezone,
-      nextRunAt: nextRun ? nextRun.toISOString() : new Date(now.getTime() + 60000).toISOString(),
+      nextRunAt: nextRun
+        ? nextRun.toISOString()
+        : new Date(now.getTime() + 60000).toISOString(),
       active: workflow.enabled,
       createdAt: now.toISOString(),
       startDate: trigger.startDate,
       endDate: trigger.endDate,
-    }
+    };
 
-    this.store.save(schedule)
-    this.audit('workflow.schedule_created', workflow.id, 'system', {
+    this.store.save(schedule);
+    this.audit("workflow.schedule_created", workflow.id, "system", {
       cronExpression: trigger.cronExpression,
       timezone: trigger.timezone,
       nextRunAt: schedule.nextRunAt,
-    })
+    });
 
-    return schedule
+    return schedule;
   }
 
   /**
    * Remove a schedule.
    */
   removeSchedule(scheduleId: string): boolean {
-    const schedule = this.store.get(scheduleId)
-    if (!schedule) return false
+    const schedule = this.store.get(scheduleId);
+    if (!schedule) return false;
 
-    this.audit('workflow.schedule_deleted', schedule.workflowId, 'system', {
+    this.audit("workflow.schedule_deleted", schedule.workflowId, "system", {
       scheduleId,
-    })
+    });
 
-    return this.store.delete(scheduleId)
+    return this.store.delete(scheduleId);
   }
 
   /**
    * Pause a schedule.
    */
   pauseSchedule(scheduleId: string): ScheduledExecution {
-    const schedule = this.store.get(scheduleId)
+    const schedule = this.store.get(scheduleId);
     if (!schedule) {
-      throw new SchedulerError(`Schedule not found: ${scheduleId}`, 'SCHEDULE_NOT_FOUND')
+      throw new SchedulerError(
+        `Schedule not found: ${scheduleId}`,
+        "SCHEDULE_NOT_FOUND",
+      );
     }
-    schedule.active = false
-    this.store.save(schedule)
-    return schedule
+    schedule.active = false;
+    this.store.save(schedule);
+    return schedule;
   }
 
   /**
    * Resume a schedule.
    */
   resumeSchedule(scheduleId: string): ScheduledExecution {
-    const schedule = this.store.get(scheduleId)
+    const schedule = this.store.get(scheduleId);
     if (!schedule) {
-      throw new SchedulerError(`Schedule not found: ${scheduleId}`, 'SCHEDULE_NOT_FOUND')
+      throw new SchedulerError(
+        `Schedule not found: ${scheduleId}`,
+        "SCHEDULE_NOT_FOUND",
+      );
     }
-    schedule.active = true
+    schedule.active = true;
 
     // Recalculate next run
-    const nextRun = getNextCronTime(schedule.cronExpression, this.now(), schedule.timezone)
+    const nextRun = getNextCronTime(
+      schedule.cronExpression,
+      this.now(),
+      schedule.timezone,
+    );
     if (nextRun) {
-      schedule.nextRunAt = nextRun.toISOString()
+      schedule.nextRunAt = nextRun.toISOString();
     }
 
-    this.store.save(schedule)
-    return schedule
+    this.store.save(schedule);
+    return schedule;
   }
 
   // ==========================================================================
@@ -226,64 +250,68 @@ export class WorkflowScheduler {
    * Returns the list of schedules that fired.
    */
   tick(currentTime?: Date): ScheduledExecution[] {
-    const now = currentTime ?? this.now()
-    const activeSchedules = this.store.list({ active: true })
-    const fired: ScheduledExecution[] = []
+    const now = currentTime ?? this.now();
+    const activeSchedules = this.store.list({ active: true });
+    const fired: ScheduledExecution[] = [];
 
     for (const schedule of activeSchedules) {
       // Check date bounds
       if (schedule.startDate && new Date(schedule.startDate) > now) {
-        continue
+        continue;
       }
       if (schedule.endDate && new Date(schedule.endDate) < now) {
-        schedule.active = false
-        this.store.save(schedule)
-        continue
+        schedule.active = false;
+        this.store.save(schedule);
+        continue;
       }
 
       // Check if the scheduled time has arrived
-      const nextRun = new Date(schedule.nextRunAt)
+      const nextRun = new Date(schedule.nextRunAt);
       if (nextRun <= now) {
         // Fire the schedule
-        schedule.lastRunAt = now.toISOString()
+        schedule.lastRunAt = now.toISOString();
 
         // Calculate next run time
-        const nextExecution = getNextCronTime(schedule.cronExpression, now, schedule.timezone)
+        const nextExecution = getNextCronTime(
+          schedule.cronExpression,
+          now,
+          schedule.timezone,
+        );
         if (nextExecution) {
-          schedule.nextRunAt = nextExecution.toISOString()
+          schedule.nextRunAt = nextExecution.toISOString();
         } else {
           // No more valid execution times
-          schedule.active = false
+          schedule.active = false;
         }
 
-        this.store.save(schedule)
+        this.store.save(schedule);
 
-        this.audit('workflow.schedule_fired', schedule.workflowId, 'system', {
+        this.audit("workflow.schedule_fired", schedule.workflowId, "system", {
           scheduleId: schedule.id,
           firedAt: now.toISOString(),
           nextRunAt: schedule.nextRunAt,
-        })
+        });
 
         if (this.onScheduleFired) {
-          this.onScheduleFired(schedule)
+          this.onScheduleFired(schedule);
         }
 
-        fired.push(schedule)
+        fired.push(schedule);
       }
     }
 
-    return fired
+    return fired;
   }
 
   /**
    * Start the scheduler tick loop.
    */
   start(): void {
-    if (this.tickInterval) return
+    if (this.tickInterval) return;
 
     this.tickInterval = setInterval(() => {
-      this.tick()
-    }, this.config.tickIntervalMs)
+      this.tick();
+    }, this.config.tickIntervalMs);
   }
 
   /**
@@ -291,8 +319,8 @@ export class WorkflowScheduler {
    */
   stop(): void {
     if (this.tickInterval) {
-      clearInterval(this.tickInterval)
-      this.tickInterval = null
+      clearInterval(this.tickInterval);
+      this.tickInterval = null;
     }
   }
 
@@ -300,10 +328,10 @@ export class WorkflowScheduler {
    * Update the last run status for a schedule.
    */
   updateLastRunStatus(scheduleId: string, status: WorkflowRunStatus): void {
-    const schedule = this.store.get(scheduleId)
+    const schedule = this.store.get(scheduleId);
     if (schedule) {
-      schedule.lastRunStatus = status
-      this.store.save(schedule)
+      schedule.lastRunStatus = status;
+      this.store.save(schedule);
     }
   }
 
@@ -315,21 +343,21 @@ export class WorkflowScheduler {
    * Get a schedule by ID.
    */
   getSchedule(id: string): ScheduledExecution | undefined {
-    return this.store.get(id)
+    return this.store.get(id);
   }
 
   /**
    * Get schedule by workflow ID.
    */
   getScheduleByWorkflow(workflowId: string): ScheduledExecution | undefined {
-    return this.store.getByWorkflowId(workflowId)
+    return this.store.getByWorkflowId(workflowId);
   }
 
   /**
    * List all schedules.
    */
   listSchedules(filter?: { active?: boolean }): ScheduledExecution[] {
-    return this.store.list(filter)
+    return this.store.list(filter);
   }
 
   /**
@@ -338,24 +366,27 @@ export class WorkflowScheduler {
   getUpcomingExecutions(limit: number = 10): ScheduledExecution[] {
     return this.store
       .list({ active: true })
-      .sort((a, b) => new Date(a.nextRunAt).getTime() - new Date(b.nextRunAt).getTime())
-      .slice(0, limit)
+      .sort(
+        (a, b) =>
+          new Date(a.nextRunAt).getTime() - new Date(b.nextRunAt).getTime(),
+      )
+      .slice(0, limit);
   }
 
   /**
    * Get the audit log.
    */
   getAuditLog(): WorkflowAuditEntry[] {
-    return [...this.auditLog]
+    return [...this.auditLog];
   }
 
   /**
    * Clear all state.
    */
   clear(): void {
-    this.stop()
-    this.store.clear()
-    this.auditLog = []
+    this.stop();
+    this.store.clear();
+    this.auditLog = [];
   }
 
   // ==========================================================================
@@ -365,23 +396,23 @@ export class WorkflowScheduler {
   private audit(
     eventType: WorkflowAuditEventType,
     workflowId: string,
-    actorId: string = 'system',
-    data?: Record<string, unknown>
+    actorId: string = "system",
+    data?: Record<string, unknown>,
   ): void {
     const entry: WorkflowAuditEntry = {
-      id: generateId('audit'),
+      id: generateId("audit"),
       eventType,
       workflowId,
       actorId,
       timestamp: this.now().toISOString(),
       description: `${eventType} for workflow ${workflowId}`,
       data,
-    }
-    this.auditLog.push(entry)
+    };
+    this.auditLog.push(entry);
   }
 
   private now(): Date {
-    return this.config.nowFn ? this.config.nowFn() : new Date()
+    return this.config.nowFn ? this.config.nowFn() : new Date();
   }
 }
 
@@ -392,9 +423,9 @@ export class WorkflowScheduler {
 export class SchedulerError extends Error {
   constructor(
     message: string,
-    public readonly code: string
+    public readonly code: string,
   ) {
-    super(message)
-    this.name = 'SchedulerError'
+    super(message);
+    this.name = "SchedulerError";
   }
 }

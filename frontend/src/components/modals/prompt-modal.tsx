@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Loader2, Type } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { logger } from '@/lib/logger'
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Loader2, Type } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import {
   BaseModal,
   ModalHeader,
@@ -16,31 +16,31 @@ import {
   ModalBody,
   ModalFooter,
   type ModalSize,
-} from './base-modal'
+} from "./base-modal";
 
-export type InputType = 'text' | 'email' | 'password' | 'number' | 'textarea'
+export type InputType = "text" | "email" | "password" | "number" | "textarea";
 
 export interface PromptModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  message?: string
-  placeholder?: string
-  defaultValue?: string
-  inputType?: InputType
-  validation?: (value: string) => string | null
-  submitText?: string
-  cancelText?: string
-  onSubmit: (value: string) => Promise<void> | void
-  onCancel?: () => void
-  loading?: boolean
-  size?: ModalSize
-  label?: string
-  helperText?: string
-  required?: boolean
-  minLength?: number
-  maxLength?: number
-  autoFocus?: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  message?: string;
+  placeholder?: string;
+  defaultValue?: string;
+  inputType?: InputType;
+  validation?: (value: string) => string | null;
+  submitText?: string;
+  cancelText?: string;
+  onSubmit: (value: string) => Promise<void> | void;
+  onCancel?: () => void;
+  loading?: boolean;
+  size?: ModalSize;
+  label?: string;
+  helperText?: string;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  autoFocus?: boolean;
 }
 
 export function PromptModal({
@@ -49,15 +49,15 @@ export function PromptModal({
   title,
   message,
   placeholder,
-  defaultValue = '',
-  inputType = 'text',
+  defaultValue = "",
+  inputType = "text",
   validation,
-  submitText = 'Submit',
-  cancelText = 'Cancel',
+  submitText = "Submit",
+  cancelText = "Cancel",
   onSubmit,
   onCancel,
   loading: externalLoading,
-  size = 'sm',
+  size = "sm",
   label,
   helperText,
   required = false,
@@ -65,107 +65,109 @@ export function PromptModal({
   maxLength,
   autoFocus = true,
 }: PromptModalProps) {
-  const [value, setValue] = useState(defaultValue)
-  const [error, setError] = useState<string | null>(null)
-  const [internalLoading, setInternalLoading] = useState(false)
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+  const [value, setValue] = useState(defaultValue);
+  const [error, setError] = useState<string | null>(null);
+  const [internalLoading, setInternalLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
-  const loading = externalLoading ?? internalLoading
+  const loading = externalLoading ?? internalLoading;
 
   // Reset state when modal opens
   useEffect(() => {
     if (open) {
-      setValue(defaultValue)
-      setError(null)
-      setInternalLoading(false)
+      setValue(defaultValue);
+      setError(null);
+      setInternalLoading(false);
       // Focus input after a short delay for animation
       if (autoFocus) {
         setTimeout(() => {
-          inputRef.current?.focus()
-          inputRef.current?.select()
-        }, 50)
+          inputRef.current?.focus();
+          inputRef.current?.select();
+        }, 50);
       }
     }
-  }, [open, defaultValue, autoFocus])
+  }, [open, defaultValue, autoFocus]);
 
   const validate = (val: string): string | null => {
     if (required && !val.trim()) {
-      return 'This field is required'
+      return "This field is required";
     }
     if (minLength !== undefined && val.length < minLength) {
-      return `Must be at least ${minLength} characters`
+      return `Must be at least ${minLength} characters`;
     }
     if (maxLength !== undefined && val.length > maxLength) {
-      return `Must be no more than ${maxLength} characters`
+      return `Must be no more than ${maxLength} characters`;
     }
-    if (inputType === 'email' && val) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (inputType === "email" && val) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(val)) {
-        return 'Please enter a valid email address'
+        return "Please enter a valid email address";
       }
     }
     if (validation) {
-      return validation(val)
+      return validation(val);
     }
-    return null
-  }
+    return null;
+  };
 
   const handleSubmit = async () => {
-    const validationError = validate(value)
+    const validationError = validate(value);
     if (validationError) {
-      setError(validationError)
-      inputRef.current?.focus()
-      return
+      setError(validationError);
+      inputRef.current?.focus();
+      return;
     }
 
     if (externalLoading === undefined) {
-      setInternalLoading(true)
+      setInternalLoading(true);
     }
 
     try {
-      await onSubmit(value)
-      onOpenChange(false)
+      await onSubmit(value);
+      onOpenChange(false);
     } catch (err) {
-      logger.error('Submit failed:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      logger.error("Submit failed:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       if (externalLoading === undefined) {
-        setInternalLoading(false)
+        setInternalLoading(false);
       }
     }
-  }
+  };
 
   const handleCancel = () => {
-    onCancel?.()
-    onOpenChange(false)
-  }
+    onCancel?.();
+    onOpenChange(false);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && inputType !== 'textarea') {
-      e.preventDefault()
-      handleSubmit()
+    if (e.key === "Enter" && inputType !== "textarea") {
+      e.preventDefault();
+      handleSubmit();
     }
-  }
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newValue = e.target.value
-    setValue(newValue)
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const newValue = e.target.value;
+    setValue(newValue);
     // Clear error when user starts typing
     if (error) {
-      setError(null)
+      setError(null);
     }
-  }
+  };
 
-  const inputId = 'prompt-input'
+  const inputId = "prompt-input";
 
   return (
     <BaseModal
       open={open}
       onOpenChange={(newOpen) => {
         if (!newOpen) {
-          handleCancel()
+          handleCancel();
         } else {
-          onOpenChange(newOpen)
+          onOpenChange(newOpen);
         }
       }}
       size={size}
@@ -192,7 +194,7 @@ export function PromptModal({
             </Label>
           )}
 
-          {inputType === 'textarea' ? (
+          {inputType === "textarea" ? (
             <Textarea
               ref={inputRef as React.RefObject<HTMLTextAreaElement>}
               id={inputId}
@@ -201,8 +203,8 @@ export function PromptModal({
               placeholder={placeholder}
               disabled={loading}
               className={cn(
-                'min-h-[100px] resize-none',
-                error && 'border-destructive focus-visible:ring-destructive'
+                "min-h-[100px] resize-none",
+                error && "border-destructive focus-visible:ring-destructive",
               )}
               maxLength={maxLength}
             />
@@ -216,7 +218,9 @@ export function PromptModal({
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               disabled={loading}
-              className={cn(error && 'border-destructive focus-visible:ring-destructive')}
+              className={cn(
+                error && "border-destructive focus-visible:ring-destructive",
+              )}
               maxLength={maxLength}
             />
           )}
@@ -246,24 +250,24 @@ export function PromptModal({
         </Button>
       </ModalFooter>
     </BaseModal>
-  )
+  );
 }
 
 // Convenience component for rename operations
 export interface RenameModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  currentName: string
-  itemType?: string
-  onRename: (newName: string) => Promise<void> | void
-  loading?: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  currentName: string;
+  itemType?: string;
+  onRename: (newName: string) => Promise<void> | void;
+  loading?: boolean;
 }
 
 export function RenameModal({
   open,
   onOpenChange,
   currentName,
-  itemType = 'item',
+  itemType = "item",
   onRename,
   loading,
 }: RenameModalProps) {
@@ -282,23 +286,23 @@ export function RenameModal({
       minLength={1}
       maxLength={100}
     />
-  )
+  );
 }
 
 // Convenience component for creating new items
 export interface CreateNameModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  itemType?: string
-  placeholder?: string
-  onCreate: (name: string) => Promise<void> | void
-  loading?: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  itemType?: string;
+  placeholder?: string;
+  onCreate: (name: string) => Promise<void> | void;
+  loading?: boolean;
 }
 
 export function CreateNameModal({
   open,
   onOpenChange,
-  itemType = 'item',
+  itemType = "item",
   placeholder,
   onCreate,
   loading,
@@ -317,5 +321,5 @@ export function CreateNameModal({
       minLength={1}
       maxLength={100}
     />
-  )
+  );
 }

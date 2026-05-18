@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * UnifiedSearchResults Component
@@ -13,8 +13,14 @@
  * @module components/search/UnifiedSearchResults
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { format, formatDistanceToNow, isToday, isYesterday, isThisWeek } from 'date-fns'
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  format,
+  formatDistanceToNow,
+  isToday,
+  isYesterday,
+  isThisWeek,
+} from "date-fns";
 import {
   MessageSquare,
   FileText,
@@ -37,65 +43,65 @@ import {
   FileAudio,
   File,
   Lock,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
 import type {
   SearchResult,
   MessageResult,
   FileResult,
   UserResult,
   ChannelResult,
-} from '@/lib/search/search-engine'
+} from "@/lib/search/search-engine";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type GroupBy = 'none' | 'channel' | 'date' | 'type'
+export type GroupBy = "none" | "channel" | "date" | "type";
 
 export interface UnifiedSearchResultsProps {
   /** Search results to display */
-  results: SearchResult[]
+  results: SearchResult[];
   /** Total number of results */
-  totalHits: number
+  totalHits: number;
   /** The search query (for highlighting) */
-  query: string
+  query: string;
   /** Whether more results are being loaded */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Whether initial search is loading */
-  isLoadingInitial?: boolean
+  isLoadingInitial?: boolean;
   /** Whether there are more results to load */
-  hasMore?: boolean
+  hasMore?: boolean;
   /** How to group results */
-  groupBy?: GroupBy
+  groupBy?: GroupBy;
   /** Callback when a message result is clicked */
-  onMessageClick?: (messageId: string, channelId: string) => void
+  onMessageClick?: (messageId: string, channelId: string) => void;
   /** Callback when a file result is clicked */
-  onFileClick?: (fileId: string) => void
+  onFileClick?: (fileId: string) => void;
   /** Callback when a user result is clicked */
-  onUserClick?: (userId: string) => void
+  onUserClick?: (userId: string) => void;
   /** Callback when a channel result is clicked */
-  onChannelClick?: (channelId: string) => void
+  onChannelClick?: (channelId: string) => void;
   /** Callback when load more is triggered */
-  onLoadMore?: () => void
+  onLoadMore?: () => void;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 interface ResultGroup {
-  key: string
-  label: string
-  results: SearchResult[]
+  key: string;
+  label: string;
+  results: SearchResult[];
 }
 
 // ============================================================================
@@ -106,165 +112,178 @@ interface ResultGroup {
  * Highlight search terms in text
  */
 function highlightText(text: string, query: string): React.ReactNode {
-  if (!query.trim()) return text
+  if (!query.trim()) return text;
 
   // Handle pre-highlighted content (with <mark> tags)
-  if (text.includes('<mark>')) {
-    const parts = text.split(/(<mark>.*?<\/mark>)/g)
+  if (text.includes("<mark>")) {
+    const parts = text.split(/(<mark>.*?<\/mark>)/g);
     return (
       <>
         {parts.map((part, i) => {
-          if (part.startsWith('<mark>') && part.endsWith('</mark>')) {
-            const content = part.slice(6, -7)
+          if (part.startsWith("<mark>") && part.endsWith("</mark>")) {
+            const content = part.slice(6, -7);
             return (
-              <mark key={i} className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50">
+              <mark
+                key={i}
+                className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50"
+              >
                 {content}
               </mark>
-            )
+            );
           }
-          return <span key={i}>{part}</span>
+          return <span key={i}>{part}</span>;
         })}
       </>
-    )
+    );
   }
 
   // Extract search terms (ignoring operators)
   const terms = query
     .split(/\s+/)
-    .filter((term) => !term.includes(':'))
-    .map((term) => term.replace(/[^a-zA-Z0-9]/g, ''))
-    .filter((term) => term.length > 1)
+    .filter((term) => !term.includes(":"))
+    .map((term) => term.replace(/[^a-zA-Z0-9]/g, ""))
+    .filter((term) => term.length > 1);
 
-  if (terms.length === 0) return text
+  if (terms.length === 0) return text;
 
   // Build regex pattern
-  const pattern = new RegExp(`(${terms.map((t) => escapeRegex(t)).join('|')})`, 'gi')
-  const parts = text.split(pattern)
+  const pattern = new RegExp(
+    `(${terms.map((t) => escapeRegex(t)).join("|")})`,
+    "gi",
+  );
+  const parts = text.split(pattern);
 
   return (
     <>
       {parts.map((part, i) => {
         if (terms.some((term) => part.toLowerCase() === term.toLowerCase())) {
           return (
-            <mark key={i} className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50">
+            <mark
+              key={i}
+              className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-900/50"
+            >
               {part}
             </mark>
-          )
+          );
         }
-        return <span key={i}>{part}</span>
+        return <span key={i}>{part}</span>;
       })}
     </>
-  )
+  );
 }
 
 function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
  * Format date for grouping
  */
 function formatDateGroup(date: Date): string {
-  if (isToday(date)) return 'Today'
-  if (isYesterday(date)) return 'Yesterday'
-  if (isThisWeek(date)) return format(date, 'EEEE')
-  return format(date, 'MMMM d, yyyy')
+  if (isToday(date)) return "Today";
+  if (isYesterday(date)) return "Yesterday";
+  if (isThisWeek(date)) return format(date, "EEEE");
+  return format(date, "MMMM d, yyyy");
 }
 
 /**
  * Get file icon based on mime type
  */
 function getFileIcon(mimeType: string): React.ReactNode {
-  if (mimeType.startsWith('image/')) {
-    return <FileImage className="h-4 w-4" />
+  if (mimeType.startsWith("image/")) {
+    return <FileImage className="h-4 w-4" />;
   }
-  if (mimeType.startsWith('video/')) {
-    return <FileVideo className="h-4 w-4" />
+  if (mimeType.startsWith("video/")) {
+    return <FileVideo className="h-4 w-4" />;
   }
-  if (mimeType.startsWith('audio/')) {
-    return <FileAudio className="h-4 w-4" />
+  if (mimeType.startsWith("audio/")) {
+    return <FileAudio className="h-4 w-4" />;
   }
-  return <File className="h-4 w-4" />
+  return <File className="h-4 w-4" />;
 }
 
 /**
  * Format file size
  */
 function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
 }
 
 /**
  * Group results by specified criteria
  */
-function groupResults(results: SearchResult[], groupBy: GroupBy): ResultGroup[] {
-  if (groupBy === 'none') {
-    return [{ key: 'all', label: 'Results', results }]
+function groupResults(
+  results: SearchResult[],
+  groupBy: GroupBy,
+): ResultGroup[] {
+  if (groupBy === "none") {
+    return [{ key: "all", label: "Results", results }];
   }
 
-  const groups = new Map<string, SearchResult[]>()
+  const groups = new Map<string, SearchResult[]>();
 
   for (const result of results) {
-    let key: string
-    let label: string
+    let key: string;
+    let label: string;
 
     switch (groupBy) {
-      case 'channel':
-        if (result.type === 'message' || result.type === 'file') {
-          key = (result as MessageResult | FileResult).channelId
-          label = `#${(result as MessageResult | FileResult).channelName}`
+      case "channel":
+        if (result.type === "message" || result.type === "file") {
+          key = (result as MessageResult | FileResult).channelId;
+          label = `#${(result as MessageResult | FileResult).channelName}`;
         } else {
-          key = '_other'
-          label = 'Other'
+          key = "_other";
+          label = "Other";
         }
-        break
+        break;
 
-      case 'date':
-        if (result.type === 'message') {
-          const date = new Date((result as MessageResult).timestamp)
-          key = formatDateGroup(date)
-          label = key
-        } else if (result.type === 'file') {
-          const date = new Date((result as FileResult).uploadedAt)
-          key = formatDateGroup(date)
-          label = key
+      case "date":
+        if (result.type === "message") {
+          const date = new Date((result as MessageResult).timestamp);
+          key = formatDateGroup(date);
+          label = key;
+        } else if (result.type === "file") {
+          const date = new Date((result as FileResult).uploadedAt);
+          key = formatDateGroup(date);
+          label = key;
         } else {
-          key = '_other'
-          label = 'Other'
+          key = "_other";
+          label = "Other";
         }
-        break
+        break;
 
-      case 'type':
-        key = result.type
+      case "type":
+        key = result.type;
         label =
-          result.type === 'message'
-            ? 'Messages'
-            : result.type === 'file'
-              ? 'Files'
-              : result.type === 'user'
-                ? 'People'
-                : 'Channels'
-        break
+          result.type === "message"
+            ? "Messages"
+            : result.type === "file"
+              ? "Files"
+              : result.type === "user"
+                ? "People"
+                : "Channels";
+        break;
 
       default:
-        key = 'all'
-        label = 'Results'
+        key = "all";
+        label = "Results";
     }
 
     if (!groups.has(key)) {
-      groups.set(key, [])
+      groups.set(key, []);
     }
-    groups.get(key)!.push(result)
+    groups.get(key)!.push(result);
   }
 
   return Array.from(groups.entries()).map(([key, items]) => ({
     key,
-    label: key.startsWith('_') ? key.slice(1) : key,
+    label: key.startsWith("_") ? key.slice(1) : key,
     results: items,
-  }))
+  }));
 }
 
 // ============================================================================
@@ -272,9 +291,9 @@ function groupResults(results: SearchResult[], groupBy: GroupBy): ResultGroup[] 
 // ============================================================================
 
 interface MessageResultItemProps {
-  result: MessageResult
-  query: string
-  onClick?: () => void
+  result: MessageResult;
+  query: string;
+  onClick?: () => void;
 }
 
 function MessageResultItem({ result, query, onClick }: MessageResultItemProps) {
@@ -286,14 +305,20 @@ function MessageResultItem({ result, query, onClick }: MessageResultItemProps) {
     >
       <Avatar className="h-9 w-9 shrink-0">
         <AvatarImage src={result.authorAvatar} alt={result.authorName} />
-        <AvatarFallback>{result.authorName.charAt(0).toUpperCase()}</AvatarFallback>
+        <AvatarFallback>
+          {result.authorName.charAt(0).toUpperCase()}
+        </AvatarFallback>
       </Avatar>
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{result.authorName}</span>
+          <span className="truncate text-sm font-medium">
+            {result.authorName}
+          </span>
           <span className="text-xs text-muted-foreground">
-            {formatDistanceToNow(new Date(result.timestamp), { addSuffix: true })}
+            {formatDistanceToNow(new Date(result.timestamp), {
+              addSuffix: true,
+            })}
           </span>
         </div>
 
@@ -338,7 +363,8 @@ function MessageResultItem({ result, query, onClick }: MessageResultItemProps) {
           {result.attachments.length > 0 && (
             <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
               <FileText className="mr-0.5 h-2.5 w-2.5" />
-              {result.attachments.length} file{result.attachments.length > 1 ? 's' : ''}
+              {result.attachments.length} file
+              {result.attachments.length > 1 ? "s" : ""}
             </Badge>
           )}
 
@@ -353,13 +379,13 @@ function MessageResultItem({ result, query, onClick }: MessageResultItemProps) {
 
       <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
-  )
+  );
 }
 
 interface FileResultItemProps {
-  result: FileResult
-  query: string
-  onClick?: () => void
+  result: FileResult;
+  query: string;
+  onClick?: () => void;
 }
 
 function FileResultItem({ result, query, onClick }: FileResultItemProps) {
@@ -398,8 +424,10 @@ function FileResultItem({ result, query, onClick }: FileResultItemProps) {
           <span>{formatFileSize(result.size)}</span>
           <span>·</span>
           <span>
-            Uploaded by {result.uploaderName}{' '}
-            {formatDistanceToNow(new Date(result.uploadedAt), { addSuffix: true })}
+            Uploaded by {result.uploaderName}{" "}
+            {formatDistanceToNow(new Date(result.uploadedAt), {
+              addSuffix: true,
+            })}
           </span>
           <span>·</span>
           <span className="flex items-center gap-1">
@@ -411,22 +439,22 @@ function FileResultItem({ result, query, onClick }: FileResultItemProps) {
 
       <Download className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
-  )
+  );
 }
 
 interface UserResultItemProps {
-  result: UserResult
-  query: string
-  onClick?: () => void
+  result: UserResult;
+  query: string;
+  onClick?: () => void;
 }
 
 function UserResultItem({ result, query, onClick }: UserResultItemProps) {
   const statusColors = {
-    online: 'bg-green-500',
-    away: 'bg-yellow-500',
-    busy: 'bg-red-500',
-    offline: 'bg-gray-400',
-  }
+    online: "bg-green-500",
+    away: "bg-yellow-500",
+    busy: "bg-red-500",
+    offline: "bg-gray-400",
+  };
 
   return (
     <button
@@ -437,12 +465,14 @@ function UserResultItem({ result, query, onClick }: UserResultItemProps) {
       <div className="relative shrink-0">
         <Avatar className="h-10 w-10">
           <AvatarImage src={result.avatar} alt={result.displayName} />
-          <AvatarFallback>{result.displayName.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {result.displayName.charAt(0).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <span
           className={cn(
-            'absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background',
-            statusColors[result.status]
+            "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background",
+            statusColors[result.status],
           )}
         />
       </div>
@@ -452,7 +482,9 @@ function UserResultItem({ result, query, onClick }: UserResultItemProps) {
           <span className="truncate text-sm font-medium">
             {highlightText(result.displayName, query)}
           </span>
-          <span className="truncate text-xs text-muted-foreground">@{result.username}</span>
+          <span className="truncate text-xs text-muted-foreground">
+            @{result.username}
+          </span>
         </div>
 
         {result.bio && (
@@ -465,9 +497,12 @@ function UserResultItem({ result, query, onClick }: UserResultItemProps) {
           <Badge variant="outline" className="text-[10px]">
             {result.role}
           </Badge>
-          {result.lastSeen && result.status === 'offline' && (
+          {result.lastSeen && result.status === "offline" && (
             <span className="text-[10px] text-muted-foreground">
-              Last seen {formatDistanceToNow(new Date(result.lastSeen), { addSuffix: true })}
+              Last seen{" "}
+              {formatDistanceToNow(new Date(result.lastSeen), {
+                addSuffix: true,
+              })}
             </span>
           )}
         </div>
@@ -475,13 +510,13 @@ function UserResultItem({ result, query, onClick }: UserResultItemProps) {
 
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
-  )
+  );
 }
 
 interface ChannelResultItemProps {
-  result: ChannelResult
-  query: string
-  onClick?: () => void
+  result: ChannelResult;
+  query: string;
+  onClick?: () => void;
 }
 
 function ChannelResultItem({ result, query, onClick }: ChannelResultItemProps) {
@@ -528,7 +563,10 @@ function ChannelResultItem({ result, query, onClick }: ChannelResultItemProps) {
             <>
               <span>·</span>
               <span>
-                Active {formatDistanceToNow(new Date(result.lastActivityAt), { addSuffix: true })}
+                Active{" "}
+                {formatDistanceToNow(new Date(result.lastActivityAt), {
+                  addSuffix: true,
+                })}
               </span>
             </>
           )}
@@ -537,7 +575,7 @@ function ChannelResultItem({ result, query, onClick }: ChannelResultItemProps) {
 
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -554,7 +592,7 @@ function ResultSkeleton() {
         <Skeleton className="h-3 w-24" />
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -568,7 +606,7 @@ export function UnifiedSearchResults({
   isLoading = false,
   isLoadingInitial = false,
   hasMore = false,
-  groupBy = 'none',
+  groupBy = "none",
   onMessageClick,
   onFileClick,
   onUserClick,
@@ -576,48 +614,50 @@ export function UnifiedSearchResults({
   onLoadMore,
   className,
 }: UnifiedSearchResultsProps) {
-  const loadMoreRef = useRef<HTMLDivElement>(null)
-  const [groupedResults, setGroupedResults] = useState<ResultGroup[]>([])
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [groupedResults, setGroupedResults] = useState<ResultGroup[]>([]);
 
   // Group results when they change
   useEffect(() => {
-    setGroupedResults(groupResults(results, groupBy))
-  }, [results, groupBy])
+    setGroupedResults(groupResults(results, groupBy));
+  }, [results, groupBy]);
 
   // Intersection observer for infinite scroll
   useEffect(() => {
-    if (!hasMore || isLoading || !onLoadMore) return
+    if (!hasMore || isLoading || !onLoadMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          onLoadMore()
+          onLoadMore();
         }
       },
-      { threshold: 0.1 }
-    )
+      { threshold: 0.1 },
+    );
 
     if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current)
+      observer.observe(loadMoreRef.current);
     }
 
-    return () => observer.disconnect()
-  }, [hasMore, isLoading, onLoadMore])
+    return () => observer.disconnect();
+  }, [hasMore, isLoading, onLoadMore]);
 
   // Render a result item based on type
   const renderResult = useCallback(
     (result: SearchResult) => {
       switch (result.type) {
-        case 'message':
+        case "message":
           return (
             <MessageResultItem
               key={result.id}
               result={result as MessageResult}
               query={query}
-              onClick={() => onMessageClick?.(result.id, (result as MessageResult).channelId)}
+              onClick={() =>
+                onMessageClick?.(result.id, (result as MessageResult).channelId)
+              }
             />
-          )
-        case 'file':
+          );
+        case "file":
           return (
             <FileResultItem
               key={result.id}
@@ -625,8 +665,8 @@ export function UnifiedSearchResults({
               query={query}
               onClick={() => onFileClick?.(result.id)}
             />
-          )
-        case 'user':
+          );
+        case "user":
           return (
             <UserResultItem
               key={result.id}
@@ -634,8 +674,8 @@ export function UnifiedSearchResults({
               query={query}
               onClick={() => onUserClick?.(result.id)}
             />
-          )
-        case 'channel':
+          );
+        case "channel":
           return (
             <ChannelResultItem
               key={result.id}
@@ -643,51 +683,51 @@ export function UnifiedSearchResults({
               query={query}
               onClick={() => onChannelClick?.(result.id)}
             />
-          )
+          );
         default:
-          return null
+          return null;
       }
     },
-    [query, onMessageClick, onFileClick, onUserClick, onChannelClick]
-  )
+    [query, onMessageClick, onFileClick, onUserClick, onChannelClick],
+  );
 
   // Initial loading
   if (isLoadingInitial) {
     return (
-      <div className={cn('space-y-3', className)}>
+      <div className={cn("space-y-3", className)}>
         {Array.from({ length: 5 }).map((_, i) => (
           <ResultSkeleton key={i} />
         ))}
       </div>
-    )
+    );
   }
 
   // Empty state
   if (results.length === 0 && !isLoading) {
     return (
-      <div className={cn('py-12 text-center', className)}>
+      <div className={cn("py-12 text-center", className)}>
         <MessageSquare className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
         <p className="text-sm text-muted-foreground">No results found</p>
         <p className="mt-1 text-xs text-muted-foreground/75">
           Try different keywords or remove some filters
         </p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Results summary */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          {totalHits.toLocaleString()} result{totalHits !== 1 ? 's' : ''}
+          {totalHits.toLocaleString()} result{totalHits !== 1 ? "s" : ""}
         </span>
       </div>
 
       {/* Grouped results */}
       {groupedResults.map((group) => (
         <div key={group.key} className="space-y-2">
-          {groupBy !== 'none' && groupedResults.length > 1 && (
+          {groupBy !== "none" && groupedResults.length > 1 && (
             <h3 className="sticky top-0 z-10 bg-background/95 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur">
               {group.label} ({group.results.length})
             </h3>
@@ -707,17 +747,13 @@ export function UnifiedSearchResults({
         )}
 
         {hasMore && !isLoading && (
-          <Button
-            variant="ghost"
-            onClick={onLoadMore}
-            className="w-full"
-          >
+          <Button variant="ghost" onClick={onLoadMore} className="w-full">
             Load more results
           </Button>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default UnifiedSearchResults
+export default UnifiedSearchResults;

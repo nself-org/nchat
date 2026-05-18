@@ -77,22 +77,29 @@ ARIA live region for screen reader announcements.
 **Usage**:
 
 ```tsx
-import { LiveRegion, useAnnouncer } from '@/components/accessibility/live-region'
+import {
+  LiveRegion,
+  useAnnouncer,
+} from "@/components/accessibility/live-region";
 
 // Direct usage
-;<LiveRegion message="New message received" politeness="polite" clearOnAnnounce />
+<LiveRegion
+  message="New message received"
+  politeness="polite"
+  clearOnAnnounce
+/>;
 
 // Using hook (recommended)
 function MyComponent() {
-  const { announce } = useAnnouncer()
+  const { announce } = useAnnouncer();
 
   const handleSuccess = () => {
-    announce('Action completed successfully', 'polite')
-  }
+    announce("Action completed successfully", "polite");
+  };
 
   const handleError = () => {
-    announce('An error occurred', 'assertive')
-  }
+    announce("An error occurred", "assertive");
+  };
 }
 ```
 
@@ -155,10 +162,10 @@ Trap focus within a component (for modals, dropdowns).
 **Usage**:
 
 ```tsx
-import { FocusTrap } from '@/components/accessibility/focus-trap'
-;<FocusTrap active={isOpen} restoreFocus>
+import { FocusTrap } from "@/components/accessibility/focus-trap";
+<FocusTrap active={isOpen} restoreFocus>
   <Modal>{/* Modal content */}</Modal>
-</FocusTrap>
+</FocusTrap>;
 ```
 
 **Props**:
@@ -211,26 +218,26 @@ Manage global keyboard shortcuts.
 **Usage**:
 
 ```tsx
-import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 function MyComponent() {
   const { registerShortcut, unregisterShortcut } = useKeyboardShortcuts({
     enabled: true,
     ignoreInputFields: true,
-  })
+  });
 
   useEffect(() => {
     const shortcut = registerShortcut({
-      id: 'open-modal',
-      keys: ['Cmd', 'K'],
-      description: 'Open modal',
+      id: "open-modal",
+      keys: ["Cmd", "K"],
+      description: "Open modal",
       handler: () => setIsOpen(true),
       preventDefault: true,
-      category: 'Actions',
-    })
+      category: "Actions",
+    });
 
-    return () => unregisterShortcut(shortcut.id)
-  }, [])
+    return () => unregisterShortcut(shortcut.id);
+  }, []);
 }
 ```
 
@@ -252,16 +259,16 @@ Manage focus state and behavior.
 **Usage**:
 
 ```tsx
-import { useFocusManagement } from '@/hooks/use-focus-management'
+import { useFocusManagement } from "@/hooks/use-focus-management";
 
 function Modal() {
   const { focusRef, setFocus } = useFocusManagement({
     autoFocus: true,
     restoreFocus: true,
     trapFocus: true,
-  })
+  });
 
-  return <div ref={focusRef}>{/* Modal content */}</div>
+  return <div ref={focusRef}>{/* Modal content */}</div>;
 }
 ```
 
@@ -282,23 +289,27 @@ Arrow key navigation in lists.
 **Usage**:
 
 ```tsx
-import { useRovingTabIndex } from '@/hooks/use-focus-management'
+import { useRovingTabIndex } from "@/hooks/use-focus-management";
 
 function ChannelList({ channels }) {
   const { containerRef, currentIndex, focusElement } = useRovingTabIndex({
-    orientation: 'vertical',
+    orientation: "vertical",
     loop: true,
-  })
+  });
 
   return (
     <div ref={containerRef}>
       {channels.map((channel, index) => (
-        <a key={channel.id} href={`/channel/${channel.id}`} tabIndex={index === 0 ? 0 : -1}>
+        <a
+          key={channel.id}
+          href={`/channel/${channel.id}`}
+          tabIndex={index === 0 ? 0 : -1}
+        >
           {channel.name}
         </a>
       ))}
     </div>
-  )
+  );
 }
 ```
 
@@ -388,18 +399,18 @@ Announce loading states:
 
 ```tsx
 // ✅ Good
-;<button disabled={isLoading} aria-busy={isLoading}>
-  {isLoading ? 'Loading...' : 'Submit'}
-</button>
+<button disabled={isLoading} aria-busy={isLoading}>
+  {isLoading ? "Loading..." : "Submit"}
+</button>;
 
 // ✅ Better - with announcement
-const { announce } = useAnnouncer()
+const { announce } = useAnnouncer();
 
 const handleSubmit = async () => {
-  announce('Submitting form', 'polite')
-  await submit()
-  announce('Form submitted successfully', 'polite')
-}
+  announce("Submitting form", "polite");
+  await submit();
+  announce("Form submitted successfully", "polite");
+};
 ```
 
 ### 6. Focus Management
@@ -412,13 +423,13 @@ Manage focus in modals:
   <DialogContent
     onOpenAutoFocus={(e) => {
       // Focus first input
-      e.preventDefault()
-      firstInputRef.current?.focus()
+      e.preventDefault();
+      firstInputRef.current?.focus();
     }}
     onCloseAutoFocus={(e) => {
       // Focus trigger button
-      e.preventDefault()
-      triggerRef.current?.focus()
+      e.preventDefault();
+      triggerRef.current?.focus();
     }}
   >
     {/* Content */}

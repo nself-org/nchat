@@ -5,58 +5,58 @@
  * and delivery status tracking.
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, MESSAGE_BASIC_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT, MESSAGE_BASIC_FRAGMENT } from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface GetMessageEditHistoryVariables {
-  messageId: string
+  messageId: string;
 }
 
 export interface MessageEditHistoryRecord {
-  id: string
-  message_id: string
-  editor_id: string
-  previous_content: string
-  new_content: string
-  change_summary: string | null
-  edited_at: string
+  id: string;
+  message_id: string;
+  editor_id: string;
+  previous_content: string;
+  new_content: string;
+  change_summary: string | null;
+  edited_at: string;
   editor: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
 }
 
 export interface GetMessageStatusVariables {
-  messageId: string
+  messageId: string;
 }
 
 export interface MessageStatusData {
-  status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'
-  delivered_count?: number
-  read_count?: number
-  total_recipients?: number
-  error?: string
+  status: "sending" | "sent" | "delivered" | "read" | "failed";
+  delivered_count?: number;
+  read_count?: number;
+  total_recipients?: number;
+  error?: string;
 }
 
 export interface GetMessageReadByVariables {
-  messageId: string
+  messageId: string;
 }
 
 export interface MessageReadByData {
-  user_id: string
-  read_at: string
+  user_id: string;
+  read_at: string;
   user: {
-    id: string
-    username: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
 }
 
 // ============================================================================
@@ -77,7 +77,7 @@ export const MESSAGE_EDIT_HISTORY_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 export const MESSAGE_STATUS_FRAGMENT = gql`
   fragment MessageStatus on nchat_message_status {
@@ -90,7 +90,7 @@ export const MESSAGE_STATUS_FRAGMENT = gql`
     error
     updated_at
   }
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -101,7 +101,10 @@ export const MESSAGE_STATUS_FRAGMENT = gql`
  */
 export const GET_MESSAGE_EDIT_HISTORY = gql`
   query GetMessageEditHistory($messageId: uuid!) {
-    nchat_message_edits(where: { message_id: { _eq: $messageId } }, order_by: { edited_at: desc }) {
+    nchat_message_edits(
+      where: { message_id: { _eq: $messageId } }
+      order_by: { edited_at: desc }
+    ) {
       ...MessageEditHistory
     }
     nchat_message_edits_aggregate(where: { message_id: { _eq: $messageId } }) {
@@ -111,7 +114,7 @@ export const GET_MESSAGE_EDIT_HISTORY = gql`
     }
   }
   ${MESSAGE_EDIT_HISTORY_FRAGMENT}
-`
+`;
 
 /**
  * Get edit history for multiple messages (batch)
@@ -126,7 +129,7 @@ export const GET_MESSAGES_EDIT_HISTORY = gql`
     }
   }
   ${MESSAGE_EDIT_HISTORY_FRAGMENT}
-`
+`;
 
 /**
  * Get delivery status for a specific message
@@ -138,14 +141,17 @@ export const GET_MESSAGE_STATUS = gql`
     }
   }
   ${MESSAGE_STATUS_FRAGMENT}
-`
+`;
 
 /**
  * Get read receipts for a specific message
  */
 export const GET_MESSAGE_READ_BY = gql`
   query GetMessageReadBy($messageId: uuid!) {
-    nchat_read_receipts(where: { message_id: { _eq: $messageId } }, order_by: { read_at: asc }) {
+    nchat_read_receipts(
+      where: { message_id: { _eq: $messageId } }
+      order_by: { read_at: asc }
+    ) {
       user_id
       read_at
       user {
@@ -159,7 +165,7 @@ export const GET_MESSAGE_READ_BY = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get delivery status for multiple messages
@@ -171,7 +177,7 @@ export const GET_MESSAGES_STATUS = gql`
     }
   }
   ${MESSAGE_STATUS_FRAGMENT}
-`
+`;
 
 /**
  * Get read receipts for multiple messages (batch)
@@ -191,7 +197,7 @@ export const GET_MESSAGES_READ_BY = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -222,7 +228,7 @@ export const SAVE_MESSAGE_EDIT = gql`
     }
   }
   ${MESSAGE_EDIT_HISTORY_FRAGMENT}
-`
+`;
 
 /**
  * Update message delivery status
@@ -255,13 +261,17 @@ export const UPDATE_MESSAGE_STATUS = gql`
     }
   }
   ${MESSAGE_STATUS_FRAGMENT}
-`
+`;
 
 /**
  * Mark message as delivered
  */
 export const MARK_MESSAGE_DELIVERED = gql`
-  mutation MarkMessageDelivered($messageId: uuid!, $deliveredCount: Int, $totalRecipients: Int) {
+  mutation MarkMessageDelivered(
+    $messageId: uuid!
+    $deliveredCount: Int
+    $totalRecipients: Int
+  ) {
     insert_nchat_message_status_one(
       object: {
         message_id: $messageId
@@ -279,7 +289,7 @@ export const MARK_MESSAGE_DELIVERED = gql`
     }
   }
   ${MESSAGE_STATUS_FRAGMENT}
-`
+`;
 
 /**
  * Delete edit history for a message (admin only)
@@ -290,7 +300,7 @@ export const DELETE_MESSAGE_EDIT_HISTORY = gql`
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -306,7 +316,7 @@ export const MESSAGE_STATUS_SUBSCRIPTION = gql`
     }
   }
   ${MESSAGE_STATUS_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to message status updates for multiple messages
@@ -318,7 +328,7 @@ export const MESSAGES_STATUS_SUBSCRIPTION = gql`
     }
   }
   ${MESSAGE_STATUS_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to new read receipts for a message
@@ -338,7 +348,7 @@ export const MESSAGE_READ_BY_SUBSCRIPTION = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to edit history updates for a message
@@ -354,7 +364,7 @@ export const MESSAGE_EDIT_HISTORY_SUBSCRIPTION = gql`
     }
   }
   ${MESSAGE_EDIT_HISTORY_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to status stream for real-time updates
@@ -375,7 +385,7 @@ export const MESSAGE_STATUS_STREAM_SUBSCRIPTION = gql`
       updated_at
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -385,11 +395,11 @@ export const MESSAGE_STATUS_STREAM_SUBSCRIPTION = gql`
  * Transform GraphQL edit history to app format
  */
 export function transformEditHistory(data: MessageEditHistoryRecord[]): Array<{
-  previousContent: string
-  newContent: string
-  changeSummary: string | null
-  editedAt: Date
-  editorId: string
+  previousContent: string;
+  newContent: string;
+  changeSummary: string | null;
+  editedAt: Date;
+  editorId: string;
 }> {
   return data.map((record) => ({
     previousContent: record.previous_content,
@@ -397,7 +407,7 @@ export function transformEditHistory(data: MessageEditHistoryRecord[]): Array<{
     changeSummary: record.change_summary,
     editedAt: new Date(record.edited_at),
     editorId: record.editor_id,
-  }))
+  }));
 }
 
 /**
@@ -405,12 +415,12 @@ export function transformEditHistory(data: MessageEditHistoryRecord[]): Array<{
  */
 export function transformReadReceipts(data: MessageReadByData[]): Array<{
   user: {
-    id: string
-    username: string
-    displayName: string
-    avatarUrl?: string
-  }
-  readAt: Date
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+  readAt: Date;
 }> {
   return data.map((record) => ({
     user: {
@@ -420,5 +430,5 @@ export function transformReadReceipts(data: MessageReadByData[]): Array<{
       avatarUrl: record.user.avatar_url,
     },
     readAt: new Date(record.read_at),
-  }))
+  }));
 }

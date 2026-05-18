@@ -5,39 +5,39 @@
  * relevance scoring, and search suggestions.
  */
 
-import { type ExtendedUserProfile } from '@/components/users/UserCard'
+import { type ExtendedUserProfile } from "@/components/users/UserCard";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SearchResult {
-  user: ExtendedUserProfile
-  score: number
-  matchedFields: string[]
+  user: ExtendedUserProfile;
+  score: number;
+  matchedFields: string[];
 }
 
 export interface SearchOptions {
-  fuzzy?: boolean
-  threshold?: number
-  maxResults?: number
-  searchFields?: SearchField[]
+  fuzzy?: boolean;
+  threshold?: number;
+  maxResults?: number;
+  searchFields?: SearchField[];
 }
 
 export type SearchField =
-  | 'displayName'
-  | 'username'
-  | 'email'
-  | 'title'
-  | 'department'
-  | 'team'
-  | 'bio'
-  | 'location'
+  | "displayName"
+  | "username"
+  | "email"
+  | "title"
+  | "department"
+  | "team"
+  | "bio"
+  | "location";
 
 export interface SearchSuggestion {
-  text: string
-  type: 'user' | 'department' | 'team' | 'role'
-  count?: number
+  text: string;
+  type: "user" | "department" | "team" | "role";
+  count?: number;
 }
 
 // ============================================================================
@@ -45,12 +45,12 @@ export interface SearchSuggestion {
 // ============================================================================
 
 const DEFAULT_SEARCH_FIELDS: SearchField[] = [
-  'displayName',
-  'username',
-  'email',
-  'title',
-  'department',
-]
+  "displayName",
+  "username",
+  "email",
+  "title",
+  "department",
+];
 
 const FIELD_WEIGHTS: Record<SearchField, number> = {
   displayName: 10,
@@ -61,7 +61,7 @@ const FIELD_WEIGHTS: Record<SearchField, number> = {
   team: 4,
   bio: 2,
   location: 3,
-}
+};
 
 // ============================================================================
 // Search Functions
@@ -72,31 +72,31 @@ const FIELD_WEIGHTS: Record<SearchField, number> = {
  * Used for fuzzy matching
  */
 function levenshteinDistance(a: string, b: string): number {
-  const matrix: number[][] = []
+  const matrix: number[][] = [];
 
   for (let i = 0; i <= b.length; i++) {
-    matrix[i] = [i]
+    matrix[i] = [i];
   }
 
   for (let j = 0; j <= a.length; j++) {
-    matrix[0][j] = j
+    matrix[0][j] = j;
   }
 
   for (let i = 1; i <= b.length; i++) {
     for (let j = 1; j <= a.length; j++) {
       if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1]
+        matrix[i][j] = matrix[i - 1][j - 1];
       } else {
         matrix[i][j] = Math.min(
           matrix[i - 1][j - 1] + 1,
           matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        )
+          matrix[i - 1][j] + 1,
+        );
       }
     }
   }
 
-  return matrix[b.length][a.length]
+  return matrix[b.length][a.length];
 }
 
 /**
@@ -104,33 +104,34 @@ function levenshteinDistance(a: string, b: string): number {
  * Returns value between 0 (no match) and 1 (exact match)
  */
 function calculateSimilarity(source: string, target: string): number {
-  if (!source || !target) return 0
+  if (!source || !target) return 0;
 
-  const sourceLower = source.toLowerCase()
-  const targetLower = target.toLowerCase()
+  const sourceLower = source.toLowerCase();
+  const targetLower = target.toLowerCase();
 
   // Exact match
-  if (sourceLower === targetLower) return 1
+  if (sourceLower === targetLower) return 1;
 
   // Contains match
   if (sourceLower.includes(targetLower)) {
     // Score based on position and length ratio
-    const positionScore = 1 - sourceLower.indexOf(targetLower) / sourceLower.length
-    const lengthRatio = targetLower.length / sourceLower.length
-    return 0.7 + positionScore * 0.15 + lengthRatio * 0.15
+    const positionScore =
+      1 - sourceLower.indexOf(targetLower) / sourceLower.length;
+    const lengthRatio = targetLower.length / sourceLower.length;
+    return 0.7 + positionScore * 0.15 + lengthRatio * 0.15;
   }
 
   // Starts with match
   if (sourceLower.startsWith(targetLower)) {
-    return 0.8
+    return 0.8;
   }
 
   // Fuzzy match using Levenshtein distance
-  const distance = levenshteinDistance(sourceLower, targetLower)
-  const maxLength = Math.max(sourceLower.length, targetLower.length)
-  const similarity = 1 - distance / maxLength
+  const distance = levenshteinDistance(sourceLower, targetLower);
+  const maxLength = Math.max(sourceLower.length, targetLower.length);
+  const similarity = 1 - distance / maxLength;
 
-  return similarity > 0.5 ? similarity * 0.5 : 0
+  return similarity > 0.5 ? similarity * 0.5 : 0;
 }
 
 /**
@@ -139,69 +140,72 @@ function calculateSimilarity(source: string, target: string): number {
 export function searchUsers(
   users: ExtendedUserProfile[],
   query: string,
-  options: SearchOptions = {}
+  options: SearchOptions = {},
 ): SearchResult[] {
   const {
     fuzzy = true,
     threshold = 0.3,
     maxResults = 50,
     searchFields = DEFAULT_SEARCH_FIELDS,
-  } = options
+  } = options;
 
   if (!query.trim()) {
     return users.map((user) => ({
       user,
       score: 0,
       matchedFields: [],
-    }))
+    }));
   }
 
-  const normalizedQuery = query.toLowerCase().trim()
-  const queryTerms = normalizedQuery.split(/\s+/)
-  const results: SearchResult[] = []
+  const normalizedQuery = query.toLowerCase().trim();
+  const queryTerms = normalizedQuery.split(/\s+/);
+  const results: SearchResult[] = [];
 
   users.forEach((user) => {
-    let totalScore = 0
-    const matchedFields: string[] = []
+    let totalScore = 0;
+    const matchedFields: string[] = [];
 
     searchFields.forEach((field) => {
-      const value = user[field as keyof ExtendedUserProfile]
-      if (typeof value !== 'string') return
+      const value = user[field as keyof ExtendedUserProfile];
+      if (typeof value !== "string") return;
 
-      const fieldWeight = FIELD_WEIGHTS[field]
-      let fieldScore = 0
+      const fieldWeight = FIELD_WEIGHTS[field];
+      let fieldScore = 0;
 
       // Check each query term
       queryTerms.forEach((term) => {
-        const similarity = calculateSimilarity(value, term)
+        const similarity = calculateSimilarity(value, term);
 
-        if (similarity > threshold || (!fuzzy && value.toLowerCase().includes(term))) {
-          fieldScore += similarity * fieldWeight
+        if (
+          similarity > threshold ||
+          (!fuzzy && value.toLowerCase().includes(term))
+        ) {
+          fieldScore += similarity * fieldWeight;
           if (!matchedFields.includes(field)) {
-            matchedFields.push(field)
+            matchedFields.push(field);
           }
         }
-      })
+      });
 
-      totalScore += fieldScore
-    })
+      totalScore += fieldScore;
+    });
 
     // Normalize score by number of query terms
-    totalScore /= queryTerms.length
+    totalScore /= queryTerms.length;
 
     if (totalScore > 0 || matchedFields.length > 0) {
       results.push({
         user,
         score: totalScore,
         matchedFields,
-      })
+      });
     }
-  })
+  });
 
   // Sort by score descending
-  results.sort((a, b) => b.score - a.score)
+  results.sort((a, b) => b.score - a.score);
 
-  return results.slice(0, maxResults)
+  return results.slice(0, maxResults);
 }
 
 /**
@@ -210,13 +214,13 @@ export function searchUsers(
 export function getSearchSuggestions(
   users: ExtendedUserProfile[],
   query: string,
-  maxSuggestions: number = 5
+  maxSuggestions: number = 5,
 ): SearchSuggestion[] {
-  if (!query.trim() || query.length < 2) return []
+  if (!query.trim() || query.length < 2) return [];
 
-  const normalizedQuery = query.toLowerCase().trim()
-  const suggestions: SearchSuggestion[] = []
-  const seen = new Set<string>()
+  const normalizedQuery = query.toLowerCase().trim();
+  const suggestions: SearchSuggestion[] = [];
+  const seen = new Set<string>();
 
   // User suggestions
   users.forEach((user) => {
@@ -224,100 +228,105 @@ export function getSearchSuggestions(
       user.displayName.toLowerCase().includes(normalizedQuery) ||
       user.username.toLowerCase().includes(normalizedQuery)
     ) {
-      const key = `user:${user.id}`
+      const key = `user:${user.id}`;
       if (!seen.has(key)) {
-        seen.add(key)
+        seen.add(key);
         suggestions.push({
           text: user.displayName,
-          type: 'user',
-        })
+          type: "user",
+        });
       }
     }
-  })
+  });
 
   // Department suggestions
-  const departments = new Map<string, number>()
+  const departments = new Map<string, number>();
   users.forEach((user) => {
     if (user.department?.toLowerCase().includes(normalizedQuery)) {
-      departments.set(user.department, (departments.get(user.department) || 0) + 1)
+      departments.set(
+        user.department,
+        (departments.get(user.department) || 0) + 1,
+      );
     }
-  })
+  });
   departments.forEach((count, dept) => {
-    const key = `department:${dept}`
+    const key = `department:${dept}`;
     if (!seen.has(key)) {
-      seen.add(key)
+      seen.add(key);
       suggestions.push({
         text: dept,
-        type: 'department',
+        type: "department",
         count,
-      })
+      });
     }
-  })
+  });
 
   // Team suggestions
-  const teams = new Map<string, number>()
+  const teams = new Map<string, number>();
   users.forEach((user) => {
     if (user.team?.toLowerCase().includes(normalizedQuery)) {
-      teams.set(user.team, (teams.get(user.team) || 0) + 1)
+      teams.set(user.team, (teams.get(user.team) || 0) + 1);
     }
-  })
+  });
   teams.forEach((count, team) => {
-    const key = `team:${team}`
+    const key = `team:${team}`;
     if (!seen.has(key)) {
-      seen.add(key)
+      seen.add(key);
       suggestions.push({
         text: team,
-        type: 'team',
+        type: "team",
         count,
-      })
+      });
     }
-  })
+  });
 
   // Sort by relevance (users first, then by count)
   suggestions.sort((a, b) => {
-    if (a.type === 'user' && b.type !== 'user') return -1
-    if (b.type === 'user' && a.type !== 'user') return 1
-    return (b.count || 0) - (a.count || 0)
-  })
+    if (a.type === "user" && b.type !== "user") return -1;
+    if (b.type === "user" && a.type !== "user") return 1;
+    return (b.count || 0) - (a.count || 0);
+  });
 
-  return suggestions.slice(0, maxSuggestions)
+  return suggestions.slice(0, maxSuggestions);
 }
 
 /**
  * Highlight matching text in search results
  */
 export function highlightMatches(text: string, query: string): string {
-  if (!query.trim() || !text) return text
+  if (!query.trim() || !text) return text;
 
-  const terms = query.toLowerCase().split(/\s+/)
-  let result = text
+  const terms = query.toLowerCase().split(/\s+/);
+  let result = text;
 
   terms.forEach((term) => {
-    const regex = new RegExp(`(${escapeRegex(term)})`, 'gi')
-    result = result.replace(regex, '<mark>$1</mark>')
-  })
+    const regex = new RegExp(`(${escapeRegex(term)})`, "gi");
+    result = result.replace(regex, "<mark>$1</mark>");
+  });
 
-  return result
+  return result;
 }
 
 /**
  * Escape special regex characters
  */
 function escapeRegex(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
  * Get recent searches from localStorage
  */
-export function getRecentSearches(key: string = 'nchat-recent-user-searches'): string[] {
-  if (typeof window === 'undefined') return []
+export function getRecentSearches(
+  key: string = "nchat-recent-user-searches",
+): string[] {
+  if (typeof window === "undefined") return [];
 
   try {
-    const stored = localStorage.getItem(key)
-    return stored ? JSON.parse(stored) : []
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
   } catch {
-    return []
+    return [];
   }
 }
 
@@ -326,16 +335,16 @@ export function getRecentSearches(key: string = 'nchat-recent-user-searches'): s
  */
 export function saveRecentSearch(
   query: string,
-  key: string = 'nchat-recent-user-searches',
-  maxItems: number = 10
+  key: string = "nchat-recent-user-searches",
+  maxItems: number = 10,
 ): void {
-  if (typeof window === 'undefined' || !query.trim()) return
+  if (typeof window === "undefined" || !query.trim()) return;
 
   try {
-    const recent = getRecentSearches(key)
-    const filtered = recent.filter((q) => q !== query)
-    const updated = [query, ...filtered].slice(0, maxItems)
-    localStorage.setItem(key, JSON.stringify(updated))
+    const recent = getRecentSearches(key);
+    const filtered = recent.filter((q) => q !== query);
+    const updated = [query, ...filtered].slice(0, maxItems);
+    localStorage.setItem(key, JSON.stringify(updated));
   } catch {
     // Ignore storage errors
   }
@@ -344,11 +353,13 @@ export function saveRecentSearch(
 /**
  * Clear recent searches
  */
-export function clearRecentSearches(key: string = 'nchat-recent-user-searches'): void {
-  if (typeof window === 'undefined') return
+export function clearRecentSearches(
+  key: string = "nchat-recent-user-searches",
+): void {
+  if (typeof window === "undefined") return;
 
   try {
-    localStorage.removeItem(key)
+    localStorage.removeItem(key);
   } catch {
     // Ignore storage errors
   }

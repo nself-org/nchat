@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { ReactNode } from 'react'
-import { SettingsNav } from './settings-nav'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ReactNode } from "react";
+import { SettingsNav } from "./settings-nav";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SettingsLayoutProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function SettingsLayout({ children }: SettingsLayoutProps) {
@@ -44,5 +44,5 @@ export function SettingsLayout({ children }: SettingsLayoutProps) {
         </div>
       </main>
     </div>
-  )
+  );
 }

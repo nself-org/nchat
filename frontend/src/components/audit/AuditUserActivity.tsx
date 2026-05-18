@@ -1,55 +1,72 @@
-'use client'
+"use client";
 
 /**
  * AuditUserActivity - User activity log component
  */
 
-import { useState, useMemo } from 'react'
-import { User, Calendar, Clock, Activity, Filter, ChevronDown } from 'lucide-react'
+import { useState, useMemo } from "react";
+import {
+  User,
+  Calendar,
+  Clock,
+  Activity,
+  Filter,
+  ChevronDown,
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 
-import type { AuditLogEntry, AuditCategory, AuditActor } from '@/lib/audit/audit-types'
-import { formatTimestamp, getCategoryBadgeClass } from '@/lib/audit/audit-formatter'
-import { getActionDisplayName, getActionsByCategory } from '@/lib/audit/audit-events'
-import { AuditTimeline } from './AuditTimeline'
-import { AuditEventCard } from './AuditEventCard'
+import type {
+  AuditLogEntry,
+  AuditCategory,
+  AuditActor,
+} from "@/lib/audit/audit-types";
+import {
+  formatTimestamp,
+  getCategoryBadgeClass,
+} from "@/lib/audit/audit-formatter";
+import {
+  getActionDisplayName,
+  getActionsByCategory,
+} from "@/lib/audit/audit-events";
+import { AuditTimeline } from "./AuditTimeline";
+import { AuditEventCard } from "./AuditEventCard";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AuditUserActivityProps {
-  userId: string
+  userId: string;
   userInfo?: {
-    displayName?: string
-    username?: string
-    email?: string
-    avatarUrl?: string
-  }
-  entries: AuditLogEntry[]
-  onEntryClick?: (entry: AuditLogEntry) => void
-  className?: string
+    displayName?: string;
+    username?: string;
+    email?: string;
+    avatarUrl?: string;
+  };
+  entries: AuditLogEntry[];
+  onEntryClick?: (entry: AuditLogEntry) => void;
+  className?: string;
 }
 
 interface ActivitySummary {
-  totalEvents: number
-  successRate: number
-  mostActiveCategory: AuditCategory | null
-  lastActivity: Date | null
-  eventsByCategory: Record<AuditCategory, number>
-  eventsByDay: { date: string; count: number }[]
+  totalEvents: number;
+  successRate: number;
+  mostActiveCategory: AuditCategory | null;
+  lastActivity: Date | null;
+  eventsByCategory: Record<AuditCategory, number>;
+  eventsByDay: { date: string; count: number }[];
 }
 
 // ============================================================================
@@ -67,28 +84,28 @@ function calculateActivitySummary(entries: AuditLogEntry[]): ActivitySummary {
     admin: 0,
     security: 0,
     integration: 0,
-  }
+  };
 
-  const eventsByDayMap = new Map<string, number>()
-  let successCount = 0
+  const eventsByDayMap = new Map<string, number>();
+  let successCount = 0;
 
   entries.forEach((entry) => {
-    eventsByCategory[entry.category]++
-    if (entry.success) successCount++
+    eventsByCategory[entry.category]++;
+    if (entry.success) successCount++;
 
-    const date = new Date(entry.timestamp).toISOString().split('T')[0]
-    eventsByDayMap.set(date, (eventsByDayMap.get(date) || 0) + 1)
-  })
+    const date = new Date(entry.timestamp).toISOString().split("T")[0];
+    eventsByDayMap.set(date, (eventsByDayMap.get(date) || 0) + 1);
+  });
 
   const mostActiveCategory =
     (Object.entries(eventsByCategory) as [AuditCategory, number][])
       .filter(([, count]) => count > 0)
-      .sort(([, a], [, b]) => b - a)[0]?.[0] || null
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || null;
 
   const eventsByDay = Array.from(eventsByDayMap.entries())
     .map(([date, count]) => ({ date, count }))
     .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(-7)
+    .slice(-7);
 
   return {
     totalEvents: entries.length,
@@ -97,7 +114,7 @@ function calculateActivitySummary(entries: AuditLogEntry[]): ActivitySummary {
     lastActivity: entries.length > 0 ? new Date(entries[0].timestamp) : null,
     eventsByCategory,
     eventsByDay,
-  }
+  };
 }
 
 // ============================================================================
@@ -111,49 +128,54 @@ export function AuditUserActivity({
   onEntryClick,
   className,
 }: AuditUserActivityProps) {
-  const [viewMode, setViewMode] = useState<'timeline' | 'cards'>('timeline')
-  const [categoryFilter, setCategoryFilter] = useState<AuditCategory | 'all'>('all')
-  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('all')
+  const [viewMode, setViewMode] = useState<"timeline" | "cards">("timeline");
+  const [categoryFilter, setCategoryFilter] = useState<AuditCategory | "all">(
+    "all",
+  );
+  const [timeRange, setTimeRange] = useState<
+    "today" | "week" | "month" | "all"
+  >("all");
 
   const filteredEntries = useMemo(() => {
-    let result = entries
+    let result = entries;
 
     // Category filter
-    if (categoryFilter !== 'all') {
-      result = result.filter((e) => e.category === categoryFilter)
+    if (categoryFilter !== "all") {
+      result = result.filter((e) => e.category === categoryFilter);
     }
 
     // Time range filter
-    if (timeRange !== 'all') {
-      const now = new Date()
-      let startDate: Date
+    if (timeRange !== "all") {
+      const now = new Date();
+      let startDate: Date;
 
       switch (timeRange) {
-        case 'today':
-          startDate = new Date(now.setHours(0, 0, 0, 0))
-          break
-        case 'week':
-          startDate = new Date(now.setDate(now.getDate() - 7))
-          break
-        case 'month':
-          startDate = new Date(now.setMonth(now.getMonth() - 1))
-          break
+        case "today":
+          startDate = new Date(now.setHours(0, 0, 0, 0));
+          break;
+        case "week":
+          startDate = new Date(now.setDate(now.getDate() - 7));
+          break;
+        case "month":
+          startDate = new Date(now.setMonth(now.getMonth() - 1));
+          break;
         default:
-          startDate = new Date(0)
+          startDate = new Date(0);
       }
 
-      result = result.filter((e) => new Date(e.timestamp) >= startDate)
+      result = result.filter((e) => new Date(e.timestamp) >= startDate);
     }
 
-    return result
-  }, [entries, categoryFilter, timeRange])
+    return result;
+  }, [entries, categoryFilter, timeRange]);
 
-  const summary = useMemo(() => calculateActivitySummary(entries), [entries])
+  const summary = useMemo(() => calculateActivitySummary(entries), [entries]);
 
-  const displayName = userInfo?.displayName || userInfo?.username || userInfo?.email || userId
+  const displayName =
+    userInfo?.displayName || userInfo?.username || userInfo?.email || userId;
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* User Header */}
       <Card>
         <CardContent className="p-4">
@@ -167,9 +189,13 @@ export function AuditUserActivity({
             <div className="flex-1">
               <h2 className="text-xl font-bold">{displayName}</h2>
               {userInfo?.email && userInfo.email !== displayName && (
-                <p className="text-sm text-muted-foreground">{userInfo.email}</p>
+                <p className="text-sm text-muted-foreground">
+                  {userInfo.email}
+                </p>
               )}
-              <p className="mt-1 font-mono text-xs text-muted-foreground">{userId}</p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">
+                {userId}
+              </p>
             </div>
             <div className="text-right text-sm text-muted-foreground">
               <div className="flex items-center justify-end gap-1">
@@ -178,8 +204,8 @@ export function AuditUserActivity({
               </div>
               <p className="font-medium text-foreground">
                 {summary.lastActivity
-                  ? formatTimestamp(summary.lastActivity, 'relative')
-                  : 'No activity'}
+                  ? formatTimestamp(summary.lastActivity, "relative")
+                  : "No activity"}
               </p>
             </div>
           </div>
@@ -197,21 +223,26 @@ export function AuditUserActivity({
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Success Rate</p>
-            <p className="text-2xl font-bold">{summary.successRate.toFixed(1)}%</p>
+            <p className="text-2xl font-bold">
+              {summary.successRate.toFixed(1)}%
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Most Active</p>
-            <p className="text-2xl font-bold capitalize">{summary.mostActiveCategory || 'N/A'}</p>
+            <p className="text-2xl font-bold capitalize">
+              {summary.mostActiveCategory || "N/A"}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Today</p>
             <p className="text-2xl font-bold">
-              {summary.eventsByDay.find((d) => d.date === new Date().toISOString().split('T')[0])
-                ?.count || 0}
+              {summary.eventsByDay.find(
+                (d) => d.date === new Date().toISOString().split("T")[0],
+              )?.count || 0}
             </p>
           </CardContent>
         </Card>
@@ -224,14 +255,22 @@ export function AuditUserActivity({
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {(Object.entries(summary.eventsByCategory) as [AuditCategory, number][])
+            {(
+              Object.entries(summary.eventsByCategory) as [
+                AuditCategory,
+                number,
+              ][]
+            )
               .filter(([, count]) => count > 0)
               .sort(([, a], [, b]) => b - a)
               .map(([category, count]) => (
                 <Badge
                   key={category}
                   variant="outline"
-                  className={cn('px-3 py-1 text-sm', getCategoryBadgeClass(category))}
+                  className={cn(
+                    "px-3 py-1 text-sm",
+                    getCategoryBadgeClass(category),
+                  )}
                 >
                   <span className="capitalize">{category}</span>
                   <span className="ml-2 font-bold">{count}</span>
@@ -246,7 +285,7 @@ export function AuditUserActivity({
         <div className="flex items-center gap-2">
           <Select
             value={categoryFilter}
-            onValueChange={(v) => setCategoryFilter(v as AuditCategory | 'all')}
+            onValueChange={(v) => setCategoryFilter(v as AuditCategory | "all")}
           >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Category" />
@@ -263,7 +302,10 @@ export function AuditUserActivity({
             </SelectContent>
           </Select>
 
-          <Select value={timeRange} onValueChange={(v) => setTimeRange(v as typeof timeRange)}>
+          <Select
+            value={timeRange}
+            onValueChange={(v) => setTimeRange(v as typeof timeRange)}
+          >
             <SelectTrigger className="w-[130px]">
               <SelectValue placeholder="Time range" />
             </SelectTrigger>
@@ -278,16 +320,16 @@ export function AuditUserActivity({
 
         <div className="flex items-center gap-1 rounded-lg border p-1">
           <Button
-            variant={viewMode === 'timeline' ? 'secondary' : 'ghost'}
+            variant={viewMode === "timeline" ? "secondary" : "ghost"}
             size="sm"
-            onClick={() => setViewMode('timeline')}
+            onClick={() => setViewMode("timeline")}
           >
             Timeline
           </Button>
           <Button
-            variant={viewMode === 'cards' ? 'secondary' : 'ghost'}
+            variant={viewMode === "cards" ? "secondary" : "ghost"}
             size="sm"
-            onClick={() => setViewMode('cards')}
+            onClick={() => setViewMode("cards")}
           >
             Cards
           </Button>
@@ -302,7 +344,7 @@ export function AuditUserActivity({
             <p>No activity found for the selected filters</p>
           </CardContent>
         </Card>
-      ) : viewMode === 'timeline' ? (
+      ) : viewMode === "timeline" ? (
         <AuditTimeline
           entries={filteredEntries}
           onEntryClick={onEntryClick}
@@ -312,10 +354,14 @@ export function AuditUserActivity({
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {filteredEntries.map((entry) => (
-            <AuditEventCard key={entry.id} entry={entry} onClick={() => onEntryClick?.(entry)} />
+            <AuditEventCard
+              key={entry.id}
+              entry={entry}
+              onClick={() => onEntryClick?.(entry)}
+            />
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }

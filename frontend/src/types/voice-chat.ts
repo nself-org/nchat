@@ -5,7 +5,7 @@
  * push-to-talk, raise hand, and recording support.
  */
 
-import type { UserBasicInfo } from './user'
+import type { UserBasicInfo } from "./user";
 
 // =============================================================================
 // Voice Chat Role Types
@@ -14,32 +14,40 @@ import type { UserBasicInfo } from './user'
 /**
  * Role types in a voice chat - Telegram-style hierarchy
  */
-export type VoiceChatRole = 'creator' | 'admin' | 'speaker' | 'listener'
+export type VoiceChatRole = "creator" | "admin" | "speaker" | "listener";
 
 /**
  * Voice chat status
  */
 export type VoiceChatStatus =
-  | 'scheduled' // Scheduled for future
-  | 'starting' // About to start
-  | 'live' // Currently active
-  | 'paused' // Temporarily paused
-  | 'ended' // Voice chat has ended
+  | "scheduled" // Scheduled for future
+  | "starting" // About to start
+  | "live" // Currently active
+  | "paused" // Temporarily paused
+  | "ended"; // Voice chat has ended
 
 /**
  * Hand raise request status
  */
-export type VoiceChatHandStatus = 'pending' | 'accepted' | 'declined' | 'lowered'
+export type VoiceChatHandStatus =
+  | "pending"
+  | "accepted"
+  | "declined"
+  | "lowered";
 
 /**
  * Participant connection state
  */
-export type VoiceChatConnectionState = 'connecting' | 'connected' | 'disconnected' | 'reconnecting'
+export type VoiceChatConnectionState =
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "reconnecting";
 
 /**
  * Push-to-talk mode
  */
-export type PushToTalkMode = 'always_on' | 'push_to_talk' | 'voice_activity'
+export type PushToTalkMode = "always_on" | "push_to_talk" | "voice_activity";
 
 // =============================================================================
 // Voice Chat Types
@@ -50,53 +58,53 @@ export type PushToTalkMode = 'always_on' | 'push_to_talk' | 'voice_activity'
  */
 export interface VoiceChat {
   /** Unique voice chat ID */
-  id: string
+  id: string;
   /** Group/Supergroup channel ID */
-  channelId: string
+  channelId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Voice chat title */
-  title: string
+  title: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Voice chat status */
-  status: VoiceChatStatus
+  status: VoiceChatStatus;
   /** User who created the voice chat */
-  creatorId: string
+  creatorId: string;
   /** Creator details */
-  creator: UserBasicInfo
+  creator: UserBasicInfo;
   /** When the voice chat was created */
-  createdAt: Date
+  createdAt: Date;
   /** When the voice chat was last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** When the voice chat started (if live) */
-  startedAt?: Date
+  startedAt?: Date;
   /** When the voice chat ended */
-  endedAt?: Date
+  endedAt?: Date;
   /** Scheduled start time (if scheduled) */
-  scheduledStartTime?: Date
+  scheduledStartTime?: Date;
   /** Scheduled end time (optional) */
-  scheduledEndTime?: Date
+  scheduledEndTime?: Date;
   /** Whether recording is enabled */
-  isRecordingEnabled: boolean
+  isRecordingEnabled: boolean;
   /** Whether the voice chat is currently being recorded */
-  isRecording: boolean
+  isRecording: boolean;
   /** Recording URL (after voice chat ends) */
-  recordingUrl?: string
+  recordingUrl?: string;
   /** Recording duration in seconds */
-  recordingDuration?: number
+  recordingDuration?: number;
   /** Invite link for joining */
-  inviteLink: string
+  inviteLink: string;
   /** Whether the voice chat is visible in group */
-  showInGroup: boolean
+  showInGroup: boolean;
   /** Voice chat settings */
-  settings: VoiceChatSettings
+  settings: VoiceChatSettings;
   /** Current participant count */
-  participantCount: number
+  participantCount: number;
   /** Current speaker count */
-  speakerCount: number
+  speakerCount: number;
   /** Current listener count */
-  listenerCount: number
+  listenerCount: number;
 }
 
 /**
@@ -104,46 +112,46 @@ export interface VoiceChat {
  */
 export interface VoiceChatSettings {
   /** Default talk mode for new participants */
-  defaultTalkMode: PushToTalkMode
+  defaultTalkMode: PushToTalkMode;
   /** Allow listeners to request to speak */
-  allowRaiseHand: boolean
+  allowRaiseHand: boolean;
   /** Auto-accept raise hand requests */
-  autoAcceptRaiseHand: boolean
+  autoAcceptRaiseHand: boolean;
   /** Maximum pending raise hand requests */
-  maxPendingRequests: number
+  maxPendingRequests: number;
   /** Notify admins of raise hand requests */
-  notifyOnRaiseHand: boolean
+  notifyOnRaiseHand: boolean;
   /** Allow chat during voice chat */
-  allowChat: boolean
+  allowChat: boolean;
   /** Allow reactions during voice chat */
-  allowReactions: boolean
+  allowReactions: boolean;
   /** Mute listeners by default */
-  muteListenersOnJoin: boolean
+  muteListenersOnJoin: boolean;
   /** Maximum participants (0 = unlimited) */
-  maxParticipants: number
+  maxParticipants: number;
   /** Maximum speakers (0 = unlimited) */
-  maxSpeakers: number
+  maxSpeakers: number;
   /** Timeout for raise hand requests (seconds, 0 = no timeout) */
-  raiseHandTimeout: number
+  raiseHandTimeout: number;
   /** Custom welcome message */
-  welcomeMessage?: string
+  welcomeMessage?: string;
   /** Push-to-talk key binding */
-  pushToTalkKey?: string
+  pushToTalkKey?: string;
   /** Voice activity detection sensitivity (0-1) */
-  voiceActivitySensitivity: number
+  voiceActivitySensitivity: number;
   /** Auto-start recording when voice chat starts */
-  autoStartRecording: boolean
+  autoStartRecording: boolean;
   /** Send reminder before scheduled start */
-  sendReminders: boolean
+  sendReminders: boolean;
   /** Reminder minutes before start */
-  reminderMinutesBefore: number[]
+  reminderMinutesBefore: number[];
 }
 
 /**
  * Default voice chat settings
  */
 export const DEFAULT_VOICE_CHAT_SETTINGS: VoiceChatSettings = {
-  defaultTalkMode: 'voice_activity',
+  defaultTalkMode: "voice_activity",
   allowRaiseHand: true,
   autoAcceptRaiseHand: false,
   maxPendingRequests: 50,
@@ -158,8 +166,8 @@ export const DEFAULT_VOICE_CHAT_SETTINGS: VoiceChatSettings = {
   autoStartRecording: false,
   sendReminders: true,
   reminderMinutesBefore: [15, 60],
-  pushToTalkKey: 'Space',
-}
+  pushToTalkKey: "Space",
+};
 
 // =============================================================================
 // Voice Chat Participant Types
@@ -170,45 +178,45 @@ export const DEFAULT_VOICE_CHAT_SETTINGS: VoiceChatSettings = {
  */
 export interface VoiceChatParticipant {
   /** Participant ID */
-  id: string
+  id: string;
   /** Voice chat ID */
-  voiceChatId: string
+  voiceChatId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Participant role */
-  role: VoiceChatRole
+  role: VoiceChatRole;
   /** Talk mode for this participant */
-  talkMode: PushToTalkMode
+  talkMode: PushToTalkMode;
   /** Whether audio is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** Whether currently speaking */
-  isSpeaking: boolean
+  isSpeaking: boolean;
   /** Whether push-to-talk key is pressed */
-  isPushToTalkActive: boolean
+  isPushToTalkActive: boolean;
   /** Audio level (0-1) */
-  audioLevel: number
+  audioLevel: number;
   /** Volume level set by listener (0-2, 1 = normal) */
-  volumeLevel: number
+  volumeLevel: number;
   /** Connection state */
-  connectionState: VoiceChatConnectionState
+  connectionState: VoiceChatConnectionState;
   /** When they joined */
-  joinedAt: Date
+  joinedAt: Date;
   /** When they became a speaker (if applicable) */
-  becameSpeakerAt?: Date
+  becameSpeakerAt?: Date;
   /** Whether they have raised hand */
-  hasRaisedHand: boolean
+  hasRaisedHand: boolean;
   /** Whether they are muted by admin */
-  isForceMuted: boolean
+  isForceMuted: boolean;
   /** Stream reference */
-  stream?: MediaStream
+  stream?: MediaStream;
   /** Position in speaker order */
-  speakerPosition?: number
+  speakerPosition?: number;
   /** Whether they are the active speaker (most recently speaking) */
-  isActiveSpeaker: boolean
+  isActiveSpeaker: boolean;
   /** Device type (for display purposes) */
-  deviceType?: 'desktop' | 'mobile' | 'tablet'
+  deviceType?: "desktop" | "mobile" | "tablet";
 }
 
 /**
@@ -216,27 +224,27 @@ export interface VoiceChatParticipant {
  */
 export interface VoiceChatHandRequest {
   /** Request ID */
-  id: string
+  id: string;
   /** Voice chat ID */
-  voiceChatId: string
+  voiceChatId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Request status */
-  status: VoiceChatHandStatus
+  status: VoiceChatHandStatus;
   /** When the hand was raised */
-  requestedAt: Date
+  requestedAt: Date;
   /** When the request was processed */
-  processedAt?: Date
+  processedAt?: Date;
   /** Who processed the request (admin) */
-  processedBy?: string
+  processedBy?: string;
   /** Reason for decline (if declined) */
-  declineReason?: string
+  declineReason?: string;
   /** Optional message with the request */
-  message?: string
+  message?: string;
   /** Position in queue */
-  position: number
+  position: number;
 }
 
 // =============================================================================
@@ -248,73 +256,73 @@ export interface VoiceChatHandRequest {
  */
 export interface ScheduledVoiceChat {
   /** Scheduled voice chat ID */
-  id: string
+  id: string;
   /** Voice chat ID (created when started) */
-  voiceChatId?: string
+  voiceChatId?: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Title */
-  title: string
+  title: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Scheduled start time */
-  scheduledStart: Date
+  scheduledStart: Date;
   /** Scheduled end time (optional) */
-  scheduledEnd?: Date
+  scheduledEnd?: Date;
   /** Actual start time */
-  actualStart?: Date
+  actualStart?: Date;
   /** Actual end time */
-  actualEnd?: Date
+  actualEnd?: Date;
   /** Creator ID */
-  creatorId: string
+  creatorId: string;
   /** Creator details */
-  creator: UserBasicInfo
+  creator: UserBasicInfo;
   /** Co-host IDs */
-  coHostIds: string[]
+  coHostIds: string[];
   /** Status */
-  status: ScheduledVoiceChatStatus
+  status: ScheduledVoiceChatStatus;
   /** Whether reminders were sent */
-  remindersSent: boolean[]
+  remindersSent: boolean[];
   /** Number of interested users */
-  interestedCount: number
+  interestedCount: number;
   /** Announcement message ID */
-  announcementMessageId?: string
+  announcementMessageId?: string;
   /** Whether to auto-start at scheduled time */
-  autoStart: boolean
+  autoStart: boolean;
   /** Created at */
-  createdAt: Date
+  createdAt: Date;
   /** Updated at */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
  * Scheduled voice chat status
  */
 export type ScheduledVoiceChatStatus =
-  | 'scheduled'
-  | 'starting_soon' // 15 minutes before
-  | 'live'
-  | 'ended'
-  | 'cancelled'
+  | "scheduled"
+  | "starting_soon" // 15 minutes before
+  | "live"
+  | "ended"
+  | "cancelled";
 
 /**
  * Voice chat interest/RSVP
  */
 export interface VoiceChatInterest {
   /** Interest ID */
-  id: string
+  id: string;
   /** Scheduled voice chat ID */
-  scheduledVoiceChatId: string
+  scheduledVoiceChatId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User details */
-  user: UserBasicInfo
+  user: UserBasicInfo;
   /** Whether reminder is enabled */
-  reminderEnabled: boolean
+  reminderEnabled: boolean;
   /** When they expressed interest */
-  createdAt: Date
+  createdAt: Date;
 }
 
 // =============================================================================
@@ -326,37 +334,37 @@ export interface VoiceChatInterest {
  */
 export interface VoiceChatRecording {
   /** Recording ID */
-  id: string
+  id: string;
   /** Voice chat ID */
-  voiceChatId: string
+  voiceChatId: string;
   /** Recording status */
-  status: RecordingStatus
+  status: RecordingStatus;
   /** Start time */
-  startedAt: Date
+  startedAt: Date;
   /** End time */
-  endedAt?: Date
+  endedAt?: Date;
   /** Duration in seconds */
-  duration: number
+  duration: number;
   /** File size in bytes */
-  fileSize?: number
+  fileSize?: number;
   /** Recording URL */
-  url?: string
+  url?: string;
   /** Download URL */
-  downloadUrl?: string
+  downloadUrl?: string;
   /** Who started the recording */
-  startedBy: string
+  startedBy: string;
   /** Who stopped the recording */
-  stoppedBy?: string
+  stoppedBy?: string;
   /** Recording format */
-  format: 'opus' | 'mp3' | 'wav'
+  format: "opus" | "mp3" | "wav";
   /** Whether recording includes all participants */
-  includesAllParticipants: boolean
+  includesAllParticipants: boolean;
 }
 
 /**
  * Recording status
  */
-export type RecordingStatus = 'recording' | 'processing' | 'ready' | 'failed'
+export type RecordingStatus = "recording" | "processing" | "ready" | "failed";
 
 // =============================================================================
 // Voice Chat Metrics Types
@@ -367,33 +375,33 @@ export type RecordingStatus = 'recording' | 'processing' | 'ready' | 'failed'
  */
 export interface VoiceChatMetrics {
   /** Voice chat ID */
-  voiceChatId: string
+  voiceChatId: string;
   /** Current listener count */
-  listenerCount: number
+  listenerCount: number;
   /** Current speaker count */
-  speakerCount: number
+  speakerCount: number;
   /** Peak listener count */
-  peakListenerCount: number
+  peakListenerCount: number;
   /** Peak speaker count */
-  peakSpeakerCount: number
+  peakSpeakerCount: number;
   /** Total unique participants */
-  totalUniqueParticipants: number
+  totalUniqueParticipants: number;
   /** Average participation duration (seconds) */
-  averageParticipationDuration: number
+  averageParticipationDuration: number;
   /** Total raise hand requests */
-  totalRaiseHandRequests: number
+  totalRaiseHandRequests: number;
   /** Accepted raise hand requests */
-  acceptedRaiseHandRequests: number
+  acceptedRaiseHandRequests: number;
   /** Declined raise hand requests */
-  declinedRaiseHandRequests: number
+  declinedRaiseHandRequests: number;
   /** Voice chat duration so far (seconds) */
-  duration: number
+  duration: number;
   /** Reactions count by type */
-  reactionCounts: Record<string, number>
+  reactionCounts: Record<string, number>;
   /** Chat message count */
-  chatMessageCount: number
+  chatMessageCount: number;
   /** Recording duration (if recording) */
-  recordingDuration: number
+  recordingDuration: number;
 }
 
 // =============================================================================
@@ -404,47 +412,47 @@ export interface VoiceChatMetrics {
  * Voice chat moderation actions
  */
 export type VoiceChatModerationAction =
-  | 'invite_to_speak'
-  | 'move_to_listeners'
-  | 'mute_participant'
-  | 'unmute_participant'
-  | 'force_mute_participant'
-  | 'remove_from_chat'
-  | 'accept_raise_hand'
-  | 'decline_raise_hand'
-  | 'lower_hand'
-  | 'promote_to_admin'
-  | 'demote_from_admin'
-  | 'end_voice_chat'
-  | 'start_recording'
-  | 'stop_recording'
-  | 'pause_voice_chat'
-  | 'resume_voice_chat'
-  | 'update_title'
-  | 'update_settings'
+  | "invite_to_speak"
+  | "move_to_listeners"
+  | "mute_participant"
+  | "unmute_participant"
+  | "force_mute_participant"
+  | "remove_from_chat"
+  | "accept_raise_hand"
+  | "decline_raise_hand"
+  | "lower_hand"
+  | "promote_to_admin"
+  | "demote_from_admin"
+  | "end_voice_chat"
+  | "start_recording"
+  | "stop_recording"
+  | "pause_voice_chat"
+  | "resume_voice_chat"
+  | "update_title"
+  | "update_settings";
 
 /**
  * Voice chat moderation log entry
  */
 export interface VoiceChatModerationLog {
   /** Log entry ID */
-  id: string
+  id: string;
   /** Voice chat ID */
-  voiceChatId: string
+  voiceChatId: string;
   /** Action type */
-  action: VoiceChatModerationAction
+  action: VoiceChatModerationAction;
   /** Admin who performed the action */
-  adminId: string
+  adminId: string;
   /** Admin details */
-  admin: UserBasicInfo
+  admin: UserBasicInfo;
   /** Target user ID (if applicable) */
-  targetUserId?: string
+  targetUserId?: string;
   /** Target user details (if applicable) */
-  targetUser?: UserBasicInfo
+  targetUser?: UserBasicInfo;
   /** Additional details */
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>;
   /** When the action was performed */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // =============================================================================
@@ -456,23 +464,23 @@ export interface VoiceChatModerationLog {
  */
 export interface CreateVoiceChatInput {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Voice chat title */
-  title: string
+  title: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Whether recording is enabled */
-  isRecordingEnabled?: boolean
+  isRecordingEnabled?: boolean;
   /** Voice chat settings */
-  settings?: Partial<VoiceChatSettings>
+  settings?: Partial<VoiceChatSettings>;
   /** Scheduled start time (if scheduling) */
-  scheduledStartTime?: Date
+  scheduledStartTime?: Date;
   /** Scheduled end time */
-  scheduledEndTime?: Date
+  scheduledEndTime?: Date;
   /** Whether to show in group */
-  showInGroup?: boolean
+  showInGroup?: boolean;
 }
 
 /**
@@ -480,15 +488,15 @@ export interface CreateVoiceChatInput {
  */
 export interface UpdateVoiceChatInput {
   /** Voice chat title */
-  title?: string
+  title?: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Whether recording is enabled */
-  isRecordingEnabled?: boolean
+  isRecordingEnabled?: boolean;
   /** Voice chat settings */
-  settings?: Partial<VoiceChatSettings>
+  settings?: Partial<VoiceChatSettings>;
   /** Whether to show in group */
-  showInGroup?: boolean
+  showInGroup?: boolean;
 }
 
 /**
@@ -496,21 +504,21 @@ export interface UpdateVoiceChatInput {
  */
 export interface ScheduleVoiceChatInput {
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Workspace ID */
-  workspaceId: string
+  workspaceId: string;
   /** Title */
-  title: string
+  title: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Scheduled start time */
-  scheduledStart: Date
+  scheduledStart: Date;
   /** Scheduled end time */
-  scheduledEnd?: Date
+  scheduledEnd?: Date;
   /** Co-host IDs */
-  coHostIds?: string[]
+  coHostIds?: string[];
   /** Whether to auto-start at scheduled time */
-  autoStart?: boolean
+  autoStart?: boolean;
 }
 
 /**
@@ -518,17 +526,17 @@ export interface ScheduleVoiceChatInput {
  */
 export interface UpdateScheduledVoiceChatInput {
   /** Title */
-  title?: string
+  title?: string;
   /** Description */
-  description?: string
+  description?: string;
   /** Scheduled start time */
-  scheduledStart?: Date
+  scheduledStart?: Date;
   /** Scheduled end time */
-  scheduledEnd?: Date
+  scheduledEnd?: Date;
   /** Co-host IDs */
-  coHostIds?: string[]
+  coHostIds?: string[];
   /** Whether to auto-start */
-  autoStart?: boolean
+  autoStart?: boolean;
 }
 
 // =============================================================================
@@ -539,54 +547,54 @@ export interface UpdateScheduledVoiceChatInput {
  * Voice chat event types for real-time updates
  */
 export type VoiceChatEventType =
-  | 'voice_chat_started'
-  | 'voice_chat_ended'
-  | 'voice_chat_paused'
-  | 'voice_chat_resumed'
-  | 'title_updated'
-  | 'participant_joined'
-  | 'participant_left'
-  | 'speaker_added'
-  | 'speaker_removed'
-  | 'hand_raised'
-  | 'hand_lowered'
-  | 'hand_accepted'
-  | 'hand_declined'
-  | 'participant_muted'
-  | 'participant_unmuted'
-  | 'participant_force_muted'
-  | 'recording_started'
-  | 'recording_stopped'
-  | 'admin_added'
-  | 'admin_removed'
-  | 'active_speaker_changed'
-  | 'scheduled_reminder'
-  | 'scheduled_starting_soon'
+  | "voice_chat_started"
+  | "voice_chat_ended"
+  | "voice_chat_paused"
+  | "voice_chat_resumed"
+  | "title_updated"
+  | "participant_joined"
+  | "participant_left"
+  | "speaker_added"
+  | "speaker_removed"
+  | "hand_raised"
+  | "hand_lowered"
+  | "hand_accepted"
+  | "hand_declined"
+  | "participant_muted"
+  | "participant_unmuted"
+  | "participant_force_muted"
+  | "recording_started"
+  | "recording_stopped"
+  | "admin_added"
+  | "admin_removed"
+  | "active_speaker_changed"
+  | "scheduled_reminder"
+  | "scheduled_starting_soon";
 
 /**
  * Voice chat event payload
  */
 export interface VoiceChatEventPayload {
   /** Event type */
-  type: VoiceChatEventType
+  type: VoiceChatEventType;
   /** Voice chat ID */
-  voiceChatId: string
+  voiceChatId: string;
   /** Voice chat data (for full updates) */
-  voiceChat?: VoiceChat
+  voiceChat?: VoiceChat;
   /** User ID related to the event */
-  userId?: string
+  userId?: string;
   /** User details */
-  user?: UserBasicInfo
+  user?: UserBasicInfo;
   /** Participant data */
-  participant?: VoiceChatParticipant
+  participant?: VoiceChatParticipant;
   /** Raise hand request data */
-  handRequest?: VoiceChatHandRequest
+  handRequest?: VoiceChatHandRequest;
   /** Recording data */
-  recording?: VoiceChatRecording
+  recording?: VoiceChatRecording;
   /** Additional data */
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>;
   /** Event timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // =============================================================================
@@ -598,31 +606,43 @@ export interface VoiceChatEventPayload {
  */
 export interface VoiceChatServiceCallbacks {
   /** Called when voice chat status changes */
-  onStatusChange?: (voiceChat: VoiceChat, previousStatus: VoiceChatStatus) => void
+  onStatusChange?: (
+    voiceChat: VoiceChat,
+    previousStatus: VoiceChatStatus,
+  ) => void;
   /** Called when a participant joins */
-  onParticipantJoined?: (participant: VoiceChatParticipant) => void
+  onParticipantJoined?: (participant: VoiceChatParticipant) => void;
   /** Called when a participant leaves */
-  onParticipantLeft?: (participant: VoiceChatParticipant, reason: string) => void
+  onParticipantLeft?: (
+    participant: VoiceChatParticipant,
+    reason: string,
+  ) => void;
   /** Called when a speaker is added */
-  onSpeakerAdded?: (participant: VoiceChatParticipant) => void
+  onSpeakerAdded?: (participant: VoiceChatParticipant) => void;
   /** Called when a speaker is removed */
-  onSpeakerRemoved?: (participant: VoiceChatParticipant, reason: string) => void
+  onSpeakerRemoved?: (
+    participant: VoiceChatParticipant,
+    reason: string,
+  ) => void;
   /** Called when a hand is raised */
-  onHandRaised?: (request: VoiceChatHandRequest) => void
+  onHandRaised?: (request: VoiceChatHandRequest) => void;
   /** Called when a hand raise is processed */
-  onHandProcessed?: (request: VoiceChatHandRequest) => void
+  onHandProcessed?: (request: VoiceChatHandRequest) => void;
   /** Called when title changes */
-  onTitleChanged?: (voiceChat: VoiceChat, previousTitle: string) => void
+  onTitleChanged?: (voiceChat: VoiceChat, previousTitle: string) => void;
   /** Called when active speaker changes */
-  onActiveSpeakerChange?: (speakerId: string | null) => void
+  onActiveSpeakerChange?: (speakerId: string | null) => void;
   /** Called when recording status changes */
-  onRecordingStatusChange?: (recording: VoiceChatRecording) => void
+  onRecordingStatusChange?: (recording: VoiceChatRecording) => void;
   /** Called on error */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
   /** Called when push-to-talk state changes */
-  onPushToTalkChange?: (isActive: boolean) => void
+  onPushToTalkChange?: (isActive: boolean) => void;
   /** Called on scheduled reminder */
-  onScheduledReminder?: (scheduledVoiceChat: ScheduledVoiceChat, minutesBefore: number) => void
+  onScheduledReminder?: (
+    scheduledVoiceChat: ScheduledVoiceChat,
+    minutesBefore: number,
+  ) => void;
 }
 
 // =============================================================================
@@ -633,49 +653,55 @@ export interface VoiceChatServiceCallbacks {
  * Check if a participant is a speaker
  */
 export function isVoiceChatSpeaker(participant: VoiceChatParticipant): boolean {
-  return participant.role === 'speaker' || participant.role === 'admin' || participant.role === 'creator'
+  return (
+    participant.role === "speaker" ||
+    participant.role === "admin" ||
+    participant.role === "creator"
+  );
 }
 
 /**
  * Check if a participant is an admin
  */
 export function isVoiceChatAdmin(participant: VoiceChatParticipant): boolean {
-  return participant.role === 'admin' || participant.role === 'creator'
+  return participant.role === "admin" || participant.role === "creator";
 }
 
 /**
  * Check if a participant is the creator
  */
 export function isVoiceChatCreator(participant: VoiceChatParticipant): boolean {
-  return participant.role === 'creator'
+  return participant.role === "creator";
 }
 
 /**
  * Check if a participant is a listener
  */
-export function isVoiceChatListener(participant: VoiceChatParticipant): boolean {
-  return participant.role === 'listener'
+export function isVoiceChatListener(
+  participant: VoiceChatParticipant,
+): boolean {
+  return participant.role === "listener";
 }
 
 /**
  * Check if voice chat is active
  */
 export function isVoiceChatActive(voiceChat: VoiceChat): boolean {
-  return voiceChat.status === 'live' || voiceChat.status === 'starting'
+  return voiceChat.status === "live" || voiceChat.status === "starting";
 }
 
 /**
  * Check if voice chat is scheduled
  */
 export function isVoiceChatScheduled(voiceChat: VoiceChat): boolean {
-  return voiceChat.status === 'scheduled'
+  return voiceChat.status === "scheduled";
 }
 
 /**
  * Check if voice chat has ended
  */
 export function isVoiceChatEnded(voiceChat: VoiceChat): boolean {
-  return voiceChat.status === 'ended'
+  return voiceChat.status === "ended";
 }
 
 /**
@@ -683,14 +709,14 @@ export function isVoiceChatEnded(voiceChat: VoiceChat): boolean {
  */
 export function getVoiceChatRoleDisplayName(role: VoiceChatRole): string {
   switch (role) {
-    case 'creator':
-      return 'Creator'
-    case 'admin':
-      return 'Admin'
-    case 'speaker':
-      return 'Speaker'
-    case 'listener':
-      return 'Listener'
+    case "creator":
+      return "Creator";
+    case "admin":
+      return "Admin";
+    case "speaker":
+      return "Speaker";
+    case "listener":
+      return "Listener";
   }
 }
 
@@ -698,18 +724,18 @@ export function getVoiceChatRoleDisplayName(role: VoiceChatRole): string {
  * Get role permissions
  */
 export function getVoiceChatRolePermissions(role: VoiceChatRole): {
-  canSpeak: boolean
-  canMuteOthers: boolean
-  canInviteToSpeak: boolean
-  canMoveToListeners: boolean
-  canRemoveParticipants: boolean
-  canStartRecording: boolean
-  canEndVoiceChat: boolean
-  canEditSettings: boolean
-  canManageAdmins: boolean
+  canSpeak: boolean;
+  canMuteOthers: boolean;
+  canInviteToSpeak: boolean;
+  canMoveToListeners: boolean;
+  canRemoveParticipants: boolean;
+  canStartRecording: boolean;
+  canEndVoiceChat: boolean;
+  canEditSettings: boolean;
+  canManageAdmins: boolean;
 } {
   switch (role) {
-    case 'creator':
+    case "creator":
       return {
         canSpeak: true,
         canMuteOthers: true,
@@ -720,8 +746,8 @@ export function getVoiceChatRolePermissions(role: VoiceChatRole): {
         canEndVoiceChat: true,
         canEditSettings: true,
         canManageAdmins: true,
-      }
-    case 'admin':
+      };
+    case "admin":
       return {
         canSpeak: true,
         canMuteOthers: true,
@@ -732,8 +758,8 @@ export function getVoiceChatRolePermissions(role: VoiceChatRole): {
         canEndVoiceChat: false,
         canEditSettings: false,
         canManageAdmins: false,
-      }
-    case 'speaker':
+      };
+    case "speaker":
       return {
         canSpeak: true,
         canMuteOthers: false,
@@ -744,8 +770,8 @@ export function getVoiceChatRolePermissions(role: VoiceChatRole): {
         canEndVoiceChat: false,
         canEditSettings: false,
         canManageAdmins: false,
-      }
-    case 'listener':
+      };
+    case "listener":
       return {
         canSpeak: false,
         canMuteOthers: false,
@@ -756,79 +782,85 @@ export function getVoiceChatRolePermissions(role: VoiceChatRole): {
         canEndVoiceChat: false,
         canEditSettings: false,
         canManageAdmins: false,
-      }
+      };
   }
 }
 
 /**
  * Sort raise hand requests by position
  */
-export function sortVoiceChatHandRequests(requests: VoiceChatHandRequest[]): VoiceChatHandRequest[] {
-  return [...requests].sort((a, b) => a.position - b.position)
+export function sortVoiceChatHandRequests(
+  requests: VoiceChatHandRequest[],
+): VoiceChatHandRequest[] {
+  return [...requests].sort((a, b) => a.position - b.position);
 }
 
 /**
  * Sort participants by role and speaking activity
  */
-export function sortVoiceChatParticipants(participants: VoiceChatParticipant[]): VoiceChatParticipant[] {
+export function sortVoiceChatParticipants(
+  participants: VoiceChatParticipant[],
+): VoiceChatParticipant[] {
   const roleOrder: Record<VoiceChatRole, number> = {
     creator: 0,
     admin: 1,
     speaker: 2,
     listener: 3,
-  }
+  };
 
   return [...participants].sort((a, b) => {
     // Active speaker first
-    if (a.isActiveSpeaker && !b.isActiveSpeaker) return -1
-    if (!a.isActiveSpeaker && b.isActiveSpeaker) return 1
+    if (a.isActiveSpeaker && !b.isActiveSpeaker) return -1;
+    if (!a.isActiveSpeaker && b.isActiveSpeaker) return 1;
 
     // Role order
-    const roleCompare = roleOrder[a.role] - roleOrder[b.role]
-    if (roleCompare !== 0) return roleCompare
+    const roleCompare = roleOrder[a.role] - roleOrder[b.role];
+    if (roleCompare !== 0) return roleCompare;
 
     // Within speakers, sort by speaker position
     if (a.speakerPosition !== undefined && b.speakerPosition !== undefined) {
-      return a.speakerPosition - b.speakerPosition
+      return a.speakerPosition - b.speakerPosition;
     }
 
     // Within listeners, put raised hands first
-    if (a.hasRaisedHand && !b.hasRaisedHand) return -1
-    if (!a.hasRaisedHand && b.hasRaisedHand) return 1
+    if (a.hasRaisedHand && !b.hasRaisedHand) return -1;
+    if (!a.hasRaisedHand && b.hasRaisedHand) return 1;
 
     // Finally, sort by join time
-    return a.joinedAt.getTime() - b.joinedAt.getTime()
-  })
+    return a.joinedAt.getTime() - b.joinedAt.getTime();
+  });
 }
 
 /**
  * Format voice chat duration
  */
 export function formatVoiceChatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`
+  return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
 /**
  * Get scheduled voice chat status label
  */
-export function getScheduledVoiceChatStatusLabel(status: ScheduledVoiceChatStatus): string {
+export function getScheduledVoiceChatStatusLabel(
+  status: ScheduledVoiceChatStatus,
+): string {
   switch (status) {
-    case 'scheduled':
-      return 'Scheduled'
-    case 'starting_soon':
-      return 'Starting Soon'
-    case 'live':
-      return 'Live'
-    case 'ended':
-      return 'Ended'
-    case 'cancelled':
-      return 'Cancelled'
+    case "scheduled":
+      return "Scheduled";
+    case "starting_soon":
+      return "Starting Soon";
+    case "live":
+      return "Live";
+    case "ended":
+      return "Ended";
+    case "cancelled":
+      return "Cancelled";
   }
 }

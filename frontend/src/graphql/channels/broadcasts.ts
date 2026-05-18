@@ -3,7 +3,7 @@
  * Phase 6: Tasks 60-65
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const BROADCAST_LIST_FRAGMENT = gql`
   fragment BroadcastListFragment on nchat_broadcast_lists {
@@ -25,7 +25,7 @@ export const BROADCAST_LIST_FRAGMENT = gql`
     created_at
     updated_at
   }
-`
+`;
 
 export const BROADCAST_MESSAGE_FRAGMENT = gql`
   fragment BroadcastMessageFragment on nchat_broadcast_messages {
@@ -42,7 +42,7 @@ export const BROADCAST_MESSAGE_FRAGMENT = gql`
     read_count
     failed_count
   }
-`
+`;
 
 export const GET_BROADCAST_LISTS = gql`
   ${BROADCAST_LIST_FRAGMENT}
@@ -54,7 +54,7 @@ export const GET_BROADCAST_LISTS = gql`
       ...BroadcastListFragment
     }
   }
-`
+`;
 
 export const CREATE_BROADCAST_LIST = gql`
   ${BROADCAST_LIST_FRAGMENT}
@@ -77,7 +77,7 @@ export const CREATE_BROADCAST_LIST = gql`
       ...BroadcastListFragment
     }
   }
-`
+`;
 
 export const SEND_BROADCAST = gql`
   ${BROADCAST_MESSAGE_FRAGMENT}
@@ -98,4 +98,4 @@ export const SEND_BROADCAST = gql`
       ...BroadcastMessageFragment
     }
   }
-`
+`;

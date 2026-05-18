@@ -1,5 +1,5 @@
 // Admin Store
-export { useAdminStore } from './admin-store'
+export { useAdminStore } from "./admin-store";
 export type {
   AdminState,
   AdminActions,
@@ -14,7 +14,7 @@ export type {
   ReportType,
   ModerationAction,
   UserRole,
-} from './admin-store'
+} from "./admin-store";
 
 // Admin Store Selectors
 export {
@@ -31,7 +31,7 @@ export {
   selectBanUserModal,
   selectRoleEditorModal,
   selectDeleteChannelModal,
-} from './admin-store'
+} from "./admin-store";
 
 // Admin Hooks
 export {
@@ -43,4 +43,4 @@ export {
   useRoles,
   useAnalytics,
   useAdminAccess,
-} from './use-admin'
+} from "./use-admin";

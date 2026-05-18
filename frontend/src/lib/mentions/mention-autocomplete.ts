@@ -23,21 +23,21 @@ import type {
   SuggestionType,
   GroupMentionInfo,
   MentionPermissions,
-} from './mention-types'
-import { GROUP_MENTIONS } from './mention-types'
+} from "./mention-types";
+import { GROUP_MENTIONS } from "./mention-types";
 
 // ============================================================================
 // Configuration
 // ============================================================================
 
 /** Maximum number of suggestions to show */
-export const MAX_SUGGESTIONS = 10
+export const MAX_SUGGESTIONS = 10;
 
 /** Minimum query length to start searching (0 = show all) */
-export const MIN_QUERY_LENGTH = 0
+export const MIN_QUERY_LENGTH = 0;
 
 /** Debounce delay for autocomplete queries (ms) */
-export const AUTOCOMPLETE_DEBOUNCE_MS = 150
+export const AUTOCOMPLETE_DEBOUNCE_MS = 150;
 
 // ============================================================================
 // Fuzzy Search
@@ -48,82 +48,89 @@ export const AUTOCOMPLETE_DEBOUNCE_MS = 150
  * Returns a score from 0 (no match) to 1 (exact match)
  */
 export function fuzzyScore(query: string, target: string): number {
-  if (!query) return 0.5 // Show all with medium priority when no query
+  if (!query) return 0.5; // Show all with medium priority when no query
 
-  const lowerQuery = query.toLowerCase()
-  const lowerTarget = target.toLowerCase()
+  const lowerQuery = query.toLowerCase();
+  const lowerTarget = target.toLowerCase();
 
   // Exact match
   if (lowerTarget === lowerQuery) {
-    return 1
+    return 1;
   }
 
   // Starts with query (high priority)
   if (lowerTarget.startsWith(lowerQuery)) {
-    return 0.9 + (0.09 * query.length) / target.length
+    return 0.9 + (0.09 * query.length) / target.length;
   }
 
   // Contains query
   if (lowerTarget.includes(lowerQuery)) {
-    const position = lowerTarget.indexOf(lowerQuery)
+    const position = lowerTarget.indexOf(lowerQuery);
     // Earlier position = higher score
-    return 0.5 + 0.4 * (1 - position / target.length)
+    return 0.5 + 0.4 * (1 - position / target.length);
   }
 
   // Word boundary match
-  const words = lowerTarget.split(/[\s_-]+/)
+  const words = lowerTarget.split(/[\s_-]+/);
   for (const word of words) {
     if (word.startsWith(lowerQuery)) {
-      return 0.4
+      return 0.4;
     }
   }
 
   // Character sequence match (fuzzy)
-  let queryIndex = 0
-  let consecutiveBonus = 0
-  let lastMatchIndex = -1
+  let queryIndex = 0;
+  let consecutiveBonus = 0;
+  let lastMatchIndex = -1;
 
-  for (let i = 0; i < lowerTarget.length && queryIndex < lowerQuery.length; i++) {
+  for (
+    let i = 0;
+    i < lowerTarget.length && queryIndex < lowerQuery.length;
+    i++
+  ) {
     if (lowerTarget[i] === lowerQuery[queryIndex]) {
       if (lastMatchIndex === i - 1) {
-        consecutiveBonus += 0.1
+        consecutiveBonus += 0.1;
       }
-      lastMatchIndex = i
-      queryIndex++
+      lastMatchIndex = i;
+      queryIndex++;
     }
   }
 
   if (queryIndex === lowerQuery.length) {
-    const baseScore = 0.2 + consecutiveBonus / query.length
-    return Math.min(baseScore, 0.39)
+    const baseScore = 0.2 + consecutiveBonus / query.length;
+    return Math.min(baseScore, 0.39);
   }
 
-  return 0
+  return 0;
 }
 
 /**
  * Check if a user matches a query
  */
 export function matchUser(user: MentionableUser, query: string): number {
-  const usernameScore = fuzzyScore(query, user.username)
-  const displayNameScore = fuzzyScore(query, user.displayName)
-  return Math.max(usernameScore, displayNameScore)
+  const usernameScore = fuzzyScore(query, user.username);
+  const displayNameScore = fuzzyScore(query, user.displayName);
+  return Math.max(usernameScore, displayNameScore);
 }
 
 /**
  * Check if a channel matches a query
  */
-export function matchChannel(channel: MentionableChannel, query: string): number {
-  const nameScore = fuzzyScore(query, channel.name)
-  const slugScore = fuzzyScore(query, channel.slug)
-  return Math.max(nameScore, slugScore)
+export function matchChannel(
+  channel: MentionableChannel,
+  query: string,
+): number {
+  const nameScore = fuzzyScore(query, channel.name);
+  const slugScore = fuzzyScore(query, channel.slug);
+  return Math.max(nameScore, slugScore);
 }
 
 /**
  * Check if a role matches a query
  */
 export function matchRole(role: MentionableRole, query: string): number {
-  return fuzzyScore(query, role.name)
+  return fuzzyScore(query, role.name);
 }
 
 // ============================================================================
@@ -136,7 +143,7 @@ export function matchRole(role: MentionableRole, query: string): number {
 export function filterUsers(
   users: MentionableUser[],
   query: string,
-  limit: number = MAX_SUGGESTIONS
+  limit: number = MAX_SUGGESTIONS,
 ): Array<MentionableUser & { score: number }> {
   const results = users
     .map((user) => ({ ...user, score: matchUser(user, query) }))
@@ -144,16 +151,16 @@ export function filterUsers(
     .sort((a, b) => {
       // Sort by score first
       if (b.score !== a.score) {
-        return b.score - a.score
+        return b.score - a.score;
       }
       // Then by online status
-      if (a.presence === 'online' && b.presence !== 'online') return -1
-      if (b.presence === 'online' && a.presence !== 'online') return 1
+      if (a.presence === "online" && b.presence !== "online") return -1;
+      if (b.presence === "online" && a.presence !== "online") return 1;
       // Then alphabetically
-      return a.displayName.localeCompare(b.displayName)
-    })
+      return a.displayName.localeCompare(b.displayName);
+    });
 
-  return results.slice(0, limit)
+  return results.slice(0, limit);
 }
 
 /**
@@ -162,7 +169,7 @@ export function filterUsers(
 export function filterChannels(
   channels: MentionableChannel[],
   query: string,
-  limit: number = MAX_SUGGESTIONS
+  limit: number = MAX_SUGGESTIONS,
 ): Array<MentionableChannel & { score: number }> {
   const results = channels
     .filter((c) => !c.isArchived) // Exclude archived channels
@@ -171,16 +178,16 @@ export function filterChannels(
     .sort((a, b) => {
       // Sort by score first
       if (b.score !== a.score) {
-        return b.score - a.score
+        return b.score - a.score;
       }
       // Then by type (public first)
-      if (a.type === 'public' && b.type !== 'public') return -1
-      if (b.type === 'public' && a.type !== 'public') return 1
+      if (a.type === "public" && b.type !== "public") return -1;
+      if (b.type === "public" && a.type !== "public") return 1;
       // Then alphabetically
-      return a.name.localeCompare(b.name)
-    })
+      return a.name.localeCompare(b.name);
+    });
 
-  return results.slice(0, limit)
+  return results.slice(0, limit);
 }
 
 /**
@@ -189,14 +196,14 @@ export function filterChannels(
 export function filterRoles(
   roles: MentionableRole[],
   query: string,
-  limit: number = MAX_SUGGESTIONS
+  limit: number = MAX_SUGGESTIONS,
 ): Array<MentionableRole & { score: number }> {
   const results = roles
     .map((role) => ({ ...role, score: matchRole(role, query) }))
     .filter((role) => role.score > 0)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score);
 
-  return results.slice(0, limit)
+  return results.slice(0, limit);
 }
 
 /**
@@ -204,41 +211,45 @@ export function filterRoles(
  */
 export function filterGroupMentions(
   query: string,
-  permissions: MentionPermissions
+  permissions: MentionPermissions,
 ): GroupMentionInfo[] {
-  const lowerQuery = query.toLowerCase()
-  const groups: GroupMentionInfo[] = []
+  const lowerQuery = query.toLowerCase();
+  const groups: GroupMentionInfo[] = [];
 
   if (permissions.canMentionEveryone) {
-    const everyone = GROUP_MENTIONS.everyone
+    const everyone = GROUP_MENTIONS.everyone;
     if (
       !query ||
       everyone.label.toLowerCase().includes(lowerQuery) ||
-      'everyone'.includes(lowerQuery)
+      "everyone".includes(lowerQuery)
     ) {
-      groups.push(everyone)
+      groups.push(everyone);
     }
   }
 
   if (permissions.canMentionHere) {
-    const here = GROUP_MENTIONS.here
-    if (!query || here.label.toLowerCase().includes(lowerQuery) || 'here'.includes(lowerQuery)) {
-      groups.push(here)
+    const here = GROUP_MENTIONS.here;
+    if (
+      !query ||
+      here.label.toLowerCase().includes(lowerQuery) ||
+      "here".includes(lowerQuery)
+    ) {
+      groups.push(here);
     }
   }
 
   if (permissions.canMentionChannel) {
-    const channel = GROUP_MENTIONS.channel
+    const channel = GROUP_MENTIONS.channel;
     if (
       !query ||
       channel.label.toLowerCase().includes(lowerQuery) ||
-      'channel'.includes(lowerQuery)
+      "channel".includes(lowerQuery)
     ) {
-      groups.push(channel)
+      groups.push(channel);
     }
   }
 
-  return groups
+  return groups;
 }
 
 // ============================================================================
@@ -248,68 +259,74 @@ export function filterGroupMentions(
 /**
  * Convert a user to a mention suggestion
  */
-export function userToSuggestion(user: MentionableUser & { score?: number }): MentionSuggestion {
+export function userToSuggestion(
+  user: MentionableUser & { score?: number },
+): MentionSuggestion {
   return {
-    type: 'user',
+    type: "user",
     id: user.id,
     label: user.displayName,
     sublabel: `@${user.username}`,
     avatarUrl: user.avatarUrl ?? undefined,
     presence: user.presence,
     data: user,
-  }
+  };
 }
 
 /**
  * Convert a channel to a mention suggestion
  */
 export function channelToSuggestion(
-  channel: MentionableChannel & { score?: number }
+  channel: MentionableChannel & { score?: number },
 ): MentionSuggestion {
   const typeIcons: Record<string, string> = {
-    public: 'hash',
-    private: 'lock',
-    direct: 'user',
-    group: 'users',
-  }
+    public: "hash",
+    private: "lock",
+    direct: "user",
+    group: "users",
+  };
 
   return {
-    type: 'channel',
+    type: "channel",
     id: channel.id,
     label: channel.name,
     sublabel: channel.description || undefined,
-    icon: channel.icon || typeIcons[channel.type] || 'hash',
+    icon: channel.icon || typeIcons[channel.type] || "hash",
     data: channel,
-  }
+  };
 }
 
 /**
  * Convert a group mention to a suggestion
  */
-export function groupMentionToSuggestion(group: GroupMentionInfo): MentionSuggestion {
+export function groupMentionToSuggestion(
+  group: GroupMentionInfo,
+): MentionSuggestion {
   return {
-    type: 'group',
+    type: "group",
     id: group.type,
     label: group.label,
     sublabel: group.description,
     icon: group.icon,
     data: group,
-  }
+  };
 }
 
 /**
  * Convert a role to a mention suggestion
  */
-export function roleToSuggestion(role: MentionableRole & { score?: number }): MentionSuggestion {
+export function roleToSuggestion(
+  role: MentionableRole & { score?: number },
+): MentionSuggestion {
   return {
-    type: 'role',
+    type: "role",
     id: role.id,
     label: `@${role.name}`,
     sublabel: `${role.memberCount} members`,
     color: role.color,
-    icon: 'shield',
+    icon: "shield",
     data: role,
-  }
+  };
 }
 
 // ============================================================================
@@ -321,29 +338,31 @@ export function roleToSuggestion(role: MentionableRole & { score?: number }): Me
  */
 export interface FilterSuggestionsOptions {
   /** User mention suggestions */
-  users?: MentionableUser[]
+  users?: MentionableUser[];
   /** Channel mention suggestions */
-  channels?: MentionableChannel[]
+  channels?: MentionableChannel[];
   /** Role mention suggestions */
-  roles?: MentionableRole[]
+  roles?: MentionableRole[];
   /** Permissions for group mentions */
-  permissions?: MentionPermissions
+  permissions?: MentionPermissions;
   /** The trigger character ('@' or '#') */
-  trigger: '@' | '#'
+  trigger: "@" | "#";
   /** The search query */
-  query: string
+  query: string;
   /** Maximum total suggestions */
-  maxSuggestions?: number
+  maxSuggestions?: number;
   /** Prioritize channel members in user suggestions */
-  prioritizeChannelMembers?: boolean
+  prioritizeChannelMembers?: boolean;
   /** IDs of channel members to prioritize */
-  channelMemberIds?: Set<string>
+  channelMemberIds?: Set<string>;
 }
 
 /**
  * Filter and combine all mention suggestions
  */
-export function filterMentionSuggestions(options: FilterSuggestionsOptions): MentionSuggestion[] {
+export function filterMentionSuggestions(
+  options: FilterSuggestionsOptions,
+): MentionSuggestion[] {
   const {
     users = [],
     channels = [],
@@ -361,47 +380,47 @@ export function filterMentionSuggestions(options: FilterSuggestionsOptions): Men
     maxSuggestions = MAX_SUGGESTIONS,
     prioritizeChannelMembers = false,
     channelMemberIds = new Set(),
-  } = options
+  } = options;
 
-  const suggestions: MentionSuggestion[] = []
+  const suggestions: MentionSuggestion[] = [];
 
-  if (trigger === '@') {
+  if (trigger === "@") {
     // User mentions
     if (permissions.canMentionUsers) {
-      let filteredUsers = filterUsers(users, query, maxSuggestions)
+      let filteredUsers = filterUsers(users, query, maxSuggestions);
 
       // Prioritize channel members
       if (prioritizeChannelMembers && channelMemberIds.size > 0) {
         filteredUsers = filteredUsers.sort((a, b) => {
-          const aIsMember = channelMemberIds.has(a.id)
-          const bIsMember = channelMemberIds.has(b.id)
-          if (aIsMember && !bIsMember) return -1
-          if (bIsMember && !aIsMember) return 1
-          return b.score - a.score
-        })
+          const aIsMember = channelMemberIds.has(a.id);
+          const bIsMember = channelMemberIds.has(b.id);
+          if (aIsMember && !bIsMember) return -1;
+          if (bIsMember && !aIsMember) return 1;
+          return b.score - a.score;
+        });
       }
 
-      suggestions.push(...filteredUsers.map(userToSuggestion))
+      suggestions.push(...filteredUsers.map(userToSuggestion));
     }
 
     // Group mentions (only if query matches or is empty)
-    const groupSuggestions = filterGroupMentions(query, permissions)
-    suggestions.push(...groupSuggestions.map(groupMentionToSuggestion))
+    const groupSuggestions = filterGroupMentions(query, permissions);
+    suggestions.push(...groupSuggestions.map(groupMentionToSuggestion));
 
     // Role mentions
     if (permissions.canMentionRoles) {
-      const filteredRoles = filterRoles(roles, query, 5)
-      suggestions.push(...filteredRoles.map(roleToSuggestion))
+      const filteredRoles = filterRoles(roles, query, 5);
+      suggestions.push(...filteredRoles.map(roleToSuggestion));
     }
-  } else if (trigger === '#') {
+  } else if (trigger === "#") {
     // Channel mentions
     if (permissions.canMentionChannels) {
-      const filteredChannels = filterChannels(channels, query, maxSuggestions)
-      suggestions.push(...filteredChannels.map(channelToSuggestion))
+      const filteredChannels = filterChannels(channels, query, maxSuggestions);
+      suggestions.push(...filteredChannels.map(channelToSuggestion));
     }
   }
 
-  return suggestions.slice(0, maxSuggestions)
+  return suggestions.slice(0, maxSuggestions);
 }
 
 // ============================================================================
@@ -416,37 +435,37 @@ export function handleAutocompleteKeyboard(
   selectedIndex: number,
   suggestions: MentionSuggestion[],
   onSelect: (suggestion: MentionSuggestion) => void,
-  onClose: () => void
+  onClose: () => void,
 ): { handled: boolean; newIndex?: number } {
-  const suggestionsCount = suggestions.length
+  const suggestionsCount = suggestions.length;
 
   switch (key) {
-    case 'ArrowDown':
+    case "ArrowDown":
       return {
         handled: true,
         newIndex: (selectedIndex + 1) % suggestionsCount,
-      }
+      };
 
-    case 'ArrowUp':
+    case "ArrowUp":
       return {
         handled: true,
         newIndex: selectedIndex <= 0 ? suggestionsCount - 1 : selectedIndex - 1,
-      }
+      };
 
-    case 'Enter':
-    case 'Tab':
+    case "Enter":
+    case "Tab":
       if (suggestions[selectedIndex]) {
-        onSelect(suggestions[selectedIndex])
-        return { handled: true }
+        onSelect(suggestions[selectedIndex]);
+        return { handled: true };
       }
-      break
+      break;
 
-    case 'Escape':
-      onClose()
-      return { handled: true }
+    case "Escape":
+      onClose();
+      return { handled: true };
   }
 
-  return { handled: false }
+  return { handled: false };
 }
 
 // ============================================================================
@@ -458,24 +477,24 @@ export function handleAutocompleteKeyboard(
  */
 export function getMentionInsertText(suggestion: MentionSuggestion): string {
   switch (suggestion.type) {
-    case 'user': {
-      const user = suggestion.data as MentionableUser
-      return `@${user.username} `
+    case "user": {
+      const user = suggestion.data as MentionableUser;
+      return `@${user.username} `;
     }
-    case 'channel': {
-      const channel = suggestion.data as MentionableChannel
-      return `#${channel.slug} `
+    case "channel": {
+      const channel = suggestion.data as MentionableChannel;
+      return `#${channel.slug} `;
     }
-    case 'group': {
-      const group = suggestion.data as GroupMentionInfo
-      return `@${group.type} `
+    case "group": {
+      const group = suggestion.data as GroupMentionInfo;
+      return `@${group.type} `;
     }
-    case 'role': {
-      const role = suggestion.data as MentionableRole
-      return `@${role.name} `
+    case "role": {
+      const role = suggestion.data as MentionableRole;
+      return `@${role.name} `;
     }
     default:
-      return ''
+      return "";
   }
 }
 
@@ -486,16 +505,16 @@ export function calculateMentionReplacement(
   text: string,
   cursorPosition: number,
   suggestion: MentionSuggestion,
-  triggerStart: number
+  triggerStart: number,
 ): { newText: string; newCursorPosition: number } {
-  const insertText = getMentionInsertText(suggestion)
-  const before = text.slice(0, triggerStart)
-  const after = text.slice(cursorPosition)
+  const insertText = getMentionInsertText(suggestion);
+  const before = text.slice(0, triggerStart);
+  const after = text.slice(cursorPosition);
 
-  const newText = before + insertText + after
-  const newCursorPosition = triggerStart + insertText.length
+  const newText = before + insertText + after;
+  const newCursorPosition = triggerStart + insertText.length;
 
-  return { newText, newCursorPosition }
+  return { newText, newCursorPosition };
 }
 
 // ============================================================================
@@ -503,19 +522,19 @@ export function calculateMentionReplacement(
 // ============================================================================
 
 /** Key for storing recent mentions in localStorage */
-const RECENT_MENTIONS_KEY = 'nchat-recent-mentions'
-const MAX_RECENT_MENTIONS = 5
+const RECENT_MENTIONS_KEY = "nchat-recent-mentions";
+const MAX_RECENT_MENTIONS = 5;
 
 /**
  * Get recently used mentions
  */
 export function getRecentMentions(): string[] {
-  if (typeof window === 'undefined') return []
+  if (typeof window === "undefined") return [];
   try {
-    const stored = localStorage.getItem(RECENT_MENTIONS_KEY)
-    return stored ? JSON.parse(stored) : []
+    const stored = localStorage.getItem(RECENT_MENTIONS_KEY);
+    return stored ? JSON.parse(stored) : [];
   } catch {
-    return []
+    return [];
   }
 }
 
@@ -523,14 +542,14 @@ export function getRecentMentions(): string[] {
  * Add a mention to recent list
  */
 export function addRecentMention(identifier: string): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
   try {
-    const recent = getRecentMentions()
-    const updated = [identifier, ...recent.filter((m) => m !== identifier)].slice(
-      0,
-      MAX_RECENT_MENTIONS
-    )
-    localStorage.setItem(RECENT_MENTIONS_KEY, JSON.stringify(updated))
+    const recent = getRecentMentions();
+    const updated = [
+      identifier,
+      ...recent.filter((m) => m !== identifier),
+    ].slice(0, MAX_RECENT_MENTIONS);
+    localStorage.setItem(RECENT_MENTIONS_KEY, JSON.stringify(updated));
   } catch {
     // Ignore storage errors
   }
@@ -540,9 +559,9 @@ export function addRecentMention(identifier: string): void {
  * Clear recent mentions
  */
 export function clearRecentMentions(): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
   try {
-    localStorage.removeItem(RECENT_MENTIONS_KEY)
+    localStorage.removeItem(RECENT_MENTIONS_KEY);
   } catch {
     // Ignore storage errors
   }

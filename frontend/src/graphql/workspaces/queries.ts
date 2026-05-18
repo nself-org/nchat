@@ -6,54 +6,54 @@
  * and nchat_workspace_invites tables.
  */
 
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 import {
   WORKSPACE_BASIC_FRAGMENT,
   WORKSPACE_FULL_FRAGMENT,
   WORKSPACE_WITH_STATS_FRAGMENT,
   WORKSPACE_MEMBER_FRAGMENT,
   WORKSPACE_INVITE_FRAGMENT,
-} from './fragments'
+} from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
 export interface GetWorkspacesVariables {
-  userId: string
-  limit?: number
-  offset?: number
+  userId: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetWorkspaceVariables {
-  id: string
+  id: string;
 }
 
 export interface GetWorkspaceBySlugVariables {
-  slug: string
+  slug: string;
 }
 
 export interface GetWorkspaceMembersVariables {
-  workspaceId: string
-  role?: string
-  limit?: number
-  offset?: number
+  workspaceId: string;
+  role?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface SearchWorkspaceMembersVariables {
-  workspaceId: string
-  searchQuery: string
-  limit?: number
+  workspaceId: string;
+  searchQuery: string;
+  limit?: number;
 }
 
 export interface GetWorkspaceInvitesVariables {
-  workspaceId: string
-  limit?: number
-  offset?: number
+  workspaceId: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface ValidateInviteVariables {
-  code: string
+  code: string;
 }
 
 // ============================================================================
@@ -85,7 +85,7 @@ export const GET_WORKSPACES = gql`
     }
   }
   ${WORKSPACE_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get public/discoverable workspaces
@@ -100,14 +100,16 @@ export const GET_PUBLIC_WORKSPACES = gql`
     ) {
       ...WorkspaceBasic
     }
-    nchat_workspaces_aggregate(where: { settings: { _contains: { discoverable: true } } }) {
+    nchat_workspaces_aggregate(
+      where: { settings: { _contains: { discoverable: true } } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${WORKSPACE_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // SINGLE WORKSPACE QUERIES
@@ -123,7 +125,7 @@ export const GET_WORKSPACE = gql`
     }
   }
   ${WORKSPACE_WITH_STATS_FRAGMENT}
-`
+`;
 
 /**
  * Get a single workspace by slug
@@ -135,7 +137,7 @@ export const GET_WORKSPACE_BY_SLUG = gql`
     }
   }
   ${WORKSPACE_WITH_STATS_FRAGMENT}
-`
+`;
 
 /**
  * Check if user is a member of a workspace
@@ -152,14 +154,17 @@ export const CHECK_WORKSPACE_MEMBERSHIP = gql`
       nickname
     }
   }
-`
+`;
 
 /**
  * Get user's membership for a workspace
  */
 export const GET_USER_WORKSPACE_MEMBERSHIP = gql`
   query GetUserWorkspaceMembership($workspaceId: uuid!, $userId: uuid!) {
-    nchat_workspace_members_by_pk(workspace_id: $workspaceId, user_id: $userId) {
+    nchat_workspace_members_by_pk(
+      workspace_id: $workspaceId
+      user_id: $userId
+    ) {
       id
       workspace_id
       user_id
@@ -172,7 +177,7 @@ export const GET_USER_WORKSPACE_MEMBERSHIP = gql`
     }
   }
   ${WORKSPACE_FULL_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // WORKSPACE MEMBERS QUERIES
@@ -191,7 +196,9 @@ export const GET_WORKSPACE_MEMBERS = gql`
     nchat_workspace_members(
       where: {
         workspace_id: { _eq: $workspaceId }
-        _and: [{ _or: [{ role: { _eq: $role } }, { role: { _is_null: false } }] }]
+        _and: [
+          { _or: [{ role: { _eq: $role } }, { role: { _is_null: false } }] }
+        ]
       }
       order_by: [{ role: asc }, { joined_at: asc }]
       limit: $limit
@@ -202,7 +209,9 @@ export const GET_WORKSPACE_MEMBERS = gql`
     nchat_workspace_members_aggregate(
       where: {
         workspace_id: { _eq: $workspaceId }
-        _and: [{ _or: [{ role: { _eq: $role } }, { role: { _is_null: false } }] }]
+        _and: [
+          { _or: [{ role: { _eq: $role } }, { role: { _is_null: false } }] }
+        ]
       }
     ) {
       aggregate {
@@ -211,7 +220,7 @@ export const GET_WORKSPACE_MEMBERS = gql`
     }
   }
   ${WORKSPACE_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Get workspace admins (owner, admin, moderator)
@@ -219,20 +228,27 @@ export const GET_WORKSPACE_MEMBERS = gql`
 export const GET_WORKSPACE_ADMINS = gql`
   query GetWorkspaceAdmins($workspaceId: uuid!) {
     nchat_workspace_members(
-      where: { workspace_id: { _eq: $workspaceId }, role: { _in: ["owner", "admin", "moderator"] } }
+      where: {
+        workspace_id: { _eq: $workspaceId }
+        role: { _in: ["owner", "admin", "moderator"] }
+      }
       order_by: { role: asc }
     ) {
       ...WorkspaceMember
     }
   }
   ${WORKSPACE_MEMBER_FRAGMENT}
-`
+`;
 
 /**
  * Search workspace members
  */
 export const SEARCH_WORKSPACE_MEMBERS = gql`
-  query SearchWorkspaceMembers($workspaceId: uuid!, $searchQuery: String!, $limit: Int = 20) {
+  query SearchWorkspaceMembers(
+    $workspaceId: uuid!
+    $searchQuery: String!
+    $limit: Int = 20
+  ) {
     nchat_workspace_members(
       where: {
         workspace_id: { _eq: $workspaceId }
@@ -249,7 +265,7 @@ export const SEARCH_WORKSPACE_MEMBERS = gql`
     }
   }
   ${WORKSPACE_MEMBER_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // WORKSPACE INVITES QUERIES
@@ -259,7 +275,11 @@ export const SEARCH_WORKSPACE_MEMBERS = gql`
  * Get workspace invites
  */
 export const GET_WORKSPACE_INVITES = gql`
-  query GetWorkspaceInvites($workspaceId: uuid!, $limit: Int = 50, $offset: Int = 0) {
+  query GetWorkspaceInvites(
+    $workspaceId: uuid!
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_workspace_invites(
       where: { workspace_id: { _eq: $workspaceId } }
       order_by: { created_at: desc }
@@ -268,14 +288,16 @@ export const GET_WORKSPACE_INVITES = gql`
     ) {
       ...WorkspaceInvite
     }
-    nchat_workspace_invites_aggregate(where: { workspace_id: { _eq: $workspaceId } }) {
+    nchat_workspace_invites_aggregate(
+      where: { workspace_id: { _eq: $workspaceId } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${WORKSPACE_INVITE_FRAGMENT}
-`
+`;
 
 /**
  * Validate an invite code
@@ -286,8 +308,18 @@ export const VALIDATE_INVITE = gql`
       where: {
         code: { _eq: $code }
         _and: [
-          { _or: [{ expires_at: { _gt: "now()" } }, { expires_at: { _is_null: true } }] }
-          { _or: [{ uses: { _lt: "max_uses" } }, { max_uses: { _is_null: true } }] }
+          {
+            _or: [
+              { expires_at: { _gt: "now()" } }
+              { expires_at: { _is_null: true } }
+            ]
+          }
+          {
+            _or: [
+              { uses: { _lt: "max_uses" } }
+              { max_uses: { _is_null: true } }
+            ]
+          }
         ]
       }
       limit: 1
@@ -300,7 +332,7 @@ export const VALIDATE_INVITE = gql`
   }
   ${WORKSPACE_INVITE_FRAGMENT}
   ${WORKSPACE_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Get invite by code (simpler validation)
@@ -316,7 +348,7 @@ export const GET_INVITE_BY_CODE = gql`
   }
   ${WORKSPACE_INVITE_FRAGMENT}
   ${WORKSPACE_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // WORKSPACE STATS QUERIES
@@ -350,4 +382,4 @@ export const GET_WORKSPACE_STATS = gql`
       }
     }
   }
-`
+`;

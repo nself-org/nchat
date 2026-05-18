@@ -1,23 +1,25 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { UserPlus, Mail, X, Check, AlertCircle, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { useState } from "react";
+import { UserPlus, Mail, X, Check, AlertCircle, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type {
   OnboardingStepProps,
   TeamInvitation,
   InvitationResult,
-} from '@/lib/onboarding/onboarding-types'
+} from "@/lib/onboarding/onboarding-types";
 
 interface InviteTeamStepProps extends OnboardingStepProps {
-  invitations?: TeamInvitation[]
-  onInvitationsChange?: (invitations: TeamInvitation[]) => void
-  onSendInvitations?: (invitations: TeamInvitation[]) => Promise<InvitationResult[]>
+  invitations?: TeamInvitation[];
+  onInvitationsChange?: (invitations: TeamInvitation[]) => void;
+  onSendInvitations?: (
+    invitations: TeamInvitation[],
+  ) => Promise<InvitationResult[]>;
 }
 
 export function InviteTeamStep({
@@ -30,78 +32,86 @@ export function InviteTeamStep({
   onInvitationsChange,
   onSendInvitations,
 }: InviteTeamStepProps) {
-  const [invitations, setInvitations] = useState<TeamInvitation[]>(initialInvitations)
-  const [currentEmail, setCurrentEmail] = useState('')
-  const [bulkEmails, setBulkEmails] = useState('')
-  const [showBulk, setShowBulk] = useState(false)
-  const [customMessage, setCustomMessage] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isSending, setIsSending] = useState(false)
-  const [results, setResults] = useState<InvitationResult[]>([])
+  const [invitations, setInvitations] =
+    useState<TeamInvitation[]>(initialInvitations);
+  const [currentEmail, setCurrentEmail] = useState("");
+  const [bulkEmails, setBulkEmails] = useState("");
+  const [showBulk, setShowBulk] = useState(false);
+  const [customMessage, setCustomMessage] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [results, setResults] = useState<InvitationResult[]>([]);
 
   const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const addEmail = (email: string) => {
-    const trimmedEmail = email.trim().toLowerCase()
+    const trimmedEmail = email.trim().toLowerCase();
 
-    if (!trimmedEmail) return
+    if (!trimmedEmail) return;
 
     if (!validateEmail(trimmedEmail)) {
-      setError(`Invalid email: ${trimmedEmail}`)
-      return
+      setError(`Invalid email: ${trimmedEmail}`);
+      return;
     }
 
     if (invitations.some((inv) => inv.email === trimmedEmail)) {
-      setError('This email has already been added')
-      return
+      setError("This email has already been added");
+      return;
     }
 
     const newInvitations = [
       ...invitations,
-      { email: trimmedEmail, role: 'member' as const, message: customMessage || undefined },
-    ]
-    setInvitations(newInvitations)
-    onInvitationsChange?.(newInvitations)
-    setError(null)
-    setCurrentEmail('')
-  }
+      {
+        email: trimmedEmail,
+        role: "member" as const,
+        message: customMessage || undefined,
+      },
+    ];
+    setInvitations(newInvitations);
+    onInvitationsChange?.(newInvitations);
+    setError(null);
+    setCurrentEmail("");
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault()
-      addEmail(currentEmail)
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addEmail(currentEmail);
     }
-  }
+  };
 
   const handleBulkAdd = () => {
     // Parse emails from textarea (comma, newline, or space separated)
     const emails = bulkEmails
       .split(/[,\n\s]+/)
       .map((e) => e.trim().toLowerCase())
-      .filter((e) => e.length > 0)
+      .filter((e) => e.length > 0);
 
-    const validEmails: string[] = []
-    const invalidEmails: string[] = []
+    const validEmails: string[] = [];
+    const invalidEmails: string[] = [];
 
     emails.forEach((email) => {
       if (validateEmail(email)) {
-        if (!invitations.some((inv) => inv.email === email) && !validEmails.includes(email)) {
-          validEmails.push(email)
+        if (
+          !invitations.some((inv) => inv.email === email) &&
+          !validEmails.includes(email)
+        ) {
+          validEmails.push(email);
         }
       } else {
-        invalidEmails.push(email)
+        invalidEmails.push(email);
       }
-    })
+    });
 
     if (invalidEmails.length > 0) {
       setError(
-        `Invalid emails: ${invalidEmails.slice(0, 3).join(', ')}${invalidEmails.length > 3 ? '...' : ''}`
-      )
+        `Invalid emails: ${invalidEmails.slice(0, 3).join(", ")}${invalidEmails.length > 3 ? "..." : ""}`,
+      );
     } else {
-      setError(null)
+      setError(null);
     }
 
     if (validEmails.length > 0) {
@@ -109,49 +119,49 @@ export function InviteTeamStep({
         ...invitations,
         ...validEmails.map((email) => ({
           email,
-          role: 'member' as const,
+          role: "member" as const,
           message: customMessage || undefined,
         })),
-      ]
-      setInvitations(newInvitations)
-      onInvitationsChange?.(newInvitations)
-      setBulkEmails('')
-      setShowBulk(false)
+      ];
+      setInvitations(newInvitations);
+      onInvitationsChange?.(newInvitations);
+      setBulkEmails("");
+      setShowBulk(false);
     }
-  }
+  };
 
   const removeInvitation = (email: string) => {
-    const newInvitations = invitations.filter((inv) => inv.email !== email)
-    setInvitations(newInvitations)
-    onInvitationsChange?.(newInvitations)
-  }
+    const newInvitations = invitations.filter((inv) => inv.email !== email);
+    setInvitations(newInvitations);
+    onInvitationsChange?.(newInvitations);
+  };
 
   const handleSendInvitations = async () => {
     if (invitations.length === 0) {
-      onNext()
-      return
+      onNext();
+      return;
     }
 
     if (onSendInvitations) {
-      setIsSending(true)
+      setIsSending(true);
       try {
-        const results = await onSendInvitations(invitations)
-        setResults(results)
+        const results = await onSendInvitations(invitations);
+        setResults(results);
         // Continue to next step regardless of results
-        setTimeout(onNext, 2000)
+        setTimeout(onNext, 2000);
       } catch (err) {
-        setError('Failed to send invitations. Please try again.')
+        setError("Failed to send invitations. Please try again.");
       } finally {
-        setIsSending(false)
+        setIsSending(false);
       }
     } else {
       // No send handler, just proceed
-      onNext()
+      onNext();
     }
-  }
+  };
 
-  const successCount = results.filter((r) => r.success).length
-  const failCount = results.filter((r) => !r.success).length
+  const successCount = results.filter((r) => r.success).length;
+  const failCount = results.filter((r) => !r.success).length;
 
   return (
     <div className="flex flex-col px-4 py-6">
@@ -160,7 +170,9 @@ export function InviteTeamStep({
         <div className="from-primary/20 to-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
           <UserPlus className="h-8 w-8 text-primary" />
         </div>
-        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">Invite Your Team</h2>
+        <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">
+          Invite Your Team
+        </h2>
         <p className="mx-auto max-w-md text-zinc-600 dark:text-zinc-400">
           Bring your teammates to nchat. They'll receive an email invitation.
         </p>
@@ -211,7 +223,9 @@ export function InviteTeamStep({
                 Add
               </Button>
             </div>
-            <p className="text-xs text-zinc-500">Press Enter or comma to add multiple emails</p>
+            <p className="text-xs text-zinc-500">
+              Press Enter or comma to add multiple emails
+            </p>
           </div>
 
           {/* Bulk Add Toggle */}
@@ -296,7 +310,9 @@ export function InviteTeamStep({
             <div className="py-8 text-center text-zinc-500">
               <UserPlus className="mx-auto mb-2 h-12 w-12 opacity-30" />
               <p>No invitations added yet</p>
-              <p className="text-sm">Enter email addresses above to invite teammates</p>
+              <p className="text-sm">
+                Enter email addresses above to invite teammates
+              </p>
             </div>
           )}
         </div>
@@ -325,13 +341,13 @@ export function InviteTeamStep({
                 Sending...
               </>
             ) : invitations.length > 0 ? (
-              `Send ${invitations.length} Invitation${invitations.length !== 1 ? 's' : ''}`
+              `Send ${invitations.length} Invitation${invitations.length !== 1 ? "s" : ""}`
             ) : (
-              'Continue'
+              "Continue"
             )}
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

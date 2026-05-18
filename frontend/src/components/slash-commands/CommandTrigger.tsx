@@ -1,81 +1,87 @@
-'use client'
+"use client";
 
 /**
  * CommandTrigger - Trigger word configuration
  */
 
-import { useState, useCallback } from 'react'
-import { X, Plus, AlertCircle } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { sanitizeTrigger } from '@/lib/slash-commands'
-import { cn } from '@/lib/utils'
+import { useState, useCallback } from "react";
+import { X, Plus, AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { sanitizeTrigger } from "@/lib/slash-commands";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandTriggerProps {
-  value: string
-  aliases?: string[]
-  onChange: (trigger: string, aliases?: string[]) => void
+  value: string;
+  aliases?: string[];
+  onChange: (trigger: string, aliases?: string[]) => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function CommandTrigger({ value, aliases = [], onChange }: CommandTriggerProps) {
-  const [newAlias, setNewAlias] = useState('')
-  const [triggerError, setTriggerError] = useState<string | null>(null)
+export function CommandTrigger({
+  value,
+  aliases = [],
+  onChange,
+}: CommandTriggerProps) {
+  const [newAlias, setNewAlias] = useState("");
+  const [triggerError, setTriggerError] = useState<string | null>(null);
 
   // Validate and update trigger
   const handleTriggerChange = useCallback(
     (input: string) => {
-      const sanitized = sanitizeTrigger(input)
+      const sanitized = sanitizeTrigger(input);
 
       // Validate
       if (sanitized && !/^[a-z][a-z0-9_-]*$/.test(sanitized)) {
-        setTriggerError('Must start with a letter, only letters, numbers, _, -')
+        setTriggerError(
+          "Must start with a letter, only letters, numbers, _, -",
+        );
       } else if (sanitized && sanitized.length < 2) {
-        setTriggerError('Must be at least 2 characters')
+        setTriggerError("Must be at least 2 characters");
       } else {
-        setTriggerError(null)
+        setTriggerError(null);
       }
 
-      onChange(sanitized, aliases)
+      onChange(sanitized, aliases);
     },
-    [aliases, onChange]
-  )
+    [aliases, onChange],
+  );
 
   // Add alias
   const handleAddAlias = useCallback(() => {
-    if (!newAlias.trim()) return
+    if (!newAlias.trim()) return;
 
-    const sanitized = sanitizeTrigger(newAlias)
-    if (!sanitized) return
+    const sanitized = sanitizeTrigger(newAlias);
+    if (!sanitized) return;
 
     // Check if already exists
     if (aliases.includes(sanitized) || sanitized === value) {
-      return
+      return;
     }
 
-    onChange(value, [...aliases, sanitized])
-    setNewAlias('')
-  }, [newAlias, aliases, value, onChange])
+    onChange(value, [...aliases, sanitized]);
+    setNewAlias("");
+  }, [newAlias, aliases, value, onChange]);
 
   // Remove alias
   const handleRemoveAlias = useCallback(
     (alias: string) => {
       onChange(
         value,
-        aliases.filter((a) => a !== alias)
-      )
+        aliases.filter((a) => a !== alias),
+      );
     },
-    [value, aliases, onChange]
-  )
+    [value, aliases, onChange],
+  );
 
   return (
     <div className="space-y-4">
@@ -83,15 +89,18 @@ export function CommandTrigger({ value, aliases = [], onChange }: CommandTrigger
       <div className="space-y-2">
         <Label htmlFor="trigger">Command Trigger</Label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">/</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            /
+          </span>
           <Input
             id="trigger"
             value={value}
             onChange={(e) => handleTriggerChange(e.target.value)}
             placeholder="mycommand"
             className={cn(
-              'pl-7 font-mono',
-              triggerError && 'border-destructive focus-visible:ring-destructive'
+              "pl-7 font-mono",
+              triggerError &&
+                "border-destructive focus-visible:ring-destructive",
             )}
             maxLength={32}
           />
@@ -112,7 +121,8 @@ export function CommandTrigger({ value, aliases = [], onChange }: CommandTrigger
       {value && (
         <div className="bg-muted/50 rounded-lg border p-3">
           <p className="text-sm">
-            Users will type: <code className="rounded bg-muted px-1 font-mono">/{value}</code>
+            Users will type:{" "}
+            <code className="rounded bg-muted px-1 font-mono">/{value}</code>
           </p>
         </div>
       )}
@@ -154,9 +164,9 @@ export function CommandTrigger({ value, aliases = [], onChange }: CommandTrigger
               className="pl-7 font-mono"
               maxLength={32}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  handleAddAlias()
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddAlias();
                 }
               }}
             />
@@ -171,10 +181,12 @@ export function CommandTrigger({ value, aliases = [], onChange }: CommandTrigger
             <Plus className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">Maximum 5 aliases. Press Enter to add.</p>
+        <p className="text-xs text-muted-foreground">
+          Maximum 5 aliases. Press Enter to add.
+        </p>
       </div>
     </div>
-  )
+  );
 }
 
-export default CommandTrigger
+export default CommandTrigger;

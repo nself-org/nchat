@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Monitor,
   Smartphone,
@@ -10,10 +10,16 @@ import {
   MapPin,
   Clock,
   AlertTriangle,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,17 +29,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { cn } from '@/lib/utils'
-import type { UserSession, DeviceType } from '@/lib/admin/users/user-types'
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
+import type { UserSession, DeviceType } from "@/lib/admin/users/user-types";
 
 interface UserSessionsProps {
-  sessions: UserSession[]
-  userId: string
-  isLoading?: boolean
-  onRevokeSession?: (sessionId: string) => Promise<void>
-  onRevokeAllSessions?: () => Promise<void>
-  onRefresh?: () => void
+  sessions: UserSession[];
+  userId: string;
+  isLoading?: boolean;
+  onRevokeSession?: (sessionId: string) => Promise<void>;
+  onRevokeAllSessions?: () => Promise<void>;
+  onRefresh?: () => void;
 }
 
 const deviceIcons: Record<DeviceType, React.ReactNode> = {
@@ -41,13 +47,13 @@ const deviceIcons: Record<DeviceType, React.ReactNode> = {
   mobile: <Smartphone className="h-4 w-4" />,
   tablet: <Tablet className="h-4 w-4" />,
   unknown: <Monitor className="h-4 w-4" />,
-}
+};
 
 const statusColors = {
-  active: 'bg-green-500',
-  expired: 'bg-gray-400',
-  revoked: 'bg-red-500',
-}
+  active: "bg-green-500",
+  expired: "bg-gray-400",
+  revoked: "bg-red-500",
+};
 
 export function UserSessions({
   sessions,
@@ -57,51 +63,53 @@ export function UserSessions({
   onRevokeAllSessions,
   onRefresh,
 }: UserSessionsProps) {
-  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false)
-  const [revokeAllDialogOpen, setRevokeAllDialogOpen] = useState(false)
-  const [selectedSession, setSelectedSession] = useState<UserSession | null>(null)
-  const [isRevoking, setIsRevoking] = useState(false)
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [revokeAllDialogOpen, setRevokeAllDialogOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<UserSession | null>(
+    null,
+  );
+  const [isRevoking, setIsRevoking] = useState(false);
 
-  const activeSessions = sessions.filter((s) => s.status === 'active')
+  const activeSessions = sessions.filter((s) => s.status === "active");
 
   const handleRevokeSession = async () => {
-    if (!selectedSession || !onRevokeSession) return
+    if (!selectedSession || !onRevokeSession) return;
 
-    setIsRevoking(true)
+    setIsRevoking(true);
     try {
-      await onRevokeSession(selectedSession.id)
+      await onRevokeSession(selectedSession.id);
     } finally {
-      setIsRevoking(false)
-      setRevokeDialogOpen(false)
-      setSelectedSession(null)
+      setIsRevoking(false);
+      setRevokeDialogOpen(false);
+      setSelectedSession(null);
     }
-  }
+  };
 
   const handleRevokeAllSessions = async () => {
-    if (!onRevokeAllSessions) return
+    if (!onRevokeAllSessions) return;
 
-    setIsRevoking(true)
+    setIsRevoking(true);
     try {
-      await onRevokeAllSessions()
+      await onRevokeAllSessions();
     } finally {
-      setIsRevoking(false)
-      setRevokeAllDialogOpen(false)
+      setIsRevoking(false);
+      setRevokeAllDialogOpen(false);
     }
-  }
+  };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
 
-    if (minutes < 1) return 'Active now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
+    if (minutes < 1) return "Active now";
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
 
-    return date.toLocaleDateString()
-  }
+    return date.toLocaleDateString();
+  };
 
   return (
     <>
@@ -110,7 +118,9 @@ export function UserSessions({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Active Sessions</CardTitle>
-              <CardDescription>Manage user login sessions across devices</CardDescription>
+              <CardDescription>
+                Manage user login sessions across devices
+              </CardDescription>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={onRefresh}>
@@ -134,7 +144,10 @@ export function UserSessions({
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-4 rounded-lg border p-4">
+                <div
+                  key={i}
+                  className="flex items-center gap-4 rounded-lg border p-4"
+                >
                   <div className="h-10 w-10 animate-pulse rounded bg-muted" />
                   <div className="flex-1 space-y-2">
                     <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
@@ -154,8 +167,8 @@ export function UserSessions({
                 <div
                   key={session.id}
                   className={cn(
-                    'flex items-center justify-between rounded-lg border p-4',
-                    session.isCurrent && 'bg-primary/5 border-primary'
+                    "flex items-center justify-between rounded-lg border p-4",
+                    session.isCurrent && "bg-primary/5 border-primary",
                   )}
                 >
                   <div className="flex items-center gap-4">
@@ -165,10 +178,15 @@ export function UserSessions({
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">
-                          {session.browser || 'Unknown Browser'}
+                          {session.browser || "Unknown Browser"}
                           {session.os && ` on ${session.os}`}
                         </span>
-                        <div className={cn('h-2 w-2 rounded-full', statusColors[session.status])} />
+                        <div
+                          className={cn(
+                            "h-2 w-2 rounded-full",
+                            statusColors[session.status],
+                          )}
+                        />
                         {session.isCurrent && (
                           <Badge variant="secondary" className="text-xs">
                             Current
@@ -180,7 +198,8 @@ export function UserSessions({
                           <span className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             {session.location.city}
-                            {session.location.country && `, ${session.location.country}`}
+                            {session.location.country &&
+                              `, ${session.location.country}`}
                           </span>
                         )}
                         <span className="flex items-center gap-1">
@@ -193,13 +212,13 @@ export function UserSessions({
                       </div>
                     </div>
                   </div>
-                  {session.status === 'active' && !session.isCurrent && (
+                  {session.status === "active" && !session.isCurrent && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setSelectedSession(session)
-                        setRevokeDialogOpen(true)
+                        setSelectedSession(session);
+                        setRevokeDialogOpen(true);
                       }}
                       className="text-destructive hover:text-destructive"
                     >
@@ -220,16 +239,16 @@ export function UserSessions({
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke Session</AlertDialogTitle>
             <AlertDialogDescription>
-              This will log out the user from this device. They will need to sign in again to
-              continue using the application.
+              This will log out the user from this device. They will need to
+              sign in again to continue using the application.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isRevoking}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
-                e.preventDefault()
-                handleRevokeSession()
+                e.preventDefault();
+                handleRevokeSession();
               }}
               disabled={isRevoking}
               className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
@@ -241,7 +260,10 @@ export function UserSessions({
       </AlertDialog>
 
       {/* Revoke All Sessions Dialog */}
-      <AlertDialog open={revokeAllDialogOpen} onOpenChange={setRevokeAllDialogOpen}>
+      <AlertDialog
+        open={revokeAllDialogOpen}
+        onOpenChange={setRevokeAllDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
@@ -249,16 +271,17 @@ export function UserSessions({
               Revoke All Sessions
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will log out the user from all {activeSessions.length} active device(s). They
-              will need to sign in again on each device to continue using the application.
+              This will log out the user from all {activeSessions.length} active
+              device(s). They will need to sign in again on each device to
+              continue using the application.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isRevoking}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
-                e.preventDefault()
-                handleRevokeAllSessions()
+                e.preventDefault();
+                handleRevokeAllSessions();
               }}
               disabled={isRevoking}
               className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
@@ -269,7 +292,7 @@ export function UserSessions({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
-export default UserSessions
+export default UserSessions;

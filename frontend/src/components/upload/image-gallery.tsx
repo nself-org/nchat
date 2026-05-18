@@ -11,10 +11,10 @@
  * - Touch/swipe support
  */
 
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import * as React from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   X,
   ChevronLeft,
@@ -26,9 +26,9 @@ import {
   Maximize2,
   Minimize2,
   Loader2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 // ============================================================================
 // Types
@@ -36,51 +36,51 @@ import { Button } from '@/components/ui/button'
 
 export interface GalleryImage {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Image URL */
-  src: string
+  src: string;
   /** Thumbnail URL (optional) */
-  thumbnail?: string
+  thumbnail?: string;
   /** Alt text */
-  alt?: string
+  alt?: string;
   /** Image title/caption */
-  title?: string
+  title?: string;
   /** Image width */
-  width?: number
+  width?: number;
   /** Image height */
-  height?: number
+  height?: number;
 }
 
 export interface ImageGalleryProps {
   /** List of images */
-  images: GalleryImage[]
+  images: GalleryImage[];
   /** Currently open image index (-1 if closed) */
-  currentIndex: number
+  currentIndex: number;
   /** Callback to change current image */
-  onIndexChange: (index: number) => void
+  onIndexChange: (index: number) => void;
   /** Callback to close gallery */
-  onClose: () => void
+  onClose: () => void;
   /** Enable zoom */
-  enableZoom?: boolean
+  enableZoom?: boolean;
   /** Enable rotation */
-  enableRotation?: boolean
+  enableRotation?: boolean;
   /** Enable download */
-  enableDownload?: boolean
+  enableDownload?: boolean;
   /** Enable fullscreen */
-  enableFullscreen?: boolean
+  enableFullscreen?: boolean;
   /** Show thumbnails strip */
-  showThumbnails?: boolean
+  showThumbnails?: boolean;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const MIN_ZOOM = 0.5
-const MAX_ZOOM = 4
-const ZOOM_STEP = 0.25
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 4;
+const ZOOM_STEP = 0.25;
 
 // ============================================================================
 // Component
@@ -98,162 +98,178 @@ export function ImageGallery({
   showThumbnails = true,
   className,
 }: ImageGalleryProps) {
-  const [zoom, setZoom] = useState(1)
-  const [rotation, setRotation] = useState(0)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const imageRef = useRef<HTMLImageElement>(null)
-  const dragStartRef = useRef({ x: 0, y: 0 })
-  const touchStartRef = useRef<{ x: number; y: number; distance?: number } | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const touchStartRef = useRef<{
+    x: number;
+    y: number;
+    distance?: number;
+  } | null>(null);
 
-  const currentImage = images[currentIndex]
-  const hasNext = currentIndex < images.length - 1
-  const hasPrev = currentIndex > 0
+  const currentImage = images[currentIndex];
+  const hasNext = currentIndex < images.length - 1;
+  const hasPrev = currentIndex > 0;
 
   // Reset state when image changes
   useEffect(() => {
-    setZoom(1)
-    setRotation(0)
-    setPosition({ x: 0, y: 0 })
-    setIsLoading(true)
-  }, [currentIndex])
+    setZoom(1);
+    setRotation(0);
+    setPosition({ x: 0, y: 0 });
+    setIsLoading(true);
+  }, [currentIndex]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (currentIndex < 0) return
+      if (currentIndex < 0) return;
 
       switch (e.key) {
-        case 'Escape':
-          onClose()
-          break
-        case 'ArrowLeft':
-          if (hasPrev) onIndexChange(currentIndex - 1)
-          break
-        case 'ArrowRight':
-          if (hasNext) onIndexChange(currentIndex + 1)
-          break
-        case '+':
-        case '=':
-          if (enableZoom) handleZoomIn()
-          break
-        case '-':
-          if (enableZoom) handleZoomOut()
-          break
-        case '0':
-          if (enableZoom) setZoom(1)
-          break
-        case 'r':
-        case 'R':
-          if (enableRotation) handleRotate()
-          break
+        case "Escape":
+          onClose();
+          break;
+        case "ArrowLeft":
+          if (hasPrev) onIndexChange(currentIndex - 1);
+          break;
+        case "ArrowRight":
+          if (hasNext) onIndexChange(currentIndex + 1);
+          break;
+        case "+":
+        case "=":
+          if (enableZoom) handleZoomIn();
+          break;
+        case "-":
+          if (enableZoom) handleZoomOut();
+          break;
+        case "0":
+          if (enableZoom) setZoom(1);
+          break;
+        case "r":
+        case "R":
+          if (enableRotation) handleRotate();
+          break;
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [currentIndex, hasNext, hasPrev, onClose, onIndexChange, enableZoom, enableRotation])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    currentIndex,
+    hasNext,
+    hasPrev,
+    onClose,
+    onIndexChange,
+    enableZoom,
+    enableRotation,
+  ]);
 
   // Fullscreen handling
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+      setIsFullscreen(!!document.fullscreenElement);
+    };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // Prevent body scroll when gallery is open
   useEffect(() => {
     if (currentIndex >= 0) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = ''
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = ''
-    }
-  }, [currentIndex])
+      document.body.style.overflow = "";
+    };
+  }, [currentIndex]);
 
   // Navigation handlers
   const goNext = useCallback(() => {
-    if (hasNext) onIndexChange(currentIndex + 1)
-  }, [hasNext, currentIndex, onIndexChange])
+    if (hasNext) onIndexChange(currentIndex + 1);
+  }, [hasNext, currentIndex, onIndexChange]);
 
   const goPrev = useCallback(() => {
-    if (hasPrev) onIndexChange(currentIndex - 1)
-  }, [hasPrev, currentIndex, onIndexChange])
+    if (hasPrev) onIndexChange(currentIndex - 1);
+  }, [hasPrev, currentIndex, onIndexChange]);
 
   // Zoom handlers
   const handleZoomIn = useCallback(() => {
-    setZoom((z) => Math.min(z + ZOOM_STEP, MAX_ZOOM))
-  }, [])
+    setZoom((z) => Math.min(z + ZOOM_STEP, MAX_ZOOM));
+  }, []);
 
   const handleZoomOut = useCallback(() => {
-    setZoom((z) => Math.max(z - ZOOM_STEP, MIN_ZOOM))
-  }, [])
+    setZoom((z) => Math.max(z - ZOOM_STEP, MIN_ZOOM));
+  }, []);
 
   const handleResetZoom = useCallback(() => {
-    setZoom(1)
-    setPosition({ x: 0, y: 0 })
-  }, [])
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  }, []);
 
   // Rotation handler
   const handleRotate = useCallback(() => {
-    setRotation((r) => (r + 90) % 360)
-  }, [])
+    setRotation((r) => (r + 90) % 360);
+  }, []);
 
   // Download handler
   const handleDownload = useCallback(async () => {
-    if (!currentImage) return
+    if (!currentImage) return;
 
     try {
-      const response = await fetch(currentImage.src)
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = currentImage.title || currentImage.alt || 'image'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      const response = await fetch(currentImage.src);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = currentImage.title || currentImage.alt || "image";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch {
       // Fallback: open in new tab
-      window.open(currentImage.src, '_blank')
+      window.open(currentImage.src, "_blank");
     }
-  }, [currentImage])
+  }, [currentImage]);
 
   // Fullscreen handler
   const handleFullscreen = useCallback(async () => {
-    if (!containerRef.current) return
+    if (!containerRef.current) return;
 
     try {
       if (isFullscreen) {
-        await document.exitFullscreen()
+        await document.exitFullscreen();
       } else {
-        await containerRef.current.requestFullscreen()
+        await containerRef.current.requestFullscreen();
       }
     } catch {
       // Fullscreen not supported
     }
-  }, [isFullscreen])
+  }, [isFullscreen]);
 
   // Mouse drag handlers
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (zoom > 1) {
-        setIsDragging(true)
-        dragStartRef.current = { x: e.clientX - position.x, y: e.clientY - position.y }
+        setIsDragging(true);
+        dragStartRef.current = {
+          x: e.clientX - position.x,
+          y: e.clientY - position.y,
+        };
       }
     },
-    [zoom, position]
-  )
+    [zoom, position],
+  );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -261,15 +277,15 @@ export function ImageGallery({
         setPosition({
           x: e.clientX - dragStartRef.current.x,
           y: e.clientY - dragStartRef.current.y,
-        })
+        });
       }
     },
-    [isDragging, zoom]
-  )
+    [isDragging, zoom],
+  );
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+    setIsDragging(false);
+  }, []);
 
   // Touch handlers
   const handleTouchStart = useCallback(
@@ -278,79 +294,83 @@ export function ImageGallery({
         touchStartRef.current = {
           x: e.touches[0].clientX,
           y: e.touches[0].clientY,
-        }
+        };
       } else if (e.touches.length === 2 && enableZoom) {
         const distance = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        )
+          e.touches[0].clientY - e.touches[1].clientY,
+        );
         touchStartRef.current = {
           x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
           y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
           distance,
-        }
+        };
       }
     },
-    [enableZoom]
-  )
+    [enableZoom],
+  );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (!touchStartRef.current) return
+      if (!touchStartRef.current) return;
 
-      if (e.touches.length === 2 && touchStartRef.current.distance && enableZoom) {
+      if (
+        e.touches.length === 2 &&
+        touchStartRef.current.distance &&
+        enableZoom
+      ) {
         // Pinch to zoom
         const distance = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        )
-        const scale = distance / touchStartRef.current.distance
-        setZoom((z) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z * scale)))
-        touchStartRef.current.distance = distance
+          e.touches[0].clientY - e.touches[1].clientY,
+        );
+        const scale = distance / touchStartRef.current.distance;
+        setZoom((z) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z * scale)));
+        touchStartRef.current.distance = distance;
       }
     },
-    [enableZoom]
-  )
+    [enableZoom],
+  );
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
-      if (!touchStartRef.current || e.touches.length > 0) return
+      if (!touchStartRef.current || e.touches.length > 0) return;
 
       // Swipe to navigate
       if (zoom === 1 && e.changedTouches.length === 1) {
-        const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x
+        const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
         if (Math.abs(deltaX) > 50) {
           if (deltaX > 0 && hasPrev) {
-            goPrev()
+            goPrev();
           } else if (deltaX < 0 && hasNext) {
-            goNext()
+            goNext();
           }
         }
       }
 
-      touchStartRef.current = null
+      touchStartRef.current = null;
     },
-    [zoom, hasPrev, hasNext, goPrev, goNext]
-  )
+    [zoom, hasPrev, hasNext, goPrev, goNext],
+  );
 
   // Wheel zoom
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
-      if (!enableZoom) return
-      e.preventDefault()
-      const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
-      setZoom((z) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z + delta)))
+      if (!enableZoom) return;
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+      setZoom((z) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z + delta)));
     },
-    [enableZoom]
-  )
+    [enableZoom],
+  );
 
-  if (currentIndex < 0 || !currentImage) return null
+  if (currentIndex < 0 || !currentImage) return null;
 
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       ref={containerRef}
-      className={cn('fixed inset-0 z-50 flex flex-col bg-black/95', className)}
+      className={cn("fixed inset-0 z-50 flex flex-col bg-black/95", className)}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       role="dialog"
@@ -383,7 +403,9 @@ export function ImageGallery({
               >
                 <ZoomOut className="h-5 w-5" />
               </Button>
-              <span className="w-12 text-center text-sm text-white">{Math.round(zoom * 100)}%</span>
+              <span className="w-12 text-center text-sm text-white">
+                {Math.round(zoom * 100)}%
+              </span>
               <Button
                 variant="ghost"
                 size="icon"
@@ -428,7 +450,11 @@ export function ImageGallery({
               className="h-9 w-9 text-white hover:bg-white/10"
               onClick={handleFullscreen}
             >
-              {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              {isFullscreen ? (
+                <Minimize2 className="h-5 w-5" />
+              ) : (
+                <Maximize2 className="h-5 w-5" />
+              )}
             </Button>
           )}
 
@@ -453,7 +479,9 @@ export function ImageGallery({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onWheel={handleWheel}
-        style={{ cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
+        style={{
+          cursor: zoom > 1 ? (isDragging ? "grabbing" : "grab") : "default",
+        }}
         role="presentation"
       >
         {/* Loading indicator */}
@@ -467,11 +495,11 @@ export function ImageGallery({
         <img
           ref={imageRef}
           src={currentImage.src}
-          alt={currentImage.alt || ''}
+          alt={currentImage.alt || ""}
           className={cn(
-            'max-h-full max-w-full object-contain transition-opacity duration-200',
-            isLoading ? 'opacity-0' : 'opacity-100',
-            !isDragging && 'transition-transform duration-200'
+            "max-h-full max-w-full object-contain transition-opacity duration-200",
+            isLoading ? "opacity-0" : "opacity-100",
+            !isDragging && "transition-transform duration-200",
           )}
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${zoom}) rotate(${rotation}deg)`,
@@ -512,10 +540,10 @@ export function ImageGallery({
               key={image.id}
               type="button"
               className={cn(
-                'h-14 w-14 flex-shrink-0 overflow-hidden rounded border-2 transition-all',
+                "h-14 w-14 flex-shrink-0 overflow-hidden rounded border-2 transition-all",
                 index === currentIndex
-                  ? 'border-white opacity-100'
-                  : 'border-transparent opacity-50 hover:opacity-75'
+                  ? "border-white opacity-100"
+                  : "border-transparent opacity-50 hover:opacity-75",
               )}
               onClick={() => onIndexChange(index)}
             >
@@ -529,7 +557,7 @@ export function ImageGallery({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -538,42 +566,42 @@ export function ImageGallery({
 
 export interface UseImageGalleryReturn {
   /** Current open image index (-1 if closed) */
-  currentIndex: number
+  currentIndex: number;
   /** Open gallery at specific index */
-  open: (index: number) => void
+  open: (index: number) => void;
   /** Close gallery */
-  close: () => void
+  close: () => void;
   /** Go to next image */
-  next: () => void
+  next: () => void;
   /** Go to previous image */
-  prev: () => void
+  prev: () => void;
   /** Set current index */
-  setIndex: (index: number) => void
+  setIndex: (index: number) => void;
   /** Whether gallery is open */
-  isOpen: boolean
+  isOpen: boolean;
 }
 
 export function useImageGallery(imagesCount: number): UseImageGalleryReturn {
-  const [currentIndex, setCurrentIndex] = useState(-1)
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
   const open = useCallback(
     (index: number) => {
-      setCurrentIndex(Math.max(0, Math.min(index, imagesCount - 1)))
+      setCurrentIndex(Math.max(0, Math.min(index, imagesCount - 1)));
     },
-    [imagesCount]
-  )
+    [imagesCount],
+  );
 
   const close = useCallback(() => {
-    setCurrentIndex(-1)
-  }, [])
+    setCurrentIndex(-1);
+  }, []);
 
   const next = useCallback(() => {
-    setCurrentIndex((i) => (i < imagesCount - 1 ? i + 1 : i))
-  }, [imagesCount])
+    setCurrentIndex((i) => (i < imagesCount - 1 ? i + 1 : i));
+  }, [imagesCount]);
 
   const prev = useCallback(() => {
-    setCurrentIndex((i) => (i > 0 ? i - 1 : i))
-  }, [])
+    setCurrentIndex((i) => (i > 0 ? i - 1 : i));
+  }, []);
 
   return {
     currentIndex,
@@ -583,7 +611,7 @@ export function useImageGallery(imagesCount: number): UseImageGalleryReturn {
     prev,
     setIndex: setCurrentIndex,
     isOpen: currentIndex >= 0,
-  }
+  };
 }
 
-export default ImageGallery
+export default ImageGallery;

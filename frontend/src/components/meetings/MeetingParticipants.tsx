@@ -1,58 +1,91 @@
-'use client'
+"use client";
 
 /**
  * MeetingParticipants - Participant selection and management for meetings
  */
 
-import * as React from 'react'
-import { useState, useCallback } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import * as React from "react";
+import { useState, useCallback } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Search, X, Plus, Users, UserPlus, Mail } from 'lucide-react'
-import { ParticipantRole, MeetingParticipant } from '@/lib/meetings/meeting-types'
-import { ROLE_LABELS } from '@/lib/meetings/meeting-invites'
+} from "@/components/ui/select";
+import { Search, X, Plus, Users, UserPlus, Mail } from "lucide-react";
+import {
+  ParticipantRole,
+  MeetingParticipant,
+} from "@/lib/meetings/meeting-types";
+import { ROLE_LABELS } from "@/lib/meetings/meeting-invites";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface MeetingParticipantsProps {
-  selectedIds: string[]
-  onChange: (ids: string[]) => void
-  existingParticipants?: MeetingParticipant[]
-  maxParticipants?: number
-  allowRoleAssignment?: boolean
-  defaultRole?: ParticipantRole
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+  existingParticipants?: MeetingParticipant[];
+  maxParticipants?: number;
+  allowRoleAssignment?: boolean;
+  defaultRole?: ParticipantRole;
 }
 
 // Mock user data - in real app, this would come from a query
 interface User {
-  id: string
-  displayName: string
-  email: string
-  avatarUrl: string | null
+  id: string;
+  displayName: string;
+  email: string;
+  avatarUrl: string | null;
 }
 
 const MOCK_USERS: User[] = [
-  { id: 'user-1', displayName: 'Alice Johnson', email: 'alice@nself.org', avatarUrl: null },
-  { id: 'user-2', displayName: 'Bob Smith', email: 'bob@nself.org', avatarUrl: null },
-  { id: 'user-3', displayName: 'Charlie Brown', email: 'charlie@nself.org', avatarUrl: null },
-  { id: 'user-4', displayName: 'Diana Ross', email: 'diana@nself.org', avatarUrl: null },
-  { id: 'user-5', displayName: 'Edward King', email: 'edward@nself.org', avatarUrl: null },
-  { id: 'user-6', displayName: 'Fiona Green', email: 'fiona@nself.org', avatarUrl: null },
-]
+  {
+    id: "user-1",
+    displayName: "Alice Johnson",
+    email: "alice@nself.org",
+    avatarUrl: null,
+  },
+  {
+    id: "user-2",
+    displayName: "Bob Smith",
+    email: "bob@nself.org",
+    avatarUrl: null,
+  },
+  {
+    id: "user-3",
+    displayName: "Charlie Brown",
+    email: "charlie@nself.org",
+    avatarUrl: null,
+  },
+  {
+    id: "user-4",
+    displayName: "Diana Ross",
+    email: "diana@nself.org",
+    avatarUrl: null,
+  },
+  {
+    id: "user-5",
+    displayName: "Edward King",
+    email: "edward@nself.org",
+    avatarUrl: null,
+  },
+  {
+    id: "user-6",
+    displayName: "Fiona Green",
+    email: "fiona@nself.org",
+    avatarUrl: null,
+  },
+];
 
 // ============================================================================
 // Component
@@ -64,75 +97,78 @@ export function MeetingParticipants({
   existingParticipants = [],
   maxParticipants = 100,
   allowRoleAssignment = false,
-  defaultRole = 'participant',
+  defaultRole = "participant",
 }: MeetingParticipantsProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [participantRoles, setParticipantRoles] = useState<Record<string, ParticipantRole>>({})
-  const [isInviteByEmail, setIsInviteByEmail] = useState(false)
-  const [emailInput, setEmailInput] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
+  const [participantRoles, setParticipantRoles] = useState<
+    Record<string, ParticipantRole>
+  >({});
+  const [isInviteByEmail, setIsInviteByEmail] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
 
   // Filter users based on search
   const filteredUsers = MOCK_USERS.filter((user) => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
     return (
-      user.displayName.toLowerCase().includes(query) || user.email.toLowerCase().includes(query)
-    )
-  })
+      user.displayName.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query)
+    );
+  });
 
   // Get selected users
-  const selectedUsers = MOCK_USERS.filter((u) => selectedIds.includes(u.id))
+  const selectedUsers = MOCK_USERS.filter((u) => selectedIds.includes(u.id));
 
   // Check if user is already selected
-  const isSelected = (userId: string) => selectedIds.includes(userId)
+  const isSelected = (userId: string) => selectedIds.includes(userId);
 
   // Add participant
   const addParticipant = useCallback(
     (userId: string) => {
       if (!isSelected(userId) && selectedIds.length < maxParticipants) {
-        onChange([...selectedIds, userId])
-        setParticipantRoles((prev) => ({ ...prev, [userId]: defaultRole }))
+        onChange([...selectedIds, userId]);
+        setParticipantRoles((prev) => ({ ...prev, [userId]: defaultRole }));
       }
     },
-    [selectedIds, onChange, maxParticipants, defaultRole, isSelected]
-  )
+    [selectedIds, onChange, maxParticipants, defaultRole, isSelected],
+  );
 
   // Remove participant
   const removeParticipant = useCallback(
     (userId: string) => {
-      onChange(selectedIds.filter((id) => id !== userId))
+      onChange(selectedIds.filter((id) => id !== userId));
       setParticipantRoles((prev) => {
-        const next = { ...prev }
-        delete next[userId]
-        return next
-      })
+        const next = { ...prev };
+        delete next[userId];
+        return next;
+      });
     },
-    [selectedIds, onChange]
-  )
+    [selectedIds, onChange],
+  );
 
   // Update participant role
   const updateRole = useCallback((userId: string, role: ParticipantRole) => {
-    setParticipantRoles((prev) => ({ ...prev, [userId]: role }))
-  }, [])
+    setParticipantRoles((prev) => ({ ...prev, [userId]: role }));
+  }, []);
 
   // Handle email invite
   const handleEmailInvite = useCallback(() => {
-    if (emailInput && emailInput.includes('@')) {
+    if (emailInput && emailInput.includes("@")) {
       // In real app, would validate and add to invited list
-      setEmailInput('')
-      setIsInviteByEmail(false)
+      setEmailInput("");
+      setIsInviteByEmail(false);
     }
-  }, [emailInput])
+  }, [emailInput]);
 
   // Get initials for avatar
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   return (
     <div className="space-y-4">
@@ -164,7 +200,7 @@ export function MeetingParticipants({
             placeholder="Enter email address"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleEmailInvite()}
+            onKeyDown={(e) => e.key === "Enter" && handleEmailInvite()}
           />
           <Button onClick={handleEmailInvite} disabled={!emailInput}>
             Invite
@@ -202,15 +238,21 @@ export function MeetingParticipants({
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{user.displayName}</p>
-                      <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                      <p className="truncate text-sm font-medium">
+                        {user.displayName}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {allowRoleAssignment && (
                       <Select
                         value={participantRoles[user.id] || defaultRole}
-                        onValueChange={(value: ParticipantRole) => updateRole(user.id, value)}
+                        onValueChange={(value: ParticipantRole) =>
+                          updateRole(user.id, value)
+                        }
                       >
                         <SelectTrigger className="h-7 w-24 text-xs">
                           <SelectValue />
@@ -218,11 +260,15 @@ export function MeetingParticipants({
                         <SelectContent>
                           {Object.entries(ROLE_LABELS).map(
                             ([value, label]) =>
-                              value !== 'host' && (
-                                <SelectItem key={value} value={value} className="text-xs">
+                              value !== "host" && (
+                                <SelectItem
+                                  key={value}
+                                  value={value}
+                                  className="text-xs"
+                                >
                                   {label}
                                 </SelectItem>
-                              )
+                              ),
                           )}
                         </SelectContent>
                       </Select>
@@ -246,7 +292,7 @@ export function MeetingParticipants({
       {/* Available Users */}
       <div className="space-y-2">
         <Label className="text-sm text-muted-foreground">
-          {searchQuery ? 'Search Results' : 'Suggestions'}
+          {searchQuery ? "Search Results" : "Suggestions"}
         </Label>
         <ScrollArea className="max-h-48">
           <div className="space-y-1">
@@ -258,8 +304,8 @@ export function MeetingParticipants({
                   key={user.id}
                   onClick={() => addParticipant(user.id)}
                   className={cn(
-                    'flex w-full items-center justify-between rounded-lg p-2',
-                    'text-left transition-colors hover:bg-accent'
+                    "flex w-full items-center justify-between rounded-lg p-2",
+                    "text-left transition-colors hover:bg-accent",
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -270,8 +316,12 @@ export function MeetingParticipants({
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{user.displayName}</p>
-                      <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                      <p className="truncate text-sm font-medium">
+                        {user.displayName}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
                   <Plus className="h-4 w-4 text-muted-foreground" />
@@ -282,8 +332,8 @@ export function MeetingParticipants({
               <div className="py-8 text-center text-sm text-muted-foreground">
                 <Users className="mx-auto mb-2 h-8 w-8 opacity-50" />
                 {searchQuery
-                  ? 'No users found matching your search'
-                  : 'All available users have been added'}
+                  ? "No users found matching your search"
+                  : "All available users have been added"}
               </div>
             )}
           </div>
@@ -292,8 +342,10 @@ export function MeetingParticipants({
 
       {/* Capacity Warning */}
       {selectedIds.length >= maxParticipants && (
-        <p className="text-sm text-amber-600">Maximum of {maxParticipants} participants reached</p>
+        <p className="text-sm text-amber-600">
+          Maximum of {maxParticipants} participants reached
+        </p>
       )}
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Workspace Settings Form Component
@@ -11,10 +11,10 @@
  * - Ownership transfer
  */
 
-import * as React from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Settings,
   Shield,
@@ -25,13 +25,13 @@ import {
   Save,
   Upload,
   Trash2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Form,
   FormControl,
@@ -40,27 +40,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs'
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,9 +66,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Slider } from '@/components/ui/slider'
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/alert-dialog";
+import { Slider } from "@/components/ui/slider";
+import { useToast } from "@/hooks/use-toast";
 import {
   useWorkspace,
   useWorkspaceMutations,
@@ -81,54 +76,58 @@ import {
   useOwnershipTransfer,
   useWorkspaceMembers,
   type Workspace,
-} from '@/hooks/use-workspace'
+} from "@/hooks/use-workspace";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 const GeneralSettingsSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  name: z.string().min(1, "Name is required").max(100),
   description: z.string().max(500).optional(),
-  iconUrl: z.string().url().optional().or(z.literal('')),
-  bannerUrl: z.string().url().optional().or(z.literal('')),
-})
+  iconUrl: z.string().url().optional().or(z.literal("")),
+  bannerUrl: z.string().url().optional().or(z.literal("")),
+});
 
 const AccessSettingsSchema = z.object({
-  verificationLevel: z.enum(['none', 'email', 'phone']),
-  defaultNotifications: z.enum(['all', 'mentions', 'none']),
-  explicitContentFilter: z.enum(['disabled', 'members_without_roles', 'all_members']),
+  verificationLevel: z.enum(["none", "email", "phone"]),
+  defaultNotifications: z.enum(["all", "mentions", "none"]),
+  explicitContentFilter: z.enum([
+    "disabled",
+    "members_without_roles",
+    "all_members",
+  ]),
   require2FA: z.boolean(),
   discoverable: z.boolean(),
   allowInvites: z.boolean(),
-})
+});
 
 const RetentionSettingsSchema = z.object({
   enabled: z.boolean(),
   retentionDays: z.number().int().min(1).max(3650),
   excludePinnedMessages: z.boolean(),
-})
+});
 
 const StorageSettingsSchema = z.object({
   quotaEnforced: z.boolean(),
   warningThreshold: z.number().min(0).max(1),
-})
+});
 
-type GeneralSettingsValues = z.infer<typeof GeneralSettingsSchema>
-type AccessSettingsValues = z.infer<typeof AccessSettingsSchema>
-type RetentionSettingsValues = z.infer<typeof RetentionSettingsSchema>
-type StorageSettingsValues = z.infer<typeof StorageSettingsSchema>
+type GeneralSettingsValues = z.infer<typeof GeneralSettingsSchema>;
+type AccessSettingsValues = z.infer<typeof AccessSettingsSchema>;
+type RetentionSettingsValues = z.infer<typeof RetentionSettingsSchema>;
+type StorageSettingsValues = z.infer<typeof StorageSettingsSchema>;
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
 // ============================================================================
@@ -136,10 +135,10 @@ function formatBytes(bytes: number): string {
 // ============================================================================
 
 interface WorkspaceSettingsFormProps {
-  workspaceId: string
-  currentUserId: string
-  currentUserRole: string
-  className?: string
+  workspaceId: string;
+  currentUserId: string;
+  currentUserRole: string;
+  className?: string;
 }
 
 // ============================================================================
@@ -147,9 +146,9 @@ interface WorkspaceSettingsFormProps {
 // ============================================================================
 
 interface GeneralSettingsTabProps {
-  workspace: Workspace
-  onSave: (data: GeneralSettingsValues) => Promise<void>
-  isSaving: boolean
+  workspace: Workspace;
+  onSave: (data: GeneralSettingsValues) => Promise<void>;
+  isSaving: boolean;
 }
 
 function GeneralSettingsTab({
@@ -161,11 +160,11 @@ function GeneralSettingsTab({
     resolver: zodResolver(GeneralSettingsSchema),
     defaultValues: {
       name: workspace.name,
-      description: workspace.description || '',
-      iconUrl: workspace.iconUrl || '',
-      bannerUrl: workspace.bannerUrl || '',
+      description: workspace.description || "",
+      iconUrl: workspace.iconUrl || "",
+      bannerUrl: workspace.bannerUrl || "",
     },
-  })
+  });
 
   return (
     <Form {...form}>
@@ -222,7 +221,10 @@ function GeneralSettingsTab({
                   </AvatarFallback>
                 </Avatar>
                 <FormControl>
-                  <Input placeholder="https://example.com/icon.png" {...field} />
+                  <Input
+                    placeholder="https://example.com/icon.png"
+                    {...field}
+                  />
                 </FormControl>
               </div>
               <FormMessage />
@@ -237,7 +239,10 @@ function GeneralSettingsTab({
             <FormItem>
               <FormLabel>Banner URL</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/banner.png" {...field} />
+                <Input
+                  placeholder="https://example.com/banner.png"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -246,11 +251,11 @@ function GeneralSettingsTab({
 
         <Button type="submit" disabled={isSaving}>
           <Save className="mr-2 h-4 w-4" />
-          {isSaving ? 'Saving...' : 'Save Changes'}
+          {isSaving ? "Saving..." : "Save Changes"}
         </Button>
       </form>
     </Form>
-  )
+  );
 }
 
 // ============================================================================
@@ -258,9 +263,9 @@ function GeneralSettingsTab({
 // ============================================================================
 
 interface AccessSettingsTabProps {
-  workspace: Workspace
-  onSave: (data: AccessSettingsValues) => Promise<void>
-  isSaving: boolean
+  workspace: Workspace;
+  onSave: (data: AccessSettingsValues) => Promise<void>;
+  isSaving: boolean;
 }
 
 function AccessSettingsTab({
@@ -271,14 +276,15 @@ function AccessSettingsTab({
   const form = useForm<AccessSettingsValues>({
     resolver: zodResolver(AccessSettingsSchema),
     defaultValues: {
-      verificationLevel: workspace.settings?.verificationLevel || 'none',
-      defaultNotifications: workspace.settings?.defaultNotifications || 'all',
-      explicitContentFilter: workspace.settings?.explicitContentFilter || 'disabled',
+      verificationLevel: workspace.settings?.verificationLevel || "none",
+      defaultNotifications: workspace.settings?.defaultNotifications || "all",
+      explicitContentFilter:
+        workspace.settings?.explicitContentFilter || "disabled",
       require2FA: workspace.settings?.require2FA || false,
       discoverable: workspace.settings?.discoverable || false,
       allowInvites: workspace.settings?.allowInvites ?? true,
     },
-  })
+  });
 
   return (
     <Form {...form}>
@@ -402,11 +408,11 @@ function AccessSettingsTab({
 
         <Button type="submit" disabled={isSaving}>
           <Save className="mr-2 h-4 w-4" />
-          {isSaving ? 'Saving...' : 'Save Changes'}
+          {isSaving ? "Saving..." : "Save Changes"}
         </Button>
       </form>
     </Form>
-  )
+  );
 }
 
 // ============================================================================
@@ -414,30 +420,33 @@ function AccessSettingsTab({
 // ============================================================================
 
 interface OwnershipTabProps {
-  workspaceId: string
-  isOwner: boolean
+  workspaceId: string;
+  isOwner: boolean;
 }
 
 function OwnershipTab({ workspaceId, isOwner }: OwnershipTabProps) {
-  const { members } = useWorkspaceMembers(workspaceId)
-  const { initiateTransfer, isTransferring } = useOwnershipTransfer(workspaceId)
-  const [selectedMember, setSelectedMember] = React.useState<string | null>(null)
+  const { members } = useWorkspaceMembers(workspaceId);
+  const { initiateTransfer, isTransferring } =
+    useOwnershipTransfer(workspaceId);
+  const [selectedMember, setSelectedMember] = React.useState<string | null>(
+    null,
+  );
 
   const eligibleMembers = members.filter(
-    (m) => m.role !== 'owner' && ['admin', 'moderator'].includes(m.role)
-  )
+    (m) => m.role !== "owner" && ["admin", "moderator"].includes(m.role),
+  );
 
   const handleTransfer = async () => {
-    if (!selectedMember) return
-    await initiateTransfer(selectedMember, undefined, false)
-  }
+    if (!selectedMember) return;
+    await initiateTransfer(selectedMember, undefined, false);
+  };
 
   if (!isOwner) {
     return (
       <div className="p-6 text-center text-muted-foreground">
         Only the workspace owner can manage ownership.
       </div>
-    )
+    );
   }
 
   return (
@@ -446,23 +455,25 @@ function OwnershipTab({ workspaceId, isOwner }: OwnershipTabProps) {
         <div className="flex items-start gap-4">
           <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
           <div className="space-y-2">
-            <h4 className="font-medium text-destructive">
-              Transfer Ownership
-            </h4>
+            <h4 className="font-medium text-destructive">Transfer Ownership</h4>
             <p className="text-sm text-muted-foreground">
               Transferring ownership will make another member the owner of this
               workspace. You will become an admin.
             </p>
 
             <div className="pt-4 space-y-4">
-              <Select value={selectedMember || ''} onValueChange={setSelectedMember}>
+              <Select
+                value={selectedMember || ""}
+                onValueChange={setSelectedMember}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a member" />
                 </SelectTrigger>
                 <SelectContent>
                   {eligibleMembers.map((member) => (
                     <SelectItem key={member.userId} value={member.userId}>
-                      {member.user?.displayName || member.user?.username} ({member.role})
+                      {member.user?.displayName || member.user?.username} (
+                      {member.role})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -500,7 +511,7 @@ function OwnershipTab({ workspaceId, isOwner }: OwnershipTabProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -508,9 +519,9 @@ function OwnershipTab({ workspaceId, isOwner }: OwnershipTabProps) {
 // ============================================================================
 
 interface DangerZoneTabProps {
-  workspaceId: string
-  workspaceName: string
-  isOwner: boolean
+  workspaceId: string;
+  workspaceName: string;
+  isOwner: boolean;
 }
 
 function DangerZoneTab({
@@ -518,21 +529,21 @@ function DangerZoneTab({
   workspaceName,
   isOwner,
 }: DangerZoneTabProps) {
-  const { deleteWorkspace, isDeleting } = useWorkspaceMutations()
-  const [confirmName, setConfirmName] = React.useState('')
+  const { deleteWorkspace, isDeleting } = useWorkspaceMutations();
+  const [confirmName, setConfirmName] = React.useState("");
 
   const handleDelete = async () => {
     if (confirmName === workspaceName) {
-      await deleteWorkspace(workspaceId)
+      await deleteWorkspace(workspaceId);
     }
-  }
+  };
 
   if (!isOwner) {
     return (
       <div className="p-6 text-center text-muted-foreground">
         Only the workspace owner can delete the workspace.
       </div>
-    )
+    );
   }
 
   return (
@@ -541,9 +552,7 @@ function DangerZoneTab({
         <div className="flex items-start gap-4">
           <Trash2 className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
           <div className="space-y-2 flex-1">
-            <h4 className="font-medium text-destructive">
-              Delete Workspace
-            </h4>
+            <h4 className="font-medium text-destructive">Delete Workspace</h4>
             <p className="text-sm text-muted-foreground">
               Once you delete a workspace, there is no going back. Please be
               certain. All channels, messages, and files will be permanently
@@ -569,14 +578,14 @@ function DangerZoneTab({
                 onClick={handleDelete}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                {isDeleting ? 'Deleting...' : 'Delete Workspace'}
+                {isDeleting ? "Deleting..." : "Delete Workspace"}
               </Button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -589,17 +598,17 @@ export function WorkspaceSettingsForm({
   currentUserRole,
   className,
 }: WorkspaceSettingsFormProps) {
-  const { toast } = useToast()
-  const { workspace, loading, error } = useWorkspace(workspaceId)
-  const { updateWorkspace, isUpdating } = useWorkspaceMutations()
+  const { toast } = useToast();
+  const { workspace, loading, error } = useWorkspace(workspaceId);
+  const { updateWorkspace, isUpdating } = useWorkspaceMutations();
   const {
     updateMessageRetention,
     updateStorageQuota,
     isLoading: isSettingsLoading,
-  } = useWorkspaceSettings(workspaceId)
+  } = useWorkspaceSettings(workspaceId);
 
-  const isOwner = currentUserRole === 'owner'
-  const isAdmin = ['owner', 'admin'].includes(currentUserRole)
+  const isOwner = currentUserRole === "owner";
+  const isAdmin = ["owner", "admin"].includes(currentUserRole);
 
   const handleGeneralSave = async (data: GeneralSettingsValues) => {
     await updateWorkspace(workspaceId, {
@@ -607,29 +616,29 @@ export function WorkspaceSettingsForm({
       description: data.description || null,
       iconUrl: data.iconUrl || null,
       bannerUrl: data.bannerUrl || null,
-    })
-  }
+    });
+  };
 
   const handleAccessSave = async (data: AccessSettingsValues) => {
     await updateWorkspace(workspaceId, {
       settings: data,
-    })
-  }
+    });
+  };
 
   const handleRetentionSave = async (data: RetentionSettingsValues) => {
-    await updateMessageRetention(data)
-  }
+    await updateMessageRetention(data);
+  };
 
   const handleStorageSave = async (data: StorageSettingsValues) => {
-    await updateStorageQuota(data)
-  }
+    await updateStorageQuota(data);
+  };
 
   if (loading) {
     return (
       <div className="p-8 text-center text-muted-foreground">
         Loading settings...
       </div>
-    )
+    );
   }
 
   if (error || !workspace) {
@@ -637,11 +646,11 @@ export function WorkspaceSettingsForm({
       <div className="p-8 text-center text-destructive">
         Failed to load workspace settings.
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="general">
@@ -712,7 +721,8 @@ export function WorkspaceSettingsForm({
             </CardHeader>
             <CardContent className="space-y-6">
               <p className="text-sm text-muted-foreground">
-                Storage and retention settings can be configured by workspace admins.
+                Storage and retention settings can be configured by workspace
+                admins.
               </p>
             </CardContent>
           </Card>
@@ -751,7 +761,7 @@ export function WorkspaceSettingsForm({
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
-export default WorkspaceSettingsForm
+export default WorkspaceSettingsForm;

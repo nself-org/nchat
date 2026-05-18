@@ -5,7 +5,7 @@
  * Supports semantics from WhatsApp, Telegram, Signal, Slack, and Discord.
  */
 
-import type { MessageUser } from './message'
+import type { MessageUser } from "./message";
 
 // ============================================================================
 // PLATFORM TYPES
@@ -15,12 +15,12 @@ import type { MessageUser } from './message'
  * Supported messaging platform styles.
  */
 export type MessagePlatformStyle =
-  | 'whatsapp'
-  | 'telegram'
-  | 'signal'
-  | 'slack'
-  | 'discord'
-  | 'custom'
+  | "whatsapp"
+  | "telegram"
+  | "signal"
+  | "slack"
+  | "discord"
+  | "custom";
 
 // ============================================================================
 // EDIT SEMANTICS
@@ -31,48 +31,51 @@ export type MessagePlatformStyle =
  */
 export interface EditWindowConfig {
   /** Whether editing is allowed */
-  enabled: boolean
+  enabled: boolean;
   /** Time window in seconds (0 = unlimited) */
-  windowSeconds: number
+  windowSeconds: number;
   /** Human-readable description */
-  description: string
+  description: string;
 }
 
 /**
  * Platform-specific edit configurations.
  */
-export const PLATFORM_EDIT_WINDOWS: Record<MessagePlatformStyle, EditWindowConfig> = {
+export const PLATFORM_EDIT_WINDOWS: Record<
+  MessagePlatformStyle,
+  EditWindowConfig
+> = {
   whatsapp: {
     enabled: true,
     windowSeconds: 15 * 60, // 15 minutes
-    description: '15 minutes after sending',
+    description: "15 minutes after sending",
   },
   telegram: {
     enabled: true,
     windowSeconds: 48 * 60 * 60, // 48 hours
-    description: '48 hours after sending',
+    description: "48 hours after sending",
   },
   signal: {
     enabled: false,
     windowSeconds: 0,
-    description: 'Editing not supported',
+    description: "Editing not supported",
   },
   slack: {
     enabled: true,
     windowSeconds: 0, // Unlimited (configurable)
-    description: 'Unlimited (configurable by admin)',
+    description: "Unlimited (configurable by admin)",
   },
   discord: {
     enabled: true,
     windowSeconds: 0, // Unlimited
-    description: 'Unlimited',
+    description: "Unlimited",
   },
   custom: {
     enabled: true,
     windowSeconds: 0, // Configurable
-    description: 'Configurable',
+    description: "Configurable",
   },
-}
+};
 
 // ============================================================================
 // DELETE SEMANTICS
@@ -81,71 +84,75 @@ export const PLATFORM_EDIT_WINDOWS: Record<MessagePlatformStyle, EditWindowConfi
 /**
  * Delete scope options.
  */
-export type DeleteScope = 'for_me' | 'for_everyone'
+export type DeleteScope = "for_me" | "for_everyone";
 
 /**
  * Delete window configuration.
  */
 export interface DeleteWindowConfig {
   /** Whether delete-for-everyone is allowed */
-  deleteForEveryoneEnabled: boolean
+  deleteForEveryoneEnabled: boolean;
   /** Time window in seconds for delete-for-everyone (0 = unlimited) */
-  deleteForEveryoneWindowSeconds: number
+  deleteForEveryoneWindowSeconds: number;
   /** Whether delete-for-me is always available */
-  deleteForMeAlways: boolean
+  deleteForMeAlways: boolean;
   /** Whether self-messages can always be deleted */
-  selfDeleteUnlimited: boolean
+  selfDeleteUnlimited: boolean;
   /** Human-readable description */
-  description: string
+  description: string;
 }
 
 /**
  * Platform-specific delete configurations.
  */
-export const PLATFORM_DELETE_WINDOWS: Record<MessagePlatformStyle, DeleteWindowConfig> = {
+export const PLATFORM_DELETE_WINDOWS: Record<
+  MessagePlatformStyle,
+  DeleteWindowConfig
+> = {
   whatsapp: {
     deleteForEveryoneEnabled: true,
     deleteForEveryoneWindowSeconds: 2 * 24 * 60 * 60, // 2 days
     deleteForMeAlways: true,
     selfDeleteUnlimited: false,
-    description: '2 days for delete-for-everyone, always for delete-for-me',
+    description: "2 days for delete-for-everyone, always for delete-for-me",
   },
   telegram: {
     deleteForEveryoneEnabled: true,
     deleteForEveryoneWindowSeconds: 48 * 60 * 60, // 48 hours
     deleteForMeAlways: true,
     selfDeleteUnlimited: true, // Telegram allows unlimited self-delete
-    description: '48 hours for delete-for-everyone (unlimited for own messages)',
+    description:
+      "48 hours for delete-for-everyone (unlimited for own messages)",
   },
   signal: {
     deleteForEveryoneEnabled: true,
     deleteForEveryoneWindowSeconds: 0, // No limit
     deleteForMeAlways: true,
     selfDeleteUnlimited: true,
-    description: 'Unlimited for delete-for-everyone',
+    description: "Unlimited for delete-for-everyone",
   },
   slack: {
     deleteForEveryoneEnabled: true,
     deleteForEveryoneWindowSeconds: 0, // Configurable
     deleteForMeAlways: false, // Slack doesn't have delete-for-me
     selfDeleteUnlimited: true,
-    description: 'Configurable by workspace admin',
+    description: "Configurable by workspace admin",
   },
   discord: {
     deleteForEveryoneEnabled: true,
     deleteForEveryoneWindowSeconds: 0, // Unlimited
     deleteForMeAlways: false, // Discord doesn't have delete-for-me
     selfDeleteUnlimited: true,
-    description: 'Unlimited',
+    description: "Unlimited",
   },
   custom: {
     deleteForEveryoneEnabled: true,
     deleteForEveryoneWindowSeconds: 0,
     deleteForMeAlways: true,
     selfDeleteUnlimited: true,
-    description: 'Configurable',
+    description: "Configurable",
   },
-}
+};
 
 // ============================================================================
 // UNDO SEMANTICS
@@ -154,18 +161,18 @@ export const PLATFORM_DELETE_WINDOWS: Record<MessagePlatformStyle, DeleteWindowC
 /**
  * Undo action types.
  */
-export type UndoActionType = 'send' | 'edit' | 'delete' | 'reaction'
+export type UndoActionType = "send" | "edit" | "delete" | "reaction";
 
 /**
  * Undo window configuration.
  */
 export interface UndoWindowConfig {
   /** Whether undo is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Time window in seconds */
-  windowSeconds: number
+  windowSeconds: number;
   /** Actions that support undo */
-  supportedActions: UndoActionType[]
+  supportedActions: UndoActionType[];
 }
 
 /**
@@ -174,8 +181,8 @@ export interface UndoWindowConfig {
 export const DEFAULT_UNDO_CONFIG: UndoWindowConfig = {
   enabled: true,
   windowSeconds: 5, // 5 second undo window
-  supportedActions: ['send', 'edit', 'delete', 'reaction'],
-}
+  supportedActions: ["send", "edit", "delete", "reaction"],
+};
 
 // ============================================================================
 // PERMISSION TYPES
@@ -184,20 +191,25 @@ export const DEFAULT_UNDO_CONFIG: UndoWindowConfig = {
 /**
  * User role for permission checking.
  */
-export type MessagePermissionRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
+export type MessagePermissionRole =
+  | "owner"
+  | "admin"
+  | "moderator"
+  | "member"
+  | "guest";
 
 /**
  * Permission check result.
  */
 export interface PermissionCheckResult {
   /** Whether action is allowed */
-  allowed: boolean
+  allowed: boolean;
   /** Reason if not allowed */
-  reason?: string
+  reason?: string;
   /** Remaining time in seconds if time-limited */
-  remainingSeconds?: number
+  remainingSeconds?: number;
   /** Whether admin override applies */
-  adminOverride?: boolean
+  adminOverride?: boolean;
 }
 
 // ============================================================================
@@ -209,21 +221,21 @@ export interface PermissionCheckResult {
  */
 export interface DeletedMessageState {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Delete scope */
-  scope: DeleteScope
+  scope: DeleteScope;
   /** Who deleted the message */
-  deletedBy: string
+  deletedBy: string;
   /** When deleted */
-  deletedAt: Date
+  deletedAt: Date;
   /** Original content (for audit) */
-  originalContent?: string
+  originalContent?: string;
   /** Reason for deletion (for mod actions) */
-  reason?: string
+  reason?: string;
   /** Whether it can be restored */
-  canRestore: boolean
+  canRestore: boolean;
   /** Restoration deadline */
-  restoreDeadline?: Date
+  restoreDeadline?: Date;
 }
 
 /**
@@ -231,11 +243,11 @@ export interface DeletedMessageState {
  */
 export interface LocalDeletedMessage {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** User who deleted locally */
-  userId: string
+  userId: string;
   /** When deleted */
-  deletedAt: Date
+  deletedAt: Date;
 }
 
 // ============================================================================
@@ -247,27 +259,27 @@ export interface LocalDeletedMessage {
  */
 export interface MessageEditAuditRecord {
   /** Edit record ID */
-  id: string
+  id: string;
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Who made the edit */
-  editedBy: MessageUser
+  editedBy: MessageUser;
   /** Content before the edit */
-  previousContent: string
+  previousContent: string;
   /** Content after the edit */
-  newContent: string
+  newContent: string;
   /** When the edit was made */
-  editedAt: Date
+  editedAt: Date;
   /** Change summary */
-  changeSummary?: string
+  changeSummary?: string;
   /** Edit version number */
-  versionNumber: number
+  versionNumber: number;
   /** Is this a restoration from history */
-  isRestoration?: boolean
+  isRestoration?: boolean;
   /** If restoration, which version was restored */
-  restoredFromVersion?: number
+  restoredFromVersion?: number;
 }
 
 // ============================================================================
@@ -278,48 +290,48 @@ export interface MessageEditAuditRecord {
  * Message action audit event types.
  */
 export type MessageAuditEventType =
-  | 'message_edited'
-  | 'message_deleted'
-  | 'message_deleted_for_everyone'
-  | 'message_deleted_for_me'
-  | 'message_restored'
-  | 'message_undo_send'
-  | 'message_undo_edit'
-  | 'message_undo_delete'
-  | 'message_bulk_delete'
+  | "message_edited"
+  | "message_deleted"
+  | "message_deleted_for_everyone"
+  | "message_deleted_for_me"
+  | "message_restored"
+  | "message_undo_send"
+  | "message_undo_edit"
+  | "message_undo_delete"
+  | "message_bulk_delete";
 
 /**
  * Audit event for message actions.
  */
 export interface MessageAuditEvent {
   /** Event type */
-  type: MessageAuditEventType
+  type: MessageAuditEventType;
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** Actor who performed the action */
-  actor: MessageUser
+  actor: MessageUser;
   /** When the action occurred */
-  timestamp: Date
+  timestamp: Date;
   /** Previous state (for edits) */
   previousState?: {
-    content: string
-    isDeleted: boolean
-  }
+    content: string;
+    isDeleted: boolean;
+  };
   /** New state */
   newState?: {
-    content: string
-    isDeleted: boolean
-  }
+    content: string;
+    isDeleted: boolean;
+  };
   /** Additional context */
   context?: {
-    reason?: string
-    scope?: DeleteScope
-    isBulk?: boolean
-    bulkCount?: number
-    isModeratorAction?: boolean
-  }
+    reason?: string;
+    scope?: DeleteScope;
+    isBulk?: boolean;
+    bulkCount?: number;
+    isModeratorAction?: boolean;
+  };
 }
 
 // ============================================================================
@@ -331,28 +343,28 @@ export interface MessageAuditEvent {
  */
 export interface PendingUndoAction {
   /** Unique ID for this undo action */
-  id: string
+  id: string;
   /** Type of action that can be undone */
-  type: UndoActionType
+  type: UndoActionType;
   /** Message ID affected */
-  messageId: string
+  messageId: string;
   /** Channel ID */
-  channelId: string
+  channelId: string;
   /** When the action was performed */
-  performedAt: Date
+  performedAt: Date;
   /** When undo expires */
-  expiresAt: Date
+  expiresAt: Date;
   /** Data needed to undo */
   undoData: {
     /** For send: the message to delete */
     /** For edit: the previous content */
     /** For delete: the message to restore */
-    previousContent?: string
-    previousState?: 'visible' | 'deleted'
-    deleteScope?: DeleteScope
-  }
+    previousContent?: string;
+    previousState?: "visible" | "deleted";
+    deleteScope?: DeleteScope;
+  };
   /** Whether undo was performed */
-  undone: boolean
+  undone: boolean;
 }
 
 // ============================================================================
@@ -364,49 +376,49 @@ export interface PendingUndoAction {
  */
 export interface MessageSemanticsConfig {
   /** Platform style to use */
-  platformStyle: MessagePlatformStyle
+  platformStyle: MessagePlatformStyle;
   /** Custom edit window (overrides platform default) */
-  customEditWindowSeconds?: number
+  customEditWindowSeconds?: number;
   /** Custom delete-for-everyone window (overrides platform default) */
-  customDeleteWindowSeconds?: number
+  customDeleteWindowSeconds?: number;
   /** Whether edit history is tracked */
-  trackEditHistory: boolean
+  trackEditHistory: boolean;
   /** Whether to show "edited" indicator */
-  showEditedIndicator: boolean
+  showEditedIndicator: boolean;
   /** Whether to show deleted message placeholder */
-  showDeletedPlaceholder: boolean
+  showDeletedPlaceholder: boolean;
   /** Deleted message placeholder text */
-  deletedPlaceholderText: string
+  deletedPlaceholderText: string;
   /** Whether undo is enabled */
-  enableUndo: boolean
+  enableUndo: boolean;
   /** Undo window in seconds */
-  undoWindowSeconds: number
+  undoWindowSeconds: number;
   /** Whether to enable delete-for-me */
-  enableDeleteForMe: boolean
+  enableDeleteForMe: boolean;
   /** Whether admins can edit/delete any message */
-  adminOverride: boolean
+  adminOverride: boolean;
   /** Whether to log all edit/delete actions to audit */
-  auditAllActions: boolean
+  auditAllActions: boolean;
   /** Soft delete retention (hours before hard delete, 0 = never) */
-  softDeleteRetentionHours: number
+  softDeleteRetentionHours: number;
 }
 
 /**
  * Default message semantics configuration.
  */
 export const DEFAULT_MESSAGE_SEMANTICS: MessageSemanticsConfig = {
-  platformStyle: 'slack',
+  platformStyle: "slack",
   trackEditHistory: true,
   showEditedIndicator: true,
   showDeletedPlaceholder: true,
-  deletedPlaceholderText: 'This message was deleted.',
+  deletedPlaceholderText: "This message was deleted.",
   enableUndo: true,
   undoWindowSeconds: 5,
   enableDeleteForMe: true,
   adminOverride: true,
   auditAllActions: true,
   softDeleteRetentionHours: 24 * 30, // 30 days
-}
+};
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -416,33 +428,33 @@ export const DEFAULT_MESSAGE_SEMANTICS: MessageSemanticsConfig = {
  * Get the effective edit window for a platform.
  */
 export function getEditWindow(
-  config: MessageSemanticsConfig
+  config: MessageSemanticsConfig,
 ): EditWindowConfig {
   if (config.customEditWindowSeconds !== undefined) {
     return {
       enabled: true,
       windowSeconds: config.customEditWindowSeconds,
-      description: 'Custom configuration',
-    }
+      description: "Custom configuration",
+    };
   }
-  return PLATFORM_EDIT_WINDOWS[config.platformStyle]
+  return PLATFORM_EDIT_WINDOWS[config.platformStyle];
 }
 
 /**
  * Get the effective delete window for a platform.
  */
 export function getDeleteWindow(
-  config: MessageSemanticsConfig
+  config: MessageSemanticsConfig,
 ): DeleteWindowConfig {
-  const base = PLATFORM_DELETE_WINDOWS[config.platformStyle]
+  const base = PLATFORM_DELETE_WINDOWS[config.platformStyle];
   if (config.customDeleteWindowSeconds !== undefined) {
     return {
       ...base,
       deleteForEveryoneWindowSeconds: config.customDeleteWindowSeconds,
-      description: 'Custom configuration',
-    }
+      description: "Custom configuration",
+    };
   }
-  return base
+  return base;
 }
 
 /**
@@ -450,17 +462,17 @@ export function getDeleteWindow(
  */
 export function isWithinEditWindow(
   messageCreatedAt: Date,
-  config: MessageSemanticsConfig
+  config: MessageSemanticsConfig,
 ): boolean {
-  const editWindow = getEditWindow(config)
-  if (!editWindow.enabled) return false
-  if (editWindow.windowSeconds === 0) return true // Unlimited
+  const editWindow = getEditWindow(config);
+  if (!editWindow.enabled) return false;
+  if (editWindow.windowSeconds === 0) return true; // Unlimited
 
-  const now = Date.now()
-  const messageTime = messageCreatedAt.getTime()
-  const windowMs = editWindow.windowSeconds * 1000
+  const now = Date.now();
+  const messageTime = messageCreatedAt.getTime();
+  const windowMs = editWindow.windowSeconds * 1000;
 
-  return now - messageTime <= windowMs
+  return now - messageTime <= windowMs;
 }
 
 /**
@@ -469,22 +481,22 @@ export function isWithinEditWindow(
 export function isWithinDeleteWindow(
   messageCreatedAt: Date,
   config: MessageSemanticsConfig,
-  isOwnMessage: boolean
+  isOwnMessage: boolean,
 ): boolean {
-  const deleteWindow = getDeleteWindow(config)
-  if (!deleteWindow.deleteForEveryoneEnabled) return false
+  const deleteWindow = getDeleteWindow(config);
+  if (!deleteWindow.deleteForEveryoneEnabled) return false;
 
   // If unlimited for self-delete and this is user's own message
-  if (deleteWindow.selfDeleteUnlimited && isOwnMessage) return true
+  if (deleteWindow.selfDeleteUnlimited && isOwnMessage) return true;
 
   // If unlimited
-  if (deleteWindow.deleteForEveryoneWindowSeconds === 0) return true
+  if (deleteWindow.deleteForEveryoneWindowSeconds === 0) return true;
 
-  const now = Date.now()
-  const messageTime = messageCreatedAt.getTime()
-  const windowMs = deleteWindow.deleteForEveryoneWindowSeconds * 1000
+  const now = Date.now();
+  const messageTime = messageCreatedAt.getTime();
+  const windowMs = deleteWindow.deleteForEveryoneWindowSeconds * 1000;
 
-  return now - messageTime <= windowMs
+  return now - messageTime <= windowMs;
 }
 
 /**
@@ -492,18 +504,18 @@ export function isWithinDeleteWindow(
  */
 export function getRemainingEditTime(
   messageCreatedAt: Date,
-  config: MessageSemanticsConfig
+  config: MessageSemanticsConfig,
 ): number {
-  const editWindow = getEditWindow(config)
-  if (!editWindow.enabled) return 0
-  if (editWindow.windowSeconds === 0) return Infinity // Unlimited
+  const editWindow = getEditWindow(config);
+  if (!editWindow.enabled) return 0;
+  if (editWindow.windowSeconds === 0) return Infinity; // Unlimited
 
-  const now = Date.now()
-  const messageTime = messageCreatedAt.getTime()
-  const windowMs = editWindow.windowSeconds * 1000
-  const elapsed = now - messageTime
+  const now = Date.now();
+  const messageTime = messageCreatedAt.getTime();
+  const windowMs = editWindow.windowSeconds * 1000;
+  const elapsed = now - messageTime;
 
-  return Math.max(0, windowMs - elapsed) / 1000
+  return Math.max(0, windowMs - elapsed) / 1000;
 }
 
 /**
@@ -511,36 +523,36 @@ export function getRemainingEditTime(
  */
 export function getRemainingDeleteTime(
   messageCreatedAt: Date,
-  config: MessageSemanticsConfig
+  config: MessageSemanticsConfig,
 ): number {
-  const deleteWindow = getDeleteWindow(config)
-  if (deleteWindow.deleteForEveryoneWindowSeconds === 0) return Infinity
+  const deleteWindow = getDeleteWindow(config);
+  if (deleteWindow.deleteForEveryoneWindowSeconds === 0) return Infinity;
 
-  const now = Date.now()
-  const messageTime = messageCreatedAt.getTime()
-  const windowMs = deleteWindow.deleteForEveryoneWindowSeconds * 1000
-  const elapsed = now - messageTime
+  const now = Date.now();
+  const messageTime = messageCreatedAt.getTime();
+  const windowMs = deleteWindow.deleteForEveryoneWindowSeconds * 1000;
+  const elapsed = now - messageTime;
 
-  return Math.max(0, windowMs - elapsed) / 1000
+  return Math.max(0, windowMs - elapsed) / 1000;
 }
 
 /**
  * Format remaining time for display.
  */
 export function formatRemainingTime(seconds: number): string {
-  if (seconds === Infinity) return 'unlimited'
-  if (seconds <= 0) return 'expired'
+  if (seconds === Infinity) return "unlimited";
+  if (seconds <= 0) return "expired";
 
   if (seconds < 60) {
-    return `${Math.ceil(seconds)} seconds`
+    return `${Math.ceil(seconds)} seconds`;
   } else if (seconds < 3600) {
-    const minutes = Math.ceil(seconds / 60)
-    return `${minutes} minute${minutes !== 1 ? 's' : ''}`
+    const minutes = Math.ceil(seconds / 60);
+    return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
   } else if (seconds < 86400) {
-    const hours = Math.ceil(seconds / 3600)
-    return `${hours} hour${hours !== 1 ? 's' : ''}`
+    const hours = Math.ceil(seconds / 3600);
+    return `${hours} hour${hours !== 1 ? "s" : ""}`;
   } else {
-    const days = Math.ceil(seconds / 86400)
-    return `${days} day${days !== 1 ? 's' : ''}`
+    const days = Math.ceil(seconds / 86400);
+    return `${days} day${days !== 1 ? "s" : ""}`;
   }
 }

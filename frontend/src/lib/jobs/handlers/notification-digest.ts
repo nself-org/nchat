@@ -14,81 +14,81 @@
  * @version 1.0.0
  */
 
-import { Job } from 'bullmq'
-import { createLogger } from '@/lib/logger'
-import { getNotificationService } from '@/services/notifications/notification.service'
-import { getPreferenceService } from '@/services/notifications/preference.service'
-import type { JobResult } from '@/services/jobs/types'
+import { Job } from "bullmq";
+import { createLogger } from "@/lib/logger";
+import { getNotificationService } from "@/services/notifications/notification.service";
+import { getPreferenceService } from "@/services/notifications/preference.service";
+import type { JobResult } from "@/services/jobs/types";
 
-const log = createLogger('NotificationDigestHandler')
+const log = createLogger("NotificationDigestHandler");
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-export const MAX_RETRIES = 2
-export const BASE_RETRY_DELAY = 10000
-export const BATCH_SIZE = 100
-export const MAX_NOTIFICATIONS_PER_DIGEST = 50
+export const MAX_RETRIES = 2;
+export const BASE_RETRY_DELAY = 10000;
+export const BATCH_SIZE = 100;
+export const MAX_NOTIFICATIONS_PER_DIGEST = 50;
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface DigestPayload {
-  userId: string
-  email: string
-  digestType: 'daily' | 'weekly' | 'hourly'
-  periodStart?: number
-  periodEnd?: number
-  channelIds?: string[]
-  includeUnreadCount?: boolean
-  includeMentions?: boolean
-  includeThreadReplies?: boolean
-  timezone?: string
+  userId: string;
+  email: string;
+  digestType: "daily" | "weekly" | "hourly";
+  periodStart?: number;
+  periodEnd?: number;
+  channelIds?: string[];
+  includeUnreadCount?: boolean;
+  includeMentions?: boolean;
+  includeThreadReplies?: boolean;
+  timezone?: string;
 }
 
 export interface DigestResult {
-  userId: string
-  digestType: string
-  notificationCount: number
-  sentAt: Date
-  emailId?: string
+  userId: string;
+  digestType: string;
+  notificationCount: number;
+  sentAt: Date;
+  emailId?: string;
 }
 
 interface JobData {
-  type: string
-  payload: DigestPayload
-  metadata: Record<string, unknown>
-  tags: string[]
-  createdAt: string
+  type: string;
+  payload: DigestPayload;
+  metadata: Record<string, unknown>;
+  tags: string[];
+  createdAt: string;
 }
 
 interface DigestNotification {
-  id: string
-  type: string
-  priority: string
-  title: string
-  body: string
+  id: string;
+  type: string;
+  priority: string;
+  title: string;
+  body: string;
   actor?: {
-    id: string
-    display_name: string
-    avatar_url?: string
-  }
+    id: string;
+    display_name: string;
+    avatar_url?: string;
+  };
   channel?: {
-    id: string
-    name: string
-  }
-  created_at: string
-  is_read: boolean
-  action_url?: string
+    id: string;
+    name: string;
+  };
+  created_at: string;
+  is_read: boolean;
+  action_url?: string;
 }
 
 interface ChannelActivity {
-  channelId: string
-  channelName: string
-  messageCount: number
-  mentionCount: number
+  channelId: string;
+  channelName: string;
+  messageCount: number;
+  mentionCount: number;
 }
 
 // ============================================================================
@@ -141,7 +141,7 @@ const GET_NOTIFICATIONS_FOR_DIGEST = `
       }
     }
   }
-`
+`;
 
 const GET_USER_EMAIL = `
   query GetUserEmail($userId: uuid!) {
@@ -150,7 +150,7 @@ const GET_USER_EMAIL = `
       display_name
     }
   }
-`
+`;
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -158,61 +158,70 @@ const GET_USER_EMAIL = `
 
 async function executeGraphQL<T = unknown>(
   query: string,
-  variables: Record<string, unknown> = {}
+  variables: Record<string, unknown> = {},
 ): Promise<{ data?: T; errors?: Array<{ message: string }> }> {
-  const hasuraUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
-  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET
+  const hasuraUrl =
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql";
+  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET;
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  }
+    "Content-Type": "application/json",
+  };
 
   if (hasuraAdminSecret) {
-    headers['x-hasura-admin-secret'] = hasuraAdminSecret
+    headers["x-hasura-admin-secret"] = hasuraAdminSecret;
   }
 
   const response = await fetch(hasuraUrl, {
-    method: 'POST',
+    method: "POST",
     headers,
     body: JSON.stringify({ query, variables }),
-  })
+  });
 
   if (!response.ok) {
-    throw new Error(`GraphQL request failed: ${response.statusText}`)
+    throw new Error(`GraphQL request failed: ${response.statusText}`);
   }
 
-  return response.json()
+  return response.json();
 }
 
 /**
  * Calculate digest period based on type
  */
-function getDigestPeriod(digestType: DigestPayload['digestType']): { start: Date; end: Date } {
-  const end = new Date()
-  const start = new Date()
+function getDigestPeriod(digestType: DigestPayload["digestType"]): {
+  start: Date;
+  end: Date;
+} {
+  const end = new Date();
+  const start = new Date();
 
   switch (digestType) {
-    case 'hourly':
-      start.setHours(start.getHours() - 1)
-      break
-    case 'daily':
-      start.setDate(start.getDate() - 1)
-      break
-    case 'weekly':
-      start.setDate(start.getDate() - 7)
-      break
+    case "hourly":
+      start.setHours(start.getHours() - 1);
+      break;
+    case "daily":
+      start.setDate(start.getDate() - 1);
+      break;
+    case "weekly":
+      start.setDate(start.getDate() - 7);
+      break;
     default:
-      start.setDate(start.getDate() - 1)
+      start.setDate(start.getDate() - 1);
   }
 
-  return { start, end }
+  return { start, end };
 }
 
 /**
  * Group notifications by channel for activity summary
  */
-function groupByChannel(notifications: DigestNotification[]): ChannelActivity[] {
-  const channelMap = new Map<string, { name: string; messages: number; mentions: number }>()
+function groupByChannel(
+  notifications: DigestNotification[],
+): ChannelActivity[] {
+  const channelMap = new Map<
+    string,
+    { name: string; messages: number; mentions: number }
+  >();
 
   notifications.forEach((n) => {
     if (n.channel?.id) {
@@ -220,14 +229,14 @@ function groupByChannel(notifications: DigestNotification[]): ChannelActivity[] 
         name: n.channel.name || n.channel.id,
         messages: 0,
         mentions: 0,
+      };
+      existing.messages++;
+      if (n.type === "mention") {
+        existing.mentions++;
       }
-      existing.messages++
-      if (n.type === 'mention') {
-        existing.mentions++
-      }
-      channelMap.set(n.channel.id, existing)
+      channelMap.set(n.channel.id, existing);
     }
-  })
+  });
 
   return Array.from(channelMap.entries())
     .map(([channelId, data]) => ({
@@ -236,7 +245,7 @@ function groupByChannel(notifications: DigestNotification[]): ChannelActivity[] 
       messageCount: data.messages,
       mentionCount: data.mentions,
     }))
-    .sort((a, b) => b.messageCount - a.messageCount)
+    .sort((a, b) => b.messageCount - a.messageCount);
 }
 
 /**
@@ -246,16 +255,20 @@ function generateDigestHtml(
   notifications: DigestNotification[],
   period: { start: Date; end: Date },
   digestType: string,
-  userName?: string
+  userName?: string,
 ): string {
-  const unreadCount = notifications.filter((n) => !n.is_read).length
-  const mentionCount = notifications.filter((n) => n.type === 'mention').length
-  const dmCount = notifications.filter((n) => n.type === 'direct_message').length
-  const threadCount = notifications.filter((n) => n.type === 'thread_reply').length
-  const channelActivity = groupByChannel(notifications)
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const mentionCount = notifications.filter((n) => n.type === "mention").length;
+  const dmCount = notifications.filter(
+    (n) => n.type === "direct_message",
+  ).length;
+  const threadCount = notifications.filter(
+    (n) => n.type === "thread_reply",
+  ).length;
+  const channelActivity = groupByChannel(notifications);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.nchat.com'
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'nchat'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.nchat.com";
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || "nchat";
 
   return `
 <!DOCTYPE html>
@@ -311,7 +324,7 @@ function generateDigestHtml(
         <p>${period.start.toLocaleDateString()} - ${period.end.toLocaleDateString()}</p>
       </div>
 
-      ${userName ? `<div class="greeting">Hi ${userName},</div>` : ''}
+      ${userName ? `<div class="greeting">Hi ${userName},</div>` : ""}
 
       <div class="summary">
         <div class="summary-item">
@@ -345,16 +358,16 @@ function generateDigestHtml(
               <div class="channel-item">
                 <span class="channel-name">#${ch.channelName}</span>
                 <span class="channel-stats">${ch.messageCount} messages${
-                  ch.mentionCount > 0 ? ` (${ch.mentionCount} mentions)` : ''
+                  ch.mentionCount > 0 ? ` (${ch.mentionCount} mentions)` : ""
                 }</span>
               </div>
-            `
+            `,
               )
-              .join('')}
+              .join("")}
           </div>
         </div>
       `
-          : ''
+          : ""
       }
 
       ${
@@ -366,18 +379,18 @@ function generateDigestHtml(
             .slice(0, 10)
             .map(
               (n) => `
-            <div class="notification ${!n.is_read ? 'unread' : ''} ${n.type === 'mention' ? 'mention' : ''}">
+            <div class="notification ${!n.is_read ? "unread" : ""} ${n.type === "mention" ? "mention" : ""}">
               <div class="notification-header">
                 ${n.actor?.avatar_url ? `<img src="${n.actor.avatar_url}" alt="" class="notification-avatar">` : '<div class="notification-avatar"></div>'}
                 <div class="notification-title">${n.title}</div>
               </div>
-              <div class="notification-body">${n.body.length > 120 ? n.body.substring(0, 120) + '...' : n.body}</div>
+              <div class="notification-body">${n.body.length > 120 ? n.body.substring(0, 120) + "..." : n.body}</div>
               <div class="notification-meta">${new Date(n.created_at).toLocaleString()}</div>
-              ${n.action_url ? `<a href="${n.action_url}" class="notification-action">View</a>` : ''}
+              ${n.action_url ? `<a href="${n.action_url}" class="notification-action">View</a>` : ""}
             </div>
-          `
+          `,
             )
-            .join('')}
+            .join("")}
         </div>
       `
           : `
@@ -400,7 +413,7 @@ function generateDigestHtml(
   </div>
 </body>
 </html>
-  `.trim()
+  `.trim();
 }
 
 // ============================================================================
@@ -410,26 +423,30 @@ function generateDigestHtml(
 /**
  * Process an email digest job
  */
-export async function processDigestJob(job: Job<JobData>): Promise<JobResult<DigestResult>> {
-  const payload = job.data.payload as DigestPayload
-  const jobLog = createLogger(`DigestJob:${job.id}`)
+export async function processDigestJob(
+  job: Job<JobData>,
+): Promise<JobResult<DigestResult>> {
+  const payload = job.data.payload as DigestPayload;
+  const jobLog = createLogger(`DigestJob:${job.id}`);
 
-  jobLog.info('Processing digest job', {
+  jobLog.info("Processing digest job", {
     userId: payload.userId,
     digestType: payload.digestType,
     attemptsMade: job.attemptsMade,
-  })
+  });
 
   try {
-    await job.updateProgress(10)
+    await job.updateProgress(10);
 
     // Get preference service to check if user wants digests
-    const preferenceService = getPreferenceService()
-    const preferences = await preferenceService.getPreferences(payload.userId)
+    const preferenceService = getPreferenceService();
+    const preferences = await preferenceService.getPreferences(payload.userId);
 
     // Check if digest is enabled
     if (!preferences.digest.enabled) {
-      jobLog.info('Digest disabled for user, skipping', { userId: payload.userId })
+      jobLog.info("Digest disabled for user, skipping", {
+        userId: payload.userId,
+      });
       return {
         success: true,
         data: {
@@ -438,58 +455,63 @@ export async function processDigestJob(job: Job<JobData>): Promise<JobResult<Dig
           notificationCount: 0,
           sentAt: new Date(),
         },
-        metadata: { skipped: true, reason: 'digest_disabled' },
-      }
+        metadata: { skipped: true, reason: "digest_disabled" },
+      };
     }
 
-    await job.updateProgress(20)
+    await job.updateProgress(20);
 
     // Calculate period
-    const period = getDigestPeriod(payload.digestType)
+    const period = getDigestPeriod(payload.digestType);
 
     // Get user's email if not provided
-    let email = payload.email
-    let userName: string | undefined
+    let email = payload.email;
+    let userName: string | undefined;
 
     if (!email) {
       const userResult = await executeGraphQL<{
-        users_by_pk: { email: string; display_name: string } | null
-      }>(GET_USER_EMAIL, { userId: payload.userId })
+        users_by_pk: { email: string; display_name: string } | null;
+      }>(GET_USER_EMAIL, { userId: payload.userId });
 
       if (!userResult.data?.users_by_pk?.email) {
-        throw new Error('User email not found')
+        throw new Error("User email not found");
       }
 
-      email = userResult.data.users_by_pk.email
-      userName = userResult.data.users_by_pk.display_name
+      email = userResult.data.users_by_pk.email;
+      userName = userResult.data.users_by_pk.display_name;
     }
 
-    await job.updateProgress(40)
+    await job.updateProgress(40);
 
     // Fetch notifications for the period
     const notificationsResult = await executeGraphQL<{
-      nchat_notifications: DigestNotification[]
-      nchat_notifications_aggregate: { aggregate: { count: number } }
+      nchat_notifications: DigestNotification[];
+      nchat_notifications_aggregate: { aggregate: { count: number } };
     }>(GET_NOTIFICATIONS_FOR_DIGEST, {
       userId: payload.userId,
       startDate: period.start.toISOString(),
       endDate: period.end.toISOString(),
       limit: MAX_NOTIFICATIONS_PER_DIGEST,
-    })
+    });
 
     if (notificationsResult.errors) {
-      throw new Error(`Failed to fetch notifications: ${notificationsResult.errors[0].message}`)
+      throw new Error(
+        `Failed to fetch notifications: ${notificationsResult.errors[0].message}`,
+      );
     }
 
-    await job.updateProgress(60)
+    await job.updateProgress(60);
 
-    const notifications = notificationsResult.data?.nchat_notifications || []
+    const notifications = notificationsResult.data?.nchat_notifications || [];
     const unreadCount =
-      notificationsResult.data?.nchat_notifications_aggregate?.aggregate?.count || 0
+      notificationsResult.data?.nchat_notifications_aggregate?.aggregate
+        ?.count || 0;
 
     // Skip if no notifications
     if (notifications.length === 0 && unreadCount === 0) {
-      jobLog.info('No notifications to include in digest', { userId: payload.userId })
+      jobLog.info("No notifications to include in digest", {
+        userId: payload.userId,
+      });
       return {
         success: true,
         data: {
@@ -498,39 +520,48 @@ export async function processDigestJob(job: Job<JobData>): Promise<JobResult<Dig
           notificationCount: 0,
           sentAt: new Date(),
         },
-        metadata: { skipped: true, reason: 'no_notifications' },
-      }
+        metadata: { skipped: true, reason: "no_notifications" },
+      };
     }
 
-    await job.updateProgress(70)
+    await job.updateProgress(70);
 
     // Generate HTML content
-    const htmlContent = generateDigestHtml(notifications, period, payload.digestType, userName)
+    const htmlContent = generateDigestHtml(
+      notifications,
+      period,
+      payload.digestType,
+      userName,
+    );
 
-    await job.updateProgress(80)
+    await job.updateProgress(80);
 
     // Send email via notification service
-    const notificationService = getNotificationService()
-    const sendResult = await notificationService.sendEmail(payload.userId, email, {
-      subject: `Your ${payload.digestType} notification digest - ${period.start.toLocaleDateString()}`,
-      html: htmlContent,
-      category: 'system',
-    })
+    const notificationService = getNotificationService();
+    const sendResult = await notificationService.sendEmail(
+      payload.userId,
+      email,
+      {
+        subject: `Your ${payload.digestType} notification digest - ${period.start.toLocaleDateString()}`,
+        html: htmlContent,
+        category: "system",
+      },
+    );
 
-    await job.updateProgress(90)
+    await job.updateProgress(90);
 
     if (!sendResult.success) {
-      throw new Error(sendResult.error || 'Failed to send digest email')
+      throw new Error(sendResult.error || "Failed to send digest email");
     }
 
-    await job.updateProgress(100)
+    await job.updateProgress(100);
 
-    jobLog.info('Digest email sent successfully', {
+    jobLog.info("Digest email sent successfully", {
       userId: payload.userId,
       digestType: payload.digestType,
       notificationCount: notifications.length,
       emailId: sendResult.notification_id,
-    })
+    });
 
     return {
       success: true,
@@ -544,20 +575,22 @@ export async function processDigestJob(job: Job<JobData>): Promise<JobResult<Dig
       metadata: {
         period: { start: period.start, end: period.end },
         unreadCount,
-        channelCount: new Set(notifications.map((n) => n.channel?.id).filter(Boolean)).size,
+        channelCount: new Set(
+          notifications.map((n) => n.channel?.id).filter(Boolean),
+        ).size,
       },
-    }
+    };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorMessage = error instanceof Error ? error.message : String(error);
 
-    jobLog.error('Error processing digest job', error as Error, {
+    jobLog.error("Error processing digest job", error as Error, {
       userId: payload.userId,
       digestType: payload.digestType,
-    })
+    });
 
     // Throw to trigger retry if attempts remaining
     if (job.attemptsMade < MAX_RETRIES) {
-      throw error
+      throw error;
     }
 
     return {
@@ -568,7 +601,7 @@ export async function processDigestJob(job: Job<JobData>): Promise<JobResult<Dig
         digestType: payload.digestType,
         attemptsMade: job.attemptsMade,
       },
-    }
+    };
   }
 }
 
@@ -603,7 +636,7 @@ const GET_USERS_WITH_DIGEST_ENABLED = `
       }
     }
   }
-`
+`;
 
 const UPDATE_DIGEST_LAST_SENT = `
   mutation UpdateDigestLastSent($userId: uuid!) {
@@ -615,134 +648,137 @@ const UPDATE_DIGEST_LAST_SENT = `
       last_sent_at
     }
   }
-`
+`;
 
 /**
  * Check if it's time to send a digest based on user's settings
  */
 function shouldSendDigest(
   settings: { time: string; timezone: string; last_sent_at: string | null },
-  digestType: 'daily' | 'weekly' | 'hourly'
+  digestType: "daily" | "weekly" | "hourly",
 ): boolean {
-  const now = new Date()
+  const now = new Date();
 
   // Get current time in user's timezone
-  const userTime = new Intl.DateTimeFormat('en-US', {
-    timeZone: settings.timezone || 'UTC',
-    hour: '2-digit',
-    minute: '2-digit',
+  const userTime = new Intl.DateTimeFormat("en-US", {
+    timeZone: settings.timezone || "UTC",
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: false,
-  }).format(now)
+  }).format(now);
 
   // Check if we're within the digest window (settings.time +/- 30 mins)
-  const [targetHour, targetMinute] = settings.time.split(':').map(Number)
-  const [currentHour, currentMinute] = userTime.split(':').map(Number)
+  const [targetHour, targetMinute] = settings.time.split(":").map(Number);
+  const [currentHour, currentMinute] = userTime.split(":").map(Number);
 
-  const targetMinutes = targetHour * 60 + targetMinute
-  const currentMinutes = currentHour * 60 + currentMinute
-  const diff = Math.abs(currentMinutes - targetMinutes)
+  const targetMinutes = targetHour * 60 + targetMinute;
+  const currentMinutes = currentHour * 60 + currentMinute;
+  const diff = Math.abs(currentMinutes - targetMinutes);
 
   // Not within 30-minute window of target time
   if (diff > 30 && diff < 1410) {
-    return false
+    return false;
   }
 
   // Check last sent time
   if (settings.last_sent_at) {
-    const lastSent = new Date(settings.last_sent_at)
-    const hoursSinceLastSent = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60)
+    const lastSent = new Date(settings.last_sent_at);
+    const hoursSinceLastSent =
+      (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60);
 
-    if (digestType === 'hourly' && hoursSinceLastSent < 0.9) {
-      return false
+    if (digestType === "hourly" && hoursSinceLastSent < 0.9) {
+      return false;
     }
-    if (digestType === 'daily' && hoursSinceLastSent < 22) {
-      return false
+    if (digestType === "daily" && hoursSinceLastSent < 22) {
+      return false;
     }
-    if (digestType === 'weekly' && hoursSinceLastSent < 166) {
-      return false
+    if (digestType === "weekly" && hoursSinceLastSent < 166) {
+      return false;
     }
   }
 
-  return true
+  return true;
 }
 
 /**
  * Process all pending digests for users who have them enabled
  */
 export async function processAllPendingDigests(
-  digestType: 'daily' | 'weekly' | 'hourly'
+  digestType: "daily" | "weekly" | "hourly",
 ): Promise<{
-  processed: number
-  succeeded: number
-  failed: number
-  skipped: number
+  processed: number;
+  succeeded: number;
+  failed: number;
+  skipped: number;
 }> {
-  log.info('Processing pending digests', { digestType })
+  log.info("Processing pending digests", { digestType });
 
   const result = {
     processed: 0,
     succeeded: 0,
     failed: 0,
     skipped: 0,
-  }
+  };
 
   try {
-    let offset = 0
-    let hasMore = true
+    let offset = 0;
+    let hasMore = true;
 
     while (hasMore) {
       // Get users with digest enabled for this frequency
       const usersResult = await executeGraphQL<{
         nchat_digest_settings: Array<{
-          user_id: string
-          frequency: string
-          time: string
-          timezone: string
-          last_sent_at: string | null
-        }>
-        nchat_digest_settings_aggregate: { aggregate: { count: number } }
+          user_id: string;
+          frequency: string;
+          time: string;
+          timezone: string;
+          last_sent_at: string | null;
+        }>;
+        nchat_digest_settings_aggregate: { aggregate: { count: number } };
       }>(GET_USERS_WITH_DIGEST_ENABLED, {
         frequency: digestType,
         limit: BATCH_SIZE,
         offset,
-      })
+      });
 
       if (usersResult.errors) {
-        log.error('Failed to get users with digest enabled', undefined, {
+        log.error("Failed to get users with digest enabled", undefined, {
           errors: usersResult.errors,
-        })
-        break
+        });
+        break;
       }
 
-      const users = usersResult.data?.nchat_digest_settings || []
-      const totalCount = usersResult.data?.nchat_digest_settings_aggregate?.aggregate?.count || 0
+      const users = usersResult.data?.nchat_digest_settings || [];
+      const totalCount =
+        usersResult.data?.nchat_digest_settings_aggregate?.aggregate?.count ||
+        0;
 
       for (const userSettings of users) {
-        result.processed++
+        result.processed++;
 
         // Check if it's time to send digest
         if (!shouldSendDigest(userSettings, digestType)) {
-          result.skipped++
-          continue
+          result.skipped++;
+          continue;
         }
 
         try {
           // Get user email
           const userResult = await executeGraphQL<{
-            users_by_pk: { email: string; display_name: string } | null
-          }>(GET_USER_EMAIL, { userId: userSettings.user_id })
+            users_by_pk: { email: string; display_name: string } | null;
+          }>(GET_USER_EMAIL, { userId: userSettings.user_id });
 
           if (!userResult.data?.users_by_pk?.email) {
-            log.warn('User email not found', { userId: userSettings.user_id })
-            result.skipped++
-            continue
+            log.warn("User email not found", { userId: userSettings.user_id });
+            result.skipped++;
+            continue;
           }
 
           // Create a mock job to process
           const mockJob = {
             id: `batch-${userSettings.user_id}-${Date.now()}`,
             data: {
-              type: 'email-digest',
+              type: "email-digest",
               payload: {
                 userId: userSettings.user_id,
                 email: userResult.data.users_by_pk.email,
@@ -750,41 +786,41 @@ export async function processAllPendingDigests(
                 timezone: userSettings.timezone,
               } as DigestPayload,
               metadata: {},
-              tags: ['digest', digestType],
+              tags: ["digest", digestType],
               createdAt: new Date().toISOString(),
             },
             attemptsMade: 0,
             updateProgress: async () => {},
-          } as unknown as Job<JobData>
+          } as unknown as Job<JobData>;
 
-          const jobResult = await processDigestJob(mockJob)
+          const jobResult = await processDigestJob(mockJob);
 
           if (jobResult.success) {
-            result.succeeded++
+            result.succeeded++;
             // Update last_sent_at
             await executeGraphQL(UPDATE_DIGEST_LAST_SENT, {
               userId: userSettings.user_id,
-            })
+            });
           } else {
-            result.failed++
+            result.failed++;
           }
         } catch (error) {
-          result.failed++
-          log.error('Failed to process digest for user', error as Error, {
+          result.failed++;
+          log.error("Failed to process digest for user", error as Error, {
             userId: userSettings.user_id,
-          })
+          });
         }
       }
 
-      offset += BATCH_SIZE
-      hasMore = offset < totalCount
+      offset += BATCH_SIZE;
+      hasMore = offset < totalCount;
     }
 
-    log.info('Pending digests processing complete', result)
-    return result
+    log.info("Pending digests processing complete", result);
+    return result;
   } catch (error) {
-    log.error('Error processing pending digests', error as Error)
-    return result
+    log.error("Error processing pending digests", error as Error);
+    return result;
   }
 }
 
@@ -793,11 +829,11 @@ export async function processAllPendingDigests(
 // ============================================================================
 
 interface JobData {
-  type: string
-  payload: DigestPayload
-  metadata: Record<string, unknown>
-  tags: string[]
-  createdAt: string
+  type: string;
+  payload: DigestPayload;
+  metadata: Record<string, unknown>;
+  tags: string[];
+  createdAt: string;
 }
 
 /**
@@ -806,14 +842,14 @@ interface JobData {
 export function registerDigestProcessor(processorService: {
   registerProcessor: (
     type: string,
-    processor: (job: Job<JobData>) => Promise<JobResult<unknown>>
-  ) => void
+    processor: (job: Job<JobData>) => Promise<JobResult<unknown>>,
+  ) => void;
 }): void {
   processorService.registerProcessor(
-    'email-digest',
-    processDigestJob as (job: Job<JobData>) => Promise<JobResult<unknown>>
-  )
-  log.info('Email digest processor registered')
+    "email-digest",
+    processDigestJob as (job: Job<JobData>) => Promise<JobResult<unknown>>,
+  );
+  log.info("Email digest processor registered");
 }
 
 export default {
@@ -823,4 +859,4 @@ export default {
   MAX_RETRIES,
   BASE_RETRY_DELAY,
   MAX_NOTIFICATIONS_PER_DIGEST,
-}
+};

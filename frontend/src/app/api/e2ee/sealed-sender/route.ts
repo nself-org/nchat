@@ -6,18 +6,18 @@
  * - GET: Get sealed sender status/configuration
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import {
   type SealedSenderEnvelope,
   validateEnvelopeStructure,
   deserializeEnvelope,
   SEALED_SENDER_VERSION,
-} from '@/lib/e2ee/sealed-sender'
+} from "@/lib/e2ee/sealed-sender";
 import {
   type UnidentifiedMessage,
   validateDeliveryToken,
-} from '@/lib/e2ee/unidentified-sender'
+} from "@/lib/e2ee/unidentified-sender";
 
 // ============================================================================
 // Types
@@ -25,54 +25,54 @@ import {
 
 interface SendSealedMessageRequest {
   /** Sealed envelope (Base64) */
-  envelope: string
+  envelope: string;
   /** Recipient user ID */
-  recipientUserId: string
+  recipientUserId: string;
   /** Recipient device ID */
-  recipientDeviceId: string
+  recipientDeviceId: string;
   /** Optional delivery token for unidentified delivery */
-  deliveryToken?: string
+  deliveryToken?: string;
   /** Whether to use identified fallback */
-  identifiedFallback?: boolean
+  identifiedFallback?: boolean;
 }
 
 interface SendSealedMessageResponse {
   /** Whether delivery was successful */
-  success: boolean
+  success: boolean;
   /** Server-assigned message ID */
-  messageId?: string
+  messageId?: string;
   /** New delivery token if issued */
   deliveryToken?: {
-    tokenId: string
-    expiresAt: number
-  }
+    tokenId: string;
+    expiresAt: number;
+  };
   /** Error message if failed */
-  error?: string
+  error?: string;
   /** Whether identified fallback was used */
-  usedIdentifiedFallback?: boolean
+  usedIdentifiedFallback?: boolean;
 }
 
 interface SealedSenderStatusResponse {
   /** Protocol version supported */
-  protocolVersion: number
+  protocolVersion: number;
   /** Whether sealed sender is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Server public keys for certificate verification */
   serverPublicKeys: Array<{
-    keyId: number
-    publicKey: string
-    expiresAt: number
-  }>
+    keyId: number;
+    publicKey: string;
+    expiresAt: number;
+  }>;
   /** Delivery token configuration */
   tokenConfig: {
-    validityMs: number
-    maxMessagesPerToken: number
-  }
+    validityMs: number;
+    maxMessagesPerToken: number;
+  };
   /** Rate limits */
   rateLimits: {
-    messagesPerMinute: number
-    messagesPerHour: number
-  }
+    messagesPerMinute: number;
+    messagesPerHour: number;
+  };
 }
 
 // ============================================================================
@@ -81,21 +81,22 @@ interface SealedSenderStatusResponse {
 // ============================================================================
 
 interface StoredToken {
-  tokenId: string
-  recipientUserId: string
-  createdAt: number
-  expiresAt: number
-  messageCount: number
+  tokenId: string;
+  recipientUserId: string;
+  createdAt: number;
+  expiresAt: number;
+  messageCount: number;
 }
 
-const deliveryTokens: Map<string, StoredToken> = new Map()
-const serverPublicKeys: Map<number, { publicKey: string; expiresAt: number }> = new Map()
+const deliveryTokens: Map<string, StoredToken> = new Map();
+const serverPublicKeys: Map<number, { publicKey: string; expiresAt: number }> =
+  new Map();
 
 // Initialize with demo key
 serverPublicKeys.set(1, {
-  publicKey: 'demo-public-key-base64',
+  publicKey: "demo-public-key-base64",
   expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
-})
+});
 
 // ============================================================================
 // POST - Send Sealed Sender Message
@@ -103,65 +104,67 @@ serverPublicKeys.set(1, {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: SendSealedMessageRequest = await request.json()
+    const body: SendSealedMessageRequest = await request.json();
 
     // Validate request
     if (!body.envelope) {
       return NextResponse.json(
-        { error: 'Missing required field: envelope' },
-        { status: 400 }
-      )
+        { error: "Missing required field: envelope" },
+        { status: 400 },
+      );
     }
 
     if (!body.recipientUserId || !body.recipientDeviceId) {
       return NextResponse.json(
-        { error: 'Missing required fields: recipientUserId, recipientDeviceId' },
-        { status: 400 }
-      )
+        {
+          error: "Missing required fields: recipientUserId, recipientDeviceId",
+        },
+        { status: 400 },
+      );
     }
 
     // Decode and validate envelope
-    let envelope: SealedSenderEnvelope
+    let envelope: SealedSenderEnvelope;
     try {
       const envelopeBytes = new Uint8Array(
         atob(body.envelope)
-          .split('')
-          .map((c) => c.charCodeAt(0))
-      )
-      envelope = deserializeEnvelope(envelopeBytes)
+          .split("")
+          .map((c) => c.charCodeAt(0)),
+      );
+      envelope = deserializeEnvelope(envelopeBytes);
     } catch {
       return NextResponse.json(
-        { error: 'Invalid envelope format' },
-        { status: 400 }
-      )
+        { error: "Invalid envelope format" },
+        { status: 400 },
+      );
     }
 
     // Validate envelope structure
-    const structureErrors = validateEnvelopeStructure(envelope)
+    const structureErrors = validateEnvelopeStructure(envelope);
     if (structureErrors.length > 0) {
       return NextResponse.json(
-        { error: `Invalid envelope: ${structureErrors.join(', ')}` },
-        { status: 400 }
-      )
+        { error: `Invalid envelope: ${structureErrors.join(", ")}` },
+        { status: 400 },
+      );
     }
 
     // Check version
     if (envelope.version !== SEALED_SENDER_VERSION) {
       return NextResponse.json(
         { error: `Unsupported protocol version: ${envelope.version}` },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     // Process delivery token if provided
-    let usedIdentifiedFallback = body.identifiedFallback ?? false
-    let newToken: { tokenId: string; expiresAt: number } | undefined
+    let usedIdentifiedFallback = body.identifiedFallback ?? false;
+    let newToken: { tokenId: string; expiresAt: number } | undefined;
 
     if (body.deliveryToken && !usedIdentifiedFallback) {
-      const storedToken = deliveryTokens.get(body.deliveryToken)
+      const storedToken = deliveryTokens.get(body.deliveryToken);
       if (!storedToken) {
         // Token not found - could issue new one or require identified fallback
-        logger.warn('Unknown delivery token', { tokenId: body.deliveryToken })
+        logger.warn("Unknown delivery token", { tokenId: body.deliveryToken });
         // For demo, we'll accept it anyway but issue a new token
       } else {
         // Validate token
@@ -172,23 +175,23 @@ export async function POST(request: NextRequest) {
           expiresAt: storedToken.expiresAt,
           messageCount: storedToken.messageCount,
           isValid: true,
-        })
+        });
 
         if (!validation.valid) {
-          logger.warn('Invalid delivery token', {
+          logger.warn("Invalid delivery token", {
             tokenId: body.deliveryToken,
             error: validation.error,
-          })
-          usedIdentifiedFallback = true
+          });
+          usedIdentifiedFallback = true;
         } else {
           // Update token usage
-          storedToken.messageCount++
+          storedToken.messageCount++;
         }
       }
     }
 
     // Generate message ID
-    const messageId = crypto.randomUUID()
+    const messageId = crypto.randomUUID();
 
     // In production, this would:
     // 1. Queue the sealed message for delivery to recipient
@@ -197,9 +200,9 @@ export async function POST(request: NextRequest) {
 
     // Issue new delivery token for future messages
     if (!usedIdentifiedFallback) {
-      const tokenId = crypto.randomUUID()
-      const now = Date.now()
-      const expiresAt = now + 60 * 60 * 1000 // 1 hour
+      const tokenId = crypto.randomUUID();
+      const now = Date.now();
+      const expiresAt = now + 60 * 60 * 1000; // 1 hour
 
       deliveryTokens.set(tokenId, {
         tokenId,
@@ -207,32 +210,32 @@ export async function POST(request: NextRequest) {
         createdAt: now,
         expiresAt,
         messageCount: 0,
-      })
+      });
 
-      newToken = { tokenId, expiresAt }
+      newToken = { tokenId, expiresAt };
     }
 
-    logger.info('Sealed sender message queued for delivery', {
+    logger.info("Sealed sender message queued for delivery", {
       messageId,
       recipientUserId: body.recipientUserId,
       usedIdentifiedFallback,
       // Note: We deliberately DO NOT log sender information
-    })
+    });
 
     const response: SendSealedMessageResponse = {
       success: true,
       messageId,
       deliveryToken: newToken,
       usedIdentifiedFallback,
-    }
+    };
 
-    return NextResponse.json(response, { status: 201 })
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    logger.error('Failed to process sealed sender message', { error })
+    logger.error("Failed to process sealed sender message", { error });
     return NextResponse.json(
-      { error: 'Failed to process message' },
-      { status: 500 }
-    )
+      { error: "Failed to process message" },
+      { status: 500 },
+    );
   }
 }
 
@@ -242,11 +245,13 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const publicKeys = Array.from(serverPublicKeys.entries()).map(([keyId, data]) => ({
-      keyId,
-      publicKey: data.publicKey,
-      expiresAt: data.expiresAt,
-    }))
+    const publicKeys = Array.from(serverPublicKeys.entries()).map(
+      ([keyId, data]) => ({
+        keyId,
+        publicKey: data.publicKey,
+        expiresAt: data.expiresAt,
+      }),
+    );
 
     const response: SealedSenderStatusResponse = {
       protocolVersion: SEALED_SENDER_VERSION,
@@ -260,14 +265,14 @@ export async function GET() {
         messagesPerMinute: 30,
         messagesPerHour: 500,
       },
-    }
+    };
 
-    return NextResponse.json(response)
+    return NextResponse.json(response);
   } catch (error) {
-    logger.error('Failed to get sealed sender status', { error })
+    logger.error("Failed to get sealed sender status", { error });
     return NextResponse.json(
-      { error: 'Failed to get status' },
-      { status: 500 }
-    )
+      { error: "Failed to get status" },
+      { status: 500 },
+    );
   }
 }

@@ -24,7 +24,7 @@ export type {
   AdapterOperationParam,
   AdapterOperationResult,
   PluginHealthStatus,
-} from './types'
+} from "./types";
 
 export {
   ALL_PLUGIN_DOMAINS,
@@ -34,7 +34,7 @@ export {
   isValidSeverity,
   isValidStatus,
   compareGapsBySeverity,
-} from './types'
+} from "./types";
 
 // Gap Analyzer
 export {
@@ -42,20 +42,17 @@ export {
   KNOWN_SERVICE_DESCRIPTORS,
   KNOWN_CAPABILITIES,
   resetGapIdCounter,
-} from './gap-analyzer'
+} from "./gap-analyzer";
 
 // Gap Registry
-export {
-  GapRegistry,
-  GapRegistryError,
-} from './gap-registry'
+export { GapRegistry, GapRegistryError } from "./gap-registry";
 export type {
   GapRegistryEventType,
   GapRegistryEvent,
   GapRegistryEventListener,
   GapQueryFilter,
   GapRegistryStats,
-} from './gap-registry'
+} from "./gap-registry";
 
 // Plugin Adapter
 export {
@@ -64,9 +61,9 @@ export {
   PluginAdapterRegistry,
   createDomainAdapter,
   createAdapterWithOperations,
-} from './plugin-adapter'
+} from "./plugin-adapter";
 export type {
   AdapterHandler,
   AdapterContext,
   AdapterMetrics,
-} from './plugin-adapter'
+} from "./plugin-adapter";

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Sticker Packs Browser Component
@@ -7,7 +7,7 @@
  * Allows users to install/uninstall packs and preview stickers.
  */
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from "react";
 import {
   Search,
   Loader2,
@@ -20,20 +20,20 @@ import {
   Star,
   Users,
   Grid3X3,
-} from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Card,
   CardContent,
@@ -41,11 +41,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
-import type { StickerPack, Sticker, StickerPackBasic } from '@/types/sticker'
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import type { StickerPack, Sticker, StickerPackBasic } from "@/types/sticker";
 
 // ============================================================================
 // Types
@@ -53,30 +53,30 @@ import type { StickerPack, Sticker, StickerPackBasic } from '@/types/sticker'
 
 interface StickerPacksProps {
   /** Currently installed packs */
-  installedPacks: StickerPack[]
+  installedPacks: StickerPack[];
   /** Available packs from the store */
-  availablePacks?: StickerPack[]
+  availablePacks?: StickerPack[];
   /** Whether the component is loading */
-  isLoading?: boolean
+  isLoading?: boolean;
   /** Callback when a pack is installed */
-  onInstallPack?: (packId: string) => Promise<void>
+  onInstallPack?: (packId: string) => Promise<void>;
   /** Callback when a pack is uninstalled */
-  onUninstallPack?: (packId: string) => Promise<void>
+  onUninstallPack?: (packId: string) => Promise<void>;
   /** Callback when a sticker is selected */
-  onSelectSticker?: (sticker: Sticker) => void
+  onSelectSticker?: (sticker: Sticker) => void;
   /** Custom class name */
-  className?: string
+  className?: string;
 }
 
 interface PackPreviewDialogProps {
-  pack: StickerPack | null
-  isOpen: boolean
-  onClose: () => void
-  isInstalled: boolean
-  isInstalling: boolean
-  onInstall: () => void
-  onUninstall: () => void
-  onSelectSticker?: (sticker: Sticker) => void
+  pack: StickerPack | null;
+  isOpen: boolean;
+  onClose: () => void;
+  isInstalled: boolean;
+  isInstalling: boolean;
+  onInstall: () => void;
+  onUninstall: () => void;
+  onSelectSticker?: (sticker: Sticker) => void;
 }
 
 // ============================================================================
@@ -93,7 +93,7 @@ function PackPreviewDialog({
   onUninstall,
   onSelectSticker,
 }: PackPreviewDialogProps) {
-  if (!pack) return null
+  if (!pack) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -158,9 +158,9 @@ function PackPreviewDialog({
                 animate={{ opacity: 1, scale: 1 }}
                 onClick={() => onSelectSticker?.(sticker)}
                 className={cn(
-                  'bg-muted/30 aspect-square rounded-lg border p-2 transition-all',
-                  'hover:scale-105 hover:border-primary hover:shadow-md',
-                  'focus:ring-primary/50 focus:outline-none focus:ring-2'
+                  "bg-muted/30 aspect-square rounded-lg border p-2 transition-all",
+                  "hover:scale-105 hover:border-primary hover:shadow-md",
+                  "focus:ring-primary/50 focus:outline-none focus:ring-2",
                 )}
               >
                 <img
@@ -191,14 +191,23 @@ function PackPreviewDialog({
           <div className="flex items-center gap-2">
             {pack.websiteUrl && (
               <Button variant="ghost" size="sm" asChild>
-                <a href={pack.websiteUrl} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={pack.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <ExternalLink className="mr-1 h-4 w-4" />
                   Website
                 </a>
               </Button>
             )}
             {isInstalled ? (
-              <Button variant="destructive" size="sm" onClick={onUninstall} disabled={isInstalling}>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={onUninstall}
+                disabled={isInstalling}
+              >
                 {isInstalling ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -224,7 +233,7 @@ function PackPreviewDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ============================================================================
@@ -232,12 +241,12 @@ function PackPreviewDialog({
 // ============================================================================
 
 interface PackCardProps {
-  pack: StickerPack
-  isInstalled: boolean
-  isInstalling: boolean
-  onPreview: () => void
-  onInstall: () => void
-  onUninstall: () => void
+  pack: StickerPack;
+  isInstalled: boolean;
+  isInstalling: boolean;
+  onPreview: () => void;
+  onInstall: () => void;
+  onUninstall: () => void;
 }
 
 function PackCard({
@@ -267,7 +276,9 @@ function PackCard({
           <div className="min-w-0 flex-1">
             <CardTitle className="flex items-center gap-1 text-sm">
               <span className="truncate">{pack.title || pack.name}</span>
-              {pack.isVerified && <Check className="h-4 w-4 flex-shrink-0 text-primary" />}
+              {pack.isVerified && (
+                <Check className="h-4 w-4 flex-shrink-0 text-primary" />
+              )}
             </CardTitle>
             <CardDescription className="truncate text-xs">
               {pack.stickerCount} stickers
@@ -280,7 +291,10 @@ function PackCard({
         {/* Sticker Preview Grid */}
         <div className="grid grid-cols-4 gap-1">
           {pack.stickers.slice(0, 4).map((sticker) => (
-            <div key={sticker.id} className="bg-muted/50 aspect-square rounded p-1">
+            <div
+              key={sticker.id}
+              className="bg-muted/50 aspect-square rounded p-1"
+            >
               <img
                 src={sticker.thumbnailUrl || sticker.url}
                 alt={sticker.name}
@@ -294,7 +308,12 @@ function PackCard({
 
       <CardFooter className="pt-2">
         <div className="flex w-full items-center gap-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={onPreview}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={onPreview}
+          >
             Preview
           </Button>
           {isInstalled ? (
@@ -323,7 +342,7 @@ function PackCard({
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -339,81 +358,90 @@ export function StickerPacks({
   onSelectSticker,
   className,
 }: StickerPacksProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeTab, setActiveTab] = useState<'installed' | 'browse'>('installed')
-  const [previewPack, setPreviewPack] = useState<StickerPack | null>(null)
-  const [installingPackId, setInstallingPackId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"installed" | "browse">(
+    "installed",
+  );
+  const [previewPack, setPreviewPack] = useState<StickerPack | null>(null);
+  const [installingPackId, setInstallingPackId] = useState<string | null>(null);
 
   // Get installed pack IDs for quick lookup
-  const installedPackIds = useMemo(() => new Set(installedPacks.map((p) => p.id)), [installedPacks])
+  const installedPackIds = useMemo(
+    () => new Set(installedPacks.map((p) => p.id)),
+    [installedPacks],
+  );
 
   // Filter packs by search query
   const filteredInstalledPacks = useMemo(() => {
-    if (!searchQuery) return installedPacks
-    const query = searchQuery.toLowerCase()
+    if (!searchQuery) return installedPacks;
+    const query = searchQuery.toLowerCase();
     return installedPacks.filter(
       (pack) =>
         pack.name.toLowerCase().includes(query) ||
         pack.title?.toLowerCase().includes(query) ||
         pack.description?.toLowerCase().includes(query) ||
-        pack.tags?.some((tag) => tag.toLowerCase().includes(query))
-    )
-  }, [installedPacks, searchQuery])
+        pack.tags?.some((tag) => tag.toLowerCase().includes(query)),
+    );
+  }, [installedPacks, searchQuery]);
 
   const filteredAvailablePacks = useMemo(() => {
-    const nonInstalled = availablePacks.filter((p) => !installedPackIds.has(p.id))
-    if (!searchQuery) return nonInstalled
-    const query = searchQuery.toLowerCase()
+    const nonInstalled = availablePacks.filter(
+      (p) => !installedPackIds.has(p.id),
+    );
+    if (!searchQuery) return nonInstalled;
+    const query = searchQuery.toLowerCase();
     return nonInstalled.filter(
       (pack) =>
         pack.name.toLowerCase().includes(query) ||
         pack.title?.toLowerCase().includes(query) ||
         pack.description?.toLowerCase().includes(query) ||
-        pack.tags?.some((tag) => tag.toLowerCase().includes(query))
-    )
-  }, [availablePacks, installedPackIds, searchQuery])
+        pack.tags?.some((tag) => tag.toLowerCase().includes(query)),
+    );
+  }, [availablePacks, installedPackIds, searchQuery]);
 
   // Handle pack installation
   const handleInstall = useCallback(
     async (packId: string) => {
-      if (!onInstallPack) return
-      setInstallingPackId(packId)
+      if (!onInstallPack) return;
+      setInstallingPackId(packId);
       try {
-        await onInstallPack(packId)
+        await onInstallPack(packId);
       } finally {
-        setInstallingPackId(null)
+        setInstallingPackId(null);
       }
     },
-    [onInstallPack]
-  )
+    [onInstallPack],
+  );
 
   // Handle pack uninstallation
   const handleUninstall = useCallback(
     async (packId: string) => {
-      if (!onUninstallPack) return
-      setInstallingPackId(packId)
+      if (!onUninstallPack) return;
+      setInstallingPackId(packId);
       try {
-        await onUninstallPack(packId)
+        await onUninstallPack(packId);
         if (previewPack?.id === packId) {
-          setPreviewPack(null)
+          setPreviewPack(null);
         }
       } finally {
-        setInstallingPackId(null)
+        setInstallingPackId(null);
       }
     },
-    [onUninstallPack, previewPack]
-  )
+    [onUninstallPack, previewPack],
+  );
 
   if (isLoading) {
     return (
-      <div className={cn('flex h-[400px] items-center justify-center', className)}>
+      <div
+        className={cn("flex h-[400px] items-center justify-center", className)}
+      >
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex h-[500px] flex-col bg-background', className)}>
+    <div className={cn("flex h-[500px] flex-col bg-background", className)}>
       {/* Header */}
       <div className="border-b p-4">
         <div className="relative">
@@ -431,7 +459,7 @@ export function StickerPacks({
       {/* Tabs */}
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as 'installed' | 'browse')}
+        onValueChange={(v) => setActiveTab(v as "installed" | "browse")}
         className="flex flex-1 flex-col"
       >
         <TabsList className="w-full justify-start rounded-none border-b px-4">
@@ -465,11 +493,13 @@ export function StickerPacks({
                 <h3 className="mb-1 text-lg font-semibold">No Sticker Packs</h3>
                 <p className="mb-4 text-sm text-muted-foreground">
                   {searchQuery
-                    ? 'No packs match your search'
+                    ? "No packs match your search"
                     : "You haven't installed any sticker packs yet"}
                 </p>
                 {!searchQuery && availablePacks.length > 0 && (
-                  <Button onClick={() => setActiveTab('browse')}>Browse Packs</Button>
+                  <Button onClick={() => setActiveTab("browse")}>
+                    Browse Packs
+                  </Button>
                 )}
               </div>
             ) : (
@@ -509,12 +539,12 @@ export function StickerPacks({
               <div className="flex flex-col items-center justify-center p-8 text-center">
                 <Package className="mb-4 h-12 w-12 text-muted-foreground" />
                 <h3 className="mb-1 text-lg font-semibold">
-                  {searchQuery ? 'No Results' : 'No Available Packs'}
+                  {searchQuery ? "No Results" : "No Available Packs"}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {searchQuery
-                    ? 'Try a different search term'
-                    : 'Check back later for new sticker packs'}
+                    ? "Try a different search term"
+                    : "Check back later for new sticker packs"}
                 </p>
               </div>
             ) : (
@@ -557,7 +587,7 @@ export function StickerPacks({
         onSelectSticker={onSelectSticker}
       />
     </div>
-  )
+  );
 }
 
-export default StickerPacks
+export default StickerPacks;

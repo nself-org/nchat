@@ -163,10 +163,10 @@ Each bot follows this structure:
 ### Bot Implementation (index.ts)
 
 ```typescript
-import { bot, command } from '@/lib/bots'
-import type { CommandContext, BotApi, BotResponse } from '@/lib/bots'
-import { response, embed } from '@/lib/bots'
-import manifest from './manifest.json'
+import { bot, command } from "@/lib/bots";
+import type { CommandContext, BotApi, BotResponse } from "@/lib/bots";
+import { response, embed } from "@/lib/bots";
+import manifest from "./manifest.json";
 
 export function createMyBot() {
   return (
@@ -178,15 +178,20 @@ export function createMyBot() {
 
       // Commands
       .command(
-        command('mycommand')
-          .description('Do something')
-          .stringArg('arg', 'Argument description', true)
-          .example('/mycommand value'),
+        command("mycommand")
+          .description("Do something")
+          .stringArg("arg", "Argument description", true)
+          .example("/mycommand value"),
         async (ctx: CommandContext, api: BotApi): Promise<BotResponse> => {
           return response()
-            .embed(embed().title('Success').description('Command executed').color('#10B981'))
-            .build()
-        }
+            .embed(
+              embed()
+                .title("Success")
+                .description("Command executed")
+                .color("#10B981"),
+            )
+            .build();
+        },
       )
 
       // Event handlers
@@ -207,11 +212,11 @@ export function createMyBot() {
       })
 
       .build()
-  )
+  );
 }
 
-export default createMyBot
-export { manifest }
+export default createMyBot;
+export { manifest };
 ```
 
 ## Creating a New Bot
@@ -269,74 +274,74 @@ import {
   success,
   info,
   warning,
-} from '@/lib/bots'
+} from "@/lib/bots";
 ```
 
 ### Command Builder
 
 ```typescript
-command('name')
-  .description('Description')
-  .aliases('alias1', 'alias2')
-  .stringArg('arg1', 'String arg', required)
-  .numberArg('arg2', 'Number arg')
-  .booleanArg('arg3', 'Boolean arg')
-  .durationArg('time', 'Duration (e.g., 5m, 1h)')
-  .choiceArg('choice', 'Choice', [
-    { label: 'Option 1', value: 'opt1' },
-    { label: 'Option 2', value: 'opt2' },
+command("name")
+  .description("Description")
+  .aliases("alias1", "alias2")
+  .stringArg("arg1", "String arg", required)
+  .numberArg("arg2", "Number arg")
+  .booleanArg("arg3", "Boolean arg")
+  .durationArg("time", "Duration (e.g., 5m, 1h)")
+  .choiceArg("choice", "Choice", [
+    { label: "Option 1", value: "opt1" },
+    { label: "Option 2", value: "opt2" },
   ])
-  .example('/name arg1 arg2')
-  .cooldown(30)
+  .example("/name arg1 arg2")
+  .cooldown(30);
 ```
 
 ### Response Builder
 
 ```typescript
 response()
-  .text('Message text')
+  .text("Message text")
   .embed(
     embed()
-      .title('Title')
-      .description('Description')
-      .field('Name', 'Value', inline)
-      .color('#10B981')
-      .footer('Footer')
-      .timestamp()
+      .title("Title")
+      .description("Description")
+      .field("Name", "Value", inline)
+      .color("#10B981")
+      .footer("Footer")
+      .timestamp(),
   )
-  .button(button('id').label('Click Me').style('primary').emoji('👍'))
-  .build()
+  .button(button("id").label("Click Me").style("primary").emoji("👍"))
+  .build();
 ```
 
 ### Bot API
 
 ```typescript
 // Messaging
-await api.sendMessage(channelId, response)
-await api.replyToMessage(messageId, response)
+await api.sendMessage(channelId, response);
+await api.replyToMessage(messageId, response);
 
 // Reactions
-await api.addReaction(messageId, '👍')
+await api.addReaction(messageId, "👍");
 
 // Storage
-await api.setStorage('key', value)
-const value = await api.getStorage('key')
+await api.setStorage("key", value);
+const value = await api.getStorage("key");
 
 // Config
-const config = api.getBotConfig()
+const config = api.getBotConfig();
 ```
 
 ## Testing
 
 ```typescript
-import { createMyBot } from './index'
+import { createMyBot } from "./index";
 
-describe('MyBot', () => {
-  it('handles commands', async () => {
-    const bot = createMyBot()
+describe("MyBot", () => {
+  it("handles commands", async () => {
+    const bot = createMyBot();
     // Test implementation
-  })
-})
+  });
+});
 ```
 
 ## Documentation

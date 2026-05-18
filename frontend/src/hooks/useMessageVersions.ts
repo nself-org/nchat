@@ -4,9 +4,9 @@
  * Hook for working with specific message versions and comparisons.
  */
 
-'use client'
+"use client";
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from "react";
 import {
   type MessageVersion,
   type MessageEditHistory,
@@ -18,178 +18,185 @@ import {
   getOriginalVersion,
   getCurrentVersion,
   getCachedHistory,
-} from '@/lib/message-history'
+} from "@/lib/message-history";
 
 export interface UseMessageVersionsOptions {
   /** Message ID */
-  messageId: string
+  messageId: string;
   /** Initial left version number for comparison */
-  initialLeftVersion?: number
+  initialLeftVersion?: number;
   /** Initial right version number for comparison */
-  initialRightVersion?: number
+  initialRightVersion?: number;
 }
 
 export interface UseMessageVersionsReturn {
   /** All versions */
-  versions: MessageVersion[]
+  versions: MessageVersion[];
   /** Currently selected versions for comparison */
-  selection: VersionSelection
+  selection: VersionSelection;
   /** The diff between selected versions */
-  diff: VersionDiff | null
+  diff: VersionDiff | null;
   /** Current comparison view mode */
-  viewMode: ComparisonViewMode
+  viewMode: ComparisonViewMode;
 
   // Version getters
   /** Get a specific version by number */
-  getVersionByNumber: (versionNumber: number) => MessageVersion | null
+  getVersionByNumber: (versionNumber: number) => MessageVersion | null;
   /** Get the original version */
-  getOriginal: () => MessageVersion | null
+  getOriginal: () => MessageVersion | null;
   /** Get the current version */
-  getCurrent: () => MessageVersion | null
+  getCurrent: () => MessageVersion | null;
   /** Get the previous version relative to a given version */
-  getPrevious: (version: MessageVersion) => MessageVersion | null
+  getPrevious: (version: MessageVersion) => MessageVersion | null;
   /** Get the next version relative to a given version */
-  getNext: (version: MessageVersion) => MessageVersion | null
+  getNext: (version: MessageVersion) => MessageVersion | null;
 
   // Selection actions
   /** Select left version */
-  selectLeft: (version: MessageVersion | null) => void
+  selectLeft: (version: MessageVersion | null) => void;
   /** Select right version */
-  selectRight: (version: MessageVersion | null) => void
+  selectRight: (version: MessageVersion | null) => void;
   /** Select both versions at once */
-  selectVersions: (left: MessageVersion | null, right: MessageVersion | null) => void
+  selectVersions: (
+    left: MessageVersion | null,
+    right: MessageVersion | null,
+  ) => void;
   /** Swap left and right selections */
-  swapSelection: () => void
+  swapSelection: () => void;
   /** Clear selection */
-  clearSelection: () => void
+  clearSelection: () => void;
   /** Select original vs current */
-  selectOriginalVsCurrent: () => void
+  selectOriginalVsCurrent: () => void;
 
   // View mode
   /** Set comparison view mode */
-  setViewMode: (mode: ComparisonViewMode) => void
+  setViewMode: (mode: ComparisonViewMode) => void;
 
   // Computed values
   /** Total number of versions */
-  totalVersions: number
+  totalVersions: number;
   /** Total number of edits */
-  editCount: number
+  editCount: number;
   /** Whether there are any edits */
-  hasEdits: boolean
+  hasEdits: boolean;
   /** Unique editors */
-  editors: MessageVersion['editedBy'][]
+  editors: MessageVersion["editedBy"][];
 }
 
 /**
  * Hook for working with message versions and comparisons.
  */
-export function useMessageVersions(options: UseMessageVersionsOptions): UseMessageVersionsReturn {
-  const { messageId, initialLeftVersion, initialRightVersion } = options
+export function useMessageVersions(
+  options: UseMessageVersionsOptions,
+): UseMessageVersionsReturn {
+  const { messageId, initialLeftVersion, initialRightVersion } = options;
 
   // Load history from cache
-  const history = useMemo(() => getCachedHistory(messageId), [messageId])
+  const history = useMemo(() => getCachedHistory(messageId), [messageId]);
 
-  const versions = history?.versions ?? []
+  const versions = history?.versions ?? [];
 
   // Initialize selection
   const [selection, setSelection] = useState<VersionSelection>(() => {
-    if (!history) return { left: null, right: null }
+    if (!history) return { left: null, right: null };
 
     const left = initialLeftVersion
       ? getVersion(history, initialLeftVersion)
-      : getOriginalVersion(history)
+      : getOriginalVersion(history);
     const right = initialRightVersion
       ? getVersion(history, initialRightVersion)
-      : getCurrentVersion(history)
+      : getCurrentVersion(history);
 
-    return { left: left ?? null, right: right ?? null }
-  })
+    return { left: left ?? null, right: right ?? null };
+  });
 
-  const [viewMode, setViewMode] = useState<ComparisonViewMode>('inline')
+  const [viewMode, setViewMode] = useState<ComparisonViewMode>("inline");
 
   // Calculate diff between selected versions
   const diff = useMemo(() => {
-    if (!selection.left || !selection.right) return null
-    return calculateVersionDiff(selection.left, selection.right)
-  }, [selection.left, selection.right])
+    if (!selection.left || !selection.right) return null;
+    return calculateVersionDiff(selection.left, selection.right);
+  }, [selection.left, selection.right]);
 
   // Version getters
   const getVersionByNumber = useCallback(
     (versionNumber: number): MessageVersion | null => {
-      return versions.find((v) => v.versionNumber === versionNumber) ?? null
+      return versions.find((v) => v.versionNumber === versionNumber) ?? null;
     },
-    [versions]
-  )
+    [versions],
+  );
 
   const getOriginal = useCallback((): MessageVersion | null => {
-    return versions.find((v) => v.isOriginal) ?? versions[0] ?? null
-  }, [versions])
+    return versions.find((v) => v.isOriginal) ?? versions[0] ?? null;
+  }, [versions]);
 
   const getCurrent = useCallback((): MessageVersion | null => {
-    return versions.find((v) => v.isCurrent) ?? versions[versions.length - 1] ?? null
-  }, [versions])
+    return (
+      versions.find((v) => v.isCurrent) ?? versions[versions.length - 1] ?? null
+    );
+  }, [versions]);
 
   const getPrevious = useCallback(
     (version: MessageVersion): MessageVersion | null => {
-      const prevNumber = version.versionNumber - 1
-      if (prevNumber < 1) return null
-      return versions.find((v) => v.versionNumber === prevNumber) ?? null
+      const prevNumber = version.versionNumber - 1;
+      if (prevNumber < 1) return null;
+      return versions.find((v) => v.versionNumber === prevNumber) ?? null;
     },
-    [versions]
-  )
+    [versions],
+  );
 
   const getNext = useCallback(
     (version: MessageVersion): MessageVersion | null => {
-      const nextNumber = version.versionNumber + 1
-      return versions.find((v) => v.versionNumber === nextNumber) ?? null
+      const nextNumber = version.versionNumber + 1;
+      return versions.find((v) => v.versionNumber === nextNumber) ?? null;
     },
-    [versions]
-  )
+    [versions],
+  );
 
   // Selection actions
   const selectLeft = useCallback((version: MessageVersion | null) => {
-    setSelection((prev) => ({ ...prev, left: version }))
-  }, [])
+    setSelection((prev) => ({ ...prev, left: version }));
+  }, []);
 
   const selectRight = useCallback((version: MessageVersion | null) => {
-    setSelection((prev) => ({ ...prev, right: version }))
-  }, [])
+    setSelection((prev) => ({ ...prev, right: version }));
+  }, []);
 
   const selectVersions = useCallback(
     (left: MessageVersion | null, right: MessageVersion | null) => {
-      setSelection({ left, right })
+      setSelection({ left, right });
     },
-    []
-  )
+    [],
+  );
 
   const swapSelection = useCallback(() => {
-    setSelection((prev) => ({ left: prev.right, right: prev.left }))
-  }, [])
+    setSelection((prev) => ({ left: prev.right, right: prev.left }));
+  }, []);
 
   const clearSelection = useCallback(() => {
-    setSelection({ left: null, right: null })
-  }, [])
+    setSelection({ left: null, right: null });
+  }, []);
 
   const selectOriginalVsCurrent = useCallback(() => {
-    const original = getOriginal()
-    const current = getCurrent()
-    setSelection({ left: original, right: current })
-  }, [getOriginal, getCurrent])
+    const original = getOriginal();
+    const current = getCurrent();
+    setSelection({ left: original, right: current });
+  }, [getOriginal, getCurrent]);
 
   // Computed values
-  const totalVersions = versions.length
-  const editCount = history?.editCount ?? 0
-  const hasEdits = editCount > 0
+  const totalVersions = versions.length;
+  const editCount = history?.editCount ?? 0;
+  const hasEdits = editCount > 0;
 
   const editors = useMemo(() => {
-    const editorMap = new Map<string, MessageVersion['editedBy']>()
+    const editorMap = new Map<string, MessageVersion["editedBy"]>();
     for (const version of versions) {
       if (!editorMap.has(version.editedBy.id)) {
-        editorMap.set(version.editedBy.id, version.editedBy)
+        editorMap.set(version.editedBy.id, version.editedBy);
       }
     }
-    return Array.from(editorMap.values())
-  }, [versions])
+    return Array.from(editorMap.values());
+  }, [versions]);
 
   return {
     versions,
@@ -212,50 +219,52 @@ export function useMessageVersions(options: UseMessageVersionsOptions): UseMessa
     editCount,
     hasEdits,
     editors,
-  }
+  };
 }
 
 /**
  * Hook for navigating through versions sequentially.
  */
 export function useVersionNavigation(messageId: string) {
-  const history = useMemo(() => getCachedHistory(messageId), [messageId])
-  const versions = history?.versions ?? []
-  const [currentIndex, setCurrentIndex] = useState(versions.length - 1)
+  const history = useMemo(() => getCachedHistory(messageId), [messageId]);
+  const versions = history?.versions ?? [];
+  const [currentIndex, setCurrentIndex] = useState(versions.length - 1);
 
-  const currentVersion = versions[currentIndex] ?? null
-  const canGoBack = currentIndex > 0
-  const canGoForward = currentIndex < versions.length - 1
+  const currentVersion = versions[currentIndex] ?? null;
+  const canGoBack = currentIndex > 0;
+  const canGoForward = currentIndex < versions.length - 1;
 
   const goBack = useCallback(() => {
     if (canGoBack) {
-      setCurrentIndex((prev) => prev - 1)
+      setCurrentIndex((prev) => prev - 1);
     }
-  }, [canGoBack])
+  }, [canGoBack]);
 
   const goForward = useCallback(() => {
     if (canGoForward) {
-      setCurrentIndex((prev) => prev + 1)
+      setCurrentIndex((prev) => prev + 1);
     }
-  }, [canGoForward])
+  }, [canGoForward]);
 
   const goToVersion = useCallback(
     (versionNumber: number) => {
-      const index = versions.findIndex((v) => v.versionNumber === versionNumber)
+      const index = versions.findIndex(
+        (v) => v.versionNumber === versionNumber,
+      );
       if (index !== -1) {
-        setCurrentIndex(index)
+        setCurrentIndex(index);
       }
     },
-    [versions]
-  )
+    [versions],
+  );
 
   const goToFirst = useCallback(() => {
-    setCurrentIndex(0)
-  }, [])
+    setCurrentIndex(0);
+  }, []);
 
   const goToLast = useCallback(() => {
-    setCurrentIndex(versions.length - 1)
-  }, [versions.length])
+    setCurrentIndex(versions.length - 1);
+  }, [versions.length]);
 
   return {
     currentVersion,
@@ -268,7 +277,7 @@ export function useVersionNavigation(messageId: string) {
     goToVersion,
     goToFirst,
     goToLast,
-  }
+  };
 }
 
 /**
@@ -277,27 +286,27 @@ export function useVersionNavigation(messageId: string) {
 export function useDiff(oldContent: string, newContent: string): VersionDiff {
   return useMemo(() => {
     const fromVersion: MessageVersion = {
-      id: 'old',
-      messageId: '',
+      id: "old",
+      messageId: "",
       versionNumber: 1,
       content: oldContent,
       createdAt: new Date(),
-      editedBy: { id: '', username: '', displayName: '' },
+      editedBy: { id: "", username: "", displayName: "" },
       isOriginal: true,
       isCurrent: false,
-    }
+    };
     const toVersion: MessageVersion = {
-      id: 'new',
-      messageId: '',
+      id: "new",
+      messageId: "",
       versionNumber: 2,
       content: newContent,
       createdAt: new Date(),
-      editedBy: { id: '', username: '', displayName: '' },
+      editedBy: { id: "", username: "", displayName: "" },
       isOriginal: false,
       isCurrent: true,
-    }
-    return calculateVersionDiff(fromVersion, toVersion)
-  }, [oldContent, newContent])
+    };
+    return calculateVersionDiff(fromVersion, toVersion);
+  }, [oldContent, newContent]);
 }
 
-export default useMessageVersions
+export default useMessageVersions;

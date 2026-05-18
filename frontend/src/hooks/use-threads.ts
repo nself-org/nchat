@@ -9,90 +9,96 @@
  * - Real-time updates
  */
 
-'use client'
+"use client";
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useQuery, useMutation, useSubscription } from '@apollo/client'
-import { useAuth } from '@/contexts/auth-context'
+import { useCallback, useEffect, useMemo } from "react";
+import { useQuery, useMutation, useSubscription } from "@apollo/client";
+import { useAuth } from "@/contexts/auth-context";
 import {
   GET_CHANNEL_THREADS,
   GET_USER_THREADS,
   GET_UNREAD_THREADS_COUNT,
   SEARCH_CHANNEL_THREADS,
   GET_THREAD_ACTIVITY_FEED,
-} from '@/graphql/queries/threads'
-import { CREATE_THREAD, MARK_ALL_THREADS_READ } from '@/graphql/mutations/threads'
-import { USER_THREADS_SUBSCRIPTION } from '@/graphql/threads'
-import { useThreadStore } from '@/stores/thread-store'
-import type { Thread, ThreadMessage } from '@/stores/thread-store'
+} from "@/graphql/queries/threads";
+import {
+  CREATE_THREAD,
+  MARK_ALL_THREADS_READ,
+} from "@/graphql/mutations/threads";
+import { USER_THREADS_SUBSCRIPTION } from "@/graphql/threads";
+import { useThreadStore } from "@/stores/thread-store";
+import type { Thread, ThreadMessage } from "@/stores/thread-store";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface UseThreadsOptions {
-  channelId?: string
-  userId?: string
-  limit?: number
-  autoSubscribe?: boolean
-  searchQuery?: string
+  channelId?: string;
+  userId?: string;
+  limit?: number;
+  autoSubscribe?: boolean;
+  searchQuery?: string;
 }
 
 export interface UseThreadsReturn {
   // Data
-  threads: Thread[]
-  unreadCount: number
-  totalThreadCount: number
+  threads: Thread[];
+  unreadCount: number;
+  totalThreadCount: number;
 
   // Loading states
-  loading: boolean
-  loadingMore: boolean
+  loading: boolean;
+  loadingMore: boolean;
 
   // Error states
-  error: Error | null
+  error: Error | null;
 
   // Actions
-  createThread: (parentMessageId: string, content: string) => Promise<Thread | null>
-  markAllAsRead: () => Promise<void>
-  refreshThreads: () => Promise<void>
-  loadMore: () => Promise<void>
-  searchThreads: (query: string) => Promise<void>
+  createThread: (
+    parentMessageId: string,
+    content: string,
+  ) => Promise<Thread | null>;
+  markAllAsRead: () => Promise<void>;
+  refreshThreads: () => Promise<void>;
+  loadMore: () => Promise<void>;
+  searchThreads: (query: string) => Promise<void>;
 
   // Helpers
-  hasMore: boolean
+  hasMore: boolean;
 }
 
 export interface ThreadActivityItem {
-  id: string
-  type: 'new_reply' | 'mentioned' | 'thread_created'
-  threadId: string
-  messageId: string
-  message: ThreadMessage
+  id: string;
+  type: "new_reply" | "mentioned" | "thread_created";
+  threadId: string;
+  messageId: string;
+  message: ThreadMessage;
   channel: {
-    id: string
-    name: string
-    slug: string
-  }
-  timestamp: Date
-  isRead: boolean
+    id: string;
+    name: string;
+    slug: string;
+  };
+  timestamp: Date;
+  isRead: boolean;
 }
 
 export interface UseThreadActivityReturn {
   // Data
-  activityItems: ThreadActivityItem[]
+  activityItems: ThreadActivityItem[];
 
   // Loading states
-  loading: boolean
-  loadingMore: boolean
+  loading: boolean;
+  loadingMore: boolean;
 
   // Actions
-  loadMore: () => Promise<void>
-  refresh: () => Promise<void>
+  loadMore: () => Promise<void>;
+  refresh: () => Promise<void>;
 
   // Helpers
-  hasMore: boolean
+  hasMore: boolean;
 }
 
 // ============================================================================
@@ -106,16 +112,17 @@ export function useThreads({
   autoSubscribe = true,
   searchQuery,
 }: UseThreadsOptions = {}): UseThreadsReturn {
-  const { user } = useAuth()
-  const currentUserId = userId || user?.id
+  const { user } = useAuth();
+  const currentUserId = userId || user?.id;
 
   // Store actions
-  const { setThreads, setLoadingThreads, setHasMoreThreads, setThreadsCursor } = useThreadStore()
+  const { setThreads, setLoadingThreads, setHasMoreThreads, setThreadsCursor } =
+    useThreadStore();
 
   // Determine which query to use
-  const useChannelThreads = !!channelId
-  const useUserThreads = !!currentUserId && !channelId
-  const useSearch = !!searchQuery
+  const useChannelThreads = !!channelId;
+  const useUserThreads = !!currentUserId && !channelId;
+  const useSearch = !!searchQuery;
 
   // Query: Get channel threads
   const {
@@ -127,7 +134,7 @@ export function useThreads({
   } = useQuery(GET_CHANNEL_THREADS, {
     variables: { channelId, limit },
     skip: !useChannelThreads || useSearch,
-  })
+  });
 
   // Query: Get user threads
   const {
@@ -139,7 +146,7 @@ export function useThreads({
   } = useQuery(GET_USER_THREADS, {
     variables: { userId: currentUserId, limit },
     skip: !useUserThreads || useSearch,
-  })
+  });
 
   // Query: Search threads
   const {
@@ -150,13 +157,16 @@ export function useThreads({
   } = useQuery(SEARCH_CHANNEL_THREADS, {
     variables: { channelId, searchQuery: `%${searchQuery}%`, limit },
     skip: !useSearch || !channelId,
-  })
+  });
 
   // Query: Unread count
-  const { data: unreadData, refetch: refetchUnreadCount } = useQuery(GET_UNREAD_THREADS_COUNT, {
-    variables: { userId: currentUserId },
-    skip: !currentUserId,
-  })
+  const { data: unreadData, refetch: refetchUnreadCount } = useQuery(
+    GET_UNREAD_THREADS_COUNT,
+    {
+      variables: { userId: currentUserId },
+      skip: !currentUserId,
+    },
+  );
 
   // Subscribe to user threads updates
   useSubscription(USER_THREADS_SUBSCRIPTION, {
@@ -164,35 +174,40 @@ export function useThreads({
     skip: !currentUserId || !autoSubscribe,
     onData: ({ data }) => {
       if (data.data?.nchat_thread_participants) {
-        const threads = data.data.nchat_thread_participants.map((p: { thread: Thread }) => p.thread)
-        setThreads(threads)
+        const threads = data.data.nchat_thread_participants.map(
+          (p: { thread: Thread }) => p.thread,
+        );
+        setThreads(threads);
       }
     },
-  })
+  });
 
   // Mutation: Create thread
-  const [createThreadMutation, { loading: creatingThread }] = useMutation(CREATE_THREAD)
+  const [createThreadMutation, { loading: creatingThread }] =
+    useMutation(CREATE_THREAD);
 
   // Mutation: Mark all as read
-  const [markAllReadMutation] = useMutation(MARK_ALL_THREADS_READ)
+  const [markAllReadMutation] = useMutation(MARK_ALL_THREADS_READ);
 
   // Derived data
   const threads = useMemo(() => {
     if (useSearch && searchData) {
-      return searchData.nchat_threads || []
+      return searchData.nchat_threads || [];
     }
 
     if (useChannelThreads && channelThreadsData) {
-      return channelThreadsData.nchat_threads || []
+      return channelThreadsData.nchat_threads || [];
     }
 
     if (useUserThreads && userThreadsData) {
       return (
-        userThreadsData.nchat_thread_participants?.map((p: { thread: Thread }) => p.thread) || []
-      )
+        userThreadsData.nchat_thread_participants?.map(
+          (p: { thread: Thread }) => p.thread,
+        ) || []
+      );
     }
 
-    return []
+    return [];
   }, [
     channelThreadsData,
     userThreadsData,
@@ -200,32 +215,43 @@ export function useThreads({
     useChannelThreads,
     useUserThreads,
     useSearch,
-  ])
+  ]);
 
   const unreadCount = useMemo(() => {
-    return unreadData?.nchat_thread_participants_aggregate?.aggregate?.count || 0
-  }, [unreadData])
+    return (
+      unreadData?.nchat_thread_participants_aggregate?.aggregate?.count || 0
+    );
+  }, [unreadData]);
 
-  const totalThreadCount = threads.length
+  const totalThreadCount = threads.length;
 
   // Update store when threads change
   useEffect(() => {
     if (threads.length > 0) {
-      setThreads(threads)
+      setThreads(threads);
     }
-  }, [threads, setThreads])
+  }, [threads, setThreads]);
 
   // Update loading state
   useEffect(() => {
-    const isLoading = loadingChannelThreads || loadingUserThreads || loadingSearch
-    setLoadingThreads(isLoading)
-  }, [loadingChannelThreads, loadingUserThreads, loadingSearch, setLoadingThreads])
+    const isLoading =
+      loadingChannelThreads || loadingUserThreads || loadingSearch;
+    setLoadingThreads(isLoading);
+  }, [
+    loadingChannelThreads,
+    loadingUserThreads,
+    loadingSearch,
+    setLoadingThreads,
+  ]);
 
   // Actions
   const createThread = useCallback(
-    async (parentMessageId: string, content: string): Promise<Thread | null> => {
+    async (
+      parentMessageId: string,
+      content: string,
+    ): Promise<Thread | null> => {
       if (!user || !channelId) {
-        throw new Error('Cannot create thread: missing user or channel')
+        throw new Error("Cannot create thread: missing user or channel");
       }
 
       try {
@@ -236,48 +262,48 @@ export function useThreads({
             userId: user.id,
             content,
           },
-        })
+        });
 
-        const thread = result.data?.insert_nchat_threads_one
+        const thread = result.data?.insert_nchat_threads_one;
         if (thread) {
           // Refresh threads to include the new one
-          await refreshThreads()
+          await refreshThreads();
         }
 
-        return thread || null
+        return thread || null;
       } catch (err) {
-        logger.error('Failed to create thread:', err)
-        return null
+        logger.error("Failed to create thread:", err);
+        return null;
       }
     },
-    [user, channelId, createThreadMutation]
-  )
+    [user, channelId, createThreadMutation],
+  );
 
   const markAllAsRead = useCallback(async () => {
-    if (!currentUserId) return
+    if (!currentUserId) return;
 
     try {
       await markAllReadMutation({
         variables: { userId: currentUserId },
-      })
-      await refetchUnreadCount()
+      });
+      await refetchUnreadCount();
     } catch (err) {
-      logger.error('Failed to mark all threads as read:', err)
+      logger.error("Failed to mark all threads as read:", err);
     }
-  }, [currentUserId, markAllReadMutation, refetchUnreadCount])
+  }, [currentUserId, markAllReadMutation, refetchUnreadCount]);
 
   const refreshThreads = useCallback(async () => {
     try {
       if (useSearch) {
-        await refetchSearch()
+        await refetchSearch();
       } else if (useChannelThreads) {
-        await refetchChannelThreads()
+        await refetchChannelThreads();
       } else if (useUserThreads) {
-        await refetchUserThreads()
+        await refetchUserThreads();
       }
-      await refetchUnreadCount()
+      await refetchUnreadCount();
     } catch (err) {
-      logger.error('Failed to refresh threads:', err)
+      logger.error("Failed to refresh threads:", err);
     }
   }, [
     useSearch,
@@ -287,7 +313,7 @@ export function useThreads({
     refetchChannelThreads,
     refetchUserThreads,
     refetchUnreadCount,
-  ])
+  ]);
 
   const loadMore = useCallback(async () => {
     try {
@@ -296,16 +322,16 @@ export function useThreads({
           variables: {
             offset: threads.length,
           },
-        })
+        });
       } else if (useUserThreads && fetchMoreUserThreads) {
         await fetchMoreUserThreads({
           variables: {
             offset: threads.length,
           },
-        })
+        });
       }
     } catch (err) {
-      logger.error('Failed to load more threads:', err)
+      logger.error("Failed to load more threads:", err);
     }
   }, [
     useChannelThreads,
@@ -313,34 +339,34 @@ export function useThreads({
     threads.length,
     fetchMoreChannelThreads,
     fetchMoreUserThreads,
-  ])
+  ]);
 
   const searchThreads = useCallback(
     async (query: string) => {
-      if (!channelId) return
+      if (!channelId) return;
 
       try {
         await refetchSearch({
           channelId,
           searchQuery: `%${query}%`,
           limit,
-        })
+        });
       } catch (err) {
-        logger.error('Failed to search threads:', err)
+        logger.error("Failed to search threads:", err);
       }
     },
-    [channelId, limit, refetchSearch]
-  )
+    [channelId, limit, refetchSearch],
+  );
 
   // Determine if there are more threads to load
   const hasMore = useMemo(() => {
     // For now, assume there are more if we have a full page
-    return threads.length >= limit
-  }, [threads.length, limit])
+    return threads.length >= limit;
+  }, [threads.length, limit]);
 
   useEffect(() => {
-    setHasMoreThreads(hasMore)
-  }, [hasMore, setHasMoreThreads])
+    setHasMoreThreads(hasMore);
+  }, [hasMore, setHasMoreThreads]);
 
   return {
     // Data
@@ -364,59 +390,64 @@ export function useThreads({
 
     // Helpers
     hasMore,
-  }
+  };
 }
 
 // ============================================================================
 // THREAD ACTIVITY HOOK
 // ============================================================================
 
-export function useThreadActivity(options: { limit?: number } = {}): UseThreadActivityReturn {
-  const { limit = 50 } = options
-  const { user } = useAuth()
-  const threads = useThreadStore((state) => state.threads)
+export function useThreadActivity(
+  options: { limit?: number } = {},
+): UseThreadActivityReturn {
+  const { limit = 50 } = options;
+  const { user } = useAuth();
+  const threads = useThreadStore((state) => state.threads);
 
   // Query: Get thread activity feed
-  const { data, loading, error, fetchMore, refetch } = useQuery(GET_THREAD_ACTIVITY_FEED, {
-    variables: { userId: user?.id, limit },
-    skip: !user?.id,
-  })
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    GET_THREAD_ACTIVITY_FEED,
+    {
+      variables: { userId: user?.id, limit },
+      skip: !user?.id,
+    },
+  );
 
   // Transform messages into activity items
   const activityItems = useMemo<ThreadActivityItem[]>(() => {
-    if (!data?.nchat_messages) return []
+    if (!data?.nchat_messages) return [];
 
     return data.nchat_messages.map(
       (msg: {
-        id: string
-        thread_id: string
+        id: string;
+        thread_id: string;
         thread: {
-          id: string
-          parent_message_id: string
+          id: string;
+          parent_message_id: string;
           channel: {
-            id: string
-            name: string
-            slug: string
-          }
-        }
-        user_id: string
-        content: string
-        created_at: string
-        mentioned_users?: string[]
+            id: string;
+            name: string;
+            slug: string;
+          };
+        };
+        user_id: string;
+        content: string;
+        created_at: string;
+        mentioned_users?: string[];
       }) => {
         // Determine activity type
-        let type: ThreadActivityItem['type'] = 'new_reply'
-        if (msg.mentioned_users?.includes(user?.id || '')) {
-          type = 'mentioned'
+        let type: ThreadActivityItem["type"] = "new_reply";
+        if (msg.mentioned_users?.includes(user?.id || "")) {
+          type = "mentioned";
         }
         if (msg.id === msg.thread.parent_message_id) {
-          type = 'thread_created'
+          type = "thread_created";
         }
 
         // Check read state from thread store
-        const thread = threads.get(msg.thread.id)
-        const lastReadId = thread?.lastReadMessageId
-        const isRead = lastReadId ? msg.id <= lastReadId : false
+        const thread = threads.get(msg.thread.id);
+        const lastReadId = thread?.lastReadMessageId;
+        const isRead = lastReadId ? msg.id <= lastReadId : false;
 
         return {
           id: msg.id,
@@ -427,14 +458,14 @@ export function useThreadActivity(options: { limit?: number } = {}): UseThreadAc
           channel: msg.thread.channel,
           timestamp: new Date(msg.created_at),
           isRead,
-        }
-      }
-    )
-  }, [data, user?.id, threads])
+        };
+      },
+    );
+  }, [data, user?.id, threads]);
 
   // Actions
   const loadMoreActivity = useCallback(async () => {
-    if (!fetchMore) return
+    if (!fetchMore) return;
 
     try {
       await fetchMore({
@@ -442,24 +473,24 @@ export function useThreadActivity(options: { limit?: number } = {}): UseThreadAc
           limit,
           offset: activityItems.length,
         },
-      })
+      });
     } catch (err) {
-      logger.error('Failed to load more activity:', err)
+      logger.error("Failed to load more activity:", err);
     }
-  }, [fetchMore, limit, activityItems.length])
+  }, [fetchMore, limit, activityItems.length]);
 
   const refresh = useCallback(async () => {
     try {
-      await refetch()
+      await refetch();
     } catch (err) {
-      logger.error('Failed to refresh activity:', err)
+      logger.error("Failed to refresh activity:", err);
     }
-  }, [refetch])
+  }, [refetch]);
 
   // Determine if there are more items to load
   const hasMore = useMemo(() => {
-    return activityItems.length >= limit
-  }, [activityItems.length, limit])
+    return activityItems.length >= limit;
+  }, [activityItems.length, limit]);
 
   return {
     activityItems,
@@ -468,5 +499,5 @@ export function useThreadActivity(options: { limit?: number } = {}): UseThreadAc
     loadMore: loadMoreActivity,
     refresh,
     hasMore,
-  }
+  };
 }

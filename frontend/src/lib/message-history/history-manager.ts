@@ -5,7 +5,7 @@
  * Coordinates between storage, permissions, and UI updates.
  */
 
-import { create } from 'zustand'
+import { create } from "zustand";
 import type {
   MessageEditHistory,
   MessageVersion,
@@ -15,7 +15,7 @@ import type {
   AdminHistoryItem,
   HistoryEvent,
   HistoryEventType,
-} from './history-types'
+} from "./history-types";
 
 import {
   loadHistorySettings,
@@ -31,19 +31,19 @@ import {
   getOriginalVersion,
   getCurrentVersion,
   getVersion,
-} from './history-storage'
-import { calculateVersionDiff } from './history-diff'
+} from "./history-storage";
+import { calculateVersionDiff } from "./history-diff";
 import {
   canViewHistoryWithSettings,
   canRestoreVersion,
   canClearHistory,
   getHistoryPermissions,
-} from './history-permissions'
-import type { MessageUser } from '@/types/message'
-import type { UserRole } from '@/lib/auth/roles'
-import { DEFAULT_EDIT_HISTORY_SETTINGS } from './history-types'
+} from "./history-permissions";
+import type { MessageUser } from "@/types/message";
+import type { UserRole } from "@/lib/auth/roles";
+import { DEFAULT_EDIT_HISTORY_SETTINGS } from "./history-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Store State
@@ -51,81 +51,84 @@ import { logger } from '@/lib/logger'
 
 interface EditHistoryState {
   // Current user context
-  currentUserId: string | null
-  currentUserRole: UserRole | null
+  currentUserId: string | null;
+  currentUserRole: UserRole | null;
 
   // Settings
-  settings: EditHistorySettings
+  settings: EditHistorySettings;
 
   // Active history being viewed
-  activeMessageId: string | null
-  activeHistory: MessageEditHistory | null
+  activeMessageId: string | null;
+  activeHistory: MessageEditHistory | null;
 
   // Selected versions for comparison
   selectedVersions: {
-    left: MessageVersion | null
-    right: MessageVersion | null
-  }
+    left: MessageVersion | null;
+    right: MessageVersion | null;
+  };
 
   // UI state
-  isModalOpen: boolean
-  isLoading: boolean
-  error: string | null
+  isModalOpen: boolean;
+  isLoading: boolean;
+  error: string | null;
 
   // Event listeners
-  eventListeners: Array<(event: HistoryEvent) => void>
+  eventListeners: Array<(event: HistoryEvent) => void>;
 }
 
 interface EditHistoryActions {
   // User context
-  setCurrentUser: (userId: string, role: UserRole) => void
-  clearCurrentUser: () => void
+  setCurrentUser: (userId: string, role: UserRole) => void;
+  clearCurrentUser: () => void;
 
   // Settings
-  loadSettings: () => void
-  updateSettings: (updates: Partial<EditHistorySettings>) => void
+  loadSettings: () => void;
+  updateSettings: (updates: Partial<EditHistorySettings>) => void;
 
   // History operations
-  loadHistory: (messageId: string) => Promise<MessageEditHistory | null>
+  loadHistory: (messageId: string) => Promise<MessageEditHistory | null>;
   recordEdit: (
     messageId: string,
     channelId: string,
     oldContent: string,
     newContent: string,
     author: MessageUser,
-    editor: MessageUser
-  ) => MessageEditHistory
+    editor: MessageUser,
+  ) => MessageEditHistory;
   restoreToVersion: (
     history: MessageEditHistory,
     versionNumber: number,
-    restoredBy: MessageUser
-  ) => MessageEditHistory | null
-  clearMessageHistory: (messageId: string, keepOriginal?: boolean) => void
+    restoredBy: MessageUser,
+  ) => MessageEditHistory | null;
+  clearMessageHistory: (messageId: string, keepOriginal?: boolean) => void;
 
   // UI operations
-  openHistoryModal: (messageId: string) => Promise<void>
-  closeHistoryModal: () => void
-  selectVersionsForComparison: (left: MessageVersion | null, right: MessageVersion | null) => void
-  clearVersionSelection: () => void
+  openHistoryModal: (messageId: string) => Promise<void>;
+  closeHistoryModal: () => void;
+  selectVersionsForComparison: (
+    left: MessageVersion | null,
+    right: MessageVersion | null,
+  ) => void;
+  clearVersionSelection: () => void;
 
   // Diff operations
   getVersionDiff: (
     history: MessageEditHistory,
     fromVersion: number,
-    toVersion: number
-  ) => VersionDiff | null
+    toVersion: number,
+  ) => VersionDiff | null;
 
   // Permission checks
-  canViewHistory: (messageAuthorId: string) => boolean
-  canRestore: (messageAuthorId: string) => boolean
-  canClear: () => boolean
+  canViewHistory: (messageAuthorId: string) => boolean;
+  canRestore: (messageAuthorId: string) => boolean;
+  canClear: () => boolean;
 
   // Events
-  addEventListener: (listener: (event: HistoryEvent) => void) => () => void
-  emitEvent: (event: HistoryEvent) => void
+  addEventListener: (listener: (event: HistoryEvent) => void) => () => void;
+  emitEvent: (event: HistoryEvent) => void;
 
   // Reset
-  reset: () => void
+  reset: () => void;
 }
 
 // ============================================================================
@@ -146,9 +149,11 @@ const initialState: EditHistoryState = {
   isLoading: false,
   error: null,
   eventListeners: [],
-}
+};
 
-export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>((set, get) => ({
+export const useEditHistoryStore = create<
+  EditHistoryState & EditHistoryActions
+>((set, get) => ({
   ...initialState,
 
   // ============================================================================
@@ -156,11 +161,11 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
   // ============================================================================
 
   setCurrentUser: (userId, role) => {
-    set({ currentUserId: userId, currentUserRole: role })
+    set({ currentUserId: userId, currentUserRole: role });
   },
 
   clearCurrentUser: () => {
-    set({ currentUserId: null, currentUserRole: null })
+    set({ currentUserId: null, currentUserRole: null });
   },
 
   // ============================================================================
@@ -168,15 +173,15 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
   // ============================================================================
 
   loadSettings: () => {
-    const settings = loadHistorySettings()
-    set({ settings })
+    const settings = loadHistorySettings();
+    set({ settings });
   },
 
   updateSettings: (updates) => {
-    const { settings } = get()
-    const newSettings = { ...settings, ...updates }
-    saveHistorySettings(newSettings)
-    set({ settings: newSettings })
+    const { settings } = get();
+    const newSettings = { ...settings, ...updates };
+    saveHistorySettings(newSettings);
+    set({ settings: newSettings });
   },
 
   // ============================================================================
@@ -184,84 +189,92 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
   // ============================================================================
 
   loadHistory: async (messageId) => {
-    set({ isLoading: true, error: null })
+    set({ isLoading: true, error: null });
 
     try {
       // Try cache first
-      const cached = getCachedHistory(messageId)
+      const cached = getCachedHistory(messageId);
       if (cached) {
-        set({ isLoading: false })
-        return cached
+        set({ isLoading: false });
+        return cached;
       }
 
       // For now, return null (no history)
-      set({ isLoading: false })
-      return null
+      set({ isLoading: false });
+      return null;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load history'
-      set({ isLoading: false, error: errorMessage })
-      return null
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to load history";
+      set({ isLoading: false, error: errorMessage });
+      return null;
     }
   },
 
-  recordEdit: (messageId, channelId, oldContent, newContent, author, editor) => {
-    const { settings, emitEvent } = get()
+  recordEdit: (
+    messageId,
+    channelId,
+    oldContent,
+    newContent,
+    author,
+    editor,
+  ) => {
+    const { settings, emitEvent } = get();
 
     // Get or create history
-    let history = getCachedHistory(messageId)
+    let history = getCachedHistory(messageId);
 
     if (!history) {
       // Create new history with original content
-      history = createInitialHistory(messageId, channelId, oldContent, author)
+      history = createInitialHistory(messageId, channelId, oldContent, author);
     }
 
     // Add new version
-    const updatedHistory = addVersionToHistory(history, newContent, editor)
+    const updatedHistory = addVersionToHistory(history, newContent, editor);
 
     // Apply retention policy
-    const finalHistory = applyRetentionPolicy(updatedHistory, settings)
+    const finalHistory = applyRetentionPolicy(updatedHistory, settings);
 
     // Cache the updated history
-    cacheHistory(finalHistory)
+    cacheHistory(finalHistory);
 
     // Emit event
     emitEvent({
-      type: 'version-created',
+      type: "version-created",
       messageId,
       timestamp: new Date(),
       actor: editor,
       data: {
         versionNumber: finalHistory.versions.length,
       },
-    })
+    });
 
-    return finalHistory
+    return finalHistory;
   },
 
   restoreToVersion: (history, versionNumber, restoredBy) => {
-    const { settings, emitEvent } = get()
+    const { settings, emitEvent } = get();
 
     // Check permissions
     if (
       !canRestoreVersion(
         settings,
-        (restoredBy.role as UserRole) ?? 'member',
+        (restoredBy.role as UserRole) ?? "member",
         restoredBy.id,
-        history.author.id
+        history.author.id,
       )
     ) {
-      return null
+      return null;
     }
 
-    const restoredHistory = restoreVersion(history, versionNumber, restoredBy)
-    if (!restoredHistory) return null
+    const restoredHistory = restoreVersion(history, versionNumber, restoredBy);
+    if (!restoredHistory) return null;
 
     // Cache updated history
-    cacheHistory(restoredHistory)
+    cacheHistory(restoredHistory);
 
     // Emit event
     emitEvent({
-      type: 'version-restored',
+      type: "version-restored",
       messageId: history.messageId,
       timestamp: new Date(),
       actor: restoredBy,
@@ -269,49 +282,49 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
         restoredVersion: versionNumber,
         newVersion: restoredHistory.versions.length,
       },
-    })
+    });
 
     // Update active history if viewing
-    const { activeMessageId } = get()
+    const { activeMessageId } = get();
     if (activeMessageId === history.messageId) {
-      set({ activeHistory: restoredHistory })
+      set({ activeHistory: restoredHistory });
     }
 
-    return restoredHistory
+    return restoredHistory;
   },
 
   clearMessageHistory: (messageId, keepOriginal = true) => {
-    const { settings, currentUserRole, emitEvent, currentUserId } = get()
+    const { settings, currentUserRole, emitEvent, currentUserId } = get();
 
     // Check permissions
     if (!currentUserRole || !canClearHistory(settings, currentUserRole)) {
-      return
+      return;
     }
 
-    const history = getCachedHistory(messageId)
-    if (!history) return
+    const history = getCachedHistory(messageId);
+    if (!history) return;
 
-    const clearedHistory = clearHistory(history, keepOriginal)
-    cacheHistory(clearedHistory)
+    const clearedHistory = clearHistory(history, keepOriginal);
+    cacheHistory(clearedHistory);
 
     // Emit event
     emitEvent({
-      type: 'history-cleared',
+      type: "history-cleared",
       messageId,
       timestamp: new Date(),
       actor: {
-        id: currentUserId ?? 'unknown',
-        username: 'unknown',
-        displayName: 'Unknown',
+        id: currentUserId ?? "unknown",
+        username: "unknown",
+        displayName: "Unknown",
         role: currentUserRole,
       },
       data: { keepOriginal },
-    })
+    });
 
     // Update active history if viewing
-    const { activeMessageId } = get()
+    const { activeMessageId } = get();
     if (activeMessageId === messageId) {
-      set({ activeHistory: clearedHistory })
+      set({ activeHistory: clearedHistory });
     }
   },
 
@@ -320,21 +333,21 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
   // ============================================================================
 
   openHistoryModal: async (messageId) => {
-    set({ isModalOpen: true, activeMessageId: messageId, isLoading: true })
+    set({ isModalOpen: true, activeMessageId: messageId, isLoading: true });
 
-    const history = await get().loadHistory(messageId)
-    set({ activeHistory: history, isLoading: false })
+    const history = await get().loadHistory(messageId);
+    set({ activeHistory: history, isLoading: false });
 
     // Auto-select first and last versions for comparison if available
     if (history && history.versions.length >= 2) {
-      const original = getOriginalVersion(history)
-      const current = getCurrentVersion(history)
+      const original = getOriginalVersion(history);
+      const current = getCurrentVersion(history);
       set({
         selectedVersions: {
           left: original,
           right: current,
         },
-      })
+      });
     }
   },
 
@@ -345,15 +358,15 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
       activeHistory: null,
       selectedVersions: { left: null, right: null },
       error: null,
-    })
+    });
   },
 
   selectVersionsForComparison: (left, right) => {
-    set({ selectedVersions: { left, right } })
+    set({ selectedVersions: { left, right } });
   },
 
   clearVersionSelection: () => {
-    set({ selectedVersions: { left: null, right: null } })
+    set({ selectedVersions: { left: null, right: null } });
   },
 
   // ============================================================================
@@ -361,12 +374,12 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
   // ============================================================================
 
   getVersionDiff: (history, fromVersion, toVersion) => {
-    const from = getVersion(history, fromVersion)
-    const to = getVersion(history, toVersion)
+    const from = getVersion(history, fromVersion);
+    const to = getVersion(history, toVersion);
 
-    if (!from || !to) return null
+    if (!from || !to) return null;
 
-    return calculateVersionDiff(from, to)
+    return calculateVersionDiff(from, to);
   },
 
   // ============================================================================
@@ -374,24 +387,34 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
   // ============================================================================
 
   canViewHistory: (messageAuthorId) => {
-    const { settings, currentUserRole, currentUserId } = get()
-    if (!currentUserRole || !currentUserId) return false
+    const { settings, currentUserRole, currentUserId } = get();
+    if (!currentUserRole || !currentUserId) return false;
 
-    return canViewHistoryWithSettings(settings, currentUserRole, currentUserId, messageAuthorId)
+    return canViewHistoryWithSettings(
+      settings,
+      currentUserRole,
+      currentUserId,
+      messageAuthorId,
+    );
   },
 
   canRestore: (messageAuthorId) => {
-    const { settings, currentUserRole, currentUserId } = get()
-    if (!currentUserRole || !currentUserId) return false
+    const { settings, currentUserRole, currentUserId } = get();
+    if (!currentUserRole || !currentUserId) return false;
 
-    return canRestoreVersion(settings, currentUserRole, currentUserId, messageAuthorId)
+    return canRestoreVersion(
+      settings,
+      currentUserRole,
+      currentUserId,
+      messageAuthorId,
+    );
   },
 
   canClear: () => {
-    const { settings, currentUserRole } = get()
-    if (!currentUserRole) return false
+    const { settings, currentUserRole } = get();
+    if (!currentUserRole) return false;
 
-    return canClearHistory(settings, currentUserRole)
+    return canClearHistory(settings, currentUserRole);
   },
 
   // ============================================================================
@@ -401,25 +424,25 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
   addEventListener: (listener) => {
     set((state) => ({
       eventListeners: [...state.eventListeners, listener],
-    }))
+    }));
 
     // Return unsubscribe function
     return () => {
       set((state) => ({
         eventListeners: state.eventListeners.filter((l) => l !== listener),
-      }))
-    }
+      }));
+    };
   },
 
   emitEvent: (event) => {
-    const { eventListeners } = get()
+    const { eventListeners } = get();
     eventListeners.forEach((listener) => {
       try {
-        listener(event)
+        listener(event);
       } catch (error) {
-        logger.error('Error in history event listener:', error)
+        logger.error("Error in history event listener:", error);
       }
-    })
+    });
   },
 
   // ============================================================================
@@ -427,9 +450,9 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
   // ============================================================================
 
   reset: () => {
-    set(initialState)
+    set(initialState);
   },
-}))
+}));
 
 // ============================================================================
 // Selector Hooks
@@ -438,27 +461,32 @@ export const useEditHistoryStore = create<EditHistoryState & EditHistoryActions>
 /**
  * Select the active history.
  */
-export const useActiveHistory = () => useEditHistoryStore((state) => state.activeHistory)
+export const useActiveHistory = () =>
+  useEditHistoryStore((state) => state.activeHistory);
 
 /**
  * Select the selected versions for comparison.
  */
-export const useSelectedVersions = () => useEditHistoryStore((state) => state.selectedVersions)
+export const useSelectedVersions = () =>
+  useEditHistoryStore((state) => state.selectedVersions);
 
 /**
  * Select the loading state.
  */
-export const useHistoryLoading = () => useEditHistoryStore((state) => state.isLoading)
+export const useHistoryLoading = () =>
+  useEditHistoryStore((state) => state.isLoading);
 
 /**
  * Select the modal open state.
  */
-export const useHistoryModalOpen = () => useEditHistoryStore((state) => state.isModalOpen)
+export const useHistoryModalOpen = () =>
+  useEditHistoryStore((state) => state.isModalOpen);
 
 /**
  * Select the settings.
  */
-export const useHistorySettings = () => useEditHistoryStore((state) => state.settings)
+export const useHistorySettings = () =>
+  useEditHistoryStore((state) => state.settings);
 
 // ============================================================================
 // Utility Functions
@@ -469,16 +497,18 @@ export const useHistorySettings = () => useEditHistoryStore((state) => state.set
  * This would typically fetch from server in production.
  */
 export async function getAdminHistoryList(
-  filters: AdminHistoryFilters
+  filters: AdminHistoryFilters,
 ): Promise<AdminHistoryItem[]> {
   // For now, return empty array
-  return []
+  return [];
 }
 
 /**
  * Export history data for a message.
  */
-export function exportHistoryData(history: MessageEditHistory): Record<string, unknown> {
+export function exportHistoryData(
+  history: MessageEditHistory,
+): Record<string, unknown> {
   return {
     messageId: history.messageId,
     channelId: history.channelId,
@@ -501,26 +531,26 @@ export function exportHistoryData(history: MessageEditHistory): Record<string, u
       isOriginal: v.isOriginal,
       isCurrent: v.isCurrent,
     })),
-  }
+  };
 }
 
 /**
  * Format history for display.
  */
 export function formatHistoryForDisplay(history: MessageEditHistory): {
-  title: string
-  subtitle: string
-  versionCount: number
-  hasMultipleEditors: boolean
+  title: string;
+  subtitle: string;
+  versionCount: number;
+  hasMultipleEditors: boolean;
 } {
-  const uniqueEditors = new Set(history.versions.map((v) => v.editedBy.id))
+  const uniqueEditors = new Set(history.versions.map((v) => v.editedBy.id));
 
   return {
-    title: `Edit History (${history.editCount} edit${history.editCount !== 1 ? 's' : ''})`,
+    title: `Edit History (${history.editCount} edit${history.editCount !== 1 ? "s" : ""})`,
     subtitle: history.lastEditedAt
       ? `Last edited ${history.lastEditedAt.toLocaleString()}`
-      : 'Never edited',
+      : "Never edited",
     versionCount: history.versions.length,
     hasMultipleEditors: uniqueEditors.size > 1,
-  }
+  };
 }

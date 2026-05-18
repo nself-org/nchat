@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ConnectionBanner - Banner displayed when disconnected
@@ -7,21 +7,21 @@
  * the connection is lost, with reconnection status.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useConnectionStatus } from '@/hooks/useConnectionStatus'
-import { useOfflineStore } from '@/stores/offline-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { useOfflineStore } from "@/stores/offline-store";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface ConnectionBannerProps {
-  className?: string
-  position?: 'top' | 'bottom'
-  dismissible?: boolean
-  showPendingCount?: boolean
+  className?: string;
+  position?: "top" | "bottom";
+  dismissible?: boolean;
+  showPendingCount?: boolean;
 }
 
 // =============================================================================
@@ -30,7 +30,7 @@ export interface ConnectionBannerProps {
 
 export function ConnectionBanner({
   className,
-  position = 'top',
+  position = "top",
   dismissible = true,
   showPendingCount = true,
 }: ConnectionBannerProps) {
@@ -44,26 +44,28 @@ export function ConnectionBanner({
     reconnect,
     cancelReconnect,
     dismissBanner,
-  } = useConnectionStatus()
+  } = useConnectionStatus();
 
   const pendingCount = useOfflineStore(
-    (s) => s.queuedActions.filter((a) => a.status === 'pending').length + s.pendingMessages.length
-  )
+    (s) =>
+      s.queuedActions.filter((a) => a.status === "pending").length +
+      s.pendingMessages.length,
+  );
 
   // Don't show if online or banner is dismissed
-  if (!showBanner || state === 'online') {
-    return null
+  if (!showBanner || state === "online") {
+    return null;
   }
 
   return (
     <div
       className={cn(
-        'fixed left-0 right-0 z-50 px-4 py-2',
-        position === 'top' ? 'top-0' : 'bottom-0',
-        isOffline && 'bg-gray-900 dark:bg-gray-800',
-        isReconnecting && 'bg-yellow-600 dark:bg-yellow-700',
-        state === 'error' && 'bg-red-600 dark:bg-red-700',
-        className
+        "fixed left-0 right-0 z-50 px-4 py-2",
+        position === "top" ? "top-0" : "bottom-0",
+        isOffline && "bg-gray-900 dark:bg-gray-800",
+        isReconnecting && "bg-yellow-600 dark:bg-yellow-700",
+        state === "error" && "bg-red-600 dark:bg-red-700",
+        className,
       )}
       role="alert"
     >
@@ -86,7 +88,11 @@ export function ConnectionBanner({
             </svg>
           )}
           {isReconnecting && (
-            <svg className="h-5 w-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+            <svg
+              className="h-5 w-5 animate-spin text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
               <circle
                 className="opacity-25"
                 cx="12"
@@ -106,17 +112,20 @@ export function ConnectionBanner({
           {/* Message */}
           <div className="text-white">
             <p className="text-sm font-medium">
-              {isOffline && !isReconnecting && 'You are offline'}
+              {isOffline && !isReconnecting && "You are offline"}
               {isReconnecting &&
-                `Reconnecting${reconnectAttempts > 1 ? ` (attempt ${reconnectAttempts})` : ''}...`}
-              {state === 'error' && 'Connection error'}
+                `Reconnecting${reconnectAttempts > 1 ? ` (attempt ${reconnectAttempts})` : ""}...`}
+              {state === "error" && "Connection error"}
             </p>
             {offlineDurationText && !isReconnecting && (
-              <p className="text-xs text-white/70">Offline for {offlineDurationText}</p>
+              <p className="text-xs text-white/70">
+                Offline for {offlineDurationText}
+              </p>
             )}
             {showPendingCount && pendingCount > 0 && (
               <p className="text-xs text-white/70">
-                {pendingCount} pending {pendingCount === 1 ? 'message' : 'messages'}
+                {pendingCount} pending{" "}
+                {pendingCount === 1 ? "message" : "messages"}
               </p>
             )}
           </div>
@@ -150,7 +159,12 @@ export function ConnectionBanner({
               className="rounded p-1 text-white hover:bg-white/20"
               aria-label="Dismiss"
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -163,7 +177,7 @@ export function ConnectionBanner({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ConnectionBanner
+export default ConnectionBanner;

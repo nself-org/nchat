@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Slack Sidebar Component
@@ -9,9 +9,9 @@
 //
 // ===============================================================================
 
-import { ReactNode, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { slackColors } from '../config'
+import { ReactNode, useState } from "react";
+import { cn } from "@/lib/utils";
+import { slackColors } from "../config";
 import {
   Hash,
   Lock,
@@ -25,38 +25,38 @@ import {
   MoreHorizontal,
   Search,
   Edit,
-} from 'lucide-react'
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface SlackSidebarProps {
-  workspaceName?: string
-  workspaceIcon?: ReactNode
-  channels?: SlackChannelItem[]
-  directMessages?: SlackDMItem[]
-  activeChannelId?: string
-  onChannelSelect?: (channelId: string) => void
-  onDMSelect?: (dmId: string) => void
-  className?: string
+  workspaceName?: string;
+  workspaceIcon?: ReactNode;
+  channels?: SlackChannelItem[];
+  directMessages?: SlackDMItem[];
+  activeChannelId?: string;
+  onChannelSelect?: (channelId: string) => void;
+  onDMSelect?: (dmId: string) => void;
+  className?: string;
 }
 
 export interface SlackChannelItem {
-  id: string
-  name: string
-  isPrivate?: boolean
-  unreadCount?: number
-  mentionCount?: number
-  isMuted?: boolean
+  id: string;
+  name: string;
+  isPrivate?: boolean;
+  unreadCount?: number;
+  mentionCount?: number;
+  isMuted?: boolean;
 }
 
 export interface SlackDMItem {
-  id: string
-  name: string
-  avatarUrl?: string
-  status?: 'online' | 'away' | 'dnd' | 'offline'
-  unreadCount?: number
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  status?: "online" | "away" | "dnd" | "offline";
+  unreadCount?: number;
 }
 
 // -------------------------------------------------------------------------------
@@ -69,20 +69,20 @@ function SidebarSection({
   defaultOpen = true,
   onAdd,
 }: {
-  title: string
-  children: ReactNode
-  defaultOpen?: boolean
-  onAdd?: () => void
+  title: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+  onAdd?: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen)
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <div className="mb-2">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex w-full items-center px-4 py-1 text-sm font-medium',
-          'text-white/70 transition-colors hover:text-white'
+          "flex w-full items-center px-4 py-1 text-sm font-medium",
+          "text-white/70 transition-colors hover:text-white",
         )}
       >
         {isOpen ? (
@@ -94,8 +94,8 @@ function SidebarSection({
         {onAdd && (
           <button
             onClick={(e) => {
-              e.stopPropagation()
-              onAdd()
+              e.stopPropagation();
+              onAdd();
             }}
             className="ml-auto rounded p-1 hover:bg-white/10"
           >
@@ -105,33 +105,33 @@ function SidebarSection({
       </button>
       {isOpen && <div className="mt-1">{children}</div>}
     </div>
-  )
+  );
 }
 
-function PresenceIndicator({ status }: { status: SlackDMItem['status'] }) {
+function PresenceIndicator({ status }: { status: SlackDMItem["status"] }) {
   const colors = {
     online: slackColors.sidebarPresence,
-    away: 'transparent',
+    away: "transparent",
     dnd: slackColors.red,
-    offline: 'transparent',
-  }
+    offline: "transparent",
+  };
 
   const borderColors = {
     online: slackColors.sidebarPresence,
     away: slackColors.sidebarPresence,
     dnd: slackColors.red,
     offline: slackColors.sidebarTextMuted,
-  }
+  };
 
   return (
     <span
       className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
       style={{
-        backgroundColor: colors[status || 'offline'],
-        border: `2px solid ${borderColors[status || 'offline']}`,
+        backgroundColor: colors[status || "offline"],
+        border: `2px solid ${borderColors[status || "offline"]}`,
       }}
     />
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ function PresenceIndicator({ status }: { status: SlackDMItem['status'] }) {
 // -------------------------------------------------------------------------------
 
 export function SlackSidebar({
-  workspaceName = 'Workspace',
+  workspaceName = "Workspace",
   workspaceIcon,
   channels = [],
   directMessages = [],
@@ -150,7 +150,7 @@ export function SlackSidebar({
 }: SlackSidebarProps) {
   return (
     <div
-      className={cn('flex h-full flex-col text-white', className)}
+      className={cn("flex h-full flex-col text-white", className)}
       style={{ backgroundColor: slackColors.aubergine }}
     >
       {/* Workspace Header */}
@@ -158,7 +158,7 @@ export function SlackSidebar({
         className="flex items-center justify-between border-b px-4"
         style={{
           height: 49,
-          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderColor: "rgba(255, 255, 255, 0.1)",
         }}
       >
         <button className="-ml-1 flex items-center gap-2 rounded p-1 hover:bg-white/10">
@@ -170,7 +170,9 @@ export function SlackSidebar({
               {workspaceName[0]?.toUpperCase()}
             </div>
           )}
-          <span className="max-w-[160px] truncate text-lg font-bold">{workspaceName}</span>
+          <span className="max-w-[160px] truncate text-lg font-bold">
+            {workspaceName}
+          </span>
           <ChevronDown className="h-4 w-4 opacity-70" />
         </button>
         <button className="rounded p-1.5 hover:bg-white/10">
@@ -179,10 +181,17 @@ export function SlackSidebar({
       </div>
 
       {/* Navigation */}
-      <div className="border-b px-2 py-3" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+      <div
+        className="border-b px-2 py-3"
+        style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
+      >
         <NavItem icon={<MessageSquare className="h-4 w-4" />} label="Threads" />
         <NavItem icon={<Home className="h-4 w-4" />} label="All DMs" />
-        <NavItem icon={<Bell className="h-4 w-4" />} label="Activity" badge={3} />
+        <NavItem
+          icon={<Bell className="h-4 w-4" />}
+          label="Activity"
+          badge={3}
+        />
         <NavItem icon={<Bookmark className="h-4 w-4" />} label="Later" />
         <NavItem icon={<MoreHorizontal className="h-4 w-4" />} label="More" />
       </div>
@@ -214,15 +223,23 @@ export function SlackSidebar({
         </SidebarSection>
       </div>
     </div>
-  )
+  );
 }
 
-function NavItem({ icon, label, badge }: { icon: ReactNode; label: string; badge?: number }) {
+function NavItem({
+  icon,
+  label,
+  badge,
+}: {
+  icon: ReactNode;
+  label: string;
+  badge?: number;
+}) {
   return (
     <button
       className={cn(
-        'flex w-full items-center gap-2 rounded px-3 py-1',
-        'text-white/90 transition-colors hover:bg-white/10'
+        "flex w-full items-center gap-2 rounded px-3 py-1",
+        "text-white/90 transition-colors hover:bg-white/10",
       )}
     >
       {icon}
@@ -236,7 +253,7 @@ function NavItem({ icon, label, badge }: { icon: ReactNode; label: string; badge
         </span>
       )}
     </button>
-  )
+  );
 }
 
 function ChannelItem({
@@ -244,23 +261,23 @@ function ChannelItem({
   isActive,
   onClick,
 }: {
-  channel: SlackChannelItem
-  isActive: boolean
-  onClick: () => void
+  channel: SlackChannelItem;
+  isActive: boolean;
+  onClick: () => void;
 }) {
-  const hasUnread = (channel.unreadCount ?? 0) > 0
+  const hasUnread = (channel.unreadCount ?? 0) > 0;
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-2 rounded px-3 py-1 text-sm',
-        'transition-colors',
+        "flex w-full items-center gap-2 rounded px-3 py-1 text-sm",
+        "transition-colors",
         isActive
-          ? 'bg-[#1264A3] text-white'
+          ? "bg-[#1264A3] text-white"
           : hasUnread
-            ? 'font-medium text-white hover:bg-white/10'
-            : 'text-white/70 hover:bg-white/10 hover:text-white'
+            ? "font-medium text-white hover:bg-white/10"
+            : "text-white/70 hover:bg-white/10 hover:text-white",
       )}
     >
       {channel.isPrivate ? (
@@ -278,7 +295,7 @@ function ChannelItem({
         </span>
       )}
     </button>
-  )
+  );
 }
 
 function DMItem({
@@ -286,30 +303,30 @@ function DMItem({
   isActive,
   onClick,
 }: {
-  dm: SlackDMItem
-  isActive: boolean
-  onClick: () => void
+  dm: SlackDMItem;
+  isActive: boolean;
+  onClick: () => void;
 }) {
-  const hasUnread = (dm.unreadCount ?? 0) > 0
+  const hasUnread = (dm.unreadCount ?? 0) > 0;
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-2 rounded px-3 py-1 text-sm',
-        'transition-colors',
+        "flex w-full items-center gap-2 rounded px-3 py-1 text-sm",
+        "transition-colors",
         isActive
-          ? 'bg-[#1264A3] text-white'
+          ? "bg-[#1264A3] text-white"
           : hasUnread
-            ? 'font-medium text-white hover:bg-white/10'
-            : 'text-white/70 hover:bg-white/10 hover:text-white'
+            ? "font-medium text-white hover:bg-white/10"
+            : "text-white/70 hover:bg-white/10 hover:text-white",
       )}
     >
       <PresenceIndicator status={dm.status} />
       <span className="truncate">{dm.name}</span>
       {hasUnread && <span className="ml-auto h-2 w-2 rounded-full bg-white" />}
     </button>
-  )
+  );
 }
 
-export default SlackSidebar
+export default SlackSidebar;

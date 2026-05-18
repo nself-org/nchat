@@ -7,7 +7,7 @@
 //
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import type { PlatformTemplate } from '../types'
+import type { PlatformTemplate } from "../types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Slack Brand Colors
@@ -15,56 +15,56 @@ import type { PlatformTemplate } from '../types'
 
 export const slackColors = {
   // Primary brand colors
-  aubergine: '#4A154B',
-  aubergineDark: '#350D36',
-  aubergineLight: '#611F69',
+  aubergine: "#4A154B",
+  aubergineDark: "#350D36",
+  aubergineLight: "#611F69",
 
   // Accent colors
-  green: '#007A5A',
-  greenHover: '#006646',
-  greenLight: '#2BAC76',
+  green: "#007A5A",
+  greenHover: "#006646",
+  greenLight: "#2BAC76",
 
   // Status colors
-  blue: '#1264A3',
-  blueLight: '#36C5F0',
-  yellow: '#ECB22E',
-  red: '#E01E5A',
+  blue: "#1264A3",
+  blueLight: "#36C5F0",
+  yellow: "#ECB22E",
+  red: "#E01E5A",
 
   // Neutral colors
-  black: '#1D1C1D',
-  darkGray: '#616061',
-  mediumGray: '#868686',
-  lightGray: '#ABABAD',
-  paleGray: '#DDDDDD',
-  offWhite: '#F8F8F8',
-  white: '#FFFFFF',
+  black: "#1D1C1D",
+  darkGray: "#616061",
+  mediumGray: "#868686",
+  lightGray: "#ABABAD",
+  paleGray: "#DDDDDD",
+  offWhite: "#F8F8F8",
+  white: "#FFFFFF",
 
   // Sidebar colors (default aubergine theme)
-  sidebarBg: '#4A154B',
-  sidebarText: '#FFFFFF',
-  sidebarTextMuted: 'rgba(255, 255, 255, 0.7)',
-  sidebarHover: 'rgba(255, 255, 255, 0.1)',
-  sidebarActive: '#1264A3',
-  sidebarPresence: '#2BAC76',
-  sidebarUnread: '#FFFFFF',
+  sidebarBg: "#4A154B",
+  sidebarText: "#FFFFFF",
+  sidebarTextMuted: "rgba(255, 255, 255, 0.7)",
+  sidebarHover: "rgba(255, 255, 255, 0.1)",
+  sidebarActive: "#1264A3",
+  sidebarPresence: "#2BAC76",
+  sidebarUnread: "#FFFFFF",
 
   // Message colors
-  messageBg: '#FFFFFF',
-  messageHover: '#F8F8F8',
-  mentionBg: '#FEF9E9',
-  mentionBorder: '#FAEBAF',
-  threadBg: '#F8F8F8',
+  messageBg: "#FFFFFF",
+  messageHover: "#F8F8F8",
+  mentionBg: "#FEF9E9",
+  mentionBorder: "#FAEBAF",
+  threadBg: "#F8F8F8",
 
   // Dark mode colors
   dark: {
-    bg: '#1A1D21',
-    surface: '#222529',
-    card: '#2C2E33',
-    border: '#3B3D42',
-    text: '#D1D2D3',
-    textMuted: '#9B9C9E',
+    bg: "#1A1D21",
+    surface: "#222529",
+    card: "#2C2E33",
+    border: "#3B3D42",
+    text: "#D1D2D3",
+    textMuted: "#9B9C9E",
   },
-} as const
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Slack Typography
@@ -76,12 +76,12 @@ export const slackTypography = {
     mono: '"SF Mono", Monaco, Menlo, Consolas, "Liberation Mono", monospace',
   },
   fontSize: {
-    xs: '11px',
-    sm: '13px',
-    base: '15px',
-    lg: '18px',
-    xl: '22px',
-    '2xl': '28px',
+    xs: "11px",
+    sm: "13px",
+    base: "15px",
+    lg: "18px",
+    xl: "22px",
+    "2xl": "28px",
   },
   fontWeight: {
     normal: 400,
@@ -96,11 +96,11 @@ export const slackTypography = {
     relaxed: 1.6,
   },
   letterSpacing: {
-    tight: '-0.01em',
-    normal: '0',
-    wide: '0.02em',
+    tight: "-0.01em",
+    normal: "0",
+    wide: "0.02em",
   },
-} as const
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Slack Spacing System
@@ -108,27 +108,27 @@ export const slackTypography = {
 
 export const slackSpacing = {
   // Base spacing unit: 4px
-  0: '0',
-  px: '1px',
-  0.5: '2px',
-  1: '4px',
-  1.5: '6px',
-  2: '8px',
-  2.5: '10px',
-  3: '12px',
-  4: '16px',
-  5: '20px',
-  6: '24px',
-  7: '28px',
-  8: '32px',
-  9: '36px',
-  10: '40px',
-  12: '48px',
-  14: '56px',
-  16: '64px',
-  20: '80px',
-  24: '96px',
-} as const
+  0: "0",
+  px: "1px",
+  0.5: "2px",
+  1: "4px",
+  1.5: "6px",
+  2: "8px",
+  2.5: "10px",
+  3: "12px",
+  4: "16px",
+  5: "20px",
+  6: "24px",
+  7: "28px",
+  8: "32px",
+  9: "36px",
+  10: "40px",
+  12: "48px",
+  14: "56px",
+  16: "64px",
+  20: "80px",
+  24: "96px",
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Slack Component Styles
@@ -142,22 +142,22 @@ export const slackComponentStyles = {
     headerHeight: 49,
     itemHeight: 28,
     sectionGap: 16,
-    itemPadding: '4px 16px',
+    itemPadding: "4px 16px",
     iconSize: 18,
     borderRadius: 4,
   },
 
   // Messages
   message: {
-    padding: '8px 20px',
+    padding: "8px 20px",
     avatarSize: 36,
     avatarRadius: 4,
     groupGap: 4,
     contentGap: 8,
-    maxWidth: 'none',
-    hoverBg: '#F8F8F8',
-    highlightBg: '#FEF9E9',
-    pinnedBorderColor: '#ECB22E',
+    maxWidth: "none",
+    hoverBg: "#F8F8F8",
+    highlightBg: "#FEF9E9",
+    pinnedBorderColor: "#ECB22E",
   },
 
   // Thread panel
@@ -170,7 +170,7 @@ export const slackComponentStyles = {
   // Channel header
   header: {
     height: 49,
-    padding: '0 16px',
+    padding: "0 16px",
     borderWidth: 1,
   },
 
@@ -178,7 +178,7 @@ export const slackComponentStyles = {
   compose: {
     minHeight: 44,
     maxHeight: 300,
-    padding: '9px 12px',
+    padding: "9px 12px",
     borderRadius: 4,
     borderWidth: 1,
     iconSize: 20,
@@ -193,9 +193,9 @@ export const slackComponentStyles = {
       lg: 36,
     },
     padding: {
-      sm: '0 8px',
-      md: '0 12px',
-      lg: '0 16px',
+      sm: "0 8px",
+      md: "0 12px",
+      lg: "0 16px",
     },
     borderRadius: 4,
     fontSize: {
@@ -208,7 +208,7 @@ export const slackComponentStyles = {
   // Inputs
   input: {
     height: 36,
-    padding: '8px 12px',
+    padding: "8px 12px",
     borderRadius: 4,
     borderWidth: 1,
   },
@@ -218,12 +218,12 @@ export const slackComponentStyles = {
     borderRadius: 8,
     padding: 24,
     maxWidth: 520,
-    overlayBg: 'rgba(0, 0, 0, 0.5)',
+    overlayBg: "rgba(0, 0, 0, 0.5)",
   },
 
   // Tooltips
   tooltip: {
-    padding: '4px 8px',
+    padding: "4px 8px",
     borderRadius: 4,
     fontSize: 12,
     maxWidth: 250,
@@ -233,7 +233,7 @@ export const slackComponentStyles = {
   popover: {
     borderRadius: 6,
     padding: 8,
-    shadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    shadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
   },
 
   // Avatars
@@ -244,7 +244,7 @@ export const slackComponentStyles = {
       md: 24,
       lg: 36,
       xl: 48,
-      '2xl': 72,
+      "2xl": 72,
     },
     borderRadius: 4,
     presenceDotSize: 10,
@@ -254,7 +254,7 @@ export const slackComponentStyles = {
   // Reactions
   reaction: {
     height: 24,
-    padding: '0 6px',
+    padding: "0 6px",
     gap: 4,
     borderRadius: 12,
     fontSize: 11,
@@ -264,11 +264,11 @@ export const slackComponentStyles = {
   badge: {
     height: 18,
     minWidth: 18,
-    padding: '0 5px',
+    padding: "0 5px",
     borderRadius: 9,
     fontSize: 11,
   },
-} as const
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Slack Animations
@@ -286,21 +286,21 @@ export const slackAnimations = {
 
   // Easings
   easing: {
-    default: 'cubic-bezier(0.4, 0, 0.2, 1)',
-    in: 'cubic-bezier(0.4, 0, 1, 1)',
-    out: 'cubic-bezier(0, 0, 0.2, 1)',
-    inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
-    bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    default: "cubic-bezier(0.4, 0, 0.2, 1)",
+    in: "cubic-bezier(0.4, 0, 1, 1)",
+    out: "cubic-bezier(0, 0, 0.2, 1)",
+    inOut: "cubic-bezier(0.4, 0, 0.2, 1)",
+    bounce: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
   },
 
   // Transitions
   transitions: {
-    color: 'color 100ms ease',
-    background: 'background-color 100ms ease',
-    border: 'border-color 100ms ease',
-    opacity: 'opacity 200ms ease',
-    transform: 'transform 200ms ease',
-    all: 'all 200ms ease',
+    color: "color 100ms ease",
+    background: "background-color 100ms ease",
+    border: "border-color 100ms ease",
+    opacity: "opacity 200ms ease",
+    transform: "transform 200ms ease",
+    all: "all 200ms ease",
   },
 
   // Keyframes
@@ -310,24 +310,24 @@ export const slackAnimations = {
       to: { opacity: 1 },
     },
     slideDown: {
-      from: { transform: 'translateY(-10px)', opacity: 0 },
-      to: { transform: 'translateY(0)', opacity: 1 },
+      from: { transform: "translateY(-10px)", opacity: 0 },
+      to: { transform: "translateY(0)", opacity: 1 },
     },
     slideUp: {
-      from: { transform: 'translateY(10px)', opacity: 0 },
-      to: { transform: 'translateY(0)', opacity: 1 },
+      from: { transform: "translateY(10px)", opacity: 0 },
+      to: { transform: "translateY(0)", opacity: 1 },
     },
     pulse: {
-      '0%, 100%': { opacity: 1 },
-      '50%': { opacity: 0.5 },
+      "0%, 100%": { opacity: 1 },
+      "50%": { opacity: 0.5 },
     },
     shake: {
-      '0%, 100%': { transform: 'translateX(0)' },
-      '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-2px)' },
-      '20%, 40%, 60%, 80%': { transform: 'translateX(2px)' },
+      "0%, 100%": { transform: "translateX(0)" },
+      "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-2px)" },
+      "20%, 40%, 60%, 80%": { transform: "translateX(2px)" },
     },
   },
-} as const
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Slack Icon Set
@@ -335,61 +335,61 @@ export const slackAnimations = {
 
 export const slackIcons = {
   // Navigation
-  home: 'home',
-  dm: 'message-square',
-  activity: 'bell',
-  later: 'bookmark',
-  more: 'more-horizontal',
+  home: "home",
+  dm: "message-square",
+  activity: "bell",
+  later: "bookmark",
+  more: "more-horizontal",
 
   // Channels
-  channelPublic: 'hash',
-  channelPrivate: 'lock',
-  channelShared: 'globe',
-  channelArchived: 'archive',
+  channelPublic: "hash",
+  channelPrivate: "lock",
+  channelShared: "globe",
+  channelArchived: "archive",
 
   // Messages
-  thread: 'message-circle',
-  reaction: 'smile',
-  pin: 'pin',
-  bookmark: 'bookmark',
-  share: 'share',
-  link: 'link',
-  edit: 'edit-2',
-  delete: 'trash-2',
-  copy: 'copy',
+  thread: "message-circle",
+  reaction: "smile",
+  pin: "pin",
+  bookmark: "bookmark",
+  share: "share",
+  link: "link",
+  edit: "edit-2",
+  delete: "trash-2",
+  copy: "copy",
 
   // Files
-  attachment: 'paperclip',
-  file: 'file',
-  image: 'image',
-  video: 'video',
-  audio: 'music',
-  pdf: 'file-text',
+  attachment: "paperclip",
+  file: "file",
+  image: "image",
+  video: "video",
+  audio: "music",
+  pdf: "file-text",
 
   // Actions
-  send: 'send',
-  search: 'search',
-  filter: 'filter',
-  sort: 'arrow-up-down',
-  add: 'plus',
-  close: 'x',
-  check: 'check',
-  chevronDown: 'chevron-down',
-  chevronRight: 'chevron-right',
+  send: "send",
+  search: "search",
+  filter: "filter",
+  sort: "arrow-up-down",
+  add: "plus",
+  close: "x",
+  check: "check",
+  chevronDown: "chevron-down",
+  chevronRight: "chevron-right",
 
   // Status
-  online: 'circle',
-  away: 'clock',
-  dnd: 'minus-circle',
-  offline: 'circle-outline',
+  online: "circle",
+  away: "clock",
+  dnd: "minus-circle",
+  offline: "circle-outline",
 
   // Features
-  huddle: 'headphones',
-  clip: 'video',
-  canvas: 'layout',
-  workflow: 'git-branch',
-  app: 'grid',
-} as const
+  huddle: "headphones",
+  clip: "video",
+  canvas: "layout",
+  workflow: "git-branch",
+  app: "grid",
+} as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Template Export
@@ -400,19 +400,19 @@ export const slackTemplate: PlatformTemplate = {
   // Identity
   // ───────────────────────────────────────────────────────────────────────────
 
-  id: 'slack',
-  name: 'Slack',
+  id: "slack",
+  name: "Slack",
   description:
-    'Complete Slack clone with pixel-perfect UI, aubergine sidebar, and all core features',
-  version: '2.0.0',
-  author: 'nself',
+    "Complete Slack clone with pixel-perfect UI, aubergine sidebar, and all core features",
+  version: "2.0.0",
+  author: "nself",
 
   // ───────────────────────────────────────────────────────────────────────────
   // Theme Configuration
   // ───────────────────────────────────────────────────────────────────────────
 
   theme: {
-    defaultMode: 'light',
+    defaultMode: "light",
 
     light: {
       // Primary colors (Slack's aubergine)
@@ -433,14 +433,14 @@ export const slackTemplate: PlatformTemplate = {
 
       // Border colors
       borderColor: slackColors.paleGray,
-      borderMutedColor: '#EEEEEE',
+      borderMutedColor: "#EEEEEE",
 
       // Button colors
       buttonPrimaryBg: slackColors.green,
       buttonPrimaryText: slackColors.white,
       buttonSecondaryBg: slackColors.white,
       buttonSecondaryText: slackColors.black,
-      buttonGhostHover: '#F0F0F0',
+      buttonGhostHover: "#F0F0F0",
 
       // Status colors
       successColor: slackColors.green,
@@ -451,7 +451,7 @@ export const slackTemplate: PlatformTemplate = {
       // Special colors
       linkColor: slackColors.blue,
       focusRingColor: slackColors.blue,
-      selectionBg: '#D5E5F2',
+      selectionBg: "#D5E5F2",
       highlightBg: slackColors.mentionBg,
 
       // Platform-specific
@@ -478,7 +478,7 @@ export const slackTemplate: PlatformTemplate = {
 
       // Border colors
       borderColor: slackColors.dark.border,
-      borderMutedColor: '#2C2E33',
+      borderMutedColor: "#2C2E33",
 
       // Button colors
       buttonPrimaryBg: slackColors.greenLight,
@@ -497,7 +497,7 @@ export const slackTemplate: PlatformTemplate = {
       linkColor: slackColors.blueLight,
       focusRingColor: slackColors.blueLight,
       selectionBg: slackColors.blue,
-      highlightBg: '#5C4C0B',
+      highlightBg: "#5C4C0B",
 
       // Platform-specific
       messageBubbleOwn: undefined,
@@ -511,7 +511,7 @@ export const slackTemplate: PlatformTemplate = {
 
   layout: {
     // Sidebar
-    sidebarPosition: 'left',
+    sidebarPosition: "left",
     sidebarWidth: slackComponentStyles.sidebar.width,
     sidebarCollapsible: true,
     sidebarCollapsedWidth: slackComponentStyles.sidebar.collapsedWidth,
@@ -521,25 +521,25 @@ export const slackTemplate: PlatformTemplate = {
     showHeaderBorder: true,
 
     // Messages (Slack uses comfortable density with message grouping)
-    messageDensity: 'comfortable',
+    messageDensity: "comfortable",
     messageGrouping: true,
     messageGroupingTimeout: 5, // 5 minutes
 
     // Avatars (Slack uses rounded squares, not circles)
-    avatarStyle: 'rounded',
-    avatarSize: 'lg',
-    showAvatarInGroup: 'first',
+    avatarStyle: "rounded",
+    avatarSize: "lg",
+    showAvatarInGroup: "first",
 
     // Channels
     showChannelIcons: true,
     showChannelDescription: false,
     showMemberCount: false,
-    channelListDensity: 'compact',
+    channelListDensity: "compact",
 
     // Users
     showUserStatus: true,
     showPresenceDots: true,
-    presenceDotPosition: 'bottom-right',
+    presenceDotPosition: "bottom-right",
   },
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -549,19 +549,19 @@ export const slackTemplate: PlatformTemplate = {
   features: {
     // Threads (Slack's signature feature)
     threads: true,
-    threadStyle: 'panel',
+    threadStyle: "panel",
     threadPanelWidth: slackComponentStyles.thread.width,
 
     // Reactions (inline style like Slack)
     reactions: true,
-    reactionStyle: 'inline',
+    reactionStyle: "inline",
     quickReactions: [
-      '\u{1F44D}', // thumbs up
-      '\u{2705}', // check mark
-      '\u{1F440}', // eyes
-      '\u{1F389}', // party popper
-      '\u{2764}\u{FE0F}', // red heart
-      '\u{1F602}', // tears of joy
+      "\u{1F44D}", // thumbs up
+      "\u{2705}", // check mark
+      "\u{1F440}", // eyes
+      "\u{1F389}", // party popper
+      "\u{2764}\u{FE0F}", // red heart
+      "\u{1F602}", // tears of joy
     ],
     maxReactionsDisplay: 3,
 
@@ -571,19 +571,27 @@ export const slackTemplate: PlatformTemplate = {
     codeBlocks: true,
     markdown: true,
     linkPreviews: true,
-    emojiPicker: 'custom',
+    emojiPicker: "custom",
     gifPicker: true,
 
     // Message actions (Slack's action toolbar)
-    messageActions: ['react', 'thread', 'share', 'bookmark', 'pin', 'edit', 'delete'],
+    messageActions: [
+      "react",
+      "thread",
+      "share",
+      "bookmark",
+      "pin",
+      "edit",
+      "delete",
+    ],
     showActionsOnHover: true,
 
     // Real-time features
     typing: true,
-    typingIndicatorStyle: 'text', // "X is typing..."
+    typingIndicatorStyle: "text", // "X is typing..."
     presence: true,
     readReceipts: false, // Slack doesn't show read receipts by default
-    readReceiptStyle: 'text',
+    readReceiptStyle: "text",
   },
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -592,35 +600,35 @@ export const slackTemplate: PlatformTemplate = {
 
   terminology: {
     // Core concepts
-    workspace: 'Workspace',
-    workspacePlural: 'Workspaces',
-    channel: 'Channel',
-    channelPlural: 'Channels',
-    directMessage: 'Direct message',
-    directMessagePlural: 'Direct messages',
-    directMessageShort: 'DM',
-    thread: 'Thread',
-    threadPlural: 'Threads',
-    member: 'Member',
-    memberPlural: 'Members',
-    message: 'Message',
-    messagePlural: 'Messages',
-    reaction: 'Reaction',
-    reactionPlural: 'Reactions',
+    workspace: "Workspace",
+    workspacePlural: "Workspaces",
+    channel: "Channel",
+    channelPlural: "Channels",
+    directMessage: "Direct message",
+    directMessagePlural: "Direct messages",
+    directMessageShort: "DM",
+    thread: "Thread",
+    threadPlural: "Threads",
+    member: "Member",
+    memberPlural: "Members",
+    message: "Message",
+    messagePlural: "Messages",
+    reaction: "Reaction",
+    reactionPlural: "Reactions",
 
     // Actions
-    sendMessage: 'Send',
-    editMessage: 'Edit message',
-    deleteMessage: 'Delete message',
-    replyToThread: 'Reply in thread',
-    createChannel: 'Create a channel',
-    joinChannel: 'Join channel',
-    leaveChannel: 'Leave channel',
+    sendMessage: "Send",
+    editMessage: "Edit message",
+    deleteMessage: "Delete message",
+    replyToThread: "Reply in thread",
+    createChannel: "Create a channel",
+    joinChannel: "Join channel",
+    leaveChannel: "Leave channel",
 
     // Placeholders
-    messageInputPlaceholder: 'Message #{{channel}}',
-    searchPlaceholder: 'Search {{workspace}}',
-    newChannelPlaceholder: 'e.g. plan-budget',
+    messageInputPlaceholder: "Message #{{channel}}",
+    searchPlaceholder: "Search {{workspace}}",
+    newChannelPlaceholder: "e.g. plan-budget",
   },
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -630,10 +638,10 @@ export const slackTemplate: PlatformTemplate = {
   animations: {
     enableAnimations: true,
     reducedMotion: false,
-    transitionDuration: 'fast', // Slack is snappy
-    messageAppear: 'none', // Slack messages appear instantly
-    sidebarTransition: 'slide',
-    modalTransition: 'fade',
+    transitionDuration: "fast", // Slack is snappy
+    messageAppear: "none", // Slack messages appear instantly
+    sidebarTransition: "slide",
+    modalTransition: "fade",
   },
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -859,6 +867,6 @@ export const slackTemplate: PlatformTemplate = {
   border-color: ${slackColors.dark.border};
 }
 `,
-}
+};
 
-export default slackTemplate
+export default slackTemplate;

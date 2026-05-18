@@ -21,13 +21,15 @@
 
 // Helpers — inlined so Next.js can statically replace each env access.
 const _livekit =
-  process.env.NEXT_PUBLIC_LIVEKIT_URL != null && process.env.NEXT_PUBLIC_LIVEKIT_URL !== ''
-const _recording = process.env.NEXT_PUBLIC_RECORDING_ENABLED === 'true'
-const _moderation = process.env.NEXT_PUBLIC_MODERATION_ENABLED === 'true'
-const _bots = process.env.NEXT_PUBLIC_BOTS_ENABLED === 'true'
+  process.env.NEXT_PUBLIC_LIVEKIT_URL != null &&
+  process.env.NEXT_PUBLIC_LIVEKIT_URL !== "";
+const _recording = process.env.NEXT_PUBLIC_RECORDING_ENABLED === "true";
+const _moderation = process.env.NEXT_PUBLIC_MODERATION_ENABLED === "true";
+const _bots = process.env.NEXT_PUBLIC_BOTS_ENABLED === "true";
 const _realtime =
-  process.env.NEXT_PUBLIC_REALTIME_URL != null && process.env.NEXT_PUBLIC_REALTIME_URL !== ''
-const _sso = process.env.NEXT_PUBLIC_AUTH_SSO_ENABLED === 'true'
+  process.env.NEXT_PUBLIC_REALTIME_URL != null &&
+  process.env.NEXT_PUBLIC_REALTIME_URL !== "";
+const _sso = process.env.NEXT_PUBLIC_AUTH_SSO_ENABLED === "true";
 
 export const FEATURE_FLAGS = {
   // ============================================================================
@@ -113,7 +115,12 @@ export const FEATURE_FLAGS = {
     /** Maximum file size in MB */
     maxFileSize: 25,
     /** Allowed MIME types for file uploads */
-    allowedTypes: ['image/*', 'video/*', 'audio/*', 'application/pdf'] as string[],
+    allowedTypes: [
+      "image/*",
+      "video/*",
+      "audio/*",
+      "application/pdf",
+    ] as string[],
   },
 
   // ============================================================================
@@ -208,54 +215,55 @@ export const FEATURE_FLAGS = {
     /** Record screen shares */
     screenShares: _recording,
   },
-} as const
+} as const;
 
 /**
  * Type representing the complete feature flags object
  */
-export type FeatureFlags = typeof FEATURE_FLAGS
+export type FeatureFlags = typeof FEATURE_FLAGS;
 
 /**
  * Type representing the categories available in feature flags
  */
-export type FeatureCategory = keyof FeatureFlags
+export type FeatureCategory = keyof FeatureFlags;
 
 /**
  * Type helper to get the features within a specific category
  */
-export type FeaturesInCategory<C extends FeatureCategory> = keyof FeatureFlags[C]
+export type FeaturesInCategory<C extends FeatureCategory> =
+  keyof FeatureFlags[C];
 
 /**
  * Type for a feature path (e.g., 'messaging.threads')
  */
 export type FeaturePath = {
-  [C in FeatureCategory]: `${C}.${string & keyof FeatureFlags[C]}`
-}[FeatureCategory]
+  [C in FeatureCategory]: `${C}.${string & keyof FeatureFlags[C]}`;
+}[FeatureCategory];
 
 /**
  * Default feature flag values (same as FEATURE_FLAGS but mutable for overrides)
  */
-export const DEFAULT_FEATURE_FLAGS: FeatureFlags = { ...FEATURE_FLAGS }
+export const DEFAULT_FEATURE_FLAGS: FeatureFlags = { ...FEATURE_FLAGS };
 
 /**
  * Get all categories from feature flags
  */
 export function getFeatureCategories(): FeatureCategory[] {
-  return Object.keys(FEATURE_FLAGS) as FeatureCategory[]
+  return Object.keys(FEATURE_FLAGS) as FeatureCategory[];
 }
 
 /**
  * Get all feature keys within a category
  */
 export function getFeaturesInCategory<C extends FeatureCategory>(
-  category: C
+  category: C,
 ): (keyof FeatureFlags[C])[] {
-  return Object.keys(FEATURE_FLAGS[category]) as (keyof FeatureFlags[C])[]
+  return Object.keys(FEATURE_FLAGS[category]) as (keyof FeatureFlags[C])[];
 }
 
 /**
  * Check if a category has an 'enabled' property
  */
 export function categoryHasEnabledSwitch(category: FeatureCategory): boolean {
-  return 'enabled' in FEATURE_FLAGS[category]
+  return "enabled" in FEATURE_FLAGS[category];
 }

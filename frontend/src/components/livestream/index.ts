@@ -6,6 +6,6 @@
  * @module components/livestream
  */
 
-export { StreamPlayer, type StreamPlayerProps } from './StreamPlayer'
-export { StreamChat, type StreamChatProps } from './StreamChat'
-export { StreamDashboard, type StreamDashboardProps } from './StreamDashboard'
+export { StreamPlayer, type StreamPlayerProps } from "./StreamPlayer";
+export { StreamChat, type StreamChatProps } from "./StreamChat";
+export { StreamDashboard, type StreamDashboardProps } from "./StreamDashboard";

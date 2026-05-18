@@ -1,28 +1,34 @@
-'use client'
+"use client";
 
 /**
  * ChannelAnalytics - Detailed channel analytics view
  */
 
-import * as React from 'react'
-import { Hash, Lock, Users } from 'lucide-react'
+import * as React from "react";
+import { Hash, Lock, Users } from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { useAnalyticsStore } from '@/stores/analytics-store'
+import { useAnalyticsStore } from "@/stores/analytics-store";
 
-import { ChannelActivityChart } from '../charts/ChannelActivityChart'
-import { MessageVolumeChart } from '../charts/MessageVolumeChart'
-import { TopChannelsTable } from '../tables/TopChannelsTable'
+import { ChannelActivityChart } from "../charts/ChannelActivityChart";
+import { MessageVolumeChart } from "../charts/MessageVolumeChart";
+import { TopChannelsTable } from "../tables/TopChannelsTable";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface ChannelAnalyticsProps {
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -30,10 +36,10 @@ interface ChannelAnalyticsProps {
 // ============================================================================
 
 interface StatCardProps {
-  title: string
-  value: number | string
-  description?: string
-  icon: React.ReactNode
+  title: string;
+  value: number | string;
+  description?: string;
+  icon: React.ReactNode;
 }
 
 function StatCard({ title, value, description, icon }: StatCardProps) {
@@ -45,10 +51,12 @@ function StatCard({ title, value, description, icon }: StatCardProps) {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        {description && (
+          <p className="text-xs text-muted-foreground">{description}</p>
+        )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -56,32 +64,40 @@ function StatCard({ title, value, description, icon }: StatCardProps) {
 // ============================================================================
 
 export function ChannelAnalytics({ className }: ChannelAnalyticsProps) {
-  const { summary, channelActivity, isLoading, fetchSectionData } = useAnalyticsStore()
+  const { summary, channelActivity, isLoading, fetchSectionData } =
+    useAnalyticsStore();
 
   // Fetch channel data on mount
   React.useEffect(() => {
-    fetchSectionData('channels')
-  }, [fetchSectionData])
+    fetchSectionData("channels");
+  }, [fetchSectionData]);
 
   // Calculate channel stats
   const channelStats = React.useMemo(() => {
-    if (!channelActivity || channelActivity.length === 0) return null
+    if (!channelActivity || channelActivity.length === 0) return null;
 
-    const totalMessages = channelActivity.reduce((sum, c) => sum + c.messageCount, 0)
-    const totalMembers = channelActivity.reduce((sum, c) => sum + c.memberCount, 0)
+    const totalMessages = channelActivity.reduce(
+      (sum, c) => sum + c.messageCount,
+      0,
+    );
+    const totalMembers = channelActivity.reduce(
+      (sum, c) => sum + c.memberCount,
+      0,
+    );
     const avgEngagement =
-      channelActivity.reduce((sum, c) => sum + c.engagementRate, 0) / channelActivity.length
+      channelActivity.reduce((sum, c) => sum + c.engagementRate, 0) /
+      channelActivity.length;
 
     const mostActive = channelActivity.reduce(
       (max, c) => (c.messageCount > max.messageCount ? c : max),
-      channelActivity[0]
-    )
+      channelActivity[0],
+    );
 
-    return { totalMessages, totalMembers, avgEngagement, mostActive }
-  }, [channelActivity])
+    return { totalMessages, totalMembers, avgEngagement, mostActive };
+  }, [channelActivity]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -115,22 +131,32 @@ export function ChannelAnalytics({ className }: ChannelAnalyticsProps) {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Messages
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
                 {channelStats.totalMessages.toLocaleString()}
               </div>
-              <p className="text-xs text-muted-foreground">across all channels</p>
+              <p className="text-xs text-muted-foreground">
+                across all channels
+              </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Avg. Engagement</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Avg. Engagement
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{channelStats.avgEngagement.toFixed(1)}%</div>
-              <p className="text-xs text-muted-foreground">active members ratio</p>
+              <div className="text-3xl font-bold">
+                {channelStats.avgEngagement.toFixed(1)}%
+              </div>
+              <p className="text-xs text-muted-foreground">
+                active members ratio
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -140,7 +166,9 @@ export function ChannelAnalytics({ className }: ChannelAnalyticsProps) {
             <CardContent>
               <div className="flex items-center gap-2">
                 <Hash className="h-5 w-5 text-muted-foreground" />
-                <span className="text-xl font-bold">{channelStats.mostActive.channelName}</span>
+                <span className="text-xl font-bold">
+                  {channelStats.mostActive.channelName}
+                </span>
               </div>
               <p className="text-xs text-muted-foreground">
                 {channelStats.mostActive.messageCount.toLocaleString()} messages
@@ -195,7 +223,9 @@ export function ChannelAnalytics({ className }: ChannelAnalyticsProps) {
           <Card>
             <CardHeader>
               <CardTitle>Channel Activity by Volume</CardTitle>
-              <CardDescription>Stacked view of channel contributions</CardDescription>
+              <CardDescription>
+                Stacked view of channel contributions
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <MessageVolumeChart height={300} stacked />
@@ -211,7 +241,11 @@ export function ChannelAnalytics({ className }: ChannelAnalyticsProps) {
                 <CardDescription>Most active channels</CardDescription>
               </CardHeader>
               <CardContent>
-                <TopChannelsTable limit={10} sortBy="messages" showEngagement={false} />
+                <TopChannelsTable
+                  limit={10}
+                  sortBy="messages"
+                  showEngagement={false}
+                />
               </CardContent>
             </Card>
             <Card>
@@ -220,7 +254,11 @@ export function ChannelAnalytics({ className }: ChannelAnalyticsProps) {
                 <CardDescription>Highest member participation</CardDescription>
               </CardHeader>
               <CardContent>
-                <TopChannelsTable limit={10} sortBy="engagement" showEngagement />
+                <TopChannelsTable
+                  limit={10}
+                  sortBy="engagement"
+                  showEngagement
+                />
               </CardContent>
             </Card>
           </div>
@@ -237,7 +275,7 @@ export function ChannelAnalytics({ className }: ChannelAnalyticsProps) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
-export default ChannelAnalytics
+export default ChannelAnalytics;

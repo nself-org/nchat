@@ -1,23 +1,30 @@
-'use client'
+"use client";
 
 /**
  * AuditLogExport - Export audit logs in various formats
  */
 
-import { useState } from 'react'
-import { Download, FileJson, FileSpreadsheet, Calendar, Check, Loader2 } from 'lucide-react'
+import { useState } from "react";
+import {
+  Download,
+  FileJson,
+  FileSpreadsheet,
+  Calendar,
+  Check,
+  Loader2,
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -26,23 +33,30 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 
-import type { AuditLogEntry, ExportFormat, AuditLogFilters } from '@/lib/audit/audit-types'
-import { exportAndDownloadAuditLogs, defaultExportTemplates } from '@/lib/audit/audit-export'
+import type {
+  AuditLogEntry,
+  ExportFormat,
+  AuditLogFilters,
+} from "@/lib/audit/audit-types";
+import {
+  exportAndDownloadAuditLogs,
+  defaultExportTemplates,
+} from "@/lib/audit/audit-export";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface AuditLogExportProps {
-  entries: AuditLogEntry[]
-  filters?: AuditLogFilters
-  open: boolean
-  onClose: () => void
-  onExportComplete?: (filename: string, recordCount: number) => void
+  entries: AuditLogEntry[];
+  filters?: AuditLogFilters;
+  open: boolean;
+  onClose: () => void;
+  onExportComplete?: (filename: string, recordCount: number) => void;
 }
 
 // ============================================================================
@@ -56,22 +70,22 @@ export function AuditLogExport({
   onClose,
   onExportComplete,
 }: AuditLogExportProps) {
-  const [format, setFormat] = useState<ExportFormat>('csv')
-  const [includeMetadata, setIncludeMetadata] = useState(true)
-  const [useFilters, setUseFilters] = useState(true)
-  const [useDateRange, setUseDateRange] = useState(false)
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [isExporting, setIsExporting] = useState(false)
-  const [exportComplete, setExportComplete] = useState(false)
+  const [format, setFormat] = useState<ExportFormat>("csv");
+  const [includeMetadata, setIncludeMetadata] = useState(true);
+  const [useFilters, setUseFilters] = useState(true);
+  const [useDateRange, setUseDateRange] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportComplete, setExportComplete] = useState(false);
   const [exportResult, setExportResult] = useState<{
-    filename: string
-    recordCount: number
-  } | null>(null)
+    filename: string;
+    recordCount: number;
+  } | null>(null);
 
   const handleExport = async () => {
-    setIsExporting(true)
-    setExportComplete(false)
+    setIsExporting(true);
+    setExportComplete(false);
 
     try {
       const exportOptions = {
@@ -85,37 +99,37 @@ export function AuditLogExport({
                 end: new Date(endDate),
               }
             : undefined,
-      }
+      };
 
-      const result = await exportAndDownloadAuditLogs(entries, exportOptions)
+      const result = await exportAndDownloadAuditLogs(entries, exportOptions);
 
       setExportResult({
         filename: result.filename,
         recordCount: result.recordCount,
-      })
-      setExportComplete(true)
+      });
+      setExportComplete(true);
 
       if (onExportComplete) {
-        onExportComplete(result.filename, result.recordCount)
+        onExportComplete(result.filename, result.recordCount);
       }
     } catch (error) {
-      logger.error('Export failed:', error)
+      logger.error("Export failed:", error);
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setExportComplete(false)
-    setExportResult(null)
-    onClose()
-  }
+    setExportComplete(false);
+    setExportResult(null);
+    onClose();
+  };
 
   const formatIcons: Record<ExportFormat, React.ReactNode> = {
     csv: <FileSpreadsheet className="h-5 w-5" />,
     json: <FileJson className="h-5 w-5" />,
     xlsx: <FileSpreadsheet className="h-5 w-5" />,
-  }
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={(open) => !open && handleClose()}>
@@ -127,7 +141,7 @@ export function AuditLogExport({
           </AlertDialogTitle>
           <AlertDialogDescription>
             {exportComplete
-              ? 'Export completed successfully!'
+              ? "Export completed successfully!"
               : `Export ${entries.length} audit log entries to a file.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -152,10 +166,10 @@ export function AuditLogExport({
             <div className="space-y-2">
               <Label>Export Format</Label>
               <div className="grid grid-cols-3 gap-2">
-                {(['csv', 'json'] as ExportFormat[]).map((f) => (
+                {(["csv", "json"] as ExportFormat[]).map((f) => (
                   <Button
                     key={f}
-                    variant={format === f ? 'default' : 'outline'}
+                    variant={format === f ? "default" : "outline"}
                     className="flex h-auto flex-col gap-1 py-3"
                     onClick={() => setFormat(f)}
                   >
@@ -171,10 +185,12 @@ export function AuditLogExport({
               <Label>Quick Templates</Label>
               <Select
                 onValueChange={(templateId) => {
-                  const template = defaultExportTemplates.find((t) => t.id === templateId)
+                  const template = defaultExportTemplates.find(
+                    (t) => t.id === templateId,
+                  );
                   if (template) {
-                    setFormat(template.format)
-                    setIncludeMetadata(template.includeMetadata)
+                    setFormat(template.format);
+                    setIncludeMetadata(template.includeMetadata);
                   }
                 }}
               >
@@ -214,7 +230,11 @@ export function AuditLogExport({
                   <Label htmlFor="use-filters" className="cursor-pointer">
                     Apply current filters
                   </Label>
-                  <Switch id="use-filters" checked={useFilters} onCheckedChange={setUseFilters} />
+                  <Switch
+                    id="use-filters"
+                    checked={useFilters}
+                    onCheckedChange={setUseFilters}
+                  />
                 </div>
               )}
 
@@ -234,7 +254,10 @@ export function AuditLogExport({
             {useDateRange && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="start-date" className="flex items-center gap-1">
+                  <Label
+                    htmlFor="start-date"
+                    className="flex items-center gap-1"
+                  >
                     <Calendar className="h-4 w-4" />
                     Start Date
                   </Label>
@@ -263,12 +286,12 @@ export function AuditLogExport({
             {/* Preview */}
             <div className="rounded-lg bg-muted p-3 text-sm">
               <p className="text-muted-foreground">
-                Export will include{' '}
+                Export will include{" "}
                 <strong>
-                  {useFilters && filters ? 'filtered' : 'all'} {entries.length}
-                </strong>{' '}
+                  {useFilters && filters ? "filtered" : "all"} {entries.length}
+                </strong>{" "}
                 records as <strong className="uppercase">{format}</strong>
-                {includeMetadata ? ' with full metadata' : ''}.
+                {includeMetadata ? " with full metadata" : ""}.
               </p>
             </div>
           </div>
@@ -276,7 +299,7 @@ export function AuditLogExport({
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={handleClose}>
-            {exportComplete ? 'Done' : 'Cancel'}
+            {exportComplete ? "Done" : "Cancel"}
           </AlertDialogCancel>
           {!exportComplete && (
             <Button onClick={handleExport} disabled={isExporting}>
@@ -296,5 +319,5 @@ export function AuditLogExport({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

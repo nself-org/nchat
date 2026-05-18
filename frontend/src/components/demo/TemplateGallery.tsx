@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Template Gallery Component
@@ -9,31 +9,31 @@
 //
 // ===============================================================================
 
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import type { TemplateId } from '@/templates/types'
-import { templates } from '@/templates'
-import { templateBranding } from '@/lib/demo/sample-data'
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import type { TemplateId } from "@/templates/types";
+import { templates } from "@/templates";
+import { templateBranding } from "@/lib/demo/sample-data";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface TemplateGalleryProps {
-  onTemplateSelect?: (templateId: TemplateId) => void
-  selectedTemplate?: TemplateId
-  layout?: 'grid' | 'carousel' | 'list'
-  showFeatures?: boolean
-  className?: string
+  onTemplateSelect?: (templateId: TemplateId) => void;
+  selectedTemplate?: TemplateId;
+  layout?: "grid" | "carousel" | "list";
+  showFeatures?: boolean;
+  className?: string;
 }
 
 interface GalleryItem {
-  id: TemplateId
-  name: string
-  tagline: string
-  primaryColor: string
-  features: string[]
-  highlights: string[]
+  id: TemplateId;
+  name: string;
+  tagline: string;
+  primaryColor: string;
+  features: string[];
+  highlights: string[];
 }
 
 // -------------------------------------------------------------------------------
@@ -42,71 +42,75 @@ interface GalleryItem {
 
 const galleryItems: GalleryItem[] = [
   {
-    id: 'default',
-    name: 'nself',
-    tagline: 'Modern team communication platform',
-    primaryColor: '#00D4FF',
+    id: "default",
+    name: "nself",
+    tagline: "Modern team communication platform",
+    primaryColor: "#00D4FF",
     features: [
-      'Clean modern design',
-      'Flexible theming',
-      'Best of Slack, Discord & Telegram',
-      'Full customization support',
+      "Clean modern design",
+      "Flexible theming",
+      "Best of Slack, Discord & Telegram",
+      "Full customization support",
     ],
-    highlights: ['Protocol-inspired', 'Glowing accents', 'Dark mode optimized'],
+    highlights: ["Protocol-inspired", "Glowing accents", "Dark mode optimized"],
   },
   {
-    id: 'slack',
-    name: 'Slack',
-    tagline: 'Where work happens',
-    primaryColor: '#4A154B',
+    id: "slack",
+    name: "Slack",
+    tagline: "Where work happens",
+    primaryColor: "#4A154B",
     features: [
-      'Classic aubergine sidebar',
-      'Thread-first conversations',
-      'Familiar Slack-style UI',
-      'Workspace organization',
+      "Classic aubergine sidebar",
+      "Thread-first conversations",
+      "Familiar Slack-style UI",
+      "Workspace organization",
     ],
-    highlights: ['Professional', 'Channel-focused', 'Enterprise-ready'],
+    highlights: ["Professional", "Channel-focused", "Enterprise-ready"],
   },
   {
-    id: 'discord',
-    name: 'Discord',
-    tagline: 'Your place to talk and hang out',
-    primaryColor: '#5865F2',
+    id: "discord",
+    name: "Discord",
+    tagline: "Your place to talk and hang out",
+    primaryColor: "#5865F2",
     features: [
-      'Blurple accent theme',
-      'Server-based organization',
-      'Voice channel indicators',
-      'Rich presence support',
+      "Blurple accent theme",
+      "Server-based organization",
+      "Voice channel indicators",
+      "Rich presence support",
     ],
-    highlights: ['Community-focused', 'Fun & engaging', 'Dark mode default'],
+    highlights: ["Community-focused", "Fun & engaging", "Dark mode default"],
   },
   {
-    id: 'telegram',
-    name: 'Telegram',
-    tagline: 'Fast, secure messaging',
-    primaryColor: '#2AABEE',
+    id: "telegram",
+    name: "Telegram",
+    tagline: "Fast, secure messaging",
+    primaryColor: "#2AABEE",
     features: [
-      'Clean blue theme',
-      'Bubble-style messages',
-      'Voice messages',
-      'Read receipts with checkmarks',
+      "Clean blue theme",
+      "Bubble-style messages",
+      "Voice messages",
+      "Read receipts with checkmarks",
     ],
-    highlights: ['Speed-optimized', 'Privacy-focused', 'Clean aesthetics'],
+    highlights: ["Speed-optimized", "Privacy-focused", "Clean aesthetics"],
   },
   {
-    id: 'whatsapp',
-    name: 'WhatsApp',
-    tagline: 'Simple, secure, reliable messaging',
-    primaryColor: '#25D366',
+    id: "whatsapp",
+    name: "WhatsApp",
+    tagline: "Simple, secure, reliable messaging",
+    primaryColor: "#25D366",
     features: [
-      'Green accent theme',
-      'Chat bubble style',
-      'Status/Stories feature',
-      'End-to-end encryption visuals',
+      "Green accent theme",
+      "Chat bubble style",
+      "Status/Stories feature",
+      "End-to-end encryption visuals",
     ],
-    highlights: ['Instant messaging', 'Universal familiarity', 'Simple interface'],
+    highlights: [
+      "Instant messaging",
+      "Universal familiarity",
+      "Simple interface",
+    ],
   },
-]
+];
 
 // -------------------------------------------------------------------------------
 // Component
@@ -115,13 +119,13 @@ const galleryItems: GalleryItem[] = [
 export function TemplateGallery({
   onTemplateSelect,
   selectedTemplate,
-  layout = 'grid',
+  layout = "grid",
   showFeatures = true,
   className,
 }: TemplateGalleryProps) {
-  const [hoveredItem, setHoveredItem] = useState<TemplateId | null>(null)
+  const [hoveredItem, setHoveredItem] = useState<TemplateId | null>(null);
 
-  if (layout === 'carousel') {
+  if (layout === "carousel") {
     return (
       <CarouselLayout
         items={galleryItems}
@@ -129,10 +133,10 @@ export function TemplateGallery({
         onTemplateSelect={onTemplateSelect}
         className={className}
       />
-    )
+    );
   }
 
-  if (layout === 'list') {
+  if (layout === "list") {
     return (
       <ListLayout
         items={galleryItems}
@@ -141,11 +145,16 @@ export function TemplateGallery({
         showFeatures={showFeatures}
         className={className}
       />
-    )
+    );
   }
 
   return (
-    <div className={cn('grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3', className)}>
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3",
+        className,
+      )}
+    >
       {galleryItems.map((item) => (
         <GalleryCard
           key={item.id}
@@ -158,7 +167,7 @@ export function TemplateGallery({
         />
       ))}
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -173,12 +182,12 @@ function GalleryCard({
   onHover,
   showFeatures,
 }: {
-  item: GalleryItem
-  isSelected: boolean
-  isHovered: boolean
-  onSelect: () => void
-  onHover: (hovered: boolean) => void
-  showFeatures: boolean
+  item: GalleryItem;
+  isSelected: boolean;
+  isHovered: boolean;
+  onSelect: () => void;
+  onHover: (hovered: boolean) => void;
+  showFeatures: boolean;
 }) {
   return (
     <button
@@ -186,13 +195,13 @@ function GalleryCard({
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
       className={cn(
-        'relative flex flex-col overflow-hidden rounded-2xl text-left',
-        'border-2 transition-all duration-300',
-        'bg-white dark:bg-gray-800',
+        "relative flex flex-col overflow-hidden rounded-2xl text-left",
+        "border-2 transition-all duration-300",
+        "bg-white dark:bg-gray-800",
         isSelected
-          ? 'scale-[1.02] border-current shadow-xl'
-          : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600',
-        isHovered && !isSelected && 'shadow-lg'
+          ? "scale-[1.02] border-current shadow-xl"
+          : "border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600",
+        isHovered && !isSelected && "shadow-lg",
       )}
       style={{
         borderColor: isSelected ? item.primaryColor : undefined,
@@ -232,8 +241,12 @@ function GalleryCard({
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="mb-1 text-xl font-bold text-gray-900 dark:text-white">{item.name}</h3>
-        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">{item.tagline}</p>
+        <h3 className="mb-1 text-xl font-bold text-gray-900 dark:text-white">
+          {item.name}
+        </h3>
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          {item.tagline}
+        </p>
 
         {/* Highlights */}
         <div className="mb-4 flex flex-wrap gap-2">
@@ -278,7 +291,7 @@ function GalleryCard({
         )}
       </div>
     </button>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -291,26 +304,27 @@ function CarouselLayout({
   onTemplateSelect,
   className,
 }: {
-  items: GalleryItem[]
-  selectedTemplate?: TemplateId
-  onTemplateSelect?: (templateId: TemplateId) => void
-  className?: string
+  items: GalleryItem[];
+  selectedTemplate?: TemplateId;
+  onTemplateSelect?: (templateId: TemplateId) => void;
+  className?: string;
 }) {
   return (
-    <div className={cn('relative overflow-x-auto pb-4', className)}>
+    <div className={cn("relative overflow-x-auto pb-4", className)}>
       <div className="flex gap-4">
         {items.map((item) => (
           <button
             key={item.id}
             onClick={() => onTemplateSelect?.(item.id)}
             className={cn(
-              'w-64 flex-shrink-0 rounded-xl border-2 p-4 transition-all',
+              "w-64 flex-shrink-0 rounded-xl border-2 p-4 transition-all",
               selectedTemplate === item.id
-                ? 'scale-105 border-current'
-                : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'
+                ? "scale-105 border-current"
+                : "border-gray-200 hover:border-gray-300 dark:border-gray-700",
             )}
             style={{
-              borderColor: selectedTemplate === item.id ? item.primaryColor : undefined,
+              borderColor:
+                selectedTemplate === item.id ? item.primaryColor : undefined,
             }}
           >
             <div
@@ -319,13 +333,17 @@ function CarouselLayout({
             >
               {item.name[0]}
             </div>
-            <h3 className="font-bold text-gray-900 dark:text-white">{item.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{item.tagline}</p>
+            <h3 className="font-bold text-gray-900 dark:text-white">
+              {item.name}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {item.tagline}
+            </p>
           </button>
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // -------------------------------------------------------------------------------
@@ -339,26 +357,27 @@ function ListLayout({
   showFeatures,
   className,
 }: {
-  items: GalleryItem[]
-  selectedTemplate?: TemplateId
-  onTemplateSelect?: (templateId: TemplateId) => void
-  showFeatures: boolean
-  className?: string
+  items: GalleryItem[];
+  selectedTemplate?: TemplateId;
+  onTemplateSelect?: (templateId: TemplateId) => void;
+  showFeatures: boolean;
+  className?: string;
 }) {
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn("space-y-3", className)}>
       {items.map((item) => (
         <button
           key={item.id}
           onClick={() => onTemplateSelect?.(item.id)}
           className={cn(
-            'flex w-full items-center gap-4 rounded-xl border-2 p-4 text-left transition-all',
+            "flex w-full items-center gap-4 rounded-xl border-2 p-4 text-left transition-all",
             selectedTemplate === item.id
-              ? 'border-current bg-gray-50 dark:bg-gray-800'
-              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+              ? "border-current bg-gray-50 dark:bg-gray-800"
+              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800",
           )}
           style={{
-            borderColor: selectedTemplate === item.id ? item.primaryColor : undefined,
+            borderColor:
+              selectedTemplate === item.id ? item.primaryColor : undefined,
           }}
         >
           <div
@@ -368,8 +387,12 @@ function ListLayout({
             {item.name[0]}
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-bold text-gray-900 dark:text-white">{item.name}</h3>
-            <p className="truncate text-sm text-gray-500 dark:text-gray-400">{item.tagline}</p>
+            <h3 className="font-bold text-gray-900 dark:text-white">
+              {item.name}
+            </h3>
+            <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+              {item.tagline}
+            </p>
             {showFeatures && (
               <div className="mt-2 flex flex-wrap gap-1">
                 {item.highlights.map((highlight, index) => (
@@ -404,7 +427,7 @@ function ListLayout({
         </button>
       ))}
     </div>
-  )
+  );
 }
 
-export default TemplateGallery
+export default TemplateGallery;

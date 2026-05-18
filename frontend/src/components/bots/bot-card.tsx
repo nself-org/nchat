@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { Bot, CheckCircle, Download, Star } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { Bot, CheckCircle, Download, Star } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,23 +10,23 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import type { Bot as BotType } from '@/graphql/bots'
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import type { Bot as BotType } from "@/graphql/bots";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface BotCardProps {
-  bot: BotType
-  installed?: boolean
-  onInstall?: (bot: BotType) => void
-  onConfigure?: (bot: BotType) => void
-  onViewDetails?: (bot: BotType) => void
-  compact?: boolean
-  className?: string
+  bot: BotType;
+  installed?: boolean;
+  onInstall?: (bot: BotType) => void;
+  onConfigure?: (bot: BotType) => void;
+  onViewDetails?: (bot: BotType) => void;
+  compact?: boolean;
+  className?: string;
 }
 
 // ============================================================================
@@ -35,16 +35,16 @@ export interface BotCardProps {
 
 function formatInstallCount(count: number): string {
   if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M`
+    return `${(count / 1000000).toFixed(1)}M`;
   }
   if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`
+    return `${(count / 1000).toFixed(1)}K`;
   }
-  return count.toString()
+  return count.toString();
 }
 
 function formatRating(rating: number): string {
-  return rating.toFixed(1)
+  return rating.toFixed(1);
 }
 
 // ============================================================================
@@ -61,32 +61,32 @@ export function BotCard({
   className,
 }: BotCardProps) {
   const handleInstallClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onInstall?.(bot)
-  }
+    e.stopPropagation();
+    onInstall?.(bot);
+  };
 
   const handleConfigureClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onConfigure?.(bot)
-  }
+    e.stopPropagation();
+    onConfigure?.(bot);
+  };
 
   const handleCardClick = () => {
-    onViewDetails?.(bot)
-  }
+    onViewDetails?.(bot);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (onViewDetails && (e.key === 'Enter' || e.key === ' ')) {
-      e.preventDefault()
-      onViewDetails(bot)
+    if (onViewDetails && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      onViewDetails(bot);
     }
-  }
+  };
 
   if (compact) {
     return (
       <div
         className={cn(
-          'hover:bg-accent/50 flex cursor-pointer items-center gap-3 rounded-lg border bg-card p-3 transition-colors',
-          className
+          "hover:bg-accent/50 flex cursor-pointer items-center gap-3 rounded-lg border bg-card p-3 transition-colors",
+          className,
         )}
         role="button"
         tabIndex={0}
@@ -103,9 +103,13 @@ export function BotCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate font-medium">{bot.name}</span>
-            {bot.verified && <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-primary" />}
+            {bot.verified && (
+              <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+            )}
           </div>
-          <p className="truncate text-sm text-muted-foreground">{bot.description}</p>
+          <p className="truncate text-sm text-muted-foreground">
+            {bot.description}
+          </p>
         </div>
 
         {installed ? (
@@ -118,14 +122,14 @@ export function BotCard({
           </Button>
         )}
       </div>
-    )
+    );
   }
 
   return (
     <Card
       className={cn(
-        'hover:border-primary/50 cursor-pointer transition-all hover:shadow-md',
-        className
+        "hover:border-primary/50 cursor-pointer transition-all hover:shadow-md",
+        className,
       )}
       role="button"
       tabIndex={0}
@@ -144,7 +148,9 @@ export function BotCard({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <CardTitle className="truncate text-base">{bot.name}</CardTitle>
-              {bot.verified && <CheckCircle className="h-4 w-4 flex-shrink-0 text-primary" />}
+              {bot.verified && (
+                <CheckCircle className="h-4 w-4 flex-shrink-0 text-primary" />
+              )}
             </div>
             {bot.category && (
               <Badge variant="secondary" className="mt-1 text-xs">
@@ -162,7 +168,9 @@ export function BotCard({
       </CardHeader>
 
       <CardContent className="pb-3">
-        <CardDescription className="line-clamp-2">{bot.description}</CardDescription>
+        <CardDescription className="line-clamp-2">
+          {bot.description}
+        </CardDescription>
       </CardContent>
 
       <CardFooter className="flex items-center justify-between border-t pt-3">
@@ -196,7 +204,7 @@ export function BotCard({
         )}
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 // ============================================================================
@@ -214,7 +222,7 @@ export function BotCardSkeleton({ compact = false }: { compact?: boolean }) {
         </div>
         <div className="h-8 w-16 animate-pulse rounded bg-muted" />
       </div>
-    )
+    );
   }
 
   return (
@@ -242,5 +250,5 @@ export function BotCardSkeleton({ compact = false }: { compact?: boolean }) {
         <div className="h-8 w-16 animate-pulse rounded bg-muted" />
       </CardFooter>
     </Card>
-  )
+  );
 }

@@ -1,19 +1,25 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Megaphone, Lock, Heart, Pin, Bell } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import * as React from "react";
+import { Megaphone, Lock, Heart, Pin, Bell } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface AnnouncementsChannelProps {
-  isSelected?: boolean
-  onClick?: () => void
-  className?: string
+  isSelected?: boolean;
+  onClick?: () => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -28,9 +34,9 @@ export function AnnouncementsChannel({
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all hover:shadow-md',
-        isSelected && 'border-primary ring-1 ring-primary',
-        className
+        "cursor-pointer transition-all hover:shadow-md",
+        isSelected && "border-primary ring-1 ring-primary",
+        className,
       )}
       onClick={onClick}
     >
@@ -46,8 +52,8 @@ export function AnnouncementsChannel({
         </div>
         <CardTitle className="text-lg">Announcements</CardTitle>
         <CardDescription>
-          A read-only channel for important announcements and updates. Only admins and moderators
-          can post.
+          A read-only channel for important announcements and updates. Only
+          admins and moderators can post.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -78,13 +84,14 @@ export function AnnouncementsChannel({
         </div>
         <div className="text-xs text-muted-foreground">
           <p>
-            <strong>Best for:</strong> Company-wide announcements, policy updates, product releases,
-            or any communication that needs to reach everyone without clutter from replies.
+            <strong>Best for:</strong> Company-wide announcements, policy
+            updates, product releases, or any communication that needs to reach
+            everyone without clutter from replies.
           </p>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-AnnouncementsChannel.displayName = 'AnnouncementsChannel'
+AnnouncementsChannel.displayName = "AnnouncementsChannel";

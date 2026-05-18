@@ -33,21 +33,21 @@
  */
 export interface DiscordAttachmentMenuItem {
   /** Unique identifier */
-  id: string
+  id: string;
   /** Display label */
-  label: string
+  label: string;
   /** Icon name */
-  icon: string
+  icon: string;
   /** Description text */
-  description: string
+  description: string;
   /** Whether this action opens a system picker */
-  systemPicker: boolean
+  systemPicker: boolean;
   /** File types accepted (MIME types) */
-  acceptedTypes?: string[]
+  acceptedTypes?: string[];
   /** Maximum file size in bytes (0 = platform default) */
-  maxFileSize?: number
+  maxFileSize?: number;
   /** Sort order in the menu */
-  order: number
+  order: number;
 }
 
 /**
@@ -55,21 +55,21 @@ export interface DiscordAttachmentMenuItem {
  */
 export interface DiscordSlashCommandConfig {
   /** Whether slash commands are enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Trigger character */
-  trigger: string
+  trigger: string;
   /** Built-in commands */
-  builtInCommands: string[]
+  builtInCommands: string[];
   /** Bot command support */
-  botCommands: boolean
+  botCommands: boolean;
   /** Command autocomplete */
-  autocomplete: boolean
+  autocomplete: boolean;
   /** Command categories */
-  categories: string[]
+  categories: string[];
   /** Maximum command name length */
-  maxCommandNameLength: number
+  maxCommandNameLength: number;
   /** Maximum command description length */
-  maxDescriptionLength: number
+  maxDescriptionLength: number;
 }
 
 /**
@@ -77,33 +77,33 @@ export interface DiscordSlashCommandConfig {
  */
 export interface DiscordEmojiPickerConfig {
   /** Whether emoji picker is available */
-  enabled: boolean
+  enabled: boolean;
   /** How the picker is triggered */
-  trigger: 'icon' | 'keyboard-shortcut' | 'both' | 'colon-syntax'
+  trigger: "icon" | "keyboard-shortcut" | "both" | "colon-syntax";
   /** Picker position relative to composer */
-  position: 'above' | 'below' | 'overlay'
+  position: "above" | "below" | "overlay";
   /** Whether recent emojis section is shown */
-  recentEmojis: boolean
+  recentEmojis: boolean;
   /** Maximum recent emojis stored */
-  maxRecentEmojis: number
+  maxRecentEmojis: number;
   /** Whether emoji search is available */
-  search: boolean
+  search: boolean;
   /** Whether custom server emoji are shown */
-  customEmoji: boolean
+  customEmoji: boolean;
   /** Whether animated emoji are shown (Nitro) */
-  animatedEmoji: boolean
+  animatedEmoji: boolean;
   /** Whether GIF tab is included */
-  gifsTab: boolean
+  gifsTab: boolean;
   /** Whether sticker tab is included */
-  stickersTab: boolean
+  stickersTab: boolean;
   /** Skin tone selector */
-  skinToneSelector: boolean
+  skinToneSelector: boolean;
   /** Number of columns in the emoji grid */
-  gridColumns: number
+  gridColumns: number;
   /** Emoji diversity/categories */
-  categories: string[]
+  categories: string[];
   /** Nitro upsell for locked emoji */
-  nitroUpsell: boolean
+  nitroUpsell: boolean;
 }
 
 /**
@@ -111,19 +111,19 @@ export interface DiscordEmojiPickerConfig {
  */
 export interface DiscordReplyConfig {
   /** Whether reply to message is enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Reply preview shown above composer */
-  showPreview: boolean
+  showPreview: boolean;
   /** Maximum preview text length */
-  maxPreviewChars: number
+  maxPreviewChars: number;
   /** Ping option (mention on reply) */
-  pingOption: boolean
+  pingOption: boolean;
   /** Default ping behavior */
-  defaultPing: boolean
+  defaultPing: boolean;
   /** Cancel button */
-  cancelButton: boolean
+  cancelButton: boolean;
   /** Background color for reply bar */
-  backgroundColor: string
+  backgroundColor: string;
 }
 
 /**
@@ -131,19 +131,19 @@ export interface DiscordReplyConfig {
  */
 export interface DiscordMessageActionBarConfig {
   /** Whether action bar is shown on hover */
-  enabled: boolean
+  enabled: boolean;
   /** Actions available */
-  actions: string[]
+  actions: string[];
   /** Quick reaction slot */
-  quickReaction: boolean
+  quickReaction: boolean;
   /** Number of quick reaction slots */
-  quickReactionSlots: number
+  quickReactionSlots: number;
   /** Background color */
-  backgroundColor: string
+  backgroundColor: string;
   /** Border radius */
-  borderRadius: string
+  borderRadius: string;
   /** Shadow */
-  shadow: string
+  shadow: string;
 }
 
 /**
@@ -151,13 +151,13 @@ export interface DiscordMessageActionBarConfig {
  */
 export interface DiscordSendButtonConfig {
   /** Send button visible (Discord uses Enter key primarily) */
-  visible: boolean
+  visible: boolean;
   /** Primary send method */
-  primaryMethod: 'enter' | 'button' | 'both'
+  primaryMethod: "enter" | "button" | "both";
   /** Shift+Enter for newline */
-  shiftEnterNewline: boolean
+  shiftEnterNewline: boolean;
   /** Ctrl+Enter to send option */
-  ctrlEnterToSend: boolean
+  ctrlEnterToSend: boolean;
 }
 
 /**
@@ -165,55 +165,55 @@ export interface DiscordSendButtonConfig {
  */
 export interface DiscordComposerConfig {
   /** Composer minimum height */
-  minHeight: string
+  minHeight: string;
   /** Composer maximum height before scroll */
-  maxHeight: string
+  maxHeight: string;
   /** Input background color */
-  inputBg: string
+  inputBg: string;
   /** Input text color */
-  inputText: string
+  inputText: string;
   /** Placeholder text */
-  placeholderText: string
+  placeholderText: string;
   /** Placeholder color */
-  placeholderColor: string
+  placeholderColor: string;
   /** Input border radius */
-  inputBorderRadius: string
+  inputBorderRadius: string;
   /** Input padding */
-  inputPadding: string
+  inputPadding: string;
   /** Input font size */
-  inputFontSize: string
+  inputFontSize: string;
   /** Composer background color */
-  composerBg: string
+  composerBg: string;
   /** Composer margin (left/right/bottom) */
-  composerMargin: string
+  composerMargin: string;
   /** Attachment menu items */
-  attachmentMenu: DiscordAttachmentMenuItem[]
+  attachmentMenu: DiscordAttachmentMenuItem[];
   /** Slash command configuration */
-  slashCommands: DiscordSlashCommandConfig
+  slashCommands: DiscordSlashCommandConfig;
   /** Emoji picker configuration */
-  emojiPicker: DiscordEmojiPickerConfig
+  emojiPicker: DiscordEmojiPickerConfig;
   /** Reply configuration */
-  reply: DiscordReplyConfig
+  reply: DiscordReplyConfig;
   /** Message action bar */
-  messageActionBar: DiscordMessageActionBarConfig
+  messageActionBar: DiscordMessageActionBarConfig;
   /** Send button configuration */
-  sendButton: DiscordSendButtonConfig
+  sendButton: DiscordSendButtonConfig;
   /** Whether paste images is supported */
-  pasteImages: boolean
+  pasteImages: boolean;
   /** Whether drag-and-drop file sharing is supported */
-  dragAndDrop: boolean
+  dragAndDrop: boolean;
   /** Whether @mention suggestions are shown while typing */
-  mentionSuggestions: boolean
+  mentionSuggestions: boolean;
   /** Whether #channel suggestions are shown while typing */
-  channelSuggestions: boolean
+  channelSuggestions: boolean;
   /** Whether :emoji: autocomplete is supported */
-  emojiAutocomplete: boolean
+  emojiAutocomplete: boolean;
   /** Character count display mode */
-  characterCount: 'none' | 'always' | 'near-limit'
+  characterCount: "none" | "always" | "near-limit";
   /** Character count warning threshold (percent of max) */
-  characterCountThreshold: number
+  characterCountThreshold: number;
   /** Typing indicator shown to others */
-  typingIndicator: boolean
+  typingIndicator: boolean;
 }
 
 // ============================================================================
@@ -222,40 +222,40 @@ export interface DiscordComposerConfig {
 
 export const discordAttachmentMenu: DiscordAttachmentMenuItem[] = [
   {
-    id: 'upload-file',
-    label: 'Upload a File',
-    icon: 'file-up',
-    description: 'Upload a file from your device',
+    id: "upload-file",
+    label: "Upload a File",
+    icon: "file-up",
+    description: "Upload a file from your device",
     systemPicker: true,
-    acceptedTypes: ['*/*'],
+    acceptedTypes: ["*/*"],
     maxFileSize: 25 * 1024 * 1024, // 25 MB
     order: 1,
   },
   {
-    id: 'create-thread',
-    label: 'Create Thread',
-    icon: 'hash',
-    description: 'Start a new thread',
+    id: "create-thread",
+    label: "Create Thread",
+    icon: "hash",
+    description: "Start a new thread",
     systemPicker: false,
     order: 2,
   },
   {
-    id: 'use-apps',
-    label: 'Use Apps',
-    icon: 'grid',
-    description: 'Use an installed app',
+    id: "use-apps",
+    label: "Use Apps",
+    icon: "grid",
+    description: "Use an installed app",
     systemPicker: false,
     order: 3,
   },
   {
-    id: 'create-poll',
-    label: 'Create Poll',
-    icon: 'bar-chart-2',
-    description: 'Create a poll for the channel',
+    id: "create-poll",
+    label: "Create Poll",
+    icon: "bar-chart-2",
+    description: "Create a poll for the channel",
     systemPicker: false,
     order: 4,
   },
-]
+];
 
 // ============================================================================
 // DISCORD SLASH COMMAND CONFIG
@@ -263,25 +263,25 @@ export const discordAttachmentMenu: DiscordAttachmentMenuItem[] = [
 
 export const discordSlashCommandConfig: DiscordSlashCommandConfig = {
   enabled: true,
-  trigger: '/',
+  trigger: "/",
   builtInCommands: [
-    '/giphy',
-    '/tenor',
-    '/tts',
-    '/spoiler',
-    '/shrug',
-    '/tableflip',
-    '/unflip',
-    '/nick',
-    '/thread',
-    '/me',
+    "/giphy",
+    "/tenor",
+    "/tts",
+    "/spoiler",
+    "/shrug",
+    "/tableflip",
+    "/unflip",
+    "/nick",
+    "/thread",
+    "/me",
   ],
   botCommands: true,
   autocomplete: true,
-  categories: ['Built-in', 'Bot Commands', 'App Commands'],
+  categories: ["Built-in", "Bot Commands", "App Commands"],
   maxCommandNameLength: 32,
   maxDescriptionLength: 100,
-}
+};
 
 // ============================================================================
 // DISCORD EMOJI PICKER CONFIG
@@ -289,8 +289,8 @@ export const discordSlashCommandConfig: DiscordSlashCommandConfig = {
 
 export const discordEmojiPickerConfig: DiscordEmojiPickerConfig = {
   enabled: true,
-  trigger: 'both',
-  position: 'above',
+  trigger: "both",
+  position: "above",
   recentEmojis: true,
   maxRecentEmojis: 36,
   search: true,
@@ -301,18 +301,18 @@ export const discordEmojiPickerConfig: DiscordEmojiPickerConfig = {
   skinToneSelector: true,
   gridColumns: 9,
   categories: [
-    'Frequently Used',
-    'People & Body',
-    'Nature',
-    'Food & Drink',
-    'Activities',
-    'Travel & Places',
-    'Objects',
-    'Symbols',
-    'Flags',
+    "Frequently Used",
+    "People & Body",
+    "Nature",
+    "Food & Drink",
+    "Activities",
+    "Travel & Places",
+    "Objects",
+    "Symbols",
+    "Flags",
   ],
   nitroUpsell: true,
-}
+};
 
 // ============================================================================
 // DISCORD REPLY CONFIG
@@ -325,13 +325,13 @@ export const discordReplyLight: DiscordReplyConfig = {
   pingOption: true,
   defaultPing: true,
   cancelButton: true,
-  backgroundColor: '#F2F3F5',
-}
+  backgroundColor: "#F2F3F5",
+};
 
 export const discordReplyDark: DiscordReplyConfig = {
   ...discordReplyLight,
-  backgroundColor: '#2B2D31',
-}
+  backgroundColor: "#2B2D31",
+};
 
 // ============================================================================
 // DISCORD MESSAGE ACTION BAR CONFIG
@@ -339,19 +339,19 @@ export const discordReplyDark: DiscordReplyConfig = {
 
 export const discordMessageActionBarLight: DiscordMessageActionBarConfig = {
   enabled: true,
-  actions: ['add-reaction', 'edit', 'reply', 'create-thread', 'pin', 'more'],
+  actions: ["add-reaction", "edit", "reply", "create-thread", "pin", "more"],
   quickReaction: true,
   quickReactionSlots: 4,
-  backgroundColor: '#FFFFFF',
-  borderRadius: '4px',
-  shadow: '0 0 0 1px rgba(4, 4, 5, 0.15)',
-}
+  backgroundColor: "#FFFFFF",
+  borderRadius: "4px",
+  shadow: "0 0 0 1px rgba(4, 4, 5, 0.15)",
+};
 
 export const discordMessageActionBarDark: DiscordMessageActionBarConfig = {
   ...discordMessageActionBarLight,
-  backgroundColor: '#313338',
-  shadow: '0 0 0 1px rgba(4, 4, 5, 0.15)',
-}
+  backgroundColor: "#313338",
+  shadow: "0 0 0 1px rgba(4, 4, 5, 0.15)",
+};
 
 // ============================================================================
 // DISCORD SEND BUTTON CONFIG
@@ -359,27 +359,27 @@ export const discordMessageActionBarDark: DiscordMessageActionBarConfig = {
 
 export const discordSendButtonConfig: DiscordSendButtonConfig = {
   visible: false,
-  primaryMethod: 'enter',
+  primaryMethod: "enter",
   shiftEnterNewline: true,
   ctrlEnterToSend: false,
-}
+};
 
 // ============================================================================
 // ASSEMBLED DISCORD COMPOSER CONFIGS
 // ============================================================================
 
 export const discordComposerLight: DiscordComposerConfig = {
-  minHeight: '44px',
-  maxHeight: '50vh',
-  inputBg: '#EBEDEF',
-  inputText: '#313338',
-  placeholderText: 'Message #channel-name',
-  placeholderColor: '#80848E',
-  inputBorderRadius: '8px',
-  inputPadding: '11px 16px',
-  inputFontSize: '16px',
-  composerBg: '#FFFFFF',
-  composerMargin: '0 16px 24px',
+  minHeight: "44px",
+  maxHeight: "50vh",
+  inputBg: "#EBEDEF",
+  inputText: "#313338",
+  placeholderText: "Message #channel-name",
+  placeholderColor: "#80848E",
+  inputBorderRadius: "8px",
+  inputPadding: "11px 16px",
+  inputFontSize: "16px",
+  composerBg: "#FFFFFF",
+  composerMargin: "0 16px 24px",
   attachmentMenu: discordAttachmentMenu,
   slashCommands: discordSlashCommandConfig,
   emojiPicker: discordEmojiPickerConfig,
@@ -391,20 +391,20 @@ export const discordComposerLight: DiscordComposerConfig = {
   mentionSuggestions: true,
   channelSuggestions: true,
   emojiAutocomplete: true,
-  characterCount: 'near-limit',
+  characterCount: "near-limit",
   characterCountThreshold: 90,
   typingIndicator: true,
-}
+};
 
 export const discordComposerDark: DiscordComposerConfig = {
   ...discordComposerLight,
-  inputBg: '#383A40',
-  inputText: '#DBDEE1',
-  placeholderColor: '#6D6F78',
-  composerBg: '#313338',
+  inputBg: "#383A40",
+  inputText: "#DBDEE1",
+  placeholderColor: "#6D6F78",
+  composerBg: "#313338",
   reply: discordReplyDark,
   messageActionBar: discordMessageActionBarDark,
-}
+};
 
 // ============================================================================
 // COMPOSER HELPERS
@@ -414,44 +414,44 @@ export const discordComposerDark: DiscordComposerConfig = {
  * Get the Discord composer configuration for the given color mode.
  */
 export function getDiscordComposer(
-  isDarkMode: boolean = true
+  isDarkMode: boolean = true,
 ): DiscordComposerConfig {
-  return isDarkMode ? discordComposerDark : discordComposerLight
+  return isDarkMode ? discordComposerDark : discordComposerLight;
 }
 
 /**
  * Get the attachment menu items sorted by their order.
  */
 export function getDiscordAttachmentMenu(): DiscordAttachmentMenuItem[] {
-  return [...discordAttachmentMenu].sort((a, b) => a.order - b.order)
+  return [...discordAttachmentMenu].sort((a, b) => a.order - b.order);
 }
 
 /**
  * Find an attachment menu item by its ID.
  */
 export function getDiscordAttachmentById(
-  id: string
+  id: string,
 ): DiscordAttachmentMenuItem | undefined {
-  return discordAttachmentMenu.find((item) => item.id === id)
+  return discordAttachmentMenu.find((item) => item.id === id);
 }
 
 /**
  * Get the number of attachment menu items.
  */
 export function getDiscordAttachmentCount(): number {
-  return discordAttachmentMenu.length
+  return discordAttachmentMenu.length;
 }
 
 /**
  * Get the slash command configuration.
  */
 export function getDiscordSlashCommands(): DiscordSlashCommandConfig {
-  return discordSlashCommandConfig
+  return discordSlashCommandConfig;
 }
 
 /**
  * Get the count of built-in slash commands.
  */
 export function getDiscordBuiltInCommandCount(): number {
-  return discordSlashCommandConfig.builtInCommands.length
+  return discordSlashCommandConfig.builtInCommands.length;
 }

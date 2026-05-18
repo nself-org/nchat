@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { staggerContainer, staggerItem } from '@/lib/animations'
-import { cn } from '@/lib/utils'
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { staggerContainer, staggerItem } from "@/lib/animations";
+import { cn } from "@/lib/utils";
 
 export function ChartSkeleton() {
   return (
@@ -17,7 +17,7 @@ export function ChartSkeleton() {
         <Skeleton className="h-[300px] w-full" />
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function FormSkeleton() {
@@ -43,7 +43,7 @@ export function FormSkeleton() {
         <Skeleton className="h-10 w-[120px]" />
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
@@ -56,7 +56,10 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
       <CardContent>
         <div className="space-y-3">
           {Array.from({ length: rows }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
+            <div
+              key={i}
+              className="flex items-center gap-3 rounded-lg border p-3"
+            >
               <Skeleton className="h-10 w-10 rounded-full" />
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-4 w-[200px]" />
@@ -68,7 +71,7 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function CalendarSkeleton() {
@@ -82,7 +85,7 @@ export function CalendarSkeleton() {
       </CardHeader>
       <CardContent>
         <div className="mb-4 grid grid-cols-7 gap-2">
-          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+          {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
             <Skeleton key={i} className="h-8 w-full" />
           ))}
         </div>
@@ -93,7 +96,7 @@ export function CalendarSkeleton() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function MeetingListSkeleton() {
@@ -118,7 +121,7 @@ export function MeetingListSkeleton() {
         </Card>
       ))}
     </div>
-  )
+  );
 }
 
 export function DashboardStatsSkeleton() {
@@ -136,7 +139,7 @@ export function DashboardStatsSkeleton() {
         </Card>
       ))}
     </div>
-  )
+  );
 }
 
 export function SettingsLayoutSkeleton() {
@@ -155,7 +158,7 @@ export function SettingsLayoutSkeleton() {
         <FormSkeleton />
       </div>
     </div>
-  )
+  );
 }
 
 export function ComplianceSkeleton() {
@@ -187,7 +190,7 @@ export function ComplianceSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -199,7 +202,10 @@ export function ComplianceSkeleton() {
  */
 export function MessageSkeleton({ grouped = false }: { grouped?: boolean }) {
   return (
-    <motion.div variants={staggerItem} className={cn('flex gap-3 px-4 py-2', grouped && 'pl-16')}>
+    <motion.div
+      variants={staggerItem}
+      className={cn("flex gap-3 px-4 py-2", grouped && "pl-16")}
+    >
       {!grouped && <Skeleton className="h-9 w-9 shrink-0 rounded-full" />}
       <div className="flex-1 space-y-2">
         {!grouped && (
@@ -212,7 +218,7 @@ export function MessageSkeleton({ grouped = false }: { grouped?: boolean }) {
         <Skeleton className="h-4 w-3/4 max-w-sm" />
       </div>
     </motion.div>
-  )
+  );
 }
 
 /**
@@ -230,7 +236,7 @@ export function MessageListSkeleton({ count = 10 }: { count?: number }) {
         <MessageSkeleton key={i} grouped={i > 0 && i % 3 !== 0} />
       ))}
     </motion.div>
-  )
+  );
 }
 
 /**
@@ -258,7 +264,7 @@ export function ChannelSidebarSkeleton() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -274,7 +280,11 @@ export function MemberListSkeleton({ count = 8 }: { count?: number }) {
     >
       <Skeleton className="mb-3 h-5 w-20" />
       {Array.from({ length: count }).map((_, i) => (
-        <motion.div key={i} variants={staggerItem} className="flex items-center gap-2">
+        <motion.div
+          key={i}
+          variants={staggerItem}
+          className="flex items-center gap-2"
+        >
           <Skeleton className="h-8 w-8 rounded-full" />
           <div className="flex-1 space-y-1">
             <Skeleton className="h-4 w-full" />
@@ -283,7 +293,7 @@ export function MemberListSkeleton({ count = 8 }: { count?: number }) {
         </motion.div>
       ))}
     </motion.div>
-  )
+  );
 }
 
 /**
@@ -305,7 +315,7 @@ export function ChatHeaderSkeleton() {
         <Skeleton className="h-9 w-9 rounded-md" />
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -321,7 +331,7 @@ export function ThreadPreviewSkeleton() {
       <Skeleton className="h-3 w-full max-w-xs" />
       <Skeleton className="h-3 w-32" />
     </div>
-  )
+  );
 }
 
 /**
@@ -337,7 +347,7 @@ export function EmojiPickerSkeleton() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -358,5 +368,5 @@ export function ChatLayoutSkeleton() {
       </div>
       <MemberListSkeleton count={6} />
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useForward Hook - Message forwarding functionality for nself-chat
@@ -24,16 +24,16 @@
  * ```
  */
 
-import { useCallback, useMemo } from 'react'
-import { useMutation, useQuery, useLazyQuery } from '@apollo/client'
-import { useFeatureEnabled } from '@/lib/features/hooks/use-feature'
-import { FEATURES } from '@/lib/features/feature-flags'
+import { useCallback, useMemo } from "react";
+import { useMutation, useQuery, useLazyQuery } from "@apollo/client";
+import { useFeatureEnabled } from "@/lib/features/hooks/use-feature";
+import { FEATURES } from "@/lib/features/feature-flags";
 import {
   useForwardStore,
   type ForwardMessage,
   type ForwardDestination,
   type ForwardResult,
-} from './forward-store'
+} from "./forward-store";
 import {
   FORWARD_MESSAGE,
   FORWARD_MESSAGE_TO_MULTIPLE,
@@ -42,7 +42,7 @@ import {
   type ForwardMessageVariables,
   type ForwardMessageToMultipleVariables,
   type GetForwardDestinationsVariables,
-} from '@/graphql/forward'
+} from "@/graphql/forward";
 
 // ============================================================================
 // Types
@@ -50,63 +50,63 @@ import {
 
 export interface UseForwardOptions {
   /** Called after successful forward */
-  onSuccess?: (results: ForwardResult[]) => void
+  onSuccess?: (results: ForwardResult[]) => void;
   /** Called after forward failure */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
   /** Called when forward modal opens */
-  onOpen?: () => void
+  onOpen?: () => void;
   /** Called when forward modal closes */
-  onClose?: () => void
+  onClose?: () => void;
 }
 
 export interface UseForwardReturn {
   // Feature flag
-  canForward: boolean
-  isForwardEnabled: boolean
+  canForward: boolean;
+  isForwardEnabled: boolean;
 
   // Modal state
-  isOpen: boolean
-  openForwardModal: (message: ForwardMessage) => void
-  closeForwardModal: () => void
+  isOpen: boolean;
+  openForwardModal: (message: ForwardMessage) => void;
+  closeForwardModal: () => void;
 
   // Message state
-  messageToForward: ForwardMessage | null
+  messageToForward: ForwardMessage | null;
 
   // Selection
-  selectedDestinations: ForwardDestination[]
-  selectedCount: number
-  toggleDestination: (destination: ForwardDestination) => void
-  selectDestination: (destination: ForwardDestination) => void
-  deselectDestination: (destinationId: string) => void
-  clearSelectedDestinations: () => void
-  isDestinationSelected: (destinationId: string) => boolean
+  selectedDestinations: ForwardDestination[];
+  selectedCount: number;
+  toggleDestination: (destination: ForwardDestination) => void;
+  selectDestination: (destination: ForwardDestination) => void;
+  deselectDestination: (destinationId: string) => void;
+  clearSelectedDestinations: () => void;
+  isDestinationSelected: (destinationId: string) => boolean;
 
   // Comment
-  comment: string
-  setComment: (comment: string) => void
+  comment: string;
+  setComment: (comment: string) => void;
 
   // Recent destinations
-  recentDestinations: ForwardDestination[]
-  addRecentDestination: (destination: ForwardDestination) => void
+  recentDestinations: ForwardDestination[];
+  addRecentDestination: (destination: ForwardDestination) => void;
 
   // Search
-  searchQuery: string
-  setSearchQuery: (query: string) => void
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 
   // Forward execution
-  isForwarding: boolean
-  forwardResults: ForwardResult[]
-  executeForward: () => Promise<ForwardResult[]>
+  isForwarding: boolean;
+  forwardResults: ForwardResult[];
+  executeForward: () => Promise<ForwardResult[]>;
   forwardToSingle: (
     message: ForwardMessage,
     destination: ForwardDestination,
-    comment?: string
-  ) => Promise<ForwardResult>
+    comment?: string,
+  ) => Promise<ForwardResult>;
 
   // Destinations query
-  loadDestinations: (query?: string) => void
-  destinations: ForwardDestination[]
-  isLoadingDestinations: boolean
+  loadDestinations: (query?: string) => void;
+  destinations: ForwardDestination[];
+  isLoadingDestinations: boolean;
 }
 
 // ============================================================================
@@ -114,36 +114,39 @@ export interface UseForwardReturn {
 // ============================================================================
 
 export function useForward(options: UseForwardOptions = {}): UseForwardReturn {
-  const { onSuccess, onError, onOpen, onClose } = options
+  const { onSuccess, onError, onOpen, onClose } = options;
 
   // Feature flag check
-  const isForwardEnabled = useFeatureEnabled(FEATURES.MESSAGES_FORWARD)
+  const isForwardEnabled = useFeatureEnabled(FEATURES.MESSAGES_FORWARD);
 
   // Store state and actions
-  const store = useForwardStore()
+  const store = useForwardStore();
 
   // GraphQL mutations
-  const [forwardMutation, { loading: forwardingOne }] = useMutation(FORWARD_MESSAGE)
-  const [forwardMultipleMutation, { loading: forwardingMultiple }] = useMutation(
-    FORWARD_MESSAGE_TO_MULTIPLE
-  )
+  const [forwardMutation, { loading: forwardingOne }] =
+    useMutation(FORWARD_MESSAGE);
+  const [forwardMultipleMutation, { loading: forwardingMultiple }] =
+    useMutation(FORWARD_MESSAGE_TO_MULTIPLE);
 
   // GraphQL queries
-  const [loadDestinationsQuery, { data: destinationsData, loading: loadingDestinations }] =
-    useLazyQuery(GET_FORWARD_DESTINATIONS, {
-      fetchPolicy: 'network-only',
-    })
+  const [
+    loadDestinationsQuery,
+    { data: destinationsData, loading: loadingDestinations },
+  ] = useLazyQuery(GET_FORWARD_DESTINATIONS, {
+    fetchPolicy: "network-only",
+  });
 
   // Computed values
-  const isForwarding = forwardingOne || forwardingMultiple || store.isForwarding
+  const isForwarding =
+    forwardingOne || forwardingMultiple || store.isForwarding;
 
   const destinations = useMemo(() => {
-    if (!destinationsData) return []
+    if (!destinationsData) return [];
 
     const channels = (destinationsData.nchat_channels || []).map((ch: any) => ({
       id: ch.id,
       name: ch.name,
-      type: ch.type as 'channel' | 'direct' | 'group',
+      type: ch.type as "channel" | "direct" | "group",
       icon: ch.icon,
       slug: ch.slug,
       isPrivate: ch.is_private,
@@ -153,33 +156,33 @@ export function useForward(options: UseForwardOptions = {}): UseForwardReturn {
         displayName: m.user?.display_name,
         avatarUrl: m.user?.avatar_url,
       })),
-    }))
+    }));
 
-    return channels as ForwardDestination[]
-  }, [destinationsData])
+    return channels as ForwardDestination[];
+  }, [destinationsData]);
 
   // Check if destination is selected
   const isDestinationSelected = useCallback(
     (destinationId: string) => {
-      return store.selectedDestinations.some((d) => d.id === destinationId)
+      return store.selectedDestinations.some((d) => d.id === destinationId);
     },
-    [store.selectedDestinations]
-  )
+    [store.selectedDestinations],
+  );
 
   // Open forward modal with callback
   const openForwardModal = useCallback(
     (message: ForwardMessage) => {
-      store.openForwardModal(message)
-      onOpen?.()
+      store.openForwardModal(message);
+      onOpen?.();
     },
-    [store, onOpen]
-  )
+    [store, onOpen],
+  );
 
   // Close forward modal with callback
   const closeForwardModal = useCallback(() => {
-    store.closeForwardModal()
-    onClose?.()
-  }, [store, onClose])
+    store.closeForwardModal();
+    onClose?.();
+  }, [store, onClose]);
 
   // Load destinations
   const loadDestinations = useCallback(
@@ -189,17 +192,17 @@ export function useForward(options: UseForwardOptions = {}): UseForwardReturn {
           search: query ? `%${query}%` : undefined,
           limit: 50,
         } as GetForwardDestinationsVariables,
-      })
+      });
     },
-    [loadDestinationsQuery]
-  )
+    [loadDestinationsQuery],
+  );
 
   // Forward to a single destination
   const forwardToSingle = useCallback(
     async (
       message: ForwardMessage,
       destination: ForwardDestination,
-      comment?: string
+      comment?: string,
     ): Promise<ForwardResult> => {
       try {
         const variables: ForwardMessageVariables = {
@@ -207,73 +210,77 @@ export function useForward(options: UseForwardOptions = {}): UseForwardReturn {
           targetChannelId: destination.id,
           userId: message.user.id, // This should be current user, passed in
           comment: comment || undefined,
-        }
+        };
 
-        const result = await forwardMutation({ variables })
+        const result = await forwardMutation({ variables });
 
         const forwardResult: ForwardResult = {
           destinationId: destination.id,
           destinationName: destination.name,
           success: true,
           messageId: result.data?.insert_nchat_messages_one?.id,
-        }
+        };
 
         // Add to recent destinations
-        store.addRecentDestination(destination)
+        store.addRecentDestination(destination);
 
-        return forwardResult
+        return forwardResult;
       } catch (error) {
         const forwardResult: ForwardResult = {
           destinationId: destination.id,
           destinationName: destination.name,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        }
-        return forwardResult
+          error: error instanceof Error ? error.message : "Unknown error",
+        };
+        return forwardResult;
       }
     },
-    [forwardMutation, store]
-  )
+    [forwardMutation, store],
+  );
 
   // Execute forward to all selected destinations
   const executeForward = useCallback(async (): Promise<ForwardResult[]> => {
     if (!store.messageToForward || store.selectedDestinations.length === 0) {
-      return []
+      return [];
     }
 
-    store.setIsForwarding(true)
-    store.clearForwardResults()
+    store.setIsForwarding(true);
+    store.clearForwardResults();
 
-    const results: ForwardResult[] = []
+    const results: ForwardResult[] = [];
 
     try {
       // Forward to each destination
       for (const destination of store.selectedDestinations) {
-        const result = await forwardToSingle(store.messageToForward, destination, store.comment)
-        results.push(result)
-        store.addForwardResult(result)
+        const result = await forwardToSingle(
+          store.messageToForward,
+          destination,
+          store.comment,
+        );
+        results.push(result);
+        store.addForwardResult(result);
       }
 
-      const successfulResults = results.filter((r) => r.success)
-      const failedResults = results.filter((r) => !r.success)
+      const successfulResults = results.filter((r) => r.success);
+      const failedResults = results.filter((r) => !r.success);
 
       if (successfulResults.length > 0) {
-        onSuccess?.(results)
+        onSuccess?.(results);
       }
 
       if (failedResults.length > 0 && successfulResults.length === 0) {
-        onError?.(new Error('All forwards failed'))
+        onError?.(new Error("All forwards failed"));
       }
 
-      return results
+      return results;
     } catch (error) {
-      const err = error instanceof Error ? error : new Error('Forward failed')
-      onError?.(err)
-      throw err
+      const err = error instanceof Error ? error : new Error("Forward failed");
+      onError?.(err);
+      throw err;
     } finally {
-      store.setIsForwarding(false)
+      store.setIsForwarding(false);
     }
-  }, [store, forwardToSingle, onSuccess, onError])
+  }, [store, forwardToSingle, onSuccess, onError]);
 
   return {
     // Feature flag
@@ -319,7 +326,7 @@ export function useForward(options: UseForwardOptions = {}): UseForwardReturn {
     loadDestinations,
     destinations,
     isLoadingDestinations: loadingDestinations,
-  }
+  };
 }
 
 // ============================================================================
@@ -330,14 +337,19 @@ export function useForward(options: UseForwardOptions = {}): UseForwardReturn {
  * Simple hook for quick forward actions without modal
  */
 export function useQuickForward() {
-  const isForwardEnabled = useFeatureEnabled(FEATURES.MESSAGES_FORWARD)
-  const [forwardMutation, { loading }] = useMutation(FORWARD_MESSAGE)
-  const addRecentDestination = useForwardStore((s) => s.addRecentDestination)
+  const isForwardEnabled = useFeatureEnabled(FEATURES.MESSAGES_FORWARD);
+  const [forwardMutation, { loading }] = useMutation(FORWARD_MESSAGE);
+  const addRecentDestination = useForwardStore((s) => s.addRecentDestination);
 
   const quickForward = useCallback(
-    async (messageId: string, targetChannelId: string, userId: string, comment?: string) => {
+    async (
+      messageId: string,
+      targetChannelId: string,
+      userId: string,
+      comment?: string,
+    ) => {
       if (!isForwardEnabled) {
-        throw new Error('Forwarding is not enabled')
+        throw new Error("Forwarding is not enabled");
       }
 
       const result = await forwardMutation({
@@ -347,18 +359,18 @@ export function useQuickForward() {
           userId,
           comment,
         } as ForwardMessageVariables,
-      })
+      });
 
-      return result.data?.insert_nchat_messages_one
+      return result.data?.insert_nchat_messages_one;
     },
-    [isForwardEnabled, forwardMutation]
-  )
+    [isForwardEnabled, forwardMutation],
+  );
 
   return {
     quickForward,
     isForwarding: loading,
     isEnabled: isForwardEnabled,
-  }
+  };
 }
 
-export default useForward
+export default useForward;

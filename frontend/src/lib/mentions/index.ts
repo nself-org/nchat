@@ -46,7 +46,7 @@ export {
   isGroupMention,
   extractMentionPreview,
   normalizeMention,
-} from './mention-store'
+} from "./mention-store";
 
 // Hook exports
 export {
@@ -69,4 +69,4 @@ export {
   getMentionType,
   isSpecialMention,
   formatMention,
-} from './use-mentions'
+} from "./use-mentions";

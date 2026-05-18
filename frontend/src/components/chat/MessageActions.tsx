@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Message Actions Component
@@ -12,8 +12,8 @@
  * - Mobile floating action sheet
  */
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Smile,
   MessageSquare,
@@ -37,8 +37,8 @@ import {
   Users,
   Check,
   X,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,22 +50,30 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuLabel,
   DropdownMenuShortcut,
-} from '@/components/ui/dropdown-menu'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
-import type { Message, MessageActionPermissions, MessageAction } from '@/types/message'
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import type {
+  Message,
+  MessageActionPermissions,
+  MessageAction,
+} from "@/types/message";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface MessageActionsProps {
-  message: Message
-  permissions: MessageActionPermissions
-  onAction: (action: MessageAction, data?: unknown) => void
-  className?: string
-  position?: 'left' | 'right'
-  variant?: 'default' | 'compact' | 'mobile'
+  message: Message;
+  permissions: MessageActionPermissions;
+  onAction: (action: MessageAction, data?: unknown) => void;
+  className?: string;
+  position?: "left" | "right";
+  variant?: "default" | "compact" | "mobile";
 }
 
 // ============================================================================
@@ -73,15 +81,15 @@ interface MessageActionsProps {
 // ============================================================================
 
 const QUICK_REACTIONS = [
-  { emoji: '👍', name: 'thumbs_up', label: 'Thumbs up' },
-  { emoji: '❤️', name: 'heart', label: 'Heart' },
-  { emoji: '😂', name: 'joy', label: 'Joy' },
-  { emoji: '🎉', name: 'tada', label: 'Celebrate' },
-  { emoji: '👀', name: 'eyes', label: 'Eyes' },
-  { emoji: '🔥', name: 'fire', label: 'Fire' },
-  { emoji: '✅', name: 'check', label: 'Check' },
-  { emoji: '🚀', name: 'rocket', label: 'Rocket' },
-]
+  { emoji: "👍", name: "thumbs_up", label: "Thumbs up" },
+  { emoji: "❤️", name: "heart", label: "Heart" },
+  { emoji: "😂", name: "joy", label: "Joy" },
+  { emoji: "🎉", name: "tada", label: "Celebrate" },
+  { emoji: "👀", name: "eyes", label: "Eyes" },
+  { emoji: "🔥", name: "fire", label: "Fire" },
+  { emoji: "✅", name: "check", label: "Check" },
+  { emoji: "🚀", name: "rocket", label: "Rocket" },
+];
 
 // ============================================================================
 // Main Component
@@ -92,12 +100,12 @@ export function MessageActions({
   permissions,
   onAction,
   className,
-  position = 'right',
-  variant = 'default',
+  position = "right",
+  variant = "default",
 }: MessageActionsProps) {
-  const [showReactionPicker, setShowReactionPicker] = useState(false)
+  const [showReactionPicker, setShowReactionPicker] = useState(false);
 
-  if (variant === 'mobile') {
+  if (variant === "mobile") {
     return (
       <MobileMessageActions
         message={message}
@@ -105,10 +113,10 @@ export function MessageActions({
         onAction={onAction}
         className={className}
       />
-    )
+    );
   }
 
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <CompactMessageActions
         message={message}
@@ -116,7 +124,7 @@ export function MessageActions({
         onAction={onAction}
         className={className}
       />
-    )
+    );
   }
 
   return (
@@ -126,9 +134,9 @@ export function MessageActions({
       exit={{ opacity: 0, y: 4 }}
       transition={{ duration: 0.15 }}
       className={cn(
-        'absolute -top-4 z-10 flex items-center gap-0.5 rounded-lg border bg-popover p-0.5 shadow-lg',
-        position === 'right' ? 'right-2' : 'left-12',
-        className
+        "absolute -top-4 z-10 flex items-center gap-0.5 rounded-lg border bg-popover p-0.5 shadow-lg",
+        position === "right" ? "right-2" : "left-12",
+        className,
       )}
     >
       {/* Quick reactions */}
@@ -151,8 +159,8 @@ export function MessageActions({
           >
             <QuickReactionPicker
               onReact={(emoji) => {
-                onAction('react', { emoji })
-                setShowReactionPicker(false)
+                onAction("react", { emoji });
+                setShowReactionPicker(false);
               }}
             />
           </PopoverContent>
@@ -164,7 +172,7 @@ export function MessageActions({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onAction('reply')}
+          onClick={() => onAction("reply")}
           className="h-7 w-7 p-0 hover:bg-muted"
           title="Reply"
         >
@@ -177,7 +185,7 @@ export function MessageActions({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onAction('thread')}
+          onClick={() => onAction("thread")}
           className="h-7 w-7 p-0 hover:bg-muted"
           title="Reply in thread"
         >
@@ -190,7 +198,7 @@ export function MessageActions({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onAction('forward')}
+          onClick={() => onAction("forward")}
           className="h-7 w-7 p-0 hover:bg-muted"
           title="Share"
         >
@@ -199,16 +207,24 @@ export function MessageActions({
       )}
 
       {/* More menu */}
-      <MoreActionsMenu message={message} permissions={permissions} onAction={onAction} />
+      <MoreActionsMenu
+        message={message}
+        permissions={permissions}
+        onAction={onAction}
+      />
     </motion.div>
-  )
+  );
 }
 
 // ============================================================================
 // Quick Reaction Picker
 // ============================================================================
 
-function QuickReactionPicker({ onReact }: { onReact: (emoji: string) => void }) {
+function QuickReactionPicker({
+  onReact,
+}: {
+  onReact: (emoji: string) => void;
+}) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-1">
@@ -223,9 +239,11 @@ function QuickReactionPicker({ onReact }: { onReact: (emoji: string) => void }) 
           </button>
         ))}
       </div>
-      <div className="text-center text-xs text-muted-foreground">Click to react</div>
+      <div className="text-center text-xs text-muted-foreground">
+        Click to react
+      </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -237,9 +255,9 @@ function MoreActionsMenu({
   permissions,
   onAction,
 }: {
-  message: Message
-  permissions: MessageActionPermissions
-  onAction: (action: MessageAction, data?: unknown) => void
+  message: Message;
+  permissions: MessageActionPermissions;
+  onAction: (action: MessageAction, data?: unknown) => void;
 }) {
   return (
     <DropdownMenu>
@@ -256,7 +274,7 @@ function MoreActionsMenu({
       <DropdownMenuContent align="end" className="w-64">
         {/* Edit */}
         {permissions.canEdit && (
-          <DropdownMenuItem onClick={() => onAction('edit')}>
+          <DropdownMenuItem onClick={() => onAction("edit")}>
             <Edit className="mr-2 h-4 w-4" />
             Edit message
             <DropdownMenuShortcut>E</DropdownMenuShortcut>
@@ -265,7 +283,9 @@ function MoreActionsMenu({
 
         {/* Pin/Unpin */}
         {permissions.canPin && (
-          <DropdownMenuItem onClick={() => onAction(message.isPinned ? 'unpin' : 'pin')}>
+          <DropdownMenuItem
+            onClick={() => onAction(message.isPinned ? "unpin" : "pin")}
+          >
             {message.isPinned ? (
               <>
                 <PinOff className="mr-2 h-4 w-4" />
@@ -284,7 +304,9 @@ function MoreActionsMenu({
         {/* Bookmark */}
         {permissions.canBookmark && (
           <DropdownMenuItem
-            onClick={() => onAction(message.isBookmarked ? 'unbookmark' : 'bookmark')}
+            onClick={() =>
+              onAction(message.isBookmarked ? "unbookmark" : "bookmark")
+            }
           >
             {message.isBookmarked ? (
               <>
@@ -305,7 +327,7 @@ function MoreActionsMenu({
 
         {/* Forward */}
         {permissions.canForward && (
-          <DropdownMenuItem onClick={() => onAction('forward')}>
+          <DropdownMenuItem onClick={() => onAction("forward")}>
             <Forward className="mr-2 h-4 w-4" />
             Forward message
           </DropdownMenuItem>
@@ -320,8 +342,8 @@ function MoreActionsMenu({
           <DropdownMenuSubContent>
             <DropdownMenuItem
               onClick={() => {
-                navigator.clipboard.writeText(message.content)
-                onAction('copy')
+                navigator.clipboard.writeText(message.content);
+                onAction("copy");
               }}
             >
               <Copy className="mr-2 h-4 w-4" />
@@ -329,9 +351,9 @@ function MoreActionsMenu({
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                const url = `${window.location.origin}/chat/${message.channelId}?message=${message.id}`
-                navigator.clipboard.writeText(url)
-                onAction('copy-link')
+                const url = `${window.location.origin}/chat/${message.channelId}?message=${message.id}`;
+                navigator.clipboard.writeText(url);
+                onAction("copy-link");
               }}
             >
               <Link2 className="mr-2 h-4 w-4" />
@@ -342,7 +364,7 @@ function MoreActionsMenu({
 
         {/* Mark as unread */}
         {permissions.canMarkUnread && (
-          <DropdownMenuItem onClick={() => onAction('mark-unread')}>
+          <DropdownMenuItem onClick={() => onAction("mark-unread")}>
             <MailOpen className="mr-2 h-4 w-4" />
             Mark as unread
           </DropdownMenuItem>
@@ -357,7 +379,9 @@ function MoreActionsMenu({
             Message info
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            <DropdownMenuLabel className="text-xs">Message Details</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs">
+              Message Details
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             {message.isEdited && (
               <DropdownMenuItem>
@@ -374,11 +398,13 @@ function MoreActionsMenu({
             <DropdownMenuSeparator />
             <div className="px-2 py-2 text-xs text-muted-foreground">
               <div>
-                <strong>Sent:</strong> {new Date(message.createdAt).toLocaleString()}
+                <strong>Sent:</strong>{" "}
+                {new Date(message.createdAt).toLocaleString()}
               </div>
               {message.isEdited && message.editedAt && (
                 <div className="mt-1">
-                  <strong>Edited:</strong> {new Date(message.editedAt).toLocaleString()}
+                  <strong>Edited:</strong>{" "}
+                  {new Date(message.editedAt).toLocaleString()}
                 </div>
               )}
             </div>
@@ -386,12 +412,14 @@ function MoreActionsMenu({
         </DropdownMenuSub>
 
         {/* Separator before destructive actions */}
-        {(permissions.canReport || permissions.canDelete) && <DropdownMenuSeparator />}
+        {(permissions.canReport || permissions.canDelete) && (
+          <DropdownMenuSeparator />
+        )}
 
         {/* Report */}
         {permissions.canReport && (
           <DropdownMenuItem
-            onClick={() => onAction('report')}
+            onClick={() => onAction("report")}
             className="text-amber-600 focus:text-amber-600 dark:text-amber-500"
           >
             <Flag className="mr-2 h-4 w-4" />
@@ -402,7 +430,7 @@ function MoreActionsMenu({
         {/* Delete */}
         {permissions.canDelete && (
           <DropdownMenuItem
-            onClick={() => onAction('delete')}
+            onClick={() => onAction("delete")}
             className="text-destructive focus:text-destructive"
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -412,7 +440,7 @@ function MoreActionsMenu({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 // ============================================================================
@@ -424,14 +452,14 @@ export function CompactMessageActions({
   permissions,
   onAction,
   className,
-}: Omit<MessageActionsProps, 'position' | 'variant'>) {
+}: Omit<MessageActionsProps, "position" | "variant">) {
   return (
-    <div className={cn('flex items-center gap-1', className)}>
+    <div className={cn("flex items-center gap-1", className)}>
       {permissions.canReact && (
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onAction('react')}
+          onClick={() => onAction("react")}
           className="h-6 w-6 p-0"
           title="React"
         >
@@ -442,7 +470,7 @@ export function CompactMessageActions({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onAction('reply')}
+          onClick={() => onAction("reply")}
           className="h-6 w-6 p-0"
           title="Reply"
         >
@@ -453,16 +481,20 @@ export function CompactMessageActions({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onAction('thread')}
+          onClick={() => onAction("thread")}
           className="h-6 w-6 p-0"
           title="Thread"
         >
           <MessageSquare className="h-3.5 w-3.5" />
         </Button>
       )}
-      <MoreActionsMenu message={message} permissions={permissions} onAction={onAction} />
+      <MoreActionsMenu
+        message={message}
+        permissions={permissions}
+        onAction={onAction}
+      />
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -482,8 +514,8 @@ export function MobileMessageActions({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       className={cn(
-        'fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t bg-background p-4 shadow-2xl',
-        className
+        "fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t bg-background p-4 shadow-2xl",
+        className,
       )}
     >
       {/* Handle bar */}
@@ -492,14 +524,16 @@ export function MobileMessageActions({
       {/* Quick reactions */}
       {permissions.canReact && (
         <div className="mb-4">
-          <div className="mb-2 text-xs font-medium text-muted-foreground">React</div>
+          <div className="mb-2 text-xs font-medium text-muted-foreground">
+            React
+          </div>
           <div className="flex justify-center gap-2">
             {QUICK_REACTIONS.map((reaction) => (
               <button
                 key={reaction.name}
                 onClick={() => {
-                  onAction('react', { emoji: reaction.emoji })
-                  onClose?.()
+                  onAction("react", { emoji: reaction.emoji });
+                  onClose?.();
                 }}
                 className="hover:bg-muted/80 flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-2xl"
               >
@@ -517,8 +551,8 @@ export function MobileMessageActions({
             icon={Reply}
             label="Reply"
             onClick={() => {
-              onAction('reply')
-              onClose?.()
+              onAction("reply");
+              onClose?.();
             }}
           />
         )}
@@ -527,8 +561,8 @@ export function MobileMessageActions({
             icon={MessageSquare}
             label="Thread"
             onClick={() => {
-              onAction('thread')
-              onClose?.()
+              onAction("thread");
+              onClose?.();
             }}
           />
         )}
@@ -537,28 +571,28 @@ export function MobileMessageActions({
             icon={Edit}
             label="Edit"
             onClick={() => {
-              onAction('edit')
-              onClose?.()
+              onAction("edit");
+              onClose?.();
             }}
           />
         )}
         {permissions.canPin && (
           <ActionButton
             icon={message.isPinned ? PinOff : Pin}
-            label={message.isPinned ? 'Unpin' : 'Pin'}
+            label={message.isPinned ? "Unpin" : "Pin"}
             onClick={() => {
-              onAction(message.isPinned ? 'unpin' : 'pin')
-              onClose?.()
+              onAction(message.isPinned ? "unpin" : "pin");
+              onClose?.();
             }}
           />
         )}
         {permissions.canBookmark && (
           <ActionButton
             icon={message.isBookmarked ? BookmarkCheck : Bookmark}
-            label={message.isBookmarked ? 'Saved' : 'Save'}
+            label={message.isBookmarked ? "Saved" : "Save"}
             onClick={() => {
-              onAction(message.isBookmarked ? 'unbookmark' : 'bookmark')
-              onClose?.()
+              onAction(message.isBookmarked ? "unbookmark" : "bookmark");
+              onClose?.();
             }}
           />
         )}
@@ -567,8 +601,8 @@ export function MobileMessageActions({
             icon={Forward}
             label="Forward"
             onClick={() => {
-              onAction('forward')
-              onClose?.()
+              onAction("forward");
+              onClose?.();
             }}
           />
         )}
@@ -576,9 +610,9 @@ export function MobileMessageActions({
           icon={Copy}
           label="Copy"
           onClick={() => {
-            navigator.clipboard.writeText(message.content)
-            onAction('copy')
-            onClose?.()
+            navigator.clipboard.writeText(message.content);
+            onAction("copy");
+            onClose?.();
           }}
         />
         {permissions.canDelete && (
@@ -587,8 +621,8 @@ export function MobileMessageActions({
             label="Delete"
             variant="destructive"
             onClick={() => {
-              onAction('delete')
-              onClose?.()
+              onAction("delete");
+              onClose?.();
             }}
           />
         )}
@@ -599,7 +633,7 @@ export function MobileMessageActions({
         Cancel
       </Button>
     </motion.div>
-  )
+  );
 }
 
 // ============================================================================
@@ -609,27 +643,27 @@ export function MobileMessageActions({
 function ActionButton({
   icon: Icon,
   label,
-  variant = 'default',
+  variant = "default",
   onClick,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  variant?: 'default' | 'destructive'
-  onClick: () => void
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  variant?: "default" | "destructive";
+  onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center gap-2 rounded-xl p-3 transition-colors',
-        variant === 'default' && 'hover:bg-muted',
-        variant === 'destructive' && 'hover:bg-destructive/10 text-destructive'
+        "flex flex-col items-center gap-2 rounded-xl p-3 transition-colors",
+        variant === "default" && "hover:bg-muted",
+        variant === "destructive" && "hover:bg-destructive/10 text-destructive",
       )}
     >
       <Icon className="h-5 w-5" />
       <span className="text-xs font-medium">{label}</span>
     </button>
-  )
+  );
 }
 
 // ============================================================================
@@ -644,12 +678,12 @@ export function BulkMessageActions({
   onClearSelection,
   className,
 }: {
-  selectedCount: number
-  onDelete: () => void
-  onForward: () => void
-  onCopy: () => void
-  onClearSelection: () => void
-  className?: string
+  selectedCount: number;
+  onDelete: () => void;
+  onForward: () => void;
+  onCopy: () => void;
+  onClearSelection: () => void;
+  className?: string;
 }) {
   return (
     <motion.div
@@ -657,8 +691,8 @@ export function BulkMessageActions({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       className={cn(
-        'flex items-center gap-2 rounded-lg border bg-background p-2 shadow-lg',
-        className
+        "flex items-center gap-2 rounded-lg border bg-background p-2 shadow-lg",
+        className,
       )}
     >
       <div className="flex items-center gap-2 px-2">
@@ -686,9 +720,14 @@ export function BulkMessageActions({
         </Button>
       </div>
 
-      <Button variant="ghost" size="sm" onClick={onClearSelection} className="ml-auto">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onClearSelection}
+        className="ml-auto"
+      >
         <X className="h-4 w-4" />
       </Button>
     </motion.div>
-  )
+  );
 }

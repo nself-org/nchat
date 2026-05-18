@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Check, Plus, Folder } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import * as React from "react";
+import { Check, Plus, Folder } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -12,26 +12,26 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import type { SavedCollection } from '@/lib/saved'
+} from "@/components/ui/dialog";
+import type { SavedCollection } from "@/lib/saved";
 
 export interface AddToCollectionProps {
   /** Whether the dialog is open */
-  open: boolean
+  open: boolean;
   /** Callback when dialog is closed */
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void;
   /** Available collections */
-  collections: SavedCollection[]
+  collections: SavedCollection[];
   /** Currently selected collection IDs */
-  selectedIds: string[]
+  selectedIds: string[];
   /** Callback when selection changes */
-  onSelectionChange: (ids: string[]) => void
+  onSelectionChange: (ids: string[]) => void;
   /** Callback when save is clicked */
-  onSave: () => void
+  onSave: () => void;
   /** Callback to create new collection */
-  onCreateCollection?: () => void
+  onCreateCollection?: () => void;
   /** Whether save is in progress */
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 /**
@@ -49,22 +49,24 @@ export function AddToCollection({
 }: AddToCollectionProps) {
   const toggleCollection = (collectionId: string) => {
     if (selectedIds.includes(collectionId)) {
-      onSelectionChange(selectedIds.filter((id) => id !== collectionId))
+      onSelectionChange(selectedIds.filter((id) => id !== collectionId));
     } else {
-      onSelectionChange([...selectedIds, collectionId])
+      onSelectionChange([...selectedIds, collectionId]);
     }
-  }
+  };
 
   const sortedCollections = React.useMemo(() => {
-    return [...collections].sort((a, b) => a.position - b.position)
-  }, [collections])
+    return [...collections].sort((a, b) => a.position - b.position);
+  }, [collections]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Add to Collection</DialogTitle>
-          <DialogDescription>Select collections to add this message to.</DialogDescription>
+          <DialogDescription>
+            Select collections to add this message to.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
@@ -85,15 +87,17 @@ export function AddToCollection({
             <ScrollArea className="max-h-[300px]">
               <div className="space-y-1">
                 {sortedCollections.map((collection) => {
-                  const isSelected = selectedIds.includes(collection.id)
+                  const isSelected = selectedIds.includes(collection.id);
 
                   return (
                     <button
                       key={collection.id}
                       onClick={() => toggleCollection(collection.id)}
                       className={cn(
-                        'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors',
-                        isSelected ? 'bg-primary/10 text-primary' : 'hover:bg-muted'
+                        "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors",
+                        isSelected
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-muted",
                       )}
                       disabled={isLoading}
                     >
@@ -102,7 +106,7 @@ export function AddToCollection({
                         style={
                           collection.color
                             ? {
-                                backgroundColor: collection.color + '20',
+                                backgroundColor: collection.color + "20",
                                 color: collection.color,
                               }
                             : undefined
@@ -111,7 +115,9 @@ export function AddToCollection({
                         <Folder className="h-4 w-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{collection.name}</p>
+                        <p className="truncate text-sm font-medium">
+                          {collection.name}
+                        </p>
                         {collection.description && (
                           <p className="truncate text-xs text-muted-foreground">
                             {collection.description}
@@ -120,16 +126,16 @@ export function AddToCollection({
                       </div>
                       <div
                         className={cn(
-                          'flex h-5 w-5 items-center justify-center rounded-full border',
+                          "flex h-5 w-5 items-center justify-center rounded-full border",
                           isSelected
-                            ? 'text-primary-foreground border-primary bg-primary'
-                            : 'border-muted-foreground/30'
+                            ? "text-primary-foreground border-primary bg-primary"
+                            : "border-muted-foreground/30",
                         )}
                       >
                         {isSelected && <Check className="h-3 w-3" />}
                       </div>
                     </button>
-                  )
+                  );
                 })}
               </div>
             </ScrollArea>
@@ -149,14 +155,18 @@ export function AddToCollection({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button onClick={onSave} disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save'}
+            {isLoading ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

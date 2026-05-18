@@ -5,9 +5,9 @@
  * selected elements, drag-drop, and undo/redo
  */
 
-import { create } from 'zustand'
-import { devtools, subscribeWithSelector } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 import type {
   Workflow,
@@ -19,7 +19,7 @@ import type {
   StepType,
   ValidationResult,
   WorkflowStatus,
-} from '@/lib/workflows/workflow-types'
+} from "@/lib/workflows/workflow-types";
 
 import {
   createWorkflow,
@@ -34,137 +34,143 @@ import {
   updateSettings as engineUpdateSettings,
   validateWorkflow,
   cloneWorkflow,
-} from '@/lib/workflows/workflow-engine'
+} from "@/lib/workflows/workflow-engine";
 
-import { createStep, cloneStep } from '@/lib/workflows/workflow-steps'
+import { createStep, cloneStep } from "@/lib/workflows/workflow-steps";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface HistoryEntry {
-  workflow: Workflow
-  description: string
-  timestamp: number
+  workflow: Workflow;
+  description: string;
+  timestamp: number;
 }
 
 export interface WorkflowBuilderState {
   // Current workflow
-  workflow: Workflow | null
-  originalWorkflow: Workflow | null // For detecting changes
-  isDirty: boolean
+  workflow: Workflow | null;
+  originalWorkflow: Workflow | null; // For detecting changes
+  isDirty: boolean;
 
   // Canvas state
-  canvas: CanvasState
+  canvas: CanvasState;
 
   // Clipboard
   clipboard: {
-    steps: WorkflowStep[]
-    edges: WorkflowEdge[]
-  } | null
+    steps: WorkflowStep[];
+    edges: WorkflowEdge[];
+  } | null;
 
   // History for undo/redo
-  history: HistoryEntry[]
-  historyIndex: number
-  maxHistoryLength: number
+  history: HistoryEntry[];
+  historyIndex: number;
+  maxHistoryLength: number;
 
   // UI state
-  isLoading: boolean
-  isSaving: boolean
-  error: string | null
-  validation: ValidationResult | null
+  isLoading: boolean;
+  isSaving: boolean;
+  error: string | null;
+  validation: ValidationResult | null;
 
   // Sidebar state
-  sidebarTab: 'steps' | 'variables' | 'settings' | 'properties'
-  propertiesPanelOpen: boolean
+  sidebarTab: "steps" | "variables" | "settings" | "properties";
+  propertiesPanelOpen: boolean;
 
   // Drag state
-  draggedStepType: StepType | null
-  draggedStepId: string | null
+  draggedStepType: StepType | null;
+  draggedStepId: string | null;
 
   // Connection state
-  isConnecting: boolean
-  connectionStart: { stepId: string; handleId?: string } | null
+  isConnecting: boolean;
+  connectionStart: { stepId: string; handleId?: string } | null;
 }
 
 export interface WorkflowBuilderActions {
   // Workflow management
-  newWorkflow: (name: string, createdBy: string) => void
-  loadWorkflow: (workflow: Workflow) => void
-  saveWorkflow: () => Promise<void>
-  closeWorkflow: () => void
-  duplicateWorkflow: (newName: string, createdBy: string) => Workflow | null
+  newWorkflow: (name: string, createdBy: string) => void;
+  loadWorkflow: (workflow: Workflow) => void;
+  saveWorkflow: () => Promise<void>;
+  closeWorkflow: () => void;
+  duplicateWorkflow: (newName: string, createdBy: string) => Workflow | null;
 
   // Step operations
-  addStep: (type: StepType, position: Position) => WorkflowStep | null
-  updateStep: (stepId: string, updates: Partial<WorkflowStep>) => void
-  deleteStep: (stepId: string) => void
-  duplicateStep: (stepId: string) => WorkflowStep | null
-  moveStep: (stepId: string, position: Position) => void
+  addStep: (type: StepType, position: Position) => WorkflowStep | null;
+  updateStep: (stepId: string, updates: Partial<WorkflowStep>) => void;
+  deleteStep: (stepId: string) => void;
+  duplicateStep: (stepId: string) => WorkflowStep | null;
+  moveStep: (stepId: string, position: Position) => void;
 
   // Edge operations
-  addEdge: (edge: Omit<WorkflowEdge, 'id'>) => WorkflowEdge | null
-  deleteEdge: (edgeId: string) => void
+  addEdge: (edge: Omit<WorkflowEdge, "id">) => WorkflowEdge | null;
+  deleteEdge: (edgeId: string) => void;
 
   // Variable operations
-  addVariable: (variable: Omit<WorkflowVariable, 'id'>) => void
-  updateVariable: (variableId: string, updates: Partial<WorkflowVariable>) => void
-  deleteVariable: (variableId: string) => void
+  addVariable: (variable: Omit<WorkflowVariable, "id">) => void;
+  updateVariable: (
+    variableId: string,
+    updates: Partial<WorkflowVariable>,
+  ) => void;
+  deleteVariable: (variableId: string) => void;
 
   // Selection
-  selectStep: (stepId: string, addToSelection?: boolean) => void
-  selectSteps: (stepIds: string[]) => void
-  selectEdge: (edgeId: string) => void
-  clearSelection: () => void
-  selectAll: () => void
+  selectStep: (stepId: string, addToSelection?: boolean) => void;
+  selectSteps: (stepIds: string[]) => void;
+  selectEdge: (edgeId: string) => void;
+  clearSelection: () => void;
+  selectAll: () => void;
 
   // Clipboard
-  copySelection: () => void
-  cutSelection: () => void
-  paste: (offset?: Position) => void
+  copySelection: () => void;
+  cutSelection: () => void;
+  paste: (offset?: Position) => void;
 
   // Canvas
-  setZoom: (zoom: number) => void
-  zoomIn: () => void
-  zoomOut: () => void
-  zoomToFit: () => void
-  resetZoom: () => void
-  setPan: (pan: Position) => void
-  centerCanvas: () => void
+  setZoom: (zoom: number) => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  zoomToFit: () => void;
+  resetZoom: () => void;
+  setPan: (pan: Position) => void;
+  centerCanvas: () => void;
 
   // Drag and drop
-  startDrag: (stepType: StepType) => void
-  startStepDrag: (stepId: string) => void
-  endDrag: () => void
+  startDrag: (stepType: StepType) => void;
+  startStepDrag: (stepId: string) => void;
+  endDrag: () => void;
 
   // Connection
-  startConnection: (stepId: string, handleId?: string) => void
-  endConnection: (stepId: string, handleId?: string) => void
-  cancelConnection: () => void
+  startConnection: (stepId: string, handleId?: string) => void;
+  endConnection: (stepId: string, handleId?: string) => void;
+  cancelConnection: () => void;
 
   // History
-  undo: () => void
-  redo: () => void
-  canUndo: () => boolean
-  canRedo: () => boolean
+  undo: () => void;
+  redo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
 
   // UI
-  setSidebarTab: (tab: 'steps' | 'variables' | 'settings' | 'properties') => void
-  togglePropertiesPanel: () => void
-  setPropertiesPanelOpen: (open: boolean) => void
+  setSidebarTab: (
+    tab: "steps" | "variables" | "settings" | "properties",
+  ) => void;
+  togglePropertiesPanel: () => void;
+  setPropertiesPanelOpen: (open: boolean) => void;
 
   // Validation
-  validate: () => ValidationResult
-  clearValidation: () => void
+  validate: () => ValidationResult;
+  clearValidation: () => void;
 
   // Utility
-  setError: (error: string | null) => void
-  setLoading: (loading: boolean) => void
-  setSaving: (saving: boolean) => void
-  reset: () => void
+  setError: (error: string | null) => void;
+  setLoading: (loading: boolean) => void;
+  setSaving: (saving: boolean) => void;
+  reset: () => void;
 }
 
-export type WorkflowBuilderStore = WorkflowBuilderState & WorkflowBuilderActions
+export type WorkflowBuilderStore = WorkflowBuilderState &
+  WorkflowBuilderActions;
 
 // ============================================================================
 // Initial State
@@ -177,7 +183,7 @@ const initialCanvasState: CanvasState = {
   selectedEdgeId: undefined,
   isDragging: false,
   isConnecting: false,
-}
+};
 
 const initialState: WorkflowBuilderState = {
   workflow: null,
@@ -192,13 +198,13 @@ const initialState: WorkflowBuilderState = {
   isSaving: false,
   error: null,
   validation: null,
-  sidebarTab: 'steps',
+  sidebarTab: "steps",
   propertiesPanelOpen: true,
   draggedStepType: null,
   draggedStepId: null,
   isConnecting: false,
   connectionStart: null,
-}
+};
 
 // ============================================================================
 // Store
@@ -215,59 +221,59 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         // ========================================
 
         newWorkflow: (name, createdBy) => {
-          const workflow = createWorkflow(name, createdBy)
+          const workflow = createWorkflow(name, createdBy);
           set(
             (state) => {
-              state.workflow = workflow
-              state.originalWorkflow = JSON.parse(JSON.stringify(workflow))
-              state.isDirty = false
+              state.workflow = workflow;
+              state.originalWorkflow = JSON.parse(JSON.stringify(workflow));
+              state.isDirty = false;
               state.history = [
                 {
                   workflow: JSON.parse(JSON.stringify(workflow)),
-                  description: 'Created workflow',
+                  description: "Created workflow",
                   timestamp: Date.now(),
                 },
-              ]
-              state.historyIndex = 0
-              state.canvas = { ...initialCanvasState }
-              state.validation = null
-              state.error = null
+              ];
+              state.historyIndex = 0;
+              state.canvas = { ...initialCanvasState };
+              state.validation = null;
+              state.error = null;
             },
             false,
-            'workflow/new'
-          )
+            "workflow/new",
+          );
         },
 
         loadWorkflow: (workflow) => {
           set(
             (state) => {
-              state.workflow = workflow
-              state.originalWorkflow = JSON.parse(JSON.stringify(workflow))
-              state.isDirty = false
+              state.workflow = workflow;
+              state.originalWorkflow = JSON.parse(JSON.stringify(workflow));
+              state.isDirty = false;
               state.history = [
                 {
                   workflow: JSON.parse(JSON.stringify(workflow)),
-                  description: 'Loaded workflow',
+                  description: "Loaded workflow",
                   timestamp: Date.now(),
                 },
-              ]
-              state.historyIndex = 0
-              state.canvas = { ...initialCanvasState }
-              state.validation = null
-              state.error = null
+              ];
+              state.historyIndex = 0;
+              state.canvas = { ...initialCanvasState };
+              state.validation = null;
+              state.error = null;
             },
             false,
-            'workflow/load'
-          )
+            "workflow/load",
+          );
         },
 
         saveWorkflow: async () => {
-          const { workflow } = get()
-          if (!workflow) return
+          const { workflow } = get();
+          if (!workflow) return;
 
           set((state) => {
-            state.isSaving = true
-          })
+            state.isSaving = true;
+          });
 
           try {
             // In a real implementation, this would call an API
@@ -275,18 +281,21 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
 
             set(
               (state) => {
-                state.originalWorkflow = JSON.parse(JSON.stringify(state.workflow))
-                state.isDirty = false
-                state.isSaving = false
+                state.originalWorkflow = JSON.parse(
+                  JSON.stringify(state.workflow),
+                );
+                state.isDirty = false;
+                state.isSaving = false;
               },
               false,
-              'workflow/save'
-            )
+              "workflow/save",
+            );
           } catch (error) {
             set((state) => {
-              state.error = error instanceof Error ? error.message : 'Failed to save'
-              state.isSaving = false
-            })
+              state.error =
+                error instanceof Error ? error.message : "Failed to save";
+              state.isSaving = false;
+            });
           }
         },
 
@@ -296,35 +305,35 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
               ...initialState,
             }),
             false,
-            'workflow/close'
-          )
+            "workflow/close",
+          );
         },
 
         duplicateWorkflow: (newName, createdBy) => {
-          const { workflow } = get()
-          if (!workflow) return null
+          const { workflow } = get();
+          if (!workflow) return null;
 
-          const cloned = cloneWorkflow(workflow, newName, createdBy)
+          const cloned = cloneWorkflow(workflow, newName, createdBy);
 
           set(
             (state) => {
-              state.workflow = cloned
-              state.originalWorkflow = JSON.parse(JSON.stringify(cloned))
-              state.isDirty = false
+              state.workflow = cloned;
+              state.originalWorkflow = JSON.parse(JSON.stringify(cloned));
+              state.isDirty = false;
               state.history = [
                 {
                   workflow: JSON.parse(JSON.stringify(cloned)),
-                  description: 'Duplicated workflow',
+                  description: "Duplicated workflow",
                   timestamp: Date.now(),
                 },
-              ]
-              state.historyIndex = 0
+              ];
+              state.historyIndex = 0;
             },
             false,
-            'workflow/duplicate'
-          )
+            "workflow/duplicate",
+          );
 
-          return cloned
+          return cloned;
         },
 
         // ========================================
@@ -332,93 +341,96 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         // ========================================
 
         addStep: (type, position) => {
-          const { workflow } = get()
-          if (!workflow) return null
+          const { workflow } = get();
+          if (!workflow) return null;
 
-          const step = createStep(type, position)
+          const step = createStep(type, position);
 
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineAddStep(state.workflow, step)
-              state.isDirty = true
-              state.canvas.selectedStepIds = [step.id]
-              state.canvas.selectedEdgeId = undefined
-              pushHistory(state, `Added ${type} step`)
+              if (!state.workflow) return;
+              state.workflow = engineAddStep(state.workflow, step);
+              state.isDirty = true;
+              state.canvas.selectedStepIds = [step.id];
+              state.canvas.selectedEdgeId = undefined;
+              pushHistory(state, `Added ${type} step`);
             },
             false,
-            'workflow/addStep'
-          )
+            "workflow/addStep",
+          );
 
-          return step
+          return step;
         },
 
         updateStep: (stepId, updates) => {
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineUpdateStep(state.workflow, stepId, updates)
-              state.isDirty = true
-              pushHistory(state, 'Updated step')
+              if (!state.workflow) return;
+              state.workflow = engineUpdateStep(
+                state.workflow,
+                stepId,
+                updates,
+              );
+              state.isDirty = true;
+              pushHistory(state, "Updated step");
             },
             false,
-            'workflow/updateStep'
-          )
+            "workflow/updateStep",
+          );
         },
 
         deleteStep: (stepId) => {
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineRemoveStep(state.workflow, stepId)
-              state.isDirty = true
-              state.canvas.selectedStepIds = state.canvas.selectedStepIds.filter(
-                (id) => id !== stepId
-              )
-              pushHistory(state, 'Deleted step')
+              if (!state.workflow) return;
+              state.workflow = engineRemoveStep(state.workflow, stepId);
+              state.isDirty = true;
+              state.canvas.selectedStepIds =
+                state.canvas.selectedStepIds.filter((id) => id !== stepId);
+              pushHistory(state, "Deleted step");
             },
             false,
-            'workflow/deleteStep'
-          )
+            "workflow/deleteStep",
+          );
         },
 
         duplicateStep: (stepId) => {
-          const { workflow } = get()
-          if (!workflow) return null
+          const { workflow } = get();
+          if (!workflow) return null;
 
-          const step = workflow.steps.find((s) => s.id === stepId)
-          if (!step) return null
+          const step = workflow.steps.find((s) => s.id === stepId);
+          if (!step) return null;
 
-          const cloned = cloneStep(step, { x: 50, y: 50 })
+          const cloned = cloneStep(step, { x: 50, y: 50 });
 
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineAddStep(state.workflow, cloned)
-              state.isDirty = true
-              state.canvas.selectedStepIds = [cloned.id]
-              pushHistory(state, 'Duplicated step')
+              if (!state.workflow) return;
+              state.workflow = engineAddStep(state.workflow, cloned);
+              state.isDirty = true;
+              state.canvas.selectedStepIds = [cloned.id];
+              pushHistory(state, "Duplicated step");
             },
             false,
-            'workflow/duplicateStep'
-          )
+            "workflow/duplicateStep",
+          );
 
-          return cloned
+          return cloned;
         },
 
         moveStep: (stepId, position) => {
           set(
             (state) => {
-              if (!state.workflow) return
-              const step = state.workflow.steps.find((s) => s.id === stepId)
+              if (!state.workflow) return;
+              const step = state.workflow.steps.find((s) => s.id === stepId);
               if (step) {
-                step.position = position
-                state.isDirty = true
+                step.position = position;
+                state.isDirty = true;
               }
             },
             false,
-            'workflow/moveStep'
-          )
+            "workflow/moveStep",
+          );
         },
 
         // ========================================
@@ -426,42 +438,42 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         // ========================================
 
         addEdge: (edgeData) => {
-          const { workflow } = get()
-          if (!workflow) return null
+          const { workflow } = get();
+          if (!workflow) return null;
 
           const edge: WorkflowEdge = {
             ...edgeData,
             id: `edge_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-          }
+          };
 
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineAddEdge(state.workflow, edge)
-              state.isDirty = true
-              pushHistory(state, 'Added connection')
+              if (!state.workflow) return;
+              state.workflow = engineAddEdge(state.workflow, edge);
+              state.isDirty = true;
+              pushHistory(state, "Added connection");
             },
             false,
-            'workflow/addEdge'
-          )
+            "workflow/addEdge",
+          );
 
-          return edge
+          return edge;
         },
 
         deleteEdge: (edgeId) => {
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineRemoveEdge(state.workflow, edgeId)
-              state.isDirty = true
+              if (!state.workflow) return;
+              state.workflow = engineRemoveEdge(state.workflow, edgeId);
+              state.isDirty = true;
               if (state.canvas.selectedEdgeId === edgeId) {
-                state.canvas.selectedEdgeId = undefined
+                state.canvas.selectedEdgeId = undefined;
               }
-              pushHistory(state, 'Deleted connection')
+              pushHistory(state, "Deleted connection");
             },
             false,
-            'workflow/deleteEdge'
-          )
+            "workflow/deleteEdge",
+          );
         },
 
         // ========================================
@@ -472,44 +484,48 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
           const variable: WorkflowVariable = {
             ...variableData,
             id: `var_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-          }
+          };
 
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineAddVariable(state.workflow, variable)
-              state.isDirty = true
-              pushHistory(state, 'Added variable')
+              if (!state.workflow) return;
+              state.workflow = engineAddVariable(state.workflow, variable);
+              state.isDirty = true;
+              pushHistory(state, "Added variable");
             },
             false,
-            'workflow/addVariable'
-          )
+            "workflow/addVariable",
+          );
         },
 
         updateVariable: (variableId, updates) => {
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineUpdateVariable(state.workflow, variableId, updates)
-              state.isDirty = true
-              pushHistory(state, 'Updated variable')
+              if (!state.workflow) return;
+              state.workflow = engineUpdateVariable(
+                state.workflow,
+                variableId,
+                updates,
+              );
+              state.isDirty = true;
+              pushHistory(state, "Updated variable");
             },
             false,
-            'workflow/updateVariable'
-          )
+            "workflow/updateVariable",
+          );
         },
 
         deleteVariable: (variableId) => {
           set(
             (state) => {
-              if (!state.workflow) return
-              state.workflow = engineRemoveVariable(state.workflow, variableId)
-              state.isDirty = true
-              pushHistory(state, 'Deleted variable')
+              if (!state.workflow) return;
+              state.workflow = engineRemoveVariable(state.workflow, variableId);
+              state.isDirty = true;
+              pushHistory(state, "Deleted variable");
             },
             false,
-            'workflow/deleteVariable'
-          )
+            "workflow/deleteVariable",
+          );
         },
 
         // ========================================
@@ -521,65 +537,66 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
             (state) => {
               if (addToSelection) {
                 if (state.canvas.selectedStepIds.includes(stepId)) {
-                  state.canvas.selectedStepIds = state.canvas.selectedStepIds.filter(
-                    (id) => id !== stepId
-                  )
+                  state.canvas.selectedStepIds =
+                    state.canvas.selectedStepIds.filter((id) => id !== stepId);
                 } else {
-                  state.canvas.selectedStepIds.push(stepId)
+                  state.canvas.selectedStepIds.push(stepId);
                 }
               } else {
-                state.canvas.selectedStepIds = [stepId]
+                state.canvas.selectedStepIds = [stepId];
               }
-              state.canvas.selectedEdgeId = undefined
+              state.canvas.selectedEdgeId = undefined;
             },
             false,
-            'canvas/selectStep'
-          )
+            "canvas/selectStep",
+          );
         },
 
         selectSteps: (stepIds) => {
           set(
             (state) => {
-              state.canvas.selectedStepIds = stepIds
-              state.canvas.selectedEdgeId = undefined
+              state.canvas.selectedStepIds = stepIds;
+              state.canvas.selectedEdgeId = undefined;
             },
             false,
-            'canvas/selectSteps'
-          )
+            "canvas/selectSteps",
+          );
         },
 
         selectEdge: (edgeId) => {
           set(
             (state) => {
-              state.canvas.selectedEdgeId = edgeId
-              state.canvas.selectedStepIds = []
+              state.canvas.selectedEdgeId = edgeId;
+              state.canvas.selectedStepIds = [];
             },
             false,
-            'canvas/selectEdge'
-          )
+            "canvas/selectEdge",
+          );
         },
 
         clearSelection: () => {
           set(
             (state) => {
-              state.canvas.selectedStepIds = []
-              state.canvas.selectedEdgeId = undefined
+              state.canvas.selectedStepIds = [];
+              state.canvas.selectedEdgeId = undefined;
             },
             false,
-            'canvas/clearSelection'
-          )
+            "canvas/clearSelection",
+          );
         },
 
         selectAll: () => {
           set(
             (state) => {
-              if (!state.workflow) return
-              state.canvas.selectedStepIds = state.workflow.steps.map((s) => s.id)
-              state.canvas.selectedEdgeId = undefined
+              if (!state.workflow) return;
+              state.canvas.selectedStepIds = state.workflow.steps.map(
+                (s) => s.id,
+              );
+              state.canvas.selectedEdgeId = undefined;
             },
             false,
-            'canvas/selectAll'
-          )
+            "canvas/selectAll",
+          );
         },
 
         // ========================================
@@ -587,58 +604,62 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         // ========================================
 
         copySelection: () => {
-          const { workflow, canvas } = get()
-          if (!workflow || canvas.selectedStepIds.length === 0) return
+          const { workflow, canvas } = get();
+          if (!workflow || canvas.selectedStepIds.length === 0) return;
 
-          const selectedSteps = workflow.steps.filter((s) => canvas.selectedStepIds.includes(s.id))
-          const selectedStepIds = new Set(canvas.selectedStepIds)
+          const selectedSteps = workflow.steps.filter((s) =>
+            canvas.selectedStepIds.includes(s.id),
+          );
+          const selectedStepIds = new Set(canvas.selectedStepIds);
           const selectedEdges = workflow.edges.filter(
-            (e) => selectedStepIds.has(e.sourceId) && selectedStepIds.has(e.targetId)
-          )
+            (e) =>
+              selectedStepIds.has(e.sourceId) &&
+              selectedStepIds.has(e.targetId),
+          );
 
           set(
             (state) => {
               state.clipboard = {
                 steps: JSON.parse(JSON.stringify(selectedSteps)),
                 edges: JSON.parse(JSON.stringify(selectedEdges)),
-              }
+              };
             },
             false,
-            'clipboard/copy'
-          )
+            "clipboard/copy",
+          );
         },
 
         cutSelection: () => {
-          const { copySelection, canvas } = get()
-          copySelection()
+          const { copySelection, canvas } = get();
+          copySelection();
 
           set(
             (state) => {
-              if (!state.workflow) return
+              if (!state.workflow) return;
               // Remove selected steps
               for (const stepId of canvas.selectedStepIds) {
-                state.workflow = engineRemoveStep(state.workflow!, stepId)
+                state.workflow = engineRemoveStep(state.workflow!, stepId);
               }
-              state.isDirty = true
-              state.canvas.selectedStepIds = []
-              pushHistory(state, 'Cut selection')
+              state.isDirty = true;
+              state.canvas.selectedStepIds = [];
+              pushHistory(state, "Cut selection");
             },
             false,
-            'clipboard/cut'
-          )
+            "clipboard/cut",
+          );
         },
 
         paste: (offset = { x: 100, y: 100 }) => {
-          const { clipboard, workflow } = get()
-          if (!clipboard || !workflow) return
+          const { clipboard, workflow } = get();
+          if (!clipboard || !workflow) return;
 
           // Create new IDs for pasted steps
-          const idMap = new Map<string, string>()
-          const newSteps: WorkflowStep[] = []
+          const idMap = new Map<string, string>();
+          const newSteps: WorkflowStep[] = [];
 
           for (const step of clipboard.steps) {
-            const newId = `${step.type}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
-            idMap.set(step.id, newId)
+            const newId = `${step.type}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+            idMap.set(step.id, newId);
             newSteps.push({
               ...step,
               id: newId,
@@ -646,7 +667,7 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
                 x: step.position.x + offset.x,
                 y: step.position.y + offset.y,
               },
-            })
+            });
           }
 
           // Update edges with new IDs
@@ -655,26 +676,26 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
             id: `edge_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
             sourceId: idMap.get(edge.sourceId) || edge.sourceId,
             targetId: idMap.get(edge.targetId) || edge.targetId,
-          }))
+          }));
 
           set(
             (state) => {
-              if (!state.workflow) return
+              if (!state.workflow) return;
               // Add new steps
               for (const step of newSteps) {
-                state.workflow = engineAddStep(state.workflow!, step)
+                state.workflow = engineAddStep(state.workflow!, step);
               }
               // Add new edges
               for (const edge of newEdges) {
-                state.workflow = engineAddEdge(state.workflow!, edge)
+                state.workflow = engineAddEdge(state.workflow!, edge);
               }
-              state.isDirty = true
-              state.canvas.selectedStepIds = newSteps.map((s) => s.id)
-              pushHistory(state, 'Pasted selection')
+              state.isDirty = true;
+              state.canvas.selectedStepIds = newSteps.map((s) => s.id);
+              pushHistory(state, "Pasted selection");
             },
             false,
-            'clipboard/paste'
-          )
+            "clipboard/paste",
+          );
         },
 
         // ========================================
@@ -684,73 +705,73 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         setZoom: (zoom) => {
           set(
             (state) => {
-              state.canvas.zoom = Math.min(Math.max(zoom, 0.1), 3)
+              state.canvas.zoom = Math.min(Math.max(zoom, 0.1), 3);
             },
             false,
-            'canvas/setZoom'
-          )
+            "canvas/setZoom",
+          );
         },
 
         zoomIn: () => {
           set(
             (state) => {
-              state.canvas.zoom = Math.min(state.canvas.zoom + 0.1, 3)
+              state.canvas.zoom = Math.min(state.canvas.zoom + 0.1, 3);
             },
             false,
-            'canvas/zoomIn'
-          )
+            "canvas/zoomIn",
+          );
         },
 
         zoomOut: () => {
           set(
             (state) => {
-              state.canvas.zoom = Math.max(state.canvas.zoom - 0.1, 0.1)
+              state.canvas.zoom = Math.max(state.canvas.zoom - 0.1, 0.1);
             },
             false,
-            'canvas/zoomOut'
-          )
+            "canvas/zoomOut",
+          );
         },
 
         zoomToFit: () => {
           // In a real implementation, this would calculate bounds
           set(
             (state) => {
-              state.canvas.zoom = 1
-              state.canvas.pan = { x: 0, y: 0 }
+              state.canvas.zoom = 1;
+              state.canvas.pan = { x: 0, y: 0 };
             },
             false,
-            'canvas/zoomToFit'
-          )
+            "canvas/zoomToFit",
+          );
         },
 
         resetZoom: () => {
           set(
             (state) => {
-              state.canvas.zoom = 1
+              state.canvas.zoom = 1;
             },
             false,
-            'canvas/resetZoom'
-          )
+            "canvas/resetZoom",
+          );
         },
 
         setPan: (pan) => {
           set(
             (state) => {
-              state.canvas.pan = pan
+              state.canvas.pan = pan;
             },
             false,
-            'canvas/setPan'
-          )
+            "canvas/setPan",
+          );
         },
 
         centerCanvas: () => {
           set(
             (state) => {
-              state.canvas.pan = { x: 0, y: 0 }
+              state.canvas.pan = { x: 0, y: 0 };
             },
             false,
-            'canvas/center'
-          )
+            "canvas/center",
+          );
         },
 
         // ========================================
@@ -760,35 +781,35 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         startDrag: (stepType) => {
           set(
             (state) => {
-              state.draggedStepType = stepType
-              state.canvas.isDragging = true
+              state.draggedStepType = stepType;
+              state.canvas.isDragging = true;
             },
             false,
-            'drag/start'
-          )
+            "drag/start",
+          );
         },
 
         startStepDrag: (stepId) => {
           set(
             (state) => {
-              state.draggedStepId = stepId
-              state.canvas.isDragging = true
+              state.draggedStepId = stepId;
+              state.canvas.isDragging = true;
             },
             false,
-            'drag/startStep'
-          )
+            "drag/startStep",
+          );
         },
 
         endDrag: () => {
           set(
             (state) => {
-              state.draggedStepType = null
-              state.draggedStepId = null
-              state.canvas.isDragging = false
+              state.draggedStepType = null;
+              state.draggedStepId = null;
+              state.canvas.isDragging = false;
             },
             false,
-            'drag/end'
-          )
+            "drag/end",
+          );
         },
 
         // ========================================
@@ -798,21 +819,21 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         startConnection: (stepId, handleId) => {
           set(
             (state) => {
-              state.isConnecting = true
-              state.connectionStart = { stepId, handleId }
-              state.canvas.isConnecting = true
-              state.canvas.connectionSource = { stepId, handleId }
+              state.isConnecting = true;
+              state.connectionStart = { stepId, handleId };
+              state.canvas.isConnecting = true;
+              state.canvas.connectionSource = { stepId, handleId };
             },
             false,
-            'connection/start'
-          )
+            "connection/start",
+          );
         },
 
         endConnection: (stepId, handleId) => {
-          const { connectionStart, addEdge } = get()
+          const { connectionStart, addEdge } = get();
           if (!connectionStart || connectionStart.stepId === stepId) {
-            get().cancelConnection()
-            return
+            get().cancelConnection();
+            return;
           }
 
           addEdge({
@@ -821,36 +842,36 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
             sourceHandle: connectionStart.handleId,
             targetHandle: handleId,
             type:
-              connectionStart.handleId === 'true'
-                ? 'true'
-                : connectionStart.handleId === 'false'
-                  ? 'false'
-                  : 'default',
-          })
+              connectionStart.handleId === "true"
+                ? "true"
+                : connectionStart.handleId === "false"
+                  ? "false"
+                  : "default",
+          });
 
           set(
             (state) => {
-              state.isConnecting = false
-              state.connectionStart = null
-              state.canvas.isConnecting = false
-              state.canvas.connectionSource = undefined
+              state.isConnecting = false;
+              state.connectionStart = null;
+              state.canvas.isConnecting = false;
+              state.canvas.connectionSource = undefined;
             },
             false,
-            'connection/end'
-          )
+            "connection/end",
+          );
         },
 
         cancelConnection: () => {
           set(
             (state) => {
-              state.isConnecting = false
-              state.connectionStart = null
-              state.canvas.isConnecting = false
-              state.canvas.connectionSource = undefined
+              state.isConnecting = false;
+              state.connectionStart = null;
+              state.canvas.isConnecting = false;
+              state.canvas.connectionSource = undefined;
             },
             false,
-            'connection/cancel'
-          )
+            "connection/cancel",
+          );
         },
 
         // ========================================
@@ -861,42 +882,42 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
           set(
             (state) => {
               if (state.historyIndex > 0) {
-                state.historyIndex--
+                state.historyIndex--;
                 state.workflow = JSON.parse(
-                  JSON.stringify(state.history[state.historyIndex].workflow)
-                )
-                state.isDirty = true
+                  JSON.stringify(state.history[state.historyIndex].workflow),
+                );
+                state.isDirty = true;
               }
             },
             false,
-            'history/undo'
-          )
+            "history/undo",
+          );
         },
 
         redo: () => {
           set(
             (state) => {
               if (state.historyIndex < state.history.length - 1) {
-                state.historyIndex++
+                state.historyIndex++;
                 state.workflow = JSON.parse(
-                  JSON.stringify(state.history[state.historyIndex].workflow)
-                )
-                state.isDirty = true
+                  JSON.stringify(state.history[state.historyIndex].workflow),
+                );
+                state.isDirty = true;
               }
             },
             false,
-            'history/redo'
-          )
+            "history/redo",
+          );
         },
 
         canUndo: () => {
-          const { historyIndex } = get()
-          return historyIndex > 0
+          const { historyIndex } = get();
+          return historyIndex > 0;
         },
 
         canRedo: () => {
-          const { historyIndex, history } = get()
-          return historyIndex < history.length - 1
+          const { historyIndex, history } = get();
+          return historyIndex < history.length - 1;
         },
 
         // ========================================
@@ -906,31 +927,31 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         setSidebarTab: (tab) => {
           set(
             (state) => {
-              state.sidebarTab = tab
+              state.sidebarTab = tab;
             },
             false,
-            'ui/setSidebarTab'
-          )
+            "ui/setSidebarTab",
+          );
         },
 
         togglePropertiesPanel: () => {
           set(
             (state) => {
-              state.propertiesPanelOpen = !state.propertiesPanelOpen
+              state.propertiesPanelOpen = !state.propertiesPanelOpen;
             },
             false,
-            'ui/togglePropertiesPanel'
-          )
+            "ui/togglePropertiesPanel",
+          );
         },
 
         setPropertiesPanelOpen: (open) => {
           set(
             (state) => {
-              state.propertiesPanelOpen = open
+              state.propertiesPanelOpen = open;
             },
             false,
-            'ui/setPropertiesPanelOpen'
-          )
+            "ui/setPropertiesPanelOpen",
+          );
         },
 
         // ========================================
@@ -938,36 +959,38 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         // ========================================
 
         validate: () => {
-          const { workflow } = get()
+          const { workflow } = get();
           if (!workflow) {
             return {
               isValid: false,
-              errors: [{ message: 'No workflow loaded', severity: 'error' as const }],
+              errors: [
+                { message: "No workflow loaded", severity: "error" as const },
+              ],
               warnings: [],
-            }
+            };
           }
 
-          const result = validateWorkflow(workflow)
+          const result = validateWorkflow(workflow);
 
           set(
             (state) => {
-              state.validation = result
+              state.validation = result;
             },
             false,
-            'workflow/validate'
-          )
+            "workflow/validate",
+          );
 
-          return result
+          return result;
         },
 
         clearValidation: () => {
           set(
             (state) => {
-              state.validation = null
+              state.validation = null;
             },
             false,
-            'workflow/clearValidation'
-          )
+            "workflow/clearValidation",
+          );
         },
 
         // ========================================
@@ -977,31 +1000,31 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
         setError: (error) => {
           set(
             (state) => {
-              state.error = error
+              state.error = error;
             },
             false,
-            'setError'
-          )
+            "setError",
+          );
         },
 
         setLoading: (loading) => {
           set(
             (state) => {
-              state.isLoading = loading
+              state.isLoading = loading;
             },
             false,
-            'setLoading'
-          )
+            "setLoading",
+          );
         },
 
         setSaving: (saving) => {
           set(
             (state) => {
-              state.isSaving = saving
+              state.isSaving = saving;
             },
             false,
-            'setSaving'
-          )
+            "setSaving",
+          );
         },
 
         reset: () => {
@@ -1010,55 +1033,60 @@ export const useWorkflowBuilderStore = create<WorkflowBuilderStore>()(
               ...initialState,
             }),
             false,
-            'reset'
-          )
+            "reset",
+          );
         },
-      }))
+      })),
     ),
-    { name: 'workflow-builder-store' }
-  )
-)
+    { name: "workflow-builder-store" },
+  ),
+);
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
 function pushHistory(state: WorkflowBuilderState, description: string): void {
-  if (!state.workflow) return
+  if (!state.workflow) return;
 
   // Remove any future history entries
-  state.history = state.history.slice(0, state.historyIndex + 1)
+  state.history = state.history.slice(0, state.historyIndex + 1);
 
   // Add new entry
   state.history.push({
     workflow: JSON.parse(JSON.stringify(state.workflow)),
     description,
     timestamp: Date.now(),
-  })
+  });
 
   // Limit history length
   if (state.history.length > state.maxHistoryLength) {
-    state.history = state.history.slice(-state.maxHistoryLength)
+    state.history = state.history.slice(-state.maxHistoryLength);
   }
 
-  state.historyIndex = state.history.length - 1
+  state.historyIndex = state.history.length - 1;
 }
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectWorkflow = (state: WorkflowBuilderStore) => state.workflow
+export const selectWorkflow = (state: WorkflowBuilderStore) => state.workflow;
 export const selectSelectedSteps = (state: WorkflowBuilderStore) =>
-  state.workflow?.steps.filter((s) => state.canvas.selectedStepIds.includes(s.id)) || []
+  state.workflow?.steps.filter((s) =>
+    state.canvas.selectedStepIds.includes(s.id),
+  ) || [];
 export const selectSelectedStep = (state: WorkflowBuilderStore) =>
   state.canvas.selectedStepIds.length === 1
-    ? state.workflow?.steps.find((s) => s.id === state.canvas.selectedStepIds[0])
-    : undefined
+    ? state.workflow?.steps.find(
+        (s) => s.id === state.canvas.selectedStepIds[0],
+      )
+    : undefined;
 export const selectSelectedEdge = (state: WorkflowBuilderStore) =>
   state.canvas.selectedEdgeId
     ? state.workflow?.edges.find((e) => e.id === state.canvas.selectedEdgeId)
-    : undefined
-export const selectCanvasState = (state: WorkflowBuilderStore) => state.canvas
-export const selectIsDirty = (state: WorkflowBuilderStore) => state.isDirty
-export const selectValidation = (state: WorkflowBuilderStore) => state.validation
+    : undefined;
+export const selectCanvasState = (state: WorkflowBuilderStore) => state.canvas;
+export const selectIsDirty = (state: WorkflowBuilderStore) => state.isDirty;
+export const selectValidation = (state: WorkflowBuilderStore) =>
+  state.validation;

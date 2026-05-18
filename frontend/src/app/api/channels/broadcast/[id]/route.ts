@@ -5,14 +5,14 @@
  * DELETE /api/channels/broadcast/[id] - Delete broadcast list
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { gql } from '@apollo/client'
-import { logger } from '@/lib/logger'
-import { apolloClient } from '@/lib/apollo-client'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { gql } from "@apollo/client";
+import { logger } from "@/lib/logger";
+import { apolloClient } from "@/lib/apollo-client";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // Schema validation
 const sendMessageSchema = z.object({
@@ -20,26 +20,27 @@ const sendMessageSchema = z.object({
   attachments: z
     .array(
       z.object({
-        type: z.enum(['image', 'video', 'audio', 'file']),
+        type: z.enum(["image", "video", "audio", "file"]),
         url: z.string().url(),
         name: z.string(),
         size: z.number().int().positive(),
         mimeType: z.string(),
-      })
+      }),
     )
     .default([]),
   scheduledFor: z.string().datetime().optional(),
-  priority: z.enum(['low', 'normal', 'high']).default('normal'),
-})
+  priority: z.enum(["low", "normal", "high"]).default("normal"),
+});
 
 // Helper functions
 function getUserIdFromRequest(request: NextRequest): string | null {
-  return request.headers.get('x-user-id') || null
+  return request.headers.get("x-user-id") || null;
 }
 
 function validateBroadcastId(id: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  return uuidRegex.test(id)
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
 }
 
 function transformBroadcastList(raw: Record<string, unknown>) {
@@ -61,32 +62,38 @@ function transformBroadcastList(raw: Record<string, unknown>) {
     lastBroadcastAt: raw.last_broadcast_at,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
-  }
+  };
 }
 
 /**
  * GET /api/channels/broadcast/[id]
  * Get broadcast list details with subscribers and recent messages
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const { id: broadcastId } = await params
+    const { id: broadcastId } = await params;
 
-    logger.info('GET /api/channels/broadcast/[id] - Get broadcast list', { broadcastId })
+    logger.info("GET /api/channels/broadcast/[id] - Get broadcast list", {
+      broadcastId,
+    });
 
     if (!validateBroadcastId(broadcastId)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid broadcast list ID' },
-        { status: 400 }
-      )
+        { success: false, error: "Invalid broadcast list ID" },
+        { status: 400 },
+      );
     }
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
 
     // Query params for pagination
-    const { searchParams } = new URL(request.url)
-    const includeMessages = searchParams.get('includeMessages') === 'true'
-    const includeSubscribers = searchParams.get('includeSubscribers') === 'true'
+    const { searchParams } = new URL(request.url);
+    const includeMessages = searchParams.get("includeMessages") === "true";
+    const includeSubscribers =
+      searchParams.get("includeSubscribers") === "true";
 
     // Fetch broadcast list from database
     const { data } = await apolloClient.query({
@@ -96,59 +103,69 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         includeMessages,
         includeSubscribers,
       },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const broadcastList = data?.nchat_broadcast_lists_by_pk
+    const broadcastList = data?.nchat_broadcast_lists_by_pk;
     if (!broadcastList) {
       return NextResponse.json(
-        { success: false, error: 'Broadcast list not found' },
-        { status: 404 }
-      )
+        { success: false, error: "Broadcast list not found" },
+        { status: 404 },
+      );
     }
 
     // Build response
     const response: Record<string, unknown> = {
       success: true,
       broadcastList: transformBroadcastList(broadcastList),
-    }
+    };
 
     // Include recent messages if requested
     if (includeMessages && broadcastList.messages) {
-      response.recentMessages = broadcastList.messages.map((msg: Record<string, unknown>) => ({
-        id: msg.id,
-        content: msg.content,
-        sentAt: msg.sent_at,
-        scheduledFor: msg.scheduled_for,
-        isScheduled: msg.is_scheduled,
-        totalRecipients: msg.total_recipients,
-        deliveredCount: msg.delivered_count,
-        readCount: msg.read_count,
-        failedCount: msg.failed_count,
-      }))
+      response.recentMessages = broadcastList.messages.map(
+        (msg: Record<string, unknown>) => ({
+          id: msg.id,
+          content: msg.content,
+          sentAt: msg.sent_at,
+          scheduledFor: msg.scheduled_for,
+          isScheduled: msg.is_scheduled,
+          totalRecipients: msg.total_recipients,
+          deliveredCount: msg.delivered_count,
+          readCount: msg.read_count,
+          failedCount: msg.failed_count,
+        }),
+      );
     }
 
     // Include subscribers if requested and user is owner
-    if (includeSubscribers && broadcastList.owner_id === userId && broadcastList.subscribers) {
-      response.subscribers = broadcastList.subscribers.map((sub: Record<string, unknown>) => ({
-        userId: sub.user_id,
-        subscribedAt: sub.subscribed_at,
-        subscribedBy: sub.subscribed_by,
-        notificationsEnabled: sub.notifications_enabled,
-        status: sub.status,
-      }))
+    if (
+      includeSubscribers &&
+      broadcastList.owner_id === userId &&
+      broadcastList.subscribers
+    ) {
+      response.subscribers = broadcastList.subscribers.map(
+        (sub: Record<string, unknown>) => ({
+          userId: sub.user_id,
+          subscribedAt: sub.subscribed_at,
+          subscribedBy: sub.subscribed_by,
+          notificationsEnabled: sub.notifications_enabled,
+          status: sub.status,
+        }),
+      );
     }
 
-    logger.info('GET /api/channels/broadcast/[id] - Success', { broadcastId })
+    logger.info("GET /api/channels/broadcast/[id] - Success", { broadcastId });
 
-    return NextResponse.json(response)
+    return NextResponse.json(response);
   } catch (error) {
-    const { id: broadcastId } = await params
-    logger.error('Error fetching broadcast list', error as Error, { broadcastId })
+    const { id: broadcastId } = await params;
+    logger.error("Error fetching broadcast list", error as Error, {
+      broadcastId,
+    });
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch broadcast list' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to fetch broadcast list" },
+      { status: 500 },
+    );
   }
 }
 
@@ -156,67 +173,76 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  * POST /api/channels/broadcast/[id]
  * Send message to broadcast list
  */
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const { id: broadcastId } = await params
+    const { id: broadcastId } = await params;
 
-    logger.info('POST /api/channels/broadcast/[id] - Send broadcast message', { broadcastId })
+    logger.info("POST /api/channels/broadcast/[id] - Send broadcast message", {
+      broadcastId,
+    });
 
     if (!validateBroadcastId(broadcastId)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid broadcast list ID' },
-        { status: 400 }
-      )
+        { success: false, error: "Invalid broadcast list ID" },
+        { status: 400 },
+      );
     }
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     // Parse and validate request body
-    const body = await request.json()
-    const validation = sendMessageSchema.safeParse(body)
+    const body = await request.json();
+    const validation = sendMessageSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request body', details: validation.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request body",
+          details: validation.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const data = validation.data
+    const data = validation.data;
 
     // Fetch broadcast list and verify ownership
     const { data: listData } = await apolloClient.query({
       query: GET_BROADCAST_LIST_OWNER_QUERY,
       variables: { broadcastId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const broadcastList = listData?.nchat_broadcast_lists_by_pk
+    const broadcastList = listData?.nchat_broadcast_lists_by_pk;
     if (!broadcastList) {
       return NextResponse.json(
-        { success: false, error: 'Broadcast list not found' },
-        { status: 404 }
-      )
+        { success: false, error: "Broadcast list not found" },
+        { status: 404 },
+      );
     }
 
     if (broadcastList.owner_id !== userId) {
       return NextResponse.json(
-        { success: false, error: 'Only the list owner can send broadcasts' },
-        { status: 403 }
-      )
+        { success: false, error: "Only the list owner can send broadcasts" },
+        { status: 403 },
+      );
     }
 
     if (broadcastList.subscriber_count === 0) {
       return NextResponse.json(
-        { success: false, error: 'Broadcast list has no active subscribers' },
-        { status: 400 }
-      )
+        { success: false, error: "Broadcast list has no active subscribers" },
+        { status: 400 },
+      );
     }
 
     // Create broadcast message
@@ -232,9 +258,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         totalRecipients: broadcastList.subscriber_count,
         priority: data.priority,
       },
-    })
+    });
 
-    const broadcastMessage = messageData?.insert_nchat_broadcast_messages_one
+    const broadcastMessage = messageData?.insert_nchat_broadcast_messages_one;
 
     // Update broadcast list stats
     await apolloClient.mutate({
@@ -243,14 +269,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         broadcastId,
         lastBroadcastAt: data.scheduledFor || new Date().toISOString(),
       },
-    })
+    });
 
-    logger.info('POST /api/channels/broadcast/[id] - Success', {
+    logger.info("POST /api/channels/broadcast/[id] - Success", {
       broadcastId,
       messageId: broadcastMessage?.id,
       recipientCount: broadcastList.subscriber_count,
       scheduled: !!data.scheduledFor,
-    })
+    });
 
     return NextResponse.json(
       {
@@ -269,21 +295,23 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           deliveredCount: 0,
           readCount: 0,
           failedCount: 0,
-          status: data.scheduledFor ? 'scheduled' : 'queued',
+          status: data.scheduledFor ? "scheduled" : "queued",
         },
         statusMessage: data.scheduledFor
           ? `Broadcast scheduled for ${data.scheduledFor}`
-          : 'Broadcast queued for delivery',
+          : "Broadcast queued for delivery",
       },
-      { status: 202 }
-    )
+      { status: 202 },
+    );
   } catch (error) {
-    const { id: broadcastId } = await params
-    logger.error('Error sending broadcast message', error as Error, { broadcastId })
+    const { id: broadcastId } = await params;
+    logger.error("Error sending broadcast message", error as Error, {
+      broadcastId,
+    });
     return NextResponse.json(
-      { success: false, error: 'Failed to send broadcast message' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to send broadcast message" },
+      { status: 500 },
+    );
   }
 }
 
@@ -293,104 +321,111 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id: broadcastId } = await params
+    const { id: broadcastId } = await params;
 
-    logger.info('DELETE /api/channels/broadcast/[id] - Delete broadcast list', { broadcastId })
+    logger.info("DELETE /api/channels/broadcast/[id] - Delete broadcast list", {
+      broadcastId,
+    });
 
     if (!validateBroadcastId(broadcastId)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid broadcast list ID' },
-        { status: 400 }
-      )
+        { success: false, error: "Invalid broadcast list ID" },
+        { status: 400 },
+      );
     }
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     // Fetch broadcast list and verify ownership
     const { data: listData } = await apolloClient.query({
       query: GET_BROADCAST_LIST_OWNER_QUERY,
       variables: { broadcastId },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const broadcastList = listData?.nchat_broadcast_lists_by_pk
+    const broadcastList = listData?.nchat_broadcast_lists_by_pk;
     if (!broadcastList) {
       return NextResponse.json(
-        { success: false, error: 'Broadcast list not found' },
-        { status: 404 }
-      )
+        { success: false, error: "Broadcast list not found" },
+        { status: 404 },
+      );
     }
 
     if (broadcastList.owner_id !== userId) {
       return NextResponse.json(
-        { success: false, error: 'Only the list owner can delete the broadcast list' },
-        { status: 403 }
-      )
+        {
+          success: false,
+          error: "Only the list owner can delete the broadcast list",
+        },
+        { status: 403 },
+      );
     }
 
     // Check for hard delete flag
-    const { searchParams } = new URL(request.url)
-    const hardDelete = searchParams.get('hardDelete') === 'true'
+    const { searchParams } = new URL(request.url);
+    const hardDelete = searchParams.get("hardDelete") === "true";
 
     if (hardDelete) {
       // Delete subscribers first
       await apolloClient.mutate({
         mutation: DELETE_BROADCAST_SUBSCRIBERS_MUTATION,
         variables: { broadcastId },
-      })
+      });
 
       // Delete messages
       await apolloClient.mutate({
         mutation: DELETE_BROADCAST_MESSAGES_MUTATION,
         variables: { broadcastId },
-      })
+      });
 
       // Delete the list
       await apolloClient.mutate({
         mutation: DELETE_BROADCAST_LIST_MUTATION,
         variables: { broadcastId },
-      })
+      });
 
-      logger.warn('DELETE /api/channels/broadcast/[id] - Hard deleted', {
+      logger.warn("DELETE /api/channels/broadcast/[id] - Hard deleted", {
         broadcastId,
         deletedBy: userId,
-      })
+      });
     } else {
       // Soft delete
       await apolloClient.mutate({
         mutation: SOFT_DELETE_BROADCAST_LIST_MUTATION,
         variables: { broadcastId },
-      })
+      });
 
-      logger.info('DELETE /api/channels/broadcast/[id] - Soft deleted', {
+      logger.info("DELETE /api/channels/broadcast/[id] - Soft deleted", {
         broadcastId,
         deletedBy: userId,
-      })
+      });
     }
 
     return NextResponse.json({
       success: true,
       message: hardDelete
-        ? 'Broadcast list deleted permanently'
-        : 'Broadcast list deactivated successfully',
+        ? "Broadcast list deleted permanently"
+        : "Broadcast list deactivated successfully",
       broadcastListId: broadcastId,
-    })
+    });
   } catch (error) {
-    const { id: broadcastId } = await params
-    logger.error('Error deleting broadcast list', error as Error, { broadcastId })
+    const { id: broadcastId } = await params;
+    logger.error("Error deleting broadcast list", error as Error, {
+      broadcastId,
+    });
     return NextResponse.json(
-      { success: false, error: 'Failed to delete broadcast list' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to delete broadcast list" },
+      { status: 500 },
+    );
   }
 }
 
@@ -449,7 +484,7 @@ const GET_BROADCAST_LIST_DETAILS_QUERY = gql`
       }
     }
   }
-`
+`;
 
 const GET_BROADCAST_LIST_OWNER_QUERY = gql`
   query GetBroadcastListOwner($broadcastId: uuid!) {
@@ -460,7 +495,7 @@ const GET_BROADCAST_LIST_OWNER_QUERY = gql`
       subscriber_count
     }
   }
-`
+`;
 
 const CREATE_BROADCAST_MESSAGE_MUTATION = gql`
   mutation CreateBroadcastMessage(
@@ -503,10 +538,13 @@ const CREATE_BROADCAST_MESSAGE_MUTATION = gql`
       failed_count
     }
   }
-`
+`;
 
 const UPDATE_BROADCAST_LIST_STATS_MUTATION = gql`
-  mutation UpdateBroadcastListStats($broadcastId: uuid!, $lastBroadcastAt: timestamptz!) {
+  mutation UpdateBroadcastListStats(
+    $broadcastId: uuid!
+    $lastBroadcastAt: timestamptz!
+  ) {
     update_nchat_broadcast_lists_by_pk(
       pk_columns: { id: $broadcastId }
       _inc: { total_messages_sent: 1 }
@@ -515,7 +553,7 @@ const UPDATE_BROADCAST_LIST_STATS_MUTATION = gql`
       id
     }
   }
-`
+`;
 
 const DELETE_BROADCAST_SUBSCRIBERS_MUTATION = gql`
   mutation DeleteBroadcastSubscribers($broadcastId: uuid!) {
@@ -525,7 +563,7 @@ const DELETE_BROADCAST_SUBSCRIBERS_MUTATION = gql`
       affected_rows
     }
   }
-`
+`;
 
 const DELETE_BROADCAST_MESSAGES_MUTATION = gql`
   mutation DeleteBroadcastMessages($broadcastId: uuid!) {
@@ -535,7 +573,7 @@ const DELETE_BROADCAST_MESSAGES_MUTATION = gql`
       affected_rows
     }
   }
-`
+`;
 
 const DELETE_BROADCAST_LIST_MUTATION = gql`
   mutation DeleteBroadcastList($broadcastId: uuid!) {
@@ -543,7 +581,7 @@ const DELETE_BROADCAST_LIST_MUTATION = gql`
       id
     }
   }
-`
+`;
 
 const SOFT_DELETE_BROADCAST_LIST_MUTATION = gql`
   mutation SoftDeleteBroadcastList($broadcastId: uuid!) {
@@ -554,4 +592,4 @@ const SOFT_DELETE_BROADCAST_LIST_MUTATION = gql`
       id
     }
   }
-`
+`;

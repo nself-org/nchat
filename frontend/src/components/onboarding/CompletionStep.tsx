@@ -1,45 +1,45 @@
-'use client'
+"use client";
 
-import { CheckCircle, Sparkles, MessageSquare, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { isFullBundleInstalled, missingPlugins } from '@/lib/features'
-import confetti from 'canvas-confetti'
-import { useEffect } from 'react'
+import { CheckCircle, Sparkles, MessageSquare, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { isFullBundleInstalled, missingPlugins } from "@/lib/features";
+import confetti from "canvas-confetti";
+import { useEffect } from "react";
 
 interface CompletionStepProps {
-  onComplete: () => void
-  userName?: string
-  appName?: string
-  channelsJoined?: number
-  invitationsSent?: number
+  onComplete: () => void;
+  userName?: string;
+  appName?: string;
+  channelsJoined?: number;
+  invitationsSent?: number;
 }
 
 export function CompletionStep({
   onComplete,
   userName,
-  appName = 'nchat',
+  appName = "nchat",
   channelsJoined = 0,
   invitationsSent = 0,
 }: CompletionStepProps) {
   // Fire confetti on mount
   useEffect(() => {
-    const duration = 2000
-    const animationEnd = Date.now() + duration
+    const duration = 2000;
+    const animationEnd = Date.now() + duration;
 
     const randomInRange = (min: number, max: number) => {
-      return Math.random() * (max - min) + min
-    }
+      return Math.random() * (max - min) + min;
+    };
 
     const interval = setInterval(() => {
-      const timeLeft = animationEnd - Date.now()
+      const timeLeft = animationEnd - Date.now();
 
       if (timeLeft <= 0) {
-        clearInterval(interval)
-        return
+        clearInterval(interval);
+        return;
       }
 
-      const particleCount = 50 * (timeLeft / duration)
+      const particleCount = 50 * (timeLeft / duration);
 
       // Fire confetti from both sides
       confetti({
@@ -50,8 +50,8 @@ export function CompletionStep({
           x: randomInRange(0.1, 0.3),
           y: Math.random() - 0.2,
         },
-        colors: ['#38BDF8', '#0EA5E9', '#0284C7', '#7C3AED', '#EC4899'],
-      })
+        colors: ["#38BDF8", "#0EA5E9", "#0284C7", "#7C3AED", "#EC4899"],
+      });
       confetti({
         particleCount,
         startVelocity: 30,
@@ -60,25 +60,25 @@ export function CompletionStep({
           x: randomInRange(0.7, 0.9),
           y: Math.random() - 0.2,
         },
-        colors: ['#38BDF8', '#0EA5E9', '#0284C7', '#7C3AED', '#EC4899'],
-      })
-    }, 250)
+        colors: ["#38BDF8", "#0EA5E9", "#0284C7", "#7C3AED", "#EC4899"],
+      });
+    }, 250);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   const achievements = [
     channelsJoined > 0 && {
-      icon: '📢',
-      text: `Joined ${channelsJoined} channel${channelsJoined !== 1 ? 's' : ''}`,
+      icon: "📢",
+      text: `Joined ${channelsJoined} channel${channelsJoined !== 1 ? "s" : ""}`,
     },
     invitationsSent > 0 && {
-      icon: '✉️',
-      text: `Invited ${invitationsSent} teammate${invitationsSent !== 1 ? 's' : ''}`,
+      icon: "✉️",
+      text: `Invited ${invitationsSent} teammate${invitationsSent !== 1 ? "s" : ""}`,
     },
-    { icon: '✅', text: 'Profile set up' },
-    { icon: '🔔', text: 'Notifications configured' },
-  ].filter(Boolean) as { icon: string; text: string }[]
+    { icon: "✅", text: "Profile set up" },
+    { icon: "🔔", text: "Notifications configured" },
+  ].filter(Boolean) as { icon: string; text: string }[];
 
   return (
     <div className="flex flex-col items-center px-4 py-8 text-center">
@@ -94,7 +94,7 @@ export function CompletionStep({
 
       {/* Congratulations */}
       <h1 className="mb-2 text-3xl font-bold text-zinc-900 dark:text-white">
-        You're All Set{userName ? `, ${userName}` : ''}!
+        You're All Set{userName ? `, ${userName}` : ""}!
       </h1>
       <p className="mb-8 max-w-md text-lg text-zinc-600 dark:text-zinc-400">
         Welcome to {appName}. Your team communication hub is ready to go.
@@ -113,7 +113,9 @@ export function CompletionStep({
                 className="flex items-center gap-3 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-800/50"
               >
                 <span className="text-xl">{achievement.icon}</span>
-                <span className="text-sm text-zinc-700 dark:text-zinc-300">{achievement.text}</span>
+                <span className="text-sm text-zinc-700 dark:text-zinc-300">
+                  {achievement.text}
+                </span>
               </div>
             ))}
           </div>
@@ -132,7 +134,9 @@ export function CompletionStep({
               <p className="text-sm font-medium text-zinc-900 dark:text-white">
                 Say hello in #general
               </p>
-              <p className="text-xs text-zinc-500">Introduce yourself to the team</p>
+              <p className="text-xs text-zinc-500">
+                Introduce yourself to the team
+              </p>
             </div>
           </div>
           <div className="flex items-start gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
@@ -141,7 +145,9 @@ export function CompletionStep({
               <p className="text-sm font-medium text-zinc-900 dark:text-white">
                 Press ? for shortcuts
               </p>
-              <p className="text-xs text-zinc-500">Learn keyboard shortcuts to work faster</p>
+              <p className="text-xs text-zinc-500">
+                Learn keyboard shortcuts to work faster
+              </p>
             </div>
           </div>
           <div className="flex items-start gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
@@ -150,7 +156,9 @@ export function CompletionStep({
               <p className="text-sm font-medium text-zinc-900 dark:text-white">
                 Use Cmd/Ctrl+K to search
               </p>
-              <p className="text-xs text-zinc-500">Find channels, people, and messages instantly</p>
+              <p className="text-xs text-zinc-500">
+                Find channels, people, and messages instantly
+              </p>
             </div>
           </div>
         </div>
@@ -163,10 +171,11 @@ export function CompletionStep({
             Activate the nChat bundle for full feature access
           </p>
           <p className="mt-1 text-sm text-indigo-700 dark:text-indigo-300">
-            Voice calls, recording, moderation, and bots require the nChat bundle — $0.99/mo.
+            Voice calls, recording, moderation, and bots require the nChat
+            bundle — $0.99/mo.
             {missingPlugins().length > 0 && (
               <span className="mt-1 block text-xs text-indigo-600 dark:text-indigo-400">
-                Not yet installed: {missingPlugins().join(', ')}
+                Not yet installed: {missingPlugins().join(", ")}
               </span>
             )}
           </p>
@@ -192,5 +201,5 @@ export function CompletionStep({
         You can always access settings to customize your experience
       </p>
     </div>
-  )
+  );
 }

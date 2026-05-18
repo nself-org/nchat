@@ -1,53 +1,64 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { type AppConfig } from '@/config/app-config'
-import { Card, CardContent } from '@/components/ui/card'
-import { MessageSquare, Users, Shield, Palette, Settings, Zap } from 'lucide-react'
+import { useEffect } from "react";
+import { type AppConfig } from "@/config/app-config";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  MessageSquare,
+  Users,
+  Shield,
+  Palette,
+  Settings,
+  Zap,
+} from "lucide-react";
 
 interface WelcomeStepProps {
-  config: AppConfig
-  onUpdate: (updates: Partial<AppConfig>) => void
-  onValidate: (isValid: boolean) => void
+  config: AppConfig;
+  onUpdate: (updates: Partial<AppConfig>) => void;
+  onValidate: (isValid: boolean) => void;
 }
 
-export function WelcomeStep({ config, onUpdate, onValidate }: WelcomeStepProps) {
+export function WelcomeStep({
+  config,
+  onUpdate,
+  onValidate,
+}: WelcomeStepProps) {
   useEffect(() => {
-    onValidate(true) // Welcome step is always valid
-  }, [onValidate])
+    onValidate(true); // Welcome step is always valid
+  }, [onValidate]);
 
   const features = [
     {
       icon: MessageSquare,
-      title: 'Team Communication',
-      description: 'Real-time messaging with channels and direct messages',
+      title: "Team Communication",
+      description: "Real-time messaging with channels and direct messages",
     },
     {
       icon: Users,
-      title: 'User Management',
-      description: 'Flexible authentication and permission systems',
+      title: "User Management",
+      description: "Flexible authentication and permission systems",
     },
     {
       icon: Shield,
-      title: 'Security First',
-      description: 'Enterprise-grade security with role-based access',
+      title: "Security First",
+      description: "Enterprise-grade security with role-based access",
     },
     {
       icon: Palette,
-      title: 'Full Customization',
-      description: 'Brand your platform with custom themes and styling',
+      title: "Full Customization",
+      description: "Brand your platform with custom themes and styling",
     },
     {
       icon: Settings,
-      title: 'Easy Configuration',
-      description: 'No-code setup for all features and integrations',
+      title: "Easy Configuration",
+      description: "No-code setup for all features and integrations",
     },
     {
       icon: Zap,
-      title: 'Multiple Deployments',
-      description: 'Corporate, community, SaaS, or white-label ready',
+      title: "Multiple Deployments",
+      description: "Corporate, community, SaaS, or white-label ready",
     },
-  ]
+  ];
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -56,9 +67,10 @@ export function WelcomeStep({ config, onUpdate, onValidate }: WelcomeStepProps) 
           Welcome to nChat Setup
         </h1>
         <p className="mx-auto max-w-2xl text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
-          Transform nChat into your perfect communication platform. Whether you're building an
-          internal corporate tool, a community forum, or a customer-facing SaaS platform, we'll help
-          you configure everything in just a few minutes.
+          Transform nChat into your perfect communication platform. Whether
+          you're building an internal corporate tool, a community forum, or a
+          customer-facing SaaS platform, we'll help you configure everything in
+          just a few minutes.
         </p>
       </div>
 
@@ -124,5 +136,5 @@ export function WelcomeStep({ config, onUpdate, onValidate }: WelcomeStepProps) 
         </p>
       </div>
     </div>
-  )
+  );
 }

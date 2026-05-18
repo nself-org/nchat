@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { AccessibilityProvider as A11yProvider } from '@/contexts/accessibility-context'
-import { useEffect } from 'react'
+import { AccessibilityProvider as A11yProvider } from "@/contexts/accessibility-context";
+import { useEffect } from "react";
 
 /**
  * Accessibility Provider Wrapper
@@ -11,56 +11,58 @@ import { useEffect } from 'react'
  */
 
 interface AccessibilityProviderProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-export function AccessibilityProvider({ children }: AccessibilityProviderProps) {
+export function AccessibilityProvider({
+  children,
+}: AccessibilityProviderProps) {
   useEffect(() => {
     // Initialize skip links
     const skipLinks = [
-      { id: 'main-content', label: 'Skip to main content' },
-      { id: 'sidebar', label: 'Skip to navigation' },
-      { id: 'message-input', label: 'Skip to message input' },
-    ]
+      { id: "main-content", label: "Skip to main content" },
+      { id: "sidebar", label: "Skip to navigation" },
+      { id: "message-input", label: "Skip to message input" },
+    ];
 
-    const container = document.createElement('div')
-    container.className = 'skip-links'
-    container.setAttribute('role', 'navigation')
-    container.setAttribute('aria-label', 'Skip links')
+    const container = document.createElement("div");
+    container.className = "skip-links";
+    container.setAttribute("role", "navigation");
+    container.setAttribute("aria-label", "Skip links");
 
     skipLinks.forEach(({ id, label }) => {
-      const link = document.createElement('a')
-      link.href = `#${id}`
-      link.className = 'skip-link'
-      link.textContent = label
+      const link = document.createElement("a");
+      link.href = `#${id}`;
+      link.className = "skip-link";
+      link.textContent = label;
 
-      link.addEventListener('click', (e) => {
-        e.preventDefault()
-        const target = document.getElementById(id)
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const target = document.getElementById(id);
         if (target) {
-          target.setAttribute('tabindex', '-1')
-          target.focus()
-          target.scrollIntoView({ behavior: 'smooth' })
+          target.setAttribute("tabindex", "-1");
+          target.focus();
+          target.scrollIntoView({ behavior: "smooth" });
 
           target.addEventListener(
-            'blur',
+            "blur",
             () => {
-              target.removeAttribute('tabindex')
+              target.removeAttribute("tabindex");
             },
-            { once: true }
-          )
+            { once: true },
+          );
         }
-      })
+      });
 
-      container.appendChild(link)
-    })
+      container.appendChild(link);
+    });
 
-    document.body.insertBefore(container, document.body.firstChild)
+    document.body.insertBefore(container, document.body.firstChild);
 
     return () => {
-      container.remove()
-    }
-  }, [])
+      container.remove();
+    };
+  }, []);
 
-  return <A11yProvider>{children}</A11yProvider>
+  return <A11yProvider>{children}</A11yProvider>;
 }

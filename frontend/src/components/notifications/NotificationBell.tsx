@@ -5,20 +5,20 @@
  * Clicking opens the notification panel/dropdown.
  */
 
-'use client'
+"use client";
 
-import React, { useCallback, useRef, useState } from 'react'
-import { Bell, BellOff, BellRing } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useNotifications } from '@/hooks/use-notifications'
-import { useNotificationStore } from '@/stores/notification-store'
-import { NotificationList } from './NotificationList'
+import React, { useCallback, useRef, useState } from "react";
+import { Bell, BellOff, BellRing } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useNotifications } from "@/hooks/use-notifications";
+import { useNotificationStore } from "@/stores/notification-store";
+import { NotificationList } from "./NotificationList";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 
 // =============================================================================
 // Types
@@ -28,52 +28,52 @@ export interface NotificationBellProps {
   /**
    * Additional class name
    */
-  className?: string
+  className?: string;
 
   /**
    * Size variant
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
 
   /**
    * Whether to show badge even when count is 0
    */
-  showZeroBadge?: boolean
+  showZeroBadge?: boolean;
 
   /**
    * Maximum count to display (shows 99+ if exceeded)
    */
-  maxCount?: number
+  maxCount?: number;
 
   /**
    * Whether notifications are muted
    */
-  muted?: boolean
+  muted?: boolean;
 
   /**
    * Callback when bell is clicked
    */
-  onClick?: () => void
+  onClick?: () => void;
 
   /**
    * Whether to show dropdown on click
    */
-  showDropdown?: boolean
+  showDropdown?: boolean;
 
   /**
    * Whether the dropdown is controlled externally
    */
-  isOpen?: boolean
+  isOpen?: boolean;
 
   /**
    * Callback when dropdown open state changes
    */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
 
   /**
    * Whether there are new notifications
    */
-  hasNewNotifications?: boolean
+  hasNewNotifications?: boolean;
 }
 
 // =============================================================================
@@ -82,7 +82,7 @@ export interface NotificationBellProps {
 
 export function NotificationBell({
   className,
-  size = 'md',
+  size = "md",
   showZeroBadge = false,
   maxCount = 99,
   muted = false,
@@ -91,64 +91,74 @@ export function NotificationBell({
   isOpen: controlledOpen,
   onOpenChange,
 }: NotificationBellProps) {
-  const [internalOpen, setInternalOpen] = useState(false)
-  const triggerRef = useRef<HTMLButtonElement>(null)
+  const [internalOpen, setInternalOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Use controlled or internal state
-  const isOpen = controlledOpen ?? internalOpen
-  const setIsOpen = onOpenChange ?? setInternalOpen
+  const isOpen = controlledOpen ?? internalOpen;
+  const setIsOpen = onOpenChange ?? setInternalOpen;
 
   // Get notification state
-  const { unreadCount, hasNewNotifications } = useNotifications()
-  const notificationCenterOpen = useNotificationStore((state) => state.notificationCenterOpen)
-  const setNotificationCenterOpen = useNotificationStore((state) => state.setNotificationCenterOpen)
+  const { unreadCount, hasNewNotifications } = useNotifications();
+  const notificationCenterOpen = useNotificationStore(
+    (state) => state.notificationCenterOpen,
+  );
+  const setNotificationCenterOpen = useNotificationStore(
+    (state) => state.setNotificationCenterOpen,
+  );
 
   // Size classes
   const sizeClasses = {
-    sm: 'h-8 w-8',
-    md: 'h-10 w-10',
-    lg: 'h-12 w-12',
-  }
+    sm: "h-8 w-8",
+    md: "h-10 w-10",
+    lg: "h-12 w-12",
+  };
 
   const iconSizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-5 w-5',
-    lg: 'h-6 w-6',
-  }
+    sm: "h-4 w-4",
+    md: "h-5 w-5",
+    lg: "h-6 w-6",
+  };
 
   const badgeSizeClasses = {
-    sm: 'min-w-[14px] h-[14px] text-[9px]',
-    md: 'min-w-[18px] h-[18px] text-[10px]',
-    lg: 'min-w-[22px] h-[22px] text-[11px]',
-  }
+    sm: "min-w-[14px] h-[14px] text-[9px]",
+    md: "min-w-[18px] h-[18px] text-[10px]",
+    lg: "min-w-[22px] h-[22px] text-[11px]",
+  };
 
   // Format count for display
-  const displayCount = unreadCount > maxCount ? `${maxCount}+` : String(unreadCount)
-  const showBadge = showZeroBadge || unreadCount > 0
+  const displayCount =
+    unreadCount > maxCount ? `${maxCount}+` : String(unreadCount);
+  const showBadge = showZeroBadge || unreadCount > 0;
 
   // Select icon based on state
-  const Icon = muted ? BellOff : hasNewNotifications ? BellRing : Bell
+  const Icon = muted ? BellOff : hasNewNotifications ? BellRing : Bell;
 
   // Handle click
   const handleClick = useCallback(() => {
-    onClick?.()
+    onClick?.();
 
     if (!showDropdown) {
-      setNotificationCenterOpen(!notificationCenterOpen)
+      setNotificationCenterOpen(!notificationCenterOpen);
     }
-  }, [onClick, showDropdown, notificationCenterOpen, setNotificationCenterOpen])
+  }, [
+    onClick,
+    showDropdown,
+    notificationCenterOpen,
+    setNotificationCenterOpen,
+  ]);
 
   // Handle dropdown open change
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      setIsOpen(open)
+      setIsOpen(open);
       if (open) {
         // Mark as seen when opened
-        setNotificationCenterOpen(true)
+        setNotificationCenterOpen(true);
       }
     },
-    [setIsOpen, setNotificationCenterOpen]
-  )
+    [setIsOpen, setNotificationCenterOpen],
+  );
 
   const bellButton = (
     <Button
@@ -156,26 +166,29 @@ export function NotificationBell({
       variant="ghost"
       size="icon"
       className={cn(
-        'relative',
+        "relative",
         sizeClasses[size],
-        hasNewNotifications && !muted && 'animate-pulse',
-        className
+        hasNewNotifications && !muted && "animate-pulse",
+        className,
       )}
       onClick={!showDropdown ? handleClick : undefined}
-      aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+      aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
     >
       <Icon
-        className={cn(iconSizeClasses[size], hasNewNotifications && !muted && 'text-primary')}
+        className={cn(
+          iconSizeClasses[size],
+          hasNewNotifications && !muted && "text-primary",
+        )}
       />
 
       {/* Badge */}
       {showBadge && (
         <span
           className={cn(
-            'absolute -right-0.5 -top-0.5 flex items-center justify-center',
-            'rounded-full bg-destructive font-medium text-destructive-foreground',
+            "absolute -right-0.5 -top-0.5 flex items-center justify-center",
+            "rounded-full bg-destructive font-medium text-destructive-foreground",
             badgeSizeClasses[size],
-            unreadCount === 0 && 'bg-muted text-muted-foreground'
+            unreadCount === 0 && "bg-muted text-muted-foreground",
           )}
         >
           {displayCount}
@@ -189,20 +202,24 @@ export function NotificationBell({
         </span>
       )}
     </Button>
-  )
+  );
 
   if (!showDropdown) {
-    return bellButton
+    return bellButton;
   }
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>{bellButton}</DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="max-h-[500px] w-[380px] p-0" sideOffset={8}>
+      <DropdownMenuContent
+        align="end"
+        className="max-h-[500px] w-[380px] p-0"
+        sideOffset={8}
+      >
         <NotificationList maxHeight="400px" showHeader showEmptyState />
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
-export default NotificationBell
+export default NotificationBell;

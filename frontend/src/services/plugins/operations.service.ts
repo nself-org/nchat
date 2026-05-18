@@ -6,11 +6,11 @@
  * and rollback management. Provides a unified API for plugin operational status.
  */
 
-import { PluginHealthChecker } from '@/lib/plugins/operations/health-checker'
-import { VersionCompatibilityChecker } from '@/lib/plugins/operations/version-compatibility'
-import { RollbackManager } from '@/lib/plugins/operations/rollback-manager'
-import { CircuitBreakerManager } from '@/lib/plugins/operations/circuit-breaker'
-import { GracefulDegradationManager } from '@/lib/plugins/operations/graceful-degradation'
+import { PluginHealthChecker } from "@/lib/plugins/operations/health-checker";
+import { VersionCompatibilityChecker } from "@/lib/plugins/operations/version-compatibility";
+import { RollbackManager } from "@/lib/plugins/operations/rollback-manager";
+import { CircuitBreakerManager } from "@/lib/plugins/operations/circuit-breaker";
+import { GracefulDegradationManager } from "@/lib/plugins/operations/graceful-degradation";
 import type {
   PluginOperationsConfig,
   PluginOperationalStatus,
@@ -24,9 +24,9 @@ import type {
   CircuitBreakerConfig,
   PluginSnapshot,
   RollbackRecord,
-} from '@/lib/plugins/operations/types'
-import { DEFAULT_PLUGIN_OPERATIONS_CONFIG } from '@/lib/plugins/operations/types'
-import type { RollbackHandler } from '@/lib/plugins/operations/rollback-manager'
+} from "@/lib/plugins/operations/types";
+import { DEFAULT_PLUGIN_OPERATIONS_CONFIG } from "@/lib/plugins/operations/types";
+import type { RollbackHandler } from "@/lib/plugins/operations/rollback-manager";
 
 // ============================================================================
 // SERVICE CONFIGURATION
@@ -34,11 +34,11 @@ import type { RollbackHandler } from '@/lib/plugins/operations/rollback-manager'
 
 export interface OperationsServiceConfig extends PluginOperationsConfig {
   /** Whether auto-rollback is triggered on plugin failure */
-  autoRollbackEnabled: boolean
+  autoRollbackEnabled: boolean;
   /** Whether to auto-degrade on circuit open */
-  autoDegradeOnCircuitOpen: boolean
+  autoDegradeOnCircuitOpen: boolean;
   /** Whether to auto-restore on circuit close */
-  autoRestoreOnCircuitClose: boolean
+  autoRestoreOnCircuitClose: boolean;
 }
 
 const DEFAULT_SERVICE_CONFIG: OperationsServiceConfig = {
@@ -46,29 +46,33 @@ const DEFAULT_SERVICE_CONFIG: OperationsServiceConfig = {
   autoRollbackEnabled: true,
   autoDegradeOnCircuitOpen: true,
   autoRestoreOnCircuitClose: true,
-}
+};
 
 // ============================================================================
 // PLUGIN OPERATIONS SERVICE
 // ============================================================================
 
 export class PluginOperationsService {
-  private config: OperationsServiceConfig
-  private healthChecker: PluginHealthChecker
-  private versionChecker: VersionCompatibilityChecker
-  private rollbackManager: RollbackManager
-  private circuitBreaker: CircuitBreakerManager
-  private degradationManager: GracefulDegradationManager
-  private initialized = false
+  private config: OperationsServiceConfig;
+  private healthChecker: PluginHealthChecker;
+  private versionChecker: VersionCompatibilityChecker;
+  private rollbackManager: RollbackManager;
+  private circuitBreaker: CircuitBreakerManager;
+  private degradationManager: GracefulDegradationManager;
+  private initialized = false;
 
   constructor(config?: Partial<OperationsServiceConfig>) {
-    this.config = { ...DEFAULT_SERVICE_CONFIG, ...config }
+    this.config = { ...DEFAULT_SERVICE_CONFIG, ...config };
 
-    this.healthChecker = new PluginHealthChecker(this.config.healthCheck)
-    this.versionChecker = new VersionCompatibilityChecker(this.config.versionCompatibility)
-    this.rollbackManager = new RollbackManager(this.config.rollback)
-    this.circuitBreaker = new CircuitBreakerManager(this.config.circuitBreaker)
-    this.degradationManager = new GracefulDegradationManager(this.config.gracefulDegradation)
+    this.healthChecker = new PluginHealthChecker(this.config.healthCheck);
+    this.versionChecker = new VersionCompatibilityChecker(
+      this.config.versionCompatibility,
+    );
+    this.rollbackManager = new RollbackManager(this.config.rollback);
+    this.circuitBreaker = new CircuitBreakerManager(this.config.circuitBreaker);
+    this.degradationManager = new GracefulDegradationManager(
+      this.config.gracefulDegradation,
+    );
   }
 
   // ==========================================================================
@@ -79,49 +83,51 @@ export class PluginOperationsService {
    * Initialize the service and wire up cross-cutting concerns.
    */
   initialize(): void {
-    if (this.initialized) return
+    if (this.initialized) return;
 
     // Wire circuit breaker -> degradation
     if (this.config.autoDegradeOnCircuitOpen) {
       this.circuitBreaker.addEventListener((event) => {
-        if (event.type === 'state_changed') {
-          const details = event.details as { fromState?: string; reason?: string } | undefined
-          if (event.state === 'open') {
+        if (event.type === "state_changed") {
+          const details = event.details as
+            | { fromState?: string; reason?: string }
+            | undefined;
+          if (event.state === "open") {
             this.degradationManager.degradePlugin(
               event.pluginId,
-              'fallback',
-              details?.reason || 'Circuit breaker opened'
-            )
+              "fallback",
+              details?.reason || "Circuit breaker opened",
+            );
           } else if (
-            event.state === 'closed' &&
+            event.state === "closed" &&
             this.config.autoRestoreOnCircuitClose
           ) {
-            this.degradationManager.restorePlugin(event.pluginId)
+            this.degradationManager.restorePlugin(event.pluginId);
           }
         }
-      })
+      });
     }
 
     // Wire health checker -> circuit breaker
     this.healthChecker.addEventListener((event) => {
-      if (event.type === 'state_changed') {
-        if (event.newState === 'unhealthy') {
+      if (event.type === "state_changed") {
+        if (event.newState === "unhealthy") {
           this.circuitBreaker.forceOpen(
             event.pluginId,
-            'Health check reports unhealthy'
-          )
+            "Health check reports unhealthy",
+          );
         }
       }
-    })
+    });
 
-    this.initialized = true
+    this.initialized = true;
   }
 
   /**
    * Check if service is initialized.
    */
   isInitialized(): boolean {
-    return this.initialized
+    return this.initialized;
   }
 
   // ==========================================================================
@@ -134,47 +140,47 @@ export class PluginOperationsService {
   registerPlugin(
     pluginId: string,
     options: {
-      healthCheck?: HealthCheckFn
-      version?: string
-      rollbackHandler?: RollbackHandler
-      circuitBreakerConfig?: Partial<CircuitBreakerConfig>
-      features?: string[]
-      fallbacks?: FallbackConfig[]
-    } = {}
+      healthCheck?: HealthCheckFn;
+      version?: string;
+      rollbackHandler?: RollbackHandler;
+      circuitBreakerConfig?: Partial<CircuitBreakerConfig>;
+      features?: string[];
+      fallbacks?: FallbackConfig[];
+    } = {},
   ): void {
     // Register with health checker
     if (options.healthCheck) {
-      this.healthChecker.registerPlugin(pluginId, options.healthCheck)
+      this.healthChecker.registerPlugin(pluginId, options.healthCheck);
     }
 
     // Check version compatibility
     if (options.version) {
-      this.versionChecker.checkCompatibility(pluginId, options.version)
+      this.versionChecker.checkCompatibility(pluginId, options.version);
     }
 
     // Register with circuit breaker
-    this.circuitBreaker.registerPlugin(pluginId, options.circuitBreakerConfig)
+    this.circuitBreaker.registerPlugin(pluginId, options.circuitBreakerConfig);
 
     // Register with degradation manager
-    this.degradationManager.registerPlugin(pluginId)
+    this.degradationManager.registerPlugin(pluginId);
 
     // Register features
     if (options.features) {
       for (const feature of options.features) {
-        this.degradationManager.registerFeature(pluginId, feature)
+        this.degradationManager.registerFeature(pluginId, feature);
       }
     }
 
     // Register fallbacks
     if (options.fallbacks) {
       for (const fallback of options.fallbacks) {
-        this.degradationManager.registerFallback(fallback)
+        this.degradationManager.registerFallback(fallback);
       }
     }
 
     // Register rollback handler
     if (options.rollbackHandler) {
-      this.rollbackManager.registerHandler(pluginId, options.rollbackHandler)
+      this.rollbackManager.registerHandler(pluginId, options.rollbackHandler);
     }
   }
 
@@ -182,10 +188,10 @@ export class PluginOperationsService {
    * Unregister a plugin from all operational systems.
    */
   unregisterPlugin(pluginId: string): void {
-    this.healthChecker.unregisterPlugin(pluginId)
-    this.circuitBreaker.unregisterPlugin(pluginId)
-    this.degradationManager.unregisterPlugin(pluginId)
-    this.rollbackManager.clearPlugin(pluginId)
+    this.healthChecker.unregisterPlugin(pluginId);
+    this.circuitBreaker.unregisterPlugin(pluginId);
+    this.degradationManager.unregisterPlugin(pluginId);
+    this.rollbackManager.clearPlugin(pluginId);
   }
 
   // ==========================================================================
@@ -200,7 +206,7 @@ export class PluginOperationsService {
     pluginId: string,
     featureId: string,
     fn: () => Promise<T>,
-    fallbackValue?: T
+    fallbackValue?: T,
   ): Promise<T> {
     // Check circuit breaker
     if (!this.circuitBreaker.allowRequest(pluginId)) {
@@ -209,25 +215,28 @@ export class PluginOperationsService {
         return this.degradationManager.executeFallback<T>(
           pluginId,
           featureId,
-          new Error('Circuit breaker is open')
-        )
+          new Error("Circuit breaker is open"),
+        );
       }
       if (fallbackValue !== undefined) {
-        return fallbackValue
+        return fallbackValue;
       }
-      throw new Error(`Circuit breaker is open for plugin "${pluginId}" and no fallback available`)
+      throw new Error(
+        `Circuit breaker is open for plugin "${pluginId}" and no fallback available`,
+      );
     }
 
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const result = await fn()
-      this.circuitBreaker.recordSuccess(pluginId, Date.now() - startTime)
-      return result
+      const result = await fn();
+      this.circuitBreaker.recordSuccess(pluginId, Date.now() - startTime);
+      return result;
     } catch (error) {
-      const responseTimeMs = Date.now() - startTime
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      this.circuitBreaker.recordFailure(pluginId, errorMessage, responseTimeMs)
+      const responseTimeMs = Date.now() - startTime;
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      this.circuitBreaker.recordFailure(pluginId, errorMessage, responseTimeMs);
 
       // Try fallback
       if (this.degradationManager.hasFallback(pluginId, featureId)) {
@@ -235,18 +244,18 @@ export class PluginOperationsService {
           return await this.degradationManager.executeFallback<T>(
             pluginId,
             featureId,
-            error instanceof Error ? error : new Error(String(error))
-          )
+            error instanceof Error ? error : new Error(String(error)),
+          );
         } catch {
           // Fallback also failed
         }
       }
 
       if (fallbackValue !== undefined) {
-        return fallbackValue
+        return fallbackValue;
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -258,28 +267,28 @@ export class PluginOperationsService {
    * Run health check for a specific plugin.
    */
   async checkHealth(pluginId: string): Promise<PluginHealthCheckResult> {
-    return this.healthChecker.checkPlugin(pluginId)
+    return this.healthChecker.checkPlugin(pluginId);
   }
 
   /**
    * Run health checks for all plugins.
    */
   async checkAllHealth(): Promise<Map<string, PluginHealthCheckResult>> {
-    return this.healthChecker.checkAll()
+    return this.healthChecker.checkAll();
   }
 
   /**
    * Start health monitoring for all plugins.
    */
   startHealthMonitoring(): void {
-    this.healthChecker.startAllMonitoring()
+    this.healthChecker.startAllMonitoring();
   }
 
   /**
    * Stop health monitoring.
    */
   stopHealthMonitoring(): void {
-    this.healthChecker.stopAllMonitoring()
+    this.healthChecker.stopAllMonitoring();
   }
 
   // ==========================================================================
@@ -291,9 +300,9 @@ export class PluginOperationsService {
    */
   checkVersionCompatibility(
     pluginId: string,
-    version: string
+    version: string,
   ): VersionCompatibilityResult {
-    return this.versionChecker.checkCompatibility(pluginId, version)
+    return this.versionChecker.checkCompatibility(pluginId, version);
   }
 
   /**
@@ -302,9 +311,12 @@ export class PluginOperationsService {
   isUpgradeSafe(
     pluginId: string,
     fromVersion: string,
-    toVersion: string
-  ): { safe: boolean; issues: Array<{ severity: string; message: string; field: string }> } {
-    return this.versionChecker.isUpgradeSafe(pluginId, fromVersion, toVersion)
+    toVersion: string,
+  ): {
+    safe: boolean;
+    issues: Array<{ severity: string; message: string; field: string }>;
+  } {
+    return this.versionChecker.isUpgradeSafe(pluginId, fromVersion, toVersion);
   }
 
   // ==========================================================================
@@ -315,28 +327,28 @@ export class PluginOperationsService {
    * Get circuit breaker status.
    */
   getCircuitBreakerStatus(pluginId: string): CircuitBreakerStatus | null {
-    return this.circuitBreaker.getStatus(pluginId)
+    return this.circuitBreaker.getStatus(pluginId);
   }
 
   /**
    * Force open a circuit.
    */
   forceOpenCircuit(pluginId: string, reason: string): void {
-    this.circuitBreaker.forceOpen(pluginId, reason)
+    this.circuitBreaker.forceOpen(pluginId, reason);
   }
 
   /**
    * Force close a circuit.
    */
   forceCloseCircuit(pluginId: string, reason: string): void {
-    this.circuitBreaker.forceClose(pluginId, reason)
+    this.circuitBreaker.forceClose(pluginId, reason);
   }
 
   /**
    * Reset a circuit breaker.
    */
   resetCircuitBreaker(pluginId: string): void {
-    this.circuitBreaker.reset(pluginId)
+    this.circuitBreaker.reset(pluginId);
   }
 
   // ==========================================================================
@@ -347,7 +359,7 @@ export class PluginOperationsService {
    * Get degradation status.
    */
   getDegradationStatus(pluginId: string): DegradationStatus | null {
-    return this.degradationManager.getStatus(pluginId)
+    return this.degradationManager.getStatus(pluginId);
   }
 
   /**
@@ -355,24 +367,24 @@ export class PluginOperationsService {
    */
   degradePlugin(
     pluginId: string,
-    level: 'partial' | 'fallback' | 'disabled',
-    reason: string
+    level: "partial" | "fallback" | "disabled",
+    reason: string,
   ): void {
-    this.degradationManager.degradePlugin(pluginId, level, reason)
+    this.degradationManager.degradePlugin(pluginId, level, reason);
   }
 
   /**
    * Restore a plugin from degradation.
    */
   restorePlugin(pluginId: string): void {
-    this.degradationManager.restorePlugin(pluginId)
+    this.degradationManager.restorePlugin(pluginId);
   }
 
   /**
    * Get all degraded plugins.
    */
   getDegradedPlugins(): DegradationStatus[] {
-    return this.degradationManager.getDegradedPlugins()
+    return this.degradationManager.getDegradedPlugins();
   }
 
   // ==========================================================================
@@ -387,9 +399,15 @@ export class PluginOperationsService {
     version: string,
     config: Record<string, unknown>,
     stateData: Record<string, unknown>,
-    reason: string
+    reason: string,
   ): PluginSnapshot {
-    return this.rollbackManager.createSnapshot(pluginId, version, config, stateData, reason)
+    return this.rollbackManager.createSnapshot(
+      pluginId,
+      version,
+      config,
+      stateData,
+      reason,
+    );
   }
 
   /**
@@ -398,9 +416,9 @@ export class PluginOperationsService {
   async rollback(
     pluginId: string,
     snapshotId: string,
-    initiatedBy: string
+    initiatedBy: string,
   ): Promise<RollbackRecord> {
-    return this.rollbackManager.rollback(pluginId, snapshotId, initiatedBy)
+    return this.rollbackManager.rollback(pluginId, snapshotId, initiatedBy);
   }
 
   /**
@@ -408,16 +426,16 @@ export class PluginOperationsService {
    */
   async rollbackToLatest(
     pluginId: string,
-    initiatedBy: string
+    initiatedBy: string,
   ): Promise<RollbackRecord> {
-    return this.rollbackManager.rollbackToLatest(pluginId, initiatedBy)
+    return this.rollbackManager.rollbackToLatest(pluginId, initiatedBy);
   }
 
   /**
    * Get snapshots for a plugin.
    */
   getSnapshots(pluginId: string): PluginSnapshot[] {
-    return this.rollbackManager.getSnapshots(pluginId)
+    return this.rollbackManager.getSnapshots(pluginId);
   }
 
   // ==========================================================================
@@ -430,8 +448,8 @@ export class PluginOperationsService {
   getOperationalStatus(pluginId: string): PluginOperationalStatus {
     const health = this.healthChecker.getStatus(pluginId) || {
       pluginId,
-      state: 'unknown' as const,
-      message: 'No health data',
+      state: "unknown" as const,
+      message: "No health data",
       checkedAt: new Date().toISOString(),
       responseTimeMs: 0,
       uptimePercent: 0,
@@ -441,11 +459,11 @@ export class PluginOperationsService {
       lastHealthyAt: null,
       lastError: null,
       details: {},
-    }
+    };
 
     const circuitBreakerStatus = this.circuitBreaker.getStatus(pluginId) || {
       pluginId,
-      state: 'closed' as const,
+      state: "closed" as const,
       failureCount: 0,
       successCount: 0,
       totalRequests: 0,
@@ -454,36 +472,36 @@ export class PluginOperationsService {
       lastOpenedAt: null,
       nextRetryAt: null,
       history: [],
-    }
+    };
 
     const degradation = this.degradationManager.getStatus(pluginId) || {
       pluginId,
-      level: 'none' as const,
+      level: "none" as const,
       degradedFeatures: [],
       fallbackFeatures: [],
       disabledFeatures: [],
       degradedSince: null,
       reason: null,
-    }
+    };
 
     const operational =
-      health.state !== 'unhealthy' &&
-      circuitBreakerStatus.state !== 'open' &&
-      degradation.level !== 'disabled'
+      health.state !== "unhealthy" &&
+      circuitBreakerStatus.state !== "open" &&
+      degradation.level !== "disabled";
 
-    let summary: string
+    let summary: string;
     if (operational) {
-      if (health.state === 'degraded' || degradation.level !== 'none') {
-        summary = 'Plugin is operational but degraded'
+      if (health.state === "degraded" || degradation.level !== "none") {
+        summary = "Plugin is operational but degraded";
       } else {
-        summary = 'Plugin is fully operational'
+        summary = "Plugin is fully operational";
       }
     } else {
-      const reasons: string[] = []
-      if (health.state === 'unhealthy') reasons.push('unhealthy')
-      if (circuitBreakerStatus.state === 'open') reasons.push('circuit open')
-      if (degradation.level === 'disabled') reasons.push('disabled')
-      summary = `Plugin is not operational: ${reasons.join(', ')}`
+      const reasons: string[] = [];
+      if (health.state === "unhealthy") reasons.push("unhealthy");
+      if (circuitBreakerStatus.state === "open") reasons.push("circuit open");
+      if (degradation.level === "disabled") reasons.push("disabled");
+      summary = `Plugin is not operational: ${reasons.join(", ")}`;
     }
 
     return {
@@ -494,30 +512,30 @@ export class PluginOperationsService {
       versionCompatibility: null,
       operational,
       summary,
-    }
+    };
   }
 
   /**
    * Get operational status for all registered plugins.
    */
   getAllOperationalStatuses(): Map<string, PluginOperationalStatus> {
-    const statuses = new Map<string, PluginOperationalStatus>()
-    const pluginIds = new Set<string>()
+    const statuses = new Map<string, PluginOperationalStatus>();
+    const pluginIds = new Set<string>();
 
     // Gather all plugin IDs from all subsystems
     for (const id of this.healthChecker.getRegisteredPlugins()) {
-      pluginIds.add(id)
+      pluginIds.add(id);
     }
 
     for (const status of this.circuitBreaker.getAllStatuses().keys()) {
-      pluginIds.add(status)
+      pluginIds.add(status);
     }
 
     for (const id of pluginIds) {
-      statuses.set(id, this.getOperationalStatus(id))
+      statuses.set(id, this.getOperationalStatus(id));
     }
 
-    return statuses
+    return statuses;
   }
 
   // ==========================================================================
@@ -528,35 +546,35 @@ export class PluginOperationsService {
    * Get the health checker instance.
    */
   getHealthChecker(): PluginHealthChecker {
-    return this.healthChecker
+    return this.healthChecker;
   }
 
   /**
    * Get the version compatibility checker.
    */
   getVersionChecker(): VersionCompatibilityChecker {
-    return this.versionChecker
+    return this.versionChecker;
   }
 
   /**
    * Get the rollback manager.
    */
   getRollbackManager(): RollbackManager {
-    return this.rollbackManager
+    return this.rollbackManager;
   }
 
   /**
    * Get the circuit breaker manager.
    */
   getCircuitBreakerManager(): CircuitBreakerManager {
-    return this.circuitBreaker
+    return this.circuitBreaker;
   }
 
   /**
    * Get the degradation manager.
    */
   getDegradationManager(): GracefulDegradationManager {
-    return this.degradationManager
+    return this.degradationManager;
   }
 
   // ==========================================================================
@@ -567,11 +585,11 @@ export class PluginOperationsService {
    * Destroy the service and clean up all resources.
    */
   destroy(): void {
-    this.healthChecker.clear()
-    this.circuitBreaker.clear()
-    this.degradationManager.clear()
-    this.rollbackManager.clear()
-    this.initialized = false
+    this.healthChecker.clear();
+    this.circuitBreaker.clear();
+    this.degradationManager.clear();
+    this.rollbackManager.clear();
+    this.initialized = false;
   }
 }
 
@@ -579,7 +597,7 @@ export class PluginOperationsService {
  * Create a new PluginOperationsService instance.
  */
 export function createPluginOperationsService(
-  config?: Partial<OperationsServiceConfig>
+  config?: Partial<OperationsServiceConfig>,
 ): PluginOperationsService {
-  return new PluginOperationsService(config)
+  return new PluginOperationsService(config);
 }

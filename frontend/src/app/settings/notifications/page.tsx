@@ -1,19 +1,20 @@
-'use client'
+"use client";
 
-import { Bell } from 'lucide-react'
-import { SettingsLayout, SettingsSection } from '@/components/settings'
-import { NotificationPreferences } from '@/components/notifications/NotificationPreferences'
-import { useToast } from '@/hooks/use-toast'
+import { Bell } from "lucide-react";
+import { SettingsLayout, SettingsSection } from "@/components/settings";
+import { NotificationPreferences } from "@/components/notifications/NotificationPreferences";
+import { useToast } from "@/hooks/use-toast";
 
 export default function NotificationsSettingsPage() {
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const handleSave = () => {
     toast({
-      title: 'Notification settings saved',
-      description: 'Your notification preferences have been updated successfully.',
-    })
-  }
+      title: "Notification settings saved",
+      description:
+        "Your notification preferences have been updated successfully.",
+    });
+  };
 
   return (
     <SettingsLayout>
@@ -40,5 +41,5 @@ export default function NotificationsSettingsPage() {
         </SettingsSection>
       </div>
     </SettingsLayout>
-  )
+  );
 }

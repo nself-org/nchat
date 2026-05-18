@@ -7,4 +7,4 @@ export const callKitManager = {
   initialize: async (_appName: string) => {},
   startOutgoingCall: async (_options: any) => {},
   reportCallConnected: async (_uuid: string) => {},
-} as any
+} as any;

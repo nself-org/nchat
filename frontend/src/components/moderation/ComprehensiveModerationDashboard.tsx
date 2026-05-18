@@ -9,14 +9,20 @@
  * - Audit trail
  */
 
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -28,51 +34,51 @@ import {
   FileText,
   AlertCircle,
   Activity,
-} from 'lucide-react'
+} from "lucide-react";
 
 interface ModerationStats {
   reports: {
-    total: number
-    pending: number
-    resolved: number
-    averageResolutionTime: string
-  }
+    total: number;
+    pending: number;
+    resolved: number;
+    averageResolutionTime: string;
+  };
   appeals: {
-    total: number
-    pending: number
-    approved: number
-    rejected: number
-    approvalRate: number
-  }
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+    approvalRate: number;
+  };
   autoModeration: {
-    total: number
-    flagged: number
-    hidden: number
-    warned: number
-    muted: number
-    banned: number
-    accuracy: number
-  }
+    total: number;
+    flagged: number;
+    hidden: number;
+    warned: number;
+    muted: number;
+    banned: number;
+    accuracy: number;
+  };
   users: {
-    totalActive: number
-    warned: number
-    muted: number
-    banned: number
-  }
+    totalActive: number;
+    warned: number;
+    muted: number;
+    banned: number;
+  };
 }
 
 export function ComprehensiveModerationDashboard() {
-  const [stats, setStats] = useState<ModerationStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [stats, setStats] = useState<ModerationStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadStats()
-  }, [])
+    loadStats();
+  }, []);
 
   const loadStats = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       // In production, fetch from API
       // const response = await fetch('/api/moderation/stats')
       // const data = await response.json()
@@ -83,7 +89,7 @@ export function ComprehensiveModerationDashboard() {
           total: 1247,
           pending: 23,
           resolved: 1224,
-          averageResolutionTime: '4.2 hours',
+          averageResolutionTime: "4.2 hours",
         },
         appeals: {
           total: 156,
@@ -107,29 +113,31 @@ export function ComprehensiveModerationDashboard() {
           muted: 45,
           banned: 12,
         },
-      })
+      });
     } catch (err) {
-      setError((err as Error).message)
+      setError((err as Error).message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-primary" />
       </div>
-    )
+    );
   }
 
   if (error || !stats) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Failed to load moderation statistics</AlertDescription>
+        <AlertDescription>
+          Failed to load moderation statistics
+        </AlertDescription>
       </Alert>
-    )
+    );
   }
 
   return (
@@ -146,18 +154,24 @@ export function ComprehensiveModerationDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Reports</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pending Reports
+            </CardTitle>
             <Flag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.reports.pending}</div>
-            <p className="text-xs text-muted-foreground">{stats.reports.total} total reports</p>
+            <p className="text-xs text-muted-foreground">
+              {stats.reports.total} total reports
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Appeals</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pending Appeals
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -170,7 +184,9 @@ export function ComprehensiveModerationDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Auto-Mod Accuracy</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Auto-Mod Accuracy
+            </CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -189,7 +205,9 @@ export function ComprehensiveModerationDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.users.totalActive.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {stats.users.totalActive.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
               {stats.users.banned} banned, {stats.users.muted} muted
             </p>
@@ -202,7 +220,8 @@ export function ComprehensiveModerationDashboard() {
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <strong>High report volume:</strong> {stats.reports.pending} pending reports need review
+            <strong>High report volume:</strong> {stats.reports.pending} pending
+            reports need review
           </AlertDescription>
         </Alert>
       )}
@@ -252,7 +271,7 @@ export function ComprehensiveModerationDashboard() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 function ReportsQueue({ pendingCount }: { pendingCount: number }) {
@@ -266,15 +285,19 @@ function ReportsQueue({ pendingCount }: { pendingCount: number }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Pending reports need your attention</p>
-              <p className="text-xs text-muted-foreground">{pendingCount} reports in queue</p>
+              <p className="text-sm font-medium">
+                Pending reports need your attention
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {pendingCount} reports in queue
+              </p>
             </div>
             <Button>View Queue</Button>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function AppealsQueue({ pendingCount }: { pendingCount: number }) {
@@ -289,17 +312,23 @@ function AppealsQueue({ pendingCount }: { pendingCount: number }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium">Appeals awaiting review</p>
-              <p className="text-xs text-muted-foreground">{pendingCount} appeals pending</p>
+              <p className="text-xs text-muted-foreground">
+                {pendingCount} appeals pending
+              </p>
             </div>
             <Button>View Appeals</Button>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-function AutoModerationMonitor({ stats }: { stats: ModerationStats['autoModeration'] }) {
+function AutoModerationMonitor({
+  stats,
+}: {
+  stats: ModerationStats["autoModeration"];
+}) {
   return (
     <Card>
       <CardHeader>
@@ -319,14 +348,18 @@ function AutoModerationMonitor({ stats }: { stats: ModerationStats['autoModerati
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Actions</p>
-              <p className="text-2xl font-bold">{stats.warned + stats.muted + stats.banned}</p>
+              <p className="text-2xl font-bold">
+                {stats.warned + stats.muted + stats.banned}
+              </p>
             </div>
           </div>
           <div className="border-t pt-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Model Accuracy</p>
-                <p className="text-xs text-muted-foreground">Based on moderator confirmations</p>
+                <p className="text-xs text-muted-foreground">
+                  Based on moderator confirmations
+                </p>
               </div>
               <Badge variant="outline" className="text-green-600">
                 {(stats.accuracy * 100).toFixed(1)}%
@@ -336,10 +369,10 @@ function AutoModerationMonitor({ stats }: { stats: ModerationStats['autoModerati
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-function UserManagement({ stats }: { stats: ModerationStats['users'] }) {
+function UserManagement({ stats }: { stats: ModerationStats["users"] }) {
   return (
     <Card>
       <CardHeader>
@@ -351,7 +384,9 @@ function UserManagement({ stats }: { stats: ModerationStats['users'] }) {
           <div className="grid grid-cols-4 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Active</p>
-              <p className="text-2xl font-bold">{stats.totalActive.toLocaleString()}</p>
+              <p className="text-2xl font-bold">
+                {stats.totalActive.toLocaleString()}
+              </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Warned</p>
@@ -369,7 +404,7 @@ function UserManagement({ stats }: { stats: ModerationStats['users'] }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function ModerationInsights() {
@@ -384,17 +419,19 @@ function ModerationInsights() {
           <Alert>
             <TrendingUp className="h-4 w-4" />
             <AlertDescription>
-              Report volume decreased by 15% this week. Auto-moderation is working effectively.
+              Report volume decreased by 15% this week. Auto-moderation is
+              working effectively.
             </AlertDescription>
           </Alert>
           <Alert>
             <CheckCircle2 className="h-4 w-4" />
             <AlertDescription>
-              Appeal approval rate is within normal range (27%). No concerning trends detected.
+              Appeal approval rate is within normal range (27%). No concerning
+              trends detected.
             </AlertDescription>
           </Alert>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,26 +1,29 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button, type ButtonProps } from '@/components/ui/button'
-import { MessageSquare, Loader2 } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button, type ButtonProps } from "@/components/ui/button";
+import { MessageSquare, Loader2 } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export interface SendMessageButtonProps extends Omit<ButtonProps, 'onClick'> {
-  userId: string
-  userName?: string
-  onSendMessage: (userId: string) => Promise<void> | void
-  showText?: boolean
+export interface SendMessageButtonProps extends Omit<ButtonProps, "onClick"> {
+  userId: string;
+  userName?: string;
+  onSendMessage: (userId: string) => Promise<void> | void;
+  showText?: boolean;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-const SendMessageButton = React.forwardRef<HTMLButtonElement, SendMessageButtonProps>(
+const SendMessageButton = React.forwardRef<
+  HTMLButtonElement,
+  SendMessageButtonProps
+>(
   (
     {
       className,
@@ -28,25 +31,25 @@ const SendMessageButton = React.forwardRef<HTMLButtonElement, SendMessageButtonP
       userName,
       onSendMessage,
       showText = true,
-      variant = 'default',
-      size = 'default',
+      variant = "default",
+      size = "default",
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const [isLoading, setIsLoading] = React.useState(false)
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const handleClick = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        await onSendMessage(userId)
+        await onSendMessage(userId);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    const buttonText = userName ? `Message ${userName}` : 'Message'
+    const buttonText = userName ? `Message ${userName}` : "Message";
 
     return (
       <Button
@@ -60,15 +63,15 @@ const SendMessageButton = React.forwardRef<HTMLButtonElement, SendMessageButtonP
         {...props}
       >
         {isLoading ? (
-          <Loader2 className={cn('h-4 w-4 animate-spin', showText && 'mr-2')} />
+          <Loader2 className={cn("h-4 w-4 animate-spin", showText && "mr-2")} />
         ) : (
-          <MessageSquare className={cn('h-4 w-4', showText && 'mr-2')} />
+          <MessageSquare className={cn("h-4 w-4", showText && "mr-2")} />
         )}
-        {showText && (isLoading ? 'Opening...' : 'Message')}
+        {showText && (isLoading ? "Opening..." : "Message")}
       </Button>
-    )
-  }
-)
-SendMessageButton.displayName = 'SendMessageButton'
+    );
+  },
+);
+SendMessageButton.displayName = "SendMessageButton";
 
-export { SendMessageButton }
+export { SendMessageButton };

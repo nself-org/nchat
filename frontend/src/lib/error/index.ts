@@ -1,6 +1,11 @@
 // Error reporter
-export { errorReporter, ErrorReporter } from './error-reporter'
-export type { ErrorContext, UserInfo, ErrorReport, ReporterConfig } from './error-reporter'
+export { errorReporter, ErrorReporter } from "./error-reporter";
+export type {
+  ErrorContext,
+  UserInfo,
+  ErrorReport,
+  ReporterConfig,
+} from "./error-reporter";
 
 // Error handler hook
 export {
@@ -8,4 +13,4 @@ export {
   createSafeAsync,
   withRetry,
   createDebouncedErrorHandler,
-} from './use-error-handler'
+} from "./use-error-handler";

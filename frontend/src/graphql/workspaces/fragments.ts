@@ -4,8 +4,8 @@
  * Reusable fragments for workspace-related queries and mutations.
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, USER_PROFILE_FRAGMENT } from '../fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT, USER_PROFILE_FRAGMENT } from "../fragments";
 
 // ============================================================================
 // WORKSPACE FRAGMENTS
@@ -25,7 +25,7 @@ export const WORKSPACE_BASIC_FRAGMENT = gql`
     member_count
     created_at
   }
-`
+`;
 
 /**
  * Full workspace details
@@ -54,7 +54,7 @@ export const WORKSPACE_FULL_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Workspace with member stats
@@ -74,7 +74,7 @@ export const WORKSPACE_WITH_STATS_FRAGMENT = gql`
     }
   }
   ${WORKSPACE_FULL_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // WORKSPACE MEMBER FRAGMENTS
@@ -92,7 +92,7 @@ export const WORKSPACE_MEMBER_BASIC_FRAGMENT = gql`
     joined_at
     nickname
   }
-`
+`;
 
 /**
  * Full workspace member with user details
@@ -110,7 +110,7 @@ export const WORKSPACE_MEMBER_FRAGMENT = gql`
     }
   }
   ${USER_PROFILE_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // WORKSPACE INVITE FRAGMENTS
@@ -134,4 +134,4 @@ export const WORKSPACE_INVITE_FRAGMENT = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;

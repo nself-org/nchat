@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import * as React from 'react'
+import * as React from "react";
 import {
   Download,
   ExternalLink,
@@ -12,13 +12,16 @@ import {
   FileAudio,
   FileVideo,
   type LucideIcon,
-} from 'lucide-react'
-import { useContextMenuStore, type FileTarget } from '@/lib/context-menu/context-menu-store'
-import { PositionedContextMenu } from './base-context-menu'
-import { MenuItem } from './menu-item'
-import { MenuSeparator } from './menu-separator'
+} from "lucide-react";
+import {
+  useContextMenuStore,
+  type FileTarget,
+} from "@/lib/context-menu/context-menu-store";
+import { PositionedContextMenu } from "./base-context-menu";
+import { MenuItem } from "./menu-item";
+import { MenuSeparator } from "./menu-separator";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -28,33 +31,40 @@ export interface FileContextMenuProps {
   /**
    * Called when an action is performed
    */
-  onAction?: (action: string, data: FileActionData) => void
+  onAction?: (action: string, data: FileActionData) => void;
 }
 
 export interface FileActionData {
-  fileId: string
-  fileName: string
-  fileUrl: string
-  action: FileAction
+  fileId: string;
+  fileName: string;
+  fileUrl: string;
+  action: FileAction;
 }
 
-export type FileAction = 'download' | 'open-new-tab' | 'preview' | 'copy-link' | 'delete'
+export type FileAction =
+  | "download"
+  | "open-new-tab"
+  | "preview"
+  | "copy-link"
+  | "delete";
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
 function getFileIcon(fileType: string): LucideIcon {
-  if (fileType.startsWith('image/')) return Image
-  if (fileType.startsWith('audio/')) return FileAudio
-  if (fileType.startsWith('video/')) return FileVideo
-  return FileText
+  if (fileType.startsWith("image/")) return Image;
+  if (fileType.startsWith("audio/")) return FileAudio;
+  if (fileType.startsWith("video/")) return FileVideo;
+  return FileText;
 }
 
 function isPreviewable(fileType: string): boolean {
   return (
-    fileType.startsWith('image/') || fileType.startsWith('video/') || fileType === 'application/pdf'
-  )
+    fileType.startsWith("image/") ||
+    fileType.startsWith("video/") ||
+    fileType === "application/pdf"
+  );
 }
 
 // ============================================================================
@@ -62,15 +72,15 @@ function isPreviewable(fileType: string): boolean {
 // ============================================================================
 
 export function FileContextMenu({ onAction }: FileContextMenuProps) {
-  const target = useContextMenuStore((state) => state.target)
-  const closeMenu = useContextMenuStore((state) => state.closeMenu)
+  const target = useContextMenuStore((state) => state.target);
+  const closeMenu = useContextMenuStore((state) => state.closeMenu);
 
   // Type guard for file target
-  const fileTarget = target?.type === 'file' ? (target as FileTarget) : null
+  const fileTarget = target?.type === "file" ? (target as FileTarget) : null;
 
-  if (!fileTarget) return null
+  if (!fileTarget) return null;
 
-  const { fileId, fileName, fileUrl, fileType, canDelete } = fileTarget
+  const { fileId, fileName, fileUrl, fileType, canDelete } = fileTarget;
 
   const handleAction = (action: FileAction) => {
     onAction?.(action, {
@@ -78,37 +88,37 @@ export function FileContextMenu({ onAction }: FileContextMenuProps) {
       fileName,
       fileUrl,
       action,
-    })
-    closeMenu()
-  }
+    });
+    closeMenu();
+  };
 
   const handleDownload = () => {
     // Create a temporary link to trigger download
-    const link = document.createElement('a')
-    link.href = fileUrl
-    link.download = fileName
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    handleAction('download')
-  }
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    handleAction("download");
+  };
 
   const handleOpenNewTab = () => {
-    window.open(fileUrl, '_blank', 'noopener,noreferrer')
-    handleAction('open-new-tab')
-  }
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
+    handleAction("open-new-tab");
+  };
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(fileUrl)
-      handleAction('copy-link')
+      await navigator.clipboard.writeText(fileUrl);
+      handleAction("copy-link");
     } catch (error) {
-      logger.error('Failed to copy link:', error)
+      logger.error("Failed to copy link:", error);
     }
-  }
+  };
 
-  const canPreview = isPreviewable(fileType)
-  const FileIcon = getFileIcon(fileType)
+  const canPreview = isPreviewable(fileType);
+  const FileIcon = getFileIcon(fileType);
 
   return (
     <PositionedContextMenu>
@@ -122,7 +132,7 @@ export function FileContextMenu({ onAction }: FileContextMenuProps) {
 
       {/* Preview (for supported file types) */}
       {canPreview && (
-        <MenuItem icon={Eye} onSelect={() => handleAction('preview')}>
+        <MenuItem icon={Eye} onSelect={() => handleAction("preview")}>
           Preview
         </MenuItem>
       )}
@@ -146,17 +156,21 @@ export function FileContextMenu({ onAction }: FileContextMenuProps) {
       {canDelete && (
         <>
           <MenuSeparator />
-          <MenuItem icon={Trash2} danger onSelect={() => handleAction('delete')}>
+          <MenuItem
+            icon={Trash2}
+            danger
+            onSelect={() => handleAction("delete")}
+          >
             Delete file
           </MenuItem>
         </>
       )}
     </PositionedContextMenu>
-  )
+  );
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export { getFileIcon, isPreviewable }
+export { getFileIcon, isPreviewable };

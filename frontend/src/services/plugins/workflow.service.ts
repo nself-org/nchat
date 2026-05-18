@@ -5,7 +5,7 @@
  * trigger engine, execution engine, approval gates, and scheduler.
  */
 
-import type { AppEventType } from '@/lib/plugins/app-contract'
+import type { AppEventType } from "@/lib/plugins/app-contract";
 import type {
   WorkflowDefinition,
   WorkflowRun,
@@ -14,15 +14,21 @@ import type {
   ScheduledExecution,
   WorkflowAuditEntry,
   WorkflowAuditEventType,
-} from '@/lib/plugins/workflows/types'
+} from "@/lib/plugins/workflows/types";
 import {
   WorkflowBuilder,
   validateWorkflowDefinition,
-} from '@/lib/plugins/workflows/workflow-builder'
-import { TriggerEngine } from '@/lib/plugins/workflows/trigger-engine'
-import { WorkflowExecutionEngine } from '@/lib/plugins/workflows/execution-engine'
-import { ApprovalGateManager, ApprovalStore } from '@/lib/plugins/workflows/approval-gate'
-import { WorkflowScheduler, ScheduleStore } from '@/lib/plugins/workflows/scheduler'
+} from "@/lib/plugins/workflows/workflow-builder";
+import { TriggerEngine } from "@/lib/plugins/workflows/trigger-engine";
+import { WorkflowExecutionEngine } from "@/lib/plugins/workflows/execution-engine";
+import {
+  ApprovalGateManager,
+  ApprovalStore,
+} from "@/lib/plugins/workflows/approval-gate";
+import {
+  WorkflowScheduler,
+  ScheduleStore,
+} from "@/lib/plugins/workflows/scheduler";
 
 // ============================================================================
 // WORKFLOW STORE
@@ -32,42 +38,42 @@ import { WorkflowScheduler, ScheduleStore } from '@/lib/plugins/workflows/schedu
  * In-memory store for workflow definitions.
  */
 export class WorkflowDefinitionStore {
-  private workflows: Map<string, WorkflowDefinition> = new Map()
+  private workflows: Map<string, WorkflowDefinition> = new Map();
 
   get(id: string): WorkflowDefinition | undefined {
-    return this.workflows.get(id)
+    return this.workflows.get(id);
   }
 
   list(filter?: {
-    enabled?: boolean
-    tags?: string[]
-    createdBy?: string
+    enabled?: boolean;
+    tags?: string[];
+    createdBy?: string;
   }): WorkflowDefinition[] {
-    let workflows = Array.from(this.workflows.values())
+    let workflows = Array.from(this.workflows.values());
     if (filter?.enabled !== undefined) {
-      workflows = workflows.filter(w => w.enabled === filter.enabled)
+      workflows = workflows.filter((w) => w.enabled === filter.enabled);
     }
     if (filter?.tags && filter.tags.length > 0) {
-      workflows = workflows.filter(w =>
-        filter.tags!.some(t => w.tags.includes(t))
-      )
+      workflows = workflows.filter((w) =>
+        filter.tags!.some((t) => w.tags.includes(t)),
+      );
     }
     if (filter?.createdBy) {
-      workflows = workflows.filter(w => w.createdBy === filter.createdBy)
+      workflows = workflows.filter((w) => w.createdBy === filter.createdBy);
     }
-    return workflows
+    return workflows;
   }
 
   save(workflow: WorkflowDefinition): void {
-    this.workflows.set(workflow.id, workflow)
+    this.workflows.set(workflow.id, workflow);
   }
 
   delete(id: string): boolean {
-    return this.workflows.delete(id)
+    return this.workflows.delete(id);
   }
 
   clear(): void {
-    this.workflows.clear()
+    this.workflows.clear();
   }
 }
 
@@ -79,47 +85,56 @@ export class WorkflowDefinitionStore {
  * Main workflow service. Coordinates all workflow subsystems.
  */
 export class WorkflowService {
-  private store: WorkflowDefinitionStore
-  private triggerEngine: TriggerEngine
-  private executionEngine: WorkflowExecutionEngine
-  private approvalManager: ApprovalGateManager
-  private scheduler: WorkflowScheduler
+  private store: WorkflowDefinitionStore;
+  private triggerEngine: TriggerEngine;
+  private executionEngine: WorkflowExecutionEngine;
+  private approvalManager: ApprovalGateManager;
+  private scheduler: WorkflowScheduler;
 
   constructor(options?: {
-    store?: WorkflowDefinitionStore
-    executionEngine?: WorkflowExecutionEngine
-    approvalManager?: ApprovalGateManager
-    scheduler?: WorkflowScheduler
+    store?: WorkflowDefinitionStore;
+    executionEngine?: WorkflowExecutionEngine;
+    approvalManager?: ApprovalGateManager;
+    scheduler?: WorkflowScheduler;
   }) {
-    this.store = options?.store ?? new WorkflowDefinitionStore()
-    this.triggerEngine = new TriggerEngine()
-    this.executionEngine = options?.executionEngine ?? new WorkflowExecutionEngine({
-      sleepFn: async () => {}, // No actual delays in service layer
-      enableAudit: true,
-    })
-    this.approvalManager = options?.approvalManager ?? new ApprovalGateManager(new ApprovalStore())
-    this.scheduler = options?.scheduler ?? new WorkflowScheduler(new ScheduleStore())
+    this.store = options?.store ?? new WorkflowDefinitionStore();
+    this.triggerEngine = new TriggerEngine();
+    this.executionEngine =
+      options?.executionEngine ??
+      new WorkflowExecutionEngine({
+        sleepFn: async () => {}, // No actual delays in service layer
+        enableAudit: true,
+      });
+    this.approvalManager =
+      options?.approvalManager ?? new ApprovalGateManager(new ApprovalStore());
+    this.scheduler =
+      options?.scheduler ?? new WorkflowScheduler(new ScheduleStore());
 
     // Wire up approval callbacks
     this.executionEngine.onApprovalRequest = (runId, stepId, action) => {
-      const run = this.executionEngine.getRun(runId)
+      const run = this.executionEngine.getRun(runId);
       if (run) {
-        this.approvalManager.createRequest(runId, stepId, run.workflowId, action)
+        this.approvalManager.createRequest(
+          runId,
+          stepId,
+          run.workflowId,
+          action,
+        );
       }
-    }
+    };
 
     // Wire up scheduler callbacks
     this.scheduler.onScheduleFired = (schedule) => {
-      const workflow = this.store.get(schedule.workflowId)
+      const workflow = this.store.get(schedule.workflowId);
       if (workflow) {
         this.executeWorkflow(workflow.id, {
-          type: 'schedule',
+          type: "schedule",
           scheduledTime: new Date().toISOString(),
         }).catch(() => {
           // Log error but don't throw
-        })
+        });
       }
-    }
+    };
   }
 
   // ==========================================================================
@@ -130,33 +145,39 @@ export class WorkflowService {
    * Create a new workflow.
    */
   createWorkflow(workflow: WorkflowDefinition): WorkflowDefinition {
-    const validation = validateWorkflowDefinition(workflow)
+    const validation = validateWorkflowDefinition(workflow);
     if (!validation.valid) {
-      const errors = validation.errors.filter(e => e.severity === 'error')
+      const errors = validation.errors.filter((e) => e.severity === "error");
       throw new WorkflowServiceError(
-        `Invalid workflow: ${errors.map(e => e.message).join('; ')}`,
-        'INVALID_WORKFLOW'
-      )
+        `Invalid workflow: ${errors.map((e) => e.message).join("; ")}`,
+        "INVALID_WORKFLOW",
+      );
     }
 
-    this.store.save(workflow)
-    this.triggerEngine.registerWorkflow(workflow)
+    this.store.save(workflow);
+    this.triggerEngine.registerWorkflow(workflow);
 
     // Set up schedule if trigger is schedule-based
-    if (workflow.trigger.type === 'schedule' && workflow.enabled) {
-      this.scheduler.createSchedule(workflow)
+    if (workflow.trigger.type === "schedule" && workflow.enabled) {
+      this.scheduler.createSchedule(workflow);
     }
 
-    return workflow
+    return workflow;
   }
 
   /**
    * Update a workflow.
    */
-  updateWorkflow(id: string, updates: Partial<WorkflowDefinition>): WorkflowDefinition {
-    const existing = this.store.get(id)
+  updateWorkflow(
+    id: string,
+    updates: Partial<WorkflowDefinition>,
+  ): WorkflowDefinition {
+    const existing = this.store.get(id);
     if (!existing) {
-      throw new WorkflowServiceError(`Workflow not found: ${id}`, 'WORKFLOW_NOT_FOUND')
+      throw new WorkflowServiceError(
+        `Workflow not found: ${id}`,
+        "WORKFLOW_NOT_FOUND",
+      );
     }
 
     const updated: WorkflowDefinition = {
@@ -166,79 +187,79 @@ export class WorkflowService {
       createdBy: existing.createdBy, // Cannot change creator
       createdAt: existing.createdAt, // Cannot change creation time
       updatedAt: new Date().toISOString(),
-    }
+    };
 
-    const validation = validateWorkflowDefinition(updated)
+    const validation = validateWorkflowDefinition(updated);
     if (!validation.valid) {
-      const errors = validation.errors.filter(e => e.severity === 'error')
+      const errors = validation.errors.filter((e) => e.severity === "error");
       throw new WorkflowServiceError(
-        `Invalid workflow: ${errors.map(e => e.message).join('; ')}`,
-        'INVALID_WORKFLOW'
-      )
+        `Invalid workflow: ${errors.map((e) => e.message).join("; ")}`,
+        "INVALID_WORKFLOW",
+      );
     }
 
-    this.store.save(updated)
+    this.store.save(updated);
 
     // Re-register with trigger engine
-    this.triggerEngine.unregisterWorkflow(id)
-    this.triggerEngine.registerWorkflow(updated)
+    this.triggerEngine.unregisterWorkflow(id);
+    this.triggerEngine.registerWorkflow(updated);
 
     // Update schedule
-    if (updated.trigger.type === 'schedule') {
-      this.scheduler.createSchedule(updated)
+    if (updated.trigger.type === "schedule") {
+      this.scheduler.createSchedule(updated);
     }
 
-    return updated
+    return updated;
   }
 
   /**
    * Delete a workflow.
    */
   deleteWorkflow(id: string): boolean {
-    const workflow = this.store.get(id)
-    if (!workflow) return false
+    const workflow = this.store.get(id);
+    if (!workflow) return false;
 
-    this.triggerEngine.unregisterWorkflow(id)
+    this.triggerEngine.unregisterWorkflow(id);
 
     // Remove schedule
-    const schedule = this.scheduler.getScheduleByWorkflow(id)
+    const schedule = this.scheduler.getScheduleByWorkflow(id);
     if (schedule) {
-      this.scheduler.removeSchedule(schedule.id)
+      this.scheduler.removeSchedule(schedule.id);
     }
 
-    return this.store.delete(id)
+    return this.store.delete(id);
   }
 
   /**
    * Get a workflow by ID.
    */
   getWorkflow(id: string): WorkflowDefinition | undefined {
-    return this.store.get(id)
+    return this.store.get(id);
   }
 
   /**
    * List workflows.
    */
   listWorkflows(filter?: {
-    enabled?: boolean
-    tags?: string[]
-    createdBy?: string
+    enabled?: boolean;
+    tags?: string[];
+    createdBy?: string;
   }): WorkflowDefinition[] {
-    return this.store.list(filter)
+    return this.store.list(filter);
   }
 
   /**
    * Enable a workflow.
    */
   enableWorkflow(id: string): WorkflowDefinition {
-    return this.updateWorkflow(id, { enabled: true })
+    return this.updateWorkflow(id, { enabled: true });
   }
 
   /**
    * Disable a workflow.
    */
   disableWorkflow(id: string): WorkflowDefinition {
-    return this.updateWorkflow(id, { enabled: false })
+    return this.updateWorkflow(id, { enabled: false });
   }
 
   // ==========================================================================
@@ -250,26 +271,35 @@ export class WorkflowService {
    */
   async executeWorkflow(
     workflowId: string,
-    triggerInfo: { type: string; userId?: string; eventData?: Record<string, unknown>; scheduledTime?: string; webhookData?: Record<string, unknown> },
-    inputs?: Record<string, unknown>
+    triggerInfo: {
+      type: string;
+      userId?: string;
+      eventData?: Record<string, unknown>;
+      scheduledTime?: string;
+      webhookData?: Record<string, unknown>;
+    },
+    inputs?: Record<string, unknown>,
   ): Promise<WorkflowRun> {
-    const workflow = this.store.get(workflowId)
+    const workflow = this.store.get(workflowId);
     if (!workflow) {
-      throw new WorkflowServiceError(`Workflow not found: ${workflowId}`, 'WORKFLOW_NOT_FOUND')
+      throw new WorkflowServiceError(
+        `Workflow not found: ${workflowId}`,
+        "WORKFLOW_NOT_FOUND",
+      );
     }
 
     if (!workflow.enabled) {
       throw new WorkflowServiceError(
         `Workflow "${workflow.name}" is disabled`,
-        'WORKFLOW_DISABLED'
-      )
+        "WORKFLOW_DISABLED",
+      );
     }
 
     return this.executionEngine.startRun(
       workflow,
-      triggerInfo as WorkflowRun['triggeredBy'],
-      inputs
-    )
+      triggerInfo as WorkflowRun["triggeredBy"],
+      inputs,
+    );
   }
 
   /**
@@ -277,68 +307,71 @@ export class WorkflowService {
    */
   async handleEvent(
     eventType: AppEventType,
-    eventData: Record<string, unknown>
+    eventData: Record<string, unknown>,
   ): Promise<WorkflowRun[]> {
-    const matches = this.triggerEngine.evaluateEvent(eventType, eventData)
-    const runs: WorkflowRun[] = []
+    const matches = this.triggerEngine.evaluateEvent(eventType, eventData);
+    const runs: WorkflowRun[] = [];
 
     for (const match of matches) {
       try {
         const run = await this.executionEngine.startRun(
           match.workflow,
-          match.triggerInfo
-        )
-        runs.push(run)
+          match.triggerInfo,
+        );
+        runs.push(run);
       } catch {
         // Log error but continue with other workflows
       }
     }
 
-    return runs
+    return runs;
   }
 
   /**
    * Cancel a running workflow.
    */
   cancelRun(runId: string): WorkflowRun {
-    return this.executionEngine.cancelRun(runId)
+    return this.executionEngine.cancelRun(runId);
   }
 
   /**
    * Retry a failed workflow run.
    */
   async retryRun(runId: string): Promise<WorkflowRun> {
-    const run = this.executionEngine.getRun(runId)
+    const run = this.executionEngine.getRun(runId);
     if (!run) {
-      throw new WorkflowServiceError(`Run not found: ${runId}`, 'RUN_NOT_FOUND')
+      throw new WorkflowServiceError(
+        `Run not found: ${runId}`,
+        "RUN_NOT_FOUND",
+      );
     }
 
-    const workflow = this.store.get(run.workflowId)
+    const workflow = this.store.get(run.workflowId);
     if (!workflow) {
       throw new WorkflowServiceError(
         `Workflow not found: ${run.workflowId}`,
-        'WORKFLOW_NOT_FOUND'
-      )
+        "WORKFLOW_NOT_FOUND",
+      );
     }
 
-    return this.executionEngine.retryRun(runId, workflow)
+    return this.executionEngine.retryRun(runId, workflow);
   }
 
   /**
    * Get a workflow run.
    */
   getRun(runId: string): WorkflowRun | undefined {
-    return this.executionEngine.getRun(runId)
+    return this.executionEngine.getRun(runId);
   }
 
   /**
    * List workflow runs.
    */
   listRuns(filter?: {
-    workflowId?: string
-    status?: WorkflowRunStatus
+    workflowId?: string;
+    status?: WorkflowRunStatus;
   }): WorkflowRun[] {
-    return this.executionEngine.listRuns(filter)
+    return this.executionEngine.listRuns(filter);
   }
 
   // ==========================================================================
@@ -348,22 +381,30 @@ export class WorkflowService {
   /**
    * Approve a pending approval request.
    */
-  approveRequest(requestId: string, userId: string, comment?: string): ApprovalRequest {
-    return this.approvalManager.approve(requestId, userId, comment)
+  approveRequest(
+    requestId: string,
+    userId: string,
+    comment?: string,
+  ): ApprovalRequest {
+    return this.approvalManager.approve(requestId, userId, comment);
   }
 
   /**
    * Reject a pending approval request.
    */
-  rejectRequest(requestId: string, userId: string, comment?: string): ApprovalRequest {
-    return this.approvalManager.reject(requestId, userId, comment)
+  rejectRequest(
+    requestId: string,
+    userId: string,
+    comment?: string,
+  ): ApprovalRequest {
+    return this.approvalManager.reject(requestId, userId, comment);
   }
 
   /**
    * Get pending approvals for a user.
    */
   getPendingApprovals(userId: string): ApprovalRequest[] {
-    return this.approvalManager.getPendingForUser(userId)
+    return this.approvalManager.getPendingForUser(userId);
   }
 
   // ==========================================================================
@@ -374,7 +415,7 @@ export class WorkflowService {
    * Get upcoming scheduled executions.
    */
   getUpcomingSchedules(limit?: number): ScheduledExecution[] {
-    return this.scheduler.getUpcomingExecutions(limit)
+    return this.scheduler.getUpcomingExecutions(limit);
   }
 
   // ==========================================================================
@@ -385,22 +426,22 @@ export class WorkflowService {
    * Get audit log entries.
    */
   getAuditLog(filter?: {
-    workflowId?: string
-    runId?: string
-    eventType?: WorkflowAuditEventType
+    workflowId?: string;
+    runId?: string;
+    eventType?: WorkflowAuditEventType;
   }): WorkflowAuditEntry[] {
-    return this.executionEngine.getAuditLog(filter)
+    return this.executionEngine.getAuditLog(filter);
   }
 
   /**
    * Clear all state (for testing).
    */
   clear(): void {
-    this.store.clear()
-    this.triggerEngine.clear()
-    this.executionEngine.clear()
-    this.approvalManager.clear()
-    this.scheduler.clear()
+    this.store.clear();
+    this.triggerEngine.clear();
+    this.executionEngine.clear();
+    this.approvalManager.clear();
+    this.scheduler.clear();
   }
 }
 
@@ -411,9 +452,9 @@ export class WorkflowService {
 export class WorkflowServiceError extends Error {
   constructor(
     message: string,
-    public readonly code: string
+    public readonly code: string,
   ) {
-    super(message)
-    this.name = 'WorkflowServiceError'
+    super(message);
+    this.name = "WorkflowServiceError";
   }
 }

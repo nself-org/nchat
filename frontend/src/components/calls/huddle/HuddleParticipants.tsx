@@ -4,14 +4,19 @@
  * Displays participant bubbles with speaking indicators and status.
  */
 
-'use client'
+"use client";
 
-import React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { type HuddleParticipant } from '@/hooks/use-huddle'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { type HuddleParticipant } from "@/hooks/use-huddle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import {
   Mic,
   MicOff,
@@ -19,20 +24,20 @@ import {
   VideoOff,
   Monitor,
   Headphones,
-} from 'lucide-react'
+} from "lucide-react";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface HuddleParticipantsProps {
-  participants: HuddleParticipant[]
-  activeSpeakerId?: string | null
-  screenSharerId?: string | null
-  className?: string
-  compact?: boolean
-  maxVisible?: number
-  onParticipantClick?: (participant: HuddleParticipant) => void
+  participants: HuddleParticipant[];
+  activeSpeakerId?: string | null;
+  screenSharerId?: string | null;
+  className?: string;
+  compact?: boolean;
+  maxVisible?: number;
+  onParticipantClick?: (participant: HuddleParticipant) => void;
 }
 
 // =============================================================================
@@ -48,27 +53,23 @@ export function HuddleParticipants({
   maxVisible = 8,
   onParticipantClick,
 }: HuddleParticipantsProps) {
-  const visibleParticipants = participants.slice(0, maxVisible)
-  const hiddenCount = Math.max(0, participants.length - maxVisible)
+  const visibleParticipants = participants.slice(0, maxVisible);
+  const hiddenCount = Math.max(0, participants.length - maxVisible);
 
-  const avatarSize = compact ? 'w-8 h-8' : 'w-10 h-10'
-  const iconSize = compact ? 'h-2.5 w-2.5' : 'h-3 w-3'
-  const badgeSize = compact ? 'w-4 h-4' : 'w-5 h-5'
+  const avatarSize = compact ? "w-8 h-8" : "w-10 h-10";
+  const iconSize = compact ? "h-2.5 w-2.5" : "h-3 w-3";
+  const badgeSize = compact ? "w-4 h-4" : "w-5 h-5";
 
   return (
     <TooltipProvider>
       <div
-        className={cn(
-          'flex flex-wrap gap-2',
-          compact && 'gap-1',
-          className
-        )}
+        className={cn("flex flex-wrap gap-2", compact && "gap-1", className)}
       >
         <AnimatePresence mode="popLayout">
           {visibleParticipants.map((participant) => {
-            const isActiveSpeaker = participant.id === activeSpeakerId
-            const isScreenSharing = participant.id === screenSharerId
-            const isSpeaking = participant.isSpeaking && !participant.isMuted
+            const isActiveSpeaker = participant.id === activeSpeakerId;
+            const isScreenSharing = participant.id === screenSharerId;
+            const isSpeaking = participant.isSpeaking && !participant.isMuted;
 
             return (
               <motion.div
@@ -88,9 +89,12 @@ export function HuddleParticipants({
                       <Avatar
                         className={cn(
                           avatarSize,
-                          'transition-all duration-200',
-                          isActiveSpeaker && 'ring-2 ring-primary ring-offset-2',
-                          isSpeaking && !isActiveSpeaker && 'ring-2 ring-green-500 ring-offset-1'
+                          "transition-all duration-200",
+                          isActiveSpeaker &&
+                            "ring-2 ring-primary ring-offset-2",
+                          isSpeaking &&
+                            !isActiveSpeaker &&
+                            "ring-2 ring-green-500 ring-offset-1",
                         )}
                       >
                         <AvatarImage
@@ -99,8 +103,8 @@ export function HuddleParticipants({
                         />
                         <AvatarFallback
                           className={cn(
-                            'text-xs font-medium',
-                            compact && 'text-[10px]'
+                            "text-xs font-medium",
+                            compact && "text-[10px]",
                           )}
                         >
                           {participant.name.charAt(0).toUpperCase()}
@@ -119,29 +123,27 @@ export function HuddleParticipants({
                           transition={{
                             duration: 1,
                             repeat: Infinity,
-                            ease: 'easeInOut',
+                            ease: "easeInOut",
                           }}
                         />
                       )}
 
                       {/* Audio level indicator */}
                       {isSpeaking && participant.audioLevel > 0 && (
-                        <div
-                          className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 flex gap-0.5"
-                        >
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 flex gap-0.5">
                           {[0.3, 0.5, 0.3].map((threshold, i) => (
                             <div
                               key={i}
                               className={cn(
-                                'w-0.5 rounded-full transition-all duration-100',
+                                "w-0.5 rounded-full transition-all duration-100",
                                 participant.audioLevel > threshold
-                                  ? 'bg-green-500'
-                                  : 'bg-muted',
+                                  ? "bg-green-500"
+                                  : "bg-muted",
                                 participant.audioLevel > threshold
                                   ? i === 1
-                                    ? 'h-2'
-                                    : 'h-1'
-                                  : 'h-0.5'
+                                    ? "h-2"
+                                    : "h-1"
+                                  : "h-0.5",
                               )}
                             />
                           ))}
@@ -151,33 +153,37 @@ export function HuddleParticipants({
                       {/* Status badges */}
                       <div
                         className={cn(
-                          'absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-background border',
-                          badgeSize
+                          "absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-background border",
+                          badgeSize,
                         )}
                       >
                         {isScreenSharing ? (
-                          <Monitor className={cn(iconSize, 'text-primary')} />
+                          <Monitor className={cn(iconSize, "text-primary")} />
                         ) : participant.isVideoEnabled ? (
-                          <Video className={cn(iconSize, 'text-muted-foreground')} />
+                          <Video
+                            className={cn(iconSize, "text-muted-foreground")}
+                          />
                         ) : participant.isMuted ? (
-                          <MicOff className={cn(iconSize, 'text-destructive')} />
+                          <MicOff
+                            className={cn(iconSize, "text-destructive")}
+                          />
                         ) : (
-                          <Mic className={cn(iconSize, 'text-green-500')} />
+                          <Mic className={cn(iconSize, "text-green-500")} />
                         )}
                       </div>
 
                       {/* Connection state indicator */}
-                      {participant.connectionState === 'connecting' && (
+                      {participant.connectionState === "connecting" && (
                         <div className="absolute inset-0 rounded-full bg-background/50 flex items-center justify-center">
                           <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                         </div>
                       )}
-                      {participant.connectionState === 'reconnecting' && (
+                      {participant.connectionState === "reconnecting" && (
                         <div className="absolute inset-0 rounded-full bg-yellow-500/20 flex items-center justify-center">
                           <div className="w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin" />
                         </div>
                       )}
-                      {participant.connectionState === 'disconnected' && (
+                      {participant.connectionState === "disconnected" && (
                         <div className="absolute inset-0 rounded-full bg-destructive/20 flex items-center justify-center">
                           <div className="w-2 h-2 rounded-full bg-destructive" />
                         </div>
@@ -218,7 +224,7 @@ export function HuddleParticipants({
                   </TooltipContent>
                 </Tooltip>
               </motion.div>
-            )
+            );
           })}
 
           {/* Hidden count */}
@@ -232,9 +238,9 @@ export function HuddleParticipants({
                 <TooltipTrigger asChild>
                   <div
                     className={cn(
-                      'flex items-center justify-center rounded-full bg-muted text-muted-foreground font-medium',
+                      "flex items-center justify-center rounded-full bg-muted text-muted-foreground font-medium",
                       avatarSize,
-                      compact ? 'text-xs' : 'text-sm'
+                      compact ? "text-xs" : "text-sm",
                     )}
                   >
                     +{hiddenCount}
@@ -242,12 +248,14 @@ export function HuddleParticipants({
                 </TooltipTrigger>
                 <TooltipContent>
                   <div className="text-center">
-                    <div className="font-medium">{hiddenCount} more participants</div>
+                    <div className="font-medium">
+                      {hiddenCount} more participants
+                    </div>
                     <div className="text-xs text-muted-foreground">
                       {participants
                         .slice(maxVisible)
                         .map((p) => p.name)
-                        .join(', ')}
+                        .join(", ")}
                     </div>
                   </div>
                 </TooltipContent>
@@ -257,7 +265,7 @@ export function HuddleParticipants({
         </AnimatePresence>
       </div>
     </TooltipProvider>
-  )
+  );
 }
 
 // =============================================================================
@@ -265,13 +273,13 @@ export function HuddleParticipants({
 // =============================================================================
 
 export interface HuddleParticipantListProps {
-  participants: HuddleParticipant[]
-  activeSpeakerId?: string | null
-  screenSharerId?: string | null
-  className?: string
-  onMuteParticipant?: (participantId: string) => void
-  onRemoveParticipant?: (participantId: string) => void
-  canManage?: boolean
+  participants: HuddleParticipant[];
+  activeSpeakerId?: string | null;
+  screenSharerId?: string | null;
+  className?: string;
+  onMuteParticipant?: (participantId: string) => void;
+  onRemoveParticipant?: (participantId: string) => void;
+  canManage?: boolean;
 }
 
 export function HuddleParticipantList({
@@ -284,19 +292,19 @@ export function HuddleParticipantList({
   canManage = false,
 }: HuddleParticipantListProps) {
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn("space-y-1", className)}>
       {participants.map((participant) => {
-        const isActiveSpeaker = participant.id === activeSpeakerId
-        const isScreenSharing = participant.id === screenSharerId
-        const isSpeaking = participant.isSpeaking && !participant.isMuted
+        const isActiveSpeaker = participant.id === activeSpeakerId;
+        const isScreenSharing = participant.id === screenSharerId;
+        const isSpeaking = participant.isSpeaking && !participant.isMuted;
 
         return (
           <div
             key={participant.id}
             className={cn(
-              'flex items-center gap-2 px-2 py-1.5 rounded-lg',
-              isActiveSpeaker && 'bg-primary/10',
-              isSpeaking && !isActiveSpeaker && 'bg-green-500/10'
+              "flex items-center gap-2 px-2 py-1.5 rounded-lg",
+              isActiveSpeaker && "bg-primary/10",
+              isSpeaking && !isActiveSpeaker && "bg-green-500/10",
             )}
           >
             <Avatar className="w-7 h-7">
@@ -330,15 +338,15 @@ export function HuddleParticipantList({
                       <div
                         key={i}
                         className={cn(
-                          'w-0.5 rounded-full transition-all duration-100',
+                          "w-0.5 rounded-full transition-all duration-100",
                           participant.audioLevel > threshold
-                            ? 'bg-green-500'
-                            : 'bg-muted',
+                            ? "bg-green-500"
+                            : "bg-muted",
                           participant.audioLevel > threshold
                             ? i === 1
-                              ? 'h-3'
-                              : 'h-2'
-                            : 'h-1'
+                              ? "h-3"
+                              : "h-2"
+                            : "h-1",
                         )}
                       />
                     ))}
@@ -349,10 +357,10 @@ export function HuddleParticipantList({
               )}
             </div>
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
-export default HuddleParticipants
+export default HuddleParticipants;

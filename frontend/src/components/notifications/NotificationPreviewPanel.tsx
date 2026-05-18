@@ -1,50 +1,55 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { useNotificationSettingsStore } from '@/stores/notification-settings-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNotificationSettingsStore } from "@/stores/notification-settings-store";
 
 export interface NotificationPreviewPanelProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 /**
  * NotificationPreviewPanel - Preview how notifications will look
  */
-export function NotificationPreviewPanel({ className, ...props }: NotificationPreviewPanelProps) {
-  const preferences = useNotificationSettingsStore((state) => state.preferences)
-  const [showPreview, setShowPreview] = React.useState(false)
+export function NotificationPreviewPanel({
+  className,
+  ...props
+}: NotificationPreviewPanelProps) {
+  const preferences = useNotificationSettingsStore(
+    (state) => state.preferences,
+  );
+  const [showPreview, setShowPreview] = React.useState(false);
 
   // Send a test notification
   const handleSendTest = () => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission === 'granted') {
-        const notification = new Notification('Test Notification', {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "granted") {
+        const notification = new Notification("Test Notification", {
           body: preferences.showMessagePreview
-            ? 'This is a preview of how your notifications will look.'
-            : 'You have a new notification',
-          icon: '/favicon.ico',
+            ? "This is a preview of how your notifications will look."
+            : "You have a new notification",
+          icon: "/favicon.ico",
           silent: !preferences.sound.enabled,
-        })
+        });
 
-        setTimeout(() => notification.close(), 5000)
-        setShowPreview(true)
-        setTimeout(() => setShowPreview(false), 5000)
+        setTimeout(() => notification.close(), 5000);
+        setShowPreview(true);
+        setTimeout(() => setShowPreview(false), 5000);
       } else {
-        alert('Please grant notification permissions first.')
+        alert("Please grant notification permissions first.");
       }
     }
-  }
+  };
 
   return (
-    <Card className={cn('p-4', className)} {...props}>
+    <Card className={cn("p-4", className)} {...props}>
       <h3 className="mb-4 text-sm font-medium">Notification Preview</h3>
 
       {/* Preview Card */}
       <div
         className={cn(
-          'rounded-lg border bg-card p-4 transition-all duration-300',
-          showPreview && 'ring-2 ring-primary'
+          "rounded-lg border bg-card p-4 transition-all duration-300",
+          showPreview && "ring-2 ring-primary",
         )}
       >
         <div className="flex items-start gap-3">
@@ -63,14 +68,14 @@ export function NotificationPreviewPanel({ className, ...props }: NotificationPr
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">
-                {preferences.showSenderName ? 'John Doe' : 'New message'}
+                {preferences.showSenderName ? "John Doe" : "New message"}
               </span>
               <span className="text-xs text-muted-foreground">just now</span>
             </div>
             <p className="mt-0.5 truncate text-sm text-muted-foreground">
               {preferences.showMessagePreview
-                ? 'Hey! Can you check the latest pull request when you get a chance?'
-                : 'You have a new notification'}
+                ? "Hey! Can you check the latest pull request when you get a chance?"
+                : "You have a new notification"}
             </p>
           </div>
         </div>
@@ -80,9 +85,14 @@ export function NotificationPreviewPanel({ className, ...props }: NotificationPr
       <div className="mt-4 space-y-2 text-xs text-muted-foreground">
         <p>Preview shows:</p>
         <ul className="list-inside list-disc space-y-1">
-          <li>Sender name: {preferences.showSenderName ? 'Visible' : 'Hidden'}</li>
-          <li>Message preview: {preferences.showMessagePreview ? 'Visible' : 'Hidden'}</li>
-          <li>Sound: {preferences.sound.enabled ? 'Enabled' : 'Disabled'}</li>
+          <li>
+            Sender name: {preferences.showSenderName ? "Visible" : "Hidden"}
+          </li>
+          <li>
+            Message preview:{" "}
+            {preferences.showMessagePreview ? "Visible" : "Hidden"}
+          </li>
+          <li>Sound: {preferences.sound.enabled ? "Enabled" : "Disabled"}</li>
         </ul>
       </div>
 
@@ -93,9 +103,9 @@ export function NotificationPreviewPanel({ className, ...props }: NotificationPr
         </Button>
       </div>
     </Card>
-  )
+  );
 }
 
-NotificationPreviewPanel.displayName = 'NotificationPreviewPanel'
+NotificationPreviewPanel.displayName = "NotificationPreviewPanel";
 
-export default NotificationPreviewPanel
+export default NotificationPreviewPanel;

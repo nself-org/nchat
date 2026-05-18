@@ -1,8 +1,14 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
   XCircle,
@@ -13,30 +19,30 @@ import {
   Server,
   Shield,
   Zap,
-} from 'lucide-react'
-import { useState, useEffect } from 'react'
+} from "lucide-react";
+import { useState, useEffect } from "react";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface ServiceStatus {
-  name: string
-  status: 'healthy' | 'unhealthy' | 'starting' | 'stopped'
-  uptime: string
-  cpu: string
-  memory: string
-  url?: string
+  name: string;
+  status: "healthy" | "unhealthy" | "starting" | "stopped";
+  uptime: string;
+  cpu: string;
+  memory: string;
+  url?: string;
 }
 
 export function BackendStatus() {
-  const [services, setServices] = useState<ServiceStatus[]>([])
-  const [loading, setLoading] = useState(true)
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+  const [services, setServices] = useState<ServiceStatus[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   useEffect(() => {
-    fetchServiceStatus()
-    const interval = setInterval(fetchServiceStatus, 10000) // Refresh every 10s
-    return () => clearInterval(interval)
-  }, [])
+    fetchServiceStatus();
+    const interval = setInterval(fetchServiceStatus, 10000); // Refresh every 10s
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchServiceStatus = async () => {
     try {
@@ -44,89 +50,90 @@ export function BackendStatus() {
       // For now, using mock data
       const mockData: ServiceStatus[] = [
         {
-          name: 'PostgreSQL',
-          status: 'healthy',
-          uptime: '5d 3h',
-          cpu: '12%',
-          memory: '1.2GB',
-          url: 'postgres://localhost:5432',
+          name: "PostgreSQL",
+          status: "healthy",
+          uptime: "5d 3h",
+          cpu: "12%",
+          memory: "1.2GB",
+          url: "postgres://localhost:5432",
         },
         {
-          name: 'Hasura GraphQL',
-          status: 'healthy',
-          uptime: '5d 3h',
-          cpu: '8%',
-          memory: '512MB',
-          url: 'https://api.local.nself.org',
+          name: "Hasura GraphQL",
+          status: "healthy",
+          uptime: "5d 3h",
+          cpu: "8%",
+          memory: "512MB",
+          url: "https://api.local.nself.org",
         },
         {
-          name: 'Auth Service',
-          status: 'healthy',
-          uptime: '5d 3h',
-          cpu: '3%',
-          memory: '256MB',
-          url: 'https://auth.local.nself.org',
+          name: "Auth Service",
+          status: "healthy",
+          uptime: "5d 3h",
+          cpu: "3%",
+          memory: "256MB",
+          url: "https://auth.local.nself.org",
         },
         {
-          name: 'Nginx',
-          status: 'healthy',
-          uptime: '5d 3h',
-          cpu: '1%',
-          memory: '64MB',
-          url: 'https://local.nself.org',
+          name: "Nginx",
+          status: "healthy",
+          uptime: "5d 3h",
+          cpu: "1%",
+          memory: "64MB",
+          url: "https://local.nself.org",
         },
         {
-          name: 'Redis',
-          status: 'healthy',
-          uptime: '5d 3h',
-          cpu: '2%',
-          memory: '128MB',
+          name: "Redis",
+          status: "healthy",
+          uptime: "5d 3h",
+          cpu: "2%",
+          memory: "128MB",
         },
-      ]
+      ];
 
-      setServices(mockData)
-      setLastUpdate(new Date())
-      setLoading(false)
+      setServices(mockData);
+      setLastUpdate(new Date());
+      setLoading(false);
     } catch (error) {
-      logger.error('Failed to fetch service status:', error)
-      setLoading(false)
+      logger.error("Failed to fetch service status:", error);
+      setLoading(false);
     }
-  }
+  };
 
-  const getStatusIcon = (status: ServiceStatus['status']) => {
+  const getStatusIcon = (status: ServiceStatus["status"]) => {
     switch (status) {
-      case 'healthy':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />
-      case 'unhealthy':
-        return <XCircle className="h-5 w-5 text-red-500" />
-      case 'starting':
-        return <AlertCircle className="h-5 w-5 text-yellow-500" />
-      case 'stopped':
-        return <XCircle className="h-5 w-5 text-gray-400" />
+      case "healthy":
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      case "unhealthy":
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case "starting":
+        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
+      case "stopped":
+        return <XCircle className="h-5 w-5 text-gray-400" />;
     }
-  }
+  };
 
-  const getStatusBadge = (status: ServiceStatus['status']) => {
+  const getStatusBadge = (status: ServiceStatus["status"]) => {
     const variants = {
-      healthy: 'default' as const,
-      unhealthy: 'destructive' as const,
-      starting: 'secondary' as const,
-      stopped: 'outline' as const,
-    }
+      healthy: "default" as const,
+      unhealthy: "destructive" as const,
+      starting: "secondary" as const,
+      stopped: "outline" as const,
+    };
 
-    return <Badge variant={variants[status]}>{status}</Badge>
-  }
+    return <Badge variant={variants[status]}>{status}</Badge>;
+  };
 
   const getServiceIcon = (name: string) => {
-    if (name.includes('PostgreSQL')) return <Database className="h-5 w-5" />
-    if (name.includes('Hasura')) return <Zap className="h-5 w-5" />
-    if (name.includes('Auth')) return <Shield className="h-5 w-5" />
-    return <Server className="h-5 w-5" />
-  }
+    if (name.includes("PostgreSQL")) return <Database className="h-5 w-5" />;
+    if (name.includes("Hasura")) return <Zap className="h-5 w-5" />;
+    if (name.includes("Auth")) return <Shield className="h-5 w-5" />;
+    return <Server className="h-5 w-5" />;
+  };
 
-  const healthyCount = services.filter((s) => s.status === 'healthy').length
-  const totalCount = services.length
-  const healthPercentage = totalCount > 0 ? Math.round((healthyCount / totalCount) * 100) : 0
+  const healthyCount = services.filter((s) => s.status === "healthy").length;
+  const totalCount = services.length;
+  const healthPercentage =
+    totalCount > 0 ? Math.round((healthyCount / totalCount) * 100) : 0;
 
   return (
     <div className="space-y-4">
@@ -138,12 +145,23 @@ export function BackendStatus() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchServiceStatus} disabled={loading}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchServiceStatus}
+            disabled={loading}
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <a href="https://admin.local.nself.org" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://admin.local.nself.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Terminal className="mr-2 h-4 w-4" />
               Open Admin UI
             </a>
@@ -222,5 +240,5 @@ export function BackendStatus() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

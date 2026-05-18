@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * MediaItem - Single media item component for galleries
@@ -6,28 +6,44 @@
  * Displays a media item with thumbnail, info, and interaction states.
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { MediaItem as MediaItemType, MediaViewMode } from '@/lib/media/media-types'
-import { formatFileSize, formatDuration, getMediaTypeIcon } from '@/lib/media/media-manager'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Checkbox } from '@radix-ui/react-checkbox'
-import { Image, Video, Music, FileText, Archive, File, Play, CheckCircle } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import {
+  MediaItem as MediaItemType,
+  MediaViewMode,
+} from "@/lib/media/media-types";
+import {
+  formatFileSize,
+  formatDuration,
+  getMediaTypeIcon,
+} from "@/lib/media/media-manager";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Checkbox } from "@radix-ui/react-checkbox";
+import {
+  Image,
+  Video,
+  Music,
+  FileText,
+  Archive,
+  File,
+  Play,
+  CheckCircle,
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface MediaItemProps {
-  item: MediaItemType
-  viewMode?: MediaViewMode
-  isSelected?: boolean
-  isSelectMode?: boolean
-  showInfo?: boolean
-  onClick?: (item: MediaItemType) => void
-  onSelect?: (item: MediaItemType) => void
-  onDoubleClick?: (item: MediaItemType) => void
-  className?: string
+  item: MediaItemType;
+  viewMode?: MediaViewMode;
+  isSelected?: boolean;
+  isSelectMode?: boolean;
+  showInfo?: boolean;
+  onClick?: (item: MediaItemType) => void;
+  onSelect?: (item: MediaItemType) => void;
+  onDoubleClick?: (item: MediaItemType) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -41,7 +57,7 @@ const MediaTypeIcons = {
   document: FileText,
   archive: Archive,
   other: File,
-}
+};
 
 // ============================================================================
 // Component
@@ -49,7 +65,7 @@ const MediaTypeIcons = {
 
 export function MediaItem({
   item,
-  viewMode = 'grid',
+  viewMode = "grid",
   isSelected = false,
   isSelectMode = false,
   showInfo = true,
@@ -58,57 +74,57 @@ export function MediaItem({
   onDoubleClick,
   className,
 }: MediaItemProps) {
-  const TypeIcon = MediaTypeIcons[item.fileType] || File
+  const TypeIcon = MediaTypeIcons[item.fileType] || File;
 
   const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (isSelectMode) {
-      e.preventDefault()
-      e.stopPropagation()
-      onSelect?.(item)
-    } else if ('shiftKey' in e && (e.shiftKey || e.metaKey || e.ctrlKey)) {
-      e.preventDefault()
-      onSelect?.(item)
+      e.preventDefault();
+      e.stopPropagation();
+      onSelect?.(item);
+    } else if ("shiftKey" in e && (e.shiftKey || e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      onSelect?.(item);
     } else {
-      onClick?.(item)
+      onClick?.(item);
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleClick(e)
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleClick(e);
     }
-  }
+  };
 
   const handleDoubleClick = () => {
     if (!isSelectMode) {
-      onDoubleClick?.(item)
+      onDoubleClick?.(item);
     }
-  }
+  };
 
   const handleCheckboxClick = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation()
-    onSelect?.(item)
-  }
+    e.stopPropagation();
+    onSelect?.(item);
+  };
 
   const handleCheckboxKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleCheckboxClick(e)
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCheckboxClick(e);
     }
-  }
+  };
 
   // Grid view
-  if (viewMode === 'grid' || viewMode === 'masonry') {
+  if (viewMode === "grid" || viewMode === "masonry") {
     return (
       <div
         role="button"
         tabIndex={0}
         className={cn(
-          'group relative cursor-pointer overflow-hidden rounded-lg border bg-card transition-all',
-          'hover:border-primary/50 hover:shadow-md',
-          isSelected && 'ring-primary/30 border-primary ring-2',
-          className
+          "group relative cursor-pointer overflow-hidden rounded-lg border bg-card transition-all",
+          "hover:border-primary/50 hover:shadow-md",
+          isSelected && "ring-primary/30 border-primary ring-2",
+          className,
         )}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
@@ -130,7 +146,7 @@ export function MediaItem({
           )}
 
           {/* Video play overlay */}
-          {item.fileType === 'video' && (
+          {item.fileType === "video" && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
               <div className="rounded-full bg-white/90 p-3">
                 <Play className="h-6 w-6 fill-current text-black" />
@@ -150,17 +166,17 @@ export function MediaItem({
             <div
               role="checkbox"
               tabIndex={0}
-              aria-checked={isSelected ? 'true' : 'false'}
+              aria-checked={isSelected ? "true" : "false"}
               className="absolute left-2 top-2 z-10"
               onClick={handleCheckboxClick}
               onKeyDown={handleCheckboxKeyDown}
             >
               <div
                 className={cn(
-                  'flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors',
+                  "flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors",
                   isSelected
-                    ? 'text-primary-foreground border-primary bg-primary'
-                    : 'hover:border-primary/50 border-white bg-black/30 text-transparent'
+                    ? "text-primary-foreground border-primary bg-primary"
+                    : "hover:border-primary/50 border-white bg-black/30 text-transparent",
                 )}
               >
                 {isSelected && <CheckCircle className="h-4 w-4" />}
@@ -178,11 +194,13 @@ export function MediaItem({
         {showInfo && (
           <div className="p-2">
             <p className="truncate text-sm font-medium">{item.fileName}</p>
-            <p className="text-xs text-muted-foreground">{formatFileSize(item.fileSize)}</p>
+            <p className="text-xs text-muted-foreground">
+              {formatFileSize(item.fileSize)}
+            </p>
           </div>
         )}
       </div>
-    )
+    );
   }
 
   // List view
@@ -191,10 +209,10 @@ export function MediaItem({
       role="button"
       tabIndex={0}
       className={cn(
-        'group flex cursor-pointer items-center gap-3 rounded-lg border bg-card p-3 transition-all',
-        'hover:border-primary/50 hover:bg-accent/50',
-        isSelected && 'ring-primary/30 border-primary bg-accent ring-1',
-        className
+        "group flex cursor-pointer items-center gap-3 rounded-lg border bg-card p-3 transition-all",
+        "hover:border-primary/50 hover:bg-accent/50",
+        isSelected && "ring-primary/30 border-primary bg-accent ring-1",
+        className,
       )}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -205,16 +223,16 @@ export function MediaItem({
         <div
           role="checkbox"
           tabIndex={0}
-          aria-checked={isSelected ? 'true' : 'false'}
+          aria-checked={isSelected ? "true" : "false"}
           onClick={handleCheckboxClick}
           onKeyDown={handleCheckboxKeyDown}
         >
           <div
             className={cn(
-              'flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors',
+              "flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors",
               isSelected
-                ? 'text-primary-foreground border-primary bg-primary'
-                : 'border-muted-foreground/50 hover:border-primary/50 text-transparent'
+                ? "text-primary-foreground border-primary bg-primary"
+                : "border-muted-foreground/50 hover:border-primary/50 text-transparent",
             )}
           >
             {isSelected && <CheckCircle className="h-4 w-4" />}
@@ -257,7 +275,9 @@ export function MediaItem({
       {/* Uploader */}
       <div className="flex items-center gap-2">
         <Avatar className="h-6 w-6">
-          {item.uploadedBy.avatarUrl && <AvatarImage src={item.uploadedBy.avatarUrl} />}
+          {item.uploadedBy.avatarUrl && (
+            <AvatarImage src={item.uploadedBy.avatarUrl} />
+          )}
           <AvatarFallback className="text-xs">
             {item.uploadedBy.displayName.charAt(0).toUpperCase()}
           </AvatarFallback>
@@ -270,7 +290,7 @@ export function MediaItem({
       {/* Type icon */}
       <TypeIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
     </div>
-  )
+  );
 }
 
-export default MediaItem
+export default MediaItem;

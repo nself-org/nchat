@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState } from 'react'
-import Link from 'next/link'
+import * as React from "react";
+import { useState } from "react";
+import Link from "next/link";
 import {
   ArrowLeft,
   Save,
@@ -14,22 +14,28 @@ import {
   Bell,
   Hash,
   Loader2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,87 +46,98 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { AppIcon } from './AppCard'
-import { AppPermissions } from './AppPermissions'
-import { useAppDirectoryStore } from '@/stores/app-directory-store'
-import type { App, AppInstallation, AppSettingDefinition } from '@/lib/app-directory/app-types'
+} from "@/components/ui/alert-dialog";
+import { AppIcon } from "./AppCard";
+import { AppPermissions } from "./AppPermissions";
+import { useAppDirectoryStore } from "@/stores/app-directory-store";
+import type {
+  App,
+  AppInstallation,
+  AppSettingDefinition,
+} from "@/lib/app-directory/app-types";
 
 interface AppSettingsProps {
-  app: App
-  installation: AppInstallation
-  className?: string
+  app: App;
+  installation: AppInstallation;
+  className?: string;
 }
 
-export function AppSettings({ app, installation, className }: AppSettingsProps) {
-  const { uninstallApp, updateInstallation, isInstalling } = useAppDirectoryStore()
-  const [settings, setSettings] = useState<Record<string, unknown>>(installation.settings)
-  const [hasChanges, setHasChanges] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
+export function AppSettings({
+  app,
+  installation,
+  className,
+}: AppSettingsProps) {
+  const { uninstallApp, updateInstallation, isInstalling } =
+    useAppDirectoryStore();
+  const [settings, setSettings] = useState<Record<string, unknown>>(
+    installation.settings,
+  );
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSettingChange = (key: string, value: unknown) => {
-    setSettings((prev) => ({ ...prev, [key]: value }))
-    setHasChanges(true)
-  }
+    setSettings((prev) => ({ ...prev, [key]: value }));
+    setHasChanges(true);
+  };
 
   const handleSave = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
     // Simulate save
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    updateInstallation(app.id, { settings })
-    setHasChanges(false)
-    setIsSaving(false)
-  }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    updateInstallation(app.id, { settings });
+    setHasChanges(false);
+    setIsSaving(false);
+  };
 
   const handleReset = () => {
-    setSettings(installation.settings)
-    setHasChanges(false)
-  }
+    setSettings(installation.settings);
+    setHasChanges(false);
+  };
 
   const handleUninstall = async () => {
-    await uninstallApp(app.id)
-    window.location.href = '/apps/installed'
-  }
+    await uninstallApp(app.id);
+    window.location.href = "/apps/installed";
+  };
 
   const handlePauseToggle = async () => {
-    const newStatus = installation.status === 'paused' ? 'active' : 'paused'
-    updateInstallation(app.id, { status: newStatus })
-  }
+    const newStatus = installation.status === "paused" ? "active" : "paused";
+    updateInstallation(app.id, { status: newStatus });
+  };
 
   // Sample settings definitions (in real app, these would come from the app manifest)
   const settingDefinitions: AppSettingDefinition[] = [
     {
-      key: 'notifications_enabled',
-      label: 'Enable Notifications',
-      description: 'Receive notifications from this app',
-      type: 'boolean',
+      key: "notifications_enabled",
+      label: "Enable Notifications",
+      description: "Receive notifications from this app",
+      type: "boolean",
       defaultValue: true,
       required: false,
     },
     {
-      key: 'default_channel',
-      label: 'Default Channel',
-      description: 'Channel where app messages will be posted',
-      type: 'channel',
-      defaultValue: '',
+      key: "default_channel",
+      label: "Default Channel",
+      description: "Channel where app messages will be posted",
+      type: "channel",
+      defaultValue: "",
       required: false,
     },
     {
-      key: 'webhook_url',
-      label: 'Webhook URL',
-      description: 'URL to send webhook events to',
-      type: 'text',
-      defaultValue: '',
+      key: "webhook_url",
+      label: "Webhook URL",
+      description: "URL to send webhook events to",
+      type: "text",
+      defaultValue: "",
       required: false,
       validation: {
-        pattern: '^https?://',
-        message: 'Must be a valid URL starting with http:// or https://',
+        pattern: "^https?://",
+        message: "Must be a valid URL starting with http:// or https://",
       },
     },
-  ]
+  ];
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Back Link */}
       <Link
         href="/apps/installed"
@@ -168,7 +185,9 @@ export function AppSettings({ app, installation, className }: AppSettingsProps) 
           <Card>
             <CardHeader>
               <CardTitle>General Settings</CardTitle>
-              <CardDescription>Configure how this app works in your workspace</CardDescription>
+              <CardDescription>
+                Configure how this app works in your workspace
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {settingDefinitions.map((definition) => (
@@ -176,7 +195,9 @@ export function AppSettings({ app, installation, className }: AppSettingsProps) 
                   key={definition.key}
                   definition={definition}
                   value={settings[definition.key]}
-                  onChange={(value) => handleSettingChange(definition.key, value)}
+                  onChange={(value) =>
+                    handleSettingChange(definition.key, value)
+                  }
                 />
               ))}
             </CardContent>
@@ -189,7 +210,9 @@ export function AppSettings({ app, installation, className }: AppSettingsProps) 
                 <Shield className="h-5 w-5" />
                 <div>
                   <CardTitle>Permissions</CardTitle>
-                  <CardDescription>Permissions granted to this app</CardDescription>
+                  <CardDescription>
+                    Permissions granted to this app
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -211,17 +234,21 @@ export function AppSettings({ app, installation, className }: AppSettingsProps) 
                 <span className="text-sm">Status</span>
                 <span
                   className={cn(
-                    'text-sm font-medium',
-                    installation.status === 'active' && 'text-green-600',
-                    installation.status === 'paused' && 'text-yellow-600'
+                    "text-sm font-medium",
+                    installation.status === "active" && "text-green-600",
+                    installation.status === "paused" && "text-yellow-600",
                   )}
                 >
-                  {installation.status === 'active' ? 'Active' : 'Paused'}
+                  {installation.status === "active" ? "Active" : "Paused"}
                 </span>
               </div>
               <Separator />
-              <Button variant="outline" className="w-full" onClick={handlePauseToggle}>
-                {installation.status === 'paused' ? (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handlePauseToggle}
+              >
+                {installation.status === "paused" ? (
                   <>
                     <Play className="mr-2 h-4 w-4" />
                     Resume App
@@ -234,9 +261,9 @@ export function AppSettings({ app, installation, className }: AppSettingsProps) 
                 )}
               </Button>
               <p className="text-xs text-muted-foreground">
-                {installation.status === 'paused'
-                  ? 'App is paused and will not run until resumed.'
-                  : 'Pausing the app will stop it from running while keeping your settings.'}
+                {installation.status === "paused"
+                  ? "App is paused and will not run until resumed."
+                  : "Pausing the app will stop it from running while keeping your settings."}
               </p>
             </CardContent>
           </Card>
@@ -258,8 +285,8 @@ export function AppSettings({ app, installation, className }: AppSettingsProps) 
                   <AlertDialogHeader>
                     <AlertDialogTitle>Uninstall {app.name}?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will remove the app and all its settings from your workspace. This action
-                      cannot be undone.
+                      This will remove the app and all its settings from your
+                      workspace. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -283,26 +310,28 @@ export function AppSettings({ app, installation, className }: AppSettingsProps) 
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface SettingFieldProps {
-  definition: AppSettingDefinition
-  value: unknown
-  onChange: (value: unknown) => void
+  definition: AppSettingDefinition;
+  value: unknown;
+  onChange: (value: unknown) => void;
 }
 
 function SettingField({ definition, value, onChange }: SettingFieldProps) {
-  const currentValue = value ?? definition.defaultValue
+  const currentValue = value ?? definition.defaultValue;
 
   switch (definition.type) {
-    case 'boolean':
+    case "boolean":
       return (
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label>{definition.label}</Label>
             {definition.description && (
-              <p className="text-sm text-muted-foreground">{definition.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {definition.description}
+              </p>
             )}
           </div>
           <Switch
@@ -310,29 +339,33 @@ function SettingField({ definition, value, onChange }: SettingFieldProps) {
             onCheckedChange={(checked) => onChange(checked)}
           />
         </div>
-      )
+      );
 
-    case 'text':
+    case "text":
       return (
         <div className="space-y-2">
           <Label>{definition.label}</Label>
           {definition.description && (
-            <p className="text-sm text-muted-foreground">{definition.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {definition.description}
+            </p>
           )}
           <Input
-            value={(currentValue as string) || ''}
+            value={(currentValue as string) || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={`Enter ${definition.label.toLowerCase()}`}
           />
         </div>
-      )
+      );
 
-    case 'number':
+    case "number":
       return (
         <div className="space-y-2">
           <Label>{definition.label}</Label>
           {definition.description && (
-            <p className="text-sm text-muted-foreground">{definition.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {definition.description}
+            </p>
           )}
           <Input
             type="number"
@@ -342,18 +375,25 @@ function SettingField({ definition, value, onChange }: SettingFieldProps) {
             max={definition.validation?.max}
           />
         </div>
-      )
+      );
 
-    case 'select':
+    case "select":
       return (
         <div className="space-y-2">
           <Label>{definition.label}</Label>
           {definition.description && (
-            <p className="text-sm text-muted-foreground">{definition.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {definition.description}
+            </p>
           )}
-          <Select value={(currentValue as string) || ''} onValueChange={(val) => onChange(val)}>
+          <Select
+            value={(currentValue as string) || ""}
+            onValueChange={(val) => onChange(val)}
+          >
             <SelectTrigger>
-              <SelectValue placeholder={`Select ${definition.label.toLowerCase()}`} />
+              <SelectValue
+                placeholder={`Select ${definition.label.toLowerCase()}`}
+              />
             </SelectTrigger>
             <SelectContent>
               {definition.options?.map((option) => (
@@ -364,9 +404,9 @@ function SettingField({ definition, value, onChange }: SettingFieldProps) {
             </SelectContent>
           </Select>
         </div>
-      )
+      );
 
-    case 'channel':
+    case "channel":
       return (
         <div className="space-y-2">
           <Label className="flex items-center gap-2">
@@ -374,9 +414,14 @@ function SettingField({ definition, value, onChange }: SettingFieldProps) {
             {definition.label}
           </Label>
           {definition.description && (
-            <p className="text-sm text-muted-foreground">{definition.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {definition.description}
+            </p>
           )}
-          <Select value={(currentValue as string) || ''} onValueChange={(val) => onChange(val)}>
+          <Select
+            value={(currentValue as string) || ""}
+            onValueChange={(val) => onChange(val)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select a channel" />
             </SelectTrigger>
@@ -387,9 +432,9 @@ function SettingField({ definition, value, onChange }: SettingFieldProps) {
             </SelectContent>
           </Select>
         </div>
-      )
+      );
 
     default:
-      return null
+      return null;
   }
 }

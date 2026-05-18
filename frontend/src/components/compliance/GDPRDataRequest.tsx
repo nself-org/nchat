@@ -5,17 +5,23 @@
  * proper verification and compliance workflows.
  */
 
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import {
   AlertTriangle,
   Download,
@@ -25,25 +31,32 @@ import {
   CheckCircle2,
   FileText,
   Info,
-} from 'lucide-react'
-import type { ExportDataCategory, DeletionScope } from '@/lib/compliance/compliance-types'
+} from "lucide-react";
+import type {
+  ExportDataCategory,
+  DeletionScope,
+} from "@/lib/compliance/compliance-types";
 
 interface GDPRDataRequestProps {
-  userId: string
-  userEmail: string
+  userId: string;
+  userEmail: string;
 }
 
 export function GDPRDataRequest({ userId, userEmail }: GDPRDataRequestProps) {
-  const [requestType, setRequestType] = useState<'export' | 'delete' | null>(null)
+  const [requestType, setRequestType] = useState<"export" | "delete" | null>(
+    null,
+  );
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Your Data Rights (GDPR)</h2>
+        <h2 className="text-2xl font-bold tracking-tight">
+          Your Data Rights (GDPR)
+        </h2>
         <p className="text-muted-foreground">
-          Under the General Data Protection Regulation (GDPR), you have the right to access and
-          control your personal data.
+          Under the General Data Protection Regulation (GDPR), you have the
+          right to access and control your personal data.
         </p>
       </div>
 
@@ -52,7 +65,7 @@ export function GDPRDataRequest({ userId, userEmail }: GDPRDataRequestProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <Card
             className="cursor-pointer hover:border-primary"
-            onClick={() => setRequestType('export')}
+            onClick={() => setRequestType("export")}
           >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -83,7 +96,7 @@ export function GDPRDataRequest({ userId, userEmail }: GDPRDataRequestProps) {
 
           <Card
             className="cursor-pointer hover:border-destructive"
-            onClick={() => setRequestType('delete')}
+            onClick={() => setRequestType("delete")}
           >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -115,7 +128,7 @@ export function GDPRDataRequest({ userId, userEmail }: GDPRDataRequestProps) {
       )}
 
       {/* Export Request Form */}
-      {requestType === 'export' && (
+      {requestType === "export" && (
         <DataExportForm
           userId={userId}
           userEmail={userEmail}
@@ -124,7 +137,7 @@ export function GDPRDataRequest({ userId, userEmail }: GDPRDataRequestProps) {
       )}
 
       {/* Delete Request Form */}
-      {requestType === 'delete' && (
+      {requestType === "delete" && (
         <DataDeletionForm
           userId={userId}
           userEmail={userEmail}
@@ -132,7 +145,7 @@ export function GDPRDataRequest({ userId, userEmail }: GDPRDataRequestProps) {
         />
       )}
     </div>
-  )
+  );
 }
 
 function DataExportForm({
@@ -140,33 +153,39 @@ function DataExportForm({
   userEmail,
   onCancel,
 }: {
-  userId: string
-  userEmail: string
-  onCancel: () => void
+  userId: string;
+  userEmail: string;
+  onCancel: () => void;
 }) {
-  const [selectedCategories, setSelectedCategories] = useState<ExportDataCategory[]>(['all'])
-  const [format, setFormat] = useState<'json' | 'csv' | 'zip'>('zip')
-  const [includeMetadata, setIncludeMetadata] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
+  const [selectedCategories, setSelectedCategories] = useState<
+    ExportDataCategory[]
+  >(["all"]);
+  const [format, setFormat] = useState<"json" | "csv" | "zip">("zip");
+  const [includeMetadata, setIncludeMetadata] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  const categories: { value: ExportDataCategory; label: string; description: string }[] = [
-    { value: 'all', label: 'Everything', description: 'Complete data export' },
-    { value: 'profile', label: 'Profile', description: 'Account information' },
-    { value: 'messages', label: 'Messages', description: 'All your messages' },
-    { value: 'files', label: 'Files', description: 'Uploaded files' },
-    { value: 'reactions', label: 'Reactions', description: 'Your reactions' },
-    { value: 'activity', label: 'Activity', description: 'Login history' },
-    { value: 'settings', label: 'Settings', description: 'Preferences' },
-    { value: 'consents', label: 'Consents', description: 'Consent records' },
-  ]
+  const categories: {
+    value: ExportDataCategory;
+    label: string;
+    description: string;
+  }[] = [
+    { value: "all", label: "Everything", description: "Complete data export" },
+    { value: "profile", label: "Profile", description: "Account information" },
+    { value: "messages", label: "Messages", description: "All your messages" },
+    { value: "files", label: "Files", description: "Uploaded files" },
+    { value: "reactions", label: "Reactions", description: "Your reactions" },
+    { value: "activity", label: "Activity", description: "Login history" },
+    { value: "settings", label: "Settings", description: "Preferences" },
+    { value: "consents", label: "Consents", description: "Consent records" },
+  ];
 
   const handleSubmit = async () => {
     try {
-      setSubmitting(true)
+      setSubmitting(true);
 
-      const response = await fetch('/api/compliance/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/compliance/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: userId,
           user_email: userEmail,
@@ -174,27 +193,29 @@ function DataExportForm({
           format,
           include_metadata: includeMetadata,
         }),
-      })
+      });
 
-      if (!response.ok) throw new Error('Failed to submit export request')
+      if (!response.ok) throw new Error("Failed to submit export request");
 
       // Show success message
-      alert('Export request submitted! You will receive an email when your data is ready.')
-      onCancel()
+      alert(
+        "Export request submitted! You will receive an email when your data is ready.",
+      );
+      onCancel();
     } catch (error) {
-      alert('Failed to submit export request. Please try again.')
+      alert("Failed to submit export request. Please try again.");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Request Data Export</CardTitle>
         <CardDescription>
-          Select what data you want to export. We will prepare your data and send you a secure
-          download link.
+          Select what data you want to export. We will prepare your data and
+          send you a secure download link.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -208,14 +229,14 @@ function DataExportForm({
                   id={category.value}
                   checked={selectedCategories.includes(category.value)}
                   onCheckedChange={(checked) => {
-                    if (category.value === 'all') {
-                      setSelectedCategories(checked ? ['all'] : [])
+                    if (category.value === "all") {
+                      setSelectedCategories(checked ? ["all"] : []);
                     } else {
                       setSelectedCategories((prev) =>
                         checked
-                          ? [...prev.filter((c) => c !== 'all'), category.value]
-                          : prev.filter((c) => c !== category.value)
-                      )
+                          ? [...prev.filter((c) => c !== "all"), category.value]
+                          : prev.filter((c) => c !== category.value),
+                      );
                     }
                   }}
                 />
@@ -226,7 +247,9 @@ function DataExportForm({
                   >
                     {category.label}
                   </label>
-                  <p className="text-sm text-muted-foreground">{category.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {category.description}
+                  </p>
                 </div>
               </div>
             ))}
@@ -259,7 +282,10 @@ function DataExportForm({
             checked={includeMetadata}
             onCheckedChange={(checked) => setIncludeMetadata(!!checked)}
           />
-          <label htmlFor="metadata" className="text-sm font-medium leading-none">
+          <label
+            htmlFor="metadata"
+            className="text-sm font-medium leading-none"
+          >
             Include metadata (timestamps, IDs, etc.)
           </label>
         </div>
@@ -268,8 +294,8 @@ function DataExportForm({
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            Your export will be available for 7 days and can be downloaded up to 5 times. Processing
-            typically takes 24-48 hours.
+            Your export will be available for 7 days and can be downloaded up to
+            5 times. Processing typically takes 24-48 hours.
           </AlertDescription>
         </Alert>
 
@@ -278,13 +304,16 @@ function DataExportForm({
           <Button variant="outline" onClick={onCancel} disabled={submitting}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting || selectedCategories.length === 0}>
-            {submitting ? 'Submitting...' : 'Submit Request'}
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting || selectedCategories.length === 0}
+          >
+            {submitting ? "Submitting..." : "Submit Request"}
           </Button>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function DataDeletionForm({
@@ -292,93 +321,111 @@ function DataDeletionForm({
   userEmail,
   onCancel,
 }: {
-  userId: string
-  userEmail: string
-  onCancel: () => void
+  userId: string;
+  userEmail: string;
+  onCancel: () => void;
 }) {
-  const [scope, setScope] = useState<DeletionScope>('full_account')
-  const [reason, setReason] = useState('')
-  const [understood, setUnderstood] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [scope, setScope] = useState<DeletionScope>("full_account");
+  const [reason, setReason] = useState("");
+  const [understood, setUnderstood] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const scopes: { value: DeletionScope; label: string; description: string; warning: string }[] = [
+  const scopes: {
+    value: DeletionScope;
+    label: string;
+    description: string;
+    warning: string;
+  }[] = [
     {
-      value: 'full_account',
-      label: 'Delete Everything',
-      description: 'Permanently delete your entire account and all associated data',
-      warning: 'This will delete your account, messages, files, and all other data.',
+      value: "full_account",
+      label: "Delete Everything",
+      description:
+        "Permanently delete your entire account and all associated data",
+      warning:
+        "This will delete your account, messages, files, and all other data.",
     },
     {
-      value: 'messages_only',
-      label: 'Messages Only',
-      description: 'Delete all your messages but keep your account',
-      warning: 'Your messages will be permanently removed from all channels.',
+      value: "messages_only",
+      label: "Messages Only",
+      description: "Delete all your messages but keep your account",
+      warning: "Your messages will be permanently removed from all channels.",
     },
     {
-      value: 'files_only',
-      label: 'Files Only',
-      description: 'Delete all files you have uploaded',
-      warning: 'All uploaded files will be permanently deleted.',
+      value: "files_only",
+      label: "Files Only",
+      description: "Delete all files you have uploaded",
+      warning: "All uploaded files will be permanently deleted.",
     },
     {
-      value: 'activity_only',
-      label: 'Activity Data',
-      description: 'Delete activity logs and analytics data',
-      warning: 'Your activity history will be removed.',
+      value: "activity_only",
+      label: "Activity Data",
+      description: "Delete activity logs and analytics data",
+      warning: "Your activity history will be removed.",
     },
-  ]
+  ];
 
   const handleSubmit = async () => {
     try {
-      setSubmitting(true)
+      setSubmitting(true);
 
-      const response = await fetch('/api/compliance/deletion', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/compliance/deletion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: userId,
           user_email: userEmail,
           scope,
           reason,
         }),
-      })
+      });
 
-      if (!response.ok) throw new Error('Failed to submit deletion request')
+      if (!response.ok) throw new Error("Failed to submit deletion request");
 
       alert(
-        'Deletion request submitted. You will receive an email to verify your identity. You have 14 days to cancel.'
-      )
-      onCancel()
+        "Deletion request submitted. You will receive an email to verify your identity. You have 14 days to cancel.",
+      );
+      onCancel();
     } catch (error) {
-      alert('Failed to submit deletion request. Please try again.')
+      alert("Failed to submit deletion request. Please try again.");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
-  const selectedScope = scopes.find((s) => s.value === scope)!
+  const selectedScope = scopes.find((s) => s.value === scope)!;
 
   return (
     <Card className="border-destructive">
       <CardHeader>
-        <CardTitle className="text-destructive">Request Data Deletion</CardTitle>
+        <CardTitle className="text-destructive">
+          Request Data Deletion
+        </CardTitle>
         <CardDescription>
-          This action will permanently delete your data. Please read carefully before proceeding.
+          This action will permanently delete your data. Please read carefully
+          before proceeding.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Scope Selection */}
         <div className="space-y-3">
           <Label>What would you like to delete?</Label>
-          <RadioGroup value={scope} onValueChange={(v) => setScope(v as DeletionScope)}>
+          <RadioGroup
+            value={scope}
+            onValueChange={(v) => setScope(v as DeletionScope)}
+          >
             {scopes.map((s) => (
-              <div key={s.value} className="flex items-start space-x-3 rounded-lg border p-4">
+              <div
+                key={s.value}
+                className="flex items-start space-x-3 rounded-lg border p-4"
+              >
                 <RadioGroupItem value={s.value} id={s.value} className="mt-1" />
                 <div className="grid flex-1 gap-1.5 leading-none">
                   <Label htmlFor={s.value} className="font-medium">
                     {s.label}
                   </Label>
-                  <p className="text-sm text-muted-foreground">{s.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {s.description}
+                  </p>
                 </div>
               </div>
             ))}
@@ -401,8 +448,8 @@ function DataDeletionForm({
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Warning:</strong> {selectedScope.warning} This action cannot be undone after the
-            14-day cooling-off period.
+            <strong>Warning:</strong> {selectedScope.warning} This action cannot
+            be undone after the 14-day cooling-off period.
           </AlertDescription>
         </Alert>
 
@@ -413,9 +460,12 @@ function DataDeletionForm({
             checked={understood}
             onCheckedChange={(checked) => setUnderstood(!!checked)}
           />
-          <label htmlFor="understood" className="text-sm font-medium leading-relaxed">
-            I understand that this deletion is permanent and cannot be undone. I have 14 days to
-            cancel this request before it is processed.
+          <label
+            htmlFor="understood"
+            className="text-sm font-medium leading-relaxed"
+          >
+            I understand that this deletion is permanent and cannot be undone. I
+            have 14 days to cancel this request before it is processed.
           </label>
         </div>
 
@@ -423,9 +473,10 @@ function DataDeletionForm({
         <Alert>
           <Shield className="h-4 w-4" />
           <AlertDescription>
-            You will receive an email to verify your identity. After verification, there is a 14-day
-            cooling-off period during which you can cancel. Deletion begins after this period and
-            may take up to 30 days to complete.
+            You will receive an email to verify your identity. After
+            verification, there is a 14-day cooling-off period during which you
+            can cancel. Deletion begins after this period and may take up to 30
+            days to complete.
           </AlertDescription>
         </Alert>
 
@@ -434,11 +485,15 @@ function DataDeletionForm({
           <Button variant="outline" onClick={onCancel} disabled={submitting}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={handleSubmit} disabled={submitting || !understood}>
-            {submitting ? 'Submitting...' : 'Submit Deletion Request'}
+          <Button
+            variant="destructive"
+            onClick={handleSubmit}
+            disabled={submitting || !understood}
+          >
+            {submitting ? "Submitting..." : "Submit Deletion Request"}
           </Button>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

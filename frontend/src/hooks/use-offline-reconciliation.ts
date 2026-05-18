@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useOfflineReconciliation Hook
@@ -10,7 +10,7 @@
  * @version 1.0.0
  */
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   getReconciliationManager,
   ReconciliationManager,
@@ -18,26 +18,26 @@ import {
   type ConflictInfo,
   type ReconciliationEvent,
   type ReconciliationConfig,
-} from '@/lib/offline/reconciliation-manager'
+} from "@/lib/offline/reconciliation-manager";
 import {
   getStorageQuotaManager,
   StorageQuotaManager,
   type StorageStats,
   type StorageStatus,
-} from '@/lib/offline/storage-quota-manager'
+} from "@/lib/offline/storage-quota-manager";
 import {
   getMessageOptimisticUpdates,
   type OptimisticUpdate,
   type PendingMessageData,
-} from '@/lib/offline/optimistic-updates'
-import { getNetworkDetector } from '@/lib/offline/network-detector'
-import { type ResolutionStrategy } from '@/lib/offline/conflict-resolver'
+} from "@/lib/offline/optimistic-updates";
+import { getNetworkDetector } from "@/lib/offline/network-detector";
+import { type ResolutionStrategy } from "@/lib/offline/conflict-resolver";
 import type {
   QueuedSendMessage,
   QueuedEditMessage,
   QueuedDeleteMessage,
   QueuedReaction,
-} from '@/lib/offline/offline-types'
+} from "@/lib/offline/offline-types";
 
 // =============================================================================
 // Types
@@ -48,31 +48,31 @@ import type {
  */
 export interface OfflineReconciliationState {
   /** Whether the app is online */
-  isOnline: boolean
+  isOnline: boolean;
   /** Whether sync is in progress */
-  isSyncing: boolean
+  isSyncing: boolean;
   /** Sync progress (0-100) */
-  syncProgress: number
+  syncProgress: number;
   /** Number of pending operations */
-  pendingCount: number
+  pendingCount: number;
   /** Pending operations list */
-  pendingOperations: PendingOperation[]
+  pendingOperations: PendingOperation[];
   /** Number of unresolved conflicts */
-  conflictCount: number
+  conflictCount: number;
   /** Unresolved conflicts list */
-  unresolvedConflicts: ConflictInfo[]
+  unresolvedConflicts: ConflictInfo[];
   /** Optimistic message updates */
-  optimisticMessages: OptimisticUpdate<PendingMessageData>[]
+  optimisticMessages: OptimisticUpdate<PendingMessageData>[];
   /** Storage statistics */
-  storageStats: StorageStats | null
+  storageStats: StorageStats | null;
   /** Storage status */
-  storageStatus: StorageStatus
+  storageStatus: StorageStatus;
   /** Last sync timestamp */
-  lastSyncAt: Date | null
+  lastSyncAt: Date | null;
   /** Has any pending changes */
-  hasPendingChanges: boolean
+  hasPendingChanges: boolean;
   /** Is storage critical (near quota) */
-  isStorageCritical: boolean
+  isStorageCritical: boolean;
 }
 
 /**
@@ -80,39 +80,63 @@ export interface OfflineReconciliationState {
  */
 export interface OfflineReconciliationActions {
   // Queue operations
-  queueMessage: (message: QueuedSendMessage) => Promise<PendingOperation<QueuedSendMessage>>
-  queueEdit: (edit: QueuedEditMessage) => Promise<PendingOperation<QueuedEditMessage>>
-  queueDelete: (deletion: QueuedDeleteMessage) => Promise<PendingOperation<QueuedDeleteMessage>>
-  queueReaction: (reaction: QueuedReaction, add: boolean) => Promise<PendingOperation<QueuedReaction>>
-  queueReadReceipt: (channelId: string, messageId: string) => Promise<PendingOperation>
+  queueMessage: (
+    message: QueuedSendMessage,
+  ) => Promise<PendingOperation<QueuedSendMessage>>;
+  queueEdit: (
+    edit: QueuedEditMessage,
+  ) => Promise<PendingOperation<QueuedEditMessage>>;
+  queueDelete: (
+    deletion: QueuedDeleteMessage,
+  ) => Promise<PendingOperation<QueuedDeleteMessage>>;
+  queueReaction: (
+    reaction: QueuedReaction,
+    add: boolean,
+  ) => Promise<PendingOperation<QueuedReaction>>;
+  queueReadReceipt: (
+    channelId: string,
+    messageId: string,
+  ) => Promise<PendingOperation>;
 
   // Sync operations
-  syncNow: () => Promise<void>
-  pauseSync: () => void
-  resumeSync: () => void
+  syncNow: () => Promise<void>;
+  pauseSync: () => void;
+  resumeSync: () => void;
 
   // Conflict resolution
-  resolveConflict: (conflictId: string, strategy: ResolutionStrategy, customValue?: unknown) => Promise<void>
-  resolveAllConflicts: () => Promise<void>
-  dismissConflict: (conflictId: string) => void
+  resolveConflict: (
+    conflictId: string,
+    strategy: ResolutionStrategy,
+    customValue?: unknown,
+  ) => Promise<void>;
+  resolveAllConflicts: () => Promise<void>;
+  dismissConflict: (conflictId: string) => void;
 
   // Optimistic updates
-  addOptimisticMessage: (tempId: string, channelId: string, content: string, senderId: string, senderName: string) => void
-  confirmOptimisticMessage: (tempId: string, confirmedId?: string) => void
-  rollbackOptimisticMessage: (tempId: string, error?: string) => void
-  getOptimisticMessagesForChannel: (channelId: string) => OptimisticUpdate<PendingMessageData>[]
+  addOptimisticMessage: (
+    tempId: string,
+    channelId: string,
+    content: string,
+    senderId: string,
+    senderName: string,
+  ) => void;
+  confirmOptimisticMessage: (tempId: string, confirmedId?: string) => void;
+  rollbackOptimisticMessage: (tempId: string, error?: string) => void;
+  getOptimisticMessagesForChannel: (
+    channelId: string,
+  ) => OptimisticUpdate<PendingMessageData>[];
 
   // Rollback
-  rollbackOperation: (operationId: string) => Promise<void>
+  rollbackOperation: (operationId: string) => Promise<void>;
 
   // Storage
-  checkStorageQuota: () => Promise<StorageStats>
-  clearOfflineData: () => Promise<void>
-  evictOldData: () => Promise<void>
+  checkStorageQuota: () => Promise<StorageStats>;
+  clearOfflineData: () => Promise<void>;
+  evictOldData: () => Promise<void>;
 
   // Utility
-  getPendingForChannel: (channelId: string) => PendingOperation[]
-  retryFailed: () => Promise<void>
+  getPendingForChannel: (channelId: string) => PendingOperation[];
+  retryFailed: () => Promise<void>;
 }
 
 /**
@@ -120,17 +144,18 @@ export interface OfflineReconciliationActions {
  */
 export interface UseOfflineReconciliationOptions {
   /** Auto-initialize on mount */
-  autoInitialize?: boolean
+  autoInitialize?: boolean;
   /** Enable storage monitoring */
-  monitorStorage?: boolean
+  monitorStorage?: boolean;
   /** Reconciliation config overrides */
-  config?: Partial<ReconciliationConfig>
+  config?: Partial<ReconciliationConfig>;
 }
 
 /**
  * Hook return type
  */
-export type UseOfflineReconciliationReturn = OfflineReconciliationState & OfflineReconciliationActions
+export type UseOfflineReconciliationReturn = OfflineReconciliationState &
+  OfflineReconciliationActions;
 
 // =============================================================================
 // Hook Implementation
@@ -175,167 +200,191 @@ export type UseOfflineReconciliationReturn = OfflineReconciliationState & Offlin
  * ```
  */
 export function useOfflineReconciliation(
-  options: UseOfflineReconciliationOptions = {}
+  options: UseOfflineReconciliationOptions = {},
 ): UseOfflineReconciliationReturn {
-  const { autoInitialize = true, monitorStorage = true, config } = options
+  const { autoInitialize = true, monitorStorage = true, config } = options;
 
   // Refs
-  const managerRef = useRef<ReconciliationManager | null>(null)
-  const storageManagerRef = useRef<StorageQuotaManager | null>(null)
-  const unsubscribersRef = useRef<Array<() => void>>([])
-  const initializedRef = useRef(false)
+  const managerRef = useRef<ReconciliationManager | null>(null);
+  const storageManagerRef = useRef<StorageQuotaManager | null>(null);
+  const unsubscribersRef = useRef<Array<() => void>>([]);
+  const initializedRef = useRef(false);
 
   // State
-  const [isOnline, setIsOnline] = useState(true)
-  const [isSyncing, setIsSyncing] = useState(false)
-  const [syncProgress, setSyncProgress] = useState(0)
-  const [pendingOperations, setPendingOperations] = useState<PendingOperation[]>([])
-  const [unresolvedConflicts, setUnresolvedConflicts] = useState<ConflictInfo[]>([])
-  const [optimisticMessages, setOptimisticMessages] = useState<OptimisticUpdate<PendingMessageData>[]>([])
-  const [storageStats, setStorageStats] = useState<StorageStats | null>(null)
-  const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null)
+  const [isOnline, setIsOnline] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState(0);
+  const [pendingOperations, setPendingOperations] = useState<
+    PendingOperation[]
+  >([]);
+  const [unresolvedConflicts, setUnresolvedConflicts] = useState<
+    ConflictInfo[]
+  >([]);
+  const [optimisticMessages, setOptimisticMessages] = useState<
+    OptimisticUpdate<PendingMessageData>[]
+  >([]);
+  const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
+  const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
 
   // Derived state
-  const pendingCount = pendingOperations.length
-  const conflictCount = unresolvedConflicts.length
-  const hasPendingChanges = pendingCount > 0 || optimisticMessages.length > 0
-  const storageStatus = storageStats?.status || 'unknown'
-  const isStorageCritical = storageStatus === 'critical'
+  const pendingCount = pendingOperations.length;
+  const conflictCount = unresolvedConflicts.length;
+  const hasPendingChanges = pendingCount > 0 || optimisticMessages.length > 0;
+  const storageStatus = storageStats?.status || "unknown";
+  const isStorageCritical = storageStatus === "critical";
 
   // ==========================================================================
   // Initialization
   // ==========================================================================
 
   useEffect(() => {
-    if (!autoInitialize || initializedRef.current) return
+    if (!autoInitialize || initializedRef.current) return;
 
     const initialize = async () => {
       try {
         // Initialize reconciliation manager
-        managerRef.current = getReconciliationManager(config)
-        await managerRef.current.initialize()
+        managerRef.current = getReconciliationManager(config);
+        await managerRef.current.initialize();
 
         // Subscribe to reconciliation events
-        const unsubReconciliation = managerRef.current.subscribe(handleReconciliationEvent)
-        unsubscribersRef.current.push(unsubReconciliation)
+        const unsubReconciliation = managerRef.current.subscribe(
+          handleReconciliationEvent,
+        );
+        unsubscribersRef.current.push(unsubReconciliation);
 
         // Subscribe to network changes
-        const networkDetector = getNetworkDetector()
+        const networkDetector = getNetworkDetector();
         const unsubNetwork = networkDetector.subscribe((info) => {
-          setIsOnline(info.state === 'online')
-        })
-        unsubscribersRef.current.push(unsubNetwork)
+          setIsOnline(info.state === "online");
+        });
+        unsubscribersRef.current.push(unsubNetwork);
 
         // Subscribe to optimistic updates
-        const optimisticUpdates = getMessageOptimisticUpdates()
+        const optimisticUpdates = getMessageOptimisticUpdates();
         const unsubOptimistic = optimisticUpdates.subscribe((updates) => {
-          setOptimisticMessages(updates)
-        })
-        unsubscribersRef.current.push(unsubOptimistic)
+          setOptimisticMessages(updates);
+        });
+        unsubscribersRef.current.push(unsubOptimistic);
 
         // Initialize storage monitoring
         if (monitorStorage) {
-          storageManagerRef.current = getStorageQuotaManager()
-          storageManagerRef.current.start()
+          storageManagerRef.current = getStorageQuotaManager();
+          storageManagerRef.current.start();
 
-          const unsubStorage = storageManagerRef.current.subscribe(handleStorageEvent)
-          unsubscribersRef.current.push(unsubStorage)
+          const unsubStorage =
+            storageManagerRef.current.subscribe(handleStorageEvent);
+          unsubscribersRef.current.push(unsubStorage);
 
           // Get initial stats
-          const stats = await storageManagerRef.current.getStats()
-          setStorageStats(stats)
+          const stats = await storageManagerRef.current.getStats();
+          setStorageStats(stats);
         }
 
         // Load initial state
-        setPendingOperations(managerRef.current.getAllPending())
-        setUnresolvedConflicts(managerRef.current.getUnresolvedConflicts())
-        setIsOnline(networkDetector.isOnline())
+        setPendingOperations(managerRef.current.getAllPending());
+        setUnresolvedConflicts(managerRef.current.getUnresolvedConflicts());
+        setIsOnline(networkDetector.isOnline());
 
-        initializedRef.current = true
+        initializedRef.current = true;
       } catch (error) {
-        console.error('[useOfflineReconciliation] Initialization failed:', error)
+        console.error(
+          "[useOfflineReconciliation] Initialization failed:",
+          error,
+        );
       }
-    }
+    };
 
-    initialize()
+    initialize();
 
     return () => {
-      unsubscribersRef.current.forEach(unsub => unsub())
-      unsubscribersRef.current = []
+      unsubscribersRef.current.forEach((unsub) => unsub());
+      unsubscribersRef.current = [];
       if (storageManagerRef.current) {
-        storageManagerRef.current.stop()
+        storageManagerRef.current.stop();
       }
-    }
-  }, [autoInitialize, monitorStorage, config])
+    };
+  }, [autoInitialize, monitorStorage, config]);
 
   // ==========================================================================
   // Event Handlers
   // ==========================================================================
 
-  const handleReconciliationEvent = useCallback((event: ReconciliationEvent) => {
-    switch (event.type) {
-      case 'operation_queued':
-      case 'operation_completed':
-      case 'operation_failed':
-      case 'operation_rollback':
-        if (managerRef.current) {
-          setPendingOperations(managerRef.current.getAllPending())
-        }
-        break
+  const handleReconciliationEvent = useCallback(
+    (event: ReconciliationEvent) => {
+      switch (event.type) {
+        case "operation_queued":
+        case "operation_completed":
+        case "operation_failed":
+        case "operation_rollback":
+          if (managerRef.current) {
+            setPendingOperations(managerRef.current.getAllPending());
+          }
+          break;
 
-      case 'operation_syncing':
-        setIsSyncing(true)
-        break
+        case "operation_syncing":
+          setIsSyncing(true);
+          break;
 
-      case 'conflict_detected':
-        if (event.conflict) {
-          setUnresolvedConflicts(prev => [...prev, event.conflict!])
-        }
-        break
+        case "conflict_detected":
+          if (event.conflict) {
+            setUnresolvedConflicts((prev) => [...prev, event.conflict!]);
+          }
+          break;
 
-      case 'conflict_resolved':
-        if (event.conflict) {
-          setUnresolvedConflicts(prev => prev.filter(c => c.id !== event.conflict!.id))
-        }
-        break
+        case "conflict_resolved":
+          if (event.conflict) {
+            setUnresolvedConflicts((prev) =>
+              prev.filter((c) => c.id !== event.conflict!.id),
+            );
+          }
+          break;
 
-      case 'sync_started':
-        setIsSyncing(true)
-        setSyncProgress(0)
-        break
+        case "sync_started":
+          setIsSyncing(true);
+          setSyncProgress(0);
+          break;
 
-      case 'sync_progress':
-        if (event.progress) {
-          setSyncProgress(event.progress.percentage)
-        }
-        break
+        case "sync_progress":
+          if (event.progress) {
+            setSyncProgress(event.progress.percentage);
+          }
+          break;
 
-      case 'sync_completed':
-        setIsSyncing(false)
-        setSyncProgress(100)
-        setLastSyncAt(event.timestamp)
-        break
+        case "sync_completed":
+          setIsSyncing(false);
+          setSyncProgress(100);
+          setLastSyncAt(event.timestamp);
+          break;
 
-      case 'storage_warning':
-      case 'storage_critical':
-        if (event.storage) {
-          setStorageStats(prev => prev ? {
-            ...prev,
-            used: event.storage!.used,
-            quota: event.storage!.quota,
-            percentage: event.storage!.percentage,
-            status: event.type === 'storage_critical' ? 'critical' : 'warning',
-          } : null)
-        }
-        break
-    }
-  }, [])
+        case "storage_warning":
+        case "storage_critical":
+          if (event.storage) {
+            setStorageStats((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    used: event.storage!.used,
+                    quota: event.storage!.quota,
+                    percentage: event.storage!.percentage,
+                    status:
+                      event.type === "storage_critical"
+                        ? "critical"
+                        : "warning",
+                  }
+                : null,
+            );
+          }
+          break;
+      }
+    },
+    [],
+  );
 
   const handleStorageEvent = useCallback((event: { stats?: StorageStats }) => {
     if (event.stats) {
-      setStorageStats(event.stats)
+      setStorageStats(event.stats);
     }
-  }, [])
+  }, []);
 
   // ==========================================================================
   // Queue Actions
@@ -343,116 +392,144 @@ export function useOfflineReconciliation(
 
   const queueMessage = useCallback(async (message: QueuedSendMessage) => {
     if (!managerRef.current) {
-      throw new Error('Reconciliation manager not initialized')
+      throw new Error("Reconciliation manager not initialized");
     }
-    return managerRef.current.queueMessage(message)
-  }, [])
+    return managerRef.current.queueMessage(message);
+  }, []);
 
   const queueEdit = useCallback(async (edit: QueuedEditMessage) => {
     if (!managerRef.current) {
-      throw new Error('Reconciliation manager not initialized')
+      throw new Error("Reconciliation manager not initialized");
     }
-    return managerRef.current.queueEdit(edit)
-  }, [])
+    return managerRef.current.queueEdit(edit);
+  }, []);
 
   const queueDelete = useCallback(async (deletion: QueuedDeleteMessage) => {
     if (!managerRef.current) {
-      throw new Error('Reconciliation manager not initialized')
+      throw new Error("Reconciliation manager not initialized");
     }
-    return managerRef.current.queueDelete(deletion)
-  }, [])
+    return managerRef.current.queueDelete(deletion);
+  }, []);
 
-  const queueReaction = useCallback(async (reaction: QueuedReaction, add: boolean) => {
-    if (!managerRef.current) {
-      throw new Error('Reconciliation manager not initialized')
-    }
-    return managerRef.current.queueReaction(reaction, add)
-  }, [])
+  const queueReaction = useCallback(
+    async (reaction: QueuedReaction, add: boolean) => {
+      if (!managerRef.current) {
+        throw new Error("Reconciliation manager not initialized");
+      }
+      return managerRef.current.queueReaction(reaction, add);
+    },
+    [],
+  );
 
-  const queueReadReceipt = useCallback(async (channelId: string, messageId: string) => {
-    if (!managerRef.current) {
-      throw new Error('Reconciliation manager not initialized')
-    }
-    return managerRef.current.queueReadReceipt(channelId, messageId)
-  }, [])
+  const queueReadReceipt = useCallback(
+    async (channelId: string, messageId: string) => {
+      if (!managerRef.current) {
+        throw new Error("Reconciliation manager not initialized");
+      }
+      return managerRef.current.queueReadReceipt(channelId, messageId);
+    },
+    [],
+  );
 
   // ==========================================================================
   // Sync Actions
   // ==========================================================================
 
   const syncNow = useCallback(async () => {
-    if (!managerRef.current) return
-    await managerRef.current.processPendingOperations()
-  }, [])
+    if (!managerRef.current) return;
+    await managerRef.current.processPendingOperations();
+  }, []);
 
   const pauseSync = useCallback(() => {
     // Would pause auto-sync
-  }, [])
+  }, []);
 
   const resumeSync = useCallback(() => {
     // Would resume auto-sync
-  }, [])
+  }, []);
 
   // ==========================================================================
   // Conflict Resolution Actions
   // ==========================================================================
 
-  const resolveConflict = useCallback(async (
-    conflictId: string,
-    strategy: ResolutionStrategy,
-    customValue?: unknown
-  ) => {
-    if (!managerRef.current) return
-    await managerRef.current.resolveConflict(conflictId, strategy, customValue)
-  }, [])
+  const resolveConflict = useCallback(
+    async (
+      conflictId: string,
+      strategy: ResolutionStrategy,
+      customValue?: unknown,
+    ) => {
+      if (!managerRef.current) return;
+      await managerRef.current.resolveConflict(
+        conflictId,
+        strategy,
+        customValue,
+      );
+    },
+    [],
+  );
 
   const resolveAllConflicts = useCallback(async () => {
-    if (!managerRef.current) return
-    await managerRef.current.resolveAllConflicts()
-  }, [])
+    if (!managerRef.current) return;
+    await managerRef.current.resolveAllConflicts();
+  }, []);
 
   const dismissConflict = useCallback((conflictId: string) => {
-    setUnresolvedConflicts(prev => prev.filter(c => c.id !== conflictId))
-  }, [])
+    setUnresolvedConflicts((prev) => prev.filter((c) => c.id !== conflictId));
+  }, []);
 
   // ==========================================================================
   // Optimistic Update Actions
   // ==========================================================================
 
-  const addOptimisticMessage = useCallback((
-    tempId: string,
-    channelId: string,
-    content: string,
-    senderId: string,
-    senderName: string
-  ) => {
-    const optimisticUpdates = getMessageOptimisticUpdates()
-    optimisticUpdates.addMessage(tempId, channelId, content, senderId, senderName)
-  }, [])
+  const addOptimisticMessage = useCallback(
+    (
+      tempId: string,
+      channelId: string,
+      content: string,
+      senderId: string,
+      senderName: string,
+    ) => {
+      const optimisticUpdates = getMessageOptimisticUpdates();
+      optimisticUpdates.addMessage(
+        tempId,
+        channelId,
+        content,
+        senderId,
+        senderName,
+      );
+    },
+    [],
+  );
 
-  const confirmOptimisticMessage = useCallback((tempId: string, confirmedId?: string) => {
-    const optimisticUpdates = getMessageOptimisticUpdates()
-    optimisticUpdates.confirm(tempId)
-  }, [])
+  const confirmOptimisticMessage = useCallback(
+    (tempId: string, confirmedId?: string) => {
+      const optimisticUpdates = getMessageOptimisticUpdates();
+      optimisticUpdates.confirm(tempId);
+    },
+    [],
+  );
 
-  const rollbackOptimisticMessage = useCallback((tempId: string, error?: string) => {
-    const optimisticUpdates = getMessageOptimisticUpdates()
-    optimisticUpdates.rollback(tempId, error)
-  }, [])
+  const rollbackOptimisticMessage = useCallback(
+    (tempId: string, error?: string) => {
+      const optimisticUpdates = getMessageOptimisticUpdates();
+      optimisticUpdates.rollback(tempId, error);
+    },
+    [],
+  );
 
   const getOptimisticMessagesForChannel = useCallback((channelId: string) => {
-    const optimisticUpdates = getMessageOptimisticUpdates()
-    return optimisticUpdates.getForChannel(channelId)
-  }, [])
+    const optimisticUpdates = getMessageOptimisticUpdates();
+    return optimisticUpdates.getForChannel(channelId);
+  }, []);
 
   // ==========================================================================
   // Rollback Actions
   // ==========================================================================
 
   const rollbackOperation = useCallback(async (operationId: string) => {
-    if (!managerRef.current) return
-    await managerRef.current.rollbackOperation(operationId)
-  }, [])
+    if (!managerRef.current) return;
+    await managerRef.current.rollbackOperation(operationId);
+  }, []);
 
   // ==========================================================================
   // Storage Actions
@@ -460,95 +537,123 @@ export function useOfflineReconciliation(
 
   const checkStorageQuota = useCallback(async () => {
     if (!storageManagerRef.current) {
-      throw new Error('Storage manager not initialized')
+      throw new Error("Storage manager not initialized");
     }
-    const stats = await storageManagerRef.current.getStats()
-    setStorageStats(stats)
-    return stats
-  }, [])
+    const stats = await storageManagerRef.current.getStats();
+    setStorageStats(stats);
+    return stats;
+  }, []);
 
   const clearOfflineData = useCallback(async () => {
-    if (!storageManagerRef.current) return
-    await storageManagerRef.current.clearAllData()
-  }, [])
+    if (!storageManagerRef.current) return;
+    await storageManagerRef.current.clearAllData();
+  }, []);
 
   const evictOldData = useCallback(async () => {
-    if (!storageManagerRef.current) return
-    await storageManagerRef.current.evictToTarget(70)
-  }, [])
+    if (!storageManagerRef.current) return;
+    await storageManagerRef.current.evictToTarget(70);
+  }, []);
 
   // ==========================================================================
   // Utility Actions
   // ==========================================================================
 
   const getPendingForChannel = useCallback((channelId: string) => {
-    if (!managerRef.current) return []
-    return managerRef.current.getPendingForChannel(channelId)
-  }, [])
+    if (!managerRef.current) return [];
+    return managerRef.current.getPendingForChannel(channelId);
+  }, []);
 
   const retryFailed = useCallback(async () => {
-    if (!managerRef.current) return
-    await managerRef.current.processPendingOperations()
-  }, [])
+    if (!managerRef.current) return;
+    await managerRef.current.processPendingOperations();
+  }, []);
 
   // ==========================================================================
   // Return
   // ==========================================================================
 
-  return useMemo(() => ({
-    // State
-    isOnline,
-    isSyncing,
-    syncProgress,
-    pendingCount,
-    pendingOperations,
-    conflictCount,
-    unresolvedConflicts,
-    optimisticMessages,
-    storageStats,
-    storageStatus,
-    lastSyncAt,
-    hasPendingChanges,
-    isStorageCritical,
-    // Queue actions
-    queueMessage,
-    queueEdit,
-    queueDelete,
-    queueReaction,
-    queueReadReceipt,
-    // Sync actions
-    syncNow,
-    pauseSync,
-    resumeSync,
-    // Conflict resolution
-    resolveConflict,
-    resolveAllConflicts,
-    dismissConflict,
-    // Optimistic updates
-    addOptimisticMessage,
-    confirmOptimisticMessage,
-    rollbackOptimisticMessage,
-    getOptimisticMessagesForChannel,
-    // Rollback
-    rollbackOperation,
-    // Storage
-    checkStorageQuota,
-    clearOfflineData,
-    evictOldData,
-    // Utility
-    getPendingForChannel,
-    retryFailed,
-  }), [
-    isOnline, isSyncing, syncProgress, pendingCount, pendingOperations,
-    conflictCount, unresolvedConflicts, optimisticMessages, storageStats,
-    storageStatus, lastSyncAt, hasPendingChanges, isStorageCritical,
-    queueMessage, queueEdit, queueDelete, queueReaction, queueReadReceipt,
-    syncNow, pauseSync, resumeSync, resolveConflict, resolveAllConflicts,
-    dismissConflict, addOptimisticMessage, confirmOptimisticMessage,
-    rollbackOptimisticMessage, getOptimisticMessagesForChannel,
-    rollbackOperation, checkStorageQuota, clearOfflineData, evictOldData,
-    getPendingForChannel, retryFailed,
-  ])
+  return useMemo(
+    () => ({
+      // State
+      isOnline,
+      isSyncing,
+      syncProgress,
+      pendingCount,
+      pendingOperations,
+      conflictCount,
+      unresolvedConflicts,
+      optimisticMessages,
+      storageStats,
+      storageStatus,
+      lastSyncAt,
+      hasPendingChanges,
+      isStorageCritical,
+      // Queue actions
+      queueMessage,
+      queueEdit,
+      queueDelete,
+      queueReaction,
+      queueReadReceipt,
+      // Sync actions
+      syncNow,
+      pauseSync,
+      resumeSync,
+      // Conflict resolution
+      resolveConflict,
+      resolveAllConflicts,
+      dismissConflict,
+      // Optimistic updates
+      addOptimisticMessage,
+      confirmOptimisticMessage,
+      rollbackOptimisticMessage,
+      getOptimisticMessagesForChannel,
+      // Rollback
+      rollbackOperation,
+      // Storage
+      checkStorageQuota,
+      clearOfflineData,
+      evictOldData,
+      // Utility
+      getPendingForChannel,
+      retryFailed,
+    }),
+    [
+      isOnline,
+      isSyncing,
+      syncProgress,
+      pendingCount,
+      pendingOperations,
+      conflictCount,
+      unresolvedConflicts,
+      optimisticMessages,
+      storageStats,
+      storageStatus,
+      lastSyncAt,
+      hasPendingChanges,
+      isStorageCritical,
+      queueMessage,
+      queueEdit,
+      queueDelete,
+      queueReaction,
+      queueReadReceipt,
+      syncNow,
+      pauseSync,
+      resumeSync,
+      resolveConflict,
+      resolveAllConflicts,
+      dismissConflict,
+      addOptimisticMessage,
+      confirmOptimisticMessage,
+      rollbackOptimisticMessage,
+      getOptimisticMessagesForChannel,
+      rollbackOperation,
+      checkStorageQuota,
+      clearOfflineData,
+      evictOldData,
+      getPendingForChannel,
+      retryFailed,
+    ],
+  );
 }
 
-export default useOfflineReconciliation
+export default useOfflineReconciliation;

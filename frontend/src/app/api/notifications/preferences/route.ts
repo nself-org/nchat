@@ -5,16 +5,16 @@
  * PUT - Update user notification preferences
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { logger } from "@/lib/logger";
 import {
   UserNotificationPreferences,
   defaultUserPreferences,
   FrequencyType,
   NotificationCategory,
   NotificationChannel,
-} from '@/types/notifications'
+} from "@/types/notifications";
 
 // =============================================================================
 // Validation Schemas
@@ -27,11 +27,13 @@ const QuietHoursSchema = z
     timezone: z.string(),
   })
   .nullable()
-  .optional()
+  .optional();
 
 const ChannelPreferencesSchema = z.object({
   enabled: z.boolean().optional(),
-  frequency: z.enum(['immediate', 'hourly', 'daily', 'weekly', 'disabled']).optional(),
+  frequency: z
+    .enum(["immediate", "hourly", "daily", "weekly", "disabled"])
+    .optional(),
   categories: z
     .object({
       transactional: z.boolean().optional(),
@@ -40,7 +42,7 @@ const ChannelPreferencesSchema = z.object({
       alert: z.boolean().optional(),
     })
     .optional(),
-})
+});
 
 const UpdatePreferencesSchema = z.object({
   email: ChannelPreferencesSchema.optional(),
@@ -50,14 +52,14 @@ const UpdatePreferencesSchema = z.object({
   digest: z
     .object({
       enabled: z.boolean().optional(),
-      frequency: z.enum(['daily', 'weekly']).optional(),
+      frequency: z.enum(["daily", "weekly"]).optional(),
       time: z
         .string()
         .regex(/^\d{2}:\d{2}$/)
         .optional(),
     })
     .optional(),
-})
+});
 
 // =============================================================================
 // GraphQL Queries & Mutations
@@ -78,7 +80,7 @@ const GET_PREFERENCES_QUERY = `
       updated_at
     }
   }
-`
+`;
 
 const UPSERT_PREFERENCE_MUTATION = `
   mutation UpsertNotificationPreference(
@@ -116,7 +118,7 @@ const UPSERT_PREFERENCE_MUTATION = `
       updated_at
     }
   }
-`
+`;
 
 const DELETE_PREFERENCES_MUTATION = `
   mutation DeleteNotificationPreferences($userId: uuid!) {
@@ -124,7 +126,7 @@ const DELETE_PREFERENCES_MUTATION = `
       affected_rows
     }
   }
-`
+`;
 
 // =============================================================================
 // Helper Functions
@@ -133,76 +135,81 @@ const DELETE_PREFERENCES_MUTATION = `
 async function executeGraphQL<T = unknown>(
   query: string,
   variables: Record<string, unknown> = {},
-  authToken?: string
+  authToken?: string,
 ): Promise<{ data?: T; errors?: Array<{ message: string }> }> {
-  const hasuraUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
-  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET
+  const hasuraUrl =
+    process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8080/v1/graphql";
+  const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET;
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  }
+    "Content-Type": "application/json",
+  };
 
   if (hasuraAdminSecret) {
-    headers['x-hasura-admin-secret'] = hasuraAdminSecret
+    headers["x-hasura-admin-secret"] = hasuraAdminSecret;
   } else if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`
+    headers["Authorization"] = `Bearer ${authToken}`;
   }
 
   const response = await fetch(hasuraUrl, {
-    method: 'POST',
+    method: "POST",
     headers,
     body: JSON.stringify({ query, variables }),
-  })
+  });
 
   if (!response.ok) {
-    throw new Error(`GraphQL request failed: ${response.statusText}`)
+    throw new Error(`GraphQL request failed: ${response.statusText}`);
   }
 
-  return response.json()
+  return response.json();
 }
 
 function getAuthToken(request: NextRequest): string | undefined {
-  const authHeader = request.headers.get('Authorization')
-  if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.substring(7)
+  const authHeader = request.headers.get("Authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.substring(7);
   }
-  return undefined
+  return undefined;
 }
 
 interface DbPreference {
-  id: string
-  user_id: string
-  channel: NotificationChannel
-  category: NotificationCategory
-  enabled: boolean
-  frequency: FrequencyType
-  quiet_hours: { start: string; end: string; timezone: string } | null
-  metadata: Record<string, unknown>
+  id: string;
+  user_id: string;
+  channel: NotificationChannel;
+  category: NotificationCategory;
+  enabled: boolean;
+  frequency: FrequencyType;
+  quiet_hours: { start: string; end: string; timezone: string } | null;
+  metadata: Record<string, unknown>;
 }
 
 /**
  * Convert database preferences to UserNotificationPreferences format
  */
-function convertToUserPreferences(dbPrefs: DbPreference[]): UserNotificationPreferences {
-  const result: UserNotificationPreferences = JSON.parse(JSON.stringify(defaultUserPreferences))
+function convertToUserPreferences(
+  dbPrefs: DbPreference[],
+): UserNotificationPreferences {
+  const result: UserNotificationPreferences = JSON.parse(
+    JSON.stringify(defaultUserPreferences),
+  );
 
   for (const pref of dbPrefs) {
-    const channel = pref.channel as 'email' | 'push' | 'sms'
-    const category = pref.category as NotificationCategory
+    const channel = pref.channel as "email" | "push" | "sms";
+    const category = pref.category as NotificationCategory;
 
     if (result[channel]) {
-      result[channel].enabled = result[channel].enabled || pref.enabled
-      result[channel].frequency = pref.frequency
-      result[channel].categories[category] = pref.enabled
+      result[channel].enabled = result[channel].enabled || pref.enabled;
+      result[channel].frequency = pref.frequency;
+      result[channel].categories[category] = pref.enabled;
     }
 
     // Handle quiet hours (take first found)
     if (pref.quiet_hours && !result.quietHours) {
-      result.quietHours = pref.quiet_hours
+      result.quietHours = pref.quiet_hours;
     }
   }
 
-  return result
+  return result;
 }
 
 // =============================================================================
@@ -211,35 +218,45 @@ function convertToUserPreferences(dbPrefs: DbPreference[]): UserNotificationPref
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('user_id')
+    const authToken = getAuthToken(request);
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("user_id");
 
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'user_id is required' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "user_id is required" },
+        { status: 400 },
+      );
     }
 
     const result = await executeGraphQL<{
-      nchat_notification_preferences: DbPreference[]
-    }>(GET_PREFERENCES_QUERY, { userId }, authToken)
+      nchat_notification_preferences: DbPreference[];
+    }>(GET_PREFERENCES_QUERY, { userId }, authToken);
 
     if (result.errors) {
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch preferences', details: result.errors },
-        { status: 500 }
-      )
+        {
+          success: false,
+          error: "Failed to fetch preferences",
+          details: result.errors,
+        },
+        { status: 500 },
+      );
     }
 
-    const dbPrefs = result.data?.nchat_notification_preferences || []
-    const preferences = convertToUserPreferences(dbPrefs)
+    const dbPrefs = result.data?.nchat_notification_preferences || [];
+    const preferences = convertToUserPreferences(dbPrefs);
 
     return NextResponse.json({
       success: true,
       data: { preferences },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/notifications/preferences error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("GET /api/notifications/preferences error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -249,39 +266,55 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const body = await request.json()
-    const { userId, preferences } = body
+    const authToken = getAuthToken(request);
+    const body = await request.json();
+    const { userId, preferences } = body;
 
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'userId is required' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "userId is required" },
+        { status: 400 },
+      );
     }
 
-    const parsed = UpdatePreferencesSchema.safeParse(preferences)
+    const parsed = UpdatePreferencesSchema.safeParse(preferences);
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid preferences data', details: parsed.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid preferences data",
+          details: parsed.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const updates = parsed.data
-    const upsertPromises: Promise<unknown>[] = []
+    const updates = parsed.data;
+    const upsertPromises: Promise<unknown>[] = [];
 
     // Process each channel
-    for (const channel of ['email', 'push', 'sms'] as const) {
-      const channelUpdate = updates[channel]
-      if (!channelUpdate) continue
+    for (const channel of ["email", "push", "sms"] as const) {
+      const channelUpdate = updates[channel];
+      if (!channelUpdate) continue;
 
       // Process each category
-      for (const category of ['transactional', 'marketing', 'system', 'alert'] as const) {
-        const categoryEnabled = channelUpdate.categories?.[category]
-        if (categoryEnabled === undefined && !channelUpdate.enabled && !channelUpdate.frequency) {
-          continue
+      for (const category of [
+        "transactional",
+        "marketing",
+        "system",
+        "alert",
+      ] as const) {
+        const categoryEnabled = channelUpdate.categories?.[category];
+        if (
+          categoryEnabled === undefined &&
+          !channelUpdate.enabled &&
+          !channelUpdate.frequency
+        ) {
+          continue;
         }
 
-        const enabled = categoryEnabled ?? channelUpdate.enabled ?? true
-        const frequency = channelUpdate.frequency ?? 'immediate'
+        const enabled = categoryEnabled ?? channelUpdate.enabled ?? true;
+        const frequency = channelUpdate.frequency ?? "immediate";
 
         upsertPromises.push(
           executeGraphQL(
@@ -295,30 +328,33 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
               quietHours: updates.quietHours || null,
               metadata: {},
             },
-            authToken
-          )
-        )
+            authToken,
+          ),
+        );
       }
     }
 
     // Execute all upserts
-    await Promise.all(upsertPromises)
+    await Promise.all(upsertPromises);
 
     // Fetch updated preferences
     const result = await executeGraphQL<{
-      nchat_notification_preferences: DbPreference[]
-    }>(GET_PREFERENCES_QUERY, { userId }, authToken)
+      nchat_notification_preferences: DbPreference[];
+    }>(GET_PREFERENCES_QUERY, { userId }, authToken);
 
-    const dbPrefs = result.data?.nchat_notification_preferences || []
-    const updatedPreferences = convertToUserPreferences(dbPrefs)
+    const dbPrefs = result.data?.nchat_notification_preferences || [];
+    const updatedPreferences = convertToUserPreferences(dbPrefs);
 
     return NextResponse.json({
       success: true,
       data: { preferences: updatedPreferences },
-    })
+    });
   } catch (error) {
-    logger.error('PUT /api/notifications/preferences error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("PUT /api/notifications/preferences error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -328,22 +364,28 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const authToken = getAuthToken(request)
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('user_id')
+    const authToken = getAuthToken(request);
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("user_id");
 
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'user_id is required' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: "user_id is required" },
+        { status: 400 },
+      );
     }
 
-    await executeGraphQL(DELETE_PREFERENCES_MUTATION, { userId }, authToken)
+    await executeGraphQL(DELETE_PREFERENCES_MUTATION, { userId }, authToken);
 
     return NextResponse.json({
       success: true,
       data: { preferences: defaultUserPreferences },
-    })
+    });
   } catch (error) {
-    logger.error('DELETE /api/notifications/preferences error:', error)
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+    logger.error("DELETE /api/notifications/preferences error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

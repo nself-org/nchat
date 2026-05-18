@@ -1,54 +1,69 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { useState, useRef, useCallback, KeyboardEvent, ChangeEvent } from 'react'
-import { Send, Paperclip, Smile, AtSign, X, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  KeyboardEvent,
+  ChangeEvent,
+} from "react";
+import { Send, Paperclip, Smile, AtSign, X, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export interface Mention {
-  id: string
-  username: string
-  displayName: string
+  id: string;
+  username: string;
+  displayName: string;
 }
 
 export interface Attachment {
-  id: string
-  file: File
-  preview?: string
-  progress?: number
+  id: string;
+  file: File;
+  preview?: string;
+  progress?: number;
 }
 
 export interface ThreadReplyInputProps {
   /** Placeholder text */
-  placeholder?: string
+  placeholder?: string;
   /** Handler for sending a reply */
-  onSend: (content: string, attachments?: File[]) => Promise<void>
+  onSend: (content: string, attachments?: File[]) => Promise<void>;
   /** Handler for mention lookup */
-  onMentionSearch?: (query: string) => Promise<Mention[]>
+  onMentionSearch?: (query: string) => Promise<Mention[]>;
   /** Whether the input is disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Whether a reply is being sent */
-  sending?: boolean
+  sending?: boolean;
   /** Max file size in bytes (default: 10MB) */
-  maxFileSize?: number
+  maxFileSize?: number;
   /** Allowed file types (default: all) */
-  allowedFileTypes?: string[]
+  allowedFileTypes?: string[];
   /** Max number of attachments (default: 10) */
-  maxAttachments?: number
+  maxAttachments?: number;
   /** Additional class name */
-  className?: string
+  className?: string;
   /** Auto focus on mount */
-  autoFocus?: boolean
+  autoFocus?: boolean;
 }
 
 // ============================================================================
@@ -56,7 +71,7 @@ export interface ThreadReplyInputProps {
 // ============================================================================
 
 export function ThreadReplyInput({
-  placeholder = 'Reply to thread...',
+  placeholder = "Reply to thread...",
   onSend,
   onMentionSearch,
   disabled = false,
@@ -67,155 +82,162 @@ export function ThreadReplyInput({
   className,
   autoFocus = false,
 }: ThreadReplyInputProps) {
-  const [content, setContent] = useState('')
-  const [attachments, setAttachments] = useState<Attachment[]>([])
-  const [mentionQuery, setMentionQuery] = useState<string | null>(null)
-  const [mentionResults, setMentionResults] = useState<Mention[]>([])
-  const [mentionIndex, setMentionIndex] = useState(0)
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [content, setContent] = useState("");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionResults, setMentionResults] = useState<Mention[]>([]);
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-resize textarea
   const adjustTextareaHeight = useCallback(() => {
-    const textarea = textareaRef.current
+    const textarea = textareaRef.current;
     if (textarea) {
-      textarea.style.height = 'auto'
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
     }
-  }, [])
+  }, []);
 
   // Handle content change
   const handleContentChange = useCallback(
     async (e: ChangeEvent<HTMLTextAreaElement>) => {
-      const value = e.target.value
-      setContent(value)
+      const value = e.target.value;
+      setContent(value);
 
       // Check for mention trigger
-      const cursorPos = e.target.selectionStart
-      const textBeforeCursor = value.slice(0, cursorPos)
-      const mentionMatch = textBeforeCursor.match(/@(\w*)$/)
+      const cursorPos = e.target.selectionStart;
+      const textBeforeCursor = value.slice(0, cursorPos);
+      const mentionMatch = textBeforeCursor.match(/@(\w*)$/);
 
       if (mentionMatch && onMentionSearch) {
-        const query = mentionMatch[1]
-        setMentionQuery(query)
-        const results = await onMentionSearch(query)
-        setMentionResults(results)
-        setMentionIndex(0)
+        const query = mentionMatch[1];
+        setMentionQuery(query);
+        const results = await onMentionSearch(query);
+        setMentionResults(results);
+        setMentionIndex(0);
       } else {
-        setMentionQuery(null)
-        setMentionResults([])
+        setMentionQuery(null);
+        setMentionResults([]);
       }
 
       // Adjust height after state update
-      requestAnimationFrame(adjustTextareaHeight)
+      requestAnimationFrame(adjustTextareaHeight);
     },
-    [onMentionSearch, adjustTextareaHeight]
-  )
+    [onMentionSearch, adjustTextareaHeight],
+  );
 
   // Insert mention
   const insertMention = useCallback(
     (mention: Mention) => {
-      if (!textareaRef.current) return
+      if (!textareaRef.current) return;
 
-      const textarea = textareaRef.current
-      const cursorPos = textarea.selectionStart
-      const textBeforeCursor = content.slice(0, cursorPos)
-      const textAfterCursor = content.slice(cursorPos)
+      const textarea = textareaRef.current;
+      const cursorPos = textarea.selectionStart;
+      const textBeforeCursor = content.slice(0, cursorPos);
+      const textAfterCursor = content.slice(cursorPos);
 
       // Find and replace the @query with @username
-      const newTextBefore = textBeforeCursor.replace(/@\w*$/, `@${mention.username} `)
-      const newContent = newTextBefore + textAfterCursor
+      const newTextBefore = textBeforeCursor.replace(
+        /@\w*$/,
+        `@${mention.username} `,
+      );
+      const newContent = newTextBefore + textAfterCursor;
 
-      setContent(newContent)
-      setMentionQuery(null)
-      setMentionResults([])
+      setContent(newContent);
+      setMentionQuery(null);
+      setMentionResults([]);
 
       // Focus and set cursor position
       requestAnimationFrame(() => {
-        textarea.focus()
-        const newCursorPos = newTextBefore.length
-        textarea.setSelectionRange(newCursorPos, newCursorPos)
-      })
+        textarea.focus();
+        const newCursorPos = newTextBefore.length;
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+      });
     },
-    [content]
-  )
+    [content],
+  );
 
   // Handle keyboard navigation for mentions
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
       // Handle mention selection
       if (mentionResults.length > 0) {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault()
-          setMentionIndex((prev) => (prev < mentionResults.length - 1 ? prev + 1 : 0))
-          return
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          setMentionIndex((prev) =>
+            prev < mentionResults.length - 1 ? prev + 1 : 0,
+          );
+          return;
         }
-        if (e.key === 'ArrowUp') {
-          e.preventDefault()
-          setMentionIndex((prev) => (prev > 0 ? prev - 1 : mentionResults.length - 1))
-          return
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          setMentionIndex((prev) =>
+            prev > 0 ? prev - 1 : mentionResults.length - 1,
+          );
+          return;
         }
-        if (e.key === 'Enter' || e.key === 'Tab') {
-          e.preventDefault()
-          insertMention(mentionResults[mentionIndex])
-          return
+        if (e.key === "Enter" || e.key === "Tab") {
+          e.preventDefault();
+          insertMention(mentionResults[mentionIndex]);
+          return;
         }
-        if (e.key === 'Escape') {
-          e.preventDefault()
-          setMentionQuery(null)
-          setMentionResults([])
-          return
+        if (e.key === "Escape") {
+          e.preventDefault();
+          setMentionQuery(null);
+          setMentionResults([]);
+          return;
         }
       }
 
       // Handle send on Enter (without Shift)
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        handleSend()
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
       }
     },
-    [mentionResults, mentionIndex, insertMention]
-  )
+    [mentionResults, mentionIndex, insertMention],
+  );
 
   // Handle send
   const handleSend = useCallback(async () => {
-    const trimmedContent = content.trim()
-    if (!trimmedContent && attachments.length === 0) return
-    if (sending || disabled) return
+    const trimmedContent = content.trim();
+    if (!trimmedContent && attachments.length === 0) return;
+    if (sending || disabled) return;
 
     try {
-      const files = attachments.map((a) => a.file)
-      await onSend(trimmedContent, files.length > 0 ? files : undefined)
-      setContent('')
-      setAttachments([])
+      const files = attachments.map((a) => a.file);
+      await onSend(trimmedContent, files.length > 0 ? files : undefined);
+      setContent("");
+      setAttachments([]);
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
+        textareaRef.current.style.height = "auto";
       }
     } catch (error) {
-      logger.error('Failed to send reply:', error)
+      logger.error("Failed to send reply:", error);
     }
-  }, [content, attachments, sending, disabled, onSend])
+  }, [content, attachments, sending, disabled, onSend]);
 
   // Handle file selection
   const handleFileSelect = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || [])
+      const files = Array.from(e.target.files || []);
 
       const validFiles = files.filter((file) => {
         // Check file size
         if (file.size > maxFileSize) {
-          logger.warn(`File ${file.name} exceeds max size`)
-          return false
+          logger.warn(`File ${file.name} exceeds max size`);
+          return false;
         }
         // Check file type
         if (allowedFileTypes && !allowedFileTypes.includes(file.type)) {
-          logger.warn(`File type ${file.type} not allowed`)
-          return false
+          logger.warn(`File type ${file.type} not allowed`);
+          return false;
         }
-        return true
-      })
+        return true;
+      });
 
       const newAttachments = validFiles
         .slice(0, maxAttachments - attachments.length)
@@ -223,58 +245,61 @@ export function ThreadReplyInput({
           const attachment: Attachment = {
             id: `${Date.now()}-${file.name}`,
             file,
-          }
+          };
           // Create preview for images
-          if (file.type.startsWith('image/')) {
-            attachment.preview = URL.createObjectURL(file)
+          if (file.type.startsWith("image/")) {
+            attachment.preview = URL.createObjectURL(file);
           }
-          return attachment
-        })
+          return attachment;
+        });
 
-      setAttachments((prev) => [...prev, ...newAttachments])
+      setAttachments((prev) => [...prev, ...newAttachments]);
 
       // Reset input
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = "";
       }
     },
-    [maxFileSize, allowedFileTypes, maxAttachments, attachments.length]
-  )
+    [maxFileSize, allowedFileTypes, maxAttachments, attachments.length],
+  );
 
   // Remove attachment
   const removeAttachment = useCallback((id: string) => {
     setAttachments((prev) => {
-      const attachment = prev.find((a) => a.id === id)
+      const attachment = prev.find((a) => a.id === id);
       if (attachment?.preview) {
-        URL.revokeObjectURL(attachment.preview)
+        URL.revokeObjectURL(attachment.preview);
       }
-      return prev.filter((a) => a.id !== id)
-    })
-  }, [])
+      return prev.filter((a) => a.id !== id);
+    });
+  }, []);
 
   // Handle emoji selection
   const handleEmojiSelect = useCallback((emoji: string) => {
-    setContent((prev) => prev + emoji)
-    setShowEmojiPicker(false)
-    textareaRef.current?.focus()
-  }, [])
+    setContent((prev) => prev + emoji);
+    setShowEmojiPicker(false);
+    textareaRef.current?.focus();
+  }, []);
 
   // Cleanup previews on unmount
   React.useEffect(() => {
     return () => {
       attachments.forEach((a) => {
         if (a.preview) {
-          URL.revokeObjectURL(a.preview)
+          URL.revokeObjectURL(a.preview);
         }
-      })
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+      });
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const canSend = (content.trim().length > 0 || attachments.length > 0) && !sending && !disabled
+  const canSend =
+    (content.trim().length > 0 || attachments.length > 0) &&
+    !sending &&
+    !disabled;
 
   return (
     <TooltipProvider>
-      <div className={cn('border-t bg-background', className)}>
+      <div className={cn("border-t bg-background", className)}>
         {/* Attachments preview */}
         {attachments.length > 0 && (
           <div className="flex flex-wrap gap-2 px-3 pt-3">
@@ -318,14 +343,16 @@ export function ThreadReplyInput({
                   key={mention.id}
                   type="button"
                   className={cn(
-                    'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted',
-                    index === mentionIndex && 'bg-muted'
+                    "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted",
+                    index === mentionIndex && "bg-muted",
                   )}
                   onClick={() => insertMention(mention)}
                 >
                   <AtSign className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">{mention.displayName}</span>
-                  <span className="text-muted-foreground">@{mention.username}</span>
+                  <span className="text-muted-foreground">
+                    @{mention.username}
+                  </span>
                 </button>
               ))}
             </div>
@@ -359,7 +386,11 @@ export function ThreadReplyInput({
                     variant="ghost"
                     size="icon"
                     className="h-9 w-9"
-                    disabled={disabled || sending || attachments.length >= maxAttachments}
+                    disabled={
+                      disabled ||
+                      sending ||
+                      attachments.length >= maxAttachments
+                    }
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Paperclip className="h-4 w-4" />
@@ -376,7 +407,7 @@ export function ThreadReplyInput({
                 multiple
                 className="hidden"
                 onChange={handleFileSelect}
-                accept={allowedFileTypes?.join(',')}
+                accept={allowedFileTypes?.join(",")}
               />
 
               {/* Emoji picker */}
@@ -398,48 +429,56 @@ export function ThreadReplyInput({
                   </TooltipTrigger>
                   <TooltipContent>Add emoji</TooltipContent>
                 </Tooltip>
-                <PopoverContent side="top" align="end" className="w-[280px] p-2">
+                <PopoverContent
+                  side="top"
+                  align="end"
+                  className="w-[280px] p-2"
+                >
                   {/* Simple emoji grid - can be replaced with emoji-picker-react */}
                   <div className="grid grid-cols-8 gap-1">
                     {[
-                      '128516',
-                      '128522',
-                      '128525',
-                      '128514',
-                      '129315',
-                      '128517',
-                      '128518',
-                      '128521',
-                      '128519',
-                      '128513',
-                      '129392',
-                      '128523',
-                      '128539',
-                      '128540',
-                      '129299',
-                      '128526',
-                      '128527',
-                      '128531',
-                      '128532',
-                      '128560',
-                      '128557',
-                      '128546',
-                      '128545',
-                      '128548',
-                      '129300',
-                      '129488',
-                      '128293',
-                      '129505',
-                      '128077',
-                      '128079',
-                      '128588',
-                      '129309',
+                      "128516",
+                      "128522",
+                      "128525",
+                      "128514",
+                      "129315",
+                      "128517",
+                      "128518",
+                      "128521",
+                      "128519",
+                      "128513",
+                      "129392",
+                      "128523",
+                      "128539",
+                      "128540",
+                      "129299",
+                      "128526",
+                      "128527",
+                      "128531",
+                      "128532",
+                      "128560",
+                      "128557",
+                      "128546",
+                      "128545",
+                      "128548",
+                      "129300",
+                      "129488",
+                      "128293",
+                      "129505",
+                      "128077",
+                      "128079",
+                      "128588",
+                      "129309",
                     ].map((code) => (
                       <button
                         key={code}
                         type="button"
                         className="flex h-8 w-8 items-center justify-center rounded text-lg transition-colors hover:bg-muted"
-                        onClick={() => handleEmojiSelect(String.fromCodePoint(parseInt(code)))}
+                        onClick={() =>
+                          handleEmojiSelect(
+                            String.fromCodePoint(parseInt(code)),
+                          )
+                        }
                       >
                         {String.fromCodePoint(parseInt(code))}
                       </button>
@@ -473,14 +512,20 @@ export function ThreadReplyInput({
 
           {/* Helper text */}
           <p className="mt-1.5 text-[11px] text-muted-foreground">
-            Press <kbd className="rounded bg-muted px-1 py-0.5 text-[10px]">Enter</kbd> to send,{' '}
-            <kbd className="rounded bg-muted px-1 py-0.5 text-[10px]">Shift + Enter</kbd> for new
-            line
+            Press{" "}
+            <kbd className="rounded bg-muted px-1 py-0.5 text-[10px]">
+              Enter
+            </kbd>{" "}
+            to send,{" "}
+            <kbd className="rounded bg-muted px-1 py-0.5 text-[10px]">
+              Shift + Enter
+            </kbd>{" "}
+            for new line
           </p>
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }
 
-export default ThreadReplyInput
+export default ThreadReplyInput;

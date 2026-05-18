@@ -4,79 +4,79 @@
  * Handles 1:1 and group direct messaging functionality
  */
 
-import { gql } from '@apollo/client'
-import { USER_BASIC_FRAGMENT, ATTACHMENT_FRAGMENT } from './fragments'
+import { gql } from "@apollo/client";
+import { USER_BASIC_FRAGMENT, ATTACHMENT_FRAGMENT } from "./fragments";
 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type DMType = 'direct' | 'group'
-export type DMStatus = 'active' | 'archived' | 'deleted'
-export type DMNotificationSetting = 'all' | 'mentions' | 'none'
-export type DMParticipantRole = 'owner' | 'admin' | 'member'
+export type DMType = "direct" | "group";
+export type DMStatus = "active" | "archived" | "deleted";
+export type DMNotificationSetting = "all" | "mentions" | "none";
+export type DMParticipantRole = "owner" | "admin" | "member";
 
 export interface CreateDMVariables {
-  creatorId: string
-  participantId: string
+  creatorId: string;
+  participantId: string;
 }
 
 export interface CreateGroupDMVariables {
-  name: string
-  description?: string
-  creatorId: string
-  participantIds: { user_id: string; role?: string }[]
+  name: string;
+  description?: string;
+  creatorId: string;
+  participantIds: { user_id: string; role?: string }[];
 }
 
 export interface GetUserDMsVariables {
-  userId: string
-  status?: DMStatus
-  limit?: number
-  offset?: number
+  userId: string;
+  status?: DMStatus;
+  limit?: number;
+  offset?: number;
 }
 
 export interface GetDMVariables {
-  id?: string
-  slug?: string
+  id?: string;
+  slug?: string;
 }
 
 export interface SendDMMessageVariables {
-  dmId: string
-  userId: string
-  content: string
-  type?: string
-  replyToId?: string
-  metadata?: Record<string, unknown>
+  dmId: string;
+  userId: string;
+  content: string;
+  type?: string;
+  replyToId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UpdateDMSettingsVariables {
-  dmId: string
-  name?: string
-  description?: string
-  avatarUrl?: string
+  dmId: string;
+  name?: string;
+  description?: string;
+  avatarUrl?: string;
 }
 
 export interface AddDMParticipantsVariables {
-  participants: { dm_id: string; user_id: string; role?: string }[]
+  participants: { dm_id: string; user_id: string; role?: string }[];
 }
 
 export interface MarkDMAsReadVariables {
-  dmId: string
-  userId: string
-  messageId: string
+  dmId: string;
+  userId: string;
+  messageId: string;
 }
 
 export interface UpdateDMNotificationSettingsVariables {
-  dmId: string
-  userId: string
-  setting: DMNotificationSetting
-  isMuted?: boolean
-  mutedUntil?: string
+  dmId: string;
+  userId: string;
+  setting: DMNotificationSetting;
+  isMuted?: boolean;
+  mutedUntil?: string;
 }
 
 export interface DMSubscriptionVariables {
-  userId?: string
-  dmId?: string
+  userId?: string;
+  dmId?: string;
 }
 
 // ============================================================================
@@ -93,7 +93,7 @@ export const DM_USER_FRAGMENT = gql`
     status_emoji
     last_seen_at
   }
-`
+`;
 
 export const DM_PARTICIPANT_FRAGMENT = gql`
   fragment DMParticipant on nchat_dm_participants {
@@ -112,7 +112,7 @@ export const DM_PARTICIPANT_FRAGMENT = gql`
     }
   }
   ${DM_USER_FRAGMENT}
-`
+`;
 
 export const DM_BASIC_FRAGMENT = gql`
   fragment DMBasic on nchat_direct_messages {
@@ -134,7 +134,7 @@ export const DM_BASIC_FRAGMENT = gql`
     last_message_preview
     last_message_user_id
   }
-`
+`;
 
 export const DM_FULL_FRAGMENT = gql`
   fragment DMFull on nchat_direct_messages {
@@ -146,7 +146,7 @@ export const DM_FULL_FRAGMENT = gql`
   }
   ${DM_BASIC_FRAGMENT}
   ${DM_PARTICIPANT_FRAGMENT}
-`
+`;
 
 export const DM_MESSAGE_FRAGMENT = gql`
   fragment DMMessage on nchat_dm_messages {
@@ -200,7 +200,7 @@ export const DM_MESSAGE_FRAGMENT = gql`
   ${DM_USER_FRAGMENT}
   ${ATTACHMENT_FRAGMENT}
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // QUERIES
@@ -210,7 +210,12 @@ export const DM_MESSAGE_FRAGMENT = gql`
  * Get all DMs for the current user
  */
 export const GET_USER_DMS = gql`
-  query GetUserDMs($userId: uuid!, $status: String = "active", $limit: Int = 50, $offset: Int = 0) {
+  query GetUserDMs(
+    $userId: uuid!
+    $status: String = "active"
+    $limit: Int = 50
+    $offset: Int = 0
+  ) {
     nchat_dm_participants(
       where: { user_id: { _eq: $userId }, dm: { status: { _eq: $status } } }
       order_by: { dm: { last_message_at: desc_nulls_last } }
@@ -235,7 +240,7 @@ export const GET_USER_DMS = gql`
     }
   }
   ${DM_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get a single DM by ID
@@ -260,7 +265,7 @@ export const GET_DM = gql`
   }
   ${DM_FULL_FRAGMENT}
   ${DM_USER_FRAGMENT}
-`
+`;
 
 /**
  * Get a DM by slug
@@ -272,7 +277,7 @@ export const GET_DM_BY_SLUG = gql`
     }
   }
   ${DM_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Check if DM exists between two users
@@ -293,7 +298,7 @@ export const CHECK_EXISTING_DM = gql`
     }
   }
   ${DM_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Get DM messages with pagination
@@ -306,31 +311,41 @@ export const GET_DM_MESSAGES = gql`
     $order: order_by = desc
   ) {
     nchat_dm_messages(
-      where: { dm_id: { _eq: $dmId }, is_deleted: { _eq: false }, created_at: { _lt: $cursor } }
+      where: {
+        dm_id: { _eq: $dmId }
+        is_deleted: { _eq: false }
+        created_at: { _lt: $cursor }
+      }
       order_by: { created_at: $order }
       limit: $limit
     ) {
       ...DMMessage
     }
-    nchat_dm_messages_aggregate(where: { dm_id: { _eq: $dmId }, is_deleted: { _eq: false } }) {
+    nchat_dm_messages_aggregate(
+      where: { dm_id: { _eq: $dmId }, is_deleted: { _eq: false } }
+    ) {
       aggregate {
         count
       }
     }
   }
   ${DM_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Get unread count for all DMs
  */
 export const GET_TOTAL_DM_UNREAD_COUNT = gql`
   query GetTotalDMUnreadCount($userId: uuid!) {
-    nchat_dm_participants(where: { user_id: { _eq: $userId }, dm: { status: { _eq: "active" } } }) {
+    nchat_dm_participants(
+      where: { user_id: { _eq: $userId }, dm: { status: { _eq: "active" } } }
+    ) {
       dm_id
       last_read_at
       dm {
-        messages_aggregate(where: { is_deleted: { _eq: false }, user_id: { _neq: $userId } }) {
+        messages_aggregate(
+          where: { is_deleted: { _eq: false }, user_id: { _neq: $userId } }
+        ) {
           aggregate {
             count
           }
@@ -338,15 +353,24 @@ export const GET_TOTAL_DM_UNREAD_COUNT = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Search DM messages
  */
 export const SEARCH_DM_MESSAGES = gql`
-  query SearchDMMessages($dmId: uuid!, $query: String!, $limit: Int = 20, $offset: Int = 0) {
+  query SearchDMMessages(
+    $dmId: uuid!
+    $query: String!
+    $limit: Int = 20
+    $offset: Int = 0
+  ) {
     nchat_dm_messages(
-      where: { dm_id: { _eq: $dmId }, is_deleted: { _eq: false }, content: { _ilike: $query } }
+      where: {
+        dm_id: { _eq: $dmId }
+        is_deleted: { _eq: false }
+        content: { _ilike: $query }
+      }
       order_by: { created_at: desc }
       limit: $limit
       offset: $offset
@@ -355,7 +379,7 @@ export const SEARCH_DM_MESSAGES = gql`
     }
   }
   ${DM_MESSAGE_FRAGMENT}
-`
+`;
 
 // ============================================================================
 // MUTATIONS
@@ -378,7 +402,10 @@ export const CREATE_OR_GET_DM = gql`
           ]
         }
       }
-      on_conflict: { constraint: nchat_direct_messages_dm_unique, update_columns: [updated_at] }
+      on_conflict: {
+        constraint: nchat_direct_messages_dm_unique
+        update_columns: [updated_at]
+      }
     ) {
       id
       slug
@@ -391,7 +418,7 @@ export const CREATE_OR_GET_DM = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Create a new group DM
@@ -428,16 +455,26 @@ export const CREATE_GROUP_DM = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Update DM settings (group only)
  */
 export const UPDATE_DM_SETTINGS = gql`
-  mutation UpdateDMSettings($dmId: uuid!, $name: String, $description: String, $avatarUrl: String) {
+  mutation UpdateDMSettings(
+    $dmId: uuid!
+    $name: String
+    $description: String
+    $avatarUrl: String
+  ) {
     update_nchat_direct_messages_by_pk(
       pk_columns: { id: $dmId }
-      _set: { name: $name, description: $description, avatar_url: $avatarUrl, updated_at: "now()" }
+      _set: {
+        name: $name
+        description: $description
+        avatar_url: $avatarUrl
+        updated_at: "now()"
+      }
     ) {
       id
       name
@@ -446,7 +483,7 @@ export const UPDATE_DM_SETTINGS = gql`
       updated_at
     }
   }
-`
+`;
 
 /**
  * Archive a DM
@@ -463,7 +500,7 @@ export const ARCHIVE_DM = gql`
       archived_by
     }
   }
-`
+`;
 
 /**
  * Unarchive a DM
@@ -478,19 +515,22 @@ export const UNARCHIVE_DM = gql`
       status
     }
   }
-`
+`;
 
 /**
  * Delete a DM (soft delete)
  */
 export const DELETE_DM = gql`
   mutation DeleteDM($dmId: uuid!) {
-    update_nchat_direct_messages_by_pk(pk_columns: { id: $dmId }, _set: { status: "deleted" }) {
+    update_nchat_direct_messages_by_pk(
+      pk_columns: { id: $dmId }
+      _set: { status: "deleted" }
+    ) {
       id
       status
     }
   }
-`
+`;
 
 /**
  * Send a message
@@ -518,7 +558,7 @@ export const SEND_DM_MESSAGE = gql`
     }
   }
   ${DM_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Update a message
@@ -535,7 +575,7 @@ export const UPDATE_DM_MESSAGE = gql`
       edited_at
     }
   }
-`
+`;
 
 /**
  * Delete a message (soft delete)
@@ -551,7 +591,7 @@ export const DELETE_DM_MESSAGE = gql`
       deleted_at
     }
   }
-`
+`;
 
 /**
  * Mark DM as read
@@ -570,16 +610,21 @@ export const MARK_DM_AS_READ = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Add participants to group DM
  */
 export const ADD_DM_PARTICIPANTS = gql`
-  mutation AddDMParticipants($participants: [nchat_dm_participants_insert_input!]!) {
+  mutation AddDMParticipants(
+    $participants: [nchat_dm_participants_insert_input!]!
+  ) {
     insert_nchat_dm_participants(
       objects: $participants
-      on_conflict: { constraint: nchat_dm_participants_dm_id_user_id_key, update_columns: [] }
+      on_conflict: {
+        constraint: nchat_dm_participants_dm_id_user_id_key
+        update_columns: []
+      }
     ) {
       affected_rows
       returning {
@@ -594,29 +639,33 @@ export const ADD_DM_PARTICIPANTS = gql`
     }
   }
   ${USER_BASIC_FRAGMENT}
-`
+`;
 
 /**
  * Remove participant from group DM
  */
 export const REMOVE_DM_PARTICIPANT = gql`
   mutation RemoveDMParticipant($dmId: uuid!, $userId: uuid!) {
-    delete_nchat_dm_participants(where: { dm_id: { _eq: $dmId }, user_id: { _eq: $userId } }) {
+    delete_nchat_dm_participants(
+      where: { dm_id: { _eq: $dmId }, user_id: { _eq: $userId } }
+    ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Leave a DM
  */
 export const LEAVE_DM = gql`
   mutation LeaveDM($dmId: uuid!, $userId: uuid!) {
-    delete_nchat_dm_participants(where: { dm_id: { _eq: $dmId }, user_id: { _eq: $userId } }) {
+    delete_nchat_dm_participants(
+      where: { dm_id: { _eq: $dmId }, user_id: { _eq: $userId } }
+    ) {
       affected_rows
     }
   }
-`
+`;
 
 /**
  * Update notification settings for a DM
@@ -631,7 +680,11 @@ export const UPDATE_DM_NOTIFICATION_SETTINGS = gql`
   ) {
     update_nchat_dm_participants(
       where: { dm_id: { _eq: $dmId }, user_id: { _eq: $userId } }
-      _set: { notification_setting: $setting, is_muted: $isMuted, muted_until: $mutedUntil }
+      _set: {
+        notification_setting: $setting
+        is_muted: $isMuted
+        muted_until: $mutedUntil
+      }
     ) {
       affected_rows
       returning {
@@ -642,7 +695,7 @@ export const UPDATE_DM_NOTIFICATION_SETTINGS = gql`
       }
     }
   }
-`
+`;
 
 /**
  * Add reaction to DM message
@@ -663,20 +716,28 @@ export const ADD_DM_REACTION = gql`
       created_at
     }
   }
-`
+`;
 
 /**
  * Remove reaction from DM message
  */
 export const REMOVE_DM_REACTION = gql`
-  mutation RemoveDMReaction($messageId: uuid!, $userId: uuid!, $emoji: String!) {
+  mutation RemoveDMReaction(
+    $messageId: uuid!
+    $userId: uuid!
+    $emoji: String!
+  ) {
     delete_nchat_dm_reactions(
-      where: { message_id: { _eq: $messageId }, user_id: { _eq: $userId }, emoji: { _eq: $emoji } }
+      where: {
+        message_id: { _eq: $messageId }
+        user_id: { _eq: $userId }
+        emoji: { _eq: $emoji }
+      }
     ) {
       affected_rows
     }
   }
-`
+`;
 
 // ============================================================================
 // SUBSCRIPTIONS
@@ -707,7 +768,7 @@ export const DM_LIST_SUBSCRIPTION = gql`
   }
   ${DM_BASIC_FRAGMENT}
   ${DM_USER_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to a single DM updates
@@ -719,7 +780,7 @@ export const DM_SUBSCRIPTION = gql`
     }
   }
   ${DM_FULL_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to new messages in a DM
@@ -735,7 +796,7 @@ export const DM_MESSAGES_SUBSCRIPTION = gql`
     }
   }
   ${DM_MESSAGE_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to typing indicators in a DM
@@ -759,21 +820,25 @@ export const DM_TYPING_SUBSCRIPTION = gql`
     }
   }
   ${DM_USER_FRAGMENT}
-`
+`;
 
 /**
  * Subscribe to unread count for all DMs
  */
 export const DM_UNREAD_COUNT_SUBSCRIPTION = gql`
   subscription DMUnreadCountSubscription($userId: uuid!) {
-    nchat_dm_participants(where: { user_id: { _eq: $userId }, dm: { status: { _eq: "active" } } }) {
+    nchat_dm_participants(
+      where: { user_id: { _eq: $userId }, dm: { status: { _eq: "active" } } }
+    ) {
       dm_id
       last_read_at
       is_muted
       dm {
         id
         last_message_at
-        messages_aggregate(where: { is_deleted: { _eq: false }, user_id: { _neq: $userId } }) {
+        messages_aggregate(
+          where: { is_deleted: { _eq: false }, user_id: { _neq: $userId } }
+        ) {
           aggregate {
             count
           }
@@ -781,4 +846,4 @@ export const DM_UNREAD_COUNT_SUBSCRIPTION = gql`
       }
     }
   }
-`
+`;

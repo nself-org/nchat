@@ -19,7 +19,7 @@ export {
   queueMessageNotification,
   queueMessageIndexing,
   queueChannelReindex,
-} from './message-jobs'
+} from "./message-jobs";
 
 // ============================================================================
 // Job Handlers
@@ -36,7 +36,7 @@ export {
   BASE_RETRY_DELAY,
   BATCH_SIZE,
   type ProcessScheduledMessagesResult,
-} from './handlers'
+} from "./handlers";
 
 // ============================================================================
 // Message Cleanup (Ephemeral Messages)
@@ -51,16 +51,16 @@ export {
   handleMessageCleanupJob,
   type MessageCleanupResult,
   type MessageCleanupOptions,
-} from './handlers/message-cleanup'
+} from "./handlers/message-cleanup";
 
 // ============================================================================
 // Digest Jobs
 // ============================================================================
 
-import { addJob, getSchedulerService } from '@/services/jobs'
-import { createLogger } from '@/lib/logger'
+import { addJob, getSchedulerService } from "@/services/jobs";
+import { createLogger } from "@/lib/logger";
 
-const log = createLogger('Jobs')
+const log = createLogger("Jobs");
 
 /**
  * Create a daily digest subscription for a user
@@ -69,29 +69,33 @@ export async function createDailyDigest(
   userId: string,
   email: string,
   options?: {
-    hour?: number
-    timezone?: string
-    channelIds?: string[]
-  }
+    hour?: number;
+    timezone?: string;
+    channelIds?: string[];
+  },
 ): Promise<{ scheduleId: string } | null> {
   try {
-    const scheduler = getSchedulerService()
+    const scheduler = getSchedulerService();
     if (!scheduler.initialized) {
-      await scheduler.initialize()
+      await scheduler.initialize();
     }
 
-    const result = await scheduler.createDailyDigestSchedule(userId, email, options)
+    const result = await scheduler.createDailyDigestSchedule(
+      userId,
+      email,
+      options,
+    );
 
-    log.info('Daily digest schedule created', {
+    log.info("Daily digest schedule created", {
       scheduleId: result.scheduleId,
       userId,
       email,
-    })
+    });
 
-    return { scheduleId: result.scheduleId }
+    return { scheduleId: result.scheduleId };
   } catch (error) {
-    log.error('Failed to create daily digest', error)
-    return null
+    log.error("Failed to create daily digest", error);
+    return null;
   }
 }
 
@@ -102,61 +106,68 @@ export async function createWeeklyDigest(
   userId: string,
   email: string,
   options?: {
-    dayOfWeek?: number
-    hour?: number
-    timezone?: string
-    channelIds?: string[]
-  }
+    dayOfWeek?: number;
+    hour?: number;
+    timezone?: string;
+    channelIds?: string[];
+  },
 ): Promise<{ scheduleId: string } | null> {
   try {
-    const scheduler = getSchedulerService()
+    const scheduler = getSchedulerService();
     if (!scheduler.initialized) {
-      await scheduler.initialize()
+      await scheduler.initialize();
     }
 
-    const result = await scheduler.createWeeklyDigestSchedule(userId, email, options)
+    const result = await scheduler.createWeeklyDigestSchedule(
+      userId,
+      email,
+      options,
+    );
 
-    log.info('Weekly digest schedule created', {
+    log.info("Weekly digest schedule created", {
       scheduleId: result.scheduleId,
       userId,
       email,
-    })
+    });
 
-    return { scheduleId: result.scheduleId }
+    return { scheduleId: result.scheduleId };
   } catch (error) {
-    log.error('Failed to create weekly digest', error)
-    return null
+    log.error("Failed to create weekly digest", error);
+    return null;
   }
 }
 
 /**
  * Cancel a digest subscription
  */
-export async function cancelDigest(userId: string, type: 'daily' | 'weekly'): Promise<boolean> {
+export async function cancelDigest(
+  userId: string,
+  type: "daily" | "weekly",
+): Promise<boolean> {
   try {
-    const scheduler = getSchedulerService()
+    const scheduler = getSchedulerService();
     if (!scheduler.initialized) {
-      await scheduler.initialize()
+      await scheduler.initialize();
     }
 
-    const scheduleName = `${type}-digest-${userId}`
-    const schedule = scheduler.getScheduleByName(scheduleName)
+    const scheduleName = `${type}-digest-${userId}`;
+    const schedule = scheduler.getScheduleByName(scheduleName);
 
     if (!schedule) {
-      log.warn('Digest schedule not found', { userId, type })
-      return false
+      log.warn("Digest schedule not found", { userId, type });
+      return false;
     }
 
-    const deleted = await scheduler.deleteSchedule(schedule.id)
+    const deleted = await scheduler.deleteSchedule(schedule.id);
 
     if (deleted) {
-      log.info('Digest schedule cancelled', { userId, type })
+      log.info("Digest schedule cancelled", { userId, type });
     }
 
-    return deleted
+    return deleted;
   } catch (error) {
-    log.error('Failed to cancel digest', error)
-    return false
+    log.error("Failed to cancel digest", error);
+    return false;
   }
 }
 
@@ -169,22 +180,22 @@ export async function cancelDigest(userId: string, type: 'daily' | 'weekly'): Pr
  */
 export async function queueCleanup(
   targetType:
-    | 'messages'
-    | 'attachments'
-    | 'sessions'
-    | 'drafts'
-    | 'scheduled_messages'
-    | 'job_results',
+    | "messages"
+    | "attachments"
+    | "sessions"
+    | "drafts"
+    | "scheduled_messages"
+    | "job_results",
   options?: {
-    olderThanHours?: number
-    olderThanDays?: number
-    batchSize?: number
-    dryRun?: boolean
-  }
+    olderThanHours?: number;
+    olderThanDays?: number;
+    batchSize?: number;
+    dryRun?: boolean;
+  },
 ): Promise<string | null> {
   try {
     const { jobId } = await addJob(
-      'cleanup-expired',
+      "cleanup-expired",
       {
         targetType,
         olderThanHours: options?.olderThanHours,
@@ -193,17 +204,17 @@ export async function queueCleanup(
         dryRun: options?.dryRun || false,
       },
       {
-        queue: 'low-priority',
-        priority: 'low',
-        tags: ['cleanup', targetType],
-      }
-    )
+        queue: "low-priority",
+        priority: "low",
+        tags: ["cleanup", targetType],
+      },
+    );
 
-    log.info('Cleanup job queued', { jobId, targetType })
-    return jobId
+    log.info("Cleanup job queued", { jobId, targetType });
+    return jobId;
   } catch (error) {
-    log.error('Failed to queue cleanup', error)
-    return null
+    log.error("Failed to queue cleanup", error);
+    return null;
   }
 }
 
@@ -220,44 +231,49 @@ export async function queueFileProcessing(
   mimeType: string,
   fileSize: number,
   operations: Array<
-    'thumbnail' | 'preview' | 'extract_text' | 'virus_scan' | 'compress' | 'transcode'
+    | "thumbnail"
+    | "preview"
+    | "extract_text"
+    | "virus_scan"
+    | "compress"
+    | "transcode"
   >,
   options?: {
-    userId?: string
-    channelId?: string
-    messageId?: string
-  }
+    userId?: string;
+    channelId?: string;
+    messageId?: string;
+  },
 ): Promise<string | null> {
   try {
     const { jobId } = await addJob(
-      'process-file',
+      "process-file",
       {
         fileId,
         fileUrl,
         mimeType,
         fileSize,
         operations,
-        userId: options?.userId || '',
+        userId: options?.userId || "",
         channelId: options?.channelId,
         messageId: options?.messageId,
       },
       {
-        queue: 'default',
-        priority: 'normal',
-        tags: ['file-processing', ...operations],
+        queue: "default",
+        priority: "normal",
+        tags: ["file-processing", ...operations],
         metadata: {
           fileId,
           mimeType,
           fileSize,
         },
-      }
-    )
+      },
+    );
 
-    log.debug('File processing job queued', { jobId, fileId, operations })
-    return jobId
+    log.debug("File processing job queued", { jobId, fileId, operations });
+    return jobId;
   } catch (error) {
-    log.error('Failed to queue file processing', error)
-    return null
+    log.error("Failed to queue file processing", error);
+    return null;
   }
 }
 
@@ -272,20 +288,20 @@ export async function queueWebhook(
   url: string,
   payload: unknown,
   options?: {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-    headers?: Record<string, string>
-    secret?: string
-    eventType?: string
-    timeout?: number
-    retryOnStatus?: number[]
-  }
+    method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+    headers?: Record<string, string>;
+    secret?: string;
+    eventType?: string;
+    timeout?: number;
+    retryOnStatus?: number[];
+  },
 ): Promise<string | null> {
   try {
     const { jobId } = await addJob(
-      'http-webhook',
+      "http-webhook",
       {
         url,
-        method: options?.method || 'POST',
+        method: options?.method || "POST",
         headers: options?.headers,
         body: payload,
         secret: options?.secret,
@@ -294,22 +310,26 @@ export async function queueWebhook(
         retryOnStatus: options?.retryOnStatus || [502, 503, 504],
       },
       {
-        queue: 'default',
-        priority: 'normal',
+        queue: "default",
+        priority: "normal",
         maxRetries: 5,
-        tags: ['webhook', options?.eventType || 'generic'],
+        tags: ["webhook", options?.eventType || "generic"],
         metadata: {
           url,
           eventType: options?.eventType,
         },
-      }
-    )
+      },
+    );
 
-    log.debug('Webhook job queued', { jobId, url, eventType: options?.eventType })
-    return jobId
+    log.debug("Webhook job queued", {
+      jobId,
+      url,
+      eventType: options?.eventType,
+    });
+    return jobId;
   } catch (error) {
-    log.error('Failed to queue webhook', error)
-    return null
+    log.error("Failed to queue webhook", error);
+    return null;
   }
 }
 
@@ -325,22 +345,22 @@ export async function queueEmail(
   subject: string,
   body: string,
   options?: {
-    from?: string
-    html?: string
-    cc?: string[]
-    bcc?: string[]
+    from?: string;
+    html?: string;
+    cc?: string[];
+    bcc?: string[];
     attachments?: Array<{
-      filename: string
-      content: string | Buffer
-      contentType?: string
-    }>
-    templateId?: string
-    templateVars?: Record<string, unknown>
-  }
+      filename: string;
+      content: string | Buffer;
+      contentType?: string;
+    }>;
+    templateId?: string;
+    templateVars?: Record<string, unknown>;
+  },
 ): Promise<string | null> {
   try {
     const { jobId } = await addJob(
-      'send-email',
+      "send-email",
       {
         to,
         from: options?.from,
@@ -354,20 +374,23 @@ export async function queueEmail(
         templateVars: options?.templateVars,
       },
       {
-        queue: 'high-priority',
-        priority: 'normal',
-        tags: ['email', options?.templateId ? `template:${options.templateId}` : 'custom'],
-      }
-    )
+        queue: "high-priority",
+        priority: "normal",
+        tags: [
+          "email",
+          options?.templateId ? `template:${options.templateId}` : "custom",
+        ],
+      },
+    );
 
-    log.debug('Email job queued', {
+    log.debug("Email job queued", {
       jobId,
       to: Array.isArray(to) ? to.length : 1,
       subject,
-    })
-    return jobId
+    });
+    return jobId;
   } catch (error) {
-    log.error('Failed to queue email', error)
-    return null
+    log.error("Failed to queue email", error);
+    return null;
   }
 }

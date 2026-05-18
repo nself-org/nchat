@@ -8,8 +8,13 @@
  * @version 1.0.0
  */
 
-import type { FAQEntry } from '@/lib/knowledge/knowledge-types'
-import type { Conversation, LivechatMessage, Visitor, Agent } from '@/services/livechat/types'
+import type { FAQEntry } from "@/lib/knowledge/knowledge-types";
+import type {
+  Conversation,
+  LivechatMessage,
+  Visitor,
+  Agent,
+} from "@/services/livechat/types";
 
 // ============================================================================
 // BOT CONFIGURATION TYPES
@@ -18,69 +23,69 @@ import type { Conversation, LivechatMessage, Visitor, Agent } from '@/services/l
 /**
  * Chatbot status
  */
-export type BotStatus = 'online' | 'offline' | 'maintenance'
+export type BotStatus = "online" | "offline" | "maintenance";
 
 /**
  * Bot response mode
  */
-export type BotResponseMode = 'auto' | 'suggest' | 'disabled'
+export type BotResponseMode = "auto" | "suggest" | "disabled";
 
 /**
  * Chatbot configuration
  */
 export interface ChatbotConfig {
-  id: string
-  name: string
-  description?: string
-  avatarUrl?: string
-  status: BotStatus
-  responseMode: BotResponseMode
+  id: string;
+  name: string;
+  description?: string;
+  avatarUrl?: string;
+  status: BotStatus;
+  responseMode: BotResponseMode;
   /** Welcome message for new conversations */
-  welcomeMessage: string
+  welcomeMessage: string;
   /** Fallback message when bot cannot help */
-  fallbackMessage: string
+  fallbackMessage: string;
   /** Message before handoff to human */
-  handoffMessage: string
+  handoffMessage: string;
   /** Message when no agents available */
-  noAgentsMessage: string
+  noAgentsMessage: string;
   /** Confidence threshold for automatic responses (0-1) */
-  confidenceThreshold: number
+  confidenceThreshold: number;
   /** Maximum bot turns before suggesting handoff */
-  maxBotTurns: number
+  maxBotTurns: number;
   /** Keywords that trigger immediate handoff */
-  handoffKeywords: string[]
+  handoffKeywords: string[];
   /** Business hours for bot operation */
   businessHours?: {
-    enabled: boolean
-    timezone: string
+    enabled: boolean;
+    timezone: string;
     schedule: Array<{
-      day: string
-      start: string
-      end: string
-    }>
-  }
+      day: string;
+      start: string;
+      end: string;
+    }>;
+  };
   /** Enabled features */
   features: {
-    autoGreet: boolean
-    suggestArticles: boolean
-    collectFeedback: boolean
-    detectSentiment: boolean
-    escalateNegative: boolean
-  }
+    autoGreet: boolean;
+    suggestArticles: boolean;
+    collectFeedback: boolean;
+    detectSentiment: boolean;
+    escalateNegative: boolean;
+  };
   /** Custom fields collected from visitor */
   collectFields?: Array<{
-    name: string
-    label: string
-    type: 'text' | 'email' | 'phone' | 'select'
-    required: boolean
-    options?: string[]
-  }>
+    name: string;
+    label: string;
+    type: "text" | "email" | "phone" | "select";
+    required: boolean;
+    options?: string[];
+  }>;
   /** Departments the bot handles */
-  departments?: string[]
+  departments?: string[];
   /** Languages supported */
-  languages: string[]
-  createdAt: Date
-  updatedAt: Date
+  languages: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ============================================================================
@@ -91,52 +96,52 @@ export interface ChatbotConfig {
  * Intent categories
  */
 export type IntentCategory =
-  | 'greeting'
-  | 'farewell'
-  | 'thanks'
-  | 'help'
-  | 'faq'
-  | 'complaint'
-  | 'feedback'
-  | 'human'
-  | 'cancel'
-  | 'confirm'
-  | 'unknown'
+  | "greeting"
+  | "farewell"
+  | "thanks"
+  | "help"
+  | "faq"
+  | "complaint"
+  | "feedback"
+  | "human"
+  | "cancel"
+  | "confirm"
+  | "unknown";
 
 /**
  * Detected intent
  */
 export interface DetectedIntent {
   /** Primary intent */
-  intent: IntentCategory
+  intent: IntentCategory;
   /** Confidence score (0-1) */
-  confidence: number
+  confidence: number;
   /** Alternative intents */
   alternatives?: Array<{
-    intent: IntentCategory
-    confidence: number
-  }>
+    intent: IntentCategory;
+    confidence: number;
+  }>;
   /** Extracted entities */
-  entities?: Record<string, string | string[]>
+  entities?: Record<string, string | string[]>;
   /** Matched keywords */
-  matchedKeywords?: string[]
+  matchedKeywords?: string[];
   /** Is this a request for human agent */
-  requestsHuman: boolean
+  requestsHuman: boolean;
   /** Sentiment score (-1 to 1, negative to positive) */
-  sentiment?: number
+  sentiment?: number;
 }
 
 /**
  * Intent pattern for matching
  */
 export interface IntentPattern {
-  id: string
-  intent: IntentCategory
-  patterns: string[]
-  keywords: string[]
-  examples: string[]
-  priority: number
-  isActive: boolean
+  id: string;
+  intent: IntentCategory;
+  patterns: string[];
+  keywords: string[];
+  examples: string[];
+  priority: number;
+  isActive: boolean;
 }
 
 // ============================================================================
@@ -147,95 +152,95 @@ export interface IntentPattern {
  * Bot response type
  */
 export type BotResponseType =
-  | 'text'
-  | 'quick_replies'
-  | 'article'
-  | 'articles'
-  | 'form'
-  | 'handoff'
-  | 'typing'
-  | 'custom'
+  | "text"
+  | "quick_replies"
+  | "article"
+  | "articles"
+  | "form"
+  | "handoff"
+  | "typing"
+  | "custom";
 
 /**
  * Quick reply button
  */
 export interface QuickReply {
-  id: string
-  label: string
-  value: string
-  action?: 'send' | 'handoff' | 'article' | 'url'
-  url?: string
-  articleId?: string
+  id: string;
+  label: string;
+  value: string;
+  action?: "send" | "handoff" | "article" | "url";
+  url?: string;
+  articleId?: string;
 }
 
 /**
  * Bot response
  */
 export interface BotResponse {
-  id: string
-  type: BotResponseType
-  content: string
+  id: string;
+  type: BotResponseType;
+  content: string;
   /** Rich content (HTML) */
-  contentHtml?: string
+  contentHtml?: string;
   /** Quick reply buttons */
-  quickReplies?: QuickReply[]
+  quickReplies?: QuickReply[];
   /** Article suggestions */
   articles?: Array<{
-    id: string
-    title: string
-    excerpt: string
-    url: string
-  }>
+    id: string;
+    title: string;
+    excerpt: string;
+    url: string;
+  }>;
   /** Form to collect data */
   form?: {
     fields: Array<{
-      name: string
-      label: string
-      type: 'text' | 'email' | 'phone' | 'select' | 'textarea'
-      required: boolean
-      options?: string[]
-      placeholder?: string
-    }>
-    submitLabel: string
-  }
+      name: string;
+      label: string;
+      type: "text" | "email" | "phone" | "select" | "textarea";
+      required: boolean;
+      options?: string[];
+      placeholder?: string;
+    }>;
+    submitLabel: string;
+  };
   /** Matched FAQ */
-  matchedFAQ?: FAQEntry
+  matchedFAQ?: FAQEntry;
   /** Confidence score */
-  confidence: number
+  confidence: number;
   /** Intent that triggered this response */
-  intent?: IntentCategory
+  intent?: IntentCategory;
   /** Should trigger handoff */
-  triggerHandoff: boolean
+  triggerHandoff: boolean;
   /** Reason for handoff */
-  handoffReason?: string
+  handoffReason?: string;
   /** Metadata */
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
  * Bot response template
  */
 export interface BotResponseTemplate {
-  id: string
-  name: string
-  description?: string
-  intent: IntentCategory
+  id: string;
+  name: string;
+  description?: string;
+  intent: IntentCategory;
   responses: Array<{
-    content: string
-    contentHtml?: string
-    quickReplies?: QuickReply[]
-    weight: number
-  }>
+    content: string;
+    contentHtml?: string;
+    quickReplies?: QuickReply[];
+    weight: number;
+  }>;
   conditions?: Array<{
-    field: string
-    operator: 'equals' | 'contains' | 'exists'
-    value: string
-  }>
-  isActive: boolean
-  createdAt: Date
-  updatedAt: Date
+    field: string;
+    operator: "equals" | "contains" | "exists";
+    value: string;
+  }>;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ============================================================================
@@ -247,51 +252,51 @@ export interface BotResponseTemplate {
  */
 export interface BotConversationContext {
   /** Conversation ID */
-  conversationId: string
+  conversationId: string;
   /** Visitor info */
-  visitor: Visitor
+  visitor: Visitor;
   /** Current session state */
-  state: BotSessionState
+  state: BotSessionState;
   /** Number of bot turns */
-  botTurns: number
+  botTurns: number;
   /** Number of consecutive unknown intents */
-  unknownCount: number
+  unknownCount: number;
   /** Collected form data */
-  collectedData: Record<string, string>
+  collectedData: Record<string, string>;
   /** Last detected intent */
-  lastIntent?: DetectedIntent
+  lastIntent?: DetectedIntent;
   /** Message history for context */
   messageHistory: Array<{
-    role: 'user' | 'bot'
-    content: string
-    timestamp: Date
-  }>
+    role: "user" | "bot";
+    content: string;
+    timestamp: Date;
+  }>;
   /** Topics discussed */
-  topics: string[]
+  topics: string[];
   /** Sentiment trend */
-  sentimentHistory: number[]
+  sentimentHistory: number[];
   /** FAQ IDs already suggested */
-  suggestedFAQs: string[]
+  suggestedFAQs: string[];
   /** Articles already suggested */
-  suggestedArticles: string[]
+  suggestedArticles: string[];
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last activity timestamp */
-  lastActivityAt: Date
+  lastActivityAt: Date;
 }
 
 /**
  * Bot session state
  */
 export type BotSessionState =
-  | 'greeting'
-  | 'collecting_info'
-  | 'answering'
-  | 'suggesting'
-  | 'confirming'
-  | 'handoff_pending'
-  | 'handed_off'
-  | 'ended'
+  | "greeting"
+  | "collecting_info"
+  | "answering"
+  | "suggesting"
+  | "confirming"
+  | "handoff_pending"
+  | "handed_off"
+  | "ended";
 
 // ============================================================================
 // HANDOFF TYPES
@@ -301,59 +306,59 @@ export type BotSessionState =
  * Handoff status
  */
 export type HandoffStatus =
-  | 'pending'
-  | 'waiting_for_agent'
-  | 'agent_assigned'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled'
-  | 'failed'
+  | "pending"
+  | "waiting_for_agent"
+  | "agent_assigned"
+  | "in_progress"
+  | "completed"
+  | "cancelled"
+  | "failed";
 
 /**
  * Handoff trigger reason
  */
 export type HandoffTrigger =
-  | 'user_request'
-  | 'low_confidence'
-  | 'max_turns_reached'
-  | 'negative_sentiment'
-  | 'keyword_match'
-  | 'bot_failure'
-  | 'escalation'
-  | 'after_hours'
-  | 'manual'
+  | "user_request"
+  | "low_confidence"
+  | "max_turns_reached"
+  | "negative_sentiment"
+  | "keyword_match"
+  | "bot_failure"
+  | "escalation"
+  | "after_hours"
+  | "manual";
 
 /**
  * Handoff request
  */
 export interface HandoffRequest {
-  id: string
-  conversationId: string
-  visitor: Visitor
-  trigger: HandoffTrigger
-  reason?: string
-  status: HandoffStatus
-  priority: 'low' | 'medium' | 'high' | 'urgent'
+  id: string;
+  conversationId: string;
+  visitor: Visitor;
+  trigger: HandoffTrigger;
+  reason?: string;
+  status: HandoffStatus;
+  priority: "low" | "medium" | "high" | "urgent";
   /** Department to route to */
-  department?: string
+  department?: string;
   /** Preferred agent if any */
-  preferredAgentId?: string
+  preferredAgentId?: string;
   /** Assigned agent */
-  assignedAgent?: Agent
+  assignedAgent?: Agent;
   /** Bot conversation summary */
-  summary: HandoffSummary
+  summary: HandoffSummary;
   /** Position in queue */
-  queuePosition?: number
+  queuePosition?: number;
   /** Estimated wait time (seconds) */
-  estimatedWait?: number
+  estimatedWait?: number;
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Agent accepted timestamp */
-  acceptedAt?: Date
+  acceptedAt?: Date;
   /** Completed timestamp */
-  completedAt?: Date
+  completedAt?: Date;
   /** Updated timestamp */
-  updatedAt: Date
+  updatedAt: Date;
 }
 
 /**
@@ -361,27 +366,27 @@ export interface HandoffRequest {
  */
 export interface HandoffSummary {
   /** Conversation duration with bot */
-  botDuration: number
+  botDuration: number;
   /** Number of messages exchanged */
-  messageCount: number
+  messageCount: number;
   /** Topics/intents detected */
-  topics: string[]
+  topics: string[];
   /** Main issue/question */
-  mainIssue?: string
+  mainIssue?: string;
   /** Collected visitor data */
-  visitorData: Record<string, string>
+  visitorData: Record<string, string>;
   /** Key messages from conversation */
   keyMessages: Array<{
-    role: 'user' | 'bot'
-    content: string
-    timestamp: Date
-  }>
+    role: "user" | "bot";
+    content: string;
+    timestamp: Date;
+  }>;
   /** Suggested articles that didn't help */
-  failedSuggestions: string[]
+  failedSuggestions: string[];
   /** Sentiment score */
-  sentiment: number
+  sentiment: number;
   /** Special notes for agent */
-  notes?: string
+  notes?: string;
 }
 
 /**
@@ -389,31 +394,31 @@ export interface HandoffSummary {
  */
 export interface HandoffConfig {
   /** Enable automatic handoff */
-  autoHandoff: boolean
+  autoHandoff: boolean;
   /** Confidence threshold below which to handoff */
-  confidenceThreshold: number
+  confidenceThreshold: number;
   /** Max bot turns before offering handoff */
-  maxBotTurns: number
+  maxBotTurns: number;
   /** Max unknown intents before handoff */
-  maxUnknownIntents: number
+  maxUnknownIntents: number;
   /** Sentiment threshold for escalation (-1 to 1) */
-  sentimentThreshold: number
+  sentimentThreshold: number;
   /** Keywords that trigger immediate handoff */
-  handoffKeywords: string[]
+  handoffKeywords: string[];
   /** Message to send when handoff starts */
-  handoffMessage: string
+  handoffMessage: string;
   /** Message when agent accepts */
-  agentJoinedMessage: string
+  agentJoinedMessage: string;
   /** Message when no agents available */
-  noAgentsMessage: string
+  noAgentsMessage: string;
   /** Whether to show queue position */
-  showQueuePosition: boolean
+  showQueuePosition: boolean;
   /** Whether to allow cancellation */
-  allowCancel: boolean
+  allowCancel: boolean;
   /** Offline behavior: 'ticket' | 'email' | 'message' */
-  offlineBehavior: 'ticket' | 'email' | 'message'
+  offlineBehavior: "ticket" | "email" | "message";
   /** Offline message */
-  offlineMessage: string
+  offlineMessage: string;
 }
 
 // ============================================================================
@@ -424,27 +429,27 @@ export interface HandoffConfig {
  * Chatbot event types
  */
 export type ChatbotEventType =
-  | 'bot.message_received'
-  | 'bot.response_sent'
-  | 'bot.intent_detected'
-  | 'bot.faq_matched'
-  | 'bot.handoff_requested'
-  | 'bot.handoff_accepted'
-  | 'bot.handoff_completed'
-  | 'bot.handoff_cancelled'
-  | 'bot.session_started'
-  | 'bot.session_ended'
-  | 'bot.fallback_triggered'
+  | "bot.message_received"
+  | "bot.response_sent"
+  | "bot.intent_detected"
+  | "bot.faq_matched"
+  | "bot.handoff_requested"
+  | "bot.handoff_accepted"
+  | "bot.handoff_completed"
+  | "bot.handoff_cancelled"
+  | "bot.session_started"
+  | "bot.session_ended"
+  | "bot.fallback_triggered";
 
 /**
  * Chatbot event
  */
 export interface ChatbotEvent<T = unknown> {
-  type: ChatbotEventType
-  conversationId: string
-  visitorId: string
-  data: T
-  timestamp: Date
+  type: ChatbotEventType;
+  conversationId: string;
+  visitorId: string;
+  data: T;
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -456,54 +461,54 @@ export interface ChatbotEvent<T = unknown> {
  */
 export interface ChatbotAnalytics {
   period: {
-    start: Date
-    end: Date
-  }
+    start: Date;
+    end: Date;
+  };
   conversations: {
-    total: number
-    resolved: number
-    handedOff: number
-    abandoned: number
-    averageDuration: number
-    averageMessages: number
-  }
+    total: number;
+    resolved: number;
+    handedOff: number;
+    abandoned: number;
+    averageDuration: number;
+    averageMessages: number;
+  };
   intents: {
-    total: number
-    byCategory: Record<IntentCategory, number>
-    averageConfidence: number
-    lowConfidenceRate: number
-  }
+    total: number;
+    byCategory: Record<IntentCategory, number>;
+    averageConfidence: number;
+    lowConfidenceRate: number;
+  };
   handoffs: {
-    total: number
-    byTrigger: Record<HandoffTrigger, number>
-    averageWaitTime: number
-    acceptanceRate: number
-  }
+    total: number;
+    byTrigger: Record<HandoffTrigger, number>;
+    averageWaitTime: number;
+    acceptanceRate: number;
+  };
   faqs: {
-    totalMatches: number
+    totalMatches: number;
     topFAQs: Array<{
-      faqId: string
-      question: string
-      matchCount: number
-      helpfulRate: number
-    }>
+      faqId: string;
+      question: string;
+      matchCount: number;
+      helpfulRate: number;
+    }>;
     unmatchedQueries: Array<{
-      query: string
-      count: number
-    }>
-  }
+      query: string;
+      count: number;
+    }>;
+  };
   sentiment: {
-    average: number
-    positive: number
-    neutral: number
-    negative: number
-  }
+    average: number;
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
   responseTime: {
-    average: number
-    p50: number
-    p90: number
-    p95: number
-  }
+    average: number;
+    p50: number;
+    p90: number;
+    p95: number;
+  };
 }
 
 // ============================================================================
@@ -514,72 +519,72 @@ export interface ChatbotAnalytics {
  * Input for creating a handoff request
  */
 export interface CreateHandoffInput {
-  conversationId: string
-  trigger: HandoffTrigger
-  reason?: string
-  priority?: 'low' | 'medium' | 'high' | 'urgent'
-  department?: string
-  preferredAgentId?: string
-  notes?: string
+  conversationId: string;
+  trigger: HandoffTrigger;
+  reason?: string;
+  priority?: "low" | "medium" | "high" | "urgent";
+  department?: string;
+  preferredAgentId?: string;
+  notes?: string;
 }
 
 /**
  * Input for updating chatbot config
  */
 export interface UpdateChatbotConfigInput {
-  name?: string
-  description?: string
-  avatarUrl?: string
-  status?: BotStatus
-  responseMode?: BotResponseMode
-  welcomeMessage?: string
-  fallbackMessage?: string
-  handoffMessage?: string
-  noAgentsMessage?: string
-  confidenceThreshold?: number
-  maxBotTurns?: number
-  handoffKeywords?: string[]
-  features?: Partial<ChatbotConfig['features']>
-  departments?: string[]
-  languages?: string[]
+  name?: string;
+  description?: string;
+  avatarUrl?: string;
+  status?: BotStatus;
+  responseMode?: BotResponseMode;
+  welcomeMessage?: string;
+  fallbackMessage?: string;
+  handoffMessage?: string;
+  noAgentsMessage?: string;
+  confidenceThreshold?: number;
+  maxBotTurns?: number;
+  handoffKeywords?: string[];
+  features?: Partial<ChatbotConfig["features"]>;
+  departments?: string[];
+  languages?: string[];
 }
 
 /**
  * Input for creating a response template
  */
 export interface CreateResponseTemplateInput {
-  name: string
-  description?: string
-  intent: IntentCategory
+  name: string;
+  description?: string;
+  intent: IntentCategory;
   responses: Array<{
-    content: string
-    contentHtml?: string
-    quickReplies?: QuickReply[]
-    weight?: number
-  }>
+    content: string;
+    contentHtml?: string;
+    quickReplies?: QuickReply[];
+    weight?: number;
+  }>;
   conditions?: Array<{
-    field: string
-    operator: 'equals' | 'contains' | 'exists'
-    value: string
-  }>
+    field: string;
+    operator: "equals" | "contains" | "exists";
+    value: string;
+  }>;
 }
 
 /**
  * Input for processing a visitor message
  */
 export interface ProcessMessageInput {
-  conversationId: string
-  visitorId: string
-  message: string
-  metadata?: Record<string, unknown>
+  conversationId: string;
+  visitorId: string;
+  message: string;
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Result of processing a message
  */
 export interface ProcessMessageResult {
-  response: BotResponse
-  context: BotConversationContext
-  shouldHandoff: boolean
-  handoffReason?: string
+  response: BotResponse;
+  context: BotConversationContext;
+  shouldHandoff: boolean;
+  handoffReason?: string;
 }

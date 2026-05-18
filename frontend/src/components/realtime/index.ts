@@ -10,6 +10,6 @@ export {
   ConnectionQualityBar,
   ConnectionStatusCard,
   type ConnectionStatusProps,
-} from './ConnectionStatus'
+} from "./ConnectionStatus";
 
-export { RealtimeDemo } from './RealtimeDemo'
+export { RealtimeDemo } from "./RealtimeDemo";

@@ -3,14 +3,20 @@
  * Real-time metrics, cost tracking, and usage analytics for AI features
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   BarChart,
   Bar,
@@ -25,8 +31,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts'
-import { logger } from '@/lib/logger'
+} from "recharts";
+import { logger } from "@/lib/logger";
 import {
   Activity,
   DollarSign,
@@ -39,47 +45,47 @@ import {
   RefreshCw,
   Settings,
   Download,
-} from 'lucide-react'
+} from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface UsageStats {
-  totalRequests: number
-  totalTokens: number
-  totalCost: number
-  averageCostPerRequest: number
-  byModel: Record<string, { requests: number; cost: number }>
-  byEndpoint: Record<string, { requests: number; cost: number }>
+  totalRequests: number;
+  totalTokens: number;
+  totalCost: number;
+  averageCostPerRequest: number;
+  byModel: Record<string, { requests: number; cost: number }>;
+  byEndpoint: Record<string, { requests: number; cost: number }>;
 }
 
 interface QueueMetrics {
-  name: string
+  name: string;
   metrics: {
-    totalQueued: number
-    processing: number
-    completed: number
-    failed: number
-    averageProcessingTime: number
-    queuedByPriority: Record<number, number>
-  }
+    totalQueued: number;
+    processing: number;
+    completed: number;
+    failed: number;
+    averageProcessingTime: number;
+    queuedByPriority: Record<number, number>;
+  };
 }
 
 interface CacheStats {
-  hits: number
-  misses: number
-  hitRate: number
-  totalRequests: number
-  cacheSize: number
+  hits: number;
+  misses: number;
+  hitRate: number;
+  totalRequests: number;
+  cacheSize: number;
 }
 
 interface BudgetStatus {
-  limit: number
-  current: number
-  percentUsed: number
-  remaining: number
-  exceeded: boolean
+  limit: number;
+  current: number;
+  percentUsed: number;
+  remaining: number;
+  exceeded: boolean;
 }
 
 // ============================================================================
@@ -87,49 +93,49 @@ interface BudgetStatus {
 // ============================================================================
 
 export default function AIUsageDashboard() {
-  const [loading, setLoading] = useState(true)
-  const [period, setPeriod] = useState<'daily' | 'monthly'>('daily')
-  const [usageData, setUsageData] = useState<UsageStats | null>(null)
-  const [queueData, setQueueData] = useState<QueueMetrics[]>([])
-  const [cacheData, setCacheData] = useState<Record<string, CacheStats>>({})
-  const [budgetStatus, setBudgetStatus] = useState<BudgetStatus | null>(null)
-  const [config, setConfig] = useState<any>(null)
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<"daily" | "monthly">("daily");
+  const [usageData, setUsageData] = useState<UsageStats | null>(null);
+  const [queueData, setQueueData] = useState<QueueMetrics[]>([]);
+  const [cacheData, setCacheData] = useState<Record<string, CacheStats>>({});
+  const [budgetStatus, setBudgetStatus] = useState<BudgetStatus | null>(null);
+  const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
-    fetchData()
-    const interval = setInterval(fetchData, 30000) // Refresh every 30 seconds
-    return () => clearInterval(interval)
-  }, [period])
+    fetchData();
+    const interval = setInterval(fetchData, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, [period]);
 
   const fetchData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
 
       // Fetch usage stats
-      const usageRes = await fetch(`/api/admin/ai/usage?period=${period}`)
-      const usageJson = await usageRes.json()
+      const usageRes = await fetch(`/api/admin/ai/usage?period=${period}`);
+      const usageJson = await usageRes.json();
 
       if (usageJson.success) {
-        setUsageData(usageJson.data.usage)
-        setQueueData(usageJson.data.queues)
-        setCacheData(usageJson.data.cache)
+        setUsageData(usageJson.data.usage);
+        setQueueData(usageJson.data.queues);
+        setCacheData(usageJson.data.cache);
       }
 
       // Fetch config
-      const configRes = await fetch('/api/admin/ai/config')
-      const configJson = await configRes.json()
+      const configRes = await fetch("/api/admin/ai/config");
+      const configJson = await configRes.json();
 
       if (configJson.success) {
-        setConfig(configJson.data)
+        setConfig(configJson.data);
       }
 
       // Calculate budget status
       if (configJson.success && usageJson.success) {
         const limit =
-          period === 'daily'
+          period === "daily"
             ? configJson.data.budgets.dailyLimit
-            : configJson.data.budgets.monthlyLimit
-        const current = usageJson.data.usage.totalCost
+            : configJson.data.budgets.monthlyLimit;
+        const current = usageJson.data.usage.totalCost;
 
         setBudgetStatus({
           limit: limit || 0,
@@ -137,27 +143,27 @@ export default function AIUsageDashboard() {
           percentUsed: limit ? (current / limit) * 100 : 0,
           remaining: limit ? limit - current : 0,
           exceeded: limit ? current >= limit : false,
-        })
+        });
       }
     } catch (error) {
-      logger.error('Error fetching AI usage data:', error)
+      logger.error("Error fetching AI usage data:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 2,
       maximumFractionDigits: 4,
-    }).format(amount)
-  }
+    }).format(amount);
+  };
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num)
-  }
+    return new Intl.NumberFormat("en-US").format(num);
+  };
 
   // Prepare chart data
   const modelChartData = usageData
@@ -166,7 +172,7 @@ export default function AIUsageDashboard() {
         requests: data.requests,
         cost: data.cost,
       }))
-    : []
+    : [];
 
   const endpointChartData = usageData
     ? Object.entries(usageData.byEndpoint).map(([endpoint, data]) => ({
@@ -174,16 +180,16 @@ export default function AIUsageDashboard() {
         requests: data.requests,
         cost: data.cost,
       }))
-    : []
+    : [];
 
-  const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
+  const COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981"];
 
   if (loading && !usageData) {
     return (
       <div className="flex h-96 items-center justify-center">
         <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   return (
@@ -191,8 +197,12 @@ export default function AIUsageDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">AI Usage Dashboard</h1>
-          <p className="text-muted-foreground">Monitor AI usage, costs, and performance metrics</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            AI Usage Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Monitor AI usage, costs, and performance metrics
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={fetchData}>
@@ -211,7 +221,10 @@ export default function AIUsageDashboard() {
       </div>
 
       {/* Period Selector */}
-      <Tabs value={period} onValueChange={(v) => setPeriod(v as 'daily' | 'monthly')}>
+      <Tabs
+        value={period}
+        onValueChange={(v) => setPeriod(v as "daily" | "monthly")}
+      >
         <TabsList>
           <TabsTrigger value="daily">Today</TabsTrigger>
           <TabsTrigger value="monthly">This Month</TabsTrigger>
@@ -225,10 +238,13 @@ export default function AIUsageDashboard() {
             <div className="flex items-start gap-4">
               <AlertTriangle className="h-5 w-5 text-destructive" />
               <div className="flex-1">
-                <h4 className="font-semibold text-destructive">Budget Limit Exceeded</h4>
+                <h4 className="font-semibold text-destructive">
+                  Budget Limit Exceeded
+                </h4>
                 <p className="text-sm text-muted-foreground">
-                  Current spending ({formatCurrency(budgetStatus.current)}) exceeds the {period}{' '}
-                  budget limit ({formatCurrency(budgetStatus.limit)})
+                  Current spending ({formatCurrency(budgetStatus.current)})
+                  exceeds the {period} budget limit (
+                  {formatCurrency(budgetStatus.limit)})
                 </p>
               </div>
             </div>
@@ -245,7 +261,7 @@ export default function AIUsageDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {usageData ? formatCurrency(usageData.totalCost) : '$0.00'}
+              {usageData ? formatCurrency(usageData.totalCost) : "$0.00"}
             </div>
             {budgetStatus && (
               <div className="mt-2">
@@ -260,33 +276,43 @@ export default function AIUsageDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Requests
+            </CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {usageData ? formatNumber(usageData.totalRequests) : '0'}
+              {usageData ? formatNumber(usageData.totalRequests) : "0"}
             </div>
             <p className="text-xs text-muted-foreground">
-              Avg: {usageData ? formatCurrency(usageData.averageCostPerRequest) : '$0.00'} per
-              request
+              Avg:{" "}
+              {usageData
+                ? formatCurrency(usageData.averageCostPerRequest)
+                : "$0.00"}{" "}
+              per request
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cache Hit Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Cache Hit Rate
+            </CardTitle>
             <Zap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {cacheData?.summarization ? (cacheData.summarization.hitRate * 100).toFixed(1) : '0'}%
+              {cacheData?.summarization
+                ? (cacheData.summarization.hitRate * 100).toFixed(1)
+                : "0"}
+              %
             </div>
             <p className="text-xs text-muted-foreground">
               {cacheData?.summarization
                 ? `${formatNumber(cacheData.summarization.hits)} hits`
-                : '0 hits'}
+                : "0 hits"}
             </p>
           </CardContent>
         </Card>
@@ -301,7 +327,8 @@ export default function AIUsageDashboard() {
               {queueData.reduce((sum, q) => sum + q.metrics.totalQueued, 0)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {queueData.reduce((sum, q) => sum + q.metrics.processing, 0)} processing
+              {queueData.reduce((sum, q) => sum + q.metrics.processing, 0)}{" "}
+              processing
             </p>
           </CardContent>
         </Card>
@@ -321,7 +348,9 @@ export default function AIUsageDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Requests by Model</CardTitle>
-                <CardDescription>Distribution of requests across AI models</CardDescription>
+                <CardDescription>
+                  Distribution of requests across AI models
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -337,7 +366,10 @@ export default function AIUsageDashboard() {
                       dataKey="requests"
                     >
                       {modelChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -349,7 +381,9 @@ export default function AIUsageDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Cost by Model</CardTitle>
-                <CardDescription>Cost breakdown across different models</CardDescription>
+                <CardDescription>
+                  Cost breakdown across different models
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -357,7 +391,9 @@ export default function AIUsageDashboard() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                    <Tooltip
+                      formatter={(value) => formatCurrency(value as number)}
+                    />
                     <Bar dataKey="cost" fill="#6366f1" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -370,7 +406,9 @@ export default function AIUsageDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Usage by Endpoint</CardTitle>
-              <CardDescription>Requests and costs per API endpoint</CardDescription>
+              <CardDescription>
+                Requests and costs per API endpoint
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
@@ -381,8 +419,18 @@ export default function AIUsageDashboard() {
                   <YAxis yAxisId="right" orientation="right" />
                   <Tooltip />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="requests" fill="#6366f1" name="Requests" />
-                  <Bar yAxisId="right" dataKey="cost" fill="#8b5cf6" name="Cost ($)" />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="requests"
+                    fill="#6366f1"
+                    name="Requests"
+                  />
+                  <Bar
+                    yAxisId="right"
+                    dataKey="cost"
+                    fill="#8b5cf6"
+                    name="Cost ($)"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -395,28 +443,38 @@ export default function AIUsageDashboard() {
               <Card key={name}>
                 <CardHeader>
                   <CardTitle className="capitalize">{name} Cache</CardTitle>
-                  <CardDescription>{stats.totalRequests} total requests</CardDescription>
+                  <CardDescription>
+                    {stats.totalRequests} total requests
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-sm font-medium">Hit Rate</span>
-                      <span className="text-sm font-bold">{(stats.hitRate * 100).toFixed(1)}%</span>
+                      <span className="text-sm font-bold">
+                        {(stats.hitRate * 100).toFixed(1)}%
+                      </span>
                     </div>
                     <Progress value={stats.hitRate * 100} />
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <div className="text-muted-foreground">Hits</div>
-                      <div className="font-medium">{formatNumber(stats.hits)}</div>
+                      <div className="font-medium">
+                        {formatNumber(stats.hits)}
+                      </div>
                     </div>
                     <div>
                       <div className="text-muted-foreground">Misses</div>
-                      <div className="font-medium">{formatNumber(stats.misses)}</div>
+                      <div className="font-medium">
+                        {formatNumber(stats.misses)}
+                      </div>
                     </div>
                     <div>
                       <div className="text-muted-foreground">Cache Size</div>
-                      <div className="font-medium">{formatNumber(stats.cacheSize)}</div>
+                      <div className="font-medium">
+                        {formatNumber(stats.cacheSize)}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -430,33 +488,44 @@ export default function AIUsageDashboard() {
             {queueData.map((queue) => (
               <Card key={queue.name}>
                 <CardHeader>
-                  <CardTitle className="capitalize">{queue.name} Queue</CardTitle>
+                  <CardTitle className="capitalize">
+                    {queue.name} Queue
+                  </CardTitle>
                   <CardDescription>
-                    Average processing time: {queue.metrics.averageProcessingTime.toFixed(0)}ms
+                    Average processing time:{" "}
+                    {queue.metrics.averageProcessingTime.toFixed(0)}ms
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div>
-                      <div className="text-sm text-muted-foreground">Queued</div>
+                      <div className="text-sm text-muted-foreground">
+                        Queued
+                      </div>
                       <div className="text-2xl font-bold">
                         {formatNumber(queue.metrics.totalQueued)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-muted-foreground">Processing</div>
+                      <div className="text-sm text-muted-foreground">
+                        Processing
+                      </div>
                       <div className="text-2xl font-bold text-blue-600">
                         {formatNumber(queue.metrics.processing)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-muted-foreground">Completed</div>
+                      <div className="text-sm text-muted-foreground">
+                        Completed
+                      </div>
                       <div className="text-2xl font-bold text-green-600">
                         {formatNumber(queue.metrics.completed)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-muted-foreground">Failed</div>
+                      <div className="text-sm text-muted-foreground">
+                        Failed
+                      </div>
                       <div className="text-2xl font-bold text-red-600">
                         {formatNumber(queue.metrics.failed)}
                       </div>
@@ -483,14 +552,20 @@ export default function AIUsageDashboard() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">OpenAI</span>
-                    <Badge variant={config.openai.enabled ? 'default' : 'secondary'}>
-                      {config.openai.enabled ? 'Enabled' : 'Disabled'}
+                    <Badge
+                      variant={config.openai.enabled ? "default" : "secondary"}
+                    >
+                      {config.openai.enabled ? "Enabled" : "Disabled"}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Anthropic</span>
-                    <Badge variant={config.anthropic.enabled ? 'default' : 'secondary'}>
-                      {config.anthropic.enabled ? 'Enabled' : 'Disabled'}
+                    <Badge
+                      variant={
+                        config.anthropic.enabled ? "default" : "secondary"
+                      }
+                    >
+                      {config.anthropic.enabled ? "Enabled" : "Disabled"}
                     </Badge>
                   </div>
                 </div>
@@ -500,8 +575,10 @@ export default function AIUsageDashboard() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Cache Enabled</span>
-                    <Badge variant={config.cache.enabled ? 'default' : 'secondary'}>
-                      {config.cache.enabled ? 'Yes' : 'No'}
+                    <Badge
+                      variant={config.cache.enabled ? "default" : "secondary"}
+                    >
+                      {config.cache.enabled ? "Yes" : "No"}
                     </Badge>
                   </div>
                 </div>
@@ -511,5 +588,5 @@ export default function AIUsageDashboard() {
         </Card>
       )}
     </div>
-  )
+  );
 }

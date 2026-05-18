@@ -11,72 +11,81 @@
  * real-time subscriptions via GraphQL/WebSocket.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // ============================================================================
 // Types & Validation Schemas
 // ============================================================================
 
-const PresenceStatusSchema = z.enum(['online', 'away', 'dnd', 'invisible', 'offline'])
+const PresenceStatusSchema = z.enum([
+  "online",
+  "away",
+  "dnd",
+  "invisible",
+  "offline",
+]);
 
 const UpdatePresenceSchema = z.object({
-  userId: z.string().min(1, 'userId is required'),
+  userId: z.string().min(1, "userId is required"),
   status: PresenceStatusSchema.optional(),
   customStatus: z
     .object({
       emoji: z.string().max(50).optional(),
-      text: z.string().max(100, 'Custom status text must be 100 characters or fewer').optional(),
+      text: z
+        .string()
+        .max(100, "Custom status text must be 100 characters or fewer")
+        .optional(),
       activity: z.string().max(50).optional(),
     })
     .optional()
     .nullable(),
   expiresAt: z
     .string()
-    .datetime({ message: 'expiresAt must be a valid ISO 8601 datetime' })
+    .datetime({ message: "expiresAt must be a valid ISO 8601 datetime" })
     .optional()
     .nullable(),
   device: z
     .object({
-      type: z.enum(['web', 'desktop', 'mobile', 'tablet']).optional(),
+      type: z.enum(["web", "desktop", "mobile", "tablet"]).optional(),
       os: z.string().max(50).optional(),
       browser: z.string().max(50).optional(),
     })
     .optional(),
-})
+});
 
 const QueryPresenceSchema = z.object({
   userId: z.string().optional(),
   userIds: z.string().optional(), // comma-separated
   channelId: z.string().optional(),
   status: PresenceStatusSchema.optional(), // filter by status
-})
+});
 
-type PresenceStatus = z.infer<typeof PresenceStatusSchema>
+type PresenceStatus = z.infer<typeof PresenceStatusSchema>;
 
 interface DeviceInfo {
-  type?: 'web' | 'desktop' | 'mobile' | 'tablet'
-  os?: string
-  browser?: string
+  type?: "web" | "desktop" | "mobile" | "tablet";
+  os?: string;
+  browser?: string;
 }
 
 interface PresenceRecord {
-  userId: string
-  status: PresenceStatus
+  userId: string;
+  status: PresenceStatus;
   customStatus: {
-    emoji?: string
-    text?: string
-    activity?: string
-  } | null
-  expiresAt: string | null
-  lastSeenAt: string
-  updatedAt: string
-  device: DeviceInfo | null
+    emoji?: string;
+    text?: string;
+    activity?: string;
+  } | null;
+  expiresAt: string | null;
+  lastSeenAt: string;
+  updatedAt: string;
+  device: DeviceInfo | null;
 }
 
 // ============================================================================
@@ -87,90 +96,94 @@ interface PresenceRecord {
  * In-memory presence store seeded with the 8 dev test users.
  * In production this would be Redis or a database table.
  */
-const presenceStore = new Map<string, PresenceRecord>()
+const presenceStore = new Map<string, PresenceRecord>();
 
 // Seed demo data for the 8 test users defined in project context
 const DEMO_USERS: Array<{
-  userId: string
-  email: string
-  status: PresenceStatus
-  customStatus: PresenceRecord['customStatus']
-  device: DeviceInfo
-  minutesAgo: number
+  userId: string;
+  email: string;
+  status: PresenceStatus;
+  customStatus: PresenceRecord["customStatus"];
+  device: DeviceInfo;
+  minutesAgo: number;
 }> = [
   {
-    userId: 'user-owner',
-    email: 'owner@nself.org',
-    status: 'online',
-    customStatus: { emoji: '🚀', text: 'Building nchat', activity: 'focusing' },
-    device: { type: 'web', os: 'macOS', browser: 'Chrome' },
+    userId: "user-owner",
+    email: "owner@nself.org",
+    status: "online",
+    customStatus: { emoji: "🚀", text: "Building nchat", activity: "focusing" },
+    device: { type: "web", os: "macOS", browser: "Chrome" },
     minutesAgo: 0,
   },
   {
-    userId: 'user-admin',
-    email: 'admin@nself.org',
-    status: 'online',
+    userId: "user-admin",
+    email: "admin@nself.org",
+    status: "online",
     customStatus: null,
-    device: { type: 'desktop', os: 'Windows', browser: 'Electron' },
+    device: { type: "desktop", os: "Windows", browser: "Electron" },
     minutesAgo: 2,
   },
   {
-    userId: 'user-moderator',
-    email: 'moderator@nself.org',
-    status: 'away',
-    customStatus: { emoji: '🍔', text: 'Lunch break' },
-    device: { type: 'web', os: 'macOS', browser: 'Safari' },
+    userId: "user-moderator",
+    email: "moderator@nself.org",
+    status: "away",
+    customStatus: { emoji: "🍔", text: "Lunch break" },
+    device: { type: "web", os: "macOS", browser: "Safari" },
     minutesAgo: 15,
   },
   {
-    userId: 'user-member',
-    email: 'member@nself.org',
-    status: 'dnd',
-    customStatus: { emoji: '📅', text: 'In a meeting', activity: 'in_meeting' },
-    device: { type: 'mobile', os: 'iOS' },
+    userId: "user-member",
+    email: "member@nself.org",
+    status: "dnd",
+    customStatus: { emoji: "📅", text: "In a meeting", activity: "in_meeting" },
+    device: { type: "mobile", os: "iOS" },
     minutesAgo: 5,
   },
   {
-    userId: 'user-guest',
-    email: 'guest@nself.org',
-    status: 'offline',
+    userId: "user-guest",
+    email: "guest@nself.org",
+    status: "offline",
     customStatus: null,
-    device: { type: 'web', os: 'Linux', browser: 'Firefox' },
+    device: { type: "web", os: "Linux", browser: "Firefox" },
     minutesAgo: 120,
   },
   {
-    userId: 'user-alice',
-    email: 'alice@nself.org',
-    status: 'online',
-    customStatus: { emoji: '🏠', text: 'Working remotely', activity: 'working_remotely' },
-    device: { type: 'web', os: 'macOS', browser: 'Chrome' },
+    userId: "user-alice",
+    email: "alice@nself.org",
+    status: "online",
+    customStatus: {
+      emoji: "🏠",
+      text: "Working remotely",
+      activity: "working_remotely",
+    },
+    device: { type: "web", os: "macOS", browser: "Chrome" },
     minutesAgo: 1,
   },
   {
-    userId: 'user-bob',
-    email: 'bob@nself.org',
-    status: 'away',
-    customStatus: { emoji: '🚗', text: 'Commuting', activity: 'commuting' },
-    device: { type: 'mobile', os: 'Android' },
+    userId: "user-bob",
+    email: "bob@nself.org",
+    status: "away",
+    customStatus: { emoji: "🚗", text: "Commuting", activity: "commuting" },
+    device: { type: "mobile", os: "Android" },
     minutesAgo: 30,
   },
   {
-    userId: 'user-charlie',
-    email: 'charlie@nself.org',
-    status: 'online',
+    userId: "user-charlie",
+    email: "charlie@nself.org",
+    status: "online",
     customStatus: null,
-    device: { type: 'desktop', os: 'macOS', browser: 'Electron' },
+    device: { type: "desktop", os: "macOS", browser: "Electron" },
     minutesAgo: 0,
   },
-]
+];
 
 // Initialize the store with demo data
 function initializeStore(): void {
-  if (presenceStore.size > 0) return
+  if (presenceStore.size > 0) return;
 
-  const now = Date.now()
+  const now = Date.now();
   for (const user of DEMO_USERS) {
-    const lastSeen = new Date(now - user.minutesAgo * 60 * 1000)
+    const lastSeen = new Date(now - user.minutesAgo * 60 * 1000);
     presenceStore.set(user.userId, {
       userId: user.userId,
       status: user.status,
@@ -179,25 +192,31 @@ function initializeStore(): void {
       lastSeenAt: lastSeen.toISOString(),
       updatedAt: lastSeen.toISOString(),
       device: user.device,
-    })
+    });
   }
 }
 
 // Demo channel membership mapping for channelId queries
 const DEMO_CHANNEL_MEMBERS: Record<string, string[]> = {
-  'channel-general': [
-    'user-owner',
-    'user-admin',
-    'user-moderator',
-    'user-member',
-    'user-guest',
-    'user-alice',
-    'user-bob',
-    'user-charlie',
+  "channel-general": [
+    "user-owner",
+    "user-admin",
+    "user-moderator",
+    "user-member",
+    "user-guest",
+    "user-alice",
+    "user-bob",
+    "user-charlie",
   ],
-  'channel-random': ['user-owner', 'user-admin', 'user-alice', 'user-bob', 'user-charlie'],
-  'channel-dev': ['user-owner', 'user-admin', 'user-alice', 'user-charlie'],
-}
+  "channel-random": [
+    "user-owner",
+    "user-admin",
+    "user-alice",
+    "user-bob",
+    "user-charlie",
+  ],
+  "channel-dev": ["user-owner", "user-admin", "user-alice", "user-charlie"],
+};
 
 // ============================================================================
 // Helper Functions
@@ -208,13 +227,14 @@ const DEMO_CHANNEL_MEMBERS: Record<string, string[]> = {
  */
 function transformPresence(record: PresenceRecord) {
   // Check if custom status has expired
-  let customStatus = record.customStatus
+  let customStatus = record.customStatus;
   if (record.expiresAt && new Date(record.expiresAt) < new Date()) {
-    customStatus = null
+    customStatus = null;
   }
 
   // Invisible users appear as offline to other users
-  const publicStatus = record.status === 'invisible' ? 'offline' : record.status
+  const publicStatus =
+    record.status === "invisible" ? "offline" : record.status;
 
   return {
     userId: record.userId,
@@ -222,8 +242,10 @@ function transformPresence(record: PresenceRecord) {
     customStatus,
     lastSeenAt: record.lastSeenAt,
     updatedAt: record.updatedAt,
-    device: record.device ? { type: record.device.type, os: record.device.os } : null,
-  }
+    device: record.device
+      ? { type: record.device.type, os: record.device.os }
+      : null,
+  };
 }
 
 /**
@@ -233,14 +255,14 @@ function getPresenceForUser(userId: string): PresenceRecord {
   return (
     presenceStore.get(userId) ?? {
       userId,
-      status: 'offline',
+      status: "offline",
       customStatus: null,
       expiresAt: null,
       lastSeenAt: new Date(0).toISOString(),
       updatedAt: new Date(0).toISOString(),
       device: null,
     }
-  )
+  );
 }
 
 // ============================================================================
@@ -260,65 +282,67 @@ function getPresenceForUser(userId: string): PresenceRecord {
  */
 export async function GET(request: NextRequest) {
   try {
-    initializeStore()
+    initializeStore();
 
-    const { searchParams } = new URL(request.url)
-    const queryParams = Object.fromEntries(searchParams.entries())
+    const { searchParams } = new URL(request.url);
+    const queryParams = Object.fromEntries(searchParams.entries());
 
-    const parsed = QueryPresenceSchema.safeParse(queryParams)
+    const parsed = QueryPresenceSchema.safeParse(queryParams);
     if (!parsed.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid query parameters',
+          error: "Invalid query parameters",
           details: parsed.error.errors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const { userId, userIds, channelId, status: statusFilter } = parsed.data
+    const { userId, userIds, channelId, status: statusFilter } = parsed.data;
 
     // --- Single user lookup ---
     if (userId && !userIds && !channelId) {
-      const record = getPresenceForUser(userId)
+      const record = getPresenceForUser(userId);
       return NextResponse.json({
         success: true,
         data: transformPresence(record),
-      })
+      });
     }
 
     // --- Batch user lookup ---
     if (userIds) {
       const ids = userIds
-        .split(',')
+        .split(",")
         .map((id) => id.trim())
-        .filter(Boolean)
+        .filter(Boolean);
 
       if (ids.length === 0) {
         return NextResponse.json(
           {
             success: false,
-            error: 'userIds parameter must contain at least one user ID',
+            error: "userIds parameter must contain at least one user ID",
           },
-          { status: 400 }
-        )
+          { status: 400 },
+        );
       }
 
       if (ids.length > 100) {
         return NextResponse.json(
           {
             success: false,
-            error: 'Batch queries are limited to 100 user IDs',
+            error: "Batch queries are limited to 100 user IDs",
           },
-          { status: 400 }
-        )
+          { status: 400 },
+        );
       }
 
-      let presences = ids.map((id) => transformPresence(getPresenceForUser(id)))
+      let presences = ids.map((id) =>
+        transformPresence(getPresenceForUser(id)),
+      );
 
       if (statusFilter) {
-        presences = presences.filter((p) => p.status === statusFilter)
+        presences = presences.filter((p) => p.status === statusFilter);
       }
 
       return NextResponse.json({
@@ -326,14 +350,14 @@ export async function GET(request: NextRequest) {
         data: {
           presences,
           total: presences.length,
-          online: presences.filter((p) => p.status === 'online').length,
+          online: presences.filter((p) => p.status === "online").length,
         },
-      })
+      });
     }
 
     // --- Channel member presence ---
     if (channelId) {
-      const memberIds = DEMO_CHANNEL_MEMBERS[channelId] ?? []
+      const memberIds = DEMO_CHANNEL_MEMBERS[channelId] ?? [];
 
       if (memberIds.length === 0) {
         return NextResponse.json({
@@ -344,13 +368,15 @@ export async function GET(request: NextRequest) {
             total: 0,
             online: 0,
           },
-        })
+        });
       }
 
-      let presences = memberIds.map((id) => transformPresence(getPresenceForUser(id)))
+      let presences = memberIds.map((id) =>
+        transformPresence(getPresenceForUser(id)),
+      );
 
       if (statusFilter) {
-        presences = presences.filter((p) => p.status === statusFilter)
+        presences = presences.filter((p) => p.status === statusFilter);
       }
 
       return NextResponse.json({
@@ -359,42 +385,52 @@ export async function GET(request: NextRequest) {
           channelId,
           presences,
           total: presences.length,
-          online: presences.filter((p) => p.status === 'online').length,
+          online: presences.filter((p) => p.status === "online").length,
         },
-      })
+      });
     }
 
     // --- No parameters: return all online users ---
-    let allPresences = Array.from(presenceStore.values()).map(transformPresence)
+    let allPresences = Array.from(presenceStore.values()).map(
+      transformPresence,
+    );
 
     if (statusFilter) {
-      allPresences = allPresences.filter((p) => p.status === statusFilter)
+      allPresences = allPresences.filter((p) => p.status === statusFilter);
     } else {
       // Default: only return users that are not offline
-      allPresences = allPresences.filter((p) => p.status !== 'offline')
+      allPresences = allPresences.filter((p) => p.status !== "offline");
     }
 
     // Sort by lastSeenAt descending (most recently active first)
-    allPresences.sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime())
+    allPresences.sort(
+      (a, b) =>
+        new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime(),
+    );
 
     return NextResponse.json({
       success: true,
       data: {
         presences: allPresences,
         total: allPresences.length,
-        online: allPresences.filter((p) => p.status === 'online').length,
+        online: allPresences.filter((p) => p.status === "online").length,
       },
-    })
+    });
   } catch (error) {
-    logger.error('GET /api/presence error:', error)
+    logger.error("GET /api/presence error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error',
-        details: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Internal server error",
+        details:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -414,75 +450,85 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    initializeStore()
+    initializeStore();
 
-    const body = await request.json()
+    const body = await request.json();
 
-    const parsed = UpdatePresenceSchema.safeParse(body)
+    const parsed = UpdatePresenceSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid request body',
+          error: "Invalid request body",
           details: parsed.error.errors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const { userId, status, customStatus, expiresAt, device } = parsed.data
-    const now = new Date().toISOString()
+    const { userId, status, customStatus, expiresAt, device } = parsed.data;
+    const now = new Date().toISOString();
 
     // Get existing record or create a new one
-    const existing = presenceStore.get(userId)
-    const previousStatus = existing?.status ?? 'offline'
+    const existing = presenceStore.get(userId);
+    const previousStatus = existing?.status ?? "offline";
 
     const updatedRecord: PresenceRecord = {
       userId,
-      status: status ?? existing?.status ?? 'online',
-      customStatus: customStatus === null ? null : (customStatus ?? existing?.customStatus ?? null),
-      expiresAt: expiresAt === null ? null : (expiresAt ?? existing?.expiresAt ?? null),
+      status: status ?? existing?.status ?? "online",
+      customStatus:
+        customStatus === null
+          ? null
+          : (customStatus ?? existing?.customStatus ?? null),
+      expiresAt:
+        expiresAt === null ? null : (expiresAt ?? existing?.expiresAt ?? null),
       lastSeenAt: now,
       updatedAt: now,
       device: device ?? existing?.device ?? null,
-    }
+    };
 
-    presenceStore.set(userId, updatedRecord)
+    presenceStore.set(userId, updatedRecord);
 
-    const transformed = transformPresence(updatedRecord)
+    const transformed = transformPresence(updatedRecord);
 
     return NextResponse.json(
       {
         success: true,
         data: {
           ...transformed,
-          previousStatus: previousStatus === 'invisible' ? 'offline' : previousStatus,
+          previousStatus:
+            previousStatus === "invisible" ? "offline" : previousStatus,
         },
       },
-      { status: 200 }
-    )
+      { status: 200 },
+    );
   } catch (error) {
-    logger.error('POST /api/presence error:', error)
+    logger.error("POST /api/presence error:", error);
 
     // Handle malformed JSON
     if (error instanceof SyntaxError) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid JSON in request body',
+          error: "Invalid JSON in request body",
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error',
-        details: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Internal server error",
+        details:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
 
@@ -499,64 +545,69 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    initializeStore()
+    initializeStore();
 
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-    const clearCustomOnly = searchParams.get('clearCustom') === 'true'
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+    const clearCustomOnly = searchParams.get("clearCustom") === "true";
 
     if (!userId) {
       return NextResponse.json(
         {
           success: false,
-          error: 'userId query parameter is required',
+          error: "userId query parameter is required",
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const existing = presenceStore.get(userId)
+    const existing = presenceStore.get(userId);
     if (!existing) {
       return NextResponse.json(
         {
           success: false,
-          error: 'No presence record found for this user',
+          error: "No presence record found for this user",
         },
-        { status: 404 }
-      )
+        { status: 404 },
+      );
     }
 
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
 
     if (clearCustomOnly) {
       // Only clear the custom status, keep the presence status
-      existing.customStatus = null
-      existing.expiresAt = null
-      existing.updatedAt = now
-      presenceStore.set(userId, existing)
+      existing.customStatus = null;
+      existing.expiresAt = null;
+      existing.updatedAt = now;
+      presenceStore.set(userId, existing);
     } else {
       // Set user offline
-      existing.status = 'offline'
-      existing.customStatus = null
-      existing.expiresAt = null
-      existing.lastSeenAt = now
-      existing.updatedAt = now
-      presenceStore.set(userId, existing)
+      existing.status = "offline";
+      existing.customStatus = null;
+      existing.expiresAt = null;
+      existing.lastSeenAt = now;
+      existing.updatedAt = now;
+      presenceStore.set(userId, existing);
     }
 
     return NextResponse.json({
       success: true,
       data: transformPresence(existing),
-    })
+    });
   } catch (error) {
-    logger.error('DELETE /api/presence error:', error)
+    logger.error("DELETE /api/presence error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error',
-        details: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error',
+        error: "Internal server error",
+        details:
+          error instanceof Error
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Unknown error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

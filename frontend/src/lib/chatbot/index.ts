@@ -7,5 +7,5 @@
  * @version 1.0.0
  */
 
-export * from './chatbot-types'
-export * from './intent-matcher'
+export * from "./chatbot-types";
+export * from "./intent-matcher";

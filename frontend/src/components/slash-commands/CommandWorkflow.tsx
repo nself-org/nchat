@@ -1,50 +1,56 @@
-'use client'
+"use client";
 
 /**
  * CommandWorkflow - Configure workflow trigger
  */
 
-import { useState } from 'react'
-import { Workflow, Plus, X, ArrowRight } from 'lucide-react'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import type { CommandWorkflow as CommandWorkflowType } from '@/lib/slash-commands/command-types'
+import { useState } from "react";
+import { Workflow, Plus, X, ArrowRight } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import type { CommandWorkflow as CommandWorkflowType } from "@/lib/slash-commands/command-types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface CommandWorkflowProps {
-  workflow?: Partial<CommandWorkflowType>
-  onChange: (workflow: Partial<CommandWorkflowType>) => void
+  workflow?: Partial<CommandWorkflowType>;
+  onChange: (workflow: Partial<CommandWorkflowType>) => void;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function CommandWorkflow({ workflow = {}, onChange }: CommandWorkflowProps) {
-  const [newMappingArg, setNewMappingArg] = useState('')
-  const [newMappingInput, setNewMappingInput] = useState('')
+export function CommandWorkflow({
+  workflow = {},
+  onChange,
+}: CommandWorkflowProps) {
+  const [newMappingArg, setNewMappingArg] = useState("");
+  const [newMappingInput, setNewMappingInput] = useState("");
 
   const handleAddMapping = () => {
-    if (!newMappingArg.trim() || !newMappingInput.trim()) return
-    const mapping = workflow.inputMapping || {}
+    if (!newMappingArg.trim() || !newMappingInput.trim()) return;
+    const mapping = workflow.inputMapping || {};
     onChange({
       ...workflow,
-      inputMapping: { ...mapping, [newMappingInput.trim()]: newMappingArg.trim() },
-    })
-    setNewMappingArg('')
-    setNewMappingInput('')
-  }
+      inputMapping: {
+        ...mapping,
+        [newMappingInput.trim()]: newMappingArg.trim(),
+      },
+    });
+    setNewMappingArg("");
+    setNewMappingInput("");
+  };
 
   const handleRemoveMapping = (key: string) => {
-    const mapping = { ...workflow.inputMapping }
-    delete mapping[key]
-    onChange({ ...workflow, inputMapping: mapping })
-  }
+    const mapping = { ...workflow.inputMapping };
+    delete mapping[key];
+    onChange({ ...workflow, inputMapping: mapping });
+  };
 
   return (
     <div className="space-y-6">
@@ -63,8 +69,10 @@ export function CommandWorkflow({ workflow = {}, onChange }: CommandWorkflowProp
       <div className="space-y-2">
         <Label>Workflow ID</Label>
         <Input
-          value={workflow.workflowId || ''}
-          onChange={(e) => onChange({ ...workflow, workflowId: e.target.value })}
+          value={workflow.workflowId || ""}
+          onChange={(e) =>
+            onChange({ ...workflow, workflowId: e.target.value })
+          }
           placeholder="my-workflow-id"
         />
         <p className="text-xs text-muted-foreground">
@@ -79,29 +87,32 @@ export function CommandWorkflow({ workflow = {}, onChange }: CommandWorkflowProp
           Map command arguments to workflow input variables
         </p>
 
-        {workflow.inputMapping && Object.keys(workflow.inputMapping).length > 0 && (
-          <div className="space-y-2">
-            {Object.entries(workflow.inputMapping).map(([inputKey, argKey]) => (
-              <div
-                key={inputKey}
-                className="bg-muted/30 flex items-center gap-2 rounded border px-3 py-2"
-              >
-                <code className="text-sm font-medium">{argKey}</code>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                <code className="text-sm">{inputKey}</code>
-                <div className="flex-1" />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => handleRemoveMapping(inputKey)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
+        {workflow.inputMapping &&
+          Object.keys(workflow.inputMapping).length > 0 && (
+            <div className="space-y-2">
+              {Object.entries(workflow.inputMapping).map(
+                ([inputKey, argKey]) => (
+                  <div
+                    key={inputKey}
+                    className="bg-muted/30 flex items-center gap-2 rounded border px-3 py-2"
+                  >
+                    <code className="text-sm font-medium">{argKey}</code>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    <code className="text-sm">{inputKey}</code>
+                    <div className="flex-1" />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => handleRemoveMapping(inputKey)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ),
+              )}
+            </div>
+          )}
 
         <div className="flex items-center gap-2">
           <div className="flex-1 space-y-1">
@@ -122,14 +133,19 @@ export function CommandWorkflow({ workflow = {}, onChange }: CommandWorkflowProp
               placeholder="inputName"
               className="font-mono text-sm"
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  handleAddMapping()
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddMapping();
                 }
               }}
             />
           </div>
-          <Button variant="outline" size="icon" className="mt-6" onClick={handleAddMapping}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="mt-6"
+            onClick={handleAddMapping}
+          >
             <Plus className="h-4 w-4" />
           </Button>
         </div>
@@ -145,7 +161,9 @@ export function CommandWorkflow({ workflow = {}, onChange }: CommandWorkflowProp
         </div>
         <Switch
           checked={workflow.waitForCompletion ?? false}
-          onCheckedChange={(checked) => onChange({ ...workflow, waitForCompletion: checked })}
+          onCheckedChange={(checked) =>
+            onChange({ ...workflow, waitForCompletion: checked })
+          }
         />
       </div>
 
@@ -157,7 +175,7 @@ export function CommandWorkflow({ workflow = {}, onChange }: CommandWorkflowProp
             type="number"
             min={1000}
             max={60000}
-            value={workflow.timeout || ''}
+            value={workflow.timeout || ""}
             onChange={(e) =>
               onChange({
                 ...workflow,
@@ -183,17 +201,23 @@ export function CommandWorkflow({ workflow = {}, onChange }: CommandWorkflowProp
           ) : (
             <li className="text-destructive">- No workflow ID configured</li>
           )}
-          {workflow.inputMapping && Object.keys(workflow.inputMapping).length > 0 && (
-            <li>- {Object.keys(workflow.inputMapping).length} input(s) mapped</li>
-          )}
-          <li>- {workflow.waitForCompletion ? 'Will wait' : 'Will not wait'} for completion</li>
+          {workflow.inputMapping &&
+            Object.keys(workflow.inputMapping).length > 0 && (
+              <li>
+                - {Object.keys(workflow.inputMapping).length} input(s) mapped
+              </li>
+            )}
+          <li>
+            - {workflow.waitForCompletion ? "Will wait" : "Will not wait"} for
+            completion
+          </li>
           {workflow.waitForCompletion && workflow.timeout && (
             <li>- Timeout: {workflow.timeout}ms</li>
           )}
         </ul>
       </div>
     </div>
-  )
+  );
 }
 
-export default CommandWorkflow
+export default CommandWorkflow;

@@ -1,28 +1,28 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Check } from 'lucide-react'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Check } from "lucide-react";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface ProfileThemeOption {
-  id: string
-  name: string
-  primaryColor: string
-  backgroundColor: string
-  preview?: string
+  id: string;
+  name: string;
+  primaryColor: string;
+  backgroundColor: string;
+  preview?: string;
 }
 
 export interface ProfileThemeProps extends React.HTMLAttributes<HTMLDivElement> {
-  themes?: ProfileThemeOption[]
-  selectedTheme: string
-  onThemeChange: (themeId: string) => void
-  disabled?: boolean
+  themes?: ProfileThemeOption[];
+  selectedTheme: string;
+  onThemeChange: (themeId: string) => void;
+  disabled?: boolean;
 }
 
 // ============================================================================
@@ -31,54 +31,54 @@ export interface ProfileThemeProps extends React.HTMLAttributes<HTMLDivElement> 
 
 const DEFAULT_THEMES: ProfileThemeOption[] = [
   {
-    id: 'default',
-    name: 'Default',
-    primaryColor: '#6366f1',
-    backgroundColor: '#f3f4f6',
+    id: "default",
+    name: "Default",
+    primaryColor: "#6366f1",
+    backgroundColor: "#f3f4f6",
   },
   {
-    id: 'ocean',
-    name: 'Ocean',
-    primaryColor: '#0ea5e9',
-    backgroundColor: '#e0f2fe',
+    id: "ocean",
+    name: "Ocean",
+    primaryColor: "#0ea5e9",
+    backgroundColor: "#e0f2fe",
   },
   {
-    id: 'forest',
-    name: 'Forest',
-    primaryColor: '#22c55e',
-    backgroundColor: '#dcfce7',
+    id: "forest",
+    name: "Forest",
+    primaryColor: "#22c55e",
+    backgroundColor: "#dcfce7",
   },
   {
-    id: 'sunset',
-    name: 'Sunset',
-    primaryColor: '#f97316',
-    backgroundColor: '#ffedd5',
+    id: "sunset",
+    name: "Sunset",
+    primaryColor: "#f97316",
+    backgroundColor: "#ffedd5",
   },
   {
-    id: 'lavender',
-    name: 'Lavender',
-    primaryColor: '#a855f7',
-    backgroundColor: '#f3e8ff',
+    id: "lavender",
+    name: "Lavender",
+    primaryColor: "#a855f7",
+    backgroundColor: "#f3e8ff",
   },
   {
-    id: 'rose',
-    name: 'Rose',
-    primaryColor: '#f43f5e',
-    backgroundColor: '#ffe4e6',
+    id: "rose",
+    name: "Rose",
+    primaryColor: "#f43f5e",
+    backgroundColor: "#ffe4e6",
   },
   {
-    id: 'midnight',
-    name: 'Midnight',
-    primaryColor: '#3b82f6',
-    backgroundColor: '#1e293b',
+    id: "midnight",
+    name: "Midnight",
+    primaryColor: "#3b82f6",
+    backgroundColor: "#1e293b",
   },
   {
-    id: 'monochrome',
-    name: 'Monochrome',
-    primaryColor: '#71717a',
-    backgroundColor: '#f4f4f5',
+    id: "monochrome",
+    name: "Monochrome",
+    primaryColor: "#71717a",
+    backgroundColor: "#f4f4f5",
   },
-]
+];
 
 // ============================================================================
 // Component
@@ -94,10 +94,10 @@ const ProfileTheme = React.forwardRef<HTMLDivElement, ProfileThemeProps>(
       disabled = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
-      <div ref={ref} className={cn('space-y-4', className)} {...props}>
+      <div ref={ref} className={cn("space-y-4", className)} {...props}>
         <div>
           <Label className="text-sm font-medium">Profile Theme</Label>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -113,14 +113,18 @@ const ProfileTheme = React.forwardRef<HTMLDivElement, ProfileThemeProps>(
         >
           {themes.map((theme) => (
             <div key={theme.id}>
-              <RadioGroupItem value={theme.id} id={`theme-${theme.id}`} className="peer sr-only" />
+              <RadioGroupItem
+                value={theme.id}
+                id={`theme-${theme.id}`}
+                className="peer sr-only"
+              />
               <Label
                 htmlFor={`theme-${theme.id}`}
                 className={cn(
-                  'flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 p-3',
-                  'hover:border-muted-foreground/50 transition-all',
-                  'peer-data-[state=checked]:border-primary peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary',
-                  disabled && 'cursor-not-allowed opacity-50'
+                  "flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 p-3",
+                  "hover:border-muted-foreground/50 transition-all",
+                  "peer-data-[state=checked]:border-primary peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary",
+                  disabled && "cursor-not-allowed opacity-50",
                 )}
               >
                 {/* Theme preview */}
@@ -159,15 +163,17 @@ const ProfileTheme = React.forwardRef<HTMLDivElement, ProfileThemeProps>(
               className="h-20 overflow-hidden rounded-md"
               style={{
                 backgroundColor:
-                  themes.find((t) => t.id === selectedTheme)?.backgroundColor || '#f3f4f6',
+                  themes.find((t) => t.id === selectedTheme)?.backgroundColor ||
+                  "#f3f4f6",
               }}
             >
               <div
                 className="h-6"
                 style={{
                   background: `linear-gradient(to right, ${
-                    themes.find((t) => t.id === selectedTheme)?.primaryColor || '#6366f1'
-                  }, ${themes.find((t) => t.id === selectedTheme)?.primaryColor || '#6366f1'}80)`,
+                    themes.find((t) => t.id === selectedTheme)?.primaryColor ||
+                    "#6366f1"
+                  }, ${themes.find((t) => t.id === selectedTheme)?.primaryColor || "#6366f1"}80)`,
                 }}
               />
               <div className="p-2">
@@ -175,7 +181,8 @@ const ProfileTheme = React.forwardRef<HTMLDivElement, ProfileThemeProps>(
                   className="h-2 w-24 rounded"
                   style={{
                     backgroundColor:
-                      themes.find((t) => t.id === selectedTheme)?.primaryColor || '#6366f1',
+                      themes.find((t) => t.id === selectedTheme)
+                        ?.primaryColor || "#6366f1",
                     opacity: 0.5,
                   }}
                 />
@@ -185,9 +192,9 @@ const ProfileTheme = React.forwardRef<HTMLDivElement, ProfileThemeProps>(
           </div>
         )}
       </div>
-    )
-  }
-)
-ProfileTheme.displayName = 'ProfileTheme'
+    );
+  },
+);
+ProfileTheme.displayName = "ProfileTheme";
 
-export { ProfileTheme, DEFAULT_THEMES }
+export { ProfileTheme, DEFAULT_THEMES };

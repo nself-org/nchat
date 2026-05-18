@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Storage-Aware File Upload Component
@@ -7,25 +7,37 @@
  * and provides real-time feedback on storage usage.
  */
 
-import { useState, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Upload, AlertTriangle, CheckCircle2, XCircle, File, X, HardDrive } from 'lucide-react'
-import { useStorageQuota, useQuotaCheck } from '@/hooks/use-storage-quota'
-import { uploadFile, formatFileSize, type UploadResult } from '@/lib/storage/upload'
-import { formatBytes, getQuotaStatus } from '@/lib/storage/quota-manager'
-import { cn } from '@/lib/utils'
+import { useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import {
+  Upload,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  File,
+  X,
+  HardDrive,
+} from "lucide-react";
+import { useStorageQuota, useQuotaCheck } from "@/hooks/use-storage-quota";
+import {
+  uploadFile,
+  formatFileSize,
+  type UploadResult,
+} from "@/lib/storage/upload";
+import { formatBytes, getQuotaStatus } from "@/lib/storage/quota-manager";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface StorageAwareFileUploadProps {
-  onUploadComplete?: (result: UploadResult) => void
-  onUploadError?: (error: Error) => void
-  accept?: string
-  maxFileSize?: number
-  className?: string
+  onUploadComplete?: (result: UploadResult) => void;
+  onUploadError?: (error: Error) => void;
+  accept?: string;
+  maxFileSize?: number;
+  className?: string;
 }
 
 export function StorageAwareFileUpload({
@@ -35,79 +47,82 @@ export function StorageAwareFileUpload({
   maxFileSize,
   className,
 }: StorageAwareFileUploadProps) {
-  const { quota, loading: quotaLoading } = useStorageQuota({ autoRefresh: true })
-  const { checkUpload, recordUpload } = useQuotaCheck()
+  const { quota, loading: quotaLoading } = useStorageQuota({
+    autoRefresh: true,
+  });
+  const { checkUpload, recordUpload } = useQuotaCheck();
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [uploadError, setUploadError] = useState<string | null>(null)
-  const [quotaError, setQuotaError] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [quotaError, setQuotaError] = useState<string | null>(null);
 
   const handleFileSelect = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
-      if (!file) return
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-      setUploadError(null)
-      setQuotaError(null)
+      setUploadError(null);
+      setQuotaError(null);
 
       // Check if file size exceeds quota
-      const quotaCheck = await checkUpload(file.size)
+      const quotaCheck = await checkUpload(file.size);
       if (!quotaCheck.allowed) {
-        setQuotaError(quotaCheck.reason || 'Upload not allowed')
-        return
+        setQuotaError(quotaCheck.reason || "Upload not allowed");
+        return;
       }
 
-      setSelectedFile(file)
+      setSelectedFile(file);
     },
-    [checkUpload]
-  )
+    [checkUpload],
+  );
 
   const handleUpload = useCallback(async () => {
-    if (!selectedFile) return
+    if (!selectedFile) return;
 
-    setUploading(true)
-    setUploadError(null)
-    setUploadProgress(0)
+    setUploading(true);
+    setUploadError(null);
+    setUploadProgress(0);
 
     try {
       // Upload file
       const result = await uploadFile(selectedFile, {
         onProgress: (progress) => {
-          setUploadProgress(progress.percentage)
+          setUploadProgress(progress.percentage);
         },
-      })
+      });
 
       // Record upload in quota
-      await recordUpload(selectedFile.size)
+      await recordUpload(selectedFile.size);
 
       // Notify parent
-      onUploadComplete?.(result)
+      onUploadComplete?.(result);
 
       // Reset
-      setSelectedFile(null)
-      setUploadProgress(0)
+      setSelectedFile(null);
+      setUploadProgress(0);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Upload failed'
-      setUploadError(errorMessage)
-      onUploadError?.(error instanceof Error ? error : new Error(errorMessage))
+      const errorMessage =
+        error instanceof Error ? error.message : "Upload failed";
+      setUploadError(errorMessage);
+      onUploadError?.(error instanceof Error ? error : new Error(errorMessage));
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }, [selectedFile, recordUpload, onUploadComplete, onUploadError])
+  }, [selectedFile, recordUpload, onUploadComplete, onUploadError]);
 
   const handleCancel = useCallback(() => {
-    setSelectedFile(null)
-    setUploadError(null)
-    setQuotaError(null)
-    setUploadProgress(0)
-  }, [])
+    setSelectedFile(null);
+    setUploadError(null);
+    setQuotaError(null);
+    setUploadProgress(0);
+  }, []);
 
-  const quotaStatus = quota ? getQuotaStatus(quota.used, quota.limit) : 'ok'
+  const quotaStatus = quota ? getQuotaStatus(quota.used, quota.limit) : "ok";
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Storage Quota Display */}
       {quota && !quotaLoading && (
         <div className="rounded-lg border bg-card p-4">
@@ -118,11 +133,11 @@ export function StorageAwareFileUpload({
             </div>
             <Badge
               variant={
-                quotaStatus === 'exceeded'
-                  ? 'destructive'
-                  : quotaStatus === 'critical' || quotaStatus === 'warning'
-                    ? 'default'
-                    : 'secondary'
+                quotaStatus === "exceeded"
+                  ? "destructive"
+                  : quotaStatus === "critical" || quotaStatus === "warning"
+                    ? "default"
+                    : "secondary"
               }
             >
               {quota.percentage}%
@@ -131,10 +146,10 @@ export function StorageAwareFileUpload({
           <Progress
             value={quota.percentage}
             className={cn(
-              'h-2',
-              quotaStatus === 'exceeded' && '[&>*]:bg-red-500',
-              quotaStatus === 'critical' && '[&>*]:bg-orange-500',
-              quotaStatus === 'warning' && '[&>*]:bg-yellow-500'
+              "h-2",
+              quotaStatus === "exceeded" && "[&>*]:bg-red-500",
+              quotaStatus === "critical" && "[&>*]:bg-orange-500",
+              quotaStatus === "warning" && "[&>*]:bg-yellow-500",
             )}
           />
           <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
@@ -147,7 +162,7 @@ export function StorageAwareFileUpload({
       )}
 
       {/* Quota Warnings */}
-      {quotaStatus === 'warning' && (
+      {quotaStatus === "warning" && (
         <Alert className="border-yellow-500 bg-yellow-50 text-yellow-900 dark:bg-yellow-950 dark:text-yellow-200">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -156,7 +171,7 @@ export function StorageAwareFileUpload({
         </Alert>
       )}
 
-      {quotaStatus === 'critical' && (
+      {quotaStatus === "critical" && (
         <Alert className="border-orange-500 bg-orange-50 text-orange-900 dark:bg-orange-950 dark:text-orange-200">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -165,7 +180,7 @@ export function StorageAwareFileUpload({
         </Alert>
       )}
 
-      {quotaStatus === 'exceeded' && (
+      {quotaStatus === "exceeded" && (
         <Alert variant="destructive">
           <XCircle className="h-4 w-4" />
           <AlertDescription>
@@ -199,7 +214,7 @@ export function StorageAwareFileUpload({
             className="hidden"
             accept={accept}
             onChange={handleFileSelect}
-            disabled={uploading || quotaStatus === 'exceeded'}
+            disabled={uploading || quotaStatus === "exceeded"}
           />
           <label htmlFor="file-upload" className="flex-1">
             <span className="sr-only">Choose file to upload</span>
@@ -207,7 +222,7 @@ export function StorageAwareFileUpload({
               variant="outline"
               className="w-full"
               asChild
-              disabled={uploading || quotaStatus === 'exceeded'}
+              disabled={uploading || quotaStatus === "exceeded"}
             >
               <div className="cursor-pointer">
                 <Upload className="mr-2 h-4 w-4" />
@@ -225,10 +240,17 @@ export function StorageAwareFileUpload({
             <File className="h-8 w-8 shrink-0 text-muted-foreground" />
             <div className="flex-1 overflow-hidden">
               <p className="truncate font-medium">{selectedFile.name}</p>
-              <p className="text-sm text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatFileSize(selectedFile.size)}
+              </p>
             </div>
             {!uploading && (
-              <Button variant="ghost" size="icon" onClick={handleCancel} className="shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCancel}
+                className="shrink-0"
+              >
                 <X className="h-4 w-4" />
               </Button>
             )}
@@ -248,7 +270,11 @@ export function StorageAwareFileUpload({
           {/* Upload Button */}
           {!uploading && (
             <div className="flex gap-2">
-              <Button onClick={handleUpload} disabled={uploading} className="flex-1">
+              <Button
+                onClick={handleUpload}
+                disabled={uploading}
+                className="flex-1"
+              >
                 <Upload className="mr-2 h-4 w-4" />
                 Upload File
               </Button>
@@ -268,7 +294,7 @@ export function StorageAwareFileUpload({
         </Alert>
       )}
     </div>
-  )
+  );
 }
 
 /**
@@ -278,38 +304,38 @@ export function CompactStorageUpload({
   onUploadComplete,
   className,
 }: {
-  onUploadComplete?: (result: UploadResult) => void
-  className?: string
+  onUploadComplete?: (result: UploadResult) => void;
+  className?: string;
 }) {
-  const { checkUpload, recordUpload } = useQuotaCheck()
-  const [uploading, setUploading] = useState(false)
+  const { checkUpload, recordUpload } = useQuotaCheck();
+  const [uploading, setUploading] = useState(false);
 
   const handleFileSelect = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
-      if (!file) return
+      const file = event.target.files?.[0];
+      if (!file) return;
 
       // Check quota
-      const quotaCheck = await checkUpload(file.size)
+      const quotaCheck = await checkUpload(file.size);
       if (!quotaCheck.allowed) {
-        alert(quotaCheck.reason)
-        return
+        alert(quotaCheck.reason);
+        return;
       }
 
-      setUploading(true)
+      setUploading(true);
       try {
-        const result = await uploadFile(file)
-        await recordUpload(file.size)
-        onUploadComplete?.(result)
+        const result = await uploadFile(file);
+        await recordUpload(file.size);
+        onUploadComplete?.(result);
       } catch (error) {
-        logger.error('Upload failed:', error)
-        alert('Upload failed')
+        logger.error("Upload failed:", error);
+        alert("Upload failed");
       } finally {
-        setUploading(false)
+        setUploading(false);
       }
     },
-    [checkUpload, recordUpload, onUploadComplete]
-  )
+    [checkUpload, recordUpload, onUploadComplete],
+  );
 
   return (
     <div className={className}>
@@ -325,10 +351,10 @@ export function CompactStorageUpload({
         <Button variant="outline" size="sm" asChild disabled={uploading}>
           <div className="cursor-pointer">
             <Upload className="mr-2 h-4 w-4" />
-            {uploading ? 'Uploading...' : 'Upload'}
+            {uploading ? "Uploading..." : "Upload"}
           </div>
         </Button>
       </label>
     </div>
-  )
+  );
 }

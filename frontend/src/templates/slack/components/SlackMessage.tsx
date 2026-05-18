@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Slack Message Component
@@ -9,52 +9,59 @@
 //
 // ===============================================================================
 
-import { ReactNode, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { slackColors } from '../config'
-import { Smile, MessageCircle, Share, Bookmark, MoreHorizontal, Pin } from 'lucide-react'
+import { ReactNode, useState } from "react";
+import { cn } from "@/lib/utils";
+import { slackColors } from "../config";
+import {
+  Smile,
+  MessageCircle,
+  Share,
+  Bookmark,
+  MoreHorizontal,
+  Pin,
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface SlackMessageProps {
-  id: string
-  userId: string
-  userName: string
-  userAvatar?: string
-  content: string
-  timestamp: Date
-  isEdited?: boolean
-  isPinned?: boolean
-  isHighlighted?: boolean
-  isFirstInGroup?: boolean
-  reactions?: SlackReaction[]
-  threadCount?: number
-  threadParticipants?: string[]
-  attachments?: SlackAttachment[]
-  onReactionAdd?: (emoji: string) => void
-  onReactionRemove?: (emoji: string) => void
-  onThreadClick?: () => void
-  onShareClick?: () => void
-  onBookmarkClick?: () => void
-  onMoreClick?: () => void
-  className?: string
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  content: string;
+  timestamp: Date;
+  isEdited?: boolean;
+  isPinned?: boolean;
+  isHighlighted?: boolean;
+  isFirstInGroup?: boolean;
+  reactions?: SlackReaction[];
+  threadCount?: number;
+  threadParticipants?: string[];
+  attachments?: SlackAttachment[];
+  onReactionAdd?: (emoji: string) => void;
+  onReactionRemove?: (emoji: string) => void;
+  onThreadClick?: () => void;
+  onShareClick?: () => void;
+  onBookmarkClick?: () => void;
+  onMoreClick?: () => void;
+  className?: string;
 }
 
 export interface SlackReaction {
-  emoji: string
-  count: number
-  hasReacted: boolean
-  users?: string[]
+  emoji: string;
+  count: number;
+  hasReacted: boolean;
+  users?: string[];
 }
 
 export interface SlackAttachment {
-  type: 'image' | 'file' | 'link'
-  url: string
-  name?: string
-  thumbnailUrl?: string
-  size?: number
+  type: "image" | "file" | "link";
+  url: string;
+  name?: string;
+  thumbnailUrl?: string;
+  size?: number;
 }
 
 // -------------------------------------------------------------------------------
@@ -68,23 +75,23 @@ function MessageActions({
   onBookmarkClick,
   onMoreClick,
 }: {
-  onReactionAdd?: (emoji: string) => void
-  onThreadClick?: () => void
-  onShareClick?: () => void
-  onBookmarkClick?: () => void
-  onMoreClick?: () => void
+  onReactionAdd?: (emoji: string) => void;
+  onThreadClick?: () => void;
+  onShareClick?: () => void;
+  onBookmarkClick?: () => void;
+  onMoreClick?: () => void;
 }) {
   return (
     <div
       className={cn(
-        'absolute -top-4 right-4 flex items-center gap-0.5 p-0.5',
-        'rounded-lg border border-gray-200 bg-white shadow-md dark:border-[#35383C] dark:bg-[#222529]',
-        'opacity-0 transition-opacity group-hover:opacity-100'
+        "absolute -top-4 right-4 flex items-center gap-0.5 p-0.5",
+        "rounded-lg border border-gray-200 bg-white shadow-md dark:border-[#35383C] dark:bg-[#222529]",
+        "opacity-0 transition-opacity group-hover:opacity-100",
       )}
     >
       <ActionButton
         icon={<Smile className="h-4 w-4" />}
-        onClick={() => onReactionAdd?.('👍')}
+        onClick={() => onReactionAdd?.("👍")}
         tooltip="Add reaction"
       />
       <ActionButton
@@ -108,7 +115,7 @@ function MessageActions({
         tooltip="More actions"
       />
     </div>
-  )
+  );
 }
 
 function ActionButton({
@@ -116,9 +123,9 @@ function ActionButton({
   onClick,
   tooltip,
 }: {
-  icon: ReactNode
-  onClick?: () => void
-  tooltip: string
+  icon: ReactNode;
+  onClick?: () => void;
+  tooltip: string;
 }) {
   return (
     <button
@@ -128,33 +135,39 @@ function ActionButton({
     >
       {icon}
     </button>
-  )
+  );
 }
 
-function ReactionPill({ reaction, onClick }: { reaction: SlackReaction; onClick?: () => void }) {
+function ReactionPill({
+  reaction,
+  onClick,
+}: {
+  reaction: SlackReaction;
+  onClick?: () => void;
+}) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs',
-        'border transition-colors',
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs",
+        "border transition-colors",
         reaction.hasReacted
-          ? 'border-[#1264A3] bg-[#E8F5FA] text-[#1264A3]'
-          : 'border-gray-200 bg-white text-gray-700 hover:border-[#1264A3] dark:border-[#35383C] dark:bg-[#222529] dark:text-gray-300'
+          ? "border-[#1264A3] bg-[#E8F5FA] text-[#1264A3]"
+          : "border-gray-200 bg-white text-gray-700 hover:border-[#1264A3] dark:border-[#35383C] dark:bg-[#222529] dark:text-gray-300",
       )}
     >
       <span>{reaction.emoji}</span>
       <span className="font-medium">{reaction.count}</span>
     </button>
-  )
+  );
 }
 
 function formatTimestamp(date: Date): string {
-  return date.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
     hour12: true,
-  })
+  });
 }
 
 // -------------------------------------------------------------------------------
@@ -184,16 +197,16 @@ export function SlackMessage({
   onMoreClick,
   className,
 }: SlackMessageProps) {
-  const [showActions, setShowActions] = useState(false)
+  const [showActions, setShowActions] = useState(false);
 
   return (
     <div
       className={cn(
-        'group relative px-5 py-1',
-        'hover:bg-[#F8F8F8] dark:hover:bg-[#222529]',
-        isHighlighted && 'bg-[#FEF9E9] dark:bg-[#5C4C0B]',
-        isPinned && 'border-l-4 border-[#ECB22E]',
-        className
+        "group relative px-5 py-1",
+        "hover:bg-[#F8F8F8] dark:hover:bg-[#222529]",
+        isHighlighted && "bg-[#FEF9E9] dark:bg-[#5C4C0B]",
+        isPinned && "border-l-4 border-[#ECB22E]",
+        className,
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
@@ -214,7 +227,11 @@ export function SlackMessage({
         {isFirstInGroup ? (
           <div className="h-9 w-9 flex-shrink-0">
             {userAvatar ? (
-              <img src={userAvatar} alt={userName} className="h-9 w-9 rounded object-cover" />
+              <img
+                src={userAvatar}
+                alt={userName}
+                className="h-9 w-9 rounded object-cover"
+              />
             ) : (
               <div
                 className="flex h-9 w-9 items-center justify-center rounded text-sm font-bold text-white"
@@ -226,7 +243,7 @@ export function SlackMessage({
           </div>
         ) : (
           <div className="flex w-9 flex-shrink-0 items-center justify-center text-xs text-gray-400 opacity-0 group-hover:opacity-100">
-            {formatTimestamp(timestamp).split(' ')[0]}
+            {formatTimestamp(timestamp).split(" ")[0]}
           </div>
         )}
 
@@ -253,7 +270,9 @@ export function SlackMessage({
           {/* Message Text */}
           <div className="whitespace-pre-wrap break-words text-gray-900 dark:text-gray-100">
             {content}
-            {isEdited && <span className="ml-1 text-xs text-gray-400">(edited)</span>}
+            {isEdited && (
+              <span className="ml-1 text-xs text-gray-400">(edited)</span>
+            )}
           </div>
 
           {/* Attachments */}
@@ -264,10 +283,10 @@ export function SlackMessage({
                   key={index}
                   className="max-w-md overflow-hidden rounded-lg border border-gray-200 dark:border-[#35383C]"
                 >
-                  {attachment.type === 'image' && (
+                  {attachment.type === "image" && (
                     <img
                       src={attachment.url}
-                      alt={attachment.name || 'Image'}
+                      alt={attachment.name || "Image"}
                       className="h-auto max-w-full"
                     />
                   )}
@@ -291,7 +310,7 @@ export function SlackMessage({
                 />
               ))}
               <button
-                onClick={() => onReactionAdd?.('👍')}
+                onClick={() => onReactionAdd?.("👍")}
                 className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-dashed border-gray-300 text-gray-400 hover:border-[#1264A3] hover:text-[#1264A3] dark:border-[#35383C]"
               >
                 <Smile className="h-3.5 w-3.5" />
@@ -314,14 +333,14 @@ export function SlackMessage({
                 ))}
               </div>
               <span className="font-medium">
-                {threadCount} {threadCount === 1 ? 'reply' : 'replies'}
+                {threadCount} {threadCount === 1 ? "reply" : "replies"}
               </span>
             </button>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default SlackMessage
+export default SlackMessage;

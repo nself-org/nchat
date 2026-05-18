@@ -5,15 +5,15 @@
  * and managing media items in a gallery context.
  */
 
-import { useCallback, useEffect, useMemo } from 'react'
-import { useQuery } from '@apollo/client'
-import { useMediaStore } from '@/stores/media-store'
+import { useCallback, useEffect, useMemo } from "react";
+import { useQuery } from "@apollo/client";
+import { useMediaStore } from "@/stores/media-store";
 import {
   GET_MEDIA,
   GET_CHANNEL_MEDIA,
   GET_USER_MEDIA,
   MediaItemResult,
-} from '@/graphql/media/media-queries'
+} from "@/graphql/media/media-queries";
 import {
   MediaItem,
   MediaFilters,
@@ -21,70 +21,70 @@ import {
   MediaViewMode,
   MediaFilterTab,
   MediaType,
-} from '@/lib/media/media-types'
+} from "@/lib/media/media-types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface UseMediaGalleryOptions {
-  channelId?: string
-  threadId?: string
-  userId?: string
-  initialFilters?: Partial<MediaFilters>
-  autoFetch?: boolean
-  pageSize?: number
+  channelId?: string;
+  threadId?: string;
+  userId?: string;
+  initialFilters?: Partial<MediaFilters>;
+  autoFetch?: boolean;
+  pageSize?: number;
 }
 
 export interface UseMediaGalleryReturn {
   // Data
-  items: MediaItem[]
-  filteredItems: MediaItem[]
-  totalCount: number
+  items: MediaItem[];
+  filteredItems: MediaItem[];
+  totalCount: number;
 
   // Loading state
-  isLoading: boolean
-  isLoadingMore: boolean
-  error: string | null
+  isLoading: boolean;
+  isLoadingMore: boolean;
+  error: string | null;
 
   // Filters
-  filters: MediaFilters
-  setFilters: (filters: Partial<MediaFilters>) => void
-  setTypeFilter: (type: MediaFilterTab) => void
-  setSearchQuery: (query: string) => void
-  setDateRange: (start: Date | null, end: Date | null) => void
-  clearFilters: () => void
-  hasActiveFilters: boolean
-  activeFilterCount: number
+  filters: MediaFilters;
+  setFilters: (filters: Partial<MediaFilters>) => void;
+  setTypeFilter: (type: MediaFilterTab) => void;
+  setSearchQuery: (query: string) => void;
+  setDateRange: (start: Date | null, end: Date | null) => void;
+  clearFilters: () => void;
+  hasActiveFilters: boolean;
+  activeFilterCount: number;
 
   // Sorting
-  sorting: MediaSorting
-  setSorting: (sorting: Partial<MediaSorting>) => void
-  toggleSortDirection: () => void
+  sorting: MediaSorting;
+  setSorting: (sorting: Partial<MediaSorting>) => void;
+  toggleSortDirection: () => void;
 
   // Pagination
-  page: number
-  totalPages: number
-  hasMore: boolean
-  loadMore: () => void
-  goToPage: (page: number) => void
+  page: number;
+  totalPages: number;
+  hasMore: boolean;
+  loadMore: () => void;
+  goToPage: (page: number) => void;
 
   // View mode
-  viewMode: MediaViewMode
-  setViewMode: (mode: MediaViewMode) => void
+  viewMode: MediaViewMode;
+  setViewMode: (mode: MediaViewMode) => void;
 
   // Selection
-  selectedItems: Set<string>
-  isSelectMode: boolean
-  toggleSelection: (itemId: string) => void
-  selectAll: () => void
-  clearSelection: () => void
-  setSelectMode: (enabled: boolean) => void
-  getSelectedItems: () => MediaItem[]
+  selectedItems: Set<string>;
+  isSelectMode: boolean;
+  toggleSelection: (itemId: string) => void;
+  selectAll: () => void;
+  clearSelection: () => void;
+  setSelectMode: (enabled: boolean) => void;
+  getSelectedItems: () => MediaItem[];
 
   // Actions
-  refresh: () => void
-  openViewer: (itemId: string) => void
+  refresh: () => void;
+  openViewer: (itemId: string) => void;
 }
 
 // ============================================================================
@@ -120,22 +120,33 @@ function transformMediaItem(item: MediaItemResult): MediaItem {
     updatedAt: item.updated_at,
     metadata: {
       dimensions:
-        item.width && item.height ? { width: item.width, height: item.height } : undefined,
+        item.width && item.height
+          ? { width: item.width, height: item.height }
+          : undefined,
       duration: item.duration || undefined,
       ...(item.metadata || {}),
     },
     canDelete: true,
     canShare: true,
     canDownload: true,
-  }
+  };
 }
 
 // ============================================================================
 // Hook
 // ============================================================================
 
-export function useMediaGallery(options: UseMediaGalleryOptions = {}): UseMediaGalleryReturn {
-  const { channelId, threadId, userId, initialFilters, autoFetch = true, pageSize = 50 } = options
+export function useMediaGallery(
+  options: UseMediaGalleryOptions = {},
+): UseMediaGalleryReturn {
+  const {
+    channelId,
+    threadId,
+    userId,
+    initialFilters,
+    autoFetch = true,
+    pageSize = 50,
+  } = options;
 
   // Store state
   const {
@@ -176,42 +187,42 @@ export function useMediaGallery(options: UseMediaGalleryOptions = {}): UseMediaG
     applyFiltersAndSort,
     openViewer,
     setContext,
-  } = useMediaStore()
+  } = useMediaStore();
 
   // Build query based on context
   const query = useMemo(() => {
-    if (channelId) return GET_CHANNEL_MEDIA
-    if (userId) return GET_USER_MEDIA
-    return GET_MEDIA
-  }, [channelId, userId])
+    if (channelId) return GET_CHANNEL_MEDIA;
+    if (userId) return GET_USER_MEDIA;
+    return GET_MEDIA;
+  }, [channelId, userId]);
 
   // Build variables
   const variables = useMemo(() => {
     const vars: Record<string, unknown> = {
       limit: pageSize,
       offset: (pagination.page - 1) * pageSize,
-    }
+    };
 
     if (channelId) {
-      vars.channelId = channelId
+      vars.channelId = channelId;
     }
     if (userId) {
-      vars.userId = userId
+      vars.userId = userId;
     }
 
     // Map filter type to fileType
-    if (filters.type !== 'all') {
+    if (filters.type !== "all") {
       const typeMap: Record<string, string | null> = {
-        images: 'image',
-        videos: 'video',
-        audio: 'audio',
-        documents: 'document',
-      }
-      vars.fileType = typeMap[filters.type] || null
+        images: "image",
+        videos: "video",
+        audio: "audio",
+        documents: "document",
+      };
+      vars.fileType = typeMap[filters.type] || null;
     }
 
-    return vars
-  }, [channelId, userId, pagination.page, pageSize, filters.type])
+    return vars;
+  }, [channelId, userId, pagination.page, pageSize, filters.type]);
 
   // GraphQL query
   const {
@@ -222,51 +233,56 @@ export function useMediaGallery(options: UseMediaGalleryOptions = {}): UseMediaG
   } = useQuery(query, {
     variables,
     skip: !autoFetch,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
-  })
+  });
 
   // Set context on mount
   useEffect(() => {
-    setContext({ channelId: channelId || null, threadId: threadId || null, userId: userId || null })
-  }, [channelId, threadId, userId, setContext])
+    setContext({
+      channelId: channelId || null,
+      threadId: threadId || null,
+      userId: userId || null,
+    });
+  }, [channelId, threadId, userId, setContext]);
 
   // Apply initial filters
   useEffect(() => {
     if (initialFilters) {
-      storeSetFilters(initialFilters)
+      storeSetFilters(initialFilters);
     }
-  }, [initialFilters, storeSetFilters])
+  }, [initialFilters, storeSetFilters]);
 
   // Process query results
   useEffect(() => {
     if (loading && !data) {
-      setLoading(true)
+      setLoading(true);
     } else if (!loading) {
-      setLoading(false)
+      setLoading(false);
     }
 
     if (queryError) {
-      setError(queryError.message)
+      setError(queryError.message);
     }
 
     if (data) {
-      const mediaItems = data.nchat_media?.map(transformMediaItem) || []
-      const total = data.nchat_media_aggregate?.aggregate?.count || mediaItems.length
+      const mediaItems = data.nchat_media?.map(transformMediaItem) || [];
+      const total =
+        data.nchat_media_aggregate?.aggregate?.count || mediaItems.length;
 
       if (pagination.page === 1) {
-        setItems(mediaItems)
+        setItems(mediaItems);
       } else {
-        addItems(mediaItems)
+        addItems(mediaItems);
       }
 
       setPagination({
         total,
         totalPages: Math.ceil(total / pageSize),
         hasMore: mediaItems.length === pageSize,
-      })
+      });
 
-      applyFiltersAndSort()
+      applyFiltersAndSort();
     }
   }, [
     data,
@@ -280,44 +296,44 @@ export function useMediaGallery(options: UseMediaGalleryOptions = {}): UseMediaG
     setError,
     setPagination,
     applyFiltersAndSort,
-  ])
+  ]);
 
   // Apply filters and sort when they change
   useEffect(() => {
-    applyFiltersAndSort()
-  }, [filters, sorting, applyFiltersAndSort])
+    applyFiltersAndSort();
+  }, [filters, sorting, applyFiltersAndSort]);
 
   // Load more handler
   const loadMore = useCallback(() => {
     if (!isLoadingMore && pagination.hasMore) {
-      setLoadingMore(true)
-      nextPage()
-      refetch().finally(() => setLoadingMore(false))
+      setLoadingMore(true);
+      nextPage();
+      refetch().finally(() => setLoadingMore(false));
     }
-  }, [isLoadingMore, pagination.hasMore, setLoadingMore, nextPage, refetch])
+  }, [isLoadingMore, pagination.hasMore, setLoadingMore, nextPage, refetch]);
 
   // Refresh handler
   const refresh = useCallback(() => {
-    storeGoToPage(1)
-    refetch()
-  }, [storeGoToPage, refetch])
+    storeGoToPage(1);
+    refetch();
+  }, [storeGoToPage, refetch]);
 
   // Set filters with apply
   const setFilters = useCallback(
     (newFilters: Partial<MediaFilters>) => {
-      storeSetFilters(newFilters)
+      storeSetFilters(newFilters);
     },
-    [storeSetFilters]
-  )
+    [storeSetFilters],
+  );
 
   // Go to page handler
   const goToPage = useCallback(
     (page: number) => {
-      storeGoToPage(page)
-      refetch()
+      storeGoToPage(page);
+      refetch();
     },
-    [storeGoToPage, refetch]
-  )
+    [storeGoToPage, refetch],
+  );
 
   return {
     // Data
@@ -368,7 +384,7 @@ export function useMediaGallery(options: UseMediaGalleryOptions = {}): UseMediaG
     // Actions
     refresh,
     openViewer,
-  }
+  };
 }
 
-export default useMediaGallery
+export default useMediaGallery;

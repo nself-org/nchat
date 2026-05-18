@@ -1,24 +1,25 @@
-import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
-import '@/styles/globals.css'
-import { AppProviders } from '@/providers'
-import { WebVitalsWrapper } from '@/components/performance/web-vitals-wrapper'
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import "@/styles/globals.css";
+import { AppProviders } from "@/providers";
+import { WebVitalsWrapper } from "@/components/performance/web-vitals-wrapper";
 
 // Initialize Sentry client-side monitoring
-import '@/sentry.client.config'
+import "@/sentry.client.config";
 
 const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-})
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 // =============================================================================
 // Metadata
 // =============================================================================
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'nChat'
-const APP_DESCRIPTION = process.env.NEXT_PUBLIC_APP_TAGLINE || 'Modern team communication platform'
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "nChat";
+const APP_DESCRIPTION =
+  process.env.NEXT_PUBLIC_APP_TAGLINE || "Modern team communication platform";
 
 export const metadata: Metadata = {
   title: {
@@ -27,10 +28,17 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   applicationName: APP_NAME,
-  keywords: ['chat', 'team', 'communication', 'collaboration', 'messaging', 'slack alternative'],
-  authors: [{ name: 'nself', url: 'https://nself.io' }],
-  creator: 'nself',
-  publisher: 'nself',
+  keywords: [
+    "chat",
+    "team",
+    "communication",
+    "collaboration",
+    "messaging",
+    "slack alternative",
+  ],
+  authors: [{ name: "nself", url: "https://nself.io" }],
+  creator: "nself",
+  publisher: "nself",
   formatDetection: {
     telephone: false,
     email: false,
@@ -38,38 +46,38 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: '/favicon.ico',
+    shortcut: "/favicon.ico",
     apple: [
-      { url: '/icons/icon-192.png', sizes: '192x192' },
-      { url: '/icons/icon-152.png', sizes: '152x152' },
-      { url: '/icons/icon-144.png', sizes: '144x144' },
+      { url: "/icons/icon-192.png", sizes: "192x192" },
+      { url: "/icons/icon-152.png", sizes: "152x152" },
+      { url: "/icons/icon-144.png", sizes: "144x144" },
     ],
     other: [
       {
-        rel: 'mask-icon',
-        url: '/icons/maskable-icon.png',
+        rel: "mask-icon",
+        url: "/icons/maskable-icon.png",
       },
     ],
   },
-  manifest: '/manifest.json',
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: "default",
     title: APP_NAME,
   },
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
+    type: "website",
+    locale: "en_US",
     siteName: APP_NAME,
     title: APP_NAME,
     description: APP_DESCRIPTION,
     images: [
       {
-        url: '/og-image.png',
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: `${APP_NAME} - Team Communication Platform`,
@@ -77,42 +85,46 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title: APP_NAME,
     description: APP_DESCRIPTION,
-    images: ['/og-image.png'],
-    creator: '@nself_io',
+    images: ["/og-image.png"],
+    creator: "@nself_io",
   },
   robots: {
     index: true,
     follow: true,
   },
   other: {
-    'mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-status-bar-style': 'default',
-    'msapplication-TileColor': '#6366f1',
-    'msapplication-tap-highlight': 'no',
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    "msapplication-TileColor": "#6366f1",
+    "msapplication-tap-highlight": "no",
   },
-}
+};
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  viewportFit: 'cover',
+  viewportFit: "cover",
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#18181b' },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#18181b" },
   ],
-}
+};
 
 // =============================================================================
 // Root Layout
 // =============================================================================
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head>
@@ -124,11 +136,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Preconnect to external services */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
 
         {/* DNS prefetch for API endpoints */}
-        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_GRAPHQL_URL || ''} />
-        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_AUTH_URL || ''} />
+        <link
+          rel="dns-prefetch"
+          href={process.env.NEXT_PUBLIC_GRAPHQL_URL || ""}
+        />
+        <link
+          rel="dns-prefetch"
+          href={process.env.NEXT_PUBLIC_AUTH_URL || ""}
+        />
 
         {/* iOS splash screens - generated for common device sizes */}
         <link
@@ -201,9 +223,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Performance monitoring */}
         <WebVitalsWrapper
           enabled={true}
-          providers={process.env.NODE_ENV === 'production' ? ['sentry'] : ['console']}
+          providers={
+            process.env.NODE_ENV === "production" ? ["sentry"] : ["console"]
+          }
           sampleRate={1.0}
-          debug={process.env.NODE_ENV === 'development'}
+          debug={process.env.NODE_ENV === "development"}
         />
 
         {/* Main app with all providers */}
@@ -228,5 +252,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div id="context-menu-root" />
       </body>
     </html>
-  )
+  );
 }

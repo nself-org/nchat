@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion'
-import { Loader2, RefreshCw } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { pullToRefresh } from '@/lib/animations'
+import * as React from "react";
+import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { Loader2, RefreshCw } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { pullToRefresh } from "@/lib/animations";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 interface PullToRefreshProps {
-  onRefresh: () => Promise<void>
-  children: React.ReactNode
-  disabled?: boolean
-  threshold?: number
-  className?: string
+  onRefresh: () => Promise<void>;
+  children: React.ReactNode;
+  disabled?: boolean;
+  threshold?: number;
+  className?: string;
 }
 
 /**
@@ -27,55 +27,58 @@ export function PullToRefresh({
   threshold = 80,
   className,
 }: PullToRefreshProps) {
-  const [isRefreshing, setIsRefreshing] = React.useState(false)
-  const [isPulling, setIsPulling] = React.useState(false)
-  const y = useMotionValue(0)
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [isPulling, setIsPulling] = React.useState(false);
+  const y = useMotionValue(0);
 
   // Calculate rotation and opacity based on pull distance
-  const rotate = useTransform(y, [0, threshold], [0, 360])
-  const opacity = useTransform(y, [0, threshold / 2, threshold], [0, 0.5, 1])
-  const scale = useTransform(y, [0, threshold], [0.8, 1.2])
+  const rotate = useTransform(y, [0, threshold], [0, 360]);
+  const opacity = useTransform(y, [0, threshold / 2, threshold], [0, 0.5, 1]);
+  const scale = useTransform(y, [0, threshold], [0.8, 1.2]);
 
   const handleDragStart = () => {
     if (!disabled && !isRefreshing) {
-      setIsPulling(true)
+      setIsPulling(true);
     }
-  }
+  };
 
   const handleDrag = (_: any, info: PanInfo) => {
     // Only allow pulling down, and only from the top of the page
     if (info.offset.y > 0 && window.scrollY === 0) {
-      y.set(Math.min(info.offset.y, threshold * 1.5))
+      y.set(Math.min(info.offset.y, threshold * 1.5));
     }
-  }
+  };
 
   const handleDragEnd = async (_: any, info: PanInfo) => {
-    setIsPulling(false)
+    setIsPulling(false);
 
     // If pulled past threshold, trigger refresh
     if (info.offset.y >= threshold && !disabled && !isRefreshing) {
-      setIsRefreshing(true)
-      y.set(60) // Hold at refreshing position
+      setIsRefreshing(true);
+      y.set(60); // Hold at refreshing position
 
       try {
-        await onRefresh()
+        await onRefresh();
       } catch (error) {
-        logger.error('Refresh failed:', error)
+        logger.error("Refresh failed:", error);
       } finally {
-        setIsRefreshing(false)
-        y.set(0) // Return to normal position
+        setIsRefreshing(false);
+        y.set(0); // Return to normal position
       }
     } else {
       // Return to normal position
-      y.set(0)
+      y.set(0);
     }
-  }
+  };
 
-  const pullDistance = useTransform(y, (latest) => latest)
-  const showIndicator = useTransform(pullDistance, (latest) => latest > 10 || isRefreshing)
+  const pullDistance = useTransform(y, (latest) => latest);
+  const showIndicator = useTransform(
+    pullDistance,
+    (latest) => latest > 10 || isRefreshing,
+  );
 
   return (
-    <div className={cn('relative overflow-hidden', className)}>
+    <div className={cn("relative overflow-hidden", className)}>
       {/* Pull indicator */}
       <motion.div
         className="absolute left-0 right-0 top-0 z-50 flex items-center justify-center"
@@ -108,13 +111,15 @@ export function PullToRefresh({
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         style={{ y }}
-        animate={isRefreshing ? 'refreshing' : isPulling ? 'pulling' : 'initial'}
+        animate={
+          isRefreshing ? "refreshing" : isPulling ? "pulling" : "initial"
+        }
         variants={pullToRefresh}
       >
         {children}
       </motion.div>
     </div>
-  )
+  );
 }
 
 /**
@@ -124,11 +129,11 @@ export function PullIndicator({
   progress,
   isRefreshing,
 }: {
-  progress: number
-  isRefreshing: boolean
+  progress: number;
+  isRefreshing: boolean;
 }) {
-  const opacity = Math.min(progress / 80, 1)
-  const rotate = (progress / 80) * 360
+  const opacity = Math.min(progress / 80, 1);
+  const rotate = (progress / 80) * 360;
 
   return (
     <div className="flex h-16 items-center justify-center">
@@ -146,5 +151,5 @@ export function PullIndicator({
         )}
       </motion.div>
     </div>
-  )
+  );
 }

@@ -1,47 +1,53 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { RefreshCw, Calendar, Clock, Filter } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useState } from "react";
+import { RefreshCw, Calendar, Clock, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { UserActivityEntry } from '@/lib/admin/users/user-types'
+} from "@/components/ui/select";
+import type { UserActivityEntry } from "@/lib/admin/users/user-types";
 
 interface UserActivityProps {
-  activities: UserActivityEntry[]
-  userId: string
-  isLoading?: boolean
-  onRefresh?: () => void
+  activities: UserActivityEntry[];
+  userId: string;
+  isLoading?: boolean;
+  onRefresh?: () => void;
 }
 
 const activityTypeColors: Record<string, string> = {
-  message: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  channel: 'bg-green-500/10 text-green-600 border-green-500/20',
-  user: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
-  auth: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
-  admin: 'bg-red-500/10 text-red-600 border-red-500/20',
-  default: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
-}
+  message: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  channel: "bg-green-500/10 text-green-600 border-green-500/20",
+  user: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+  auth: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+  admin: "bg-red-500/10 text-red-600 border-red-500/20",
+  default: "bg-gray-500/10 text-gray-600 border-gray-500/20",
+};
 
 const activityTypeIcons: Record<string, string> = {
-  message_sent: 'Message sent',
-  message_deleted: 'Message deleted',
-  message_edited: 'Message edited',
-  channel_joined: 'Joined channel',
-  channel_left: 'Left channel',
-  channel_created: 'Created channel',
-  profile_updated: 'Updated profile',
-  login: 'Logged in',
-  logout: 'Logged out',
-  password_changed: 'Changed password',
-}
+  message_sent: "Message sent",
+  message_deleted: "Message deleted",
+  message_edited: "Message edited",
+  channel_joined: "Joined channel",
+  channel_left: "Left channel",
+  channel_created: "Created channel",
+  profile_updated: "Updated profile",
+  login: "Logged in",
+  logout: "Logged out",
+  password_changed: "Changed password",
+};
 
 export function UserActivity({
   activities,
@@ -49,66 +55,76 @@ export function UserActivity({
   isLoading = false,
   onRefresh,
 }: UserActivityProps) {
-  const [typeFilter, setTypeFilter] = useState<string>('all')
-  const [timeFilter, setTimeFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [timeFilter, setTimeFilter] = useState<string>("all");
 
   const filteredActivities = activities.filter((activity) => {
     // Type filter
-    if (typeFilter !== 'all' && activity.type !== typeFilter) {
-      return false
+    if (typeFilter !== "all" && activity.type !== typeFilter) {
+      return false;
     }
 
     // Time filter
-    if (timeFilter !== 'all') {
-      const activityDate = new Date(activity.createdAt)
-      const now = new Date()
-      const diffHours = (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60)
+    if (timeFilter !== "all") {
+      const activityDate = new Date(activity.createdAt);
+      const now = new Date();
+      const diffHours =
+        (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60);
 
       switch (timeFilter) {
-        case '1h':
-          if (diffHours > 1) return false
-          break
-        case '24h':
-          if (diffHours > 24) return false
-          break
-        case '7d':
-          if (diffHours > 24 * 7) return false
-          break
-        case '30d':
-          if (diffHours > 24 * 30) return false
-          break
+        case "1h":
+          if (diffHours > 1) return false;
+          break;
+        case "24h":
+          if (diffHours > 24) return false;
+          break;
+        case "7d":
+          if (diffHours > 24 * 7) return false;
+          break;
+        case "30d":
+          if (diffHours > 24 * 30) return false;
+          break;
       }
     }
 
-    return true
-  })
+    return true;
+  });
 
   const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return 'Just now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
-    if (days < 7) return `${days}d ago`
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
 
-    return date.toLocaleDateString()
-  }
+    return date.toLocaleDateString();
+  };
 
   const getActivityTypeColor = (type: string) => {
-    if (type.startsWith('message')) return activityTypeColors.message
-    if (type.startsWith('channel')) return activityTypeColors.channel
-    if (type.startsWith('user') || type.startsWith('profile')) return activityTypeColors.user
-    if (type.startsWith('login') || type.startsWith('logout') || type.startsWith('password'))
-      return activityTypeColors.auth
-    if (type.startsWith('admin') || type.startsWith('ban') || type.startsWith('role'))
-      return activityTypeColors.admin
-    return activityTypeColors.default
-  }
+    if (type.startsWith("message")) return activityTypeColors.message;
+    if (type.startsWith("channel")) return activityTypeColors.channel;
+    if (type.startsWith("user") || type.startsWith("profile"))
+      return activityTypeColors.user;
+    if (
+      type.startsWith("login") ||
+      type.startsWith("logout") ||
+      type.startsWith("password")
+    )
+      return activityTypeColors.auth;
+    if (
+      type.startsWith("admin") ||
+      type.startsWith("ban") ||
+      type.startsWith("role")
+    )
+      return activityTypeColors.admin;
+    return activityTypeColors.default;
+  };
 
   return (
     <Card>
@@ -163,7 +179,10 @@ export function UserActivity({
         {isLoading ? (
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-start gap-3 border-l-2 border-muted pl-4">
+              <div
+                key={i}
+                className="flex items-start gap-3 border-l-2 border-muted pl-4"
+              >
                 <div className="flex-1 space-y-1">
                   <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
                   <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
@@ -185,8 +204,11 @@ export function UserActivity({
               >
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className={getActivityTypeColor(activity.type)}>
-                      {activity.type.replace(/_/g, ' ')}
+                    <Badge
+                      variant="outline"
+                      className={getActivityTypeColor(activity.type)}
+                    >
+                      {activity.type.replace(/_/g, " ")}
                     </Badge>
                     <span className="text-sm">{activity.description}</span>
                   </div>
@@ -202,7 +224,8 @@ export function UserActivity({
                       <>
                         <span>&middot;</span>
                         <span>
-                          {activity.target.type}: {activity.target.name || activity.target.id}
+                          {activity.target.type}:{" "}
+                          {activity.target.name || activity.target.id}
                         </span>
                       </>
                     )}
@@ -214,7 +237,7 @@ export function UserActivity({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default UserActivity
+export default UserActivity;

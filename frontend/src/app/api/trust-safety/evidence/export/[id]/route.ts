@@ -7,17 +7,17 @@
  * POST /api/trust-safety/evidence/export/[id]/certificate - Generate verification certificate
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 import {
   getEvidenceExportService,
   getEvidenceCollector,
-} from '@/services/trust-safety'
+} from "@/services/trust-safety";
 
-const collector = getEvidenceCollector()
-const exportService = getEvidenceExportService(undefined, collector)
+const collector = getEvidenceCollector();
+const exportService = getEvidenceExportService(undefined, collector);
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -25,41 +25,41 @@ interface RouteContext {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params
-    const { searchParams } = new URL(request.url)
+    const { id } = await context.params;
+    const { searchParams } = new URL(request.url);
 
-    const exportRequest = exportService.getExportRequest(id)
+    const exportRequest = exportService.getExportRequest(id);
 
     if (!exportRequest) {
       return NextResponse.json(
-        { success: false, error: 'Export request not found' },
-        { status: 404 }
-      )
+        { success: false, error: "Export request not found" },
+        { status: 404 },
+      );
     }
 
     // Check if client wants to download the package
-    const download = searchParams.get('download') === 'true'
+    const download = searchParams.get("download") === "true";
 
-    if (download && exportRequest.status === 'completed') {
-      const exportResult = exportService.getExportResult(id)
+    if (download && exportRequest.status === "completed") {
+      const exportResult = exportService.getExportResult(id);
 
       if (!exportResult) {
         return NextResponse.json(
-          { success: false, error: 'Export result expired or not available' },
-          { status: 404 }
-        )
+          { success: false, error: "Export result expired or not available" },
+          { status: 404 },
+        );
       }
 
       // Return full package as downloadable JSON
-      const packageJson = JSON.stringify(exportResult, null, 2)
+      const packageJson = JSON.stringify(exportResult, null, 2);
 
       return new NextResponse(packageJson, {
         status: 200,
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Disposition': `attachment; filename="evidence-export-${id}.json"`,
+          "Content-Type": "application/json",
+          "Content-Disposition": `attachment; filename="evidence-export-${id}.json"`,
         },
-      })
+      });
     }
 
     return NextResponse.json({
@@ -82,13 +82,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
         completedAt: exportRequest.completedAt,
         error: exportRequest.error,
       },
-    })
+    });
   } catch (error) {
-    console.error('Export retrieval error:', error)
+    console.error("Export retrieval error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to retrieve export' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to retrieve export" },
+      { status: 500 },
+    );
   }
 }
 
@@ -97,25 +97,27 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params
-    const body = await request.json()
-    const { action } = body
+    const { id } = await context.params;
+    const body = await request.json();
+    const { action } = body;
 
-    const actorId = body.actorId || request.headers.get('x-user-id') || 'system'
-    const actorRole = body.actorRole || request.headers.get('x-user-role') || 'system'
+    const actorId =
+      body.actorId || request.headers.get("x-user-id") || "system";
+    const actorRole =
+      body.actorRole || request.headers.get("x-user-role") || "system";
 
     switch (action) {
-      case 'verify': {
-        const exportResult = exportService.getExportResult(id)
+      case "verify": {
+        const exportResult = exportService.getExportResult(id);
 
         if (!exportResult) {
           return NextResponse.json(
-            { success: false, error: 'Export result not found or expired' },
-            { status: 404 }
-          )
+            { success: false, error: "Export result not found or expired" },
+            { status: 404 },
+          );
         }
 
-        const verification = await exportService.verifyPackage(exportResult)
+        const verification = await exportService.verifyPackage(exportResult);
 
         return NextResponse.json({
           success: true,
@@ -124,36 +126,40 @@ export async function POST(request: NextRequest, context: RouteContext) {
             checks: verification.checks,
             verifiedAt: new Date().toISOString(),
           },
-        })
+        });
       }
 
-      case 'certificate': {
-        const result = await exportService.generateVerificationCertificate(id, actorId, actorRole)
+      case "certificate": {
+        const result = await exportService.generateVerificationCertificate(
+          id,
+          actorId,
+          actorRole,
+        );
 
         if (!result.success) {
           return NextResponse.json(
             { success: false, error: result.error },
-            { status: 400 }
-          )
+            { status: 400 },
+          );
         }
 
         return NextResponse.json({
           success: true,
           certificate: JSON.parse(result.certificate),
-        })
+        });
       }
 
       default:
         return NextResponse.json(
           { success: false, error: `Unknown action: ${action}` },
-          { status: 400 }
-        )
+          { status: 400 },
+        );
     }
   } catch (error) {
-    console.error('Export operation error:', error)
+    console.error("Export operation error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to process export operation' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to process export operation" },
+      { status: 500 },
+    );
   }
 }

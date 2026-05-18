@@ -9,400 +9,410 @@
  * - Accessibility
  */
 
-import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { NotificationBell } from '../notification-bell'
-import { useNotificationStore } from '@/stores/notification-store'
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { NotificationBell } from "../notification-bell";
+import { useNotificationStore } from "@/stores/notification-store";
 
 // ============================================================================
 // Mocks
 // ============================================================================
 
-jest.mock('@/stores/notification-store', () => ({
+jest.mock("@/stores/notification-store", () => ({
   useNotificationStore: jest.fn(),
-}))
+}));
 
-const mockUseNotificationStore = useNotificationStore as unknown as jest.Mock
+const mockUseNotificationStore = useNotificationStore as unknown as jest.Mock;
 
 // ============================================================================
 // Test Helpers
 // ============================================================================
 
 const createMockStoreState = (overrides?: Record<string, unknown>) => ({
-  unreadCounts: { total: 0, mentions: 0, directMessages: 0, threads: 0, byChannel: {} },
+  unreadCounts: {
+    total: 0,
+    mentions: 0,
+    directMessages: 0,
+    threads: 0,
+    byChannel: {},
+  },
   hasNewNotifications: false,
   toggleNotificationCenter: jest.fn(),
   notificationCenterOpen: false,
   ...overrides,
-})
+});
 
 const setupMockStore = (overrides?: Record<string, unknown>) => {
-  const state = createMockStoreState(overrides)
-  mockUseNotificationStore.mockImplementation((selector: (state: unknown) => unknown) => {
-    if (typeof selector === 'function') {
-      return selector(state)
-    }
-    return state
-  })
-  return state
-}
+  const state = createMockStoreState(overrides);
+  mockUseNotificationStore.mockImplementation(
+    (selector: (state: unknown) => unknown) => {
+      if (typeof selector === "function") {
+        return selector(state);
+      }
+      return state;
+    },
+  );
+  return state;
+};
 
 // ============================================================================
 // Tests
 // ============================================================================
 
-describe('NotificationBell', () => {
+describe("NotificationBell", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    setupMockStore()
-  })
+    jest.clearAllMocks();
+    setupMockStore();
+  });
 
   // ==========================================================================
   // Rendering Tests
   // ==========================================================================
 
-  describe('rendering', () => {
-    it('should render bell icon', () => {
-      render(<NotificationBell />)
+  describe("rendering", () => {
+    it("should render bell icon", () => {
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button', { name: /notifications/i })
-      expect(button).toBeInTheDocument()
-    })
+      const button = screen.getByRole("button", { name: /notifications/i });
+      expect(button).toBeInTheDocument();
+    });
 
-    it('should render with ghost variant by default', () => {
-      render(<NotificationBell />)
+    it("should render with ghost variant by default", () => {
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button')
-      expect(button).toHaveClass('hover:bg-accent')
-    })
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("hover:bg-accent");
+    });
 
-    it('should render with custom variant', () => {
-      render(<NotificationBell variant="outline" />)
+    it("should render with custom variant", () => {
+      render(<NotificationBell variant="outline" />);
 
-      const button = screen.getByRole('button')
-      expect(button).toHaveClass('border')
-    })
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("border");
+    });
 
-    it('should apply custom className', () => {
-      render(<NotificationBell className="custom-class" />)
+    it("should apply custom className", () => {
+      render(<NotificationBell className="custom-class" />);
 
-      const button = screen.getByRole('button')
-      expect(button).toHaveClass('custom-class')
-    })
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("custom-class");
+    });
 
-    it('should render SVG bell icon', () => {
-      render(<NotificationBell />)
+    it("should render SVG bell icon", () => {
+      render(<NotificationBell />);
 
-      const svg = screen.getByRole('button').querySelector('svg')
-      expect(svg).toBeInTheDocument()
-    })
+      const svg = screen.getByRole("button").querySelector("svg");
+      expect(svg).toBeInTheDocument();
+    });
 
-    it('should have correct icon size by default', () => {
-      render(<NotificationBell />)
+    it("should have correct icon size by default", () => {
+      render(<NotificationBell />);
 
-      const svg = screen.getByRole('button').querySelector('svg')
-      expect(svg).toHaveAttribute('width', '20')
-      expect(svg).toHaveAttribute('height', '20')
-    })
+      const svg = screen.getByRole("button").querySelector("svg");
+      expect(svg).toHaveAttribute("width", "20");
+      expect(svg).toHaveAttribute("height", "20");
+    });
 
-    it('should use custom icon size', () => {
-      render(<NotificationBell iconSize={24} />)
+    it("should use custom icon size", () => {
+      render(<NotificationBell iconSize={24} />);
 
-      const svg = screen.getByRole('button').querySelector('svg')
-      expect(svg).toHaveAttribute('width', '24')
-      expect(svg).toHaveAttribute('height', '24')
-    })
-  })
+      const svg = screen.getByRole("button").querySelector("svg");
+      expect(svg).toHaveAttribute("width", "24");
+      expect(svg).toHaveAttribute("height", "24");
+    });
+  });
 
   // ==========================================================================
   // Badge Tests
   // ==========================================================================
 
-  describe('badge', () => {
-    it('should not show badge when unread count is 0', () => {
-      setupMockStore({ unreadCounts: { total: 0 } })
+  describe("badge", () => {
+    it("should not show badge when unread count is 0", () => {
+      setupMockStore({ unreadCounts: { total: 0 } });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const badge = screen.queryByText('0')
-      expect(badge).not.toBeInTheDocument()
-    })
+      const badge = screen.queryByText("0");
+      expect(badge).not.toBeInTheDocument();
+    });
 
-    it('should show badge with unread count', () => {
-      setupMockStore({ unreadCounts: { total: 5 } })
+    it("should show badge with unread count", () => {
+      setupMockStore({ unreadCounts: { total: 5 } });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      expect(screen.getByText('5')).toBeInTheDocument()
-    })
+      expect(screen.getByText("5")).toBeInTheDocument();
+    });
 
     it('should show "99+" for counts over max', () => {
-      setupMockStore({ unreadCounts: { total: 150 } })
+      setupMockStore({ unreadCounts: { total: 150 } });
 
-      render(<NotificationBell maxBadgeCount={99} />)
+      render(<NotificationBell maxBadgeCount={99} />);
 
-      expect(screen.getByText('99+')).toBeInTheDocument()
-    })
+      expect(screen.getByText("99+")).toBeInTheDocument();
+    });
 
-    it('should respect custom maxBadgeCount', () => {
-      setupMockStore({ unreadCounts: { total: 50 } })
+    it("should respect custom maxBadgeCount", () => {
+      setupMockStore({ unreadCounts: { total: 50 } });
 
-      render(<NotificationBell maxBadgeCount={40} />)
+      render(<NotificationBell maxBadgeCount={40} />);
 
-      expect(screen.getByText('40+')).toBeInTheDocument()
-    })
+      expect(screen.getByText("40+")).toBeInTheDocument();
+    });
 
-    it('should hide badge when showBadge is false', () => {
-      setupMockStore({ unreadCounts: { total: 5 } })
+    it("should hide badge when showBadge is false", () => {
+      setupMockStore({ unreadCounts: { total: 5 } });
 
-      render(<NotificationBell showBadge={false} />)
+      render(<NotificationBell showBadge={false} />);
 
-      expect(screen.queryByText('5')).not.toBeInTheDocument()
-    })
+      expect(screen.queryByText("5")).not.toBeInTheDocument();
+    });
 
-    it('should show exact count when under max', () => {
-      setupMockStore({ unreadCounts: { total: 42 } })
+    it("should show exact count when under max", () => {
+      setupMockStore({ unreadCounts: { total: 42 } });
 
-      render(<NotificationBell maxBadgeCount={99} />)
+      render(<NotificationBell maxBadgeCount={99} />);
 
-      expect(screen.getByText('42')).toBeInTheDocument()
-    })
+      expect(screen.getByText("42")).toBeInTheDocument();
+    });
 
-    it('should have badge styling', () => {
-      setupMockStore({ unreadCounts: { total: 5 } })
+    it("should have badge styling", () => {
+      setupMockStore({ unreadCounts: { total: 5 } });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const badge = screen.getByText('5')
-      expect(badge).toHaveClass('bg-destructive')
-      expect(badge).toHaveClass('rounded-full')
-    })
-  })
+      const badge = screen.getByText("5");
+      expect(badge).toHaveClass("bg-destructive");
+      expect(badge).toHaveClass("rounded-full");
+    });
+  });
 
   // ==========================================================================
   // Click Interaction Tests
   // ==========================================================================
 
-  describe('click interaction', () => {
-    it('should call toggleNotificationCenter on click', () => {
-      const state = setupMockStore()
+  describe("click interaction", () => {
+    it("should call toggleNotificationCenter on click", () => {
+      const state = setupMockStore();
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      fireEvent.click(screen.getByRole('button'))
+      fireEvent.click(screen.getByRole("button"));
 
-      expect(state.toggleNotificationCenter).toHaveBeenCalled()
-    })
+      expect(state.toggleNotificationCenter).toHaveBeenCalled();
+    });
 
-    it('should call custom onClick handler', () => {
-      setupMockStore()
-      const onClick = jest.fn()
+    it("should call custom onClick handler", () => {
+      setupMockStore();
+      const onClick = jest.fn();
 
-      render(<NotificationBell onClick={onClick} />)
+      render(<NotificationBell onClick={onClick} />);
 
-      fireEvent.click(screen.getByRole('button'))
+      fireEvent.click(screen.getByRole("button"));
 
-      expect(onClick).toHaveBeenCalled()
-    })
+      expect(onClick).toHaveBeenCalled();
+    });
 
-    it('should call both toggleNotificationCenter and onClick', () => {
-      const state = setupMockStore()
-      const onClick = jest.fn()
+    it("should call both toggleNotificationCenter and onClick", () => {
+      const state = setupMockStore();
+      const onClick = jest.fn();
 
-      render(<NotificationBell onClick={onClick} />)
+      render(<NotificationBell onClick={onClick} />);
 
-      fireEvent.click(screen.getByRole('button'))
+      fireEvent.click(screen.getByRole("button"));
 
-      expect(state.toggleNotificationCenter).toHaveBeenCalled()
-      expect(onClick).toHaveBeenCalled()
-    })
+      expect(state.toggleNotificationCenter).toHaveBeenCalled();
+      expect(onClick).toHaveBeenCalled();
+    });
 
-    it('should pass click event to onClick handler', () => {
-      setupMockStore()
-      const onClick = jest.fn()
+    it("should pass click event to onClick handler", () => {
+      setupMockStore();
+      const onClick = jest.fn();
 
-      render(<NotificationBell onClick={onClick} />)
+      render(<NotificationBell onClick={onClick} />);
 
-      fireEvent.click(screen.getByRole('button'))
+      fireEvent.click(screen.getByRole("button"));
 
-      expect(onClick).toHaveBeenCalledWith(expect.any(Object))
-    })
-  })
+      expect(onClick).toHaveBeenCalledWith(expect.any(Object));
+    });
+  });
 
   // ==========================================================================
   // Animation Tests
   // ==========================================================================
 
-  describe('animation', () => {
-    it('should animate when hasNewNotifications and unread > 0', () => {
+  describe("animation", () => {
+    it("should animate when hasNewNotifications and unread > 0", () => {
       setupMockStore({
         hasNewNotifications: true,
         unreadCounts: { total: 5 },
-      })
+      });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button')
-      expect(button).toHaveClass('animate-wiggle')
-    })
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("animate-wiggle");
+    });
 
-    it('should not animate when hasNewNotifications but unread is 0', () => {
+    it("should not animate when hasNewNotifications but unread is 0", () => {
       setupMockStore({
         hasNewNotifications: true,
         unreadCounts: { total: 0 },
-      })
+      });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button')
-      expect(button).not.toHaveClass('animate-wiggle')
-    })
+      const button = screen.getByRole("button");
+      expect(button).not.toHaveClass("animate-wiggle");
+    });
 
-    it('should not animate when unread > 0 but hasNewNotifications is false', () => {
+    it("should not animate when unread > 0 but hasNewNotifications is false", () => {
       setupMockStore({
         hasNewNotifications: false,
         unreadCounts: { total: 5 },
-      })
+      });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button')
-      expect(button).not.toHaveClass('animate-wiggle')
-    })
+      const button = screen.getByRole("button");
+      expect(button).not.toHaveClass("animate-wiggle");
+    });
 
-    it('should not animate when animateOnNew is false', () => {
+    it("should not animate when animateOnNew is false", () => {
       setupMockStore({
         hasNewNotifications: true,
         unreadCounts: { total: 5 },
-      })
+      });
 
-      render(<NotificationBell animateOnNew={false} />)
+      render(<NotificationBell animateOnNew={false} />);
 
-      const button = screen.getByRole('button')
-      expect(button).not.toHaveClass('animate-wiggle')
-    })
+      const button = screen.getByRole("button");
+      expect(button).not.toHaveClass("animate-wiggle");
+    });
 
-    it('should pulse badge when animating', () => {
+    it("should pulse badge when animating", () => {
       setupMockStore({
         hasNewNotifications: true,
         unreadCounts: { total: 5 },
-      })
+      });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const badge = screen.getByText('5')
-      expect(badge).toHaveClass('animate-pulse')
-    })
-  })
+      const badge = screen.getByText("5");
+      expect(badge).toHaveClass("animate-pulse");
+    });
+  });
 
   // ==========================================================================
   // Accessibility Tests
   // ==========================================================================
 
-  describe('accessibility', () => {
-    it('should have accessible label', () => {
-      setupMockStore()
+  describe("accessibility", () => {
+    it("should have accessible label", () => {
+      setupMockStore();
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button', { name: /notifications/i })
-      expect(button).toBeInTheDocument()
-    })
+      const button = screen.getByRole("button", { name: /notifications/i });
+      expect(button).toBeInTheDocument();
+    });
 
-    it('should include unread count in label', () => {
-      setupMockStore({ unreadCounts: { total: 5 } })
+    it("should include unread count in label", () => {
+      setupMockStore({ unreadCounts: { total: 5 } });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button', { name: /notifications.*5 unread/i })
-      expect(button).toBeInTheDocument()
-    })
+      const button = screen.getByRole("button", {
+        name: /notifications.*5 unread/i,
+      });
+      expect(button).toBeInTheDocument();
+    });
 
-    it('should have aria-expanded attribute', () => {
-      setupMockStore({ notificationCenterOpen: false })
+    it("should have aria-expanded attribute", () => {
+      setupMockStore({ notificationCenterOpen: false });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button')
-      expect(button).toHaveAttribute('aria-expanded', 'false')
-    })
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("aria-expanded", "false");
+    });
 
-    it('should update aria-expanded when panel is open', () => {
-      setupMockStore({ notificationCenterOpen: true })
+    it("should update aria-expanded when panel is open", () => {
+      setupMockStore({ notificationCenterOpen: true });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button')
-      expect(button).toHaveAttribute('aria-expanded', 'true')
-    })
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("aria-expanded", "true");
+    });
 
-    it('should have aria-haspopup attribute', () => {
-      setupMockStore()
+    it("should have aria-haspopup attribute", () => {
+      setupMockStore();
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const button = screen.getByRole('button')
-      expect(button).toHaveAttribute('aria-haspopup', 'true')
-    })
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("aria-haspopup", "true");
+    });
 
-    it('should hide icon from screen readers', () => {
-      setupMockStore()
+    it("should hide icon from screen readers", () => {
+      setupMockStore();
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const svg = screen.getByRole('button').querySelector('svg')
-      expect(svg).toHaveAttribute('aria-hidden', 'true')
-    })
+      const svg = screen.getByRole("button").querySelector("svg");
+      expect(svg).toHaveAttribute("aria-hidden", "true");
+    });
 
-    it('should hide badge from screen readers', () => {
-      setupMockStore({ unreadCounts: { total: 5 } })
+    it("should hide badge from screen readers", () => {
+      setupMockStore({ unreadCounts: { total: 5 } });
 
-      render(<NotificationBell />)
+      render(<NotificationBell />);
 
-      const badge = screen.getByText('5')
-      expect(badge).toHaveAttribute('aria-hidden', 'true')
-    })
-  })
+      const badge = screen.getByText("5");
+      expect(badge).toHaveAttribute("aria-hidden", "true");
+    });
+  });
 
   // ==========================================================================
   // Props Forwarding Tests
   // ==========================================================================
 
-  describe('props forwarding', () => {
-    it('should forward additional button props', () => {
-      setupMockStore()
+  describe("props forwarding", () => {
+    it("should forward additional button props", () => {
+      setupMockStore();
 
-      render(<NotificationBell data-testid="bell-button" />)
+      render(<NotificationBell data-testid="bell-button" />);
 
-      expect(screen.getByTestId('bell-button')).toBeInTheDocument()
-    })
+      expect(screen.getByTestId("bell-button")).toBeInTheDocument();
+    });
 
-    it('should forward disabled prop', () => {
-      setupMockStore()
+    it("should forward disabled prop", () => {
+      setupMockStore();
 
-      render(<NotificationBell disabled />)
+      render(<NotificationBell disabled />);
 
-      const button = screen.getByRole('button')
-      expect(button).toBeDisabled()
-    })
+      const button = screen.getByRole("button");
+      expect(button).toBeDisabled();
+    });
 
-    it('should forward type prop', () => {
-      setupMockStore()
+    it("should forward type prop", () => {
+      setupMockStore();
 
-      render(<NotificationBell type="submit" />)
+      render(<NotificationBell type="submit" />);
 
-      const button = screen.getByRole('button')
-      expect(button).toHaveAttribute('type', 'submit')
-    })
-  })
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("type", "submit");
+    });
+  });
 
   // ==========================================================================
   // Display Name Test
   // ==========================================================================
 
-  describe('displayName', () => {
-    it('should have displayName', () => {
-      expect(NotificationBell.displayName).toBe('NotificationBell')
-    })
-  })
-})
+  describe("displayName", () => {
+    it("should have displayName", () => {
+      expect(NotificationBell.displayName).toBe("NotificationBell");
+    });
+  });
+});

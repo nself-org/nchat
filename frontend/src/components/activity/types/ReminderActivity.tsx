@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * ReminderActivity Component
@@ -6,36 +6,40 @@
  * Displays a reminder due activity
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { ActivityDate } from '../ActivityDate'
-import { ActivityIcon } from '../ActivityIcon'
-import type { ReminderDueActivity } from '@/lib/activity/activity-types'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ActivityDate } from "../ActivityDate";
+import { ActivityIcon } from "../ActivityIcon";
+import type { ReminderDueActivity } from "@/lib/activity/activity-types";
 
 interface ReminderActivityProps {
-  activity: ReminderDueActivity
-  onClick?: () => void
-  className?: string
+  activity: ReminderDueActivity;
+  onClick?: () => void;
+  className?: string;
 }
 
-export function ReminderActivity({ activity, onClick, className }: ReminderActivityProps) {
-  const { reminderText, message, channel, isRead, createdAt } = activity
+export function ReminderActivity({
+  activity,
+  onClick,
+  className,
+}: ReminderActivityProps) {
+  const { reminderText, message, channel, isRead, createdAt } = activity;
 
   return (
     <div
       className={cn(
-        'group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors',
-        'hover:bg-muted/50',
-        !isRead && 'bg-amber-50 dark:bg-amber-950/30',
-        className
+        "group relative flex cursor-pointer gap-3 rounded-lg p-3 transition-colors",
+        "hover:bg-muted/50",
+        !isRead && "bg-amber-50 dark:bg-amber-950/30",
+        className,
       )}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
         }
       }}
     >
@@ -55,8 +59,8 @@ export function ReminderActivity({ activity, onClick, className }: ReminderActiv
             <div className="flex items-center gap-2">
               <p
                 className={cn(
-                  'text-sm font-medium',
-                  !isRead && 'text-amber-700 dark:text-amber-300'
+                  "text-sm font-medium",
+                  !isRead && "text-amber-700 dark:text-amber-300",
                 )}
               >
                 Reminder
@@ -90,7 +94,7 @@ export function ReminderActivity({ activity, onClick, className }: ReminderActiv
               <button
                 type="button"
                 onClick={(e) => {
-                  e.stopPropagation()
+                  e.stopPropagation();
                   // Handle mark complete
                 }}
                 className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
@@ -100,7 +104,7 @@ export function ReminderActivity({ activity, onClick, className }: ReminderActiv
               <button
                 type="button"
                 onClick={(e) => {
-                  e.stopPropagation()
+                  e.stopPropagation();
                   // Handle snooze
                 }}
                 className="hover:bg-muted/80 rounded bg-muted px-2 py-1 text-xs font-medium text-muted-foreground transition-colors"
@@ -115,7 +119,7 @@ export function ReminderActivity({ activity, onClick, className }: ReminderActiv
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ReminderActivity
+export default ReminderActivity;

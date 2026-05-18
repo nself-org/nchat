@@ -3,10 +3,10 @@
  * Automatically welcome new members to your channels
  */
 
-import { bot, command } from '@/lib/bots'
-import type { CommandContext, BotApi, BotResponse } from '@/lib/bots'
-import { response, embed, error, success } from '@/lib/bots'
-import { handleUserJoin, handleUserLeave } from './handlers'
+import { bot, command } from "@/lib/bots";
+import type { CommandContext, BotApi, BotResponse } from "@/lib/bots";
+import { response, embed, error, success } from "@/lib/bots";
+import { handleUserJoin, handleUserLeave } from "./handlers";
 import {
   getChannelTemplate,
   setChannelTemplate,
@@ -20,10 +20,10 @@ import {
   importTemplates,
   PRESET_TEMPLATES,
   type WelcomeTemplate,
-} from './templates'
-import manifest from './manifest.json'
+} from "./templates";
+import manifest from "./manifest.json";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // COMMAND HANDLERS
@@ -32,23 +32,26 @@ import { logger } from '@/lib/logger'
 /**
  * /setwelcome command handler
  */
-const setWelcomeCommand = async (ctx: CommandContext, api: BotApi): Promise<BotResponse> => {
-  const message = ctx.args.message as string
+const setWelcomeCommand = async (
+  ctx: CommandContext,
+  api: BotApi,
+): Promise<BotResponse> => {
+  const message = ctx.args.message as string;
 
   if (!message) {
     return error(
-      'Missing message',
+      "Missing message",
       'Usage: `/setwelcome "Your welcome message"`\n\n' +
-        '**Variables:**\n' +
-        '`{user}` - Username\n' +
-        '`{channel}` - Channel name\n' +
-        '`{memberCount}` - Member number\n' +
-        '`{date}` - Current date\n' +
-        '`{time}` - Current time'
-    )
+        "**Variables:**\n" +
+        "`{user}` - Username\n" +
+        "`{channel}` - Channel name\n" +
+        "`{memberCount}` - Member number\n" +
+        "`{date}` - Current date\n" +
+        "`{time}` - Current time",
+    );
   }
 
-  const config = api.getBotConfig()
+  const config = api.getBotConfig();
 
   setChannelTemplate(ctx.channel.id, {
     message,
@@ -56,25 +59,28 @@ const setWelcomeCommand = async (ctx: CommandContext, api: BotApi): Promise<BotR
     mentionUser: (config.settings?.mention_user as boolean) !== false,
     showMemberCount: (config.settings?.show_member_count as boolean) !== false,
     delaySeconds: (config.settings?.delay_seconds as number) || 2,
-  })
+  });
 
   return success(
-    'Welcome message set!',
-    `New users joining #${ctx.channel.name} will see this message.`
-  )
-}
+    "Welcome message set!",
+    `New users joining #${ctx.channel.name} will see this message.`,
+  );
+};
 
 /**
  * /testwelcome command handler
  */
-const testWelcomeCommand = async (ctx: CommandContext, api: BotApi): Promise<BotResponse> => {
-  const template = getChannelTemplate(ctx.channel.id)
-  const config = api.getBotConfig()
+const testWelcomeCommand = async (
+  ctx: CommandContext,
+  api: BotApi,
+): Promise<BotResponse> => {
+  const template = getChannelTemplate(ctx.channel.id);
+  const config = api.getBotConfig();
 
   const message =
     template?.message ||
     (config.settings?.default_message as string) ||
-    getDefaultTemplate().message
+    getDefaultTemplate().message;
 
   const variables = createWelcomeVariables(
     {
@@ -84,72 +90,93 @@ const testWelcomeCommand = async (ctx: CommandContext, api: BotApi): Promise<Bot
       avatarUrl: ctx.user.avatarUrl,
     },
     ctx.channel.name,
-    42 // Example member count
-  )
+    42, // Example member count
+  );
 
   const welcomeEmbed = buildWelcomeEmbed(message, variables, {
-    mentionUser: template?.mentionUser ?? (config.settings?.mention_user as boolean) !== false,
+    mentionUser:
+      template?.mentionUser ??
+      (config.settings?.mention_user as boolean) !== false,
     showMemberCount:
-      template?.showMemberCount ?? (config.settings?.show_member_count as boolean) !== false,
+      template?.showMemberCount ??
+      (config.settings?.show_member_count as boolean) !== false,
     avatarUrl: ctx.user.avatarUrl,
     showAvatar: !!ctx.user.avatarUrl,
-  })
+  });
 
-  return response().text('**Preview of welcome message:**').embed(welcomeEmbed).build()
-}
+  return response()
+    .text("**Preview of welcome message:**")
+    .embed(welcomeEmbed)
+    .build();
+};
 
 /**
  * /disablewelcome command handler
  */
-const disableWelcomeCommand = async (ctx: CommandContext, api: BotApi): Promise<BotResponse> => {
-  const template = getChannelTemplate(ctx.channel.id)
+const disableWelcomeCommand = async (
+  ctx: CommandContext,
+  api: BotApi,
+): Promise<BotResponse> => {
+  const template = getChannelTemplate(ctx.channel.id);
 
   if (template) {
-    setChannelTemplate(ctx.channel.id, { enabled: false })
+    setChannelTemplate(ctx.channel.id, { enabled: false });
   } else {
-    setChannelTemplate(ctx.channel.id, { ...getDefaultTemplate(), enabled: false })
+    setChannelTemplate(ctx.channel.id, {
+      ...getDefaultTemplate(),
+      enabled: false,
+    });
   }
 
   return success(
-    'Welcome messages disabled',
-    `Welcome messages are now disabled for #${ctx.channel.name}`
-  )
-}
+    "Welcome messages disabled",
+    `Welcome messages are now disabled for #${ctx.channel.name}`,
+  );
+};
 
 /**
  * /enablewelcome command handler
  */
-const enableWelcomeCommand = async (ctx: CommandContext, api: BotApi): Promise<BotResponse> => {
-  const template = getChannelTemplate(ctx.channel.id)
+const enableWelcomeCommand = async (
+  ctx: CommandContext,
+  api: BotApi,
+): Promise<BotResponse> => {
+  const template = getChannelTemplate(ctx.channel.id);
 
   if (template) {
-    setChannelTemplate(ctx.channel.id, { enabled: true })
+    setChannelTemplate(ctx.channel.id, { enabled: true });
   } else {
-    setChannelTemplate(ctx.channel.id, { ...getDefaultTemplate(), enabled: true })
+    setChannelTemplate(ctx.channel.id, {
+      ...getDefaultTemplate(),
+      enabled: true,
+    });
   }
 
   return success(
-    'Welcome messages enabled',
-    `Welcome messages are now enabled for #${ctx.channel.name}`
-  )
-}
+    "Welcome messages enabled",
+    `Welcome messages are now enabled for #${ctx.channel.name}`,
+  );
+};
 
 /**
  * /welcomestats command handler
  */
-const welcomeStatsCommand = async (ctx: CommandContext, api: BotApi): Promise<BotResponse> => {
-  const stats = formatStats()
+const welcomeStatsCommand = async (
+  ctx: CommandContext,
+  api: BotApi,
+): Promise<BotResponse> => {
+  const stats = formatStats();
 
   return response()
     .embed(
       embed()
-        .title(':bar_chart: Welcome Bot Statistics')
+        .title(":bar_chart: Welcome Bot Statistics")
         .description(stats)
-        .color('#6366F1')
-        .timestamp()
+        .color("#6366F1")
+        .timestamp(),
     )
-    .build()
-}
+    .build();
+};
 
 // ============================================================================
 // BOT FACTORY
@@ -166,38 +193,52 @@ export function createWelcomeBot() {
       .version(manifest.version)
       .author(manifest.author)
       .icon(manifest.icon)
-      .permissions('read_messages', 'send_messages', 'read_channels', 'read_users', 'mention_users')
+      .permissions(
+        "read_messages",
+        "send_messages",
+        "read_channels",
+        "read_users",
+        "mention_users",
+      )
 
       // Register commands
       .command(
-        command('setwelcome')
-          .description('Set a custom welcome message for this channel')
-          .stringArg('message', 'The welcome message (use {user}, {channel}, etc.)', true)
+        command("setwelcome")
+          .description("Set a custom welcome message for this channel")
+          .stringArg(
+            "message",
+            "The welcome message (use {user}, {channel}, etc.)",
+            true,
+          )
           .example(
             '/setwelcome "Welcome to #{channel}, {user}! Please read the rules."',
-            '/setwelcome "Hey {user}! Glad to have you here!"'
+            '/setwelcome "Hey {user}! Glad to have you here!"',
           ),
-        setWelcomeCommand
+        setWelcomeCommand,
       )
       .command(
-        command('testwelcome').description('Preview the welcome message').example('/testwelcome'),
-        testWelcomeCommand
+        command("testwelcome")
+          .description("Preview the welcome message")
+          .example("/testwelcome"),
+        testWelcomeCommand,
       )
       .command(
-        command('disablewelcome')
-          .description('Disable welcome messages for this channel')
-          .example('/disablewelcome'),
-        disableWelcomeCommand
+        command("disablewelcome")
+          .description("Disable welcome messages for this channel")
+          .example("/disablewelcome"),
+        disableWelcomeCommand,
       )
       .command(
-        command('enablewelcome')
-          .description('Enable welcome messages for this channel')
-          .example('/enablewelcome'),
-        enableWelcomeCommand
+        command("enablewelcome")
+          .description("Enable welcome messages for this channel")
+          .example("/enablewelcome"),
+        enableWelcomeCommand,
       )
       .command(
-        command('welcomestats').description('Show welcome statistics').example('/welcomestats'),
-        welcomeStatsCommand
+        command("welcomestats")
+          .description("Show welcome statistics")
+          .example("/welcomestats"),
+        welcomeStatsCommand,
       )
 
       // Register event handlers
@@ -208,9 +249,10 @@ export function createWelcomeBot() {
       .onInit(async (instance, api) => {
         // Try to load saved templates from storage
         try {
-          const savedTemplates = await api.getStorage<Record<string, WelcomeTemplate>>('templates')
+          const savedTemplates =
+            await api.getStorage<Record<string, WelcomeTemplate>>("templates");
           if (savedTemplates) {
-            importTemplates(savedTemplates)
+            importTemplates(savedTemplates);
           }
         } catch (error) {}
 
@@ -218,27 +260,27 @@ export function createWelcomeBot() {
         const saveInterval = setInterval(
           async () => {
             try {
-              const templates = exportTemplates()
+              const templates = exportTemplates();
               if (Object.keys(templates).length > 0) {
-                await api.setStorage('templates', templates)
+                await api.setStorage("templates", templates);
               }
             } catch (error) {
-              logger.error(`[WelcomeBot] Failed to save templates:`, error)
+              logger.error(`[WelcomeBot] Failed to save templates:`, error);
             }
           },
-          5 * 60 * 1000
-        ) // Every 5 minutes
+          5 * 60 * 1000,
+        ); // Every 5 minutes
       })
 
       .build()
-  )
+  );
 }
 
 // Export the bot factory
-export default createWelcomeBot
+export default createWelcomeBot;
 
 // Export manifest for external use
-export { manifest }
+export { manifest };
 
 // Re-export for testing
 export {
@@ -247,7 +289,7 @@ export {
   disableWelcomeCommand,
   enableWelcomeCommand,
   welcomeStatsCommand,
-}
+};
 
 // Re-export templates
 export {
@@ -258,7 +300,7 @@ export {
   processTemplate,
   PRESET_TEMPLATES,
   formatStats,
-}
+};
 
 // Re-export handlers
-export { handleUserJoin, handleUserLeave }
+export { handleUserJoin, handleUserLeave };

@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { ChevronRight, Activity } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { ChannelCard } from './ChannelCard'
-import type { Channel } from '@/stores/channel-store'
-import { getRecentlyActiveChannels } from '@/lib/channels/channel-discovery'
-import { formatTimeAgo } from '@/lib/channels/channel-stats'
+import * as React from "react";
+import { ChevronRight, Activity } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ChannelCard } from "./ChannelCard";
+import type { Channel } from "@/stores/channel-store";
+import { getRecentlyActiveChannels } from "@/lib/channels/channel-discovery";
+import { formatTimeAgo } from "@/lib/channels/channel-stats";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface RecentChannelsProps {
-  channels: Channel[]
-  joinedChannelIds?: Set<string>
-  limit?: number
-  showViewAll?: boolean
-  layout?: 'scroll' | 'grid' | 'list'
-  onViewAll?: () => void
-  onJoin?: (channelId: string) => void
-  onLeave?: (channelId: string) => void
-  className?: string
+  channels: Channel[];
+  joinedChannelIds?: Set<string>;
+  limit?: number;
+  showViewAll?: boolean;
+  layout?: "scroll" | "grid" | "list";
+  onViewAll?: () => void;
+  onJoin?: (channelId: string) => void;
+  onLeave?: (channelId: string) => void;
+  className?: string;
 }
 
 // ============================================================================
@@ -35,7 +35,7 @@ export function RecentChannels({
   joinedChannelIds = new Set(),
   limit = 10,
   showViewAll = true,
-  layout = 'scroll',
+  layout = "scroll",
   onViewAll,
   onJoin,
   onLeave,
@@ -43,15 +43,15 @@ export function RecentChannels({
 }: RecentChannelsProps) {
   const recentChannels = React.useMemo(
     () => getRecentlyActiveChannels(channels, limit),
-    [channels, limit]
-  )
+    [channels, limit],
+  );
 
   if (recentChannels.length === 0) {
-    return null
+    return null;
   }
 
   const renderChannels = () => {
-    if (layout === 'list') {
+    if (layout === "list") {
       return (
         <div className="space-y-2">
           {recentChannels.map((channel) => (
@@ -73,10 +73,10 @@ export function RecentChannels({
             </div>
           ))}
         </div>
-      )
+      );
     }
 
-    if (layout === 'grid') {
+    if (layout === "grid") {
       return (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {recentChannels.map((channel) => (
@@ -90,7 +90,7 @@ export function RecentChannels({
             />
           ))}
         </div>
-      )
+      );
     }
 
     // Default: scroll layout
@@ -111,11 +111,11 @@ export function RecentChannels({
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-    )
-  }
+    );
+  };
 
   return (
-    <section className={cn('space-y-4', className)}>
+    <section className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Activity className="h-5 w-5 text-green-500" />
@@ -131,7 +131,7 @@ export function RecentChannels({
 
       {renderChannels()}
     </section>
-  )
+  );
 }
 
-RecentChannels.displayName = 'RecentChannels'
+RecentChannels.displayName = "RecentChannels";

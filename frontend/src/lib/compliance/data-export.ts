@@ -17,40 +17,68 @@ import type {
   ExportedActivity,
   ExportedSettings,
   ExportedConsent,
-} from './compliance-types'
+} from "./compliance-types";
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 export const EXPORT_CATEGORIES: {
-  category: ExportDataCategory
-  label: string
-  description: string
+  category: ExportDataCategory;
+  label: string;
+  description: string;
 }[] = [
-  { category: 'profile', label: 'Profile', description: 'Your account information and settings' },
-  { category: 'messages', label: 'Messages', description: 'All messages you have sent' },
-  { category: 'files', label: 'Files', description: 'Files you have uploaded' },
-  { category: 'reactions', label: 'Reactions', description: 'Your emoji reactions' },
-  { category: 'activity', label: 'Activity', description: 'Your login and activity history' },
-  { category: 'settings', label: 'Settings', description: 'Your preferences and configurations' },
-  { category: 'consents', label: 'Consents', description: 'Your consent history' },
-  { category: 'all', label: 'Everything', description: 'All available data' },
-]
+  {
+    category: "profile",
+    label: "Profile",
+    description: "Your account information and settings",
+  },
+  {
+    category: "messages",
+    label: "Messages",
+    description: "All messages you have sent",
+  },
+  { category: "files", label: "Files", description: "Files you have uploaded" },
+  {
+    category: "reactions",
+    label: "Reactions",
+    description: "Your emoji reactions",
+  },
+  {
+    category: "activity",
+    label: "Activity",
+    description: "Your login and activity history",
+  },
+  {
+    category: "settings",
+    label: "Settings",
+    description: "Your preferences and configurations",
+  },
+  {
+    category: "consents",
+    label: "Consents",
+    description: "Your consent history",
+  },
+  { category: "all", label: "Everything", description: "All available data" },
+];
 
 export const EXPORT_FORMATS: {
-  format: ExportFormat
-  label: string
-  description: string
+  format: ExportFormat;
+  label: string;
+  description: string;
 }[] = [
-  { format: 'json', label: 'JSON', description: 'Machine-readable format' },
-  { format: 'csv', label: 'CSV', description: 'Spreadsheet-compatible format' },
-  { format: 'zip', label: 'ZIP Archive', description: 'Compressed archive with all files' },
-]
+  { format: "json", label: "JSON", description: "Machine-readable format" },
+  { format: "csv", label: "CSV", description: "Spreadsheet-compatible format" },
+  {
+    format: "zip",
+    label: "ZIP Archive",
+    description: "Compressed archive with all files",
+  },
+];
 
-export const EXPORT_EXPIRATION_DAYS = 7
-export const MAX_DOWNLOADS_PER_EXPORT = 5
-export const EXPORT_PROCESSING_TIME_ESTIMATE = '24-48 hours'
+export const EXPORT_EXPIRATION_DAYS = 7;
+export const MAX_DOWNLOADS_PER_EXPORT = 5;
+export const EXPORT_PROCESSING_TIME_ESTIMATE = "24-48 hours";
 
 // ============================================================================
 // REQUEST CREATION
@@ -63,25 +91,25 @@ export function createExportRequest(
   userId: string,
   userEmail: string,
   options: {
-    categories?: ExportDataCategory[]
-    format?: ExportFormat
-    includeMetadata?: boolean
-    dateRangeStart?: Date
-    dateRangeEnd?: Date
-    ipAddress?: string
-  } = {}
+    categories?: ExportDataCategory[];
+    format?: ExportFormat;
+    includeMetadata?: boolean;
+    dateRangeStart?: Date;
+    dateRangeEnd?: Date;
+    ipAddress?: string;
+  } = {},
 ): DataExportRequest {
-  const now = new Date()
-  const expiresAt = new Date(now)
-  expiresAt.setDate(expiresAt.getDate() + EXPORT_EXPIRATION_DAYS)
+  const now = new Date();
+  const expiresAt = new Date(now);
+  expiresAt.setDate(expiresAt.getDate() + EXPORT_EXPIRATION_DAYS);
 
   return {
     id: crypto.randomUUID(),
     userId,
     userEmail,
-    status: 'pending',
-    categories: options.categories || ['all'],
-    format: options.format || 'zip',
+    status: "pending",
+    categories: options.categories || ["all"],
+    format: options.format || "zip",
     includeMetadata: options.includeMetadata ?? true,
     dateRangeStart: options.dateRangeStart,
     dateRangeEnd: options.dateRangeEnd,
@@ -91,7 +119,7 @@ export function createExportRequest(
     maxDownloads: MAX_DOWNLOADS_PER_EXPORT,
     ipAddress: options.ipAddress,
     verifiedIdentity: false,
-  }
+  };
 }
 
 // ============================================================================
@@ -99,51 +127,53 @@ export function createExportRequest(
 // ============================================================================
 
 export interface ExportValidationResult {
-  valid: boolean
-  errors: string[]
-  warnings: string[]
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
 }
 
 /**
  * Validate an export request
  */
-export function validateExportRequest(request: Partial<DataExportRequest>): ExportValidationResult {
-  const errors: string[] = []
-  const warnings: string[] = []
+export function validateExportRequest(
+  request: Partial<DataExportRequest>,
+): ExportValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
 
   if (!request.userId) {
-    errors.push('User ID is required')
+    errors.push("User ID is required");
   }
 
   if (!request.userEmail) {
-    errors.push('User email is required')
+    errors.push("User email is required");
   }
 
   if (!request.categories || request.categories.length === 0) {
-    errors.push('At least one data category must be selected')
+    errors.push("At least one data category must be selected");
   }
 
   if (request.dateRangeStart && request.dateRangeEnd) {
     if (request.dateRangeStart > request.dateRangeEnd) {
-      errors.push('Start date must be before end date')
+      errors.push("Start date must be before end date");
     }
 
-    const oneYearAgo = new Date()
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
     if (request.dateRangeStart < oneYearAgo) {
-      warnings.push('Exporting data older than 1 year may take longer')
+      warnings.push("Exporting data older than 1 year may take longer");
     }
   }
 
-  if (request.categories?.includes('all') && request.categories.length > 1) {
-    warnings.push('"Everything" category includes all other categories')
+  if (request.categories?.includes("all") && request.categories.length > 1) {
+    warnings.push('"Everything" category includes all other categories');
   }
 
   return {
     valid: errors.length === 0,
     errors,
     warnings,
-  }
+  };
 }
 
 /**
@@ -151,35 +181,37 @@ export function validateExportRequest(request: Partial<DataExportRequest>): Expo
  */
 export function canRequestExport(
   existingRequests: DataExportRequest[],
-  userId: string
+  userId: string,
 ): { allowed: boolean; reason?: string } {
   const pendingRequests = existingRequests.filter(
-    (r) => r.userId === userId && ['pending', 'processing'].includes(r.status)
-  )
+    (r) => r.userId === userId && ["pending", "processing"].includes(r.status),
+  );
 
   if (pendingRequests.length > 0) {
     return {
       allowed: false,
-      reason: 'You already have a pending export request. Please wait for it to complete.',
-    }
+      reason:
+        "You already have a pending export request. Please wait for it to complete.",
+    };
   }
 
   // Check rate limiting (max 1 request per day)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const recentRequests = existingRequests.filter(
-    (r) => r.userId === userId && new Date(r.requestedAt) >= today
-  )
+    (r) => r.userId === userId && new Date(r.requestedAt) >= today,
+  );
 
   if (recentRequests.length >= 1) {
     return {
       allowed: false,
-      reason: 'You can only request one export per day. Please try again tomorrow.',
-    }
+      reason:
+        "You can only request one export per day. Please try again tomorrow.",
+    };
   }
 
-  return { allowed: true }
+  return { allowed: true };
 }
 
 // ============================================================================
@@ -190,80 +222,80 @@ export function canRequestExport(
  * Get human-readable status information
  */
 export function getExportStatusInfo(status: ExportRequestStatus): {
-  label: string
-  description: string
-  color: string
-  icon: string
+  label: string;
+  description: string;
+  color: string;
+  icon: string;
 } {
   const statusMap: Record<
     ExportRequestStatus,
     { label: string; description: string; color: string; icon: string }
   > = {
     pending: {
-      label: 'Pending',
-      description: 'Your request is queued for processing',
-      color: 'yellow',
-      icon: 'clock',
+      label: "Pending",
+      description: "Your request is queued for processing",
+      color: "yellow",
+      icon: "clock",
     },
     processing: {
-      label: 'Processing',
-      description: 'Your data is being compiled',
-      color: 'blue',
-      icon: 'loader',
+      label: "Processing",
+      description: "Your data is being compiled",
+      color: "blue",
+      icon: "loader",
     },
     completed: {
-      label: 'Ready',
-      description: 'Your export is ready for download',
-      color: 'green',
-      icon: 'check',
+      label: "Ready",
+      description: "Your export is ready for download",
+      color: "green",
+      icon: "check",
     },
     failed: {
-      label: 'Failed',
-      description: 'Export failed. Please try again.',
-      color: 'red',
-      icon: 'x',
+      label: "Failed",
+      description: "Export failed. Please try again.",
+      color: "red",
+      icon: "x",
     },
     expired: {
-      label: 'Expired',
-      description: 'Download link has expired',
-      color: 'gray',
-      icon: 'clock',
+      label: "Expired",
+      description: "Download link has expired",
+      color: "gray",
+      icon: "clock",
     },
     cancelled: {
-      label: 'Cancelled',
-      description: 'Export request was cancelled',
-      color: 'gray',
-      icon: 'x',
+      label: "Cancelled",
+      description: "Export request was cancelled",
+      color: "gray",
+      icon: "x",
     },
-  }
+  };
 
-  return statusMap[status]
+  return statusMap[status];
 }
 
 /**
  * Check if export is downloadable
  */
 export function isExportDownloadable(request: DataExportRequest): {
-  downloadable: boolean
-  reason?: string
+  downloadable: boolean;
+  reason?: string;
 } {
-  if (request.status !== 'completed') {
-    return { downloadable: false, reason: 'Export is not ready yet' }
+  if (request.status !== "completed") {
+    return { downloadable: false, reason: "Export is not ready yet" };
   }
 
   if (!request.downloadUrl) {
-    return { downloadable: false, reason: 'Download URL not available' }
+    return { downloadable: false, reason: "Download URL not available" };
   }
 
   if (request.expiresAt && new Date() > new Date(request.expiresAt)) {
-    return { downloadable: false, reason: 'Download link has expired' }
+    return { downloadable: false, reason: "Download link has expired" };
   }
 
   if (request.downloadCount >= request.maxDownloads) {
-    return { downloadable: false, reason: 'Maximum download limit reached' }
+    return { downloadable: false, reason: "Maximum download limit reached" };
   }
 
-  return { downloadable: true }
+  return { downloadable: true };
 }
 
 // ============================================================================
@@ -274,18 +306,18 @@ export function isExportDownloadable(request: DataExportRequest): {
  * Format file size for display
  */
 export function formatFileSize(bytes?: number): string {
-  if (!bytes) return 'Unknown size'
+  if (!bytes) return "Unknown size";
 
-  const units = ['B', 'KB', 'MB', 'GB']
-  let size = bytes
-  let unitIndex = 0
+  const units = ["B", "KB", "MB", "GB"];
+  let size = bytes;
+  let unitIndex = 0;
 
   while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024
-    unitIndex++
+    size /= 1024;
+    unitIndex++;
   }
 
-  return `${size.toFixed(1)} ${units[unitIndex]}`
+  return `${size.toFixed(1)} ${units[unitIndex]}`;
 }
 
 /**
@@ -294,7 +326,7 @@ export function formatFileSize(bytes?: number): string {
 export function createEmptyExportedData(
   exportId: string,
   userId: string,
-  categories: ExportDataCategory[]
+  categories: ExportDataCategory[],
 ): ExportedUserData {
   return {
     exportMetadata: {
@@ -303,19 +335,19 @@ export function createEmptyExportedData(
       userId,
       categories,
     },
-  }
+  };
 }
 
 /**
  * Sanitize exported data (remove sensitive internal fields)
  */
 export function sanitizeExportedData(data: ExportedUserData): ExportedUserData {
-  const sanitized = { ...data }
+  const sanitized = { ...data };
 
   // Remove internal IDs and sensitive fields from profile
   if (sanitized.profile) {
-    const { ...safeProfile } = sanitized.profile
-    sanitized.profile = safeProfile
+    const { ...safeProfile } = sanitized.profile;
+    sanitized.profile = safeProfile;
   }
 
   // Remove internal message fields
@@ -329,10 +361,10 @@ export function sanitizeExportedData(data: ExportedUserData): ExportedUserData {
       updatedAt: msg.updatedAt,
       threadId: msg.threadId,
       attachments: msg.attachments,
-    }))
+    }));
   }
 
-  return sanitized
+  return sanitized;
 }
 
 // ============================================================================
@@ -343,15 +375,15 @@ export function sanitizeExportedData(data: ExportedUserData): ExportedUserData {
  * Generate export summary email content
  */
 export function generateExportReadyEmail(request: DataExportRequest): {
-  subject: string
-  body: string
+  subject: string;
+  body: string;
 } {
   const expirationDate = request.expiresAt
     ? new Date(request.expiresAt).toLocaleDateString()
-    : 'N/A'
+    : "N/A";
 
   return {
-    subject: 'Your Data Export is Ready',
+    subject: "Your Data Export is Ready",
     body: `
 Hello,
 
@@ -359,7 +391,7 @@ Your requested data export is now ready for download.
 
 Export Details:
 - Request ID: ${request.id}
-- Categories: ${request.categories.join(', ')}
+- Categories: ${request.categories.join(", ")}
 - Format: ${request.format.toUpperCase()}
 - File Size: ${formatFileSize(request.fileSize)}
 - Available until: ${expirationDate}
@@ -369,7 +401,7 @@ You can download your data from your account settings.
 
 This is an automated message. Please do not reply to this email.
     `.trim(),
-  }
+  };
 }
 
 // ============================================================================
@@ -379,12 +411,14 @@ This is an automated message. Please do not reply to this email.
 /**
  * Generate GDPR-compliant export metadata
  */
-export function generateGDPRMetadata(request: DataExportRequest): Record<string, unknown> {
+export function generateGDPRMetadata(
+  request: DataExportRequest,
+): Record<string, unknown> {
   return {
-    exportType: 'GDPR Article 20 - Right to Data Portability',
+    exportType: "GDPR Article 20 - Right to Data Portability",
     requestedAt: request.requestedAt,
     processedAt: request.processedAt,
-    dataController: 'Your Organization Name', // Should be configured
+    dataController: "Your Organization Name", // Should be configured
     dataSubjectId: request.userId,
     dataSubjectEmail: request.userEmail,
     categoriesIncluded: request.categories,
@@ -394,11 +428,11 @@ export function generateGDPRMetadata(request: DataExportRequest): Record<string,
             from: request.dateRangeStart,
             to: request.dateRangeEnd,
           }
-        : 'All available data',
+        : "All available data",
     format: request.format,
     generatedAt: new Date().toISOString(),
     validUntil: request.expiresAt,
-  }
+  };
 }
 
 // ============================================================================
@@ -421,4 +455,4 @@ export const DataExportService = {
   sanitizeExportedData,
   generateExportReadyEmail,
   generateGDPRMetadata,
-}
+};

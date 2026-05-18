@@ -1,26 +1,41 @@
-'use client'
+"use client";
 
 /**
  * BuiltInCommands - Display list of built-in commands
  */
 
-import { useState, useMemo } from 'react'
-import { Search, ChevronDown, ChevronRight, Info } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { builtInCommands, commandCategories } from '@/lib/slash-commands/built-in-commands'
-import type { CommandCategory, SlashCommand } from '@/lib/slash-commands/command-types'
-import { cn } from '@/lib/utils'
+import { useState, useMemo } from "react";
+import { Search, ChevronDown, ChevronRight, Info } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  builtInCommands,
+  commandCategories,
+} from "@/lib/slash-commands/built-in-commands";
+import type {
+  CommandCategory,
+  SlashCommand,
+} from "@/lib/slash-commands/command-types";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface BuiltInCommandsProps {
-  onSelectCommand?: (command: SlashCommand) => void
+  onSelectCommand?: (command: SlashCommand) => void;
 }
 
 // ============================================================================
@@ -28,24 +43,24 @@ interface BuiltInCommandsProps {
 // ============================================================================
 
 export function BuiltInCommands({ onSelectCommand }: BuiltInCommandsProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(['general', 'channel'])
-  )
+    new Set(["general", "channel"]),
+  );
 
   // Filter commands by search
   const filteredCommands = useMemo(() => {
-    if (!searchQuery) return builtInCommands
+    if (!searchQuery) return builtInCommands;
 
-    const query = searchQuery.toLowerCase()
+    const query = searchQuery.toLowerCase();
     return builtInCommands.filter(
       (cmd) =>
         cmd.trigger.toLowerCase().includes(query) ||
         cmd.name.toLowerCase().includes(query) ||
         cmd.description.toLowerCase().includes(query) ||
-        cmd.aliases?.some((a) => a.toLowerCase().includes(query))
-    )
-  }, [searchQuery])
+        cmd.aliases?.some((a) => a.toLowerCase().includes(query)),
+    );
+  }, [searchQuery]);
 
   // Group by category
   const groupedCommands = useMemo(() => {
@@ -59,32 +74,34 @@ export function BuiltInCommands({ onSelectCommand }: BuiltInCommandsProps) {
       utility: [],
       integration: [],
       custom: [],
-    }
+    };
 
     for (const cmd of filteredCommands) {
-      const category = cmd.category || 'custom'
+      const category = cmd.category || "custom";
       if (groups[category]) {
-        groups[category].push(cmd)
+        groups[category].push(cmd);
       }
     }
 
     // Sort commands within each category
-    Object.values(groups).forEach((cmds) => cmds.sort((a, b) => (a.order || 0) - (b.order || 0)))
+    Object.values(groups).forEach((cmds) =>
+      cmds.sort((a, b) => (a.order || 0) - (b.order || 0)),
+    );
 
-    return groups
-  }, [filteredCommands])
+    return groups;
+  }, [filteredCommands]);
 
   const toggleCategory = (category: string) => {
     setExpandedCategories((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(category)) {
-        next.delete(category)
+        next.delete(category);
       } else {
-        next.add(category)
+        next.add(category);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -110,17 +127,19 @@ export function BuiltInCommands({ onSelectCommand }: BuiltInCommandsProps) {
       {/* Results count */}
       {searchQuery && (
         <p className="text-sm text-muted-foreground">
-          Found {filteredCommands.length} command{filteredCommands.length !== 1 ? 's' : ''}
+          Found {filteredCommands.length} command
+          {filteredCommands.length !== 1 ? "s" : ""}
         </p>
       )}
 
       {/* Command Categories */}
       <div className="space-y-4">
         {Object.entries(groupedCommands).map(([category, commands]) => {
-          if (commands.length === 0) return null
+          if (commands.length === 0) return null;
 
-          const categoryInfo = commandCategories[category as keyof typeof commandCategories]
-          const isExpanded = expandedCategories.has(category)
+          const categoryInfo =
+            commandCategories[category as keyof typeof commandCategories];
+          const isExpanded = expandedCategories.has(category);
 
           return (
             <Collapsible
@@ -139,7 +158,9 @@ export function BuiltInCommands({ onSelectCommand }: BuiltInCommandsProps) {
                     ) : (
                       <ChevronRight className="h-4 w-4" />
                     )}
-                    <span className="font-medium">{categoryInfo?.name || category}</span>
+                    <span className="font-medium">
+                      {categoryInfo?.name || category}
+                    </span>
                     <Badge variant="secondary" className="text-xs">
                       {commands.length}
                     </Badge>
@@ -160,7 +181,7 @@ export function BuiltInCommands({ onSelectCommand }: BuiltInCommandsProps) {
                 </div>
               </CollapsibleContent>
             </Collapsible>
-          )
+          );
         })}
       </div>
 
@@ -174,7 +195,7 @@ export function BuiltInCommands({ onSelectCommand }: BuiltInCommandsProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -182,19 +203,21 @@ export function BuiltInCommands({ onSelectCommand }: BuiltInCommandsProps) {
 // ============================================================================
 
 interface CommandRowProps {
-  command: SlashCommand
-  isLast: boolean
-  onSelect?: (command: SlashCommand) => void
+  command: SlashCommand;
+  isLast: boolean;
+  onSelect?: (command: SlashCommand) => void;
 }
 
 function CommandRow({ command, isLast, onSelect }: CommandRowProps) {
-  const handleClick = () => onSelect?.(command)
+  const handleClick = () => onSelect?.(command);
 
   const rowContent = (
     <>
       {/* Trigger */}
       <div className="w-28 shrink-0">
-        <code className="font-mono text-sm text-primary">/{command.trigger}</code>
+        <code className="font-mono text-sm text-primary">
+          /{command.trigger}
+        </code>
       </div>
 
       {/* Description */}
@@ -202,7 +225,7 @@ function CommandRow({ command, isLast, onSelect }: CommandRowProps) {
         <p className="truncate text-sm">{command.description}</p>
         {command.aliases && command.aliases.length > 0 && (
           <p className="text-xs text-muted-foreground">
-            Aliases: {command.aliases.map((a) => `/${a}`).join(', ')}
+            Aliases: {command.aliases.map((a) => `/${a}`).join(", ")}
           </p>
         )}
       </div>
@@ -211,7 +234,8 @@ function CommandRow({ command, isLast, onSelect }: CommandRowProps) {
       <div className="flex items-center gap-2">
         {command.arguments && command.arguments.length > 0 && (
           <Badge variant="outline" className="text-xs">
-            {command.arguments.length} arg{command.arguments.length !== 1 ? 's' : ''}
+            {command.arguments.length} arg
+            {command.arguments.length !== 1 ? "s" : ""}
           </Badge>
         )}
 
@@ -228,10 +252,12 @@ function CommandRow({ command, isLast, onSelect }: CommandRowProps) {
                 <p className="text-sm text-muted-foreground">
                   {command.helpText || command.description}
                 </p>
-                <code className="block text-xs">{command.usage || `/${command.trigger}`}</code>
+                <code className="block text-xs">
+                  {command.usage || `/${command.trigger}`}
+                </code>
                 <div className="flex gap-2 pt-1">
                   <Badge variant="outline" className="text-xs">
-                    {command.permissions?.minRole || 'member'}+
+                    {command.permissions?.minRole || "member"}+
                   </Badge>
                   {command.permissions?.allowGuests && (
                     <Badge variant="secondary" className="text-xs">
@@ -245,40 +271,40 @@ function CommandRow({ command, isLast, onSelect }: CommandRowProps) {
         </TooltipProvider>
       </div>
     </>
-  )
+  );
 
   if (onSelect) {
     return (
       <div
         className={cn(
-          'hover:bg-muted/30 flex cursor-pointer items-center gap-4 px-4 py-3 transition-colors',
-          !isLast && 'border-b'
+          "hover:bg-muted/30 flex cursor-pointer items-center gap-4 px-4 py-3 transition-colors",
+          !isLast && "border-b",
         )}
         role="button"
         tabIndex={0}
         onClick={handleClick}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleClick()
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
           }
         }}
       >
         {rowContent}
       </div>
-    )
+    );
   }
 
   return (
     <div
       className={cn(
-        'hover:bg-muted/30 flex items-center gap-4 px-4 py-3 transition-colors',
-        !isLast && 'border-b'
+        "hover:bg-muted/30 flex items-center gap-4 px-4 py-3 transition-colors",
+        !isLast && "border-b",
       )}
     >
       {rowContent}
     </div>
-  )
+  );
 }
 
-export default BuiltInCommands
+export default BuiltInCommands;

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Telegram Composer Component
@@ -9,9 +9,9 @@
 //
 // ===============================================================================
 
-import { useState, useRef, KeyboardEvent, ChangeEvent } from 'react'
-import { cn } from '@/lib/utils'
-import { TELEGRAM_COLORS } from '../config'
+import { useState, useRef, KeyboardEvent, ChangeEvent } from "react";
+import { cn } from "@/lib/utils";
+import { TELEGRAM_COLORS } from "../config";
 import {
   Paperclip,
   Smile,
@@ -23,30 +23,30 @@ import {
   Music,
   MapPin,
   Camera,
-} from 'lucide-react'
+} from "lucide-react";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface TelegramComposerProps {
-  value?: string
-  onChange?: (value: string) => void
-  onSend?: (message: string) => void
-  onVoiceStart?: () => void
-  onVoiceEnd?: () => void
-  onAttachClick?: () => void
-  onEmojiClick?: () => void
-  onStickerClick?: () => void
+  value?: string;
+  onChange?: (value: string) => void;
+  onSend?: (message: string) => void;
+  onVoiceStart?: () => void;
+  onVoiceEnd?: () => void;
+  onAttachClick?: () => void;
+  onEmojiClick?: () => void;
+  onStickerClick?: () => void;
   replyTo?: {
-    senderName: string
-    content: string
-    color?: string
-  }
-  onCancelReply?: () => void
-  placeholder?: string
-  disabled?: boolean
-  className?: string
+    senderName: string;
+    content: string;
+    color?: string;
+  };
+  onCancelReply?: () => void;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ export interface TelegramComposerProps {
 // -------------------------------------------------------------------------------
 
 export function TelegramComposer({
-  value = '',
+  value = "",
   onChange,
   onSend,
   onVoiceStart,
@@ -64,54 +64,56 @@ export function TelegramComposer({
   onStickerClick,
   replyTo,
   onCancelReply,
-  placeholder = 'Message',
+  placeholder = "Message",
   disabled = false,
   className,
 }: TelegramComposerProps) {
-  const [internalValue, setInternalValue] = useState('')
-  const [showAttachMenu, setShowAttachMenu] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [internalValue, setInternalValue] = useState("");
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const currentValue = value || internalValue
-  const hasText = currentValue.trim().length > 0
+  const currentValue = value || internalValue;
+  const hasText = currentValue.trim().length > 0;
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value
-    setInternalValue(newValue)
-    onChange?.(newValue)
+    const newValue = e.target.value;
+    setInternalValue(newValue);
+    onChange?.(newValue);
 
     // Auto-resize textarea
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
     }
-  }
+  };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
-  }
+  };
 
   const handleSend = () => {
     if (hasText && !disabled) {
-      onSend?.(currentValue)
-      setInternalValue('')
+      onSend?.(currentValue);
+      setInternalValue("");
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
+        textareaRef.current.style.height = "auto";
       }
     }
-  }
+  };
 
   return (
-    <div className={cn('bg-white dark:bg-[#17212B]', className)}>
+    <div className={cn("bg-white dark:bg-[#17212B]", className)}>
       {/* Reply Preview */}
       {replyTo && (
         <div className="flex items-center gap-2 border-t border-gray-200 px-4 py-2 dark:border-[#232E3C]">
           <div
             className="h-full min-h-[32px] w-1 rounded"
-            style={{ backgroundColor: replyTo.color || TELEGRAM_COLORS.telegramBlue }}
+            style={{
+              backgroundColor: replyTo.color || TELEGRAM_COLORS.telegramBlue,
+            }}
           />
           <div className="min-w-0 flex-1">
             <div
@@ -140,10 +142,10 @@ export function TelegramComposer({
           <button
             onClick={() => setShowAttachMenu(!showAttachMenu)}
             className={cn(
-              'rounded-full p-2 transition-colors',
+              "rounded-full p-2 transition-colors",
               showAttachMenu
-                ? 'bg-[#2AABEE] text-white'
-                : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#232E3C]'
+                ? "bg-[#2AABEE] text-white"
+                : "text-gray-500 hover:bg-gray-100 dark:hover:bg-[#232E3C]",
             )}
           >
             <Paperclip className="h-5 w-5" />
@@ -152,11 +154,26 @@ export function TelegramComposer({
           {/* Attachment Menu */}
           {showAttachMenu && (
             <div className="absolute bottom-12 left-0 min-w-[180px] rounded-lg border border-gray-200 bg-white py-2 shadow-lg dark:border-[#232E3C] dark:bg-[#17212B]">
-              <AttachMenuItem icon={<ImageIcon className="h-5 w-5" />} label="Photo" />
-              <AttachMenuItem icon={<File className="h-5 w-5" />} label="Document" />
-              <AttachMenuItem icon={<Camera className="h-5 w-5" />} label="Camera" />
-              <AttachMenuItem icon={<Music className="h-5 w-5" />} label="Music" />
-              <AttachMenuItem icon={<MapPin className="h-5 w-5" />} label="Location" />
+              <AttachMenuItem
+                icon={<ImageIcon className="h-5 w-5" />}
+                label="Photo"
+              />
+              <AttachMenuItem
+                icon={<File className="h-5 w-5" />}
+                label="Document"
+              />
+              <AttachMenuItem
+                icon={<Camera className="h-5 w-5" />}
+                label="Camera"
+              />
+              <AttachMenuItem
+                icon={<Music className="h-5 w-5" />}
+                label="Music"
+              />
+              <AttachMenuItem
+                icon={<MapPin className="h-5 w-5" />}
+                label="Location"
+              />
             </div>
           )}
         </div>
@@ -172,11 +189,11 @@ export function TelegramComposer({
             disabled={disabled}
             rows={1}
             className={cn(
-              'w-full resize-none px-4 py-2.5',
-              'bg-transparent text-gray-900 dark:text-white',
-              'placeholder-gray-400 dark:placeholder-gray-500',
-              'focus:outline-none',
-              'max-h-[200px] min-h-[44px]'
+              "w-full resize-none px-4 py-2.5",
+              "bg-transparent text-gray-900 dark:text-white",
+              "placeholder-gray-400 dark:placeholder-gray-500",
+              "focus:outline-none",
+              "max-h-[200px] min-h-[44px]",
             )}
           />
         </div>
@@ -211,7 +228,7 @@ export function TelegramComposer({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function AttachMenuItem({
@@ -219,9 +236,9 @@ function AttachMenuItem({
   label,
   onClick,
 }: {
-  icon: React.ReactNode
-  label: string
-  onClick?: () => void
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
 }) {
   return (
     <button
@@ -231,7 +248,7 @@ function AttachMenuItem({
       <span className="text-[#2AABEE]">{icon}</span>
       <span className="text-sm">{label}</span>
     </button>
-  )
+  );
 }
 
-export default TelegramComposer
+export default TelegramComposer;

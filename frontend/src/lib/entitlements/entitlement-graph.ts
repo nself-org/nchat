@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-import type { PlanTier } from '@/types/subscription.types'
+import type { PlanTier } from "@/types/subscription.types";
 import {
   EntitlementScope,
   EntitlementSource,
@@ -28,7 +28,7 @@ import {
   DEFAULT_INHERITANCE_RULES,
   EntitlementError,
   EntitlementErrorCode,
-} from './entitlement-types'
+} from "./entitlement-types";
 
 // ============================================================================
 // Types
@@ -38,12 +38,12 @@ import {
  * Node in the entitlement graph.
  */
 export interface EntitlementGraphNode {
-  scope: EntitlementScope
-  entityId: string
-  planTier?: PlanTier
-  grants: Map<string, EntitlementGrant>
-  parentId?: string
-  children: Set<string>
+  scope: EntitlementScope;
+  entityId: string;
+  planTier?: PlanTier;
+  grants: Map<string, EntitlementGrant>;
+  parentId?: string;
+  children: Set<string>;
 }
 
 /**
@@ -51,26 +51,26 @@ export interface EntitlementGraphNode {
  */
 export interface GraphResolutionOptions {
   /** Whether to include resolution chain */
-  includeChain?: boolean
+  includeChain?: boolean;
   /** Stop at first resolution */
-  earlyExit?: boolean
+  earlyExit?: boolean;
   /** Maximum depth to traverse */
-  maxDepth?: number
+  maxDepth?: number;
   /** Custom inheritance rules */
-  inheritanceRules?: InheritanceRule[]
+  inheritanceRules?: InheritanceRule[];
 }
 
 /**
  * Resolved value from graph traversal.
  */
 export interface GraphResolvedValue {
-  value: boolean | number | PlanTier | unknown
-  granted: boolean
-  source: EntitlementSource
-  scope: EntitlementScope
-  entityId: string
-  inheritedFrom?: string
-  resolutionChain?: EntitlementResolutionStep[]
+  value: boolean | number | PlanTier | unknown;
+  granted: boolean;
+  source: EntitlementSource;
+  scope: EntitlementScope;
+  entityId: string;
+  inheritedFrom?: string;
+  resolutionChain?: EntitlementResolutionStep[];
 }
 
 // ============================================================================
@@ -78,11 +78,11 @@ export interface GraphResolvedValue {
 // ============================================================================
 
 export class EntitlementGraph {
-  private nodes: Map<string, EntitlementGraphNode> = new Map()
-  private inheritanceRules: InheritanceRule[]
+  private nodes: Map<string, EntitlementGraphNode> = new Map();
+  private inheritanceRules: InheritanceRule[];
 
   constructor(rules?: InheritanceRule[]) {
-    this.inheritanceRules = rules ?? [...DEFAULT_INHERITANCE_RULES]
+    this.inheritanceRules = rules ?? [...DEFAULT_INHERITANCE_RULES];
   }
 
   // ==========================================================================
@@ -93,15 +93,18 @@ export class EntitlementGraph {
    * Create a unique node key from scope and entity ID.
    */
   private makeNodeKey(scope: EntitlementScope, entityId: string): string {
-    return `${scope}:${entityId}`
+    return `${scope}:${entityId}`;
   }
 
   /**
    * Parse node key into scope and entity ID.
    */
-  private parseNodeKey(key: string): { scope: EntitlementScope; entityId: string } {
-    const [scope, entityId] = key.split(':')
-    return { scope: scope as EntitlementScope, entityId }
+  private parseNodeKey(key: string): {
+    scope: EntitlementScope;
+    entityId: string;
+  } {
+    const [scope, entityId] = key.split(":");
+    return { scope: scope as EntitlementScope, entityId };
   }
 
   /**
@@ -110,16 +113,16 @@ export class EntitlementGraph {
   addNode(
     scope: EntitlementScope,
     entityId: string,
-    options?: { planTier?: PlanTier; parentId?: string }
+    options?: { planTier?: PlanTier; parentId?: string },
   ): EntitlementGraphNode {
-    const key = this.makeNodeKey(scope, entityId)
+    const key = this.makeNodeKey(scope, entityId);
 
     if (this.nodes.has(key)) {
-      const existing = this.nodes.get(key)!
+      const existing = this.nodes.get(key)!;
       if (options?.planTier) {
-        existing.planTier = options.planTier
+        existing.planTier = options.planTier;
       }
-      return existing
+      return existing;
     }
 
     const node: EntitlementGraphNode = {
@@ -129,64 +132,67 @@ export class EntitlementGraph {
       grants: new Map(),
       parentId: options?.parentId,
       children: new Set(),
-    }
+    };
 
-    this.nodes.set(key, node)
+    this.nodes.set(key, node);
 
     // Link to parent
     if (options?.parentId) {
-      const parentScope = this.getParentScope(scope)
+      const parentScope = this.getParentScope(scope);
       if (parentScope) {
-        const parentKey = this.makeNodeKey(parentScope, options.parentId)
-        const parentNode = this.nodes.get(parentKey)
+        const parentKey = this.makeNodeKey(parentScope, options.parentId);
+        const parentNode = this.nodes.get(parentKey);
         if (parentNode) {
-          parentNode.children.add(key)
+          parentNode.children.add(key);
         }
       }
     }
 
-    return node
+    return node;
   }
 
   /**
    * Get a node from the graph.
    */
-  getNode(scope: EntitlementScope, entityId: string): EntitlementGraphNode | undefined {
-    return this.nodes.get(this.makeNodeKey(scope, entityId))
+  getNode(
+    scope: EntitlementScope,
+    entityId: string,
+  ): EntitlementGraphNode | undefined {
+    return this.nodes.get(this.makeNodeKey(scope, entityId));
   }
 
   /**
    * Remove a node from the graph.
    */
   removeNode(scope: EntitlementScope, entityId: string): boolean {
-    const key = this.makeNodeKey(scope, entityId)
-    const node = this.nodes.get(key)
+    const key = this.makeNodeKey(scope, entityId);
+    const node = this.nodes.get(key);
 
     if (!node) {
-      return false
+      return false;
     }
 
     // Unlink from parent
     if (node.parentId) {
-      const parentScope = this.getParentScope(scope)
+      const parentScope = this.getParentScope(scope);
       if (parentScope) {
-        const parentKey = this.makeNodeKey(parentScope, node.parentId)
-        const parentNode = this.nodes.get(parentKey)
+        const parentKey = this.makeNodeKey(parentScope, node.parentId);
+        const parentNode = this.nodes.get(parentKey);
         if (parentNode) {
-          parentNode.children.delete(key)
+          parentNode.children.delete(key);
         }
       }
     }
 
     // Remove children references
     for (const childKey of node.children) {
-      const childNode = this.nodes.get(childKey)
+      const childNode = this.nodes.get(childKey);
       if (childNode) {
-        childNode.parentId = undefined
+        childNode.parentId = undefined;
       }
     }
 
-    return this.nodes.delete(key)
+    return this.nodes.delete(key);
   }
 
   // ==========================================================================
@@ -199,10 +205,10 @@ export class EntitlementGraph {
   addGrant(
     scope: EntitlementScope,
     entityId: string,
-    grant: EntitlementGrant
+    grant: EntitlementGrant,
   ): void {
-    const node = this.getNode(scope, entityId) ?? this.addNode(scope, entityId)
-    node.grants.set(grant.entitlementKey, grant)
+    const node = this.getNode(scope, entityId) ?? this.addNode(scope, entityId);
+    node.grants.set(grant.entitlementKey, grant);
   }
 
   /**
@@ -211,13 +217,13 @@ export class EntitlementGraph {
   removeGrant(
     scope: EntitlementScope,
     entityId: string,
-    entitlementKey: string
+    entitlementKey: string,
   ): boolean {
-    const node = this.getNode(scope, entityId)
+    const node = this.getNode(scope, entityId);
     if (!node) {
-      return false
+      return false;
     }
-    return node.grants.delete(entitlementKey)
+    return node.grants.delete(entitlementKey);
   }
 
   /**
@@ -226,18 +232,18 @@ export class EntitlementGraph {
   getGrant(
     scope: EntitlementScope,
     entityId: string,
-    entitlementKey: string
+    entitlementKey: string,
   ): EntitlementGrant | undefined {
-    const node = this.getNode(scope, entityId)
-    return node?.grants.get(entitlementKey)
+    const node = this.getNode(scope, entityId);
+    return node?.grants.get(entitlementKey);
   }
 
   /**
    * Get all grants for a node.
    */
   getGrants(scope: EntitlementScope, entityId: string): EntitlementGrant[] {
-    const node = this.getNode(scope, entityId)
-    return node ? Array.from(node.grants.values()) : []
+    const node = this.getNode(scope, entityId);
+    return node ? Array.from(node.grants.values()) : [];
   }
 
   // ==========================================================================
@@ -248,86 +254,86 @@ export class EntitlementGraph {
    * Get parent scope in hierarchy.
    */
   getParentScope(scope: EntitlementScope): EntitlementScope | undefined {
-    const index = SCOPE_HIERARCHY.indexOf(scope)
+    const index = SCOPE_HIERARCHY.indexOf(scope);
     if (index <= 0) {
-      return undefined
+      return undefined;
     }
-    return SCOPE_HIERARCHY[index - 1]
+    return SCOPE_HIERARCHY[index - 1];
   }
 
   /**
    * Get child scope in hierarchy.
    */
   getChildScope(scope: EntitlementScope): EntitlementScope | undefined {
-    const index = SCOPE_HIERARCHY.indexOf(scope)
+    const index = SCOPE_HIERARCHY.indexOf(scope);
     if (index < 0 || index >= SCOPE_HIERARCHY.length - 1) {
-      return undefined
+      return undefined;
     }
-    return SCOPE_HIERARCHY[index + 1]
+    return SCOPE_HIERARCHY[index + 1];
   }
 
   /**
    * Build inheritance chain for an entity.
    */
   buildInheritanceChain(context: EntitlementContext): InheritanceChain {
-    const chain: InheritanceChain['chain'] = []
+    const chain: InheritanceChain["chain"] = [];
 
     // Start from organization level
     if (context.organizationId) {
-      const orgNode = this.getNode('organization', context.organizationId)
+      const orgNode = this.getNode("organization", context.organizationId);
       chain.push({
-        scope: 'organization',
+        scope: "organization",
         entityId: context.organizationId,
         planTier: orgNode?.planTier ?? context.planTier,
-      })
+      });
     }
 
     // Add workspace level
     if (context.workspaceId) {
-      const wsNode = this.getNode('workspace', context.workspaceId)
+      const wsNode = this.getNode("workspace", context.workspaceId);
       chain.push({
-        scope: 'workspace',
+        scope: "workspace",
         entityId: context.workspaceId,
         planTier: wsNode?.planTier,
-      })
+      });
     }
 
     // Add channel level
     if (context.channelId) {
-      const channelNode = this.getNode('channel', context.channelId)
+      const channelNode = this.getNode("channel", context.channelId);
       chain.push({
-        scope: 'channel',
+        scope: "channel",
         entityId: context.channelId,
         planTier: channelNode?.planTier,
-      })
+      });
     }
 
     // Add user level
     chain.push({
-      scope: 'user',
+      scope: "user",
       entityId: context.userId,
-    })
+    });
 
     // Determine final scope based on what context we have
-    let scope: EntitlementScope = 'user'
-    let entityId = context.userId
+    let scope: EntitlementScope = "user";
+    let entityId = context.userId;
 
     if (context.channelId) {
-      scope = 'channel'
-      entityId = context.channelId
+      scope = "channel";
+      entityId = context.channelId;
     } else if (context.workspaceId) {
-      scope = 'workspace'
-      entityId = context.workspaceId
+      scope = "workspace";
+      entityId = context.workspaceId;
     } else if (context.organizationId) {
-      scope = 'organization'
-      entityId = context.organizationId
+      scope = "organization";
+      entityId = context.organizationId;
     }
 
     return {
       scope,
       entityId,
       chain,
-    }
+    };
   }
 
   // ==========================================================================
@@ -341,40 +347,48 @@ export class EntitlementGraph {
     entitlementKey: string,
     definition: EntitlementDefinition,
     context: EntitlementContext,
-    options: GraphResolutionOptions = {}
+    options: GraphResolutionOptions = {},
   ): GraphResolvedValue {
     const {
       includeChain = false,
       maxDepth = 10,
       inheritanceRules = this.inheritanceRules,
-    } = options
+    } = options;
 
-    const resolutionChain: EntitlementResolutionStep[] = []
-    const inheritanceChain = this.buildInheritanceChain(context)
+    const resolutionChain: EntitlementResolutionStep[] = [];
+    const inheritanceChain = this.buildInheritanceChain(context);
 
-    let resolvedValue: unknown
-    let resolvedSource: EntitlementSource = 'default'
-    let resolvedScope: EntitlementScope = inheritanceChain.scope
-    let resolvedEntityId = inheritanceChain.entityId
-    let inheritedFrom: string | undefined
+    let resolvedValue: unknown;
+    let resolvedSource: EntitlementSource = "default";
+    let resolvedScope: EntitlementScope = inheritanceChain.scope;
+    let resolvedEntityId = inheritanceChain.entityId;
+    let inheritedFrom: string | undefined;
 
     // Start with default value based on definition type
-    resolvedValue = this.getDefaultValue(definition)
+    resolvedValue = this.getDefaultValue(definition);
 
     // Process each level in the inheritance chain
     for (let i = 0; i < inheritanceChain.chain.length && i < maxDepth; i++) {
-      const chainItem = inheritanceChain.chain[i]
-      const node = this.getNode(chainItem.scope, chainItem.entityId)
+      const chainItem = inheritanceChain.chain[i];
+      const node = this.getNode(chainItem.scope, chainItem.entityId);
 
       // Check for direct grant
-      const grant = node?.grants.get(entitlementKey)
-      if (grant && grant.active && (!grant.expiresAt || grant.expiresAt > new Date())) {
+      const grant = node?.grants.get(entitlementKey);
+      if (
+        grant &&
+        grant.active &&
+        (!grant.expiresAt || grant.expiresAt > new Date())
+      ) {
         const newValue = this.combineValues(
           resolvedValue,
           grant.value,
           definition,
-          this.getInheritanceRule(resolvedScope, chainItem.scope, inheritanceRules)
-        )
+          this.getInheritanceRule(
+            resolvedScope,
+            chainItem.scope,
+            inheritanceRules,
+          ),
+        );
 
         if (includeChain) {
           resolutionChain.push({
@@ -384,55 +398,63 @@ export class EntitlementGraph {
             value: grant.value,
             applied: true,
             reason: `Grant from ${grant.source}`,
-          })
+          });
         }
 
-        resolvedValue = newValue
-        resolvedSource = grant.source
-        resolvedScope = chainItem.scope
-        resolvedEntityId = chainItem.entityId
+        resolvedValue = newValue;
+        resolvedSource = grant.source;
+        resolvedScope = chainItem.scope;
+        resolvedEntityId = chainItem.entityId;
 
         if (i > 0) {
-          inheritedFrom = inheritanceChain.chain[i - 1].entityId
+          inheritedFrom = inheritanceChain.chain[i - 1].entityId;
         }
       } else if (includeChain && node) {
         resolutionChain.push({
           scope: chainItem.scope,
           entityId: chainItem.entityId,
-          source: 'inherited',
+          source: "inherited",
           value: resolvedValue,
           applied: false,
-          reason: 'No grant found, using inherited value',
-        })
+          reason: "No grant found, using inherited value",
+        });
       }
 
       // Apply plan-based value
-      const planTier = chainItem.planTier ?? context.planTier
-      const planValue = this.getPlanValue(entitlementKey, definition, planTier)
+      const planTier = chainItem.planTier ?? context.planTier;
+      const planValue = this.getPlanValue(entitlementKey, definition, planTier);
       if (planValue !== undefined) {
         const combinedValue = this.combineValues(
           resolvedValue,
           planValue,
           definition,
-          this.getInheritanceRule(resolvedScope, chainItem.scope, inheritanceRules)
-        )
+          this.getInheritanceRule(
+            resolvedScope,
+            chainItem.scope,
+            inheritanceRules,
+          ),
+        );
 
         // For tier entitlements, always use plan value
-        if (definition.valueType === 'tier') {
-          resolvedValue = combinedValue
-          resolvedSource = 'plan'
-          resolvedScope = chainItem.scope
-          resolvedEntityId = chainItem.entityId
-        } else if (resolvedSource === 'default') {
+        if (definition.valueType === "tier") {
+          resolvedValue = combinedValue;
+          resolvedSource = "plan";
+          resolvedScope = chainItem.scope;
+          resolvedEntityId = chainItem.entityId;
+        } else if (resolvedSource === "default") {
           // Only use plan value if no explicit grant
-          resolvedValue = combinedValue
-          resolvedSource = 'plan'
+          resolvedValue = combinedValue;
+          resolvedSource = "plan";
         }
       }
     }
 
     // Determine if granted based on value type
-    const granted = this.evaluateGranted(resolvedValue, definition, context.planTier)
+    const granted = this.evaluateGranted(
+      resolvedValue,
+      definition,
+      context.planTier,
+    );
 
     return {
       value: resolvedValue,
@@ -442,7 +464,7 @@ export class EntitlementGraph {
       entityId: resolvedEntityId,
       inheritedFrom,
       resolutionChain: includeChain ? resolutionChain : undefined,
-    }
+    };
   }
 
   /**
@@ -450,16 +472,16 @@ export class EntitlementGraph {
    */
   private getDefaultValue(definition: EntitlementDefinition): unknown {
     switch (definition.valueType) {
-      case 'boolean':
-        return (definition as BooleanEntitlementDefinition).defaultValue
-      case 'numeric':
-        return (definition as NumericEntitlementDefinition).defaultValue
-      case 'tier':
-        return (definition as TierEntitlementDefinition).minimumTier
-      case 'custom':
-        return false
+      case "boolean":
+        return (definition as BooleanEntitlementDefinition).defaultValue;
+      case "numeric":
+        return (definition as NumericEntitlementDefinition).defaultValue;
+      case "tier":
+        return (definition as TierEntitlementDefinition).minimumTier;
+      case "custom":
+        return false;
       default:
-        return false
+        return false;
     }
   }
 
@@ -469,14 +491,14 @@ export class EntitlementGraph {
   private getPlanValue(
     _entitlementKey: string,
     definition: EntitlementDefinition,
-    planTier: PlanTier
+    planTier: PlanTier,
   ): unknown {
-    if (definition.valueType === 'tier') {
-      return planTier
+    if (definition.valueType === "tier") {
+      return planTier;
     }
     // Plan values are typically resolved by the entitlement service
     // using PLAN_FEATURES and PLAN_LIMITS
-    return undefined
+    return undefined;
   }
 
   /**
@@ -485,9 +507,9 @@ export class EntitlementGraph {
   private getInheritanceRule(
     fromScope: EntitlementScope,
     toScope: EntitlementScope,
-    rules: InheritanceRule[]
+    rules: InheritanceRule[],
   ): InheritanceRule | undefined {
-    return rules.find((r) => r.from === fromScope && r.to === toScope)
+    return rules.find((r) => r.from === fromScope && r.to === toScope);
   }
 
   /**
@@ -497,54 +519,54 @@ export class EntitlementGraph {
     currentValue: unknown,
     newValue: unknown,
     definition: EntitlementDefinition,
-    rule?: InheritanceRule
+    rule?: InheritanceRule,
   ): unknown {
-    const strategy = rule?.combineStrategy ?? 'replace'
+    const strategy = rule?.combineStrategy ?? "replace";
 
     switch (strategy) {
-      case 'replace':
-        return newValue
+      case "replace":
+        return newValue;
 
-      case 'most_permissive':
-        return this.compareMostPermissive(currentValue, newValue, definition)
+      case "most_permissive":
+        return this.compareMostPermissive(currentValue, newValue, definition);
 
-      case 'least_permissive':
-        return this.compareLeastPermissive(currentValue, newValue, definition)
+      case "least_permissive":
+        return this.compareLeastPermissive(currentValue, newValue, definition);
 
-      case 'sum':
-        if (definition.valueType === 'numeric') {
-          return (currentValue as number) + (newValue as number)
+      case "sum":
+        if (definition.valueType === "numeric") {
+          return (currentValue as number) + (newValue as number);
         }
-        return newValue
+        return newValue;
 
-      case 'min':
-        if (definition.valueType === 'numeric') {
-          const current = currentValue as number | null
-          const next = newValue as number | null
-          if (current === null) return next
-          if (next === null) return current
-          return Math.min(current, next)
+      case "min":
+        if (definition.valueType === "numeric") {
+          const current = currentValue as number | null;
+          const next = newValue as number | null;
+          if (current === null) return next;
+          if (next === null) return current;
+          return Math.min(current, next);
         }
-        return newValue
+        return newValue;
 
-      case 'max':
-        if (definition.valueType === 'numeric') {
-          const current = currentValue as number | null
-          const next = newValue as number | null
-          if (current === null) return current // null = unlimited
-          if (next === null) return next
-          return Math.max(current, next)
+      case "max":
+        if (definition.valueType === "numeric") {
+          const current = currentValue as number | null;
+          const next = newValue as number | null;
+          if (current === null) return current; // null = unlimited
+          if (next === null) return next;
+          return Math.max(current, next);
         }
-        return newValue
+        return newValue;
 
-      case 'merge':
-        if (typeof currentValue === 'object' && typeof newValue === 'object') {
-          return { ...(currentValue as object), ...(newValue as object) }
+      case "merge":
+        if (typeof currentValue === "object" && typeof newValue === "object") {
+          return { ...(currentValue as object), ...(newValue as object) };
         }
-        return newValue
+        return newValue;
 
       default:
-        return newValue
+        return newValue;
     }
   }
 
@@ -554,30 +576,30 @@ export class EntitlementGraph {
   private compareMostPermissive(
     a: unknown,
     b: unknown,
-    definition: EntitlementDefinition
+    definition: EntitlementDefinition,
   ): unknown {
     switch (definition.valueType) {
-      case 'boolean':
-        return (a as boolean) || (b as boolean)
+      case "boolean":
+        return (a as boolean) || (b as boolean);
 
-      case 'numeric': {
-        const numA = a as number | null
-        const numB = b as number | null
+      case "numeric": {
+        const numA = a as number | null;
+        const numB = b as number | null;
         // null = unlimited = most permissive
-        if (numA === null || numB === null) return null
-        return Math.max(numA, numB)
+        if (numA === null || numB === null) return null;
+        return Math.max(numA, numB);
       }
 
-      case 'tier': {
-        const tierA = a as PlanTier
-        const tierB = b as PlanTier
-        const indexA = PLAN_TIER_HIERARCHY.indexOf(tierA)
-        const indexB = PLAN_TIER_HIERARCHY.indexOf(tierB)
-        return indexA > indexB ? tierA : tierB
+      case "tier": {
+        const tierA = a as PlanTier;
+        const tierB = b as PlanTier;
+        const indexA = PLAN_TIER_HIERARCHY.indexOf(tierA);
+        const indexB = PLAN_TIER_HIERARCHY.indexOf(tierB);
+        return indexA > indexB ? tierA : tierB;
       }
 
       default:
-        return b
+        return b;
     }
   }
 
@@ -587,31 +609,31 @@ export class EntitlementGraph {
   private compareLeastPermissive(
     a: unknown,
     b: unknown,
-    definition: EntitlementDefinition
+    definition: EntitlementDefinition,
   ): unknown {
     switch (definition.valueType) {
-      case 'boolean':
-        return (a as boolean) && (b as boolean)
+      case "boolean":
+        return (a as boolean) && (b as boolean);
 
-      case 'numeric': {
-        const numA = a as number | null
-        const numB = b as number | null
+      case "numeric": {
+        const numA = a as number | null;
+        const numB = b as number | null;
         // null = unlimited, so take the other value if one is null
-        if (numA === null) return numB
-        if (numB === null) return numA
-        return Math.min(numA, numB)
+        if (numA === null) return numB;
+        if (numB === null) return numA;
+        return Math.min(numA, numB);
       }
 
-      case 'tier': {
-        const tierA = a as PlanTier
-        const tierB = b as PlanTier
-        const indexA = PLAN_TIER_HIERARCHY.indexOf(tierA)
-        const indexB = PLAN_TIER_HIERARCHY.indexOf(tierB)
-        return indexA < indexB ? tierA : tierB
+      case "tier": {
+        const tierA = a as PlanTier;
+        const tierB = b as PlanTier;
+        const indexA = PLAN_TIER_HIERARCHY.indexOf(tierA);
+        const indexB = PLAN_TIER_HIERARCHY.indexOf(tierB);
+        return indexA < indexB ? tierA : tierB;
       }
 
       default:
-        return b
+        return b;
     }
   }
 
@@ -621,36 +643,36 @@ export class EntitlementGraph {
   private evaluateGranted(
     value: unknown,
     definition: EntitlementDefinition,
-    currentTier: PlanTier
+    currentTier: PlanTier,
   ): boolean {
     switch (definition.valueType) {
-      case 'boolean':
-        return value === true
+      case "boolean":
+        return value === true;
 
-      case 'numeric': {
-        const numValue = value as number | null
+      case "numeric": {
+        const numValue = value as number | null;
         // null = unlimited = granted
-        if (numValue === null) return true
+        if (numValue === null) return true;
         // Any positive value grants access
-        return numValue > 0
+        return numValue > 0;
       }
 
-      case 'tier': {
+      case "tier": {
         // For tier entitlements, we need to compare the user's current tier
         // against the minimum required tier from the definition
-        const tierDef = definition as TierEntitlementDefinition
-        const minimumRequired = tierDef.minimumTier
-        const currentIndex = PLAN_TIER_HIERARCHY.indexOf(currentTier)
-        const requiredIndex = PLAN_TIER_HIERARCHY.indexOf(minimumRequired)
-        return currentIndex >= requiredIndex
+        const tierDef = definition as TierEntitlementDefinition;
+        const minimumRequired = tierDef.minimumTier;
+        const currentIndex = PLAN_TIER_HIERARCHY.indexOf(currentTier);
+        const requiredIndex = PLAN_TIER_HIERARCHY.indexOf(minimumRequired);
+        return currentIndex >= requiredIndex;
       }
 
-      case 'custom':
+      case "custom":
         // Custom gates return their own granted status
-        return value === true
+        return value === true;
 
       default:
-        return false
+        return false;
     }
   }
 
@@ -664,50 +686,53 @@ export class EntitlementGraph {
   resolveMany(
     entitlements: Array<{ key: string; definition: EntitlementDefinition }>,
     context: EntitlementContext,
-    options: GraphResolutionOptions = {}
+    options: GraphResolutionOptions = {},
   ): Map<string, GraphResolvedValue> {
-    const results = new Map<string, GraphResolvedValue>()
+    const results = new Map<string, GraphResolvedValue>();
 
     for (const { key, definition } of entitlements) {
       try {
-        const result = this.resolve(key, definition, context, options)
-        results.set(key, result)
+        const result = this.resolve(key, definition, context, options);
+        results.set(key, result);
       } catch (error) {
         // Log error but continue with other entitlements
-        console.error(`Error resolving entitlement ${key}:`, error)
+        console.error(`Error resolving entitlement ${key}:`, error);
         results.set(key, {
           value: this.getDefaultValue(definition),
           granted: false,
-          source: 'default',
-          scope: 'user',
+          source: "default",
+          scope: "user",
           entityId: context.userId,
-        })
+        });
       }
     }
 
-    return results
+    return results;
   }
 
   /**
    * Get all effective entitlements for a context.
    */
   getAllEffective(context: EntitlementContext): Map<string, EntitlementGrant> {
-    const effective = new Map<string, EntitlementGrant>()
-    const inheritanceChain = this.buildInheritanceChain(context)
+    const effective = new Map<string, EntitlementGrant>();
+    const inheritanceChain = this.buildInheritanceChain(context);
 
     // Collect all grants from the inheritance chain, later entries override earlier
     for (const chainItem of inheritanceChain.chain) {
-      const node = this.getNode(chainItem.scope, chainItem.entityId)
+      const node = this.getNode(chainItem.scope, chainItem.entityId);
       if (node) {
         for (const [key, grant] of node.grants) {
-          if (grant.active && (!grant.expiresAt || grant.expiresAt > new Date())) {
-            effective.set(key, grant)
+          if (
+            grant.active &&
+            (!grant.expiresAt || grant.expiresAt > new Date())
+          ) {
+            effective.set(key, grant);
           }
         }
       }
     }
 
-    return effective
+    return effective;
   }
 
   // ==========================================================================
@@ -718,41 +743,41 @@ export class EntitlementGraph {
    * Clear all nodes and grants.
    */
   clear(): void {
-    this.nodes.clear()
+    this.nodes.clear();
   }
 
   /**
    * Get total number of nodes.
    */
   get size(): number {
-    return this.nodes.size
+    return this.nodes.size;
   }
 
   /**
    * Check if graph has a node.
    */
   hasNode(scope: EntitlementScope, entityId: string): boolean {
-    return this.nodes.has(this.makeNodeKey(scope, entityId))
+    return this.nodes.has(this.makeNodeKey(scope, entityId));
   }
 
   /**
    * Get all nodes at a scope.
    */
   getNodesAtScope(scope: EntitlementScope): EntitlementGraphNode[] {
-    const nodes: EntitlementGraphNode[] = []
+    const nodes: EntitlementGraphNode[] = [];
     for (const [key, node] of this.nodes) {
       if (key.startsWith(`${scope}:`)) {
-        nodes.push(node)
+        nodes.push(node);
       }
     }
-    return nodes
+    return nodes;
   }
 
   /**
    * Export graph state for debugging.
    */
   export(): Record<string, unknown> {
-    const nodes: Record<string, unknown> = {}
+    const nodes: Record<string, unknown> = {};
 
     for (const [key, node] of this.nodes) {
       nodes[key] = {
@@ -762,44 +787,46 @@ export class EntitlementGraph {
         grants: Object.fromEntries(node.grants),
         parentId: node.parentId,
         children: Array.from(node.children),
-      }
+      };
     }
 
     return {
       nodes,
       inheritanceRules: this.inheritanceRules,
-    }
+    };
   }
 
   /**
    * Import graph state.
    */
   import(state: Record<string, unknown>): void {
-    this.clear()
+    this.clear();
 
-    const nodes = state.nodes as Record<string, Record<string, unknown>>
-    const rules = state.inheritanceRules as InheritanceRule[] | undefined
+    const nodes = state.nodes as Record<string, Record<string, unknown>>;
+    const rules = state.inheritanceRules as InheritanceRule[] | undefined;
 
     if (rules) {
-      this.inheritanceRules = rules
+      this.inheritanceRules = rules;
     }
 
     // First pass: create all nodes
     for (const [key, nodeData] of Object.entries(nodes)) {
-      const { scope, entityId } = this.parseNodeKey(key)
+      const { scope, entityId } = this.parseNodeKey(key);
       this.addNode(scope, entityId, {
         planTier: nodeData.planTier as PlanTier | undefined,
         parentId: nodeData.parentId as string | undefined,
-      })
+      });
     }
 
     // Second pass: add grants
     for (const [key, nodeData] of Object.entries(nodes)) {
-      const { scope, entityId } = this.parseNodeKey(key)
-      const grants = nodeData.grants as Record<string, EntitlementGrant> | undefined
+      const { scope, entityId } = this.parseNodeKey(key);
+      const grants = nodeData.grants as
+        | Record<string, EntitlementGrant>
+        | undefined;
       if (grants) {
         for (const grant of Object.values(grants)) {
-          this.addGrant(scope, entityId, grant)
+          this.addGrant(scope, entityId, grant);
         }
       }
     }
@@ -810,28 +837,32 @@ export class EntitlementGraph {
 // Singleton Instance
 // ============================================================================
 
-let entitlementGraphInstance: EntitlementGraph | null = null
+let entitlementGraphInstance: EntitlementGraph | null = null;
 
 /**
  * Get the singleton entitlement graph instance.
  */
-export function getEntitlementGraph(rules?: InheritanceRule[]): EntitlementGraph {
+export function getEntitlementGraph(
+  rules?: InheritanceRule[],
+): EntitlementGraph {
   if (!entitlementGraphInstance) {
-    entitlementGraphInstance = new EntitlementGraph(rules)
+    entitlementGraphInstance = new EntitlementGraph(rules);
   }
-  return entitlementGraphInstance
+  return entitlementGraphInstance;
 }
 
 /**
  * Create a new entitlement graph instance.
  */
-export function createEntitlementGraph(rules?: InheritanceRule[]): EntitlementGraph {
-  return new EntitlementGraph(rules)
+export function createEntitlementGraph(
+  rules?: InheritanceRule[],
+): EntitlementGraph {
+  return new EntitlementGraph(rules);
 }
 
 /**
  * Reset the singleton instance (for testing).
  */
 export function resetEntitlementGraph(): void {
-  entitlementGraphInstance = null
+  entitlementGraphInstance = null;
 }

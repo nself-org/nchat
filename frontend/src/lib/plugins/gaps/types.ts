@@ -14,7 +14,7 @@
  * Severity level of a plugin gap.
  * Determines priority for resolution.
  */
-export type GapSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info'
+export type GapSeverity = "critical" | "high" | "medium" | "low" | "info";
 
 /**
  * Numeric weights for severity sorting.
@@ -25,7 +25,7 @@ export const GAP_SEVERITY_WEIGHTS: Record<GapSeverity, number> = {
   medium: 3,
   low: 2,
   info: 1,
-}
+};
 
 // ============================================================================
 // GAP STATUS
@@ -35,11 +35,11 @@ export const GAP_SEVERITY_WEIGHTS: Record<GapSeverity, number> = {
  * Current status of a plugin gap.
  */
 export type GapStatus =
-  | 'uncovered'     // No plugin coverage exists
-  | 'partial'       // Some coverage, but incomplete
-  | 'workaround'    // Covered via ad-hoc workaround (not a proper plugin)
-  | 'covered'       // Fully covered by a plugin
-  | 'deprecated'    // Gap is no longer relevant
+  | "uncovered" // No plugin coverage exists
+  | "partial" // Some coverage, but incomplete
+  | "workaround" // Covered via ad-hoc workaround (not a proper plugin)
+  | "covered" // Fully covered by a plugin
+  | "deprecated"; // Gap is no longer relevant
 
 // ============================================================================
 // PLUGIN CAPABILITY
@@ -50,53 +50,53 @@ export type GapStatus =
  */
 export interface PluginCapability {
   /** Unique capability identifier (e.g., 'storage:upload', 'search:index') */
-  id: string
+  id: string;
   /** Human-readable name */
-  name: string
+  name: string;
   /** Description of what this capability provides */
-  description: string
+  description: string;
   /** The domain this capability belongs to */
-  domain: PluginDomain
+  domain: PluginDomain;
   /** Required backend service (e.g., 'minio', 'meilisearch', 'redis') */
-  requiredBackendService?: string
+  requiredBackendService?: string;
   /** Whether this capability is optional for the domain to function */
-  optional: boolean
+  optional: boolean;
 }
 
 /**
  * Domains that plugins operate in.
  */
 export type PluginDomain =
-  | 'storage'
-  | 'search'
-  | 'notification'
-  | 'auth'
-  | 'billing'
-  | 'moderation'
-  | 'analytics'
-  | 'realtime'
-  | 'media'
-  | 'e2ee'
-  | 'calls'
-  | 'compliance'
+  | "storage"
+  | "search"
+  | "notification"
+  | "auth"
+  | "billing"
+  | "moderation"
+  | "analytics"
+  | "realtime"
+  | "media"
+  | "e2ee"
+  | "calls"
+  | "compliance";
 
 /**
  * All valid plugin domains.
  */
 export const ALL_PLUGIN_DOMAINS: readonly PluginDomain[] = [
-  'storage',
-  'search',
-  'notification',
-  'auth',
-  'billing',
-  'moderation',
-  'analytics',
-  'realtime',
-  'media',
-  'e2ee',
-  'calls',
-  'compliance',
-] as const
+  "storage",
+  "search",
+  "notification",
+  "auth",
+  "billing",
+  "moderation",
+  "analytics",
+  "realtime",
+  "media",
+  "e2ee",
+  "calls",
+  "compliance",
+] as const;
 
 // ============================================================================
 // PLUGIN GAP
@@ -107,33 +107,33 @@ export const ALL_PLUGIN_DOMAINS: readonly PluginDomain[] = [
  */
 export interface PluginGap {
   /** Unique gap identifier */
-  id: string
+  id: string;
   /** Human-readable title */
-  title: string
+  title: string;
   /** Detailed description of the gap */
-  description: string
+  description: string;
   /** Severity of the gap */
-  severity: GapSeverity
+  severity: GapSeverity;
   /** Current status */
-  status: GapStatus
+  status: GapStatus;
   /** Domain this gap belongs to */
-  domain: PluginDomain
+  domain: PluginDomain;
   /** Service file(s) that expose this gap */
-  affectedServices: string[]
+  affectedServices: string[];
   /** Capabilities needed to close this gap */
-  requiredCapabilities: string[]
+  requiredCapabilities: string[];
   /** Plugin that resolves this gap (if any) */
-  resolvedByPlugin?: string
+  resolvedByPlugin?: string;
   /** Workaround description (if status is 'workaround') */
-  workaroundDescription?: string
+  workaroundDescription?: string;
   /** When the gap was identified */
-  identifiedAt: string
+  identifiedAt: string;
   /** When the gap was last updated */
-  updatedAt: string
+  updatedAt: string;
   /** When the gap was resolved (if applicable) */
-  resolvedAt?: string
+  resolvedAt?: string;
   /** Tags for filtering */
-  tags: string[]
+  tags: string[];
 }
 
 // ============================================================================
@@ -145,19 +145,19 @@ export interface PluginGap {
  */
 export interface GapResolution {
   /** Gap ID being resolved */
-  gapId: string
+  gapId: string;
   /** Plugin or adapter that provides the resolution */
-  pluginId: string
+  pluginId: string;
   /** How the resolution was achieved */
-  resolutionType: 'plugin' | 'adapter' | 'built-in' | 'external'
+  resolutionType: "plugin" | "adapter" | "built-in" | "external";
   /** Description of how the gap is resolved */
-  description: string
+  description: string;
   /** Capabilities covered by this resolution */
-  coveredCapabilities: string[]
+  coveredCapabilities: string[];
   /** When the resolution was registered */
-  resolvedAt: string
+  resolvedAt: string;
   /** Who resolved it */
-  resolvedBy: string
+  resolvedBy: string;
 }
 
 // ============================================================================
@@ -169,21 +169,21 @@ export interface GapResolution {
  */
 export interface GapAnalysisResult {
   /** When the analysis was performed */
-  analyzedAt: string
+  analyzedAt: string;
   /** Total number of gaps identified */
-  totalGaps: number
+  totalGaps: number;
   /** Breakdown by status */
-  byStatus: Record<GapStatus, number>
+  byStatus: Record<GapStatus, number>;
   /** Breakdown by severity */
-  bySeverity: Record<GapSeverity, number>
+  bySeverity: Record<GapSeverity, number>;
   /** Breakdown by domain */
-  byDomain: Record<PluginDomain, number>
+  byDomain: Record<PluginDomain, number>;
   /** Coverage percentage (covered / total) */
-  coveragePercent: number
+  coveragePercent: number;
   /** All identified gaps */
-  gaps: PluginGap[]
+  gaps: PluginGap[];
   /** Recommendations for gap closure */
-  recommendations: GapRecommendation[]
+  recommendations: GapRecommendation[];
 }
 
 /**
@@ -191,15 +191,15 @@ export interface GapAnalysisResult {
  */
 export interface GapRecommendation {
   /** Gap ID this recommendation addresses */
-  gapId: string
+  gapId: string;
   /** Priority score (higher = more urgent) */
-  priority: number
+  priority: number;
   /** Recommended action */
-  action: string
+  action: string;
   /** Estimated effort in hours */
-  estimatedHours: number
+  estimatedHours: number;
   /** Dependencies that must be resolved first */
-  dependencies: string[]
+  dependencies: string[];
 }
 
 // ============================================================================
@@ -211,17 +211,17 @@ export interface GapRecommendation {
  */
 export interface ServiceDescriptor {
   /** Service file path (relative to src/) */
-  path: string
+  path: string;
   /** Service name */
-  name: string
+  name: string;
   /** Domain the service belongs to */
-  domain: PluginDomain
+  domain: PluginDomain;
   /** Backend capabilities this service requires */
-  requiredCapabilities: string[]
+  requiredCapabilities: string[];
   /** Whether this service directly accesses backend (bypasses plugin) */
-  directBackendAccess: boolean
+  directBackendAccess: boolean;
   /** Description of what the service does */
-  description: string
+  description: string;
 }
 
 // ============================================================================
@@ -233,21 +233,21 @@ export interface ServiceDescriptor {
  */
 export interface PluginDescriptor {
   /** Plugin identifier */
-  id: string
+  id: string;
   /** Plugin name */
-  name: string
+  name: string;
   /** Plugin version */
-  version: string
+  version: string;
   /** Domain the plugin covers */
-  domain: PluginDomain
+  domain: PluginDomain;
   /** Capabilities this plugin provides */
-  capabilities: string[]
+  capabilities: string[];
   /** Whether the plugin is currently enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Plugin health status */
-  healthy: boolean
+  healthy: boolean;
   /** Description */
-  description: string
+  description: string;
 }
 
 // ============================================================================
@@ -259,21 +259,21 @@ export interface PluginDescriptor {
  */
 export interface PluginAdapterConfig {
   /** Adapter identifier */
-  id: string
+  id: string;
   /** Name of the adapter */
-  name: string
+  name: string;
   /** Domain this adapter operates in */
-  domain: PluginDomain
+  domain: PluginDomain;
   /** Service being adapted */
-  serviceId: string
+  serviceId: string;
   /** Capabilities the adapter exposes */
-  capabilities: string[]
+  capabilities: string[];
   /** Whether to enable health checking */
-  healthCheck: boolean
+  healthCheck: boolean;
   /** Whether to enable metrics collection */
-  metrics: boolean
+  metrics: boolean;
   /** Timeout for adapter operations in ms */
-  timeoutMs: number
+  timeoutMs: number;
 }
 
 /**
@@ -283,7 +283,7 @@ export const DEFAULT_ADAPTER_CONFIG: Partial<PluginAdapterConfig> = {
   healthCheck: true,
   metrics: true,
   timeoutMs: 30000,
-}
+};
 
 // ============================================================================
 // ADAPTER OPERATION
@@ -294,15 +294,15 @@ export const DEFAULT_ADAPTER_CONFIG: Partial<PluginAdapterConfig> = {
  */
 export interface AdapterOperation {
   /** Operation name */
-  name: string
+  name: string;
   /** Operation description */
-  description: string
+  description: string;
   /** Input parameters */
-  params: AdapterOperationParam[]
+  params: AdapterOperationParam[];
   /** Return type description */
-  returns: string
+  returns: string;
   /** Whether this operation is async */
-  async: boolean
+  async: boolean;
 }
 
 /**
@@ -310,13 +310,13 @@ export interface AdapterOperation {
  */
 export interface AdapterOperationParam {
   /** Parameter name */
-  name: string
+  name: string;
   /** Parameter type */
-  type: string
+  type: string;
   /** Whether the parameter is required */
-  required: boolean
+  required: boolean;
   /** Description */
-  description: string
+  description: string;
 }
 
 // ============================================================================
@@ -328,21 +328,21 @@ export interface AdapterOperationParam {
  */
 export interface AdapterOperationResult<T = unknown> {
   /** Whether the operation succeeded */
-  success: boolean
+  success: boolean;
   /** Operation result data */
-  data?: T
+  data?: T;
   /** Error message if failed */
-  error?: string
+  error?: string;
   /** Error code if failed */
-  errorCode?: string
+  errorCode?: string;
   /** Duration in ms */
-  durationMs: number
+  durationMs: number;
   /** Adapter that performed the operation */
-  adapterId: string
+  adapterId: string;
   /** Operation that was performed */
-  operation: string
+  operation: string;
   /** Timestamp */
-  timestamp: string
+  timestamp: string;
 }
 
 // ============================================================================
@@ -354,17 +354,17 @@ export interface AdapterOperationResult<T = unknown> {
  */
 export interface PluginHealthStatus {
   /** Plugin/adapter ID */
-  id: string
+  id: string;
   /** Whether it's healthy */
-  healthy: boolean
+  healthy: boolean;
   /** Status message */
-  message: string
+  message: string;
   /** Last check timestamp */
-  lastChecked: string
+  lastChecked: string;
   /** Response time in ms */
-  responseTimeMs: number
+  responseTimeMs: number;
   /** Additional details */
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -375,26 +375,32 @@ export interface PluginHealthStatus {
  * Validate a plugin domain string.
  */
 export function isValidDomain(domain: string): domain is PluginDomain {
-  return (ALL_PLUGIN_DOMAINS as readonly string[]).includes(domain)
+  return (ALL_PLUGIN_DOMAINS as readonly string[]).includes(domain);
 }
 
 /**
  * Validate a gap severity string.
  */
 export function isValidSeverity(severity: string): severity is GapSeverity {
-  return severity in GAP_SEVERITY_WEIGHTS
+  return severity in GAP_SEVERITY_WEIGHTS;
 }
 
 /**
  * Validate a gap status string.
  */
 export function isValidStatus(status: string): status is GapStatus {
-  return ['uncovered', 'partial', 'workaround', 'covered', 'deprecated'].includes(status)
+  return [
+    "uncovered",
+    "partial",
+    "workaround",
+    "covered",
+    "deprecated",
+  ].includes(status);
 }
 
 /**
  * Compare gaps by severity (higher severity first).
  */
 export function compareGapsBySeverity(a: PluginGap, b: PluginGap): number {
-  return GAP_SEVERITY_WEIGHTS[b.severity] - GAP_SEVERITY_WEIGHTS[a.severity]
+  return GAP_SEVERITY_WEIGHTS[b.severity] - GAP_SEVERITY_WEIGHTS[a.severity];
 }

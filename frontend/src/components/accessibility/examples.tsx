@@ -5,9 +5,9 @@
  * in nself-chat components.
  */
 
-'use client'
+"use client";
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect } from "react";
 import {
   useFocusTrap,
   useAnnouncer,
@@ -16,40 +16,50 @@ import {
   useAriaLabel,
   useAriaLoading,
   usePrefersReducedMotion,
-} from '@/hooks/use-a11y'
-import { useAccessibility } from '@/contexts/accessibility-context'
-import { announce, getMessageLabel, getChannelLabel, getCountLabel } from '@/lib/a11y'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+} from "@/hooks/use-a11y";
+import { useAccessibility } from "@/contexts/accessibility-context";
+import {
+  announce,
+  getMessageLabel,
+  getChannelLabel,
+  getCountLabel,
+} from "@/lib/a11y";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // ============================================================================
 // Example 1: Accessible Modal
 // ============================================================================
 
 interface AccessibleModalProps {
-  isOpen: boolean
-  onClose: () => void
-  title: string
-  children: React.ReactNode
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
 }
 
-export function AccessibleModal({ isOpen, onClose, title, children }: AccessibleModalProps) {
+export function AccessibleModal({
+  isOpen,
+  onClose,
+  title,
+  children,
+}: AccessibleModalProps) {
   const modalRef = useFocusTrap<HTMLDivElement>(isOpen, {
     returnFocus: true,
     onEscape: onClose,
-  })
-  const announce = useAnnouncer()
-  const prefersReducedMotion = usePrefersReducedMotion()
+  });
+  const announce = useAnnouncer();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     if (isOpen) {
-      announce(`${title} dialog opened`)
+      announce(`${title} dialog opened`);
     } else {
-      announce(`${title} dialog closed`)
+      announce(`${title} dialog closed`);
     }
-  }, [isOpen, title, announce])
+  }, [isOpen, title, announce]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div
@@ -59,14 +69,18 @@ export function AccessibleModal({ isOpen, onClose, title, children }: Accessible
       aria-labelledby="modal-title"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       {/* Modal content */}
       <div
         ref={modalRef}
         className="relative w-full max-w-md rounded-lg bg-white p-6 dark:bg-gray-800"
         style={{
-          animation: prefersReducedMotion ? 'none' : 'fadeIn 0.3s ease-out',
+          animation: prefersReducedMotion ? "none" : "fadeIn 0.3s ease-out",
         }}
       >
         <h2 id="modal-title" className="mb-4 text-xl font-bold">
@@ -80,7 +94,7 @@ export function AccessibleModal({ isOpen, onClose, title, children }: Accessible
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -88,45 +102,50 @@ export function AccessibleModal({ isOpen, onClose, title, children }: Accessible
 // ============================================================================
 
 interface AccessibleFormProps {
-  onSubmit: (data: { name: string; email: string }) => Promise<void>
+  onSubmit: (data: { name: string; email: string }) => Promise<void>;
 }
 
 export function AccessibleForm({ onSubmit }: AccessibleFormProps) {
-  const formRef = useRef<HTMLFormElement>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useFocusFirstInput(formRef, true)
-  const announce = useAnnouncer()
-  const loadingProps = useAriaLoading(isLoading, 'Submitting form')
+  useFocusFirstInput(formRef, true);
+  const announce = useAnnouncer();
+  const loadingProps = useAriaLoading(isLoading, "Submitting form");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
-    announce('Submitting form', 'polite')
+    announce("Submitting form", "polite");
 
     try {
-      const formData = new FormData(e.target as HTMLFormElement)
+      const formData = new FormData(e.target as HTMLFormElement);
       const data = {
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-      }
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+      };
 
-      await onSubmit(data)
-      announce('Form submitted successfully', 'polite')
+      await onSubmit(data);
+      announce("Form submitted successfully", "polite");
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'An error occurred'
-      setError(message)
-      announce(`Error: ${message}`, 'assertive')
+      const message = err instanceof Error ? err.message : "An error occurred";
+      setError(message);
+      announce(`Error: ${message}`, "assertive");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" {...loadingProps}>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="space-y-4"
+      {...loadingProps}
+    >
       {/* Name field */}
       <div>
         <label htmlFor="name" className="mb-1 block text-sm font-medium">
@@ -154,11 +173,15 @@ export function AccessibleForm({ onSubmit }: AccessibleFormProps) {
           required
           aria-required="true"
           aria-invalid={!!error}
-          aria-describedby={error ? 'email-error' : undefined}
+          aria-describedby={error ? "email-error" : undefined}
           disabled={isLoading}
         />
         {error && (
-          <span id="email-error" role="alert" className="mt-1 text-sm text-red-600">
+          <span
+            id="email-error"
+            role="alert"
+            className="mt-1 text-sm text-red-600"
+          >
             {error}
           </span>
         )}
@@ -166,10 +189,10 @@ export function AccessibleForm({ onSubmit }: AccessibleFormProps) {
 
       {/* Submit button */}
       <Button type="submit" disabled={isLoading} aria-busy={isLoading}>
-        {isLoading ? 'Submitting...' : 'Submit'}
+        {isLoading ? "Submitting..." : "Submit"}
       </Button>
     </form>
-  )
+  );
 }
 
 // ============================================================================
@@ -177,32 +200,35 @@ export function AccessibleForm({ onSubmit }: AccessibleFormProps) {
 // ============================================================================
 
 interface Channel {
-  id: string
-  name: string
-  unreadCount: number
-  isPrivate: boolean
-  isMuted: boolean
+  id: string;
+  name: string;
+  unreadCount: number;
+  isPrivate: boolean;
+  isMuted: boolean;
 }
 
 interface AccessibleChannelListProps {
-  channels: Channel[]
-  onSelectChannel: (channel: Channel) => void
+  channels: Channel[];
+  onSelectChannel: (channel: Channel) => void;
 }
 
-export function AccessibleChannelList({ channels, onSelectChannel }: AccessibleChannelListProps) {
-  const listRef = useRef<HTMLDivElement>(null)
+export function AccessibleChannelList({
+  channels,
+  onSelectChannel,
+}: AccessibleChannelListProps) {
+  const listRef = useRef<HTMLDivElement>(null);
 
   useArrowNavigation(listRef, {
-    orientation: 'vertical',
+    orientation: "vertical",
     loop: true,
     onSelect: (element) => {
-      const channelId = element.getAttribute('data-channel-id')
-      const channel = channels.find((c) => c.id === channelId)
+      const channelId = element.getAttribute("data-channel-id");
+      const channel = channels.find((c) => c.id === channelId);
       if (channel) {
-        onSelectChannel(channel)
+        onSelectChannel(channel);
       }
     },
-  })
+  });
 
   return (
     <nav ref={listRef} aria-label="Channels" className="space-y-1">
@@ -211,7 +237,7 @@ export function AccessibleChannelList({ channels, onSelectChannel }: AccessibleC
           unreadCount: channel.unreadCount,
           isPrivate: channel.isPrivate,
           isMuted: channel.isMuted,
-        })
+        });
 
         return (
           <a
@@ -222,8 +248,8 @@ export function AccessibleChannelList({ channels, onSelectChannel }: AccessibleC
             aria-label={label}
             className="block rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
             onClick={(e) => {
-              e.preventDefault()
-              onSelectChannel(channel)
+              e.preventDefault();
+              onSelectChannel(channel);
             }}
           >
             <span className="flex items-center gap-2">
@@ -234,24 +260,27 @@ export function AccessibleChannelList({ channels, onSelectChannel }: AccessibleC
                   className="text-primary-foreground ml-auto rounded-full bg-primary px-2 py-0.5 text-xs"
                   aria-label={getCountLabel(
                     channel.unreadCount,
-                    'unread message',
-                    'unread messages'
+                    "unread message",
+                    "unread messages",
                   )}
                 >
                   {channel.unreadCount}
                 </span>
               )}
               {channel.isMuted && (
-                <span aria-label="Muted" className="ml-auto text-muted-foreground">
+                <span
+                  aria-label="Muted"
+                  className="ml-auto text-muted-foreground"
+                >
                   🔇
                 </span>
               )}
             </span>
           </a>
-        )
+        );
       })}
     </nav>
-  )
+  );
 }
 
 // ============================================================================
@@ -259,40 +288,50 @@ export function AccessibleChannelList({ channels, onSelectChannel }: AccessibleC
 // ============================================================================
 
 interface Message {
-  id: string
-  content: string
+  id: string;
+  content: string;
   author: {
-    name: string
-    avatar: string
-  }
-  timestamp: Date
-  edited: boolean
-  attachments: Array<{ name: string; url: string }>
+    name: string;
+    avatar: string;
+  };
+  timestamp: Date;
+  edited: boolean;
+  attachments: Array<{ name: string; url: string }>;
 }
 
 interface AccessibleMessageProps {
-  message: Message
-  onReply: (message: Message) => void
-  onEdit: (message: Message) => void
-  onDelete: (message: Message) => void
+  message: Message;
+  onReply: (message: Message) => void;
+  onEdit: (message: Message) => void;
+  onDelete: (message: Message) => void;
 }
 
-export function AccessibleMessage({ message, onReply, onEdit, onDelete }: AccessibleMessageProps) {
-  const { settings } = useAccessibility()
-  const announce = useAnnouncer()
+export function AccessibleMessage({
+  message,
+  onReply,
+  onEdit,
+  onDelete,
+}: AccessibleMessageProps) {
+  const { settings } = useAccessibility();
+  const announce = useAnnouncer();
 
-  const label = getMessageLabel(message.content, message.author.name, message.timestamp, {
-    isEdited: message.edited,
-    hasAttachments: message.attachments.length > 0,
-    attachmentCount: message.attachments.length,
-  })
+  const label = getMessageLabel(
+    message.content,
+    message.author.name,
+    message.timestamp,
+    {
+      isEdited: message.edited,
+      hasAttachments: message.attachments.length > 0,
+      attachmentCount: message.attachments.length,
+    },
+  );
 
   const handleAction = (action: string, callback: () => void) => {
-    callback()
+    callback();
     if (settings.announceNotifications) {
-      announce(`${action} ${message.author.name}'s message`)
+      announce(`${action} ${message.author.name}'s message`);
     }
-  }
+  };
 
   return (
     <div role="article" aria-label={label} className="border-b p-4">
@@ -312,7 +351,9 @@ export function AccessibleMessage({ message, onReply, onEdit, onDelete }: Access
           >
             {message.timestamp.toLocaleString()}
           </time>
-          {message.edited && <span className="ml-2 text-xs text-muted-foreground">(edited)</span>}
+          {message.edited && (
+            <span className="ml-2 text-xs text-muted-foreground">(edited)</span>
+          )}
         </div>
       </div>
 
@@ -322,12 +363,15 @@ export function AccessibleMessage({ message, onReply, onEdit, onDelete }: Access
       {/* Attachments */}
       {message.attachments.length > 0 && (
         <ul
-          aria-label={getCountLabel(message.attachments.length, 'attachment')}
+          aria-label={getCountLabel(message.attachments.length, "attachment")}
           className="mt-2 list-none space-y-1 pl-0"
         >
           {message.attachments.map((attachment) => (
             <li key={attachment.url}>
-              <a href={attachment.url} className="block text-sm text-primary hover:underline">
+              <a
+                href={attachment.url}
+                className="block text-sm text-primary hover:underline"
+              >
                 📎 {attachment.name}
               </a>
             </li>
@@ -336,11 +380,15 @@ export function AccessibleMessage({ message, onReply, onEdit, onDelete }: Access
       )}
 
       {/* Actions */}
-      <div role="group" aria-label="Message actions" className="mt-2 flex gap-2">
+      <div
+        role="group"
+        aria-label="Message actions"
+        className="mt-2 flex gap-2"
+      >
         <Button
           size="sm"
           variant="ghost"
-          onClick={() => handleAction('Replying to', () => onReply(message))}
+          onClick={() => handleAction("Replying to", () => onReply(message))}
           aria-label={`Reply to ${message.author.name}'s message`}
         >
           Reply
@@ -348,7 +396,7 @@ export function AccessibleMessage({ message, onReply, onEdit, onDelete }: Access
         <Button
           size="sm"
           variant="ghost"
-          onClick={() => handleAction('Editing', () => onEdit(message))}
+          onClick={() => handleAction("Editing", () => onEdit(message))}
           aria-label="Edit message"
         >
           Edit
@@ -356,14 +404,14 @@ export function AccessibleMessage({ message, onReply, onEdit, onDelete }: Access
         <Button
           size="sm"
           variant="ghost"
-          onClick={() => handleAction('Deleting', () => onDelete(message))}
+          onClick={() => handleAction("Deleting", () => onDelete(message))}
           aria-label="Delete message"
         >
           Delete
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -371,23 +419,23 @@ export function AccessibleMessage({ message, onReply, onEdit, onDelete }: Access
 // ============================================================================
 
 interface AccessibleLoadingProps {
-  isLoading: boolean
-  children: React.ReactNode
-  loadingText?: string
+  isLoading: boolean;
+  children: React.ReactNode;
+  loadingText?: string;
 }
 
 export function AccessibleLoading({
   isLoading,
   children,
-  loadingText = 'Loading',
+  loadingText = "Loading",
 }: AccessibleLoadingProps) {
-  const announce = useAnnouncer()
+  const announce = useAnnouncer();
 
   useEffect(() => {
     if (isLoading) {
-      announce(loadingText, 'polite')
+      announce(loadingText, "polite");
     }
-  }, [isLoading, loadingText, announce])
+  }, [isLoading, loadingText, announce]);
 
   if (isLoading) {
     return (
@@ -403,11 +451,11 @@ export function AccessibleLoading({
           <span className="sr-only">{loadingText}</span>
         </div>
       </div>
-    )
+    );
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 // Missing useState import
-import { useState } from 'react'
+import { useState } from "react";

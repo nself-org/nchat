@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * useJobQueue Hook
@@ -10,16 +10,16 @@
  * @version 1.0.0
  */
 
-import { useState, useCallback } from 'react'
-import { useToast } from '@/hooks/use-toast'
-import { logger } from '@/lib/logger'
+import { useState, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/lib/logger";
 import type {
   NchatJobType,
   QueueName,
   JobPayload,
   CreateJobOptions,
   JobStatus,
-} from '@/services/jobs/types'
+} from "@/services/jobs/types";
 
 // ============================================================================
 // Types
@@ -29,39 +29,39 @@ import type {
  * Job listing entry
  */
 export interface JobListEntry {
-  id: string
-  queue: string
-  type: string
-  status: JobStatus
-  payload: unknown
-  progress: number
-  attempts: number
-  createdAt: string
-  processedAt: string | null
-  finishedAt: string | null
-  delay?: number
-  metadata?: Record<string, unknown>
-  tags?: string[]
+  id: string;
+  queue: string;
+  type: string;
+  status: JobStatus;
+  payload: unknown;
+  progress: number;
+  attempts: number;
+  createdAt: string;
+  processedAt: string | null;
+  finishedAt: string | null;
+  delay?: number;
+  metadata?: Record<string, unknown>;
+  tags?: string[];
 }
 
 /**
  * Job list filters
  */
 export interface JobListFilters {
-  queue?: QueueName
-  status?: JobStatus | JobStatus[]
-  type?: NchatJobType
-  limit?: number
-  offset?: number
+  queue?: QueueName;
+  status?: JobStatus | JobStatus[];
+  type?: NchatJobType;
+  limit?: number;
+  offset?: number;
 }
 
 /**
  * Create job result
  */
 export interface CreateJobResult {
-  jobId: string
-  queue: string
-  type: string
+  jobId: string;
+  queue: string;
+  type: string;
 }
 
 /**
@@ -69,27 +69,27 @@ export interface CreateJobResult {
  */
 export interface UseJobQueueReturn {
   /** List of jobs */
-  jobs: JobListEntry[]
+  jobs: JobListEntry[];
   /** Total count of matching jobs */
-  total: number
+  total: number;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error message */
-  error: string | null
+  error: string | null;
   /** Create a new job */
   createJob: <T extends JobPayload>(
     type: NchatJobType,
     payload: T,
-    options?: CreateJobOptions
-  ) => Promise<CreateJobResult | null>
+    options?: CreateJobOptions,
+  ) => Promise<CreateJobResult | null>;
   /** List jobs with optional filters */
-  listJobs: (filters?: JobListFilters) => Promise<void>
+  listJobs: (filters?: JobListFilters) => Promise<void>;
   /** Refresh job list */
-  refresh: () => Promise<void>
+  refresh: () => Promise<void>;
   /** Retry a failed job */
-  retryJob: (jobId: string) => Promise<boolean>
+  retryJob: (jobId: string) => Promise<boolean>;
   /** Cancel a pending job */
-  cancelJob: (jobId: string) => Promise<boolean>
+  cancelJob: (jobId: string) => Promise<boolean>;
 }
 
 // ============================================================================
@@ -149,224 +149,246 @@ export interface UseJobQueueReturn {
  * ```
  */
 export function useJobQueue(): UseJobQueueReturn {
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   // State
-  const [jobs, setJobs] = useState<JobListEntry[]>([])
-  const [total, setTotal] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [lastFilters, setLastFilters] = useState<JobListFilters>({})
+  const [jobs, setJobs] = useState<JobListEntry[]>([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastFilters, setLastFilters] = useState<JobListFilters>({});
 
   // Create a job
   const createJob = useCallback(
     async <T extends JobPayload>(
       type: NchatJobType,
       payload: T,
-      options?: CreateJobOptions
+      options?: CreateJobOptions,
     ): Promise<CreateJobResult | null> => {
       try {
-        setIsLoading(true)
-        setError(null)
+        setIsLoading(true);
+        setError(null);
 
-        const response = await fetch('/api/jobs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             type,
             payload,
             ...options,
           }),
-        })
+        });
 
         if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.error || 'Failed to create job')
+          const data = await response.json();
+          throw new Error(data.error || "Failed to create job");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
-        logger.info('Job created', { jobId: data.jobId, type })
+        logger.info("Job created", { jobId: data.jobId, type });
 
         toast({
-          title: 'Job created',
+          title: "Job created",
           description: `Job ${data.jobId} has been queued`,
-        })
+        });
 
         return {
           jobId: data.jobId,
           queue: data.queue,
           type: data.type,
-        }
+        };
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to create job'
-        setError(message)
+        const message =
+          err instanceof Error ? err.message : "Failed to create job";
+        setError(message);
 
-        logger.error('Failed to create job', err instanceof Error ? err : new Error(message))
+        logger.error(
+          "Failed to create job",
+          err instanceof Error ? err : new Error(message),
+        );
 
         toast({
-          title: 'Error',
+          title: "Error",
           description: message,
-          variant: 'destructive',
-        })
+          variant: "destructive",
+        });
 
-        return null
+        return null;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [toast]
-  )
+    [toast],
+  );
 
   // List jobs
-  const listJobs = useCallback(async (filters?: JobListFilters): Promise<void> => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      setLastFilters(filters || {})
+  const listJobs = useCallback(
+    async (filters?: JobListFilters): Promise<void> => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        setLastFilters(filters || {});
 
-      const params = new URLSearchParams()
+        const params = new URLSearchParams();
 
-      if (filters?.queue) {
-        params.set('queue', filters.queue)
+        if (filters?.queue) {
+          params.set("queue", filters.queue);
+        }
+
+        if (filters?.status) {
+          const statuses = Array.isArray(filters.status)
+            ? filters.status.join(",")
+            : filters.status;
+          params.set("status", statuses);
+        }
+
+        if (filters?.type) {
+          params.set("type", filters.type);
+        }
+
+        if (filters?.limit) {
+          params.set("limit", filters.limit.toString());
+        }
+
+        if (filters?.offset) {
+          params.set("offset", filters.offset.toString());
+        }
+
+        const jobsUrl = `/api/jobs?${params.toString()}`;
+        const response = await fetch(jobsUrl);
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Failed to fetch jobs");
+        }
+
+        const data = await response.json();
+
+        setJobs(data.jobs);
+        setTotal(data.total);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to fetch jobs";
+        setError(message);
+
+        logger.error(
+          "Failed to fetch jobs",
+          err instanceof Error ? err : new Error(message),
+        );
+      } finally {
+        setIsLoading(false);
       }
-
-      if (filters?.status) {
-        const statuses = Array.isArray(filters.status) ? filters.status.join(',') : filters.status
-        params.set('status', statuses)
-      }
-
-      if (filters?.type) {
-        params.set('type', filters.type)
-      }
-
-      if (filters?.limit) {
-        params.set('limit', filters.limit.toString())
-      }
-
-      if (filters?.offset) {
-        params.set('offset', filters.offset.toString())
-      }
-
-      const response = await fetch(`/api/jobs?${params.toString()}`)
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to fetch jobs')
-      }
-
-      const data = await response.json()
-
-      setJobs(data.jobs)
-      setTotal(data.total)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to fetch jobs'
-      setError(message)
-
-      logger.error('Failed to fetch jobs', err instanceof Error ? err : new Error(message))
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+    },
+    [],
+  );
 
   // Refresh with last filters
   const refresh = useCallback(async (): Promise<void> => {
-    await listJobs(lastFilters)
-  }, [listJobs, lastFilters])
+    await listJobs(lastFilters);
+  }, [listJobs, lastFilters]);
 
   // Retry a job
   const retryJob = useCallback(
     async (jobId: string): Promise<boolean> => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
         const response = await fetch(`/api/jobs/${jobId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({}),
-        })
+        });
 
         if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.error || 'Failed to retry job')
+          const data = await response.json();
+          throw new Error(data.error || "Failed to retry job");
         }
 
-        logger.info('Job retried', { jobId })
+        logger.info("Job retried", { jobId });
 
         toast({
-          title: 'Job retried',
+          title: "Job retried",
           description: `Job ${jobId} has been queued for retry`,
-        })
+        });
 
         // Refresh list
-        await refresh()
+        await refresh();
 
-        return true
+        return true;
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to retry job'
-        setError(message)
+        const message =
+          err instanceof Error ? err.message : "Failed to retry job";
+        setError(message);
 
-        logger.error('Failed to retry job', err instanceof Error ? err : new Error(message))
+        logger.error(
+          "Failed to retry job",
+          err instanceof Error ? err : new Error(message),
+        );
 
         toast({
-          title: 'Error',
+          title: "Error",
           description: message,
-          variant: 'destructive',
-        })
+          variant: "destructive",
+        });
 
-        return false
+        return false;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [toast, refresh]
-  )
+    [toast, refresh],
+  );
 
   // Cancel a job
   const cancelJob = useCallback(
     async (jobId: string): Promise<boolean> => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
         const response = await fetch(`/api/jobs/${jobId}`, {
-          method: 'DELETE',
-        })
+          method: "DELETE",
+        });
 
         if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.error || 'Failed to cancel job')
+          const data = await response.json();
+          throw new Error(data.error || "Failed to cancel job");
         }
 
-        logger.info('Job cancelled', { jobId })
+        logger.info("Job cancelled", { jobId });
 
         toast({
-          title: 'Job cancelled',
+          title: "Job cancelled",
           description: `Job ${jobId} has been cancelled`,
-        })
+        });
 
         // Refresh list
-        await refresh()
+        await refresh();
 
-        return true
+        return true;
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to cancel job'
-        setError(message)
+        const message =
+          err instanceof Error ? err.message : "Failed to cancel job";
+        setError(message);
 
-        logger.error('Failed to cancel job', err instanceof Error ? err : new Error(message))
+        logger.error(
+          "Failed to cancel job",
+          err instanceof Error ? err : new Error(message),
+        );
 
         toast({
-          title: 'Error',
+          title: "Error",
           description: message,
-          variant: 'destructive',
-        })
+          variant: "destructive",
+        });
 
-        return false
+        return false;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
-    [toast, refresh]
-  )
+    [toast, refresh],
+  );
 
   return {
     jobs,
@@ -378,7 +400,7 @@ export function useJobQueue(): UseJobQueueReturn {
     refresh,
     retryJob,
     cancelJob,
-  }
+  };
 }
 
 // ============================================================================
@@ -389,7 +411,7 @@ export function useJobQueue(): UseJobQueueReturn {
  * Hook for scheduling messages via the job queue
  */
 export function useScheduleMessageJob() {
-  const { createJob } = useJobQueue()
+  const { createJob } = useJobQueue();
 
   const scheduleMessage = useCallback(
     async (
@@ -398,22 +420,27 @@ export function useScheduleMessageJob() {
       content: string,
       scheduledAt: Date,
       options?: {
-        threadId?: string
-        replyToId?: string
-        attachments?: Array<{ id: string; name: string; type: string; url: string }>
-        mentions?: string[]
-      }
+        threadId?: string;
+        replyToId?: string;
+        attachments?: Array<{
+          id: string;
+          name: string;
+          type: string;
+          url: string;
+        }>;
+        mentions?: string[];
+      },
     ): Promise<{ jobId: string; scheduledMessageId: string } | null> => {
-      const scheduledMessageId = `sched_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      const delay = scheduledAt.getTime() - Date.now()
+      const scheduledMessageId = `sched_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const delay = scheduledAt.getTime() - Date.now();
 
       if (delay < 0) {
-        logger.warn('Cannot schedule message in the past')
-        return null
+        logger.warn("Cannot schedule message in the past");
+        return null;
       }
 
       const result = await createJob(
-        'scheduled-message',
+        "scheduled-message",
         {
           scheduledMessageId,
           channelId,
@@ -426,37 +453,37 @@ export function useScheduleMessageJob() {
         },
         {
           delay,
-          queue: 'scheduled',
-          priority: 'normal',
-          tags: ['scheduled-message', `channel:${channelId}`, `user:${userId}`],
+          queue: "scheduled",
+          priority: "normal",
+          tags: ["scheduled-message", `channel:${channelId}`, `user:${userId}`],
           metadata: {
             scheduledAt: scheduledAt.toISOString(),
             channelId,
             userId,
           },
-        }
-      )
+        },
+      );
 
       if (result) {
         return {
           jobId: result.jobId,
           scheduledMessageId,
-        }
+        };
       }
 
-      return null
+      return null;
     },
-    [createJob]
-  )
+    [createJob],
+  );
 
-  return { scheduleMessage }
+  return { scheduleMessage };
 }
 
 /**
  * Hook for queuing notifications via the job queue
  */
 export function useNotificationJob() {
-  const { createJob } = useJobQueue()
+  const { createJob } = useJobQueue();
 
   const sendNotification = useCallback(
     async (
@@ -464,17 +491,17 @@ export function useNotificationJob() {
       title: string,
       body: string,
       options?: {
-        type?: 'push' | 'email' | 'in-app' | 'sms'
-        url?: string
-        iconUrl?: string
-        data?: Record<string, unknown>
-        priority?: 'critical' | 'high' | 'normal' | 'low'
-      }
+        type?: "push" | "email" | "in-app" | "sms";
+        url?: string;
+        iconUrl?: string;
+        data?: Record<string, unknown>;
+        priority?: "critical" | "high" | "normal" | "low";
+      },
     ): Promise<string | null> => {
       const result = await createJob(
-        'send-notification',
+        "send-notification",
         {
-          notificationType: options?.type || 'push',
+          notificationType: options?.type || "push",
           userIds,
           title,
           body,
@@ -483,38 +510,38 @@ export function useNotificationJob() {
           data: options?.data,
         },
         {
-          queue: 'high-priority',
-          priority: options?.priority || 'normal',
-          tags: ['notification', options?.type || 'push'],
-        }
-      )
+          queue: "high-priority",
+          priority: options?.priority || "normal",
+          tags: ["notification", options?.type || "push"],
+        },
+      );
 
-      return result?.jobId || null
+      return result?.jobId || null;
     },
-    [createJob]
-  )
+    [createJob],
+  );
 
-  return { sendNotification }
+  return { sendNotification };
 }
 
 /**
  * Hook for queuing search indexing via the job queue
  */
 export function useSearchIndexJob() {
-  const { createJob } = useJobQueue()
+  const { createJob } = useJobQueue();
 
   const indexContent = useCallback(
     async (
-      operation: 'index' | 'update' | 'delete' | 'reindex',
-      entityType: 'message' | 'channel' | 'user' | 'file',
+      operation: "index" | "update" | "delete" | "reindex",
+      entityType: "message" | "channel" | "user" | "file",
       entityIds: string[],
       options?: {
-        channelId?: string
-        fullReindex?: boolean
-      }
+        channelId?: string;
+        fullReindex?: boolean;
+      },
     ): Promise<string | null> => {
       const result = await createJob(
-        'index-search',
+        "index-search",
         {
           operation,
           entityType,
@@ -523,18 +550,18 @@ export function useSearchIndexJob() {
           fullReindex: options?.fullReindex,
         },
         {
-          queue: 'low-priority',
-          priority: 'low',
-          tags: ['search-index', entityType, operation],
-        }
-      )
+          queue: "low-priority",
+          priority: "low",
+          tags: ["search-index", entityType, operation],
+        },
+      );
 
-      return result?.jobId || null
+      return result?.jobId || null;
     },
-    [createJob]
-  )
+    [createJob],
+  );
 
-  return { indexContent }
+  return { indexContent };
 }
 
-export default useJobQueue
+export default useJobQueue;

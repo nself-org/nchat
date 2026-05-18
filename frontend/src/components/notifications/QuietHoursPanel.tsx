@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Card } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { useNotificationSettingsStore } from '@/stores/notification-settings-store'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useNotificationSettingsStore } from "@/stores/notification-settings-store";
 import {
   getAllDaysOfWeek,
   isInQuietHours,
   formatRemainingTime,
   getTimeUntilQuietHoursEnd,
-} from '@/lib/notifications/quiet-hours'
-import type { DayOfWeek } from '@/lib/notifications/notification-types'
+} from "@/lib/notifications/quiet-hours";
+import type { DayOfWeek } from "@/lib/notifications/notification-types";
 
 export interface QuietHoursPanelProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -21,20 +21,30 @@ export interface QuietHoursPanelProps extends React.HTMLAttributes<HTMLDivElemen
  * QuietHoursPanel - Do Not Disturb schedule settings
  */
 export function QuietHoursPanel({ className, ...props }: QuietHoursPanelProps) {
-  const quietHours = useNotificationSettingsStore((state) => state.preferences.quietHours)
-  const updateQuietHours = useNotificationSettingsStore((state) => state.updateQuietHours)
-  const setQuietHoursEnabled = useNotificationSettingsStore((state) => state.setQuietHoursEnabled)
-  const setQuietHoursTime = useNotificationSettingsStore((state) => state.setQuietHoursTime)
-  const toggleQuietHoursDay = useNotificationSettingsStore((state) => state.toggleQuietHoursDay)
+  const quietHours = useNotificationSettingsStore(
+    (state) => state.preferences.quietHours,
+  );
+  const updateQuietHours = useNotificationSettingsStore(
+    (state) => state.updateQuietHours,
+  );
+  const setQuietHoursEnabled = useNotificationSettingsStore(
+    (state) => state.setQuietHoursEnabled,
+  );
+  const setQuietHoursTime = useNotificationSettingsStore(
+    (state) => state.setQuietHoursTime,
+  );
+  const toggleQuietHoursDay = useNotificationSettingsStore(
+    (state) => state.toggleQuietHoursDay,
+  );
 
-  const daysOfWeek = getAllDaysOfWeek()
+  const daysOfWeek = getAllDaysOfWeek();
 
   // Check if currently in quiet hours
-  const isActive = isInQuietHours(quietHours)
-  const timeUntilEnd = isActive ? getTimeUntilQuietHoursEnd(quietHours) : null
+  const isActive = isInQuietHours(quietHours);
+  const timeUntilEnd = isActive ? getTimeUntilQuietHoursEnd(quietHours) : null;
 
   return (
-    <div className={cn('space-y-6', className)} {...props}>
+    <div className={cn("space-y-6", className)} {...props}>
       {/* Master Toggle */}
       <Card className="p-4">
         <div className="flex items-center justify-between">
@@ -68,32 +78,47 @@ export function QuietHoursPanel({ className, ...props }: QuietHoursPanelProps) {
       </Card>
 
       {/* Schedule */}
-      <Card className={cn('p-4', !quietHours.enabled && 'pointer-events-none opacity-50')}>
+      <Card
+        className={cn(
+          "p-4",
+          !quietHours.enabled && "pointer-events-none opacity-50",
+        )}
+      >
         <h3 className="mb-4 text-sm font-medium">Schedule</h3>
         <div className="space-y-4">
           {/* Time Range */}
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <Label htmlFor="start-time" className="text-xs text-muted-foreground">
+              <Label
+                htmlFor="start-time"
+                className="text-xs text-muted-foreground"
+              >
                 Start time
               </Label>
               <Input
                 id="start-time"
                 type="time"
                 value={quietHours.startTime}
-                onChange={(e) => setQuietHoursTime(e.target.value, quietHours.endTime)}
+                onChange={(e) =>
+                  setQuietHoursTime(e.target.value, quietHours.endTime)
+                }
                 className="mt-1"
               />
             </div>
             <div className="flex-1">
-              <Label htmlFor="end-time" className="text-xs text-muted-foreground">
+              <Label
+                htmlFor="end-time"
+                className="text-xs text-muted-foreground"
+              >
                 End time
               </Label>
               <Input
                 id="end-time"
                 type="time"
                 value={quietHours.endTime}
-                onChange={(e) => setQuietHoursTime(quietHours.startTime, e.target.value)}
+                onChange={(e) =>
+                  setQuietHoursTime(quietHours.startTime, e.target.value)
+                }
                 className="mt-1"
               />
             </div>
@@ -101,7 +126,9 @@ export function QuietHoursPanel({ className, ...props }: QuietHoursPanelProps) {
 
           {/* Days of Week */}
           <div>
-            <Label className="mb-2 block text-xs text-muted-foreground">Active days</Label>
+            <Label className="mb-2 block text-xs text-muted-foreground">
+              Active days
+            </Label>
             <div className="flex gap-1">
               {daysOfWeek.map((day) => (
                 <button
@@ -109,10 +136,10 @@ export function QuietHoursPanel({ className, ...props }: QuietHoursPanelProps) {
                   type="button"
                   onClick={() => toggleQuietHoursDay(day.value as DayOfWeek)}
                   className={cn(
-                    'flex-1 rounded-md border px-2 py-2 text-xs font-medium transition-colors',
+                    "flex-1 rounded-md border px-2 py-2 text-xs font-medium transition-colors",
                     quietHours.days.includes(day.value as DayOfWeek)
-                      ? 'text-primary-foreground border-primary bg-primary'
-                      : 'border-input bg-background hover:bg-accent'
+                      ? "text-primary-foreground border-primary bg-primary"
+                      : "border-input bg-background hover:bg-accent",
                   )}
                 >
                   {day.shortLabel}
@@ -124,13 +151,22 @@ export function QuietHoursPanel({ className, ...props }: QuietHoursPanelProps) {
       </Card>
 
       {/* Options */}
-      <Card className={cn('p-4', !quietHours.enabled && 'pointer-events-none opacity-50')}>
+      <Card
+        className={cn(
+          "p-4",
+          !quietHours.enabled && "pointer-events-none opacity-50",
+        )}
+      >
         <h3 className="mb-4 text-sm font-medium">Options</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="allow-mentions">Allow @mentions to break through</Label>
-              <p className="text-xs text-muted-foreground">Direct mentions will still notify you</p>
+              <Label htmlFor="allow-mentions">
+                Allow @mentions to break through
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Direct mentions will still notify you
+              </p>
             </div>
             <Switch
               id="allow-mentions"
@@ -151,7 +187,9 @@ export function QuietHoursPanel({ className, ...props }: QuietHoursPanelProps) {
             <Switch
               id="weekends"
               checked={quietHours.enableOnWeekends}
-              onCheckedChange={(enableOnWeekends) => updateQuietHours({ enableOnWeekends })}
+              onCheckedChange={(enableOnWeekends) =>
+                updateQuietHours({ enableOnWeekends })
+              }
             />
           </div>
 
@@ -165,62 +203,77 @@ export function QuietHoursPanel({ className, ...props }: QuietHoursPanelProps) {
             <Switch
               id="auto-status"
               checked={quietHours.autoSetStatus}
-              onCheckedChange={(autoSetStatus) => updateQuietHours({ autoSetStatus })}
+              onCheckedChange={(autoSetStatus) =>
+                updateQuietHours({ autoSetStatus })
+              }
             />
           </div>
         </div>
       </Card>
 
       {/* Quick Presets */}
-      <Card className={cn('p-4', !quietHours.enabled && 'pointer-events-none opacity-50')}>
+      <Card
+        className={cn(
+          "p-4",
+          !quietHours.enabled && "pointer-events-none opacity-50",
+        )}
+      >
         <h3 className="mb-4 text-sm font-medium">Quick Presets</h3>
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => {
-              setQuietHoursTime('22:00', '08:00')
-              updateQuietHours({ days: [0, 1, 2, 3, 4, 5, 6] as DayOfWeek[] })
+              setQuietHoursTime("22:00", "08:00");
+              updateQuietHours({ days: [0, 1, 2, 3, 4, 5, 6] as DayOfWeek[] });
             }}
             className="rounded-lg border p-3 text-left transition-colors hover:bg-accent"
           >
             <span className="block text-sm font-medium">Nighttime</span>
-            <span className="text-xs text-muted-foreground">10pm - 8am, every day</span>
+            <span className="text-xs text-muted-foreground">
+              10pm - 8am, every day
+            </span>
           </button>
           <button
             type="button"
             onClick={() => {
-              setQuietHoursTime('18:00', '09:00')
-              updateQuietHours({ days: [1, 2, 3, 4, 5] as DayOfWeek[] })
+              setQuietHoursTime("18:00", "09:00");
+              updateQuietHours({ days: [1, 2, 3, 4, 5] as DayOfWeek[] });
             }}
             className="rounded-lg border p-3 text-left transition-colors hover:bg-accent"
           >
             <span className="block text-sm font-medium">After Work</span>
-            <span className="text-xs text-muted-foreground">6pm - 9am, weekdays</span>
+            <span className="text-xs text-muted-foreground">
+              6pm - 9am, weekdays
+            </span>
           </button>
           <button
             type="button"
             onClick={() => {
-              setQuietHoursTime('00:00', '23:59')
-              updateQuietHours({ days: [0, 6] as DayOfWeek[] })
+              setQuietHoursTime("00:00", "23:59");
+              updateQuietHours({ days: [0, 6] as DayOfWeek[] });
             }}
             className="rounded-lg border p-3 text-left transition-colors hover:bg-accent"
           >
             <span className="block text-sm font-medium">Weekends</span>
-            <span className="text-xs text-muted-foreground">All day Sat & Sun</span>
+            <span className="text-xs text-muted-foreground">
+              All day Sat & Sun
+            </span>
           </button>
           <button
             type="button"
             onClick={() => {
-              setQuietHoursTime('21:00', '07:00')
+              setQuietHoursTime("21:00", "07:00");
               updateQuietHours({
                 days: [0, 1, 2, 3, 4, 5, 6] as DayOfWeek[],
                 allowMentionsBreakthrough: true,
-              })
+              });
             }}
             className="rounded-lg border p-3 text-left transition-colors hover:bg-accent"
           >
             <span className="block text-sm font-medium">Sleep Mode</span>
-            <span className="text-xs text-muted-foreground">9pm - 7am, mentions OK</span>
+            <span className="text-xs text-muted-foreground">
+              9pm - 7am, mentions OK
+            </span>
           </button>
         </div>
       </Card>
@@ -243,9 +296,9 @@ export function QuietHoursPanel({ className, ...props }: QuietHoursPanelProps) {
         </div>
       </Card>
     </div>
-  )
+  );
 }
 
-QuietHoursPanel.displayName = 'QuietHoursPanel'
+QuietHoursPanel.displayName = "QuietHoursPanel";
 
-export default QuietHoursPanel
+export default QuietHoursPanel;

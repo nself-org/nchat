@@ -4,9 +4,9 @@
  * Manages app directory state including apps, installations, search, and filters
  */
 
-import { create } from 'zustand'
-import { devtools, subscribeWithSelector } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { create } from "zustand";
+import { devtools, subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 import type {
   App,
@@ -19,7 +19,7 @@ import type {
   AppDirectoryState,
   AppDirectoryActions,
   AppDirectoryStore,
-} from '@/lib/app-directory/app-types'
+} from "@/lib/app-directory/app-types";
 
 import {
   getAllApps,
@@ -28,17 +28,17 @@ import {
   getFeaturedApps,
   getPopularApps,
   getRecentApps,
-} from '@/lib/app-directory/app-registry'
+} from "@/lib/app-directory/app-registry";
 
-import { APP_CATEGORIES } from '@/lib/app-directory/app-categories'
-import { searchApps, DEFAULT_FILTERS } from '@/lib/app-directory/app-search'
+import { APP_CATEGORIES } from "@/lib/app-directory/app-categories";
+import { searchApps, DEFAULT_FILTERS } from "@/lib/app-directory/app-search";
 import {
   installApp as installAppFn,
   uninstallApp as uninstallAppFn,
   getUserInstallations,
   isAppInstalled,
   getInstallation,
-} from '@/lib/app-directory/app-installer'
+} from "@/lib/app-directory/app-installer";
 
 // ============================================================================
 // Initial State
@@ -56,7 +56,7 @@ const initialState: AppDirectoryState = {
   installedApps: new Map(),
 
   // Search State
-  searchQuery: '',
+  searchQuery: "",
   searchResults: [],
   searchFilters: { ...DEFAULT_FILTERS },
 
@@ -70,7 +70,7 @@ const initialState: AppDirectoryState = {
   // Pagination
   hasMore: false,
   currentPage: 1,
-}
+};
 
 // ============================================================================
 // Store
@@ -89,51 +89,51 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
         setApps: (apps) =>
           set(
             (state) => {
-              state.apps = new Map(apps.map((app) => [app.id, app]))
+              state.apps = new Map(apps.map((app) => [app.id, app]));
             },
             false,
-            'appDirectory/setApps'
+            "appDirectory/setApps",
           ),
 
         addApp: (app) =>
           set(
             (state) => {
-              state.apps.set(app.id, app)
+              state.apps.set(app.id, app);
             },
             false,
-            'appDirectory/addApp'
+            "appDirectory/addApp",
           ),
 
         updateApp: (appId, updates) =>
           set(
             (state) => {
-              const app = state.apps.get(appId)
+              const app = state.apps.get(appId);
               if (app) {
-                state.apps.set(appId, { ...app, ...updates })
+                state.apps.set(appId, { ...app, ...updates });
               }
             },
             false,
-            'appDirectory/updateApp'
+            "appDirectory/updateApp",
           ),
 
         removeApp: (appId) =>
           set(
             (state) => {
-              state.apps.delete(appId)
+              state.apps.delete(appId);
             },
             false,
-            'appDirectory/removeApp'
+            "appDirectory/removeApp",
           ),
 
         getAppById: (appId) => {
-          const storeApp = get().apps.get(appId)
-          return storeApp || getAppById(appId)
+          const storeApp = get().apps.get(appId);
+          return storeApp || getAppById(appId);
         },
 
         getAppBySlug: (slug) => {
-          const apps = Array.from(get().apps.values())
-          const storeApp = apps.find((app) => app.slug === slug)
-          return storeApp || getAppBySlug(slug)
+          const apps = Array.from(get().apps.values());
+          const storeApp = apps.find((app) => app.slug === slug);
+          return storeApp || getAppBySlug(slug);
         },
 
         // ========================================
@@ -143,20 +143,20 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
         setCategories: (categories) =>
           set(
             (state) => {
-              state.categories = categories
+              state.categories = categories;
             },
             false,
-            'appDirectory/setCategories'
+            "appDirectory/setCategories",
           ),
 
         setActiveCategory: (categoryId) =>
           set(
             (state) => {
-              state.activeCategory = categoryId
-              state.currentPage = 1
+              state.activeCategory = categoryId;
+              state.currentPage = 1;
             },
             false,
-            'appDirectory/setActiveCategory'
+            "appDirectory/setActiveCategory",
           ),
 
         // ========================================
@@ -166,28 +166,28 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
         setFeaturedApps: (appIds) =>
           set(
             (state) => {
-              state.featuredApps = appIds
+              state.featuredApps = appIds;
             },
             false,
-            'appDirectory/setFeaturedApps'
+            "appDirectory/setFeaturedApps",
           ),
 
         setPopularApps: (appIds) =>
           set(
             (state) => {
-              state.popularApps = appIds
+              state.popularApps = appIds;
             },
             false,
-            'appDirectory/setPopularApps'
+            "appDirectory/setPopularApps",
           ),
 
         setRecentApps: (appIds) =>
           set(
             (state) => {
-              state.recentApps = appIds
+              state.recentApps = appIds;
             },
             false,
-            'appDirectory/setRecentApps'
+            "appDirectory/setRecentApps",
           ),
 
         // ========================================
@@ -198,122 +198,128 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
           set(
             (state) => {
               state.installedApps = new Map(
-                installations.map((install) => [install.appId, install])
-              )
+                installations.map((install) => [install.appId, install]),
+              );
             },
             false,
-            'appDirectory/setInstalledApps'
+            "appDirectory/setInstalledApps",
           ),
 
         installApp: async (appId, config) => {
           set(
             (state) => {
-              state.isInstalling = appId
-              state.error = null
+              state.isInstalling = appId;
+              state.error = null;
             },
             false,
-            'appDirectory/installApp/start'
-          )
+            "appDirectory/installApp/start",
+          );
 
           try {
             // For demo purposes, use a mock user ID
-            const userId = 'current-user'
-            const result = await installAppFn(appId, userId, config)
+            const userId = "current-user";
+            const result = await installAppFn(appId, userId, config);
 
             if (result.success && result.installation) {
               set(
                 (state) => {
-                  state.installedApps.set(appId, result.installation!)
-                  state.isInstalling = null
+                  state.installedApps.set(appId, result.installation!);
+                  state.isInstalling = null;
                 },
                 false,
-                'appDirectory/installApp/success'
-              )
+                "appDirectory/installApp/success",
+              );
             } else {
               set(
                 (state) => {
-                  state.error = result.error || 'Installation failed'
-                  state.isInstalling = null
+                  state.error = result.error || "Installation failed";
+                  state.isInstalling = null;
                 },
                 false,
-                'appDirectory/installApp/error'
-              )
+                "appDirectory/installApp/error",
+              );
             }
           } catch (error) {
             set(
               (state) => {
-                state.error = error instanceof Error ? error.message : 'Installation failed'
-                state.isInstalling = null
+                state.error =
+                  error instanceof Error
+                    ? error.message
+                    : "Installation failed";
+                state.isInstalling = null;
               },
               false,
-              'appDirectory/installApp/error'
-            )
+              "appDirectory/installApp/error",
+            );
           }
         },
 
         uninstallApp: async (appId) => {
           set(
             (state) => {
-              state.isInstalling = appId
-              state.error = null
+              state.isInstalling = appId;
+              state.error = null;
             },
             false,
-            'appDirectory/uninstallApp/start'
-          )
+            "appDirectory/uninstallApp/start",
+          );
 
           try {
-            const userId = 'current-user'
-            const result = await uninstallAppFn(appId, userId)
+            const userId = "current-user";
+            const result = await uninstallAppFn(appId, userId);
 
             if (result.success) {
               set(
                 (state) => {
-                  state.installedApps.delete(appId)
-                  state.isInstalling = null
+                  state.installedApps.delete(appId);
+                  state.isInstalling = null;
                 },
                 false,
-                'appDirectory/uninstallApp/success'
-              )
+                "appDirectory/uninstallApp/success",
+              );
             } else {
               set(
                 (state) => {
-                  state.error = result.error || 'Uninstallation failed'
-                  state.isInstalling = null
+                  state.error = result.error || "Uninstallation failed";
+                  state.isInstalling = null;
                 },
                 false,
-                'appDirectory/uninstallApp/error'
-              )
+                "appDirectory/uninstallApp/error",
+              );
             }
           } catch (error) {
             set(
               (state) => {
-                state.error = error instanceof Error ? error.message : 'Uninstallation failed'
-                state.isInstalling = null
+                state.error =
+                  error instanceof Error
+                    ? error.message
+                    : "Uninstallation failed";
+                state.isInstalling = null;
               },
               false,
-              'appDirectory/uninstallApp/error'
-            )
+              "appDirectory/uninstallApp/error",
+            );
           }
         },
 
         updateInstallation: (appId, updates) =>
           set(
             (state) => {
-              const installation = state.installedApps.get(appId)
+              const installation = state.installedApps.get(appId);
               if (installation) {
-                state.installedApps.set(appId, { ...installation, ...updates })
+                state.installedApps.set(appId, { ...installation, ...updates });
               }
             },
             false,
-            'appDirectory/updateInstallation'
+            "appDirectory/updateInstallation",
           ),
 
         isAppInstalled: (appId) => {
-          return get().installedApps.has(appId)
+          return get().installedApps.has(appId);
         },
 
         getInstallation: (appId) => {
-          return get().installedApps.get(appId)
+          return get().installedApps.get(appId);
         },
 
         // ========================================
@@ -323,76 +329,77 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
         setSearchQuery: (query) =>
           set(
             (state) => {
-              state.searchQuery = query
-              state.currentPage = 1
+              state.searchQuery = query;
+              state.currentPage = 1;
             },
             false,
-            'appDirectory/setSearchQuery'
+            "appDirectory/setSearchQuery",
           ),
 
         setSearchResults: (results) =>
           set(
             (state) => {
-              state.searchResults = results
+              state.searchResults = results;
             },
             false,
-            'appDirectory/setSearchResults'
+            "appDirectory/setSearchResults",
           ),
 
         setSearchFilters: (filters) =>
           set(
             (state) => {
-              state.searchFilters = { ...state.searchFilters, ...filters }
-              state.currentPage = 1
+              state.searchFilters = { ...state.searchFilters, ...filters };
+              state.currentPage = 1;
             },
             false,
-            'appDirectory/setSearchFilters'
+            "appDirectory/setSearchFilters",
           ),
 
         resetSearchFilters: () =>
           set(
             (state) => {
-              state.searchFilters = { ...DEFAULT_FILTERS }
-              state.currentPage = 1
+              state.searchFilters = { ...DEFAULT_FILTERS };
+              state.currentPage = 1;
             },
             false,
-            'appDirectory/resetSearchFilters'
+            "appDirectory/resetSearchFilters",
           ),
 
         searchApps: async (params) => {
           set(
             (state) => {
-              state.isLoading = true
-              state.error = null
+              state.isLoading = true;
+              state.error = null;
             },
             false,
-            'appDirectory/searchApps/start'
-          )
+            "appDirectory/searchApps/start",
+          );
 
           try {
-            const result = await searchApps(params)
+            const result = await searchApps(params);
 
             set(
               (state) => {
-                state.searchResults = result.apps
-                state.hasMore = result.hasMore
-                state.currentPage = result.page
-                state.isLoading = false
+                state.searchResults = result.apps;
+                state.hasMore = result.hasMore;
+                state.currentPage = result.page;
+                state.isLoading = false;
               },
               false,
-              'appDirectory/searchApps/success'
-            )
+              "appDirectory/searchApps/success",
+            );
 
-            return result
+            return result;
           } catch (error) {
             set(
               (state) => {
-                state.error = error instanceof Error ? error.message : 'Search failed'
-                state.isLoading = false
+                state.error =
+                  error instanceof Error ? error.message : "Search failed";
+                state.isLoading = false;
               },
               false,
-              'appDirectory/searchApps/error'
-            )
+              "appDirectory/searchApps/error",
+            );
 
             return {
               apps: [],
@@ -401,7 +408,7 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
               limit: 20,
               hasMore: false,
               facets: { categories: [], types: [], pricing: [] },
-            }
+            };
           }
         },
 
@@ -412,10 +419,10 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
         selectApp: (appId) =>
           set(
             (state) => {
-              state.selectedAppId = appId
+              state.selectedAppId = appId;
             },
             false,
-            'appDirectory/selectApp'
+            "appDirectory/selectApp",
           ),
 
         // ========================================
@@ -425,28 +432,28 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
         setLoading: (loading) =>
           set(
             (state) => {
-              state.isLoading = loading
+              state.isLoading = loading;
             },
             false,
-            'appDirectory/setLoading'
+            "appDirectory/setLoading",
           ),
 
         setInstalling: (appId) =>
           set(
             (state) => {
-              state.isInstalling = appId
+              state.isInstalling = appId;
             },
             false,
-            'appDirectory/setInstalling'
+            "appDirectory/setInstalling",
           ),
 
         setError: (error) =>
           set(
             (state) => {
-              state.error = error
+              state.error = error;
             },
             false,
-            'appDirectory/setError'
+            "appDirectory/setError",
           ),
 
         // ========================================
@@ -456,36 +463,36 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
         setHasMore: (hasMore) =>
           set(
             (state) => {
-              state.hasMore = hasMore
+              state.hasMore = hasMore;
             },
             false,
-            'appDirectory/setHasMore'
+            "appDirectory/setHasMore",
           ),
 
         setCurrentPage: (page) =>
           set(
             (state) => {
-              state.currentPage = page
+              state.currentPage = page;
             },
             false,
-            'appDirectory/setCurrentPage'
+            "appDirectory/setCurrentPage",
           ),
 
         loadMoreApps: async () => {
-          const state = get()
-          if (!state.hasMore || state.isLoading) return
+          const state = get();
+          if (!state.hasMore || state.isLoading) return;
 
-          const nextPage = state.currentPage + 1
+          const nextPage = state.currentPage + 1;
           const filterCategories = state.activeCategory
             ? [state.activeCategory]
-            : state.searchFilters.categories
+            : state.searchFilters.categories;
 
           await get().searchApps({
             query: state.searchQuery,
             ...state.searchFilters,
             categories: filterCategories,
             page: nextPage,
-          })
+          });
         },
 
         // ========================================
@@ -500,51 +507,54 @@ export const useAppDirectoryStore = create<AppDirectoryStore>()(
               installedApps: new Map(),
             }),
             false,
-            'appDirectory/resetStore'
+            "appDirectory/resetStore",
           ),
-      }))
+      })),
     ),
-    { name: 'app-directory-store' }
-  )
-)
+    { name: "app-directory-store" },
+  ),
+);
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectAllApps = (state: AppDirectoryStore) => Array.from(state.apps.values())
+export const selectAllApps = (state: AppDirectoryStore) =>
+  Array.from(state.apps.values());
 
 export const selectFeaturedApps = (state: AppDirectoryStore) =>
   state.featuredApps
     .map((id) => state.apps.get(id) || getAppById(id))
-    .filter((app): app is App => app !== undefined)
+    .filter((app): app is App => app !== undefined);
 
 export const selectPopularApps = (state: AppDirectoryStore) =>
   state.popularApps
     .map((id) => state.apps.get(id) || getAppById(id))
-    .filter((app): app is App => app !== undefined)
+    .filter((app): app is App => app !== undefined);
 
 export const selectRecentApps = (state: AppDirectoryStore) =>
   state.recentApps
     .map((id) => state.apps.get(id) || getAppById(id))
-    .filter((app): app is App => app !== undefined)
+    .filter((app): app is App => app !== undefined);
 
 export const selectInstalledApps = (state: AppDirectoryStore) =>
-  Array.from(state.installedApps.values())
+  Array.from(state.installedApps.values());
 
 export const selectCategories = (state: AppDirectoryStore) =>
-  state.categories.length > 0 ? state.categories : APP_CATEGORIES
+  state.categories.length > 0 ? state.categories : APP_CATEGORIES;
 
 export const selectActiveCategory = (state: AppDirectoryStore) => {
-  if (!state.activeCategory) return null
-  const categories = state.categories.length > 0 ? state.categories : APP_CATEGORIES
-  return categories.find((c) => c.id === state.activeCategory) || null
-}
+  if (!state.activeCategory) return null;
+  const categories =
+    state.categories.length > 0 ? state.categories : APP_CATEGORIES;
+  return categories.find((c) => c.id === state.activeCategory) || null;
+};
 
-export const selectSearchResults = (state: AppDirectoryStore) => state.searchResults
+export const selectSearchResults = (state: AppDirectoryStore) =>
+  state.searchResults;
 
 export const selectHasActiveFilters = (state: AppDirectoryStore) => {
-  const { searchFilters } = state
+  const { searchFilters } = state;
   return (
     searchFilters.categories.length > 0 ||
     searchFilters.types.length > 0 ||
@@ -552,31 +562,32 @@ export const selectHasActiveFilters = (state: AppDirectoryStore) => {
     searchFilters.minRating > 0 ||
     searchFilters.verified ||
     searchFilters.featured
-  )
-}
+  );
+};
 
 export const selectAppById = (appId: string) => (state: AppDirectoryStore) =>
-  state.apps.get(appId) || getAppById(appId)
+  state.apps.get(appId) || getAppById(appId);
 
-export const selectIsInstalled = (appId: string) => (state: AppDirectoryStore) =>
-  state.installedApps.has(appId)
+export const selectIsInstalled =
+  (appId: string) => (state: AppDirectoryStore) =>
+    state.installedApps.has(appId);
 
 // ============================================================================
 // Initialization Helper
 // ============================================================================
 
 export function initializeAppDirectory() {
-  const store = useAppDirectoryStore.getState()
+  const store = useAppDirectoryStore.getState();
 
   // Load all apps
-  const allApps = getAllApps()
-  store.setApps(allApps)
+  const allApps = getAllApps();
+  store.setApps(allApps);
 
   // Set categories
-  store.setCategories(APP_CATEGORIES)
+  store.setCategories(APP_CATEGORIES);
 
   // Set featured, popular, and recent apps
-  store.setFeaturedApps(getFeaturedApps().map((a) => a.id))
-  store.setPopularApps(getPopularApps(10).map((a) => a.id))
-  store.setRecentApps(getRecentApps(10).map((a) => a.id))
+  store.setFeaturedApps(getFeaturedApps().map((a) => a.id));
+  store.setPopularApps(getPopularApps(10).map((a) => a.id));
+  store.setRecentApps(getRecentApps(10).map((a) => a.id));
 }

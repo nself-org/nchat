@@ -7,33 +7,33 @@
  * @module lib/streaming/hls-player
  */
 
-import Hls, { type HlsConfig, type Events } from 'hls.js'
-import type { BitrateLevel, HLSStats, StreamQuality } from './stream-types'
+import Hls, { type HlsConfig, type Events } from "hls.js";
+import type { BitrateLevel, HLSStats, StreamQuality } from "./stream-types";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface HLSPlayerConfig {
-  manifestUrl: string
-  videoElement: HTMLVideoElement
-  autoStart?: boolean
-  startLevel?: number
-  lowLatencyMode?: boolean
-  maxBufferLength?: number
-  maxBufferSize?: number
-  onError?: (error: HLSPlayerError) => void
-  onQualityChange?: (level: BitrateLevel) => void
-  onStats?: (stats: HLSStats) => void
+  manifestUrl: string;
+  videoElement: HTMLVideoElement;
+  autoStart?: boolean;
+  startLevel?: number;
+  lowLatencyMode?: boolean;
+  maxBufferLength?: number;
+  maxBufferSize?: number;
+  onError?: (error: HLSPlayerError) => void;
+  onQualityChange?: (level: BitrateLevel) => void;
+  onStats?: (stats: HLSStats) => void;
 }
 
 export interface HLSPlayerError {
-  type: 'network' | 'media' | 'other'
-  details: string
-  fatal: boolean
-  recoverable: boolean
+  type: "network" | "media" | "other";
+  details: string;
+  fatal: boolean;
+  recoverable: boolean;
 }
 
 // ============================================================================
@@ -41,12 +41,12 @@ export interface HLSPlayerError {
 // ============================================================================
 
 const QUALITY_LEVEL_MAP: Record<StreamQuality, number> = {
-  '360p': 0,
-  '480p': 1,
-  '720p': 2,
-  '1080p': 3,
+  "360p": 0,
+  "480p": 1,
+  "720p": 2,
+  "1080p": 3,
   auto: -1,
-}
+};
 
 const DEFAULT_CONFIG: Partial<HlsConfig> = {
   enableWorker: true,
@@ -70,25 +70,25 @@ const DEFAULT_CONFIG: Partial<HlsConfig> = {
   capLevelOnFPSDrop: true,
   capLevelToPlayerSize: true,
   ignoreDevicePixelRatio: false,
-}
+};
 
 // ============================================================================
 // HLS Player Manager
 // ============================================================================
 
 export class HLSPlayerManager {
-  private hls: Hls | null = null
-  private videoElement: HTMLVideoElement
-  private manifestUrl: string
-  private config: HLSPlayerConfig
-  private statsInterval: number | null = null
-  private currentLevel: number = -1
-  private availableLevels: BitrateLevel[] = []
+  private hls: Hls | null = null;
+  private videoElement: HTMLVideoElement;
+  private manifestUrl: string;
+  private config: HLSPlayerConfig;
+  private statsInterval: number | null = null;
+  private currentLevel: number = -1;
+  private availableLevels: BitrateLevel[] = [];
 
   constructor(config: HLSPlayerConfig) {
-    this.config = config
-    this.manifestUrl = config.manifestUrl
-    this.videoElement = config.videoElement
+    this.config = config;
+    this.manifestUrl = config.manifestUrl;
+    this.videoElement = config.videoElement;
   }
 
   // ==========================================================================
@@ -101,15 +101,15 @@ export class HLSPlayerManager {
   public async initialize(): Promise<void> {
     if (!Hls.isSupported()) {
       // Fallback to native HLS support (Safari)
-      if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-        this.videoElement.src = this.manifestUrl
+      if (this.videoElement.canPlayType("application/vnd.apple.mpegurl")) {
+        this.videoElement.src = this.manifestUrl;
         if (this.config.autoStart) {
-          await this.videoElement.play()
+          await this.videoElement.play();
         }
-        return
+        return;
       }
 
-      throw new Error('HLS is not supported in this browser')
+      throw new Error("HLS is not supported in this browser");
     }
 
     const hlsConfig: Partial<HlsConfig> = {
@@ -118,27 +118,27 @@ export class HLSPlayerManager {
       maxBufferLength: this.config.maxBufferLength ?? 30,
       maxBufferSize: this.config.maxBufferSize ?? 60 * 1000 * 1000,
       startLevel: this.config.startLevel ?? -1,
-    }
+    };
 
-    this.hls = new Hls(hlsConfig)
+    this.hls = new Hls(hlsConfig);
 
-    this.attachEventListeners()
-    this.hls.loadSource(this.manifestUrl)
-    this.hls.attachMedia(this.videoElement)
+    this.attachEventListeners();
+    this.hls.loadSource(this.manifestUrl);
+    this.hls.attachMedia(this.videoElement);
 
     // Auto-start playback
     if (this.config.autoStart) {
       this.hls.on(Hls.Events.MANIFEST_PARSED, async () => {
         try {
-          await this.videoElement.play()
+          await this.videoElement.play();
         } catch (error) {
-          logger.error('Failed to auto-play:', error)
+          logger.error("Failed to auto-play:", error);
         }
-      })
+      });
     }
 
     // Start stats monitoring
-    this.startStatsMonitoring()
+    this.startStatsMonitoring();
   }
 
   // ==========================================================================
@@ -146,7 +146,7 @@ export class HLSPlayerManager {
   // ==========================================================================
 
   private attachEventListeners(): void {
-    if (!this.hls) return
+    if (!this.hls) return;
 
     // Manifest loaded
     this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
@@ -156,53 +156,53 @@ export class HLSPlayerManager {
         height: level.height,
         bitrate: level.bitrate,
         name: this.getLevelName(level.height),
-      }))
-    })
+      }));
+    });
 
     // Level switched
     this.hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
-      this.currentLevel = data.level
-      const levelInfo = this.availableLevels[data.level]
+      this.currentLevel = data.level;
+      const levelInfo = this.availableLevels[data.level];
       if (levelInfo && this.config.onQualityChange) {
-        this.config.onQualityChange(levelInfo)
+        this.config.onQualityChange(levelInfo);
       }
-    })
+    });
 
     // Error handling
     this.hls.on(Hls.Events.ERROR, (event, data) => {
-      const error = this.mapHlsError(data)
+      const error = this.mapHlsError(data);
 
       if (data.fatal) {
         switch (data.type) {
           case Hls.ErrorTypes.NETWORK_ERROR:
-            logger.error('Fatal network error,  trying to recover...')
-            this.hls?.startLoad()
-            break
+            logger.error("Fatal network error,  trying to recover...");
+            this.hls?.startLoad();
+            break;
           case Hls.ErrorTypes.MEDIA_ERROR:
-            logger.error('Fatal media error,  trying to recover...')
-            this.hls?.recoverMediaError()
-            break
+            logger.error("Fatal media error,  trying to recover...");
+            this.hls?.recoverMediaError();
+            break;
           default:
-            logger.error('Fatal error,  cannot recover')
-            this.destroy()
-            break
+            logger.error("Fatal error,  cannot recover");
+            this.destroy();
+            break;
         }
       }
 
       if (this.config.onError) {
-        this.config.onError(error)
+        this.config.onError(error);
       }
-    })
+    });
 
     // Fragment loading progress
     this.hls.on(Hls.Events.FRAG_LOADED, () => {
       // Fragment successfully loaded
-    })
+    });
 
     // Buffer events for monitoring
     this.hls.on(Hls.Events.BUFFER_APPENDED, () => {
       // Buffer appended
-    })
+    });
   }
 
   // ==========================================================================
@@ -213,19 +213,21 @@ export class HLSPlayerManager {
    * Set quality level
    */
   public setQuality(quality: StreamQuality): void {
-    if (!this.hls) return
+    if (!this.hls) return;
 
-    if (quality === 'auto') {
-      this.hls.currentLevel = -1 // Enable ABR
-      return
+    if (quality === "auto") {
+      this.hls.currentLevel = -1; // Enable ABR
+      return;
     }
 
     // Find matching level by height
-    const targetHeight = this.qualityToHeight(quality)
-    const levelIndex = this.availableLevels.findIndex((level) => level.height === targetHeight)
+    const targetHeight = this.qualityToHeight(quality);
+    const levelIndex = this.availableLevels.findIndex(
+      (level) => level.height === targetHeight,
+    );
 
     if (levelIndex !== -1) {
-      this.hls.currentLevel = levelIndex
+      this.hls.currentLevel = levelIndex;
     }
   }
 
@@ -233,19 +235,19 @@ export class HLSPlayerManager {
    * Get current quality
    */
   public getCurrentQuality(): StreamQuality {
-    if (!this.hls || this.currentLevel === -1) return 'auto'
+    if (!this.hls || this.currentLevel === -1) return "auto";
 
-    const level = this.availableLevels[this.currentLevel]
-    if (!level) return 'auto'
+    const level = this.availableLevels[this.currentLevel];
+    if (!level) return "auto";
 
-    return this.heightToQuality(level.height)
+    return this.heightToQuality(level.height);
   }
 
   /**
    * Get available quality levels
    */
   public getAvailableLevels(): BitrateLevel[] {
-    return this.availableLevels
+    return this.availableLevels;
   }
 
   // ==========================================================================
@@ -256,39 +258,39 @@ export class HLSPlayerManager {
    * Play video
    */
   public async play(): Promise<void> {
-    await this.videoElement.play()
+    await this.videoElement.play();
   }
 
   /**
    * Pause video
    */
   public pause(): void {
-    this.videoElement.pause()
+    this.videoElement.pause();
   }
 
   /**
    * Set volume (0-1)
    */
   public setVolume(volume: number): void {
-    this.videoElement.volume = Math.max(0, Math.min(1, volume))
+    this.videoElement.volume = Math.max(0, Math.min(1, volume));
   }
 
   /**
    * Mute/unmute
    */
   public setMuted(muted: boolean): void {
-    this.videoElement.muted = muted
+    this.videoElement.muted = muted;
   }
 
   /**
    * Go to live edge
    */
   public goToLive(): void {
-    if (!this.hls) return
+    if (!this.hls) return;
 
-    const duration = this.videoElement.duration
+    const duration = this.videoElement.duration;
     if (duration && isFinite(duration)) {
-      this.videoElement.currentTime = duration
+      this.videoElement.currentTime = duration;
     }
   }
 
@@ -298,20 +300,20 @@ export class HLSPlayerManager {
 
   private startStatsMonitoring(): void {
     this.statsInterval = window.setInterval(() => {
-      const stats = this.getStats()
+      const stats = this.getStats();
       if (stats && this.config.onStats) {
-        this.config.onStats(stats)
+        this.config.onStats(stats);
       }
-    }, 2000) // Update every 2 seconds
+    }, 2000); // Update every 2 seconds
   }
 
   /**
    * Get current playback statistics
    */
   public getStats(): HLSStats | null {
-    if (!this.hls) return null
+    if (!this.hls) return null;
 
-    const currentLevel = this.availableLevels[this.currentLevel]
+    const currentLevel = this.availableLevels[this.currentLevel];
 
     return {
       currentLevel: this.currentLevel,
@@ -320,26 +322,26 @@ export class HLSPlayerManager {
       droppedFrames: this.getDroppedFrames(),
       loadedFragments: 0,
       totalBytesLoaded: 0,
-    }
+    };
   }
 
   private getBufferLength(): number {
-    const buffered = this.videoElement.buffered
-    if (buffered.length === 0) return 0
+    const buffered = this.videoElement.buffered;
+    if (buffered.length === 0) return 0;
 
-    const currentTime = this.videoElement.currentTime
+    const currentTime = this.videoElement.currentTime;
     for (let i = 0; i < buffered.length; i++) {
       if (buffered.start(i) <= currentTime && buffered.end(i) >= currentTime) {
-        return buffered.end(i) - currentTime
+        return buffered.end(i) - currentTime;
       }
     }
 
-    return 0
+    return 0;
   }
 
   private getDroppedFrames(): number {
-    const videoQuality = (this.videoElement as any).getVideoPlaybackQuality?.()
-    return videoQuality?.droppedVideoFrames ?? 0
+    const videoQuality = (this.videoElement as any).getVideoPlaybackQuality?.();
+    return videoQuality?.droppedVideoFrames ?? 0;
   }
 
   // ==========================================================================
@@ -350,34 +352,34 @@ export class HLSPlayerManager {
    * Get current latency from live edge
    */
   public getLatency(): number {
-    if (!this.hls) return 0
+    if (!this.hls) return 0;
 
-    const duration = this.videoElement.duration
-    const currentTime = this.videoElement.currentTime
+    const duration = this.videoElement.duration;
+    const currentTime = this.videoElement.currentTime;
 
     if (isFinite(duration) && isFinite(currentTime)) {
-      return duration - currentTime
+      return duration - currentTime;
     }
 
-    return 0
+    return 0;
   }
 
   /**
    * Enable low-latency mode
    */
   public setLowLatencyMode(enabled: boolean): void {
-    if (!this.hls) return
+    if (!this.hls) return;
 
-    this.hls.config.lowLatencyMode = enabled
+    this.hls.config.lowLatencyMode = enabled;
 
     if (enabled) {
-      this.hls.config.maxBufferLength = 10
-      this.hls.config.liveSyncDurationCount = 2
-      this.hls.config.liveMaxLatencyDurationCount = 5
+      this.hls.config.maxBufferLength = 10;
+      this.hls.config.liveSyncDurationCount = 2;
+      this.hls.config.liveMaxLatencyDurationCount = 5;
     } else {
-      this.hls.config.maxBufferLength = 30
-      this.hls.config.liveSyncDurationCount = 3
-      this.hls.config.liveMaxLatencyDurationCount = 10
+      this.hls.config.maxBufferLength = 30;
+      this.hls.config.liveSyncDurationCount = 3;
+      this.hls.config.liveMaxLatencyDurationCount = 10;
     }
   }
 
@@ -387,39 +389,39 @@ export class HLSPlayerManager {
 
   private qualityToHeight(quality: StreamQuality): number {
     const map: Record<StreamQuality, number> = {
-      '360p': 360,
-      '480p': 480,
-      '720p': 720,
-      '1080p': 1080,
+      "360p": 360,
+      "480p": 480,
+      "720p": 720,
+      "1080p": 1080,
       auto: 0,
-    }
-    return map[quality]
+    };
+    return map[quality];
   }
 
   private heightToQuality(height: number): StreamQuality {
-    if (height >= 1080) return '1080p'
-    if (height >= 720) return '720p'
-    if (height >= 480) return '480p'
-    return '360p'
+    if (height >= 1080) return "1080p";
+    if (height >= 720) return "720p";
+    if (height >= 480) return "480p";
+    return "360p";
   }
 
   private getLevelName(height: number): string {
-    if (height >= 1080) return '1080p'
-    if (height >= 720) return '720p'
-    if (height >= 480) return '480p'
-    return '360p'
+    if (height >= 1080) return "1080p";
+    if (height >= 720) return "720p";
+    if (height >= 480) return "480p";
+    return "360p";
   }
 
   private mapHlsError(data: any): HLSPlayerError {
-    let type: 'network' | 'media' | 'other' = 'other'
+    let type: "network" | "media" | "other" = "other";
 
     switch (data.type) {
       case Hls.ErrorTypes.NETWORK_ERROR:
-        type = 'network'
-        break
+        type = "network";
+        break;
       case Hls.ErrorTypes.MEDIA_ERROR:
-        type = 'media'
-        break
+        type = "media";
+        break;
     }
 
     return {
@@ -427,7 +429,7 @@ export class HLSPlayerManager {
       details: data.details,
       fatal: data.fatal,
       recoverable: !data.fatal,
-    }
+    };
   }
 
   // ==========================================================================
@@ -439,17 +441,17 @@ export class HLSPlayerManager {
    */
   public destroy(): void {
     if (this.statsInterval) {
-      window.clearInterval(this.statsInterval)
-      this.statsInterval = null
+      window.clearInterval(this.statsInterval);
+      this.statsInterval = null;
     }
 
     if (this.hls) {
-      this.hls.destroy()
-      this.hls = null
+      this.hls.destroy();
+      this.hls = null;
     }
 
-    this.videoElement.src = ''
-    this.videoElement.load()
+    this.videoElement.src = "";
+    this.videoElement.load();
   }
 
   // ==========================================================================
@@ -457,23 +459,25 @@ export class HLSPlayerManager {
   // ==========================================================================
 
   public get isPlaying(): boolean {
-    return !this.videoElement.paused && !this.videoElement.ended
+    return !this.videoElement.paused && !this.videoElement.ended;
   }
 
   public get isPaused(): boolean {
-    return this.videoElement.paused
+    return this.videoElement.paused;
   }
 
   public get isLive(): boolean {
-    return isFinite(this.videoElement.duration) && this.videoElement.duration > 0
+    return (
+      isFinite(this.videoElement.duration) && this.videoElement.duration > 0
+    );
   }
 
   public get volume(): number {
-    return this.videoElement.volume
+    return this.videoElement.volume;
   }
 
   public get isMuted(): boolean {
-    return this.videoElement.muted
+    return this.videoElement.muted;
   }
 
   // ==========================================================================
@@ -484,12 +488,12 @@ export class HLSPlayerManager {
    * Convert level index to quality name
    */
   public levelToQuality(level: number): StreamQuality {
-    if (level < 0 || level >= this.availableLevels.length) return 'auto'
+    if (level < 0 || level >= this.availableLevels.length) return "auto";
 
-    const levelInfo = this.availableLevels[level]
-    if (!levelInfo) return 'auto'
+    const levelInfo = this.availableLevels[level];
+    if (!levelInfo) return "auto";
 
-    return this.heightToQuality(levelInfo.height)
+    return this.heightToQuality(levelInfo.height);
   }
 }
 
@@ -501,5 +505,5 @@ export class HLSPlayerManager {
  * Create HLS player manager instance
  */
 export function createHLSPlayer(config: HLSPlayerConfig): HLSPlayerManager {
-  return new HLSPlayerManager(config)
+  return new HLSPlayerManager(config);
 }

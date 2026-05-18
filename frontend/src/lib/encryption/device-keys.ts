@@ -18,9 +18,9 @@ import type {
   DeviceSession,
   DeviceLinkRequest,
   PreKeyBundle,
-} from '@/types/encryption'
+} from "@/types/encryption";
 
-import { EncryptionError, EncryptionErrorType } from '@/types/encryption'
+import { EncryptionError, EncryptionErrorType } from "@/types/encryption";
 import {
   generateKeyPair,
   generateRegistrationId,
@@ -34,10 +34,10 @@ import {
   uint8ArrayToHex,
   hexToUint8Array,
   KeyPair,
-} from './crypto-primitives'
-import { getIdentityManager } from './identity'
+} from "./crypto-primitives";
+import { getIdentityManager } from "./identity";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -47,73 +47,73 @@ import { logger } from '@/lib/logger'
  * Local device information with keys
  */
 export interface LocalDevice {
-  deviceId: string
-  deviceName: string
-  platform: DeviceInfo['platform']
-  identityKeyPair: IdentityKeyPair
-  registrationId: number
-  createdAt: number
-  lastSyncedAt: number
+  deviceId: string;
+  deviceName: string;
+  platform: DeviceInfo["platform"];
+  identityKeyPair: IdentityKeyPair;
+  registrationId: number;
+  createdAt: number;
+  lastSyncedAt: number;
 }
 
 /**
  * Remote device (linked to same account)
  */
 export interface LinkedDevice {
-  deviceId: string
-  deviceName: string
-  platform: DeviceInfo['platform']
-  identityPublicKey: Uint8Array
-  registrationId: number
-  lastSeen: Date
-  isCurrentDevice: boolean
+  deviceId: string;
+  deviceName: string;
+  platform: DeviceInfo["platform"];
+  identityPublicKey: Uint8Array;
+  registrationId: number;
+  lastSeen: Date;
+  isCurrentDevice: boolean;
 }
 
 /**
  * Device link code data
  */
 interface DeviceLinkCode {
-  code: string
-  secret: Uint8Array
-  expiresAt: number
-  sourceDeviceId: string
+  code: string;
+  secret: Uint8Array;
+  expiresAt: number;
+  sourceDeviceId: string;
 }
 
 /**
  * Stored device data
  */
 interface StoredDeviceData {
-  deviceId: string
-  deviceName: string
-  platform: string
-  identityPublicKey: string // base64
-  identityPrivateKey: string // base64
-  registrationId: number
-  createdAt: number
-  lastSyncedAt: number
+  deviceId: string;
+  deviceName: string;
+  platform: string;
+  identityPublicKey: string; // base64
+  identityPrivateKey: string; // base64
+  registrationId: number;
+  createdAt: number;
+  lastSyncedAt: number;
 }
 
 /**
  * Stored linked device data
  */
 interface StoredLinkedDevice {
-  deviceId: string
-  deviceName: string
-  platform: string
-  identityPublicKey: string // base64
-  registrationId: number
-  lastSeen: number
+  deviceId: string;
+  deviceName: string;
+  platform: string;
+  identityPublicKey: string; // base64
+  registrationId: number;
+  lastSeen: number;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const DEVICE_STORAGE_KEY = 'nchat_device_data'
-const LINKED_DEVICES_KEY = 'nchat_linked_devices'
-const LINK_CODE_KEY = 'nchat_link_code'
-const LINK_CODE_EXPIRY = 5 * 60 * 1000 // 5 minutes
-const LINK_CODE_LENGTH = 6
+const DEVICE_STORAGE_KEY = "nchat_device_data";
+const LINKED_DEVICES_KEY = "nchat_linked_devices";
+const LINK_CODE_KEY = "nchat_link_code";
+const LINK_CODE_EXPIRY = 5 * 60 * 1000; // 5 minutes
+const LINK_CODE_LENGTH = 6;
 
 // ============================================================================
 // Device Key Manager
@@ -126,11 +126,11 @@ const LINK_CODE_LENGTH = 6
  * multi-device support.
  */
 export class DeviceKeyManager {
-  private static instance: DeviceKeyManager
-  private localDevice: LocalDevice | null = null
-  private linkedDevices: Map<string, LinkedDevice> = new Map()
-  private pendingLinkCode: DeviceLinkCode | null = null
-  private initialized = false
+  private static instance: DeviceKeyManager;
+  private localDevice: LocalDevice | null = null;
+  private linkedDevices: Map<string, LinkedDevice> = new Map();
+  private pendingLinkCode: DeviceLinkCode | null = null;
+  private initialized = false;
 
   private constructor() {}
 
@@ -139,68 +139,71 @@ export class DeviceKeyManager {
    */
   static getInstance(): DeviceKeyManager {
     if (!DeviceKeyManager.instance) {
-      DeviceKeyManager.instance = new DeviceKeyManager()
+      DeviceKeyManager.instance = new DeviceKeyManager();
     }
-    return DeviceKeyManager.instance
+    return DeviceKeyManager.instance;
   }
 
   /**
    * Initializes the device key manager
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return
+    if (this.initialized) return;
 
     // Load local device data
-    const stored = this.loadDeviceData()
+    const stored = this.loadDeviceData();
     if (stored) {
-      this.localDevice = stored
+      this.localDevice = stored;
     } else {
       // Generate new device identity
-      await this.generateDeviceIdentity()
+      await this.generateDeviceIdentity();
     }
 
     // Load linked devices
-    await this.loadLinkedDevices()
+    await this.loadLinkedDevices();
 
-    this.initialized = true
+    this.initialized = true;
   }
 
   /**
    * Gets the local device information
    */
   async getLocalDevice(): Promise<LocalDevice> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     if (!this.localDevice) {
-      throw new EncryptionError(EncryptionErrorType.KEY_NOT_FOUND, 'Local device not initialized')
+      throw new EncryptionError(
+        EncryptionErrorType.KEY_NOT_FOUND,
+        "Local device not initialized",
+      );
     }
 
-    return this.localDevice
+    return this.localDevice;
   }
 
   /**
    * Gets the local device ID
    */
   async getDeviceId(): Promise<string> {
-    const device = await this.getLocalDevice()
-    return device.deviceId
+    const device = await this.getLocalDevice();
+    return device.deviceId;
   }
 
   /**
    * Gets the local device's identity key pair
    */
   async getDeviceIdentityKeyPair(): Promise<IdentityKeyPair> {
-    const device = await this.getLocalDevice()
-    return device.identityKeyPair
+    const device = await this.getLocalDevice();
+    return device.identityKeyPair;
   }
 
   /**
    * Gets all linked devices (including current)
    */
   async getLinkedDevices(): Promise<LinkedDevice[]> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    const devices: LinkedDevice[] = []
+    const devices: LinkedDevice[] = [];
 
     // Add current device
     if (this.localDevice) {
@@ -212,29 +215,32 @@ export class DeviceKeyManager {
         registrationId: this.localDevice.registrationId,
         lastSeen: new Date(this.localDevice.lastSyncedAt),
         isCurrentDevice: true,
-      })
+      });
     }
 
     // Add linked devices
     for (const device of this.linkedDevices.values()) {
-      devices.push(device)
+      devices.push(device);
     }
 
-    return devices
+    return devices;
   }
 
   /**
    * Updates the local device name
    */
   async updateDeviceName(name: string): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     if (!this.localDevice) {
-      throw new EncryptionError(EncryptionErrorType.KEY_NOT_FOUND, 'Local device not initialized')
+      throw new EncryptionError(
+        EncryptionErrorType.KEY_NOT_FOUND,
+        "Local device not initialized",
+      );
     }
 
-    this.localDevice.deviceName = name
-    await this.saveDeviceData()
+    this.localDevice.deviceName = name;
+    await this.saveDeviceData();
   }
 
   /**
@@ -244,32 +250,35 @@ export class DeviceKeyManager {
    * or scanned on the new device.
    */
   async generateLinkCode(): Promise<DeviceLinkRequest> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     if (!this.localDevice) {
-      throw new EncryptionError(EncryptionErrorType.KEY_NOT_FOUND, 'Local device not initialized')
+      throw new EncryptionError(
+        EncryptionErrorType.KEY_NOT_FOUND,
+        "Local device not initialized",
+      );
     }
 
     // Generate a random code
-    const codeBytes = randomBytes(LINK_CODE_LENGTH)
+    const codeBytes = randomBytes(LINK_CODE_LENGTH);
     const code = Array.from(codeBytes)
       .map((b) => (b % 10).toString())
-      .join('')
+      .join("");
 
     // Generate a secret for secure key transfer
-    const secret = randomBytes(32)
+    const secret = randomBytes(32);
 
-    const expiresAt = Date.now() + LINK_CODE_EXPIRY
+    const expiresAt = Date.now() + LINK_CODE_EXPIRY;
 
     this.pendingLinkCode = {
       code,
       secret,
       expiresAt,
       sourceDeviceId: this.localDevice.deviceId,
-    }
+    };
 
     // Store in memory (and optionally localStorage for persistence)
-    this.saveLinkCode()
+    this.saveLinkCode();
 
     // Create QR code data (code + secret, base64 encoded)
     const qrData = uint8ArrayToBase64(
@@ -279,9 +288,9 @@ export class DeviceKeyManager {
           secret: uint8ArrayToBase64(secret),
           deviceId: this.localDevice.deviceId,
           deviceName: this.localDevice.deviceName,
-        })
-      )
-    )
+        }),
+      ),
+    );
 
     return {
       code,
@@ -289,8 +298,8 @@ export class DeviceKeyManager {
       qrData,
       sourceDeviceId: this.localDevice.deviceId,
       sourceDeviceName: this.localDevice.deviceName,
-      status: 'pending',
-    }
+      status: "pending",
+    };
   }
 
   /**
@@ -302,9 +311,9 @@ export class DeviceKeyManager {
   async verifyLinkCode(code: string): Promise<boolean> {
     // This would typically be verified by the server
     // For now, we check locally if we have a pending code
-    if (!this.pendingLinkCode) return false
-    if (Date.now() > this.pendingLinkCode.expiresAt) return false
-    return this.pendingLinkCode.code === code
+    if (!this.pendingLinkCode) return false;
+    if (Date.now() > this.pendingLinkCode.expiresAt) return false;
+    return this.pendingLinkCode.code === code;
   }
 
   /**
@@ -315,45 +324,56 @@ export class DeviceKeyManager {
    * @returns The new device's identity
    */
   async completeLinking(code: string, qrData?: string): Promise<LocalDevice> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    let linkData: { code: string; secret: string; deviceId: string; deviceName: string }
+    let linkData: {
+      code: string;
+      secret: string;
+      deviceId: string;
+      deviceName: string;
+    };
 
     if (qrData) {
       // Parse QR data
       try {
-        const decoded = new TextDecoder().decode(base64ToUint8Array(qrData))
-        linkData = JSON.parse(decoded)
+        const decoded = new TextDecoder().decode(base64ToUint8Array(qrData));
+        linkData = JSON.parse(decoded);
       } catch {
-        throw new EncryptionError(EncryptionErrorType.INVALID_MESSAGE, 'Invalid QR code data')
+        throw new EncryptionError(
+          EncryptionErrorType.INVALID_MESSAGE,
+          "Invalid QR code data",
+        );
       }
     } else {
       // Manual code entry - would need to fetch secret from server
       throw new EncryptionError(
         EncryptionErrorType.NETWORK_ERROR,
-        'Manual code entry requires server connection'
-      )
+        "Manual code entry requires server connection",
+      );
     }
 
     // Verify the code matches
     if (linkData.code !== code) {
-      throw new EncryptionError(EncryptionErrorType.INVALID_MESSAGE, 'Link code mismatch')
+      throw new EncryptionError(
+        EncryptionErrorType.INVALID_MESSAGE,
+        "Link code mismatch",
+      );
     }
 
     // Generate new device identity if not already initialized
     if (!this.localDevice) {
-      await this.generateDeviceIdentity()
+      await this.generateDeviceIdentity();
     }
 
     // The secret would be used to encrypt the identity key transfer
     // For this implementation, we just establish the link
-    const secret = base64ToUint8Array(linkData.secret)
+    const secret = base64ToUint8Array(linkData.secret);
 
     // Add the source device as a linked device
     // In a real implementation, we would receive their identity key
     // through an encrypted channel using the shared secret
 
-    return this.localDevice!
+    return this.localDevice!;
   }
 
   /**
@@ -364,45 +384,51 @@ export class DeviceKeyManager {
    */
   async acceptDeviceLink(
     newDevicePublicKey: Uint8Array,
-    newDeviceInfo: Partial<DeviceInfo>
+    newDeviceInfo: Partial<DeviceInfo>,
   ): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     if (!this.pendingLinkCode) {
-      throw new EncryptionError(EncryptionErrorType.INVALID_MESSAGE, 'No pending link request')
+      throw new EncryptionError(
+        EncryptionErrorType.INVALID_MESSAGE,
+        "No pending link request",
+      );
     }
 
     if (Date.now() > this.pendingLinkCode.expiresAt) {
-      this.pendingLinkCode = null
-      throw new EncryptionError(EncryptionErrorType.INVALID_MESSAGE, 'Link code expired')
+      this.pendingLinkCode = null;
+      throw new EncryptionError(
+        EncryptionErrorType.INVALID_MESSAGE,
+        "Link code expired",
+      );
     }
 
-    const deviceId = this.generateDeviceId()
+    const deviceId = this.generateDeviceId();
 
     const linkedDevice: LinkedDevice = {
       deviceId,
-      deviceName: newDeviceInfo.deviceName || 'Unknown Device',
-      platform: newDeviceInfo.platform || 'unknown',
+      deviceName: newDeviceInfo.deviceName || "Unknown Device",
+      platform: newDeviceInfo.platform || "unknown",
       identityPublicKey: newDevicePublicKey,
       registrationId: 0, // Would be provided by new device
       lastSeen: new Date(),
       isCurrentDevice: false,
-    }
+    };
 
-    this.linkedDevices.set(deviceId, linkedDevice)
-    await this.saveLinkedDevices()
+    this.linkedDevices.set(deviceId, linkedDevice);
+    await this.saveLinkedDevices();
 
     // Clear the pending link code
-    this.pendingLinkCode = null
-    this.clearLinkCode()
+    this.pendingLinkCode = null;
+    this.clearLinkCode();
   }
 
   /**
    * Cancels a pending device link
    */
   async cancelLink(): Promise<void> {
-    this.pendingLinkCode = null
-    this.clearLinkCode()
+    this.pendingLinkCode = null;
+    this.clearLinkCode();
   }
 
   /**
@@ -411,14 +437,17 @@ export class DeviceKeyManager {
    * @param deviceId - The device ID to remove
    */
   async unlinkDevice(deviceId: string): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     if (this.localDevice && deviceId === this.localDevice.deviceId) {
-      throw new EncryptionError(EncryptionErrorType.INVALID_MESSAGE, 'Cannot unlink current device')
+      throw new EncryptionError(
+        EncryptionErrorType.INVALID_MESSAGE,
+        "Cannot unlink current device",
+      );
     }
 
-    this.linkedDevices.delete(deviceId)
-    await this.saveLinkedDevices()
+    this.linkedDevices.delete(deviceId);
+    await this.saveLinkedDevices();
   }
 
   /**
@@ -430,9 +459,9 @@ export class DeviceKeyManager {
   async getAllDevicePreKeyBundles(userId: string): Promise<PreKeyBundle[]> {
     // This would typically fetch from the server
     // For now, return the local device's bundle
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
-    const bundles: PreKeyBundle[] = []
+    const bundles: PreKeyBundle[] = [];
 
     // Local device bundle would need signed prekey data
     // This is a placeholder structure
@@ -440,7 +469,7 @@ export class DeviceKeyManager {
       // Would need to get from SignedPreKeyManager
     }
 
-    return bundles
+    return bundles;
   }
 
   /**
@@ -449,18 +478,18 @@ export class DeviceKeyManager {
    * @param deviceId - The device ID
    */
   async updateDeviceLastSeen(deviceId: string): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     if (this.localDevice && deviceId === this.localDevice.deviceId) {
-      this.localDevice.lastSyncedAt = Date.now()
-      await this.saveDeviceData()
-      return
+      this.localDevice.lastSyncedAt = Date.now();
+      await this.saveDeviceData();
+      return;
     }
 
-    const device = this.linkedDevices.get(deviceId)
+    const device = this.linkedDevices.get(deviceId);
     if (device) {
-      device.lastSeen = new Date()
-      await this.saveLinkedDevices()
+      device.lastSeen = new Date();
+      await this.saveLinkedDevices();
     }
   }
 
@@ -468,15 +497,15 @@ export class DeviceKeyManager {
    * Clears all device data (dangerous!)
    */
   async clearAllDeviceData(): Promise<void> {
-    this.localDevice = null
-    this.linkedDevices.clear()
-    this.pendingLinkCode = null
-    this.initialized = false
+    this.localDevice = null;
+    this.linkedDevices.clear();
+    this.pendingLinkCode = null;
+    this.initialized = false;
 
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(DEVICE_STORAGE_KEY)
-      localStorage.removeItem(LINKED_DEVICES_KEY)
-      localStorage.removeItem(LINK_CODE_KEY)
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(DEVICE_STORAGE_KEY);
+      localStorage.removeItem(LINKED_DEVICES_KEY);
+      localStorage.removeItem(LINK_CODE_KEY);
     }
   }
 
@@ -489,7 +518,7 @@ export class DeviceKeyManager {
    */
   private async ensureInitialized(): Promise<void> {
     if (!this.initialized) {
-      await this.initialize()
+      await this.initialize();
     }
   }
 
@@ -497,9 +526,9 @@ export class DeviceKeyManager {
    * Generates a new device identity
    */
   private async generateDeviceIdentity(): Promise<void> {
-    const deviceId = this.generateDeviceId()
-    const identityKeyPair = await generateKeyPair()
-    const registrationId = generateRegistrationId()
+    const deviceId = this.generateDeviceId();
+    const identityKeyPair = await generateKeyPair();
+    const registrationId = generateRegistrationId();
 
     this.localDevice = {
       deviceId,
@@ -509,78 +538,78 @@ export class DeviceKeyManager {
       registrationId,
       createdAt: Date.now(),
       lastSyncedAt: Date.now(),
-    }
+    };
 
-    await this.saveDeviceData()
+    await this.saveDeviceData();
   }
 
   /**
    * Generates a unique device ID
    */
   private generateDeviceId(): string {
-    const bytes = randomBytes(16)
-    return uint8ArrayToHex(bytes)
+    const bytes = randomBytes(16);
+    return uint8ArrayToHex(bytes);
   }
 
   /**
    * Gets a default device name based on platform
    */
   private getDefaultDeviceName(): string {
-    const platform = this.detectPlatform()
+    const platform = this.detectPlatform();
 
     switch (platform) {
-      case 'ios':
-        return 'iPhone'
-      case 'android':
-        return 'Android Device'
-      case 'desktop':
-        return 'Desktop'
-      case 'web':
-        return 'Web Browser'
+      case "ios":
+        return "iPhone";
+      case "android":
+        return "Android Device";
+      case "desktop":
+        return "Desktop";
+      case "web":
+        return "Web Browser";
       default:
-        return 'Unknown Device'
+        return "Unknown Device";
     }
   }
 
   /**
    * Detects the current platform
    */
-  private detectPlatform(): DeviceInfo['platform'] {
-    if (typeof window === 'undefined') {
-      return 'unknown'
+  private detectPlatform(): DeviceInfo["platform"] {
+    if (typeof window === "undefined") {
+      return "unknown";
     }
 
-    const userAgent = window.navigator.userAgent.toLowerCase()
+    const userAgent = window.navigator.userAgent.toLowerCase();
 
     if (/iphone|ipad|ipod/.test(userAgent)) {
-      return 'ios'
+      return "ios";
     }
     if (/android/.test(userAgent)) {
-      return 'android'
+      return "android";
     }
     if (/electron/.test(userAgent)) {
-      return 'desktop'
+      return "desktop";
     }
 
-    return 'web'
+    return "web";
   }
 
   /**
    * Loads device data from storage
    */
   private loadDeviceData(): LocalDevice | null {
-    if (typeof localStorage === 'undefined') return null
+    if (typeof localStorage === "undefined") return null;
 
     try {
-      const stored = localStorage.getItem(DEVICE_STORAGE_KEY)
-      if (!stored) return null
+      const stored = localStorage.getItem(DEVICE_STORAGE_KEY);
+      if (!stored) return null;
 
-      const parsed: StoredDeviceData = JSON.parse(stored)
+      const parsed: StoredDeviceData = JSON.parse(stored);
 
       return {
         deviceId: parsed.deviceId,
         deviceName: parsed.deviceName,
-        platform: parsed.platform as DeviceInfo['platform'],
+        platform: parsed.platform as DeviceInfo["platform"],
         identityKeyPair: {
           publicKey: base64ToUint8Array(parsed.identityPublicKey),
           privateKey: base64ToUint8Array(parsed.identityPrivateKey),
@@ -588,10 +617,10 @@ export class DeviceKeyManager {
         registrationId: parsed.registrationId,
         createdAt: parsed.createdAt,
         lastSyncedAt: parsed.lastSyncedAt,
-      }
+      };
     } catch (error) {
-      logger.error('Failed to load device data:', error)
-      return null
+      logger.error("Failed to load device data:", error);
+      return null;
     }
   }
 
@@ -599,48 +628,52 @@ export class DeviceKeyManager {
    * Saves device data to storage
    */
   private async saveDeviceData(): Promise<void> {
-    if (typeof localStorage === 'undefined') return
-    if (!this.localDevice) return
+    if (typeof localStorage === "undefined") return;
+    if (!this.localDevice) return;
 
     const stored: StoredDeviceData = {
       deviceId: this.localDevice.deviceId,
       deviceName: this.localDevice.deviceName,
       platform: this.localDevice.platform,
-      identityPublicKey: uint8ArrayToBase64(this.localDevice.identityKeyPair.publicKey),
-      identityPrivateKey: uint8ArrayToBase64(this.localDevice.identityKeyPair.privateKey),
+      identityPublicKey: uint8ArrayToBase64(
+        this.localDevice.identityKeyPair.publicKey,
+      ),
+      identityPrivateKey: uint8ArrayToBase64(
+        this.localDevice.identityKeyPair.privateKey,
+      ),
       registrationId: this.localDevice.registrationId,
       createdAt: this.localDevice.createdAt,
       lastSyncedAt: this.localDevice.lastSyncedAt,
-    }
+    };
 
-    localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(stored))
+    localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(stored));
   }
 
   /**
    * Loads linked devices from storage
    */
   private async loadLinkedDevices(): Promise<void> {
-    if (typeof localStorage === 'undefined') return
+    if (typeof localStorage === "undefined") return;
 
     try {
-      const stored = localStorage.getItem(LINKED_DEVICES_KEY)
-      if (!stored) return
+      const stored = localStorage.getItem(LINKED_DEVICES_KEY);
+      if (!stored) return;
 
-      const devices: StoredLinkedDevice[] = JSON.parse(stored)
+      const devices: StoredLinkedDevice[] = JSON.parse(stored);
 
       for (const device of devices) {
         this.linkedDevices.set(device.deviceId, {
           deviceId: device.deviceId,
           deviceName: device.deviceName,
-          platform: device.platform as DeviceInfo['platform'],
+          platform: device.platform as DeviceInfo["platform"],
           identityPublicKey: base64ToUint8Array(device.identityPublicKey),
           registrationId: device.registrationId,
           lastSeen: new Date(device.lastSeen),
           isCurrentDevice: false,
-        })
+        });
       }
     } catch (error) {
-      logger.error('Failed to load linked devices:', error)
+      logger.error("Failed to load linked devices:", error);
     }
   }
 
@@ -648,9 +681,9 @@ export class DeviceKeyManager {
    * Saves linked devices to storage
    */
   private async saveLinkedDevices(): Promise<void> {
-    if (typeof localStorage === 'undefined') return
+    if (typeof localStorage === "undefined") return;
 
-    const devices: StoredLinkedDevice[] = []
+    const devices: StoredLinkedDevice[] = [];
 
     for (const device of this.linkedDevices.values()) {
       devices.push({
@@ -660,35 +693,35 @@ export class DeviceKeyManager {
         identityPublicKey: uint8ArrayToBase64(device.identityPublicKey),
         registrationId: device.registrationId,
         lastSeen: device.lastSeen.getTime(),
-      })
+      });
     }
 
-    localStorage.setItem(LINKED_DEVICES_KEY, JSON.stringify(devices))
+    localStorage.setItem(LINKED_DEVICES_KEY, JSON.stringify(devices));
   }
 
   /**
    * Saves the pending link code
    */
   private saveLinkCode(): void {
-    if (typeof localStorage === 'undefined') return
-    if (!this.pendingLinkCode) return
+    if (typeof localStorage === "undefined") return;
+    if (!this.pendingLinkCode) return;
 
     const stored = {
       code: this.pendingLinkCode.code,
       secret: uint8ArrayToBase64(this.pendingLinkCode.secret),
       expiresAt: this.pendingLinkCode.expiresAt,
       sourceDeviceId: this.pendingLinkCode.sourceDeviceId,
-    }
+    };
 
-    localStorage.setItem(LINK_CODE_KEY, JSON.stringify(stored))
+    localStorage.setItem(LINK_CODE_KEY, JSON.stringify(stored));
   }
 
   /**
    * Clears the pending link code
    */
   private clearLinkCode(): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(LINK_CODE_KEY)
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(LINK_CODE_KEY);
     }
   }
 }
@@ -701,40 +734,40 @@ export class DeviceKeyManager {
  * Gets the global device key manager instance
  */
 export function getDeviceKeyManager(): DeviceKeyManager {
-  return DeviceKeyManager.getInstance()
+  return DeviceKeyManager.getInstance();
 }
 
 /**
  * Gets the local device ID
  */
 export async function getLocalDeviceId(): Promise<string> {
-  return getDeviceKeyManager().getDeviceId()
+  return getDeviceKeyManager().getDeviceId();
 }
 
 /**
  * Gets all linked devices
  */
 export async function getLinkedDevices(): Promise<LinkedDevice[]> {
-  return getDeviceKeyManager().getLinkedDevices()
+  return getDeviceKeyManager().getLinkedDevices();
 }
 
 /**
  * Generates a device link code
  */
 export async function generateDeviceLinkCode(): Promise<DeviceLinkRequest> {
-  return getDeviceKeyManager().generateLinkCode()
+  return getDeviceKeyManager().generateLinkCode();
 }
 
 /**
  * Verifies a device link code
  */
 export async function verifyDeviceLinkCode(code: string): Promise<boolean> {
-  return getDeviceKeyManager().verifyLinkCode(code)
+  return getDeviceKeyManager().verifyLinkCode(code);
 }
 
 /**
  * Removes a linked device
  */
 export async function unlinkDevice(deviceId: string): Promise<void> {
-  return getDeviceKeyManager().unlinkDevice(deviceId)
+  return getDeviceKeyManager().unlinkDevice(deviceId);
 }

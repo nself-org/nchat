@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 // ===============================================================================
 // Discord Layout Component
@@ -10,22 +10,22 @@
 //
 // ===============================================================================
 
-import { ReactNode, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { discordColors, discordLayout } from '../config'
+import { ReactNode, useState } from "react";
+import { cn } from "@/lib/utils";
+import { discordColors, discordLayout } from "../config";
 
 // -------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------
 
 export interface DiscordLayoutProps {
-  children: ReactNode
-  serverList?: ReactNode
-  channelSidebar?: ReactNode
-  memberList?: ReactNode
-  header?: ReactNode
-  showMemberList?: boolean
-  className?: string
+  children: ReactNode;
+  serverList?: ReactNode;
+  channelSidebar?: ReactNode;
+  memberList?: ReactNode;
+  header?: ReactNode;
+  showMemberList?: boolean;
+  className?: string;
 }
 
 // -------------------------------------------------------------------------------
@@ -43,9 +43,13 @@ export function DiscordLayout({
 }: DiscordLayoutProps) {
   return (
     <div
-      className={cn('discord-template flex h-screen w-screen overflow-hidden', className)}
+      className={cn(
+        "discord-template flex h-screen w-screen overflow-hidden",
+        className,
+      )}
       style={{
-        fontFamily: '"gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
+        fontFamily:
+          '"gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
         backgroundColor: discordColors.gray700,
       }}
     >
@@ -115,7 +119,7 @@ export function DiscordLayout({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default DiscordLayout
+export default DiscordLayout;

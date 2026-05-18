@@ -4,15 +4,15 @@
  * POST /api/channels/categories - Create category
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { gql } from '@apollo/client'
-import { logger } from '@/lib/logger'
-import { apolloClient } from '@/lib/apollo-client'
-import type { UserRole } from '@/types/user'
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { gql } from "@apollo/client";
+import { logger } from "@/lib/logger";
+import { apolloClient } from "@/lib/apollo-client";
+import type { UserRole } from "@/types/user";
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // =============================================================================
 // Schema Validation
@@ -29,28 +29,28 @@ const createCategorySchema = z.object({
     .optional(),
   position: z.number().int().min(0).optional(),
   syncPermissions: z.boolean().default(true),
-})
+});
 
 const listCategoriesSchema = z.object({
   workspaceId: z.string().uuid(),
   includeChannels: z.boolean().default(false),
   includeCollapsed: z.boolean().default(true),
-})
+});
 
 // =============================================================================
 // Helper Functions
 // =============================================================================
 
 function getUserIdFromRequest(request: NextRequest): string | null {
-  return request.headers.get('x-user-id') || null
+  return request.headers.get("x-user-id") || null;
 }
 
 function getUserRoleFromRequest(request: NextRequest): UserRole {
-  return (request.headers.get('x-user-role') as UserRole) || 'guest'
+  return (request.headers.get("x-user-role") as UserRole) || "guest";
 }
 
 function canManageCategories(role: UserRole): boolean {
-  return ['admin', 'owner'].includes(role)
+  return ["admin", "owner"].includes(role);
 }
 
 function transformCategory(raw: Record<string, unknown>) {
@@ -81,7 +81,7 @@ function transformCategory(raw: Record<string, unknown>) {
           memberCount: ch.member_count,
         }))
       : undefined,
-  }
+  };
 }
 
 // =============================================================================
@@ -90,61 +90,67 @@ function transformCategory(raw: Record<string, unknown>) {
 
 export async function GET(request: NextRequest) {
   try {
-    logger.info('GET /api/channels/categories - List categories')
+    logger.info("GET /api/channels/categories - List categories");
 
-    const { searchParams } = new URL(request.url)
-    const workspaceId = searchParams.get('workspaceId')
+    const { searchParams } = new URL(request.url);
+    const workspaceId = searchParams.get("workspaceId");
 
     if (!workspaceId) {
       return NextResponse.json(
-        { success: false, error: 'workspaceId is required' },
-        { status: 400 }
-      )
+        { success: false, error: "workspaceId is required" },
+        { status: 400 },
+      );
     }
 
     const validation = listCategoriesSchema.safeParse({
       workspaceId,
-      includeChannels: searchParams.get('includeChannels') === 'true',
-      includeCollapsed: searchParams.get('includeCollapsed') !== 'false',
-    })
+      includeChannels: searchParams.get("includeChannels") === "true",
+      includeCollapsed: searchParams.get("includeCollapsed") !== "false",
+    });
 
     if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid query parameters', details: validation.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid query parameters",
+          details: validation.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const { includeChannels, includeCollapsed } = validation.data
+    const { includeChannels, includeCollapsed } = validation.data;
 
     // Fetch categories from database via GraphQL
     const { data } = await apolloClient.query({
-      query: includeChannels ? GET_CATEGORIES_WITH_CHANNELS_QUERY : GET_CATEGORIES_QUERY,
+      query: includeChannels
+        ? GET_CATEGORIES_WITH_CHANNELS_QUERY
+        : GET_CATEGORIES_QUERY,
       variables: {
         workspaceId,
         includeCollapsed,
       },
-      fetchPolicy: 'network-only',
-    })
+      fetchPolicy: "network-only",
+    });
 
-    const categories = (data?.nchat_categories || []).map(transformCategory)
+    const categories = (data?.nchat_categories || []).map(transformCategory);
 
-    logger.info('GET /api/channels/categories - Success', {
+    logger.info("GET /api/channels/categories - Success", {
       workspaceId,
       count: categories.length,
-    })
+    });
 
     return NextResponse.json({
       success: true,
       categories,
       total: categories.length,
-    })
+    });
   } catch (error) {
-    logger.error('Error fetching categories:', error as Error)
+    logger.error("Error fetching categories:", error as Error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch categories' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to fetch categories" },
+      { status: 500 },
+    );
   }
 }
 
@@ -154,46 +160,55 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('POST /api/channels/categories - Create category')
+    logger.info("POST /api/channels/categories - Create category");
 
-    const userId = getUserIdFromRequest(request)
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const userRole = getUserRoleFromRequest(request)
+    const userRole = getUserRoleFromRequest(request);
     if (!canManageCategories(userRole)) {
       return NextResponse.json(
-        { success: false, error: 'Insufficient permissions to create categories' },
-        { status: 403 }
-      )
+        {
+          success: false,
+          error: "Insufficient permissions to create categories",
+        },
+        { status: 403 },
+      );
     }
 
-    const body = await request.json()
-    const validation = createCategorySchema.safeParse(body)
+    const body = await request.json();
+    const validation = createCategorySchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request body', details: validation.error.errors },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error: "Invalid request body",
+          details: validation.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const data = validation.data
+    const data = validation.data;
 
     // Get the next position if not provided
-    let position = data.position
+    let position = data.position;
     if (position === undefined) {
       const { data: positionData } = await apolloClient.query({
         query: GET_MAX_CATEGORY_POSITION_QUERY,
         variables: { workspaceId: data.workspaceId },
-        fetchPolicy: 'network-only',
-      })
-      const maxPosition = positionData?.nchat_categories_aggregate?.aggregate?.max?.position ?? -1
-      position = maxPosition + 1
+        fetchPolicy: "network-only",
+      });
+      const maxPosition =
+        positionData?.nchat_categories_aggregate?.aggregate?.max?.position ??
+        -1;
+      position = maxPosition + 1;
     }
 
     // Create category via GraphQL mutation
@@ -209,33 +224,33 @@ export async function POST(request: NextRequest) {
         syncPermissions: data.syncPermissions,
         createdBy: userId,
       },
-    })
+    });
 
-    const category = insertData?.insert_nchat_categories_one
+    const category = insertData?.insert_nchat_categories_one;
     if (!category) {
-      throw new Error('Failed to create category')
+      throw new Error("Failed to create category");
     }
 
-    logger.info('POST /api/channels/categories - Success', {
+    logger.info("POST /api/channels/categories - Success", {
       categoryId: category.id,
       name: data.name,
       createdBy: userId,
-    })
+    });
 
     return NextResponse.json(
       {
         success: true,
         category: transformCategory(category),
-        message: 'Category created successfully',
+        message: "Category created successfully",
       },
-      { status: 201 }
-    )
+      { status: 201 },
+    );
   } catch (error) {
-    logger.error('Error creating category:', error as Error)
+    logger.error("Error creating category:", error as Error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create category' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to create category" },
+      { status: 500 },
+    );
   }
 }
 
@@ -248,7 +263,10 @@ const GET_CATEGORIES_QUERY = gql`
     nchat_categories(
       where: {
         workspace_id: { _eq: $workspaceId }
-        _or: [{ is_collapsed: { _eq: false } }, { is_collapsed: { _eq: $includeCollapsed } }]
+        _or: [
+          { is_collapsed: { _eq: false } }
+          { is_collapsed: { _eq: $includeCollapsed } }
+        ]
       }
       order_by: { position: asc }
     ) {
@@ -267,14 +285,20 @@ const GET_CATEGORIES_QUERY = gql`
       updated_at
     }
   }
-`
+`;
 
 const GET_CATEGORIES_WITH_CHANNELS_QUERY = gql`
-  query GetCategoriesWithChannels($workspaceId: uuid!, $includeCollapsed: Boolean!) {
+  query GetCategoriesWithChannels(
+    $workspaceId: uuid!
+    $includeCollapsed: Boolean!
+  ) {
     nchat_categories(
       where: {
         workspace_id: { _eq: $workspaceId }
-        _or: [{ is_collapsed: { _eq: false } }, { is_collapsed: { _eq: $includeCollapsed } }]
+        _or: [
+          { is_collapsed: { _eq: false } }
+          { is_collapsed: { _eq: $includeCollapsed } }
+        ]
       }
       order_by: { position: asc }
     ) {
@@ -304,7 +328,7 @@ const GET_CATEGORIES_WITH_CHANNELS_QUERY = gql`
       }
     }
   }
-`
+`;
 
 const GET_MAX_CATEGORY_POSITION_QUERY = gql`
   query GetMaxCategoryPosition($workspaceId: uuid!) {
@@ -316,7 +340,7 @@ const GET_MAX_CATEGORY_POSITION_QUERY = gql`
       }
     }
   }
-`
+`;
 
 const CREATE_CATEGORY_MUTATION = gql`
   mutation CreateCategory(
@@ -358,4 +382,4 @@ const CREATE_CATEGORY_MUTATION = gql`
       updated_at
     }
   }
-`
+`;

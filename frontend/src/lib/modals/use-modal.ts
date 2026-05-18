@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useCallback } from 'react'
+import { useCallback } from "react";
 import {
   useModalStore,
   type ModalType,
@@ -13,37 +13,47 @@ import {
   type ProfileModalProps,
   type SettingsModalProps,
   type CustomModalProps,
-} from './modal-store'
+} from "./modal-store";
 
 export interface UseModalOptions {
-  id?: string
-  onClose?: () => void
-  preventClose?: boolean
-  priority?: number
+  id?: string;
+  onClose?: () => void;
+  preventClose?: boolean;
+  priority?: number;
 }
 
 export interface UseModalReturn {
   // Generic open
-  open: <T extends ModalType>(type: T, props: ModalPropsMap[T], options?: UseModalOptions) => string
+  open: <T extends ModalType>(
+    type: T,
+    props: ModalPropsMap[T],
+    options?: UseModalOptions,
+  ) => string;
 
   // Typed openers
-  openConfirm: (props: ConfirmModalProps, options?: UseModalOptions) => string
-  openAlert: (props: AlertModalProps, options?: UseModalOptions) => string
-  openPrompt: (props: PromptModalProps, options?: UseModalOptions) => string
-  openImageLightbox: (props: ImageLightboxProps, options?: UseModalOptions) => string
-  openVideo: (props: VideoModalProps, options?: UseModalOptions) => string
-  openProfile: (props: ProfileModalProps, options?: UseModalOptions) => string
-  openSettings: (props: SettingsModalProps, options?: UseModalOptions) => string
-  openCustom: (props: CustomModalProps, options?: UseModalOptions) => string
+  openConfirm: (props: ConfirmModalProps, options?: UseModalOptions) => string;
+  openAlert: (props: AlertModalProps, options?: UseModalOptions) => string;
+  openPrompt: (props: PromptModalProps, options?: UseModalOptions) => string;
+  openImageLightbox: (
+    props: ImageLightboxProps,
+    options?: UseModalOptions,
+  ) => string;
+  openVideo: (props: VideoModalProps, options?: UseModalOptions) => string;
+  openProfile: (props: ProfileModalProps, options?: UseModalOptions) => string;
+  openSettings: (
+    props: SettingsModalProps,
+    options?: UseModalOptions,
+  ) => string;
+  openCustom: (props: CustomModalProps, options?: UseModalOptions) => string;
 
   // Close operations
-  close: (id: string) => void
-  closeTop: () => void
-  closeAll: () => void
+  close: (id: string) => void;
+  closeTop: () => void;
+  closeAll: () => void;
 
   // State
-  isOpen: boolean
-  modalCount: number
+  isOpen: boolean;
+  modalCount: number;
 }
 
 /**
@@ -74,90 +84,94 @@ export interface UseModalReturn {
  * ```
  */
 export function useModal(): UseModalReturn {
-  const openModal = useModalStore((state) => state.openModal)
-  const closeModal = useModalStore((state) => state.closeModal)
-  const closeTopModal = useModalStore((state) => state.closeTopModal)
-  const closeAllModals = useModalStore((state) => state.closeAllModals)
-  const modals = useModalStore((state) => state.modals)
-  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen)
+  const openModal = useModalStore((state) => state.openModal);
+  const closeModal = useModalStore((state) => state.closeModal);
+  const closeTopModal = useModalStore((state) => state.closeTopModal);
+  const closeAllModals = useModalStore((state) => state.closeAllModals);
+  const modals = useModalStore((state) => state.modals);
+  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
 
   const open = useCallback(
-    <T extends ModalType>(type: T, props: ModalPropsMap[T], options?: UseModalOptions) => {
-      return openModal(type, props, options)
+    <T extends ModalType>(
+      type: T,
+      props: ModalPropsMap[T],
+      options?: UseModalOptions,
+    ) => {
+      return openModal(type, props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const openConfirm = useCallback(
     (props: ConfirmModalProps, options?: UseModalOptions) => {
-      return openModal('confirm', props, options)
+      return openModal("confirm", props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const openAlert = useCallback(
     (props: AlertModalProps, options?: UseModalOptions) => {
-      return openModal('alert', props, options)
+      return openModal("alert", props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const openPrompt = useCallback(
     (props: PromptModalProps, options?: UseModalOptions) => {
-      return openModal('prompt', props, options)
+      return openModal("prompt", props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const openImageLightbox = useCallback(
     (props: ImageLightboxProps, options?: UseModalOptions) => {
-      return openModal('image-lightbox', props, options)
+      return openModal("image-lightbox", props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const openVideo = useCallback(
     (props: VideoModalProps, options?: UseModalOptions) => {
-      return openModal('video', props, options)
+      return openModal("video", props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const openProfile = useCallback(
     (props: ProfileModalProps, options?: UseModalOptions) => {
-      return openModal('profile', props, options)
+      return openModal("profile", props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const openSettings = useCallback(
     (props: SettingsModalProps, options?: UseModalOptions) => {
-      return openModal('settings', props, options)
+      return openModal("settings", props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const openCustom = useCallback(
     (props: CustomModalProps, options?: UseModalOptions) => {
-      return openModal('custom', props, options)
+      return openModal("custom", props, options);
     },
-    [openModal]
-  )
+    [openModal],
+  );
 
   const close = useCallback(
     (id: string) => {
-      closeModal(id)
+      closeModal(id);
     },
-    [closeModal]
-  )
+    [closeModal],
+  );
 
   const closeTop = useCallback(() => {
-    closeTopModal()
-  }, [closeTopModal])
+    closeTopModal();
+  }, [closeTopModal]);
 
   const closeAll = useCallback(() => {
-    closeAllModals()
-  }, [closeAllModals])
+    closeAllModals();
+  }, [closeAllModals]);
 
   return {
     open,
@@ -174,14 +188,14 @@ export function useModal(): UseModalReturn {
     closeAll,
     isOpen: isAnyModalOpen,
     modalCount: modals.length,
-  }
+  };
 }
 
 /**
  * Hook to check if a specific modal is open
  */
 export function useModalOpen(modalId: string): boolean {
-  return useModalStore((state) => state.modals.some((m) => m.id === modalId))
+  return useModalStore((state) => state.modals.some((m) => m.id === modalId));
 }
 
 /**
@@ -189,6 +203,6 @@ export function useModalOpen(modalId: string): boolean {
  */
 export function useTopModal() {
   return useModalStore((state) =>
-    state.modals.length > 0 ? state.modals[state.modals.length - 1] : null
-  )
+    state.modals.length > 0 ? state.modals[state.modals.length - 1] : null,
+  );
 }

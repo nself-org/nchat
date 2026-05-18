@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/auth-context'
-import { Plus, Download, Archive } from 'lucide-react'
-import { AdminLayout } from '@/components/admin/admin-layout'
-import { ChannelTable, Channel } from '@/components/admin/channel-table'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import { Plus, Download, Archive } from "lucide-react";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { ChannelTable, Channel } from "@/components/admin/channel-table";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,195 +24,197 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 
 // Mock channels data for demonstration
 const mockChannels: Channel[] = [
   {
-    id: '1',
-    name: 'general',
-    slug: 'general',
-    description: 'General discussion for the team',
-    type: 'public',
+    id: "1",
+    name: "general",
+    slug: "general",
+    description: "General discussion for the team",
+    type: "public",
     memberCount: 156,
     messageCount: 4521,
     isArchived: false,
-    createdAt: '2024-01-01T00:00:00Z',
+    createdAt: "2024-01-01T00:00:00Z",
     lastActivityAt: new Date().toISOString(),
   },
   {
-    id: '2',
-    name: 'random',
-    slug: 'random',
-    description: 'Non-work banter and water cooler conversation',
-    type: 'public',
+    id: "2",
+    name: "random",
+    slug: "random",
+    description: "Non-work banter and water cooler conversation",
+    type: "public",
     memberCount: 142,
     messageCount: 3287,
     isArchived: false,
-    createdAt: '2024-01-01T00:00:00Z',
+    createdAt: "2024-01-01T00:00:00Z",
     lastActivityAt: new Date().toISOString(),
   },
   {
-    id: '3',
-    name: 'announcements',
-    slug: 'announcements',
-    description: 'Important announcements for the workspace',
-    type: 'public',
+    id: "3",
+    name: "announcements",
+    slug: "announcements",
+    description: "Important announcements for the workspace",
+    type: "public",
     memberCount: 156,
     messageCount: 89,
     isArchived: false,
-    createdAt: '2024-01-01T00:00:00Z',
-    lastActivityAt: '2024-01-20T10:00:00Z',
+    createdAt: "2024-01-01T00:00:00Z",
+    lastActivityAt: "2024-01-20T10:00:00Z",
   },
   {
-    id: '4',
-    name: 'engineering',
-    slug: 'engineering',
-    description: 'Engineering team discussions',
-    type: 'private',
+    id: "4",
+    name: "engineering",
+    slug: "engineering",
+    description: "Engineering team discussions",
+    type: "private",
     memberCount: 24,
     messageCount: 1856,
     isArchived: false,
-    createdAt: '2024-01-05T00:00:00Z',
+    createdAt: "2024-01-05T00:00:00Z",
     lastActivityAt: new Date().toISOString(),
   },
   {
-    id: '5',
-    name: 'design',
-    slug: 'design',
-    description: 'Design team collaboration',
-    type: 'private',
+    id: "5",
+    name: "design",
+    slug: "design",
+    description: "Design team collaboration",
+    type: "private",
     memberCount: 12,
     messageCount: 743,
     isArchived: false,
-    createdAt: '2024-01-08T00:00:00Z',
-    lastActivityAt: '2024-01-21T16:30:00Z',
+    createdAt: "2024-01-08T00:00:00Z",
+    lastActivityAt: "2024-01-21T16:30:00Z",
   },
   {
-    id: '6',
-    name: 'old-project',
-    slug: 'old-project',
-    description: 'Archived project channel',
-    type: 'private',
+    id: "6",
+    name: "old-project",
+    slug: "old-project",
+    description: "Archived project channel",
+    type: "private",
     memberCount: 8,
     messageCount: 234,
     isArchived: true,
-    createdAt: '2023-06-15T00:00:00Z',
-    lastActivityAt: '2023-12-01T14:00:00Z',
+    createdAt: "2023-06-15T00:00:00Z",
+    lastActivityAt: "2023-12-01T14:00:00Z",
   },
-]
+];
 
 export default function ChannelsManagementPage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-  const [channels, setChannels] = useState<Channel[]>(mockChannels)
-  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null)
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [channels, setChannels] = useState<Channel[]>(mockChannels);
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [newChannel, setNewChannel] = useState({
-    name: '',
-    description: '',
-    type: 'public' as 'public' | 'private',
-  })
+    name: "",
+    description: "",
+    type: "public" as "public" | "private",
+  });
   const [editForm, setEditForm] = useState({
-    name: '',
-    description: '',
-    type: 'public' as 'public' | 'private',
-  })
+    name: "",
+    description: "",
+    type: "public" as "public" | "private",
+  });
 
   useEffect(() => {
-    if (!loading && (!user || !['owner', 'admin'].includes(user.role))) {
-      router.push('/chat')
+    if (!loading && (!user || !["owner", "admin"].includes(user.role))) {
+      router.push("/chat");
     }
-  }, [user, loading, router])
+  }, [user, loading, router]);
 
   const handleEditChannel = (channel: Channel) => {
-    setSelectedChannel(channel)
+    setSelectedChannel(channel);
     setEditForm({
       name: channel.name,
-      description: channel.description || '',
-      type: channel.type as 'public' | 'private',
-    })
-    setEditDialogOpen(true)
-  }
+      description: channel.description || "",
+      type: channel.type as "public" | "private",
+    });
+    setEditDialogOpen(true);
+  };
 
   const handleSaveEditChannel = () => {
-    if (!selectedChannel) return
+    if (!selectedChannel) return;
     setChannels((prev) =>
       prev.map((c) =>
         c.id === selectedChannel.id
           ? {
               ...c,
               name: editForm.name,
-              slug: editForm.name.toLowerCase().replace(/\s+/g, '-'),
+              slug: editForm.name.toLowerCase().replace(/\s+/g, "-"),
               description: editForm.description,
               type: editForm.type,
             }
-          : c
-      )
-    )
-    setEditDialogOpen(false)
-    setSelectedChannel(null)
-  }
+          : c,
+      ),
+    );
+    setEditDialogOpen(false);
+    setSelectedChannel(null);
+  };
 
   const handleArchiveChannel = (channel: Channel) => {
-    setSelectedChannel(channel)
-    setArchiveDialogOpen(true)
-  }
+    setSelectedChannel(channel);
+    setArchiveDialogOpen(true);
+  };
 
   const handleDeleteChannel = (channel: Channel) => {
-    setSelectedChannel(channel)
-    setDeleteDialogOpen(true)
-  }
+    setSelectedChannel(channel);
+    setDeleteDialogOpen(true);
+  };
 
   const handleCreateChannel = async () => {
     // In production, this would call an API
     const newChannelData: Channel = {
       id: Date.now().toString(),
       name: newChannel.name,
-      slug: newChannel.name.toLowerCase().replace(/\s+/g, '-'),
+      slug: newChannel.name.toLowerCase().replace(/\s+/g, "-"),
       description: newChannel.description,
       type: newChannel.type,
       memberCount: 1,
       messageCount: 0,
       isArchived: false,
       createdAt: new Date().toISOString(),
-    }
-    setChannels((prev) => [...prev, newChannelData])
-    setCreateDialogOpen(false)
-    setNewChannel({ name: '', description: '', type: 'public' })
-  }
+    };
+    setChannels((prev) => [...prev, newChannelData]);
+    setCreateDialogOpen(false);
+    setNewChannel({ name: "", description: "", type: "public" });
+  };
 
   const handleConfirmArchive = async () => {
-    if (!selectedChannel) return
+    if (!selectedChannel) return;
     setChannels((prev) =>
-      prev.map((c) => (c.id === selectedChannel.id ? { ...c, isArchived: !c.isArchived } : c))
-    )
-    setArchiveDialogOpen(false)
-    setSelectedChannel(null)
-  }
+      prev.map((c) =>
+        c.id === selectedChannel.id ? { ...c, isArchived: !c.isArchived } : c,
+      ),
+    );
+    setArchiveDialogOpen(false);
+    setSelectedChannel(null);
+  };
 
   const handleConfirmDelete = async () => {
-    if (!selectedChannel) return
-    setChannels((prev) => prev.filter((c) => c.id !== selectedChannel.id))
-    setDeleteDialogOpen(false)
-    setSelectedChannel(null)
-  }
+    if (!selectedChannel) return;
+    setChannels((prev) => prev.filter((c) => c.id !== selectedChannel.id));
+    setDeleteDialogOpen(false);
+    setSelectedChannel(null);
+  };
 
-  if (loading || !user || !['owner', 'admin'].includes(user.role)) {
-    return null
+  if (loading || !user || !["owner", "admin"].includes(user.role)) {
+    return null;
   }
 
   return (
@@ -222,7 +224,9 @@ export default function ChannelsManagementPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Channels</h1>
-            <p className="text-muted-foreground">Manage workspace channels and their settings</p>
+            <p className="text-muted-foreground">
+              Manage workspace channels and their settings
+            </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
@@ -253,7 +257,9 @@ export default function ChannelsManagementPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Channel</DialogTitle>
-              <DialogDescription>Add a new channel to your workspace</DialogDescription>
+              <DialogDescription>
+                Add a new channel to your workspace
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -262,7 +268,9 @@ export default function ChannelsManagementPage() {
                   id="name"
                   placeholder="e.g., engineering"
                   value={newChannel.name}
-                  onChange={(e) => setNewChannel((prev) => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setNewChannel((prev) => ({ ...prev, name: e.target.value }))
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -284,7 +292,7 @@ export default function ChannelsManagementPage() {
                 <Label>Channel Type</Label>
                 <Select
                   value={newChannel.type}
-                  onValueChange={(value: 'public' | 'private') =>
+                  onValueChange={(value: "public" | "private") =>
                     setNewChannel((prev) => ({ ...prev, type: value }))
                   }
                 >
@@ -313,10 +321,16 @@ export default function ChannelsManagementPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setCreateDialogOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleCreateChannel} disabled={!newChannel.name.trim()}>
+              <Button
+                onClick={handleCreateChannel}
+                disabled={!newChannel.name.trim()}
+              >
                 Create Channel
               </Button>
             </DialogFooter>
@@ -338,7 +352,9 @@ export default function ChannelsManagementPage() {
                 <Input
                   id="edit-name"
                   value={editForm.name}
-                  onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, name: e.target.value }))
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -347,7 +363,10 @@ export default function ChannelsManagementPage() {
                   id="edit-description"
                   value={editForm.description}
                   onChange={(e) =>
-                    setEditForm((prev) => ({ ...prev, description: e.target.value }))
+                    setEditForm((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
                   }
                   rows={3}
                 />
@@ -356,7 +375,7 @@ export default function ChannelsManagementPage() {
                 <Label>Channel Type</Label>
                 <Select
                   value={editForm.type}
-                  onValueChange={(value: 'public' | 'private') =>
+                  onValueChange={(value: "public" | "private") =>
                     setEditForm((prev) => ({ ...prev, type: value }))
                   }
                 >
@@ -371,10 +390,16 @@ export default function ChannelsManagementPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSaveEditChannel} disabled={!editForm.name.trim()}>
+              <Button
+                onClick={handleSaveEditChannel}
+                disabled={!editForm.name.trim()}
+              >
                 Save Changes
               </Button>
             </DialogFooter>
@@ -382,11 +407,14 @@ export default function ChannelsManagementPage() {
         </Dialog>
 
         {/* Archive Confirmation Dialog */}
-        <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
+        <AlertDialog
+          open={archiveDialogOpen}
+          onOpenChange={setArchiveDialogOpen}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {selectedChannel?.isArchived ? 'Unarchive' : 'Archive'} Channel
+                {selectedChannel?.isArchived ? "Unarchive" : "Archive"} Channel
               </AlertDialogTitle>
               <AlertDialogDescription>
                 {selectedChannel?.isArchived
@@ -397,7 +425,7 @@ export default function ChannelsManagementPage() {
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={handleConfirmArchive}>
-                {selectedChannel?.isArchived ? 'Unarchive' : 'Archive'} Channel
+                {selectedChannel?.isArchived ? "Unarchive" : "Archive"} Channel
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -409,8 +437,9 @@ export default function ChannelsManagementPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Channel</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete #{selectedChannel?.name}? This action cannot be
-                undone. All messages in this channel will be permanently deleted.
+                Are you sure you want to delete #{selectedChannel?.name}? This
+                action cannot be undone. All messages in this channel will be
+                permanently deleted.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -426,5 +455,5 @@ export default function ChannelsManagementPage() {
         </AlertDialog>
       </div>
     </AdminLayout>
-  )
+  );
 }

@@ -1,34 +1,38 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { usePathname } from 'next/navigation'
-import { pageTransition, channelSwitch, fade } from '@/lib/animations'
+import * as React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
+import { pageTransition, channelSwitch, fade } from "@/lib/animations";
 
 interface PageTransitionProps {
-  children: React.ReactNode
-  mode?: 'fade' | 'slide' | 'channel'
-  className?: string
+  children: React.ReactNode;
+  mode?: "fade" | "slide" | "channel";
+  className?: string;
 }
 
 /**
  * Page transition wrapper component
  * Animates page changes with smooth transitions
  */
-export function PageTransition({ children, mode = 'fade', className }: PageTransitionProps) {
-  const pathname = usePathname()
+export function PageTransition({
+  children,
+  mode = "fade",
+  className,
+}: PageTransitionProps) {
+  const pathname = usePathname();
 
   const variants = React.useMemo(() => {
     switch (mode) {
-      case 'slide':
-        return pageTransition
-      case 'channel':
-        return channelSwitch
-      case 'fade':
+      case "slide":
+        return pageTransition;
+      case "channel":
+        return channelSwitch;
+      case "fade":
       default:
-        return fade(0.3)
+        return fade(0.3);
     }
-  }, [mode])
+  }, [mode]);
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -43,7 +47,7 @@ export function PageTransition({ children, mode = 'fade', className }: PageTrans
         {children}
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
 
 /**
@@ -55,9 +59,9 @@ export function ChannelTransition({
   channelId,
   className,
 }: {
-  children: React.ReactNode
-  channelId: string
-  className?: string
+  children: React.ReactNode;
+  channelId: string;
+  className?: string;
 }) {
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -72,7 +76,7 @@ export function ChannelTransition({
         {children}
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
 
 /**
@@ -83,12 +87,12 @@ export function LayoutAnimation({
   children,
   className,
 }: {
-  children: React.ReactNode
-  className?: string
+  children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <motion.div layout className={className}>
       {children}
     </motion.div>
-  )
+  );
 }

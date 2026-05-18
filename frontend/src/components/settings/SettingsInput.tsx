@@ -1,28 +1,28 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Sparkles, Eye, EyeOff } from 'lucide-react'
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface SettingsInputProps {
-  id: string
-  label: string
-  description?: string
-  value: string
-  onChange: (value: string) => void
-  type?: 'text' | 'email' | 'password' | 'url' | 'tel' | 'number'
-  placeholder?: string
-  disabled?: boolean
-  premium?: boolean
-  className?: string
-  vertical?: boolean
-  error?: string
-  maxLength?: number
-  pattern?: string
+  id: string;
+  label: string;
+  description?: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: "text" | "email" | "password" | "url" | "tel" | "number";
+  placeholder?: string;
+  disabled?: boolean;
+  premium?: boolean;
+  className?: string;
+  vertical?: boolean;
+  error?: string;
+  maxLength?: number;
+  pattern?: string;
 }
 
 /**
@@ -34,7 +34,7 @@ export function SettingsInput({
   description,
   value,
   onChange,
-  type = 'text',
+  type = "text",
   placeholder,
   disabled = false,
   premium = false,
@@ -44,9 +44,9 @@ export function SettingsInput({
   maxLength,
   pattern,
 }: SettingsInputProps) {
-  const [showPassword, setShowPassword] = useState(false)
-  const isPassword = type === 'password'
-  const inputType = isPassword ? (showPassword ? 'text' : 'password') : type
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+  const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
   const inputElement = (
     <div className="relative">
@@ -60,11 +60,13 @@ export function SettingsInput({
         maxLength={maxLength}
         pattern={pattern}
         className={cn(
-          vertical ? 'w-full' : 'w-[280px]',
-          isPassword && 'pr-10',
-          error && 'border-destructive'
+          vertical ? "w-full" : "w-[280px]",
+          isPassword && "pr-10",
+          error && "border-destructive",
         )}
-        aria-describedby={description || error ? `${id}-description` : undefined}
+        aria-describedby={
+          description || error ? `${id}-description` : undefined
+        }
         aria-invalid={!!error}
       />
       {isPassword && (
@@ -81,21 +83,25 @@ export function SettingsInput({
           ) : (
             <Eye className="h-4 w-4 text-muted-foreground" />
           )}
-          <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
+          <span className="sr-only">
+            {showPassword ? "Hide password" : "Show password"}
+          </span>
         </Button>
       )}
     </div>
-  )
+  );
 
   if (vertical) {
     return (
-      <div className={cn('space-y-3 py-3', disabled && 'opacity-60', className)}>
+      <div
+        className={cn("space-y-3 py-3", disabled && "opacity-60", className)}
+      >
         <div className="flex items-center gap-2">
           <Label
             htmlFor={id}
             className={cn(
-              'text-sm font-medium',
-              disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+              "text-sm font-medium",
+              disabled ? "cursor-not-allowed" : "cursor-pointer",
             )}
           >
             {label}
@@ -120,15 +126,15 @@ export function SettingsInput({
           </p>
         )}
       </div>
-    )
+    );
   }
 
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-4 py-3',
-        disabled && 'opacity-60',
-        className
+        "flex items-center justify-between gap-4 py-3",
+        disabled && "opacity-60",
+        className,
       )}
     >
       <div className="flex-1 space-y-0.5">
@@ -136,8 +142,8 @@ export function SettingsInput({
           <Label
             htmlFor={id}
             className={cn(
-              'text-sm font-medium',
-              disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+              "text-sm font-medium",
+              disabled ? "cursor-not-allowed" : "cursor-pointer",
             )}
           >
             {label}
@@ -158,5 +164,5 @@ export function SettingsInput({
       </div>
       <div className="flex-shrink-0">{inputElement}</div>
     </div>
-  )
+  );
 }

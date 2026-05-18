@@ -5,8 +5,8 @@
  * and allows users to join the channel or workspace.
  */
 
-import { Metadata } from 'next'
-import { JoinPage } from '@/components/invite/join-page'
+import { Metadata } from "next";
+import { JoinPage } from "@/components/invite/join-page";
 
 // ============================================================================
 // Types
@@ -14,31 +14,33 @@ import { JoinPage } from '@/components/invite/join-page'
 
 interface InvitePageProps {
   params: Promise<{
-    code: string
-  }>
+    code: string;
+  }>;
 }
 
 // ============================================================================
 // Metadata
 // ============================================================================
 
-export async function generateMetadata({ params }: InvitePageProps): Promise<Metadata> {
-  const { code } = await params
+export async function generateMetadata({
+  params,
+}: InvitePageProps): Promise<Metadata> {
+  const { code } = await params;
 
   return {
-    title: 'Join Channel - nchat',
-    description: 'You have been invited to join a channel on nchat.',
+    title: "Join Channel - nchat",
+    description: "You have been invited to join a channel on nchat.",
     openGraph: {
-      title: 'Join Channel',
-      description: 'You have been invited to join a channel on nchat.',
-      type: 'website',
+      title: "Join Channel",
+      description: "You have been invited to join a channel on nchat.",
+      type: "website",
       url: `/invite/${code}`,
     },
     robots: {
       index: false,
       follow: false,
     },
-  }
+  };
 }
 
 // ============================================================================
@@ -46,7 +48,7 @@ export async function generateMetadata({ params }: InvitePageProps): Promise<Met
 // ============================================================================
 
 export default async function InvitePage({ params }: InvitePageProps) {
-  const { code } = await params
+  const { code } = await params;
 
-  return <JoinPage code={code} />
+  return <JoinPage code={code} />;
 }

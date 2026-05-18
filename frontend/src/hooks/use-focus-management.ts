@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback } from "react";
 
 export interface UseFocusManagementOptions {
   /** Whether to auto-focus on mount */
-  autoFocus?: boolean
+  autoFocus?: boolean;
   /** Whether to restore focus on unmount */
-  restoreFocus?: boolean
+  restoreFocus?: boolean;
   /** Whether to trap focus within the element */
-  trapFocus?: boolean
+  trapFocus?: boolean;
 }
 
 /**
@@ -24,71 +24,77 @@ export interface UseFocusManagementOptions {
  * return <input ref={focusRef} />;
  * ```
  */
-export function useFocusManagement<T extends HTMLElement>(options: UseFocusManagementOptions = {}) {
-  const { autoFocus = false, restoreFocus = false, trapFocus = false } = options
-  const focusRef = useRef<T>(null)
-  const previousActiveElementRef = useRef<HTMLElement | null>(null)
+export function useFocusManagement<T extends HTMLElement>(
+  options: UseFocusManagementOptions = {},
+) {
+  const {
+    autoFocus = false,
+    restoreFocus = false,
+    trapFocus = false,
+  } = options;
+  const focusRef = useRef<T>(null);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
 
   const setFocus = useCallback(() => {
-    focusRef.current?.focus()
-  }, [])
+    focusRef.current?.focus();
+  }, []);
 
   // Auto-focus on mount
   useEffect(() => {
     if (autoFocus) {
       // Store the currently focused element
-      previousActiveElementRef.current = document.activeElement as HTMLElement
+      previousActiveElementRef.current = document.activeElement as HTMLElement;
 
       // Focus the element
       requestAnimationFrame(() => {
-        focusRef.current?.focus()
-      })
+        focusRef.current?.focus();
+      });
     }
 
     return () => {
       // Restore focus on unmount if enabled
       if (restoreFocus && previousActiveElementRef.current) {
-        previousActiveElementRef.current.focus()
+        previousActiveElementRef.current.focus();
       }
-    }
-  }, [autoFocus, restoreFocus])
+    };
+  }, [autoFocus, restoreFocus]);
 
   // Focus trap
   useEffect(() => {
-    if (!trapFocus || !focusRef.current) return
+    if (!trapFocus || !focusRef.current) return;
 
-    const element = focusRef.current
+    const element = focusRef.current;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Tab') return
+      if (event.key !== "Tab") return;
 
       const focusableElements = element.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
 
-      const firstElement = focusableElements[0]
-      const lastElement = focusableElements[focusableElements.length - 1]
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
 
       if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault()
-        lastElement?.focus()
+        event.preventDefault();
+        lastElement?.focus();
       } else if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault()
-        firstElement?.focus()
+        event.preventDefault();
+        firstElement?.focus();
       }
-    }
+    };
 
-    element.addEventListener('keydown', handleKeyDown)
+    element.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      element.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [trapFocus])
+      element.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [trapFocus]);
 
   return {
     focusRef,
     setFocus,
-  }
+  };
 }
 
 /**
@@ -114,92 +120,94 @@ export function useFocusManagement<T extends HTMLElement>(options: UseFocusManag
  */
 export function useRovingTabIndex<T extends HTMLElement>(
   options: {
-    orientation?: 'horizontal' | 'vertical' | 'both'
-    loop?: boolean
-    onIndexChange?: (index: number) => void
-  } = {}
+    orientation?: "horizontal" | "vertical" | "both";
+    loop?: boolean;
+    onIndexChange?: (index: number) => void;
+  } = {},
 ) {
-  const { orientation = 'vertical', loop = true, onIndexChange } = options
-  const containerRef = useRef<T>(null)
-  const currentIndexRef = useRef(0)
+  const { orientation = "vertical", loop = true, onIndexChange } = options;
+  const containerRef = useRef<T>(null);
+  const currentIndexRef = useRef(0);
 
   const getFocusableElements = useCallback(() => {
-    if (!containerRef.current) return []
+    if (!containerRef.current) return [];
 
     return Array.from(
       containerRef.current.querySelectorAll<HTMLElement>(
-        'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
-      )
-    )
-  }, [])
+        'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+  }, []);
 
   const focusElement = useCallback(
     (index: number) => {
-      const elements = getFocusableElements()
-      const element = elements[index]
+      const elements = getFocusableElements();
+      const element = elements[index];
 
       if (element) {
-        element.focus()
-        currentIndexRef.current = index
-        onIndexChange?.(index)
+        element.focus();
+        currentIndexRef.current = index;
+        onIndexChange?.(index);
       }
     },
-    [getFocusableElements, onIndexChange]
-  )
+    [getFocusableElements, onIndexChange],
+  );
 
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const elements = getFocusableElements()
-      if (elements.length === 0) return
+      const elements = getFocusableElements();
+      if (elements.length === 0) return;
 
-      const currentIndex = currentIndexRef.current
-      let nextIndex = currentIndex
+      const currentIndex = currentIndexRef.current;
+      let nextIndex = currentIndex;
 
-      const isVerticalKey = event.key === 'ArrowUp' || event.key === 'ArrowDown'
-      const isHorizontalKey = event.key === 'ArrowLeft' || event.key === 'ArrowRight'
+      const isVerticalKey =
+        event.key === "ArrowUp" || event.key === "ArrowDown";
+      const isHorizontalKey =
+        event.key === "ArrowLeft" || event.key === "ArrowRight";
 
       // Check if key matches orientation
-      if (orientation === 'vertical' && !isVerticalKey) return
-      if (orientation === 'horizontal' && !isHorizontalKey) return
+      if (orientation === "vertical" && !isVerticalKey) return;
+      if (orientation === "horizontal" && !isHorizontalKey) return;
 
-      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-        event.preventDefault()
-        nextIndex = currentIndex + 1
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+        event.preventDefault();
+        nextIndex = currentIndex + 1;
         if (nextIndex >= elements.length) {
-          nextIndex = loop ? 0 : elements.length - 1
+          nextIndex = loop ? 0 : elements.length - 1;
         }
-      } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-        event.preventDefault()
-        nextIndex = currentIndex - 1
+      } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+        event.preventDefault();
+        nextIndex = currentIndex - 1;
         if (nextIndex < 0) {
-          nextIndex = loop ? elements.length - 1 : 0
+          nextIndex = loop ? elements.length - 1 : 0;
         }
-      } else if (event.key === 'Home') {
-        event.preventDefault()
-        nextIndex = 0
-      } else if (event.key === 'End') {
-        event.preventDefault()
-        nextIndex = elements.length - 1
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        nextIndex = 0;
+      } else if (event.key === "End") {
+        event.preventDefault();
+        nextIndex = elements.length - 1;
       }
 
-      focusElement(nextIndex)
-    }
+      focusElement(nextIndex);
+    };
 
-    container.addEventListener('keydown', handleKeyDown)
+    container.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      container.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [orientation, loop, getFocusableElements, focusElement])
+      container.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [orientation, loop, getFocusableElements, focusElement]);
 
   return {
     containerRef,
     currentIndex: currentIndexRef.current,
     focusElement,
-  }
+  };
 }
 
 /**
@@ -208,59 +216,62 @@ export function useRovingTabIndex<T extends HTMLElement>(
 export function getFocusableElements(container: HTMLElement): HTMLElement[] {
   return Array.from(
     container.querySelectorAll<HTMLElement>(
-      'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
-    )
-  )
+      'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+    ),
+  );
 }
 
 /**
  * Move focus to the first focusable element in a container
  */
 export function focusFirstElement(container: HTMLElement): void {
-  const elements = getFocusableElements(container)
-  elements[0]?.focus()
+  const elements = getFocusableElements(container);
+  elements[0]?.focus();
 }
 
 /**
  * Move focus to the last focusable element in a container
  */
 export function focusLastElement(container: HTMLElement): void {
-  const elements = getFocusableElements(container)
-  elements[elements.length - 1]?.focus()
+  const elements = getFocusableElements(container);
+  elements[elements.length - 1]?.focus();
 }
 
 /**
  * Check if an element is currently focused
  */
 export function isFocused(element: HTMLElement | null): boolean {
-  return element !== null && document.activeElement === element
+  return element !== null && document.activeElement === element;
 }
 
 /**
  * Hook to detect when an element loses focus
  */
-export function useBlurDetection(callback: () => void, deps: React.DependencyList = []) {
-  const elementRef = useRef<HTMLElement>(null)
+export function useBlurDetection(
+  callback: () => void,
+  deps: React.DependencyList = [],
+) {
+  const elementRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const element = elementRef.current
-    if (!element) return
+    const element = elementRef.current;
+    if (!element) return;
 
     const handleBlur = (event: FocusEvent) => {
       // Check if focus moved outside the element
       if (!element.contains(event.relatedTarget as Node)) {
-        callback()
+        callback();
       }
-    }
+    };
 
-    element.addEventListener('focusout', handleBlur)
+    element.addEventListener("focusout", handleBlur);
 
     return () => {
-      element.removeEventListener('focusout', handleBlur)
-    }
-  }, [callback, ...deps])
+      element.removeEventListener("focusout", handleBlur);
+    };
+  }, [callback, ...deps]);
 
-  return elementRef
+  return elementRef;
 }
 
-export default useFocusManagement
+export default useFocusManagement;

@@ -11,7 +11,12 @@
   },
   "pnpm": {
     "overrides": {
-      "protobufjs@>=8.0.0 <8.0.2": ">=8.0.2"
+      "protobufjs@>=8.0.0 <8.0.2": ">=8.0.2",
+      "tar": ">=7.5.11",
+      "rollup": ">=3.30.0",
+      "serialize-javascript": ">=7.0.3",
+      "undici": ">=6.24.0",
+      "@nhost/nhost-js": "^3.3.1"
     }
   }
 }

@@ -5,7 +5,7 @@
  */
 
 // Types
-export * from './dm-types'
+export * from "./dm-types";
 
 // DM Management
 export {
@@ -32,7 +32,7 @@ export {
   getDMAvatarInitials,
   formatDMTimestamp,
   hasRecentActivity,
-} from './dm-manager'
+} from "./dm-manager";
 
 // Search
 export {
@@ -45,7 +45,7 @@ export {
   buildSearchIndex,
   searchIndex,
   type SearchIndex,
-} from './dm-search'
+} from "./dm-search";
 
 // Archive
 export {
@@ -66,7 +66,7 @@ export {
   type ArchiveOptions,
   type UnarchiveResult,
   type ArchiveExport,
-} from './dm-archive'
+} from "./dm-archive";
 
 // Notifications
 export {
@@ -87,7 +87,7 @@ export {
   type NotificationEvent,
   type MuteOptions,
   type NotificationDisplay,
-} from './dm-notifications'
+} from "./dm-notifications";
 
 // Group DM
 export {
@@ -107,4 +107,4 @@ export {
   getOnlineCount,
   canTransferOwnership,
   getLeaveConsequences,
-} from './group-dm'
+} from "./group-dm";

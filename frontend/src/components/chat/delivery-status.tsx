@@ -1,9 +1,14 @@
-'use client'
+"use client";
 
-import { memo } from 'react'
-import { Clock, Check, CheckCheck, AlertCircle, RefreshCw } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { memo } from "react";
+import { Clock, Check, CheckCheck, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -13,31 +18,31 @@ import { cn } from '@/lib/utils'
  * Message delivery status states
  */
 export type DeliveryStatusType =
-  | 'sending' // Message is being sent to server
-  | 'sent' // Server received the message
-  | 'delivered' // Recipient's device received (for DMs)
-  | 'read' // Recipient opened the chat
-  | 'failed' // Message failed to send
+  | "sending" // Message is being sent to server
+  | "sent" // Server received the message
+  | "delivered" // Recipient's device received (for DMs)
+  | "read" // Recipient opened the chat
+  | "failed"; // Message failed to send
 
 export interface DeliveryStatusProps {
   /** Current delivery status */
-  status: DeliveryStatusType
+  status: DeliveryStatusType;
   /** Whether this is a direct message (affects delivery/read semantics) */
-  isDirectMessage?: boolean
+  isDirectMessage?: boolean;
   /** Number of recipients who have read (for group chats) */
-  readCount?: number
+  readCount?: number;
   /** Total number of recipients (for group chats) */
-  totalRecipients?: number
+  totalRecipients?: number;
   /** Callback for retry action (when failed) */
-  onRetry?: () => void
+  onRetry?: () => void;
   /** Error message (when failed) */
-  errorMessage?: string
+  errorMessage?: string;
   /** Size variant */
-  size?: 'sm' | 'default' | 'lg'
+  size?: "sm" | "default" | "lg";
   /** Whether to show tooltip */
-  showTooltip?: boolean
+  showTooltip?: boolean;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -47,51 +52,51 @@ export interface DeliveryStatusProps {
 const statusConfig: Record<
   DeliveryStatusType,
   {
-    icon: typeof Clock
-    label: string
-    description: string
-    color: string
-    colorFilled?: string
+    icon: typeof Clock;
+    label: string;
+    description: string;
+    color: string;
+    colorFilled?: string;
   }
 > = {
   sending: {
     icon: Clock,
-    label: 'Sending',
-    description: 'Message is being sent...',
-    color: 'text-muted-foreground',
+    label: "Sending",
+    description: "Message is being sent...",
+    color: "text-muted-foreground",
   },
   sent: {
     icon: Check,
-    label: 'Sent',
-    description: 'Message sent to server',
-    color: 'text-muted-foreground',
+    label: "Sent",
+    description: "Message sent to server",
+    color: "text-muted-foreground",
   },
   delivered: {
     icon: CheckCheck,
-    label: 'Delivered',
-    description: 'Message delivered to recipient',
-    color: 'text-muted-foreground',
+    label: "Delivered",
+    description: "Message delivered to recipient",
+    color: "text-muted-foreground",
   },
   read: {
     icon: CheckCheck,
-    label: 'Read',
-    description: 'Message has been read',
-    color: 'text-primary',
-    colorFilled: 'text-primary fill-primary',
+    label: "Read",
+    description: "Message has been read",
+    color: "text-primary",
+    colorFilled: "text-primary fill-primary",
   },
   failed: {
     icon: AlertCircle,
-    label: 'Failed',
-    description: 'Message failed to send',
-    color: 'text-destructive',
+    label: "Failed",
+    description: "Message failed to send",
+    color: "text-destructive",
   },
-}
+};
 
 const sizeConfig = {
-  sm: { icon: 'h-3 w-3', container: 'gap-0.5' },
-  default: { icon: 'h-4 w-4', container: 'gap-1' },
-  lg: { icon: 'h-5 w-5', container: 'gap-1.5' },
-}
+  sm: { icon: "h-3 w-3", container: "gap-0.5" },
+  default: { icon: "h-4 w-4", container: "gap-1" },
+  lg: { icon: "h-5 w-5", container: "gap-1.5" },
+};
 
 // ============================================================================
 // Component
@@ -114,35 +119,41 @@ export const DeliveryStatus = memo(function DeliveryStatus({
   totalRecipients,
   onRetry,
   errorMessage,
-  size = 'default',
+  size = "default",
   showTooltip = true,
   className,
 }: DeliveryStatusProps) {
-  const config = statusConfig[status]
-  const sizeStyles = sizeConfig[size]
-  const Icon = config.icon
+  const config = statusConfig[status];
+  const sizeStyles = sizeConfig[size];
+  const Icon = config.icon;
 
   // Build tooltip content
   const getTooltipContent = () => {
-    if (status === 'failed') {
+    if (status === "failed") {
       return (
         <div className="space-y-1">
           <p className="font-medium text-destructive">{config.label}</p>
           {errorMessage && <p className="text-xs">{errorMessage}</p>}
           {onRetry && <p className="text-xs text-primary">Click to retry</p>}
         </div>
-      )
+      );
     }
 
-    if (status === 'read' && !isDirectMessage && readCount !== undefined && totalRecipients) {
+    if (
+      status === "read" &&
+      !isDirectMessage &&
+      readCount !== undefined &&
+      totalRecipients
+    ) {
       return (
         <div className="space-y-1">
           <p className="font-medium">{config.label}</p>
           <p className="text-xs text-muted-foreground">
-            Read by {readCount} of {totalRecipients} recipient{totalRecipients !== 1 ? 's' : ''}
+            Read by {readCount} of {totalRecipients} recipient
+            {totalRecipients !== 1 ? "s" : ""}
           </p>
         </div>
-      )
+      );
     }
 
     return (
@@ -150,24 +161,24 @@ export const DeliveryStatus = memo(function DeliveryStatus({
         <p className="font-medium">{config.label}</p>
         <p className="text-xs text-muted-foreground">{config.description}</p>
       </div>
-    )
-  }
+    );
+  };
 
-  const isRetryable = status === 'failed' && onRetry
+  const isRetryable = status === "failed" && onRetry;
 
   const iconElement = isRetryable ? (
     <span
       className={cn(
-        'inline-flex cursor-pointer items-center hover:opacity-80',
+        "inline-flex cursor-pointer items-center hover:opacity-80",
         sizeStyles.container,
         config.color,
-        className
+        className,
       )}
       onClick={onRetry}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onRetry?.()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onRetry?.();
         }
       }}
       role="button"
@@ -179,20 +190,22 @@ export const DeliveryStatus = memo(function DeliveryStatus({
   ) : (
     <span
       className={cn(
-        'inline-flex items-center',
+        "inline-flex items-center",
         sizeStyles.container,
-        status === 'read' ? config.colorFilled || config.color : config.color,
-        status === 'sending' && 'animate-pulse',
-        className
+        status === "read" ? config.colorFilled || config.color : config.color,
+        status === "sending" && "animate-pulse",
+        className,
       )}
       aria-label={config.label}
     >
-      <Icon className={cn(sizeStyles.icon, status === 'sending' && 'animate-spin')} />
+      <Icon
+        className={cn(sizeStyles.icon, status === "sending" && "animate-spin")}
+      />
     </span>
-  )
+  );
 
   if (!showTooltip) {
-    return iconElement
+    return iconElement;
   }
 
   return (
@@ -204,8 +217,8 @@ export const DeliveryStatus = memo(function DeliveryStatus({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Status Badge Variant
@@ -213,13 +226,13 @@ export const DeliveryStatus = memo(function DeliveryStatus({
 
 export interface DeliveryStatusBadgeProps {
   /** Current delivery status */
-  status: DeliveryStatusType
+  status: DeliveryStatusType;
   /** Show label text alongside icon */
-  showLabel?: boolean
+  showLabel?: boolean;
   /** Size variant */
-  size?: 'sm' | 'default'
+  size?: "sm" | "default";
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -230,30 +243,30 @@ export interface DeliveryStatusBadgeProps {
 export const DeliveryStatusBadge = memo(function DeliveryStatusBadge({
   status,
   showLabel = false,
-  size = 'default',
+  size = "default",
   className,
 }: DeliveryStatusBadgeProps) {
-  const config = statusConfig[status]
-  const Icon = config.icon
+  const config = statusConfig[status];
+  const Icon = config.icon;
 
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full',
-        status === 'failed'
-          ? 'bg-destructive/10 text-destructive'
-          : status === 'read'
-            ? 'bg-primary/10 text-primary'
-            : 'bg-muted text-muted-foreground',
-        size === 'sm' ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1 text-xs',
-        className
+        "inline-flex items-center gap-1 rounded-full",
+        status === "failed"
+          ? "bg-destructive/10 text-destructive"
+          : status === "read"
+            ? "bg-primary/10 text-primary"
+            : "bg-muted text-muted-foreground",
+        size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1 text-xs",
+        className,
       )}
     >
-      <Icon className={size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
+      <Icon className={size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5"} />
       {showLabel && <span>{config.label}</span>}
     </span>
-  )
-})
+  );
+});
 
 // ============================================================================
 // Inline Status for Message Footer
@@ -261,11 +274,11 @@ export const DeliveryStatusBadge = memo(function DeliveryStatusBadge({
 
 export interface InlineDeliveryStatusProps {
   /** Current delivery status */
-  status: DeliveryStatusType
+  status: DeliveryStatusType;
   /** Timestamp to show alongside status */
-  timestamp?: string
+  timestamp?: string;
   /** Additional CSS classes */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -278,22 +291,27 @@ export const InlineDeliveryStatus = memo(function InlineDeliveryStatus({
   timestamp,
   className,
 }: InlineDeliveryStatusProps) {
-  const config = statusConfig[status]
-  const Icon = config.icon
+  const config = statusConfig[status];
+  const Icon = config.icon;
 
   return (
-    <span className={cn('inline-flex items-center gap-1 text-xs text-muted-foreground', className)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 text-xs text-muted-foreground",
+        className,
+      )}
+    >
       {timestamp && <span>{timestamp}</span>}
       <Icon
         className={cn(
-          'h-3 w-3',
-          status === 'read' && 'text-primary',
-          status === 'failed' && 'text-destructive',
-          status === 'sending' && 'animate-spin'
+          "h-3 w-3",
+          status === "read" && "text-primary",
+          status === "failed" && "text-destructive",
+          status === "sending" && "animate-spin",
         )}
       />
     </span>
-  )
-})
+  );
+});
 
-export default DeliveryStatus
+export default DeliveryStatus;

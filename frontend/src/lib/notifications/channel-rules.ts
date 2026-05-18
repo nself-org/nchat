@@ -14,7 +14,7 @@ import type {
   NotificationPriority,
   NotificationType,
   NotificationDeliveryMethod,
-} from './notification-types'
+} from "./notification-types";
 
 // ============================================================================
 // Types
@@ -23,18 +23,18 @@ import type {
 /**
  * Thread notification preference
  */
-export type ThreadNotificationLevel = 'all' | 'participating' | 'nothing'
+export type ThreadNotificationLevel = "all" | "participating" | "nothing";
 
 /**
  * Mute state for a channel
  */
 export interface MuteState {
   /** Whether the channel is muted */
-  isMuted: boolean
+  isMuted: boolean;
   /** When the mute expires (null = permanent) */
-  expiresAt: string | null
+  expiresAt: string | null;
   /** Reason for muting */
-  reason?: string
+  reason?: string;
 }
 
 /**
@@ -42,17 +42,17 @@ export interface MuteState {
  */
 export interface ThreadNotificationPreference {
   /** Thread ID */
-  threadId: string
+  threadId: string;
   /** Channel ID the thread belongs to */
-  channelId: string
+  channelId: string;
   /** Notification level for this thread */
-  level: ThreadNotificationLevel
+  level: ThreadNotificationLevel;
   /** Whether the user is participating in this thread */
-  isParticipating: boolean
+  isParticipating: boolean;
   /** Custom mute state for this thread */
-  mute?: MuteState
+  mute?: MuteState;
   /** Timestamp of last interaction */
-  lastInteraction?: string
+  lastInteraction?: string;
 }
 
 /**
@@ -60,37 +60,37 @@ export interface ThreadNotificationPreference {
  */
 export interface ChannelNotificationRule {
   /** Channel ID this rule applies to */
-  channelId: string
+  channelId: string;
   /** Channel name for display */
-  channelName?: string
+  channelName?: string;
   /** Channel type */
-  channelType?: 'public' | 'private' | 'dm' | 'group_dm'
+  channelType?: "public" | "private" | "dm" | "group_dm";
   /** Base notification level */
-  level: ChannelNotificationLevel
+  level: ChannelNotificationLevel;
   /** Mute state */
-  mute: MuteState
+  mute: MuteState;
   /** Whether this rule overrides global settings */
-  overrideGlobal: boolean
+  overrideGlobal: boolean;
   /** Delivery method overrides */
-  deliveryOverrides: Partial<Record<NotificationDeliveryMethod, boolean>>
+  deliveryOverrides: Partial<Record<NotificationDeliveryMethod, boolean>>;
   /** Custom sound for this channel */
-  customSound?: string
+  customSound?: string;
   /** Thread notification preferences within this channel */
-  threadPreferences: Record<string, ThreadNotificationPreference>
+  threadPreferences: Record<string, ThreadNotificationPreference>;
   /** Default thread notification level for new threads */
-  defaultThreadLevel: ThreadNotificationLevel
+  defaultThreadLevel: ThreadNotificationLevel;
   /** Category/group this channel belongs to */
-  categoryId?: string
+  categoryId?: string;
   /** Notification types that are explicitly allowed even in restricted mode */
-  allowedTypes: NotificationType[]
+  allowedTypes: NotificationType[];
   /** Notification types that are explicitly blocked */
-  blockedTypes: NotificationType[]
+  blockedTypes: NotificationType[];
   /** Minimum priority to notify (notifications below this are suppressed) */
-  minimumPriority?: NotificationPriority
+  minimumPriority?: NotificationPriority;
   /** When this rule was created */
-  createdAt: string
+  createdAt: string;
   /** When this rule was last updated */
-  updatedAt: string
+  updatedAt: string;
 }
 
 /**
@@ -98,23 +98,23 @@ export interface ChannelNotificationRule {
  */
 export interface ChannelCategoryRule {
   /** Category ID */
-  categoryId: string
+  categoryId: string;
   /** Category name */
-  name: string
+  name: string;
   /** Notification level for all channels in this category */
-  level: ChannelNotificationLevel
+  level: ChannelNotificationLevel;
   /** Mute state for the entire category */
-  mute: MuteState
+  mute: MuteState;
   /** Whether channels in this category can override the category settings */
-  allowChannelOverride: boolean
+  allowChannelOverride: boolean;
   /** Delivery method settings for the category */
-  deliveryOverrides: Partial<Record<NotificationDeliveryMethod, boolean>>
+  deliveryOverrides: Partial<Record<NotificationDeliveryMethod, boolean>>;
   /** Channels in this category */
-  channelIds: string[]
+  channelIds: string[];
   /** When this rule was created */
-  createdAt: string
+  createdAt: string;
   /** When this rule was last updated */
-  updatedAt: string
+  updatedAt: string;
 }
 
 /**
@@ -122,15 +122,15 @@ export interface ChannelCategoryRule {
  */
 export interface ChannelRuleResult {
   /** Whether the notification should be delivered */
-  shouldNotify: boolean
+  shouldNotify: boolean;
   /** Effective notification level after resolution */
-  effectiveLevel: ChannelNotificationLevel
+  effectiveLevel: ChannelNotificationLevel;
   /** Reason why the notification was allowed/blocked */
-  reason: string
+  reason: string;
   /** Active delivery methods */
-  deliveryMethods: NotificationDeliveryMethod[]
+  deliveryMethods: NotificationDeliveryMethod[];
   /** Custom sound to use (if any) */
-  customSound?: string
+  customSound?: string;
 }
 
 /**
@@ -138,32 +138,37 @@ export interface ChannelRuleResult {
  */
 export interface ChannelRuleStore {
   /** Per-channel rules */
-  channelRules: Record<string, ChannelNotificationRule>
+  channelRules: Record<string, ChannelNotificationRule>;
   /** Category rules */
-  categoryRules: Record<string, ChannelCategoryRule>
+  categoryRules: Record<string, ChannelCategoryRule>;
   /** Global default level for channels without rules */
-  globalDefaultLevel: ChannelNotificationLevel
+  globalDefaultLevel: ChannelNotificationLevel;
   /** Global default thread level */
-  globalDefaultThreadLevel: ThreadNotificationLevel
+  globalDefaultThreadLevel: ThreadNotificationLevel;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-export const PRIORITY_ORDER: NotificationPriority[] = ['urgent', 'high', 'normal', 'low']
+export const PRIORITY_ORDER: NotificationPriority[] = [
+  "urgent",
+  "high",
+  "normal",
+  "low",
+];
 
 export const DEFAULT_MUTE_DURATIONS = {
-  '15m': 15 * 60 * 1000,
-  '1h': 60 * 60 * 1000,
-  '2h': 2 * 60 * 60 * 1000,
-  '4h': 4 * 60 * 60 * 1000,
-  '8h': 8 * 60 * 60 * 1000,
-  '24h': 24 * 60 * 60 * 1000,
-  '1w': 7 * 24 * 60 * 60 * 1000,
-} as const
+  "15m": 15 * 60 * 1000,
+  "1h": 60 * 60 * 1000,
+  "2h": 2 * 60 * 60 * 1000,
+  "4h": 4 * 60 * 60 * 1000,
+  "8h": 8 * 60 * 60 * 1000,
+  "24h": 24 * 60 * 60 * 1000,
+  "1w": 7 * 24 * 60 * 60 * 1000,
+} as const;
 
-export type MuteDurationKey = keyof typeof DEFAULT_MUTE_DURATIONS
+export type MuteDurationKey = keyof typeof DEFAULT_MUTE_DURATIONS;
 
 // ============================================================================
 // Channel Rule Store Factory
@@ -173,14 +178,15 @@ export type MuteDurationKey = keyof typeof DEFAULT_MUTE_DURATIONS
  * Create a new empty channel rule store
  */
 export function createChannelRuleStore(
-  defaults?: Partial<ChannelRuleStore>
+  defaults?: Partial<ChannelRuleStore>,
 ): ChannelRuleStore {
   return {
     channelRules: defaults?.channelRules ?? {},
     categoryRules: defaults?.categoryRules ?? {},
-    globalDefaultLevel: defaults?.globalDefaultLevel ?? 'all',
-    globalDefaultThreadLevel: defaults?.globalDefaultThreadLevel ?? 'participating',
-  }
+    globalDefaultLevel: defaults?.globalDefaultLevel ?? "all",
+    globalDefaultThreadLevel:
+      defaults?.globalDefaultThreadLevel ?? "participating",
+  };
 }
 
 // ============================================================================
@@ -192,27 +198,29 @@ export function createChannelRuleStore(
  */
 export function createChannelRule(
   channelId: string,
-  options?: Partial<Omit<ChannelNotificationRule, 'channelId' | 'createdAt' | 'updatedAt'>>
+  options?: Partial<
+    Omit<ChannelNotificationRule, "channelId" | "createdAt" | "updatedAt">
+  >,
 ): ChannelNotificationRule {
-  const now = new Date().toISOString()
+  const now = new Date().toISOString();
   return {
     channelId,
     channelName: options?.channelName,
     channelType: options?.channelType,
-    level: options?.level ?? 'all',
+    level: options?.level ?? "all",
     mute: options?.mute ?? { isMuted: false, expiresAt: null },
     overrideGlobal: options?.overrideGlobal ?? true,
     deliveryOverrides: options?.deliveryOverrides ?? {},
     customSound: options?.customSound,
     threadPreferences: options?.threadPreferences ?? {},
-    defaultThreadLevel: options?.defaultThreadLevel ?? 'participating',
+    defaultThreadLevel: options?.defaultThreadLevel ?? "participating",
     categoryId: options?.categoryId,
     allowedTypes: options?.allowedTypes ?? [],
     blockedTypes: options?.blockedTypes ?? [],
     minimumPriority: options?.minimumPriority,
     createdAt: now,
     updatedAt: now,
-  }
+  };
 }
 
 /**
@@ -221,19 +229,19 @@ export function createChannelRule(
 export function updateChannelRule(
   store: ChannelRuleStore,
   channelId: string,
-  updates: Partial<Omit<ChannelNotificationRule, 'channelId' | 'createdAt'>>
+  updates: Partial<Omit<ChannelNotificationRule, "channelId" | "createdAt">>,
 ): ChannelRuleStore {
-  const existing = store.channelRules[channelId]
+  const existing = store.channelRules[channelId];
   if (!existing) {
     // Create new rule with updates
-    const newRule = createChannelRule(channelId, updates)
+    const newRule = createChannelRule(channelId, updates);
     return {
       ...store,
       channelRules: {
         ...store.channelRules,
         [channelId]: newRule,
       },
-    }
+    };
   }
 
   return {
@@ -246,7 +254,7 @@ export function updateChannelRule(
         updatedAt: new Date().toISOString(),
       },
     },
-  }
+  };
 }
 
 /**
@@ -254,13 +262,13 @@ export function updateChannelRule(
  */
 export function deleteChannelRule(
   store: ChannelRuleStore,
-  channelId: string
+  channelId: string,
 ): ChannelRuleStore {
-  const { [channelId]: _removed, ...rest } = store.channelRules
+  const { [channelId]: _removed, ...rest } = store.channelRules;
   return {
     ...store,
     channelRules: rest,
-  }
+  };
 }
 
 /**
@@ -268,18 +276,18 @@ export function deleteChannelRule(
  */
 export function getChannelRule(
   store: ChannelRuleStore,
-  channelId: string
+  channelId: string,
 ): ChannelNotificationRule | null {
-  return store.channelRules[channelId] ?? null
+  return store.channelRules[channelId] ?? null;
 }
 
 /**
  * Get all channel rules
  */
 export function getAllChannelRules(
-  store: ChannelRuleStore
+  store: ChannelRuleStore,
 ): ChannelNotificationRule[] {
-  return Object.values(store.channelRules)
+  return Object.values(store.channelRules);
 }
 
 /**
@@ -287,9 +295,11 @@ export function getAllChannelRules(
  */
 export function getChannelRulesByLevel(
   store: ChannelRuleStore,
-  level: ChannelNotificationLevel
+  level: ChannelNotificationLevel,
 ): ChannelNotificationRule[] {
-  return Object.values(store.channelRules).filter((rule) => rule.level === level)
+  return Object.values(store.channelRules).filter(
+    (rule) => rule.level === level,
+  );
 }
 
 // ============================================================================
@@ -303,27 +313,27 @@ export function muteChannelRule(
   store: ChannelRuleStore,
   channelId: string,
   options?: {
-    duration?: MuteDurationKey | number
-    reason?: string
-  }
+    duration?: MuteDurationKey | number;
+    reason?: string;
+  },
 ): ChannelRuleStore {
-  let expiresAt: string | null = null
+  let expiresAt: string | null = null;
 
   if (options?.duration) {
     const durationMs =
-      typeof options.duration === 'number'
+      typeof options.duration === "number"
         ? options.duration
-        : DEFAULT_MUTE_DURATIONS[options.duration]
-    expiresAt = new Date(Date.now() + durationMs).toISOString()
+        : DEFAULT_MUTE_DURATIONS[options.duration];
+    expiresAt = new Date(Date.now() + durationMs).toISOString();
   }
 
   const muteState: MuteState = {
     isMuted: true,
     expiresAt,
     reason: options?.reason,
-  }
+  };
 
-  return updateChannelRule(store, channelId, { mute: muteState })
+  return updateChannelRule(store, channelId, { mute: muteState });
 }
 
 /**
@@ -331,11 +341,11 @@ export function muteChannelRule(
  */
 export function unmuteChannelRule(
   store: ChannelRuleStore,
-  channelId: string
+  channelId: string,
 ): ChannelRuleStore {
   return updateChannelRule(store, channelId, {
     mute: { isMuted: false, expiresAt: null },
-  })
+  });
 }
 
 /**
@@ -344,26 +354,26 @@ export function unmuteChannelRule(
 export function isChannelRuleMuted(
   store: ChannelRuleStore,
   channelId: string,
-  now?: Date
+  now?: Date,
 ): boolean {
-  const rule = store.channelRules[channelId]
-  if (!rule) return false
+  const rule = store.channelRules[channelId];
+  if (!rule) return false;
 
-  return isMuteActive(rule.mute, now)
+  return isMuteActive(rule.mute, now);
 }
 
 /**
  * Check if a mute state is currently active
  */
 export function isMuteActive(mute: MuteState, now?: Date): boolean {
-  if (!mute.isMuted) return false
+  if (!mute.isMuted) return false;
 
   // Permanent mute (no expiry)
-  if (!mute.expiresAt) return true
+  if (!mute.expiresAt) return true;
 
   // Check if the mute has expired
-  const currentTime = now ?? new Date()
-  return new Date(mute.expiresAt) > currentTime
+  const currentTime = now ?? new Date();
+  return new Date(mute.expiresAt) > currentTime;
 }
 
 /**
@@ -371,11 +381,11 @@ export function isMuteActive(mute: MuteState, now?: Date): boolean {
  */
 export function cleanupExpiredMutes(
   store: ChannelRuleStore,
-  now?: Date
+  now?: Date,
 ): ChannelRuleStore {
-  const currentTime = now ?? new Date()
-  let hasChanges = false
-  const updatedRules: Record<string, ChannelNotificationRule> = {}
+  const currentTime = now ?? new Date();
+  let hasChanges = false;
+  const updatedRules: Record<string, ChannelNotificationRule> = {};
 
   for (const [channelId, rule] of Object.entries(store.channelRules)) {
     if (rule.mute.isMuted && rule.mute.expiresAt) {
@@ -384,20 +394,20 @@ export function cleanupExpiredMutes(
           ...rule,
           mute: { isMuted: false, expiresAt: null },
           updatedAt: currentTime.toISOString(),
-        }
-        hasChanges = true
-        continue
+        };
+        hasChanges = true;
+        continue;
       }
     }
-    updatedRules[channelId] = rule
+    updatedRules[channelId] = rule;
   }
 
-  if (!hasChanges) return store
+  if (!hasChanges) return store;
 
   return {
     ...store,
     channelRules: updatedRules,
-  }
+  };
 }
 
 // ============================================================================
@@ -411,21 +421,26 @@ export function setThreadPreference(
   store: ChannelRuleStore,
   channelId: string,
   threadId: string,
-  preference: Partial<Omit<ThreadNotificationPreference, 'threadId' | 'channelId'>>
+  preference: Partial<
+    Omit<ThreadNotificationPreference, "threadId" | "channelId">
+  >,
 ): ChannelRuleStore {
-  const rule = store.channelRules[channelId]
-  const baseRule = rule ?? createChannelRule(channelId)
+  const rule = store.channelRules[channelId];
+  const baseRule = rule ?? createChannelRule(channelId);
 
-  const existingPref = baseRule.threadPreferences[threadId]
+  const existingPref = baseRule.threadPreferences[threadId];
 
   const threadPref: ThreadNotificationPreference = {
     threadId,
     channelId,
-    level: preference.level ?? existingPref?.level ?? baseRule.defaultThreadLevel,
-    isParticipating: preference.isParticipating ?? existingPref?.isParticipating ?? false,
+    level:
+      preference.level ?? existingPref?.level ?? baseRule.defaultThreadLevel,
+    isParticipating:
+      preference.isParticipating ?? existingPref?.isParticipating ?? false,
     mute: preference.mute ?? existingPref?.mute,
-    lastInteraction: preference.lastInteraction ?? existingPref?.lastInteraction,
-  }
+    lastInteraction:
+      preference.lastInteraction ?? existingPref?.lastInteraction,
+  };
 
   return {
     ...store,
@@ -440,7 +455,7 @@ export function setThreadPreference(
         updatedAt: new Date().toISOString(),
       },
     },
-  }
+  };
 }
 
 /**
@@ -449,12 +464,12 @@ export function setThreadPreference(
 export function removeThreadPreference(
   store: ChannelRuleStore,
   channelId: string,
-  threadId: string
+  threadId: string,
 ): ChannelRuleStore {
-  const rule = store.channelRules[channelId]
-  if (!rule) return store
+  const rule = store.channelRules[channelId];
+  if (!rule) return store;
 
-  const { [threadId]: _removed, ...rest } = rule.threadPreferences
+  const { [threadId]: _removed, ...rest } = rule.threadPreferences;
 
   return {
     ...store,
@@ -466,7 +481,7 @@ export function removeThreadPreference(
         updatedAt: new Date().toISOString(),
       },
     },
-  }
+  };
 }
 
 /**
@@ -476,28 +491,29 @@ export function getEffectiveThreadLevel(
   store: ChannelRuleStore,
   channelId: string,
   threadId: string,
-  isParticipating: boolean
+  isParticipating: boolean,
 ): ThreadNotificationLevel {
-  const rule = store.channelRules[channelId]
-  const threadPref = rule?.threadPreferences[threadId]
+  const rule = store.channelRules[channelId];
+  const threadPref = rule?.threadPreferences[threadId];
 
   if (threadPref) {
     // If thread has explicit mute, treat as 'nothing'
     if (threadPref.mute && isMuteActive(threadPref.mute)) {
-      return 'nothing'
+      return "nothing";
     }
-    return threadPref.level
+    return threadPref.level;
   }
 
   // Fall back to channel's default thread level
-  const defaultLevel = rule?.defaultThreadLevel ?? store.globalDefaultThreadLevel
+  const defaultLevel =
+    rule?.defaultThreadLevel ?? store.globalDefaultThreadLevel;
 
   // For 'participating' level, check if user is actually participating
-  if (defaultLevel === 'participating' && !isParticipating) {
-    return 'nothing'
+  if (defaultLevel === "participating" && !isParticipating) {
+    return "nothing";
   }
 
-  return defaultLevel
+  return defaultLevel;
 }
 
 // ============================================================================
@@ -510,20 +526,22 @@ export function getEffectiveThreadLevel(
 export function createCategoryRule(
   categoryId: string,
   name: string,
-  options?: Partial<Omit<ChannelCategoryRule, 'categoryId' | 'name' | 'createdAt' | 'updatedAt'>>
+  options?: Partial<
+    Omit<ChannelCategoryRule, "categoryId" | "name" | "createdAt" | "updatedAt">
+  >,
 ): ChannelCategoryRule {
-  const now = new Date().toISOString()
+  const now = new Date().toISOString();
   return {
     categoryId,
     name,
-    level: options?.level ?? 'all',
+    level: options?.level ?? "all",
     mute: options?.mute ?? { isMuted: false, expiresAt: null },
     allowChannelOverride: options?.allowChannelOverride ?? true,
     deliveryOverrides: options?.deliveryOverrides ?? {},
     channelIds: options?.channelIds ?? [],
     createdAt: now,
     updatedAt: now,
-  }
+  };
 }
 
 /**
@@ -531,7 +549,7 @@ export function createCategoryRule(
  */
 export function addCategoryRule(
   store: ChannelRuleStore,
-  category: ChannelCategoryRule
+  category: ChannelCategoryRule,
 ): ChannelRuleStore {
   return {
     ...store,
@@ -539,7 +557,7 @@ export function addCategoryRule(
       ...store.categoryRules,
       [category.categoryId]: category,
     },
-  }
+  };
 }
 
 /**
@@ -548,10 +566,10 @@ export function addCategoryRule(
 export function updateCategoryRule(
   store: ChannelRuleStore,
   categoryId: string,
-  updates: Partial<Omit<ChannelCategoryRule, 'categoryId' | 'createdAt'>>
+  updates: Partial<Omit<ChannelCategoryRule, "categoryId" | "createdAt">>,
 ): ChannelRuleStore {
-  const existing = store.categoryRules[categoryId]
-  if (!existing) return store
+  const existing = store.categoryRules[categoryId];
+  if (!existing) return store;
 
   return {
     ...store,
@@ -563,7 +581,7 @@ export function updateCategoryRule(
         updatedAt: new Date().toISOString(),
       },
     },
-  }
+  };
 }
 
 /**
@@ -571,13 +589,13 @@ export function updateCategoryRule(
  */
 export function deleteCategoryRule(
   store: ChannelRuleStore,
-  categoryId: string
+  categoryId: string,
 ): ChannelRuleStore {
-  const { [categoryId]: _removed, ...rest } = store.categoryRules
+  const { [categoryId]: _removed, ...rest } = store.categoryRules;
   return {
     ...store,
     categoryRules: rest,
-  }
+  };
 }
 
 /**
@@ -586,19 +604,19 @@ export function deleteCategoryRule(
 export function addChannelToCategory(
   store: ChannelRuleStore,
   categoryId: string,
-  channelId: string
+  channelId: string,
 ): ChannelRuleStore {
-  const category = store.categoryRules[categoryId]
-  if (!category) return store
+  const category = store.categoryRules[categoryId];
+  if (!category) return store;
 
-  if (category.channelIds.includes(channelId)) return store
+  if (category.channelIds.includes(channelId)) return store;
 
   const updatedStore = updateCategoryRule(store, categoryId, {
     channelIds: [...category.channelIds, channelId],
-  })
+  });
 
   // Also update the channel rule to reference the category
-  return updateChannelRule(updatedStore, channelId, { categoryId })
+  return updateChannelRule(updatedStore, channelId, { categoryId });
 }
 
 /**
@@ -607,22 +625,24 @@ export function addChannelToCategory(
 export function removeChannelFromCategory(
   store: ChannelRuleStore,
   categoryId: string,
-  channelId: string
+  channelId: string,
 ): ChannelRuleStore {
-  const category = store.categoryRules[categoryId]
-  if (!category) return store
+  const category = store.categoryRules[categoryId];
+  if (!category) return store;
 
   const updatedStore = updateCategoryRule(store, categoryId, {
     channelIds: category.channelIds.filter((id) => id !== channelId),
-  })
+  });
 
   // Remove category reference from channel rule
-  const channelRule = updatedStore.channelRules[channelId]
+  const channelRule = updatedStore.channelRules[channelId];
   if (channelRule?.categoryId === categoryId) {
-    return updateChannelRule(updatedStore, channelId, { categoryId: undefined })
+    return updateChannelRule(updatedStore, channelId, {
+      categoryId: undefined,
+    });
   }
 
-  return updatedStore
+  return updatedStore;
 }
 
 // ============================================================================
@@ -636,28 +656,28 @@ export function evaluateChannelRule(
   store: ChannelRuleStore,
   channelId: string,
   notification: {
-    type: NotificationType
-    priority: NotificationPriority
-    threadId?: string
-    isParticipating?: boolean
+    type: NotificationType;
+    priority: NotificationPriority;
+    threadId?: string;
+    isParticipating?: boolean;
   },
-  now?: Date
+  now?: Date,
 ): ChannelRuleResult {
-  const currentTime = now ?? new Date()
-  const rule = store.channelRules[channelId]
+  const currentTime = now ?? new Date();
+  const rule = store.channelRules[channelId];
 
   // 1. Check category-level mute first
   if (rule?.categoryId) {
-    const categoryRule = store.categoryRules[rule.categoryId]
+    const categoryRule = store.categoryRules[rule.categoryId];
     if (categoryRule && isMuteActive(categoryRule.mute, currentTime)) {
       // Category is muted - check if channel can override
       if (!categoryRule.allowChannelOverride || !rule.overrideGlobal) {
         return {
           shouldNotify: false,
-          effectiveLevel: 'nothing',
-          reason: 'Category is muted',
+          effectiveLevel: "nothing",
+          reason: "Category is muted",
           deliveryMethods: [],
-        }
+        };
       }
     }
   }
@@ -666,20 +686,21 @@ export function evaluateChannelRule(
   if (rule && isMuteActive(rule.mute, currentTime)) {
     return {
       shouldNotify: false,
-      effectiveLevel: 'nothing',
-      reason: 'Channel is muted',
+      effectiveLevel: "nothing",
+      reason: "Channel is muted",
       deliveryMethods: [],
-    }
+    };
   }
 
   // 3. Determine effective level
-  let effectiveLevel: ChannelNotificationLevel = rule?.level ?? store.globalDefaultLevel
+  let effectiveLevel: ChannelNotificationLevel =
+    rule?.level ?? store.globalDefaultLevel;
 
   // Apply category level if no channel override
   if (rule?.categoryId && !rule.overrideGlobal) {
-    const categoryRule = store.categoryRules[rule.categoryId]
+    const categoryRule = store.categoryRules[rule.categoryId];
     if (categoryRule) {
-      effectiveLevel = categoryRule.level
+      effectiveLevel = categoryRule.level;
     }
   }
 
@@ -689,35 +710,35 @@ export function evaluateChannelRule(
       store,
       channelId,
       notification.threadId,
-      notification.isParticipating ?? false
-    )
-    if (threadLevel === 'nothing') {
+      notification.isParticipating ?? false,
+    );
+    if (threadLevel === "nothing") {
       return {
         shouldNotify: false,
-        effectiveLevel: 'nothing',
-        reason: 'Thread notifications disabled',
+        effectiveLevel: "nothing",
+        reason: "Thread notifications disabled",
         deliveryMethods: [],
-      }
+      };
     }
   }
 
   // 5. Apply notification level logic
-  if (effectiveLevel === 'nothing') {
+  if (effectiveLevel === "nothing") {
     return {
       shouldNotify: false,
-      effectiveLevel: 'nothing',
-      reason: 'Channel notifications disabled',
+      effectiveLevel: "nothing",
+      reason: "Channel notifications disabled",
       deliveryMethods: [],
-    }
+    };
   }
 
-  if (effectiveLevel === 'mentions' && notification.type !== 'mention') {
+  if (effectiveLevel === "mentions" && notification.type !== "mention") {
     return {
       shouldNotify: false,
-      effectiveLevel: 'mentions',
-      reason: 'Channel is set to mentions only',
+      effectiveLevel: "mentions",
+      reason: "Channel is set to mentions only",
       deliveryMethods: [],
-    }
+    };
   }
 
   // 6. Check blocked/allowed types
@@ -728,34 +749,34 @@ export function evaluateChannelRule(
         effectiveLevel,
         reason: `Notification type '${notification.type}' is blocked for this channel`,
         deliveryMethods: [],
-      }
+      };
     }
 
     // Check minimum priority
     if (rule.minimumPriority) {
-      const notifPriorityIndex = PRIORITY_ORDER.indexOf(notification.priority)
-      const minPriorityIndex = PRIORITY_ORDER.indexOf(rule.minimumPriority)
+      const notifPriorityIndex = PRIORITY_ORDER.indexOf(notification.priority);
+      const minPriorityIndex = PRIORITY_ORDER.indexOf(rule.minimumPriority);
       if (notifPriorityIndex > minPriorityIndex) {
         return {
           shouldNotify: false,
           effectiveLevel,
           reason: `Notification priority '${notification.priority}' is below minimum '${rule.minimumPriority}'`,
           deliveryMethods: [],
-        }
+        };
       }
     }
   }
 
   // 7. Resolve delivery methods
-  const deliveryMethods = resolveDeliveryMethods(store, channelId)
+  const deliveryMethods = resolveDeliveryMethods(store, channelId);
 
   return {
     shouldNotify: true,
     effectiveLevel,
-    reason: 'Notification allowed',
+    reason: "Notification allowed",
     deliveryMethods,
     customSound: rule?.customSound,
-  }
+  };
 }
 
 /**
@@ -763,27 +784,32 @@ export function evaluateChannelRule(
  */
 export function resolveDeliveryMethods(
   store: ChannelRuleStore,
-  channelId: string
+  channelId: string,
 ): NotificationDeliveryMethod[] {
-  const rule = store.channelRules[channelId]
-  const allMethods: NotificationDeliveryMethod[] = ['desktop', 'mobile', 'email', 'in_app']
+  const rule = store.channelRules[channelId];
+  const allMethods: NotificationDeliveryMethod[] = [
+    "desktop",
+    "mobile",
+    "email",
+    "in_app",
+  ];
 
-  if (!rule) return allMethods
+  if (!rule) return allMethods;
 
   // Start with category overrides if applicable
-  let overrides: Partial<Record<NotificationDeliveryMethod, boolean>> = {}
+  let overrides: Partial<Record<NotificationDeliveryMethod, boolean>> = {};
 
   if (rule.categoryId) {
-    const categoryRule = store.categoryRules[rule.categoryId]
+    const categoryRule = store.categoryRules[rule.categoryId];
     if (categoryRule) {
-      overrides = { ...categoryRule.deliveryOverrides }
+      overrides = { ...categoryRule.deliveryOverrides };
     }
   }
 
   // Channel overrides take priority over category
-  overrides = { ...overrides, ...rule.deliveryOverrides }
+  overrides = { ...overrides, ...rule.deliveryOverrides };
 
-  return allMethods.filter((method) => overrides[method] !== false)
+  return allMethods.filter((method) => overrides[method] !== false);
 }
 
 // ============================================================================
@@ -795,12 +821,12 @@ export function resolveDeliveryMethods(
  */
 export function getMutedChannels(
   store: ChannelRuleStore,
-  now?: Date
+  now?: Date,
 ): ChannelNotificationRule[] {
-  const currentTime = now ?? new Date()
+  const currentTime = now ?? new Date();
   return Object.values(store.channelRules).filter((rule) =>
-    isMuteActive(rule.mute, currentTime)
-  )
+    isMuteActive(rule.mute, currentTime),
+  );
 }
 
 /**
@@ -808,14 +834,14 @@ export function getMutedChannels(
  */
 export function getChannelsInCategory(
   store: ChannelRuleStore,
-  categoryId: string
+  categoryId: string,
 ): ChannelNotificationRule[] {
-  const category = store.categoryRules[categoryId]
-  if (!category) return []
+  const category = store.categoryRules[categoryId];
+  if (!category) return [];
 
   return category.channelIds
     .map((id) => store.channelRules[id])
-    .filter((rule): rule is ChannelNotificationRule => rule != null)
+    .filter((rule): rule is ChannelNotificationRule => rule != null);
 }
 
 /**
@@ -823,31 +849,32 @@ export function getChannelsInCategory(
  */
 export function getChannelRuleStats(
   store: ChannelRuleStore,
-  now?: Date
+  now?: Date,
 ): {
-  totalRules: number
-  mutedChannels: number
-  mentionsOnlyChannels: number
-  silentChannels: number
-  customChannels: number
-  categoriesCount: number
-  threadPreferencesCount: number
+  totalRules: number;
+  mutedChannels: number;
+  mentionsOnlyChannels: number;
+  silentChannels: number;
+  customChannels: number;
+  categoriesCount: number;
+  threadPreferencesCount: number;
 } {
-  const currentTime = now ?? new Date()
-  const rules = Object.values(store.channelRules)
+  const currentTime = now ?? new Date();
+  const rules = Object.values(store.channelRules);
 
-  let threadCount = 0
+  let threadCount = 0;
   for (const rule of rules) {
-    threadCount += Object.keys(rule.threadPreferences).length
+    threadCount += Object.keys(rule.threadPreferences).length;
   }
 
   return {
     totalRules: rules.length,
-    mutedChannels: rules.filter((r) => isMuteActive(r.mute, currentTime)).length,
-    mentionsOnlyChannels: rules.filter((r) => r.level === 'mentions').length,
-    silentChannels: rules.filter((r) => r.level === 'nothing').length,
-    customChannels: rules.filter((r) => r.level === 'custom').length,
+    mutedChannels: rules.filter((r) => isMuteActive(r.mute, currentTime))
+      .length,
+    mentionsOnlyChannels: rules.filter((r) => r.level === "mentions").length,
+    silentChannels: rules.filter((r) => r.level === "nothing").length,
+    customChannels: rules.filter((r) => r.level === "custom").length,
     categoriesCount: Object.keys(store.categoryRules).length,
     threadPreferencesCount: threadCount,
-  }
+  };
 }

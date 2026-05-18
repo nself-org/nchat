@@ -16,17 +16,17 @@
  * @version 1.0.0
  */
 
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
-import { useAuth } from '@/contexts/auth-context'
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import {
   getTypingService,
   TypingUser,
   TypingRoomType,
   TypingPrivacySettings,
-} from '@/services/realtime/typing.service'
-import { realtimeClient } from '@/services/realtime/realtime-client'
+} from "@/services/realtime/typing.service";
+import { realtimeClient } from "@/services/realtime/realtime-client";
 
 // ============================================================================
 // Types
@@ -37,21 +37,21 @@ import { realtimeClient } from '@/services/realtime/realtime-client'
  */
 export interface UseRealtimeTypingOptions {
   /** Room name (channel ID, DM ID, etc.) */
-  roomName: string
+  roomName: string;
   /** Room type: 'channel', 'thread', or 'dm' */
-  roomType?: TypingRoomType
+  roomType?: TypingRoomType;
   /** Thread ID if typing in a thread */
-  threadId?: string
+  threadId?: string;
   /** Recipient ID for DMs (for privacy filtering) */
-  recipientId?: string
+  recipientId?: string;
   /** Whether typing is enabled */
-  enabled?: boolean
+  enabled?: boolean;
   /** Typing timeout in milliseconds (default: 5 seconds) */
-  typingTimeout?: number
+  typingTimeout?: number;
   /** Debounce interval for input changes (default: 300ms) */
-  debounceInterval?: number
+  debounceInterval?: number;
   /** Privacy settings for typing visibility */
-  privacySettings?: TypingPrivacySettings
+  privacySettings?: TypingPrivacySettings;
 }
 
 /**
@@ -59,23 +59,23 @@ export interface UseRealtimeTypingOptions {
  */
 export interface UseRealtimeTypingReturn {
   /** Users currently typing in this context */
-  typingUsers: TypingUser[]
+  typingUsers: TypingUser[];
   /** Whether current user is typing */
-  isTyping: boolean
+  isTyping: boolean;
   /** Formatted typing text (e.g., "Alice and Bob are typing...") */
-  typingText: string | null
+  typingText: string | null;
   /** Number of users typing (excluding current user) */
-  typingCount: number
+  typingCount: number;
   /** Start typing indicator */
-  startTyping: () => void
+  startTyping: () => void;
   /** Stop typing indicator */
-  stopTyping: () => void
+  stopTyping: () => void;
   /** Handle input change (with debouncing) */
-  handleInputChange: (value: string) => void
+  handleInputChange: (value: string) => void;
   /** Handle message send (stops typing) */
-  handleMessageSend: () => void
+  handleMessageSend: () => void;
   /** Update privacy settings */
-  updatePrivacySettings: (settings: Partial<TypingPrivacySettings>) => void
+  updatePrivacySettings: (settings: Partial<TypingPrivacySettings>) => void;
 }
 
 // ============================================================================
@@ -117,33 +117,35 @@ export interface UseRealtimeTypingReturn {
  * }
  * ```
  */
-export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtimeTypingReturn {
+export function useRealtimeTyping(
+  options: UseRealtimeTypingOptions,
+): UseRealtimeTypingReturn {
   const {
     roomName,
-    roomType = 'channel',
+    roomType = "channel",
     threadId,
     recipientId,
     enabled = true,
     typingTimeout = 5000,
     debounceInterval = 300,
     privacySettings,
-  } = options
+  } = options;
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   // State
-  const [typingUsers, setTypingUsers] = useState<TypingUser[]>([])
-  const [isTyping, setIsTyping] = useState(false)
+  const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   // Refs
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const previousValueRef = useRef<string>('')
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousValueRef = useRef<string>("");
 
   // Compute effective room type based on threadId
   const effectiveRoomType: TypingRoomType = useMemo(() => {
-    if (threadId) return 'thread'
-    return roomType
-  }, [threadId, roomType])
+    if (threadId) return "thread";
+    return roomType;
+  }, [threadId, roomType]);
 
   // Get service instance
   const typingService = useMemo(() => {
@@ -151,13 +153,13 @@ export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtim
       typingTimeout,
       debounceInterval,
       privacySettings,
-    })
+    });
     // Set user ID for filtering
     if (user?.id) {
-      service.setCurrentUserId(user.id)
+      service.setCurrentUserId(user.id);
     }
-    return service
-  }, [typingTimeout, debounceInterval, privacySettings, user?.id])
+    return service;
+  }, [typingTimeout, debounceInterval, privacySettings, user?.id]);
 
   // ============================================================================
   // Typing Management
@@ -167,94 +169,101 @@ export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtim
    * Start typing indicator
    */
   const startTyping = useCallback(() => {
-    if (!enabled || !realtimeClient.isConnected) return
+    if (!enabled || !realtimeClient.isConnected) return;
 
     switch (effectiveRoomType) {
-      case 'dm':
-        typingService.startTypingInDM(roomName, recipientId)
-        break
-      case 'thread':
-        typingService.startTypingInThread(roomName, threadId!)
-        break
-      case 'channel':
+      case "dm":
+        typingService.startTypingInDM(roomName, recipientId);
+        break;
+      case "thread":
+        typingService.startTypingInThread(roomName, threadId!);
+        break;
+      case "channel":
       default:
-        typingService.startTyping(roomName, threadId)
+        typingService.startTyping(roomName, threadId);
     }
 
-    setIsTyping(true)
-  }, [enabled, roomName, threadId, recipientId, effectiveRoomType, typingService])
+    setIsTyping(true);
+  }, [
+    enabled,
+    roomName,
+    threadId,
+    recipientId,
+    effectiveRoomType,
+    typingService,
+  ]);
 
   /**
    * Stop typing indicator
    */
   const stopTyping = useCallback(() => {
-    if (!enabled) return
+    if (!enabled) return;
 
     switch (effectiveRoomType) {
-      case 'dm':
-        typingService.stopTypingInDM(roomName)
-        break
-      case 'thread':
-      case 'channel':
+      case "dm":
+        typingService.stopTypingInDM(roomName);
+        break;
+      case "thread":
+      case "channel":
       default:
-        typingService.stopTyping(roomName, threadId)
+        typingService.stopTyping(roomName, threadId);
     }
 
-    setIsTyping(false)
-  }, [enabled, roomName, threadId, effectiveRoomType, typingService])
+    setIsTyping(false);
+  }, [enabled, roomName, threadId, effectiveRoomType, typingService]);
 
   /**
    * Handle input change with debouncing
    */
   const handleInputChange = useCallback(
     (value: string) => {
-      if (!enabled) return
+      if (!enabled) return;
 
       // Clear existing debounce
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current);
       }
 
-      const previousValue = previousValueRef.current
-      previousValueRef.current = value
+      const previousValue = previousValueRef.current;
+      previousValueRef.current = value;
 
       // If empty, stop typing
       if (!value.trim()) {
-        stopTyping()
-        return
+        stopTyping();
+        return;
       }
 
       // If content changed, debounce start typing
       if (value !== previousValue) {
         debounceTimerRef.current = setTimeout(() => {
-          startTyping()
-        }, debounceInterval)
+          startTyping();
+        }, debounceInterval);
       }
     },
-    [enabled, debounceInterval, startTyping, stopTyping]
-  )
+    [enabled, debounceInterval, startTyping, stopTyping],
+  );
 
   /**
    * Handle message send (stops typing)
    */
   const handleMessageSend = useCallback(() => {
     if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-      debounceTimerRef.current = null
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
     }
-    previousValueRef.current = ''
-    stopTyping()
-  }, [stopTyping])
+    previousValueRef.current = "";
+    stopTyping();
+  }, [stopTyping]);
 
   /**
    * Update privacy settings
    */
   const updatePrivacySettings = useCallback(
     (settings: Partial<TypingPrivacySettings>) => {
-      typingService.updatePrivacySettings(settings)
+      typingService.updatePrivacySettings(settings);
     },
-    [typingService]
-  )
+    [typingService],
+  );
 
   // ============================================================================
   // Typing Text Formatting
@@ -265,26 +274,26 @@ export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtim
    */
   const typingText = useMemo(() => {
     // Filter out current user
-    const otherUsers = typingUsers.filter((u) => u.userId !== user?.id)
+    const otherUsers = typingUsers.filter((u) => u.userId !== user?.id);
 
-    if (otherUsers.length === 0) return null
+    if (otherUsers.length === 0) return null;
 
-    const names = otherUsers.map((u) => u.userName || 'Someone')
+    const names = otherUsers.map((u) => u.userName || "Someone");
 
     if (names.length === 1) {
-      return `${names[0]} is typing...`
+      return `${names[0]} is typing...`;
     }
 
     if (names.length === 2) {
-      return `${names[0]} and ${names[1]} are typing...`
+      return `${names[0]} and ${names[1]} are typing...`;
     }
 
     if (names.length === 3) {
-      return `${names[0]}, ${names[1]}, and ${names[2]} are typing...`
+      return `${names[0]}, ${names[1]}, and ${names[2]} are typing...`;
     }
 
-    return `${names[0]}, ${names[1]}, and ${names.length - 2} others are typing...`
-  }, [typingUsers, user?.id])
+    return `${names[0]}, ${names[1]}, and ${names.length - 2} others are typing...`;
+  }, [typingUsers, user?.id]);
 
   // ============================================================================
   // Effects
@@ -294,7 +303,7 @@ export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtim
    * Subscribe to typing changes for this specific room
    */
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) return;
 
     // Use room-specific listener for better performance
     const unsub = typingService.onRoomTypingChange(
@@ -302,85 +311,89 @@ export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtim
       effectiveRoomType,
       (changedRoom, users, changedThread) => {
         // Double-check this is for our room/thread
-        if (changedRoom !== roomName) return
-        if (threadId !== changedThread) return
+        if (changedRoom !== roomName) return;
+        if (threadId !== changedThread) return;
 
-        setTypingUsers(users)
+        setTypingUsers(users);
       },
-      threadId
-    )
+      threadId,
+    );
 
-    return unsub
-  }, [enabled, roomName, threadId, effectiveRoomType, typingService])
+    return unsub;
+  }, [enabled, roomName, threadId, effectiveRoomType, typingService]);
 
   /**
    * Sync initial typing users
    */
   useEffect(() => {
-    if (!enabled || !realtimeClient.isConnected) return
+    if (!enabled || !realtimeClient.isConnected) return;
 
-    const users = typingService.getTypingUsersInRoom(roomName, effectiveRoomType, threadId)
-    setTypingUsers(users)
-  }, [enabled, roomName, threadId, effectiveRoomType, typingService])
+    const users = typingService.getTypingUsersInRoom(
+      roomName,
+      effectiveRoomType,
+      threadId,
+    );
+    setTypingUsers(users);
+  }, [enabled, roomName, threadId, effectiveRoomType, typingService]);
 
   /**
    * Stop typing when room changes
    */
   useEffect(() => {
-    previousValueRef.current = ''
+    previousValueRef.current = "";
 
     return () => {
       // Stop typing when unmounting or changing rooms
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current);
       }
       if (isTyping) {
         switch (effectiveRoomType) {
-          case 'dm':
-            typingService.stopTypingInDM(roomName)
-            break
+          case "dm":
+            typingService.stopTypingInDM(roomName);
+            break;
           default:
-            typingService.stopTyping(roomName, threadId)
+            typingService.stopTyping(roomName, threadId);
         }
       }
-    }
-  }, [roomName, threadId, effectiveRoomType, isTyping, typingService])
+    };
+  }, [roomName, threadId, effectiveRoomType, isTyping, typingService]);
 
   /**
    * Stop typing on blur/visibility change
    */
   useEffect(() => {
-    if (!enabled || typeof window === 'undefined') return
+    if (!enabled || typeof window === "undefined") return;
 
     const handleBlur = () => {
       if (isTyping) {
-        stopTyping()
+        stopTyping();
       }
-    }
+    };
 
     const handleVisibilityChange = () => {
       if (document.hidden && isTyping) {
-        stopTyping()
+        stopTyping();
       }
-    }
+    };
 
-    window.addEventListener('blur', handleBlur)
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener("blur", handleBlur);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.removeEventListener('blur', handleBlur)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [enabled, isTyping, stopTyping])
+      window.removeEventListener("blur", handleBlur);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [enabled, isTyping, stopTyping]);
 
   /**
    * Set current user ID on auth change
    */
   useEffect(() => {
     if (user?.id) {
-      typingService.setCurrentUserId(user.id)
+      typingService.setCurrentUserId(user.id);
     }
-  }, [user?.id, typingService])
+  }, [user?.id, typingService]);
 
   // ============================================================================
   // Computed Values
@@ -390,8 +403,8 @@ export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtim
    * Count of typing users (excluding current user)
    */
   const typingCount = useMemo(() => {
-    return typingUsers.filter((u) => u.userId !== user?.id).length
-  }, [typingUsers, user?.id])
+    return typingUsers.filter((u) => u.userId !== user?.id).length;
+  }, [typingUsers, user?.id]);
 
   // ============================================================================
   // Return
@@ -407,7 +420,7 @@ export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtim
     handleInputChange,
     handleMessageSend,
     updatePrivacySettings,
-  }
+  };
 }
 
 // ============================================================================
@@ -418,10 +431,10 @@ export function useRealtimeTyping(options: UseRealtimeTypingOptions): UseRealtim
  * Props for TypingIndicator component
  */
 export interface TypingIndicatorProps {
-  roomName: string
-  roomType?: TypingRoomType
-  threadId?: string
-  className?: string
+  roomName: string;
+  roomType?: TypingRoomType;
+  threadId?: string;
+  className?: string;
 }
 
 /**
@@ -429,22 +442,22 @@ export interface TypingIndicatorProps {
  */
 export function useTypingIndicatorDisplay(
   roomName: string,
-  roomType: TypingRoomType = 'channel',
-  threadId?: string
+  roomType: TypingRoomType = "channel",
+  threadId?: string,
 ) {
   const { typingUsers, typingText, typingCount } = useRealtimeTyping({
     roomName,
     roomType,
     threadId,
     enabled: true,
-  })
+  });
 
   return {
     typingUsers,
     typingText,
     typingCount,
     hasTyping: typingCount > 0,
-  }
+  };
 }
 
 /**
@@ -453,10 +466,10 @@ export function useTypingIndicatorDisplay(
 export function useDMTyping(dmId: string, recipientId?: string) {
   return useRealtimeTyping({
     roomName: dmId,
-    roomType: 'dm',
+    roomType: "dm",
     recipientId,
     enabled: true,
-  })
+  });
 }
 
 /**
@@ -465,10 +478,10 @@ export function useDMTyping(dmId: string, recipientId?: string) {
 export function useThreadTyping(channelId: string, threadId: string) {
   return useRealtimeTyping({
     roomName: channelId,
-    roomType: 'thread',
+    roomType: "thread",
     threadId,
     enabled: true,
-  })
+  });
 }
 
-export default useRealtimeTyping
+export default useRealtimeTyping;

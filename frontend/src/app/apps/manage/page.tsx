@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useState } from "react";
+import Link from "next/link";
 import {
   ArrowLeft,
   Plus,
@@ -11,13 +11,19 @@ import {
   Users,
   TrendingUp,
   AlertCircle,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -25,46 +31,48 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { AppIcon } from '@/components/app-directory'
-import { getAllApps } from '@/lib/app-directory/app-registry'
-import type { App } from '@/lib/app-directory/app-types'
+} from "@/components/ui/select";
+import { AppIcon } from "@/components/app-directory";
+import { getAllApps } from "@/lib/app-directory/app-registry";
+import type { App } from "@/lib/app-directory/app-types";
 
 export default function ManageAppsPage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [activeTab, setActiveTab] = useState('overview')
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState("overview");
 
-  const allApps = getAllApps()
+  const allApps = getAllApps();
 
   // Filter apps
   const filteredApps = allApps.filter((app) => {
-    const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || app.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+    const matchesSearch = app.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || app.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   // Stats
   const stats = {
     total: allApps.length,
-    active: allApps.filter((a) => a.status === 'active').length,
-    pending: allApps.filter((a) => a.status === 'pending').length,
-    deprecated: allApps.filter((a) => a.status === 'deprecated').length,
+    active: allApps.filter((a) => a.status === "active").length,
+    pending: allApps.filter((a) => a.status === "pending").length,
+    deprecated: allApps.filter((a) => a.status === "deprecated").length,
     totalInstalls: allApps.reduce((sum, a) => sum + a.stats.installs, 0),
-  }
+  };
 
   const formatNumber = (num: number): string => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
-    return num.toString()
-  }
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
@@ -81,7 +89,9 @@ export default function ManageAppsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Manage Apps</h1>
-            <p className="mt-2 text-muted-foreground">Admin controls for the app marketplace</p>
+            <p className="mt-2 text-muted-foreground">
+              Admin controls for the app marketplace
+            </p>
           </div>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
@@ -94,7 +104,9 @@ export default function ManageAppsPage() {
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Apps</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Apps
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -103,10 +115,14 @@ export default function ManageAppsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Apps</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Active Apps
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.active}
+            </div>
           </CardContent>
         </Card>
 
@@ -117,16 +133,22 @@ export default function ManageAppsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {stats.pending}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Deprecated</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Deprecated
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.deprecated}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {stats.deprecated}
+            </div>
           </CardContent>
         </Card>
 
@@ -139,7 +161,9 @@ export default function ManageAppsPage() {
           <CardContent>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-green-500" />
-              <span className="text-2xl font-bold">{formatNumber(stats.totalInstalls)}</span>
+              <span className="text-2xl font-bold">
+                {formatNumber(stats.totalInstalls)}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -231,12 +255,16 @@ export default function ManageAppsPage() {
                 {allApps
                   .filter((a) => a.featured)
                   .map((app) => (
-                    <div key={app.id} className="flex items-center gap-4 rounded-lg border p-4">
+                    <div
+                      key={app.id}
+                      className="flex items-center gap-4 rounded-lg border p-4"
+                    >
                       <AppIcon icon={app.icon} name={app.name} size="md" />
                       <div className="flex-1">
                         <p className="font-medium">{app.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatNumber(app.stats.activeInstalls)} active installs
+                          {formatNumber(app.stats.activeInstalls)} active
+                          installs
                         </p>
                       </div>
                       <Button variant="outline" size="sm">
@@ -290,7 +318,9 @@ export default function ManageAppsPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Auto-approve Low-Risk Permissions</p>
+                    <p className="font-medium">
+                      Auto-approve Low-Risk Permissions
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       Automatically grant basic permissions
                     </p>
@@ -299,7 +329,9 @@ export default function ManageAppsPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Require Admin Approval for Admin Access</p>
+                    <p className="font-medium">
+                      Require Admin Approval for Admin Access
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       Apps requesting admin permissions need approval
                     </p>
@@ -312,21 +344,21 @@ export default function ManageAppsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 function AppTableRow({ app }: { app: App }) {
   const statusColors = {
-    active: 'bg-green-100 text-green-700',
-    pending: 'bg-yellow-100 text-yellow-700',
-    deprecated: 'bg-red-100 text-red-700',
-    disabled: 'bg-gray-100 text-gray-700',
-  }
+    active: "bg-green-100 text-green-700",
+    pending: "bg-yellow-100 text-yellow-700",
+    deprecated: "bg-red-100 text-red-700",
+    disabled: "bg-gray-100 text-gray-700",
+  };
 
   const formatNumber = (num: number): string => {
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
-    return num.toString()
-  }
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
 
   return (
     <TableRow>
@@ -334,10 +366,15 @@ function AppTableRow({ app }: { app: App }) {
         <div className="flex items-center gap-3">
           <AppIcon icon={app.icon} name={app.name} size="sm" />
           <div>
-            <Link href={`/apps/${app.slug}`} className="font-medium hover:underline">
+            <Link
+              href={`/apps/${app.slug}`}
+              className="font-medium hover:underline"
+            >
               {app.name}
             </Link>
-            <p className="text-sm text-muted-foreground">by {app.developer.name}</p>
+            <p className="text-sm text-muted-foreground">
+              by {app.developer.name}
+            </p>
           </div>
         </div>
       </TableCell>
@@ -347,7 +384,9 @@ function AppTableRow({ app }: { app: App }) {
         </Badge>
       </TableCell>
       <TableCell>
-        <Badge className={cn('capitalize', statusColors[app.status])}>{app.status}</Badge>
+        <Badge className={cn("capitalize", statusColors[app.status])}>
+          {app.status}
+        </Badge>
       </TableCell>
       <TableCell>{formatNumber(app.stats.activeInstalls)}</TableCell>
       <TableCell>
@@ -364,5 +403,5 @@ function AppTableRow({ app }: { app: App }) {
         </Button>
       </TableCell>
     </TableRow>
-  )
+  );
 }

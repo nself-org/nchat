@@ -5,30 +5,30 @@
  * avatar display, and accept/decline actions.
  */
 
-'use client'
+"use client";
 
-import React, { useEffect, useState, useRef } from 'react'
-import { Phone, PhoneOff, Video } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import React, { useEffect, useState, useRef } from "react";
+import { Phone, PhoneOff, Video } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface IncomingCallModalProps {
-  callId: string
-  callerId: string
-  callerName: string
-  callerAvatarUrl?: string
-  callType: 'voice' | 'video'
-  onAccept: (withVideo: boolean) => void
-  onDecline: () => void
-  ringToneUrl?: string
-  ringVolume?: number
+  callId: string;
+  callerId: string;
+  callerName: string;
+  callerAvatarUrl?: string;
+  callType: "voice" | "video";
+  onAccept: (withVideo: boolean) => void;
+  onDecline: () => void;
+  ringToneUrl?: string;
+  ringVolume?: number;
 }
 
 // =============================================================================
@@ -43,91 +43,93 @@ export function IncomingCallModal({
   callType,
   onAccept,
   onDecline,
-  ringToneUrl = '/sounds/ringtone.mp3',
+  ringToneUrl = "/sounds/ringtone.mp3",
   ringVolume = 0.8,
 }: IncomingCallModalProps) {
-  const [isRinging, setIsRinging] = useState(true)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [isRinging, setIsRinging] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Play ringtone
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
-    audioRef.current = new Audio(ringToneUrl)
-    audioRef.current.loop = true
-    audioRef.current.volume = ringVolume
+    audioRef.current = new Audio(ringToneUrl);
+    audioRef.current.loop = true;
+    audioRef.current.volume = ringVolume;
 
-    audioRef.current.play().catch((err) => logger.error('Failed to play ringtone:', err))
+    audioRef.current
+      .play()
+      .catch((err) => logger.error("Failed to play ringtone:", err));
 
     // Vibrate on mobile
     if (navigator.vibrate) {
       const vibrateInterval = setInterval(() => {
-        navigator.vibrate([500, 500, 500])
-      }, 1500)
+        navigator.vibrate([500, 500, 500]);
+      }, 1500);
 
       return () => {
-        clearInterval(vibrateInterval)
-        navigator.vibrate(0)
+        clearInterval(vibrateInterval);
+        navigator.vibrate(0);
         if (audioRef.current) {
-          audioRef.current.pause()
-          audioRef.current = null
+          audioRef.current.pause();
+          audioRef.current = null;
         }
-      }
+      };
     }
 
     return () => {
       if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
+        audioRef.current.pause();
+        audioRef.current = null;
       }
-    }
-  }, [ringToneUrl, ringVolume])
+    };
+  }, [ringToneUrl, ringVolume]);
 
   // Pulsing animation effect
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsRinging((prev) => !prev)
-    }, 1000)
+      setIsRinging((prev) => !prev);
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   const handleAccept = (withVideo: boolean) => {
     // Stop ringtone
     if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current = null
+      audioRef.current.pause();
+      audioRef.current = null;
     }
 
     // Stop vibration
     if (navigator.vibrate) {
-      navigator.vibrate(0)
+      navigator.vibrate(0);
     }
 
-    onAccept(withVideo)
-  }
+    onAccept(withVideo);
+  };
 
   const handleDecline = () => {
     // Stop ringtone
     if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current = null
+      audioRef.current.pause();
+      audioRef.current = null;
     }
 
     // Stop vibration
     if (navigator.vibrate) {
-      navigator.vibrate(0)
+      navigator.vibrate(0);
     }
 
-    onDecline()
-  }
+    onDecline();
+  };
 
   const initials = callerName
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -143,28 +145,28 @@ export function IncomingCallModal({
           {/* Pulsing outer ring */}
           <div
             className={cn(
-              'bg-primary/30 absolute inset-0 rounded-full transition-transform duration-1000',
-              isRinging ? 'scale-125 opacity-0' : 'scale-100 opacity-100'
+              "bg-primary/30 absolute inset-0 rounded-full transition-transform duration-1000",
+              isRinging ? "scale-125 opacity-0" : "scale-100 opacity-100",
             )}
             style={{
-              width: '240px',
-              height: '240px',
-              top: '-40px',
-              left: '-40px',
+              width: "240px",
+              height: "240px",
+              top: "-40px",
+              left: "-40px",
             }}
           />
 
           {/* Middle ring */}
           <div
             className={cn(
-              'bg-primary/20 absolute inset-0 rounded-full transition-transform duration-1000',
-              isRinging ? 'scale-110 opacity-0' : 'scale-100 opacity-100'
+              "bg-primary/20 absolute inset-0 rounded-full transition-transform duration-1000",
+              isRinging ? "scale-110 opacity-0" : "scale-100 opacity-100",
             )}
             style={{
-              width: '200px',
-              height: '200px',
-              top: '-20px',
-              left: '-20px',
+              width: "200px",
+              height: "200px",
+              top: "-20px",
+              left: "-20px",
             }}
           />
 
@@ -181,13 +183,13 @@ export function IncomingCallModal({
         <div className="flex flex-col items-center gap-2">
           <h2 className="text-3xl font-bold text-white">{callerName}</h2>
           <p className="text-lg text-gray-300">
-            Incoming {callType === 'video' ? 'video' : 'voice'} call...
+            Incoming {callType === "video" ? "video" : "voice"} call...
           </p>
         </div>
 
         {/* Call type indicator */}
         <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-          {callType === 'video' ? (
+          {callType === "video" ? (
             <>
               <Video className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium text-white">Video Call</span>
@@ -226,12 +228,12 @@ export function IncomingCallModal({
               <Phone className="h-8 w-8" />
             </Button>
             <span className="text-sm text-gray-400">
-              {callType === 'video' ? 'Accept (Audio Only)' : 'Accept'}
+              {callType === "video" ? "Accept (Audio Only)" : "Accept"}
             </span>
           </div>
 
           {/* Accept with Video (only for video calls) */}
-          {callType === 'video' && (
+          {callType === "video" && (
             <div className="flex flex-col items-center gap-2">
               <Button
                 variant="ghost"
@@ -254,5 +256,5 @@ export function IncomingCallModal({
         </div>
       </div>
     </div>
-  )
+  );
 }

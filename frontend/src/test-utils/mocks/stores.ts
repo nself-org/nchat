@@ -12,13 +12,13 @@
  * Reset all application stores to their initial state
  */
 export function resetAllStores() {
-  resetMessageStore()
-  resetChannelStore()
-  resetUIStore()
-  resetUserStore()
-  resetNotificationStore()
-  resetPresenceStore()
-  resetTypingStore()
+  resetMessageStore();
+  resetChannelStore();
+  resetUIStore();
+  resetUserStore();
+  resetNotificationStore();
+  resetPresenceStore();
+  resetTypingStore();
 }
 
 /**
@@ -26,10 +26,10 @@ export function resetAllStores() {
  */
 export function resetMessageStore() {
   try {
-    const { useMessageStore } = require('@/stores/message-store')
-    const store = useMessageStore.getState()
-    if (typeof store.reset === 'function') {
-      store.reset()
+    const { useMessageStore } = require("@/stores/message-store");
+    const store = useMessageStore.getState();
+    if (typeof store.reset === "function") {
+      store.reset();
     }
   } catch (e) {
     // Store may not exist in some test environments
@@ -41,12 +41,12 @@ export function resetMessageStore() {
  */
 export function resetChannelStore() {
   try {
-    const { useChannelStore } = require('@/stores/channel-store')
-    const store = useChannelStore.getState()
-    if (typeof store.resetChannelStore === 'function') {
-      store.resetChannelStore()
-    } else if (typeof store.reset === 'function') {
-      store.reset()
+    const { useChannelStore } = require("@/stores/channel-store");
+    const store = useChannelStore.getState();
+    if (typeof store.resetChannelStore === "function") {
+      store.resetChannelStore();
+    } else if (typeof store.reset === "function") {
+      store.reset();
     }
   } catch (e) {
     // Store may not exist in some test environments
@@ -58,10 +58,10 @@ export function resetChannelStore() {
  */
 export function resetUIStore() {
   try {
-    const { useUIStore } = require('@/stores/ui-store')
-    const store = useUIStore.getState()
-    if (typeof store.reset === 'function') {
-      store.reset()
+    const { useUIStore } = require("@/stores/ui-store");
+    const store = useUIStore.getState();
+    if (typeof store.reset === "function") {
+      store.reset();
     }
   } catch (e) {
     // Store may not exist in some test environments
@@ -73,10 +73,10 @@ export function resetUIStore() {
  */
 export function resetUserStore() {
   try {
-    const { useUserStore } = require('@/stores/user-store')
-    const store = useUserStore.getState()
-    if (typeof store.reset === 'function') {
-      store.reset()
+    const { useUserStore } = require("@/stores/user-store");
+    const store = useUserStore.getState();
+    if (typeof store.reset === "function") {
+      store.reset();
     }
   } catch (e) {
     // Store may not exist in some test environments
@@ -88,10 +88,10 @@ export function resetUserStore() {
  */
 export function resetNotificationStore() {
   try {
-    const { useNotificationStore } = require('@/stores/notification-store')
-    const store = useNotificationStore.getState()
-    if (typeof store.reset === 'function') {
-      store.reset()
+    const { useNotificationStore } = require("@/stores/notification-store");
+    const store = useNotificationStore.getState();
+    if (typeof store.reset === "function") {
+      store.reset();
     }
   } catch (e) {
     // Store may not exist in some test environments
@@ -103,10 +103,10 @@ export function resetNotificationStore() {
  */
 export function resetPresenceStore() {
   try {
-    const { usePresenceStore } = require('@/stores/presence-store')
-    const store = usePresenceStore.getState()
-    if (typeof store.reset === 'function') {
-      store.reset()
+    const { usePresenceStore } = require("@/stores/presence-store");
+    const store = usePresenceStore.getState();
+    if (typeof store.reset === "function") {
+      store.reset();
     }
   } catch (e) {
     // Store may not exist in some test environments
@@ -118,10 +118,10 @@ export function resetPresenceStore() {
  */
 export function resetTypingStore() {
   try {
-    const { useTypingStore } = require('@/stores/typing-store')
-    const store = useTypingStore.getState()
-    if (typeof store.reset === 'function') {
-      store.reset()
+    const { useTypingStore } = require("@/stores/typing-store");
+    const store = useTypingStore.getState();
+    if (typeof store.reset === "function") {
+      store.reset();
     }
   } catch (e) {
     // Store may not exist in some test environments
@@ -136,98 +136,103 @@ export function resetTypingStore() {
  * Get a snapshot of all stores for debugging
  */
 export function getStoresSnapshot() {
-  const snapshot: Record<string, any> = {}
+  const snapshot: Record<string, any> = {};
 
   try {
-    const { useMessageStore } = require('@/stores/message-store')
-    snapshot.message = useMessageStore.getState()
+    const { useMessageStore } = require("@/stores/message-store");
+    snapshot.message = useMessageStore.getState();
   } catch (e) {
-    snapshot.message = null
+    snapshot.message = null;
   }
 
   try {
-    const { useChannelStore } = require('@/stores/channel-store')
-    snapshot.channel = useChannelStore.getState()
+    const { useChannelStore } = require("@/stores/channel-store");
+    snapshot.channel = useChannelStore.getState();
   } catch (e) {
-    snapshot.channel = null
+    snapshot.channel = null;
   }
 
   try {
-    const { useUIStore } = require('@/stores/ui-store')
-    snapshot.ui = useUIStore.getState()
+    const { useUIStore } = require("@/stores/ui-store");
+    snapshot.ui = useUIStore.getState();
   } catch (e) {
-    snapshot.ui = null
+    snapshot.ui = null;
   }
 
   try {
-    const { useUserStore } = require('@/stores/user-store')
-    snapshot.user = useUserStore.getState()
+    const { useUserStore } = require("@/stores/user-store");
+    snapshot.user = useUserStore.getState();
   } catch (e) {
-    snapshot.user = null
+    snapshot.user = null;
   }
 
   try {
-    const { useNotificationStore } = require('@/stores/notification-store')
-    snapshot.notification = useNotificationStore.getState()
+    const { useNotificationStore } = require("@/stores/notification-store");
+    snapshot.notification = useNotificationStore.getState();
   } catch (e) {
-    snapshot.notification = null
+    snapshot.notification = null;
   }
 
-  return snapshot
+  return snapshot;
 }
 
 // ============================================================================
 // Store Setup Utilities
 // ============================================================================
 
-import type { TestChannel, TestMessage, TestUser } from '../render'
+import type { TestChannel, TestMessage, TestUser } from "../render";
 
 /**
  * Setup message store with initial data
  */
-export function setupMessageStore(messagesByChannel: Record<string, TestMessage[]>) {
+export function setupMessageStore(
+  messagesByChannel: Record<string, TestMessage[]>,
+) {
   try {
-    const { useMessageStore } = require('@/stores/message-store')
-    const store = useMessageStore.getState()
+    const { useMessageStore } = require("@/stores/message-store");
+    const store = useMessageStore.getState();
 
     Object.entries(messagesByChannel).forEach(([channelId, messages]) => {
       const formattedMessages = messages.map((m) => ({
         id: m.id,
         channelId,
         content: m.content,
-        type: m.type || 'text',
+        type: m.type || "text",
         userId: m.userId,
         user: m.user
           ? {
               id: m.user.id || m.userId,
-              username: m.user.username || 'user',
-              displayName: m.user.displayName || 'User',
+              username: m.user.username || "user",
+              displayName: m.user.displayName || "User",
               avatarUrl: m.user.avatarUrl,
             }
           : undefined,
         createdAt: m.createdAt || new Date(),
         isEdited: m.isEdited || false,
         reactions: m.reactions || [],
-      }))
+      }));
 
-      if (typeof store.setMessages === 'function') {
-        store.setMessages(channelId, formattedMessages)
+      if (typeof store.setMessages === "function") {
+        store.setMessages(channelId, formattedMessages);
       }
-    })
+    });
 
-    return store
+    return store;
   } catch (e) {
-    return null
+    return null;
   }
 }
 
 /**
  * Setup channel store with initial data
  */
-export function setupChannelStore(channels: TestChannel[], activeChannelId?: string) {
+export function setupChannelStore(
+  channels: TestChannel[],
+  activeChannelId?: string,
+) {
   try {
-    const { useChannelStore } = require('@/stores/channel-store')
-    const store = useChannelStore.getState()
+    const { useChannelStore } = require("@/stores/channel-store");
+    const store = useChannelStore.getState();
 
     const formattedChannels = channels.map((ch) => ({
       id: ch.id,
@@ -236,7 +241,7 @@ export function setupChannelStore(channels: TestChannel[], activeChannelId?: str
       description: ch.description || null,
       type: ch.type,
       categoryId: null,
-      createdBy: 'user-owner',
+      createdBy: "user-owner",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       topic: null,
@@ -247,19 +252,19 @@ export function setupChannelStore(channels: TestChannel[], activeChannelId?: str
       memberCount: ch.memberCount || 0,
       lastMessageAt: null,
       lastMessagePreview: null,
-    }))
+    }));
 
-    if (typeof store.setChannels === 'function') {
-      store.setChannels(formattedChannels)
+    if (typeof store.setChannels === "function") {
+      store.setChannels(formattedChannels);
     }
 
-    if (activeChannelId && typeof store.setActiveChannel === 'function') {
-      store.setActiveChannel(activeChannelId)
+    if (activeChannelId && typeof store.setActiveChannel === "function") {
+      store.setActiveChannel(activeChannelId);
     }
 
-    return store
+    return store;
   } catch (e) {
-    return null
+    return null;
   }
 }
 
@@ -268,18 +273,18 @@ export function setupChannelStore(channels: TestChannel[], activeChannelId?: str
  */
 export function setupUserStore(users: TestUser[]) {
   try {
-    const { useUserStore } = require('@/stores/user-store')
-    const store = useUserStore.getState()
+    const { useUserStore } = require("@/stores/user-store");
+    const store = useUserStore.getState();
 
     users.forEach((user) => {
-      if (typeof store.setUser === 'function') {
-        store.setUser(user)
+      if (typeof store.setUser === "function") {
+        store.setUser(user);
       }
-    })
+    });
 
-    return store
+    return store;
   } catch (e) {
-    return null
+    return null;
   }
 }
 
@@ -291,9 +296,9 @@ export function setupUserStore(users: TestUser[]) {
  * Create a mock message store for testing
  */
 export function createMockMessageStore(initialState?: {
-  messagesByChannel?: Record<string, any[]>
-  currentChannelId?: string
-  isLoading?: boolean
+  messagesByChannel?: Record<string, any[]>;
+  currentChannelId?: string;
+  isLoading?: boolean;
 }) {
   return {
     messagesByChannel: initialState?.messagesByChannel || {},
@@ -308,16 +313,16 @@ export function createMockMessageStore(initialState?: {
     setLoading: jest.fn(),
     setError: jest.fn(),
     reset: jest.fn(),
-  }
+  };
 }
 
 /**
  * Create a mock channel store for testing
  */
 export function createMockChannelStore(initialState?: {
-  channels?: any[]
-  activeChannelId?: string
-  isLoading?: boolean
+  channels?: any[];
+  activeChannelId?: string;
+  isLoading?: boolean;
 }) {
   return {
     channels: initialState?.channels || [],
@@ -332,17 +337,17 @@ export function createMockChannelStore(initialState?: {
     setLoading: jest.fn(),
     setError: jest.fn(),
     resetChannelStore: jest.fn(),
-  }
+  };
 }
 
 /**
  * Create a mock UI store for testing
  */
 export function createMockUIStore(initialState?: {
-  sidebarOpen?: boolean
-  threadOpen?: boolean
-  settingsOpen?: boolean
-  searchOpen?: boolean
+  sidebarOpen?: boolean;
+  threadOpen?: boolean;
+  settingsOpen?: boolean;
+  searchOpen?: boolean;
 }) {
   return {
     sidebarOpen: initialState?.sidebarOpen ?? true,
@@ -359,5 +364,5 @@ export function createMockUIStore(initialState?: {
     pushModal: jest.fn(),
     popModal: jest.fn(),
     reset: jest.fn(),
-  }
+  };
 }

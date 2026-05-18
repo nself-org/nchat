@@ -6,13 +6,13 @@
  * PATCH /api/trust-safety/evidence/[id] - Update evidence status
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getEvidenceCollector } from '@/services/trust-safety/evidence-collector.service'
+import { NextRequest, NextResponse } from "next/server";
+import { getEvidenceCollector } from "@/services/trust-safety/evidence-collector.service";
 
-const collector = getEvidenceCollector()
+const collector = getEvidenceCollector();
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -20,22 +20,22 @@ interface RouteContext {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params
+    const { id } = await context.params;
 
-    const accessorId = request.headers.get('x-user-id') || 'system'
-    const accessorRole = request.headers.get('x-user-role') || 'system'
+    const accessorId = request.headers.get("x-user-id") || "system";
+    const accessorRole = request.headers.get("x-user-role") || "system";
 
-    const result = await collector.get(id, accessorId, accessorRole)
+    const result = await collector.get(id, accessorId, accessorRole);
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error.message },
-        { status: 404 }
-      )
+        { status: 404 },
+      );
     }
 
     // Get custody chain
-    const custodyChain = await collector.getCustodyChain(id)
+    const custodyChain = await collector.getCustodyChain(id);
 
     return NextResponse.json({
       success: true,
@@ -55,13 +55,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
             })),
           }
         : null,
-    })
+    });
   } catch (error) {
-    console.error('Evidence retrieval error:', error)
+    console.error("Evidence retrieval error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to retrieve evidence' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to retrieve evidence" },
+      { status: 500 },
+    );
   }
 }
 
@@ -70,61 +70,69 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params
-    const body = await request.json()
+    const { id } = await context.params;
+    const body = await request.json();
 
-    const actorId = body.actorId || request.headers.get('x-user-id') || 'system'
-    const actorRole = body.actorRole || request.headers.get('x-user-role') || 'system'
+    const actorId =
+      body.actorId || request.headers.get("x-user-id") || "system";
+    const actorRole =
+      body.actorRole || request.headers.get("x-user-role") || "system";
 
-    const { action, reason } = body
+    const { action, reason } = body;
 
     if (!action) {
       return NextResponse.json(
-        { success: false, error: 'Missing required field: action' },
-        { status: 400 }
-      )
+        { success: false, error: "Missing required field: action" },
+        { status: 400 },
+      );
     }
 
     if (!reason) {
       return NextResponse.json(
-        { success: false, error: 'Missing required field: reason' },
-        { status: 400 }
-      )
+        { success: false, error: "Missing required field: reason" },
+        { status: 400 },
+      );
     }
 
-    let result
+    let result;
 
     switch (action) {
-      case 'archive':
-        result = await collector.archive(id, actorId, actorRole, reason)
-        break
+      case "archive":
+        result = await collector.archive(id, actorId, actorRole, reason);
+        break;
 
-      case 'restore':
-        result = await collector.restore(id, actorId, actorRole, reason)
-        break
+      case "restore":
+        result = await collector.restore(id, actorId, actorRole, reason);
+        break;
 
-      case 'update_status':
+      case "update_status":
         if (!body.newStatus) {
           return NextResponse.json(
-            { success: false, error: 'Missing required field: newStatus' },
-            { status: 400 }
-          )
+            { success: false, error: "Missing required field: newStatus" },
+            { status: 400 },
+          );
         }
-        result = await collector.updateStatus(id, body.newStatus, actorId, actorRole, reason)
-        break
+        result = await collector.updateStatus(
+          id,
+          body.newStatus,
+          actorId,
+          actorRole,
+          reason,
+        );
+        break;
 
       default:
         return NextResponse.json(
           { success: false, error: `Unknown action: ${action}` },
-          { status: 400 }
-        )
+          { status: 400 },
+        );
     }
 
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error.message },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     return NextResponse.json({
@@ -135,12 +143,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         updatedAt: result.evidence.updatedAt,
         version: result.evidence.version,
       },
-    })
+    });
   } catch (error) {
-    console.error('Evidence update error:', error)
+    console.error("Evidence update error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update evidence' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to update evidence" },
+      { status: 500 },
+    );
   }
 }

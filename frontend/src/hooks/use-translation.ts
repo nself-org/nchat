@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * @fileoverview Translation hook for nself-chat
@@ -7,34 +7,37 @@
  * namespaces, interpolation, pluralization, and loading states.
  */
 
-import { useCallback, useMemo } from 'react'
-import { useLocaleStore } from '@/stores/locale-store'
+import { useCallback, useMemo } from "react";
+import { useLocaleStore } from "@/stores/locale-store";
 import {
   translate,
   hasTranslation,
   type TranslateOptions,
   type InterpolationValues,
-} from '@/lib/i18n/translator'
+} from "@/lib/i18n/translator";
 
 /**
  * Translation function type
  */
-export type TFunction = (key: string, options?: TranslateOptions | InterpolationValues) => string
+export type TFunction = (
+  key: string,
+  options?: TranslateOptions | InterpolationValues,
+) => string;
 
 /**
  * Translation hook return type
  */
 export interface UseTranslationReturn {
   /** Translation function */
-  t: TFunction
+  t: TFunction;
   /** Current locale */
-  locale: string
+  locale: string;
   /** Check if translation exists */
-  exists: (key: string) => boolean
+  exists: (key: string) => boolean;
   /** Whether translations are loading */
-  isLoading: boolean
+  isLoading: boolean;
   /** Loading error if any */
-  error: string | null
+  error: string | null;
 }
 
 /**
@@ -42,9 +45,9 @@ export interface UseTranslationReturn {
  */
 export interface UseTranslationOptions {
   /** Namespace to use */
-  ns?: string
+  ns?: string;
   /** Key prefix */
-  keyPrefix?: string
+  keyPrefix?: string;
 }
 
 /**
@@ -53,32 +56,32 @@ export interface UseTranslationOptions {
 function normalizeOptions(
   options: TranslateOptions | InterpolationValues | undefined,
   ns?: string,
-  keyPrefix?: string
+  keyPrefix?: string,
 ): TranslateOptions {
   if (!options) {
-    return { ns }
+    return { ns };
   }
 
   // Check if options is TranslateOptions or just interpolation values
   if (
-    'count' in options ||
-    'context' in options ||
-    'values' in options ||
-    'ns' in options ||
-    'locale' in options ||
-    'defaultValue' in options
+    "count" in options ||
+    "context" in options ||
+    "values" in options ||
+    "ns" in options ||
+    "locale" in options ||
+    "defaultValue" in options
   ) {
     return {
       ...(options as TranslateOptions),
       ns: (options as TranslateOptions).ns || ns,
-    }
+    };
   }
 
   // Options is just interpolation values
   return {
     ns,
     values: options as InterpolationValues,
-  }
+  };
 }
 
 /**
@@ -104,32 +107,32 @@ function normalizeOptions(
  */
 export function useTranslation(
   namespace?: string,
-  options?: UseTranslationOptions
+  options?: UseTranslationOptions,
 ): UseTranslationReturn {
-  const currentLocale = useLocaleStore((state) => state.currentLocale)
-  const isLoading = useLocaleStore((state) => state.isLoading)
-  const error = useLocaleStore((state) => state.error)
+  const currentLocale = useLocaleStore((state) => state.currentLocale);
+  const isLoading = useLocaleStore((state) => state.isLoading);
+  const error = useLocaleStore((state) => state.error);
 
-  const ns = options?.ns || namespace
-  const keyPrefix = options?.keyPrefix
+  const ns = options?.ns || namespace;
+  const keyPrefix = options?.keyPrefix;
 
   const t = useCallback<TFunction>(
     (key: string, opts?: TranslateOptions | InterpolationValues) => {
-      const fullKey = keyPrefix ? `${keyPrefix}.${key}` : key
-      const normalizedOptions = normalizeOptions(opts, ns, keyPrefix)
-      return translate(fullKey, normalizedOptions)
+      const fullKey = keyPrefix ? `${keyPrefix}.${key}` : key;
+      const normalizedOptions = normalizeOptions(opts, ns, keyPrefix);
+      return translate(fullKey, normalizedOptions);
     },
-    [ns, keyPrefix]
-  )
+    [ns, keyPrefix],
+  );
 
   const exists = useCallback(
     (key: string): boolean => {
-      const fullKey = keyPrefix ? `${keyPrefix}.${key}` : key
-      const fullKeyWithNs = ns ? `${ns}:${fullKey}` : fullKey
-      return hasTranslation(fullKeyWithNs, currentLocale)
+      const fullKey = keyPrefix ? `${keyPrefix}.${key}` : key;
+      const fullKeyWithNs = ns ? `${ns}:${fullKey}` : fullKey;
+      return hasTranslation(fullKeyWithNs, currentLocale);
     },
-    [ns, keyPrefix, currentLocale]
-  )
+    [ns, keyPrefix, currentLocale],
+  );
 
   return useMemo(
     () => ({
@@ -139,8 +142,8 @@ export function useTranslation(
       isLoading,
       error,
     }),
-    [t, currentLocale, exists, isLoading, error]
-  )
+    [t, currentLocale, exists, isLoading, error],
+  );
 }
 
 /**
@@ -160,51 +163,65 @@ export function useTranslation(
  * ```
  */
 export function createNamespacedUseTranslation(namespace: string) {
-  return function useNamespacedTranslation(options?: Omit<UseTranslationOptions, 'ns'>) {
-    return useTranslation(namespace, options)
-  }
+  return function useNamespacedTranslation(
+    options?: Omit<UseTranslationOptions, "ns">,
+  ) {
+    return useTranslation(namespace, options);
+  };
 }
 
 /**
  * Hook for common namespace
  */
-export function useCommonTranslation(options?: Omit<UseTranslationOptions, 'ns'>) {
-  return useTranslation('common', options)
+export function useCommonTranslation(
+  options?: Omit<UseTranslationOptions, "ns">,
+) {
+  return useTranslation("common", options);
 }
 
 /**
  * Hook for chat namespace
  */
-export function useChatTranslation(options?: Omit<UseTranslationOptions, 'ns'>) {
-  return useTranslation('chat', options)
+export function useChatTranslation(
+  options?: Omit<UseTranslationOptions, "ns">,
+) {
+  return useTranslation("chat", options);
 }
 
 /**
  * Hook for settings namespace
  */
-export function useSettingsTranslation(options?: Omit<UseTranslationOptions, 'ns'>) {
-  return useTranslation('settings', options)
+export function useSettingsTranslation(
+  options?: Omit<UseTranslationOptions, "ns">,
+) {
+  return useTranslation("settings", options);
 }
 
 /**
  * Hook for admin namespace
  */
-export function useAdminTranslation(options?: Omit<UseTranslationOptions, 'ns'>) {
-  return useTranslation('admin', options)
+export function useAdminTranslation(
+  options?: Omit<UseTranslationOptions, "ns">,
+) {
+  return useTranslation("admin", options);
 }
 
 /**
  * Hook for auth namespace
  */
-export function useAuthTranslation(options?: Omit<UseTranslationOptions, 'ns'>) {
-  return useTranslation('auth', options)
+export function useAuthTranslation(
+  options?: Omit<UseTranslationOptions, "ns">,
+) {
+  return useTranslation("auth", options);
 }
 
 /**
  * Hook for errors namespace
  */
-export function useErrorsTranslation(options?: Omit<UseTranslationOptions, 'ns'>) {
-  return useTranslation('errors', options)
+export function useErrorsTranslation(
+  options?: Omit<UseTranslationOptions, "ns">,
+) {
+  return useTranslation("errors", options);
 }
 
-export default useTranslation
+export default useTranslation;

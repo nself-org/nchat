@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Video Call Hook
@@ -7,13 +7,13 @@
  * camera toggle, screen sharing, and picture-in-picture mode.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useCallStore, type CallEndReason } from '@/stores/call-store'
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallStore, type CallEndReason } from "@/stores/call-store";
 import {
   PeerConnectionManager,
   createPeerConnection,
   type PeerConnectionCallbacks,
-} from '@/lib/webrtc/peer-connection'
+} from "@/lib/webrtc/peer-connection";
 import {
   MediaManager,
   createMediaManager,
@@ -22,84 +22,88 @@ import {
   DEFAULT_VIDEO_CONSTRAINTS,
   HD_VIDEO_CONSTRAINTS,
   LOW_BANDWIDTH_VIDEO_CONSTRAINTS,
-} from '@/lib/webrtc/media-manager'
+} from "@/lib/webrtc/media-manager";
 import {
   SignalingManager,
   createSignalingManager,
   generateCallId,
   type SignalingCallbacks,
-} from '@/lib/webrtc/signaling'
+} from "@/lib/webrtc/signaling";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type VideoQuality = 'low' | 'medium' | 'high'
+export type VideoQuality = "low" | "medium" | "high";
 
 export interface UseVideoCallOptions {
-  userId: string
-  userName: string
-  userAvatarUrl?: string
-  defaultVideoQuality?: VideoQuality
-  onCallStarted?: (callId: string) => void
-  onCallEnded?: (callId: string, reason: string) => void
-  onError?: (error: Error) => void
+  userId: string;
+  userName: string;
+  userAvatarUrl?: string;
+  defaultVideoQuality?: VideoQuality;
+  onCallStarted?: (callId: string) => void;
+  onCallEnded?: (callId: string, reason: string) => void;
+  onError?: (error: Error) => void;
 }
 
 export interface UseVideoCallReturn {
   // State
-  isInCall: boolean
-  isCallConnected: boolean
-  isMuted: boolean
-  isVideoEnabled: boolean
-  isScreenSharing: boolean
-  isRinging: boolean
-  callDuration: number
-  hasIncomingCall: boolean
-  isPictureInPicture: boolean
+  isInCall: boolean;
+  isCallConnected: boolean;
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  isScreenSharing: boolean;
+  isRinging: boolean;
+  callDuration: number;
+  hasIncomingCall: boolean;
+  isPictureInPicture: boolean;
 
   // Streams
-  localStream: MediaStream | null
-  remoteStreams: MediaStream[]
+  localStream: MediaStream | null;
+  remoteStreams: MediaStream[];
 
   // Actions
-  startCall: (targetUserId: string, targetUserName: string, channelId?: string) => Promise<string>
-  acceptCall: (callId: string) => Promise<void>
-  declineCall: (callId: string) => void
-  endCall: () => void
+  startCall: (
+    targetUserId: string,
+    targetUserName: string,
+    channelId?: string,
+  ) => Promise<string>;
+  acceptCall: (callId: string) => Promise<void>;
+  declineCall: (callId: string) => void;
+  endCall: () => void;
 
   // Audio Controls
-  toggleMute: () => void
-  setMuted: (muted: boolean) => void
+  toggleMute: () => void;
+  setMuted: (muted: boolean) => void;
 
   // Video Controls
-  toggleVideo: () => void
-  setVideoEnabled: (enabled: boolean) => void
-  setVideoQuality: (quality: VideoQuality) => void
+  toggleVideo: () => void;
+  setVideoEnabled: (enabled: boolean) => void;
+  setVideoQuality: (quality: VideoQuality) => void;
 
   // Screen Sharing
-  startScreenShare: () => Promise<void>
-  stopScreenShare: () => void
+  startScreenShare: () => Promise<void>;
+  stopScreenShare: () => void;
 
   // Picture-in-Picture
-  enterPictureInPicture: (videoElement: HTMLVideoElement) => Promise<void>
-  exitPictureInPicture: () => Promise<void>
+  enterPictureInPicture: (videoElement: HTMLVideoElement) => Promise<void>;
+  exitPictureInPicture: () => Promise<void>;
 
   // Device Selection
-  selectCamera: (deviceId: string) => Promise<void>
-  selectMicrophone: (deviceId: string) => Promise<void>
-  selectSpeaker: (deviceId: string) => Promise<void>
+  selectCamera: (deviceId: string) => Promise<void>;
+  selectMicrophone: (deviceId: string) => Promise<void>;
+  selectSpeaker: (deviceId: string) => Promise<void>;
 
   // Available Devices
-  availableCameras: Array<{ deviceId: string; label: string }>
-  availableMicrophones: Array<{ deviceId: string; label: string }>
-  availableSpeakers: Array<{ deviceId: string; label: string }>
+  availableCameras: Array<{ deviceId: string; label: string }>;
+  availableMicrophones: Array<{ deviceId: string; label: string }>;
+  availableSpeakers: Array<{ deviceId: string; label: string }>;
 
   // Audio Level
-  audioLevel: number
+  audioLevel: number;
 
   // Error
-  error: string | null
+  error: string | null;
 }
 
 // =============================================================================
@@ -110,7 +114,7 @@ const VIDEO_QUALITY_CONSTRAINTS: Record<VideoQuality, VideoConstraints> = {
   low: LOW_BANDWIDTH_VIDEO_CONSTRAINTS,
   medium: DEFAULT_VIDEO_CONSTRAINTS,
   high: HD_VIDEO_CONSTRAINTS,
-}
+};
 
 // =============================================================================
 // Hook
@@ -121,66 +125,82 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
     userId,
     userName,
     userAvatarUrl,
-    defaultVideoQuality = 'medium',
+    defaultVideoQuality = "medium",
     onCallStarted,
     onCallEnded,
     onError,
-  } = options
+  } = options;
 
   // Store state
-  const activeCall = useCallStore((state) => state.activeCall)
-  const incomingCalls = useCallStore((state) => state.incomingCalls)
-  const isPictureInPictureStore = useCallStore((state) => state.isPictureInPicture)
-  const initiateCall = useCallStore((state) => state.initiateCall)
-  const acceptCallAction = useCallStore((state) => state.acceptCall)
-  const declineCallAction = useCallStore((state) => state.declineCall)
-  const endCallAction = useCallStore((state) => state.endCall)
-  const setCallState = useCallStore((state) => state.setCallState)
-  const setCallConnected = useCallStore((state) => state.setCallConnected)
-  const setLocalMuted = useCallStore((state) => state.setLocalMuted)
-  const setLocalVideoEnabled = useCallStore((state) => state.setLocalVideoEnabled)
-  const setLocalScreenSharing = useCallStore((state) => state.setLocalScreenSharing)
-  const setLocalStream = useCallStore((state) => state.setLocalStream)
-  const addRemoteStream = useCallStore((state) => state.addRemoteStream)
-  const receiveIncomingCall = useCallStore((state) => state.receiveIncomingCall)
-  const updateParticipant = useCallStore((state) => state.updateParticipant)
-  const setPictureInPicture = useCallStore((state) => state.setPictureInPicture)
-  const storeError = useCallStore((state) => state.error)
+  const activeCall = useCallStore((state) => state.activeCall);
+  const incomingCalls = useCallStore((state) => state.incomingCalls);
+  const isPictureInPictureStore = useCallStore(
+    (state) => state.isPictureInPicture,
+  );
+  const initiateCall = useCallStore((state) => state.initiateCall);
+  const acceptCallAction = useCallStore((state) => state.acceptCall);
+  const declineCallAction = useCallStore((state) => state.declineCall);
+  const endCallAction = useCallStore((state) => state.endCall);
+  const setCallState = useCallStore((state) => state.setCallState);
+  const setCallConnected = useCallStore((state) => state.setCallConnected);
+  const setLocalMuted = useCallStore((state) => state.setLocalMuted);
+  const setLocalVideoEnabled = useCallStore(
+    (state) => state.setLocalVideoEnabled,
+  );
+  const setLocalScreenSharing = useCallStore(
+    (state) => state.setLocalScreenSharing,
+  );
+  const setLocalStream = useCallStore((state) => state.setLocalStream);
+  const addRemoteStream = useCallStore((state) => state.addRemoteStream);
+  const receiveIncomingCall = useCallStore(
+    (state) => state.receiveIncomingCall,
+  );
+  const updateParticipant = useCallStore((state) => state.updateParticipant);
+  const setPictureInPicture = useCallStore(
+    (state) => state.setPictureInPicture,
+  );
+  const storeError = useCallStore((state) => state.error);
 
   // Local state
-  const [audioLevel, setAudioLevel] = useState(0)
-  const [callDuration, setCallDuration] = useState(0)
-  const [videoQuality, setVideoQualityState] = useState<VideoQuality>(defaultVideoQuality)
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [callDuration, setCallDuration] = useState(0);
+  const [videoQuality, setVideoQualityState] =
+    useState<VideoQuality>(defaultVideoQuality);
   const [availableCameras, setAvailableCameras] = useState<
     Array<{ deviceId: string; label: string }>
-  >([])
+  >([]);
   const [availableMicrophones, setAvailableMicrophones] = useState<
     Array<{ deviceId: string; label: string }>
-  >([])
+  >([]);
   const [availableSpeakers, setAvailableSpeakers] = useState<
     Array<{ deviceId: string; label: string }>
-  >([])
+  >([]);
 
   // Refs
-  const peerConnectionRef = useRef<PeerConnectionManager | null>(null)
-  const mediaManagerRef = useRef<MediaManager | null>(null)
-  const signalingRef = useRef<SignalingManager | null>(null)
-  const audioAnalyzerRef = useRef<{ getLevel: () => number; cleanup: () => void } | null>(null)
-  const audioLevelIntervalRef = useRef<number | null>(null)
-  const durationIntervalRef = useRef<number | null>(null)
-  const audioElementRef = useRef<HTMLAudioElement | null>(null)
-  const pipVideoRef = useRef<HTMLVideoElement | null>(null)
+  const peerConnectionRef = useRef<PeerConnectionManager | null>(null);
+  const mediaManagerRef = useRef<MediaManager | null>(null);
+  const signalingRef = useRef<SignalingManager | null>(null);
+  const audioAnalyzerRef = useRef<{
+    getLevel: () => number;
+    cleanup: () => void;
+  } | null>(null);
+  const audioLevelIntervalRef = useRef<number | null>(null);
+  const durationIntervalRef = useRef<number | null>(null);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const pipVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Derived state
-  const isInCall = activeCall !== null && activeCall.state !== 'ended'
-  const isCallConnected = activeCall?.state === 'connected'
-  const isMuted = activeCall?.isLocalMuted ?? false
-  const isVideoEnabled = activeCall?.isLocalVideoEnabled ?? false
-  const isScreenSharing = activeCall?.isLocalScreenSharing ?? false
-  const isRinging = activeCall?.state === 'ringing' || incomingCalls.length > 0
-  const hasIncomingCall = incomingCalls.length > 0
-  const localStream = activeCall?.localStream ?? null
-  const remoteStreams = activeCall ? Array.from(activeCall.remoteStreams.values()) : []
+  const isInCall = activeCall !== null && activeCall.state !== "ended";
+  const isCallConnected = activeCall?.state === "connected";
+  const isMuted = activeCall?.isLocalMuted ?? false;
+  const isVideoEnabled = activeCall?.isLocalVideoEnabled ?? false;
+  const isScreenSharing = activeCall?.isLocalScreenSharing ?? false;
+  const isRinging = activeCall?.state === "ringing" || incomingCalls.length > 0;
+  const hasIncomingCall = incomingCalls.length > 0;
+  const localStream = activeCall?.localStream ?? null;
+  const remoteStreams = activeCall
+    ? Array.from(activeCall.remoteStreams.values())
+    : [];
 
   // ==========================================================================
   // Cleanup
@@ -189,50 +209,50 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
   const cleanup = useCallback(() => {
     // Stop audio level monitoring
     if (audioLevelIntervalRef.current) {
-      window.clearInterval(audioLevelIntervalRef.current)
-      audioLevelIntervalRef.current = null
+      window.clearInterval(audioLevelIntervalRef.current);
+      audioLevelIntervalRef.current = null;
     }
 
     // Stop duration timer
     if (durationIntervalRef.current) {
-      window.clearInterval(durationIntervalRef.current)
-      durationIntervalRef.current = null
+      window.clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
     }
 
     // Cleanup audio analyzer
     if (audioAnalyzerRef.current) {
-      audioAnalyzerRef.current.cleanup()
-      audioAnalyzerRef.current = null
+      audioAnalyzerRef.current.cleanup();
+      audioAnalyzerRef.current = null;
     }
 
     // Close peer connection
     if (peerConnectionRef.current) {
-      peerConnectionRef.current.close()
-      peerConnectionRef.current = null
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
     }
 
     // Stop media
     if (mediaManagerRef.current) {
-      mediaManagerRef.current.cleanup()
-      mediaManagerRef.current = null
+      mediaManagerRef.current.cleanup();
+      mediaManagerRef.current = null;
     }
 
     // Disconnect signaling
     if (signalingRef.current) {
-      signalingRef.current.disconnect()
-      signalingRef.current = null
+      signalingRef.current.disconnect();
+      signalingRef.current = null;
     }
 
     // Exit PiP if active
     if (document.pictureInPictureElement) {
-      document.exitPictureInPicture().catch(() => {})
+      document.exitPictureInPicture().catch(() => {});
     }
 
     // Reset state
-    setAudioLevel(0)
-    setCallDuration(0)
-    setPictureInPicture(false)
-  }, [setPictureInPicture])
+    setAudioLevel(0);
+    setCallDuration(0);
+    setPictureInPicture(false);
+  }, [setPictureInPicture]);
 
   // ==========================================================================
   // Initialize Managers
@@ -244,76 +264,81 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
       onDeviceChange: (devices) => {
         setAvailableCameras(
           devices
-            .filter((d) => d.kind === 'videoinput')
-            .map((d) => ({ deviceId: d.deviceId, label: d.label }))
-        )
+            .filter((d) => d.kind === "videoinput")
+            .map((d) => ({ deviceId: d.deviceId, label: d.label })),
+        );
         setAvailableMicrophones(
           devices
-            .filter((d) => d.kind === 'audioinput')
-            .map((d) => ({ deviceId: d.deviceId, label: d.label }))
-        )
+            .filter((d) => d.kind === "audioinput")
+            .map((d) => ({ deviceId: d.deviceId, label: d.label })),
+        );
         setAvailableSpeakers(
           devices
-            .filter((d) => d.kind === 'audiooutput')
-            .map((d) => ({ deviceId: d.deviceId, label: d.label }))
-        )
+            .filter((d) => d.kind === "audiooutput")
+            .map((d) => ({ deviceId: d.deviceId, label: d.label })),
+        );
       },
       onTrackEnded: (track) => {
         // Handle screen share track ending
-        if (track.kind === 'video' && isScreenSharing) {
-          setLocalScreenSharing(false)
-          signalingRef.current?.notifyScreenShareStopped(activeCall?.id ?? '', userId)
+        if (track.kind === "video" && isScreenSharing) {
+          setLocalScreenSharing(false);
+          signalingRef.current?.notifyScreenShareStopped(
+            activeCall?.id ?? "",
+            userId,
+          );
         }
       },
       onStreamError: (error) => {
-        onError?.(error)
+        onError?.(error);
       },
-    }
-    mediaManagerRef.current = createMediaManager(mediaCallbacks)
+    };
+    mediaManagerRef.current = createMediaManager(mediaCallbacks);
 
     // Peer Connection Manager
     const peerCallbacks: PeerConnectionCallbacks = {
       onIceCandidate: (candidate) => {
         if (activeCall && signalingRef.current) {
-          const participants = Array.from(activeCall.participants.keys())
-          const targetUserId = participants.find((id) => id !== userId)
+          const participants = Array.from(activeCall.participants.keys());
+          const targetUserId = participants.find((id) => id !== userId);
           if (targetUserId) {
             signalingRef.current.sendIceCandidate({
               callId: activeCall.id,
               fromUserId: userId,
               toUserId: targetUserId,
               candidate: candidate.toJSON(),
-            })
+            });
           }
         }
       },
       onConnectionStateChange: (state) => {
-        if (state === 'connected') {
-          setCallConnected()
-        } else if (state === 'failed' || state === 'disconnected') {
-          onError?.(new Error(`Connection ${state}`))
+        if (state === "connected") {
+          setCallConnected();
+        } else if (state === "failed" || state === "disconnected") {
+          onError?.(new Error(`Connection ${state}`));
         }
       },
       onTrack: (event) => {
         if (event.streams[0]) {
-          const participants = Array.from(activeCall?.participants.keys() ?? [])
-          const remoteUserId = participants.find((id) => id !== userId)
+          const participants = Array.from(
+            activeCall?.participants.keys() ?? [],
+          );
+          const remoteUserId = participants.find((id) => id !== userId);
           if (remoteUserId) {
-            addRemoteStream(remoteUserId, event.streams[0])
+            addRemoteStream(remoteUserId, event.streams[0]);
 
             // Handle audio playback
-            if (event.track.kind === 'audio') {
+            if (event.track.kind === "audio") {
               if (!audioElementRef.current) {
-                audioElementRef.current = new Audio()
-                audioElementRef.current.autoplay = true
+                audioElementRef.current = new Audio();
+                audioElementRef.current.autoplay = true;
               }
-              audioElementRef.current.srcObject = event.streams[0]
+              audioElementRef.current.srcObject = event.streams[0];
             }
           }
         }
       },
-    }
-    peerConnectionRef.current = createPeerConnection(undefined, peerCallbacks)
+    };
+    peerConnectionRef.current = createPeerConnection(undefined, peerCallbacks);
 
     // Signaling Manager
     const signalingCallbacks: SignalingCallbacks = {
@@ -323,84 +348,86 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
           callerId: payload.callerId,
           callerName: payload.callerName,
           callerAvatarUrl: payload.callerAvatarUrl,
-          type: 'video',
+          type: "video",
           channelId: payload.channelId,
           receivedAt: new Date().toISOString(),
-        })
+        });
       },
       onCallAccepted: async (payload) => {
         if (activeCall?.id === payload.callId) {
-          setCallState('connecting')
-          await setupPeerConnection(true)
+          setCallState("connecting");
+          await setupPeerConnection(true);
         }
       },
       onCallDeclined: (payload) => {
         if (activeCall?.id === payload.callId) {
-          endCallAction('declined')
-          onCallEnded?.(payload.callId, 'declined')
-          cleanup()
+          endCallAction("declined");
+          onCallEnded?.(payload.callId, "declined");
+          cleanup();
         }
       },
       onCallEnded: (payload) => {
         if (activeCall?.id === payload.callId) {
-          endCallAction(payload.reason as CallEndReason)
-          onCallEnded?.(payload.callId, payload.reason)
-          cleanup()
+          endCallAction(payload.reason as CallEndReason);
+          onCallEnded?.(payload.callId, payload.reason);
+          cleanup();
         }
       },
       onOffer: async (payload) => {
         if (peerConnectionRef.current && activeCall?.id === payload.callId) {
-          const pc = peerConnectionRef.current
-          await pc.setRemoteDescription(payload.sdp)
-          const answer = await pc.createAnswer()
+          const pc = peerConnectionRef.current;
+          await pc.setRemoteDescription(payload.sdp);
+          const answer = await pc.createAnswer();
           signalingRef.current?.sendAnswer({
             callId: payload.callId,
             fromUserId: userId,
             toUserId: payload.fromUserId,
             sdp: answer,
-          })
+          });
         }
       },
       onAnswer: async (payload) => {
         if (peerConnectionRef.current && activeCall?.id === payload.callId) {
-          await peerConnectionRef.current.setRemoteDescription(payload.sdp)
+          await peerConnectionRef.current.setRemoteDescription(payload.sdp);
         }
       },
       onIceCandidate: async (payload) => {
         if (peerConnectionRef.current && activeCall?.id === payload.callId) {
-          await peerConnectionRef.current.addIceCandidate(payload.candidate)
+          await peerConnectionRef.current.addIceCandidate(payload.candidate);
         }
       },
       onMuteChanged: (payload) => {
         if (activeCall?.id === payload.callId) {
-          updateParticipant(payload.userId, { isMuted: !payload.enabled })
+          updateParticipant(payload.userId, { isMuted: !payload.enabled });
         }
       },
       onVideoChanged: (payload) => {
         if (activeCall?.id === payload.callId) {
-          updateParticipant(payload.userId, { isVideoEnabled: payload.enabled })
+          updateParticipant(payload.userId, {
+            isVideoEnabled: payload.enabled,
+          });
         }
       },
       onScreenShareStarted: (payload) => {
         if (activeCall?.id === payload.callId) {
-          updateParticipant(payload.userId, { isScreenSharing: true })
+          updateParticipant(payload.userId, { isScreenSharing: true });
         }
       },
       onScreenShareStopped: (payload) => {
         if (activeCall?.id === payload.callId) {
-          updateParticipant(payload.userId, { isScreenSharing: false })
+          updateParticipant(payload.userId, { isScreenSharing: false });
         }
       },
       onError: (payload) => {
-        onError?.(new Error(payload.message))
+        onError?.(new Error(payload.message));
       },
-    }
-    signalingRef.current = createSignalingManager(signalingCallbacks)
-    signalingRef.current.connect()
+    };
+    signalingRef.current = createSignalingManager(signalingCallbacks);
+    signalingRef.current.connect();
 
     // Enumerate devices
-    mediaManagerRef.current.enumerateDevices()
-    mediaManagerRef.current.startDeviceChangeListener()
+    mediaManagerRef.current.enumerateDevices();
+    mediaManagerRef.current.startDeviceChangeListener();
   }, [
     userId,
     activeCall,
@@ -415,7 +442,7 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
     onCallEnded,
     onError,
     cleanup,
-  ])
+  ]);
 
   // ==========================================================================
   // Setup Peer Connection
@@ -423,51 +450,55 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
 
   const setupPeerConnection = useCallback(
     async (isInitiator: boolean) => {
-      if (!peerConnectionRef.current || !mediaManagerRef.current || !activeCall) {
-        return
+      if (
+        !peerConnectionRef.current ||
+        !mediaManagerRef.current ||
+        !activeCall
+      ) {
+        return;
       }
 
-      const pc = peerConnectionRef.current
-      const media = mediaManagerRef.current
+      const pc = peerConnectionRef.current;
+      const media = mediaManagerRef.current;
 
-      pc.create()
+      pc.create();
 
       // Get local video stream
-      const videoConstraints = VIDEO_QUALITY_CONSTRAINTS[videoQuality]
-      const stream = await media.getVideoStream(undefined, videoConstraints)
-      setLocalStream(stream)
+      const videoConstraints = VIDEO_QUALITY_CONSTRAINTS[videoQuality];
+      const stream = await media.getVideoStream(undefined, videoConstraints);
+      setLocalStream(stream);
 
       // Add tracks to peer connection
       stream.getTracks().forEach((track) => {
-        pc.addTrack(track, stream)
-      })
+        pc.addTrack(track, stream);
+      });
 
       // Setup audio level monitoring
-      const analyzer = media.createAudioAnalyzer()
+      const analyzer = media.createAudioAnalyzer();
       if (analyzer) {
-        audioAnalyzerRef.current = analyzer
+        audioAnalyzerRef.current = analyzer;
         audioLevelIntervalRef.current = window.setInterval(() => {
-          setAudioLevel(analyzer.getLevel())
-        }, 100)
+          setAudioLevel(analyzer.getLevel());
+        }, 100);
       }
 
       if (isInitiator) {
         // Create and send offer
-        const offer = await pc.createOffer()
-        const participants = Array.from(activeCall.participants.keys())
-        const targetUserId = participants.find((id) => id !== userId)
+        const offer = await pc.createOffer();
+        const participants = Array.from(activeCall.participants.keys());
+        const targetUserId = participants.find((id) => id !== userId);
         if (targetUserId && signalingRef.current) {
           signalingRef.current.sendOffer({
             callId: activeCall.id,
             fromUserId: userId,
             toUserId: targetUserId,
             sdp: offer,
-          })
+          });
         }
       }
     },
-    [userId, activeCall, videoQuality, setLocalStream]
-  )
+    [userId, activeCall, videoQuality, setLocalStream],
+  );
 
   // ==========================================================================
   // Start Duration Timer
@@ -475,73 +506,77 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
 
   const startDurationTimer = useCallback(() => {
     if (durationIntervalRef.current) {
-      window.clearInterval(durationIntervalRef.current)
+      window.clearInterval(durationIntervalRef.current);
     }
 
-    const startTime = Date.now()
+    const startTime = Date.now();
     durationIntervalRef.current = window.setInterval(() => {
-      setCallDuration(Math.floor((Date.now() - startTime) / 1000))
-    }, 1000)
-  }, [])
+      setCallDuration(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+  }, []);
 
   // ==========================================================================
   // Actions
   // ==========================================================================
 
   const startCall = useCallback(
-    async (targetUserId: string, targetUserName: string, channelId?: string): Promise<string> => {
+    async (
+      targetUserId: string,
+      targetUserName: string,
+      channelId?: string,
+    ): Promise<string> => {
       if (isInCall) {
-        throw new Error('Already in a call')
+        throw new Error("Already in a call");
       }
 
-      const callId = generateCallId()
+      const callId = generateCallId();
 
       // Initialize managers if needed
       if (!signalingRef.current) {
-        initializeManagers()
+        initializeManagers();
       }
 
       // Create call in store
-      initiateCall(callId, targetUserId, targetUserName, 'video', channelId)
+      initiateCall(callId, targetUserId, targetUserName, "video", channelId);
 
       // Send call initiate signal
       signalingRef.current?.initiateCall({
         callId,
         targetUserId,
-        callType: 'video',
+        callType: "video",
         channelId,
-      })
+      });
 
-      setCallState('ringing')
-      onCallStarted?.(callId)
+      setCallState("ringing");
+      onCallStarted?.(callId);
 
-      return callId
+      return callId;
     },
-    [isInCall, initiateCall, setCallState, initializeManagers, onCallStarted]
-  )
+    [isInCall, initiateCall, setCallState, initializeManagers, onCallStarted],
+  );
 
   const acceptCall = useCallback(
     async (callId: string): Promise<void> => {
-      const incomingCall = incomingCalls.find((c) => c.id === callId)
+      const incomingCall = incomingCalls.find((c) => c.id === callId);
       if (!incomingCall) {
-        throw new Error('Call not found')
+        throw new Error("Call not found");
       }
 
       // Initialize managers if needed
       if (!signalingRef.current) {
-        initializeManagers()
+        initializeManagers();
       }
 
       // Accept call in store
-      acceptCallAction(callId)
+      acceptCallAction(callId);
 
       // Send accept signal
-      signalingRef.current?.acceptCall(callId, userId)
+      signalingRef.current?.acceptCall(callId, userId);
 
       // Setup peer connection as answerer
-      await setupPeerConnection(false)
+      await setupPeerConnection(false);
 
-      onCallStarted?.(callId)
+      onCallStarted?.(callId);
     },
     [
       incomingCalls,
@@ -550,158 +585,179 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
       initializeManagers,
       setupPeerConnection,
       onCallStarted,
-    ]
-  )
+    ],
+  );
 
   const declineCall = useCallback(
     (callId: string): void => {
-      signalingRef.current?.declineCall(callId, userId)
-      declineCallAction(callId)
+      signalingRef.current?.declineCall(callId, userId);
+      declineCallAction(callId);
     },
-    [userId, declineCallAction]
-  )
+    [userId, declineCallAction],
+  );
 
   const endCall = useCallback((): void => {
     if (activeCall && signalingRef.current) {
-      signalingRef.current.endCall(activeCall.id, userId, 'completed', callDuration)
+      signalingRef.current.endCall(
+        activeCall.id,
+        userId,
+        "completed",
+        callDuration,
+      );
     }
-    endCallAction('completed')
-    onCallEnded?.(activeCall?.id ?? '', 'completed')
-    cleanup()
-  }, [activeCall, userId, callDuration, endCallAction, onCallEnded, cleanup])
+    endCallAction("completed");
+    onCallEnded?.(activeCall?.id ?? "", "completed");
+    cleanup();
+  }, [activeCall, userId, callDuration, endCallAction, onCallEnded, cleanup]);
 
   // Audio controls
   const toggleMute = useCallback((): void => {
-    if (!activeCall || !mediaManagerRef.current) return
+    if (!activeCall || !mediaManagerRef.current) return;
 
-    const newMuted = !activeCall.isLocalMuted
-    setLocalMuted(newMuted)
-    mediaManagerRef.current.enableAudio(!newMuted)
-    signalingRef.current?.notifyMuteChange(activeCall.id, userId, newMuted)
-  }, [activeCall, userId, setLocalMuted])
+    const newMuted = !activeCall.isLocalMuted;
+    setLocalMuted(newMuted);
+    mediaManagerRef.current.enableAudio(!newMuted);
+    signalingRef.current?.notifyMuteChange(activeCall.id, userId, newMuted);
+  }, [activeCall, userId, setLocalMuted]);
 
   const setMuted = useCallback(
     (muted: boolean): void => {
-      if (!activeCall || !mediaManagerRef.current) return
+      if (!activeCall || !mediaManagerRef.current) return;
 
-      setLocalMuted(muted)
-      mediaManagerRef.current.enableAudio(!muted)
-      signalingRef.current?.notifyMuteChange(activeCall.id, userId, muted)
+      setLocalMuted(muted);
+      mediaManagerRef.current.enableAudio(!muted);
+      signalingRef.current?.notifyMuteChange(activeCall.id, userId, muted);
     },
-    [activeCall, userId, setLocalMuted]
-  )
+    [activeCall, userId, setLocalMuted],
+  );
 
   // Video controls
   const toggleVideo = useCallback((): void => {
-    if (!activeCall || !mediaManagerRef.current) return
+    if (!activeCall || !mediaManagerRef.current) return;
 
-    const newEnabled = !activeCall.isLocalVideoEnabled
-    setLocalVideoEnabled(newEnabled)
-    mediaManagerRef.current.enableVideo(newEnabled)
-    signalingRef.current?.notifyVideoChange(activeCall.id, userId, newEnabled)
-  }, [activeCall, userId, setLocalVideoEnabled])
+    const newEnabled = !activeCall.isLocalVideoEnabled;
+    setLocalVideoEnabled(newEnabled);
+    mediaManagerRef.current.enableVideo(newEnabled);
+    signalingRef.current?.notifyVideoChange(activeCall.id, userId, newEnabled);
+  }, [activeCall, userId, setLocalVideoEnabled]);
 
   const setVideoEnabled = useCallback(
     (enabled: boolean): void => {
-      if (!activeCall || !mediaManagerRef.current) return
+      if (!activeCall || !mediaManagerRef.current) return;
 
-      setLocalVideoEnabled(enabled)
-      mediaManagerRef.current.enableVideo(enabled)
-      signalingRef.current?.notifyVideoChange(activeCall.id, userId, enabled)
+      setLocalVideoEnabled(enabled);
+      mediaManagerRef.current.enableVideo(enabled);
+      signalingRef.current?.notifyVideoChange(activeCall.id, userId, enabled);
     },
-    [activeCall, userId, setLocalVideoEnabled]
-  )
+    [activeCall, userId, setLocalVideoEnabled],
+  );
 
-  const setVideoQuality = useCallback(async (quality: VideoQuality): Promise<void> => {
-    if (!mediaManagerRef.current) return
+  const setVideoQuality = useCallback(
+    async (quality: VideoQuality): Promise<void> => {
+      if (!mediaManagerRef.current) return;
 
-    setVideoQualityState(quality)
-    const constraints = VIDEO_QUALITY_CONSTRAINTS[quality]
-    await mediaManagerRef.current.applyVideoConstraints(constraints)
-  }, [])
+      setVideoQualityState(quality);
+      const constraints = VIDEO_QUALITY_CONSTRAINTS[quality];
+      await mediaManagerRef.current.applyVideoConstraints(constraints);
+    },
+    [],
+  );
 
   // Screen sharing
   const startScreenShare = useCallback(async (): Promise<void> => {
-    if (!activeCall || !mediaManagerRef.current || !peerConnectionRef.current) return
+    if (!activeCall || !mediaManagerRef.current || !peerConnectionRef.current)
+      return;
 
-    const screenStream = await mediaManagerRef.current.getDisplayMedia()
-    setLocalScreenSharing(true)
+    const screenStream = await mediaManagerRef.current.getDisplayMedia();
+    setLocalScreenSharing(true);
 
     // Replace video track with screen share track
-    const screenTrack = screenStream.getVideoTracks()[0]
-    const videoTracks = peerConnectionRef.current.getLocalVideoTracks()
+    const screenTrack = screenStream.getVideoTracks()[0];
+    const videoTracks = peerConnectionRef.current.getLocalVideoTracks();
 
     if (videoTracks.length > 0 && screenTrack) {
-      peerConnectionRef.current.replaceTrack(videoTracks[0].track.id, screenTrack)
+      peerConnectionRef.current.replaceTrack(
+        videoTracks[0].track.id,
+        screenTrack,
+      );
     }
 
-    signalingRef.current?.notifyScreenShareStarted(activeCall.id, userId)
+    signalingRef.current?.notifyScreenShareStarted(activeCall.id, userId);
 
     // Handle screen share stop
     screenTrack.onended = () => {
-      stopScreenShare()
-    }
-  }, [activeCall, userId, setLocalScreenSharing])
+      stopScreenShare();
+    };
+  }, [activeCall, userId, setLocalScreenSharing]);
 
   const stopScreenShare = useCallback((): void => {
-    if (!activeCall || !mediaManagerRef.current) return
+    if (!activeCall || !mediaManagerRef.current) return;
 
-    mediaManagerRef.current.stopScreenShare()
-    setLocalScreenSharing(false)
-    signalingRef.current?.notifyScreenShareStopped(activeCall.id, userId)
+    mediaManagerRef.current.stopScreenShare();
+    setLocalScreenSharing(false);
+    signalingRef.current?.notifyScreenShareStopped(activeCall.id, userId);
 
     // Restore camera video track
     if (mediaManagerRef.current.stream) {
-      const videoTrack = mediaManagerRef.current.videoTracks[0]
+      const videoTrack = mediaManagerRef.current.videoTracks[0];
       if (videoTrack && peerConnectionRef.current) {
-        const screenTracks = peerConnectionRef.current.getLocalVideoTracks()
+        const screenTracks = peerConnectionRef.current.getLocalVideoTracks();
         if (screenTracks.length > 0) {
-          peerConnectionRef.current.replaceTrack(screenTracks[0].track.id, videoTrack)
+          peerConnectionRef.current.replaceTrack(
+            screenTracks[0].track.id,
+            videoTrack,
+          );
         }
       }
     }
-  }, [activeCall, userId, setLocalScreenSharing])
+  }, [activeCall, userId, setLocalScreenSharing]);
 
   // Picture-in-Picture
   const enterPictureInPicture = useCallback(
     async (videoElement: HTMLVideoElement): Promise<void> => {
       if (!document.pictureInPictureEnabled) {
-        throw new Error('Picture-in-Picture not supported')
+        throw new Error("Picture-in-Picture not supported");
       }
 
-      pipVideoRef.current = videoElement
-      await videoElement.requestPictureInPicture()
-      setPictureInPicture(true)
+      pipVideoRef.current = videoElement;
+      await videoElement.requestPictureInPicture();
+      setPictureInPicture(true);
     },
-    [setPictureInPicture]
-  )
+    [setPictureInPicture],
+  );
 
   const exitPictureInPicture = useCallback(async (): Promise<void> => {
     if (document.pictureInPictureElement) {
-      await document.exitPictureInPicture()
-      setPictureInPicture(false)
-      pipVideoRef.current = null
+      await document.exitPictureInPicture();
+      setPictureInPicture(false);
+      pipVideoRef.current = null;
     }
-  }, [setPictureInPicture])
+  }, [setPictureInPicture]);
 
   // Device selection
   const selectCamera = useCallback(async (deviceId: string): Promise<void> => {
-    if (!mediaManagerRef.current) return
+    if (!mediaManagerRef.current) return;
 
-    await mediaManagerRef.current.switchVideoDevice(deviceId)
-  }, [])
+    await mediaManagerRef.current.switchVideoDevice(deviceId);
+  }, []);
 
-  const selectMicrophone = useCallback(async (deviceId: string): Promise<void> => {
-    if (!mediaManagerRef.current) return
+  const selectMicrophone = useCallback(
+    async (deviceId: string): Promise<void> => {
+      if (!mediaManagerRef.current) return;
 
-    await mediaManagerRef.current.switchAudioDevice(deviceId)
-  }, [])
+      await mediaManagerRef.current.switchAudioDevice(deviceId);
+    },
+    [],
+  );
 
   const selectSpeaker = useCallback(async (deviceId: string): Promise<void> => {
-    if (!audioElementRef.current) return
+    if (!audioElementRef.current) return;
 
-    await mediaManagerRef.current?.setAudioOutput(deviceId, audioElementRef.current)
-  }, [])
+    await mediaManagerRef.current?.setAudioOutput(
+      deviceId,
+      audioElementRef.current,
+    );
+  }, []);
 
   // ==========================================================================
   // Effects
@@ -709,39 +765,39 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
 
   // Initialize on mount
   useEffect(() => {
-    initializeManagers()
+    initializeManagers();
 
     return () => {
-      cleanup()
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+      cleanup();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Start duration timer when connected
   useEffect(() => {
     if (isCallConnected) {
-      startDurationTimer()
+      startDurationTimer();
     }
 
     return () => {
       if (durationIntervalRef.current) {
-        window.clearInterval(durationIntervalRef.current)
-        durationIntervalRef.current = null
+        window.clearInterval(durationIntervalRef.current);
+        durationIntervalRef.current = null;
       }
-    }
-  }, [isCallConnected, startDurationTimer])
+    };
+  }, [isCallConnected, startDurationTimer]);
 
   // Listen for PiP leave event
   useEffect(() => {
     const handleLeavePiP = () => {
-      setPictureInPicture(false)
-    }
+      setPictureInPicture(false);
+    };
 
-    document.addEventListener('leavepictureinpicture', handleLeavePiP)
+    document.addEventListener("leavepictureinpicture", handleLeavePiP);
 
     return () => {
-      document.removeEventListener('leavepictureinpicture', handleLeavePiP)
-    }
-  }, [setPictureInPicture])
+      document.removeEventListener("leavepictureinpicture", handleLeavePiP);
+    };
+  }, [setPictureInPicture]);
 
   // ==========================================================================
   // Return
@@ -801,5 +857,5 @@ export function useVideoCall(options: UseVideoCallOptions): UseVideoCallReturn {
 
     // Error
     error: storeError,
-  }
+  };
 }

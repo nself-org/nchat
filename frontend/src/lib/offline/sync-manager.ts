@@ -9,9 +9,14 @@
  * - Priority-based sync (important channels first)
  */
 
-import { messageStorage, channelStorage, userStorage, queueStorage } from './offline-storage'
-import { SyncQueue, getSyncQueue } from './sync-queue'
-import { getNetworkDetector } from './network-detector'
+import {
+  messageStorage,
+  channelStorage,
+  userStorage,
+  queueStorage,
+} from "./offline-storage";
+import { SyncQueue, getSyncQueue } from "./sync-queue";
+import { getNetworkDetector } from "./network-detector";
 import type {
   SyncState,
   SyncResult,
@@ -20,8 +25,8 @@ import type {
   QueuedAction,
   CachedMessage,
   CachedChannel,
-} from './offline-types'
-import { logger } from '@/lib/logger'
+} from "./offline-types";
+import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
@@ -29,43 +34,43 @@ import { logger } from '@/lib/logger'
 
 export interface SyncManagerConfig {
   /** Enable automatic sync when online */
-  autoSync: boolean
+  autoSync: boolean;
   /** Sync interval in ms (default: 30s) */
-  syncInterval: number
+  syncInterval: number;
   /** Sync on reconnect */
-  syncOnReconnect: boolean
+  syncOnReconnect: boolean;
   /** Enable background sync */
-  backgroundSync: boolean
+  backgroundSync: boolean;
   /** Battery threshold for background sync (0-100) */
-  batteryThreshold: number
+  batteryThreshold: number;
   /** Maximum items per sync batch */
-  batchSize: number
+  batchSize: number;
   /** Priority channels to sync first */
-  priorityChannels: string[]
+  priorityChannels: string[];
 }
 
 export interface SyncProgress {
-  operation: SyncOperationType
-  current: number
-  total: number
-  itemType: string
+  operation: SyncOperationType;
+  current: number;
+  total: number;
+  itemType: string;
 }
 
 export type SyncEventType =
-  | 'sync_started'
-  | 'sync_progress'
-  | 'sync_completed'
-  | 'sync_failed'
-  | 'sync_paused'
-  | 'sync_resumed'
+  | "sync_started"
+  | "sync_progress"
+  | "sync_completed"
+  | "sync_failed"
+  | "sync_paused"
+  | "sync_resumed";
 
 export interface SyncEvent {
-  type: SyncEventType
-  data?: SyncState | SyncProgress | SyncResult
-  timestamp: Date
+  type: SyncEventType;
+  data?: SyncState | SyncProgress | SyncResult;
+  timestamp: Date;
 }
 
-export type SyncEventListener = (event: SyncEvent) => void
+export type SyncEventListener = (event: SyncEvent) => void;
 
 // =============================================================================
 // Default Configuration
@@ -79,28 +84,28 @@ const DEFAULT_CONFIG: SyncManagerConfig = {
   batteryThreshold: 20, // Don't background sync below 20% battery
   batchSize: 100,
   priorityChannels: [],
-}
+};
 
 // =============================================================================
 // Sync Manager Class
 // =============================================================================
 
 export class SyncManager {
-  private config: SyncManagerConfig
-  private syncQueue: SyncQueue
-  private state: SyncState
-  private listeners: Set<SyncEventListener> = new Set()
-  private syncTimer: ReturnType<typeof setInterval> | null = null
-  private lastSyncTime: Record<string, Date> = {} // channelId -> last sync time
-  private isSyncing = false
-  private isPaused = false
+  private config: SyncManagerConfig;
+  private syncQueue: SyncQueue;
+  private state: SyncState;
+  private listeners: Set<SyncEventListener> = new Set();
+  private syncTimer: ReturnType<typeof setInterval> | null = null;
+  private lastSyncTime: Record<string, Date> = {}; // channelId -> last sync time
+  private isSyncing = false;
+  private isPaused = false;
 
   constructor(config: Partial<SyncManagerConfig> = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config }
-    this.syncQueue = getSyncQueue({ autoProcess: false })
+    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.syncQueue = getSyncQueue({ autoProcess: false });
 
     this.state = {
-      status: 'idle',
+      status: "idle",
       operation: null,
       progress: 0,
       itemsProcessed: 0,
@@ -109,10 +114,10 @@ export class SyncManager {
       lastSuccessfulSyncAt: null,
       error: null,
       pendingChanges: 0,
-    }
+    };
 
-    this.setupNetworkListeners()
-    this.setupBatteryMonitoring()
+    this.setupNetworkListeners();
+    this.setupBatteryMonitoring();
   }
 
   // ===========================================================================
@@ -123,23 +128,23 @@ export class SyncManager {
    * Initialize the sync manager
    */
   public async initialize(): Promise<void> {
-    await this.syncQueue.initialize()
+    await this.syncQueue.initialize();
 
     if (this.config.autoSync) {
-      this.startAutoSync()
+      this.startAutoSync();
     }
 
     // Update pending changes count
-    this.state.pendingChanges = await queueStorage.countPending()
+    this.state.pendingChanges = await queueStorage.countPending();
   }
 
   /**
    * Cleanup and shutdown
    */
   public async shutdown(): Promise<void> {
-    this.stopAutoSync()
-    this.syncQueue.destroy()
-    this.listeners.clear()
+    this.stopAutoSync();
+    this.syncQueue.destroy();
+    this.listeners.clear();
   }
 
   // ===========================================================================
@@ -150,78 +155,80 @@ export class SyncManager {
    * Perform full sync - sync all channels and messages
    */
   public async fullSync(): Promise<SyncResult> {
-    return this.performSync('full_sync', async () => {
-      const results: SyncResult[] = []
+    return this.performSync("full_sync", async () => {
+      const results: SyncResult[] = [];
 
       // 1. Sync queue (pending actions)
-      results.push(await this.syncQueueItems())
+      results.push(await this.syncQueueItems());
 
       // 2. Sync channels
-      results.push(await this.syncChannels())
+      results.push(await this.syncChannels());
 
       // 3. Sync messages for all channels
-      const channels = await channelStorage.getAll()
+      const channels = await channelStorage.getAll();
       for (const channel of channels) {
-        results.push(await this.syncChannelMessages(channel.id))
+        results.push(await this.syncChannelMessages(channel.id));
       }
 
       // Aggregate results
-      return this.aggregateResults(results)
-    })
+      return this.aggregateResults(results);
+    });
   }
 
   /**
    * Perform incremental sync - only sync new data
    */
   public async incrementalSync(): Promise<SyncResult> {
-    return this.performSync('incremental_sync', async () => {
-      const results: SyncResult[] = []
+    return this.performSync("incremental_sync", async () => {
+      const results: SyncResult[] = [];
 
       // 1. Sync queue first (outgoing changes)
-      results.push(await this.syncQueueItems())
+      results.push(await this.syncQueueItems());
 
       // 2. Sync new messages for each channel since last sync
-      const channels = await channelStorage.getAll()
+      const channels = await channelStorage.getAll();
       for (const channel of channels) {
-        const lastSync = this.lastSyncTime[channel.id]
+        const lastSync = this.lastSyncTime[channel.id];
         if (lastSync) {
-          results.push(await this.syncChannelMessagesSince(channel.id, lastSync))
+          results.push(
+            await this.syncChannelMessagesSince(channel.id, lastSync),
+          );
         } else {
           // First sync for this channel
-          results.push(await this.syncChannelMessages(channel.id, 100))
+          results.push(await this.syncChannelMessages(channel.id, 100));
         }
-        this.lastSyncTime[channel.id] = new Date()
+        this.lastSyncTime[channel.id] = new Date();
       }
 
-      return this.aggregateResults(results)
-    })
+      return this.aggregateResults(results);
+    });
   }
 
   /**
    * Sync a specific channel
    */
   public async syncChannel(channelId: string): Promise<SyncResult> {
-    return this.performSync('channel_sync', async () => {
-      const results: SyncResult[] = []
+    return this.performSync("channel_sync", async () => {
+      const results: SyncResult[] = [];
 
       // Sync channel data
-      results.push(await this.syncChannelData(channelId))
+      results.push(await this.syncChannelData(channelId));
 
       // Sync channel messages
-      results.push(await this.syncChannelMessages(channelId))
+      results.push(await this.syncChannelMessages(channelId));
 
-      this.lastSyncTime[channelId] = new Date()
-      return this.aggregateResults(results)
-    })
+      this.lastSyncTime[channelId] = new Date();
+      return this.aggregateResults(results);
+    });
   }
 
   /**
    * Flush the sync queue
    */
   public async flushQueue(): Promise<SyncResult> {
-    return this.performSync('queue_flush', async () => {
-      return await this.syncQueueItems()
-    })
+    return this.performSync("queue_flush", async () => {
+      return await this.syncQueueItems();
+    });
   }
 
   // ===========================================================================
@@ -233,73 +240,76 @@ export class SyncManager {
    */
   private async performSync(
     operation: SyncOperationType,
-    syncFn: () => Promise<SyncResult>
+    syncFn: () => Promise<SyncResult>,
   ): Promise<SyncResult> {
     if (this.isSyncing) {
-      throw new Error('Sync already in progress')
+      throw new Error("Sync already in progress");
     }
 
     if (this.isPaused) {
-      throw new Error('Sync is paused')
+      throw new Error("Sync is paused");
     }
 
-    const networkDetector = getNetworkDetector()
+    const networkDetector = getNetworkDetector();
     if (!networkDetector.isOnline()) {
-      throw new Error('Cannot sync while offline')
+      throw new Error("Cannot sync while offline");
     }
 
-    this.isSyncing = true
+    this.isSyncing = true;
     this.updateState({
-      status: 'syncing',
+      status: "syncing",
       operation,
       progress: 0,
       itemsProcessed: 0,
       error: null,
-    })
+    });
 
     this.emit({
-      type: 'sync_started',
+      type: "sync_started",
       data: this.state,
       timestamp: new Date(),
-    })
+    });
 
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
-      const result = await syncFn()
-      const duration = Date.now() - startTime
+      const result = await syncFn();
+      const duration = Date.now() - startTime;
 
       this.updateState({
-        status: result.success ? 'completed' : 'failed',
+        status: result.success ? "completed" : "failed",
         operation: null,
         progress: 100,
         lastSyncAt: new Date(),
-        lastSuccessfulSyncAt: result.success ? new Date() : this.state.lastSuccessfulSyncAt,
-        error: result.success ? null : 'Sync completed with errors',
+        lastSuccessfulSyncAt: result.success
+          ? new Date()
+          : this.state.lastSuccessfulSyncAt,
+        error: result.success ? null : "Sync completed with errors",
         pendingChanges: await queueStorage.countPending(),
-      })
+      });
 
       this.emit({
-        type: result.success ? 'sync_completed' : 'sync_failed',
+        type: result.success ? "sync_completed" : "sync_failed",
         data: { ...result, duration },
         timestamp: new Date(),
-      })
+      });
 
-      return { ...result, duration }
+      return { ...result, duration };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown sync error'
-      const duration = Date.now() - startTime
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown sync error";
+      const duration = Date.now() - startTime;
 
       this.updateState({
-        status: 'failed',
+        status: "failed",
         operation: null,
         progress: 0,
         lastSyncAt: new Date(),
         error: errorMessage,
-      })
+      });
 
       this.emit({
-        type: 'sync_failed',
+        type: "sync_failed",
         data: {
           success: false,
           operation,
@@ -307,8 +317,8 @@ export class SyncManager {
           itemsFailed: 0,
           errors: [
             {
-              itemId: 'sync',
-              itemType: 'operation',
+              itemId: "sync",
+              itemType: "operation",
               operation,
               error: errorMessage,
               timestamp: new Date(),
@@ -318,11 +328,11 @@ export class SyncManager {
           timestamp: new Date(),
         },
         timestamp: new Date(),
-      })
+      });
 
-      throw error
+      throw error;
     } finally {
-      this.isSyncing = false
+      this.isSyncing = false;
     }
   }
 
@@ -330,24 +340,24 @@ export class SyncManager {
    * Sync queued items
    */
   private async syncQueueItems(): Promise<SyncResult> {
-    const pending = await queueStorage.getPending()
-    const result = await this.syncQueue.process()
+    const pending = await queueStorage.getPending();
+    const result = await this.syncQueue.process();
 
     return {
       success: result.failed === 0,
-      operation: 'queue_flush',
+      operation: "queue_flush",
       itemsSynced: result.processed,
       itemsFailed: result.failed,
       errors: result.errors.map((e) => ({
         itemId: e.id,
-        itemType: 'queue_item',
-        operation: 'sync',
+        itemType: "queue_item",
+        operation: "sync",
         error: e.error,
         timestamp: new Date(),
       })),
       duration: 0,
       timestamp: new Date(),
-    }
+    };
   }
 
   /**
@@ -358,13 +368,13 @@ export class SyncManager {
     // For now, return empty result
     return {
       success: true,
-      operation: 'channel_sync',
+      operation: "channel_sync",
       itemsSynced: 0,
       itemsFailed: 0,
       errors: [],
       duration: 0,
       timestamp: new Date(),
-    }
+    };
   }
 
   /**
@@ -375,47 +385,53 @@ export class SyncManager {
     // For now, return empty result
     return {
       success: true,
-      operation: 'channel_sync',
+      operation: "channel_sync",
       itemsSynced: 0,
       itemsFailed: 0,
       errors: [],
       duration: 0,
       timestamp: new Date(),
-    }
+    };
   }
 
   /**
    * Sync messages for a channel (limited)
    */
-  private async syncChannelMessages(channelId: string, limit = 1000): Promise<SyncResult> {
+  private async syncChannelMessages(
+    channelId: string,
+    limit = 1000,
+  ): Promise<SyncResult> {
     // Fetch messages from API and update cache
     // For now, return empty result
     return {
       success: true,
-      operation: 'message_sync',
+      operation: "message_sync",
       itemsSynced: 0,
       itemsFailed: 0,
       errors: [],
       duration: 0,
       timestamp: new Date(),
-    }
+    };
   }
 
   /**
    * Sync messages for a channel since a specific time
    */
-  private async syncChannelMessagesSince(channelId: string, since: Date): Promise<SyncResult> {
+  private async syncChannelMessagesSince(
+    channelId: string,
+    since: Date,
+  ): Promise<SyncResult> {
     // Fetch messages from API where createdAt > since
     // For now, return empty result
     return {
       success: true,
-      operation: 'message_sync',
+      operation: "message_sync",
       itemsSynced: 0,
       itemsFailed: 0,
       errors: [],
       duration: 0,
       timestamp: new Date(),
-    }
+    };
   }
 
   /**
@@ -424,13 +440,13 @@ export class SyncManager {
   private aggregateResults(results: SyncResult[]): SyncResult {
     return {
       success: results.every((r) => r.success),
-      operation: results[0]?.operation || 'full_sync',
+      operation: results[0]?.operation || "full_sync",
       itemsSynced: results.reduce((sum, r) => sum + r.itemsSynced, 0),
       itemsFailed: results.reduce((sum, r) => sum + r.itemsFailed, 0),
       errors: results.flatMap((r) => r.errors),
       duration: results.reduce((sum, r) => sum + r.duration, 0),
       timestamp: new Date(),
-    }
+    };
   }
 
   // ===========================================================================
@@ -442,18 +458,18 @@ export class SyncManager {
    */
   public startAutoSync(): void {
     if (this.syncTimer) {
-      return
+      return;
     }
 
     this.syncTimer = setInterval(async () => {
       if (!this.isPaused && !this.isSyncing) {
         try {
-          await this.incrementalSync()
+          await this.incrementalSync();
         } catch (error) {
-          logger.error('[SyncManager] Auto sync failed:', error)
+          logger.error("[SyncManager] Auto sync failed:", error);
         }
       }
-    }, this.config.syncInterval)
+    }, this.config.syncInterval);
   }
 
   /**
@@ -461,8 +477,8 @@ export class SyncManager {
    */
   public stopAutoSync(): void {
     if (this.syncTimer) {
-      clearInterval(this.syncTimer)
-      this.syncTimer = null
+      clearInterval(this.syncTimer);
+      this.syncTimer = null;
     }
   }
 
@@ -470,17 +486,17 @@ export class SyncManager {
    * Pause sync operations
    */
   public pause(): void {
-    this.isPaused = true
-    this.updateState({ status: 'idle' })
-    this.emit({ type: 'sync_paused', timestamp: new Date() })
+    this.isPaused = true;
+    this.updateState({ status: "idle" });
+    this.emit({ type: "sync_paused", timestamp: new Date() });
   }
 
   /**
    * Resume sync operations
    */
   public resume(): void {
-    this.isPaused = false
-    this.emit({ type: 'sync_resumed', timestamp: new Date() })
+    this.isPaused = false;
+    this.emit({ type: "sync_resumed", timestamp: new Date() });
   }
 
   // ===========================================================================
@@ -491,53 +507,64 @@ export class SyncManager {
    * Setup network listeners for auto-reconnect sync
    */
   private setupNetworkListeners(): void {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
-    const networkDetector = getNetworkDetector()
+    const networkDetector = getNetworkDetector();
     networkDetector.subscribe((info) => {
-      if (info.state === 'online' && this.config.syncOnReconnect && !this.isSyncing) {
+      if (
+        info.state === "online" &&
+        this.config.syncOnReconnect &&
+        !this.isSyncing
+      ) {
         // Delay sync slightly to allow connection to stabilize
         setTimeout(() => {
           this.incrementalSync().catch((error) => {
-            logger.error('[SyncManager] Reconnect sync failed:', error)
-          })
-        }, 1000)
+            logger.error("[SyncManager] Reconnect sync failed:", error);
+          });
+        }, 1000);
       }
-    })
+    });
   }
 
   /**
    * Setup battery monitoring for efficient sync
    */
   private setupBatteryMonitoring(): void {
-    if (typeof navigator === 'undefined' || !('getBattery' in navigator)) {
-      return
+    if (typeof navigator === "undefined" || !("getBattery" in navigator)) {
+      return;
     }
 
-    ;(navigator as any)
+    (navigator as any)
       .getBattery()
       .then((battery: any) => {
         const checkBattery = () => {
-          const level = battery.level * 100
-          const charging = battery.charging
+          const level = battery.level * 100;
+          const charging = battery.charging;
 
           // Pause sync if battery is low and not charging
-          if (level < this.config.batteryThreshold && !charging && !this.isPaused) {
+          if (
+            level < this.config.batteryThreshold &&
+            !charging &&
+            !this.isPaused
+          ) {
             // REMOVED: console.log('[SyncManager] Pausing sync due to low battery')
-            this.pause()
-          } else if ((level >= this.config.batteryThreshold || charging) && this.isPaused) {
+            this.pause();
+          } else if (
+            (level >= this.config.batteryThreshold || charging) &&
+            this.isPaused
+          ) {
             // REMOVED: console.log('[SyncManager] Resuming sync - battery ok')
-            this.resume()
+            this.resume();
           }
-        }
+        };
 
-        battery.addEventListener('levelchange', checkBattery)
-        battery.addEventListener('chargingchange', checkBattery)
-        checkBattery()
+        battery.addEventListener("levelchange", checkBattery);
+        battery.addEventListener("chargingchange", checkBattery);
+        checkBattery();
       })
       .catch(() => {
         // Battery API not supported, continue without battery monitoring
-      })
+      });
   }
 
   // ===========================================================================
@@ -548,21 +575,21 @@ export class SyncManager {
    * Get current sync state
    */
   public getState(): SyncState {
-    return { ...this.state }
+    return { ...this.state };
   }
 
   /**
    * Update sync state
    */
   private updateState(updates: Partial<SyncState>): void {
-    this.state = { ...this.state, ...updates }
+    this.state = { ...this.state, ...updates };
   }
 
   /**
    * Check if currently syncing
    */
   public isSyncInProgress(): boolean {
-    return this.isSyncing
+    return this.isSyncing;
   }
 
   // ===========================================================================
@@ -573,8 +600,8 @@ export class SyncManager {
    * Subscribe to sync events
    */
   public subscribe(listener: SyncEventListener): () => void {
-    this.listeners.add(listener)
-    return () => this.listeners.delete(listener)
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
   }
 
   /**
@@ -583,11 +610,11 @@ export class SyncManager {
   private emit(event: SyncEvent): void {
     this.listeners.forEach((listener) => {
       try {
-        listener(event)
+        listener(event);
       } catch (error) {
-        logger.error('[SyncManager] Event listener error:', error)
+        logger.error("[SyncManager] Event listener error:", error);
       }
-    })
+    });
   }
 
   // ===========================================================================
@@ -598,13 +625,13 @@ export class SyncManager {
    * Update configuration
    */
   public setConfig(config: Partial<SyncManagerConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
 
     // Restart auto sync if interval changed
     if (config.syncInterval || config.autoSync !== undefined) {
-      this.stopAutoSync()
+      this.stopAutoSync();
       if (this.config.autoSync) {
-        this.startAutoSync()
+        this.startAutoSync();
       }
     }
   }
@@ -613,7 +640,7 @@ export class SyncManager {
    * Get current configuration
    */
   public getConfig(): SyncManagerConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 }
 
@@ -621,16 +648,18 @@ export class SyncManager {
 // Singleton Instance
 // =============================================================================
 
-let syncManagerInstance: SyncManager | null = null
+let syncManagerInstance: SyncManager | null = null;
 
 /**
  * Get the default sync manager instance
  */
-export function getSyncManager(config?: Partial<SyncManagerConfig>): SyncManager {
+export function getSyncManager(
+  config?: Partial<SyncManagerConfig>,
+): SyncManager {
   if (!syncManagerInstance) {
-    syncManagerInstance = new SyncManager(config)
+    syncManagerInstance = new SyncManager(config);
   }
-  return syncManagerInstance
+  return syncManagerInstance;
 }
 
 /**
@@ -638,9 +667,9 @@ export function getSyncManager(config?: Partial<SyncManagerConfig>): SyncManager
  */
 export function resetSyncManager(): void {
   if (syncManagerInstance) {
-    syncManagerInstance.shutdown()
-    syncManagerInstance = null
+    syncManagerInstance.shutdown();
+    syncManagerInstance = null;
   }
 }
 
-export default SyncManager
+export default SyncManager;

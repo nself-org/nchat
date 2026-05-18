@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Profile Card Component
@@ -10,13 +10,13 @@
  * @version 1.0.0
  */
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { ProfileAvatar } from './profile-avatar'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ProfileAvatar } from "./profile-avatar";
 import {
   AtSign,
   Briefcase,
@@ -32,8 +32,8 @@ import {
   Phone,
   Shield,
   User,
-} from 'lucide-react'
-import type { UserProfileFull } from '@/types/profile'
+} from "lucide-react";
+import type { UserProfileFull } from "@/types/profile";
 
 // ============================================================================
 // Types
@@ -41,19 +41,19 @@ import type { UserProfileFull } from '@/types/profile'
 
 export interface ProfileCardProps {
   /** User profile data */
-  profile: UserProfileFull
+  profile: UserProfileFull;
   /** Whether this is the current user's profile */
-  isCurrentUser?: boolean
+  isCurrentUser?: boolean;
   /** Show compact version */
-  compact?: boolean
+  compact?: boolean;
   /** Called when user wants to message */
-  onMessage?: () => void
+  onMessage?: () => void;
   /** Called when user wants to view full profile */
-  onViewProfile?: () => void
+  onViewProfile?: () => void;
   /** Called when more actions are requested */
-  onMoreActions?: () => void
+  onMoreActions?: () => void;
   /** Additional class names */
-  className?: string
+  className?: string;
 }
 
 // ============================================================================
@@ -61,42 +61,42 @@ export interface ProfileCardProps {
 // ============================================================================
 
 function formatDate(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date
+  const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 function formatLastSeen(date: Date | string | undefined): string {
-  if (!date) return 'Unknown'
-  const d = typeof date === 'string' ? new Date(date) : date
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+  if (!date) return "Unknown";
+  const d = typeof date === "string" ? new Date(date) : date;
+  const now = new Date();
+  const diff = now.getTime() - d.getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes}m ago`
-  if (hours < 24) return `${hours}h ago`
-  if (days < 7) return `${days}d ago`
-  return d.toLocaleDateString()
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return d.toLocaleDateString();
 }
 
 function getRoleBadgeVariant(
-  role: string
-): 'default' | 'secondary' | 'destructive' | 'outline' {
+  role: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (role) {
-    case 'owner':
-      return 'destructive'
-    case 'admin':
-      return 'default'
-    case 'moderator':
-      return 'secondary'
+    case "owner":
+      return "destructive";
+    case "admin":
+      return "default";
+    case "moderator":
+      return "secondary";
     default:
-      return 'outline'
+      return "outline";
   }
 }
 
@@ -114,7 +114,10 @@ export function ProfileCard({
   className,
 }: ProfileCardProps) {
   return (
-    <Card className={cn('overflow-hidden', className)} data-testid="profile-card">
+    <Card
+      className={cn("overflow-hidden", className)}
+      data-testid="profile-card"
+    >
       {/* Banner */}
       {profile.bannerUrl && !compact && (
         <div
@@ -126,28 +129,41 @@ export function ProfileCard({
 
       <CardHeader
         className={cn(
-          'flex flex-row items-start gap-4',
-          profile.bannerUrl && !compact && '-mt-10'
+          "flex flex-row items-start gap-4",
+          profile.bannerUrl && !compact && "-mt-10",
         )}
       >
         {/* Avatar */}
         <ProfileAvatar
           src={profile.photo?.url}
           name={profile.displayName}
-          size={compact ? 'lg' : 'xl'}
+          size={compact ? "lg" : "xl"}
           showOnlineIndicator
-          isOnline={profile.lastSeenAt ? new Date().getTime() - new Date(profile.lastSeenAt).getTime() < 300000 : false}
-          className={profile.bannerUrl && !compact ? 'ring-4 ring-background' : ''}
+          isOnline={
+            profile.lastSeenAt
+              ? new Date().getTime() - new Date(profile.lastSeenAt).getTime() <
+                300000
+              : false
+          }
+          className={
+            profile.bannerUrl && !compact ? "ring-4 ring-background" : ""
+          }
         />
 
         {/* Header Info */}
         <div className="flex-1 space-y-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold" data-testid="profile-display-name">
+            <h3
+              className="text-lg font-semibold"
+              data-testid="profile-display-name"
+            >
               {profile.displayName}
             </h3>
             {profile.isVerified && (
-              <Shield className="h-4 w-4 text-blue-500" data-testid="verified-badge" />
+              <Shield
+                className="h-4 w-4 text-blue-500"
+                data-testid="verified-badge"
+              />
             )}
             {profile.isBot && (
               <Badge variant="outline" className="text-xs">
@@ -170,7 +186,11 @@ export function ProfileCard({
         {!isCurrentUser && (
           <div className="flex gap-2">
             {onMessage && (
-              <Button size="sm" onClick={onMessage} data-testid="message-button">
+              <Button
+                size="sm"
+                onClick={onMessage}
+                data-testid="message-button"
+              >
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Message
               </Button>
@@ -192,7 +212,10 @@ export function ProfileCard({
       <CardContent className="space-y-4">
         {/* Status */}
         {(profile.status || profile.statusEmoji) && (
-          <div className="flex items-center gap-2 text-sm" data-testid="profile-status">
+          <div
+            className="flex items-center gap-2 text-sm"
+            data-testid="profile-status"
+          >
             {profile.statusEmoji && (
               <span className="text-lg">{profile.statusEmoji}</span>
             )}
@@ -286,28 +309,32 @@ export function ProfileCard({
             </div>
 
             {/* Social Links */}
-            {profile.socialLinks && Object.keys(profile.socialLinks).length > 0 && (
-              <>
-                <Separator />
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(profile.socialLinks).map(([platform, url]) => {
-                    if (!url || platform === 'custom') return null
-                    return (
-                      <a
-                        key={platform}
-                        href={typeof url === 'string' ? url : '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                        data-testid={`social-link-${platform}`}
-                      >
-                        {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                      </a>
-                    )
-                  })}
-                </div>
-              </>
-            )}
+            {profile.socialLinks &&
+              Object.keys(profile.socialLinks).length > 0 && (
+                <>
+                  <Separator />
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(profile.socialLinks).map(
+                      ([platform, url]) => {
+                        if (!url || platform === "custom") return null;
+                        return (
+                          <a
+                            key={platform}
+                            href={typeof url === "string" ? url : "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-muted-foreground hover:text-foreground"
+                            data-testid={`social-link-${platform}`}
+                          >
+                            {platform.charAt(0).toUpperCase() +
+                              platform.slice(1)}
+                          </a>
+                        );
+                      },
+                    )}
+                  </div>
+                </>
+              )}
           </>
         )}
 
@@ -325,7 +352,7 @@ export function ProfileCard({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default ProfileCard
+export default ProfileCard;
